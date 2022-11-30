@@ -489,6 +489,7 @@ SafeStore Quarantines File With Same Path And Sha Again And Discards The Previou
     check_log_does_not_contain_after_mark  ${SAFESTORE_LOG_PATH}  has been quarantined before  ${safestore_mark}
     File Should Not Exist   ${SCAN_DIRECTORY}/eicar2.com
 
+
 Threat Detector Triggers SafeStore Rescan On Timeout
     ${ss_mark} =  Get SafeStore Log Mark
     Create Rescan Interval File
@@ -496,7 +497,6 @@ Threat Detector Triggers SafeStore Rescan On Timeout
 
 
 SafeStore Rescan Does Not Restore Or Report Threats
-    ## TODO: LINUXDAR-5921 - Replace rescan trigger with policy change to stop this test being flaky.
     register cleanup    Exclude Watchdog Log Unable To Open File Error
 
     Unpack SafeStore Tools To  ${safestore_tools_unpacked}
@@ -537,14 +537,28 @@ SafeStore Rescan Does Not Restore Or Report Threats
     ${av_mark} =  Get AV Log Mark
     ${ss_mark} =  Get SafeStore Log Mark
 
-    Create Rescan Interval File  30
-    Wait For SafeStore Log Contains After Mark  SafeStore Database Rescan request received.  ${ss_mark}   timeout=35
-    Wait For SafeStore Log Contains After Mark  Rescan found quarantined file still a threat: ${NORMAL_DIRECTORY}/${eicar1}  ${ss_mark}  timeout=15
-    Wait For SafeStore Log Contains After Mark  Rescan found quarantined file still a threat: ${NORMAL_DIRECTORY}/${eicar2}  ${ss_mark}  timeout=15
+    # Trigger Rescan
+    Send CORC Policy To Base  corc_policy.xml
+
+    Wait For SafeStore Log Contains After Mark  Added SHA256 to allow list: c88e20178a82af37a51b030cb3797ed144126cad09193a6c8c7e95957cf9c3f9    ${av_mark}
+    Wait For SafeStore Log Contains After Mark  Triggering rescan of SafeStore database    ${td_mark}
+
+    Wait For SafeStore Log Contains After Mark  SafeStore Database Rescan request received.  ${ss_mark}   timeout=10
+    Wait For SafeStore Log Contains After Mark  Rescan found quarantined file still a threat: ${NORMAL_DIRECTORY}/${eicar1}  ${ss_mark}  timeout=5
+    Wait For SafeStore Log Contains After Mark  Rescan found quarantined file still a threat: ${NORMAL_DIRECTORY}/${eicar2}  ${ss_mark}  timeout=5
     Check Log Does Not Contain After Mark  ${AV_LOG_PATH}   Found 'EICAR-AV-Test'   ${av_mark}
 
 
-Rescan Restores File Added To Allow List
+Threat Detector Rescan Socket Does Not Block Shutdown
+    Stop SafeStore
+    ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
+    Create Rescan Interval File
+    wait_for_log_contains_from_mark  ${td_mark}  Failed to connect to SafeStore Rescan - retrying after sleep
+    Stop sophos_threat_detector
+    wait_for_log_contains_from_mark  ${td_mark}  Stop requested while connecting to SafeStore Rescan
+
+
+Allow Listed Files Are Removed From Quarantine
     Wait Until threat detector running
     Wait Until SafeStore running
 
@@ -571,8 +585,8 @@ Rescan Restores File Added To Allow List
 
     ${ss_mark} =  Get SafeStore Log Mark
 
+    # Trigger Rescan
     Send CORC Policy To Base  corc_policy.xml
-    #Start AV Plugin Process
 
     wait_for_log_contains_from_mark  ${av_mark}  Added SHA256 to allow list: c88e20178a82af37a51b030cb3797ed144126cad09193a6c8c7e95957cf9c3f9
     wait_for_log_contains_from_mark  ${td_mark}  Triggering rescan of SafeStore database
@@ -597,176 +611,6 @@ Rescan Restores File Added To Allow List
     Should Exist  ${allow_listed_threat_file}
 
 
-Threat Detector Rescan Socket Does Not Block Shutdown
-    Stop SafeStore
-    ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
-    Create Rescan Interval File
-    wait_for_log_contains_from_mark  ${td_mark}  Failed to connect to SafeStore Rescan - retrying after sleep
-    Stop sophos_threat_detector
-    wait_for_log_contains_from_mark  ${td_mark}  Stop requested while connecting to SafeStore Rescan
-
-
-Allow Listed Files Are Removed From Quarantine
-    ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
-    Send Flags Policy To Base  flags_policy/flags_safestore_quarantine_ml_enabled.json
-    Wait For Log Contains From Mark  ${av_mark}  SafeStore flag set. Setting SafeStore to enabled.    timeout=60
-    Wait Until SafeStore running
-
-    ${safestore_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
-    ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
-    ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
-
-    # Create threat to scan
-    ${threat_file} =  Set Variable  ${NORMAL_DIRECTORY}/MLengHighScore.exe
-    Create Directory  ${NORMAL_DIRECTORY}/
-    DeObfuscate File  ${RESOURCES_PATH}/file_samples_obfuscated/MLengHighScore.exe  ${threat_file}
-    Register Cleanup  Remove File  ${threat_file}
-    File Should Exist  ${threat_file}
-
-    # Scan threat
-    ${rc}   ${output} =    Run And Return Rc And Output   ${AVSCANNER} ${NORMAL_DIRECTORY}/MLengHighScore.exe
-    Log  ${output}
-    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-    wait_for_log_contains_from_mark  ${safestore_mark}   Quarantined ${NORMAL_DIRECTORY}/MLengHighScore.exe successfully
-
-    File Should Not Exist  ${threat_file}
-
-    # Allow-list the file
-    Send CORC Policy To Base  corc_policy.xml
-    wait_for_log_contains_from_mark  ${av_mark}  Added SHA256 to allow list: c88e20178a82af37a51b030cb3797ed144126cad09193a6c8c7e95957cf9c3f9
-    wait_for_log_contains_from_mark  ${td_mark}  Triggering rescan of SafeStore database
-    wait_for_log_contains_from_mark  ${safestore_mark}  SafeStore Database Rescan request received
-    wait_for_log_contains_from_mark  ${safestore_mark}  Restored file to disk: ${NORMAL_DIRECTORY}/MLengHighScore.exe
-
-    Wait Until Keyword Succeeds
-    ...  10 secs
-    ...  1 secs
-    ...  File Should Exist  ${threat_file}
-
-    # Scan threat
-    ${rc}   ${output} =    Run And Return Rc And Output   ${AVSCANNER} ${NORMAL_DIRECTORY}/MLengHighScore.exe
-    Log  ${output}
-    Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
-
-    # File is allowed and not treated as a threat
-    wait_for_log_contains_from_mark  ${td_mark}  Allowed by SHA256: c88e20178a82af37a51b030cb3797ed144126cad09193a6c8c7e95957cf9c3f9
-
-    # File allowed so should still exist
-    File Should Exist  ${threat_file}
-
-
-AV Plugin Does Not Quarantine File When SafeStore Is Disabled
-    ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
-    Send Flags Policy To Base  flags_policy/flags.json
-    Wait For Log Contains From Mark  ${av_mark}  SafeStore flag not set. Setting SafeStore to disabled.    timeout=60
-
-    ${safestore_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
-    Check avscanner can detect eicar
-
-    Wait For Log Contains From Mark  ${av_mark}  ${SCAN_DIRECTORY}/eicar.com was not quarantined due to SafeStore being disabled
-
-    Wait Until Base Has Core Clean Event
-    ...  alert_id=e52cf957-a0dc-5b12-bad2-561197a5cae4
-    ...  succeeded=0
-    ...  origin=1
-    ...  result=3
-    ...  path=${SCAN_DIRECTORY}/eicar.com
-
-    File Should Exist   ${SCAN_DIRECTORY}/eicar.com
-
-    Unpack SafeStore Tools To  ${safestore_tools_unpacked}
-    ${print_tool_result} =  Run Process  ${safestore_tools_unpacked}/tap_test_output/safestore_print_tool
-    Log  ${print_tool_result.stdout}
-    Should Not Contain  ${print_tool_result.stdout}  eicar.com
-
-
-SafeStore Does Not Quarantine Ml Detection By Default
-    ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
-    Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
-    Wait For Log Contains From Mark  ${av_mark}  SafeStore flag set. Setting SafeStore to enabled.
-    Wait For Log Contains From Mark  ${av_mark}  SafeStore Quarantine ML flag not set. SafeStore will not quarantine ML detections.
-
-    DeObfuscate File  ${RESOURCES_PATH}/file_samples_obfuscated/MLengHighScore.exe  ${NORMAL_DIRECTORY}/MLengHighScore.exe
-
-    ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
-    ${safestore_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
-    Run Process  ${CLI_SCANNER_PATH}  ${NORMAL_DIRECTORY}/MLengHighScore.exe
-
-    Wait For Log Contains From Mark  ${av_mark}  ${NORMAL_DIRECTORY}/MLengHighScore.exe was not quarantined due to being reported as an ML detection
-
-    Wait Until Base Has Core Clean Event
-    ...  alert_id=88b2d8f4-6a29-5e0b-8e01-daf1695a61e9
-    ...  succeeded=0
-    ...  origin=0
-    ...  result=3
-    ...  path=${NORMAL_DIRECTORY}/MLengHighScore.exe
-
-    File Should Exist  ${NORMAL_DIRECTORY}/MLengHighScore.exe
-
-    Unpack SafeStore Tools To  ${safestore_tools_unpacked}
-    ${print_tool_result} =  Run Process  ${safestore_tools_unpacked}/tap_test_output/safestore_print_tool
-    Log  ${print_tool_result.stdout}
-    Should Not Contain  ${print_tool_result.stdout}  MLengHighScore.exe
-
-
-SafeStore Quarantines Ml Detection If Ml Flag Is Enabled
-    ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
-    Send Flags Policy To Base  flags_policy/flags_safestore_quarantine_ml_enabled.json
-    Wait For Log Contains From Mark  ${av_mark}  SafeStore flag set. Setting SafeStore to enabled.
-    Wait For Log Contains From Mark  ${av_mark}  SafeStore Quarantine ML flag set. SafeStore will quarantine ML detections.
-
-    DeObfuscate File  ${RESOURCES_PATH}/file_samples_obfuscated/MLengHighScore.exe  ${NORMAL_DIRECTORY}/MLengHighScore.exe
-
-    ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
-    ${safestore_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
-    Run Process  ${CLI_SCANNER_PATH}  ${NORMAL_DIRECTORY}/MLengHighScore.exe
-
-    Wait For Log Contains From Mark  ${safestore_mark}  Finalised file: ${NORMAL_DIRECTORY}/MLengHighScore.exe
-    Wait For Log Contains From Mark  ${av_mark}  Quarantine succeeded
-
-    File Should Not Exist  ${NORMAL_DIRECTORY}/MLengHighScore.exe
-
-    Wait Until Base Has Core Clean Event
-    ...  alert_id=88b2d8f4-6a29-5e0b-8e01-daf1695a61e9
-    ...  succeeded=1
-    ...  origin=0
-    ...  result=0
-    ...  path=${NORMAL_DIRECTORY}/MLengHighScore.exe
-
-    Unpack SafeStore Tools To  ${safestore_tools_unpacked}
-    ${print_tool_result} =  Run Process  ${safestore_tools_unpacked}/tap_test_output/safestore_print_tool
-    Log  ${print_tool_result.stdout}
-    Should Contain  ${print_tool_result.stdout}  MLengHighScore.exe
-
-
-SafeStore Does Not Quarantine Pua Detection
-    ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
-    Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
-    Wait For Log Contains From Mark  ${av_mark}  SafeStore flag set. Setting SafeStore to enabled.
-
-    DeObfuscate File  ${RESOURCES_PATH}/file_samples_obfuscated/PsExec.exe  ${NORMAL_DIRECTORY}/PsExec.exe
-
-    ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
-    ${safestore_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
-    Run Process  ${CLI_SCANNER_PATH}  ${NORMAL_DIRECTORY}/PsExec.exe
-
-    Wait For Log Contains From Mark  ${av_mark}  ${NORMAL_DIRECTORY}/PsExec.exe was not quarantined due to being a PUA
-
-    Wait Until Base Has Core Clean Event
-    ...  alert_id=ca835a27-afe8-5e24-888c-5284c0ea4ac8
-    ...  succeeded=0
-    ...  origin=3
-    ...  result=3
-    ...  path=${NORMAL_DIRECTORY}/PsExec.exe
-
-    File Should Exist  ${NORMAL_DIRECTORY}/PsExec.exe
-
-    Unpack SafeStore Tools To  ${safestore_tools_unpacked}
-    ${print_tool_result} =  Run Process  ${safestore_tools_unpacked}/tap_test_output/safestore_print_tool
-    Log  ${print_tool_result.stdout}
-    Should Not Contain  ${print_tool_result.stdout}  PsExec.exe
-
-
 *** Keywords ***
 SafeStore Test Setup
     Require Plugin Installed and Running  DEBUG
@@ -775,11 +619,6 @@ SafeStore Test Setup
     Wait Until SafeStore Started Successfully
 
     Set Suite Variable  ${safestore_tools_unpacked}  /tmp/safestoretools/tap_test_output
-    Create Directory  ${NORMAL_DIRECTORY}
-
-    # Start from known place with a CORC policy with an empty allow list
-    Register Cleanup   Remove File  ${MCS_PATH}/policy/CORC_policy.xml
-    Send CORC Policy To Base  corc_policy_empty_allowlist.xml
 
     Get AV Log Mark
     Mark Sophos Threat Detector Log
