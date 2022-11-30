@@ -1,7 +1,8 @@
-// Copyright 2022, Sophos Limited.  All rights reserved.
+// Copyright 2022 Sophos Limited. All rights reserved.
 
 // This binary will print the details of objects in the SafeStore database, useful for manual testing and TAP tests.
 
+#include "common/StringUtils.h"
 #include "safestore/SafeStoreWrapper/SafeStoreWrapperImpl.h"
 
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
@@ -58,21 +59,23 @@ int main()
     // Check SafeStore dir exists.
     if (!fileSystem->isDirectory(safestoreDbDir))
     {
-        std::cout << "SafeStore DB dir (" << safestoreDbDir << ") does not exist, is the product installed?"<< std::endl;;
+        std::cout << "SafeStore DB dir (" << safestoreDbDir << ") does not exist, is the product installed?"
+                  << std::endl;
         return 1;
     }
 
     // Check SafeStore database file exists.
     if (!fileSystem->isFile(safestoreDbFile))
     {
-        std::cout << "SafeStore DB file (" << safestoreDbFile << ") does not exist, did SafeStore initialise OK?"<< std::endl;;
+        std::cout << "SafeStore DB file (" << safestoreDbFile << ") does not exist, did SafeStore initialise OK?"
+                  << std::endl;
         return 2;
     }
 
     // Check SafeStore password file exists.
     if (!fileSystem->isFile(safestoreDbPwFile))
     {
-        std::cout << "SafeStore DB password file (" << safestoreDbPwFile << ") does not exist."<< std::endl;;
+        std::cout << "SafeStore DB password file (" << safestoreDbPwFile << ") does not exist." << std::endl;
         return 3;
     }
 
@@ -129,9 +132,12 @@ int main()
     // Perform search to get all objects and then print object details
     for (auto& result : safeStoreWrapper->find(filter))
     {
-        std::cout << "Object Name: " << safeStoreWrapper->getObjectName(result) << std::endl;
+        const std::string escapedName = common::escapePathForLogging(safeStoreWrapper->getObjectName(result));
+        const std::string escapedLocation = common::escapePathForLogging(safeStoreWrapper->getObjectLocation(result));
+        std::cout << "Object Name: " << escapedName << std::endl;
+        std::cout << "Object Location: " << escapedLocation << std::endl;
 
-        std::cout << "Object Type: " ;
+        std::cout << "Object Type: ";
         switch (safeStoreWrapper->getObjectType(result))
         {
             case ObjectType::ANY:
@@ -174,7 +180,8 @@ int main()
         std::cout << "Object Store Time: " << safeStoreWrapper->getObjectStoreTime(result) << std::endl;
         std::cout << "Object Threat ID: " << safeStoreWrapper->getObjectThreatId(result) << std::endl;
         std::cout << "Object Threat Name: " << safeStoreWrapper->getObjectThreatName(result) << std::endl;
-        std::cout << "Object Custom Data (SHA256): " << safeStoreWrapper->getObjectCustomDataString(result, "SHA256") << std::endl;
+        std::cout << "Object Custom Data (SHA256): " << safeStoreWrapper->getObjectCustomDataString(result, "SHA256")
+                  << std::endl;
         std::cout << std::endl;
     }
 
