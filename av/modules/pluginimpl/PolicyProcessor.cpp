@@ -501,7 +501,6 @@ namespace Plugin
             return now + MAX_TIMEOUT;
         }
     }
-}
 
     void PolicyProcessor::processCorcPolicy(const Common::XmlUtilities::AttributesMap& policy)
     {
