@@ -172,16 +172,13 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     Check Event Journaler Executable Running
     Check AV Plugin Permissions
     Check Update Reports Have Been Processed
-    SHS Status File Contains  ${HealthyShsStatusXmlContents}
 
-    # This will turn health bad because "Check AV Plugin Can Scan Files" scans an eicar.
     Check AV Plugin Can Scan Files
-    ## MA waits up to 120 seconds after an update before it starts generating SHS status again
-    ## this is so it doesn't report bad health for plugin services that are starting up again
     Wait Until Keyword Succeeds
-    ...  130 secs
-    ...  20 secs
-    ...  SHS Status File Contains  <item name="threat" value="2" />
+    ...    30 secs
+    ...    1 secs
+    ...    Check SafeStore Log Contains    Quarantined dirty_file successfully
+    SHS Status File Contains  ${HealthyShsStatusXmlContents}
 
 We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     [Timeout]  10 minutes
