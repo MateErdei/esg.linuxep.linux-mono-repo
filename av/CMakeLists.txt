@@ -216,10 +216,6 @@ find_library(CRYPTO_LIBRARY
         )
 
 set(SAFESTORE_INPUT ${INPUT}/safestore_input)
-execute_process (
-        COMMAND ln -sf  libsafestore.so.1 libsafestore.so
-        WORKING_DIRECTORY ${SAFESTORE_INPUT})
-
 find_library(SAFESTORE_LIB
         NAMES safestore
         PATHS ${SAFESTORE_INPUT}
