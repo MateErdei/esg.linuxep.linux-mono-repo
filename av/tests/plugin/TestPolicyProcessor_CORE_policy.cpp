@@ -25,7 +25,6 @@ namespace
             m_susiStartupConfigChrootPath = std::string(m_testDir / "chroot") + m_susiStartupConfigPath;
             m_soapConfigPath = m_testDir / "var/soapd_config.json";
             m_soapFlagConfigPath = m_testDir / "var/oa_flag.json";
-            m_customerIdPath = m_testDir / "var/customer_id.txt";
         }
 
         void TearDown() override
@@ -55,7 +54,6 @@ namespace
         std::string m_susiStartupConfigChrootPath;
         std::string m_soapConfigPath;
         std::string m_soapFlagConfigPath;
-        std::string m_customerIdPath;
     };
 }
 

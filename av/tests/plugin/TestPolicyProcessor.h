@@ -30,6 +30,7 @@ namespace
     protected:
         fs::path m_testDir;
         std::unique_ptr<StrictMock<MockFileSystem>> m_mockIFileSystemPtr;
+        std::string m_customerIdPath;
 
         void createTestDir()
         {
@@ -49,6 +50,7 @@ namespace
         {
             createTestDir();
             m_mockIFileSystemPtr = std::make_unique<StrictMock<MockFileSystem>>();
+            m_customerIdPath = m_testDir / "var/customer_id.txt";
         }
     };
 }

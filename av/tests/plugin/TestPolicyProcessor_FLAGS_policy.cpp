@@ -22,7 +22,6 @@ namespace
         {
             setupBase();
             m_soapFlagConfigPath = m_testDir / "var/oa_flag.json";
-            m_customerIdPath = m_testDir / "var/customer_id.txt";
         }
 
         void TearDown() override
@@ -41,7 +40,6 @@ namespace
         }
 
         std::string m_soapFlagConfigPath;
-        std::string m_customerIdPath;
     };
 }
 
