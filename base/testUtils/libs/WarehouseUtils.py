@@ -798,7 +798,8 @@ class WarehouseUtils(object):
         for package in packages:
             if package.startswith(product_name):
                 version = package[len(product_name)+1:-15]
-                return version
+                if not version.endswith("9.999"):
+                    return version
 
     def second_version_is_lower(self, version1, version2):
         return version.parse(version1) > version.parse(version2)
