@@ -1,22 +1,28 @@
 // Copyright 2020-2022 Sophos Limited. All rights reserved.
 
+// Class
 #include "PolicyProcessor.h"
 
+// Package
 #include "Logger.h"
 #include "StringUtils.h"
 
+// Plugin
 #include "common/ApplicationPaths.h"
 #include "common/StringUtils.h"
 #include "pluginimpl/ObfuscationImpl/Obfuscate.h"
 #include "unixsocket/processControllerSocket/ProcessControllerClient.h"
 
+// Product
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "Common/FileSystem/IFileSystem.h"
 #include "Common/FileSystem/IFileSystemException.h"
 #include "Common/TelemetryHelperImpl/TelemetryHelper.h"
 
+// Std C
 #include <sys/stat.h>
 
+// Third party
 #include <thirdparty/nlohmann-json/json.hpp>
 
 using json = nlohmann::json;
