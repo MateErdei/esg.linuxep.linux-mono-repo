@@ -197,3 +197,15 @@ Corrupt Threat Database Telemetry Is Reported
 
     Check AV Telemetry        corrupt-threat-database    ${True}
 
+SafeStore Telemetry Is Incremented When Database Is Deleted
+    Install With Base SDDS
+    Wait Until SafeStore running
+
+    ${safestoreMark} =  Mark Log Size    ${SAFESTORE_LOG_PATH}
+    Corrupt SafeStore Database
+    Wait For Log Contains From Mark  ${safestoreMark}  Quarantine database deletion successful    200
+
+    Check SafeStore Telemetry    database-deletions   1
+
+    Wait For Log Contains From Mark  ${safestoreMark}  Quarantine Manager initialised OK
+

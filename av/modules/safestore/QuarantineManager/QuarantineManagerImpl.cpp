@@ -7,6 +7,7 @@
 #include "common/StringUtils.h"
 #include "datatypes/SystemCallWrapper.h"
 #include "safestore/Logger.h"
+#include "safestore/SafeStoreTelemetryConsts.h"
 #include "safestore/SafeStoreWrapper/SafeStoreWrapperImpl.h"
 #include "scan_messages/ClientScanRequest.h"
 #include "unixsocket/threatDetectorSocket/ScanningClientSocket.h"
@@ -16,6 +17,7 @@
 #include "Common/FileSystem/IFilePermissions.h"
 #include "Common/FileSystem/IFileSystem.h"
 #include "Common/FileSystem/IFileSystemException.h"
+#include "Common/TelemetryHelperImpl/TelemetryHelper.h"
 #include "Common/UtilityImpl/Uuid.h"
 
 #include <boost/uuid/uuid.hpp>
@@ -333,6 +335,7 @@ namespace safestore::QuarantineManager
                 fileSystem->removeFilesInDirectory(safeStoreDbDir);
                 setState(QuarantineManagerState::UNINITIALISED);
                 m_databaseErrorCount = 0;
+                Common::Telemetry::TelemetryHelper::getInstance().increment(telemetrySafeStoreDatabaseDeletions, 1ul);
                 LOGDEBUG("Quarantine database deletion successful");
             }
             return true;
