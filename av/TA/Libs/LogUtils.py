@@ -992,8 +992,8 @@ File Log Contains
         for string in expected_items:
             encoded_expected.append(string.encode("UTF-8"))
 
-        handler = self.get_log_handler(log_path)
-        contents = handler.get_contents(mark)
+        mark.assert_is_good(log_path)
+        contents = mark.get_contents()
         index = 0
 
         for string in encoded_expected:
