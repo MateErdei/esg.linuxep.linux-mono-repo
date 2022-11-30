@@ -18,6 +18,12 @@ def ensure_binary(s, encoding="UTF-8"):
     return s
 
 
+def ensure_unicode(s, encoding="UTF-8"):
+    if isinstance(s, six.binary_type):
+        return s.decode(encoding, errors="backslashreplace")
+    return s
+
+
 class LogMark:
     def __init__(self, log_path):
         self.__m_log_path = log_path

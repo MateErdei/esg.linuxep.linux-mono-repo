@@ -373,10 +373,18 @@ On Access Logs When A File Is Closed Following Write After Being Disabled
 On Access Process Handles Consecutive Process Control Requests
     ${mark} =  get_on_access_log_mark
     send av policy from file  FLAGS  ${RESOURCES_PATH}/flags_policy/flags_onaccess_enabled.json
-    wait for on access log contains after mark  No policy override, following policy settings  mark=${mark}
+    wait_for_on_access_log_contains_expected_after_unexpected
+    ...  expected=No policy override, following policy settings
+    ...  not_expected=Overriding policy, on-access will be disabled
+    ...  timeout=${5}
+    ...  mark=${mark}
 
+    ${mark} =  get_on_access_log_mark
     send av policy from file  CORE   ${RESOURCES_PATH}/core_policy/CORE-36_oa_enabled.xml
-    wait for on access log contains after mark  New on-access configuration: {"enabled":true  mark=${mark}
+    wait_for_on_access_log_contains_expected_after_unexpected
+    ...  expected=New on-access configuration: {"enabled":true
+    ...  not_expected=New on-access configuration: {"enabled":false
+    ...  mark=${mark}
 
     ${mark} =  get_on_access_log_mark
     send av policy from file  CORE   ${RESOURCES_PATH}/core_policy/CORE-36_oa_disabled.xml
