@@ -636,23 +636,23 @@ Allow Listed Files Are Removed From Quarantine
     wait_for_log_contains_from_mark  ${av_mark}  Added SHA256 to allow list: c88e20178a82af37a51b030cb3797ed144126cad09193a6c8c7e95957cf9c3f9
     wait_for_log_contains_from_mark  ${td_mark}  Triggering rescan of SafeStore database
     wait_for_log_contains_from_mark  ${safestore_mark}  SafeStore Database Rescan request received
+    wait_for_log_contains_from_mark  ${safestore_mark}  Restored file to disk: ${NORMAL_DIRECTORY}/MLengHighScore.exe
 
-    # TODO LINUXDAR-5918 when file restoring is completed enable this section of the test
-    #Wait Until Keyword Succeeds
-    #...  10 secs
-    #...  1 secs
-    #...  File Should Exist  ${threat_file}
-    #
-    ## Scan threat
-    #${rc}   ${output} =    Run And Return Rc And Output   ${AVSCANNER} ${NORMAL_DIRECTORY}/MLengHighScore.exe
-    #Log  ${output}
-    #Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
-    #
-    ## File is allowed and not treated as a threat
-    #wait_for_log_contains_from_mark  ${td_mark}  Allowed by SHA256: c88e20178a82af37a51b030cb3797ed144126cad09193a6c8c7e95957cf9c3f9
-    #
-    ## File allowed so should still exist
-    #File Should Exist  ${threat_file}
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  1 secs
+    ...  File Should Exist  ${threat_file}
+
+    # Scan threat
+    ${rc}   ${output} =    Run And Return Rc And Output   ${AVSCANNER} ${NORMAL_DIRECTORY}/MLengHighScore.exe
+    Log  ${output}
+    Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
+
+    # File is allowed and not treated as a threat
+    wait_for_log_contains_from_mark  ${td_mark}  Allowed by SHA256: c88e20178a82af37a51b030cb3797ed144126cad09193a6c8c7e95957cf9c3f9
+
+    # File allowed so should still exist
+    File Should Exist  ${threat_file}
 
 
 AV Plugin Does Not Quarantine File When SafeStore Is Disabled
