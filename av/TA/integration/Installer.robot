@@ -133,8 +133,6 @@ IDE update during command line scan
     END
 
 On access gets IDE update
-#    TODO: Remove after LINUXDAR-6018 is fixed
-    [Tags]  manual
     Send Policies to enable on-access
 
     On-access Scan Eicar Close
@@ -144,6 +142,35 @@ On access gets IDE update
 
     On-access Scan Eicar Close
     On-access Scan Peend
+
+On access gets IDE update to all scanners
+    Send Policies to enable on-access
+    On-access Scan Eicar Close
+
+    On-access Scan Multiple Peend no detect
+
+    Replace Virus Data With Test Dataset A And Run IDE update with SUSI loaded
+
+    On-access Scan Multiple Peend
+
+On access gets IDE update to new scanners
+    # restart on-access to ensure scanners are not initialized
+    Send Policies to disable on-access
+    Sleep   0.5s   Wait for on-access to stop
+    # exclude most directories so we don't use all the scanners until after the update
+    Send Policies to enable on-access with exclusions
+    On-access Scan Eicar Close
+
+    On-access Scan Peend no detect
+
+    Replace Virus Data With Test Dataset A And Run IDE update with SUSI loaded
+
+    ${td_mark} =   get_sophos_threat_detector_log_mark
+    On-access Scan Multiple Peend
+    # ensure that we used at least one new scanner (for LINUXDAR-6018)
+    check_sophos_threat_detector_log_contains_after_mark   Creating SUSI scanner   mark=${td_mark}
+    check_sophos_threat_detector_log_contains_after_mark   Created SUSI scanner   mark=${td_mark}
+
 
 On access continues during update
     Mark On Access Log

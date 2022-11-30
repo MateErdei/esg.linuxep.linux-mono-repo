@@ -63,6 +63,13 @@ Send Policies to enable on-access
     Send Sav Policy To Base  SAV-2_policy_OA_enabled.xml
     Wait for on access to be enabled  ${mark}
 
+Send Policies to enable on-access with exclusions
+    ${mark} =  get_on_access_log_mark
+    Register Cleanup   Send Policies to disable on-access
+    Send Flags Policy To Base  flags_policy/flags_onaccess_enabled.json
+    Send Sav Policy To Base  SAV-2_policy_OA_enabled_with_exclusions.xml
+    Wait for on access to be enabled  ${mark}
+
 Send Policies to disable on-access
     ${mark} =  get_on_access_log_mark
     Send Sav Policy To Base  SAV-2_policy_OA_disabled.xml

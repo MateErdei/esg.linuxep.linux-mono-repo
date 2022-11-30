@@ -33,11 +33,18 @@
     </macExclusions>
     <linuxExclusions>
       <filePathSet>
+        <filePath>/bin/</filePath>
+        <filePath>/etc/</filePath>
+        <filePath>/lib/</filePath>
         <filePath>/mnt/</filePath>
+        <filePath>/opt/</filePath>
         <filePath>/uk-filer5/</filePath>
-        <filePath>*excluded*</filePath>
-        <filePath>/opt/test/inputs/test_scripts/</filePath>
+        <filePath>/sbin/</filePath>
+        <filePath>/tmp/</filePath>
+        <filePath>/usr/</filePath>
         <filePath>/vagrant/</filePath>
+        <filePath>/var/</filePath>
+        <filePath>*excluded*</filePath>
       </filePathSet>
       <excludeRemoteFiles>false</excludeRemoteFiles>
     </linuxExclusions>

@@ -217,3 +217,36 @@ On-access Scan Peend no detect
 
     LogUtils.Check On Access Log Does Not Contain Before Timeout  "${filepath}" is infected with ${threat_name} \   mark=${mark}  timeout=5
 
+
+On-access Scan Multiple Peend
+    ${threat_file} =   Set Variable   ${RESOURCES_PATH}/file_samples/peend.exe
+    ${threat_name} =   Set Variable   PE/ENDTEST
+    ${peend} =   Get Binary File  ${threat_file}
+
+    ${mark} =  get_on_access_log_mark
+    Register Cleanup  Empty Directory  /tmp_test/
+    FOR  ${item}  IN RANGE  20
+        ${filepath} =  Set Variable  /tmp_test/peend-${item}.exe
+        Create Binary File   ${filepath}   ${peend}
+    END
+
+    FOR  ${item}  IN RANGE  20
+        ${filepath} =  Set Variable  /tmp_test/peend-${item}.exe
+        wait_for_on_access_log_contains_after_mark  On-close event for ${filepath} from \  mark=${mark}
+        wait_for_on_access_log_contains_after_mark  "${filepath}" is infected with ${threat_name} \   mark=${mark}
+    END
+
+On-access Scan Multiple Peend no detect
+    ${threat_file} =   Set Variable   ${RESOURCES_PATH}/file_samples/peend.exe
+    ${threat_name} =   Set Variable   PE/ENDTEST
+    ${peend} =   Get Binary File  ${threat_file}
+
+    ${mark} =  get_on_access_log_mark
+    Register Cleanup  Empty Directory  /tmp_test/
+    FOR  ${item}  IN RANGE  20
+        ${filepath} =  Set Variable  /tmp_test/peend-${item}.exe
+        Create Binary File   ${filepath}   ${peend}
+    END
+
+    LogUtils.Check On Access Log Does Not Contain Before Timeout  \ is infected with ${threat_name} \   mark=${mark}  timeout=5
+
