@@ -174,10 +174,6 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     Check Update Reports Have Been Processed
 
     Check AV Plugin Can Scan Files
-    Wait Until Keyword Succeeds
-    ...    30 secs
-    ...    1 secs
-    ...    Check SafeStore Log Contains    Quarantined dirty_file successfully
     SHS Status File Contains  ${HealthyShsStatusXmlContents}
 
 We Can Downgrade From VUT to Dogfood Without Unexpected Errors
