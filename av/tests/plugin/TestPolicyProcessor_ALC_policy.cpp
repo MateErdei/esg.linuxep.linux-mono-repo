@@ -19,7 +19,7 @@ namespace fs = sophos_filesystem;
 
 namespace
 {
-    class TestPolicyProcessor_ALC_policy : public PluginMemoryAppenderUsingTests
+    class TestPolicyProcessor_ALC_policy : public TestPolicyProcessorBase
     {
     protected:
         fs::path m_testDir;

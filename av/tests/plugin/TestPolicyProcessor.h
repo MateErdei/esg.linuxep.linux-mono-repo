@@ -2,6 +2,8 @@
 
 #pragma once
 
+#include "PluginMemoryAppenderUsingTests.h"
+
 #include "pluginimpl/PolicyProcessor.h"
 
 #include "datatypes/Print.h"
@@ -11,13 +13,15 @@ namespace
     class PolicyProcessorUnitTestClass : public Plugin::PolicyProcessor
     {
     public:
-        PolicyProcessorUnitTestClass()
-            : Plugin::PolicyProcessor(nullptr)
-        {}
+        PolicyProcessorUnitTestClass() : Plugin::PolicyProcessor(nullptr) {}
+
     protected:
-        void notifyOnAccessProcessIfRequired() override
-        {
-            PRINT("Notified soapd");
-        }
+        void notifyOnAccessProcessIfRequired() override { PRINT("Notified soapd"); }
+    };
+
+    class TestPolicyProcessorBase : public PluginMemoryAppenderUsingTests
+    {
+    protected:
+
     };
 }
