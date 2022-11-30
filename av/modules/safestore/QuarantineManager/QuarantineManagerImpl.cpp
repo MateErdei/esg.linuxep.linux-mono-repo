@@ -3,6 +3,7 @@
 #include "QuarantineManagerImpl.h"
 
 #include "common/ApplicationPaths.h"
+#include "common/SaferStrerror.h"
 #include "common/StringUtils.h"
 #include "datatypes/SystemCallWrapper.h"
 #include "safestore/Logger.h"
@@ -551,7 +552,7 @@ namespace safestore::QuarantineManager
             auto connectResult = socket.connect();
             if (connectResult != 0)
             {
-                response.setErrorMsg("Failed to connect");
+                response.setErrorMsg("Failed to connect: " + common::safer_strerror(errno));
                 return response;
             }
         }
