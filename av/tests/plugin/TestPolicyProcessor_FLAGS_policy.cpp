@@ -20,10 +20,9 @@ namespace
     protected:
         void SetUp() override
         {
-            createTestDir();
+            setupBase();
             m_soapFlagConfigPath = m_testDir / "var/oa_flag.json";
             m_customerIdPath = m_testDir / "var/customer_id.txt";
-            m_mockIFileSystemPtr = std::make_unique<StrictMock<MockFileSystem>>();
         }
 
         void TearDown() override

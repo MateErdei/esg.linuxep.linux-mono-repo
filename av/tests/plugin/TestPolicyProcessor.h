@@ -44,5 +44,11 @@ namespace
             appConfig.setData(Common::ApplicationConfiguration::SOPHOS_INSTALL, m_testDir );
             appConfig.setData("PLUGIN_INSTALL", m_testDir );
         }
+
+        void setupBase()
+        {
+            createTestDir();
+            m_mockIFileSystemPtr = std::make_unique<StrictMock<MockFileSystem>>();
+        }
     };
 }
