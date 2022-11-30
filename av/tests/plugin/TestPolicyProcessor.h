@@ -6,7 +6,10 @@
 
 #include "pluginimpl/PolicyProcessor.h"
 
+#include "datatypes/sophos_filesystem.h"
 #include "datatypes/Print.h"
+
+namespace fs = sophos_filesystem;
 
 namespace
 {
@@ -22,6 +25,7 @@ namespace
     class TestPolicyProcessorBase : public PluginMemoryAppenderUsingTests
     {
     protected:
+        fs::path m_testDir;
 
     };
 }
