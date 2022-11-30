@@ -949,8 +949,12 @@ File Log Contains
         self.__m_marked_log_position[logpath] = mark  # Save the most recent marked position
         return mark
 
-    def wait_for_log_contains_from_mark(self, mark: LogHandler.LogMark, expected, timeout=10) -> None:
+    def wait_for_log_contains_from_mark(self,
+                                        mark: LogHandler.LogMark,
+                                        expected: typing.Union[str, bytes],
+                                        timeout=10) -> None:
         assert mark is not None
+        assert expected is not None
         assert isinstance(mark, LogHandler.LogMark), "mark is not an instance of LogMark in wait_for_log_contains_from_mark"
         return mark.wait_for_log_contains_from_mark(expected, timeout)
 

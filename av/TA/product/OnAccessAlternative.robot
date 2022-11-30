@@ -371,20 +371,14 @@ On Access Logs When A File Is Closed Following Write After Being Disabled
 
 
 On Access Process Handles Consecutive Process Control Requests
-    ${mark} =  get_on_access_log_mark
+    ${av_mark} =  get_av_log_mark
     send av policy from file  FLAGS  ${RESOURCES_PATH}/flags_policy/flags_onaccess_enabled.json
-    wait_for_on_access_log_contains_expected_after_unexpected
-    ...  expected=No policy override, following policy settings
-    ...  not_expected=Overriding policy, on-access will be disabled
-    ...  timeout=${5}
-    ...  mark=${mark}
-
-    ${mark} =  get_on_access_log_mark
     send av policy from file  CORE   ${RESOURCES_PATH}/core_policy/CORE-36_oa_enabled.xml
-    wait_for_on_access_log_contains_expected_after_unexpected
-    ...  expected=New on-access configuration: {"enabled":true
-    ...  not_expected=New on-access configuration: {"enabled":false
-    ...  mark=${mark}
+
+    wait_for_log_contains_from_mark  ${av_mark}  Processing On Access Scanning settings from CORE policy  timeout=${5}
+    Sleep  ${1}
+
+    dump_av_log_after_mark  ${av_mark}
 
     ${mark} =  get_on_access_log_mark
     send av policy from file  CORE   ${RESOURCES_PATH}/core_policy/CORE-36_oa_disabled.xml
@@ -393,7 +387,10 @@ On Access Process Handles Consecutive Process Control Requests
 
     send av policy from file  FLAGS  ${RESOURCES_PATH}/flags_policy/flags.json
     wait for on access log contains after mark  Overriding policy, on-access will be disabled  mark=${mark}
-    wait for log to not contain after mark  ${ON_ACCESS_LOG_PATH}  mount points in on-access scanning  mark=${mark}  timeout=${5}
+    wait for log to not contain after mark  ${ON_ACCESS_LOG_PATH}  mount points in on-access scanning  mark=${mark}  timeout=${3}
+
+    send av policy from file  FLAGS  ${RESOURCES_PATH}/flags_policy/flags_onaccess_enabled.json
+    wait for on access log contains after mark  No policy override, following policy settings  mark=${mark}
 
     On-access No Eicar Scan
 
