@@ -20,11 +20,6 @@ namespace
         {
             setupBase();
         }
-
-        void TearDown() override
-        {
-            fs::remove_all(m_testDir);
-        }
     };
 }
 

@@ -53,6 +53,11 @@ namespace
             m_customerIdPath = m_testDir / "var/customer_id.txt";
         }
 
+        void TearDown() override
+        {
+            fs::remove_all(m_testDir);
+        }
+
         void expectReadCustomerIdOnce()
         {
             EXPECT_CALL(*m_mockIFileSystemPtr, readFile(m_customerIdPath)).WillOnce(Return(""));

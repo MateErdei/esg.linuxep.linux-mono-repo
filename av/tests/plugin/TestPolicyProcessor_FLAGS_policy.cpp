@@ -24,11 +24,6 @@ namespace
             m_soapFlagConfigPath = m_testDir / "var/oa_flag.json";
         }
 
-        void TearDown() override
-        {
-            fs::remove_all(m_testDir);
-        }
-
         void expectReadConfigFile()
         {
             EXPECT_CALL(*m_mockIFileSystemPtr, readFile(m_soapFlagConfigPath)).WillOnce(Return("{}"));
