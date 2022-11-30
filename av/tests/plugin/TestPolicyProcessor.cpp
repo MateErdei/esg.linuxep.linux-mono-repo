@@ -2,14 +2,9 @@
 
 #include "TestPolicyProcessor.h"
 
-#include "PluginMemoryAppenderUsingTests.h"
-
 #include <Common/Helpers/MockFileSystem.h>
 #include <Common/Helpers/FileSystemReplaceAndRestore.h>
 #include <Common/FileSystem/IFileSystemException.h>
-#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
-
-#include <thirdparty/nlohmann-json/json.hpp>
 
 #include <gtest/gtest.h>
 
@@ -23,10 +18,6 @@ namespace
         void SetUp() override
         {
             createTestDir();
-            auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
-            appConfig.setData(Common::ApplicationConfiguration::SOPHOS_INSTALL, m_testDir );
-            appConfig.setData("PLUGIN_INSTALL", m_testDir );
-            
             m_susiStartupConfigPath = m_testDir / "var/susi_startup_settings.json";
             m_susiStartupConfigChrootPath = std::string(m_testDir / "chroot") + m_susiStartupConfigPath;
             m_soapConfigPath = m_testDir / "var/soapd_config.json";

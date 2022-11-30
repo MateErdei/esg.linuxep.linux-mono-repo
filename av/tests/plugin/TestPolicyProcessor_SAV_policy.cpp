@@ -2,16 +2,11 @@
 
 #include "TestPolicyProcessor.h"
 
-#include "PluginMemoryAppenderUsingTests.h"
-
 #include "datatypes/sophos_filesystem.h"
 
 #include <Common/Helpers/MockFileSystem.h>
 #include <Common/Helpers/FileSystemReplaceAndRestore.h>
 #include <Common/FileSystem/IFileSystemException.h>
-#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
-
-#include <thirdparty/nlohmann-json/json.hpp>
 
 #include <gtest/gtest.h>
 

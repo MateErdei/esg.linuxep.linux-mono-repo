@@ -9,6 +9,8 @@
 #include "datatypes/sophos_filesystem.h"
 #include "datatypes/Print.h"
 
+#include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
+
 namespace fs = sophos_filesystem;
 
 namespace
@@ -35,6 +37,10 @@ namespace
             m_testDir /= test_info->name();
             fs::remove_all(m_testDir);
             fs::create_directories(m_testDir);
+
+            auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
+            appConfig.setData(Common::ApplicationConfiguration::SOPHOS_INSTALL, m_testDir );
+            appConfig.setData("PLUGIN_INSTALL", m_testDir );
         }
     };
 }
