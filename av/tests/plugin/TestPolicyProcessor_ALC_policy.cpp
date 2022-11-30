@@ -19,21 +19,12 @@ namespace
         void SetUp() override
         {
             setupBase();
-            m_susiStartupConfigPath = m_testDir / "var/susi_startup_settings.json";
-            m_susiStartupConfigChrootPath = std::string(m_testDir / "chroot") + m_susiStartupConfigPath;
-            m_soapConfigPath = m_testDir / "var/soapd_config.json";
-            m_soapFlagConfigPath = m_testDir / "var/oa_flag.json";
         }
 
         void TearDown() override
         {
             fs::remove_all(m_testDir);
         }
-        
-        std::string m_susiStartupConfigPath;
-        std::string m_susiStartupConfigChrootPath;
-        std::string m_soapConfigPath;
-        std::string m_soapFlagConfigPath;
     };
 }
 
@@ -144,7 +135,7 @@ TEST_F(TestPolicyProcessor_ALC_policy, getCustomerIdFromClearAttributeMap)
 TEST_F(TestPolicyProcessor_ALC_policy, processAlcPolicyNoChangePolicy)
 {
     const std::string expectedMd5 = "5e259db8da3ae4df8f18a2add2d3d47d";
-    const std::string customerIdFilePath1 = m_testDir / "var/customer_id.txt";
+    const std::string customerIdFilePath1 = m_customerIdPath;
     EXPECT_CALL(*m_mockIFileSystemPtr, readFile(customerIdFilePath1)).WillOnce(Return(expectedMd5));
 
     Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
@@ -164,7 +155,7 @@ TEST_F(TestPolicyProcessor_ALC_policy, processAlcPolicyChangedPolicy)
 {
     const std::string expectedMd5_1 = "5e259db8da3ae4df8f18a2add2d3d47d";
     const std::string expectedMd5_2 = "a1c0f318e58aad6bf90d07cabda54b7d";
-    const std::string customerIdFilePath1 = m_testDir / "var/customer_id.txt";
+    const std::string customerIdFilePath1 = m_customerIdPath;
     const std::string customerIdFilePath2 = std::string(m_testDir / "chroot") + customerIdFilePath1;
     Common::FileSystem::IFileSystemException ex("Error, Failed to read file: '" + customerIdFilePath1 + "', file does not exist");
     EXPECT_CALL(*m_mockIFileSystemPtr, readFile(customerIdFilePath1)).WillOnce(Throw(ex));

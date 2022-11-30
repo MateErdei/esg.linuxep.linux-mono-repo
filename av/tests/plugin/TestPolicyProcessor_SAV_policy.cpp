@@ -52,7 +52,7 @@ namespace
 
         void expectReadCustomerId()
         {
-            EXPECT_CALL(*m_mockIFileSystemPtr, readFile(m_customerIdPath)).WillOnce(Return(""));
+            expectReadCustomerIdOnce();
         }
 
         void expectWriteSusiConfigFromString(const std::string& expected)

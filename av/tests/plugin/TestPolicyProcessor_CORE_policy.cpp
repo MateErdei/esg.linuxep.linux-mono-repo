@@ -39,17 +39,6 @@ namespace
             );
         }
 
-        void expectReadCustomerIdOnce()
-        {
-            EXPECT_CALL(*m_mockIFileSystemPtr, readFile(m_customerIdPath)).WillOnce(Return(""));
-        }
-
-        void expectReadCustomerIdRepeatedly()
-        {
-            EXPECT_CALL(*m_mockIFileSystemPtr, readFile(m_customerIdPath)).WillRepeatedly(Return(""));
-        }
-
-
         std::string m_susiStartupConfigPath;
         std::string m_susiStartupConfigChrootPath;
         std::string m_soapConfigPath;

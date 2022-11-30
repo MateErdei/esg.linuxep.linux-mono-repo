@@ -52,5 +52,15 @@ namespace
             m_mockIFileSystemPtr = std::make_unique<StrictMock<MockFileSystem>>();
             m_customerIdPath = m_testDir / "var/customer_id.txt";
         }
+
+        void expectReadCustomerIdOnce()
+        {
+            EXPECT_CALL(*m_mockIFileSystemPtr, readFile(m_customerIdPath)).WillOnce(Return(""));
+        }
+
+        void expectReadCustomerIdRepeatedly()
+        {
+            EXPECT_CALL(*m_mockIFileSystemPtr, readFile(m_customerIdPath)).WillRepeatedly(Return(""));
+        }
     };
 }
