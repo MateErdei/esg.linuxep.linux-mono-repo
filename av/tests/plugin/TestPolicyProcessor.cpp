@@ -410,18 +410,6 @@ static const std::string GL_SAV_POLICY = R"sophos(<?xml version="1.0"?>
 )sophos";
 
 
-TEST_F(TestPolicyProcessor, testProcessFlagSettingCatchesBadJson)
-{
-    UsingMemoryAppender memAppend(*this);
-
-    PolicyProcessorUnitTestClass proc;
-
-    proc.processFlagSettings("{\"bad\" \"json\": true and false}");
-
-    EXPECT_TRUE(appenderContains(
-        "Failed to parse FLAGS policy due to parse error, reason: "));
-}
-
 TEST_F(TestPolicyProcessor, determinePolicyTypeCorc)
 {
     EXPECT_CALL(*m_mockIFileSystemPtr, readFile(_)).WillOnce(Return(""));

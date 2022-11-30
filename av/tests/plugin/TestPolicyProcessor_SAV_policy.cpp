@@ -72,6 +72,24 @@ namespace
         {
             EXPECT_CALL(*m_mockIFileSystemPtr, readFile(m_customerIdPath)).WillOnce(Return(""));
         }
+
+        void expectWriteSusiConfigFromString(const std::string& expected)
+        {
+            EXPECT_CALL(*m_mockIFileSystemPtr, writeFileAtomically(m_susiStartupConfigPath, expected,_ ,_)).Times(1);
+            EXPECT_CALL(*m_mockIFileSystemPtr, writeFileAtomically(m_susiStartupConfigChrootPath, expected,_ ,_)).Times(1);
+        }
+
+        void expectWriteSusiConfigFromBool(bool sxlEnabled)
+        {
+            if (sxlEnabled)
+            {
+                expectWriteSusiConfigFromString(R"sophos({"enableSxlLookup":true,"shaAllowList":[]})sophos");
+            }
+            else
+            {
+                expectWriteSusiConfigFromString(R"sophos({"enableSxlLookup":false,"shaAllowList":[]})sophos");
+            }
+        }
         
         std::string m_susiStartupConfigPath;
         std::string m_susiStartupConfigChrootPath;
@@ -286,8 +304,7 @@ TEST_F(TestPolicyProcessor_SAV_policy, processSavPolicy)
     expectWriteSoapdConfig();
     expectReadSoapdConfig();
     expectReadCustomerId();
-    EXPECT_CALL(*m_mockIFileSystemPtr, writeFile(m_susiStartupConfigPath, R"sophos({"enableSxlLookup":false})sophos"));
-    EXPECT_CALL(*m_mockIFileSystemPtr, writeFile(m_susiStartupConfigChrootPath, R"sophos({"enableSxlLookup":false})sophos"));
+    expectWriteSusiConfigFromBool(false);
 
     Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
 
@@ -319,12 +336,9 @@ TEST_F(TestPolicyProcessor_SAV_policy, processSavPolicyChanged)
     expectWriteSoapdConfig();
     {
         InSequence seq;
-        EXPECT_CALL(*m_mockIFileSystemPtr, writeFile(m_susiStartupConfigPath, R"sophos({"enableSxlLookup":true})sophos"));
-        EXPECT_CALL(*m_mockIFileSystemPtr, writeFile(m_susiStartupConfigChrootPath, R"sophos({"enableSxlLookup":true})sophos"));
-        EXPECT_CALL(*m_mockIFileSystemPtr, writeFile(m_susiStartupConfigPath, R"sophos({"enableSxlLookup":false})sophos"));
-        EXPECT_CALL(*m_mockIFileSystemPtr, writeFile(m_susiStartupConfigChrootPath, R"sophos({"enableSxlLookup":false})sophos"));
-        EXPECT_CALL(*m_mockIFileSystemPtr, writeFile(m_susiStartupConfigPath, R"sophos({"enableSxlLookup":true})sophos"));
-        EXPECT_CALL(*m_mockIFileSystemPtr, writeFile(m_susiStartupConfigChrootPath, R"sophos({"enableSxlLookup":true})sophos"));
+        expectWriteSusiConfigFromBool(true);
+        expectWriteSusiConfigFromBool(false);
+        expectWriteSusiConfigFromBool(true);
     }
 
     Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
@@ -371,10 +385,8 @@ TEST_F(TestPolicyProcessor_SAV_policy, processSavPolicyMaintainsSXL4state)
     expectWriteSoapdConfig();
     {
         InSequence seq;
-        EXPECT_CALL(*m_mockIFileSystemPtr, writeFile(m_susiStartupConfigPath, R"sophos({"enableSxlLookup":true})sophos"));
-        EXPECT_CALL(*m_mockIFileSystemPtr, writeFile(m_susiStartupConfigChrootPath, R"sophos({"enableSxlLookup":true})sophos"));
-        EXPECT_CALL(*m_mockIFileSystemPtr, writeFile(m_susiStartupConfigPath, R"sophos({"enableSxlLookup":false})sophos"));
-        EXPECT_CALL(*m_mockIFileSystemPtr, writeFile(m_susiStartupConfigChrootPath, R"sophos({"enableSxlLookup":false})sophos"));
+        expectWriteSusiConfigFromBool(true);
+        expectWriteSusiConfigFromBool(false);
     }
 
     Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
@@ -422,10 +434,8 @@ TEST_F(TestPolicyProcessor_SAV_policy, processSavPolicyMissing)
 {
     expectReadSoapdConfig();
     expectReadCustomerId();
-    EXPECT_CALL(*m_mockIFileSystemPtr, writeFile(m_susiStartupConfigPath, R"sophos({"enableSxlLookup":false})sophos"));
-    EXPECT_CALL(*m_mockIFileSystemPtr, writeFile(m_susiStartupConfigChrootPath, R"sophos({"enableSxlLookup":false})sophos"));
-    EXPECT_CALL(*m_mockIFileSystemPtr, writeFile(m_susiStartupConfigPath, R"sophos({"enableSxlLookup":true})sophos"));
-    EXPECT_CALL(*m_mockIFileSystemPtr, writeFile(m_susiStartupConfigChrootPath, R"sophos({"enableSxlLookup":true})sophos"));
+    expectWriteSusiConfigFromBool(false);
+    expectWriteSusiConfigFromBool(true);
     expectWriteSoapdConfig();
 
     Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
@@ -457,10 +467,8 @@ TEST_F(TestPolicyProcessor_SAV_policy, processSavPolicyInvalid)
 {
     expectReadSoapdConfig();
     expectReadCustomerId();
-    EXPECT_CALL(*m_mockIFileSystemPtr, writeFile(m_susiStartupConfigPath, R"sophos({"enableSxlLookup":false})sophos"));
-    EXPECT_CALL(*m_mockIFileSystemPtr, writeFile(m_susiStartupConfigChrootPath, R"sophos({"enableSxlLookup":false})sophos"));
-    EXPECT_CALL(*m_mockIFileSystemPtr, writeFile(m_susiStartupConfigPath, R"sophos({"enableSxlLookup":true})sophos"));
-    EXPECT_CALL(*m_mockIFileSystemPtr, writeFile(m_susiStartupConfigChrootPath, R"sophos({"enableSxlLookup":true})sophos"));
+    expectWriteSusiConfigFromBool(false);
+    expectWriteSusiConfigFromBool(true);
     expectWriteSoapdConfig();
 
     Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
@@ -498,8 +506,7 @@ TEST_F(TestPolicyProcessor_SAV_policy, getOnAccessExclusions)
 {
     expectReadSoapdConfig();
     expectReadCustomerId();
-    EXPECT_CALL(*m_mockIFileSystemPtr, writeFile(m_susiStartupConfigPath, R"sophos({"enableSxlLookup":true})sophos"));
-    EXPECT_CALL(*m_mockIFileSystemPtr, writeFile(m_susiStartupConfigChrootPath, R"sophos({"enableSxlLookup":true})sophos"));
+    expectWriteSusiConfigFromBool(true);
     EXPECT_CALL(*m_mockIFileSystemPtr, writeFileAtomically(m_soapConfigPath,
                                                            R"sophos({"exclusions":["x","y"]})sophos",
                                                            _,

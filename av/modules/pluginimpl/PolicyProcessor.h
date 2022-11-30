@@ -119,11 +119,6 @@ namespace Plugin
         common::ThreatDetector::SusiSettings m_threatDetectorSettings;
         bool m_safeStoreEnabled = false;
 
-        /**
-         * Live Protection SXL4 Global Reputation look ups are enabled / disabled in policy
-         */
-        bool m_lookupEnabled = false;
-
         bool m_gotFirstSavPolicy = false;
         bool m_gotFirstAlcPolicy = false;
         bool m_gotFirstCorcPolicy = false;

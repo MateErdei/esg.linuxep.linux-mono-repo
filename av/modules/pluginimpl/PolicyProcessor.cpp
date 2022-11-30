@@ -286,8 +286,8 @@ namespace Plugin
     {
         processOnAccessSettingsFromSAVpolicy(policy);
 
-        bool oldLookupEnabled = m_lookupEnabled;
-        m_lookupEnabled = isLookupEnabled(policy);
+        bool oldLookupEnabled = m_threatDetectorSettings.isSxlLookupEnabled();
+        m_threatDetectorSettings.setSxlLookupEnabled(isLookupEnabled(policy));
 
         if (m_gotFirstSavPolicy && m_threatDetectorSettings.isSxlLookupEnabled() == oldLookupEnabled)
         {

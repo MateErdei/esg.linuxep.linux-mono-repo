@@ -62,6 +62,18 @@ namespace
     };
 }
 
+TEST_F(TestPolicyProcessor_FLAGS_policy, testProcessFlagSettingCatchesBadJson)
+{
+    UsingMemoryAppender memAppend(*this);
+
+    PolicyProcessorUnitTestClass proc;
+
+    proc.processFlagSettings("{\"bad\" \"json\": true and false}");
+
+    EXPECT_TRUE(appenderContains(
+        "Failed to parse FLAGS policy due to parse error, reason: "));
+}
+
 TEST_F(TestPolicyProcessor_FLAGS_policy, testProcessFlagSettingsEnabled)
 {
     UsingMemoryAppender memAppend(*this);
