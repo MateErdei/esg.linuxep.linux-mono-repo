@@ -26,7 +26,8 @@ enum deviceType
     NETWORK,
     OPTICAL,
     REMOVABLE,
-    SYSTEM
+    SYSTEM,
+    NOTSUPPORTED,
 };
 
 
@@ -162,7 +163,8 @@ auto deviceTypes = ::testing::Values(
     std::make_tuple("fuse.lxcfs", SYSTEM),
     std::make_tuple("ext4", FIXED),
     std::make_tuple("btrfs", FIXED),
-    std::make_tuple("xfs", FIXED)
+    std::make_tuple("xfs", FIXED),
+    std::make_tuple("fuse.gvfsd-fuse", NOTSUPPORTED)
     );
 
 INSTANTIATE_TEST_SUITE_P(TestDeviceUtil, DeviceUtilParameterizedTest, deviceTypes);
@@ -185,6 +187,14 @@ TEST_P(DeviceUtilParameterizedTest, TestIsSystem)
     deviceType expectedDeviceType = std::get<1>(GetParam());
 
     EXPECT_EQ(m_deviceUtil->isSystem(devicePath, mountPoint, filesystemType), expectedDeviceType == SYSTEM);
+}
+
+TEST_P(DeviceUtilParameterizedTest, TestIsNotSupported)
+{
+    const std::string& filesystemType = std::get<0>(GetParam());
+    deviceType expectedDeviceType = std::get<1>(GetParam());
+
+    EXPECT_EQ(m_deviceUtil->isNotSupported(filesystemType), expectedDeviceType == NOTSUPPORTED);
 }
 
 TEST_P(DeviceUtilParameterizedTest, TestIsOptical)
