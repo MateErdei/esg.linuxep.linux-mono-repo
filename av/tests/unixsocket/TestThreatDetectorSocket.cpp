@@ -286,7 +286,7 @@ TEST_F(TestThreatDetectorSocket, test_too_many_connections_are_refused)
     std::list<unixsocket::ScanningClientSocket> client_sockets;
     // Create client connections - more than the max
     int clientConnectionCount = server.maxClientConnections() + 1;
-    PRINT("Starting " << clientConnectionCount << " client connections");
+    LOG("Starting " << clientConnectionCount << " client connections");
 
     ASSERT_GT(clientConnectionCount, 1);
     for (int i=0; i < clientConnectionCount; ++i)

@@ -7,12 +7,17 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #pragma once
 
 #include "LogInitializedTests.h"
+#include <Common/Logging/SophosLoggerMacros.h>
 
 #include "datatypes/Print.h"
 
 #include <chrono>
 #include <numeric>
 #include <thread>
+
+
+// use log4cplus for thread-safe printing, to avoid upsetting helgrind
+#define LOG(x) LOG4CPLUS_INFO(getLogger(), x)
 
 namespace
 {
