@@ -44,7 +44,7 @@ TEST_F(SafeStoreWrapperTests, uuidFromSafeStoreIdDefaultDoesNotThrow)
 {
     // The struct 'SafeStore_Id_t' in the safestore library does not default initialise any of its members so
     // for this test a default constructed one should not cause our code to error but will produce a garbage string.
-    SafeStore_Id_t ssThreatIdStruct;
+    SafeStore_Id_t ssThreatIdStruct {};
     EXPECT_NO_THROW(uuidStringFromSafeStoreId(ssThreatIdStruct));
 }
 

@@ -415,11 +415,7 @@ TEST_F(SafeStoreWrapperTapTests, restoreObjectByIdAndVerifyFile)
 
     ASSERT_EQ(groupBefore, groupAfter);
     ASSERT_EQ(userBefore, userAfter);
-
-    //    TODO LINUXDAR-5915 enable this check and remove printing once file permissions work is complete in SafeStore
-    //    lib
-    std::cout << "permissions before: " << permissionsBefore << ", after: " << permissionsAfter << std::endl;
-    //    ASSERT_EQ(permissionsBefore, permissionsAfter);
+    ASSERT_EQ(permissionsBefore, permissionsAfter);
 }
 
 TEST_F(SafeStoreWrapperTapTests, restoreObjectByIdHandleMissingId)
@@ -507,10 +503,7 @@ TEST_F(SafeStoreWrapperTapTests, restoreObjectByIdToLocationAndVerifyFile)
 
     ASSERT_EQ(groupBefore, groupAfter);
     ASSERT_EQ(userBefore, userAfter);
-
-    // TODO LINUXDAR-5915 enable this check and remove printing once file permissions work is complete in SafeStore lib
-    std::cout << "permissions before: " << permissionsBefore << ", after: " << permissionsAfter << std::endl;
-    //    ASSERT_EQ(permissionsBefore, permissionsAfter);
+    ASSERT_EQ(permissionsBefore, permissionsAfter);
 }
 
 TEST_F(SafeStoreWrapperTapTests, restoreObjectByIdToLocationDoesNotOverwriteExistingFile)
@@ -617,10 +610,7 @@ TEST_F(SafeStoreWrapperTapTests, restoreObjectsByThreatIdAndVerifyFile)
 
     ASSERT_EQ(groupBefore, groupAfter);
     ASSERT_EQ(userBefore, userAfter);
-
-    // TODO LINUXDAR-5915 enable this check and remove printing once file permissions work is complete in SafeStore lib
-    std::cout << "permissions before: " << permissionsBefore << ", after: " << permissionsAfter << std::endl;
-    //    ASSERT_EQ(permissionsBefore, permissionsAfter);
+    ASSERT_EQ(permissionsBefore, permissionsAfter);
 }
 
 TEST_F(SafeStoreWrapperTapTests, restoreObjectsByThreatIdHandlesMissingThreatId)
