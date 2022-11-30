@@ -4,7 +4,7 @@
 
 *** Settings ***
 Documentation   Product tests for SOAP
-Force Tags      PRODUCT  SOAP  oa_standard
+Force Tags      PRODUCT  SOAP  oa_standard  on_access_standard  on_access
 
 Resource    ../shared/AVResources.robot
 Resource    ../shared/ComponentSetup.robot
@@ -46,11 +46,9 @@ On Access Suite Teardown
 
 On Access Test Setup
     Component Test Setup
-    Mark On Access Log
     Start On Access If Not Running
     Start Av Plugin If Not Running
     Start Sophos Threat Detector If Not Running
-    Register Cleanup  Clear On Access Log When Nearly Full
     Register Cleanup  Check All Product Logs Do Not Contain Error
     Register Cleanup  Exclude On Access Scan Errors
     Register Cleanup  Require No Unhandled Exception
@@ -475,6 +473,7 @@ On Access Doesnt Scan On Access Events
 On Access Caches Open Events Without Detections
     ${cleanfile} =  Set Variable  /tmp_test/cleanfile.txt
     ${cleanfile2} =  Set Variable  /tmp_test/cleanfile2.txt
+    Register On Fail  Dump Log  ${AV_LOG_PATH}
 
     # create a file without generating fanotify events
     ${oamark} =  get_on_access_log_mark

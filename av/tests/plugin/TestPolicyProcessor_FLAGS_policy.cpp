@@ -35,11 +35,9 @@ namespace
             auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
             appConfig.setData(Common::ApplicationConfiguration::SOPHOS_INSTALL, m_testDir );
             appConfig.setData("PLUGIN_INSTALL", m_testDir );
-            
-            m_susiStartupConfigPath = m_testDir / "var/susi_startup_settings.json";
-            m_susiStartupConfigChrootPath = std::string(m_testDir / "chroot") + m_susiStartupConfigPath;
-            m_soapConfigPath = m_testDir / "var/soapd_config.json";
+
             m_soapFlagConfigPath = m_testDir / "var/oa_flag.json";
+            m_customerIdPath = m_testDir / "var/customer_id.txt";
             m_mockIFileSystemPtr = std::make_unique<StrictMock<MockFileSystem>>();
         }
 
@@ -47,11 +45,19 @@ namespace
         {
             fs::remove_all(m_testDir);
         }
-        
-        std::string m_susiStartupConfigPath;
-        std::string m_susiStartupConfigChrootPath;
-        std::string m_soapConfigPath;
+
+        void expectReadConfigFile()
+        {
+            EXPECT_CALL(*m_mockIFileSystemPtr, readFile(m_soapFlagConfigPath)).WillOnce(Return("{}"));
+        }
+
+        void expectReadCustomerId()
+        {
+            EXPECT_CALL(*m_mockIFileSystemPtr, readFile(m_customerIdPath)).WillOnce(Return(""));
+        }
+
         std::string m_soapFlagConfigPath;
+        std::string m_customerIdPath;
         std::unique_ptr<StrictMock<MockFileSystem>> m_mockIFileSystemPtr;
     };
 }
@@ -59,8 +65,8 @@ namespace
 TEST_F(TestPolicyProcessor_FLAGS_policy, testProcessFlagSettingsEnabled)
 {
     UsingMemoryAppender memAppend(*this);
-
-    EXPECT_CALL(*m_mockIFileSystemPtr, readFile(_)).WillOnce(Return(""));
+    expectReadCustomerId();
+    expectReadConfigFile();
 
     EXPECT_CALL(
         *m_mockIFileSystemPtr,
@@ -75,14 +81,15 @@ TEST_F(TestPolicyProcessor_FLAGS_policy, testProcessFlagSettingsEnabled)
     EXPECT_TRUE(appenderContains(
         "On-access is enabled in the FLAGS policy, assuming on-access policy settings"));
     EXPECT_TRUE(appenderContains("SafeStore flag set. Setting SafeStore to enabled."));
-    ASSERT_TRUE(proc.isSafeStoreEnabled());
+    EXPECT_TRUE(proc.isSafeStoreEnabled());
 }
 
 TEST_F(TestPolicyProcessor_FLAGS_policy, testProcessFlagSettingsDisabled)
 {
     UsingMemoryAppender memAppend(*this);
 
-    EXPECT_CALL(*m_mockIFileSystemPtr, readFile(_)).WillOnce(Return(""));
+    expectReadCustomerId();
+    expectReadConfigFile();
 
     EXPECT_CALL(
         *m_mockIFileSystemPtr,
@@ -97,14 +104,15 @@ TEST_F(TestPolicyProcessor_FLAGS_policy, testProcessFlagSettingsDisabled)
     EXPECT_TRUE(appenderContains(
         "On-access is disabled in the FLAGS policy, overriding on-access policy settings"));
     EXPECT_TRUE(appenderContains("SafeStore flag not set. Setting SafeStore to disabled."));
-    ASSERT_FALSE(proc.isSafeStoreEnabled());
+    EXPECT_FALSE(proc.isSafeStoreEnabled());
 }
 
 TEST_F(TestPolicyProcessor_FLAGS_policy, testProcessFlagSettingsDefault)
 {
-    UsingMemoryAppender memAppend(*this);
+    expectReadCustomerId();
+    expectReadConfigFile();
 
-    EXPECT_CALL(*m_mockIFileSystemPtr, readFile(_)).WillOnce(Return(""));
+    UsingMemoryAppender memAppend(*this);
 
     EXPECT_CALL(
         *m_mockIFileSystemPtr,
@@ -118,14 +126,14 @@ TEST_F(TestPolicyProcessor_FLAGS_policy, testProcessFlagSettingsDefault)
 
     EXPECT_TRUE(appenderContains("No on-access flag found, overriding on-access policy settings"));
     EXPECT_TRUE(appenderContains("SafeStore flag not set. Setting SafeStore to disabled."));
-    ASSERT_FALSE(proc.isSafeStoreEnabled());
+    EXPECT_FALSE(proc.isSafeStoreEnabled());
 }
 
 TEST_F(TestPolicyProcessor_FLAGS_policy, testWriteFlagConfigFailedOnAccess)
 {
+    expectReadCustomerId();
+    expectReadConfigFile();
     UsingMemoryAppender memAppend(*this);
-
-    EXPECT_CALL(*m_mockIFileSystemPtr, readFile(_)).WillOnce(Return(""));
 
     Common::FileSystem::IFileSystemException ex("error!");
     EXPECT_CALL(
@@ -140,7 +148,5 @@ TEST_F(TestPolicyProcessor_FLAGS_policy, testWriteFlagConfigFailedOnAccess)
     proc.processFlagSettings(R"sophos({"av.onaccess.enabled": false, "safestore.enabled": true})sophos");
 
     EXPECT_TRUE(appenderContains(
-        "Failed to write Flag Config, Sophos On Access Process will use the default settings (on-access disabled)"));
-    EXPECT_TRUE(appenderContains("SafeStore flag set. Setting SafeStore to enabled."));
-    ASSERT_TRUE(proc.isSafeStoreEnabled());
+        "Failed to write Flag Config, Sophos On Access Process will use the default settings error!"));
 }

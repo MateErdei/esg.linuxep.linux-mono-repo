@@ -25,6 +25,8 @@ using json = nlohmann::json;
 
 namespace
 {
+    constexpr int MAX_RETIRES_NOTIFY_SOAPD_ON_CONFIG_CHANGE = 10;
+
     bool boolFromString(const std::string& s)
     {
         if (s == "true")
@@ -52,6 +54,25 @@ namespace
         catch (const Common::FileSystem::IFileSystemException& ex)
         {
             return json{};
+        }
+    }
+
+    bool writeConfigToFile(const std::string& filepath, const json& configJson, const std::string& configName)
+    {
+        // convert to string
+        auto config = configJson.dump();
+
+        try
+        {
+            auto* fs = Common::FileSystem::fileSystem();
+            auto tempDir = Common::ApplicationConfiguration::applicationPathManager().getTempPath();
+            fs->writeFileAtomically(filepath, config, tempDir, 0640);
+            return true;
+        }
+        catch (const Common::FileSystem::IFileSystemException& e)
+        {
+            LOGERROR("Failed to write " << configName << ", Sophos On Access Process will use the default settings " << e.what());
+            return false;
         }
     }
 
@@ -206,9 +227,9 @@ namespace Plugin
 
     void PolicyProcessor::markOnAccessReloadPending()
     {
-        // Try 10 times to send reload to soapd - if it doesn't receive the message,
+        // Try MAX_RETIRES_NOTIFY_SOAPD_ON_CONFIG_CHANGE times to send reload to soapd - if it doesn't receive the message,
         // it will probably read the new config file when it starts up
-        m_pendingOnAccessProcessReload = 10;
+        m_pendingOnAccessProcessReload = MAX_RETIRES_NOTIFY_SOAPD_ON_CONFIG_CHANGE;
     }
 
 
@@ -236,12 +257,21 @@ namespace Plugin
         return;
 #endif
         LOGINFO("Processing On Access Scanning settings from SAV policy");
-        json config = readOnAccessConfig();
+        const auto originalConfig = readOnAccessConfig();
+        auto config = originalConfig;
 
         auto exclusionList = extractListFromXML(policy, "config/onAccessScan/linuxExclusions/filePathSet/filePath");
         json exclusions(exclusionList);
         config["exclusions"] = exclusions;
-        writeOnAccessConfig(config);
+
+        if (originalConfig != config)
+        {
+            writeOnAccessConfig(config);
+        }
+        else
+        {
+            LOGDEBUG("On Access settings from SAV policy not changed");
+        }
     }
 
     void PolicyProcessor::setOnAccessConfiguredTelemetry(bool enabled)
@@ -306,7 +336,7 @@ namespace Plugin
         LOGDEBUG("Processing FLAGS settings");
         try
         {
-            nlohmann::json j = nlohmann::json::parse(flagsJson);
+            auto j = json::parse(flagsJson);
             processOnAccessFlagSettings(j);
             processSafeStoreFlagSettings(j);
         }
@@ -316,7 +346,7 @@ namespace Plugin
         }
     }
 
-    void PolicyProcessor::processOnAccessFlagSettings(const nlohmann::json& flagsJson)
+    void PolicyProcessor::processOnAccessFlagSettings(const json& flagsJson)
     {
         bool oaEnabled = false;
 
@@ -337,23 +367,22 @@ namespace Plugin
             LOGINFO("No on-access flag found, overriding on-access policy settings");
         }
 
+        auto path = getSoapFlagConfigPath();
+        auto orignal_config = readConfigFromFile(path);
+
         json oaConfig;
         oaConfig["oa_enabled"] = oaEnabled;
 
-        try
+        if (orignal_config != oaConfig)
         {
-            auto* fs = Common::FileSystem::fileSystem();
-            auto tempDir = Common::ApplicationConfiguration::applicationPathManager().getTempPath();
-            fs->writeFileAtomically(getSoapFlagConfigPath(), oaConfig.dump(), tempDir, 0640);
-
-            markOnAccessReloadPending();
+            if (writeConfigToFile(path, oaConfig, "Flag Config"))
+            {
+                markOnAccessReloadPending();
+            }
         }
-        catch (const Common::FileSystem::IFileSystemException& e)
+        else
         {
-            LOGERROR(
-                "Failed to write Flag Config, Sophos On Access Process will use the default settings (on-access "
-                "disabled)"
-                << e.what());
+            LOGDEBUG("On-access flags not changed");
         }
     }
 
@@ -414,7 +443,8 @@ namespace Plugin
         const auto excludeRemoteFiles = boolFromString(
             policy.lookup("policy/onAccessScan/exclusions/excludeRemoteFiles").contents());
 
-        json config = readOnAccessConfig();
+        const auto originalConfig = readOnAccessConfig();
+        auto config = originalConfig;
         config["excludeRemoteFiles"] = excludeRemoteFiles;
         config["enabled"] = on_access_enabled;
 
@@ -424,8 +454,16 @@ namespace Plugin
         json exclusions(exclusionList);
         config["exclusions"] = exclusions;
 #endif
-        writeOnAccessConfig(config);
-        setOnAccessConfiguredTelemetry(on_access_enabled);
+
+        if (originalConfig != config)
+        {
+            writeOnAccessConfig(config);
+            setOnAccessConfiguredTelemetry(on_access_enabled);
+        }
+        else
+        {
+            LOGDEBUG("On Access settings from CORE policy not changed");
+        }
     }
 
     nlohmann::json PolicyProcessor::readOnAccessConfig()
@@ -435,22 +473,10 @@ namespace Plugin
 
     void PolicyProcessor::writeOnAccessConfig(const json& configJson)
     {
-        // convert to string
-        auto config = configJson.dump();
-
-        try
+        if (writeConfigToFile(getSoapConfigPath(), configJson, "On Access Config"))
         {
-            auto* fs = Common::FileSystem::fileSystem();
-            auto tempDir = Common::ApplicationConfiguration::applicationPathManager().getTempPath();
-            fs->writeFileAtomically(getSoapConfigPath(), config, tempDir, 0640);
+            markOnAccessReloadPending();
         }
-        catch (const Common::FileSystem::IFileSystemException& e)
-        {
-            LOGERROR("Failed to write On Access Config, Sophos On Access Process will use the default settings " << e.what());
-            return;
-        }
-
-        markOnAccessReloadPending();
     }
 
     PolicyProcessor::timepoint_t PolicyProcessor::timeout() const
@@ -460,12 +486,20 @@ namespace Plugin
 
     timepoint_t PolicyProcessor::timeout(timepoint_t now) const
     {
-        if (m_pendingOnAccessProcessReload > 0)
+        if (m_pendingOnAccessProcessReload == MAX_RETIRES_NOTIFY_SOAPD_ON_CONFIG_CHANGE)
+        {
+            return now + std::chrono::milliseconds{10};
+        }
+        else if (m_pendingOnAccessProcessReload > 0)
         {
             return now + seconds_t{1};
         }
-        static constexpr seconds_t MAX_TIMEOUT{9999999};
-        return now + MAX_TIMEOUT;
+        else
+        {
+            // Not waiting to send anything to soapd
+            static constexpr seconds_t MAX_TIMEOUT{ 9999999 };
+            return now + MAX_TIMEOUT;
+        }
     }
 }
 

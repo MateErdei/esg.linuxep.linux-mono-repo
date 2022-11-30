@@ -46,7 +46,7 @@ def create_sav_policy_with_on_access_enabled(filename):
     sav_policy_builder = _SavPolicyBuilder(SAV_POLICY_PATH, filename)
     sav_policy_builder.set_scheduled_scan_day("sunday")
     sav_policy_builder.set_scheduled_scan_time("11:00:00")
-    sav_policy_builder.set_posix_exclusions(["*/test_scripts/*", "*excluded*"])
+    sav_policy_builder.set_posix_exclusions(["/mnt/", "/uk-filer5/", "*excluded*", "/opt/test/inputs/test_scripts/", ])
     sav_policy_builder.set_on_access_on()
     sav_policy_builder.send_sav_policy()
 
