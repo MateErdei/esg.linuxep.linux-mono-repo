@@ -386,7 +386,6 @@ namespace Plugin
 
         // Also, write a copy to chroot
         dest = Plugin::getPluginInstall() + "/chroot" + dest;
-        //        dest = Plugin::getPluginInstall() + "/chroot" + Plugin::getRelativeSusiStartupSettingsPath();
         m_threatDetectorSettings.saveSettings(dest, 0640);
     }
 } // namespace Plugin

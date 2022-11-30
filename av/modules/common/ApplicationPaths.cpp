@@ -119,9 +119,4 @@ namespace Plugin
         auto pluginInstall = getPluginInstall();
         return pluginInstall + "/var/susi_startup_settings.json";
     }
-
-    std::string getRelativeSusiStartupSettingsPath()
-    {
-        return "/var/susi_startup_settings.json";
-    }
 } // namespace Plugin
