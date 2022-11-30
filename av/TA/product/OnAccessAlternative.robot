@@ -180,7 +180,7 @@ On Access Applies Config Changes When The Mounts Change
     wait for on access log contains after mark  On-access scan network: "false"  mark=${mark}
     wait for on access log contains after mark  OA config changed, re-enumerating mount points  mark=${mark}
     wait for on access log contains after mark  mount points in on-access scanning  mark=${mark}
-    check_on_access_log_contains_after_mark  Mount point /testmnt/nfsshare has been excluded from the scan  mark=${mark}
+    check_on_access_log_contains_after_mark  Mount point /testmnt/nfsshare has been excluded from scanning  mark=${mark}
     check_on_access_log_does_not_contain_after_mark  Including mount point: /testmnt/nfsshare  mark=${mark}
 
     ${mark} =  get_on_access_log_mark
@@ -316,7 +316,7 @@ On Access Does Not Monitor A Mount Point If It Matches An Exclusion In Policy
     Send Plugin Policy  av  ${SAV_APPID}  ${policyContent}
     wait for on access log contains after mark  On-access exclusions: ["/"]  mark=${mark}
     wait for on access log contains after mark  Updating on-access exclusions  mark=${mark}
-    wait for on access log contains after mark  Mount point / matches an exclusion in the policy and will be excluded from the scan  mark=${mark}
+    wait for on access log contains after mark  Mount point / matches an exclusion in the policy and will be excluded from scanning  mark=${mark}
 
 
 On Access Does Not Monitor A Bind-mounted File If It Matches A File Exclusion In Policy
@@ -335,7 +335,7 @@ On Access Does Not Monitor A Bind-mounted File If It Matches A File Exclusion In
     Send Plugin Policy  av  ${SAV_APPID}  ${policyContent}
     wait for on access log contains after mark  On-access exclusions: ["/tmp_test/bind_mount"]  mark=${mark}
     wait for on access log contains after mark  Updating on-access exclusions  mark=${mark}
-    wait for on access log contains after mark  Mount point /tmp_test/bind_mount matches an exclusion in the policy and will be excluded from the scan  mark=${mark}
+    wait for on access log contains after mark  Mount point /tmp_test/bind_mount matches an exclusion in the policy and will be excluded from scanning  mark=${mark}
 
 
 On Access Logs When A File Is Closed Following Write After Being Disabled

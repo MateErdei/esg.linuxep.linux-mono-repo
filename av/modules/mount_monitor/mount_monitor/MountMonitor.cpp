@@ -54,7 +54,7 @@ namespace mount_monitor::mount_monitor
     {
         if (mp->mountPoint().rfind("/opt/sophos-spl/", 0) == 0)
         {
-            LOGDEBUG("Mount point " << mp->mountPoint().c_str() << " is a Sophos SPL bind mount and will be excluded from the scan");
+            LOGDEBUG("Mount point " << mp->mountPoint().c_str() << " is a Sophos SPL bind mount and will be excluded from scanning");
             return false;
         }
         else
@@ -64,7 +64,7 @@ namespace mount_monitor::mount_monitor
                 bool isDir = mp->isDirectory();
                 if (exclusion.appliesToPath(mp->mountPoint(), isDir, !isDir))
                 {
-                    LOGDEBUG("Mount point " << mp->mountPoint().c_str() << " matches an exclusion in the policy and will be excluded from the scan");
+                    LOGDEBUG("Mount point " << mp->mountPoint().c_str() << " matches an exclusion in the policy and will be excluded from scanning");
                     return false;
                 }
             }

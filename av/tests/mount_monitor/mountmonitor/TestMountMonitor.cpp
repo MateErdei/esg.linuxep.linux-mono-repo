@@ -161,7 +161,7 @@ TEST_F(TestMountMonitor, TestSetExclusions)
 
     EXPECT_EQ(mountMonitor.getIncludedMountpoints(allMountpoints).size(), 0);
     std::stringstream logMsg;
-    logMsg << "Mount point " << excludedMount << " matches an exclusion in the policy and will be excluded from the scan";
+    logMsg << "Mount point " << excludedMount << " matches an exclusion in the policy and will be excluded from scanning";
     EXPECT_TRUE(appenderContains(logMsg.str()));
 }
 
@@ -206,7 +206,7 @@ TEST_F(TestMountMonitor, TestUpdateConfigSetsAllConfigBeforeReenumeratingMounts)
 
     EXPECT_EQ(mountMonitor.getIncludedMountpoints(allMountpoints).size(), 0);
     std::stringstream logMsg;
-    logMsg << "Mount point " << excludedMount << " matches an exclusion in the policy and will be excluded from the scan";
+    logMsg << "Mount point " << excludedMount << " matches an exclusion in the policy and will be excluded from scanning";
     EXPECT_TRUE(appenderContains(logMsg.str()));
     EXPECT_TRUE(appenderContains("Mount point network has been excluded from scanning"));
 }

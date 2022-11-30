@@ -139,14 +139,15 @@ On-access Scan Eicar Close
     #${pid} =  Get Robot Pid
     [Arguments]  ${filepath}=/tmp_test/eicar.com
 
-    ${mark} =  get_on_access_log_mark
+    ${oamark} =  get_on_access_log_mark
+    ${avmark} =  get_av_log_mark
     Create File  ${filepath}  ${EICAR_STRING}
     Register Cleanup  Remove File  ${filepath}
 
-    wait_for_on_access_log_contains_after_mark  On-close event for ${filepath} from \  mark=${mark}
+    wait_for_on_access_log_contains_after_mark  On-close event for ${filepath} from \  mark=${oamark}
     # With DeDup LINUXDAR-5901, eicar can be detected on either the open or the close, so we can't check
-    wait_for_on_access_log_contains_after_mark  "${filepath}" is infected with EICAR-AV-Test   mark=${mark}
-
+    wait_for_on_access_log_contains_after_mark  "${filepath}" is infected with EICAR-AV-Test   mark=${oamark}
+    Wait For AV Log Contains After Mark  Found 'EICAR-AV-Test' in '${filepath}'   mark=${avmark}
 
 On-access Scan Eicar Open
     ${cleanfile} =  Set Variable  /tmp_test/cleanfile.txt
