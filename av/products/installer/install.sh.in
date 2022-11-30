@@ -246,8 +246,11 @@ function apply_permissions()
     fi
 
     mkdir -p "$SAFESTORE_DB_PATH"
-    chmod -R 0700 "${SAFESTORE_DB_PATH}"
     chown -R root:root "${SAFESTORE_DB_PATH}"
+    chmod 0700 "${SAFESTORE_DB_PATH}"
+    chmod 0400 "${SAFESTORE_DB_PATH}/*"
+    chmod 0600 "${SAFESTORE_DB_PATH}/safestore.db"
+    chmod 0600 "${SAFESTORE_DB_PATH}/safestore.pw"
 
     CHROOT="${PLUGIN_INSTALL}/chroot"
     CHROOT_LINK_DIR="${CHROOT}/${PLUGIN_INSTALL#/}"
