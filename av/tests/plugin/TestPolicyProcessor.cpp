@@ -798,8 +798,8 @@ TEST_F(TestPolicyProcessor, testProcessFlagSettingsEnabled)
         "On-access is enabled in the FLAGS policy, assuming on-access policy settings"));
     EXPECT_TRUE(appenderContains("SafeStore flag set. Setting SafeStore to enabled."));
     EXPECT_TRUE(appenderContains("SafeStore Quarantine ML flag set. SafeStore will quarantine ML detections."));
-    ASSERT_TRUE(proc.isSafeStoreEnabled());
-    ASSERT_TRUE(proc.shouldSafeStoreQuarantineMl());
+    EXPECT_TRUE(proc.isSafeStoreEnabled());
+    EXPECT_TRUE(proc.shouldSafeStoreQuarantineMl());
 }
 
 TEST_F(TestPolicyProcessor, testProcessFlagSettingsDisabled)
@@ -822,8 +822,8 @@ TEST_F(TestPolicyProcessor, testProcessFlagSettingsDisabled)
         "On-access is disabled in the FLAGS policy, overriding on-access policy settings"));
     EXPECT_TRUE(appenderContains("SafeStore flag not set. Setting SafeStore to disabled."));
     EXPECT_FALSE(appenderContains("SafeStore Quarantine ML flag"));
-    ASSERT_FALSE(proc.isSafeStoreEnabled());
-    ASSERT_FALSE(proc.shouldSafeStoreQuarantineMl());
+    EXPECT_FALSE(proc.isSafeStoreEnabled());
+    EXPECT_FALSE(proc.shouldSafeStoreQuarantineMl());
 }
 
 TEST_F(TestPolicyProcessor, testProcessFlagSettingsDefault)
@@ -845,8 +845,8 @@ TEST_F(TestPolicyProcessor, testProcessFlagSettingsDefault)
     EXPECT_TRUE(appenderContains("No on-access flag found, overriding on-access policy settings"));
     EXPECT_TRUE(appenderContains("SafeStore flag not set. Setting SafeStore to disabled."));
     EXPECT_FALSE(appenderContains("SafeStore Quarantine ML flag"));
-    ASSERT_FALSE(proc.isSafeStoreEnabled());
-    ASSERT_FALSE(proc.shouldSafeStoreQuarantineMl());
+    EXPECT_FALSE(proc.isSafeStoreEnabled());
+    EXPECT_FALSE(proc.shouldSafeStoreQuarantineMl());
 }
 
 TEST_F(TestPolicyProcessor, testProcessFlagSettingsSafeStoreEnabledQuarantineMlDefaultsToDisabled)
@@ -867,8 +867,8 @@ TEST_F(TestPolicyProcessor, testProcessFlagSettingsSafeStoreEnabledQuarantineMlD
 
     EXPECT_TRUE(appenderContains("SafeStore flag set. Setting SafeStore to enabled."));
     EXPECT_TRUE(appenderContains("SafeStore Quarantine ML flag not set. SafeStore will not quarantine ML detections."));
-    ASSERT_TRUE(proc.isSafeStoreEnabled());
-    ASSERT_FALSE(proc.shouldSafeStoreQuarantineMl());
+    EXPECT_TRUE(proc.isSafeStoreEnabled());
+    EXPECT_FALSE(proc.shouldSafeStoreQuarantineMl());
 }
 
 TEST_F(TestPolicyProcessor, testProcessFlagSettingsQuarantineMlEnabledWithoutSafeStore)
@@ -889,8 +889,8 @@ TEST_F(TestPolicyProcessor, testProcessFlagSettingsQuarantineMlEnabledWithoutSaf
 
     EXPECT_TRUE(appenderContains("SafeStore flag not set. Setting SafeStore to disabled."));
     EXPECT_FALSE(appenderContains("SafeStore Quarantine ML flag"));
-    ASSERT_FALSE(proc.isSafeStoreEnabled());
-    ASSERT_FALSE(proc.shouldSafeStoreQuarantineMl());
+    EXPECT_FALSE(proc.isSafeStoreEnabled());
+    EXPECT_FALSE(proc.shouldSafeStoreQuarantineMl());
 }
 
 TEST_F(TestPolicyProcessor, testWriteFlagConfigFailedOnAccess)
@@ -915,7 +915,8 @@ TEST_F(TestPolicyProcessor, testWriteFlagConfigFailedOnAccess)
         "Failed to write Flag Config, Sophos On Access Process will use the default settings (on-access disabled)"));
     EXPECT_TRUE(appenderContains("SafeStore flag set. Setting SafeStore to enabled."));
     EXPECT_TRUE(appenderContains("SafeStore Quarantine ML flag not set. SafeStore will not quarantine ML detections."));
-    ASSERT_TRUE(proc.isSafeStoreEnabled());
+    EXPECT_TRUE(proc.isSafeStoreEnabled());
+    EXPECT_FALSE(proc.shouldSafeStoreQuarantineMl());
 }
 
 TEST_F(TestPolicyProcessor, testProcessFlagSettingCatchesBadJson)
