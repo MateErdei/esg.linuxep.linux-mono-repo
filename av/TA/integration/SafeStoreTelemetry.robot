@@ -44,9 +44,12 @@ SafeStore Telemetry Counters Are Zero by default
     ${telemetryJson}=    Evaluate     json.loads("""${telemetryFileContents}""")    json
     ${safeStoreDict}=    Set Variable     ${telemetryJson['safestore']}
 
-    Dictionary Should Contain Item   ${safeStoreDict}   quarantine-successes   ${0}
-    Dictionary Should Contain Item   ${safeStoreDict}   quarantine-failures   ${0}
-    Dictionary Should Contain Item   ${safeStoreDict}   unlink-failures   ${0}
+    Dictionary Should Contain Item   ${safeStoreDict}   quarantine-successes            ${0}
+    Dictionary Should Contain Item   ${safeStoreDict}   quarantine-failures             ${0}
+    Dictionary Should Contain Item   ${safeStoreDict}   unlink-failures                 ${0}
+    Dictionary Should Contain Item   ${safeStoreDict}   database-deletions              ${0}
+    Dictionary Should Contain Item   ${safeStoreDict}   successful-file-restorations    ${0}
+    Dictionary Should Contain Item   ${safeStoreDict}   failed-file-restorations        ${0}
 
 Telemetry Executable Generates SafeStore Telemetry
     Start SafeStore

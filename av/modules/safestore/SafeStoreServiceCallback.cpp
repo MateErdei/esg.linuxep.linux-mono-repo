@@ -43,6 +43,9 @@ namespace safestore
         telemetry.increment(telemetrySafeStoreQuarantineSuccess, 0ul);
         telemetry.increment(telemetrySafeStoreQuarantineFailure, 0ul);
         telemetry.increment(telemetrySafeStoreUnlinkFailure, 0ul);
+        telemetry.increment(telemetrySafeStoreDatabaseDeletions, 0ul);
+        telemetry.increment(telemetrySafeStoreSuccessfulFileRestorations, 0ul);
+        telemetry.increment(telemetrySafeStoreFailedFileRestorations, 0ul);
 
         if (safeStoreDatabaseSize.has_value())
         {
