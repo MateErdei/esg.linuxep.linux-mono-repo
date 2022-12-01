@@ -34,9 +34,12 @@
     <linuxExclusions>
       <filePathSet>
         <filePath>/bin/</filePath>
+        <filePath>/etc/</filePath>
         <filePath>/lib/</filePath>
+        <filePath>/lib64/</filePath>
         <filePath>/mnt/</filePath>
         <filePath>/opt/</filePath>
+        <filePath>/run/</filePath>
         <filePath>/sbin/</filePath>
         <filePath>/tmp/</filePath>
         <filePath>/uk-filer5/</filePath>

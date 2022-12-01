@@ -3,7 +3,6 @@
 # Copyright (C) 2022 Sophos Ltd
 # All rights reserved.
 
-import os
 import re
 
 import six
@@ -20,7 +19,7 @@ except ImportError:
 
 class OnAccessUtils:
     @staticmethod
-    def wait_for_on_access_to_be_enabled(mark: LogHandler.LogMark, timeout=15):
+    def wait_for_on_access_to_be_enabled(mark: LogHandler.LogMark, timeout=15, file="/etc/hosts"):
         """
         Replaces
         Wait Until On Access Log Contains With Offset   On-open event for
@@ -45,12 +44,12 @@ class OnAccessUtils:
                     return
 
             time.sleep(0.1)
-            open("/etc/hosts")  # trigger some activity
+            open(file)  # trigger some activity
 
         raise AssertionError(u"On-Access not enabled within %d seconds: Logs: %s" % (timeout, u"\n".join(log_contents)))
 
     @staticmethod
-    def check_multiple_on_access_threads_are_scanning(mark: LogHandler.LogMark, min_number_of_scanners=5,timeout=60):
+    def check_multiple_on_access_threads_are_scanning(mark: LogHandler.LogMark, min_number_of_scanners=5, timeout=60):
         on_access_log = BuiltIn().get_variable_value("${ON_ACCESS_LOG_PATH}")
         mark.assert_is_good(on_access_log)
 
@@ -73,4 +72,3 @@ class OnAccessUtils:
             time.sleep(0.5)
 
         raise AssertionError(u"On-Access did not use enough scanners within %d seconds: Logs: %s" % (timeout, u"\n".join(log_contents)))
-
