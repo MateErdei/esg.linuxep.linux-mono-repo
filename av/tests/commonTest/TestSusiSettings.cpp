@@ -45,6 +45,17 @@ TEST_F(TestSusiSettings, KeepsSetValueOfMachineLearning)
     EXPECT_TRUE(susiSettings.isMachineLearningEnabled());
 }
 
+TEST_F(TestSusiSettings, compareIncludesMachineLearning)
+{
+    ThreatDetector::SusiSettings susiSettings;
+    susiSettings.setMachineLearningEnabled(true);
+
+    ThreatDetector::SusiSettings susiSettings2;
+    susiSettings2.setMachineLearningEnabled(false);
+
+    EXPECT_NE(susiSettings, susiSettings2);
+}
+
 TEST_F(TestSusiSettings, SusiSettingsHandlesLoadingEmptyJsonFile)
 {
     auto* filesystemMock = new StrictMock<MockFileSystem>();
@@ -57,7 +68,6 @@ TEST_F(TestSusiSettings, SusiSettingsHandlesLoadingEmptyJsonFile)
     EXPECT_FALSE(susiSettings.isAllowListed("something"));
     EXPECT_TRUE(susiSettings.isSxlLookupEnabled());
     EXPECT_TRUE(susiSettings.isMachineLearningEnabled());
-
 }
 
 TEST_F(TestSusiSettings, SusiSettingsHandlesLoadingEmptyButValidJsonFile)
@@ -67,8 +77,10 @@ TEST_F(TestSusiSettings, SusiSettingsHandlesLoadingEmptyButValidJsonFile)
     EXPECT_CALL(*filesystemMock, isFile("settings.json")).WillOnce(Return(true));
     EXPECT_CALL(*filesystemMock, readFile("settings.json")).WillOnce(Return("{}"));
     ThreatDetector::SusiSettings susiSettings("settings.json");
-    ASSERT_EQ(susiSettings.getAllowListSize(), 0);
-    ASSERT_FALSE(susiSettings.isAllowListed("something"));
+    EXPECT_EQ(susiSettings.getAllowListSize(), 0);
+    EXPECT_FALSE(susiSettings.isAllowListed("something"));
+    EXPECT_TRUE(susiSettings.isSxlLookupEnabled());
+    EXPECT_TRUE(susiSettings.isMachineLearningEnabled());
 }
 
 TEST_F(TestSusiSettings, SusiSettingsHandlesMissingFile)
@@ -78,8 +90,10 @@ TEST_F(TestSusiSettings, SusiSettingsHandlesMissingFile)
     EXPECT_CALL(*filesystemMock, isFile("settings.json")).WillOnce(Return(false));
     EXPECT_CALL(*filesystemMock, readFile("settings.json")).Times(0);
     ThreatDetector::SusiSettings susiSettings("settings.json");
-    ASSERT_EQ(susiSettings.getAllowListSize(), 0);
-    ASSERT_FALSE(susiSettings.isAllowListed("something"));
+    EXPECT_EQ(susiSettings.getAllowListSize(), 0);
+    EXPECT_FALSE(susiSettings.isAllowListed("something"));
+    EXPECT_TRUE(susiSettings.isSxlLookupEnabled());
+    EXPECT_TRUE(susiSettings.isMachineLearningEnabled());
 }
 
 TEST_F(TestSusiSettings, SusiSettingsReadsInAllowList)
@@ -103,7 +117,7 @@ TEST_F(TestSusiSettings, SusiSettingsReadsInSxlLookupEnabled)
     EXPECT_CALL(*filesystemMock, isFile("settings.json")).WillOnce(Return(true));
     EXPECT_CALL(*filesystemMock, readFile("settings.json")).WillOnce(Return(jsonWithAllowList));
     ThreatDetector::SusiSettings susiSettings("settings.json");
-    ASSERT_TRUE(susiSettings.isSxlLookupEnabled());
+    EXPECT_TRUE(susiSettings.isSxlLookupEnabled());
 }
 
 TEST_F(TestSusiSettings, SusiSettingsReadsInSxlLookupDisabled)
@@ -127,4 +141,58 @@ TEST_F(TestSusiSettings, SusiSettingsHandleInvalidJson)
     ASSERT_EQ(susiSettings.getAllowListSize(), 0);
     ASSERT_FALSE(susiSettings.isAllowListed("not allow listed"));
     ASSERT_TRUE(susiSettings.isSxlLookupEnabled());
+}
+
+TEST_F(TestSusiSettings, saveSettings)
+{
+    ThreatDetector::SusiSettings susiSettings;
+    ThreatDetector::AllowList allowlist;
+    allowlist.emplace_back("42268ef08462e645678ce738bd26518bc170a0404a186062e8b1bec2dc578673");
+    susiSettings.setAllowList(std::move(allowlist));
+    susiSettings.setMachineLearningEnabled(false);
+    susiSettings.setSxlLookupEnabled(false);
+
+    auto filesystemMock = std::make_unique<StrictMock<MockFileSystem>>();
+
+    std::string contents;
+    EXPECT_CALL(*filesystemMock, writeFileAtomically("path", _, _, 0))
+        .WillOnce(SaveArg<1>(&contents));
+
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(filesystemMock) };
+
+    susiSettings.saveSettings("path", 0);
+
+    std::string expectedContents = R"({"enableSxlLookup":false,"machineLearning":false,"shaAllowList":["42268ef08462e645678ce738bd26518bc170a0404a186062e8b1bec2dc578673"]})";
+    EXPECT_EQ(contents, expectedContents);
+}
+
+TEST_F(TestSusiSettings, roundTripSettings)
+{
+    ThreatDetector::SusiSettings susiSettings;
+    ThreatDetector::AllowList allowlist;
+    allowlist.emplace_back("42268ef08462e645678ce738bd26518bc170a0404a186062e8b1bec2dc578673");
+    susiSettings.setAllowList(std::move(allowlist));
+    susiSettings.setMachineLearningEnabled(false);
+    susiSettings.setSxlLookupEnabled(false);
+
+    auto filesystemMock = std::make_unique<StrictMock<MockFileSystem>>();
+
+    std::string contents;
+    EXPECT_CALL(*filesystemMock, writeFileAtomically("path", _, _, 0))
+        .WillOnce(SaveArg<1>(&contents));
+
+    auto* borrowedMockFs = filesystemMock.get();
+
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(filesystemMock) };
+
+    susiSettings.saveSettings("path", 0);
+
+    EXPECT_CALL(*borrowedMockFs, isFile("path")).WillOnce(Return(true));
+    EXPECT_CALL(*borrowedMockFs, readFile("path")).WillOnce(Return(contents));
+
+    ThreatDetector::SusiSettings susiSettingsLoaded("path");
+    EXPECT_EQ(susiSettings, susiSettingsLoaded);
+    EXPECT_EQ(susiSettings.isMachineLearningEnabled(), susiSettingsLoaded.isMachineLearningEnabled());
+    EXPECT_EQ(susiSettings.isSxlLookupEnabled(), susiSettingsLoaded.isSxlLookupEnabled());
+    EXPECT_EQ(susiSettings.getAllowListSize(), susiSettingsLoaded.getAllowListSize());
 }

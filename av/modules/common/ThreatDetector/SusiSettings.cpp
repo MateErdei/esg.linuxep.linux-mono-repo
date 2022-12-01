@@ -13,6 +13,29 @@
 
 using namespace nlohmann;
 
+namespace
+{
+    bool getBooleanFromJson(const json& parsedConfig, const std::string& key, const std::string& name, bool defaultValue)
+    {
+        if (!parsedConfig.contains(key))
+        {
+            return defaultValue;
+        }
+        bool value = parsedConfig[key];
+
+        // Added to match existing logging behaviour
+        if (value)
+        {
+            LOGDEBUG(name << " will be enabled");
+        }
+        else
+        {
+            LOGDEBUG(name << " will be disabled");
+        }
+        return value;
+    }
+}
+
 namespace common::ThreatDetector
 {
     SusiSettings::SusiSettings(const std::string& jsonSettingsPath)
@@ -24,7 +47,8 @@ namespace common::ThreatDetector
     {
         std::scoped_lock scopedLock(m_accessMutex);
         return m_susiAllowListSha256 == other.m_susiAllowListSha256 &&
-               m_susiSxlLookupEnabled == other.m_susiSxlLookupEnabled;
+               m_susiSxlLookupEnabled == other.m_susiSxlLookupEnabled &&
+               m_machineLearningEnabled == other.m_machineLearningEnabled;
     }
 
     bool SusiSettings::operator!=(const SusiSettings& other) const
@@ -52,20 +76,8 @@ namespace common::ThreatDetector
             }
             json parsedConfig = json::parse(settingsJsonContent);
 
-            if (parsedConfig.contains(ENABLED_SXL_LOOKUP_KEY))
-            {
-                m_susiSxlLookupEnabled = parsedConfig[ENABLED_SXL_LOOKUP_KEY];
-
-                // Added to match existing logging behaviour
-                if (m_susiSxlLookupEnabled)
-                {
-                    LOGDEBUG("SXL Lookups will be enabled");
-                }
-                else
-                {
-                    LOGDEBUG("SXL Lookups will be disabled");
-                }
-            }
+            m_susiSxlLookupEnabled = getBooleanFromJson(parsedConfig, ENABLED_SXL_LOOKUP_KEY, "SXL Lookups", true);
+            m_machineLearningEnabled = getBooleanFromJson(parsedConfig, MACHINE_LEARNING_KEY, "Machine Learning", true);
 
             if (parsedConfig.contains(SHA_ALLOW_LIST_KEY))
             {
@@ -104,6 +116,7 @@ namespace common::ThreatDetector
     std::string SusiSettings::serialise() const
     {
         nlohmann::json settings;
+        settings[MACHINE_LEARNING_KEY] = m_machineLearningEnabled;
         settings[ENABLED_SXL_LOOKUP_KEY] = m_susiSxlLookupEnabled;
         settings[SHA_ALLOW_LIST_KEY] = m_susiAllowListSha256;
         return settings.dump();
