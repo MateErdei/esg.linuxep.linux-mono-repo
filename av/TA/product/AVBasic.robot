@@ -432,22 +432,6 @@ AV Plugin Gets Customer ID from Obfuscated Creds
     Should Be Equal   ${customerId2}   ${expectedId}
 
 
-AV Plugin Gets Sxl Lookup Setting From SAV Policy
-    ${susiStartupSettingsChrootFile} =   Set Variable   ${AV_PLUGIN_PATH}/chroot${SUSI_STARTUP_SETTINGS_FILE}
-    Remove Files   ${SUSI_STARTUP_SETTINGS_FILE}   ${susiStartupSettingsChrootFile}
-
-    ${policyContent} =   Get SAV Policy   sxlLookupEnabled=false
-    Log    ${policyContent}
-    send av policy  SAV  ${policyContent}
-    Wait until scheduled scan updated With Offset
-
-    ${expectedSusiStartupSettings} =   Set Variable   {"enableSxlLookup":false}
-
-    Wait Until AV Plugin Log Contains With Offset  SAV policy received for the first time.
-    Wait Until Created   ${SUSI_STARTUP_SETTINGS_FILE}   timeout=5sec
-    ${susiStartupSettings} =   Get File   ${SUSI_STARTUP_SETTINGS_FILE}
-    Should Be Equal   ${susiStartupSettings}   ${expectedSusiStartupSettings}
-
 AV Plugin requests policies at startup
     Wait Until Keyword Succeeds
     ...  5 secs
