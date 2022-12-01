@@ -61,15 +61,15 @@ class ManagementAgentPluginRequester(object):
     def policy(self, app_id, policy_xml):
         self.logger.info("Sending policy XML to {} via {}, XML:{}".format(self.name, self.__m_socket_path, policy_xml))
 
-        app_id_lower = app_id.lower()
+        app_id_upper = app_id.upper()
 
-        if app_id_lower == "sav":
+        if app_id_upper == "SAV":
             filename = "SAV-2_Policy.xml"
-        elif app_id == "alc":
+        elif app_id_upper == "ALC":
             filename = "ALC-1_Policy.xml"
-        elif app_id_lower == "core":
+        elif app_id_upper == "CORE":
             filename = "CORE-36_Policy.xml"
-        elif app_id_lower == "flags":
+        elif app_id_upper == "FLAGS":
             filename = "flags.json"
         else:
             self.logger.fatal("Failed to determine policy type")
