@@ -1049,6 +1049,14 @@ File Log Contains
     def get_on_access_log_mark(self) -> LogHandler.LogMark:
         return self.mark_log_size(self.oa_log)
 
+    def get_on_access_log_mark_if_required(self, mark) -> LogHandler.LogMark:
+        """
+        Get a mark if the argument mark is None
+        """
+        if mark is not None:
+            return mark
+        return self.mark_log_size(self.oa_log)
+
     def save_on_access_log_mark_at_start_of_test(self):
         robot.libraries.BuiltIn.BuiltIn().set_test_variable("${ON_ACCESS_LOG_MARK_FROM_START_OF_TEST}",
                                                             self.get_on_access_log_mark())
