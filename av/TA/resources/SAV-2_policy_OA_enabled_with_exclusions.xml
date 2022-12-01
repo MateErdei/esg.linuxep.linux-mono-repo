@@ -34,13 +34,12 @@
     <linuxExclusions>
       <filePathSet>
         <filePath>/bin/</filePath>
-        <filePath>/etc/</filePath>
         <filePath>/lib/</filePath>
         <filePath>/mnt/</filePath>
         <filePath>/opt/</filePath>
-        <filePath>/uk-filer5/</filePath>
         <filePath>/sbin/</filePath>
         <filePath>/tmp/</filePath>
+        <filePath>/uk-filer5/</filePath>
         <filePath>/usr/</filePath>
         <filePath>/vagrant/</filePath>
         <filePath>/var/</filePath>
