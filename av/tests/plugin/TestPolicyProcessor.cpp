@@ -298,7 +298,7 @@ std::string GL_SAV_POLICY = R"sophos(<?xml version="1.0"?>
       <filePathSet/>
       <excludeRemoteFiles>false</excludeRemoteFiles>
     </exclusions>
-    <posixExclusions>f
+    <posixExclusions>
       <filePathSet/>
       <excludeRemoteFiles>false</excludeRemoteFiles>
     </posixExclusions>

@@ -25,7 +25,7 @@ ${AV_LOG_PATH}    ${AV_PLUGIN_PATH}/log/av.log
 ${TESTTMP}  /tmp_test/SSPLAVTests
 ${SOPHOS_THREAT_DETECTOR_BINARY_LAUNCHER}  ${SOPHOS_THREAT_DETECTOR_BINARY}_launcher
 ${ONACCESS_FLAG_CONFIG}  ${AV_PLUGIN_PATH}/var/oa_flag.json
-${DEFAULT_EXCLUSIONS}   ["/mnt/","/uk-filer5/","*excluded*","/opt/test/inputs/test_scripts/"]
+${DEFAULT_EXCLUSIONS}   ["/mnt/","/uk-filer5/","*excluded*","/opt/test/inputs/test_scripts/","/vagrant/"]
 
 *** Keywords ***
 On Access Alternative Suite Setup

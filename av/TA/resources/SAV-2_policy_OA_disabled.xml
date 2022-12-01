@@ -35,6 +35,9 @@
       <filePathSet>
         <filePath>/mnt/</filePath>
         <filePath>/uk-filer5/</filePath>
+        <filePath>*excluded*</filePath>
+        <filePath>/opt/test/inputs/test_scripts/</filePath>
+        <filePath>/vagrant/</filePath>
       </filePathSet>
       <excludeRemoteFiles>false</excludeRemoteFiles>
     </linuxExclusions>
@@ -72,7 +75,7 @@
       <filePathSet/>
       <excludeRemoteFiles>false</excludeRemoteFiles>
     </exclusions>
-    <posixExclusions>f
+    <posixExclusions>
       <filePathSet/>
       <excludeRemoteFiles>false</excludeRemoteFiles>
     </posixExclusions>
