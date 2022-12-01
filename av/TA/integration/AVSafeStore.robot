@@ -561,12 +561,6 @@ Allow Listed Files Are Removed From Quarantine
     Wait For Log Contains From Mark  ${av_mark}  SafeStore flag set. Setting SafeStore to enabled.    timeout=60
     Wait Until SafeStore running
 
-    # Start from known place with a CORC policy with an empty allow list
-    Stop sophos_threat_detector
-    Register Cleanup   Remove File  ${MCS_PATH}/policy/CORC_policy.xml
-    Send CORC Policy To Base  corc_policy_empty_allowlist.xml
-    Start sophos_threat_detector
-
     ${safestore_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
     ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
     ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
@@ -731,6 +725,12 @@ SafeStore Test Setup
 
     Set Suite Variable  ${safestore_tools_unpacked}  /tmp/safestoretools/tap_test_output
     Create Directory  ${NORMAL_DIRECTORY}
+
+    # Start from known place with a CORC policy with an empty allow list
+    Stop sophos_threat_detector
+    Register Cleanup   Remove File  ${MCS_PATH}/policy/CORC_policy.xml
+    Send CORC Policy To Base  corc_policy_empty_allowlist.xml
+    Start sophos_threat_detector
 
     Get AV Log Mark
     Mark Sophos Threat Detector Log
