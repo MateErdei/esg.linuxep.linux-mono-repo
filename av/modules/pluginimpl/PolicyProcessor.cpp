@@ -139,6 +139,11 @@ namespace Plugin
         }
     }
 
+    /**
+     * The only thing we are interested in from the ALC policy is getting the customer ID
+     * which is required by SUSI inside ThreatDetector
+     * @param policy
+     */
     void PolicyProcessor::processAlcPolicy(const Common::XmlUtilities::AttributesMap& policy)
     {
         auto oldCustomerId = m_customerId;

@@ -1,4 +1,4 @@
-// Copyright 2020-2022, Sophos Limited.  All rights reserved.
+// Copyright 2020-2022 Sophos Limited. All rights reserved.
 
 #pragma once
 
@@ -6,7 +6,8 @@
 #include "modules/common/ThreatDetector/SusiSettings.h"
 #include "scan_messages/ProcessControlSerialiser.h"
 
-#include <Common/XmlUtilities/AttributesMap.h>
+#include "Common/XmlUtilities/AttributesMap.h"
+
 #include <thirdparty/nlohmann-json/json.hpp>
 
 #define USE_ON_ACCESS_EXCLUSIONS_FROM_SAV_POLICY
@@ -45,7 +46,7 @@ namespace Plugin
 
         /*
          * Returns the type of policy received based on APPID and, where needed, policy type attribute
-         * For example there are 2 SAV polices.         *
+         * For example there are 2 SAV polices.
          */
         static PolicyType determinePolicyType(
             const Common::XmlUtilities::AttributesMap& policy,
@@ -72,7 +73,12 @@ namespace Plugin
 
         void processFlagSettings(const std::string& flagsJson);
         [[nodiscard]] bool isSafeStoreEnabled() const;
+        [[nodiscard]] bool shouldSafeStoreQuarantineMl() const;
 
+        /**
+         * Indicates if the previous policy requires ThreatDetector to update SUSI configuration.
+         * Only valid between policy changes.
+         */
         [[nodiscard]] bool restartThreatDetector() const
         {
             return m_restartThreatDetector;
@@ -118,14 +124,23 @@ namespace Plugin
         std::string m_customerId;
         common::ThreatDetector::SusiSettings m_threatDetectorSettings;
         bool m_safeStoreEnabled = false;
+        bool m_safeStoreQuarantineMl = false;
 
         bool m_gotFirstSavPolicy = false;
         bool m_gotFirstAlcPolicy = false;
         bool m_gotFirstCorcPolicy = false;
+
+        /**
+         * Temporary boolean.
+         * Indicates if the previous policy requires ThreatDetector to update SUSI configuration.
+         * Only valid between policy changes.
+         */
         bool m_restartThreatDetector = false;
+
         int m_pendingOnAccessProcessReload = 0;
 
-        inline static const std::string OA_FLAG { "av.onaccess.enabled" };
-        inline static const std::string SS_FLAG { "safestore.enabled" };
+        inline static const std::string OA_FLAG{ "av.onaccess.enabled" };
+        inline static const std::string SS_FLAG{ "safestore.enabled" };
+        inline static const std::string SS_ML_FLAG{ "safestore.quarantine-ml" };
     };
 } // namespace Plugin
