@@ -59,7 +59,7 @@ namespace
         }
         catch (const json::exception& ex)
         {
-            LOGINFO("Failed to parse "<< filepath << ": " << ex.what());
+            LOGWARN("Failed to parse "<< filepath << ": " << ex.what());
             return {};
         }
     }
