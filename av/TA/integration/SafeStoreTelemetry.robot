@@ -209,3 +209,6 @@ SafeStore Telemetry Is Incremented When Database Is Deleted
 
     Wait For Log Contains From Mark  ${safestoreMark}  Quarantine Manager initialised OK
 
+    Mark Expected Error In Log    ${SAFESTORE_LOG_PATH}    Failed to initialise SafeStore database: DB_ERROR
+    Mark Expected Error In Log    ${SAFESTORE_LOG_PATH}    Quarantine Manager failed to initialise
+
