@@ -24,10 +24,15 @@ namespace common::ThreatDetector
         bool isAllowListed(const std::string& threatChecksum) const;
         void setAllowList(AllowList&& allowList) noexcept;
         size_t getAllowListSize() const noexcept;
+        AllowList copyAllowList() const;
 
         // SXL lookups
         bool isSxlLookupEnabled() const noexcept;
         void setSxlLookupEnabled(bool enabled) noexcept;
+
+        // Machine Learning Enabled
+        bool isMachineLearningEnabled() const;
+        void setMachineLearningEnabled(bool enabled);
 
     private:
         // Susi can access the allow-list while we're changing it, so make sure it's thread safe.
@@ -35,9 +40,11 @@ namespace common::ThreatDetector
 
         AllowList m_susiAllowListSha256;
         bool m_susiSxlLookupEnabled = true;
+        bool m_machineLearningEnabled = true;
 
         [[nodiscard]] std::string serialise() const;
         static constexpr auto ENABLED_SXL_LOOKUP_KEY = "enableSxlLookup";
         static constexpr auto SHA_ALLOW_LIST_KEY = "shaAllowList";
+        static constexpr auto MACHINE_LEARNING_KEY = "machineLearning";
     };
 } // namespace common::ThreatDetector

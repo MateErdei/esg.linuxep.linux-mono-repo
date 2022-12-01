@@ -446,6 +446,8 @@ namespace Plugin
     void PolicyProcessor::processCOREpolicy(const AttributesMap& policy)
     {
         processOnAccessSettingsFromCOREpolicy(policy);
+
+        const auto machineLearningEnabled = boolFromString(policy.lookup("policy/coreFeatures/machineLearningEnabled").contents());
     }
 
     void PolicyProcessor::processOnAccessSettingsFromCOREpolicy(const AttributesMap& policy)
@@ -524,6 +526,9 @@ namespace Plugin
 
     void PolicyProcessor::processCorcPolicy(const Common::XmlUtilities::AttributesMap& policy)
     {
+        auto oldAllowList = m_threatDetectorSettings.copyAllowList();
+        bool m_firstPolicy = !m_gotFirstCorcPolicy;
+
         if (!m_gotFirstCorcPolicy)
         {
             LOGINFO("CORC policy received for the first time");
@@ -540,8 +545,17 @@ namespace Plugin
                 sha256AllowList.emplace_back(allowedItem.contents());
             }
         }
-        m_threatDetectorSettings.setAllowList(std::move(sha256AllowList));
-        saveSusiSettings();
+
+        if (oldAllowList != sha256AllowList)
+        {
+            m_threatDetectorSettings.setAllowList(std::move(sha256AllowList));
+            saveSusiSettings();
+            m_restartThreatDetector = true;
+        }
+        else
+        {
+            LOGDEBUG("SUSI settings from CORC policy not changed");
+        }
     }
 
     void PolicyProcessor::saveSusiSettings()

@@ -24,8 +24,25 @@ TEST_F(TestSusiSettings, SusiSettingsDefaultsSxlLookupToEnabled)
 TEST_F(TestSusiSettings, SusiSettingsDefaultsAllowListToEmpty)
 {
     ThreatDetector::SusiSettings susiSettings;
-    ASSERT_EQ(susiSettings.getAllowListSize(), 0);
-    ASSERT_FALSE(susiSettings.isAllowListed("something"));
+    EXPECT_EQ(susiSettings.getAllowListSize(), 0);
+    EXPECT_FALSE(susiSettings.isAllowListed("something"));
+    auto copy = susiSettings.copyAllowList();
+    EXPECT_EQ(copy.size(), 0);
+}
+
+TEST_F(TestSusiSettings, SusiSettingsDefaultsMachineLearningToEnabled)
+{
+    ThreatDetector::SusiSettings susiSettings;
+    EXPECT_TRUE(susiSettings.isMachineLearningEnabled());
+}
+
+TEST_F(TestSusiSettings, KeepsSetValueOfMachineLearning)
+{
+    ThreatDetector::SusiSettings susiSettings;
+    susiSettings.setMachineLearningEnabled(false);
+    EXPECT_FALSE(susiSettings.isMachineLearningEnabled());
+    susiSettings.setMachineLearningEnabled(true);
+    EXPECT_TRUE(susiSettings.isMachineLearningEnabled());
 }
 
 TEST_F(TestSusiSettings, SusiSettingsHandlesLoadingEmptyJsonFile)
@@ -34,9 +51,13 @@ TEST_F(TestSusiSettings, SusiSettingsHandlesLoadingEmptyJsonFile)
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock) };
     EXPECT_CALL(*filesystemMock, isFile("settings.json")).WillOnce(Return(true));
     EXPECT_CALL(*filesystemMock, readFile("settings.json")).WillOnce(Return(""));
+
     ThreatDetector::SusiSettings susiSettings("settings.json");
-    ASSERT_EQ(susiSettings.getAllowListSize(), 0);
-    ASSERT_FALSE(susiSettings.isAllowListed("something"));
+    EXPECT_EQ(susiSettings.getAllowListSize(), 0);
+    EXPECT_FALSE(susiSettings.isAllowListed("something"));
+    EXPECT_TRUE(susiSettings.isSxlLookupEnabled());
+    EXPECT_TRUE(susiSettings.isMachineLearningEnabled());
+
 }
 
 TEST_F(TestSusiSettings, SusiSettingsHandlesLoadingEmptyButValidJsonFile)

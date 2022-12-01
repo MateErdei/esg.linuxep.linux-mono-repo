@@ -139,4 +139,22 @@ namespace common::ThreatDetector
         std::scoped_lock scopedLock(m_accessMutex);
         return m_susiAllowListSha256.size();
     }
+
+    AllowList SusiSettings::copyAllowList() const
+    {
+        std::scoped_lock scopedLock(m_accessMutex);
+        return m_susiAllowListSha256;
+    }
+
+    bool SusiSettings::isMachineLearningEnabled() const
+    {
+        std::scoped_lock scopedLock(m_accessMutex);
+        return m_machineLearningEnabled;
+    }
+
+    void SusiSettings::setMachineLearningEnabled(bool enabled)
+    {
+        std::scoped_lock scopedLock(m_accessMutex);
+        m_machineLearningEnabled = enabled;
+    }
 } // namespace common::ThreatDetector
