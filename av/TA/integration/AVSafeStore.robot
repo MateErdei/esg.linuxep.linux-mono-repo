@@ -536,6 +536,7 @@ SafeStore Rescan Does Not Restore Or Report Threats
 
     ${av_mark} =  Get AV Log Mark
     ${ss_mark} =  Get SafeStore Log Mark
+    ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
 
     # Trigger Rescan
     Send CORC Policy To Base  corc_policy.xml
