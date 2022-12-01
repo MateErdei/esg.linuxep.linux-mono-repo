@@ -170,6 +170,9 @@ TEST_F(QuarantineManagerRescanTests, scanExtractedFiles)
     unixsocket::ScanningServerSocket server(Plugin::getScanningSocketPath(), 0600, scannerFactory);
     server.start();
 
+    // Test flakes without this sleep. Logically, server should be ready once start returns, but sometimes it isn't...
+    sleep(1);
+
     std::vector<std::string> expectedResult{ "objectId1", "objectId3" };
     auto result = quarantineManager.scanExtractedFilesForRestoreList(std::move(testFiles));
     EXPECT_EQ(expectedResult, result);
