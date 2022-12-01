@@ -688,6 +688,8 @@ AV Plugin Can Send Telemetry After IDE Update
     Wait Until Sophos Threat Detector Log Contains With Offset
     ...   UnixSocket <> Process Controller Server starting listening on socket: /var/process_control_socket
     ...   timeout=60
+    Force SUSI to be initialized
+
     Run  chmod go-rwx ${AV_PLUGIN_PATH}/chroot/susi/update_source
     ${AVPLUGIN_PID} =  Record AV Plugin PID
     ${SOPHOS_THREAT_DETECTOR_PID} =  Record Sophos Threat Detector PID
