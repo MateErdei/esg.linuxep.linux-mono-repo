@@ -909,14 +909,34 @@ TEST_F(TestPolicyProcessor, testWriteFlagConfigFailedOnAccess)
 
     PolicyProcessorUnitTestClass proc;
 
+    proc.processFlagSettings(R"sophos({"av.onaccess.enabled": false})sophos");
+
+    EXPECT_TRUE(appenderContains(
+        "Failed to write Flag Config, Sophos On Access Process will use the default settings (on-access disabled)"));
+}
+
+TEST_F(TestPolicyProcessor, testWriteFlagConfigFailedOnAccessDoesntPreventEnablingSafeStoreFlags)
+{
+    UsingMemoryAppender memAppend(*this);
+
+    EXPECT_CALL(*m_mockIFileSystemPtr, readFile(_)).WillOnce(Return(""));
+
+    Common::FileSystem::IFileSystemException ex("error!");
+    EXPECT_CALL(
+        *m_mockIFileSystemPtr,
+        writeFileAtomically(m_soapFlagConfigPath, R"sophos({"oa_enabled":false})sophos", _, 0640))
+        .WillOnce(Throw(ex));
+
+    Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
+
+    PolicyProcessorUnitTestClass proc;
+
     proc.processFlagSettings(R"sophos({"av.onaccess.enabled": false, "safestore.enabled": true})sophos");
 
     EXPECT_TRUE(appenderContains(
         "Failed to write Flag Config, Sophos On Access Process will use the default settings (on-access disabled)"));
     EXPECT_TRUE(appenderContains("SafeStore flag set. Setting SafeStore to enabled."));
-    EXPECT_TRUE(appenderContains("SafeStore Quarantine ML flag not set. SafeStore will not quarantine ML detections."));
     EXPECT_TRUE(proc.isSafeStoreEnabled());
-    EXPECT_FALSE(proc.shouldSafeStoreQuarantineMl());
 }
 
 TEST_F(TestPolicyProcessor, testProcessFlagSettingCatchesBadJson)
