@@ -35,6 +35,16 @@ namespace
     };
 }
 
+TEST_F(TestPolicyProcessor_CORE_policy, emptyPolicy)
+{
+    std::string CORE_policy{R"sophos(<?xml version="1.0"?><policy/>)sophos"};
+    expectReadCustomerIdOnce();
+    Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
+    auto attributeMap = Common::XmlUtilities::parseXml(CORE_policy);
+    PolicyProcessorUnitTestClass proc;
+    EXPECT_THROW(proc.processCOREpolicy(attributeMap), Plugin::InvalidPolicyException);
+}
+
 TEST_F(TestPolicyProcessor_CORE_policy, sendExampleCOREpolicy)
 {
     std::string CORE_policy{R"sophos(<?xml version="1.0"?>
@@ -247,6 +257,43 @@ TEST_F(TestPolicyProcessor_CORE_policy, processOnAccessPolicyDisabled)
     PolicyProcessorUnitTestClass proc;
 
     proc.processCOREpolicy(attributeMap);
+}
+
+TEST_F(TestPolicyProcessor_CORE_policy, preserveOtherSettings)
+{
+    std::string CORE_policy{R"sophos(<?xml version="1.0"?>
+<policy RevID="{{revisionId}}" policyType="36">
+  <!-- From SAV policy -->
+  <onAccessScan>
+    <enabled>false</enabled>
+    <exclusions>
+      <excludeRemoteFiles>false</excludeRemoteFiles>
+    </exclusions>
+  </onAccessScan>
+</policy>)sophos"};
+    expectReadCustomerIdOnce();
+    nlohmann::json original;
+    original["exclusions"] = nlohmann::json::array();
+    original["TestValue"] = 54;
+    original["TestBoolean"] = true;
+    std::string originalJson = original.dump();
+    EXPECT_CALL(*m_mockIFileSystemPtr, readFile(m_soapConfigPath)).WillOnce(
+        Return(originalJson));
+
+    nlohmann::json expected = original;
+    expected["enabled"] = false;
+    expected["excludeRemoteFiles"] = false;
+    std::string expectedJson = expected.dump();
+
+    EXPECT_CALL(*m_mockIFileSystemPtr, writeFileAtomically(m_soapConfigPath,
+                                                           expectedJson,
+                                                           _,
+                                                           0640));
+
+    Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
+    auto attributeMap = Common::XmlUtilities::parseXml(CORE_policy);
+    PolicyProcessorUnitTestClass proc;
+    EXPECT_NO_THROW(proc.processCOREpolicy(attributeMap));
 }
 
 TEST_F(TestPolicyProcessor_CORE_policy, processOnAccessPolicyExcludeRemoteEnabled)
