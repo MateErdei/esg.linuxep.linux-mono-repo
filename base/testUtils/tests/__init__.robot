@@ -102,13 +102,12 @@ Global Setup Tasks
     Set Global Variable  ${GeneratedWarehousePolicies}  ${SUPPORT_FILES}/CentralXml/RealWarehousePolicies/GeneratedAlcPolicies
 
 Unpack AV TAP Tools
-    Set Global Variable  ${AV_TEST_TOOLS}         ${SYSTEMPRODUCT_TEST_INPUT}/sspl-plugin-anti-virus-test-tools
-    Create Directory  ${AV_TEST_TOOLS}
-
-    ${result} =   Run Process    tar    xzf    ${SYSTEMPRODUCT_TEST_INPUT}/sspl-plugin-anti-virus/tap_test_output.tar.gz    -C    ${AV_TEST_TOOLS}
+    Create Directory  ${SYSTEMPRODUCT_TEST_INPUT}/sspl-plugin-anti-virus-test-tools
+    ${result} =   Run Process    tar    xzf    ${SYSTEMPRODUCT_TEST_INPUT}/sspl-plugin-anti-virus/tap_test_output.tar.gz    -C    ${SYSTEMPRODUCT_TEST_INPUT}/sspl-plugin-anti-virus-test-tools
     Log  ${result.stdout}
     Log  ${result.stderr}
     Should Be Equal As Integers   ${result.rc}  ${0}
+    Set Global Variable  ${AV_TEST_TOOLS}         ${SYSTEMPRODUCT_TEST_INPUT}/sspl-plugin-anti-virus-test-tools/tap_test_output
 
 Global Cleanup Tasks
     Clean Up System Product Test Output

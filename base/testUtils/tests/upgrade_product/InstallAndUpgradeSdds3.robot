@@ -123,11 +123,10 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     ...  SHS Status File Contains    ${HealthyShsStatusXmlContents}
 
     Check SafeStore Installed Correctly
-    Mark AV Log
     Mark SafeStore Log
     ${safeStoreDbDirBeforeUpgrade} =    List Files In Directory    ${SAFESTORE_DB_DIR}
-    ${safeStoreDbBeforeUpgrade} =    Get File    ${SAFESTORE_DB_PATH}
     ${safeStorePasswordBeforeUpgrade} =    Get File    ${SAFESTORE_DB_PASSWORD_PATH}
+    ${databaseContentBeforeUpgrade} =    Run Process    ${AV_TEST_TOOLS}/safestore_print_tool
 
     Mark Watchdog Log
     Mark Managementagent Log
@@ -171,7 +170,7 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     Check All Product Logs Do Not Contain Critical
 
     Check Current Release With AV Installed Correctly
-    Check SafeStore Upgraded Correctly with Persisted Database    ${safeStoreDbDirBeforeUpgrade}    ${safeStoreDbBeforeUpgrade}    ${safeStorePasswordBeforeUpgrade}
+    Check SafeStore Database Was Persisted    ${safeStoreDbDirBeforeUpgrade}    ${databaseContentBeforeUpgrade}    ${safeStorePasswordBeforeUpgrade}
     Wait For RuntimeDetections to be Installed
     Check Expected Versions Against Installed Versions    &{expectedVUTVersions}
 
@@ -209,6 +208,10 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     Check SulDownloader Log Should Not Contain    Running in SDDS2 updating mode
 
     Check Current Release With AV Installed Correctly
+    Mark SafeStore Log
+    ${safeStoreDbDirBeforeUpgrade} =    List Files In Directory    ${SAFESTORE_DB_DIR}
+    ${safeStorePasswordBeforeUpgrade} =    Get File    ${SAFESTORE_DB_PASSWORD_PATH}
+    ${databaseContentBeforeUpgrade} =    Run Process    ${AV_TEST_TOOLS}/safestore_print_tool
     Check Expected Versions Against Installed Versions    &{expectedVUTVersions}
 
     Directory Should Not Exist   ${SOPHOS_INSTALL}/logs/base/downgrade-backup
@@ -274,6 +277,7 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
 
     Check EAP Release With AV Installed Correctly
     Check SafeStore Installed Correctly
+    Check SafeStore Database Was Persisted    ${safeStoreDbDirBeforeUpgrade}    ${databaseContentBeforeUpgrade}    ${safeStorePasswordBeforeUpgrade}
     Check Expected Versions Against Installed Versions    &{expectedDogfoodVersions}
 
     # Check users haven't been removed and added back

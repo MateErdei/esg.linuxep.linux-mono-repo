@@ -75,10 +75,12 @@ Check SafeStore Installed Correctly
     Check SafeStore Database Exists
     Check SafeStore Permissions And Owner
 
-Check SafeStore Upgraded Correctly with Persisted Database
-    [Arguments]    ${oldDatabaseDirectory}    ${oldDatabase}    ${oldPassword}
-
-    Check Marked AV Log Contains    Successfully restored old SafeStore database
+Check SafeStore Database Was Persisted
+    [Arguments]    ${oldDatabaseDirectory}    ${oldDatabaseContent}    ${oldPassword}
+    Wait Until Keyword Succeeds
+    ...    60 secs
+    ...    5 secs
+    ...    Check SulDownloader Log Contains    Successfully restored old SafeStore database
 
     File Should Exist    ${SAFESTORE_BIN}
     Wait Until Keyword Succeeds
@@ -93,9 +95,10 @@ Check SafeStore Upgraded Correctly with Persisted Database
     ...    15 secs
     ...    1 secs
     ...    Check Marked SafeStore Log Contains    SafeStore started
-    Check SafeStore Database Exists
+#    TODO LINUXDAR-6268: Enable once 2022-51 sprint build is in dogfood
+#    Check SafeStore Database Exists
     Check SafeStore Permissions And Owner
-    Check SafeStore Database Has Not Changed    ${oldDatabaseDirectory}    ${oldDatabase}    ${oldPassword}
+    Check SafeStore Database Has Not Changed    ${oldDatabaseDirectory}    ${oldDatabaseContent}    ${oldPassword}
 
 Check SafeStore Database Exists
     Directory Should Exist    ${SAFESTORE_DB_DIR}
@@ -104,16 +107,17 @@ Check SafeStore Database Exists
     File Exists With Permissions    ${SAFESTORE_DB_PASSWORD_PATH}    root    root    -rw-------
 
 Check SafeStore Database Has Not Changed
-    [Arguments]    ${oldDatabaseDirectory}    ${oldDatabase}    ${oldPassword}
+    [Arguments]    ${oldDatabaseDirectory}    ${oldDatabaseContent}    ${oldPassword}
     ${currentDatabaseDirectory} =    List Files In Directory    ${SAFESTORE_DB_DIR}
-    ${currentDatabase} =    Get File    ${SAFESTORE_DB_PATH}
     ${currentPassword} =    Get File    ${SAFESTORE_DB_PASSWORD_PATH}
 
     # Removing tmp file: https://www.sqlite.org/tempfiles.html
     Remove Values From List    ${oldDatabaseDirectory}    safestore.db-journal
     Should Be Equal    ${oldDatabaseDirectory}    ${currentDatabaseDirectory}
 
-    Should Be Equal As Strings    ${oldDatabase}    ${currentDatabase}
+    ${result} =    Run Process    ${AV_TEST_TOOLS}/safestore_print_tool
+
+    Should Be Equal As Strings    ${oldDatabaseContent.stdout}    ${result.stdout}
     Should Be Equal As Strings    ${oldPassword}    ${currentPassword}
 
 
