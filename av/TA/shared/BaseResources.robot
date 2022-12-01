@@ -80,7 +80,7 @@ Send Policies to disable on-access
     Send CORE Policy To Base  core_policy/CORE-36_oa_disabled.xml
     #TODO: LINUXDAR-5723 re-enable after ticket is fixed
     #Send Flags Policy To Base  flags_policy/flags.json
-    ${expected} =  create List  on-access will be disabled  On-access scanning disabled
+    ${expected} =  create List  on-access will be disabled  On-access scanning disabled  On-access enabled: false
     wait for on access log contains after mark  ${expected}  mark=${mark}
 
 Send Policy To Base
