@@ -86,7 +86,7 @@ common::CentralEnums::QuarantineResult unixsocket::SafeStoreClient::waitForRespo
         {
             if (fds[1].revents & POLLIN)
             {
-                LOGDEBUG("Received stop notification on safestore thread");
+                LOGWARN("Received stop notification on safestore thread");
                 return common::CentralEnums::QuarantineResult::FAILED_TO_DELETE_FILE;
             }
         }
