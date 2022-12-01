@@ -548,13 +548,15 @@ namespace safestore::QuarantineManager
         auto objectName = m_safeStore->getObjectName(*objectHandle);
         if (objectName.empty())
         {
-            LOGWARN("Couldn't get object name for: " << objectId << ".");
+            LOGERROR("Couldn't get object name for: " << objectId);
+            return {};
         }
 
         auto objectLocation = m_safeStore->getObjectLocation(*objectHandle);
         if (objectLocation.empty())
         {
-            LOGWARN("Couldn't get object location for: " << objectId << ".");
+            LOGERROR("Couldn't get object location for: " << objectId);
+            return {};
         }
 
         const std::string path = objectLocation + "/" + objectName;
@@ -585,6 +587,7 @@ namespace safestore::QuarantineManager
             return restoreReport;
         }
         restoreReport.wasSuccessful = true;
+        LOGDEBUG("ObjectId successfully deleted from database: " << objectId);
         return restoreReport;
     }
 

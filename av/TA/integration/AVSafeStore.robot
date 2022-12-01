@@ -539,9 +539,10 @@ SafeStore Rescan Does Not Restore Or Report Threats
 
     # Trigger Rescan
     Send CORC Policy To Base  corc_policy.xml
+    Register Cleanup  Send CORC Policy To Base  corc_policy_empty_allowlist.xml
 
-    Wait For SafeStore Log Contains After Mark  Added SHA256 to allow list: c88e20178a82af37a51b030cb3797ed144126cad09193a6c8c7e95957cf9c3f9    ${av_mark}
-    Wait For SafeStore Log Contains After Mark  Triggering rescan of SafeStore database    ${td_mark}
+    Wait For Log Contains From Mark  ${av_mark}  Added SHA256 to allow list: c88e20178a82af37a51b030cb3797ed144126cad09193a6c8c7e95957cf9c3f9
+    Wait For Log Contains From Mark  ${td_mark}  Triggering rescan of SafeStore database
 
     Wait For SafeStore Log Contains After Mark  SafeStore Database Rescan request received.  ${ss_mark}   timeout=10
     Wait For SafeStore Log Contains After Mark  Rescan found quarantined file still a threat: ${NORMAL_DIRECTORY}/${eicar1}  ${ss_mark}  timeout=5
@@ -570,26 +571,28 @@ Allow Listed Files Are Removed From Quarantine
     Wait For Log Contains From Mark   ${av_mark}   SafeStore flag set. Setting SafeStore to enabled.   timeout=60
 
     # Create threat to scan
-    ${allow_listed_threat_file} =  Set Variable  /tmp_test/MLengHighScore.exe
-    Create Directory  /tmp_test/
+    ${allow_listed_threat_file} =  Set Variable  ${NORMAL_DIRECTORY}/MLengHighScore.exe
+    Create Directory  ${NORMAL_DIRECTORY}/
     DeObfuscate File  ${RESOURCES_PATH}/file_samples_obfuscated/MLengHighScore.exe  ${allow_listed_threat_file}
     Register Cleanup  Remove File  ${allow_listed_threat_file}
     Should Exist  ${allow_listed_threat_file}
 
     # Scan threat
-    ${rc}   ${output} =    Run And Return Rc And Output   ${AVSCANNER} /tmp_test/MLengHighScore.exe
-    Log  ${output}
+    ${rc}   ${output} =    Run And Return Rc And Output   ${AVSCANNER} ${NORMAL_DIRECTORY}/MLengHighScore.exe
+    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
 
     Wait For Log Contains From Mark  ${ss_mark}  Finalised file: ${allow_listed_threat_file}
     Should Not Exist  ${allow_listed_threat_file}
 
     ${ss_mark} =  Get SafeStore Log Mark
 
-    # Trigger Rescan
+    # Allow-list the file
     Send CORC Policy To Base  corc_policy.xml
+    Register Cleanup  Send CORC Policy To Base  corc_policy_empty_allowlist.xml
 
     wait_for_log_contains_from_mark  ${av_mark}  Added SHA256 to allow list: c88e20178a82af37a51b030cb3797ed144126cad09193a6c8c7e95957cf9c3f9
     wait_for_log_contains_from_mark  ${td_mark}  Triggering rescan of SafeStore database
+    Wait For Log Contains From Mark  ${ss_mark}  SafeStore Database Rescan request received
 
     wait_for_log_contains_from_mark  ${td_mark}  Allowed by SHA256: c88e20178a82af37a51b030cb3797ed144126cad09193a6c8c7e95957cf9c3f9
     Wait For Log Contains From Mark  ${ss_mark}  Restored file to disk: ${allow_listed_threat_file}
@@ -600,8 +603,7 @@ Allow Listed Files Are Removed From Quarantine
     ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
 
     # Scan threat
-    ${rc}   ${output} =    Run And Return Rc And Output   ${AVSCANNER} /tmp_test/MLengHighScore.exe
-    Log  ${output}
+    ${rc}   ${output} =    Run And Return Rc And Output   ${AVSCANNER} ${NORMAL_DIRECTORY}/MLengHighScore.exe
     Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
 
     # File is allowed and not treated as a threat

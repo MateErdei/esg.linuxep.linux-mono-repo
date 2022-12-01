@@ -69,7 +69,7 @@ TEST_F(QuarantineManagerRescanTests, scanExtractedFilesForRestoreListDoesNothing
 
     quarantineManager.scanExtractedFilesForRestoreList(std::move(testFiles));
     std::string logMessage = internal::GetCapturedStderr();
-    ASSERT_THAT(logMessage, ::testing::HasSubstr("No files to Rescan"));
+    EXPECT_THAT(logMessage, ::testing::HasSubstr("No files to Rescan"));
 }
 
 TEST_F(QuarantineManagerRescanTests, scanExtractedFiles)
@@ -195,7 +195,7 @@ TEST_F(QuarantineManagerRescanTests, scanExtractedFilesSocketFailure)
     EXPECT_EQ(expectedResult, result);
 
     std::string logMessage = internal::GetCapturedStderr();
-    ASSERT_THAT(logMessage, ::testing::HasSubstr("ERROR Error on rescan request: "));
+    EXPECT_THAT(logMessage, ::testing::HasSubstr("ERROR Error on rescan request: "));
 }
 
 TEST_F(QuarantineManagerRescanTests, scanExtractedFilesSkipsHandleFailure)
@@ -260,8 +260,8 @@ TEST_F(QuarantineManagerRescanTests, scanExtractedFilesSkipsHandleFailure)
     server.join();
 
     std::string logMessage = internal::GetCapturedStderr();
-    ASSERT_THAT(logMessage, ::testing::HasSubstr("ERROR Couldn't get object handle for: objectId1, continuing..."));
-    ASSERT_THAT(logMessage, ::testing::HasSubstr("Rescan found quarantined file still a threat: /threat/path/two"));
+    EXPECT_THAT(logMessage, ::testing::HasSubstr("ERROR Couldn't get object handle for: objectId1, continuing..."));
+    EXPECT_THAT(logMessage, ::testing::HasSubstr("Rescan found quarantined file still a threat: /threat/path/two"));
 }
 
 TEST_F(QuarantineManagerRescanTests, scanExtractedFilesHandlesNameAndLocationFailure)
@@ -308,8 +308,8 @@ TEST_F(QuarantineManagerRescanTests, scanExtractedFilesHandlesNameAndLocationFai
     server.join();
 
     std::string logMessage = internal::GetCapturedStderr();
-    ASSERT_THAT(logMessage, ::testing::HasSubstr("WARN Couldn't get object name for: objectId1."));
-    ASSERT_THAT(logMessage, ::testing::HasSubstr("WARN Couldn't get object location for: objectId1."));
+    EXPECT_THAT(logMessage, ::testing::HasSubstr("WARN Couldn't get object name for: objectId1."));
+    EXPECT_THAT(logMessage, ::testing::HasSubstr("WARN Couldn't get object location for: objectId1."));
 }
 
 TEST_F(QuarantineManagerRescanTests, restoreFileDoesNothingIfCannotGetObjectHandle)
@@ -332,7 +332,65 @@ TEST_F(QuarantineManagerRescanTests, restoreFileDoesNothingIfCannotGetObjectHand
     EXPECT_FALSE(quarantineManager.restoreFile(objectId).has_value());
 
     std::string logMessage = internal::GetCapturedStderr();
-    ASSERT_THAT(logMessage, ::testing::HasSubstr("ERROR Couldn't get object handle for: objectId"));
+    EXPECT_THAT(logMessage, ::testing::HasSubstr("ERROR Couldn't get object handle for: objectId"));
+}
+
+
+TEST_F(QuarantineManagerRescanTests, restoreFileReturnsEarlyOnMissingNameAndLocation)
+{
+    testing::internal::CaptureStderr();
+    QuarantineManagerImpl quarantineManager{ std::unique_ptr<StrictMock<MockISafeStoreWrapper>>(
+        m_mockSafeStoreWrapper) };
+
+    std::string objectId = "objectId";
+    std::string threatId = "threatId";
+
+    auto mockGetIdMethods = std::make_shared<StrictMock<MockISafeStoreGetIdMethods>>();
+    auto mockReleaseMethods = std::make_shared<StrictMock<MockISafeStoreReleaseMethods>>();
+
+    void* rawHandle = reinterpret_cast<SafeStoreObjectHandle>(1111);
+    auto objectHandle = std::make_unique<ObjectHandleHolder>(mockGetIdMethods, mockReleaseMethods);
+    *objectHandle->getRawHandlePtr() = rawHandle;
+    auto handleAsArg = Property(&ObjectHandleHolder::getRawHandle, rawHandle); // Matches argument with raw handle
+    EXPECT_CALL(*mockReleaseMethods, releaseObjectHandle(rawHandle));
+
+    EXPECT_CALL(*m_mockSafeStoreWrapper, createObjectHandleHolder()).WillOnce(Return(ByMove(std::move(objectHandle))));
+    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectHandle("objectId", _)).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectName(handleAsArg)).WillOnce(Return(""));
+
+    EXPECT_FALSE(quarantineManager.restoreFile(objectId).has_value());
+
+    std::string logMessage = internal::GetCapturedStderr();
+    EXPECT_THAT(logMessage, ::testing::HasSubstr("ERROR Couldn't get object name for: objectId"));
+}
+
+TEST_F(QuarantineManagerRescanTests, restoreFileReturnsEarlyOnMissingLocation)
+{
+    testing::internal::CaptureStderr();
+    QuarantineManagerImpl quarantineManager{ std::unique_ptr<StrictMock<MockISafeStoreWrapper>>(
+        m_mockSafeStoreWrapper) };
+
+    std::string objectId = "objectId";
+    std::string threatId = "threatId";
+
+    auto mockGetIdMethods = std::make_shared<StrictMock<MockISafeStoreGetIdMethods>>();
+    auto mockReleaseMethods = std::make_shared<StrictMock<MockISafeStoreReleaseMethods>>();
+
+    void* rawHandle = reinterpret_cast<SafeStoreObjectHandle>(1111);
+    auto objectHandle = std::make_unique<ObjectHandleHolder>(mockGetIdMethods, mockReleaseMethods);
+    *objectHandle->getRawHandlePtr() = rawHandle;
+    auto handleAsArg = Property(&ObjectHandleHolder::getRawHandle, rawHandle); // Matches argument with raw handle
+    EXPECT_CALL(*mockReleaseMethods, releaseObjectHandle(rawHandle));
+
+    EXPECT_CALL(*m_mockSafeStoreWrapper, createObjectHandleHolder()).WillOnce(Return(ByMove(std::move(objectHandle))));
+    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectHandle("objectId", _)).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectName(handleAsArg)).WillOnce(Return("onbjectName"));
+    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectLocation(handleAsArg)).WillOnce(Return(""));
+
+    EXPECT_FALSE(quarantineManager.restoreFile(objectId).has_value());
+
+    std::string logMessage = internal::GetCapturedStderr();
+    EXPECT_THAT(logMessage, ::testing::HasSubstr("ERROR Couldn't get object location for: objectId"));
 }
 
 TEST_F(QuarantineManagerRescanTests, restoreFileDoesNothingIfCannotGetThreatId)
@@ -363,43 +421,9 @@ TEST_F(QuarantineManagerRescanTests, restoreFileDoesNothingIfCannotGetThreatId)
     EXPECT_FALSE(quarantineManager.restoreFile(objectId).has_value());
 
     std::string logMessage = internal::GetCapturedStderr();
-    ASSERT_THAT(
+    EXPECT_THAT(
         logMessage,
         ::testing::HasSubstr("ERROR Couldn't get threatId for: /path/to/location/testName, unable to restore."));
-}
-
-TEST_F(QuarantineManagerRescanTests, restoreFileHandlesMissingNameAndLocation)
-{
-    testing::internal::CaptureStderr();
-    QuarantineManagerImpl quarantineManager{ std::unique_ptr<StrictMock<MockISafeStoreWrapper>>(
-        m_mockSafeStoreWrapper) };
-
-    std::string objectId = "objectId";
-    std::string threatId = "threatId";
-
-    auto mockGetIdMethods = std::make_shared<StrictMock<MockISafeStoreGetIdMethods>>();
-    auto mockReleaseMethods = std::make_shared<StrictMock<MockISafeStoreReleaseMethods>>();
-
-    void* rawHandle = reinterpret_cast<SafeStoreObjectHandle>(1111);
-    auto objectHandle = std::make_unique<ObjectHandleHolder>(mockGetIdMethods, mockReleaseMethods);
-    *objectHandle->getRawHandlePtr() = rawHandle;
-    auto handleAsArg = Property(&ObjectHandleHolder::getRawHandle, rawHandle); // Matches argument with raw handle
-    EXPECT_CALL(*mockReleaseMethods, releaseObjectHandle(rawHandle));
-
-    EXPECT_CALL(*m_mockSafeStoreWrapper, createObjectHandleHolder()).WillOnce(Return(ByMove(std::move(objectHandle))));
-    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectHandle("objectId", _)).WillOnce(Return(true));
-    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectName(handleAsArg)).WillOnce(Return(""));
-    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectLocation(handleAsArg)).WillOnce(Return(""));
-    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectThreatId(handleAsArg)).WillOnce(Return(threatId));
-    EXPECT_CALL(*m_mockSafeStoreWrapper, restoreObjectById(objectId)).WillOnce(Return(true));
-    EXPECT_CALL(*m_mockSafeStoreWrapper, deleteObjectById(objectId)).WillOnce(Return(true));
-
-    EXPECT_TRUE(quarantineManager.restoreFile(objectId).value().wasSuccessful);
-
-    std::string logMessage = internal::GetCapturedStderr();
-    ASSERT_THAT(logMessage, ::testing::HasSubstr("WARN Couldn't get object name for: objectId."));
-    ASSERT_THAT(logMessage, ::testing::HasSubstr("WARN Couldn't get object location for: objectId."));
-    ASSERT_THAT(logMessage, ::testing::HasSubstr("INFO Restored file to disk: /"));
 }
 
 TEST_F(QuarantineManagerRescanTests, restoreFileReturnsEarlyIfRestoreFails)
@@ -432,7 +456,7 @@ TEST_F(QuarantineManagerRescanTests, restoreFileReturnsEarlyIfRestoreFails)
     EXPECT_FALSE(quarantineManager.restoreFile(objectId).value().wasSuccessful);
 
     std::string logMessage = internal::GetCapturedStderr();
-    ASSERT_THAT(logMessage, ::testing::HasSubstr("ERROR Unable to restore clean file: /path/to/location/testName"));
+    EXPECT_THAT(logMessage, ::testing::HasSubstr("ERROR Unable to restore clean file: /path/to/location/testName"));
 }
 
 TEST_F(QuarantineManagerRescanTests, restoreFileReturnsEarlyIfDeleteFails)
@@ -466,8 +490,48 @@ TEST_F(QuarantineManagerRescanTests, restoreFileReturnsEarlyIfDeleteFails)
     EXPECT_FALSE(quarantineManager.restoreFile(objectId).value().wasSuccessful);
 
     std::string logMessage = internal::GetCapturedStderr();
-    ASSERT_THAT(logMessage, ::testing::HasSubstr("INFO Restored file to disk: /path/to/location/testName"));
-    ASSERT_THAT(
+    EXPECT_THAT(logMessage, ::testing::HasSubstr("INFO Restored file to disk: /path/to/location/testName"));
+    EXPECT_THAT(
         logMessage,
         ::testing::HasSubstr("ERROR Unable to remove file from SafeStore database: /path/to/location/testName"));
+}
+
+TEST_F(QuarantineManagerRescanTests, restoreFileReturnsReportOnSuccess)
+{
+    testing::internal::CaptureStderr();
+    QuarantineManagerImpl quarantineManager{ std::unique_ptr<StrictMock<MockISafeStoreWrapper>>(
+        m_mockSafeStoreWrapper) };
+
+    std::string objectId = "objectId";
+    std::string objectName = "testName";
+    std::string objectLocation = "/path/to/location";
+    std::string threatId = "threatId";
+
+    auto mockGetIdMethods = std::make_shared<StrictMock<MockISafeStoreGetIdMethods>>();
+    auto mockReleaseMethods = std::make_shared<StrictMock<MockISafeStoreReleaseMethods>>();
+
+    void* rawHandle = reinterpret_cast<SafeStoreObjectHandle>(1111);
+    auto objectHandle = std::make_unique<ObjectHandleHolder>(mockGetIdMethods, mockReleaseMethods);
+    *objectHandle->getRawHandlePtr() = rawHandle;
+    auto handleAsArg = Property(&ObjectHandleHolder::getRawHandle, rawHandle); // Matches argument with raw handle
+    EXPECT_CALL(*mockReleaseMethods, releaseObjectHandle(rawHandle));
+
+    EXPECT_CALL(*m_mockSafeStoreWrapper, createObjectHandleHolder()).WillOnce(Return(ByMove(std::move(objectHandle))));
+    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectHandle("objectId", _)).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectName(handleAsArg)).WillOnce(Return(objectName));
+    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectLocation(handleAsArg)).WillOnce(Return(objectLocation));
+    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectThreatId(handleAsArg)).WillOnce(Return(threatId));
+    EXPECT_CALL(*m_mockSafeStoreWrapper, restoreObjectById(objectId)).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockSafeStoreWrapper, deleteObjectById(objectId)).WillOnce(Return(true));
+
+    auto result = quarantineManager.restoreFile(objectId);
+    EXPECT_TRUE(result.value().wasSuccessful);
+    EXPECT_EQ(result.value().path, "/path/to/location/testName");
+    EXPECT_EQ(result.value().correlationId, threatId);
+
+    std::string logMessage = internal::GetCapturedStderr();
+    EXPECT_THAT(logMessage, ::testing::HasSubstr("INFO Restored file to disk: /path/to/location/testName"));
+    EXPECT_THAT(
+        logMessage,
+        ::testing::HasSubstr("DEBUG ObjectId successfully deleted from database: objectId"));
 }
