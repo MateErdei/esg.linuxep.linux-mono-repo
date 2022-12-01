@@ -212,3 +212,67 @@ SafeStore Telemetry Is Incremented When Database Is Deleted
     Mark Expected Error In Log    ${SAFESTORE_LOG_PATH}    Failed to initialise SafeStore database: DB_ERROR
     Mark Expected Error In Log    ${SAFESTORE_LOG_PATH}    Quarantine Manager failed to initialise
 
+SafeStore Telemetry Is Incremented When File Is Successfully Restored
+    # Start from known place with a CORC policy with an empty allow list
+    Stop sophos_threat_detector
+    Register Cleanup   Remove File  ${MCS_PATH}/policy/CORC_policy.xml
+    Send CORC Policy To Base  corc_policy_empty_allowlist.xml
+    Start sophos_threat_detector
+
+    ${safestoreMark} =  Mark Log Size    ${SAFESTORE_LOG_PATH}
+    ${avMark} =  Mark AV Log
+
+    # Create threat to scan
+    ${threat_file} =  Set Variable  ${NORMAL_DIRECTORY}/MLengHighScore.exe
+    Create Directory  ${NORMAL_DIRECTORY}/
+    DeObfuscate File  ${RESOURCES_PATH}/file_samples_obfuscated/MLengHighScore.exe  ${threat_file}
+    Register Cleanup  Remove File  ${threat_file}
+    File Should Exist  ${threat_file}
+
+    # Scan threat
+    Run Process    ${AVSCANNER}    ${NORMAL_DIRECTORY}/MLengHighScore.exe
+    Wait For Log Contains From Mark    ${safestoreMark}   Quarantined ${NORMAL_DIRECTORY}/MLengHighScore.exe successfully
+    File Should Not Exist  ${threat_file}
+
+    # Allow-list the file
+    Send CORC Policy To Base  corc_policy.xml
+    Wait For AV Log Contains After Mark    Added SHA256 to allow list: c88e20178a82af37a51b030cb3797ed144126cad09193a6c8c7e95957cf9c3f9    ${avMark}
+    Wait For Log Contains From Mark    ${safestoreMark}   SafeStore Database Rescan request received
+
+    Wait For Log Contains From Mark  ${safestoreMark}  Successfully restored object to original path
+    Check SafeStore Telemetry    successful-file-restorations   1
+
+SafeStore Telemetry Is Incremented When File Restoration Fails
+    # Start from known place with a CORC policy with an empty allow list
+    Stop sophos_threat_detector
+    Register Cleanup   Remove File  ${MCS_PATH}/policy/CORC_policy.xml
+    Send CORC Policy To Base  corc_policy_empty_allowlist.xml
+    Start sophos_threat_detector
+
+    ${safestoreMark} =  Mark Log Size    ${SAFESTORE_LOG_PATH}
+    ${avMark} =  Mark AV Log
+
+    # Create threat to scan
+    ${threat_file} =  Set Variable  ${NORMAL_DIRECTORY}/MLengHighScore.exe
+    Create Directory  ${NORMAL_DIRECTORY}/
+    DeObfuscate File  ${RESOURCES_PATH}/file_samples_obfuscated/MLengHighScore.exe  ${threat_file}
+    Register Cleanup  Remove File  ${threat_file}
+    File Should Exist  ${threat_file}
+
+    # Scan threat
+    Run Process    ${AVSCANNER}    ${NORMAL_DIRECTORY}/MLengHighScore.exe
+    Wait For Log Contains From Mark    ${safestoreMark}   Quarantined ${NORMAL_DIRECTORY}/MLengHighScore.exe successfully
+    File Should Not Exist  ${threat_file}
+
+    Remove Directory    ${NORMAL_DIRECTORY}
+
+    # Allow-list the file
+    Send CORC Policy To Base  corc_policy.xml
+    Wait For AV Log Contains After Mark    Added SHA256 to allow list: c88e20178a82af37a51b030cb3797ed144126cad09193a6c8c7e95957cf9c3f9    ${avMark}
+    Wait For Log Contains From Mark    ${safestoreMark}   SafeStore Database Rescan request received
+
+    Wait For Log Contains From Mark  ${safestoreMark}  Got SR_RESTORE_FAILED when trying to restore an object
+    Check SafeStore Telemetry    failed-file-restorations   1
+
+    Mark Expected Error In Log    ${SAFESTORE_LOG_PATH}    Got SR_RESTORE_FAILED when trying to restore an object
+
