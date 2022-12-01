@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2020-2021, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2022 Sophos Limited. All rights reserved.
 
 #include "ScannerInfo.h"
 
@@ -11,7 +7,7 @@ Copyright 2020-2021, Sophos Limited.  All rights reserved.
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 #include "Common/UtilityImpl/StringUtils.h"
 
-std::string threat_scanner::createScannerInfo(bool scanArchives, bool scanImages)
+std::string threat_scanner::createScannerInfo(bool scanArchives, bool scanImages, bool machineLearning)
 {
     std::string scannerInfo = Common::UtilityImpl::StringUtils::orderedStringReplace(R"sophos("scanner": {
         "signatureBased": {
@@ -36,11 +32,17 @@ std::string threat_scanner::createScannerInfo(bool scanArchives, bool scanImages
                 "stopOnArchiveBombs": true,
                 "submitToAnalysis": false
             }
+        },
+        "nextGen": {
+            "scanControl": {
+                "machineLearning": @@MACHINE_LEARNING@@
+            }
         }
     })sophos", {
                              {"@@SCAN_ARCHIVES@@", scanArchives?"true":"false"},
                              {"@@WEB_ARCHIVES@@",  scanArchives?"true":"false"},
                              {"@@DISC_IMAGE@@",  scanImages?"true":"false"},
+                             {"@@MACHINE_LEARNING@@",  machineLearning?"true":"false"},
                          });
 
     return scannerInfo;

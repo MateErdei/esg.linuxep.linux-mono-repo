@@ -3,6 +3,8 @@
 #include "sophos_threat_detector/threat_scanner/ScannerInfo.h"
 #include "sophos_threat_detector/threat_scanner/ThrowIfNotOk.h"
 
+#include <thirdparty/nlohmann-json/json.hpp>
+
 #include <gtest/gtest.h>
 
 #include <SusiTypes.h>
@@ -10,7 +12,7 @@
 
 using namespace threat_scanner;
 
-TEST(TestThreatScanner, test_SusiScannerConstruction)
+TEST(TestScannerInfo, test_SusiScannerConstruction)
 {
     const std::string scannerInfo = R"("scanner": {
         "signatureBased": {
@@ -35,13 +37,18 @@ TEST(TestThreatScanner, test_SusiScannerConstruction)
                 "stopOnArchiveBombs": true,
                 "submitToAnalysis": false
             }
+        },
+        "nextGen": {
+            "scanControl": {
+                "machineLearning": false
+            }
         }
     })";
 
-    EXPECT_EQ(createScannerInfo(false, false), scannerInfo);
+    EXPECT_EQ(createScannerInfo(false, false, false), scannerInfo);
 }
 
-TEST(TestThreatScanner, test_SusiScannerConstructionWithScanArchives)
+TEST(TestScannerInfo, test_SusiScannerConstructionWithScanArchives)
 {
     const std::string scannerInfo = R"("scanner": {
         "signatureBased": {
@@ -66,13 +73,18 @@ TEST(TestThreatScanner, test_SusiScannerConstructionWithScanArchives)
                 "stopOnArchiveBombs": true,
                 "submitToAnalysis": false
             }
+        },
+        "nextGen": {
+            "scanControl": {
+                "machineLearning": false
+            }
         }
     })";
 
-    EXPECT_EQ(createScannerInfo(true, false), scannerInfo);
+    EXPECT_EQ(createScannerInfo(true, false, false), scannerInfo);
 }
 
-TEST(TestThreatScanner, test_SusiScannerConstructionWithScanImages)
+TEST(TestScannerInfo, test_SusiScannerConstructionWithScanImages)
 {
     static const std::string scannerInfo = R"("scanner": {
         "signatureBased": {
@@ -97,10 +109,33 @@ TEST(TestThreatScanner, test_SusiScannerConstructionWithScanImages)
                 "stopOnArchiveBombs": true,
                 "submitToAnalysis": false
             }
+        },
+        "nextGen": {
+            "scanControl": {
+                "machineLearning": false
+            }
         }
     })";
 
-    EXPECT_EQ(createScannerInfo(false, true), scannerInfo);
+    EXPECT_EQ(createScannerInfo(false, true, false), scannerInfo);
+}
+
+TEST(TestScannerInfo, machineLearningTrue)
+{
+    const auto actual = createScannerInfo(false, true, true);
+
+    using namespace nlohmann;
+    json parsed = json::parse("{" + actual + "}");
+    EXPECT_EQ(parsed.at("scanner").at("nextGen").at("scanControl").at("machineLearning"), true);
+}
+
+TEST(TestScannerInfo, machineLearningFalse)
+{
+    const auto actual = createScannerInfo(false, true, false);
+
+    using namespace nlohmann;
+    json parsed = json::parse("{" + actual + "}");
+    EXPECT_EQ(parsed.at("scanner").at("nextGen").at("scanControl").at("machineLearning"), false);
 }
 
 TEST(TestThrowIfNotOk, TestOk)

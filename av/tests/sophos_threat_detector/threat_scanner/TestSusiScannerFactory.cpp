@@ -12,6 +12,7 @@
 
 #define TEST_PUBLIC public
 
+#include "sophos_threat_detector/threat_scanner/ScannerInfo.h"
 #include "sophos_threat_detector/threat_scanner/SusiScannerFactory.h"
 
 using namespace threat_scanner;
@@ -86,34 +87,12 @@ TEST_F(TestSusiScannerFactory, testCreateScannerWithMockSusiWrapperArchivesAndIm
     auto wrapperFactory = std::make_shared<::testing::StrictMock<MockSusiWrapperFactory>>();
     SusiScannerFactory factory(wrapperFactory, nullptr, nullptr, nullptr);
 
-    const std::string scannerConfig = R"sophos({"scanner": {
-        "signatureBased": {
-            "fileTypeCategories": {
-                "archive": false,
-                "selfExtractor": true,
-                "executable": true,
-                "office": true,
-                "adobe": true,
-                "android": true,
-                "internet": true,
-                "webArchive": false,
-                "webEncoding": true,
-                "media": true,
-                "macintosh": true,
-                "discImage": false
-            },
-            "scanControl": {
-                "trueFileTypeDetection": false,
-                "puaDetection": false,
-                "archiveRecursionDepth": 16,
-                "stopOnArchiveBombs": true,
-                "submitToAnalysis": false
-            }
-        }
-    }})sophos";
+    // Rely on TestThreatScanner.cpp to test createScannerInfo
+    const auto expectedScannerConfig = "{" + createScannerInfo(false, false, true) + "}";
 
     auto susiWrapper = std::make_shared<::testing::StrictMock<MockSusiWrapper>>();
-    EXPECT_CALL(*wrapperFactory, createSusiWrapper(scannerConfig)).WillOnce(Return(susiWrapper));
+    EXPECT_CALL(*wrapperFactory, isMachineLearningEnabled).WillRepeatedly(testing::Return(true));
+    EXPECT_CALL(*wrapperFactory, createSusiWrapper(expectedScannerConfig)).WillOnce(Return(susiWrapper));
     EXPECT_NO_THROW(auto scanner = factory.createScanner(false, false));
 }
 
@@ -123,33 +102,11 @@ TEST_F(TestSusiScannerFactory, testCreateScannerWithMockSusiWrapperArchivesTrue)
     auto wrapperFactory = std::make_shared<::testing::StrictMock<MockSusiWrapperFactory>>();
     SusiScannerFactory factory(wrapperFactory, nullptr, nullptr, nullptr);
 
-    const std::string scannerConfig = R"sophos({"scanner": {
-        "signatureBased": {
-            "fileTypeCategories": {
-                "archive": true,
-                "selfExtractor": true,
-                "executable": true,
-                "office": true,
-                "adobe": true,
-                "android": true,
-                "internet": true,
-                "webArchive": true,
-                "webEncoding": true,
-                "media": true,
-                "macintosh": true,
-                "discImage": false
-            },
-            "scanControl": {
-                "trueFileTypeDetection": false,
-                "puaDetection": false,
-                "archiveRecursionDepth": 16,
-                "stopOnArchiveBombs": true,
-                "submitToAnalysis": false
-            }
-        }
-    }})sophos";
+    // Rely on TestThreatScanner.cpp to test createScannerInfo
+    const auto scannerConfig = "{" + createScannerInfo(true, false, true) + "}";
 
     auto susiWrapper = std::make_shared<::testing::StrictMock<MockSusiWrapper>>();
+    EXPECT_CALL(*wrapperFactory, isMachineLearningEnabled).WillRepeatedly(testing::Return(true));
     EXPECT_CALL(*wrapperFactory, createSusiWrapper(scannerConfig)).WillOnce(Return(susiWrapper));
     EXPECT_NO_THROW(auto scanner = factory.createScanner(true, false));
 }
@@ -160,33 +117,11 @@ TEST_F(TestSusiScannerFactory, testCreateScannerWithMockSusiWrapperImagesTrue)
     auto wrapperFactory = std::make_shared<::testing::StrictMock<MockSusiWrapperFactory>>();
     SusiScannerFactory factory(wrapperFactory, nullptr, nullptr, nullptr);
 
-    const std::string scannerConfig = R"sophos({"scanner": {
-        "signatureBased": {
-            "fileTypeCategories": {
-                "archive": false,
-                "selfExtractor": true,
-                "executable": true,
-                "office": true,
-                "adobe": true,
-                "android": true,
-                "internet": true,
-                "webArchive": false,
-                "webEncoding": true,
-                "media": true,
-                "macintosh": true,
-                "discImage": true
-            },
-            "scanControl": {
-                "trueFileTypeDetection": false,
-                "puaDetection": false,
-                "archiveRecursionDepth": 16,
-                "stopOnArchiveBombs": true,
-                "submitToAnalysis": false
-            }
-        }
-    }})sophos";
+    // Rely on TestThreatScanner.cpp to test createScannerInfo
+    const auto scannerConfig = "{" + createScannerInfo(false, true, true) + "}";
 
     auto susiWrapper = std::make_shared<::testing::StrictMock<MockSusiWrapper>>();
+    EXPECT_CALL(*wrapperFactory, isMachineLearningEnabled).WillRepeatedly(testing::Return(true));
     EXPECT_CALL(*wrapperFactory, createSusiWrapper(scannerConfig)).WillOnce(Return(susiWrapper));
     EXPECT_NO_THROW(auto scanner = factory.createScanner(false, true));
 }

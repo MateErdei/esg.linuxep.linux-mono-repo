@@ -6,6 +6,8 @@
 
 #include "datatypes/AutoFd.h"
 
+#include "common/ThreatDetector/SusiSettings.h"
+
 #include <atomic>
 #include <memory>
 #include <mutex>
@@ -76,6 +78,18 @@ namespace threat_scanner
          */
         SusiResult bootstrap();
 
+        /**
+         * Return copy of std::shared_ptr<common::ThreatDetector::SusiSettings> so that when we swap in a new set of
+         * settings anything left with the old instance is safe until it re-acquires a new copy.
+         */
+        std::shared_ptr<common::ThreatDetector::SusiSettings> accessSusiSettings();
+        void setSusiSettings(std::shared_ptr<common::ThreatDetector::SusiSettings>&& settings);
+
+        /**
+         * @return True if machine learning detection should be enabled
+         */
+        bool isMachineLearningEnabled();
+
     private:
         std::atomic_bool m_susiInitialised = false;
         std::atomic_bool m_updatePending = false;
@@ -84,6 +98,10 @@ namespace threat_scanner
         std::string m_lockFile;
         std::mutex m_globalSusiMutex;
         bool m_susiVersionAlreadyLogged = false;
+
+        // Used to make sure we don't change the settings while they're being used.
+        std::mutex m_susiSettingsMutex;
+        std::shared_ptr<common::ThreatDetector::SusiSettings> m_susiSettings;
 
         std::shared_ptr<ISusiApiWrapper> m_susiWrapper;
 

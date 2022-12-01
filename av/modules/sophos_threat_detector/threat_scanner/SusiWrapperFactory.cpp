@@ -181,10 +181,11 @@ namespace threat_scanner
 
     std::shared_ptr<ISusiWrapper> SusiWrapperFactory::createSusiWrapper(const std::string& scannerConfig)
     {
-        std::string scannerInfo = createScannerInfo(false, false);
+        auto susiSettings = m_globalHandler->accessSusiSettings();
+        std::string scannerInfo = createScannerInfo(false, false, susiSettings->isMachineLearningEnabled());
 
         std::string runtimeConfig = createRuntimeConfig(
-            scannerInfo, getEndpointId(), getCustomerId(), m_globalHandler->accessSusiSettings());
+            scannerInfo, getEndpointId(), getCustomerId(), susiSettings);
         m_globalHandler->initializeSusi(runtimeConfig);
         return std::make_shared<SusiWrapper>(m_globalHandler, scannerConfig);
     }
@@ -200,9 +201,10 @@ namespace threat_scanner
 
     bool SusiWrapperFactory::reload()
     {
-        std::string scannerInfo = createScannerInfo(false, false);
+        auto susiSettings = m_globalHandler->accessSusiSettings();
+        std::string scannerInfo = createScannerInfo(false, false, susiSettings->isMachineLearningEnabled());
         std::string runtimeConfig = createRuntimeConfig(
-            scannerInfo, getEndpointId(), getCustomerId(), m_globalHandler->accessSusiSettings());
+            scannerInfo, getEndpointId(), getCustomerId(), susiSettings);
         return m_globalHandler->reload(runtimeConfig);
     }
 

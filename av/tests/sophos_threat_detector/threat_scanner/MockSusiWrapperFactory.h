@@ -16,4 +16,5 @@ public:
     MOCK_METHOD0(shutdown, void());
     MOCK_METHOD0(susiIsInitialized, bool());
     MOCK_METHOD(bool, updateSusiConfig, ());
+    MOCK_METHOD(bool, isMachineLearningEnabled, (), (override));
 };

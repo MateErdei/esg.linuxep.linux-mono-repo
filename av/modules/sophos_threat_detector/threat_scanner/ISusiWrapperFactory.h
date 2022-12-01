@@ -22,6 +22,7 @@ namespace threat_scanner
         virtual void shutdown() = 0;
         virtual bool susiIsInitialized() = 0;
         virtual bool updateSusiConfig() = 0;
+        virtual bool isMachineLearningEnabled() = 0;
     };
 
     using ISusiWrapperFactorySharedPtr = std::shared_ptr<ISusiWrapperFactory>;

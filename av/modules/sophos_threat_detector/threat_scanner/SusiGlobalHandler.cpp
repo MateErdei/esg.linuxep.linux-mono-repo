@@ -7,6 +7,8 @@
 #include "SusiLogger.h"
 #include "ThrowIfNotOk.h"
 
+
+#include "common/ApplicationPaths.h"
 #include "common/ShuttingDownException.h"
 
 #include <Common/Logging/LoggerConfig.h>
@@ -16,20 +18,41 @@
 
 #include <cassert>
 #include <filesystem>
+#include <iomanip>
 #include <iostream>
 
 namespace threat_scanner
 {
     namespace
     {
+
+        /*
+         * Called by SUSI when a threat is detected. Does not get called on eicars.
+         * @param token - user data pointer which is currently set to be the current SusiGlobalHandler instance.
+         * @param algorithm - the hashing type used for the checksum, we currently only support SHA256.
+         * @param fileChecksum - bytes (unsigned char) that need to be converted to a hex string
+         *  for example, if first byte in fileChecksum is 142 then that is converted to the two characters "8e".
+         * @return bool - returns true if the file checksum is on the allow list.
+         */
         bool isAllowlistedFile(void* token, SusiHashAlg algorithm, const char* fileChecksum, size_t size)
         {
-            (void)token;
-            (void)algorithm;
-            (void)fileChecksum;
-            (void)size;
+            if (algorithm == SUSI_SHA256_ALG)
+            {
+                std::vector<unsigned char> checksumBytes2(fileChecksum, fileChecksum + size);
+                std::ostringstream stream;
+                stream << std::hex << std::setfill('0') << std::nouppercase;
+                std::for_each(
+                    checksumBytes2.cbegin(),
+                    checksumBytes2.cend(),
+                    [&stream](const auto& byte) { stream << std::setw(2) << int(byte); });
 
-            LOGDEBUG("isAllowlistedFile: size=" << size);
+                auto susiHandler = static_cast<SusiGlobalHandler*>(token);
+                if (susiHandler->accessSusiSettings()->isAllowListed(stream.str()))
+                {
+                    LOGDEBUG("Allowed by SHA256: " << stream.str());
+                    return true;
+                }
+            }
 
             return false;
         }
@@ -40,8 +63,6 @@ namespace threat_scanner
             (void)algorithm;
             (void)fileChecksum;
             (void)size;
-
-            LOGDEBUG("IsBlocklistedFile: size=" << size);
 
             return false;
         }
@@ -88,6 +109,17 @@ namespace threat_scanner
 
         auto res = m_susiWrapper->SUSI_SetLogCallback(&GL_log_callback);
         throwIfNotOk(res, "Failed to set log callback");
+
+        try
+        {
+            m_susiSettings = std::make_shared<common::ThreatDetector::SusiSettings>(Plugin::getSusiStartupSettingsPath());
+        }
+        catch (const std::exception& ex)
+        {
+            m_susiSettings = std::make_shared<common::ThreatDetector::SusiSettings>();
+            LOGWARN("Could not read in SUSI settings, loading defaults. Details: " << ex.what());
+            LOGINFO("Turning Live Protection on as default - failed to read SUSI startup settings found");
+        }
     }
 
     SusiGlobalHandler::~SusiGlobalHandler()
@@ -379,4 +411,23 @@ namespace threat_scanner
         }
         return true;
     }
+
+    std::shared_ptr<common::ThreatDetector::SusiSettings> SusiGlobalHandler::accessSusiSettings()
+    {
+        std::lock_guard<std::mutex> lock(m_susiSettingsMutex);
+        return m_susiSettings;
+    }
+
+    void SusiGlobalHandler::setSusiSettings(std::shared_ptr<common::ThreatDetector::SusiSettings>&& settings)
+    {
+        std::lock_guard<std::mutex> lock(m_susiSettingsMutex);
+        m_susiSettings = std::move(settings);
+    }
+
+    bool SusiGlobalHandler::isMachineLearningEnabled()
+    {
+        std::lock_guard<std::mutex> lock(m_susiSettingsMutex);
+        return m_susiSettings->isMachineLearningEnabled();
+    }
+
 } // namespace threat_scanner

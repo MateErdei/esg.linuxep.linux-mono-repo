@@ -22,6 +22,10 @@ namespace threat_scanner
         bool reload() override;
         void shutdown() override;
         bool updateSusiConfig() override;
+        bool isMachineLearningEnabled() override
+        {
+            return m_globalHandler->isMachineLearningEnabled();
+        }
 
     private:
         SusiGlobalHandlerSharedPtr m_globalHandler;

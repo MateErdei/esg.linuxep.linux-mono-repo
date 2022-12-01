@@ -14,7 +14,7 @@ namespace threat_scanner
 {
     IThreatScannerPtr SusiScannerFactory::createScanner(bool scanArchives, bool scanImages)
     {
-        std::string scannerConfig = "{" + createScannerInfo(scanArchives, scanImages) + "}";
+        std::string scannerConfig = "{" + createScannerInfo(scanArchives, scanImages, m_wrapperFactory->isMachineLearningEnabled()) + "}";
         auto unitScanner = std::make_unique<UnitScanner>(m_wrapperFactory->createSusiWrapper(scannerConfig));
         return std::make_unique<SusiScanner>(std::move(unitScanner), m_reporter, m_shutdownTimer);
     }
