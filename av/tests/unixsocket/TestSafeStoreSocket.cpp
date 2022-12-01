@@ -1,7 +1,11 @@
 // Copyright 2022, Sophos Limited. All rights reserved.
 
+#include "SafeStoreSocketMemoryAppenderUsingTests.h"
 #include "UnixSocketMemoryAppenderUsingTests.h"
+#include "safestore/MockIQuarantineManager.h"
 
+#include "safestore/SafeStoreServiceCallback.h"
+#include "safestore/QuarantineManager/IQuarantineManager.h"
 #include "scan_messages/ThreatDetected.h"
 #include "tests/common/Common.h"
 #include "tests/common/WaitForEvent.h"
@@ -9,18 +13,22 @@
 #include "unixsocket/safeStoreSocket/SafeStoreServerSocket.h"
 
 #include "Common/FileSystem/IFilePermissions.h"
+#include "Common/Helpers/FileSystemReplaceAndRestore.h"
+#include "Common/Helpers/MockFileSystem.h"
 #include "common/ApplicationPaths.h"
 
 #include <sys/fcntl.h>
+#include <thirdparty/nlohmann-json/json.hpp>
 
 using namespace testing;
 using namespace scan_messages;
 namespace fs = sophos_filesystem;
 using namespace common::CentralEnums;
+using json = nlohmann::json;
 
 namespace
 {
-    class TestSafeStoreSocket : public UnixSocketMemoryAppenderUsingTests
+    class TestSafeStoreSocket : public SafeStoreSocketMemoryAppenderUsingTests
     {
     public:
         void SetUp() override
@@ -58,6 +66,36 @@ namespace
                      datatypes::AutoFd(open("/dev/zero", O_RDONLY)) };
         }
 
+        static void addCommonSafeStoreTelemetrySetup()
+        {
+            auto mockFileSystem = new StrictMock<MockFileSystem>();
+            std::unique_ptr<MockFileSystem> mockIFileSystemPtr(mockFileSystem);
+            Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
+            std::vector<std::string> fileList{"safestore.db", "safestore.pw"};
+
+            EXPECT_CALL(*mockFileSystem, isFile(Plugin::getSafeStoreDormantFlagPath())).WillRepeatedly(Return(false));
+            EXPECT_CALL(*mockFileSystem, listFiles(Plugin::getSafeStoreDbDirPath())).WillRepeatedly(Return(fileList));
+            EXPECT_CALL(*mockFileSystem, fileSize(_)).WillRepeatedly(Return(150));
+        }
+
+        void sendThreatEventAndVerifyQuarantineTelemetry(WaitForEvent& serverWaitGuard,
+                                                         safestore::SafeStoreServiceCallback& safeStoreCallback,
+                                                         int quarantineSuccessValue,
+                                                         int quarantineFailureValue,
+                                                         int unlinkFailureValue)
+        {
+            unixsocket::SafeStoreClient client(m_socketPath, m_notifyPipe);
+
+            client.sendQuarantineRequest(createThreatDetected());
+            client.waitForResponse();
+            serverWaitGuard.wait();
+
+            json quarantineTelemetry = json::parse(safeStoreCallback.getTelemetry());
+            EXPECT_EQ(quarantineTelemetry["quarantine-successes"], quarantineSuccessValue);
+            EXPECT_EQ(quarantineTelemetry["quarantine-failures"], quarantineFailureValue);
+            EXPECT_EQ(quarantineTelemetry["unlink-failures"], unlinkFailureValue);
+        }
+
         Common::Threads::NotifyPipe m_notifyPipe {};
         std::string m_socketPath;
         std::string m_threatPath;
@@ -67,23 +105,17 @@ namespace
         std::string m_threatId;
     };
 
-    class MockQuarantineManager : public safestore::QuarantineManager::IQuarantineManager
+    class TestSafeStoreClientSocket : public UnixSocketMemoryAppenderUsingTests
     {
     public:
-        MOCK_METHOD(
-            common::CentralEnums::QuarantineResult,
-            quarantineFile,
-            (const std::string& filePath,
-             const std::string& threatId,
-             const std::string& threatName,
-             const std::string& sha256,
-             datatypes::AutoFd autoFd));
+        void SetUp() override
+        {
+            setupFakeSafeStoreConfig();
+            m_socketPath = Plugin::getSafeStoreSocketPath();
+        }
 
-        MOCK_METHOD(void, setState, (const safestore::QuarantineManager::QuarantineManagerState& newState));
-        MOCK_METHOD(void, initialise, ());
-        MOCK_METHOD(safestore::QuarantineManager::QuarantineManagerState, getState, ());
-        MOCK_METHOD(bool, deleteDatabase, ());
-        MOCK_METHOD(void, parseConfig, ());
+        Common::Threads::NotifyPipe m_notifyPipe {};
+        std::string m_socketPath;
     };
 } // namespace
 
@@ -95,7 +127,7 @@ TEST_F(TestSafeStoreSocket, TestSendThreatDetected) // NOLINT
     {
         WaitForEvent serverWaitGuard;
 
-        auto quarantineManager = std::make_shared<MockQuarantineManager>();
+        auto quarantineManager = std::make_shared<MockIQuarantineManager>();
         EXPECT_CALL(*quarantineManager, quarantineFile(_, _, _, _, _))
             .Times(1)
             .WillOnce(Invoke(
@@ -126,8 +158,6 @@ TEST_F(TestSafeStoreSocket, TestSendThreatDetected) // NOLINT
         // destructor will stop the thread
     }
 
-    EXPECT_TRUE(appenderContains("SafeStore Server starting listening on socket:"));
-    EXPECT_TRUE(appenderContains("SafeStore Server accepting connection:"));
     EXPECT_TRUE(appenderContains("SafeStore Server thread got connection"));
     EXPECT_TRUE(appenderContains("Read capn of"));
     EXPECT_TRUE(appenderContains("Managed to get file descriptor:"));
@@ -137,16 +167,6 @@ TEST_F(TestSafeStoreSocket, TestSendThreatDetected) // NOLINT
     EXPECT_TRUE(appenderContains("Threat name: " + m_threatName));
     EXPECT_TRUE(appenderContains("SHA256: " + m_sha256));
     EXPECT_TRUE(appenderContains("File descriptor:"));
-    EXPECT_TRUE(appenderContains("Closing SafeStore Server socket"));
-}
-
-TEST_F(TestSafeStoreSocket, testClientSocketTriesToReconnect) // NOLINT
-{
-    UsingMemoryAppender memoryAppenderHolder(*this);
-    unixsocket::SafeStoreClient client(m_socketPath, m_notifyPipe, std::chrono::seconds { 0 });
-
-    EXPECT_TRUE(appenderContains("Failed to connect to SafeStore - retrying after sleep", 9));
-    EXPECT_TRUE(appenderContains("Reached total maximum number of connection attempts."));
 }
 
 TEST_F(TestSafeStoreSocket, TestSendTwoThreatDetecteds) // NOLINT
@@ -155,7 +175,7 @@ TEST_F(TestSafeStoreSocket, TestSendTwoThreatDetecteds) // NOLINT
     WaitForEvent serverWaitGuard;
     WaitForEvent serverWaitGuard2;
 
-    auto quarantineManager = std::make_shared<MockQuarantineManager>();
+    auto quarantineManager = std::make_shared<MockIQuarantineManager>();
     EXPECT_CALL(*quarantineManager, quarantineFile(_, _, _, _, _))
         .Times(2)
         .WillOnce(InvokeWithoutArgs(
@@ -190,6 +210,78 @@ TEST_F(TestSafeStoreSocket, TestSendTwoThreatDetecteds) // NOLINT
     // destructor will stop the thread
 }
 
+TEST_F(TestSafeStoreSocket, SafeStoreTelemetryReturnsExpectedDataAfterSuccessfulQuarantine)
+{
+    setupFakeSophosThreatDetectorConfig();
+    safestore::SafeStoreServiceCallback safeStoreCallback{};
+    auto quarantineManager = std::make_shared<MockIQuarantineManager>();
+    WaitForEvent serverWaitGuard;
+
+    addCommonSafeStoreTelemetrySetup();
+    json initialTelemetry = json::parse(safeStoreCallback.getTelemetry());
+
+    EXPECT_CALL(*quarantineManager, quarantineFile(_, _, _, _, _))
+        .WillOnce(InvokeWithoutArgs(
+            [&serverWaitGuard]()
+            {
+                serverWaitGuard.onEventNoArgs();
+                return QuarantineResult::SUCCESS;
+            }));
+    unixsocket::SafeStoreServerSocket server(m_socketPath, quarantineManager);
+    server.start();
+
+    EXPECT_EQ(initialTelemetry["quarantine-successes"], 0);
+    sendThreatEventAndVerifyQuarantineTelemetry(serverWaitGuard, safeStoreCallback, 1, 0, 0);
+}
+
+TEST_F(TestSafeStoreSocket, SafeStoreTelemetryReturnsExpectedDataAfterFailedQuarantine)
+{
+    setupFakeSophosThreatDetectorConfig();
+    safestore::SafeStoreServiceCallback safeStoreCallback{};
+    auto quarantineManager = std::make_shared<MockIQuarantineManager>();
+    WaitForEvent serverWaitGuard;
+
+    addCommonSafeStoreTelemetrySetup();
+    json initialTelemetry = json::parse(safeStoreCallback.getTelemetry());
+
+    EXPECT_CALL(*quarantineManager, quarantineFile(_, _, _, _, _))
+        .WillOnce(InvokeWithoutArgs(
+            [&serverWaitGuard]()
+            {
+                serverWaitGuard.onEventNoArgs();
+                return QuarantineResult::NOT_FOUND;
+            }));
+    unixsocket::SafeStoreServerSocket server(m_socketPath, quarantineManager);
+    server.start();
+
+    EXPECT_EQ(initialTelemetry["quarantine-failures"], 0);
+    sendThreatEventAndVerifyQuarantineTelemetry(serverWaitGuard, safeStoreCallback, 0, 1, 0);
+}
+
+TEST_F(TestSafeStoreSocket, SafeStoreTelemetryReturnsExpectedDataAfterUnlinkFailure)
+{
+    setupFakeSophosThreatDetectorConfig();
+    safestore::SafeStoreServiceCallback safeStoreCallback{};
+    auto quarantineManager = std::make_shared<MockIQuarantineManager>();
+    WaitForEvent serverWaitGuard;
+
+    addCommonSafeStoreTelemetrySetup();
+    json initialTelemetry = json::parse(safeStoreCallback.getTelemetry());
+
+    EXPECT_CALL(*quarantineManager, quarantineFile(_, _, _, _, _))
+        .WillOnce(InvokeWithoutArgs(
+            [&serverWaitGuard]()
+            {
+                serverWaitGuard.onEventNoArgs();
+                return QuarantineResult::FAILED_TO_DELETE_FILE;
+            }));
+    unixsocket::SafeStoreServerSocket server(m_socketPath, quarantineManager);
+    server.start();
+
+    EXPECT_EQ(initialTelemetry["unlink-failures"], 0);
+    sendThreatEventAndVerifyQuarantineTelemetry(serverWaitGuard, safeStoreCallback, 0, 0, 1);
+}
+
 TEST_F(TestSafeStoreSocket, TestSendInvalidData)
 {
     // This is a simple test to verify client throws exception on invalid data
@@ -206,4 +298,13 @@ TEST_F(TestSafeStoreSocket, TestSendInvalidData)
     auto threatDetected = createThreatDetected();
     threatDetected.threatId = "invalid threat id";
     EXPECT_ANY_THROW(client.sendQuarantineRequest(threatDetected));
+}
+
+TEST_F(TestSafeStoreClientSocket, testClientSocketTriesToReconnect) // NOLINT
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    unixsocket::SafeStoreClient client(m_socketPath, m_notifyPipe, std::chrono::seconds { 0 });
+
+    EXPECT_TRUE(appenderContains("Failed to connect to SafeStore - retrying after sleep", 9));
+    EXPECT_TRUE(appenderContains("Reached total maximum number of connection attempts."));
 }

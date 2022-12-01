@@ -1,6 +1,7 @@
 // Copyright 2022, Sophos Limited.  All rights reserved.
 
 #include "UnixSocketMemoryAppenderUsingTests.h"
+#include "SafeStoreSocketMemoryAppenderUsingTests.h"
 
 #include "datatypes/sophos_filesystem.h"
 #include "datatypes/SystemCallWrapper.h"
@@ -29,7 +30,8 @@ using namespace ::testing;
 
 namespace
 {
-    class TestSafeStoreServerConnectionThread : public UnixSocketMemoryAppenderUsingTests
+//  class TestSafeStoreServerConnectionThread : public UnixSocketMemoryAppenderUsingTests
+    class TestSafeStoreServerConnectionThread : public SafeStoreSocketMemoryAppenderUsingTests
     {
     protected:
         TestSafeStoreServerConnectionThread() : memoryAppenderHolder(*this)

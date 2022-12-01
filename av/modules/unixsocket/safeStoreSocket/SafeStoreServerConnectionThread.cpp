@@ -6,7 +6,7 @@
 
 #include "scan_messages/QuarantineResponse.h"
 #include "scan_messages/ThreatDetected.h"
-#include "unixsocket/Logger.h"
+#include "Logger.h"
 #include "unixsocket/SocketUtils.h"
 
 #include "common/FDUtils.h"

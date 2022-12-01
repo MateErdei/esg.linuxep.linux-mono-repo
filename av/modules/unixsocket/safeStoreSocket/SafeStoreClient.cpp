@@ -2,7 +2,7 @@
 
 #include "SafeStoreClient.h"
 
-#include "unixsocket/Logger.h"
+#include "Logger.h"
 #include "unixsocket/SocketUtils.h"
 #include "common/CentralEnums.h"
 #include "common/SaferStrerror.h"
@@ -66,7 +66,7 @@ common::CentralEnums::QuarantineResult unixsocket::SafeStoreClient::waitForRespo
     };
     bool loggedLengthOfZero = false;
     struct timespec ts;
-    ts.tv_sec = 60;
+    ts.tv_sec = 900;
     ts.tv_nsec = 0;
     while (true)
     {

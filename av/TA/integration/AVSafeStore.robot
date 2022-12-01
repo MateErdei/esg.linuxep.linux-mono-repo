@@ -489,7 +489,6 @@ SafeStore Quarantines File With Same Path And Sha Again And Discards The Previou
     check_log_does_not_contain_after_mark  ${SAFESTORE_LOG_PATH}  has been quarantined before  ${safestore_mark}
     File Should Not Exist   ${SCAN_DIRECTORY}/eicar2.com
 
-
 Threat Detector Triggers SafeStore Rescan On Timeout
     ${ss_mark} =  Get SafeStore Log Mark
     Create Rescan Interval File

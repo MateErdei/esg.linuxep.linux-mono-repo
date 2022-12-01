@@ -18,6 +18,8 @@ add_library(unixsocket SHARED
         safeStoreSocket/SafeStoreServerConnectionThread.h
         safeStoreSocket/SafeStoreClient.cpp
         safeStoreSocket/SafeStoreClient.h
+        safeStoreSocket/Logger.cpp
+        safeStoreSocket/Logger.h
         safeStoreRescanSocket/SafeStoreRescanServerConnectionThread.cpp
         safeStoreRescanSocket/SafeStoreRescanServerConnectionThread.h
         safeStoreRescanSocket/SafeStoreRescanServerSocket.cpp
