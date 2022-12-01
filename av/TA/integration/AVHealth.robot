@@ -334,7 +334,7 @@ AV health is unaffected by scanning the threat_detector pidfile
 AV health is unaffected by on-access scanning the soapd pidfile
     Register Cleanup  Exclude On Access Scan Errors
 
-    Send Policies to enable on-access
+    # on-access already enabled in test setup
 
     # this will cause on-access events for the pid file
     Check Status Health is Reporting Correctly    GOOD
@@ -342,8 +342,8 @@ AV health is unaffected by on-access scanning the soapd pidfile
     ${PID_FILE} =  Set Variable  ${AV_PLUGIN_PATH}/var/soapd.pid
     File Should Exist   ${PID_FILE}
 
-    Mark On Access Log
+    ${oa_mark} =  Get on access log mark
     Get File   ${PID_FILE}
-    Wait Until On Access Log Contains With Offset  On-open event for ${PID_FILE} from
+    wait_for_log_contains_from_mark  ${oa_mark}  On-open event for ${PID_FILE} from
 
     Check Status Health is Reporting Correctly    GOOD
