@@ -5,6 +5,7 @@ Force Tags      INTEGRATION  AVBASE  TELEMETRY    SAFESTORE
 Library         Collections
 
 Library         ../Libs/AVScanner.py
+Library         ../Libs/FileSampleObfuscator.py
 Library         ../Libs/LogUtils.py
 Library         ../Libs/Telemetry.py
 
