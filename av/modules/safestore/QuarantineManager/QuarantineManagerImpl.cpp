@@ -278,8 +278,6 @@ namespace safestore::QuarantineManager
                 LOGERROR("Failed to finalise file: " << escapedPath);
                 return common::CentralEnums::QuarantineResult::FAILED_TO_DELETE_FILE;
             }
-            LOGDEBUG("Finalised file: " << escapedPath);
-
             LOGINFO("Quarantined " << escapedPath << " successfully");
 
             // Search through the database for any objects with the same threatId
