@@ -125,6 +125,25 @@ SafeStore Quarantines When It Receives A File To Quarantine
     ...  result=0
     ...  path=${SCAN_DIRECTORY}/eicar.com
 
+SafeStore Quarantines When It Receives A File To Quarantine (On Access)
+    register cleanup    Exclude Watchdog Log Unable To Open File Error
+
+    Start On Access And SafeStore
+    ${av_mark} =  Get AV Log Mark
+    ${safestore_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
+    On-access Scan Eicar Close
+
+    wait_for_log_contains_from_mark  ${safestore_mark}   Quarantined
+    wait_for_log_contains_from_mark  ${av_mark}  Quarantine succeeded
+    File Should Not Exist   /tmp_test/eicar.com
+    File Should Not Exist  ${AV_PLUGIN_PATH}/var/onaccess_unhealthy_flag
+
+    Wait Until Base Has Core Clean Event
+    ...  alert_id=bae565b3-a00c-5a15-8a25-e7de709ffa33
+    ...  succeeded=1
+    ...  origin=1
+    ...  result=0
+    ...  path=/tmp_test/eicar.com
 
 SafeStore Quarantines Archive
     ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
@@ -240,6 +259,20 @@ SafeStore Does Not Attempt To Quarantine File On ReadOnly Mount
     Wait For Log Contains From Mark  ${av_mark}      Found 'EICAR-AV-Test'
 
 
+SafeStore Does Not Attempt To Quarantine File On ReadOnly Mount (On Access)
+    register cleanup    Exclude Watchdog Log Unable To Open File Error
+
+    Create eicar on read only mount  /tmp_test/
+
+    Start On Access And SafeStore
+    ${av_mark} =  Get AV Log Mark
+
+    ${result} =  run process    cat   /tmp_test/readOnly/eicar.com
+
+    Log  ${result}
+    Wait For Log Contains From Mark  ${av_mark}      File is located on a ReadOnly mount:
+    Wait For Log Contains From Mark  ${av_mark}      Found 'EICAR-AV-Test'
+
 SafeStore Does Not Attempt To Quarantine File On A Network Mount
     register cleanup    Exclude Watchdog Log Unable To Open File Error
 
@@ -254,8 +287,31 @@ SafeStore Does Not Attempt To Quarantine File On A Network Mount
     Wait For Log Contains From Mark  ${av_mark}      Found 'EICAR-AV-Test'
 
 
+SafeStore Does Not Attempt To Quarantine File On A Network Mount (On Access)
+    register cleanup    Exclude Watchdog Log Unable To Open File Error
+
+    Create eicar on network mount
+    ${destination} =  Set Variable  /testmnt/nfsshare
+
+    Start On Access And SafeStore
+    ${av_mark} =  Get AV Log Mark
+
+    ${result} =  run process    cat   ${destination}/eicar.com
+
+    Log  ${result}
+    Wait For Log Contains From Mark  ${av_mark}      File is located on a Network mount:
+    Wait For Log Contains From Mark  ${av_mark}      Found 'EICAR-AV-Test'
+
+
 SafeStore Purges The Oldest Detection In Its Database When It Exceeds Storage Capacity
     register cleanup    Exclude Watchdog Log Unable To Open File Error
+
+    ${av_mark} =  Get AV Log Mark
+
+    Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
+    Wait For Log Contains From Mark  ${av_mark}  SafeStore flag set. Setting SafeStore to enabled.  timeout=60
+
+    Wait Until SafeStore running
 
     Unpack SafeStore Tools To  ${safestore_tools_unpacked}
 
@@ -271,13 +327,6 @@ SafeStore Purges The Oldest Detection In Its Database When It Exceeds Storage Ca
     Create Big Eicar Of Size  31K   ${eicar1}
     Create Big Eicar Of Size  31K   ${eicar2}
     Create Big Eicar Of Size  31K   ${eicar3}
-
-    ${av_mark} =  Get AV Log Mark
-
-    Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
-    Wait For Log Contains From Mark  ${av_mark}  SafeStore flag set. Setting SafeStore to enabled.  timeout=60
-
-    Wait Until SafeStore running
 
     ${ss_mark} =  Get SafeStore Log Mark
     Check avscanner can detect eicar in  ${NORMAL_DIRECTORY}/${eicar1}
@@ -506,6 +555,61 @@ Threat Detector Rescan Socket Does Not Block Shutdown
     wait_for_log_contains_from_mark  ${td_mark}  Stop requested while connecting to SafeStore Rescan
 
 
+Allow Listed Files Are Removed From Quarantine
+    ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
+    Send Flags Policy To Base  flags_policy/flags_safestore_quarantine_ml_enabled.json
+    Wait For Log Contains From Mark  ${av_mark}  SafeStore flag set. Setting SafeStore to enabled.    timeout=60
+    Wait Until SafeStore running
+
+    # Start from known place with a CORC policy with an empty allow list
+    Stop sophos_threat_detector
+    Register Cleanup   Remove File  ${MCS_PATH}/policy/CORC_policy.xml
+    Send CORC Policy To Base  corc_policy_empty_allowlist.xml
+    Start sophos_threat_detector
+
+    ${safestore_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
+    ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
+    ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
+
+    # Create threat to scan
+    ${threat_file} =  Set Variable  ${NORMAL_DIRECTORY}/MLengHighScore.exe
+    Create Directory  ${NORMAL_DIRECTORY}/
+    DeObfuscate File  ${RESOURCES_PATH}/file_samples_obfuscated/MLengHighScore.exe  ${threat_file}
+    Register Cleanup  Remove File  ${threat_file}
+    File Should Exist  ${threat_file}
+
+    # Scan threat
+    ${rc}   ${output} =    Run And Return Rc And Output   ${AVSCANNER} ${NORMAL_DIRECTORY}/MLengHighScore.exe
+    Log  ${output}
+    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+    wait_for_log_contains_from_mark  ${safestore_mark}   Quarantined ${NORMAL_DIRECTORY}/MLengHighScore.exe successfully
+
+    File Should Not Exist  ${threat_file}
+
+    # Allow-list the file
+    Send CORC Policy To Base  corc_policy.xml
+    wait_for_log_contains_from_mark  ${av_mark}  Added SHA256 to allow list: c88e20178a82af37a51b030cb3797ed144126cad09193a6c8c7e95957cf9c3f9
+    wait_for_log_contains_from_mark  ${td_mark}  Triggering rescan of SafeStore database
+    wait_for_log_contains_from_mark  ${safestore_mark}  SafeStore Database Rescan request received
+
+    # TODO LINUXDAR-5918 when file restoring is completed enable this section of the test
+    #Wait Until Keyword Succeeds
+    #...  10 secs
+    #...  1 secs
+    #...  File Should Exist  ${threat_file}
+    #
+    ## Scan threat
+    #${rc}   ${output} =    Run And Return Rc And Output   ${AVSCANNER} ${NORMAL_DIRECTORY}/MLengHighScore.exe
+    #Log  ${output}
+    #Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
+    #
+    ## File is allowed and not treated as a threat
+    #wait_for_log_contains_from_mark  ${td_mark}  Allowed by SHA256: c88e20178a82af37a51b030cb3797ed144126cad09193a6c8c7e95957cf9c3f9
+    #
+    ## File allowed so should still exist
+    #File Should Exist  ${threat_file}
+
+
 AV Plugin Does Not Quarantine File When SafeStore Is Disabled
     ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
     Send Flags Policy To Base  flags_policy/flags.json
@@ -713,3 +817,13 @@ Create Rescan Interval File
     Register Cleanup   Stop Sophos Threat Detector
     Register Cleanup   Mark Expected Error In Log    ${THREAT_DETECTOR_LOG_PATH}    UnixSocket <> Aborting scan, scanner is shutting down
     Register Cleanup   Start Sophos Threat Detector
+
+Start On Access And SafeStore
+    ${av_mark} =  Get AV Log Mark
+    ${mark} =  Get on access log mark
+
+    Send Flags Policy To Base  flags_policy/flags_enabled.json
+    Send Sav Policy To Base  SAV-2_policy_OA_enabled.xml
+    wait_for_log_contains_from_mark  ${av_mark}  SafeStore flag set. Setting SafeStore to enabled.    timeout=60
+    wait_for_log_contains_from_mark  ${av_mark}  On-access is enabled in the FLAGS policy, assuming on-access policy settings
+    wait for on access log contains after mark  On-access scanning enabled  mark=${mark}
