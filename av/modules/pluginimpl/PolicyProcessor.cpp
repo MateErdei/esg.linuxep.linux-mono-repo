@@ -53,7 +53,14 @@ namespace
         }
         catch (const Common::FileSystem::IFileSystemException& ex)
         {
-            return json{};
+            // Could be the file doesn't exist
+            // other errors will be reported when we try to save it.
+            return {};
+        }
+        catch (const json::exception& ex)
+        {
+            LOGINFO("Failed to parse "<< filepath << ": " << ex.what());
+            return {};
         }
     }
 

@@ -296,6 +296,34 @@ TEST_F(TestPolicyProcessor_CORE_policy, preserveOtherSettings)
     EXPECT_NO_THROW(proc.processCOREpolicy(attributeMap));
 }
 
+TEST_F(TestPolicyProcessor_CORE_policy, emptySavedFile)
+{
+
+    std::string CORE_policy{R"sophos(<?xml version="1.0"?>
+<policy RevID="{{revisionId}}" policyType="36">
+  <!-- From SAV policy -->
+  <onAccessScan>
+    <enabled>false</enabled>
+    <exclusions>
+      <excludeRemoteFiles>false</excludeRemoteFiles>
+    </exclusions>
+  </onAccessScan>
+</policy>)sophos"};
+    expectReadCustomerIdOnce();
+    EXPECT_CALL(*m_mockIFileSystemPtr, readFile(m_soapConfigPath)).WillOnce(
+        Return(""));
+
+    EXPECT_CALL(*m_mockIFileSystemPtr, writeFileAtomically(m_soapConfigPath,
+                                                           _,
+                                                           _,
+                                                           0640));
+
+    Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
+    auto attributeMap = Common::XmlUtilities::parseXml(CORE_policy);
+    PolicyProcessorUnitTestClass proc;
+    EXPECT_NO_THROW(proc.processCOREpolicy(attributeMap));
+}
+
 TEST_F(TestPolicyProcessor_CORE_policy, processOnAccessPolicyExcludeRemoteEnabled)
 {
     std::string CORE_policy{R"sophos(<?xml version="1.0"?>
