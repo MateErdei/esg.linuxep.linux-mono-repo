@@ -104,6 +104,7 @@ namespace Plugin
         void startThreads();
         void innerLoop();
         void processSUSIRestartRequest();
+        bool isRecentDetection(const std::string& detectionSha) const;
         void setResetThreatDetector(bool reset)
         {
             m_restartSophosThreatDetector = reset || m_restartSophosThreatDetector;

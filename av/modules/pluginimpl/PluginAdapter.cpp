@@ -344,13 +344,11 @@ namespace Plugin
             {
                 std::string correlationID = pluginimpl::getThreatID(attributeMap);
                 m_threatDatabase.removeCorrelationID(correlationID);
-                if (m_threatDatabase.isDatabaseEmpty())
+                if (m_threatDatabase.isDatabaseEmpty() &&
+                    (m_callback->getThreatHealth() != E_THREAT_HEALTH_STATUS_GOOD))
                 {
-                    if (m_callback->getThreatHealth() != E_THREAT_HEALTH_STATUS_GOOD)
-                    {
-                        LOGINFO("Threat database is now empty, sending good health to Management agent");
-                        publishThreatHealth(E_THREAT_HEALTH_STATUS_GOOD);
-                    }
+                    LOGINFO("Threat database is now empty, sending good health to Management agent");
+                    publishThreatHealth(E_THREAT_HEALTH_STATUS_GOOD);
                 }
             }
             else if (pluginimpl::isCOREResetThreatHealthAction(attributeMap))
@@ -390,10 +388,14 @@ namespace Plugin
     {
         LOGDEBUG("Found '" << detection.threatName << "' in '" << detection.filePath << "'");
         incrementTelemetryThreatCount(detection.threatName, detection.scanType);
-        DetectionReporter::processThreatReport(pluginimpl::generateThreatDetectedXml(detection), m_taskQueue);
-        DetectionReporter::publishQuarantineCleanEvent(
-            pluginimpl::generateCoreCleanEventXml(detection, quarantineResult), m_taskQueue);
-        publishThreatEvent(pluginimpl::generateThreatDetectedJson(detection));
+
+        if (!isRecentDetection(detection.sha256))
+        {
+            DetectionReporter::processThreatReport(pluginimpl::generateThreatDetectedXml(detection), m_taskQueue);
+            DetectionReporter::publishQuarantineCleanEvent(
+                pluginimpl::generateCoreCleanEventXml(detection, quarantineResult), m_taskQueue);
+            publishThreatEvent(pluginimpl::generateThreatDetectedJson(detection));
+        }
     }
 
     void PluginAdapter::updateThreatDatabase(const scan_messages::ThreatDetected& detection)
@@ -519,5 +521,11 @@ namespace Plugin
         m_taskQueue->push(Task{ .taskType = Task::TaskType::SendRestoreEvent,
                                 .Content = pluginimpl::generateCoreRestoreEventXml(restoreReport) });
         LOGDEBUG("Added restore report to task queue");
+    }
+
+    bool PluginAdapter::isRecentDetection(const std::string& detectionSha) const
+    {
+
+
     }
 } // namespace Plugin
