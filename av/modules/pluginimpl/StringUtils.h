@@ -23,4 +23,14 @@ namespace pluginimpl
         const common::CentralEnums::QuarantineResult& quarantineResult);
     std::string generateCoreRestoreEventXml(const scan_messages::RestoreReport& restoreReport);
     constexpr std::size_t centralLimitedStringMaxSize = 32767;
+    std::string populateThreatReportXml(
+        const scan_messages::ThreatDetected& detection,
+        const std::string& utf8Path,
+        const std::string& timestamp);
+    std::string createCleanEventXml(
+        const scan_messages::ThreatDetected& detection,
+        const common::CentralEnums::QuarantineResult& quarantineResult,
+        const std::string& utf8Path,
+        const std::string& timestamp,
+        bool overallSuccess);
 } // namespace pluginimpl

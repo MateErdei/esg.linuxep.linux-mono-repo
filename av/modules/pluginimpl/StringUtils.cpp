@@ -5,12 +5,14 @@
 #include "HealthStatus.h"
 #include "Logger.h"
 
+#include "common/PluginUtils.h"
 #include "datatypes/Time.h"
 #include "datatypes/sophos_filesystem.h"
 
 #include "Common/TelemetryHelperImpl/TelemetryHelper.h"
 #include "Common/UtilityImpl/StringUtils.h"
 #include "Common/UtilityImpl/TimeUtils.h"
+#include "Common/XmlUtilities/AttributesMap.h"
 
 #include <boost/locale.hpp>
 #include <common/StringUtils.h>
@@ -46,6 +48,29 @@ std::string pluginimpl::generateThreatDetectedXml(const scan_messages::ThreatDet
     auto time = std::chrono::system_clock::from_time_t(detection.detectionTime);
     std::string timestamp = Common::UtilityImpl::TimeUtils::MessageTimeStamp(time);
 
+    std::string result = populateThreatReportXml(detection, utf8Path, timestamp);
+
+    try
+    {
+        //verify that the xml generated is parsable
+        Common::XmlUtilities::parseXml(result);
+    }
+    catch (const std::exception& e)
+    {
+        LOGWARN("Failed to generate valid threat report xml, replacing threat path and trying again");
+        auto logPath = common::getPluginInstallPath() / "log/sophos_threat_detector/sophos_threat_detector.log";
+        std::stringstream replacementPath;
+        replacementPath << "See endpoint logs for threat file path at: " << logPath.c_str();
+        result = populateThreatReportXml(detection, replacementPath.str(), timestamp);
+    }
+
+    return result;
+}
+std::string pluginimpl::populateThreatReportXml(
+    const scan_messages::ThreatDetected& detection,
+    const std::string& utf8Path,
+    const std::string& timestamp)
+{
     std::string result = Common::UtilityImpl::StringUtils::orderedStringReplace(
         R"sophos(<?xml version="1.0" encoding="utf-8"?>
 <event type="sophos.core.detection" ts="@@TS@@">
@@ -64,7 +89,6 @@ std::string pluginimpl::generateThreatDetectedXml(const scan_messages::ThreatDet
           { "@@REMOTE@@", detection.isRemote ? "true" : "false" },
           { "@@SHA256@@", detection.sha256 },
           { "@@PATH@@", utf8Path } });
-
     return result;
 }
 
@@ -147,6 +171,31 @@ std::string pluginimpl::generateCoreCleanEventXml(
         std::chrono::system_clock::from_time_t(detection.detectionTime));
     bool overallSuccess = quarantineResult == common::CentralEnums::QuarantineResult::SUCCESS;
 
+    std::string result = createCleanEventXml(detection, quarantineResult, utf8Path, timestamp, overallSuccess);
+
+    try
+    {
+        //verify that the xml generated is parsable
+        Common::XmlUtilities::parseXml(result);
+    }
+    catch (const std::exception& e)
+    {
+        LOGWARN("Failed to generate valid clean report xml, replacing threat path and trying again");
+        auto logPath = common::getPluginInstallPath() / "log/sophos_threat_detector/sophos_threat_detector.log";
+        std::stringstream replacementPath;
+        replacementPath << "See endpoint logs for threat file path at: " << logPath.c_str();
+        result = createCleanEventXml(detection, quarantineResult, replacementPath.str(), timestamp, overallSuccess);
+    }
+
+    return result;
+}
+std::string pluginimpl::createCleanEventXml(
+    const scan_messages::ThreatDetected& detection,
+    const common::CentralEnums::QuarantineResult& quarantineResult,
+    const std::string& utf8Path,
+    const std::string& timestamp,
+    bool overallSuccess)
+{
     std::string result = Common::UtilityImpl::StringUtils::orderedStringReplace(
         R"sophos(<?xml version="1.0" encoding="utf-8"?>
 <event type="sophos.core.clean" ts="@@TS@@">
@@ -166,7 +215,6 @@ std::string pluginimpl::generateCoreCleanEventXml(
             std::to_string(1) }, // hard coded until we deal with multiple threats per ThreatDetected object
           { "@@SUCCESS_DETAILED@@", std::to_string(static_cast<int>(quarantineResult)) },
           { "@@PATH@@", utf8Path } });
-
     return result;
 }
 
