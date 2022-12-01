@@ -447,7 +447,21 @@ namespace Plugin
     {
         processOnAccessSettingsFromCOREpolicy(policy);
 
+        bool changed = false;
+
         const auto machineLearningEnabled = boolFromString(policy.lookup("policy/coreFeatures/machineLearningEnabled").contents());
+        const auto existingSetting = m_threatDetectorSettings.isMachineLearningEnabled();
+        if (machineLearningEnabled != existingSetting)
+        {
+            m_threatDetectorSettings.setMachineLearningEnabled(machineLearningEnabled);
+            changed = true;
+        }
+
+        if (changed)
+        {
+            saveSusiSettings();
+            m_restartThreatDetector = true;
+        }
     }
 
     void PolicyProcessor::processOnAccessSettingsFromCOREpolicy(const AttributesMap& policy)
