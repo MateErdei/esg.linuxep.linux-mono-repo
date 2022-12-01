@@ -13,13 +13,17 @@ from robot.api import logger
 
 
 def ensure_binary(s, encoding="UTF-8"):
-    if isinstance(s, six.text_type):
+    if isinstance(s, list):
+        return [ ensure_binary(x) for x in s ]
+    elif isinstance(s, six.text_type):
         return s.encode(encoding)
     return s
 
 
 def ensure_unicode(s, encoding="UTF-8"):
-    if isinstance(s, six.binary_type):
+    if isinstance(s, list):
+        return [ ensure_unicode(x) for x in s ]
+    elif isinstance(s, six.binary_type):
         return s.decode(encoding, errors="backslashreplace")
     return s
 
@@ -119,6 +123,15 @@ class LogMark:
             lines = [line.decode("UTF-8", errors="backslashreplace") for line in lines]
             logger.info(u"Marked log from %s:\n" % self.__m_log_path + u'\n'.join(lines))
 
+    def __check_for_str_in_contents(self, expected, contents):
+        if isinstance(expected, list):
+            for s in expected:
+                if s in contents:
+                    return True
+            return False
+        else:
+            return expected in contents
+
     def wait_for_log_contains_from_mark(self, expected, timeout) -> None:
         expected = ensure_binary(expected, "UTF-8")
         start = time.time()
@@ -129,7 +142,7 @@ class LogMark:
                 if len(contents) > len(old_contents):
                     logger.debug(contents[:len(old_contents)])
 
-                if expected in contents:
+                if self.__check_for_str_in_contents(expected, contents):
                     return
 
                 old_contents = contents

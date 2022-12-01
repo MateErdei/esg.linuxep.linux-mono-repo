@@ -951,7 +951,7 @@ File Log Contains
 
     def wait_for_log_contains_from_mark(self,
                                         mark: LogHandler.LogMark,
-                                        expected: typing.Union[str, bytes],
+                                        expected: typing.Union[list, str, bytes],
                                         timeout=10) -> None:
         assert mark is not None
         assert expected is not None
@@ -960,7 +960,7 @@ File Log Contains
 
     def wait_for_log_contains_after_mark(self,
                                          logpath: typing.Union[str, bytes],
-                                         expected: typing.Union[str, bytes],
+                                         expected: typing.Union[list, str, bytes],
                                          mark: LogHandler.LogMark,
                                          timeout=10) -> None:
         if mark is None:
