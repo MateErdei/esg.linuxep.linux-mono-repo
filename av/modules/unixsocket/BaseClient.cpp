@@ -48,8 +48,7 @@ void unixsocket::BaseClient::connectWithRetries()
 
 void unixsocket::BaseClient::connectWithRetries(const std::string& socketName)
 {
-    const int MAX_CONN_RETRIES = 10;
-    std::ignore = connectWithRetries(socketName, MAX_CONN_RETRIES);
+    std::ignore = connectWithRetries(socketName, DEFAULT_MAX_RETRIES);
 }
 
 bool BaseClient::connectWithRetries(const std::string& socketName, int max_retries)
