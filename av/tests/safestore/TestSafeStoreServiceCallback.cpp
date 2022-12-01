@@ -3,6 +3,7 @@
 #include "safestore/SafeStoreServiceCallback.h"
 
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
+#include "Common/FileSystem/IFileSystemException.h"
 #include "Common/Helpers/FileSystemReplaceAndRestore.h"
 #include "Common/Helpers/LogInitializedTests.h"
 #include "Common/Helpers/MockFileSystem.h"
@@ -10,6 +11,7 @@
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
+#include <thirdparty/nlohmann-json/json.hpp>
 
 using namespace testing;
 
@@ -24,7 +26,7 @@ protected:
     }
 };
 
-TEST_F(TestSafeStoreServiceCallback, SafeStoreTelemetryReturnsExpectedData) // NOLINT
+TEST_F(TestSafeStoreServiceCallback, SafeStoreTelemetryReturnsExpectedData)
 {
     safestore::SafeStoreServiceCallback safeStoreCallback{};
 
@@ -36,12 +38,12 @@ TEST_F(TestSafeStoreServiceCallback, SafeStoreTelemetryReturnsExpectedData) // N
 
     EXPECT_CALL(*mockFileSystem, isFile(Plugin::getSafeStoreDormantFlagPath())).WillOnce(Return(false));
     EXPECT_CALL(*mockFileSystem, listFiles(Plugin::getSafeStoreDbDirPath())).WillOnce(Return(fileList));
-    EXPECT_CALL(*mockFileSystem, fileSize(_)).WillRepeatedly(Return(150));
-
-    EXPECT_EQ(safeStoreCallback.getTelemetry(), "{\"database-size\":300,\"dormant-mode\":false,\"health\":0,\"quarantine-failures\":0,\"quarantine-successes\":0,\"unlink-failures\":0}");
+    EXPECT_CALL(*mockFileSystem, fileSize(_)).Times(fileList.size()).WillRepeatedly(Return(150));
+    
+    EXPECT_EQ(safeStoreCallback.getTelemetry(), R"""({"database-deletions":0,"database-size":300,"dormant-mode":false,"failed-file-restorations":0,"health":0,"quarantine-failures":0,"quarantine-successes":0,"successful-file-restorations":0,"unlink-failures":0})""");
 }
 
-TEST_F(TestSafeStoreServiceCallback, SafeStoreTelemetryReturnsExpectedDataWhenSafeStoreIsInDormantMode) // NOLINT
+TEST_F(TestSafeStoreServiceCallback, SafeStoreTelemetryReturnsExpectedDataWhenSafeStoreIsInDormantMode)
 {
     safestore::SafeStoreServiceCallback safeStoreCallback{};
 
@@ -53,13 +55,14 @@ TEST_F(TestSafeStoreServiceCallback, SafeStoreTelemetryReturnsExpectedDataWhenSa
 
     EXPECT_CALL(*mockFileSystem, isFile(Plugin::getSafeStoreDormantFlagPath())).WillOnce(Return(true));
     EXPECT_CALL(*mockFileSystem, listFiles(Plugin::getSafeStoreDbDirPath())).WillOnce(Return(fileList));
-    EXPECT_CALL(*mockFileSystem, fileSize(_)).WillRepeatedly(Return(150));
+    EXPECT_CALL(*mockFileSystem, fileSize(_)).Times(fileList.size()).WillRepeatedly(Return(150));
 
-
-    EXPECT_EQ(safeStoreCallback.getTelemetry(), "{\"database-size\":300,\"dormant-mode\":true,\"health\":1,\"quarantine-failures\":0,\"quarantine-successes\":0,\"unlink-failures\":0}");
+    auto telemetry = nlohmann::json::parse(safeStoreCallback.getTelemetry());
+    EXPECT_EQ(telemetry["dormant-mode"], true);
+    EXPECT_EQ(telemetry["health"], 1);
 }
 
-TEST_F(TestSafeStoreServiceCallback, SafeStoreTelemetryReturnsExpectedDataWhenSafeStoreDatabaseIsEmpty) // NOLINT
+TEST_F(TestSafeStoreServiceCallback, SafeStoreTelemetryReturnsExpectedDataWhenSafeStoreDatabaseIsEmpty)
 {
     safestore::SafeStoreServiceCallback safeStoreCallback{};
 
@@ -73,10 +76,11 @@ TEST_F(TestSafeStoreServiceCallback, SafeStoreTelemetryReturnsExpectedDataWhenSa
     EXPECT_CALL(*mockFileSystem, listFiles(Plugin::getSafeStoreDbDirPath())).WillOnce(Return(fileList));
     EXPECT_CALL(*mockFileSystem, fileSize(_)).Times(0);
 
-    EXPECT_EQ(safeStoreCallback.getTelemetry(), "{\"database-size\":0,\"dormant-mode\":false,\"health\":0,\"quarantine-failures\":0,\"quarantine-successes\":0,\"unlink-failures\":0}");
+    auto telemetry = nlohmann::json::parse(safeStoreCallback.getTelemetry());
+    EXPECT_EQ(telemetry["database-size"], 0);
 }
 
-TEST_F(TestSafeStoreServiceCallback, SafeStoreTelemetryReturnsExpectedDataWhenSafeStoreDatabaseSizeHasNoValue) // NOLINT
+TEST_F(TestSafeStoreServiceCallback, SafeStoreTelemetryReturnsExpectedDataWhenSafeStoreDatabaseSizeHasNoValue)
 {
     safestore::SafeStoreServiceCallback safeStoreCallback{};
 
@@ -85,7 +89,28 @@ TEST_F(TestSafeStoreServiceCallback, SafeStoreTelemetryReturnsExpectedDataWhenSa
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
 
     EXPECT_CALL(*mockFileSystem, isFile(Plugin::getSafeStoreDormantFlagPath())).WillOnce(Return(false));
-    EXPECT_CALL(*mockFileSystem, listFiles(Plugin::getSafeStoreDbDirPath())).WillOnce(Throw(std::exception{}));
+    EXPECT_CALL(*mockFileSystem, listFiles(Plugin::getSafeStoreDbDirPath())).WillOnce(Throw(Common::FileSystem::IFileSystemException("")));
 
-    EXPECT_EQ(safeStoreCallback.getTelemetry(), "{\"dormant-mode\":false,\"health\":0,\"quarantine-failures\":0,\"quarantine-successes\":0,\"unlink-failures\":0}");
+    EXPECT_EQ(safeStoreCallback.getTelemetry(), R"({"database-deletions":0,"dormant-mode":false,"failed-file-restorations":0,"health":0,"quarantine-failures":0,"quarantine-successes":0,"successful-file-restorations":0,"unlink-failures":0})");
+}
+
+TEST_F(TestSafeStoreServiceCallback, SafeStoreTelemetryReturnsExpectedDataWhenSafeStoreDatabaseFileDoesNotExist)
+{
+    safestore::SafeStoreServiceCallback safeStoreCallback{};
+
+    auto mockFileSystem = new StrictMock<MockFileSystem>();
+    std::unique_ptr<MockFileSystem> mockIFileSystemPtr(mockFileSystem);
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
+
+    std::vector<std::string> fileList{"safestore.db", "safestore.pw"};
+
+    EXPECT_CALL(*mockFileSystem, isFile(Plugin::getSafeStoreDormantFlagPath())).WillOnce(Return(false));
+    EXPECT_CALL(*mockFileSystem, listFiles(Plugin::getSafeStoreDbDirPath())).WillOnce(Return(fileList));
+    EXPECT_CALL(*mockFileSystem, fileSize(_))
+        .Times(fileList.size())
+        .WillOnce(Return(150))
+        .WillOnce(Return(-1));
+
+    auto telemetry = nlohmann::json::parse(safeStoreCallback.getTelemetry());
+    EXPECT_EQ(telemetry["database-size"], 150);
 }
