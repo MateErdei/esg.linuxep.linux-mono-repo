@@ -35,14 +35,14 @@ namespace
     };
 }
 
-TEST_F(TestPolicyProcessor_CORE_policy, emptyPolicy)
+TEST_F(TestPolicyProcessor_CORE_policy, sendEmptyPolicy)
 {
     std::string CORE_policy{R"sophos(<?xml version="1.0"?><policy/>)sophos"};
     expectReadCustomerIdOnce();
     Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
     auto attributeMap = Common::XmlUtilities::parseXml(CORE_policy);
     PolicyProcessorUnitTestClass proc;
-    EXPECT_THROW(proc.processCOREpolicy(attributeMap), Plugin::InvalidPolicyException);
+    EXPECT_NO_THROW(proc.processCOREpolicy(attributeMap));
 }
 
 TEST_F(TestPolicyProcessor_CORE_policy, sendExampleCOREpolicy)
@@ -182,14 +182,13 @@ TEST_F(TestPolicyProcessor_CORE_policy, sendExampleCOREpolicy)
 
 </policy>)sophos"};
 
-    EXPECT_CALL(*m_mockIFileSystemPtr, readFile(_)).WillOnce(Return(""));
+    expectReadCustomerIdOnce();
 
     Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
 
     auto attributeMap = Common::XmlUtilities::parseXml(CORE_policy);
 
     PolicyProcessorUnitTestClass proc;
-
     EXPECT_THROW(proc.processCOREpolicy(attributeMap), Plugin::InvalidPolicyException);
 }
 
@@ -224,8 +223,7 @@ TEST_F(TestPolicyProcessor_CORE_policy, processOnAccessPolicyEnabled)
     auto attributeMap = Common::XmlUtilities::parseXml(CORE_policy);
 
     PolicyProcessorUnitTestClass proc;
-
-    proc.processCOREpolicy(attributeMap);
+    EXPECT_NO_THROW(proc.processCOREpolicy(attributeMap));
     EXPECT_TRUE(appenderContains("On Access is enabled in CORE policy"));
 }
 
@@ -260,8 +258,7 @@ TEST_F(TestPolicyProcessor_CORE_policy, processOnAccessPolicyDisabled)
     auto attributeMap = Common::XmlUtilities::parseXml(CORE_policy);
 
     PolicyProcessorUnitTestClass proc;
-
-    proc.processCOREpolicy(attributeMap);
+    EXPECT_NO_THROW(proc.processCOREpolicy(attributeMap));
     EXPECT_TRUE(appenderContains("On Access is disabled in CORE policy"));
 }
 
@@ -359,10 +356,29 @@ TEST_F(TestPolicyProcessor_CORE_policy, processOnAccessPolicyExcludeRemoteEnable
     auto attributeMap = Common::XmlUtilities::parseXml(CORE_policy);
 
     PolicyProcessorUnitTestClass proc;
-
-    proc.processCOREpolicy(attributeMap);
+    EXPECT_NO_THROW(proc.processCOREpolicy(attributeMap));
 }
 
+TEST_F(TestPolicyProcessor_CORE_policy, machineLearningDisabled)
+{
+    std::string CORE_policy{R"sophos(<?xml version="1.0"?>
+<policy RevID="{{revisionId}}" policyType="36">
+<!-- Core Features -->
+<coreFeatures>
+  <machineLearningEnabled>false</machineLearningEnabled>
+</coreFeatures>
+</policy>)sophos"};
+
+    std::string settingsJson = R"sophos({"enableSxlLookup":true,"machineLearning":false,"shaAllowList":[]})sophos";
+    expectWriteSusiConfigFromString(settingsJson);
+    expectReadCustomerIdOnce();
+    Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
+
+    auto attributeMap = Common::XmlUtilities::parseXml(CORE_policy);
+
+    PolicyProcessorUnitTestClass proc;
+    EXPECT_NO_THROW(proc.processCOREpolicy(attributeMap));
+}
 
 #ifndef USE_ON_ACCESS_EXCLUSIONS_FROM_SAV_POLICY
 TEST_F(TestPolicyProcessor_CORE_policy, processOnAccessPolicyPathExclusions)

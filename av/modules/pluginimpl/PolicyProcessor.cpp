@@ -1,25 +1,31 @@
-// Copyright 2020-2022, Sophos Limited.  All rights reserved.
+// Copyright 2020-2022 Sophos Limited. All rights reserved.
 
 // Class
 #include "PolicyProcessor.h"
+
 // Package
 #include "Logger.h"
-#include "StringUtils.h"
+
 // Plugin
 #include "common/ApplicationPaths.h"
+#include "common/StringUtils.h"
+#include "pluginimpl/ObfuscationImpl/Obfuscate.h"
 #include "unixsocket/processControllerSocket/ProcessControllerClient.h"
+
 // Product
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include "Common/FileSystem/IFileSystem.h"
+#include "Common/FileSystem/IFileSystemException.h"
 #include "Common/TelemetryHelperImpl/TelemetryHelper.h"
 
-#include <Common/FileSystem/IFileSystem.h>
-#include <Common/FileSystem/IFileSystemException.h>
-#include <common/StringUtils.h>
-#include <pluginimpl/ObfuscationImpl/Obfuscate.h>
-// Std C++
-#include <fstream>
 // Std C
 #include <sys/stat.h>
+
+// Std C++
+#include <fstream>
+
+// Third party
+#include <thirdparty/nlohmann-json/json.hpp>
 
 using json = nlohmann::json;
 
@@ -42,6 +48,15 @@ namespace
         throw Plugin::InvalidPolicyException(ost.str());
     }
 
+    bool boolFromElement(const Common::XmlUtilities::Attributes& attribute, bool defaultValue)
+    {
+        if (attribute.empty())
+        {
+            return defaultValue;
+        }
+        return boolFromString(attribute.contents());
+    }
+
     json readConfigFromFile(const std::string& filepath)
     {
         auto* fs = Common::FileSystem::fileSystem();
@@ -59,7 +74,7 @@ namespace
         }
         catch (const json::exception& ex)
         {
-            LOGWARN("Failed to parse "<< filepath << ": " << ex.what());
+            LOGWARN("Failed to parse " << filepath << ": " << ex.what());
             return {};
         }
     }
@@ -78,7 +93,9 @@ namespace
         }
         catch (const Common::FileSystem::IFileSystemException& e)
         {
-            LOGERROR("Failed to write " << configName << ", Sophos On Access Process will use the default settings " << e.what());
+            LOGERROR(
+                "Failed to write " << configName << ", Sophos On Access Process will use the default settings "
+                                   << e.what());
             return false;
         }
     }
@@ -86,12 +103,11 @@ namespace
     using timepoint_t = Plugin::PolicyProcessor::timepoint_t;
     using seconds_t = Plugin::PolicyProcessor::seconds_t;
 
-
     timepoint_t getNow()
     {
         return Plugin::PolicyProcessor::clock_t::now();
     }
-}
+} // namespace
 
 namespace Plugin
 {
@@ -197,9 +213,9 @@ namespace Plugin
         {
             return "";
         }
-        std::string username { primaryLocation.value("UserName") };
-        std::string password { primaryLocation.value("UserPassword") };
-        std::string algorithm { primaryLocation.value("Algorithm", "Clear") };
+        std::string username{ primaryLocation.value("UserName") };
+        std::string password{ primaryLocation.value("UserPassword") };
+        std::string algorithm{ primaryLocation.value("Algorithm", "Clear") };
 
         // we check that username and password are not empty mainly for fuzzing purposes as in
         // product we never expect central to send us a policy with empty credentials
@@ -239,20 +255,17 @@ namespace Plugin
 
     void PolicyProcessor::markOnAccessReloadPending()
     {
-        // Try MAX_RETIRES_NOTIFY_SOAPD_ON_CONFIG_CHANGE times to send reload to soapd - if it doesn't receive the message,
-        // it will probably read the new config file when it starts up
+        // Try MAX_RETIRES_NOTIFY_SOAPD_ON_CONFIG_CHANGE times to send reload to soapd - if it doesn't receive the
+        // message, it will probably read the new config file when it starts up
         m_pendingOnAccessProcessReload = MAX_RETIRES_NOTIFY_SOAPD_ON_CONFIG_CHANGE;
     }
-
 
     void PolicyProcessor::notifyOnAccessProcessIfRequired()
     {
         if (m_pendingOnAccessProcessReload > 0)
         {
             m_pendingOnAccessProcessReload--; // Only retry a finite amount of times
-            unixsocket::ProcessControllerClientSocket processController(getSoapControlSocketPath(),
-                                                                        m_sleeper,
-                                                                        0);
+            unixsocket::ProcessControllerClientSocket processController(getSoapControlSocketPath(), m_sleeper, 0);
             if (processController.isConnected())
             {
                 // Successfully connected to soapd
@@ -315,7 +328,6 @@ namespace Plugin
         }
 
         saveSusiSettings();
-        m_restartThreatDetector = true;
     }
 
     bool PolicyProcessor::isLookupEnabled(const Common::XmlUtilities::AttributesMap& policy)
@@ -410,11 +422,29 @@ namespace Plugin
             LOGINFO("SafeStore flag not set. Setting SafeStore to disabled.");
         }
         m_safeStoreEnabled = ssEnabled;
+
+        if (m_safeStoreEnabled)
+        {
+            m_safeStoreQuarantineMl = flagsJson.value(SS_ML_FLAG, false);
+            if (m_safeStoreQuarantineMl)
+            {
+                LOGDEBUG("SafeStore Quarantine ML flag set. SafeStore will quarantine ML detections.");
+            }
+            else
+            {
+                LOGDEBUG("SafeStore Quarantine ML flag not set. SafeStore will not quarantine ML detections.");
+            }
+        }
     }
 
     bool PolicyProcessor::isSafeStoreEnabled() const
     {
         return m_safeStoreEnabled;
+    }
+
+    bool PolicyProcessor::shouldSafeStoreQuarantineMl() const
+    {
+        return m_safeStoreQuarantineMl;
     }
 
     PolicyType PolicyProcessor::determinePolicyType(
@@ -443,33 +473,27 @@ namespace Plugin
         }
         return PolicyType::UNKNOWN;
     }
+
     void PolicyProcessor::processCOREpolicy(const AttributesMap& policy)
     {
         processOnAccessSettingsFromCOREpolicy(policy);
+        processSusiSettingsFromCOREpolicy(policy);
 
-        bool changed = false;
-
-        const auto machineLearningEnabled = boolFromString(policy.lookup("policy/coreFeatures/machineLearningEnabled").contents());
-        const auto existingSetting = m_threatDetectorSettings.isMachineLearningEnabled();
-        if (machineLearningEnabled != existingSetting)
-        {
-            m_threatDetectorSettings.setMachineLearningEnabled(machineLearningEnabled);
-            changed = true;
-        }
-
-        if (changed)
-        {
-            saveSusiSettings();
-            m_restartThreatDetector = true;
-        }
     }
 
     void PolicyProcessor::processOnAccessSettingsFromCOREpolicy(const AttributesMap& policy)
     {
+        const auto on_access_element = policy.lookupMultiple("policy/onAccessScan");
+        if (on_access_element.size() != 1)
+        {
+            LOGDEBUG("CORE policy lacks onAccessScan element");
+            return;
+        }
+
         LOGINFO("Processing On Access Scanning settings from CORE policy");
-        const auto on_access_enabled = boolFromString(policy.lookup("policy/onAccessScan/enabled").contents());
-        const auto excludeRemoteFiles = boolFromString(
-            policy.lookup("policy/onAccessScan/exclusions/excludeRemoteFiles").contents());
+        const auto on_access_enabled = boolFromElement(policy.lookup("policy/onAccessScan/enabled"), false);
+        const auto excludeRemoteFiles = boolFromElement(
+            policy.lookup("policy/onAccessScan/exclusions/excludeRemoteFiles"), false);
 
         const auto originalConfig = readOnAccessConfig();
         auto config = originalConfig;
@@ -502,6 +526,31 @@ namespace Plugin
         }
     }
 
+    void PolicyProcessor::processSusiSettingsFromCOREpolicy(const PolicyProcessor::AttributesMap& policy)
+    {
+        const auto on_access_element = policy.lookupMultiple("policy/coreFeatures");
+        if (on_access_element.size() != 1)
+        {
+            LOGDEBUG("CORE policy lacks coreFeatures element");
+            return;
+        }
+
+        bool changed = false;
+
+        const auto machineLearningEnabled = boolFromString(policy.lookup("policy/coreFeatures/machineLearningEnabled").contents());
+        const auto existingSetting = m_threatDetectorSettings.isMachineLearningEnabled();
+        if (machineLearningEnabled != existingSetting)
+        {
+            m_threatDetectorSettings.setMachineLearningEnabled(machineLearningEnabled);
+            changed = true;
+        }
+
+        if (changed)
+        {
+            saveSusiSettings();
+        }
+    }
+
     nlohmann::json PolicyProcessor::readOnAccessConfig()
     {
         return readConfigFromFile(getSoapConfigPath());
@@ -524,11 +573,11 @@ namespace Plugin
     {
         if (m_pendingOnAccessProcessReload == MAX_RETIRES_NOTIFY_SOAPD_ON_CONFIG_CHANGE)
         {
-            return now + std::chrono::milliseconds{10};
+            return now + std::chrono::milliseconds{ 10 };
         }
         else if (m_pendingOnAccessProcessReload > 0)
         {
-            return now + seconds_t{1};
+            return now + seconds_t{ 1 };
         }
         else
         {
@@ -560,11 +609,10 @@ namespace Plugin
             }
         }
 
-        if (oldAllowList != sha256AllowList)
+        if (oldAllowList != sha256AllowList || m_firstPolicy)
         {
             m_threatDetectorSettings.setAllowList(std::move(sha256AllowList));
             saveSusiSettings();
-            m_restartThreatDetector = true;
         }
         else
         {
@@ -580,5 +628,7 @@ namespace Plugin
         // Also, write a copy to chroot
         dest = Plugin::getPluginInstall() + "/chroot" + dest;
         m_threatDetectorSettings.saveSettings(dest, 0640);
+        // Make SUSI reload config
+        m_restartThreatDetector = true;
     }
 } // namespace Plugin

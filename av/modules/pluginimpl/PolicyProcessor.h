@@ -106,6 +106,7 @@ namespace Plugin
         void markOnAccessReloadPending();
 
         void processOnAccessSettingsFromCOREpolicy(const AttributesMap& policy);
+        void processSusiSettingsFromCOREpolicy(const AttributesMap& policy);
         void processOnAccessSettingsFromSAVpolicy(const AttributesMap& policy);
 
     private:

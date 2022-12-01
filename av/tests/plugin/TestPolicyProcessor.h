@@ -31,6 +31,8 @@ namespace
         fs::path m_testDir;
         std::unique_ptr<StrictMock<MockFileSystem>> m_mockIFileSystemPtr;
         std::string m_customerIdPath;
+        std::string m_susiStartupConfigPath;
+        std::string m_susiStartupConfigChrootPath;
 
         void createTestDir()
         {
@@ -51,6 +53,8 @@ namespace
             createTestDir();
             m_mockIFileSystemPtr = std::make_unique<StrictMock<MockFileSystem>>();
             m_customerIdPath = m_testDir / "var/customer_id.txt";
+            m_susiStartupConfigPath = m_testDir / "var/susi_startup_settings.json";
+            m_susiStartupConfigChrootPath = std::string(m_testDir / "chroot") + m_susiStartupConfigPath;
         }
 
         void TearDown() override
@@ -67,5 +71,12 @@ namespace
         {
             EXPECT_CALL(*m_mockIFileSystemPtr, readFile(m_customerIdPath)).WillRepeatedly(Return(""));
         }
+
+        void expectWriteSusiConfigFromString(const std::string& expected)
+        {
+            EXPECT_CALL(*m_mockIFileSystemPtr, writeFileAtomically(m_susiStartupConfigPath, expected,_ ,_)).Times(1);
+            EXPECT_CALL(*m_mockIFileSystemPtr, writeFileAtomically(m_susiStartupConfigChrootPath, expected,_ ,_)).Times(1);
+        }
+
     };
 }

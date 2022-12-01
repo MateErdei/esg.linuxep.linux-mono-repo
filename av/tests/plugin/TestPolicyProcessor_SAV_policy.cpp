@@ -20,8 +20,6 @@ namespace
         {
             setupBase();
             
-            m_susiStartupConfigPath = m_testDir / "var/susi_startup_settings.json";
-            m_susiStartupConfigChrootPath = std::string(m_testDir / "chroot") + m_susiStartupConfigPath;
             m_soapConfigPath = m_testDir / "var/on_access_policy.json";
         }
 
@@ -49,26 +47,18 @@ namespace
             expectReadCustomerIdOnce();
         }
 
-        void expectWriteSusiConfigFromString(const std::string& expected)
-        {
-            EXPECT_CALL(*m_mockIFileSystemPtr, writeFileAtomically(m_susiStartupConfigPath, expected,_ ,_)).Times(1);
-            EXPECT_CALL(*m_mockIFileSystemPtr, writeFileAtomically(m_susiStartupConfigChrootPath, expected,_ ,_)).Times(1);
-        }
-
         void expectWriteSusiConfigFromBool(bool sxlEnabled)
         {
             if (sxlEnabled)
             {
-                expectWriteSusiConfigFromString(R"sophos({"enableSxlLookup":true,"shaAllowList":[]})sophos");
+                expectWriteSusiConfigFromString(R"sophos({"enableSxlLookup":true,"machineLearning":true,"shaAllowList":[]})sophos");
             }
             else
             {
-                expectWriteSusiConfigFromString(R"sophos({"enableSxlLookup":false,"shaAllowList":[]})sophos");
+                expectWriteSusiConfigFromString(R"sophos({"enableSxlLookup":false,"machineLearning":true,"shaAllowList":[]})sophos");
             }
         }
-        
-        std::string m_susiStartupConfigPath;
-        std::string m_susiStartupConfigChrootPath;
+
         std::string m_soapConfigPath;
     };
 }
