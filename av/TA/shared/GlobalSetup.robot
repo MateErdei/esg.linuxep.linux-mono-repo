@@ -68,6 +68,7 @@ Global Setup Tasks
     CoreDumps.Enable Core Files
 
     Create test user and group
+    Unpack TAP Tools
 
 Global Teardown Tasks
     Run Keyword And Ignore Error  Uninstall All
@@ -88,3 +89,10 @@ Create test user and group
 Remove test user and group
     Run Process  /usr/sbin/userdel   ${TESTUSER}
     Run Process  /usr/sbin/groupdel   ${TESTGROUP}
+
+Unpack TAP Tools
+    ${result} =   Run Process    tar    xzf    ${BUILD_ARTEFACTS_FOR_TAP}/tap_test_output.tar.gz    -C    ${TEST_INPUT_PATH}
+    Log  ${result.stdout}
+    Log  ${result.stderr}
+    Should Be Equal As Integers   ${result.rc}  ${0}
+    Set Global Variable  ${AV_TEST_TOOLS}         ${TEST_INPUT_PATH}/tap_test_output

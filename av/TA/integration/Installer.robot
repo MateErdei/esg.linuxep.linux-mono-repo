@@ -849,6 +849,32 @@ Older SafeStore Database Is Not Restored When It Is Not Compaitible With Current
     Directory Should Exist    ${incompatibleBackup}
     Verify SafeStore Database Exists
 
+Threats Are Persisted When Older SafeStore Database Is Restored On Upgrade
+    Check AV Plugin Running
+    ${avMark} =  Get AV Log Mark
+    ${safeStoreMark} =  Mark Log Size  ${SAFESTORE_LOG_PATH}
+
+    Check avscanner can detect eicar
+
+    Wait For Log Contains From Mark  ${safeStoreMark}  Threat ID: e52cf957-a0dc-5b12-bad2-561197a5cae4
+    Wait For Log Contains From Mark  ${avMark}  Quarantine succeeded
+    File Should Not Exist    ${SCAN_DIRECTORY}/eicar.com
+
+    Run plugin uninstaller with downgrade flag
+    Check AV Plugin Not Installed
+
+    Install AV Directly from SDDS
+    Wait Until Keyword Succeeds
+    ...    60 secs
+    ...    5 secs
+    ...    File Log Contains    ${AV_INSTALL_LOG}    Successfully restored old SafeStore database
+    Verify SafeStore Database Exists
+    Wait Until SafeStore Log Contains    Successfully initialised SafeStore database
+
+    ${result} =    Run Process    ${AV_TEST_TOOLS}/safestore_print_tool
+    Should Contain    ${result.stdout}    Object Threat ID: e52cf957-a0dc-5b12-bad2-561197a5cae4
+    File Should Not Exist    ${SCAN_DIRECTORY}/eicar.com
+
 AV Can not install from SDDS Component
     ${result} =  Run Process  bash  ${COMPONENT_SDDS_COMPONENT}/install.sh  stderr=STDOUT  timeout=30s
     Log  ${result.stdout}
