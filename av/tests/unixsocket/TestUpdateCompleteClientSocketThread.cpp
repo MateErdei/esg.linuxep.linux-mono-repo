@@ -63,6 +63,8 @@ TEST_F(TestUpdateCompleteClientSocketThread, constructionDoesNotCallback)
 
 TEST_F(TestUpdateCompleteClientSocketThread, notificationPassedToClient)
 {
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
     WaitForEvent callbackGuard;
     auto callback = std::make_shared<StrictMock<MockIUpdateCompleteCallback>>();
     EXPECT_CALL(*callback, updateComplete()).WillOnce(
@@ -71,6 +73,10 @@ TEST_F(TestUpdateCompleteClientSocketThread, notificationPassedToClient)
     // Start server
     UpdateCompleteServerSocket server(m_socketPath, 0700);
     server.start();
+
+    std::stringstream expected;
+    expected << "Update Complete Server starting listening on socket: " << m_socketPath.string();
+    EXPECT_TRUE(waitForLog(expected.str()));
 
     // Start client
     UpdateCompleteClientSocketThread client(m_socketPath, callback);
@@ -96,6 +102,8 @@ TEST_F(TestUpdateCompleteClientSocketThread, notificationPassedToClient)
 
     client.join();
     server.join();
+
+    EXPECT_TRUE(waitForLog("Closing Update Complete Server socket"));
 }
 
 TEST_F(TestUpdateCompleteClientSocketThread, clientConnectsIfStartedFirst)

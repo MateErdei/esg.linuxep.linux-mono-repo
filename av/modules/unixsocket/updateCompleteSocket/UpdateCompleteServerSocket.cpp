@@ -11,6 +11,7 @@ UpdateCompleteServerSocket::UpdateCompleteServerSocket(
     mode_t mode) :
     BaseServerSocket(path, mode)
 {
+    m_socketName = "Update Complete Server";
 }
 
 bool UpdateCompleteServerSocket::handleConnection(datatypes::AutoFd& fd)
