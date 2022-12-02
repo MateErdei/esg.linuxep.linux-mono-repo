@@ -84,10 +84,16 @@ namespace Plugin
         }
     }
 
-    bool ThreatDatabase::isDatabaseEmpty()
+    bool ThreatDatabase::isDatabaseEmpty() const
     {
         auto database = m_database.lock();
         return database->empty();
+    }
+
+    bool ThreatDatabase::isThreatInDatabase(const std::string& threatId) const
+    {
+        auto database = m_database.lock();
+        return database->find(threatId) != database->cend();
     }
 
     void ThreatDatabase::resetDatabase()

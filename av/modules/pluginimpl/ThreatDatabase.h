@@ -26,7 +26,8 @@ namespace Plugin
         void removeCorrelationID(const std::string& correlationID);
         void removeThreatID(const std::string& threatID, bool ignoreNotInDatabase=true);
         void resetDatabase();
-        bool isDatabaseEmpty();
+        bool isDatabaseEmpty() const;
+        bool isThreatInDatabase(const std::string& threatId) const;
 
     TEST_PUBLIC:
         struct ThreatDetails

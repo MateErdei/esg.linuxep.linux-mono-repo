@@ -523,9 +523,12 @@ namespace Plugin
         LOGDEBUG("Added restore report to task queue");
     }
 
-    bool PluginAdapter::isRecentDetection(const std::string& detectionSha) const
+    bool PluginAdapter::isRecentDetection(const std::string& threatId) const
     {
-
-
+        if (m_threatDatabase.isDatabaseEmpty() || !m_threatDatabase.isThreatInDatabase(threatId))
+        {
+            return false;
+        }
+        return true;
     }
 } // namespace Plugin
