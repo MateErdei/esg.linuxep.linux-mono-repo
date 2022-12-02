@@ -104,6 +104,10 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
 
     Check EAP Release With AV Installed Correctly
     Check SafeStore Installed Correctly
+    Mark SafeStore Log
+    ${safeStoreDbDirBeforeUpgrade} =    List Files In Directory    ${SAFESTORE_DB_DIR}
+    ${safeStorePasswordBeforeUpgrade} =    Get File    ${SAFESTORE_DB_PASSWORD_PATH}
+    ${databaseContentBeforeUpgrade} =    Run Process    ${AV_TEST_TOOLS}/safestore_print_tool
     Check Expected Versions Against Installed Versions    &{expectedDogfoodVersions}
 
     Stop Local SDDS3 Server
@@ -121,12 +125,6 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     ...  120 secs
     ...  15 secs
     ...  SHS Status File Contains    ${HealthyShsStatusXmlContents}
-
-    Check SafeStore Installed Correctly
-    Mark SafeStore Log
-    ${safeStoreDbDirBeforeUpgrade} =    List Files In Directory    ${SAFESTORE_DB_DIR}
-    ${safeStorePasswordBeforeUpgrade} =    Get File    ${SAFESTORE_DB_PASSWORD_PATH}
-    ${databaseContentBeforeUpgrade} =    Run Process    ${AV_TEST_TOOLS}/safestore_print_tool
 
     Mark Watchdog Log
     Mark Managementagent Log
@@ -300,6 +298,7 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
 
     Wait For Version Files to Update    &{expectedVUTVersions}
     Check SafeStore Installed Correctly
+    Check SafeStore Database Was Persisted    ${safeStoreDbDirBeforeUpgrade}    ${databaseContentBeforeUpgrade}    ${safeStorePasswordBeforeUpgrade}
 
     # The query pack should have been re-installed
     Wait Until Keyword Succeeds
