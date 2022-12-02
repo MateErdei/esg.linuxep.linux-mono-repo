@@ -30,7 +30,6 @@ using namespace ::testing;
 
 namespace
 {
-//  class TestSafeStoreServerConnectionThread : public UnixSocketMemoryAppenderUsingTests
     class TestSafeStoreServerConnectionThread : public SafeStoreSocketMemoryAppenderUsingTests
     {
     protected:
