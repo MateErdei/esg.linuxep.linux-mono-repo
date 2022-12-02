@@ -130,10 +130,6 @@ std::string Watchdog::disablePlugin(const std::string& pluginName)
     PluginStatus status{ PluginStatus::NotFound };
     auto functor = [&status](Common::ProcessMonitoring::IProcessProxy& processProxy) {
         processProxy.setEnabled(false);
-        if (std::getenv("SOPHOS_CORE_DUMP_ON_PLUGIN_KILL"))
-        {
-            processProxy.setCoreDumpMode(true);
-        }
 
         status = PluginStatus::Disabled;
     };
