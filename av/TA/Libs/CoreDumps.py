@@ -25,6 +25,11 @@ def ensure_text(s, encoding="utf-8", errors="replace"):
 
 
 def attempt_backtrace_of_core(filepath):
+    statbuf = os.stat(filepath)
+    if statbuf.st_size == 0:
+        logger.error("Core file is zero bytes long!")
+        return
+
     proc = subprocess.Popen([b'file', b'--brief', filepath],
                             stdout=subprocess.PIPE,
                             stdin=subprocess.PIPE,
