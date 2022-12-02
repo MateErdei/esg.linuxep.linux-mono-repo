@@ -264,7 +264,7 @@ TEST_F(TestThreatDatabase, DatabaseLoadsAndSavesHandlesUnexpectedStructureNewCor
     EXPECT_TRUE(waitForLog("type must be string, but is number"));
 
     auto databaseContents = database.m_database.lock();
-    ASSERT_EQ(databaseContents->size(), 0);
+    EXPECT_EQ(databaseContents->size(), 0);
 
     verifyCorruptDatabaseTelemetryNotPresent();
 }
@@ -285,7 +285,7 @@ TEST_F(TestThreatDatabase, DatabaseLoadsAndHandlesUnexpectedStructureNewThreatID
     EXPECT_TRUE(waitForLog("Resetting ThreatDatabase as we failed to parse ThreatDatabase on disk with error"));
 
     auto databaseContents = database.m_database.lock();
-    ASSERT_EQ(databaseContents->size(), 0);
+    EXPECT_EQ(databaseContents->size(), 0);
 
     verifyCorruptDatabaseTelemetryPresent();
 }
@@ -598,13 +598,13 @@ TEST_F(TestThreatDatabase, dataWrittenToDiskMatchesWhenRead)
     EXPECT_EQ(res->at(threat1).correlationIds.back(), correlation2);
 
     const long threat1Time = std::chrono::time_point_cast<std::chrono::seconds>(res->at(threat1).lastDetection).time_since_epoch().count();
-    EXPECT_TRUE((threat1Time - timeStamp) < 1); //Test should take less than a second to complete
+    EXPECT_TRUE((threat1Time - timeStamp) <= 1); //Test should take a second or less to complete
 
     //Check threat2 correlations
     EXPECT_EQ(res->at(threat2).correlationIds.size(), 1);
     EXPECT_EQ(res->at(threat2).correlationIds.front(), correlation1);
     const long threat2Time = std::chrono::time_point_cast<std::chrono::seconds>(res->at(threat2).lastDetection).time_since_epoch().count();
-    EXPECT_TRUE((threat2Time - timeStamp) < 1); //Test should take less than a second to complete
+    EXPECT_TRUE((threat2Time - timeStamp) <= 1); //Test should take a second or less to complete
 }
 
 
