@@ -248,7 +248,7 @@ SafeStore Telemetry Is Incremented When File Is Successfully Restored
     Wait Until AV Plugin Log Contains With Offset    Added SHA256 to allow list: c88e20178a82af37a51b030cb3797ed144126cad09193a6c8c7e95957cf9c3f9
     Wait For Log Contains From Mark    ${safestoreMark}   SafeStore Database Rescan request received
 
-    Wait For Log Contains From Mark  ${safestoreMark}  Successfully restored object to original path
+    Wait For Log Contains From Mark  ${safestoreMark}  Successfully restored object
     Check SafeStore Telemetry    successful-file-restorations   ${1}
 
 SafeStore Telemetry Is Incremented When File Restoration Fails
@@ -274,7 +274,7 @@ SafeStore Telemetry Is Incremented When File Restoration Fails
     Wait For Log Contains From Mark    ${safestoreMark}   Quarantined ${NORMAL_DIRECTORY}/MLengHighScore.exe successfully
     File Should Not Exist  ${threat_file}
 
-    Remove Directory    ${NORMAL_DIRECTORY}
+    Remove Directory    /opt/sophos-spl/plugins/av/var/tempUnpack
 
     # Allow-list the file
     Send CORC Policy To Base  corc_policy.xml
