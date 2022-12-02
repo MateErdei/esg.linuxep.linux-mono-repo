@@ -395,8 +395,8 @@ namespace Plugin
             publishThreatEvent(pluginimpl::generateThreatDetectedJson(detection));
         }
 
-        const std::string duplicateStr = duplicate ? "is duplicate detection" : "is new detection";
-        LOGDEBUG("Found '" << detection.threatName << "' in '" << detection.filePath << "' which is '" << duplicateStr);
+        const std::string duplicateStr = duplicate ? " which is a duplicate detection" : " which is a new detection";
+        LOGDEBUG("Found '" << detection.threatName << "' in '" << detection.filePath << duplicateStr);
 
         incrementTelemetryThreatCount(detection.threatName, detection.scanType);
     }

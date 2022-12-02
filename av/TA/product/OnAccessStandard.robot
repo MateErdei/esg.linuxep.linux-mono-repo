@@ -248,7 +248,8 @@ On Access Scans Password Protected File
     wait_for_on_access_log_contains_after_mark   /tmp/passwd-protected.xls as it is password protected  mark=${mark}
 
     # ensure we've completed the on-close scan
-    wait for on access log contains after mark   Un-caching /tmp/passwd-protected.xls (Close-Write)  mark=${mark}
+    # With DeDup LINUXDAR-5901, the close could be skipped if we haven't scanned the open yet
+    wait for on access log contains after mark   Un-caching /tmp/passwd-protected.xls  mark=${mark}
 
 On Access Scans Corrupted File
     Register Cleanup     Exclude As Corrupted
@@ -260,7 +261,8 @@ On Access Scans Corrupted File
     wait for on access log contains after mark   /tmp/corrupted.xls as it is corrupted  mark=${mark}
 
     # ensure we've completed the on-close scan
-    wait for on access log contains after mark   Un-caching /tmp/corrupted.xls (Close-Write)  mark=${mark}
+    # With DeDup LINUXDAR-5901, the close could be skipped if we haven't scanned the open yet
+    wait for on access log contains after mark   Un-caching /tmp/corrupted.xls  mark=${mark}
 
 On Access Scans File On BFS
     On Access Scans Eicar On Filesystem from Image  bfs  bfsFileSystem
@@ -332,23 +334,6 @@ On Access Scans File On XFS
     ...  Run Process  modprobe  xfs
     ${opts} =  Set Variable  nouuid
     On Access Scans Eicar On Filesystem from Image  xfs  xfsFileSystem  opts=${opts}
-
-On Access Scans File On devtmpfs
-    ${mark} =  get_on_access_log_mark
-    ${source} =       Set Variable  /tmp_test/devtmpfs
-    ${destination} =  Set Variable  /testmnt/devtmpfs
-    Create Directory  ${destination}
-
-    ${result} =  Run Process  mount  -t  devtmpfs  -o  size\=20m  ${source}  ${destination}
-    Log   ${result.stdout}
-    Log   ${result.stderr}
-
-    Register Cleanup    Unmount Image Internal  ${destination}
-    Register Cleanup    Remove File  ${source}
-
-    wait for on access log contains after mark  Including mount point: ${destination}   ${mark}
-
-    On-access Scan Eicar Close  ${destination}/eicar.com
 
 
 On Access Scans File On NFSv4
@@ -553,7 +538,8 @@ On Access Does Cache Close Events Without Detections
     Register Cleanup   Remove File   ${cleanfile}
 
     wait for on access log contains after mark  On-close event for ${cleanfile}  mark=${oamark}
-    wait for on access log contains after mark  Caching ${cleanfile} (Close-Write)  mark=${oamark}
+    # The on-close event may be deduplicated so allow either
+    wait for on access log contains after mark  Caching ${cleanfile}  mark=${oamark}
 
     ${oamark} =  get_on_access_log_mark
     Get File   ${cleanfile}
@@ -575,7 +561,8 @@ On Access Receives Close Event On Cached File
     Register Cleanup   Remove File   ${cleanfile}
 
     wait for on access log contains after mark  On-close event for ${cleanfile}  mark=${oamark}
-    wait for on access log contains after mark  Caching ${cleanfile} (Close-Write)  mark=${oamark}
+    # With DeDup LINUXDAR-5901, the close could be skipped if we haven't scanned the open yet
+    wait for on access log contains after mark  Caching ${cleanfile}  mark=${oamark}
 
     #Check we are cached
     ${oamark} =  get_on_access_log_mark
@@ -602,7 +589,8 @@ On Access Doesnt Cache Close Events With Detections
     Register Cleanup   Remove File   ${testfile}
 
     wait for on access log contains after mark  On-close event for ${testfile} from  mark=${oamark}
-    wait for on access log contains after mark  Detected "${testfile}" is infected with EICAR-AV-Test (Close-Write)  mark=${oamark}
+    # With DeDup LINUXDAR-5901, the close could be skipped if we haven't scanned the open yet
+    wait for on access log contains after mark  Detected "${testfile}" is infected with EICAR-AV-Test  mark=${oamark}
     Sleep   0.1s   Let the event (hopefully not) be cached
 
     ${oamark} =  get_on_access_log_mark
@@ -610,6 +598,37 @@ On Access Doesnt Cache Close Events With Detections
 
     wait for on access log contains after mark  On-open event for ${testfile} from  mark=${oamark}
     wait for on access log contains after mark  Detected "${testfile}" is infected with EICAR-AV-Test (Open)  mark=${oamark}
+
+
+On Access Doesn't cache remote files
+    [Tags]  NFS
+    ${source} =       Set Variable  ${TESTTMP}/excluded/nfsshare
+    ${destination} =  Set Variable  ${TESTTMP}/nfsmount
+    Create Directory  ${source}
+    Create Directory  ${destination}
+
+    ${mark} =  get_on_access_log_mark
+    Create Local NFS Share   ${source}   ${destination}
+    wait for on access log contains after mark  Including mount point: ${destination}  mark=${mark}
+    wait for on access log contains after mark  mount points in on-access scanning  mark=${mark}
+
+    Create File   ${source}/testfile  ${CLEAN_STRING}
+
+    ${mark} =  get_on_access_log_mark
+    ${content} =   Get File   ${destination}/testfile
+    Should Be Equal As Strings   ${content}   ${CLEAN_STRING}
+    wait for on access log contains after mark  On-open event for ${destination}/testfile from Process  mark=${mark}
+
+    Check On Access Log Does Not Contain Before Timeout  Caching ${destination}/testfile   ${mark}  ${1}
+
+    # replace the file content on the server
+    Create File   ${source}/testfile  ${EICAR_STRING}   # assumes robot framework will re-use the same file
+
+    ${mark} =  get_on_access_log_mark
+    ${content} =   Get File   ${destination}/testfile
+    Should Be Equal As Strings   ${content}   ${EICAR_STRING}
+    wait for on access log contains after mark  On-open event for ${destination}/testfile from Process  mark=${mark}
+    wait for on access log contains after mark  Detected "${destination}/testfile" is infected with EICAR-AV-Test (Open)  mark=${mark}
 
 
 On Access Processes New File With Same Attributes And Contents As Old File
@@ -649,3 +668,43 @@ On Access Detects A Clean File Replaced By Dirty File With Same Attributes
     Get File   ${dustyfile}
     wait for on access log contains after mark  On-open event for ${dustyfile} from    mark=${oamark}
     wait for on access log contains after mark  Detected "${dustyfile}" is infected with EICAR-AV-Test (Open)   mark=${oamark}
+
+On Access caches Log exclusions
+    ${srcfile} =   Set Variable  ${AV_PLUGIN_PATH}/log/eicar.com
+    ${destfile} =  Set Variable  ${AV_PLUGIN_PATH}/var/eicar.com
+    # Create eicar in log directory
+    ${soap_mark} =  mark log size  ${ON_ACCESS_LOG_PATH}
+    ${td_mark} =    mark log size  ${THREAT_DETECTOR_LOG_PATH}
+    Create File  ${srcfile}  ${EICAR_STRING}
+    Register Cleanup   Remove File   ${srcfile}
+
+    # check no detection
+    wait for log to not contain after mark  ${ON_ACCESS_LOG_PATH}  On-open event for ${srcfile} from  ${soap_mark}  ${5}
+    wait for log to not contain after mark  ${ON_ACCESS_LOG_PATH}  On-close event for ${srcfile} from  ${soap_mark}  ${1}
+    wait for log to not contain after mark  ${ON_ACCESS_LOG_PATH}  Detected "${srcfile}" is infected with EICAR-AV-Test   ${soap_mark}  timeout=${1}
+
+    # rename to another directory
+    Move File  ${srcfile}  ${destfile}
+    deregister Cleanup  Remove File   ${srcfile}
+    Register Cleanup    Remove File   ${destfile}
+    # Access renamed file
+    Get File   ${destfile}
+
+    # check no detection
+    wait for log to not contain after mark  ${ON_ACCESS_LOG_PATH}  On-open event for ${destfile} from  ${soap_mark}  ${5}
+    wait for log to not contain after mark  ${ON_ACCESS_LOG_PATH}  Detected "${destfile}" is infected with EICAR-AV-Test (Open)   ${soap_mark}  timeout=${1}
+
+
+#Although this test applies to any AV detection is primarily for OA
+AV Only Reports A Detection Once
+    ${av_mark} =  get_av_log_mark
+
+    Create File  ${filepath}  ${EICAR_STRING}
+    Register Cleanup  Remove File  ${filepath}
+
+    Wait For AV Log Contains After Mark  Found 'EICAR-AV-Test' in '${filepath}' which is a new detection   mark=${avmark}
+
+    Create File  ${filepath}  ${EICAR_STRING}
+    Register Cleanup  Remove File  ${filepath}
+
+    Wait For AV Log Contains After Mark  Found 'EICAR-AV-Test' in '${filepath}' which is a duplicate detection   mark=${avmark}
