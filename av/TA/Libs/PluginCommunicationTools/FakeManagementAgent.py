@@ -158,8 +158,8 @@ class Agent(object):
         message.set_ack()
         self.send_reply_to_plugin(message)
         policy = self.m_policies.get(message.app_id, None)
-        if policy is not None and policy != "":
-            self.logger.info("Sending back policy for {}: {}".format(message.app_id, policy))
+        if policy is not None:
+            self.logger.info("Sending back policy: {}".format(policy))
             plugin = self.__get_requester()
             plugin.policy(message.app_id, policy)
 

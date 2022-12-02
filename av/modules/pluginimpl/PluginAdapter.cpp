@@ -48,35 +48,9 @@ namespace Plugin
 
             void processMessage(scan_messages::ThreatDetected detection) override
             {
-                const std::string escapedPath = common::escapePathForLogging(detection.filePath);
-                bool shouldQuarantine = true;
-
-                if (!m_adapter.isSafeStoreEnabled())
-                {
-                    LOGINFO(escapedPath << " was not quarantined due to SafeStore being disabled");
-                    shouldQuarantine = false;
-                }
-                else if (
-                    detection.reportSource == common::CentralEnums::ReportSource::ml &&
-                    !m_adapter.shouldSafeStoreQuarantineMl())
-                {
-                    LOGINFO(escapedPath << " was not quarantined due to being reported as an ML detection");
-                    shouldQuarantine = false;
-                }
-                else if (detection.threatType == common::CentralEnums::ThreatType::pua)
-                {
-                    LOGINFO(escapedPath << " was not quarantined due to being a PUA");
-                    shouldQuarantine = false;
-                }
-
                 // detection is not moved if the push fails, so can still be used by processDetectionReport
-                if (!shouldQuarantine || !m_adapter.getDetectionQueue()->push(detection))
+                if (!m_adapter.isSafeStoreEnabled() || !m_adapter.getDetectionQueue()->push(detection))
                 {
-                    if (shouldQuarantine) // i.e. failed to push
-                    {
-                        LOGWARN("SafeStore queue is full, unable to quarantine " << escapedPath);
-                    }
-
                     detection.notificationStatus = scan_messages::E_NOTIFICATION_STATUS_NOT_CLEANUPABLE;
 
                     // If SafeStore is disabled then we manually set the quarantine result to be a failure. This is
@@ -294,13 +268,7 @@ namespace Plugin
 
     void PluginAdapter::processPolicy(const std::string& policyXml, const PolicyWaiterSharedPtr& policyWaiter, const std::string& appId)
     {
-        LOGINFO("Received " << appId << " policy");
-        if (policyXml.empty())
-        {
-            LOGERROR("Received empty policy for " << appId);
-            // Can't parse empty policy
-            return;
-        }
+        LOGINFO("Received Policy");
         try
         {
             auto attributeMap = Common::XmlUtilities::parseXml(policyXml);
@@ -308,8 +276,8 @@ namespace Plugin
 
             if (policyType == PolicyType::ALC)
             {
-                LOGINFO("Processing ALC policy");
-                LOGDEBUG("Processing ALC policy: " << policyXml);
+                LOGINFO("Processing ALC Policy");
+                LOGDEBUG("Processing policy: " << policyXml);
                 m_policyProcessor.processAlcPolicy(attributeMap);
                 LOGDEBUG("Finished processing ALC Policy");
                 policyWaiter->gotPolicy("ALC");
@@ -317,8 +285,8 @@ namespace Plugin
             }
             else if (policyType == PolicyType::SAV)
             {
-                LOGINFO("Processing SAV policy");
-                LOGDEBUG("Processing SAV policy: " << policyXml);
+                LOGINFO("Processing SAV Policy");
+                LOGDEBUG("Processing policy: " << policyXml);
                 bool policyIsValid = m_scanScheduler->updateConfig(manager::scheduler::ScheduledScanConfiguration(attributeMap));
                 if (policyIsValid)
                 {
@@ -342,7 +310,6 @@ namespace Plugin
             }
             else if (policyType == PolicyType::CORE)
             {
-                LOGDEBUG("Processing CORE policy");
                 m_policyProcessor.processCOREpolicy(attributeMap);
                 policyWaiter->gotPolicy("CORE");
             }
@@ -353,11 +320,11 @@ namespace Plugin
         }
         catch (const Common::XmlUtilities::XmlUtilitiesException& e)
         {
-            LOGERROR("Exception encountered while parsing " << appId << " policy XML: " << e.what());
+            LOGERROR("Exception encountered while parsing AV policy XML: " << e.what());
         }
         catch (const std::exception& e)
         {
-            LOGERROR("Exception encountered while processing " << appId << " policy: " << e.what());
+            LOGERROR("Exception encountered while processing AV policy: " << e.what());
         }
     }
 
@@ -533,14 +500,9 @@ namespace Plugin
         m_threatEventPublisher->connect("ipc://" + pubSubSocketAddress);
     }
 
-    bool PluginAdapter::isSafeStoreEnabled() const
+    bool PluginAdapter::isSafeStoreEnabled()
     {
         return m_policyProcessor.isSafeStoreEnabled();
-    }
-
-    bool PluginAdapter::shouldSafeStoreQuarantineMl() const
-    {
-        return m_policyProcessor.shouldSafeStoreQuarantineMl();
     }
 
     std::shared_ptr<DetectionQueue> PluginAdapter::getDetectionQueue() const

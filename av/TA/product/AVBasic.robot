@@ -11,7 +11,6 @@ Library         ../Libs/FileUtils.py
 Library         ../Libs/LogUtils.py
 Library         ../Libs/OnFail.py
 Library         ../Libs/SystemFileWatcher.py
-Library         ../Libs/Telemetry.py
 Library         ../Libs/serialisationtools/CapnpHelper.py
 
 Resource    ../shared/ErrorMarkers.robot
@@ -97,31 +96,6 @@ AV Plugin Can Process Scan Now
     AV Plugin Log Contains With Offset  Evaluating Scan Now
     AV Plugin Log Contains With Offset  Starting scan Scan Now
     Check ScanNow Log Exists
-
-
-AV Plugin Scan Now Updates Telemetry Count
-    # reset telemetry count
-    ${telemetryString}=  Get Plugin Telemetry  av
-    Log   ${telemetryString}
-
-    ${exclusions} =  Configure Scan Exclusions Everything Else  /tmp_test/
-    ${policyContent} =  Set Variable  <?xml version="1.0"?><config xmlns="http://www.sophos.com/EE/EESavConfiguration"><csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/><onDemandScan><posixExclusions><filePathSet>${exclusions}</filePathSet></posixExclusions></onDemandScan></config>
-    ${actionContent} =  Set Variable  <?xml version="1.0"?><a:action xmlns:a="com.sophos/msys/action" type="ScanNow" id="" subtype="ScanMyComputer" replyRequired="1"/>
-    Send Plugin Policy  av  ${SAV_APPID}  ${policyContent}
-    Send Plugin Action  av  ${SAV_APPID}  corr123  ${actionContent}
-    Wait Until AV Plugin Log Contains With Offset  Completed scan Scan Now  timeout=180  interval=5
-    AV Plugin Log Contains With Offset  Received new Action
-    AV Plugin Log Contains With Offset  Evaluating Scan Now
-    AV Plugin Log Contains With Offset  Starting scan Scan Now
-    Check ScanNow Log Exists
-
-    ${telemetryString}=  Get Plugin Telemetry  av
-    Log   ${telemetryString}
-    ${telemetryJson}=    Evaluate     json.loads("""${telemetryString}""")    json
-
-    Dictionary Should Contain Item   ${telemetryJson}   scan-now-count   ${1}
-
-    av_log_contains_only_one_no_saved_telemetry_per_start
 
 
 Scan Now Configuration Is Correct
@@ -228,14 +202,13 @@ AV Plugin Can Disable Scanning Of Mounted NFS Shares
     Register Cleanup  Remove File      ${source}/eicar.com
     Create Directory  ${destination}
     Create Local NFS Share   ${source}   ${destination}
-    Register Cleanup  Remove Local NFS Share   ${source}   ${destination}
 
     Test Remote Share  ${destination}
 
 
 AV Plugin Can Disable Scanning Of Mounted SMB Shares
     [Timeout]  10 minutes
-    [Tags]  SMB
+    [Tags]  cifs
     Start Samba
     Register On Fail   Dump Log  /var/log/samba/log.smbd
     Register On Fail   Dump Log  /var/log/samba/log.nmbd
@@ -289,26 +262,6 @@ AV Plugin Can Exclude Filepaths From Scheduled Scans
     File Log Should Not Contain  ${myscan_log}  "${eicar_path3}" is infected with EICAR-AV-Test
     File Log Should Not Contain  ${myscan_log}  "${eicar_path4}" is infected with EICAR-AV-Test
     File Log Contains            ${myscan_log}  "${eicar_path5}" is infected with EICAR-AV-Test (Scheduled)
-
-
-AV Plugin Scan of Infected File Increases Threat Eicar Count And Reports Suspicious Threat Health
-    Create File      /tmp_test/eicar.com    ${EICAR_STRING}
-    Register Cleanup  Remove File  /tmp_test/eicar.com
-    Remove Files      /file_excluded/eicar.com  /tmp_test/smbshare/eicar.com
-    # Run telemetry to reset counters to 0
-    ${telemetryString}=  Get Plugin Telemetry  av
-    ${telemetryJson}=    Evaluate     json.loads("""${telemetryString}""")    json
-    Dictionary Should Contain Item   ${telemetryJson}   threatHealth   ${1}
-
-    Run Scan Now Scan
-
-    Wait Until AV Plugin Log Contains With Offset  Completed scan Scan Now  timeout=240  interval=5
-
-    ${telemetryString}=  Get Plugin Telemetry  av
-    ${telemetryJson}=    Evaluate     json.loads("""${telemetryString}""")    json
-    Log   ${telemetryJson}
-    Dictionary Should Contain Item   ${telemetryJson}   threat-eicar-count   ${1}
-    Dictionary Should Contain Item   ${telemetryJson}   threatHealth   ${2}
 
 
 AV Plugin Scan Now Does Not Detect PUA
@@ -526,7 +479,7 @@ Product Test Setup
     SystemFileWatcher.Start Watching System Files
     Register Cleanup      SystemFileWatcher.stop watching system files
 
-    Remove File  ${SOPHOS_INSTALL}/plugins/av/var/persist-threatDatabase
+    Remove File  ${THREAT_DATABASE_PATH}
     Start AV
     Component Test Setup
     Delete Eicars From Tmp

@@ -154,7 +154,6 @@ On access gets IDE update to all scanners
     On-access Scan Multiple Peend
 
 On access gets IDE update to new scanners
-    [Tags]  disabled
     # restart on-access to ensure scanners are not initialized
     Send Policies to disable on-access
     Sleep   0.5s   Wait for on-access to stop
@@ -882,7 +881,6 @@ Older SafeStore Database Is Not Restored When It Is Not Compaitible With Current
     ...    5 secs
     ...    File Log Contains    ${AV_INSTALL_LOG}    SafeStore Database (${incompatibleBackup}) is not compatible with the current AV version (${version}) so will not attempt to restore
     Directory Should Exist    ${incompatibleBackup}
-    Wait Until SafeStore Log Contains    Successfully initialised SafeStore database
     Verify SafeStore Database Exists
 
 AV Can not install from SDDS Component
@@ -900,10 +898,10 @@ Check installer keeps SUSI startup settings as writable by AV Plugin
     ...     ls -l ${SUSI_STARTUP_SETTINGS_FILE_CHROOT}
     Log   ${output}
 
-    ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
+    Mark AV Log
     Send Sav Policy With No Scheduled Scans
-    Wait For Log Contains From Mark  ${av_mark}  Processing SAV policy
-    check_av_log_does_not_contain_after_mark  Failed to create file  mark=${av_mark}
+    Wait Until AV Plugin Log Contains With Offset  Processing SAV Policy
+    AV Plugin Log Does Not Contain With Offset  Failed to create file
 
 Check installer removes sophos_threat_detector log symlink
     Run Process   ln  -snf  ${COMPONENT_ROOT_PATH}/log/sophos_threat_detector/sophos_threat_detector.log  ${COMPONENT_ROOT_PATH}/log/sophos_threat_detector.log
@@ -1017,7 +1015,6 @@ Installer Test Setup
     Register On Fail  dump log  ${ON_ACCESS_LOG_PATH}
     Register On Fail  dump log  ${SAFESTORE_LOG_PATH}
     Register On Fail  dump log  ${SOPHOS_INSTALL}/logs/base/watchdog.log
-    Register On Fail  dump log  ${AV_INSTALL_LOG}
 
     Require Plugin Installed and Running
     Mark AV Log

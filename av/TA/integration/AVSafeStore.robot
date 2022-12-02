@@ -712,10 +712,9 @@ Create Rescan Interval File
 
 Start On Access And SafeStore
     ${av_mark} =  Get AV Log Mark
-    ${mark} =  Get on access log mark
+    ${oa_mark} =  Get on access log mark
 
-    Send Flags Policy To Base  flags_policy/flags_enabled.json
-    Send Sav Policy To Base  SAV-2_policy_OA_enabled.xml
+    Send Policies to enable on-access  flags_policy/flags_enabled.json  ${oa_mark}
+
     wait_for_log_contains_from_mark  ${av_mark}  SafeStore flag set. Setting SafeStore to enabled.    timeout=60
     wait_for_log_contains_from_mark  ${av_mark}  On-access is enabled in the FLAGS policy, assuming on-access policy settings
-    wait for on access log contains after mark  On-access scanning enabled  mark=${mark}

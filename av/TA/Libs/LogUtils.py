@@ -20,8 +20,8 @@ except ImportError:
     import LogHandler
 
 
-def _ensure_str(s):
-    return six.ensure_str(s, "UTF-8", errors="backslashreplace")
+_ensure_bytes = LogHandler.ensure_binary
+_ensure_str = LogHandler.ensure_unicode
 
 
 def _get_log_contents(path_to_log):
@@ -949,14 +949,18 @@ File Log Contains
         self.__m_marked_log_position[logpath] = mark  # Save the most recent marked position
         return mark
 
-    def wait_for_log_contains_from_mark(self, mark: LogHandler.LogMark, expected, timeout=10) -> None:
+    def wait_for_log_contains_from_mark(self,
+                                        mark: LogHandler.LogMark,
+                                        expected: typing.Union[list, str, bytes],
+                                        timeout=10) -> None:
         assert mark is not None
+        assert expected is not None
         assert isinstance(mark, LogHandler.LogMark), "mark is not an instance of LogMark in wait_for_log_contains_from_mark"
         return mark.wait_for_log_contains_from_mark(expected, timeout)
 
     def wait_for_log_contains_after_mark(self,
                                          logpath: typing.Union[str, bytes],
-                                         expected: typing.Union[str, bytes],
+                                         expected: typing.Union[list, str, bytes],
                                          mark: LogHandler.LogMark,
                                          timeout=10) -> None:
         if mark is None:
@@ -974,12 +978,13 @@ File Log Contains
         if isinstance(expected, str):
             expected = expected.encode("UTF-8")
 
-        handler = self.get_log_handler(log_path)
-        contents = handler.get_contents(mark)
+        mark.assert_is_good(log_path)
+        contents = mark.get_contents()
         if expected in contents:
             return
 
         logger.error("Failed to find %s in %s" % (expected, log_path))
+        handler = self.get_log_handler(log_path)
         handler.dump_marked_log(mark)
         raise AssertionError("Failed to find %s in %s" % (expected, log_path))
 
@@ -1077,6 +1082,14 @@ File Log Contains
     def get_on_access_log_mark(self) -> LogHandler.LogMark:
         return self.mark_log_size(self.oa_log)
 
+    def get_on_access_log_mark_if_required(self, mark) -> LogHandler.LogMark:
+        """
+        Get a mark if the argument mark is None
+        """
+        if mark is not None:
+            return mark
+        return self.mark_log_size(self.oa_log)
+
     def save_on_access_log_mark_at_start_of_test(self):
         robot.libraries.BuiltIn.BuiltIn().set_test_variable("${ON_ACCESS_LOG_MARK_FROM_START_OF_TEST}",
                                                             self.get_on_access_log_mark())
@@ -1105,6 +1118,40 @@ File Log Contains
         logger.info(expected_items)
         return self.check_log_contains_in_order_after_mark(self.oa_log, expected_items, mark)
 
+    def wait_for_on_access_log_contains_expected_after_unexpected(self, expected: str, not_expected: str, timeout: int = 5,
+                                                                  mark: LogHandler.LogMark = None):
+        """
+        Check the log since last restart, after timeout has expected after not_expected
+        :param expected: String we expect to find in the log
+        :param not_expected: String we expect only before expected
+        :param timeout: time to wait before checking, default=5
+        :param mark: Optional mark to check for the expected string
+        :return:
+        """
+        expected = LogHandler.ensure_binary(expected)
+        not_expected = LogHandler.ensure_binary(not_expected)
+        log_path = self.oa_log
+        # If we get expected after we start checking then we are good
+        if mark is None:
+            mark = self.get_on_access_log_mark()
+        start = time.time()
+        while time.time() < start + timeout:
+            contents = mark.get_contents()
+            expected_find = contents.rfind(expected)
+            if expected_find >= 0:
+                remainder = contents[expected_find:]
+                if not_expected not in remainder:
+                    return True
+            time.sleep(0.5)
+
+        # timed out wait, so now check contents since last start
+        return self.check_on_access_log_contains_expected_after_unexpected(expected, not_expected)
+
+    def check_on_access_log_contains_expected_after_unexpected(self, expected, unexpected):
+        log_path = self.oa_log
+        handler = self.get_log_handler(log_path)
+        handler.check_log_contains_expected_after_unexpected(expected, unexpected)
+
 #####################################################################
 # AV Log
 
@@ -1125,13 +1172,21 @@ File Log Contains
         assert isinstance(mark, LogHandler.LogMark), "mark is not an instance of LogMark in wait_for_av_log_contains_after_mark"
         return self.check_log_contains_n_times_after_mark(self.av_log, expected, times, mark)
 
+    def check_av_log_contains_after_mark(self, expected: str, mark: LogHandler.LogMark):
+        return self.check_log_contains_after_mark(self.av_log, expected, mark)
+
     def check_av_log_does_not_contain_after_mark(self, not_expected, mark):
         return self.check_log_does_not_contain_after_mark(self.av_log, not_expected, mark)
 
     def wait_for_av_log_contains_after_last_restart(self, expected, timeout: int = 15, mark=None):
         return self.wait_for_log_contains_after_last_restart(self.av_log, expected, timeout, mark)
 
-#####################################################################
+    def dump_av_log_after_mark(self, mark: LogHandler.LogMark):
+        assert isinstance(mark, LogHandler.LogMark), "mark is not an instance of LogMark in dump_av_log_after_mark"
+        self.dump_marked_log(self.av_log, mark)
+
+
+    #####################################################################
 # Sophos Threat Detector Log
 
     def get_sophos_threat_detector_log_mark(self) -> LogHandler.LogMark:
@@ -1164,11 +1219,6 @@ File Log Contains
 
     def get_susi_debug_log_after_mark(self, mark):
         return self.get_log_after_mark(self.susi_debug_log, mark)
-
-    def dump_av_log_after_mark(self, mark: LogHandler.LogMark):
-        assert isinstance(mark, LogHandler.LogMark), "mark is not an instance of LogMark in dump_av_log_after_mark"
-        self.dump_marked_log(self.av_log, mark)
-
 
 #####################################################################
 # SafeStore Log

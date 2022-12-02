@@ -2,8 +2,8 @@
 
 #include "TestPolicyProcessor.h"
 
-#include <Common/FileSystem/IFileSystemException.h>
 #include <Common/Helpers/FileSystemReplaceAndRestore.h>
+#include <Common/FileSystem/IFileSystemException.h>
 
 #include <gtest/gtest.h>
 
@@ -20,11 +20,11 @@ namespace
         }
     };
 
-} // namespace
+}
 
-static const std::string ALC_FULL_POLICY // NOLINT
+static const std::string ALC_FULL_POLICY //NOLINT
     {
-        R"sophos(<?xml version="1.0"?>
+    R"sophos(<?xml version="1.0"?>
 <AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
   <csc:Comp RevID="4d77291c5f5be04f62f04b6f379cf5d80e62c9a13d149c1acce06aba819b83cc" policyType="1"/>
   <AUConfig platform="Linux">
@@ -71,9 +71,10 @@ static const std::string ALC_FULL_POLICY // NOLINT
   <customer id="b67ee4d2-baef-b4b6-6bf9-19b5ddcb2ef7"/>
 </AUConfigurations>
 )sophos"
-    };
+};
 
-static const std::string GL_POLICY_2 = // NOLINT
+
+static const std::string GL_POLICY_2 =  // NOLINT
     R"sophos(<?xml version="1.0"?>
 <AUConfigurations>
   <AUConfig>

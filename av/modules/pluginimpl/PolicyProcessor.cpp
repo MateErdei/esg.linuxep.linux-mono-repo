@@ -16,12 +16,82 @@
 #include <Common/FileSystem/IFileSystemException.h>
 #include <common/StringUtils.h>
 #include <pluginimpl/ObfuscationImpl/Obfuscate.h>
-// Third party
-#include <thirdparty/nlohmann-json/json.hpp>
+// Std C++
+#include <fstream>
 // Std C
 #include <sys/stat.h>
 
 using json = nlohmann::json;
+
+namespace
+{
+    constexpr int MAX_RETIRES_NOTIFY_SOAPD_ON_CONFIG_CHANGE = 10;
+
+    bool boolFromString(const std::string& s)
+    {
+        if (s == "true")
+        {
+            return true;
+        }
+        if (s == "false")
+        {
+            return false;
+        }
+        std::ostringstream ost;
+        ost << "Unable to convert " << s << " to boolean";
+        throw Plugin::InvalidPolicyException(ost.str());
+    }
+
+    json readConfigFromFile(const std::string& filepath)
+    {
+        auto* fs = Common::FileSystem::fileSystem();
+
+        try
+        {
+            auto contents = fs->readFile(filepath);
+            return json::parse(contents);
+        }
+        catch (const Common::FileSystem::IFileSystemException& ex)
+        {
+            // Could be the file doesn't exist
+            // other errors will be reported when we try to save it.
+            return {};
+        }
+        catch (const json::exception& ex)
+        {
+            LOGWARN("Failed to parse "<< filepath << ": " << ex.what());
+            return {};
+        }
+    }
+
+    bool writeConfigToFile(const std::string& filepath, const json& configJson, const std::string& configName)
+    {
+        // convert to string
+        auto config = configJson.dump();
+
+        try
+        {
+            auto* fs = Common::FileSystem::fileSystem();
+            auto tempDir = Common::ApplicationConfiguration::applicationPathManager().getTempPath();
+            fs->writeFileAtomically(filepath, config, tempDir, 0640);
+            return true;
+        }
+        catch (const Common::FileSystem::IFileSystemException& e)
+        {
+            LOGERROR("Failed to write " << configName << ", Sophos On Access Process will use the default settings " << e.what());
+            return false;
+        }
+    }
+
+    using timepoint_t = Plugin::PolicyProcessor::timepoint_t;
+    using seconds_t = Plugin::PolicyProcessor::seconds_t;
+
+
+    timepoint_t getNow()
+    {
+        return Plugin::PolicyProcessor::clock_t::now();
+    }
+}
 
 namespace Plugin
 {
@@ -162,40 +232,53 @@ namespace Plugin
         return common::md5_hash(cred); // always do the second hash
     }
 
-    void PolicyProcessor::notifyOnAccessProcess(scan_messages::E_COMMAND_TYPE requestType)
+    void PolicyProcessor::markOnAccessReloadPending()
     {
-        unixsocket::ProcessControllerClientSocket processController(getSoapControlSocketPath(), m_sleeper);
-        scan_messages::ProcessControlSerialiser processControlRequest(requestType);
-        processController.sendProcessControlRequest(processControlRequest);
+        // Try MAX_RETIRES_NOTIFY_SOAPD_ON_CONFIG_CHANGE times to send reload to soapd - if it doesn't receive the message,
+        // it will probably read the new config file when it starts up
+        m_pendingOnAccessProcessReload = MAX_RETIRES_NOTIFY_SOAPD_ON_CONFIG_CHANGE;
     }
 
-    void PolicyProcessor::processOnAccessPolicy(const Common::XmlUtilities::AttributesMap& policy)
+
+    void PolicyProcessor::notifyOnAccessProcessIfRequired()
     {
-        LOGINFO("Processing On Access Scanning settings");
+        if (m_pendingOnAccessProcessReload > 0)
+        {
+            m_pendingOnAccessProcessReload--; // Only retry a finite amount of times
+            unixsocket::ProcessControllerClientSocket processController(getSoapControlSocketPath(),
+                                                                        m_sleeper,
+                                                                        0);
+            if (processController.isConnected())
+            {
+                // Successfully connected to soapd
+                scan_messages::ProcessControlSerialiser processControlRequest(scan_messages::E_COMMAND_TYPE::E_RELOAD);
+                processController.sendProcessControlRequest(processControlRequest);
+                m_pendingOnAccessProcessReload = 0;
+            }
+        }
+    }
 
-        auto excludeRemoteFiles = policy.lookup("config/onAccessScan/linuxExclusions/excludeRemoteFiles").contents();
+    void PolicyProcessor::processOnAccessSettingsFromSAVpolicy(const Common::XmlUtilities::AttributesMap& policy)
+    {
+#ifndef USE_ON_ACCESS_EXCLUSIONS_FROM_SAV_POLICY
+        return;
+#endif
+        LOGINFO("Processing On Access Scanning settings from SAV policy");
+        const auto originalConfig = readOnAccessConfig();
+        auto config = originalConfig;
+
         auto exclusionList = extractListFromXML(policy, "config/onAccessScan/linuxExclusions/filePathSet/filePath");
-        // TODO: LINUXDAR-5352 update the xml path, this setting will be off by default
-        auto enabled = policy.lookup("config/onAccessScan/enabled").contents();
-        auto config = pluginimpl::generateOnAccessConfig(enabled, exclusionList, excludeRemoteFiles);
+        json exclusions(exclusionList);
+        config["exclusions"] = exclusions;
 
-        try
+        if (originalConfig != config)
         {
-            auto* fs = Common::FileSystem::fileSystem();
-            auto tempDir = Common::ApplicationConfiguration::applicationPathManager().getTempPath();
-            fs->writeFileAtomically(getSoapConfigPath(), config, tempDir, 0640);
+            writeOnAccessConfig(config);
         }
-        catch (const Common::FileSystem::IFileSystemException& e)
+        else
         {
-            LOGERROR(
-                "Failed to write On Access Config, Sophos On Access Process will use the default settings "
-                << e.what());
-            return;
+            LOGDEBUG("On Access settings from SAV policy not changed");
         }
-
-        notifyOnAccessProcess(scan_messages::E_COMMAND_TYPE::E_RELOAD);
-
-        setOnAccessConfiguredTelemetry(enabled == "true");
     }
 
     void PolicyProcessor::setOnAccessConfiguredTelemetry(bool enabled)
@@ -208,7 +291,7 @@ namespace Plugin
 
     void PolicyProcessor::processSavPolicy(const Common::XmlUtilities::AttributesMap& policy)
     {
-        processOnAccessPolicy(policy);
+        processOnAccessSettingsFromSAVpolicy(policy);
 
         bool oldLookupEnabled = m_threatDetectorSettings.isSxlLookupEnabled();
         m_threatDetectorSettings.setSxlLookupEnabled(isLookupEnabled(policy));
@@ -260,7 +343,7 @@ namespace Plugin
         LOGDEBUG("Processing FLAGS settings");
         try
         {
-            nlohmann::json j = nlohmann::json::parse(flagsJson);
+            auto j = json::parse(flagsJson);
             processOnAccessFlagSettings(j);
             processSafeStoreFlagSettings(j);
         }
@@ -270,7 +353,7 @@ namespace Plugin
         }
     }
 
-    void PolicyProcessor::processOnAccessFlagSettings(const nlohmann::json& flagsJson)
+    void PolicyProcessor::processOnAccessFlagSettings(const json& flagsJson)
     {
         bool oaEnabled = false;
 
@@ -291,23 +374,22 @@ namespace Plugin
             LOGINFO("No on-access flag found, overriding on-access policy settings");
         }
 
+        auto path = getSoapFlagConfigPath();
+        auto orignal_config = readConfigFromFile(path);
+
         json oaConfig;
         oaConfig["oa_enabled"] = oaEnabled;
 
-        try
+        if (orignal_config != oaConfig)
         {
-            auto* fs = Common::FileSystem::fileSystem();
-            auto tempDir = Common::ApplicationConfiguration::applicationPathManager().getTempPath();
-            fs->writeFileAtomically(getSoapFlagConfigPath(), oaConfig.dump(), tempDir, 0640);
-
-            notifyOnAccessProcess(scan_messages::E_COMMAND_TYPE::E_RELOAD);
+            if (writeConfigToFile(path, oaConfig, "Flag Config"))
+            {
+                markOnAccessReloadPending();
+            }
         }
-        catch (const Common::FileSystem::IFileSystemException& e)
+        else
         {
-            LOGERROR(
-                "Failed to write Flag Config, Sophos On Access Process will use the default settings (on-access "
-                "disabled)"
-                << e.what());
+            LOGDEBUG("On-access flags not changed");
         }
     }
 
@@ -355,6 +437,76 @@ namespace Plugin
             }
         }
         return PolicyType::UNKNOWN;
+    }
+    void PolicyProcessor::processCOREpolicy(const AttributesMap& policy)
+    {
+        processOnAccessSettingsFromCOREpolicy(policy);
+    }
+
+    void PolicyProcessor::processOnAccessSettingsFromCOREpolicy(const AttributesMap& policy)
+    {
+        LOGINFO("Processing On Access Scanning settings from CORE policy");
+        const auto on_access_enabled = boolFromString(policy.lookup("policy/onAccessScan/enabled").contents());
+        const auto excludeRemoteFiles = boolFromString(
+            policy.lookup("policy/onAccessScan/exclusions/excludeRemoteFiles").contents());
+
+        const auto originalConfig = readOnAccessConfig();
+        auto config = originalConfig;
+        config["excludeRemoteFiles"] = excludeRemoteFiles;
+        config["enabled"] = on_access_enabled;
+
+#ifndef USE_ON_ACCESS_EXCLUSIONS_FROM_SAV_POLICY
+        // Assuming the Linux exclusions are put into the generic location in the XML
+        auto exclusionList = extractListFromXML(policy, "policy/onAccessScan/exclusions/filePathSet/filePath");
+        json exclusions(exclusionList);
+        config["exclusions"] = exclusions;
+#endif
+
+        if (originalConfig != config)
+        {
+            writeOnAccessConfig(config);
+            setOnAccessConfiguredTelemetry(on_access_enabled);
+        }
+        else
+        {
+            LOGDEBUG("On Access settings from CORE policy not changed");
+        }
+    }
+
+    nlohmann::json PolicyProcessor::readOnAccessConfig()
+    {
+        return readConfigFromFile(getSoapConfigPath());
+    }
+
+    void PolicyProcessor::writeOnAccessConfig(const json& configJson)
+    {
+        if (writeConfigToFile(getSoapConfigPath(), configJson, "On Access Config"))
+        {
+            markOnAccessReloadPending();
+        }
+    }
+
+    PolicyProcessor::timepoint_t PolicyProcessor::timeout() const
+    {
+        return timeout(getNow());
+    }
+
+    timepoint_t PolicyProcessor::timeout(timepoint_t now) const
+    {
+        if (m_pendingOnAccessProcessReload == MAX_RETIRES_NOTIFY_SOAPD_ON_CONFIG_CHANGE)
+        {
+            return now + std::chrono::milliseconds{10};
+        }
+        else if (m_pendingOnAccessProcessReload > 0)
+        {
+            return now + seconds_t{1};
+        }
+        else
+        {
+            // Not waiting to send anything to soapd
+            static constexpr seconds_t MAX_TIMEOUT{ 9999999 };
+            return now + MAX_TIMEOUT;
+        }
     }
 
     void PolicyProcessor::processCorcPolicy(const Common::XmlUtilities::AttributesMap& policy)
