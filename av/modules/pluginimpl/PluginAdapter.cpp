@@ -389,7 +389,7 @@ namespace Plugin
         LOGDEBUG("Found '" << detection.threatName << "' in '" << detection.filePath << "'");
         incrementTelemetryThreatCount(detection.threatName, detection.scanType);
 
-        if (!isRecentDetection(detection.sha256))
+        if (!isRecentDetection(detection.threatId))
         {
             DetectionReporter::processThreatReport(pluginimpl::generateThreatDetectedXml(detection), m_taskQueue);
             DetectionReporter::publishQuarantineCleanEvent(
