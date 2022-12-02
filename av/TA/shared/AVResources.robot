@@ -1402,3 +1402,9 @@ Get SHA256
     Log  ${result.stdout}
     @{parts} =  Split String  ${result.stdout}
     [Return]  ${parts}[0]
+
+Create Bad Unicode Eicars
+   register cleanup  Remove Directory  /tmp_test/  true
+   ${result} =  Run Process  bash  ${BASH_SCRIPTS_PATH}/badUnicodeEicarMaker.sh  /tmp_test/  stderr=STDOUT
+   Should Be Equal As Integers  ${result.rc}  ${0}
+   Log  ${result.stdout}

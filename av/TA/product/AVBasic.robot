@@ -482,6 +482,19 @@ AV Plugin Can Process SafeStore Flag Disabled
     ...   timeout=60
     ...   mark=${mark}
 
+AV Plugin Replaces Path With Request To Check Log If Path Contains Bad Unicode
+    Create Bad Unicode Eicars
+
+    ${avmark} =  LogUtils.get_av_log_mark
+
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} /tmp_test/
+    Log  return code is ${rc}
+    Log  output is ${output}
+
+    av_log_contains_multiple_times_after_mark   See endpoint logs for threat file path at: /opt/sophos-spl/plugins/av/log/sophos_threat_detector/sophos_threat_detector.log   ${avmark}  3
+
+    Dump Log  ${AV_LOG_PATH}
+
 
 *** Keywords ***
 AVBasic Suite Setup
