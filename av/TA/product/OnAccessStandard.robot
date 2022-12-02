@@ -698,6 +698,7 @@ On Access caches Log exclusions
 #Although this test applies to any AV detection is primarily for OA
 AV Only Reports A Detection Once
     ${av_mark} =  get_av_log_mark
+    ${filepath} =  Set Variable   /tmp_test/eicar.com
 
     Create File  ${filepath}  ${EICAR_STRING}
     Register Cleanup  Remove File  ${filepath}
