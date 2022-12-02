@@ -54,7 +54,7 @@ def run(code_file):
         except:  # pylint: disable=bare-except
             pass
 
-        if initial_year == CURRENT_YEAR:
+        if initial_year == int(CURRENT_YEAR):
             lines.insert(0, comment_token + SINGLE_YEAR_COMMENT % CURRENT_YEAR)
         else:
             lines.insert(0, comment_token + MULTI_YEAR_COMMENT % (initial_year, CURRENT_YEAR))
