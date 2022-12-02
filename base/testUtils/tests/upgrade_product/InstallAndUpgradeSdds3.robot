@@ -206,7 +206,6 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     Check SulDownloader Log Should Not Contain    Running in SDDS2 updating mode
 
     Check Current Release With AV Installed Correctly
-    Mark SafeStore Log
     ${safeStoreDbDirBeforeUpgrade} =    List Files In Directory    ${SAFESTORE_DB_DIR}
     ${safeStorePasswordBeforeUpgrade} =    Get File    ${SAFESTORE_DB_PASSWORD_PATH}
     ${databaseContentBeforeUpgrade} =    Run Process    ${AV_TEST_TOOLS}/safestore_print_tool
@@ -237,6 +236,7 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
 
     Mark Watchdog Log
     Mark Managementagent Log
+    Mark SafeStore Log
     Start Process  tail -fn0 ${SOPHOS_INSTALL}/logs/base/suldownloader.log > /tmp/preserve-sul-downgrade  shell=true
 
     Trigger Update Now
@@ -294,6 +294,7 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     Set Suite Variable    ${GL_handle}    ${handle}
     Send ALC Policy And Prepare For Upgrade  ${BaseEdrAndMtrAndAVVUTPolicy}
 
+    Mark SafeStore Log
     Trigger Update Now
 
     Wait For Version Files to Update    &{expectedVUTVersions}

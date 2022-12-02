@@ -81,8 +81,8 @@ Check SafeStore Installed Correctly
 Check SafeStore Database Was Persisted
     [Arguments]    ${oldDatabaseDirectory}    ${oldDatabaseContent}    ${oldPassword}
     Wait Until Keyword Succeeds
-    ...    60 secs
-    ...    5 secs
+    ...    120 secs
+    ...    10 secs
     ...    Check Log Contains    Successfully restored old SafeStore database    /tmp/preserve-sul-downgrade    Downgrade Log
     File Should Exist    ${SAFESTORE_BIN}
     Wait Until Keyword Succeeds
