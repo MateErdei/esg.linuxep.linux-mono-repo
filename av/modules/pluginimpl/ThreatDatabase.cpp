@@ -154,24 +154,34 @@ namespace Plugin
 
         for (const auto& threatItr : j.items())
         {
+            std::list<std::string> correlationIdsToPop;
             try
             {
-                std::list<std::string> correlationIdsToPop;
                 auto correlationIds = threatItr.value().at("correlationIds").items();
                 for (auto corrItr : correlationIds)
                 {
                     correlationIdsToPop.emplace_back(corrItr.value());
                 }
-
-                auto timestamp = threatItr.value().at("timestamp");
-                ThreatDetails details(correlationIdsToPop, timestamp);
-                tempdatabase.try_emplace(threatItr.key(), details);
             }
             catch (nlohmann::json::exception& ex)
             {
                 //If the types of the threat id or correlation id are wrong throw away the entire threatID entry
                 LOGWARN("Not loading "<< threatItr.key() << " into threat database as the parsing failed with error " << ex.what());
             }
+
+            long timeStamp = 0;
+            try
+            {
+                timeStamp = threatItr.value().at("timestamp");
+            }
+            catch (nlohmann::json::exception& ex)
+            {
+                LOGWARN("Time field for " << threatItr.key() << " is invalid, setting to 0: " << ex.what());
+                timeStamp = 0;
+            }
+
+            ThreatDetails details(correlationIdsToPop, timeStamp);
+            tempdatabase.try_emplace(threatItr.key(), details);
         }
 
         database->swap(tempdatabase);
