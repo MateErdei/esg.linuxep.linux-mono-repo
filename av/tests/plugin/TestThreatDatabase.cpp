@@ -1,5 +1,7 @@
 // Copyright 2022, Sophos Limited.  All rights reserved.
 
+#define TEST_PUBLIC public
+
 #include "PluginMemoryAppenderUsingTests.h"
 
 #include "common/ApplicationPaths.h"
