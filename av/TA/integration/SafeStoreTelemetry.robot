@@ -13,14 +13,20 @@ Resource        ../shared/AVAndBaseResources.robot
 Resource        ../shared/ErrorMarkers.robot
 Resource        ../shared/SafeStoreResources.robot
 
-Suite Setup     Telemetry Suite Setup
+Suite Setup     SafeStore Telemetry Suite Setup
 Suite Teardown  Uninstall All
 
-Test Setup      AV And Base Setup
+Test Setup      SafeStore Telemetry Test Setup
 Test Teardown   AV And Base Teardown
 
 *** Keywords ***
-Telemetry Suite Setup
+SafeStore Telemetry Test Setup
+    AV and Base Setup
+    ${avMark} =  Get AV Log Mark
+    Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
+    Wait For Log Contains From Mark  ${avMark}  SafeStore flag set. Setting SafeStore to enabled.    timeout=60
+
+SafeStore Telemetry Suite Setup
     Install With Base SDDS
     Send Alc Policy
     Send Sav Policy With No Scheduled Scans
@@ -208,14 +214,12 @@ SafeStore Telemetry Is Incremented When Database Is Deleted
 
     Check SafeStore Telemetry    database-deletions   1
 
-    Wait For Log Contains From Mark  ${safestoreMark}  Quarantine Manager initialised OK
+    Register Cleanup    Install With Base SDDS
 
     Mark Expected Error In Log    ${SAFESTORE_LOG_PATH}    Failed to initialise SafeStore database: DB_ERROR
     Mark Expected Error In Log    ${SAFESTORE_LOG_PATH}    Quarantine Manager failed to initialise
 
 SafeStore Telemetry Is Incremented When File Is Successfully Restored
-    Install With Base SDDS
-    Wait Until SafeStore running
     # Start from known place with a CORC policy with an empty allow list
     Stop sophos_threat_detector
     Register Cleanup   Remove File  ${MCS_PATH}/policy/CORC_policy.xml
@@ -246,8 +250,6 @@ SafeStore Telemetry Is Incremented When File Is Successfully Restored
     Check SafeStore Telemetry    successful-file-restorations   1
 
 SafeStore Telemetry Is Incremented When File Restoration Fails
-    Install With Base SDDS
-    Wait Until SafeStore running
     # Start from known place with a CORC policy with an empty allow list
     Stop sophos_threat_detector
     Register Cleanup   Remove File  ${MCS_PATH}/policy/CORC_policy.xml
