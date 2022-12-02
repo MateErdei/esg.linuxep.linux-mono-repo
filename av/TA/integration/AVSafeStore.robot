@@ -727,10 +727,8 @@ SafeStore Test Setup
     Create Directory  ${NORMAL_DIRECTORY}
 
     # Start from known place with a CORC policy with an empty allow list
-    Stop sophos_threat_detector
     Register Cleanup   Remove File  ${MCS_PATH}/policy/CORC_policy.xml
     Send CORC Policy To Base  corc_policy_empty_allowlist.xml
-    Start sophos_threat_detector
 
     Get AV Log Mark
     Mark Sophos Threat Detector Log
