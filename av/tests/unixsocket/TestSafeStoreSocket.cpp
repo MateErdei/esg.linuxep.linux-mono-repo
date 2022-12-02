@@ -300,7 +300,7 @@ TEST_F(TestSafeStoreSocket, TestSendInvalidData)
     EXPECT_ANY_THROW(client.sendQuarantineRequest(threatDetected));
 }
 
-TEST_F(TestSafeStoreClientSocket, testClientSocketTriesToReconnect) // NOLINT
+TEST_F(TestSafeStoreClientSocket, testClientSocketTriesToReconnect)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
     unixsocket::SafeStoreClient client(m_socketPath, m_notifyPipe, std::chrono::seconds { 0 });
