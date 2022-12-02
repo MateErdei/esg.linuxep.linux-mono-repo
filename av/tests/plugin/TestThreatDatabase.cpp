@@ -165,6 +165,8 @@ TEST_F(TestThreatDatabase, isDatabaseEmptyReturnsTrueOnEmptyDatabase)
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(m_fileSystemMock) };
 
     Plugin::ThreatDatabase database = Plugin::ThreatDatabase(Plugin::getPluginVarDirPath());
+    EXPECT_TRUE(waitForLog("Initialised Threat Database"));
+
     EXPECT_TRUE(database.isDatabaseEmpty());
 
     EXPECT_FALSE(appenderContains("into threat database as the parsing failed with error"));
@@ -182,6 +184,8 @@ TEST_F(TestThreatDatabase, isDatabaseEmptyReturnsFalseOnNonEmptyDatabase)
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(m_fileSystemMock) };
 
     Plugin::ThreatDatabase database = Plugin::ThreatDatabase(Plugin::getPluginVarDirPath());
+    EXPECT_TRUE(waitForLog("Initialised Threat Database"));
+
     database.addThreat("threat","correlationid");
     EXPECT_FALSE(database.isDatabaseEmpty());
 
@@ -202,6 +206,8 @@ TEST_F(TestThreatDatabase, addThreatToDatabase)
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(m_fileSystemMock) };
 
     Plugin::ThreatDatabase database = Plugin::ThreatDatabase(Plugin::getPluginVarDirPath());
+    EXPECT_TRUE(waitForLog("Initialised Threat Database"));
+
     database.addThreat(addedThreat,"correlationid2");
 
     auto databaseContents = database.m_database.lock();
@@ -226,6 +232,8 @@ TEST_F(TestThreatDatabase, addCorrelationIDToDatabase)
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(m_fileSystemMock) };
 
     Plugin::ThreatDatabase database = Plugin::ThreatDatabase(Plugin::getPluginVarDirPath());
+    EXPECT_TRUE(waitForLog("Initialised Threat Database"));
+
     database.addThreat(threatid,correlationid);
 
     auto databaseContents = database.m_database.lock();
@@ -293,6 +301,8 @@ TEST_F(TestThreatDatabase, removeCorrelationIDRemovesThreat)
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(m_fileSystemMock) };
 
     Plugin::ThreatDatabase database = Plugin::ThreatDatabase(Plugin::getPluginVarDirPath());
+    EXPECT_TRUE(waitForLog("Initialised Threat Database"));
+
     database.removeCorrelationID("correlationid");
 
     EXPECT_TRUE(waitForLog("Removed threat from database"));
@@ -315,6 +325,8 @@ TEST_F(TestThreatDatabase, removeCorrelationIDHandlesWhenThreatIsNotInDatabase)
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(m_fileSystemMock) };
 
     Plugin::ThreatDatabase database = Plugin::ThreatDatabase(Plugin::getPluginVarDirPath());
+    EXPECT_TRUE(waitForLog("Initialised Threat Database"));
+
     EXPECT_NO_THROW(database.removeCorrelationID("threatid2"));
     EXPECT_TRUE(waitForLog("Cannot remove correlation idthreatid2 from database as it cannot be found"));
 
@@ -339,8 +351,9 @@ TEST_F(TestThreatDatabase, removeThreatIDHandlesWhenThreatIsNotInDatabase)
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(m_fileSystemMock) };
 
     Plugin::ThreatDatabase database = Plugin::ThreatDatabase(Plugin::getPluginVarDirPath());
-    EXPECT_NO_THROW(database.removeThreatID("threatid2",false));
+    EXPECT_TRUE(waitForLog("Initialised Threat Database"));
 
+    EXPECT_NO_THROW(database.removeThreatID("threatid2",false));
     EXPECT_TRUE(waitForLog("Cannot remove threat idthreatid2 from database as it cannot be found"));
 
     auto databaseContents = database.m_database.lock();
@@ -366,6 +379,8 @@ TEST_F(TestThreatDatabase, removeThreatID)
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(m_fileSystemMock) };
 
     Plugin::ThreatDatabase database = Plugin::ThreatDatabase(Plugin::getPluginVarDirPath());
+    EXPECT_TRUE(waitForLog("Initialised Threat Database"));
+
     database.removeThreatID(threatIDToRemove);
 
     std::stringstream expectString;
@@ -403,6 +418,7 @@ TEST_F(TestThreatDatabase, removeThreatIDWhenThreatIDNotInDatabaseLogsWarnningWh
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(m_fileSystemMock) };
 
     Plugin::ThreatDatabase database = Plugin::ThreatDatabase(Plugin::getPluginVarDirPath());
+    EXPECT_TRUE(waitForLog("Initialised Threat Database"));
 
     EXPECT_NO_THROW(database.removeThreatID("threatid",false));
     EXPECT_TRUE(waitForLog("Cannot remove threat id"));
@@ -480,6 +496,7 @@ TEST_F(TestThreatDatabase, handlesNegativeFormatTime)
 
     Plugin::ThreatDatabase threatDatabase = Plugin::ThreatDatabase(Plugin::getPluginVarDirPath());
 
+    EXPECT_TRUE(waitForLog("Initialised Threat Database"));
     auto database = threatDatabase.m_database.lock();
     ASSERT_EQ(database->size(), 1);
     const long timeStamp = std::chrono::time_point_cast<std::chrono::seconds>(database->begin()->second.lastDetection).time_since_epoch().count();
@@ -502,7 +519,6 @@ TEST_F(TestThreatDatabase, handlesOutOfBoundsTimeValue)
     Plugin::ThreatDatabase threatDatabase = Plugin::ThreatDatabase(Plugin::getPluginVarDirPath());
 
     EXPECT_TRUE(waitForLog("Initialised Threat Database"));
-
     auto database = threatDatabase.m_database.lock();
     ASSERT_EQ(database->size(), 1);
     const long timeStamp = std::chrono::time_point_cast<std::chrono::seconds>(database->begin()->second.lastDetection).time_since_epoch().count();
@@ -589,4 +605,40 @@ TEST_F(TestThreatDatabase, dataWrittenToDiskMatchesWhenRead)
     EXPECT_EQ(res->at(threat2).correlationIds.front(), correlation1);
     const long threat2Time = std::chrono::time_point_cast<std::chrono::seconds>(res->at(threat2).lastDetection).time_since_epoch().count();
     EXPECT_TRUE((threat2Time - timeStamp) < 1); //Test should take less than a second to complete
+}
+
+
+TEST_F(TestThreatDatabase, threatDatabaseReturnsTrueIfThreatAddedUnderTimeout)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    const std::string threatId = "threatid";
+
+    EXPECT_CALL(*m_fileSystemMock, exists(Plugin::getPersistThreatDatabaseFilePath())).WillOnce(Return(true));
+    EXPECT_CALL(*m_fileSystemMock, readFile(Plugin::getPersistThreatDatabaseFilePath())).WillOnce(Return("{}" ));
+    EXPECT_CALL(*m_fileSystemMock, writeFile(Plugin::getPersistThreatDatabaseFilePath(),_));
+
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(m_fileSystemMock) };
+
+    Plugin::ThreatDatabase database = Plugin::ThreatDatabase(Plugin::getPluginVarDirPath());
+    EXPECT_TRUE(waitForLog("Initialised Threat Database"));
+
+    database.addThreat(threatId, "correlationid");
+    EXPECT_TRUE(database.isThreatInDatabaseWithinTime(threatId, std::chrono::seconds{60}));
+}
+
+TEST_F(TestThreatDatabase, threatDatabaseReturnsFalseIfThreatAddedOverTimeout)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    EXPECT_CALL(*m_fileSystemMock, exists(Plugin::getPersistThreatDatabaseFilePath())).WillOnce(Return(true));
+    EXPECT_CALL(*m_fileSystemMock, readFile(Plugin::getPersistThreatDatabaseFilePath())).WillOnce(Return(m_defaultJsonString));
+    EXPECT_CALL(*m_fileSystemMock, writeFile(Plugin::getPersistThreatDatabaseFilePath(),_));
+
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(m_fileSystemMock) };
+
+    Plugin::ThreatDatabase database = Plugin::ThreatDatabase(Plugin::getPluginVarDirPath());
+    EXPECT_TRUE(waitForLog("Initialised Threat Database"));
+
+    EXPECT_FALSE(database.isThreatInDatabaseWithinTime("threatid", std::chrono::seconds{60}));
 }
