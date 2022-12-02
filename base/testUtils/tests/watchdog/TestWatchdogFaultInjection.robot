@@ -62,48 +62,6 @@ Test wdctl and Watchdog aborts a plugin that will not shutdown cleanly
     check_watchdog_log_contains  Killing process with abort signal
     check_watchdog_log_does_not_contain  /opt/sophos-spl/testPlugin died with 15
 
-Test Watchdog aborts a plugin that will not shutdown cleanly during product shutdown
-    [Tags]    WATCHDOG  WDCTL  FAULTINJECTION
-    [Teardown]  Clean Up Files
-    Set Environment Variable  SOPHOS_CORE_DUMP_ON_PLUGIN_KILL  1
-    Require Fresh Install
-
-    ${result} =    Run Process   systemctl  stop  sophos-spl
-    setup_test_plugin_config_with_given_executable  SystemProductTestOutput/ignoreSignals
-
-    ${result} =    Run Process   systemctl  start  sophos-spl
-
-    Wait Until Keyword Succeeds
-    ...  10s
-    ...  2s
-    ...  check_watchdog_log_contains  Starting /opt/sophos-spl/testPlugin
-    ${result} =    Run Process   systemctl  stop  sophos-spl
-    Wait Until Keyword Succeeds
-    ...  20 secs
-    ...  2 secs
-    ...  check_watchdog_log_contains  Killing process with abort signal
-
-Test Watchdog aborts a plugin that will not shutdown cleanly during product shutdown from plugin only update
-    [Tags]    WATCHDOG  WDCTL  FAULTINJECTION
-    [Teardown]  Clean Up Files
-    Set Environment Variable  SOPHOS_CORE_DUMP_ON_PLUGIN_KILL  1
-    Require Fresh Install
-
-    setup_test_plugin_config_with_given_executable  SystemProductTestOutput/ignoreSignals
-
-    ${result2} =    Run Process    ${SOPHOS_INSTALL}/bin/wdctl   copyPluginRegistration    ${TEMPDIR}/testplugin.json
-    ${result2} =    Run Process    ${SOPHOS_INSTALL}/bin/wdctl   start    fakePlugin
-
-    Wait Until Keyword Succeeds
-    ...  10s
-    ...  2s
-    ...  check_watchdog_log_contains  Starting /opt/sophos-spl/testPlugin
-
-    ${result} =    Run Process   systemctl  stop  sophos-spl
-    Wait Until Keyword Succeeds
-    ...  20 secs
-    ...  2 secs
-    ...  check_watchdog_log_contains  Killing process with abort signal
 
 Watchdog Does Not Throw Unhandled Exception When Machine Id File Is Not Present At Startup
     Require Fresh Install
@@ -127,7 +85,6 @@ Clean Up Files
     Remove File  /tmp/TestWdctlHandleBrokenPlugin
     Remove File  ${TEMPDIR}/testplugin.json
     Remove File  ${TEMPDIR}/testbrokenplugin.json
-    Ensure Uninstalled
 
 Check Watchdog Detect Broken Plugins
     # Check logs contain expected entries.

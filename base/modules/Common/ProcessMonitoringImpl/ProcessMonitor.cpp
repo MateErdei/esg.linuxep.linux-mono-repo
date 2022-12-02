@@ -150,10 +150,6 @@ namespace Common::ProcessMonitoringImpl
         processProxyPtr->setTerminationCallbackNotifyPipe(m_processTerminationCallbackPipe);
 
         std::lock_guard<std::mutex> lock(m_processProxiesMutex);
-        if (std::getenv("SOPHOS_CORE_DUMP_ON_PLUGIN_KILL"))
-        {
-            processProxyPtr->setCoreDumpMode(true);
-        }
         m_processProxies.push_back(std::move(processProxyPtr));
     }
 
