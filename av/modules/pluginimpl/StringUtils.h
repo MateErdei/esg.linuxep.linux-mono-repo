@@ -27,7 +27,7 @@ namespace pluginimpl
         const scan_messages::ThreatDetected& detection,
         const std::string& utf8Path,
         const std::string& timestamp);
-    std::string createCleanEventXml(
+    std::string populateCleanEventXml(
         const scan_messages::ThreatDetected& detection,
         const common::CentralEnums::QuarantineResult& quarantineResult,
         const std::string& utf8Path,

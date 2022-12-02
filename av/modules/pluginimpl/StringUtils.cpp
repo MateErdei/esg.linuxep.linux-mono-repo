@@ -66,6 +66,7 @@ std::string pluginimpl::generateThreatDetectedXml(const scan_messages::ThreatDet
 
     return result;
 }
+
 std::string pluginimpl::populateThreatReportXml(
     const scan_messages::ThreatDetected& detection,
     const std::string& utf8Path,
@@ -171,7 +172,7 @@ std::string pluginimpl::generateCoreCleanEventXml(
         std::chrono::system_clock::from_time_t(detection.detectionTime));
     bool overallSuccess = quarantineResult == common::CentralEnums::QuarantineResult::SUCCESS;
 
-    std::string result = createCleanEventXml(detection, quarantineResult, utf8Path, timestamp, overallSuccess);
+    std::string result = populateCleanEventXml(detection, quarantineResult, utf8Path, timestamp, overallSuccess);
 
     try
     {
@@ -184,12 +185,13 @@ std::string pluginimpl::generateCoreCleanEventXml(
         auto logPath = common::getPluginInstallPath() / "log/sophos_threat_detector/sophos_threat_detector.log";
         std::stringstream replacementPath;
         replacementPath << "See endpoint logs for threat file path at: " << logPath.c_str();
-        result = createCleanEventXml(detection, quarantineResult, replacementPath.str(), timestamp, overallSuccess);
+        result = populateCleanEventXml(detection, quarantineResult, replacementPath.str(), timestamp, overallSuccess);
     }
 
     return result;
 }
-std::string pluginimpl::createCleanEventXml(
+
+std::string pluginimpl::populateCleanEventXml(
     const scan_messages::ThreatDetected& detection,
     const common::CentralEnums::QuarantineResult& quarantineResult,
     const std::string& utf8Path,
