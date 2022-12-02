@@ -10,6 +10,17 @@ import git
 from code_file import CodeFile
 
 
+def branch_generator(repo):
+    """
+    Get all files changed between this branch and develop
+    :param repo:
+    :return:
+    """
+    return itertools.chain(
+        (os.path.join(repo.working_dir, x.b_path) for x in repo.index.diff("develop") if not x.deleted_file),
+        (os.path.join(repo.working_dir, x) for x in repo.untracked_files))
+
+
 def changed_generator(repo):
     return itertools.chain(
         (os.path.join(repo.working_dir, x.b_path) for x in repo.index.diff(None) if not x.deleted_file),
@@ -96,6 +107,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--verbose", action="store_true")
     filegroup = parser.add_mutually_exclusive_group()
+    filegroup.add_argument("--branch", action="store_true")
     filegroup.add_argument("--changed", action="store_true")
     filegroup.add_argument("--changes", action="store_true")
     filegroup.add_argument("--staged", action="store_true")
@@ -111,6 +123,8 @@ def main():
         generator = changed_generator(git_repo)
     elif args.staged:
         generator = staged_generator(git_repo)
+    elif args.branch:
+        generator = branch_generator(git_repo)
     else:
         generator = folder_generator(git_repo, args.folders)
 
