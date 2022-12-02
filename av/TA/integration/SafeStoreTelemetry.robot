@@ -274,12 +274,12 @@ SafeStore Telemetry Is Incremented When File Restoration Fails
     Wait For Log Contains From Mark    ${safestoreMark}   Quarantined ${NORMAL_DIRECTORY}/MLengHighScore.exe successfully
     File Should Not Exist  ${threat_file}
 
-    Remove Directory    /opt/sophos-spl/plugins/av/var/tempUnpack
 
     # Allow-list the file
     Send CORC Policy To Base  corc_policy.xml
     Wait Until AV Plugin Log Contains With Offset    Added SHA256 to allow list: c88e20178a82af37a51b030cb3797ed144126cad09193a6c8c7e95957cf9c3f9
     Wait For Log Contains From Mark    ${safestoreMark}   SafeStore Database Rescan request received
+    Remove Directory    /opt/sophos-spl/plugins/av/var/tempUnpack
 
     Wait For Log Contains From Mark  ${safestoreMark}  Got SR_RESTORE_FAILED when trying to restore an object
     Check SafeStore Telemetry    failed-file-restorations   ${1}
