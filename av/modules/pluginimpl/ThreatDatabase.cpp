@@ -25,20 +25,20 @@ namespace Plugin
     void ThreatDatabase::addThreat(const std::string& threatID, const std::string& correlationID)
     {
         auto database = m_database.lock();
-        std::map<std::string,std::list<std::string>>::iterator it = database->find(threatID);
-        if (it != database->end())
+        auto dbItr = database->find(threatID);
+        if (dbItr != database->end())
         {
-            std::list oldListIDS = it->second;
-            if (std::find(oldListIDS.begin(), oldListIDS.end(), correlationID) == oldListIDS.end() )
+            auto correlationItr = std::find(dbItr->second.correlationIds.begin(), dbItr->second.correlationIds.end(), correlationID);
+            if (correlationItr == dbItr->second.correlationIds.end() )
             {
-                it->second.emplace_back(correlationID);
+                dbItr->second.correlationIds.emplace_back(correlationID);
             }
+            dbItr->second.lastDetection = std::chrono::system_clock::now();
         }
         else
         {
-            std::list<std::string> ids;
-            ids.emplace_back(correlationID);
-            database->emplace(threatID,ids);
+            auto newThreatDetails = ThreatDetails(correlationID);
+            database->emplace(threatID,std::move(newThreatDetails));
         }
 
     }
@@ -49,9 +49,8 @@ namespace Plugin
         std::string threatID = "";
         for (auto const& entry : *database)
         {
-            std::list oldListIDS = entry.second;
-            auto iterator = std::find(oldListIDS.begin(), oldListIDS.end(), correlationID);
-            if (iterator != oldListIDS.end() )
+            auto correlationItr = std::find(entry.second.correlationIds.begin(), entry.second.correlationIds.end(), correlationID);
+            if (correlationItr != entry.second.correlationIds.end() )
             {
                 threatID = entry.first;
             }
@@ -63,8 +62,8 @@ namespace Plugin
         }
         else
         {
-            std::map<std::string,std::list<std::string>>::iterator it = database->find(threatID);
-            database->erase(it);
+            auto threatItr = database->find(threatID);
+            database->erase(threatItr);
             LOGDEBUG("Removed threat from database");
         }
     }
@@ -72,10 +71,11 @@ namespace Plugin
     void ThreatDatabase::removeThreatID(const std::string& threatID, bool ignoreNotInDatabase)
     {
         auto database = m_database.lock();
-        std::map<std::string,std::list<std::string>>::iterator it = database->find(threatID);
-        if (it != database->end())
+
+        auto threatItr = database->find(threatID);
+        if (threatItr != database->end())
         {
-            database->erase(it);
+            database->erase(threatItr);
             LOGDEBUG("Removed threat id " << threatID << " from database");
         }
         else if (!ignoreNotInDatabase)
@@ -108,9 +108,12 @@ namespace Plugin
     {
         auto database = m_database.lock();
         nlohmann::json j;
+
         for (const auto& key : *database)
         {
-            j[key.first] = key.second;
+            long timeStamp = std::chrono::time_point_cast<std::chrono::seconds>(key.second.lastDetection).time_since_epoch().count();
+            j[key.first] = { {"correlationIds", key.second.correlationIds},
+                             {"timestamp", timeStamp }};
         }
         if (j.empty())
         {
@@ -141,24 +144,30 @@ namespace Plugin
             }
         }
 
-        std::map<std::string,std::list<std::string>> tempdatabase;
-        for (auto it = j.begin(); it != j.end(); ++it)
+        std::map<std::string, ThreatDetails> tempdatabase;
+
+        for (const auto& threatItr : j.items())
         {
-            std::list<std::string> correlationids;
             try
             {
-                for (auto it2 = it.value().begin(); it2 != it.value().end(); ++it2)
+                std::list<std::string> correlationIdsToPop;
+                auto correlationIds = threatItr.value().at("correlationIds").items();
+                for (auto corrItr : correlationIds)
                 {
-                    correlationids.emplace_back(it2.value());
+                    correlationIdsToPop.emplace_back(corrItr.value());
                 }
-                tempdatabase.emplace(it.key(), correlationids);
+
+                auto timestamp = threatItr.value().at("timestamp");
+                ThreatDetails details(correlationIdsToPop, timestamp);
+                tempdatabase.try_emplace(threatItr.key(), details);
             }
             catch (nlohmann::json::exception& ex)
             {
                 //If the types of the threat id or correlation id are wrong throw away the entire threatID entry
-                LOGWARN("Not loading "<< it.key() << " into threat database as the parsing failed with error " << ex.what());
+                LOGWARN("Not loading "<< threatItr.key() << " into threat database as the parsing failed with error " << ex.what());
             }
         }
+
         database->swap(tempdatabase);
         LOGINFO("Initialised Threat Database");
     }
