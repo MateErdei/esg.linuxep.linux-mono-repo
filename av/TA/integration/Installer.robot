@@ -154,9 +154,11 @@ On access gets IDE update to all scanners
     On-access Scan Multiple Peend
 
 On access gets IDE update to new scanners
-    # restart on-access to ensure scanners are not initialized
-    Send Policies to disable on-access
-    Sleep   0.5s   Wait for on-access to stop
+    # Ensure on-access is disabled
+    #    restart on-access to ensure scanners are not initialized
+    #    Send Policies to disable on-access
+    #    Sleep   0.5s   Wait for on-access to stop
+
     # exclude most directories so we don't use all the scanners until after the update
     Send Policies to enable on-access with exclusions
     On-access Scan Eicar Close

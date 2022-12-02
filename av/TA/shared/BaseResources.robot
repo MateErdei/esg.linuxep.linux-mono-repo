@@ -3,6 +3,7 @@
 Library         ../Libs/BaseInteractionTools/PolicyUtils.py
 Library         ../Libs/ExclusionHelper.py
 Library         ../Libs/HttpsServer.py
+Library         ../Libs/LogUtils.py
 Library         ../Libs/OnFail.py
 Library         ../Libs/Telemetry.py
 Library         String
@@ -71,6 +72,7 @@ Send Policies to enable on-access with exclusions
     ${mark} =  get_on_access_log_mark
     Register Cleanup   Send Policies to disable on-access
     Send Flags Policy To Base  flags_policy/flags_onaccess_enabled.json
+    Send CORE Policy To Base  core_policy/CORE-36_oa_enabled.xml
     Send Sav Policy To Base  SAV-2_policy_OA_enabled_with_exclusions.xml
     Wait for on access to be enabled  ${mark}   file=/tmp_test/oa_file
 
