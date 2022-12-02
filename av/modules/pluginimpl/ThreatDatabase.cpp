@@ -90,10 +90,21 @@ namespace Plugin
         return database->empty();
     }
 
-    bool ThreatDatabase::isThreatInDatabase(const std::string& threatId) const
+    bool ThreatDatabase::isThreatInDatabaseWithinTime(const std::string& threatId, const std::chrono::seconds& duplicateTimeout) const
     {
         auto database = m_database.lock();
-        return database->find(threatId) != database->cend();
+        auto threatItr = database->find(threatId);
+        if (threatItr == database->cend())
+        {
+            return false;
+        }
+
+        std::chrono::system_clock::time_point timePointNow = std::chrono::system_clock::now();
+        if ((timePointNow - threatItr->second.lastDetection) <= duplicateTimeout)
+        {
+            return true;
+        }
+        return false;
     }
 
     void ThreatDatabase::resetDatabase()
@@ -167,6 +178,7 @@ namespace Plugin
             {
                 //If the types of the threat id or correlation id are wrong throw away the entire threatID entry
                 LOGWARN("Not loading "<< threatItr.key() << " into threat database as the parsing failed with error " << ex.what());
+                continue;
             }
 
             long timeStamp = 0;

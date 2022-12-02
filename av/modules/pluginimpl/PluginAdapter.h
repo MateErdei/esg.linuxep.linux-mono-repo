@@ -34,6 +34,8 @@
 
 namespace Plugin
 {
+    constexpr std::chrono::seconds DUPLICATE_DETECTION_TIMEOUT {60};
+
     class PluginAdapter : public IScanComplete,
                           public IDetectionReportProcessor,
                           public IDetectionDatabaseHandler,

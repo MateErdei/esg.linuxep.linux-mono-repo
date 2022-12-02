@@ -27,7 +27,7 @@ namespace Plugin
         void removeThreatID(const std::string& threatID, bool ignoreNotInDatabase=true);
         void resetDatabase();
         bool isDatabaseEmpty() const;
-        bool isThreatInDatabase(const std::string& threatId) const;
+        bool isThreatInDatabaseWithinTime(const std::string& threatId, const std::chrono::seconds& duplicateTimeout) const;
 
     TEST_PUBLIC:
         struct ThreatDetails
@@ -44,7 +44,7 @@ namespace Plugin
             ThreatDetails(const std::list<std::string>& correlationId, const long& time)
             {
                 correlationIds = correlationId;
-                lastDetection = std::chrono::time_point<std::chrono::system_clock>(std::chrono::seconds(time));
+                lastDetection = std::chrono::system_clock::time_point(std::chrono::seconds(time));
             }
         };
 
