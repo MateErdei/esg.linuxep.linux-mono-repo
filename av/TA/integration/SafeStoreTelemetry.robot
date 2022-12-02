@@ -22,9 +22,9 @@ Test Teardown   AV And Base Teardown
 *** Keywords ***
 SafeStore Telemetry Test Setup
     AV and Base Setup
-    ${avMark} =  Get AV Log Mark
+    Mark AV Log
     Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
-    Wait For Log Contains From Mark  ${avMark}  SafeStore flag set. Setting SafeStore to enabled.    timeout=60
+    Wait Until AV Plugin Log Contains With Offset    SafeStore flag set. Setting SafeStore to enabled.    timeout=60
 
 SafeStore Telemetry Suite Setup
     Install With Base SDDS
@@ -227,7 +227,7 @@ SafeStore Telemetry Is Incremented When File Is Successfully Restored
     Start sophos_threat_detector
 
     ${safestoreMark} =  Mark Log Size    ${SAFESTORE_LOG_PATH}
-    ${avMark} =  Mark AV Log
+    Mark AV Log
 
     # Create threat to scan
     ${threat_file} =  Set Variable  ${NORMAL_DIRECTORY}/MLengHighScore.exe
@@ -243,7 +243,7 @@ SafeStore Telemetry Is Incremented When File Is Successfully Restored
 
     # Allow-list the file
     Send CORC Policy To Base  corc_policy.xml
-    Wait For AV Log Contains After Mark    Added SHA256 to allow list: c88e20178a82af37a51b030cb3797ed144126cad09193a6c8c7e95957cf9c3f9    ${avMark}
+    Wait Until AV Plugin Log Contains With Offset    Added SHA256 to allow list: c88e20178a82af37a51b030cb3797ed144126cad09193a6c8c7e95957cf9c3f9
     Wait For Log Contains From Mark    ${safestoreMark}   SafeStore Database Rescan request received
 
     Wait For Log Contains From Mark  ${safestoreMark}  Successfully restored object to original path
@@ -257,7 +257,7 @@ SafeStore Telemetry Is Incremented When File Restoration Fails
     Start sophos_threat_detector
 
     ${safestoreMark} =  Mark Log Size    ${SAFESTORE_LOG_PATH}
-    ${avMark} =  Mark AV Log
+    Mark AV Log
 
     # Create threat to scan
     ${threat_file} =  Set Variable  ${NORMAL_DIRECTORY}/MLengHighScore.exe
@@ -275,7 +275,7 @@ SafeStore Telemetry Is Incremented When File Restoration Fails
 
     # Allow-list the file
     Send CORC Policy To Base  corc_policy.xml
-    Wait For AV Log Contains After Mark    Added SHA256 to allow list: c88e20178a82af37a51b030cb3797ed144126cad09193a6c8c7e95957cf9c3f9    ${avMark}
+    Wait Until AV Plugin Log Contains With Offset    Added SHA256 to allow list: c88e20178a82af37a51b030cb3797ed144126cad09193a6c8c7e95957cf9c3f9
     Wait For Log Contains From Mark    ${safestoreMark}   SafeStore Database Rescan request received
 
     Wait For Log Contains From Mark  ${safestoreMark}  Got SR_RESTORE_FAILED when trying to restore an object
