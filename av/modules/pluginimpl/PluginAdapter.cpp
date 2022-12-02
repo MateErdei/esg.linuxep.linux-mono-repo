@@ -386,16 +386,19 @@ namespace Plugin
         const scan_messages::ThreatDetected& detection,
         const common::CentralEnums::QuarantineResult& quarantineResult) const
     {
-        LOGDEBUG("Found '" << detection.threatName << "' in '" << detection.filePath << "'");
-        incrementTelemetryThreatCount(detection.threatName, detection.scanType);
-
-        if (!isRecentDetection(detection.threatId))
+        bool duplicate = isRecentDetection(detection.threatId);
+        if (!duplicate)
         {
             DetectionReporter::processThreatReport(pluginimpl::generateThreatDetectedXml(detection), m_taskQueue);
             DetectionReporter::publishQuarantineCleanEvent(
                 pluginimpl::generateCoreCleanEventXml(detection, quarantineResult), m_taskQueue);
             publishThreatEvent(pluginimpl::generateThreatDetectedJson(detection));
         }
+
+        const std::string duplicateStr = duplicate ? "is duplicate detection" : "is new detection";
+        LOGDEBUG("Found '" << detection.threatName << "' in '" << detection.filePath << "' which is '" << duplicateStr);
+
+        incrementTelemetryThreatCount(detection.threatName, detection.scanType);
     }
 
     void PluginAdapter::updateThreatDatabase(const scan_messages::ThreatDetected& detection)
@@ -525,7 +528,7 @@ namespace Plugin
 
     bool PluginAdapter::isRecentDetection(const std::string& threatId) const
     {
-        if (m_threatDatabase.isDatabaseEmpty() || !m_threatDatabase.isThreatInDatabase(threatId))
+        if (m_threatDatabase.isDatabaseEmpty() || !m_threatDatabase.isThreatInDatabaseWithinTime(threatId, DUPLICATE_DETECTION_TIMEOUT))
         {
             return false;
         }
