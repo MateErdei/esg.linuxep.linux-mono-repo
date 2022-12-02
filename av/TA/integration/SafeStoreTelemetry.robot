@@ -214,6 +214,8 @@ SafeStore Telemetry Is Incremented When Database Is Deleted
     Mark Expected Error In Log    ${SAFESTORE_LOG_PATH}    Quarantine Manager failed to initialise
 
 SafeStore Telemetry Is Incremented When File Is Successfully Restored
+    Install With Base SDDS
+    Wait Until SafeStore running
     # Start from known place with a CORC policy with an empty allow list
     Stop sophos_threat_detector
     Register Cleanup   Remove File  ${MCS_PATH}/policy/CORC_policy.xml
@@ -244,6 +246,8 @@ SafeStore Telemetry Is Incremented When File Is Successfully Restored
     Check SafeStore Telemetry    successful-file-restorations   1
 
 SafeStore Telemetry Is Incremented When File Restoration Fails
+    Install With Base SDDS
+    Wait Until SafeStore running
     # Start from known place with a CORC policy with an empty allow list
     Stop sophos_threat_detector
     Register Cleanup   Remove File  ${MCS_PATH}/policy/CORC_policy.xml
