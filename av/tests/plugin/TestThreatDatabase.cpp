@@ -442,3 +442,84 @@ TEST_F(TestThreatDatabase, resetHealthHandlesFileError)
     EXPECT_FALSE(appenderContains("into threat database as the parsing failed with error"));
     verifyCorruptDatabaseTelemetryNotPresent();
 }
+
+
+TEST_F(TestThreatDatabase, writesValidJsonOnDestruct)
+{
+    const std::string expectLocation = m_testDir.string() + "/persist-threatDatabase";
+
+    auto threatDatabase = std::make_unique<Plugin::ThreatDatabase>(m_testDir.string());
+
+    threatDatabase->addThreat("threat1","correlation1");
+    threatDatabase.reset(nullptr);
+
+    ASSERT_TRUE(fs::exists(expectLocation));
+    PRINT(expectLocation);
+    nlohmann::json j;
+    try
+    {
+        auto fileSystem = Common::FileSystem::fileSystem();
+        auto configContents = fileSystem->readFile(expectLocation);
+        j = nlohmann::json::parse(configContents);
+    }
+    catch (nlohmann::json::exception& ex)
+    {
+        PRINT(ex.what());
+        FAIL() << "Failed to parse json that was written on destruct";
+    }
+}
+
+TEST_F(TestThreatDatabase, readsDatabaseOnConstruction)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    const std::string location = m_testDir.string() + "/persist-threatDatabase";
+
+    auto fileSystem = Common::FileSystem::fileSystem();
+    fileSystem->writeFile(location, m_defaultJsonString);
+    ASSERT_TRUE(fs::exists(location));
+
+    auto threatDatabase = Plugin::ThreatDatabase( m_testDir.string());
+    EXPECT_TRUE(waitForLog("Initialised Threat Database"));
+    EXPECT_FALSE(appenderContains("Resetting ThreatDatabase as we failed to parse ThreatDatabase on disk with error: "));
+
+    auto threatContents = threatDatabase.m_databaseInString.getValue();
+    EXPECT_EQ(m_defaultJsonString, threatContents);
+}
+
+TEST_F(TestThreatDatabase, dataWrittenToDiskMatchesWhenRead)
+{
+    auto threatDatabase = Plugin::ThreatDatabase(m_testDir.string() + "/persist-threatDatabase");
+
+    const std::string threat1 = "threat1";
+    const std::string threat2 = "threat2";
+    const std::string correlation1 = "correlation1";
+    const std::string correlation2 = "correlation2";
+    const long timeStamp = std::chrono::time_point_cast<std::chrono::seconds>(std::chrono::system_clock::now()).time_since_epoch().count();
+
+    threatDatabase.addThreat(threat1,correlation1);
+    threatDatabase.addThreat(threat1,correlation2);
+    threatDatabase.addThreat(threat2,correlation1);
+
+    threatDatabase.convertDatabaseToString();
+    threatDatabase.convertStringToDatabase();
+
+    auto res = threatDatabase.m_database.lock();
+
+    //Check total map
+    ASSERT_EQ(res->size(), 2);
+
+    //Check threat1 correlations
+    EXPECT_EQ(res->at(threat1).correlationIds.size(), 2);
+    EXPECT_EQ(res->at(threat1).correlationIds.front(), correlation1);
+    EXPECT_EQ(res->at(threat1).correlationIds.back(), correlation2);
+
+    const long threat1Time = std::chrono::time_point_cast<std::chrono::seconds>(res->at(threat1).lastDetection).time_since_epoch().count();
+    EXPECT_TRUE((threat1Time - timeStamp) < 1); //Test should take less than a second to complete
+
+    //Check threat2 correlations
+    EXPECT_EQ(res->at(threat2).correlationIds.size(), 1);
+    EXPECT_EQ(res->at(threat2).correlationIds.front(), correlation1);
+    const long threat2Time = std::chrono::time_point_cast<std::chrono::seconds>(res->at(threat2).lastDetection).time_since_epoch().count();
+    EXPECT_TRUE((threat2Time - timeStamp) < 1); //Test should take less than a second to complete
+}
