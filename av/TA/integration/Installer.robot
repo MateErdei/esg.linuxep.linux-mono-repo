@@ -154,11 +154,10 @@ On access gets IDE update to all scanners
     On-access Scan Multiple Peend
 
 On access gets IDE update to new scanners
-    # Ensure on-access is disabled
-    #    restart on-access to ensure scanners are not initialized
-    #    Send Policies to disable on-access
-    #    Sleep   0.5s   Wait for on-access to stop
-
+    [Tags]  disabled
+    # restart on-access to ensure scanners are not initialized
+    Send Policies to disable on-access
+    Sleep   0.5s   Wait for on-access to stop
     # exclude most directories so we don't use all the scanners until after the update
     Send Policies to enable on-access with exclusions
     On-access Scan Eicar Close
@@ -808,7 +807,6 @@ AV Plugin Restores Older SafeStore Database On Upgrade
     ...    5 secs
     ...    File Log Contains    ${AV_INSTALL_LOG}    Successfully restored old SafeStore database (${safeStoreDatabaseBackup}) to ${SAFESTORE_DB_DIR}
     Directory Should Not Exist    ${safeStoreDatabaseBackup}
-    Directory Should Not Exist    ${AV_RESTORED_VAR_DIRECTORY}
     Verify SafeStore Database Exists
 
     Wait Until SafeStore Log Contains    Successfully initialised SafeStore database
@@ -841,7 +839,6 @@ AV Plugin Restores Newest SafeStore Database Backup On Upgrade
     ...    File Log Contains    ${AV_INSTALL_LOG}    Successfully restored old SafeStore database (${backupToRestore}) to ${SAFESTORE_DB_DIR}
 
     Directory Should Not Exist    ${backupToRestore}
-    Directory Should Not Be Empty    ${AV_RESTORED_VAR_DIRECTORY}
     Verify SafeStore Database Exists
     Wait Until SafeStore Log Contains    Successfully initialised SafeStore database
 
@@ -885,8 +882,8 @@ Older SafeStore Database Is Not Restored When It Is Not Compaitible With Current
     ...    5 secs
     ...    File Log Contains    ${AV_INSTALL_LOG}    SafeStore Database (${incompatibleBackup}) is not compatible with the current AV version (${version}) so will not attempt to restore
     Directory Should Exist    ${incompatibleBackup}
+    Wait Until SafeStore Log Contains    Successfully initialised SafeStore database
     Verify SafeStore Database Exists
-
 
 AV Can not install from SDDS Component
     ${result} =  Run Process  bash  ${COMPONENT_SDDS_COMPONENT}/install.sh  stderr=STDOUT  timeout=30s
