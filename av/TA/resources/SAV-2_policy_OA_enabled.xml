@@ -7,7 +7,7 @@
     <entityInfo/>
   </entity>
   <onAccessScan>
-    <enabled>true</enabled>
+    <enabled>false</enabled> <!-- ignored by SSPL LINUXDAR-5412 -->
     <scanBehaviour>
       <level>normal</level>
       <archives>false</archives>
