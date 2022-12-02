@@ -14,6 +14,14 @@ INSTALL(CODE "MESSAGE(STATUS \"Copying libs into tap_test_output directory\")
         message(FATAL_ERROR \"Failed to copy libs to tap_test_output directory: ${STATUS}\")
     endif()")
 
+INSTALL(CODE "MESSAGE(STATUS \"Copying SafeStore Database tool into tap_test_output directory\")
+    execute_process(
+      COMMAND chmod +x ${SAFESTORE_INPUT}/ssr
+      COMMAND cp ${SAFESTORE_INPUT}/ssr ${CMAKE_BINARY_DIR}/tap_test_output/ RESULT_VARIABLE STATUS)
+    if(STATUS AND NOT STATUS EQUAL 0)
+        message(FATAL_ERROR \"Failed to copy SafeStore Database tool to tap_test_output directory: ${STATUS}\")
+    endif()")
+
 INSTALL(CODE "MESSAGE(STATUS \"Archiving tap_test_output directory\")
     execute_process(
       COMMAND tar -zcvf ${OUTPUT}/tap_test_output.tar.gz -C ${CMAKE_BINARY_DIR} tap_test_output/

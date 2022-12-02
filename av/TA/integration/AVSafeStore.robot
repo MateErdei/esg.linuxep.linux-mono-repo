@@ -609,6 +609,44 @@ Allow Listed Files Are Removed From Quarantine
     ## File allowed so should still exist
     #File Should Exist  ${threat_file}
 
+Threat Can Be Restored From Persisted SafeStore Database
+    Check AV Plugin Running
+    ${avMark} =  Get AV Log Mark
+    ${safeStoreMark} =  Mark Log Size  ${SAFESTORE_LOG_PATH}
+    ${threatId} =  Set Variable    e52cf957-a0dc-5b12-bad2-561197a5cae4
+
+    Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
+    Wait For Log Contains From Mark  ${avMark}      SafeStore flag set. Setting SafeStore to enabled.  timeout=60
+
+    Check avscanner can detect eicar
+
+    Wait For Log Contains From Mark  ${safeStoreMark}  Threat ID: ${threatId}
+    Wait For Log Contains From Mark  ${avMark}  Quarantine succeeded
+    File Should Not Exist    ${SCAN_DIRECTORY}/eicar.com
+
+    ${dbContent} =    Get Contents of SafeStore Database
+
+    Run plugin uninstaller with downgrade flag
+    Check AV Plugin Not Installed
+
+    Install AV Directly from SDDS
+    Wait Until Keyword Succeeds
+    ...    60 secs
+    ...    5 secs
+    ...    File Log Contains    ${AV_INSTALL_LOG}    Successfully restored old SafeStore database
+    Verify SafeStore Database Exists
+    Wait Until SafeStore Log Contains    Successfully initialised SafeStore database
+
+    ${dbContentBeforeRestore} =    Get Contents of SafeStore Database
+    Should Contain    ${dbContentBeforeRestore}    ${threatId}
+    Should Be Equal    ${dbContent}    ${dbContentBeforeRestore}
+    File Should Not Exist    ${SCAN_DIRECTORY}/eicar.com
+
+    Restore Threat In SafeStore Database By ThreatId    ${threatId}
+
+    ${dbContentAfterRestore} =    Get Contents of SafeStore Database
+    Should Not Be Equal    ${dbContentBeforeRestore}    ${dbContentAfterRestore}
+    File Should Exist    ${SCAN_DIRECTORY}/eicar.com
 
 *** Keywords ***
 SafeStore Test Setup

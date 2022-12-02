@@ -111,3 +111,8 @@ def write_file_after_delay(dest, content, delay: float):
         f.write(content)
         # f.flush()
     logger.info("Closed " + dest)
+
+def read_hexadecimal_file(path):
+    with open(path, "r") as f:
+        hex_string = f.read()
+        return hex_string.encode('utf-8').hex()

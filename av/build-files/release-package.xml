@@ -21,6 +21,7 @@
 <!--            <development-version branch="develop" />-->
             <include artifact-path="safestore/linux-x64/lib" dest-dir="input/safestore_input"/>
             <include artifact-path="safestore/linux-x64/interface" dest-dir="input/safestore_input"/>
+            <include artifact-path="safestore/linux-x64/ssr" dest-dir="input/safestore_input"/>
         </build-asset>
         <build-asset project="winep" repo="sau">
             <release-version branch="release/sspl/Version_1_0_0"
