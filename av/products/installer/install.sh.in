@@ -89,7 +89,8 @@ SUSI_UPDATE_SRC="$SOPHOS_INSTALL/plugins/av/chroot/susi/update_source/"
 SUSI_DIST_VERS="$SOPHOS_INSTALL/plugins/av/chroot/susi/distribution_version/"
 LOCKFILE="${PLUGIN_INSTALL}/chroot/var/susi_update.lock"
 TD_PID_FILE="${PLUGIN_INSTALL}/chroot/var/threat_detector.pid"
-SAFESTORE_DB_PATH="${VAR}/safestore_db"
+SAFESTORE="${PLUGIN_INSTALL}/safestore"
+SAFESTORE_DB_PATH="${SAFESTORE}/safestore_db"
 
 function delete_removed_vdl()
 {
@@ -183,6 +184,13 @@ function set_permissions_on_susi_update_source()
     chmod -R g=rX,o= "${SUSI_UPDATE_SRC}/model/"
 }
 
+function bootstrap_susi_from_update_source()
+{
+    set_permissions_on_susi_update_source
+    ${PLUGIN_INSTALL}/sbin/susi_bootstrapper
+    chown -R ${THREAT_DETECTOR_USER}:${GROUP_NAME} "${SUSI_DIST_VERS}"
+}
+
 function already_installed()
 {
     [[ -f "${SOPHOS_INSTALL}/base/pluginRegistry/$1.json" ]]
@@ -215,8 +223,6 @@ function apply_permissions()
     chmod 0750 "${PLUGIN_INSTALL}/lib64/libthreat_scanner.so"*
     chown -R root:${GROUP_NAME} "${PLUGIN_INSTALL}/lib64"
 
-
-
     chmod -R 0711 "${PLUGIN_INSTALL}/bin"
     chown -R root:${GROUP_NAME} "${PLUGIN_INSTALL}/bin"
 
@@ -235,7 +241,7 @@ function apply_permissions()
     chown root:${GROUP_NAME} "${PLUGIN_INSTALL}/log"
 
     mkdir -p "${VAR}"
-    chmod +t 0770 "${VAR}"
+    chmod 0770 "${VAR}"
     chmod -R g+r "${VAR}"
     chown -R ${USER_NAME}:${GROUP_NAME} "${VAR}"
     chown root:${GROUP_NAME} "${VAR}"
@@ -245,12 +251,12 @@ function apply_permissions()
         chmod 600 ${VAR}/persist-threatDatabase
     fi
 
-    mkdir -p "$SAFESTORE_DB_PATH"
+    mkdir -p "${SAFESTORE}"
+    chmod 0700 "${SAFESTORE}"
+    chown -R root:root "${SAFESTORE}"
+    mkdir -p "${SAFESTORE_DB_PATH}"
+    chmod -R 0700 "${SAFESTORE_DB_PATH}"
     chown -R root:root "${SAFESTORE_DB_PATH}"
-    chmod 0700 "${SAFESTORE_DB_PATH}"
-    [[ "$(ls -A "${SAFESTORE_DB_PATH}")" ]] && chmod 0400 "${SAFESTORE_DB_PATH}/*"
-    [[ -f "${SAFESTORE_DB_PATH}/safestore.db" ]] && chmod 0600 "${SAFESTORE_DB_PATH}/safestore.db"
-    [[ -f "${SAFESTORE_DB_PATH}/safestore.pw" ]] && chmod 0600 "${SAFESTORE_DB_PATH}/safestore.pw"
 
     CHROOT="${PLUGIN_INSTALL}/chroot"
     CHROOT_LINK_DIR="${CHROOT}/${PLUGIN_INSTALL#/}"
@@ -258,12 +264,6 @@ function apply_permissions()
     chmod 0770 ${CHROOT_LINK_DIR}
     chmod 0710 ${CHROOT_LINK_DIR%/*}
     ln -snf / ${CHROOT_LINK_DIR}/chroot
-
-    mkdir ${CHROOT_LINK_DIR}/sbin
-    chmod 755 ${CHROOT_LINK_DIR}/sbin
-
-    chmod -R 0750 "${CHROOT}/lib64"
-    chown -R root:${GROUP_NAME} "${CHROOT}/lib64"
 
     mkdir -p "${CHROOT_LINK_DIR}/log"
     chmod 0770 "${CHROOT_LINK_DIR}/log"
@@ -301,7 +301,7 @@ function apply_permissions()
     chown -R ${THREAT_DETECTOR_USER}:${GROUP_NAME} "${CHROOT}/log"
     chown root:${GROUP_NAME} "${CHROOT}/log"
 
-    chmod 0770 ${CHROOT}/susi
+    chmod 0750 ${CHROOT}/susi
     chown root:${GROUP_NAME} "${CHROOT}/susi"
 
     set_permissions_on_susi_update_source
@@ -424,12 +424,9 @@ function install_product()
 
     if [[ -e "$SOPHOS_INSTALL/plugins/av/chroot/susi" ]]
     then
+        rm -rf "$SOPHOS_INSTALL/plugins/av/chroot/susi/distribution_version/"
         delete_removed_libraries
     fi
-
-    #LINUXDAR-5935 removed libsusi and libupdater from av/lib64, we don't need to keep a copy of them anymore. Affects only upgrades
-    rm -f "$SOPHOS_INSTALL/plugins/av/lib64/libsusi.so*"
-    rm -f "$SOPHOS_INSTALL/plugins/av/lib64/libupdater.so*"
 
     #Install SUSI
     [ -e "$SOPHOS_INSTALL/plugins/av/chroot/susi/update_source/vdl" ] && rm "$SOPHOS_INSTALL/plugins/av/chroot/susi/update_source/vdl/"*
@@ -440,13 +437,10 @@ function install_product()
     find "$DIST/files/plugins/av/chroot/susi" -type f -name "*.so.*" -print0 \
         | xargs -0 "$SOPHOS_INSTALL/base/bin/versionedcopy" || failure ${EXIT_FAIL_VERSIONEDCOPY} "Failed to SUSI libraries to installation"
 
-    local dest_dir="${SUSI_UPDATE_SRC}/mllib"
-    rm -rf "$dest_dir" || failure $EXIT_FAIL_DELETE_REMOVED_FILES "Unable to delete removed mllib files"
-
     ln -snf "${PLUGIN_INSTALL}/sbin/uninstall.sh" "${SOPHOS_INSTALL}/base/update/var/installedproducts/${PRODUCT_LINE_ID}.sh"
     ln -snf "${PLUGIN_INSTALL}/VERSION.ini" "${SOPHOS_INSTALL}/base/update/var/installedproductversions/${PRODUCT_LINE_ID}.ini"
 
-    [[ -d "${PLUGIN_INSTALL}/var/downgrade-backup" ]] && restore_safestore_databases
+    restore_safestore_databases
 
     apply_permissions
 
@@ -470,7 +464,7 @@ function install_product()
     ln -snf "${PLUGIN_INSTALL}/bin/avscanner" /usr/local/bin/avscanner
 
     generate_susi_package_manifest
-    set_permissions_on_susi_update_source
+    bootstrap_susi_from_update_source
 
     #Create plugin registration files
     create_registration_file "${PLUGIN_NAME}"

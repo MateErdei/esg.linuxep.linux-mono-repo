@@ -24,6 +24,8 @@ fi
 SCRIPT_DIR="$( cd -P "$( dirname "$SCRIPT_LOCATION" )" >/dev/null && pwd )"
 BASEDIR="${SCRIPT_DIR%%/plugins/${PLUGIN_NAME}/sbin}"
 UNINSTALLDIR="$BASEDIR/plugins/${PLUGIN_NAME}"
+SAFESTORE="${UNINSTALLDIR}/safestore"
+VAR="${UNINSTALLDIR}/var"
 SYMLINK="$BASEDIR/base/update/var/installedproducts/${PRODUCT_LINE_ID}.sh"
 SYMLINKVERSION="$BASEDIR/base/update/var/installedproductversions/${PRODUCT_LINE_ID}.ini"
 SAVE_DIR="${BASEDIR}/tmp/${PLUGIN_NAME}_downgrade"
@@ -53,14 +55,14 @@ then
     cp -v ${UNINSTALLDIR}/log/soapd.log*  ${SAVE_DIR}
 
     VERSIONED_SAFESTORE_DB=$(date +%s)_SafeStore_${MIN_SAFESTORE_DB_SUPPORTED_AV_VERSION}
-    if [[ -d ${UNINSTALLDIR}/var/safestore_db ]]
+    if [[ -d ${SAFESTORE}/safestore_db ]]
     then
-      cp -vr ${UNINSTALLDIR}/var/safestore_db  ${SAFESTORE_SAVE_DIR}/${VERSIONED_SAFESTORE_DB}
+      cp -vr ${SAFESTORE}/safestore_db  ${SAFESTORE_SAVE_DIR}/${VERSIONED_SAFESTORE_DB}
     fi
 
-    if [[ -f ${UNINSTALLDIR}/var/persist-threatDatabase ]]
+    if [[ -f ${VAR}/persist-threatDatabase ]]
     then
-      cp -v ${UNINSTALLDIR}/var/persist-threatDatabase  ${SAFESTORE_SAVE_DIR}
+      cp -v ${VAR}/persist-threatDatabase  ${SAFESTORE_SAVE_DIR}
     fi
 fi
 

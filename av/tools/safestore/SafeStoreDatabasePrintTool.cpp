@@ -49,7 +49,7 @@ int main()
     std::shared_ptr<ISafeStoreWrapper> safeStoreWrapper = std::make_shared<SafeStoreWrapperImpl>();
 
     // Expected locations of safestore database in a product installation.
-    std::string safestoreDbDir = "/opt/sophos-spl/plugins/av/var/safestore_db/";
+    std::string safestoreDbDir = "/opt/sophos-spl/plugins/av/safestore/safestore_db/";
     std::string safestoreDbName = "safestore.db";
     std::string safestoreDbFile = Common::FileSystem::join(safestoreDbDir, safestoreDbName);
     std::string safestoreDbPwFile = Common::FileSystem::join(safestoreDbDir, "safestore.pw");

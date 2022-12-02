@@ -28,7 +28,7 @@ ${NORMAL_DIRECTORY}                  /home/vagrant/this/is/a/directory/for/scann
 ${CUSTOMERID_FILE}                   ${COMPONENT_ROOT_PATH}/chroot/${COMPONENT_ROOT_PATH}/var/customer_id.txt
 ${MACHINEID_CHROOT_FILE}             ${COMPONENT_ROOT_PATH}/chroot${SOPHOS_INSTALL}/base/etc/machine_id.txt
 ${MACHINEID_FILE}                    ${SOPHOS_INSTALL}/base/etc/machine_id.txt
-${SAFESTORE_DORMANT_FLAG}            ${SOPHOS_INSTALL}/plugins/av/var/safestore_dormant_flag
+${SAFESTORE_DORMANT_FLAG}            ${COMPONENT_VAR_DIR}/safestore_dormant_flag
 
 
 *** Test Cases ***
@@ -318,7 +318,7 @@ SafeStore Purges The Oldest Detection In Its Database When It Exceeds Storage Ca
 
     Stop SafeStore
     # The MaxSafeStoreSize could cause flakiness in the future if the footprint of the SafeStore instance grows, which we can't avoid (fix by increasing its size further)
-    Create File     ${COMPONENT_ROOT_PATH}/var/safestore_config.json    { "MaxObjectSize" : 32000, "MaxSafeStoreSize" : 144000 }
+    Create File     ${COMPONENT_SAFESTORE_DIR}/safestore_config.json    { "MaxObjectSize" : 32000, "MaxSafeStoreSize" : 144000 }
     Start SafeStore
 
     ${eicar1}=    Set Variable     big_eicar1
@@ -374,7 +374,7 @@ SafeStore Purges The Oldest Detection In Its Database When It Exceeds Detection 
     Unpack SafeStore Tools To  ${safestore_tools_unpacked}
 
     Stop SafeStore
-    Create File     ${COMPONENT_ROOT_PATH}/var/safestore_config.json    { "MaxStoredObjectCount" : 2 }
+    Create File     ${COMPONENT_SAFESTORE_DIR}/safestore_config.json    { "MaxStoredObjectCount" : 2 }
     Start SafeStore
 
     ${eicar1}=    Set Variable     eicar1
@@ -687,6 +687,7 @@ SafeStore Test TearDown
     dump log  ${WATCHDOG_LOG}
     dump log  ${SOPHOS_INSTALL}/plugins/av/log/av.log
     List Directory  ${SOPHOS_INSTALL}/plugins/av/var
+    List Directory  ${SOPHOS_INSTALL}/plugins/av/safestore
     Remove Directory    ${SAFESTORE_DB_DIR}  recursive=True
     Remove Directory    ${NORMAL_DIRECTORY}  recursive=True
 

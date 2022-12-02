@@ -11,6 +11,7 @@ namespace Plugin
     std::string getPluginChrootDirPath();
     std::string getPluginChrootVarDirPath();
     std::string getPluginInstall();
+    std::string getPluginSafeStoreDirPath();
     std::string getPluginVarDirPath();
     std::string getRelativeSafeStoreRescanIntervalConfigPath();
     std::string getRestoreReportSocketPath();
