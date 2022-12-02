@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# Copyright (C) 2022 Sophos Plc, Oxford, England.
+# Copyright 2022 Sophos Limited. All rights reserved.
 # All rights reserved.
 
 import datetime

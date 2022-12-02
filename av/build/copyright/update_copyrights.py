@@ -33,6 +33,9 @@ def run(code_file):
     if lines[0][:2] == '#!':
         copyright_index = 1
 
+        if lines[1].startswith("# -*- coding: utf-8 -*-"):
+            copyright_index = 2
+
     # Remove old-style copyright headers
     if lines[0].startswith("//===="):
         index = 1
@@ -55,9 +58,9 @@ def run(code_file):
             pass
 
         if initial_year == int(CURRENT_YEAR):
-            lines.insert(0, comment_token + SINGLE_YEAR_COMMENT % CURRENT_YEAR)
+            lines.insert(copyright_index, comment_token + SINGLE_YEAR_COMMENT % CURRENT_YEAR)
         else:
-            lines.insert(0, comment_token + MULTI_YEAR_COMMENT % (initial_year, CURRENT_YEAR))
+            lines.insert(copyright_index, comment_token + MULTI_YEAR_COMMENT % (initial_year, CURRENT_YEAR))
 
         code_file.update(lines)
 
