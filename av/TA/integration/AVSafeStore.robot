@@ -668,6 +668,7 @@ SafeStore Test Setup
     register on fail  dump log   ${SUSI_DEBUG_LOG_PATH}
     register on fail  dump threads  ${SOPHOS_THREAT_DETECTOR_BINARY}
     register on fail  dump threads  ${PLUGIN_BINARY}
+    register on fail  analyse Journalctl   print_always=True
 
     Register Cleanup      Check All Product Logs Do Not Contain Error
     Register Cleanup      Exclude MCS Router is dead
