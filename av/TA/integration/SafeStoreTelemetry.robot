@@ -207,12 +207,13 @@ Corrupt Threat Database Telemetry Is Reported
 SafeStore Telemetry Is Incremented When Database Is Deleted
     Install With Base SDDS
     Wait Until SafeStore running
+    Check SafeStore Telemetry    database-deletions   ${0}
 
     ${safestoreMark} =  Mark Log Size    ${SAFESTORE_LOG_PATH}
     Corrupt SafeStore Database
     Wait For Log Contains From Mark  ${safestoreMark}  Quarantine database deletion successful    200
 
-    Check SafeStore Telemetry    database-deletions   1
+    Check SafeStore Telemetry    database-deletions   ${1}
 
     Register Cleanup    Install With Base SDDS
 
@@ -225,6 +226,7 @@ SafeStore Telemetry Is Incremented When File Is Successfully Restored
     Register Cleanup   Remove File  ${MCS_PATH}/policy/CORC_policy.xml
     Send CORC Policy To Base  corc_policy_empty_allowlist.xml
     Start sophos_threat_detector
+    Check SafeStore Telemetry    successful-file-restorations   ${0}
 
     ${safestoreMark} =  Mark Log Size    ${SAFESTORE_LOG_PATH}
     Mark AV Log
@@ -247,7 +249,7 @@ SafeStore Telemetry Is Incremented When File Is Successfully Restored
     Wait For Log Contains From Mark    ${safestoreMark}   SafeStore Database Rescan request received
 
     Wait For Log Contains From Mark  ${safestoreMark}  Successfully restored object to original path
-    Check SafeStore Telemetry    successful-file-restorations   1
+    Check SafeStore Telemetry    successful-file-restorations   ${1}
 
 SafeStore Telemetry Is Incremented When File Restoration Fails
     # Start from known place with a CORC policy with an empty allow list
@@ -255,6 +257,7 @@ SafeStore Telemetry Is Incremented When File Restoration Fails
     Register Cleanup   Remove File  ${MCS_PATH}/policy/CORC_policy.xml
     Send CORC Policy To Base  corc_policy_empty_allowlist.xml
     Start sophos_threat_detector
+    Check SafeStore Telemetry    failed-file-restorations   ${0}
 
     ${safestoreMark} =  Mark Log Size    ${SAFESTORE_LOG_PATH}
     Mark AV Log
@@ -279,7 +282,7 @@ SafeStore Telemetry Is Incremented When File Restoration Fails
     Wait For Log Contains From Mark    ${safestoreMark}   SafeStore Database Rescan request received
 
     Wait For Log Contains From Mark  ${safestoreMark}  Got SR_RESTORE_FAILED when trying to restore an object
-    Check SafeStore Telemetry    failed-file-restorations   1
+    Check SafeStore Telemetry    failed-file-restorations   ${1}
 
     Mark Expected Error In Log    ${SAFESTORE_LOG_PATH}    Got SR_RESTORE_FAILED when trying to restore an object
 
