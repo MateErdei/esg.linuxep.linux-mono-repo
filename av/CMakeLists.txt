@@ -215,11 +215,10 @@ find_library(CRYPTO_LIBRARY
         NO_DEFAULT_PATH
         )
 
-set(SAFESTORE_INPUT ${INPUT}/safestore_input)
-find_library(SAFESTORE_LIB
-        NAMES safestore
-        PATHS ${SAFESTORE_INPUT}
-        NO_DEFAULT_PATH
+add_library(safestorelib SHARED IMPORTED)
+set_target_properties(safestorelib PROPERTIES
+        IMPORTED_LOCATION ${INPUT}/safestore_input/libsafestore.so.2
+        INTERFACE_INCLUDE_DIRECTORIES ${INPUT}/safestore_input
         )
 
 set(ZLIB_INPUT ${REDIST}/zlib)

@@ -7,7 +7,6 @@ add_executable(${SAFESTORE_EXE_NAME}
 
 target_link_libraries(${SAFESTORE_EXE_NAME} PUBLIC
         safestoreimpl
-        ${SAFESTORE_LIB}
         )
 target_include_directories(${SAFESTORE_EXE_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/modules)
 

@@ -6,22 +6,25 @@ add_library(safestoreimpl SHARED
         Logger.h
         Main.cpp
         Main.h
-        QuarantineManager/QuarantineManagerImpl.h
+        QuarantineManager/IQuarantineManager.h
         QuarantineManager/QuarantineManagerImpl.cpp
-        SafeStoreWrapper/SafeStoreWrapperImpl.h
-        SafeStoreWrapper/SafeStoreWrapperImpl.cpp
+        QuarantineManager/QuarantineManagerImpl.h
         QuarantineManager/StateMonitor.cpp
         QuarantineManager/StateMonitor.h
+        SafeStoreServiceCallback.cpp
+        SafeStoreServiceCallback.h
+        SafeStoreTelemetryConsts.h
+        SafeStoreWrapper/ISafeStoreWrapper.h
+        SafeStoreWrapper/SafeStoreWrapperImpl.cpp
+        SafeStoreWrapper/SafeStoreWrapperImpl.h
         )
 
 target_link_libraries(safestoreimpl PUBLIC
-        ${SAFESTORE_LIB}
+        safestorelib
+        ${log4cpluslib}
         common
         unixsocket
-        ${log4cpluslib}
         )
-
-target_include_directories(safestoreimpl PUBLIC ${SAFESTORE_INPUT})
 
 
 install(TARGETS safestoreimpl
