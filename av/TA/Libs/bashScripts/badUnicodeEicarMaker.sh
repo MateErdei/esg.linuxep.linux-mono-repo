@@ -27,21 +27,11 @@ EICAR='X'$EICAR
 echoEicar()
 {
      echo $EICAR
-     return 0
 }
 
-path=`echo "EFBFBE" | xxd -r -ps`
-path="FFFE8-${path}"
-echo "${path}"
-echoEicar > "${path}"
+echoEicar > $'FFFE8-\xEF\xBF\xBE'
 
-path=`echo "EFBFBF" | xxd -r -ps`
-path="FFFF8-${path}"
-echo "${path}"
-echoEicar > "${path}"
+echoEicar > $'FFFF8-\xEF\xBF\xBF'
 
-path=`echo "EFBFBEEFBFBF" | xxd -r -ps`
-path="FFFEFFFF8-${path}"
-echo "${path}"
-echoEicar > "${path}"
+echoEicar > $'\xEF\xBF\xBE\xEF\xBF\xBF'
 
