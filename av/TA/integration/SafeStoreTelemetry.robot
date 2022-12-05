@@ -193,8 +193,9 @@ Corrupt Threat Database Telemetry Is Reported
     Create File     ${THREAT_DATABASE_PATH}    {T26796de6c
 
     Start AV Plugin
-    Wait Until AV Plugin Log Contains    Resetting ThreatDatabase as we failed to parse ThreatDatabase on disk with error
-    Wait Until AV Plugin Log Contains    Initialised Threat Database
+    ${avMark} =  Get AV Log Mark
+    Wait For Log Contains From Mark    ${avMark}     Resetting ThreatDatabase as we failed to parse ThreatDatabase on disk with error
+    Wait For Log Contains From Mark    ${avMark}     Initialised Threat Database
 
     Check AV Telemetry        corrupt-threat-database    ${True}
 
@@ -215,9 +216,10 @@ SafeStore Telemetry Is Incremented When Database Is Deleted
     Mark Expected Error In Log    ${SAFESTORE_LOG_PATH}    Quarantine Manager failed to initialise
 
 SafeStore Telemetry Is Incremented When File Is Successfully Restored
-    Install With Base SDDS
+    ${avMark} =  Get AV Log Mark
+    ${safeStoreMark} =  Mark Log Size  ${SAFESTORE_LOG_PATH}
     Send Flags Policy To Base  flags_policy/flags_safestore_quarantine_ml_enabled.json
-    Wait Until AV Plugin Log Contains   SafeStore flag set. Setting SafeStore to enabled.   timeout=60
+    Wait For Log Contains From Mark    ${avMark}    SafeStore flag set. Setting SafeStore to enabled.   timeout=60
     Wait Until SafeStore running
     Check SafeStore Telemetry    successful-file-restorations   ${0}
 
@@ -230,21 +232,22 @@ SafeStore Telemetry Is Incremented When File Is Successfully Restored
 
     # Scan threat
     Run Process    ${AVSCANNER}    ${NORMAL_DIRECTORY}/MLengHighScore.exe
-    Wait Until SafeStore Log Contains   Quarantined ${NORMAL_DIRECTORY}/MLengHighScore.exe successfully
+    Wait For Log Contains From Mark    ${safeStoreMark}    Quarantined ${NORMAL_DIRECTORY}/MLengHighScore.exe successfully
     File Should Not Exist  ${threat_file}
 
     # Allow-list the file
     Send CORC Policy To Base  corc_policy.xml
-    Wait Until AV Plugin Log Contains    Added SHA256 to allow list: c88e20178a82af37a51b030cb3797ed144126cad09193a6c8c7e95957cf9c3f9
-    Wait Until SafeStore Log Contains   SafeStore Database Rescan request received
+    Wait For Log Contains From Mark    ${avMark}    Added SHA256 to allow list: c88e20178a82af37a51b030cb3797ed144126cad09193a6c8c7e95957cf9c3f9
+    Wait For Log Contains From Mark    ${safeStoreMark}    SafeStore Database Rescan request received
 
-    Wait Until SafeStore Log Contains    Reporting successful restoration of ${threat_file}    timeout=60
+    Wait For Log Contains From Mark    ${safeStoreMark}     Reporting successful restoration of ${threat_file}    timeout=60
     Check SafeStore Telemetry    successful-file-restorations   ${1}
 
 SafeStore Telemetry Is Incremented When File Restoration Fails
-    Install With Base SDDS
+    ${avMark} =  Get AV Log Mark
+    ${safeStoreMark} =  Mark Log Size  ${SAFESTORE_LOG_PATH}
     Send Flags Policy To Base  flags_policy/flags_safestore_quarantine_ml_enabled.json
-    Wait Until AV Plugin Log Contains   SafeStore flag set. Setting SafeStore to enabled.   timeout=60
+    Wait For Log Contains From Mark    ${avMark}    SafeStore flag set. Setting SafeStore to enabled.   timeout=60
     Wait Until SafeStore running
     Check SafeStore Telemetry    failed-file-restorations   ${0}
 
@@ -257,7 +260,7 @@ SafeStore Telemetry Is Incremented When File Restoration Fails
 
     # Scan threat
     Run Process    ${AVSCANNER}    ${NORMAL_DIRECTORY}/MLengHighScore.exe
-    Wait Until SafeStore Log Contains   Quarantined ${NORMAL_DIRECTORY}/MLengHighScore.exe successfully
+    Wait For Log Contains From Mark    ${safeStoreMark}    Quarantined ${NORMAL_DIRECTORY}/MLengHighScore.exe successfully
     File Should Not Exist  ${threat_file}
 
     Remove Directory    ${NORMAL_DIRECTORY}
@@ -265,10 +268,10 @@ SafeStore Telemetry Is Incremented When File Restoration Fails
 
     # Allow-list the file
     Send CORC Policy To Base  corc_policy.xml
-    Wait Until AV Plugin Log Contains    Added SHA256 to allow list: c88e20178a82af37a51b030cb3797ed144126cad09193a6c8c7e95957cf9c3f9
-    Wait Until SafeStore Log Contains   SafeStore Database Rescan request received
+    Wait For Log Contains From Mark    ${avMark}    Added SHA256 to allow list: c88e20178a82af37a51b030cb3797ed144126cad09193a6c8c7e95957cf9c3f9
+    Wait For Log Contains From Mark    ${safeStoreMark}    SafeStore Database Rescan request received
 
-    Wait Until SafeStore Log Contains    Unable to restore clean file: ${threat_file}    timeout=60
+    Wait For Log Contains From Mark    ${safeStoreMark}    Unable to restore clean file: ${threat_file}    timeout=60
     Check SafeStore Telemetry    failed-file-restorations   ${1}
 
     Mark Expected Error In Log    ${SAFESTORE_LOG_PATH}    Got RESTORE_FAILED when trying to restore an object
