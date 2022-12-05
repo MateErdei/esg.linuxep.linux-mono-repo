@@ -3,7 +3,6 @@
 #include "RestoreReportingClient.h"
 
 #include "common/ApplicationPaths.h"
-#include "common/FDUtils.h"
 #include "common/StringUtils.h"
 #include "unixsocket/Logger.h"
 

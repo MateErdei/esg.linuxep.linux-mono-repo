@@ -4,12 +4,14 @@
 
 #include "ThreatDetected.capnp.h"
 
+#include "safestore/SafeStoreTelemetryConsts.h"
 #include "scan_messages/QuarantineResponse.h"
 #include "scan_messages/ThreatDetected.h"
 #include "Logger.h"
 #include "unixsocket/SocketUtils.h"
 
-#include "common/FDUtils.h"
+#include "Common/TelemetryHelperImpl/TelemetryHelper.h"
+#include "common/SaferStrerror.h"
 #include "common/StringUtils.h"
 
 #include <capnp/serialize.h>
@@ -19,15 +21,16 @@
 #include <stdexcept>
 #include <utility>
 
-#include <sys/socket.h>
+#include <poll.h>
 #include <unistd.h>
 
 using namespace unixsocket;
 
 SafeStoreServerConnectionThread::SafeStoreServerConnectionThread(
     datatypes::AutoFd& fd,
-    std::shared_ptr<safestore::QuarantineManager::IQuarantineManager> quarantineManager) :
-    m_fd(std::move(fd)), m_quarantineManager(std::move(quarantineManager))
+    std::shared_ptr<safestore::QuarantineManager::IQuarantineManager> quarantineManager,
+    datatypes::ISystemCallWrapperSharedPtr sysCalls) :
+    m_fd(std::move(fd)), m_quarantineManager(std::move(quarantineManager)), m_sysCalls(sysCalls)
 {
     if (m_fd < 0)
     {
@@ -111,40 +114,48 @@ void SafeStoreServerConnectionThread::inner_run()
     uint32_t buffer_size = 512;
     auto proto_buffer = kj::heapArray<capnp::word>(buffer_size);
 
-    int exitFD = m_notifyPipe.readFd();
-
-    fd_set readFDs;
-    FD_ZERO(&readFDs);
-    int max = -1;
-    max = FDUtils::addFD(&readFDs, exitFD, max);
-    max = FDUtils::addFD(&readFDs, socket_fd, max);
+    struct pollfd fds[]
+    {
+        { .fd = socket_fd.get(), .events = POLLIN, .revents = 0 }, // socket FD
+            { .fd = m_notifyPipe.readFd(), .events = POLLIN, .revents = 0 },
+    };
     bool loggedLengthOfZero = false;
 
     while (true)
     {
-        fd_set tempRead = readFDs;
-
-        int activity = ::pselect(max + 1, &tempRead, nullptr, nullptr, nullptr, nullptr);
-
-        if (activity < 0)
+        auto ret = m_sysCalls->ppoll(fds, std::size(fds), nullptr, nullptr);
+        if (ret < 0)
         {
-            LOGERROR("Closing SafeStore connection thread, error: " << errno);
+            if (errno == EINTR)
+            {
+                continue;
+            }
+
+            LOGFATAL("Error from ppoll: " << common::safer_strerror(errno));
+            break;
+        }
+        assert(ret > 0);
+
+        if ((fds[1].revents & POLLERR) != 0)
+        {
+            LOGERROR("Closing SafeStore connection thread, error from notify pipe");
             break;
         }
 
-        if (FDUtils::fd_isset(exitFD, &tempRead))
+        if ((fds[0].revents & POLLERR) != 0)
+        {
+            LOGERROR("Closing SafeStore connection thread, error from socket");
+            break;
+        }
+
+        if ((fds[1].revents & POLLIN) != 0)
         {
             LOGSUPPORT("Closing SafeStore connection thread");
             break;
         }
-        else
-        // if (FDUtils::fd_isset(socket_fd, &tempRead))
-        {
-            // If shouldn't be required - we have no timeout, and only 2 FDs in the pselect.
-            // exitFD will cause break
-            // therefore "else" must be fd_isset(socket_fd, &tempRead)
-            assert(FDUtils::fd_isset(socket_fd, &tempRead));
 
+        if ((fds[0].revents & POLLIN) != 0)
+        {
             // read length
             int32_t length = unixsocket::readLength(socket_fd);
             if (length == -2)
@@ -229,6 +240,32 @@ void SafeStoreServerConnectionThread::inner_run()
                 threatDetected.threatName,
                 threatDetected.sha256,
                 std::move(threatDetected.autoFd));
+
+            switch (quarantineResult)
+            {
+                case common::CentralEnums::QuarantineResult::SUCCESS:
+                {
+                    Common::Telemetry::TelemetryHelper::getInstance().increment(
+                        safestore::telemetrySafeStoreQuarantineSuccess, 1ul);
+                    break;
+                }
+                case common::CentralEnums::QuarantineResult::NOT_FOUND:
+                {
+                    Common::Telemetry::TelemetryHelper::getInstance().increment(
+                        safestore::telemetrySafeStoreQuarantineFailure, 1ul);
+                    break;
+                }
+                case common::CentralEnums::QuarantineResult::FAILED_TO_DELETE_FILE:
+                {
+                    Common::Telemetry::TelemetryHelper::getInstance().increment(
+                        safestore::telemetrySafeStoreUnlinkFailure, 1ul);
+                    break;
+                }
+                default:
+                {
+                    break;
+                }
+            }
 
             std::string serialised_result = getResponse(quarantineResult);
 

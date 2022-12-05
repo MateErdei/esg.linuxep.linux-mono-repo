@@ -10,8 +10,6 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "unixsocket/SocketUtils.h"
 
-#include <common/FDUtils.h>
-
 #include <cassert>
 #include <utility>
 

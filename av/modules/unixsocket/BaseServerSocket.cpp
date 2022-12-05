@@ -5,7 +5,6 @@
 #include "Logger.h"
 
 #include "Common/FileSystem/IFilePermissions.h"
-#include "common/FDUtils.h"
 #include "common/SaferStrerror.h"
 
 #include <stdexcept>

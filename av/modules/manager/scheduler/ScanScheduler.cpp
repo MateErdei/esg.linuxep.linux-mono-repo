@@ -6,7 +6,6 @@
 #include "ScanRunner.h"
 #include "ScanSerialiser.h"
 
-#include <common/FDUtils.h>
 #include <common/SaferStrerror.h>
 
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>

@@ -10,7 +10,6 @@
 // Component
 #include "sophos_on_access_process/onaccessimpl/ScanRequestHandler.h"
 // Product
-#include "common/FDUtils.h"
 #include "common/PidLockFile.h"
 #include "common/PluginUtils.h"
 #include "common/SaferStrerror.h"

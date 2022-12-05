@@ -6,7 +6,6 @@
 #include "unixsocket/SocketUtils.h"
 #include "common/CentralEnums.h"
 #include "common/SaferStrerror.h"
-#include "common/FDUtils.h"
 
 #include <capnp/serialize.h>
 

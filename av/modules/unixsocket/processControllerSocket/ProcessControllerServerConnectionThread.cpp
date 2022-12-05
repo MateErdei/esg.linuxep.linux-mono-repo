@@ -8,7 +8,6 @@
 #include "unixsocket/SocketUtils.h"
 
 #include <capnp/serialize.h>
-#include <common/FDUtils.h>
 #include <common/SaferStrerror.h>
 #include <scan_messages/ProcessControlDeserialiser.h>
 

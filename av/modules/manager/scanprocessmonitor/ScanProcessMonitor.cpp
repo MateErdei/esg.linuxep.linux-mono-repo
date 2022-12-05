@@ -4,7 +4,6 @@
 
 #include "Logger.h"
 
-#include "common/FDUtils.h"
 #include "common/PluginUtils.h"
 #include "common/SaferStrerror.h"
 #include "common/ThreadRunner.h"
@@ -14,7 +13,6 @@
 #include <utility>
 
 #include <poll.h>
-#include <sys/select.h>
 #include <sys/stat.h>
 
 

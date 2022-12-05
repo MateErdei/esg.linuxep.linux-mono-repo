@@ -5,8 +5,6 @@
 #include "unixsocket/Logger.h"
 #include "unixsocket/SocketUtils.h"
 
-#include "common/FDUtils.h"
-
 #include <cassert>
 #include <sstream>
 #include <string>

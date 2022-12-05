@@ -5,7 +5,6 @@
 #include "ScanRequest.capnp.h"
 #include "ThreatDetectedMessageUtils.h"
 
-#include "common/FDUtils.h"
 #include "common/FailedToInitializeSusiException.h"
 #include "common/SaferStrerror.h"
 #include "common/ShuttingDownException.h"

@@ -9,7 +9,6 @@
 
 #include "common/ApplicationPaths.h"
 #include "common/Define.h"
-#include "common/FDUtils.h"
 #include "common/SaferStrerror.h"
 #include "common/ThreatDetector/SusiSettings.h"
 #include "common/signals/SigUSR1Monitor.h"

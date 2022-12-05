@@ -12,7 +12,6 @@ Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 #include "Common/Logging/ConsoleLoggingSetup.h"
 
-#include <common/FDUtils.h>
 #include <unixsocket/SocketUtils.h>
 
 #include <fstream>

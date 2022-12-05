@@ -6,7 +6,6 @@
 #include "unixsocket/SocketUtils.h"
 
 #include "common/SaferStrerror.h"
-#include "common/FDUtils.h"
 #include <poll.h>
 #include <cassert>
 #include <stdexcept>
