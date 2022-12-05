@@ -261,6 +261,7 @@ SafeStore Telemetry Is Incremented When File Restoration Fails
     File Should Not Exist  ${threat_file}
 
     Remove Directory    ${NORMAL_DIRECTORY}
+    Register Cleanup    Create Directory  ${NORMAL_DIRECTORY}/
 
     # Allow-list the file
     Send CORC Policy To Base  corc_policy.xml
