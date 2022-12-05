@@ -43,7 +43,7 @@ def run_safestore_tool_with_args(*args):
                         that event.
     """
     env = os.environ.copy()
-    env["LIBRARY_PATH"] = os.path.join(SOPHOS_INSTALL, "base", "lib64")
+    env["LD_LIBRARY_PATH"] = "/opt/sophos-spl/base/lib64"
     password = get_safestore_db_password_as_hexadecimal()
     tool_path = os.path.join(get_variable("AV_TEST_TOOLS", "/opt/test/inputs/tap_test_output"), "ssr")
     cmd = [tool_path, f"-dbpath={SAFESTORE_DB_PATH}", f"-pass={password}", *args]
