@@ -1017,6 +1017,7 @@ Installer Test Setup
     Register On Fail  dump log  ${ON_ACCESS_LOG_PATH}
     Register On Fail  dump log  ${SAFESTORE_LOG_PATH}
     Register On Fail  dump log  ${SOPHOS_INSTALL}/logs/base/watchdog.log
+    Register On Fail  dump log  ${AV_INSTALL_LOG}
 
     Require Plugin Installed and Running
     Mark AV Log

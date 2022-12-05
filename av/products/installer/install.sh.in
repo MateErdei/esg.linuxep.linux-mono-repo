@@ -372,7 +372,8 @@ function restore_safestore_databases()
     then
       echo "SafeStore database already exists so will not attempt to restore: $DATABASE_TO_RESTORE"
     else
-      mv -v "$DATABASE_TO_RESTORE" "${SAFESTORE_DB_PATH}" || failed $EXIT_FAIL_RESTORE_SAFESTORE_DB "Failed to restore old SafeStore database: $DATABASE_TO_RESTORE"
+      mkdir -p ${SAFESTORE}
+      mv -v "$DATABASE_TO_RESTORE" "${SAFESTORE_DB_PATH}" || failure $EXIT_FAIL_RESTORE_SAFESTORE_DB "Failed to restore old SafeStore database: $DATABASE_TO_RESTORE"
       if [[ -z "$(ls -A $SAFESTORE_RESTORE_DIR)" ]]
       then
          rm -rf "$SAFESTORE_RESTORE_DIR"
@@ -441,7 +442,6 @@ function install_product()
     ln -snf "${PLUGIN_INSTALL}/VERSION.ini" "${SOPHOS_INSTALL}/base/update/var/installedproductversions/${PRODUCT_LINE_ID}.ini"
 
     restore_safestore_databases
-
     apply_permissions
 
     ## Create logging symlinks for sophos_threat_detector
