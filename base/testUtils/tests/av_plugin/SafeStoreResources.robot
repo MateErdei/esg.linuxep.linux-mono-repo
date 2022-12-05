@@ -122,6 +122,6 @@ Remove All But One SafeStore Backup And Return Backup
 
 Get Contents of SafeStore Database
     ${dbPassword} =    Read Hexadecimal File    ${SAFESTORE_DB_PASSWORD_PATH}
-    ${rc}   ${dbContent} =    Run And Return Rc And Output    LIBRARY_PATH=/opt/sophos-spl/base/lib64 bash ${SAFESTORE_TOOL}} -dbpath=${SAFESTORE_DB_PATH} -pass=${dbPassword} -l
+    ${rc}   ${dbContent} =    Run And Return Rc And Output    LIBRARY_PATH=/opt/sophos-spl/base/lib64 bash ${SAFESTORE_TOOL} -dbpath=${SAFESTORE_DB_PATH} -pass=${dbPassword} -l
     Should Be Equal As Integers    ${rc}    ${0}
     [Return]    ${dbContent}
