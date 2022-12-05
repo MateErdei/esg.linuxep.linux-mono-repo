@@ -73,7 +73,6 @@ Global Setup Tasks
     ${placeholder}=  PathManager.get_libs_path
     Set Global Variable  ${LIBS_DIRECTORY}  ${placeholder}
 
-    Set Global Variable  ${AV_TEST_TOOLS}         ${SYSTEMPRODUCT_TEST_INPUT}/tap_test_output
     ${placeholder} =  Get Environment Variable  SSPL_EVENT_JOURNALER_PLUGIN_MANUAL_TOOLS  default=${SYSTEMPRODUCT_TEST_INPUT}/sspl-plugin-event-journaler-manual-tools
     Set Global Variable  ${EVENT_JOURNALER_TOOLS}  ${placeholder}
     ${placeholder} =  Get Environment Variable  SSPL_EDR_PLUGIN_MANUAL_TOOLS  default=${SYSTEMPRODUCT_TEST_INPUT}/sspl-edr-plugin-manual-tools

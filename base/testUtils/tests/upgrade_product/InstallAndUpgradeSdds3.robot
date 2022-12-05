@@ -106,7 +106,7 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     Check SafeStore Installed Correctly
     ${safeStoreDbDirBeforeUpgrade} =    List Files In Directory    ${SAFESTORE_DB_DIR}
     ${safeStorePasswordBeforeUpgrade} =    Get File    ${SAFESTORE_DB_PASSWORD_PATH}
-    ${databaseContentBeforeUpgrade} =    Run Process    ${AV_TEST_TOOLS}/safestore_print_tool
+    ${databaseContentBeforeUpgrade} =    Get Contents of SafeStore Database
     Check Expected Versions Against Installed Versions    &{expectedDogfoodVersions}
 
     Stop Local SDDS3 Server
@@ -207,7 +207,7 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     Check Current Release With AV Installed Correctly
     ${safeStoreDbDirBeforeUpgrade} =    List Files In Directory    ${SAFESTORE_DB_DIR}
     ${safeStorePasswordBeforeUpgrade} =    Get File    ${SAFESTORE_DB_PASSWORD_PATH}
-    ${databaseContentBeforeUpgrade} =    Run Process    ${AV_TEST_TOOLS}/safestore_print_tool
+    ${databaseContentBeforeUpgrade} =    Get Contents of SafeStore Database
     Check Expected Versions Against Installed Versions    &{expectedVUTVersions}
 
     Directory Should Not Exist   ${SOPHOS_INSTALL}/logs/base/downgrade-backup

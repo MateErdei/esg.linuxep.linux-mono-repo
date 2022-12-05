@@ -22,6 +22,8 @@ ${SAFESTORE_DB_PASSWORD_PATH}       ${SAFESTORE_DB_DIR}/safestore.pw
 
 ${THREAT_DATABASE_PATH}             ${AV_PLUGIN_PATH}/var/persist-threatDatabase
 
+${SAFESTORE_TOOL}                   ${SYSTEMPRODUCT_TEST_INPUT}/safestore_tool/ssr
+
 *** Keywords ***
 Stop SafeStore
     ${result} =    Run Process    ${SOPHOS_INSTALL}/bin/wdctl    stop    safestore
@@ -101,9 +103,9 @@ Check SafeStore Database Has Not Changed
     Remove Values From List    ${oldDatabaseDirectory}    safestore.db-journal
     Should Be Equal    ${oldDatabaseDirectory}    ${currentDatabaseDirectory}
 
-    ${result} =    Run Process    ${AV_TEST_TOOLS}/safestore_print_tool
+    ${currentDatabaseContent} =    Get Contents of SafeStore Database
 
-    Should Be Equal As Strings    ${oldDatabaseContent.stdout}    ${result.stdout}
+    Should Be Equal As Strings    ${oldDatabaseContent}    ${currentDatabaseContent}
     Should Be Equal As Strings    ${oldPassword}    ${currentPassword}
 
 Remove All But One SafeStore Backup And Return Backup
@@ -117,3 +119,9 @@ Remove All But One SafeStore Backup And Return Backup
     END
 
     [Return]    ${AV_RESTORED_VAR_DIRECTORY}/${safeStoreDatabaseBackupDirs[0]}
+
+Get Contents of SafeStore Database
+    ${dbPassword} =    Read Hexadecimal File    ${SAFESTORE_DB_PASSWORD_PATH}
+    ${rc}   ${dbContent} =    Run And Return Rc And Output    LIBRARY_PATH=/opt/sophos-spl/base/lib64 bash ${SAFESTORE_TOOL}} -dbpath=${SAFESTORE_DB_PATH} -pass=${dbPassword} -l
+    Should Be Equal As Integers    ${rc}    ${0}
+    [Return]    ${dbContent}

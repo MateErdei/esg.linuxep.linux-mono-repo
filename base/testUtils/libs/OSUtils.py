@@ -606,3 +606,9 @@ def check_libs_for_consistent_gcc_version(directory):
     logger.info(f"All versions detected: {gcc_versions}")
     if len(gcc_versions) != 1:
         raise AssertionError( "Multiple GCC versions found across product libs")
+
+
+def read_hexadecimal_file(path):
+    with open(path, "r") as f:
+        hex_string = f.read()
+        return hex_string.encode('utf-8').hex()
