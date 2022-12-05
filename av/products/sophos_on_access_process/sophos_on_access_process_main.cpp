@@ -18,5 +18,6 @@ int main()
     fs::path pluginInstall = sophosInstall / "plugins" / PLUGIN_NAME;
     appConfig.setData("PLUGIN_INSTALL", pluginInstall);
 
-    return sophos_on_access_process::soapd_bootstrap::SoapdBootstrap::runSoapd();
+    auto sysCallWrapper = std::make_shared<datatypes::SystemCallWrapper>();
+    return sophos_on_access_process::soapd_bootstrap::SoapdBootstrap::runSoapd(sysCallWrapper);
 }

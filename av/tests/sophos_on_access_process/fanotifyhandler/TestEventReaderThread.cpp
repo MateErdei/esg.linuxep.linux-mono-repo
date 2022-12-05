@@ -60,6 +60,7 @@ namespace
         {
             return 0;
         }
+        void updateComplete() override {};
     };
 }
 
@@ -145,7 +146,7 @@ protected:
         return std::make_shared<EventReaderThread>(m_fakeFanotify, m_mockSysCallWrapper, m_pluginInstall, m_smallScanRequestQueue, m_telemetryUtility, logNotFull);
     }
 
-    std::shared_ptr<StrictMock<MockSystemCallWrapper>> m_mockSysCallWrapper;
+    std::shared_ptr<MockSystemCallWrapper> m_mockSysCallWrapper;
     ScanRequestQueueSharedPtr m_scanRequestQueue;
     ScanRequestQueueSharedPtr m_smallScanRequestQueue;
     OnAccessTelemetryUtilitySharedPtr m_telemetryUtility;

@@ -15,7 +15,7 @@
 
 namespace sophos_on_access_process::fanotifyhandler
 {
-    class FanotifyHandler : public IFanotifyHandler, public threat_scanner::IUpdateCompleteCallback
+    class FanotifyHandler : public IFanotifyHandler
     {
         public:
             explicit FanotifyHandler(datatypes::ISystemCallWrapperSharedPtr systemCallWrapper);

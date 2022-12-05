@@ -62,7 +62,7 @@ namespace
             m_fileSystem->removeFile(m_onAccessUnhealthyFlagFile);
         }
 
-        std::shared_ptr<StrictMock<MockSystemCallWrapper>> m_mockSysCallWrapper;
+        std::shared_ptr<MockSystemCallWrapper> m_mockSysCallWrapper;
         fs::path m_testDir;
         fs::path m_onAccessUnhealthyFlagFile;
         Common::FileSystem::IFileSystem* m_fileSystem = nullptr;

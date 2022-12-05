@@ -12,6 +12,7 @@
 #include <tuple>
 
 #include <fcntl.h>
+#include <sys/fanotify.h>
 
 using namespace sophos_on_access_process::fanotifyhandler;
 

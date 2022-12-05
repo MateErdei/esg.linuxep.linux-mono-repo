@@ -2,17 +2,17 @@
 
 #pragma once
 
+#include "sophos_threat_detector/threat_scanner/IUpdateCompleteCallback.h"
+
 #include <memory>
 #include <string>
 
-#include <sys/fanotify.h>
-
 namespace sophos_on_access_process::fanotifyhandler
 {
-    class IFanotifyHandler
+    class IFanotifyHandler : public threat_scanner::IUpdateCompleteCallback
     {
     public:
-        virtual ~IFanotifyHandler() = default;
+        ~IFanotifyHandler() override = default;
 
         [[nodiscard]] virtual int getFd() const = 0;
         [[nodiscard]] virtual int markMount(const std::string& path) const = 0;

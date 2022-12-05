@@ -27,5 +27,6 @@ namespace
         MOCK_METHOD(int, clearCachedFiles, (), (const, override));
         MOCK_METHOD(void, init, (), (override));
         MOCK_METHOD(void, close, (), (override));
+        MOCK_METHOD(void, updateComplete, (), (override));
     };
 }
