@@ -2,11 +2,10 @@
 
 #include "SafeStoreWrapperImpl.h"
 
-#include "common/ApplicationPaths.h"
 #include "safestore/Logger.h"
-#include "safestore/SafeStoreTelemetryConsts.h"
 
-#include "Common/TelemetryHelperImpl/TelemetryHelper.h"
+#include "common/ApplicationPaths.h"
+
 #include <Common/UtilityImpl/Uuid.h>
 
 #include <charconv>
