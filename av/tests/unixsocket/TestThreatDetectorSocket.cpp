@@ -2,9 +2,10 @@
 
 #include "UnixSocketMemoryAppenderUsingTests.h"
 
-
+#include "capnp/message.h"
 #include "datatypes/sophos_filesystem.h"
 #include "sophos_threat_detector/sophosthreatdetectorimpl/Reloader.h"
+#include "tests/common/MockScanner.h"
 #include "tests/common/TestFile.h"
 #include "tests/common/WaitForEvent.h"
 #include "unixsocket/SocketUtils.h"
@@ -36,28 +37,20 @@ namespace
             fs::current_path(fs::temp_directory_path());
             fs::remove_all(m_testDir);
         }
+        scan_messages::ScanRequest makeScanRequestObject(std::string path)
+        {
+            ::capnp::MallocMessageBuilder message;
+            Sophos::ssplav::FileScanRequest::Builder requestBuilder =
+                message.initRoot<Sophos::ssplav::FileScanRequest>();
+            requestBuilder.setPathname(path);
+            requestBuilder.setScanType(scan_messages::E_SCAN_TYPE_ON_DEMAND);
+            requestBuilder.setUserID("n/a");
 
+            Sophos::ssplav::FileScanRequest::Reader requestReader = requestBuilder;
+
+            return scan_messages::ScanRequest(requestReader);
+        }
         fs::path m_testDir;
-    };
-
-    class MockScanner : public threat_scanner::IThreatScanner
-    {
-    public:
-        MOCK_METHOD(scan_messages::ScanResponse, scan, (datatypes::AutoFd&, const std::string&, int64_t,
-            const std::string& userID));
-
-        MOCK_METHOD(std::string, susiErrorToReadableError, (const std::string& filePath, const std::string& susiError));
-    };
-    class MockScannerFactory : public threat_scanner::IThreatScannerFactory
-    {
-    public:
-        MOCK_METHOD(threat_scanner::IThreatScannerPtr, createScanner, (bool scanArchives, bool scanImages));
-
-        MOCK_METHOD(bool, update, ());
-        MOCK_METHOD(bool, reload, ());
-        MOCK_METHOD(void, shutdown, ());
-        MOCK_METHOD(bool, susiIsInitialized, ());
-        MOCK_METHOD(bool, updateSusiConfig, ());
     };
 }
 
@@ -134,8 +127,8 @@ TEST_F(TestThreatDetectorSocket, test_scan_threat) // NOLINT
 
     auto expected_response = scan_messages::ScanResponse();
     expected_response.addDetection("/tmp/eicar.com", "THREAT","");
-
-    EXPECT_CALL(*scanner, scan(_, THREAT_PATH, _, _))
+    scan_messages::ScanRequest request = makeScanRequestObject(THREAT_PATH);
+    EXPECT_CALL(*scanner, scan(_, Eq(std::ref(request))))
         .WillOnce(Return(expected_response));
     EXPECT_CALL(*scannerFactory, createScanner(false, false))
         .WillOnce(Return(ByMove(std::move(scanner))));
@@ -173,7 +166,9 @@ TEST_F(TestThreatDetectorSocket, test_scan_clean) // NOLINT
     auto expected_response = scan_messages::ScanResponse();
     expected_response.addDetection("/bin/bash", "","");
 
-    EXPECT_CALL(*scanner, scan(_, THREAT_PATH, _, _))
+
+    scan_messages::ScanRequest request = makeScanRequestObject(THREAT_PATH);
+    EXPECT_CALL(*scanner, scan(_, Eq(std::ref(request))))
         .WillOnce(Return(expected_response));
     EXPECT_CALL(*scannerFactory, createScanner(false, false))
         .WillOnce(Return(ByMove(std::move(scanner))));
@@ -205,7 +200,9 @@ TEST_F(TestThreatDetectorSocket, test_scan_twice) // NOLINT
     auto expected_response = scan_messages::ScanResponse();
     expected_response.addDetection("/bin/bash", "","");
 
-    EXPECT_CALL(*scanner, scan(_, THREAT_PATH, _, _))
+
+    scan_messages::ScanRequest request = makeScanRequestObject(THREAT_PATH);
+    EXPECT_CALL(*scanner, scan(_, Eq(std::ref(request))))
         .WillRepeatedly(Return(expected_response));
     EXPECT_CALL(*scannerFactory, createScanner(false, false))
         .WillOnce(Return(ByMove(std::move(scanner))));
@@ -241,7 +238,9 @@ TEST_F(TestThreatDetectorSocket, test_scan_throws)
 
     auto* scannerPtr = scanner.get();
 
-    EXPECT_CALL(*scanner, scan(_, THREAT_PATH, _, _))
+
+    scan_messages::ScanRequest request = makeScanRequestObject(THREAT_PATH);
+    EXPECT_CALL(*scanner, scan(_, Eq(std::ref(request))))
         .WillRepeatedly(Throw(std::runtime_error("Intentional throw")));
     EXPECT_CALL(*scannerFactory, createScanner(false, false))
         .WillOnce(Return(ByMove(std::move(scanner))))

@@ -47,6 +47,9 @@ namespace scan_messages
 
         void setQueueSizeAtTimeOfInsert(const size_t& queueSize) { m_queueSizeAtTimeOfInsert = queueSize; }
 
+        void setPid(const std::int64_t pid) { m_pid = pid; }
+        void setExecutablePath(const std::string& path) { m_executablePath = path; }
+
         /*
          * fd is donated in this call
          */
@@ -54,6 +57,7 @@ namespace scan_messages
 
         [[nodiscard]] std::string serialise() const;
         [[nodiscard]] std::string getPath() const { return m_path; };
+        [[nodiscard]] std::string getUserId() const { return m_userID; };
         [[nodiscard]] int getFd() const { return m_autoFd.fd(); }
         [[nodiscard]] E_SCAN_TYPE getScanType() const { return m_scanType; }
         [[nodiscard]] std::chrono::steady_clock::time_point getCreationTime() const { return m_creationTime; }
@@ -71,6 +75,9 @@ namespace scan_messages
 
         bool m_scanInsideArchives = false;
         bool m_scanInsideImages = false;
+
+        std::string m_executablePath;
+        std::int64_t m_pid = -1;
 
         //Not serialised
        datatypes::AutoFd m_autoFd;

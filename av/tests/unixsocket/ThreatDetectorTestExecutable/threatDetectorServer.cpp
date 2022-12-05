@@ -31,15 +31,15 @@ namespace
     class FakeScanner : public threat_scanner::IThreatScanner
     {
         scan_messages::ScanResponse scan(
-                datatypes::AutoFd& fd,
-                const std::string& file_path,
-                int64_t scanType,
-                const std::string& userID) override
+            datatypes::AutoFd& fd,
+            const scan_messages::ScanRequest& info) override
         {
             scan_messages::ScanResponse response;
             std::stringstream fullResult;
-            fullResult << "fd=" << fd << ", scanType=" << scanType << ", userID=" << userID;
-            response.addDetection(file_path, "fuzz-test","");
+            fullResult << "fd=" << fd << ", scanType=" << info.getScanType()
+                       << ", pid=" << info.getPid() << ", exePath="
+                       << info.getExecutablePath() << "usserid=" << info.getUserId();
+            response.addDetection(info.getPath(), "fuzz-test","");
             return response;
         }
 

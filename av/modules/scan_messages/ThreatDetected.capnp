@@ -21,6 +21,8 @@ struct ThreatDetected {
     threatId                        @9  :Text;
     isRemote                        @10 :Bool;
     reportSource                    @11 :Int64;
+    pid                             @12 :Int64 = -1;
+    executablePath                  @13 :Text;
 }
 
 

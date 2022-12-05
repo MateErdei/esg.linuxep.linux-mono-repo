@@ -284,7 +284,9 @@ void unixsocket::ScanningServerConnectionThread::inner_run()
                 }
 
                 // The User ID could be spoofed by an untrusted client. Until this is made secure, hardcode it to "n/a"
-                result = scanner->scan(file_fd, requestReader->getPath(), requestReader->getScanType(), "n/a");
+                requestReader->setUserID("n/a");
+                result = scanner->scan(
+                    file_fd, *requestReader);
             }
             catch (FailedToInitializeSusiException&)
             {

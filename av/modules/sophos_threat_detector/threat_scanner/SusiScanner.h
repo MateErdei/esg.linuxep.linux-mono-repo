@@ -8,6 +8,7 @@
 #include "IUnitScanner.h"
 
 #include <scan_messages/ScanResponse.h>
+#include "scan_messages/ScanRequest.h"
 
 namespace threat_scanner
 {
@@ -26,9 +27,7 @@ namespace threat_scanner
 
         scan_messages::ScanResponse scan(
             datatypes::AutoFd& fd,
-            const std::string& file_path,
-            int64_t scanType,
-            const std::string& userID) override;
+            const scan_messages::ScanRequest& info) override;
 
     private:
         std::unique_ptr<IUnitScanner> m_unitScanner;

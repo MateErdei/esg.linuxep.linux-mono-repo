@@ -53,7 +53,32 @@ TEST_F(TestThreatDetectedMessages, CreateThreatDetected)
     Sophos::ssplav::ThreatDetected::Reader deSerialisedData = messageInput.getRoot<Sophos::ssplav::ThreatDetected>();
 
     ThreatDetected deserialisedThreatDetected(deSerialisedData);
+
     EXPECT_EQ(deserialisedThreatDetected, threatDetected);
+    EXPECT_EQ(-1, threatDetected.pid);
+    EXPECT_EQ("", threatDetected.executablePath);
+    EXPECT_EQ(-1, deserialisedThreatDetected.pid);
+    EXPECT_EQ("", deserialisedThreatDetected.executablePath);
+}
+TEST_F(TestThreatDetectedMessages, CreateThreatDetectedSetOnAcesssValues)
+{
+    ThreatDetected threatDetected = createThreatDetected(m_threatName, m_threatId);
+    threatDetected.pid = 100;
+    threatDetected.executablePath = "/random/path";
+    std::string dataAsString = threatDetected.serialise();
+
+    const kj::ArrayPtr<const capnp::word> view(
+        reinterpret_cast<const capnp::word*>(&(*std::begin(dataAsString))),
+        reinterpret_cast<const capnp::word*>(&(*std::end(dataAsString))));
+
+    capnp::FlatArrayMessageReader messageInput(view);
+    Sophos::ssplav::ThreatDetected::Reader deSerialisedData = messageInput.getRoot<Sophos::ssplav::ThreatDetected>();
+
+    ThreatDetected deserialisedThreatDetected(deSerialisedData);
+
+    EXPECT_EQ(deserialisedThreatDetected, threatDetected);
+    EXPECT_EQ(100, deserialisedThreatDetected.pid);
+    EXPECT_EQ("/random/path", deserialisedThreatDetected.executablePath);
 }
 
 TEST_F(TestThreatDetectedMessages, CreateThreatDetected_emptyThreatName)

@@ -62,6 +62,7 @@ namespace sophos_on_access_process::onaccessimpl
             try
             {
                 scan_messages::ScanResponse response = attemptScan(request);
+
                 if (m_reconnectAttempts > 0)
                 {
                     checkIfScanAborted();

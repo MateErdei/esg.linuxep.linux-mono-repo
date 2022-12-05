@@ -87,6 +87,9 @@ namespace scan_messages
         bool isRemote;
         common::CentralEnums::ReportSource reportSource;
 
+        std::int64_t pid =-1;
+        std::string executablePath;
+
         // Not serialised, sent over socket using send_fd
         datatypes::AutoFd autoFd;
     };

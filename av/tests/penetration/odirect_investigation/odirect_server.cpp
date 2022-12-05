@@ -27,20 +27,18 @@ namespace
     {
         scan_messages::ScanResponse scan(
             datatypes::AutoFd& fd,
-            const std::string& file_path,
-            int64_t /*scanType*/,
-            const std::string& /*userID*/) override
+            const scan_messages::ScanRequest& info ) override
         {
             for (int i=0; i<1000; i++)
             {
                 unsigned oldflags = ::fcntl(fd.get(), F_GETFL, 0);
                 if ((oldflags & O_DIRECT) > 0)
                 {
-                    PRINT(file_path << " is O_DIRECT");
+                    PRINT(info.getPath() << " is O_DIRECT");
                 }
                 else
                 {
-                    PRINT(file_path << " is NOT O_DIRECT");
+                    PRINT(info.getPath() << " is NOT O_DIRECT");
                 }
                 std::this_thread::sleep_for(std::chrono::seconds(1));
             }

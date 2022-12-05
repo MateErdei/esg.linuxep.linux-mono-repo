@@ -470,7 +470,8 @@ SafeStore Quarantines File With Same Path And Sha Again And Discards The Previou
     Wait For Log Contains From Mark  ${safestore_mark}  Threat ID: e52cf957-a0dc-5b12-bad2-561197a5cae4
     Wait For Log Contains From Mark  ${safestore_mark}  Quarantined ${SCAN_DIRECTORY}/eicar.com successfully
     File Should Not Exist   ${SCAN_DIRECTORY}/eicar.com
-
+    Wait For Log Contains From Mark  ${av_mark}  Quarantine succeeded
+    ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
     ${safestore_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
     Check avscanner can detect eicar
     Wait For Log Contains From Mark  ${safestore_mark}  Threat ID: e52cf957-a0dc-5b12-bad2-561197a5cae4
@@ -478,6 +479,7 @@ SafeStore Quarantines File With Same Path And Sha Again And Discards The Previou
     Wait For Log Contains From Mark  ${safestore_mark}  ${SCAN_DIRECTORY}/eicar.com has been quarantined before
     Wait For Log Contains From Mark  ${safestore_mark}  Removing object
     File Should Not Exist   ${SCAN_DIRECTORY}/eicar.com
+    Wait For Log Contains From Mark  ${av_mark}  Quarantine succeeded
 
     # Now try a different path
     ${av_mark} =  mark_log_size  ${AV_LOG_PATH}

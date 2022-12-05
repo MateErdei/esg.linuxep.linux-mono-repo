@@ -61,6 +61,8 @@ ThreatDetected::ThreatDetected(Sophos::ssplav::ThreatDetected::Reader& reader) :
         static_cast<ReportSource>(reader.getReportSource()),
         datatypes::AutoFd())
 {
+    pid = reader.getPid();
+    executablePath = reader.getExecutablePath();
 }
 
 std::string ThreatDetected::serialise() const
@@ -82,6 +84,8 @@ std::string ThreatDetected::serialise() const
     threatDetectedBuilder.setThreatId(threatId);
     threatDetectedBuilder.setIsRemote(isRemote);
     threatDetectedBuilder.setReportSource(static_cast<int>(reportSource));
+    threatDetectedBuilder.setPid(pid);
+    threatDetectedBuilder.setExecutablePath(executablePath);
 
     if (filePath.empty())
     {
@@ -123,7 +127,9 @@ bool ThreatDetected::operator==(const ThreatDetected& other) const
            sha256 == other.sha256 &&
            threatId == other.threatId &&
            isRemote == other.isRemote &&
-           reportSource == other.reportSource;
+           reportSource == other.reportSource &&
+           pid == other.pid &&
+           executablePath == other.executablePath;
            // autoFd is not checked because two real autoFds should never be equal
     // clang-format on
 }

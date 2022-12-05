@@ -13,7 +13,9 @@ Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 #include "datatypes/sophos_filesystem.h"
 #include "datatypes/SystemCallWrapper.h"
+#include "scan_messages/ScanRequest.h"
 #include "tests/common/MemoryAppender.h"
+#include "tests/common/MockScanner.h"
 #include "tests/common/TestFile.h"
 #include "tests/datatypes/MockSysCalls.h"
 #include <capnp/serialize.h>
@@ -34,27 +36,6 @@ namespace fs = sophos_filesystem;
 
 namespace
 {
-
-    class MockScanner : public threat_scanner::IThreatScanner
-    {
-    public:
-        MOCK_METHOD4(scan, scan_messages::ScanResponse(datatypes::AutoFd&, const std::string&, int64_t,
-            const std::string& userID));
-
-        MOCK_METHOD2(susiErrorToReadableError, std::string(const std::string& filePath, const std::string& susiError));
-    };
-
-    class MockScannerFactory : public threat_scanner::IThreatScannerFactory
-    {
-    public:
-        MOCK_METHOD2(createScanner, threat_scanner::IThreatScannerPtr(bool scanArchives, bool scanImages));
-
-        MOCK_METHOD0(update, bool());
-        MOCK_METHOD0(reload, bool());
-        MOCK_METHOD0(shutdown, void());
-        MOCK_METHOD0(susiIsInitialized, bool());
-        MOCK_METHOD(bool, updateSusiConfig, ());
-    };
 
     class TestScanningServerConnectionThread : public UnixSocketMemoryAppenderUsingTests
     {
@@ -416,7 +397,18 @@ TEST_F(TestScanningServerConnectionThreadWithSocketPair, send_fd) // NOLINT
     auto expected_response = scan_messages::ScanResponse();
     expected_response.addDetection("/tmp/eicar.com", "THREAT","");
 
-    EXPECT_CALL(*scanner, scan(_, "/file/to/scan", _, _)).WillOnce(Return(expected_response));
+    ::capnp::MallocMessageBuilder message;
+    Sophos::ssplav::FileScanRequest::Builder requestBuilder =
+        message.initRoot<Sophos::ssplav::FileScanRequest>();
+    requestBuilder.setPathname("/file/to/scan");
+    requestBuilder.setScanType(scan_messages::E_SCAN_TYPE_ON_DEMAND);
+    requestBuilder.setUserID("n/a");
+
+
+    Sophos::ssplav::FileScanRequest::Reader requestReader = requestBuilder;
+
+    scan_messages::ScanRequest request = scan_messages::ScanRequest(requestReader);
+    EXPECT_CALL(*scanner, scan(_, Eq(std::ref(request)))).WillOnce(Return(expected_response));
     EXPECT_CALL(*scannerFactory, createScanner(false, false)).WillOnce(Return(ByMove(std::move(scanner))));
 
     ScanningServerConnectionThread connectionThread(m_serverFd, scannerFactory, m_sysCalls);

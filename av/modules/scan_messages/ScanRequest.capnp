@@ -15,4 +15,6 @@ struct FileScanRequest {
     scanType                @2 :Int64;
     userID                  @3 :Text;
     scanInsideImages        @4 :Bool;
+    pid                     @5 :Int64 = -1;
+    executablePath          @6 :Text;
 }

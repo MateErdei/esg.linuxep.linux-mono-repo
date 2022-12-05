@@ -16,8 +16,10 @@ TEST(TestScanMessages, CreateScanRequestSerialisation)
 
     requestBuilder.setPathname("/etc/fstab");
     requestBuilder.setScanInsideArchives(true);
-    requestBuilder.setScanType(scan_messages::E_SCAN_TYPE::E_SCAN_TYPE_ON_DEMAND);
+    requestBuilder.setScanType(scan_messages::E_SCAN_TYPE::E_SCAN_TYPE_ON_ACCESS);
     requestBuilder.setUserID("sophos-spl");
+    requestBuilder.setPid(3);
+    requestBuilder.setExecutablePath("/tmp/testpath");
 
     // Convert to byte string
     kj::Array<capnp::word> dataArray = capnp::messageToFlatArray(message);
@@ -34,11 +36,80 @@ TEST(TestScanMessages, CreateScanRequestSerialisation)
             messageInput.getRoot<Sophos::ssplav::FileScanRequest>();
 
     EXPECT_EQ(requestReader.getPathname(), "/etc/fstab");
-    EXPECT_EQ(requestReader.getScanType(), scan_messages::E_SCAN_TYPE::E_SCAN_TYPE_ON_DEMAND);
+    EXPECT_EQ(requestReader.getScanType(), scan_messages::E_SCAN_TYPE::E_SCAN_TYPE_ON_ACCESS);
     EXPECT_EQ(requestReader.getUserID(), "sophos-spl");
+    EXPECT_EQ(requestReader.getPid(), 3);
+    EXPECT_EQ(requestReader.getExecutablePath(), "/tmp/testpath");
     EXPECT_TRUE(requestReader.getScanInsideArchives());
 }
 
+TEST(TestScanMessages, CreateScanRequestSerialisationOnDemandHasCorrectDefaultValues)
+{
+    ::capnp::MallocMessageBuilder message;
+    Sophos::ssplav::FileScanRequest::Builder requestBuilder =
+        message.initRoot<Sophos::ssplav::FileScanRequest>();
+
+    requestBuilder.setPathname("/etc/fstab");
+    requestBuilder.setScanInsideArchives(true);
+    requestBuilder.setScanType(scan_messages::E_SCAN_TYPE::E_SCAN_TYPE_ON_DEMAND);
+    requestBuilder.setUserID("sophos-spl");
+
+    EXPECT_EQ(requestBuilder.getPid(), -1);
+    // Convert to byte string
+    kj::Array<capnp::word> dataArray = capnp::messageToFlatArray(message);
+    kj::ArrayPtr<kj::byte> bytes = dataArray.asBytes();
+    std::string dataAsString(bytes.begin(), bytes.end());
+
+
+    const kj::ArrayPtr<const capnp::word> view(
+        reinterpret_cast<const capnp::word*>(&(*std::begin(dataAsString))),
+        reinterpret_cast<const capnp::word*>(&(*std::end(dataAsString))));
+
+    capnp::FlatArrayMessageReader messageInput(view);
+    Sophos::ssplav::FileScanRequest::Reader requestReader =
+        messageInput.getRoot<Sophos::ssplav::FileScanRequest>();
+
+    EXPECT_EQ(requestReader.getPathname(), "/etc/fstab");
+    EXPECT_EQ(requestReader.getScanType(), scan_messages::E_SCAN_TYPE::E_SCAN_TYPE_ON_DEMAND);
+    EXPECT_EQ(requestReader.getUserID(), "sophos-spl");
+    EXPECT_EQ(requestReader.getPid(), -1);
+    EXPECT_EQ(requestReader.getExecutablePath(), "");
+    EXPECT_TRUE(requestReader.getScanInsideArchives());
+}
+
+TEST(TestScanMessages, CreateScanRequestSerialisationSetsMinusvalueCorrectlyForPid)
+{
+    ::capnp::MallocMessageBuilder message;
+    Sophos::ssplav::FileScanRequest::Builder requestBuilder =
+        message.initRoot<Sophos::ssplav::FileScanRequest>();
+
+    requestBuilder.setPathname("/etc/fstab");
+    requestBuilder.setScanInsideArchives(true);
+    requestBuilder.setScanType(scan_messages::E_SCAN_TYPE::E_SCAN_TYPE_ON_DEMAND);
+    requestBuilder.setUserID("sophos-spl");
+    requestBuilder.setPid(-2);
+
+    // Convert to byte string
+    kj::Array<capnp::word> dataArray = capnp::messageToFlatArray(message);
+    kj::ArrayPtr<kj::byte> bytes = dataArray.asBytes();
+    std::string dataAsString(bytes.begin(), bytes.end());
+
+
+    const kj::ArrayPtr<const capnp::word> view(
+        reinterpret_cast<const capnp::word*>(&(*std::begin(dataAsString))),
+        reinterpret_cast<const capnp::word*>(&(*std::end(dataAsString))));
+
+    capnp::FlatArrayMessageReader messageInput(view);
+    Sophos::ssplav::FileScanRequest::Reader requestReader =
+        messageInput.getRoot<Sophos::ssplav::FileScanRequest>();
+
+    EXPECT_EQ(requestReader.getPathname(), "/etc/fstab");
+    EXPECT_EQ(requestReader.getScanType(), scan_messages::E_SCAN_TYPE::E_SCAN_TYPE_ON_DEMAND);
+    EXPECT_EQ(requestReader.getUserID(), "sophos-spl");
+    EXPECT_EQ(requestReader.getPid(), -2);
+    EXPECT_EQ(requestReader.getExecutablePath(), "");
+    EXPECT_TRUE(requestReader.getScanInsideArchives());
+}
 TEST(TestScanMessages, CreateScanRequestObject)
 {
     ::capnp::MallocMessageBuilder message;

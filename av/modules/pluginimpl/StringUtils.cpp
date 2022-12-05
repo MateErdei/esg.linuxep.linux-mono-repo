@@ -105,7 +105,23 @@ std::string pluginimpl::generateThreatDetectedJson(const scan_messages::ThreatDe
 
     threatEvent["details"] = details;
     threatEvent["items"] = items;
-
+    bool overallSuccess = detection.notificationStatus == scan_messages::E_NOTIFCATION_STATUS::E_NOTIFICATION_STATUS_CLEANED_UP;
+    threatEvent["quarantineSuccess"] = overallSuccess;
+    if (detection.scanType == scan_messages::E_SCAN_TYPE::E_SCAN_TYPE_ON_ACCESS
+        || detection.scanType == scan_messages::E_SCAN_TYPE::E_SCAN_TYPE_ON_ACCESS_OPEN
+        || detection.scanType == scan_messages::E_SCAN_TYPE::E_SCAN_TYPE_ON_ACCESS_CLOSE)
+    {
+        threatEvent["avScanType"] = static_cast<int>(scan_messages::E_SCAN_TYPE::E_SCAN_TYPE_ON_ACCESS);
+    }
+    else
+    {
+        threatEvent["avScanType"] = static_cast<int>(detection.scanType);
+    }
+    if (threatEvent["avScanType"] == scan_messages::E_SCAN_TYPE::E_SCAN_TYPE_ON_ACCESS)
+    {
+        threatEvent["pid"] = detection.pid;
+        threatEvent["processParentPath"] = detection.executablePath;
+    }
     return threatEvent.dump();
 }
 

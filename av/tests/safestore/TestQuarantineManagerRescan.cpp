@@ -159,7 +159,7 @@ TEST_F(QuarantineManagerRescanTests, scanExtractedFiles)
         .WillOnce(Return(ByMove(std::move(objectHandle3))))
         .WillOnce(Return(ByMove(std::move(objectHandle4))));
 
-    EXPECT_CALL(*scanner, scan(_, _, _, _))
+    EXPECT_CALL(*scanner, scan(_, _))
         .Times(4)
         .WillOnce(Return(fd1_response))
         .WillOnce(Return(fd2_response))
@@ -234,7 +234,10 @@ TEST_F(QuarantineManagerRescanTests, scanExtractedFilesSkipsHandleFailure)
 
     EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectHandle("objectId1", _)).WillOnce(Return(false));
 
-    EXPECT_CALL(*scanner, scan(_, _, _, _)).Times(2).WillOnce(Return(fd1_response)).WillOnce(Return(fd2_response));
+    EXPECT_CALL(*scanner, scan(_, _))
+        .Times(2)
+        .WillOnce(Return(fd1_response))
+        .WillOnce(Return(fd2_response));
     EXPECT_CALL(*scannerFactory, createScanner(true, true)).WillOnce(Return(ByMove(std::move(scanner))));
 
     void* rawHandle2 = reinterpret_cast<SafeStoreObjectHandle>(2222);
@@ -297,7 +300,7 @@ TEST_F(QuarantineManagerRescanTests, scanExtractedFilesHandlesNameAndLocationFai
     EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectLocation(handleAsArg)).WillOnce(Return(""));
     EXPECT_CALL(*m_mockSafeStoreWrapper, createObjectHandleHolder()).WillOnce(Return(ByMove(std::move(objectHandle))));
 
-    EXPECT_CALL(*scanner, scan(_, _, _, _)).WillOnce(Return(fd1_response));
+    EXPECT_CALL(*scanner, scan(_, _)).WillOnce(Return(fd1_response));
     EXPECT_CALL(*scannerFactory, createScanner(true, true)).WillOnce(Return(ByMove(std::move(scanner))));
 
     unixsocket::ScanningServerSocket server(Plugin::getScanningSocketPath(), 0600, scannerFactory);

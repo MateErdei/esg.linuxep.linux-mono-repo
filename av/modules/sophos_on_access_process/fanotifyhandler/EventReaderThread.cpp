@@ -175,6 +175,8 @@ bool EventReaderThread::handleFanotifyEvent()
         scanRequest->setPath(filePath);
         scanRequest->setScanType(eventType);
         scanRequest->setUserID(uid);
+        scanRequest->setPid(metadata->pid);
+        scanRequest->setExecutablePath(executablePath);
 
         if (!m_scanRequestQueue->emplace(std::move(scanRequest)))
         {

@@ -37,7 +37,9 @@ namespace scan_messages
          */
          [[nodiscard]] bool scanInsideArchives() const;
 
+         [[nodiscard]] std::string getExecutablePath() const;
 
+         [[nodiscard]] int64_t getPid() const;
         /**
          * Should we scan inside images
          * */
@@ -47,7 +49,7 @@ namespace scan_messages
          * The path to scan
          */
         [[nodiscard]] std::string path() const;
-
+        bool operator==(const ScanRequest& rhs) const;
     private:
         void close();
         void setRequestFromMessage(Reader& requestMessage);

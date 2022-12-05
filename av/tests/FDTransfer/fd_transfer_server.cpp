@@ -24,11 +24,9 @@ namespace
     {
         scan_messages::ScanResponse scan(
             datatypes::AutoFd&,
-            const std::string& file_path,
-            int64_t /*scanType*/,
-            const std::string& /*userID*/) override
+            const scan_messages::ScanRequest& info ) override
         {
-            PRINT(file_path);
+            PRINT(info.getPath());
             scan_messages::ScanResponse response;
             response.addDetection("/bin/bash", "","");
             return response;
