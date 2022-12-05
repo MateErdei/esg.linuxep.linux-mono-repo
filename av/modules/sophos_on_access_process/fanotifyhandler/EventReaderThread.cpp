@@ -106,7 +106,13 @@ bool EventReaderThread::handleFanotifyEvent()
     {
         throwIfErrorNotRecoverable();
     }
-    else if (len == 0)
+    else
+    {
+        // Got a successful read
+        m_readFailureCount = 0;
+    }
+
+    if (len == 0)
     {
         LOGTRACE("Skipping empty fanotify event");
         return true;
@@ -327,28 +333,152 @@ void EventReaderThread::throwIfErrorNotRecoverable()
     int error = errno;
     auto errorStr = common::safer_strerror(error);
 
+    /*
+     * https://man7.org/linux/man-pages/man7/fanotify.7.html
+     *
+     *
+*  If a call to read(2) processes multiple events from the
+   fanotify queue and an error occurs, the return value will be
+   the total length of the events successfully copied to the
+   user-space buffer before the error occurred.  The return value
+   will not be -1, and errno will not be set.  Thus, the reading
+   application has no way to detect the error.
+     *
+     * fanotify read errnos:
+     *
+EINVAL The buffer is too small to hold the event.
+Fatal: Not recoverable by current code - buffer is fixed size
+
+EMFILE The per-process limit on the number of open files has been
+       reached.  See the description of RLIMIT_NOFILE in
+       getrlimit(2).
+Retry: Can retry and hope some fd have been released
+Log error; wait 100ms; limited retries
+
+ENFILE The system-wide limit on the total number of open files
+       has been reached.  See /proc/sys/fs/file-max in proc(5).
+Retry: Can retry and hope some fd have been released
+Log error; wait 100ms; limited retries
+
+ETXTBSY
+       This error is returned by read(2) if O_RDWR or O_WRONLY
+       was specified in the event_f_flags argument when calling
+       fanotify_init(2) and an event occurred for a monitored
+       file that is currently being executed.
+Fatal: We don't set those flags to fanotify_init
+
+       * general read errnos:
+       *
+EAGAIN The file descriptor fd refers to a file other than a
+       socket and has been marked nonblocking (O_NONBLOCK), and
+       the read would block.  See open(2) for further details on
+       the O_NONBLOCK flag.
+Return: Could be O_NONBLOCK in future
+
+EAGAIN or EWOULDBLOCK
+       The file descriptor fd refers to a socket and has been
+       marked nonblocking (O_NONBLOCK), and the read would block.
+       POSIX.1-2001 allows either error to be returned for this
+       case, and does not require these constants to have the
+       same value, so a portable application should check for
+       both possibilities.
+Return: Could be O_NONBLOCK in future
+
+EBADF  fd is not a valid file descriptor or is not open for
+       reading.
+Fatal: Fanotify descriptor is no longer valid
+
+EFAULT buf is outside your accessible address space.
+Fatal: Stack buffer is no longer valid
+
+EINTR  The call was interrupted by a signal before any data was
+       read; see signal(7).
+Retry
+
+EINVAL fd is attached to an object which is unsuitable for
+       reading; or the file was opened with the O_DIRECT flag,
+       and either the address specified in buf, the value
+       specified in count, or the file offset is not suitably
+       aligned.
+Fatal: fanotify descriptor replaced
+
+EINVAL fd was created via a call to timerfd_create(2) and the
+       wrong size buffer was given to read(); see
+       timerfd_create(2) for further information.
+Fatal: As above
+
+EIO    I/O error.  This will happen for example when the process
+       is in a background process group, tries to read from its
+       controlling terminal, and either it is ignoring or
+       blocking SIGTTIN or its process group is orphaned.  It may
+       also occur when there is a low-level I/O error while
+       reading from a disk or tape.  A further possible cause of
+       EIO on networked filesystems is when an advisory lock had
+       been taken out on the file descriptor and this lock has
+       been lost.  See the Lost locks section of fcntl(2) for
+       further details.
+Fatal: fanotify descriptor replaced??
+
+EISDIR fd refers to a directory.
+Fatal: fanotify descriptor replaced
+
+
+ Other Errno observed but not listed:
+EPERM  virtualbox host filesystem LINUXDAR-6262
+Log warning and limited retries
+
+EACCES  ???
+Log warning and limited retries
+
+     */
+
+    std::stringstream logmsg;
     switch (error)
     {
+        case EINTR:
         case EAGAIN:
+#if EAGAIN != EWOULDBLOCK
+        case EWOULDBLOCK:
+#endif
         {
-            return;
+            // Expected, no warning required,
+            // return to ppoll loop so that we don't get stuck in blocking read.
+            break;
         }
         case EPERM:
-        case EINTR:
         case EACCES:
         {
             LOGWARN("Failed to read fanotify event, " << "(" << error << " " << errorStr << ")");
-            return;
+            m_readFailureCount++;
+            if (m_readFailureCount > RESTART_SOAP_ERROR_COUNT)
+            {
+                logmsg << "Too many EPERM/EACCES errors. Restarting On Access: (" << error << " "<< errorStr << ")";
+                throw std::runtime_error(logmsg.str());
+            }
+            break;
         }
         case EMFILE:
+        case ENFILE:
         {
-            throw std::runtime_error("No more File Descriptors available. Restarting On Access");
+            LOGERROR("Failed to read fanotify event. No more File Descriptors available: " << "(" << error << " " << errorStr << ")");
+            m_readFailureCount++;
+
+            if (m_readFailureCount > RESTART_SOAP_ERROR_COUNT)
+            {
+                throw std::runtime_error("No more File Descriptors available. Restarting On Access");
+            }
+            else
+            {
+                // a small sleep to allow FD to be released
+                std::this_thread::sleep_for(m_out_of_file_descriptor_delay);
+            }
+            break;
         }
         default:
         {
-            std::stringstream logmsg;
             logmsg << "Fatal Error. Restarting On Access: (" << error << " "<< errorStr << ")";
             throw std::runtime_error(logmsg.str());
         }
     }
+
 }

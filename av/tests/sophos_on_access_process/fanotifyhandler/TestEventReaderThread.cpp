@@ -15,6 +15,7 @@
 
 #include <gtest/gtest.h>
 
+#include <array>
 #include <sstream>
 #include <string_view>
 
@@ -23,6 +24,8 @@ using namespace sophos_on_access_process::fanotifyhandler;
 using namespace sophos_on_access_process::onaccessimpl;
 using namespace sophos_on_access_process::onaccessimpl::onaccesstelemetry;
 
+
+#define LOG(x) LOG4CPLUS_INFO(getLogger(), x)
 
 namespace
 {
@@ -79,7 +82,8 @@ protected:
         m_smallScanRequestQueue = std::make_shared<ScanRequestQueue>(3);
         m_telemetryUtility = std::make_shared<OnAccessTelemetryUtility>();
         auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
-        appConfig.setData("PLUGIN_INSTALL", m_pluginInstall);
+        const auto* pluginInstall = "/opt/sophos-spl/plugins/av";
+        appConfig.setData("PLUGIN_INSTALL", pluginInstall);
         m_statbuf.st_uid = 321;
     }
 
@@ -228,7 +232,9 @@ TEST_F(TestEventReaderThread, ReceiveBadUnicode)
 
 TEST_F(TestEventReaderThread, ReceiveExcessivelyLongFilePath)
 {
-    const std::string filePath(5000, '_');
+    std::array<char, 5000> filePath;
+    filePath.fill(45);
+    *(filePath.rbegin()) = 0;
     setupExpectationsForOneEvent(filePath.data());
     /*
      * EventReader uses a buffer PATH_MAX size.
@@ -585,30 +591,6 @@ TEST_F(TestEventReaderThread, TestReaderSkipsEventsInPluginLogDir)
     EXPECT_EQ(m_scanRequestQueue->size(), 0);
 }
 
-TEST_F(TestEventReaderThread, TestReaderDoesntSkipEventsInSimilarDirToPluginLogDir)
-{
-    UsingMemoryAppender memoryAppenderHolder(*this);
-
-    int fanotifyFD = FANOTIFY_FD;
-    auto metadata = getMetaData();
-    const char* filePath = "/opt/sophos-spl/plugins/av/logz/soapd.log";
-
-    EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))
-        .WillOnce(pollReturnsWithRevents(1, POLLIN))
-        .WillOnce(pollReturnsWithRevents(0, POLLIN));
-    EXPECT_CALL(*m_mockSysCallWrapper, read(fanotifyFD, _, _)).WillOnce(readReturnsStruct(metadata));
-
-    EXPECT_CALL(*m_mockSysCallWrapper, readlink(_, _, _)).WillOnce(readlinkReturnPath(filePath));
-    EXPECT_CALL(*m_mockSysCallWrapper, _stat(_, _)).WillOnce(DoAll(SetArgPointee<1>(m_statbuf), Return(0)));
-    defaultFstat();
-
-    auto eventReader = makeDefaultEventReaderThread();
-    common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
-
-    EXPECT_TRUE(waitForLog("Stopping the reading of Fanotify events", 500ms));
-    EXPECT_EQ(m_scanRequestQueue->size(), 1);
-}
-
 TEST_F(TestEventReaderThread, TestReaderSkipsExcludedPaths)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
@@ -714,40 +696,6 @@ TEST_F(TestEventReaderThread, EventsWithSameInodeAndDeviceAreSkipped)
     EXPECT_EQ(m_scanRequestQueue->size(), 1);
 }
 
-TEST_F(TestEventReaderThread, EventsWithSameInodeAndDeviceButDifferentPathAreSkipped)
-{
-    EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))
-        .WillOnce(pollReturnsWithRevents(1, POLLIN))
-        .WillOnce(pollReturnsWithRevents(1, POLLIN))
-        .WillOnce(pollReturnsWithRevents(0, POLLIN));
-
-    auto metadata1 = getOpenMetaData(8000);
-    auto metadata2 = getOpenMetaData(8001);
-    EXPECT_CALL(*m_mockSysCallWrapper, read(FANOTIFY_FD, _, _))
-        .WillOnce(readReturnsStruct(metadata1))
-        .WillOnce(readReturnsStruct(metadata2));
-
-    defaultStat();
-
-    EXPECT_CALL(*m_mockSysCallWrapper, fstat(8000, _))
-        .WillOnce(fstatReturnsDeviceAndInode(1,1));
-    EXPECT_CALL(*m_mockSysCallWrapper, fstat(8001, _))
-        .WillOnce(fstatReturnsDeviceAndInode(1,1));
-
-    const char* filePath1 = "/tmp/test";
-    const char* filePath2 = "/tmp2/test2";
-    EXPECT_CALL(*m_mockSysCallWrapper, readlink(StrEq("/proc/self/fd/8000"), _, _))
-        .WillOnce(readlinkReturnPath(filePath1));
-    EXPECT_CALL(*m_mockSysCallWrapper, readlink(StrEq("/proc/self/fd/8001"), _, _))
-        .WillOnce(readlinkReturnPath(filePath2));
-
-    auto eventReader = makeDefaultEventReaderThread();
-    {
-        common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
-    } // Wait for Reader to finish
-    EXPECT_EQ(m_scanRequestQueue->size(), 1);
-}
-
 TEST_F(TestEventReaderThread, EventsWithDifferentDeviceAreNotSkipped)
 {
     EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))
@@ -778,36 +726,6 @@ TEST_F(TestEventReaderThread, EventsWithDifferentDeviceAreNotSkipped)
     EXPECT_EQ(m_scanRequestQueue->size(), 2);
 }
 
-TEST_F(TestEventReaderThread, EventsWithHighBitDifferentDeviceAreNotSkipped)
-{
-    EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))
-        .WillOnce(pollReturnsWithRevents(1, POLLIN))
-        .WillOnce(pollReturnsWithRevents(1, POLLIN))
-        .WillOnce(pollReturnsWithRevents(0, POLLIN));
-
-    auto metadata = getOpenMetaData(8000);
-    EXPECT_CALL(*m_mockSysCallWrapper, read(FANOTIFY_FD, _, _))
-        .Times(2)
-        .WillRepeatedly(readReturnsStruct(metadata));
-
-    defaultStat();
-
-    EXPECT_CALL(*m_mockSysCallWrapper, fstat(8000, _))
-        .WillOnce(fstatReturnsDeviceAndInode(0x0000000000000001,0x0000000000000001))
-        .WillOnce(fstatReturnsDeviceAndInode(0x8000000000000001,0x0000000000000001));
-
-    const char* filePath = "/tmp/test";
-    EXPECT_CALL(*m_mockSysCallWrapper, readlink(_, _, _))
-        .Times(2)
-        .WillRepeatedly(readlinkReturnPath(filePath));
-
-    auto eventReader = makeDefaultEventReaderThread();
-    {
-        common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
-    } // Wait for Reader to finish
-    EXPECT_EQ(m_scanRequestQueue->size(), 2);
-}
-
 TEST_F(TestEventReaderThread, EventsWithDifferentInodeAreNotSkipped)
 {
     EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))
@@ -825,36 +743,6 @@ TEST_F(TestEventReaderThread, EventsWithDifferentInodeAreNotSkipped)
     EXPECT_CALL(*m_mockSysCallWrapper, fstat(8000, _))
         .WillOnce(fstatReturnsDeviceAndInode(1,1))
         .WillOnce(fstatReturnsDeviceAndInode(1,2));
-
-    const char* filePath = "/tmp/test";
-    EXPECT_CALL(*m_mockSysCallWrapper, readlink(_, _, _))
-        .Times(2)
-        .WillRepeatedly(readlinkReturnPath(filePath));
-
-    auto eventReader = makeDefaultEventReaderThread();
-    {
-        common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
-    } // Wait for Reader to finish
-    EXPECT_EQ(m_scanRequestQueue->size(), 2);
-}
-
-TEST_F(TestEventReaderThread, EventsWithHighBitDifferentInodeAreNotSkipped)
-{
-    EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))
-        .WillOnce(pollReturnsWithRevents(1, POLLIN))
-        .WillOnce(pollReturnsWithRevents(1, POLLIN))
-        .WillOnce(pollReturnsWithRevents(0, POLLIN));
-
-    auto metadata = getOpenMetaData(8000);
-    EXPECT_CALL(*m_mockSysCallWrapper, read(FANOTIFY_FD, _, _))
-        .Times(2)
-        .WillRepeatedly(readReturnsStruct(metadata));
-
-    defaultStat();
-
-    EXPECT_CALL(*m_mockSysCallWrapper, fstat(8000, _))
-        .WillOnce(fstatReturnsDeviceAndInode(0x0000000000000001,0x0000000000000001))
-        .WillOnce(fstatReturnsDeviceAndInode(0x0000000000000001,0x8000000000000001));
 
     const char* filePath = "/tmp/test";
     EXPECT_CALL(*m_mockSysCallWrapper, readlink(_, _, _))
@@ -1141,7 +1029,7 @@ TEST_F(TestEventReaderThread, TestReaderLogsErrorFromPpollAndThrows)
     try
     {
         eventReader->innerRun();
-        FAIL() << "EventReaderThread::innerRun() didn't throw";
+        FAIL() << "EventReaderThread::innerRun() didnt throw";
     }
     catch(const std::runtime_error& e)
     {
@@ -1176,8 +1064,22 @@ TEST_F(TestEventReaderThread, TestReaderContinuesQuietyWhenPpollReturnsEINTR)
     EXPECT_FALSE(appenderContains("Error from poll"));
 }
 
-TEST_F(TestEventReaderThread, TestReaderCanReceiveEventAfterEAGAIN)
+/*
+ * errno for read are divided into 4 groups
+ * * return
+ * * LOGWARN and return (count to 20) exception
+ * * LOGERROR, sleep and return (count to 20) exception
+ * * exception
+ */
+
+class TestWithType1Errno : public TestEventReaderThread,
+                      public testing::WithParamInterface<int>
+{};
+
+TEST_P(TestWithType1Errno, readEventAfterReadErrno)
 {
+    int errnoValue = GetParam();
+    LOG("Testing errno=" << errnoValue);
     UsingMemoryAppender memoryAppenderHolder(*this);
 
     auto metadata = getMetaData();
@@ -1188,7 +1090,7 @@ TEST_F(TestEventReaderThread, TestReaderCanReceiveEventAfterEAGAIN)
         .WillOnce(pollReturnsWithRevents(1, POLLIN))
         .WillOnce(pollReturnsWithRevents(0, POLLIN));
     EXPECT_CALL(*m_mockSysCallWrapper, read(FANOTIFY_FD, _, _))
-        .WillOnce(SetErrnoAndReturn(EAGAIN, -1))
+        .WillOnce(SetErrnoAndReturn(errnoValue, -1))
         .WillOnce(readReturnsStruct(metadata));
     expectReadlinkReturnsPath(filePath);
     EXPECT_CALL(*m_mockSysCallWrapper, _stat(_, _))
@@ -1205,11 +1107,22 @@ TEST_F(TestEventReaderThread, TestReaderCanReceiveEventAfterEAGAIN)
     EXPECT_TRUE(waitForLog("Stopping the reading of Fanotify events"));
     EXPECT_EQ(m_scanRequestQueue->size(), 1);
 
-    EXPECT_FALSE(appenderContains("Failed to read fanotify event, "));
+    EXPECT_FALSE(appenderContains("Failed to read fanotify event"));
 }
 
-TEST_F(TestEventReaderThread, TestReaderCanReceiveEventAfterEINTR)
+INSTANTIATE_TEST_SUITE_P(TestReaderCanReceiveEventAfterRetryErrno,
+                         TestWithType1Errno,
+                         testing::Values(EINTR, EAGAIN)
+                         );
+
+class TestWithType2Errno : public TestEventReaderThread,
+                           public testing::WithParamInterface<int>
+{};
+
+TEST_P(TestWithType2Errno, readEventAfterReadErrno)
 {
+    int errnoValue = GetParam();
+    LOG("Testing errno=" << errnoValue);
     UsingMemoryAppender memoryAppenderHolder(*this);
 
     auto metadata = getMetaData();
@@ -1220,7 +1133,7 @@ TEST_F(TestEventReaderThread, TestReaderCanReceiveEventAfterEINTR)
         .WillOnce(pollReturnsWithRevents(1, POLLIN))
         .WillOnce(pollReturnsWithRevents(0, POLLIN));
     EXPECT_CALL(*m_mockSysCallWrapper, read(FANOTIFY_FD, _, _))
-        .WillOnce(SetErrnoAndReturn(EINTR, -1))
+        .WillOnce(SetErrnoAndReturn(errnoValue, -1))
         .WillOnce(readReturnsStruct(metadata));
     expectReadlinkReturnsPath(filePath);
     EXPECT_CALL(*m_mockSysCallWrapper, _stat(_, _))
@@ -1230,56 +1143,79 @@ TEST_F(TestEventReaderThread, TestReaderCanReceiveEventAfterEINTR)
     auto eventReader = makeDefaultEventReaderThread();
     common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
 
-    EXPECT_TRUE(waitForLog("Failed to read fanotify event, (4 Interrupted system call)"));
-
     std::stringstream logMsg;
     logMsg << "On-close event for " << filePath << " from Process (PID=" << metadata.pid << ") and UID " << m_statbuf.st_uid;
-    EXPECT_TRUE(waitForLog(logMsg.str()));
+    EXPECT_TRUE(waitForLog(logMsg.str(), 500ms));
 
     EXPECT_TRUE(waitForLog("Stopping the reading of Fanotify events"));
     EXPECT_EQ(m_scanRequestQueue->size(), 1);
+
+    EXPECT_TRUE(appenderContains("Failed to read fanotify event")); // Logs warning or error
 }
 
-TEST_F(TestEventReaderThread, TestReaderCanReceiveEventAfterEACCES)
+TEST_P(TestWithType2Errno, diesAfterHittingLimit)
 {
+    const int errnoValue = GetParam();
+    LOG("Testing errno=" << errnoValue);
+
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    auto metadata = getMetaData();
-    const char* filePath = "/tmp/test";
-
     EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))
-        .WillOnce(pollReturnsWithRevents(1, POLLIN))
-        .WillOnce(pollReturnsWithRevents(1, POLLIN))
-        .WillOnce(pollReturnsWithRevents(0, POLLIN));
+        .WillRepeatedly(pollReturnsWithRevents(1, POLLIN));
     EXPECT_CALL(*m_mockSysCallWrapper, read(FANOTIFY_FD, _, _))
-        .WillOnce(SetErrnoAndReturn(EACCES, -1))
-        .WillOnce(readReturnsStruct(metadata));
-    expectReadlinkReturnsPath(filePath);
-    EXPECT_CALL(*m_mockSysCallWrapper, _stat(_, _))
-        .WillOnce(DoAll(SetArgPointee<1>(m_statbuf), Return(0)));
-    incrementingFstat();
+        .Times(EventReaderThread::RESTART_SOAP_ERROR_COUNT+1)
+        .WillRepeatedly(SetErrnoAndReturn(errnoValue, -1));
 
     auto eventReader = makeDefaultEventReaderThread();
-    common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
-
-    EXPECT_TRUE(waitForLog("Failed to read fanotify event, (13 Permission denied)"));
-
-    std::stringstream logMsg;
-    logMsg << "On-close event for " << filePath << " from Process (PID=" << metadata.pid << ") and UID " << m_statbuf.st_uid;
-    EXPECT_TRUE(waitForLog(logMsg.str()));
-
-    EXPECT_TRUE(waitForLog("Stopping the reading of Fanotify events"));
-    EXPECT_EQ(m_scanRequestQueue->size(), 1);
+    eventReader->m_out_of_file_descriptor_delay = std::chrono::milliseconds{1};
+    try
+    {
+        eventReader->innerRun();
+        FAIL() << "EventReaderThread::diesAfterHittingLimit() didn't throw";
+    }
+    catch(const std::runtime_error& e)
+    {
+        switch (errnoValue)
+        {
+            case EPERM:
+                EXPECT_STREQ(e.what(), "Too many EPERM/EACCES errors. Restarting On Access: (1 Operation not permitted)");
+                break;
+            case EACCES:
+                EXPECT_STREQ(e.what(), "Too many EPERM/EACCES errors. Restarting On Access: (13 Permission denied)");
+                break;
+            case ENFILE:
+            case EMFILE:
+                EXPECT_STREQ(e.what(), "No more File Descriptors available. Restarting On Access");
+                break;
+            default:
+                FAIL() << "Handling unknown errno: " << e.what();
+                break;
+        }
+    }
 }
 
-TEST_F(TestEventReaderThread, TestReaderThrowsWhenErrorIsEMFILE)
+INSTANTIATE_TEST_SUITE_P(TestReaderCanReceiveEventAfterRetryErrno,
+                         TestWithType2Errno,
+                         testing::Values(EPERM, EACCES, ENFILE, EMFILE)
+);
+
+namespace
 {
+    class TestWithType4Errno : public TestEventReaderThread, public testing::WithParamInterface<int>
+    {
+    };
+}
+
+TEST_P(TestWithType4Errno, NotRecoverable)
+{
+    const int errnoValue = GetParam();
+    LOG("Testing errno=" << errnoValue);
     UsingMemoryAppender memoryAppenderHolder(*this);
 
     EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))
         .WillOnce(pollReturnsWithRevents(1, POLLIN));
     EXPECT_CALL(*m_mockSysCallWrapper, read(FANOTIFY_FD, _, _))
-        .WillOnce(SetErrnoAndReturn(EMFILE, -1));
+        .WillOnce(SetErrnoAndReturn(errnoValue, -1));
 
     auto eventReader = makeDefaultEventReaderThread();
     try
@@ -1289,30 +1225,31 @@ TEST_F(TestEventReaderThread, TestReaderThrowsWhenErrorIsEMFILE)
     }
     catch(const std::runtime_error& e)
     {
-        EXPECT_STREQ(e.what(), "No more File Descriptors available. Restarting On Access");
+        switch (errnoValue)
+        {
+            case EIO:
+                EXPECT_STREQ(e.what(), "Fatal Error. Restarting On Access: (5 Input/output error)");
+                break;
+            case EBADF:
+                EXPECT_STREQ(e.what(), "Fatal Error. Restarting On Access: (9 Bad file descriptor)");
+                break;
+            case EINVAL:
+                EXPECT_STREQ(e.what(), "Fatal Error. Restarting On Access: (22 Invalid argument)");
+                break;
+            case ETXTBSY:
+                EXPECT_STREQ(e.what(), "Fatal Error. Restarting On Access: (26 Text file busy)");
+                break;
+            default:
+                FAIL() << "Handling unknown errno: " << e.what();
+                break;
+        }
     }
 }
 
-TEST_F(TestEventReaderThread, TestReaderThrowsWhenErrorNotRecoverable)
-{
-    UsingMemoryAppender memoryAppenderHolder(*this);
-
-    EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))
-        .WillOnce(pollReturnsWithRevents(1, POLLIN));
-    EXPECT_CALL(*m_mockSysCallWrapper, read(FANOTIFY_FD, _, _))
-        .WillOnce(SetErrnoAndReturn(ENFILE, -1));
-
-    auto eventReader = makeDefaultEventReaderThread();
-    try
-    {
-        eventReader->innerRun();
-        FAIL() << "EventReaderThread::throwIfErrorNotRecoverable() didn't throw";
-    }
-    catch(const std::runtime_error& e)
-    {
-        EXPECT_STREQ(e.what(), "Fatal Error. Restarting On Access: (23 Too many open files in system)");
-    }
-}
+INSTANTIATE_TEST_SUITE_P(TestReaderThrowsWhenErrorNotRecoverable,
+                         TestWithType4Errno,
+                         testing::Values(EIO, EBADF, EINVAL, ETXTBSY)
+);
 
 TEST_F(TestEventReaderThread, TestReaderIncrementsTelemetryOnEventDropped)
 {

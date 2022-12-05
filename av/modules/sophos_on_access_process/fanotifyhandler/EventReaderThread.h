@@ -43,6 +43,8 @@ namespace sophos_on_access_process::fanotifyhandler
 
     TEST_PUBLIC:
         void innerRun();
+        std::chrono::milliseconds m_out_of_file_descriptor_delay = std::chrono::milliseconds{100};
+        static constexpr int RESTART_SOAP_ERROR_COUNT = 20;
 
     private:
         bool handleFanotifyEvent();
@@ -62,5 +64,6 @@ namespace sophos_on_access_process::fanotifyhandler
         std::vector<common::Exclusion> m_exclusions;
         mutable std::mutex m_exclusionsLock;
         uint m_EventsWhileQueueFull = 0;
+        int m_readFailureCount = 0;
     };
 }
