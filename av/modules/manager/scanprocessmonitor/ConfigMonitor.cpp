@@ -181,11 +181,11 @@ namespace plugin::manager::scanprocessmonitor
         fd_set readFds;
         FD_ZERO(&readFds);
         int max_fd = -1;
-        max_fd = FDUtils::addFD(&readFds, m_notifyPipe.readFd(), max_fd);
-        max_fd = FDUtils::addFD(&readFds, inotifyFD.getFD(), max_fd);
+        max_fd = common::FDUtils::addFD(&readFds, m_notifyPipe.readFd(), max_fd);
+        max_fd = common::FDUtils::addFD(&readFds, inotifyFD.getFD(), max_fd);
         for (const auto& iter : m_interestingDirs)
         {
-            max_fd = FDUtils::addFD(&readFds, iter.second->getFD(), max_fd);
+            max_fd = common::FDUtils::addFD(&readFds, iter.second->getFD(), max_fd);
         }
 
         while (true)
@@ -206,7 +206,7 @@ namespace plugin::manager::scanprocessmonitor
             }
 
             bool interestingDirTouched = false;
-            if (FDUtils::fd_isset(inotifyFD.getFD(), &temp_readFds))
+            if (common::FDUtils::fd_isset(inotifyFD.getFD(), &temp_readFds))
             {
                 // Something changed under m_base (/etc)
                 // Per https://man7.org/linux/man-pages/man7/inotify.7.html
@@ -240,7 +240,7 @@ namespace plugin::manager::scanprocessmonitor
             for (const auto& iter : m_interestingDirs)
             {
                 int fd = iter.second->getFD();
-                if (FDUtils::fd_isset(fd, &temp_readFds))
+                if (common::FDUtils::fd_isset(fd, &temp_readFds))
                 {
                     // flush the buffer
                     char buffer[EVENT_BUF_LEN];

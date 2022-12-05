@@ -74,7 +74,7 @@ TEST_F(TestSigUSR1Monitor, testSignal)
     int ret = ::select(readFd+1, &readfds, nullptr, nullptr, &zero_time);
 
     EXPECT_EQ(ret, 1);
-    EXPECT_TRUE(FDUtils::fd_isset(readFd, &readfds)); // NOLINT
+    EXPECT_TRUE(common::FDUtils::fd_isset(readFd, &readfds)); // NOLINT
 }
 
 TEST_F(TestSigUSR1Monitor, triggerCallsUpdate)
