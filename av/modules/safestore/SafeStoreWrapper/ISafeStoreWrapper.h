@@ -66,7 +66,7 @@ namespace safestore::SafeStoreWrapper
         {
             { SaveFileReturnCode::OK, "OK" },
             { SaveFileReturnCode::INVALID_ARG, "InvalidArg" },
-            { SaveFileReturnCode::INTERNAL_ERROR , "InvalidError" },
+            { SaveFileReturnCode::INTERNAL_ERROR , "InternalError" },
             { SaveFileReturnCode::OUT_OF_MEMORY, "OutOfMemory" },
             { SaveFileReturnCode::FILE_OPEN_FAILED, "FileOpenFailed" },
             { SaveFileReturnCode::FILE_READ_FAILED, "FileReadFailed" },
