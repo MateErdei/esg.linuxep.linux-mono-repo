@@ -2,23 +2,24 @@
 
 #include "AutoFd.h"
 
+#include <utility>
+
 #include <unistd.h>
 
 using namespace datatypes;
 
 void AutoFd::reset(int fd)
 {
-    close();
+    if (m_fd >= 0)
+    {
+        ::close(m_fd);
+    }
     m_fd = fd;
 }
 
 void AutoFd::close()
 {
-    if (m_fd >= 0)
-    {
-        ::close(m_fd);
-    }
-    m_fd = -1;
+    reset(invalid_fd);
 }
 
 
@@ -28,29 +29,24 @@ AutoFd::AutoFd(int fd) noexcept
 }
 
 AutoFd::AutoFd(AutoFd&& other) noexcept
-    : m_fd(other.m_fd)
+    : m_fd(std::exchange(other.m_fd, invalid_fd))
 {
-    other.m_fd = -1;
 }
 
 AutoFd& AutoFd::operator=(AutoFd&& other) noexcept
 {
-    int tempfd = other.m_fd;
-    other.m_fd = m_fd;
-    m_fd = tempfd;
+    std::swap(m_fd, other.m_fd);
     return *this;
 }
 
 AutoFd::~AutoFd()
 {
-    close();
+    reset();
 }
 
 int AutoFd::release()
 {
-    int fd = m_fd;
-    m_fd = -1;
-    return fd;
+    return std::exchange(m_fd, invalid_fd);
 }
 
 bool AutoFd::operator==(const AutoFd& other) const

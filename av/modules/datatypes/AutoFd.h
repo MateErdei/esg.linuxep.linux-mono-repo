@@ -7,7 +7,7 @@ namespace datatypes
     class AutoFd
     {
     public:
-        explicit AutoFd(int fd=-1) noexcept;
+        explicit AutoFd(int fd=invalid_fd) noexcept;
         AutoFd(const AutoFd&) = delete;
         AutoFd& operator=(const AutoFd&) = delete;
         AutoFd(AutoFd&&) noexcept;
@@ -34,7 +34,7 @@ namespace datatypes
         [[nodiscard]] operator bool() const { return valid(); }
 #endif /* AUTO_FD_IMPLICIT_BOOL */
 
-        void reset(int fd=-1);
+        void reset(int fd=invalid_fd);
         void close();
 
         [[nodiscard]] int get() const { return m_fd; }
@@ -43,6 +43,7 @@ namespace datatypes
         [[nodiscard]] int release();
     private:
         int m_fd;
+        static constexpr int invalid_fd = -1;
     };
 }
 
