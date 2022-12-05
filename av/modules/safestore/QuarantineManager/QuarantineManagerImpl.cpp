@@ -607,6 +607,15 @@ namespace safestore::QuarantineManager
             // Send report
             if (restoreReport.has_value())
             {
+                if (restoreReport->wasSuccessful)
+                {
+                    Common::Telemetry::TelemetryHelper::getInstance().increment(telemetrySafeStoreSuccessfulFileRestorations, 1ul);
+                }
+                else
+                {
+                    Common::Telemetry::TelemetryHelper::getInstance().increment(telemetrySafeStoreFailedFileRestorations, 1ul);
+                }
+
                 std::shared_ptr<common::StoppableSleeper> sleeper; // TODO - This whole QM file will be interruptable in the future
                 unixsocket::RestoreReportingClient client(sleeper);
                 client.sendRestoreReport(restoreReport.value());

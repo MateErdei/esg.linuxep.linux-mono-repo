@@ -714,11 +714,9 @@ namespace safestore::SafeStoreWrapper
                 {
                     LOGDEBUG("Successfully restored object to custom path: " << path);
                 }
-                Common::Telemetry::TelemetryHelper::getInstance().increment(telemetrySafeStoreSuccessfulFileRestorations, 1ul);
                 return true;
             }
             LOGERROR("Got " << safeStoreReturnCodeToString(returnCode) << " when trying to restore an object");
-            Common::Telemetry::TelemetryHelper::getInstance().increment(telemetrySafeStoreFailedFileRestorations, 1ul);
         }
         return false;
     }
@@ -731,13 +729,11 @@ namespace safestore::SafeStoreWrapper
             if (returnCode == SR_OK)
             {
                 LOGDEBUG("Successfully restored object with threat ID: " << threatId);
-                Common::Telemetry::TelemetryHelper::getInstance().increment(telemetrySafeStoreSuccessfulFileRestorations, 1ul);
                 return true;
             }
             LOGERROR(
                 "Got " << safeStoreReturnCodeToString(returnCode)
                        << " while trying to restore an object by threat ID: " << threatId);
-            Common::Telemetry::TelemetryHelper::getInstance().increment(telemetrySafeStoreFailedFileRestorations, 1ul);
         }
         return false;
     }

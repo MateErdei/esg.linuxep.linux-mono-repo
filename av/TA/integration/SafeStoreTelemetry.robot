@@ -238,7 +238,7 @@ SafeStore Telemetry Is Incremented When File Is Successfully Restored
     Wait Until AV Plugin Log Contains    Added SHA256 to allow list: c88e20178a82af37a51b030cb3797ed144126cad09193a6c8c7e95957cf9c3f9
     Wait Until SafeStore Log Contains   SafeStore Database Rescan request received
 
-    Wait Until SafeStore Log Contains    Successfully restored object
+    Wait Until SafeStore Log Contains    Reporting successful restoration of ${threat_file}    timeout=60
     Check SafeStore Telemetry    successful-file-restorations   ${1}
 
 SafeStore Telemetry Is Incremented When File Restoration Fails
@@ -260,15 +260,16 @@ SafeStore Telemetry Is Incremented When File Restoration Fails
     Wait Until SafeStore Log Contains   Quarantined ${NORMAL_DIRECTORY}/MLengHighScore.exe successfully
     File Should Not Exist  ${threat_file}
 
-    Create File        /opt/sophos-spl/plugins/av/var/tempUnpack
+    Remove Directory    ${NORMAL_DIRECTORY}
 
     # Allow-list the file
     Send CORC Policy To Base  corc_policy.xml
     Wait Until AV Plugin Log Contains    Added SHA256 to allow list: c88e20178a82af37a51b030cb3797ed144126cad09193a6c8c7e95957cf9c3f9
     Wait Until SafeStore Log Contains   SafeStore Database Rescan request received
 
-    Wait Until SafeStore Log Contains    Got RESTORE_FAILED when trying to restore an object
+    Wait Until SafeStore Log Contains    Unable to restore clean file: ${threat_file}    timeout=60
     Check SafeStore Telemetry    failed-file-restorations   ${1}
 
     Mark Expected Error In Log    ${SAFESTORE_LOG_PATH}    Got RESTORE_FAILED when trying to restore an object
+    Mark Expected Error In Log    ${SAFESTORE_LOG_PATH}    Unable to restore clean file: ${threat_file}
 
