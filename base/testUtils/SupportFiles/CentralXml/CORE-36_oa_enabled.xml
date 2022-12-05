@@ -1,0 +1,71 @@
+<?xml version="1.0"?>
+<policy RevID="{{revisionId}}" policyType="36">
+
+    <!-- Core Features -->
+    <coreFeatures>
+        <machineLearningEnabled>true</machineLearningEnabled>
+        <malwareDetectionEnabled>true</malwareDetectionEnabled>
+        <appControlEnabled>true</appControlEnabled>
+        <behaviouralEnabled>true</behaviouralEnabled>
+        <backgroundScanningEnabled>true</backgroundScanningEnabled>
+        <eventJournalsEnabled>true</eventJournalsEnabled>
+        <backgroundMemoryScanningEnabled>true</backgroundMemoryScanningEnabled>
+        <activeAdversaryMitigationEnabled>true</activeAdversaryMitigationEnabled>
+    </coreFeatures>
+
+    <!-- Linux (SSPL) Features -->
+    <linuxFeatures>
+        <linuxBehaviouralEnabled>true</linuxBehaviouralEnabled>
+    </linuxFeatures>
+
+    <!-- New EDR/RCA/FIM hashing exclusions -->
+
+
+    <!-- Block QUIC setting -->
+    <webBlockQuic>
+        <enabled>true</enabled>
+    </webBlockQuic>
+
+    <!-- Https decryption setting -->
+    <webHttpsDecrypt>
+        <enabled>true</enabled>
+    </webHttpsDecrypt>
+
+    <!-- From SAV policy -->
+    <onAccessScan>
+        <enabled>true</enabled>
+        <!-- START New (for finer control over on-access scans) -->
+        <onRead>true</onRead>
+        <onWrite>true</onWrite>
+        <onExec>true</onExec>
+        <!-- END New (for finer control over on-access scans) -->
+        <exclusions>
+            <excludeRemoteFiles>false</excludeRemoteFiles>
+            <filePathSet>
+                <filePath>/mnt/</filePath>
+                <filePath>/uk-filer5/</filePath>
+                <filePath>*excluded*</filePath>
+                <filePath>/opt/test/inputs/test_scripts/</filePath>
+            </filePathSet>
+        </exclusions>
+    </onAccessScan>
+
+
+
+
+    <!-- Monitor Mode policy -->
+    <monitorMode>
+        <enabled>true</enabled>
+    </monitorMode>
+
+    <!-- Aggressive Activity Classification policy -->
+    <aggressiveActivityClassification>
+        <enabled>true</enabled>
+    </aggressiveActivityClassification>
+
+    <!-- Account Preferences Privacy options -->
+    <privacySettings>
+        <cixDataSharingEnabled>true</cixDataSharingEnabled> <!-- true when the toggle is ON -->
+    </privacySettings>
+
+</policy>

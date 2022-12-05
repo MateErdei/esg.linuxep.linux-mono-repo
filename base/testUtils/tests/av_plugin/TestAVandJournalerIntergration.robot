@@ -22,12 +22,13 @@ Suite Teardown  Run Keywords
 Test Teardown  Run Keywords
 ...            Run Keyword If Test Failed  Dump Teardown Log  /tmp/av_install.log  AND
 ...            Remove File  /tmp/av_install.log  AND
+...            Copy File  ${SUPPORT_FILES}/CentralXml/FLAGS_xdr_enabled.json  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json  AND
+...            Run Process  chown  root:sophos-spl-group  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json  AND
 ...            Remove File  ${EVENT_JOURNAL_DIR}/SophosSPL/Detections/*  AND
 ...            General Test Teardown
 
 Force Tags  LOAD4
 Default Tags   EVENT_JOURNALER_PLUGIN   AV_PLUGIN   EDR_PLUGIN
-
 
 *** Test Cases ***
 Test av can publish events and that journaler can receive them
@@ -65,7 +66,10 @@ Test av can publish events and that journaler can receive them after av restart
 
     Mark Livequery Log
 
-    Check AV Plugin Can Scan Files
+    Create File     /tmp/dirty_file2    ${EICAR_STRING}
+
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLS_PATH} /tmp/dirty_file2
+    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
     Wait Until Keyword Succeeds
     ...  15 secs
     ...  1 secs
@@ -125,7 +129,48 @@ Test av can publish events and that journaler can receive them after edr restart
     ...  2 secs
     ...  Check Logs Detected EICAR Event  2
 
-
+Test av can publish events for onacess and that journaler can receive them
+    [Timeout]  10 minutes
+    Check Journal Is Empty
+    Mark Livequery Log  False
+    Copy File  ${SUPPORT_FILES}/CentralXml/CORE-36_oa_enabled.xml  /opt/CORE-36_policy.xml
+    ${result} =  Run Process  chown  root:sophos-spl-group  /opt/CORE-36_policy.xml
+    Move File  /opt/CORE-36_policy.xml  ${SOPHOS_INSTALL}/base/mcs/policy/CORE-36_policy.xml
+    Copy File  ${SUPPORT_FILES}/CentralXml/FLAGS_onaccess_enabled.json  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json
+    ${result} =  Run Process  chown  root:sophos-spl-group  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json
+    Wait Until Keyword Succeeds
+    ...  20 secs
+    ...  1 secs
+    ...  AV Plugin Log Contains   Processing On Access Scanning settings from CORE policy
+    Wait Until Keyword Succeeds
+    ...  60 secs
+    ...  10 secs
+    ...  AV Plugin Log Contains   On-access is enabled in the FLAGS policy, assuming on-access policy settings
+    Wait Until Keyword Succeeds
+    ...  20 secs
+    ...  1 secs
+    ...  check_log_contains    On-access enabled: true  ${SOPHOS_INSTALL}/plugins/av/log/soapd.log    soapd
+    sleep  2
+    Create File     /tmp/dirty_file    ${EICAR_STRING}
+    Wait Until Keyword Succeeds
+    ...  20 secs
+    ...  1 secs
+    ...  check_log_contains  Threat health changed to suspicious   ${AV_LOG_FILE}    av
+    Wait Until Keyword Succeeds
+    ...  15 secs
+    ...  1 secs
+    ...  Check Journal Contains Detection Event With Content  "avScanType":201
+    Check Journal Contains Detection Event With Content  pid
+    Check Journal Contains Detection Event With Content  processParentPath
+    Run Live Query  select * from sophos_detections_journal   simple
+    Wait Until Keyword Succeeds
+    ...  60 secs
+    ...  2 secs
+    ...  Check Marked Livequery Log Contains  Successfully executed query
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  2 secs
+    ...  Check Logs Detected EICAR Event  1
 *** Keywords ***
 Wait Until Threat Report Socket Exists
     [Arguments]    ${time_to_wait}=5
