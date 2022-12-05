@@ -92,13 +92,8 @@
                              build-id="20221130122636-fad6ff6b74996d27eed80f1db6a839fee75f1515-QhdWll"/>
             <include artifact-path="release/linux/libsusi" dest-dir="input/susi_input/susi/lib"/>
             <include artifact-path="release/linux/interface" dest-dir="input/susi_input/susi/include"/>
-            <include artifact-path="release/rules" dest-dir="input/susi_input/rules"/>
-        </build-asset>
-
-        <build-asset project="ec" repo="susi">
-            <release-version branch="release/2022-w48"
-                             build-id="20221119214450-8b4c7a574a63a2db19e9728e47856787b40185a6-BX09yc"/>
             <include artifact-path="release/linux/updater" dest-dir="input/susi_input/susi/lib"/>
+            <include artifact-path="release/rules" dest-dir="input/susi_input/rules"/>
         </build-asset>
 
         <build-asset project="core" repo="httpsrequester">
