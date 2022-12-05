@@ -1133,6 +1133,38 @@ TEST_F(TestPluginAdapter, setsHealthToGoodWhenThreatDatabaseEmpty)
     EXPECT_EQ(m_callback->getThreatHealth(), E_THREAT_HEALTH_STATUS_GOOD);
 }
 
+TEST_F(TestPluginAdapter, firstDetectionIsReportedToCentral)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
+    auto pluginAdapter = std::make_shared<PluginAdapter>(
+        m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 1);
+
+    pluginAdapter->processDetectionReport(createDetection(true), QuarantineResult::SUCCESS);
+    EXPECT_TRUE(waitForLog("Sending threat detection notification to central: "));
+    EXPECT_TRUE(waitForLog("Publishing threat detection event: "));
+    EXPECT_TRUE(waitForLog("Found 'EICAR' in '/path/to/unit-test-eicar' which is a new detection"));
+}
+
+TEST_F(TestPluginAdapter, secondDetectionIsNotReportedToCentral)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
+    EXPECT_CALL(*mockBaseService, sendThreatHealth(_)).Times(1);
+    auto pluginAdapter = std::make_shared<PluginAdapter>(
+        m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 1);
+
+    pluginAdapter->updateThreatDatabase(createDetection(false));
+    EXPECT_TRUE(waitForLog("Added threat: c1c802c6-a878-ee05-babc-c0378d45d8d4 to database"));
+    pluginAdapter->processDetectionReport(createDetection(true), QuarantineResult::SUCCESS);
+
+    EXPECT_TRUE(waitForLog("Found 'EICAR' in '/path/to/unit-test-eicar' which is a duplicate detection")); //This happens after the below log messages
+    EXPECT_FALSE(appenderContains("Sending threat detection notification to central: "));
+    EXPECT_FALSE(appenderContains("Publishing threat detection event: "));
+}
+
 // TODO: LINUXDAR-5806 -- stablise this test
 //// PluginAdapter construction needed for this test, so it's here instead of its own TestSafeStoreWorker file (for now)
 // TEST_F(TestPluginAdapter, testSafeStoreWorkerExitsOnStop) // NOLINT
