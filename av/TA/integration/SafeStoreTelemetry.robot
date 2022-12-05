@@ -188,12 +188,12 @@ Corrupt Threat Database Telemetry Is Not Reported When Database File Is Not On D
     Dictionary Should Not Contain Key    ${avDict}   corrupt-threat-database
 
 Corrupt Threat Database Telemetry Is Reported
+    ${avMark} =  Get AV Log Mark
     Stop AV Plugin
     Wait until AV Plugin Not Running
     Create File     ${THREAT_DATABASE_PATH}    {T26796de6c
 
     Start AV Plugin
-    ${avMark} =  Get AV Log Mark
     Wait For Log Contains From Mark    ${avMark}     Resetting ThreatDatabase as we failed to parse ThreatDatabase on disk with error
     Wait For Log Contains From Mark    ${avMark}     Initialised Threat Database
 
@@ -216,6 +216,10 @@ SafeStore Telemetry Is Incremented When Database Is Deleted
     Mark Expected Error In Log    ${SAFESTORE_LOG_PATH}    Quarantine Manager failed to initialise
 
 SafeStore Telemetry Is Incremented When File Is Successfully Restored
+    Stop sophos_threat_detector
+    Register Cleanup   Remove File  ${MCS_PATH}/policy/CORC_policy.xml
+    Send CORC Policy To Base  corc_policy_empty_allowlist.xml
+    Start sophos_threat_detector
     ${avMark} =  Get AV Log Mark
     ${safeStoreMark} =  Mark Log Size  ${SAFESTORE_LOG_PATH}
     Send Flags Policy To Base  flags_policy/flags_safestore_quarantine_ml_enabled.json
@@ -244,6 +248,10 @@ SafeStore Telemetry Is Incremented When File Is Successfully Restored
     Check SafeStore Telemetry    successful-file-restorations   ${1}
 
 SafeStore Telemetry Is Incremented When File Restoration Fails
+    Stop sophos_threat_detector
+    Register Cleanup   Remove File  ${MCS_PATH}/policy/CORC_policy.xml
+    Send CORC Policy To Base  corc_policy_empty_allowlist.xml
+    Start sophos_threat_detector
     ${avMark} =  Get AV Log Mark
     ${safeStoreMark} =  Mark Log Size  ${SAFESTORE_LOG_PATH}
     Send Flags Policy To Base  flags_policy/flags_safestore_quarantine_ml_enabled.json
