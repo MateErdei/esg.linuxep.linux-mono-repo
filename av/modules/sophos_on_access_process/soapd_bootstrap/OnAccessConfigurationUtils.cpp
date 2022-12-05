@@ -12,6 +12,8 @@
 #include "Common/FileSystem/IFileSystem.h"
 #include "Common/FileSystem/IFileSystemException.h"
 
+#include <thread>
+
 namespace fs = sophos_filesystem;
 using json = nlohmann::json;
 
@@ -53,7 +55,7 @@ namespace sophos_on_access_process::OnAccessConfig
     {
         auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
         fs::path pluginInstall = appConfig.getData("PLUGIN_INSTALL");
-        return pluginInstall / "var/soapd_config.json";
+        return pluginInstall / "var/on_access_policy.json";
     }
 
     std::string readPolicyConfigFile(const fs::path& configPath)
@@ -78,18 +80,32 @@ namespace sophos_on_access_process::OnAccessConfig
         return readPolicyConfigFile(policyConfigFilePath());
     }
 
-    void readProductConfigFile(size_t& maxScanQueueSize, int& maxNumberOfScanThread, bool& dumpPerfData)
+    void readLocalSettingsFile(size_t& maxScanQueueSize, int& maxNumberOfScanThread, bool& dumpPerfData, const std::shared_ptr<datatypes::ISystemCallWrapper>& sysCalls)
     {
         maxScanQueueSize = defaultMaxScanQueueSize;
-        maxNumberOfScanThread = defaultScanningThreads;
         dumpPerfData = defaultDumpPerfData;
 
         auto* sophosFsAPI = Common::FileSystem::fileSystem();
         auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
         fs::path pluginInstall = appConfig.getData("PLUGIN_INSTALL");
-        auto productConfigPath = pluginInstall / "var/onaccessproductconfig.json";
+        auto productConfigPath = pluginInstall / "var/on_access_local_settings.json";
 
         bool usedFileValues = false;
+
+        //may return 0 when not able to detect
+        auto hardware_concurrency = sysCalls->hardware_concurrency();
+        if (hardware_concurrency > 0)
+        {
+            // Add 1 so that the result is rounded up and never less than 1
+            maxNumberOfScanThread = (hardware_concurrency + 1) / 2;
+            LOGDEBUG("Number of scanning threads set to " << maxNumberOfScanThread);
+            assert(maxNumberOfScanThread > 0);
+        }
+        else
+        {
+            maxNumberOfScanThread = defaultScanningThreads;
+            LOGDEBUG("Could not determine hardware concurrency. Number of scanning threads defaulting to " << defaultScanningThreads);
+        }
 
         try
         {
@@ -100,7 +116,7 @@ namespace sophos_on_access_process::OnAccessConfig
                 {
                     auto parsedConfigJson = json::parse(configJson);
                     maxScanQueueSize = parsedConfigJson.value("maxscanqueuesize", defaultMaxScanQueueSize);
-                    maxNumberOfScanThread = parsedConfigJson.value("maxthreads", defaultScanningThreads);
+                    maxNumberOfScanThread = parsedConfigJson.value("maxthreads", maxNumberOfScanThread);
                     dumpPerfData = parsedConfigJson.value("dumpPerfData", defaultDumpPerfData);
 
                     if (maxScanQueueSize > maxAllowedQueueSize)

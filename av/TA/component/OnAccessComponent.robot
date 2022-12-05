@@ -33,7 +33,7 @@ soapd handles missing threat detector socket
     # copy the flags
     Copy File  ${RESOURCES_PATH}/oa_config/flags_on.json  ${COMPONENT_VAR_DIR}/oa_flag.json
     # copy config
-    Copy File  ${RESOURCES_PATH}/oa_config/config_on.json  ${COMPONENT_VAR_DIR}/soapd_config.json
+    Copy File  ${RESOURCES_PATH}/oa_config/config_on.json  ${COMPONENT_VAR_DIR}/on_access_policy.json
 
     Start On Access
     Sleep  ${1}

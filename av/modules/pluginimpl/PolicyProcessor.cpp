@@ -112,7 +112,7 @@ namespace Plugin
         std::string getSoapConfigPath()
         {
             auto pluginInstall = getPluginInstall();
-            return pluginInstall + "/var/soapd_config.json";
+            return pluginInstall + "/var/on_access_policy.json";
         }
 
         std::string getSoapFlagConfigPath()

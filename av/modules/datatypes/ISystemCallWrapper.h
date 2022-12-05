@@ -58,6 +58,7 @@ namespace datatypes
         virtual int cap_clear(cap_t __cap_t) = 0;
         virtual int cap_set_proc(cap_t __cap_t) = 0;
         virtual int prctl (int option, ulong __arg2, ulong __arg3, ulong __arg4, ulong __arg5) = 0;
+        virtual unsigned int hardware_concurrency() = 0;
     };
 
     using ISystemCallWrapperSharedPtr = std::shared_ptr<ISystemCallWrapper>;

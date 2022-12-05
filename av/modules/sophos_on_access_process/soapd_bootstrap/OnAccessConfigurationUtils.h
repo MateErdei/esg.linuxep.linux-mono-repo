@@ -3,6 +3,7 @@
 #pragma once
 
 #include "common/Exclusion.h"
+#include "datatypes/ISystemCallWrapper.h"
 #include "datatypes/sophos_filesystem.h"
 
 #include <string>
@@ -34,7 +35,7 @@ namespace sophos_on_access_process::OnAccessConfig
     std::string readPolicyConfigFile();
     OnAccessConfiguration parseOnAccessPolicySettingsFromJson(const std::string& jsonString);
     std::string readFlagConfigFile();
-    void readProductConfigFile(size_t& maxScanQueueSize, int& maxNumberOfScanThread, bool& dumpPerfData);
+    void readLocalSettingsFile(size_t& maxScanQueueSize, int& maxNumberOfScanThread, bool& dumpPerfData, const std::shared_ptr<datatypes::ISystemCallWrapper>& sysCalls);
 
     bool parseFlagConfiguration(const std::string& jsonString);
 

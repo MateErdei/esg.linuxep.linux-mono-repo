@@ -16,7 +16,7 @@ namespace sophos_on_access_process::OnAccessConfig
 
    const size_t maxAllowedQueueSize = 1048000;
    const size_t minAllowedQueueSize = 1000;
-   const size_t defaultMaxScanQueueSize = 4000;
+   const size_t defaultMaxScanQueueSize = 100000;
 
     //FileSystem
     const std::unordered_set<std::string> FILE_SYSTEMS_TO_EXCLUDE

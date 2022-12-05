@@ -144,6 +144,8 @@ On access gets IDE update
     On-access Scan Peend
 
 On access gets IDE update to all scanners
+    Switch to 10 scanning threads
+
     Send Policies to enable on-access
     On-access Scan Eicar Close
 
@@ -154,9 +156,12 @@ On access gets IDE update to all scanners
     On-access Scan Multiple Peend
 
 On access gets IDE update to new scanners
-    # restart on-access to ensure scanners are not initialized
-    Send Policies to disable on-access
-    Sleep   0.5s   Wait for on-access to stop
+    Switch to 10 scanning threads
+
+    # Ensure on-access is disabled
+    #    restart on-access to ensure scanners are not initialized
+    #    Send Policies to disable on-access
+    #    Sleep   0.5s   Wait for on-access to stop
     # exclude most directories so we don't use all the scanners until after the update
     Send Policies to enable on-access with exclusions
     On-access Scan Eicar Close
@@ -881,6 +886,7 @@ Older SafeStore Database Is Not Restored When It Is Not Compaitible With Current
     ...    5 secs
     ...    File Log Contains    ${AV_INSTALL_LOG}    SafeStore Database (${incompatibleBackup}) is not compatible with the current AV version (${version}) so will not attempt to restore
     Directory Should Exist    ${incompatibleBackup}
+    Wait Until SafeStore Log Contains    Successfully initialised SafeStore database
     Verify SafeStore Database Exists
 
 AV Can not install from SDDS Component
@@ -1075,3 +1081,10 @@ Check no duplicate files in directory
 
 Cleanup Mocked Install Set
     Remove Directory    ${MOCKED_INSTALL_SET}    recursive=${True}
+
+Switch to 10 scanning threads
+    ${oa_local_settings} =   Set Variable   ${AV_PLUGIN_PATH}/var/on_access_local_settings.json
+    Create File   ${oa_local_settings}   { "maxthreads" : 10 }
+    Register Cleanup   Remove File   ${oa_local_settings}
+    Stop soapd
+    Start soapd

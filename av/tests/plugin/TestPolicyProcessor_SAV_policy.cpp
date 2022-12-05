@@ -22,7 +22,7 @@ namespace
             
             m_susiStartupConfigPath = m_testDir / "var/susi_startup_settings.json";
             m_susiStartupConfigChrootPath = std::string(m_testDir / "chroot") + m_susiStartupConfigPath;
-            m_soapConfigPath = m_testDir / "var/soapd_config.json";
+            m_soapConfigPath = m_testDir / "var/on_access_policy.json";
         }
 
         void expectWriteSoapdConfig()

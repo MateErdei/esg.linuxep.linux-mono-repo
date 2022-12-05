@@ -557,6 +557,12 @@ On Access logs if the kernel queue overflows
     wait for on access log contains after mark   Fanotify queue overflowed, some files will not be scanned.  mark=${mark}
 
 On Access Uses Multiple Scanners
+    # switch to 10 scanning threads
+    ${oa_local_settings} =   Set Variable   ${AV_PLUGIN_PATH}/var/on_access_local_settings.json
+    Create File   ${oa_local_settings}   { "maxthreads" : 10 }
+    Register Cleanup   Remove File   ${oa_local_settings}
+    Restart On Access
+
     register on fail  dump threads  ${ON_ACCESS_BIN}
     ${mark} =  get_on_access_log_mark
     Configure on access log to trace level
@@ -590,8 +596,9 @@ On Access Can Be enabled After It Gets Disabled In Policy
 On Access Doesnt Cache Close Events With Detections After Rewrite
     [Tags]   manual
     # switch to 1 scanning thread
-    Create File   ${AV_PLUGIN_PATH}/var/onaccessproductconfig.json   { "maxthreads" : 1 }
-    Register Cleanup   Remove File   {AV_PLUGIN_PATH}/var/onaccessproductconfig.json
+    ${oa_local_settings} =   Set Variable   ${AV_PLUGIN_PATH}/var/on_access_local_settings.json
+    Create File   ${oa_local_settings}   { "maxthreads" : 1 }
+    Register Cleanup   Remove File   ${oa_local_settings}
     ${mark} =  Get on access log mark
     Restart On Access
     wait for on access log contains after mark  On-access scanning enabled  mark=${mark}

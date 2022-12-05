@@ -4,6 +4,8 @@
 
 #include "ISystemCallWrapper.h"
 
+#include <thread>
+
 extern "C"
 {
 #include <sys/fanotify.h>
@@ -150,5 +152,9 @@ namespace datatypes
             return ::prctl(option, __arg2, __arg3, __arg4, __arg5);
         }
 
+        unsigned int hardware_concurrency() override
+        {
+            return std::thread::hardware_concurrency();
+        }
     };
 }

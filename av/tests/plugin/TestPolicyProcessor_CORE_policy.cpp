@@ -21,7 +21,7 @@ namespace
         void SetUp() override
         {
             setupBase();
-            m_soapConfigPath = m_testDir / "var/soapd_config.json";
+            m_soapConfigPath = m_testDir / "var/on_access_policy.json";
         }
 
         void expectReadSoapdConfig()

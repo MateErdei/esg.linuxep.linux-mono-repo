@@ -102,7 +102,7 @@ void SoapdBootstrap::innerRun()
     auto sysCallWrapper = std::make_shared<datatypes::SystemCallWrapper>();
 
     size_t maxScanQueueSize = 0;
-    OnAccessConfig::readProductConfigFile(maxScanQueueSize, m_maxNumberOfScanThreads, m_dumpPerfData);
+    OnAccessConfig::readLocalSettingsFile(maxScanQueueSize, m_maxNumberOfScanThreads, m_dumpPerfData, sysCallWrapper);
 
     const struct rlimit file_lim = { onAccessProcessFdLimit, onAccessProcessFdLimit };
     sysCallWrapper->setrlimit(RLIMIT_NOFILE, &file_lim);
