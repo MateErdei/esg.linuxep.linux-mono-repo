@@ -20,7 +20,6 @@ target_include_directories(soapdbootstrap PUBLIC ${CMAKE_SOURCE_DIR}/products/di
 
 target_link_libraries(soapdbootstrap  PUBLIC
         common
-        datatypes
         fanotifyhandler
         mountmonitor
         unixsocket
