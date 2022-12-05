@@ -162,14 +162,14 @@ TEST_F(TestOnAccessConfigUtils, parseProductConfigEmptyKeepsDefaults)
     Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
 
     size_t maxScanQueueItems = 0;
-    int maxThreads = 0;
+    int numThreads = 0;
     bool dumpPerfData = true;
 
-    readLocalSettingsFile(maxScanQueueItems, maxThreads, dumpPerfData, m_sysCallWrapper);
+    readLocalSettingsFile(maxScanQueueItems, numThreads, dumpPerfData, m_sysCallWrapper);
 
-    auto numScanThreads = std::thread::hardware_concurrency() / 2;
+    auto numScanThreads = (std::thread::hardware_concurrency() + 1) / 2;
     EXPECT_EQ(maxScanQueueItems, defaultMaxScanQueueSize);
-    EXPECT_EQ(maxThreads, numScanThreads);
+    EXPECT_EQ(numThreads, numScanThreads);
     EXPECT_FALSE(dumpPerfData);
 
     std::stringstream logmsg;
@@ -215,15 +215,15 @@ TEST_P(TestOnAccessConfigUtilsParameterized, parseProductConfigEmpty_numberOfCor
     Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
 
     size_t maxScanQueueItems = 0;
-    int maxThreads = 0;
+    int numThreads = 0;
     bool dumpPerfData = true;
 
     EXPECT_CALL(*m_mockSysCallWrapper, hardware_concurrency()).WillOnce(Return(std::get<0>(GetParam())));
-    readLocalSettingsFile(maxScanQueueItems, maxThreads, dumpPerfData, m_mockSysCallWrapper);
+    readLocalSettingsFile(maxScanQueueItems, numThreads, dumpPerfData, m_mockSysCallWrapper);
 
     auto numScanThreads = std::get<1>(GetParam());
     EXPECT_EQ(maxScanQueueItems, defaultMaxScanQueueSize);
-    EXPECT_EQ(maxThreads, numScanThreads);
+    EXPECT_EQ(numThreads, numScanThreads);
     EXPECT_FALSE(dumpPerfData);
 }
 
@@ -231,18 +231,18 @@ TEST_F(TestOnAccessConfigUtils, parseProductConfigIgnoresBadvalues)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    EXPECT_CALL(*m_mockIFileSystemPtr, readFile(m_oaLocalSettingsPath)).WillOnce(Return("{\"maxthreads\": \"ha\",\"maxscanqueuesize\": \"ha\",\"dumpPerfData\": \"ha\"}"));
+    EXPECT_CALL(*m_mockIFileSystemPtr, readFile(m_oaLocalSettingsPath)).WillOnce(Return(R"({"numThreads": "ha", "maxscanqueuesize": "ha", "dumpPerfData": "ha"})"));
     Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
 
     size_t maxScanQueueItems = 0;
-    int maxThreads = 0;
+    int numThreads = 0;
     bool dumpPerfData = true;
 
-    readLocalSettingsFile(maxScanQueueItems, maxThreads, dumpPerfData, m_sysCallWrapper);
+    readLocalSettingsFile(maxScanQueueItems, numThreads, dumpPerfData, m_sysCallWrapper);
 
-    auto numScanThreads = std::thread::hardware_concurrency() / 2;
+    auto numScanThreads = (std::thread::hardware_concurrency() + 1) / 2;
     EXPECT_EQ(maxScanQueueItems, defaultMaxScanQueueSize);
-    EXPECT_EQ(maxThreads, numScanThreads);
+    EXPECT_EQ(numThreads, numScanThreads);
     EXPECT_FALSE(dumpPerfData);
 
     EXPECT_TRUE(appenderContains("Failed to read product config file info: [json.exception.type_error.302] type must be number, but is string"));
@@ -256,14 +256,14 @@ TEST_F(TestOnAccessConfigUtils, parseProductConfigSetsDefaultWhenFileDoenstExist
     UsingMemoryAppender memoryAppenderHolder(*this);
 
     size_t maxScanQueueItems = 0;
-    int maxThreads = 0;
+    int numThreads = 0;
     bool dumpPerfData = true;
 
-    readLocalSettingsFile(maxScanQueueItems, maxThreads, dumpPerfData, m_sysCallWrapper);
+    readLocalSettingsFile(maxScanQueueItems, numThreads, dumpPerfData, m_sysCallWrapper);
 
-    auto numScanThreads = std::thread::hardware_concurrency() / 2;
+    auto numScanThreads = (std::thread::hardware_concurrency() + 1) / 2;
     EXPECT_EQ(maxScanQueueItems, defaultMaxScanQueueSize);
-    EXPECT_EQ(maxThreads, numScanThreads);
+    EXPECT_EQ(numThreads, numScanThreads);
     EXPECT_FALSE(dumpPerfData);
 
     std::stringstream logmsg;
@@ -276,17 +276,17 @@ TEST_F(TestOnAccessConfigUtils, parseProductConfigSetsToProvidedValuesWhenFileEx
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    EXPECT_CALL(*m_mockIFileSystemPtr, readFile(m_oaLocalSettingsPath)).WillOnce(Return("{\"maxthreads\": 20,\"maxscanqueuesize\": 2000,\"dumpPerfData\": true}"));
+    EXPECT_CALL(*m_mockIFileSystemPtr, readFile(m_oaLocalSettingsPath)).WillOnce(Return(R"({"numThreads": 20, "maxscanqueuesize": 2000, "dumpPerfData": true})"));
     Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
 
     size_t maxScanQueueItems = 0;
-    int maxThreads = 0;
+    int numThreads = 0;
     bool dumpPerfData = false;
 
-    readLocalSettingsFile(maxScanQueueItems, maxThreads, dumpPerfData, m_sysCallWrapper);
+    readLocalSettingsFile(maxScanQueueItems, numThreads, dumpPerfData, m_sysCallWrapper);
 
     EXPECT_EQ(maxScanQueueItems, 2000);
-    EXPECT_EQ(maxThreads, 20);
+    EXPECT_EQ(numThreads, 20);
     EXPECT_TRUE(dumpPerfData);
 
     EXPECT_TRUE(appenderContains("Setting from file: Max queue size set to 2000 and Max threads set to 20"));
@@ -296,17 +296,17 @@ TEST_F(TestOnAccessConfigUtils, parseProductConfig_missingFields)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    EXPECT_CALL(*m_mockIFileSystemPtr, readFile(m_oaLocalSettingsPath)).WillOnce(Return("{\"maxthreads\": 20,\"maxscanqueuesize\": 2000}"));
+    EXPECT_CALL(*m_mockIFileSystemPtr, readFile(m_oaLocalSettingsPath)).WillOnce(Return(R"({"numThreads": 20, "maxscanqueuesize": 2000})"));
     Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
 
     size_t maxScanQueueItems = 0;
-    int maxThreads = 0;
+    int numThreads = 0;
     bool dumpPerfData = false;
 
-    readLocalSettingsFile(maxScanQueueItems, maxThreads, dumpPerfData, m_sysCallWrapper);
+    readLocalSettingsFile(maxScanQueueItems, numThreads, dumpPerfData, m_sysCallWrapper);
 
     EXPECT_EQ(maxScanQueueItems, 2000);
-    EXPECT_EQ(maxThreads, 20);
+    EXPECT_EQ(numThreads, 20);
     EXPECT_FALSE(dumpPerfData);
 
     EXPECT_TRUE(appenderContains("Setting from file: Max queue size set to 2000 and Max threads set to 20"));
@@ -316,18 +316,18 @@ TEST_F(TestOnAccessConfigUtils, parseProductConfigSetsToMaxPossibleValueWhenProv
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
     std::stringstream returnStr;
-    returnStr << "{\"maxthreads\": " << (maxAllowedScanningThreads + 1) << ",\"maxscanqueuesize\": " << (maxAllowedQueueSize + 1) << " ,\"dumpPerfData\": true}";
+    returnStr << R"({"numThreads": )" << (maxAllowedScanningThreads + 1) << R"(, "maxscanqueuesize": )" << (maxAllowedQueueSize + 1) << R"(, "dumpPerfData": true})";
     EXPECT_CALL(*m_mockIFileSystemPtr, readFile(m_oaLocalSettingsPath)).WillOnce(Return(returnStr.str()));
     Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
 
     size_t maxScanQueueItems = 0;
-    int maxThreads = 0;
+    int numThreads = 0;
     bool dumpPerfData = false;
 
-    readLocalSettingsFile(maxScanQueueItems, maxThreads, dumpPerfData, m_sysCallWrapper);
+    readLocalSettingsFile(maxScanQueueItems, numThreads, dumpPerfData, m_sysCallWrapper);
 
     EXPECT_EQ(maxScanQueueItems, maxAllowedQueueSize);
-    EXPECT_EQ(maxThreads, maxAllowedScanningThreads);
+    EXPECT_EQ(numThreads, maxAllowedScanningThreads);
     EXPECT_TRUE(dumpPerfData);
 
     std::stringstream queueSizeLogMsg;
@@ -349,18 +349,18 @@ TEST_F(TestOnAccessConfigUtils, parseProductConfigSetsToMinPossibleValueWhenProv
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
     std::stringstream returnStr;
-    returnStr << "{\"maxthreads\": " << (minAllowedScanningThreads - 1) << ",\"maxscanqueuesize\": " << (minAllowedQueueSize - 1) << " ,\"dumpPerfData\": true}";
+    returnStr << R"({"numThreads": )" << (minAllowedScanningThreads - 1) << R"(, "maxscanqueuesize": )" << (minAllowedQueueSize - 1) << R"(, "dumpPerfData": true})";
     EXPECT_CALL(*m_mockIFileSystemPtr, readFile(m_oaLocalSettingsPath)).WillOnce(Return(returnStr.str()));
     Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
 
     size_t maxScanQueueItems = 0;
-    int maxThreads = 0;
+    int numThreads = 0;
     bool dumpPerfData = false;
 
-    readLocalSettingsFile(maxScanQueueItems, maxThreads, dumpPerfData, m_sysCallWrapper);
+    readLocalSettingsFile(maxScanQueueItems, numThreads, dumpPerfData, m_sysCallWrapper);
 
     EXPECT_EQ(maxScanQueueItems, minAllowedQueueSize);
-    EXPECT_EQ(maxThreads, minAllowedScanningThreads);
+    EXPECT_EQ(numThreads, minAllowedScanningThreads);
     EXPECT_TRUE(dumpPerfData);
 
     std::stringstream queueSizeLogMsg;

@@ -249,3 +249,15 @@ On-access Scan Multiple Peend no detect
 
     LogUtils.Check On Access Log Does Not Contain Before Timeout  \ is infected with ${threat_name} \   mark=${mark}  timeout=5
 
+Remove OA local settings and terminate soapd in product test
+    Remove File   ${OA_LOCAL_SETTINGS}
+    ${mark} =  get_on_access_log_mark
+    Terminate On Access
+
+Set number of scanning threads in product test
+    [Arguments]  ${count}
+    Create File   ${OA_LOCAL_SETTINGS}   { "numThreads" : ${count} }
+    Register Cleanup   Remove OA local settings and terminate soapd in product test
+    ${mark} =  get_on_access_log_mark
+    Restart On Access
+    wait for on access log contains after mark   mount points in on-access scanning  mark=${mark}

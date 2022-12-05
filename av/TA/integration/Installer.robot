@@ -144,7 +144,7 @@ On access gets IDE update
     On-access Scan Peend
 
 On access gets IDE update to all scanners
-    Switch to 10 scanning threads
+    Set number of scanning threads in integration test  10
 
     Send Policies to enable on-access
     On-access Scan Eicar Close
@@ -156,7 +156,7 @@ On access gets IDE update to all scanners
     On-access Scan Multiple Peend
 
 On access gets IDE update to new scanners
-    Switch to 10 scanning threads
+    Set number of scanning threads in integration test  10
 
     # Ensure on-access is disabled
     #    restart on-access to ensure scanners are not initialized
@@ -1081,10 +1081,3 @@ Check no duplicate files in directory
 
 Cleanup Mocked Install Set
     Remove Directory    ${MOCKED_INSTALL_SET}    recursive=${True}
-
-Switch to 10 scanning threads
-    ${oa_local_settings} =   Set Variable   ${AV_PLUGIN_PATH}/var/on_access_local_settings.json
-    Create File   ${oa_local_settings}   { "maxthreads" : 10 }
-    Register Cleanup   Remove File   ${oa_local_settings}
-    Stop soapd
-    Start soapd

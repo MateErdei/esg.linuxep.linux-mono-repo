@@ -56,6 +56,7 @@ Global Setup Tasks
     Set Global Variable  ${MCS_PATH}                        ${SOPHOS_INSTALL}/base/mcs
     Set Global Variable  ${AV_PLUGIN_PATH}                  ${COMPONENT_ROOT_PATH}
     Set Global Variable  ${AV_LOG_PATH}                     ${AV_PLUGIN_PATH}/log/${COMPONENT}.log
+    Set Global Variable  ${OA_LOCAL_SETTINGS}               ${COMPONENT_VAR_DIR}/on_access_local_settings.json
 
     Set Global Variable  ${SAV_APPID}                       SAV
     Set Global Variable  ${ALC_APPID}                       ALC

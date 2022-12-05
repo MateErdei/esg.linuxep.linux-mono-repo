@@ -12,8 +12,6 @@
 #include "Common/FileSystem/IFileSystem.h"
 #include "Common/FileSystem/IFileSystemException.h"
 
-#include <thread>
-
 namespace fs = sophos_filesystem;
 using json = nlohmann::json;
 
@@ -80,7 +78,7 @@ namespace sophos_on_access_process::OnAccessConfig
         return readPolicyConfigFile(policyConfigFilePath());
     }
 
-    void readLocalSettingsFile(size_t& maxScanQueueSize, int& maxNumberOfScanThread, bool& dumpPerfData, const std::shared_ptr<datatypes::ISystemCallWrapper>& sysCalls)
+    void readLocalSettingsFile(size_t& maxScanQueueSize, int& numScanThreads, bool& dumpPerfData, const std::shared_ptr<datatypes::ISystemCallWrapper>& sysCalls)
     {
         maxScanQueueSize = defaultMaxScanQueueSize;
         dumpPerfData = defaultDumpPerfData;
@@ -93,17 +91,17 @@ namespace sophos_on_access_process::OnAccessConfig
         bool usedFileValues = false;
 
         //may return 0 when not able to detect
-        auto hardware_concurrency = sysCalls->hardware_concurrency();
-        if (hardware_concurrency > 0)
+        auto hardwareConcurrency = sysCalls->hardware_concurrency();
+        if (hardwareConcurrency > 0)
         {
             // Add 1 so that the result is rounded up and never less than 1
-            maxNumberOfScanThread = (hardware_concurrency + 1) / 2;
-            LOGDEBUG("Number of scanning threads set to " << maxNumberOfScanThread);
-            assert(maxNumberOfScanThread > 0);
+            numScanThreads = (hardwareConcurrency + 1) / 2;
+            LOGDEBUG("Number of scanning threads set to " << numScanThreads);
+            assert(numScanThreads > 0);
         }
         else
         {
-            maxNumberOfScanThread = defaultScanningThreads;
+            numScanThreads = defaultScanningThreads;
             LOGDEBUG("Could not determine hardware concurrency. Number of scanning threads defaulting to " << defaultScanningThreads);
         }
 
@@ -116,7 +114,7 @@ namespace sophos_on_access_process::OnAccessConfig
                 {
                     auto parsedConfigJson = json::parse(configJson);
                     maxScanQueueSize = parsedConfigJson.value("maxscanqueuesize", defaultMaxScanQueueSize);
-                    maxNumberOfScanThread = parsedConfigJson.value("maxthreads", maxNumberOfScanThread);
+                    numScanThreads = parsedConfigJson.value("numThreads", numScanThreads);
                     dumpPerfData = parsedConfigJson.value("dumpPerfData", defaultDumpPerfData);
 
                     if (maxScanQueueSize > maxAllowedQueueSize)
@@ -129,15 +127,15 @@ namespace sophos_on_access_process::OnAccessConfig
                         LOGDEBUG("Queue size of " << maxScanQueueSize << " is less than minimum allowed of " << minAllowedQueueSize);
                         maxScanQueueSize = minAllowedQueueSize;
                     }
-                    if (maxNumberOfScanThread > maxAllowedScanningThreads)
+                    if (numScanThreads > maxAllowedScanningThreads)
                     {
-                        LOGDEBUG("Scanning Thread count of " << maxNumberOfScanThread << " is greater than maximum allowed of " << maxAllowedScanningThreads);
-                        maxNumberOfScanThread = maxAllowedScanningThreads;
+                        LOGDEBUG("Scanning Thread count of " << numScanThreads << " is greater than maximum allowed of " << maxAllowedScanningThreads);
+                        numScanThreads = maxAllowedScanningThreads;
                     }
-                    if (maxNumberOfScanThread < minAllowedScanningThreads)
+                    if (numScanThreads < minAllowedScanningThreads)
                     {
-                        LOGDEBUG("Scanning Thread count of " << maxNumberOfScanThread << " is less than minimum allowed of " << minAllowedScanningThreads);
-                        maxNumberOfScanThread = minAllowedScanningThreads;
+                        LOGDEBUG("Scanning Thread count of " << numScanThreads << " is less than minimum allowed of " << minAllowedScanningThreads);
+                        numScanThreads = minAllowedScanningThreads;
                     }
 
 
@@ -153,7 +151,7 @@ namespace sophos_on_access_process::OnAccessConfig
         {
         }
         std::string logmsg = usedFileValues ? "Setting from file: " : "Setting from defaults: ";
-        LOGDEBUG(logmsg << "Max queue size set to " << maxScanQueueSize << " and Max threads set to " << maxNumberOfScanThread);
+        LOGDEBUG(logmsg << "Max queue size set to " << maxScanQueueSize << " and Max threads set to " << numScanThreads);
     }
 
     std::string readFlagConfigFile()
