@@ -72,7 +72,7 @@ Test av can publish events and that journaler can receive them after av restart
 
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLS_PATH} /tmp/dirty_file2
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-    dump_cloud_server_log
+
     Wait Until Keyword Succeeds
     ...  15 secs
     ...  1 secs
