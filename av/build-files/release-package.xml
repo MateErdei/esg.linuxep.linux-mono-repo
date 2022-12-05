@@ -10,14 +10,14 @@
         <!--Plugin Api Candidate Build - Change values below to match the latest Candidate build of base.
             -->
         <build-asset project="linuxep" repo="everest-base">
-            <release-version branch="release/2022-48"
-                             build-id="20221120203615-3366f54a200355d24cc68279aa2058b63b6e6df8-xhcyE7"/>
+            <release-version branch="release/2022-51"
+                             build-id="20221202173457-a2db21866759920aa39555c15bbfcc09939fd16e-VpQpjR"/>
             <development-version branch="develop"/>
             <include artifact-path="sspl-base/pluginapi" dest-dir="input"/>
             <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="input/base-sdds"/>
         </build-asset>
         <build-asset project="core" repo="safestore">
-            <release-version branch="release/2022-w48" build-id="20221119005352-4f6694485fb06a7fdbb4761720d387d84b61e2df-LuUBmE"/>
+            <release-version branch="release/2.0" build-id="20221202162039-b975b35677e594f034680ba4924c084aae98d4a0-zym8a1"/>
             <development-version branch="develop" />
             <include artifact-path="safestore/linux-x64/lib" dest-dir="input/safestore_input"/>
             <include artifact-path="safestore/linux-x64/interface" dest-dir="input/safestore_input"/>
@@ -82,14 +82,14 @@
         </build-asset>
 
         <build-asset project="ec" repo="liblocalrep">
-            <release-version branch="release/2022-w46"
-                             build-id="20221118102844-b47ed8a24b70a320e69fc0dd20739574b92e18d1-p4jo0h"/>
+            <release-version branch="release/2.4"
+                             build-id="20221130103555-0238a2dbd301c1c11c2eca2ada391ea29f58f993-J7o6A8"/>
             <include artifact-path="release/linux64/bin" dest-dir="input/susi_input/lrlib"/>
         </build-asset>
 
         <build-asset project="ec" repo="susi">
-            <release-version branch="release/2022-w48"
-                             build-id="20221119214450-8b4c7a574a63a2db19e9728e47856787b40185a6-BX09yc"/>
+            <release-version branch="release/2.1"
+                             build-id="20221130122636-fad6ff6b74996d27eed80f1db6a839fee75f1515-QhdWll"/>
             <include artifact-path="release/linux/libsusi" dest-dir="input/susi_input/susi/lib"/>
             <include artifact-path="release/linux/interface" dest-dir="input/susi_input/susi/include"/>
             <include artifact-path="release/rules" dest-dir="input/susi_input/rules"/>
