@@ -248,9 +248,9 @@ function apply_permissions()
     mkdir -p "$SAFESTORE_DB_PATH"
     chown -R root:root "${SAFESTORE_DB_PATH}"
     chmod 0700 "${SAFESTORE_DB_PATH}"
-    chmod 0400 "${SAFESTORE_DB_PATH}/*"
-    chmod 0600 "${SAFESTORE_DB_PATH}/safestore.db"
-    chmod 0600 "${SAFESTORE_DB_PATH}/safestore.pw"
+    [[ "$(ls -A "${SAFESTORE_DB_PATH}")" ]] && chmod 0400 "${SAFESTORE_DB_PATH}/*"
+    [[ -f "${SAFESTORE_DB_PATH}/safestore.db" ]] && chmod 0600 "${SAFESTORE_DB_PATH}/safestore.db"
+    [[ -f "${SAFESTORE_DB_PATH}/safestore.pw" ]] && chmod 0600 "${SAFESTORE_DB_PATH}/safestore.pw"
 
     CHROOT="${PLUGIN_INSTALL}/chroot"
     CHROOT_LINK_DIR="${CHROOT}/${PLUGIN_INSTALL#/}"
@@ -446,7 +446,7 @@ function install_product()
     ln -snf "${PLUGIN_INSTALL}/sbin/uninstall.sh" "${SOPHOS_INSTALL}/base/update/var/installedproducts/${PRODUCT_LINE_ID}.sh"
     ln -snf "${PLUGIN_INSTALL}/VERSION.ini" "${SOPHOS_INSTALL}/base/update/var/installedproductversions/${PRODUCT_LINE_ID}.ini"
 
-    restore_safestore_databases
+    [[ -d "${PLUGIN_INSTALL}/var/downgrade-backup" ]] && restore_safestore_databases
 
     apply_permissions
 
