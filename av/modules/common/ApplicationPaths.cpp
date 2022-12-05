@@ -51,7 +51,7 @@ namespace Plugin
 
     std::string getSafeStorePidPath()
     {
-        return getPluginSafeStoreDirPath() + "/safestore.pid";
+        return getPluginVarDirPath() + "/safestore.pid";
     }
 
     std::string getSafeStoreSocketPath()

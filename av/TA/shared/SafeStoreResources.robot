@@ -7,7 +7,7 @@ Resource    GlobalSetup.robot
 ${SAFESTORE_BIN}                      ${COMPONENT_ROOT_PATH}/sbin/safestore
 
 ${SAFESTORE_LOG_PATH}                 ${AV_PLUGIN_PATH}/log/safestore.log
-${SAFESTORE_PID_FILE}                 ${COMPONENT_SAFESTORE_DIR}/safestore.pid
+${SAFESTORE_PID_FILE}                 ${COMPONENT_VAR_DIR}/safestore.pid
 ${SAFESTORE_SOCKET_PATH}              ${COMPONENT_VAR_DIR}/safestore_socket
 
 ${SAFESTORE_DB_DIR}                   ${COMPONENT_SAFESTORE_DIR}/safestore_db
