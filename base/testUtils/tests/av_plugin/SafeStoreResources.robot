@@ -4,6 +4,7 @@ Library    OperatingSystem
 Library    ${LIBS_DIRECTORY}/FaultInjectionTools.py
 Library    ${LIBS_DIRECTORY}/LogUtils.py
 Library    ${LIBS_DIRECTORY}/OSUtils.py
+Library    ${LIBS_DIRECTORY}/SafeStoreUtils.py
 
 Resource    AVResources.robot
 Resource    ../scheduler_update/SchedulerUpdateResources.robot
@@ -22,7 +23,6 @@ ${SAFESTORE_DB_PASSWORD_PATH}       ${SAFESTORE_DB_DIR}/safestore.pw
 
 ${THREAT_DATABASE_PATH}             ${AV_PLUGIN_PATH}/var/persist-threatDatabase
 
-${SAFESTORE_TOOL}                   ${SYSTEMPRODUCT_TEST_INPUT}/safestore_tool/ssr
 
 *** Keywords ***
 Stop SafeStore
@@ -119,9 +119,3 @@ Remove All But One SafeStore Backup And Return Backup
     END
 
     [Return]    ${AV_RESTORED_VAR_DIRECTORY}/${safeStoreDatabaseBackupDirs[0]}
-
-Get Contents of SafeStore Database
-    ${dbPassword} =    Read Hexadecimal File    ${SAFESTORE_DB_PASSWORD_PATH}
-    ${rc}   ${dbContent} =    Run And Return Rc And Output    LIBRARY_PATH=/opt/sophos-spl/base/lib64 bash ${SAFESTORE_TOOL} -dbpath=${SAFESTORE_DB_PATH} -pass=${dbPassword} -l
-    Should Be Equal As Integers    ${rc}    ${0}
-    [Return]    ${dbContent}

@@ -6,6 +6,7 @@ Library    ${LIBS_DIRECTORY}/FullInstallerUtils.py
 Library    ${LIBS_DIRECTORY}/LogUtils.py
 Library    ${LIBS_DIRECTORY}/MCSRouter.py
 Library    ${LIBS_DIRECTORY}/OSUtils.py
+Library    ${LIBS_DIRECTORY}/SafeStoreUtils.py
 Library    ${LIBS_DIRECTORY}/TelemetryUtils.py
 Library    ${LIBS_DIRECTORY}/ThinInstallerUtils.py
 Library    ${LIBS_DIRECTORY}/UpdateSchedulerHelper.py
