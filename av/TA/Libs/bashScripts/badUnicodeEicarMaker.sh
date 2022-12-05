@@ -33,5 +33,5 @@ echoEicar > $'FFFE8-\xEF\xBF\xBE'
 
 echoEicar > $'FFFF8-\xEF\xBF\xBF'
 
-echoEicar > $'\xEF\xBF\xBE\xEF\xBF\xBF'
+echoEicar > $'FFFEFFFF8-\xEF\xBF\xBE\xEF\xBF\xBF'
 
