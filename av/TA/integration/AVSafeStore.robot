@@ -240,9 +240,8 @@ With SafeStore Enabled But Not Running We Can Send Threats To AV
     Check avscanner can detect eicar
 
     Wait Until AV Plugin Log Contains Detection Name After Mark  ${av_mark}  EICAR-AV-Test
-    Wait For Log Contains From Mark  ${av_mark}    Failed to write to SafeStore socket.
+    Wait For Log Contains From Mark  ${av_mark}    Failed to connect to SafeStore
     Check SafeStore Not Running
-    Mark Expected Error In Log    ${AV_PLUGIN_PATH}/log/av.log    Aborting SafeStore connection : failed to read length
 
 
 SafeStore Does Not Attempt To Quarantine File On ReadOnly Mount
