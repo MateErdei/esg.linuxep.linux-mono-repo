@@ -155,6 +155,33 @@ namespace OsquerySDK
                 r["monitor_mode"] = to_string(jsonObject["monitor_mode"]);
             }
 
+            if (jsonObject.contains("quarantineSuccess"))
+            {
+                if (jsonObject["quarantineSuccess"])
+                {
+                    r["quarantine_success"] = "1";
+                }
+                else
+                {
+                    r["quarantine_success"] = "0";
+                }
+            }
+            if (jsonObject.contains("avScanType"))
+            {
+                r["av_scan_type"] = jsonObject["avScanType"] == 201 ? "on_access":"on_demand";
+                if (r["av_scan_type"] == "on_access")
+                {
+                    if (jsonObject.contains("pid"))
+                    {
+                        r["pid"] = to_string(jsonObject["pid"]);
+                    }
+                    if (jsonObject.contains("processParentPath"))
+                    {
+                        r["process_parent_path"] = jsonObject["processParentPath"];
+                    }
+                }
+            }
+
             results.push_back(std::move(r));
             newJrl = entry.jrl;
         }

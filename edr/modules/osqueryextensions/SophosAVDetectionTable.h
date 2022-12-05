@@ -144,8 +144,27 @@ namespace OsquerySDK
              * @description
              * Sophos PID of the accessing process (if known)
              */
-            TABLE_PLUGIN_COLUMN(primary_item_spid, TEXT_TYPE, ColumnOptions::DEFAULT))
-
+            TABLE_PLUGIN_COLUMN(primary_item_spid, TEXT_TYPE, ColumnOptions::DEFAULT),
+            /*
+             * @description
+             * string value either on_access or on_demand  (if known) values set in av repo modules/scan_messages/ScanType.h
+             */
+                TABLE_PLUGIN_COLUMN(av_scan_type, TEXT_TYPE, ColumnOptions::DEFAULT),
+            /*
+            * @description
+            * PID of the process that triggered an on access detection (if known)
+            */
+                TABLE_PLUGIN_COLUMN(pid, INTEGER_TYPE, ColumnOptions::DEFAULT),
+            /*
+            * @description
+            * Path of executable that triggered an on access detection (if known)
+            */
+                TABLE_PLUGIN_COLUMN(process_parent_path, TEXT_TYPE, ColumnOptions::DEFAULT),
+            /*
+            * @description
+            * quarantine_success is an enum with values (false=0, true=1)
+            */
+                TABLE_PLUGIN_COLUMN(quarantine_success, TEXT_TYPE, ColumnOptions::DEFAULT))
         OsquerySDK::TableRows Generate(OsquerySDK::QueryContextInterface& context) override;
     };
 }

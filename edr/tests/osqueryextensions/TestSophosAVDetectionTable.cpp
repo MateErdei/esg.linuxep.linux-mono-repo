@@ -22,7 +22,9 @@ public:
 
     static std::string getSampleJson()
     {
+        //onaccess detection
         return R"({
+               "avScanType":201,
                "details": {
                "time": 123123123,
                "certificates": {},
@@ -66,11 +68,47 @@ public:
                         "type": 1
                     }
                 },
+                "pid": 100,
+                "processParentPath": "parentPath",
+                "quarantineSuccess": true,
                 "threatSource": 0,
                 "threatType": 1
                })";
     }
-
+    static std::string getOnDemandJson()
+    {
+        //ondemand detection
+        return R"({
+               "avScanType":203,
+                "detectionName": {
+                    "short": "ML/PE-A"
+                },
+                "flags": {
+                    "isSuppressible": false,
+                    "isUserVisible": true,
+                    "sendVdlTelemetry": true,
+                    "useClassicTelemetry": true,
+                    "useSavScanResults": true
+                },
+                "items": {
+                    "1": {
+                        "certificates": {"details": {}, "isSigned": false, "signerInfo": []},
+                        "cleanUp": true,
+                        "isPeFile": true,
+                        "path": "/opt/testdir/file.sh",
+                        "primary": true,
+                        "remotePath": false,
+                        "sha256": "c88e20178a82af37a51b030cb3797ed144126cad09193a6c8c7e95957cf9c3f9",
+                        "type": 1
+                    }
+                },
+                "pid": 100,
+                "processParentPath": "parentPath",
+                "quarantineSuccess": true,
+                "threatSource": 0,
+                "threatType": 1
+               })";
+    }
     static std::string getSampleJson2()
     {
         return R"({
@@ -269,6 +307,10 @@ TEST_F(TestSophosAVDetectionTable, testTableGenerationCreatesDataCorrectlyWithNo
     r["threat_type"] = "Malware";
     r["sid"] = "";
     r["monitor_mode"] = "0";  // optional, ask whether it is a field on its own, or a json field
+    r["av_scan_type"] = "on_access";
+    r["pid"] = "100";
+    r["process_parent_path"] = "parentPath";
+    r["quarantine_success"] = "1";
     expectedResults.push_back(std::move(r));
 
     auto MockReaderWrapper = std::make_shared<MockJournalReaderWrapper>();
@@ -297,6 +339,55 @@ TEST_F(TestSophosAVDetectionTable, testTableGenerationCreatesDataCorrectlyWithNo
     EXPECT_EQ(expectedResults,actualResults);
 }
 
+TEST_F(TestSophosAVDetectionTable, testTableGenerationCreatesDataCorrectlyWithOnDemandQuery)
+{
+    std::string queryId("");
+    TableRows expectedResults;
+    TableRow r;
+    r["time"] = "123123123";
+    r["rowid"] = "0";
+    r["query_id"] = queryId;
+    r["raw"] = getOnDemandJson();
+    r["primary_item"] = getPrimaryItemJson();
+    r["primary_item_type"] = "FILE";
+    r["primary_item_name"] = "/opt/testdir/file.sh";
+    r["detection_thumbprint"] = "c88e20178a82af37a51b030cb3797ed144126cad09193a6c8c7e95957cf9c3f9";
+    r["primary_item_spid"] = "";
+    r["detection_name"] = "ML/PE-A";
+    r["threat_source"] = "ML";
+    r["threat_type"] = "Malware";
+    r["sid"] = "";
+    r["monitor_mode"] = "0";  // optional, ask whether it is a field on its own, or a json field
+    r["av_scan_type"] = "on_demand";
+    r["quarantine_success"] = "1";
+    expectedResults.push_back(std::move(r));
+
+    auto MockReaderWrapper = std::make_shared<MockJournalReaderWrapper>();
+
+    Common::EventJournalWrapper::Entry entry;
+    entry.timestamp = 123123123;
+    entry.producerUniqueID = 0;
+    entry.data = std::vector<uint8_t> {};
+    entry.jrl = "jrl";
+    std::vector<Common::EventJournalWrapper::Entry> entries = {entry};
+    Common::EventJournalWrapper::Detection detection;
+    detection.data = getOnDemandJson();
+    std::pair<bool, Common::EventJournalWrapper::Detection> detectionResult =
+        std::make_pair(true, detection);
+    std::set<std::string> greaterThanSet = {"0"};
+    std::set<std::string> emptySet = {};
+    NiceMock<MockQueryContext> context;
+    EXPECT_CALL(context, GetConstraints("time",_)).WillRepeatedly(Return(emptySet));
+    EXPECT_CALL(context, GetConstraints("time",OsquerySDK::GREATER_THAN)).WillOnce(Return(greaterThanSet));
+    EXPECT_CALL(context, GetConstraints("query_id",_)).WillOnce(Return(emptySet));
+    EXPECT_CALL(*MockReaderWrapper, getEntries(_,0,0,_,_)).WillOnce(Return(entries));
+    EXPECT_CALL(*MockReaderWrapper, decode(_)).WillRepeatedly(Return(detectionResult));
+    OsquerySDK::SophosAVDetectionTableGenerator generator;
+    auto actualResults = generator.GenerateData( context, MockReaderWrapper);
+
+    EXPECT_EQ(expectedResults,actualResults);
+}
+
 TEST_F(TestSophosAVDetectionTable, testTableGenerationCreatesDataCorrectlyWithMultipleEntriesReturnsDataCorrectly)
 {
     std::string queryId("");
@@ -307,7 +398,7 @@ TEST_F(TestSophosAVDetectionTable, testTableGenerationCreatesDataCorrectlyWithMu
         r["time"] = "123123123";
         r["rowid"] = "0";
         r["query_id"] = queryId;
-        r["raw"] = getSampleJson();
+
         r["primary_item"] = getPrimaryItemJson();
         r["primary_item_type"] = "FILE";
         r["primary_item_name"] = "/opt/testdir/file.sh";
@@ -318,6 +409,18 @@ TEST_F(TestSophosAVDetectionTable, testTableGenerationCreatesDataCorrectlyWithMu
         r["threat_type"] = "Malware";
         r["sid"] = "";
         r["monitor_mode"] = "0"; // optional, ask whether it is a field on its own, or a json field
+        if(i==0)
+        {
+            r["raw"] = getSampleJson();
+            r["av_scan_type"] = "on_access";
+            r["pid"] = "100";
+            r["process_parent_path"] = "parentPath";
+            r["quarantine_success"] = "1";
+        }
+        else
+        {
+            r["raw"] = getSampleJson2();
+        }
         expectedResults.push_back(std::move(r));
     }
 
@@ -396,6 +499,10 @@ TEST_F(TestSophosAVDetectionTable, testTableGenerationCreatesDataCorrectlyWithQu
     r["threat_type"] = "Malware";
     r["sid"] = "";
     r["monitor_mode"] = "0";  // optional, ask whether it is a field on its own, or a json field
+    r["av_scan_type"] = "on_access";
+    r["pid"] = "100";
+    r["process_parent_path"] = "parentPath";
+    r["quarantine_success"] = "1";
     expectedResults.push_back(std::move(r));
 
     auto MockReaderWrapper = std::make_shared<MockJournalReaderWrapper>();
@@ -450,6 +557,10 @@ TEST_F(TestSophosAVDetectionTable, testTableGenerationClearsJRLWhenTenEventMaxsA
     r["threat_type"] = "Malware";
     r["sid"] = "";
     r["monitor_mode"] = "0"; // optional, ask whether it is a field on its own, or a json field
+    r["av_scan_type"] = "on_access";
+    r["pid"] = "100";
+    r["process_parent_path"] = "parentPath";
+    r["quarantine_success"] = "1";
     expectedResults.push_back(std::move(r));
 
     auto MockReaderWrapper = std::make_shared<MockJournalReaderWrapper>();
@@ -504,6 +615,10 @@ TEST_F(TestSophosAVDetectionTable, testTableGenerationCreatesDataCorrectlyWithQu
     r["threat_type"] = "Malware";
     r["sid"] = "";
     r["monitor_mode"] = "0";  // optional, ask whether it is a field on its own, or a json field
+    r["av_scan_type"] = "on_access";
+    r["pid"] = "100";
+    r["process_parent_path"] = "parentPath";
+    r["quarantine_success"] = "1";
     expectedResults.push_back(std::move(r));
 
     auto MockReaderWrapper = std::make_shared<MockJournalReaderWrapper>();
@@ -555,6 +670,10 @@ TEST_F(TestSophosAVDetectionTable, testTableGenerationCreatesDataCorrectlyWithQu
     r["threat_type"] = "Malware";
     r["sid"] = "";
     r["monitor_mode"] = "0";  // optional, ask whether it is a field on its own, or a json field
+    r["av_scan_type"] = "on_access";
+    r["pid"] = "100";
+    r["process_parent_path"] = "parentPath";
+    r["quarantine_success"] = "1";
     expectedResults.push_back(std::move(r));
 
     auto MockReaderWrapper = std::make_shared<MockJournalReaderWrapper>();
