@@ -194,7 +194,7 @@ TEST_F(TestPluginAdapter, testRequestPoliciesThrows)
     m_taskQueue->pushStop();
     pluginAdapter.mainLoop();
 
-    EXPECT_TRUE(appenderContains("Received Policy"));
+    EXPECT_TRUE(appenderContains("Received SAV policy"));
     EXPECT_TRUE(appenderContains("Failed to request SAV policy at startup (dummy error)"));
     EXPECT_TRUE(appenderContains("Failed to request ALC policy at startup (dummy error)"));
     EXPECT_TRUE(appenderContains("Failed to request FLAGS policy at startup (dummy error)"));
@@ -255,9 +255,9 @@ TEST_F(TestPluginAdapter, testProcessPolicy)
 
     pluginAdapter.mainLoop();
 
-    EXPECT_TRUE(appenderContains("Received Policy"));
-    EXPECT_TRUE(appenderContains("Processing policy: " + policy1Xml));
-    EXPECT_TRUE(appenderContains("Processing policy: " + policy2Xml));
+    EXPECT_TRUE(appenderContains("Received SAV policy"));
+    EXPECT_TRUE(appenderContains("Processing SAV policy: " + policy1Xml));
+    EXPECT_TRUE(appenderContains("Processing SAV policy: " + policy2Xml));
     EXPECT_TRUE(appenderContains("Received new policy with revision ID: 123"));
     // We now see all of the restart events
     EXPECT_EQ(appenderCount("Processing request to restart sophos threat detector"), 3);
@@ -331,9 +331,9 @@ TEST_F(TestPluginAdapter, testProcessPolicy_ignoresPolicyWithWrongID)
     EXPECT_CALL(*mockBaseServicePtr, sendThreatHealth("{\"ThreatHealth\":1}")).Times(1);
     pluginAdapter.mainLoop();
 
-    EXPECT_TRUE(appenderContains("Received Policy"));
-    EXPECT_TRUE(appenderContains("Processing policy: " + policy2Xml));
-    EXPECT_TRUE(appenderContains("Ignoring unknown policy"));
+    EXPECT_TRUE(appenderContains("Received SAV policy"));
+    EXPECT_TRUE(appenderContains("Processing SAV policy: " + policy2Xml));
+    EXPECT_TRUE(appenderContains("Ignoring unknown policy with APPID: SAV, content:"));
     EXPECT_TRUE(appenderContains("Received new policy with revision ID: 123"));
 }
 
@@ -377,8 +377,8 @@ TEST_F(TestPluginAdapter, testProcessUpdatePolicy)
     EXPECT_CALL(*mockBaseServicePtr, sendThreatHealth("{\"ThreatHealth\":1}")).Times(1);
     pluginAdapter.mainLoop();
 
-    EXPECT_TRUE(appenderContains("Received Policy"));
-    EXPECT_TRUE(appenderContains("Processing policy: " + policyXml));
+    EXPECT_TRUE(appenderContains("Received ALC policy"));
+    EXPECT_TRUE(appenderContains("Processing ALC policy: " + policyXml));
 }
 
 TEST_F(TestPluginAdapter, testProcessUpdatePolicyThrowsIfInvalidXML)
@@ -413,7 +413,7 @@ TEST_F(TestPluginAdapter, testProcessUpdatePolicyThrowsIfInvalidXML)
     Task policyTask = { .taskType = Task::TaskType::Policy, .Content = brokenPolicyXml, .appId = "SAV" };
     m_taskQueue->push(policyTask);
 
-    EXPECT_TRUE(waitForLog("Exception encountered while parsing AV policy XML: Error parsing xml", 500ms));
+    EXPECT_TRUE(waitForLog("Exception encountered while parsing SAV policy XML: Error parsing xml", 500ms));
 
     Task stopTask = { Task::TaskType::Stop, "" };
     m_taskQueue->push(stopTask);
@@ -495,7 +495,7 @@ TEST_F(TestPluginAdapter, testPluginAdaptorDoesntRestartThreatDetectorWithInvali
 
     Task policyTask = { .taskType = Task::TaskType::Policy, .Content = invalidPolicyXml, .appId = "SAV" };
     m_taskQueue->push(policyTask);
-    EXPECT_TRUE(waitForLog("Received Policy", 500ms));
+    EXPECT_TRUE(waitForLog("Received SAV policy", 500ms));
 
     Task stopTask = { Task::TaskType::Stop, "" };
     m_taskQueue->push(stopTask);
@@ -550,9 +550,9 @@ TEST_F(TestPluginAdapter, testProcessUpdatePolicy_ignoresPolicyWithWrongID)
     EXPECT_CALL(*mockBaseServicePtr, sendThreatHealth("{\"ThreatHealth\":1}")).Times(1);
     pluginAdapter.mainLoop();
 
-    EXPECT_TRUE(appenderContains("Received Policy"));
+    EXPECT_TRUE(appenderContains("Received SAV policy"));
     EXPECT_TRUE(appenderContains("Ignoring unknown policy"));
-    EXPECT_TRUE(appenderContains("Processing policy: " + policy2Xml));
+    EXPECT_TRUE(appenderContains("Processing ALC policy: " + policy2Xml));
 }
 
 TEST_F(TestPluginAdapter, testProcessAction)
@@ -1024,7 +1024,7 @@ TEST_F(TestPluginAdapter, testInvalidTaskType)
 
     pluginAdapter.mainLoop();
 
-    EXPECT_TRUE(appenderContains("Received Policy"));
+    EXPECT_TRUE(appenderContains("Received SAV policy"));
 }
 
 TEST_F(TestPluginAdapter, testCanStopWhileWaitingForFirstPolicies)

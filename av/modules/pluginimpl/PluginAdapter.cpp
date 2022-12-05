@@ -294,7 +294,13 @@ namespace Plugin
 
     void PluginAdapter::processPolicy(const std::string& policyXml, const PolicyWaiterSharedPtr& policyWaiter, const std::string& appId)
     {
-        LOGINFO("Received Policy");
+        LOGINFO("Received " << appId << " policy");
+        if (policyXml.empty())
+        {
+            LOGERROR("Received empty policy for " << appId);
+            // Can't parse empty policy
+            return;
+        }
         try
         {
             auto attributeMap = Common::XmlUtilities::parseXml(policyXml);
@@ -302,8 +308,8 @@ namespace Plugin
 
             if (policyType == PolicyType::ALC)
             {
-                LOGINFO("Processing ALC Policy");
-                LOGDEBUG("Processing policy: " << policyXml);
+                LOGINFO("Processing ALC policy");
+                LOGDEBUG("Processing ALC policy: " << policyXml);
                 m_policyProcessor.processAlcPolicy(attributeMap);
                 LOGDEBUG("Finished processing ALC Policy");
                 policyWaiter->gotPolicy("ALC");
@@ -311,8 +317,8 @@ namespace Plugin
             }
             else if (policyType == PolicyType::SAV)
             {
-                LOGINFO("Processing SAV Policy");
-                LOGDEBUG("Processing policy: " << policyXml);
+                LOGINFO("Processing SAV policy");
+                LOGDEBUG("Processing SAV policy: " << policyXml);
                 bool policyIsValid = m_scanScheduler->updateConfig(manager::scheduler::ScheduledScanConfiguration(attributeMap));
                 if (policyIsValid)
                 {
@@ -336,6 +342,7 @@ namespace Plugin
             }
             else if (policyType == PolicyType::CORE)
             {
+                LOGDEBUG("Processing CORE policy");
                 m_policyProcessor.processCOREpolicy(attributeMap);
                 policyWaiter->gotPolicy("CORE");
             }
@@ -346,11 +353,11 @@ namespace Plugin
         }
         catch (const Common::XmlUtilities::XmlUtilitiesException& e)
         {
-            LOGERROR("Exception encountered while parsing AV policy XML: " << e.what());
+            LOGERROR("Exception encountered while parsing " << appId << " policy XML: " << e.what());
         }
         catch (const std::exception& e)
         {
-            LOGERROR("Exception encountered while processing AV policy: " << e.what());
+            LOGERROR("Exception encountered while processing " << appId << " policy: " << e.what());
         }
     }
 
