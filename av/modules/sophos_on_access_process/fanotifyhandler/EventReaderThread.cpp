@@ -36,7 +36,7 @@ EventReaderThread::EventReaderThread(
     onaccessimpl::onaccesstelemetry::OnAccessTelemetryUtilitySharedPtr telemetryUtility)
     : m_fanotify(std::move(fanotify))
     , m_sysCalls(std::move(sysCalls))
-    , m_pluginLogDir(pluginInstall / "log")
+    , m_pluginLogDir(pluginInstall / "log" / "")
     , m_scanRequestQueue(std::move(scanRequestQueue))
     , m_telemetryUtility(std::move(telemetryUtility))
     , m_pid(getpid())

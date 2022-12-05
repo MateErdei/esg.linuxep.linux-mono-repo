@@ -80,8 +80,7 @@ protected:
         m_smallScanRequestQueue = std::make_shared<ScanRequestQueue>(3);
         m_telemetryUtility = std::make_shared<OnAccessTelemetryUtility>();
         auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
-        const auto* pluginInstall = "/opt/sophos-spl/plugins/av";
-        appConfig.setData("PLUGIN_INSTALL", pluginInstall);
+        appConfig.setData("PLUGIN_INSTALL", m_pluginInstall);
         m_statbuf.st_uid = 321;
     }
 
@@ -587,6 +586,30 @@ TEST_F(TestEventReaderThread, TestReaderSkipsEventsInPluginLogDir)
 
     EXPECT_TRUE(waitForLog("Stopping the reading of Fanotify events", 500ms));
     EXPECT_EQ(m_scanRequestQueue->size(), 0);
+}
+
+TEST_F(TestEventReaderThread, TestReaderDoesntSkipEventsInSimilarDirToPluginLogDir)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    int fanotifyFD = FANOTIFY_FD;
+    auto metadata = getMetaData();
+    const char* filePath = "/opt/sophos-spl/plugins/av/logz/soapd.log";
+
+    EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))
+        .WillOnce(pollReturnsWithRevents(1, POLLIN))
+        .WillOnce(pollReturnsWithRevents(0, POLLIN));
+    EXPECT_CALL(*m_mockSysCallWrapper, read(fanotifyFD, _, _)).WillOnce(readReturnsStruct(metadata));
+
+    EXPECT_CALL(*m_mockSysCallWrapper, readlink(_, _, _)).WillOnce(readlinkReturnPath(filePath));
+    EXPECT_CALL(*m_mockSysCallWrapper, _stat(_, _)).WillOnce(DoAll(SetArgPointee<1>(m_statbuf), Return(0)));
+    defaultFstat();
+
+    auto eventReader = makeDefaultEventReaderThread();
+    common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
+
+    EXPECT_TRUE(waitForLog("Stopping the reading of Fanotify events", 500ms));
+    EXPECT_EQ(m_scanRequestQueue->size(), 1);
 }
 
 TEST_F(TestEventReaderThread, TestReaderSkipsExcludedPaths)
