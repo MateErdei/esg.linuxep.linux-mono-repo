@@ -5,6 +5,7 @@
 #include "PluginMemoryAppenderUsingTests.h"
 
 #include "common/ApplicationPaths.h"
+#include "common/CentralEnums.h"
 #include "datatypes/sophos_filesystem.h"
 #include "pluginimpl/DetectionReporter.h"
 #include "pluginimpl/Logger.h"
@@ -32,6 +33,7 @@
 using namespace testing;
 using namespace Plugin;
 using namespace scan_messages;
+using namespace common::CentralEnums;
 
 namespace fs = sophos_filesystem;
 
@@ -126,6 +128,26 @@ namespace
             }
         }
 
+        static scan_messages::ThreatDetected createDetection(bool _quarantined)
+        {
+            std::time_t detectionTimeStamp = std::time(nullptr);
+            scan_messages::E_NOTIFICATION_STATUS quarantined = _quarantined ?
+                                    E_NOTIFICATION_STATUS_CLEANED_UP : E_NOTIFICATION_STATUS_CLEANUPABLE;
+
+            return { std::getenv("USER"),
+                     detectionTimeStamp,
+                     ThreatType::virus,
+                     "EICAR",
+                     E_SCAN_TYPE_ON_ACCESS_OPEN,
+                     quarantined,
+                     "/path/to/unit-test-eicar",
+                     E_SMT_THREAT_ACTION_SHRED,
+                     "2677b3f1607845d18d5a405a8ef592e79b8a6de355a9b7490b6bb439c2116def",
+                     "c1c802c6-a878-ee05-babc-c0378d45d8d4",
+                     false,
+                     ReportSource::ml,
+                     datatypes::AutoFd(open("/dev/zero", O_RDONLY)) };
+        }
 
         std::shared_ptr<TaskQueue> m_taskQueue;
         std::shared_ptr<Plugin::PluginCallback> m_callback;
@@ -1049,6 +1071,66 @@ TEST_F(TestPluginAdapter, testCanStopWhileWaitingForFirstPolicies)
 
     EXPECT_FALSE(appenderContains("ALC policy has not been sent to the plugin"));
     EXPECT_FALSE(appenderContains("SAV policy has not been sent to the plugin"));
+}
+
+TEST_F(TestPluginAdapter, reportsAddingThreatToDatabase)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
+    EXPECT_CALL(*mockBaseService, sendThreatHealth(_)).Times(1);
+    auto pluginAdapter = std::make_shared<PluginAdapter>(
+        m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 1);
+
+    pluginAdapter->updateThreatDatabase(createDetection(false));
+    EXPECT_TRUE(waitForLog("Added threat: c1c802c6-a878-ee05-babc-c0378d45d8d4 to database"));
+}
+
+TEST_F(TestPluginAdapter, reportsWhenDatabaseIsEmpty)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
+    EXPECT_CALL(*mockBaseService, sendThreatHealth(_)).Times(2);
+    auto pluginAdapter = std::make_shared<PluginAdapter>(
+        m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 1);
+
+    pluginAdapter->updateThreatDatabase(createDetection(false));
+    EXPECT_TRUE(waitForLog("Added threat: c1c802c6-a878-ee05-babc-c0378d45d8d4 to database"));
+    pluginAdapter->updateThreatDatabase(createDetection(true));
+    EXPECT_TRUE(waitForLog("Threat database is now empty, sending good health to Management agent"));
+}
+
+TEST_F(TestPluginAdapter, setsHealthToSuspiciousWhenThreatAddedToDatabase)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
+    EXPECT_CALL(*mockBaseService, sendThreatHealth(_)).Times(1);
+    auto pluginAdapter = std::make_shared<PluginAdapter>(
+        m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 1);
+
+    ASSERT_EQ(m_callback->getThreatHealth(), E_THREAT_HEALTH_STATUS_GOOD);
+    pluginAdapter->updateThreatDatabase(createDetection(false));
+    EXPECT_TRUE(waitForLog("Threat health changed to suspicious"));
+    EXPECT_EQ(m_callback->getThreatHealth(), E_THREAT_HEALTH_STATUS_SUSPICIOUS);
+}
+
+TEST_F(TestPluginAdapter, setsHealthToGoodWhenThreatDatabaseEmpty)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
+    EXPECT_CALL(*mockBaseService, sendThreatHealth(_)).Times(2);
+    auto pluginAdapter = std::make_shared<PluginAdapter>(
+        m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 1);
+
+    ASSERT_EQ(m_callback->getThreatHealth(), E_THREAT_HEALTH_STATUS_GOOD);
+    pluginAdapter->updateThreatDatabase(createDetection(false));
+    EXPECT_TRUE(waitForLog("Threat health changed to suspicious"));
+    pluginAdapter->updateThreatDatabase(createDetection(true));
+    EXPECT_TRUE(waitForLog("Threat health changed to good"));
+    EXPECT_EQ(m_callback->getThreatHealth(), E_THREAT_HEALTH_STATUS_GOOD);
 }
 
 // TODO: LINUXDAR-5806 -- stablise this test
