@@ -64,6 +64,7 @@ On Access Test Teardown
     Dump Log On Failure   ${ON_ACCESS_LOG_PATH}
     Dump Log On Failure   ${THREAT_DETECTOR_LOG_PATH}
     Dump Log On Failure   ${SUSI_DEBUG_LOG_PATH}
+    Dump Log On Failure   ${AV_LOG_PATH}
 
 Mount Image and Wait For Log
     [Arguments]  ${where}  ${image}  ${type}  ${opts}=loop
@@ -698,7 +699,7 @@ On Access caches Log exclusions
 #Although this test applies to any AV detection is primarily for OA
 AV Only Reports A Detection Once
     ${av_mark} =  get_av_log_mark
-    ${filepath} =  Set Variable   /tmp_test/eicar.com
+    ${filepath} =  Set Variable   /tmp_test/auniqueeicar.com
 
     Create File  ${filepath}  ${EICAR_STRING}
     Register Cleanup  Remove File  ${filepath}
