@@ -16,16 +16,10 @@ Resource        ../shared/SafeStoreResources.robot
 Suite Setup     SafeStore Telemetry Suite Setup
 Suite Teardown  Uninstall All
 
-Test Setup      SafeStore Telemetry Test Setup
+Test Setup      AV and Base Setup
 Test Teardown   AV And Base Teardown
 
 *** Keywords ***
-SafeStore Telemetry Test Setup
-    AV and Base Setup
-    Mark AV Log
-    Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
-    Wait Until AV Plugin Log Contains With Offset    SafeStore flag set. Setting SafeStore to enabled.    timeout=60
-
 SafeStore Telemetry Suite Setup
     Install With Base SDDS
     Send Alc Policy
@@ -221,15 +215,11 @@ SafeStore Telemetry Is Incremented When Database Is Deleted
     Mark Expected Error In Log    ${SAFESTORE_LOG_PATH}    Quarantine Manager failed to initialise
 
 SafeStore Telemetry Is Incremented When File Is Successfully Restored
-    # Start from known place with a CORC policy with an empty allow list
-    Stop sophos_threat_detector
-    Register Cleanup   Remove File  ${MCS_PATH}/policy/CORC_policy.xml
-    Send CORC Policy To Base  corc_policy_empty_allowlist.xml
-    Start sophos_threat_detector
+    Install With Base SDDS
+    Send Flags Policy To Base  flags_policy/flags_safestore_quarantine_ml_enabled.json
+    Wait Until AV Plugin Log Contains   SafeStore flag set. Setting SafeStore to enabled.   timeout=60
+    Wait Until SafeStore running
     Check SafeStore Telemetry    successful-file-restorations   ${0}
-
-    ${safestoreMark} =  Mark Log Size    ${SAFESTORE_LOG_PATH}
-    Mark AV Log
 
     # Create threat to scan
     ${threat_file} =  Set Variable  ${NORMAL_DIRECTORY}/MLengHighScore.exe
@@ -240,27 +230,23 @@ SafeStore Telemetry Is Incremented When File Is Successfully Restored
 
     # Scan threat
     Run Process    ${AVSCANNER}    ${NORMAL_DIRECTORY}/MLengHighScore.exe
-    Wait For Log Contains From Mark    ${safestoreMark}   Quarantined ${NORMAL_DIRECTORY}/MLengHighScore.exe successfully
+    Wait Until SafeStore Log Contains   Quarantined ${NORMAL_DIRECTORY}/MLengHighScore.exe successfully
     File Should Not Exist  ${threat_file}
 
     # Allow-list the file
     Send CORC Policy To Base  corc_policy.xml
-    Wait Until AV Plugin Log Contains With Offset    Added SHA256 to allow list: c88e20178a82af37a51b030cb3797ed144126cad09193a6c8c7e95957cf9c3f9
-    Wait For Log Contains From Mark    ${safestoreMark}   SafeStore Database Rescan request received
+    Wait Until AV Plugin Log Contains    Added SHA256 to allow list: c88e20178a82af37a51b030cb3797ed144126cad09193a6c8c7e95957cf9c3f9
+    Wait Until SafeStore Log Contains   SafeStore Database Rescan request received
 
-    Wait For Log Contains From Mark  ${safestoreMark}  Successfully restored object
+    Wait Until SafeStore Log Contains    Successfully restored object
     Check SafeStore Telemetry    successful-file-restorations   ${1}
 
 SafeStore Telemetry Is Incremented When File Restoration Fails
-    # Start from known place with a CORC policy with an empty allow list
-    Stop sophos_threat_detector
-    Register Cleanup   Remove File  ${MCS_PATH}/policy/CORC_policy.xml
-    Send CORC Policy To Base  corc_policy_empty_allowlist.xml
-    Start sophos_threat_detector
+    Install With Base SDDS
+    Send Flags Policy To Base  flags_policy/flags_safestore_quarantine_ml_enabled.json
+    Wait Until AV Plugin Log Contains   SafeStore flag set. Setting SafeStore to enabled.   timeout=60
+    Wait Until SafeStore running
     Check SafeStore Telemetry    failed-file-restorations   ${0}
-
-    ${safestoreMark} =  Mark Log Size    ${SAFESTORE_LOG_PATH}
-    Mark AV Log
 
     # Create threat to scan
     ${threat_file} =  Set Variable  ${NORMAL_DIRECTORY}/MLengHighScore.exe
@@ -271,18 +257,18 @@ SafeStore Telemetry Is Incremented When File Restoration Fails
 
     # Scan threat
     Run Process    ${AVSCANNER}    ${NORMAL_DIRECTORY}/MLengHighScore.exe
-    Wait For Log Contains From Mark    ${safestoreMark}   Quarantined ${NORMAL_DIRECTORY}/MLengHighScore.exe successfully
+    Wait Until SafeStore Log Contains   Quarantined ${NORMAL_DIRECTORY}/MLengHighScore.exe successfully
     File Should Not Exist  ${threat_file}
 
-    Remove Directory    /opt/sophos-spl/plugins/av/var/tempUnpack
+    Create File        /opt/sophos-spl/plugins/av/var/tempUnpack
 
     # Allow-list the file
     Send CORC Policy To Base  corc_policy.xml
-    Wait Until AV Plugin Log Contains With Offset    Added SHA256 to allow list: c88e20178a82af37a51b030cb3797ed144126cad09193a6c8c7e95957cf9c3f9
-    Wait For Log Contains From Mark    ${safestoreMark}   SafeStore Database Rescan request received
+    Wait Until AV Plugin Log Contains    Added SHA256 to allow list: c88e20178a82af37a51b030cb3797ed144126cad09193a6c8c7e95957cf9c3f9
+    Wait Until SafeStore Log Contains   SafeStore Database Rescan request received
 
-    Wait For Log Contains From Mark  ${safestoreMark}  Got SR_RESTORE_FAILED when trying to restore an object
+    Wait Until SafeStore Log Contains    Got RESTORE_FAILED when trying to restore an object
     Check SafeStore Telemetry    failed-file-restorations   ${1}
 
-    Mark Expected Error In Log    ${SAFESTORE_LOG_PATH}    Got SR_RESTORE_FAILED when trying to restore an object
+    Mark Expected Error In Log    ${SAFESTORE_LOG_PATH}    Got RESTORE_FAILED when trying to restore an object
 
