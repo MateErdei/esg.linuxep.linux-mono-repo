@@ -5,6 +5,8 @@
 #include "pluginimpl/StringUtils.h"
 #include "tests/common/LogInitializedTests.h"
 
+#include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
+
 #include <capnp/serialize.h>
 #include <gtest/gtest.h>
 #include <scan_messages/ThreatDetected.h>
@@ -426,4 +428,74 @@ TEST_F(TestStringUtils, generateCoreRestoreEventXml)
     std::string xml;
     ASSERT_NO_THROW(xml = generateCoreRestoreEventXml(restoreReport));
     ASSERT_EQ(xml, expectedEventXml);
+}
+
+TEST_F(TestStringUtils, TestBadUnicodePathsCharType1)
+{
+    auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
+    appConfig.setData("PLUGIN_INSTALL", "/test/");
+
+    static const std::string expectedXML = R"sophos(<?xml version="1.0" encoding="utf-8"?>
+<event type="sophos.core.detection" ts="1970-01-01T00:02:03.000Z">
+  <user userId=""/>
+  <alert id="00000000-0000-0000-0000-000000000000" name="" threatType="1" origin="0" remote="false">
+    <sha256></sha256>
+    <path>See endpoint logs for threat file path at: /test/log/sophos_threat_detector/sophos_threat_detector.log</path>
+  </alert>
+</event>)sophos";
+
+    std::vector<unsigned char> threatPathBytes { 0xEF, 0xBF, 0xBE };
+    std::string threatPath(threatPathBytes.begin(), threatPathBytes.end());
+
+    scan_messages::ThreatDetected threatDetectedMessage(createEvent("", threatPath));
+    std::string result = generateThreatDetectedXml(threatDetectedMessage);
+
+    EXPECT_EQ(result, expectedXML);
+}
+
+
+TEST_F(TestStringUtils, TestBadUnicodePathsCharType2)
+{
+    auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
+    appConfig.setData("PLUGIN_INSTALL", "/test/");
+
+    static const std::string expectedXML = R"sophos(<?xml version="1.0" encoding="utf-8"?>
+<event type="sophos.core.detection" ts="1970-01-01T00:02:03.000Z">
+  <user userId=""/>
+  <alert id="00000000-0000-0000-0000-000000000000" name="" threatType="1" origin="0" remote="false">
+    <sha256></sha256>
+    <path>See endpoint logs for threat file path at: /test/log/sophos_threat_detector/sophos_threat_detector.log</path>
+  </alert>
+</event>)sophos";
+
+    std::vector<unsigned char> threatPathBytes { 0xEF, 0xBF, 0xBF };
+    std::string threatPath(threatPathBytes.begin(), threatPathBytes.end());
+
+    scan_messages::ThreatDetected threatDetectedMessage(createEvent("", threatPath));
+    std::string result = generateThreatDetectedXml(threatDetectedMessage);
+
+    EXPECT_EQ(result, expectedXML);
+}
+
+TEST_F(TestStringUtils, TestBadUnicodePathsCharType3)
+{
+    auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
+    appConfig.setData("PLUGIN_INSTALL", "/test/");
+
+    static const std::string expectedXML = R"sophos(<?xml version="1.0" encoding="utf-8"?>
+<event type="sophos.core.detection" ts="1970-01-01T00:02:03.000Z">
+  <user userId=""/>
+  <alert id="00000000-0000-0000-0000-000000000000" name="" threatType="1" origin="0" remote="false">
+    <sha256></sha256>
+    <path>See endpoint logs for threat file path at: /test/log/sophos_threat_detector/sophos_threat_detector.log</path>
+  </alert>
+</event>)sophos";
+
+    std::vector<unsigned char> threatPathBytes { 0xEF, 0xBF, 0xBE, 0xEF, 0xBF, 0xBF };
+    std::string threatPath(threatPathBytes.begin(), threatPathBytes.end());
+
+    scan_messages::ThreatDetected threatDetectedMessage(createEvent("", threatPath));
+    std::string result = generateThreatDetectedXml(threatDetectedMessage);
+
+    EXPECT_EQ(result, expectedXML);
 }
