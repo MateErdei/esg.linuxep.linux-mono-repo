@@ -506,6 +506,21 @@ class MCSEndpointManager(object):
     def getPolicy(self):
         return self.__m_policy
 
+# CORE Policy
+class COREEndpointManager(object):
+    def __init__(self):
+        self.__m_resetHealth = None
+
+    def resetHealthPending(self):
+        return self.__m_resetHealth is not None
+
+    def resetHealth(self):
+        logger.info("Triggering a threat health reset")
+        self.__m_resetHealth = True
+
+    def commandDeleted(self):
+        self.__m_resetHealth = None
+
 # ALC Policy
 class ALCEndpointManager(object):
     def __init__(self):
@@ -596,14 +611,6 @@ class CoreEndpointManager(object):
         self.__m_policyID = "INITIAL_CORE_POLICY_ID"
         self.__m_policy = INITIAL_CORE_POLICY
         GL_POLICIES.addPolicy(self.__m_policyID, self.__m_policy)
-        self.__m_resetHealth = None
-
-    def resetHealthPending(self):
-        return self.__m_resetHealth is not None
-
-    def resetHealth(self):
-        logger.info("Triggering a threat health reset")
-        self.__m_resetHealth = True
 
     def policyPending(self):
         return self.__m_policyID is not None
@@ -613,7 +620,6 @@ class CoreEndpointManager(object):
 
     def commandDeleted(self):
         self.__m_policyID = None
-        self.__m_resetHealth = None
 
     def updatePolicy(self, body):
         self.__m_policyID = "Core%f"%(time.time())
@@ -661,10 +667,11 @@ class Endpoint(object):
         self.__edr = EDREndpointManager()
         self.__liveTerminal = LiveTerminalEndpointManager()
         self.__mcs = MCSEndpointManager()
-        self.__core = CoreEndpointManager()
+        self.__core = COREEndpointManager()
         self.__alc = ALCEndpointManager()
         self.__mdr = MDREndpointManager()
         self.__livequery = LiveQueryEndpointManager()
+        self.__core = CoreEndpointManager()
         self.__corc = CorcEndpointManager()
         self.__m_doc = None
         self.__m_health = 0
@@ -970,9 +977,9 @@ class Endpoint(object):
         if "LiveQuery" in apps and self.__livequery.policyPending():
             commands.append(self.policyCommand("LiveQuery", self.__livequery.policyID()))
         if "CORE" in apps and self.__core.policyPending():
-            commands.append(self.policyCommand("CORE", self.__core.policyID()))
+            commands.append(self.policyCommand("Core", self.__core.policyID()))
         if "CORC" in apps and self.__corc.policyPending():
-            commands.append(self.policyCommand("CORC", self.__corc.policyID()))
+            commands.append(self.policyCommand("Corc", self.__corc.policyID()))
         if 'LiveTerminal' in apps and self.__liveTerminal.LiveTerminalPending():
             commands.append(self.liveTerminalCommand())
 
@@ -1402,8 +1409,7 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
   "endpoint.flag2.enabled" : false,
   "endpoint.flag3.enabled" : false,
   "jwt-token.available" : true,
-  "mcs.v2.data_feed.available": true,
-  "safestore.enabled": true
+  "mcs.v2.data_feed.available": true
 }
 """
         return self.ret(FLAGS)

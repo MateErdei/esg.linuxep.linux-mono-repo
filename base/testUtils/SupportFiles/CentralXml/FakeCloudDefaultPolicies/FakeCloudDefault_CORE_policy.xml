@@ -60,7 +60,7 @@
 
     <!-- Aggressive Activity Classification policy -->
     <aggressiveActivityClassification>
-        <enabled>false</enabled>
+        <enabled>true</enabled>
     </aggressiveActivityClassification>
 
     <!-- Account Preferences Privacy options -->
