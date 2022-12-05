@@ -78,30 +78,6 @@ Check SafeStore Installed Correctly
 #    Check SafeStore Database Exists
     Check SafeStore Permissions And Owner
 
-Check SafeStore Database Was Persisted
-    [Arguments]    ${oldDatabaseDirectory}    ${oldDatabaseContent}    ${oldPassword}
-    Wait Until Keyword Succeeds
-    ...    120 secs
-    ...    10 secs
-    ...    Check Log Contains    Successfully restored old SafeStore database    /tmp/preserve-sul-downgrade    Downgrade Log
-    File Should Exist    ${SAFESTORE_BIN}
-    Wait Until Keyword Succeeds
-    ...    15 secs
-    ...    1 secs
-    ...    Check SafeStore Running
-    Wait Until Keyword Succeeds
-    ...    30 secs
-    ...    2 secs
-    ...    Check Marked SafeStore Log Contains    Quarantine Manager initialised OK
-    Wait Until Keyword Succeeds
-    ...    30 secs
-    ...    5 secs
-    ...    Check Marked SafeStore Log Contains    SafeStore started
-#    TODO LINUXDAR-6268: Enable once 2022-51 sprint build is in dogfood
-#    Check SafeStore Database Exists
-    Check SafeStore Permissions And Owner
-    Check SafeStore Database Has Not Changed    ${oldDatabaseDirectory}    ${oldDatabaseContent}    ${oldPassword}
-
 Check SafeStore Database Exists
     Directory Should Exist    ${SAFESTORE_DB_DIR}
 

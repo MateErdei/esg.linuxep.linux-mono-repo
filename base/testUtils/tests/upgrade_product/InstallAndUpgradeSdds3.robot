@@ -104,7 +104,6 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
 
     Check EAP Release With AV Installed Correctly
     Check SafeStore Installed Correctly
-    Mark SafeStore Log
     ${safeStoreDbDirBeforeUpgrade} =    List Files In Directory    ${SAFESTORE_DB_DIR}
     ${safeStorePasswordBeforeUpgrade} =    Get File    ${SAFESTORE_DB_PASSWORD_PATH}
     ${databaseContentBeforeUpgrade} =    Run Process    ${AV_TEST_TOOLS}/safestore_print_tool
@@ -168,7 +167,7 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     Check All Product Logs Do Not Contain Critical
 
     Check Current Release With AV Installed Correctly
-    Check SafeStore Database Was Persisted    ${safeStoreDbDirBeforeUpgrade}    ${databaseContentBeforeUpgrade}    ${safeStorePasswordBeforeUpgrade}
+    Check SafeStore Database Has Not Changed    ${safeStoreDbDirBeforeUpgrade}    ${databaseContentBeforeUpgrade}    ${safeStorePasswordBeforeUpgrade}
     Wait For RuntimeDetections to be Installed
     Check Expected Versions Against Installed Versions    &{expectedVUTVersions}
 
@@ -236,7 +235,6 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
 
     Mark Watchdog Log
     Mark Managementagent Log
-    Mark SafeStore Log
     Start Process  tail -fn0 ${SOPHOS_INSTALL}/logs/base/suldownloader.log > /tmp/preserve-sul-downgrade  shell=true
 
     Trigger Update Now
@@ -275,7 +273,11 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
 
     Check EAP Release With AV Installed Correctly
     Check SafeStore Installed Correctly
-    Check SafeStore Database Was Persisted    ${safeStoreDbDirBeforeUpgrade}    ${databaseContentBeforeUpgrade}    ${safeStorePasswordBeforeUpgrade}
+    Wait Until Keyword Succeeds
+    ...    120 secs
+    ...    10 secs
+    ...    Check Log Contains    Successfully restored old SafeStore database    /tmp/preserve-sul-downgrade    Downgrade Log
+    Check SafeStore Database Has Not Changed    ${safeStoreDbDirBeforeUpgrade}    ${databaseContentBeforeUpgrade}    ${safeStorePasswordBeforeUpgrade}
     Check Expected Versions Against Installed Versions    &{expectedDogfoodVersions}
 
     # Check users haven't been removed and added back
@@ -294,12 +296,11 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     Set Suite Variable    ${GL_handle}    ${handle}
     Send ALC Policy And Prepare For Upgrade  ${BaseEdrAndMtrAndAVVUTPolicy}
 
-    Mark SafeStore Log
     Trigger Update Now
 
     Wait For Version Files to Update    &{expectedVUTVersions}
     Check SafeStore Installed Correctly
-    Check SafeStore Database Was Persisted    ${safeStoreDbDirBeforeUpgrade}    ${databaseContentBeforeUpgrade}    ${safeStorePasswordBeforeUpgrade}
+    Check SafeStore Database Has Not Changed    ${safeStoreDbDirBeforeUpgrade}    ${databaseContentBeforeUpgrade}    ${safeStorePasswordBeforeUpgrade}
 
     # The query pack should have been re-installed
     Wait Until Keyword Succeeds
