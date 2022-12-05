@@ -7,8 +7,6 @@
 #include <capnp/message.h>
 #include <capnp/serialize.h>
 
-#include <cassert>
-
 #include <ScanRequest.capnp.h>
 
 using namespace scan_messages;
@@ -61,6 +59,7 @@ bool ClientScanRequest::fstatIfRequired() const
     }
     return true;
 }
+
 std::optional<ClientScanRequest::hash_t> ClientScanRequest::hash() const
 {
     if (!fstatIfRequired())
@@ -68,10 +67,11 @@ std::optional<ClientScanRequest::hash_t> ClientScanRequest::hash() const
         return {};
     }
 
-    auto hasher = std::hash<int>{};
+    constexpr std::hash<unsigned long> hasher;
+
     const hash_t h1 = hasher(m_fstat.st_dev);
     const hash_t h2 = hasher(m_fstat.st_ino);
-    return h1 ^ (h2 << 1);
+    return h1 ^ (h2 << 1 | h2 >> 63);
 }
 
 bool ClientScanRequest::operator==(const ClientScanRequest& other) const

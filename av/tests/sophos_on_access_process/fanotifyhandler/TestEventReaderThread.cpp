@@ -15,7 +15,6 @@
 
 #include <gtest/gtest.h>
 
-#include <array>
 #include <sstream>
 #include <string_view>
 
@@ -229,9 +228,7 @@ TEST_F(TestEventReaderThread, ReceiveBadUnicode)
 
 TEST_F(TestEventReaderThread, ReceiveExcessivelyLongFilePath)
 {
-    std::array<char, 5000> filePath;
-    filePath.fill(45);
-    *(filePath.rbegin()) = 0;
+    const std::string filePath(5000, '_');
     setupExpectationsForOneEvent(filePath.data());
     /*
      * EventReader uses a buffer PATH_MAX size.
@@ -717,6 +714,40 @@ TEST_F(TestEventReaderThread, EventsWithSameInodeAndDeviceAreSkipped)
     EXPECT_EQ(m_scanRequestQueue->size(), 1);
 }
 
+TEST_F(TestEventReaderThread, EventsWithSameInodeAndDeviceButDifferentPathAreSkipped)
+{
+    EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))
+        .WillOnce(pollReturnsWithRevents(1, POLLIN))
+        .WillOnce(pollReturnsWithRevents(1, POLLIN))
+        .WillOnce(pollReturnsWithRevents(0, POLLIN));
+
+    auto metadata1 = getOpenMetaData(8000);
+    auto metadata2 = getOpenMetaData(8001);
+    EXPECT_CALL(*m_mockSysCallWrapper, read(FANOTIFY_FD, _, _))
+        .WillOnce(readReturnsStruct(metadata1))
+        .WillOnce(readReturnsStruct(metadata2));
+
+    defaultStat();
+
+    EXPECT_CALL(*m_mockSysCallWrapper, fstat(8000, _))
+        .WillOnce(fstatReturnsDeviceAndInode(1,1));
+    EXPECT_CALL(*m_mockSysCallWrapper, fstat(8001, _))
+        .WillOnce(fstatReturnsDeviceAndInode(1,1));
+
+    const char* filePath1 = "/tmp/test";
+    const char* filePath2 = "/tmp2/test2";
+    EXPECT_CALL(*m_mockSysCallWrapper, readlink(StrEq("/proc/self/fd/8000"), _, _))
+        .WillOnce(readlinkReturnPath(filePath1));
+    EXPECT_CALL(*m_mockSysCallWrapper, readlink(StrEq("/proc/self/fd/8001"), _, _))
+        .WillOnce(readlinkReturnPath(filePath2));
+
+    auto eventReader = makeDefaultEventReaderThread();
+    {
+        common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
+    } // Wait for Reader to finish
+    EXPECT_EQ(m_scanRequestQueue->size(), 1);
+}
+
 TEST_F(TestEventReaderThread, EventsWithDifferentDeviceAreNotSkipped)
 {
     EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))
@@ -747,6 +778,36 @@ TEST_F(TestEventReaderThread, EventsWithDifferentDeviceAreNotSkipped)
     EXPECT_EQ(m_scanRequestQueue->size(), 2);
 }
 
+TEST_F(TestEventReaderThread, EventsWithHighBitDifferentDeviceAreNotSkipped)
+{
+    EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))
+        .WillOnce(pollReturnsWithRevents(1, POLLIN))
+        .WillOnce(pollReturnsWithRevents(1, POLLIN))
+        .WillOnce(pollReturnsWithRevents(0, POLLIN));
+
+    auto metadata = getOpenMetaData(8000);
+    EXPECT_CALL(*m_mockSysCallWrapper, read(FANOTIFY_FD, _, _))
+        .Times(2)
+        .WillRepeatedly(readReturnsStruct(metadata));
+
+    defaultStat();
+
+    EXPECT_CALL(*m_mockSysCallWrapper, fstat(8000, _))
+        .WillOnce(fstatReturnsDeviceAndInode(0x0000000000000001,0x0000000000000001))
+        .WillOnce(fstatReturnsDeviceAndInode(0x8000000000000001,0x0000000000000001));
+
+    const char* filePath = "/tmp/test";
+    EXPECT_CALL(*m_mockSysCallWrapper, readlink(_, _, _))
+        .Times(2)
+        .WillRepeatedly(readlinkReturnPath(filePath));
+
+    auto eventReader = makeDefaultEventReaderThread();
+    {
+        common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
+    } // Wait for Reader to finish
+    EXPECT_EQ(m_scanRequestQueue->size(), 2);
+}
+
 TEST_F(TestEventReaderThread, EventsWithDifferentInodeAreNotSkipped)
 {
     EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))
@@ -764,6 +825,36 @@ TEST_F(TestEventReaderThread, EventsWithDifferentInodeAreNotSkipped)
     EXPECT_CALL(*m_mockSysCallWrapper, fstat(8000, _))
         .WillOnce(fstatReturnsDeviceAndInode(1,1))
         .WillOnce(fstatReturnsDeviceAndInode(1,2));
+
+    const char* filePath = "/tmp/test";
+    EXPECT_CALL(*m_mockSysCallWrapper, readlink(_, _, _))
+        .Times(2)
+        .WillRepeatedly(readlinkReturnPath(filePath));
+
+    auto eventReader = makeDefaultEventReaderThread();
+    {
+        common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
+    } // Wait for Reader to finish
+    EXPECT_EQ(m_scanRequestQueue->size(), 2);
+}
+
+TEST_F(TestEventReaderThread, EventsWithHighBitDifferentInodeAreNotSkipped)
+{
+    EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))
+        .WillOnce(pollReturnsWithRevents(1, POLLIN))
+        .WillOnce(pollReturnsWithRevents(1, POLLIN))
+        .WillOnce(pollReturnsWithRevents(0, POLLIN));
+
+    auto metadata = getOpenMetaData(8000);
+    EXPECT_CALL(*m_mockSysCallWrapper, read(FANOTIFY_FD, _, _))
+        .Times(2)
+        .WillRepeatedly(readReturnsStruct(metadata));
+
+    defaultStat();
+
+    EXPECT_CALL(*m_mockSysCallWrapper, fstat(8000, _))
+        .WillOnce(fstatReturnsDeviceAndInode(0x0000000000000001,0x0000000000000001))
+        .WillOnce(fstatReturnsDeviceAndInode(0x0000000000000001,0x8000000000000001));
 
     const char* filePath = "/tmp/test";
     EXPECT_CALL(*m_mockSysCallWrapper, readlink(_, _, _))
@@ -1050,7 +1141,7 @@ TEST_F(TestEventReaderThread, TestReaderLogsErrorFromPpollAndThrows)
     try
     {
         eventReader->innerRun();
-        FAIL() << "EventReaderThread::innerRun() didnt throw";
+        FAIL() << "EventReaderThread::innerRun() didn't throw";
     }
     catch(const std::runtime_error& e)
     {
@@ -1194,7 +1285,7 @@ TEST_F(TestEventReaderThread, TestReaderThrowsWhenErrorIsEMFILE)
     try
     {
         eventReader->innerRun();
-        FAIL() << "EventReaderThread::throwIfErrorNotRecoverable() didnt throw";
+        FAIL() << "EventReaderThread::throwIfErrorNotRecoverable() didn't throw";
     }
     catch(const std::runtime_error& e)
     {
@@ -1215,7 +1306,7 @@ TEST_F(TestEventReaderThread, TestReaderThrowsWhenErrorNotRecoverable)
     try
     {
         eventReader->innerRun();
-        FAIL() << "EventReaderThread::throwIfErrorNotRecoverable() didnt throw";
+        FAIL() << "EventReaderThread::throwIfErrorNotRecoverable() didn't throw";
     }
     catch(const std::runtime_error& e)
     {

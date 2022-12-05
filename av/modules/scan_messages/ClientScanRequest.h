@@ -89,7 +89,6 @@ namespace scan_messages
         * @return true if we were able to fstat the file
         */
        bool fstatIfRequired() const;
-       using key_t = std::pair<dev_t, ino_t>;
 
        mutable struct stat m_fstat{};
 
