@@ -247,36 +247,36 @@ AV Gets SAV Policy When Plugin Restarts
     File Should Exist  ${MCS_PATH}/policy/SAV-2_policy.xml
 
     Stop AV Plugin
-    Mark AV Log
-    Mark Sophos Threat Detector Log
+    ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
+    ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
 
     Start AV Plugin
-    Wait Until AV Plugin Log Contains With Offset  SAV policy received for the first time.
-    Wait Until AV Plugin Log Contains With Offset  Processing SAV Policy
+    Wait For Log Contains From Mark  ${av_mark}  SAV policy received for the first time.
+    Wait For Log Contains From Mark  ${av_mark}  Processing SAV policy
     File Should Exist    ${SUSI_STARTUP_SETTINGS_FILE}
     File Should Exist    ${SUSI_STARTUP_SETTINGS_FILE_CHROOT}
-    Wait until scheduled scan updated With Offset
-    Wait Until AV Plugin Log Contains With Offset  Configured number of Scheduled Scans: 0
+    Wait until scheduled scan updated After Mark  ${av_mark}
+    Wait For Log Contains From Mark  ${av_mark}  Configured number of Scheduled Scans: 0
     Scan GR Test File
-    Wait Until Sophos Threat Detector Log Contains With Offset  SXL Lookups will be enabled
+    Wait For Log Contains From Mark  ${td_mark}  SXL Lookups will be enabled
 
-Av Plugin Processes First SAV Policy Correctly After Initial Wait For Policy Fails
+AV Plugin Processes First SAV Policy Correctly After Initial Wait For Policy Fails
     Stop AV Plugin
     Remove File    ${SUSI_STARTUP_SETTINGS_FILE}
     Remove File    ${MCS_PATH}/policy/SAV-2_policy.xml
 
-    Mark AV Log
-    Mark Sophos Threat Detector Log
+    ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
+    ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
 
     Start AV Plugin
-    Wait Until AV Plugin Log Contains With Offset   SAV policy has not been sent to the plugin
+    Wait For Log Contains From Mark  ${av_mark}  SAV policy has not been sent to the plugin
     Send Sav Policy With No Scheduled Scans
-    Wait Until AV Plugin Log Contains With Offset  Processing SAV Policy
+    Wait For Log Contains From Mark  ${av_mark}  Processing SAV policy
     Wait Until File exists    ${SUSI_STARTUP_SETTINGS_FILE}
     File Should Exist    ${SUSI_STARTUP_SETTINGS_FILE_CHROOT}
 
     Scan GR Test File
-    Wait Until Sophos Threat Detector Log Contains With Offset  SXL Lookups will be enabled
+    Wait For Log Contains From Mark  ${td_mark}  SXL Lookups will be enabled
 
 
 AV Gets ALC Policy When Plugin Restarts
@@ -286,17 +286,18 @@ AV Gets ALC Policy When Plugin Restarts
     File Should Exist  ${MCS_PATH}/policy/ALC-1_policy.xml
     Stop AV Plugin
 
-    Mark AV Log
-    Mark Sophos Threat Detector Log
+    ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
+    ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
+
     Start AV Plugin
-    Wait until AV Plugin running with offset
-    Wait until threat detector running with offset
+    Wait until AV Plugin running after mark  ${av_mark}
+    Wait until threat detector running after mark  ${td_mark}
 
-    Wait Until AV Plugin Log Contains With Offset  Received policy from management agent for AppId: ALC
-    Wait Until AV Plugin Log Contains With Offset  ALC policy received for the first time.
-    Wait Until AV Plugin Log Contains With Offset  Processing ALC Policy
+    Wait For Log Contains From Mark  ${av_mark}  Received policy from management agent for AppId: ALC
+    Wait For Log Contains From Mark  ${av_mark}  ALC policy received for the first time.
+    Wait For Log Contains From Mark  ${av_mark}  Processing ALC policy
 
-    Threat Detector Log Should Not Contain With Offset  Failed to read customerID - using default value
+    check_sophos_threat_detector_log_does_not_contain_after_mark  Failed to read customerID - using default value  mark=${td_mark}
 
 AV Configures No Scheduled Scan Correctly
     Register Cleanup    Exclude UpdateScheduler Fails

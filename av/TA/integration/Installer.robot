@@ -900,10 +900,10 @@ Check installer keeps SUSI startup settings as writable by AV Plugin
     ...     ls -l ${SUSI_STARTUP_SETTINGS_FILE_CHROOT}
     Log   ${output}
 
-    Mark AV Log
+    ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
     Send Sav Policy With No Scheduled Scans
-    Wait Until AV Plugin Log Contains With Offset  Processing SAV Policy
-    AV Plugin Log Does Not Contain With Offset  Failed to create file
+    Wait For Log Contains From Mark  ${av_mark}  Processing SAV policy
+    check_av_log_does_not_contain_after_mark  Failed to create file  mark=${av_mark}
 
 Check installer removes sophos_threat_detector log symlink
     Run Process   ln  -snf  ${COMPONENT_ROOT_PATH}/log/sophos_threat_detector/sophos_threat_detector.log  ${COMPONENT_ROOT_PATH}/log/sophos_threat_detector.log
