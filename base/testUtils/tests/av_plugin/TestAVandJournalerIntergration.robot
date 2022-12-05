@@ -136,9 +136,8 @@ Test av can publish events for onacess and that journaler can receive them
     [Timeout]  10 minutes
     Check Journal Is Empty
     Mark Livequery Log  False
-    Copy File  ${SUPPORT_FILES}/CentralXml/CORE-36_oa_enabled.xml  /opt/CORE-36_policy.xml
-    ${result} =  Run Process  chown  root:sophos-spl-group  /opt/CORE-36_policy.xml
-    Move File  /opt/CORE-36_policy.xml  ${SOPHOS_INSTALL}/base/mcs/policy/CORE-36_policy.xml
+    send policy File  core  ${SUPPORT_FILES}/CentralXml/CORE-36_oa_enabled.xml
+
     Copy File  ${SUPPORT_FILES}/CentralXml/FLAGS_onaccess_enabled.json  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json
     ${result} =  Run Process  chown  root:sophos-spl-group  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json
     Wait Until Keyword Succeeds
@@ -170,10 +169,7 @@ Test av can publish events for onacess and that journaler can receive them
     ...  60 secs
     ...  2 secs
     ...  Check Marked Livequery Log Contains  Successfully executed query
-    Wait Until Keyword Succeeds
-    ...  10 secs
-    ...  2 secs
-    ...  Check Logs Detected EICAR Event  1
+    Check Marked Livequery Log Contains  pid
 *** Keywords ***
 Wait Until Threat Report Socket Exists
     [Arguments]    ${time_to_wait}=5
