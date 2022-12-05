@@ -11,9 +11,9 @@
 
 using namespace scan_messages;
 
-ClientScanRequest::ClientScanRequest(datatypes::ISystemCallWrapperSharedPtr sysCalls, int fd)
+ClientScanRequest::ClientScanRequest(datatypes::ISystemCallWrapperSharedPtr sysCalls, datatypes::AutoFd& fd)
     :
-    m_autoFd(fd),
+    m_autoFd(std::move(fd)),
     m_syscalls(std::move(sysCalls))
 {}
 

@@ -129,24 +129,26 @@ bool EventReaderThread::handleFanotifyEvent()
             continue;
         }
 
-        auto eventFd = metadata->fd;
-        if (eventFd < 0)
+        datatypes::AutoFd eventFd { metadata->fd };
+        if (eventFd.get() < 0)
         {
             LOGERROR("Got fanotify metadata event without fd");
             continue;
         }
-        auto scanRequest = std::make_shared<scan_messages::ClientScanRequest>(m_sysCalls, eventFd); // DONATED
 
         std::string filePath;
         std::string executablePath;
-        if (skipScanningOfEvent(metadata, filePath, executablePath, eventFd))
+        if (skipScanningOfEvent(metadata, filePath, executablePath, eventFd.get()))
         {
             continue;
         }
 
         auto uid = getUidFromPid(metadata->pid);
-        auto escapedPath = common::escapePathForLogging(filePath);
-
+        std::string escapedPath;
+        if (getFaNotifyHandlerLogger().isEnabledFor(log4cplus::DEBUG_LOG_LEVEL))
+        {
+            escapedPath = common::escapePathForLogging(filePath);
+        }
         auto eventType = E_SCAN_TYPE_UNKNOWN;
 
         //Some events have both bits set, we prioritise FAN_CLOSE_WRITE as the event tag. A copy event can cause this.
@@ -171,6 +173,8 @@ bool EventReaderThread::handleFanotifyEvent()
             LOGERROR("unknown operation mask: " << std::hex << metadata->mask << std::dec);
             continue;
         }
+
+        auto scanRequest = std::make_shared<scan_messages::ClientScanRequest>(m_sysCalls, eventFd); // DONATED
 
         scanRequest->setPath(filePath);
         scanRequest->setScanType(eventType);

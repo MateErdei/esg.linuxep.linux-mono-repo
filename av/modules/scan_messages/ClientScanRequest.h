@@ -30,7 +30,7 @@ namespace scan_messages
     public:
 
         ClientScanRequest() = default;
-        ClientScanRequest(datatypes::ISystemCallWrapperSharedPtr sysCalls, int fd);
+        ClientScanRequest(datatypes::ISystemCallWrapperSharedPtr sysCalls, datatypes::AutoFd& fd);
 
         /*
          * Sender side interface - set the fields, then serialise
