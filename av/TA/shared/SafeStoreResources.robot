@@ -174,13 +174,13 @@ Remove All But One SafeStore Backup
 
 Get Contents of SafeStore Database
     ${dbPassword} =    Read Hexadecimal File    ${SAFESTORE_DB_PASSWORD_PATH}
-    ${rc}   ${dbContent} =    Run And Return Rc And Output    ${AV_TEST_TOOLS}/ssr -dbpath=${SAFESTORE_DB_PATH} -pass=${dbPassword} -l
+    ${rc}   ${dbContent} =    Run And Return Rc And Output    LIBRARY_PATH=/opt/sophos-spl/base/lib64 ${AV_TEST_TOOLS}/ssr -dbpath=${SAFESTORE_DB_PATH} -pass=${dbPassword} -l
     Should Be Equal As Integers    ${rc}    ${0}
     [Return]    ${dbContent}
 
 Restore Threat In SafeStore Database By ThreatId
     [Arguments]    ${threatId}
     ${dbPassword} =    Read Hexadecimal File    ${SAFESTORE_DB_PASSWORD_PATH}
-    ${rc}   ${output} =    Run And Return Rc And Output    ${AV_TEST_TOOLS}/ssr -dbpath=${SAFESTORE_DB_PATH} -pass=${dbPassword} -threatid=${threatId}
+    ${rc}   ${output} =    Run And Return Rc And Output    LIBRARY_PATH=/opt/sophos-spl/base/lib64 ${AV_TEST_TOOLS}/ssr -dbpath=${SAFESTORE_DB_PATH} -pass=${dbPassword} -threatid=${threatId}
     Should Be Equal As Integers    ${rc}    ${0}
     Log    ${output}
