@@ -10,10 +10,11 @@ Resource    ../shared/SafeStoreResources.robot
 Resource    ../shared/OnAccessResources.robot
 
 Library         ../Libs/CoreDumps.py
-Library         ../Libs/OnFail.py
-Library         ../Libs/LogUtils.py
-Library         ../Libs/ProcessUtils.py
 Library         ../Libs/FileSampleObfuscator.py
+Library         ../Libs/LogUtils.py
+Library         ../Libs/OnFail.py
+Library         ../Libs/ProcessUtils.py
+Library         ../Libs/SafeStoreUtils.py
 
 Library         OperatingSystem
 Library         Collections
