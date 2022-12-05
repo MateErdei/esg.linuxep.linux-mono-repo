@@ -313,6 +313,7 @@ namespace safestore::QuarantineManager
         }
         else
         {
+            LOGERROR("Failed to quarantine file due to: " << SafeStoreWrapper::GL_SAVE_FILE_RETURN_CODES.at(saveResult));
             if (saveResult == SafeStoreWrapper::SaveFileReturnCode::DB_ERROR)
             {
                 callOnDbError();

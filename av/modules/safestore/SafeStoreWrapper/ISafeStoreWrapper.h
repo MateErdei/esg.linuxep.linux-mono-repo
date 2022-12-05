@@ -62,6 +62,21 @@ namespace safestore::SafeStoreWrapper
         FAILED // Failed to save for unknown reason
     };
 
+    static const std::map<SaveFileReturnCode, std::string> GL_SAVE_FILE_RETURN_CODES
+        {
+            { SaveFileReturnCode::OK, "OK" },
+            { SaveFileReturnCode::INVALID_ARG, "InvalidArg" },
+            { SaveFileReturnCode::INTERNAL_ERROR , "InvalidError" },
+            { SaveFileReturnCode::OUT_OF_MEMORY, "OutOfMemory" },
+            { SaveFileReturnCode::FILE_OPEN_FAILED, "FileOpenFailed" },
+            { SaveFileReturnCode::FILE_READ_FAILED, "FileReadFailed" },
+            { SaveFileReturnCode::FILE_WRITE_FAILED, "FileWriteFailed" },
+            { SaveFileReturnCode::MAX_OBJECT_SIZE_EXCEEDED, "MaxObjectSizeExceeded" },
+            { SaveFileReturnCode::MAX_STORE_SIZE_EXCEEDED, "MaxStoreSizeExceeded" },
+            { SaveFileReturnCode::DB_ERROR, "DatabaseError" },
+            { SaveFileReturnCode::FAILED, "Unknown" },
+        };
+
     enum class ConfigOption
     {
         // Maximum allowed size of SafeStore (database and stored blob files) in bytes, uint64_t
