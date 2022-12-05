@@ -15,8 +15,7 @@
 
 namespace scan_messages
 {
-    // TODO LINUXDAR-5839: E_NOTIFCATION_STATUS and E_ACTION_CODE should be combined into a single enum to correspond
-    // with event-core-clean fields
+    // TODO LINUXDAR-6286: E_NOTIFCATION_STATUS and E_ACTION_CODE should be combined into a single enum to correspond
 
     enum E_NOTIFICATION_STATUS: int
     {
