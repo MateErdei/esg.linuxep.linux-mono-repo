@@ -17,7 +17,7 @@ ${SAFESTORE_PID_FILE}               ${AV_PLUGIN_PATH}/var/safestore.pid
 ${SAFESTORE_SOCKET_PATH}            ${AV_PLUGIN_PATH}/var/safestore_socket
 
 ${AV_RESTORED_VAR_DIRECTORY}        ${AV_PLUGIN_PATH}/var/downgrade-backup
-${SAFESTORE_DB_DIR}                 ${AV_PLUGIN_PATH}/var/safestore_db
+${SAFESTORE_DB_DIR}                 ${AV_PLUGIN_PATH}/safestore/safestore_db
 ${SAFESTORE_DB_PATH}                ${SAFESTORE_DB_DIR}/safestore.db
 ${SAFESTORE_DB_PASSWORD_PATH}       ${SAFESTORE_DB_DIR}/safestore.pw
 
