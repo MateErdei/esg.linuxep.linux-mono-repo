@@ -177,6 +177,7 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     Check Update Reports Have Been Processed
 
     Check AV Plugin Can Scan Files
+    Check On Access Detects Threats
     SHS Status File Contains  ${HealthyShsStatusXmlContents}
 
 We Can Downgrade From VUT to Dogfood Without Unexpected Errors
@@ -399,6 +400,7 @@ We Can Upgrade From Release to VUT Without Unexpected Errors
     Check AV Plugin Permissions
 
     Check AV Plugin Can Scan Files
+    Check On Access Detects Threats
     Check Update Reports Have Been Processed
 
     SHS Status File Contains  ${HealthyShsStatusXmlContents}

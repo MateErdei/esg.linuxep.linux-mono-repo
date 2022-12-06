@@ -2,6 +2,7 @@
 Library     Process
 Library    ${LIBS_DIRECTORY}/FullInstallerUtils.py
 Library    ${LIBS_DIRECTORY}/LogUtils.py
+Library    ${LIBS_DIRECTORY}/OnFail.py
 Library    ${LIBS_DIRECTORY}/OSUtils.py
 Library    ${LIBS_DIRECTORY}/DownloadAVSupplements.py
 
@@ -10,6 +11,7 @@ Resource  ../GeneralTeardownResource.robot
 ${AV_PLUGIN_PATH}                   ${SOPHOS_INSTALL}/plugins/av
 ${AV_LOG_PATH}                      ${AV_PLUGIN_PATH}/log/
 ${AV_LOG_FILE}                      ${AV_PLUGIN_PATH}/log/av.log
+${ON_ACCESS_LOG_PATH}               ${AV_PLUGIN_PATH}/log/soapd.log
 ${THREAT_DETECTOR_LOG_PATH}         ${AV_PLUGIN_PATH}/chroot/log/sophos_threat_detector.log
 ${THREAT_REPORT_SOCKET_PATH}        ${AV_PLUGIN_PATH}/chroot/var/threat_report_socket
 ${SOPHOS_THREAT_DETECTOR_BINARY}    ${AV_PLUGIN_PATH}/sbin/sophos_threat_detector
@@ -104,3 +106,15 @@ Check AV Plugin Can Scan Files
 
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLS_PATH} /tmp/clean_file ${dirty_file}
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+
+Check On Access Detects Threats
+    ${threat_path} =  Set Variable  /tmp/eicar.com
+    Create File     ${threat_path}    ${EICAR_STRING}
+    Register Cleanup  Remove File  ${threat_path}
+
+    ${pid} =  Get Robot Pid
+    ${mark} =  get_on_access_log_mark
+
+    wait for on access log contains after mark  On-close event for ${threat_path} from  mark=${mark}
+    wait for on access log contains after mark  (PID=${pid}) and UID 0  mark=${mark}
+    wait for on access log contains after mark  Detected "${threat_path}" is infected with  mark=${mark}

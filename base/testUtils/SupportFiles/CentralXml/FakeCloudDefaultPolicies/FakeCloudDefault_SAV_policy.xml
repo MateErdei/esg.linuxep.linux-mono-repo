@@ -7,7 +7,7 @@
         <entityInfo/>
     </entity>
     <onAccessScan>
-        <enabled>false</enabled>
+        <enabled>true</enabled>
         <scanBehaviour>
             <level>normal</level>
             <archives>false</archives>
