@@ -11,6 +11,7 @@ def get_variable(var_name, default_value=None):
         return os.environ.get(var_name, default_value)
 
 
+SYSTEMPRODUCT_TEST_INPUT = get_variable("SYSTEMPRODUCT_TEST_INPUT", "/tmp/system-product-test-inputs")
 SOPHOS_INSTALL = get_variable("SOPHOS_INSTALL", "/opt/sophos-spl")
 SAFESTORE_DB_DIR = get_variable("SAFESTORE_DB_DIR", os.path.join(SOPHOS_INSTALL, "plugins", "av", "safestore", "safestore_db"))
 SAFESTORE_DB_PATH = get_variable("SAFESTORE_DB_PATH",
@@ -45,7 +46,7 @@ def run_safestore_tool_with_args(*args):
     env = os.environ.copy()
     env["LD_LIBRARY_PATH"] = os.path.join(SOPHOS_INSTALL, "base", "lib64")
     password = get_safestore_db_password_as_hexadecimal()
-    tool_path = os.path.join(get_variable("SYSTEMPRODUCT_TEST_INPUT", "/tmp/system-product-test-inputs"), "safestore_tools", "ssr")
+    tool_path = os.path.join(SYSTEMPRODUCT_TEST_INPUT, "safestore_tools", "ssr")
     cmd = [tool_path, f"-dbpath={SAFESTORE_DB_PATH}", f"-pass={password}", *args]
 
     result = subprocess.run(cmd, env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
