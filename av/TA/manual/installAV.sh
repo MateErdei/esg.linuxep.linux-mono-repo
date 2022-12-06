@@ -56,6 +56,10 @@ PYTHON=${PYTHON:-python3}
 ${PYTHON} $BASE/createInstallSet.py "$SDDS_AV" "${AV_ROOT}/SDDS-COMPONENT" "${AV_ROOT}/.." || failure 2 "Failed to create install-set: $?"
 [[ -d $SDDS_AV ]] || failure 2 "Can't find SDDS_AV: $SDDS_AV"
 [[ -f $SDDS_AV/install.sh ]] || failure 3 "Can't find $SDDS_AV/install.sh"
+# Check supplements are present:
+[[ -f $SDDS_AV/files/plugins/av/chroot/susi/update_source/vdl/vdl.dat ]] || failure 3 "Can't find $SDDS_AV/files/plugins/av/chroot/susi/update_source/vdl/vdl.dat"
+[[ -f $SDDS_AV/files/plugins/av/chroot/susi/update_source/reputation/filerep.dat ]] || failure 3 "Can't find $SDDS_AV/files/plugins/av/chroot/susi/update_source/reputation/filerep.dat"
+[[ -f $SDDS_AV/files/plugins/av/chroot/susi/update_source/model/model.dat ]] || failure 3 "Can't find $SDDS_AV/files/plugins/av/chroot/susi/update_source/model/model.dat"
 
 SOPHOS_INSTALL=/opt/sophos-spl
 
@@ -90,6 +94,8 @@ then
 
     # copy AV on-access enabled policy in place
     cp ${TEST_SUITE}/resources/SAV-2_policy_OA_enabled.xml ${SOPHOS_INSTALL}/base/mcs/policy/SAV-2_policy.xml
+    cp ${TEST_SUITE}/resources/core_policy/CORE-36_oa_enabled.xml ${SOPHOS_INSTALL}/base/mcs/policy/CORE-36_policy.xml
+    cp ${TEST_SUITE}/resources/corc_policy/corc_policy.xml ${SOPHOS_INSTALL}/base/mcs/policy/CORC-37_policy.xml
 
     ${SOPHOS_INSTALL}/bin/wdctl stop mcsrouter
 fi
