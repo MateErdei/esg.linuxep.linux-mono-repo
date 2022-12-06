@@ -16,8 +16,8 @@ INSTALL(CODE "MESSAGE(STATUS \"Copying libs into tap_test_output directory\")
 
 INSTALL(CODE "MESSAGE(STATUS \"Copying SafeStore Database tool into tap_test_output directory\")
     execute_process(
-      COMMAND chmod +x ${SAFESTORE_INPUT}/ssr
-      COMMAND cp -a ${SAFESTORE_INPUT}/ssr ${CMAKE_BINARY_DIR}/tap_test_output/ RESULT_VARIABLE STATUS)
+      COMMAND chmod +x ${INPUT}/safestore_input/ssr
+      COMMAND cp -a ${INPUT}/safestore_input/ssr ${CMAKE_BINARY_DIR}/tap_test_output/ RESULT_VARIABLE STATUS)
     if(STATUS AND NOT STATUS EQUAL 0)
         message(FATAL_ERROR \"Failed to copy SafeStore Database tool to tap_test_output directory: ${STATUS}\")
     endif()")
