@@ -156,6 +156,8 @@ static int writeSampleFile(std::string filename)
     request.setScanInsideArchives(false);
     request.setScanType(scan_messages::E_SCAN_TYPE_ON_DEMAND);
     request.setUserID("root");
+    request.setExecutablePath("/tmp/random/Path");
+    request.setPid(1000);
 
     std::ofstream outfile(filename, std::ios::binary);
 

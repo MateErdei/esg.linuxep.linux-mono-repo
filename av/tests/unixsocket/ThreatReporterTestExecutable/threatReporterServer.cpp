@@ -104,6 +104,8 @@ static int writeSampleFile(std::string filename)
         ReportSource::ml,
         datatypes::AutoFd(::open("/dev/null", O_RDONLY)));
 
+    threatDetected.pid = 1000;
+    threatDetected.executablePath = "/tmp/random/Path";
     std::string request_str = threatDetected.serialise();
 
 
