@@ -12,10 +12,10 @@ def get_variable(var_name, default_value=None):
 
 
 SOPHOS_INSTALL = get_variable("SOPHOS_INSTALL", "/opt/sophos-spl")
-SAFESTORE_DB_DIR = get_variable("SAFESTORE_DB_DIR", os.path.join(SOPHOS_INSTALL, "plugins", "av", "var", "safestore_db"))
+SAFESTORE_DB_DIR = get_variable("SAFESTORE_DB_DIR", os.path.join(SOPHOS_INSTALL, "plugins", "av", "safestore", "safestore_db"))
 SAFESTORE_DB_PATH = get_variable("SAFESTORE_DB_PATH",
-                                 os.path.join(SOPHOS_INSTALL, "plugins", "av", "var", "safestore_db", "safestore.db"))
-SAFESTORE_DB_PASSWORD_PATH = get_variable("SAFESTORE_DB_PASSWORD_PATH", os.path.join(SOPHOS_INSTALL, "plugins", "av", "var", "safestore_db",
+                                 os.path.join(SOPHOS_INSTALL, "plugins", "av", "safestore", "safestore_db", "safestore.db"))
+SAFESTORE_DB_PASSWORD_PATH = get_variable("SAFESTORE_DB_PASSWORD_PATH", os.path.join(SOPHOS_INSTALL, "plugins", "av", "safestore", "safestore_db",
                                                            "safestore.pw"))
 
 
