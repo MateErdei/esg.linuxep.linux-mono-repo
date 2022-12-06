@@ -1340,7 +1340,8 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
   "endpoint.flag2.enabled" : false,
   "endpoint.flag3.enabled" : false,
   "jwt-token.available" : true,
-  "mcs.v2.data_feed.available": true
+  "mcs.v2.data_feed.available": true,
+  "safestore.enabled": true
 }
 """
         return self.ret(FLAGS)
