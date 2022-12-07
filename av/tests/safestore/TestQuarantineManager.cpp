@@ -259,7 +259,7 @@ TEST_F(QuarantineManagerTests, quarantineFile)
     EXPECT_NO_THROW(quarantineManager->initialise());
     ASSERT_EQ(quarantineManager->getState(), QuarantineManagerState::INITIALISED);
     datatypes::AutoFd fdHolder;
-    ASSERT_EQ(
+    EXPECT_EQ(
         common::CentralEnums::QuarantineResult::SUCCESS,
         quarantineManager->quarantineFile(
             m_dir + "/" + m_file, m_threatID, m_threatName, m_SHA256, std::move(fdHolder)));
@@ -267,6 +267,7 @@ TEST_F(QuarantineManagerTests, quarantineFile)
 
 TEST_F(QuarantineManagerTests, quarantineFileLogsWhenSaveFileFails)
 {
+    UsingMemoryAppender memoryAppenderHolder(*this);
     auto* filesystemMock = new StrictMock<MockFileSystem>();
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::unique_ptr<Common::FileSystem::IFileSystem>(
         filesystemMock) };
@@ -297,22 +298,16 @@ TEST_F(QuarantineManagerTests, quarantineFileLogsWhenSaveFileFails)
     std::shared_ptr<IQuarantineManager> quarantineManager =
         std::make_shared<QuarantineManagerImpl>(std::move(m_mockSafeStoreWrapper));
 
-    testing::internal::CaptureStderr();
-
     EXPECT_NO_THROW(quarantineManager->initialise());
     ASSERT_EQ(quarantineManager->getState(), QuarantineManagerState::INITIALISED);
     datatypes::AutoFd fdHolder;
-    ASSERT_EQ(
+    EXPECT_EQ(
         common::CentralEnums::QuarantineResult::FAILED_TO_DELETE_FILE,
         quarantineManager->quarantineFile(
             m_dir + "/" + m_file, m_threatID, m_threatName, m_SHA256, std::move(fdHolder)));
 
-    std::string logMessage = internal::GetCapturedStderr();
-    ASSERT_THAT(
-        logMessage,
-        ::testing::HasSubstr(
-            "ERROR Failed to quarantine file due to: " +
-            GL_SAVE_FILE_RETURN_CODES.at(SaveFileReturnCode::INVALID_ARG)));
+    EXPECT_TRUE(appenderContains("Failed to quarantine file due to: " +
+                                 GL_SAVE_FILE_RETURN_CODES.at(SaveFileReturnCode::INVALID_ARG)));
 }
 
 TEST_F(QuarantineManagerTests, quarantineFileFailsWhenFileDescriptorsDoNotMatch)
@@ -350,7 +345,7 @@ TEST_F(QuarantineManagerTests, quarantineFileFailsWhenFileDescriptorsDoNotMatch)
     EXPECT_NO_THROW(quarantineManager->initialise());
     ASSERT_EQ(quarantineManager->getState(), QuarantineManagerState::INITIALISED);
     datatypes::AutoFd fdHolder;
-    ASSERT_EQ(
+    EXPECT_EQ(
         common::CentralEnums::QuarantineResult::FAILED_TO_DELETE_FILE,
         quarantineManager->quarantineFile(
             m_dir + "/" + m_file, m_threatID, m_threatName, m_SHA256, std::move(fdHolder)));
@@ -389,7 +384,7 @@ TEST_F(QuarantineManagerTests, quarantineFileFailsWhenThreatDirectoryDoesNotExis
     EXPECT_NO_THROW(quarantineManager->initialise());
     ASSERT_EQ(quarantineManager->getState(), QuarantineManagerState::INITIALISED);
     datatypes::AutoFd fdHolder;
-    ASSERT_EQ(
+    EXPECT_EQ(
         common::CentralEnums::QuarantineResult::NOT_FOUND,
         quarantineManager->quarantineFile(
             m_dir + "/" + m_file, m_threatID, m_threatName, m_SHA256, std::move(fdHolder)));
@@ -429,11 +424,12 @@ TEST_F(QuarantineManagerTests, quarantineFileFailsWhenthreatDoesNotExist)
     EXPECT_NO_THROW(quarantineManager->initialise());
     ASSERT_EQ(quarantineManager->getState(), QuarantineManagerState::INITIALISED);
     datatypes::AutoFd fdHolder;
-    ASSERT_EQ(
+    EXPECT_EQ(
         common::CentralEnums::QuarantineResult::NOT_FOUND,
         quarantineManager->quarantineFile(
             m_dir + "/" + m_file, m_threatID, m_threatName, m_SHA256, std::move(fdHolder)));
 }
+
 TEST_F(QuarantineManagerTests, quarantineFileFailsAndDbIsMarkedCorrupt)
 {
     auto* filesystemMock = new StrictMock<MockFileSystem>();
@@ -478,12 +474,12 @@ TEST_F(QuarantineManagerTests, quarantineFileFailsAndDbIsMarkedCorrupt)
     EXPECT_NO_THROW(quarantineManager->initialise());
     ASSERT_EQ(quarantineManager->getState(), QuarantineManagerState::INITIALISED);
     datatypes::AutoFd fdHolder;
-    ASSERT_EQ(
+    EXPECT_EQ(
         common::CentralEnums::QuarantineResult::FAILED_TO_DELETE_FILE,
         quarantineManager->quarantineFile(
             m_dir + "/" + m_file, m_threatID, m_threatName, m_SHA256, std::move(fdHolder)));
 
-    ASSERT_EQ(quarantineManager->getState(), QuarantineManagerState::CORRUPT);
+    EXPECT_EQ(quarantineManager->getState(), QuarantineManagerState::CORRUPT);
 }
 
 TEST_F(QuarantineManagerTests, quarantineFileFailsToFinaliseFile)
@@ -525,7 +521,7 @@ TEST_F(QuarantineManagerTests, quarantineFileFailsToFinaliseFile)
     EXPECT_NO_THROW(quarantineManager->initialise());
     ASSERT_EQ(quarantineManager->getState(), QuarantineManagerState::INITIALISED);
     datatypes::AutoFd fdHolder;
-    ASSERT_EQ(
+    EXPECT_EQ(
         common::CentralEnums::QuarantineResult::FAILED_TO_DELETE_FILE,
         quarantineManager->quarantineFile(
             m_dir + "/" + m_file, m_threatID, m_threatName, m_SHA256, std::move(fdHolder)));
@@ -614,7 +610,7 @@ TEST_F(QuarantineManagerTests, fileQuarantinesAndRemovesPreviouslySavedObjectsWi
     EXPECT_NO_THROW(quarantineManager->initialise());
     ASSERT_EQ(quarantineManager->getState(), QuarantineManagerState::INITIALISED);
     datatypes::AutoFd fdHolder;
-    ASSERT_EQ(
+    EXPECT_EQ(
         common::CentralEnums::QuarantineResult::SUCCESS,
         quarantineManager->quarantineFile(
             m_dir + "/" + m_file, m_threatID, m_threatName, m_SHA256, std::move(fdHolder)));
@@ -704,7 +700,7 @@ TEST_F(QuarantineManagerTests, fileQuarantinesButFailsToRemovePreviouslySavedObj
     EXPECT_NO_THROW(quarantineManager->initialise());
     ASSERT_EQ(quarantineManager->getState(), QuarantineManagerState::INITIALISED);
     datatypes::AutoFd fdHolder;
-    ASSERT_EQ(
+    EXPECT_EQ(
         common::CentralEnums::QuarantineResult::SUCCESS,
         quarantineManager->quarantineFile(
             m_dir + "/" + m_file, m_threatID, m_threatName, m_SHA256, std::move(fdHolder)));
@@ -733,7 +729,7 @@ TEST_F(QuarantineManagerTests, tryToQuarantineFileWhenThreatIdIsIncorrectSize)
     EXPECT_NO_THROW(quarantineManager->initialise());
     ASSERT_EQ(quarantineManager->getState(), QuarantineManagerState::INITIALISED);
     datatypes::AutoFd fdHolder;
-    ASSERT_EQ(
+    EXPECT_EQ(
         common::CentralEnums::QuarantineResult::NOT_FOUND,
         quarantineManager->quarantineFile(m_dir + "/" + m_file, threatId, m_threatName, m_SHA256, std::move(fdHolder)));
 }
@@ -751,7 +747,7 @@ TEST_F(QuarantineManagerTests, tryToQuarantineFileWhenUninitialised)
     EXPECT_NO_THROW(
         result = quarantineManager->quarantineFile(
             m_dir + "/" + m_file, m_threatID, m_threatName, m_SHA256, std::move(fdHolder)));
-    ASSERT_EQ(result, common::CentralEnums::QuarantineResult::NOT_FOUND);
+    EXPECT_EQ(result, common::CentralEnums::QuarantineResult::NOT_FOUND);
 }
 
 TEST_F(QuarantineManagerTests, deleteDatabaseCalledOnInitialisedDb)
@@ -885,12 +881,13 @@ TEST_F(QuarantineManagerTests, extractQuarantinedFiles)
     datatypes::AutoFd fd(100);
     std::vector<std::pair<datatypes::AutoFd, safestore::SafeStoreWrapper::ObjectId>> actualFiles =
         quarantineManager->extractQuarantinedFiles(mockSysCallWrapper);
-    ASSERT_EQ(1, actualFiles.size());
-    ASSERT_EQ(fd, actualFiles[0].first);
+    EXPECT_EQ(1, actualFiles.size());
+    EXPECT_EQ(fd, actualFiles[0].first);
 }
 
 TEST_F(QuarantineManagerTests, extractQuarantinedFilesHandlesFailedToRemoveFileFollowedByAFailToRemoveUnpackDir)
 {
+    UsingMemoryAppender memoryAppenderHolder(*this);
     auto* filesystemMock = new StrictMock<MockFileSystem>();
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(
         filesystemMock) };
@@ -939,18 +936,17 @@ TEST_F(QuarantineManagerTests, extractQuarantinedFilesHandlesFailedToRemoveFileF
     EXPECT_CALL(mockSysCallWrapper, _open(_, _, _)).WillOnce(Return(100));
 
     datatypes::AutoFd fd(100);
-    testing::internal::CaptureStderr();
     std::vector<std::pair<datatypes::AutoFd, safestore::SafeStoreWrapper::ObjectId>> actualFiles =
         quarantineManager->extractQuarantinedFiles(mockSysCallWrapper);
-    std::string logMessage = internal::GetCapturedStderr();
-    ASSERT_THAT(logMessage, ::testing::HasSubstr("Failed to clean up threat with error: exception"));
-    ASSERT_THAT(logMessage, ::testing::HasSubstr("Failed to clean up staging location for rescan with error:"));
-    ASSERT_EQ(1, actualFiles.size());
-    ASSERT_EQ(fd, actualFiles[0].first);
+    EXPECT_TRUE(appenderContains("Failed to clean up threat with error: exception"));
+    EXPECT_TRUE(appenderContains("Failed to clean up staging location for rescan with error:"));
+    EXPECT_EQ(1, actualFiles.size());
+    EXPECT_EQ(fd, actualFiles[0].first);
 }
 
 TEST_F(QuarantineManagerTests, extractQuarantinedFilesHandlesAFailToRemoveUnpackDir)
 {
+    UsingMemoryAppender memoryAppenderHolder(*this);
     auto* filesystemMock = new StrictMock<MockFileSystem>();
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(
         filesystemMock) };
@@ -998,14 +994,12 @@ TEST_F(QuarantineManagerTests, extractQuarantinedFilesHandlesAFailToRemoveUnpack
     EXPECT_CALL(mockSysCallWrapper, _open(_, _, _)).WillOnce(Return(100));
 
     datatypes::AutoFd fd(100);
-    testing::internal::CaptureStderr();
 
     std::vector<std::pair<datatypes::AutoFd, safestore::SafeStoreWrapper::ObjectId>> actualFiles =
         quarantineManager->extractQuarantinedFiles(mockSysCallWrapper);
-    std::string logMessage = internal::GetCapturedStderr();
-    ASSERT_THAT(logMessage, ::testing::HasSubstr("Failed to clean up staging location for rescan with error:"));
-    ASSERT_EQ(1, actualFiles.size());
-    ASSERT_EQ(fd, actualFiles[0].first);
+    EXPECT_TRUE(appenderContains("Failed to clean up staging location for rescan with error:"));
+    EXPECT_EQ(1, actualFiles.size());
+    EXPECT_EQ(fd, actualFiles[0].first);
 }
 TEST_F(QuarantineManagerTests, extractQuarantinedFilesAbortsWhenThereIsMoreThanOneFileInUnpackDir)
 {
@@ -1051,7 +1045,7 @@ TEST_F(QuarantineManagerTests, extractQuarantinedFilesAbortsWhenThereIsMoreThanO
 
     std::vector<std::pair<datatypes::AutoFd, safestore::SafeStoreWrapper::ObjectId>> actualFiles =
         quarantineManager->extractQuarantinedFiles(mockSysCallWrapper);
-    ASSERT_EQ(0, actualFiles.size());
+    EXPECT_EQ(0, actualFiles.size());
 }
 
 TEST_F(QuarantineManagerTests, extractQuarantinedFilesHandlesFailedRestore)
@@ -1099,7 +1093,7 @@ TEST_F(QuarantineManagerTests, extractQuarantinedFilesHandlesFailedRestore)
 
     std::vector<std::pair<datatypes::AutoFd, safestore::SafeStoreWrapper::ObjectId>> actualFiles =
         quarantineManager->extractQuarantinedFiles(mockSysCallWrapper);
-    ASSERT_EQ(0, actualFiles.size());
+    EXPECT_EQ(0, actualFiles.size());
 }
 
 TEST_F(QuarantineManagerTests, extractQuarantinedFilesAbortWhenFailingToChmodFile)
@@ -1150,7 +1144,7 @@ TEST_F(QuarantineManagerTests, extractQuarantinedFilesAbortWhenFailingToChmodFil
 
     std::vector<std::pair<datatypes::AutoFd, safestore::SafeStoreWrapper::ObjectId>> actualFiles =
         quarantineManager->extractQuarantinedFiles(mockSysCallWrapper);
-    ASSERT_EQ(0, actualFiles.size());
+    EXPECT_EQ(0, actualFiles.size());
 }
 
 TEST_F(QuarantineManagerTests, extractQuarantinedFilesWithMultipleThreatsInDatabase)
@@ -1224,10 +1218,10 @@ TEST_F(QuarantineManagerTests, extractQuarantinedFilesWithMultipleThreatsInDatab
 
     std::vector<std::pair<datatypes::AutoFd, safestore::SafeStoreWrapper::ObjectId>> actualFiles =
         quarantineManager->extractQuarantinedFiles(mockSysCallWrapper);
-    ASSERT_EQ(3, actualFiles.size());
-    ASSERT_EQ(fd1, actualFiles[0].first);
-    ASSERT_EQ(fd2, actualFiles[1].first);
-    ASSERT_EQ(fd3, actualFiles[2].first);
+    EXPECT_EQ(3, actualFiles.size());
+    EXPECT_EQ(fd1, actualFiles[0].first);
+    EXPECT_EQ(fd2, actualFiles[1].first);
+    EXPECT_EQ(fd3, actualFiles[2].first);
 }
 
 TEST_F(QuarantineManagerTests, extractQuarantinedFilesWhenDatabaseEmpty)
@@ -1252,7 +1246,7 @@ TEST_F(QuarantineManagerTests, extractQuarantinedFilesWhenDatabaseEmpty)
 
     std::vector<std::pair<datatypes::AutoFd, safestore::SafeStoreWrapper::ObjectId>> actualFiles =
         quarantineManager->extractQuarantinedFiles(mockSysCallWrapper);
-    ASSERT_EQ(0, actualFiles.size());
+    EXPECT_EQ(0, actualFiles.size());
 }
 
 TEST_F(QuarantineManagerTests, configParsingCanParseValidConfig)
@@ -1303,7 +1297,7 @@ TEST_F(QuarantineManagerTests, configParsingIgnoresInvalidConfigValues)
 
 TEST_F(QuarantineManagerTests, configParsingHandlesMalformedJson)
 {
-    testing::internal::CaptureStderr();
+    UsingMemoryAppender memoryAppenderHolder(*this);
     auto* filesystemMock = new StrictMock<MockFileSystem>();
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(
         filesystemMock) };
@@ -1317,8 +1311,7 @@ TEST_F(QuarantineManagerTests, configParsingHandlesMalformedJson)
     std::shared_ptr<IQuarantineManager> quarantineManager =
         std::make_shared<QuarantineManagerImpl>(std::move(m_mockSafeStoreWrapper));
     EXPECT_NO_THROW(quarantineManager->parseConfig());
-    std::string logMessage = internal::GetCapturedStderr();
-    ASSERT_THAT(logMessage, ::testing::HasSubstr("Failed to parse SafeStore config json: "));
+    EXPECT_TRUE(appenderContains("Failed to parse SafeStore config json: "));
 }
 
 TEST_F(QuarantineManagerTests, configParsingHandlesBadFileRead)
