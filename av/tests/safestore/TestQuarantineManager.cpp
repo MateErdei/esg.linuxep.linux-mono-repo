@@ -1,8 +1,8 @@
 // Copyright 2022, Sophos Limited. All rights reserved.
 
 #include "MockISafeStoreWrapper.h"
+#include "SafeStoreMemoryAppenderUsingTests.h"
 
-#include "../common/LogInitializedTests.h"
 #include "common/ApplicationPaths.h"
 #include "datatypes/MockSysCalls.h"
 #include "safestore/QuarantineManager/IQuarantineManager.h"
@@ -23,7 +23,7 @@
 using namespace testing;
 using namespace safestore::QuarantineManager;
 
-class QuarantineManagerTests : public LogInitializedTests
+class QuarantineManagerTests : public SafeStoreMemoryAppenderUsingTests
 {
 protected:
     void SetUp() override
@@ -1323,7 +1323,7 @@ TEST_F(QuarantineManagerTests, configParsingHandlesMalformedJson)
 
 TEST_F(QuarantineManagerTests, configParsingHandlesBadFileRead)
 {
-    testing::internal::CaptureStderr();
+    UsingMemoryAppender memoryAppenderHolder(*this);
     auto* filesystemMock = new StrictMock<MockFileSystem>();
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(
         filesystemMock) };
@@ -1336,6 +1336,5 @@ TEST_F(QuarantineManagerTests, configParsingHandlesBadFileRead)
     std::shared_ptr<IQuarantineManager> quarantineManager =
         std::make_shared<QuarantineManagerImpl>(std::move(m_mockSafeStoreWrapper));
     EXPECT_NO_THROW(quarantineManager->parseConfig());
-    std::string logMessage = internal::GetCapturedStderr();
-    ASSERT_THAT(logMessage, ::testing::HasSubstr("Failed to read SafeStore config json: test error"));
+    EXPECT_TRUE(appenderContains("Failed to read SafeStore config json: test error"));
 }

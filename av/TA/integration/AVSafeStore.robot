@@ -183,6 +183,7 @@ Failed Clean Event Gets Sent When SafeStore Fails To Quarantine A File
 
     Wait Until SafeStore running
     Remove Directory     ${SAFESTORE_DB_DIR}  recursive=True
+    Mark Expected Error In Log    ${SAFESTORE_LOG_PATH}    Failed to quarantine file due to: InternalError
 
     ${safestore_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
     Check avscanner can detect eicar
