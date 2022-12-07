@@ -19,39 +19,39 @@ namespace Plugin
 
     class ThreatDatabase
     {
-    public:
-        explicit ThreatDatabase(const std::string& path);
-        ~ThreatDatabase();
-        void addThreat(const std::string& threatID, const std::string& correlationID);
-        void removeCorrelationID(const std::string& correlationID);
-        void removeThreatID(const std::string& threatID, bool ignoreNotInDatabase=true);
-        void resetDatabase();
-        bool isDatabaseEmpty() const;
-        bool isThreatInDatabaseWithinTime(const std::string& threatId, const std::chrono::seconds& duplicateTimeout) const;
+        public:
+            explicit ThreatDatabase(const std::string& path);
+            ~ThreatDatabase();
+            void addThreat(const std::string& threatID, const std::string& correlationID);
+            void removeCorrelationID(const std::string& correlationID);
+            void removeThreatID(const std::string& threatID, bool ignoreNotInDatabase=true);
+            void resetDatabase();
+            bool isDatabaseEmpty() const;
+            bool isThreatInDatabaseWithinTime(const std::string& threatId, const std::chrono::seconds& duplicateTimeout) const;
 
-    TEST_PUBLIC:
-        struct ThreatDetails
-        {
-            std::list<std::string> correlationIds;
-            //This is saved to disk when ThreatDatabase is destroyed, so use system clock
-            std::chrono::system_clock::time_point lastDetection = std::chrono::system_clock::now();
-
-            ThreatDetails(const std::string& correlationId)
+        TEST_PUBLIC:
+            struct ThreatDetails
             {
-                correlationIds = std::list<std::string> { correlationId };
-            }
+                std::list<std::string> correlationIds;
+                //This is saved to disk when ThreatDatabase is destroyed, so use system clock
+                std::chrono::system_clock::time_point lastDetection = std::chrono::system_clock::now();
 
-            ThreatDetails(const std::list<std::string>& correlationId, const long& time)
-            {
-                correlationIds = correlationId;
-                lastDetection = std::chrono::system_clock::time_point(std::chrono::seconds(time));
-            }
-        };
+                ThreatDetails(const std::string& correlationId)
+                {
+                    correlationIds = std::list<std::string> { correlationId };
+                }
 
-        void convertDatabaseToString();
-        void convertStringToDatabase();
-        mutable common::LockableData<std::map<std::string, ThreatDetails>> m_database;
-        Common::PersistentValue<std::string> m_databaseInString;
+                ThreatDetails(const std::list<std::string>& correlationId, const long& time)
+                {
+                    correlationIds = correlationId;
+                    lastDetection = std::chrono::system_clock::time_point(std::chrono::seconds(time));
+                }
+            };
+
+            void convertDatabaseToString();
+            void convertStringToDatabase();
+            mutable common::LockableData<std::map<std::string, ThreatDetails>> m_database;
+            Common::PersistentValue<std::string> m_databaseInString;
     };
 }
 
