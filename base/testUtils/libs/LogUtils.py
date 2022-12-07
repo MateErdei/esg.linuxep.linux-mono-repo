@@ -58,10 +58,7 @@ class LogUtils(object):
         self.mcs_router_log = os.path.join(self.base_logs_dir, "sophosspl", "mcsrouter.log")
         self.tscheduler_log = os.path.join(self.base_logs_dir, "sophosspl", "tscheduler.log")
         self.update_scheduler_log = os.path.join(self.base_logs_dir, "sophosspl", "updatescheduler.log")
-        self.av_log = os.path.join(self.install_path, "plugins", "av", "log", "av.log")
-        self.oa_log = os.path.join(self.install_path, "plugins", "av", "log", "soapd.log")
         self.safestore_log = os.path.join(self.install_path, "plugins", "av", "log", "safestore.log")
-        self.sophos_threat_detector_log = os.path.join(self.install_path, "plugins", "av", "chroot", "log", "sophos_threat_detector.log")
         self.edr_log = os.path.join(self.install_path, "plugins", "edr", "log", "edr.log")
         self.edr_osquery_log = os.path.join(self.install_path, "plugins", "edr", "log", "edr_osquery.log")
         self.livequery_log = os.path.join(self.install_path, "plugins", "edr", "log", "livequery.log")
@@ -70,20 +67,38 @@ class LogUtils(object):
         self.sessions_log = os.path.join(self.install_path, "plugins", "liveresponse", "log", "sessions.log")
         self.mdr_log = os.path.join(self.install_path, "plugins", "mtr", "log", "mtr.log")
         self.osquery_watcher_log = os.path.join(self.install_path, "plugins", "mtr", "dbos", "data", "logs", "osquery.watcher.log")
-        self.cloud_server_log = os.path.join(self.tmp_path, "cloudServer.log")
         self.thin_install_log = os.path.join(self.tmp_path, "thin_installer", "ThinInstaller.log")
+
+        # SSPL-AV chroot log files
+        self.__m_chroot_logs_dir = os.path.join(self.install_path, "plugins", "av", "chroot", "log")
+        self.sophos_threat_detector_log = os.path.join(self.__m_chroot_logs_dir, "sophos_threat_detector.log")
+        self.susi_debug_log = os.path.join(self.__m_chroot_logs_dir, "susi_debug.log")
+
+        # SSPL-AV main log files
+        self.av_plugin_logs_dir = os.path.join(self.install_path, "plugins", "av", "log")
+        self.av_log = os.path.join(self.av_plugin_logs_dir, "av.log")
+        self.oa_log = os.path.join(self.av_plugin_logs_dir, "soapd.log")
+        self.__m_safestore_log = os.path.join(self.av_plugin_logs_dir, "safestore.log")
+
+        self.cloud_server_log = os.path.join(self.tmp_path, "cloudServer.log")
+        self.marked_mcsrouter_logs = 0
+        self.marked_mcs_envelope_logs = 0
+        self.marked_watchdog_log = 0
+        self.marked_managementagent_logs = 0
         self.marked_av_log = 0
+        self.marked_sophos_threat_detector_log = 0
+        self.marked_ss_log = 0
         self.marked_edr_log = 0
         self.marked_edr_osquery_log = 0
         self.marked_livequery_log = 0
         self.marked_managementagent_log = 0
-        self.marked_mcs_envelope_logs = 0
-        self.marked_mcsrouter_logs = 0
         self.marked_safestore_log = 0
-        self.marked_sophos_threat_detector_log = 0
         self.marked_sul_logs = 0
         self.marked_update_scheduler_logs = 0
-        self.marked_watchdog_logs = 0
+        self.__m_marked_log_position = {}
+
+        self.__m_pending_mark_expected_errors = {}
+        self.__m_log_handlers = {}
 
     # Common Log Utils
     def get_log_line(self, string_to_contain, path_to_log):
