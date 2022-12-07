@@ -16,6 +16,10 @@
 
 namespace Plugin
 {
+    namespace JsonKeys {
+        constexpr auto correlationId = "correlationIds";
+        constexpr auto timestamp = "timestamp";
+    }
 
     class ThreatDatabase
     {
@@ -34,7 +38,7 @@ namespace Plugin
             {
                 std::list<std::string> correlationIds;
                 //This is saved to disk when ThreatDatabase is destroyed, so use system clock
-                std::chrono::system_clock::time_point lastDetection = std::chrono::system_clock::now();
+                std::chrono::system_clock::time_point lastDetection = std::chrono::time_point_cast<std::chrono::seconds>(std::chrono::system_clock::now());
 
                 ThreatDetails(const std::string& correlationId)
                 {

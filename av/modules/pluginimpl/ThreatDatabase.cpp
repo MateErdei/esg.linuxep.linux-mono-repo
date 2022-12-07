@@ -99,7 +99,7 @@ namespace Plugin
             return false;
         }
 
-        std::chrono::system_clock::time_point timePointNow = std::chrono::system_clock::now();
+        auto timePointNow = std::chrono::time_point_cast<std::chrono::seconds>(std::chrono::system_clock::now());;
         if ((timePointNow - threatItr->second.lastDetection) <= duplicateTimeout)
         {
             return true;
@@ -129,8 +129,8 @@ namespace Plugin
         for (const auto& key : *database)
         {
             long timeStamp = std::chrono::time_point_cast<std::chrono::seconds>(key.second.lastDetection).time_since_epoch().count();
-            j[key.first] = { {"correlationIds", key.second.correlationIds},
-                             {"timestamp", timeStamp }};
+            j[key.first] = { {JsonKeys::correlationId, key.second.correlationIds},
+                             {JsonKeys::timestamp, timeStamp }};
         }
         if (j.empty())
         {
@@ -168,7 +168,7 @@ namespace Plugin
             std::list<std::string> correlationIdsToPop;
             try
             {
-                auto correlationIds = threatItr.value().at("correlationIds").items();
+                auto correlationIds = threatItr.value().at(JsonKeys::correlationId).items();
                 for (auto corrItr : correlationIds)
                 {
                     correlationIdsToPop.emplace_back(corrItr.value());
@@ -177,19 +177,19 @@ namespace Plugin
             catch (nlohmann::json::exception& ex)
             {
                 //If the types of the threat id or correlation id are wrong throw away the entire threatID entry
-                LOGWARN("Not loading "<< threatItr.key() << " into threat database as the parsing failed with error " << ex.what());
-                continue;
+                LOGWARN("Not loading "<< threatItr.key() << " into threat database as parsing failed with error for " << JsonKeys::correlationId  << ex.what());
+                Common::Telemetry::TelemetryHelper::getInstance().set("corrupt-threat-database", true);
             }
 
             long timeStamp = 0;
             try
             {
-                timeStamp = threatItr.value().at("timestamp");
+                timeStamp = threatItr.value().at(JsonKeys::timestamp);
             }
             catch (nlohmann::json::exception& ex)
             {
-                LOGWARN("Time field for " << threatItr.key() << " is invalid, setting to 0: " << ex.what());
-                timeStamp = 0;
+                LOGWARN("Time field for " << threatItr.key() << " into threat database as parsing failed with error for " << JsonKeys::timestamp << ex.what());
+                Common::Telemetry::TelemetryHelper::getInstance().set("corrupt-threat-database", true);
             }
 
             ThreatDetails details(correlationIdsToPop, timeStamp);
