@@ -130,7 +130,7 @@ std::string pluginimpl::generateThreatDetectedJson(const scan_messages::ThreatDe
 
     threatEvent["details"] = details;
     threatEvent["items"] = items;
-    bool overallSuccess = detection.notificationStatus == scan_messages::E_NOTIFCATION_STATUS::E_NOTIFICATION_STATUS_CLEANED_UP;
+    bool overallSuccess = detection.notificationStatus == scan_messages::E_NOTIFICATION_STATUS::E_NOTIFICATION_STATUS_CLEANED_UP;
     threatEvent["quarantineSuccess"] = overallSuccess;
     if (detection.scanType == scan_messages::E_SCAN_TYPE::E_SCAN_TYPE_ON_ACCESS
         || detection.scanType == scan_messages::E_SCAN_TYPE::E_SCAN_TYPE_ON_ACCESS_OPEN

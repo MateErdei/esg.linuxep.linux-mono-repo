@@ -18,7 +18,7 @@ namespace scan_messages
     // TODO LINUXDAR-5839: E_NOTIFCATION_STATUS and E_ACTION_CODE should be combined into a single enum to correspond
     // with event-core-clean fields
 
-    enum E_NOTIFCATION_STATUS: int
+    enum E_NOTIFICATION_STATUS: int
     {
         E_NOTIFICATION_STATUS_CLEANED_UP      = 50,
         E_NOTIFICATION_STATUS_NOT_CLEANUPABLE = 200,
@@ -56,7 +56,7 @@ namespace scan_messages
             common::CentralEnums::ThreatType threatType,
             std::string threatName,
             E_SCAN_TYPE scanType,
-            E_NOTIFCATION_STATUS notificationStatus,
+            E_NOTIFICATION_STATUS notificationStatus,
             std::string filePath,
             E_ACTION_CODE actionCode,
             std::string sha256,
@@ -79,7 +79,7 @@ namespace scan_messages
         common::CentralEnums::ThreatType threatType;
         std::string threatName;
         E_SCAN_TYPE scanType;
-        E_NOTIFCATION_STATUS notificationStatus;
+        E_NOTIFICATION_STATUS notificationStatus;
         std::string filePath;
         E_ACTION_CODE actionCode;
         std::string sha256;
