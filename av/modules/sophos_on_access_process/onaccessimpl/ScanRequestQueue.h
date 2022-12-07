@@ -9,8 +9,12 @@
 #include <condition_variable>
 #include <mutex>
 #include <queue>
-#include <unordered_set>
+#include <unordered_map>
 #include <utility>
+
+#ifndef TEST_PUBLIC
+# define TEST_PUBLIC private
+#endif
 
 using namespace scan_messages;
 
@@ -53,9 +57,12 @@ namespace sophos_on_access_process::onaccessimpl
          */
         size_t size() const;
 
+    TEST_PUBLIC:
+        using dedup_map_t = std::unordered_map<ClientScanRequest::hash_t, ClientScanRequest::unique_t>;
+        dedup_map_t m_deDupData;
+
     private:
         void clearQueue();
-
 
         std::queue<ClientScanRequestPtr> m_queue;
 
@@ -65,8 +72,6 @@ namespace sophos_on_access_process::onaccessimpl
         const size_t m_maxSize;
         std::atomic_bool m_shuttingDown = false;
         bool m_useDeDup;
-        using dedup_set_t = std::unordered_set<ClientScanRequest::hash_t>;
-        dedup_set_t m_deDupSet;
     };
 
     using ScanRequestQueueSharedPtr = std::shared_ptr<ScanRequestQueue>;

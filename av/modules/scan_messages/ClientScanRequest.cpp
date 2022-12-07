@@ -4,6 +4,8 @@
 
 #include "Logger.h"
 
+#include "common/SaferStrerror.h"
+
 #include <capnp/message.h>
 #include <capnp/serialize.h>
 
@@ -53,7 +55,7 @@ bool ClientScanRequest::fstatIfRequired() const
         int ret = m_syscalls->fstat(m_autoFd.get(), &m_fstat);
         if (ret != 0)
         {
-            LOGERROR("Unable to stat: " << m_path);
+            LOGERROR("Unable to stat: " << m_path << " error " << common::safer_strerror(errno) << " (" << errno << ")");
             return false;
         }
     }
@@ -72,6 +74,16 @@ std::optional<ClientScanRequest::hash_t> ClientScanRequest::hash() const
     const hash_t h1 = hasher(m_fstat.st_dev);
     const hash_t h2 = hasher(m_fstat.st_ino);
     return h1 ^ (h2 << 1 | h2 >> 63);
+}
+
+ClientScanRequest::unique_t ClientScanRequest::uniqueMarker() const
+{
+    if (!fstatIfRequired())
+    {
+        throw std::runtime_error("Unable to create unique value - fstat failed");
+    }
+
+    return unique_t{m_fstat.st_dev, m_fstat.st_ino};
 }
 
 bool ClientScanRequest::operator==(const ClientScanRequest& other) const

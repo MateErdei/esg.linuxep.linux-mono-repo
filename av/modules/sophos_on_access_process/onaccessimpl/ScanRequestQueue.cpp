@@ -28,17 +28,28 @@ bool ScanRequestQueue::emplace(ClientScanRequestPtr item)
             const auto hashOptional = item->hash();
             if (hashOptional.has_value())
             {
+                const auto& value = item->uniqueMarker();
                 const auto hash = hashOptional.value();
-                if (m_deDupSet.find(hash) != m_deDupSet.end())
+                const auto& previousItem = m_deDupData.find(hash);
+                if (previousItem != m_deDupData.end())
                 {
-                    LOGTRACE("Skipping scan of " << item->getPath() << " fd=" << item->getFd() << " ("
-                                                << (item->isOpenEvent() ? "Open" : "Close-Write")
-                                                << ')');
-                    return true; // item has been dealt with
+                    if (previousItem->second == value)
+                    {
+                        LOGTRACE(
+                            "Skipping scan of " << item->getPath() << " fd=" << item->getFd() << " ("
+                                                << (item->isOpenEvent() ? "Open" : "Close-Write") << ')');
+                        return true; // item has been dealt with
+                    }
+                    else
+                    {
+                        // hash collision
+                        LOGTRACE("Hash collision in dedup for " << item->getPath());
+                    }
                 }
                 // else record it in the set
-                m_deDupSet.insert(hash);
+                m_deDupData[hash] = value;
             }
+            // Else failed to fstat the file
         }
         item->setQueueSizeAtTimeOfInsert(currentQueueSize);
         m_queue.emplace(std::move(item));
@@ -64,7 +75,7 @@ ClientScanRequestPtr ScanRequestQueue::pop()
             if (hashOptional.has_value())
             {
                 const auto hash = hashOptional.value();
-                m_deDupSet.erase(hash);
+                m_deDupData.erase(hash);
             }
         }
     }
@@ -97,5 +108,5 @@ void ScanRequestQueue::clearQueue()
     std::unique_lock<std::mutex> lock(m_lock);
     typeof(m_queue) empty;
     m_queue.swap(empty);
-    m_deDupSet.clear();
+    m_deDupData.clear();
 }
