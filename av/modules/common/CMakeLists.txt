@@ -58,7 +58,6 @@ SET (BOOST_ROOT ${BOOSTPATH}/boost)
 find_package( Boost REQUIRED COMPONENTS filesystem locale system)
 
 target_link_libraries(common  PUBLIC
-        scanmessages
         datatypes
         ${STD_FILESYSTEM_IF_REQUIRED}
         ${pluginapilib}

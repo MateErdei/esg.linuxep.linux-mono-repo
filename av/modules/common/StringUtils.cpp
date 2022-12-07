@@ -1,22 +1,19 @@
-/******************************************************************************************************
+// Copyright 2020-2022 Sophos Limited. All rights reserved.
 
-Copyright 2020-2022, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
-
-#include "Common/Logging/LoggerConfig.h"
-#include "Common/UtilityImpl/StringUtils.h"
-#include "ThreatDetected.capnp.h"
-#include "Logger.h"
 #include "StringUtils.h"
 
-#include <cctype>
-#include <iomanip>
+#include "Logger.h"
+
+#include "Common/Logging/LoggerConfig.h"
+
 #include <openssl/sha.h>
 #include <openssl/md5.h>
 #include <boost/locale.hpp>
 
-#include <time.h>
+#include <cctype>
+#include <ctime>
+#include <iomanip>
+
 
 namespace common
 {

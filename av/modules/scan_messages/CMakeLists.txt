@@ -38,7 +38,10 @@ target_include_directories(scanmessages PUBLIC
         ${pluginapiinclude}
         )
 
-target_link_libraries(scanmessages datatypes ${log4cpluslib} ${pluginapilib} ${CAPNPROTO_LIBRARIES})
+target_link_libraries(scanmessages
+        common
+        datatypes
+        ${log4cpluslib} ${pluginapilib} ${CAPNPROTO_LIBRARIES})
 
 SET_TARGET_PROPERTIES(scanmessages
         PROPERTIES
