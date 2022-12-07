@@ -1,8 +1,10 @@
-//Copyright 2019-2022, Sophos Limited.  All rights reserved.
+// Copyright 2019-2022 Sophos Limited. All rights reserved.
 
 #include "ScanRequest.capnp.h"
 
 #include <scan_messages/ScanRequest.h>
+
+#include "datatypes/MockSysCalls.h"
 
 #include <gtest/gtest.h>
 #include <capnp/message.h>
@@ -187,7 +189,7 @@ TEST(TestScanMessages, ReuseScanRequestObject)
     EXPECT_FALSE(scanRequest->scanInsideImages());
 }
 
-TEST(TestScanMessages, ClientScanRequestHasTime)
+TEST(TestScanRequest, ClientScanRequestHasTime)
 {
     scan_messages::ClientScanRequest clientScanRequest{};
     auto creationTime = clientScanRequest.getCreationTime().time_since_epoch().count();
@@ -196,7 +198,7 @@ TEST(TestScanMessages, ClientScanRequestHasTime)
 }
 
 
-TEST(TestScanMessages, ClientScanRequestSetsQueueSize)
+TEST(TestScanRequest, ClientScanRequestSetsQueueSize)
 {
     scan_messages::ClientScanRequest clientScanRequest{};
 
@@ -205,4 +207,29 @@ TEST(TestScanMessages, ClientScanRequestSetsQueueSize)
     clientScanRequest.setQueueSizeAtTimeOfInsert(testValue);
 
     ASSERT_EQ(testValue, clientScanRequest.getQueueSizeAtTimeOfInsert());
+}
+
+TEST(TestScanRequest, noHashWithNoFd)
+{
+    scan_messages::ClientScanRequest clientScanRequest{};
+    auto hash = clientScanRequest.hash();
+    EXPECT_FALSE(hash.has_value());
+}
+
+TEST(TestScanRequest, hashWithFstat)
+{
+    auto sysCallWrapper = std::make_shared<StrictMock<MockSystemCallWrapper>>();
+
+    constexpr int FD = 9999999;
+
+    struct ::stat stat1{};
+    stat1.st_ino = 1;
+    stat1.st_dev = 1;
+    EXPECT_CALL(*sysCallWrapper, fstat(FD, _)).WillOnce(DoAll(SetArgPointee<1>(stat1), Return(0)));
+
+    datatypes::AutoFd fd{FD};
+    scan_messages::ClientScanRequest clientScanRequest{sysCallWrapper, fd};
+    auto hash = clientScanRequest.hash();
+    ASSERT_TRUE(hash.has_value());
+    EXPECT_NE(hash.value(), 0);
 }

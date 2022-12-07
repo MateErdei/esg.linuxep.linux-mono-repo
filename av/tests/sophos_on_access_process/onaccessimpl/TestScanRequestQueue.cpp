@@ -89,15 +89,8 @@ TEST_F(TestScanRequestQueue, dedupRemovesDuplicate)
 {
     auto sysCallWrapper = std::make_shared<StrictMock<MockSystemCallWrapper>>();
 
-    struct ::stat stat1{};
-    stat1.st_ino = 1;
-    stat1.st_dev = 0;
-    EXPECT_CALL(*sysCallWrapper, fstat(10, _)).WillOnce(DoAll(SetArgPointee<1>(stat1), Return(0)));
-
-    struct ::stat stat2{};
-    stat2.st_ino = 1;
-    stat2.st_dev = 0;
-    EXPECT_CALL(*sysCallWrapper, fstat(20, _)).WillOnce(DoAll(SetArgPointee<1>(stat2), Return(0)));
+    EXPECT_CALL(*sysCallWrapper, fstat(10, _)).WillOnce(fstatReturnsDeviceAndInode(0, 1));
+    EXPECT_CALL(*sysCallWrapper, fstat(20, _)).WillOnce(fstatReturnsDeviceAndInode(0, 1));
 
     ScanRequestQueue queue(3);
 
@@ -111,6 +104,7 @@ TEST_F(TestScanRequestQueue, dedupRemovesDuplicate)
 
     queue.emplace(emplaceRequest1);
     ASSERT_EQ(queue.m_deDupData.size(), 1); // Something on the dedup map
+    EXPECT_EQ(queue.size(), 1);
 
     queue.emplace(emplaceRequest2);
     // Second request de-duped
@@ -144,15 +138,8 @@ TEST_F(TestScanRequestQueue, dedupWillHandleHashCollision)
 {
     auto sysCallWrapper = std::make_shared<StrictMock<MockSystemCallWrapper>>();
 
-    struct ::stat stat1{};
-    stat1.st_ino = 1;
-    stat1.st_dev = 0;
-    EXPECT_CALL(*sysCallWrapper, fstat(10, _)).WillOnce(DoAll(SetArgPointee<1>(stat1), Return(0)));
-
-    struct ::stat stat2{};
-    stat2.st_ino = 2;
-    stat2.st_dev = 0;
-    EXPECT_CALL(*sysCallWrapper, fstat(20, _)).WillOnce(DoAll(SetArgPointee<1>(stat2), Return(0)));
+    EXPECT_CALL(*sysCallWrapper, fstat(10, _)).WillOnce(fstatReturnsDeviceAndInode(0, 1));
+    EXPECT_CALL(*sysCallWrapper, fstat(20, _)).WillOnce(fstatReturnsDeviceAndInode(0, 2));
 
     ScanRequestQueue queue(3);
 
@@ -171,4 +158,27 @@ TEST_F(TestScanRequestQueue, dedupWillHandleHashCollision)
     queue.emplace(emplaceRequest2);
     // Even though the deDupData matches on hash value, we still don't de-dup due to the unique marker
     EXPECT_EQ(queue.size(), 1);
+}
+
+TEST_F(TestScanRequestQueue, highBitDifferentDeviceAreNotSkipped)
+{
+    auto sysCallWrapper = std::make_shared<StrictMock<MockSystemCallWrapper>>();
+
+    EXPECT_CALL(*sysCallWrapper, fstat(10, _))
+        .WillOnce(fstatReturnsDeviceAndInode(0x0000000000000001,0x0000000000000001));
+
+    EXPECT_CALL(*sysCallWrapper, fstat(20, _))
+        .WillOnce(fstatReturnsDeviceAndInode(0x8000000000000001,0x0000000000000001));
+
+    ScanRequestQueue queue(3);
+
+    datatypes::AutoFd fd{10};
+    auto emplaceRequest1 = std::make_shared<ClientScanRequest>(sysCallWrapper, fd);
+    fd.reset(20);
+    auto emplaceRequest2 = std::make_shared<ClientScanRequest>(sysCallWrapper, fd);
+
+    queue.emplace(emplaceRequest1);
+    queue.emplace(emplaceRequest2);
+    // Second request not de-duped
+    EXPECT_EQ(queue.size(), 2);
 }
