@@ -1,11 +1,8 @@
-//Copyright 2020-2021, Sophos Limited.  All rights reserved.
+// Copyright 2020-2022 Sophos Limited. All rights reserved.
 
 #include "ScanRequest.h"
 
-#include <unistd.h>
-
 #include <capnp/message.h>
-#include <capnp/serialize.h>
 
 using namespace scan_messages;
 using Builder = ScanRequest::Builder;
