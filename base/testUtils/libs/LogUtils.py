@@ -963,6 +963,143 @@ class LogUtils(object):
                 self.dump_log(log)
 
 ########################################################################################################################
+# Log Handler
+
+    def get_log_handler(self, logpath) -> LogHandler.LogHandler:
+        handler = self.__m_log_handlers.get(logpath, None)
+        if handler is None:
+            handler = LogHandler.LogHandler(logpath)
+            self.__m_log_handlers[logpath] = handler
+        return handler
+
+    def mark_log_size(self, logpath) -> LogHandler.LogMark:
+        handler = self.get_log_handler(logpath)
+        mark = handler.get_mark()
+        self.__m_marked_log_position[logpath] = mark  # Save the most recent marked position
+        return mark
+
+    def wait_for_log_contains_from_mark(self,
+                                        mark: LogHandler.LogMark,
+                                        expected: typing.Union[list, str, bytes],
+                                        timeout=10) -> None:
+        assert mark is not None
+        assert expected is not None
+        assert isinstance(mark, LogHandler.LogMark), "mark is not an instance of LogMark in wait_for_log_contains_from_mark"
+        return mark.wait_for_log_contains_from_mark(expected, timeout)
+
+    def wait_for_log_contains_after_mark(self,
+                                         logpath: typing.Union[str, bytes],
+                                         expected: typing.Union[list, str, bytes],
+                                         mark: LogHandler.LogMark,
+                                         timeout=10) -> None:
+        if mark is None:
+            logger.error("No mark passed for wait_for_log_contains_after_mark")
+            raise AssertionError("No mark set to find %s in %s" % (expected, logpath))
+        assert isinstance(mark, LogHandler.LogMark), "mark is not an instance of LogMark in wait_for_log_contains_after_mark"
+        mark.assert_is_good(logpath)
+        return mark.wait_for_log_contains_from_mark(expected, timeout)
+
+    def check_log_contains_after_mark(self, log_path, expected, mark):
+        if mark is None:
+            logger.error("No mark passed for check_log_contains_after_mark")
+            raise AssertionError("No mark set to find %s in %s" % (expected, log_path))
+
+        if isinstance(expected, str):
+            expected = expected.encode("UTF-8")
+
+        mark.assert_is_good(log_path)
+        contents = mark.get_contents()
+        if expected in contents:
+            return
+
+        logger.error("Failed to find %s in %s" % (expected, log_path))
+        handler = self.get_log_handler(log_path)
+        handler.dump_marked_log(mark)
+        raise AssertionError("Failed to find %s in %s" % (expected, log_path))
+
+    def check_log_contains_in_order_after_mark(self, log_path, expected_items, mark):
+        if mark is None:
+            logger.error("No mark passed for check_log_contains_after_mark")
+            raise AssertionError("No mark set to find %s in %s" % (expected_items, log_path))
+
+        encoded_expected = []
+        for string in expected_items:
+            encoded_expected.append(string.encode("UTF-8"))
+
+        mark.assert_is_good(log_path)
+        contents = mark.get_contents()
+        index = 0
+
+        for string in encoded_expected:
+            logger.info("Looking for {}".format(string))
+            index = contents.find(string, index)
+            if index != -1:
+                logger.info("{} log contains {}".format(log_path, string))
+                index = index + len(string)
+            else:
+                logger.error(contents)
+                raise AssertionError("Remainder of {} log doesn't contain {}".format(log_path, string))
+
+        return
+
+
+    def get_log_after_mark(self, log_path, mark):
+        assert mark is not None
+        assert isinstance(mark, LogHandler.LogMark), "mark is not an instance of LogMark in get_log_after_mark"
+        handler = self.get_log_handler(log_path)
+        return handler.get_contents(mark)
+
+    def dump_marked_log(self, log_path: str, mark=None):
+        if mark is None:
+            mark = self.__m_marked_log_position[log_path]
+        handler = self.get_log_handler(log_path)
+        handler.dump_marked_log(mark)
+
+    def check_log_does_not_contain_after_mark(self, log_path, not_expected, mark: LogHandler.LogMark) -> None:
+        assert isinstance(mark, LogHandler.LogMark), "mark is not an instance of LogMark in check_log_does_not_contain_after_mark"
+        not_expected = LogHandler.ensure_binary(not_expected)
+        mark.assert_is_good(log_path)
+        contents = mark.get_contents()
+        if not_expected in contents:
+            self.dump_marked_log(log_path, mark)
+            raise AssertionError("Found %s in %s" % (not_expected, log_path))
+
+    def wait_for_log_to_not_contain_after_mark(self, log_path, not_expected, mark: LogHandler.LogMark, timeout: int):
+        """Wait for timeout and report if the log does contain not_expected
+        """
+        assert isinstance(mark, LogHandler.LogMark), "mark is not an instance of LogMark in wait_for_log_to_not_contain_after_mark"
+        mark.assert_is_good(log_path)
+        time.sleep(timeout)
+        return self.check_log_does_not_contain_after_mark(log_path, not_expected, mark)
+
+    def wait_for_log_contains_after_last_restart(self, log_path, expected, timeout: int = 10, mark=None):
+        """
+        Wait for a log line, but only in the log lines after the most recent restart of the process.
+
+        :param log_path:
+        :param expected:
+        :param timeout:
+        :param mark: Also restrict log lines after the mark
+        :return:
+        """
+        handler = self.get_log_handler(log_path)
+        return handler.Wait_For_Log_contains_after_last_restart(expected, timeout, mark)
+
+    def wait_for_entire_log_contains(self, log_path, expected, timeout: int = 15):
+        handler = self.get_log_handler(log_path)
+        return handler.Wait_For_Entire_log_contains(expected, timeout)
+
+    def save_log_marks_at_start_of_test(self):
+        robot.libraries.BuiltIn.BuiltIn().set_test_variable("${ON_ACCESS_LOG_MARK_FROM_START_OF_TEST}",
+                                                            self.mark_log_size(self.oa_log))
+        robot.libraries.BuiltIn.BuiltIn().set_test_variable("${AV_LOG_MARK_FROM_START_OF_TEST}",
+                                                            self.mark_log_size(self.av_log))
+        robot.libraries.BuiltIn.BuiltIn().set_test_variable("${SAFESTORE_LOG_MARK_FROM_START_OF_TEST}",
+                                                            self.mark_log_size(self.__m_safestore_log))
+        robot.libraries.BuiltIn.BuiltIn().set_test_variable("${THREATDETECTOR_LOG_MARK_FROM_START_OF_TEST}",
+                                                            self.mark_log_size(self.sophos_threat_detector_log))
+
+########################################################################################################################
 # On-Access Soapd Log
     def get_on_access_log_mark(self) -> LogHandler.LogMark:
         return self.mark_log_size(self.oa_log)
