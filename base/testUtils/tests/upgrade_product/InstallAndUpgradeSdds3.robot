@@ -300,6 +300,7 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     Trigger Update Now
 
     Wait For Version Files to Update    &{expectedVUTVersions}
+    Toggle SafeStore Flag in MCS Policy    ${True}
     Check SafeStore Installed Correctly
     Check SafeStore Database Has Not Changed    ${safeStoreDbDirBeforeUpgrade}    ${databaseContentBeforeUpgrade}    ${safeStorePasswordBeforeUpgrade}
 
