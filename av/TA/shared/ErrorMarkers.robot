@@ -260,3 +260,6 @@ Exclude VDL Folder Missing Errors
 
 Exclued SafeStore Internal Error On Quarantine
     mark_expected_error_in_log  ${SAFESTORE_LOG_PATH}    Failed to quarantine file due to: InternalError
+
+Exclued SafeStore File Open Error On Quarantine
+    mark_expected_error_in_log  ${SAFESTORE_LOG_PATH}    Failed to quarantine file due to: FileOpenFailed
