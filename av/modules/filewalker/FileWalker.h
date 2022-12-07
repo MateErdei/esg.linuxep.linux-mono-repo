@@ -1,12 +1,10 @@
-/******************************************************************************************************
-
-Copyright 2020-2022, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2019-2022 Sophos Limited. All rights reserved.
 
 #pragma once
 
 #include "IFileWalkCallbacks.h"
+
+#include <boost/functional/hash.hpp>
 
 #include <unordered_set>
 
@@ -24,7 +22,10 @@ namespace filewalker
         {
             std::size_t h1 = std::hash<dev_t>{}(std::get<0>(fileId));
             std::size_t h2 = std::hash<ino_t>{}(std::get<1>(fileId));
-            return h1 ^ ( h2 << 1u );
+            std::size_t seed{};
+            boost::hash_combine(seed, h1);
+            boost::hash_combine(seed, h2);
+            return seed;
         }
     };
 
