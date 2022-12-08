@@ -151,8 +151,8 @@ namespace Plugin
         }
         catch (nlohmann::json::exception& ex)
         {
-            //this one is a warn as we can recover from this
-            LOGWARN("Resetting ThreatDatabase as we failed to parse ThreatDatabase on disk with error: " << ex.what());
+            //Error as we end up with a empty database
+            LOGERROR("Resetting ThreatDatabase as we failed to parse ThreatDatabase on disk with error: " << ex.what());
             if (Common::FileSystem::fileSystem()->exists(Plugin::getPersistThreatDatabaseFilePath()))
             {
                 Common::Telemetry::TelemetryHelper::getInstance().set("corrupt-threat-database", true);
@@ -167,12 +167,11 @@ namespace Plugin
             try
             {
                 correlationId = threatItr.value().at(JsonKeys::correlationId);
-
             }
             catch (nlohmann::json::exception& ex)
             {
                 //If the types of the threat id or correlation id are wrong throw away the entire threatID entry
-                LOGWARN("Not loading "<< threatItr.key() << " into threat database as parsing failed with error for " << JsonKeys::correlationId  << ex.what());
+                LOGWARN("Correlation field for "<< threatItr.key() << " into threat database as parsing failed with error for " << JsonKeys::correlationId  << " " << ex.what());
                 Common::Telemetry::TelemetryHelper::getInstance().set("corrupt-threat-database", true);
             }
 
@@ -183,7 +182,7 @@ namespace Plugin
             }
             catch (nlohmann::json::exception& ex)
             {
-                LOGWARN("Time field for " << threatItr.key() << " into threat database as parsing failed with error for " << JsonKeys::timestamp << ex.what());
+                LOGWARN("Time field for " << threatItr.key() << " into threat database as parsing failed with error for " << JsonKeys::timestamp << " " << ex.what());
                 Common::Telemetry::TelemetryHelper::getInstance().set("corrupt-threat-database", true);
             }
 

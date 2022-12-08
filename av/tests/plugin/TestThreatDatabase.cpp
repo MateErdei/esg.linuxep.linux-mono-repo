@@ -17,6 +17,8 @@
 #include <datatypes/sophos_filesystem.h>
 #include <pluginimpl/ThreatDatabase.h>
 
+using namespace Plugin;
+
 namespace fs = sophos_filesystem;
 
 namespace
@@ -54,8 +56,21 @@ namespace
 
         std::unique_ptr<NiceMock<MockFileSystem>> m_fileSystemMock;
         fs::path m_testDir;
-        const std::string m_defaultJsonString = R"({"threatid":{"correlationIds":["correlationid"],"timestamp":123}})";
 
+        static std::string createJsonString(const std::chrono::seconds& ageOfThreat = std::chrono::seconds{0},
+                                            const std::string& correlationId = "correlationID",
+                                            const std::string& threatId = "threatID")
+        {
+            auto now = std::chrono::time_point_cast<std::chrono::seconds>(std::chrono::system_clock::now());
+            long time = (now - ageOfThreat).time_since_epoch().count();
+            std::stringstream jsonString;
+            jsonString  << R"sophos({")sophos" << threatId << R"sophos(":{")sophos"
+                        << JsonKeys::correlationId << R"sophos(":")sophos" << correlationId
+                        << R"sophos(",")sophos"
+                        << JsonKeys::timestamp << R"sophos(":)sophos" << time
+                        << R"sophos(}})sophos";
+            return jsonString.str();
+        }
 
         static void verifyCorruptDatabaseTelemetryPresent()
         {
@@ -142,9 +157,11 @@ TEST_F(TestThreatDatabase, DatabaseLoadsAndSavesCorrectly)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
+    auto jsonString = createJsonString();
+
     EXPECT_CALL(*m_fileSystemMock, exists(Plugin::getPersistThreatDatabaseFilePath())).WillOnce(Return(true));
-    EXPECT_CALL(*m_fileSystemMock, readFile(Plugin::getPersistThreatDatabaseFilePath())).WillOnce(Return(m_defaultJsonString));
-    EXPECT_CALL(*m_fileSystemMock, writeFile(Plugin::getPersistThreatDatabaseFilePath(),m_defaultJsonString));
+    EXPECT_CALL(*m_fileSystemMock, readFile(Plugin::getPersistThreatDatabaseFilePath())).WillOnce(Return(jsonString));
+    EXPECT_CALL(*m_fileSystemMock, writeFile(Plugin::getPersistThreatDatabaseFilePath(),jsonString));
 
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(m_fileSystemMock) };
 
@@ -197,10 +214,10 @@ TEST_F(TestThreatDatabase, addThreatToDatabase)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    const std::string addedThreat = "threatID";
+    const std::string addedThreat = "threatID2";
 
     EXPECT_CALL(*m_fileSystemMock, exists(Plugin::getPersistThreatDatabaseFilePath())).WillOnce(Return(true));
-    EXPECT_CALL(*m_fileSystemMock, readFile(Plugin::getPersistThreatDatabaseFilePath())).WillOnce(Return(m_defaultJsonString));
+    EXPECT_CALL(*m_fileSystemMock, readFile(Plugin::getPersistThreatDatabaseFilePath())).WillOnce(Return(createJsonString()));
     EXPECT_CALL(*m_fileSystemMock, writeFile(Plugin::getPersistThreatDatabaseFilePath(),_));
 
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(m_fileSystemMock) };
@@ -208,7 +225,7 @@ TEST_F(TestThreatDatabase, addThreatToDatabase)
     Plugin::ThreatDatabase database = Plugin::ThreatDatabase(Plugin::getPluginVarDirPath());
     EXPECT_TRUE(waitForLog("Initialised Threat Database"));
 
-    database.addThreat(addedThreat,"correlationid2");
+    database.addThreat(addedThreat,"correlationID2");
 
     auto databaseContents = database.m_database.lock();
     EXPECT_EQ(databaseContents->size(), 2);
@@ -218,15 +235,15 @@ TEST_F(TestThreatDatabase, addThreatToDatabase)
     verifyCorruptDatabaseTelemetryNotPresent();
 }
 
-TEST_F(TestThreatDatabase, addCorrelationIDToDatabase)
+TEST_F(TestThreatDatabase, addThreatAndCorrelationIDToDatabase)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    const std::string threatid = "threatid";
-    const std::string correlationid = "correlationid";
+    const std::string threatid = "threatid2";
+    const std::string correlationid = "correlationid2";
 
     EXPECT_CALL(*m_fileSystemMock, exists(Plugin::getPersistThreatDatabaseFilePath())).WillOnce(Return(true));
-    EXPECT_CALL(*m_fileSystemMock, readFile(Plugin::getPersistThreatDatabaseFilePath())).WillOnce(Return(m_defaultJsonString));
+    EXPECT_CALL(*m_fileSystemMock, readFile(Plugin::getPersistThreatDatabaseFilePath())).WillOnce(Return(createJsonString()));
     EXPECT_CALL(*m_fileSystemMock, writeFile(Plugin::getPersistThreatDatabaseFilePath(),_));
 
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(m_fileSystemMock) };
@@ -237,45 +254,44 @@ TEST_F(TestThreatDatabase, addCorrelationIDToDatabase)
     database.addThreat(threatid,correlationid);
 
     auto databaseContents = database.m_database.lock();
-    ASSERT_EQ(databaseContents->size(), 1);
+    ASSERT_EQ(databaseContents->size(), 2);
     auto threatidItems = databaseContents->find(threatid);
     ASSERT_TRUE(threatidItems != databaseContents->end());
-    auto correlationThreatItem =
-        std::find(threatidItems->second.correlationIds.cbegin(), threatidItems->second.correlationIds.cend(), correlationid);
-    EXPECT_TRUE(correlationThreatItem != threatidItems->second.correlationIds.cend());
+    EXPECT_EQ(correlationid, threatidItems->second.correlationId);
 
     EXPECT_FALSE(appenderContains("into threat database as the parsing failed with error"));
     verifyCorruptDatabaseTelemetryNotPresent();
 }
 
-TEST_F(TestThreatDatabase, DatabaseLoadsAndSavesHandlesUnexpectedStructureNewCorrelationID)
+TEST_F(TestThreatDatabase, DatabaseLoadsThreatWithCorruptCorrelationID)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
     EXPECT_CALL(*m_fileSystemMock, exists(Plugin::getPersistThreatDatabaseFilePath())).WillOnce(Return(true));
     EXPECT_CALL(*m_fileSystemMock, readFile(Plugin::getPersistThreatDatabaseFilePath()))
-        .WillOnce(Return(R"({"threatid":{"correlationIds":1000,"timestamp":123}})"));
+        .WillOnce(Return(R"({"threatID":{"correlationId":1000,"timestamp":123}})"));
     EXPECT_CALL(*m_fileSystemMock, writeFile(Plugin::getPersistThreatDatabaseFilePath(),_));
 
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(m_fileSystemMock) };
 
     Plugin::ThreatDatabase database = Plugin::ThreatDatabase(Plugin::getPluginVarDirPath());
 
-    EXPECT_TRUE(waitForLog("type must be string, but is number"));
+    EXPECT_TRUE(waitForLog("Correlation field for threatID into threat database as parsing failed with error "
+                           "for correlationId [json.exception.type_error.302] type must be string, but is number"));
 
     auto databaseContents = database.m_database.lock();
-    EXPECT_EQ(databaseContents->size(), 0);
+    EXPECT_EQ(databaseContents->size(), 1);
 
-    verifyCorruptDatabaseTelemetryNotPresent();
+    verifyCorruptDatabaseTelemetryPresent();
 }
 
-TEST_F(TestThreatDatabase, DatabaseLoadsAndHandlesUnexpectedStructureNewThreatID)
+TEST_F(TestThreatDatabase, DatabaseHandlesThreatWithCorruptThreatID)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
     EXPECT_CALL(*m_fileSystemMock, exists(Plugin::getPersistThreatDatabaseFilePath())).Times(2).WillRepeatedly(Return(true));
     EXPECT_CALL(*m_fileSystemMock, readFile(Plugin::getPersistThreatDatabaseFilePath()))
-        .WillOnce(Return(R"({threatid:{"correlationIds":"threatid","timestamp":123}})"));
+        .WillOnce(Return(R"({threatid:{"correlationId":"threatID","timestamp":123}})"));
     EXPECT_CALL(*m_fileSystemMock, writeFile(Plugin::getPersistThreatDatabaseFilePath(),_));
 
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(m_fileSystemMock) };
@@ -283,6 +299,7 @@ TEST_F(TestThreatDatabase, DatabaseLoadsAndHandlesUnexpectedStructureNewThreatID
     Plugin::ThreatDatabase database = Plugin::ThreatDatabase(Plugin::getPluginVarDirPath());
 
     EXPECT_TRUE(waitForLog("Resetting ThreatDatabase as we failed to parse ThreatDatabase on disk with error"));
+    EXPECT_TRUE(waitForLog("syntax error while parsing object key"));
 
     auto databaseContents = database.m_database.lock();
     EXPECT_EQ(databaseContents->size(), 0);
@@ -295,7 +312,7 @@ TEST_F(TestThreatDatabase, removeCorrelationIDRemovesThreat)
     UsingMemoryAppender memoryAppenderHolder(*this);
 
     EXPECT_CALL(*m_fileSystemMock, exists(Plugin::getPersistThreatDatabaseFilePath())).WillOnce(Return(true));
-    EXPECT_CALL(*m_fileSystemMock, readFile(Plugin::getPersistThreatDatabaseFilePath())).WillOnce(Return(m_defaultJsonString));
+    EXPECT_CALL(*m_fileSystemMock, readFile(Plugin::getPersistThreatDatabaseFilePath())).WillOnce(Return(createJsonString()));
     EXPECT_CALL(*m_fileSystemMock, writeFile(Plugin::getPersistThreatDatabaseFilePath(),"{}"));
 
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(m_fileSystemMock) };
@@ -303,9 +320,9 @@ TEST_F(TestThreatDatabase, removeCorrelationIDRemovesThreat)
     Plugin::ThreatDatabase database = Plugin::ThreatDatabase(Plugin::getPluginVarDirPath());
     EXPECT_TRUE(waitForLog("Initialised Threat Database"));
 
-    database.removeCorrelationID("correlationid");
+    database.removeCorrelationID("correlationID");
 
-    EXPECT_TRUE(waitForLog("Removed threat from database"));
+    EXPECT_TRUE(waitForLog("Removing threat threatID with correlationId correlationID from database"));
     EXPECT_FALSE(appenderContains("into threat database as the parsing failed with error"));
 
     auto databaseContents = database.m_database.lock();
@@ -319,7 +336,7 @@ TEST_F(TestThreatDatabase, removeCorrelationIDHandlesWhenThreatIsNotInDatabase)
     UsingMemoryAppender memoryAppenderHolder(*this);
 
     EXPECT_CALL(*m_fileSystemMock, exists(Plugin::getPersistThreatDatabaseFilePath())).WillOnce(Return(true));
-    EXPECT_CALL(*m_fileSystemMock, readFile(Plugin::getPersistThreatDatabaseFilePath())).WillOnce(Return(m_defaultJsonString));
+    EXPECT_CALL(*m_fileSystemMock, readFile(Plugin::getPersistThreatDatabaseFilePath())).WillOnce(Return(createJsonString()));
     EXPECT_CALL(*m_fileSystemMock, writeFile(Plugin::getPersistThreatDatabaseFilePath(),_));
 
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(m_fileSystemMock) };
@@ -327,15 +344,14 @@ TEST_F(TestThreatDatabase, removeCorrelationIDHandlesWhenThreatIsNotInDatabase)
     Plugin::ThreatDatabase database = Plugin::ThreatDatabase(Plugin::getPluginVarDirPath());
     EXPECT_TRUE(waitForLog("Initialised Threat Database"));
 
-    EXPECT_NO_THROW(database.removeCorrelationID("threatid2"));
-    EXPECT_TRUE(waitForLog("Cannot remove correlation idthreatid2 from database as it cannot be found"));
+    EXPECT_NO_THROW(database.removeCorrelationID("correlationid2"));
+    EXPECT_TRUE(waitForLog("Cannot remove correlation id: correlationid2 from database as it cannot be found"));
 
     auto databaseContents = database.m_database.lock();
     ASSERT_EQ(databaseContents->size(), 1);
     auto threatidItems = databaseContents->begin();
-    EXPECT_EQ(threatidItems->first, "threatid");
-    EXPECT_EQ(threatidItems->second.correlationIds.size(), 1);
-    EXPECT_EQ(threatidItems->second.correlationIds.front(), "correlationid");
+    EXPECT_EQ(threatidItems->first, "threatID");
+    EXPECT_EQ(threatidItems->second.correlationId, "correlationID");
 
     verifyCorruptDatabaseTelemetryNotPresent();
 }
@@ -345,7 +361,7 @@ TEST_F(TestThreatDatabase, removeThreatIDHandlesWhenThreatIsNotInDatabase)
     UsingMemoryAppender memoryAppenderHolder(*this);
 
     EXPECT_CALL(*m_fileSystemMock, exists(Plugin::getPersistThreatDatabaseFilePath())).WillOnce(Return(true));
-    EXPECT_CALL(*m_fileSystemMock, readFile(Plugin::getPersistThreatDatabaseFilePath())).WillOnce(Return(m_defaultJsonString));
+    EXPECT_CALL(*m_fileSystemMock, readFile(Plugin::getPersistThreatDatabaseFilePath())).WillOnce(Return(createJsonString()));
     EXPECT_CALL(*m_fileSystemMock, writeFile(Plugin::getPersistThreatDatabaseFilePath(),_));
 
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(m_fileSystemMock) };
@@ -359,9 +375,8 @@ TEST_F(TestThreatDatabase, removeThreatIDHandlesWhenThreatIsNotInDatabase)
     auto databaseContents = database.m_database.lock();
     ASSERT_EQ(databaseContents->size(), 1);
     auto threatidItems = databaseContents->begin();
-    EXPECT_EQ(threatidItems->first, "threatid");
-    EXPECT_EQ(threatidItems->second.correlationIds.size(), 1);
-    EXPECT_EQ(threatidItems->second.correlationIds.front(), "correlationid");
+    EXPECT_EQ(threatidItems->first, "threatID");
+    EXPECT_EQ(threatidItems->second.correlationId, "correlationID");
 
     verifyCorruptDatabaseTelemetryNotPresent();
 }
@@ -370,10 +385,10 @@ TEST_F(TestThreatDatabase, removeThreatID)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    std::string threatIDToRemove = "threatid";
+    std::string threatIDToRemove = "threatID";
 
     EXPECT_CALL(*m_fileSystemMock, exists(Plugin::getPersistThreatDatabaseFilePath())).WillOnce(Return(true));
-    EXPECT_CALL(*m_fileSystemMock, readFile(Plugin::getPersistThreatDatabaseFilePath())).WillOnce(Return(m_defaultJsonString));
+    EXPECT_CALL(*m_fileSystemMock, readFile(Plugin::getPersistThreatDatabaseFilePath())).WillOnce(Return(createJsonString()));
     EXPECT_CALL(*m_fileSystemMock, writeFile(Plugin::getPersistThreatDatabaseFilePath(),"{}"));
 
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(m_fileSystemMock) };
@@ -401,7 +416,7 @@ TEST_F(TestThreatDatabase, removeThreatIDWhenThreatIDNotInDatabase)
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(m_fileSystemMock) };
 
     Plugin::ThreatDatabase database = Plugin::ThreatDatabase(Plugin::getPluginVarDirPath());
-    EXPECT_NO_THROW(database.removeThreatID("threatid", false));
+    EXPECT_NO_THROW(database.removeThreatID("threatID", false));
 
     EXPECT_TRUE(waitForLog("Cannot remove threat id"));
     verifyCorruptDatabaseTelemetryNotPresent();
@@ -420,7 +435,7 @@ TEST_F(TestThreatDatabase, removeThreatIDWhenThreatIDNotInDatabaseLogsWarnningWh
     Plugin::ThreatDatabase database = Plugin::ThreatDatabase(Plugin::getPluginVarDirPath());
     EXPECT_TRUE(waitForLog("Initialised Threat Database"));
 
-    EXPECT_NO_THROW(database.removeThreatID("threatid",false));
+    EXPECT_NO_THROW(database.removeThreatID("threatID",false));
     EXPECT_TRUE(waitForLog("Cannot remove threat id"));
     verifyCorruptDatabaseTelemetryNotPresent();
 }
@@ -430,7 +445,7 @@ TEST_F(TestThreatDatabase, resetHealth)
     UsingMemoryAppender memoryAppenderHolder(*this);
 
     EXPECT_CALL(*m_fileSystemMock, exists(Plugin::getPersistThreatDatabaseFilePath())).WillOnce(Return(true));
-    EXPECT_CALL(*m_fileSystemMock, readFile(Plugin::getPersistThreatDatabaseFilePath())).WillOnce(Return(m_defaultJsonString));
+    EXPECT_CALL(*m_fileSystemMock, readFile(Plugin::getPersistThreatDatabaseFilePath())).WillOnce(Return(createJsonString()));
     EXPECT_CALL(*m_fileSystemMock, writeFile(Plugin::getPersistThreatDatabaseFilePath(),"{}")).Times(2);
 
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(m_fileSystemMock) };
@@ -447,7 +462,7 @@ TEST_F(TestThreatDatabase, resetHealthHandlesFileError)
     UsingMemoryAppender memoryAppenderHolder(*this);
 
     EXPECT_CALL(*m_fileSystemMock, exists(Plugin::getPersistThreatDatabaseFilePath())).WillOnce(Return(true));
-    EXPECT_CALL(*m_fileSystemMock, readFile(Plugin::getPersistThreatDatabaseFilePath())).WillOnce(Return(m_defaultJsonString));
+    EXPECT_CALL(*m_fileSystemMock, readFile(Plugin::getPersistThreatDatabaseFilePath())).WillOnce(Return(createJsonString()));
     EXPECT_CALL(*m_fileSystemMock, writeFile(Plugin::getPersistThreatDatabaseFilePath(),"{}"))
         .WillOnce(Throw(Common::FileSystem::IFileSystemException("exception"))).WillOnce(Return());
 
@@ -461,26 +476,27 @@ TEST_F(TestThreatDatabase, resetHealthHandlesFileError)
     verifyCorruptDatabaseTelemetryNotPresent();
 }
 
-TEST_F(TestThreatDatabase, handlesInvalidFormatTime)
+TEST_F(TestThreatDatabase, DatabaseLoadsThreatWithInvalidTime)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
     EXPECT_CALL(*m_fileSystemMock, exists(Plugin::getPersistThreatDatabaseFilePath())).WillOnce(Return(true));
     EXPECT_CALL(*m_fileSystemMock, readFile(Plugin::getPersistThreatDatabaseFilePath()))
-        .WillOnce(Return(R"({"threatid":{"correlationIds":"correlationId","timestamp":"123"}})"));
+        .WillOnce(Return(R"({"threatID":{"correlationId":"correlationId","timestamp":"123"}})"));
     EXPECT_CALL(*m_fileSystemMock, writeFile(Plugin::getPersistThreatDatabaseFilePath(),_));
 
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(m_fileSystemMock) };
 
     Plugin::ThreatDatabase threatDatabase = Plugin::ThreatDatabase(Plugin::getPluginVarDirPath());
 
-    EXPECT_TRUE(waitForLog("type must be number, but is string"));
+    EXPECT_TRUE(waitForLog("Time field for threatID into threat database as parsing failed with error for timestamp "
+                           "[json.exception.type_error.302] type must be number, but is string"));
     auto database = threatDatabase.m_database.lock();
     ASSERT_EQ(database->size(), 1);
     const long timeStamp = std::chrono::time_point_cast<std::chrono::seconds>(database->begin()->second.lastDetection).time_since_epoch().count();
     EXPECT_EQ(timeStamp, 0);
 
-    verifyCorruptDatabaseTelemetryNotPresent();
+    verifyCorruptDatabaseTelemetryPresent();
 }
 
 TEST_F(TestThreatDatabase, handlesNegativeFormatTime)
@@ -489,7 +505,7 @@ TEST_F(TestThreatDatabase, handlesNegativeFormatTime)
 
     EXPECT_CALL(*m_fileSystemMock, exists(Plugin::getPersistThreatDatabaseFilePath())).WillOnce(Return(true));
     EXPECT_CALL(*m_fileSystemMock, readFile(Plugin::getPersistThreatDatabaseFilePath()))
-        .WillOnce(Return(R"({"threatid":{"correlationIds":"correlationId","timestamp":-1}})"));
+        .WillOnce(Return(R"({"threatID":{"correlationIds":"correlationId","timestamp":-1}})"));
     EXPECT_CALL(*m_fileSystemMock, writeFile(Plugin::getPersistThreatDatabaseFilePath(),_));
 
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(m_fileSystemMock) };
@@ -502,7 +518,7 @@ TEST_F(TestThreatDatabase, handlesNegativeFormatTime)
     const long timeStamp = std::chrono::time_point_cast<std::chrono::seconds>(database->begin()->second.lastDetection).time_since_epoch().count();
     EXPECT_EQ(timeStamp, -1);
 
-    verifyCorruptDatabaseTelemetryNotPresent();
+    verifyCorruptDatabaseTelemetryPresent();
 }
 
 TEST_F(TestThreatDatabase, handlesOutOfBoundsTimeValue)
@@ -511,7 +527,7 @@ TEST_F(TestThreatDatabase, handlesOutOfBoundsTimeValue)
 
     EXPECT_CALL(*m_fileSystemMock, exists(Plugin::getPersistThreatDatabaseFilePath())).WillOnce(Return(true));
     EXPECT_CALL(*m_fileSystemMock, readFile(Plugin::getPersistThreatDatabaseFilePath()))
-        .WillOnce(Return(R"({"threatid":{"correlationIds":"correlationId","timestamp":18446744073709551620}})"));
+        .WillOnce(Return(R"({"threatID":{"correlationIds":"correlationId","timestamp":18446744073709551620}})"));
     EXPECT_CALL(*m_fileSystemMock, writeFile(Plugin::getPersistThreatDatabaseFilePath(),_));
 
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(m_fileSystemMock) };
@@ -524,7 +540,7 @@ TEST_F(TestThreatDatabase, handlesOutOfBoundsTimeValue)
     const long timeStamp = std::chrono::time_point_cast<std::chrono::seconds>(database->begin()->second.lastDetection).time_since_epoch().count();
     EXPECT_EQ(timeStamp, 0);
 
-    verifyCorruptDatabaseTelemetryNotPresent();
+    verifyCorruptDatabaseTelemetryPresent();
 }
 
 TEST_F(TestThreatDatabase, writesValidJsonOnDestruct)
@@ -557,9 +573,10 @@ TEST_F(TestThreatDatabase, readsDatabaseOnConstruction)
     UsingMemoryAppender memoryAppenderHolder(*this);
 
     const std::string location = m_testDir.string() + "/persist-threatDatabase";
+    auto jsonString = createJsonString();
 
     auto fileSystem = Common::FileSystem::fileSystem();
-    fileSystem->writeFile(location, m_defaultJsonString);
+    fileSystem->writeFile(location, jsonString);
     ASSERT_TRUE(fs::exists(location));
 
     auto threatDatabase = Plugin::ThreatDatabase( m_testDir.string());
@@ -567,7 +584,7 @@ TEST_F(TestThreatDatabase, readsDatabaseOnConstruction)
     EXPECT_FALSE(appenderContains("Resetting ThreatDatabase as we failed to parse ThreatDatabase on disk with error: "));
 
     auto threatContents = threatDatabase.m_databaseInString.getValue();
-    EXPECT_EQ(m_defaultJsonString, threatContents);
+    EXPECT_EQ(jsonString, threatContents);
 }
 
 TEST_F(TestThreatDatabase, dataWrittenToDiskMatchesWhenRead)
@@ -581,8 +598,7 @@ TEST_F(TestThreatDatabase, dataWrittenToDiskMatchesWhenRead)
     const long timeStamp = std::chrono::time_point_cast<std::chrono::seconds>(std::chrono::system_clock::now()).time_since_epoch().count();
 
     threatDatabase.addThreat(threat1,correlation1);
-    threatDatabase.addThreat(threat1,correlation2);
-    threatDatabase.addThreat(threat2,correlation1);
+    threatDatabase.addThreat(threat2,correlation2);
 
     threatDatabase.convertDatabaseToString();
     threatDatabase.convertStringToDatabase();
@@ -592,17 +608,13 @@ TEST_F(TestThreatDatabase, dataWrittenToDiskMatchesWhenRead)
     //Check total map
     ASSERT_EQ(res->size(), 2);
 
-    //Check threat1 correlations
-    EXPECT_EQ(res->at(threat1).correlationIds.size(), 2);
-    EXPECT_EQ(res->at(threat1).correlationIds.front(), correlation1);
-    EXPECT_EQ(res->at(threat1).correlationIds.back(), correlation2);
+    EXPECT_EQ(res->at(threat1).correlationId, correlation1);
 
     const long threat1Time = std::chrono::time_point_cast<std::chrono::seconds>(res->at(threat1).lastDetection).time_since_epoch().count();
     EXPECT_TRUE((threat1Time - timeStamp) <= 1); //Test should take a second or less to complete
 
     //Check threat2 correlations
-    EXPECT_EQ(res->at(threat2).correlationIds.size(), 1);
-    EXPECT_EQ(res->at(threat2).correlationIds.front(), correlation1);
+    EXPECT_EQ(res->at(threat2).correlationId, correlation2);
     const long threat2Time = std::chrono::time_point_cast<std::chrono::seconds>(res->at(threat2).lastDetection).time_since_epoch().count();
     EXPECT_TRUE((threat2Time - timeStamp) <= 1); //Test should take a second or less to complete
 }
@@ -612,7 +624,7 @@ TEST_F(TestThreatDatabase, threatDatabaseReturnsTrueIfThreatAddedUnderTimeout)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    const std::string threatId = "threatid";
+    const std::string threatId = "threatID";
 
     EXPECT_CALL(*m_fileSystemMock, exists(Plugin::getPersistThreatDatabaseFilePath())).WillOnce(Return(true));
     EXPECT_CALL(*m_fileSystemMock, readFile(Plugin::getPersistThreatDatabaseFilePath())).WillOnce(Return("{}" ));
@@ -632,7 +644,7 @@ TEST_F(TestThreatDatabase, threatDatabaseReturnsFalseIfThreatAddedOverTimeout)
     UsingMemoryAppender memoryAppenderHolder(*this);
 
     EXPECT_CALL(*m_fileSystemMock, exists(Plugin::getPersistThreatDatabaseFilePath())).WillOnce(Return(true));
-    EXPECT_CALL(*m_fileSystemMock, readFile(Plugin::getPersistThreatDatabaseFilePath())).WillOnce(Return(m_defaultJsonString));
+    EXPECT_CALL(*m_fileSystemMock, readFile(Plugin::getPersistThreatDatabaseFilePath())).WillOnce(Return(createJsonString(std::chrono::seconds{61})));
     EXPECT_CALL(*m_fileSystemMock, writeFile(Plugin::getPersistThreatDatabaseFilePath(),_));
 
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(m_fileSystemMock) };
@@ -640,5 +652,5 @@ TEST_F(TestThreatDatabase, threatDatabaseReturnsFalseIfThreatAddedOverTimeout)
     Plugin::ThreatDatabase database = Plugin::ThreatDatabase(Plugin::getPluginVarDirPath());
     EXPECT_TRUE(waitForLog("Initialised Threat Database"));
 
-    EXPECT_FALSE(database.isThreatInDatabaseWithinTime("threatid", std::chrono::seconds{60}));
+    EXPECT_FALSE(database.isThreatInDatabaseWithinTime("threatID", std::chrono::seconds{60}));
 }
