@@ -242,6 +242,7 @@ function apply_permissions()
     mkdir -p "${VAR}"
     chmod 0770 "${VAR}"
     chmod -R g+r "${VAR}"
+    chmod +t "${VAR}"
     chown -R ${USER_NAME}:${GROUP_NAME} "${VAR}"
     chown root:${GROUP_NAME} "${VAR}"
 
