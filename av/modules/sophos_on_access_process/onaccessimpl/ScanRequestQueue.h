@@ -2,8 +2,9 @@
 
 #pragma once
 
+#include "OnAccessScanRequest.h"
+
 #include "datatypes/AutoFd.h"
-#include "scan_messages/ClientScanRequest.h"
 
 #include <atomic>
 #include <condition_variable>
@@ -23,6 +24,8 @@ namespace sophos_on_access_process::onaccessimpl
     class ScanRequestQueue
     {
     public:
+        using scan_request_t = ClientScanRequest;
+        using scan_request_ptr_t = ClientScanRequestPtr;
         /**
          *
          * @param maxSize
@@ -34,13 +37,13 @@ namespace sophos_on_access_process::onaccessimpl
          * Add scan request and associated file descriptor to the queue ready for scanning
          * Returns true on success and false when queue already contains m_maxSize items
          */
-        bool emplace(ClientScanRequestPtr item);
+        bool emplace(scan_request_ptr_t item);
 
         /**
          * Returns pair containing the first scan request and associated file descriptor in the queue (FIFO)
          * Waits to acquire m_lock before attempting to modify the queue
          */
-        ClientScanRequestPtr pop();
+        scan_request_ptr_t pop();
 
         /**
          * Releases threads which are waiting in the pop() method so that they can be terminated
@@ -64,7 +67,7 @@ namespace sophos_on_access_process::onaccessimpl
     private:
         void clearQueue();
 
-        std::queue<ClientScanRequestPtr> m_queue;
+        std::queue<scan_request_ptr_t> m_queue;
 
         mutable std::mutex m_lock;
         std::condition_variable m_condition;

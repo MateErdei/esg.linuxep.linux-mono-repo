@@ -1,3 +1,4 @@
+// Copyright 2022 Sophos Limited. All rights reserved.
 //Copyright 2022, Sophos Limited.  All rights reserved.
 
 #pragma once
@@ -41,6 +42,8 @@ namespace sophos_on_access_process::fanotifyhandler
 
         void setExclusions(const std::vector<common::Exclusion>& exclusions);
 
+        void setCacheAllEvents(bool enable);
+
     TEST_PUBLIC:
         void innerRun();
         std::chrono::milliseconds m_out_of_file_descriptor_delay = std::chrono::milliseconds{100};
@@ -65,5 +68,6 @@ namespace sophos_on_access_process::fanotifyhandler
         mutable std::mutex m_exclusionsLock;
         uint m_EventsWhileQueueFull = 0;
         int m_readFailureCount = 0;
+        bool m_cacheAllEvents = false;
     };
 }

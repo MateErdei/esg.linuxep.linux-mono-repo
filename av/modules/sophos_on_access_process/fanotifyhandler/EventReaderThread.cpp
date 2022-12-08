@@ -54,10 +54,20 @@ bool EventReaderThread::skipScanningOfEvent(
 
     if (eventMetadata->pid == m_pid)
     {
+        // Don't ever get the file-path - which is only used when reporting errors
+        // At least for the investigation, don't change this...
+        if (m_cacheAllEvents)
+        {
+            std::ignore = m_fanotify->cacheFd(eventFd, "", false);
+        }
         return true;
     }
 
     filePath = getFilePathFromFd(eventFd);
+    if (m_cacheAllEvents)
+    {
+        std::ignore = m_fanotify->cacheFd(eventFd, filePath, false);
+    }
     //Either path was too long or fd was invalid
     if(filePath.empty())
     {
@@ -180,8 +190,7 @@ bool EventReaderThread::handleFanotifyEvent()
             continue;
         }
 
-        auto scanRequest = std::make_shared<scan_messages::ClientScanRequest>(m_sysCalls, eventFd); // DONATED
-
+        auto scanRequest = std::make_shared<::onaccessimpl::ScanRequestQueue::scan_request_t>(m_sysCalls, eventFd); // DONATED
         scanRequest->setPath(filePath);
         scanRequest->setScanType(eventType);
         scanRequest->setUserID(uid);
@@ -529,5 +538,9 @@ ENOENT  fuse?
             break;
         }
     }
+}
 
+void EventReaderThread::setCacheAllEvents(bool enable)
+{
+    m_cacheAllEvents = enable;
 }
