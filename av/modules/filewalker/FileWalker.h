@@ -14,7 +14,6 @@ namespace filewalker
 
     /*
      * We need our own hashing function to use an unordered_set.
-     * The hash combining step is not ideal, but sufficient for our purposes.
      */
     struct file_id_hash
     {
