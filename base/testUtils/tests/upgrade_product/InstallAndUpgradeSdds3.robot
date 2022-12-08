@@ -724,18 +724,6 @@ We can Install With SDDS3 Perform an SDDS2 Initial Update With SDDS3 Flag False 
 
 
 We can Install With SDDS3 Perform an SDDS3 Initial Update With SDDS3 Flag True Then Update Using SDDS2 When Flag Turns False
-    [Teardown]    Test Teardown With Ostia And Fake Cloud MCS Flag Override
-    ${desired_flags} =     Catenate    SEPARATOR=\n
-    ...  {
-    ...    "livequery.network-tables.available" : true,
-    ...    "endpoint.flag2.enabled" : false,
-    ...    "endpoint.flag3.enabled" : false,
-    ...    "jwt-token.available" : true,
-    ...    "mcs.v2.data_feed.available": true,
-    ...    "sdds3.enabled": true
-    ...  }
-
-    Create File  /tmp/mcs_flags  ${desired_flags}
     Start Local Cloud Server  --initial-alc-policy  ${BaseEdrAndMtrAndAVVUTPolicy}
     ${handle}=  Start Local SDDS3 Server
     Set Suite Variable    ${GL_handle}    ${handle}
@@ -937,6 +925,7 @@ Test Teardown With Ostia
     Stop Local SDDS3 Server
     Teardown Ostia Warehouse Environment
     Test Teardown
+    Test Teardown With Ostia And Fake Cloud MCS Flag Override
 
 Test Teardown With Ostia And Fake Cloud MCS Flag Override
     Test Teardown With Ostia
