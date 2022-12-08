@@ -36,19 +36,19 @@ namespace Plugin
         TEST_PUBLIC:
             struct ThreatDetails
             {
-                std::list<std::string> correlationIds;
+                std::string correlationId;
                 //This is saved to disk when ThreatDatabase is destroyed, so use system clock
                 std::chrono::system_clock::time_point lastDetection = std::chrono::time_point_cast<std::chrono::seconds>(std::chrono::system_clock::now());
 
-                ThreatDetails(const std::string& correlationId)
+                ThreatDetails(const std::string& _correlationId)
                 {
-                    correlationIds = std::list<std::string> { correlationId };
+                    correlationId = _correlationId;
                 }
 
-                ThreatDetails(const std::list<std::string>& correlationId, const long& time)
+                ThreatDetails(const std::string& _correlationId, const long& _time)
                 {
-                    correlationIds = correlationId;
-                    lastDetection = std::chrono::system_clock::time_point(std::chrono::seconds(time));
+                    correlationId = _correlationId;
+                    lastDetection = std::chrono::system_clock::time_point(std::chrono::seconds(_time));
                 }
             };
 

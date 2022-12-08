@@ -22,23 +22,19 @@ namespace Plugin
         convertDatabaseToString();
     }
 
-    void ThreatDatabase::addThreat(const std::string& threatID, const std::string& correlationID)
+    void ThreatDatabase::addThreat(const std::string& _threatID, const std::string& _correlationID)
     {
         auto database = m_database.lock();
-        auto dbItr = database->find(threatID);
+        auto dbItr = database->find(_threatID);
         if (dbItr != database->end())
         {
-            auto correlationItr = std::find(dbItr->second.correlationIds.begin(), dbItr->second.correlationIds.end(), correlationID);
-            if (correlationItr == dbItr->second.correlationIds.end() )
-            {
-                dbItr->second.correlationIds.emplace_back(correlationID);
-            }
+            dbItr->second.correlationId = _correlationID;
             dbItr->second.lastDetection = std::chrono::system_clock::now();
         }
         else
         {
-            auto newThreatDetails = ThreatDetails(correlationID);
-            database->emplace(threatID,std::move(newThreatDetails));
+            auto newThreatDetails = ThreatDetails(_correlationID);
+            database->emplace(_threatID,std::move(newThreatDetails));
         }
 
     }
@@ -46,26 +42,22 @@ namespace Plugin
     void ThreatDatabase::removeCorrelationID(const std::string& correlationID)
     {
         auto database = m_database.lock();
-        std::string threatID = "";
-        for (auto const& entry : *database)
+
+        for (auto threatItr = database->begin(); threatItr != database->end();)
         {
-            auto correlationItr = std::find(entry.second.correlationIds.begin(), entry.second.correlationIds.end(), correlationID);
-            if (correlationItr != entry.second.correlationIds.end() )
+            if (threatItr->second.correlationId == correlationID)
             {
-                threatID = entry.first;
+                LOGDEBUG("Removing threat " << threatItr->first << " with correlationId " << correlationID << " from database");
+                database->erase(threatItr);
+                return;
+            }
+            else
+            {
+                ++threatItr;
             }
         }
 
-        if (threatID.empty())
-        {
-            LOGINFO("Cannot remove correlation id" << correlationID << " from database as it cannot be found");
-        }
-        else
-        {
-            auto threatItr = database->find(threatID);
-            database->erase(threatItr);
-            LOGDEBUG("Removed threat from database");
-        }
+        LOGINFO("Cannot remove correlation id" << correlationID << " from database as it cannot be found");
     }
 
     void ThreatDatabase::removeThreatID(const std::string& threatID, bool ignoreNotInDatabase)
@@ -129,7 +121,7 @@ namespace Plugin
         for (const auto& key : *database)
         {
             long timeStamp = std::chrono::time_point_cast<std::chrono::seconds>(key.second.lastDetection).time_since_epoch().count();
-            j[key.first] = { {JsonKeys::correlationId, key.second.correlationIds},
+            j[key.first] = { {JsonKeys::correlationId, key.second.correlationId},
                              {JsonKeys::timestamp, timeStamp }};
         }
         if (j.empty())
@@ -165,14 +157,11 @@ namespace Plugin
 
         for (const auto& threatItr : j.items())
         {
-            std::list<std::string> correlationIdsToPop;
+            std::string correlationId = "";
             try
             {
-                auto correlationIds = threatItr.value().at(JsonKeys::correlationId).items();
-                for (auto corrItr : correlationIds)
-                {
-                    correlationIdsToPop.emplace_back(corrItr.value());
-                }
+                correlationId = threatItr.value().at(JsonKeys::correlationId);
+
             }
             catch (nlohmann::json::exception& ex)
             {
@@ -192,7 +181,7 @@ namespace Plugin
                 Common::Telemetry::TelemetryHelper::getInstance().set("corrupt-threat-database", true);
             }
 
-            ThreatDetails details(correlationIdsToPop, timeStamp);
+            ThreatDetails details(correlationId, timeStamp);
             tempdatabase.try_emplace(threatItr.key(), details);
         }
 
