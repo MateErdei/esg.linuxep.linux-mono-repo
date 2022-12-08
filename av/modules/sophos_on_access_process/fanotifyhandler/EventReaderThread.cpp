@@ -476,6 +476,7 @@ Log warning and limited retries
         }
         default:
         {
+            LOGFATAL("Failed to read fanotify event, " << "(" << error << " " << errorStr << ")");
             logmsg << "Fatal Error. Restarting On Access: (" << error << " "<< errorStr << ")";
             throw std::runtime_error(logmsg.str());
         }
