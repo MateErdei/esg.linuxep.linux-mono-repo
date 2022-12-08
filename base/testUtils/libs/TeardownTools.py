@@ -5,6 +5,7 @@ import subprocess as sp
 from robot.api import logger
 from robot.libraries.BuiltIn import BuiltIn
 import glob
+import re
 
 
 def _list_dirs(root_path):
@@ -98,7 +99,11 @@ class TeardownTools(object):
             dmesg_process_clear_log = sp.Popen(["dmesg", "-C"], stdout=sp.PIPE)
             dmesg_process_clear_log.wait()
             logger.info("Clear dmesg after segfault detected")
-        assert grep_process.returncode == 1 # 0 means it found something, 1 means it didn't find anything, 2 means there was an error
+
+        CLOUD_SETUP_SEGFAULT_RE = re.compile(r"nm-cloud-setup\[\d+\]: segfault at [0-9a-f]+ ip [0-9a-f]+ sp [0-9a-f]+ error 4 in libglib-2.0.so.*\[[0-9a-f]+\+[0-9a-f]+\]")
+
+        if grep_process.returncode == 0 and not CLOUD_SETUP_SEGFAULT_RE.search(dmesg_process.stdout):
+            raise AssertionError("segfault found : " + stdout)
 
         return stdout
 
