@@ -52,6 +52,7 @@ namespace
             fs::create_directories(basePath);
             m_threatEventPublisherSocketPath = basePath / "threatEventPublisherSocket";
 
+            Common::Telemetry::TelemetryHelper::getInstance().reset();
             setupFakePluginConfig();
 
             m_taskQueue = std::make_shared<TaskQueue>();
@@ -1139,6 +1140,44 @@ TEST_F(TestPluginAdapter, secondDetectionIsNotReportedToCentral)
     EXPECT_TRUE(waitForLog("Found 'EICAR' in '/path/to/unit-test-eicar' which is a duplicate detection")); //This happens after the below log messages
     EXPECT_FALSE(appenderContains("Sending threat detection notification to central: "));
     EXPECT_FALSE(appenderContains("Publishing threat detection event: "));
+}
+
+TEST_F(TestPluginAdapter, telemetryIsIncrementedForNewDetection)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
+    auto pluginAdapter = std::make_shared<PluginAdapter>(
+        m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 1);
+
+    pluginAdapter->processDetectionReport(createDetection(false), QuarantineResult::FAILED_TO_DELETE_FILE);
+
+    auto telemetryResult = Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
+    PRINT(telemetryResult);
+    auto telemetry = nlohmann::json::parse(telemetryResult);
+    EXPECT_EQ(telemetry["on-access-threat-count"], 1);
+}
+
+TEST_F(TestPluginAdapter, telemetryIsIncrementedForDuplicateDetection)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
+    EXPECT_CALL(*mockBaseService, sendThreatHealth(_)).Times(1);
+    auto pluginAdapter = std::make_shared<PluginAdapter>(
+        m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 1);
+
+    //Put event in Threat Database
+    pluginAdapter->updateThreatDatabase(createDetection(false));
+    EXPECT_TRUE(waitForLog("Threat database is not empty, sending suspicious health to Management agent"));
+    //Create duplicate
+    pluginAdapter->processDetectionReport(createDetection(false), QuarantineResult::FAILED_TO_DELETE_FILE);
+
+    EXPECT_TRUE(waitForLog("Found 'EICAR' in '/path/to/unit-test-eicar' which is a duplicate detection"));
+    auto telemetryResult = Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
+    PRINT(telemetryResult);
+    auto telemetry = nlohmann::json::parse(telemetryResult);
+    EXPECT_EQ(telemetry["on-access-threat-count"], 1);
 }
 
 // TODO: LINUXDAR-5806 -- stablise this test

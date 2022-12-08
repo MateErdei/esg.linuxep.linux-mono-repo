@@ -528,7 +528,7 @@ namespace Plugin
 
     bool PluginAdapter::isRecentDetection(const std::string& threatId) const
     {
-        if (m_threatDatabase.isDatabaseEmpty() || !m_threatDatabase.isThreatInDatabaseWithinTime(threatId, DUPLICATE_DETECTION_TIMEOUT))
+        if (!m_threatDatabase.isThreatInDatabaseWithinTime(threatId, DUPLICATE_DETECTION_TIMEOUT))
         {
             return false;
         }

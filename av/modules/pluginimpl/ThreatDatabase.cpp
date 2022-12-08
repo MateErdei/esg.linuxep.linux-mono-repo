@@ -22,25 +22,25 @@ namespace Plugin
         convertDatabaseToString();
     }
 
-    void ThreatDatabase::addThreat(const std::string& _threatID, const std::string& _correlationID)
+    void ThreatDatabase::addThreat(const std::string& threatID, const std::string& correlationID)
     {
         auto database = m_database.lock();
-        auto dbItr = database->find(_threatID);
+        auto dbItr = database->find(threatID);
         if (dbItr != database->end())
         {
             auto now = std::chrono::time_point_cast<std::chrono::seconds>(std::chrono::system_clock::now());
             long duration = (now - dbItr->second.lastDetection).count();
-            LOGDEBUG("ThreatID: " << _threatID << " already existed. Overwriting correlationID: "
-                     << dbItr->second.correlationId << ", age: " << duration << " with " << _correlationID);
+            LOGDEBUG("ThreatID: " << threatID << " already existed. Overwriting correlationID: "
+                     << dbItr->second.correlationId << ", age: " << duration << " with " << correlationID);
 
-            dbItr->second.correlationId = _correlationID;
+            dbItr->second.correlationId = correlationID;
             dbItr->second.lastDetection = now;
         }
         else
         {
-            auto newThreatDetails = ThreatDetails(_correlationID);
-            database->emplace(_threatID,std::move(newThreatDetails));
-            LOGDEBUG("Added threat " << _threatID << " with correlationID " << _correlationID << " to threat database");
+            auto newThreatDetails = ThreatDetails(correlationID);
+            database->emplace(threatID,std::move(newThreatDetails));
+            LOGDEBUG("Added threat " << threatID << " with correlationID " << correlationID << " to threat database");
         }
 
     }
@@ -91,6 +91,12 @@ namespace Plugin
     bool ThreatDatabase::isThreatInDatabaseWithinTime(const std::string& threatId, const std::chrono::seconds& duplicateTimeout) const
     {
         auto database = m_database.lock();
+
+        if (database->empty())
+        {
+            return false;
+        }
+
         auto threatItr = database->find(threatId);
         if (threatItr == database->cend())
         {

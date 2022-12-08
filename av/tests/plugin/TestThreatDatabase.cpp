@@ -434,7 +434,7 @@ TEST_F(TestThreatDatabase, removeThreatID)
     verifyCorruptDatabaseTelemetryNotPresent();
 }
 
-TEST_F(TestThreatDatabase, resetHealth)
+TEST_F(TestThreatDatabase, resetDatabase)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
@@ -444,14 +444,21 @@ TEST_F(TestThreatDatabase, resetHealth)
 
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(m_fileSystemMock) };
 
-    Plugin::ThreatDatabase database = Plugin::ThreatDatabase(Plugin::getPluginVarDirPath());
-    database.resetDatabase();
+    Plugin::ThreatDatabase threatDatabase = Plugin::ThreatDatabase(Plugin::getPluginVarDirPath());
+    EXPECT_TRUE(waitForLog("Initialised Threat Database"));
+    {
+        auto database = threatDatabase.m_database.lock();
+        ASSERT_EQ(database->size(), 1);
+    }
+    EXPECT_NO_THROW(threatDatabase.resetDatabase());
+    auto database = threatDatabase.m_database.lock();
+    EXPECT_EQ(database->size(), 0);
 
     EXPECT_FALSE(appenderContains("into threat database as parsing failed with error for"));
     verifyCorruptDatabaseTelemetryNotPresent();
 }
 
-TEST_F(TestThreatDatabase, resetHealthHandlesFileError)
+TEST_F(TestThreatDatabase, resetDatabaseHandlesFileError)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
@@ -462,8 +469,10 @@ TEST_F(TestThreatDatabase, resetHealthHandlesFileError)
 
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(m_fileSystemMock) };
 
-    Plugin::ThreatDatabase database = Plugin::ThreatDatabase(Plugin::getPluginVarDirPath());
-    EXPECT_NO_THROW(database.resetDatabase());
+    Plugin::ThreatDatabase threatDatabase = Plugin::ThreatDatabase(Plugin::getPluginVarDirPath());
+    EXPECT_TRUE(waitForLog("Initialised Threat Database"));
+
+    EXPECT_NO_THROW(threatDatabase.resetDatabase());
 
     EXPECT_TRUE(waitForLog("Cannot reset ThreatDatabase on disk with error: "));
     EXPECT_FALSE(appenderContains("into threat database as parsing failed with error for"));
