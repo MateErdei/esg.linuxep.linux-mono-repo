@@ -1073,34 +1073,6 @@ TEST_F(TestPluginAdapter, testCanStopWhileWaitingForFirstPolicies)
     EXPECT_FALSE(appenderContains("SAV policy has not been sent to the plugin"));
 }
 
-TEST_F(TestPluginAdapter, reportsAddingThreatToDatabase)
-{
-    UsingMemoryAppender memoryAppenderHolder(*this);
-
-    auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
-    EXPECT_CALL(*mockBaseService, sendThreatHealth(_)).Times(1);
-    auto pluginAdapter = std::make_shared<PluginAdapter>(
-        m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 1);
-
-    pluginAdapter->updateThreatDatabase(createDetection(false));
-    EXPECT_TRUE(waitForLog("Added threat: c1c802c6-a878-ee05-babc-c0378d45d8d4 to database"));
-}
-
-TEST_F(TestPluginAdapter, reportsWhenDatabaseIsEmpty)
-{
-    UsingMemoryAppender memoryAppenderHolder(*this);
-
-    auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
-    EXPECT_CALL(*mockBaseService, sendThreatHealth(_)).Times(2);
-    auto pluginAdapter = std::make_shared<PluginAdapter>(
-        m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 1);
-
-    pluginAdapter->updateThreatDatabase(createDetection(false));
-    EXPECT_TRUE(waitForLog("Added threat: c1c802c6-a878-ee05-babc-c0378d45d8d4 to database"));
-    pluginAdapter->updateThreatDatabase(createDetection(true));
-    EXPECT_TRUE(waitForLog("Threat database is now empty, sending good health to Management agent"));
-}
-
 TEST_F(TestPluginAdapter, setsHealthToSuspiciousWhenThreatAddedToDatabase)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
@@ -1112,7 +1084,7 @@ TEST_F(TestPluginAdapter, setsHealthToSuspiciousWhenThreatAddedToDatabase)
 
     ASSERT_EQ(m_callback->getThreatHealth(), E_THREAT_HEALTH_STATUS_GOOD);
     pluginAdapter->updateThreatDatabase(createDetection(false));
-    EXPECT_TRUE(waitForLog("Threat health changed to suspicious"));
+    EXPECT_TRUE(waitForLog("Threat database is not empty, sending suspicious health to Management agent"));
     EXPECT_EQ(m_callback->getThreatHealth(), E_THREAT_HEALTH_STATUS_SUSPICIOUS);
 }
 
@@ -1127,9 +1099,9 @@ TEST_F(TestPluginAdapter, setsHealthToGoodWhenThreatDatabaseEmpty)
 
     ASSERT_EQ(m_callback->getThreatHealth(), E_THREAT_HEALTH_STATUS_GOOD);
     pluginAdapter->updateThreatDatabase(createDetection(false));
-    EXPECT_TRUE(waitForLog("Threat health changed to suspicious"));
+    EXPECT_TRUE(waitForLog("Threat database is not empty, sending suspicious health to Management agent"));
     pluginAdapter->updateThreatDatabase(createDetection(true));
-    EXPECT_TRUE(waitForLog("Threat health changed to good"));
+    EXPECT_TRUE(waitForLog("Threat database is now empty, sending good health to Management agent"));
     EXPECT_EQ(m_callback->getThreatHealth(), E_THREAT_HEALTH_STATUS_GOOD);
 }
 
@@ -1141,7 +1113,7 @@ TEST_F(TestPluginAdapter, firstDetectionIsReportedToCentral)
     auto pluginAdapter = std::make_shared<PluginAdapter>(
         m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 1);
 
-    pluginAdapter->processDetectionReport(createDetection(true), QuarantineResult::SUCCESS);
+    pluginAdapter->processDetectionReport(createDetection(true), QuarantineResult::FAILED_TO_DELETE_FILE);
     EXPECT_TRUE(waitForLog("Sending threat detection notification to central: "));
     EXPECT_TRUE(waitForLog("Publishing threat detection event: "));
     EXPECT_TRUE(waitForLog("Found 'EICAR' in '/path/to/unit-test-eicar' which is a new detection"));
@@ -1156,9 +1128,13 @@ TEST_F(TestPluginAdapter, secondDetectionIsNotReportedToCentral)
     auto pluginAdapter = std::make_shared<PluginAdapter>(
         m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 1);
 
+    //Put event in Threat Database
     pluginAdapter->updateThreatDatabase(createDetection(false));
-    EXPECT_TRUE(waitForLog("Added threat: c1c802c6-a878-ee05-babc-c0378d45d8d4 to database"));
-    pluginAdapter->processDetectionReport(createDetection(true), QuarantineResult::SUCCESS);
+    EXPECT_TRUE(waitForLog("Threat database is not empty, sending suspicious health to Management agent"));
+
+    //Create duplicate
+    clearMemoryAppender();
+    pluginAdapter->processDetectionReport(createDetection(false), QuarantineResult::FAILED_TO_DELETE_FILE);
 
     EXPECT_TRUE(waitForLog("Found 'EICAR' in '/path/to/unit-test-eicar' which is a duplicate detection")); //This happens after the below log messages
     EXPECT_FALSE(appenderContains("Sending threat detection notification to central: "));
