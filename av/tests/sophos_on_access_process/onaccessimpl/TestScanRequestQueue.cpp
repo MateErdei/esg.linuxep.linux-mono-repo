@@ -14,10 +14,19 @@
 using namespace ::testing;
 using namespace sophos_on_access_process::onaccessimpl;
 
+using ScanRequest_t = ScanRequestQueue::scan_request_t;
+using ScanRequestPtr = ScanRequestQueue::scan_request_ptr_t;
+
 namespace
 {
     class TestScanRequestQueue : public OnAccessImplMemoryAppenderUsingTests
     {
+    protected:
+        static ScanRequestPtr emptyRequest()
+        {
+            return std::make_shared<ScanRequest_t>();
+        }
+
     };
 }
 
@@ -26,9 +35,9 @@ TEST_F(TestScanRequestQueue, push_onlyEnqueuesUpToMaxSize)
     UsingMemoryAppender memoryAppenderHolder(*this);
 
     ScanRequestQueue queue(1);
-    auto emplaceRequest1 = std::make_shared<ClientScanRequest>();
+    auto emplaceRequest1 = emptyRequest();
     emplaceRequest1->setUserID("1");
-    auto emplaceRequest2 = std::make_shared<ClientScanRequest>();
+    auto emplaceRequest2 = emptyRequest();
     emplaceRequest2->setUserID("2");
 
     EXPECT_EQ(queue.size(), 0);
@@ -43,9 +52,9 @@ TEST_F(TestScanRequestQueue, push_FIFO)
     UsingMemoryAppender memoryAppenderHolder(*this);
 
     ScanRequestQueue queue(2);
-    auto emplaceRequest1 = std::make_shared<ClientScanRequest>();
+    auto emplaceRequest1 = emptyRequest();
     emplaceRequest1->setPath("1");
-    auto emplaceRequest2 = std::make_shared<ClientScanRequest>();
+    auto emplaceRequest2 = emptyRequest();
     emplaceRequest2->setPath("2");
 
     queue.emplace(emplaceRequest1);
@@ -63,11 +72,11 @@ TEST_F(TestScanRequestQueue, queueCanProcessMoreItemsThanItsMaxSizeSequentially)
     UsingMemoryAppender memoryAppenderHolder(*this);
 
     ScanRequestQueue queue(2);
-    auto emplaceRequest1 = std::make_shared<ClientScanRequest>();
+    auto emplaceRequest1 = emptyRequest();
     emplaceRequest1->setPath("1");
-    auto emplaceRequest2 = std::make_shared<ClientScanRequest>();
+    auto emplaceRequest2 = emptyRequest();
     emplaceRequest2->setPath("2");
-    auto emplaceRequest3 = std::make_shared<ClientScanRequest>();
+    auto emplaceRequest3 = emptyRequest();
     emplaceRequest3->setPath("3");
 
     EXPECT_TRUE(queue.emplace(emplaceRequest1));
