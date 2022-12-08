@@ -41,18 +41,6 @@ ${sdds3_server_output}                          /tmp/sdds3_server.log
 Test Setup
     Require Uninstalled
     Set Environment Variable  CORRUPTINSTALL  no
-    ${desired_flags} =     Catenate    SEPARATOR=\n
-    ...  {
-    ...    "livequery.network-tables.available" : true,
-    ...    "endpoint.flag2.enabled" : false,
-    ...    "endpoint.flag3.enabled" : false,
-    ...    "jwt-token.available" : true,
-    ...    "mcs.v2.data_feed.available": true,
-    ...    "sdds3.enabled": true,
-    ...    "av.onaccess.enabled": true,
-    ...  }
-
-    Create File  /tmp/mcs_flags  ${desired_flags}
 
 SDDS3 Test Teardown
     Stop Local SDDS3 Server
