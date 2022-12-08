@@ -12,7 +12,7 @@ ScanRequestQueue::ScanRequestQueue(size_t maxSize, bool useDeDup)
 {
 }
 
-bool ScanRequestQueue::emplace(ClientScanRequestPtr item)
+bool ScanRequestQueue::emplace(scan_request_ptr_t item)
 {
     std::lock_guard<std::mutex> lock(m_lock);
     size_t currentQueueSize = m_queue.size();
@@ -58,12 +58,12 @@ bool ScanRequestQueue::emplace(ClientScanRequestPtr item)
     }
 }
 
-ClientScanRequestPtr ScanRequestQueue::pop()
+auto ScanRequestQueue::pop() -> scan_request_ptr_t
 {
     std::unique_lock<std::mutex> lock(m_lock);
     // release lock as long as the wait and re-acquire it afterwards.
     m_condition.wait(lock, [this]{ return m_shuttingDown.load() || !m_queue.empty(); });
-    ClientScanRequestPtr scanRequest;
+    scan_request_ptr_t scanRequest;
     if (!m_shuttingDown.load())
     {
         scanRequest = m_queue.front();

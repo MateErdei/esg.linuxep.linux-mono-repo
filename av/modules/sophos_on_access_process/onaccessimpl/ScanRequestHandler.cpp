@@ -1,4 +1,4 @@
-// Copyright 2022, Sophos Limited.  All rights reserved.
+// Copyright 2022 Sophos Limited. All rights reserved.
 
 #include "ScanRequestHandler.h"
 
@@ -44,7 +44,7 @@ ScanRequestHandler::ScanRequestHandler(
 }
 
 void ScanRequestHandler::scan(
-    const scan_messages::ClientScanRequestPtr& scanRequest,
+    const scan_request_ptr_t& scanRequest,
     const struct timespec& retryInterval)
 {
     ScanResponse response;

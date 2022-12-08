@@ -1,4 +1,4 @@
-// Copyright 2022, Sophos Limited.  All rights reserved.
+// Copyright 2022 Sophos Limited. All rights reserved.
 
 #include "common/RecordingMockSocket.h"
 #include "../SoapMemoryAppenderUsingTests.h"
@@ -20,6 +20,13 @@ namespace
         void SetUp() override {}
 
         void TearDown() override {}
+        using ScanRequest_t = scan_messages::ClientScanRequest;
+        using ScanRequestPtr = scan_messages::ClientScanRequestPtr;
+
+        static ScanRequestPtr emptyRequest()
+        {
+            return std::make_shared<ScanRequest_t>();
+        }
     };
 
     class MockIScanningClientSocket : public unixsocket::IScanningClientSocket
@@ -58,7 +65,7 @@ TEST_F(TestOnAccessClientSocketWrapper, Construction)
 
 TEST_F(TestOnAccessClientSocketWrapper, Scan)
 {
-    auto request = std::make_shared<scan_messages::ClientScanRequest>();
+    auto request = emptyRequest();
     scan_messages::ScanResponse response;
 
     MockIScanningClientSocket socket {};
@@ -123,7 +130,7 @@ TEST_F(TestOnAccessClientSocketWrapper, ConnectRetryLimit)
 
 TEST_F(TestOnAccessClientSocketWrapper, ScanRetriesSend)
 {
-    auto request = std::make_shared<scan_messages::ClientScanRequest>();
+    auto request = emptyRequest();
     scan_messages::ScanResponse response;
 
     MockIScanningClientSocket socket {};
@@ -158,7 +165,7 @@ TEST_F(TestOnAccessClientSocketWrapper, ScanRetriesSend)
 
 TEST_F(TestOnAccessClientSocketWrapper, ScanRetryLimit)
 {
-    auto request = std::make_shared<scan_messages::ClientScanRequest>();
+    auto request = emptyRequest();
     request->setPath("/foo/bar");
     scan_messages::ScanResponse response;
 
@@ -188,7 +195,7 @@ TEST_F(TestOnAccessClientSocketWrapper, ScanRetryLimit)
 
 TEST_F(TestOnAccessClientSocketWrapper, ScanReconnectLimit)
 {
-    auto request = std::make_shared<scan_messages::ClientScanRequest>();
+    auto request = emptyRequest();
     request->setPath("/foo/bar");
     scan_messages::ScanResponse response;
 
@@ -223,7 +230,7 @@ TEST_F(TestOnAccessClientSocketWrapper, ScanReconnectLimit)
 
 TEST_F(TestOnAccessClientSocketWrapper, ScanRetriesReceive)
 {
-    auto request = std::make_shared<scan_messages::ClientScanRequest>();
+    auto request = emptyRequest();
     scan_messages::ScanResponse response;
 
     MockIScanningClientSocket socket {};
