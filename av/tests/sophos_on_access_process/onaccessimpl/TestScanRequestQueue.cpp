@@ -104,11 +104,11 @@ TEST_F(TestScanRequestQueue, dedupRemovesDuplicate)
     ScanRequestQueue queue(3);
 
     datatypes::AutoFd fd{10};
-    auto emplaceRequest1 = std::make_shared<ClientScanRequest>(sysCallWrapper, fd);
+    auto emplaceRequest1 = std::make_shared<ScanRequest_t>(sysCallWrapper, fd);
     emplaceRequest1->setPath("1");
 
     fd.reset(20);
-    auto emplaceRequest2 = std::make_shared<ClientScanRequest>(sysCallWrapper, fd);
+    auto emplaceRequest2 = std::make_shared<ScanRequest_t>(sysCallWrapper, fd);
     emplaceRequest2->setPath("2");
 
     queue.emplace(emplaceRequest1);
@@ -128,11 +128,11 @@ TEST_F(TestScanRequestQueue, dedupCanBeTurnedOff)
     ScanRequestQueue queue(3, false);
 
     datatypes::AutoFd fd{10};
-    auto emplaceRequest1 = std::make_shared<ClientScanRequest>(sysCallWrapper, fd);
+    auto emplaceRequest1 = std::make_shared<ScanRequest_t>(sysCallWrapper, fd);
     emplaceRequest1->setPath("1");
 
     fd.reset(20);
-    auto emplaceRequest2 = std::make_shared<ClientScanRequest>(sysCallWrapper, fd);
+    auto emplaceRequest2 = std::make_shared<ScanRequest_t>(sysCallWrapper, fd);
     emplaceRequest2->setPath("2");
 
     queue.emplace(emplaceRequest1);
@@ -153,11 +153,11 @@ TEST_F(TestScanRequestQueue, dedupWillHandleHashCollision)
     ScanRequestQueue queue(3);
 
     datatypes::AutoFd fd{10};
-    auto emplaceRequest1 = std::make_shared<ClientScanRequest>(sysCallWrapper, fd);
+    auto emplaceRequest1 = std::make_shared<ScanRequest_t>(sysCallWrapper, fd);
     emplaceRequest1->setPath("1");
 
     fd.reset(20);
-    auto emplaceRequest2 = std::make_shared<ClientScanRequest>(sysCallWrapper, fd);
+    auto emplaceRequest2 = std::make_shared<ScanRequest_t>(sysCallWrapper, fd);
     emplaceRequest2->setPath("2");
 
     auto hash = emplaceRequest2->hash();
@@ -182,9 +182,9 @@ TEST_F(TestScanRequestQueue, highBitDifferentDeviceAreNotSkipped)
     ScanRequestQueue queue(3);
 
     datatypes::AutoFd fd{10};
-    auto emplaceRequest1 = std::make_shared<ClientScanRequest>(sysCallWrapper, fd);
+    auto emplaceRequest1 = std::make_shared<ScanRequest_t>(sysCallWrapper, fd);
     fd.reset(20);
-    auto emplaceRequest2 = std::make_shared<ClientScanRequest>(sysCallWrapper, fd);
+    auto emplaceRequest2 = std::make_shared<ScanRequest_t>(sysCallWrapper, fd);
 
     queue.emplace(emplaceRequest1);
     queue.emplace(emplaceRequest2);
