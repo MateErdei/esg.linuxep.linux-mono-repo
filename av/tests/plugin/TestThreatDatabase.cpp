@@ -77,7 +77,7 @@ namespace
             auto telemetryResult = Common::Telemetry::TelemetryHelper::getInstance().serialise();
             auto telemetry = nlohmann::json::parse(telemetryResult);
 
-            EXPECT_TRUE(telemetry["corrupt-threat-database"]);
+            EXPECT_EQ(telemetry["corrupt-threat-database"],true);
         }
         static void verifyCorruptDatabaseTelemetryNotPresent()
         {
@@ -132,7 +132,7 @@ TEST_F(TestThreatDatabase, initDatabaseHandlesEmptyDatabaseInFile)
 
     EXPECT_NO_THROW(Plugin::ThreatDatabase{Plugin::getPluginVarDirPath()});
 
-    EXPECT_FALSE(appenderContains("into threat database as the parsing failed with error"));
+    EXPECT_FALSE(appenderContains("into threat database as parsing failed with error for"));
     verifyCorruptDatabaseTelemetryNotPresent();
 }
 
@@ -148,7 +148,7 @@ TEST_F(TestThreatDatabase, initDatabaseHandlesMalformedJsonStringInFile)
 
     EXPECT_NO_THROW(Plugin::ThreatDatabase{Plugin::getPluginVarDirPath()});
 
-    EXPECT_FALSE(appenderContains("into threat database as the parsing failed with error"));
+    EXPECT_FALSE(appenderContains("into threat database as parsing failed with error for"));
     verifyCorruptDatabaseTelemetryPresent();
 }
 
@@ -167,7 +167,7 @@ TEST_F(TestThreatDatabase, DatabaseLoadsAndSavesCorrectly)
 
     EXPECT_NO_THROW(Plugin::ThreatDatabase{Plugin::getPluginVarDirPath()});
 
-    EXPECT_FALSE(appenderContains("into threat database as the parsing failed with error"));
+    EXPECT_FALSE(appenderContains("into threat database as parsing failed with error for"));
     verifyCorruptDatabaseTelemetryNotPresent();
 }
 
@@ -186,7 +186,7 @@ TEST_F(TestThreatDatabase, isDatabaseEmptyReturnsTrueOnEmptyDatabase)
 
     EXPECT_TRUE(database.isDatabaseEmpty());
 
-    EXPECT_FALSE(appenderContains("into threat database as the parsing failed with error"));
+    EXPECT_FALSE(appenderContains("into threat database as parsing failed with error for"));
     verifyCorruptDatabaseTelemetryNotPresent();
 }
 
@@ -206,7 +206,7 @@ TEST_F(TestThreatDatabase, isDatabaseEmptyReturnsFalseOnNonEmptyDatabase)
     database.addThreat("threat","correlationid");
     EXPECT_FALSE(database.isDatabaseEmpty());
 
-    EXPECT_FALSE(appenderContains("into threat database as the parsing failed with error"));
+    EXPECT_FALSE(appenderContains("into threat database as parsing failed with error for"));
     verifyCorruptDatabaseTelemetryNotPresent();
 }
 
@@ -231,7 +231,7 @@ TEST_F(TestThreatDatabase, addThreatToDatabase)
     EXPECT_EQ(databaseContents->size(), 2);
     EXPECT_TRUE(databaseContents->find(addedThreat) != databaseContents->end());
 
-    EXPECT_FALSE(appenderContains("into threat database as the parsing failed with error"));
+    EXPECT_FALSE(appenderContains("into threat database as parsing failed with error for"));
     verifyCorruptDatabaseTelemetryNotPresent();
 }
 
@@ -259,7 +259,36 @@ TEST_F(TestThreatDatabase, addThreatAndCorrelationIDToDatabase)
     ASSERT_TRUE(threatidItems != databaseContents->end());
     EXPECT_EQ(correlationid, threatidItems->second.correlationId);
 
-    EXPECT_FALSE(appenderContains("into threat database as the parsing failed with error"));
+    EXPECT_FALSE(appenderContains("into threat database as parsing failed with error for"));
+    verifyCorruptDatabaseTelemetryNotPresent();
+}
+
+TEST_F(TestThreatDatabase, addThreatWithExistingThreatIDOverWritesExistingCorrelationID)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    const std::string threatid = "threatID";
+    const std::string correlationid = "correlationID2";
+
+    EXPECT_CALL(*m_fileSystemMock, exists(Plugin::getPersistThreatDatabaseFilePath())).WillOnce(Return(true));
+    EXPECT_CALL(*m_fileSystemMock, readFile(Plugin::getPersistThreatDatabaseFilePath())).WillOnce(Return(createJsonString()));
+    EXPECT_CALL(*m_fileSystemMock, writeFile(Plugin::getPersistThreatDatabaseFilePath(),_));
+
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(m_fileSystemMock) };
+
+    Plugin::ThreatDatabase database = Plugin::ThreatDatabase(Plugin::getPluginVarDirPath());
+    EXPECT_TRUE(waitForLog("Initialised Threat Database"));
+
+    database.addThreat(threatid,correlationid);
+
+    EXPECT_TRUE(waitForLog("ThreatID: threatID already existed. Overwriting correlationID: correlationID, age: 0 with correlationID2"));
+    auto databaseContents = database.m_database.lock();
+    ASSERT_EQ(databaseContents->size(), 1);
+    auto threatidItems = databaseContents->find(threatid);
+    ASSERT_TRUE(threatidItems != databaseContents->end());
+    EXPECT_EQ(correlationid, threatidItems->second.correlationId);
+
+    EXPECT_FALSE(appenderContains("into threat database as parsing failed with error for"));
     verifyCorruptDatabaseTelemetryNotPresent();
 }
 
@@ -323,7 +352,7 @@ TEST_F(TestThreatDatabase, removeCorrelationIDRemovesThreat)
     database.removeCorrelationID("correlationID");
 
     EXPECT_TRUE(waitForLog("Removing threat threatID with correlationId correlationID from database"));
-    EXPECT_FALSE(appenderContains("into threat database as the parsing failed with error"));
+    EXPECT_FALSE(appenderContains("into threat database as parsing failed with error for"));
 
     auto databaseContents = database.m_database.lock();
     EXPECT_EQ(databaseContents->size(), 0);
@@ -401,7 +430,7 @@ TEST_F(TestThreatDatabase, removeThreatID)
     std::stringstream expectString;
     expectString << "Removed threat id " << threatIDToRemove << " from database";
     EXPECT_TRUE(waitForLog(expectString.str()));
-    EXPECT_FALSE(appenderContains("into threat database as the parsing failed with error"));
+    EXPECT_FALSE(appenderContains("into threat database as parsing failed with error for"));
     verifyCorruptDatabaseTelemetryNotPresent();
 }
 
@@ -418,7 +447,7 @@ TEST_F(TestThreatDatabase, resetHealth)
     Plugin::ThreatDatabase database = Plugin::ThreatDatabase(Plugin::getPluginVarDirPath());
     database.resetDatabase();
 
-    EXPECT_FALSE(appenderContains("into threat database as the parsing failed with error"));
+    EXPECT_FALSE(appenderContains("into threat database as parsing failed with error for"));
     verifyCorruptDatabaseTelemetryNotPresent();
 }
 
@@ -437,7 +466,7 @@ TEST_F(TestThreatDatabase, resetHealthHandlesFileError)
     EXPECT_NO_THROW(database.resetDatabase());
 
     EXPECT_TRUE(waitForLog("Cannot reset ThreatDatabase on disk with error: "));
-    EXPECT_FALSE(appenderContains("into threat database as the parsing failed with error"));
+    EXPECT_FALSE(appenderContains("into threat database as parsing failed with error for"));
     verifyCorruptDatabaseTelemetryNotPresent();
 }
 
@@ -470,7 +499,7 @@ TEST_F(TestThreatDatabase, handlesNegativeFormatTime)
 
     EXPECT_CALL(*m_fileSystemMock, exists(Plugin::getPersistThreatDatabaseFilePath())).WillOnce(Return(true));
     EXPECT_CALL(*m_fileSystemMock, readFile(Plugin::getPersistThreatDatabaseFilePath()))
-        .WillOnce(Return(R"({"threatID":{"correlationIds":"correlationId","timestamp":-1}})"));
+        .WillOnce(Return(R"({"threatID":{"correlationId":"correlationID","timestamp":-1}})"));
     EXPECT_CALL(*m_fileSystemMock, writeFile(Plugin::getPersistThreatDatabaseFilePath(),_));
 
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(m_fileSystemMock) };
@@ -483,7 +512,8 @@ TEST_F(TestThreatDatabase, handlesNegativeFormatTime)
     const long timeStamp = std::chrono::time_point_cast<std::chrono::seconds>(database->begin()->second.lastDetection).time_since_epoch().count();
     EXPECT_EQ(timeStamp, -1);
 
-    verifyCorruptDatabaseTelemetryPresent();
+    EXPECT_FALSE(appenderContains("into threat database as parsing failed with error for"));
+    verifyCorruptDatabaseTelemetryNotPresent();
 }
 
 TEST_F(TestThreatDatabase, handlesOutOfBoundsTimeValue)
@@ -492,7 +522,7 @@ TEST_F(TestThreatDatabase, handlesOutOfBoundsTimeValue)
 
     EXPECT_CALL(*m_fileSystemMock, exists(Plugin::getPersistThreatDatabaseFilePath())).WillOnce(Return(true));
     EXPECT_CALL(*m_fileSystemMock, readFile(Plugin::getPersistThreatDatabaseFilePath()))
-        .WillOnce(Return(R"({"threatID":{"correlationIds":"correlationId","timestamp":18446744073709551620}})"));
+        .WillOnce(Return(R"({"threatID":{"correlationId":"correlationId","timestamp":18446744073709551620}})"));
     EXPECT_CALL(*m_fileSystemMock, writeFile(Plugin::getPersistThreatDatabaseFilePath(),_));
 
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(m_fileSystemMock) };
@@ -505,7 +535,8 @@ TEST_F(TestThreatDatabase, handlesOutOfBoundsTimeValue)
     const long timeStamp = std::chrono::time_point_cast<std::chrono::seconds>(database->begin()->second.lastDetection).time_since_epoch().count();
     EXPECT_EQ(timeStamp, 0);
 
-    verifyCorruptDatabaseTelemetryPresent();
+    EXPECT_FALSE(appenderContains("into threat database as parsing failed with error for"));
+    verifyCorruptDatabaseTelemetryNotPresent();
 }
 
 TEST_F(TestThreatDatabase, writesValidJsonOnDestruct)
