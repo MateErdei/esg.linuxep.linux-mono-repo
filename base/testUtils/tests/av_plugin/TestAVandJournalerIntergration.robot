@@ -132,11 +132,11 @@ Test av can publish events and that journaler can receive them after edr restart
     ...  2 secs
     ...  Check Logs Detected EICAR Event  2
 
-Test av can publish events for onacess and that journaler can receive them
+Test av can publish events for onaccess and that journaler can receive them
     [Timeout]  10 minutes
     Check Journal Is Empty
     Mark Livequery Log  False
-    send policy File  core  ${SUPPORT_FILES}/CentralXml/CORE-36_oa_enabled.xml
+    send_policy_file  core  ${SUPPORT_FILES}/CentralXml/CORE-36_oa_enabled.xml
 
     Copy File  ${SUPPORT_FILES}/CentralXml/FLAGS_onaccess_enabled.json  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json
     ${result} =  Run Process  chown  root:sophos-spl-group  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json
