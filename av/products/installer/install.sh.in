@@ -89,8 +89,7 @@ SUSI_UPDATE_SRC="$SOPHOS_INSTALL/plugins/av/chroot/susi/update_source/"
 SUSI_DIST_VERS="$SOPHOS_INSTALL/plugins/av/chroot/susi/distribution_version/"
 LOCKFILE="${PLUGIN_INSTALL}/chroot/var/susi_update.lock"
 TD_PID_FILE="${PLUGIN_INSTALL}/chroot/var/threat_detector.pid"
-SAFESTORE="${PLUGIN_INSTALL}/safestore"
-SAFESTORE_DB_PATH="${SAFESTORE}/safestore_db"
+SAFESTORE_DB_PATH="${PLUGIN_INSTALL}/var/safestore_db"
 
 function delete_removed_vdl()
 {
@@ -251,11 +250,7 @@ function apply_permissions()
         chmod 600 ${VAR}/persist-threatDatabase
     fi
 
-    mkdir -p "${SAFESTORE}"
-    chmod 0700 "${SAFESTORE}"
-    chown -R root:root "${SAFESTORE}"
-    mkdir -p "${SAFESTORE_DB_PATH}"
-    chmod -R 0700 "${SAFESTORE_DB_PATH}"
+    mkdir -p "$SAFESTORE_DB_PATH"
     chown -R root:root "${SAFESTORE_DB_PATH}"
 
     CHROOT="${PLUGIN_INSTALL}/chroot"
@@ -372,8 +367,7 @@ function restore_safestore_databases()
     then
       echo "SafeStore database already exists so will not attempt to restore: $DATABASE_TO_RESTORE"
     else
-      mkdir -p ${SAFESTORE}
-      mv -v "$DATABASE_TO_RESTORE" "${SAFESTORE_DB_PATH}" || failure $EXIT_FAIL_RESTORE_SAFESTORE_DB "Failed to restore old SafeStore database: $DATABASE_TO_RESTORE"
+      mv -v "$DATABASE_TO_RESTORE" "${SAFESTORE_DB_PATH}" || failed $EXIT_FAIL_RESTORE_SAFESTORE_DB "Failed to restore old SafeStore database: $DATABASE_TO_RESTORE"
       if [[ -z "$(ls -A $SAFESTORE_RESTORE_DIR)" ]]
       then
          rm -rf "$SAFESTORE_RESTORE_DIR"

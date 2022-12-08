@@ -48,7 +48,6 @@ Global Setup Tasks
     Set Global Variable  ${COMPONENT_ROOT_PATH}             ${SOPHOS_INSTALL}/plugins/${COMPONENT_NAME}
     Set Global Variable  ${COMPONENT_SBIN_DIR}              ${COMPONENT_ROOT_PATH}/sbin
     Set Global Variable  ${COMPONENT_VAR_DIR}               ${COMPONENT_ROOT_PATH}/var
-    Set Global Variable  ${COMPONENT_SAFESTORE_DIR}         ${COMPONENT_ROOT_PATH}/safestore
     Set Global Variable  ${COMPONENT_BIN_PATH}              ${COMPONENT_SBIN_DIR}/${COMPONENT_NAME}
     Set Global variable  ${COMPONENT_LIB64_DIR}             ${COMPONENT_ROOT_PATH}/lib64
     Set Global Variable  ${FAKEMANAGEMENT_AGENT_LOG_PATH}   ${SOPHOS_INSTALL}/fake_management_agent.log

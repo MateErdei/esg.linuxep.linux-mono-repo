@@ -10,7 +10,7 @@ ${SAFESTORE_LOG_PATH}                 ${AV_PLUGIN_PATH}/log/safestore.log
 ${SAFESTORE_PID_FILE}                 ${COMPONENT_VAR_DIR}/safestore.pid
 ${SAFESTORE_SOCKET_PATH}              ${COMPONENT_VAR_DIR}/safestore_socket
 
-${SAFESTORE_DB_DIR}                   ${COMPONENT_SAFESTORE_DIR}/safestore_db
+${SAFESTORE_DB_DIR}                   ${COMPONENT_VAR_DIR}/safestore_db
 ${SAFESTORE_DB_PATH}                  ${SAFESTORE_DB_DIR}/safestore.db
 ${SAFESTORE_DB_PASSWORD_PATH}         ${SAFESTORE_DB_DIR}/safestore.pw
 
