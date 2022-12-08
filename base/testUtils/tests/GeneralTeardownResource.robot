@@ -34,6 +34,9 @@ Dump All Logs
 
     Dump Teardown Log    ${UPDATE_CONFIG}
     Dump Teardown Log    ${SOPHOS_INSTALL}/base/mcs/policy/ALC-1_policy.xml
+    Dump Teardown Log    ${SOPHOS_INSTALL}/base/mcs/policy/CORE_policy.xml
+    Dump Teardown Log    ${SOPHOS_INSTALL}/base/mcs/policy/SAV-2_policy.xml
+    Dump Teardown Log    ${SOPHOS_INSTALL}/base/mcs/policy/flags.json
 
     Dump Teardown Log    ${SOPHOS_INSTALL}/base/etc/logger.conf
     Dump Teardown Log    ${SOPHOS_INSTALL}/logs/base/etc/DiagnosePaths.conf
