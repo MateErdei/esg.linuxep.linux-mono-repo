@@ -170,7 +170,6 @@ namespace Plugin
             }
             catch (nlohmann::json::exception& ex)
             {
-                //If the types of the threat id or correlation id are wrong throw away the entire threatID entry
                 LOGWARN("Correlation field for "<< threatItr.key() << " into threat database as parsing failed with error for " << JsonKeys::correlationId  << " " << ex.what());
                 Common::Telemetry::TelemetryHelper::getInstance().set("corrupt-threat-database", true);
             }
