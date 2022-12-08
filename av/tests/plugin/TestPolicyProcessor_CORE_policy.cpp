@@ -195,6 +195,8 @@ TEST_F(TestPolicyProcessor_CORE_policy, sendExampleCOREpolicy)
 
 TEST_F(TestPolicyProcessor_CORE_policy, processOnAccessPolicyEnabled)
 {
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
     std::string CORE_policy{R"sophos(<?xml version="1.0"?>
 <policy RevID="{{revisionId}}" policyType="36">
   <!-- From SAV policy -->
@@ -224,10 +226,13 @@ TEST_F(TestPolicyProcessor_CORE_policy, processOnAccessPolicyEnabled)
     PolicyProcessorUnitTestClass proc;
 
     proc.processCOREpolicy(attributeMap);
+    EXPECT_TRUE(appenderContains("On Access is enabled in CORE policy"));
 }
 
 TEST_F(TestPolicyProcessor_CORE_policy, processOnAccessPolicyDisabled)
 {
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
     std::string CORE_policy{R"sophos(<?xml version="1.0"?>
 <policy RevID="{{revisionId}}" policyType="36">
   <!-- From SAV policy -->
@@ -257,6 +262,7 @@ TEST_F(TestPolicyProcessor_CORE_policy, processOnAccessPolicyDisabled)
     PolicyProcessorUnitTestClass proc;
 
     proc.processCOREpolicy(attributeMap);
+    EXPECT_TRUE(appenderContains("On Access is disabled in CORE policy"));
 }
 
 TEST_F(TestPolicyProcessor_CORE_policy, preserveOtherSettings)

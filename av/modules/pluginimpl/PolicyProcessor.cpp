@@ -389,7 +389,7 @@ namespace Plugin
         }
         else
         {
-            LOGDEBUG("On-access flags not changed");
+            LOGINFO("On Access setting from FLAGS policy not changed");
         }
     }
 
@@ -464,12 +464,20 @@ namespace Plugin
 
         if (originalConfig != config)
         {
+            if(on_access_enabled)
+            {
+                LOGINFO("On Access is enabled in CORE policy");
+            }
+            else
+            {
+                LOGINFO("On Access is disabled in CORE policy");
+            }
             writeOnAccessConfig(config);
             setOnAccessConfiguredTelemetry(on_access_enabled);
         }
         else
         {
-            LOGDEBUG("On Access settings from CORE policy not changed");
+            LOGINFO("On Access settings from CORE policy not changed");
         }
     }
 
