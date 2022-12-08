@@ -405,23 +405,6 @@ TEST_F(TestThreatDatabase, removeThreatID)
     verifyCorruptDatabaseTelemetryNotPresent();
 }
 
-TEST_F(TestThreatDatabase, removeThreatIDWhenThreatIDNotInDatabase)
-{
-    UsingMemoryAppender memoryAppenderHolder(*this);
-
-    EXPECT_CALL(*m_fileSystemMock, exists(Plugin::getPersistThreatDatabaseFilePath())).WillOnce(Return(true));
-    EXPECT_CALL(*m_fileSystemMock, readFile(Plugin::getPersistThreatDatabaseFilePath())).WillOnce(Return("{}"));
-    EXPECT_CALL(*m_fileSystemMock, writeFile(Plugin::getPersistThreatDatabaseFilePath(),"{}"));
-
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(m_fileSystemMock) };
-
-    Plugin::ThreatDatabase database = Plugin::ThreatDatabase(Plugin::getPluginVarDirPath());
-    EXPECT_NO_THROW(database.removeThreatID("threatID", false));
-
-    EXPECT_TRUE(waitForLog("Cannot remove threat id"));
-    verifyCorruptDatabaseTelemetryNotPresent();
-}
-
 TEST_F(TestThreatDatabase, removeThreatIDWhenThreatIDNotInDatabaseLogsWarnningWhenLogTurnedOn)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
