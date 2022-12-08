@@ -1178,10 +1178,13 @@ TEST_P(TestWithType2Errno, diesAfterHittingLimit)
         switch (errnoValue)
         {
             case EPERM:
-                EXPECT_STREQ(e.what(), "Too many EPERM/EACCES errors. Restarting On Access: (1 Operation not permitted)");
+                EXPECT_STREQ(e.what(), "Too many EPERM/EACCES/ENOENT errors. Restarting On Access: (1 Operation not permitted)");
+                break;
+            case ENOENT:
+                EXPECT_STREQ(e.what(), "Too many EPERM/EACCES/ENOENT errors. Restarting On Access: (2 No such file or directory)");
                 break;
             case EACCES:
-                EXPECT_STREQ(e.what(), "Too many EPERM/EACCES errors. Restarting On Access: (13 Permission denied)");
+                EXPECT_STREQ(e.what(), "Too many EPERM/EACCES/ENOENT errors. Restarting On Access: (13 Permission denied)");
                 break;
             case ENFILE:
             case EMFILE:
@@ -1196,7 +1199,7 @@ TEST_P(TestWithType2Errno, diesAfterHittingLimit)
 
 INSTANTIATE_TEST_SUITE_P(TestReaderCanReceiveEventAfterRetryErrno,
                          TestWithType2Errno,
-                         testing::Values(EPERM, EACCES, ENFILE, EMFILE)
+                         testing::Values(EPERM, ENOENT, EACCES, ENFILE, EMFILE)
 );
 
 namespace

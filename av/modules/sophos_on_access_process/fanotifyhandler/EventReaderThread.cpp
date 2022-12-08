@@ -328,10 +328,24 @@ void EventReaderThread::setExclusions(const std::vector<common::Exclusion>& excl
     }
 }
 
+/**
+ * Fanotify read() calls can return various errno, so we have several approaches to deal with them
+ */
 void EventReaderThread::throwIfErrorNotRecoverable()
 {
     int error = errno;
     auto errorStr = common::safer_strerror(error);
+
+    /*
+     *
+     * We split errno into 4 categories:
+     * 1) no-log immediate retry: signals and non-blocking return
+     * 2) unlisted errno, probably from fuse filesystem: Log and retry, throw exception if too many in a row
+     * 3) recoverable errno: Log and retry after delay, throw exception if too many in a row
+     * 4) Fatal errno: Log and throw exception - generally indicate fanotify fd is invalid
+     *
+     * Unexpected/unknown errno are treated as 3)
+     */
 
     /*
      * https://man7.org/linux/man-pages/man7/fanotify.7.html
@@ -430,6 +444,8 @@ Log warning and limited retries
 EACCES  ???
 Log warning and limited retries
 
+ENOENT  fuse?
+
      */
 
     std::stringstream logmsg;
@@ -441,25 +457,45 @@ Log warning and limited retries
         case EWOULDBLOCK:
 #endif
         {
+            // Case 1
             // Expected, no warning required,
             // return to ppoll loop so that we don't get stuck in blocking read.
             break;
         }
         case EPERM:
         case EACCES:
+        case ENOENT: // Only listing on fanotify(7) is for write calls.
         {
+            // Case 2
+            // Errors from e.g. fuse filesystems.
+            // We assume these will immediately 'recover', throwing away the event from fuse
             LOGWARN("Failed to read fanotify event, " << "(" << error << " " << errorStr << ")");
             m_readFailureCount++;
             if (m_readFailureCount > RESTART_SOAP_ERROR_COUNT)
             {
-                logmsg << "Too many EPERM/EACCES errors. Restarting On Access: (" << error << " "<< errorStr << ")";
+                logmsg << "Too many EPERM/EACCES/ENOENT errors. Restarting On Access: (" << error << " "<< errorStr << ")";
                 throw std::runtime_error(logmsg.str());
             }
             break;
         }
+        case EINVAL:
+        case ETXTBSY:
+        case EBADF:
+        case EIO:
+        case EISDIR:
+        {
+            // Case 4
+            // immediately fatal - we have no way of recovering from this
+            LOGFATAL("Failed to read fanotify event, " << "(" << error << " " << errorStr << ")");
+            logmsg << "Fatal Error. Restarting On Access: (" << error << " "<< errorStr << ")";
+            throw std::runtime_error(logmsg.str());
+        }
         case EMFILE:
         case ENFILE:
         {
+            // Case 3
+            // If we run out of file descriptors, then do a delay and retry
+            // This should allow other threads/processes to free descriptors
             LOGERROR("Failed to read fanotify event. No more File Descriptors available: " << "(" << error << " " << errorStr << ")");
             m_readFailureCount++;
 
@@ -476,9 +512,21 @@ Log warning and limited retries
         }
         default:
         {
-            LOGFATAL("Failed to read fanotify event, " << "(" << error << " " << errorStr << ")");
-            logmsg << "Fatal Error. Restarting On Access: (" << error << " "<< errorStr << ")";
-            throw std::runtime_error(logmsg.str());
+            // If we get an unknown errno, then we just do the delay and retry approach (case 3)
+            LOGERROR("Failed to read fanotify event. Unexpected error available: " << "(" << error << " " << errorStr << ")");
+            m_readFailureCount++;
+
+            if (m_readFailureCount > RESTART_SOAP_ERROR_COUNT)
+            {
+                logmsg << "Failed to read fanotify event: Fatal Error. Restarting On Access: (" << error << " "<< errorStr << ")";
+                throw std::runtime_error(logmsg.str());
+            }
+            else
+            {
+                // a small sleep to allow FD to be released
+                std::this_thread::sleep_for(m_out_of_file_descriptor_delay);
+            }
+            break;
         }
     }
 
