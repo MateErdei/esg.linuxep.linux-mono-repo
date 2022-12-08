@@ -28,13 +28,19 @@ namespace Plugin
         auto dbItr = database->find(_threatID);
         if (dbItr != database->end())
         {
+            auto now = std::chrono::time_point_cast<std::chrono::seconds>(std::chrono::system_clock::now());
+            long duration = (now - dbItr->second.lastDetection).count();
+            LOGDEBUG("ThreatID: " << _threatID << " already existed. Overwriting correlationID: "
+                     << dbItr->second.correlationId << ", age: " << duration << " with " << _correlationID);
+
             dbItr->second.correlationId = _correlationID;
-            dbItr->second.lastDetection = std::chrono::system_clock::now();
+            dbItr->second.lastDetection = now;
         }
         else
         {
             auto newThreatDetails = ThreatDetails(_correlationID);
             database->emplace(_threatID,std::move(newThreatDetails));
+            LOGDEBUG("Added threat " << _threatID << " with correlationID " << _correlationID << "to threat database");
         }
 
     }
@@ -57,7 +63,7 @@ namespace Plugin
             }
         }
 
-        LOGINFO("Cannot remove correlation id" << correlationID << " from database as it cannot be found");
+        LOGINFO("Cannot remove correlation id: " << correlationID << " from database as it cannot be found");
     }
 
     void ThreatDatabase::removeThreatID(const std::string& threatID, bool ignoreNotInDatabase)

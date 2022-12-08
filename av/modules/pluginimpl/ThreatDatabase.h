@@ -17,7 +17,8 @@
 namespace Plugin
 {
     namespace JsonKeys {
-        constexpr auto correlationId = "correlationIds";
+        constexpr auto threatId = "threatId";
+        constexpr auto correlationId = "correlationId";
         constexpr auto timestamp = "timestamp";
     }
 

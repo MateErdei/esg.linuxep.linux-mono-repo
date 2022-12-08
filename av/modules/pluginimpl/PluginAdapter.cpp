@@ -406,9 +406,9 @@ namespace Plugin
         if (detection.notificationStatus != scan_messages::E_NOTIFICATION_STATUS_CLEANED_UP)
         {
             m_threatDatabase.addThreat(detection.threatId, detection.threatId);
-            LOGDEBUG("Added threat: " << detection.threatId << " to database");
             if (m_callback->getThreatHealth() != E_THREAT_HEALTH_STATUS_SUSPICIOUS)
             {
+                LOGINFO("Threat database is not empty, sending suspicious health to Management agent");
                 publishThreatHealth(E_THREAT_HEALTH_STATUS_SUSPICIOUS);
             }
         }
