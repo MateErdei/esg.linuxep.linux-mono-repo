@@ -370,7 +370,7 @@ TEST_F(TestThreatDatabase, removeThreatIDHandlesWhenThreatIsNotInDatabase)
     EXPECT_TRUE(waitForLog("Initialised Threat Database"));
 
     EXPECT_NO_THROW(database.removeThreatID("threatid2",false));
-    EXPECT_TRUE(waitForLog("Cannot remove threat idthreatid2 from database as it cannot be found"));
+    EXPECT_TRUE(waitForLog("Cannot remove threat id threatid2 from database as it cannot be found"));
 
     auto databaseContents = database.m_database.lock();
     ASSERT_EQ(databaseContents->size(), 1);
@@ -402,24 +402,6 @@ TEST_F(TestThreatDatabase, removeThreatID)
     expectString << "Removed threat id " << threatIDToRemove << " from database";
     EXPECT_TRUE(waitForLog(expectString.str()));
     EXPECT_FALSE(appenderContains("into threat database as the parsing failed with error"));
-    verifyCorruptDatabaseTelemetryNotPresent();
-}
-
-TEST_F(TestThreatDatabase, removeThreatIDWhenThreatIDNotInDatabaseLogsWarnningWhenLogTurnedOn)
-{
-    UsingMemoryAppender memoryAppenderHolder(*this);
-
-    EXPECT_CALL(*m_fileSystemMock, exists(Plugin::getPersistThreatDatabaseFilePath())).WillOnce(Return(true));
-    EXPECT_CALL(*m_fileSystemMock, readFile(Plugin::getPersistThreatDatabaseFilePath())).WillOnce(Return("{}"));
-    EXPECT_CALL(*m_fileSystemMock, writeFile(Plugin::getPersistThreatDatabaseFilePath(),"{}"));
-
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(m_fileSystemMock) };
-
-    Plugin::ThreatDatabase database = Plugin::ThreatDatabase(Plugin::getPluginVarDirPath());
-    EXPECT_TRUE(waitForLog("Initialised Threat Database"));
-
-    EXPECT_NO_THROW(database.removeThreatID("threatID",false));
-    EXPECT_TRUE(waitForLog("Cannot remove threat id"));
     verifyCorruptDatabaseTelemetryNotPresent();
 }
 

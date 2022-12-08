@@ -78,7 +78,7 @@ namespace Plugin
         }
         else if (!ignoreNotInDatabase)
         {
-            LOGWARN("Cannot remove threat id" << threatID << " from database as it cannot be found");
+            LOGWARN("Cannot remove threat id " << threatID << " from database as it cannot be found");
         }
     }
 
