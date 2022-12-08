@@ -24,8 +24,8 @@ namespace sophos_on_access_process::onaccessimpl
     class ScanRequestQueue
     {
     public:
-        using scan_request_t = ClientScanRequest;
-        using scan_request_ptr_t = ClientScanRequestPtr;
+        using scan_request_t = OnAccessScanRequest;
+        using scan_request_ptr_t = std::shared_ptr<scan_request_t>;
         /**
          *
          * @param maxSize

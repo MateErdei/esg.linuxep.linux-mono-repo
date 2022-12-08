@@ -6,7 +6,9 @@
 
 namespace sophos_on_access_process::onaccessimpl
 {
-    class OnAccessScanRequest
+    class OnAccessScanRequest : public scan_messages::ClientScanRequest
     {
+    public:
+        using scan_messages::ClientScanRequest::ClientScanRequest;
     };
 }
