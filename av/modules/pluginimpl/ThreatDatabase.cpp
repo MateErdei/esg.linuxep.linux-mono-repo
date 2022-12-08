@@ -40,7 +40,7 @@ namespace Plugin
         {
             auto newThreatDetails = ThreatDetails(_correlationID);
             database->emplace(_threatID,std::move(newThreatDetails));
-            LOGDEBUG("Added threat " << _threatID << " with correlationID " << _correlationID << "to threat database");
+            LOGDEBUG("Added threat " << _threatID << " with correlationID " << _correlationID << " to threat database");
         }
 
     }
