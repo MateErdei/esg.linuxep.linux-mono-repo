@@ -7,6 +7,7 @@ import os
 import re
 
 
+LOOSE_COPYRIGHT_RE = re.compile(r".*Copyright +(\d{4})(\-\d{4})?.*Sophos.*")
 COPYRIGHT_RE = re.compile(r'.* Copyright ((\d{4})|(\d{4})\-(\d{4})) Sophos Limited\. All rights reserved\.')
 CURRENT_YEAR = str(datetime.datetime.now().year)
 COMMENT_TOKENS = {
@@ -47,20 +48,26 @@ def run(code_file):
 
     match = COPYRIGHT_RE.match(lines[copyright_index])
     if not match:
-        # No header. If this has already been committed and there's an initial year,
-        # use that. Otherwise use the current year.
-        initial_year = CURRENT_YEAR
-        try:
-            initial_commit = code_file.git_repo().iter_commits(
-                date_order=True, reverse=True, paths=code_file.git_path()).__next__()
-            initial_year = initial_commit.authored_datetime.year
-        except:  # pylint: disable=bare-except
-            pass
-
-        if initial_year == int(CURRENT_YEAR):
-            lines.insert(copyright_index, comment_token + SINGLE_YEAR_COMMENT % CURRENT_YEAR)
+        loose_match = LOOSE_COPYRIGHT_RE.match(lines[copyright_index])
+        if loose_match:
+            initial_year = loose_match.group(1)
         else:
-            lines.insert(copyright_index, comment_token + MULTI_YEAR_COMMENT % (initial_year, CURRENT_YEAR))
+            # No header. If this has already been committed and there's an initial year,
+            # use that. Otherwise use the current year.
+            initial_year = CURRENT_YEAR
+            try:
+                initial_commit = code_file.git_repo().iter_commits(
+                    date_order=True, reverse=True, paths=code_file.git_path()).__next__()
+                initial_year = initial_commit.authored_datetime.year
+            except Exception:  # pylint: disable=bare-except
+                initial_year = CURRENT_YEAR
+            lines.insert(copyright_index, "")  # Need a line to replace
+
+        if int(initial_year) == int(CURRENT_YEAR):
+            lines[copyright_index] = comment_token + SINGLE_YEAR_COMMENT % CURRENT_YEAR
+        else:
+            print("Creating new multi-year copyright from:", initial_year, CURRENT_YEAR)
+            lines[copyright_index] = comment_token + MULTI_YEAR_COMMENT % (initial_year, CURRENT_YEAR)
 
         code_file.update(lines)
 
