@@ -1,4 +1,4 @@
-// Copyright 2022, Sophos Limited.  All rights reserved.
+// Copyright 2022 Sophos Limited. All rights reserved.
 
 #pragma once
 
@@ -17,6 +17,9 @@ namespace sophos_on_access_process::onaccessimpl
     class ScanRequestHandler : public common::AbstractThreadPluginInterface
     {
     public:
+        using scan_request_t = ScanRequestQueue::scan_request_t;
+        using scan_request_ptr_t = ScanRequestQueue::scan_request_ptr_t;
+
         using IScanningClientSocketSharedPtr = std::shared_ptr<unixsocket::IScanningClientSocket>;
         ScanRequestHandler(
             ScanRequestQueueSharedPtr scanRequestQueue,
@@ -29,7 +32,7 @@ namespace sophos_on_access_process::onaccessimpl
             );
 
         void run() override;
-        void scan(const scan_messages::ClientScanRequestPtr& scanRequest,
+        void scan(const scan_request_ptr_t& scanRequest,
                   const struct timespec& retryInterval = { 1, 0 });
 
     private:
