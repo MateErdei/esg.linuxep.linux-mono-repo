@@ -189,26 +189,6 @@ TEST(TestScanMessages, ReuseScanRequestObject)
     EXPECT_FALSE(scanRequest->scanInsideImages());
 }
 
-TEST(TestScanRequest, ClientScanRequestHasTime)
-{
-    scan_messages::ClientScanRequest clientScanRequest{};
-    auto creationTime = clientScanRequest.getCreationTime().time_since_epoch().count();
-
-    ASSERT_NE(creationTime, 0);
-}
-
-
-TEST(TestScanRequest, ClientScanRequestSetsQueueSize)
-{
-    scan_messages::ClientScanRequest clientScanRequest{};
-
-    size_t testValue = 1439;
-
-    clientScanRequest.setQueueSizeAtTimeOfInsert(testValue);
-
-    ASSERT_EQ(testValue, clientScanRequest.getQueueSizeAtTimeOfInsert());
-}
-
 TEST(TestScanRequest, noHashWithNoFd)
 {
     scan_messages::ClientScanRequest clientScanRequest{};

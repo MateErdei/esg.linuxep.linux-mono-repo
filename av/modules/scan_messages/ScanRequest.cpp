@@ -77,6 +77,5 @@ bool ScanRequest::operator==(const ScanRequest& rhs) const
            m_scanInsideImages == rhs.m_scanInsideImages &&
            m_executablePath == rhs.m_executablePath &&
            m_pid == rhs.m_pid &&
-           m_queueSizeAtTimeOfInsert == rhs.m_queueSizeAtTimeOfInsert &&
            m_autoFd.get() == rhs.m_autoFd.get();
 }
