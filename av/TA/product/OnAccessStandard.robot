@@ -694,19 +694,3 @@ On Access caches Log exclusions
     # check no detection
     wait for log to not contain after mark  ${ON_ACCESS_LOG_PATH}  On-open event for ${destfile} from  ${soap_mark}  ${5}
     wait for log to not contain after mark  ${ON_ACCESS_LOG_PATH}  Detected "${destfile}" is infected with EICAR-AV-Test (Open)   ${soap_mark}  timeout=${1}
-
-
-#Although this test applies to any AV detection is primarily for OA
-AV Only Reports A Detection Once
-    ${av_mark} =  get_av_log_mark
-    ${filepath} =  Set Variable   /tmp_test/auniqueeicar.com
-
-    Create File  ${filepath}  ${EICAR_STRING}
-    Register Cleanup  Remove File  ${filepath}
-
-    Wait For AV Log Contains After Mark  Found 'EICAR-AV-Test' in '${filepath}' which is a new detection   mark=${avmark}
-
-    Create File  ${filepath}  ${EICAR_STRING}
-    Register Cleanup  Remove File  ${filepath}
-
-    Wait For AV Log Contains After Mark  Found 'EICAR-AV-Test' in '${filepath}' which is a duplicate detection   mark=${avmark}

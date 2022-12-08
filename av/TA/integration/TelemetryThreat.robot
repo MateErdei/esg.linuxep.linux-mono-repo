@@ -261,3 +261,31 @@ On Access Scan Increments Telemetry Threat Count
     Dictionary Should Contain Item   ${avDict}   on-demand-threat-eicar-count   ${0}
     Dictionary Should Contain Item   ${avDict}   on-access-threat-eicar-count   ${0}
     Dictionary Should Contain Item   ${avDict}   scheduled-scan-count   ${0}
+
+
+AV Only Reports A Detection Once But Logs and Reports Telemetry For Both
+    # Run telemetry to reset counters to 0
+    Run Telemetry Executable With HTTPS Protocol  port=${4435}
+
+    ${av_mark} =  get_av_log_mark
+    ${filepath} =  Set Variable   /tmp_test/auniqueeicar.com
+
+    Create File  ${filepath}  ${EICAR_STRING}
+    Register Cleanup  Remove File  ${filepath}
+
+    Wait For AV Log Contains After Mark  Found 'EICAR-AV-Test' in '${filepath}' which is a new detection   mark=${avmark}
+
+    Create File  ${filepath}  ${EICAR_STRING}
+
+    ${av_mark} =  get_av_log_mark
+    Wait For AV Log Contains After Mark  Found 'EICAR-AV-Test' in '${filepath}' which is a duplicate detection   mark=${avmark}
+
+    Run Telemetry Executable With HTTPS Protocol  port=${4435}
+
+    ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
+    Log   ${telemetryFileContents}
+
+    ${telemetryJson}=    Evaluate     json.loads("""${telemetryFileContents}""")    json
+    ${avDict}=    Set Variable     ${telemetryJson['av']}
+
+    Dictionary Should Contain Item   ${avDict}   on-access-threat-eicar-count   ${2}
