@@ -41,6 +41,8 @@ namespace sophos_on_access_process::OnAccessConfig
     //Performance
     const bool defaultDumpPerfData = false;
 
+    constexpr bool defaultCacheAllEvents = false;
+
     //Scanning Threads
     const int maxAllowedScanningThreads = 100;
     const int minAllowedScanningThreads = 1;

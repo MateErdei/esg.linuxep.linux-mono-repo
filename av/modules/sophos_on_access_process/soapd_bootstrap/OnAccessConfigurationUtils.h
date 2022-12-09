@@ -2,6 +2,8 @@
 
 #pragma once
 
+#include "OnAccessProductConfigDefaults.h"
+
 #include "common/Exclusion.h"
 #include "datatypes/ISystemCallWrapper.h"
 #include "datatypes/sophos_filesystem.h"
@@ -20,10 +22,10 @@ namespace sophos_on_access_process::OnAccessConfig
 
     struct OnAccessLocalSettings
     {
-        size_t maxScanQueueSize;
-        int numScanThreads;
-        bool dumpPerfData;
-        bool cacheAllEvents;
+        size_t maxScanQueueSize = defaultMaxScanQueueSize;
+        int numScanThreads = defaultScanningThreads;
+        bool dumpPerfData = defaultDumpPerfData;
+        bool cacheAllEvents = defaultCacheAllEvents;
     };
 
     bool inline operator==(const OnAccessConfiguration& lhs, const OnAccessConfiguration& rhs)
