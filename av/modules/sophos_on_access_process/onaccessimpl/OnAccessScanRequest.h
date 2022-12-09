@@ -18,10 +18,10 @@ namespace sophos_on_access_process::onaccessimpl
         void setQueueSizeAtTimeOfInsert(const size_t& queueSize) { m_queueSizeAtTimeOfInsert = queueSize; }
 
         using unique_t = std::pair<dev_t, ino_t>;
-        unique_t uniqueMarker() const;
+        [[nodiscard]] unique_t uniqueMarker() const;
 
         using hash_t = std::size_t;
-        std::optional<hash_t> hash() const;
+        [[nodiscard]] std::optional<hash_t> hash() const;
 
     private:
         const std::chrono::steady_clock::time_point m_creationTime = std::chrono::steady_clock::now();
