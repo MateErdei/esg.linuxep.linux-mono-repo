@@ -1,4 +1,4 @@
-// Copyright 2022, Sophos Limited.  All rights reserved.
+// Copyright 2022 Sophos Limited. All rights reserved.
 
 #pragma once
 
@@ -45,7 +45,6 @@ namespace sophos_on_access_process::OnAccessConfig
     std::string readPolicyConfigFile();
     OnAccessConfiguration parseOnAccessPolicySettingsFromJson(const std::string& jsonString);
     std::string readFlagConfigFile();
-    void readLocalSettingsFile(size_t& maxScanQueueSize, int& numScanThreads, bool& dumpPerfData, const std::shared_ptr<datatypes::ISystemCallWrapper>& sysCalls);
     OnAccessLocalSettings readLocalSettingsFile(const std::shared_ptr<datatypes::ISystemCallWrapper>& sysCalls);
 
     bool parseFlagConfiguration(const std::string& jsonString);

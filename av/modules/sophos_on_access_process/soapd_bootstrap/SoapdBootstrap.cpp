@@ -1,4 +1,4 @@
-// Copyright 2022, Sophos Limited.  All rights reserved.
+// Copyright 2022 Sophos Limited. All rights reserved.
 
 // Class
 #include "SoapdBootstrap.h"
@@ -101,8 +101,10 @@ void SoapdBootstrap::innerRun()
 
     auto sysCallWrapper = std::make_shared<datatypes::SystemCallWrapper>();
 
-    size_t maxScanQueueSize = 0;
-    OnAccessConfig::readLocalSettingsFile(maxScanQueueSize, m_maxNumberOfScanThreads, m_dumpPerfData, sysCallWrapper);
+    auto localSettings = OnAccessConfig::readLocalSettingsFile(sysCallWrapper);
+    size_t maxScanQueueSize = localSettings.maxScanQueueSize;
+    m_maxNumberOfScanThreads = localSettings.numScanThreads;
+    m_dumpPerfData = localSettings.dumpPerfData;
 
     const struct rlimit file_lim = { onAccessProcessFdLimit, onAccessProcessFdLimit };
     sysCallWrapper->setrlimit(RLIMIT_NOFILE, &file_lim);
@@ -134,9 +136,11 @@ void SoapdBootstrap::innerRun()
                                                         m_scanRequestQueue,
                                                         m_TelemetryUtility,
                                                         m_deviceUtil);
+    m_eventReader->setCacheAllEvents(localSettings.cacheAllEvents);
     m_eventReaderThread = std::make_unique<common::ThreadRunner>(m_eventReader,
                                                                  "eventReader",
                                                                  false);
+
 
 
     fs::path socketPath = common::getPluginInstallPath() / "var/soapd_controller";

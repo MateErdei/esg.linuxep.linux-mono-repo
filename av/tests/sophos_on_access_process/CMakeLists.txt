@@ -4,16 +4,6 @@ add_subdirectory(fanotifyhandler)
 add_subdirectory(onaccessimpl)
 add_subdirectory(soapd_bootstrap)
 
-SophosAddTest(TestSophosOnAccessProcessImpl
-        ../common/LogInitializedTests.cpp
-        TestOnAccessConfigUtils.cpp
-        PROJECTS soapdbootstrap
-        INC_DIRS
-        ${pluginapiinclude}
-        ${testhelpersinclude}
-        LIBS ${pluginapilib} ${testhelperslib}
-        )
-
 endif (NOT DEFINED ENV{USE_LIBFUZZER})
 
 add_executable(OnAccessConfigReaderFuzzer

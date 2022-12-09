@@ -1,4 +1,4 @@
-// Copyright 2022, Sophos Limited.  All rights reserved.
+// Copyright 2022 Sophos Limited. All rights reserved.
 
 #include "OnAccessConfigurationUtils.h"
 
@@ -104,14 +104,6 @@ namespace sophos_on_access_process::OnAccessConfig
     std::string readPolicyConfigFile()
     {
         return readPolicyConfigFile(policyConfigFilePath());
-    }
-
-    void readLocalSettingsFile(size_t& maxScanQueueSize, int& numScanThreads, bool& dumpPerfData, const std::shared_ptr<datatypes::ISystemCallWrapper>& sysCalls)
-    {
-        auto settings = readLocalSettingsFile(sysCalls);
-        maxScanQueueSize = settings.maxScanQueueSize;
-        numScanThreads = settings.numScanThreads;
-        dumpPerfData = settings.dumpPerfData;
     }
 
     OnAccessLocalSettings readLocalSettingsFile(const std::shared_ptr<datatypes::ISystemCallWrapper>& sysCalls)
