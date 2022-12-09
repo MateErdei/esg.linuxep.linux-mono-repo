@@ -18,6 +18,14 @@ namespace sophos_on_access_process::OnAccessConfig
         bool excludeRemoteFiles;
     } __attribute__((aligned(32)));
 
+    struct OnAccessLocalSettings
+    {
+        size_t maxScanQueueSize;
+        int numScanThreads;
+        bool dumpPerfData;
+        bool cacheAllEvents;
+    };
+
     bool inline operator==(const OnAccessConfiguration& lhs, const OnAccessConfiguration& rhs)
     {
         return lhs.enabled == rhs.enabled
@@ -36,6 +44,7 @@ namespace sophos_on_access_process::OnAccessConfig
     OnAccessConfiguration parseOnAccessPolicySettingsFromJson(const std::string& jsonString);
     std::string readFlagConfigFile();
     void readLocalSettingsFile(size_t& maxScanQueueSize, int& numScanThreads, bool& dumpPerfData, const std::shared_ptr<datatypes::ISystemCallWrapper>& sysCalls);
+    OnAccessLocalSettings readLocalSettingsFile(const std::shared_ptr<datatypes::ISystemCallWrapper>& sysCalls);
 
     bool parseFlagConfiguration(const std::string& jsonString);
 

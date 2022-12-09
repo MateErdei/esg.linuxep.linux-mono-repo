@@ -80,8 +80,18 @@ namespace sophos_on_access_process::OnAccessConfig
 
     void readLocalSettingsFile(size_t& maxScanQueueSize, int& numScanThreads, bool& dumpPerfData, const std::shared_ptr<datatypes::ISystemCallWrapper>& sysCalls)
     {
-        maxScanQueueSize = defaultMaxScanQueueSize;
-        dumpPerfData = defaultDumpPerfData;
+        auto settings = readLocalSettingsFile(sysCalls);
+        maxScanQueueSize = settings.maxScanQueueSize;
+        numScanThreads = settings.numScanThreads;
+        dumpPerfData = settings.dumpPerfData;
+    }
+
+    OnAccessLocalSettings readLocalSettingsFile(const std::shared_ptr<datatypes::ISystemCallWrapper>& sysCalls)
+    {
+        OnAccessLocalSettings settings{};
+        size_t maxScanQueueSize = defaultMaxScanQueueSize;
+        bool dumpPerfData = defaultDumpPerfData;
+        int numScanThreads;
 
         auto* sophosFsAPI = Common::FileSystem::fileSystem();
         auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
@@ -152,6 +162,11 @@ namespace sophos_on_access_process::OnAccessConfig
         }
         std::string logmsg = usedFileValues ? "Setting from file: " : "Setting from defaults: ";
         LOGDEBUG(logmsg << "Max queue size set to " << maxScanQueueSize << " and Max threads set to " << numScanThreads);
+
+        settings.dumpPerfData = dumpPerfData;
+        settings.numScanThreads = numScanThreads;
+        settings.maxScanQueueSize = maxScanQueueSize;
+        return settings;
     }
 
     std::string readFlagConfigFile()

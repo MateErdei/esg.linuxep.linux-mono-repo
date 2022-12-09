@@ -58,18 +58,12 @@ bool EventReaderThread::skipScanningOfEvent(
     {
         // Don't ever get the file-path - which is only used when reporting errors
         // At least for the investigation, don't change this...
-        if (m_cacheAllEvents)
-        {
-            std::ignore = m_fanotify->cacheFd(eventFd, "", false);
-        }
+        // Don't think we want to cache these files?
         return true;
     }
 
     filePath = getFilePathFromFd(eventFd);
-    if (m_cacheAllEvents)
-    {
-        std::ignore = m_fanotify->cacheFd(eventFd, filePath, false);
-    }
+
     //Either path was too long or fd was invalid
     if(filePath.empty())
     {
@@ -198,7 +192,9 @@ bool EventReaderThread::handleFanotifyEvent()
         scanRequest->setUserID(uid);
         scanRequest->setPid(metadata->pid);
         scanRequest->setExecutablePath(executablePath);
-        if (m_cacheAllEvents)
+
+        // Cache if we are going to scan the file
+        if (cacheIfAllowed(*scanRequest))
         {
             scanRequest->setIsCached(true);
         }
@@ -549,4 +545,18 @@ ENOENT  fuse?
 void EventReaderThread::setCacheAllEvents(bool enable)
 {
     m_cacheAllEvents = enable;
+}
+
+bool EventReaderThread::cacheIfAllowed(const scan_request_t& request)
+{
+    if (!m_cacheAllEvents)
+    {
+        return false;
+    }
+    if (!m_deviceUtil->isCachable(request.getFd()))
+    {
+        return false;
+    }
+    int ret = m_fanotify->cacheFd(request.getFd(), request.getPath(), false);
+    return ret == 0;
 }
