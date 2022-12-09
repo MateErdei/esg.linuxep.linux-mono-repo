@@ -100,11 +100,10 @@ Check AV Plugin Permissions
     Should Be Empty  ${output}
 
 Check AV Plugin Can Scan Files
-    [Arguments]  ${dirty_file}=/tmp/dirty_file
     Create File     /tmp/clean_file    ${CLEAN_STRING}
-    Create File     ${dirty_file}    ${EICAR_STRING}
+    Create File     /tmp/dirty_excluded_file    ${EICAR_STRING}
 
-    ${rc}   ${output} =    Run And Return Rc And Output    ${CLS_PATH} /tmp/clean_file ${dirty_file}
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLS_PATH} /tmp/clean_file /tmp/dirty_excluded_file
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
 
 Check On Access Detects Threats

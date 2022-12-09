@@ -67,10 +67,13 @@ Test av can publish events and that journaler can receive them after av restart
     ...  Check AV Plugin Running
 
     Mark Livequery Log
+    Wait Until Keyword Succeeds
+    ...  15 secs
+    ...  1 secs
+    ...  check_log_contains_string_n_times  ${AV_LOG_FILE}   av   CORE policy has not been sent to the plugin  2
+    Create File     /tmp/dirty_excluded_file2    ${EICAR_STRING}
 
-    Create File     /tmp/dirty_file2    ${EICAR_STRING}
-
-    ${rc}   ${output} =    Run And Return Rc And Output    ${CLS_PATH} /tmp/dirty_file2
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLS_PATH} /tmp/dirty_excluded_file2
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
 
     Wait Until Keyword Succeeds
@@ -153,7 +156,7 @@ Test av can publish events for onaccess and that journaler can receive them
     ...  1 secs
     ...  check_log_contains    On-access enabled: true  ${SOPHOS_INSTALL}/plugins/av/log/soapd.log    soapd
     sleep  2
-    Create File     /tmp/dirty_file    ${EICAR_STRING}
+    Create File     /tmp/dirty_excluded_file    ${EICAR_STRING}
     Wait Until Keyword Succeeds
     ...  20 secs
     ...  1 secs
@@ -170,6 +173,9 @@ Test av can publish events for onaccess and that journaler can receive them
     ...  2 secs
     ...  Check Marked Livequery Log Contains  Successfully executed query
     Check Marked Livequery Log Contains  pid
+    Check Marked Livequery Log Contains  processParentPath
+    Check Marked Livequery Log Contains  process_parent_path
+    Check Marked Livequery Log Contains  on_access
 *** Keywords ***
 Wait Until Threat Report Socket Exists
     [Arguments]    ${time_to_wait}=5
@@ -201,12 +207,17 @@ Check Logs Detected EICAR Event
     [Arguments]  ${EXPECTED_EICARS}
     ${TWO_PER_EICAR} =  Evaluate  ${EXPECTED_EICARS}*2
     ${FOUR_PER_EICAR} =   Evaluate  ${EXPECTED_EICARS}*4
-    Check Marked Livequery Log Contains String N Times   dirty_file         ${FOUR_PER_EICAR}
-    Check Marked Livequery Log Contains String N Times   sha256FileHash     ${EXPECTED_EICARS}
-    Check Marked Livequery Log Contains String N Times   "EICAR-AV-Test",   ${EXPECTED_EICARS}
-    Check Marked Livequery Log Contains String N Times   "primary\\":true   ${TWO_PER_EICAR}
-    Check Marked Livequery Log Contains String N Times   threatSource       ${EXPECTED_EICARS}
-    Check Marked Livequery Log Contains String N Times   threatType         ${EXPECTED_EICARS}
+    Check Marked Livequery Log Contains String N Times   dirty_excluded_file        ${FOUR_PER_EICAR}
+    Check Marked Livequery Log Contains String N Times   sha256FileHash             ${EXPECTED_EICARS}
+    Check Marked Livequery Log Contains String N Times   "EICAR-AV-Test",           ${EXPECTED_EICARS}
+    Check Marked Livequery Log Contains String N Times   "primary\\":true           ${TWO_PER_EICAR}
+    Check Marked Livequery Log Contains String N Times   threatSource               ${EXPECTED_EICARS}
+    Check Marked Livequery Log Contains String N Times   threatType                 ${EXPECTED_EICARS}
+    Check Marked Livequery Log Contains String N Times   av_scan_type               1
+    Check Marked Livequery Log Contains String N Times   quarantine_success         1
+    Check Marked Livequery Log Contains String N Times   on_demand                  ${EXPECTED_EICARS}
+    Check Marked Livequery Log Contains String N Times   avScanType\\":203          ${EXPECTED_EICARS}
+    Check Marked Livequery Log Contains String N Times   quarantineSuccess\\":false  ${EXPECTED_EICARS}
 
 Detect EICAR And Read With Livequery Via Event Journaler
     Check AV Plugin Can Scan Files
