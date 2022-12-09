@@ -17,4 +17,5 @@ SophosAddTest(TestCommon
         signals/TestSigUSR1Monitor.cpp
         PROJECTS common
         LIBS ${testhelperslib}
+        INC_DIRS ${testhelpersinclude}
         )

@@ -1,12 +1,11 @@
-// Copyright 2020-2022, Sophos Limited. All rights reserved.
+// Copyright 2020-2022 Sophos Limited. All rights reserved.
 
 #include <gtest/gtest.h>
 
-#include <common/ThreatDetector/SusiSettings.h>
-#include "redist/pluginapi/tests/include/Common/Helpers/FileSystemReplaceAndRestore.h"
-#include "redist/pluginapi/tests/include/Common/Helpers/MockFileSystem.h"
-#include <tests/common/LogInitializedTests.h>
-
+#include "common/ThreatDetector/SusiSettings.h"
+#include "Common/Helpers/FileSystemReplaceAndRestore.h"
+#include "Common/Helpers/MockFileSystem.h"
+#include "tests/common/LogInitializedTests.h"
 
 using namespace common;
 

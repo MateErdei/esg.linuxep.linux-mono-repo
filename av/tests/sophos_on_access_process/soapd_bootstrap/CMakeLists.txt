@@ -3,4 +3,6 @@ SophosAddTest(TestSoapdBootstrap
         TestOnAccessConfigurationUtils.cpp
         TestOnAccessServiceCallback.cpp
         PROJECTS soapdbootstrap
+        LIBS ${testhelperslib}
+        INC_DIRS ${testhelpersinclude}
         )
