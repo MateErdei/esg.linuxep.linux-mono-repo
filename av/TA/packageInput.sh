@@ -26,12 +26,14 @@ TEST_DIR=${DEST_BASE}/${TEST_DIR_NAME}
 INPUTS=${TEST_DIR}/inputs
 AV=$INPUTS/av
 mkdir -p $AV
+mkdir -p $INPUTS/tap_test_output_from_build
 
 rsync -va --copy-unsafe-links --delete  "$BASE/../TA/"            "$INPUTS/test_scripts"
 ln -snf test_scripts "$INPUTS/TA"
-rsync -va --copy-unsafe-links --delete "$OUTPUT/SDDS-COMPONENT/" "$AV/SDDS-COMPONENT"
-rsync -va --copy-unsafe-links --delete "${BASE_OUTPUT}/"         "$AV/base-sdds"
-rsync -va --copy-unsafe-links --delete "$OUTPUT/test-resources"  "$AV/"
+rsync -va --copy-unsafe-links --delete "$OUTPUT/SDDS-COMPONENT/"  "$AV/SDDS-COMPONENT"
+rsync -va --copy-unsafe-links "$OUTPUT/tap_test_output.tar.gz"    "$INPUTS/tap_test_output_from_build/tap_test_output.tar.gz"
+rsync -va --copy-unsafe-links --delete "${BASE_OUTPUT}/"          "$AV/base-sdds"
+rsync -va --copy-unsafe-links --delete "$OUTPUT/test-resources"   "$AV/"
 exec tar cjf /tmp/inputs.tar.bz2 -C ${DEST_BASE} ${TEST_DIR_NAME}
 
 ## To unpack:
