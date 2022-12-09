@@ -333,6 +333,23 @@ On Access Scans File On XFS
     ${opts} =  Set Variable  nouuid
     On Access Scans Eicar On Filesystem from Image  xfs  xfsFileSystem  opts=${opts}
 
+On Access Scans File On devtmpfs
+    ${mark} =  get_on_access_log_mark
+    ${source} =       Set Variable  /tmp_test/devtmpfs
+    ${destination} =  Set Variable  /testmnt/devtmpfs
+    Create Directory  ${destination}
+
+    ${result} =  Run Process  mount  -t  devtmpfs  -o  size\=20m  ${source}  ${destination}
+    Log   ${result.stdout}
+    Log   ${result.stderr}
+
+    Register Cleanup    Unmount Image Internal  ${destination}
+    Register Cleanup    Remove File  ${source}
+
+    wait for on access log contains after mark  Including mount point: ${destination}   ${mark}
+
+    On-access Scan Eicar Close  ${destination}/eicar.com
+
 
 On Access Scans File On NFSv4
     [Tags]  NFS
