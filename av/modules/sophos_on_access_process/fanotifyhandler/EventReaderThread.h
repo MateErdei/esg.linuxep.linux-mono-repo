@@ -30,6 +30,8 @@ namespace sophos_on_access_process::fanotifyhandler
     class EventReaderThread : public common::AbstractThreadPluginInterface
     {
     public:
+        using scan_request_t = ::onaccessimpl::ScanRequestQueue::scan_request_t;
+
         EventReaderThread(
             IFanotifyHandlerSharedPtr fanotify,
             datatypes::ISystemCallWrapperSharedPtr sysCalls,

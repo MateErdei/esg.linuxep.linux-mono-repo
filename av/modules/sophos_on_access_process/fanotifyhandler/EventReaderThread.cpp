@@ -190,12 +190,16 @@ bool EventReaderThread::handleFanotifyEvent()
             continue;
         }
 
-        auto scanRequest = std::make_shared<::onaccessimpl::ScanRequestQueue::scan_request_t>(m_sysCalls, eventFd); // DONATED
+        auto scanRequest = std::make_shared<scan_request_t>(m_sysCalls, eventFd); // DONATED
         scanRequest->setPath(filePath);
         scanRequest->setScanType(eventType);
         scanRequest->setUserID(uid);
         scanRequest->setPid(metadata->pid);
         scanRequest->setExecutablePath(executablePath);
+        if (m_cacheAllEvents)
+        {
+            scanRequest->setIsCached(true);
+        }
 
         if (!m_scanRequestQueue->emplace(std::move(scanRequest)))
         {

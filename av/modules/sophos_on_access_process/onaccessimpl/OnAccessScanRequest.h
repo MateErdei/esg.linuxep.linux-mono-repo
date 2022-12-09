@@ -25,6 +25,16 @@ namespace sophos_on_access_process::onaccessimpl
 
         bool operator==(const OnAccessScanRequest& other) const;
 
+        bool isCached() const
+        {
+            return m_isCached;
+        }
+
+        void setIsCached(bool value)
+        {
+            m_isCached = value;
+        }
+
     protected:
         mutable struct stat m_fstat{};
 
@@ -37,5 +47,7 @@ namespace sophos_on_access_process::onaccessimpl
     private:
         const std::chrono::steady_clock::time_point m_creationTime = std::chrono::steady_clock::now();
         size_t m_queueSizeAtTimeOfInsert = 0;
+
+        bool m_isCached = false;
     };
 }
