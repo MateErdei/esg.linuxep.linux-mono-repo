@@ -732,8 +732,7 @@ We can Install With SDDS3 Perform an SDDS3 Initial Update With SDDS3 Flag True T
     ...    "endpoint.flag3.enabled" : false,
     ...    "jwt-token.available" : true,
     ...    "mcs.v2.data_feed.available": true,
-    ...    "sdds3.enabled": true,
-    ...    "av.onaccess.enabled": true,
+    ...    "sdds3.enabled": true
     ...  }
 
     Create File  /tmp/mcs_flags  ${desired_flags}
