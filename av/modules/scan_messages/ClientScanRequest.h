@@ -59,8 +59,6 @@ namespace scan_messages
         [[nodiscard]] E_SCAN_TYPE getScanType() const { return m_scanType; }
         [[nodiscard]] bool isOpenEvent() const { return m_scanType == E_SCAN_TYPE_ON_ACCESS_OPEN; }
 
-        bool operator==(const ClientScanRequest& other) const;
-
     protected:
         std::string m_path;
         std::string m_userID;
@@ -74,14 +72,6 @@ namespace scan_messages
 
         //Not serialised
        datatypes::AutoFd m_autoFd;
-
-       mutable struct stat m_fstat{};
-
-       /**
-        *
-        * @return true if we were able to fstat the file
-        */
-       bool fstatIfRequired() const;
 
        const datatypes::ISystemCallWrapperSharedPtr m_syscalls;
 

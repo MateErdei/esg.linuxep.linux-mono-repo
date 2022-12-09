@@ -21,9 +21,6 @@ ScanRequest::~ScanRequest()
 void ScanRequest::resetRequest(Reader& requestMessage)
 {
     setRequestFromMessage(requestMessage);
-    // Force fstat to be repeated
-    m_fstat.st_dev = 0;
-    m_fstat.st_ino = 0;
 }
 
 void scan_messages::ScanRequest::setRequestFromMessage(Reader &requestMessage)

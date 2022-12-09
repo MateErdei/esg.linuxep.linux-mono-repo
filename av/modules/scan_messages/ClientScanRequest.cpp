@@ -4,8 +4,6 @@
 
 #include "Logger.h"
 
-#include "common/SaferStrerror.h"
-
 #include <capnp/message.h>
 #include <capnp/serialize.h>
 
@@ -38,34 +36,6 @@ std::string ClientScanRequest::serialise() const
     std::string dataAsString(bytes.begin(), bytes.end());
 
     return dataAsString;
-}
-
-bool ClientScanRequest::fstatIfRequired() const
-{
-    if (!m_autoFd.valid())
-    {
-        return false;
-    }
-    if (!m_syscalls)
-    {
-        return false;
-    }
-    if (m_fstat.st_dev == 0 && m_fstat.st_ino == 0)
-    {
-        int ret = m_syscalls->fstat(m_autoFd.get(), &m_fstat);
-        if (ret != 0)
-        {
-            LOGERROR("Unable to stat: " << m_path << " error " << common::safer_strerror(errno) << " (" << errno << ")");
-            return false;
-        }
-    }
-    return true;
-}
-
-bool ClientScanRequest::operator==(const ClientScanRequest& other) const
-{
-    return (other.m_fstat.st_dev == m_fstat.st_dev &&
-            other.m_fstat.st_ino == m_fstat.st_ino);
 }
 
 std::string scan_messages::getScanTypeAsStr(const E_SCAN_TYPE& scanType)

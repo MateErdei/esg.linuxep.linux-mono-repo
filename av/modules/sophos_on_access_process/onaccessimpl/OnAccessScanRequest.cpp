@@ -2,6 +2,10 @@
 
 #include "OnAccessScanRequest.h"
 
+#include "Logger.h"
+
+#include "common/SaferStrerror.h"
+
 #include <boost/functional/hash.hpp>
 
 #include <stdexcept>
@@ -36,3 +40,30 @@ std::optional<OnAccessScanRequest::hash_t> OnAccessScanRequest::hash() const
     return seed;
 }
 
+bool OnAccessScanRequest::fstatIfRequired() const
+{
+    if (!m_autoFd.valid())
+    {
+        return false;
+    }
+    if (!m_syscalls)
+    {
+        return false;
+    }
+    if (m_fstat.st_dev == 0 && m_fstat.st_ino == 0)
+    {
+        int ret = m_syscalls->fstat(m_autoFd.get(), &m_fstat);
+        if (ret != 0)
+        {
+            LOGERROR("Unable to stat: " << m_path << " error " << common::safer_strerror(errno) << " (" << errno << ")");
+            return false;
+        }
+    }
+    return true;
+}
+
+bool OnAccessScanRequest::operator==(const OnAccessScanRequest& other) const
+{
+    return (other.m_fstat.st_dev == m_fstat.st_dev &&
+            other.m_fstat.st_ino == m_fstat.st_ino);
+}

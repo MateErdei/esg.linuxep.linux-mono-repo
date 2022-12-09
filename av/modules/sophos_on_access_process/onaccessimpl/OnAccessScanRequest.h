@@ -23,6 +23,17 @@ namespace sophos_on_access_process::onaccessimpl
         using hash_t = std::size_t;
         [[nodiscard]] std::optional<hash_t> hash() const;
 
+        bool operator==(const OnAccessScanRequest& other) const;
+
+    protected:
+        mutable struct stat m_fstat{};
+
+        /**
+        *
+        * @return true if we were able to fstat the file
+         */
+        bool fstatIfRequired() const;
+
     private:
         const std::chrono::steady_clock::time_point m_creationTime = std::chrono::steady_clock::now();
         size_t m_queueSizeAtTimeOfInsert = 0;
