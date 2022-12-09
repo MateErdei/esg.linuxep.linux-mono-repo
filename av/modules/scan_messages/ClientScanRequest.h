@@ -59,8 +59,6 @@ namespace scan_messages
         [[nodiscard]] E_SCAN_TYPE getScanType() const { return m_scanType; }
         [[nodiscard]] bool isOpenEvent() const { return m_scanType == E_SCAN_TYPE_ON_ACCESS_OPEN; }
 
-        using hash_t = std::size_t;
-        std::optional<hash_t> hash() const;
         bool operator==(const ClientScanRequest& other) const;
 
     protected:

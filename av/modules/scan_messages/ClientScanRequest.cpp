@@ -11,8 +11,6 @@
 
 #include <ScanRequest.capnp.h>
 
-#include <boost/functional/hash.hpp>
-
 using namespace scan_messages;
 
 ClientScanRequest::ClientScanRequest(datatypes::ISystemCallWrapperSharedPtr sysCalls, datatypes::AutoFd& fd)
@@ -62,24 +60,6 @@ bool ClientScanRequest::fstatIfRequired() const
         }
     }
     return true;
-}
-
-std::optional<ClientScanRequest::hash_t> ClientScanRequest::hash() const
-{
-    if (!fstatIfRequired())
-    {
-        return {};
-    }
-
-    constexpr std::hash<unsigned long> hasher;
-
-    const hash_t h1 = hasher(m_fstat.st_dev);
-    const hash_t h2 = hasher(m_fstat.st_ino);
-
-    hash_t seed{};
-    boost::hash_combine(seed, h1);
-    boost::hash_combine(seed, h2);
-    return seed;
 }
 
 bool ClientScanRequest::operator==(const ClientScanRequest& other) const

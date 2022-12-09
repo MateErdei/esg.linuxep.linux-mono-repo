@@ -2,6 +2,8 @@
 
 #include "OnAccessScanRequest.h"
 
+#include <boost/functional/hash.hpp>
+
 #include <stdexcept>
 
 using sophos_on_access_process::onaccessimpl::OnAccessScanRequest;
@@ -15,3 +17,22 @@ OnAccessScanRequest::unique_t OnAccessScanRequest::uniqueMarker() const
 
     return unique_t{m_fstat.st_dev, m_fstat.st_ino};
 }
+
+std::optional<OnAccessScanRequest::hash_t> OnAccessScanRequest::hash() const
+{
+    if (!fstatIfRequired())
+    {
+        return {};
+    }
+
+    constexpr std::hash<unsigned long> hasher;
+
+    const hash_t h1 = hasher(m_fstat.st_dev);
+    const hash_t h2 = hasher(m_fstat.st_ino);
+
+    hash_t seed{};
+    boost::hash_combine(seed, h1);
+    boost::hash_combine(seed, h2);
+    return seed;
+}
+

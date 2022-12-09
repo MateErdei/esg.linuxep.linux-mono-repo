@@ -20,6 +20,9 @@ namespace sophos_on_access_process::onaccessimpl
         using unique_t = std::pair<dev_t, ino_t>;
         unique_t uniqueMarker() const;
 
+        using hash_t = std::size_t;
+        std::optional<hash_t> hash() const;
+
     private:
         const std::chrono::steady_clock::time_point m_creationTime = std::chrono::steady_clock::now();
         size_t m_queueSizeAtTimeOfInsert = 0;
