@@ -590,39 +590,6 @@ Check no duplicate virus data files
     Check no symlinks in directory  ${vdlUpdate}
     Check no duplicate files in directory  ${vdlUpdate}
 
-Check installer corrects permissions of var directory on upgrade
-    Register Cleanup    Exclude Failed To connect To Warehouse Error
-    Register Cleanup    Exclude UpdateScheduler Fails
-    Register On Fail  dump watchdog log
-
-    Mark Watchdog Log
-
-    Mark AV Log
-    #Force AV to write the customer id in order to avoid errors after we change the file permissions
-    Send Alc Policy
-    #This is the first thing we log after we write the customer id
-    Wait Until AV Plugin Log Contains With Offset    Finished processing ALC Policy
-
-    #Now AV won't create a customer_id file, so override it with a bad permission file
-    ${customerIdFile} =  Set Variable  ${COMPONENT_ROOT_PATH}/var/customer_id.txt
-    Create file   ${customerIdFile}
-    Change Owner  ${customerIdFile}  sophos-spl-user  sophos-spl-group
-    Modify manifest
-    Install AV Directly from SDDS
-    Send Alc Policy
-
-    File Log Does Not Contain  Check Marked Watchdog Log Contains  Failed to create file: '${customerIdFile}', Permission denied
-
-    ${rc}   ${output} =    Run And Return Rc And Output   find ${AV_PLUGIN_PATH} -user sophos-spl-user -print
-    Should Be Equal As Integers  ${rc}  ${0}
-    Should Be Empty  ${output}
-
-    # Request a scan in order to load SUSI
-    Create File     ${NORMAL_DIRECTORY}/eicar.com    ${EICAR_STRING}
-    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/
-    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-    threat detector log should not contain with offset  Failed to read customerID - using default value
-
 Check installer corrects permissions of logs directory on upgrade
     Register Cleanup    Exclude Failed To connect To Warehouse Error
     Register Cleanup    Exclude UpdateScheduler Fails
