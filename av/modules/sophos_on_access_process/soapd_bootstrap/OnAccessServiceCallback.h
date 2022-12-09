@@ -12,7 +12,7 @@ namespace sophos_on_access_process::service_callback
     class OnAccessServiceCallback : public Common::PluginApi::IPluginCallbackApi
     {
     public:
-        OnAccessServiceCallback(onaccessimpl::onaccesstelemetry::OnAccessTelemetryUtilitySharedPtr telemetryUtility);
+        explicit OnAccessServiceCallback(onaccessimpl::onaccesstelemetry::OnAccessTelemetryUtilitySharedPtr telemetryUtility);
         std::string getTelemetry() override;
 
     private:

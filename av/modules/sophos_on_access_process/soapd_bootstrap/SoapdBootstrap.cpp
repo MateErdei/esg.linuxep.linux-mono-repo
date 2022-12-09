@@ -6,16 +6,15 @@
 #include "Logger.h"
 #include "OnAccessProcesControlCallbacks.h"
 #include "OnAccessProductConfigDefaults.h"
-#include "OnAccessServiceCallback.h"
 // Component
 #include "sophos_on_access_process/fanotifyhandler/FanotifyHandler.h"
 #include "sophos_on_access_process/onaccessimpl/ScanRequestHandler.h"
 // Product
-#include "common/FDUtils.h"
 #include "common/PidLockFile.h"
 #include "common/PluginUtils.h"
 #include "common/SaferStrerror.h"
-#include "mount_monitor/mount_monitor/MountMonitor.h"
+#include "common/signals/SigIntMonitor.h"
+#include "common/signals/SigTermMonitor.h"
 #include "mount_monitor/mountinfoimpl/SystemPathsFactory.h"
 #include "unixsocket/processControllerSocket/ProcessControllerServerSocket.h"
 #include "unixsocket/threatDetectorSocket/ScanningClientSocket.h"
@@ -24,12 +23,7 @@
 // Auto version headers
 #include "AutoVersioningHeaders/AutoVersion.h"
 
-// Base
-#include "Common/PluginApiImpl/PluginResourceManagement.h"
-#include "Common/TelemetryHelperImpl/TelemetryHelper.h"
 // Std C++
-#include <filesystem>
-#include <fstream>
 #include <memory>
 #include <utility>
 // Std C
@@ -41,7 +35,6 @@ using namespace sophos_on_access_process::soapd_bootstrap;
 using namespace sophos_on_access_process::fanotifyhandler;
 using namespace sophos_on_access_process::onaccessimpl;
 using namespace sophos_on_access_process::OnAccessConfig;
-using namespace sophos_on_access_process::service_callback;
 using namespace unixsocket::updateCompleteSocket;
 
 SoapdBootstrap::SoapdBootstrap(datatypes::ISystemCallWrapperSharedPtr systemCallWrapper)
@@ -78,26 +71,6 @@ int SoapdBootstrap::outerRun()
     return 0;
 }
 
-
-void SoapdBootstrap::initialiseTelemetry()
-{
-    using namespace ::onaccessimpl::onaccesstelemetry;
-
-    m_TelemetryUtility = std::make_shared<onaccesstelemetry::OnAccessTelemetryUtility>();
-
-    Common::Telemetry::TelemetryHelper::getInstance().restore(ON_ACCESS_TELEMETRY_SOCKET);
-    auto replier = m_onAccessContext->getReplier();
-    Common::PluginApiImpl::PluginResourceManagement::setupReplier(*replier, ON_ACCESS_TELEMETRY_SOCKET, 5000, 5000);
-    auto pluginCallback = std::make_shared<OnAccessServiceCallback>(m_TelemetryUtility);
-    m_pluginHandler = std::make_unique<Common::PluginApiImpl::PluginCallBackHandler>
-        (ON_ACCESS_TELEMETRY_SOCKET,
-         std::move(replier),
-        pluginCallback,
-        Common::PluginProtocol::AbstractListenerServer::ARMSHUTDOWNPOLICY::DONOTARM);
-
-    m_pluginHandler->start();
-}
-
 void SoapdBootstrap::innerRun()
 {
     // Take soapd lock file
@@ -132,7 +105,9 @@ void SoapdBootstrap::innerRun()
 
     m_scanRequestQueue = std::make_shared<ScanRequestQueue>(maxScanQueueSize);
 
-    initialiseTelemetry(); //This initialises m_TelemetryUtility
+    m_ServiceImpl = std::make_unique<service_impl::OnAccessServiceImpl>();
+    m_TelemetryUtility = m_ServiceImpl->getTelemetryUtility();
+
     m_eventReader = std::make_shared<EventReaderThread>(m_fanotifyHandler,
                                                         m_systemCallWrapper,
                                                         common::getPluginInstallPath(),

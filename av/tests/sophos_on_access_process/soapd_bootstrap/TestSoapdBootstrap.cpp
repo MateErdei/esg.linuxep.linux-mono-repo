@@ -23,7 +23,8 @@ namespace
             m_testDir /= test_info->test_case_name();
             m_testDir /= test_info->name();
             fs::remove_all(m_testDir);
-            fs::create_directories(m_testDir / "var");
+            fs::create_directories(m_testDir / "var"); // for pidfile
+            fs::create_directories(m_testDir / "var" / "ipc" / "plugins"); // for pluginapi ipc
 
             auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
             appConfig.setData(Common::ApplicationConfiguration::SOPHOS_INSTALL, m_testDir );

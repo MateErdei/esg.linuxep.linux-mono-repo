@@ -8,8 +8,6 @@
 
 #include "OnAccessTelemetryFields.h"
 
-#include <cstdint>
-
 #include <atomic>
 #include <memory>
 
@@ -48,5 +46,6 @@ namespace sophos_on_access_process::onaccessimpl::onaccesstelemetry
         std::atomic_ulong m_scansRequested;
         std::atomic_uint m_scanErrors;
     };
+
     using OnAccessTelemetryUtilitySharedPtr = std::shared_ptr<OnAccessTelemetryUtility>;
 }

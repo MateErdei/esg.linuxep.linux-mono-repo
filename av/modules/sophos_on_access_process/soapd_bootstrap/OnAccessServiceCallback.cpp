@@ -1,6 +1,8 @@
 // Copyright 2022, Sophos Limited.  All rights reserved.
 
 #include "OnAccessServiceCallback.h"
+
+#include <utility>
 #include "Logger.h"
 
 #include "sophos_on_access_process/onaccessimpl/OnAccessTelemetryFields.h"
@@ -9,7 +11,7 @@ using namespace sophos_on_access_process::service_callback;
 using namespace sophos_on_access_process::onaccessimpl::onaccesstelemetry;
 
 OnAccessServiceCallback::OnAccessServiceCallback(OnAccessTelemetryUtilitySharedPtr telemetryUtility) :
-m_telemetryUtility(telemetryUtility)
+m_telemetryUtility(std::move(telemetryUtility))
 {
 
 }
