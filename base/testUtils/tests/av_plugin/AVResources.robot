@@ -114,6 +114,4 @@ Check On Access Detects Threats
     ${pid} =  Get Robot Pid
     ${mark} =  get_on_access_log_mark
 
-    wait for on access log contains after mark  On-close event for ${threat_path} from  mark=${mark}
-    wait for on access log contains after mark  (PID=${pid}) and UID 0  mark=${mark}
-    wait for on access log contains after mark  Detected "${threat_path}" is infected with  mark=${mark}
+    wait for on access log contains after mark  Detected "${threat_path}" is infected with EICAR-AV-Test  mark=${mark}
