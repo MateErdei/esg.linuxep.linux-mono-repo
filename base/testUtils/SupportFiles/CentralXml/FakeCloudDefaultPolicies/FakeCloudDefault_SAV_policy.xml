@@ -31,7 +31,9 @@
             <excludeRemoteFiles>false</excludeRemoteFiles>
         </macExclusions>
         <linuxExclusions>
-            <filePathSet/>
+            <filePathSet>
+                <filePath>*excluded*</filePath>
+            </filePathSet>
             <excludeRemoteFiles>false</excludeRemoteFiles>
         </linuxExclusions>
         <virtualExclusions>
