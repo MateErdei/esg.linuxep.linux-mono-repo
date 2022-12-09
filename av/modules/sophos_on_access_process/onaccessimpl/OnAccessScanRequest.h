@@ -17,6 +17,9 @@ namespace sophos_on_access_process::onaccessimpl
         [[nodiscard]] size_t getQueueSizeAtTimeOfInsert() const { return m_queueSizeAtTimeOfInsert; }
         void setQueueSizeAtTimeOfInsert(const size_t& queueSize) { m_queueSizeAtTimeOfInsert = queueSize; }
 
+        using unique_t = std::pair<dev_t, ino_t>;
+        unique_t uniqueMarker() const;
+
     private:
         const std::chrono::steady_clock::time_point m_creationTime = std::chrono::steady_clock::now();
         size_t m_queueSizeAtTimeOfInsert = 0;

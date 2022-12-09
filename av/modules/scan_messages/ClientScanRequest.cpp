@@ -82,16 +82,6 @@ std::optional<ClientScanRequest::hash_t> ClientScanRequest::hash() const
     return seed;
 }
 
-ClientScanRequest::unique_t ClientScanRequest::uniqueMarker() const
-{
-    if (!fstatIfRequired())
-    {
-        throw std::runtime_error("Unable to create unique value - fstat failed");
-    }
-
-    return unique_t{m_fstat.st_dev, m_fstat.st_ino};
-}
-
 bool ClientScanRequest::operator==(const ClientScanRequest& other) const
 {
     return (other.m_fstat.st_dev == m_fstat.st_dev &&

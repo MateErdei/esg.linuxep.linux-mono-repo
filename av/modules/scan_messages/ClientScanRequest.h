@@ -59,9 +59,6 @@ namespace scan_messages
         [[nodiscard]] E_SCAN_TYPE getScanType() const { return m_scanType; }
         [[nodiscard]] bool isOpenEvent() const { return m_scanType == E_SCAN_TYPE_ON_ACCESS_OPEN; }
 
-        using unique_t = std::pair<dev_t, ino_t>;
-        unique_t uniqueMarker() const;
-
         using hash_t = std::size_t;
         std::optional<hash_t> hash() const;
         bool operator==(const ClientScanRequest& other) const;
@@ -81,7 +78,7 @@ namespace scan_messages
        datatypes::AutoFd m_autoFd;
 
        mutable struct stat m_fstat{};
-   private:
+
        /**
         *
         * @return true if we were able to fstat the file
