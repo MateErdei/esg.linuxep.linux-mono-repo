@@ -191,6 +191,8 @@ Corrupt Threat Database Telemetry Is Reported
     ${avMark} =  Get AV Log Mark
     Stop AV Plugin
     Wait until AV Plugin Not Running
+
+    Remove File     ${THREAT_DATABASE_PATH}
     Create File     ${THREAT_DATABASE_PATH}    {T26796de6c
 
     Start AV Plugin
