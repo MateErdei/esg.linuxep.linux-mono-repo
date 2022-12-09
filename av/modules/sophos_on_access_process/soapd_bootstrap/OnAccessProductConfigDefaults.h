@@ -25,7 +25,6 @@ namespace sophos_on_access_process::OnAccessConfig
            "autofs",
            "bpf",
            "cephfs",
-           "devtmpfs",
            "efivarfs",
            "fuse.gvfsd-fuse",
            "fuse.vmware-vmblock",
