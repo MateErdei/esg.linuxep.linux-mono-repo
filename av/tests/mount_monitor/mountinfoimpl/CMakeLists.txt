@@ -1,5 +1,6 @@
 SophosAddTest(TestMountInfoImpl
         ../../common/LogInitializedTests.cpp
+        MockDeviceUtil.h
         TestDeviceUtil.cpp
         TestMounts.cpp
         TestSystemPaths.cpp

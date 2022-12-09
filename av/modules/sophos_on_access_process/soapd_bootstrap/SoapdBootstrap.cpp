@@ -125,16 +125,18 @@ void SoapdBootstrap::innerRun()
     m_scanRequestQueue = std::make_shared<ScanRequestQueue>(maxScanQueueSize);
 
     initialiseTelemetry(); //This initialises m_TelemetryUtility
+
+    m_deviceUtil = std::make_shared<mount_monitor::mountinfoimpl::DeviceUtil>(sysCallWrapper);
+
     m_eventReader = std::make_shared<EventReaderThread>(m_fanotifyHandler,
-                                                           sysCallWrapper,
-                                                           common::getPluginInstallPath(),
-                                                           m_scanRequestQueue,
-                                                           m_TelemetryUtility);
+                                                        sysCallWrapper,
+                                                        common::getPluginInstallPath(),
+                                                        m_scanRequestQueue,
+                                                        m_TelemetryUtility,
+                                                        m_deviceUtil);
     m_eventReaderThread = std::make_unique<common::ThreadRunner>(m_eventReader,
                                                                  "eventReader",
                                                                  false);
-
-    m_deviceUtil = std::make_shared<mount_monitor::mountinfoimpl::DeviceUtil>(sysCallWrapper);
 
 
     fs::path socketPath = common::getPluginInstallPath() / "var/soapd_controller";

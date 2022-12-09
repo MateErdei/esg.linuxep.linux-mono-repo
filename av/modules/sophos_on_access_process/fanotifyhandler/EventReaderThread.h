@@ -16,6 +16,7 @@
 #include "common/Exclusion.h"
 #include "datatypes/ISystemCallWrapper.h"
 #include "datatypes/sophos_filesystem.h"
+#include "mount_monitor/mountinfo/IDeviceUtil.h"
 
 #include "Common/Threads/NotifyPipe.h"
 
@@ -37,7 +38,8 @@ namespace sophos_on_access_process::fanotifyhandler
             datatypes::ISystemCallWrapperSharedPtr sysCalls,
             const fs::path& pluginInstall,
             onaccessimpl::ScanRequestQueueSharedPtr scanRequestQueue,
-            onaccessimpl::onaccesstelemetry::OnAccessTelemetryUtilitySharedPtr telemetryUtility
+            onaccessimpl::onaccesstelemetry::OnAccessTelemetryUtilitySharedPtr telemetryUtility,
+            mount_monitor::mountinfo::IDeviceUtilSharedPtr deviceUtil
             );
 
         void run() override;
@@ -64,6 +66,7 @@ namespace sophos_on_access_process::fanotifyhandler
         fs::path m_pluginLogDir;
         onaccessimpl::ScanRequestQueueSharedPtr m_scanRequestQueue;
         onaccessimpl::onaccesstelemetry::OnAccessTelemetryUtilitySharedPtr m_telemetryUtility;
+        mount_monitor::mountinfo::IDeviceUtilSharedPtr m_deviceUtil;
         pid_t m_pid;
         std::string m_processExclusionStem;
         std::vector<common::Exclusion> m_exclusions;

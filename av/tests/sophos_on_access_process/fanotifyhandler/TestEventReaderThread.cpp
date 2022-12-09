@@ -13,6 +13,8 @@
 
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 
+#include "tests/mount_monitor/mountinfoimpl/MockDeviceUtil.h"
+
 #include <gtest/gtest.h>
 
 #include <array>
@@ -85,6 +87,7 @@ protected:
         const auto* pluginInstall = "/opt/sophos-spl/plugins/av";
         appConfig.setData("PLUGIN_INSTALL", pluginInstall);
         m_statbuf.st_uid = 321;
+        m_mockDeviceUtil = std::make_shared<MockDeviceUtil>();
     }
 
     static fanotify_event_metadata getMetaData(
@@ -139,12 +142,22 @@ protected:
 
     std::shared_ptr<EventReaderThread> makeDefaultEventReaderThread()
     {
-        return std::make_shared<EventReaderThread>(m_fakeFanotify, m_mockSysCallWrapper, m_pluginInstall, m_scanRequestQueue, m_telemetryUtility);
+        return std::make_shared<EventReaderThread>(m_fakeFanotify,
+                                                   m_mockSysCallWrapper,
+                                                   m_pluginInstall,
+                                                   m_scanRequestQueue,
+                                                   m_telemetryUtility,
+                                                   m_mockDeviceUtil);
     }
 
     std::shared_ptr<EventReaderThread> makeSmallEventReaderThread()
     {
-        return std::make_shared<EventReaderThread>(m_fakeFanotify, m_mockSysCallWrapper, m_pluginInstall, m_smallScanRequestQueue, m_telemetryUtility);
+        return std::make_shared<EventReaderThread>(m_fakeFanotify,
+                                                   m_mockSysCallWrapper,
+                                                   m_pluginInstall,
+                                                   m_smallScanRequestQueue,
+                                                   m_telemetryUtility,
+                                                   m_mockDeviceUtil);
     }
 
     std::shared_ptr<StrictMock<MockSystemCallWrapper>> m_mockSysCallWrapper;
@@ -153,6 +166,7 @@ protected:
     OnAccessTelemetryUtilitySharedPtr m_telemetryUtility;
     fs::path m_pluginInstall = "/opt/sophos-spl/plugins/av";
     IFanotifyHandlerSharedPtr m_fakeFanotify;
+    std::shared_ptr<MockDeviceUtil> m_mockDeviceUtil;
     struct ::stat m_statbuf {};
 };
 
