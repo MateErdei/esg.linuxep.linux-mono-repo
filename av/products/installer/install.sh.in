@@ -243,7 +243,6 @@ function apply_permissions()
     chmod 0770 "${VAR}"
     chmod -R g+r "${VAR}"
     chmod +t "${VAR}"
-    chown -R ${USER_NAME}:${GROUP_NAME} "${VAR}"
     chown root:${GROUP_NAME} "${VAR}"
 
     if [[ -f "${VAR}/persist-threatDatabase" ]]
