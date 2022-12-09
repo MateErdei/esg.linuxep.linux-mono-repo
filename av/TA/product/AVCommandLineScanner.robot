@@ -478,7 +478,7 @@ AV Log Contains No Errors When Scanning File
     Log  output is ${output}
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
 
-    wait_for_av_log_contains_after_mark  Sending threat detection notification to central  mark=${mark}
+    wait_for_av_log_contains_after_mark  Found 'EICAR-AV-Test' in '/home/vagrant/this/is/a/directory/for/scanning/naughty_eicar'  mark=${mark}
     check_av_log_does_not_contain_after_mark  ERROR  mark=${mark}
 
 
@@ -623,7 +623,7 @@ CLS Can Scan Normal Path But Not SubFolders With a Huge Path
 
 CLS Creates Threat Report
     ${mark} =  LogUtils.get_av_log_mark
-    Create File     ${NORMAL_DIRECTORY}/naughty_eicar    ${EICAR_STRING}
+    Create File     ${NORMAL_DIRECTORY}/clscreatesthreatreport_eicar    ${EICAR_STRING}
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naughty_eicar
 
     Log  return code is ${rc}
@@ -639,7 +639,7 @@ CLS Creates Threat Report
     ...  origin=1
     ...  remote=false
     ...  sha256=275a021bbfb6489e54d471899f7db9d1663fc695ec2fe2a2c4538aabf651fd0f
-    ...  path=${NORMAL_DIRECTORY}/naughty_eicar
+    ...  path=${NORMAL_DIRECTORY}/clscreatesthreatreport_eicar
 
 
 CLS simple encoded eicar

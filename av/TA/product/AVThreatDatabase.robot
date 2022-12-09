@@ -56,7 +56,7 @@ Threat is removed from Threat database when marked as resolved in central
     ${avmark} =  get_av_log_mark
     ${actionContent} =  Set Variable  <action type="sophos.core.threat.sav.clear"><item id="265a4b8a-239b-5f7e-8e4b-c78748cbd7ef"/></action>
     Send Plugin Action  av  ${SAV_APPID}  corr123  ${actionContent}
-    wait_for_av_log_contains_after_mark   Removed threat from database   ${avmark}
+    wait_for_av_log_contains_after_mark   Removing threat 265a4b8a-239b-5f7e-8e4b-c78748cbd7ef with correlationID   ${avmark}
     wait_for_av_log_contains_after_mark   Threat database is now empty, sending good health to Management agent   ${avmark}
     wait_for_av_log_contains_after_mark   Publishing threat health: good   ${avmark}
 
@@ -87,8 +87,8 @@ Threat is removed from Threat database when threat is quarantined
     wait_for_av_log_contains_after_mark     SafeStore flag set. Setting SafeStore to enabled   ${avmark}  timeout=60
     Create File     ${NORMAL_DIRECTORY}/naughty_eicar    ${EICAR_STRING}
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naughty_eicar
-    wait_for_av_log_contains_after_mark  Quarantine succeeded  ${avmark}
-    wait_for_av_log_contains_after_mark   Removed threat id 265a4b8a-239b-5f7e-8e4b-c78748cbd7ef from database   ${avmark}
+    wait_for_av_log_contains_after_mark   Quarantine succeeded  ${avmark}
+    wait_for_av_log_contains_after_mark   Removing threat id 265a4b8a-239b-5f7e-8e4b-c78748cbd7ef with correlationID   ${avmark}
     wait_for_av_log_contains_after_mark   Threat database is now empty, sending good health to Management agent   ${avmark}
     wait_for_av_log_contains_after_mark   Publishing threat health: good   ${avmark}
     Stop AV
