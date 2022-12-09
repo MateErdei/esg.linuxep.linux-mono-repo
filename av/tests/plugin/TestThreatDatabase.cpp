@@ -281,7 +281,7 @@ TEST_F(TestThreatDatabase, addThreatWithExistingThreatIDOverWritesExistingCorrel
 
     database.addThreat(threatid,correlationid);
 
-    EXPECT_TRUE(waitForLog("ThreatID: threatID already existed. Overwriting correlationID: correlationID, age: 0 with correlationID2"));
+    EXPECT_TRUE(waitForLog("ThreatId: threatID already existed. Overwriting correlationId: correlationID, age: 0 with correlationID2"));
     auto databaseContents = database.m_database.lock();
     ASSERT_EQ(databaseContents->size(), 1);
     auto threatidItems = databaseContents->find(threatid);
@@ -305,7 +305,7 @@ TEST_F(TestThreatDatabase, DatabaseLoadsThreatWithCorruptCorrelationID)
 
     Plugin::ThreatDatabase database = Plugin::ThreatDatabase(Plugin::getPluginVarDirPath());
 
-    EXPECT_TRUE(waitForLog("Correlation field for threatID into threat database as parsing failed with error "
+    EXPECT_TRUE(waitForLog("Not loading Correlation field for threatID into threat database as parsing failed with error "
                            "for correlationId [json.exception.type_error.302] type must be string, but is number"));
 
     auto databaseContents = database.m_database.lock();
@@ -374,7 +374,7 @@ TEST_F(TestThreatDatabase, removeCorrelationIDHandlesWhenThreatIsNotInDatabase)
     EXPECT_TRUE(waitForLog("Initialised Threat Database"));
 
     EXPECT_NO_THROW(database.removeCorrelationID("correlationid2"));
-    EXPECT_TRUE(waitForLog("Cannot remove correlation id: correlationid2 from database as it cannot be found"));
+    EXPECT_TRUE(waitForLog("Cannot remove correlationId: correlationid2 from database as it cannot be found"));
 
     auto databaseContents = database.m_database.lock();
     ASSERT_EQ(databaseContents->size(), 1);
@@ -399,7 +399,7 @@ TEST_F(TestThreatDatabase, removeThreatIDHandlesWhenThreatIsNotInDatabase)
     EXPECT_TRUE(waitForLog("Initialised Threat Database"));
 
     EXPECT_NO_THROW(database.removeThreatID("threatid2",false));
-    EXPECT_TRUE(waitForLog("Cannot remove threat id threatid2 from database as it cannot be found"));
+    EXPECT_TRUE(waitForLog("Cannot remove threatId threatid2 from database as it cannot be found"));
 
     auto databaseContents = database.m_database.lock();
     ASSERT_EQ(databaseContents->size(), 1);
@@ -428,7 +428,7 @@ TEST_F(TestThreatDatabase, removeThreatID)
     database.removeThreatID(threatIDToRemove);
 
     std::stringstream expectString;
-    expectString << "Removed threat id " << threatIDToRemove << " from database";
+    expectString << "Removed threatId " << threatIDToRemove << " from database";
     EXPECT_TRUE(waitForLog(expectString.str()));
     EXPECT_FALSE(appenderContains("into threat database as parsing failed with error for"));
     verifyCorruptDatabaseTelemetryNotPresent();
@@ -492,7 +492,7 @@ TEST_F(TestThreatDatabase, DatabaseLoadsThreatWithInvalidTime)
 
     Plugin::ThreatDatabase threatDatabase = Plugin::ThreatDatabase(Plugin::getPluginVarDirPath());
 
-    EXPECT_TRUE(waitForLog("Time field for threatID into threat database as parsing failed with error for timestamp "
+    EXPECT_TRUE(waitForLog("Not loading Time field for threatID into threat database as parsing failed with error for timestamp "
                            "[json.exception.type_error.302] type must be number, but is string"));
     auto database = threatDatabase.m_database.lock();
     ASSERT_EQ(database->size(), 1);

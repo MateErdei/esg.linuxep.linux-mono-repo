@@ -27,7 +27,7 @@ Threat is added to Threat database when threat is not quarantined
     ${avmark} =  get_av_log_mark
     Create File     ${NORMAL_DIRECTORY}/naughty_eicar    ${EICAR_STRING}
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naughty_eicar
-    wait_for_av_log_contains_after_mark   Added threat 265a4b8a-239b-5f7e-8e4b-c78748cbd7ef with correlationID   ${avmark}
+    wait_for_av_log_contains_after_mark   Added threat 265a4b8a-239b-5f7e-8e4b-c78748cbd7ef with correlationId   ${avmark}
     Stop AV
     Wait Until Keyword Succeeds
     ...  10 secs
@@ -50,13 +50,13 @@ Threat is removed from Threat database when marked as resolved in central
     ${avmark} =  get_av_log_mark
     Create File     ${NORMAL_DIRECTORY}/naughty_eicar    ${EICAR_STRING}
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naughty_eicar
-    wait_for_av_log_contains_after_mark   Added threat 265a4b8a-239b-5f7e-8e4b-c78748cbd7ef with correlationID   ${avmark}
+    wait_for_av_log_contains_after_mark   Added threat 265a4b8a-239b-5f7e-8e4b-c78748cbd7ef with correlationId   ${avmark}
 
     ## Only interested in removals after we send the action
     ${avmark} =  get_av_log_mark
     ${actionContent} =  Set Variable  <action type="sophos.core.threat.sav.clear"><item id="265a4b8a-239b-5f7e-8e4b-c78748cbd7ef"/></action>
     Send Plugin Action  av  ${SAV_APPID}  corr123  ${actionContent}
-    wait_for_av_log_contains_after_mark   Removing threat 265a4b8a-239b-5f7e-8e4b-c78748cbd7ef with correlationID   ${avmark}
+    wait_for_av_log_contains_after_mark   Removing threat 265a4b8a-239b-5f7e-8e4b-c78748cbd7ef with correlationId   ${avmark}
     wait_for_av_log_contains_after_mark   Threat database is now empty, sending good health to Management agent   ${avmark}
     wait_for_av_log_contains_after_mark   Publishing threat health: good   ${avmark}
 
@@ -65,7 +65,7 @@ Threat database is cleared when we get a core reset action from central
     ${avmark} =  get_av_log_mark
     Create File     ${NORMAL_DIRECTORY}/naughty_eicar    ${EICAR_STRING}
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naughty_eicar
-    wait_for_av_log_contains_after_mark   Added threat 265a4b8a-239b-5f7e-8e4b-c78748cbd7ef with correlationID   ${avmark}
+    wait_for_av_log_contains_after_mark   Added threat 265a4b8a-239b-5f7e-8e4b-c78748cbd7ef with correlationId   ${avmark}
     ${actionContent} =  Set Variable  <action type="sophos.core.threat.reset"/>
     Send Plugin Action  av  core  corr123  ${actionContent}
     wait_for_av_log_contains_after_mark   Resetting threat database due to core reset action   ${avmark}
@@ -80,7 +80,7 @@ Threat is removed from Threat database when threat is quarantined
     ${avmark} =  get_av_log_mark
     Create File     ${NORMAL_DIRECTORY}/naughty_eicar    ${EICAR_STRING}
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naughty_eicar
-    wait_for_av_log_contains_after_mark   Added threat 265a4b8a-239b-5f7e-8e4b-c78748cbd7ef with correlationID   ${avmark}
+    wait_for_av_log_contains_after_mark   Added threat 265a4b8a-239b-5f7e-8e4b-c78748cbd7ef with correlationId   ${avmark}
     ${avmark} =  get_av_log_mark
     ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags_safestore_enabled.json
     Send Plugin Policy  av  FLAGS  ${policyContent}
@@ -88,7 +88,7 @@ Threat is removed from Threat database when threat is quarantined
     Create File     ${NORMAL_DIRECTORY}/naughty_eicar    ${EICAR_STRING}
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naughty_eicar
     wait_for_av_log_contains_after_mark   Quarantine succeeded  ${avmark}
-    wait_for_av_log_contains_after_mark   Removing threat id 265a4b8a-239b-5f7e-8e4b-c78748cbd7ef with correlationID   ${avmark}
+    wait_for_av_log_contains_after_mark   Removed threatId 265a4b8a-239b-5f7e-8e4b-c78748cbd7ef from database   ${avmark}
     wait_for_av_log_contains_after_mark   Threat database is now empty, sending good health to Management agent   ${avmark}
     wait_for_av_log_contains_after_mark   Publishing threat health: good   ${avmark}
     Stop AV

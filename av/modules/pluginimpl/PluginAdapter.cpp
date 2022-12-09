@@ -386,7 +386,7 @@ namespace Plugin
         const scan_messages::ThreatDetected& detection,
         const common::CentralEnums::QuarantineResult& quarantineResult) const
     {
-        bool duplicate = isRecentDetection(detection.threatId);
+        bool duplicate = m_threatDatabase.isThreatInDatabaseWithinTime(detection.threatId, DUPLICATE_DETECTION_TIMEOUT);
         if (!duplicate)
         {
             DetectionReporter::processThreatReport(pluginimpl::generateThreatDetectedXml(detection), m_taskQueue);
@@ -524,14 +524,5 @@ namespace Plugin
         m_taskQueue->push(Task{ .taskType = Task::TaskType::SendRestoreEvent,
                                 .Content = pluginimpl::generateCoreRestoreEventXml(restoreReport) });
         LOGDEBUG("Added restore report to task queue");
-    }
-
-    bool PluginAdapter::isRecentDetection(const std::string& threatId) const
-    {
-        if (!m_threatDatabase.isThreatInDatabaseWithinTime(threatId, DUPLICATE_DETECTION_TIMEOUT))
-        {
-            return false;
-        }
-        return true;
     }
 } // namespace Plugin

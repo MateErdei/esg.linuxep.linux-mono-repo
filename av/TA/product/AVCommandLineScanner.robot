@@ -478,7 +478,7 @@ AV Log Contains No Errors When Scanning File
     Log  output is ${output}
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
 
-    wait_for_av_log_contains_after_mark  Found 'EICAR-AV-Test' in '/home/vagrant/this/is/a/directory/for/scanning/naughty_eicar'  mark=${mark}
+    wait_for_av_log_contains_after_mark  Found 'EICAR-AV-Test' in '${NORMAL_DIRECTORY}/naughty_eicar'  mark=${mark}
     check_av_log_does_not_contain_after_mark  ERROR  mark=${mark}
 
 

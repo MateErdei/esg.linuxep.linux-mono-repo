@@ -30,7 +30,7 @@ namespace Plugin
         {
             auto now = std::chrono::time_point_cast<std::chrono::seconds>(std::chrono::system_clock::now());
             long duration = (now - dbItr->second.lastDetection).count();
-            LOGDEBUG("ThreatID: " << threatID << " already existed. Overwriting correlationID: "
+            LOGDEBUG("ThreatId: " << threatID << " already existed. Overwriting correlationId: "
                      << dbItr->second.correlationId << ", age: " << duration << " with " << correlationID);
 
             dbItr->second.correlationId = correlationID;
@@ -40,7 +40,7 @@ namespace Plugin
         {
             auto newThreatDetails = ThreatDetails(correlationID);
             database->emplace(threatID,std::move(newThreatDetails));
-            LOGDEBUG("Added threat " << threatID << " with correlationID " << correlationID << " to threat database");
+            LOGDEBUG("Added threat " << threatID << " with correlationId " << correlationID << " to threat database");
         }
 
     }
@@ -49,7 +49,7 @@ namespace Plugin
     {
         auto database = m_database.lock();
 
-        for (auto threatItr = database->begin(); threatItr != database->end();)
+        for (auto threatItr = database->begin(); threatItr != database->end();++threatItr)
         {
             if (threatItr->second.correlationId == correlationID)
             {
@@ -57,13 +57,9 @@ namespace Plugin
                 database->erase(threatItr);
                 return;
             }
-            else
-            {
-                ++threatItr;
-            }
         }
 
-        LOGINFO("Cannot remove correlation id: " << correlationID << " from database as it cannot be found");
+        LOGINFO("Cannot remove correlationId: " << correlationID << " from database as it cannot be found");
     }
 
     void ThreatDatabase::removeThreatID(const std::string& threatID, bool ignoreNotInDatabase)
@@ -74,11 +70,11 @@ namespace Plugin
         if (threatItr != database->end())
         {
             database->erase(threatItr);
-            LOGDEBUG("Removed threat id " << threatID << " from database");
+            LOGDEBUG("Removed threatId " << threatID << " from database");
         }
         else if (!ignoreNotInDatabase)
         {
-            LOGWARN("Cannot remove threat id " << threatID << " from database as it cannot be found");
+            LOGWARN("Cannot remove threatId " << threatID << " from database as it cannot be found");
         }
     }
 
@@ -176,7 +172,7 @@ namespace Plugin
             }
             catch (nlohmann::json::exception& ex)
             {
-                LOGWARN("Correlation field for "<< threatItr.key() << " into threat database as parsing failed with error for " << JsonKeys::correlationId  << " " << ex.what());
+                LOGWARN("Not loading Correlation field for "<< threatItr.key() << " into threat database as parsing failed with error for " << JsonKeys::correlationId  << " " << ex.what());
                 Common::Telemetry::TelemetryHelper::getInstance().set("corrupt-threat-database", true);
             }
 
@@ -187,7 +183,7 @@ namespace Plugin
             }
             catch (nlohmann::json::exception& ex)
             {
-                LOGWARN("Time field for " << threatItr.key() << " into threat database as parsing failed with error for " << JsonKeys::timestamp << " " << ex.what());
+                LOGWARN("Not loading Time field for " << threatItr.key() << " into threat database as parsing failed with error for " << JsonKeys::timestamp << " " << ex.what());
                 Common::Telemetry::TelemetryHelper::getInstance().set("corrupt-threat-database", true);
             }
 
