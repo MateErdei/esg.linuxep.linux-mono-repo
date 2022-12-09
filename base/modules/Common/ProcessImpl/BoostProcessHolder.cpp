@@ -9,6 +9,8 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include "Logger.h"
 
 #include "../UtilityImpl/StringUtils.h"
+#include "Common/GlobalZmqAccess.h"
+#include <zmq.h>
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"
@@ -88,6 +90,22 @@ namespace Common
             template<typename Sequence>
             void on_exec_setup(boost::process::extend::posix_executor<Sequence>& exec)
             {
+
+                for (const auto socket: GL_zmqSockets)
+                {
+                    if (socket != nullptr)
+                    {
+                        zmq_close(socket);
+                    }
+                }
+
+                for (const auto context: GL_zmqContexts)
+                {
+                    if (context != nullptr)
+                    {
+                        zmq_ctx_term(context);
+                    }
+                }
 
                 // Must set groups first whilst still root
                 std::string userName = Common::FileSystem::FilePermissionsImpl().getUserName(m_uid);

@@ -8,6 +8,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include "ZeroMQWrapperException.h"
 
+#include "Common/GlobalZmqAccess.h"
+
 #include <cassert>
 #include <zmq.h>
 
@@ -54,6 +56,7 @@ void Common::ZeroMQWrapperImpl::SocketHolder::reset(
         zmq_close(m_socket);
     }
     m_socket = zmq_socket(context->ctx(), type);
+    GL_zmqSockets.push_back(m_socket);
     if (m_socket == nullptr)
     {
         throw ZeroMQWrapperException("Failed to create socket");

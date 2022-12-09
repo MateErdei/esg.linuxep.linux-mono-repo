@@ -7,7 +7,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "ContextHolder.h"
 
 #include "ZeroMQWrapperException.h"
-
+#include "Common/GlobalZmqAccess.h"
 #include <zmq.h>
 
 Common::ZeroMQWrapperImpl::ContextHolder::ContextHolder()
@@ -17,6 +17,7 @@ Common::ZeroMQWrapperImpl::ContextHolder::ContextHolder()
     {
         throw ZeroMQWrapperException("Unable to construct ZMQ Context");
     }
+    GL_zmqContexts.push_back(m_context);
 }
 
 Common::ZeroMQWrapperImpl::ContextHolder::~ContextHolder()
