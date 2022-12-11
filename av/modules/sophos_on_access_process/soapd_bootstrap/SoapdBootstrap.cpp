@@ -139,14 +139,6 @@ void SoapdBootstrap::innerRun()
         { .fd = sigTermMonitor->monitorFd(), .events = POLLIN, .revents = 0 }
     };
 
-    auto flagJsonString = OnAccessConfig::readFlagConfigFile();
-    //if flagJsonString is empty then readFlagConfigFile has already logged a WARN
-    if(!flagJsonString.empty())
-    {
-        std::string setting = OnAccessConfig::parseFlagConfiguration(flagJsonString) ? "not override policy" : "override policy";
-        LOGINFO("Flag is set to " << setting);
-    }
-
     ProcessPolicy();
 
     while (true)

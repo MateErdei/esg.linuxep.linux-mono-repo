@@ -143,7 +143,7 @@ On Access Process Parses Flags Config On startup
     ${mark} =  get_on_access_log_mark
     Restart On Access
 
-    wait for on access log contains after mark  Flag is set to not override policy  mark=${mark}
+    wait for on access log contains after mark  No policy override, following policy settings  mark=${mark}
     wait for on access log contains after mark  mount points in on-access scanning  mark=${mark}
 
 On Access Does Not Include Remote Files If Excluded In Policy
