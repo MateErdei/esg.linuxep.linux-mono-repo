@@ -83,7 +83,10 @@ void SoapdBootstrap::innerRun()
     OnAccessConfig::OnAccessConfiguration config;
 
     size_t maxScanQueueSize = 0;
-    OnAccessConfig::readProductConfigFile(maxScanQueueSize, m_maxNumberOfScanThreads, m_dumpPerfData);
+    OnAccessConfig::readLocalSettingsFile(maxScanQueueSize,
+                                          m_maxNumberOfScanThreads,
+                                          m_dumpPerfData,
+                                          m_systemCallWrapper);
 
     const struct rlimit file_lim = { onAccessProcessFdLimit, onAccessProcessFdLimit };
     m_systemCallWrapper->setrlimit(RLIMIT_NOFILE, &file_lim);
