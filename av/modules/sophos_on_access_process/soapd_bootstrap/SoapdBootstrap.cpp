@@ -103,8 +103,7 @@ void SoapdBootstrap::innerRun()
 
     auto localSettings = OnAccessConfig::readLocalSettingsFile(sysCallWrapper);
     size_t maxScanQueueSize = localSettings.maxScanQueueSize;
-    m_maxNumberOfScanThreads = localSettings.numScanThreads;
-    m_dumpPerfData = localSettings.dumpPerfData;
+    m_localSettings = localSettings;
 
     const struct rlimit file_lim = { onAccessProcessFdLimit, onAccessProcessFdLimit };
     sysCallWrapper->setrlimit(RLIMIT_NOFILE, &file_lim);
@@ -318,14 +317,14 @@ void SoapdBootstrap::enableOnAccess()
 
     std::string scanRequestSocketPath = common::getPluginInstallPath() / "chroot/var/scanning_socket";
 
-    for (int threadCount = 0; threadCount < m_maxNumberOfScanThreads; ++threadCount)
+    for (int threadCount = 0; threadCount < m_localSettings.numScanThreads; ++threadCount)
     {
         std::stringstream threadName;
         threadName << "scanHandler " << threadCount;
 
         auto scanningSocket = std::make_shared<unixsocket::ScanningClientSocket>(scanRequestSocketPath);
         auto scanHandler = std::make_shared<ScanRequestHandler>(
-            m_scanRequestQueue, scanningSocket, m_fanotifyHandler, m_deviceUtil, m_TelemetryUtility, threadCount, m_dumpPerfData);
+            m_scanRequestQueue, scanningSocket, m_fanotifyHandler, m_deviceUtil, m_TelemetryUtility, threadCount, m_localSettings);
         auto scanHandlerThread = std::make_shared<common::ThreadRunner>(scanHandler, threadName.str(), true);
         m_scanHandlerThreads.push_back(scanHandlerThread);
     }

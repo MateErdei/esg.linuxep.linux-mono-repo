@@ -440,8 +440,10 @@ TEST_F(TestScanRequestHandler, scan_threadCanDumpPerfData)
     scanRequestQueue->emplace(scanRequest2);
 
     auto socket = std::make_shared<RecordingMockSocket>();
+    sophos_on_access_process::local_settings::OnAccessLocalSettings localSettings;
+    localSettings.dumpPerfData = true;
     auto scanHandler = std::make_shared<sophos_on_access_process::onaccessimpl::ScanRequestHandler>(
-        scanRequestQueue, socket, m_mockFanotifyHandler, m_mockDeviceUtil, m_telemetryUtility, 123, true);
+        scanRequestQueue, socket, m_mockFanotifyHandler, m_mockDeviceUtil, m_telemetryUtility, 123, localSettings);
     auto scanHandlerThread = std::make_shared<common::ThreadRunner>(scanHandler, "scanHandler", true);
 
     std::stringstream logMsg1;

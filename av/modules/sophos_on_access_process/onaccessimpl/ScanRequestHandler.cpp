@@ -32,14 +32,14 @@ ScanRequestHandler::ScanRequestHandler(
     mount_monitor::mountinfo::IDeviceUtilSharedPtr deviceUtil,
     onaccessimpl::onaccesstelemetry::OnAccessTelemetryUtilitySharedPtr telemetryUtility,
     int handlerId,
-    bool dumpPerfData)
+    sophos_on_access_process::local_settings::OnAccessLocalSettings localSettings)
     : m_scanRequestQueue(std::move(scanRequestQueue))
     , m_socket(std::move(socket))
     , m_fanotifyHandler(std::move(fanotifyHandler))
     , m_deviceUtil(std::move(deviceUtil))
     , m_telemetryUtility(std::move(telemetryUtility))
     , m_handlerId(handlerId)
-    , m_dumpPerfData(dumpPerfData)
+    , m_localSettings(localSettings)
 {
 }
 
@@ -101,9 +101,8 @@ void ScanRequestHandler::scan(
                                    << "), as it is on a mutable mount");
             }
         }
-
     }
-    else
+    else if (m_localSettings.uncacheDetections)
     {
         LOGDEBUG("Un-caching " << common::escapePathForLogging(scanRequest->getPath())<< " (" << scanType << ")");
         // file may not have been cached, so we ignore the return code
@@ -125,7 +124,7 @@ void ScanRequestHandler::run()
 
     LOGDEBUG("Starting ScanRequestHandler" << m_handlerId);
     std::ofstream perfDump;
-    if (m_dumpPerfData)
+    if (m_localSettings.dumpPerfData)
     {
         std::stringstream perfDumpFileName;
         perfDumpFileName << "perfDumpThread" << m_handlerId << '_' << datatypes::Time::currentToDateTimeString("%Y-%m-%d_%H-%M-%S");
@@ -142,7 +141,7 @@ void ScanRequestHandler::run()
             auto queueItem = m_scanRequestQueue->pop();
             if(queueItem)
             {
-                if(logLevel <= Common::Logging::TRACE || m_dumpPerfData)
+                if(logLevel <= Common::Logging::TRACE || m_localSettings.dumpPerfData)
                 {
                     std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
 
@@ -162,7 +161,7 @@ void ScanRequestHandler::run()
                                         << queueItem->getQueueSizeAtTimeOfInsert());
                     }
 
-                    if (m_dumpPerfData)
+                    if (m_localSettings.dumpPerfData)
                     {
                         perfDump << scanDuration << '\t' << inProductDuration << '\t' << queueItem->getQueueSizeAtTimeOfInsert() << '\t' << escapedPath << std::endl;
                     }

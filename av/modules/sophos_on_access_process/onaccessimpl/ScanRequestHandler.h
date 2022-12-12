@@ -8,6 +8,7 @@
 
 #include "mount_monitor/mountinfo/IDeviceUtil.h"
 #include "sophos_on_access_process/fanotifyhandler/IFanotifyHandler.h"
+#include "sophos_on_access_process/local_settings/OnAccessLocalSettings.h"
 
 #include "common/AbstractThreadPluginInterface.h"
 
@@ -27,7 +28,7 @@ namespace sophos_on_access_process::onaccessimpl
             mount_monitor::mountinfo::IDeviceUtilSharedPtr deviceUtil,
             onaccessimpl::onaccesstelemetry::OnAccessTelemetryUtilitySharedPtr telemetryUtility,
             int handlerId=1,
-            bool dumpPerfData=false
+            sophos_on_access_process::local_settings::OnAccessLocalSettings localSettings={}
             );
 
         void run() override;
@@ -43,6 +44,6 @@ namespace sophos_on_access_process::onaccessimpl
         mount_monitor::mountinfo::IDeviceUtilSharedPtr  m_deviceUtil;
         onaccessimpl::onaccesstelemetry::OnAccessTelemetryUtilitySharedPtr m_telemetryUtility;
         int m_handlerId;
-        bool m_dumpPerfData;
+        sophos_on_access_process::local_settings::OnAccessLocalSettings m_localSettings;
     };
 }

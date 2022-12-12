@@ -39,6 +39,7 @@ namespace sophos_on_access_process::local_settings
     constexpr bool defaultDumpPerfData = false;
 
     constexpr bool defaultCacheAllEvents = false;
+    constexpr bool defaultUncacheDetections = true;
 
     //Scanning Threads
     constexpr int maxAllowedScanningThreads = 100;

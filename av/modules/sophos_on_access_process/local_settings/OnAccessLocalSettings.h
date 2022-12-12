@@ -12,5 +12,6 @@ namespace sophos_on_access_process::local_settings
         int numScanThreads = defaultScanningThreads;
         bool dumpPerfData = defaultDumpPerfData;
         bool cacheAllEvents = defaultCacheAllEvents;
+        bool uncacheDetections = defaultUncacheDetections;
     };
 }
