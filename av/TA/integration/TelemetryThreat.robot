@@ -293,4 +293,6 @@ AV Only Reports A Detection Once But Logs and Reports Telemetry For Both
     ${telemetryJson}=    Evaluate     json.loads("""${telemetryFileContents}""")    json
     ${avDict}=    Set Variable     ${telemetryJson['av']}
 
-    Dictionary Should Contain Item   ${avDict}   on-access-threat-eicar-count   ${2}
+    ${count} =    get_from_dictionary   ${avDict}    on-access-threat-eicar-count
+
+    Should Be True   2 <= ${count}

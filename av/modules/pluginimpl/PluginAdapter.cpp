@@ -396,7 +396,10 @@ namespace Plugin
         }
 
         const std::string duplicateStr = duplicate ? " which is a duplicate detection" : " which is a new detection";
-        LOGDEBUG("Found '" << detection.threatName << "' in '" << detection.filePath << "'" << duplicateStr);
+        std::stringstream  logStr;
+        logStr << "Found '" << detection.threatName << "' in '" << detection.filePath << "'" << duplicateStr;
+        auto strToLog = common::escapePathForLogging(logStr.str());
+        LOGDEBUG(strToLog);
 
         incrementTelemetryThreatCount(detection.threatName, detection.scanType);
     }
