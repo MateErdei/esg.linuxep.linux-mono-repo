@@ -397,6 +397,11 @@ On Access Scans Files on Samba v3-1-1
     [Tags]  cifs   disabled
     On Access Scans Files on Samba   vers=3.1.1
 
+On Access Excludes binfmt_misc
+    Require Filesystem  binfmt_misc
+    ${mark} =  get_on_access_log_mark
+    Restart On Access
+    wait for on access log contains after mark  binfmt_misc is system and will be excluded from scanning    ${mark}
 
 On Access Includes Included Mount On Top Of Excluded Mount
     ${excludedMount} =  Set Variable  /proc/tty
