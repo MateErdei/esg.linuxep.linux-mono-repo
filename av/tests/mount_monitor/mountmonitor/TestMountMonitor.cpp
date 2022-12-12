@@ -1,8 +1,6 @@
-// Copyright 2022, Sophos Limited.  All rights reserved.
+// Copyright 2022 Sophos Limited. All rights reserved.
 
 # define TEST_PUBLIC public
-
-#include <gtest/gtest.h>
 
 #include "MockSystemPaths.h"
 #include "MockSystemPathsFactory.h"
@@ -13,12 +11,14 @@
 #include "common/WaitForEvent.h"
 #include "datatypes/MockSysCalls.h"
 #include "datatypes/SystemCallWrapper.h"
+#include "modules/sophos_on_access_process/local_settings/OnAccessProductConfigDefaults.h"
 #include "mount_monitor/mount_monitor/MountMonitor.h"
 #include "mount_monitor/mountinfoimpl/SystemPaths.h"
 #include "sophos_on_access_process/fanotifyhandler/MockFanotifyHandler.h"
-#include "sophos_on_access_process/soapd_bootstrap/OnAccessProductConfigDefaults.h"
 
 #include "Common/TelemetryHelperImpl/TelemetryHelper.h"
+
+#include <gtest/gtest.h>
 
 #include <fstream>
 

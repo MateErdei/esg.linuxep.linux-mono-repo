@@ -80,21 +80,26 @@ void ScanRequestHandler::scan(
     auto scanType = scan_messages::getScanTypeAsStr(scanRequest->getScanType());
     if (detections.empty() && errorMsg.empty())
     {
-        if (m_deviceUtil->isCachable(scanRequest->getFd()))
+        if (!scanRequest->isCached())
         {
-            // Clean file, ret either 0 or 1 errno is logged by m_fanotifyHandler->cacheFd
-            LOGDEBUG("Caching " << common::escapePathForLogging(scanRequest->getPath()) << " (" << scanType << ")");
-            int ret = m_fanotifyHandler->cacheFd(scanRequest->getFd(), scanRequest->getPath(), false);
-            if (ret < 0)
+            if (m_deviceUtil->isCachable(scanRequest->getFd()))
             {
-                std::string escapedPath(common::escapePathForLogging(scanRequest->getPath()));
-                LOGFATAL("Caching " << escapedPath << " failed. Restarting On Access");
-                std::exit(EXIT_FAILURE);
+                // Clean file, ret either 0 or 1 errno is logged by m_fanotifyHandler->cacheFd
+                LOGDEBUG("Caching " << common::escapePathForLogging(scanRequest->getPath()) << " (" << scanType << ")");
+                int ret = m_fanotifyHandler->cacheFd(scanRequest->getFd(), scanRequest->getPath(), false);
+                if (ret < 0)
+                {
+                    std::string escapedPath(common::escapePathForLogging(scanRequest->getPath()));
+                    LOGFATAL("Caching " << escapedPath << " failed. Restarting On Access");
+                    std::exit(EXIT_FAILURE);
+                }
             }
-        }
-        else
-        {
-            LOGDEBUG("Not caching " << common::escapePathForLogging(scanRequest->getPath()) << " (" << scanType << "), as it is on a mutable mount");
+            else
+            {
+                LOGDEBUG(
+                    "Not caching " << common::escapePathForLogging(scanRequest->getPath()) << " (" << scanType
+                                   << "), as it is on a mutable mount");
+            }
         }
 
     }

@@ -2,31 +2,25 @@
 
 #pragma once
 
-#include "OnAccessProductConfigDefaults.h"
-
 #include "common/Exclusion.h"
 #include "datatypes/ISystemCallWrapper.h"
 #include "datatypes/sophos_filesystem.h"
+#include "sophos_on_access_process/local_settings/OnAccessProductConfigDefaults.h"
+#include "sophos_on_access_process/local_settings/OnAccessLocalSettings.h"
 
 #include <string>
 #include <vector>
 
 namespace sophos_on_access_process::OnAccessConfig
 {
+    using namespace sophos_on_access_process::local_settings;
+
     struct OnAccessConfiguration
     {
         std::vector<common::Exclusion> exclusions;
         bool enabled;
         bool excludeRemoteFiles;
     } __attribute__((aligned(32)));
-
-    struct OnAccessLocalSettings
-    {
-        size_t maxScanQueueSize = defaultMaxScanQueueSize;
-        int numScanThreads = defaultScanningThreads;
-        bool dumpPerfData = defaultDumpPerfData;
-        bool cacheAllEvents = defaultCacheAllEvents;
-    };
 
     bool inline operator==(const OnAccessConfiguration& lhs, const OnAccessConfiguration& rhs)
     {

@@ -1,22 +1,19 @@
-// Copyright 2022, Sophos Limited.  All rights reserved.
+// Copyright 2022 Sophos Limited. All rights reserved.
 
 #pragma once
 
-#include <stddef.h>
-
+#include <cstddef>
 #include <unordered_set>
 #include <string>
 
-
-
-namespace sophos_on_access_process::OnAccessConfig
+namespace sophos_on_access_process::local_settings
 {
    //Event Reading Queue
-   const unsigned long int onAccessProcessFdLimit = 1048576;
+   constexpr unsigned long int onAccessProcessFdLimit = 1048576;
 
-   const size_t maxAllowedQueueSize = 1048000;
-   const size_t minAllowedQueueSize = 1000;
-   const size_t defaultMaxScanQueueSize = 100000;
+   constexpr size_t maxAllowedQueueSize = 1048000;
+   constexpr size_t minAllowedQueueSize = 1000;
+   constexpr size_t defaultMaxScanQueueSize = 100000;
 
     //FileSystem
     const std::unordered_set<std::string> FILE_SYSTEMS_TO_EXCLUDE
@@ -39,14 +36,14 @@ namespace sophos_on_access_process::OnAccessConfig
     };
 
     //Performance
-    const bool defaultDumpPerfData = false;
+    constexpr bool defaultDumpPerfData = false;
 
     constexpr bool defaultCacheAllEvents = false;
 
     //Scanning Threads
-    const int maxAllowedScanningThreads = 100;
-    const int minAllowedScanningThreads = 1;
-    const int defaultScanningThreads = 10;
+    constexpr int maxAllowedScanningThreads = 100;
+    constexpr int minAllowedScanningThreads = 1;
+    constexpr int defaultScanningThreads = 10;
 
 
 }

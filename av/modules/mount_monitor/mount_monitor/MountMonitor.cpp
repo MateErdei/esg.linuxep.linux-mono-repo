@@ -1,4 +1,4 @@
-// Copyright 2022, Sophos Limited.  All rights reserved.
+// Copyright 2022 Sophos Limited. All rights reserved.
 
 #include "MountMonitor.h"
 
@@ -7,14 +7,14 @@
 #include "common/SaferStrerror.h"
 #include "datatypes/AutoFd.h"
 #include "mount_monitor/mountinfoimpl/Mounts.h"
-#include "sophos_on_access_process/soapd_bootstrap/OnAccessProductConfigDefaults.h"
+#include "sophos_on_access_process/local_settings/OnAccessProductConfigDefaults.h"
 #include "sophos_on_access_process/onaccessimpl/OnAccessTelemetryFields.h"
 
 #include "Common/TelemetryHelperImpl/TelemetryHelper.h"
 
-#include <sstream>
-
 #include <poll.h>
+
+#include <sstream>
 
 using namespace sophos_on_access_process::OnAccessConfig;
 

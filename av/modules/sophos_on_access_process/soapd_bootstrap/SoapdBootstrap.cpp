@@ -5,9 +5,9 @@
 // Package
 #include "Logger.h"
 #include "OnAccessProcesControlCallbacks.h"
-#include "OnAccessProductConfigDefaults.h"
 #include "OnAccessServiceCallback.h"
 // Component
+#include "sophos_on_access_process/local_settings/OnAccessProductConfigDefaults.h"
 #include "sophos_on_access_process/onaccessimpl/ScanRequestHandler.h"
 // Product
 #include "common/PidLockFile.h"

@@ -1,4 +1,4 @@
-//Copyright 2022, Sophos Limited.  All rights reserved.
+// Copyright 2022 Sophos Limited. All rights reserved.
 
 #include "FanotifyHandlerMemoryAppenderUsingTests.h"
 
@@ -7,13 +7,12 @@
 #include "common/ThreadRunner.h"
 #include "common/WaitForEvent.h"
 #include "datatypes/MockSysCalls.h"
-#include "sophos_on_access_process/onaccessimpl/OnAccessTelemetryUtility.h"
+#include "modules/sophos_on_access_process/local_settings/OnAccessProductConfigDefaults.h"
 #include "sophos_on_access_process/fanotifyhandler/EventReaderThread.h"
-#include "sophos_on_access_process/soapd_bootstrap/OnAccessProductConfigDefaults.h"
+#include "sophos_on_access_process/onaccessimpl/OnAccessTelemetryUtility.h"
+#include "tests/mount_monitor/mountinfoimpl/MockDeviceUtil.h"
 
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
-
-#include "tests/mount_monitor/mountinfoimpl/MockDeviceUtil.h"
 
 #include <gtest/gtest.h>
 
@@ -24,6 +23,7 @@
 using namespace ::testing;
 using namespace sophos_on_access_process::fanotifyhandler;
 using namespace sophos_on_access_process::onaccessimpl;
+using namespace sophos_on_access_process::local_settings;
 using namespace sophos_on_access_process::onaccessimpl::onaccesstelemetry;
 
 
@@ -79,7 +79,7 @@ protected:
     void SetUp() override
     {
         m_mockSysCallWrapper = std::make_shared<StrictMock<MockSystemCallWrapper>>();
-        m_scanRequestQueue = std::make_shared<ScanRequestQueue>(sophos_on_access_process::OnAccessConfig::defaultMaxScanQueueSize);
+        m_scanRequestQueue = std::make_shared<ScanRequestQueue>(defaultMaxScanQueueSize);
         m_fakeFanotify = std::make_shared<FakeFanotify>();
         m_smallScanRequestQueue = std::make_shared<ScanRequestQueue>(3);
         m_telemetryUtility = std::make_shared<OnAccessTelemetryUtility>();
