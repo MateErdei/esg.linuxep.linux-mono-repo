@@ -436,15 +436,15 @@ AV Deletes Scan Correctly
     File Should Exist  ${MCS_PATH}/policy/SAV-2_policy.xml
     Wait until scheduled scan updated After Mark   ${avmark}
     AV Plugin Log Contains  Configured number of Scheduled Scans: 1
-    wait_for_av_log_contains_after_mark  Scheduled Scan: Sophos Cloud Scheduled Scan
-    wait_for_av_log_contains_after_mark  Days: Monday
-    wait_for_av_log_contains_after_mark  Times: 11:00:00
+    wait_for_av_log_contains_after_mark  Scheduled Scan: Sophos Cloud Scheduled Scan   ${avmark}
+    wait_for_av_log_contains_after_mark  Days: Monday   ${avmark}
+    wait_for_av_log_contains_after_mark  Times: 11:00:00   ${avmark}
 
     ${avmark} =  get_av_log_mark
     Send Sav Policy With No Scheduled Scans
     File Should Exist  ${MCS_PATH}/policy/SAV-2_policy.xml
     Wait until scheduled scan updated After Mark   ${avmark}
-    wait_for_av_log_contains_after_mark  Configured number of Scheduled Scans: 0
+    wait_for_av_log_contains_after_mark  Configured number of Scheduled Scans: 0   ${avmark}
 
 AV Plugin Reports Threat XML To Base
     Empty Directory  ${MCS_PATH}/event/
@@ -458,7 +458,7 @@ AV Plugin Reports Threat XML To Base
 
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
 
-    Wait Until AV Plugin Log Contains Detection Name And Path After Mark  EICAR-AV-Test  ${NORMAL_DIRECTORY}/naughty_eicar  ${avmark}
+    Wait Until AV Plugin Log Contains Detection Name And Path After Mark  ${avmark}  EICAR-AV-Test  ${NORMAL_DIRECTORY}/naughty_eicar
     Wait Until Base Has Naughty Eicar Detection Event
 
 Avscanner runs as non-root
@@ -481,7 +481,7 @@ Avscanner runs as non-root
     Should Not Contain    ${output}    All settings will be set to their default value
     Should Contain   ${output}    Logger av configured for level: DEBUG
 
-    Wait Until AV Plugin Log Contains Detection Name And Path After Mark  EICAR-AV-Test  ${NORMAL_DIRECTORY}/naughty_eicar  ${avmark}
+    Wait Until AV Plugin Log Contains Detection Name And Path After Mark  ${avmark}  EICAR-AV-Test  ${NORMAL_DIRECTORY}/naughty_eicar
     Wait Until Base Has Naughty Eicar Detection Event
 
 AV Plugin Reports encoded eicars To Base
@@ -811,7 +811,7 @@ AV Plugin Can Work Despite Specified Log File Being Read-Only
     Check avscanner can detect eicar in  ${NORMAL_DIRECTORY}/naughty_eicar
 
     # Verify that we get a log message for the eicar
-    Wait Until AV Plugin Log Contains Detection Name And Path After Mark  EICAR-AV-Test  ${NORMAL_DIRECTORY}/naughty_eicar  ${avmark}
+    Wait Until AV Plugin Log Contains Detection Name And Path After Mark  ${avmark}  EICAR-AV-Test  ${NORMAL_DIRECTORY}/naughty_eicar
 
     # Verify that the AV Plugin sends an alert when logging is working
     Wait Until Base Has Naughty Eicar Detection Event
@@ -842,6 +842,7 @@ AV Plugin Can Work Despite Specified Log File Being Read-Only
     ${result} =  Run Process  ls  -l  ${AV_LOG_PATH}
     Log  New permissions: ${result.stdout}
 
+    ${avmark} =  get_av_log_mark
     Check avscanner can detect eicar in  ${NORMAL_DIRECTORY}/naughty_eicar
 
     # Verify the av plugin still sent the alert
@@ -872,7 +873,7 @@ Scan Now Can Work Despite Specified Log File Being Read-Only
     wait_for_av_log_contains_after_mark  Sending scan complete   ${avmark}
     Log File  ${SCANNOW_LOG_PATH}
     File Log Contains  ${SCANNOW_LOG_PATH}  Detected "/tmp_test/${file_name}" is infected with EICAR-AV-Test (Scheduled)
-    Wait Until AV Plugin Log Contains Detection Name And Path After Mark  EICAR-AV-Test  /tmp_test/${file_name}  ${avmark}
+    Wait Until AV Plugin Log Contains Detection Name And Path After Mark  ${avmark}  EICAR-AV-Test  /tmp_test/${file_name}
 
     ${result} =  Run Process  ls  -l  ${SCANNOW_LOG_PATH}
     Log  Old permissions: ${result.stdout}
@@ -895,7 +896,7 @@ Scan Now Can Work Despite Specified Log File Being Read-Only
     wait_for_av_log_contains_after_mark  Sending scan complete  ${avmark}
     Log File  ${SCANNOW_LOG_PATH}
     File Log Should Not Contain With Offset  ${SCANNOW_LOG_PATH}  Detected "${NORMAL_DIRECTORY}/${file_name}" is infected with EICAR-AV-Test  ${SCAN_NOW_LOG_MARK}
-    Wait Until AV Plugin Log Contains Detection Name And Path After Mark  EICAR-AV-Test  /tmp_test/${file_name}  ${avmark}
+    Wait Until AV Plugin Log Contains Detection Name And Path After Mark  ${avmark}  EICAR-AV-Test  /tmp_test/${file_name}
 
 
 First SAV Policy With Invalid Day And Time Is Not Accepted
@@ -945,7 +946,7 @@ Scheduled Scan Can Work Despite Specified Log File Being Read-Only
     Log File  ${CLOUDSCAN_LOG_PATH}
     File Log Contains  ${CLOUDSCAN_LOG_PATH}  Detected "/tmp_test/${file_name}" is infected with EICAR-AV-Test (Scheduled)
 
-    Wait Until AV Plugin Log Contains Detection Name And Path After Mark  EICAR-AV-Test  /tmp_test/${file_name}  ${avmark}
+    Wait Until AV Plugin Log Contains Detection Name And Path After Mark  ${avmark}  EICAR-AV-Test  /tmp_test/${file_name}
 
     #Reset Database otherwise our second base detection wont take place
     Reset ThreatDatabase
@@ -969,4 +970,4 @@ Scheduled Scan Can Work Despite Specified Log File Being Read-Only
     wait_for_av_log_contains_after_mark  Completed scan  ${avmark}  timeout=18
     Log File  ${CLOUDSCAN_LOG_PATH}
     check_log_does_not_contain_after_mark  ${CLOUDSCAN_LOG_PATH}  Detected "${NORMAL_DIRECTORY}/${file_name}" is infected with EICAR-AV-Test  ${scheduledscanmark}
-    Wait Until AV Plugin Log Contains Detection Name And Path After Mark  EICAR-AV-Test  /tmp_test/${file_name}  ${avmark}
+    Wait Until AV Plugin Log Contains Detection Name And Path After Mark  ${avmark}  EICAR-AV-Test  /tmp_test/${file_name}

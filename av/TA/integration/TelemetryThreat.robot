@@ -267,6 +267,13 @@ AV Only Reports A Detection Once But Logs and Reports Telemetry For Both
     # Run telemetry to reset counters to 0
     Run Telemetry Executable With HTTPS Protocol  port=${4435}
 
+    ${mark} =  Get on access log mark
+
+    #This registers disable with cleanup
+    Send Policies to enable on-access
+
+    wait for on access log contains after mark  On-access scanning enabled  mark=${mark}
+
     ${av_mark} =  get_av_log_mark
     ${filepath} =  Set Variable   /tmp_test/auniqueeicar.com
 
