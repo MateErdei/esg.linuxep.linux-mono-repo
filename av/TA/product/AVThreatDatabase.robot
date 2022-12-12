@@ -8,6 +8,7 @@ Resource    ../shared/AVResources.robot
 Resource    ../shared/ErrorMarkers.robot
 Resource    ../shared/SafeStoreResources.robot
 
+Library         ../Libs/FileSampleObfuscator.py
 Library         ../Libs/CoreDumps.py
 Library         ../Libs/FakeManagementLog.py
 Library         ../Libs/OnFail.py
@@ -115,6 +116,28 @@ Threat is not added to Threat database when threat is quarantined
     ...  10 secs
     ...  1 secs
     ...  File Log Contains  ${THREAT_DATABASE_PATH}  {}
+
+
+Duplicate Threat Event Is Not Sent To Central If Not Quarantined
+    Start AV
+    # Start AV also starts Safestore
+    Wait Until SafeStore running
+
+    ${avmark} =  get_av_log_mark
+    ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags_enabled.json
+    Send Plugin Policy  av  FLAGS  ${policyContent}
+    wait_for_av_log_contains_after_mark     SafeStore flag set. Setting SafeStore to enabled   ${avmark}  timeout=60
+
+    DeObfuscate File  ${RESOURCES_PATH}/file_samples_obfuscated/MLengHighScore.exe  ${NORMAL_DIRECTORY}/MLengHighScore-excluded.exe
+    Register Cleanup  Remove File  ${NORMAL_DIRECTORY}/MLengHighScore-excluded.exe
+
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/MLengHighScore-excluded.exe
+    wait_for_av_log_contains_after_mark   Found 'ML/PE-A' in '/home/vagrant/this/is/a/directory/for/scanning/MLengHighScore-excluded.exe' which is a new detection   ${avmark}
+    wait_for_av_log_contains_after_mark   Threat database is not empty, sending suspicious health to Management agent   ${avmark}
+
+    ${avmark} =  get_av_log_mark
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/MLengHighScore-excluded.exe
+    wait_for_av_log_contains_after_mark   Found 'ML/PE-A' in '/home/vagrant/this/is/a/directory/for/scanning/MLengHighScore-excluded.exe' which is a duplicate detection   ${avmark}
 
 *** Keywords ***
 ThreatDatabase Test Setup
