@@ -437,7 +437,7 @@ CLS Aborts Scanning of Password Protected File
 
     LogUtils.dump sophos threat detector log after mark  mark=${mark}
     LogUtils.Check Sophos Threat Detector Log Contains After Mark  ThreatScanner <> Failed to scan ${NORMAL_DIRECTORY}/password_protected.7z/eicar.com as it is password protected  mark=${mark}
-    verify sophos threat detector log line is level  WARN  ThreatScanner <> Failed to scan ${NORMAL_DIRECTORY}/password_protected.7z/eicar.com as it is password protected  mark=${mark}
+    verify sophos threat detector log line is level  DEBUG  ThreatScanner <> Failed to scan ${NORMAL_DIRECTORY}/password_protected.7z/eicar.com as it is password protected  mark=${mark}
 
 
 CLS Aborts Scanning of Corrupted File
