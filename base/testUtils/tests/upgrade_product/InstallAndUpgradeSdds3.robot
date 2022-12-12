@@ -159,6 +159,9 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     # This is expected because we are restarting the avplugin to enable debug logs, we need to make sure it occurs only once though
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/av.log  ScanProcessMonitor <> Exiting sophos_threat_detector with code: 15
 
+    # When threat_detector is asked to shut down for upgrade it may have ongoing on-access scans that it has to abort
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/soapd.log  OnAccessImpl <> Aborting scan, scanner is shutting down
+
     #TODO LINUXDAR-5140 remove when this defect is closed
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/av.log  ScanProcessMonitor <> failure in ConfigMonitor: pselect failed: Bad file descriptor
     Run Keyword And Expect Error  *
@@ -269,6 +272,9 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/sophos_threat_detector/sophos_threat_detector.log  ThreatScanner <> Failed to read customerID - using default value
     #TODO LINUXDAR-5140 remove when this defect is closed
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/av.log  ScanProcessMonitor <> failure in ConfigMonitor: pselect failed: Bad file descriptor
+
+    # When threat_detector is asked to shut down for upgrade it may have ongoing on-access scans that it has to abort
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/soapd.log  OnAccessImpl <> Aborting scan, scanner is shutting down
 
     Check All Product Logs Do Not Contain Error
     Check All Product Logs Do Not Contain Critical
@@ -392,6 +398,9 @@ We Can Upgrade From Release to VUT Without Unexpected Errors
     Run Keyword And Expect Error  *
     ...     Check Log Contains String N  times ${SOPHOS_INSTALL}/plugins/av/log/av.log  av.log  Exiting sophos_threat_detector with code: 15  2
 
+    # When threat_detector is asked to shut down for upgrade it may have ongoing on-access scans that it has to abort
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/soapd.log  OnAccessImpl <> Aborting scan, scanner is shutting down
+
     Check All Product Logs Do Not Contain Error
     Check All Product Logs Do Not Contain Critical
 
@@ -497,6 +506,9 @@ We Can Downgrade From VUT to Release Without Unexpected Errors
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/sophos_threat_detector/sophos_threat_detector.log  ThreatScanner <> Failed to read customerID - using default value
     #TODO LINUXDAR-5140 remove when this defect is closed
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/av.log  ScanProcessMonitor <> failure in ConfigMonitor: pselect failed: Bad file descriptor
+
+    # When threat_detector is asked to shut down for upgrade it may have ongoing on-access scans that it has to abort
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/soapd.log  OnAccessImpl <> Aborting scan, scanner is shutting down
 
     Check All Product Logs Do Not Contain Error
     Check All Product Logs Do Not Contain Critical
