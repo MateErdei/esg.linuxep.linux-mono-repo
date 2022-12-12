@@ -272,6 +272,10 @@ namespace sophos_on_access_process::OnAccessConfig
         {
             LOGDEBUG("Failed to parse json configuration, reason: " << e.what());
         }
+        catch (const std::exception& e)
+        {
+            LOGDEBUG("Failed to parse json configuration due to generic exception, reason:" << e.what());
+        }
 
         LOGWARN("Failed to parse json configuration, keeping existing settings");
 

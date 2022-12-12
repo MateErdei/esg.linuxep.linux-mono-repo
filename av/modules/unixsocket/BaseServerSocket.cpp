@@ -96,8 +96,9 @@ void unixsocket::BaseServerSocket::run()
             LOGERROR("Socket failed, closing " << m_socketName << ". Error: " << common::safer_strerror(errno)<< " (" << errno << ')');
             break;
         }
+#ifndef USING_LIBFUZZER
         assert(ret > 0);
-
+#endif
         if ((fds[1].revents & POLLERR) != 0)
         {
             LOGERROR("Closing " << m_socketName << ", error from notify pipe");
