@@ -236,7 +236,7 @@ namespace sspl::sophosthreatdetectorimpl
         struct addrinfo hints
         {
         };
-        hints.ai_family = PF_UNSPEC;
+        hints.ai_family = AF_UNSPEC;
         hints.ai_socktype = SOCK_STREAM;
         hints.ai_flags |= AI_CANONNAME; // NOLINT(hicpp-signed-bitwise)
 

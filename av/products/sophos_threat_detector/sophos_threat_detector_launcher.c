@@ -26,9 +26,11 @@ int main(int argc, char* argv[])
     set_no_new_privs();
     prctl(PR_SET_PDEATHSIG, SIGTERM);
 
+    // set LOCALDOMAIN to prevent getaddrinfo() from using nscd.
     char *envp[] =
             {
                     "LD_LIBRARY_PATH=/opt/sophos-spl/plugins/av/chroot/susi/distribution_version:/opt/sophos-spl/plugins/av/lib64",
+                    "LOCALDOMAIN=",
                     0
             };
 
