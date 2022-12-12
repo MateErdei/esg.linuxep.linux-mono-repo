@@ -144,6 +144,7 @@ namespace sophos_on_access_process::OnAccessConfig
                     auto parsedConfigJson = json::parse(configJson);
                     settings.dumpPerfData = toBoolean(parsedConfigJson, "dumpPerfData", settings.dumpPerfData);
                     settings.cacheAllEvents = toBoolean(parsedConfigJson, "cacheAllEvents", settings.cacheAllEvents);
+                    settings.uncacheDetections = toBoolean(parsedConfigJson, "uncacheDetections", settings.uncacheDetections);
 
                     settings.maxScanQueueSize = toLimitedInteger(
                             parsedConfigJson,

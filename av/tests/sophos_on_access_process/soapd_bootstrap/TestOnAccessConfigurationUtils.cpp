@@ -58,6 +58,19 @@ namespace
             EXPECT_CALL(mock, readFile(m_oaLocalSettingsPath)).WillOnce(Return(contents));
         }
 
+        auto readLocalSettingsFile()
+        {
+            return sophos_on_access_process::OnAccessConfig::readLocalSettingsFile(m_sysCallWrapper);
+        }
+
+        void readLocalSettingsFile(size_t& maxScanQueueSize, int& numScanThreads, bool& dumpPerfData)
+        {
+            auto settings = readLocalSettingsFile();
+            maxScanQueueSize = settings.maxScanQueueSize;
+            numScanThreads = settings.numScanThreads;
+            dumpPerfData = settings.dumpPerfData;
+        }
+
         std::string m_oaPolicyConfigPath;
         std::string m_oaLocalSettingsPath;
         std::unique_ptr<StrictMock<MockFileSystem>> m_mockIFileSystemPtr;
@@ -216,6 +229,7 @@ TEST_F(TestOnAccessConfigurationUtils, emptyJSON)
     EXPECT_EQ(result.maxScanQueueSize, sophos_on_access_process::OnAccessConfig::defaultMaxScanQueueSize);
     EXPECT_EQ(result.dumpPerfData, sophos_on_access_process::OnAccessConfig::defaultDumpPerfData);
     EXPECT_EQ(result.cacheAllEvents, sophos_on_access_process::OnAccessConfig::defaultCacheAllEvents);
+    EXPECT_EQ(result.uncacheDetections, sophos_on_access_process::OnAccessConfig::defaultUncacheDetections);
     EXPECT_EQ(result.numScanThreads, 5);
 }
 
@@ -227,6 +241,7 @@ TEST_F(TestOnAccessConfigurationUtils, jsonOverrides)
     expectReadConfig(*filesystemMock, R"({
         "dumpPerfData" : true,
         "cacheAllEvents" : true,
+        "uncacheDetections" : false,
         "maxscanqueuesize" : 1038,
         "numThreads" : 42
     })");
@@ -234,8 +249,9 @@ TEST_F(TestOnAccessConfigurationUtils, jsonOverrides)
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock) };
     auto result = sophos_on_access_process::OnAccessConfig::readLocalSettingsFile(sysCallWrapper);
     EXPECT_EQ(result.maxScanQueueSize, 1038);
-    EXPECT_EQ(result.dumpPerfData, true);
-    EXPECT_EQ(result.cacheAllEvents, true);
+    EXPECT_TRUE(result.dumpPerfData);
+    EXPECT_TRUE(result.cacheAllEvents);
+    EXPECT_FALSE(result.uncacheDetections);
     EXPECT_EQ(result.numScanThreads, 42);
 }
 
@@ -279,17 +295,6 @@ TEST_F(TestOnAccessConfigurationUtils, hardwareConcurrencyBypassesMaxThreads)
     EXPECT_EQ(result.numScanThreads, 200);
 }
 
-namespace
-{
-    void readLocalSettingsFile(size_t& maxScanQueueSize, int& numScanThreads, bool& dumpPerfData, const std::shared_ptr<datatypes::ISystemCallWrapper>& sysCalls)
-    {
-        auto settings = sophos_on_access_process::OnAccessConfig::readLocalSettingsFile(sysCalls);
-        maxScanQueueSize = settings.maxScanQueueSize;
-        numScanThreads = settings.numScanThreads;
-        dumpPerfData = settings.dumpPerfData;
-    }
-}
-
 TEST_F(TestOnAccessConfigurationUtils, parseProductConfigEmptyKeepsDefaults)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
@@ -301,7 +306,7 @@ TEST_F(TestOnAccessConfigurationUtils, parseProductConfigEmptyKeepsDefaults)
     int numThreads = 0;
     bool dumpPerfData = true;
 
-    readLocalSettingsFile(maxScanQueueItems, numThreads, dumpPerfData, m_sysCallWrapper);
+    readLocalSettingsFile(maxScanQueueItems, numThreads, dumpPerfData);
 
     auto numScanThreads = (std::thread::hardware_concurrency() + 1) / 2;
     EXPECT_EQ(maxScanQueueItems, defaultMaxScanQueueSize);
@@ -311,6 +316,17 @@ TEST_F(TestOnAccessConfigurationUtils, parseProductConfigEmptyKeepsDefaults)
     std::stringstream logmsg;
     logmsg << "Setting from defaults: Max queue size set to " << defaultMaxScanQueueSize << " and Max threads set to " << numScanThreads;
     EXPECT_TRUE(appenderContains(logmsg.str()));
+}
+
+namespace
+{
+    void readLocalSettingsFile(size_t& maxScanQueueSize, int& numScanThreads, bool& dumpPerfData, const std::shared_ptr<datatypes::ISystemCallWrapper>& sysCalls)
+    {
+        auto settings = sophos_on_access_process::OnAccessConfig::readLocalSettingsFile(sysCalls);
+        maxScanQueueSize = settings.maxScanQueueSize;
+        numScanThreads = settings.numScanThreads;
+        dumpPerfData = settings.dumpPerfData;
+    }
 }
 
 class TestOnAccessConfigUtilsParameterized
@@ -374,7 +390,7 @@ TEST_F(TestOnAccessConfigurationUtils, parseProductConfigIgnoresBadvalues)
     int numThreads = 0;
     bool dumpPerfData = true;
 
-    readLocalSettingsFile(maxScanQueueItems, numThreads, dumpPerfData, m_sysCallWrapper);
+    readLocalSettingsFile(maxScanQueueItems, numThreads, dumpPerfData);
 
     auto numScanThreads = (std::thread::hardware_concurrency() + 1) / 2;
     EXPECT_EQ(maxScanQueueItems, defaultMaxScanQueueSize);
@@ -395,7 +411,7 @@ TEST_F(TestOnAccessConfigurationUtils, parseProductConfigSetsDefaultWhenFileDoen
     int numThreads = 0;
     bool dumpPerfData = true;
 
-    readLocalSettingsFile(maxScanQueueItems, numThreads, dumpPerfData, m_sysCallWrapper);
+    readLocalSettingsFile(maxScanQueueItems, numThreads, dumpPerfData);
 
     auto numScanThreads = (std::thread::hardware_concurrency() + 1) / 2;
     EXPECT_EQ(maxScanQueueItems, defaultMaxScanQueueSize);
@@ -419,7 +435,7 @@ TEST_F(TestOnAccessConfigurationUtils, parseProductConfigSetsToProvidedValuesWhe
     int numThreads = 0;
     bool dumpPerfData = false;
 
-    readLocalSettingsFile(maxScanQueueItems, numThreads, dumpPerfData, m_sysCallWrapper);
+    readLocalSettingsFile(maxScanQueueItems, numThreads, dumpPerfData);
 
     EXPECT_EQ(maxScanQueueItems, 2000);
     EXPECT_EQ(numThreads, 20);
@@ -439,7 +455,7 @@ TEST_F(TestOnAccessConfigurationUtils, parseProductConfig_missingFields)
     int numThreads = 0;
     bool dumpPerfData = false;
 
-    readLocalSettingsFile(maxScanQueueItems, numThreads, dumpPerfData, m_sysCallWrapper);
+    readLocalSettingsFile(maxScanQueueItems, numThreads, dumpPerfData);
 
     EXPECT_EQ(maxScanQueueItems, 2000);
     EXPECT_EQ(numThreads, 20);
@@ -460,7 +476,7 @@ TEST_F(TestOnAccessConfigurationUtils, parseProductConfigSetsToMaxPossibleValueW
     int numThreads = 0;
     bool dumpPerfData = false;
 
-    readLocalSettingsFile(maxScanQueueItems, numThreads, dumpPerfData, m_sysCallWrapper);
+    readLocalSettingsFile(maxScanQueueItems, numThreads, dumpPerfData);
 
     EXPECT_EQ(maxScanQueueItems, maxAllowedQueueSize);
     EXPECT_EQ(numThreads, maxAllowedScanningThreads);
@@ -493,7 +509,7 @@ TEST_F(TestOnAccessConfigurationUtils, parseProductConfigSetsToMinPossibleValueW
     int numThreads = 0;
     bool dumpPerfData = false;
 
-    readLocalSettingsFile(maxScanQueueItems, numThreads, dumpPerfData, m_sysCallWrapper);
+    readLocalSettingsFile(maxScanQueueItems, numThreads, dumpPerfData);
 
     EXPECT_EQ(maxScanQueueItems, minAllowedQueueSize);
     EXPECT_EQ(numThreads, minAllowedScanningThreads);
