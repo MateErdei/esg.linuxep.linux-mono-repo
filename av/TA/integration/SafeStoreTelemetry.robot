@@ -94,7 +94,7 @@ SafeStore Increments Quarantine Counter After Successful Quarantine
 
    Check avscanner can detect eicar
    Wait Until SafeStore Log Contains  Received Threat:
-   Wait For Safestore Log Contains After Mark    Finalised file: ${SCAN_DIRECTORY}/eicar.com    ${ss_mark}
+   Wait For Safestore Log Contains After Mark    Quarantined ${SCAN_DIRECTORY}/eicar.com successfully   ${ss_mark}
 
    Stop SafeStore
    Wait Until Keyword Succeeds
@@ -114,7 +114,7 @@ SafeStore Increments Quarantine Counter After Successful Quarantine
 
    Check avscanner can detect eicar
    Wait Until SafeStore Log Contains  Received Threat:
-   Wait For SafeStore Log Contains After Mark    Finalised file: ${SCAN_DIRECTORY}/eicar.com    ${ss_mark}
+   Wait For SafeStore Log Contains After Mark    Quarantined ${SCAN_DIRECTORY}/eicar.com successfully    ${ss_mark}
 
    Run Telemetry Executable With HTTPS Protocol  port=${4435}
 
@@ -188,6 +188,8 @@ Corrupt Threat Database Telemetry Is Not Reported When Database File Is Not On D
     Dictionary Should Not Contain Key    ${avDict}   corrupt-threat-database
 
 Corrupt Threat Database Telemetry Is Reported
+    Register Cleanup    Exclude ThreatDatabase Failed To Parse Database
+
     ${avMark} =  Get AV Log Mark
     Stop AV Plugin
     Wait until AV Plugin Not Running

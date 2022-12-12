@@ -20,6 +20,7 @@ AV and Base Setup
     Send Alc Policy
     Send Sav Policy With No Scheduled Scans
     Send Flags Policy
+    Reset ThreatDatabase
 
     Remove Directory  /tmp/DiagnoseOutput  true
 
@@ -231,3 +232,10 @@ Set number of scanning threads in integration test
     Register Cleanup   Remove OA local settings and restart in integration test
     Restart soapd
     Wait Until On Access running
+
+Reset ThreatDatabase
+    ${avmark} =  get_av_log_mark
+    ${actionFilename} =  Generate Random String
+    ${full_action_filename} =  Set Variable  CORE_action_${actionFilename}.xml
+    Copy File  ${RESOURCES_PATH}/core_action/Core_reset_threat.xml  ${SOPHOS_INSTALL}/base/mcs/action/${full_action_filename}
+    wait_for_av_log_contains_after_mark   Threat Database has been reset  ${avmark}

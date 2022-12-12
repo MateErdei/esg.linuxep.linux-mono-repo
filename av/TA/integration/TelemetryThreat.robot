@@ -272,12 +272,10 @@ AV Only Reports A Detection Once But Logs and Reports Telemetry For Both
 
     Create File  ${filepath}  ${EICAR_STRING}
     Register Cleanup  Remove File  ${filepath}
-
     Wait For AV Log Contains After Mark  Found 'EICAR-AV-Test' in '${filepath}' which is a new detection   mark=${avmark}
 
-    Create File  ${filepath}  ${EICAR_STRING}
-
     ${av_mark} =  get_av_log_mark
+    Create File  ${filepath}  ${EICAR_STRING}
     Wait For AV Log Contains After Mark  Found 'EICAR-AV-Test' in '${filepath}' which is a duplicate detection   mark=${avmark}
 
     Run Telemetry Executable With HTTPS Protocol  port=${4435}

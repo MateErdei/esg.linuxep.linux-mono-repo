@@ -1152,6 +1152,13 @@ File Log Contains
         handler = self.get_log_handler(log_path)
         handler.check_log_contains_expected_after_unexpected(expected, unexpected)
 
+
+#####################################################################
+#Scheduled scan log
+    def get_scheduled_scan_log_mark(self) -> LogHandler.LogMark:
+        ss_log = self.scheduled_scan_log("Sophos Cloud Scheduled Scan")
+        return self.mark_log_size(ss_log)
+
 #####################################################################
 # AV Log
 

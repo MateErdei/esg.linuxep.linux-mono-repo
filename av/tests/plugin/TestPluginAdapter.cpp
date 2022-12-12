@@ -1153,7 +1153,6 @@ TEST_F(TestPluginAdapter, telemetryIsIncrementedForNewDetection)
     pluginAdapter->processDetectionReport(createDetection(false), QuarantineResult::FAILED_TO_DELETE_FILE);
 
     auto telemetryResult = Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
-    PRINT(telemetryResult);
     auto telemetry = nlohmann::json::parse(telemetryResult);
     EXPECT_EQ(telemetry["on-access-threat-count"], 1);
 }
@@ -1175,10 +1174,10 @@ TEST_F(TestPluginAdapter, telemetryIsIncrementedForDuplicateDetection)
 
     EXPECT_TRUE(waitForLog("Found 'EICAR' in '/path/to/unit-test-eicar' which is a duplicate detection"));
     auto telemetryResult = Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
-    PRINT(telemetryResult);
     auto telemetry = nlohmann::json::parse(telemetryResult);
     EXPECT_EQ(telemetry["on-access-threat-count"], 1);
 }
+
 
 // TODO: LINUXDAR-5806 -- stablise this test
 //// PluginAdapter construction needed for this test, so it's here instead of its own TestSafeStoreWorker file (for now)

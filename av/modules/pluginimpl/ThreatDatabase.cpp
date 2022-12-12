@@ -29,7 +29,7 @@ namespace Plugin
         if (dbItr != database->end())
         {
             auto now = std::chrono::time_point_cast<std::chrono::seconds>(std::chrono::system_clock::now());
-            long duration = (now - dbItr->second.lastDetection).count();
+            long duration = std::chrono::duration_cast<std::chrono::seconds>(now - dbItr->second.lastDetection).count();
             LOGDEBUG("ThreatId: " << threatID << " already existed. Overwriting correlationId: "
                      << dbItr->second.correlationId << ", age: " << duration << " with " << correlationID);
 
@@ -100,11 +100,11 @@ namespace Plugin
         }
 
         auto timePointNow = std::chrono::time_point_cast<std::chrono::seconds>(std::chrono::system_clock::now());;
-        if ((timePointNow - threatItr->second.lastDetection) <= duplicateTimeout)
+        if ((timePointNow - threatItr->second.lastDetection) > duplicateTimeout)
         {
-            return true;
+            return false;
         }
-        return false;
+        return true;
     }
 
     void ThreatDatabase::resetDatabase()
@@ -114,6 +114,7 @@ namespace Plugin
         try
         {
             m_databaseInString.setValueAndForceStore("{}");
+            LOGDEBUG("Threat Database has been reset");
         }
         catch (Common::FileSystem::IFileSystemException &ex)
         {

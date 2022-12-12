@@ -241,11 +241,6 @@ Exclude On Access Scan Errors
     mark_expected_error_in_log  ${ON_ACCESS_LOG_PATH}           OnAccessImpl <> Failed to scan
     mark_expected_error_in_log  ${ON_ACCESS_LOG_PATH}           fanotifyhandler <> Failed to add scan request to queue
 
-#Todo required until LINUXDAR-5569 is fixed
-Exclude On Access Connect Failed
-    mark_expected_error_in_log  ${ON_ACCESS_LOG_PATH}           Connect failed
-    mark_expected_error_in_log  ${ON_ACCESS_LOG_PATH}           Failed to receive scan response
-
 #Use only if you trigger this issue
 Exclude VDL Folder Missing Errors
     mark_expected_error_in_log  ${THREAT_DETECTOR_INFO_LOG_PATH}  Package not found: vdl: SUSI error 0xc0000015
@@ -263,3 +258,6 @@ Exclued SafeStore Internal Error On Quarantine
 
 Exclued SafeStore File Open Error On Quarantine
     mark_expected_error_in_log  ${SAFESTORE_LOG_PATH}    Failed to quarantine file due to: FileOpenFailed
+
+Exclude ThreatDatabase Failed To Parse Database
+    mark_expected_error_in_log   ${AV_LOG_PATH}    Resetting ThreatDatabase as we failed to parse ThreatDatabase on disk with error

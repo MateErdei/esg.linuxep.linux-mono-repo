@@ -419,17 +419,17 @@ Wait Until AV Plugin Log Contains Detection Name With Offset
     [Arguments]  ${name}  ${timeout}=15    ${interval}=2
     Wait Until AV Plugin Log Contains With Offset  Found '${name}'  timeout=${timeout}  interval=${interval}
 
-Wait Until AV Plugin Log Contains Detection Name And Path With Offset
-    [Arguments]  ${name}  ${path}  ${timeout}=15    ${interval}=2
-    Wait Until AV Plugin Log Contains With Offset  Found '${name}' in '${path}'  timeout=${timeout}  interval=${interval}
-
 Wait Until AV Plugin Log Contains Detection Name And Path After Mark
     [Arguments]  ${mark}  ${name}  ${path}  ${timeout}=15
     wait_for_av_log_contains_after_mark  Found '${name}' in '${path}'  timeout=${timeout}  mark=${mark}
 
-AV Plugin Log Should Not Contain Detection Name And Path With Offset
-    [Arguments]  ${name}  ${path}
-    AV Plugin Log Should Not Contain With Offset  Found '${name}' in '${path}'
+Wait Until AV Plugin Log Contains Detection Name And Path With Offset
+    [Arguments]  ${name}  ${path}  ${timeout}=15    ${interval}=2
+    Wait Until AV Plugin Log Contains With Offset  Found '${name}' in '${path}'  timeout=${timeout}  interval=${interval}
+
+AV Plugin Log Should Not Contain Detection Name And Path After Mark
+    [Arguments]  ${name}  ${path}  ${mark}
+    check_av_log_does_not_contain_after_mark  Found '${name}' in '${path}'  ${mark}
 
 Check String Contains Detection Event XML
     [Arguments]  ${input}  ${id}  ${name}  ${threatType}  ${origin}  ${remote}  ${sha256}  ${path}
