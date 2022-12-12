@@ -35,7 +35,7 @@ INSTANTIATE_TEST_SUITE_P(
     ThreatScannerParameterizedTest,
     ::testing::Values(
         // clang-format off
-        std::make_tuple("encrypted", "Failed to scan test.file as it is password protected", log4cplus::WARN_LOG_LEVEL),
+        std::make_tuple("encrypted", "Failed to scan test.file as it is password protected", log4cplus::DEBUG_LOG_LEVEL),
         std::make_tuple("corrupt", "Failed to scan test.file as it is corrupted", log4cplus::ERROR_LOG_LEVEL),
         std::make_tuple("unsupported", "Failed to scan test.file as it is not a supported file type", log4cplus::WARN_LOG_LEVEL),
         std::make_tuple("couldn't open", "Failed to scan test.file as it could not be opened", log4cplus::ERROR_LOG_LEVEL),
@@ -76,7 +76,7 @@ INSTANTIATE_TEST_SUITE_P(
         std::make_tuple(SUSI_E_SCANABORTED, "Failed to scan test.file as the scan was aborted", log4cplus::ERROR_LOG_LEVEL),
         std::make_tuple(SUSI_E_FILEOPEN, "Failed to scan test.file as it could not be opened", log4cplus::ERROR_LOG_LEVEL),
         std::make_tuple(SUSI_E_FILEREAD, "Failed to scan test.file as it could not be read", log4cplus::ERROR_LOG_LEVEL),
-        std::make_tuple(SUSI_E_FILEENCRYPTED, "Failed to scan test.file as it is password protected", log4cplus::WARN_LOG_LEVEL),
+        std::make_tuple(SUSI_E_FILEENCRYPTED, "Failed to scan test.file as it is password protected", log4cplus::DEBUG_LOG_LEVEL),
         std::make_tuple(SUSI_E_FILEMULTIVOLUME, "Failed to scan test.file due to a multi-volume error", log4cplus::ERROR_LOG_LEVEL),
         std::make_tuple(SUSI_E_FILECORRUPT, "Failed to scan test.file as it is corrupted", log4cplus::ERROR_LOG_LEVEL),
         std::make_tuple(SUSI_E_CALLBACK, "Failed to scan test.file due to a callback error", log4cplus::ERROR_LOG_LEVEL),

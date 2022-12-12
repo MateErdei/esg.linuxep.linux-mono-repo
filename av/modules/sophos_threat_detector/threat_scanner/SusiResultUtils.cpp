@@ -25,7 +25,7 @@ namespace threat_scanner
         {
             // SOPHOS_SAVI_ERROR_FILE_ENCRYPTED
             errorMsg << " as it is password protected";
-            level = log4cplus::WARN_LOG_LEVEL;
+            level = log4cplus::DEBUG_LOG_LEVEL;
         }
         else if (susiError == "corrupt")
         {
@@ -115,7 +115,7 @@ namespace threat_scanner
                 break;
             case SUSI_E_FILEENCRYPTED:
                 errorMsg << " as it is password protected";
-                level = log4cplus::WARN_LOG_LEVEL;
+                level = log4cplus::DEBUG_LOG_LEVEL;
                 break;
             case SUSI_E_FILEMULTIVOLUME:
                 errorMsg << " due to a multi-volume error";
