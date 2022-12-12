@@ -38,7 +38,7 @@ if [[ $1 == "--download-pip-cache" ]]
 then
   rm -rf pipCache
   mkdir pipCache
-  try_command_with_backoff python3 -m pip download tap keyrings.alt signing>2.7.0 --dest pipCache ${PIP_ARGS}  || failure "Unable to install tap"
+  try_command_with_backoff python3 -m pip download tap keyrings.alt signing==2.7.7 --dest pipCache ${PIP_ARGS}  || failure "Unable to install tap"
   tar cvzf $2/pipCache.tar.gz pipCache
   rm -rf pipCache
 fi
