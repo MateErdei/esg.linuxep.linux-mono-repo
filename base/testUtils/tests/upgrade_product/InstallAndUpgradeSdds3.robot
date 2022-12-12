@@ -305,6 +305,9 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     Check SafeStore Installed Correctly
     Check SafeStore Database Has Not Changed    ${safeStoreDbDirBeforeUpgrade}    ${databaseContentBeforeUpgrade}    ${safeStorePasswordBeforeUpgrade}
 
+    Check AV Plugin Can Scan Files
+    Check On Access Detects Threats
+
     # The query pack should have been re-installed
     Wait Until Keyword Succeeds
     ...  20 secs
@@ -510,6 +513,10 @@ We Can Downgrade From VUT to Release Without Unexpected Errors
     Trigger Update Now
 
     Wait For Version Files to Update    &{expectedVUTVersions}
+
+    # TODO: Uncomment below once On-access has been released
+    #Check AV Plugin Can Scan Files
+    #Check On Access Detects Threats
 
     # The query pack should have been re-installed
     Wait Until Keyword Succeeds
