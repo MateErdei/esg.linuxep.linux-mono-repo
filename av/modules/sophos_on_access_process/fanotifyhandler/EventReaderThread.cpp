@@ -196,6 +196,7 @@ bool EventReaderThread::handleFanotifyEvent()
         // Cache if we are going to scan the file
         if (cacheIfAllowed(*scanRequest))
         {
+            LOGTRACE("Cached " << escapedPath << " from Process " << executablePath << "(PID=" << metadata->pid << ") " << "and UID " << uid);
             scanRequest->setIsCached(true);
         }
 

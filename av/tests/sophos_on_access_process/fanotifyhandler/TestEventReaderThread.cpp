@@ -1319,6 +1319,8 @@ TEST_F(TestEventReaderThread, setCacheAll)
 
 TEST_F(TestEventReaderThread, CacheEvent)
 {
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    getLogger().setLogLevel(log4cplus::TRACE_LOG_LEVEL);
     const char* filePath = "/tmp/test";
     setupExpectationsForOneEvent(filePath);
     EXPECT_CALL(*m_mockDeviceUtil, isCachable(EVENT_FD)).WillOnce(Return(true));
@@ -1335,4 +1337,5 @@ TEST_F(TestEventReaderThread, CacheEvent)
     auto event = m_scanRequestQueue->pop();
     ASSERT_TRUE(event);
     EXPECT_TRUE(event->isCached());
+    EXPECT_TRUE(waitForLog("Cached /tmp/test from Process (PID=1999999999) and UID 321"));
 }
