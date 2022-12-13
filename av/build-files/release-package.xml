@@ -19,13 +19,9 @@
         <build-asset project="core" repo="safestore">
             <release-version branch="release/2.0" build-id="20221202162039-b975b35677e594f034680ba4924c084aae98d4a0-zym8a1"/>
             <development-version branch="develop" />
-            <include artifact-path="safestore/linux-x64/lib" dest-dir="input/safestore_input"/>
-            <include artifact-path="safestore/linux-x64/interface" dest-dir="input/safestore_input"/>
+            <include artifact-path="safestore/linux-x64/safestore_package" dest-dir="input/safestore_input"/>
         </build-asset>
-        <build-asset project="core" repo="safestore">
-            <release-version branch="release/2.0" build-id="20221202162039-b975b35677e594f034680ba4924c084aae98d4a0-zym8a1"/>
-            <include artifact-path="safestore/linux-x64/ssr" dest-dir="input/safestore_input"/>
-        </build-asset>
+
         <build-asset project="winep" repo="sau">
             <release-version branch="release/sspl/Version_1_0_0"
                              build-id="20220825150631-43a7c87ceb5905f316aef54df45de777a5961022-O0LZyf"/>

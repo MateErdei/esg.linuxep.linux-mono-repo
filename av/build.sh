@@ -423,6 +423,7 @@ function build()
         untar_input capnproto
         untar_input boost
         untar_input zlib
+        unzip -o -d ${INPUT}/safestore_input/ ${INPUT}/safestore_input/safestore-linux-x64.zip
         if [[ ! -d "$INPUT/googletest" ]]
         then
             echo "ERROR - googletest not found here: $INPUT/googletest"
