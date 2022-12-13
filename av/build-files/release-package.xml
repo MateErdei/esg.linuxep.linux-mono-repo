@@ -10,8 +10,8 @@
         <!--Plugin Api Candidate Build - Change values below to match the latest Candidate build of base.
             -->
         <build-asset project="linuxep" repo="everest-base">
-            <release-version branch="release/2022-51"
-                             build-id="20221202173457-a2db21866759920aa39555c15bbfcc09939fd16e-VpQpjR"/>
+            <release-version branch="release/2022-51.2"
+                             build-id="20221214100149-722ef6d11670b3c8657d6e4d0b63e27ba84655d7-m6Gx0E"/>
             <development-version branch="develop"/>
             <include artifact-path="sspl-base/pluginapi" dest-dir="input"/>
             <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="input/base-sdds"/>
