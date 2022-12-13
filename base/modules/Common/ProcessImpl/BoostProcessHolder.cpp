@@ -90,11 +90,12 @@ namespace Common
             template<typename Sequence>
             void on_exec_setup(boost::process::extend::posix_executor<Sequence>& exec)
             {
-
+                std::cout << "Forking for " << exec.exe << std::endl;
                 for (const auto socket: GL_zmqSockets)
                 {
                     if (socket != nullptr)
                     {
+                        std::cout << "Closed socket" << std::endl;
                         zmq_close(socket);
                     }
                 }
@@ -103,6 +104,7 @@ namespace Common
                 {
                     if (context != nullptr)
                     {
+                        std::cout << "Terminated Context" << std::endl;
                         zmq_ctx_term(context);
                     }
                 }
