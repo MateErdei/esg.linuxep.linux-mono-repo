@@ -8,6 +8,7 @@ import os
 import re
 import shutil
 import socket
+import stat
 import statistics
 import subprocess
 import sys
@@ -110,6 +111,25 @@ def get_test_inputs_from_base():
         exit(1)
 
     os.environ["CLOUD_CLIENT_SCRIPT"] = cloud_client_path
+
+
+def get_test_inputs_from_event_journaler():
+    fetch_artifacts("linuxep", "sspl-plugin-event-journaler", "eventjournaler/manualTools")
+
+    event_journaler_inputs_path = os.path.join(PERF_TEST_INPUTS, "sspl-plugin-event-journaler")
+    event_pub_sub_tool_path = os.path.join(event_journaler_inputs_path, "EventPubSub")
+    journal_reader_tool_path = os.path.join(event_journaler_inputs_path, "JournalReader")
+
+    if not os.path.exists(event_pub_sub_tool_path):
+        logging.error(f"EventPubSub does not exists: {os.listdir(event_journaler_inputs_path)}")
+        exit(1)
+
+    if not os.path.exists(journal_reader_tool_path):
+        logging.error(f"JournalReader does not exists: {os.listdir(event_journaler_inputs_path)}")
+        exit(1)
+
+    os.chmod(event_pub_sub_tool_path, os.stat(event_pub_sub_tool_path).st_mode | stat.S_IEXEC)
+    os.chmod(journal_reader_tool_path, os.stat(journal_reader_tool_path).st_mode | stat.S_IEXEC)
 
 
 def get_part_after_equals(key_value_pair):
@@ -236,7 +256,7 @@ def run_clean_file_test(test_name, stop_on_queue_full, max_count, oa_enabled=Fal
     log_utils = LogUtils.LogUtils()
     mark = log_utils.get_on_access_log_mark()
     start_time = get_current_unix_epoch_in_seconds()
-    file_count = 0;
+    file_count = 0
     while file_count < max_count:
         file_count += 1
         filepath = os.path.join(dirpath, "{}.txt".format(file_count))
@@ -640,7 +660,7 @@ def run_local_live_response_test(number_of_terminals: int, keep_alive: int):
 def run_event_journaler_ingestion_test():
     logging.info("Running Event Journaler Ingestion Test")
 
-    fetch_artifacts("linuxep", "sspl-plugin-event-journaler", "eventjournaler/manualTools")
+    get_test_inputs_from_event_journaler()
     event_journaler_ingestion_script = os.path.join(SCRIPT_DIR, "RunEventJournalerIngestionTest.py")
 
     tests_to_run = [
