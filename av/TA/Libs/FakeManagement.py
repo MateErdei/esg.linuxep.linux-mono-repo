@@ -10,12 +10,14 @@ import traceback
 
 try:
     from .PluginCommunicationTools import FakeManagementAgent
+    from .PluginCommunicationTools import ManagementAgentPluginRequester
     from .PluginCommunicationTools.common.socket_utils import try_get_socket, ZMQ_CONTEXT
     from .PluginCommunicationTools.common import PathsLocation
     from .PluginCommunicationTools.common.ProtobufSerialisation import Message, Messages, deserialise_message, serialise_message
     from . import FakeManagementLog
 except ImportError:
     from Libs.PluginCommunicationTools import FakeManagementAgent
+    from Libs.PluginCommunicationTools import ManagementAgentPluginRequester
     from Libs.PluginCommunicationTools.common.socket_utils import try_get_socket, ZMQ_CONTEXT
     from Libs.PluginCommunicationTools.common import PathsLocation
     from Libs.PluginCommunicationTools.common.ProtobufSerialisation import Message, Messages, deserialise_message, serialise_message
@@ -111,6 +113,15 @@ class FakeManagement(object):
         plugin.policy(app_id, content)
         if self.agent is not None:
             self.agent.set_default_policy(app_id, content)
+
+    def set_default_policy(self, app_id, content):
+        if self.agent is None:
+            raise AssertionError("Trying to set default policy when agent not running")
+        self.agent.set_default_policy(app_id, content)
+
+    def set_default_policy_from_file(self, app_id, path):
+        content = open(path).read()
+        return self.set_default_policy(app_id, content)
 
     def send_plugin_policy_from_file(self, plugin_name, app_id, path):
         content = open(path).read()

@@ -8,6 +8,7 @@ Library         String
 
 Library         ../Libs/AVScanner.py
 Library         ../Libs/CoreDumps.py
+Library         ../Libs/FileSampleObfuscator.py
 Library         ../Libs/LockFile.py
 Library         ../Libs/OnFail.py
 Library         ../Libs/LogUtils.py
@@ -238,3 +239,19 @@ Threat Detector Doesnt Log Every Scan
     check log does not contain   Starting scan of    ${SUSI_DEBUG_LOG_PATH}  Susi Debug Log
     check log does not contain   Finished scanning   ${SUSI_DEBUG_LOG_PATH}  Susi Debug Log
     dump log  ${SUSI_DEBUG_LOG_PATH}
+
+Threat Detector can have Machine Learning Turned off
+    Register On Fail   dump log  ${SUSI_DEBUG_LOG_PATH}
+    # Set CORE policy to turn off ML detections
+
+    set_default_policy_from_file  CORE  ${RESOURCES_PATH}/core_policy/CORE-36_ml_disabled.xml
+
+    # Try scanning MLengHighScore
+    Start AV
+
+    DeObfuscate File  ${RESOURCES_PATH}/file_samples_obfuscated/MLengHighScore.exe  ${NORMAL_DIRECTORY}/MLengHighScore.exe
+    ${mark} =  LogUtils.get_susi_debug_log_mark
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/MLengHighScore.exe
+
+    Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
+    Should Not Contain  ${output}  Detected "${NORMAL_DIRECTORY}/MLengHighScore.exe"

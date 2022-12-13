@@ -18,8 +18,7 @@ ${ACTION_CONTENT} =  <?xml version="1.0"?><a:action xmlns:a="com.sophos/msys/act
 Run Scheduled Scan
     ${time} =  Get Current Date  result_format=%y-%m-%d %H:%M:%S
     Create Sav Policy With Scheduled Scan  ${TEMP_SAV_POLICY_FILENAME}  ${time}
-    ${policy_contents} =  Get File  ${RESOURCES_PATH}/${TEMP_SAV_POLICY_FILENAME}
-    Send Plugin Policy  av  ${SAV_APPID}  ${policy_contents}
+    send av policy from file  ${SAV_APPID}   ${RESOURCES_PATH}/${TEMP_SAV_POLICY_FILENAME}
     Wait until scheduled scan updated
 
 
