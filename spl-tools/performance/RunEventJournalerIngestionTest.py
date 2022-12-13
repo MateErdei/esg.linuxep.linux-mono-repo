@@ -14,8 +14,8 @@ def run_ingestion_test(number_of_events_to_send, timeout='120', sleep='1000', ex
     start_time = 0
     end_time = 0
 
-    event_pub_sub_tool_path = os.path.join(os.environ["PERF_TEST_INPUTS"], "EventPubSub")
-    journal_reader_tool_path = os.path.join(os.environ["PERF_TEST_INPUTS"], "JournalReader")
+    event_pub_sub_tool_path = os.path.join(os.environ["PERF_TEST_INPUTS"], "sspl-plugin-event-journaler", "EventPubSub")
+    journal_reader_tool_path = os.path.join(os.environ["PERF_TEST_INPUTS"], "sspl-plugin-event-journaler", "JournalReader")
     journal_dir = "/opt/sophos-spl/plugins/eventjournaler/data/eventjournals"
     detections_dir = f"{journal_dir}/SophosSPL/Detections"
     tmp_detections_dir = "/tmp/Detections"

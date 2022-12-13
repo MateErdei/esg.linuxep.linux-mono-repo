@@ -1,6 +1,7 @@
 import argparse
 import csv
 import glob
+import io
 import json
 import logging
 import os
@@ -12,15 +13,17 @@ import subprocess
 import sys
 import tarfile
 import time
+import zipfile
 
 import requests
-from build_scripts.artisan_fetch import artisan_fetch
+from artifactory import ArtifactoryPath
 
 import LogUtils
 from PerformanceResources import stop_sspl_process, start_sspl_process, stop_sspl, start_sspl, \
     disable_onaccess, enable_onaccess, get_current_unix_epoch_in_seconds, wait_for_plugin_to_be_installed
 
 SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
+PERF_TEST_INPUTS = os.path.join(SCRIPT_DIR, "perf_inputs")
 
 PROCESS_EVENTS_QUERY = ("process-events", '''SELECT
 GROUP_CONCAT(process_events.pid) AS pids,
@@ -65,29 +68,20 @@ ALL_PROCESSES_QUERY = ("all-processes", "SELECT * FROM processes;")
 
 ALL_USERS_QUERY = ("all-users", "SELECT * FROM users;")
 
-PERF_TEST_INPUTS = os.path.join(SCRIPT_DIR, "perf_inputs")
-PACKAGE_XML_TEMPLATE = \
-    f"""<?xml version="1.0" encoding="utf-8"?>
-<package name="system-product-tests">
-    <inputs>
-        <workingdir>.</workingdir>
-        <build-asset project="{{}}" repo="{{}}">
-            <development-version branch="develop" />
-            <include artifact-path="{{}}" dest-dir={PERF_TEST_INPUTS} />
-        </build-asset>
-    </inputs>
-    <publish>
-        <workingdir>sspl-perf-tests</workingdir>
-    </publish>
-</package>
-"""
-
 
 def fetch_artifacts(project, repo, artifact_path):
-    release_package_path = os.path.join(SCRIPT_DIR, "release-package.xml")
-    with open(release_package_path, 'w') as release_package_file:
-        release_package_file.write(PACKAGE_XML_TEMPLATE.format(project, repo, artifact_path))
-    artisan_fetch(release_package_path, build_mode="not_used", production_build=False)
+    builds = []
+    repo_url = f"https://artifactory.sophos-ops.com/artifactory/esg-build-tested/{project}.{repo}/develop"
+
+    for build in ArtifactoryPath(repo_url):
+        builds.append(build)
+    latest_build = sorted(builds, key=lambda x: int(os.path.basename(x).split('-')[0]), reverse=True)[0]
+
+    artifact_url = os.path.join(latest_build, "build", f"{artifact_path}.zip")
+
+    r = requests.get(artifact_url)
+    z = zipfile.ZipFile(io.BytesIO(r.content))
+    z.extractall(os.path.join(PERF_TEST_INPUTS, repo))
 
     if not os.path.exists(PERF_TEST_INPUTS):
         logging.error("Failed to fetch test inputs")
@@ -99,12 +93,11 @@ def fetch_artifacts(project, repo, artifact_path):
 def get_test_inputs_from_base():
     fetch_artifacts("linuxep", "everest-base", "sspl-base/system_test")
 
-    cloud_automation_inputs = os.path.join(PERF_TEST_INPUTS, "SystemProductTestOutput", "testUtils", "SupportFiles",
-                                           "CloudAutomation")
+    cloud_automation_inputs = os.path.join(PERF_TEST_INPUTS, "everest-base", "SystemProductTestOutput", "testUtils", "SupportFiles", "CloudAutomation")
     cloud_client_path = os.path.join(cloud_automation_inputs, "cloudClient.py")
     https_client_path = os.path.join(cloud_automation_inputs, "SophosHTTPSClient.py")
 
-    tar = tarfile.open(os.path.join(PERF_TEST_INPUTS, "SystemProductTestOutput.tar.gz"))
+    tar = tarfile.open(os.path.join(PERF_TEST_INPUTS, "everest-base", "SystemProductTestOutput.tar.gz"))
     tar.extractall(PERF_TEST_INPUTS)
     tar.close()
 
@@ -739,6 +732,7 @@ def main():
     dry_run = args.dry_run
 
     logging.info("Starting")
+    os.mkdir(PERF_TEST_INPUTS)
 
     if args.suite == 'gcc':
         run_gcc_perf_test()
