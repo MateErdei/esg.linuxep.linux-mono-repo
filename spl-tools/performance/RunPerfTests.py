@@ -24,7 +24,6 @@ from PerformanceResources import stop_sspl_process, start_sspl_process, stop_ssp
     disable_onaccess, enable_onaccess, get_current_unix_epoch_in_seconds, wait_for_plugin_to_be_installed
 
 SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
-PERF_TEST_INPUTS = os.path.join(SCRIPT_DIR, "perf_inputs")
 
 PROCESS_EVENTS_QUERY = ("process-events", '''SELECT
 GROUP_CONCAT(process_events.pid) AS pids,
@@ -82,24 +81,18 @@ def fetch_artifacts(project, repo, artifact_path):
 
     r = requests.get(artifact_url)
     z = zipfile.ZipFile(io.BytesIO(r.content))
-    z.extractall(os.path.join(PERF_TEST_INPUTS, repo))
-
-    if not os.path.exists(PERF_TEST_INPUTS):
-        logging.error("Failed to fetch test inputs")
-        exit(1)
-
-    os.environ["PERF_TEST_INPUTS"] = PERF_TEST_INPUTS
+    z.extractall(SCRIPT_DIR)
 
 
 def get_test_inputs_from_base():
     fetch_artifacts("linuxep", "everest-base", "sspl-base/system_test")
 
-    cloud_automation_inputs = os.path.join(PERF_TEST_INPUTS, "everest-base", "SystemProductTestOutput", "testUtils", "SupportFiles", "CloudAutomation")
+    cloud_automation_inputs = os.path.join(SCRIPT_DIR, "SystemProductTestOutput", "testUtils", "SupportFiles", "CloudAutomation")
     cloud_client_path = os.path.join(cloud_automation_inputs, "cloudClient.py")
     https_client_path = os.path.join(cloud_automation_inputs, "SophosHTTPSClient.py")
 
-    tar = tarfile.open(os.path.join(PERF_TEST_INPUTS, "everest-base", "SystemProductTestOutput.tar.gz"))
-    tar.extractall(PERF_TEST_INPUTS)
+    tar = tarfile.open(os.path.join(SCRIPT_DIR, "SystemProductTestOutput.tar.gz"))
+    tar.extractall(SCRIPT_DIR)
     tar.close()
 
     if not os.path.exists(cloud_client_path):
@@ -116,23 +109,22 @@ def get_test_inputs_from_base():
 def get_test_inputs_from_event_journaler():
     fetch_artifacts("linuxep", "sspl-plugin-event-journaler", "eventjournaler/manualTools")
 
-    event_journaler_inputs_path = os.path.join(PERF_TEST_INPUTS, "sspl-plugin-event-journaler")
-    event_pub_sub_tool_path = os.path.join(event_journaler_inputs_path, "EventPubSub")
-    journal_reader_tool_path = os.path.join(event_journaler_inputs_path, "JournalReader")
+    event_pub_sub_tool_path = os.path.join(SCRIPT_DIR, "EventPubSub")
+    journal_reader_tool_path = os.path.join(SCRIPT_DIR, "JournalReader")
 
     if not os.path.exists(event_pub_sub_tool_path):
-        logging.error(f"EventPubSub does not exists: {os.listdir(event_journaler_inputs_path)}")
+        logging.error(f"EventPubSub does not exists: {os.listdir(SCRIPT_DIR)}")
         exit(1)
 
     if not os.path.exists(journal_reader_tool_path):
-        logging.error(f"JournalReader does not exists: {os.listdir(event_journaler_inputs_path)}")
+        logging.error(f"JournalReader does not exists: {os.listdir(SCRIPT_DIR)}")
         exit(1)
 
     os.chmod(event_pub_sub_tool_path, os.stat(event_pub_sub_tool_path).st_mode | stat.S_IEXEC)
     os.chmod(journal_reader_tool_path, os.stat(journal_reader_tool_path).st_mode | stat.S_IEXEC)
 
-    os.environ["EVENT_PUB_SUB"] = os.path.join("PERF_TEST_INPUTS", "sspl-plugin-event-journaler", "EventPubSub")
-    os.environ["JOURNAL_READER"] = os.path.join("PERF_TEST_INPUTS", "sspl-plugin-event-journaler", "JournalReader")
+    os.environ["EVENT_PUB_SUB"] = event_pub_sub_tool_path
+    os.environ["JOURNAL_READER"] = journal_reader_tool_path
 
 
 def get_part_after_equals(key_value_pair):
@@ -755,8 +747,6 @@ def main():
     dry_run = args.dry_run
 
     logging.info("Starting")
-    if not os.path.isdir(PERF_TEST_INPUTS):
-        os.mkdir(PERF_TEST_INPUTS)
 
     if args.suite == 'gcc':
         run_gcc_perf_test()
