@@ -98,6 +98,7 @@ namespace threat_scanner
         std::string m_lockFile;
         std::mutex m_globalSusiMutex;
         bool m_susiVersionAlreadyLogged = false;
+        bool m_machineLearningAlreadyLogged = false;
 
         // Used to make sure we don't change the settings while they're being used.
         std::mutex m_susiSettingsMutex;

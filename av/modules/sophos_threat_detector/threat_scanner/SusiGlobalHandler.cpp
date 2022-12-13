@@ -11,6 +11,8 @@
 #include "common/ApplicationPaths.h"
 #include "common/ShuttingDownException.h"
 
+#include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
+#include <Common/FileSystem/IFileSystem.h>
 #include <Common/Logging/LoggerConfig.h>
 
 #include <sys/file.h>
@@ -20,6 +22,23 @@
 #include <filesystem>
 #include <iomanip>
 #include <iostream>
+
+namespace
+{
+    std::filesystem::path getChrootDir()
+    {
+        auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
+        try
+        {
+            return appConfig.getData("CHROOT");
+        }
+        catch (const std::exception& ex)
+        {
+            return "/";
+        }
+    }
+
+}
 
 namespace threat_scanner
 {
@@ -427,7 +446,27 @@ namespace threat_scanner
     bool SusiGlobalHandler::isMachineLearningEnabled()
     {
         std::lock_guard<std::mutex> lock(m_susiSettingsMutex);
-        return m_susiSettings->isMachineLearningEnabled();
+
+        // Check for override file
+        auto* filesystem = Common::FileSystem::fileSystem();
+        // /opt/sophos-spl/plugins/av/chroot/etc/sophos_susi_force_machine_learning
+        if (filesystem->isFile(getChrootDir() / "etc/sophos_susi_force_machine_learning"))
+        {
+            if (!m_machineLearningAlreadyLogged)
+            {
+                LOGINFO("Overriding Machine Learning - enabling due to presence of sophos_susi_force_machine_learning");
+                m_machineLearningAlreadyLogged = true;
+            }
+            return true;
+        }
+
+        bool setting = m_susiSettings->isMachineLearningEnabled();
+        if (!m_machineLearningAlreadyLogged)
+        {
+            LOGINFO("Machine Learning " << (setting ? "enabled" : "disabled") << " from policy");
+            m_machineLearningAlreadyLogged = true;
+        }
+        return setting;
     }
 
 } // namespace threat_scanner

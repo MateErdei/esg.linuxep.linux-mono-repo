@@ -6,6 +6,9 @@
 #include "common/MemoryAppender.h"
 #include "sophos_threat_detector/threat_scanner/SusiGlobalHandler.h"
 
+#include "Common/Helpers/FileSystemReplaceAndRestore.h"
+#include "Common/Helpers/MockFileSystem.h"
+
 #include <gtest/gtest.h>
 
 using namespace  threat_scanner;
@@ -99,4 +102,69 @@ TEST_F(TestSusiGlobalHandler, testInitializeSusiAllInitFail)
     EXPECT_THROW(globalHandler.initializeSusi(""), std::runtime_error);
     EXPECT_TRUE(appenderContains("Bootstrapping SUSI from update source: \"/susi/update_source\"", 2));
     EXPECT_FALSE(appenderContains("Initialising Global Susi successful"));
+}
+
+TEST_F(TestSusiGlobalHandler, isMachineLearningEnabled)
+{
+    auto mockSusiApi = std::make_shared<NiceMock<MockSusiApi>>();
+    auto globalHandler = SusiGlobalHandler(mockSusiApi);
+
+    EXPECT_TRUE(globalHandler.isMachineLearningEnabled());
+}
+
+TEST_F(TestSusiGlobalHandler, readMachineLearningFromEmptySettings)
+{
+    // Set PLUGIN_INSTALL
+    auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
+    appConfig.setData("PLUGIN_INSTALL", "/plugin");
+
+    // Mock filesystem
+    auto* filesystemMock = new StrictMock<MockFileSystem>();
+    EXPECT_CALL(*filesystemMock, isFile("/etc/sophos_susi_force_machine_learning")).WillOnce(Return(false));
+    EXPECT_CALL(*filesystemMock, isFile("/plugin/var/susi_startup_settings.json")).WillOnce(Return(true));
+    EXPECT_CALL(*filesystemMock, readFile("/plugin/var/susi_startup_settings.json")).WillOnce(Return("{}"));
+    Tests::ScopedReplaceFileSystem ScopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
+
+    auto mockSusiApi = std::make_shared<NiceMock<MockSusiApi>>();
+    auto globalHandler = SusiGlobalHandler(mockSusiApi);
+
+    EXPECT_TRUE(globalHandler.isMachineLearningEnabled());
+}
+
+TEST_F(TestSusiGlobalHandler, readMachineLearningFromFalseSettings)
+{
+    // Set PLUGIN_INSTALL
+    auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
+    appConfig.setData("PLUGIN_INSTALL", "/plugin");
+
+    // Mock filesystem
+    auto* filesystemMock = new StrictMock<MockFileSystem>();
+    EXPECT_CALL(*filesystemMock, isFile("/etc/sophos_susi_force_machine_learning")).WillOnce(Return(false));
+    EXPECT_CALL(*filesystemMock, isFile("/plugin/var/susi_startup_settings.json")).WillOnce(Return(true));
+    EXPECT_CALL(*filesystemMock, readFile("/plugin/var/susi_startup_settings.json")).WillOnce(Return(R"({"machineLearning":false})"));
+    Tests::ScopedReplaceFileSystem ScopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
+
+    auto mockSusiApi = std::make_shared<NiceMock<MockSusiApi>>();
+    auto globalHandler = SusiGlobalHandler(mockSusiApi);
+
+    EXPECT_FALSE(globalHandler.isMachineLearningEnabled());
+}
+
+TEST_F(TestSusiGlobalHandler, readMachineLearningFromOverride)
+{
+    // Set PLUGIN_INSTALL
+    auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
+    appConfig.setData("PLUGIN_INSTALL", "/plugin");
+
+    // Mock filesystem
+    auto* filesystemMock = new StrictMock<MockFileSystem>();
+    EXPECT_CALL(*filesystemMock, isFile("/etc/sophos_susi_force_machine_learning")).WillOnce(Return(true));
+    EXPECT_CALL(*filesystemMock, isFile("/plugin/var/susi_startup_settings.json")).WillOnce(Return(true));
+    EXPECT_CALL(*filesystemMock, readFile("/plugin/var/susi_startup_settings.json")).WillOnce(Return(R"({"machineLearning":false})"));
+    Tests::ScopedReplaceFileSystem ScopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
+
+    auto mockSusiApi = std::make_shared<NiceMock<MockSusiApi>>();
+    auto globalHandler = SusiGlobalHandler(mockSusiApi);
+
+    EXPECT_TRUE(globalHandler.isMachineLearningEnabled());
 }
