@@ -80,15 +80,15 @@
                      dest-dir="input/susi_input/libsophtainer"/>
         </build-asset>
 
-        <build-asset project="ec" repo="liblocalrep">
+        <build-asset project="core" repo="liblocalrep">
             <release-version branch="release/2.4"
-                             build-id="20221130103555-0238a2dbd301c1c11c2eca2ada391ea29f58f993-J7o6A8"/>
+                             build-id="20221209065757-cee305b5a39d3916a1555e5c0bcf3a8621ffcf32-eb08PU"/>
             <include artifact-path="release/linux64/bin" dest-dir="input/susi_input/lrlib"/>
         </build-asset>
 
-        <build-asset project="ec" repo="susi">
+        <build-asset project="core" repo="susi">
             <release-version branch="release/2.1"
-                             build-id="20221130122636-fad6ff6b74996d27eed80f1db6a839fee75f1515-QhdWll"/>
+                             build-id="20221209132720-fae151c9c7775ed3e9a58aa39ffa72b1780a30e9-lHbc9j"/>
             <include artifact-path="release/linux/libsusi" dest-dir="input/susi_input/susi/lib"/>
             <include artifact-path="release/linux/interface" dest-dir="input/susi_input/susi/include"/>
             <include artifact-path="release/linux/updater" dest-dir="input/susi_input/susi/lib"/>
