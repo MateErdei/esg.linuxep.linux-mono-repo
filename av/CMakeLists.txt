@@ -217,8 +217,8 @@ find_library(CRYPTO_LIBRARY
 
 add_library(safestorelib SHARED IMPORTED)
 set_target_properties(safestorelib PROPERTIES
-        IMPORTED_LOCATION ${INPUT}/safestore_input/libsafestore.so.2
-        INTERFACE_INCLUDE_DIRECTORIES ${INPUT}/safestore_input
+        IMPORTED_LOCATION ${INPUT}/safestore_input/lib/libsafestore.so.2
+        INTERFACE_INCLUDE_DIRECTORIES ${INPUT}/safestore_input/interface
         )
 
 set(ZLIB_INPUT ${REDIST}/zlib)
