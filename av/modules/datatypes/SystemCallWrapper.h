@@ -156,5 +156,10 @@ namespace datatypes
         {
             return std::thread::hardware_concurrency();
         }
+
+        void _exit (int __status) override
+        {
+            ::_exit(__status);
+        }
     };
 }

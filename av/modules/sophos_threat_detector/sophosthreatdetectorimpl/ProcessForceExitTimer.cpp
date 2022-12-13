@@ -6,8 +6,9 @@
 
 using namespace sspl::sophosthreatdetectorimpl;
 
-ProcessForceExitTimer::ProcessForceExitTimer(std::chrono::seconds timeout)
+ProcessForceExitTimer::ProcessForceExitTimer(std::chrono::seconds timeout, datatypes::ISystemCallWrapperSharedPtr systemCallWrapper)
 : m_timeout(timeout)
+, m_systemCallWrapper(systemCallWrapper)
 {
 
 }
@@ -44,6 +45,6 @@ void ProcessForceExitTimer::run()
     if (!m_cond.wait_for(lck, m_timeout, [this](){ return m_stopRequested.load(); }))
     {
         LOGWARN("Timed out waiting for graceful shutdown - forcing exit with return code " << m_exitCode);
-        _exit(m_exitCode);
+        m_systemCallWrapper->_exit(m_exitCode);
     }
 }

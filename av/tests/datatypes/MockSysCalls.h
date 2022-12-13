@@ -61,6 +61,7 @@ namespace
         MOCK_METHOD(int, cap_set_proc, (cap_t __cap_t));
         MOCK_METHOD(int, prctl, (int option, ulong __arg2, ulong __arg3, ulong __arg4, ulong __arg5));
         MOCK_METHOD(unsigned int, hardware_concurrency, ());
+        MOCK_METHOD(void, _exit, (int __status));
     };
 }
 

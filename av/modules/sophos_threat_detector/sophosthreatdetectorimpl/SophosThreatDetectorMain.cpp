@@ -339,11 +339,12 @@ namespace sspl::sophosthreatdetectorimpl
 
     int SophosThreatDetectorMain::inner_main(IThreatDetectorResourcesSharedPtr resources)
     {
+        m_sysCallWrapper = resources->createSystemCallWrapper();
+
         using namespace std::chrono_literals;
-        auto processForceExitTimer = std::make_shared<ProcessForceExitTimer>(10s);
+        auto processForceExitTimer = std::make_shared<ProcessForceExitTimer>(10s, m_sysCallWrapper);
         common::ThreadRunner processForceExitTimerThread(processForceExitTimer, "processForceExitTimer", false);
 
-        m_sysCallWrapper = resources->createSystemCallWrapper();
         auto sigTermMonitor = resources->createSignalHandler(true);
 
         // Ignore SIGPIPE. send*() or write() on a broken pipe will now fail with errno=EPIPE rather than crash.
