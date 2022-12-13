@@ -89,23 +89,23 @@ def fetch_artifacts(project, repo, artifact_path):
 def get_test_inputs_from_base():
     fetch_artifacts("linuxep", "everest-base", "sspl-base/system_test")
 
-    cloud_automation_inputs = os.path.join(SCRIPT_DIR, "SystemProductTestOutput", "testUtils", "SupportFiles", "CloudAutomation")
-    cloud_client_path = os.path.join(cloud_automation_inputs, "cloudClient.py")
-    https_client_path = os.path.join(cloud_automation_inputs, "SophosHTTPSClient.py")
-
     tar = tarfile.open(os.path.join(SCRIPT_DIR, "SystemProductTestOutput.tar.gz"))
     tar.extractall(SCRIPT_DIR)
     tar.close()
 
-    if not os.path.exists(cloud_client_path):
-        logging.error(f"cloudClient.py does not exists: {os.listdir(cloud_automation_inputs)}")
+    cloud_automation_inputs = os.path.join(SCRIPT_DIR, "SystemProductTestOutput", "testUtils", "SupportFiles", "CloudAutomation")
+    shutil.move(os.path.join(cloud_automation_inputs, "cloudClient.py"), SCRIPT_DIR)
+    shutil.move(os.path.join(cloud_automation_inputs, "SophosHTTPSClient.py"), SCRIPT_DIR)
+
+    if not os.path.exists(os.path.join(SCRIPT_DIR, "cloudClient.py")):
+        logging.error(f"cloudClient.py does not exists: {os.listdir(SCRIPT_DIR)}")
         exit(1)
 
-    if not os.path.exists(https_client_path):
-        logging.error(f"SophosHTTPSClient.py does not exists: {os.listdir(cloud_automation_inputs)}")
+    if not os.path.exists(os.path.join(SCRIPT_DIR, "SophosHTTPSClient.py")):
+        logging.error(f"SophosHTTPSClient.py does not exists: {os.listdir(SCRIPT_DIR)}")
         exit(1)
 
-    os.environ["CLOUD_CLIENT_SCRIPT"] = cloud_client_path
+    os.environ["CLOUD_CLIENT_SCRIPT"] = os.path.join(SCRIPT_DIR, "cloudClient.py")
 
 
 def get_test_inputs_from_event_journaler():
