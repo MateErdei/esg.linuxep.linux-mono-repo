@@ -42,11 +42,6 @@ namespace
 #endif
         }
 
-        void expectReadCustomerId()
-        {
-            expectReadCustomerIdOnce();
-        }
-
         void expectWriteSusiConfigFromBool(bool sxlEnabled)
         {
             if (sxlEnabled)
@@ -266,7 +261,7 @@ TEST_F(TestPolicyProcessor_SAV_policy, processSavPolicy)
 {
     expectWriteSoapdConfig();
     expectReadSoapdConfig();
-    expectReadCustomerId();
+    expectConstructorCalls();
     expectWriteSusiConfigFromBool(false);
 
     Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
@@ -295,7 +290,7 @@ TEST_F(TestPolicyProcessor_SAV_policy, defaultSXL4lookupValueIsTrue)
 TEST_F(TestPolicyProcessor_SAV_policy, processSavPolicyChanged)
 {
     expectReadSoapdConfig();
-    expectReadCustomerId();
+    expectConstructorCalls();
     expectWriteSoapdConfig();
     {
         InSequence seq;
@@ -344,7 +339,7 @@ TEST_F(TestPolicyProcessor_SAV_policy, processSavPolicyChanged)
 TEST_F(TestPolicyProcessor_SAV_policy, processSavPolicyMaintainsSXL4state)
 {
     expectReadSoapdConfig();
-    expectReadCustomerId();
+    expectConstructorCalls();
     expectWriteSoapdConfig();
     {
         InSequence seq;
@@ -396,7 +391,7 @@ TEST_F(TestPolicyProcessor_SAV_policy, processSavPolicyMaintainsSXL4state)
 TEST_F(TestPolicyProcessor_SAV_policy, processSavPolicyMissing)
 {
     expectReadSoapdConfig();
-    expectReadCustomerId();
+    expectConstructorCalls();
     expectWriteSusiConfigFromBool(false);
     expectWriteSusiConfigFromBool(true);
     expectWriteSoapdConfig();
@@ -429,7 +424,7 @@ TEST_F(TestPolicyProcessor_SAV_policy, processSavPolicyMissing)
 TEST_F(TestPolicyProcessor_SAV_policy, processSavPolicyInvalid)
 {
     expectReadSoapdConfig();
-    expectReadCustomerId();
+    expectConstructorCalls();
     expectWriteSusiConfigFromBool(false);
     expectWriteSusiConfigFromBool(true);
     expectWriteSoapdConfig();
@@ -468,7 +463,7 @@ TEST_F(TestPolicyProcessor_SAV_policy, processSavPolicyInvalid)
 TEST_F(TestPolicyProcessor_SAV_policy, getOnAccessExclusions)
 {
     expectReadSoapdConfig();
-    expectReadCustomerId();
+    expectConstructorCalls();
     expectWriteSusiConfigFromBool(true);
     EXPECT_CALL(*m_mockIFileSystemPtr, writeFileAtomically(m_soapConfigPath,
                                                            R"sophos({"exclusions":["x","y"]})sophos",

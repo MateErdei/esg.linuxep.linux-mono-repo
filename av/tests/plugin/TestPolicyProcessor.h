@@ -78,5 +78,15 @@ namespace
             EXPECT_CALL(*m_mockIFileSystemPtr, writeFileAtomically(m_susiStartupConfigChrootPath, expected,_ ,_)).Times(1);
         }
 
+        void expectAbsentSusiConfig()
+        {
+            EXPECT_CALL(*m_mockIFileSystemPtr, isFile(m_susiStartupConfigPath)).WillOnce(Return(false));
+        }
+
+        void expectConstructorCalls()
+        {
+            expectReadCustomerIdOnce();
+            expectAbsentSusiConfig();
+        }
     };
 }

@@ -105,7 +105,6 @@ namespace common::ThreatDetector
             auto fs = Common::FileSystem::fileSystem();
             auto pluginTempPath = Common::ApplicationConfiguration::applicationPathManager().getTempPath();
             fs->writeFileAtomically(path, serialise(), pluginTempPath, permissions);
-            LOGINFO("Saved Threat Detector SUSI settings");
         }
         catch (const Common::FileSystem::IFileSystemException& e)
         {

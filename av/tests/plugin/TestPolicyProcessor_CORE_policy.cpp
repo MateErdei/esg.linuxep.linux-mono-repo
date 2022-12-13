@@ -38,7 +38,7 @@ namespace
 TEST_F(TestPolicyProcessor_CORE_policy, sendEmptyPolicy)
 {
     std::string CORE_policy{R"sophos(<?xml version="1.0"?><policy/>)sophos"};
-    expectReadCustomerIdOnce();
+    expectConstructorCalls();
     Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
     auto attributeMap = Common::XmlUtilities::parseXml(CORE_policy);
     PolicyProcessorUnitTestClass proc;
@@ -182,7 +182,7 @@ TEST_F(TestPolicyProcessor_CORE_policy, sendExampleCOREpolicy)
 
 </policy>)sophos"};
 
-    expectReadCustomerIdOnce();
+    expectConstructorCalls();
 
     Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
 
@@ -208,7 +208,7 @@ TEST_F(TestPolicyProcessor_CORE_policy, processOnAccessPolicyEnabled)
 </policy>)sophos"};
 
     expectReadSoapdConfig();
-    expectReadCustomerIdOnce();
+    expectConstructorCalls();
     EXPECT_CALL(*m_mockIFileSystemPtr, writeFileAtomically(m_soapConfigPath,
 #ifdef USE_ON_ACCESS_EXCLUSIONS_FROM_SAV_POLICY
                                                            R"sophos({"enabled":true,"excludeRemoteFiles":false})sophos",
@@ -243,7 +243,7 @@ TEST_F(TestPolicyProcessor_CORE_policy, processOnAccessPolicyDisabled)
 </policy>)sophos"};
 
     expectReadSoapdConfig();
-    expectReadCustomerIdOnce();
+    expectConstructorCalls();
     EXPECT_CALL(*m_mockIFileSystemPtr, writeFileAtomically(m_soapConfigPath,
 #ifdef USE_ON_ACCESS_EXCLUSIONS_FROM_SAV_POLICY
                                                            R"sophos({"enabled":false,"excludeRemoteFiles":false})sophos",
@@ -274,7 +274,7 @@ TEST_F(TestPolicyProcessor_CORE_policy, preserveOtherSettings)
     </exclusions>
   </onAccessScan>
 </policy>)sophos"};
-    expectReadCustomerIdOnce();
+    expectConstructorCalls();
     nlohmann::json original;
     original["exclusions"] = nlohmann::json::array();
     original["TestValue"] = 54;
@@ -312,7 +312,7 @@ TEST_F(TestPolicyProcessor_CORE_policy, emptySavedFile)
     </exclusions>
   </onAccessScan>
 </policy>)sophos"};
-    expectReadCustomerIdOnce();
+    expectConstructorCalls();
     EXPECT_CALL(*m_mockIFileSystemPtr, readFile(m_soapConfigPath)).WillOnce(
         Return(""));
 
@@ -341,7 +341,7 @@ TEST_F(TestPolicyProcessor_CORE_policy, processOnAccessPolicyExcludeRemoteEnable
 </policy>)sophos"};
 
     expectReadSoapdConfig();
-    expectReadCustomerIdOnce();
+    expectConstructorCalls();
     EXPECT_CALL(*m_mockIFileSystemPtr, writeFileAtomically(m_soapConfigPath,
 #ifdef USE_ON_ACCESS_EXCLUSIONS_FROM_SAV_POLICY
                                                            R"sophos({"enabled":false,"excludeRemoteFiles":true})sophos",
@@ -361,6 +361,8 @@ TEST_F(TestPolicyProcessor_CORE_policy, processOnAccessPolicyExcludeRemoteEnable
 
 TEST_F(TestPolicyProcessor_CORE_policy, machineLearningDisabled)
 {
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
     std::string CORE_policy{R"sophos(<?xml version="1.0"?>
 <policy RevID="{{revisionId}}" policyType="36">
 <!-- Core Features -->
@@ -371,13 +373,38 @@ TEST_F(TestPolicyProcessor_CORE_policy, machineLearningDisabled)
 
     std::string settingsJson = R"sophos({"enableSxlLookup":true,"machineLearning":false,"shaAllowList":[]})sophos";
     expectWriteSusiConfigFromString(settingsJson);
-    expectReadCustomerIdOnce();
+    expectConstructorCalls();
     Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
 
     auto attributeMap = Common::XmlUtilities::parseXml(CORE_policy);
 
     PolicyProcessorUnitTestClass proc;
     EXPECT_NO_THROW(proc.processCOREpolicy(attributeMap));
+    EXPECT_TRUE(appenderContains("Saved Threat Detector SUSI settings for CORE policy"));
+}
+
+TEST_F(TestPolicyProcessor_CORE_policy, machineLearningEnabled)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    std::string CORE_policy{R"sophos(<?xml version="1.0"?>
+<policy RevID="{{revisionId}}" policyType="36">
+<!-- Core Features -->
+<coreFeatures>
+  <machineLearningEnabled>true</machineLearningEnabled>
+</coreFeatures>
+</policy>)sophos"};
+
+    std::string settingsJson = R"sophos({"enableSxlLookup":true,"machineLearning":true,"shaAllowList":[]})sophos";
+    expectWriteSusiConfigFromString(settingsJson);
+    expectConstructorCalls();
+    Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
+
+    auto attributeMap = Common::XmlUtilities::parseXml(CORE_policy);
+
+    PolicyProcessorUnitTestClass proc;
+    EXPECT_NO_THROW(proc.processCOREpolicy(attributeMap));
+    EXPECT_TRUE(appenderContains("Saved Threat Detector SUSI settings for CORE policy"));
 }
 
 #ifndef USE_ON_ACCESS_EXCLUSIONS_FROM_SAV_POLICY

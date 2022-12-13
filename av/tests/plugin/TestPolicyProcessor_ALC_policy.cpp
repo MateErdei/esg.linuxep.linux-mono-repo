@@ -132,6 +132,7 @@ TEST_F(TestPolicyProcessor_ALC_policy, processAlcPolicyNoChangePolicy)
     const std::string expectedMd5 = "5e259db8da3ae4df8f18a2add2d3d47d";
     const std::string customerIdFilePath1 = m_customerIdPath;
     EXPECT_CALL(*m_mockIFileSystemPtr, readFile(customerIdFilePath1)).WillOnce(Return(expectedMd5));
+    expectAbsentSusiConfig();
 
     Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
 
@@ -158,6 +159,7 @@ TEST_F(TestPolicyProcessor_ALC_policy, processAlcPolicyChangedPolicy)
     EXPECT_CALL(*m_mockIFileSystemPtr, writeFile(customerIdFilePath2, expectedMd5_1)).Times(1);
     EXPECT_CALL(*m_mockIFileSystemPtr, writeFile(customerIdFilePath1, expectedMd5_2)).Times(1);
     EXPECT_CALL(*m_mockIFileSystemPtr, writeFile(customerIdFilePath2, expectedMd5_2)).Times(1);
+    expectAbsentSusiConfig();
 
     Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
 
@@ -387,6 +389,7 @@ TEST_F(TestPolicyProcessor_ALC_policy, processAlcPolicyInvalid)
 {
     const std::string expectedMd5 = "5e259db8da3ae4df8f18a2add2d3d47d";
     EXPECT_CALL(*m_mockIFileSystemPtr, readFile(_)).WillOnce(Return(expectedMd5));
+    expectAbsentSusiConfig();
 
     Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
 

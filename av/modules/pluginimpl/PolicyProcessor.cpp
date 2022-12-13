@@ -153,6 +153,7 @@ namespace Plugin
             // Will happen the first time - so can't report it
             m_customerId = "";
         }
+        loadSusiSettings();
     }
 
     /**
@@ -327,7 +328,7 @@ namespace Plugin
             m_gotFirstSavPolicy = true;
         }
 
-        saveSusiSettings();
+        saveSusiSettings("SAV");
     }
 
     bool PolicyProcessor::isLookupEnabled(const Common::XmlUtilities::AttributesMap& policy)
@@ -478,7 +479,6 @@ namespace Plugin
     {
         processOnAccessSettingsFromCOREpolicy(policy);
         processSusiSettingsFromCOREpolicy(policy);
-
     }
 
     void PolicyProcessor::processOnAccessSettingsFromCOREpolicy(const AttributesMap& policy)
@@ -535,7 +535,7 @@ namespace Plugin
             return;
         }
 
-        bool changed = false;
+        bool changed = !m_susiSettingsWritten; // Always write the first time
 
         const auto machineLearningEnabled = boolFromString(policy.lookup("policy/coreFeatures/machineLearningEnabled").contents());
         const auto existingSetting = m_threatDetectorSettings.isMachineLearningEnabled();
@@ -547,7 +547,7 @@ namespace Plugin
 
         if (changed)
         {
-            saveSusiSettings();
+            saveSusiSettings("CORE");
         }
     }
 
@@ -612,7 +612,7 @@ namespace Plugin
         if (oldAllowList != sha256AllowList || m_firstPolicy)
         {
             m_threatDetectorSettings.setAllowList(std::move(sha256AllowList));
-            saveSusiSettings();
+            saveSusiSettings("CORC");
         }
         else
         {
@@ -620,7 +620,7 @@ namespace Plugin
         }
     }
 
-    void PolicyProcessor::saveSusiSettings()
+    void PolicyProcessor::saveSusiSettings(const std::string& policyName)
     {
         auto dest = Plugin::getSusiStartupSettingsPath();
         m_threatDetectorSettings.saveSettings(dest, 0640);
@@ -630,5 +630,13 @@ namespace Plugin
         m_threatDetectorSettings.saveSettings(dest, 0640);
         // Make SUSI reload config
         m_restartThreatDetector = true;
+        LOGINFO("Saved Threat Detector SUSI settings for " << policyName << " policy");
+        m_susiSettingsWritten = true;
+    }
+
+    void PolicyProcessor::loadSusiSettings()
+    {
+        auto src = Plugin::getSusiStartupSettingsPath();
+        std::ignore = m_threatDetectorSettings.load(src);
     }
 } // namespace Plugin

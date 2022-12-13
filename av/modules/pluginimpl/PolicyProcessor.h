@@ -112,7 +112,9 @@ namespace Plugin
     private:
         void processOnAccessFlagSettings(const nlohmann::json& flagsJson);
         void processSafeStoreFlagSettings(const nlohmann::json& flagsJson);
-        void saveSusiSettings();
+
+        void loadSusiSettings();
+        void saveSusiSettings(const std::string& policyName);
 
         static std::vector<std::string> extractListFromXML(
             const AttributesMap& policy,
@@ -124,6 +126,9 @@ namespace Plugin
         IStoppableSleeperSharedPtr m_sleeper;
         std::string m_customerId;
         common::ThreatDetector::SusiSettings m_threatDetectorSettings;
+
+        int m_pendingOnAccessProcessReload = 0;
+
         bool m_safeStoreEnabled = false;
         bool m_safeStoreQuarantineMl = false;
 
@@ -138,7 +143,8 @@ namespace Plugin
          */
         bool m_restartThreatDetector = false;
 
-        int m_pendingOnAccessProcessReload = 0;
+        bool m_susiSettingsWritten = false;
+
 
         inline static const std::string OA_FLAG{ "av.onaccess.enabled" };
         inline static const std::string SS_FLAG{ "safestore.enabled" };
