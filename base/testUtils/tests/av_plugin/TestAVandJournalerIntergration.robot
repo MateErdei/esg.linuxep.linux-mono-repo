@@ -156,7 +156,11 @@ Test av can publish events for onaccess and that journaler can receive them
     ...  20 secs
     ...  1 secs
     ...  check_log_contains    On-access enabled: true  ${SOPHOS_INSTALL}/plugins/av/log/soapd.log    soapd
-    sleep  2
+    Wait Until Keyword Succeeds
+    ...  20 secs
+    ...  1 secs
+    ...  check_log_contains    Fanotify successfully initialised  ${SOPHOS_INSTALL}/plugins/av/log/soapd.log    soapd
+
     Create File     /tmp/dirty_file    ${EICAR_STRING}
     Wait Until Keyword Succeeds
     ...  20 secs
@@ -167,15 +171,15 @@ Test av can publish events for onaccess and that journaler can receive them
     ...  1 secs
     ...  Check Journal Contains Detection Event With Content  "avScanType":201
     Check Journal Contains Detection Event With Content  pid
-    Check Journal Contains Detection Event With Content  processParentPath
+    Check Journal Contains Detection Event With Content  processPath
     Run Live Query  select * from sophos_detections_journal   simple
     Wait Until Keyword Succeeds
     ...  60 secs
     ...  2 secs
     ...  Check Marked Livequery Log Contains  Successfully executed query
     Check Marked Livequery Log Contains  pid
-    Check Marked Livequery Log Contains  processParentPath
-    Check Marked Livequery Log Contains  process_parent_path
+    Check Marked Livequery Log Contains  processPath
+    Check Marked Livequery Log Contains  process_path
     Check Marked Livequery Log Contains  on_access
 *** Keywords ***
 Wait Until Threat Report Socket Exists
