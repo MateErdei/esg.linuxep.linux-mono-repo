@@ -542,6 +542,7 @@ namespace Plugin
         if (machineLearningEnabled != existingSetting)
         {
             m_threatDetectorSettings.setMachineLearningEnabled(machineLearningEnabled);
+            LOGINFO("Machine Learning detections "<< (machineLearningEnabled?"enabled":"disabled") << " in CORE policy");
             changed = true;
         }
 
@@ -549,6 +550,7 @@ namespace Plugin
         {
             saveSusiSettings("CORE");
         }
+        assert(m_susiSettingsWritten);
     }
 
     nlohmann::json PolicyProcessor::readOnAccessConfig()
