@@ -63,6 +63,12 @@ void Common::ZeroMQWrapperImpl::SocketHolder::reset(
     {
         throw std::logic_error("Failed to configure option to limit max size of message on the socket");
     }
+
+    constexpr int lingerMilliSeconds = 0;
+    if (-1 == zmq_setsockopt(m_socket, ZMQ_LINGER, &lingerMilliSeconds, sizeof(lingerMilliSeconds)))
+    {
+        throw std::logic_error("Failed to configure ZMQ_LINGER on the socket");
+    }
 }
 
 void* Common::ZeroMQWrapperImpl::SocketHolder::release()
