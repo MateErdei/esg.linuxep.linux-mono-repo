@@ -13,9 +13,7 @@ import sys
 import tarfile
 import time
 
-import certifi_local
 import requests
-import tap.jwt
 from build_scripts.artisan_fetch import artisan_fetch
 
 import LogUtils
@@ -86,8 +84,6 @@ PACKAGE_XML_TEMPLATE = \
 
 
 def fetch_artifacts(project, repo, artifact_path):
-    tap.jwt.get_jwt(certifi_local.sophos.where_jwt_live_cert())
-
     release_package_path = os.path.join(SCRIPT_DIR, "release-package.xml")
     with open(release_package_path, 'w') as release_package_file:
         release_package_file.write(PACKAGE_XML_TEMPLATE.format(project, repo, artifact_path))
