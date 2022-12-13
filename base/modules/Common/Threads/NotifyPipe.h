@@ -28,6 +28,8 @@ namespace Common
              * Creates a pipe().
              */
             NotifyPipe() noexcept;
+            NotifyPipe(const NotifyPipe&) = delete;
+            NotifyPipe& operator=(const NotifyPipe& rhs) = delete;
             virtual ~NotifyPipe() noexcept;
 
             /**
