@@ -7,6 +7,7 @@ Library         Process
 Library         OperatingSystem
 Library         ../Libs/CoreDumps.py
 Library         ../Libs/FakeManagement.py
+Library         ../Libs/FileSampleObfuscator.py
 Library         ../Libs/FileUtils.py
 Library         ../Libs/LogUtils.py
 Library         ../Libs/OnFail.py
@@ -301,7 +302,7 @@ AV Plugin Scan Now with Bind Mount
 AV Plugin Scan Now with ISO mount
     ${source} =       Set Variable  /tmp_test/eicar.iso
     ${destination} =  Set Variable  /tmp_test/iso_mount
-    Copy File  ${RESOURCES_PATH}/file_samples/eicar.iso  ${source}
+    DeObfuscate File  ${RESOURCES_PATH}/file_samples_obfuscated/eicar.iso  ${source}
     Register Cleanup  Remove File   ${source}
     Create Directory  ${destination}
     Register Cleanup  Remove Directory   ${destination}
@@ -318,7 +319,7 @@ AV Plugin Scan two mounts same inode numbers
     # differ. We should walk both mounts.
     ${source} =       Set Variable  /tmp_test/eicar.iso
     ${destination} =  Set Variable  /tmp_test/iso_mount
-    Copy File  ${RESOURCES_PATH}/file_samples/eicar.iso  ${source}
+    DeObfuscate File  ${RESOURCES_PATH}/file_samples_obfuscated/eicar.iso  ${source}
     Register Cleanup  Remove File   ${source}
     Create Directory  ${destination}
     Register Cleanup  Remove Directory   ${destination}
@@ -328,7 +329,7 @@ AV Plugin Scan two mounts same inode numbers
 
     ${source2} =       Set Variable  /tmp_test/eicar2.iso
     ${destination2} =  Set Variable  /tmp_test/iso_mount2
-    Copy File  ${RESOURCES_PATH}/file_samples/eicar.iso  ${source2}
+    DeObfuscate File  ${RESOURCES_PATH}/file_samples_obfuscated/eicar.iso  ${source2}
     Register Cleanup  Remove File   ${source2}
     Create Directory  ${destination2}
     Register Cleanup  Remove Directory   ${destination2}

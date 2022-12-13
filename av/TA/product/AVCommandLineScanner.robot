@@ -456,7 +456,7 @@ CLS Aborts Scanning of Corrupted File
 
 CLS Can Report Scan Error And Detection For Archive
     Register Cleanup     Exclude As Password Protected
-    Copy File  ${RESOURCES_PATH}/file_samples/scanErrorAndThreat.tar  ${NORMAL_DIRECTORY}
+    DeObfuscate File  ${RESOURCES_PATH}/file_samples_obfuscated/scanErrorAndThreat.tar  ${NORMAL_DIRECTORY}/scanErrorAndThreat.tar
 
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/scanErrorAndThreat.tar --scan-archives
 
@@ -674,22 +674,24 @@ CLS simple eicar in encoded archive
     Wait Until AV Plugin Log Contains Detection Name And Path After Mark  ${mark}  EICAR-AV-Test  ${NORMAL_DIRECTORY}/脅威.tar
 
 CLS Scans DiscImage When Image Setting Is On
-    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${RESOURCES_PATH}/file_samples/eicar.iso
+    DeObfuscate File  ${RESOURCES_PATH}/file_samples_obfuscated/eicar.iso  ${NORMAL_DIRECTORY}/eicar.iso
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/eicar.iso
     Log  ${output}
     Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
-    Should Not Contain  ${output}   Detected "/opt/test/inputs/test_scripts/resources/file_samples/eicar.iso/1/DIR/subdir/eicar.com" is infected with EICAR-AV-Test
+    Should Not Contain  ${output}   Detected "${NORMAL_DIRECTORY}/eicar.iso/1/DIR/subdir/eicar.com" is infected with EICAR-AV-Test
 
 
-    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${RESOURCES_PATH}/file_samples/eicar.iso --scan-images
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/eicar.iso --scan-images
     Log  ${output}
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-    Should Contain  ${output}   Detected "/opt/test/inputs/test_scripts/resources/file_samples/eicar.iso/1/DIR/subdir/eicar.com" is infected with EICAR-AV-Test
+    Should Contain  ${output}   Detected "${NORMAL_DIRECTORY}/eicar.iso/1/DIR/subdir/eicar.com" is infected with EICAR-AV-Test
 
 CLS Does Not Scan DiscImage When Archives Setting Is On
-    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${RESOURCES_PATH}/file_samples/eicar.iso --scan-archives
+    DeObfuscate File  ${RESOURCES_PATH}/file_samples_obfuscated/eicar.iso  ${NORMAL_DIRECTORY}/eicar.iso
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/eicar.iso --scan-archives
     Log  ${output}
     Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
-    Should Not Contain  ${output}   Detected "/opt/test/inputs/test_scripts/resources/file_samples/eicar.iso/1/DIR/subdir/eicar.com" is infected with EICAR-AV-Test
+    Should Not Contain  ${output}   Detected "${NORMAL_DIRECTORY}/eicar.iso/1/DIR/subdir/eicar.com" is infected with EICAR-AV-Test
 
 CLS Encoded Eicars
     Register Cleanup   Remove Directory  /tmp_test/encoded_eicars  true
@@ -1478,7 +1480,7 @@ CLS scan with ISO mount
     Register Cleanup  Remove Directory   /tmp_test   recursive=true
     Remove Directory  /tmp_test   recursive=true
     Create Directory  ${destination}
-    Copy File  ${RESOURCES_PATH}/file_samples/eicar.iso  ${source}
+    DeObfuscate File  ${RESOURCES_PATH}/file_samples_obfuscated/eicar.iso  ${source}
     Run Shell Process   mount -o ro,loop ${source} ${destination}     OnError=Failed to create loopback mount
     Register Cleanup  Run Shell Process   umount ${destination}   OnError=Failed to release loopback mount
     Should Exist      ${destination}/DIR/subdir/eicar.com
@@ -1499,14 +1501,14 @@ CLS scan two mounts same inode numbers
     Register Cleanup  Remove Directory   /tmp_test   recursive=true
     Remove Directory  /tmp_test   recursive=true
     Create Directory  ${destination}
-    Copy File  ${RESOURCES_PATH}/file_samples/eicar.iso  ${source}
+    DeObfuscate File  ${RESOURCES_PATH}/file_samples_obfuscated/eicar.iso  ${source}
     Run Shell Process   mount -o ro,loop ${source} ${destination}     OnError=Failed to create loopback mount
     Register Cleanup  Run Shell Process   umount ${destination}   OnError=Failed to release loopback mount
     Should Exist      ${destination}/DIR/subdir/eicar.com
 
     ${source2} =       Set Variable  /tmp_test/inode_test/eicar2.iso
     ${destination2} =  Set Variable  /tmp_test/inode_test/iso_mount2
-    Copy File  ${RESOURCES_PATH}/file_samples/eicar.iso  ${source2}
+    DeObfuscate File  ${RESOURCES_PATH}/file_samples_obfuscated/eicar.iso  ${source2}
     Register Cleanup  Remove File   ${source2}
     Create Directory  ${destination2}
     Run Shell Process   mount -o ro,loop ${source2} ${destination2}     OnError=Failed to create loopback mount

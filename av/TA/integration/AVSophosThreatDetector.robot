@@ -530,7 +530,7 @@ Sophos Threat Detector Is Ignoring Reload Request
 
 Sophos Threat Detector Scans Archive With Error And Eicar And Reports Successfully
     Register Cleanup  Exclude As Password Protected
-    Copy File  ${RESOURCES_PATH}/file_samples/scanErrorAndThreat.tar  ${NORMAL_DIRECTORY}
+    DeObfuscate File  ${RESOURCES_PATH}/file_samples_obfuscated/scanErrorAndThreat.tar  ${NORMAL_DIRECTORY}/scanErrorAndThreat.tar
     ${archive_sha} =  Get SHA256  ${NORMAL_DIRECTORY}/scanErrorAndThreat.tar
     ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
     ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
