@@ -179,7 +179,7 @@ Threat Detector Restarts If System File Contents Change While A Long Scan Is Ong
 
     # Create slow scanning file
     ${long_scan_file} =  Set Variable  /tmp_test/long_scan_file.exe
-    Create Large PE File Of Size  500M  ${long_scan_file}
+    Create Large PE File Of Size  1G  ${long_scan_file}
 
     # Scan slow scanning file
     ${cls_handle} =  Start Process  ${CLI_SCANNER_PATH}  ${long_scan_file}  stdout=${LOG_FILE}  stderr=STDOUT
