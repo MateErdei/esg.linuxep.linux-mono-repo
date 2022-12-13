@@ -20,7 +20,8 @@ using ListInputOutput = std::vector<PairResult>;
 
 extern std::string ipsToString(const std::vector<std::string>& ips);
 
-TEST(TestDnsLookup, shouldBeAbleToResolvValidHosts) // NOLINT
+// TODO LINUXDAR-4888 This test has been disabled because it relies on network access which is very limited EAA machines
+TEST(TestDnsLookup, DISABLED_shouldBeAbleToResolvValidHosts) // NOLINT
 {
     auto dns = dnsLookup();
     ListInputOutput url_ip = {
