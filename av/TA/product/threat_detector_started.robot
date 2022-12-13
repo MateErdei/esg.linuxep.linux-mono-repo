@@ -167,3 +167,66 @@ Threat Detector Does Not Restart If Sometimes-symlinked System File Contents Do 
 
     wait_for_av_log_contains_after_mark  System configuration not changed  ${av_mark}
     check_av_log_does_not_contain_after_mark  System configuration updated for ${SOMETIMES_SYMLINKED_SYSFILE}  ${av_mark}
+
+
+Threat Detector Restarts If System File Contents Change While A Long Scan Is Ongoing
+
+    copy file with permissions  ${TESTSYSPATH}  ${TESTSYSPATHBACKUP}
+    Register On Fail   Revert System File To Original
+
+    ${av_mark} =  LogUtils.Get Av Log Mark
+    ${td_mark} =  LogUtils.Get Sophos Threat Detector Log Mark
+
+    # Create slow scanning file
+    ${long_scan_file} =  Set Variable  /tmp_test/long_scan_file.exe
+    Create Large PE File Of Size  500M  ${long_scan_file}
+
+    # Scan slow scanning file
+    ${cls_handle} =  Start Process  ${CLI_SCANNER_PATH}  ${long_scan_file}  stdout=${LOG_FILE}  stderr=STDOUT
+    Process Should Be Running   ${cls_handle}
+    Register Cleanup    Terminate Process  ${cls_handle}
+    wait_for_sophos_threat_detector_log_contains_after_mark  SUSI Libraries loaded  ${td_mark}
+
+    ${ORG_CONTENTS} =  Get File  ${TESTSYSPATH}  encoding_errors=replace
+    Append To File  ${TESTSYSPATH}   "#NewLine"
+
+    wait_for_av_log_contains_after_mark  System configuration updated for ${TESTSYSFILE}  ${av_mark}
+    check_av_log_does_not_contain_after_mark  System configuration not changed for ${TESTSYSFILE}  ${av_mark}
+    wait_for_sophos_threat_detector_log_contains_after_mark  Timed out waiting for graceful shutdown  ${td_mark}  20
+    wait_for_sophos_threat_detector_log_contains_after_mark  forcing exit with return code 77  ${td_mark}
+
+    Wait until threat detector running after mark  ${td_mark}
+
+
+Threat Detector Restarts If System File Contents Change While Multiple Long Scans Are Ongoing
+
+    copy file with permissions  ${TESTSYSPATH}  ${TESTSYSPATHBACKUP}
+    Register On Fail   Revert System File To Original
+
+    ${av_mark} =  LogUtils.Get Av Log Mark
+    ${td_mark} =  LogUtils.Get Sophos Threat Detector Log Mark
+
+    # Create 2 slow scanning files
+    ${long_scan_file1} =  Set Variable  /tmp_test/long_scan_file1.exe
+    ${long_scan_file2} =  Set Variable  /tmp_test/long_scan_file2.exe
+    Create Large PE File Of Size  500M  ${long_scan_file1}
+    Create Large PE File Of Size  500M  ${long_scan_file2}
+
+    # Scan the 2 slow scanning files
+    ${cls_handle1} =  Start Process  ${CLI_SCANNER_PATH}  ${long_scan_file1}  stdout=${LOG_FILE}  stderr=STDOUT
+    ${cls_handle2} =  Start Process  ${CLI_SCANNER_PATH}  ${long_scan_file2}  stdout=${LOG_FILE}  stderr=STDOUT
+    Process Should Be Running   ${cls_handle1}
+    Process Should Be Running   ${cls_handle2}
+    Register Cleanup    Terminate Process  ${cls_handle1}
+    Register Cleanup    Terminate Process  ${cls_handle2}
+    wait_for_sophos_threat_detector_log_contains_after_mark  SUSI Libraries loaded  ${td_mark}
+
+    ${ORG_CONTENTS} =  Get File  ${TESTSYSPATH}  encoding_errors=replace
+    Append To File  ${TESTSYSPATH}   "#NewLine"
+
+    wait_for_av_log_contains_after_mark  System configuration updated for ${TESTSYSFILE}  ${av_mark}
+    check_av_log_does_not_contain_after_mark  System configuration not changed for ${TESTSYSFILE}  ${av_mark}
+    wait_for_sophos_threat_detector_log_contains_after_mark  Timed out waiting for graceful shutdown  ${td_mark}  20
+    wait_for_sophos_threat_detector_log_contains_after_mark  forcing exit with return code 77  ${td_mark}
+
+    Wait until threat detector running after mark  ${td_mark}

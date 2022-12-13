@@ -3,6 +3,7 @@ Library         Process
 Library         OperatingSystem
 Library         String
 Library         ../Libs/AVScanner.py
+Library         ../Libs/BaseUtils.py
 Library         ../Libs/CoreDumps.py
 Library         ../Libs/ExclusionHelper.py
 Library         ../Libs/FileUtils.py
@@ -368,7 +369,6 @@ Count Lines In Log With Offset
     [Return]  ${lines_count}
 
 Check Threat Detector Copied Files To Chroot
-    Wait Until Sophos Threat Detector Log Contains  Copying "/opt/sophos-spl/base/etc/logger.conf" to: "/opt/sophos-spl/plugins/av/chroot/opt/sophos-spl/base/etc/logger.conf"
     Wait Until Sophos Threat Detector Log Contains  Copying "/opt/sophos-spl/base/etc/machine_id.txt" to: "/opt/sophos-spl/plugins/av/chroot/opt/sophos-spl/base/etc/machine_id.txt"
     Wait Until Sophos Threat Detector Log Contains  Copying "/opt/sophos-spl/plugins/av/VERSION.ini" to: "/opt/sophos-spl/plugins/av/chroot/opt/sophos-spl/plugins/av/VERSION.ini"
     #dns query files
@@ -378,11 +378,9 @@ Check Threat Detector Copied Files To Chroot
     Wait Until Sophos Threat Detector Log Contains  Copying "/etc/host.conf" to: "/opt/sophos-spl/plugins/av/chroot/etc/host.conf"
     Wait Until Sophos Threat Detector Log Contains  Copying "/etc/hosts" to: "/opt/sophos-spl/plugins/av/chroot/etc/hosts"
 
-    Threat Detector Does Not Log Contain  Failed to copy: /opt/sophos-spl/base/etc/logger.conf
     Threat Detector Does Not Log Contain  Failed to copy: /opt/sophos-spl/base/etc/machine_id.txt
     Threat Detector Does Not Log Contain  Failed to copy: /opt/sophos-spl/plugins/av/VERSION.ini
 
-    File Should Exist  /opt/sophos-spl/plugins/av/chroot/opt/sophos-spl/base/etc/logger.conf
     File Should Exist  /opt/sophos-spl/plugins/av/chroot/opt/sophos-spl/base/etc/machine_id.txt
     File Should Exist  /opt/sophos-spl/plugins/av/chroot/opt/sophos-spl/plugins/av/VERSION.ini
     File Should Exist  /opt/sophos-spl/plugins/av/chroot/etc/nsswitch.conf
@@ -419,17 +417,17 @@ Wait Until AV Plugin Log Contains Detection Name With Offset
     [Arguments]  ${name}  ${timeout}=15    ${interval}=2
     Wait Until AV Plugin Log Contains With Offset  Found '${name}'  timeout=${timeout}  interval=${interval}
 
-Wait Until AV Plugin Log Contains Detection Name And Path After Mark
-    [Arguments]  ${mark}  ${name}  ${path}  ${timeout}=15
-    wait_for_av_log_contains_after_mark  Found '${name}' in '${path}'  timeout=${timeout}  mark=${mark}
-
 Wait Until AV Plugin Log Contains Detection Name And Path With Offset
     [Arguments]  ${name}  ${path}  ${timeout}=15    ${interval}=2
     Wait Until AV Plugin Log Contains With Offset  Found '${name}' in '${path}'  timeout=${timeout}  interval=${interval}
 
-AV Plugin Log Should Not Contain Detection Name And Path After Mark
-    [Arguments]  ${name}  ${path}  ${mark}
-    check_av_log_does_not_contain_after_mark  Found '${name}' in '${path}'  ${mark}
+Wait Until AV Plugin Log Contains Detection Name And Path After Mark
+    [Arguments]  ${mark}  ${name}  ${path}  ${timeout}=15
+    wait_for_av_log_contains_after_mark  Found '${name}' in '${path}'  timeout=${timeout}  mark=${mark}
+
+AV Plugin Log Should Not Contain Detection Name And Path With Offset
+    [Arguments]  ${name}  ${path}
+    AV Plugin Log Should Not Contain With Offset  Found '${name}' in '${path}'
 
 Check String Contains Detection Event XML
     [Arguments]  ${input}  ${id}  ${name}  ${threatType}  ${origin}  ${remote}  ${sha256}  ${path}
@@ -661,17 +659,18 @@ Check AV Plugin Installed With Offset
     ...  FakeManagement Log Contains   Registered plugin: ${COMPONENT}
 
 Install With Base SDDS
+    [Arguments]  ${LogLevel}=DEBUG
     Uninstall All
     Directory Should Not Exist  ${SOPHOS_INSTALL}
 
     Install Base For Component Tests
-    Set Log Level  DEBUG
-    # restart the service to apply the new log level to watchdog
-    Run Shell Process  systemctl restart sophos-spl  OnError=failed to restart sophos-spl
+
+    Set SPL Log Level And Restart Watchdog if changed   ${LogLevel}
 
     Install AV Directly from SDDS
-    Wait Until AV Plugin Log Contains  Starting sophos_threat_detector monitor
-    Wait Until Sophos Threat Detector Log Contains  Process Controller Server starting listening on socket: /var/process_control_socket  timeout=120
+    wait_for_av_log_contains_after_last_restart  Starting sophos_threat_detector monitor
+    wait_for_sophos_threat_detector_log_contains_after_last_restart
+    ...  Process Controller Server starting listening on socket: /var/process_control_socket  timeout=120
 
 
 Uninstall And Revert Setup
@@ -728,7 +727,8 @@ Require Plugin Installed and Running
     [Arguments]  ${LogLevel}=DEBUG
     Install Base if not installed
 
-    Set Log Level  ${LogLevel}
+    Set SPL Log Level And Restart Watchdog if changed   ${LogLevel}
+
     Install AV if not installed
     Start AV Plugin if not running
     ${pid} =  Start Sophos Threat Detector if not running
@@ -1156,7 +1156,6 @@ Check avscanner can detect eicar in
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
     Should Contain   ${output}    Detected "${EICAR_PATH}" is infected with EICAR-AV-Test
 
-
 Check avscanner can detect eicar
     [Arguments]  ${LOCAL_AVSCANNER}=${AVSCANNER}
     Create File     ${SCAN_DIRECTORY}/eicar.com    ${EICAR_STRING}
@@ -1403,8 +1402,11 @@ Get SHA256
     @{parts} =  Split String  ${result.stdout}
     [Return]  ${parts}[0]
 
-Create Bad Unicode Eicars
-   register cleanup  Remove Directory  /tmp_test/  true
-   ${result} =  Run Process  bash  ${BASH_SCRIPTS_PATH}/badUnicodeEicarMaker.sh  /tmp_test/  stderr=STDOUT
-   Should Be Equal As Integers  ${result.rc}  ${0}
-   Log  ${result.stdout}
+Create Large PE File Of Size
+    [Arguments]  ${size}  ${filepath}
+    Copy File  ${RESOURCES_PATH}/file_samples/CertMgr.Exe  ${filepath}
+    Register Cleanup  Remove File  ${filepath}
+    ${result} =   Run Process   head  -c  ${size}  </dev/urandom  >>${filepath}  shell=True
+    Log  ${result.stdout}
+    Log  ${result.stderr}
+    Should Be Equal As Integers   ${result.rc}  ${0}
