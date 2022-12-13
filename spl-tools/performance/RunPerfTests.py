@@ -83,6 +83,8 @@ def fetch_artifacts(project, repo, artifact_path):
     z = zipfile.ZipFile(io.BytesIO(r.content))
     z.extractall(SCRIPT_DIR)
 
+    logging.info(f"Contents of working directory after fetching artifact: {os.listdir(SCRIPT_DIR)}")
+
 
 def get_test_inputs_from_base():
     fetch_artifacts("linuxep", "everest-base", "sspl-base/system_test")

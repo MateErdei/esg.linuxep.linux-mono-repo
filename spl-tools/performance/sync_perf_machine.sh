@@ -50,7 +50,7 @@ echo "Copying MCS certs to /root"
 cp -r /mnt/filer6/linux/SSPL/tools/setup_sspl/certs /root/
 
 echo "Installing needed python3 modules"
-python3 -m pip install requests watchdog websockets nest_asyncio || failure "Could not install python modules"
+python3 -m pip install requests watchdog websockets nest_asyncio artifactory || failure "Could not install python modules"
 
 echo "Install java for Jenkins"
 yum install -y java-11-openjdk || failure "Could not install java"
