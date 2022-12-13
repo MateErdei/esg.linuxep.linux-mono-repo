@@ -191,3 +191,50 @@ TEST_F(TestScanRequestQueue, highBitDifferentDeviceAreNotSkipped)
     // Second request not de-duped
     EXPECT_EQ(queue.size(), 2);
 }
+
+TEST_F(TestScanRequestQueue, returnsTrueIfSizeIsBelowMaxSizeMinusBufferValue)
+{
+    ScanRequestQueue queue(10, false);
+    auto emplaceRequest1 = std::make_shared<ClientScanRequest>();
+    auto emplaceRequest2 = std::make_shared<ClientScanRequest>();
+
+    queue.emplace(emplaceRequest1);
+    queue.emplace(emplaceRequest2);
+
+    ASSERT_EQ(queue.size(), 2);
+
+    EXPECT_TRUE(queue.sizeIsLessThan(5));
+}
+
+
+TEST_F(TestScanRequestQueue, returnsTrueIfSizeIsSameAsMaxSizeMinusBufferValue)
+{
+    ScanRequestQueue queue(7, false);
+    auto emplaceRequest1 = std::make_shared<ClientScanRequest>();
+    auto emplaceRequest2 = std::make_shared<ClientScanRequest>();
+
+    queue.emplace(emplaceRequest1);
+    queue.emplace(emplaceRequest2);
+
+    ASSERT_EQ(queue.size(), 2);
+
+    EXPECT_TRUE(queue.sizeIsLessThan(5));
+}
+
+TEST_F(TestScanRequestQueue, returnsFalseIfSizeIsGreaterThanMaxSizeMinusBufferValue)
+{
+    ScanRequestQueue queue(7, false);
+    auto emplaceRequest1 = std::make_shared<ClientScanRequest>();
+    auto emplaceRequest2 = std::make_shared<ClientScanRequest>();
+    auto emplaceRequest3 = std::make_shared<ClientScanRequest>();
+    auto emplaceRequest4 = std::make_shared<ClientScanRequest>();
+
+    queue.emplace(emplaceRequest1);
+    queue.emplace(emplaceRequest2);
+    queue.emplace(emplaceRequest3);
+    queue.emplace(emplaceRequest4);
+
+    ASSERT_EQ(queue.size(), 4);
+
+    EXPECT_FALSE(queue.sizeIsLessThan(5));
+}
