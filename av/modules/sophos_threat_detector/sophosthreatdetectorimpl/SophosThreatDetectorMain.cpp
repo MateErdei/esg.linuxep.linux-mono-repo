@@ -3,6 +3,7 @@
 #include "SophosThreatDetectorMain.h"
 
 #include "Logger.h"
+#include "ProcessForceExitTimer.h"
 #include "Reloader.h"
 #include "SafeStoreRescanWorker.h"
 #include "ThreatDetectorResources.h"
@@ -338,6 +339,10 @@ namespace sspl::sophosthreatdetectorimpl
 
     int SophosThreatDetectorMain::inner_main(IThreatDetectorResourcesSharedPtr resources)
     {
+        using namespace std::chrono_literals;
+        auto processForceExitTimer = std::make_shared<ProcessForceExitTimer>(10s);
+        common::ThreadRunner processForceExitTimerThread(processForceExitTimer, "processForceExitTimer", false);
+
         m_sysCallWrapper = resources->createSystemCallWrapper();
         auto sigTermMonitor = resources->createSignalHandler(true);
 
@@ -554,6 +559,9 @@ namespace sspl::sophosthreatdetectorimpl
 
 
         LOGINFO("Sophos Threat Detector is exiting with return code " << returnCode);
+        // Exit in 10 seconds if scanner threads not joined
+        processForceExitTimer->setExitCode(returnCode);
+        processForceExitTimerThread.startIfNotStarted();
         return returnCode;
     }
 
