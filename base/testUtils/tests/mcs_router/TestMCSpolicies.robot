@@ -194,3 +194,31 @@ MCS policy without Pushserver Updates MCS Policy Config Correctly
         ...  Check MCS Policy Config Does Not Contain   pushServer1=https://localhost:4443/mcs
     Check MCS Policy Config Does Not Contain   customerId=thisisacustomer
     Check MCS Policy Config Contains   customerId=
+
+New JWT Is Requested When Device ID In MCS Policiy Changes
+    Install Register And Wait First MCS Policy
+
+    Wait Until Keyword Succeeds
+    ...  5s
+    ...  1s
+    ...  get_value_from_ini_file  jwt_token  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
+
+    ${dID}  get_value_from_ini_file  device_id  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
+    ${original_jwt_token}  get_value_from_ini_file  jwt_token  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
+
+    Send Policy File  mcs  ${SUPPORT_FILES}/CentralXml/MCS_policy_new_deviceID.xml
+
+    ${NdID}  get_value_from_ini_file  device_id  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
+
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  1 secs
+    ...  Should Not Be Equal As Strings  ${dID}  ${NdID}
+
+    Wait Until Keyword Succeeds
+    ...  15s
+    ...  2s
+    ...  Check Marked MCSRouter Log Contains  Request JWT token from
+
+    ${new_jwt_token}  get_value_from_ini_file  jwt_token  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
+    Should Not Be Equal As Strings  ${original_jwt_token}  ${new_jwt_token}
