@@ -7,7 +7,7 @@
         <entityInfo/>
     </entity>
     <onAccessScan>
-        <enabled>true</enabled>
+        <enabled>false</enabled>
         <scanBehaviour>
             <level>normal</level>
             <archives>false</archives>
@@ -31,9 +31,7 @@
             <excludeRemoteFiles>false</excludeRemoteFiles>
         </macExclusions>
         <linuxExclusions>
-            <filePathSet>
-                <filePath>*excluded*</filePath>
-            </filePathSet>
+            <filePathSet/>
             <excludeRemoteFiles>false</excludeRemoteFiles>
         </linuxExclusions>
         <virtualExclusions>

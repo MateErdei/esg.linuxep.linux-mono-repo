@@ -85,6 +85,7 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     &{expectedVUTVersions} =    Get Expected Versions    vut
 
     Start Local Cloud Server    --initial-alc-policy    ${BaseEdrAndMtrAndAVDogfoodPolicy}
+    send_policy_file  core  ${SUPPORT_FILES}/CentralXml/CORE-36_oa_enabled.xml  wait_for_policy=${True}
 
     ${handle}=    Start Local Dogfood SDDS3 Server
     Set Suite Variable    ${GL_handle}    ${handle}
@@ -192,6 +193,7 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     ${expectBaseDowngrade} =  Second Version Is Lower  ${expectedVUTVersions["baseVersion"]}  ${expectedDogfoodVersions["baseVersion"]}
 
     Start Local Cloud Server  --initial-alc-policy  ${BaseEdrAndMtrAndAVVUTPolicy}
+    send_policy_file  core  ${SUPPORT_FILES}/CentralXml/CORE-36_oa_enabled.xml  wait_for_policy=${True}
 
     ${handle}=    Start Local SDDS3 Server
     Set Suite Variable    ${GL_handle}    ${handle}
@@ -328,6 +330,7 @@ We Can Upgrade From Release to VUT Without Unexpected Errors
     &{expectedVUTVersions} =    Get Expected Versions    vut
 
     Start Local Cloud Server    --initial-alc-policy    ${BaseEdrAndMtrAndAVReleasePolicy}
+    send_policy_file  core  ${SUPPORT_FILES}/CentralXml/CORE-36_oa_enabled.xml  wait_for_policy=${True}
 
     ${handle}=    Start Local Release SDDS3 Server
     Set Suite Variable    ${GL_handle}    ${handle}
@@ -426,6 +429,7 @@ We Can Downgrade From VUT to Release Without Unexpected Errors
     ${expectBaseDowngrade} =  Second Version Is Lower  ${expectedVUTVersions["baseVersion"]}  ${expectedReleaseVersions["baseVersion"]}
 
     Start Local Cloud Server  --initial-alc-policy  ${BaseEdrAndMtrAndAVVUTPolicy}
+    send_policy_file  core  ${SUPPORT_FILES}/CentralXml/CORE-36_oa_enabled.xml  wait_for_policy=${True}
 
     ${handle}=    Start Local SDDS3 Server
     Set Suite Variable    ${GL_handle}    ${handle}
