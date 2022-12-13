@@ -14,8 +14,6 @@ def run_ingestion_test(number_of_events_to_send, timeout='120', sleep='1000', ex
     start_time = 0
     end_time = 0
 
-    event_pub_sub_tool_path = os.path.join(os.environ["PERF_TEST_INPUTS"], "sspl-plugin-event-journaler", "EventPubSub")
-    journal_reader_tool_path = os.path.join(os.environ["PERF_TEST_INPUTS"], "sspl-plugin-event-journaler", "JournalReader")
     journal_dir = "/opt/sophos-spl/plugins/eventjournaler/data/eventjournals"
     detections_dir = f"{journal_dir}/SophosSPL/Detections"
     tmp_detections_dir = "/tmp/Detections"
@@ -33,7 +31,7 @@ def run_ingestion_test(number_of_events_to_send, timeout='120', sleep='1000', ex
         print(f"Sending {number_of_events_to_send} events")
 
         start_time = get_current_unix_epoch_in_seconds()
-        command = [event_pub_sub_tool_path,
+        command = [os.environ["EVENT_PUB_SUB"],
                    '-s', "/opt/sophos-spl/var/ipc/events.ipc",
                    '-c', number_of_events_to_send,
                    '-z', sleep,
@@ -54,7 +52,7 @@ def run_ingestion_test(number_of_events_to_send, timeout='120', sleep='1000', ex
         time.sleep(5)
 
         event_count = 0
-        command = [journal_reader_tool_path,
+        command = [os.environ["JOURNAL_READER"],
                    '-l', journal_dir,
                    '-s', 'Detections',
                    '-t', '0',

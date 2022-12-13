@@ -131,6 +131,9 @@ def get_test_inputs_from_event_journaler():
     os.chmod(event_pub_sub_tool_path, os.stat(event_pub_sub_tool_path).st_mode | stat.S_IEXEC)
     os.chmod(journal_reader_tool_path, os.stat(journal_reader_tool_path).st_mode | stat.S_IEXEC)
 
+    os.environ["EVENT_PUB_SUB"] = os.path.join("PERF_TEST_INPUTS", "sspl-plugin-event-journaler", "EventPubSub")
+    os.environ["JOURNAL_READER"] = os.path.join("PERF_TEST_INPUTS", "sspl-plugin-event-journaler", "JournalReader")
+
 
 def get_part_after_equals(key_value_pair):
     parts = key_value_pair.strip().split(" = ")
@@ -752,7 +755,8 @@ def main():
     dry_run = args.dry_run
 
     logging.info("Starting")
-    os.mkdir(PERF_TEST_INPUTS)
+    if not os.path.isdir(PERF_TEST_INPUTS):
+        os.mkdir(PERF_TEST_INPUTS)
 
     if args.suite == 'gcc':
         run_gcc_perf_test()
