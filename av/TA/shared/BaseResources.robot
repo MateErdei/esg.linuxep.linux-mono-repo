@@ -3,6 +3,7 @@
 Library         ../Libs/BaseInteractionTools/PolicyUtils.py
 Library         ../Libs/ExclusionHelper.py
 Library         ../Libs/HttpsServer.py
+Library         ../Libs/LogUtils.py
 Library         ../Libs/OnFail.py
 Library         ../Libs/Telemetry.py
 Library         String
@@ -70,17 +71,18 @@ Send Policies to enable on-access with exclusions
     Register Cleanup   Remove File   /tmp_test/oa_file
     ${mark} =  get_on_access_log_mark
     Register Cleanup   Send Policies to disable on-access
-    Send Flags Policy To Base  flags_policy/flags_onaccess_enabled.json
+    # apply policies so that exclusions are applied before OA is enabled
     Send Sav Policy To Base  SAV-2_policy_OA_enabled_with_exclusions.xml
+    Send CORE Policy To Base  core_policy/CORE-36_oa_enabled.xml
+    Send Flags Policy To Base  flags_policy/flags_onaccess_enabled.json
     Wait for on access to be enabled  ${mark}   file=/tmp_test/oa_file
 
 Send Policies to disable on-access
     ${mark} =  get_on_access_log_mark
     Send Sav Policy To Base  SAV-2_policy_OA_disabled.xml
     Send CORE Policy To Base  core_policy/CORE-36_oa_disabled.xml
-    #TODO: LINUXDAR-5723 re-enable after ticket is fixed
-    #Send Flags Policy To Base  flags_policy/flags.json
-    ${expected} =  create List  on-access will be disabled  On-access scanning disabled  On-access enabled: false
+    Send Flags Policy To Base  flags_policy/flags.json
+    ${expected} =  Create List  on-access will be disabled  On-access scanning disabled  On-access enabled: false
     wait for on access log contains after mark  ${expected}  mark=${mark}
 
 Send Policy To Base
