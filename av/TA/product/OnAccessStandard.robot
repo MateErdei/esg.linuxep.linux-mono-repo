@@ -265,6 +265,19 @@ On Access Scans Corrupted File
     # With DeDup LINUXDAR-5901, the close could be skipped if we haven't scanned the open yet
     wait for on access log contains after mark   Un-caching /tmp/corrupted.xls  mark=${mark}
 
+On Access Scans Zero Byte File
+    ${mark} =  get_on_access_log_mark
+
+    Register Cleanup     Remove File    ${NORMAL_DIRECTORY}/zero_bytes
+    Create File  ${NORMAL_DIRECTORY}/zero_bytes
+
+    wait for on access log contains after mark   On-open event for ${NORMAL_DIRECTORY}/zero_bytes  mark=${mark}
+
+On Access Scans Large Eicar
+    ${mark} =  get_on_access_log_mark
+
+    Create Large Eicar
+
 On Access Scans File On BFS
     On Access Scans Eicar On Filesystem from Image  bfs  bfsFileSystem
 

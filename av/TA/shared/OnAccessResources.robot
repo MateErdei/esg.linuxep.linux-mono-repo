@@ -162,7 +162,7 @@ On-access Scan Eicar Open
     # create a file without generating fanotify events
     ${oamark} =  get_on_access_log_mark
     Create File  ${dirtyfile}-excluded  ${EICAR_STRING}
-    Register Cleanup   Register Cleanup  Remove File  ${dirtyfile}-excluded
+    Register Cleanup   Remove File  ${dirtyfile}-excluded
 
     #Generate another event we can expect in logs
     Create File  ${cleanfile}  ${CLEAN_STRING}
@@ -179,6 +179,25 @@ On-access Scan Eicar Open
 
     wait_for_on_access_log_contains_after_mark  On-open event for ${dirtyfile} from  mark=${mark}
     wait_for_on_access_log_contains_after_mark  "${dirtyfile}" is infected with      mark=${mark}
+
+Create Large Eicar
+    ${dirtyfile} =  Set Variable  /tmp_test/dirtyfile.txt
+    # create a file without generating fanotify events
+    ${oamark} =  get_on_access_log_mark
+    Create File  ${dirtyfile}-excluded  ${EICAR_STRING}
+    Register Cleanup   Remove File  ${dirtyfile}-excluded
+
+    ${result} =  Run Process     head    -c     5G  /dev/zero     >>     ${dirtyfile}-excluded   shell=True
+    Log  ${result.stdout}
+    Log  ${result.stderr}
+
+    ${result} =  Run Process     cp  ${dirtyfile}-excluded   ${dirtyfile}   shell=True
+    Log  ${result.stdout}
+    Log  ${result.stderr}
+
+    Register Cleanup   Remove File   ${dirtyfile}
+
+    wait_for_on_access_log_contains_after_mark  "${dirtyfile}" is infected with      mark=${oamark}  timeout=60
 
 
 On-access No Eicar Scan
