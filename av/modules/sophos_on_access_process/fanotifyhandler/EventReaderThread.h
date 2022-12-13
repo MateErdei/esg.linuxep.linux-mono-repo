@@ -1,4 +1,3 @@
-// Copyright 2022 Sophos Limited. All rights reserved.
 //Copyright 2022, Sophos Limited.  All rights reserved.
 
 #pragma once
@@ -16,7 +15,6 @@
 #include "common/Exclusion.h"
 #include "datatypes/ISystemCallWrapper.h"
 #include "datatypes/sophos_filesystem.h"
-#include "mount_monitor/mountinfo/IDeviceUtil.h"
 
 #include "Common/Threads/NotifyPipe.h"
 
@@ -28,30 +26,29 @@ namespace onaccessimpl = sophos_on_access_process::onaccessimpl;
 
 namespace sophos_on_access_process::fanotifyhandler
 {
+    constexpr int LOG_NOT_FULL_THRESHOLD = 100;
+
     class EventReaderThread : public common::AbstractThreadPluginInterface
     {
     public:
-        using scan_request_t = ::onaccessimpl::ScanRequestQueue::scan_request_t;
-
         EventReaderThread(
             IFanotifyHandlerSharedPtr fanotify,
             datatypes::ISystemCallWrapperSharedPtr sysCalls,
             const fs::path& pluginInstall,
             onaccessimpl::ScanRequestQueueSharedPtr scanRequestQueue,
             onaccessimpl::onaccesstelemetry::OnAccessTelemetryUtilitySharedPtr telemetryUtility,
-            mount_monitor::mountinfo::IDeviceUtilSharedPtr deviceUtil
+            int logNotFullThreshold = LOG_NOT_FULL_THRESHOLD
             );
 
         void run() override;
 
         void setExclusions(const std::vector<common::Exclusion>& exclusions);
 
-        void setCacheAllEvents(bool enable);
-
     TEST_PUBLIC:
         void innerRun();
         std::chrono::milliseconds m_out_of_file_descriptor_delay = std::chrono::milliseconds{100};
         static constexpr int RESTART_SOAP_ERROR_COUNT = 20;
+
 
     private:
         bool handleFanotifyEvent();
@@ -61,20 +58,17 @@ namespace sophos_on_access_process::fanotifyhandler
         std::string getUidFromPid(pid_t pid);
         void throwIfErrorNotRecoverable();
 
-        bool cacheIfAllowed(const scan_request_t& request);
-
         IFanotifyHandlerSharedPtr m_fanotify;
         datatypes::ISystemCallWrapperSharedPtr m_sysCalls;
         fs::path m_pluginLogDir;
         onaccessimpl::ScanRequestQueueSharedPtr m_scanRequestQueue;
         onaccessimpl::onaccesstelemetry::OnAccessTelemetryUtilitySharedPtr m_telemetryUtility;
-        mount_monitor::mountinfo::IDeviceUtilSharedPtr m_deviceUtil;
         pid_t m_pid;
         std::string m_processExclusionStem;
         std::vector<common::Exclusion> m_exclusions;
         mutable std::mutex m_exclusionsLock;
         uint m_EventsWhileQueueFull = 0;
         int m_readFailureCount = 0;
-        bool m_cacheAllEvents = false;
+        const int m_logNotFullThreshold;
     };
 }
