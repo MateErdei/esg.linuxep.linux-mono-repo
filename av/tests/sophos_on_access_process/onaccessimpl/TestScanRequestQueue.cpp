@@ -26,7 +26,6 @@ namespace
         {
             return std::make_shared<ScanRequest_t>();
         }
-
     };
 }
 
@@ -194,9 +193,13 @@ TEST_F(TestScanRequestQueue, highBitDifferentDeviceAreNotSkipped)
 
 TEST_F(TestScanRequestQueue, returnsTrueIfSizeIsBelowMaxSizeMinusBufferValue)
 {
+    auto sysCallWrapper = std::make_shared<StrictMock<MockSystemCallWrapper>>();
+
     ScanRequestQueue queue(10, false);
-    auto emplaceRequest1 = std::make_shared<ClientScanRequest>();
-    auto emplaceRequest2 = std::make_shared<ClientScanRequest>();
+    datatypes::AutoFd fd{10};
+    auto emplaceRequest1 = std::make_shared<ScanRequest_t>(sysCallWrapper, fd);
+    fd.reset(20);
+    auto emplaceRequest2 = std::make_shared<ScanRequest_t>(sysCallWrapper, fd);
 
     queue.emplace(emplaceRequest1);
     queue.emplace(emplaceRequest2);
@@ -209,9 +212,13 @@ TEST_F(TestScanRequestQueue, returnsTrueIfSizeIsBelowMaxSizeMinusBufferValue)
 
 TEST_F(TestScanRequestQueue, returnsTrueIfSizeIsSameAsMaxSizeMinusBufferValue)
 {
+    auto sysCallWrapper = std::make_shared<StrictMock<MockSystemCallWrapper>>();
+
     ScanRequestQueue queue(7, false);
-    auto emplaceRequest1 = std::make_shared<ClientScanRequest>();
-    auto emplaceRequest2 = std::make_shared<ClientScanRequest>();
+    datatypes::AutoFd fd{10};
+    auto emplaceRequest1 = std::make_shared<ScanRequest_t>(sysCallWrapper, fd);
+    fd.reset(20);
+    auto emplaceRequest2 = std::make_shared<ScanRequest_t>(sysCallWrapper, fd);
 
     queue.emplace(emplaceRequest1);
     queue.emplace(emplaceRequest2);
@@ -223,11 +230,17 @@ TEST_F(TestScanRequestQueue, returnsTrueIfSizeIsSameAsMaxSizeMinusBufferValue)
 
 TEST_F(TestScanRequestQueue, returnsFalseIfSizeIsGreaterThanMaxSizeMinusBufferValue)
 {
+    auto sysCallWrapper = std::make_shared<StrictMock<MockSystemCallWrapper>>();
+
     ScanRequestQueue queue(7, false);
-    auto emplaceRequest1 = std::make_shared<ClientScanRequest>();
-    auto emplaceRequest2 = std::make_shared<ClientScanRequest>();
-    auto emplaceRequest3 = std::make_shared<ClientScanRequest>();
-    auto emplaceRequest4 = std::make_shared<ClientScanRequest>();
+    datatypes::AutoFd fd{10};
+    auto emplaceRequest1 = std::make_shared<ScanRequest_t>(sysCallWrapper, fd);
+    fd.reset(20);
+    auto emplaceRequest2 = std::make_shared<ScanRequest_t>(sysCallWrapper, fd);
+    fd.reset(30);
+    auto emplaceRequest3 = std::make_shared<ScanRequest_t>(sysCallWrapper, fd);
+    fd.reset(40);
+    auto emplaceRequest4 = std::make_shared<ScanRequest_t>(sysCallWrapper, fd);
 
     queue.emplace(emplaceRequest1);
     queue.emplace(emplaceRequest2);
