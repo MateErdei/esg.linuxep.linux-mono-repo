@@ -161,7 +161,10 @@ class Agent(object):
         if policy is not None:
             self.logger.info("Sending back policy: {}".format(policy))
             plugin = self.__get_requester()
-            plugin.policy(message.app_id, policy)
+            try:
+                plugin.policy(message.app_id, policy)
+            except Exception as ex:
+                self.logger.warn("Failed to send policy: %s" % str(ex))
 
     def handle_send_threat_health(self, message):
         self.logger.info("Received threat health: {}".format(message))
