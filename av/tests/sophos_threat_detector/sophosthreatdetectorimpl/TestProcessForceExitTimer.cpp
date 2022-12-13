@@ -1,4 +1,4 @@
-// Copyright 2022, Sophos Limited.  All rights reserved.
+// Copyright 2022 Sophos Limited. All rights reserved.
 
 #include "common/MemoryAppender.h"
 #include "datatypes/MockSysCalls.h"
@@ -26,7 +26,7 @@ namespace
     };
 }
 
-TEST_F(TestProcessForceExitTimer, testTimeout) // NOLINT
+TEST_F(TestProcessForceExitTimer, testTimeout)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
@@ -43,7 +43,7 @@ TEST_F(TestProcessForceExitTimer, testTimeout) // NOLINT
     ASSERT_TRUE(waitForLog(expectedLogMsg.str()));
 }
 
-TEST_F(TestProcessForceExitTimer, testStop) // NOLINT
+TEST_F(TestProcessForceExitTimer, testStop)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
