@@ -60,6 +60,11 @@ namespace sophos_on_access_process::onaccessimpl
          */
         size_t size() const;
 
+        /**
+         * Returns if the size is less than max size minus the buffer
+         */
+        bool sizeIsLessThan(size_t buffer);
+
     TEST_PUBLIC:
         using dedup_map_t = std::unordered_map<scan_request_t::hash_t, scan_request_t::unique_t>;
         dedup_map_t m_deDupData;

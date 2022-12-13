@@ -110,3 +110,8 @@ void ScanRequestQueue::clearQueue()
     m_queue.swap(empty);
     m_deDupData.clear();
 }
+
+bool ScanRequestQueue::sizeIsLessThan(size_t buffer)
+{
+    return size() <= (m_maxSize - buffer);
+}
