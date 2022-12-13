@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
 
 # This is a helper script that will copy the needed performance
-# scripts from filer6 to the performance machine. This is to be executed as root and used in conjunction
-# with the publish_scripts_to_filer.sh script.
+# scripts from filer6 to the performance machine. This is to be executed as root.
 
 function failure()
 {

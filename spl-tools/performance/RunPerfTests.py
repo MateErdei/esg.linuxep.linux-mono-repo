@@ -10,13 +10,19 @@ import socket
 import statistics
 import subprocess
 import sys
+import tarfile
 import time
 
+import certifi_local
 import requests
+import tap.jwt
+from build_scripts.artisan_fetch import artisan_fetch
 
 import LogUtils
 from PerformanceResources import stop_sspl_process, start_sspl_process, stop_sspl, start_sspl, \
     disable_onaccess, enable_onaccess, get_current_unix_epoch_in_seconds, wait_for_plugin_to_be_installed
+
+SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
 
 PROCESS_EVENTS_QUERY = ("process-events", '''SELECT
 GROUP_CONCAT(process_events.pid) AS pids,
@@ -60,6 +66,61 @@ DETECTIONS_QUERY_FOR_SAMPLE_DATA = ("detections", "SELECT * FROM sophos_detectio
 ALL_PROCESSES_QUERY = ("all-processes", "SELECT * FROM processes;")
 
 ALL_USERS_QUERY = ("all-users", "SELECT * FROM users;")
+
+PERF_TEST_INPUTS = os.path.join(SCRIPT_DIR, "perf_inputs")
+PACKAGE_XML_TEMPLATE = \
+    f"""<?xml version="1.0" encoding="utf-8"?>
+<package name="system-product-tests">
+    <inputs>
+        <workingdir>.</workingdir>
+        <build-asset project="{{}}" repo="{{}}">
+            <development-version branch="develop" />
+            <include artifact-path="{{}}" dest-dir={PERF_TEST_INPUTS} />
+        </build-asset>
+    </inputs>
+    <publish>
+        <workingdir>sspl-perf-tests</workingdir>
+    </publish>
+</package>
+"""
+
+
+def fetch_artifacts(project, repo, artifact_path):
+    tap.jwt.get_jwt(certifi_local.sophos.where_jwt_live_cert())
+
+    release_package_path = os.path.join(SCRIPT_DIR, "release-package.xml")
+    with open(release_package_path, 'w') as release_package_file:
+        release_package_file.write(PACKAGE_XML_TEMPLATE.format(project, repo, artifact_path))
+    artisan_fetch(release_package_path, build_mode="not_used", production_build=False)
+
+    if not os.path.exists(PERF_TEST_INPUTS):
+        logging.error("Failed to fetch test inputs")
+        exit(1)
+
+    os.environ["PERF_TEST_INPUTS"] = PERF_TEST_INPUTS
+
+
+def get_test_inputs_from_base():
+    fetch_artifacts("linuxep", "everest-base", "sspl-base/system_test")
+
+    cloud_automation_inputs = os.path.join(PERF_TEST_INPUTS, "SystemProductTestOutput", "testUtils", "SupportFiles",
+                                           "CloudAutomation")
+    cloud_client_path = os.path.join(cloud_automation_inputs, "cloudClient.py")
+    https_client_path = os.path.join(cloud_automation_inputs, "SophosHTTPSClient.py")
+
+    tar = tarfile.open(os.path.join(PERF_TEST_INPUTS, "SystemProductTestOutput.tar.gz"))
+    tar.extractall(PERF_TEST_INPUTS)
+    tar.close()
+
+    if not os.path.exists(cloud_client_path):
+        logging.error(f"cloudClient.py does not exists: {os.listdir(cloud_automation_inputs)}")
+        exit(1)
+
+    if not os.path.exists(https_client_path):
+        logging.error(f"SophosHTTPSClient.py does not exists: {os.listdir(cloud_automation_inputs)}")
+        exit(1)
+
+    os.environ["CLOUD_CLIENT_SCRIPT"] = cloud_client_path
 
 
 def get_part_after_equals(key_value_pair):
@@ -136,8 +197,7 @@ def get_current_date_time_string():
 
 def run_gcc_perf_test():
     logging.info("Running GCC performance test")
-    this_dir = os.path.dirname(os.path.realpath(__file__))
-    build_gcc_script = os.path.join(this_dir, "build-gcc-only.sh")
+    build_gcc_script = os.path.join(SCRIPT_DIR, "build-gcc-only.sh")
 
     date_time = get_current_date_time_string()
     start_time = get_current_unix_epoch_in_seconds()
@@ -202,7 +262,7 @@ def run_clean_file_test(test_name, stop_on_queue_full, max_count, oa_enabled=Fal
     end_time = get_current_unix_epoch_in_seconds()
     logging.info("Created {} files in {} seconds".format(file_count, end_time - start_time))
 
-    custom_data = {"file_count":file_count}
+    custom_data = {"file_count": file_count}
     if oa_enabled:
         custom_data.update(get_product_results())
         disable_perf_dump()
@@ -211,7 +271,6 @@ def run_clean_file_test(test_name, stop_on_queue_full, max_count, oa_enabled=Fal
     shutil.rmtree(dirpath)
     record_result(test_name, date_time, start_time, end_time, custom_data=custom_data)
     return file_count
-
 
 
 def run_onaccess_test(max_file_count):
@@ -258,14 +317,15 @@ def run_slow_scan_test(test_name, stop_on_queue_full, max_count, oa_enabled=Fals
     log_utils = LogUtils.LogUtils()
     mark = log_utils.get_on_access_log_mark()
     start_time = get_current_unix_epoch_in_seconds()
-    file_count = 0;
+    file_count = 0
     while file_count < max_count:
         file_count += 1
         destpath = os.path.join(dirpath, "rt{}.jar".format(file_count))
         shutil.copyfile("rt.jar", destpath)
         if stop_on_queue_full:
             try:
-                log_utils.check_on_access_log_does_not_contain_after_mark("Failed to add scan request to queue, on-access scanning queue is full.", mark)
+                log_utils.check_on_access_log_does_not_contain_after_mark(
+                    "Failed to add scan request to queue, on-access scanning queue is full.", mark)
             except AssertionError as ex:
                 logging.info("At file count {}: {}".format(file_count, str(ex)))
                 break
@@ -273,7 +333,7 @@ def run_slow_scan_test(test_name, stop_on_queue_full, max_count, oa_enabled=Fals
     logging.info("Created {} files in {} seconds".format(file_count, end_time - start_time))
 
     shutil.rmtree(dirpath)
-    custom_data = {"file_count":file_count}
+    custom_data = {"file_count": file_count}
     if oa_enabled:
         custom_data.update(get_product_results())
         disable_perf_dump()
@@ -281,6 +341,7 @@ def run_slow_scan_test(test_name, stop_on_queue_full, max_count, oa_enabled=Fals
             os.remove(perfData)
     record_result(test_name, date_time, start_time, end_time, custom_data=custom_data)
     return file_count
+
 
 def run_slow_scan_onaccess_test(max_file_count):
     logging.info("Running AV On-access stress test with slow-scanning files")
@@ -310,7 +371,8 @@ def run_slow_scan_onaccess_test(max_file_count):
     log_utils.check_on_access_log_does_not_contain_after_mark("FATAL", oa_mark)
     log_utils.check_sophos_threat_detector_log_does_not_contain_after_mark("FATAL", td_mark)
     log_utils.check_wdctl_log_does_not_contain_after_mark("died with", wd_mark)
-    log_utils.wait_for_on_access_log_contains_after_mark("soapd_bootstrap <> No policy override, following policy settings", oa_mark2)
+    log_utils.wait_for_on_access_log_contains_after_mark(
+        "soapd_bootstrap <> No policy override, following policy settings", oa_mark2)
 
     # Check that the product still works
     detect_eicar()
@@ -383,8 +445,7 @@ def get_product_results():
 def run_local_live_query_perf_test():
     logging.info("Running Local Live Query performance test")
     failed_queries = 0
-    this_dir = os.path.dirname(os.path.realpath(__file__))
-    local_live_query_script = os.path.join(this_dir, "RunLocalLiveQuery.py")
+    local_live_query_script = os.path.join(SCRIPT_DIR, "RunLocalLiveQuery.py")
 
     # Queries to run and the number of times to run them, each batch will be timed.
     queries_to_run = [
@@ -425,8 +486,7 @@ def run_local_live_query_perf_test():
 def run_local_live_query_detections_perf_test():
     logging.info("Running Local Live Query Detections performance test")
     failed_queries = 0
-    this_dir = os.path.dirname(os.path.realpath(__file__))
-    local_live_query_script = os.path.join(this_dir, "RunLocalLiveQuery.py")
+    local_live_query_script = os.path.join(SCRIPT_DIR, "RunLocalLiveQuery.py")
 
     detections_dir = "/opt/sophos-spl/plugins/eventjournaler/data/eventjournals/SophosSPL/Detections"
     sample_detections_dir = "/root/performance/Detections"
@@ -486,11 +546,11 @@ def run_central_live_query_perf_test(client_id, email, password, region):
         logging.error("Please enter password, use -h for help.")
         exit(1)
 
+    get_test_inputs_from_base()
     wait_for_plugin_to_be_installed('edr')
     logging.info("Running Central Live Query performance test")
     failed_queries = 0
-    this_dir = os.path.dirname(os.path.realpath(__file__))
-    central_live_query_script = os.path.join(this_dir, "RunCentralLiveQuery.py")
+    central_live_query_script = os.path.join(SCRIPT_DIR, "RunCentralLiveQuery.py")
 
     # This machine - this script is intended to run on the test machine.
     target_machine = socket.gethostname()
@@ -541,10 +601,11 @@ def run_central_live_query_perf_test(client_id, email, password, region):
 
 def run_local_live_response_test(number_of_terminals: int, keep_alive: int):
     logging.info("Running local Live Response terminal performance test")
+    fetch_artifacts("winep", "liveterminal", "websocket_server")
+
     wait_for_plugin_to_be_installed('liveresponse')
-    this_dir = os.path.dirname(os.path.realpath(__file__))
-    local_live_terminal_script = os.path.join(this_dir, "RunLocalLiveTerminal.py")
-    message_contents_file_path = os.path.join(this_dir, "1000Chars")
+    local_live_terminal_script = os.path.join(SCRIPT_DIR, "RunLocalLiveTerminal.py")
+    message_contents_file_path = os.path.join(SCRIPT_DIR, "1000Chars")
     date_time = get_current_date_time_string()
     command = ['python3.7', local_live_terminal_script,
                "-f", message_contents_file_path,
@@ -590,8 +651,8 @@ def run_local_live_response_test(number_of_terminals: int, keep_alive: int):
 def run_event_journaler_ingestion_test():
     logging.info("Running Event Journaler Ingestion Test")
 
-    this_dir = os.path.dirname(os.path.realpath(__file__))
-    event_journaler_ingestion_script = os.path.join(this_dir, "RunEventJournalerIngestionTest.py")
+    fetch_artifacts("linuxep", "sspl-plugin-event-journaler", "eventjournaler/manualTools")
+    event_journaler_ingestion_script = os.path.join(SCRIPT_DIR, "RunEventJournalerIngestionTest.py")
 
     tests_to_run = [
         {'name': 'queue_saturation', 'number_of_events_to_send': '220', 'timeout': '120', 'sleep': '0',

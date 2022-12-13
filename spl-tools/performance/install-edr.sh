@@ -20,13 +20,13 @@ done
 #/root/performance/edr-installer.sh --allow-override-mcs-ca
 #sleep 60
 #CENTRAL_PASSWORD=$1
-#python3 /root/performance/cloudClient.py --region q --email testEUCentral-perf@savlinux.xmas.testqa.com --password "$CENTRAL_PASSWORD" move_machine_to_edr_eap "$HOSTNAME"
+#python3 $CLOUD_CLIENT_SCRIPT --region q --email testEUCentral-perf@savlinux.xmas.testqa.com --password "$CENTRAL_PASSWORD" move_machine_to_edr_eap "$HOSTNAME"
 
 # For production
 /root/performance/edr-installer.sh
 sleep 60
 CENTRAL_PASSWORD=$1
-python3 /root/performance/cloudClient.py --region p --email LicenceDarwin+2@gmail.com --password "$CENTRAL_PASSWORD" move_machine_to_edr_eap "$HOSTNAME"
+python3 "$CLOUD_CLIENT_SCRIPT" --region p --email LicenceDarwin+2@gmail.com --password "$CENTRAL_PASSWORD" move_machine_to_edr_eap "$HOSTNAME"
 
 
 
