@@ -27,6 +27,9 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <boost/process/pipe.hpp>
 #include <boost/system/error_code.hpp>
 
+#include <iostream>
+#include <fstream>
+
 #pragma GCC diagnostic pop
 
 namespace
@@ -90,12 +93,15 @@ namespace Common
             template<typename Sequence>
             void on_exec_setup(boost::process::extend::posix_executor<Sequence>& exec)
             {
-                std::cout << "Forking for " << exec.exe << std::endl;
+                std::ofstream logFile;
+                logFile.open ("/tmp/zmq-fork.log");
+                logFile  << "Forking for " << exec.exe << std::endl;
+
                 for (const auto socket: GL_zmqSockets)
                 {
                     if (socket != nullptr)
                     {
-                        std::cout << "Closed socket" << std::endl;
+                        logFile  << "Closed socket" << std::endl;
                         zmq_close(socket);
                     }
                 }
@@ -104,10 +110,12 @@ namespace Common
                 {
                     if (context != nullptr)
                     {
-                        std::cout << "Terminated Context" << std::endl;
+                        logFile  << "Terminated Context" << std::endl;
                         zmq_ctx_term(context);
                     }
                 }
+
+                logFile.close();
 
                 // Must set groups first whilst still root
                 std::string userName = Common::FileSystem::FilePermissionsImpl().getUserName(m_uid);
