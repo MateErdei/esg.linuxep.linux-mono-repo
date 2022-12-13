@@ -69,7 +69,10 @@ ALL_PROCESSES_QUERY = ("all-processes", "SELECT * FROM processes;")
 ALL_USERS_QUERY = ("all-users", "SELECT * FROM users;")
 
 
-def fetch_artifacts(project, repo, artifact_path):
+def fetch_artifacts(project, repo, artifact_path, output_dir=SCRIPT_DIR):
+    if not os.path.isdir(output_dir):
+        os.mkdir(output_dir)
+
     builds = []
     repo_url = f"https://artifactory.sophos-ops.com/artifactory/esg-build-tested/{project}.{repo}/develop"
 
@@ -81,7 +84,7 @@ def fetch_artifacts(project, repo, artifact_path):
 
     r = requests.get(artifact_url)
     z = zipfile.ZipFile(io.BytesIO(r.content))
-    z.extractall(SCRIPT_DIR)
+    z.extractall(output_dir)
 
     logging.info(f"Contents of working directory after fetching artifact: {os.listdir(SCRIPT_DIR)}")
 
@@ -607,7 +610,7 @@ def run_central_live_query_perf_test(client_id, email, password, region):
 
 def run_local_live_response_test(number_of_terminals: int, keep_alive: int):
     logging.info("Running local Live Response terminal performance test")
-    fetch_artifacts("winep", "liveterminal", "websocket_server")
+    fetch_artifacts("winep", "liveterminal", "websocket_server", "websocket_server")
 
     wait_for_plugin_to_be_installed('liveresponse')
     local_live_terminal_script = os.path.join(SCRIPT_DIR, "RunLocalLiveTerminal.py")
