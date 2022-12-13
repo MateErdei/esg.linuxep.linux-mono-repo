@@ -225,7 +225,14 @@ namespace Common::OSUtilitiesImpl
 
         std::vector<std::string> PlatformUtils::getMacAddresses() const
         {
-            return Common::OSUtilitiesImpl::sortedSystemMACs();
+            try
+            {
+                return Common::OSUtilitiesImpl::sortedSystemMACs();
+            }
+            catch (const std::exception&)
+            {
+                return {};
+            }
         }
 
         std::string PlatformUtils::getCloudPlatformMetadata(std::shared_ptr<Common::HttpRequests::IHttpRequester> client) const
@@ -261,7 +268,15 @@ namespace Common::OSUtilitiesImpl
             std::string initialUrl = "http://169.254.169.254/latest/api/token";
             Common::HttpRequests::Headers initialHeaders({{"X-aws-ec2-metadata-token-ttl-seconds", "21600"}});
 
-            Common::HttpRequests::Response response = client->put(buildCloudMetadataRequest(initialUrl, initialHeaders));
+            try
+            {
+                Common::HttpRequests::Response response = client->put(buildCloudMetadataRequest(initialUrl, initialHeaders));
+            }
+            catch(const std::exception& ex)
+            {
+                return "";
+            }
+
             if (!curlResponseIsOk200(response))
             {
                 return "";
@@ -269,7 +284,16 @@ namespace Common::OSUtilitiesImpl
 
             std::string secondUrl = "http://169.254.169.254/latest/dynamic/instance-identity/document";
             Common::HttpRequests::Headers secondHeaders({{"X-aws-ec2-metadata-token", response.body}});
-            response = client->get(buildCloudMetadataRequest(secondUrl, secondHeaders));
+
+            try
+            {
+                response = client->get(buildCloudMetadataRequest(secondUrl, secondHeaders));
+            }
+            catch(const std::exception& ex)
+            {
+                return "";
+            }
+
             if (!curlResponseIsOk200(response))
             {
                 return "";
@@ -281,9 +305,17 @@ namespace Common::OSUtilitiesImpl
         std::string PlatformUtils::getGcpMetadata(std::shared_ptr<Common::HttpRequests::IHttpRequester> client) const
         {
             Common::HttpRequests::Headers headers({{"Metadata-Flavor", "Google"}});
-
             std::string idUrl = "http://metadata.google.internal/computeMetadata/v1/instance/id";
-            Common::HttpRequests::Response response = client->get(buildCloudMetadataRequest(idUrl, headers));
+
+            try
+            {
+                Common::HttpRequests::Response response = client->get(buildCloudMetadataRequest(idUrl, headers));
+            }
+            catch(const std::exception& ex)
+            {
+                return "";
+            }
+
             if (!curlResponseIsOk200(response))
             {
                 return "";
@@ -291,7 +323,16 @@ namespace Common::OSUtilitiesImpl
             std::string id = response.body;
 
             std::string zoneUrl = "http://metadata.google.internal/computeMetadata/v1/instance/zone";
-            response = client->get(buildCloudMetadataRequest(zoneUrl, headers));
+
+            try
+            {
+                response = client->get(buildCloudMetadataRequest(zoneUrl, headers));
+            }
+            catch(const std::exception& ex)
+            {
+                return "";
+            }
+
             if (!curlResponseIsOk200(response))
             {
                 return "";
@@ -299,7 +340,16 @@ namespace Common::OSUtilitiesImpl
             std::string zone = response.body;
 
             std::string hostnameUrl = "http://metadata.google.internal/computeMetadata/v1/instance/hostname";
-            response = client->get(buildCloudMetadataRequest(hostnameUrl, headers));
+
+            try
+            {
+                response = client->get(buildCloudMetadataRequest(hostnameUrl, headers));
+            }
+            catch(const std::exception& ex)
+            {
+                return "";
+            }
+
             if (!curlResponseIsOk200(response))
             {
                 return "";
@@ -319,7 +369,16 @@ namespace Common::OSUtilitiesImpl
         {
             std::string url = "http://169.254.169.254/opc/v2/instance/";
             Common::HttpRequests::Headers headers({{"Authorization", "Bearer Oracle"}});
-            Common::HttpRequests::Response response = client->get(buildCloudMetadataRequest(url, headers));
+
+            try
+            {
+                Common::HttpRequests::Response response = client->get(buildCloudMetadataRequest(url, headers));
+            }
+            catch(const std::exception& ex)
+            {
+                return "";
+            }
+
             if (!curlResponseIsOk200(response))
             {
                 return "";
@@ -331,18 +390,43 @@ namespace Common::OSUtilitiesImpl
         std::string PlatformUtils::getAzureMetadata(std::shared_ptr<Common::HttpRequests::IHttpRequester> client) const
         {
             std::string initialUrl = "http://169.254.169.254/metadata/versions";
-            Common::HttpRequests::Headers headers({{"Metadata", "True"}});
-            Common::HttpRequests::Response response = client->get(buildCloudMetadataRequest(initialUrl, headers));
+            Common::HttpRequests::Headers headers({ { "Metadata", "True" } });
+
+            try
+            {
+                Common::HttpRequests::Response response = client->get(buildCloudMetadataRequest(initialUrl, headers));
+            }
+            catch(const std::exception& ex)
+            {
+                return "";
+            }
+
             if (!curlResponseIsOk200(response))
             {
                 return "";
             }
 
-            nlohmann::json firstResponseBody = nlohmann::json::parse(response.body);
-            std::string latestAzureApiVersion = firstResponseBody["apiVersions"][-1];
+            try
+            {
+                nlohmann::json firstResponseBody = nlohmann::json::parse(response.body);
+                std::string latestAzureApiVersion = firstResponseBody["apiVersions"][-1];
+            }
+            catch(const std::exception& ex)
+            {
+                return "";
+            }
 
             std::string secondUrl = "http://169.254.169.254/metadata/instance?api-version=" + latestAzureApiVersion;
-            response = client->get(buildCloudMetadataRequest(secondUrl, headers));
+
+            try
+            {
+                response = client->get(buildCloudMetadataRequest(secondUrl, headers));
+            }
+            catch(const std::exception& ex)
+            {
+                return "";
+            }
+
             if (!curlResponseIsOk200(response))
             {
                 return "";
