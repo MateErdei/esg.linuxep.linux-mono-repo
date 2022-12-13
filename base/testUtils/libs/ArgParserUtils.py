@@ -91,6 +91,8 @@ def add_cloudserver_args(parser):
     parser.add_argument("--initial-mcs-policy", help="define the initial mcs policy used", default=os.path.join(support_file_dir, "CentralXml/FakeCloudDefaultPolicies/FakeCloudDefault_MCS_policy.xml"), dest="INITIAL_MCS_POLICY")
     parser.add_argument("--initial-sav-policy", help="define the initial sav policy used", default=os.path.join(support_file_dir, "CentralXml/FakeCloudDefaultPolicies/FakeCloudDefault_SAV_policy.xml"), dest="INITIAL_SAV_POLICY")
     parser.add_argument("--initial-mdr-policy", help="define the initial mdr policy used", default=os.path.join(support_file_dir, "CentralXml/FakeCloudDefaultPolicies/FakeCloudDefault_MDR_policy.xml"), dest="INITIAL_MDR_POLICY")
+    parser.add_argument("--initial-core-policy", help="define the initial core policy used", default=os.path.join(support_file_dir, "CentralXml/FakeCloudDefaultPolicies/FakeCloudDefault_CORE_policy.xml"), dest="INITIAL_CORE_POLICY")
+    parser.add_argument("--initial-corc-policy", help="define the initial corc policy used", default=os.path.join(support_file_dir, "CentralXml/FakeCloudDefaultPolicies/FakeCloudDefault_CORC_policy.xml"), dest="INITIAL_CORC_POLICY")
     parser.add_argument("--initial-livequery-policy", help="define the initial livequery policy used", default=os.path.join(support_file_dir, "CentralXml/FakeCloudDefaultPolicies/FakeCloudDefault_LiveQuery_policy.xml"), dest="INITIAL_LIVEQUERY_POLICY")
     parser.add_argument("--tls", dest="tls", default=ssl.PROTOCOL_SSLv23, action=store_ssl_tls, help="Set tls option", \
                         choices=["tlsv1", "tlsv1_1", "tlsv1_2", "sslv2", "sslv3", "sslv23"])

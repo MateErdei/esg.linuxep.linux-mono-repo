@@ -16,11 +16,13 @@ Suite Setup     Run keywords
 ...             Setup Event Journaler End To End
 
 Suite Teardown  Run Keywords
+...             dump_cloud_server_log  AND
 ...             Require Uninstalled  AND
 ...             Stop Local Cloud Server
 
 Test Teardown  Run Keywords
 ...            Run Keyword If Test Failed  Dump Teardown Log  /tmp/av_install.log  AND
+...            dump_cloud_server_log  AND
 ...            Remove File  /tmp/av_install.log  AND
 ...            Copy File  ${SUPPORT_FILES}/CentralXml/FLAGS_xdr_enabled.json  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json  AND
 ...            Run Process  chown  root:sophos-spl-group  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json  AND
@@ -65,14 +67,12 @@ Test av can publish events and that journaler can receive them after av restart
     ...  Check AV Plugin Running
 
     Mark Livequery Log
-    Wait Until Keyword Succeeds
-    ...  15 secs
-    ...  1 secs
-    ...  check_log_contains_string_n_times  ${AV_LOG_FILE}   av   CORE policy has not been sent to the plugin  2
+
     Create File     /tmp/dirty_file2    ${EICAR_STRING}
 
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLS_PATH} /tmp/dirty_file2
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+
     Wait Until Keyword Succeeds
     ...  15 secs
     ...  1 secs
@@ -132,13 +132,12 @@ Test av can publish events and that journaler can receive them after edr restart
     ...  2 secs
     ...  Check Logs Detected EICAR Event  2
 
-Test av can publish events for onacess and that journaler can receive them
+Test av can publish events for onaccess and that journaler can receive them
     [Timeout]  10 minutes
     Check Journal Is Empty
     Mark Livequery Log  False
-    Copy File  ${SUPPORT_FILES}/CentralXml/CORE-36_oa_enabled.xml  /opt/CORE-36_policy.xml
-    ${result} =  Run Process  chown  root:sophos-spl-group  /opt/CORE-36_policy.xml
-    Move File  /opt/CORE-36_policy.xml  ${SOPHOS_INSTALL}/base/mcs/policy/CORE-36_policy.xml
+    send_policy_file  core  ${SUPPORT_FILES}/CentralXml/CORE-36_oa_enabled.xml
+
     Copy File  ${SUPPORT_FILES}/CentralXml/FLAGS_onaccess_enabled.json  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json
     ${result} =  Run Process  chown  root:sophos-spl-group  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json
     Wait Until Keyword Succeeds

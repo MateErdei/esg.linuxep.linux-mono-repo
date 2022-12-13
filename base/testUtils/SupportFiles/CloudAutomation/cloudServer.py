@@ -506,21 +506,6 @@ class MCSEndpointManager(object):
     def getPolicy(self):
         return self.__m_policy
 
-# CORE Policy
-class COREEndpointManager(object):
-    def __init__(self):
-        self.__m_resetHealth = None
-
-    def resetHealthPending(self):
-        return self.__m_resetHealth is not None
-
-    def resetHealth(self):
-        logger.info("Triggering a threat health reset")
-        self.__m_resetHealth = True
-
-    def commandDeleted(self):
-        self.__m_resetHealth = None
-
 # ALC Policy
 class ALCEndpointManager(object):
     def __init__(self):
@@ -605,6 +590,64 @@ class LiveQueryEndpointManager(object):
     def getPolicy(self):
         return self.__m_policy
 
+# CORE POLICY
+class CoreEndpointManager(object):
+    def __init__(self):
+        self.__m_policyID = "INITIAL_CORE_POLICY_ID"
+        self.__m_policy = INITIAL_CORE_POLICY
+        GL_POLICIES.addPolicy(self.__m_policyID, self.__m_policy)
+        self.__m_resetHealth = None
+
+    def resetHealthPending(self):
+        return self.__m_resetHealth is not None
+
+    def resetHealth(self):
+        logger.info("Triggering a threat health reset")
+        self.__m_resetHealth = True
+
+    def policyPending(self):
+        return self.__m_policyID is not None
+
+    def policyID(self):
+        return self.__m_policyID
+
+    def commandDeleted(self):
+        self.__m_policyID = None
+        self.__m_resetHealth = None
+
+    def updatePolicy(self, body):
+        self.__m_policyID = "Core%f"%(time.time())
+        self.__m_policy = body
+        logger.info("Updating Core policy: %s",self.__m_policyID)
+        GL_POLICIES.addPolicy(self.__m_policyID, self.__m_policy)
+
+    def getPolicy(self):
+        return self.__m_policy
+
+# CORC POLICY
+class CorcEndpointManager(object):
+    def __init__(self):
+        self.__m_policyID = "INITIAL_CORC_POLICY_ID"
+        self.__m_policy = INITIAL_CORC_POLICY
+        GL_POLICIES.addPolicy(self.__m_policyID, self.__m_policy)
+
+    def policyPending(self):
+        return self.__m_policyID is not None
+
+    def policyID(self):
+        return self.__m_policyID
+
+    def commandDeleted(self):
+        self.__m_policyID = None
+
+    def updatePolicy(self, body):
+        self.__m_policyID = "Corc%f"%(time.time())
+        self.__m_policy = body
+        logger.info("Updating Corc policy: %s",self.__m_policyID)
+        GL_POLICIES.addPolicy(self.__m_policyID, self.__m_policy)
+
+    def getPolicy(self):
+        return self.__m_policy
 class Endpoint(object):
     def __init__(self, status):
         global ID
@@ -618,10 +661,11 @@ class Endpoint(object):
         self.__edr = EDREndpointManager()
         self.__liveTerminal = LiveTerminalEndpointManager()
         self.__mcs = MCSEndpointManager()
-        self.__core = COREEndpointManager()
+        self.__core = CoreEndpointManager()
         self.__alc = ALCEndpointManager()
         self.__mdr = MDREndpointManager()
         self.__livequery = LiveQueryEndpointManager()
+        self.__corc = CorcEndpointManager()
         self.__m_doc = None
         self.__m_health = 0
         self.__m_updatesource = None
@@ -925,6 +969,10 @@ class Endpoint(object):
             commands.append(self.policyCommand("MDR", self.__mdr.policyID()))
         if "LiveQuery" in apps and self.__livequery.policyPending():
             commands.append(self.policyCommand("LiveQuery", self.__livequery.policyID()))
+        if "CORE" in apps and self.__core.policyPending():
+            commands.append(self.policyCommand("CORE", self.__core.policyID()))
+        if "CORC" in apps and self.__corc.policyPending():
+            commands.append(self.policyCommand("CORC", self.__corc.policyID()))
         if 'LiveTerminal' in apps and self.__liveTerminal.LiveTerminalPending():
             commands.append(self.liveTerminalCommand())
 
@@ -955,6 +1003,10 @@ class Endpoint(object):
                 self.__mdr.commandDeleted()
             elif c == "LiveQuery":
                 self.__livequery.commandDeleted()
+            elif c == "CORE":
+                self.__core.commandDeleted()
+            elif c == "CORC":
+                self.__corc.commandDeleted()
             else:
                 logger.error("Attempting to delete unknown command: %s", c)
 
@@ -970,6 +1022,12 @@ class Endpoint(object):
     def updateLiveQueryPolicy(self, body):
         self.__livequery.updatePolicy(body)
 
+    def updateCorePolicy(self, body):
+        self.__core.updatePolicy(body)
+
+    def updateCorcPolicy(self, body):
+        self.__corc.updatePolicy(body)
+
     def updateSavPolicy(self, body):
         self.__sav.updatePolicy(body)
 
@@ -984,6 +1042,10 @@ class Endpoint(object):
             self.__mdr.updatePolicy(body)
         elif adapter == "LiveQuery":
             self.__livequery.updatePolicy(body)
+        elif adapter == "CORE":
+            self.__core.updatePolicy(body)
+        elif adapter == "CORC":
+            self.__corc.updatePolicy(body)
 
     def migrate(self):
         self.__mcs.migrate()
@@ -1940,6 +2002,10 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
             GL_ENDPOINTS.updatePolicy("ALC",self.getBody())
         elif self.path.lower() == "/controller/livequery/policy":
             GL_ENDPOINTS.updatePolicy("LiveQuery",self.getBody())
+        elif self.path.lower() == "/controller/core/policy":
+            GL_ENDPOINTS.updatePolicy("CORE",self.getBody())
+        elif self.path.lower() == "/controller/corc/policy":
+            GL_ENDPOINTS.updatePolicy("CORC",self.getBody())
         elif self.path.lower() == "/controller/livequery/command":
             command_id = self.headers.get("Command-ID")
             GL_ENDPOINTS.setQuery("LiveQuery", self.getBody(), command_id)
@@ -2112,21 +2178,29 @@ def setDefaultPolicies(options):
     global INITIAL_SAV_POLICY
     global INITIAL_MDR_POLICY
     global INITIAL_LIVEQUERY_POLICY
+    global INITIAL_CORE_POLICY
+    global INITIAL_CORC_POLICY
 
-    with open(options.INITIAL_ALC_POLICY) as alc_file:
-        INITIAL_ALC_POLICY = alc_file.read()
+    with open(options.INITIAL_ALC_POLICY) as policy_file:
+        INITIAL_ALC_POLICY = policy_file.read()
 
-    with open(options.INITIAL_MCS_POLICY) as mcs_file:
-        INITIAL_MCS_POLICY = mcs_file.read()
+    with open(options.INITIAL_MCS_POLICY) as policy_file:
+        INITIAL_MCS_POLICY = policy_file.read()
 
-    with open(options.INITIAL_SAV_POLICY) as sav_file:
-        INITIAL_SAV_POLICY = sav_file.read()
+    with open(options.INITIAL_SAV_POLICY) as policy_file:
+        INITIAL_SAV_POLICY = policy_file.read()
 
-    with open(options.INITIAL_MDR_POLICY) as mdr_file:
-        INITIAL_MDR_POLICY = mdr_file.read()
+    with open(options.INITIAL_MDR_POLICY) as policy_file:
+        INITIAL_MDR_POLICY = policy_file.read()
 
-    with open(options.INITIAL_LIVEQUERY_POLICY) as livequery_file:
-        INITIAL_LIVEQUERY_POLICY = livequery_file.read()
+    with open(options.INITIAL_LIVEQUERY_POLICY) as policy_file:
+        INITIAL_LIVEQUERY_POLICY = policy_file.read()
+
+    with open(options.INITIAL_CORE_POLICY) as policy_file:
+        INITIAL_CORE_POLICY = policy_file.read()
+
+    with open(options.INITIAL_CORC_POLICY) as policy_file:
+        INITIAL_CORC_POLICY = policy_file.read()
 
 def main(argv):
     try:
