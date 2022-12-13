@@ -196,6 +196,7 @@ Corrupt Threat Database Telemetry Is Reported
 
     Remove File     ${THREAT_DATABASE_PATH}
     Create File     ${THREAT_DATABASE_PATH}    {T26796de6c
+    Register Cleanup  Remove File  ${THREAT_DATABASE_PATH}
 
     Start AV Plugin
     Wait For Log Contains From Mark    ${avMark}     Resetting ThreatDatabase as we failed to parse ThreatDatabase on disk with error
