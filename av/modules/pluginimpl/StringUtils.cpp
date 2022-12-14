@@ -145,7 +145,7 @@ std::string pluginimpl::generateThreatDetectedJson(const scan_messages::ThreatDe
     if (threatEvent["avScanType"] == scan_messages::E_SCAN_TYPE::E_SCAN_TYPE_ON_ACCESS)
     {
         threatEvent["pid"] = detection.pid;
-        threatEvent["processParentPath"] = detection.executablePath;
+        threatEvent["processPath"] = detection.executablePath;
     }
     return threatEvent.dump();
 }

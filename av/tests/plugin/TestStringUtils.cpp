@@ -280,7 +280,67 @@ TEST_F(TestStringUtils, TestEmptyThreatPathJSON)
     std::string result = generateThreatDetectedJson(scan_messages::ThreatDetected(deSerialisedData));
 
     static const std::string expectedJSON =
-        R"sophos({"details":{"filePath":"","sha256FileHash":"2677b3f1607845d18d5a405a8ef592e79b8a6de355a9b7490b6bb439c2116def"},"detectionName":{"short":"eicar"},"items":{"1":{"path":"","primary":true,"sha256":"2677b3f1607845d18d5a405a8ef592e79b8a6de355a9b7490b6bb439c2116def","type":1}},"threatSource":1,"threatType":1,"time":123})sophos";
+        R"sophos({"avScanType":201,"details":{"filePath":"","sha256FileHash":"2677b3f1607845d18d5a405a8ef592e79b8a6de355a9b7490b6bb439c2116def"},"detectionName":{"short":"eicar"},"items":{"1":{"path":"","primary":true,"sha256":"2677b3f1607845d18d5a405a8ef592e79b8a6de355a9b7490b6bb439c2116def","type":1}},"pid":-1,"processPath":"","quarantineSuccess":true,"threatSource":1,"threatType":1,"time":123})sophos";
+
+    EXPECT_EQ(result, expectedJSON);
+}
+
+TEST_F(TestStringUtils, TestOnDemandEventJson)
+{
+    std::string threatName = "eicar";
+    std::string userID = "User";
+
+    scan_messages::ThreatDetected threatDetected(
+        userID,
+        DUMMY_TIMESTAMP,
+        ThreatType::virus,
+        threatName,
+        scan_messages::E_SCAN_TYPE_ON_DEMAND,
+        E_NOTIFICATION_STATUS_CLEANED_UP,
+        "",
+        E_SMT_THREAT_ACTION_SHRED,
+        "2677b3f1607845d18d5a405a8ef592e79b8a6de355a9b7490b6bb439c2116def",
+        m_threatId,
+        false,
+        ReportSource::ml,
+        datatypes::AutoFd());
+
+    threatDetected.pid = 1;
+    threatDetected.executablePath = "parentPath";
+    std::string result = generateThreatDetectedJson(threatDetected);
+
+    static const std::string expectedJSON =
+        R"sophos({"avScanType":203,"details":{"filePath":"","sha256FileHash":"2677b3f1607845d18d5a405a8ef592e79b8a6de355a9b7490b6bb439c2116def"},"detectionName":{"short":"eicar"},"items":{"1":{"path":"","primary":true,"sha256":"2677b3f1607845d18d5a405a8ef592e79b8a6de355a9b7490b6bb439c2116def","type":1}},"quarantineSuccess":true,"threatSource":1,"threatType":1,"time":123})sophos";
+
+    EXPECT_EQ(result, expectedJSON);
+}
+
+TEST_F(TestStringUtils, TestOnAccessEventJson)
+{
+    std::string threatName = "eicar";
+    std::string userID = "User";
+
+    scan_messages::ThreatDetected threatDetected(
+        userID,
+        DUMMY_TIMESTAMP,
+        ThreatType::virus,
+        threatName,
+        scan_messages::E_SCAN_TYPE_ON_ACCESS,
+        scan_messages::E_NOTIFICATION_STATUS_NOT_CLEANUPABLE,
+        "",
+        E_SMT_THREAT_ACTION_SHRED,
+        "2677b3f1607845d18d5a405a8ef592e79b8a6de355a9b7490b6bb439c2116def",
+        m_threatId,
+        false,
+        ReportSource::ml,
+        datatypes::AutoFd());
+
+    threatDetected.pid = 100;
+    threatDetected.executablePath = "parentPath";
+    std::string result = generateThreatDetectedJson(threatDetected);
+
+    static const std::string expectedJSON =
+        R"sophos({"avScanType":201,"details":{"filePath":"","sha256FileHash":"2677b3f1607845d18d5a405a8ef592e79b8a6de355a9b7490b6bb439c2116def"},"detectionName":{"short":"eicar"},"items":{"1":{"path":"","primary":true,"sha256":"2677b3f1607845d18d5a405a8ef592e79b8a6de355a9b7490b6bb439c2116def","type":1}},"pid":100,"processPath":"parentPath","quarantineSuccess":false,"threatSource":1,"threatType":1,"time":123})sophos";
 
     EXPECT_EQ(result, expectedJSON);
 }
@@ -316,7 +376,7 @@ TEST_F(TestStringUtils, TestEmptyThreatNameJSON)
     std::string result = generateThreatDetectedJson(scan_messages::ThreatDetected(deSerialisedData));
 
     static const std::string expectedJSON =
-        R"sophos({"details":{"filePath":"path/to/threat","sha256FileHash":"2677b3f1607845d18d5a405a8ef592e79b8a6de355a9b7490b6bb439c2116def"},"detectionName":{"short":""},"items":{"1":{"path":"path/to/threat","primary":true,"sha256":"2677b3f1607845d18d5a405a8ef592e79b8a6de355a9b7490b6bb439c2116def","type":1}},"threatSource":1,"threatType":1,"time":123})sophos";
+        R"sophos({"avScanType":201,"details":{"filePath":"path/to/threat","sha256FileHash":"2677b3f1607845d18d5a405a8ef592e79b8a6de355a9b7490b6bb439c2116def"},"detectionName":{"short":""},"items":{"1":{"path":"path/to/threat","primary":true,"sha256":"2677b3f1607845d18d5a405a8ef592e79b8a6de355a9b7490b6bb439c2116def","type":1}},"pid":-1,"processPath":"","quarantineSuccess":true,"threatSource":1,"threatType":1,"time":123})sophos";
 
     EXPECT_EQ(result, expectedJSON);
 }
