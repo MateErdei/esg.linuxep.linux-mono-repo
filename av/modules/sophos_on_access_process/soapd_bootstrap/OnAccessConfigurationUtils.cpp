@@ -230,7 +230,7 @@ namespace sophos_on_access_process::OnAccessConfig
         return false;
     }
 
-    OnAccessConfiguration parseOnAccessPolicySettingsFromJson(const std::string& jsonString)
+    bool parseOnAccessPolicySettingsFromJson(const std::string& jsonString, OnAccessConfiguration& oaConfig)
     {
         json parsedConfig;
         try
@@ -254,7 +254,8 @@ namespace sophos_on_access_process::OnAccessConfig
                 LOGINFO("On-access exclusions: " << parsedConfig["exclusions"]);
             }
 
-            return configuration;
+            oaConfig = std::move(configuration);
+            return true;
         }
         catch (const json::parse_error& e)
         {
@@ -279,7 +280,7 @@ namespace sophos_on_access_process::OnAccessConfig
 
         LOGWARN("Failed to parse json configuration, keeping existing settings");
 
-        return {};
+        return false;
     }
 
     bool isSettingTrue(const std::string& settingString)

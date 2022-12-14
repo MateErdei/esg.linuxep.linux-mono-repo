@@ -37,7 +37,7 @@ namespace sophos_on_access_process::OnAccessConfig
     sophos_filesystem::path policyConfigFilePath();
     std::string readPolicyConfigFile(const sophos_filesystem::path&);
     std::string readPolicyConfigFile();
-    OnAccessConfiguration parseOnAccessPolicySettingsFromJson(const std::string& jsonString);
+    bool parseOnAccessPolicySettingsFromJson(const std::string& jsonString, OnAccessConfiguration& oaConfig);
     std::string readFlagConfigFile();
     OnAccessLocalSettings readLocalSettingsFile(const std::shared_ptr<datatypes::ISystemCallWrapper>& sysCalls);
 
