@@ -1030,6 +1030,8 @@ TEST_F(TestEventReaderThread, TestReaderDoesntLogWhenQueueSizeHasntLoweredToLogT
 
     clearMemoryAppender();
     queueNotFull.onEventNoArgs();
+    EXPECT_TRUE(waitForLogMultiple("On-close event for /tmp/test from Process (PID=1999999999) and UID 321", 2, 100ms));
+    EXPECT_EQ(m_smallScanRequestQueue->size(), 3);
     EXPECT_FALSE(waitForLog("Failed to add scan request to queue, on-access scanning queue is full."));
     EXPECT_FALSE(appenderContains("Queue is no longer full. Number of events dropped: 2"));
 }
