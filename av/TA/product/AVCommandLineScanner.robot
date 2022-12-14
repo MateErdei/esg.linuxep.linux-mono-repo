@@ -38,6 +38,12 @@ AVCommandLineScanner Suite Setup
     Remove Directory     ${NORMAL_DIRECTORY}  recursive=True
     Start Fake Management If required
     Create File  ${COMPONENT_ROOT_PATH}/var/inhibit_system_file_change_restart_threat_detector
+
+    # Set CORE policy to turn on ML detections
+    set_default_policy_from_file  CORE  ${RESOURCES_PATH}/core_policy/CORE-36_oa_disabled.xml
+    Copy File   ${RESOURCES_PATH}/susi_settings/susi_settings_ml_on.json  ${SUSI_STARTUP_SETTINGS_FILE}
+    Copy File    ${SUSI_STARTUP_SETTINGS_FILE}  ${SUSI_STARTUP_SETTINGS_FILE_CHROOT}
+
     Start AV
     Force SUSI to be initialized
 
