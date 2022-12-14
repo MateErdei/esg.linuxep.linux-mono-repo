@@ -38,6 +38,8 @@ Threat Detector Test Setup
     Register Cleanup  Require No Unhandled Exception
     Register Cleanup  Check For Coredumps  ${TEST NAME}
     Register Cleanup  Check Dmesg For Segfaults
+    Create File  ${COMPONENT_ROOT_PATH}/var/customer_id.txt  c1cfcf69a42311a6084bcefe8af02c8a
+    Create File  ${COMPONENT_ROOT_PATH_CHROOT}/var/customer_id.txt  c1cfcf69a42311a6084bcefe8af02c8a
 
 Threat Detector Test Teardown
     List AV Plugin Path
@@ -243,22 +245,20 @@ Threat Detector Doesnt Log Every Scan
 
 Threat Detector can have Machine Learning Turned off
     Register Cleanup   dump log  ${SUSI_DEBUG_LOG_PATH}
+    Register Cleanup   dump log  ${AV_LOG_PATH}
+    Register Cleanup   dump log  ${THREAT_DETECTOR_LOG_PATH}
+
     # Set CORE policy to turn off ML detections
-
     set_default_policy_from_file  CORE  ${RESOURCES_PATH}/core_policy/CORE-36_ml_disabled.xml
-
-    Remove File  ${SUSI_STARTUP_SETTINGS_FILE}
+    Copy File   ${RESOURCES_PATH}/susi_settings/susi_settings_ml_off.json  ${SUSI_STARTUP_SETTINGS_FILE}
+    Copy File   ${RESOURCES_PATH}/susi_settings/susi_settings_ml_off.json  ${SUSI_STARTUP_SETTINGS_FILE_CHROOT}
 
     # Try scanning MLengHighScore
     Start AV
 
-    Wait Until Created   ${SUSI_STARTUP_SETTINGS_FILE}   timeout=5sec
-    ${json} =   load_json_from_file  ${SUSI_STARTUP_SETTINGS_FILE}
-    check_json_contains  ${json}  machineLearning  ${false}
-
     DeObfuscate File  ${RESOURCES_PATH}/file_samples_obfuscated/MLengHighScore.exe  ${NORMAL_DIRECTORY}/MLengHighScore.exe
-    ${mark} =  LogUtils.get_susi_debug_log_mark
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/MLengHighScore.exe
+    Register On Fail  Log  ${output}
 
     Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
     Should Not Contain  ${output}  Detected "${NORMAL_DIRECTORY}/MLengHighScore.exe"
