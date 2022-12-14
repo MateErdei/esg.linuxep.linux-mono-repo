@@ -211,11 +211,10 @@ void SoapdBootstrap::innerRun()
     disableOnAccess();
 }
 
-sophos_on_access_process::OnAccessConfig::OnAccessConfiguration SoapdBootstrap::getPolicyConfiguration()
+bool SoapdBootstrap::getPolicyConfiguration(sophos_on_access_process::OnAccessConfig::OnAccessConfiguration& oaConfig)
 {
     auto jsonString = OnAccessConfig::readPolicyConfigFile();
-    OnAccessConfig::OnAccessConfiguration oaConfig = OnAccessConfig::parseOnAccessPolicySettingsFromJson(jsonString);
-    return oaConfig;
+    return OnAccessConfig::parseOnAccessPolicySettingsFromJson(jsonString, oaConfig);
 }
 
 void SoapdBootstrap::ProcessPolicy()
@@ -225,23 +224,26 @@ void SoapdBootstrap::ProcessPolicy()
 
     auto flagJsonString = OnAccessConfig::readFlagConfigFile();
     auto OnAccessEnabledFlag = OnAccessConfig::parseFlagConfiguration(flagJsonString);
+    OnAccessConfig::OnAccessConfiguration oaConfig{};
 
-    auto oaConfig = getPolicyConfiguration();
-    bool OnAccessEnabledPolicySetting = oaConfig.enabled;
-
-    if(checkIfOAShouldBeEnabled(OnAccessEnabledFlag, OnAccessEnabledPolicySetting))
+    if (getPolicyConfiguration(oaConfig))
     {
-        m_mountMonitor->updateConfig(oaConfig);
-        //Set exclusions first before starting receiving fanotify events
-        m_eventReader->setExclusions(oaConfig.exclusions);
-        enableOnAccess();
-    }
-    else
-    {
-        disableOnAccess();
-    }
+        bool OnAccessEnabledPolicySetting = oaConfig.enabled;
 
-    LOGDEBUG("Finished ProcessPolicy");
+        if(checkIfOAShouldBeEnabled(OnAccessEnabledFlag, OnAccessEnabledPolicySetting))
+        {
+            m_mountMonitor->updateConfig(oaConfig);
+            //Set exclusions first before starting receiving fanotify events
+            m_eventReader->setExclusions(oaConfig.exclusions);
+            enableOnAccess();
+        }
+        else
+        {
+            disableOnAccess();
+        }
+        LOGDEBUG("Finished ProcessPolicy");
+    }
+    //Logging for failure done in calls from getPolicyConfiguration
 }
 
 bool SoapdBootstrap::checkIfOAShouldBeEnabled(bool OnAccessEnabledFlag, bool OnAccessEnabledPolicySetting)

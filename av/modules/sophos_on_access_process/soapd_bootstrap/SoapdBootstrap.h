@@ -50,7 +50,7 @@ namespace sophos_on_access_process::soapd_bootstrap
 
         void initialiseTelemetry();
 
-        sophos_on_access_process::OnAccessConfig::OnAccessConfiguration getPolicyConfiguration();
+        bool getPolicyConfiguration(sophos_on_access_process::OnAccessConfig::OnAccessConfiguration& oaConfig);
 
         std::unique_ptr<common::ThreadRunner> m_eventReaderThread;
         std::shared_ptr<sophos_on_access_process::fanotifyhandler::FanotifyHandler> m_fanotifyHandler;
