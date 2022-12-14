@@ -116,7 +116,7 @@ SafeStore Quarantines When It Receives A File To Quarantine
     Check avscanner can detect eicar
 
     Wait For Log Contains From Mark  ${safestore_mark}  Received Threat:
-    Wait For Log Contains From Mark  ${av_mark}  Quarantine succeeded
+    Wait For Log Contains From Mark  ${av_mark}  Threat cleaned up at path:
     File Should Not Exist   ${SCAN_DIRECTORY}/eicar.com
 
     Wait Until Base Has Core Clean Event
@@ -136,7 +136,7 @@ SafeStore Quarantines When It Receives A File To Quarantine (On Access)
     Exclued SafeStore File Open Error On Quarantine
 
     wait_for_log_contains_from_mark  ${safestore_mark}   Quarantined
-    wait_for_log_contains_from_mark  ${av_mark}  Quarantine succeeded
+    wait_for_log_contains_from_mark  ${av_mark}  Threat cleaned up at path:
     File Should Not Exist   /tmp_test/eicar.com
     File Should Not Exist  ${AV_PLUGIN_PATH}/var/onaccess_unhealthy_flag
 
@@ -164,7 +164,7 @@ SafeStore Quarantines Archive
     Run Process  ${CLI_SCANNER_PATH}  ${NORMAL_DIRECTORY}/test.tar  --scan-archives
 
     Wait For Log Contains From Mark  ${safestore_mark}  Received Threat:
-    Wait For Log Contains From Mark  ${av_mark}  Quarantine succeeded
+    Wait For Log Contains From Mark  ${av_mark}  Threat cleaned up at path:
     File Should Not Exist   ${SCAN_DIRECTORY}/test.tar
 
     Wait Until Base Has Core Clean Event
@@ -191,7 +191,7 @@ Failed Clean Event Gets Sent When SafeStore Fails To Quarantine A File
     Check avscanner can detect eicar
 
     Wait For Log Contains From Mark  ${safestore_mark}  Received Threat:
-    Wait For Log Contains From Mark  ${av_mark}  Quarantine failed
+    Wait For Log Contains From Mark  ${av_mark}  Quarantine failed for threat:  timeout=15
     File Should Exist   ${SCAN_DIRECTORY}/eicar.com
 
     Wait Until Base Has Core Clean Event
@@ -445,7 +445,7 @@ SafeStore Does Not Restore Quarantined Files When Uninstalled
     Check avscanner can detect eicar
 
     wait_for_log_contains_from_mark  ${safestore_mark}  Received Threat:
-    wait_for_log_contains_from_mark  ${av_mark}  Quarantine succeeded
+    wait_for_log_contains_from_mark  ${av_mark}  Threat cleaned up at path:
     File Should Not Exist   ${SCAN_DIRECTORY}/eicar.com
 
     AV Plugin uninstalls
@@ -472,7 +472,7 @@ SafeStore Quarantines File With Same Path And Sha Again And Discards The Previou
     Wait For Log Contains From Mark  ${safestore_mark}  Threat ID: e52cf957-a0dc-5b12-bad2-561197a5cae4
     Wait For Log Contains From Mark  ${safestore_mark}  Quarantined ${SCAN_DIRECTORY}/eicar.com successfully
     File Should Not Exist   ${SCAN_DIRECTORY}/eicar.com
-    Wait For Log Contains From Mark  ${av_mark}  Quarantine succeeded
+    Wait For Log Contains From Mark  ${av_mark}  Threat cleaned up at path:
     ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
     ${safestore_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
     Check avscanner can detect eicar
@@ -481,7 +481,7 @@ SafeStore Quarantines File With Same Path And Sha Again And Discards The Previou
     Wait For Log Contains From Mark  ${safestore_mark}  ${SCAN_DIRECTORY}/eicar.com has been quarantined before
     Wait For Log Contains From Mark  ${safestore_mark}  Removing object
     File Should Not Exist   ${SCAN_DIRECTORY}/eicar.com
-    Wait For Log Contains From Mark  ${av_mark}  Quarantine succeeded
+    Wait For Log Contains From Mark  ${av_mark}  Threat cleaned up at path:
 
     # Now try a different path
     ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
@@ -489,7 +489,7 @@ SafeStore Quarantines File With Same Path And Sha Again And Discards The Previou
     Create File  ${NORMAL_DIRECTORY}/eicar2.com  ${EICAR_STRING}
     Check avscanner can detect eicar in  ${NORMAL_DIRECTORY}/eicar2.com
     Wait For Log Contains From Mark  ${safestore_mark}  Threat ID: 49f9af79-a8bc-5436-9d3a-404a461a976e
-    Wait For Log Contains From Mark  ${av_mark}  Quarantine succeeded
+    Wait For Log Contains From Mark  ${av_mark}  Threat cleaned up at path:
     check_log_does_not_contain_after_mark  ${SAFESTORE_LOG_PATH}  has been quarantined before  ${safestore_mark}
     File Should Not Exist   ${SCAN_DIRECTORY}/eicar2.com
 
@@ -681,7 +681,7 @@ SafeStore Quarantines Ml Detection If Ml Flag Is Enabled
     Run Process  ${CLI_SCANNER_PATH}  ${NORMAL_DIRECTORY}/MLengHighScore.exe
 
     Wait For Log Contains From Mark  ${safestore_mark}  Quarantined ${NORMAL_DIRECTORY}/MLengHighScore.exe successfully
-    Wait For Log Contains From Mark  ${av_mark}  Quarantine succeeded
+    Wait For Log Contains From Mark  ${av_mark}  Threat cleaned up at path:
 
     File Should Not Exist  ${NORMAL_DIRECTORY}/MLengHighScore.exe
 
@@ -737,7 +737,7 @@ Threat Can Be Restored From Persisted SafeStore Database
     Check avscanner can detect eicar
 
     Wait For Log Contains From Mark  ${safeStoreMark}  Threat ID: ${threatId}
-    Wait For Log Contains From Mark  ${avMark}  Quarantine succeeded
+    Wait For Log Contains From Mark  ${avMark}  Threat cleaned up at path:
     File Should Not Exist    ${SCAN_DIRECTORY}/eicar.com
 
     ${dbContent} =    Get Contents of SafeStore Database

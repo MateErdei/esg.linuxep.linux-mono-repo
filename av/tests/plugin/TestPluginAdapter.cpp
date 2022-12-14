@@ -1180,8 +1180,8 @@ TEST_F(TestPluginAdapter, telemetryIsIncrementedForDuplicateDetection)
 
 
 // TODO: LINUXDAR-5806 -- stablise this test
-//// PluginAdapter construction needed for this test, so it's here instead of its own TestSafeStoreWorker file (for now)
-// TEST_F(TestPluginAdapter, testSafeStoreWorkerExitsOnStop) // NOLINT
+// PluginAdapter construction needed for this test, so it's here instead of its own TestSafeStoreWorker file (for now)
+//TEST_F(TestPluginAdapter, testSafeStoreWorkerExitsOnStop) // NOLINT
 //{
 //     // In lieu of a Mock PluginAdapter, make a real one since this test never calls its functions anyway
 //     auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
@@ -1191,7 +1191,7 @@ TEST_F(TestPluginAdapter, telemetryIsIncrementedForDuplicateDetection)
 //         m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
 //
 //     auto newQueue = std::make_shared<DetectionQueue>();
-//     auto worker = std::make_shared<SafeStoreWorker>(pluginAdapter, newQueue, "fakeSocket");
+//     auto worker = std::make_shared<SafeStoreWorker>(pluginAdapter, pluginAdapter, newQueue, "fakeSocket");
 //
 //     // Prove worker exits when queue gets stop request
 //     auto result = std::async(std::launch::async, &SafeStoreWorker::join, worker);
@@ -1207,14 +1207,16 @@ TEST_F(TestPluginAdapter, telemetryIsIncrementedForDuplicateDetection)
 //     scan_messages::ThreatDetected basicDetection(
 //         "root",
 //         1,
-//         scan_messages::E_VIRUS_THREAT_TYPE,
+//         ThreatType::virus,
 //         "threatName",
 //         scan_messages::E_SCAN_TYPE_UNKNOWN,
 //         scan_messages::E_NOTIFICATION_STATUS_NOT_CLEANUPABLE,
 //         "/path",
 //         scan_messages::E_SMT_THREAT_ACTION_UNKNOWN,
 //         "sha256",
-//         "threatId",
+//         "01234567-89ab-cdef-0123-456789abcdef",
+//         false,
+//         ReportSource::vdl,
 //         datatypes::AutoFd());
 //     newQueue->push(basicDetection);
 //     ASSERT_EQ(result.wait_for(std::chrono::milliseconds(50)), std::future_status::ready);

@@ -88,7 +88,7 @@ Threat is removed from Threat database when threat is quarantined
     wait_for_av_log_contains_after_mark     SafeStore flag set. Setting SafeStore to enabled   ${avmark}  timeout=60
     Create File     ${NORMAL_DIRECTORY}/naughty_eicar    ${EICAR_STRING}
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naughty_eicar
-    wait_for_av_log_contains_after_mark   Quarantine succeeded  ${avmark}
+    wait_for_av_log_contains_after_mark   Threat cleaned up at path: ${NORMAL_DIRECTORY}/naughty_eicar  ${avmark}
     wait_for_av_log_contains_after_mark   Removed threatId 265a4b8a-239b-5f7e-8e4b-c78748cbd7ef from database   ${avmark}
     wait_for_av_log_contains_after_mark   Threat database is now empty, sending good health to Management agent   ${avmark}
     wait_for_av_log_contains_after_mark   Publishing threat health: good   ${avmark}
@@ -110,7 +110,7 @@ Threat is not added to Threat database when threat is quarantined
     wait_for_av_log_contains_after_mark     SafeStore flag set. Setting SafeStore to enabled   ${avmark}  timeout=60
     Create File     ${NORMAL_DIRECTORY}/naughty_eicar    ${EICAR_STRING}
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naughty_eicar
-    wait_for_av_log_contains_after_mark  Quarantine succeeded  ${avmark}
+    wait_for_av_log_contains_after_mark  Threat cleaned up at path: ${NORMAL_DIRECTORY}/naughty_eicar  ${avmark}
     Stop AV
     Wait Until Keyword Succeeds
     ...  10 secs

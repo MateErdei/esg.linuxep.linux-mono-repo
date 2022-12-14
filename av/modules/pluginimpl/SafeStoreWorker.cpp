@@ -5,6 +5,7 @@
 #include "Logger.h"
 
 #include "common/NotifyPipeSleeper.h"
+#include "common/StringUtils.h"
 #include "mount_monitor/mountinfoimpl/Drive.h"
 #include "scan_messages/QuarantineResponse.h"
 
@@ -67,7 +68,7 @@ void SafeStoreWorker::run()
         catch (std::runtime_error& error)
         {
             LOGWARN(
-                "Unable to determine detection's parent mount, due to: " << error.what()
+                "Unable to determine detection's parent mount, due to: " << common::escapePathForLogging(error.what())
                                                                          << ". Will continue quarantine attempt.");
         }
 
@@ -105,16 +106,17 @@ void SafeStoreWorker::run()
                     threatDetected.notificationStatus = scan_messages::E_NOTIFICATION_STATUS_NOT_CLEANUPABLE;
                 }
             }
-
+            const std::string escapedPath = common::escapePathForLogging(threatDetected.filePath);
             if (quarantineResult == common::CentralEnums::QuarantineResult::SUCCESS)
             {
                 threatDetected.notificationStatus = scan_messages::E_NOTIFICATION_STATUS_CLEANED_UP;
-                LOGDEBUG("Quarantine succeeded");
+
+                LOGINFO("Threat cleaned up at path: " << escapedPath);
             }
             else
             {
                 threatDetected.notificationStatus = scan_messages::E_NOTIFICATION_STATUS_NOT_CLEANUPABLE;
-                LOGWARN("Quarantine failed");
+                LOGWARN("Quarantine failed for threat: " << escapedPath);
             }
         }
 
