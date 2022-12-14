@@ -833,7 +833,7 @@ def add_options():
                                  'event-journaler-ingestion',
                                  'av-onaccess-slow',
                                  'av-onaccess',
-                                 'safestore-confirm-detections'
+                                 'safestore-confirm-detections',
                                  'safestore-restore-database'],
                         help="Select which performance test suite to run")
 
