@@ -9,6 +9,7 @@ Library         String
 Library         ../Libs/AVScanner.py
 Library         ../Libs/CoreDumps.py
 Library         ../Libs/FileSampleObfuscator.py
+Library         ../Libs/JsonUtils.py
 Library         ../Libs/LockFile.py
 Library         ../Libs/OnFail.py
 Library         ../Libs/LogUtils.py
@@ -241,13 +242,19 @@ Threat Detector Doesnt Log Every Scan
     dump log  ${SUSI_DEBUG_LOG_PATH}
 
 Threat Detector can have Machine Learning Turned off
-    Register On Fail   dump log  ${SUSI_DEBUG_LOG_PATH}
+    Register Cleanup   dump log  ${SUSI_DEBUG_LOG_PATH}
     # Set CORE policy to turn off ML detections
 
     set_default_policy_from_file  CORE  ${RESOURCES_PATH}/core_policy/CORE-36_ml_disabled.xml
 
+    Remove File  ${SUSI_STARTUP_SETTINGS_FILE}
+
     # Try scanning MLengHighScore
     Start AV
+
+    Wait Until Created   ${SUSI_STARTUP_SETTINGS_FILE}   timeout=5sec
+    ${json} =   load_json_from_file  ${SUSI_STARTUP_SETTINGS_FILE}
+    check_json_contains  ${json}  machineLearning  ${false}
 
     DeObfuscate File  ${RESOURCES_PATH}/file_samples_obfuscated/MLengHighScore.exe  ${NORMAL_DIRECTORY}/MLengHighScore.exe
     ${mark} =  LogUtils.get_susi_debug_log_mark
