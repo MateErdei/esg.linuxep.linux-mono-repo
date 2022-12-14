@@ -24,6 +24,10 @@ Test Teardown  Run Keywords
 ...            Run Keyword If Test Failed  Dump Teardown Log  /tmp/av_install.log  AND
 ...            dump_cloud_server_log  AND
 ...            Remove File  /tmp/av_install.log  AND
+...            Stop AV Plugin  AND
+...            Remove File  ${SOPHOS_INSTALL}/plugins/av/var/persist-threatDatabase  AND
+...            Start AV Plugin  AND
+...            Check AV Plugin Installed Directly  AND
 ...            Copy File  ${SUPPORT_FILES}/CentralXml/FLAGS_xdr_enabled.json  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json  AND
 ...            Run Process  chown  root:sophos-spl-group  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json  AND
 ...            Remove File  ${EVENT_JOURNAL_DIR}/SophosSPL/Detections/*  AND

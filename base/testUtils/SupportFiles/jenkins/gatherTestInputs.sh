@@ -54,7 +54,8 @@ python3 -m venv "${VENV}" && source "${VENV}/bin/activate"
   python3 "$TEST_UTILS/libs/GatherReleaseWarehouses.py"  ${SYSTEMPRODUCT_TEST_INPUT}
 deactivate && rm -rf "${VENV}"
 chmod +x ${SYSTEMPRODUCT_TEST_INPUT}/sdds3/sdds3-builder || fail "Error: Failed to chmod sdds3-builder inputs"
-chmod +x ${SYSTEMPRODUCT_TEST_INPUT}/safestore_tools/ssr || fail "Error: Failed to chmod safestore tool"
+unzip -o -d ${SYSTEMPRODUCT_TEST_INPUT}/safestore_tools/ ${SYSTEMPRODUCT_TEST_INPUT}/safestore_tools/safestore-linux-x64.zip
+chmod +x ${SYSTEMPRODUCT_TEST_INPUT}/safestore_tools/ssr/ssr || fail "Error: Failed to chmod safestore tool"
 try_command_with_backoff cp -r /mnt/filer6/linux/SSPL/testautomation/sdds-specs $SYSTEMPRODUCT_TEST_INPUT/sdds-specs || fail "Error: Failed to fetch inputs"
 # restore bash strictness (for scripts that source this one)
 set -e
