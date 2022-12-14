@@ -202,15 +202,13 @@ bool EventReaderThread::handleFanotifyEvent()
         else
         {
             m_telemetryUtility->incrementEventReceived(false);
+            if (m_EventsWhileQueueFull > 0 &&
+                m_scanRequestQueue->sizeIsLessThan(m_logNotFullThreshold))
+            {
+                LOGINFO("Queue is no longer full. Number of events dropped: " << m_EventsWhileQueueFull);
+                m_EventsWhileQueueFull = 0;
+            }
         }
-
-        if (m_EventsWhileQueueFull > 0 &&
-            m_scanRequestQueue->sizeIsLessThan(m_logNotFullThreshold))
-        {
-            LOGINFO("Queue is no longer full. Number of events dropped: " << m_EventsWhileQueueFull);
-            m_EventsWhileQueueFull = 0;
-        }
-
     }
     return true;
 }
