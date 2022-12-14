@@ -175,9 +175,9 @@ namespace OsquerySDK
                     {
                         r["pid"] = to_string(jsonObject["pid"]);
                     }
-                    if (jsonObject.contains("processParentPath"))
+                    if (jsonObject.contains("processPath"))
                     {
-                        r["process_parent_path"] = jsonObject["processParentPath"];
+                        r["process_path"] = jsonObject["processPath"];
                     }
                 }
             }

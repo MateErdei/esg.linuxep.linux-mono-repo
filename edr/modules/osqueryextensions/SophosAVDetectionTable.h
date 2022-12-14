@@ -159,7 +159,7 @@ namespace OsquerySDK
             * @description
             * Path of executable that triggered an on access detection (if known)
             */
-                TABLE_PLUGIN_COLUMN(process_parent_path, TEXT_TYPE, ColumnOptions::DEFAULT),
+                TABLE_PLUGIN_COLUMN(process_path, TEXT_TYPE, ColumnOptions::DEFAULT),
             /*
             * @description
             * quarantine_success is an enum with values (false=0, true=1)

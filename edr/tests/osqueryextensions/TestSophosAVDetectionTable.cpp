@@ -69,7 +69,7 @@ public:
                     }
                 },
                 "pid": 100,
-                "processParentPath": "parentPath",
+                "processPath": "parentPath",
                 "quarantineSuccess": true,
                 "threatSource": 0,
                 "threatType": 1
@@ -103,7 +103,7 @@ public:
                     }
                 },
                 "pid": 100,
-                "processParentPath": "parentPath",
+                "processPath": "parentPath",
                 "quarantineSuccess": true,
                 "threatSource": 0,
                 "threatType": 1
@@ -309,7 +309,7 @@ TEST_F(TestSophosAVDetectionTable, testTableGenerationCreatesDataCorrectlyWithNo
     r["monitor_mode"] = "0";  // optional, ask whether it is a field on its own, or a json field
     r["av_scan_type"] = "on_access";
     r["pid"] = "100";
-    r["process_parent_path"] = "parentPath";
+    r["process_path"] = "parentPath";
     r["quarantine_success"] = "1";
     expectedResults.push_back(std::move(r));
 
@@ -414,7 +414,7 @@ TEST_F(TestSophosAVDetectionTable, testTableGenerationCreatesDataCorrectlyWithMu
             r["raw"] = getSampleJson();
             r["av_scan_type"] = "on_access";
             r["pid"] = "100";
-            r["process_parent_path"] = "parentPath";
+            r["process_path"] = "parentPath";
             r["quarantine_success"] = "1";
         }
         else
@@ -501,7 +501,7 @@ TEST_F(TestSophosAVDetectionTable, testTableGenerationCreatesDataCorrectlyWithQu
     r["monitor_mode"] = "0";  // optional, ask whether it is a field on its own, or a json field
     r["av_scan_type"] = "on_access";
     r["pid"] = "100";
-    r["process_parent_path"] = "parentPath";
+    r["process_path"] = "parentPath";
     r["quarantine_success"] = "1";
     expectedResults.push_back(std::move(r));
 
@@ -559,7 +559,7 @@ TEST_F(TestSophosAVDetectionTable, testTableGenerationClearsJRLWhenTenEventMaxsA
     r["monitor_mode"] = "0"; // optional, ask whether it is a field on its own, or a json field
     r["av_scan_type"] = "on_access";
     r["pid"] = "100";
-    r["process_parent_path"] = "parentPath";
+    r["process_path"] = "parentPath";
     r["quarantine_success"] = "1";
     expectedResults.push_back(std::move(r));
 
@@ -617,7 +617,7 @@ TEST_F(TestSophosAVDetectionTable, testTableGenerationCreatesDataCorrectlyWithQu
     r["monitor_mode"] = "0";  // optional, ask whether it is a field on its own, or a json field
     r["av_scan_type"] = "on_access";
     r["pid"] = "100";
-    r["process_parent_path"] = "parentPath";
+    r["process_path"] = "parentPath";
     r["quarantine_success"] = "1";
     expectedResults.push_back(std::move(r));
 
@@ -672,7 +672,7 @@ TEST_F(TestSophosAVDetectionTable, testTableGenerationCreatesDataCorrectlyWithQu
     r["monitor_mode"] = "0";  // optional, ask whether it is a field on its own, or a json field
     r["av_scan_type"] = "on_access";
     r["pid"] = "100";
-    r["process_parent_path"] = "parentPath";
+    r["process_path"] = "parentPath";
     r["quarantine_success"] = "1";
     expectedResults.push_back(std::move(r));
 
