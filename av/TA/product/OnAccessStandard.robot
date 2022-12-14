@@ -274,6 +274,8 @@ On Access Scans Zero Byte File
     wait for on access log contains after mark   On-open event for ${NORMAL_DIRECTORY}/zero_bytes  mark=${mark}
 
 On Access Scans Large Eicar
+    #The centos8 TA template is particularly slow in this test
+    [Timeout]  10min
     ${mark} =  get_on_access_log_mark
 
     Create Large Eicar
