@@ -191,7 +191,7 @@ TEST_F(TestScanRequestQueue, highBitDifferentDeviceAreNotSkipped)
     EXPECT_EQ(queue.size(), 2);
 }
 
-TEST_F(TestScanRequestQueue, returnsTrueIfSizeIsBelowMaxSizeMinusBufferValue)
+TEST_F(TestScanRequestQueue, returnsTrueIfSizeIsBelowMaxSizeMinusLogNotFullThreshold)
 {
     auto sysCallWrapper = std::make_shared<StrictMock<MockSystemCallWrapper>>();
 
@@ -210,7 +210,7 @@ TEST_F(TestScanRequestQueue, returnsTrueIfSizeIsBelowMaxSizeMinusBufferValue)
 }
 
 
-TEST_F(TestScanRequestQueue, returnsTrueIfSizeIsSameAsMaxSizeMinusBufferValue)
+TEST_F(TestScanRequestQueue, returnsTrueIfSizeIsSameAsMaxSizeMinusLogNotFullThreshold)
 {
     auto sysCallWrapper = std::make_shared<StrictMock<MockSystemCallWrapper>>();
 
@@ -228,7 +228,7 @@ TEST_F(TestScanRequestQueue, returnsTrueIfSizeIsSameAsMaxSizeMinusBufferValue)
     EXPECT_TRUE(queue.sizeIsLessThan(5));
 }
 
-TEST_F(TestScanRequestQueue, returnsFalseIfSizeIsGreaterThanMaxSizeMinusBufferValue)
+TEST_F(TestScanRequestQueue, returnsFalseIfSizeIsGreaterThanMaxSizeMinusLogNotFullThreshold)
 {
     auto sysCallWrapper = std::make_shared<StrictMock<MockSystemCallWrapper>>();
 
