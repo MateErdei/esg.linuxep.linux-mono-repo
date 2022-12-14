@@ -329,6 +329,21 @@ namespace Common
             virtual int getFileInfoDescriptorFromDirectoryFD(int fd1, const Path& path) const = 0;
 
             /**
+             * unlink file in the directory the fd belongs to
+             * @param directory file descriptor
+             * @param relative path to file from given directory
+             * @throw this will fail if given a directory
+             */
+            virtual void unlinkFileUsingDirectoryFD(int fd1, const Path& path) const = 0;
+
+            /**
+             * unlink directory or file in the directory the fd belongs to
+             * @param directory file descriptor
+             * @param relative path to directory/file from given directory
+             */
+            virtual void unlinkDirUsingDirectoryFD(int fd1, const Path& path) const = 0;
+
+            /**
              * Wait for the given file to exist.
              * @param path, location of the file to wait for
              * @param timeout, maximum time in milliseconds to wait for the file to exist before returning

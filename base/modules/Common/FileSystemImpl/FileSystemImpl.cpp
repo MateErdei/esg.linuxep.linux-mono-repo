@@ -818,6 +818,29 @@ namespace Common
             return openat(fd, path.c_str(), O_PATH);
         }
 
+        void FileSystemImpl::unlinkFileUsingDirectoryFD(int fd, const Path& path) const
+        {
+            if (unlinkat(fd, path.c_str(), 0) != 0)
+            {
+                int error = errno;
+
+                std::string error_cause = StrError(error);
+                throw Common::FileSystem::IFileSystemException(
+                    "Failed to delete file using directory FD: (relative path)" + path + ". Cause: " + error_cause);
+            }
+        }
+
+        void FileSystemImpl::unlinkDirUsingDirectoryFD(int fd, const Path& path) const
+        {
+            if (unlinkat(fd, path.c_str(), AT_REMOVEDIR) != 0)
+            {
+                int error = errno;
+
+                std::string error_cause = StrError(error);
+                throw Common::FileSystem::IFileSystemException(
+                    "Failed to delete directory entry using directory FD: (relative path) " + path + ". Cause: " + error_cause);
+            }
+        }
         void FileSystemImpl::removeFilesInDirectory(const Path& path) const
         {
             if (!FileSystemImpl::isDirectory(path))
@@ -831,6 +854,7 @@ namespace Common
                 removeFile(file);
             }
         }
+
         bool FileSystemImpl::waitForFile(const Path& path, unsigned int timeout) const
         {
             bool fileExists = false;

@@ -86,6 +86,10 @@ namespace Common
 
             int getFileInfoDescriptorFromDirectoryFD(int fd, const Path& path) const override;
 
+            void unlinkFileUsingDirectoryFD(int fd, const Path& path) const override;
+
+            void unlinkDirUsingDirectoryFD(int fd, const Path& path) const override;
+
             bool compareFileDescriptors(int fd1, int fd2) const override;
 
             std::optional<std::string> readProcFile(int pid, const std::string& filename) const override;

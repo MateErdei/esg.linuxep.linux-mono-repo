@@ -1187,4 +1187,71 @@ namespace
         close(dirfd);
         close(fd1);
     }
+
+    TEST_F( FileSystemImplTest, unlinkFileUsingDirectoryFDSuccess)
+    {
+        Tests::TempDir tempDir;
+        tempDir.makeDirs("Root/");
+        tempDir.createFile("Root/file","");
+        int dirfd = open(tempDir.absPath("Root").c_str(), O_PATH);
+        EXPECT_NO_THROW(m_fileSystem->unlinkFileUsingDirectoryFD(dirfd, "file"));
+        close(dirfd);
+        EXPECT_FALSE(m_fileSystem->isFile(tempDir.absPath("Root/file")));
+    }
+
+    TEST_F(FileSystemImplTest, unlinkFileUsingDirectoryFDFailsOnDir)
+    {
+        Tests::TempDir tempDir;
+        tempDir.makeDirs("Root/subdir");
+
+        int dirfd = open(tempDir.absPath("Root").c_str(), O_PATH);
+        EXPECT_THROW(m_fileSystem->unlinkFileUsingDirectoryFD(dirfd, "subdir"),IFileSystemException);
+        close(dirfd);
+        EXPECT_TRUE(m_fileSystem->isDirectory(tempDir.absPath("Root/subdir")));
+    }
+
+    TEST_F(FileSystemImplTest, unlinkFileUsingDirectoryFDFailsOnDoesntExistFile)
+    {
+        Tests::TempDir tempDir;
+        tempDir.makeDirs("Root/");
+
+        int dirfd = open(tempDir.absPath("Root").c_str(), O_PATH);
+        EXPECT_THROW(m_fileSystem->unlinkFileUsingDirectoryFD(dirfd, "subdir33"),IFileSystemException);
+        close(dirfd);
+    }
+
+    TEST_F(FileSystemImplTest, unlinkFileUsingDirectoryFDFailsOnInvalidFD)
+    {
+        Tests::TempDir tempDir;
+        tempDir.makeDirs("Root/subdir");
+        EXPECT_THROW(m_fileSystem->unlinkFileUsingDirectoryFD(-1, "subdir"),IFileSystemException);
+
+    }
+
+    TEST_F( FileSystemImplTest, unlinkDirUsingDirectoryFDSuccess)
+    {
+        Tests::TempDir tempDir;
+        tempDir.makeDirs("Root/subdir");
+        int dirfd = open(tempDir.absPath("Root").c_str(), O_PATH);
+        EXPECT_NO_THROW(m_fileSystem->unlinkDirUsingDirectoryFD(dirfd, "subdir"));
+        close(dirfd);
+        EXPECT_FALSE(m_fileSystem->isFile(tempDir.absPath("Root/subdir")));
+    }
+
+    TEST_F(FileSystemImplTest, unlinkDirUsingDirectoryFDFailsOnDoesntExistDir)
+    {
+        Tests::TempDir tempDir;
+        tempDir.makeDirs("Root/");
+
+        int dirfd = open(tempDir.absPath("Root").c_str(), O_PATH);
+        EXPECT_THROW(m_fileSystem->unlinkDirUsingDirectoryFD(dirfd, "subdir33"),IFileSystemException);
+        close(dirfd);
+    }
+
+    TEST_F(FileSystemImplTest, unlinkDirUsingDirectoryFDFailsOnInvalidFD)
+    {
+        Tests::TempDir tempDir;
+        tempDir.makeDirs("Root/subdir");
+        EXPECT_THROW(m_fileSystem->unlinkDirUsingDirectoryFD(-1, "subdir"),IFileSystemException);
+    }
 } // namespace

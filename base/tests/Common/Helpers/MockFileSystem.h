@@ -56,6 +56,8 @@ public:
     MOCK_CONST_METHOD1(getFileInfoDescriptor, int(const Path& path));
     MOCK_CONST_METHOD2(getFileInfoDescriptorFromDirectoryFD, int(int fd1, const Path& path));
     MOCK_CONST_METHOD2(compareFileDescriptors, bool(int fd1, int fd2));
+    MOCK_CONST_METHOD2(unlinkFileUsingDirectoryFD, void(int fd1, const Path& path));
+    MOCK_CONST_METHOD2(unlinkDirUsingDirectoryFD, void(int fd1, const Path& path));
     MOCK_CONST_METHOD1(removeFilesInDirectory, void(const Path& path));
     MOCK_CONST_METHOD2(readProcFile, std::optional<std::string>(int pid, const std::string& filename));
     MOCK_CONST_METHOD2(waitForFile, bool(const Path& path, unsigned int timeout));
