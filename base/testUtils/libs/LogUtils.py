@@ -1012,7 +1012,7 @@ class LogUtils(object):
             logger.error("No mark passed for wait_for_log_contains_after_mark")
             raise AssertionError("No mark set to find %s in %s" % (expected, logpath))
         assert isinstance(mark, LogHandler.LogMark), "mark is not an instance of LogMark in wait_for_log_contains_after_mark"
-        mark.assert_is_good(logpath)
+        mark.assert_paths_match(logpath)
         return mark.wait_for_log_contains_from_mark(expected, timeout)
 
     def check_log_contains_after_mark(self, log_path, expected, mark):
@@ -1033,32 +1033,6 @@ class LogUtils(object):
         handler.dump_marked_log(mark)
         raise AssertionError("Failed to find %s in %s" % (expected, log_path))
 
-    def check_log_contains_in_order_after_mark(self, log_path, expected_items, mark):
-        if mark is None:
-            logger.error("No mark passed for check_log_contains_after_mark")
-            raise AssertionError("No mark set to find %s in %s" % (expected_items, log_path))
-
-        encoded_expected = []
-        for string in expected_items:
-            encoded_expected.append(string.encode("UTF-8"))
-
-        mark.assert_is_good(log_path)
-        contents = mark.get_contents()
-        index = 0
-
-        for string in encoded_expected:
-            logger.info("Looking for {}".format(string))
-            index = contents.find(string, index)
-            if index != -1:
-                logger.info("{} log contains {}".format(log_path, string))
-                index = index + len(string)
-            else:
-                logger.error(contents)
-                raise AssertionError("Remainder of {} log doesn't contain {}".format(log_path, string))
-
-        return
-
-
     def get_log_after_mark(self, log_path, mark):
         assert mark is not None
         assert isinstance(mark, LogHandler.LogMark), "mark is not an instance of LogMark in get_log_after_mark"
@@ -1074,7 +1048,7 @@ class LogUtils(object):
     def check_log_does_not_contain_after_mark(self, log_path, not_expected, mark: LogHandler.LogMark) -> None:
         assert isinstance(mark, LogHandler.LogMark), "mark is not an instance of LogMark in check_log_does_not_contain_after_mark"
         not_expected = LogHandler.ensure_binary(not_expected)
-        mark.assert_is_good(log_path)
+        mark.assert_paths_match(log_path)
         contents = mark.get_contents()
         if not_expected in contents:
             self.dump_marked_log(log_path, mark)
@@ -1084,7 +1058,7 @@ class LogUtils(object):
         """Wait for timeout and report if the log does contain not_expected
         """
         assert isinstance(mark, LogHandler.LogMark), "mark is not an instance of LogMark in wait_for_log_to_not_contain_after_mark"
-        mark.assert_is_good(log_path)
+        mark.assert_paths_match(log_path)
         time.sleep(timeout)
         return self.check_log_does_not_contain_after_mark(log_path, not_expected, mark)
 
@@ -1151,41 +1125,3 @@ class LogUtils(object):
         """
         time.sleep(timeout)
         return self.check_on_access_log_does_not_contain_after_mark(not_expected, mark)
-
-    def check_on_access_log_contains_in_order(self, expected_items, mark):
-        logger.info(expected_items)
-        return self.check_log_contains_in_order_after_mark(self.oa_log, expected_items, mark)
-
-    def wait_for_on_access_log_contains_expected_after_unexpected(self, expected: str, not_expected: str, timeout: int = 5,
-                                                                  mark: LogHandler.LogMark = None):
-        """
-        Check the log since last restart, after timeout has expected after not_expected
-        :param expected: String we expect to find in the log
-        :param not_expected: String we expect only before expected
-        :param timeout: time to wait before checking, default=5
-        :param mark: Optional mark to check for the expected string
-        :return:
-        """
-        expected = LogHandler.ensure_binary(expected)
-        not_expected = LogHandler.ensure_binary(not_expected)
-        log_path = self.oa_log
-        # If we get expected after we start checking then we are good
-        if mark is None:
-            mark = self.get_on_access_log_mark()
-        start = time.time()
-        while time.time() < start + timeout:
-            contents = mark.get_contents()
-            expected_find = contents.rfind(expected)
-            if expected_find >= 0:
-                remainder = contents[expected_find:]
-                if not_expected not in remainder:
-                    return True
-            time.sleep(0.5)
-
-        # timed out wait, so now check contents since last start
-        return self.check_on_access_log_contains_expected_after_unexpected(expected, not_expected)
-
-    def check_on_access_log_contains_expected_after_unexpected(self, expected, unexpected):
-        log_path = self.oa_log
-        handler = self.get_log_handler(log_path)
-        handler.check_log_contains_expected_after_unexpected(expected, unexpected)

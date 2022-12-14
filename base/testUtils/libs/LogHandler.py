@@ -111,7 +111,7 @@ class LogMark:
         for line in lines:
             yield line
 
-    def assert_is_good(self, log_path: str):
+    def assert_paths_match(self, log_path: str):
         assert self.get_path() == log_path, "mark is for wrong file"
 
     def dump_marked_log(self) -> None:
@@ -163,21 +163,21 @@ class LogHandler:
 
     def assert_mark_is_good(self, mark: LogMark):
         assert isinstance(mark, LogMark)
-        mark.assert_is_good(self.__m_log_path)
+        mark.assert_paths_match(self.__m_log_path)
 
     def get_contents(self, mark: LogMark) -> Optional[bytes]:
         assert isinstance(mark, LogMark), "mark is not an instance of LogMark"
-        mark.assert_is_good(self.__m_log_path)
+        mark.assert_paths_match(self.__m_log_path)
         return mark.get_contents()
 
     def dump_marked_log(self, mark: LogMark) -> None:
         assert isinstance(mark, LogMark)
-        mark.assert_is_good(self.__m_log_path)
+        mark.assert_paths_match(self.__m_log_path)
         return mark.dump_marked_log()
 
     def wait_for_log_contains_from_mark(self, mark: LogMark, expected, timeout) -> None:
         assert isinstance(mark, LogMark)
-        mark.assert_is_good(self.__m_log_path)
+        mark.assert_paths_match(self.__m_log_path)
         return mark.wait_for_log_contains_from_mark(expected, timeout)
 
     @staticmethod
@@ -213,7 +213,7 @@ class LogHandler:
                 for line in lines:
                     yield line
         else:
-            mark.assert_is_good(self.__m_log_path)
+            mark.assert_paths_match(self.__m_log_path)
             for line in mark.generate_reversed_lines():
                 yield line
 
@@ -296,23 +296,3 @@ class LogHandler:
 
         logger.error("Failed to find %s in any log files for %s" % (expected, self.__m_log_path))
         raise AssertionError("Failed to find %s in any log files for %s" % (expected, self.__m_log_path))
-
-    def check_log_contains_expected_after_unexpected(self, expected, unexpected):
-        log_path = self.__m_log_path
-        expected = ensure_binary(expected)
-        unexpected = ensure_binary(unexpected)
-        contents = b"".join(self.get_content_since_last_start())
-        contentsStr = ensure_unicode(contents)
-        expected_find = contents.rfind(expected)
-        if expected_find >= 0:
-            remainder = contents[expected_find:]
-            if unexpected not in remainder:
-                return True
-            logger.info("Searched contents of %s: %s" % (log_path, contentsStr))
-            raise AssertionError("Found unexpected %s after expected %s in %s" % (unexpected, expected, log_path))
-        logger.info("Searched contents of %s: %s" % (log_path, contentsStr))
-
-        if unexpected in contents:
-            raise AssertionError("Found unexpected %s but not expected %s in %s" % (unexpected, expected, log_path))
-
-        raise AssertionError("Failed to find expected %s in %s" % (expected, log_path))

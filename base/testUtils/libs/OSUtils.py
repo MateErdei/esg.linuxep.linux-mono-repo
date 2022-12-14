@@ -606,6 +606,3 @@ def check_libs_for_consistent_gcc_version(directory):
     logger.info(f"All versions detected: {gcc_versions}")
     if len(gcc_versions) != 1:
         raise AssertionError( "Multiple GCC versions found across product libs")
-
-def get_robot_pid():
-    return os.getpid()

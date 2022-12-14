@@ -24,6 +24,10 @@ Test Teardown  Run Keywords
 ...            Run Keyword If Test Failed  Dump Teardown Log  /tmp/av_install.log  AND
 ...            dump_cloud_server_log  AND
 ...            Remove File  /tmp/av_install.log  AND
+...            Stop AV Plugin  AND
+...            Remove File  ${SOPHOS_INSTALL}/plugins/av/var/persist-threatDatabase  AND
+...            Start AV Plugin  AND
+...            Check AV Plugin Installed Directly  AND
 ...            Copy File  ${SUPPORT_FILES}/CentralXml/FLAGS_xdr_enabled.json  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json  AND
 ...            Run Process  chown  root:sophos-spl-group  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json  AND
 ...            Remove File  ${EVENT_JOURNAL_DIR}/SophosSPL/Detections/*  AND
@@ -67,11 +71,8 @@ Test av can publish events and that journaler can receive them after av restart
     ...  Check AV Plugin Running
 
     Mark Livequery Log
-    Wait Until Keyword Succeeds
-    ...  15 secs
-    ...  1 secs
-    ...  check_log_contains_string_n_times  ${AV_LOG_FILE}   av   CORE policy has not been sent to the plugin  2
-    Create File     /tmp/dirty_excluded_file2    ${EICAR_STRING}
+
+    Create File     /tmp/dirty_file2    ${EICAR_STRING}
 
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLS_PATH} /tmp/dirty_excluded_file2
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
@@ -106,7 +107,7 @@ Test av can publish events and that journaler can receive them after event journ
 
     Mark Livequery Log
 
-    Detect EICAR And Read With Livequery Via Event Journaler
+    Detect EICAR And Read With Livequery Via Event Journaler  /tmp/dirty_file2  ${JOURNALED_EICAR2}
 
     Wait Until Keyword Succeeds
     ...  10 secs
@@ -128,7 +129,7 @@ Test av can publish events and that journaler can receive them after edr restart
 
     Mark Livequery Log
 
-    Detect EICAR And Read With Livequery Via Event Journaler
+    Detect EICAR And Read With Livequery Via Event Journaler   /tmp/dirty_file2  ${JOURNALED_EICAR2}
 
     Wait Until Keyword Succeeds
     ...  10 secs
@@ -155,7 +156,11 @@ Test av can publish events for onaccess and that journaler can receive them
     ...  20 secs
     ...  1 secs
     ...  check_log_contains    On-access enabled: true  ${SOPHOS_INSTALL}/plugins/av/log/soapd.log    soapd
-    sleep  2
+    Wait Until Keyword Succeeds
+    ...  20 secs
+    ...  1 secs
+    ...  check_log_contains    Fanotify successfully initialised  ${SOPHOS_INSTALL}/plugins/av/log/soapd.log    soapd
+
     Create File     /tmp/dirty_excluded_file    ${EICAR_STRING}
     Wait Until Keyword Succeeds
     ...  20 secs
@@ -166,15 +171,15 @@ Test av can publish events for onaccess and that journaler can receive them
     ...  1 secs
     ...  Check Journal Contains Detection Event With Content  "avScanType":201
     Check Journal Contains Detection Event With Content  pid
-    Check Journal Contains Detection Event With Content  processParentPath
+    Check Journal Contains Detection Event With Content  processPath
     Run Live Query  select * from sophos_detections_journal   simple
     Wait Until Keyword Succeeds
     ...  60 secs
     ...  2 secs
     ...  Check Marked Livequery Log Contains  Successfully executed query
     Check Marked Livequery Log Contains  pid
-    Check Marked Livequery Log Contains  processParentPath
-    Check Marked Livequery Log Contains  process_parent_path
+    Check Marked Livequery Log Contains  processPath
+    Check Marked Livequery Log Contains  process_path
     Check Marked Livequery Log Contains  on_access
 *** Keywords ***
 Wait Until Threat Report Socket Exists
@@ -220,11 +225,12 @@ Check Logs Detected EICAR Event
     Check Marked Livequery Log Contains String N Times   quarantineSuccess\\":false  ${EXPECTED_EICARS}
 
 Detect EICAR And Read With Livequery Via Event Journaler
-    Check AV Plugin Can Scan Files
+    [Arguments]  ${dirty_file}=/tmp/dirty_excluded_file   ${journal_string}=${JOURNALED_EICAR}
+    Check AV Plugin Can Scan Files  ${dirty_file}
     Wait Until Keyword Succeeds
     ...  15 secs
     ...  1 secs
-    ...  Check Journal Contains Detection Event With Content  ${JOURNALED_EICAR}
+    ...  Check Journal Contains Detection Event With Content  ${journal_string}
     Run Live Query  select * from sophos_detections_journal   simple
     Wait Until Keyword Succeeds
     ...  60 secs
