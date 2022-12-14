@@ -137,7 +137,7 @@ namespace sophos_on_access_process::OnAccessConfig
         try
         {
             std::string configJson = sophosFsAPI->readFile(productConfigPath.string());
-            if (!configJson.empty())
+            if (!configJson.empty() && configJson != "{}")
             {
                 try
                 {
@@ -264,7 +264,7 @@ namespace sophos_on_access_process::OnAccessConfig
         {
             LOGDEBUG("Failed to parse json configuration due to out of range error, reason: " << e.what());
         }
-            catch (const json::type_error & e)
+        catch (const json::type_error & e)
         {
             LOGDEBUG("Failed to parse json configuration due to type error, reason: " << e.what());
         }

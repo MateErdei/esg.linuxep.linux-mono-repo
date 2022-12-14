@@ -88,18 +88,22 @@ TEST_F(TestOnAccessConfigurationUtils, readPolicyConfigFile)
 
     Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
 
-    ASSERT_EQ(readPolicyConfigFile(), "x");
+    EXPECT_EQ(readPolicyConfigFile(), "x");
 }
 
 TEST_F(TestOnAccessConfigurationUtils, readConfigFileReadThrows)
 {
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
     EXPECT_CALL(*m_mockIFileSystemPtr, readFile(m_oaPolicyConfigPath)).WillOnce(
-        Throw(Common::FileSystem::IFileSystemException("bang")));
+        Throw(Common::FileSystem::IFileSystemException("Error, Failed to read file: pretend/file.txt, file does not exist")));
 
     Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
 
-    ASSERT_EQ(readPolicyConfigFile(), "");
+    EXPECT_EQ(readPolicyConfigFile(), "");
+    EXPECT_TRUE(appenderContains("Failed to read on-access configuration, keeping existing configuration"));
 }
+
 
 TEST_F(TestOnAccessConfigurationUtils, parseOnAccessPolicySettingsFromJson)
 {
@@ -110,13 +114,13 @@ TEST_F(TestOnAccessConfigurationUtils, parseOnAccessPolicySettingsFromJson)
     expectedResult.excludeRemoteFiles = false;
     expectedResult.exclusions = m_defaultTestExclusions;
 
-    ASSERT_EQ(parseOnAccessPolicySettingsFromJson(jsonString), expectedResult);
+    EXPECT_EQ(parseOnAccessPolicySettingsFromJson(jsonString), expectedResult);
 
     expectedResult.enabled = false;
     expectedResult.excludeRemoteFiles = true;
     expectedResult.exclusions = m_defaultTestExclusions;
 
-    ASSERT_NE(parseOnAccessPolicySettingsFromJson(jsonString), expectedResult);
+    EXPECT_EQ(parseOnAccessPolicySettingsFromJson(jsonString), expectedResult);
 }
 
 TEST_F(TestOnAccessConfigurationUtils, parseOnAccessPolicySettingsFromJson_missingFields)
@@ -127,7 +131,7 @@ TEST_F(TestOnAccessConfigurationUtils, parseOnAccessPolicySettingsFromJson_missi
     expectedResult.enabled = false;
     expectedResult.excludeRemoteFiles = true;
 
-    ASSERT_EQ(parseOnAccessPolicySettingsFromJson(jsonString), expectedResult);
+    EXPECT_EQ(parseOnAccessPolicySettingsFromJson(jsonString), expectedResult);
 }
 
 TEST_F(TestOnAccessConfigurationUtils, parseOnAccessSettingsFromJsonInvalidJson)
@@ -140,8 +144,49 @@ TEST_F(TestOnAccessConfigurationUtils, parseOnAccessSettingsFromJsonInvalidJson)
     expectedResult.exclusions.emplace_back("I");
     expectedResult.exclusions.emplace_back("am");
 
-    ASSERT_EQ(parseOnAccessPolicySettingsFromJson(jsonString), expectedResult);
+    EXPECT_EQ(parseOnAccessPolicySettingsFromJson(jsonString), expectedResult);
 }
+
+TEST_F(TestOnAccessConfigurationUtils, enablesOnAccessWithNumberInField)
+{
+    std::string jsonString = R"({"enabled":123,"excludeRemoteFiles":"false","exclusions":["exc","lude"]})";
+
+    OnAccessConfiguration expectedResult;
+    expectedResult.enabled = true;
+    expectedResult.excludeRemoteFiles = false;
+    expectedResult.exclusions.emplace_back("exc");
+    expectedResult.exclusions.emplace_back("lude");
+
+    EXPECT_EQ(parseOnAccessPolicySettingsFromJson(jsonString), expectedResult);
+}
+
+TEST_F(TestOnAccessConfigurationUtils, excludesRemoteFilesWithNumberInField)
+{
+    std::string jsonString = R"({"enabled":"false","excludeRemoteFiles":123,"exclusions":["exc","lude"]})";
+
+    OnAccessConfiguration expectedResult;
+    expectedResult.enabled = false;
+    expectedResult.excludeRemoteFiles = true;
+    expectedResult.exclusions.emplace_back("exc");
+    expectedResult.exclusions.emplace_back("lude");
+
+    EXPECT_EQ(parseOnAccessPolicySettingsFromJson(jsonString), expectedResult);
+}
+
+/*TEST_F(TestOnAccessConfigurationUtils, parseOnAccessSettingsFromJsonKeysWithInvalidValueTypes)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    std::string jsonString = R"({"enabled":24311ddaf53,"excludeRemoteFiles":"true","exclusions":["exc","lude"]})";
+
+    OnAccessConfiguration expectedResult;
+
+    EXPECT_EQ(parseOnAccessPolicySettingsFromJson(jsonString), expectedResult);
+
+    EXPECT_TRUE(appenderContains("Failed to parse json configuration due to parse error, reason: [json.exception.parse_error.101] parse error at line 1, column 17: syntax error while parsing object - invalid literal; last read: '24311d'; expected '}"));
+    EXPECT_TRUE(appenderContains("Failed to parse json configuration, keeping existing settings"));
+
+}*/
 
 TEST_F(TestOnAccessConfigurationUtils, parseOnAccessSettingsFromJsonInvalidJsonSyntax)
 {
@@ -151,7 +196,7 @@ TEST_F(TestOnAccessConfigurationUtils, parseOnAccessSettingsFromJsonInvalidJsonS
 
     OnAccessConfiguration expectedResult {};
 
-    ASSERT_EQ(parseOnAccessPolicySettingsFromJson(jsonString), expectedResult);
+    EXPECT_EQ(parseOnAccessPolicySettingsFromJson(jsonString), expectedResult);
     EXPECT_TRUE(appenderContains("Failed to parse json configuration, keeping existing settings"));
 }
 
@@ -219,6 +264,8 @@ TEST_F(TestOnAccessConfigurationUtils, tenCPUCores)
 
 TEST_F(TestOnAccessConfigurationUtils, emptyJSON)
 {
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
     auto sysCallWrapper = std::make_shared<StrictMock<MockSystemCallWrapper>>();
     auto* filesystemMock = new StrictMock<MockFileSystem>();
     EXPECT_CALL(*sysCallWrapper, hardware_concurrency()).WillOnce(Return(10));
@@ -231,6 +278,8 @@ TEST_F(TestOnAccessConfigurationUtils, emptyJSON)
     EXPECT_EQ(result.cacheAllEvents, sophos_on_access_process::OnAccessConfig::defaultCacheAllEvents);
     EXPECT_EQ(result.uncacheDetections, sophos_on_access_process::OnAccessConfig::defaultUncacheDetections);
     EXPECT_EQ(result.numScanThreads, 5);
+
+    EXPECT_TRUE(appenderContains("Setting from defaults: Max queue size set to 100000 and Max threads set to 5"));
 }
 
 TEST_F(TestOnAccessConfigurationUtils, jsonOverrides)
