@@ -63,3 +63,55 @@ def wait_for_dir_to_exist(dir: str, timeout: int):
 def wait_for_plugin_to_be_installed(plugin):
     path = f"/opt/sophos-spl/plugins/{plugin}"
     wait_for_dir_to_exist(path, 4000)
+
+
+def run_safestore_tool_with_args(*args):
+    """
+    Usage:
+    -h               List this help.
+    -l               List the content of the SafeStore database.
+    -x=<path>        Export the quarantined file, if any, associated with a single
+                        object given in objid. The file will be saved in an
+                        obfuscated format under the specified path.
+    -dbpath=<path>   Specify the path of the SafeStore database.
+    -pass=<passkey>  Specify the password for the database. Must be in
+                        hexadecimal form.
+    -objid=<GUID>    Specify the unique object ID of an item to be restored.
+                        Can be specified multiple times.
+    -threatid=<GUID> Specify the threat ID belonging to an event. This option
+                        will restore all files and registry keys associated with
+                        that event.
+    """
+    env = os.environ.copy()
+    env["LD_LIBRARY_PATH"] = os.path.join(SOPHOS_INSTALL, "base", "lib64")
+
+    safestore_db_path = os.path.join(SOPHOS_INSTALL, "plugins", "av", "var", "safestore_db", "safestore.db")
+    safestore_db_password_path = os.path.join(SOPHOS_INSTALL, "plugins", "av", "var", "safestore_db", "safestore.pw")
+    with open(safestore_db_password_path, "r") as f:
+        hex_string = f.read()
+    password = hex_string.encode('utf-8').hex()
+
+    cmd = [os.environ["SAFESTORE_TOOL"], f"-dbpath={safestore_db_path}", f"-pass={password}", *args]
+
+    result = subprocess.run(cmd, env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+
+    if result.returncode != 0:
+        logging.error(f"Running {cmd} failed with: {result.returncode}, {result.stderr}")
+        exit(1)
+
+    return result.stdout.decode()
+
+
+def get_safestore_db_content_as_dict():
+    safestore_db_content = run_safestore_tool_with_args("-l")
+    threats = [{} for i in range(safestore_db_content.count("Threat GUID:"))]
+    threat_idx = 0
+
+    for line in safestore_db_content.split("\n"):
+        line_content = line.strip().split(": ")
+        if len(line_content) == 1:
+            threat_idx += 1
+            continue
+        if len(threats) == threat_idx:
+            break
+        threats[threat_idx][line_content[0]] = line_content[1].strip()

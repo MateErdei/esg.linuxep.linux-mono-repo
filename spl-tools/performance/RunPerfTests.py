@@ -3,27 +3,23 @@ import csv
 import glob
 import io
 import json
-import logging
-import os
+import os.path
 import re
-import shutil
 import socket
 import stat
 import statistics
-import subprocess
 import sys
 import tarfile
-import time
+import xml.etree.ElementTree
 import zipfile
 
 import requests
 from artifactory import ArtifactoryPath
 
-import LogUtils
-from PerformanceResources import stop_sspl_process, start_sspl_process, stop_sspl, start_sspl, \
-    disable_onaccess, enable_onaccess, get_current_unix_epoch_in_seconds, wait_for_plugin_to_be_installed
+from PerformanceResources import *
 
 SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
+SAFESTORE_MALWARE_PATH = "/root/performance/malware_for_safestore_tests"
 
 PROCESS_EVENTS_QUERY = ("process-events", '''SELECT
 GROUP_CONCAT(process_events.pid) AS pids,
@@ -96,7 +92,7 @@ def get_test_inputs_from_base():
     tar.extractall(SCRIPT_DIR)
     tar.close()
 
-    cloud_automation_inputs = os.path.join(SCRIPT_DIR, "SystemProductTestOutput", "testUtils", "SupportFiles", "CloudAutomation")
+    cloud_automation_inputs = os.path.join(SCRIPT_DIR, "SystemProductTestOutput", "testUtils", "SupportFiles","CloudAutomation")
     shutil.move(os.path.join(cloud_automation_inputs, "cloudClient.py"), SCRIPT_DIR)
     shutil.move(os.path.join(cloud_automation_inputs, "SophosHTTPSClient.py"), SCRIPT_DIR)
 
@@ -130,6 +126,16 @@ def get_test_inputs_from_event_journaler():
 
     os.environ["EVENT_PUB_SUB"] = event_pub_sub_tool_path
     os.environ["JOURNAL_READER"] = journal_reader_tool_path
+
+
+def get_safestore_tool():
+    fetch_artifacts("core", "safestore", "safestore/linux-x64/safestore_package")
+    z = zipfile.ZipFile(os.path.join(SCRIPT_DIR, "safestore-linux-x64.zip"))
+    z.extractall(SCRIPT_DIR)
+    safestore_tool = os.path.join(SCRIPT_DIR, "ssr", "ssr")
+
+    os.chmod(safestore_tool, os.stat(safestore_tool).st_mode | stat.S_IEXEC)
+    os.environ["SAFESTORE_TOOL"] = safestore_tool
 
 
 def get_part_after_equals(key_value_pair):
@@ -705,6 +711,115 @@ def run_event_journaler_ingestion_test():
         record_result(event_name, date_time, result["start_time"], result["end_time"], custom_data=custom_data)
 
 
+def run_safestore_database_content_test():
+    start_time = get_current_unix_epoch_in_seconds()
+
+    get_safestore_tool()
+    return_code = 0
+    quarantined_files = 0
+    unquarantined_files = 0
+    twenty_four_hours = 24 * 60 * 60
+
+    safestore_db_content = get_safestore_db_content_as_dict()
+    for threat in safestore_db_content:
+        if threat["Location"] == SAFESTORE_MALWARE_PATH:
+            store_time = threat["Store time"]
+            unix_time = store_time[store_time.find("(") + 1:store_time.find(")")]
+
+            if unix_time < (start_time - twenty_four_hours) or threat["Status"] != "quarantined":
+                logging.warning(f"Threat was not quarantined by last scheduled scan: {threat}")
+                unquarantined_files += 1
+                continue
+
+            quarantined_files += 1
+
+    if unquarantined_files == len(safestore_db_content):
+        return_code = 1
+    elif 0 < unquarantined_files:
+        return_code = 2
+
+    custom_data = {"quarantined_files": quarantined_files, "unquarantined_files": unquarantined_files}
+
+    end_time = get_current_unix_epoch_in_seconds()
+    record_result("Verify SafeStore Database Content", get_current_date_time_string(), start_time, end_time, custom_data=custom_data)
+    exit(return_code)
+
+
+def run_safestore_restoration_test():
+    start_time = get_current_unix_epoch_in_seconds()
+
+    return_code = 0
+    restored_files = 0
+    unrestored_files = 0
+    log_utils = LogUtils.LogUtils()
+    corc_policy_path = "/opt/sophos-spl/base/mcs/policy/CORC_policy.xml"
+    tmp_corc_policy_path = "/tmp/CORC_policy.xml"
+    modified_policy_path = "/tmp/whitelist_CORC_policy.xml"
+
+    get_safestore_tool()
+
+    try:
+        td_mark = log_utils.get_sophos_threat_detector_log_mark()
+        ss_mark = log_utils.get_safestore_log_mark()
+        stop_sspl_process("mcsrouter")
+        if os.path.exists(corc_policy_path):
+            shutil.copyfile(corc_policy_path, tmp_corc_policy_path)
+        else:
+            shutil.copyfile(os.path.join(SCRIPT_DIR, "corc_policy_empty_allowlist.xml"), tmp_corc_policy_path)
+
+        policy = xml.etree.ElementTree.parse(tmp_corc_policy_path)
+        with open(os.path.join(SCRIPT_DIR, "expected_malware.json"), 'r') as f:
+            expected_malware = json.loads(f.read())
+        for threat in expected_malware:
+            threat_item = xml.etree.ElementTree.Element("item")
+            threat_item.attrib["type"] = "sha256"
+            threat_item.text = threat["SHA"]
+            policy.getroot().find("whitelist").append(threat_item)
+
+        policy.write(modified_policy_path)
+        os.chmod(modified_policy_path, 666)
+        shutil.move(modified_policy_path, corc_policy_path)
+
+        log_utils.wait_for_log_contains_after_mark(log_utils.sophos_threat_detector_log,
+                                                   "Triggering rescan of SafeStore database",
+                                                   td_mark,
+                                                   120)
+        log_utils.wait_for_log_contains_string_n_times_after_mark(log_utils.safestore_log,
+                                                                  "Reporting successful restoration",
+                                                                  len(expected_malware),
+                                                                  ss_mark,
+                                                                  360)
+
+        safestore_db_content = get_safestore_db_content_as_dict()
+        for threat in safestore_db_content:
+            if threat["Location"] == SAFESTORE_MALWARE_PATH:
+                if threat["Status"] != "restored_as":
+                    logging.warning(f"{threat['Name']} has not been restored, details: {threat}")
+                    unrestored_files += 1
+                restored_files += 1
+
+        if unrestored_files == len(expected_malware):
+            logging.error(f"No threats were restored from SafeStore database: {safestore_db_content}")
+            return_code = 1
+        elif 0 < unrestored_files:
+            return_code = 2
+
+    except Exception as e:
+        logging.error(f"Failed to restore SafeStore database: {str(e)}")
+        return_code = 1
+
+    finally:
+        if os.path.exists(tmp_corc_policy_path):
+            shutil.move(tmp_corc_policy_path, corc_policy_path)
+        start_sspl_process("mcsrouter")
+
+    custom_data = {"restored_files": restored_files, "unrestored_files": unrestored_files}
+
+    end_time = get_current_unix_epoch_in_seconds()
+    record_result("Restore SafeStore Database", get_current_date_time_string(), start_time, end_time, custom_data=custom_data)
+    exit(return_code)
+
+
 def add_options():
     parser = argparse.ArgumentParser(description='Performance test runner for EDR')
 
@@ -717,7 +832,9 @@ def add_options():
                                  'local-liveresponse_x10',
                                  'event-journaler-ingestion',
                                  'av-onaccess-slow',
-                                 'av-onaccess'],
+                                 'av-onaccess',
+                                 'safestore-confirm-detections'
+                                 'safestore-restore-database'],
                         help="Select which performance test suite to run")
 
     parser.add_argument('-i', '--client-id', action='store',
@@ -772,6 +889,10 @@ def main():
         run_onaccess_test(args.max_file_count)
     elif args.suite == 'av-onaccess-slow':
         run_slow_scan_onaccess_test(args.max_file_count_slow)
+    elif args.suite == 'safestore-confirm-detections':
+        run_safestore_database_content_test()
+    elif args.suite == 'safestore-restore-database':
+        run_safestore_restoration_test()
 
     logging.info("Finished")
 
