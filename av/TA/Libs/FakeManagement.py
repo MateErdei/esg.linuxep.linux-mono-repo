@@ -125,6 +125,10 @@ class FakeManagement(object):
 
     def send_plugin_policy_from_file(self, plugin_name, app_id, path):
         content = open(path).read()
+        if content == "":
+            self.logger.error("Attempting to send empty policy for "+app_id+" from "+path)
+            raise AssertionError("Attempting to send empty policy for "+app_id+" from "+path)
+        self.logger.info(app_id+" policy = "+content)
         return self.send_plugin_policy(plugin_name, app_id, content)
 
     def send_av_policy(self, app_id, content):

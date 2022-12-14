@@ -58,13 +58,20 @@ AV Plugin Gets Sxl Lookup Setting From SAV Policy
     send av policy  ${SAV_APPID}  ${policyContent}
     Wait until scheduled scan updated With Offset
 
-    ${expectedSusiStartupSettings} =   Set Variable   {"enableSxlLookup":false,"shaAllowList":[]}
-
     wait_for_log_contains_after_last_restart  ${AV_LOG_PATH}  SAV policy received for the first time.
     Wait Until Created   ${SUSI_STARTUP_SETTINGS_FILE}   timeout=5sec
     ${json} =   load_json_from_file  ${SUSI_STARTUP_SETTINGS_FILE}
     check_json_contains  ${json}  enableSxlLookup  ${false}
 
+AV Plugin Gets ML Lookup Setting From CORE Policy
+    ${susiStartupSettingsChrootFile} =   Set Variable   ${AV_PLUGIN_PATH}/chroot${SUSI_STARTUP_SETTINGS_FILE}
+    Remove Files   ${SUSI_STARTUP_SETTINGS_FILE}   ${susiStartupSettingsChrootFile}
+
+    send av policy from file  CORE  ${RESOURCES_PATH}/core_policy/CORE-36_ml_disabled.xml
+
+    Wait Until Created   ${SUSI_STARTUP_SETTINGS_FILE}   timeout=5sec
+    ${json} =   load_json_from_file  ${SUSI_STARTUP_SETTINGS_FILE}
+    check_json_contains  ${json}  machineLearning  ${false}
 
 AV Plugin Can Receive Actions
     ${actionContent} =  Set Variable  <?xml version="1.0"?><a:action xmlns:a="com.sophos/msys/action" type="Test" id="" subtype="TestAction" replyRequired="1"/>
