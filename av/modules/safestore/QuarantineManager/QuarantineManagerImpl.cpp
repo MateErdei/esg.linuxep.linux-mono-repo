@@ -255,7 +255,7 @@ namespace safestore::QuarantineManager
             {
                 try
                 {
-                    fs->removeFileOrDirectory(filePath);
+                    fs->unlinkFileUsingDirectoryFD(directoryFd.get(), filename);
                 }
                 catch (const Common::FileSystem::IFileSystemException& ex)
                 {
