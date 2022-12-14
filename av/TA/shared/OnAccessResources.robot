@@ -181,13 +181,13 @@ On-access Scan Eicar Open
     wait_for_on_access_log_contains_after_mark  "${dirtyfile}" is infected with      mark=${mark}
 
 Create Large Eicar
-    ${dirtyfile} =  Set Variable  /tmp_test/dirtyfile.txt
+    ${dirtyfile} =  Set Variable  /tmp_test/dirtyfile_large.txt
     # create a file without generating fanotify events
     ${oamark} =  get_on_access_log_mark
     Create File  ${dirtyfile}-excluded  ${EICAR_STRING}
     Register Cleanup   Remove File  ${dirtyfile}-excluded
 
-    ${result} =  Run Process     head    -c     5G  /dev/zero     >>     ${dirtyfile}-excluded   shell=True
+    ${result} =  Run Process     head    -c     3G  /dev/zero     >>     ${dirtyfile}-excluded   shell=True
     Log  ${result.stdout}
     Log  ${result.stderr}
 
@@ -197,8 +197,10 @@ Create Large Eicar
 
     Register Cleanup   Remove File   ${dirtyfile}
 
-    wait_for_on_access_log_contains_after_mark  "${dirtyfile}" is infected with      mark=${oamark}  timeout=60
+    wait_for_on_access_log_contains_after_mark   On-close event for ${dirtyfile}  ${oamark}   timeout=60
+    wait_for_on_access_log_contains_after_mark  "${dirtyfile}" is infected with EICAR-AV-Test (Close-Write)  mark=${oamark}  timeout=180
 
+    dump log    ${ON_ACCESS_LOG_PATH}
 
 On-access No Eicar Scan
     ${filepath} =  Set Variable  /tmp_test/uncaught_eicar.com
