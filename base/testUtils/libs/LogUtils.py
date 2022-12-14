@@ -1062,23 +1062,6 @@ class LogUtils(object):
         time.sleep(timeout)
         return self.check_log_does_not_contain_after_mark(log_path, not_expected, mark)
 
-    def wait_for_log_contains_after_last_restart(self, log_path, expected, timeout: int = 10, mark=None):
-        """
-        Wait for a log line, but only in the log lines after the most recent restart of the process.
-
-        :param log_path:
-        :param expected:
-        :param timeout:
-        :param mark: Also restrict log lines after the mark
-        :return:
-        """
-        handler = self.get_log_handler(log_path)
-        return handler.Wait_For_Log_contains_after_last_restart(expected, timeout, mark)
-
-    def wait_for_entire_log_contains(self, log_path, expected, timeout: int = 15):
-        handler = self.get_log_handler(log_path)
-        return handler.Wait_For_Entire_log_contains(expected, timeout)
-
     def save_log_marks_at_start_of_test(self):
         robot.libraries.BuiltIn.BuiltIn().set_test_variable("${ON_ACCESS_LOG_MARK_FROM_START_OF_TEST}",
                                                             self.mark_log_size(self.oa_log))
