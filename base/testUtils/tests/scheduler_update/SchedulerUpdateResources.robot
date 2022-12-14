@@ -53,7 +53,7 @@ Send Mock Flags Policy
     Move File    /opt/NotARealFile  ${SOPHOS_INSTALL}/base/mcs/policy/flags.json
 
 Overwrite MCS Flags File
-    [Arguments]    ${fileContents}={"livequery.network-tables.available": true, "scheduled_queries.next": true, "sdds3.enabled": true, "av.onaccess.enabled": true}
+    [Arguments]    ${fileContents}={"livequery.network-tables.available": true, "scheduled_queries.next": true, "sdds3.enabled": true}
     Create File    /tmp/flags.json    ${fileContents}
 
     Copy File    /tmp/flags.json  /opt/NotARealFile

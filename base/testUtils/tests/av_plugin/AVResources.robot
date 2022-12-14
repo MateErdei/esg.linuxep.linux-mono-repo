@@ -111,7 +111,5 @@ Check On Access Detects Threats
     Create File     ${threat_path}    ${EICAR_STRING}
     Register Cleanup  Remove File  ${threat_path}
 
-    ${pid} =  Get Robot Pid
     ${mark} =  get_on_access_log_mark
-
     wait for on access log contains after mark  Detected "${threat_path}" is infected with EICAR-AV-Test  mark=${mark}
