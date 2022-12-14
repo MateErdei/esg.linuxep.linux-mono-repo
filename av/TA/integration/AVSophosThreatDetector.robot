@@ -522,7 +522,7 @@ Sophos Threat Detector Is Ignoring Reload Request
     ${SOPHOS_THREAT_DETECTOR_PID} =  Record Sophos Threat Detector PID
 
     # Need the settings to change before any reload attempts are even tried, so send a new allow list
-    Register Cleanup   Remove File  ${MCS_PATH}/policy/CORC_policy.xml
+    Register Cleanup   Send CORC Policy To Base  corc_policy_empty_allowlist.xml
     Send CORC Policy To Base  corc_policy.xml
 
     Wait Until Sophos Threat Detector Log Contains With Offset  Skipping susi reload because susi is not initialised
