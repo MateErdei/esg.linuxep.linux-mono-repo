@@ -9,6 +9,7 @@ Library         ../Libs/CoreDumps.py
 Library         ../Libs/FakeManagement.py
 Library         ../Libs/FileSampleObfuscator.py
 Library         ../Libs/FileUtils.py
+Library         ../Libs/JsonUtils.py
 Library         ../Libs/LogUtils.py
 Library         ../Libs/OnFail.py
 Library         ../Libs/SystemFileWatcher.py
@@ -61,8 +62,8 @@ AV Plugin Gets Sxl Lookup Setting From SAV Policy
 
     wait_for_log_contains_after_last_restart  ${AV_LOG_PATH}  SAV policy received for the first time.
     Wait Until Created   ${SUSI_STARTUP_SETTINGS_FILE}   timeout=5sec
-    ${susiStartupSettings} =   Get File   ${SUSI_STARTUP_SETTINGS_FILE}
-    Should Be Equal   ${susiStartupSettings}   ${expectedSusiStartupSettings}
+    ${json} =   load_json_from_file  ${SUSI_STARTUP_SETTINGS_FILE}
+    check_json_contains  ${json}  enableSxlLookup  ${false}
 
 
 AV Plugin Can Receive Actions
