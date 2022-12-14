@@ -15,31 +15,38 @@ echo "Setting up machine"
 yum upgrade
 yum -y install python3
 
-# prepare gcc build area
-if [[ -d /root/gcc-build-test ]]
-then
-  echo "gcc build area already exists, skipping setting it up"
-else
-  echo "Setting up gcc build area"
-  rm -rf /root/gcc-build-test
-  mkdir -p /root/gcc-build-test/build || failure "Could not make gcc build dir"
-  cp /mnt/filer6/linux/SSPL/tools/gcc-11.2.0.tar.gz /root/gcc-build-test/ || failure "Could not copy gcc source tar"
-  pushd /root/gcc-build-test || failure "Could not pushd into gcc build dir to untar"
-    tar -xzf gcc-11.2.0.tar.gz || failure "Could not untar gcc source"
-  popd
-  pushd /root/gcc-build-test/build
-    ../gcc-11.2.0/configure --enable-languages=c,c++ --disable-multilib  || echo "Could not configure gcc build will patch and try running /root/gcc-build-test/gcc-11.2.0/contrib/download_prerequisites"
-    sleep 3
+if [ "$HOSTNAME" = "sspl-perf-stress" ]; then
+    echo "Running Stress Machine specific setup"
+    # prepare gcc build area
+    if [[ -d /root/gcc-build-test ]]
+    then
+      echo "gcc build area already exists, skipping setting it up"
+    else
+      echo "Setting up gcc build area"
+      rm -rf /root/gcc-build-test
+      mkdir -p /root/gcc-build-test/build || failure "Could not make gcc build dir"
+      cp /mnt/filer6/linux/SSPL/tools/gcc-11.2.0.tar.gz /root/gcc-build-test/ || failure "Could not copy gcc source tar"
+      pushd /root/gcc-build-test || failure "Could not pushd into gcc build dir to untar"
+        tar -xzf gcc-11.2.0.tar.gz || failure "Could not untar gcc source"
+      popd
+      pushd /root/gcc-build-test/build
+        ../gcc-11.2.0/configure --enable-languages=c,c++ --disable-multilib  || echo "Could not configure gcc build will patch and try running /root/gcc-build-test/gcc-11.2.0/contrib/download_prerequisites"
+        sleep 3
 
-    echo "Patching ftp to http as the files are not available via ftp"
-    sed -i 's/ftp:/http:/g' /root/gcc-build-test/gcc-11.2.0/contrib/download_prerequisites || failure "Could not patch download_prerequisites"
-    sleep 3
+        echo "Patching ftp to http as the files are not available via ftp"
+        sed -i 's/ftp:/http:/g' /root/gcc-build-test/gcc-11.2.0/contrib/download_prerequisites || failure "Could not patch download_prerequisites"
+        sleep 3
 
-    pushd /root/gcc-build-test/gcc-11.2.0
-      ./contrib/download_prerequisites || failure "Could not download prerequisites for gcc"
-    popd
-    ../gcc-11.2.0/configure --enable-languages=c,c++ --disable-multilib  || failure "Could not configure gcc build"
-  popd
+        pushd /root/gcc-build-test/gcc-11.2.0
+          ./contrib/download_prerequisites || failure "Could not download prerequisites for gcc"
+        popd
+        ../gcc-11.2.0/configure --enable-languages=c,c++ --disable-multilib  || failure "Could not configure gcc build"
+      popd
+    fi
+
+    echo "Copying Malware for SafeStore tests"
+    cp /mnt/filer6/linux/SSPL/users/RichardH/overlay_samples.zip /root/performance
+    unzip /root/performance/overlay_samples.zip -d /root/performance/malware_for_safestore_tests
 fi
 
 # Copy perf scripts
