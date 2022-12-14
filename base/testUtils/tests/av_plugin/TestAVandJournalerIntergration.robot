@@ -107,7 +107,7 @@ Test av can publish events and that journaler can receive them after event journ
 
     Mark Livequery Log
 
-    Detect EICAR And Read With Livequery Via Event Journaler
+    Detect EICAR And Read With Livequery Via Event Journaler  /tmp/dirty_file2  ${JOURNALED_EICAR2}
 
     Wait Until Keyword Succeeds
     ...  10 secs
@@ -129,7 +129,7 @@ Test av can publish events and that journaler can receive them after edr restart
 
     Mark Livequery Log
 
-    Detect EICAR And Read With Livequery Via Event Journaler
+    Detect EICAR And Read With Livequery Via Event Journaler   /tmp/dirty_file2  ${JOURNALED_EICAR2}
 
     Wait Until Keyword Succeeds
     ...  10 secs
@@ -225,11 +225,12 @@ Check Logs Detected EICAR Event
     Check Marked Livequery Log Contains String N Times   quarantineSuccess\\":false  ${EXPECTED_EICARS}
 
 Detect EICAR And Read With Livequery Via Event Journaler
-    Check AV Plugin Can Scan Files
+    [Arguments]  ${dirty_file}=/tmp/dirty_file   ${journal_string}=${JOURNALED_EICAR}
+    Check AV Plugin Can Scan Files  ${dirty_file}
     Wait Until Keyword Succeeds
     ...  15 secs
     ...  1 secs
-    ...  Check Journal Contains Detection Event With Content  ${JOURNALED_EICAR}
+    ...  Check Journal Contains Detection Event With Content  ${journal_string}
     Run Live Query  select * from sophos_detections_journal   simple
     Wait Until Keyword Succeeds
     ...  60 secs
