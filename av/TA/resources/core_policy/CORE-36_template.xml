@@ -3,7 +3,7 @@
 
     <!-- Core Features -->
     <coreFeatures>
-        <machineLearningEnabled>{{true|false}}</machineLearningEnabled>
+        <machineLearningEnabled>true</machineLearningEnabled>
         <malwareDetectionEnabled>{{true|false}}</malwareDetectionEnabled>
         <appControlEnabled>{{true|false}}</appControlEnabled>
         <mlDetectionLevel>{{default|conservative}}</mlDetectionLevel>
