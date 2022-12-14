@@ -12,7 +12,7 @@
         <build-asset project="linuxep" repo="everest-base">
             <release-version branch="release/2022-51.2"
                              build-id="20221214100149-722ef6d11670b3c8657d6e4d0b63e27ba84655d7-m6Gx0E"/>
-            <development-version branch="develop"/>
+            <development-version branch="LINUXDAR-6333-safestore-can-be-tricked-into-deleting-the-wrong-file"/>
             <include artifact-path="sspl-base/pluginapi" dest-dir="input"/>
             <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="input/base-sdds"/>
         </build-asset>
