@@ -94,7 +94,7 @@ auto Exclusion::appliesToPath(const fs::path& path, bool isDirectory, bool isFil
             {
                 return true;
             }
-            if (isDirectory && path.string().size()+1 == m_exclusionPath.string().size() && common::PathUtils::startswith(m_exclusionPath, path))
+            if (isDirectory && path.lexically_relative(m_exclusionPath) == "." && common::PathUtils::startswith(m_exclusionPath, path))
             {
                 return true;
             }
@@ -137,7 +137,7 @@ auto Exclusion::appliesToPath(const fs::path& path, bool isDirectory, bool isFil
         case GLOB:
         case RELATIVE_GLOB:
         {
-            if (std::regex_match(path.string(), m_pathRegex))
+            if (std::regex_match(path.c_str(), m_pathRegex))
             {
                 return true;
             }
