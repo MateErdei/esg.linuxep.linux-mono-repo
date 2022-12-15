@@ -789,9 +789,6 @@ def run_safestore_restoration_test():
         os.chmod(modified_policy_path, policy_permissions.st_mode)
         os.chown(modified_policy_path, policy_permissions.st_uid, policy_permissions.st_gid)
         shutil.move(modified_policy_path, corc_policy_path)
-
-        while not os.path.exists(corc_policy_path):
-            time.sleep(1)
         logging.info("New CORC policy:")
         logging.info(xml.etree.ElementTree.dump(xml.etree.ElementTree.parse(corc_policy_path).getroot()))
 
