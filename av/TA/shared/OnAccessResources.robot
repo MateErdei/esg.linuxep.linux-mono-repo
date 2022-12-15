@@ -187,7 +187,7 @@ Create Large Eicar
     Create File  ${dirtyfile}-excluded  ${EICAR_STRING}
     Register Cleanup   Remove File  ${dirtyfile}-excluded
 
-    ${result} =  Run Process     head    -c     3G  /dev/zero     >>     ${dirtyfile}-excluded   shell=True
+    ${result} =  Run Process     truncate   -s      3G     ${dirtyfile}-excluded   shell=True
     Log  ${result.stdout}
     Log  ${result.stderr}
 
@@ -197,8 +197,7 @@ Create Large Eicar
 
     Register Cleanup   Remove File   ${dirtyfile}
 
-    wait_for_on_access_log_contains_after_mark   On-close event for ${dirtyfile}  ${oamark}   timeout=60
-    wait_for_on_access_log_contains_after_mark  "${dirtyfile}" is infected with EICAR-AV-Test (Close-Write)  mark=${oamark}  timeout=180
+    wait_for_on_access_log_contains_after_mark  "${dirtyfile}" is infected with EICAR-AV-Test  mark=${oamark}  timeout=180
 
     dump log    ${ON_ACCESS_LOG_PATH}
 
