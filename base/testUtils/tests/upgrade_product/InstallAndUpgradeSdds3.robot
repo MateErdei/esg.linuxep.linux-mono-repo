@@ -169,6 +169,8 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
 
     #TODO LINUXDAR-6371 remove when this defect is closed
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/sophos_managementagent.log  managementagent <> Failure on sending message to runtimedetections. Reason: No incoming data
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/sophos_managementagent.log  managementagent <> Failure on sending message to mtr. Reason: No incoming data
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/sophos_managementagent.log  managementagent <> Failure on sending message to edr. Reason: No incoming data
 
     #TODO LINUXDAR-5140 remove when this defect is closed
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/av.log  ScanProcessMonitor <> failure in ConfigMonitor: pselect failed: Bad file descriptor
@@ -290,6 +292,8 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
 
     #TODO LINUXDAR-6371 remove when this defect is closed
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/sophos_managementagent.log  managementagent <> Failure on sending message to runtimedetections. Reason: No incoming data
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/sophos_managementagent.log  managementagent <> Failure on sending message to mtr. Reason: No incoming data
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/sophos_managementagent.log  managementagent <> Failure on sending message to edr. Reason: No incoming data
 
     Check All Product Logs Do Not Contain Error
     Check All Product Logs Do Not Contain Critical
@@ -426,6 +430,8 @@ We Can Upgrade From Release to VUT Without Unexpected Errors
 
     #TODO LINUXDAR-6371 remove when this defect is closed
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/sophos_managementagent.log  managementagent <> Failure on sending message to runtimedetections. Reason: No incoming data
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/sophos_managementagent.log  managementagent <> Failure on sending message to mtr. Reason: No incoming data
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/sophos_managementagent.log  managementagent <> Failure on sending message to edr. Reason: No incoming data
 
     Check All Product Logs Do Not Contain Error
     Check All Product Logs Do Not Contain Critical
