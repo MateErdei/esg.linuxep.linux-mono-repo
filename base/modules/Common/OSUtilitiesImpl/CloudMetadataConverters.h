@@ -5,8 +5,9 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 #pragma once
 
-#include <sstream>
 #include <json.hpp>
+#include <regex>
+#include <sstream>
 
 namespace Common::OSUtilitiesImpl
 {
@@ -78,6 +79,25 @@ namespace Common::OSUtilitiesImpl
                    << "</google>";
 
             return result.str();
+        }
+
+        static bool verifyGoogleId(const std::string& id)
+        {
+            // verify it's a sensible length, the IDs are not very long
+            if (id.length() > 100)
+            {
+                return false;
+            }
+
+            // Verify it contains characters we expect.
+            // Currently, the ID should be just numbers but to be on the safe side in case the format
+            // changes we'll allow alphanumerics with hyphens, which will still filter out
+            if (!std::regex_match(id, std::regex(R"([a-zA-Z\-0-9]+)")))
+            {
+                return false;
+            }
+
+            return true;
         }
 
         /**

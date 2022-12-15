@@ -322,6 +322,11 @@ namespace Common::OSUtilitiesImpl
             {
                 return "";
             }
+
+            if (!CloudMetadataConverters::verifyGoogleId(response.body))
+            {
+                return "";
+            }
             std::string id = response.body;
 
             std::string zoneUrl = "http://metadata.google.internal/computeMetadata/v1/instance/zone";
