@@ -85,15 +85,8 @@ def run_safestore_tool_with_args(*args):
     env = os.environ.copy()
     env["LD_LIBRARY_PATH"] = os.path.join(SOPHOS_INSTALL, "base", "lib64")
 
-    # safestore_db_path = os.path.join(SOPHOS_INSTALL, "plugins", "av", "var", "safestore_db", "safestore.db")
-    # safestore_db_password_path = os.path.join(SOPHOS_INSTALL, "plugins", "av", "var", "safestore_db", "safestore.pw")
-    # with open(safestore_db_password_path, "r") as f:
-    #     hex_string = f.read()
-    # password = hex_string.encode('utf-8').hex()
-
-    # TODO: Uncomment when database is moved back to var
-    safestore_db_path = os.path.join(SOPHOS_INSTALL, "plugins", "av", "safestore", "safestore_db", "safestore.db")
-    safestore_db_password_path = os.path.join(SOPHOS_INSTALL, "plugins", "av", "safestore", "safestore_db", "safestore.pw")
+    safestore_db_path = os.path.join(SOPHOS_INSTALL, "plugins", "av", "var", "safestore_db", "safestore.db")
+    safestore_db_password_path = os.path.join(SOPHOS_INSTALL, "plugins", "av", "var", "safestore_db", "safestore.pw")
     with open(safestore_db_password_path, "r") as f:
         hex_string = f.read()
     password = hex_string.encode('utf-8').hex()
