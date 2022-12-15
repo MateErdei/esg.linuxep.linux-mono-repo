@@ -54,47 +54,47 @@ namespace datatypes
             return std::pair(res, upTime);
         }
 
-        int pselect(int __nfds,
-                    fd_set *__restrict __readfds,
-                    fd_set *__restrict __writefds,
-                    fd_set *__restrict __exceptfds,
-                    const struct timespec *__restrict __timeout,
-                    const __sigset_t *__restrict __sigmask) override
+        int pselect(int nfds,
+                    fd_set *__restrict readfds,
+                    fd_set *__restrict writefds,
+                    fd_set *__restrict exceptfds,
+                    const struct timespec *__restrict timeout,
+                    const sigset_t *__restrict sigmask) override
         {
-            return ::pselect(__nfds, __readfds, __writefds, __exceptfds, __timeout, __sigmask);
+            return ::pselect(nfds, readfds, writefds, exceptfds, timeout, sigmask);
         }
 
         int ppoll(struct pollfd* fd,
                   nfds_t num_fds,
                   const struct timespec* timeout,
-                  const __sigset_t* ss) override
+                  const sigset_t* ss) override
         {
             return ::ppoll(fd, num_fds, timeout, ss);
         }
 
-        int fanotify_init(unsigned int __flags,
-                          unsigned int __event_f_flags) override
+        int fanotify_init(unsigned int flags,
+                          unsigned int event_f_flags) override
         {
-            return ::fanotify_init(__flags, __event_f_flags);
+            return ::fanotify_init(flags, event_f_flags);
         }
 
-        int fanotify_mark(int __fanotify_fd,
-                          unsigned int __flags,
-                          uint64_t __mask,
-                          int __dfd,
-                          const char *__pathname) override
+        int fanotify_mark(int fanotify_fd,
+                          unsigned int flags,
+                          uint64_t mask,
+                          int dfd,
+                          const char *pathname) override
         {
-            return ::fanotify_mark(__fanotify_fd, __flags, __mask, __dfd, __pathname);
+            return ::fanotify_mark(fanotify_fd, flags, mask, dfd, pathname);
         }
 
-        ssize_t read(int __fd, void *__buf, size_t __nbytes) override
+        ssize_t read(int fd, void *buf, size_t nbytes) override
         {
-            return ::read (__fd, __buf, __nbytes);
+            return ::read (fd, buf, nbytes);
         }
 
-        ssize_t readlink(const char* __path, char* __buf, size_t __len) override
+        ssize_t readlink(const char* path, char* buf, size_t len) override
         {
-            return ::readlink(__path, __buf, __len);
+            return ::readlink(path, buf, len);
         }
 
         int flock(int fd, int operation) override
@@ -102,9 +102,19 @@ namespace datatypes
             return ::flock(fd, operation);
         }
 
-        int setrlimit(int __resource, const struct ::rlimit* __rlim) override
+        int setrlimit(int resource, const struct ::rlimit* rlim) override
         {
-            return ::setrlimit(__resource, __rlim);
+            return ::setrlimit(resource, rlim);
+        }
+
+        int fcntl (int fd, int cmd) override
+        {
+            return ::fcntl(fd, cmd);
+        }
+
+        int fstat (int fd, struct stat *buf) override
+        {
+            return ::fstat(fd, buf);
         }
 
         int getuid() override
@@ -112,24 +122,24 @@ namespace datatypes
             return ::getuid();
         }
 
-        int chroot(const char* __path) override
+        int chroot(const char* path) override
         {
-            return ::chroot(__path);
+            return ::chroot(path);
         }
 
-        int chdir(const char* __path) override
+        int chdir(const char* path) override
         {
-            return ::chdir(__path);
+            return ::chdir(path);
         }
 
-        int getaddrinfo(const char* __name, const char* __service, const struct ::addrinfo* __req, struct ::addrinfo ** __pai) override
+        int getaddrinfo(const char* name, const char* service, const struct ::addrinfo* req, struct ::addrinfo ** pai) override
         {
-            return ::getaddrinfo(__name, __service, __req, __pai);
+            return ::getaddrinfo(name, service, req, pai);
         }
 
-        void freeaddrinfo(::addrinfo* __ai) override
+        void freeaddrinfo(::addrinfo* ai) override
         {
-            ::freeaddrinfo(__ai);
+            ::freeaddrinfo(ai);
         }
 
         cap_t cap_get_proc() override
@@ -137,19 +147,19 @@ namespace datatypes
             return ::cap_get_proc();
         }
 
-        int cap_clear(cap_t __cap_t) override
+        int cap_clear(cap_t cap_t) override
         {
-            return ::cap_clear(__cap_t);
+            return ::cap_clear(cap_t);
         }
 
-        int cap_set_proc(cap_t __cap_t) override
+        int cap_set_proc(cap_t cap_t) override
         {
-            return ::cap_set_proc(__cap_t);
+            return ::cap_set_proc(cap_t);
         }
 
-        int prctl (int option, ulong __arg2, ulong __arg3, ulong __arg4, ulong __arg5) override
+        int prctl (int option, ulong arg2, ulong arg3, ulong arg4, ulong arg5) override
         {
-            return ::prctl(option, __arg2, __arg3, __arg4, __arg5);
+            return ::prctl(option, arg2, arg3, arg4, arg5);
         }
 
         unsigned int hardware_concurrency() override
@@ -157,9 +167,9 @@ namespace datatypes
             return std::thread::hardware_concurrency();
         }
 
-        void _exit (int __status) override
+        void _exit (int status) override
         {
-            ::_exit(__status);
+            ::_exit(status);
         }
     };
 }
