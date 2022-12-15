@@ -167,6 +167,9 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     # When threat_detector is asked to shut down for upgrade it may have ongoing on-access scans that it has to abort
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/soapd.log  OnAccessImpl <> Aborting scan, scanner is shutting down
 
+    #TODO LINUXDAR-6371 remove when this defect is closed
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/sophos_managementagent.log  managementagent <> Failure on sending message to runtimedetections. Reason: No incoming data
+
     #TODO LINUXDAR-5140 remove when this defect is closed
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/av.log  ScanProcessMonitor <> failure in ConfigMonitor: pselect failed: Bad file descriptor
     Run Keyword And Expect Error  *
@@ -284,6 +287,9 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
 
     # When threat_detector is asked to shut down for upgrade it may have ongoing on-access scans that it has to abort
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/soapd.log  OnAccessImpl <> Aborting scan, scanner is shutting down
+
+    #TODO LINUXDAR-6371 remove when this defect is closed
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/sophos_managementagent.log  managementagent <> Failure on sending message to runtimedetections. Reason: No incoming data
 
     Check All Product Logs Do Not Contain Error
     Check All Product Logs Do Not Contain Critical
@@ -417,6 +423,9 @@ We Can Upgrade From Release to VUT Without Unexpected Errors
 
     # When threat_detector is asked to shut down for upgrade it may have ongoing on-access scans that it has to abort
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/soapd.log  OnAccessImpl <> Aborting scan, scanner is shutting down
+
+    #TODO LINUXDAR-6371 remove when this defect is closed
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/sophos_managementagent.log  managementagent <> Failure on sending message to runtimedetections. Reason: No incoming data
 
     Check All Product Logs Do Not Contain Error
     Check All Product Logs Do Not Contain Critical
