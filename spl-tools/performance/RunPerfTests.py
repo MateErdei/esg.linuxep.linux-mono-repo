@@ -726,7 +726,7 @@ def run_safestore_database_content_test():
             store_time = threat["Store time"]
             unix_time = store_time[store_time.find("(") + 1:store_time.find(")")]
 
-            if unix_time < (start_time - twenty_four_hours) or threat["Status"] != "quarantined":
+            if int(unix_time) < int(start_time - twenty_four_hours) or threat["Status"] != "quarantined":
                 logging.warning(f"Threat was not quarantined by last scheduled scan: {threat}")
                 unquarantined_files += 1
                 continue
