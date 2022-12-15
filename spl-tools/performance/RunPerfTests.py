@@ -755,6 +755,7 @@ def run_safestore_restoration_test():
     corc_policy_path = "/opt/sophos-spl/base/mcs/policy/CORC_policy.xml"
     tmp_corc_policy_path = "/tmp/CORC_policy.xml"
     modified_policy_path = "/tmp/whitelist_CORC_policy.xml"
+    policy_permissions = os.stat("/opt/sophos-spl/base/mcs/policy/CORE_policy.xml")
 
     get_safestore_tool()
 
@@ -777,7 +778,8 @@ def run_safestore_restoration_test():
             policy.getroot().find("whitelist").append(threat_item)
 
         policy.write(modified_policy_path)
-        os.chmod(modified_policy_path, 666)
+        os.chmod(modified_policy_path, policy_permissions.st_mode)
+        os.chown(modified_policy_path, policy_permissions.st_uid, policy_permissions.st_gid)
         shutil.move(modified_policy_path, corc_policy_path)
         logging.info("New CORC policy:")
         logging.info(xml.etree.ElementTree.dump(xml.etree.ElementTree.parse(corc_policy_path).getroot()))
