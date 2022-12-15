@@ -768,7 +768,7 @@ def run_safestore_restoration_test():
             shutil.copyfile(os.path.join(SCRIPT_DIR, "corc_policy_empty_allowlist.xml"), tmp_corc_policy_path)
 
         policy = xml.etree.ElementTree.parse(tmp_corc_policy_path)
-        with open(os.path.join(SCRIPT_DIR, "expected_malware.json"), 'r') as f:
+        with open(os.path.join(SCRIPT_DIR, "expected_malware.json"), "r") as f:
             expected_malware = json.loads(f.read())
         for threat in expected_malware:
             threat_item = xml.etree.ElementTree.Element("item")
@@ -779,6 +779,8 @@ def run_safestore_restoration_test():
         policy.write(modified_policy_path)
         os.chmod(modified_policy_path, 666)
         shutil.move(modified_policy_path, corc_policy_path)
+        logging.info("New CORC policy:")
+        logging.info(xml.etree.ElementTree.dump(xml.etree.ElementTree.parse(corc_policy_path).getroot()))
 
         log_utils.wait_for_log_contains_after_mark(log_utils.sophos_threat_detector_log,
                                                    "Triggering rescan of SafeStore database",
