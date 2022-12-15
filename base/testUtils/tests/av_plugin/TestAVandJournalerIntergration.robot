@@ -72,7 +72,7 @@ Test av can publish events and that journaler can receive them after av restart
 
     Mark Livequery Log
 
-    Create File     /tmp/dirty_file2    ${EICAR_STRING}
+    Create File     /tmp/dirty_excluded_file2    ${EICAR_STRING}
 
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLS_PATH} /tmp/dirty_excluded_file2
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
@@ -107,7 +107,7 @@ Test av can publish events and that journaler can receive them after event journ
 
     Mark Livequery Log
 
-    Detect EICAR And Read With Livequery Via Event Journaler  /tmp/dirty_file2  ${JOURNALED_EICAR2}
+    Detect EICAR And Read With Livequery Via Event Journaler  /tmp/dirty_excluded_file2  ${JOURNALED_EICAR2}
 
     Wait Until Keyword Succeeds
     ...  10 secs
@@ -129,7 +129,7 @@ Test av can publish events and that journaler can receive them after edr restart
 
     Mark Livequery Log
 
-    Detect EICAR And Read With Livequery Via Event Journaler   /tmp/dirty_file2  ${JOURNALED_EICAR2}
+    Detect EICAR And Read With Livequery Via Event Journaler   /tmp/dirty_excluded_file2  ${JOURNALED_EICAR2}
 
     Wait Until Keyword Succeeds
     ...  10 secs
