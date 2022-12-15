@@ -791,27 +791,31 @@ def run_safestore_restoration_test():
                                                    "Triggering rescan of SafeStore database",
                                                    td_mark,
                                                    120)
-        log_utils.wait_for_log_contains_string_n_times_after_mark(log_utils.safestore_log,
-                                                                  "Reporting successful restoration",
-                                                                  len(expected_malware),
-                                                                  ss_mark,
-                                                                  600)
+
+        while True:
+            safestore_db_content = get_safestore_db_content_as_dict()
+            test_threats = [item for item in safestore_db_content if item["Location"] == SAFESTORE_MALWARE_PATH]
+
+            if all(threat["Status"] == "restored_as" for threat in test_threats):
+                break
+
+        for threat in expected_malware:
+            try:
+                log_utils.check_log_contains_after_mark(log_utils.safestore_log,
+                                                        f"Reporting successful restoration of {threat['filePath']}",
+                                                        ss_mark)
+                restored_files += 1
+            except Exception:
+                logging.warning(f"{threat['filePath']} was not restored by SafeStore")
+                unrestored_files += 1
 
     except Exception as e:
         logging.error(f"Failed to restore SafeStore database: {str(e)}")
         return_code = 1
 
     finally:
-        for threat in expected_malware:
-            if log_utils.check_log_contains_after_mark(log_utils.safestore_log, f"Reporting successful restoration of {threat['filePath']}", ss_mark):
-                restored_files += 1
-            else:
-                logging.warning(f"{threat['filePath']} was not restored by SafeStore")
-                unrestored_files += 1
-
-        safestore_db_content = get_safestore_db_content_as_dict()
         if unrestored_files == len(expected_malware):
-            logging.error(f"No threats were restored from SafeStore database: {safestore_db_content}")
+            logging.error(f"No threats were restored from SafeStore database: {get_safestore_db_content_as_dict()}")
             return_code = 1
         elif 0 < unrestored_files:
             return_code = 2
