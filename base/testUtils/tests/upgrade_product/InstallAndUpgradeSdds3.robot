@@ -52,6 +52,10 @@ ${sdds2_primary_warehouse}                  ${SOPHOS_INSTALL}/base/update/cache/
 ${sdds3_primary}                            ${SOPHOS_INSTALL}/base/update/cache/sdds3primary
 ${sdds3_primary_repository}                 ${SOPHOS_INSTALL}/base/update/cache/sdds3primaryrepository
 
+${HealthyShsStatusXmlContents}              <item name="health" value="1" />
+${GoodThreatHealthXmlContents}              <item name="threat" value="1" />
+${BadThreatHealthXmlContents}               <item name="threat" value="2" />
+
 *** Test Cases ***
 Sul Downloader fails update if expected product missing from SUS
     [Setup]    Test Setup
@@ -121,7 +125,6 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     ...  Check Policy Written Match File    ALC-1_policy.xml    ${BaseEdrAndMtrAndAVVUTPolicy}
     Wait Until Threat Detector Running
 
-    ${HealthyShsStatusXmlContents} =  Set Variable    <item name="health" value="1" />
     Wait Until Keyword Succeeds
     ...  120 secs
     ...  15 secs
@@ -140,6 +143,7 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     ...   Check Log Contains String At Least N times    /tmp/preserve-sul-downgrade    Downgrade Log    Update success    2
     Check SulDownloader Log Should Not Contain    Running in SDDS2 updating mode
     SHS Status File Contains  ${HealthyShsStatusXmlContents}
+    SHS Status File Contains  ${GoodThreatHealthXmlContents}
 
     # Confirm that the warehouse flags supplement is installed when upgrading
     File Exists With Permissions  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json  root  sophos-spl-group  -rw-r-----
@@ -180,8 +184,11 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     Check AV Plugin Permissions
     Check Update Reports Have Been Processed
 
+    SHS Status File Contains  ${GoodThreatHealthXmlContents}
     Check AV Plugin Can Scan Files
     Check On Access Detects Threats
+
+    SHS Status File Contains  ${BadThreatHealthXmlContents}
     SHS Status File Contains  ${HealthyShsStatusXmlContents}
 
 We Can Downgrade From VUT to Dogfood Without Unexpected Errors
@@ -322,6 +329,13 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     ...  5 secs
     ...  File Should Exist  ${Sophos_Scheduled_Query_Pack}
 
+    File Should Exist  ${SOPHOS_INSTALL}/plugins/av/log/downgrade-backup/av.log
+    File Should Exist  ${SOPHOS_INSTALL}/plugins/av/log/downgrade-backup/soapd.log
+    File Should Exist  ${SOPHOS_INSTALL}/plugins/av/log/downgrade-backup/sophos_threat_detector.log
+
+    SHS Status File Contains  ${BadThreatHealthXmlContents}
+    SHS Status File Contains  ${HealthyShsStatusXmlContents}
+
 We Can Upgrade From Release to VUT Without Unexpected Errors
     [Timeout]  10 minutes
     [Tags]  INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
@@ -361,7 +375,6 @@ We Can Upgrade From Release to VUT Without Unexpected Errors
     ...  Check Policy Written Match File  ALC-1_policy.xml  ${BaseEdrAndMtrAndAVVUTPolicy}
     Wait Until Threat Detector Running
 
-    ${HealthyShsStatusXmlContents} =  Set Variable  <item name="health" value="1" />
     Wait Until Keyword Succeeds
     ...  200 secs
     ...  5 secs
@@ -377,6 +390,7 @@ We Can Upgrade From Release to VUT Without Unexpected Errors
     Check SulDownloader Log Should Not Contain    Running in SDDS2 updating mode
 
     SHS Status File Contains  ${HealthyShsStatusXmlContents}
+    SHS Status File Contains  ${GoodThreatHealthXmlContents}
 
     # Confirm that the warehouse flags supplement is installed when upgrading
     File Exists With Permissions  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json  root  sophos-spl-group  -rw-r-----
@@ -414,10 +428,12 @@ We Can Upgrade From Release to VUT Without Unexpected Errors
     Wait For RuntimeDetections to be Installed
     Check AV Plugin Permissions
 
+    SHS Status File Contains  ${GoodThreatHealthXmlContents}
     Check AV Plugin Can Scan Files
     Check On Access Detects Threats
     Check Update Reports Have Been Processed
 
+    SHS Status File Contains  ${BadThreatHealthXmlContents}
     SHS Status File Contains  ${HealthyShsStatusXmlContents}
 
 We Can Downgrade From VUT to Release Without Unexpected Errors
@@ -539,6 +555,14 @@ We Can Downgrade From VUT to Release Without Unexpected Errors
     ...  20 secs
     ...  5 secs
     ...  File Should Exist  ${Sophos_Scheduled_Query_Pack}
+
+    File Should Exist  ${SOPHOS_INSTALL}/plugins/av/log/downgrade-backup/av.log
+    File Should Exist  ${SOPHOS_INSTALL}/plugins/av/log/downgrade-backup/soapd.log
+    File Should Exist  ${SOPHOS_INSTALL}/plugins/av/log/downgrade-backup/sophos_threat_detector.log
+
+    # TODO: Uncomment below once On-access has been released
+    #SHS Status File Contains  ${BadThreatHealthXmlContents}
+    SHS Status File Contains  ${HealthyShsStatusXmlContents}
 
 Sul Downloader Can Update Via Sdds3 Repository And Removes Local SDDS2 Cache
     Start Local Cloud Server  --initial-alc-policy  ${BaseEdrAndMtrAndAVVUTPolicy}
