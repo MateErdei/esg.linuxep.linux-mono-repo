@@ -44,7 +44,7 @@ def gather_sdds3_warehouse_files(output_dir, release_type):
         release_branches = [i for i in release_branches if int(i.strip(branch_filter).split(version_separator)[0]) <= 4]
 
     release_branch = sorted(release_branches,
-                            key=lambda x: int(x[len(branch_filter):].split(version_separator)[0]),
+                            key=lambda x: float(x[len(branch_filter):].split(version_separator)[0]),
                             reverse=True)[0]
     for build in ArtifactoryPath(os.path.join(warehouse_repo_url, release_branch)):
         builds.append(build)
