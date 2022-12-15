@@ -758,10 +758,10 @@ def run_safestore_restoration_test():
     policy_permissions = os.stat("/opt/sophos-spl/base/mcs/policy/CORE_policy.xml")
 
     get_safestore_tool()
+    td_mark = log_utils.get_sophos_threat_detector_log_mark()
+    ss_mark = log_utils.get_safestore_log_mark()
 
     try:
-        td_mark = log_utils.get_sophos_threat_detector_log_mark()
-        ss_mark = log_utils.get_safestore_log_mark()
         stop_sspl_process("mcsrouter")
         if os.path.exists(corc_policy_path):
             shutil.copyfile(corc_policy_path, tmp_corc_policy_path)
@@ -797,25 +797,25 @@ def run_safestore_restoration_test():
                                                                   ss_mark,
                                                                   600)
 
-        safestore_db_content = get_safestore_db_content_as_dict()
-        for threat in safestore_db_content:
-            if threat["Location"] == SAFESTORE_MALWARE_PATH:
-                if threat["Status"] != "restored_as":
-                    logging.warning(f"{threat['Name']} has not been restored, details: {threat}")
-                    unrestored_files += 1
-                restored_files += 1
+    except Exception as e:
+        logging.error(f"Failed to restore SafeStore database: {str(e)}")
+        return_code = 1
 
+    finally:
+        for threat in expected_malware:
+            if log_utils.check_log_contains_after_mark(log_utils.safestore_log, f"Reporting successful restoration of {threat['filePath']}", ss_mark):
+                restored_files += 1
+            else:
+                logging.warning(f"{threat['filePath']} was not restored by SafeStore")
+                unrestored_files += 1
+
+        safestore_db_content = get_safestore_db_content_as_dict()
         if unrestored_files == len(expected_malware):
             logging.error(f"No threats were restored from SafeStore database: {safestore_db_content}")
             return_code = 1
         elif 0 < unrestored_files:
             return_code = 2
 
-    except Exception as e:
-        logging.error(f"Failed to restore SafeStore database: {str(e)}")
-        return_code = 1
-
-    finally:
         if os.path.exists(tmp_corc_policy_path):
             os.chmod(tmp_corc_policy_path, policy_permissions.st_mode)
             os.chown(tmp_corc_policy_path, policy_permissions.st_uid, policy_permissions.st_gid)
