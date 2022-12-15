@@ -73,6 +73,7 @@ namespace Plugin
 
         void processFlagSettings(const std::string& flagsJson);
         [[nodiscard]] bool isSafeStoreEnabled() const;
+        [[nodiscard]] bool isMLScanningEnabled() const;
         [[nodiscard]] bool shouldSafeStoreQuarantineMl() const;
 
         /**
@@ -130,6 +131,7 @@ namespace Plugin
         int m_pendingOnAccessProcessReload = 0;
 
         bool m_safeStoreEnabled = false;
+        bool m_mlScanningEnabled = false;
         bool m_safeStoreQuarantineMl = false;
 
         bool m_gotFirstSavPolicy = false;

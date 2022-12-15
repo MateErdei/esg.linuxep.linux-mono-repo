@@ -141,6 +141,8 @@ namespace Plugin
         telemetry.increment("on-demand-threat-count", 0ul);
         telemetry.increment("on-demand-threat-eicar-count", 0ul);
 
+        telemetry.set("ml-scanning-enabled", m_mlScanningEnabled);
+
         std::string telemetryJson = telemetry.serialiseAndReset();
         telemetry.set("threatHealth", m_threatStatus);
         return telemetryJson;
@@ -552,6 +554,11 @@ namespace Plugin
     void PluginCallback::setSafeStoreEnabled(bool isEnabled)
     {
         m_safeStoreEnabled = isEnabled;
+    }
+
+    void PluginCallback::setMlScanningEnabledStatus(bool mlScanningEnabled)
+    {
+        m_mlScanningEnabled = mlScanningEnabled;
     }
 
 } // namespace Plugin

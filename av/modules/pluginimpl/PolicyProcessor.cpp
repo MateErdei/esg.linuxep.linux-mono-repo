@@ -443,6 +443,11 @@ namespace Plugin
         return m_safeStoreEnabled;
     }
 
+    bool PolicyProcessor::isMLScanningEnabled() const
+    {
+        return m_mlScanningEnabled;
+    }
+
     bool PolicyProcessor::shouldSafeStoreQuarantineMl() const
     {
         return m_safeStoreQuarantineMl;
@@ -548,6 +553,7 @@ namespace Plugin
 
         if (changed)
         {
+            m_mlScanningEnabled = machineLearningEnabled;
             saveSusiSettings("CORE");
         }
         assert(m_susiSettingsWritten);
