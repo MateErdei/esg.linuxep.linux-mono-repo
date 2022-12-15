@@ -109,6 +109,23 @@ def get_safestore_db_content_as_dict():
     threats = [{} for i in range(safestore_db_content.count("Threat GUID:"))]
     threat_idx = 0
 
+    # Example output:
+    # Name:         MultiStream_HighScore_LGREP.jar
+    # Location:     /root/performance/malware_for_safestore_tests
+    # Type:         file
+    # Status:       restored_as
+    # Store time:   Thu Dec 15 04:56:33 2022 (1671080193)
+    # Threat GUID:  07daf2ed-5b17-55ee-80e6-3de5ff2502c9
+    # Threat name:  Mal/Generic-R
+    #
+    # Object GUID:  c61091a4-0142-4384-df0a-228f2e228c8e
+    # Name:         MultiStream_OuterDetCleaned.tar
+    # Location:     /root/performance/malware_for_safestore_tests
+    # Type:         file
+    # Status:       restored_as
+    # Store time:   Thu Dec 15 04:56:33 2022 (1671080193)
+    # Threat GUID:  c27e13f3-1527-5ef8-a18b-7cb0d88f9f08
+    # Threat name:  Mal/Generic-R
     for line in safestore_db_content.split("\n"):
         line_content = line.strip().split(": ")
         if len(line_content) == 1:
