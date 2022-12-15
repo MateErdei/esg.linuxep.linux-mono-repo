@@ -774,7 +774,7 @@ def run_safestore_restoration_test():
         for threat in expected_malware:
             threat_item = xml.etree.ElementTree.Element("item")
             threat_item.attrib["type"] = "sha256"
-            threat_item.text = threat["SHA"]
+            threat_item.text = threat["sha256"]
             policy.getroot().find("whitelist").append(threat_item)
 
         policy.write(modified_policy_path)

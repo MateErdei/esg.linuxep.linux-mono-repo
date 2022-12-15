@@ -122,5 +122,4 @@ def get_safestore_db_content_as_dict():
             break
         threats[threat_idx][line_content[0]] = line_content[1].strip()
 
-    logging.info(f"Formatted threats in SafeStore database: {threats}")
     return threats
