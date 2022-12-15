@@ -68,13 +68,14 @@ namespace safestore::QuarantineManager
             const std::string& threatId,
             const std::string& threatName,
             const std::string& sha256,
-            const std::string& correlationId,
             datatypes::AutoFd autoFd) = 0;
 
         /**
          * Unpack detections.
          */
-        virtual std::vector<FdsObjectIdsPair> extractQuarantinedFiles() = 0;
+        virtual std::vector<FdsObjectIdsPair> extractQuarantinedFiles(
+            datatypes::ISystemCallWrapper& sysCallWrapper,
+            std::vector<SafeStoreWrapper::ObjectHandleHolder> threatsToExtract) = 0;
 
         /**
          * Run the avscanner on unpacked detections and return vector of objectsIds that are clean.

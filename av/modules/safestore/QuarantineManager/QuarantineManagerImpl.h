@@ -1,16 +1,16 @@
-// Copyright 2022 Sophos Limited. All rights reserved.
+// Copyright 2022, Sophos Limited.  All rights reserved.
 
 #pragma once
 
 #include "safestore/QuarantineManager/IQuarantineManager.h"
 #include "safestore/SafeStoreWrapper/ISafeStoreWrapper.h"
+#include "scan_messages/QuarantineResponse.h"
 #include "scan_messages/ScanResponse.h"
 #include "unixsocket/threatDetectorSocket/ScanningClientSocket.h"
 
 #include "Common/PersistentValue/PersistentValue.h"
-#include <thirdparty/nlohmann-json/json.hpp>
 
-#include <scan_messages/QuarantineResponse.h>
+#include <thirdparty/nlohmann-json/json.hpp>
 
 #include <memory>
 #include <mutex>
@@ -22,8 +22,7 @@ namespace safestore::QuarantineManager
     {
     public:
         explicit QuarantineManagerImpl(
-            std::unique_ptr<safestore::SafeStoreWrapper::ISafeStoreWrapper> safeStoreWrapper,
-            std::shared_ptr<datatypes::ISystemCallWrapper> sysCallWrapper);
+            std::unique_ptr<safestore::SafeStoreWrapper::ISafeStoreWrapper> safeStoreWrapper);
         void initialise() override;
         QuarantineManagerState getState() override;
         bool deleteDatabase() override;
@@ -32,22 +31,22 @@ namespace safestore::QuarantineManager
             const std::string& threatId,
             const std::string& threatName,
             const std::string& sha256,
-            const std::string& correlationId,
             datatypes::AutoFd autoFd) override;
-        std::vector<FdsObjectIdsPair> extractQuarantinedFiles() override;
+        std::vector<FdsObjectIdsPair> extractQuarantinedFiles(
+            datatypes::ISystemCallWrapper& sysCallWrapper,
+            std::vector<SafeStoreWrapper::ObjectHandleHolder> threatsToExtract) override;
         void setState(const safestore::QuarantineManager::QuarantineManagerState& newState) override;
         void rescanDatabase() override;
         void parseConfig() override;
 
-        std::vector<SafeStoreWrapper::ObjectId> scanExtractedFilesForRestoreList(std::vector<FdsObjectIdsPair> files) override;
+        std::vector<SafeStoreWrapper::ObjectId> scanExtractedFilesForRestoreList(
+            std::vector<FdsObjectIdsPair> files) override;
         std::optional<scan_messages::RestoreReport> restoreFile(const std::string& objectId) override;
 
     private:
         void callOnDbError();
         void callOnDbSuccess();
         void setConfigWrapper(nlohmann::json json, const safestore::SafeStoreWrapper::ConfigOption& option);
-        void storeCorrelationId(SafeStoreWrapper::ObjectHandleHolder& objectHandle, const std::string& correlationId);
-        [[nodiscard]] std::string getCorrelationId(SafeStoreWrapper::ObjectHandleHolder& objectHandle);
         QuarantineManagerState m_state;
         std::unique_ptr<safestore::SafeStoreWrapper::ISafeStoreWrapper> m_safeStore;
         std::mutex m_interfaceMutex;
@@ -60,6 +59,5 @@ namespace safestore::QuarantineManager
         int m_databaseErrorCount = 0;
         Common::PersistentValue<int> m_dbErrorCountThreshold;
         static scan_messages::ScanResponse scan(unixsocket::ScanningClientSocket& socket, int fd);
-        std::shared_ptr<datatypes::ISystemCallWrapper> m_sysCallWrapper;
     };
 } // namespace safestore::QuarantineManager
