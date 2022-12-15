@@ -787,10 +787,13 @@ def run_safestore_restoration_test():
         logging.info("New CORC policy:")
         logging.info(xml.etree.ElementTree.dump(xml.etree.ElementTree.parse(corc_policy_path).getroot()))
 
-        log_utils.wait_for_log_contains_after_mark(log_utils.sophos_threat_detector_log,
-                                                   "Triggering rescan of SafeStore database",
-                                                   td_mark,
-                                                   120)
+        try:
+            log_utils.wait_for_log_contains_after_mark(log_utils.sophos_threat_detector_log,
+                                                       "Triggering rescan of SafeStore database",
+                                                       td_mark,
+                                                       120)
+        except Exception as e:
+            logging.warning(e)
 
         while True:
             safestore_db_content = get_safestore_db_content_as_dict()
@@ -809,17 +812,17 @@ def run_safestore_restoration_test():
                 logging.warning(f"{threat['filePath']} was not restored by SafeStore")
                 unrestored_files += 1
 
-    except Exception as e:
-        logging.error(f"Failed to restore SafeStore database: {str(e)}")
-        return_code = 1
-
-    finally:
         if unrestored_files == len(expected_malware):
             logging.error(f"No threats were restored from SafeStore database: {get_safestore_db_content_as_dict()}")
             return_code = 1
         elif 0 < unrestored_files:
             return_code = 2
 
+    except Exception as e:
+        logging.error(f"Failed to restore SafeStore database: {str(e)}")
+        return_code = 1
+
+    finally:
         if os.path.exists(tmp_corc_policy_path):
             os.chmod(tmp_corc_policy_path, policy_permissions.st_mode)
             os.chown(tmp_corc_policy_path, policy_permissions.st_uid, policy_permissions.st_gid)
