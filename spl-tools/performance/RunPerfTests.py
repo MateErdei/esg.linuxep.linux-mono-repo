@@ -721,17 +721,25 @@ def run_safestore_database_content_test():
     twenty_four_hours = 24 * 60 * 60
 
     safestore_db_content = get_safestore_db_content_as_dict()
-    for threat in safestore_db_content:
-        if threat["Location"] == SAFESTORE_MALWARE_PATH:
-            store_time = threat["Store time"]
-            unix_time = store_time[store_time.find("(") + 1:store_time.find(")")]
+    with open(os.path.join(SCRIPT_DIR, "expected_malware.json"), "r") as f:
+        expected_malware = json.loads(f.read())
 
-            if int(unix_time) < int(start_time - twenty_four_hours) or threat["Status"] != "quarantined":
-                logging.warning(f"Threat was not quarantined by last scheduled scan: {threat}")
+    for expected_threat in expected_malware:
+        for idx, threat_info in enumerate(safestore_db_content):
+            if threat_info["Name"] == expected_threat["fileName"]:
+                stored_time = threat_info["Store time"]
+                unix_stored_time = stored_time[stored_time.find("(") + 1:stored_time.find(")")]
+                if int(unix_stored_time) < int(start_time - twenty_four_hours) or threat_info["Status"] != "quarantined":
+                    logging.warning(f"Threat was not quarantined by last scheduled scan: {threat_info}")
+                    unquarantined_files += 1
+                    break
+                else:
+                    quarantined_files += 1
+                    break
+            elif idx == len(safestore_db_content) - 1:
+                logging.warning(f"{expected_threat['fileName']} was not quarantined by last scheduled scan")
+                logging.warning(f"SafeStore Database Content: {safestore_db_content}")
                 unquarantined_files += 1
-                continue
-
-            quarantined_files += 1
 
     if unquarantined_files == len(safestore_db_content):
         return_code = 1
