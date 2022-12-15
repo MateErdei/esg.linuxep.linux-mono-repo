@@ -71,6 +71,7 @@ namespace
             dumpPerfData = settings.dumpPerfData;
         }
 
+        OnAccessConfiguration m_testConfig{};
         std::string m_oaPolicyConfigPath;
         std::string m_oaLocalSettingsPath;
         std::unique_ptr<StrictMock<MockFileSystem>> m_mockIFileSystemPtr;
@@ -114,13 +115,15 @@ TEST_F(TestOnAccessConfigurationUtils, parseOnAccessPolicySettingsFromJson)
     expectedResult.excludeRemoteFiles = false;
     expectedResult.exclusions = m_defaultTestExclusions;
 
-    EXPECT_EQ(parseOnAccessPolicySettingsFromJson(jsonString), expectedResult);
+    ASSERT_EQ(parseOnAccessPolicySettingsFromJson(jsonString, m_testConfig), true);
+    EXPECT_EQ(m_testConfig, expectedResult);
 
     expectedResult.enabled = false;
     expectedResult.excludeRemoteFiles = true;
     expectedResult.exclusions = m_defaultTestExclusions;
 
-    EXPECT_EQ(parseOnAccessPolicySettingsFromJson(jsonString), expectedResult);
+    ASSERT_EQ(parseOnAccessPolicySettingsFromJson(jsonString, m_testConfig), true);
+    EXPECT_NE(m_testConfig, expectedResult);
 }
 
 TEST_F(TestOnAccessConfigurationUtils, parseOnAccessPolicySettingsFromJson_missingFields)
@@ -131,7 +134,8 @@ TEST_F(TestOnAccessConfigurationUtils, parseOnAccessPolicySettingsFromJson_missi
     expectedResult.enabled = false;
     expectedResult.excludeRemoteFiles = true;
 
-    EXPECT_EQ(parseOnAccessPolicySettingsFromJson(jsonString), expectedResult);
+    ASSERT_EQ(parseOnAccessPolicySettingsFromJson(jsonString, m_testConfig), true);
+    EXPECT_EQ(m_testConfig, expectedResult);
 }
 
 TEST_F(TestOnAccessConfigurationUtils, parseOnAccessSettingsFromJsonInvalidJson)
@@ -144,7 +148,8 @@ TEST_F(TestOnAccessConfigurationUtils, parseOnAccessSettingsFromJsonInvalidJson)
     expectedResult.exclusions.emplace_back("I");
     expectedResult.exclusions.emplace_back("am");
 
-    EXPECT_EQ(parseOnAccessPolicySettingsFromJson(jsonString), expectedResult);
+    ASSERT_EQ(parseOnAccessPolicySettingsFromJson(jsonString, m_testConfig), true);
+    EXPECT_EQ(m_testConfig, expectedResult);
 }
 
 TEST_F(TestOnAccessConfigurationUtils, enablesOnAccessWithNumberInField)
@@ -157,7 +162,8 @@ TEST_F(TestOnAccessConfigurationUtils, enablesOnAccessWithNumberInField)
     expectedResult.exclusions.emplace_back("exc");
     expectedResult.exclusions.emplace_back("lude");
 
-    EXPECT_EQ(parseOnAccessPolicySettingsFromJson(jsonString), expectedResult);
+    ASSERT_EQ(parseOnAccessPolicySettingsFromJson(jsonString, m_testConfig), true);
+    EXPECT_EQ(m_testConfig, expectedResult);
 }
 
 TEST_F(TestOnAccessConfigurationUtils, excludesRemoteFilesWithNumberInField)
@@ -170,7 +176,8 @@ TEST_F(TestOnAccessConfigurationUtils, excludesRemoteFilesWithNumberInField)
     expectedResult.exclusions.emplace_back("exc");
     expectedResult.exclusions.emplace_back("lude");
 
-    EXPECT_EQ(parseOnAccessPolicySettingsFromJson(jsonString), expectedResult);
+    ASSERT_EQ(parseOnAccessPolicySettingsFromJson(jsonString, m_testConfig), true);
+    EXPECT_EQ(m_testConfig, expectedResult);
 }
 
 /*TEST_F(TestOnAccessConfigurationUtils, parseOnAccessSettingsFromJsonKeysWithInvalidValueTypes)
@@ -196,7 +203,8 @@ TEST_F(TestOnAccessConfigurationUtils, parseOnAccessSettingsFromJsonInvalidJsonS
 
     OnAccessConfiguration expectedResult {};
 
-    EXPECT_EQ(parseOnAccessPolicySettingsFromJson(jsonString), expectedResult);
+    ASSERT_EQ(parseOnAccessPolicySettingsFromJson(jsonString, m_testConfig), false);
+    EXPECT_EQ(m_testConfig, expectedResult);
     EXPECT_TRUE(appenderContains("Failed to parse json configuration, keeping existing settings"));
 }
 
