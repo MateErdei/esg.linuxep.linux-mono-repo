@@ -140,6 +140,7 @@ TEST(Exclusion, TestGlobTypes)
     EXPECT_EQ(singleMiddleGlobExcl.displayPath(), "/tmp*/foo/");
     EXPECT_TRUE(singleMiddleGlobExcl.appliesToPath("/tmp/foo/bar"));
     EXPECT_TRUE(singleMiddleGlobExcl.appliesToPath("/tmp/bar/foo/"));
+    EXPECT_TRUE(singleMiddleGlobExcl.appliesToPath("/tmp/foo/bar/rrr/"));
     EXPECT_FALSE(singleMiddleGlobExcl.appliesToPath("/home/dev/tmp/bar/foo/"));
 
     Exclusion singleBeginGlobExcl("*tmp/foo/");
@@ -147,6 +148,7 @@ TEST(Exclusion, TestGlobTypes)
     EXPECT_EQ(singleBeginGlobExcl.path(), "*tmp/foo/*");
     EXPECT_EQ(singleBeginGlobExcl.displayPath(), "*tmp/foo/");
     EXPECT_TRUE(singleBeginGlobExcl.appliesToPath("/tmp/foo/bar"));
+    EXPECT_TRUE(singleBeginGlobExcl.appliesToPath("/tmp/foo/bar/rrrr/"));
     EXPECT_FALSE(singleBeginGlobExcl.appliesToPath("/tmp/bar/foo/"));
     EXPECT_FALSE(singleBeginGlobExcl.appliesToPath("/home/dev/tmp/bar/foo/"));
 
