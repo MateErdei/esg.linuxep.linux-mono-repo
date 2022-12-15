@@ -111,6 +111,14 @@ TEST(Exclusion, TestGlobTypes)
     EXPECT_FALSE(dirAndFileExcl.appliesToPath("/tmp/foobar/foo.txt"));
     EXPECT_FALSE(dirAndFileExcl.appliesToPath("/tmp/foo/bar"));
 
+    Exclusion relativeGlob("tmp/foo*");
+    EXPECT_EQ(relativeGlob.type(), RELATIVE_GLOB);
+    EXPECT_EQ(relativeGlob.path(), "*/tmp/foo*");
+    EXPECT_EQ(relativeGlob.displayPath(), "tmp/foo*");
+    EXPECT_TRUE(relativeGlob.appliesToPath("/tmp/foo/bar"));
+    EXPECT_FALSE(relativeGlob.appliesToPath("/tmp/bar/foo/"));
+    EXPECT_FALSE(relativeGlob.appliesToPath("/home/dev/tmp/bar/foo/"));
+
     Exclusion globExclQuestionMarkEnd("/var/log/syslog.?");
     EXPECT_EQ(globExclQuestionMarkEnd.type(), GLOB);
     EXPECT_EQ(globExclQuestionMarkEnd.path(), "/var/log/syslog.?");
@@ -125,6 +133,22 @@ TEST(Exclusion, TestGlobTypes)
     EXPECT_TRUE(globExclQuestionMarkMiddle.appliesToPath("/tmp/shut/happens"));
     EXPECT_TRUE(globExclQuestionMarkMiddle.appliesToPath("/tmp/shot/happens"));
     EXPECT_FALSE(globExclQuestionMarkMiddle.appliesToPath("/tmp/spit/happens"));
+
+    Exclusion singleMiddleGlobExcl("/tmp*/foo/");
+    EXPECT_EQ(singleMiddleGlobExcl.type(), GLOB);
+    EXPECT_EQ(singleMiddleGlobExcl.path(), "/tmp*/foo/*");
+    EXPECT_EQ(singleMiddleGlobExcl.displayPath(), "/tmp*/foo/");
+    EXPECT_TRUE(singleMiddleGlobExcl.appliesToPath("/tmp/foo/bar"));
+    EXPECT_TRUE(singleMiddleGlobExcl.appliesToPath("/tmp/bar/foo/"));
+    EXPECT_FALSE(singleMiddleGlobExcl.appliesToPath("/home/dev/tmp/bar/foo/"));
+
+    Exclusion singleBeginGlobExcl("*tmp/foo/");
+    EXPECT_EQ(singleBeginGlobExcl.type(), GLOB);
+    EXPECT_EQ(singleBeginGlobExcl.path(), "*tmp/foo/*");
+    EXPECT_EQ(singleBeginGlobExcl.displayPath(), "*tmp/foo/");
+    EXPECT_TRUE(singleBeginGlobExcl.appliesToPath("/tmp/foo/bar"));
+    EXPECT_FALSE(singleBeginGlobExcl.appliesToPath("/tmp/bar/foo/"));
+    EXPECT_FALSE(singleBeginGlobExcl.appliesToPath("/home/dev/tmp/bar/foo/"));
 
     Exclusion doubleGlobExcl("/tmp*/foo/*");
     EXPECT_EQ(doubleGlobExcl.type(), GLOB);
