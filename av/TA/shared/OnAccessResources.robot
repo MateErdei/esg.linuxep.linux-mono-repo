@@ -199,7 +199,8 @@ Create Large Eicar
 
     wait_for_on_access_log_contains_after_mark  "${dirtyfile}" is infected with EICAR-AV-Test  mark=${oamark}  timeout=180
 
-    dump log    ${ON_ACCESS_LOG_PATH}
+    #Restart on-access to clear the scanHandler in case the close-write event is still being scanned
+    Restart On Access
 
 On-access No Eicar Scan
     ${filepath} =  Set Variable  /tmp_test/uncaught_eicar.com
