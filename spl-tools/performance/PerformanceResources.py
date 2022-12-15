@@ -93,7 +93,10 @@ def run_safestore_tool_with_args(*args):
 
     # TODO: Uncomment when database is moved back to var
     safestore_db_path = os.path.join(SOPHOS_INSTALL, "plugins", "av", "safestore", "safestore_db", "safestore.db")
-    password = "33663236353632362D663062342D346130332D396533392D326431646236626566616439"
+    safestore_db_password_path = os.path.join(SOPHOS_INSTALL, "plugins", "av", "safestore", "safestore_db", "safestore.pw")
+    with open(safestore_db_password_path, "r") as f:
+        hex_string = f.read()
+    password = hex_string.encode('utf-8').hex()
 
     cmd = [os.environ["SAFESTORE_TOOL"], f"-dbpath={safestore_db_path}", f"-pass={password}", *args]
 
