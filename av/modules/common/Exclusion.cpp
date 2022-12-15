@@ -40,7 +40,7 @@ Exclusion::Exclusion(const std::string& path):
             exclusionPath = exclusionPath + "*";
         }
 
-        if (exclusionPath.at(0) == '/')
+        if (exclusionPath.at(0) == '/' || exclusionPath.at(0) == '*')
         {
             m_type = GLOB;
             m_exclusionPath = exclusionPath;
@@ -84,6 +84,7 @@ Exclusion::Exclusion(const std::string& path):
     }
 }
 
+//todo option 1 change to filesystempath
 auto Exclusion::appliesToPath(const std::string& path, bool isDirectory, bool isFile) const -> bool
 {
     switch(m_type)
