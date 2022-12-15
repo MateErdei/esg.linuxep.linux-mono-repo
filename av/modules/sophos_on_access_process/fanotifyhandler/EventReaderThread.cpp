@@ -83,9 +83,10 @@ bool EventReaderThread::skipScanningOfEvent(
     }
 
     std::lock_guard<std::mutex> lock(m_exclusionsLock);
+    auto fsFilePath = fs::path(filePath);
     for (const auto& exclusion: m_exclusions)
     {
-        if (exclusion.appliesToPath(filePath))
+        if (exclusion.appliesToPath(fsFilePath))
         {
             LOGTRACE("File access on " << filePath << " will not be scanned due to exclusion: "  << exclusion.displayPath());
             // Can't cache user-created exclusions, since

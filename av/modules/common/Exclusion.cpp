@@ -84,7 +84,6 @@ Exclusion::Exclusion(const std::string& path):
     }
 }
 
-//todo option 1 change to filesystempath
 auto Exclusion::appliesToPath(const fs::path& path, bool isDirectory, bool isFile) const -> bool
 {
     switch(m_type)
