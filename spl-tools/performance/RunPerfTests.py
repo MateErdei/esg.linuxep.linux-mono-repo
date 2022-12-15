@@ -781,6 +781,9 @@ def run_safestore_restoration_test():
         os.chmod(modified_policy_path, policy_permissions.st_mode)
         os.chown(modified_policy_path, policy_permissions.st_uid, policy_permissions.st_gid)
         shutil.move(modified_policy_path, corc_policy_path)
+
+        while not os.path.exists(corc_policy_path):
+            time.sleep(1)
         logging.info("New CORC policy:")
         logging.info(xml.etree.ElementTree.dump(xml.etree.ElementTree.parse(corc_policy_path).getroot()))
 
@@ -792,7 +795,7 @@ def run_safestore_restoration_test():
                                                                   "Reporting successful restoration",
                                                                   len(expected_malware),
                                                                   ss_mark,
-                                                                  360)
+                                                                  600)
 
         safestore_db_content = get_safestore_db_content_as_dict()
         for threat in safestore_db_content:
@@ -814,6 +817,8 @@ def run_safestore_restoration_test():
 
     finally:
         if os.path.exists(tmp_corc_policy_path):
+            os.chmod(tmp_corc_policy_path, policy_permissions.st_mode)
+            os.chown(tmp_corc_policy_path, policy_permissions.st_uid, policy_permissions.st_gid)
             shutil.move(tmp_corc_policy_path, corc_policy_path)
         start_sspl_process("mcsrouter")
 

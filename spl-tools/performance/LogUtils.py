@@ -949,7 +949,7 @@ File Log Contains
 
             time.sleep(0.5)
 
-        logger.error(f"Failed to find {expected} {occurrences} times in {logpath} after {mark}")
+        logger.error(f"{expected} occurred {num_occurrences} time in {logpath} after {mark}, not the {occurrences} expected times")
         handler.dump_marked_log(mark)
         raise AssertionError(f"Failed to find {expected} in {logpath}")
 
