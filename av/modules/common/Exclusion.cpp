@@ -85,7 +85,7 @@ Exclusion::Exclusion(const std::string& path):
 }
 
 //todo option 1 change to filesystempath
-auto Exclusion::appliesToPath(const std::string& path, bool isDirectory, bool isFile) const -> bool
+auto Exclusion::appliesToPath(const fs::path& path, bool isDirectory, bool isFile) const -> bool
 {
     switch(m_type)
     {
@@ -95,7 +95,7 @@ auto Exclusion::appliesToPath(const std::string& path, bool isDirectory, bool is
             {
                 return true;
             }
-            if (isDirectory && path.size()+1 == m_exclusionPath.size() && common::PathUtils::startswith(m_exclusionPath, path))
+            if (isDirectory && path.string().size()+1 == m_exclusionPath.string().size() && common::PathUtils::startswith(m_exclusionPath, path))
             {
                 return true;
             }
@@ -138,7 +138,7 @@ auto Exclusion::appliesToPath(const std::string& path, bool isDirectory, bool is
         case GLOB:
         case RELATIVE_GLOB:
         {
-            if (std::regex_match(path, m_pathRegex))
+            if (std::regex_match(path.string(), m_pathRegex))
             {
                 return true;
             }
@@ -152,7 +152,7 @@ auto Exclusion::appliesToPath(const std::string& path, bool isDirectory, bool is
 }
 
 // isDirectory defaults to false
-bool Exclusion::appliesToPath(const std::string& path, bool isDirectory) const
+bool Exclusion::appliesToPath(const fs::path& path, bool isDirectory) const
 {
     if (isDirectory)
     {

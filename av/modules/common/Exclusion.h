@@ -6,8 +6,12 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #pragma once
 
+#include "datatypes/sophos_filesystem.h"
+
 #include <string>
 #include <regex>
+
+namespace fs = sophos_filesystem;
 
 enum ExclusionType
 {
@@ -28,8 +32,8 @@ namespace common
     public:
         explicit Exclusion(const std::string& path);
 
-        [[nodiscard]] bool appliesToPath(const std::string& path, bool isDirectory, bool isFile) const;
-        [[nodiscard]] bool appliesToPath(const std::string& path, bool ignoreFilenameExclusion=false) const;
+        [[nodiscard]] bool appliesToPath(const fs::path&, bool isDirectory, bool isFile) const;
+        [[nodiscard]] bool appliesToPath(const fs::path&, bool ignoreFilenameExclusion=false) const;
         [[nodiscard]] std::string path() const;
         [[nodiscard]] std::string displayPath() const;
         [[nodiscard]] ExclusionType type() const;
@@ -40,7 +44,8 @@ namespace common
         static std::regex convertGlobToRegex(const std::string& glob);
         static void escapeRegexMetaCharacters(std::string& text);
 
-        std::string m_exclusionPath;
+        //todo option 1 just making filesystem path
+        fs::path m_exclusionPath;
         std::string m_exclusionDisplayPath;
         std::regex m_pathRegex;
         ExclusionType m_type;
