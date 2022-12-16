@@ -94,6 +94,8 @@ auto Exclusion::appliesToPath(const fs::path& path, bool isDirectory, bool isFil
             {
                 return true;
             }
+            //We also want stem exclusions to apply to directories
+            //If we are passed a directory path we exclude it if it resolves to the same place as the exclusion.
             if (isDirectory && path.lexically_relative(m_exclusionPath) == "." && common::PathUtils::startswith(m_exclusionPath, path))
             {
                 return true;
