@@ -57,8 +57,9 @@ void SafeStoreWorker::run()
             }
             else if (parentMount.isReadOnly())
             {
+                const std::string escapedPath = common::escapePathForLogging(threatDetected.filePath);
                 LOGINFO(
-                    "File at location: " << threatDetected.filePath << " is located on a ReadOnly mount: " << parentMount.mountPoint() << ". Will not quarantine.");
+                    "File at location: " << escapedPath << " is located on a ReadOnly mount: " << parentMount.mountPoint() << ". Will not quarantine.");
                 tryQuarantine = false;
             }
         }

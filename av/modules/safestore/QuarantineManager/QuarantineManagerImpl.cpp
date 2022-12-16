@@ -603,7 +603,7 @@ namespace safestore::QuarantineManager
         // Delete file
         if (!m_safeStore->deleteObjectById(objectId))
         {
-            LOGWARN("File was restored to disk, but unable to remove from SafeStore database: " << escapedPath);
+            LOGWARN("File was restored to disk, but unable to remove it from SafeStore database: " << escapedPath);
             return restoreReport;
         }
         restoreReport.wasSuccessful = true;

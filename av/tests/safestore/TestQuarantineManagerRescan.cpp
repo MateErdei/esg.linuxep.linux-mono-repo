@@ -499,7 +499,7 @@ TEST_F(QuarantineManagerRescanTests, restoreFileReturnsEarlyIfDeleteFails)
     EXPECT_THAT(logMessage, ::testing::HasSubstr("INFO Restored file to disk: /path/to/location/testName"));
     EXPECT_THAT(
         logMessage,
-        ::testing::HasSubstr("WARN File was restored to disk, but unable to remove from SafeStore database: /path/to/location/testName"));
+        ::testing::HasSubstr("WARN File was restored to disk, but unable to remove it from SafeStore database: /path/to/location/testName"));
 }
 
 TEST_F(QuarantineManagerRescanTests, restoreFileReturnsReportOnSuccess)
