@@ -77,6 +77,8 @@ if [[ $BREAK_UPDATING ]]
 then
   mv /opt/sophos-spl/base/bin/SulDownloader.0 /opt/sophos-spl/base/bin/SulDownloader.bk
   mv /opt/sophos-spl/base/bin/UpdateScheduler.0 /opt/sophos-spl/base/bin/UpdateScheduler.bk
+  # Need to enable feature with warehouse-flags
+  cp ${TEST_SUITE}/resources/flags_policy/flags-warehouse.json ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json
 fi
 
 # If not registering with Central, copy policies over
@@ -117,6 +119,9 @@ bash $INSTALL_AV_BASH_OPTS "${SDDS_AV}/install.sh" || failure 6 "Unable to insta
 
 if [[ -n $MCS_URL ]]
 then
+    # Create override file to force ML on
+    touch ${SOPHOS_INSTALL}/plugins/av/chroot/etc/sophos_susi_force_machine_learning
+    # Register to Central
     exec ${SOPHOS_INSTALL}/base/bin/registerCentral "${MCS_TOKEN}" "${MCS_URL}"
 else
     echo "Not registering with Central as no token/url specified"
