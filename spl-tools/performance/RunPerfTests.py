@@ -788,8 +788,6 @@ def run_safestore_restoration_test():
         os.chmod(modified_policy_path, policy_permissions.st_mode)
         os.chown(modified_policy_path, policy_permissions.st_uid, policy_permissions.st_gid)
         shutil.move(modified_policy_path, corc_policy_path)
-        logging.info("New CORC policy:")
-        logging.info(xml.etree.ElementTree.dump(xml.etree.ElementTree.parse(corc_policy_path).getroot()))
 
         try:
             log_utils.wait_for_log_contains_after_mark(log_utils.sophos_threat_detector_log,
