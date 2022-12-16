@@ -58,7 +58,7 @@ void SafeStoreWorker::run()
             else if (parentMount.isReadOnly())
             {
                 LOGINFO(
-                    "File is located on a ReadOnly mount: " << parentMount.mountPoint() << ". Will not quarantine.");
+                    "File at location: " << threatDetected.filePath << " is located on a ReadOnly mount: " << parentMount.mountPoint() << ". Will not quarantine.");
                 tryQuarantine = false;
             }
         }
