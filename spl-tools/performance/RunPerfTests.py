@@ -756,17 +756,15 @@ def run_safestore_database_content_test():
 def run_safestore_restoration_test():
     start_time = get_current_unix_epoch_in_seconds()
 
-    return_code = 0
-    restored_files = 0
-    unrestored_files = 0
     log_utils = LogUtils.LogUtils()
+    td_mark = log_utils.get_sophos_threat_detector_log_mark()
+    ss_mark = log_utils.get_safestore_log_mark()
+
+    return_code, restored_files, unrestored_files = 0, 0, 0
     corc_policy_path = "/opt/sophos-spl/base/mcs/policy/CORC_policy.xml"
     tmp_corc_policy_path = "/tmp/CORC_policy.xml"
     modified_policy_path = "/tmp/whitelist_CORC_policy.xml"
     policy_permissions = os.stat("/opt/sophos-spl/base/mcs/policy/CORE_policy.xml")
-
-    get_safestore_tool()
-    td_mark = log_utils.get_sophos_threat_detector_log_mark()
 
     try:
         stop_sspl_process("mcsrouter")
@@ -797,20 +795,21 @@ def run_safestore_restoration_test():
         except Exception as e:
             logging.warning(e)
 
-        while True:
-            safestore_db_content = get_safestore_db_content_as_dict()
-            test_threats = [item for item in safestore_db_content if item["Location"] == SAFESTORE_MALWARE_PATH]
-
-            if not test_threats or all(threat["Status"] == "restored_as" for threat in test_threats):
-                break
-
-        time.sleep(300)
-
         for threat in expected_malware:
-            if os.path.exists(threat["filePath"]):
+            file_path = threat["filePath"]
+
+            try:
+                log_utils.wait_for_log_contains_after_mark(log_utils.safestore_log,
+                                                           f"Reporting successful restoration of {file_path}",
+                                                           ss_mark,
+                                                           60)
+            except Exception as e:
+                logging.warning(e)
+
+            if os.path.exists(file_path):
                 restored_files += 1
             else:
-                logging.warning(f"{threat['filePath']} was not restored by SafeStore")
+                logging.warning(f"{file_path} was not restored by SafeStore")
                 logging.info(os.listdir(SAFESTORE_MALWARE_PATH))
                 unrestored_files += 1
 
