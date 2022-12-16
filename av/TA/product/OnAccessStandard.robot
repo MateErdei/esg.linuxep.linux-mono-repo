@@ -402,8 +402,13 @@ On Access Excludes binfmt_misc
     ${mark} =  get_on_access_log_mark
     Restart On Access
     wait for on access log contains after mark  binfmt_misc is system and will be excluded from scanning    ${mark}
+
     #binfmt_misc is expected to be mounted to /proc/sys/binfmt_misc
     Check On Access Log Does Not Contain Before Timeout  Including mount point: /proc/sys/fs/binfmt_misc    ${mark}
+
+    wait for on access log contains after mark  soapd_bootstrap <> On-access scanning enabled   ${mark}
+    ${status} =    Get File  /proc/sys/fs/binfmt_misc/status
+    Check On Access Log Does Not Contain Before Timeout    On-open event for /proc/sys/fs/binfmt_misc/status  ${mark}
 
 On Access Includes Included Mount On Top Of Excluded Mount
     ${excludedMount} =  Set Variable  /proc/tty
