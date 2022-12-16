@@ -488,6 +488,8 @@ class MCS:
             # If we already have a JWT token
             if self.__m_comms.m_jwt_token and self.__m_comms.m_device_id and self.__m_comms.m_tenant_id:
                 # If the device Id from policy no longer matches the one in the JWT token
+                LOGGER.info(f'TEST policy device ID: {self.__m_config.get_default("policy_device_id", "")}')
+                LOGGER.info(f'TEST device ID: {self.__m_comms.m_device_id}')
                 if self.__m_config.get_default("policy_device_id", "") == self.__m_comms.m_device_id:
                     # The current JWT token has more than 10 minutes before expiration
                     if time.time() < self.__m_comms.m_jwt_expiration_timestamp - 600:

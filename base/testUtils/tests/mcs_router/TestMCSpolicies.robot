@@ -195,7 +195,7 @@ MCS policy without Pushserver Updates MCS Policy Config Correctly
     Check MCS Policy Config Does Not Contain   customerId=thisisacustomer
     Check MCS Policy Config Contains   customerId=
 
-New JWT Is Requested When Device ID In MCS Policiy Changes
+New JWT Is Requested When Device ID In MCS Policy Changes
     Install Register And Wait First MCS Policy
 
     Wait Until Keyword Succeeds

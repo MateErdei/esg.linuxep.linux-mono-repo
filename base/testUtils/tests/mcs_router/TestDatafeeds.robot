@@ -94,21 +94,22 @@ Retrieve JWT Tokens from Central only once per connection
     Register With Local Cloud Server
     Check Correct MCS Password And ID For Local Cloud Saved
     Start MCSRouter
+    Mark Mcsrouter Log
     Wait Until Keyword Succeeds
     ...  30s
     ...  1s
-    ...  Check Log Contains String N Times   ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log   MCS Router Log   Setting Tenant ID: example-tenant-id   1
-    Check Log Contains String N Times   ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log   MCS Router Log   Setting Device ID: example-device-id  1
-    Check Log Contains String N Times   ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log   MCS Router Log   Setting JWT Token: JWT_TOKEN-ThisIsAnMCSID+1001  1
+    ...  Check Marked Mcsrouter Log Contains String N Times   Setting Tenant ID: example-tenant-id   1
+    Check Marked Mcsrouter Log Contains String N Times   Setting Device ID: example-device-id  1
+    Check Marked Mcsrouter Log Contains String N Times   Setting JWT Token: JWT_TOKEN-ThisIsAnMCSID+1001  1
     JWT Token Is Updated In MCS Config
 
     Wait Until Keyword Succeeds
     ...  30s
     ...  2s
-    ...  Check Log Contains String N Times   ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log   MCS Router Log   Re-entered main loop   3
+    ...  Check Marked Mcsrouter Log Contains String N Times   Re-entered main loop   3
 
     # Checking the JWT token hasn't been re-requested after several loops
-    Check Log Contains String N Times   ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log   MCS Router Log   Setting Tenant ID: example-tenant-id   1
+    Check Marked Mcsrouter Log Contains String N Times   MCS Router Log   Setting Tenant ID: example-tenant-id   1
 
 JWT Tokens expire and a new token is requested
     Override LogConf File as Global Level  DEBUG
