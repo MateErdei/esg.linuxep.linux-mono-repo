@@ -330,13 +330,15 @@ namespace Plugin
             }
             else if (policyType == PolicyType::CORC)
             {
-                LOGDEBUG("Processing CORC policy");
+                LOGINFO("Processing CORC policy");
+                LOGDEBUG("Processing CORC policy: " << policyXml);
                 m_policyProcessor.processCorcPolicy(attributeMap);
                 policyWaiter->gotPolicy("CORC");
             }
             else if (policyType == PolicyType::CORE)
             {
-                LOGDEBUG("Processing CORE policy");
+                LOGINFO("Processing CORE policy");
+                LOGDEBUG("Processing CORE policy: " << policyXml);
                 m_policyProcessor.processCOREpolicy(attributeMap);
                 m_callback->setMlScanningEnabledStatus(m_policyProcessor.isMLScanningEnabled());
                 policyWaiter->gotPolicy("CORE");

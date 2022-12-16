@@ -542,18 +542,18 @@ namespace Plugin
 
         bool changed = !m_susiSettingsWritten; // Always write the first time
 
-        const auto machineLearningEnabled = boolFromString(policy.lookup("policy/coreFeatures/machineLearningEnabled").contents());
+        m_mlScanningEnabled = boolFromString(policy.lookup("policy/coreFeatures/machineLearningEnabled").contents());
         const auto existingSetting = m_threatDetectorSettings.isMachineLearningEnabled();
-        if (machineLearningEnabled != existingSetting)
+
+        if (m_mlScanningEnabled != existingSetting)
         {
-            m_threatDetectorSettings.setMachineLearningEnabled(machineLearningEnabled);
-            LOGINFO("Machine Learning detections "<< (machineLearningEnabled?"enabled":"disabled") << " in CORE policy");
+            m_threatDetectorSettings.setMachineLearningEnabled(m_mlScanningEnabled);
+            LOGINFO("Machine Learning detections "<< (m_mlScanningEnabled?"enabled":"disabled") << " in CORE policy");
             changed = true;
         }
 
         if (changed)
         {
-            m_mlScanningEnabled = machineLearningEnabled;
             saveSusiSettings("CORE");
         }
         assert(m_susiSettingsWritten);

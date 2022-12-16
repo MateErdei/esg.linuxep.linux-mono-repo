@@ -233,3 +233,20 @@ On Access Provides Scan Telemetry
     ${ratio} =    get_from_dictionary   ${oaDict}   ratio-of-scan-errors
     Should Be True   isinstance($ratio, float)
     Should Be True   0.0 <= ${ratio} <= 100.0
+
+
+On Access ML Scanning Is Reported To Telemetry
+    ${mark} =  Get on access log mark
+
+    #This registers disable with cleanup and enabled ML scanning
+    Send Policies to enable on-access
+    wait for on access log contains after mark  On-access scanning enabled  mark=${mark}
+
+    Run Telemetry Executable With HTTPS Protocol  port=${4435}
+
+    ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
+    Log   ${telemetryFileContents}
+
+    ${telemetryJson} =    Evaluate     json.loads("""${telemetryFileContents}""")    json
+    ${avDict}=    Set Variable     ${telemetryJson['av']}
+    Dictionary Should Contain Item   ${avDict}   ml-scanning-enabled   True
