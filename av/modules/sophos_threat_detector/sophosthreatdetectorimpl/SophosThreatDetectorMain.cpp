@@ -45,6 +45,20 @@ namespace sspl::sophosthreatdetectorimpl
 
     namespace
     {
+        class ScannerFactoryResetter
+        {
+        public:
+            ScannerFactoryResetter(threat_scanner::IThreatScannerFactorySharedPtr scannerFactory)
+                : m_scannerFactory(std::move(scannerFactory))
+            {}
+            ~ScannerFactoryResetter()
+            {
+                m_scannerFactory->shutdown();
+            }
+        private:
+            threat_scanner::IThreatScannerFactorySharedPtr m_scannerFactory;
+        };
+
         void copy_etc_file_if_present(const fs::path& etcDest, const fs::path& etcSrcFile)
         {
             fs::path targetFile = etcDest;
@@ -133,7 +147,6 @@ namespace sspl::sophosthreatdetectorimpl
         void copyRequiredFiles(const fs::path& sophosInstall, const fs::path& chrootPath)
         {
             const std::vector<fs::path> fileVector {
-                "base/etc/logger.conf",
                 "base/etc/machine_id.txt",
                 "plugins/av/VERSION.ini"
             };
@@ -305,7 +318,7 @@ namespace sspl::sophosthreatdetectorimpl
         auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
         fs::path pluginInstall = appConfig.getData("PLUGIN_INSTALL");
         create_shutdown_notice_file(pluginInstall);
-        std::exit(0);
+        m_systemFileRestartTrigger.notify();
     }
 
     void SophosThreatDetectorMain::reloadSUSIGlobalConfiguration()
@@ -329,8 +342,11 @@ namespace sspl::sophosthreatdetectorimpl
         if (susiSettingsChanged)
         {
             LOGINFO("Triggering rescan of SafeStore database");
+
             // Tell on-access to clear cached file events because they may now be invalid due to allow-list changes
-            m_scannerFactory->update();
+            m_updateCompleteNotifier->updateComplete();
+
+            // Then trigger the rescan
             m_safeStoreRescanWorker->triggerRescan();
         }
         else
@@ -339,7 +355,7 @@ namespace sspl::sophosthreatdetectorimpl
         }
     }
 
-    int SophosThreatDetectorMain::inner_main(IThreatDetectorResourcesSharedPtr resources)
+    int SophosThreatDetectorMain::inner_main(const IThreatDetectorResourcesSharedPtr& resources)
     {
         m_sysCallWrapper = resources->createSystemCallWrapper();
 
@@ -445,16 +461,17 @@ namespace sspl::sophosthreatdetectorimpl
 
         auto shutdownTimer = resources->createShutdownTimer(threat_detector_config(pluginInstall));
 
-        auto updateCompleteNotifier = resources->createUpdateCompleteNotifier(updateCompletePath, 0700);
+        m_updateCompleteNotifier = resources->createUpdateCompleteNotifier(updateCompletePath, 0700);
 
-        common::ThreadRunner updateCompleteNotifierThread (updateCompleteNotifier, "updateCompleteNotifier", true);
+        common::ThreadRunner updateCompleteNotifierThread (m_updateCompleteNotifier, "updateCompleteNotifier", true);
 
-        m_scannerFactory = resources->createSusiScannerFactory(threatReporter, shutdownTimer, updateCompleteNotifier);
+        m_scannerFactory = resources->createSusiScannerFactory(threatReporter, shutdownTimer, m_updateCompleteNotifier);
+        ScannerFactoryResetter scannerFactoryShutdown(m_scannerFactory);
 
         if (sigTermMonitor->triggered())
         {
             LOGINFO("Sophos Threat Detector received SIGTERM - shutting down");
-            m_scannerFactory->shutdown();
+            // Scanner factory shutdown by scannerFactoryShutdown
             return common::E_CLEAN_SUCCESS;
         }
 
@@ -484,27 +501,26 @@ namespace sspl::sophosthreatdetectorimpl
 
         int returnCode = common::E_CLEAN_SUCCESS;
 
-        fd_set readFDs;
-        FD_ZERO(&readFDs);
-        int max = -1;
-
-        max = FDUtils::addFD(&readFDs, sigTermMonitor->monitorFd(), max);
-        max = FDUtils::addFD(&readFDs, usr1Monitor.monitorFd(), max);
+        constexpr int SIGTERM_MONITOR = 0;
+        constexpr int USR1_MONITOR = 1;
+        constexpr int SYSTEM_FILE_CHANGE = 2;
+        struct pollfd fds[] {
+            { .fd = sigTermMonitor->monitorFd(), .events = POLLIN, .revents = 0 },
+            { .fd = usr1Monitor.monitorFd(), .events = POLLIN, .revents = 0 },
+            { .fd = m_systemFileRestartTrigger.readFd(), .events = POLLIN, .revents = 0 },
+        };
 
         while (true)
         {
-            fd_set tempRead = readFDs;
-
             struct timespec timeout {};
             timeout.tv_sec = shutdownTimer->timeout();
             LOGDEBUG("Setting shutdown timeout to " << timeout.tv_sec << " seconds");
             // wait for an activity on one of the sockets
-            // TODO: Replace this with ppoll(). Please do not re-use pselect() elsewhere in the code
-            int activity = ::pselect(max + 1, &tempRead, nullptr, nullptr, &timeout, nullptr);
+            int activity = ::ppoll(fds, std::size(fds), &timeout, nullptr);
 
             if (activity < 0)
             {
-                // error in pselect
+                // error in ppoll
                 int error = errno;
                 if (error == EINTR)
                 {
@@ -512,7 +528,7 @@ namespace sspl::sophosthreatdetectorimpl
                     continue;
                 }
 
-                LOGERROR("Failed to read from socket - shutting down. Error: "
+                LOGERROR("Failed to poll signals. Error: "
                          << common::safer_strerror(error) << " (" << error << ')');
                 returnCode = common::E_GENERIC_FAILURE;
                 break;
@@ -527,6 +543,7 @@ namespace sspl::sophosthreatdetectorimpl
                     {
                         LOGDEBUG("No scans requested for " << timeout.tv_sec << " seconds - shutting down.");
                         create_shutdown_notice_file(pluginInstall);
+                        returnCode = common::E_QUICK_RESTART_SUCCESS;
                         break;
                     }
                     else
@@ -542,8 +559,13 @@ namespace sspl::sophosthreatdetectorimpl
                     continue;
                 }
             }
-
-            if (FDUtils::fd_isset(sigTermMonitor->monitorFd(), &tempRead))
+            if ((fds[SIGTERM_MONITOR].revents & POLLERR) != 0)
+            {
+                LOGFATAL("Error from sigterm pipe");
+                returnCode = common::E_GENERIC_FAILURE;
+                break;
+            }
+            if ((fds[SIGTERM_MONITOR].revents & POLLIN) != 0)
             {
                 LOGINFO("Sophos Threat Detector received SIGTERM - shutting down");
                 sigTermMonitor->triggered();
@@ -551,16 +573,34 @@ namespace sspl::sophosthreatdetectorimpl
                 break;
             }
 
-            if (FDUtils::fd_isset(usr1Monitor.monitorFd(), &tempRead))
+            if ((fds[USR1_MONITOR].revents & POLLERR) != 0)
+            {
+                LOGFATAL("Error from USR1 monitor");
+                returnCode = common::E_GENERIC_FAILURE;
+                break;
+            }
+            if ((fds[USR1_MONITOR].revents & POLLIN) != 0)
             {
                 LOGINFO("Sophos Threat Detector received SIGUSR1 - reloading");
                 usr1Monitor.triggered();
+                // Continue running
+            }
+
+            if ((fds[SYSTEM_FILE_CHANGE].revents & POLLERR) != 0)
+            {
+                LOGFATAL("Error from system file change pipe");
+                returnCode = common::E_GENERIC_FAILURE;
+                break;
+            }
+            if ((fds[SYSTEM_FILE_CHANGE].revents & POLLIN) != 0)
+            {
+                LOGINFO("Sophos Threat Detector is restarting to pick up changed system files");
+                returnCode = common::E_QUICK_RESTART_SUCCESS;
+                break;
             }
         }
 
-        m_scannerFactory->shutdown();
-
-
+        // Scanner factory shutdown by scannerFactoryShutdown
         LOGINFO("Sophos Threat Detector is exiting with return code " << returnCode);
         // Exit in 10 seconds if scanner threads not joined
         processForceExitTimer->setExitCode(returnCode);
