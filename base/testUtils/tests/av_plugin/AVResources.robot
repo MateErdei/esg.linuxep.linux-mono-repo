@@ -113,3 +113,8 @@ Check On Access Detects Threats
 
     ${mark} =  get_on_access_log_mark
     wait for on access log contains after mark  Detected "${threat_path}" is infected with EICAR-AV-Test  mark=${mark}
+
+Enable On Access Via Policy
+    ${mark} =  get_on_access_log_mark
+    send_policy_file  core  ${SUPPORT_FILES}/CentralXml/CORE-36_oa_enabled.xml
+    wait for on access log contains after mark  On-access scanning enabled  mark=${mark}
