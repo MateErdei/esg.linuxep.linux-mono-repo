@@ -1421,7 +1421,7 @@ protected:
         std::make_shared<MockISafeStoreReleaseMethods>();
 
     // Common test constants
-    const std::string m_dir = "/dir";
+    const std::string m_dir = "/dir/";
     const std::string m_file = "file";
     const std::string m_path = "/dir/file";
     const std::string m_threatID = "01234567-89ab-cdef-0123-456789abcdef";
