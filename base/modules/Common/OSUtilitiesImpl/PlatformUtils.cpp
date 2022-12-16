@@ -267,172 +267,122 @@ namespace Common::OSUtilitiesImpl
         {
             std::string initialUrl = "http://169.254.169.254/latest/api/token";
             Common::HttpRequests::Headers initialHeaders({{"X-aws-ec2-metadata-token-ttl-seconds", "21600"}});
-
             Common::HttpRequests::Response response;
             try
             {
                 response = client->put(buildCloudMetadataRequest(initialUrl, initialHeaders));
-            }
-            catch(const std::exception& ex)
-            {
-                return "";
-            }
-
-            if (!curlResponseIsOk200(response))
-            {
-                return "";
-            }
-
-            std::string secondUrl = "http://169.254.169.254/latest/dynamic/instance-identity/document";
-            Common::HttpRequests::Headers secondHeaders({{"X-aws-ec2-metadata-token", response.body}});
-
-            try
-            {
+                if (!curlResponseIsOk200(response))
+                {
+                    return "";
+                }
+                std::string secondUrl = "http://169.254.169.254/latest/dynamic/instance-identity/document";
+                Common::HttpRequests::Headers secondHeaders({{"X-aws-ec2-metadata-token", response.body}});
                 response = client->get(buildCloudMetadataRequest(secondUrl, secondHeaders));
+                if (!curlResponseIsOk200(response))
+                {
+                    return "";
+                }
+                return CloudMetadataConverters::parseAwsMetadataJson(response.body);
             }
             catch(const std::exception& ex)
             {
                 return "";
             }
-
-            if (!curlResponseIsOk200(response))
-            {
-                return "";
-            }
-
-            return CloudMetadataConverters::parseAwsMetadataJson(response.body);
         }
 
         std::string PlatformUtils::getGcpMetadata(std::shared_ptr<Common::HttpRequests::IHttpRequester> client) const
         {
             Common::HttpRequests::Headers headers({{"Metadata-Flavor", "Google"}});
             std::string idUrl = "http://metadata.google.internal/computeMetadata/v1/instance/id";
-
             Common::HttpRequests::Response response;
             try
             {
                 response = client->get(buildCloudMetadataRequest(idUrl, headers));
-            }
-            catch(const std::exception& ex)
-            {
-                return "";
-            }
+                if (!curlResponseIsOk200(response))
+                {
+                    return "";
+                }
+                if (!CloudMetadataConverters::verifyGoogleId(response.body))
+                {
+                    return "";
+                }
+                std::string id = response.body;
 
-            if (!curlResponseIsOk200(response))
-            {
-                return "";
-            }
-
-            if (!CloudMetadataConverters::verifyGoogleId(response.body))
-            {
-                return "";
-            }
-            std::string id = response.body;
-
-            std::string zoneUrl = "http://metadata.google.internal/computeMetadata/v1/instance/zone";
-
-            try
-            {
+                std::string zoneUrl = "http://metadata.google.internal/computeMetadata/v1/instance/zone";
                 response = client->get(buildCloudMetadataRequest(zoneUrl, headers));
-            }
-            catch(const std::exception& ex)
-            {
-                return "";
-            }
+                if (!curlResponseIsOk200(response))
+                {
+                    return "";
+                }
+                std::string zone = response.body;
 
-            if (!curlResponseIsOk200(response))
-            {
-                return "";
-            }
-            std::string zone = response.body;
-
-            std::string hostnameUrl = "http://metadata.google.internal/computeMetadata/v1/instance/hostname";
-
-            try
-            {
+                std::string hostnameUrl = "http://metadata.google.internal/computeMetadata/v1/instance/hostname";
                 response = client->get(buildCloudMetadataRequest(hostnameUrl, headers));
+                if (!curlResponseIsOk200(response))
+                {
+                    return "";
+                }
+                std::string hostname = response.body;
+
+                std::map<std::string, std::string> metadataValues {
+                    {"id", id},
+                    {"zone", zone},
+                    {"hostname", hostname}
+                };
+                return CloudMetadataConverters::parseGcpMetadata(metadataValues);
             }
             catch(const std::exception& ex)
             {
                 return "";
             }
-
-            if (!curlResponseIsOk200(response))
-            {
-                return "";
-            }
-            std::string hostname = response.body;
-
-            std::map<std::string, std::string> metadataValues {
-                {"id", id},
-                {"zone", zone},
-                {"hostname", hostname}
-            };
-
-            return CloudMetadataConverters::parseGcpMetadata(metadataValues);
         }
 
         std::string PlatformUtils::getOracleMetadata(std::shared_ptr<Common::HttpRequests::IHttpRequester> client) const
         {
             std::string url = "http://169.254.169.254/opc/v2/instance/";
             Common::HttpRequests::Headers headers({{"Authorization", "Bearer Oracle"}});
-
             Common::HttpRequests::Response response;
             try
             {
                 response = client->get(buildCloudMetadataRequest(url, headers));
+                if (!curlResponseIsOk200(response))
+                {
+                    return "";
+                }
+                return CloudMetadataConverters::parseOracleMetadataJson(response.body);
             }
             catch(const std::exception& ex)
             {
                 return "";
             }
-
-            if (!curlResponseIsOk200(response))
-            {
-                return "";
-            }
-
-            return CloudMetadataConverters::parseOracleMetadataJson(response.body);
         }
 
         std::string PlatformUtils::getAzureMetadata(std::shared_ptr<Common::HttpRequests::IHttpRequester> client) const
         {
             std::string initialUrl = "http://169.254.169.254/metadata/versions";
             Common::HttpRequests::Headers headers({ { "Metadata", "True" } });
-
             Common::HttpRequests::Response response;
             try
             {
                 response = client->get(buildCloudMetadataRequest(initialUrl, headers));
-            }
-            catch(const std::exception& ex)
-            {
-                return "";
-            }
-
-            if (!curlResponseIsOk200(response))
-            {
-                return "";
-            }
-
-            try
-            {
+                if (!curlResponseIsOk200(response))
+                {
+                    return "";
+                }
                 nlohmann::json firstResponseBody = nlohmann::json::parse(response.body);
                 std::string latestAzureApiVersion = firstResponseBody["apiVersions"][-1];
                 std::string secondUrl = "http://169.254.169.254/metadata/instance?api-version=" + latestAzureApiVersion;
                 response = client->get(buildCloudMetadataRequest(secondUrl, headers));
+                if (!curlResponseIsOk200(response))
+                {
+                    return "";
+                }
+                return CloudMetadataConverters::parseAzureMetadataJson(response.body);
             }
             catch(const std::exception& ex)
             {
                 return "";
             }
-
-            if (!curlResponseIsOk200(response))
-            {
-                return "";
-            }
-
-            return CloudMetadataConverters::parseAzureMetadataJson(response.body);
         }
 
         Common::HttpRequests::RequestConfig PlatformUtils::buildCloudMetadataRequest(const std::string& url, const Common::HttpRequests::Headers& headers) const

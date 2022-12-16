@@ -81,7 +81,7 @@ namespace Common::OSUtilitiesImpl
             return result.str();
         }
 
-        static bool verifyGoogleId(const std::string& id)
+        [[nodiscard]] static bool verifyGoogleId(const std::string& id)
         {
             // verify it's a sensible length, the IDs are not very long
             if (id.length() > 100)
@@ -91,7 +91,8 @@ namespace Common::OSUtilitiesImpl
 
             // Verify it contains characters we expect.
             // Currently, the ID should be just numbers but to be on the safe side in case the format
-            // changes we'll allow alphanumerics with hyphens, which will still filter out
+            // changes we'll allow alphanumerics with hyphens, which will still filter out most incorrect data but
+            // won't leave our installer broken on GC if they tweak the format.
             if (!std::regex_match(id, std::regex(R"([a-zA-Z\-0-9]+)")))
             {
                 return false;
