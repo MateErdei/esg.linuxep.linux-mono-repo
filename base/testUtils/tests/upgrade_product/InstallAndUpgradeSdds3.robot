@@ -188,6 +188,7 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     Check Event Journaler Executable Running
     Check AV Plugin Permissions
     Check Update Reports Have Been Processed
+    send_policy_file  core  ${SUPPORT_FILES}/CentralXml/CORE-36_oa_enabled.xml
 
     SHS Status File Contains  ${GoodThreatHealthXmlContents}
     Check AV Plugin Can Scan Files
@@ -329,6 +330,7 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     Toggle SafeStore Flag in MCS Policy    ${True}
     Check SafeStore Installed Correctly
     Check SafeStore Database Has Not Changed    ${safeStoreDbDirBeforeUpgrade}    ${databaseContentBeforeUpgrade}    ${safeStorePasswordBeforeUpgrade}
+    send_policy_file  core  ${SUPPORT_FILES}/CentralXml/CORE-36_oa_enabled.xml
 
     Check AV Plugin Can Scan Files
     Check On Access Detects Threats
@@ -407,6 +409,7 @@ We Can Upgrade From Release to VUT Without Unexpected Errors
 
     Check Mtr Reconnects To Management Agent After Upgrade
     Check for Management Agent Failing To Send Message To MTR And Check Recovery
+    send_policy_file  core  ${SUPPORT_FILES}/CentralXml/CORE-36_oa_enabled.xml
 
     Mark Known Upgrade Errors
     # If the policy comes down fast enough SophosMtr will not have started by the time mtr plugin is restarted
