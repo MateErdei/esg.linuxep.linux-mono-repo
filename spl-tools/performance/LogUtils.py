@@ -115,6 +115,7 @@ class LogUtils(object):
         self.marked_managementagent_logs = 0
         self.marked_av_log = 0
         self.marked_sophos_threat_detector_log = 0
+        self.marked_safestore_log = 0
         self.__m_marked_log_position = {}
 
         self.__m_pending_mark_expected_errors = {}
@@ -1071,8 +1072,41 @@ File Log Contains
 #####################################################################
 # Sophos Threat Detector Log
 
-    def get_safestore_log_mark(self) -> LogHandler.LogMark:
-        return self.mark_log_size(self.safestore_log)
+    def mark_safestore_log(self):
+        contents = _get_log_contents(self.safestore_log)
+        self.marked_safestore_log = len(contents)
+
+    def check_marked_safestore_log_contains(self, string_to_contain):
+        safestore_log = self.safestore_log
+        contents = _get_log_contents(safestore_log)
+        contents = contents[self.marked_safestore_log:]
+
+        if string_to_contain not in contents:
+            self.dump_log(contents)
+            logger.error(f"Marked SafeStore log did not contain: {string_to_contain}")
+            return False
+        return True
+
+    def wait_for_safestore_log_contains_after_mark(self, expected, timeout=10) -> None:
+        safestore_log = self.safestore_log
+        start = time.time()
+        old_contents = ""
+        while time.time() < start + timeout:
+            contents = _get_log_contents(safestore_log)
+            contents = contents[self.marked_safestore_log:]
+            if contents is not None:
+                if len(contents) > len(old_contents):
+                    logger.debug(contents[:len(old_contents)])
+
+                if expected in contents:
+                    return
+
+                old_contents = contents
+
+            time.sleep(0.5)
+
+        logger.error(f"Failed to find {expected} in {safestore_log} after {self.marked_safestore_log}")
+        self.dump_log(contents)
 
 def __main(argv):
     # write your tests here
