@@ -749,7 +749,7 @@ def run_safestore_database_content_test():
     custom_data = {"quarantined_files": quarantined_files, "unquarantined_files": unquarantined_files}
 
     end_time = get_current_unix_epoch_in_seconds()
-    record_result("Verify SafeStore Database Content", get_current_date_time_string(), start_time, end_time, custom_data=custom_data)
+    record_result("safestore_verify_detections", get_current_date_time_string(), start_time, end_time, custom_data=custom_data)
     exit(return_code)
 
 
@@ -834,7 +834,7 @@ def run_safestore_restoration_test():
     custom_data = {"restored_files": restored_files, "unrestored_files": unrestored_files}
 
     end_time = get_current_unix_epoch_in_seconds()
-    record_result("Restore SafeStore Database", get_current_date_time_string(), start_time, end_time, custom_data=custom_data)
+    record_result("safestore_database_restoration", get_current_date_time_string(), start_time, end_time, custom_data=custom_data)
     exit(return_code)
 
 
