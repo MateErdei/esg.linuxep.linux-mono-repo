@@ -137,6 +137,7 @@ namespace sophos_on_access_process::OnAccessConfig
         try
         {
             std::string configJson = sophosFsAPI->readFile(productConfigPath.string());
+            //If the configJson is empty or the content is empty we load from defaults
             if (!configJson.empty() && configJson != "{}")
             {
                 try
