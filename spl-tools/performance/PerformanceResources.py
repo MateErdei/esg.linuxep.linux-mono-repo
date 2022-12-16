@@ -134,6 +134,6 @@ def get_safestore_db_content_as_dict():
             continue
         if len(threats) == threat_idx:
             break
-        threats[threat_idx][line_content[0]] = line_content[1].strip()
+        threats[threat_idx][line_content[0]] = ':'.join(line_content[1:]).strip()
 
     return threats
