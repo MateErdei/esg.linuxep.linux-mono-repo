@@ -16,7 +16,6 @@
 #include <utility>
 
 #include <poll.h>
-#include <sys/socket.h>
 #include <unistd.h>
 
 using namespace unixsocket;
@@ -26,7 +25,7 @@ ProcessControllerServerConnectionThread::ProcessControllerServerConnectionThread
                                                                                  datatypes::ISystemCallWrapperSharedPtr sysCalls)
     : m_fd(std::move(fd))
     , m_controlMessageCallback(std::move(processControlCallback))
-    , m_sysCalls(sysCalls)
+    , m_sysCalls(std::move(sysCalls))
 {
     if (m_fd < 0)
     {
@@ -139,7 +138,7 @@ void ProcessControllerServerConnectionThread::inner_run()
         if ((fds[0].revents & POLLIN) != 0)
         {
             // read length
-            int32_t length = unixsocket::readLength(socket_fd);
+            ssize_t length = unixsocket::readLength(socket_fd);
             if (length == -2)
             {
                 LOGDEBUG("Process Controller connection thread closed: EOF");
@@ -160,12 +159,13 @@ void ProcessControllerServerConnectionThread::inner_run()
                 continue;
             }
 
+            loggedLengthOfZero = false;
+
             // read capn proto
-            if (static_cast<uint32_t>(length) > (buffer_size * sizeof(capnp::word)))
+            if (static_cast<size_t>(length) > (buffer_size * sizeof(capnp::word)))
             {
                 buffer_size = 1 + length / sizeof(capnp::word);
                 proto_buffer = kj::heapArray<capnp::word>(buffer_size);
-                loggedLengthOfZero = false;
             }
 
             ssize_t bytes_read = ::read(socket_fd, proto_buffer.begin(), length);

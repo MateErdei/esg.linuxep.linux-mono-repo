@@ -85,7 +85,7 @@ TEST_F(TestUpdateCompleteClientSocketThread, notificationPassedToClient)
     int count = 200;
     while (count > 0 && (server.clientCount() == 0 || !client.connected()))
     {
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        std::this_thread::sleep_for(1ms);
         count--;
     }
 
@@ -95,7 +95,7 @@ TEST_F(TestUpdateCompleteClientSocketThread, notificationPassedToClient)
     server.publishUpdateComplete();
 
     // wait for callback
-    callbackGuard.wait(5*1000);
+    callbackGuard.wait(5s);
 
     client.tryStop();
     server.tryStop();
@@ -126,7 +126,7 @@ TEST_F(TestUpdateCompleteClientSocketThread, clientConnectsIfStartedFirst)
     int count = 200;
     while (count > 0 && (server.clientCount() == 0 || !client.connected()))
     {
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        std::this_thread::sleep_for(1ms);
         count--;
     }
 
@@ -136,7 +136,7 @@ TEST_F(TestUpdateCompleteClientSocketThread, clientConnectsIfStartedFirst)
     server.publishUpdateComplete();
 
     // wait for callback
-    callbackGuard.wait(2*1000);
+    callbackGuard.wait(2s);
 
     client.tryStop();
     server.tryStop();
@@ -169,7 +169,7 @@ TEST_F(TestUpdateCompleteClientSocketThread, clientReconnects)
     int count = 200;
     while (count > 0 && (server2.clientCount() == 0 || !client.connected()))
     {
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        std::this_thread::sleep_for(1ms);
         count--;
     }
 
@@ -179,7 +179,7 @@ TEST_F(TestUpdateCompleteClientSocketThread, clientReconnects)
     server2.publishUpdateComplete();
 
     // wait for callback
-    callbackGuard.wait(5*1000);
+    callbackGuard.wait(5s);
 
     client.tryStop();
     server2.tryStop();

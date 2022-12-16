@@ -5,6 +5,8 @@
 
 #include <gmock/gmock.h>
 
+using namespace std::chrono_literals;
+
 class WaitForEvent
 {
 public:
@@ -18,19 +20,17 @@ public:
         m_promise.set_value(true);
     }
 
-    void wait(std::size_t milliseconds=30*1000)
+    void wait(std::chrono::milliseconds duration = 30s)
     {
-        std::chrono::milliseconds duration(milliseconds);
         if (m_future.wait_for(duration) != std::future_status::ready)
         {
-            FAIL() << "WaitForEvent::wait(" << milliseconds << ") timed out";
+            FAIL() << "WaitForEvent::wait(" << duration.count() << "ms) timed out";
         }
     }
 
     void waitDefault()
     {
-        std::size_t milliseconds = 30L * 1000;
-        wait(milliseconds);
+        wait();
     }
 
     void clear()
@@ -45,3 +45,7 @@ private:
     std::promise<bool> m_promise;
     std::future<bool> m_future;
 };
+
+ACTION_P(triggerEvent, waitForEvent) { waitForEvent->onEventNoArgs(); }
+ACTION_P(waitForEvent, waitForEvent) { waitForEvent->wait(); }
+ACTION_P2(waitForEvent, waitForEvent, duration) { waitForEvent->wait(duration); }
