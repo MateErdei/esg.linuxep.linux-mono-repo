@@ -1106,7 +1106,6 @@ File Log Contains
             time.sleep(0.5)
 
         logger.error(f"Failed to find {expected} in {safestore_log} after {self.marked_safestore_log}")
-        self.dump_log(contents)
 
 def __main(argv):
     # write your tests here
