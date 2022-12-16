@@ -11,8 +11,7 @@
 
 #include "DetectionQueue.h"
 #include "HealthStatus.h"
-#include "IDetectionDatabaseHandler.h"
-#include "IDetectionReportProcessor.h"
+#include "IDetectionHandler.h"
 #include "IRestoreReportProcessor.h"
 #include "PluginCallback.h"
 #include "PolicyProcessor.h"
@@ -21,6 +20,7 @@
 #include "TaskQueue.h"
 #include "ThreatDatabase.h"
 
+#include "datatypes/IUuidGenerator.h"
 #include "manager/scanprocessmonitor/ScanProcessMonitor.h"
 #include "manager/scheduler/ScanScheduler.h"
 #include "modules/common/ThreadRunner.h"
@@ -36,10 +36,7 @@ namespace Plugin
 {
     constexpr std::chrono::seconds DUPLICATE_DETECTION_TIMEOUT {60};
 
-    class PluginAdapter : public IScanComplete,
-                          public IDetectionReportProcessor,
-                          public IDetectionDatabaseHandler,
-                          public IRestoreReportProcessor
+    class PluginAdapter : public IScanComplete, public IDetectionHandler, public IRestoreReportProcessor
     {
     private:
         std::shared_ptr<TaskQueue> m_taskQueue;
@@ -66,16 +63,15 @@ namespace Plugin
         void mainLoop();
         void processScanComplete(std::string& scanCompletedXml) override;
 
+        void publishThreatEvent(const std::string& threatDetectedJSON) const;
+
         /*
          * Takes in detection info and the result from attempting to quarantine that threat and then
          * triggers various outputs to be generated: Central Events, Event Journal input, Threat Health
          */
-        void processDetectionReport(
-            const scan_messages::ThreatDetected&,
-            const common::CentralEnums::QuarantineResult& quarantineResult) const override;
+        void finaliseDetection(scan_messages::ThreatDetected& detection) override;
+        void markAsQuarantining(scan_messages::ThreatDetected& detection) override;
 
-        void publishThreatEvent(const std::string& threatDetectedJSON) const;
-        void updateThreatDatabase(const scan_messages::ThreatDetected& detection) override;
         void connectToThreatPublishingSocket(const std::string& pubSubSocketAddress);
         bool isSafeStoreEnabled() const;
         bool shouldSafeStoreQuarantineMl() const;
@@ -101,7 +97,10 @@ namespace Plugin
          * @param policyWaiter - Object that stores whether we've received all policies or not
          * @param appId OUT - the appId for the policy
          */
-        void processPolicy(const std::string& policyXml, const PolicyWaiterSharedPtr& policyWaiter, const std::string& appId);
+        void processPolicy(
+            const std::string& policyXml,
+            const PolicyWaiterSharedPtr& policyWaiter,
+            const std::string& appId);
         void processAction(const std::string& actionXml);
         void startThreads();
         void innerLoop();
@@ -114,6 +113,16 @@ namespace Plugin
         PolicyProcessor m_policyProcessor;
         ThreatDatabase m_threatDatabase;
         bool m_restartSophosThreatDetector = false;
+
+        std::mutex m_detectionMutex; // Ensures detections are handled atomically
+
+        // Pair of <threatId, correlationId>
+        // Stores the detection being currently quarantined, if it isn't yet in the threat database.
+        // This is needed to avoid a race condition on acquiring a correlation ID. We need a correlation ID to begin
+        // quarantining, but don't yet want to add the detection to threat database unless it's already there.
+        // During quarantining the detection could be detected again and fail to quarantine e.g. due to a full queue,
+        // and it wouldn't find it in the threat database and would report it with a different correlation ID.
+        std::optional<std::pair<std::string, std::string>> m_detectionBeingQuarantined;
 
         std::unique_ptr<common::ThreadRunner> m_safeStoreWorkerThread;
         std::unique_ptr<common::ThreadRunner> m_schedulerThread;

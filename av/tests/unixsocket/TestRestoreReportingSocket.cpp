@@ -19,9 +19,15 @@ namespace
     class TestRestoreReportSocket : public UnixSocketMemoryAppenderUsingTests
     {
     public:
-        void SetUp() override { setupFakePluginConfig(); }
+        void SetUp() override
+        {
+            setupFakeSafeStoreConfig();
+        }
 
-        void TearDown() override { sophos_filesystem::remove_all(tmpdir()); }
+        void TearDown() override
+        {
+            sophos_filesystem::remove_all(tmpdir());
+        }
     };
 
     class MockRestoreReportProcessor : public IRestoreReportProcessor

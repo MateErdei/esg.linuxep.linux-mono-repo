@@ -9,8 +9,8 @@
 #include "scan_messages/QuarantineResponse.h"
 #include "scan_messages/RestoreReport.h"
 
-#include <string>
 #include <optional>
+#include <string>
 
 namespace safestore::QuarantineManager
 {
@@ -68,6 +68,7 @@ namespace safestore::QuarantineManager
             const std::string& threatId,
             const std::string& threatName,
             const std::string& sha256,
+            const std::string& correlationId,
             datatypes::AutoFd autoFd) = 0;
 
         /**

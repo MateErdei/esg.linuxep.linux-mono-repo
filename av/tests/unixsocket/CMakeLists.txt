@@ -66,7 +66,7 @@ if (NOT DEFINED ENV{USE_LIBFUZZER})
             ../unixsocket/ThreatReporterTestExecutable/threatReporterClient.cpp)
     target_link_libraries(threatReporterClientExecutable  PUBLIC
             unixsocket)
-    target_include_directories(threatReporterClientExecutable PUBLIC ${CMAKE_SOURCE_DIR}/modules)
+    target_include_directories(threatReporterClientExecutable PUBLIC ${CMAKE_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/modules)
     target_include_directories(threatReporterClientExecutable SYSTEM PRIVATE ${BOOSTPATH})
 
 
@@ -88,7 +88,7 @@ add_executable(threatReporterServerExecutable
         ../unixsocket/ThreatReporterTestExecutable/threatReporterServer.cpp)
 target_link_libraries(threatReporterServerExecutable  PUBLIC
         unixsocket)
-target_include_directories(threatReporterServerExecutable PUBLIC ${CMAKE_SOURCE_DIR}/modules)
+target_include_directories(threatReporterServerExecutable PUBLIC ${CMAKE_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/modules)
 target_include_directories(threatReporterServerExecutable SYSTEM PRIVATE ${BOOSTPATH})
 
 add_executable(threatDetectorServerExecutable

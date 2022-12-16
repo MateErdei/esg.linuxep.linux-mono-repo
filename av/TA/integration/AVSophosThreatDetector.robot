@@ -542,9 +542,9 @@ Sophos Threat Detector Scans Archive With Error And Eicar And Reports Successful
     Wait Until AV Plugin Log Contains Detection Name And Path After Mark  ${av_mark}  EICAR-AV-Test  ${NORMAL_DIRECTORY}/scanErrorAndThreat.tar
     Wait Until AV Plugin Log Contains Detection Event XML After Mark
     ...  mark=${av_mark}
-    ...  id=37e5a09f-2101-5244-b05a-12952fc63afd
+    ...  user_id=n/a
     ...  name=EICAR-AV-Test
-    ...  threatType=1
+    ...  threat_type=1
     ...  origin=1
     ...  remote=false
     ...  sha256=${archive_sha}
@@ -570,9 +570,9 @@ Sophos Threat Detector Scans Archive With Multiple Threats And Reports Successfu
     Wait Until AV Plugin Log Contains Detection Name And Path After Mark  ${av_mark}  Troj/TestSFS-G  ${NORMAL_DIRECTORY}/test.tar
     Wait Until AV Plugin Log Contains Detection Event XML After Mark
     ...  mark=${av_mark}
-    ...  id=49c016d1-fcfe-543d-8279-6ff8c8f3ce4b
+    ...  user_id=n/a
     ...  name=Troj/TestSFS-G
-    ...  threatType=1
+    ...  threat_type=1
     ...  origin=1
     ...  remote=false
     ...  sha256=${archive_sha}

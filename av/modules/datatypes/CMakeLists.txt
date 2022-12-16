@@ -11,6 +11,9 @@ add_library(datatypes SHARED
         SystemCallWrapper.h
         SystemCallWrapperFactory.cpp
         SystemCallWrapperFactory.h
+        IUuidGenerator.h
+        UuidGeneratorImpl.cpp
+        UuidGeneratorImpl.h
         )
 
 target_link_libraries(datatypes  PUBLIC

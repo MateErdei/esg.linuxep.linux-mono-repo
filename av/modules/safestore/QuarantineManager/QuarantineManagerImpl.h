@@ -1,4 +1,4 @@
-// Copyright 2022, Sophos Limited.  All rights reserved.
+// Copyright 2022 Sophos Limited. All rights reserved.
 
 #pragma once
 
@@ -31,6 +31,7 @@ namespace safestore::QuarantineManager
             const std::string& threatId,
             const std::string& threatName,
             const std::string& sha256,
+            const std::string& correlationId,
             datatypes::AutoFd autoFd) override;
         std::vector<FdsObjectIdsPair> extractQuarantinedFiles(datatypes::ISystemCallWrapper& sysCallWrapper) override;
         void setState(const safestore::QuarantineManager::QuarantineManagerState& newState) override;
@@ -44,6 +45,8 @@ namespace safestore::QuarantineManager
         void callOnDbError();
         void callOnDbSuccess();
         void setConfigWrapper(nlohmann::json json, const safestore::SafeStoreWrapper::ConfigOption& option);
+        void storeCorrelationId(SafeStoreWrapper::ObjectHandleHolder& objectHandle, const std::string& correlationId);
+        [[nodiscard]] std::string getCorrelationId(SafeStoreWrapper::ObjectHandleHolder& objectHandle);
         QuarantineManagerState m_state;
         std::unique_ptr<safestore::SafeStoreWrapper::ISafeStoreWrapper> m_safeStore;
         std::mutex m_interfaceMutex;

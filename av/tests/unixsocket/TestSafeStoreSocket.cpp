@@ -9,14 +9,13 @@
 #include "scan_messages/ThreatDetected.h"
 #include "tests/common/Common.h"
 #include "tests/common/WaitForEvent.h"
+#include "tests/scan_messages/SampleThreatDetected.h"
 #include "unixsocket/safeStoreSocket/SafeStoreClient.h"
 #include "unixsocket/safeStoreSocket/SafeStoreServerSocket.h"
 
 #include "Common/FileSystem/IFilePermissions.h"
 #include "Common/Helpers/FileSystemReplaceAndRestore.h"
 #include "Common/Helpers/MockFileSystem.h"
-
-#include <sys/fcntl.h>
 
 #include <thirdparty/nlohmann-json/json.hpp>
 
@@ -35,32 +34,11 @@ namespace
         {
             setupFakeSafeStoreConfig();
             m_socketPath = Plugin::getSafeStoreSocketPath();
-            m_userID = std::getenv("USER");
-            m_threatName = "EICAR";
-            m_threatPath = "/path/to/unit-test-eicar";
-            m_sha256 = "2677b3f1607845d18d5a405a8ef592e79b8a6de355a9b7490b6bb439c2116def";
-            m_threatId = "c1c802c6-a878-ee05-babc-c0378d45d8d4";
         }
 
-        void TearDown() override { fs::remove_all(tmpdir()); }
-
-        [[nodiscard]] ThreatDetected createThreatDetected() const
+        void TearDown() override
         {
-            std::time_t detectionTimeStamp = std::time(nullptr);
-
-            return { m_userID,
-                     detectionTimeStamp,
-                     ThreatType::virus,
-                     m_threatName,
-                     E_SCAN_TYPE_ON_ACCESS_OPEN,
-                     E_NOTIFICATION_STATUS_CLEANED_UP,
-                     m_threatPath,
-                     E_SMT_THREAT_ACTION_SHRED,
-                     m_sha256,
-                     m_threatId,
-                     false,
-                     ReportSource::ml,
-                     datatypes::AutoFd(open("/dev/zero", O_RDONLY)) };
+            fs::remove_all(tmpdir());
         }
 
         static void addCommonSafeStoreTelemetrySetup()
@@ -84,7 +62,7 @@ namespace
         {
             unixsocket::SafeStoreClient client(m_socketPath, m_notifyPipe);
 
-            client.sendQuarantineRequest(createThreatDetected());
+            client.sendQuarantineRequest(createThreatDetectedWithRealFd({}));
             client.waitForResponse();
             serverWaitGuard.wait();
 
@@ -96,11 +74,6 @@ namespace
 
         Common::Threads::NotifyPipe m_notifyPipe{};
         std::string m_socketPath;
-        std::string m_threatPath;
-        std::string m_threatName;
-        std::string m_userID;
-        std::string m_sha256;
-        std::string m_threatId;
     };
 
     class TestSafeStoreClientSocket : public UnixSocketMemoryAppenderUsingTests
@@ -126,7 +99,7 @@ TEST_F(TestSafeStoreSocket, TestSendThreatDetected) // NOLINT
         WaitForEvent serverWaitGuard;
 
         auto quarantineManager = std::make_shared<MockIQuarantineManager>();
-        EXPECT_CALL(*quarantineManager, quarantineFile(_, _, _, _, _))
+        EXPECT_CALL(*quarantineManager, quarantineFile(_, _, _, _, _, _))
             .Times(1)
             .WillOnce(Invoke(
                 [&serverWaitGuard](
@@ -134,6 +107,7 @@ TEST_F(TestSafeStoreSocket, TestSendThreatDetected) // NOLINT
                     const std::string& /*threatId*/,
                     const std::string& /*threatName*/,
                     const std::string& /*sha256*/,
+                    const std::string& /*correlationId*/,
                     datatypes::AutoFd autoFd)
                 {
                     EXPECT_TRUE(autoFd.valid()); // check we received a valid fd
@@ -148,7 +122,7 @@ TEST_F(TestSafeStoreSocket, TestSendThreatDetected) // NOLINT
         // connect after we start
         unixsocket::SafeStoreClient client(m_socketPath, m_notifyPipe);
 
-        auto threatDetected = createThreatDetected();
+        auto threatDetected = createThreatDetectedWithRealFd({});
         client.sendQuarantineRequest(threatDetected);
 
         serverWaitGuard.wait();
@@ -157,15 +131,15 @@ TEST_F(TestSafeStoreSocket, TestSendThreatDetected) // NOLINT
     }
 
     EXPECT_TRUE(appenderContains("Connected to SafeStore"));
-    EXPECT_TRUE(appenderContains("Sending quarantine request to SafeStore for file: " + m_threatPath));
+    EXPECT_TRUE(appenderContains("Sending quarantine request to SafeStore for file: /path/to/eicar.txt"));
     EXPECT_TRUE(appenderContains("SafeStore Server thread got connection"));
     EXPECT_TRUE(appenderContains("Read capn of"));
     EXPECT_TRUE(appenderContains("Managed to get file descriptor:"));
     EXPECT_TRUE(appenderContains("Received Threat:"));
-    EXPECT_TRUE(appenderContains("File path: " + m_threatPath));
-    EXPECT_TRUE(appenderContains("Threat ID: " + m_threatId));
-    EXPECT_TRUE(appenderContains("Threat name: " + m_threatName));
-    EXPECT_TRUE(appenderContains("SHA256: " + m_sha256));
+    EXPECT_TRUE(appenderContains("File path: /path/to/eicar.txt"));
+    EXPECT_TRUE(appenderContains("Threat ID: 01234567-89ab-cdef-0123-456789abcdef"));
+    EXPECT_TRUE(appenderContains("Threat name: EICAR-AV-Test"));
+    EXPECT_TRUE(appenderContains("SHA256: 131f95c51cc819465fa1797f6ccacf9d494aaaff46fa3eac73ae63ffbdfd8267"));
     EXPECT_TRUE(appenderContains("File descriptor:"));
 }
 
@@ -176,7 +150,7 @@ TEST_F(TestSafeStoreSocket, TestSendTwoThreatDetecteds) // NOLINT
     WaitForEvent serverWaitGuard2;
 
     auto quarantineManager = std::make_shared<MockIQuarantineManager>();
-    EXPECT_CALL(*quarantineManager, quarantineFile(_, _, _, _, _))
+    EXPECT_CALL(*quarantineManager, quarantineFile(_, _, _, _, _, _))
         .Times(2)
         .WillOnce(InvokeWithoutArgs(
             [&serverWaitGuard]()
@@ -199,11 +173,11 @@ TEST_F(TestSafeStoreSocket, TestSendTwoThreatDetecteds) // NOLINT
     unixsocket::SafeStoreClient client(m_socketPath, m_notifyPipe);
     unixsocket::SafeStoreClient client2(m_socketPath, m_notifyPipe);
 
-    client.sendQuarantineRequest(createThreatDetected());
+    client.sendQuarantineRequest(createThreatDetectedWithRealFd({}));
     EXPECT_EQ(client.waitForResponse(), common::CentralEnums::QuarantineResult::NOT_FOUND);
     serverWaitGuard.wait();
 
-    client2.sendQuarantineRequest(createThreatDetected());
+    client2.sendQuarantineRequest(createThreatDetectedWithRealFd({}));
     EXPECT_EQ(client2.waitForResponse(), common::CentralEnums::QuarantineResult::NOT_FOUND);
     serverWaitGuard2.wait();
 
@@ -220,7 +194,7 @@ TEST_F(TestSafeStoreSocket, SafeStoreTelemetryReturnsExpectedDataAfterSuccessful
     addCommonSafeStoreTelemetrySetup();
     json initialTelemetry = json::parse(safeStoreCallback.getTelemetry());
 
-    EXPECT_CALL(*quarantineManager, quarantineFile(_, _, _, _, _))
+    EXPECT_CALL(*quarantineManager, quarantineFile(_, _, _, _, _, _))
         .WillOnce(InvokeWithoutArgs(
             [&serverWaitGuard]()
             {
@@ -244,7 +218,7 @@ TEST_F(TestSafeStoreSocket, SafeStoreTelemetryReturnsExpectedDataAfterFailedQuar
     addCommonSafeStoreTelemetrySetup();
     json initialTelemetry = json::parse(safeStoreCallback.getTelemetry());
 
-    EXPECT_CALL(*quarantineManager, quarantineFile(_, _, _, _, _))
+    EXPECT_CALL(*quarantineManager, quarantineFile(_, _, _, _, _, _))
         .WillOnce(InvokeWithoutArgs(
             [&serverWaitGuard]()
             {
@@ -268,7 +242,7 @@ TEST_F(TestSafeStoreSocket, SafeStoreTelemetryReturnsExpectedDataAfterUnlinkFail
     addCommonSafeStoreTelemetrySetup();
     json initialTelemetry = json::parse(safeStoreCallback.getTelemetry());
 
-    EXPECT_CALL(*quarantineManager, quarantineFile(_, _, _, _, _))
+    EXPECT_CALL(*quarantineManager, quarantineFile(_, _, _, _, _, _))
         .WillOnce(InvokeWithoutArgs(
             [&serverWaitGuard]()
             {
@@ -295,8 +269,7 @@ TEST_F(TestSafeStoreSocket, TestSendInvalidData)
 
     unixsocket::SafeStoreClient client(m_socketPath, m_notifyPipe);
 
-    auto threatDetected = createThreatDetected();
-    threatDetected.threatId = "invalid threat id";
+    auto threatDetected = createThreatDetectedWithRealFd({ .threatId = "invalid threat id" });
     EXPECT_ANY_THROW(client.sendQuarantineRequest(threatDetected));
 }
 
@@ -306,7 +279,7 @@ TEST_F(TestSafeStoreSocket, TestSendThreatDetectedReceiveResponse)
     setupFakeSophosThreatDetectorConfig();
 
     auto quarantineManager = std::make_shared<MockIQuarantineManager>();
-    EXPECT_CALL(*quarantineManager, quarantineFile(_, _, _, _, _))
+    EXPECT_CALL(*quarantineManager, quarantineFile(_, _, _, _, _, _))
         .WillOnce(Return(common::CentralEnums::QuarantineResult::NOT_FOUND));
 
     unixsocket::SafeStoreServerSocket server(m_socketPath, quarantineManager);
@@ -314,12 +287,12 @@ TEST_F(TestSafeStoreSocket, TestSendThreatDetectedReceiveResponse)
 
     unixsocket::SafeStoreClient client(m_socketPath, m_notifyPipe);
 
-    auto threatDetected = createThreatDetected();
+    auto threatDetected = createThreatDetectedWithRealFd({});
     client.sendQuarantineRequest(threatDetected);
 
     EXPECT_EQ(client.waitForResponse(), common::CentralEnums::QuarantineResult::NOT_FOUND);
 
-    EXPECT_TRUE(appenderContains("Sending quarantine request to SafeStore for file: " + m_threatPath));
+    EXPECT_TRUE(appenderContains("Sending quarantine request to SafeStore for file: /path/to/eicar.txt"));
     EXPECT_TRUE(appenderContains("Sent quarantine request to SafeStore"));
     EXPECT_TRUE(appenderContains("Received quarantine result from SafeStore: failure"));
 }

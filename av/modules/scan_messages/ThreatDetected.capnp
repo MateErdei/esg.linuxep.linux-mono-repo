@@ -14,15 +14,15 @@ struct ThreatDetected {
     threatType                      @2  :Int64;
     threatName                      @3  :Text;
     scanType                        @4  :Int64;
-    notificationStatus              @5  :Int64;
+    quarantineResult                @5  :Int64;
     filePath                        @6  :Text;
-    actionCode                      @7  :Int64;
-    sha256                          @8  :Text;
-    threatId                        @9  :Text;
-    isRemote                        @10 :Bool;
-    reportSource                    @11 :Int64;
-    pid                             @12 :Int64 = -1;
-    executablePath                  @13 :Text;
+    sha256                          @7  :Text;
+    threatId                        @8  :Text;
+    isRemote                        @9  :Bool;
+    reportSource                    @10 :Int64;
+    pid                             @11 :Int64 = -1;
+    executablePath                  @12 :Text;
+    correlationId                   @13 :Text;
 }
 
 

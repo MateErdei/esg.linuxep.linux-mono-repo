@@ -3,6 +3,7 @@ add_subdirectory(ObfuscationImpl)
 
 SophosAddTest(TestPlugin
         ../common/LogInitializedTests.cpp
+        MockDetectionHandler.h
         TestActionUtils.cpp
         TestDetectionQueue.cpp
         TestPolicyProcessor.cpp
@@ -14,8 +15,10 @@ SophosAddTest(TestPlugin
         TestPolicyProcessor_SAV_policy.cpp
         TestPlugin.cpp
         TestPluginAdapter.cpp
+        TestPluginAdapterDetections.cpp
         TestPluginCallback.cpp
         TestPolicyWaiter.cpp
+        TestSafeStoreWorker.cpp
         TestStringUtils.cpp
         TestTaskQueue.cpp
         TestThreatDatabase.cpp

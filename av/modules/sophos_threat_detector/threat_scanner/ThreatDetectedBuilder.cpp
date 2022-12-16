@@ -1,4 +1,4 @@
-// Copyright 2022, Sophos Limited. All rights reserved.
+// Copyright 2022 Sophos Limited. All rights reserved.
 
 #include "ThreatDetectedBuilder.h"
 
@@ -73,13 +73,15 @@ namespace threat_scanner
                  convertSusiThreatType(detection.type),
                  detection.name,
                  scanType,
-                 scan_messages::E_NOTIFICATION_STATUS_NOT_CLEANUPABLE,
+                 common::CentralEnums::QuarantineResult::WHITELISTED, // used as placeholder
                  path,
-                 scan_messages::E_SMT_THREAT_ACTION_NONE,
                  detection.sha256,
                  generateThreatId(detection.path, detection.sha256),
                  false, // AV plugin will set this to correct value
                  getReportSource(detection.name),
+                 -1,
+                 "",
+                 "",
                  std::move(autoFd) };
     }
 } // namespace threat_scanner

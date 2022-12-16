@@ -5,12 +5,14 @@
 #include "PluginMemoryAppenderUsingTests.h"
 
 #include "common/ApplicationPaths.h"
-#include "common/CentralEnums.h"
 #include "datatypes/sophos_filesystem.h"
 #include "pluginimpl/DetectionReporter.h"
 #include "pluginimpl/Logger.h"
 #include "pluginimpl/PluginAdapter.h"
 #include "pluginimpl/StringUtils.h"
+#include "tests/common/Common.h"
+#include "tests/common/SetupFakePluginDir.h"
+#include "tests/scan_messages/SampleThreatDetected.h"
 
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 #include "Common/FileSystem/IFileSystemException.h"
@@ -25,7 +27,6 @@
 #include <gmock/gmock-matchers.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
-#include <tests/common/Common.h>
 #include <thirdparty/nlohmann-json/json.hpp>
 
 #include <future>
@@ -44,22 +45,14 @@ namespace
     protected:
         void SetUp() override
         {
-            const ::testing::TestInfo* const test_info = ::testing::UnitTest::GetInstance()->current_test_info();
-            fs::path basePath = fs::temp_directory_path();
-            basePath /= test_info->test_case_name();
-            basePath /= test_info->name();
-            fs::remove_all(basePath);
-            fs::create_directories(basePath);
-            m_threatEventPublisherSocketPath = basePath / "threatEventPublisherSocket";
+            m_tempDir = setupFakePluginDir();
+            m_threatEventPublisherSocketPath = pluginInstall() / "threatEventPublisherSocket";
 
             Common::Telemetry::TelemetryHelper::getInstance().reset();
-            setupFakePluginConfig();
 
             m_taskQueue = std::make_shared<TaskQueue>();
             m_callback = std::make_shared<Plugin::PluginCallback>(m_taskQueue);
         }
-
-        void TearDown() override { fs::remove_all(tmpdir()); }
 
         static std::string generatePolicyXML(
             const std::string& revID,
@@ -120,7 +113,6 @@ namespace
                 { { "@@POLICY_COMPLIANCE@@", res }, { "@@REV_ID@@", revID } });
         }
 
-
         static void expectedDefaultPolicyRequests(StrictMock<MockApiBaseServices>& mock)
         {
             for (const auto& policy : PluginAdapter::m_requested_policies)
@@ -129,27 +121,7 @@ namespace
             }
         }
 
-        static scan_messages::ThreatDetected createDetection(bool _quarantined)
-        {
-            std::time_t detectionTimeStamp = std::time(nullptr);
-            scan_messages::E_NOTIFICATION_STATUS quarantined = _quarantined ?
-                                    E_NOTIFICATION_STATUS_CLEANED_UP : E_NOTIFICATION_STATUS_CLEANUPABLE;
-
-            return { std::getenv("USER"),
-                     detectionTimeStamp,
-                     ThreatType::virus,
-                     "EICAR",
-                     E_SCAN_TYPE_ON_ACCESS_OPEN,
-                     quarantined,
-                     "/path/to/unit-test-eicar",
-                     E_SMT_THREAT_ACTION_SHRED,
-                     "2677b3f1607845d18d5a405a8ef592e79b8a6de355a9b7490b6bb439c2116def",
-                     "c1c802c6-a878-ee05-babc-c0378d45d8d4",
-                     false,
-                     ReportSource::ml,
-                     datatypes::AutoFd(open("/dev/zero", O_RDONLY)) };
-        }
-
+        std::unique_ptr<Tests::TempDir> m_tempDir;
         std::shared_ptr<TaskQueue> m_taskQueue;
         std::shared_ptr<Plugin::PluginCallback> m_callback;
         fs::path m_threatEventPublisherSocketPath;
@@ -201,9 +173,11 @@ TEST_F(TestPluginAdapter, testRequestPoliciesThrows)
 
     auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
 
-    Common::PluginApi::ApiException ex { "dummy error" };
+    Common::PluginApi::ApiException ex{ "dummy error" };
     EXPECT_CALL(*mockBaseService, sendThreatHealth("{\"ThreatHealth\":1}")).Times(1);
-    EXPECT_CALL(*mockBaseService, requestPolicies(_)).Times(PluginAdapter::m_requested_policies.size()).WillRepeatedly(Throw(ex));
+    EXPECT_CALL(*mockBaseService, requestPolicies(_))
+        .Times(PluginAdapter::m_requested_policies.size())
+        .WillRepeatedly(Throw(ex));
 
     PluginAdapter pluginAdapter(
         m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
@@ -375,7 +349,7 @@ TEST_F(TestPluginAdapter, testProcessUpdatePolicy)
     EXPECT_CALL(*mockIFileSystemPtr, readlink(_)).WillRepeatedly(::testing::Return(std::nullopt));
     EXPECT_CALL(*mockIFileSystemPtr, isFile(_)).WillOnce(Return(false));
 
-    fs::path testDir = tmpdir();
+    fs::path testDir = pluginInstall();
     const std::string expectedMd5 = "a1c0f318e58aad6bf90d07cabda54b7d"; // md5(md5("B:A"))
     const std::string customerIdFilePath1 = testDir / "var/customer_id.txt";
     const std::string customerIdFilePath2 = std::string(testDir / "chroot") + customerIdFilePath1;
@@ -546,7 +520,7 @@ TEST_F(TestPluginAdapter, testProcessUpdatePolicy_ignoresPolicyWithWrongID)
     EXPECT_CALL(*mockIFileSystemPtr, readlink(_)).WillRepeatedly(::testing::Return(std::nullopt));
     EXPECT_CALL(*mockIFileSystemPtr, isFile(_)).WillOnce(Return(false));
 
-    fs::path testDir = tmpdir();
+    fs::path testDir = pluginInstall();
     const std::string expectedMd5 = "a1c0f318e58aad6bf90d07cabda54b7d"; // md5(md5("B:A"))
     const std::string customerIdFilePath1 = testDir / "var/customer_id.txt";
     const std::string customerIdFilePath2 = std::string(testDir / "chroot") + customerIdFilePath1;
@@ -704,7 +678,7 @@ TEST_F(TestPluginAdapter, testProcessScanComplete)
     EXPECT_CALL(*mockBaseService, sendThreatHealth("{\"ThreatHealth\":1}")).Times(1);
 
     PluginAdapter pluginAdapter(
-    m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
+        m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
     pluginAdapter.processScanComplete(scanCompleteXml);
     m_taskQueue->pushStop();
 
@@ -754,7 +728,6 @@ TEST_F(TestPluginAdapter, publishQuarantineCleanEvent)
     DetectionReporter::publishQuarantineCleanEvent(threatDetectedXML, m_taskQueue);
     m_taskQueue->pushStop();
 
-
     pluginAdapter.mainLoop();
     std::string expectedLog = "Sending Clean Event to Central: ";
     expectedLog.append(threatDetectedXML);
@@ -783,7 +756,6 @@ TEST_F(TestPluginAdapter, processRestoreReport)
 
     m_taskQueue->pushStop();
 
-
     internal::CaptureStderr();
     pluginAdapter.mainLoop();
     log = internal::GetCapturedStderr();
@@ -803,7 +775,10 @@ public:
     }
     void start();
 
-    std::vector<std::string> getData() { return m_data; };
+    std::vector<std::string> getData()
+    {
+        return m_data;
+    };
 
 private:
     Common::ZMQWrapperApi::IContext& m_context;
@@ -1036,7 +1011,6 @@ TEST_F(TestPluginAdapter, testInvalidTaskType)
     PluginAdapter pluginAdapter(
         m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
 
-
     Task invalidTask = { static_cast<Task::TaskType>(99), "" };
     m_taskQueue->push(invalidTask);
 
@@ -1076,152 +1050,3 @@ TEST_F(TestPluginAdapter, testCanStopWhileWaitingForFirstPolicies)
     EXPECT_FALSE(appenderContains("ALC policy has not been sent to the plugin"));
     EXPECT_FALSE(appenderContains("SAV policy has not been sent to the plugin"));
 }
-
-TEST_F(TestPluginAdapter, setsHealthToSuspiciousWhenThreatAddedToDatabase)
-{
-    UsingMemoryAppender memoryAppenderHolder(*this);
-
-    auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
-    EXPECT_CALL(*mockBaseService, sendThreatHealth(_)).Times(1);
-    auto pluginAdapter = std::make_shared<PluginAdapter>(
-        m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 1);
-
-    ASSERT_EQ(m_callback->getThreatHealth(), E_THREAT_HEALTH_STATUS_GOOD);
-    pluginAdapter->updateThreatDatabase(createDetection(false));
-    EXPECT_TRUE(waitForLog("Threat database is not empty, sending suspicious health to Management agent"));
-    EXPECT_EQ(m_callback->getThreatHealth(), E_THREAT_HEALTH_STATUS_SUSPICIOUS);
-}
-
-TEST_F(TestPluginAdapter, setsHealthToGoodWhenThreatDatabaseEmpty)
-{
-    UsingMemoryAppender memoryAppenderHolder(*this);
-
-    auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
-    EXPECT_CALL(*mockBaseService, sendThreatHealth(_)).Times(2);
-    auto pluginAdapter = std::make_shared<PluginAdapter>(
-        m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 1);
-
-    ASSERT_EQ(m_callback->getThreatHealth(), E_THREAT_HEALTH_STATUS_GOOD);
-    pluginAdapter->updateThreatDatabase(createDetection(false));
-    EXPECT_TRUE(waitForLog("Threat database is not empty, sending suspicious health to Management agent"));
-    pluginAdapter->updateThreatDatabase(createDetection(true));
-    EXPECT_TRUE(waitForLog("Threat database is now empty, sending good health to Management agent"));
-    EXPECT_EQ(m_callback->getThreatHealth(), E_THREAT_HEALTH_STATUS_GOOD);
-}
-
-TEST_F(TestPluginAdapter, firstDetectionIsReportedToCentral)
-{
-    UsingMemoryAppender memoryAppenderHolder(*this);
-
-    auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
-    auto pluginAdapter = std::make_shared<PluginAdapter>(
-        m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 1);
-
-    pluginAdapter->processDetectionReport(createDetection(true), QuarantineResult::FAILED_TO_DELETE_FILE);
-    EXPECT_TRUE(waitForLog("Sending threat detection notification to central: "));
-    EXPECT_TRUE(waitForLog("Publishing threat detection event: "));
-    EXPECT_TRUE(waitForLog("Found 'EICAR' in '/path/to/unit-test-eicar' which is a new detection"));
-}
-
-TEST_F(TestPluginAdapter, secondDetectionIsNotReportedToCentral)
-{
-    UsingMemoryAppender memoryAppenderHolder(*this);
-
-    auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
-    EXPECT_CALL(*mockBaseService, sendThreatHealth(_)).Times(1);
-    auto pluginAdapter = std::make_shared<PluginAdapter>(
-        m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 1);
-
-    //Put event in Threat Database
-    pluginAdapter->updateThreatDatabase(createDetection(false));
-    EXPECT_TRUE(waitForLog("Threat database is not empty, sending suspicious health to Management agent"));
-
-    //Create duplicate
-    clearMemoryAppender();
-    pluginAdapter->processDetectionReport(createDetection(false), QuarantineResult::FAILED_TO_DELETE_FILE);
-
-    EXPECT_TRUE(waitForLog("Found 'EICAR' in '/path/to/unit-test-eicar' which is a duplicate detection")); //This happens after the below log messages
-    EXPECT_FALSE(appenderContains("Sending threat detection notification to central: "));
-    EXPECT_FALSE(appenderContains("Publishing threat detection event: "));
-}
-
-TEST_F(TestPluginAdapter, telemetryIsIncrementedForNewDetection)
-{
-    UsingMemoryAppender memoryAppenderHolder(*this);
-
-    auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
-    auto pluginAdapter = std::make_shared<PluginAdapter>(
-        m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 1);
-
-    pluginAdapter->processDetectionReport(createDetection(false), QuarantineResult::FAILED_TO_DELETE_FILE);
-
-    auto telemetryResult = Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
-    auto telemetry = nlohmann::json::parse(telemetryResult);
-    EXPECT_EQ(telemetry["on-access-threat-count"], 1);
-}
-
-TEST_F(TestPluginAdapter, telemetryIsIncrementedForDuplicateDetection)
-{
-    UsingMemoryAppender memoryAppenderHolder(*this);
-
-    auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
-    EXPECT_CALL(*mockBaseService, sendThreatHealth(_)).Times(1);
-    auto pluginAdapter = std::make_shared<PluginAdapter>(
-        m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 1);
-
-    //Put event in Threat Database
-    pluginAdapter->updateThreatDatabase(createDetection(false));
-    EXPECT_TRUE(waitForLog("Threat database is not empty, sending suspicious health to Management agent"));
-    //Create duplicate
-    pluginAdapter->processDetectionReport(createDetection(false), QuarantineResult::FAILED_TO_DELETE_FILE);
-
-    EXPECT_TRUE(waitForLog("Found 'EICAR' in '/path/to/unit-test-eicar' which is a duplicate detection"));
-    auto telemetryResult = Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
-    auto telemetry = nlohmann::json::parse(telemetryResult);
-    EXPECT_EQ(telemetry["on-access-threat-count"], 1);
-}
-
-
-// TODO: LINUXDAR-5806 -- stablise this test
-// PluginAdapter construction needed for this test, so it's here instead of its own TestSafeStoreWorker file (for now)
-//TEST_F(TestPluginAdapter, testSafeStoreWorkerExitsOnStop) // NOLINT
-//{
-//     // In lieu of a Mock PluginAdapter, make a real one since this test never calls its functions anyway
-//     auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
-//     MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
-//     ASSERT_NE(mockBaseServicePtr, nullptr);
-//     PluginAdapter pluginAdapter(
-//         m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
-//
-//     auto newQueue = std::make_shared<DetectionQueue>();
-//     auto worker = std::make_shared<SafeStoreWorker>(pluginAdapter, pluginAdapter, newQueue, "fakeSocket");
-//
-//     // Prove worker exits when queue gets stop request
-//     auto result = std::async(std::launch::async, &SafeStoreWorker::join, worker);
-//     worker->start();
-//     newQueue->requestStop();
-//     ASSERT_EQ(result.wait_for(std::chrono::milliseconds(50)), std::future_status::ready);
-//     result.get();
-//
-//     // Prove worker exits when thread is asked to stop, detection given to queue to unblock internal pop
-//     result = std::async(std::launch::async, &SafeStoreWorker::join, worker);
-//     worker->start();
-//     worker->requestStop();
-//     scan_messages::ThreatDetected basicDetection(
-//         "root",
-//         1,
-//         ThreatType::virus,
-//         "threatName",
-//         scan_messages::E_SCAN_TYPE_UNKNOWN,
-//         scan_messages::E_NOTIFICATION_STATUS_NOT_CLEANUPABLE,
-//         "/path",
-//         scan_messages::E_SMT_THREAT_ACTION_UNKNOWN,
-//         "sha256",
-//         "01234567-89ab-cdef-0123-456789abcdef",
-//         false,
-//         ReportSource::vdl,
-//         datatypes::AutoFd());
-//     newQueue->push(basicDetection);
-//     ASSERT_EQ(result.wait_for(std::chrono::milliseconds(50)), std::future_status::ready);
-//     result.get();
-// }

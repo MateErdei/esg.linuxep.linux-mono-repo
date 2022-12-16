@@ -1,12 +1,12 @@
-// Copyright 2022, Sophos Limited. All rights reserved.
+// Copyright 2022 Sophos Limited. All rights reserved.
 
 #include "pluginimpl/DetectionQueue.h"
 #include "pluginimpl/PluginCallback.h"
-#include "scan_messages/ThreatDetected.h"
+#include "tests/scan_messages/SampleThreatDetected.h"
 
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
+#include "Common/Helpers/LogInitializedTests.h"
 
-#include <Common/Helpers/LogInitializedTests.h>
 #include <gtest/gtest.h>
 #include <thirdparty/nlohmann-json/json.hpp>
 
@@ -27,25 +27,6 @@ class TestDetectionQueue : public LogOffInitializedTests
     }
 };
 
-scan_messages::ThreatDetected basicDetection()
-{
-    scan_messages::ThreatDetected basicDetection(
-        "root",
-        1,
-        ThreatType::virus,
-        "threatName",
-        scan_messages::E_SCAN_TYPE_UNKNOWN,
-        scan_messages::E_NOTIFICATION_STATUS_NOT_CLEANUPABLE,
-        "/path",
-        scan_messages::E_SMT_THREAT_ACTION_UNKNOWN,
-        "sha256",
-        "01234567-89ab-cdef-0123-456789abcdef",
-        false,
-        ReportSource::ml,
-        datatypes::AutoFd());
-    return basicDetection;
-}
-
 TEST_F(TestDetectionQueue, TestQueueIntialisesToEmpty) // NOLINT
 {
     Plugin::DetectionQueue queue;
@@ -57,7 +38,7 @@ TEST_F(TestDetectionQueue, TestQueueIsFullOnceMaxSizeIsReached) // NOLINT
     Plugin::DetectionQueue queue;
     queue.setMaxSize(1);
 
-    auto detection = basicDetection();
+    auto detection = createThreatDetected({});
 
     ASSERT_FALSE(queue.isFull());
     queue.push(detection);
@@ -74,8 +55,8 @@ TEST_F(TestDetectionQueue, TestQueueCannotBePushedToOnceFullAndTelemetryIsIncrem
 
     queue.setMaxSize(1);
 
-    auto detection1 = basicDetection();
-    auto detection2 = basicDetection();
+    auto detection1 = createThreatDetected({});
+    auto detection2 = createThreatDetected({});
 
     ASSERT_FALSE(queue.isFull());
     ASSERT_TRUE(queue.push(detection1));
@@ -91,7 +72,7 @@ TEST_F(TestDetectionQueue, TestQueueClearsFullAndEmptyStatesWhenPopulated) // NO
     Plugin::DetectionQueue queue;
     queue.setMaxSize(2);
 
-    auto detection = basicDetection();
+    auto detection = createThreatDetected({});
 
     ASSERT_TRUE(queue.isEmpty());
     ASSERT_TRUE(queue.push(detection));
@@ -104,7 +85,7 @@ TEST_F(TestDetectionQueue, TestQueueClearsIsFullStateAfterPop) // NOLINT
     Plugin::DetectionQueue queue;
     queue.setMaxSize(1);
 
-    auto detection = basicDetection();
+    auto detection = createThreatDetected({});
 
     ASSERT_FALSE(queue.isFull());
     ASSERT_TRUE(queue.push(detection));
@@ -118,8 +99,8 @@ TEST_F(TestDetectionQueue, TestQueueSetsIsEmptyStateAfterPoppingLastDetection) /
     Plugin::DetectionQueue queue;
     queue.setMaxSize(2);
 
-    auto detection1 = basicDetection();
-    auto detection2 = basicDetection();
+    auto detection1 = createThreatDetected({});
+    auto detection2 = createThreatDetected({});
 
     ASSERT_TRUE(queue.isEmpty());
     ASSERT_TRUE(queue.push(detection1));
@@ -136,8 +117,8 @@ TEST_F(TestDetectionQueue, DetectionsSentToTestQueueAreStillValidIfPushFails) //
     Plugin::DetectionQueue queue;
     queue.setMaxSize(1);
 
-    auto detection1 = basicDetection();
-    auto detection2 = basicDetection();
+    auto detection1 = createThreatDetected({});
+    auto detection2 = createThreatDetected({});
 
     ASSERT_TRUE(queue.push(detection1));
     ASSERT_FALSE(queue.push(detection2));
@@ -161,7 +142,7 @@ TEST_F(TestDetectionQueue, TestDetectionsQueuePopReturnsImmediately) // NOLINT
 {
     Plugin::DetectionQueue queue;
     auto result = std::async(std::launch::async, &Plugin::DetectionQueue::pop, &queue);
-    auto detection = basicDetection();
+    auto detection = createThreatDetected({});
 
     queue.push(detection);
     ASSERT_EQ(result.wait_for(100ms), std::future_status::ready);
@@ -172,8 +153,8 @@ TEST_F(TestDetectionQueue, testPushedDataIsCorrectlyQueuedAndReturnedWhenPopped)
 {
     Plugin::DetectionQueue queue;
 
-    auto detectionToPush = basicDetection();
-    auto detectionPopped = basicDetection();
+    auto detectionToPush = createThreatDetected({});
+    auto detectionPopped = createThreatDetected({});
 
     queue.push(detectionToPush);
     auto poppedData = queue.pop();

@@ -2,27 +2,27 @@
 
 #pragma once
 
-#include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 #include "datatypes/sophos_filesystem.h"
+
+#include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 
 #include <gtest/gtest.h>
 
 #include <fstream>
 
-namespace fs = sophos_filesystem;
-
-fs::path tmpdir()
+inline sophos_filesystem::path tmpdir()
 {
-    const ::testing::TestInfo* const test_info =
-        ::testing::UnitTest::GetInstance()->current_test_info();
+    namespace fs = sophos_filesystem;
+    const ::testing::TestInfo* const test_info = ::testing::UnitTest::GetInstance()->current_test_info();
     fs::path dir = fs::temp_directory_path();
     dir /= test_info->test_case_name();
     dir /= test_info->name();
     return dir;
 }
 
-void setupFakeSophosThreatDetectorConfig()
+inline void setupFakeSophosThreatDetectorConfig()
 {
+    namespace fs = sophos_filesystem;
     auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
     fs::path base = tmpdir();
     appConfig.setData("PLUGIN_INSTALL", base);
@@ -35,25 +35,16 @@ void setupFakeSophosThreatDetectorConfig()
     ost.close();
 }
 
-void setupFakePluginConfig()
+inline void setupFakeSafeStoreConfig()
 {
-    auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
-    fs::path base = tmpdir();
-    appConfig.setData("PLUGIN_INSTALL", base);
-    fs::create_directories(base / "var");
-    fs::create_directories(base / "chroot/var/sbin");
-    std::ofstream ost(base / "chroot/var/sbin/sophos_threat_detector_launcher"); // Create this file
-}
-
-void setupFakeSafeStoreConfig()
-{
+    namespace fs = sophos_filesystem;
     auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
     fs::path base = tmpdir();
     appConfig.setData("PLUGIN_INSTALL", base);
     fs::create_directories(base / "var");
 }
 
-fs::path pluginInstall()
+inline sophos_filesystem::path pluginInstall()
 {
     auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
     return appConfig.getData("PLUGIN_INSTALL");

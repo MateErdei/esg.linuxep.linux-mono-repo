@@ -1,4 +1,4 @@
-// Copyright 2020-2022, Sophos Limited. All rights reserved.
+// Copyright 2020-2022 Sophos Limited. All rights reserved.
 
 #include "capnp/message.h"
 #include "common/Common.h"
@@ -42,11 +42,11 @@ namespace
         std::shared_ptr<StrictMock<MockShutdownTimer>> m_mockTimer;
 
 
-        scan_messages::ScanRequest makeScanRequestObject(const std::string path,
+        scan_messages::ScanRequest makeScanRequestObject(const std::string& path,
                                                          const scan_messages::E_SCAN_TYPE scanType = scan_messages::E_SCAN_TYPE_ON_DEMAND,
-                                                         const std::string userId = "root",
+                                                         const std::string& userId = "root",
                                                          int64_t pid = -1,
-                                                         const std::string exepath = "")
+                                                         const std::string& exepath = "")
         {
             ::capnp::MallocMessageBuilder message;
             Sophos::ssplav::FileScanRequest::Builder requestBuilder =
@@ -74,9 +74,7 @@ namespace
             EXPECT_EQ(threatDetected.threatType, threat_scanner::convertSusiThreatType(threatType));
             EXPECT_EQ(threatDetected.threatName, threatName);
             EXPECT_EQ(threatDetected.scanType, scanType);
-            EXPECT_EQ(threatDetected.notificationStatus, scan_messages::E_NOTIFICATION_STATUS_NOT_CLEANUPABLE);
             EXPECT_EQ(threatDetected.filePath, path);
-            EXPECT_EQ(threatDetected.actionCode, scan_messages::E_SMT_THREAT_ACTION_NONE);
             EXPECT_EQ(threatDetected.sha256, sha256);
             EXPECT_EQ(threatDetected.threatId, generateThreatId(path, sha256));
             EXPECT_EQ(threatDetected.isRemote, false);

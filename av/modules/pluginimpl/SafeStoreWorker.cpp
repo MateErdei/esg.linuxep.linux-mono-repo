@@ -14,12 +14,10 @@
 using namespace Plugin;
 
 SafeStoreWorker::SafeStoreWorker(
-    const IDetectionReportProcessor& pluginAdapter,
-    IDetectionDatabaseHandler& databaseHandler,
+    IDetectionHandler& detectionHandler,
     std::shared_ptr<DetectionQueue> detectionQueue,
     const fs::path& safeStoreSocket) :
-    m_pluginAdapter(pluginAdapter),
-    m_databaseHandler(databaseHandler),
+    m_detectionHandler(detectionHandler),
     m_detectionQueue(std::move(detectionQueue)),
     m_safeStoreSocket(safeStoreSocket)
 {
@@ -45,6 +43,7 @@ void SafeStoreWorker::run()
         }
 
         scan_messages::ThreatDetected threatDetected = std::move(task).value();
+        threatDetected.quarantineResult = common::CentralEnums::QuarantineResult::FAILED_TO_DELETE_FILE;
 
         bool tryQuarantine = true;
         try
@@ -54,14 +53,12 @@ void SafeStoreWorker::run()
             {
                 LOGINFO("File is located on a Network mount: " << parentMount.mountPoint() << ". Will not quarantine.");
                 threatDetected.isRemote = true;
-                threatDetected.notificationStatus = scan_messages::E_NOTIFICATION_STATUS_NOT_CLEANUPABLE;
                 tryQuarantine = false;
             }
             else if (parentMount.isReadOnly())
             {
                 LOGINFO(
                     "File is located on a ReadOnly mount: " << parentMount.mountPoint() << ". Will not quarantine.");
-                threatDetected.notificationStatus = scan_messages::E_NOTIFICATION_STATUS_NOT_CLEANUPABLE;
                 tryQuarantine = false;
             }
         }
@@ -72,7 +69,6 @@ void SafeStoreWorker::run()
                                                                          << ". Will continue quarantine attempt.");
         }
 
-        auto quarantineResult = common::CentralEnums::QuarantineResult::FAILED_TO_DELETE_FILE;
         if (tryQuarantine)
         {
             unixsocket::SafeStoreClient safeStoreClient(
@@ -86,42 +82,38 @@ void SafeStoreWorker::run()
             {
                 try
                 {
+                    m_detectionHandler.markAsQuarantining(threatDetected);
                     safeStoreClient.sendQuarantineRequest(threatDetected);
                 }
                 catch (const std::exception& e)
                 {
                     // Only a warning because we will report the failure on Central
                     LOGWARN("Failed to send detection to SafeStore: " << e.what());
-                    threatDetected.notificationStatus = scan_messages::E_NOTIFICATION_STATUS_NOT_CLEANUPABLE;
                 }
 
                 try
                 {
-                    quarantineResult = safeStoreClient.waitForResponse();
+                    threatDetected.quarantineResult = safeStoreClient.waitForResponse();
                 }
                 catch (const std::exception& e)
                 {
                     // Only a warning because we will report the failure on Central
                     LOGWARN("Failed to receive a response from SafeStore: " << e.what());
-                    threatDetected.notificationStatus = scan_messages::E_NOTIFICATION_STATUS_NOT_CLEANUPABLE;
                 }
             }
-            const std::string escapedPath = common::escapePathForLogging(threatDetected.filePath);
-            if (quarantineResult == common::CentralEnums::QuarantineResult::SUCCESS)
-            {
-                threatDetected.notificationStatus = scan_messages::E_NOTIFICATION_STATUS_CLEANED_UP;
 
+            const std::string escapedPath = common::escapePathForLogging(threatDetected.filePath);
+            if (threatDetected.quarantineResult == common::CentralEnums::QuarantineResult::SUCCESS)
+            {
                 LOGINFO("Threat cleaned up at path: " << escapedPath);
             }
             else
             {
-                threatDetected.notificationStatus = scan_messages::E_NOTIFICATION_STATUS_NOT_CLEANUPABLE;
                 LOGWARN("Quarantine failed for threat: " << escapedPath);
             }
         }
 
-        m_pluginAdapter.processDetectionReport(threatDetected, quarantineResult);
-        m_databaseHandler.updateThreatDatabase(threatDetected);
+        m_detectionHandler.finaliseDetection(threatDetected);
     }
     sleeper.reset();
 }

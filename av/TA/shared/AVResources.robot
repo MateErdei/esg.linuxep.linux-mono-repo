@@ -430,19 +430,26 @@ AV Plugin Log Should Not Contain Detection Name And Path With Offset
     AV Plugin Log Should Not Contain With Offset  Found '${name}' in '${path}'
 
 Check String Contains Detection Event XML
-    [Arguments]  ${input}  ${id}  ${name}  ${threatType}  ${origin}  ${remote}  ${sha256}  ${path}
-    Should Contain  ${input}  type="sophos.core.detection" ts="
-    Should Contain  ${input}  <user userId="n/a"/>
-    Should Contain  ${input}  <alert id="${id}" name="${name}" threatType="${threatType}" origin="${origin}" remote="${remote}">
-    Should Contain  ${input}  <sha256>${sha256}</sha256>
-    Should Contain  ${input}  <path>${path}</path>
-    [Return]  ${true}
+    [Arguments]  ${string}  ${user_id}  ${name}  ${threat_type}  ${origin}  ${remote}  ${sha256}  ${path}
+    ${regexp} =  Catenate  SEPARATOR=\n
+    ...  \\s*<\\?xml version="1\\.0" encoding="utf-8"\\?>
+    ...  \\s*<event type="sophos\\.core\\.detection" ts="(?P<ts>.*)">
+    ...  \\s*<user userId="${user_id}"/>
+    ...  \\s*<alert id="(?P<id>.*)" name="${name}" threatType="${threat_type}" origin="${origin}" remote="${remote}">
+    ...  \\s*<sha256>${sha256}</sha256>
+    ...  \\s*<path>${path}</path>
+    ...  \\s*</alert>
+    ...  \\s*</event>
+    ${matches} =  Get Regexp Matches  ${string}  ${regexp}  id
+    [Return]  ${matches}
 
 Wait Until AV Plugin Log Contains Detection Event XML After Mark
-    [Arguments]  ${mark}  ${id}  ${name}  ${threatType}  ${origin}  ${remote}  ${sha256}  ${path}  ${timeout}=15
+    [Arguments]  ${mark}  ${user_id}  ${name}  ${threat_type}  ${origin}  ${remote}  ${sha256}  ${path}  ${timeout}=15
     wait_for_av_log_contains_after_mark  Sending threat detection notification to central  timeout=${timeout}  mark=${mark}
-    ${marked_av_log} =  get av log after mark as unicode  ${mark}
-    Check String Contains Detection Event XML  ${marked_av_log}  ${id}  ${name}  ${threatType}  ${origin}  ${remote}  ${sha256}  ${path}
+    ${marked_av_log} =  get_av_log_after_mark_as_unicode  ${mark}
+    ${matches} =  Check String Contains Detection Event XML  ${marked_av_log}  ${user_id}  ${name}  ${threat_type}  ${origin}  ${remote}  ${sha256}  ${path}
+    Should Not Be Empty  ${matches}
+    [Return]  ${matches}[0]
 
 Base CORE Event Paths
     @{paths} =  List Files In Directory  ${MCS_PATH}/event  CORE_*.xml  absolute
@@ -455,21 +462,23 @@ Base Has Number Of CORE Events
     Should Be Equal As Integers  ${expected_count}  ${actual_count}
 
 Base Has Detection Event
-    [Arguments]  ${id}  ${name}  ${threatType}  ${origin}  ${remote}  ${sha256}  ${path}
+    [Arguments]  ${user_id}  ${name}  ${threat_type}  ${origin}  ${remote}  ${sha256}  ${path}
     @{files} =  Base CORE Event Paths
     FOR  ${file}  IN  @{files}
         ${xml} =  Get File  ${file}
-        ${was_found} =  Run Keyword And Return Status  Check String Contains Detection Event XML  ${xml}  ${id}  ${name}  ${threatType}  ${origin}  ${remote}  ${sha256}  ${path}
-        Return From Keyword If  ${was_found}  ${xml}
+        ${matches} =  Check String Contains Detection Event XML  ${xml}  ${user_id}  ${name}  ${threat_type}  ${origin}  ${remote}  ${sha256}  ${path}
+        Return From Keyword If  len($matches) == 1  ${matches}[0]
+        Log  ${xml}
     END
     Fail  No matching detection event found
 
 Wait Until Base Has Detection Event
-    [Arguments]  ${id}  ${name}  ${threatType}  ${origin}  ${remote}  ${sha256}  ${path}  ${timeout}=60  ${interval}=3
-    Wait Until Keyword Succeeds
+    [Arguments]  ${user_id}  ${name}  ${threat_type}  ${origin}  ${remote}  ${sha256}  ${path}  ${timeout}=60  ${interval}=3
+    ${correlation_id} =  Wait Until Keyword Succeeds
     ...  ${timeout} secs
     ...  ${interval} secs
-    ...  Base Has Detection Event  ${id}  ${name}  ${threatType}  ${origin}  ${remote}  ${sha256}  ${path}
+    ...  Base Has Detection Event  ${user_id}  ${name}  ${threat_type}  ${origin}  ${remote}  ${sha256}  ${path}
+    [Return]  ${correlation_id}
 
 Check String Contains Clean Event XML
     [Arguments]  ${input}  ${alert_id}  ${succeeded}  ${origin}  ${result}  ${path}

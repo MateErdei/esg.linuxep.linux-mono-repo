@@ -52,7 +52,7 @@ std::string pluginimpl::generateThreatDetectedXml(const scan_messages::ThreatDet
 
     try
     {
-        //verify that the xml generated is parsable
+        // verify that the xml generated is parsable
         Common::XmlUtilities::parseXml(result);
     }
     catch (const std::exception& e)
@@ -83,7 +83,7 @@ std::string pluginimpl::populateThreatReportXml(
 </event>)sophos",
         { { "@@TS@@", timestamp },
           { "@@USER_ID@@", detection.userID },
-          { "@@ID@@", detection.threatId },
+          { "@@ID@@", detection.correlationId },
           { "@@NAME@@", detection.threatName },
           { "@@THREAT_TYPE@@", std::to_string(static_cast<int>(detection.threatType)) },
           { "@@ORIGIN@@", std::to_string(static_cast<int>(getOriginOf(detection.reportSource, detection.threatType))) },
@@ -130,11 +130,11 @@ std::string pluginimpl::generateThreatDetectedJson(const scan_messages::ThreatDe
 
     threatEvent["details"] = details;
     threatEvent["items"] = items;
-    bool overallSuccess = detection.notificationStatus == scan_messages::E_NOTIFICATION_STATUS::E_NOTIFICATION_STATUS_CLEANED_UP;
+    bool overallSuccess = detection.quarantineResult == common::CentralEnums::QuarantineResult::SUCCESS;
     threatEvent["quarantineSuccess"] = overallSuccess;
-    if (detection.scanType == scan_messages::E_SCAN_TYPE::E_SCAN_TYPE_ON_ACCESS
-        || detection.scanType == scan_messages::E_SCAN_TYPE::E_SCAN_TYPE_ON_ACCESS_OPEN
-        || detection.scanType == scan_messages::E_SCAN_TYPE::E_SCAN_TYPE_ON_ACCESS_CLOSE)
+    if (detection.scanType == scan_messages::E_SCAN_TYPE::E_SCAN_TYPE_ON_ACCESS ||
+        detection.scanType == scan_messages::E_SCAN_TYPE::E_SCAN_TYPE_ON_ACCESS_OPEN ||
+        detection.scanType == scan_messages::E_SCAN_TYPE::E_SCAN_TYPE_ON_ACCESS_CLOSE)
     {
         threatEvent["avScanType"] = static_cast<int>(scan_messages::E_SCAN_TYPE::E_SCAN_TYPE_ON_ACCESS);
     }
@@ -151,9 +151,7 @@ std::string pluginimpl::generateThreatDetectedJson(const scan_messages::ThreatDe
 }
 
 // XML defined at https://sophos.atlassian.net/wiki/spaces/SophosCloud/pages/42255827359/EMP+event-core-clean
-std::string pluginimpl::generateCoreCleanEventXml(
-    const scan_messages::ThreatDetected& detection,
-    const common::CentralEnums::QuarantineResult& quarantineResult)
+std::string pluginimpl::generateCoreCleanEventXml(const scan_messages::ThreatDetected& detection)
 {
     if (detection.filePath.empty())
     {
@@ -170,13 +168,13 @@ std::string pluginimpl::generateCoreCleanEventXml(
 
     auto timestamp = Common::UtilityImpl::TimeUtils::MessageTimeStamp(
         std::chrono::system_clock::from_time_t(detection.detectionTime));
-    bool overallSuccess = quarantineResult == common::CentralEnums::QuarantineResult::SUCCESS;
+    bool overallSuccess = detection.quarantineResult == common::CentralEnums::QuarantineResult::SUCCESS;
 
-    std::string result = populateCleanEventXml(detection, quarantineResult, utf8Path, timestamp, overallSuccess);
+    std::string result = populateCleanEventXml(detection, utf8Path, timestamp, overallSuccess);
 
     try
     {
-        //verify that the xml generated is parsable
+        // verify that the xml generated is parsable
         Common::XmlUtilities::parseXml(result);
     }
     catch (const std::exception& e)
@@ -185,7 +183,7 @@ std::string pluginimpl::generateCoreCleanEventXml(
         auto logPath = common::getPluginInstallPath() / "log/sophos_threat_detector/sophos_threat_detector.log";
         std::stringstream replacementPath;
         replacementPath << "See endpoint logs for threat file path at: " << logPath.c_str();
-        result = populateCleanEventXml(detection, quarantineResult, replacementPath.str(), timestamp, overallSuccess);
+        result = populateCleanEventXml(detection, replacementPath.str(), timestamp, overallSuccess);
     }
 
     return result;
@@ -193,7 +191,6 @@ std::string pluginimpl::generateCoreCleanEventXml(
 
 std::string pluginimpl::populateCleanEventXml(
     const scan_messages::ThreatDetected& detection,
-    const common::CentralEnums::QuarantineResult& quarantineResult,
     const std::string& utf8Path,
     const std::string& timestamp,
     bool overallSuccess)
@@ -210,12 +207,12 @@ std::string pluginimpl::populateCleanEventXml(
   </alert>
 </event>)sophos",
         { { "@@TS@@", timestamp },
-          { "@@CORRELATION_ID@@", detection.threatId },
+          { "@@CORRELATION_ID@@", detection.correlationId },
           { "@@SUCCESS_OVERALL@@", std::to_string(overallSuccess) },
           { "@@ORIGIN@@", std::to_string(static_cast<int>(getOriginOf(detection.reportSource, detection.threatType))) },
           { "@@TOTAL_ITEMS@@",
             std::to_string(1) }, // hard coded until we deal with multiple threats per ThreatDetected object
-          { "@@SUCCESS_DETAILED@@", std::to_string(static_cast<int>(quarantineResult)) },
+          { "@@SUCCESS_DETAILED@@", std::to_string(static_cast<int>(detection.quarantineResult)) },
           { "@@PATH@@", utf8Path } });
     return result;
 }

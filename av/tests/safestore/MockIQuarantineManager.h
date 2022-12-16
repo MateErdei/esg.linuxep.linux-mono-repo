@@ -19,7 +19,12 @@ public:
     MOCK_METHOD(
         common::CentralEnums::QuarantineResult,
         quarantineFile,
-        (const std::string&, const std::string&, const std::string&, const std::string&, datatypes::AutoFd));
+        (const std::string& filePath,
+         const std::string& threatId,
+         const std::string& threatName,
+         const std::string& sha256,
+         const std::string& correlationId,
+         datatypes::AutoFd autoFd));
     MOCK_METHOD(
         std::vector<FdsObjectIdsPair>,
         extractQuarantinedFiles,

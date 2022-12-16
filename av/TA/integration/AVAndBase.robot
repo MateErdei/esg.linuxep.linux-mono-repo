@@ -42,9 +42,9 @@ Remove Users Stop Processes
 
 Wait Until Base Has Naughty Eicar Detection Event
     Wait Until Base Has Detection Event
-    ...  id=265a4b8a-239b-5f7e-8e4b-c78748cbd7ef
+    ...  user_id=n/a
     ...  name=EICAR-AV-Test
-    ...  threatType=1
+    ...  threat_type=1
     ...  origin=1
     ...  remote=false
     ...  sha256=275a021bbfb6489e54d471899f7db9d1663fc695ec2fe2a2c4538aabf651fd0f

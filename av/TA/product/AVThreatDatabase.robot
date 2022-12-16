@@ -51,13 +51,14 @@ Threat is removed from Threat database when marked as resolved in central
     ${avmark} =  get_av_log_mark
     Create File     ${NORMAL_DIRECTORY}/naughty_eicar    ${EICAR_STRING}
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naughty_eicar
-    wait_for_av_log_contains_after_mark   Added threat 265a4b8a-239b-5f7e-8e4b-c78748cbd7ef with correlationId   ${avmark}
+    ${threat_id} =  Set Variable  265a4b8a-239b-5f7e-8e4b-c78748cbd7ef
+    ${correlation_id} =  Get Correlation Id From Log  ${avmark}  ${threat_id}
 
     ## Only interested in removals after we send the action
     ${avmark} =  get_av_log_mark
-    ${actionContent} =  Set Variable  <action type="sophos.core.threat.sav.clear"><item id="265a4b8a-239b-5f7e-8e4b-c78748cbd7ef"/></action>
+    ${actionContent} =  Set Variable  <action type="sophos.core.threat.sav.clear"><item id="${correlation_id}"/></action>
     Send Plugin Action  av  ${SAV_APPID}  corr123  ${actionContent}
-    wait_for_av_log_contains_after_mark   Removing threat 265a4b8a-239b-5f7e-8e4b-c78748cbd7ef with correlationId   ${avmark}
+    wait_for_av_log_contains_after_mark   Removing threat ${threat_id} with correlationId ${correlation_id}  ${avmark}
     wait_for_av_log_contains_after_mark   Threat database is now empty, sending good health to Management agent   ${avmark}
     wait_for_av_log_contains_after_mark   Publishing threat health: good   ${avmark}
 
@@ -170,3 +171,13 @@ ThreatDatabase Test TearDown
     run teardown functions
     Remove File  ${THREAT_DATABASE_PATH}
     Component Test TearDown
+
+Get Correlation Id From Log
+    [Arguments]  ${mark}  ${threat_id}
+    wait_for_av_log_contains_after_mark   Added threat ${threat_id} with correlationId   ${mark}
+    ${marked_av_log} =  get_av_log_after_mark_as_unicode  ${mark}
+    ${matches} =  Get Regexp Matches  ${marked_av_log}  Added threat ${threat_id} with correlationId (.*) to threat database  1
+    IF  len($matches) != 1
+        Fail  Wrong amount of matches
+    END
+    [Return]  ${matches}[0]

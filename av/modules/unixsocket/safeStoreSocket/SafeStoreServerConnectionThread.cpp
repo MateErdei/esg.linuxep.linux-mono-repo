@@ -1,4 +1,4 @@
-// Copyright 2022, Sophos Limited. All rights reserved.
+// Copyright 2022 Sophos Limited. All rights reserved.
 
 #include "SafeStoreServerConnectionThread.h"
 
@@ -58,7 +58,7 @@ static scan_messages::ThreatDetected parseDetection(kj::Array<capnp::word>& prot
     {
         LOGERROR("Missing file path while parsing report ( size=" << bytes_read << " )");
     }
-    return scan_messages::ThreatDetected(requestReader);
+    return scan_messages::ThreatDetected::deserialise(requestReader);
 }
 
 std::string getResponse(common::CentralEnums::QuarantineResult quarantineResult)
@@ -239,6 +239,7 @@ void SafeStoreServerConnectionThread::inner_run()
                 threatDetected.threatId,
                 threatDetected.threatName,
                 threatDetected.sha256,
+                threatDetected.correlationId,
                 std::move(threatDetected.autoFd));
 
             switch (quarantineResult)

@@ -1,4 +1,4 @@
-// Copyright 2022, Sophos Limited. All rights reserved.
+// Copyright 2022 Sophos Limited. All rights reserved.
 
 #include "common/MemoryAppender.h"
 #include "sophos_threat_detector/threat_scanner/ThreatDetectedBuilder.h"
@@ -109,9 +109,7 @@ TEST_F(TestThreatDetectedBuilder, buildThreatDetectedBuildsCorrectObject)
     EXPECT_EQ(threatDetected.threatType, ThreatType::virus);
     EXPECT_EQ(threatDetected.threatName, "EICAR-AV-Test");
     EXPECT_EQ(threatDetected.scanType, scan_messages::E_SCAN_TYPE_ON_DEMAND);
-    EXPECT_EQ(threatDetected.notificationStatus, scan_messages::E_NOTIFICATION_STATUS_NOT_CLEANUPABLE);
     EXPECT_EQ(threatDetected.filePath, "/tmp/eicar.txt");
-    EXPECT_EQ(threatDetected.actionCode, scan_messages::E_SMT_THREAT_ACTION_NONE);
     EXPECT_EQ(threatDetected.sha256, "sha256");
     EXPECT_EQ(threatDetected.threatId, "1a209c63-54e9-5080-8078-e283df4a0809");
     EXPECT_EQ(threatDetected.isRemote, false);

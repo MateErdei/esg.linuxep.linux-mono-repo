@@ -1,4 +1,4 @@
-// Copyright 2022, Sophos Limited. All rights reserved.
+// Copyright 2022 Sophos Limited. All rights reserved.
 
 #include "QuarantineManagerImpl.h"
 
@@ -10,8 +10,8 @@
 #include "safestore/SafeStoreTelemetryConsts.h"
 #include "safestore/SafeStoreWrapper/SafeStoreWrapperImpl.h"
 #include "scan_messages/ClientScanRequest.h"
-#include "unixsocket/threatDetectorSocket/ScanningClientSocket.h"
 #include "unixsocket/restoreReportingSocket/RestoreReportingClient.h"
+#include "unixsocket/threatDetectorSocket/ScanningClientSocket.h"
 
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "Common/FileSystem/IFilePermissions.h"
@@ -23,6 +23,7 @@
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>
+#include <thirdparty/nlohmann-json/json.hpp>
 
 #include <utility>
 
@@ -208,6 +209,7 @@ namespace safestore::QuarantineManager
         const std::string& threatId,
         const std::string& threatName,
         const std::string& sha256,
+        const std::string& correlationId,
         datatypes::AutoFd autoFd)
     {
         const std::string escapedPath = common::escapePathForLogging(filePath);
@@ -272,6 +274,17 @@ namespace safestore::QuarantineManager
             m_safeStore->setObjectCustomDataString(*objectHandle, "SHA256", sha256);
             LOGDEBUG("File SHA256: " << sha256);
 
+            try
+            {
+                storeCorrelationId(*objectHandle, correlationId);
+                LOGDEBUG("Correlation ID: " << correlationId);
+            }
+            catch (const std::exception& e)
+            {
+                LOGERROR("Failed to store correlation ID " << correlationId << ": " << e.what());
+                return common::CentralEnums::QuarantineResult::FAILED_TO_DELETE_FILE;
+            }
+
             LOGDEBUG("Finalising file: " << escapedPath);
             if (!m_safeStore->finaliseObject(*objectHandle))
             {
@@ -311,7 +324,8 @@ namespace safestore::QuarantineManager
         }
         else
         {
-            LOGERROR("Failed to quarantine file due to: " << SafeStoreWrapper::GL_SAVE_FILE_RETURN_CODES.at(saveResult));
+            LOGERROR(
+                "Failed to quarantine file due to: " << SafeStoreWrapper::GL_SAVE_FILE_RETURN_CODES.at(saveResult));
             if (saveResult == SafeStoreWrapper::SaveFileReturnCode::DB_ERROR)
             {
                 callOnDbError();
@@ -564,15 +578,19 @@ namespace safestore::QuarantineManager
         const std::string path = objectLocation + "/" + objectName;
         const std::string escapedPath = common::escapePathForLogging(path);
 
-        const std::string threatId = m_safeStore->getObjectThreatId(*objectHandle);
-        if (threatId.empty())
+        std::string correlationId;
+        try
         {
-            LOGERROR("Couldn't get threatId for: " << escapedPath << ", unable to restore.");
+            correlationId = getCorrelationId(*objectHandle);
+        }
+        catch (const std::exception& e)
+        {
+            LOGERROR("Unable to restore " << escapedPath << ", couldn't get correlation ID: " << e.what());
             return {};
         }
 
         // Create report
-        scan_messages::RestoreReport restoreReport{ std::time(nullptr), path, threatId, false };
+        scan_messages::RestoreReport restoreReport{ std::time(nullptr), path, correlationId, false };
 
         // Attempt Restore
         if (!m_safeStore->restoreObjectById(objectId))
@@ -608,14 +626,17 @@ namespace safestore::QuarantineManager
             {
                 if (restoreReport->wasSuccessful)
                 {
-                    Common::Telemetry::TelemetryHelper::getInstance().increment(telemetrySafeStoreSuccessfulFileRestorations, 1ul);
+                    Common::Telemetry::TelemetryHelper::getInstance().increment(
+                        telemetrySafeStoreSuccessfulFileRestorations, 1ul);
                 }
                 else
                 {
-                    Common::Telemetry::TelemetryHelper::getInstance().increment(telemetrySafeStoreFailedFileRestorations, 1ul);
+                    Common::Telemetry::TelemetryHelper::getInstance().increment(
+                        telemetrySafeStoreFailedFileRestorations, 1ul);
                 }
 
-                std::shared_ptr<common::StoppableSleeper> sleeper; // TODO - This whole QM file will be interruptable in the future
+                // TODO - This whole QM file will be interruptable in the future
+                std::shared_ptr<common::StoppableSleeper> sleeper;
                 unixsocket::RestoreReportingClient client(sleeper);
                 client.sendRestoreReport(restoreReport.value());
             }
@@ -697,5 +718,37 @@ namespace safestore::QuarantineManager
             m_safeStore->setConfigIntValue(option, json[SafeStoreWrapper::GL_OPTIONS_MAP.at(option)]);
             json.erase(SafeStoreWrapper::GL_OPTIONS_MAP.at(option));
         }
+    }
+
+    void QuarantineManagerImpl::storeCorrelationId(
+        SafeStoreWrapper::ObjectHandleHolder& objectHandle,
+        const std::string& correlationId)
+    {
+        if (!Common::UtilityImpl::Uuid::IsValid(correlationId))
+        {
+            throw std::invalid_argument("Invalid correlation ID " + correlationId);
+        }
+
+        if (!m_safeStore->setObjectCustomDataString(objectHandle, "correlationId", correlationId))
+        {
+            throw std::runtime_error(
+                "Failed to set SafeStore object custom string 'correlationId' to " + correlationId);
+        }
+    }
+
+    std::string QuarantineManagerImpl::getCorrelationId(SafeStoreWrapper::ObjectHandleHolder& objectHandle)
+    {
+        std::string correlationId = m_safeStore->getObjectCustomDataString(objectHandle, "correlationId");
+        if (correlationId.empty())
+        {
+            throw std::runtime_error("Failed to get SafeStore object custom string 'correlationId'");
+        }
+
+        if (!Common::UtilityImpl::Uuid::IsValid(correlationId))
+        {
+            throw std::runtime_error("Saved correlation ID " + correlationId + " is invalid");
+        }
+
+        return correlationId;
     }
 } // namespace safestore::QuarantineManager

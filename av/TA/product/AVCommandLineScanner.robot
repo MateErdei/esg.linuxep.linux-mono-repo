@@ -639,9 +639,9 @@ CLS Creates Threat Report
     Wait Until AV Plugin Log Contains Detection Name And Path After Mark  ${mark}  EICAR-AV-Test  ${NORMAL_DIRECTORY}/clscreatesthreatreport_eicar
     Wait Until AV Plugin Log Contains Detection Event XML After Mark
     ...  mark=${mark}
-    ...  id=30bdb349-dba6-5b31-9596-e6fc444acfaa
+    ...  user_id=n/a
     ...  name=EICAR-AV-Test
-    ...  threatType=1
+    ...  threat_type=1
     ...  origin=1
     ...  remote=false
     ...  sha256=275a021bbfb6489e54d471899f7db9d1663fc695ec2fe2a2c4538aabf651fd0f
@@ -1819,9 +1819,9 @@ Threat Detector Client Attempts To Reconnect If AV Plugin Is Not Ready
     Wait Until AV Plugin Log Contains Detection Name And Path After Mark  ${av_mark}  EICAR-AV-Test  ${NORMAL_DIRECTORY}/eicar_file
     Wait Until AV Plugin Log Contains Detection Event XML After Mark
     ...  mark=${av_mark}
-    ...  id=205483d0-838e-54c3-bf9e-e6d73e5dd16f
+    ...  user_id=n/a
     ...  name=EICAR-AV-Test
-    ...  threatType=1
+    ...  threat_type=1
     ...  origin=1
     ...  remote=false
     ...  sha256=275a021bbfb6489e54d471899f7db9d1663fc695ec2fe2a2c4538aabf651fd0f

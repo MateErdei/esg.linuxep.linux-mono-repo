@@ -11,7 +11,6 @@ sophos_add_library(pluginimpl SHARED
         DetectionReporter.h
         HealthStatus.cpp
         HealthStatus.h
-        IDetectionReportProcessor.h
         PolicyProcessor.cpp
         PolicyProcessor.h
         PolicyWaiter.cpp

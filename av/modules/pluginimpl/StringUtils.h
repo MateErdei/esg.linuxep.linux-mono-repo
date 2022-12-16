@@ -18,9 +18,7 @@ namespace pluginimpl
         bool enabled,
         const std::vector<std::string>& exclusionList,
         bool excludeRemoteFiles);
-    std::string generateCoreCleanEventXml(
-        const scan_messages::ThreatDetected& detection,
-        const common::CentralEnums::QuarantineResult& quarantineResult);
+    std::string generateCoreCleanEventXml(const scan_messages::ThreatDetected& detection);
     std::string generateCoreRestoreEventXml(const scan_messages::RestoreReport& restoreReport);
     constexpr std::size_t centralLimitedStringMaxSize = 32767;
     std::string populateThreatReportXml(
@@ -29,7 +27,6 @@ namespace pluginimpl
         const std::string& timestamp);
     std::string populateCleanEventXml(
         const scan_messages::ThreatDetected& detection,
-        const common::CentralEnums::QuarantineResult& quarantineResult,
         const std::string& utf8Path,
         const std::string& timestamp,
         bool overallSuccess);

@@ -1,4 +1,4 @@
-// Copyright 2022, Sophos Limited. All rights reserved.
+// Copyright 2022 Sophos Limited. All rights reserved.
 
 #include "MockISafeStoreWrapper.h"
 #include "SafeStoreMemoryAppenderUsingTests.h"
@@ -48,12 +48,13 @@ protected:
     inline static const std::string m_threatID = "01234567-89ab-cdef-0123-456789abcdef";
     inline static const std::string m_threatName = "threatName";
     inline static const std::string m_SHA256 = "SHA256abcdef";
+    inline static const std::string m_correlationId = "fedcba98-7654-3210-fedc-ba9876543210";
 };
 
 TEST_F(QuarantineManagerTests, initDbWithExistingPassword)
 {
     auto* filesystemMock = new StrictMock<MockFileSystem>();
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::unique_ptr<Common::FileSystem::IFileSystem>(
         filesystemMock) };
 
     addCommonPersistValueExpects(*filesystemMock);
@@ -76,7 +77,7 @@ TEST_F(QuarantineManagerTests, initDbWithExistingPassword)
 TEST_F(QuarantineManagerTests, initDbAndGeneratePassword)
 {
     auto* filesystemMock = new StrictMock<MockFileSystem>();
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::unique_ptr<Common::FileSystem::IFileSystem>(
         filesystemMock) };
     addCommonPersistValueExpects(*filesystemMock);
     EXPECT_CALL(*filesystemMock, removeFile(Plugin::getSafeStoreDormantFlagPath(), true)).WillOnce(Return());
@@ -98,7 +99,7 @@ TEST_F(QuarantineManagerTests, initDbAndGeneratePassword)
 TEST_F(QuarantineManagerTests, uninitialisedDbIsInitialisedAfterSuccessfulInitCall)
 {
     auto* filesystemMock = new StrictMock<MockFileSystem>();
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::unique_ptr<Common::FileSystem::IFileSystem>(
         filesystemMock) };
     addCommonPersistValueExpects(*filesystemMock);
     EXPECT_CALL(*filesystemMock, removeFile(Plugin::getSafeStoreDormantFlagPath(), true)).WillOnce(Return());
@@ -121,7 +122,7 @@ TEST_F(QuarantineManagerTests, uninitialisedDbIsInitialisedAfterSuccessfulInitCa
 TEST_F(QuarantineManagerTests, uninitialisedDbStateIsStillUnitialisedAfterFailedInitCall)
 {
     auto* filesystemMock = new StrictMock<MockFileSystem>();
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::unique_ptr<Common::FileSystem::IFileSystem>(
         filesystemMock) };
     addCommonPersistValueExpects(*filesystemMock);
     EXPECT_CALL(*filesystemMock, isFile(Plugin::getSafeStorePasswordFilePath())).WillOnce(Return(true));
@@ -145,7 +146,7 @@ TEST_F(QuarantineManagerTests, uninitialisedDbStateIsStillUnitialisedAfterFailed
 TEST_F(QuarantineManagerTests, initFailsOnDBErrorAndDbIsMarkedCorrupt)
 {
     auto* filesystemMock = new StrictMock<MockFileSystem>();
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::unique_ptr<Common::FileSystem::IFileSystem>(
         filesystemMock) };
     addCommonPersistValueExpects(*filesystemMock);
     EXPECT_CALL(*filesystemMock, isFile(Plugin::getSafeStorePasswordFilePath())).WillRepeatedly(Return(true));
@@ -176,7 +177,7 @@ TEST_F(QuarantineManagerTests, initFailsOnDBErrorAndDbIsMarkedCorrupt)
 TEST_F(QuarantineManagerTests, initFailsOnDBOpenFailureAndDbIsMarkedCorrupt)
 {
     auto* filesystemMock = new StrictMock<MockFileSystem>();
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::unique_ptr<Common::FileSystem::IFileSystem>(
         filesystemMock) };
     addCommonPersistValueExpects(*filesystemMock);
     EXPECT_CALL(
@@ -207,7 +208,7 @@ TEST_F(QuarantineManagerTests, initFailsOnDBOpenFailureAndDbIsMarkedCorrupt)
 TEST_F(QuarantineManagerTests, quarantineFile)
 {
     auto* filesystemMock = new StrictMock<MockFileSystem>();
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::unique_ptr<Common::FileSystem::IFileSystem>(
         filesystemMock) };
     addCommonPersistValueExpects(*filesystemMock);
     EXPECT_CALL(*filesystemMock, removeFile(Plugin::getSafeStoreDormantFlagPath(), true)).WillOnce(Return()); // 1
@@ -216,7 +217,7 @@ TEST_F(QuarantineManagerTests, quarantineFile)
     EXPECT_CALL(*filesystemMock, isFile(Plugin::getSafeStoreConfigPath())).WillOnce(Return(false));
 
     EXPECT_CALL(*filesystemMock, compareFileDescriptors(_, _)).WillOnce(Return(true));
-    EXPECT_CALL(*filesystemMock, unlinkFileUsingDirectoryFD(_,"file"));
+    EXPECT_CALL(*filesystemMock, unlinkFileUsingDirectoryFD(_, "file"));
     EXPECT_CALL(*filesystemMock, getFileInfoDescriptor(_)).WillOnce(Return(100));
     EXPECT_CALL(*filesystemMock, getFileInfoDescriptorFromDirectoryFD(_, _)).WillOnce(Return(120));
 
@@ -235,7 +236,7 @@ TEST_F(QuarantineManagerTests, quarantineFile)
     EXPECT_CALL(*mockReleaseMethods, releaseObjectHandle(rawHandle1));
 
     void* rawHandle2 = reinterpret_cast<SafeStoreObjectHandle>(2222);
-    ObjectHandleHolder objectHandle2 { mockGetIdMethods, mockReleaseMethods };
+    ObjectHandleHolder objectHandle2{ mockGetIdMethods, mockReleaseMethods };
     *objectHandle2.getRawHandlePtr() = rawHandle2;
     auto handleAsArg2 = Property(&ObjectHandleHolder::getRawHandle, rawHandle2); // Matches argument with raw handle
     EXPECT_CALL(*mockReleaseMethods, releaseObjectHandle(rawHandle2));
@@ -246,11 +247,13 @@ TEST_F(QuarantineManagerTests, quarantineFile)
         .WillOnce(Return(SaveFileReturnCode::OK));
     EXPECT_CALL(*m_mockSafeStoreWrapper, setObjectCustomDataString(handleAsArg1, "SHA256", m_SHA256))
         .WillOnce(Return(true));
+    EXPECT_CALL(*m_mockSafeStoreWrapper, setObjectCustomDataString(handleAsArg1, "correlationId", m_correlationId))
+        .WillOnce(Return(true));
     EXPECT_CALL(*m_mockSafeStoreWrapper, finaliseObject(handleAsArg1)).WillOnce(Return(true));
 
     std::vector<ObjectHandleHolder> searchResults;
     searchResults.push_back(std::move(objectHandle2));
-    EXPECT_CALL(*m_mockSafeStoreWrapper, find(SafeStoreFilter { m_threatID, {}, {}, {}, ObjectType::FILE, {}, {}, {} }))
+    EXPECT_CALL(*m_mockSafeStoreWrapper, find(SafeStoreFilter{ m_threatID, {}, {}, {}, ObjectType::FILE, {}, {}, {} }))
         .WillOnce(Return(ByMove(std::move(searchResults))));
 
     std::shared_ptr<IQuarantineManager> quarantineManager =
@@ -262,7 +265,7 @@ TEST_F(QuarantineManagerTests, quarantineFile)
     EXPECT_EQ(
         common::CentralEnums::QuarantineResult::SUCCESS,
         quarantineManager->quarantineFile(
-            m_dir + "/" + m_file, m_threatID, m_threatName, m_SHA256, std::move(fdHolder)));
+            m_dir + "/" + m_file, m_threatID, m_threatName, m_SHA256, m_correlationId, std::move(fdHolder)));
 }
 
 TEST_F(QuarantineManagerTests, quarantineFileLogsWhenSaveFileFails)
@@ -304,16 +307,16 @@ TEST_F(QuarantineManagerTests, quarantineFileLogsWhenSaveFileFails)
     EXPECT_EQ(
         common::CentralEnums::QuarantineResult::FAILED_TO_DELETE_FILE,
         quarantineManager->quarantineFile(
-            m_dir + "/" + m_file, m_threatID, m_threatName, m_SHA256, std::move(fdHolder)));
+            m_dir + "/" + m_file, m_threatID, m_threatName, m_SHA256, m_correlationId, std::move(fdHolder)));
 
-    EXPECT_TRUE(appenderContains("Failed to quarantine file due to: " +
-                                 GL_SAVE_FILE_RETURN_CODES.at(SaveFileReturnCode::INVALID_ARG)));
+    EXPECT_TRUE(appenderContains(
+        "Failed to quarantine file due to: " + GL_SAVE_FILE_RETURN_CODES.at(SaveFileReturnCode::INVALID_ARG)));
 }
 
 TEST_F(QuarantineManagerTests, quarantineFileFailsWhenFileDescriptorsDoNotMatch)
 {
     auto* filesystemMock = new StrictMock<MockFileSystem>();
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::unique_ptr<Common::FileSystem::IFileSystem>(
         filesystemMock) };
     addCommonPersistValueExpects(*filesystemMock);
     EXPECT_CALL(*filesystemMock, removeFile(Plugin::getSafeStoreDormantFlagPath(), true)).WillOnce(Return());
@@ -348,13 +351,13 @@ TEST_F(QuarantineManagerTests, quarantineFileFailsWhenFileDescriptorsDoNotMatch)
     EXPECT_EQ(
         common::CentralEnums::QuarantineResult::FAILED_TO_DELETE_FILE,
         quarantineManager->quarantineFile(
-            m_dir + "/" + m_file, m_threatID, m_threatName, m_SHA256, std::move(fdHolder)));
+            m_dir + "/" + m_file, m_threatID, m_threatName, m_SHA256, m_correlationId, std::move(fdHolder)));
 }
 
 TEST_F(QuarantineManagerTests, quarantineFileFailsWhenUnlinkFails)
 {
     auto* filesystemMock = new StrictMock<MockFileSystem>();
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::unique_ptr<Common::FileSystem::IFileSystem>(
         filesystemMock) };
     addCommonPersistValueExpects(*filesystemMock);
     EXPECT_CALL(*filesystemMock, removeFile(Plugin::getSafeStoreDormantFlagPath(), true)).WillOnce(Return());
@@ -365,7 +368,7 @@ TEST_F(QuarantineManagerTests, quarantineFileFailsWhenUnlinkFails)
     EXPECT_CALL(*filesystemMock, compareFileDescriptors(_, _)).WillOnce(Return(true));
     EXPECT_CALL(*filesystemMock, getFileInfoDescriptor(_)).WillOnce(Return(100));
     EXPECT_CALL(*filesystemMock, getFileInfoDescriptorFromDirectoryFD(_, _)).WillOnce(Return(120));
-    EXPECT_CALL(*filesystemMock, unlinkFileUsingDirectoryFD(_,"file")).WillOnce(Throw(IFileSystemException("")));
+    EXPECT_CALL(*filesystemMock, unlinkFileUsingDirectoryFD(_, "file")).WillOnce(Throw(IFileSystemException("")));
     auto mockSafeStoreWrapper = std::make_unique<StrictMock<MockISafeStoreWrapper>>();
     EXPECT_CALL(
         *mockSafeStoreWrapper,
@@ -389,13 +392,13 @@ TEST_F(QuarantineManagerTests, quarantineFileFailsWhenUnlinkFails)
     EXPECT_EQ(
         common::CentralEnums::QuarantineResult::FAILED_TO_DELETE_FILE,
         quarantineManager->quarantineFile(
-            m_dir + "/" + m_file, m_threatID, m_threatName, m_SHA256, std::move(fdHolder)));
+            m_dir + "/" + m_file, m_threatID, m_threatName, m_SHA256, m_correlationId, std::move(fdHolder)));
 }
 
 TEST_F(QuarantineManagerTests, quarantineFileFailsWhenThreatDirectoryDoesNotExist)
 {
     auto* filesystemMock = new StrictMock<MockFileSystem>();
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::unique_ptr<Common::FileSystem::IFileSystem>(
         filesystemMock) };
     addCommonPersistValueExpects(*filesystemMock);
     EXPECT_CALL(*filesystemMock, removeFile(Plugin::getSafeStoreDormantFlagPath(), true)).WillOnce(Return());
@@ -428,13 +431,13 @@ TEST_F(QuarantineManagerTests, quarantineFileFailsWhenThreatDirectoryDoesNotExis
     EXPECT_EQ(
         common::CentralEnums::QuarantineResult::NOT_FOUND,
         quarantineManager->quarantineFile(
-            m_dir + "/" + m_file, m_threatID, m_threatName, m_SHA256, std::move(fdHolder)));
+            m_dir + "/" + m_file, m_threatID, m_threatName, m_SHA256, m_correlationId, std::move(fdHolder)));
 }
 
 TEST_F(QuarantineManagerTests, quarantineFileFailsWhenthreatDoesNotExist)
 {
     auto* filesystemMock = new StrictMock<MockFileSystem>();
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::unique_ptr<Common::FileSystem::IFileSystem>(
         filesystemMock) };
     addCommonPersistValueExpects(*filesystemMock);
     EXPECT_CALL(*filesystemMock, removeFile(Plugin::getSafeStoreDormantFlagPath(), true)).WillOnce(Return());
@@ -468,13 +471,13 @@ TEST_F(QuarantineManagerTests, quarantineFileFailsWhenthreatDoesNotExist)
     EXPECT_EQ(
         common::CentralEnums::QuarantineResult::NOT_FOUND,
         quarantineManager->quarantineFile(
-            m_dir + "/" + m_file, m_threatID, m_threatName, m_SHA256, std::move(fdHolder)));
+            m_dir + "/" + m_file, m_threatID, m_threatName, m_SHA256, m_correlationId, std::move(fdHolder)));
 }
 
 TEST_F(QuarantineManagerTests, quarantineFileFailsAndDbIsMarkedCorrupt)
 {
     auto* filesystemMock = new StrictMock<MockFileSystem>();
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::unique_ptr<Common::FileSystem::IFileSystem>(
         filesystemMock) };
 
     // Force the m_dbErrorCountThreshold variable to be set to 1 for tests so that we only have to see one error
@@ -500,6 +503,8 @@ TEST_F(QuarantineManagerTests, quarantineFileFailsAndDbIsMarkedCorrupt)
         *filesystemMock,
         writeFileAtomically(Plugin::getSafeStoreDormantFlagPath(), "SafeStore database corrupt", "/tmp/tmp"));
     EXPECT_CALL(*m_mockSafeStoreWrapper, setObjectCustomDataString(_, "SHA256", m_SHA256)).WillRepeatedly(Return(true));
+    EXPECT_CALL(*m_mockSafeStoreWrapper, setObjectCustomDataString(_, "correlationId", m_correlationId))
+        .WillRepeatedly(Return(true));
     EXPECT_CALL(*m_mockSafeStoreWrapper, finaliseObject(_)).WillRepeatedly(Return(true));
 
     auto mockGetIdMethods = std::make_shared<StrictMock<MockISafeStoreGetIdMethods>>();
@@ -518,7 +523,7 @@ TEST_F(QuarantineManagerTests, quarantineFileFailsAndDbIsMarkedCorrupt)
     EXPECT_EQ(
         common::CentralEnums::QuarantineResult::FAILED_TO_DELETE_FILE,
         quarantineManager->quarantineFile(
-            m_dir + "/" + m_file, m_threatID, m_threatName, m_SHA256, std::move(fdHolder)));
+            m_dir + "/" + m_file, m_threatID, m_threatName, m_SHA256, m_correlationId, std::move(fdHolder)));
 
     EXPECT_EQ(quarantineManager->getState(), QuarantineManagerState::CORRUPT);
 }
@@ -526,7 +531,7 @@ TEST_F(QuarantineManagerTests, quarantineFileFailsAndDbIsMarkedCorrupt)
 TEST_F(QuarantineManagerTests, quarantineFileFailsToFinaliseFile)
 {
     auto* filesystemMock = new StrictMock<MockFileSystem>();
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::unique_ptr<Common::FileSystem::IFileSystem>(
         filesystemMock) };
     addCommonPersistValueExpects(*filesystemMock);
     EXPECT_CALL(*filesystemMock, removeFile(Plugin::getSafeStoreDormantFlagPath(), true)).WillOnce(Return());
@@ -535,7 +540,7 @@ TEST_F(QuarantineManagerTests, quarantineFileFailsToFinaliseFile)
     EXPECT_CALL(*filesystemMock, isFile(Plugin::getSafeStoreConfigPath())).WillOnce(Return(false));
 
     EXPECT_CALL(*filesystemMock, compareFileDescriptors(_, _)).WillOnce(Return(true));
-    EXPECT_CALL(*filesystemMock, unlinkFileUsingDirectoryFD(_,_));
+    EXPECT_CALL(*filesystemMock, unlinkFileUsingDirectoryFD(_, _));
     EXPECT_CALL(*filesystemMock, getFileInfoDescriptor(_)).WillOnce(Return(100));
     EXPECT_CALL(*filesystemMock, getFileInfoDescriptorFromDirectoryFD(_, _)).WillOnce(Return(120));
 
@@ -554,6 +559,8 @@ TEST_F(QuarantineManagerTests, quarantineFileFailsToFinaliseFile)
     EXPECT_CALL(*m_mockSafeStoreWrapper, saveFile(m_dir, m_file, m_threatID, m_threatName, _))
         .WillOnce(Return(SaveFileReturnCode::OK));
     EXPECT_CALL(*m_mockSafeStoreWrapper, setObjectCustomDataString(_, "SHA256", m_SHA256)).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockSafeStoreWrapper, setObjectCustomDataString(_, "correlationId", m_correlationId))
+        .WillOnce(Return(true));
     EXPECT_CALL(*m_mockSafeStoreWrapper, finaliseObject(_)).WillOnce(Return(false));
 
     std::shared_ptr<IQuarantineManager> quarantineManager =
@@ -565,13 +572,13 @@ TEST_F(QuarantineManagerTests, quarantineFileFailsToFinaliseFile)
     EXPECT_EQ(
         common::CentralEnums::QuarantineResult::FAILED_TO_DELETE_FILE,
         quarantineManager->quarantineFile(
-            m_dir + "/" + m_file, m_threatID, m_threatName, m_SHA256, std::move(fdHolder)));
+            m_dir + "/" + m_file, m_threatID, m_threatName, m_SHA256, m_correlationId, std::move(fdHolder)));
 }
 
 TEST_F(QuarantineManagerTests, fileQuarantinesAndRemovesPreviouslySavedObjectsWithSameThreatId)
 {
     auto* filesystemMock = new StrictMock<MockFileSystem>();
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::unique_ptr<Common::FileSystem::IFileSystem>(
         filesystemMock) };
     addCommonPersistValueExpects(*filesystemMock);
     EXPECT_CALL(*filesystemMock, removeFile(Plugin::getSafeStoreDormantFlagPath(), true)).WillOnce(Return());
@@ -579,7 +586,7 @@ TEST_F(QuarantineManagerTests, fileQuarantinesAndRemovesPreviouslySavedObjectsWi
     EXPECT_CALL(*filesystemMock, readFile(Plugin::getSafeStorePasswordFilePath())).WillOnce(Return("a password"));
     EXPECT_CALL(*filesystemMock, isFile(Plugin::getSafeStoreConfigPath())).WillOnce(Return(false));
     EXPECT_CALL(*filesystemMock, compareFileDescriptors(_, _)).WillOnce(Return(true));
-    EXPECT_CALL(*filesystemMock, unlinkFileUsingDirectoryFD(_,"file"));
+    EXPECT_CALL(*filesystemMock, unlinkFileUsingDirectoryFD(_, "file"));
     EXPECT_CALL(*filesystemMock, getFileInfoDescriptor(_)).WillOnce(Return(100));
     EXPECT_CALL(*filesystemMock, getFileInfoDescriptorFromDirectoryFD(_, _)).WillOnce(Return(120));
 
@@ -599,7 +606,7 @@ TEST_F(QuarantineManagerTests, fileQuarantinesAndRemovesPreviouslySavedObjectsWi
     EXPECT_CALL(*mockReleaseMethods, releaseObjectHandle(object1_1_rawHandle));
     // Handle 2
     void* object1_2_rawHandle = reinterpret_cast<SafeStoreObjectHandle>(2222);
-    ObjectHandleHolder object1_2_handle { mockGetIdMethods, mockReleaseMethods };
+    ObjectHandleHolder object1_2_handle{ mockGetIdMethods, mockReleaseMethods };
     *object1_2_handle.getRawHandlePtr() = object1_2_rawHandle;
     auto object1_2_handleArg = Property(&ObjectHandleHolder::getRawHandle, object1_2_rawHandle);
     EXPECT_CALL(*mockReleaseMethods, releaseObjectHandle(object1_2_rawHandle));
@@ -607,14 +614,14 @@ TEST_F(QuarantineManagerTests, fileQuarantinesAndRemovesPreviouslySavedObjectsWi
     // Previously quarantined objects
     const std::string object2_id = "22222222-2222-2222-2222-222222222222";
     void* object2_rawHandle = reinterpret_cast<SafeStoreObjectHandle>(3333);
-    ObjectHandleHolder object2_handle { mockGetIdMethods, mockReleaseMethods };
+    ObjectHandleHolder object2_handle{ mockGetIdMethods, mockReleaseMethods };
     *object2_handle.getRawHandlePtr() = object2_rawHandle;
     auto object2_handleArg = Property(&ObjectHandleHolder::getRawHandle, object2_rawHandle);
     EXPECT_CALL(*mockReleaseMethods, releaseObjectHandle(object2_rawHandle));
 
     const std::string object3_id = "33333333-3333-3333-3333-333333333333";
     void* object3_rawHandle = reinterpret_cast<SafeStoreObjectHandle>(4444);
-    ObjectHandleHolder object3_handle { mockGetIdMethods, mockReleaseMethods };
+    ObjectHandleHolder object3_handle{ mockGetIdMethods, mockReleaseMethods };
     *object3_handle.getRawHandlePtr() = object3_rawHandle;
     auto object3_handleArg = Property(&ObjectHandleHolder::getRawHandle, object3_rawHandle);
     EXPECT_CALL(*mockReleaseMethods, releaseObjectHandle(object3_rawHandle));
@@ -626,13 +633,16 @@ TEST_F(QuarantineManagerTests, fileQuarantinesAndRemovesPreviouslySavedObjectsWi
         .WillOnce(Return(SaveFileReturnCode::OK));
     EXPECT_CALL(*m_mockSafeStoreWrapper, setObjectCustomDataString(object1_1_handleArg, "SHA256", m_SHA256))
         .WillOnce(Return(true));
+    EXPECT_CALL(
+        *m_mockSafeStoreWrapper, setObjectCustomDataString(object1_1_handleArg, "correlationId", m_correlationId))
+        .WillOnce(Return(true));
     EXPECT_CALL(*m_mockSafeStoreWrapper, finaliseObject(object1_1_handleArg)).WillOnce(Return(true));
 
     std::vector<ObjectHandleHolder> searchResults;
     searchResults.push_back(std::move(object1_2_handle));
     searchResults.push_back(std::move(object2_handle));
     searchResults.push_back(std::move(object3_handle));
-    EXPECT_CALL(*m_mockSafeStoreWrapper, find(SafeStoreFilter { m_threatID, {}, {}, {}, ObjectType::FILE, {}, {}, {} }))
+    EXPECT_CALL(*m_mockSafeStoreWrapper, find(SafeStoreFilter{ m_threatID, {}, {}, {}, ObjectType::FILE, {}, {}, {} }))
         .WillOnce(Return(ByMove(std::move(searchResults))));
 
     EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectId(object1_1_handleArg)).WillOnce(Return(object1_id));
@@ -654,13 +664,13 @@ TEST_F(QuarantineManagerTests, fileQuarantinesAndRemovesPreviouslySavedObjectsWi
     EXPECT_EQ(
         common::CentralEnums::QuarantineResult::SUCCESS,
         quarantineManager->quarantineFile(
-            m_dir + "/" + m_file, m_threatID, m_threatName, m_SHA256, std::move(fdHolder)));
+            m_dir + "/" + m_file, m_threatID, m_threatName, m_SHA256, m_correlationId, std::move(fdHolder)));
 }
 
 TEST_F(QuarantineManagerTests, fileQuarantinesButFailsToRemovePreviouslySavedObjectWithSameThreatId)
 {
     auto* filesystemMock = new StrictMock<MockFileSystem>();
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::unique_ptr<Common::FileSystem::IFileSystem>(
         filesystemMock) };
     addCommonPersistValueExpects(*filesystemMock);
     EXPECT_CALL(*filesystemMock, removeFile(Plugin::getSafeStoreDormantFlagPath(), true)).WillOnce(Return());
@@ -668,7 +678,7 @@ TEST_F(QuarantineManagerTests, fileQuarantinesButFailsToRemovePreviouslySavedObj
     EXPECT_CALL(*filesystemMock, readFile(Plugin::getSafeStorePasswordFilePath())).WillOnce(Return("a password"));
     EXPECT_CALL(*filesystemMock, isFile(Plugin::getSafeStoreConfigPath())).WillOnce(Return(false));
     EXPECT_CALL(*filesystemMock, compareFileDescriptors(_, _)).WillOnce(Return(true));
-    EXPECT_CALL(*filesystemMock, unlinkFileUsingDirectoryFD(_,"file"));
+    EXPECT_CALL(*filesystemMock, unlinkFileUsingDirectoryFD(_, "file"));
     EXPECT_CALL(*filesystemMock, getFileInfoDescriptor(_)).WillOnce(Return(100));
     EXPECT_CALL(*filesystemMock, getFileInfoDescriptorFromDirectoryFD(_, _)).WillOnce(Return(120));
 
@@ -688,7 +698,7 @@ TEST_F(QuarantineManagerTests, fileQuarantinesButFailsToRemovePreviouslySavedObj
     EXPECT_CALL(*mockReleaseMethods, releaseObjectHandle(object1_1_rawHandle));
     // Handle 2
     void* object1_2_rawHandle = reinterpret_cast<SafeStoreObjectHandle>(2222);
-    ObjectHandleHolder object1_2_handle { mockGetIdMethods, mockReleaseMethods };
+    ObjectHandleHolder object1_2_handle{ mockGetIdMethods, mockReleaseMethods };
     *object1_2_handle.getRawHandlePtr() = object1_2_rawHandle;
     auto object1_2_handleArg = Property(&ObjectHandleHolder::getRawHandle, object1_2_rawHandle);
     EXPECT_CALL(*mockReleaseMethods, releaseObjectHandle(object1_2_rawHandle));
@@ -696,14 +706,14 @@ TEST_F(QuarantineManagerTests, fileQuarantinesButFailsToRemovePreviouslySavedObj
     // Previously quarantined objects
     const std::string object2_id = "22222222-2222-2222-2222-222222222222";
     void* object2_rawHandle = reinterpret_cast<SafeStoreObjectHandle>(3333);
-    ObjectHandleHolder object2_handle { mockGetIdMethods, mockReleaseMethods };
+    ObjectHandleHolder object2_handle{ mockGetIdMethods, mockReleaseMethods };
     *object2_handle.getRawHandlePtr() = object2_rawHandle;
     auto object2_handleArg = Property(&ObjectHandleHolder::getRawHandle, object2_rawHandle);
     EXPECT_CALL(*mockReleaseMethods, releaseObjectHandle(object2_rawHandle));
 
     const std::string object3_id = "33333333-3333-3333-3333-333333333333";
     void* object3_rawHandle = reinterpret_cast<SafeStoreObjectHandle>(4444);
-    ObjectHandleHolder object3_handle { mockGetIdMethods, mockReleaseMethods };
+    ObjectHandleHolder object3_handle{ mockGetIdMethods, mockReleaseMethods };
     *object3_handle.getRawHandlePtr() = object3_rawHandle;
     auto object3_handleArg = Property(&ObjectHandleHolder::getRawHandle, object3_rawHandle);
     EXPECT_CALL(*mockReleaseMethods, releaseObjectHandle(object3_rawHandle));
@@ -715,13 +725,16 @@ TEST_F(QuarantineManagerTests, fileQuarantinesButFailsToRemovePreviouslySavedObj
         .WillOnce(Return(SaveFileReturnCode::OK));
     EXPECT_CALL(*m_mockSafeStoreWrapper, setObjectCustomDataString(object1_1_handleArg, "SHA256", m_SHA256))
         .WillOnce(Return(true));
+    EXPECT_CALL(
+        *m_mockSafeStoreWrapper, setObjectCustomDataString(object1_1_handleArg, "correlationId", m_correlationId))
+        .WillOnce(Return(true));
     EXPECT_CALL(*m_mockSafeStoreWrapper, finaliseObject(object1_1_handleArg)).WillOnce(Return(true));
 
     std::vector<ObjectHandleHolder> searchResults;
     searchResults.push_back(std::move(object1_2_handle));
     searchResults.push_back(std::move(object2_handle));
     searchResults.push_back(std::move(object3_handle));
-    EXPECT_CALL(*m_mockSafeStoreWrapper, find(SafeStoreFilter { m_threatID, {}, {}, {}, ObjectType::FILE, {}, {}, {} }))
+    EXPECT_CALL(*m_mockSafeStoreWrapper, find(SafeStoreFilter{ m_threatID, {}, {}, {}, ObjectType::FILE, {}, {}, {} }))
         .WillOnce(Return(ByMove(std::move(searchResults))));
 
     EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectId(object1_1_handleArg)).WillOnce(Return(object1_id));
@@ -744,7 +757,7 @@ TEST_F(QuarantineManagerTests, fileQuarantinesButFailsToRemovePreviouslySavedObj
     EXPECT_EQ(
         common::CentralEnums::QuarantineResult::SUCCESS,
         quarantineManager->quarantineFile(
-            m_dir + "/" + m_file, m_threatID, m_threatName, m_SHA256, std::move(fdHolder)));
+            m_dir + "/" + m_file, m_threatID, m_threatName, m_SHA256, m_correlationId, std::move(fdHolder)));
 }
 
 TEST_F(QuarantineManagerTests, tryToQuarantineFileWhenThreatIdIsIncorrectSize)
@@ -752,7 +765,7 @@ TEST_F(QuarantineManagerTests, tryToQuarantineFileWhenThreatIdIsIncorrectSize)
     std::string threatId = "Tfe8974b97b4b7a6a33b4c52acb4ffba0c11ebbf208a519245791ad32a96227d8";
 
     auto* filesystemMock = new StrictMock<MockFileSystem>();
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::unique_ptr<Common::FileSystem::IFileSystem>(
         filesystemMock) };
     addCommonPersistValueExpects(*filesystemMock);
     EXPECT_CALL(*filesystemMock, removeFile(Plugin::getSafeStoreDormantFlagPath(), true)).WillOnce(Return());
@@ -772,7 +785,8 @@ TEST_F(QuarantineManagerTests, tryToQuarantineFileWhenThreatIdIsIncorrectSize)
     datatypes::AutoFd fdHolder;
     EXPECT_EQ(
         common::CentralEnums::QuarantineResult::NOT_FOUND,
-        quarantineManager->quarantineFile(m_dir + "/" + m_file, threatId, m_threatName, m_SHA256, std::move(fdHolder)));
+        quarantineManager->quarantineFile(
+            m_dir + "/" + m_file, threatId, m_threatName, m_SHA256, m_correlationId, std::move(fdHolder)));
 }
 
 TEST_F(QuarantineManagerTests, tryToQuarantineFileWhenUninitialised)
@@ -787,14 +801,14 @@ TEST_F(QuarantineManagerTests, tryToQuarantineFileWhenUninitialised)
     common::CentralEnums::QuarantineResult result;
     EXPECT_NO_THROW(
         result = quarantineManager->quarantineFile(
-            m_dir + "/" + m_file, m_threatID, m_threatName, m_SHA256, std::move(fdHolder)));
+            m_dir + "/" + m_file, m_threatID, m_threatName, m_SHA256, m_correlationId, std::move(fdHolder)));
     EXPECT_EQ(result, common::CentralEnums::QuarantineResult::NOT_FOUND);
 }
 
 TEST_F(QuarantineManagerTests, deleteDatabaseCalledOnInitialisedDb)
 {
     auto* filesystemMock = new StrictMock<MockFileSystem>();
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::unique_ptr<Common::FileSystem::IFileSystem>(
         filesystemMock) };
     addCommonPersistValueExpects(*filesystemMock);
     EXPECT_CALL(*filesystemMock, removeFile(Plugin::getSafeStoreDormantFlagPath(), true)).WillOnce(Return());
@@ -823,7 +837,7 @@ TEST_F(QuarantineManagerTests, deleteDatabaseCalledOnInitialisedDb)
 TEST_F(QuarantineManagerTests, deleteDatabaseCalledOnUninitialisedDbThatDoesNotExist)
 {
     auto* filesystemMock = new StrictMock<MockFileSystem>();
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::unique_ptr<Common::FileSystem::IFileSystem>(
         filesystemMock) };
     addCommonPersistValueExpects(*filesystemMock);
     EXPECT_CALL(*filesystemMock, exists(Plugin::getSafeStoreDbDirPath())).WillOnce(Return(false));
@@ -838,7 +852,7 @@ TEST_F(QuarantineManagerTests, deleteDatabaseCalledOnUninitialisedDbThatDoesNotE
 TEST_F(QuarantineManagerTests, deleteDatabaseCalledOnUninitialisedDbThatDoesExist)
 {
     auto* filesystemMock = new StrictMock<MockFileSystem>();
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::unique_ptr<Common::FileSystem::IFileSystem>(
         filesystemMock) };
     addCommonPersistValueExpects(*filesystemMock);
     EXPECT_CALL(
@@ -857,7 +871,7 @@ TEST_F(QuarantineManagerTests, deleteDatabaseCalledOnUninitialisedDbThatDoesExis
 TEST_F(QuarantineManagerTests, deleteDatabaseDoesNotThrowOnFailure)
 {
     auto* filesystemMock = new StrictMock<MockFileSystem>();
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::unique_ptr<Common::FileSystem::IFileSystem>(
         filesystemMock) };
     addCommonPersistValueExpects(*filesystemMock);
     EXPECT_CALL(*filesystemMock, exists(Plugin::getSafeStoreDbDirPath())).WillOnce(Return(true));
@@ -875,10 +889,10 @@ TEST_F(QuarantineManagerTests, deleteDatabaseDoesNotThrowOnFailure)
 TEST_F(QuarantineManagerTests, extractQuarantinedFiles)
 {
     auto* filesystemMock = new StrictMock<MockFileSystem>();
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::unique_ptr<Common::FileSystem::IFileSystem>(
         filesystemMock) };
     auto* filePermissionsMock = new StrictMock<MockFilePermissions>();
-    Tests::ScopedReplaceFilePermissions scopedReplaceFilePermissions {
+    Tests::ScopedReplaceFilePermissions scopedReplaceFilePermissions{
         std::unique_ptr<Common::FileSystem::IFilePermissions>(filePermissionsMock)
     };
 
@@ -930,10 +944,10 @@ TEST_F(QuarantineManagerTests, extractQuarantinedFilesHandlesFailedToRemoveFileF
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
     auto* filesystemMock = new StrictMock<MockFileSystem>();
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::unique_ptr<Common::FileSystem::IFileSystem>(
         filesystemMock) };
     auto* filePermissionsMock = new StrictMock<MockFilePermissions>();
-    Tests::ScopedReplaceFilePermissions scopedReplaceFilePermissions {
+    Tests::ScopedReplaceFilePermissions scopedReplaceFilePermissions{
         std::unique_ptr<Common::FileSystem::IFilePermissions>(filePermissionsMock)
     };
 
@@ -989,10 +1003,10 @@ TEST_F(QuarantineManagerTests, extractQuarantinedFilesHandlesAFailToRemoveUnpack
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
     auto* filesystemMock = new StrictMock<MockFileSystem>();
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::unique_ptr<Common::FileSystem::IFileSystem>(
         filesystemMock) };
     auto* filePermissionsMock = new StrictMock<MockFilePermissions>();
-    Tests::ScopedReplaceFilePermissions scopedReplaceFilePermissions {
+    Tests::ScopedReplaceFilePermissions scopedReplaceFilePermissions{
         std::unique_ptr<Common::FileSystem::IFilePermissions>(filePermissionsMock)
     };
 
@@ -1045,10 +1059,10 @@ TEST_F(QuarantineManagerTests, extractQuarantinedFilesHandlesAFailToRemoveUnpack
 TEST_F(QuarantineManagerTests, extractQuarantinedFilesAbortsWhenThereIsMoreThanOneFileInUnpackDir)
 {
     auto* filesystemMock = new StrictMock<MockFileSystem>();
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::unique_ptr<Common::FileSystem::IFileSystem>(
         filesystemMock) };
     auto* filePermissionsMock = new StrictMock<MockFilePermissions>();
-    Tests::ScopedReplaceFilePermissions scopedReplaceFilePermissions {
+    Tests::ScopedReplaceFilePermissions scopedReplaceFilePermissions{
         std::unique_ptr<Common::FileSystem::IFilePermissions>(filePermissionsMock)
     };
 
@@ -1092,10 +1106,10 @@ TEST_F(QuarantineManagerTests, extractQuarantinedFilesAbortsWhenThereIsMoreThanO
 TEST_F(QuarantineManagerTests, extractQuarantinedFilesHandlesFailedRestore)
 {
     auto* filesystemMock = new StrictMock<MockFileSystem>();
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::unique_ptr<Common::FileSystem::IFileSystem>(
         filesystemMock) };
     auto* filePermissionsMock = new StrictMock<MockFilePermissions>();
-    Tests::ScopedReplaceFilePermissions scopedReplaceFilePermissions {
+    Tests::ScopedReplaceFilePermissions scopedReplaceFilePermissions{
         std::unique_ptr<Common::FileSystem::IFilePermissions>(filePermissionsMock)
     };
 
@@ -1140,10 +1154,10 @@ TEST_F(QuarantineManagerTests, extractQuarantinedFilesHandlesFailedRestore)
 TEST_F(QuarantineManagerTests, extractQuarantinedFilesAbortWhenFailingToChmodFile)
 {
     auto* filesystemMock = new StrictMock<MockFileSystem>();
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::unique_ptr<Common::FileSystem::IFileSystem>(
         filesystemMock) };
     auto* filePermissionsMock = new StrictMock<MockFilePermissions>();
-    Tests::ScopedReplaceFilePermissions scopedReplaceFilePermissions {
+    Tests::ScopedReplaceFilePermissions scopedReplaceFilePermissions{
         std::unique_ptr<Common::FileSystem::IFilePermissions>(filePermissionsMock)
     };
 
@@ -1191,10 +1205,10 @@ TEST_F(QuarantineManagerTests, extractQuarantinedFilesAbortWhenFailingToChmodFil
 TEST_F(QuarantineManagerTests, extractQuarantinedFilesWithMultipleThreatsInDatabase)
 {
     auto* filesystemMock = new StrictMock<MockFileSystem>();
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::unique_ptr<Common::FileSystem::IFileSystem>(
         filesystemMock) };
     auto* filePermissionsMock = new StrictMock<MockFilePermissions>();
-    Tests::ScopedReplaceFilePermissions scopedReplaceFilePermissions {
+    Tests::ScopedReplaceFilePermissions scopedReplaceFilePermissions{
         std::unique_ptr<Common::FileSystem::IFilePermissions>(filePermissionsMock)
     };
 
@@ -1268,7 +1282,7 @@ TEST_F(QuarantineManagerTests, extractQuarantinedFilesWithMultipleThreatsInDatab
 TEST_F(QuarantineManagerTests, extractQuarantinedFilesWhenDatabaseEmpty)
 {
     auto* filesystemMock = new StrictMock<MockFileSystem>();
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::unique_ptr<Common::FileSystem::IFileSystem>(
         filesystemMock) };
     addCommonPersistValueExpects(*filesystemMock);
 
@@ -1293,7 +1307,7 @@ TEST_F(QuarantineManagerTests, extractQuarantinedFilesWhenDatabaseEmpty)
 TEST_F(QuarantineManagerTests, configParsingCanParseValidConfig)
 {
     auto* filesystemMock = new StrictMock<MockFileSystem>();
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::unique_ptr<Common::FileSystem::IFileSystem>(
         filesystemMock) };
     addCommonPersistValueExpects(*filesystemMock);
 
@@ -1321,7 +1335,7 @@ TEST_F(QuarantineManagerTests, configParsingCanParseValidConfig)
 TEST_F(QuarantineManagerTests, configParsingIgnoresInvalidConfigValues)
 {
     auto* filesystemMock = new StrictMock<MockFileSystem>();
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::unique_ptr<Common::FileSystem::IFileSystem>(
         filesystemMock) };
     addCommonPersistValueExpects(*filesystemMock);
 
@@ -1340,7 +1354,7 @@ TEST_F(QuarantineManagerTests, configParsingHandlesMalformedJson)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
     auto* filesystemMock = new StrictMock<MockFileSystem>();
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::unique_ptr<Common::FileSystem::IFileSystem>(
         filesystemMock) };
     addCommonPersistValueExpects(*filesystemMock);
 
@@ -1359,7 +1373,7 @@ TEST_F(QuarantineManagerTests, configParsingHandlesBadFileRead)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
     auto* filesystemMock = new StrictMock<MockFileSystem>();
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::unique_ptr<Common::FileSystem::IFileSystem>(
         filesystemMock) };
     addCommonPersistValueExpects(*filesystemMock);
 
@@ -1371,4 +1385,152 @@ TEST_F(QuarantineManagerTests, configParsingHandlesBadFileRead)
         std::make_shared<QuarantineManagerImpl>(std::move(m_mockSafeStoreWrapper));
     EXPECT_NO_THROW(quarantineManager->parseConfig());
     EXPECT_TRUE(appenderContains("Failed to read SafeStore config json: test error"));
+}
+
+class TestQuarantineManagerCorrelationId : public SafeStoreMemoryAppenderUsingTests
+{
+protected:
+    TestQuarantineManagerCorrelationId()
+    {
+        auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
+        appConfig.setData("SOPHOS_INSTALL", "/tmp");
+        appConfig.setData("PLUGIN_INSTALL", "/tmp/av");
+
+        ON_CALL(*m_mockFileSystem, compareFileDescriptors).WillByDefault(Return(true));
+
+        ON_CALL(*m_mockSafeStoreWrapper, initialise).WillByDefault(Return(InitReturnCode::OK));
+        ON_CALL(*m_mockSafeStoreWrapper, createObjectHandleHolder)
+            .WillByDefault(InvokeWithoutArgs(
+                [&]() { return std::make_unique<ObjectHandleHolder>(m_mockGetIdMethods, m_mockReleaseMethods); }));
+        ON_CALL(*m_mockSafeStoreWrapper, getObjectHandle)
+            .WillByDefault(Invoke(
+                [&](const ObjectId& /* objectId */, std::shared_ptr<ObjectHandleHolder> objectHandle)
+                {
+                    objectHandle = std::make_shared<ObjectHandleHolder>(m_mockGetIdMethods, m_mockReleaseMethods);
+                    return true;
+                }));
+        ON_CALL(*m_mockSafeStoreWrapper, finaliseObject).WillByDefault(Return(true));
+        ON_CALL(*m_mockSafeStoreWrapper, getObjectName).WillByDefault(Return(m_file));
+        ON_CALL(*m_mockSafeStoreWrapper, getObjectLocation).WillByDefault(Return(m_dir));
+    }
+
+    std::unique_ptr<MockISafeStoreWrapper> m_mockSafeStoreWrapper = std::make_unique<MockISafeStoreWrapper>();
+    std::unique_ptr<MockFileSystem> m_mockFileSystem = std::make_unique<MockFileSystem>();
+    std::shared_ptr<MockISafeStoreGetIdMethods> m_mockGetIdMethods = std::make_shared<MockISafeStoreGetIdMethods>();
+    std::shared_ptr<MockISafeStoreReleaseMethods> m_mockReleaseMethods =
+        std::make_shared<MockISafeStoreReleaseMethods>();
+
+    // Common test constants
+    const std::string m_dir = "/dir";
+    const std::string m_file = "file";
+    const std::string m_path = "/dir/file";
+    const std::string m_threatID = "01234567-89ab-cdef-0123-456789abcdef";
+    const std::string m_threatName = "threatName";
+    const std::string m_SHA256 = "SHA256abcdef";
+    const std::string m_correlationId = "fedcba98-7654-3210-fedc-ba9876543210";
+    datatypes::AutoFd autoFd{ 200 };
+};
+
+TEST_F(TestQuarantineManagerCorrelationId, QuarantineFileFailsWhenSettingCorrelationIdCustomStringFails)
+{
+    EXPECT_CALL(*m_mockFileSystem, getFileInfoDescriptor(m_dir)).WillOnce(Return(100));
+    EXPECT_CALL(*m_mockFileSystem, getFileInfoDescriptorFromDirectoryFD(100, m_file)).WillOnce(Return(200));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::move(m_mockFileSystem) };
+
+    EXPECT_CALL(*m_mockSafeStoreWrapper, setObjectCustomDataString(_, "SHA256", _)).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockSafeStoreWrapper, setObjectCustomDataString(_, "correlationId", _))
+        .Times(1)
+        .WillOnce(Return(false));
+
+    UsingMemoryAppender memoryAppenderHolder{ *this };
+
+    QuarantineManagerImpl quarantineManager{ std::move(m_mockSafeStoreWrapper) };
+    quarantineManager.initialise();
+    quarantineManager.quarantineFile(m_path, m_threatID, m_threatName, m_SHA256, m_correlationId, std::move(autoFd));
+
+    EXPECT_TRUE(appenderContains("Failed to store correlation ID"));
+}
+
+TEST_F(TestQuarantineManagerCorrelationId, QuarantineFileFailsWhenSettingCorrelationIdCustomStringThrows)
+{
+    EXPECT_CALL(*m_mockFileSystem, getFileInfoDescriptor(m_dir)).WillOnce(Return(100));
+    EXPECT_CALL(*m_mockFileSystem, getFileInfoDescriptorFromDirectoryFD(100, m_file)).WillOnce(Return(200));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::move(m_mockFileSystem) };
+
+    EXPECT_CALL(*m_mockSafeStoreWrapper, setObjectCustomDataString(_, "SHA256", _)).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockSafeStoreWrapper, setObjectCustomDataString(_, "correlationId", _))
+        .Times(1)
+        .WillOnce(Throw(std::runtime_error("failure")));
+
+    UsingMemoryAppender memoryAppenderHolder{ *this };
+
+    QuarantineManagerImpl quarantineManager{ std::move(m_mockSafeStoreWrapper) };
+    quarantineManager.initialise();
+    quarantineManager.quarantineFile(m_path, m_threatID, m_threatName, m_SHA256, m_correlationId, std::move(autoFd));
+
+    EXPECT_TRUE(appenderContains("Failed to store correlation ID"));
+}
+
+TEST_F(TestQuarantineManagerCorrelationId, QuarantineFileFailsWhenPassedInvalidCorrelationId)
+{
+    EXPECT_CALL(*m_mockFileSystem, getFileInfoDescriptor(m_dir)).WillOnce(Return(100));
+    EXPECT_CALL(*m_mockFileSystem, getFileInfoDescriptorFromDirectoryFD(100, m_file)).WillOnce(Return(200));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::move(m_mockFileSystem) };
+
+    ON_CALL(*m_mockSafeStoreWrapper, setObjectCustomDataString).WillByDefault(Return(true));
+
+    UsingMemoryAppender memoryAppenderHolder{ *this };
+
+    QuarantineManagerImpl quarantineManager{ std::move(m_mockSafeStoreWrapper) };
+    quarantineManager.initialise();
+    quarantineManager.quarantineFile(m_path, m_threatID, m_threatName, m_SHA256, "invalid uuid", std::move(autoFd));
+
+    EXPECT_TRUE(appenderContains("Invalid correlation ID"));
+}
+
+TEST_F(TestQuarantineManagerCorrelationId, RestoreFailsWhenGettingCorrelationIdReturnsEmpty)
+{
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::move(m_mockFileSystem) };
+
+    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectCustomDataString(_, "correlationId")).WillOnce(Return(""));
+
+    UsingMemoryAppender memoryAppenderHolder{ *this };
+
+    QuarantineManagerImpl quarantineManager{ std::move(m_mockSafeStoreWrapper) };
+    quarantineManager.initialise();
+    quarantineManager.restoreFile("00000000-0000-0000-0000-000000000000");
+
+    EXPECT_TRUE(appenderContains("couldn't get correlation ID"));
+}
+
+TEST_F(TestQuarantineManagerCorrelationId, RestoreFailsWhenGettingCorrelationIdReturnsInvalidUuid)
+{
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::move(m_mockFileSystem) };
+
+    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectCustomDataString(_, "correlationId"))
+        .WillOnce(Return("invalid uuid"));
+
+    UsingMemoryAppender memoryAppenderHolder{ *this };
+
+    QuarantineManagerImpl quarantineManager{ std::move(m_mockSafeStoreWrapper) };
+    quarantineManager.initialise();
+    quarantineManager.restoreFile("00000000-0000-0000-0000-000000000000");
+
+    EXPECT_TRUE(appenderContains("couldn't get correlation ID"));
+}
+
+TEST_F(TestQuarantineManagerCorrelationId, RestoreFailsWhenGettingCorrelationIdThrows)
+{
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::move(m_mockFileSystem) };
+
+    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectCustomDataString(_, "correlationId"))
+        .WillOnce(Throw(std::runtime_error("failure")));
+
+    UsingMemoryAppender memoryAppenderHolder{ *this };
+
+    QuarantineManagerImpl quarantineManager{ std::move(m_mockSafeStoreWrapper) };
+    quarantineManager.initialise();
+    quarantineManager.restoreFile("00000000-0000-0000-0000-000000000000");
+
+    EXPECT_TRUE(appenderContains("couldn't get correlation ID"));
 }

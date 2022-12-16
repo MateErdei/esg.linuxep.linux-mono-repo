@@ -1,18 +1,21 @@
-// Copyright 2022, Sophos Limited.  All rights reserved.
+// Copyright 2022 Sophos Limited. All rights reserved.
 
 #include "ThreatDatabase.h"
 
-#include <Common/FileSystem/IFileSystemException.h>
-#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
-#include <common/ApplicationPaths.h>
+#include "Logger.h"
+
+#include "common/ApplicationPaths.h"
+
+#include "Common/FileSystem/IFileSystemException.h"
+#include "Common/TelemetryHelperImpl/TelemetryHelper.h"
 
 #include <thirdparty/nlohmann-json/json.hpp>
+
 #include <algorithm>
-#include "Logger.h"
+
 namespace Plugin
 {
-    ThreatDatabase::ThreatDatabase(const std::string& path):
-        m_databaseInString(path,"threatDatabase","{}")
+    ThreatDatabase::ThreatDatabase(const std::string& path) : m_databaseInString(path, "threatDatabase", "{}")
     {
         convertStringToDatabase();
     }
@@ -30,8 +33,9 @@ namespace Plugin
         {
             auto now = std::chrono::time_point_cast<std::chrono::seconds>(std::chrono::system_clock::now());
             long duration = std::chrono::duration_cast<std::chrono::seconds>(now - dbItr->second.lastDetection).count();
-            LOGDEBUG("ThreatId: " << threatID << " already existed. Overwriting correlationId: "
-                     << dbItr->second.correlationId << ", age: " << duration << " with " << correlationID);
+            LOGDEBUG(
+                "ThreatId: " << threatID << " already existed. Overwriting correlationId: "
+                             << dbItr->second.correlationId << ", age: " << duration << " with " << correlationID);
 
             dbItr->second.correlationId = correlationID;
             dbItr->second.lastDetection = now;
@@ -39,21 +43,22 @@ namespace Plugin
         else
         {
             auto newThreatDetails = ThreatDetails(correlationID);
-            database->emplace(threatID,std::move(newThreatDetails));
+            database->emplace(threatID, std::move(newThreatDetails));
             LOGDEBUG("Added threat " << threatID << " with correlationId " << correlationID << " to threat database");
         }
-
     }
 
     void ThreatDatabase::removeCorrelationID(const std::string& correlationID)
     {
         auto database = m_database.lock();
 
-        for (auto threatItr = database->begin(); threatItr != database->end();++threatItr)
+        for (auto threatItr = database->begin(); threatItr != database->end(); ++threatItr)
         {
             if (threatItr->second.correlationId == correlationID)
             {
-                LOGDEBUG("Removing threat " << threatItr->first << " with correlationId " << correlationID << " from database");
+                LOGDEBUG(
+                    "Removing threat " << threatItr->first << " with correlationId " << correlationID
+                                       << " from database");
                 database->erase(threatItr);
                 return;
             }
@@ -84,7 +89,9 @@ namespace Plugin
         return database->empty();
     }
 
-    bool ThreatDatabase::isThreatInDatabaseWithinTime(const std::string& threatId, const std::chrono::seconds& duplicateTimeout) const
+    bool ThreatDatabase::isThreatInDatabaseWithinTime(
+        const std::string& threatId,
+        const std::chrono::seconds& duplicateTimeout) const
     {
         auto database = m_database.lock();
 
@@ -99,7 +106,7 @@ namespace Plugin
             return false;
         }
 
-        auto timePointNow = std::chrono::time_point_cast<std::chrono::seconds>(std::chrono::system_clock::now());;
+        auto timePointNow = std::chrono::time_point_cast<std::chrono::seconds>(std::chrono::system_clock::now());
         if ((timePointNow - threatItr->second.lastDetection) > duplicateTimeout)
         {
             return false;
@@ -116,10 +123,24 @@ namespace Plugin
             m_databaseInString.setValueAndForceStore("{}");
             LOGDEBUG("Threat Database has been reset");
         }
-        catch (Common::FileSystem::IFileSystemException &ex)
+        catch (Common::FileSystem::IFileSystemException& ex)
         {
             LOGERROR("Cannot reset ThreatDatabase on disk with error: " << ex.what());
         }
+    }
+
+    std::optional<std::string> ThreatDatabase::hasThreat(const std::string& threatId) const
+    {
+        auto database = m_database.lock();
+        for (auto const& entry : *database)
+        {
+            if (entry.first == threatId)
+            {
+                return entry.second.correlationId;
+            }
+        }
+
+        return {};
     }
 
     void ThreatDatabase::convertDatabaseToString()
@@ -129,9 +150,10 @@ namespace Plugin
 
         for (const auto& key : *database)
         {
-            long timeStamp = std::chrono::time_point_cast<std::chrono::seconds>(key.second.lastDetection).time_since_epoch().count();
-            j[key.first] = { {JsonKeys::correlationId, key.second.correlationId},
-                             {JsonKeys::timestamp, timeStamp }};
+            long timeStamp =
+                std::chrono::time_point_cast<std::chrono::seconds>(key.second.lastDetection).time_since_epoch().count();
+            j[key.first] = { { JsonKeys::correlationId, key.second.correlationId },
+                             { JsonKeys::timestamp, timeStamp } };
         }
         if (j.empty())
         {
@@ -154,7 +176,7 @@ namespace Plugin
         }
         catch (nlohmann::json::exception& ex)
         {
-            //Error as we end up with a empty database
+            // Error as we end up with a empty database
             LOGERROR("Resetting ThreatDatabase as we failed to parse ThreatDatabase on disk with error: " << ex.what());
             if (Common::FileSystem::fileSystem()->exists(Plugin::getPersistThreatDatabaseFilePath()))
             {
@@ -173,7 +195,10 @@ namespace Plugin
             }
             catch (nlohmann::json::exception& ex)
             {
-                LOGWARN("Not loading Correlation field for "<< threatItr.key() << " into threat database as parsing failed with error for " << JsonKeys::correlationId  << " " << ex.what());
+                LOGWARN(
+                    "Not loading Correlation field for " << threatItr.key()
+                                                         << " into threat database as parsing failed with error for "
+                                                         << JsonKeys::correlationId << " " << ex.what());
                 Common::Telemetry::TelemetryHelper::getInstance().set("corrupt-threat-database", true);
             }
 
@@ -184,7 +209,10 @@ namespace Plugin
             }
             catch (nlohmann::json::exception& ex)
             {
-                LOGWARN("Not loading Time field for " << threatItr.key() << " into threat database as parsing failed with error for " << JsonKeys::timestamp << " " << ex.what());
+                LOGWARN(
+                    "Not loading Time field for " << threatItr.key()
+                                                  << " into threat database as parsing failed with error for "
+                                                  << JsonKeys::timestamp << " " << ex.what());
                 Common::Telemetry::TelemetryHelper::getInstance().set("corrupt-threat-database", true);
             }
 
@@ -195,4 +223,4 @@ namespace Plugin
         database->swap(tempdatabase);
         LOGINFO("Initialised Threat Database");
     }
-}
+} // namespace Plugin
