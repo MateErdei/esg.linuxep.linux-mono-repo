@@ -28,7 +28,7 @@ ${NORMAL_DIRECTORY}                  /home/vagrant/this/is/a/directory/for/scann
 ${CUSTOMERID_FILE}                   ${COMPONENT_ROOT_PATH}/chroot/${COMPONENT_ROOT_PATH}/var/customer_id.txt
 ${MACHINEID_CHROOT_FILE}             ${COMPONENT_ROOT_PATH}/chroot${SOPHOS_INSTALL}/base/etc/machine_id.txt
 ${MACHINEID_FILE}                    ${SOPHOS_INSTALL}/base/etc/machine_id.txt
-${SAFESTORE_DORMANT_FLAG}            ${COMPONENT_VAR_DIR}/safestore_dormant_flag
+${SAFESTORE_DORMANT_FLAG}            ${SOPHOS_INSTALL}/plugins/av/var/safestore_dormant_flag
 
 
 *** Test Cases ***
@@ -119,17 +119,8 @@ SafeStore Quarantines When It Receives A File To Quarantine
     Wait For Log Contains From Mark  ${av_mark}  Threat cleaned up at path:
     File Should Not Exist   ${SCAN_DIRECTORY}/eicar.com
 
-    ${correlation_id} =  Wait Until Base Has Detection Event
-    ...  user_id=n/a
-    ...  name=EICAR-AV-Test
-    ...  threat_type=1
-    ...  origin=1
-    ...  remote=false
-    ...  sha256=275a021bbfb6489e54d471899f7db9d1663fc695ec2fe2a2c4538aabf651fd0f
-    ...  path=${SCAN_DIRECTORY}/eicar.com
-
     Wait Until Base Has Core Clean Event
-    ...  alert_id=${correlation_id}
+    ...  alert_id=e52cf957-a0dc-5b12-bad2-561197a5cae4
     ...  succeeded=1
     ...  origin=1
     ...  result=0
@@ -142,24 +133,15 @@ SafeStore Quarantines When It Receives A File To Quarantine (On Access)
     ${av_mark} =  Get AV Log Mark
     ${safestore_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
     On-access Scan Eicar Close
-    Exclued SafeStore File Open Error On Quarantine  /tmp_test/eicar.com
+    Exclued SafeStore File Open Error On Quarantine
 
     wait_for_log_contains_from_mark  ${safestore_mark}   Quarantined
     wait_for_log_contains_from_mark  ${av_mark}  Threat cleaned up at path:
     File Should Not Exist   /tmp_test/eicar.com
     File Should Not Exist  ${AV_PLUGIN_PATH}/var/onaccess_unhealthy_flag
 
-    ${correlation_id} =  Wait Until Base Has Detection Event
-    ...  user_id=n/a
-    ...  name=EICAR-AV-Test
-    ...  threat_type=1
-    ...  origin=1
-    ...  remote=false
-    ...  sha256=275a021bbfb6489e54d471899f7db9d1663fc695ec2fe2a2c4538aabf651fd0f
-    ...  path=/tmp_test/eicar.com
-
     Wait Until Base Has Core Clean Event
-    ...  alert_id=${correlation_id}
+    ...  alert_id=bae565b3-a00c-5a15-8a25-e7de709ffa33
     ...  succeeded=1
     ...  origin=1
     ...  result=0
@@ -175,7 +157,6 @@ SafeStore Quarantines Archive
     Create File  ${ARCHIVE_DIR}/1_dsa    ${DSA_BY_NAME_STRING}
     Create File  ${ARCHIVE_DIR}/2_eicar  ${EICAR_STRING}
     Run Process  tar  --mtime\=UTC 2022-01-01  -C  ${ARCHIVE_DIR}  -cf  ${NORMAL_DIRECTORY}/test.tar  1_dsa  2_eicar
-    ${archive_sha} =  Get SHA256  ${NORMAL_DIRECTORY}/test.tar
     Remove Directory  ${ARCHIVE_DIR}  recursive=True
 
     ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
@@ -186,17 +167,8 @@ SafeStore Quarantines Archive
     Wait For Log Contains From Mark  ${av_mark}  Threat cleaned up at path:
     File Should Not Exist   ${SCAN_DIRECTORY}/test.tar
 
-    ${correlation_id} =  Wait Until Base Has Detection Event
-    ...  user_id=n/a
-    ...  name=Troj/TestSFS-G
-    ...  threat_type=1
-    ...  origin=1
-    ...  remote=false
-    ...  sha256=${archive_sha}
-    ...  path=${SCAN_DIRECTORY}/test.tar
-
     Wait Until Base Has Core Clean Event
-    ...  alert_id=${correlation_id}
+    ...  alert_id=49c016d1-fcfe-543d-8279-6ff8c8f3ce4b
     ...  succeeded=1
     ...  origin=1
     ...  result=0
@@ -213,7 +185,7 @@ Failed Clean Event Gets Sent When SafeStore Fails To Quarantine A File
 
     Wait Until SafeStore running
     Remove Directory     ${SAFESTORE_DB_DIR}  recursive=True
-    Exclued SafeStore Internal Error On Quarantine   ${SCAN_DIRECTORY}/eicar.com
+    Exclued SafeStore Internal Error On Quarantine
 
     ${safestore_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
     Check avscanner can detect eicar
@@ -222,17 +194,8 @@ Failed Clean Event Gets Sent When SafeStore Fails To Quarantine A File
     Wait For Log Contains From Mark  ${av_mark}  Quarantine failed for threat:  timeout=15
     File Should Exist   ${SCAN_DIRECTORY}/eicar.com
 
-    ${correlation_id} =  Wait Until Base Has Detection Event
-    ...  user_id=n/a
-    ...  name=EICAR-AV-Test
-    ...  threat_type=1
-    ...  origin=1
-    ...  remote=false
-    ...  sha256=275a021bbfb6489e54d471899f7db9d1663fc695ec2fe2a2c4538aabf651fd0f
-    ...  path=${SCAN_DIRECTORY}/eicar.com
-
     Wait Until Base Has Core Clean Event
-    ...  alert_id=${correlation_id}
+    ...  alert_id=e52cf957-a0dc-5b12-bad2-561197a5cae4
     ...  succeeded=0
     ...  origin=1
     ...  result=3
@@ -356,7 +319,7 @@ SafeStore Purges The Oldest Detection In Its Database When It Exceeds Storage Ca
 
     Stop SafeStore
     # The MaxSafeStoreSize could cause flakiness in the future if the footprint of the SafeStore instance grows, which we can't avoid (fix by increasing its size further)
-    Create File     ${COMPONENT_SAFESTORE_DIR}/safestore_config.json    { "MaxObjectSize" : 32000, "MaxSafeStoreSize" : 144000 }
+    Create File     ${COMPONENT_ROOT_PATH}/var/safestore_config.json    { "MaxObjectSize" : 32000, "MaxSafeStoreSize" : 144000 }
     Start SafeStore
 
     ${eicar1}=    Set Variable     big_eicar1
@@ -412,7 +375,7 @@ SafeStore Purges The Oldest Detection In Its Database When It Exceeds Detection 
     Unpack SafeStore Tools To  ${safestore_tools_unpacked}
 
     Stop SafeStore
-    Create File     ${COMPONENT_SAFESTORE_DIR}/safestore_config.json    { "MaxStoredObjectCount" : 2 }
+    Create File     ${COMPONENT_ROOT_PATH}/var/safestore_config.json    { "MaxStoredObjectCount" : 2 }
     Start SafeStore
 
     ${eicar1}=    Set Variable     eicar1
@@ -661,17 +624,8 @@ AV Plugin Does Not Quarantine File When SafeStore Is Disabled
 
     Wait For Log Contains From Mark  ${av_mark}  ${SCAN_DIRECTORY}/eicar.com was not quarantined due to SafeStore being disabled
 
-    ${correlation_id} =  Wait Until Base Has Detection Event
-    ...  user_id=n/a
-    ...  name=EICAR-AV-Test
-    ...  threat_type=1
-    ...  origin=1
-    ...  remote=false
-    ...  sha256=275a021bbfb6489e54d471899f7db9d1663fc695ec2fe2a2c4538aabf651fd0f
-    ...  path=${SCAN_DIRECTORY}/eicar.com
-
     Wait Until Base Has Core Clean Event
-    ...  alert_id=${correlation_id}
+    ...  alert_id=e52cf957-a0dc-5b12-bad2-561197a5cae4
     ...  succeeded=0
     ...  origin=1
     ...  result=3
@@ -699,17 +653,8 @@ SafeStore Does Not Quarantine Ml Detection By Default
 
     Wait For Log Contains From Mark  ${av_mark}  ${NORMAL_DIRECTORY}/MLengHighScore.exe was not quarantined due to being reported as an ML detection
 
-    ${correlation_id} =  Wait Until Base Has Detection Event
-    ...  user_id=n/a
-    ...  name=ML/PE-A
-    ...  threat_type=1
-    ...  origin=0
-    ...  remote=false
-    ...  sha256=c88e20178a82af37a51b030cb3797ed144126cad09193a6c8c7e95957cf9c3f9
-    ...  path=${NORMAL_DIRECTORY}/MLengHighScore.exe
-
     Wait Until Base Has Core Clean Event
-    ...  alert_id=${correlation_id}
+    ...  alert_id=88b2d8f4-6a29-5e0b-8e01-daf1695a61e9
     ...  succeeded=0
     ...  origin=0
     ...  result=3
@@ -740,17 +685,8 @@ SafeStore Quarantines Ml Detection If Ml Flag Is Enabled
 
     File Should Not Exist  ${NORMAL_DIRECTORY}/MLengHighScore.exe
 
-    ${correlation_id} =  Wait Until Base Has Detection Event
-    ...  user_id=n/a
-    ...  name=ML/PE-A
-    ...  threat_type=1
-    ...  origin=0
-    ...  remote=false
-    ...  sha256=c88e20178a82af37a51b030cb3797ed144126cad09193a6c8c7e95957cf9c3f9
-    ...  path=${NORMAL_DIRECTORY}/MLengHighScore.exe
-
     Wait Until Base Has Core Clean Event
-    ...  alert_id=${correlation_id}
+    ...  alert_id=88b2d8f4-6a29-5e0b-8e01-daf1695a61e9
     ...  succeeded=1
     ...  origin=0
     ...  result=0
@@ -775,17 +711,8 @@ SafeStore Does Not Quarantine Pua Detection
 
     Wait For Log Contains From Mark  ${av_mark}  ${NORMAL_DIRECTORY}/PsExec.exe was not quarantined due to being a PUA
 
-    ${correlation_id} =  Wait Until Base Has Detection Event
-    ...  user_id=n/a
-    ...  name=Generic Reputation PUA
-    ...  threat_type=2
-    ...  origin=3
-    ...  remote=false
-    ...  sha256=3337e3875b05e0bfba69ab926532e3f179e8cfbf162ebb60ce58a0281437a7ef
-    ...  path=${NORMAL_DIRECTORY}/PsExec.exe
-
     Wait Until Base Has Core Clean Event
-    ...  alert_id=${correlation_id}
+    ...  alert_id=ca835a27-afe8-5e24-888c-5284c0ea4ac8
     ...  succeeded=0
     ...  origin=3
     ...  result=3
@@ -837,64 +764,40 @@ Threat Can Be Restored From Persisted SafeStore Database
     Should Not Be Equal    ${dbContentBeforeRestore}    ${dbContentAfterRestore}
     File Should Exist    ${SCAN_DIRECTORY}/eicar.com
 
-Correlation Id Stays The Same Until The File Is Quarantined And Changes For Redetection After Quarantine
-    ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
-    Send Flags Policy To Base  flags_policy/flags.json
-    Wait For Log Contains From Mark  ${av_mark}  SafeStore flag not set. Setting SafeStore to disabled.    timeout=60
 
-    Check avscanner can detect eicar
+Threat Is Re-detected By On-access If Removed From Allow-list
+    ${ss_mark} =  Get SafeStore Log Mark
+    ${av_mark} =  Get AV Log Mark
+    ${oa_mark} =  Get on access log mark
+    Send Policies to enable on-access  flags_policy/flags_safestore_onaccess_and_ml_enabled.json  ${oa_mark}
+    wait_for_log_contains_from_mark  ${av_mark}  SafeStore flag set. Setting SafeStore to enabled.    timeout=60
+    wait_for_log_contains_from_mark  ${av_mark}  On-access is enabled in the FLAGS policy, assuming on-access policy settings
+    wait_for_log_contains_from_mark  ${av_mark}  SafeStore will quarantine ML detections
+    Wait Until SafeStore running
 
-    ${correlation_id1} =  Wait Until Base Has Detection Event
-    ...  user_id=n/a
-    ...  name=EICAR-AV-Test
-    ...  threat_type=1
-    ...  origin=1
-    ...  remote=false
-    ...  sha256=275a021bbfb6489e54d471899f7db9d1663fc695ec2fe2a2c4538aabf651fd0f
-    ...  path=${SCAN_DIRECTORY}/eicar.com
+    # Detect using on-access
+    ${allow_listed_threat_file} =  Set Variable  ${NORMAL_DIRECTORY}/MLengHighScore.exe
+    DeObfuscate File  ${RESOURCES_PATH}/file_samples_obfuscated/MLengHighScore.exe  ${allow_listed_threat_file}
+    Wait For Log Contains From Mark  ${ss_mark}  Quarantined ${allow_listed_threat_file} successfully
 
-    Wait Until Base Has Core Clean Event
-    ...  alert_id=${correlation_id1}
-    ...  succeeded=0
-    ...  origin=1
-    ...  result=3
-    ...  path=${SCAN_DIRECTORY}/eicar.com
+    # Allow-list the file and wait for it to be restored
+    ${ss_mark} =  Get SafeStore Log Mark
+    Send CORC Policy To Base   corc_policy.xml
+    Wait For Log Contains From Mark  ${ss_mark}  SafeStore Database Rescan request received
+    Wait For Log Contains From Mark  ${ss_mark}  Rescan found quarantined file no longer a threat: ${allow_listed_threat_file}
+    Wait For Log Contains From Mark  ${ss_mark}  Reporting successful restoration of ${allow_listed_threat_file}
 
-    ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
-    Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
-    Wait For Log Contains From Mark  ${av_mark}  SafeStore flag set. Setting SafeStore to enabled.    timeout=60
+    # Clear the allow list and wait for it to be received
+    ${ss_mark} =  Get SafeStore Log Mark
+    ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
+    Send CORC Policy To Base   corc_policy_empty_allowlist.xml
+    Wait For Log Contains From Mark  ${ss_mark}  SafeStore Database Rescan request received
 
-    Check avscanner can detect eicar
+    # Re-detect the file with on access
+    ${ss_mark} =  Get SafeStore Log Mark
+    DeObfuscate File  ${RESOURCES_PATH}/file_samples_obfuscated/MLengHighScore.exe  ${allow_listed_threat_file}
+    Wait For Log Contains From Mark  ${ss_mark}  Quarantined ${allow_listed_threat_file} successfully
 
-    # We get a successful clean event
-    Wait Until Base Has Core Clean Event
-        ...  alert_id=${correlation_id1}
-        ...  succeeded=1
-        ...  origin=1
-        ...  result=0
-        ...  path=${SCAN_DIRECTORY}/eicar.com
-
-    # Remove events to make sure we pick up the new ones
-    Empty Directory  ${MCS_PATH}/event
-    Check avscanner can detect eicar
-
-    ${correlation_id2} =  Wait Until Base Has Detection Event
-    ...  user_id=n/a
-    ...  name=EICAR-AV-Test
-    ...  threat_type=1
-    ...  origin=1
-    ...  remote=false
-    ...  sha256=275a021bbfb6489e54d471899f7db9d1663fc695ec2fe2a2c4538aabf651fd0f
-    ...  path=${SCAN_DIRECTORY}/eicar.com
-
-    Wait Until Base Has Core Clean Event
-    ...  alert_id=${correlation_id2}
-    ...  succeeded=1
-    ...  origin=1
-    ...  result=0
-    ...  path=${SCAN_DIRECTORY}/eicar.com
-
-    Should Not Be Equal  ${correlation_id1}  ${correlation_id2}
 
 *** Keywords ***
 SafeStore Test Setup
@@ -912,7 +815,6 @@ SafeStore Test Setup
 
     Get AV Log Mark
     Mark Sophos Threat Detector Log
-    Empty Directory  ${MCS_PATH}/event
 
     register on fail  dump log  ${THREAT_DETECTOR_LOG_PATH}
     register on fail  dump log  ${WATCHDOG_LOG}
@@ -940,7 +842,6 @@ SafeStore Test TearDown
     dump log  ${WATCHDOG_LOG}
     dump log  ${SOPHOS_INSTALL}/plugins/av/log/av.log
     List Directory  ${SOPHOS_INSTALL}/plugins/av/var
-    List Directory  ${SOPHOS_INSTALL}/plugins/av/safestore
     Remove Directory    ${SAFESTORE_DB_DIR}  recursive=True
     Remove Directory    ${NORMAL_DIRECTORY}  recursive=True
 

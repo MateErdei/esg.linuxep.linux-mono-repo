@@ -329,6 +329,8 @@ namespace sspl::sophosthreatdetectorimpl
         if (susiSettingsChanged)
         {
             LOGINFO("Triggering rescan of SafeStore database");
+            // Tell on-access to clear cached file events because they may now be invalid due to allow-list changes
+            m_scannerFactory->update();
             m_safeStoreRescanWorker->triggerRescan();
         }
         else
