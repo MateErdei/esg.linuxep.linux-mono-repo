@@ -340,7 +340,6 @@ namespace Plugin
                 LOGINFO("Processing CORE policy");
                 LOGDEBUG("Processing CORE policy: " << policyXml);
                 m_policyProcessor.processCOREpolicy(attributeMap);
-                m_callback->setMlScanningEnabledStatus(m_policyProcessor.isMLScanningEnabled());
                 policyWaiter->gotPolicy("CORE");
             }
             else if (policyType == PolicyType::UNKNOWN)

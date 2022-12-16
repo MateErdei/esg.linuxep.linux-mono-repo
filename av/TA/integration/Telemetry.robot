@@ -235,12 +235,12 @@ On Access Provides Scan Telemetry
     Should Be True   0.0 <= ${ratio} <= 100.0
 
 
-On Access ML Scanning Is Reported To Telemetry
-    ${mark} =  Get on access log mark
+On Access ML Scanning Is Reported Correctly To Telemetry
+    ${soapd_mark} =  Get on access log mark
 
     #This registers disable with cleanup and enabled ML scanning
     Send Policies to enable on-access
-    wait for on access log contains after mark  On-access scanning enabled  mark=${mark}
+    wait for on access log contains after mark  On-access scanning enabled  mark=${soapd_mark}
 
     Run Telemetry Executable With HTTPS Protocol  port=${4435}
 
@@ -250,3 +250,17 @@ On Access ML Scanning Is Reported To Telemetry
     ${telemetryJson} =    Evaluate     json.loads("""${telemetryFileContents}""")    json
     ${avDict}=    Set Variable     ${telemetryJson['av']}
     Dictionary Should Contain Item   ${avDict}   ml-scanning-enabled   True
+
+    ${av_mark} =  Get av log mark
+    Send CORE Policy To Base  core_policy/CORE-36_ml_disabled.xml
+    Wait for av log contains after mark     Machine Learning detections disabled  mark=${av_mark}
+
+    Run Telemetry Executable With HTTPS Protocol  port=${4435}
+
+    ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
+    Log   ${telemetryFileContents}
+
+    ${telemetryJson} =    Evaluate     json.loads("""${telemetryFileContents}""")    json
+    ${avDict}=    Set Variable     ${telemetryJson['av']}
+    Dictionary Should Contain Item   ${avDict}   ml-scanning-enabled   False
+

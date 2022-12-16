@@ -45,7 +45,6 @@ namespace Plugin
 
         void sendStatus(const std::string& revID);
         void setRunning(bool running);
-        void setMlScanningEnabledStatus(bool mlScanningEnabled);
         bool isRunning();
         void setSXL4Lookups(bool sxl4Lookup);
         void setThreatHealth(E_HEALTH_STATUS threatStatus);
@@ -93,7 +92,6 @@ namespace Plugin
         std::atomic_bool m_running = false;
         std::atomic_bool m_safeStoreEnabled = false;
         bool m_lookupEnabled = true;
-        bool m_mlScanningEnabled = false;
         int m_allowedShutdownTime = 60;
         long m_threatStatus = E_THREAT_HEALTH_STATUS_GOOD;
 TEST_PUBLIC:

@@ -51,6 +51,5 @@ def test_av_can_send_telemetry(sspl_mock, av_plugin_instance):
     assert av_dict["on-demand-threat-eicar-count"] == 0
     assert av_dict["on-access-threat-count"] == 0
     assert av_dict["on-access-threat-eicar-count"] == 0
-    assert av_dict["ml-scanning-enabled"] is False
 
     logger.debug("Completed %s", inspect.currentframe().f_code.co_name)

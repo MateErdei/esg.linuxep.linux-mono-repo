@@ -408,20 +408,6 @@ TEST_F(TestPluginCallback, getTelemetry_threatHealth_fileDoesNotExist)
     EXPECT_EQ(telemetry["threatHealth"], E_THREAT_HEALTH_STATUS_GOOD);
 }
 
-TEST_F(TestPluginCallback, getTelemetry_mlSettingDefault)
-{
-    json telemetry = json::parse(m_pluginCallback->getTelemetry());
-    EXPECT_EQ(telemetry["ml-scanning-enabled"], false);
-}
-
-TEST_F(TestPluginCallback, getTelemetry_mlSettingTrue)
-{
-    m_pluginCallback->setMlScanningEnabledStatus(true);
-    json telemetry = json::parse(m_pluginCallback->getTelemetry());
-    EXPECT_EQ(telemetry["ml-scanning-enabled"], true);
-}
-
-
 TEST_F(TestPluginCallback, getHealthReturnsBadWhenPidfileExistsButIsNotLocked)
 {
     Path threatDetectorPidFile = m_basePath / "chroot/var/threat_detector.pid";

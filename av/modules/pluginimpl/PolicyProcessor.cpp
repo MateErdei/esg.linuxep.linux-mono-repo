@@ -443,11 +443,6 @@ namespace Plugin
         return m_safeStoreEnabled;
     }
 
-    bool PolicyProcessor::isMLScanningEnabled() const
-    {
-        return m_mlScanningEnabled;
-    }
-
     bool PolicyProcessor::shouldSafeStoreQuarantineMl() const
     {
         return m_safeStoreQuarantineMl;
@@ -542,13 +537,15 @@ namespace Plugin
 
         bool changed = !m_susiSettingsWritten; // Always write the first time
 
-        m_mlScanningEnabled = boolFromString(policy.lookup("policy/coreFeatures/machineLearningEnabled").contents());
+        const auto machineLearningEnabled = boolFromString(policy.lookup("policy/coreFeatures/machineLearningEnabled").contents());
         const auto existingSetting = m_threatDetectorSettings.isMachineLearningEnabled();
 
-        if (m_mlScanningEnabled != existingSetting)
+        Common::Telemetry::TelemetryHelper::getInstance().set("ml-scanning-enabled", machineLearningEnabled);
+
+        if (machineLearningEnabled != existingSetting)
         {
-            m_threatDetectorSettings.setMachineLearningEnabled(m_mlScanningEnabled);
-            LOGINFO("Machine Learning detections "<< (m_mlScanningEnabled?"enabled":"disabled") << " in CORE policy");
+            m_threatDetectorSettings.setMachineLearningEnabled(machineLearningEnabled);
+            LOGINFO("Machine Learning detections "<< (machineLearningEnabled?"enabled":"disabled") << " in CORE policy");
             changed = true;
         }
 
