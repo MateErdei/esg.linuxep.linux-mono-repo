@@ -64,8 +64,7 @@ Drive::Drive(const std::string& childPath) :
     while ((mount = getmntent_r(f, &mnt_buf, buf, sizeof(buf)))) // read next line
     {
         std::string mountPoint = mount->mnt_dir;
-        if (Common::UtilityImpl::StringUtils::startswith(childPath, mountPoint) &&
-            (parentPathSize < mountPoint.size()))
+        if (Common::UtilityImpl::StringUtils::startswith(childPath, mountPoint))
         {
             m_mountPoint = mount->mnt_dir;
             m_device = mount->mnt_fsname;
