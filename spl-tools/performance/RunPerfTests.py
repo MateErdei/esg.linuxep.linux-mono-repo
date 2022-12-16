@@ -804,6 +804,8 @@ def run_safestore_restoration_test():
             if not test_threats or all(threat["Status"] == "restored_as" for threat in test_threats):
                 break
 
+        time.sleep(300)
+
         for threat in expected_malware:
             if os.path.exists(threat["filePath"]):
                 restored_files += 1
