@@ -604,16 +604,21 @@ namespace safestore::QuarantineManager
             LOGDEBUG("No threats to rescan");
             return;
         }
+        LOGDEBUG("Number of files in SafeStore to rescan: " << threatObjects.size());
 
         int batchSize = 1;
         auto batchStart = threatObjects.begin();
         auto batchEnd = std::min(batchStart + batchSize, threatObjects.end());
-
-        while (batchEnd != threatObjects.end())
+        bool done = false;
+        while (!done)
         {
             std::vector<SafeStoreWrapper::ObjectHandleHolder> batch;
             batch.insert(batch.begin(), std::make_move_iterator(batchStart), std::make_move_iterator(batchEnd));
             batchStart = batchEnd;
+            if (batchEnd == threatObjects.end())
+            {
+                done = true;
+            }
             batchEnd = std::min(threatObjects.end(), batchStart + batchSize);
             datatypes::SystemCallWrapper sysCallWrapper;
 
