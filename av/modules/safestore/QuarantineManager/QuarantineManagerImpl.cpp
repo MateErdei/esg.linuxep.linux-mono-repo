@@ -500,7 +500,7 @@ namespace safestore::QuarantineManager
             return cleanFiles;
         }
 
-        LOGINFO("Number of files to Rescan: " << files.size());
+        LOGINFO("Number of quarantined files to Rescan: " << files.size());
 
         unixsocket::ScanningClientSocket scanningClient(Plugin::getScanningSocketPath());
 
@@ -552,26 +552,26 @@ namespace safestore::QuarantineManager
 
     std::optional<scan_messages::RestoreReport> QuarantineManagerImpl::restoreFile(const std::string& objectId)
     {
-        LOGINFO("Attempting to restore object: " << objectId);
+        LOGDEBUG("Attempting to restore object: " << objectId);
         // Get all details
         std::shared_ptr<SafeStoreWrapper::ObjectHandleHolder> objectHandle = m_safeStore->createObjectHandleHolder();
         if (!m_safeStore->getObjectHandle(objectId, objectHandle))
         {
-            LOGERROR("Couldn't get object handle for: " << objectId);
+            LOGERROR("Couldn't get object handle for: " << objectId << ". Failed to restore.");
             return {};
         }
 
         auto objectName = m_safeStore->getObjectName(*objectHandle);
         if (objectName.empty())
         {
-            LOGERROR("Couldn't get object name for: " << objectId);
+            LOGERROR("Couldn't get object name for: " << objectId << ". Failed to restore.");
             return {};
         }
 
         auto objectLocation = m_safeStore->getObjectLocation(*objectHandle);
         if (objectLocation.empty())
         {
-            LOGERROR("Couldn't get object location for: " << objectId);
+            LOGERROR("Couldn't get object location for: " << objectId << ". Failed to restore.");
             return {};
         }
 
@@ -603,7 +603,7 @@ namespace safestore::QuarantineManager
         // Delete file
         if (!m_safeStore->deleteObjectById(objectId))
         {
-            LOGERROR("Unable to remove file from SafeStore database: " << escapedPath);
+            LOGWARN("File was restored to disk, but unable to remove from SafeStore database: " << escapedPath);
             return restoreReport;
         }
         restoreReport.wasSuccessful = true;
