@@ -10,7 +10,25 @@ TEST(Exclusion, TestStemTypes)
 {
     Exclusion rootExcl("/");
     EXPECT_EQ(rootExcl.type(), STEM);
-    EXPECT_TRUE(rootExcl.appliesToPath("/tmp/foo/bar"));
+    EXPECT_EQ(rootExcl.path(), "/");
+    EXPECT_EQ(rootExcl.displayPath(), "/");
+    EXPECT_TRUE(rootExcl.appliesToPath("/", true));
+    EXPECT_FALSE(rootExcl.appliesToPath("~/", true));
+    EXPECT_FALSE(rootExcl.appliesToPath("~", true));
+    EXPECT_TRUE(rootExcl.appliesToPath("/tmp/", true));
+    EXPECT_TRUE(rootExcl.appliesToPath("/wunde/foo/bar", true));
+    EXPECT_TRUE(rootExcl.appliesToPath("/tmp/foo/bar", true));
+
+    Exclusion singleStemExcl("/tmp/");
+    EXPECT_EQ(singleStemExcl.type(), STEM);
+    EXPECT_EQ(singleStemExcl.path(), "/tmp/");
+    EXPECT_EQ(singleStemExcl.displayPath(), "/tmp/");
+    EXPECT_FALSE(singleStemExcl.appliesToPath("/"));
+    EXPECT_FALSE(singleStemExcl.appliesToPath("/tmp"));
+    EXPECT_TRUE(singleStemExcl.appliesToPath("/tmp/foo/"));
+    EXPECT_FALSE(singleStemExcl.appliesToPath("/", true));
+    EXPECT_TRUE(singleStemExcl.appliesToPath("/tmp", true));
+    EXPECT_TRUE(singleStemExcl.appliesToPath("/tmp/foo/", true));
 
     Exclusion stemExcl("/multiple/nested/dirs/");
     EXPECT_EQ(stemExcl.type(), STEM);

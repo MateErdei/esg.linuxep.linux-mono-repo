@@ -33,7 +33,7 @@ namespace common
         explicit Exclusion(const std::string& path);
 
         [[nodiscard]] bool appliesToPath(const fs::path&, bool isDirectory, bool isFile) const;
-        [[nodiscard]] bool appliesToPath(const fs::path&, bool ignoreFilenameExclusion=false) const;
+        [[nodiscard]] bool appliesToPath(const fs::path&, bool isDirectory=false) const;
         [[nodiscard]] std::string path() const;
         [[nodiscard]] std::string displayPath() const;
         [[nodiscard]] ExclusionType type() const;
