@@ -113,7 +113,6 @@ chmod 640 "${OVERRIDE_FLAG_FILE}"
 
 ## Install AV
 chmod 700 "${SDDS_AV}/install.sh"
-chmod 400 "${SOPHOS_INSTALL}/plugins/av/var/safestore_db/*.dat"
 bash $INSTALL_AV_BASH_OPTS "${SDDS_AV}/install.sh" || failure 6 "Unable to install SSPL-AV: $?"
 
 if [[ -n $MCS_URL ]]
