@@ -807,14 +807,15 @@ def run_safestore_restoration_test():
                 break
 
         for threat in expected_malware:
-            if os.path.exists(threat['filePath']):
+            if os.path.exists(threat["filePath"]):
                 restored_files += 1
             else:
                 logging.warning(f"{threat['filePath']} was not restored by SafeStore")
+                logging.info(os.listdir(SAFESTORE_MALWARE_PATH))
                 unrestored_files += 1
 
         if unrestored_files == len(expected_malware):
-            logging.error(f"No threats were restored from SafeStore database: {get_safestore_db_content_as_dict()}")
+            logging.error("No threats were restored from SafeStore database")
             return_code = 1
         elif 0 < unrestored_files:
             return_code = 2
