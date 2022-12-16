@@ -43,7 +43,7 @@ protected:
     std::unique_ptr<StrictMock<MockISafeStoreWrapper>> m_mockSafeStoreWrapper;
 
     // Common test constants
-    inline static const std::string m_dir = "/dir";
+    inline static const std::string m_dir = "/dir/";
     inline static const std::string m_file = "file";
     inline static const std::string m_threatID = "01234567-89ab-cdef-0123-456789abcdef";
     inline static const std::string m_threatName = "threatName";
@@ -265,7 +265,7 @@ TEST_F(QuarantineManagerTests, quarantineFile)
     EXPECT_EQ(
         common::CentralEnums::QuarantineResult::SUCCESS,
         quarantineManager->quarantineFile(
-            m_dir + "/" + m_file, m_threatID, m_threatName, m_SHA256, m_correlationId, std::move(fdHolder)));
+            m_dir + m_file, m_threatID, m_threatName, m_SHA256, m_correlationId, std::move(fdHolder)));
 }
 
 TEST_F(QuarantineManagerTests, quarantineFileLogsWhenSaveFileFails)
@@ -307,7 +307,7 @@ TEST_F(QuarantineManagerTests, quarantineFileLogsWhenSaveFileFails)
     EXPECT_EQ(
         common::CentralEnums::QuarantineResult::FAILED_TO_DELETE_FILE,
         quarantineManager->quarantineFile(
-            m_dir + "/" + m_file, m_threatID, m_threatName, m_SHA256, m_correlationId, std::move(fdHolder)));
+            m_dir + m_file, m_threatID, m_threatName, m_SHA256, m_correlationId, std::move(fdHolder)));
 
     EXPECT_TRUE(appenderContains(
         "Failed to quarantine " + m_dir + "/" + m_file + " due to: " + GL_SAVE_FILE_RETURN_CODES.at(SaveFileReturnCode::INVALID_ARG)));
@@ -351,7 +351,7 @@ TEST_F(QuarantineManagerTests, quarantineFileFailsWhenFileDescriptorsDoNotMatch)
     EXPECT_EQ(
         common::CentralEnums::QuarantineResult::FAILED_TO_DELETE_FILE,
         quarantineManager->quarantineFile(
-            m_dir + "/" + m_file, m_threatID, m_threatName, m_SHA256, m_correlationId, std::move(fdHolder)));
+            m_dir + m_file, m_threatID, m_threatName, m_SHA256, m_correlationId, std::move(fdHolder)));
 }
 
 TEST_F(QuarantineManagerTests, quarantineFileFailsWhenUnlinkFails)
@@ -392,7 +392,7 @@ TEST_F(QuarantineManagerTests, quarantineFileFailsWhenUnlinkFails)
     EXPECT_EQ(
         common::CentralEnums::QuarantineResult::FAILED_TO_DELETE_FILE,
         quarantineManager->quarantineFile(
-            m_dir + "/" + m_file, m_threatID, m_threatName, m_SHA256, m_correlationId, std::move(fdHolder)));
+            m_dir + m_file, m_threatID, m_threatName, m_SHA256, m_correlationId, std::move(fdHolder)));
 }
 
 TEST_F(QuarantineManagerTests, quarantineFileFailsWhenThreatDirectoryDoesNotExist)
@@ -431,7 +431,7 @@ TEST_F(QuarantineManagerTests, quarantineFileFailsWhenThreatDirectoryDoesNotExis
     EXPECT_EQ(
         common::CentralEnums::QuarantineResult::NOT_FOUND,
         quarantineManager->quarantineFile(
-            m_dir + "/" + m_file, m_threatID, m_threatName, m_SHA256, m_correlationId, std::move(fdHolder)));
+            m_dir + m_file, m_threatID, m_threatName, m_SHA256, m_correlationId, std::move(fdHolder)));
 }
 
 TEST_F(QuarantineManagerTests, quarantineFileFailsWhenthreatDoesNotExist)
@@ -471,7 +471,7 @@ TEST_F(QuarantineManagerTests, quarantineFileFailsWhenthreatDoesNotExist)
     EXPECT_EQ(
         common::CentralEnums::QuarantineResult::NOT_FOUND,
         quarantineManager->quarantineFile(
-            m_dir + "/" + m_file, m_threatID, m_threatName, m_SHA256, m_correlationId, std::move(fdHolder)));
+            m_dir + m_file, m_threatID, m_threatName, m_SHA256, m_correlationId, std::move(fdHolder)));
 }
 
 TEST_F(QuarantineManagerTests, quarantineFileFailsAndDbIsMarkedCorrupt)
@@ -523,7 +523,7 @@ TEST_F(QuarantineManagerTests, quarantineFileFailsAndDbIsMarkedCorrupt)
     EXPECT_EQ(
         common::CentralEnums::QuarantineResult::FAILED_TO_DELETE_FILE,
         quarantineManager->quarantineFile(
-            m_dir + "/" + m_file, m_threatID, m_threatName, m_SHA256, m_correlationId, std::move(fdHolder)));
+            m_dir + m_file, m_threatID, m_threatName, m_SHA256, m_correlationId, std::move(fdHolder)));
 
     EXPECT_EQ(quarantineManager->getState(), QuarantineManagerState::CORRUPT);
 }
@@ -572,7 +572,7 @@ TEST_F(QuarantineManagerTests, quarantineFileFailsToFinaliseFile)
     EXPECT_EQ(
         common::CentralEnums::QuarantineResult::FAILED_TO_DELETE_FILE,
         quarantineManager->quarantineFile(
-            m_dir + "/" + m_file, m_threatID, m_threatName, m_SHA256, m_correlationId, std::move(fdHolder)));
+            m_dir + m_file, m_threatID, m_threatName, m_SHA256, m_correlationId, std::move(fdHolder)));
 }
 
 TEST_F(QuarantineManagerTests, fileQuarantinesAndRemovesPreviouslySavedObjectsWithSameThreatId)
@@ -664,7 +664,7 @@ TEST_F(QuarantineManagerTests, fileQuarantinesAndRemovesPreviouslySavedObjectsWi
     EXPECT_EQ(
         common::CentralEnums::QuarantineResult::SUCCESS,
         quarantineManager->quarantineFile(
-            m_dir + "/" + m_file, m_threatID, m_threatName, m_SHA256, m_correlationId, std::move(fdHolder)));
+            m_dir + m_file, m_threatID, m_threatName, m_SHA256, m_correlationId, std::move(fdHolder)));
 }
 
 TEST_F(QuarantineManagerTests, fileQuarantinesButFailsToRemovePreviouslySavedObjectWithSameThreatId)
@@ -757,7 +757,7 @@ TEST_F(QuarantineManagerTests, fileQuarantinesButFailsToRemovePreviouslySavedObj
     EXPECT_EQ(
         common::CentralEnums::QuarantineResult::SUCCESS,
         quarantineManager->quarantineFile(
-            m_dir + "/" + m_file, m_threatID, m_threatName, m_SHA256, m_correlationId, std::move(fdHolder)));
+            m_dir + m_file, m_threatID, m_threatName, m_SHA256, m_correlationId, std::move(fdHolder)));
 }
 
 TEST_F(QuarantineManagerTests, tryToQuarantineFileWhenThreatIdIsIncorrectSize)
@@ -786,7 +786,7 @@ TEST_F(QuarantineManagerTests, tryToQuarantineFileWhenThreatIdIsIncorrectSize)
     EXPECT_EQ(
         common::CentralEnums::QuarantineResult::NOT_FOUND,
         quarantineManager->quarantineFile(
-            m_dir + "/" + m_file, threatId, m_threatName, m_SHA256, m_correlationId, std::move(fdHolder)));
+            m_dir + m_file, threatId, m_threatName, m_SHA256, m_correlationId, std::move(fdHolder)));
 }
 
 TEST_F(QuarantineManagerTests, tryToQuarantineFileWhenUninitialised)
@@ -801,7 +801,7 @@ TEST_F(QuarantineManagerTests, tryToQuarantineFileWhenUninitialised)
     common::CentralEnums::QuarantineResult result;
     EXPECT_NO_THROW(
         result = quarantineManager->quarantineFile(
-            m_dir + "/" + m_file, m_threatID, m_threatName, m_SHA256, m_correlationId, std::move(fdHolder)));
+            m_dir + m_file, m_threatID, m_threatName, m_SHA256, m_correlationId, std::move(fdHolder)));
     EXPECT_EQ(result, common::CentralEnums::QuarantineResult::NOT_FOUND);
 }
 

@@ -229,7 +229,8 @@ namespace safestore::QuarantineManager
             return common::CentralEnums::QuarantineResult::NOT_FOUND;
         }
 
-        std::string directory = Common::FileSystem::dirName(filePath);
+        // dirName strips trailing separator, but SafeStore doesn't care about it. Adding it resolves parent dir being root.
+        std::string directory = Common::FileSystem::dirName(filePath) + "/";
         std::string filename = Common::FileSystem::basename(filePath);
 
         auto objectHandle = m_safeStore->createObjectHandleHolder();
