@@ -540,7 +540,9 @@ namespace Plugin
         const auto machineLearningEnabled = boolFromString(policy.lookup("policy/coreFeatures/machineLearningEnabled").contents());
         const auto existingSetting = m_threatDetectorSettings.isMachineLearningEnabled();
 
-        Common::Telemetry::TelemetryHelper::getInstance().set("ml-scanning-enabled", machineLearningEnabled);
+        Common::Telemetry::TelemetryObject mlSettingTelemetry;
+        mlSettingTelemetry.set(Common::Telemetry::TelemetryValue(machineLearningEnabled));
+        Common::Telemetry::TelemetryHelper::getInstance().set("ml-scanning-enabled", mlSettingTelemetry, true);
 
         if (machineLearningEnabled != existingSetting)
         {
