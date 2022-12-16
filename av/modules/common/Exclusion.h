@@ -44,7 +44,6 @@ namespace common
         static std::regex convertGlobToRegex(const std::string& glob);
         static void escapeRegexMetaCharacters(std::string& text);
 
-        //todo option 1 just making filesystem path
         fs::path m_exclusionPath;
         std::string m_exclusionDisplayPath;
         std::regex m_pathRegex;
