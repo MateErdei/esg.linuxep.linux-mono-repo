@@ -310,7 +310,7 @@ TEST_F(QuarantineManagerTests, quarantineFileLogsWhenSaveFileFails)
             m_dir + "/" + m_file, m_threatID, m_threatName, m_SHA256, m_correlationId, std::move(fdHolder)));
 
     EXPECT_TRUE(appenderContains(
-        "Failed to quarantine file due to: " + GL_SAVE_FILE_RETURN_CODES.at(SaveFileReturnCode::INVALID_ARG)));
+        "Failed to quarantine " + m_dir + "/" + m_file + " due to: " + GL_SAVE_FILE_RETURN_CODES.at(SaveFileReturnCode::INVALID_ARG)));
 }
 
 TEST_F(QuarantineManagerTests, quarantineFileFailsWhenFileDescriptorsDoNotMatch)
