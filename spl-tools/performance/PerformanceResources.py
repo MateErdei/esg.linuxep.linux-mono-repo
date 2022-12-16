@@ -104,7 +104,8 @@ def run_safestore_tool_with_args(*args):
 
 def get_safestore_db_content_as_dict():
     safestore_db_content = run_safestore_tool_with_args("-l")
-    logging.info(f"Output from SafeStore tool: {safestore_db_content}")
+    logging.info("Output from SafeStore tool:")
+    logging.info(safestore_db_content)
 
     threats = [{} for i in range(safestore_db_content.count("Threat GUID:"))]
     threat_idx = 0

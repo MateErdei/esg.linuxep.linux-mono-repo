@@ -804,7 +804,7 @@ def run_safestore_restoration_test():
             safestore_db_content = get_safestore_db_content_as_dict()
             test_threats = [item for item in safestore_db_content if item["Location"] == SAFESTORE_MALWARE_PATH]
 
-            if not test_threats:
+            if all(threat["Status"] == "restored_as" for threat in test_threats):
                 break
 
         for threat in expected_malware:

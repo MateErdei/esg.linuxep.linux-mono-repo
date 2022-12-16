@@ -971,6 +971,7 @@ File Log Contains
             return
 
         logger.error("Failed to find %s in %s" % (expected, log_path))
+        handler.dump_marked_log(mark)
         raise AssertionError("Failed to find %s in %s" % (expected, log_path))
 
     def get_log_after_mark(self, log_path, mark):
