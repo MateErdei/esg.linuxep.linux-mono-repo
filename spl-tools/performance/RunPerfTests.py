@@ -767,7 +767,6 @@ def run_safestore_restoration_test():
 
     get_safestore_tool()
     td_mark = log_utils.get_sophos_threat_detector_log_mark()
-    ss_mark = log_utils.get_safestore_log_mark()
 
     try:
         stop_sspl_process("mcsrouter")
@@ -804,16 +803,13 @@ def run_safestore_restoration_test():
             safestore_db_content = get_safestore_db_content_as_dict()
             test_threats = [item for item in safestore_db_content if item["Location"] == SAFESTORE_MALWARE_PATH]
 
-            if all(threat["Status"] == "restored_as" for threat in test_threats):
+            if not test_threats or all(threat["Status"] == "restored_as" for threat in test_threats):
                 break
 
         for threat in expected_malware:
-            try:
-                log_utils.check_log_contains_after_mark(log_utils.safestore_log,
-                                                        f"Reporting successful restoration of {threat['filePath']}",
-                                                        ss_mark)
+            if os.path.exists(threat['filePath']):
                 restored_files += 1
-            except Exception:
+            else:
                 logging.warning(f"{threat['filePath']} was not restored by SafeStore")
                 unrestored_files += 1
 
