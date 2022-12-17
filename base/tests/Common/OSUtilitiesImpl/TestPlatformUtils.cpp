@@ -441,3 +441,15 @@ TEST(TestPlatformUtils, getAzureMetadataHandlesUnexpected200Responses) // NOLINT
     EXPECT_NO_THROW(response = platformUtils.getCloudPlatformMetadata(httpRequester));
     EXPECT_EQ(response, "");
 }
+
+TEST(CloudMetadataConverters, verifyGoogleId) // NOLINT
+{
+    EXPECT_TRUE(CloudMetadataConverters::verifyGoogleId("abc"));
+    EXPECT_TRUE(CloudMetadataConverters::verifyGoogleId("ABC"));
+    EXPECT_TRUE(CloudMetadataConverters::verifyGoogleId("aAbBcC"));
+    EXPECT_TRUE(CloudMetadataConverters::verifyGoogleId("aA1bB2cC3"));
+    EXPECT_TRUE(CloudMetadataConverters::verifyGoogleId("a-A-1-b-B-2-c-C-3"));
+
+    EXPECT_FALSE(CloudMetadataConverters::verifyGoogleId("bad id with spaces"));
+    EXPECT_FALSE(CloudMetadataConverters::verifyGoogleId("BadIDWithSome<AngleBrackets>"));
+}
