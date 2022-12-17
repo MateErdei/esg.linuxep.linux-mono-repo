@@ -4,17 +4,11 @@
 
 #include "unixsocket/SocketUtils.h"
 #include "unixsocket/Logger.h"
-#include <ScanResponse.capnp.h>
 
 #include <string>
-#include <cstdio>
-#include <cstdlib>
 #include <cassert>
 #include <utility>
 #include <sstream>
-
-#include <sys/socket.h>
-#include <sys/un.h>
 
 unixsocket::ProcessControllerClientSocket::ProcessControllerClientSocket(std::string socket_path, const duration_t& sleepTime)
         : BaseClient(std::move(socket_path), sleepTime)
