@@ -110,7 +110,7 @@ Retrieve JWT Tokens from Central only once per connection
     ...  Check Marked Mcsrouter Log Contains String N Times   Re-entered main loop   3
 
     # Checking the JWT token hasn't been re-requested after several loops
-    Check Marked Mcsrouter Log Contains String N Times   MCS Router Log   Setting Tenant ID: example-tenant-id   1
+    Check Marked Mcsrouter Log Contains String N Times   Setting Tenant ID: example-tenant-id   1
 
 JWT Tokens expire and a new token is requested
     Override LogConf File as Global Level  DEBUG
