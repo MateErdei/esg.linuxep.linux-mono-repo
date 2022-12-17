@@ -798,6 +798,9 @@ Threat Is Re-detected By On-access If Removed From Allow-list
     DeObfuscate File  ${RESOURCES_PATH}/file_samples_obfuscated/MLengHighScore.exe  ${allow_listed_threat_file}
     Wait For Log Contains From Mark  ${ss_mark}  Quarantined ${allow_listed_threat_file} successfully
 
+    #TODO LINUXDAR-6383 remove this when this bug is fixed: https://sophos.atlassian.net/browse/LINUXDAR-6383
+    Register Cleanup   Mark Expected Error In Log    ${SAFESTORE_LOG_PATH}    safestore <> Failed to quarantine file due to: FileOpenFailed
+
 
 *** Keywords ***
 SafeStore Test Setup
