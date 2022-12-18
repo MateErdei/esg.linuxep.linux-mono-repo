@@ -58,7 +58,7 @@ def pip_install(machine: tap.Machine, *install_args: str):
 
 def install_requirements(machine: tap.Machine):
     """ install python lib requirements """
-    machine.run('bash', machine.inputs.test_scripts / "bin/install_pip_prerequisites.sh")
+    # machine.run('bash', machine.inputs.test_scripts / "bin/install_pip_prerequisites.sh")
     pip_install(machine, '-r', machine.inputs.test_scripts / 'requirements.txt')
 
 
