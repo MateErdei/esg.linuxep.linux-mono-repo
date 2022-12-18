@@ -154,7 +154,7 @@ def run(destination):
     updated = False
     updated = process(artifactory_base_url + "ssplav-mlmodel3-x86_64/released", "model.zip", b"ml_model") or updated
     updated = process(artifactory_base_url + "ssplav-localrep/released", "reputation.zip", b"local_rep") or updated
-    updated = process(artifactory_base_url + "ssplav-dataseta/released", "dataseta.zip", b"vdl") or updated
+    updated = process(artifactory_base_url + "ssplav-dataseta/released", "dataseta.zip", b"dataseta") or updated
     return updated
 
 

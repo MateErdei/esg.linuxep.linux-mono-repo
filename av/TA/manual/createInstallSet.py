@@ -51,7 +51,7 @@ def verify_install_set(install_set, sdds_component=None):
     update_source = susi_update_source_dir(install_set)
     for x in b"vdl", b"model", b"reputation":
         p = os.path.join(update_source, x)
-        print("Checking if %s exists" % p, file=sys.stderr)
+        log("Checking if %s exists" % p)
         if not os.path.isdir(p):
             return False
 
@@ -80,7 +80,7 @@ def setup_install_set(install_set, sdds_component, vdl, ml_model, local_rep):
 
 
 def create_install_set(install_set, sdds_component, base):
-    vdl = os.path.join(base, b"vdl")
+    vdl = os.path.join(base, b"dataseta")
     ml_model = os.path.join(base, b"ml_model")
     lrdata = os.path.join(base, b"local_rep")
     return setup_install_set(install_set, sdds_component, vdl, ml_model, lrdata)
@@ -88,9 +88,10 @@ def create_install_set(install_set, sdds_component, base):
 
 def create_install_set_if_required(install_set, sdds_component, base):
     updated = download_supplements(base)
-    print("Finished downloading supplements:", updated)
+    log("Finished downloading supplements:", str(updated))
     if verify_install_set(install_set, sdds_component) and not updated:
         return 0
+    log("Creating install set")
     return create_install_set(install_set, sdds_component, ensure_binary(base))
 
 
