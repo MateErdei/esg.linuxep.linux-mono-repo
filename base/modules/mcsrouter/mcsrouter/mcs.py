@@ -492,6 +492,7 @@ class MCS:
                     # The current JWT token has more than 10 minutes before expiration
                     if time.time() < self.__m_comms.m_jwt_expiration_timestamp - 600:
                         return False
+        LOGGER.info("Determined new JWT should be requested")
         return True
 
     def token_and_url_are_set(self):
