@@ -97,25 +97,25 @@ TEST_F(TestMountMonitor, TestGetIncludedMountpoints)
 {
     std::shared_ptr<NiceMock<MockMountPoint>> localFixedDevice = std::make_shared<NiceMock<MockMountPoint>>();
     EXPECT_CALL(*localFixedDevice, isHardDisc()).WillOnce(Return(true));
-    EXPECT_CALL(*localFixedDevice, mountPoint()).Times(2).WillRepeatedly(Return("localFixedDevice"));
+    EXPECT_CALL(*localFixedDevice, mountPoint()).WillRepeatedly(Return("localFixedDevice"));
 
     std::shared_ptr<NiceMock<MockMountPoint>> networkDevice = std::make_shared<NiceMock<MockMountPoint>>();
     EXPECT_CALL(*networkDevice, isHardDisc()).WillOnce(Return(false));
     EXPECT_CALL(*networkDevice, isNetwork()).WillOnce(Return(true));
-    EXPECT_CALL(*networkDevice, mountPoint()).Times(2).WillRepeatedly(Return("networkDevice"));
+    EXPECT_CALL(*networkDevice, mountPoint()).WillRepeatedly(Return("networkDevice"));
 
     std::shared_ptr<NiceMock<MockMountPoint>> removableDevice = std::make_shared<NiceMock<MockMountPoint>>();
     EXPECT_CALL(*removableDevice, isHardDisc()).WillOnce(Return(false));
     EXPECT_CALL(*removableDevice, isNetwork()).WillOnce(Return(false));
     EXPECT_CALL(*removableDevice, isRemovable()).WillOnce(Return(true));
-    EXPECT_CALL(*removableDevice, mountPoint()).Times(2).WillRepeatedly(Return("removableDevice"));
+    EXPECT_CALL(*removableDevice, mountPoint()).WillRepeatedly(Return("removableDevice"));
 
     std::shared_ptr<NiceMock<MockMountPoint>> opticalDevice = std::make_shared<NiceMock<MockMountPoint>>();
     EXPECT_CALL(*opticalDevice, isHardDisc()).WillOnce(Return(false));
     EXPECT_CALL(*opticalDevice, isNetwork()).WillOnce(Return(false));
     EXPECT_CALL(*opticalDevice, isRemovable()).WillOnce(Return(false));
     EXPECT_CALL(*opticalDevice, isOptical()).WillOnce(Return(true));
-    EXPECT_CALL(*opticalDevice, mountPoint()).Times(2).WillRepeatedly(Return("opticalDevice"));
+    EXPECT_CALL(*opticalDevice, mountPoint()).WillRepeatedly(Return("opticalDevice"));
 
     std::shared_ptr<NiceMock<MockMountPoint>> specialDevice = std::make_shared<NiceMock<MockMountPoint>>();
     EXPECT_CALL(*specialDevice, isSpecial()).WillOnce(Return(true));
@@ -144,7 +144,7 @@ TEST_F(TestMountMonitor, TestSetExclusions)
     std::shared_ptr<NiceMock<MockMountPoint>> localFixedDevice = std::make_shared<NiceMock<MockMountPoint>>();
     EXPECT_CALL(*localFixedDevice, isHardDisc()).WillRepeatedly(Return(true));
     EXPECT_CALL(*localFixedDevice, isDirectory()).WillRepeatedly(Return(true));
-    EXPECT_CALL(*localFixedDevice, mountPoint()).Times(5).WillRepeatedly(Return(excludedMount));
+    EXPECT_CALL(*localFixedDevice, mountPoint()).WillRepeatedly(Return(excludedMount));
 
     mount_monitor::mountinfo::IMountPointSharedVector allMountpoints;
     allMountpoints.push_back(localFixedDevice);
