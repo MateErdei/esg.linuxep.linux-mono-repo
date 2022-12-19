@@ -197,11 +197,7 @@ namespace safestore::QuarantineManager
             setState(QuarantineManagerState::UNINITIALISED);
 
             LOGERROR("Quarantine Manager failed to initialise");
-            if (initResult == SafeStoreWrapper::InitReturnCode::DB_ERROR ||
-                initResult == SafeStoreWrapper::InitReturnCode::DB_OPEN_FAILED)
-            {
-                callOnDbError();
-            }
+            callOnDbError();
         }
     }
 
