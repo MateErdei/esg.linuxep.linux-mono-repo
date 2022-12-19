@@ -95,7 +95,7 @@ Retrieve JWT Tokens from Central only once per connection
     Check Correct MCS Password And ID For Local Cloud Saved
     Start MCSRouter
     Wait Until Keyword Succeeds
-    ...  10s
+    ...  20s
     ...  1s
     ...  Check MCS Router Running
     Mark Mcsrouter Log
