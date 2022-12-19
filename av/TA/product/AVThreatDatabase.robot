@@ -101,17 +101,21 @@ Threat is removed from Threat database when threat is quarantined
 
 
 Threat is not added to Threat database when threat is quarantined
+    set_default_policy_from_file  CORC   ${RESOURCES_PATH}/corc_policy/corc_policy_empty_allowlist.xml
+    set_default_policy_from_file  CORE   ${RESOURCES_PATH}/core_policy/CORE-36_oa_disabled.xml
+    set_default_policy_from_file  FLAGS  ${RESOURCES_PATH}/flags_policy/flags_safestore_enabled.json
+    set_default_policy_from_file  SAV    ${RESOURCES_PATH}/sav_policy/SAV_default_policy.xml
+    set_default_policy_from_file  ALC    ${RESOURCES_PATH}/alc_policy/template/base_and_av_VUT.xml
+
+    ${avmark} =  get_av_log_mark
     Start AV
     # Start AV also starts Safestore
     Wait Until SafeStore running
 
-    ${avmark} =  get_av_log_mark
-    ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags_safestore_enabled.json
-    Send Plugin Policy  av  FLAGS  ${policyContent}
     wait_for_av_log_contains_after_mark     SafeStore flag set. Setting SafeStore to enabled   ${avmark}  timeout=60
-    Create File     ${NORMAL_DIRECTORY}/naughty_eicar    ${EICAR_STRING}
-    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naughty_eicar
-    wait_for_av_log_contains_after_mark  Threat cleaned up at path: ${NORMAL_DIRECTORY}/naughty_eicar  ${avmark}
+    Create File     ${NORMAL_DIRECTORY}/threat_not_added_eicar    ${EICAR_STRING}
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/threat_not_added_eicar
+    wait_for_av_log_contains_after_mark  Threat cleaned up at path: ${NORMAL_DIRECTORY}/threat_not_added_eicar  ${avmark}  timeout=60
     Stop AV
     Wait Until Keyword Succeeds
     ...  10 secs
