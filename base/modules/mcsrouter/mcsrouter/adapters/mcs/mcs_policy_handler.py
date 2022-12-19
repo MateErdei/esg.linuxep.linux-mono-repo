@@ -155,12 +155,12 @@ class MCSPolicyHandler:
         """
         __apply_policy_setting
         """
-        if not config_option:
+        if config_option is None:
             config_option = policy_option
 
         node = self.__get_element(dom, policy_option)
 
-        if not node:
+        if node is None:
             if treat_missing_as_empty:
                 value = ""
             else:
@@ -384,7 +384,7 @@ class MCSPolicyHandler:
         """
         __apply_policy
         """
-        assert self.__m_policy_config
+        assert self.__m_policy_config is not None
 
         policy_xml = self.__m_policy_xml
         try:
