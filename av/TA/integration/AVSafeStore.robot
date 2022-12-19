@@ -779,6 +779,7 @@ Threat Is Re-detected By On-access If Removed From Allow-list
     ${allow_listed_threat_file} =  Set Variable  ${NORMAL_DIRECTORY}/MLengHighScore.exe
     DeObfuscate File  ${RESOURCES_PATH}/file_samples_obfuscated/MLengHighScore.exe  ${allow_listed_threat_file}
     Wait For Log Contains From Mark  ${ss_mark}  Quarantined ${allow_listed_threat_file} successfully
+    File Should Not Exist  ${allow_listed_threat_file}
 
     # Allow-list the file and wait for it to be restored
     ${ss_mark} =  Get SafeStore Log Mark
@@ -786,6 +787,7 @@ Threat Is Re-detected By On-access If Removed From Allow-list
     Wait For Log Contains From Mark  ${ss_mark}  SafeStore Database Rescan request received
     Wait For Log Contains From Mark  ${ss_mark}  Rescan found quarantined file no longer a threat: ${allow_listed_threat_file}
     Wait For Log Contains From Mark  ${ss_mark}  Reporting successful restoration of ${allow_listed_threat_file}
+    File Should Exist  ${allow_listed_threat_file}
 
     # Clear the allow list and wait for it to be received
     ${ss_mark} =  Get SafeStore Log Mark
@@ -795,8 +797,9 @@ Threat Is Re-detected By On-access If Removed From Allow-list
 
     # Re-detect the file with on access
     ${ss_mark} =  Get SafeStore Log Mark
-    DeObfuscate File  ${RESOURCES_PATH}/file_samples_obfuscated/MLengHighScore.exe  ${allow_listed_threat_file}
+    ${result} =  run process  touch  ${allow_listed_threat_file}
     Wait For Log Contains From Mark  ${ss_mark}  Quarantined ${allow_listed_threat_file} successfully
+    File Should Not Exist  ${allow_listed_threat_file}
 
     #TODO LINUXDAR-6383 remove this when this bug is fixed: https://sophos.atlassian.net/browse/LINUXDAR-6383
     Register Cleanup   Mark Expected Error In Log    ${SAFESTORE_LOG_PATH}    safestore <> Failed to quarantine file due to: FileOpenFailed
