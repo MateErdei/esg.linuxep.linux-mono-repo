@@ -492,7 +492,7 @@ class MCS:
                     # The current JWT token has more than 10 minutes before expiration
                     if time.time() < self.__m_comms.m_jwt_expiration_timestamp - 600:
                         return False
-        LOGGER.info("Determined new JWT should be requested")
+        LOGGER.info("New JWT should be requested")
         return True
 
     def token_and_url_are_set(self):
@@ -806,6 +806,12 @@ class MCS:
                             if mcs_token_before_commands != mcs_token_after_commands:
                                 self.__update_user_agent()
 
+                        if self.should_generate_new_jwt_token():
+                            comms.set_jwt_token_settings()
+                            # Status needs to contain device ID and tenant ID
+                            self.__m_agent.set_device_id_for_status(comms.m_device_id)
+                            self.__m_agent.set_tenant_id_for_status(comms.m_tenant_id)
+
                         error_count = 0
 
                     # check for new flags
@@ -857,11 +863,6 @@ class MCS:
                         add_response(file_path, app_id, correlation_id, timestamp.timestamp(
                             response_time), response_body)
 
-                    if self.should_generate_new_jwt_token():
-                        comms.set_jwt_token_settings()
-                        # Status needs to contain device ID and tenant ID
-                        self.__m_agent.set_device_id_for_status(comms.m_device_id)
-                        self.__m_agent.set_tenant_id_for_status(comms.m_tenant_id)
 
                     # get all pending datafeeds
                     gather_datafeed_files()
