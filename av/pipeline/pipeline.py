@@ -127,7 +127,7 @@ def pytest_task(machine: tap.Machine):
     pytest_task_with_env(machine)
 
 
-AWS_TIMEOUT = 150
+AWS_TIMEOUT = 130
 
 
 @tap.timeout(task_timeout=AWS_TIMEOUT)
