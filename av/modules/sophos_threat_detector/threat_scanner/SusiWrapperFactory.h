@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2020-2022, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2022 Sophos Limited. All rights reserved.
 
 #pragma once
 
@@ -25,6 +21,11 @@ namespace threat_scanner
         bool isMachineLearningEnabled() override
         {
             return m_globalHandler->isMachineLearningEnabled();
+        }
+
+        ISusiGlobalHandlerSharedPtr accessGlobalHandler() override
+        {
+            return m_globalHandler;
         }
 
     private:

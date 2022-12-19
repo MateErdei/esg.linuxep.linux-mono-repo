@@ -1,4 +1,4 @@
-// Copyright 2020-2022, Sophos Limited.  All rights reserved.
+// Copyright 2020-2022 Sophos Limited. All rights reserved.
 
 #include "SusiGlobalHandler.h"
 
@@ -71,6 +71,14 @@ namespace threat_scanner
                     LOGDEBUG("Allowed by SHA256: " << stream.str());
                     return true;
                 }
+                else
+                {
+                    LOGDEBUG("Denied allow list for: " << stream.str());
+                }
+            }
+            else
+            {
+                LOGWARN("isAllowlistFile called with unsupported algorithm: " << algorithm);
             }
 
             return false;
@@ -467,6 +475,12 @@ namespace threat_scanner
             m_machineLearningAlreadyLogged = true;
         }
         return setting;
+    }
+
+    bool SusiGlobalHandler::isAllowListed(const std::string& threatChecksum)
+    {
+        std::lock_guard<std::mutex> lock(m_susiSettingsMutex);
+        return m_susiSettings->isAllowListed(threatChecksum);
     }
 
 } // namespace threat_scanner

@@ -1,4 +1,4 @@
-//Copyright 2020-2022, Sophos Limited.  All rights reserved.
+// Copyright 2020-2022 Sophos Limited. All rights reserved.
 
 #pragma once
 
@@ -17,4 +17,5 @@ public:
     MOCK_METHOD0(susiIsInitialized, bool());
     MOCK_METHOD(bool, updateSusiConfig, ());
     MOCK_METHOD(bool, isMachineLearningEnabled, (), (override));
+    MOCK_METHOD(threat_scanner::ISusiGlobalHandlerSharedPtr, accessGlobalHandler, (), (override));
 };

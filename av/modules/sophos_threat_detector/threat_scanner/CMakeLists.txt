@@ -1,11 +1,13 @@
 add_library(threat_scanner SHARED
+        IAllowList.h
         IScanNotification.h
-        IUnitScanner.h
+        ISusiGlobalHandler.h
         ISusiWrapper.h
         ISusiWrapperFactory.h
         IThreatReporter.h
         IThreatScanner.h
         IThreatScannerFactory.h
+        IUnitScanner.h
         IUpdateCompleteCallback.h
         Logger.h
         Logger.cpp
@@ -37,8 +39,7 @@ add_library(threat_scanner SHARED
         UnitScanner.cpp
         ISusiApiWrapper.h
         SusiApiWrapper.cpp
-        SusiApiWrapper.h
-        )
+        SusiApiWrapper.h)
 
 find_library(SUSI_LIB NAMES susi PATHS ${SUSIPATH})
 find_library(UPDATER_LIB NAMES updater PATHS ${SUSIPATH})

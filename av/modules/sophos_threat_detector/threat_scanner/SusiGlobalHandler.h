@@ -1,6 +1,8 @@
-// Copyright 2020-2022, Sophos Limited.  All rights reserved.
+// Copyright 2020-2022 Sophos Limited. All rights reserved.
 
 #pragma once
+
+#include "ISusiGlobalHandler.h"
 
 #include "SusiApiWrapper.h"
 
@@ -15,7 +17,7 @@
 
 namespace threat_scanner
 {
-    class SusiGlobalHandler
+    class SusiGlobalHandler final : public ISusiGlobalHandler
     {
     public:
         /**
@@ -28,7 +30,7 @@ namespace threat_scanner
          * Terminate SUSI if it has been initialized.
          * Restore basic logging.
          */
-        ~SusiGlobalHandler();
+        ~SusiGlobalHandler() override;
 
         /**
          * Update SUSI if initialized, otherwise store the update for later.
@@ -89,6 +91,13 @@ namespace threat_scanner
          * @return True if machine learning detection should be enabled
          */
         bool isMachineLearningEnabled();
+
+        /**
+         * Check if SHA256 sum if allowed
+         * @param threatChecksum
+         * @return
+         */
+        bool isAllowListed(const std::string& threatChecksum) final;
 
     private:
         std::atomic_bool m_susiInitialised = false;

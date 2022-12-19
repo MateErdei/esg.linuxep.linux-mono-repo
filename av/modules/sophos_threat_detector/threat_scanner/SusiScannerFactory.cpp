@@ -1,4 +1,4 @@
-// Copyright 2020-2022, Sophos Limited. All rights reserved.
+// Copyright 2020-2022 Sophos Limited. All rights reserved.
 
 #include "SusiScannerFactory.h"
 
@@ -16,7 +16,10 @@ namespace threat_scanner
     {
         std::string scannerConfig = "{" + createScannerInfo(scanArchives, scanImages, m_wrapperFactory->isMachineLearningEnabled()) + "}";
         auto unitScanner = std::make_unique<UnitScanner>(m_wrapperFactory->createSusiWrapper(scannerConfig));
-        return std::make_unique<SusiScanner>(std::move(unitScanner), m_reporter, m_shutdownTimer);
+        return std::make_unique<SusiScanner>(std::move(unitScanner),
+                                             m_reporter,
+                                             m_shutdownTimer,
+                                             m_wrapperFactory->accessGlobalHandler());
     }
 
     SusiScannerFactory::SusiScannerFactory(

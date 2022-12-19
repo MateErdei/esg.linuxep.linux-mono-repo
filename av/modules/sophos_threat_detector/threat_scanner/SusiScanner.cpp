@@ -1,4 +1,4 @@
-// Copyright 2020-2022, Sophos Limited. All rights reserved.
+// Copyright 2020-2022 Sophos Limited. All rights reserved.
 
 #include "SusiScanner.h"
 
@@ -40,37 +40,53 @@ scan_messages::ScanResponse SusiScanner::scan(
         }
     }
 
-    const auto e_ScanType = static_cast<E_SCAN_TYPE>(info.getScanType());
-    const auto scanTypeStr = getScanTypeAsStr(e_ScanType);
-
-    for (const auto& detection : result.detections)
+    if (!result.detections.empty())
     {
-        if (e_ScanType != E_SCAN_TYPE_SAFESTORE_RESCAN)
-        {
-            LOGWARN(
-                "Detected \"" << detection.name << "\" in " << common::escapePathForLogging(detection.path) << " ("
-                              << scanTypeStr << ")");
-        }
+        // SUSI reported detections
 
-        response.addDetection(detection.path, detection.name, detection.sha256);
-    }
-
-    if (!result.detections.empty() && e_ScanType != E_SCAN_TYPE_SAFESTORE_RESCAN)
-    {
+        const auto e_ScanType = static_cast<E_SCAN_TYPE>(info.getScanType());
         auto threatDetected =
             buildThreatDetected(result.detections, info.getPath(), std::move(fd), info.getUserId(), e_ScanType);
-        if (e_ScanType == E_SCAN_TYPE_ON_ACCESS || e_ScanType == E_SCAN_TYPE_ON_ACCESS_CLOSE || e_ScanType == E_SCAN_TYPE_ON_ACCESS_OPEN )
+
+        assert(m_allowList);
+        if (m_allowList->isAllowListed(threatDetected.sha256))
         {
-            threatDetected.pid = info.getPid();
-            threatDetected.executablePath = info.getExecutablePath();
+            LOGINFO("Allowing listing " << info.getPath() << " with " << threatDetected.sha256);
         }
-        const std::string escapedPath = common::escapePathForLogging(info.getPath());
-        LOGINFO("Sending report for detection '" << threatDetected.threatName << "' in " << escapedPath);
+        else
+        {
+            const auto scanTypeStr = getScanTypeAsStr(e_ScanType);
 
-        LOGDEBUG("Threat ID: " << threatDetected.threatId);
+            for (const auto& detection : result.detections)
+            {
+                if (e_ScanType != E_SCAN_TYPE_SAFESTORE_RESCAN)
+                {
+                    LOGWARN(
+                        "Detected \"" << detection.name << "\" in " << common::escapePathForLogging(detection.path)
+                                      << " (" << scanTypeStr << ")");
+                }
 
-        assert(m_threatReporter);
-        m_threatReporter->sendThreatReport(threatDetected);
+                response.addDetection(detection.path, detection.name, detection.sha256);
+            }
+
+            if (e_ScanType == E_SCAN_TYPE_ON_ACCESS || e_ScanType == E_SCAN_TYPE_ON_ACCESS_CLOSE ||
+                e_ScanType == E_SCAN_TYPE_ON_ACCESS_OPEN)
+            {
+                threatDetected.pid = info.getPid();
+                threatDetected.executablePath = info.getExecutablePath();
+            }
+
+            if (e_ScanType != E_SCAN_TYPE_SAFESTORE_RESCAN)
+            {
+                // Don't send threat report for safestore rescans
+                const std::string escapedPath = common::escapePathForLogging(info.getPath());
+                LOGINFO("Sending report for detection '" << threatDetected.threatName << "' in " << escapedPath);
+                LOGDEBUG("Threat ID: " << threatDetected.threatId);
+                assert(m_threatReporter);
+                m_threatReporter->sendThreatReport(threatDetected);
+            }
+        }
+
     }
 
     return response;

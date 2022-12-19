@@ -1,4 +1,4 @@
-// Copyright 2020-2022, Sophos Limited.  All rights reserved.
+// Copyright 2020-2022 Sophos Limited. All rights reserved.
 
 #include "MockSusiWrapper.h"
 #include "MockSusiWrapperFactory.h"
@@ -84,23 +84,26 @@ TEST_F(TestSusiScannerFactory, testConstructionWithMockSusiWrapper)
 
 TEST_F(TestSusiScannerFactory, testCreateScannerWithMockSusiWrapperArchivesAndImagesFalse)
 {
-    auto wrapperFactory = std::make_shared<::testing::StrictMock<MockSusiWrapperFactory>>();
-    SusiScannerFactory factory(wrapperFactory, nullptr, nullptr, nullptr);
+    using namespace ::testing;
+    auto wrapperFactory = std::make_shared<StrictMock<MockSusiWrapperFactory>>();
 
     // Rely on TestThreatScanner.cpp to test createScannerInfo
     const auto expectedScannerConfig = "{" + createScannerInfo(false, false, true) + "}";
 
-    auto susiWrapper = std::make_shared<::testing::StrictMock<MockSusiWrapper>>();
-    EXPECT_CALL(*wrapperFactory, isMachineLearningEnabled).WillRepeatedly(testing::Return(true));
+    auto susiWrapper = std::make_shared<StrictMock<MockSusiWrapper>>();
+    EXPECT_CALL(*wrapperFactory, isMachineLearningEnabled).WillRepeatedly(Return(true));
     EXPECT_CALL(*wrapperFactory, createSusiWrapper(expectedScannerConfig)).WillOnce(Return(susiWrapper));
+    EXPECT_CALL(*wrapperFactory, accessGlobalHandler()).WillOnce(Return(nullptr));
+
+    SusiScannerFactory factory(wrapperFactory, nullptr, nullptr, nullptr);
     EXPECT_NO_THROW(auto scanner = factory.createScanner(false, false));
 }
 
 
 TEST_F(TestSusiScannerFactory, testCreateScannerWithMockSusiWrapperArchivesTrue)
 {
+    using namespace ::testing;
     auto wrapperFactory = std::make_shared<::testing::StrictMock<MockSusiWrapperFactory>>();
-    SusiScannerFactory factory(wrapperFactory, nullptr, nullptr, nullptr);
 
     // Rely on TestThreatScanner.cpp to test createScannerInfo
     const auto scannerConfig = "{" + createScannerInfo(true, false, true) + "}";
@@ -108,21 +111,27 @@ TEST_F(TestSusiScannerFactory, testCreateScannerWithMockSusiWrapperArchivesTrue)
     auto susiWrapper = std::make_shared<::testing::StrictMock<MockSusiWrapper>>();
     EXPECT_CALL(*wrapperFactory, isMachineLearningEnabled).WillRepeatedly(testing::Return(true));
     EXPECT_CALL(*wrapperFactory, createSusiWrapper(scannerConfig)).WillOnce(Return(susiWrapper));
+    EXPECT_CALL(*wrapperFactory, accessGlobalHandler()).WillOnce(Return(nullptr));
+
+    SusiScannerFactory factory(wrapperFactory, nullptr, nullptr, nullptr);
     EXPECT_NO_THROW(auto scanner = factory.createScanner(true, false));
 }
 
 
 TEST_F(TestSusiScannerFactory, testCreateScannerWithMockSusiWrapperImagesTrue)
 {
-    auto wrapperFactory = std::make_shared<::testing::StrictMock<MockSusiWrapperFactory>>();
-    SusiScannerFactory factory(wrapperFactory, nullptr, nullptr, nullptr);
+    using namespace ::testing;
+    auto wrapperFactory = std::make_shared<StrictMock<MockSusiWrapperFactory>>();
 
     // Rely on TestThreatScanner.cpp to test createScannerInfo
     const auto scannerConfig = "{" + createScannerInfo(false, true, true) + "}";
 
-    auto susiWrapper = std::make_shared<::testing::StrictMock<MockSusiWrapper>>();
-    EXPECT_CALL(*wrapperFactory, isMachineLearningEnabled).WillRepeatedly(testing::Return(true));
+    auto susiWrapper = std::make_shared<StrictMock<MockSusiWrapper>>();
+    EXPECT_CALL(*wrapperFactory, isMachineLearningEnabled).WillRepeatedly(Return(true));
     EXPECT_CALL(*wrapperFactory, createSusiWrapper(scannerConfig)).WillOnce(Return(susiWrapper));
+    EXPECT_CALL(*wrapperFactory, accessGlobalHandler()).WillOnce(Return(nullptr));
+
+    SusiScannerFactory factory(wrapperFactory, nullptr, nullptr, nullptr);
     EXPECT_NO_THROW(auto scanner = factory.createScanner(false, true));
 }
 

@@ -35,7 +35,12 @@ namespace threat_scanner
         {
             if (detection.path == path)
             {
+                LOGDEBUG("Found detection from SUSI that matches scanned path so using it: " << detection.sha256);
                 return detection;
+            }
+            else
+            {
+                LOGDEBUG("Rejecting detection of " << detection.path << " with sha256 of " << detection.sha256);
             }
         }
 

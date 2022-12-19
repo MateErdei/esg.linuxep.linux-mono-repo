@@ -25,7 +25,13 @@ namespace
     class MockUnitScanner : public IUnitScanner
     {
     public:
-        MOCK_METHOD(ScanResult, scan, (datatypes::AutoFd & fd, const std::string& path));
+        MOCK_METHOD(ScanResult, scan, (datatypes::AutoFd & fd, const std::string& path), (override));
+    };
+
+    class MockAllowList : public IAllowList
+    {
+    public:
+        MOCK_METHOD(bool, isAllowListed, (const std::string &threatChecksum), (override));
     };
 
     class TestSusiScanner : public MemoryAppenderUsingTests
@@ -36,13 +42,14 @@ namespace
         {
             m_mockThreatReporter = std::make_shared<NiceMock<MockThreatReporter>>();
             m_mockTimer = std::make_shared<StrictMock<MockShutdownTimer>>();
+            m_mockAllowList = std::make_shared<MockAllowList>();
         }
 
-        std::shared_ptr<NiceMock<MockThreatReporter>> m_mockThreatReporter;
-        std::shared_ptr<StrictMock<MockShutdownTimer>> m_mockTimer;
+        std::shared_ptr<MockThreatReporter> m_mockThreatReporter;
+        std::shared_ptr<MockShutdownTimer> m_mockTimer;
+        std::shared_ptr<MockAllowList> m_mockAllowList;
 
-
-        scan_messages::ScanRequest makeScanRequestObject(const std::string& path,
+        static scan_messages::ScanRequest makeScanRequestObject(const std::string& path,
                                                          const scan_messages::E_SCAN_TYPE scanType = scan_messages::E_SCAN_TYPE_ON_DEMAND,
                                                          const std::string& userId = "root",
                                                          int64_t pid = -1,
@@ -62,13 +69,13 @@ namespace
             return scan_messages::ScanRequest(requestReader);
         }
 
-        void expectCorrectThreatDetected(
+        static void expectCorrectThreatDetected(
             const scan_messages::ThreatDetected& threatDetected,
             const std::string& path,
             const std::string& threatName,
             const std::string& threatType,
             const std::string& sha256,
-            const scan_messages::E_SCAN_TYPE  scanType = scan_messages::E_SCAN_TYPE_ON_DEMAND) const
+            const scan_messages::E_SCAN_TYPE  scanType = scan_messages::E_SCAN_TYPE_ON_DEMAND)
         {
             EXPECT_EQ(threatDetected.userID, "root");
             EXPECT_EQ(threatDetected.threatType, threat_scanner::convertSusiThreatType(threatType));
@@ -80,6 +87,58 @@ namespace
             EXPECT_EQ(threatDetected.isRemote, false);
             EXPECT_EQ(threatDetected.reportSource, threat_scanner::getReportSource(threatName));
         }
+
+        SusiScanner makeScanner(IUnitScanner* scanner) const
+        {
+            return makeScanner(
+                std::unique_ptr<IUnitScanner>{scanner},
+                nullptr,
+                m_mockTimer,
+                m_mockAllowList
+                );
+        }
+
+        SusiScanner makeScannerWithReporter(IUnitScanner* scanner) const
+        {
+            return makeScanner(
+                std::unique_ptr<IUnitScanner>{scanner},
+                m_mockThreatReporter,
+                m_mockTimer,
+                m_mockAllowList
+            );
+        }
+
+        static SusiScanner makeScanner(std::unique_ptr<IUnitScanner> scanner, IScanNotificationSharedPtr timer)
+        {
+            return makeScanner(
+                    std::move(scanner),
+                nullptr,
+                std::move(timer)
+                );
+        }
+
+        static SusiScanner makeScanner(std::unique_ptr<IUnitScanner> scanner, IThreatReporterSharedPtr threatReporter, IScanNotificationSharedPtr timer)
+        {
+            return SusiScanner{
+                std::move(scanner),
+                std::move(threatReporter),
+                std::move(timer),
+                nullptr
+            };
+        }
+
+        static SusiScanner makeScanner(std::unique_ptr<IUnitScanner> scanner,
+                                       IThreatReporterSharedPtr threatReporter,
+                                       IScanNotificationSharedPtr timer,
+                                       IAllowListSharedPtr allowList)
+        {
+            return SusiScanner{
+                std::move(scanner),
+                std::move(threatReporter),
+                std::move(timer),
+                std::move(allowList)
+            };
+        }
     };
 } // namespace
 
@@ -87,9 +146,9 @@ TEST_F(TestSusiScanner, scan_CleanScan)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    const auto mockUnitScanner = new StrictMock<MockUnitScanner>();
+    auto* mockUnitScanner = new StrictMock<MockUnitScanner>();
 
-    SusiScanner susiScanner{ std::unique_ptr<IUnitScanner>{ mockUnitScanner }, nullptr, m_mockTimer };
+    SusiScanner susiScanner{makeScanner( mockUnitScanner)}; // DONATED scanner
 
     EXPECT_CALL(*m_mockTimer, reset()).Times(1);
 
@@ -112,9 +171,10 @@ TEST_F(TestSusiScanner, scan_DetectionWithoutErrors_SendsReport)
 
     const auto mockUnitScanner = new StrictMock<MockUnitScanner>();
 
-    SusiScanner susiScanner{ std::unique_ptr<IUnitScanner>{ mockUnitScanner }, m_mockThreatReporter, m_mockTimer };
+    SusiScanner susiScanner{makeScannerWithReporter(mockUnitScanner)};
 
     EXPECT_CALL(*m_mockTimer, reset()).Times(1);
+    EXPECT_CALL(*m_mockAllowList, isAllowListed(_)).WillRepeatedly(Return(false));
 
     ScanResult scanResult{ { { "/tmp/eicar.txt", "threatName", "threatType", "sha256" } }, {} };
     EXPECT_CALL(*mockUnitScanner, scan(_, "/tmp/eicar.txt")).Times(1).WillOnce(Return(scanResult));
@@ -153,9 +213,10 @@ TEST_F(TestSusiScanner, scan_DetectionOnaccessSetPid)
 
     const auto mockUnitScanner = new StrictMock<MockUnitScanner>();
 
-    SusiScanner susiScanner{ std::unique_ptr<IUnitScanner>{ mockUnitScanner }, m_mockThreatReporter, m_mockTimer };
+    SusiScanner susiScanner{makeScannerWithReporter(mockUnitScanner)};
 
     EXPECT_CALL(*m_mockTimer, reset()).Times(1);
+    EXPECT_CALL(*m_mockAllowList, isAllowListed(_)).WillRepeatedly(Return(false));
 
     ScanResult scanResult{ { { "/tmp/eicar.txt", "threatName", "threatType", "sha256" } }, {} };
     EXPECT_CALL(*mockUnitScanner, scan(_, "/tmp/eicar.txt")).Times(1).WillOnce(Return(scanResult));
@@ -185,11 +246,12 @@ TEST_F(TestSusiScanner, scan_DetectionWithErrors_SendsReport)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    const auto mockUnitScanner = new StrictMock<MockUnitScanner>();
+    auto* mockUnitScanner = new StrictMock<MockUnitScanner>();
 
-    SusiScanner susiScanner{ std::unique_ptr<IUnitScanner>{ mockUnitScanner }, m_mockThreatReporter, m_mockTimer };
+    SusiScanner susiScanner{makeScannerWithReporter(mockUnitScanner)};
 
     EXPECT_CALL(*m_mockTimer, reset()).Times(1);
+    EXPECT_CALL(*m_mockAllowList, isAllowListed(_)).WillRepeatedly(Return(false));
 
     ScanResult scanResult{ { { "/tmp/eicar.txt", "threatName", "threatType", "sha256" } },
                            { { "info message", log4cplus::INFO_LOG_LEVEL },
@@ -234,9 +296,10 @@ TEST_F(TestSusiScanner, scan_NoDetectionWithErrors_DoesntSendReport)
 
     const auto mockUnitScanner = new StrictMock<MockUnitScanner>();
 
-    SusiScanner susiScanner{ std::unique_ptr<IUnitScanner>{ mockUnitScanner }, nullptr, m_mockTimer };
+    SusiScanner susiScanner{makeScanner( mockUnitScanner)};
 
     EXPECT_CALL(*m_mockTimer, reset()).Times(1);
+    EXPECT_CALL(*m_mockAllowList, isAllowListed(_)).WillRepeatedly(Return(false));
 
     ScanResult scanResult{ {}, { { "error message", log4cplus::ERROR_LOG_LEVEL } } };
     EXPECT_CALL(*mockUnitScanner, scan(_, "/tmp/clean_file.txt")).Times(1).WillOnce(Return(scanResult));
@@ -257,11 +320,10 @@ TEST_F(TestSusiScanner, scan_ShorterPathInDetection_ReportSentWithOriginalPath)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    const auto mockUnitScanner = new StrictMock<MockUnitScanner>();
-
-    SusiScanner susiScanner{ std::unique_ptr<IUnitScanner>{ mockUnitScanner }, m_mockThreatReporter, m_mockTimer };
+    auto* mockUnitScanner = new StrictMock<MockUnitScanner>();
 
     EXPECT_CALL(*m_mockTimer, reset()).Times(1);
+    EXPECT_CALL(*m_mockAllowList, isAllowListed(_)).WillRepeatedly(Return(false));
 
     ScanResult scanResult{ { { "/tmp", "threatName", "threatType", "sha256" } }, {} };
     EXPECT_CALL(*mockUnitScanner, scan(_, "/tmp/eicar.txt")).Times(1).WillOnce(Return(scanResult));
@@ -281,6 +343,9 @@ TEST_F(TestSusiScanner, scan_ShorterPathInDetection_ReportSentWithOriginalPath)
                     threatDetected, "/tmp/eicar.txt", "threatName", "threatType", "calculatedSha256");
                 serverWaitGuard.onEventNoArgs();
             }));
+
+
+    SusiScanner susiScanner{ makeScannerWithReporter(mockUnitScanner)}; // DONATED
 
     datatypes::AutoFd autoFd;
 
@@ -303,17 +368,9 @@ TEST_F(TestSusiScanner, scan_ArchiveWithDetectionsIncludingItself_SendsReportFor
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    const auto mockUnitScanner = new StrictMock<MockUnitScanner>();
-
-    SusiScanner susiScanner{ std::unique_ptr<IUnitScanner>{ mockUnitScanner }, m_mockThreatReporter, m_mockTimer };
-
+    auto* mockUnitScanner = new StrictMock<MockUnitScanner>();
     EXPECT_CALL(*m_mockTimer, reset()).Times(1);
-
-    ScanResult scanResult{ { { "/tmp/archive.zip", "threatName_archive", "threatType_archive", "sha256_archive" },
-                             { "/tmp/archive.zip/eicar1.txt", "threatName_1", "threatType_1", "sha256_1" },
-                             { "/tmp/archive.zip/eicar2.txt", "threatName_2", "threatType_2", "sha256_2" } },
-                           {} };
-    EXPECT_CALL(*mockUnitScanner, scan(_, "/tmp/archive.zip")).Times(1).WillOnce(Return(scanResult));
+    EXPECT_CALL(*m_mockAllowList, isAllowListed(_)).WillRepeatedly(Return(false));
 
     WaitForEvent serverWaitGuard;
     EXPECT_CALL(*m_mockThreatReporter, sendThreatReport(_))
@@ -325,6 +382,14 @@ TEST_F(TestSusiScanner, scan_ArchiveWithDetectionsIncludingItself_SendsReportFor
                     threatDetected, "/tmp/archive.zip", "threatName_archive", "threatName_archive", "sha256_archive");
                 serverWaitGuard.onEventNoArgs();
             }));
+
+    ScanResult scanResult{ { { "/tmp/archive.zip", "threatName_archive", "threatType_archive", "sha256_archive" },
+                             { "/tmp/archive.zip/eicar1.txt", "threatName_1", "threatType_1", "sha256_1" },
+                             { "/tmp/archive.zip/eicar2.txt", "threatName_2", "threatType_2", "sha256_2" } },
+                           {} };
+    EXPECT_CALL(*mockUnitScanner, scan(_, "/tmp/archive.zip")).Times(1).WillOnce(Return(scanResult));
+
+    SusiScanner susiScanner{ makeScannerWithReporter(mockUnitScanner)};
 
     datatypes::AutoFd autoFd;
 
@@ -355,11 +420,12 @@ TEST_F(TestSusiScanner, scan_ArchiveWithDetectionsNotIncludingItself_SendsReport
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    const auto mockUnitScanner = new StrictMock<MockUnitScanner>();
+    auto* mockUnitScanner = new StrictMock<MockUnitScanner>();
 
-    SusiScanner susiScanner{ std::unique_ptr<IUnitScanner>{ mockUnitScanner }, m_mockThreatReporter, m_mockTimer };
+    SusiScanner susiScanner{ makeScannerWithReporter( mockUnitScanner )};
 
     EXPECT_CALL(*m_mockTimer, reset()).Times(1);
+    EXPECT_CALL(*m_mockAllowList, isAllowListed(_)).WillRepeatedly(Return(false));
 
     ScanResult scanResult{ { { "/tmp/archive.zip/eicar1.txt", "threatName_1", "threatType_1", "sha256_1" },
                              { "/tmp/archive.zip/eicar2.txt", "threatName_2", "threatType_2", "sha256_2" } },
@@ -407,15 +473,15 @@ TEST_F(TestSusiScanner, scan_SafeStoreRescanDoesNotSendThreatDetectedReport)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    const auto mockUnitScanner = new StrictMock<MockUnitScanner>();
-
-    SusiScanner susiScanner{ std::unique_ptr<IUnitScanner>{ mockUnitScanner }, nullptr, m_mockTimer };
+    auto* mockUnitScanner = new StrictMock<MockUnitScanner>();
 
     EXPECT_CALL(*m_mockTimer, reset()).Times(1);
 
     ScanResult scanResult{ { { "/tmp/eicar.txt", "threatName", "threatType", "sha256" } },
                            {} };
     EXPECT_CALL(*mockUnitScanner, scan(_, "/tmp/eicar.txt")).Times(1).WillOnce(Return(scanResult));
+
+    SusiScanner susiScanner{ makeScanner(mockUnitScanner)};
 
     datatypes::AutoFd autoFd;
 

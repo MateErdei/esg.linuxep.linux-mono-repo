@@ -1,12 +1,10 @@
-/******************************************************************************************************
-
-Copyright 2020-2022, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2022 Sophos Limited. All rights reserved.
 
 #pragma once
 
 #include "ISusiWrapper.h"
+#include "ISusiGlobalHandler.h"
+
 #include "common/ThreatDetector/SusiSettings.h"
 
 namespace threat_scanner
@@ -23,6 +21,7 @@ namespace threat_scanner
         virtual bool susiIsInitialized() = 0;
         virtual bool updateSusiConfig() = 0;
         virtual bool isMachineLearningEnabled() = 0;
+        virtual ISusiGlobalHandlerSharedPtr accessGlobalHandler() = 0;
     };
 
     using ISusiWrapperFactorySharedPtr = std::shared_ptr<ISusiWrapperFactory>;

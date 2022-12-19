@@ -6,9 +6,10 @@
 #include "IThreatReporter.h"
 #include "IThreatScanner.h"
 #include "IUnitScanner.h"
+#include "SusiGlobalHandler.h"
 
-#include <scan_messages/ScanResponse.h>
 #include "scan_messages/ScanRequest.h"
+#include "scan_messages/ScanResponse.h"
 
 namespace threat_scanner
 {
@@ -18,10 +19,12 @@ namespace threat_scanner
         SusiScanner(
             std::unique_ptr<IUnitScanner> unitScanner,
             IThreatReporterSharedPtr threatReporter,
-            IScanNotificationSharedPtr shutdownTimer) :
+            IScanNotificationSharedPtr shutdownTimer,
+            IAllowListSharedPtr allowList) :
             m_unitScanner(std::move(unitScanner)),
             m_threatReporter(std::move(threatReporter)),
-            m_shutdownTimer(std::move(shutdownTimer))
+            m_shutdownTimer(std::move(shutdownTimer)),
+            m_allowList(std::move(allowList))
         {
         }
 
@@ -33,5 +36,6 @@ namespace threat_scanner
         std::unique_ptr<IUnitScanner> m_unitScanner;
         IThreatReporterSharedPtr m_threatReporter;
         IScanNotificationSharedPtr m_shutdownTimer;
+        IAllowListSharedPtr m_allowList;
     };
 } // namespace threat_scanner
