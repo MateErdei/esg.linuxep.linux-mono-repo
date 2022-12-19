@@ -195,10 +195,11 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     Check On Access Detects Threats
 
     SHS Status File Contains  ${HealthyShsStatusXmlContents}
+    # Threat health returns to good after threat is cleaned up
     Wait Until Keyword Succeeds
     ...  60 secs
     ...  5 secs
-    ...  SHS Status File Contains  ${BadThreatHealthXmlContents}
+    ...  SHS Status File Contains  ${GoodThreatHealthXmlContents}
 
 We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     [Timeout]  10 minutes
@@ -349,10 +350,11 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     File Should Exist  ${SOPHOS_INSTALL}/plugins/av/log/downgrade-backup/sophos_threat_detector.log
 
     SHS Status File Contains  ${HealthyShsStatusXmlContents}
+    # Threat health returns to good after threat is cleaned up
     Wait Until Keyword Succeeds
     ...  60 secs
     ...  5 secs
-    ...  SHS Status File Contains  ${BadThreatHealthXmlContents}
+    ...  SHS Status File Contains  ${GoodThreatHealthXmlContents}
 
 We Can Upgrade From Release to VUT Without Unexpected Errors
     [Timeout]  10 minutes
@@ -458,10 +460,11 @@ We Can Upgrade From Release to VUT Without Unexpected Errors
     Check Update Reports Have Been Processed
 
     SHS Status File Contains  ${HealthyShsStatusXmlContents}
+    # Threat health returns to good after threat is cleaned up
     Wait Until Keyword Succeeds
     ...  60 secs
     ...  5 secs
-    ...  SHS Status File Contains  ${BadThreatHealthXmlContents}
+    ...  SHS Status File Contains  ${GoodThreatHealthXmlContents}
 
 We Can Downgrade From VUT to Release Without Unexpected Errors
     [Timeout]  10 minutes
