@@ -705,9 +705,9 @@ namespace safestore::QuarantineManager
                         client.sendRestoreReport(restoreReport.value());
                     }
                 }
-                catch (const std::exception& e)
+                catch (const std::exception& ex)
                 {
-                    LOGERROR("Failed to restore file with object ID " << objectId);
+                    LOGERROR("Failed to restore file with object ID " << objectId << ", " << ex.what());
                 }
             }
         }
