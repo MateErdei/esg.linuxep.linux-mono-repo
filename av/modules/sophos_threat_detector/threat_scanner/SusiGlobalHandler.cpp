@@ -73,7 +73,7 @@ namespace threat_scanner
                 }
                 else
                 {
-                    LOGDEBUG("Denied allow list for: " << stream.str());
+                    LOGTRACE("Denied allow list for: " << stream.str()); // Will be hit frequently
                 }
             }
             else
