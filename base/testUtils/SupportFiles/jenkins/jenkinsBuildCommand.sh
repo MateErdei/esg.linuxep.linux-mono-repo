@@ -78,11 +78,11 @@ then
 fi
 
 export TEST_UTILS=$WORKSPACE/testUtils
+bash ${JENKINS_DIR}/install_dependencies.sh
+bash ${JENKINS_DIR}/install_setup_tools.sh
 [[ -n $NO_GATHER ]] || source $WORKSPACE/testUtils/SupportFiles/jenkins/gatherTestInputs.sh                || fail "Error: failed to gather test inputs"
 source $WORKSPACE/testUtils/SupportFiles/jenkins/exportInputLocations.sh            || fail "Error: failed to export expected input locations"
 source $WORKSPACE/testUtils/SupportFiles/jenkins/checkTestInputsAreAvailable.sh     || fail "Error: failed to validate gathered inputs"
-bash ${JENKINS_DIR}/install_dependencies.sh
-bash ${JENKINS_DIR}/install_setup_tools.sh
 python3 ${TEST_UTILS}/libs/DownloadAVSupplements.py || fail "Error: failed to gather av supplements locations"
 #setup coverage inputs and exports
 COVERAGE_STAGING="$SYSTEMPRODUCT_TEST_INPUT/coverage"
