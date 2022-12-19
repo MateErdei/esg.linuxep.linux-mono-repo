@@ -387,9 +387,9 @@ Connection is lost between endpoint and proxy
     ...  1 secs
     ...  Check Mcsrouter Log Contains   MCS push client stopped
 
+    Mark Mcsrouter Log
     Start Proxy Server With Basic Auth    1235   username   password
 
-    Mark Mcsrouter Log
     Wait Until Keyword Succeeds
     ...          30s
     ...          3s
