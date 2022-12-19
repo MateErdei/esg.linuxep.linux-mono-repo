@@ -238,6 +238,11 @@ namespace sophos_on_access_process::OnAccessConfig
         {
             parsedConfig = json::parse(jsonString);
 
+            if (parsedConfig.empty())
+            {
+                return false;
+            }
+
             OnAccessConfiguration configuration{};
             configuration.enabled = toBoolean(parsedConfig, "enabled", false);
             LOGINFO("On-access enabled: " << (configuration.enabled ? "true" : "false")  << "");

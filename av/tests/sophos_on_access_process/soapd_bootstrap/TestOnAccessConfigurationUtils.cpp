@@ -83,6 +83,16 @@ namespace
 
 // Policy config ==================================================================
 
+TEST_F(TestOnAccessConfigurationUtils, emptyJSONPolicy)
+{
+    std::string jsonString = "{}";
+
+    OnAccessConfiguration expectedResult{};
+
+    ASSERT_EQ(parseOnAccessPolicySettingsFromJson(jsonString, m_testConfig), false);
+    EXPECT_EQ(m_testConfig, expectedResult);
+}
+
 TEST_F(TestOnAccessConfigurationUtils, readPolicyConfigFile)
 {
     EXPECT_CALL(*m_mockIFileSystemPtr, readFile(m_oaPolicyConfigPath)).WillOnce(Return("x"));
@@ -270,7 +280,7 @@ TEST_F(TestOnAccessConfigurationUtils, tenCPUCores)
     EXPECT_EQ(result.numScanThreads, 5);
 }
 
-TEST_F(TestOnAccessConfigurationUtils, emptyJSON)
+TEST_F(TestOnAccessConfigurationUtils, emptyJSONLocalSettings)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
