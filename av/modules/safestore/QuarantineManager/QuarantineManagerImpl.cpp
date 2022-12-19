@@ -641,6 +641,8 @@ namespace safestore::QuarantineManager
                             telemetrySafeStoreFailedFileRestorations, 1ul);
                     }
 
+                    // TODO LINUXDAR-6396 This whole QM file will be interruptable in the future
+
                     std::shared_ptr<common::StoppableSleeper> sleeper;
                     unixsocket::RestoreReportingClient client(sleeper);
                     client.sendRestoreReport(restoreReport.value());
