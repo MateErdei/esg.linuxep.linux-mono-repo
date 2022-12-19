@@ -525,5 +525,5 @@ TEST_F(TestSusiScanner, archiveNotInSUSIResultCanBeAllowListed)
     EXPECT_EQ(response.getDetections().size(), 0);
     EXPECT_EQ(response.getErrorMsg(), "");
 
-    EXPECT_TRUE(appenderContains("Allowing listing /tmp/archive.zip with calculatedSha256"));
+    EXPECT_TRUE(appenderContains("Allowing /tmp/archive.zip with calculatedSha256"));
 }

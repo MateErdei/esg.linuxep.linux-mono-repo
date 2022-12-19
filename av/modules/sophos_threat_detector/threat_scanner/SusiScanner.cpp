@@ -51,7 +51,7 @@ scan_messages::ScanResponse SusiScanner::scan(
         assert(m_allowList);
         if (m_allowList->isAllowListed(threatDetected.sha256))
         {
-            LOGINFO("Allowing listing " << info.getPath() << " with " << threatDetected.sha256);
+            LOGINFO("Allowing " << info.getPath() << " with " << threatDetected.sha256);
         }
         else
         {
