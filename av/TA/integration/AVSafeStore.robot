@@ -258,7 +258,7 @@ SafeStore Does Not Attempt To Quarantine File On ReadOnly Mount
 
     Check avscanner can detect eicar on read only mount
 
-    Wait For Log Contains From Mark  ${av_mark}      File is located on a ReadOnly mount:
+    Wait For Log Contains From Mark  ${av_mark}      is located on a ReadOnly mount:
     Wait For Log Contains From Mark  ${av_mark}      Found 'EICAR-AV-Test'
 
 
@@ -273,7 +273,7 @@ SafeStore Does Not Attempt To Quarantine File On ReadOnly Mount (On Access)
     ${result} =  run process    cat   /tmp_test/readOnly/eicar.com
 
     Log  ${result}
-    Wait For Log Contains From Mark  ${av_mark}      File is located on a ReadOnly mount:
+    Wait For Log Contains From Mark  ${av_mark}      is located on a ReadOnly mount:
     Wait For Log Contains From Mark  ${av_mark}      Found 'EICAR-AV-Test'
 
 SafeStore Does Not Attempt To Quarantine File On A Network Mount
@@ -286,7 +286,7 @@ SafeStore Does Not Attempt To Quarantine File On A Network Mount
 
     Check avscanner can detect eicar on network mount
 
-    Wait For Log Contains From Mark  ${av_mark}      File is located on a Network mount:
+    Wait For Log Contains From Mark  ${av_mark}      is located on a Network mount:
     Wait For Log Contains From Mark  ${av_mark}      Found 'EICAR-AV-Test'
 
 
@@ -302,7 +302,7 @@ SafeStore Does Not Attempt To Quarantine File On A Network Mount (On Access)
     ${result} =  run process    cat   ${destination}/eicar.com
 
     Log  ${result}
-    Wait For Log Contains From Mark  ${av_mark}      File is located on a Network mount:
+    Wait For Log Contains From Mark  ${av_mark}      is located on a Network mount:
     Wait For Log Contains From Mark  ${av_mark}      Found 'EICAR-AV-Test'
 
 
