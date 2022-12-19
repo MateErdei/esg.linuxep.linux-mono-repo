@@ -203,17 +203,18 @@ New JWT Is Requested When Device ID In MCS Policy Changes
     ...  1s
     ...  get_value_from_ini_file  jwt_token  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
 
-    ${dID}  get_value_from_ini_file  device_id  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
+    ${device_id}  get_value_from_ini_file  device_id  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
     ${original_jwt_token}  get_value_from_ini_file  jwt_token  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
 
+    Mark MCSRouter Log
     Send Policy File  mcs  ${SUPPORT_FILES}/CentralXml/MCS_policy_new_deviceID.xml
-
-    ${NdID}  get_value_from_ini_file  device_id  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
-
     Wait Until Keyword Succeeds
     ...  10 secs
     ...  1 secs
-    ...  Should Not Be Equal As Strings  ${dID}  ${NdID}
+    ...  Check MCS Config Contains  ThisIsANewDeviceID+1002  MCS Config did not contains the new device ID
+
+    ${new_device_id}  get_value_from_ini_file  device_id  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
+    Should Not Be Equal As Strings  ${device_id}  ${new_device_id}
 
     Wait Until Keyword Succeeds
     ...  15s

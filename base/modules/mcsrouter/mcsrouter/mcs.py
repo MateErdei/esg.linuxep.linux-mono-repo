@@ -485,11 +485,11 @@ class MCS:
     def should_generate_new_jwt_token(self):
         # If the flag is not set
         if self.__m_comms:
-            # If we already have a JWT token
+            # If we already have a JWT token...
             if self.__m_comms.m_jwt_token and self.__m_comms.m_device_id and self.__m_comms.m_tenant_id:
-                # If the device Id from policy no longer matches the one in the JWT token
+                # ...and the device ID from policy still matches the one in the JWT token...
                 if self.__m_config.get_default("policy_device_id", "") == self.__m_comms.m_device_id:
-                    # The current JWT token has more than 10 minutes before expiration
+                    # ...and the current JWT has more than 10 minutes before expiration, then we don't want a new one
                     if time.time() < self.__m_comms.m_jwt_expiration_timestamp - 600:
                         return False
         LOGGER.info("New JWT should be requested")
