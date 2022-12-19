@@ -7,11 +7,11 @@
 #include "safestore/QuarantineManager/QuarantineManagerImpl.h"
 #include "safestore/QuarantineManager/StateMonitor.h"
 #include "safestore/SafeStoreWrapper/SafeStoreWrapperImpl.h"
+#include "tests/datatypes/MockSysCalls.h"
 
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 #include "Common/Helpers/FileSystemReplaceAndRestore.h"
 #include "Common/Helpers/MockFileSystem.h"
-
 #include "Common/Logging/ConsoleLoggingSetup.h"
 
 #include <gtest/gtest.h>
@@ -33,6 +33,8 @@ public:
     }
 
     std::unique_ptr<StrictMock<MockISafeStoreWrapper>> m_mockSafeStoreWrapper;
+    std::shared_ptr<StrictMock<MockSystemCallWrapper>> m_mockSysCallWrapper =
+        std::make_shared<StrictMock<MockSystemCallWrapper>>();
 };
 
 class TestableStateMonitor : public StateMonitor
@@ -67,7 +69,7 @@ public:
 TEST_F(StateMonitorTests, stateMonitorDoesNotReinitialiseQuarantineManagerWhenAlreadyInitialised)
 {
     auto* filesystemMock = new StrictMock<MockFileSystem>();
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::unique_ptr<Common::FileSystem::IFileSystem>(
         filesystemMock) };
 
     EXPECT_CALL(*filesystemMock, removeFile(Plugin::getSafeStoreDormantFlagPath(), true)).WillOnce(Return());
@@ -77,14 +79,15 @@ TEST_F(StateMonitorTests, stateMonitorDoesNotReinitialiseQuarantineManagerWhenAl
     EXPECT_CALL(*filesystemMock, readFile(Plugin::getSafeStorePasswordFilePath())).WillOnce(Return("password"));
     EXPECT_CALL(*filesystemMock, isFile(Plugin::getSafeStoreConfigPath())).WillOnce(Return(false));
 
-
     // This should only be called once on the quarantineManager->initialise() call and then the statemonitor should
     // not try to re-initialise quarantineManager.
-    EXPECT_CALL(*m_mockSafeStoreWrapper, initialise(Plugin::getSafeStoreDbDirPath(), Plugin::getSafeStoreDbFileName(), "password"))
+    EXPECT_CALL(
+        *m_mockSafeStoreWrapper,
+        initialise(Plugin::getSafeStoreDbDirPath(), Plugin::getSafeStoreDbFileName(), "password"))
         .Times(1)
         .WillOnce(Return(InitReturnCode::OK));
     std::shared_ptr<IQuarantineManager> quarantineManager =
-        std::make_shared<QuarantineManagerImpl>(std::move(m_mockSafeStoreWrapper));
+        std::make_shared<QuarantineManagerImpl>(std::move(m_mockSafeStoreWrapper), std::move(m_mockSysCallWrapper));
     quarantineManager->initialise();
     TestableStateMonitor stateMonitor = TestableStateMonitor(quarantineManager);
     stateMonitor.callInnerRun();
@@ -93,7 +96,7 @@ TEST_F(StateMonitorTests, stateMonitorDoesNotReinitialiseQuarantineManagerWhenAl
 TEST_F(StateMonitorTests, stateMonitorInitialisesQuarantineManagerWhenQuarantineManagerIsNotInitialised)
 {
     auto* filesystemMock = new StrictMock<MockFileSystem>();
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::unique_ptr<Common::FileSystem::IFileSystem>(
         filesystemMock) };
 
     EXPECT_CALL(*filesystemMock, exists("/tmp/av/var/persist-safeStoreDbErrorThreshold")).WillOnce(Return(false));
@@ -104,11 +107,13 @@ TEST_F(StateMonitorTests, stateMonitorInitialisesQuarantineManagerWhenQuarantine
     EXPECT_CALL(*filesystemMock, readFile(Plugin::getSafeStorePasswordFilePath())).WillOnce(Return("password"));
     EXPECT_CALL(*filesystemMock, removeFile(Plugin::getSafeStoreDormantFlagPath(), true)).WillOnce(Return());
 
-    EXPECT_CALL(*m_mockSafeStoreWrapper, initialise(Plugin::getSafeStoreDbDirPath(), Plugin::getSafeStoreDbFileName(), "password"))
+    EXPECT_CALL(
+        *m_mockSafeStoreWrapper,
+        initialise(Plugin::getSafeStoreDbDirPath(), Plugin::getSafeStoreDbFileName(), "password"))
         .Times(1)
         .WillOnce(Return(InitReturnCode::OK));
     std::shared_ptr<IQuarantineManager> quarantineManager =
-        std::make_shared<QuarantineManagerImpl>(std::move(m_mockSafeStoreWrapper));
+        std::make_shared<QuarantineManagerImpl>(std::move(m_mockSafeStoreWrapper), std::move(m_mockSysCallWrapper));
     TestableStateMonitor stateMonitor = TestableStateMonitor(quarantineManager);
     ASSERT_EQ(quarantineManager->getState(), QuarantineManagerState::STARTUP);
     stateMonitor.callInnerRun();
@@ -118,7 +123,7 @@ TEST_F(StateMonitorTests, stateMonitorInitialisesQuarantineManagerWhenQuarantine
 TEST_F(StateMonitorTests, stateMonitorReinitialisesQuarantineManagerWhenQuarantineManagerIsCorrupt)
 {
     auto* filesystemMock = new StrictMock<MockFileSystem>();
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::unique_ptr<Common::FileSystem::IFileSystem>(
         filesystemMock) };
 
     // Force the m_dbErrorCountThreshold variable to be set to 1 for tests so that we only have to see one error
@@ -144,11 +149,13 @@ TEST_F(StateMonitorTests, stateMonitorReinitialisesQuarantineManagerWhenQuaranti
     EXPECT_CALL(*filesystemMock, exists(Plugin::getSafeStoreDbDirPath())).WillOnce(Return(true));
     EXPECT_CALL(*filesystemMock, removeFilesInDirectory(Plugin::getSafeStoreDbDirPath())).Times(1);
 
-    EXPECT_CALL(*m_mockSafeStoreWrapper, initialise(Plugin::getSafeStoreDbDirPath(), Plugin::getSafeStoreDbFileName(), "password"))
+    EXPECT_CALL(
+        *m_mockSafeStoreWrapper,
+        initialise(Plugin::getSafeStoreDbDirPath(), Plugin::getSafeStoreDbFileName(), "password"))
         .WillOnce(Return(InitReturnCode::DB_ERROR))
         .WillOnce(Return(InitReturnCode::OK));
     std::shared_ptr<IQuarantineManager> quarantineManager =
-        std::make_shared<QuarantineManagerImpl>(std::move(m_mockSafeStoreWrapper));
+        std::make_shared<QuarantineManagerImpl>(std::move(m_mockSafeStoreWrapper), std::move(m_mockSysCallWrapper));
 
     TestableStateMonitor stateMonitor = TestableStateMonitor(quarantineManager);
     ASSERT_EQ(quarantineManager->getState(), QuarantineManagerState::STARTUP);
@@ -166,10 +173,10 @@ TEST_F(StateMonitorTests, testStateMonitorExitsOnDestructDuringWait)
     EXPECT_CALL(*filesystemMock, writeFile("/tmp/av/var/persist-safeStoreDbErrorThreshold", "10"));
     EXPECT_CALL(*filesystemMock, exists(_)).WillOnce(Return(false));
 
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::unique_ptr<Common::FileSystem::IFileSystem>(
         filesystemMock) };
     std::shared_ptr<IQuarantineManager> quarantineManager =
-        std::make_shared<QuarantineManagerImpl>(std::move(m_mockSafeStoreWrapper));
+        std::make_shared<QuarantineManagerImpl>(std::move(m_mockSafeStoreWrapper), std::move(m_mockSysCallWrapper));
 
     {
         TestableStateMonitor stateMonitor = TestableStateMonitor(quarantineManager);
@@ -182,18 +189,16 @@ TEST_F(StateMonitorTests, testStateMonitorExitsOnDestructDuringWait)
     EXPECT_THAT(logMessage, ::testing::HasSubstr("State Monitor stop requested"));
 }
 
-
 TEST_F(StateMonitorTests, testStateMonitorBackoffNeverExceedsMax)
 {
     auto* filesystemMock = new StrictMock<MockFileSystem>();
     EXPECT_CALL(*filesystemMock, writeFile("/tmp/av/var/persist-safeStoreDbErrorThreshold", "10"));
     EXPECT_CALL(*filesystemMock, exists(_)).WillOnce(Return(false));
 
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::unique_ptr<Common::FileSystem::IFileSystem>(
         filesystemMock) };
     std::shared_ptr<IQuarantineManager> quarantineManager =
-        std::make_shared<QuarantineManagerImpl>(std::move(m_mockSafeStoreWrapper));
-
+        std::make_shared<QuarantineManagerImpl>(std::move(m_mockSafeStoreWrapper), std::move(m_mockSysCallWrapper));
 
     TestableStateMonitor stateMonitor = TestableStateMonitor(quarantineManager);
     stateMonitor.start();
@@ -204,7 +209,9 @@ TEST_F(StateMonitorTests, testStateMonitorBackoffNeverExceedsMax)
     stateMonitor.testableBackoffIncrease();
     EXPECT_EQ(stateMonitor.getCurrentBackoffTime(), 240s);
 
-    for (; stateMonitor.getCurrentBackoffTime() < stateMonitor.getMaxBackoffTime(); stateMonitor.testableBackoffIncrease());
+    for (; stateMonitor.getCurrentBackoffTime() < stateMonitor.getMaxBackoffTime();
+         stateMonitor.testableBackoffIncrease())
+        ;
     EXPECT_EQ(stateMonitor.getCurrentBackoffTime(), stateMonitor.getMaxBackoffTime());
     stateMonitor.testableBackoffIncrease();
     EXPECT_EQ(stateMonitor.getCurrentBackoffTime(), stateMonitor.getMaxBackoffTime());

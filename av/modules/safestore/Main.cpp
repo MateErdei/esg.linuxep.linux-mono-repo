@@ -5,6 +5,12 @@
 #include "Logger.h"
 #include "SafeStoreServiceCallback.h"
 
+#include "common/ApplicationPaths.h"
+#include "common/PidLockFile.h"
+#include "common/SaferStrerror.h"
+#include "common/ThreadRunner.h"
+#include "common/signals/SigIntMonitor.h"
+#include "common/signals/SigTermMonitor.h"
 #include "safestore/QuarantineManager/IQuarantineManager.h"
 #include "safestore/QuarantineManager/QuarantineManagerImpl.h"
 #include "safestore/QuarantineManager/StateMonitor.h"
@@ -12,14 +18,8 @@
 #include "unixsocket/safeStoreRescanSocket/SafeStoreRescanServerSocket.h"
 #include "unixsocket/safeStoreSocket/SafeStoreServerSocket.h"
 
-#include "Common/TelemetryHelperImpl/TelemetryHelper.h"
 #include "Common/PluginApiImpl/PluginResourceManagement.h"
-#include "common/ApplicationPaths.h"
-#include "common/PidLockFile.h"
-#include "common/SaferStrerror.h"
-#include "common/ThreadRunner.h"
-#include "common/signals/SigIntMonitor.h"
-#include "common/signals/SigTermMonitor.h"
+#include "Common/TelemetryHelperImpl/TelemetryHelper.h"
 
 #include <poll.h>
 
@@ -48,8 +48,8 @@ namespace safestore
 
     void Main::innerRun()
     {
-        auto sigIntMonitor { common::signals::SigIntMonitor::getSigIntMonitor(true) };
-        auto sigTermMonitor { common::signals::SigTermMonitor::getSigTermMonitor(true) };
+        auto sigIntMonitor{ common::signals::SigIntMonitor::getSigIntMonitor(true) };
+        auto sigTermMonitor{ common::signals::SigTermMonitor::getSigTermMonitor(true) };
 
         // Take safestore lock file
         common::PidLockFile lock(Plugin::getSafeStorePidPath());
@@ -57,7 +57,8 @@ namespace safestore
         std::unique_ptr<SafeStoreWrapper::ISafeStoreWrapper> safeStoreWrapper =
             std::make_unique<SafeStoreWrapper::SafeStoreWrapperImpl>();
         std::shared_ptr<QuarantineManager::IQuarantineManager> quarantineManager =
-            std::make_shared<QuarantineManager::QuarantineManagerImpl>(std::move(safeStoreWrapper));
+            std::make_shared<QuarantineManager::QuarantineManagerImpl>(
+                std::move(safeStoreWrapper), std::make_shared<datatypes::SystemCallWrapper>());
         quarantineManager->initialise();
 
         auto qmStateMonitor = std::make_shared<QuarantineManager::StateMonitor>(quarantineManager);

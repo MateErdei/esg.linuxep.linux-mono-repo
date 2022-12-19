@@ -5,7 +5,6 @@
 #include "common/ApplicationPaths.h"
 #include "common/SaferStrerror.h"
 #include "common/StringUtils.h"
-#include "datatypes/SystemCallWrapper.h"
 #include "safestore/Logger.h"
 #include "safestore/SafeStoreTelemetryConsts.h"
 #include "safestore/SafeStoreWrapper/SafeStoreWrapperImpl.h"
@@ -114,10 +113,12 @@ namespace safestore::QuarantineManager
     }
 
     QuarantineManagerImpl::QuarantineManagerImpl(
-        std::unique_ptr<SafeStoreWrapper::ISafeStoreWrapper> safeStoreWrapper) :
+        std::unique_ptr<SafeStoreWrapper::ISafeStoreWrapper> safeStoreWrapper,
+        std::shared_ptr<datatypes::ISystemCallWrapper> sysCallWrapper) :
         m_state(QuarantineManagerState::STARTUP),
         m_safeStore(std::move(safeStoreWrapper)),
-        m_dbErrorCountThreshold(Plugin::getPluginVarDirPath(), "safeStoreDbErrorThreshold", 10)
+        m_dbErrorCountThreshold(Plugin::getPluginVarDirPath(), "safeStoreDbErrorThreshold", 10),
+        m_sysCallWrapper{ std::move(sysCallWrapper) }
     {
     }
 
@@ -217,41 +218,79 @@ namespace safestore::QuarantineManager
 
         if (!Common::UtilityImpl::Uuid::IsValid(threatId))
         {
-            LOGWARN("Cannot quarantine file because threat ID (" << threatId << ") is not a valid UUID");
-
-            return common::CentralEnums::QuarantineResult::NOT_FOUND;
+            LOGERROR(
+                "Cannot quarantine " << escapedPath << " because threat ID (" << threatId << ") is not a valid UUID");
+            return common::CentralEnums::QuarantineResult::FAILED_TO_DELETE_FILE;
         }
 
         std::lock_guard<std::mutex> lock(m_interfaceMutex);
         if (m_state != QuarantineManagerState::INITIALISED)
         {
-            LOGWARN("Cannot quarantine file, SafeStore is in " << quarantineManagerStateToString(m_state) << " state");
+            LOGERROR(
+                "Cannot quarantine " << escapedPath << ", SafeStore is in " << quarantineManagerStateToString(m_state)
+                                     << " state");
+            return common::CentralEnums::QuarantineResult::FAILED_TO_DELETE_FILE;
+        }
+
+        // dirName strips trailing separator, but SafeStore doesn't care about it. Adding it resolves parent dir being
+        // root.
+        std::string directory = Common::FileSystem::dirName(filePath) + "/";
+        std::string filename = Common::FileSystem::basename(filePath);
+
+        const std::string escapedDirectory = common::escapePathForLogging(directory);
+
+        auto fs = Common::FileSystem::fileSystem();
+
+        datatypes::AutoFd directoryFd(fs->getFileInfoDescriptor(directory));
+        if (!directoryFd.valid())
+        {
+            LOGERROR(
+                "Cannot quarantine " << escapedPath << " because directory " << escapedDirectory << " does not exist");
             return common::CentralEnums::QuarantineResult::NOT_FOUND;
         }
 
-        // dirName strips trailing separator, but SafeStore doesn't care about it. Adding it resolves parent dir being root.
-        std::string directory = Common::FileSystem::dirName(filePath) + "/";
-        std::string filename = Common::FileSystem::basename(filePath);
+        // There is are tons of race conditions here but nothing we can do about that
+
+        const int fd = autoFd.get();
+        LOGDEBUG("File Descriptor: " << fd);
+        auto pathFromFd = fs->readlink("/proc/self/fd/" + std::to_string(fd));
+
+        if (!pathFromFd.has_value())
+        {
+            LOGERROR("Cannot quarantine " << escapedPath << " as it can't be verified to be the threat");
+            return common::CentralEnums::QuarantineResult::FAILED_TO_DELETE_FILE;
+        }
+        if (pathFromFd.value() == filePath + " (deleted)")
+        {
+            datatypes::AutoFd fdFromDir(
+                fs->getFileInfoDescriptorFromDirectoryFD(directoryFd.get(), filename + " (deleted)"));
+            if (fdFromDir.valid() && fdFromDir == autoFd)
+            {
+                LOGERROR("Cannot quarantine " << escapedPath << " as it was moved");
+                return common::CentralEnums::QuarantineResult::NOT_FOUND;
+            }
+            else
+            {
+                LOGINFO("Don't need to quarantine " << escapedPath << " as it is already deleted");
+                return common::CentralEnums::QuarantineResult::SUCCESS;
+            }
+        }
+        else if (pathFromFd.value() != filePath)
+        {
+            LOGERROR("Cannot quarantine " << escapedPath << " as it was moved");
+            return common::CentralEnums::QuarantineResult::NOT_FOUND;
+        }
 
         auto objectHandle = m_safeStore->createObjectHandleHolder();
         auto saveResult = m_safeStore->saveFile(directory, filename, threatId, threatName, *objectHandle);
         if (saveResult == SafeStoreWrapper::SaveFileReturnCode::OK)
         {
             callOnDbSuccess();
-            auto fs = Common::FileSystem::fileSystem();
-            LOGDEBUG("File Descriptor: " << autoFd.fd());
-
-            datatypes::AutoFd directoryFd(fs->getFileInfoDescriptor(directory));
-            if (!directoryFd.valid())
-            {
-                LOGWARN("Directory of threat does not exist");
-                return common::CentralEnums::QuarantineResult::NOT_FOUND;
-            }
 
             datatypes::AutoFd fd2(fs->getFileInfoDescriptorFromDirectoryFD(directoryFd.get(), filename));
             if (!fd2.valid())
             {
-                LOGWARN("Threat does not exist at path: " << filePath << " Cannot quarantine it");
+                LOGWARN("Cannot quarantine " << escapedPath << " as it does not exist");
                 return common::CentralEnums::QuarantineResult::NOT_FOUND;
             }
             if (fs->compareFileDescriptors(autoFd.get(), fd2.get()))
@@ -262,13 +301,13 @@ namespace safestore::QuarantineManager
                 }
                 catch (const Common::FileSystem::IFileSystemException& ex)
                 {
-                    LOGERROR("Removing " << filePath << " failed due to: " << ex.what());
+                    LOGERROR("Failed to remove " << escapedPath << " while quarantining due to: " << ex.what());
                     return common::CentralEnums::QuarantineResult::FAILED_TO_DELETE_FILE;
                 }
             }
             else
             {
-                LOGWARN("Cannot verify file to be quarantined");
+                LOGWARN("Won't quarantine " << escapedPath << " because it appears to be a different file");
                 return common::CentralEnums::QuarantineResult::FAILED_TO_DELETE_FILE;
             }
 
@@ -289,10 +328,12 @@ namespace safestore::QuarantineManager
             LOGDEBUG("Finalising file: " << escapedPath);
             if (!m_safeStore->finaliseObject(*objectHandle))
             {
-                LOGERROR("Failed to finalise file: " << escapedPath);
-                return common::CentralEnums::QuarantineResult::FAILED_TO_DELETE_FILE;
+                LOGWARN("Failed to finalise file in SafeStore database: " << escapedPath);
             }
-            LOGINFO("Quarantined " << escapedPath << " successfully");
+            else
+            {
+                LOGINFO("Quarantined " << escapedPath << " successfully");
+            }
 
             // Search through the database for any objects with the same threatId
             SafeStoreWrapper::SafeStoreFilter filter;
@@ -361,8 +402,7 @@ namespace safestore::QuarantineManager
         }
     }
 
-    std::vector<FdsObjectIdsPair> QuarantineManagerImpl::extractQuarantinedFiles(
-        datatypes::ISystemCallWrapper& sysCallWrapper)
+    std::vector<FdsObjectIdsPair> QuarantineManagerImpl::extractQuarantinedFiles()
     {
         std::vector<FdsObjectIdsPair> files;
 
@@ -438,7 +478,7 @@ namespace safestore::QuarantineManager
                 return {};
             }
 
-            int fd = sysCallWrapper._open(filepath.c_str(), O_RDONLY, 0);
+            int fd = m_sysCallWrapper->_open(filepath.c_str(), O_RDONLY, 0);
             files.emplace_back(datatypes::AutoFd{ fd }, objectId);
 
             try
@@ -615,17 +655,19 @@ namespace safestore::QuarantineManager
     void QuarantineManagerImpl::rescanDatabase()
     {
         LOGINFO("SafeStore Database Rescan request received.");
-        datatypes::SystemCallWrapper sysCallWrapper;
-        auto filesToBeScanned = extractQuarantinedFiles(sysCallWrapper);
+        auto filesToBeScanned = extractQuarantinedFiles();
 
         auto objectIdsToRestore = scanExtractedFilesForRestoreList(std::move(filesToBeScanned));
+        if (!objectIdsToRestore.empty())
+        {
+            LOGINFO("Restoring " << objectIdsToRestore.size() << " file(s)");
+        }
         for (const auto& objectId : objectIdsToRestore)
         {
-            auto restoreReport = restoreFile(objectId);
-            // Send report
-            if (restoreReport.has_value())
+            try
             {
-                if (restoreReport->wasSuccessful)
+                auto restoreReport = restoreFile(objectId);
+                if (restoreReport.has_value() && restoreReport->wasSuccessful)
                 {
                     Common::Telemetry::TelemetryHelper::getInstance().increment(
                         telemetrySafeStoreSuccessfulFileRestorations, 1ul);
@@ -636,10 +678,18 @@ namespace safestore::QuarantineManager
                         telemetrySafeStoreFailedFileRestorations, 1ul);
                 }
 
-                // TODO - This whole QM file will be interruptable in the future
-                std::shared_ptr<common::StoppableSleeper> sleeper;
-                unixsocket::RestoreReportingClient client(sleeper);
-                client.sendRestoreReport(restoreReport.value());
+                // Send report
+                if (restoreReport.has_value())
+                {
+                    // TODO - This whole QM file will be interruptable in the future
+                    std::shared_ptr<common::StoppableSleeper> sleeper;
+                    unixsocket::RestoreReportingClient client(sleeper);
+                    client.sendRestoreReport(restoreReport.value());
+                }
+            }
+            catch (const std::exception& e)
+            {
+                LOGERROR("Failed to restore file with object ID " << objectId);
             }
         }
     }

@@ -1,26 +1,26 @@
 // Copyright 2022, Sophos Limited.  All rights reserved.
 
-#include "UnixSocketMemoryAppenderUsingTests.h"
 #include "SafeStoreSocketMemoryAppenderUsingTests.h"
+#include "UnixSocketMemoryAppenderUsingTests.h"
 
-#include "datatypes/sophos_filesystem.h"
 #include "datatypes/SystemCallWrapper.h"
-#include "tests/common/MemoryAppender.h"
-#include "tests/datatypes/MockSysCalls.h"
+#include "datatypes/sophos_filesystem.h"
 #include "safestore/QuarantineManager/QuarantineManagerImpl.h"
 #include "safestore/SafeStoreWrapper/SafeStoreWrapperImpl.h"
+#include "tests/common/MemoryAppender.h"
+#include "tests/datatypes/MockSysCalls.h"
 #include "unixsocket/SocketUtils.h"
 #include "unixsocket/safeStoreSocket/SafeStoreServerConnectionThread.h"
 
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 
-#include <gtest/gtest.h>
-
-#include <memory>
-
 #include <fcntl.h>
 #include <sys/socket.h>
 #include <unistd.h>
+
+#include <gtest/gtest.h>
+
+#include <memory>
 
 namespace fs = sophos_filesystem;
 
@@ -49,13 +49,14 @@ namespace
             fs::current_path(m_testDir);
 
             auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
-            appConfig.setData(Common::ApplicationConfiguration::SOPHOS_INSTALL, m_testDir );
-            appConfig.setData("PLUGIN_INSTALL", m_testDir );
+            appConfig.setData(Common::ApplicationConfiguration::SOPHOS_INSTALL, m_testDir);
+            appConfig.setData("PLUGIN_INSTALL", m_testDir);
 
             m_sysCalls = std::make_shared<datatypes::SystemCallWrapper>();
             m_mockSysCalls = std::make_shared<StrictMock<MockSystemCallWrapper>>();
             auto safeStoreWrapper = std::make_unique<SafeStoreWrapper::SafeStoreWrapperImpl>();
-            m_quarantineManager = std::make_shared<QuarantineManager::QuarantineManagerImpl>(std::move(safeStoreWrapper));
+            m_quarantineManager =
+                std::make_shared<QuarantineManager::QuarantineManagerImpl>(std::move(safeStoreWrapper), m_mockSysCalls);
         }
 
         void TearDown() override
@@ -70,13 +71,14 @@ namespace
         std::shared_ptr<StrictMock<MockSystemCallWrapper>> m_mockSysCalls;
         std::shared_ptr<QuarantineManager::IQuarantineManager> m_quarantineManager;
     };
-}
+} // namespace
 
 TEST_F(TestSafeStoreServerConnectionThread, successful_construction)
 {
     datatypes::AutoFd fdHolder(::open("/dev/null", O_RDONLY));
     ASSERT_GE(fdHolder.get(), 0);
-    EXPECT_NO_THROW(unixsocket::SafeStoreServerConnectionThread connectionThread(fdHolder, m_quarantineManager, m_sysCalls));
+    EXPECT_NO_THROW(
+        unixsocket::SafeStoreServerConnectionThread connectionThread(fdHolder, m_quarantineManager, m_sysCalls));
 }
 
 TEST_F(TestSafeStoreServerConnectionThread, isRunning_false_after_construction)
@@ -91,8 +93,9 @@ TEST_F(TestSafeStoreServerConnectionThread, fail_construction_with_bad_fd)
 {
     datatypes::AutoFd fdHolder;
     ASSERT_EQ(fdHolder.get(), -1);
-    EXPECT_THROW(unixsocket::SafeStoreServerConnectionThread connectionThread(fdHolder, m_quarantineManager, m_sysCalls),
-                 std::runtime_error);
+    EXPECT_THROW(
+        unixsocket::SafeStoreServerConnectionThread connectionThread(fdHolder, m_quarantineManager, m_sysCalls),
+        std::runtime_error);
 }
 
 TEST_F(TestSafeStoreServerConnectionThread, stop_while_running)
@@ -159,8 +162,7 @@ TEST_F(TestSafeStoreServerConnectionThread, bad_notify_pipe_fd)
     int fd = fdHolder.get();
     struct pollfd fds[2]{};
     fds[1].revents = POLLERR;
-    EXPECT_CALL(*m_mockSysCalls, ppoll(_, 2, _, nullptr))
-        .WillOnce(DoAll(SetArrayArgument<0>(fds, fds+2), Return(1)));
+    EXPECT_CALL(*m_mockSysCalls, ppoll(_, 2, _, nullptr)).WillOnce(DoAll(SetArrayArgument<0>(fds, fds + 2), Return(1)));
 
     SafeStoreServerConnectionThread connectionThread(fdHolder, m_quarantineManager, m_mockSysCalls);
     ::close(fd); // fd in connection Thread now broken
@@ -183,8 +185,7 @@ TEST_F(TestSafeStoreServerConnectionThread, bad_socket_fd)
     int fd = fdHolder.get();
     struct pollfd fds[2]{};
     fds[0].revents = POLLERR;
-    EXPECT_CALL(*m_mockSysCalls, ppoll(_, 2, _, nullptr))
-        .WillOnce(DoAll(SetArrayArgument<0>(fds, fds+2), Return(1)));
+    EXPECT_CALL(*m_mockSysCalls, ppoll(_, 2, _, nullptr)).WillOnce(DoAll(SetArrayArgument<0>(fds, fds + 2), Return(1)));
 
     SafeStoreServerConnectionThread connectionThread(fdHolder, m_quarantineManager, m_mockSysCalls);
     ::close(fd); // fd in connection Thread now broken

@@ -215,7 +215,7 @@ SafeStore does not quarantine on a Corrupt Database
 
     Wait Until AV Plugin Log Contains Detection Name After Mark  ${av_mark}  EICAR-AV-Test
     Wait For Log Contains From Mark  ${safestore_mark}  Received Threat:
-    Wait For Log Contains From Mark  ${safestore_mark}  Cannot quarantine file, SafeStore is in
+    Wait For Log Contains From Mark  ${safestore_mark}  Cannot quarantine ${SCAN_DIRECTORY}/eicar.com, SafeStore is in CORRUPT state
     Wait For Log Contains From Mark  ${safestore_mark}  Successfully removed corrupt SafeStore database    timeout=200
     Wait For Log Contains From Mark  ${safestore_mark}  Successfully initialised SafeStore database
     File Should Exist  ${SCAN_DIRECTORY}/eicar.com
@@ -229,6 +229,7 @@ SafeStore does not quarantine on a Corrupt Database
 
     Mark Expected Error In Log    ${SAFESTORE_LOG_PATH}    Failed to initialise SafeStore database: DB_ERROR
     Mark Expected Error In Log    ${SAFESTORE_LOG_PATH}    Quarantine Manager failed to initialise
+    Mark Expected Error In Log    ${SAFESTORE_LOG_PATH}    Cannot quarantine ${SCAN_DIRECTORY}/eicar.com, SafeStore is in CORRUPT state
 
 
 With SafeStore Enabled But Not Running We Can Send Threats To AV

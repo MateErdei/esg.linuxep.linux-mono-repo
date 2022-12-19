@@ -140,7 +140,7 @@ SafeStore Increments Quarantine Counter After Failed Quarantine
    Corrupt SafeStore Database
    Check avscanner can detect eicar
    Wait Until SafeStore Log Contains  Received Threat:
-   Wait For Safestore Log Contains After Mark    Cannot quarantine file, SafeStore is in    ${ss_mark}
+   Wait For Safestore Log Contains After Mark    Cannot quarantine ${SCAN_DIRECTORY}/eicar.com, SafeStore is in CORRUPT state    ${ss_mark}
 
    Stop SafeStore
    Wait Until Keyword Succeeds
@@ -152,14 +152,14 @@ SafeStore Increments Quarantine Counter After Failed Quarantine
    Log   ${backupfileContents}
    ${backupJson}=    Evaluate     json.loads("""${backupfileContents}""")    json
    ${rootkeyDict}=    Set Variable     ${backupJson['rootkey']}
-   Dictionary Should Contain Item   ${rootkeyDict}   quarantine-failures   ${1}
+   Dictionary Should Contain Item   ${rootkeyDict}   unlink-failures   ${1}
 
    Start SafeStore
    ${ss_mark} =    Get SafeStore Log Mark
 
    Check avscanner can detect eicar
    Wait Until SafeStore Log Contains  Received Threat:
-   Wait For Safestore Log Contains After Mark    Cannot quarantine file, SafeStore is in    ${ss_mark}
+   Wait For Safestore Log Contains After Mark    Cannot quarantine ${SCAN_DIRECTORY}/eicar.com, SafeStore is in CORRUPT state    ${ss_mark}
 
    Run Telemetry Executable With HTTPS Protocol  port=${4435}
 
@@ -167,13 +167,14 @@ SafeStore Increments Quarantine Counter After Failed Quarantine
    Log   ${telemetryFileContents}
    ${telemetryJson}=    Evaluate     json.loads("""${telemetryFileContents}""")    json
    ${safeStoreDict}=    Set Variable     ${telemetryJson['safestore']}
-   Dictionary Should Contain Item   ${safeStoreDict}   quarantine-failures   ${2}
+   Dictionary Should Contain Item   ${safeStoreDict}   unlink-failures        ${2}
    # Verify other counts are not impacted
    Dictionary Should Contain Item   ${safeStoreDict}   quarantine-successes   ${0}
-   Dictionary Should Contain Item   ${safeStoreDict}   unlink-failures   ${0}
+   Dictionary Should Contain Item   ${safeStoreDict}   quarantine-failures    ${0}
 
    Mark Expected Error In Log    ${SAFESTORE_LOG_PATH}    Failed to initialise SafeStore database: DB_ERROR
    Mark Expected Error In Log    ${SAFESTORE_LOG_PATH}    Quarantine Manager failed to initialise
+   Mark Expected Error In Log    ${SAFESTORE_LOG_PATH}    Cannot quarantine ${SCAN_DIRECTORY}/eicar.com, SafeStore is in CORRUPT state
 
 Corrupt Threat Database Telemetry Is Not Reported When Database File Is Not On Disk
     Install With Base SDDS

@@ -74,8 +74,7 @@ namespace safestore::QuarantineManager
         /**
          * Unpack detections.
          */
-        virtual std::vector<FdsObjectIdsPair> extractQuarantinedFiles(
-            datatypes::ISystemCallWrapper& sysCallWrapper) = 0;
+        virtual std::vector<FdsObjectIdsPair> extractQuarantinedFiles() = 0;
 
         /**
          * Run the avscanner on unpacked detections and return vector of objectsIds that are clean.

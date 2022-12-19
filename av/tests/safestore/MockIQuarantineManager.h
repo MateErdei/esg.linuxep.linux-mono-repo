@@ -25,10 +25,7 @@ public:
          const std::string& sha256,
          const std::string& correlationId,
          datatypes::AutoFd autoFd));
-    MOCK_METHOD(
-        std::vector<FdsObjectIdsPair>,
-        extractQuarantinedFiles,
-        (datatypes::ISystemCallWrapper & sysCallWrapper));
+    MOCK_METHOD(std::vector<FdsObjectIdsPair>, extractQuarantinedFiles, ());
     MOCK_METHOD(void, rescanDatabase, ());
     MOCK_METHOD(
         std::vector<safestore::SafeStoreWrapper::ObjectId>,

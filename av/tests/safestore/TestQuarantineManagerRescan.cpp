@@ -7,6 +7,7 @@
 #include "common/Common.h"
 #include "common/MockScanner.h"
 #include "common/TestFile.h"
+#include "datatypes/MockSysCalls.h"
 #include "safestore/QuarantineManager/IQuarantineManager.h"
 #include "safestore/QuarantineManager/QuarantineManagerImpl.h"
 #include "safestore/SafeStoreWrapper/ISafeStoreWrapper.h"
@@ -58,13 +59,15 @@ public:
 
     StrictMock<MockISafeStoreWrapper>* m_mockSafeStoreWrapper;
     StrictMock<MockFileSystem>* m_mockFileSystem;
+    std::shared_ptr<StrictMock<MockSystemCallWrapper>> m_mockSysCallWrapper =
+        std::make_shared<StrictMock<MockSystemCallWrapper>>();
 };
 
 TEST_F(QuarantineManagerRescanTests, scanExtractedFilesForRestoreListDoesNothingWithEmptyArgs)
 {
     testing::internal::CaptureStderr();
-    QuarantineManagerImpl quarantineManager{ std::unique_ptr<StrictMock<MockISafeStoreWrapper>>(
-        m_mockSafeStoreWrapper) };
+    QuarantineManagerImpl quarantineManager{ std::unique_ptr<StrictMock<MockISafeStoreWrapper>>(m_mockSafeStoreWrapper),
+                                             std::move(m_mockSysCallWrapper) };
 
     std::vector<FdsObjectIdsPair> testFiles;
 
@@ -76,8 +79,8 @@ TEST_F(QuarantineManagerRescanTests, scanExtractedFilesForRestoreListDoesNothing
 // TODO: LINUXDAR-6280 - Re-enable test after figuring out its flakiness
 TEST_F(QuarantineManagerRescanTests, DISABLED_scanExtractedFiles)
 {
-    QuarantineManagerImpl quarantineManager{ std::unique_ptr<StrictMock<MockISafeStoreWrapper>>(
-        m_mockSafeStoreWrapper) };
+    QuarantineManagerImpl quarantineManager{ std::unique_ptr<StrictMock<MockISafeStoreWrapper>>(m_mockSafeStoreWrapper),
+                                             std::move(m_mockSysCallWrapper) };
     auto scannerFactory = std::make_shared<StrictMock<MockScannerFactory>>();
     auto scanner = std::make_unique<StrictMock<MockScanner>>();
 
@@ -183,8 +186,8 @@ TEST_F(QuarantineManagerRescanTests, DISABLED_scanExtractedFiles)
 TEST_F(QuarantineManagerRescanTests, scanExtractedFilesSocketFailure)
 {
     testing::internal::CaptureStderr();
-    QuarantineManagerImpl quarantineManager{ std::unique_ptr<StrictMock<MockISafeStoreWrapper>>(
-        m_mockSafeStoreWrapper) };
+    QuarantineManagerImpl quarantineManager{ std::unique_ptr<StrictMock<MockISafeStoreWrapper>>(m_mockSafeStoreWrapper),
+                                             std::move(m_mockSysCallWrapper) };
 
     TestFile cleanFile1("cleanFile1");
     datatypes::AutoFd fd1{ cleanFile1.open() };
@@ -204,8 +207,8 @@ TEST_F(QuarantineManagerRescanTests, scanExtractedFilesSocketFailure)
 TEST_F(QuarantineManagerRescanTests, DISABLED_scanExtractedFilesSkipsHandleFailure)
 {
     testing::internal::CaptureStderr();
-    QuarantineManagerImpl quarantineManager{ std::unique_ptr<StrictMock<MockISafeStoreWrapper>>(
-        m_mockSafeStoreWrapper) };
+    QuarantineManagerImpl quarantineManager{ std::unique_ptr<StrictMock<MockISafeStoreWrapper>>(m_mockSafeStoreWrapper),
+                                             std::move(m_mockSysCallWrapper) };
     auto scannerFactory = std::make_shared<StrictMock<MockScannerFactory>>();
     auto scanner = std::make_unique<StrictMock<MockScanner>>();
 
@@ -271,8 +274,8 @@ TEST_F(QuarantineManagerRescanTests, DISABLED_scanExtractedFilesSkipsHandleFailu
 TEST_F(QuarantineManagerRescanTests, DISABLED_scanExtractedFilesHandlesNameAndLocationFailure)
 {
     testing::internal::CaptureStderr();
-    QuarantineManagerImpl quarantineManager{ std::unique_ptr<StrictMock<MockISafeStoreWrapper>>(
-        m_mockSafeStoreWrapper) };
+    QuarantineManagerImpl quarantineManager{ std::unique_ptr<StrictMock<MockISafeStoreWrapper>>(m_mockSafeStoreWrapper),
+                                             std::move(m_mockSysCallWrapper) };
     auto scannerFactory = std::make_shared<StrictMock<MockScannerFactory>>();
     auto scanner = std::make_unique<StrictMock<MockScanner>>();
 
@@ -319,8 +322,8 @@ TEST_F(QuarantineManagerRescanTests, DISABLED_scanExtractedFilesHandlesNameAndLo
 TEST_F(QuarantineManagerRescanTests, restoreFileDoesNothingIfCannotGetObjectHandle)
 {
     testing::internal::CaptureStderr();
-    QuarantineManagerImpl quarantineManager{ std::unique_ptr<StrictMock<MockISafeStoreWrapper>>(
-        m_mockSafeStoreWrapper) };
+    QuarantineManagerImpl quarantineManager{ std::unique_ptr<StrictMock<MockISafeStoreWrapper>>(m_mockSafeStoreWrapper),
+                                             std::move(m_mockSysCallWrapper) };
 
     std::string objectId = "objectId";
 
@@ -342,8 +345,8 @@ TEST_F(QuarantineManagerRescanTests, restoreFileDoesNothingIfCannotGetObjectHand
 TEST_F(QuarantineManagerRescanTests, restoreFileReturnsEarlyOnMissingNameAndLocation)
 {
     testing::internal::CaptureStderr();
-    QuarantineManagerImpl quarantineManager{ std::unique_ptr<StrictMock<MockISafeStoreWrapper>>(
-        m_mockSafeStoreWrapper) };
+    QuarantineManagerImpl quarantineManager{ std::unique_ptr<StrictMock<MockISafeStoreWrapper>>(m_mockSafeStoreWrapper),
+                                             std::move(m_mockSysCallWrapper) };
 
     std::string objectId = "objectId";
     std::string threatId = "threatId";
@@ -370,8 +373,8 @@ TEST_F(QuarantineManagerRescanTests, restoreFileReturnsEarlyOnMissingNameAndLoca
 TEST_F(QuarantineManagerRescanTests, restoreFileReturnsEarlyOnMissingLocation)
 {
     testing::internal::CaptureStderr();
-    QuarantineManagerImpl quarantineManager{ std::unique_ptr<StrictMock<MockISafeStoreWrapper>>(
-        m_mockSafeStoreWrapper) };
+    QuarantineManagerImpl quarantineManager{ std::unique_ptr<StrictMock<MockISafeStoreWrapper>>(m_mockSafeStoreWrapper),
+                                             std::move(m_mockSysCallWrapper) };
 
     std::string objectId = "objectId";
     std::string threatId = "threatId";
@@ -399,8 +402,8 @@ TEST_F(QuarantineManagerRescanTests, restoreFileReturnsEarlyOnMissingLocation)
 TEST_F(QuarantineManagerRescanTests, restoreFileDoesNothingIfCannotGetCorrelationId)
 {
     testing::internal::CaptureStderr();
-    QuarantineManagerImpl quarantineManager{ std::unique_ptr<StrictMock<MockISafeStoreWrapper>>(
-        m_mockSafeStoreWrapper) };
+    QuarantineManagerImpl quarantineManager{ std::unique_ptr<StrictMock<MockISafeStoreWrapper>>(m_mockSafeStoreWrapper),
+                                             std::move(m_mockSysCallWrapper) };
 
     std::string objectId = "objectId";
     std::string objectName = "testName";
@@ -433,8 +436,8 @@ TEST_F(QuarantineManagerRescanTests, restoreFileDoesNothingIfCannotGetCorrelatio
 TEST_F(QuarantineManagerRescanTests, restoreFileReturnsEarlyIfRestoreFails)
 {
     testing::internal::CaptureStderr();
-    QuarantineManagerImpl quarantineManager{ std::unique_ptr<StrictMock<MockISafeStoreWrapper>>(
-        m_mockSafeStoreWrapper) };
+    QuarantineManagerImpl quarantineManager{ std::unique_ptr<StrictMock<MockISafeStoreWrapper>>(m_mockSafeStoreWrapper),
+                                             std::move(m_mockSysCallWrapper) };
 
     std::string objectId = "objectId";
     std::string objectName = "testName";
@@ -467,8 +470,8 @@ TEST_F(QuarantineManagerRescanTests, restoreFileReturnsEarlyIfRestoreFails)
 TEST_F(QuarantineManagerRescanTests, restoreFileReturnsEarlyIfDeleteFails)
 {
     testing::internal::CaptureStderr();
-    QuarantineManagerImpl quarantineManager{ std::unique_ptr<StrictMock<MockISafeStoreWrapper>>(
-        m_mockSafeStoreWrapper) };
+    QuarantineManagerImpl quarantineManager{ std::unique_ptr<StrictMock<MockISafeStoreWrapper>>(m_mockSafeStoreWrapper),
+                                             std::move(m_mockSysCallWrapper) };
 
     std::string objectId = "objectId";
     std::string objectName = "testName";
@@ -505,8 +508,8 @@ TEST_F(QuarantineManagerRescanTests, restoreFileReturnsEarlyIfDeleteFails)
 TEST_F(QuarantineManagerRescanTests, restoreFileReturnsReportOnSuccess)
 {
     testing::internal::CaptureStderr();
-    QuarantineManagerImpl quarantineManager{ std::unique_ptr<StrictMock<MockISafeStoreWrapper>>(
-        m_mockSafeStoreWrapper) };
+    QuarantineManagerImpl quarantineManager{ std::unique_ptr<StrictMock<MockISafeStoreWrapper>>(m_mockSafeStoreWrapper),
+                                             std::move(m_mockSysCallWrapper) };
 
     std::string objectId = "objectId";
     std::string objectName = "testName";

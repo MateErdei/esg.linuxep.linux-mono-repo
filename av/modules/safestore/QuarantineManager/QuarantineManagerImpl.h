@@ -22,7 +22,8 @@ namespace safestore::QuarantineManager
     {
     public:
         explicit QuarantineManagerImpl(
-            std::unique_ptr<safestore::SafeStoreWrapper::ISafeStoreWrapper> safeStoreWrapper);
+            std::unique_ptr<safestore::SafeStoreWrapper::ISafeStoreWrapper> safeStoreWrapper,
+            std::shared_ptr<datatypes::ISystemCallWrapper> sysCallWrapper);
         void initialise() override;
         QuarantineManagerState getState() override;
         bool deleteDatabase() override;
@@ -33,7 +34,7 @@ namespace safestore::QuarantineManager
             const std::string& sha256,
             const std::string& correlationId,
             datatypes::AutoFd autoFd) override;
-        std::vector<FdsObjectIdsPair> extractQuarantinedFiles(datatypes::ISystemCallWrapper& sysCallWrapper) override;
+        std::vector<FdsObjectIdsPair> extractQuarantinedFiles() override;
         void setState(const safestore::QuarantineManager::QuarantineManagerState& newState) override;
         void rescanDatabase() override;
         void parseConfig() override;
@@ -59,5 +60,6 @@ namespace safestore::QuarantineManager
         int m_databaseErrorCount = 0;
         Common::PersistentValue<int> m_dbErrorCountThreshold;
         static scan_messages::ScanResponse scan(unixsocket::ScanningClientSocket& socket, int fd);
+        std::shared_ptr<datatypes::ISystemCallWrapper> m_sysCallWrapper;
     };
 } // namespace safestore::QuarantineManager
