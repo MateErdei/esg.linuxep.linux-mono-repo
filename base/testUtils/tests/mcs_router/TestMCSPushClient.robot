@@ -379,7 +379,7 @@ Connection is lost between endpoint and proxy
     Restart MCSRouter And Clear Logs
     Wait New MCS Policy Downloaded
     Push Client started and connects to Push Server when the MCS Client receives MCS Policy Proxy
-    Send Message To Push Server And Expect It In MCSRouter Log  First Message
+    Send Message To Push Server And Expect It In MCSRouter Log  <xml>First Message</xml>
 
     Stop Proxy Server On Port  1235
     Wait Until Keyword Succeeds
@@ -395,7 +395,7 @@ Connection is lost between endpoint and proxy
     ...          3s
     ...          Check marked Mcsrouter Log Contains   Push client successfully connected to localhost:4443 via localhost:1235
 
-    Send Message To Push Server And Expect It In MCSRouter Log  Second Message
+    Send Message To Push Server And Expect It In MCSRouter Log  <xml>Second Message</xml>
 
 Try connection via proxy with bad authentication
     [Teardown]  Test Teardown With Env Proxy
