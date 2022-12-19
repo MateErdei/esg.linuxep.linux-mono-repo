@@ -26,11 +26,6 @@ void threat_scanner::susiLogCallback(void* token, SusiLogLevel level, const char
 
     if (!m.empty())
     {
-
-        if (m.find("Failed to load root certificate data") != std::string::npos) {
-            return;
-        }
-
         HighestLevelRecorder::record(level);
         switch (level)
         {
