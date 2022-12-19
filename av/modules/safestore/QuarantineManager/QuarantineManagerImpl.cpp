@@ -606,7 +606,7 @@ namespace safestore::QuarantineManager
         }
         LOGDEBUG("Number of files in SafeStore to rescan: " << threatObjects.size());
 
-        int batchSize = 1;
+        constexpr int batchSize = 1;
         auto batchStart = threatObjects.begin();
         auto batchEnd = std::min(batchStart + batchSize, threatObjects.end());
         bool done = false;
