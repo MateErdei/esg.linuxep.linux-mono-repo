@@ -138,16 +138,19 @@ namespace sophos_on_access_process::OnAccessConfig
         {
             std::string configJson = sophosFsAPI->readFile(productConfigPath.string());
             //If the configJson is empty or the content is empty we load from defaults
-            if (!configJson.empty() && configJson != "{}")
+            if (!configJson.empty())
             {
                 try
                 {
                     auto parsedConfigJson = json::parse(configJson);
-                    settings.dumpPerfData = toBoolean(parsedConfigJson, "dumpPerfData", settings.dumpPerfData);
-                    settings.cacheAllEvents = toBoolean(parsedConfigJson, "cacheAllEvents", settings.cacheAllEvents);
-                    settings.uncacheDetections = toBoolean(parsedConfigJson, "uncacheDetections", settings.uncacheDetections);
 
-                    settings.maxScanQueueSize = toLimitedInteger(
+                    if (!parsedConfigJson.empty())
+                    {
+                        settings.dumpPerfData = toBoolean(parsedConfigJson, "dumpPerfData", settings.dumpPerfData);
+                        settings.cacheAllEvents = toBoolean(parsedConfigJson, "cacheAllEvents", settings.cacheAllEvents);
+                        settings.uncacheDetections = toBoolean(parsedConfigJson, "uncacheDetections", settings.uncacheDetections);
+
+                        settings.maxScanQueueSize = toLimitedInteger(
                             parsedConfigJson,
                             "maxscanqueuesize",
                             "Queue size",
@@ -156,16 +159,17 @@ namespace sophos_on_access_process::OnAccessConfig
                             maxAllowedQueueSize
                         );
 
-                    settings.numScanThreads = toLimitedInteger(
-                        parsedConfigJson,
-                        "numThreads",
-                        "Scanning Thread count",
-                        settings.numScanThreads, // Dynamic from CPU core count
-                        minAllowedScanningThreads,
-                        maxAllowedScanningThreads
+                        settings.numScanThreads = toLimitedInteger(
+                            parsedConfigJson,
+                            "numThreads",
+                            "Scanning Thread count",
+                            settings.numScanThreads, // Dynamic from CPU core count
+                            minAllowedScanningThreads,
+                            maxAllowedScanningThreads
                         );
 
-                    usedFileValues = true;
+                        usedFileValues = true;
+                    }
                 }
                 catch (const std::exception& e)
                 {
