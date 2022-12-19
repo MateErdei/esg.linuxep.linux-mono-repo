@@ -49,15 +49,15 @@ void SafeStoreWorker::run()
         try
         {
             auto parentMount = mount_monitor::mountinfoimpl::Drive(threatDetected.filePath);
+            const std::string escapedPath = common::escapePathForLogging(threatDetected.filePath);
             if (parentMount.isNetwork())
             {
-                LOGINFO("File is located on a Network mount: " << parentMount.mountPoint() << ". Will not quarantine.");
+                LOGINFO("File at location: " << escapedPath << " is located on a Network mount: " << parentMount.mountPoint() << ". Will not quarantine.");
                 threatDetected.isRemote = true;
                 tryQuarantine = false;
             }
             else if (parentMount.isReadOnly())
             {
-                const std::string escapedPath = common::escapePathForLogging(threatDetected.filePath);
                 LOGINFO(
                     "File at location: " << escapedPath << " is located on a ReadOnly mount: " << parentMount.mountPoint() << ". Will not quarantine.");
                 tryQuarantine = false;
