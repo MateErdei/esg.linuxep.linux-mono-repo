@@ -402,7 +402,8 @@ namespace safestore::QuarantineManager
         }
     }
 
-    std::vector<FdsObjectIdsPair> QuarantineManagerImpl::extractQuarantinedFiles(std::vector<SafeStoreWrapper::ObjectHandleHolder> threatsToExtract)
+    std::vector<FdsObjectIdsPair> QuarantineManagerImpl::extractQuarantinedFiles(
+        std::vector<SafeStoreWrapper::ObjectHandleHolder> threatsToExtract)
     {
         if (threatsToExtract.empty())
         {
