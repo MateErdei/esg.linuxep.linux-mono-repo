@@ -437,7 +437,6 @@ TEST_F(TestSusiScanner, scan_ArchiveWithDetectionsNotIncludingItself_SendsReport
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem = std::unique_ptr<IFileSystem>(mockFileSystem);
     EXPECT_CALL(*mockFileSystem, calculateDigest(_, -1)).Times(1).WillOnce(Return("calculatedSha256"));
 
-    WaitForEvent serverWaitGuard;
     EXPECT_CALL(*m_mockThreatReporter, sendThreatReport(_))
         .Times(1)
         .WillOnce(Invoke(
@@ -445,14 +444,12 @@ TEST_F(TestSusiScanner, scan_ArchiveWithDetectionsNotIncludingItself_SendsReport
             {
                 expectCorrectThreatDetected(
                     threatDetected, "/tmp/archive.zip", "threatName_1", "threatName_1", "calculatedSha256");
-                serverWaitGuard.onEventNoArgs();
             }));
 
     datatypes::AutoFd autoFd;
 
     scan_messages::ScanResponse response = susiScanner.scan(autoFd, makeScanRequestObject("/tmp/archive.zip"));
 
-    serverWaitGuard.wait();
 
     EXPECT_FALSE(response.allClean());
     ASSERT_EQ(response.getDetections().size(), 2);
@@ -496,4 +493,37 @@ TEST_F(TestSusiScanner, scan_SafeStoreRescanDoesNotSendThreatDetectedReport)
 
     EXPECT_FALSE(appenderContains("Detected"));
     EXPECT_FALSE(appenderContains("Sending report for detection"));
+}
+
+
+TEST_F(TestSusiScanner, archiveNotInSUSIResultCanBeAllowListed)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    auto* mockUnitScanner = new StrictMock<MockUnitScanner>();
+
+    EXPECT_CALL(*m_mockTimer, reset()).Times(1);
+    EXPECT_CALL(*m_mockAllowList, isAllowListed("calculatedSha256")).WillOnce(Return(true));
+
+    ScanResult scanResult{ { { "/tmp/archive.zip/eicar1.txt", "threatName_1", "threatType_1", "sha256_1" },
+                             { "/tmp/archive.zip/eicar2.txt", "threatName_2", "threatType_2", "sha256_2" } },
+                           {} };
+    EXPECT_CALL(*mockUnitScanner, scan(_, "/tmp/archive.zip")).Times(1).WillOnce(Return(scanResult));
+
+    // Needed because of path mismatch
+    auto mockFileSystem = new StrictMock<MockFileSystem>{};
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem = std::unique_ptr<IFileSystem>(mockFileSystem);
+    EXPECT_CALL(*mockFileSystem, calculateDigest(_, -1)).Times(1).WillOnce(Return("calculatedSha256"));
+
+    EXPECT_CALL(*m_mockThreatReporter, sendThreatReport(_)).Times(0); // No calls to threatReporter
+
+    SusiScanner susiScanner{ makeScannerWithReporter( mockUnitScanner )};
+    datatypes::AutoFd autoFd;
+    scan_messages::ScanResponse response = susiScanner.scan(autoFd, makeScanRequestObject("/tmp/archive.zip"));
+
+    EXPECT_TRUE(response.allClean());
+    EXPECT_EQ(response.getDetections().size(), 0);
+    EXPECT_EQ(response.getErrorMsg(), "");
+
+    EXPECT_TRUE(appenderContains("Allowing listing /tmp/archive.zip with calculatedSha256"));
 }
