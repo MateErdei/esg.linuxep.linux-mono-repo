@@ -254,10 +254,12 @@ Exclude VDL Folder Missing Errors
     mark_expected_error_in_log  ${THREAT_DETECTOR_LOG_PATH}  Aborting scan, failed to initialise SUSI
 
 Exclued SafeStore Internal Error On Quarantine
-    mark_expected_error_in_log  ${SAFESTORE_LOG_PATH}    Failed to quarantine file due to: InternalError
+    [Arguments]  ${path_name}
+    mark_expected_error_in_log  ${SAFESTORE_LOG_PATH}    Failed to quarantine ${path_name} due to: InternalError
 
 Exclued SafeStore File Open Error On Quarantine
-    mark_expected_error_in_log  ${SAFESTORE_LOG_PATH}    Failed to quarantine file due to: FileOpenFailed
+    [Arguments]  ${path_name}
+    mark_expected_error_in_log  ${SAFESTORE_LOG_PATH}    Failed to quarantine ${path_name} due to: FileOpenFailed
 
 Exclude ThreatDatabase Failed To Parse Database
     mark_expected_error_in_log   ${AV_LOG_PATH}    Resetting ThreatDatabase as we failed to parse ThreatDatabase on disk with error

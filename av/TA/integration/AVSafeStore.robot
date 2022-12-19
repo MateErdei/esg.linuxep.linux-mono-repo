@@ -142,7 +142,7 @@ SafeStore Quarantines When It Receives A File To Quarantine (On Access)
     ${av_mark} =  Get AV Log Mark
     ${safestore_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
     On-access Scan Eicar Close
-    Exclued SafeStore File Open Error On Quarantine
+    Exclued SafeStore File Open Error On Quarantine  /tmp_test/eicar.com
 
     wait_for_log_contains_from_mark  ${safestore_mark}   Quarantined
     wait_for_log_contains_from_mark  ${av_mark}  Threat cleaned up at path:
@@ -213,7 +213,7 @@ Failed Clean Event Gets Sent When SafeStore Fails To Quarantine A File
 
     Wait Until SafeStore running
     Remove Directory     ${SAFESTORE_DB_DIR}  recursive=True
-    Exclued SafeStore Internal Error On Quarantine
+    Exclued SafeStore Internal Error On Quarantine   ${SCAN_DIRECTORY}/eicar.com
 
     ${safestore_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
     Check avscanner can detect eicar
