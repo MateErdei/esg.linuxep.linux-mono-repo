@@ -22,6 +22,7 @@ namespace
             ON_CALL(*this, cap_clear).WillByDefault(Return(0));
             ON_CALL(*this, cap_set_proc).WillByDefault(Return(0));
             ON_CALL(*this, prctl).WillByDefault(Return(0));
+            ON_CALL(*this, hardware_concurrency).WillByDefault(Return(10));
         }
 
         MOCK_METHOD((std::pair<const int, const long>), getSystemUpTime, ());
