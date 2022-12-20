@@ -136,12 +136,38 @@ TEST_F(TestOnAccessConfigurationUtils, parseOnAccessPolicySettingsFromJson)
     EXPECT_NE(m_testConfig, expectedResult);
 }
 
-TEST_F(TestOnAccessConfigurationUtils, parseOnAccessPolicySettingsFromJson_missingFields)
+TEST_F(TestOnAccessConfigurationUtils, parseOnAccessPolicySettingsFromJson_missingExcludeRemote)
 {
-    std::string jsonString = R"({"excludeRemoteFiles":"true"})";
+    std::string jsonString = R"({"enabled":"true","exclusions":["/mnt/","/uk-filer5/"]})";
+
+    OnAccessConfiguration expectedResult;
+    expectedResult.enabled = true;
+    expectedResult.excludeRemoteFiles = false;
+    expectedResult.exclusions = m_defaultTestExclusions;
+
+    ASSERT_EQ(parseOnAccessPolicySettingsFromJson(jsonString, m_testConfig), true);
+    EXPECT_EQ(m_testConfig, expectedResult);
+}
+
+TEST_F(TestOnAccessConfigurationUtils, parseOnAccessPolicySettingsFromJson_missingEnabled)
+{
+    std::string jsonString = R"({"excludeRemoteFiles":"true","exclusions":["/mnt/","/uk-filer5/"]})";
 
     OnAccessConfiguration expectedResult;
     expectedResult.enabled = false;
+    expectedResult.excludeRemoteFiles = true;
+    expectedResult.exclusions = m_defaultTestExclusions;
+
+    ASSERT_EQ(parseOnAccessPolicySettingsFromJson(jsonString, m_testConfig), true);
+    EXPECT_EQ(m_testConfig, expectedResult);
+}
+
+TEST_F(TestOnAccessConfigurationUtils, parseOnAccessPolicySettingsFromJson_missingExclusions)
+{
+    std::string jsonString = R"({"enabled":"true","excludeRemoteFiles":"true"})";
+
+    OnAccessConfiguration expectedResult;
+    expectedResult.enabled = true;
     expectedResult.excludeRemoteFiles = true;
 
     ASSERT_EQ(parseOnAccessPolicySettingsFromJson(jsonString, m_testConfig), true);
