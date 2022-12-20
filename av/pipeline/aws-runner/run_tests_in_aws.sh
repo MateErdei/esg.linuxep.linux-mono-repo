@@ -118,8 +118,7 @@ function compress()
 machinecount=$(ls instances/ | wc -l)
 if [[ -n $INCLUDE_TAG ]]
 then
-    IFS=' '
-    read -a tags <<< "$INCLUDE_TAG"
+    IFS=' ' read -a tags <<< "$INCLUDE_TAG"
     tagcount=${#tags[*]}
     machinecount=$((machinecount*tagcount))
     echo -ne "Number of machines being started: $machinecount\n"
