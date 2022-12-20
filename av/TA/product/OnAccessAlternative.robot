@@ -619,6 +619,7 @@ On Access Doesnt Cache Close Events With Detections After Rewrite
     Wait for on access log contains after mark  Detected "${testfile}" is infected with EICAR-AV-Test (Open)  mark=${oamark2}
 
 On Access Handles Control Socket Exists At Startup
+    [Tags]  fault_injection
     #create a socket with the same name as the soapd_controller socket
     ${netcat_handle} =  Start Process  nc  -lkU  ${COMPONENT_VAR_DIR}/soapd_controller
 
