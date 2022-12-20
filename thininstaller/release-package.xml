@@ -1,13 +1,13 @@
 <?xml version='1.0' encoding='utf-8'?>
-<package name="sspl-thininstaller" version="1.2.2">
+<package name="sspl-thininstaller" version="1.2.3">
     <versioning>
         <workingdir>sspl-thininstaller-build/AutoVersioningHeaders</workingdir>
     </versioning>
     <inputs>
         <workingdir>.</workingdir>
         <build-asset project="linuxep" repo="everest-base">
-            <release-version branch="release--2023.1-thinstaller-only"
-                             build-id="20230123103852-68072471670cee985b283e675d274ad15b11d371-nRSAvk"/>
+            <release-version branch="release/Version_1_2_2"
+                             build-id="20221220091335-17ec1f85e40bd2abbd18f588bc27e0114ba25438-XJuu8k"/>
             <development-version branch="develop"/>
             <include artifact-path="sspl-base/pluginapi" dest-dir="/build/input"/>
             <include artifact-path="sspl-base/cmcsrouterapi" dest-dir="/build/input"/>
