@@ -134,7 +134,7 @@ AWS_TIMEOUT = 130
 def aws_task(machine: tap.Machine, include_tag: str):
     try:
         machine.run("bash", machine.inputs.aws_runner / "run_tests_in_aws.sh", include_tag,
-                    timeout=((AWS_TIMEOUT - 5) * 60))
+                    timeout=((AWS_TIMEOUT - 15) * 60))
     finally:
         machine.output_artifact('/opt/test/results', 'results')
         machine.output_artifact('/opt/test/logs', 'logs')
