@@ -165,6 +165,108 @@ TEST_F(StateMonitorTests, stateMonitorReinitialisesQuarantineManagerWhenQuaranti
     ASSERT_EQ(quarantineManager->getState(), QuarantineManagerState::INITIALISED);
 }
 
+TEST_F(StateMonitorTests, stateMonitorIncrementsErrorCountOnInternalError)
+{
+    auto* filesystemMock = new StrictMock<MockFileSystem>();
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::unique_ptr<Common::FileSystem::IFileSystem>(
+        filesystemMock) };
+
+    // Force the m_dbErrorCountThreshold variable to be set to 1 for tests so that we only have to see one error
+    // before the database is reported to be corrupt.
+    EXPECT_CALL(*filesystemMock, exists("/tmp/av/var/persist-safeStoreDbErrorThreshold")).WillOnce(Return(true));
+    EXPECT_CALL(*filesystemMock, writeFile("/tmp/av/var/persist-safeStoreDbErrorThreshold", "1"));
+    EXPECT_CALL(*filesystemMock, readFile("/tmp/av/var/persist-safeStoreDbErrorThreshold")).WillOnce(Return("1"));
+    EXPECT_CALL(
+        *filesystemMock,
+        writeFileAtomically(Plugin::getSafeStoreDormantFlagPath(), "SafeStore database uninitialised", "/tmp/tmp"))
+        .Times(2);
+    EXPECT_CALL(
+        *filesystemMock,
+        writeFileAtomically(Plugin::getSafeStoreDormantFlagPath(), "SafeStore database corrupt", "/tmp/tmp"));
+
+    EXPECT_CALL(*filesystemMock, isFile(Plugin::getSafeStorePasswordFilePath())).WillRepeatedly(Return(true));
+    EXPECT_CALL(*filesystemMock, isFile(Plugin::getSafeStorePasswordFilePath())).WillRepeatedly(Return(true));
+    EXPECT_CALL(*filesystemMock, readFile(Plugin::getSafeStorePasswordFilePath())).WillRepeatedly(Return("password"));
+    EXPECT_CALL(*filesystemMock, isFile(Plugin::getSafeStoreConfigPath())).WillRepeatedly(Return(false));
+
+    EXPECT_CALL(*filesystemMock, removeFile(Plugin::getSafeStoreDormantFlagPath(), true)).WillOnce(Return());
+
+    EXPECT_CALL(*filesystemMock, exists(Plugin::getSafeStoreDbDirPath())).WillOnce(Return(true));
+    EXPECT_CALL(*filesystemMock, removeFilesInDirectory(Plugin::getSafeStoreDbDirPath())).Times(1);
+
+    EXPECT_CALL(
+        *m_mockSafeStoreWrapper,
+        initialise(Plugin::getSafeStoreDbDirPath(), Plugin::getSafeStoreDbFileName(), "password"))
+        .WillOnce(Return(InitReturnCode::FAILED))
+        .WillOnce(Return(InitReturnCode::OK));
+    std::shared_ptr<IQuarantineManager> quarantineManager =
+        std::make_shared<QuarantineManagerImpl>(std::move(m_mockSafeStoreWrapper), std::move(m_mockSysCallWrapper));
+
+    TestableStateMonitor stateMonitor = TestableStateMonitor(quarantineManager);
+    ASSERT_EQ(quarantineManager->getState(), QuarantineManagerState::STARTUP);
+    quarantineManager->initialise();
+    ASSERT_EQ(quarantineManager->getState(), QuarantineManagerState::CORRUPT);
+    stateMonitor.callInnerRun();
+    ASSERT_EQ(quarantineManager->getState(), QuarantineManagerState::INITIALISED);
+}
+
+TEST_F(StateMonitorTests, stateMonitorIgnoresSpecificInitErrorCodes)
+{
+    auto* filesystemMock = new StrictMock<MockFileSystem>();
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::unique_ptr<Common::FileSystem::IFileSystem>(
+        filesystemMock) };
+
+    // Force the m_dbErrorCountThreshold variable to be set to 1 for tests so that we only have to see one error
+    // before the database is reported to be corrupt.
+    EXPECT_CALL(*filesystemMock, exists("/tmp/av/var/persist-safeStoreDbErrorThreshold")).WillOnce(Return(true));
+    EXPECT_CALL(*filesystemMock, writeFile("/tmp/av/var/persist-safeStoreDbErrorThreshold", "1"));
+    EXPECT_CALL(*filesystemMock, readFile("/tmp/av/var/persist-safeStoreDbErrorThreshold")).WillOnce(Return("1"));
+    EXPECT_CALL(
+        *filesystemMock,
+        writeFileAtomically(Plugin::getSafeStoreDormantFlagPath(), "SafeStore database uninitialised", "/tmp/tmp"))
+        .Times(2);
+    EXPECT_CALL(
+        *filesystemMock,
+        writeFileAtomically(Plugin::getSafeStoreDormantFlagPath(), "SafeStore database corrupt", "/tmp/tmp"));
+
+    EXPECT_CALL(*filesystemMock, isFile(Plugin::getSafeStorePasswordFilePath())).WillRepeatedly(Return(true));
+    EXPECT_CALL(*filesystemMock, isFile(Plugin::getSafeStorePasswordFilePath())).WillRepeatedly(Return(true));
+    EXPECT_CALL(*filesystemMock, readFile(Plugin::getSafeStorePasswordFilePath())).WillRepeatedly(Return("password"));
+    EXPECT_CALL(*filesystemMock, isFile(Plugin::getSafeStoreConfigPath())).WillRepeatedly(Return(false));
+
+    EXPECT_CALL(*filesystemMock, removeFile(Plugin::getSafeStoreDormantFlagPath(), true)).WillOnce(Return());
+
+    EXPECT_CALL(*filesystemMock, exists(Plugin::getSafeStoreDbDirPath())).WillRepeatedly(Return(true));
+    EXPECT_CALL(*filesystemMock, removeFilesInDirectory(Plugin::getSafeStoreDbDirPath())).Times(1);
+
+    EXPECT_CALL(
+        *m_mockSafeStoreWrapper,
+        initialise(Plugin::getSafeStoreDbDirPath(), Plugin::getSafeStoreDbFileName(), "password"))
+        .WillOnce(Return(InitReturnCode::INVALID_ARG))
+        .WillOnce(Return(InitReturnCode::UNSUPPORTED_OS))
+        .WillOnce(Return(InitReturnCode::UNSUPPORTED_VERSION))
+        .WillOnce(Return(InitReturnCode::OUT_OF_MEMORY))
+        .WillOnce(Return(InitReturnCode::DB_ERROR))
+        .WillOnce(Return(InitReturnCode::OK));
+    std::shared_ptr<IQuarantineManager> quarantineManager =
+        std::make_shared<QuarantineManagerImpl>(std::move(m_mockSafeStoreWrapper), std::move(m_mockSysCallWrapper));
+
+    TestableStateMonitor stateMonitor = TestableStateMonitor(quarantineManager);
+    EXPECT_EQ(quarantineManager->getState(), QuarantineManagerState::STARTUP);
+    quarantineManager->initialise();
+    EXPECT_EQ(quarantineManager->getState(), QuarantineManagerState::UNINITIALISED);
+    stateMonitor.callInnerRun();
+    EXPECT_EQ(quarantineManager->getState(), QuarantineManagerState::UNINITIALISED);
+    stateMonitor.callInnerRun();
+    EXPECT_EQ(quarantineManager->getState(), QuarantineManagerState::UNINITIALISED);
+    stateMonitor.callInnerRun();
+    EXPECT_EQ(quarantineManager->getState(), QuarantineManagerState::UNINITIALISED);
+    stateMonitor.callInnerRun();
+    EXPECT_EQ(quarantineManager->getState(), QuarantineManagerState::CORRUPT);
+    stateMonitor.callInnerRun();
+    EXPECT_EQ(quarantineManager->getState(), QuarantineManagerState::INITIALISED);
+}
+
 TEST_F(StateMonitorTests, testStateMonitorExitsOnDestructDuringWait)
 {
     testing::internal::CaptureStderr();

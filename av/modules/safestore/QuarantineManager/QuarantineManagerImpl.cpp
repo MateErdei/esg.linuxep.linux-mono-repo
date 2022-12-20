@@ -197,7 +197,15 @@ namespace safestore::QuarantineManager
             setState(QuarantineManagerState::UNINITIALISED);
 
             LOGERROR("Quarantine Manager failed to initialise");
-            callOnDbError();
+            // These return codes won't be resolved by deleting the SafeStore database, so don't count them as database
+            // errors
+            if (!(initResult == SafeStoreWrapper::InitReturnCode::INVALID_ARG ||
+                initResult == SafeStoreWrapper::InitReturnCode::UNSUPPORTED_OS ||
+                initResult == SafeStoreWrapper::InitReturnCode::UNSUPPORTED_VERSION ||
+                initResult == SafeStoreWrapper::InitReturnCode::OUT_OF_MEMORY))
+            {
+                callOnDbError();
+            }
         }
     }
 
@@ -510,6 +518,7 @@ namespace safestore::QuarantineManager
     void QuarantineManagerImpl::callOnDbError()
     {
         ++m_databaseErrorCount;
+        LOGTRACE("Incremented SafeStore database error count to: " << m_databaseErrorCount);
         if (m_databaseErrorCount >= m_dbErrorCountThreshold.getValue())
         {
             LOGWARN("SafeStore database is corrupt");
@@ -519,6 +528,7 @@ namespace safestore::QuarantineManager
 
     void QuarantineManagerImpl::callOnDbSuccess()
     {
+        LOGTRACE("Setting SafeStore error count to: 0");
         m_databaseErrorCount = 0;
         setState(QuarantineManagerState::INITIALISED);
     }
