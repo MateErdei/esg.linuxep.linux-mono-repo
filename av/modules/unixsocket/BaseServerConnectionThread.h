@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2022 Sophos Limited. All rights reserved.
 
 #pragma once
 
@@ -15,6 +11,10 @@ namespace unixsocket
     class BaseServerConnectionThread : public common::AbstractThreadPluginInterface
     {
     public:
+        BaseServerConnectionThread() = default;
+        BaseServerConnectionThread(const BaseServerConnectionThread&) = delete;
+        BaseServerConnectionThread& operator=(const BaseServerConnectionThread&) = delete;
+
         [[nodiscard]] bool isRunning() const;
     protected:
         void setIsRunning(bool value);

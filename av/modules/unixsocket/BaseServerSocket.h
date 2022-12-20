@@ -1,4 +1,4 @@
-// Copyright 2020-2022, Sophos Limited.  All rights reserved.
+// Copyright 2020-2022 Sophos Limited. All rights reserved.
 
 #pragma once
 
@@ -84,7 +84,8 @@ namespace unixsocket
          * Inherit constructors
          */
         using BaseServerSocket::BaseServerSocket;
-        using TPtr = std::unique_ptr<T>;
+        using connection_thread_t = T;
+        using TPtr = std::unique_ptr<connection_thread_t>;
 
         virtual TPtr makeThread(datatypes::AutoFd& fd) = 0;
         virtual void logMaxConnectionsError() = 0;

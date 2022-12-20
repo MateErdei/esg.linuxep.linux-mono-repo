@@ -1,4 +1,4 @@
-// Copyright 2022, Sophos Limited.  All rights reserved.
+// Copyright 2022 Sophos Limited. All rights reserved.
 
 #pragma once
 
@@ -25,7 +25,7 @@ namespace unixsocket
         explicit BaseClient(std::string socket_path, const duration_t& sleepTime=DEFAULT_SLEEP_TIME, IStoppableSleeperSharedPtr sleeper={});
         virtual ~BaseClient() = default;
 
-        bool isConnected() const;
+        [[nodiscard]] bool isConnected() const;
 
     protected:
         int attemptConnect();

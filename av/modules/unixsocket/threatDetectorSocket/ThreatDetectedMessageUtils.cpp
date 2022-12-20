@@ -1,4 +1,4 @@
-// Copyright 2020-2022, Sophos Limited.  All rights reserved.
+// Copyright 2020-2022 Sophos Limited. All rights reserved.
 
 #include "ThreatDetectedMessageUtils.h"
 
@@ -53,8 +53,8 @@ bool unixsocket::isReceivedFileOpen(
 }
 
 bool unixsocket::readCapnProtoMsg(
-    std::shared_ptr<datatypes::ISystemCallWrapper> sysCallWrapper,
-    int32_t length,
+    const std::shared_ptr<datatypes::ISystemCallWrapper>& sysCallWrapper,
+    ssize_t length,
     uint32_t& buffer_size,
     kj::Array<capnp::word>& proto_buffer,
     datatypes::AutoFd& socket_fd,

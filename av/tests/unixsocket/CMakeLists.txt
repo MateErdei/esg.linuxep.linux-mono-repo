@@ -18,6 +18,8 @@ if (NOT DEFINED ENV{USE_LIBFUZZER})
             TestScanningServerConnectionThread.cpp
             TestThreatDetectorSocket.cpp
             TestThreatDetectedMessageUtils.cpp
+            threatDetectorSocket/FakeScanningServer.cpp
+            threatDetectorSocket/FakeScanningServer.h
             threatDetectorSocket/TestScanningClientSocket.cpp
             PROJECTS unixsocket
             )
