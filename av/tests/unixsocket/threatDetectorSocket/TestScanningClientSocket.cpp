@@ -68,8 +68,6 @@ TEST_F(TestScanningClientSocket, connect_to_socket)
     FakeScanningServer serverSocket{socketPath};
     serverSocket.start();
 
-    std::ofstream ofs{socketPath};
-
     {
         unixsocket::ScanningClientSocket socket{ socketPath };
         errno = 0;
@@ -80,6 +78,24 @@ TEST_F(TestScanningClientSocket, connect_to_socket)
 
     serverSocket.tryStop();
     serverSocket.join();
+}
+namespace
+{
+    scan_messages::ClientScanRequestPtr make_request(datatypes::AutoFd& fileFd, const fs::path& scannedFilePath)
+    {
+        scan_messages::ClientScanRequestPtr request = std::make_shared<scan_messages::ClientScanRequest>(
+            nullptr,
+            fileFd
+        );
+        request->setPath(scannedFilePath);
+        return request;
+    }
+
+
+    scan_messages::ScanResponse make_response()
+    {
+        return {};
+    }
 }
 
 TEST_F(TestScanningClientSocket, send_scan_request_and_receive_response)
@@ -94,8 +110,6 @@ TEST_F(TestScanningClientSocket, send_scan_request_and_receive_response)
     FakeScanningServer serverSocket{socketPath};
     serverSocket.start();
 
-    std::ofstream ofs{socketPath};
-
     datatypes::AutoFd fileFd{::open(scannedFilePath.c_str(), O_RDONLY)};
     ASSERT_TRUE(fileFd.valid());
 
@@ -103,11 +117,9 @@ TEST_F(TestScanningClientSocket, send_scan_request_and_receive_response)
         unixsocket::ScanningClientSocket socket{ socketPath };
         int result = socket.connect();
         ASSERT_EQ(result, 0);
-        scan_messages::ClientScanRequestPtr request = std::make_shared<scan_messages::ClientScanRequest>(
-            nullptr,
-            fileFd
-            );
-        request->setPath(scannedFilePath);
+        serverSocket.m_latestThread->m_nextResponse = make_response().serialise();
+
+        auto request = make_request(fileFd, scannedFilePath);
         bool sent = socket.sendRequest(request);
         ASSERT_TRUE(sent);
         scan_messages::ScanResponse response;

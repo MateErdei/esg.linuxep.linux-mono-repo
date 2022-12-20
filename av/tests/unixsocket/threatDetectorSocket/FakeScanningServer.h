@@ -22,10 +22,14 @@ public:
         inner_run();
         setIsRunning(false);
     }
+    std::string m_nextResponse;
 private:
     void inner_run();
     bool handleEvent(datatypes::AutoFd& socket_fd, ssize_t length);
+    bool sendResponse(datatypes::AutoFd& socket_fd);
     bool sendResponse(datatypes::AutoFd& socket_fd, const scan_messages::ScanResponse& response);
+    bool sendResponse(datatypes::AutoFd& socket_fd, const std::string& response);
+    bool sendResponse(int socket_fd, size_t length, const std::string& buffer);
 };
 
 class FakeScanningServer : public ImplServerSocket<TestServerConnectionThread>
@@ -36,11 +40,14 @@ public:
     {
         m_socketName = "TestServerSocket";
     }
+    TestServerConnectionThread* m_latestThread = nullptr; // Borrowed pointer to latested thread
 protected:
 
     TPtr makeThread(datatypes::AutoFd& fd) override
     {
-        return std::make_unique<TestServerConnectionThread>(fd);
+        auto t = std::make_unique<TestServerConnectionThread>(fd);
+        m_latestThread = t.get();
+        return t;
     }
 
     void logMaxConnectionsError() override

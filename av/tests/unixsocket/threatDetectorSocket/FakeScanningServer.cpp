@@ -136,14 +136,18 @@ bool TestServerConnectionThread::handleEvent(datatypes::AutoFd& socket_fd, ssize
     }
 
     // Do scan
-
     file_fd.reset();
-    return sendResponse(socket_fd, result);
+    return sendResponse(socket_fd);
 }
 
 bool TestServerConnectionThread::sendResponse(datatypes::AutoFd& socket_fd, const scan_messages::ScanResponse& response)
 {
     std::string serialised_result = response.serialise();
+    return sendResponse(socket_fd, serialised_result);
+}
+
+bool TestServerConnectionThread::sendResponse(datatypes::AutoFd& socket_fd, const std::string& serialised_result)
+{
     try
     {
         if (!writeLengthAndBuffer(socket_fd.get(), serialised_result))
@@ -158,4 +162,22 @@ bool TestServerConnectionThread::sendResponse(datatypes::AutoFd& socket_fd, cons
         return false;
     }
     return true;
+}
+
+bool TestServerConnectionThread::sendResponse(int socket_fd, size_t length, const std::string& buffer)
+{
+    writeLength(socket_fd, length);
+
+    ssize_t bytes_written = ::send(socket_fd, buffer.c_str(), buffer.size(), MSG_NOSIGNAL);
+    if (static_cast<unsigned>(bytes_written) != buffer.size())
+    {
+        LOGWARN("Failed to write buffer to unix socket");
+        return false;
+    }
+    return true;
+}
+
+bool TestServerConnectionThread::sendResponse(datatypes::AutoFd& socket_fd)
+{
+    return sendResponse(socket_fd, m_nextResponse);
 }
