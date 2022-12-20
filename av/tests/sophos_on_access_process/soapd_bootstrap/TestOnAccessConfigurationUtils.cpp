@@ -264,6 +264,8 @@ TEST_F(TestOnAccessConfigurationUtils, parseFlagConfigurationFromJsonInvalidJson
     std::string jsonString = R"(this is going to break)";
 
     EXPECT_FALSE(parseFlagConfiguration(jsonString));
+
+    EXPECT_TRUE(appenderContains("Failed to parse json configuration of flags due to parse error, reason: "));
     EXPECT_TRUE(appenderContains("Failed to parse flag configuration, keeping existing settings"));
 }
 
@@ -292,7 +294,7 @@ TEST_F(TestOnAccessConfigurationUtils, parseFlagConfigurationFromEmptyJson)
 
 // Local Settings ================================================================
 
-TEST_F(TestOnAccessConfigurationUtils, localSettingsFileDoesntExist)
+TEST_F(TestOnAccessConfigurationUtils, readLocalSettingsFileDoesntExist)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
@@ -308,7 +310,7 @@ TEST_F(TestOnAccessConfigurationUtils, localSettingsFileDoesntExist)
 }
 
 
-TEST_F(TestOnAccessConfigurationUtils, readSettingsFromEmptyFile)
+TEST_F(TestOnAccessConfigurationUtils, readLocalSettingsFromEmptyFile)
 {
     auto sysCallWrapper = std::make_shared<StrictMock<MockSystemCallWrapper>>();
     auto* filesystemMock = new StrictMock<MockFileSystem>();
@@ -323,7 +325,7 @@ TEST_F(TestOnAccessConfigurationUtils, readSettingsFromEmptyFile)
     EXPECT_EQ(result.numScanThreads, 1); // 1 CPU core
 }
 
-TEST_F(TestOnAccessConfigurationUtils, zeroCpu)
+TEST_F(TestOnAccessConfigurationUtils, readLocalSettingsZeroCpu)
 {
     auto sysCallWrapper = std::make_shared<StrictMock<MockSystemCallWrapper>>();
     auto* filesystemMock = new StrictMock<MockFileSystem>();
@@ -335,7 +337,7 @@ TEST_F(TestOnAccessConfigurationUtils, zeroCpu)
     EXPECT_EQ(result.numScanThreads, sophos_on_access_process::OnAccessConfig::defaultScanningThreads);
 }
 
-TEST_F(TestOnAccessConfigurationUtils, tenCPUCores)
+TEST_F(TestOnAccessConfigurationUtils, readLocalSettingsTenCPUCores)
 {
     auto sysCallWrapper = std::make_shared<StrictMock<MockSystemCallWrapper>>();
     auto* filesystemMock = new StrictMock<MockFileSystem>();
@@ -347,7 +349,23 @@ TEST_F(TestOnAccessConfigurationUtils, tenCPUCores)
     EXPECT_EQ(result.numScanThreads, 5);
 }
 
-TEST_F(TestOnAccessConfigurationUtils, emptyJSONLocalSettings)
+TEST_F(TestOnAccessConfigurationUtils, readLocalSettingsInvalidJsonSyntax)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    auto sysCallWrapper = std::make_shared<StrictMock<MockSystemCallWrapper>>();
+    auto* filesystemMock = new StrictMock<MockFileSystem>();
+    EXPECT_CALL(*sysCallWrapper, hardware_concurrency()).WillOnce(Return(10));
+    expectReadConfig(*filesystemMock, "this is going to break");
+
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock) };
+    sophos_on_access_process::OnAccessConfig::readLocalSettingsFile(sysCallWrapper);
+
+    EXPECT_TRUE(appenderContains("Setting from defaults: Max queue size set to 100000 and Max threads set to 5"));
+}
+
+
+TEST_F(TestOnAccessConfigurationUtils, readLocalSettingsEmptyJSON)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
@@ -367,7 +385,7 @@ TEST_F(TestOnAccessConfigurationUtils, emptyJSONLocalSettings)
     EXPECT_TRUE(appenderContains("Setting from defaults: Max queue size set to 100000 and Max threads set to 5"));
 }
 
-TEST_F(TestOnAccessConfigurationUtils, jsonOverrides)
+TEST_F(TestOnAccessConfigurationUtils, readLocalSettingsJsonOverrides)
 {
     auto sysCallWrapper = std::make_shared<StrictMock<MockSystemCallWrapper>>();
     auto* filesystemMock = new StrictMock<MockFileSystem>();
@@ -389,7 +407,7 @@ TEST_F(TestOnAccessConfigurationUtils, jsonOverrides)
     EXPECT_EQ(result.numScanThreads, 42);
 }
 
-TEST_F(TestOnAccessConfigurationUtils, minLimitQueue)
+TEST_F(TestOnAccessConfigurationUtils, readLocalSettingsMinLimitQueue)
 {
     auto sysCallWrapper = std::make_shared<StrictMock<MockSystemCallWrapper>>();
     auto* filesystemMock = new StrictMock<MockFileSystem>();
@@ -403,7 +421,7 @@ TEST_F(TestOnAccessConfigurationUtils, minLimitQueue)
     EXPECT_EQ(result.maxScanQueueSize, 1000);
 }
 
-TEST_F(TestOnAccessConfigurationUtils, maxThreadCount)
+TEST_F(TestOnAccessConfigurationUtils, readLocalSettingsMaxThreadCount)
 {
     auto sysCallWrapper = std::make_shared<StrictMock<MockSystemCallWrapper>>();
     auto* filesystemMock = new StrictMock<MockFileSystem>();
@@ -417,7 +435,7 @@ TEST_F(TestOnAccessConfigurationUtils, maxThreadCount)
     EXPECT_EQ(result.numScanThreads, 100);
 }
 
-TEST_F(TestOnAccessConfigurationUtils, hardwareConcurrencyBypassesMaxThreads)
+TEST_F(TestOnAccessConfigurationUtils, readLocalSettingsHardwareConcurrencyBypassesMaxThreads)
 {
     auto sysCallWrapper = std::make_shared<StrictMock<MockSystemCallWrapper>>();
     auto* filesystemMock = new StrictMock<MockFileSystem>();
@@ -429,7 +447,7 @@ TEST_F(TestOnAccessConfigurationUtils, hardwareConcurrencyBypassesMaxThreads)
     EXPECT_EQ(result.numScanThreads, 200);
 }
 
-TEST_F(TestOnAccessConfigurationUtils, parseLocalSettingsConfigEmptyKeepsDefaults)
+TEST_F(TestOnAccessConfigurationUtils, readLocalSettingsConfigEmptyKeepsDefaults)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
@@ -495,7 +513,7 @@ INSTANTIATE_TEST_SUITE_P(
         std::make_pair(16, 8)
             ));
 
-TEST_P(TestOnAccessConfigUtilsParameterized, parseProductConfigEmpty_numberOfCoresDeterminesNumberOfScanningThreads)
+TEST_P(TestOnAccessConfigUtilsParameterized, readLocalSettingsEmpty_numberOfCoresDeterminesNumberOfScanningThreads)
 {
     EXPECT_CALL(*m_mockIFileSystemPtr, readFile(_)).WillOnce(Return(""));
     Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
@@ -513,7 +531,7 @@ TEST_P(TestOnAccessConfigUtilsParameterized, parseProductConfigEmpty_numberOfCor
     EXPECT_FALSE(dumpPerfData);
 }
 
-TEST_F(TestOnAccessConfigurationUtils, parseProductConfigIgnoresBadvalues)
+TEST_F(TestOnAccessConfigurationUtils, readLocalSettingsIgnoresBadvalues)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
@@ -537,7 +555,7 @@ TEST_F(TestOnAccessConfigurationUtils, parseProductConfigIgnoresBadvalues)
     EXPECT_TRUE(appenderContains(logmsg.str()));
 }
 
-TEST_F(TestOnAccessConfigurationUtils, parseProductConfigSetsDefaultWhenFileDoenstExist)
+TEST_F(TestOnAccessConfigurationUtils, readLocalSettingsSetsDefaultWhenFileDoenstExist)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
@@ -558,7 +576,7 @@ TEST_F(TestOnAccessConfigurationUtils, parseProductConfigSetsDefaultWhenFileDoen
 }
 
 
-TEST_F(TestOnAccessConfigurationUtils, parseProductConfigSetsToProvidedValuesWhenFileExists)
+TEST_F(TestOnAccessConfigurationUtils, readLocalSettingsSetsToProvidedValuesWhenFileExists)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
@@ -578,7 +596,7 @@ TEST_F(TestOnAccessConfigurationUtils, parseProductConfigSetsToProvidedValuesWhe
     EXPECT_TRUE(appenderContains("Setting from file: Max queue size set to 2000 and Max threads set to 20"));
 }
 
-TEST_F(TestOnAccessConfigurationUtils, parseProductConfig_missingFields)
+TEST_F(TestOnAccessConfigurationUtils, readLocalSettings_missingFields)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
@@ -598,7 +616,7 @@ TEST_F(TestOnAccessConfigurationUtils, parseProductConfig_missingFields)
     EXPECT_TRUE(appenderContains("Setting from file: Max queue size set to 2000 and Max threads set to 20"));
 }
 
-TEST_F(TestOnAccessConfigurationUtils, parseProductConfigSetsToMaxPossibleValueWhenProvidedValuesToHigh)
+TEST_F(TestOnAccessConfigurationUtils, readLocalSettingsSetsToMaxPossibleValueWhenProvidedValuesToHigh)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
     std::stringstream returnStr;
@@ -631,7 +649,7 @@ TEST_F(TestOnAccessConfigurationUtils, parseProductConfigSetsToMaxPossibleValueW
 }
 
 
-TEST_F(TestOnAccessConfigurationUtils, parseProductConfigSetsToMinPossibleValueWhenProvidedValuesToLow)
+TEST_F(TestOnAccessConfigurationUtils, readLocalSettingsSetsToMinPossibleValueWhenProvidedValuesToLow)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
     std::stringstream returnStr;
