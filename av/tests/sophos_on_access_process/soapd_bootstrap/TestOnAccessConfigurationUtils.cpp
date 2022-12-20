@@ -265,6 +265,16 @@ TEST_F(TestOnAccessConfigurationUtils, parseFlagConfigurationFromJsonInvalidJson
     EXPECT_TRUE(appenderContains("Failed to parse flag configuration, keeping existing settings"));
 }
 
+TEST_F(TestOnAccessConfigurationUtils, parseFlagConfigurationFromEmptyJson)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    std::string jsonString = "{}";
+
+    EXPECT_FALSE(parseFlagConfiguration(jsonString));
+    EXPECT_TRUE(appenderContains("Failed to parse flag configuration, keeping existing settings"));
+}
+
 // Local Settings ================================================================
 
 TEST_F(TestOnAccessConfigurationUtils, readSettingsFromEmptyFile)
