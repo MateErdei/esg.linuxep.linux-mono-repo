@@ -617,3 +617,18 @@ On Access Doesnt Cache Close Events With Detections After Rewrite
     Dump On Access Log After Mark   ${oamark}
     Wait for on access log contains after mark  On-open event for ${testfile} from  mark=${oamark2}
     Wait for on access log contains after mark  Detected "${testfile}" is infected with EICAR-AV-Test (Open)  mark=${oamark2}
+
+On Access Handles Control Socket Exists At Startup
+    #create a socket with the same name as the soapd_controller socket
+    ${netcat_handle} =  Start Process  nc  -lkU  ${COMPONENT_VAR_DIR}/soapd_controller
+
+    Terminate On Access
+    ${mark} =  Get on access log mark
+    Start On Access
+    wait for on access log contains after mark  starting listening on socket: ${COMPONENT_VAR_DIR}/soapd_controller  mark=${mark}
+
+    ${mark} =  Get on access log mark
+    send av policy from file  CORE  ${RESOURCES_PATH}/core_policy/CORE-36_oa_disabled.xml
+    wait for on access log contains after mark  New on-access configuration: {"enabled":false  mark=${mark}
+
+    ${output} =   Terminate Process   handle=${netcat_handle}

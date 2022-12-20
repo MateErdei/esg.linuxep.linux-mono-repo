@@ -44,6 +44,27 @@ soapd handles missing threat detector socket
     wait for on access log contains after mark  OnAccessImpl <> Failed to connect to Sophos Threat Detector - retrying after sleep
     ...  mark=${oa_mark}  timeout=${5}
 
+soapd handles missing var directory
+    [Tags]  fault_injection
+    register cleanup  dump logs  /tmp/soapd.stdout  /tmp/soapd.stderr  ${ON_ACCESS_LOG_PATH}
+
+    Remove Var directory
+    ${oa_mark} =  get_on_access_log_mark
+    Start On Access without Log check
+
+    wait for on access log contains after mark  Exception caught at top-level: Unable to open lock file /opt/sophos-spl/plugins/av/var/soapd.pid because No such file or directory(2)
+        ...  mark=${oa_mark}  timeout=${5}
+
+soapd handles process control socket already exists as a directory
+    [Tags]  fault_injection
+    Create Directory    ${COMPONENT_VAR_DIR}/soapd_controller
+    Register Cleanup  Remove Directory  ${COMPONENT_VAR_DIR}/soapd_controller
+
+    ${oa_mark} =  get_on_access_log_mark
+    Start On Access without Log check
+
+    wait for on access log contains after mark   Exception caught at top-level: Failed to bind to unix socket path
+            ...  mark=${oa_mark}  timeout=${5}
 
 *** Variables ***
 
@@ -59,6 +80,14 @@ Restore Log directory
     Run Process   chmod  a+rwx
     ...  ${COMPONENT_ROOT_PATH}/log  ${COMPONENT_ROOT_PATH}/chroot/log
     Run Process   ln  -snf  ${COMPONENT_ROOT_PATH}/chroot/log  ${COMPONENT_ROOT_PATH}/log/sophos_threat_detector
+
+Remove Var directory
+    Remove Directory  ${AV_PLUGIN_PATH}/var  recursive=${True}
+    Register Cleanup  Restore Var directory
+
+Restore Var directory
+    Create Directory  ${AV_PLUGIN_PATH}/var
+    Run Process   chmod  a+rwx  ${COMPONENT_ROOT_PATH}/var
 
 On Access Test Teardown
     run teardown functions
