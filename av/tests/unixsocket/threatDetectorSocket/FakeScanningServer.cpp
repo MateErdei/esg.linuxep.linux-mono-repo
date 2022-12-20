@@ -137,13 +137,32 @@ bool TestServerConnectionThread::handleEvent(datatypes::AutoFd& socket_fd, ssize
 
     // Do scan
     file_fd.reset();
-    return sendResponse(socket_fd);
+    return sendResponse(socket_fd, result);
 }
 
 bool TestServerConnectionThread::sendResponse(datatypes::AutoFd& socket_fd, const scan_messages::ScanResponse& response)
 {
-    std::string serialised_result = response.serialise();
-    return sendResponse(socket_fd, serialised_result);
+    if (m_sendGiantResponse)
+    {
+        size_t total = 1000000000;
+        writeLength(socket_fd.get(), total);
+        std::string buffer(1000, '\0');
+        for (size_t i = 0; i < total / 1000; i++)
+        {
+            ssize_t bytes_written = ::send(socket_fd.get(), buffer.c_str(), buffer.size(), MSG_NOSIGNAL);
+            std::ignore = bytes_written;
+        }
+        return true;
+    }
+    else if (!m_nextResponse.empty())
+    {
+        return sendResponse(socket_fd, m_nextResponse);
+    }
+    else
+    {
+        std::string serialised_result = response.serialise();
+        return sendResponse(socket_fd, serialised_result);
+    }
 }
 
 bool TestServerConnectionThread::sendResponse(datatypes::AutoFd& socket_fd, const std::string& serialised_result)
@@ -175,9 +194,4 @@ bool TestServerConnectionThread::sendResponse(int socket_fd, size_t length, cons
         return false;
     }
     return true;
-}
-
-bool TestServerConnectionThread::sendResponse(datatypes::AutoFd& socket_fd)
-{
-    return sendResponse(socket_fd, m_nextResponse);
 }

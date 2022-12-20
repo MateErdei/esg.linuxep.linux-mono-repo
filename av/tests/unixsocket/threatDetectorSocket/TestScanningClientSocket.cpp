@@ -1,11 +1,16 @@
 // Copyright 2022 Sophos Limited. All rights reserved.
 
+// Product code
+#include "common/AbortScanException.h"
+#include "common/ThreadRunner.h"
+#include "unixsocket/Logger.h"
+#include "unixsocket/SocketUtils.h"
+#include "unixsocket/threatDetectorSocket/ScanningClientSocket.h"
+// Test code
 #include "FakeScanningServer.h"
 
-#include "unixsocket/threatDetectorSocket/ScanningClientSocket.h"
-#include "unixsocket/SocketUtils.h"
-
 #include "../UnixSocketMemoryAppenderUsingTests.h"
+#include "common/SaferStrerror.h"
 
 #include <gtest/gtest.h>
 
@@ -117,7 +122,8 @@ TEST_F(TestScanningClientSocket, send_scan_request_and_receive_response)
         unixsocket::ScanningClientSocket socket{ socketPath };
         int result = socket.connect();
         ASSERT_EQ(result, 0);
-        serverSocket.m_latestThread->m_nextResponse = make_response().serialise();
+        auto expected_response = make_response();
+        serverSocket.m_latestThread->m_nextResponse = expected_response.serialise();
 
         auto request = make_request(fileFd, scannedFilePath);
         bool sent = socket.sendRequest(request);
@@ -130,4 +136,162 @@ TEST_F(TestScanningClientSocket, send_scan_request_and_receive_response)
     serverSocket.tryStop();
     serverSocket.join();
 }
+
+TEST_F(TestScanningClientSocket, receive_request_instead_of_response)
+{
+    fs::path socketPath = m_testDir / "socket";
+    fs::path scannedFilePath = m_testDir / "testFile";
+
+    std::ofstream ofstr{scannedFilePath};
+    ofstr << "This is a file";
+    ofstr.close();
+
+    FakeScanningServer serverSocket{socketPath};
+    serverSocket.start();
+
+    datatypes::AutoFd fileFd{::open(scannedFilePath.c_str(), O_RDONLY)};
+    ASSERT_TRUE(fileFd.valid());
+
+    auto request = make_request(fileFd, scannedFilePath);
+
+    // Send an invalid response
+    auto requestSerialised = request->serialise();
+    serverSocket.m_nextResponse = requestSerialised;
+
+    {
+        unixsocket::ScanningClientSocket socket{ socketPath };
+        int result = socket.connect();
+        ASSERT_EQ(result, 0);
+
+        bool sent = socket.sendRequest(request);
+        ASSERT_TRUE(sent);
+        scan_messages::ScanResponse response;
+        bool received = socket.receiveResponse(response);
+        ASSERT_TRUE(received);
+        PRINT("Request as response error message: " << response.getErrorMsg());
+    }
+
+    serverSocket.tryStop();
+    serverSocket.join();
+}
+
+TEST_F(TestScanningClientSocket, send_ff_instead_of_response)
+{
+    fs::path socketPath = m_testDir / "socket";
+    fs::path scannedFilePath = m_testDir / "testFile";
+
+    std::ofstream ofstr{scannedFilePath};
+    ofstr << "This is a file";
+    ofstr.close();
+
+    auto serverSocket = std::make_shared<FakeScanningServer>(socketPath);
+    common::ThreadRunner serverSocketRunner{serverSocket, "fakeServerSocket", true};
+
+    datatypes::AutoFd fileFd{::open(scannedFilePath.c_str(), O_RDONLY)};
+    ASSERT_TRUE(fileFd.valid());
+
+    auto request = make_request(fileFd, scannedFilePath);
+
+    // Send an invalid response
+    serverSocket->m_nextResponse = "\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF";
+
+    {
+        unixsocket::ScanningClientSocket socket{ socketPath };
+        int result = socket.connect();
+        ASSERT_EQ(result, 0);
+
+        bool sent = socket.sendRequest(request);
+        ASSERT_TRUE(sent);
+        scan_messages::ScanResponse response;
+        try
+        {
+            bool received = socket.receiveResponse(response);
+            if (received)
+            {
+                FAIL() << "Able to receive response";
+            }
+        }
+        catch (const common::AbortScanException& ex)
+        {
+            // expected
+        }
+    }
+}
+
+namespace
+{
+
+    void waitForResponse(int socket)
+    {
+        struct pollfd fds[] {
+            { .fd = socket, .events = POLLIN, .revents = 0 },
+        };
+
+        while (true)
+        {
+            auto ret = ::ppoll(fds, std::size(fds), nullptr, nullptr);
+
+            if (ret < 0)
+            {
+                if (errno == EINTR)
+                {
+                    continue;
+                }
+
+                LOGERROR("Error from ppoll: " << common::safer_strerror(errno));
+                throw std::runtime_error("Error while waiting for scan response");
+            }
+            else if (ret > 0)
+            {
+                break;
+            }
+        }
+    }
+
+
+}
+
+TEST_F(TestScanningClientSocket, receive_really_long_message_instead_of_response)
+{
+    fs::path socketPath = m_testDir / "socket";
+    fs::path scannedFilePath = m_testDir / "testFile";
+
+    std::ofstream ofstr{scannedFilePath};
+    ofstr << "This is a file";
+    ofstr.close();
+
+    auto serverSocket = std::make_shared<FakeScanningServer>(socketPath);
+    common::ThreadRunner serverSocketRunner{serverSocket, "fakeServerSocket", true};
+
+    datatypes::AutoFd fileFd{::open(scannedFilePath.c_str(), O_RDONLY)};
+    ASSERT_TRUE(fileFd.valid());
+
+    auto request = make_request(fileFd, scannedFilePath);
+
+    // Send a giant response
+    serverSocket->m_sendGiantResponse = true;
+
+    {
+        unixsocket::ScanningClientSocket socket{ socketPath };
+        int result = socket.connect();
+        ASSERT_EQ(result, 0);
+
+        bool sent = socket.sendRequest(request);
+        ASSERT_TRUE(sent);
+        waitForResponse(socket.socketFd());
+
+        scan_messages::ScanResponse response;
+        bool received = socket.receiveResponse(response);
+        if (received)
+        {
+            FAIL() << "Able to receive response";
+        }
+        else
+        {
+            PRINT("receiveResponse => false"); // message too long
+        }
+    }
+}
+
+
 

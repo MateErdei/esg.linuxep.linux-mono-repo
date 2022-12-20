@@ -23,10 +23,10 @@ public:
         setIsRunning(false);
     }
     std::string m_nextResponse;
+    bool m_sendGiantResponse;
 private:
     void inner_run();
     bool handleEvent(datatypes::AutoFd& socket_fd, ssize_t length);
-    bool sendResponse(datatypes::AutoFd& socket_fd);
     bool sendResponse(datatypes::AutoFd& socket_fd, const scan_messages::ScanResponse& response);
     bool sendResponse(datatypes::AutoFd& socket_fd, const std::string& response);
     bool sendResponse(int socket_fd, size_t length, const std::string& buffer);
@@ -40,13 +40,17 @@ public:
     {
         m_socketName = "TestServerSocket";
     }
+    std::string m_nextResponse;
     TestServerConnectionThread* m_latestThread = nullptr; // Borrowed pointer to latested thread
+    bool m_sendGiantResponse = false;
 protected:
 
     TPtr makeThread(datatypes::AutoFd& fd) override
     {
         auto t = std::make_unique<TestServerConnectionThread>(fd);
         m_latestThread = t.get();
+        t->m_nextResponse = m_nextResponse;
+        t->m_sendGiantResponse = m_sendGiantResponse;
         return t;
     }
 

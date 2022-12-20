@@ -7,7 +7,7 @@
 
 namespace unixsocket
 {
-    ssize_t readLength(int socket_fd);
+    ssize_t readLength(int socket_fd, ssize_t maxSize=128*1024);
     void writeLength(int socket_fd, size_t length);
     bool writeLengthAndBuffer(int socket_fd, const std::string& buffer);
     int recv_fd(int socket);

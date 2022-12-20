@@ -1,4 +1,4 @@
-//Copyright 2020-2022, Sophos Limited.  All rights reserved.
+// Copyright 2020-2022 Sophos Limited. All rights reserved.
 
 #include "ScanningClientSocket.h"
 
@@ -84,7 +84,7 @@ namespace unixsocket
 
             response = scan_messages::ScanResponse(responseReader);
         }
-        catch (kj::Exception& ex)
+        catch (const kj::Exception& ex)
         {
             if (ex.getType() == kj::Exception::Type::UNIMPLEMENTED)
             {
@@ -101,6 +101,13 @@ namespace unixsocket
 
             std::stringstream errorMsg;
             errorMsg << "Malformed response from Sophos Threat Detector (" << ex.getDescription().cStr() << ")";
+            throw common::AbortScanException(errorMsg.str());
+        }
+        catch (const std::exception& ex)
+        {
+            LOGFATAL("Caught non-kj::Exception attempting to parse ScanResponse: " << ex.what());
+            std::stringstream errorMsg;
+            errorMsg << "Malformed response from Sophos Threat Detector (" << ex.what() << ")";
             throw common::AbortScanException(errorMsg.str());
         }
 

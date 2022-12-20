@@ -51,7 +51,7 @@ bool unixsocket::writeLengthAndBuffer(int socket_fd, const std::string& buffer)
     return true;
 }
 
-ssize_t unixsocket::readLength(int socket_fd)
+ssize_t unixsocket::readLength(int socket_fd, ssize_t maxSize)
 {
     int32_t total = 0;
     uint8_t byte = 0; // For some reason clang-tidy thinks this is signed
@@ -67,7 +67,7 @@ ssize_t unixsocket::readLength(int socket_fd)
                 return total;
             }
             total = total * 128 + (byte ^ TOP_BIT);
-            if (total > 128 * 1024)
+            if (total > maxSize)
             {
                 return -1;
             }
