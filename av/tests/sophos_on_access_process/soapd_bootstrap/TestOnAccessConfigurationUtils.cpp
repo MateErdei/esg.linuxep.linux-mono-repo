@@ -40,6 +40,7 @@ namespace
 
             m_oaPolicyConfigPath = m_testDir / "var/on_access_policy.json";
             m_oaLocalSettingsPath = m_testDir / "var/on_access_local_settings.json";
+            m_oaFlagsPath = m_testDir / "var/oa_flag.json";
             m_mockIFileSystemPtr = std::make_unique<StrictMock<MockFileSystem>>();
             m_defaultTestExclusions.emplace_back("/mnt/");
             m_defaultTestExclusions.emplace_back("/uk-filer5/");
@@ -74,6 +75,7 @@ namespace
         OnAccessConfiguration m_testConfig{};
         std::string m_oaPolicyConfigPath;
         std::string m_oaLocalSettingsPath;
+        std::string m_oaFlagsPath;
         std::unique_ptr<StrictMock<MockFileSystem>> m_mockIFileSystemPtr;
         std::vector<common::Exclusion> m_defaultTestExclusions;
         std::shared_ptr<datatypes::SystemCallWrapper> m_sysCallWrapper;
@@ -265,6 +267,19 @@ TEST_F(TestOnAccessConfigurationUtils, parseFlagConfigurationFromJsonInvalidJson
     EXPECT_TRUE(appenderContains("Failed to parse flag configuration, keeping existing settings"));
 }
 
+TEST_F(TestOnAccessConfigurationUtils, parseFlagConfigurationThrows)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    EXPECT_CALL(*m_mockIFileSystemPtr, readFile(m_oaFlagsPath)).WillOnce(
+        Throw(Common::FileSystem::IFileSystemException("Error, Failed to read file: pretend/file.txt, file does not exist")));
+
+    Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
+
+    EXPECT_EQ(readFlagConfigFile(), "");
+    EXPECT_TRUE(appenderContains("Failed to read flag configuration, keeping existing configuration"));
+}
+
 TEST_F(TestOnAccessConfigurationUtils, parseFlagConfigurationFromEmptyJson)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
@@ -276,6 +291,22 @@ TEST_F(TestOnAccessConfigurationUtils, parseFlagConfigurationFromEmptyJson)
 }
 
 // Local Settings ================================================================
+
+TEST_F(TestOnAccessConfigurationUtils, localSettingsFileDoesntExist)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    auto sysCallWrapper = std::make_shared<StrictMock<MockSystemCallWrapper>>();
+    EXPECT_CALL(*sysCallWrapper, hardware_concurrency()).WillOnce(Return(1));
+
+    EXPECT_CALL(*m_mockIFileSystemPtr, readFile(m_oaLocalSettingsPath)).WillOnce(
+        Throw(Common::FileSystem::IFileSystemException("Error, Failed to read file: pretend/file.txt, file does not exist")));
+
+    Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
+    sophos_on_access_process::OnAccessConfig::readLocalSettingsFile(sysCallWrapper);
+    EXPECT_TRUE(appenderContains("Setting from defaults: Max queue size set to 100000 and Max threads set to 1"));
+}
+
 
 TEST_F(TestOnAccessConfigurationUtils, readSettingsFromEmptyFile)
 {
@@ -398,7 +429,7 @@ TEST_F(TestOnAccessConfigurationUtils, hardwareConcurrencyBypassesMaxThreads)
     EXPECT_EQ(result.numScanThreads, 200);
 }
 
-TEST_F(TestOnAccessConfigurationUtils, parseProductConfigEmptyKeepsDefaults)
+TEST_F(TestOnAccessConfigurationUtils, parseLocalSettingsConfigEmptyKeepsDefaults)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
