@@ -18,6 +18,12 @@ using json = nlohmann::json;
 
 namespace
 {
+
+    std::string booleanToString(bool value)
+    {
+        return value ? "true" : "false";
+    }
+
     bool toBoolean(const json::value_type& value)
     {
         if (value.is_boolean())
@@ -39,13 +45,18 @@ namespace
     {
         try
         {
-            return toBoolean(parsedConfig.at(key));
+            auto res = toBoolean(parsedConfig.at(key));
+            LOGDEBUG("Setting " << key << " from default " << booleanToString(res));
+            return res;
         }
         catch (const json::out_of_range&)
         {
+            LOGDEBUG("Setting " << key << " from default " << booleanToString(defaultValue));
             return defaultValue;
         }
     }
+
+
 
     template<typename T>
     T toLimitedInteger(const json& parsedConfigJson,
@@ -60,6 +71,9 @@ namespace
         assert(minValue <= defaultValue);
 
         auto value = parsedConfigJson.value(key, defaultValue);
+
+        std::string source = value == defaultValue ? " from file: " : " from default: ";
+        LOGDEBUG("Setting " << name << source << value);
 
         if (value > maxValue)
         {
@@ -117,27 +131,26 @@ namespace sophos_on_access_process::OnAccessConfig
             assert(hardwareConcurrency < std::numeric_limits<int>::max());
             // Add 1 so that the result is rounded up and never less than 1
             int numScanThreads = (static_cast<int>(hardwareConcurrency) + 1) / 2;
-            LOGDEBUG("Setting from Hardware Concurrency: Number of scanning threads set to " << numScanThreads);
+            LOGDEBUG("Setting number of scanning threads from Hardware Concurrency: " << numScanThreads);
             assert(numScanThreads > 0);
             settings.numScanThreads = numScanThreads;
         }
         else
         {
-            LOGDEBUG("Could not determine hardware concurrency. Number of scanning threads defaulting to " << settings.numScanThreads);
+            LOGDEBUG("Could not determine hardware concurrency using default of " << settings.numScanThreads);
         }
-
 
         auto* sophosFsAPI = Common::FileSystem::fileSystem();
         auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
         fs::path pluginInstall = appConfig.getData("PLUGIN_INSTALL");
         auto productConfigPath = pluginInstall / "var/on_access_local_settings.json";
 
-        bool usedFileValues = false;
+        bool noLocalSettingsFile = false;
 
         try
         {
             std::string configJson = sophosFsAPI->readFile(productConfigPath.string());
-            //If the configJson is empty or the content is empty we load from defaults
+
             if (!configJson.empty())
             {
                 try
@@ -167,22 +180,38 @@ namespace sophos_on_access_process::OnAccessConfig
                             minAllowedScanningThreads,
                             maxAllowedScanningThreads
                         );
-
-                        usedFileValues = true;
+                    }
+                    else
+                    {
+                        noLocalSettingsFile = true;
                     }
                 }
                 catch (const std::exception& e)
                 {
                     LOGWARN("Failed to read product config file info: " << e.what());
+                    noLocalSettingsFile = true;
                 }
+            }
+            else
+            {
+                noLocalSettingsFile = true;
             }
         }
         catch (const Common::FileSystem::IFileSystemException& ex)
         {
+            noLocalSettingsFile = true;
         }
-        std::string logmsg = usedFileValues ? "Setting from file: " : "Setting from defaults: ";
 
-        LOGDEBUG(logmsg << "Max queue size set to " << settings.maxScanQueueSize << " and Max threads set to " << settings.numScanThreads);
+        if (noLocalSettingsFile)
+        {
+            LOGDEBUG("Local settings not modified, using defaults: " <<
+                     "Queue Size: " << settings.maxScanQueueSize <<
+                     ", Max threads: " << settings.numScanThreads <<
+                     ", Perf dump: " << booleanToString(settings.dumpPerfData) <<
+                     ", Cache all events: " << booleanToString(settings.cacheAllEvents) <<
+                     ", Uncache detections: " << booleanToString(settings.uncacheDetections));
+        }
+
         return settings;
     }
 

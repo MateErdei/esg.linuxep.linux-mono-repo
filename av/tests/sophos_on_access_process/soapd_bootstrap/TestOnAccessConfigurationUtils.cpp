@@ -44,6 +44,7 @@ namespace
             m_mockIFileSystemPtr = std::make_unique<StrictMock<MockFileSystem>>();
             m_defaultTestExclusions.emplace_back("/mnt/");
             m_defaultTestExclusions.emplace_back("/uk-filer5/");
+            m_localSettingsNotUsedMessage = "Local settings not modified, using defaults: Queue Size: 100000, Max threads: 5, Perf dump: false, Cache all events: false, Uncache detections: true";
 
             m_sysCallWrapper = std::make_shared<datatypes::SystemCallWrapper>();
             m_mockSysCallWrapper = std::make_shared<NiceMock<MockSystemCallWrapper>>();
@@ -76,6 +77,7 @@ namespace
         std::string m_oaPolicyConfigPath;
         std::string m_oaLocalSettingsPath;
         std::string m_oaFlagsPath;
+        std::string m_localSettingsNotUsedMessage;
         std::unique_ptr<StrictMock<MockFileSystem>> m_mockIFileSystemPtr;
         std::vector<common::Exclusion> m_defaultTestExclusions;
         std::shared_ptr<datatypes::SystemCallWrapper> m_sysCallWrapper;
@@ -298,16 +300,13 @@ TEST_F(TestOnAccessConfigurationUtils, readLocalSettingsFileDoesntExist)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    EXPECT_CALL(*m_mockSysCallWrapper, hardware_concurrency()).WillOnce(Return(1));
-
     EXPECT_CALL(*m_mockIFileSystemPtr, readFile(m_oaLocalSettingsPath)).WillOnce(
         Throw(Common::FileSystem::IFileSystemException("Error, Failed to read file: pretend/file.txt, file does not exist")));
 
     Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
     sophos_on_access_process::OnAccessConfig::readLocalSettingsFile(m_mockSysCallWrapper);
-    EXPECT_TRUE(appenderContains("Setting from defaults: Max queue size set to 100000 and Max threads set to 1"));
+    EXPECT_TRUE(appenderContains(m_localSettingsNotUsedMessage));
 }
-
 
 TEST_F(TestOnAccessConfigurationUtils, readLocalSettingsFromEmptyFile)
 {
@@ -331,29 +330,22 @@ TEST_F(TestOnAccessConfigurationUtils, readLocalSettingsLogsWhenSettingFromHardw
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(m_mockIFileSystemPtr) };
     sophos_on_access_process::OnAccessConfig::readLocalSettingsFile(m_mockSysCallWrapper);
 
-    EXPECT_TRUE(appenderContains("Setting from Hardware Concurrency: Number of scanning threads set to 5"));
+    EXPECT_TRUE(appenderContains("Setting number of scanning threads from Hardware Concurrency: 5"));
 }
 
-
-TEST_F(TestOnAccessConfigurationUtils, readLocalSettingsZeroCpu)
+TEST_F(TestOnAccessConfigurationUtils, readLocalSettingsLogsWhenCantSetFromHardwareConcurrency)
 {
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    expectReadConfig(*m_mockIFileSystemPtr, "");
     EXPECT_CALL(*m_mockSysCallWrapper, hardware_concurrency()).WillOnce(Return(0));
-    expectReadConfig(*m_mockIFileSystemPtr, "");
 
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(m_mockIFileSystemPtr) };
-    auto result = sophos_on_access_process::OnAccessConfig::readLocalSettingsFile(m_mockSysCallWrapper);
-    EXPECT_EQ(result.numScanThreads, sophos_on_access_process::OnAccessConfig::defaultScanningThreads);
+    sophos_on_access_process::OnAccessConfig::readLocalSettingsFile(m_mockSysCallWrapper);
+
+    EXPECT_TRUE(appenderContains("Could not determine hardware concurrency using default of 10"));
 }
 
-TEST_F(TestOnAccessConfigurationUtils, readLocalSettingsTenCPUCores)
-{
-    EXPECT_CALL(*m_mockSysCallWrapper, hardware_concurrency()).WillOnce(Return(10));
-    expectReadConfig(*m_mockIFileSystemPtr, "");
-
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(m_mockIFileSystemPtr) };
-    auto result = sophos_on_access_process::OnAccessConfig::readLocalSettingsFile(m_mockSysCallWrapper);
-    EXPECT_EQ(result.numScanThreads, 5);
-}
 
 TEST_F(TestOnAccessConfigurationUtils, readLocalSettingsInvalidJsonSyntax)
 {
@@ -362,11 +354,18 @@ TEST_F(TestOnAccessConfigurationUtils, readLocalSettingsInvalidJsonSyntax)
     expectReadConfig(*m_mockIFileSystemPtr, "this is going to break");
 
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(m_mockIFileSystemPtr) };
-    sophos_on_access_process::OnAccessConfig::readLocalSettingsFile(m_mockSysCallWrapper);
 
-    EXPECT_TRUE(appenderContains("Setting from defaults: Max queue size set to 100000 and Max threads set to 5"));
+    auto result = sophos_on_access_process::OnAccessConfig::readLocalSettingsFile(m_mockSysCallWrapper);
+    EXPECT_EQ(result.maxScanQueueSize, sophos_on_access_process::OnAccessConfig::defaultMaxScanQueueSize);
+    EXPECT_EQ(result.dumpPerfData, sophos_on_access_process::OnAccessConfig::defaultDumpPerfData);
+    EXPECT_EQ(result.cacheAllEvents, sophos_on_access_process::OnAccessConfig::defaultCacheAllEvents);
+    EXPECT_EQ(result.uncacheDetections, sophos_on_access_process::OnAccessConfig::defaultUncacheDetections);
+    EXPECT_EQ(result.numScanThreads, 5);
+
+    EXPECT_TRUE(appenderContains("Setting number of scanning threads from Hardware Concurrency: 5"));
+    EXPECT_TRUE(appenderContains("Failed to read product config file info: "));
+    EXPECT_TRUE(appenderContains(m_localSettingsNotUsedMessage));
 }
-
 
 TEST_F(TestOnAccessConfigurationUtils, readLocalSettingsEmptyJSON)
 {
@@ -382,7 +381,8 @@ TEST_F(TestOnAccessConfigurationUtils, readLocalSettingsEmptyJSON)
     EXPECT_EQ(result.uncacheDetections, sophos_on_access_process::OnAccessConfig::defaultUncacheDetections);
     EXPECT_EQ(result.numScanThreads, 5);
 
-    EXPECT_TRUE(appenderContains("Setting from defaults: Max queue size set to 100000 and Max threads set to 5"));
+    EXPECT_TRUE(appenderContains("Setting number of scanning threads from Hardware Concurrency: 5"));
+    EXPECT_TRUE(appenderContains(m_localSettingsNotUsedMessage));
 }
 
 TEST_F(TestOnAccessConfigurationUtils, readLocalSettingsJsonOverrides)
@@ -426,6 +426,26 @@ TEST_F(TestOnAccessConfigurationUtils, readLocalSettingsMaxThreadCount)
     EXPECT_EQ(result.numScanThreads, 100);
 }
 
+TEST_F(TestOnAccessConfigurationUtils, readLocalSettingsZeroCpu)
+{
+    EXPECT_CALL(*m_mockSysCallWrapper, hardware_concurrency()).WillOnce(Return(0));
+    expectReadConfig(*m_mockIFileSystemPtr, "");
+
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(m_mockIFileSystemPtr) };
+    auto result = sophos_on_access_process::OnAccessConfig::readLocalSettingsFile(m_mockSysCallWrapper);
+    EXPECT_EQ(result.numScanThreads, sophos_on_access_process::OnAccessConfig::defaultScanningThreads);
+}
+
+TEST_F(TestOnAccessConfigurationUtils, readLocalSettingsTenCPUCores)
+{
+    EXPECT_CALL(*m_mockSysCallWrapper, hardware_concurrency()).WillOnce(Return(10));
+    expectReadConfig(*m_mockIFileSystemPtr, "");
+
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(m_mockIFileSystemPtr) };
+    auto result = sophos_on_access_process::OnAccessConfig::readLocalSettingsFile(m_mockSysCallWrapper);
+    EXPECT_EQ(result.numScanThreads, 5);
+}
+
 TEST_F(TestOnAccessConfigurationUtils, readLocalSettingsHardwareConcurrencyBypassesMaxThreads)
 {
     EXPECT_CALL(*m_mockSysCallWrapper, hardware_concurrency()).WillOnce(Return(400));
@@ -436,6 +456,23 @@ TEST_F(TestOnAccessConfigurationUtils, readLocalSettingsHardwareConcurrencyBypas
     EXPECT_EQ(result.numScanThreads, 200);
 }
 
+TEST_F(TestOnAccessConfigurationUtils, readLocalSettingsHardwareConcurrencySetsThreads)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    EXPECT_CALL(*m_mockIFileSystemPtr, readFile(m_oaLocalSettingsPath)).WillOnce(Return(""));
+    Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
+
+    auto res = readLocalSettingsFile();
+
+    auto numScanThreads = (std::thread::hardware_concurrency() + 1) / 2;
+
+    EXPECT_EQ(res.numScanThreads, numScanThreads);
+    std::stringstream expectedMsg;
+    expectedMsg << "Setting number of scanning threads from Hardware Concurrency: " << numScanThreads;
+    EXPECT_TRUE(appenderContains(expectedMsg.str()));
+}
+
 TEST_F(TestOnAccessConfigurationUtils, readLocalSettingsConfigEmptyKeepsDefaults)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
@@ -443,20 +480,15 @@ TEST_F(TestOnAccessConfigurationUtils, readLocalSettingsConfigEmptyKeepsDefaults
     EXPECT_CALL(*m_mockIFileSystemPtr, readFile(m_oaLocalSettingsPath)).WillOnce(Return(""));
     Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
 
-    size_t maxScanQueueItems = 0;
-    int numThreads = 0;
-    bool dumpPerfData = true;
+    auto result = sophos_on_access_process::OnAccessConfig::readLocalSettingsFile(m_mockSysCallWrapper);
 
-    readLocalSettingsFile(maxScanQueueItems, numThreads, dumpPerfData);
+    EXPECT_EQ(result.maxScanQueueSize, defaultMaxScanQueueSize);
+    EXPECT_EQ(result.numScanThreads, defaultScanningThreads);
+    EXPECT_FALSE(result.dumpPerfData);
+    EXPECT_FALSE(result.cacheAllEvents);
+    EXPECT_TRUE(result.uncacheDetections);
 
-    auto numScanThreads = (std::thread::hardware_concurrency() + 1) / 2;
-    EXPECT_EQ(maxScanQueueItems, defaultMaxScanQueueSize);
-    EXPECT_EQ(numThreads, numScanThreads);
-    EXPECT_FALSE(dumpPerfData);
-
-    std::stringstream logmsg;
-    logmsg << "Setting from defaults: Max queue size set to " << defaultMaxScanQueueSize << " and Max threads set to " << numScanThreads;
-    EXPECT_TRUE(appenderContains(logmsg.str()));
+    EXPECT_TRUE(appenderContains(m_localSettingsNotUsedMessage));
 }
 
 namespace
@@ -524,24 +556,26 @@ TEST_F(TestOnAccessConfigurationUtils, readLocalSettingsIgnoresBadvalues)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    EXPECT_CALL(*m_mockIFileSystemPtr, readFile(m_oaLocalSettingsPath)).WillOnce(Return(R"({"numThreads": "ha", "maxscanqueuesize": "ha", "dumpPerfData": "ha"})"));
+    expectReadConfig(*m_mockIFileSystemPtr, R"({
+        "dumpPerfData" : "ha",
+        "cacheAllEvents" : true,
+        "uncacheDetections" : false,
+        "maxscanqueuesize" : "ha",
+        "numThreads" : "ha"
+    })");
+
     Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
 
-    size_t maxScanQueueItems = 0;
-    int numThreads = 0;
-    bool dumpPerfData = true;
+    auto result = sophos_on_access_process::OnAccessConfig::readLocalSettingsFile(m_mockSysCallWrapper);
 
-    readLocalSettingsFile(maxScanQueueItems, numThreads, dumpPerfData);
-
-    auto numScanThreads = (std::thread::hardware_concurrency() + 1) / 2;
-    EXPECT_EQ(maxScanQueueItems, defaultMaxScanQueueSize);
-    EXPECT_EQ(numThreads, numScanThreads);
-    EXPECT_FALSE(dumpPerfData);
+    EXPECT_EQ(result.maxScanQueueSize, defaultMaxScanQueueSize);
+    EXPECT_EQ(result.numScanThreads, defaultScanningThreads);
+    EXPECT_EQ(result.dumpPerfData, defaultDumpPerfData);
+    EXPECT_TRUE(result.cacheAllEvents);
+    EXPECT_FALSE(result.uncacheDetections);
 
     EXPECT_TRUE(appenderContains("Failed to read product config file info: [json.exception.type_error.302] type must be number, but is string"));
-    std::stringstream logmsg;
-    logmsg << "Setting from defaults: Max queue size set to " << defaultMaxScanQueueSize << " and Max threads set to " << numScanThreads;
-    EXPECT_TRUE(appenderContains(logmsg.str()));
+    EXPECT_TRUE(appenderContains(m_localSettingsNotUsedMessage));
 }
 
 TEST_F(TestOnAccessConfigurationUtils, readLocalSettingsSetsDefaultWhenFileDoenstExist)
@@ -559,9 +593,7 @@ TEST_F(TestOnAccessConfigurationUtils, readLocalSettingsSetsDefaultWhenFileDoens
     EXPECT_EQ(numThreads, numScanThreads);
     EXPECT_FALSE(dumpPerfData);
 
-    std::stringstream logmsg;
-    logmsg << "Setting from defaults: Max queue size set to " << defaultMaxScanQueueSize << " and Max threads set to " << numScanThreads;
-    EXPECT_TRUE(appenderContains(logmsg.str()));
+    EXPECT_TRUE(appenderContains(m_localSettingsNotUsedMessage));
 }
 
 
