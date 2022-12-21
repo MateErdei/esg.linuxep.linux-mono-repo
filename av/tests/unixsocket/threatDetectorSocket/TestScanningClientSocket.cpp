@@ -112,29 +112,26 @@ TEST_F(TestScanningClientSocket, send_scan_request_and_receive_response)
     ofstr << "This is a file";
     ofstr.close();
 
-    FakeScanningServer serverSocket{socketPath};
-    serverSocket.start();
+    auto serverSocket = std::make_shared<FakeScanningServer>(socketPath);
+    auto expected_response = make_response();
+    serverSocket->m_nextResponse = expected_response.serialise();
+    common::ThreadRunner serverSocketRunner{serverSocket, "fakeServerSocket", true};
 
     datatypes::AutoFd fileFd{::open(scannedFilePath.c_str(), O_RDONLY)};
     ASSERT_TRUE(fileFd.valid());
 
+    auto request = make_request(fileFd, scannedFilePath);
+
     {
         unixsocket::ScanningClientSocket socket{ socketPath };
         int result = socket.connect();
-        ASSERT_EQ(result, 0);
-        auto expected_response = make_response();
-        serverSocket.m_latestThread->m_nextResponse = expected_response.serialise();
-
-        auto request = make_request(fileFd, scannedFilePath);
+        ASSERT_EQ(result, 0);;
         bool sent = socket.sendRequest(request);
         ASSERT_TRUE(sent);
         scan_messages::ScanResponse response;
         bool received = socket.receiveResponse(response);
         ASSERT_TRUE(received);
     }
-
-    serverSocket.tryStop();
-    serverSocket.join();
 }
 
 TEST_F(TestScanningClientSocket, receive_request_instead_of_response)
@@ -146,8 +143,8 @@ TEST_F(TestScanningClientSocket, receive_request_instead_of_response)
     ofstr << "This is a file";
     ofstr.close();
 
-    FakeScanningServer serverSocket{socketPath};
-    serverSocket.start();
+    auto serverSocket = std::make_shared<FakeScanningServer>(socketPath);
+    common::ThreadRunner serverSocketRunner{serverSocket, "fakeServerSocket", true};
 
     datatypes::AutoFd fileFd{::open(scannedFilePath.c_str(), O_RDONLY)};
     ASSERT_TRUE(fileFd.valid());
@@ -156,7 +153,7 @@ TEST_F(TestScanningClientSocket, receive_request_instead_of_response)
 
     // Send an invalid response
     auto requestSerialised = request->serialise();
-    serverSocket.m_nextResponse = requestSerialised;
+    serverSocket->m_nextResponse = requestSerialised;
 
     {
         unixsocket::ScanningClientSocket socket{ socketPath };
@@ -170,9 +167,6 @@ TEST_F(TestScanningClientSocket, receive_request_instead_of_response)
         ASSERT_TRUE(received);
         PRINT("Request as response error message: " << response.getErrorMsg());
     }
-
-    serverSocket.tryStop();
-    serverSocket.join();
 }
 
 TEST_F(TestScanningClientSocket, send_ff_instead_of_response)
