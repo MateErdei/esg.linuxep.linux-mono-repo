@@ -38,38 +38,47 @@ namespace
 TEST_F(TestSafeStoreRescanSocket, testSendRescanRequestOnce)
 {
     auto quarantineManager = std::make_shared<MockIQuarantineManager>();
-    EXPECT_CALL(*quarantineManager, rescanDatabase()).Times(1);
+    WaitForEvent rescanEvent;
+    EXPECT_CALL(*quarantineManager, rescanDatabase()).WillOnce(triggerEvent(&rescanEvent));
     unixsocket::SafeStoreRescanServerSocket server(m_socketPath, quarantineManager);
     server.start();
 
     // connect after we start
-    unixsocket::SafeStoreRescanClient client(m_socketPath);
-    client.sendRescanRequest();
+    {
+        unixsocket::SafeStoreRescanClient client(m_socketPath);
+        client.sendRescanRequest();
+    }
 
-    sleep(1);
+    rescanEvent.waitDefault();
     // destructor will stop the thread
 }
 
 TEST_F(TestSafeStoreRescanSocket, testSendRescanRequestTwice)
 {
     auto quarantineManager = std::make_shared<MockIQuarantineManager>();
-    EXPECT_CALL(*quarantineManager, rescanDatabase()).Times(2);
+    WaitForEvent rescanEvent;
+    EXPECT_CALL(*quarantineManager, rescanDatabase()).Times(2)
+        .WillOnce(Return())
+        .WillOnce(triggerEvent(&rescanEvent));
     unixsocket::SafeStoreRescanServerSocket server(m_socketPath, quarantineManager);
     server.start();
 
     // connect after we start
-    unixsocket::SafeStoreRescanClient client(m_socketPath);
-    client.sendRescanRequest();
-    client.sendRescanRequest();
+    {
+        unixsocket::SafeStoreRescanClient client(m_socketPath);
+        client.sendRescanRequest();
+        client.sendRescanRequest();
+    }
 
-    sleep(1);
+    rescanEvent.waitDefault();
     // destructor will stop the thread
 }
 
 TEST_F(TestSafeStoreRescanSocket, testClientSocketTriesToReconnect)
 {
+    using namespace std::chrono_literals;
     UsingMemoryAppender memoryAppenderHolder(*this);
-    unixsocket::SafeStoreRescanClient client(m_socketPath);
+    unixsocket::SafeStoreRescanClient client(m_socketPath, 1ns);
     client.sendRescanRequest();
 
     EXPECT_TRUE(appenderContains("Failed to connect to SafeStore Rescan - retrying after sleep", 9));
