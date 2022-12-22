@@ -136,6 +136,26 @@ TEST_F(TestOnAccessConfigurationUtils, parseOnAccessPolicySettingsFromJson)
     EXPECT_NE(m_testConfig, expectedResult);
 }
 
+TEST_F(TestOnAccessConfigurationUtils, parseOnAccessPolicySettingsFromJsonDuplicates)
+{
+    std::string jsonString = R"({
+        "enabled":"true",
+        "excludeRemoteFiles":"false",
+        "enabled":"false",
+        "excludeRemoteFiles":"true",
+        "exclusions":["/tmp/","/uk-filer6/"],
+        "exclusions":["/mnt/","/uk-filer5/"]
+        })";
+
+    OnAccessConfiguration expectedResult;
+    expectedResult.enabled = false;
+    expectedResult.excludeRemoteFiles = true;
+    expectedResult.exclusions = m_defaultTestExclusions;
+
+    ASSERT_EQ(parseOnAccessPolicySettingsFromJson(jsonString, m_testConfig), true);
+    EXPECT_EQ(m_testConfig, expectedResult);
+}
+
 TEST_F(TestOnAccessConfigurationUtils, parseOnAccessPolicySettingsFromJson_missingExcludeRemote)
 {
     std::string jsonString = R"({"enabled":"true","exclusions":["/mnt/","/uk-filer5/"]})";
@@ -252,6 +272,15 @@ TEST_F(TestOnAccessConfigurationUtils, parseFlagConfiguration)
     EXPECT_FALSE(parseFlagConfiguration(jsonString));
 
     jsonString = R"({"oa_enabled":true})";
+    EXPECT_TRUE(parseFlagConfiguration(jsonString));
+}
+
+TEST_F(TestOnAccessConfigurationUtils, parseFlagConfigurationDuplicates)
+{
+    std::string jsonString = R"({"oa_enabled":true,"oa_enabled":false})";
+    EXPECT_FALSE(parseFlagConfiguration(jsonString));
+
+    jsonString = R"({"oa_enabled":false,"oa_enabled":true})";
     EXPECT_TRUE(parseFlagConfiguration(jsonString));
 }
 
@@ -535,6 +564,36 @@ TEST_F(TestOnAccessConfigurationUtils, readLocalSettingsSetsToProvidedValuesWhen
     EXPECT_EQ(result.dumpPerfData, true);
     EXPECT_EQ(result.cacheAllEvents, true);
     EXPECT_EQ(result.uncacheDetections, false);
+    EXPECT_EQ(result.numScanThreads, 20);
+
+    EXPECT_FALSE(appenderContains("Some or all local settings weren't set from file:"));
+}
+
+TEST_F(TestOnAccessConfigurationUtils, readLocalSettingsSetsToProvidedValuesWhenFileExistsDuplicateEntries)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    expectReadConfig(*m_mockIFileSystemPtr, R"({
+        "dumpPerfData" : true,
+        "dumpPerfData" : false,
+        "cacheAllEvents" : true,
+        "cacheAllEvents" : false,
+        "uncacheDetections" : false,
+        "numThreads" : 40,
+        "uncacheDetections" : true,
+        "maxscanqueuesize" : 2000,
+        "numThreads" : 20,
+        "maxscanqueuesize" : 4000
+    })");
+
+    Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
+
+    auto result = readLocalSettingsFile(m_sysCallWrapper);
+
+    EXPECT_EQ(result.maxScanQueueSize, 4000);
+    EXPECT_EQ(result.dumpPerfData, false);
+    EXPECT_EQ(result.cacheAllEvents, false);
+    EXPECT_EQ(result.uncacheDetections, true);
     EXPECT_EQ(result.numScanThreads, 20);
 
     EXPECT_FALSE(appenderContains("Some or all local settings weren't set from file:"));
