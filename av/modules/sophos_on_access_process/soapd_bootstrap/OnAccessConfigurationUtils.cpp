@@ -46,12 +46,12 @@ namespace
         try
         {
             auto res = toBoolean(parsedConfig.at(key));
-            LOGDEBUG("Setting " << key << " from default " << booleanToString(res));
+            LOGDEBUG("Setting " << key << " from file: " << booleanToString(res));
             return res;
         }
         catch (const json::out_of_range&)
         {
-            LOGDEBUG("Setting " << key << " from default " << booleanToString(defaultValue));
+            LOGDEBUG("Setting " << key << " from default: " << booleanToString(defaultValue));
             return defaultValue;
         }
     }
@@ -72,7 +72,7 @@ namespace
 
         auto value = parsedConfigJson.value(key, defaultValue);
 
-        std::string source = value == defaultValue ? " from file: " : " from default: ";
+        std::string source = value == defaultValue ? " from default: " : " from file: ";
         LOGDEBUG("Setting " << name << source << value);
 
         if (value > maxValue)
@@ -204,7 +204,7 @@ namespace sophos_on_access_process::OnAccessConfig
 
         if (noLocalSettingsFile)
         {
-            LOGDEBUG("Local settings not modified, using defaults: " <<
+            LOGDEBUG("Some or all local settings weren't set from file: " <<
                      "Queue Size: " << settings.maxScanQueueSize <<
                      ", Max threads: " << settings.numScanThreads <<
                      ", Perf dump: " << booleanToString(settings.dumpPerfData) <<
