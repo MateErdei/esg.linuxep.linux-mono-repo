@@ -156,6 +156,31 @@ TEST_F(TestOnAccessConfigurationUtils, parseOnAccessPolicySettingsFromJsonDuplic
     EXPECT_EQ(m_testConfig, expectedResult);
 }
 
+TEST_F(TestOnAccessConfigurationUtils, parseOnAccessPolicySettingsManyExclusions)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    std::stringstream exclusionStr;
+    std::vector<common::Exclusion> expectedExclusion;
+    exclusionStr << R"({"exclusions":[)";
+
+    for (uint excCount = 0; excCount < 400; excCount ++)
+    {
+        exclusionStr << R"("/tmp)" << excCount << R"(/",)";
+        expectedExclusion.emplace_back("/tmp" + std::to_string(excCount) + "/");
+    }
+
+    exclusionStr.seekp(-1, exclusionStr.cur);
+    exclusionStr << "]}";
+
+    ASSERT_EQ(parseOnAccessPolicySettingsFromJson(exclusionStr.str(), m_testConfig), true);
+    EXPECT_EQ(m_testConfig.exclusions, expectedExclusion);
+
+    EXPECT_FALSE(appenderContains("Failed to parse json configuration, keeping existing settings"));
+    EXPECT_TRUE(appenderContains(R"(On-access exclusions: ["/tmp0/","/tmp1/","/tmp2/","/tmp3/","/tmp4/")"));
+}
+
+
 TEST_F(TestOnAccessConfigurationUtils, parseOnAccessPolicySettingsFromJson_missingExcludeRemote)
 {
     std::string jsonString = R"({"enabled":"true","exclusions":["/mnt/","/uk-filer5/"]})";
