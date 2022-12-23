@@ -1,4 +1,4 @@
-// Copyright 2020-2022 Sophos Limited. All rights reserved.
+// Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 #include "SocketUtils.h"
 
@@ -16,6 +16,18 @@
 #include <sys/types.h>
 #include <sys/uio.h>
 #include <unistd.h>
+
+unixsocket::buffer_ptr_t unixsocket::getLength(size_t length, size_t& bufferSize)
+{
+    if (length == 0)
+    {
+        throw std::runtime_error("Attempting to write length of zero");
+    }
+
+    auto bytes = splitInto7Bits(length);
+    bufferSize = bytes.size();
+    return addTopBitAndPutInBuffer(bytes);
+}
 
 void unixsocket::writeLength(int socket_fd, size_t length)
 {
