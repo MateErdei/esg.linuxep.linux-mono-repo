@@ -37,7 +37,7 @@ namespace
             fs::current_path(fs::temp_directory_path());
             fs::remove_all(m_testDir);
         }
-        scan_messages::ScanRequest makeScanRequestObject(std::string path)
+        static scan_messages::ScanRequest makeScanRequestObject(const std::string& path)
         {
             ::capnp::MallocMessageBuilder message;
             Sophos::ssplav::FileScanRequest::Builder requestBuilder =
@@ -54,14 +54,14 @@ namespace
     };
 }
 
-TEST_F(TestThreatDetectorSocket, test_construction) //NOLINT
+TEST_F(TestThreatDetectorSocket, test_construction)
 {
     std::string socketPath = "scanning_socket";
     auto scannerFactory = std::make_shared<StrictMock<MockScannerFactory>>();
     EXPECT_NO_THROW(unixsocket::ScanningServerSocket server(socketPath, 0666, scannerFactory));
 }
 
-TEST_F(TestThreatDetectorSocket, test_running) // NOLINT
+TEST_F(TestThreatDetectorSocket, test_running)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
     std::string socketPath = "scanning_socket";
@@ -116,7 +116,7 @@ static scan_messages::ScanResponse scan(
     return response;
 }
 
-TEST_F(TestThreatDetectorSocket, test_scan_threat) // NOLINT
+TEST_F(TestThreatDetectorSocket, test_scan_threat)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
@@ -144,6 +144,8 @@ TEST_F(TestThreatDetectorSocket, test_scan_threat) // NOLINT
         auto response = scan(client_socket, fd, THREAT_PATH);
 
         EXPECT_FALSE(response.allClean());
+        EXPECT_EQ(response.getErrorMsg(), "");
+        ASSERT_EQ(response.getDetections().size(), 1);
         EXPECT_EQ(response.getDetections()[0].name, "THREAT");
     }
 
@@ -156,7 +158,7 @@ TEST_F(TestThreatDetectorSocket, test_scan_threat) // NOLINT
     EXPECT_TRUE(appenderContains("Closing Scanning Server socket"));
 }
 
-TEST_F(TestThreatDetectorSocket, test_scan_clean) // NOLINT
+TEST_F(TestThreatDetectorSocket, test_scan_clean)
 {
     static const std::string THREAT_PATH = "/dev/null";
     std::string socketPath = "scanning_socket";
@@ -164,8 +166,6 @@ TEST_F(TestThreatDetectorSocket, test_scan_clean) // NOLINT
     auto scanner = std::make_unique<StrictMock<MockScanner>>();
 
     auto expected_response = scan_messages::ScanResponse();
-    expected_response.addDetection("/bin/bash", "","");
-
 
     scan_messages::ScanRequest request = makeScanRequestObject(THREAT_PATH);
     EXPECT_CALL(*scanner, scan(_, Eq(std::ref(request))))
@@ -184,13 +184,15 @@ TEST_F(TestThreatDetectorSocket, test_scan_clean) // NOLINT
         auto response = scan(client_socket, fd, THREAT_PATH);
 
         EXPECT_TRUE(response.allClean());
+        EXPECT_EQ(response.getDetections().size(), 0);
+        EXPECT_EQ(response.getErrorMsg(), "");
     }
 
     server.requestStop();
     server.join();
 }
 
-TEST_F(TestThreatDetectorSocket, test_scan_twice) // NOLINT
+TEST_F(TestThreatDetectorSocket, test_scan_twice)
 {
     static const std::string THREAT_PATH = "/dev/null";
     std::string socketPath = "scanning_socket";

@@ -39,13 +39,7 @@ namespace unixsocket
 
         try
         {
-            if (!writeLengthAndBuffer(m_socket_fd, dataAsString))
-            {
-                return false;
-            }
-
-            auto ret = send_fd(m_socket_fd, fd);
-            if (ret < 0)
+            if (!writeLengthAndBufferAndFd(m_socket_fd, dataAsString, fd))
             {
                 return false;
             }

@@ -14,9 +14,10 @@
 
 #include <sys/socket.h>
 #include <sys/types.h>
+#include <sys/uio.h>
 #include <unistd.h>
 
-void unixsocket::writeLength(int socket_fd, size_t length)
+unixsocket::buffer_ptr_t unixsocket::getLength(size_t length, size_t& bufferSize)
 {
     if (length == 0)
     {
@@ -24,10 +25,17 @@ void unixsocket::writeLength(int socket_fd, size_t length)
     }
 
     auto bytes = splitInto7Bits(length);
-    auto buffer = addTopBitAndPutInBuffer(bytes);
+    bufferSize = bytes.size();
+    return addTopBitAndPutInBuffer(bytes);
+}
+
+void unixsocket::writeLength(int socket_fd, size_t length)
+{
+    size_t bufferSize;
+    auto buffer = getLength(length, bufferSize);
     ssize_t bytes_written
-        = ::send(socket_fd, buffer.get(), bytes.size(), MSG_NOSIGNAL);
-    if (bytes_written != static_cast<ssize_t>(bytes.size()))
+        = ::send(socket_fd, buffer.get(), bufferSize, MSG_NOSIGNAL);
+    if (bytes_written != static_cast<ssize_t>(bufferSize))
     {
         throw environmentInterruption();
     }
@@ -35,13 +43,22 @@ void unixsocket::writeLength(int socket_fd, size_t length)
 
 bool unixsocket::writeLengthAndBuffer(int socket_fd, const std::string& buffer)
 {
-    writeLength(socket_fd, buffer.size());
+    struct iovec iov[2];
+    size_t lengthBufferSize;
+    auto lengthBuffer = getLength(buffer.size(), lengthBufferSize);
+    iov[0].iov_base = lengthBuffer.get();
+    iov[0].iov_len = lengthBufferSize;
+    iov[1].iov_base = const_cast<char*>(buffer.data());
+    iov[1].iov_len = buffer.size();
 
-    ssize_t bytes_written = ::send(socket_fd, buffer.c_str(), buffer.size(), MSG_NOSIGNAL);
-    if (static_cast<unsigned>(bytes_written) != buffer.size())
+    struct msghdr message{};
+    message.msg_iov = iov;
+    message.msg_iovlen = 2;
+
+    ssize_t bytes_written = ::sendmsg(socket_fd, &message, MSG_NOSIGNAL);
+    if (static_cast<unsigned>(bytes_written) != buffer.size() + lengthBufferSize)
     {
-        LOGWARN("Failed to write buffer to unix socket");
-        return false;
+        throw environmentInterruption();
     }
     return true;
 }
@@ -173,4 +190,11 @@ ssize_t unixsocket::send_fd(int socket, int fd)  // send fd by socket
     memcpy(CMSG_DATA(cmsg), &fd, sizeof(fd));
 
     return sendmsg(socket, &msg, MSG_NOSIGNAL);
+}
+
+
+bool unixsocket::writeLengthAndBufferAndFd(int socket_fd, const std::string& buffer, int fd)
+{
+    std::ignore = writeLengthAndBuffer(socket_fd, buffer); // throws or returns true
+    return (send_fd(socket_fd, fd) > 0);
 }
