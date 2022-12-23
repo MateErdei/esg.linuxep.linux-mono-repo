@@ -1,10 +1,8 @@
-/******************************************************************************************************
-
-Copyright 2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2022 Sophos Limited. All rights reserved.
 
 #include "SocketUtilsImpl.h"
+
+#include <stdexcept>
 
 std::deque<uint8_t> unixsocket::splitInto7Bits(unsigned length)
 {
@@ -28,4 +26,16 @@ std::unique_ptr<uint8_t[]> unixsocket::addTopBitAndPutInBuffer(const std::deque<
     }
     buffer[bytes.size()-1] = bytes[bytes.size()-1];
     return buffer;
+}
+
+unixsocket::buffer_ptr_t unixsocket::getLength(size_t length, size_t& bufferSize)
+{
+    if (length == 0)
+    {
+        throw std::runtime_error("Attempting to write length of zero");
+    }
+
+    auto bytes = splitInto7Bits(length);
+    bufferSize = bytes.size();
+    return addTopBitAndPutInBuffer(bytes);
 }
