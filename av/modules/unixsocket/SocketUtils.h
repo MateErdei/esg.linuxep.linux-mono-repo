@@ -8,9 +8,6 @@
 namespace unixsocket
 {
     ssize_t readLength(int socket_fd);
-    using buffer_ptr_t = std::unique_ptr<uint8_t[]>;
-    buffer_ptr_t getLength(size_t length, size_t& bufferSize);
-
     void writeLength(int socket_fd, size_t length);
     bool writeLengthAndBuffer(int socket_fd, const std::string& buffer);
     int recv_fd(int socket);
