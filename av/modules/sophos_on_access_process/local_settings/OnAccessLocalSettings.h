@@ -14,5 +14,11 @@ namespace sophos_on_access_process::local_settings
         bool cacheAllEvents = defaultCacheAllEvents;
         bool uncacheDetections = defaultUncacheDetections;
         bool highPrioritySoapd = defaultHighPrioritySoapd;
+
+        /**
+         * Set threat detector to high priority
+         * This is a setting in soapd, as soapd runs as root, so can make TD high priority
+         */
+        bool highPriorityThreatDetector = defaultHighPriorityThreatDetector;
     };
 }

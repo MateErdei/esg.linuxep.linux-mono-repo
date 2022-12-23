@@ -51,11 +51,10 @@ int SoapdBootstrap::runSoapd()
 
 int SoapdBootstrap::outerRun()
 {
-
-    auto sysCallWrapper = std::make_shared<datatypes::SystemCallWrapper>();
+    m_sysCallWrapper = std::make_shared<datatypes::SystemCallWrapper>();
     try
     {
-        innerRun(sysCallWrapper);
+        innerRun();
     }
     catch (const std::exception& e)
     {
@@ -75,14 +74,16 @@ int SoapdBootstrap::outerRun()
 
 void SoapdBootstrap::initialiseTelemetry()
 {
+    using namespace ::onaccessimpl::onaccesstelemetry;
+
     m_TelemetryUtility = std::make_shared<onaccesstelemetry::OnAccessTelemetryUtility>();
 
-    Common::Telemetry::TelemetryHelper::getInstance().restore(OnAccessConfig::onAccessTelemetrySocket);
+    Common::Telemetry::TelemetryHelper::getInstance().restore(ON_ACCESS_TELEMETRY_SOCKET);
     auto replier = m_onAccessContext->getReplier();
-    Common::PluginApiImpl::PluginResourceManagement::setupReplier(*replier, OnAccessConfig::onAccessTelemetrySocket, 5000, 5000);
+    Common::PluginApiImpl::PluginResourceManagement::setupReplier(*replier, ON_ACCESS_TELEMETRY_SOCKET, 5000, 5000);
     auto pluginCallback = std::make_shared<sophos_on_access_process::service_callback::OnAccessServiceCallback>(m_TelemetryUtility);
     m_pluginHandler = std::make_unique<Common::PluginApiImpl::PluginCallBackHandler>
-        (OnAccessConfig::onAccessTelemetrySocket,
+        (ON_ACCESS_TELEMETRY_SOCKET,
          std::move(replier),
         pluginCallback,
         Common::PluginProtocol::AbstractListenerServer::ARMSHUTDOWNPOLICY::DONOTARM);
@@ -90,34 +91,28 @@ void SoapdBootstrap::initialiseTelemetry()
     m_pluginHandler->start();
 }
 
-void SoapdBootstrap::innerRun(const datatypes::ISystemCallWrapperSharedPtr& sysCallWrapper)
+void SoapdBootstrap::innerRun()
 {
     // Take soapd lock file
     fs::path lockfile = common::getPluginInstallPath() / "var/soapd.pid";
-    common::PidLockFile lock(lockfile, true);
+    common::PidLockFile lock(lockfile);
 
     auto sigIntMonitor{common::signals::SigIntMonitor::getSigIntMonitor(true)};
     auto sigTermMonitor{common::signals::SigTermMonitor::getSigTermMonitor(true)};
 
     OnAccessConfig::OnAccessConfiguration config;
 
-    m_localSettings = OnAccessConfig::readLocalSettingsFile(sysCallWrapper);
+    m_localSettings = OnAccessConfig::readLocalSettingsFile(m_sysCallWrapper);
     size_t maxScanQueueSize = m_localSettings.maxScanQueueSize;
 
     const struct rlimit file_lim = { onAccessProcessFdLimit, onAccessProcessFdLimit };
-    sysCallWrapper->setrlimit(RLIMIT_NOFILE, &file_lim);
+    m_sysCallWrapper->setrlimit(RLIMIT_NOFILE, &file_lim);
 
-    // Set priority
-    if (m_localSettings.highPrioritySoapd)
-    {
-        sysCallWrapper->setpriority(PRIO_PROCESS, 0, -20);
-    }
-
-    m_fanotifyHandler = std::make_shared<FanotifyHandler>(sysCallWrapper);
+    m_fanotifyHandler = std::make_shared<FanotifyHandler>(m_sysCallWrapper);
 
     auto sysPathsFactory = std::make_shared<mount_monitor::mountinfoimpl::SystemPathsFactory>();
     m_mountMonitor = std::make_shared<mount_monitor::mount_monitor::MountMonitor>(config,
-                                                                                  sysCallWrapper,
+                                                                                  m_sysCallWrapper,
                                                                                   m_fanotifyHandler,
                                                                                   sysPathsFactory);
     m_mountMonitorThread = std::make_unique<common::ThreadRunner>(m_mountMonitor,
@@ -132,10 +127,10 @@ void SoapdBootstrap::innerRun(const datatypes::ISystemCallWrapperSharedPtr& sysC
 
     initialiseTelemetry(); //This initialises m_TelemetryUtility
 
-    m_deviceUtil = std::make_shared<mount_monitor::mountinfoimpl::DeviceUtil>(sysCallWrapper);
+    m_deviceUtil = std::make_shared<mount_monitor::mountinfoimpl::DeviceUtil>(m_sysCallWrapper);
 
     m_eventReader = std::make_shared<EventReaderThread>(m_fanotifyHandler,
-                                                        sysCallWrapper,
+                                                        m_sysCallWrapper,
                                                         common::getPluginInstallPath(),
                                                         m_scanRequestQueue,
                                                         m_TelemetryUtility,
@@ -176,7 +171,7 @@ void SoapdBootstrap::innerRun(const datatypes::ISystemCallWrapperSharedPtr& sysC
     while (true)
     {
         // wait for an activity on one of the fds
-        int activity = sysCallWrapper->ppoll(fds, std::size(fds), nullptr, nullptr);
+        int activity = m_sysCallWrapper->ppoll(fds, std::size(fds), nullptr, nullptr);
         if (activity < 0)
         {
             // error in ppoll
@@ -274,9 +269,6 @@ void SoapdBootstrap::disableOnAccess()
     }
 
     LOGINFO("Disabling on-access scanning");
-
-    m_statusFile.disabled();
-
     /*
      * EventReader and scanHandler threads are not thread-safe with
      * fanotify handler being closed.
@@ -301,6 +293,12 @@ void SoapdBootstrap::disableOnAccess()
 
     // Disable fanotify and close fanotify descriptor
     m_fanotifyHandler->close();
+
+    // Set priority
+    if (m_localSettings.highPrioritySoapd)
+    {
+        m_sysCallWrapper->setpriority(PRIO_PROCESS, 0, 10);
+    }
 
     LOGINFO("On-access scanning disabled");
     m_currentOaEnabledState.store(false);
@@ -339,7 +337,12 @@ void SoapdBootstrap::enableOnAccess()
         m_scanHandlerThreads.push_back(scanHandlerThread);
     }
 
-    m_statusFile.enabled();
+    // Set priority
+    if (m_localSettings.highPrioritySoapd)
+    {
+        m_sysCallWrapper->setpriority(PRIO_PROCESS, 0, -20);
+    }
+
     LOGINFO("On-access scanning enabled");
     m_currentOaEnabledState.store(true);
 }

@@ -147,6 +147,8 @@ namespace sophos_on_access_process::OnAccessConfig
                     settings.cacheAllEvents = toBoolean(parsedConfigJson, "cacheAllEvents", settings.cacheAllEvents);
                     settings.uncacheDetections = toBoolean(parsedConfigJson, "uncacheDetections", settings.uncacheDetections);
                     settings.highPrioritySoapd = toBoolean(parsedConfigJson, "highPrioritySoapd", settings.highPrioritySoapd);
+                    settings.highPriorityThreatDetector =
+                        toBoolean(parsedConfigJson, "highPriorityThreatDetector", settings.highPriorityThreatDetector);
 
                     settings.maxScanQueueSize = toLimitedInteger(
                             parsedConfigJson,
