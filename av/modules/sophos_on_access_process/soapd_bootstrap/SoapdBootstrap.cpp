@@ -101,9 +101,8 @@ void SoapdBootstrap::innerRun()
 
     auto sysCallWrapper = std::make_shared<datatypes::SystemCallWrapper>();
 
-    auto localSettings = OnAccessConfig::readLocalSettingsFile(sysCallWrapper);
-    size_t maxScanQueueSize = localSettings.maxScanQueueSize;
-    m_localSettings = localSettings;
+    m_localSettings = OnAccessConfig::readLocalSettingsFile(sysCallWrapper);
+    size_t maxScanQueueSize = m_localSettings.maxScanQueueSize;
 
     const struct rlimit file_lim = { onAccessProcessFdLimit, onAccessProcessFdLimit };
     sysCallWrapper->setrlimit(RLIMIT_NOFILE, &file_lim);
@@ -135,7 +134,7 @@ void SoapdBootstrap::innerRun()
                                                         m_scanRequestQueue,
                                                         m_TelemetryUtility,
                                                         m_deviceUtil);
-    m_eventReader->setCacheAllEvents(localSettings.cacheAllEvents);
+    m_eventReader->setCacheAllEvents(m_localSettings.cacheAllEvents);
     m_eventReaderThread = std::make_unique<common::ThreadRunner>(m_eventReader,
                                                                  "eventReader",
                                                                  false);
