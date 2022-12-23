@@ -219,8 +219,12 @@ TEST_F(TestOnAccessConfigurationUtils, parseOnAccessPolicySettingsFromJson_missi
     EXPECT_EQ(m_testConfig, expectedResult);
 }
 
-TEST_F(TestOnAccessConfigurationUtils, parseOnAccessSettingsFromJsonInvalidJson)
+//This test needs revising
+/*TEST_F(TestOnAccessConfigurationUtils, parseOnAccessSettingsFromJsonInvalidJson)
 {
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    //the boolean fields dont fail so we fail on exclusions
     std::string jsonString = R"({"enabled":"I think","excludeRemoteFiles":"therefore","exclusions":["I","am"]})";
 
     OnAccessConfiguration expectedResult;
@@ -231,50 +235,117 @@ TEST_F(TestOnAccessConfigurationUtils, parseOnAccessSettingsFromJsonInvalidJson)
 
     ASSERT_EQ(parseOnAccessPolicySettingsFromJson(jsonString, m_testConfig), true);
     EXPECT_EQ(m_testConfig, expectedResult);
-}
+
+    EXPECT_TRUE(appenderContains("Setting excludeRemoteFiles from file: false"));
+    EXPECT_TRUE(appenderContains("Setting enabled from file: false"));
+}*/
 
 TEST_F(TestOnAccessConfigurationUtils, enablesOnAccessWithNumberInField)
 {
-    std::string jsonString = R"({"enabled":123,"excludeRemoteFiles":"false","exclusions":["exc","lude"]})";
+    UsingMemoryAppender memoryAppenderHolder(*this);
 
-    OnAccessConfiguration expectedResult;
-    expectedResult.enabled = true;
-    expectedResult.excludeRemoteFiles = false;
-    expectedResult.exclusions.emplace_back("exc");
-    expectedResult.exclusions.emplace_back("lude");
+    std::string jsonString = R"({"enabled":123})";
+
+    OnAccessConfiguration expectedResult{};
+    expectedResult.enabled = true; //is set to true if non-zero
 
     ASSERT_EQ(parseOnAccessPolicySettingsFromJson(jsonString, m_testConfig), true);
     EXPECT_EQ(m_testConfig, expectedResult);
+
+    EXPECT_TRUE(appenderContains("Setting excludeRemoteFiles from default: false"));
+    EXPECT_TRUE(appenderContains("Setting enabled from file: true"));
 }
 
 TEST_F(TestOnAccessConfigurationUtils, excludesRemoteFilesWithNumberInField)
 {
-    std::string jsonString = R"({"enabled":"false","excludeRemoteFiles":123,"exclusions":["exc","lude"]})";
+    UsingMemoryAppender memoryAppenderHolder(*this);
 
-    OnAccessConfiguration expectedResult;
-    expectedResult.enabled = false;
-    expectedResult.excludeRemoteFiles = true;
-    expectedResult.exclusions.emplace_back("exc");
-    expectedResult.exclusions.emplace_back("lude");
+    std::string jsonString = R"({"excludeRemoteFiles":123})";
+
+    OnAccessConfiguration expectedResult{};
+    expectedResult.excludeRemoteFiles = true; //is set to true if non-zero
 
     ASSERT_EQ(parseOnAccessPolicySettingsFromJson(jsonString, m_testConfig), true);
     EXPECT_EQ(m_testConfig, expectedResult);
+
+    EXPECT_TRUE(appenderContains("Setting excludeRemoteFiles from file: true"));
+    EXPECT_TRUE(appenderContains("Setting enabled from default: false"));
 }
 
-/*TEST_F(TestOnAccessConfigurationUtils, parseOnAccessSettingsFromJsonKeysWithInvalidValueTypes)
+TEST_F(TestOnAccessConfigurationUtils, enabledFieldReadWithStringInField)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    std::string jsonString = R"({"enabled":24311ddaf53,"excludeRemoteFiles":"true","exclusions":["exc","lude"]})";
+    std::string jsonString = R"({"enabled":"true"})";
 
-    OnAccessConfiguration expectedResult;
+    OnAccessConfiguration expectedResult{};
+    expectedResult.excludeRemoteFiles = true;
+    expectedResult.enabled = false;
 
-    EXPECT_EQ(parseOnAccessPolicySettingsFromJson(jsonString), expectedResult);
+    ASSERT_EQ(parseOnAccessPolicySettingsFromJson(jsonString, m_testConfig), true);
+    //ToBoolean interprets string as being equal to "true" or not
+    EXPECT_TRUE(appenderContains("Setting enabled from file: true"));
+}
 
-    EXPECT_TRUE(appenderContains("Failed to parse json configuration due to parse error, reason: [json.exception.parse_error.101] parse error at line 1, column 17: syntax error while parsing object - invalid literal; last read: '24311d'; expected '}"));
+TEST_F(TestOnAccessConfigurationUtils, excludesRemoteFilesReadWithStringInField)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    std::string jsonString = R"({"excludeRemoteFiles":"true"})";
+
+    OnAccessConfiguration expectedResult{};
+    expectedResult.excludeRemoteFiles = true;
+    expectedResult.enabled = false;
+
+    ASSERT_EQ(parseOnAccessPolicySettingsFromJson(jsonString, m_testConfig), true);
+    EXPECT_EQ(m_testConfig, expectedResult);
+    //ToBoolean interprets string as being equal to "true" or not
+    EXPECT_TRUE(appenderContains("Setting excludeRemoteFiles from file: true"));
+}
+
+TEST_F(TestOnAccessConfigurationUtils, processesExclusionsWithNumberInField)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    std::string jsonString = R"({"exclusions":[1,2]})";
+
+    OnAccessConfiguration expectedResult{};
+
+    ASSERT_EQ(parseOnAccessPolicySettingsFromJson(jsonString, m_testConfig), false);
+    EXPECT_EQ(m_testConfig, expectedResult);
+    EXPECT_TRUE(appenderContains("Failed to parse json configuration due to type error"));
     EXPECT_TRUE(appenderContains("Failed to parse json configuration, keeping existing settings"));
+}
 
-}*/
+TEST_F(TestOnAccessConfigurationUtils, processEnabledWithMixedCharacters)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    std::string jsonString = R"({"enabled":24311ddaf53, "excludeRemoteFiles":true}})";
+
+    OnAccessConfiguration expectedResult{};
+
+    EXPECT_EQ(parseOnAccessPolicySettingsFromJson(jsonString, m_testConfig), false);
+
+    EXPECT_EQ(m_testConfig, expectedResult);
+    EXPECT_TRUE(appenderContains("Failed to parse json configuration due to parse error"));
+    EXPECT_TRUE(appenderContains("Failed to parse json configuration, keeping existing settings"));
+}
+
+TEST_F(TestOnAccessConfigurationUtils, processExcludeRemoteithMixedCharacters)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    std::string jsonString = R"({"enabled":true, "excludeRemoteFiles":24311ddaf53})";
+
+    OnAccessConfiguration expectedResult{};
+
+    EXPECT_EQ(parseOnAccessPolicySettingsFromJson(jsonString, m_testConfig), false);
+
+    EXPECT_EQ(m_testConfig, expectedResult);
+    EXPECT_TRUE(appenderContains("Failed to parse json configuration due to parse error"));
+    EXPECT_TRUE(appenderContains("Failed to parse json configuration, keeping existing settings"));
+}
 
 TEST_F(TestOnAccessConfigurationUtils, parseOnAccessSettingsFromJsonInvalidJsonSyntax)
 {
