@@ -176,7 +176,7 @@ void SoapdBootstrap::innerRun(const datatypes::ISystemCallWrapperSharedPtr& sysC
     while (true)
     {
         // wait for an activity on one of the fds
-        int activity = ::ppoll(fds, std::size(fds), nullptr, nullptr);
+        int activity = sysCallWrapper->ppoll(fds, std::size(fds), nullptr, nullptr);
         if (activity < 0)
         {
             // error in ppoll
