@@ -40,6 +40,7 @@ namespace sophos_on_access_process::local_settings
 
     constexpr bool defaultCacheAllEvents = false;
     constexpr bool defaultUncacheDetections = true;
+    constexpr bool defaultHighPrioritySoapd = false;
 
     //Scanning Threads
     constexpr int maxAllowedScanningThreads = 100;

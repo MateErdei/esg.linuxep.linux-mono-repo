@@ -13,5 +13,6 @@ namespace sophos_on_access_process::local_settings
         bool dumpPerfData = defaultDumpPerfData;
         bool cacheAllEvents = defaultCacheAllEvents;
         bool uncacheDetections = defaultUncacheDetections;
+        bool highPrioritySoapd = defaultHighPrioritySoapd;
     };
 }
