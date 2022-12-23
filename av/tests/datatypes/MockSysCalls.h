@@ -63,6 +63,7 @@ namespace
         MOCK_METHOD(int, prctl, (int option, ulong __arg2, ulong __arg3, ulong __arg4, ulong __arg5));
         MOCK_METHOD(unsigned int, hardware_concurrency, ());
         MOCK_METHOD(void, _exit, (int __status));
+        MOCK_METHOD(int, setpriority, (int, int,int), (override));
     };
 }
 

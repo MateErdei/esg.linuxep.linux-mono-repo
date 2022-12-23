@@ -12,7 +12,9 @@ extern "C"
 #include <sys/file.h>
 #include <sys/ioctl.h>
 #include <sys/prctl.h>
+#include <sys/resource.h>
 #include <sys/sysinfo.h>
+#include <sys/time.h>
 #include <unistd.h>
 }
 
@@ -170,6 +172,11 @@ namespace datatypes
         void _exit (int status) override
         {
             ::_exit(status);
+        }
+
+        int setpriority(int which, int who, int prio) override
+        {
+            return ::setpriority(which, who, prio);
         }
     };
 }

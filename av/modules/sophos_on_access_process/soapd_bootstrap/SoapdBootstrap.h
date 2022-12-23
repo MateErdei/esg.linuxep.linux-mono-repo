@@ -44,7 +44,7 @@ namespace sophos_on_access_process::soapd_bootstrap
     private:
         int outerRun();
 
-        void innerRun();
+        void innerRun(const datatypes::ISystemCallWrapperSharedPtr& sysCallWrapper);
 
         void enableOnAccess();
         void disableOnAccess();

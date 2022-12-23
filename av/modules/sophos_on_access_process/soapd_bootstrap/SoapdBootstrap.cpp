@@ -51,9 +51,11 @@ int SoapdBootstrap::runSoapd()
 
 int SoapdBootstrap::outerRun()
 {
+
+    auto sysCallWrapper = std::make_shared<datatypes::SystemCallWrapper>();
     try
     {
-        innerRun();
+        innerRun(sysCallWrapper);
     }
     catch (const std::exception& e)
     {
@@ -88,7 +90,7 @@ void SoapdBootstrap::initialiseTelemetry()
     m_pluginHandler->start();
 }
 
-void SoapdBootstrap::innerRun()
+void SoapdBootstrap::innerRun(const datatypes::ISystemCallWrapperSharedPtr& sysCallWrapper)
 {
     // Take soapd lock file
     fs::path lockfile = common::getPluginInstallPath() / "var/soapd.pid";
@@ -99,13 +101,17 @@ void SoapdBootstrap::innerRun()
 
     OnAccessConfig::OnAccessConfiguration config;
 
-    auto sysCallWrapper = std::make_shared<datatypes::SystemCallWrapper>();
-
     m_localSettings = OnAccessConfig::readLocalSettingsFile(sysCallWrapper);
     size_t maxScanQueueSize = m_localSettings.maxScanQueueSize;
 
     const struct rlimit file_lim = { onAccessProcessFdLimit, onAccessProcessFdLimit };
     sysCallWrapper->setrlimit(RLIMIT_NOFILE, &file_lim);
+
+    // Set priority
+    if (m_localSettings.highPrioritySoapd)
+    {
+        sysCallWrapper->setpriority(PRIO_PROCESS, 0, -20);
+    }
 
     m_fanotifyHandler = std::make_shared<FanotifyHandler>(sysCallWrapper);
 

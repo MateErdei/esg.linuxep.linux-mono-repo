@@ -62,6 +62,7 @@ namespace datatypes
         virtual int prctl (int option, ulong arg2, ulong arg3, ulong arg4, ulong arg5) = 0;
         virtual unsigned int hardware_concurrency() = 0;
         virtual void _exit(int status) = 0;
+        virtual int setpriority(int which, int who, int prio) = 0;
     };
 
     using ISystemCallWrapperSharedPtr = std::shared_ptr<ISystemCallWrapper>;
