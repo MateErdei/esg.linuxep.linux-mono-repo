@@ -6,6 +6,7 @@
 #include "Logger.h"
 #include "OnAccessProcesControlCallbacks.h"
 #include "OnAccessServiceCallback.h"
+#include "ProcessPriorityUtils.h"
 // Component
 #include "sophos_on_access_process/local_settings/OnAccessProductConfigDefaults.h"
 #include "sophos_on_access_process/onaccessimpl/ScanRequestHandler.h"
@@ -168,10 +169,20 @@ void SoapdBootstrap::innerRun()
 
     ProcessPolicy();
 
+    std::timespec timeout{};
+    timeout.tv_nsec = 0;
+    timeout.tv_sec = 60;
+
     while (true)
     {
+        std::timespec* timeoutPtr = nullptr;
+        if (m_currentOaEnabledState && m_localSettings.highPriorityThreatDetector)
+        {
+            timeoutPtr = &timeout;
+        }
+
         // wait for an activity on one of the fds
-        int activity = m_sysCallWrapper->ppoll(fds, std::size(fds), nullptr, nullptr);
+        int activity = m_sysCallWrapper->ppoll(fds, std::size(fds), timeoutPtr, nullptr);
         if (activity < 0)
         {
             // error in ppoll
@@ -199,6 +210,13 @@ void SoapdBootstrap::innerRun()
             LOGINFO("Sophos On Access Process received SIGTERM - shutting down");
             sigTermMonitor->triggered();
             break;
+        }
+
+        if (m_currentOaEnabledState && m_localSettings.highPriorityThreatDetector)
+        {
+            // Reset priority in case TD has restarted
+            sophos_on_access_process::soapd_bootstrap::setThreatDetectorPriority(
+                -20, m_sysCallWrapper); // Set TD to high priority
         }
     }
 
@@ -300,6 +318,12 @@ void SoapdBootstrap::disableOnAccess()
         m_sysCallWrapper->setpriority(PRIO_PROCESS, 0, 10);
     }
 
+    if (m_localSettings.highPriorityThreatDetector)
+    {
+        sophos_on_access_process::soapd_bootstrap::setThreatDetectorPriority(
+            0, m_sysCallWrapper); // Return to default priority
+    }
+
     LOGINFO("On-access scanning disabled");
     m_currentOaEnabledState.store(false);
 }
@@ -341,6 +365,12 @@ void SoapdBootstrap::enableOnAccess()
     if (m_localSettings.highPrioritySoapd)
     {
         m_sysCallWrapper->setpriority(PRIO_PROCESS, 0, -20);
+    }
+
+    if (m_localSettings.highPriorityThreatDetector)
+    {
+        sophos_on_access_process::soapd_bootstrap::setThreatDetectorPriority(
+            -20, m_sysCallWrapper); // Set TD to high priority
     }
 
     LOGINFO("On-access scanning enabled");

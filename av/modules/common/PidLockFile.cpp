@@ -109,32 +109,56 @@ PidLockFile::~PidLockFile()
     m_fd.reset();
 }
 
+namespace
+{
+    datatypes::AutoFd openPidLockFileIfLocked(const std::string& pidfile, const std::shared_ptr<datatypes::ISystemCallWrapper>& sysCalls)
+    {
+        datatypes::AutoFd fd(sysCalls->_open(pidfile.c_str(), O_RDONLY, 0644));
+        if (!fd.valid())
+        {
+            auto buf = common::safer_strerror(errno);
+            LOGDEBUG("Unable to open PID file " << pidfile << " (" << buf << "), assume process not running");
+            return datatypes::AutoFd{};
+        }
+
+        auto ret = sysCalls->flock(fd.get(), LOCK_EX | LOCK_NB);
+        if (ret == 0)
+        {
+            LOGDEBUG("Lock acquired on PID file " << pidfile << ", assume process not running");
+            return datatypes::AutoFd{};
+        }
+
+        int error = errno;
+        if (error == EWOULDBLOCK)
+        {
+            LOGDEBUG("Unable to acquire lock on " << pidfile << " as it is already locked");
+            return fd;
+        }
+        else
+        {
+            LOGERROR("Failed to test lock on " << pidfile << " because " << common::safer_strerror(error) << "(" << error << ")");
+            return datatypes::AutoFd{};
+        }
+    }
+}
+
 bool PidLockFile::isPidFileLocked(const std::string& pidfile, const std::shared_ptr<datatypes::ISystemCallWrapper>& sysCalls)
 {
-    datatypes::AutoFd fd(sysCalls->_open(pidfile.c_str(), O_RDONLY, 0644));
+    datatypes::AutoFd fd = openPidLockFileIfLocked(pidfile, sysCalls);
+    return fd.valid();
+}
+
+pid_t PidLockFile::getPidIfLocked(
+    const std::string& pidfile,
+    const std::shared_ptr<datatypes::ISystemCallWrapper>& sysCalls)
+{
+    datatypes::AutoFd fd = openPidLockFileIfLocked(pidfile, sysCalls);
     if (!fd.valid())
     {
-        auto buf = common::safer_strerror(errno);
-        LOGDEBUG("Unable to open PID file " << pidfile << " (" << buf << "), assume process not running");
-        return false;
+        return 0;
     }
-
-    auto ret = sysCalls->flock(fd.get(), LOCK_EX | LOCK_NB);
-    if (ret == 0)
-    {
-        LOGDEBUG("Lock acquired on PID file " << pidfile << ", assume process not running");
-        return false;
-    }
-
-    int error = errno;
-    if (error == EWOULDBLOCK)
-    {
-        LOGDEBUG("Unable to acquire lock on " << pidfile << " as it is already locked");
-        return true;
-    }
-    else
-    {
-        LOGERROR("Failed to test lock on " << pidfile << " because " << common::safer_strerror(error) << "(" << error << ")");
-        return false;
-    }
+    char contents[32];
+    auto read = sysCalls->read(fd.get(), contents, std::size(contents)-1);
+    contents[read] = 0;
+    return std::stoi(contents);
 }

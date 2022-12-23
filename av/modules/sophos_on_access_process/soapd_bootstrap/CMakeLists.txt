@@ -10,6 +10,8 @@ add_library(soapdbootstrap SHARED
         OnAccessStatusFile.h
         Logger.cpp
         Logger.h
+        ProcessPriorityUtils.cpp
+        ProcessPriorityUtils.h
         SoapdBootstrap.cpp
         SoapdBootstrap.h
         )
