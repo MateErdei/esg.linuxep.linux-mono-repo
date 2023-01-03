@@ -14,6 +14,7 @@
 
 #include <gtest/gtest.h>
 
+#include <fstream>
 #include <tuple>
 
 using namespace sophos_on_access_process::OnAccessConfig;
@@ -219,26 +220,6 @@ TEST_F(TestOnAccessConfigurationUtils, parseOnAccessPolicySettingsFromJson_missi
     EXPECT_EQ(m_testConfig, expectedResult);
 }
 
-//This test needs revising
-/*TEST_F(TestOnAccessConfigurationUtils, parseOnAccessSettingsFromJsonInvalidJson)
-{
-    UsingMemoryAppender memoryAppenderHolder(*this);
-
-    //the boolean fields dont fail so we fail on exclusions
-    std::string jsonString = R"({"enabled":"I think","excludeRemoteFiles":"therefore","exclusions":["I","am"]})";
-
-    OnAccessConfiguration expectedResult;
-    expectedResult.enabled = false;
-    expectedResult.excludeRemoteFiles = false;
-    expectedResult.exclusions.emplace_back("I");
-    expectedResult.exclusions.emplace_back("am");
-
-    ASSERT_EQ(parseOnAccessPolicySettingsFromJson(jsonString, m_testConfig), true);
-    EXPECT_EQ(m_testConfig, expectedResult);
-
-    EXPECT_TRUE(appenderContains("Setting excludeRemoteFiles from file: false"));
-    EXPECT_TRUE(appenderContains("Setting enabled from file: false"));
-}*/
 
 TEST_F(TestOnAccessConfigurationUtils, enablesOnAccessWithNumberInField)
 {
@@ -332,7 +313,7 @@ TEST_F(TestOnAccessConfigurationUtils, processEnabledWithMixedCharacters)
     EXPECT_TRUE(appenderContains("Failed to parse json configuration, keeping existing settings"));
 }
 
-TEST_F(TestOnAccessConfigurationUtils, processExcludeRemoteithMixedCharacters)
+TEST_F(TestOnAccessConfigurationUtils, processExcludeRemoteWithMixedCharacters)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
@@ -378,6 +359,15 @@ TEST_F(TestOnAccessConfigurationUtils, parseFlagConfigurationDuplicates)
 
     jsonString = R"({"oa_enabled":false,"oa_enabled":true})";
     EXPECT_TRUE(parseFlagConfiguration(jsonString));
+}
+
+TEST_F(TestOnAccessConfigurationUtils, parseFlagIncorrectFieldTypes)
+{
+    std::string jsonString = R"({"oa_enabled":"hi"})";
+    EXPECT_FALSE(parseFlagConfiguration(jsonString));
+
+    jsonString = R"({"oa_enabled":1})";
+    EXPECT_FALSE(parseFlagConfiguration(jsonString));
 }
 
 TEST_F(TestOnAccessConfigurationUtils, parseFlagConfigurationFromJsonInvalidJsonSyntax)
@@ -633,7 +623,7 @@ TEST_F(TestOnAccessConfigurationUtils, readLocalSettingsIgnoresBadvalues)
     EXPECT_EQ(result.uncacheDetections, false);
     EXPECT_EQ(result.numScanThreads, m_defaultThreads);
 
-    EXPECT_TRUE(appenderContains("Setting dumpPerfData from file: false")); //boolean check for 'ha' returns false
+    EXPECT_TRUE(appenderContains("Setting dumpPerfData from file: false")); //boolean check for string != "true" returns false
     EXPECT_TRUE(appenderContains("cacheAllEvents from file: true"));
     EXPECT_TRUE(appenderContains("uncacheDetections from file: false"));
     EXPECT_TRUE(appenderContains("Failed to read product config file info: [json.exception.type_error.302] type must be number, but is string"));
@@ -663,6 +653,37 @@ TEST_F(TestOnAccessConfigurationUtils, readLocalSettingsSetsToProvidedValuesWhen
     EXPECT_EQ(result.numScanThreads, 20);
 
     EXPECT_FALSE(appenderContains("Some or all local settings weren't set from file:"));
+}
+
+TEST_F(TestOnAccessConfigurationUtils, readLocalSettingsSetsToDefaultWithWrongTypes)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    expectReadConfig(*m_mockIFileSystemPtr, R"({
+        "dumpPerfData" : "wrong",
+        "cacheAllEvents" : "incorrect",
+        "uncacheDetections" : "invalid",
+        "maxscanqueuesize" : "iamnotanumber",
+        "numThreads" : "stillnotanumber"
+    })");
+
+    Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
+
+    auto numScanThreads = (std::thread::hardware_concurrency() + 1) / 2;
+    auto result = readLocalSettingsFile(m_sysCallWrapper);
+
+    EXPECT_EQ(result.maxScanQueueSize, defaultMaxScanQueueSize);
+    EXPECT_EQ(result.dumpPerfData, false); //boolean check for string != "true" returns false
+    EXPECT_EQ(result.cacheAllEvents, false); //boolean check for string != "true" returns false
+    EXPECT_EQ(result.uncacheDetections, false); //boolean check for string != "true" returns false
+    EXPECT_EQ(result.numScanThreads, numScanThreads);
+
+    EXPECT_TRUE(appenderContains("Setting number of scanning threads from Hardware Concurrency: 6"));
+    EXPECT_TRUE(appenderContains("Setting dumpPerfData from file: false"));
+    EXPECT_TRUE(appenderContains("Setting cacheAllEvents from file: false"));
+    EXPECT_TRUE(appenderContains("Setting uncacheDetections from file: false"));
+    EXPECT_TRUE(appenderContains("Failed to read product config file info: [json.exception.type_error.302] type must be number, but is string"));
+    EXPECT_TRUE(appenderContains("Some or all local settings weren't set from file:"));
 }
 
 TEST_F(TestOnAccessConfigurationUtils, readLocalSettingsSetsToProvidedValuesWhenFileExistsDuplicateEntries)
