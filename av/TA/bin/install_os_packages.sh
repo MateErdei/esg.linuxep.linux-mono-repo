@@ -61,7 +61,11 @@ then
             exit $EXIT
         fi
     }
-    yum install -y "gcc" "gcc-c++" "make" nfs-utils zip samba p7zip gdb util-linux ntfs-3g nc
+
+    yum install -y "gcc" "gcc-c++" "make" nfs-utils zip samba gdb util-linux nc
+    #TODO: LINUXDAR-6432 fix for RHEL8/Centos-Stream
+    yum install -y p7zip ntfs-3g
+
 else
     echo "Can't find package management system"
     exit 1
