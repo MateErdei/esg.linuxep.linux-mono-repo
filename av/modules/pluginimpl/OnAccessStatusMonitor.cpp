@@ -27,6 +27,11 @@ namespace
 
         int getFD();
 
+        bool valid()
+        {
+            return m_watchDescriptor >= 0;
+        }
+
     private:
         datatypes::AutoFd m_inotifyFD;
         int m_watchDescriptor;
@@ -39,15 +44,25 @@ InotifyFD::InotifyFD(const sophos_filesystem::path& path) :
 {
     if (m_watchDescriptor < 0)
     {
-        LOGERROR("Failed to watch path: "
-                 << path << ": " << common::safer_strerror(errno));
+        if (errno == ENOENT)
+        {
+            // File doesn't exist yet
+            LOGDEBUG("Failed to watch status file " << path << " as it doesn't exist: falling back to polling");
+        }
+        else
+        {
+            LOGERROR("Failed to watch path: " << path << ": " << common::safer_strerror(errno));
+        }
         m_inotifyFD.close();
     }
 }
 
 InotifyFD::~InotifyFD()
 {
-    inotify_rm_watch(m_inotifyFD.fd(), m_watchDescriptor);
+    if (m_watchDescriptor >= 0)
+    {
+        inotify_rm_watch(m_inotifyFD.fd(), m_watchDescriptor);
+    }
     m_inotifyFD.close();
 }
 
@@ -65,7 +80,6 @@ OnAccessStatusMonitor::OnAccessStatusMonitor(Plugin::PluginCallbackSharedPtr cal
 void OnAccessStatusMonitor::run()
 {
     LOGDEBUG("Starting OnAccessStatusMonitor");
-    announceThreadStarted();
 
     // Setup inotify to wait for status file to change
     auto path = Plugin::getOnAccessStatusPath();
@@ -85,14 +99,16 @@ void OnAccessStatusMonitor::run()
     };
     const struct timespec WITHOUT_WATCHER_TIMEOUT
     {
-        .tv_sec = 60,
+        .tv_sec = 10,
         .tv_nsec = 0,
     };
+
+    announceThreadStarted();
 
     while (true)
     {
         const struct timespec* timeout;
-        if (watcher)
+        if (watcher && watcher->valid())
         {
             fds[1].fd = watcher->getFD();
             timeout = &WITH_WATCHER_TIMEOUT;

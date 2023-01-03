@@ -15,6 +15,9 @@ namespace Plugin
     {
     public:
         explicit OnAccessStatusMonitor(PluginCallbackSharedPtr callback);
+        OnAccessStatusMonitor(const OnAccessStatusMonitor&) = delete;
+        OnAccessStatusMonitor(OnAccessStatusMonitor&&) = delete;
+
         void run() override;
     private:
         void statusFileChanged();

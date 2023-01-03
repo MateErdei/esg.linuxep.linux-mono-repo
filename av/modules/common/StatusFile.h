@@ -20,5 +20,6 @@ namespace common
     private:
         const std::string m_path;
         datatypes::AutoFd m_fd;
+        bool open();
     };
 }

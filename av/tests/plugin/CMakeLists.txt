@@ -6,6 +6,7 @@ SophosAddTest(TestPlugin
         MockDetectionHandler.h
         TestActionUtils.cpp
         TestDetectionQueue.cpp
+        TestOnAccessStatusMonitor.cpp
         TestPolicyProcessor.cpp
         TestPolicyProcessor.h
         TestPolicyProcessor_ALC_policy.cpp
