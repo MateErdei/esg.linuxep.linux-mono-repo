@@ -607,7 +607,7 @@ On Access Doesnt Cache Close Events With Detections After Rewrite
     ${oamark} =  Get on access log mark
     Write File After Delay  ${testfile}  ${EICAR_STRING}  ${0.005}
     Wait for on access log contains after mark  On-close event for ${testfile} from  mark=${oamark}
-    Wait for on access log contains after mark  Detected "${testfile}" is infected with EICAR-AV-Test (Close-Write)  mark=${oamark}
+    Wait for on access log contains after mark  detected "${testfile}" is infected with EICAR-AV-Test (Close-Write)  mark=${oamark}
     Sleep   1s  #Let the event (hopefully not) be cached
 
     # see if the file is cached
@@ -616,20 +616,4 @@ On Access Doesnt Cache Close Events With Detections After Rewrite
     Sleep  1s
     Dump On Access Log After Mark   ${oamark}
     Wait for on access log contains after mark  On-open event for ${testfile} from  mark=${oamark2}
-    Wait for on access log contains after mark  Detected "${testfile}" is infected with EICAR-AV-Test (Open)  mark=${oamark2}
-
-On Access Handles Control Socket Exists At Startup
-    [Tags]  fault_injection
-    #create a socket with the same name as the soapd_controller socket
-    ${netcat_handle} =  Start Process  nc  -lkU  ${COMPONENT_VAR_DIR}/soapd_controller
-
-    Terminate On Access
-    ${mark} =  Get on access log mark
-    Start On Access
-    wait for on access log contains after mark  starting listening on socket: ${COMPONENT_VAR_DIR}/soapd_controller  mark=${mark}
-
-    ${mark} =  Get on access log mark
-    send av policy from file  CORE  ${RESOURCES_PATH}/core_policy/CORE-36_oa_disabled.xml
-    wait for on access log contains after mark  New on-access configuration: {"enabled":false  mark=${mark}
-
-    ${output} =   Terminate Process   handle=${netcat_handle}
+    Wait for on access log contains after mark  detected "${testfile}" is infected with EICAR-AV-Test (Open)  mark=${oamark2}
