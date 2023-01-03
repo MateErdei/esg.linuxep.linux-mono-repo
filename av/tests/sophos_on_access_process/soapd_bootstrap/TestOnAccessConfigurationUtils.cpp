@@ -46,7 +46,9 @@ namespace
             m_defaultTestExclusions.emplace_back("/mnt/");
             m_defaultTestExclusions.emplace_back("/uk-filer5/");
             m_localSettingsNotUsedMessage = "Some or all local settings weren't set from file: Queue Size: 100000, Max threads: 5, Perf dump: false, Cache all events: false, Uncache detections: true";
-
+            m_binaryFile = std::string{"\x00\x72\x6c\x5f\x69\x6e\x69\x74\x69\x61\x6c\x69\x7a\x65\x5f\x66\x75\x6e\x6d\x61"
+                                      "\x70\x00\x72\x6c\x5f\x63\x6f\x6d\x70\x6c\x65\x74\x69\x6f\x6e\x5f\x73\x75\x70\x70\x72"
+                                      "\x65\x73\x73\x5f\x71\x75\x6f\x74\x65\x00\x73\x75\x62\x73\x68\x65\x6c\x6c\x5f", 120};
             m_sysCallWrapper = std::make_shared<datatypes::SystemCallWrapper>();
             m_mockSysCallWrapper = std::make_shared<NiceMock<MockSystemCallWrapper>>();
         }
@@ -62,6 +64,7 @@ namespace
         }
 
         OnAccessConfiguration m_testConfig{};
+        std::string m_binaryFile;
         std::string m_oaPolicyConfigPath;
         std::string m_oaLocalSettingsPath;
         std::string m_oaFlagsPath;
@@ -152,11 +155,9 @@ TEST_F(TestOnAccessConfigurationUtils, parseOnAccessPolicySettingsHandlesBinary)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    std::string jsonString = "0000000 227b 616f 655f 616e 6c62 6465 3a22 7274 0000020 6575 007d 0000024";
-
     OnAccessConfiguration expectedResult{};
 
-    ASSERT_EQ(parseOnAccessPolicySettingsFromJson(jsonString, m_testConfig), false);
+    ASSERT_EQ(parseOnAccessPolicySettingsFromJson(m_binaryFile, m_testConfig), false);
     EXPECT_EQ(m_testConfig, expectedResult);
 
     EXPECT_TRUE(appenderContains("Failed to parse json configuration due to parse error, reason:"));
@@ -425,10 +426,9 @@ TEST_F(TestOnAccessConfigurationUtils, parseFlagConfigurationHandlesBinaryFile)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    std::string jsonString = "0000000 227b 616f 655f 616e 6c62 6465 3a22 7274 0000020 6575 007d 0000024";
-    EXPECT_FALSE(parseFlagConfiguration(jsonString));
+    EXPECT_FALSE(parseFlagConfiguration(m_binaryFile));
     EXPECT_TRUE(appenderContains("Failed to parse flag configuration, keeping existing settings"));
-    EXPECT_TRUE(appenderContains("ailed to parse json configuration of flags due to parse error, reason:"));
+    EXPECT_TRUE(appenderContains("Failed to parse json configuration of flags due to parse error, reason:"));
 }
 
 TEST_F(TestOnAccessConfigurationUtils, parseFlagConfigurationFromEmptyJson)
@@ -554,9 +554,9 @@ TEST_F(TestOnAccessConfigurationUtils, readLocalSettingsBinary)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    expectReadConfig(*m_mockIFileSystemPtr, "0000000 227b 616f 655f 616e 6c62 6465 3a22 7274 0000020 6575 007d 0000024");
-
+    EXPECT_CALL(*m_mockIFileSystemPtr, readFile(m_oaLocalSettingsPath)).WillOnce(Return(m_binaryFile));
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(m_mockIFileSystemPtr) };
+
     auto result = readLocalSettingsFile(m_mockSysCallWrapper);
     EXPECT_EQ(result.maxScanQueueSize, defaultMaxScanQueueSize);
     EXPECT_EQ(result.dumpPerfData, defaultDumpPerfData);
@@ -564,7 +564,7 @@ TEST_F(TestOnAccessConfigurationUtils, readLocalSettingsBinary)
     EXPECT_EQ(result.uncacheDetections, defaultUncacheDetections);
     EXPECT_EQ(result.numScanThreads, m_defaultThreads);
 
-    EXPECT_TRUE(appenderContains("Failed to read local settings:"));
+    EXPECT_TRUE(appenderContains("Failed to read local settings: [json.exception.parse_error.101] parse error at line 1"));
     EXPECT_TRUE(appenderContains(m_localSettingsNotUsedMessage));
 }
 
