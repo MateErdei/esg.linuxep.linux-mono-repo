@@ -53,7 +53,7 @@ namespace
 
         void TearDown() override
         {
-            //fs::remove_all(m_testDir);
+            fs::remove_all(m_testDir);
         }
 
         void expectReadConfig(MockFileSystem& mock, const std::string& contents)
@@ -83,6 +83,18 @@ namespace
     }
 }
 // Policy config ==================================================================
+
+TEST_F(TestOnAccessConfigurationUtils, readPolicyNotAFile)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    fs::create_directories(m_testDir /= "var/on_access_policy.json/");
+
+    EXPECT_EQ(readPolicyConfigFile(), "");
+
+    EXPECT_TRUE(appenderContains("Failed to read on-access configuration, keeping existing configuration:"));
+    EXPECT_TRUE(appenderContains("is a directory"));
+}
 
 TEST_F(TestOnAccessConfigurationUtils, emptyJSONPolicy)
 {
@@ -429,7 +441,30 @@ TEST_F(TestOnAccessConfigurationUtils, parseFlagConfigurationFromEmptyJson)
     EXPECT_TRUE(appenderContains("Failed to parse flag configuration, keeping existing settings"));
 }
 
+TEST_F(TestOnAccessConfigurationUtils, parseFlagConfigurationNotAFile)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    fs::create_directories(m_testDir /= "var/oa_flag.json/");
+    EXPECT_EQ(readFlagConfigFile(), "");
+
+    EXPECT_TRUE(appenderContains("Failed to read flag configuration, keeping existing configuration:"));
+    EXPECT_TRUE(appenderContains("is a directory"));
+}
+
 // Local Settings ================================================================
+
+
+TEST_F(TestOnAccessConfigurationUtils, readLocalSettingsSetsDefaultWhenNotAFile)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    fs::create_directories(m_testDir /= "var/on_access_local_settings.json/");
+    auto result = readLocalSettingsFile(m_sysCallWrapper);
+    EXPECT_EQ(result.maxScanQueueSize, defaultMaxScanQueueSize);
+    EXPECT_TRUE(appenderContains("Some or all local settings weren't set from file:"));
+    EXPECT_FALSE(appenderContains("Failed to read product config file info: "));
+}
 
 TEST_F(TestOnAccessConfigurationUtils, readLocalSettingsSetsDefaultWhenFileDoenstExist)
 {
