@@ -575,8 +575,12 @@ namespace safestore::QuarantineManager
             {
                 LOGWARN("Couldn't get object location for: " << objectId << ".");
             }
+            else if (objectLocation.back() != '/')
+            {
+                objectLocation += '/';
+            }
 
-            const std::string escapedPath = common::escapePathForLogging(objectLocation + "/" + objectName);
+            const std::string escapedPath = common::escapePathForLogging(objectLocation + objectName);
 
             if (response.allClean())
             {
@@ -615,8 +619,12 @@ namespace safestore::QuarantineManager
             LOGERROR("Couldn't get object location for: " << objectId << ". Failed to restore.");
             return {};
         }
+        else if (objectLocation.back() != '/')
+        {
+            objectLocation += '/';
+        }
 
-        const std::string path = objectLocation + "/" + objectName;
+        const std::string path = objectLocation + objectName;
         const std::string escapedPath = common::escapePathForLogging(path);
 
         std::string correlationId;

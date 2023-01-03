@@ -1476,6 +1476,28 @@ TEST_F(TestQuarantineManagerCorrelationId, RestoreFailsWhenGettingCorrelationIdT
     EXPECT_TRUE(appenderContains("couldn't get correlation ID"));
 }
 
+TEST_F(TestQuarantineManagerCorrelationId, RestoreSucceedsOnRootFile)
+{
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::move(m_mockFileSystem) };
+
+    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectCustomDataString(_, "correlationId"))
+        .WillOnce(Return(m_correlationId));
+    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectLocation(_))
+        .WillOnce(Return("/"));
+    EXPECT_CALL(*m_mockSafeStoreWrapper, restoreObjectById(_))
+        .WillOnce(Return(true));
+    EXPECT_CALL(*m_mockSafeStoreWrapper, deleteObjectById(_))
+        .WillOnce(Return(true));
+
+    UsingMemoryAppender memoryAppenderHolder{ *this };
+
+    QuarantineManagerImpl quarantineManager{ std::move(m_mockSafeStoreWrapper), std::move(m_mockSysCallWrapper) };
+    quarantineManager.initialise();
+    quarantineManager.restoreFile("00000000-0000-0000-0000-000000000000");
+
+    EXPECT_TRUE(appenderContains("Restored file to disk: /file"));
+}
+
 TEST_F(QuarantineManagerTests, QuarantineFileFailsIfReadlinkFails)
 {
     auto* filesystemMock = new StrictMock<MockFileSystem>();
