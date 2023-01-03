@@ -188,17 +188,19 @@ namespace sophos_on_access_process::OnAccessConfig
                 }
                 catch (const std::exception& e)
                 {
-                    LOGWARN("Failed to read product config file info: " << e.what());
+                    LOGWARN("Failed to read local settings: " << e.what());
                     noLocalSettingsFile = true;
                 }
             }
             else
             {
+                LOGDEBUG("Local Settings file is empty");
                 noLocalSettingsFile = true;
             }
         }
         catch (const Common::FileSystem::IFileSystemException& ex)
         {
+            LOGDEBUG("Local Settings file could not be read: " << ex.what());
             noLocalSettingsFile = true;
         }
 

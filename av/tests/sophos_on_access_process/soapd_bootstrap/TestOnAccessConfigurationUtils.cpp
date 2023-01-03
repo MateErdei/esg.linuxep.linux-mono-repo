@@ -462,8 +462,9 @@ TEST_F(TestOnAccessConfigurationUtils, readLocalSettingsSetsDefaultWhenNotAFile)
     fs::create_directories(m_testDir /= "var/on_access_local_settings.json/");
     auto result = readLocalSettingsFile(m_sysCallWrapper);
     EXPECT_EQ(result.maxScanQueueSize, defaultMaxScanQueueSize);
+    EXPECT_TRUE(appenderContains("Local Settings file could not be read: Error, Failed to read file:"));
+    EXPECT_TRUE(appenderContains("is a directory"));
     EXPECT_TRUE(appenderContains("Some or all local settings weren't set from file:"));
-    EXPECT_FALSE(appenderContains("Failed to read product config file info: "));
 }
 
 TEST_F(TestOnAccessConfigurationUtils, readLocalSettingsSetsDefaultWhenFileDoenstExist)
@@ -483,10 +484,13 @@ TEST_F(TestOnAccessConfigurationUtils, readLocalSettingsSetsDefaultWhenFileDoens
     EXPECT_EQ(result.uncacheDetections, defaultUncacheDetections);
 
     EXPECT_TRUE(appenderContains(m_localSettingsNotUsedMessage));
+    EXPECT_TRUE(appenderContains("Local Settings file could not be read: Error, Failed to read file: pretend/file.txt, file does not exist"));
 }
 
 TEST_F(TestOnAccessConfigurationUtils, readLocalSettingsFromEmptyFile)
 {
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
     EXPECT_CALL(*m_mockSysCallWrapper, hardware_concurrency()).WillOnce(Return(1));
     expectReadConfig(*m_mockIFileSystemPtr, "");
 
@@ -496,6 +500,8 @@ TEST_F(TestOnAccessConfigurationUtils, readLocalSettingsFromEmptyFile)
     EXPECT_EQ(result.dumpPerfData, sophos_on_access_process::OnAccessConfig::defaultDumpPerfData);
     EXPECT_EQ(result.cacheAllEvents, sophos_on_access_process::OnAccessConfig::defaultCacheAllEvents);
     EXPECT_EQ(result.numScanThreads, 1); // 1 CPU core
+
+    EXPECT_TRUE(appenderContains("Local Settings file is empty"));
 }
 
 TEST_F(TestOnAccessConfigurationUtils, readLocalSettingsLogsWhenSettingFromHardwareConcurrency)
@@ -540,7 +546,7 @@ TEST_F(TestOnAccessConfigurationUtils, readLocalSettingsInvalidJsonSyntax)
     EXPECT_EQ(result.numScanThreads, m_defaultThreads);
 
     EXPECT_TRUE(appenderContains("Setting number of scanning threads from Hardware Concurrency: 5"));
-    EXPECT_TRUE(appenderContains("Failed to read product config file info: "));
+    EXPECT_TRUE(appenderContains("Failed to read local settings: "));
     EXPECT_TRUE(appenderContains(m_localSettingsNotUsedMessage));
 }
 
@@ -559,7 +565,7 @@ TEST_F(TestOnAccessConfigurationUtils, readLocalSettingsBinary)
     EXPECT_EQ(result.numScanThreads, m_defaultThreads);
 
     EXPECT_TRUE(appenderContains("Setting number of scanning threads from Hardware Concurrency: 5"));
-    EXPECT_TRUE(appenderContains("Failed to read product config file info:"));
+    EXPECT_TRUE(appenderContains("Failed to read local settings:"));
     EXPECT_TRUE(appenderContains(m_localSettingsNotUsedMessage));
 }
 
@@ -704,7 +710,7 @@ TEST_F(TestOnAccessConfigurationUtils, readLocalSettingsIgnoresBadvalues)
     EXPECT_TRUE(appenderContains("Setting dumpPerfData from file: false")); //boolean check for string != "true" returns false
     EXPECT_TRUE(appenderContains("cacheAllEvents from file: true"));
     EXPECT_TRUE(appenderContains("uncacheDetections from file: false"));
-    EXPECT_TRUE(appenderContains("Failed to read product config file info: [json.exception.type_error.302] type must be number, but is string"));
+    EXPECT_TRUE(appenderContains("Failed to read local settings: [json.exception.type_error.302] type must be number, but is string"));
     EXPECT_TRUE(appenderContains("Some or all local settings weren't set from file: Queue Size: 100000, Max threads: 5, Perf dump: false, Cache all events: true, Uncache detections: false"));
 }
 
@@ -760,7 +766,7 @@ TEST_F(TestOnAccessConfigurationUtils, readLocalSettingsSetsToDefaultWithWrongTy
     EXPECT_TRUE(appenderContains("Setting dumpPerfData from file: false"));
     EXPECT_TRUE(appenderContains("Setting cacheAllEvents from file: false"));
     EXPECT_TRUE(appenderContains("Setting uncacheDetections from file: false"));
-    EXPECT_TRUE(appenderContains("Failed to read product config file info: [json.exception.type_error.302] type must be number, but is string"));
+    EXPECT_TRUE(appenderContains("Failed to read local settings: [json.exception.type_error.302] type must be number, but is string"));
     EXPECT_TRUE(appenderContains("Some or all local settings weren't set from file:"));
 }
 
