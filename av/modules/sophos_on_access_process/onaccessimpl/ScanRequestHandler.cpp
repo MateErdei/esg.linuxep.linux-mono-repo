@@ -58,13 +58,13 @@ void ScanRequestHandler::scan(
     }
     catch (const ScanInterruptedException& e)
     {
-        LOGWARN("Scan aborted: " << e.what());
+        LOGWARN("ScanRequestHandler-" << m_handlerId << " scan aborted: " << e.what());
         throw;
     }
     catch (const std::exception& e)
     {
         std::string fileToScanPath(common::escapePathForLogging(scanRequest->getPath()));
-        LOGERROR("Failed to scan " << fileToScanPath << " : " << e.what());
+        LOGERROR("ScanRequestHandler-" << m_handlerId << " failed to scan " << fileToScanPath << " : " << e.what());
         m_socketWrapper.reset();
         return;
     }
@@ -72,7 +72,7 @@ void ScanRequestHandler::scan(
     std::string errorMsg = common::toUtf8(response.getErrorMsg());
     if (!errorMsg.empty())
     {
-        LOGERROR(errorMsg);
+        LOGERROR("ScanRequestHandler-" << m_handlerId << " received error: " << errorMsg);
     }
     m_telemetryUtility->incrementFilesScanned(!errorMsg.empty());
 
@@ -85,26 +85,26 @@ void ScanRequestHandler::scan(
             if (m_deviceUtil->isCachable(scanRequest->getFd()))
             {
                 // Clean file, ret either 0 or 1 errno is logged by m_fanotifyHandler->cacheFd
-                LOGDEBUG("Caching " << common::escapePathForLogging(scanRequest->getPath()) << " (" << scanType << ")");
+                LOGDEBUG("ScanRequestHandler-" << m_handlerId << " caching " << common::escapePathForLogging(scanRequest->getPath()) << " (" << scanType << ")");
                 int ret = m_fanotifyHandler->cacheFd(scanRequest->getFd(), scanRequest->getPath(), false);
                 if (ret < 0)
                 {
                     std::string escapedPath(common::escapePathForLogging(scanRequest->getPath()));
-                    LOGFATAL("Caching " << escapedPath << " failed. Restarting On Access");
+                    LOGFATAL("ScanRequestHandler-" << m_handlerId << " caching " << escapedPath << " failed. Restarting On Access");
                     std::exit(EXIT_FAILURE);
                 }
             }
             else
             {
-                LOGDEBUG(
-                    "Not caching " << common::escapePathForLogging(scanRequest->getPath()) << " (" << scanType
+                LOGDEBUG("ScanRequestHandler-" << m_handlerId <<
+                         " not caching " << common::escapePathForLogging(scanRequest->getPath()) << " (" << scanType
                                    << "), as it is on a mutable mount");
             }
         }
     }
     else if (m_localSettings.uncacheDetections)
     {
-        LOGDEBUG("Un-caching " << common::escapePathForLogging(scanRequest->getPath())<< " (" << scanType << ")");
+        LOGDEBUG("ScanRequestHandler-" << m_handlerId << " un-caching " << common::escapePathForLogging(scanRequest->getPath())<< " (" << scanType << ")");
         // file may not have been cached, so we ignore the return code
         std::ignore = m_fanotifyHandler->uncacheFd(scanRequest->getFd(), scanRequest->getPath());
 
@@ -113,7 +113,7 @@ void ScanRequestHandler::scan(
             std::string escapedPath(common::escapePathForLogging(detection.path));
             std::string threatName = detection.name;
 
-            LOGWARN("Detected \"" << escapedPath << "\" is infected with " << threatName << " (" << scanType << ")");
+            LOGWARN("ScanRequestHandler-" << m_handlerId << " detected \"" << escapedPath << "\" is infected with " << threatName << " (" << scanType << ")");
         }
     }
 }
@@ -122,7 +122,7 @@ void ScanRequestHandler::run()
 {
     announceThreadStarted();
 
-    LOGDEBUG("Starting ScanRequestHandler" << m_handlerId);
+    LOGDEBUG("Starting ScanRequestHandler-" << m_handlerId);
     std::ofstream perfDump;
     if (m_localSettings.dumpPerfData)
     {
@@ -143,6 +143,8 @@ void ScanRequestHandler::run()
             {
                 if(logLevel <= Common::Logging::TRACE || m_localSettings.dumpPerfData)
                 {
+                    std::string escapedPath(common::escapePathForLogging(queueItem->getPath()));
+                    LOGTRACE("ScanRequestHandler-" << m_handlerId << " picked up scan request for " << escapedPath << " with UID " << queueItem->getUserId());
                     std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
 
                     scan(queueItem);
@@ -151,7 +153,6 @@ void ScanRequestHandler::run()
                     auto scanDuration = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
                     auto inProductDuration = std::chrono::duration_cast<std::chrono::milliseconds>(end - queueItem->getCreationTime()).count();
 
-                    std::string escapedPath(common::escapePathForLogging(queueItem->getPath()));
                     if (logLevel <= Common::Logging::TRACE)
                     {
                         LOGTRACE(
@@ -179,5 +180,5 @@ void ScanRequestHandler::run()
         // Already logged
     }
     m_socketWrapper.reset();
-    LOGDEBUG("Finished ScanRequestHandler");
+    LOGDEBUG("Finished ScanRequestHandler-" << m_handlerId);
 }
