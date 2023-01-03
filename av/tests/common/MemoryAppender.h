@@ -154,7 +154,7 @@ namespace
         [[maybe_unused]] [[nodiscard]] bool waitForLogMultiple(const std::string& expected, const int& count, clock::duration wait_time = 100ms) const;
     };
 
-    MemoryAppenderUsingTests::MemoryAppenderUsingTests(std::string loggerInstanceName) :
+    [[maybe_unused]] MemoryAppenderUsingTests::MemoryAppenderUsingTests(std::string loggerInstanceName) :
         m_loggerInstanceName(std::move(loggerInstanceName))
     {
     }

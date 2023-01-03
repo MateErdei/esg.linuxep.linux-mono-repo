@@ -10,6 +10,7 @@ namespace common
     {
     public:
         explicit StatusFile(std::string path);
+        virtual ~StatusFile() = default;
         void enabled();
         void disabled();
 

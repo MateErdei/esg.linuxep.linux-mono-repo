@@ -7,6 +7,7 @@ SophosAddTest(TestCommon
         TestNotifyPipeSleeper.cpp
         TestPathUtils.cpp
         TestSaferStrerror.cpp
+        TestStatusFile.cpp
         TestStringUtils.cpp
         TestSusiSettings.cpp
         signals/TestSigHupMonitor.cpp
@@ -16,6 +17,6 @@ SophosAddTest(TestCommon
         signals/TestSignalHandlerTemplate.cpp
         signals/TestSigUSR1Monitor.cpp
         PROJECTS common
-        LIBS ${testhelperslib}
+        LIBS ${testhelperslib} ${log4cpluslib}
         INC_DIRS ${testhelpersinclude}
         )
