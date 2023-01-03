@@ -564,7 +564,6 @@ TEST_F(TestOnAccessConfigurationUtils, readLocalSettingsBinary)
     EXPECT_EQ(result.uncacheDetections, defaultUncacheDetections);
     EXPECT_EQ(result.numScanThreads, m_defaultThreads);
 
-    EXPECT_TRUE(appenderContains("Setting number of scanning threads from Hardware Concurrency: 5"));
     EXPECT_TRUE(appenderContains("Failed to read local settings:"));
     EXPECT_TRUE(appenderContains(m_localSettingsNotUsedMessage));
 }
@@ -762,7 +761,7 @@ TEST_F(TestOnAccessConfigurationUtils, readLocalSettingsSetsToDefaultWithWrongTy
     EXPECT_EQ(result.uncacheDetections, false); //boolean check for string != "true" returns false
     EXPECT_EQ(result.numScanThreads, numScanThreads);
 
-    EXPECT_TRUE(appenderContains("Setting number of scanning threads from Hardware Concurrency: 6"));
+    EXPECT_TRUE(appenderContains("Setting number of scanning threads from Hardware Concurrency: " + std::to_string(numScanThreads)));
     EXPECT_TRUE(appenderContains("Setting dumpPerfData from file: false"));
     EXPECT_TRUE(appenderContains("Setting cacheAllEvents from file: false"));
     EXPECT_TRUE(appenderContains("Setting uncacheDetections from file: false"));

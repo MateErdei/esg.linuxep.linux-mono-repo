@@ -19,7 +19,7 @@ using json = nlohmann::json;
 namespace
 {
 
-    std::string booleanToString(bool value)
+    std::string booleanToString(const bool& value)
     {
         return value ? "true" : "false";
     }
