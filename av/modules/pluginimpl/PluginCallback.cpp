@@ -288,7 +288,7 @@ namespace Plugin
     </idelist>
     <ideChecksum>N/A</ideChecksum>
   </vdl-info>
-  <on-access>false</on-access>
+  <on-access>@@ON_ACCESS_STATUS@@</on-access>
   <entity>
     <productId>SSPL-AV</productId>
     <product-version>@@PLUGIN_VERSION@@</product-version>
@@ -297,6 +297,7 @@ namespace Plugin
 </status>)sophos",{
                         {"@@POLICY_COMPLIANCE@@", m_revID.empty() ? "NoRef" : "Same"},
                         {"@@REV_ID@@", m_revID},
+                        {"@@ON_ACCESS_STATUS@@", "false"},
                         {"@@PLUGIN_VERSION@@", common::getPluginVersion()}
                 });
 
