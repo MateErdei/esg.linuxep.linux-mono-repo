@@ -7,7 +7,7 @@
 #endif
 
 #define ENABLE_CORE_POLICY
-// #define ENABLE_CORC_POLICY
+#define ENABLE_CORC_POLICY
 
 #include "DetectionQueue.h"
 #include "HealthStatus.h"
