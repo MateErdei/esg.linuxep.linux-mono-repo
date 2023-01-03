@@ -831,8 +831,18 @@ TEST_F(QuarantineManagerTests, deleteDatabaseCalledOnInitialisedDb)
     EXPECT_CALL(*filesystemMock, isDirectory(Plugin::getSafeStoreDbDirPath())).WillOnce(Return(true));
     EXPECT_CALL(*filesystemMock, writeFile(Plugin::getSafeStorePasswordFilePath(), _)).Times(1);
     EXPECT_CALL(*filesystemMock, exists(Plugin::getSafeStoreDbDirPath())).WillOnce(Return(true));
-    EXPECT_CALL(*filesystemMock, removeFilesInDirectory(Plugin::getSafeStoreDbDirPath())).Times(1);
+    EXPECT_CALL(*filesystemMock, removeFileOrDirectory(Plugin::getSafeStoreDbDirPath())).Times(1);
+    EXPECT_CALL(*filesystemMock, makedirs(Plugin::getSafeStoreDbDirPath())).Times(1);
     EXPECT_CALL(*filesystemMock, isFile(Plugin::getSafeStoreConfigPath())).WillOnce(Return(false));
+
+    auto* filePermissionsMock = new StrictMock<MockFilePermissions>();
+    Tests::ScopedReplaceFilePermissions scopedReplaceFilePermissions{
+        std::unique_ptr<Common::FileSystem::IFilePermissions>(filePermissionsMock)
+    };
+
+    EXPECT_CALL(*filePermissionsMock, chown(Plugin::getSafeStoreDbDirPath(), "root", "root")).WillOnce(Return());
+    EXPECT_CALL(*filePermissionsMock, chmod(Plugin::getSafeStoreDbDirPath(), S_IRUSR | S_IWUSR | S_IXUSR))
+        .WillOnce(Return());
 
     EXPECT_CALL(
         *filesystemMock,
@@ -873,7 +883,17 @@ TEST_F(QuarantineManagerTests, deleteDatabaseCalledOnUninitialisedDbThatDoesExis
         *filesystemMock,
         writeFileAtomically(Plugin::getSafeStoreDormantFlagPath(), "SafeStore database uninitialised", "/tmp/tmp"));
     EXPECT_CALL(*filesystemMock, exists(Plugin::getSafeStoreDbDirPath())).WillOnce(Return(true));
-    EXPECT_CALL(*filesystemMock, removeFilesInDirectory(Plugin::getSafeStoreDbDirPath())).Times(1);
+    EXPECT_CALL(*filesystemMock, removeFileOrDirectory(Plugin::getSafeStoreDbDirPath())).Times(1);
+    EXPECT_CALL(*filesystemMock, makedirs(Plugin::getSafeStoreDbDirPath())).Times(1);
+
+    auto* filePermissionsMock = new StrictMock<MockFilePermissions>();
+    Tests::ScopedReplaceFilePermissions scopedReplaceFilePermissions{
+        std::unique_ptr<Common::FileSystem::IFilePermissions>(filePermissionsMock)
+    };
+
+    EXPECT_CALL(*filePermissionsMock, chown(Plugin::getSafeStoreDbDirPath(), "root", "root")).WillOnce(Return());
+    EXPECT_CALL(*filePermissionsMock, chmod(Plugin::getSafeStoreDbDirPath(), S_IRUSR | S_IWUSR | S_IXUSR))
+        .WillOnce(Return());
 
     std::shared_ptr<IQuarantineManager> quarantineManager =
         std::make_shared<QuarantineManagerImpl>(std::move(m_mockSafeStoreWrapper), std::move(m_mockSysCallWrapper));
@@ -889,7 +909,7 @@ TEST_F(QuarantineManagerTests, deleteDatabaseDoesNotThrowOnFailure)
         filesystemMock) };
     addCommonPersistValueExpects(*filesystemMock);
     EXPECT_CALL(*filesystemMock, exists(Plugin::getSafeStoreDbDirPath())).WillOnce(Return(true));
-    EXPECT_CALL(*filesystemMock, removeFilesInDirectory(Plugin::getSafeStoreDbDirPath()))
+    EXPECT_CALL(*filesystemMock, removeFileOrDirectory(Plugin::getSafeStoreDbDirPath()))
         .WillOnce(Throw(Common::FileSystem::IFileSystemException("File does not exist.")));
 
     std::shared_ptr<IQuarantineManager> quarantineManager =

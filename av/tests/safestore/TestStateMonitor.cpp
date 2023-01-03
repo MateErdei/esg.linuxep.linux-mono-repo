@@ -11,6 +11,7 @@
 
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 #include "Common/Helpers/FileSystemReplaceAndRestore.h"
+#include "Common/Helpers/MockFilePermissions.h"
 #include "Common/Helpers/MockFileSystem.h"
 #include "Common/Logging/ConsoleLoggingSetup.h"
 
@@ -143,11 +144,19 @@ TEST_F(StateMonitorTests, stateMonitorReinitialisesQuarantineManagerWhenQuaranti
     EXPECT_CALL(*filesystemMock, isFile(Plugin::getSafeStorePasswordFilePath())).WillRepeatedly(Return(true));
     EXPECT_CALL(*filesystemMock, readFile(Plugin::getSafeStorePasswordFilePath())).WillRepeatedly(Return("password"));
     EXPECT_CALL(*filesystemMock, isFile(Plugin::getSafeStoreConfigPath())).WillRepeatedly(Return(false));
-
     EXPECT_CALL(*filesystemMock, removeFile(Plugin::getSafeStoreDormantFlagPath(), true)).WillOnce(Return());
-
     EXPECT_CALL(*filesystemMock, exists(Plugin::getSafeStoreDbDirPath())).WillOnce(Return(true));
-    EXPECT_CALL(*filesystemMock, removeFilesInDirectory(Plugin::getSafeStoreDbDirPath())).Times(1);
+    EXPECT_CALL(*filesystemMock, removeFileOrDirectory(Plugin::getSafeStoreDbDirPath())).Times(1);
+    EXPECT_CALL(*filesystemMock, makedirs(Plugin::getSafeStoreDbDirPath())).Times(1);
+
+    auto* filePermissionsMock = new StrictMock<MockFilePermissions>();
+    Tests::ScopedReplaceFilePermissions scopedReplaceFilePermissions{
+        std::unique_ptr<Common::FileSystem::IFilePermissions>(filePermissionsMock)
+    };
+
+    EXPECT_CALL(*filePermissionsMock, chown(Plugin::getSafeStoreDbDirPath(), "root", "root")).WillOnce(Return());
+    EXPECT_CALL(*filePermissionsMock, chmod(Plugin::getSafeStoreDbDirPath(), S_IRUSR | S_IWUSR | S_IXUSR))
+        .WillOnce(Return());
 
     EXPECT_CALL(
         *m_mockSafeStoreWrapper,
@@ -192,7 +201,17 @@ TEST_F(StateMonitorTests, stateMonitorIncrementsErrorCountOnInternalError)
     EXPECT_CALL(*filesystemMock, removeFile(Plugin::getSafeStoreDormantFlagPath(), true)).WillOnce(Return());
 
     EXPECT_CALL(*filesystemMock, exists(Plugin::getSafeStoreDbDirPath())).WillOnce(Return(true));
-    EXPECT_CALL(*filesystemMock, removeFilesInDirectory(Plugin::getSafeStoreDbDirPath())).Times(1);
+    EXPECT_CALL(*filesystemMock, removeFileOrDirectory(Plugin::getSafeStoreDbDirPath())).Times(1);
+    EXPECT_CALL(*filesystemMock, makedirs(Plugin::getSafeStoreDbDirPath())).Times(1);
+
+    auto* filePermissionsMock = new StrictMock<MockFilePermissions>();
+    Tests::ScopedReplaceFilePermissions scopedReplaceFilePermissions{
+        std::unique_ptr<Common::FileSystem::IFilePermissions>(filePermissionsMock)
+    };
+
+    EXPECT_CALL(*filePermissionsMock, chown(Plugin::getSafeStoreDbDirPath(), "root", "root")).WillOnce(Return());
+    EXPECT_CALL(*filePermissionsMock, chmod(Plugin::getSafeStoreDbDirPath(), S_IRUSR | S_IWUSR | S_IXUSR))
+        .WillOnce(Return());
 
     EXPECT_CALL(
         *m_mockSafeStoreWrapper,
@@ -237,7 +256,17 @@ TEST_F(StateMonitorTests, stateMonitorIgnoresSpecificInitErrorCodes)
     EXPECT_CALL(*filesystemMock, removeFile(Plugin::getSafeStoreDormantFlagPath(), true)).WillOnce(Return());
 
     EXPECT_CALL(*filesystemMock, exists(Plugin::getSafeStoreDbDirPath())).WillRepeatedly(Return(true));
-    EXPECT_CALL(*filesystemMock, removeFilesInDirectory(Plugin::getSafeStoreDbDirPath())).Times(1);
+    EXPECT_CALL(*filesystemMock, removeFileOrDirectory(Plugin::getSafeStoreDbDirPath())).Times(1);
+    EXPECT_CALL(*filesystemMock, makedirs(Plugin::getSafeStoreDbDirPath())).Times(1);
+
+    auto* filePermissionsMock = new StrictMock<MockFilePermissions>();
+    Tests::ScopedReplaceFilePermissions scopedReplaceFilePermissions{
+        std::unique_ptr<Common::FileSystem::IFilePermissions>(filePermissionsMock)
+    };
+
+    EXPECT_CALL(*filePermissionsMock, chown(Plugin::getSafeStoreDbDirPath(), "root", "root")).WillOnce(Return());
+    EXPECT_CALL(*filePermissionsMock, chmod(Plugin::getSafeStoreDbDirPath(), S_IRUSR | S_IWUSR | S_IXUSR))
+        .WillOnce(Return());
 
     EXPECT_CALL(
         *m_mockSafeStoreWrapper,

@@ -391,7 +391,11 @@ namespace safestore::QuarantineManager
         {
             if (fileSystem->exists(safeStoreDbDir))
             {
-                fileSystem->removeFilesInDirectory(safeStoreDbDir);
+                fileSystem->removeFileOrDirectory(safeStoreDbDir);
+                fileSystem->makedirs(safeStoreDbDir);
+                auto fp = Common::FileSystem::filePermissions();
+                fp->chown(safeStoreDbDir, "root", "root");
+                fp->chmod(safeStoreDbDir, S_IRUSR | S_IWUSR | S_IXUSR); // 0700
                 setState(QuarantineManagerState::UNINITIALISED);
                 m_databaseErrorCount = 0;
                 Common::Telemetry::TelemetryHelper::getInstance().increment(telemetrySafeStoreDatabaseDeletions, 1ul);
