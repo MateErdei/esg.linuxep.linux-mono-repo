@@ -1,4 +1,4 @@
-// Copyright 2020-2022, Sophos Limited.  All rights reserved.
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 // Class
 #include "PluginCallback.h"
@@ -297,7 +297,7 @@ namespace Plugin
 </status>)sophos",{
                         {"@@POLICY_COMPLIANCE@@", m_revID.empty() ? "NoRef" : "Same"},
                         {"@@REV_ID@@", m_revID},
-                        {"@@ON_ACCESS_STATUS@@", "false"},
+                        {"@@ON_ACCESS_STATUS@@", m_onAccessEnabled.load() ? "true" : "false"},
                         {"@@PLUGIN_VERSION@@", common::getPluginVersion()}
                 });
 
@@ -312,7 +312,17 @@ namespace Plugin
         {
             LOGDEBUG("Received new policy with revision ID: " << revID);
             m_revID = revID;
-            m_task->push(Task{ .taskType=Task::TaskType::SendStatus, .Content=generateSAVStatusXML() });
+            sendStatus();
+        }
+    }
+
+    void PluginCallback::sendStatus()
+    {
+        auto newStatus = generateSAVStatusXML();
+        if (newStatus != m_savStatus)
+        {
+            m_savStatus = newStatus;
+            m_task->push(Task{ .taskType=Task::TaskType::SendStatus, .Content=newStatus });
         }
     }
 
@@ -553,6 +563,11 @@ namespace Plugin
     void PluginCallback::setSafeStoreEnabled(bool isEnabled)
     {
         m_safeStoreEnabled = isEnabled;
+    }
+
+    void PluginCallback::setOnAccessEnabled(bool isEnabled)
+    {
+        m_onAccessEnabled.store(isEnabled);
     }
 
 } // namespace Plugin

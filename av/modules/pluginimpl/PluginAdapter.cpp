@@ -1,4 +1,4 @@
-// Copyright 2018-2022 Sophos Limited. All rights reserved.
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #include "PluginAdapter.h"
 
@@ -7,6 +7,7 @@
 #include "DetectionReporter.h"
 #include "HealthStatus.h"
 #include "Logger.h"
+#include "OnAccessStatusMonitor.h"
 #include "StringUtils.h"
 
 #include "common/ApplicationPaths.h"
@@ -185,6 +186,9 @@ namespace Plugin
     {
         auto policyWaiter =
             std::make_shared<PolicyWaiter>(m_requested_policies, PolicyWaiter::seconds_t{ m_waitForPolicyTimeout });
+
+        auto oaMonitor = std::make_shared<OnAccessStatusMonitor>(m_callback);
+        common::ThreadRunner oaMonitorRunner{oaMonitor, "OnAccessStatusMonitor", true};
 
         bool threadsRunning = false;
 

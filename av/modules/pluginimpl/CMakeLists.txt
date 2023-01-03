@@ -19,6 +19,8 @@ sophos_add_library(pluginimpl SHARED
         PluginCallback.h
         Logger.cpp
         Logger.h
+        OnAccessStatusMonitor.cpp
+        OnAccessStatusMonitor.h
         PluginAdapter.cpp
         PluginAdapter.h
         SafeStoreWorker.cpp

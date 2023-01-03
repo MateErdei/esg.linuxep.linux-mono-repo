@@ -1,4 +1,4 @@
-// Copyright 2018-2022, Sophos Limited.  All rights reserved.
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
@@ -44,12 +44,15 @@ namespace Plugin
         static std::pair<unsigned long, unsigned long> getThreatScannerProcessinfo(const std::shared_ptr<datatypes::ISystemCallWrapper>& sysCalls);
 
         void sendStatus(const std::string& revID);
+        void sendStatus();
         void setRunning(bool running);
         bool isRunning();
         void setSXL4Lookups(bool sxl4Lookup);
         void setThreatHealth(E_HEALTH_STATUS threatStatus);
         [[nodiscard]] long getThreatHealth() const;
         void setSafeStoreEnabled(bool isEnabled);
+
+        void setOnAccessEnabled(bool isEnabled);
 
     private:
         std::string generateSAVStatusXML();
@@ -58,11 +61,6 @@ namespace Plugin
         static std::string getMlLibHash();
         static std::string getMlModelVersion();
         static std::string getVirusDataVersion();
-        bool isProcessHealthy(int pid,
-                              const std::string& processName,
-                              const std::string& processUsername,
-                              Common::FileSystem::IFileSystem* fileSystem);
-        bool onaccessStatusFromFileIsInactiveOrHealthy();
 
         static int getProcessPidFromFile(Common::FileSystem::IFileSystem* fileSystem, const Path&);
         [[nodiscard]] bool shutdownFileValid() const;
@@ -89,8 +87,10 @@ namespace Plugin
         std::shared_ptr<TaskQueue> m_task;
         Common::PluginApi::StatusInfo m_statusInfo;
         std::string m_revID;
+        std::string m_savStatus;
         std::atomic_bool m_running = false;
         std::atomic_bool m_safeStoreEnabled = false;
+        std::atomic_bool m_onAccessEnabled = false;
         bool m_lookupEnabled = true;
         int m_allowedShutdownTime = 60;
         long m_threatStatus = E_THREAT_HEALTH_STATUS_GOOD;
@@ -104,4 +104,5 @@ TEST_PUBLIC:
         void calculateSoapHealthStatus(const std::shared_ptr<datatypes::ISystemCallWrapper>& sysCalls);
         void calculateSafeStoreHealthStatus(const std::shared_ptr<datatypes::ISystemCallWrapper>& sysCalls);
     };
+    using PluginCallbackSharedPtr = std::shared_ptr<PluginCallback>;
 } // namespace Plugin

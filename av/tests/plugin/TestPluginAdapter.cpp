@@ -220,6 +220,7 @@ TEST_F(TestPluginAdapter, testProcessPolicy)
 
     auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
     auto* mockBaseServicePtr = mockBaseService.get();
+    EXPECT_CALL(*mockBaseService, sendStatus(_, _, _)).WillRepeatedly(Return());
     ASSERT_NE(mockBaseServicePtr, nullptr);
 
     PluginAdapter pluginAdapter(
@@ -267,16 +268,16 @@ TEST_F(TestPluginAdapter, testWaitForTheFirstPolicyReturnsEmptyPolicyOnInvalidPo
     UsingMemoryAppender memoryAppenderHolder(*this);
 
     auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
-
-    std::string policyXml = R"sophos(<?xml version="1.0"?>
-<invalidPolicy />
-)sophos";
-
-    Task policyTask = { .taskType = Task::TaskType::Policy, .Content = policyXml, .appId = "unknown" };
-    m_taskQueue->push(policyTask);
-
+    EXPECT_CALL(*mockBaseService, sendStatus(_, _, _)).WillRepeatedly(Return());
     EXPECT_CALL(*mockBaseService, sendThreatHealth("{\"ThreatHealth\":1}")).Times(1);
     expectedDefaultPolicyRequests(*mockBaseService);
+
+    const std::string policyXml = R"sophos(<?xml version="1.0"?>
+<invalidPolicy />
+)sophos";
+    const Task policyTask = { .taskType = Task::TaskType::Policy, .Content = policyXml, .appId = "unknown" };
+    m_taskQueue->push(policyTask);
+
 
     auto pluginAdapter = std::make_shared<PluginAdapter>(
         m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 1);
@@ -302,6 +303,7 @@ TEST_F(TestPluginAdapter, testProcessPolicy_ignoresPolicyWithWrongID)
     UsingMemoryAppender memoryAppenderHolder(*this);
 
     auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
+    EXPECT_CALL(*mockBaseService, sendStatus(_, _, _)).WillRepeatedly(Return());
     MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
     ASSERT_NE(mockBaseServicePtr, nullptr);
     expectedDefaultPolicyRequests(*mockBaseService);
@@ -340,6 +342,7 @@ TEST_F(TestPluginAdapter, testProcessUpdatePolicy)
     UsingMemoryAppender memoryAppenderHolder(*this);
 
     auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
+    EXPECT_CALL(*mockBaseService, sendStatus(_, _, _)).WillRepeatedly(Return());
     MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
     ASSERT_NE(mockBaseServicePtr, nullptr);
     expectedDefaultPolicyRequests(*mockBaseService);
@@ -387,6 +390,7 @@ TEST_F(TestPluginAdapter, testProcessUpdatePolicyThrowsIfInvalidXML)
     threadRunnerLogger.addAppender(m_sharedAppender);
 
     auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
+    EXPECT_CALL(*mockBaseService, sendStatus(_, _, _)).WillRepeatedly(Return());
     expectedDefaultPolicyRequests(*mockBaseService);
     EXPECT_CALL(*mockBaseService, sendThreatHealth("{\"ThreatHealth\":1}")).Times(1);
 
@@ -431,6 +435,7 @@ TEST_F(TestPluginAdapter, testPluginAdaptorDoesntRestartThreatDetectorWithInvali
     auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
     expectedDefaultPolicyRequests(*mockBaseService);
     EXPECT_CALL(*mockBaseService, sendThreatHealth("{\"ThreatHealth\":1}")).Times(1);
+    EXPECT_CALL(*mockBaseService, sendStatus(_, _, _)).WillRepeatedly(Return());
 
     auto pluginAdapter = std::make_shared<PluginAdapter>(
         m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
@@ -511,6 +516,7 @@ TEST_F(TestPluginAdapter, testProcessUpdatePolicy_ignoresPolicyWithWrongID)
     UsingMemoryAppender memoryAppenderHolder(*this);
 
     auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
+    EXPECT_CALL(*mockBaseService, sendStatus(_, _, _)).WillRepeatedly(Return());
     MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
     ASSERT_NE(mockBaseServicePtr, nullptr);
     expectedDefaultPolicyRequests(*mockBaseService);
@@ -564,6 +570,7 @@ TEST_F(TestPluginAdapter, testProcessAction)
     auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
     expectedDefaultPolicyRequests(*mockBaseService);
     EXPECT_CALL(*mockBaseService, sendThreatHealth("{\"ThreatHealth\":1}")).Times(1);
+    EXPECT_CALL(*mockBaseService, sendStatus(_, _, _)).WillRepeatedly(Return());
 
     auto pluginAdapter = std::make_shared<PluginAdapter>(
         m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
@@ -598,6 +605,7 @@ TEST_F(TestPluginAdapter, testProcessActionMalformed)
     auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
     expectedDefaultPolicyRequests(*mockBaseService);
     EXPECT_CALL(*mockBaseService, sendThreatHealth("{\"ThreatHealth\":1}")).Times(1);
+    EXPECT_CALL(*mockBaseService, sendStatus(_, _, _)).WillRepeatedly(Return());
 
     auto pluginAdapter = std::make_shared<PluginAdapter>(
         m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
@@ -614,7 +622,7 @@ TEST_F(TestPluginAdapter, testProcessActionMalformed)
     expectedLog.append(actionXml);
 
     EXPECT_TRUE(waitForLog(expectedLog));
-    EXPECT_FALSE(waitForLog("Evaluating Scan Now"));
+    EXPECT_FALSE(waitForLog("Evaluating Scan Now", 100ms));
 
     m_taskQueue->pushStop();
 
@@ -632,6 +640,7 @@ TEST_F(TestPluginAdapter, testBadProcessActionXMLThrows)
     auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
     expectedDefaultPolicyRequests(*mockBaseService);
     EXPECT_CALL(*mockBaseService, sendThreatHealth("{\"ThreatHealth\":1}")).Times(1);
+    EXPECT_CALL(*mockBaseService, sendStatus(_, _, _)).WillRepeatedly(Return());
 
     auto pluginAdapter = std::make_shared<PluginAdapter>(
         m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
@@ -964,20 +973,18 @@ TEST_F(TestPluginAdapter, testIncrementTelemetryThreatCountOnAccessThreatEicarCo
 TEST_F(TestPluginAdapter, testPublishThreatHealthWithretrySuceedsAfterFailure)
 {
     auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
-    MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
-    ASSERT_NE(mockBaseServicePtr, nullptr);
-
-    PluginAdapter pluginAdapter(
-        m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
-
-    m_taskQueue->pushStop();
     Common::PluginApi::ApiException ex{ "dummy error" };
-    EXPECT_CALL(*mockBaseServicePtr, sendThreatHealth(R"({"ThreatHealth":1})"))
+    EXPECT_CALL(*mockBaseService, sendThreatHealth(R"({"ThreatHealth":1})"))
         .WillOnce(Throw(ex))
         .WillOnce(Throw(ex))
         .WillOnce(Throw(ex))
         .WillOnce(Throw(ex))
         .WillOnce(Return());
+
+    PluginAdapter pluginAdapter(
+        m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
+
+    m_taskQueue->pushStop();
 
     pluginAdapter.publishThreatHealthWithRetry(E_THREAT_HEALTH_STATUS_GOOD);
     EXPECT_EQ(m_callback->getThreatHealth(), E_THREAT_HEALTH_STATUS_GOOD);
@@ -1034,6 +1041,7 @@ TEST_F(TestPluginAdapter, testCanStopWhileWaitingForFirstPolicies)
     auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
     expectedDefaultPolicyRequests(*mockBaseService);
     EXPECT_CALL(*mockBaseService, sendThreatHealth("{\"ThreatHealth\":1}")).Times(1);
+    EXPECT_CALL(*mockBaseService, sendStatus(_, _, _)).WillRepeatedly(Return());
 
     auto pluginAdapter = std::make_shared<PluginAdapter>(
         m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 1);

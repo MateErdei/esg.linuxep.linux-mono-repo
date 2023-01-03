@@ -1,4 +1,4 @@
-// Copyright 2020-2022, Sophos Limited.  All rights reserved.
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 # define TEST_PUBLIC public
 
@@ -111,8 +111,8 @@ namespace
             //creating ide files
             createIdes(m_initialExpectedVdlIdeCount, m_vdlDirPath);
 
-            std::shared_ptr<Plugin::TaskQueue> task = nullptr;
-            m_pluginCallback = std::make_shared<Plugin::PluginCallback>(task);
+            m_taskQueue = std::make_shared<Plugin::TaskQueue>();
+            m_pluginCallback = std::make_shared<Plugin::PluginCallback>(m_taskQueue);
             m_mockSysCalls = std::make_shared<StrictMock<MockSystemCallWrapper>>();
             m_sysCalls = std::make_shared<datatypes::SystemCallWrapper>();
         };
@@ -165,6 +165,7 @@ namespace
             }
         }
 
+        std::shared_ptr<Plugin::TaskQueue> m_taskQueue;
         std::shared_ptr<Plugin::PluginCallback> m_pluginCallback;
         std::shared_ptr<StrictMock<MockSystemCallWrapper>> m_mockSysCalls;
         std::shared_ptr<datatypes::SystemCallWrapper> m_sysCalls;
@@ -966,4 +967,33 @@ TEST_F(TestPluginCallback, calculateSoapHealthStatusDetectsExistenceOfTheUnhealt
     m_pluginCallback->calculateSoapHealthStatus(m_sysCalls);
     ASSERT_EQ(m_pluginCallback->m_soapServiceStatus, E_HEALTH_STATUS_BAD);
     EXPECT_TRUE(appenderContains("Sophos On Access Process is unhealthy, turning service health to red"));
+}
+
+TEST_F(TestPluginCallback, sendStatus)
+{
+    m_pluginCallback->sendStatus();
+    ASSERT_FALSE(m_taskQueue->empty());
+    auto task = m_taskQueue->pop();
+    ASSERT_EQ(task.taskType, Plugin::Task::TaskType::SendStatus);
+    EXPECT_THAT(task.Content, HasSubstr("<on-access>false</on-access>"));
+    EXPECT_THAT(task.Content, HasSubstr(R"(<csc:CompRes xmlns:csc="com.sophos\msys\csc" Res="NoRef" RevID="" policyType="2"/>)"));
+}
+
+TEST_F(TestPluginCallback, sendStatusWithRef)
+{
+    m_pluginCallback->sendStatus("MyReference");
+    ASSERT_FALSE(m_taskQueue->empty());
+    auto task = m_taskQueue->pop();
+    ASSERT_EQ(task.taskType, Plugin::Task::TaskType::SendStatus);
+    EXPECT_THAT(task.Content, HasSubstr(R"(<csc:CompRes xmlns:csc="com.sophos\msys\csc" Res="Same" RevID="MyReference" policyType="2"/>)"));
+}
+
+TEST_F(TestPluginCallback, sendStatusOnAccess)
+{
+    m_pluginCallback->setOnAccessEnabled(true);
+    m_pluginCallback->sendStatus();
+    ASSERT_FALSE(m_taskQueue->empty());
+    auto task = m_taskQueue->pop();
+    ASSERT_EQ(task.taskType, Plugin::Task::TaskType::SendStatus);
+    EXPECT_THAT(task.Content, HasSubstr("<on-access>true</on-access>"));
 }
