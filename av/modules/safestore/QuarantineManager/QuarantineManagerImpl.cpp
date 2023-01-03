@@ -371,7 +371,7 @@ namespace safestore::QuarantineManager
         else
         {
             LOGERROR(
-                "Failed to quarantine file due to: " << SafeStoreWrapper::GL_SAVE_FILE_RETURN_CODES.at(saveResult));
+                "Failed to quarantine " << escapedPath << " due to: " << SafeStoreWrapper::GL_SAVE_FILE_RETURN_CODES.at(saveResult));
             if (saveResult == SafeStoreWrapper::SaveFileReturnCode::DB_ERROR)
             {
                 callOnDbError();
@@ -543,8 +543,6 @@ namespace safestore::QuarantineManager
             return cleanFiles;
         }
 
-        LOGINFO("Number of files to Rescan: " << files.size());
-
         unixsocket::ScanningClientSocket scanningClient(Plugin::getScanningSocketPath());
 
         for (auto& [fd, objectId] : files)
@@ -595,26 +593,26 @@ namespace safestore::QuarantineManager
 
     std::optional<scan_messages::RestoreReport> QuarantineManagerImpl::restoreFile(const std::string& objectId)
     {
-        LOGINFO("Attempting to restore object: " << objectId);
+        LOGDEBUG("Attempting to restore object: " << objectId);
         // Get all details
         std::shared_ptr<SafeStoreWrapper::ObjectHandleHolder> objectHandle = m_safeStore->createObjectHandleHolder();
         if (!m_safeStore->getObjectHandle(objectId, objectHandle))
         {
-            LOGERROR("Couldn't get object handle for: " << objectId);
+            LOGERROR("Couldn't get object handle for: " << objectId << ". Failed to restore.");
             return {};
         }
 
         auto objectName = m_safeStore->getObjectName(*objectHandle);
         if (objectName.empty())
         {
-            LOGERROR("Couldn't get object name for: " << objectId);
+            LOGERROR("Couldn't get object name for: " << objectId << ". Failed to restore.");
             return {};
         }
 
         auto objectLocation = m_safeStore->getObjectLocation(*objectHandle);
         if (objectLocation.empty())
         {
-            LOGERROR("Couldn't get object location for: " << objectId);
+            LOGERROR("Couldn't get object location for: " << objectId << ". Failed to restore.");
             return {};
         }
 
@@ -646,7 +644,7 @@ namespace safestore::QuarantineManager
         // Delete file
         if (!m_safeStore->deleteObjectById(objectId))
         {
-            LOGERROR("Unable to remove file from SafeStore database: " << escapedPath);
+            LOGWARN("File was restored to disk, but unable to remove it from SafeStore database: " << escapedPath);
             return restoreReport;
         }
         restoreReport.wasSuccessful = true;
@@ -664,6 +662,7 @@ namespace safestore::QuarantineManager
             LOGDEBUG("No threats to rescan");
             return;
         }
+        LOGINFO("Number of quarantined files to Rescan: " << threatObjects.size());
 
         // Batch size is currently 1 but this can be increased, if needed, in the future.
         constexpr int batchSize = 1;
