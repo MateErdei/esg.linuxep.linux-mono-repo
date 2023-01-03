@@ -112,7 +112,7 @@ TEST_F(TestScanRequestHandler, scan_fileDetected)
     ASSERT_EQ(socket->m_paths.size(), 1);
     EXPECT_EQ(socket->m_paths.at(0), filePath);
     std::stringstream logMsg;
-    logMsg << "Detected \"" << filePath << "\" is infected with threatName (Close-Write)";
+    logMsg << "ScanRequestHandler-1 detected \"" << filePath << "\" is infected with threatName (Close-Write)";
     EXPECT_TRUE(appenderContains(logMsg.str()));
 }
 
@@ -131,7 +131,7 @@ TEST_F(TestScanRequestHandler, scan_error)
     scanHandler->scan(scanRequest, oneMillisecond);
 
     std::stringstream logMsg;
-    logMsg << "Failed to scan file: " << filePath << " after " << MAX_SCAN_RETRIES << " retries";
+    logMsg << "ScanRequestHandler-1 received error: Failed to scan file: " << filePath << " after " << MAX_SCAN_RETRIES << " retries";
     EXPECT_TRUE(appenderContains(logMsg.str()));
 }
 
@@ -148,7 +148,7 @@ TEST_F(TestScanRequestHandler, scan_errorWhenShuttingDown)
         nullptr, socket, m_mockFanotifyHandler, m_mockDeviceUtil, m_telemetryUtility);
     EXPECT_THROW(scanHandler->scan(scanRequest), ScanInterruptedException);
 
-    EXPECT_TRUE(appenderContains("Scan aborted: Scanner received stop notification"));
+    EXPECT_TRUE(appenderContains("ScanRequestHandler-1 scan aborted: Scanner received stop notification"));
 }
 
 TEST_F(TestScanRequestHandler, scan_threadPopsAllItemsFromQueue)
@@ -175,15 +175,36 @@ TEST_F(TestScanRequestHandler, scan_threadPopsAllItemsFromQueue)
     auto scanHandlerThread = std::make_shared<common::ThreadRunner>(scanHandler, "scanHandler", true);
 
     std::stringstream logMsg1;
-    logMsg1 << "Detected \"" << filePath1 << "\" is infected with threatName (Open)";
+    logMsg1 << "ScanRequestHandler-1 detected \"" << filePath1 << "\" is infected with threatName (Open)";
     std::stringstream logMsg2;
-    logMsg2 << "Detected \"" << filePath2 << "\" is infected with threatName (Close-Write)";
+    logMsg2 << "ScanRequestHandler-1 detected \"" << filePath2 << "\" is infected with threatName (Close-Write)";
     EXPECT_TRUE(waitForLog(logMsg1.str(), 500ms));
     EXPECT_TRUE(waitForLog(logMsg2.str()));
     ASSERT_EQ(socket->m_paths.size(), 2);
     scanRequestQueue->stop();
 }
 
+TEST_F(TestScanRequestHandler, scan_LogsWhenPopsRequestFromQueue)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    getLogger().setLogLevel(log4cplus::TRACE_LOG_LEVEL);
+
+    const char* filePath1 = "/tmp/test1";
+    auto scanRequestQueue = std::make_shared<ScanRequestQueue>(DEFAULT_QUEUE_SIZE);
+    auto scanRequest1 = emptyRequest();
+    scanRequest1->setPath(filePath1);
+    scanRequest1->setUserID("2345");
+    scanRequestQueue->emplace(scanRequest1);
+
+    auto socket = std::make_shared<RecordingMockSocket>();
+    auto scanHandler = std::make_shared<sophos_on_access_process::onaccessimpl::ScanRequestHandler>(
+        scanRequestQueue, socket, m_mockFanotifyHandler, m_mockDeviceUtil, m_telemetryUtility);
+    auto scanHandlerThread = std::make_shared<common::ThreadRunner>(scanHandler, "scanHandler", true);
+
+    EXPECT_TRUE(waitForLog("ScanRequestHandler-1 picked up scan request for /tmp/test1 with UID 2345", 500ms));
+
+    scanRequestQueue->stop();
+}
 
 TEST_F(TestScanRequestHandler, scan_threadCanExitWhileWaiting)
 {
@@ -194,10 +215,10 @@ TEST_F(TestScanRequestHandler, scan_threadCanExitWhileWaiting)
     auto scanHandler = std::make_shared<sophos_on_access_process::onaccessimpl::ScanRequestHandler>(
         scanRequestQueue, socket, m_mockFanotifyHandler, m_mockDeviceUtil, m_telemetryUtility);
     auto scanHandlerThread = std::make_shared<common::ThreadRunner>(scanHandler, "scanHandler", true);
-    EXPECT_TRUE(waitForLog("Starting ScanRequestHandler"));
+    EXPECT_TRUE(waitForLog("Starting ScanRequestHandler-1"));
     scanRequestQueue->stop();
     scanHandlerThread->requestStopIfNotStopped();
-    EXPECT_TRUE(waitForLog("Finished ScanRequestHandler"));
+    EXPECT_TRUE(waitForLog("Finished ScanRequestHandler-1"));
 }
 
 TEST_F(TestScanRequestHandler, scan_threadCanExitWhileScanning)
@@ -210,13 +231,13 @@ TEST_F(TestScanRequestHandler, scan_threadCanExitWhileScanning)
         scanRequestQueue, socket, m_mockFanotifyHandler, m_mockDeviceUtil, m_telemetryUtility);
     auto scanHandlerThread = std::make_shared<common::ThreadRunner>(scanHandler, "scanHandler", true);
 
-    EXPECT_TRUE(waitForLog("Starting ScanRequestHandler"));
+    EXPECT_TRUE(waitForLog("Starting ScanRequestHandler-1"));
 
     auto scanRequest = emptyRequest();
     scanRequest->setPath("THROW_SCAN_INTERRUPTED");
     scanRequestQueue->emplace(scanRequest);
 
-    EXPECT_TRUE(waitForLog("Finished ScanRequestHandler"));
+    EXPECT_TRUE(waitForLog("Finished ScanRequestHandler-1"));
 }
 
 TEST_F(TestScanRequestHandler, cleanScanOpen)
@@ -293,7 +314,7 @@ TEST_F(TestScanRequestHandler, infectedScanOpen)
     scanHandler->scan(request);
 
     EXPECT_EQ(socket->m_paths.size(), 1);
-    EXPECT_TRUE(appenderContains("Detected \"/expected\" is infected with threatName (Open)"));
+    EXPECT_TRUE(appenderContains("ScanRequestHandler-1 detected \"/expected\" is infected with threatName (Open)"));
 }
 
 TEST_F(TestScanRequestHandler, infectedScanClose)
@@ -309,7 +330,7 @@ TEST_F(TestScanRequestHandler, infectedScanClose)
     scanHandler->scan(request);
 
     EXPECT_EQ(socket->m_paths.size(), 1);
-    EXPECT_TRUE(appenderContains("Detected \"/expected\" is infected with threatName (Close-Write)"));
+    EXPECT_TRUE(appenderContains("ScanRequestHandler-1 detected \"/expected\" is infected with threatName (Close-Write)"));
 }
 
 TEST_F(TestScanRequestHandler, infectedScanCloseIgnoreUncacheFailure)
@@ -325,7 +346,7 @@ TEST_F(TestScanRequestHandler, infectedScanCloseIgnoreUncacheFailure)
     scanHandler->scan(request);
 
     EXPECT_EQ(socket->m_paths.size(), 1);
-    EXPECT_TRUE(appenderContains("Detected \"/expected\" is infected with threatName (Close-Write)"));
+    EXPECT_TRUE(appenderContains("ScanRequestHandler-1 detected \"/expected\" is infected with threatName (Close-Write)"));
 }
 
 TEST_F(TestScanRequestHandler, socketScanThrowsScanInterrupted)
@@ -336,7 +357,7 @@ TEST_F(TestScanRequestHandler, socketScanThrowsScanInterrupted)
     auto request(buildRequest(scan_messages::E_SCAN_TYPE_ON_ACCESS_CLOSE));
     request->setPath("THROW_SCAN_INTERRUPTED");
     EXPECT_ANY_THROW(scanHandler->scan(request));
-    EXPECT_TRUE(appenderContains("Scan aborted: THROW_SCAN_INTERRUPTED"));
+    EXPECT_TRUE(appenderContains("ScanRequestHandler-1 scan aborted: THROW_SCAN_INTERRUPTED"));
 }
 
 TEST_F(TestScanRequestHandler, socketScanThrowsStdException)
@@ -347,7 +368,7 @@ TEST_F(TestScanRequestHandler, socketScanThrowsStdException)
     auto request(buildRequest(scan_messages::E_SCAN_TYPE_ON_ACCESS_CLOSE));
     request->setPath("THROW_BAD_ALLOC");
     scanHandler->scan(request);
-    EXPECT_TRUE(appenderContains("Failed to scan THROW_BAD_ALLOC : std::bad_alloc"));
+    EXPECT_TRUE(appenderContains("ScanRequestHandler-1 failed to scan THROW_BAD_ALLOC : std::bad_alloc"));
 }
 
 TEST_F(TestScanRequestHandler, scanError)
@@ -363,7 +384,7 @@ TEST_F(TestScanRequestHandler, scanError)
     scanHandler->scan(request);
 
     EXPECT_EQ(socket->m_paths.size(), 1);
-    EXPECT_TRUE(appenderContains("Scan Error"));
+    EXPECT_TRUE(appenderContains("ScanRequestHandler-1 received error: Scan Error"));
 }
 
 // Follow naming convention https://github.com/google/googletest/blob/main/docs/advanced.md#death-test-naming
@@ -401,7 +422,7 @@ TEST_F(TestScanRequestHandler, uncacheFdErrorIgnored)
     scanHandler->scan(request);
 
     EXPECT_EQ(socket->m_paths.size(), 1);
-    EXPECT_TRUE(appenderContains("Detected \"/expected\" is infected with threatName (Open)"));
+    EXPECT_TRUE(appenderContains("ScanRequestHandler-1 detected \"/expected\" is infected with threatName (Open)"));
 }
 
 TEST_F(TestScanRequestHandler, scanErrorAndDetection)
@@ -417,8 +438,8 @@ TEST_F(TestScanRequestHandler, scanErrorAndDetection)
     scanHandler->scan(request);
 
     EXPECT_EQ(socket->m_paths.size(), 1);
-    EXPECT_TRUE(appenderContains("Scan Error"));
-    EXPECT_TRUE(appenderContains("Detected \"/expected\" is infected with threatName (Close-Write)"));
+    EXPECT_TRUE(appenderContains("ScanRequestHandler-1 received error: Scan Error"));
+    EXPECT_TRUE(appenderContains("ScanRequestHandler-1 detected \"/expected\" is infected with threatName (Close-Write)"));
 }
 
 TEST_F(TestScanRequestHandler, scan_threadCanDumpPerfData)
@@ -447,9 +468,9 @@ TEST_F(TestScanRequestHandler, scan_threadCanDumpPerfData)
     auto scanHandlerThread = std::make_shared<common::ThreadRunner>(scanHandler, "scanHandler", true);
 
     std::stringstream logMsg1;
-    logMsg1 << "Detected \"" << filePath1 << "\" is infected with threatName (Open)";
+    logMsg1 << "ScanRequestHandler-123 detected \"" << filePath1 << "\" is infected with threatName (Open)";
     std::stringstream logMsg2;
-    logMsg2 << "Detected \"" << filePath2 << "\" is infected with threatName (Close-Write)";
+    logMsg2 << "ScanRequestHandler-123 detected \"" << filePath2 << "\" is infected with threatName (Close-Write)";
     EXPECT_TRUE(waitForLog(logMsg1.str()));
     EXPECT_TRUE(waitForLog(logMsg2.str()));
     ASSERT_EQ(socket->m_paths.size(), 2);
