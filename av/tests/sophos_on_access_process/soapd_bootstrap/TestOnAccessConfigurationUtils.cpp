@@ -53,7 +53,7 @@ namespace
 
         void TearDown() override
         {
-            fs::remove_all(m_testDir);
+            //fs::remove_all(m_testDir);
         }
 
         void expectReadConfig(MockFileSystem& mock, const std::string& contents)
@@ -116,7 +116,6 @@ TEST_F(TestOnAccessConfigurationUtils, readConfigFileReadThrows)
     EXPECT_TRUE(appenderContains("Failed to read on-access configuration, keeping existing configuration"));
 }
 
-
 TEST_F(TestOnAccessConfigurationUtils, parseOnAccessPolicySettingsFromJson)
 {
     std::string jsonString = R"({"enabled":"true","excludeRemoteFiles":"false","exclusions":["/mnt/","/uk-filer5/"]})";
@@ -135,6 +134,21 @@ TEST_F(TestOnAccessConfigurationUtils, parseOnAccessPolicySettingsFromJson)
 
     ASSERT_EQ(parseOnAccessPolicySettingsFromJson(jsonString, m_testConfig), true);
     EXPECT_NE(m_testConfig, expectedResult);
+}
+
+TEST_F(TestOnAccessConfigurationUtils, parseOnAccessPolicySettingsHandlesBinary)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    std::string jsonString = "0000000 227b 616f 655f 616e 6c62 6465 3a22 7274 0000020 6575 007d 0000024";
+
+    OnAccessConfiguration expectedResult{};
+
+    ASSERT_EQ(parseOnAccessPolicySettingsFromJson(jsonString, m_testConfig), false);
+    EXPECT_EQ(m_testConfig, expectedResult);
+
+    EXPECT_TRUE(appenderContains("Failed to parse json configuration due to parse error, reason:"));
+    EXPECT_TRUE(appenderContains("Failed to parse json configuration, keeping existing settings"));
 }
 
 TEST_F(TestOnAccessConfigurationUtils, parseOnAccessPolicySettingsFromJsonDuplicates)
@@ -395,6 +409,16 @@ TEST_F(TestOnAccessConfigurationUtils, parseFlagConfigurationThrows)
     EXPECT_TRUE(appenderContains("Failed to read flag configuration, keeping existing configuration"));
 }
 
+TEST_F(TestOnAccessConfigurationUtils, parseFlagConfigurationHandlesBinaryFile)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    std::string jsonString = "0000000 227b 616f 655f 616e 6c62 6465 3a22 7274 0000020 6575 007d 0000024";
+    EXPECT_FALSE(parseFlagConfiguration(jsonString));
+    EXPECT_TRUE(appenderContains("Failed to parse flag configuration, keeping existing settings"));
+    EXPECT_TRUE(appenderContains("ailed to parse json configuration of flags due to parse error, reason:"));
+}
+
 TEST_F(TestOnAccessConfigurationUtils, parseFlagConfigurationFromEmptyJson)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
@@ -482,6 +506,25 @@ TEST_F(TestOnAccessConfigurationUtils, readLocalSettingsInvalidJsonSyntax)
 
     EXPECT_TRUE(appenderContains("Setting number of scanning threads from Hardware Concurrency: 5"));
     EXPECT_TRUE(appenderContains("Failed to read product config file info: "));
+    EXPECT_TRUE(appenderContains(m_localSettingsNotUsedMessage));
+}
+
+TEST_F(TestOnAccessConfigurationUtils, readLocalSettingsBinary)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    expectReadConfig(*m_mockIFileSystemPtr, "0000000 227b 616f 655f 616e 6c62 6465 3a22 7274 0000020 6575 007d 0000024");
+
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(m_mockIFileSystemPtr) };
+    auto result = readLocalSettingsFile(m_mockSysCallWrapper);
+    EXPECT_EQ(result.maxScanQueueSize, defaultMaxScanQueueSize);
+    EXPECT_EQ(result.dumpPerfData, defaultDumpPerfData);
+    EXPECT_EQ(result.cacheAllEvents, defaultCacheAllEvents);
+    EXPECT_EQ(result.uncacheDetections, defaultUncacheDetections);
+    EXPECT_EQ(result.numScanThreads, m_defaultThreads);
+
+    EXPECT_TRUE(appenderContains("Setting number of scanning threads from Hardware Concurrency: 5"));
+    EXPECT_TRUE(appenderContains("Failed to read product config file info:"));
     EXPECT_TRUE(appenderContains(m_localSettingsNotUsedMessage));
 }
 

@@ -230,7 +230,7 @@ namespace sophos_on_access_process::OnAccessConfig
         }
         catch (const Common::FileSystem::IFileSystemException& ex)
         {
-            LOGWARN("Failed to read flag configuration, keeping existing configuration");
+            LOGWARN("Failed to read flag configuration, keeping existing configuration: " << ex.what());
             return  "";
         }
     }
