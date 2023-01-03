@@ -2,6 +2,8 @@
 
 #pragma once
 
+#include "datatypes/AutoFd.h"
+
 #include <string>
 
 namespace common
@@ -10,12 +12,13 @@ namespace common
     {
     public:
         explicit StatusFile(std::string path);
-        virtual ~StatusFile() = default;
+        virtual ~StatusFile();
         void enabled();
         void disabled();
 
         static bool isEnabled(const std::string& path);
     private:
         const std::string m_path;
+        datatypes::AutoFd m_fd;
     };
 }
