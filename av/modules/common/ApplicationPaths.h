@@ -23,6 +23,7 @@ namespace Plugin
     std::string getSafeStoreRescanSocketPath();
     std::string getSafeStoreSocketPath();
     std::string getSoapdPidPath();
+    std::string getOnAccessStatusPath();
     std::string getSusiStartupSettingsPath();
     std::string getRelativeSusiStartupSettingsPath();
 } // namespace Plugin

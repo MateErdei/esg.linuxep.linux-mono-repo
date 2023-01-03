@@ -27,8 +27,10 @@ add_library(common SHARED
         SaferStrerror.h
         ScanInterruptedException.h
         ScanManuallyInterruptedException.h
-        StoppableSleeper.h
         ShuttingDownException.h
+        StatusFile.cpp
+        StatusFile.h
+        StoppableSleeper.h
         StringUtils.cpp
         StringUtils.h
         ThreadRunner.cpp
@@ -49,7 +51,7 @@ add_library(common SHARED
         signals/SigUSR1Monitor.h
         ThreatDetector/SusiSettings.cpp
         ThreatDetector/SusiSettings.h
-        )
+)
 
 SET (BOOST_LIBRARYDIR  ${BOOSTPATH}/boost/lib64)
 SET (BOOST_INCLUDEDIR ${BOOSTPATH}/boost/include)

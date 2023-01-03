@@ -3,6 +3,7 @@
 #pragma once
 
 #include "OnAccessConfigurationUtils.h"
+#include "OnAccessStatusFile.h"
 
 #include "mount_monitor/mount_monitor/MountMonitor.h"
 #include "mount_monitor/mountinfoimpl/DeviceUtil.h"
@@ -70,5 +71,7 @@ namespace sophos_on_access_process::soapd_bootstrap
         Common::ZMQWrapperApi::IContextSharedPtr m_onAccessContext = Common::ZMQWrapperApi::createContext();
         std::unique_ptr<Common::PluginApiImpl::PluginCallBackHandler> m_pluginHandler = nullptr;
         std::shared_ptr<onaccessimpl::onaccesstelemetry::OnAccessTelemetryUtility> m_TelemetryUtility = nullptr;
+
+        OnAccessStatusFile m_statusFile;
     };
 }

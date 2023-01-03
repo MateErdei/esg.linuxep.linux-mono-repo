@@ -269,6 +269,9 @@ void SoapdBootstrap::disableOnAccess()
     }
 
     LOGINFO("Disabling on-access scanning");
+
+    m_statusFile.disabled();
+
     /*
      * EventReader and scanHandler threads are not thread-safe with
      * fanotify handler being closed.
@@ -331,6 +334,7 @@ void SoapdBootstrap::enableOnAccess()
         m_scanHandlerThreads.push_back(scanHandlerThread);
     }
 
+    m_statusFile.enabled();
     LOGINFO("On-access scanning enabled");
     m_currentOaEnabledState.store(true);
 }

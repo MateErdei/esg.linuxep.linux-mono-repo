@@ -104,6 +104,11 @@ namespace Plugin
         return getPluginChrootVarDirPath() + "/scanning_socket";
     }
 
+    std::string getOnAccessStatusPath()
+    {
+        return getPluginVarDirPath() + "/on_access_status";
+    }
+
     std::string getPersistThreatDatabaseFilePath()
     {
         return getPluginVarDirPath() + "/persist-threatDatabase";
