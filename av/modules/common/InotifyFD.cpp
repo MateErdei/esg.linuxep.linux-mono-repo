@@ -9,6 +9,13 @@
 
 using namespace common;
 
+InotifyFD::InotifyFD()
+    :
+    m_inotifyFD(inotify_init())
+{
+    assert(m_inotifyFD.valid());
+}
+
 InotifyFD::~InotifyFD()
 {
     if (m_watchDescriptor >= 0)
@@ -22,4 +29,3 @@ int InotifyFD::getFD()
 {
     return m_inotifyFD.fd();
 }
-

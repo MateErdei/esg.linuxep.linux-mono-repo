@@ -16,8 +16,6 @@ namespace plugin::manager::scanprocessmonitor
 
     InotifyFD::InotifyFD(const fs::path& directory)
     {
-        m_inotifyFD.reset(inotify_init());
-        assert(m_inotifyFD.valid());
         m_watchDescriptor = inotify_add_watch(m_inotifyFD.fd(), directory.c_str(), INOTIFY_MASK);
         if (m_watchDescriptor < 0)
         {

@@ -10,7 +10,7 @@ namespace common
     class InotifyFD
     {
     public:
-        InotifyFD() = default;
+        InotifyFD();
 
         virtual ~InotifyFD();
         InotifyFD(const InotifyFD&) = delete;
