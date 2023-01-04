@@ -29,6 +29,8 @@ namespace
 
 bool StatusFile::open()
 {
+    // Not opening with O_TRUNC so that we don't have a case where we have an empty file
+    // The first char changes atomically
     m_fd.reset(::open(m_path.c_str(), O_CREAT | O_WRONLY | O_CLOEXEC, 0644));
     if (!m_fd.valid())
     {
