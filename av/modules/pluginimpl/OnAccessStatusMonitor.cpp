@@ -5,6 +5,7 @@
 #include "Logger.h"
 
 #include "common/ApplicationPaths.h"
+#include "common/InotifyFD.h"
 #include "common/SaferStrerror.h"
 #include "common/StatusFile.h"
 
@@ -13,63 +14,6 @@
 #include <sys/poll.h>
 
 using namespace Plugin;
-
-namespace
-{
-    class InotifyFD
-    {
-    public:
-        explicit InotifyFD(const sophos_filesystem::path& directory);
-
-        ~InotifyFD();
-        InotifyFD(const InotifyFD&) = delete;
-        InotifyFD& operator=(const InotifyFD&) = delete;
-
-        int getFD();
-
-        bool valid()
-        {
-            return m_watchDescriptor >= 0;
-        }
-
-    private:
-        datatypes::AutoFd m_inotifyFD;
-        int m_watchDescriptor;
-    };
-}
-
-InotifyFD::InotifyFD(const sophos_filesystem::path& path) :
-    m_inotifyFD(inotify_init()),
-    m_watchDescriptor(inotify_add_watch(m_inotifyFD.fd(), path.c_str(), IN_CLOSE_WRITE))
-{
-    if (m_watchDescriptor < 0)
-    {
-        if (errno == ENOENT)
-        {
-            // File doesn't exist yet
-            LOGDEBUG("Failed to watch status file " << path << " as it doesn't exist: falling back to polling");
-        }
-        else
-        {
-            LOGERROR("Failed to watch path: " << path << ": " << common::safer_strerror(errno));
-        }
-        m_inotifyFD.close();
-    }
-}
-
-InotifyFD::~InotifyFD()
-{
-    if (m_watchDescriptor >= 0)
-    {
-        inotify_rm_watch(m_inotifyFD.fd(), m_watchDescriptor);
-    }
-    m_inotifyFD.close();
-}
-
-int InotifyFD::getFD()
-{
-    return m_inotifyFD.fd();
-}
 
 
 OnAccessStatusMonitor::OnAccessStatusMonitor(Plugin::PluginCallbackSharedPtr callback)
@@ -85,7 +29,7 @@ void OnAccessStatusMonitor::run()
     auto path = Plugin::getOnAccessStatusPath();
     statusFileChanged();
 
-    auto watcher = std::make_unique<InotifyFD>(path);
+    auto watcher = std::make_unique<common::InotifyFD>(path);
 
     struct pollfd fds[] {
         { .fd = m_notifyPipe.readFd(), .events = POLLIN, .revents = 0 },
@@ -183,7 +127,7 @@ void OnAccessStatusMonitor::run()
 
         if (!watcher)
         {
-            watcher = std::make_unique<InotifyFD>(path);
+            watcher = std::make_unique<common::InotifyFD>(path);
             statusFileChanged();
         }
     }

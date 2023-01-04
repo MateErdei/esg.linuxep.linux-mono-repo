@@ -10,6 +10,8 @@ add_library(common SHARED
         FailedToInitializeSusiException.h
         FDUtils.cpp
         FDUtils.h
+        InotifyFD.cpp
+        InotifyFD.h
         IPidLockFile.h
         LockableData.h
         Logger.cpp
