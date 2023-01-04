@@ -24,6 +24,7 @@ namespace plugin::manager::scanprocessmonitor
     class ConfigMonitor : public common::AbstractThreadPluginInterface
     {
     public:
+        using InotifyFD_t = InotifyFD;
         explicit ConfigMonitor(Common::Threads::NotifyPipe& pipe,
                                datatypes::ISystemCallWrapperSharedPtr systemCallWrapper,
                                std::string base="/etc");
@@ -41,7 +42,7 @@ namespace plugin::manager::scanprocessmonitor
          *
          * @return True if we should continue running
          */
-        bool inner_run(InotifyFD& inotifyFD);
+        bool inner_run(InotifyFD_t& inotifyFD);
 
         /**
          *
@@ -62,7 +63,7 @@ namespace plugin::manager::scanprocessmonitor
         Common::Threads::NotifyPipe& m_configChangedPipe;
         fs::path m_base;
 
-        std::map<fs::path, std::shared_ptr<InotifyFD>> m_interestingDirs;
+        std::map<fs::path, std::shared_ptr<InotifyFD_t>> m_interestingDirs;
         datatypes::ISystemCallWrapperSharedPtr m_sysCalls;
         contentMap_t m_currentContents;
 

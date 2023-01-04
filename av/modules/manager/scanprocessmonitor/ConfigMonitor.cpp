@@ -106,7 +106,7 @@ namespace plugin::manager::scanprocessmonitor
                 if (m_interestingDirs.find(parentDir) == m_interestingDirs.end())
                 {
                     // record directory if it has not already been recorded
-                    auto symlinkTargetDirFD = std::make_shared<InotifyFD>(parentDir);
+                    auto symlinkTargetDirFD = std::make_shared<InotifyFD_t>(parentDir);
                     if (symlinkTargetDirFD->getFD() < 0)
                     {
                         LOGERROR("Failed to initialise inotify: Unable to monitor DNS config files: "
@@ -126,7 +126,7 @@ namespace plugin::manager::scanprocessmonitor
         m_currentContents = getContentsMap();
 
         // Add a watch for changes to the directory base ("/etc")
-        InotifyFD inotifyFD(m_base);
+        InotifyFD_t inotifyFD(m_base);
 
         bool success = resolveSymlinksForInterestingFiles();
 
@@ -174,7 +174,7 @@ namespace plugin::manager::scanprocessmonitor
         }
     }
 
-    bool ConfigMonitor::inner_run(InotifyFD& inotifyFD)
+    bool ConfigMonitor::inner_run(InotifyFD_t& inotifyFD)
     {
         assert(inotifyFD.getFD() >= 0);
 

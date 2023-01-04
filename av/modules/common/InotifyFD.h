@@ -10,9 +10,9 @@ namespace common
     class InotifyFD
     {
     public:
-        explicit InotifyFD(const sophos_filesystem::path& directory);
+        InotifyFD() = default;
 
-        ~InotifyFD();
+        virtual ~InotifyFD();
         InotifyFD(const InotifyFD&) = delete;
         InotifyFD& operator=(const InotifyFD&) = delete;
 
@@ -23,8 +23,8 @@ namespace common
             return m_watchDescriptor >= 0;
         }
 
-    private:
+    protected:
         datatypes::AutoFd m_inotifyFD;
-        int m_watchDescriptor;
+        int m_watchDescriptor = -1;
     };
 }

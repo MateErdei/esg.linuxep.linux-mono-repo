@@ -15,6 +15,38 @@
 
 using namespace Plugin;
 
+namespace
+{
+    constexpr auto INOTIFY_MASK = IN_CLOSE_WRITE;
+
+    class InotifyFD : public common::InotifyFD
+    {
+    public:
+        explicit InotifyFD(const sophos_filesystem::path& directory);
+    };
+
+    InotifyFD::InotifyFD(const sophos_filesystem::path& path)
+    {
+        m_inotifyFD.reset(inotify_init());
+        assert(m_inotifyFD.valid());
+        m_watchDescriptor = inotify_add_watch(m_inotifyFD.fd(), path.c_str(), INOTIFY_MASK);
+        if (m_watchDescriptor < 0)
+        {
+            if (errno == ENOENT)
+            {
+                // File doesn't exist yet
+                LOGDEBUG("Failed to watch status file " << path << " as it doesn't exist: falling back to polling");
+            }
+            else
+            {
+                LOGERROR("Failed to watch path: " << path << ": " << common::safer_strerror(errno));
+            }
+            m_inotifyFD.close();
+        }
+    }
+
+    using InotifyFD_t = InotifyFD;
+}
 
 OnAccessStatusMonitor::OnAccessStatusMonitor(Plugin::PluginCallbackSharedPtr callback)
     : m_callback(std::move(callback))
@@ -29,7 +61,8 @@ void OnAccessStatusMonitor::run()
     auto path = Plugin::getOnAccessStatusPath();
     statusFileChanged();
 
-    auto watcher = std::make_unique<common::InotifyFD>(path);
+
+    auto watcher = std::make_unique<InotifyFD_t>(path);
 
     struct pollfd fds[] {
         { .fd = m_notifyPipe.readFd(), .events = POLLIN, .revents = 0 },
@@ -127,7 +160,7 @@ void OnAccessStatusMonitor::run()
 
         if (!watcher)
         {
-            watcher = std::make_unique<common::InotifyFD>(path);
+            watcher = std::make_unique<InotifyFD_t>(path);
             statusFileChanged();
         }
     }

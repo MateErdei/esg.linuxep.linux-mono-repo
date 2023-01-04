@@ -9,25 +9,6 @@
 
 using namespace common;
 
-InotifyFD::InotifyFD(const sophos_filesystem::path& path) :
-    m_inotifyFD(inotify_init()),
-    m_watchDescriptor(inotify_add_watch(m_inotifyFD.fd(), path.c_str(), IN_CLOSE_WRITE))
-{
-    if (m_watchDescriptor < 0)
-    {
-        if (errno == ENOENT)
-        {
-            // File doesn't exist yet
-            LOGDEBUG("Failed to watch status file " << path << " as it doesn't exist: falling back to polling");
-        }
-        else
-        {
-            LOGERROR("Failed to watch path: " << path << ": " << common::safer_strerror(errno));
-        }
-        m_inotifyFD.close();
-    }
-}
-
 InotifyFD::~InotifyFD()
 {
     if (m_watchDescriptor >= 0)
