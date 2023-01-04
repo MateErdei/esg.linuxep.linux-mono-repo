@@ -40,7 +40,6 @@ def output():
 
 def sdds():
     OUTPUT = output()
-    ## TODO: For production testing, we'll need to get supplements LINUXDAR-2442
     test = os.path.join(OUTPUT, "INSTALL-SET")
     if os.path.isdir(test):
         return test
