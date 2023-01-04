@@ -18,6 +18,7 @@
 #include "Common/FileSystem/IFileSystemException.h"
 #include "Common/TelemetryHelperImpl/TelemetryHelper.h"
 #include "Common/UtilityImpl/Uuid.h"
+#include "Common/UtilityImpl/WaitForUtils.h"
 
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_generators.hpp>
@@ -838,5 +839,30 @@ namespace safestore::QuarantineManager
         }
 
         return correlationId;
+    }
+
+    bool QuarantineManagerImpl::waitForFilesystemLock(double timeoutSeconds)
+    {
+        auto dbLockPath = Plugin::getSafeStoreDbLockDirPath();
+        auto fs = Common::FileSystem::fileSystem();
+        double checkInterval = 0.2;
+        auto lockDoesNotExist = Common::UtilityImpl::waitFor(timeoutSeconds, checkInterval,[dbLockPath, fs]() {
+                                         return !fs->exists(dbLockPath);
+                                     });
+        return lockDoesNotExist;
+    }
+
+    void QuarantineManagerImpl::removeFilesystemLock()
+    {
+        try
+        {
+            Common::FileSystem::fileSystem()->removeFileOrDirectory(Plugin::getSafeStoreDbLockDirPath());
+        }
+        catch (const std::exception& exception)
+        {
+            LOGERROR(
+                "Failed to delete SafeStore Database lock dir: "
+                << common::escapePathForLogging(Plugin::getSafeStoreDbLockDirPath()) << ", " << exception.what());
+        }
     }
 } // namespace safestore::QuarantineManager

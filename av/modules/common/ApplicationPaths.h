@@ -16,6 +16,7 @@ namespace Plugin
     std::string getRestoreReportSocketPath();
     std::string getSafeStoreConfigPath();
     std::string getSafeStoreDbDirPath();
+    std::string getSafeStoreDbLockDirPath();
     std::string getSafeStoreDbFileName();
     std::string getSafeStoreDormantFlagPath();
     std::string getSafeStorePasswordFilePath();

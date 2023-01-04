@@ -87,13 +87,32 @@ namespace safestore::QuarantineManager
                 LOGWARN("Quarantine Manager is corrupt");
                 try
                 {
-                    bool removedSafeStoreDb = m_quarantineManager->deleteDatabase();
+                    // Check if lock is on disk and wait for the lock to be removed
+                    auto unlocked = m_quarantineManager->waitForFilesystemLock(5);
 
+                    // If lock is still there after waiting, then forcibly remove the lock and try to init again
+                    if (!unlocked)
+                    {
+                        m_quarantineManager->removeFilesystemLock();
+                        m_quarantineManager->initialise();
+                        if (m_quarantineManager->getState() == QuarantineManagerState::INITIALISED)
+                        {
+                            m_reinitialiseBackoff = 60s;
+                            break;
+                        }
+                    }
+
+                    // If we still can't initialise after making sure the safestore database lock dir is not there
+                    // then we have to delete the entire database
+                    bool removedSafeStoreDb = m_quarantineManager->deleteDatabase();
                     if (removedSafeStoreDb)
                     {
                         LOGDEBUG("Successfully removed corrupt SafeStore database");
                         m_quarantineManager->initialise();
-                        m_reinitialiseBackoff = 60s;
+                        if (m_quarantineManager->getState() == QuarantineManagerState::INITIALISED)
+                        {
+                            m_reinitialiseBackoff = 60s;
+                        }
                         break;
                     }
 

@@ -58,6 +58,16 @@ namespace safestore::QuarantineManager
         virtual bool deleteDatabase() = 0;
 
         /*
+         * Wait for filesystem lock to no longer exist
+         */
+        virtual bool waitForFilesystemLock(double timeoutSeconds) = 0;
+
+        /*
+         * Forcibly remove DB filesystem lock
+         */
+        virtual void removeFilesystemLock() = 0;
+
+        /*
          * Quarantine a file.
          * Add the file to the quarantine database.
          * Delete the file.

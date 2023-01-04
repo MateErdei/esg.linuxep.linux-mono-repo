@@ -38,7 +38,8 @@ namespace safestore::QuarantineManager
         void setState(const safestore::QuarantineManager::QuarantineManagerState& newState) override;
         void rescanDatabase() override;
         void parseConfig() override;
-
+        bool waitForFilesystemLock(double timeoutSeconds) override;
+        void removeFilesystemLock() override;
         std::vector<SafeStoreWrapper::ObjectId> scanExtractedFilesForRestoreList(
             std::vector<FdsObjectIdsPair> files) override;
         std::optional<scan_messages::RestoreReport> restoreFile(const std::string& objectId) override;

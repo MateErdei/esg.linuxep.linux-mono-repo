@@ -64,6 +64,11 @@ namespace Plugin
         return getPluginVarDirPath() + "/safestore_db";
     }
 
+    std::string getSafeStoreDbLockDirPath()
+    {
+        return getSafeStoreDbDirPath() + "/safestore.db.lock";
+    }
+
     std::string getSafeStoreDbFileName()
     {
         return "safestore.db";

@@ -16,6 +16,8 @@ public:
     MOCK_METHOD(safestore::QuarantineManager::QuarantineManagerState, getState, ());
     MOCK_METHOD(void, setState, (const safestore::QuarantineManager::QuarantineManagerState&));
     MOCK_METHOD(bool, deleteDatabase, ());
+    MOCK_METHOD(bool, waitForFilesystemLock, (double timeoutSeconds));
+    MOCK_METHOD(void, removeFilesystemLock, ());
     MOCK_METHOD(
         common::CentralEnums::QuarantineResult,
         quarantineFile,
