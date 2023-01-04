@@ -20,6 +20,7 @@ Library         ../Libs/ThreatReportUtils.py
 
 *** Variables ***
 ${ONACCESS_FLAG_CONFIG}  ${AV_PLUGIN_PATH}/var/oa_flag.json
+${ONACCESS_STATUS_FILE}  ${AV_PLUGIN_PATH}/var/on_access_status
 
 
 *** Keywords ***
@@ -112,6 +113,7 @@ Disable OA Scanning
     wait for on access log contains after mark  Joining eventReader   mark=${mark}
     wait for on access log contains after mark  Stopping the reading of Fanotify events   mark=${mark}
     wait for on access log contains after mark  On-access scanning disabled   mark=${mark}
+    wait_for_file_to_contain  ${ONACCESS_STATUS_FILE}  disabled
 
 
 Enable OA Scanning
@@ -131,6 +133,7 @@ Enable OA Scanning
     #Ensure that all threads start in order
     ${list}=  create list  Fanotify successfully initialised  Starting eventReader  Starting mountMonitor  mount points in on-access scanning  Starting scanHandler 0  On-access scanning enabled
     check_on_access_log_contains_in_order  ${list}  mark=${mark}
+    wait_for_file_to_contain  ${ONACCESS_STATUS_FILE}  enabled
 
 
 On-access Scan Clean File

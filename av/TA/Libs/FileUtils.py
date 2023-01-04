@@ -112,3 +112,14 @@ def write_file_after_delay(dest, content, delay: float):
         # f.flush()
     logger.info("Closed " + dest)
 
+
+def wait_for_file_to_contain(path, expected, timeout=30):
+    contents = "NEVER READ!"
+    timelimit = time.time() + timeout
+    while time.time() < timelimit:
+        contents = open(path).read()
+        if expected in contents:
+            logger.info("Found %s in %s: %s" % (expected, path, contents))
+            return
+        time.sleep(0.5)
+    raise AssertionError("Failed to find %s in %s: last contents: %s" % (expected, path, contents))

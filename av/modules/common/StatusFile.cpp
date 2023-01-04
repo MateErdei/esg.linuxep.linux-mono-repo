@@ -23,7 +23,7 @@ StatusFile::StatusFile(std::string path)
 
 namespace
 {
-    const std::string ENABLED{"enabled"};
+    const std::string ENABLED {"enabled "};
     const std::string DISABLED{"disabled"};
 }
 
