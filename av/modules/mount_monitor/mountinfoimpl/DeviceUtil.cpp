@@ -194,8 +194,6 @@ bool DeviceUtil::isRemovable(const std::string& devicePath, const std::string& m
     static_cast<void>(mountPoint);
     static_cast<void>(filesystemType);
 
-    // TODO: Need to also handle removable hard drives - maybe look at device path? LINUXDAR-2678
-
     return isFloppy(devicePath,mountPoint,filesystemType) ||
            isOptical(devicePath,mountPoint,filesystemType);
 }
