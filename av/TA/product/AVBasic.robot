@@ -428,11 +428,13 @@ AV Plugin Scan Now Can Scan Special File That Cannot Be Read
 
 AV Plugin Can Process SafeStore Flag Enabled
     Start Fake Management If Required
+    ${mark} =  get_av_log_mark
     ${policyContent}=    Get File   ${RESOURCES_PATH}/flags_policy/flags_safestore_enabled.json
     send av policy  FLAGS  ${policyContent}
-    Wait Until AV Plugin Log Contains With Offset
+    wait for av log contains after mark
     ...   SafeStore flag set. Setting SafeStore to enabled.
     ...   timeout=60
+    ...   mark=${mark}
 
 
 AV Plugin Can Process SafeStore Flag Disabled
