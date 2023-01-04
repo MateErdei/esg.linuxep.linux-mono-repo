@@ -488,7 +488,6 @@ AV Plugin Reports encoded eicars To Base
    Create Encoded Eicars
    register cleanup  Remove Directory  /tmp_test/encoded_eicars  true
 
-   # TODO - assumes no other MCS events
    Empty Directory  ${MCS_PATH}/event/
    Register Cleanup  Empty Directory  ${MCS_PATH}/event/
    Register Cleanup  List Directory  ${MCS_PATH}/event/
@@ -505,6 +504,7 @@ AV Plugin Reports encoded eicars To Base
    Log  ${result.stdout}
 
    #make sure base has generated all events before checking
+   #assumes no other MCS events
    Wait Until Keyword Succeeds
          ...  60 secs
          ...  5 secs
