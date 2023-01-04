@@ -134,22 +134,29 @@ namespace safestore::QuarantineManager
         if (m_state != newState)
         {
             m_state = newState;
-            auto fileSystem = Common::FileSystem::fileSystem();
-            std::string dormantFlag = Plugin::getSafeStoreDormantFlagPath();
-            auto tempDir = Common::ApplicationConfiguration::applicationPathManager().getTempPath();
-            switch (m_state)
+            try
             {
-                case QuarantineManagerState::INITIALISED:
-                    fileSystem->removeFile(dormantFlag, true);
-                    break;
-                case QuarantineManagerState::UNINITIALISED:
-                    fileSystem->writeFileAtomically(dormantFlag, "SafeStore database uninitialised", tempDir);
-                    break;
-                case QuarantineManagerState::CORRUPT:
-                    fileSystem->writeFileAtomically(dormantFlag, "SafeStore database corrupt", tempDir);
-                    break;
-                case QuarantineManagerState::STARTUP:
-                    break;
+                auto fileSystem = Common::FileSystem::fileSystem();
+                std::string dormantFlag = Plugin::getSafeStoreDormantFlagPath();
+                auto tempDir = Common::ApplicationConfiguration::applicationPathManager().getTempPath();
+                switch (m_state)
+                {
+                    case QuarantineManagerState::INITIALISED:
+                        fileSystem->removeFile(dormantFlag, true);
+                        break;
+                    case QuarantineManagerState::UNINITIALISED:
+                        fileSystem->writeFileAtomically(dormantFlag, "SafeStore database uninitialised", tempDir);
+                        break;
+                    case QuarantineManagerState::CORRUPT:
+                        fileSystem->writeFileAtomically(dormantFlag, "SafeStore database corrupt", tempDir);
+                        break;
+                    case QuarantineManagerState::STARTUP:
+                        break;
+                }
+            }
+            catch (const std::exception& exception)
+            {
+                LOGWARN("Failed to write dormant flag due to: " << exception.what());
             }
         }
     }
@@ -373,7 +380,12 @@ namespace safestore::QuarantineManager
         {
             LOGERROR(
                 "Failed to quarantine " << escapedPath << " due to: " << SafeStoreWrapper::GL_SAVE_FILE_RETURN_CODES.at(saveResult));
-            if (saveResult == SafeStoreWrapper::SaveFileReturnCode::DB_ERROR)
+
+            // Only call db error func if the return code is not one of these, which are unrelated to a DB error.
+            if (!(saveResult == SafeStoreWrapper::SaveFileReturnCode::INVALID_ARG ||
+                  saveResult == SafeStoreWrapper::SaveFileReturnCode::OUT_OF_MEMORY ||
+                  saveResult == SafeStoreWrapper::SaveFileReturnCode::MAX_STORE_SIZE_EXCEEDED ||
+                  saveResult == SafeStoreWrapper::SaveFileReturnCode::MAX_OBJECT_SIZE_EXCEEDED))
             {
                 callOnDbError();
             }
