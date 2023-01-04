@@ -1647,3 +1647,60 @@ TEST_F(QuarantineManagerTests, QuarantineFailsIfFileMoved)
         quarantineManager->quarantineFile(
             m_path, m_threatID, m_threatName, m_SHA256, m_correlationId, std::move(fdHolder)));
 }
+
+TEST_F(QuarantineManagerTests, waitForFilesystemLockReturnsWhenLockDoesNotExist)
+{
+    auto* filesystemMock = new StrictMock<MockFileSystem>();
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::unique_ptr<Common::FileSystem::IFileSystem>(
+        filesystemMock) };
+
+    addCommonPersistValueExpects(*filesystemMock);
+    std::shared_ptr<IQuarantineManager> quarantineManager =
+        std::make_shared<QuarantineManagerImpl>(std::move(m_mockSafeStoreWrapper), std::move(m_mockSysCallWrapper));
+    EXPECT_CALL(*filesystemMock, exists(Plugin::getSafeStoreDbLockDirPath())).WillOnce(Return(false));
+    EXPECT_TRUE(quarantineManager->waitForFilesystemLock(1));
+}
+
+TEST_F(QuarantineManagerTests, waitForFilesystemLockWaitsWhenLockDoesExist)
+{
+    auto* filesystemMock = new StrictMock<MockFileSystem>();
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::unique_ptr<Common::FileSystem::IFileSystem>(
+        filesystemMock) };
+
+    addCommonPersistValueExpects(*filesystemMock);
+    std::shared_ptr<IQuarantineManager> quarantineManager =
+        std::make_shared<QuarantineManagerImpl>(std::move(m_mockSafeStoreWrapper), std::move(m_mockSysCallWrapper));
+
+    EXPECT_CALL(*filesystemMock, exists(Plugin::getSafeStoreDbLockDirPath()))
+        .WillOnce(Return(true)) // cause a wait to happen
+        .WillOnce(Return(false));
+    EXPECT_TRUE(quarantineManager->waitForFilesystemLock(1));
+}
+
+TEST_F(QuarantineManagerTests, removeFilesystemLockRemovesDir)
+{
+    auto* filesystemMock = new StrictMock<MockFileSystem>();
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::unique_ptr<Common::FileSystem::IFileSystem>(
+        filesystemMock) };
+
+    addCommonPersistValueExpects(*filesystemMock);
+    std::shared_ptr<IQuarantineManager> quarantineManager =
+        std::make_shared<QuarantineManagerImpl>(std::move(m_mockSafeStoreWrapper), std::move(m_mockSysCallWrapper));
+
+    EXPECT_CALL(*filesystemMock, removeFileOrDirectory(Plugin::getSafeStoreDbLockDirPath()));
+    quarantineManager->removeFilesystemLock();
+}
+
+TEST_F(QuarantineManagerTests, removeFilesystemLockHandlesFilesystemException)
+{
+    auto* filesystemMock = new StrictMock<MockFileSystem>();
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::unique_ptr<Common::FileSystem::IFileSystem>(
+        filesystemMock) };
+
+    addCommonPersistValueExpects(*filesystemMock);
+    std::shared_ptr<IQuarantineManager> quarantineManager =
+        std::make_shared<QuarantineManagerImpl>(std::move(m_mockSafeStoreWrapper), std::move(m_mockSysCallWrapper));
+
+    EXPECT_CALL(*filesystemMock, removeFileOrDirectory(Plugin::getSafeStoreDbLockDirPath())).WillOnce(Throw(Common::FileSystem::IFileSystemException("Test exception")));
+    EXPECT_NO_THROW(quarantineManager->removeFilesystemLock());
+}
