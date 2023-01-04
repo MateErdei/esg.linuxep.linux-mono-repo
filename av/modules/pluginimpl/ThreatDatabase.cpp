@@ -6,6 +6,8 @@
 
 #include "common/ApplicationPaths.h"
 
+#include "datatypes/IUuidGenerator.h"
+
 #include "Common/FileSystem/IFileSystemException.h"
 #include "Common/TelemetryHelperImpl/TelemetryHelper.h"
 
@@ -188,7 +190,7 @@ namespace Plugin
 
         for (const auto& threatItr : j.items())
         {
-            std::string correlationId = "";
+            std::string correlationId = datatypes::uuidGenerator().generate();
             try
             {
                 correlationId = threatItr.value().at(JsonKeys::correlationId);
@@ -196,8 +198,8 @@ namespace Plugin
             catch (nlohmann::json::exception& ex)
             {
                 LOGWARN(
-                    "Not loading Correlation field for " << threatItr.key()
-                                                         << " into threat database as parsing failed with error for "
+                    "Failed to load saved correlation field for " << threatItr.key()
+                                                         << " as parsing failed with error for "
                                                          << JsonKeys::correlationId << " " << ex.what());
                 Common::Telemetry::TelemetryHelper::getInstance().set("corrupt-threat-database", true);
             }

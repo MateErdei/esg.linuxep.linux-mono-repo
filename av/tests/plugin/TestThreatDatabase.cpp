@@ -152,6 +152,24 @@ TEST_F(TestThreatDatabase, initDatabaseHandlesMalformedJsonStringInFile)
     verifyCorruptDatabaseTelemetryPresent();
 }
 
+TEST_F(TestThreatDatabase, initDatabaseAddsCorrelationIDIfDBinOldFormat)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    EXPECT_CALL(*m_fileSystemMock, exists(Plugin::getPersistThreatDatabaseFilePath())).WillOnce(Return(true));
+    EXPECT_CALL(*m_fileSystemMock, readFile(Plugin::getPersistThreatDatabaseFilePath())).WillOnce(Return("{\"threatID\":[\"id\"]}"));
+    EXPECT_CALL(*m_fileSystemMock, writeFile(Plugin::getPersistThreatDatabaseFilePath(),_));
+
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(m_fileSystemMock) };
+
+    Plugin::ThreatDatabase database = Plugin::ThreatDatabase{Plugin::getPluginVarDirPath()};
+    auto correlationIdOptional = database.hasThreat("threatID");
+    EXPECT_TRUE(correlationIdOptional.has_value());
+    EXPECT_FALSE(correlationIdOptional.value().empty());
+
+    EXPECT_TRUE(appenderContains("Failed to load saved correlation field for threatID"));
+
+}
 
 TEST_F(TestThreatDatabase, DatabaseLoadsAndSavesCorrectly)
 {
@@ -305,7 +323,7 @@ TEST_F(TestThreatDatabase, DatabaseLoadsThreatWithCorruptCorrelationID)
 
     Plugin::ThreatDatabase database = Plugin::ThreatDatabase(Plugin::getPluginVarDirPath());
 
-    EXPECT_TRUE(waitForLog("Not loading Correlation field for threatID into threat database as parsing failed with error "
+    EXPECT_TRUE(waitForLog("Failed to load saved correlation field for threatID as parsing failed with error "
                            "for correlationId [json.exception.type_error.302] type must be string, but is number"));
 
     auto databaseContents = database.m_database.lock();
