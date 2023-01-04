@@ -491,6 +491,7 @@ Install Base For Component Tests
     Run Process  chmod  +x  ${BASE_SDDS}/install.sh
     Run Process  chmod  +x  ${BASE_SDDS}/files/base/bin/*
     ${result} =   Run Process   bash  ${BASE_SDDS}/install.sh  timeout=600s    stderr=STDOUT
+    Log  ${result.stdout}  level=TRACE
     Should Be Equal As Integers  ${result.rc}  ${0}   "Failed to install base.\noutput: \n${result.stdout}"
 
     # Check watchdog running

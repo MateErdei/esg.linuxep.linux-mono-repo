@@ -104,6 +104,35 @@ SafeStore Recovers From Corrupt Database
     Mark Expected Error In Log    ${SAFESTORE_LOG_PATH}    Quarantine Manager failed to initialise
 
 
+SafeStore Recovers From Corrupt Database With Lock Dir
+    ${av_mark} =  Get AV Log Mark
+    Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
+    Wait For Log Contains From Mark  ${av_mark}  SafeStore flag set. Setting SafeStore to enabled.    timeout=60
+
+    Wait Until SafeStore running
+    ${safestore_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
+
+    # Corrupt DB and also create the safestore lock dir
+    Corrupt SafeStore Database
+    Create Directory   ${SAFESTORE_DB_DIR}/safestore.db.lock
+
+    Check SafeStore Dormant Flag Exists
+    Wait For Log Contains From Mark  ${safestore_mark}  Successfully removed corrupt SafeStore database    200
+    Wait For Log Contains From Mark  ${safestore_mark}  Quarantine Manager initialised OK
+
+    Check Safestore Dormant Flag Does Not Exist
+
+    ${safestore_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
+    Check avscanner can detect eicar
+    Wait For Log Contains From Mark  ${safestore_mark}  Received Threat:
+    Wait For Log Contains From Mark  ${safestore_mark}  Quarantined ${SCAN_DIRECTORY}/eicar.com successfully
+
+    # Internal error due to the lock dir being put into place
+    Mark Expected Error In Log    ${SAFESTORE_LOG_PATH}    Failed to initialise SafeStore database: INTERNAL_ERROR
+    Mark Expected Error In Log    ${SAFESTORE_LOG_PATH}    Failed to initialise SafeStore database: DB_ERROR
+    Mark Expected Error In Log    ${SAFESTORE_LOG_PATH}    Quarantine Manager failed to initialise
+
+
 SafeStore Quarantines When It Receives A File To Quarantine
     register cleanup    Exclude Watchdog Log Unable To Open File Error
 
