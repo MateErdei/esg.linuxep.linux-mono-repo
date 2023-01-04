@@ -221,7 +221,6 @@ void ThreatReporterServerConnectionThread::inner_run()
                 LOGERROR("Missing file path in detection report ( size=" << bytes_read << ")");
             }
             m_threatReportCallback->processMessage(std::move(detectionReader));
-            // TODO: HANDLE ANY SOCKET ERRORS
         }
     }
 }
