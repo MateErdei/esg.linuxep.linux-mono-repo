@@ -1,6 +1,6 @@
 // Copyright 2020-2022 Sophos Limited. All rights reserved.
 
-// TODO: move this somewhere common
+// TODO: LINUXDAR-6438 move this class somewhere common
 
 #pragma once
 
