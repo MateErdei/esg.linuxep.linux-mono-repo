@@ -95,7 +95,6 @@ namespace safestore::QuarantineManager
                     {
                         LOGDEBUG("Forcing removal of SafeStore lock dir");
                         m_quarantineManager->removeFilesystemLock();
-                        LOGDEBUG("Trying to initialise after lock dir removal");
                         m_quarantineManager->initialise();
                         if (m_quarantineManager->getState() == QuarantineManagerState::INITIALISED)
                         {
