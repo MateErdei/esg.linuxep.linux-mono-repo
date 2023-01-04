@@ -126,7 +126,7 @@ Check Threat Detector Not Running
     Should Be Equal As Integers  ${result}  ${-1}
 
 Check Threat Detector PID File Does Not Exist
-    # TODO - investigate why PID file sometimes does not get cleaned up
+    # TODO - LINUXDAR-5780 investigate why PID file sometimes does not get cleaned up
     Run Keyword And Ignore Error  File Should Not Exist  ${AV_PLUGIN_PATH}/chroot/var/threat_detector.pid
     Remove File  ${AV_PLUGIN_PATH}/chroot/var/threat_detector.pid
 
