@@ -133,6 +133,7 @@ void OnAccessStatusMonitor::run()
         }
         else if (ret == 0)
         {
+            LOGDEBUG("Timeout from ppoll watching on-access status");
             watcher.reset();
         }
         else if ((fds[0].revents & POLLERR) != 0)
@@ -155,7 +156,25 @@ void OnAccessStatusMonitor::run()
         }
         else if ((fds[1].revents & POLLIN) != 0)
         {
-            statusFileChanged();
+
+            constexpr size_t EVENT_SIZE = sizeof (struct inotify_event);
+            constexpr size_t EVENT_BUF_LEN = 1024 * ( EVENT_SIZE + 16 );
+
+            char buffer[EVENT_BUF_LEN] __attribute__ ((aligned(__alignof__(struct inotify_event))));
+
+            ssize_t length = ::read(watcher->getFD(), buffer, EVENT_BUF_LEN);
+
+            if (length < 0)
+            {
+                LOGERROR("Failed to read event from inotify: " << common::safer_strerror(errno));
+                watcher.reset();
+            }
+            else
+            {
+                // Evaluate if interesting file has changed - if required in future
+                LOGDEBUG("Read " << length << " of inotify events");
+                statusFileChanged();
+            }
         }
 
         if (!watcher)

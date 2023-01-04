@@ -71,7 +71,7 @@ void StatusFile::disabled()
 
 bool StatusFile::isEnabled(const std::string& path)
 {
-    datatypes::AutoFd fd{::open(path.c_str(), O_RDONLY)};
+    datatypes::AutoFd fd{::open(path.c_str(), O_RDONLY | O_CLOEXEC)};
     if (!fd.valid())
     {
         return false;
