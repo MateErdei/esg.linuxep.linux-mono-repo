@@ -285,3 +285,14 @@ Set number of scanning threads in product test
     ${mark} =  get_on_access_log_mark
     Restart On Access
     wait for on access log contains after mark   mount points in on-access scanning  mark=${mark}
+
+Generate Clean OnAccess Event
+    [Arguments]  ${path}=/tmp_test/cleanfile.txt   ${mark}=${None}
+
+    IF   $mark is None
+        ${mark} =  get_on_access_log_mark
+    END
+    
+    Create File  ${path}  ${CLEAN_STRING}
+    Register Cleanup   Remove File   ${path}
+    wait for on access log contains after mark  On-close event for ${path}  mark=${mark}

@@ -525,9 +525,8 @@ On Access Caches Open Events Without Detections
     ${oamark} =  get_on_access_log_mark
     Get File   ${cleanfile}
     #Generate another event we can expect in logs
-    Create File  ${cleanfile2}  ${CLEAN_STRING}
-    Register Cleanup   Remove File   ${cleanfile2}
-    wait for on access log contains after mark        On-open event for ${cleanfile2} from  mark=${oamark}
+    Generate Clean OnAccess Event   ${cleanfile2}    ${oamark}
+
     check_on_access_log_does_not_contain_after_mark   On-open event for ${cleanfile} from  mark=${oamark}
 
 
@@ -539,10 +538,10 @@ On Access Doesnt Cache Open Events With Detections
     ${oamark} =  get_on_access_log_mark
     Create File   ${dirtyfile}-excluded   ${EICAR_STRING}
     Register Cleanup   Remove File   ${dirtyfile}-excluded
+
     #Generate another event we can expect in logs
-    Create File  ${cleanfile}  ${CLEAN_STRING}
-    Register Cleanup   Remove File   ${cleanfile}
-    wait for on access log contains after mark  On-close event for ${cleanfile}  mark=${oamark}
+    Generate Clean OnAccess Event   ${cleanfile}    ${oamark}
+
     Move File   ${dirtyfile}-excluded   ${dirtyfile}
     Register Cleanup   Remove File   ${dirtyfile}
 
@@ -573,9 +572,7 @@ On Access Does Cache Close Events Without Detections
     Get File   ${cleanfile}
 
     #Generate another event we can expect in logs
-    Create File  ${cleanfile2}  ${CLEAN_STRING}
-    Register Cleanup   Remove File   ${cleanfile2}
-    wait for on access log contains after mark  On-close event for ${cleanfile2}  mark=${oamark}
+    Generate Clean OnAccess Event   ${cleanfile2}    ${oamark}
 
     check_on_access_log_does_not_contain_after_mark  On-open event for ${cleanfile} from  mark=${oamark}
 
@@ -597,9 +594,7 @@ On Access Receives Close Event On Cached File
     Get File   ${cleanfile}
 
     #Generate another event we can expect in logs
-    Create File  ${cleanfile2}  ${CLEAN_STRING}
-    Register Cleanup   Remove File   ${cleanfile2}
-    wait for on access log contains after mark  On-close event for ${cleanfile2}  mark=${oamark}
+    Generate Clean OnAccess Event   ${cleanfile2}   ${oamark}
 
     check_on_access_log_does_not_contain_after_mark  On-open event for ${cleanfile} from  mark=${oamark}
 
