@@ -131,9 +131,6 @@ Start AV Plugin process
     Check AV Plugin Installed from Marks  ${fake_management_mark}
 
 Start AV
-#    Remove Files   /tmp/threat_detector.stdout  /tmp/threat_detector.stderr
-#    ${handle} =  Start Process  ${SOPHOS_THREAT_DETECTOR_LAUNCHER}   stdout=/tmp/threat_detector.stdout  stderr=/tmp/threat_detector.stderr
-#    Set Suite Variable  ${THREAT_DETECTOR_PLUGIN_HANDLE}  ${handle}
     Check AV Plugin Not Running
     Check Threat Detector Not Running
     Check Threat Detector PID File Does Not Exist
@@ -144,7 +141,6 @@ Start AV
     Start AV Plugin process
 
 Stop AV
-#    ${result} =  Terminate Process  ${THREAT_DETECTOR_PLUGIN_HANDLE}
     FakeWatchdog.Stop Sophos Threat Detector Under Fake Watchdog
     Stop AV Plugin process
 
