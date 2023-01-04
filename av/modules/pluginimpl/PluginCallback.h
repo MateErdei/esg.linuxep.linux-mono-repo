@@ -43,8 +43,18 @@ namespace Plugin
         long calculateHealth(const std::shared_ptr<datatypes::ISystemCallWrapper>& sysCalls);
         static std::pair<unsigned long, unsigned long> getThreatScannerProcessinfo(const std::shared_ptr<datatypes::ISystemCallWrapper>& sysCalls);
 
-        void sendStatus(const std::string& revID);
-        void sendStatus();
+        /**
+         * Change the revID of the SAV policy and send if it's changed.
+         * @param revID
+         */
+        bool sendStatus(const std::string& revID);
+
+        /**
+         * Send a SAV Status, if it has changed.
+         * @return True if the status has changed.
+         */
+        bool sendStatus();
+
         void setRunning(bool running);
         bool isRunning();
         void setSXL4Lookups(bool sxl4Lookup);

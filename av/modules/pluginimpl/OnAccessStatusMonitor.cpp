@@ -92,33 +92,36 @@ void OnAccessStatusMonitor::run()
         { .fd = -1, .events = POLLIN, .revents = 0 }, // Watcher
     };
 
-    const struct timespec WITH_WATCHER_TIMEOUT
+    // We need timeouts, since sometimes we end up reading old values from the status file after inotify
+    const struct timespec LONG_TIMEOUT
     {
         .tv_sec = 600,
         .tv_nsec = 0
     };
-    const struct timespec WITHOUT_WATCHER_TIMEOUT
+    const struct timespec SHORT_TIMEOUT
     {
         .tv_sec = 10,
         .tv_nsec = 0,
     };
 
     announceThreadStarted();
+    const struct timespec* timeout = &LONG_TIMEOUT;
 
     while (true)
     {
-        const struct timespec* timeout;
         if (watcher && watcher->valid())
         {
             fds[1].fd = watcher->getFD();
-            timeout = &WITH_WATCHER_TIMEOUT;
         }
         else
         {
+            // No Inotify watch, so we need to poll frequently
             fds[1].fd = -1;
-            timeout = &WITHOUT_WATCHER_TIMEOUT;
+            timeout = &SHORT_TIMEOUT;
         }
 
+        assert(timeout != nullptr);
+//        LOGDEBUG("ppoll timeout " << timeout->tv_sec);
         auto ret = ::ppoll(fds, std::size(fds), timeout, nullptr);
 
         if (ret < 0)
@@ -135,6 +138,7 @@ void OnAccessStatusMonitor::run()
         {
             LOGDEBUG("Timeout from ppoll watching on-access status");
             watcher.reset();
+            timeout = &LONG_TIMEOUT; // wait longer time if we get timeout
         }
         else if ((fds[0].revents & POLLERR) != 0)
         {
@@ -151,12 +155,11 @@ void OnAccessStatusMonitor::run()
         }
         else if ((fds[1].revents & POLLERR) != 0)
         {
-            LOGERROR("Shutting down OnAccessStatusMonitor, error from inotify");
+            LOGERROR("Reset OnAccessStatusMonitor, error from inotify");
             watcher.reset();
         }
         else if ((fds[1].revents & POLLIN) != 0)
         {
-
             constexpr size_t EVENT_SIZE = sizeof (struct inotify_event);
             constexpr size_t EVENT_BUF_LEN = 1024 * ( EVENT_SIZE + 16 );
 
@@ -172,9 +175,10 @@ void OnAccessStatusMonitor::run()
             else
             {
                 // Evaluate if interesting file has changed - if required in future
-                LOGDEBUG("Read " << length << " of inotify events");
                 statusFileChanged();
             }
+
+            timeout = &SHORT_TIMEOUT; // Wait short timeout after event - to allow disks to sync
         }
 
         if (!watcher)
@@ -188,7 +192,16 @@ void OnAccessStatusMonitor::run()
 void OnAccessStatusMonitor::statusFileChanged()
 {
     auto path = Plugin::getOnAccessStatusPath();
+    auto oldStatus = m_onAccessStatus;
+    std::this_thread::sleep_for(std::chrono::milliseconds{1}); // wait for file to be written
     auto isEnabled = common::StatusFile::isEnabled(path);
-    m_callback->setOnAccessEnabled(isEnabled);
-    m_callback->sendStatus();
+    if (oldStatus != isEnabled)
+    {
+        m_callback->setOnAccessEnabled(isEnabled);
+        if (m_callback->sendStatus())
+        {
+            LOGDEBUG("Updating SAV status as On-Access status is " << isEnabled);
+        }
+        m_onAccessStatus = isEnabled;
+    }
 }

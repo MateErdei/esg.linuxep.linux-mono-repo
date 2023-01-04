@@ -22,5 +22,6 @@ namespace Plugin
     private:
         void statusFileChanged();
         PluginCallbackSharedPtr m_callback;
+        bool m_onAccessStatus = false;
     };
 }

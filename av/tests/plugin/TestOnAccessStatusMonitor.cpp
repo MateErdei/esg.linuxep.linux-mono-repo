@@ -44,7 +44,7 @@ namespace
     };
 }
 
-TEST_F(TestOnAccessStatusMonitor, contruction)
+TEST_F(TestOnAccessStatusMonitor, construction)
 {
     Plugin::OnAccessStatusMonitor monitor(m_pluginCallback);
 }
@@ -53,16 +53,30 @@ TEST_F(TestOnAccessStatusMonitor, startThread)
 {
     auto monitor = std::make_shared<Plugin::OnAccessStatusMonitor>(m_pluginCallback);
 
-    common::ThreadRunner runner(monitor, "OAMonitor", true);
-    runner.requestStopIfNotStopped();
+    {
+        common::ThreadRunner runner(monitor, "OAMonitor", true);
+        runner.requestStopIfNotStopped();
+    }
 
-    ASSERT_FALSE(m_taskQueue->empty());
-    auto task = m_taskQueue->pop();
-    ASSERT_EQ(task.taskType, Plugin::Task::TaskType::SendStatus);
-    EXPECT_THAT(task.Content, testing::HasSubstr("<on-access>false</on-access>"));
+    ASSERT_TRUE(m_taskQueue->empty()); // No event if on-access disabled
 }
 
-TEST_F(TestOnAccessStatusMonitor, startThreadWithStatusFilePresent)
+TEST_F(TestOnAccessStatusMonitor, startThreadWithStatusFileDisabled)
+{
+    auto path = Plugin::getOnAccessStatusPath();
+    auto statusFile = std::make_shared<common::StatusFile>(path);
+    statusFile->disabled();
+    auto monitor = std::make_shared<Plugin::OnAccessStatusMonitor>(m_pluginCallback);
+
+    {
+        common::ThreadRunner runner(monitor, "OAMonitor", true);
+        runner.requestStopIfNotStopped();
+    }
+
+    ASSERT_TRUE(m_taskQueue->empty()); // No event if on-access disabled
+}
+
+TEST_F(TestOnAccessStatusMonitor, startThreadWithStatusFileEnabled)
 {
     auto path = Plugin::getOnAccessStatusPath();
     auto statusFile = std::make_shared<common::StatusFile>(path);
@@ -78,4 +92,33 @@ TEST_F(TestOnAccessStatusMonitor, startThreadWithStatusFilePresent)
     auto task = m_taskQueue->pop();
     ASSERT_EQ(task.taskType, Plugin::Task::TaskType::SendStatus);
     EXPECT_THAT(task.Content, testing::HasSubstr("<on-access>true</on-access>"));
+}
+
+TEST_F(TestOnAccessStatusMonitor, disableSendsEventIfAfterEnable)
+{
+    using namespace std::chrono_literals;
+    auto path = Plugin::getOnAccessStatusPath();
+    auto statusFile = std::make_shared<common::StatusFile>(path);
+    statusFile->enabled();
+    auto monitor = std::make_shared<Plugin::OnAccessStatusMonitor>(m_pluginCallback);
+
+    {
+        common::ThreadRunner runner(monitor, "OAMonitor", true);
+
+        Plugin::Task task;
+        auto timeout = Plugin::TaskQueue::clock_t::now() + 20ms;
+        bool found = m_taskQueue->pop(task, timeout);
+        ASSERT_TRUE(found);
+        ASSERT_EQ(task.taskType, Plugin::Task::TaskType::SendStatus);
+        EXPECT_THAT(task.Content, testing::HasSubstr("<on-access>true</on-access>"));
+
+        statusFile->disabled();
+        timeout = Plugin::TaskQueue::clock_t::now() + 700s;
+        found = m_taskQueue->pop(task, timeout);
+        ASSERT_TRUE(found);
+        ASSERT_EQ(task.taskType, Plugin::Task::TaskType::SendStatus);
+        EXPECT_THAT(task.Content, testing::HasSubstr("<on-access>false</on-access>"));
+
+        runner.requestStopIfNotStopped();
+    }
 }

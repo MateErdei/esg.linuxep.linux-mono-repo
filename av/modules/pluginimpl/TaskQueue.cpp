@@ -1,4 +1,4 @@
-// Copyright 2018-2022, Sophos Limited.  All rights reserved.
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #include "TaskQueue.h"
 
@@ -31,7 +31,7 @@ namespace Plugin
         push(std::move(stopTask));
     }
 
-    bool TaskQueue::pop(Task& task, const std::chrono::time_point<std::chrono::steady_clock>& timeout_time)
+    bool TaskQueue::pop(Task& task, const time_point_t& timeout_time)
     {
         std::unique_lock<std::mutex> lck(m_mutex);
 

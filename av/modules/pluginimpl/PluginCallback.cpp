@@ -306,24 +306,27 @@ namespace Plugin
         return result;
     }
 
-    void PluginCallback::sendStatus(const std::string &revID)
+    bool PluginCallback::sendStatus(const std::string &revID)
     {
         if (revID != m_revID)
         {
             LOGDEBUG("Received new policy with revision ID: " << revID);
             m_revID = revID;
-            sendStatus();
+            return sendStatus();
         }
+        return false;
     }
 
-    void PluginCallback::sendStatus()
+    bool PluginCallback::sendStatus()
     {
         auto newStatus = generateSAVStatusXML();
         if (newStatus != m_savStatus)
         {
             m_savStatus = newStatus;
             m_task->push(Task{ .taskType=Task::TaskType::SendStatus, .Content=newStatus });
+            return true;
         }
+        return false;
     }
 
     void PluginCallback::setRunning(bool running)

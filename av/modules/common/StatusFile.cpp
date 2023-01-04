@@ -23,8 +23,8 @@ StatusFile::StatusFile(std::string path)
 
 namespace
 {
-    const std::string ENABLED {"enabled "};
-    const std::string DISABLED{"disabled"};
+    const std::string ENABLED {"enabled\n"};
+    const std::string DISABLED{"disabled\n"};
 }
 
 bool StatusFile::open()
@@ -51,6 +51,8 @@ void StatusFile::enabled()
     {
         LOGERROR("Failed to write status file at " << m_path << ": " << common::safer_strerror(errno));
     }
+    ftruncate(m_fd.get(), ENABLED.size());
+    fsync(m_fd.get());
 
     // Add locking if required
 }
@@ -67,6 +69,8 @@ void StatusFile::disabled()
     {
         LOGERROR("Failed to write status file at " << m_path << ": " << common::safer_strerror(errno));
     }
+    ftruncate(m_fd.get(), DISABLED.size());
+    fsync(m_fd.get());
 }
 
 bool StatusFile::isEnabled(const std::string& path)
@@ -74,6 +78,7 @@ bool StatusFile::isEnabled(const std::string& path)
     datatypes::AutoFd fd{::open(path.c_str(), O_RDONLY | O_CLOEXEC)};
     if (!fd.valid())
     {
+        LOGDEBUG("Failed to open status file " << path);
         return false;
     }
     // check locking if required
@@ -81,8 +86,10 @@ bool StatusFile::isEnabled(const std::string& path)
     auto count = ::read(fd.get(), &value, 1);
     if (count != 1)
     {
+        LOGDEBUG("Failed to read status file " << path);
         return false;
     }
+    LOGDEBUG("Read " << value << " from status file " << path);
     return (value == 'e');
 }
 
