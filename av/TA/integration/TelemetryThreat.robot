@@ -244,7 +244,7 @@ On Access Scan Increments Telemetry Threat Count
     #Do test
     ${mark} =  Get on access log mark
     Get Binary File  ${NORMAL_DIRECTORY}/MLengHighScore.exe
-    wait for on access log contains after mark  Detected "${NORMAL_DIRECTORY}/MLengHighScore.exe" is infected with ML/PE-A (Open)  mark=${mark}
+    wait for on access log contains after mark  detected "${NORMAL_DIRECTORY}/MLengHighScore.exe" is infected with ML/PE-A (Open)  mark=${mark}
 
     Run Telemetry Executable With HTTPS Protocol  port=${4435}
 

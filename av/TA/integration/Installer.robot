@@ -919,7 +919,7 @@ IDE Update Invalidates On Access Cache
     Register Cleanup  Remove File  ${srcfile}
     wait for log contains from mark  ${oa_mark}  On-close event for ${srcfile} from
     Get File  ${srcfile}
-    wait for log contains from mark  ${oa_mark}  Caching ${srcfile}
+    wait for log contains from mark  ${oa_mark}  caching ${srcfile}
 
     ${oa_mark} =  Get On Access Log Mark
     Replace Virus Data With Test Dataset A And Run IDE update with SUSI loaded
