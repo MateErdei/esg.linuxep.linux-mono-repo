@@ -384,6 +384,7 @@ TEST_F(StateMonitorTests, stateMonitorTriesToRemoveFilesystemLockIfItExistsAndDb
     EXPECT_CALL(*filesystemMock, removeFileOrDirectory(Plugin::getSafeStoreDbLockDirPath()));
 
     EXPECT_CALL(*filesystemMock, removeFile(Plugin::getSafeStoreDormantFlagPath(), true)).WillOnce(Return());
+    EXPECT_CALL(*filesystemMock, removeFileOrDirectory(Plugin::getSafeStoreDbDirPath())).Times(0);
 
     EXPECT_CALL(
         *m_mockSafeStoreWrapper,

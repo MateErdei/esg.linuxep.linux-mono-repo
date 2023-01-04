@@ -156,7 +156,7 @@ namespace safestore::QuarantineManager
             }
             catch (const std::exception& exception)
             {
-                LOGWARN("Failed to write dormant flag due to: " << exception.what());
+                LOGWARN("Failed to update dormant flag due to: " << exception.what());
             }
         }
     }
@@ -858,7 +858,7 @@ namespace safestore::QuarantineManager
         auto dbLockPath = Plugin::getSafeStoreDbLockDirPath();
         auto fs = Common::FileSystem::fileSystem();
         double checkInterval = 0.2;
-        auto lockDoesNotExist = Common::UtilityImpl::waitFor(timeoutSeconds, checkInterval,[dbLockPath, fs]() {
+        auto lockDoesNotExist = Common::UtilityImpl::waitFor(timeoutSeconds, checkInterval,[&dbLockPath, &fs]() {
                                          return !fs->exists(dbLockPath);
                                      });
         return lockDoesNotExist;
