@@ -208,13 +208,6 @@ fi
 REGION=${AWS_REGION}
 KEY_NAME=regressiontesting
 BUILD_NAME=SSPLAV
-## check if RunCloud is set
-if [[ $RUNCLOUD == "true" ]]
-then
-    RUN_CLOUD=true
-else
-    RUN_CLOUD=false
-fi
 
 if [[ -z $RUNSOME  ]]
 then
@@ -246,7 +239,6 @@ do
         --parameters ParameterKey=KeyName,ParameterValue="$KEY_NAME" \
                      ParameterKey=BuildName,ParameterValue="$BUILD_NAME" \
                      ParameterKey=TestPassUUID,ParameterValue="$TEST_PASS_UUID" \
-                     ParameterKey=RunCloud,ParameterValue="$RUN_CLOUD" \
                      ParameterKey=RunSome,ParameterValue="$RUN_SOME" \
                      ParameterKey=RunOne,ParameterValue="$RUN_ONE" \
                      ParameterKey=StackName,ParameterValue="${STACK}" \
