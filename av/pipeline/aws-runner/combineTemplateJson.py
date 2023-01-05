@@ -63,6 +63,13 @@ def main():
                                                          .replace("@HOSTNAMEGOESHERE@", hostname)
                                                          .replace("@SLICE@", str(index))
                                         )
+            tags = json_with_args["Properties"]["Tags"]
+            tags.extend(
+                [
+                    { "Key": "Hostname", "Value": hostname},
+                    { "Key": "Slice", "Value": str(index)}
+                ]
+            )
             main_template_json["Resources"][unique_template_name] = json_with_args
 
     with open("sspl-system.template.with_args", "w") as outFile:

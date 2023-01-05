@@ -11,22 +11,20 @@
       "Tags" : [
         {"Key" : "TestPassUUID", "Value" : { "Ref" : "TestPassUUID" } },
         {"Key" : "OwnerName", "Value" : "ukdevlinuxdarwin"},
-        {"Key" : "OwnerEmail", "Value" : "ukdevvlx@sophos.com"},
+        {"Key" : "OwnerEmail", "Value" : "ukdevlinuxdarwin@sophos.com"},
         {"Key" : "SupportEmail", "Value" : "ukdevvlx@sophos.com"},
         {"Key" : "BusinessUnit", "Value" : "ESG"},
         {"Key" : "CostCentre", "Value" : "GB11601200"},
-        {"Key" : "Project", "Value" : "XDR"},
+        {"Key" : "Project", "Value" : { "Ref" : "Project" }},
         {"Key" : "Application", "Value" : "linux-endpoint-testing"},
         {"Key" : "BaseAmi", "Value" : "ami-02271909e3f919fb5"},
         {"Key" : "Environment", "Value" : "development"},
         {"Key" : "AutomationExcluded", "Value" : "true"},
         {"Key" : "SecurityClassification", "Value" : "none low"},
         {"Key" : "TestImage", "Value" : "true"},
-        {"Key" : "Codeline", "Value" : "SSPL" },
-        {"Key" : "Branch", "Value" : "SSPL" },
-        {"Key" : "Slice", "Value" :  "@SLICE@" },
-        {"Key" : "Name", "Value" : "rhel9x64" },
-        {"Key" : "RootStackname", "Value" : "SSPL" }
+        {"Key" : "Codeline", "Value" : { "Ref" : "Project" } },
+        {"Key" : "Branch", "Value" : { "Ref" : "Project" } },
+        {"Key" : "Name", "Value" : "rhel9x64" }
       ],
       "PropagateTagsToVolumeOnCreation" : true,
       "NetworkInterfaces" : [{

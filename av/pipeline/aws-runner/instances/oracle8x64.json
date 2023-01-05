@@ -24,9 +24,7 @@
         {"Key" : "TestImage", "Value" : "true"},
         {"Key" : "Codeline", "Value" : { "Ref" : "Project" }  },
         {"Key" : "Branch", "Value" : { "Ref" : "Project" }  },
-        {"Key" : "Slice", "Value" :  "@SLICE@" },
-        {"Key" : "Name", "Value" : "oracle8x64" },
-        {"Key" : "RootStackname", "Value" : "SSPL" }
+        {"Key" : "Name", "Value" : "oracle8x64" }
       ],
       "PropagateTagsToVolumeOnCreation" : true,
       "NetworkInterfaces" : [{
