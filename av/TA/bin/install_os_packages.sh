@@ -8,7 +8,7 @@ then
     # Retry 10 times before timeout
     for (( i=0; i<10; i++ ))
     do
-       if DEBIAN_FRONTEND=noninteractive apt-get install -y nfs-kernel-server zip unzip samba p7zip-full gdb util-linux bfs ntfs-3g libguestfs-reiserfs netcat
+       if DEBIAN_FRONTEND=noninteractive apt-get install -y nfs-kernel-server zip unzip samba gdb util-linux bfs ntfs-3g libguestfs-reiserfs netcat
        then
           echo "Installation succeeded"
           break
@@ -64,7 +64,7 @@ then
 
     yum install -y "gcc" "gcc-c++" "make" nfs-utils zip samba gdb util-linux nc
     #TODO: LINUXDAR-6432 fix for RHEL8/Centos-Stream
-    yum install -y p7zip ntfs-3g
+    yum install -y ntfs-3g
 
 else
     echo "Can't find package management system"
