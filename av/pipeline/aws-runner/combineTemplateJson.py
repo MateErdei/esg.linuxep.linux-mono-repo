@@ -60,7 +60,9 @@ def main():
             unique_template_name = template_name + "slice" + str(index)
             hostname = template_name + "-" + str(index)
             json_with_args = json.loads(template_json_str.replace("@ARGSGOHERE@", arguments)
-                                                         .replace("@HOSTNAMEGOESHERE@", hostname))
+                                                         .replace("@HOSTNAMEGOESHERE@", hostname)
+                                                         .replace("@SLICE@", str(index))
+                                        )
             main_template_json["Resources"][unique_template_name] = json_with_args
 
     with open("sspl-system.template.with_args", "w") as outFile:

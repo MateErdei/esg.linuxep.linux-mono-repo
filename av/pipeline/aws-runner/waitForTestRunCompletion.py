@@ -25,14 +25,15 @@ def checkMachinesAllTerminated(stack, uuid):
         aws_secret_access_key="au+F0ytH203xPgzYfEAxV/VKjoDoHNJLPsX5NM0W"
         )
     instances = conn.get_only_instances(filters={
-        "tag:TestPassUUID": TEST_PASS_UUID,
+        "tag:TestPassUUID": uuid,
         "tag:TestImage": "true"
         })
     for instance in instances:
         if instance.state != "terminated":
-            print("Checking instance %s %s ip %s"%(
+            print("Checking instance %s %s-%s ip %s" % (
                 instance.id,
                 instance.tags.get('Name', "<unknown>"),
+                instance.tags.get('Slice', "<unknown-slice>"),
                 instance.ip_address
             ))
             return False

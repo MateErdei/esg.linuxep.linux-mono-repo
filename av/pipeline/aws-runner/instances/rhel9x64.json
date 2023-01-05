@@ -24,6 +24,7 @@
         {"Key" : "TestImage", "Value" : "true"},
         {"Key" : "Codeline", "Value" : "SSPL" },
         {"Key" : "Branch", "Value" : "SSPL" },
+        {"Key" : "Slice", "Value" :  "@SLICE@" },
         {"Key" : "Name", "Value" : "rhel9x64" },
         {"Key" : "RootStackname", "Value" : "SSPL" }
       ],
