@@ -483,7 +483,7 @@ On Access Does not Use Policy Settings If Flags Have Overriden Policy
 
 
 On Access Process Reconnects To Threat Detector
-    ${oa_mark} =  get_on_access_log_mark
+    ${mark} =  get_on_access_log_mark
     ${filepath} =  Set Variable  /tmp_test/clean_file_writer/clean.txt
     ${script} =  Set Variable  ${BASH_SCRIPTS_PATH}/cleanFileWriter.sh
     ${HANDLE} =  Start Process  bash  ${script}  stderr=STDOUT
@@ -491,23 +491,37 @@ On Access Process Reconnects To Threat Detector
     Register Cleanup  Remove Directory  /tmp_test/clean_file_writer/  recursive=True
     Register Cleanup  Terminate Process  ${HANDLE}
 
-    wait for on access log contains after mark  On-close event for ${filepath}  mark=${oa_mark}
-    FakeWatchdog.Stop Sophos Threat Detector Under Fake Watchdog
-    #Depending on whether a scan is being processed or it is being requested one of these 2 errors should appear
-    ${expected} =  Create List  Failed to receive scan response  Failed to send scan request
-    Wait For Log Contains One Of After Mark   ${ON_ACCESS_LOG_PATH}   ${expected}   ${oa_mark}
-
-    ${oa_mark2} =  get_on_access_log_mark
-    FakeWatchdog.Start Sophos Threat Detector Under Fake Watchdog
-    wait for on access log contains after mark  On-close event for ${filepath}  mark=${oa_mark2}
-    check_on_access_log_does_not_contain_after_mark  Failed to scan ${filepath}  mark=${oa_mark2}
-
-On Access Scan Times Out When Unable To Connect To Threat Detector
-    [Tags]  MANUAL
+    wait for on access log contains after mark  On-close event for ${filepath}  mark=${mark}
     FakeWatchdog.Stop Sophos Threat Detector Under Fake Watchdog
     ${mark} =  get_on_access_log_mark
-    Restart On Access
-    wait for on access log contains after mark   mount points in on-access scanning  mark=${mark}
+    FakeWatchdog.Start Sophos Threat Detector Under Fake Watchdog
+    wait for on access log contains after mark  On-close event for ${filepath}  mark=${mark}
+    #Depending on whether a scan is being processed or it is being requested one of these 2 errors should appear
+    File Log Contains One of   ${ON_ACCESS_LOG_PATH}  0  Failed to receive scan response  Failed to send scan request
+
+    check_on_access_log_does_not_contain_after_mark  Failed to scan ${filepath}  mark=${mark}
+
+On Access Scan Times Out When Unable To Connect To Threat Detector On Access Running
+    Configure on access log to trace level
+
+    ${mark} =  get_on_access_log_mark
+
+    ${filepath} =  Set Variable  /tmp_test/clean_file_writer/clean.txt
+    Create File  ${filepath}  clean
+    Register Cleanup  Remove File  ${filepath}
+
+    wait for on access log contains after mark  On-close event for ${filepath}  mark=${mark}
+    wait for on access log contains after mark  picked up scan request for ${filepath}  timeout=${10}   mark=${mark}
+
+    FakeWatchdog.Stop Sophos Threat Detector Under Fake Watchdog
+
+    wait for on access log contains after mark  Failed to scan file:  timeout=${75}   mark=${mark}
+
+On Access Times Out When Unable To Connect To Threat Detector While Starting Up
+    ${mark} =  get_on_access_log_mark
+    Terminate On Access
+    FakeWatchdog.Stop Sophos Threat Detector Under Fake Watchdog
+    Start On Access
 
     ${filepath} =  Set Variable  /tmp_test/clean_file_writer/clean.txt
     Create File  ${filepath}  clean
@@ -540,6 +554,7 @@ On Access logs if the kernel queue overflows
     wait for on access log contains after mark  Starting scanHandler  mark=${mark}
     Sleep  1s
 
+    Mark On Access Log
     # suspend soapd, so that we stop reading from the kernel queue
     ${soapd_pid} =  Record Soapd Plugin PID
     Evaluate  os.kill(${soapd_pid}, signal.SIGSTOP)  modules=os, signal
@@ -589,6 +604,7 @@ On Access Can Be enabled After It Gets Disabled In Policy
 
     On-access Scan Eicar Close
 
+#TODO LINUXDAR-6031 - Test is manual pending work on this ticket.
 On Access Doesnt Cache Close Events With Detections After Rewrite
     [Tags]   manual
     ${mark} =  Get on access log mark
@@ -617,3 +633,19 @@ On Access Doesnt Cache Close Events With Detections After Rewrite
     Dump On Access Log After Mark   ${oamark}
     Wait for on access log contains after mark  On-open event for ${testfile} from  mark=${oamark2}
     Wait for on access log contains after mark  detected "${testfile}" is infected with EICAR-AV-Test (Open)  mark=${oamark2}
+
+On Access Handles Control Socket Exists At Startup
+    [Tags]  fault_injection
+    #create a socket with the same name as the soapd_controller socket
+    ${netcat_handle} =  Start Process  nc  -lkU  ${COMPONENT_VAR_DIR}/soapd_controller
+
+    Terminate On Access
+    ${mark} =  Get on access log mark
+    Start On Access
+    wait for on access log contains after mark  starting listening on socket: ${COMPONENT_VAR_DIR}/soapd_controller  mark=${mark}
+
+    ${mark} =  Get on access log mark
+    send av policy from file  CORE  ${RESOURCES_PATH}/core_policy/CORE-36_oa_disabled.xml
+    wait for on access log contains after mark  New on-access configuration: {"enabled":false  mark=${mark}
+
+    ${output} =   Terminate Process   handle=${netcat_handle}

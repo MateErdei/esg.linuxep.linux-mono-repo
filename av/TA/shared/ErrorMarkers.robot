@@ -238,7 +238,7 @@ Exclude SUSI Illegal seek error
     mark_expected_error_in_log  ${THREAT_DETECTOR_INFO_LOG_PATH}     Failed to seek stream: Illegal seek
 
 Exclude On Access Scan Errors
-    mark_expected_error_in_log  ${ON_ACCESS_LOG_PATH}           OnAccessImpl <> Failed to scan
+    mark_expected_error_in_log  ${ON_ACCESS_LOG_PATH}           Failed to scan
     mark_expected_error_in_log  ${ON_ACCESS_LOG_PATH}           fanotifyhandler <> Failed to add scan request to queue
 
 #Use only if you trigger this issue
