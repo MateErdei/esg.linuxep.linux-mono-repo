@@ -4,6 +4,7 @@
 # All rights reserved.
 
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -119,8 +120,37 @@ def dump_threads_from_process(process):
     return dump_threads_from_pid(process.pid)
 
 
+def get_nice_value(pid):
+    try:
+        stat = open("/proc/%d/stat" % pid).read()
+        re.sub(r" ([^)]+) ", ".", stat)
+        parts = stat.split(" ")
+        nice = int(parts[18])
+        if nice > 19:
+            nice -= 2**32
+        return nice
+
+    except EnvironmentError:
+        raise AssertionError("Unable to get nice value for %d" % pid)
+
+
+def check_nice_value(pid, expected_nice):
+    """
+    Check PID has the correct nice value
+    :param pid:
+    :param expected_nice:
+    :return:
+    """
+    actual_nice = get_nice_value(pid)
+    if actual_nice != expected_nice:
+        raise AssertionError("PID: %d has nice value %d rather than %d" % (pid, actual_nice, expected_nice))
+
+
 def __main(argv):
-    print(pidof(argv[1]))
+    pid = pidof(argv[1])
+    print(pid)
+    if pid > 0:
+        print(get_nice_value(pid))
     if wait_for_pid(argv[1], 2) > 0:
         return 0
     return 1

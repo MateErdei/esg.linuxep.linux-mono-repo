@@ -584,6 +584,12 @@ On Access Uses Multiple Scanners
 
     check_multiple_on_access_threads_are_scanning   mark=${mark}
 
+On Access Can be High priority
+    Set OA local settings  { "highPrioritySoapd" : true }
+    register on fail  dump threads  ${ON_ACCESS_BIN}
+    Sleep  1s
+    ${pid} =  wait_for_pid  ${ON_ACCESS_BIN}
+    Check Nice Value  ${pid}  ${-20}
 
 On Access Can Handle Unlimited Marks
     ${mark} =  get_on_access_log_mark
