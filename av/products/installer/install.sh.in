@@ -314,7 +314,7 @@ function apply_permissions()
     if [[ -f ${TD_PID_FILE} ]]
     then
         chown ${THREAT_DETECTOR_USER}:${GROUP_NAME} ${TD_PID_FILE}
-        chmod 644 ${TD_PID_FILE}
+        chmod 640 ${TD_PID_FILE}
     fi
 
     chmod 0711 ${CHROOT}

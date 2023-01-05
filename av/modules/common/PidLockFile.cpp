@@ -28,7 +28,7 @@ PidLockFile::PidLockFile(const std::string& pidfile)
 {
     // open for write
     datatypes::AutoFd local_fd(open(pidfile.c_str(), O_RDWR | O_CREAT | O_CLOEXEC
-                       , S_IWUSR | S_IRUSR | S_IRGRP | S_IROTH)
+                       , S_IWUSR | S_IRUSR | S_IRGRP)
     );
 
     if (!local_fd.valid())
@@ -41,8 +41,7 @@ PidLockFile::PidLockFile(const std::string& pidfile)
         LOGERROR(ost.str());
         throw PidLockFileException(ost.str());
     }
-    fs::permissions(pidfile.c_str(), fs::perms::group_read | fs::perms::others_read,
-                    fs::perm_options::add);
+    fs::permissions(pidfile.c_str(), fs::perms::group_read, fs::perm_options::add);
 
     // lock
     if (flock(local_fd.get(), LOCK_EX) == -1)

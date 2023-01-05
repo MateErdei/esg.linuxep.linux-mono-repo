@@ -728,6 +728,11 @@ Sophos Threat Detector Does Not Detect Allow Listed File
     Should Exist  ${allow_listed_threat_file}
 
 
+Threat Detector Pid Lock Permissions Are Correct
+    ${rc}   ${output} =    Run And Return Rc And Output  stat -c '%a' ${COMPONENT_ROOT_PATH}/chroot/var/threat_detector.pid
+    Should Be Equal As Integers   ${output}  ${640}
+
+
 *** Keywords ***
 Start AV Plugin and Force SUSI to be initialized
     Start AV Plugin
