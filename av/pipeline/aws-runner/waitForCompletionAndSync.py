@@ -26,7 +26,7 @@ def main(argv):
     delay = 120
     while time.time() < start + TIMEOUT_FOR_ALL_TESTS:
         try:
-            if checkMachinesAllTerminated(STACK, TEST_PASS_UUID):
+            if checkMachinesAllTerminated(STACK, TEST_PASS_UUID, start):
                 duration = time.time() - start
                 minutes = duration // 60
                 seconds = duration % 60

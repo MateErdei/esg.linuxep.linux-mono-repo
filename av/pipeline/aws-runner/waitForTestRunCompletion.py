@@ -18,7 +18,7 @@ from boto.s3.connection import S3Connection
 TIMEOUT_FOR_ALL_TESTS = 100*60  # seconds
 
 
-def checkMachinesAllTerminated(stack, uuid):
+def checkMachinesAllTerminated(stack, uuid, start):
     conn = boto.ec2.connect_to_region(
         "eu-west-1",
         aws_access_key_id="AKIAWR523TF7XZPL2C7H",
@@ -30,11 +30,16 @@ def checkMachinesAllTerminated(stack, uuid):
         })
     for instance in instances:
         if instance.state != "terminated":
-            print("Checking instance %s %s-%s ip %s" % (
+            duration = time.time() - start
+            minutes = duration // 60
+            seconds = duration % 60
+            print("Checking instance %s %s-%s ip %s after %d:%d" % (
                 instance.id,
                 instance.tags.get('Name', "<unknown>"),
                 instance.tags.get('Slice', "<unknown-slice>"),
-                instance.ip_address
+                instance.ip_address,
+                minutes,
+                seconds
             ))
             return False
 
@@ -42,7 +47,6 @@ def checkMachinesAllTerminated(stack, uuid):
 
 
 def main(argv):
-
     if len(argv) > 1:
         STACK = argv[1]
     else:
@@ -58,7 +62,7 @@ def main(argv):
     delay = 120
     while time.time() < start + TIMEOUT_FOR_ALL_TESTS:
         try:
-            if checkMachinesAllTerminated(STACK, TEST_PASS_UUID):
+            if checkMachinesAllTerminated(STACK, TEST_PASS_UUID, start):
                 duration = time.time() - start
                 minutes = duration // 60
                 seconds = duration % 60
