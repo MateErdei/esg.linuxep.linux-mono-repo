@@ -28,6 +28,7 @@
         {"Key" : "Name", "Value" : "rhel9x64" },
         {"Key" : "RootStackname", "Value" : "SSPL" }
       ],
+      "PropagateTagsToVolumeOnCreation" : true,
       "NetworkInterfaces" : [{
         "GroupSet"                 : [{ "Ref" : "SSPLsecurityGroup" }],
         "AssociatePublicIpAddress" : "true",
