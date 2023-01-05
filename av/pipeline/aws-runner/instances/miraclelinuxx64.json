@@ -59,7 +59,7 @@
         "echo 'Finished.' >>/tmp/cloudFormationInit.log\n",
         "python3 -m awscli s3 cp /tmp/cloudFormationInit.log s3://sspl-testbucket/test-results/", { "Ref": "StackName" }, "/$HOSTNAME-cloudFormationInit.log\n",
         "cat /tmp/cloudFormationInit.log >&2\n",
-        "poweroff\n"
+        "poweroff >/root/poweroff.log 2>&1\n"
       ]]}}
     }
   }
