@@ -5,7 +5,7 @@
     "Properties" : {
       "IamInstanceProfile": { "Ref": "RegressionTestInstanceProfile" },
       "KeyName" : { "Ref" : "KeyName" },
-      "ImageId" : "ami-051718f6ea4014b06",
+      "ImageId" : "ami-077744656d09b7b22",
       "InstanceType": "c4.large",
       "InstanceInitiatedShutdownBehavior": "terminate",
       "Tags" : [
@@ -17,16 +17,17 @@
         {"Key" : "CostCentre", "Value" : "GB11601200"},
         {"Key" : "Project", "Value" : { "Ref" : "Project" } },
         {"Key" : "Application", "Value" : "linux-endpoint-testing"},
-        {"Key" : "BaseAmi", "Value" : "ami-051718f6ea4014b06"},
+        {"Key" : "BaseAmi", "Value" : "ami-077744656d09b7b22"},
         {"Key" : "Environment", "Value" : "development"},
         {"Key" : "AutomationExcluded", "Value" : "true"},
         {"Key" : "SecurityClassification", "Value" : "none low"},
         {"Key" : "TestImage", "Value" : "true"},
         {"Key" : "Codeline", "Value" : { "Ref" : "Project" }  },
         {"Key" : "Branch", "Value" : { "Ref" : "Project" }  },
-        {"Key" : "Name", "Value" : "oracle8x64" }
+        {"Key" : "Slice", "Value" :  "@SLICE@" },
+        {"Key" : "Name", "Value" : "oracle8x64" },
+        {"Key" : "RootStackname", "Value" : "SSPL" }
       ],
-      "PropagateTagsToVolumeOnCreation" : true,
       "NetworkInterfaces" : [{
         "GroupSet"                 : [{ "Ref" : "SSPLsecurityGroup" }],
         "AssociatePublicIpAddress" : "true",
@@ -58,8 +59,8 @@
         "bash /opt/test/inputs/test_scripts/testAndSendResults.sh ", {"Ref": "StackName"}, " @ARGSGOHERE@ &>>/tmp/cloudFormationInit.log\n",
         "echo 'Finished.' >>/tmp/cloudFormationInit.log\n",
         "python3 -m awscli s3 cp /tmp/cloudFormationInit.log s3://sspl-testbucket/test-results/", { "Ref": "StackName" }, "/$HOSTNAME-cloudFormationInit.log\n",
-        "cat /tmp/cloudFormationInit.log 2>&1\n",
-        "poweroff >/root/poweroff.log 2>&1\n"
+        "cat /tmp/cloudFormationInit.log\n",
+        "poweroff\n"
       ]]}}
     }
   }

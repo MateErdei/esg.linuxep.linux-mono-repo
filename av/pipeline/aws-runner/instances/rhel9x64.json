@@ -5,28 +5,29 @@
     "Properties" : {
       "IamInstanceProfile": { "Ref": "RegressionTestInstanceProfile" },
       "KeyName" : { "Ref" : "KeyName" },
-      "ImageId" : "ami-0aa8440cc9345c907",
+      "ImageId" : "ami-02271909e3f919fb5",
       "InstanceType": "c4.large",
       "InstanceInitiatedShutdownBehavior": "terminate",
       "Tags" : [
         {"Key" : "TestPassUUID", "Value" : { "Ref" : "TestPassUUID" } },
         {"Key" : "OwnerName", "Value" : "ukdevlinuxdarwin"},
-        {"Key" : "OwnerEmail", "Value" : "ukdevlinuxdarwin@sophos.com"},
+        {"Key" : "OwnerEmail", "Value" : "ukdevvlx@sophos.com"},
         {"Key" : "SupportEmail", "Value" : "ukdevvlx@sophos.com"},
         {"Key" : "BusinessUnit", "Value" : "ESG"},
         {"Key" : "CostCentre", "Value" : "GB11601200"},
-        {"Key" : "Project", "Value" : { "Ref" : "Project" } },
+        {"Key" : "Project", "Value" : "XDR"},
         {"Key" : "Application", "Value" : "linux-endpoint-testing"},
-        {"Key" : "BaseAmi", "Value" : "ami-0aa8440cc9345c907"},
+        {"Key" : "BaseAmi", "Value" : "ami-02271909e3f919fb5"},
         {"Key" : "Environment", "Value" : "development"},
         {"Key" : "AutomationExcluded", "Value" : "true"},
         {"Key" : "SecurityClassification", "Value" : "none low"},
         {"Key" : "TestImage", "Value" : "true"},
-        {"Key" : "Codeline", "Value" : { "Ref" : "Project" } },
-        {"Key" : "Branch", "Value" : { "Ref" : "Project" } },
-        {"Key" : "Name", "Value" : "rhel9x64" }
+        {"Key" : "Codeline", "Value" : "SSPL" },
+        {"Key" : "Branch", "Value" : "SSPL" },
+        {"Key" : "Slice", "Value" :  "@SLICE@" },
+        {"Key" : "Name", "Value" : "rhel9x64" },
+        {"Key" : "RootStackname", "Value" : "SSPL" }
       ],
-      "PropagateTagsToVolumeOnCreation" : true,
       "NetworkInterfaces" : [{
         "GroupSet"                 : [{ "Ref" : "SSPLsecurityGroup" }],
         "AssociatePublicIpAddress" : "true",
@@ -53,13 +54,13 @@
         "echo ", {"Ref": "cloudIpAddress"}, " >/root/OVERRIDE_CLOUD_IP\n",
         "echo 'Created aws config. Now grabbing tests...' >> /tmp/cloudFormationInit.log\n",
         "echo 'Key passed from parent stack: ", { "Ref" : "KeyName" }, "' >> /tmp/cloudFormationInit.log\n",
-        "yum install -y vim-common nc >> /tmp/cloudFormationInit.log 2>&1\n",
+        "yum install -y vim-common p7zip nc >> /tmp/cloudFormationInit.log 2>&1\n",
         "aws s3 cp s3://sspl-testbucket/ssplav/ssplav-test-", { "Ref": "StackName" }, ".tgz /opt/sspl-test.tgz >> /tmp/cloudFormationInit.log 2>&1\n",
         "tar xvzf /opt/sspl-test.tgz -C /opt >> /tmp/cloudFormationInit.log 2>&1\n",
         "bash /opt/test/inputs/test_scripts/testAndSendResults.sh ", {"Ref": "StackName"}, " @ARGSGOHERE@ >> /tmp/cloudFormationInit.log 2>&1\n",
         "echo 'Finished.' >> /tmp/cloudFormationInit.log\n",
         "aws s3 cp /tmp/cloudFormationInit.log s3://sspl-testbucket/test-results/", { "Ref": "StackName" }, "/$HOSTNAME-cloudFormationInit.log\n",
-        "poweroff >/root/poweroff.log 2>&1\n"
+        "poweroff\n"
       ]]}}
     }
   }

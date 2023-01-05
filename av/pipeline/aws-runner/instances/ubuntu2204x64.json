@@ -24,6 +24,7 @@
         {"Key" : "TestImage", "Value" : "true"},
         {"Key" : "Codeline", "Value" : "SSPLAV" },
         {"Key" : "Branch", "Value" : "SSPLAV" },
+        {"Key" : "Slice", "Value" :  "@SLICE@" },
         {"Key" : "Name", "Value" : "ubuntu2204x64" }
       ],
       "PropagateTagsToVolumeOnCreation" : true,

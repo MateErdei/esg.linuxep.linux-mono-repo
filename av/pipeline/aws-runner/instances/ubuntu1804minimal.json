@@ -24,6 +24,7 @@
         {"Key" : "TestImage", "Value" : "true"},
         {"Key" : "Codeline", "Value" : { "Ref" : "Project" }  },
         {"Key" : "Branch", "Value" : { "Ref" : "Project" }  },
+        {"Key" : "Slice", "Value" :  "@SLICE@" },
         {"Key" : "Name", "Value" : "ubuntu1804minimal" }
       ],
       "PropagateTagsToVolumeOnCreation" : true,
