@@ -4,7 +4,7 @@ set -x
 
 INCLUDE_TAG="$1"
 
-SSHLocation=${SSHLocation:-"195.171.192.0/24"}
+SSHLocation=${SSHLocation:-"217.38.22.0/24"}
 
 IDENTIFIER=$(hostname)-$(date +%F)-$(date +%H)$(date +%M)
 [[ -n $STACK ]] || STACK=ssplav-system-tests-${IDENTIFIER}-$(echo "$*"-${RANDOM} | md5sum | cut -f 1 -d " " )
