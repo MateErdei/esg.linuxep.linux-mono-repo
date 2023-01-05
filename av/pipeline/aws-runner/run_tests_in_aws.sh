@@ -4,7 +4,7 @@ set -x
 
 INCLUDE_TAG="$1"
 
-SSHLocation=${SSHLocation:-"217.38.22.0/24"}
+SSHLocation=${SSHLocation:-"195.171.192.0/24"}
 
 IDENTIFIER=$(hostname)-$(date +%F)-$(date +%H)$(date +%M)
 [[ -n $STACK ]] || STACK=ssplav-system-tests-${IDENTIFIER}-$(echo "$*"-${RANDOM} | md5sum | cut -f 1 -d " " )
@@ -208,6 +208,13 @@ fi
 REGION=${AWS_REGION}
 KEY_NAME=regressiontesting
 BUILD_NAME=SSPLAV
+## check if RunCloud is set
+if [[ $RUNCLOUD == "true" ]]
+then
+    RUN_CLOUD=true
+else
+    RUN_CLOUD=false
+fi
 
 if [[ -z $RUNSOME  ]]
 then
@@ -239,6 +246,7 @@ do
         --parameters ParameterKey=KeyName,ParameterValue="$KEY_NAME" \
                      ParameterKey=BuildName,ParameterValue="$BUILD_NAME" \
                      ParameterKey=TestPassUUID,ParameterValue="$TEST_PASS_UUID" \
+                     ParameterKey=RunCloud,ParameterValue="$RUN_CLOUD" \
                      ParameterKey=RunSome,ParameterValue="$RUN_SOME" \
                      ParameterKey=RunOne,ParameterValue="$RUN_ONE" \
                      ParameterKey=StackName,ParameterValue="${STACK}" \
@@ -343,9 +351,6 @@ do
     aws ec2 modify-instance-attribute \
         --instance-id $instance \
         --instance-initiated-shutdown-behavior terminate
-    aws ec2 modify-instance-maintenance-options \
-       --instance-id $instance \
-       --auto-recovery disabled
 done
 
 aws s3 rm "s3://sspl-testbucket/templates/$STACK.template" \
@@ -357,20 +362,17 @@ then
 fi
 
 # Get results back from the AWS test run and save them locally.
+rm -rf ./results
+mkdir ./results
+
 SRC="s3://sspl-testbucket/test-results/${STACK}/"
 DEST="./results"
-# Create early so that we can sync early
-rm -rf "${DEST}"
-mkdir -p "${DEST}"
-# Create early so that we can re-process while waiting
-rm -rf results-combine-workspace
-mkdir results-combine-workspace
 
 ## Wait for termination
 # Once all test runs have finished
 cleanupStack() {
     echo "Beginning cleanup check for $STACK at $(date)" >&2
-    python waitForCompletionAndSync.py "${SRC}" "${DEST}"
+    python waitForCompletionAndSync.py "$STACK" "${SRC}" "${DEST}"
     echo "Beginning cleanup for $STACK at $(date)" >&2
 
     echo 'Ready to delete stack for $STACK:' >&2
@@ -438,8 +440,14 @@ fi
 
 combineResults()
 {
-  python3 ./reprocess.py ./results/*-output.xml
-  ls -l ./results-combine-workspace
+  rm -rf results-combine-workspace
+  mkdir results-combine-workspace
+  for F in ./results/*-output.xml
+  do
+      local B=$(basename $F)
+      python3 -m robot.rebot --merge -o ./results-combine-workspace/$B -l none -r none -N ${B%%-output.xml}  $F
+  done
+
   python3 -m robot.rebot -l ./results/combined-log.html -r ./results/combined-report.html -N combined --removekeywords wuks ./results-combine-workspace/*
 }
 combineResults
