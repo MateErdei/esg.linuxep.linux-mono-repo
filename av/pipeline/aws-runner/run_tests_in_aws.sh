@@ -351,6 +351,9 @@ do
     aws ec2 modify-instance-attribute \
         --instance-id $instance \
         --instance-initiated-shutdown-behavior terminate
+    aws ec2 modify-instance-maintenance-options \
+       --instance-id $instance \
+       --auto-recovery disabled
 done
 
 aws s3 rm "s3://sspl-testbucket/templates/$STACK.template" \
