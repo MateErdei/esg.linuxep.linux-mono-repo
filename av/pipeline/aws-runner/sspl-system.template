@@ -71,7 +71,6 @@
   },
 
   "Conditions" : {
-    "RunSandbox" : {"Fn::Equals" : [{"Ref" : "RunCloud"}, "true"]},
     "RunAll" : {"Fn::And":[
       {"Fn::Equals" : [{"Ref" : "RunSome"}, ""]},
       {"Fn::Equals" : [{"Ref" : "RunOne"}, ""]}
@@ -315,33 +314,7 @@
         "Protocol" : "6",
         "RuleAction" : "allow",
         "Egress" : "false",
-        "CidrBlock" : "195.171.192.0/24",
-        "PortRange" : {"From" : "22", "To" : "22"}
-      }
-    },
-
-    "InboundSSHNetworkAclEntry2" : {
-      "Type" : "AWS::EC2::NetworkAclEntry",
-      "Properties" : {
-        "NetworkAclId" : {"Ref" : "NetworkAcl1"},
-        "RuleNumber" : "102",
-        "Protocol" : "6",
-        "RuleAction" : "allow",
-        "Egress" : "false",
-        "CidrBlock" : "18.202.216.48/29",
-        "PortRange" : {"From" : "22", "To" : "22"}
-      }
-    },
-
-    "InboundSSHNetworkAclEntry3" : {
-      "Type" : "AWS::EC2::NetworkAclEntry",
-      "Properties" : {
-        "NetworkAclId" : {"Ref" : "NetworkAcl1"},
-        "RuleNumber" : "103",
-        "Protocol" : "6",
-        "RuleAction" : "allow",
-        "Egress" : "false",
-        "CidrBlock" : { "Ref" : "SSHLocation"},
+        "CidrBlock" : "0.0.0.0/0",
         "PortRange" : {"From" : "22", "To" : "22"}
       }
     },
@@ -432,58 +405,6 @@
         }
 
         ]
-      }
-    },
-
-    "UbuntuCloudSandbox" : {
-      "Type" : "AWS::EC2::Instance",
-      "Condition" :  "RunSandbox" ,
-      "Properties" : {
-        "InstanceInitiatedShutdownBehavior": "terminate",
-        "KeyName" : { "Ref" : "KeyName" },
-        "IamInstanceProfile": { "Ref": "RegressionTestInstanceProfile" },
-        "ImageId" : "ami-0387b0abd550863dc",
-        "InstanceType": "t3.xlarge",
-        "Tags" : [
-                {"Key" : "OwnerName", "Value" : "ukdevlinuxdarwin"},
-                {"Key" : "OwnerEmail", "Value" : "ukdevlinuxdarwin@sophos.com"},
-                {"Key" : "SupportEmail", "Value" : "ukdevlinuxdarwin@sophos.com"},
-                {"Key" : "BusinessUnit", "Value" : "ESG"},
-                {"Key" : "CostCentre", "Value" : "GB11601200"},
-                {"Key" : "Project", "Value" : "SSPLAV"},
-                {"Key" : "Application", "Value" : "linux-endpoint-testing"},
-                {"Key" : "BaseAmi", "Value" : "ami-0e4bf8f7a38e2b5c4"},
-                {"Key" : "Environment", "Value" : "development"},
-                {"Key" : "AutomationExcluded", "Value" : "true"},
-                {"Key" : "SecurityClassification", "Value" : "none low"},
-                {"Key" : "Application", "Value" : { "Ref" : "AWS::StackId"} },
-                {"Key" : "TestImage", "Value" : "false"},
-                {"Key" : "BuildName", "Value" : { "Ref" : "BuildName" } },
-                {"Key" : "Codeline", "Value" : { "Ref" : "Codeline" } },
-                {"Key" : "Name", "Value" : "UbuntuCloudSandbox"}
-        ],
-        "NetworkInterfaces" : [{
-          "GroupSet"                 : [{ "Ref" : "SSPLsecurityGroup" }],
-          "AssociatePublicIpAddress" : "true",
-          "PrivateIpAddress"         : { "Ref" : "cloudIpAddress"},
-          "DeviceIndex"              : "0",
-          "DeleteOnTermination"      : "true",
-          "SubnetId"                 : { "Ref" : "Subnet1" }
-        }],
-        "UserData": { "Fn::Base64" : { "Fn::Join" : ["", [
-            "#!/bin/bash\n",
-            "echo 'Starting AWS Cloud Sandbox' >> /tmp/cloudFormationInit.log\n",
-            "echo `date` >> /tmp/cloudFormationInit.log\n",
-            "echo 'My stack name is : ", { "Ref": "AWS::StackName" }, ".' >> /tmp/cloudFormationInit.log\n",
-            "sudo hostname sandbox.sophos\n",
-            "chmod a+w /tmp/cloudFormationInit.log\n",
-            "/home/ubuntu/novaScripts/start.sh > /tmp/cloudFormationInit.log  2>&1\n",
-            "sleep 1260\n",
-            "while aws s3 ls s3://sspl-testbucket/flags/", { "Ref": "AWS::StackName" }, "/ | grep flag >/dev/null; do echo 'First flag check: not shutting down yet...' >> /tmp/cloudFormationInit.log; sleep 60; done\n",
-            "while aws s3 ls s3://sspl-testbucket/flags/", { "Ref": "AWS::StackName" }, "/ | grep flag >/dev/null; do echo 'Second flag check: not shutting down yet...' >> /tmp/cloudFormationInit.log; sleep 60; done\n",
-            "echo '2 flag checks complete, no flags present so shutting down sandbox' >> /tmp/cloudFormationInit.log\n",
-            "aws s3 cp /tmp/cloudFormationInit.log s3://sspl-testbucket/test-results/", { "Ref": "StackName" }, "--region eu-west-1\n"
-        ]]}}
       }
     },
 
