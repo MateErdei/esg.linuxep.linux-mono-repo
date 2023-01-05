@@ -119,6 +119,7 @@ namespace UpdateSchedulerImpl
 
     std::pair<SulDownloader::suldownloaderdata::ConfigurationData,bool> UpdateSchedulerUtils::getUpdateConfigWithLatestJWT()
     {
+        bool config_updated = false;
         auto currentConfigData = getCurrentConfigurationData();
         if (currentConfigData.has_value())
         {
@@ -126,8 +127,25 @@ namespace UpdateSchedulerImpl
             if (token != currentConfigData.value().getJWToken())
             {
                 currentConfigData.value().setJWToken(token);
-                return {currentConfigData.value(), true};
+                config_updated = true;
             }
+
+            std::string device_id = getDeviceId();
+            if (device_id != currentConfigData.value().getDeviceId())
+            {
+                currentConfigData.value().setDeviceId(device_id);
+                config_updated = true;
+            }
+
+            std::string tenant_id = getTenantId();
+            if (tenant_id != currentConfigData.value().getTenantId())
+            {
+                currentConfigData.value().setTenantId(tenant_id);
+                config_updated = true;
+            }
+
+            return {currentConfigData.value(), config_updated};
+
         }
         return {SulDownloader::suldownloaderdata::ConfigurationData(), false};
     }

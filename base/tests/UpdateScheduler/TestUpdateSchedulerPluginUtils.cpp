@@ -119,7 +119,7 @@ TEST_F(UpdateSchedulerUtils, getUpdateConfigWithLatestJWTWhenTokenInUpdateConfig
     std::string mcsConfigFile = "/opt/sophos-spl/base/etc/sophosspl/mcs.config";
     std::vector<std::string> mcscontents{{"jwt_token=stuff"}} ;
     EXPECT_CALL(*filesystemMock, isFile(mcsConfigFile)).WillRepeatedly(Return(true));
-    EXPECT_CALL(*filesystemMock, readLines(mcsConfigFile)).WillOnce(Return(mcscontents));
+    EXPECT_CALL(*filesystemMock, readLines(mcsConfigFile)).Times(3).WillOnce(Return(mcscontents));
 
     std::string updateConfigFile = "/opt/sophos-spl/base/update/var/updatescheduler/update_config.json";
     std::string updatecontents= "{\"JWToken\": \"stuff\"}" ;
@@ -135,12 +135,12 @@ TEST_F(UpdateSchedulerUtils, getUpdateConfigWithLatestJWTWhenTokenInUpdateConfig
 {
     auto filesystemMock = new StrictMock<MockFileSystem>();
     std::string mcsConfigFile = "/opt/sophos-spl/base/etc/sophosspl/mcs.config";
-    std::vector<std::string> mcscontents{{"jwt_token=tuff"}} ;
+    std::vector<std::string> mcscontents{{"jwt_token=tuff","device_id=device","tenant_id=tenant"}} ;
     EXPECT_CALL(*filesystemMock, isFile(mcsConfigFile)).WillRepeatedly(Return(true));
-    EXPECT_CALL(*filesystemMock, readLines(mcsConfigFile)).WillOnce(Return(mcscontents));
+    EXPECT_CALL(*filesystemMock, readLines(mcsConfigFile)).Times(3).WillRepeatedly(Return(mcscontents));
 
     std::string updateConfigFile = "/opt/sophos-spl/base/update/var/updatescheduler/update_config.json";
-    std::string updatecontents= "{\"JWToken\": \"stuff\"}" ;
+    std::string updatecontents= "{\"JWToken\": \"stuff\", \"tenantId\": \"example-tenant-id\", \"deviceId\": \"example-device-id\"}" ;
     EXPECT_CALL(*filesystemMock, isFile(updateConfigFile)).WillOnce(Return(true));
     EXPECT_CALL(*filesystemMock, readFile(updateConfigFile)).WillOnce(Return(updatecontents));
     Tests::ScopedReplaceFileSystem ScopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
@@ -148,4 +148,6 @@ TEST_F(UpdateSchedulerUtils, getUpdateConfigWithLatestJWTWhenTokenInUpdateConfig
     std::pair<SulDownloader::suldownloaderdata::ConfigurationData,bool> pair = UpdateSchedulerImpl::UpdateSchedulerUtils::getUpdateConfigWithLatestJWT();
     ASSERT_EQ(pair.second,true);
     ASSERT_EQ(pair.first.getJWToken(),"tuff");
+    ASSERT_EQ(pair.first.getDeviceId(),"device");
+    ASSERT_EQ(pair.first.getTenantId(),"tenant");
 }

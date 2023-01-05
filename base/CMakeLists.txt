@@ -223,6 +223,10 @@ find_library(ZeroMQ_LIBRARY
         PATHS ${ZEROMQ_INPUT}/lib
         )
 
+execute_process(
+        COMMAND chrpath -r \$ORIGIN ${ZEROMQ_INPUT}/lib/libzmq.so
+        COMMAND_ERROR_IS_FATAL ANY)
+
 find_path(EXPAT_INCLUDE_DIR
         NAMES expat.h
         PATHS ${EXPAT_INPUT}/include

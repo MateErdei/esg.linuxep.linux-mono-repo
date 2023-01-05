@@ -16,6 +16,7 @@ Library    ${LIBS_DIRECTORY}/TelemetryUtils.py
 
 Resource  ../watchdog/LogControlResources.robot
 Resource  ../installer/InstallerResources.robot
+Resource    ../mcs_router/McsRouterResources.robot
 Resource  ../telemetry/TelemetryResources.robot
 Resource  SchedulerUpdateResources.robot
 Resource  ../GeneralTeardownResource.robot
@@ -101,6 +102,28 @@ UpdateScheduler Regenerates The Config File If It Does Not Exist
     Should Contain   ${File}  "JWToken": "stuff",
     ${eventPath} =  Check Status and Events Are Created
     Check Event Report Success  ${eventPath}
+
+UpdateScheduler updates the device id and tenant id before an update
+    @{features}=  Create List   CORE
+    Setup Base and Plugin Sync and UpToDate  ${features}
+    Remove File  ${UPDATE_CONFIG}
+    Simulate Update Now
+    Wait Until Keyword Succeeds
+    ...  15 secs
+    ...  2 secs
+    ...  File Should Exist  ${UPDATE_CONFIG}
+    ${File}=  Get File   ${UPDATE_CONFIG}
+    Should Contain   ${File}  "JWToken": "stuff",
+    ${eventPath} =  Check Status and Events Are Created
+    Check Event Report Success  ${eventPath}
+    Create File       ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config   jwt_token=newjwt\ndevice_id=newdevice\ntenant_id=newtenant
+    Simulate Update Now
+    Wait Until Keyword Succeeds
+    ...   20 secs
+    ...   5 secs
+    ...   File Should Contain  ${UPDATE_CONFIG}     "deviceId": "newdevice"
+    File Should Contain  ${UPDATE_CONFIG}     "tenantId": "newtenant"
+    File Should Contain  ${UPDATE_CONFIG}     "JWToken": "newjwt",
 
 UpdateScheduler Second Run with Normal Run will not generate new Event
     @{features}=  Create List   CORE  LIVETERMINAL
