@@ -34,6 +34,7 @@
         "DeleteOnTermination"      : "true",
         "SubnetId"                 : { "Ref" : "Subnet1" }
       }],
+      "PropagateTagsToVolumeOnCreation" : true,
       "UserData": { "Fn::Base64" : { "Fn::Join" : ["", [
         "#!/bin/bash\n",
         "echo 'Testing ", {"Ref": "BuildName"},"'\n",

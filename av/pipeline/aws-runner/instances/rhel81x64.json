@@ -27,6 +27,7 @@
         {"Key" : "Slice", "Value" :  "@SLICE@" },
         {"Key" : "Name", "Value" : "rhel8x64" }
       ],
+      "PropagateTagsToVolumeOnCreation" : true,
       "NetworkInterfaces" : [{
         "GroupSet"                 : [{ "Ref" : "SSPLsecurityGroup" }],
         "AssociatePublicIpAddress" : "true",

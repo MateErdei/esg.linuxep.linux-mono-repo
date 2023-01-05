@@ -28,6 +28,7 @@
         {"Key" : "Name", "Value" : "oracle8x64" },
         {"Key" : "RootStackname", "Value" : "SSPL" }
       ],
+      "PropagateTagsToVolumeOnCreation" : true,
       "NetworkInterfaces" : [{
         "GroupSet"                 : [{ "Ref" : "SSPLsecurityGroup" }],
         "AssociatePublicIpAddress" : "true",

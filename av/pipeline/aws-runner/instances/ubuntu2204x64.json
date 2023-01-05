@@ -27,6 +27,7 @@
         {"Key" : "Slice", "Value" :  "@SLICE@" },
         {"Key" : "Name", "Value" : "ubuntu2204x64" }
       ],
+      "PropagateTagsToVolumeOnCreation" : true,
       "NetworkInterfaces" : [{
         "GroupSet"                 : [{ "Ref" : "SSPLsecurityGroup" }],
         "AssociatePublicIpAddress" : "true",

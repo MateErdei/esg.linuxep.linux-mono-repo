@@ -27,6 +27,7 @@
         {"Key" : "Slice", "Value" :  "@SLICE@" },
         {"Key" : "Name", "Value" : "ubuntu1804minimal" }
       ],
+      "PropagateTagsToVolumeOnCreation" : true,
       "NetworkInterfaces" : [{
         "GroupSet"                 : [{ "Ref" : "SSPLsecurityGroup" }],
         "AssociatePublicIpAddress" : "true",
