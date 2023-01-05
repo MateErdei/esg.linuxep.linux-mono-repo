@@ -9,21 +9,23 @@
 #include "datatypes/AutoFd.h"
 #include "datatypes/sophos_filesystem.h"
 
+#include "Common/FileSystem/IFilePermissions.h"
+
+#include <sys/file.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
+
 #include <cerrno>
 #include <cstdio>
 #include <cstring>
 #include <sstream>
 
-#include <unistd.h>
-#include <sys/file.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-
 using namespace common;
 namespace fs = sophos_filesystem;
 
 
-PidLockFile::PidLockFile(const std::string& pidfile)
+PidLockFile::PidLockFile(const std::string& pidfile, bool changePidGroup)
     : m_pidfile(pidfile),m_fd(-1)
 {
     // open for write
@@ -41,7 +43,15 @@ PidLockFile::PidLockFile(const std::string& pidfile)
         LOGERROR(ost.str());
         throw PidLockFileException(ost.str());
     }
-    fs::permissions(pidfile.c_str(), fs::perms::group_read, fs::perm_options::add);
+
+    if(changePidGroup)
+    {
+        auto fp = Common::FileSystem::filePermissions();
+        auto groupId = fp->getGroupId("sophos-spl-group");
+        fchown(local_fd.get(), -1, groupId);
+    }
+
+    fchmod(local_fd.get(), 0640);
 
     // lock
     if (flock(local_fd.get(), LOCK_EX) == -1)

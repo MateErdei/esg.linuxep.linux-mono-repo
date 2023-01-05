@@ -92,7 +92,7 @@ void SoapdBootstrap::innerRun()
 {
     // Take soapd lock file
     fs::path lockfile = common::getPluginInstallPath() / "var/soapd.pid";
-    common::PidLockFile lock(lockfile);
+    common::PidLockFile lock(lockfile, true);
 
     auto sigIntMonitor{common::signals::SigIntMonitor::getSigIntMonitor(true)};
     auto sigTermMonitor{common::signals::SigTermMonitor::getSigTermMonitor(true)};

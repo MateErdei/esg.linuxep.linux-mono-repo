@@ -52,7 +52,7 @@ namespace safestore
         auto sigTermMonitor{ common::signals::SigTermMonitor::getSigTermMonitor(true) };
 
         // Take safestore lock file
-        common::PidLockFile lock(Plugin::getSafeStorePidPath());
+        common::PidLockFile lock(Plugin::getSafeStorePidPath(), true);
 
         std::unique_ptr<SafeStoreWrapper::ISafeStoreWrapper> safeStoreWrapper =
             std::make_unique<SafeStoreWrapper::SafeStoreWrapperImpl>();
