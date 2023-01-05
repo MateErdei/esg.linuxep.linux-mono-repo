@@ -22,10 +22,10 @@ add_library(pluginapi SHARED
         )
 
 target_link_libraries(pluginapi PUBLIC
-        zmq -L${ZEROMQ_INPUT}
+        zmq -L${ZEROMQ_INPUT}/lib
         log4cplus -L${LOG4CPLUS_INPUT}/lib
         protobuf -L${Protobuf_root}/lib
-        expat -L${EXPAT_INPUT}
+        expat -L${EXPAT_INPUT}/lib64
         ${OPENSSLCRYPTO_LIBRARY}
         )
 
@@ -41,11 +41,11 @@ SET_TARGET_PROPERTIES( pluginapi
         BUILD_RPATH "$ORIGIN")
 
 INCLUDE(FindLibraryFullPath)
-FindLibraryFullPath( zmqfull zmq ${ZEROMQ_INPUT})
+FindLibraryFullPath( zmqfull zmq ${ZEROMQ_INPUT}/lib)
 FindLibraryFullPath( log4cplusfull log4cplus ${LOG4CPLUS_INPUT}/lib)
 FindLibraryFullPath( protobuffull protobuf ${Protobuf_root}/lib)
-FindLibraryFullPath( expatfull expat ${EXPAT_INPUT})
-FindLibraryFullPath( zlibfull zlib ${ZLIB_INPUT})
+FindLibraryFullPath( expatfull   expat  ${EXPAT_INPUT}/lib64)
+FindLibraryFullPath( zlibfull  z   ${ZLIB_INPUT}/lib64)
 FindLibraryFullPath( opensslcryptofull crypto ${OPENSSL_INPUT}/lib64)
 configure_file(PluginAPICommitHash.in PluginAPICommitHash @ONLY)
 
@@ -79,8 +79,8 @@ add_custom_target(
         COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/thirdparty/nlohmann-json pluginapi/include/thirdparty/nlohmann-json
         COMMAND ${CMAKE_COMMAND} -E copy_directory ${LOG4CPLUS_INPUT}/include/log4cplus pluginapi/include/log4cplus
         COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:pluginapi> pluginapi/lib64
-        COMMAND chmod +x ${CMAKE_SOURCE_DIR}/products/Base/installer/rpath_lib.sh
-        COMMAND ${CMAKE_SOURCE_DIR}/products/Base/installer/rpath_lib.sh  pluginapi/lib64/libpluginapi.so
+        COMMAND chmod +x ${CMAKE_SOURCE_DIR}/products/PluginApi/rpath_pluginapi.sh
+        COMMAND ${CMAKE_SOURCE_DIR}/products/PluginApi/rpath_pluginapi.sh
         COMMAND ${CMAKE_COMMAND} -E copy ${zmqfull} pluginapi/lib64
         COMMAND ${CMAKE_COMMAND} -E copy ${log4cplusfull} pluginapi/lib64
         COMMAND ${CMAKE_COMMAND} -E copy ${protobuffull} pluginapi/lib64

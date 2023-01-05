@@ -9,7 +9,8 @@ set(CMAKE_CXX_STANDARD 17)
 set(SOPHOS_SPL_USER "sophos-spl-user")
 set(SOPHOS_SPL_GROUP "sophos-spl-group")
 set(SOPHOS_SPL_IPC_GROUP "sophos-spl-ipc")
-set(SOPHOS_SPL_LOCAL "sophos-spl-local")       #low privilege user
+set(SOPHOS_SPL_NETWORK "sophos-spl-network")   #comms network facing user
+set(SOPHOS_SPL_LOCAL "sophos-spl-local")       #comms product facing user
 set(SOPHOS_SPL_UPDATESCHEDULER "sophos-spl-updatescheduler")  #user which updatescheduler runs as
 
 execute_process(
@@ -96,11 +97,6 @@ if(NOT DEFINED PRODUCT_LINE_ID)
     endif()
 endif()
 
-set(RA_PLUGIN_NAME responseactions)
-
-set(RA_PRODUCT_LINE_ID ServerProtectionLinux-Plugin-${RA_PLUGIN_NAME})
-set(RA_PRODUCT_NAME SPL-Response-Actions-Plugin)
-
 # DEFAULT_HOME_FOLDER
 if(NOT DEFINED DEFAULT_HOME_FOLDER)
     if (DEFINED ENV{DEFAULT_HOME_FOLDER})
@@ -110,8 +106,6 @@ if(NOT DEFINED DEFAULT_HOME_FOLDER)
     endif()
 endif()
 
-set(DISTRIBUTION_TOOL_DIR ${CMAKE_SOURCE_DIR}/products/distribution)
-
 if(NOT DEFINED UPDATESCHEDULER_PRETTY_NAME)
     set(UPDATESCHEDULER_PRETTY_NAME "Update Scheduler")
 endif()
@@ -119,44 +113,6 @@ endif()
 #Specify the feature list of the form "feature1, feature2, feature3"
 #Set "" for no features when including in a component suite
 set(FEATURE_LIST "CORE")
-set(RA_FEATURE_LIST "MDR")
-
-set(BASE_DIST_PREFIX "base")
-set(RA_DIST_PREFIX "ra")
-
-find_program(VERSIONING_CLIENT "versioning_client"
-        PATHS ${CMAKE_SOURCE_DIR}/tap_venv/bin
-        REQUIRED)
-
-if (DEFINED ENV{VERSION_OVERRIDE})
-    set(PRODUCT_VERSION "$ENV{VERSION_OVERRIDE}")
-else()
-    execute_process(
-            COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/products/distribution/getReleasePackageVersion.py ${CMAKE_SOURCE_DIR}/build/release-package.xml
-            OUTPUT_VARIABLE RELEASE_PACKAGE_VERSION
-            OUTPUT_STRIP_TRAILING_WHITESPACE)
-    execute_process(
-            COMMAND ${VERSIONING_CLIENT} --component sspl_base --version_number ${RELEASE_PACKAGE_VERSION}
-            OUTPUT_VARIABLE PRODUCT_VERSION
-            OUTPUT_STRIP_TRAILING_WHITESPACE
-            RESULT_VARIABLE STATUS)
-    if(STATUS AND NOT STATUS EQUAL 0)
-        message(FATAL_ERROR \"Failed to generate version from base: ${STATUS}\")
-    endif()
-endif()
-
-if (DEFINED ENV{VERSION_OVERRIDE})
-    set(RA_PRODUCT_VERSION "$ENV{VERSION_OVERRIDE}")
-else()
-    execute_process(
-            COMMAND ${VERSIONING_CLIENT} --component responseactions --version_number 1.0.0
-            OUTPUT_VARIABLE RA_PRODUCT_VERSION
-            OUTPUT_STRIP_TRAILING_WHITESPACE
-            RESULT_VARIABLE STATUS)
-    if(STATUS AND NOT STATUS EQUAL 0)
-        message(FATAL_ERROR \"Failed to generate version from base: ${STATUS}\")
-    endif()
-endif()
 
 find_package(PkgConfig)
 FIND_PACKAGE ( Threads REQUIRED )
@@ -219,7 +175,7 @@ set(SOPHLIB_LIBRARIES ${SOPHLIB_INPUT}/lib64/file/libfile.pic.a
   ${SOPHLIB_INPUT}/lib64/string/libstring.pic.a
   ${SOPHLIB_INPUT}/lib64/time/libtime.pic.a)
 
-set(NLOHMANN_JSON_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/nlohmann-json)
+set(NLOHMANN_JSON_INCLUDE_DIR ../../../thirdparty/nlohmann-json)
 
 ## Allow this to be redirected for SUL development
 if(NOT DEFINED SUL_INPUT)
@@ -258,22 +214,27 @@ set( ZEROMQ_INPUT ${INPUT}/zeromq )
 ## use the hint from above to find where 'zmq.hpp' is located
 find_path(ZeroMQ_INCLUDE_DIR
         NAMES zmq.h
-        PATHS ${ZEROMQ_INPUT}
+        PATHS ${ZEROMQ_INPUT}/include
         )
 
 ## use the hint from above to find the location of libzmq
 find_library(ZeroMQ_LIBRARY
         NAMES zmq
-        PATHS ${ZEROMQ_INPUT}
+        PATHS ${ZEROMQ_INPUT}/lib
         )
 
 execute_process(
-        COMMAND chrpath -r \$ORIGIN ${ZeroMQ_LIBRARY}
+        COMMAND chrpath -r \$ORIGIN ${ZEROMQ_INPUT}/lib/libzmq.so
         COMMAND_ERROR_IS_FATAL ANY)
 
+find_path(EXPAT_INCLUDE_DIR
+        NAMES expat.h
+        PATHS ${EXPAT_INPUT}/include
+        NO_DEFAULT_PATH
+        )
 find_library(EXPAT_LIBRARY
         NAMES expat
-        PATHS ${EXPAT_INPUT}
+        PATHS ${EXPAT_INPUT}/lib64
         NO_DEFAULT_PATH
         )
 
@@ -285,18 +246,10 @@ find_library(LOG4CPLUS_LIBRARY
         )
 find_library(MINIZIP_LIBRARY
         NAMES minizip
-        PATHS ${MINIZIP_INPUT}
+        PATHS ${MINIZIP_INPUT}/lib
         )
-set(MINIZIP_INCLUDE_DIR ${MINIZIP_INPUT})
-
-set( LZMA_INCLUDE_DIR ${INPUT}/lzma/src/liblzma/api/lzma)
-set( LZMA_LIBRARY_DIR ${INPUT}/lzma)
-set( LZMA_LIBRARY ${LZMA_LIBRARY_DIR}/liblzma.so)
-
-set( BZ2_INCLUDE_DIR ${INPUT}/bzip2)
-set( BZ2_LIBRARY_DIR ${INPUT}/bzip2)
-set( BZ2_LIBRARY ${BZ2_LIBRARY_DIR}/libbzip2.so)
-
+set(MINIZIP_INCLUDE_DIR ${MINIZIP_INPUT}/include)
+set(ZLIB_INCLUDE_DIR ${ZLIB_INPUT}/include)
 # ensure valid log4cplus to work with fork
 file(STRINGS ${LOG4CPLUS_LIBRARY} log4cplusStrings)
 string(FIND "${log4cplusStrings}" "implicit initialization is turned off" DisabledImplicitInitialization)
@@ -332,34 +285,30 @@ find_library(CURL_LIBRARY
         )
 
 find_library(ZLIB_LIBRARY
-        NAMES zlib
-        PATHS ${ZLIB_INPUT}
+        NAMES z
+        PATHS ${ZLIB_INPUT}/lib64
         NO_DEFAULT_PATH
         )
 
-set( GTEST_INCLUDE ${GTEST_INPUT}/googletest/include )
+set( GTEST_INCLUDE ${GTEST_INPUT}/gtest-headers )
 find_library(GTEST_LIBRARY
         NAMES gtest
-        PATHS ${GTEST_INPUT}
+        PATHS ${GTEST_INPUT}/gtest-libs
         NO_DEFAULT_PATH)
 find_library(GTEST_MAIN_LIBRARY
         NAMES gtest_main
-        PATHS ${GTEST_INPUT}
+        PATHS ${GTEST_INPUT}/gtest-libs
         NO_DEFAULT_PATH)
-set( GMOCK_INCLUDE ${GTEST_INPUT}/googlemock/include )
+set( GMOCK_INCLUDE ${GTEST_INPUT}/gmock-headers )
+find_library(GMOCK_LIBRARY
+        NAMES gmock
+        PATHS ${GTEST_INPUT}/gmock-libs
+        NO_DEFAULT_PATH)
 
 ## Allow this to be redirected for python development
 if(NOT DEFINED PYTHON_INPUT)
     set( PYTHON_INPUT ${INPUT}/python)
 endif()
-set(PYTHON_ZIP python311.zip)
-set(PYTHON_VERSION python3.11)
-set(PYTHON_LIB_DIR "${PYTHON_INPUT}/lib/${PYTHON_VERSION}")
-find_library(PYTHON_LIBRARY
-        NAMES "${PYTHON_VERSION}"
-        PATHS ${PYTHON_INPUT}/lib
-        )
-file(GLOB PYTHON_LIBRARIES "${PYTHON_LIBRARY}.*")
 
 ## Allow this to be redirected for pathtools development
 if(NOT DEFINED WATCHDOG_INPUT)
@@ -373,7 +322,7 @@ endif()
 
 ## Allow this to be redirected for pycryptodome development
 if(NOT DEFINED PYCRYPTODOME_INPUT)
-    set( PYCRYPTODOME_INPUT ${INPUT}/pypi/)
+    set( PYCRYPTODOME_INPUT ${INPUT}/pycryptodome)
 endif()
 
 # Telemetry config is different for dev vs prod builds
