@@ -15,11 +15,10 @@ import boto.s3.key
 from boto.s3.connection import S3Connection
 
 
-TIMEOUT_FOR_ALL_TESTS = 100*60  #seconds
-STACK = os.environ.get("STACK", None)
-TEST_PASS_UUID = os.environ.get("TEST_PASS_UUID", None)
+TIMEOUT_FOR_ALL_TESTS = 100*60  # seconds
 
-def checkMachinesAllTerminated(stack, uuid=TEST_PASS_UUID):
+
+def checkMachinesAllTerminated(stack, uuid):
     conn = boto.ec2.connect_to_region(
         "eu-west-1",
         aws_access_key_id="AKIAWR523TF7XZPL2C7H",
@@ -40,9 +39,8 @@ def checkMachinesAllTerminated(stack, uuid=TEST_PASS_UUID):
 
     return True
 
+
 def main(argv):
-    global STACK
-    global TEST_PASS_UUID
 
     if len(argv) > 1:
         STACK = argv[1]
@@ -55,7 +53,7 @@ def main(argv):
         TEST_PASS_UUID = os.environ['TEST_PASS_UUID']
 
     start = time.time()
-    ## and check for machines running
+    #  and check for machines running
     delay = 120
     while time.time() < start + TIMEOUT_FOR_ALL_TESTS:
         try:

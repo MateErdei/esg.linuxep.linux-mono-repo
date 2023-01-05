@@ -361,11 +361,18 @@ then
     delete_stack_and_exit "$STACK" "Stack rolling back"
 fi
 
+# Get results back from the AWS test run and save them locally.
+rm -rf ./results
+mkdir ./results
+
+SRC="s3://sspl-testbucket/test-results/${STACK}/"
+DEST="./results"
+
 ## Wait for termination
 # Once all test runs have finished
 cleanupStack() {
     echo "Beginning cleanup check for $STACK at $(date)" >&2
-    python waitForTestRunCompletion.py "$STACK"
+    python waitForCompletionAndSync.py "$STACK" "${SRC}" "${DEST}"
     echo "Beginning cleanup for $STACK at $(date)" >&2
 
     echo 'Ready to delete stack for $STACK:' >&2
@@ -382,12 +389,8 @@ cleanupStack
 ENDTIME=$(date +%s)
 TIME__TOTAL=$(( $ENDTIME - $STARTTIME ))
 
-# Get results back from the AWS test run and save them locally.
-rm -rf ./results
-mkdir ./results
-
 STARTTIME=$(date +%s)
-aws s3 cp --recursive "s3://sspl-testbucket/test-results/${STACK}/" ./results
+aws s3 sync "${SRC}" "${DEST}"
 ENDTIME=$(date +%s)
 TIME__TOTAL=$(( $ENDTIME - $STARTTIME ))
 
