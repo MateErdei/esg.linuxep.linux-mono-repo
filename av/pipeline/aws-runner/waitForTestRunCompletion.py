@@ -18,30 +18,42 @@ from boto.s3.connection import S3Connection
 TIMEOUT_FOR_ALL_TESTS = 100*60  # seconds
 
 
-def checkMachinesAllTerminated(stack, uuid, start):
-    conn = boto.ec2.connect_to_region(
+def connect_to_aws():
+    return boto.ec2.connect_to_region(
         "eu-west-1",
         aws_access_key_id="AKIAWR523TF7XZPL2C7H",
         aws_secret_access_key="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"
-        )
-    instances = conn.get_only_instances(filters={
+    )
+
+
+def get_test_instances(conn, uuid):
+    return conn.get_only_instances(filters={
         "tag:TestPassUUID": uuid,
         "tag:TestImage": "true"
-        })
-    for instance in instances:
+    })
+
+
+def generate_unterminated_instances(conn, uuid):
+    for instance in get_test_instances(conn, uuid):
         if instance.state != "terminated":
-            duration = time.time() - start
-            minutes = duration // 60
-            seconds = duration % 60
-            print("Checking instance %s %s-%s ip %s after %d:%d" % (
-                instance.id,
-                instance.tags.get('Name', "<unknown>"),
-                instance.tags.get('Slice', "<unknown-slice>"),
-                instance.ip_address,
-                minutes,
-                seconds
-            ))
-            return False
+            yield instance
+
+
+def checkMachinesAllTerminated(stack, uuid, start):
+    conn = connect_to_aws()
+    for instance in generate_unterminated_instances(conn, uuid):
+        duration = time.time() - start
+        minutes = duration // 60
+        seconds = duration % 60
+        print("Checking instance %s %s-%s ip %s after %d:%d" % (
+            instance.id,
+            instance.tags.get('Name', "<unknown>"),
+            instance.tags.get('Slice', "<unknown-slice>"),
+            instance.ip_address,
+            minutes,
+            seconds
+        ))
+        return False
 
     return True
 

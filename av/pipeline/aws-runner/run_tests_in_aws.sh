@@ -357,17 +357,16 @@ then
 fi
 
 # Get results back from the AWS test run and save them locally.
-rm -rf ./results
-mkdir ./results
-
 SRC="s3://sspl-testbucket/test-results/${STACK}/"
 DEST="./results"
+rm -rf "${DEST}"
+mkdir -p "${DEST}"
 
 ## Wait for termination
 # Once all test runs have finished
 cleanupStack() {
     echo "Beginning cleanup check for $STACK at $(date)" >&2
-    python waitForCompletionAndSync.py "$STACK" "${SRC}" "${DEST}"
+    python waitForCompletionAndSync.py "${SRC}" "${DEST}"
     echo "Beginning cleanup for $STACK at $(date)" >&2
 
     echo 'Ready to delete stack for $STACK:' >&2
