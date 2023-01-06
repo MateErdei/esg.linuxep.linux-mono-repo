@@ -1014,6 +1014,9 @@ class Endpoint(object):
         self.__hb.updatePolicy()
 
     def updateMcsPolicy(self, body):
+        extracted_device_id = self.extract_device_id_from_mcs_policy(body)
+        if extracted_device_id:
+            self.__m_device_id = extracted_device_id
         self.__mcs.updatePolicy(body)
 
     def updateMdrPolicy(self, body):
@@ -1035,7 +1038,7 @@ class Endpoint(object):
         if adapter == "SAV":
             self.__sav.updatePolicy(body)
         elif adapter == "MCS":
-            self.__mcs.updatePolicy(body)
+            self.updateMcsPolicy(body)
         elif adapter == "ALC":
             self.__alc.updatePolicy(body)
         elif adapter == "MDR":
@@ -1093,6 +1096,14 @@ class Endpoint(object):
                 'id':self.id(),
                 'status':{},
                 }
+
+    def extract_device_id_from_mcs_policy(self, mcs_policy_xml: str):
+        try:
+            doc = xml.dom.minidom.parseString(mcs_policy_xml)
+            ids = doc.getElementsByTagName("deviceId")
+            return ids[0].firstChild.nodeValue
+        except:
+            return None
 
 
 class Endpoints(object):
@@ -1435,7 +1446,7 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
                 "token_type":"Bearer",
                 "expires_in":630,
                 "role":"endpoint",
-                "device_id":"example-device-id",
+                "device_id":endpoint.device_id(),
                 "tenant_id":"example-tenant-id"
             }
 
