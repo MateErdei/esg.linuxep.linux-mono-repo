@@ -10,6 +10,13 @@ import waitForTestRunCompletion
 TIMEOUT_FOR_ALL_TESTS = waitForTestRunCompletion.TIMEOUT_FOR_ALL_TESTS
 
 
+def get_duration(start):
+    duration = time.time() - start
+    minutes = duration // 60
+    seconds = duration % 60
+    return "%02d:%02d" % (minutes, seconds)
+
+
 def checkMachinesAllTerminated(uuid, start, dest):
     conn = waitForTestRunCompletion.connect_to_aws()
     for instance in waitForTestRunCompletion.generate_unterminated_instances(conn, uuid):
@@ -20,28 +27,24 @@ def checkMachinesAllTerminated(uuid, start, dest):
 
         formation_log = os.path.join(dest, hostname+"-cloudFormationInit.log")
 
-        duration = time.time() - start
-        minutes = duration // 60
-        seconds = duration % 60
+        duration = get_duration(start)
 
         if os.path.isfile(formation_log):
-            print("Instance %s %s finished (have formation log %s), but not terminated, ip %s after %d:%d" %
+            print("Instance %s %s finished (have formation log %s), but not terminated, ip %s after %s" %
                   (
                       instance.id,
                       hostname,
                       formation_log,
                       instance.ip_address,
-                      minutes,
-                      seconds
+                      duration
                   ))
             # continue checking
         else:
-            print("Checking instance %s %s ip %s after %d:%d" % (
+            print("Checking instance %s %s ip %s after %s" % (
                 instance.id,
                 hostname,
                 instance.ip_address,
-                minutes,
-                seconds
+                duration
             ))
             return False
 
@@ -51,16 +54,13 @@ def checkMachinesAllTerminated(uuid, start, dest):
 def print_all_machines_still_running(uuid, start):
     conn = waitForTestRunCompletion.connect_to_aws()
     for instance in waitForTestRunCompletion.generate_unterminated_instances(conn, uuid):
-        duration = time.time() - start
-        minutes = duration // 60
-        seconds = duration % 60
-        print("Instance still running: %s %s-%s ip %s after %d:%d" % (
+        duration = get_duration(start)
+        print("Instance still running: %s %s-%s ip %s after %s" % (
             instance.id,
             instance.tags.get('Name', "<unknown>"),
             instance.tags.get('Slice', "<unknown-slice>"),
             instance.ip_address,
-            minutes,
-            seconds
+            duration
         ))
 
 
