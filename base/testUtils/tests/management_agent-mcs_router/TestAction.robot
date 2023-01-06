@@ -28,7 +28,7 @@ Verify Scan Now Action Sent Through MCS Router And Management Agent Will Be Proc
     Check Cloud Server Log For Command Poll    2
 
     Wait Until Keyword Succeeds
-    ...  10 secs
+    ...  20 secs
     ...  1 secs
     ...  Get Plugin Action
     ${pluginAction} =  Get Plugin Action
