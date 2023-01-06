@@ -219,7 +219,7 @@ New JWT Is Requested When Device ID In MCS Policy Changes
     ...  3 secs
     ...  Check MCS Config Contains Value  device_id  ThisIsANewDeviceID+1002
 
-    ${new_device_id}  get_value_from_ini_file  device_id  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs_policy.config
+    ${new_device_id}  get_value_from_ini_file  device_id  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
     Should Not Be Equal As Strings  ${device_id}  ${new_device_id}
 
     Wait Until Keyword Succeeds
