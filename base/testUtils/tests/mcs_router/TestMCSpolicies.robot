@@ -209,12 +209,6 @@ New JWT Is Requested When Device ID In MCS Policy Changes
     Mark MCSRouter Log
     Send Policy File  mcs  ${SUPPORT_FILES}/CentralXml/MCS_policy_new_deviceID.xml
 
-    sleep  30
-
-    log file  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs_policy.config
-    log file  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
-    log file  ${SOPHOS_INSTALL}/base/etc/mcs.config
-
     Wait Until Keyword Succeeds
     ...  30 secs
     ...  3 secs
