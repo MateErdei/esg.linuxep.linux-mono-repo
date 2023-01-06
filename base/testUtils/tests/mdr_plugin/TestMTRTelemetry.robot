@@ -24,6 +24,7 @@ Force Tags  LOAD6
 *** Test Cases ***
 MTR Plugin Reports Telemetry Correctly With A SophosMTR Restart And Also Uses Cached Values From Disk
     Install MDR Directly
+    Wait Until SophosMTR Executable Running  20
     Kill SophosMTR Executable
     Wait Until SophosMTR Executable Running  20
 
