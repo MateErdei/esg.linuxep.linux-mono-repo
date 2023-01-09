@@ -720,7 +720,7 @@ def run_safestore_database_content_test():
     unquarantined_files = 0
     twenty_four_hours = 24 * 60 * 60
 
-    safestore_db_content = get_safestore_db_content_as_dict()
+    safestore_db_content = [item for item in get_safestore_db_content_as_dict() if item["Location"] == SAFESTORE_MALWARE_PATH]
     with open(os.path.join(SCRIPT_DIR, "expected_malware.json"), "r") as f:
         expected_malware = json.loads(f.read())
 
