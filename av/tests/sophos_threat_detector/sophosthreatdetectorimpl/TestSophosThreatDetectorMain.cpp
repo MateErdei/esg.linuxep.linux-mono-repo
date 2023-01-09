@@ -219,8 +219,55 @@ TEST_F(TestSophosThreatDetectorMain, sigTermTerminatesProcess)
     auto treatDetectorMain = sspl::sophosthreatdetectorimpl::SophosThreatDetectorMain();
     treatDetectorMain.inner_main(m_MockThreatDetectorResources);
 
-    EXPECT_TRUE(waitForLog("Starting updateCompleteNotifier"));
-    ASSERT_TRUE(waitForLog("Sophos Threat Detector received SIGTERM - shutting down"));
-    ASSERT_TRUE(waitForLog("Stopping updateCompleteNotifier"));
-    ASSERT_TRUE(waitForLog("Joining updateCompleteNotifier"));
+    ASSERT_TRUE(waitForLog("Starting updateCompleteNotifier"));
+    EXPECT_TRUE(waitForLog("Sophos Threat Detector received SIGTERM - shutting down"));
+    EXPECT_TRUE(waitForLog("Stopping updateCompleteNotifier"));
+    EXPECT_TRUE(waitForLog("Joining updateCompleteNotifier"));
+}
+
+
+TEST_F(TestSophosThreatDetectorMain, logsWhenAttemptDNSQueryFailsWithEAI_SYSTEM)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    auto mockSysCallWrapper = std::make_shared<NiceMock<MockSystemCallWrapper>>();
+
+    EXPECT_CALL(*m_MockThreatDetectorResources, createSystemCallWrapper()).WillOnce(Return(mockSysCallWrapper));
+    EXPECT_CALL(*mockSysCallWrapper, getaddrinfo(_,_,_,_)).WillOnce(SetErrnoAndReturn(EIO, EAI_SYSTEM));
+    //Todo currently fails because we dont have mocks/tests for rest of pass, also take out of try catch
+    EXPECT_CALL(*mockSysCallWrapper, chroot(_)).WillOnce(Return(-1));
+
+    try
+    {
+        auto treatDetectorMain = sspl::sophosthreatdetectorimpl::SophosThreatDetectorMain();
+        treatDetectorMain.inner_main(m_MockThreatDetectorResources);
+
+    }
+    catch (std::exception& ex)
+    {
+    }
+    EXPECT_TRUE(waitForLog("Failed DNS query of 4.sophosxl.net: system error in getaddrinfo: Input/output error"));
+}
+
+TEST_F(TestSophosThreatDetectorMain, logsWhenAttemptDNSQueryFailsWithOtherError)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    auto mockSysCallWrapper = std::make_shared<NiceMock<MockSystemCallWrapper>>();
+
+    EXPECT_CALL(*m_MockThreatDetectorResources, createSystemCallWrapper()).WillOnce(Return(mockSysCallWrapper));
+    EXPECT_CALL(*mockSysCallWrapper, getaddrinfo(_,_,_,_)).WillOnce(Return(EAI_AGAIN));
+    //Todo currently fails because we dont have mocks/tests for rest of pass, also take out of try catch
+    EXPECT_CALL(*mockSysCallWrapper, chroot(_)).WillOnce(Return(-1));
+
+    try
+    {
+        auto treatDetectorMain = sspl::sophosthreatdetectorimpl::SophosThreatDetectorMain();
+        treatDetectorMain.inner_main(m_MockThreatDetectorResources);
+
+    }
+    catch (std::exception& ex)
+    {
+    }
+    EXPECT_TRUE(waitForLog("Failed DNS query of 4.sophosxl.net: error in getaddrinfo: Temporary failure in name resolution"));
 }
