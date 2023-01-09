@@ -1432,7 +1432,7 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
         if endpoint is None:
             return self.ret("Event for unknown endpoint", 400)
 
-        token = f"JWT_TOKEN-{endpoint.id()}"
+        token = f"JWT_TOKEN-{endpoint.device_id()}"
         if JWT_BROKEN:
             JWT = {
                 "access_token":token,
