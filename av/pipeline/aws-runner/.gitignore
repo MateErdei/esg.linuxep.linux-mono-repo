@@ -3,3 +3,4 @@ stackName
 results/
 results-combine-workspace/
 argFile
+arguments.json

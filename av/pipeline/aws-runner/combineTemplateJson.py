@@ -54,6 +54,8 @@ def main():
     with open("sspl-system.template") as main_template_file:
         main_template_json = json.loads(main_template_file.read())
 
+    argumentsMap = {}
+
     for index, arguments in enumerate(args(), 1):
         print("Adding templates with args for: " + arguments)
         for template_name, template_json_str in instances.items():
@@ -67,13 +69,18 @@ def main():
             tags.extend(
                 [
                     { "Key": "Hostname", "Value": hostname},
-                    { "Key": "Slice", "Value": str(index)}
+                    { "Key": "Slice", "Value": str(index)},
+                    { "Key": "Include", "Value": str(arguments)},
                 ]
             )
             main_template_json["Resources"][unique_template_name] = json_with_args
+            argumentsMap[hostname] = arguments
 
     with open("sspl-system.template.with_args", "w") as outFile:
         outFile.write(json.dumps(main_template_json, indent=4))
+
+    with open("arguments.json", "w") as outFile:
+        json.dump(argumentsMap, outFile, indent=4)
 
 
 if __name__ == '__main__':
