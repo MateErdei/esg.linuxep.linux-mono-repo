@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+//Copyright 2020, Sophos Limited.  All rights reserved.
 
 #pragma once
 
@@ -39,4 +35,6 @@ namespace unixsocket
     private:
         threat_scanner::IThreatScannerFactorySharedPtr m_scannerFactory;
     };
+
+    using ScanningServerSocketPtr = std::shared_ptr<ScanningServerSocket>;
 }
