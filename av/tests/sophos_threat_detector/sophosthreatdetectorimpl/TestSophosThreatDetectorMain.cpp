@@ -38,9 +38,10 @@ namespace {
             fs::current_path(m_testDir);
 
             const fs::path testUpdateSocketPath = m_testDir / "update_socket";
-            const fs::path testServerSocketPath = m_testDir / "server_socket";
+            const fs::path testScanningServerSocketPath = m_testDir / "scanning_server_socket";
+            const fs::path testProcessControllerSocketPath = m_testDir / "process_control_socket";
             m_MockThreatDetectorResources = std::make_shared<NiceMock<MockThreatDetectorResources>>
-            (testUpdateSocketPath, testServerSocketPath);
+            (testUpdateSocketPath, testScanningServerSocketPath, testProcessControllerSocketPath);
         }
 
         void TearDown() override
@@ -258,18 +259,9 @@ TEST_F(TestSophosThreatDetectorMain, logsWhenAttemptDNSQueryFailsWithOtherError)
 
     EXPECT_CALL(*m_MockThreatDetectorResources, createSystemCallWrapper()).WillOnce(Return(mockSysCallWrapper));
     EXPECT_CALL(*mockSysCallWrapper, getaddrinfo(_,_,_,_)).WillOnce(Return(EAI_AGAIN));
-    //Todo currently fails because we dont have mocks/tests for rest of pass, also take out of try catch
-    EXPECT_CALL(*mockSysCallWrapper, chroot(_)).WillOnce(Return(-1));
 
-    try
-    {
-        auto treatDetectorMain = sspl::sophosthreatdetectorimpl::SophosThreatDetectorMain();
-        treatDetectorMain.inner_main(m_MockThreatDetectorResources);
-
-    }
-    catch (std::exception& ex)
-    {
-    }
+    auto treatDetectorMain = sspl::sophosthreatdetectorimpl::SophosThreatDetectorMain();
+    treatDetectorMain.inner_main(m_MockThreatDetectorResources);
     EXPECT_TRUE(waitForLog("Failed DNS query of 4.sophosxl.net: error in getaddrinfo: Temporary failure in name resolution"));
 }
 

@@ -6,6 +6,7 @@
 
 #include "MockScanningServerSocket.h"
 #include "MockShutdownTimer.h"
+#include "MockThreatDetectorControlCallbacks.h"
 #include "MockThreatReporter.h"
 #include "MockUpdateCompleteServerSocket.h"
 
@@ -15,6 +16,7 @@
 #include <common/MockPidLock.h>
 #include <common/MockSignalHandler.h>
 #include <sophos_threat_detector/sophosthreatdetectorimpl/ThreatDetectorResources.h>
+#include <unixsocket/processControllerSocket/ProcessControllerServerSocket.h>
 
 #include <gmock/gmock.h>
 
@@ -25,7 +27,7 @@ namespace
     class MockThreatDetectorResources : public sspl::sophosthreatdetectorimpl::IThreatDetectorResources
     {
     public:
-        MockThreatDetectorResources(const fs::path& testUpdateSocketPath, const fs::path& testServerSocketPath)
+        MockThreatDetectorResources(const fs::path& testUpdateSocketPath, const fs::path& testScanningServerSocketPath, const fs::path& testProcessControllerSocketPath)
         {
             m_mockSysCalls = std::make_shared<NiceMock<MockSystemCallWrapper>>();
             m_mockSigHandler = std::make_shared<NiceMock<MockSignalHandler>>();
@@ -34,7 +36,10 @@ namespace
             m_mockShutdownTimer = std::make_shared<NiceMock<MockShutdownTimer>>();
             m_mockUpdateCompleteServerSocket = std::make_shared<NiceMock<MockUpdateCompleteServerSocket>>(testUpdateSocketPath, 0777);
             m_mockSusiScannerFactory = std::make_shared<NiceMock<MockSusiScannerFactory>>();
-            m_mockScanningServerSocket = std::make_shared<NiceMock<MockScanningServerSocket>>(testServerSocketPath, 0777, m_mockSusiScannerFactory);
+            m_mockScanningServerSocket = std::make_shared<NiceMock<MockScanningServerSocket>>(testScanningServerSocketPath, 0777, m_mockSusiScannerFactory);
+
+            auto mockThreatDetectorControlCallbacks = std::make_shared<NiceMock<MockThreatDetectorControlCallbacks>>();
+            m_processControlServerSocket = std::make_shared<unixsocket::ProcessControllerServerSocket>(testProcessControllerSocketPath, 0777, mockThreatDetectorControlCallbacks);
 
             ON_CALL(*this, createSystemCallWrapper).WillByDefault(Return(m_mockSysCalls));
             ON_CALL(*this, createSignalHandler).WillByDefault(Return(m_mockSigHandler));
@@ -44,6 +49,7 @@ namespace
             ON_CALL(*this, createUpdateCompleteNotifier).WillByDefault(Return(m_mockUpdateCompleteServerSocket));
             ON_CALL(*this, createSusiScannerFactory).WillByDefault(Return(m_mockSusiScannerFactory));
             ON_CALL(*this, createScanningServerSocket).WillByDefault(Return(m_mockScanningServerSocket));
+            ON_CALL(*this, createProcessControllerServerSocket).WillByDefault(Return(m_processControlServerSocket));
         }
 
         MOCK_METHOD(datatypes::ISystemCallWrapperSharedPtr, createSystemCallWrapper, (), (override));
@@ -58,10 +64,15 @@ namespace
                     threat_scanner::IScanNotificationSharedPtr _shutdownTimer,
                     threat_scanner::IUpdateCompleteCallbackPtr _updateCompleteCallback),
                     (override));
-        MOCK_METHOD( unixsocket::ScanningServerSocketPtr, createScanningServerSocket,
+        MOCK_METHOD(unixsocket::ScanningServerSocketPtr, createScanningServerSocket,
                     (const std::string& path,
                      mode_t mode,
                      threat_scanner::IThreatScannerFactorySharedPtr scannerFactory),
+                    (override));
+        MOCK_METHOD(unixsocket::ProcessControllerServerSocketPtr, createProcessControllerServerSocket,
+                    (const std::string& path,
+                    mode_t mode,
+                    std::shared_ptr<unixsocket::IProcessControlMessageCallback> processControlCallbacks),
                     (override));
 
     private:
@@ -74,6 +85,6 @@ namespace
         std::shared_ptr<NiceMock<MockSusiScannerFactory>> m_mockSusiScannerFactory;
         std::shared_ptr<NiceMock<MockScanningServerSocket>> m_mockScanningServerSocket;
 
-
+        std::shared_ptr<unixsocket::ProcessControllerServerSocket> m_processControlServerSocket;
     };
 }
