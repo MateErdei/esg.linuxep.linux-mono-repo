@@ -271,3 +271,19 @@ TEST_F(TestSophosThreatDetectorMain, logsWhenAttemptDNSQueryFailsWithOtherError)
     }
     EXPECT_TRUE(waitForLog("Failed DNS query of 4.sophosxl.net: error in getaddrinfo: Temporary failure in name resolution"));
 }
+
+TEST_F(TestSophosThreatDetectorMain, FailureToUpdateScannerFactoryExitsInnerMain)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    getLogger().setLogLevel(log4cplus::FATAL_LOG_LEVEL);
+
+    auto mockScannerFactory = std::make_shared<NiceMock<MockSusiScannerFactory>>();
+
+    EXPECT_CALL(*m_MockThreatDetectorResources, createSusiScannerFactory(_,_,_)).WillOnce(Return(mockScannerFactory));
+    EXPECT_CALL(*mockScannerFactory, update()).WillOnce(Return(false));
+
+    auto treatDetectorMain = sspl::sophosthreatdetectorimpl::SophosThreatDetectorMain();
+    EXPECT_EQ(common::E_GENERIC_FAILURE, treatDetectorMain.inner_main(m_MockThreatDetectorResources));
+
+    EXPECT_TRUE(waitForLog("Update of scanner at startup failed exiting threat detector main"));
+}
