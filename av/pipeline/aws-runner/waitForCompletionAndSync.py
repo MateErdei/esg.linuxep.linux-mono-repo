@@ -6,8 +6,10 @@ import sys
 import time
 
 import waitForTestRunCompletion
+import reprocess
 
 TIMEOUT_FOR_ALL_TESTS = waitForTestRunCompletion.TIMEOUT_FOR_ALL_TESTS
+
 
 
 def get_duration(start):
@@ -68,6 +70,14 @@ def sync(src, dest):
     subprocess.run(["aws", "s3", "sync", src, dest])
 
 
+def do_reprocess(dest):
+    files = os.listdir(dest)
+    files = [ f for f in files if f.endswith("-output.xml") ]
+    for f in files:
+        p = os.path.join(dest, f)
+        reprocess.reprocess(p)
+
+
 def main(argv):
     TEST_PASS_UUID = os.environ['TEST_PASS_UUID']
     print("Waiting for completion for TEST_PASS_UUID: %s" % TEST_PASS_UUID)
@@ -95,6 +105,7 @@ def main(argv):
 
         end_delay = time.time() + delay
         sync(src, dest)
+        do_reprocess(dest)
         delay_duration = end_delay - time.time()
         if delay_duration > 0:
             time.sleep(delay_duration)

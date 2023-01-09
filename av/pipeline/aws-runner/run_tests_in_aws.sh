@@ -359,8 +359,12 @@ fi
 # Get results back from the AWS test run and save them locally.
 SRC="s3://sspl-testbucket/test-results/${STACK}/"
 DEST="./results"
+# Create early so that we can sync early
 rm -rf "${DEST}"
 mkdir -p "${DEST}"
+# Create early so that we can re-process while waiting
+rm -rf results-combine-workspace
+mkdir results-combine-workspace
 
 ## Wait for termination
 # Once all test runs have finished
@@ -434,14 +438,7 @@ fi
 
 combineResults()
 {
-  rm -rf results-combine-workspace
-  mkdir results-combine-workspace
-  for F in ./results/*-output.xml
-  do
-      local B=$(basename $F)
-      python3 -m robot.rebot --merge -o ./results-combine-workspace/$B -l none -r none -N ${B%%-output.xml}  $F
-  done
-
+  python3 ./reprocess.py ./results/*-output.xml
   python3 -m robot.rebot -l ./results/combined-log.html -r ./results/combined-report.html -N combined --removekeywords wuks ./results-combine-workspace/*
 }
 combineResults
