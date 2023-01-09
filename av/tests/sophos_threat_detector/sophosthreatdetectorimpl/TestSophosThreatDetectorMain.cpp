@@ -38,8 +38,9 @@ namespace {
             fs::current_path(m_testDir);
 
             const fs::path testUpdateSocketPath = m_testDir / "update_socket";
+            const fs::path testServerSocketPath = m_testDir / "server_socket";
             m_MockThreatDetectorResources = std::make_shared<NiceMock<MockThreatDetectorResources>>
-            (testUpdateSocketPath);
+            (testUpdateSocketPath, testServerSocketPath);
         }
 
         void TearDown() override
@@ -286,4 +287,11 @@ TEST_F(TestSophosThreatDetectorMain, FailureToUpdateScannerFactoryExitsInnerMain
     EXPECT_EQ(common::E_GENERIC_FAILURE, treatDetectorMain.inner_main(m_MockThreatDetectorResources));
 
     EXPECT_TRUE(waitForLog("Update of scanner at startup failed exiting threat detector main"));
+}
+
+
+TEST_F(TestSophosThreatDetectorMain, General)
+{
+    auto treatDetectorMain = sspl::sophosthreatdetectorimpl::SophosThreatDetectorMain();
+    treatDetectorMain.inner_main(m_MockThreatDetectorResources);
 }

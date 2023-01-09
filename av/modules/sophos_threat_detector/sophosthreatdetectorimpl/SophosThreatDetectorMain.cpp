@@ -483,8 +483,8 @@ namespace sspl::sophosthreatdetectorimpl
 
         m_reloader = std::make_shared<Reloader>(m_scannerFactory);
 
-        unixsocket::ScanningServerSocket server(scanningSocketPath, 0666, m_scannerFactory);
-        server.start();
+        auto server = resources->createScanningServerSocket(scanningSocketPath, 0666, m_scannerFactory);
+        common::ThreadRunner scanningServerSocketThread (server, "scanningServerSocket", true);
 
         LOGINFO("Starting USR1 monitor");
         common::signals::SigUSR1Monitor usr1Monitor(m_reloader); // Create monitor before loading SUSI

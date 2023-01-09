@@ -26,5 +26,11 @@ namespace sspl::sophosthreatdetectorimpl
                 threat_scanner::IThreatReporterSharedPtr _reporter,
                 threat_scanner::IScanNotificationSharedPtr _shutdownTimer,
                 threat_scanner::IUpdateCompleteCallbackPtr _updateCompleteCallback) override;
+
+            unixsocket::ScanningServerSocketPtr createScanningServerSocket(
+                const std::string& path,
+                mode_t mode,
+                threat_scanner::IThreatScannerFactorySharedPtr scannerFactory
+                ) override;
     };
 }

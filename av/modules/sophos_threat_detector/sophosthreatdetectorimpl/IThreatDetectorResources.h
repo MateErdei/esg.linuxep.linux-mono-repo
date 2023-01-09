@@ -9,6 +9,7 @@
 #include "sophos_threat_detector/threat_scanner/IThreatReporter.h"
 #include "sophos_threat_detector/threat_scanner/IThreatScannerFactory.h"
 #include "sophos_threat_detector/threat_scanner/IScanNotification.h"
+#include "unixsocket/threatDetectorSocket/ScanningServerSocket.h"
 #include "unixsocket/updateCompleteSocket/UpdateCompleteServerSocket.h"
 
 namespace sspl::sophosthreatdetectorimpl
@@ -35,6 +36,13 @@ namespace sspl::sophosthreatdetectorimpl
             threat_scanner::IThreatReporterSharedPtr _reporter,
             threat_scanner::IScanNotificationSharedPtr _shutdownTimer,
             threat_scanner::IUpdateCompleteCallbackPtr _updateCompleteCallback) = 0;
+
+
+        virtual unixsocket::ScanningServerSocketPtr createScanningServerSocket(
+            const std::string& path,
+            mode_t mode,
+            threat_scanner::IThreatScannerFactorySharedPtr scannerFactory
+            ) = 0;
     };
     using IThreatDetectorResourcesSharedPtr = std::shared_ptr<IThreatDetectorResources>;
 }

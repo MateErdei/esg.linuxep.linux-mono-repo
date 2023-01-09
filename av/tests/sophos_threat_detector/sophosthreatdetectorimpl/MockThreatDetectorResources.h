@@ -4,6 +4,7 @@
 
 #define TEST_PUBLIC public
 
+#include "MockScanningServerSocket.h"
 #include "MockShutdownTimer.h"
 #include "MockThreatReporter.h"
 #include "MockUpdateCompleteServerSocket.h"
@@ -24,7 +25,7 @@ namespace
     class MockThreatDetectorResources : public sspl::sophosthreatdetectorimpl::IThreatDetectorResources
     {
     public:
-        MockThreatDetectorResources(const fs::path& testUpdateSocketPath)
+        MockThreatDetectorResources(const fs::path& testUpdateSocketPath, const fs::path& testServerSocketPath)
         {
             m_mockSysCalls = std::make_shared<NiceMock<MockSystemCallWrapper>>();
             m_mockSigHandler = std::make_shared<NiceMock<MockSignalHandler>>();
@@ -33,7 +34,7 @@ namespace
             m_mockShutdownTimer = std::make_shared<NiceMock<MockShutdownTimer>>();
             m_mockUpdateCompleteServerSocket = std::make_shared<NiceMock<MockUpdateCompleteServerSocket>>(testUpdateSocketPath, 0777);
             m_mockSusiScannerFactory = std::make_shared<NiceMock<MockSusiScannerFactory>>();
-
+            m_mockScanningServerSocket = std::make_shared<NiceMock<MockScanningServerSocket>>(testServerSocketPath, 0777, m_mockSusiScannerFactory);
 
             ON_CALL(*this, createSystemCallWrapper).WillByDefault(Return(m_mockSysCalls));
             ON_CALL(*this, createSignalHandler).WillByDefault(Return(m_mockSigHandler));
@@ -42,6 +43,7 @@ namespace
             ON_CALL(*this, createShutdownTimer).WillByDefault(Return(m_mockShutdownTimer));
             ON_CALL(*this, createUpdateCompleteNotifier).WillByDefault(Return(m_mockUpdateCompleteServerSocket));
             ON_CALL(*this, createSusiScannerFactory).WillByDefault(Return(m_mockSusiScannerFactory));
+            ON_CALL(*this, createScanningServerSocket).WillByDefault(Return(m_mockScanningServerSocket));
         }
 
         MOCK_METHOD(datatypes::ISystemCallWrapperSharedPtr, createSystemCallWrapper, (), (override));
@@ -56,6 +58,11 @@ namespace
                     threat_scanner::IScanNotificationSharedPtr _shutdownTimer,
                     threat_scanner::IUpdateCompleteCallbackPtr _updateCompleteCallback),
                     (override));
+        MOCK_METHOD( unixsocket::ScanningServerSocketPtr, createScanningServerSocket,
+                    (const std::string& path,
+                     mode_t mode,
+                     threat_scanner::IThreatScannerFactorySharedPtr scannerFactory),
+                    (override));
 
     private:
         std::shared_ptr<NiceMock<MockSystemCallWrapper>> m_mockSysCalls;
@@ -65,6 +72,7 @@ namespace
         std::shared_ptr<NiceMock<MockShutdownTimer>> m_mockShutdownTimer;
         std::shared_ptr<NiceMock<MockUpdateCompleteServerSocket>> m_mockUpdateCompleteServerSocket;
         std::shared_ptr<NiceMock<MockSusiScannerFactory>> m_mockSusiScannerFactory;
+        std::shared_ptr<NiceMock<MockScanningServerSocket>> m_mockScanningServerSocket;
 
 
     };

@@ -52,3 +52,12 @@ threat_scanner::IThreatScannerFactorySharedPtr ThreatDetectorResources::createSu
 {
     return std::make_shared<threat_scanner::SusiScannerFactory>(_reporter, _shutdownTimer, _updateCompleteCallback);
 }
+
+unixsocket::ScanningServerSocketPtr ThreatDetectorResources::createScanningServerSocket(
+    const std::string& path,
+    mode_t mode,
+    threat_scanner::IThreatScannerFactorySharedPtr scannerFactory
+    )
+{
+    return std::make_shared<unixsocket::ScanningServerSocket>(path, mode, scannerFactory);
+}
