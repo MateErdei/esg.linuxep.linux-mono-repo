@@ -1,6 +1,6 @@
 *** Settings ***
 Documentation   SafeStore Telemetry tests
-Force Tags      INTEGRATION  AVBASE  TELEMETRY    SAFESTORE
+Force Tags      INTEGRATION  TELEMETRY    SAFESTORE
 
 Library         Collections
 
