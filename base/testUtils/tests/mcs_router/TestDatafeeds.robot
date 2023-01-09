@@ -30,7 +30,7 @@ Basic XDR Datafeed Sent
     send_xdr_datafeed_result  scheduled_query  2001298948  ${json_to_send}
 
     # experimental change
-    ${device_id} =  Wait Until Keyword Succeeds 30s  1s  Get Device ID From Config
+    ${device_id} =  Wait Until Keyword Succeeds  30s  1s  Get Device ID From Config
     Check Cloud Server Log For Scheduled Query   scheduled_query  ${device_id}
     Check Cloud Server Log For Scheduled Query Body   scheduled_query   ${json_to_send}
     Cloud Server Log Should Not Contain  Failed to decompress response body content
