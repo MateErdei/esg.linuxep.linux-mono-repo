@@ -19,18 +19,26 @@ namespace sspl::sophosthreatdetectorimpl
 
             threat_scanner::IScanNotificationSharedPtr createShutdownTimer(const sophos_filesystem::path _configPath) override;
 
-            unixsocket::updateCompleteSocket::UpdateCompleteServerSocketPtr createUpdateCompleteNotifier
-                (const sophos_filesystem::path _serverPath, mode_t _mode) override;
-
             threat_scanner::IThreatScannerFactorySharedPtr createSusiScannerFactory(
                 threat_scanner::IThreatReporterSharedPtr _reporter,
                 threat_scanner::IScanNotificationSharedPtr _shutdownTimer,
                 threat_scanner::IUpdateCompleteCallbackPtr _updateCompleteCallback) override;
 
+
+            //Sockets
+            unixsocket::updateCompleteSocket::UpdateCompleteServerSocketPtr createUpdateCompleteNotifier
+                (const sophos_filesystem::path _serverPath, mode_t _mode) override;
+
             unixsocket::ScanningServerSocketPtr createScanningServerSocket(
                 const std::string& path,
                 mode_t mode,
                 threat_scanner::IThreatScannerFactorySharedPtr scannerFactory
+                ) override;
+
+            virtual unixsocket::ProcessControllerServerSocketPtr createProcessControllerServerSocket(
+                const std::string& path,
+                mode_t mode,
+                std::shared_ptr<unixsocket::IProcessControlMessageCallback> processControlCallbacks
                 ) override;
     };
 }

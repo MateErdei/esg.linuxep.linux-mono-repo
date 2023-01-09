@@ -39,18 +39,18 @@ threat_scanner::IScanNotificationSharedPtr ThreatDetectorResources::createShutdo
     return std::make_shared<ShutdownTimer>(_configPath);
 }
 
-unixsocket::updateCompleteSocket::UpdateCompleteServerSocketPtr ThreatDetectorResources::createUpdateCompleteNotifier
-    (const sophos_filesystem::path _serverPath, mode_t _mode)
-{
-    return std::make_shared<unixsocket::updateCompleteSocket::UpdateCompleteServerSocket>(_serverPath, _mode);
-}
-
 threat_scanner::IThreatScannerFactorySharedPtr ThreatDetectorResources::createSusiScannerFactory(
     threat_scanner::IThreatReporterSharedPtr _reporter,
     threat_scanner::IScanNotificationSharedPtr _shutdownTimer,
     threat_scanner::IUpdateCompleteCallbackPtr _updateCompleteCallback)
 {
     return std::make_shared<threat_scanner::SusiScannerFactory>(_reporter, _shutdownTimer, _updateCompleteCallback);
+}
+
+unixsocket::updateCompleteSocket::UpdateCompleteServerSocketPtr ThreatDetectorResources::createUpdateCompleteNotifier
+    (const sophos_filesystem::path _serverPath, mode_t _mode)
+{
+    return std::make_shared<unixsocket::updateCompleteSocket::UpdateCompleteServerSocket>(_serverPath, _mode);
 }
 
 unixsocket::ScanningServerSocketPtr ThreatDetectorResources::createScanningServerSocket(
@@ -60,4 +60,13 @@ unixsocket::ScanningServerSocketPtr ThreatDetectorResources::createScanningServe
     )
 {
     return std::make_shared<unixsocket::ScanningServerSocket>(path, mode, scannerFactory);
+}
+
+unixsocket::ProcessControllerServerSocketPtr ThreatDetectorResources::createProcessControllerServerSocket(
+    const std::string& path,
+    mode_t mode,
+    std::shared_ptr<unixsocket::IProcessControlMessageCallback> processControlCallbacks
+    )
+{
+    return std::make_shared<unixsocket::ProcessControllerServerSocket>(path, mode, processControlCallbacks);
 }

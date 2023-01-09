@@ -34,5 +34,7 @@ namespace unixsocket
     private:
         std::shared_ptr<IProcessControlMessageCallback> m_processControlCallback;
     };
+
+    using ProcessControllerServerSocketPtr = std::shared_ptr<ProcessControllerServerSocket>;
 }
 

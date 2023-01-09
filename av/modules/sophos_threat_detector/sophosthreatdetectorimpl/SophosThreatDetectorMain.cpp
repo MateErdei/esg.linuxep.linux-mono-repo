@@ -16,14 +16,11 @@
 #include "common/ThreadRunner.h"
 
 #ifdef USE_SUSI
-#include <sophos_threat_detector/threat_scanner/SusiScannerFactory.h>
 #else
 #include <sophos_threat_detector/threat_scanner/FakeSusiScannerFactory.h>
 #endif
 
 #include "datatypes/sophos_filesystem.h"
-#include "unixsocket/processControllerSocket/ProcessControllerServerSocket.h"
-#include "unixsocket/threatDetectorSocket/ScanningServerSocket.h"
 
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 
@@ -492,11 +489,11 @@ namespace sspl::sophosthreatdetectorimpl
         //Always create processController after m_reloader is initialized
         fs::path processControllerSocketPath = "/var/process_control_socket";
         std::shared_ptr<ThreatDetectorControlCallbacks> callbacks = std::make_shared<ThreatDetectorControlCallbacks>(*this);
-        unixsocket::ProcessControllerServerSocket processController(processControllerSocketPath, 0660, callbacks);
-        processController.start();
+        auto processController = resources->createProcessControllerServerSocket(processControllerSocketPath, 0660, callbacks);
+        common::ThreadRunner processControllerSocketThread (processController, "processControllerSocket", true);
 
         m_safeStoreRescanWorker = std::make_shared<SafeStoreRescanWorker>(Plugin::getSafeStoreRescanSocketPath());
-        common::ThreadRunner safeStoreRescanWorkerThread (m_safeStoreRescanWorker, "Safestore Rescan Worker", true);
+        common::ThreadRunner safeStoreRescanWorkerThread (m_safeStoreRescanWorker, "safestoreRescanWorker", true);
 
         int returnCode = common::E_CLEAN_SUCCESS;
 
