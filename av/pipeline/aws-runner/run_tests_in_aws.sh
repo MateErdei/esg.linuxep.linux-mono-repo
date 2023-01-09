@@ -439,6 +439,7 @@ fi
 combineResults()
 {
   python3 ./reprocess.py ./results/*-output.xml
+  ls -l ./results-combine-workspace
   python3 -m robot.rebot -l ./results/combined-log.html -r ./results/combined-report.html -N combined --removekeywords wuks ./results-combine-workspace/*
 }
 combineResults

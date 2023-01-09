@@ -13,7 +13,7 @@ import xml.etree.ElementTree
 def replace_top_level_suite(output_xml_file):
     # python3 -m robot.rebot --merge -o ./results-combine-workspace/$B -l none -r none -N ${B%%-output.xml}  $F
     basename = os.path.basename(output_xml_file)
-    dest = os.path.join("results-combined-workspace", basename)
+    dest = os.path.join("results-combine-workspace", basename)
     if os.path.isfile(dest):
         return dest
 
