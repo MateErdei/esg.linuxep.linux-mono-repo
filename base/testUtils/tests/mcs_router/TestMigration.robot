@@ -40,32 +40,32 @@ Successful Register With Cloud And Migrate To Another Cloud Server
     Wait Until Keyword Succeeds
     ...  20s
     ...  1s
-    ...  File Should Exist  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
+    ...  File Should Exist  ${MCS_CONFIG}
 
     Wait Until Keyword Succeeds
     ...  20s
     ...  1s
-    ...  File Should Exist  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs_policy.config
+    ...  File Should Exist  ${MCS_POLICY_CONFIG}
 
     Wait Until Keyword Succeeds
     ...  5s
     ...  1s
     ...  Mcs Config Has Key  MCSID
 
-    ${original_mcsid}  get_value_from_ini_file  MCSID  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
+    ${original_mcsid}  get_value_from_ini_file  MCSID  ${MCS_CONFIG}
 
     Wait Until Keyword Succeeds
     ...  5s
     ...  1s
     ...  Mcs Config Has Key  jwt_token
 
-    ${original_jwt_token}  get_value_from_ini_file  jwt_token  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
+    ${original_jwt_token}  get_value_from_ini_file  jwt_token  ${MCS_CONFIG}
 
-    Log File  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs_policy.config
-    ${mcs_policy_config_ts_orig}    Get Modified Time   ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs_policy.config
+    Log File  ${MCS_POLICY_CONFIG}
+    ${mcs_policy_config_ts_orig}    Get Modified Time   ${MCS_POLICY_CONFIG}
 
-    Log File  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
-    ${mcs_config_ts_orig}    Get Modified Time   ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
+    Log File  ${MCS_CONFIG}
+    ${mcs_config_ts_orig}    Get Modified Time   ${MCS_CONFIG}
 
     Log File  ${SOPHOS_INSTALL}/base/etc/mcs.config
     ${mcs_root_config_ts_orig}    Get Modified Time   ${SOPHOS_INSTALL}/base/etc/mcs.config
@@ -105,18 +105,18 @@ Successful Register With Cloud And Migrate To Another Cloud Server
     Wait Until Keyword Succeeds
     ...  20s
     ...  1s
-    ...  File Should Exist  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
+    ...  File Should Exist  ${MCS_CONFIG}
 
     Wait Until Keyword Succeeds
     ...  30s
     ...  1s
-    ...  File Should Exist  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs_policy.config
+    ...  File Should Exist  ${MCS_POLICY_CONFIG}
 
-    Log File  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs_policy.config
-    ${mcs_policy_config_ts_new}    Get Modified Time   ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs_policy.config
+    Log File  ${MCS_POLICY_CONFIG}
+    ${mcs_policy_config_ts_new}    Get Modified Time   ${MCS_POLICY_CONFIG}
 
-    Log File  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
-    ${mcs_config_ts_new}    Get Modified Time   ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
+    Log File  ${MCS_CONFIG}
+    ${mcs_config_ts_new}    Get Modified Time   ${MCS_CONFIG}
 
     Log File  ${SOPHOS_INSTALL}/base/etc/mcs.config
     ${mcs_root_config_ts_new}    Get Modified Time   ${SOPHOS_INSTALL}/base/etc/mcs.config
@@ -129,8 +129,8 @@ Successful Register With Cloud And Migrate To Another Cloud Server
     Should Not Be Equal As Strings  ${mcs_root_config_ts_new}    ${mcs_root_config_ts_orig}
     Should Not Be Equal As Strings  ${current_proxy_ts_new}      ${current_proxy_ts_orig}
 
-    ${new_mcsid}  get_value_from_ini_file  MCSID  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
-    ${new_jwt_token}  get_value_from_ini_file  jwt_token  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
+    ${new_mcsid}  get_value_from_ini_file  MCSID  ${MCS_CONFIG}
+    ${new_jwt_token}  get_value_from_ini_file  jwt_token  ${MCS_CONFIG}
 
     Should Not Be Equal As Strings  ${original_mcsid}  ${new_mcsid}
     Should Not Be Equal As Strings  ${original_jwt_token}  ${new_jwt_token}
@@ -176,35 +176,35 @@ Register With Cloud And Fail To Migrate To Another Cloud Server
     Wait Until Keyword Succeeds
     ...  20s
     ...  1s
-    ...  File Should Exist  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
+    ...  File Should Exist  ${MCS_CONFIG}
 
     Wait Until Keyword Succeeds
     ...  20s
     ...  1s
-    ...  File Should Exist  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs_policy.config
+    ...  File Should Exist  ${MCS_POLICY_CONFIG}
 
     Wait Until Keyword Succeeds
     ...  5s
     ...  1s
     ...  Mcs Config Has Key  MCSID
 
-    ${original_mcsid}  get_value_from_ini_file  MCSID  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
+    ${original_mcsid}  get_value_from_ini_file  MCSID  ${MCS_CONFIG}
 
     Wait Until Keyword Succeeds
     ...  5s
     ...  1s
     ...  Mcs Config Has Key  jwt_token
 
-    ${original_jwt_token}  get_value_from_ini_file  jwt_token  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
+    ${original_jwt_token}  get_value_from_ini_file  jwt_token  ${MCS_CONFIG}
 
-    Log File  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs_policy.config
-    ${mcs_policy_config_ts_orig}    Get Modified Time   ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs_policy.config
+    Log File  ${MCS_POLICY_CONFIG}
+    ${mcs_policy_config_ts_orig}    Get Modified Time   ${MCS_POLICY_CONFIG}
 
      Log File  ${SOPHOS_INSTALL}/base/etc/mcs.config
      ${mcs_root_config_ts_orig}    Get Modified Time   ${SOPHOS_INSTALL}/base/etc/mcs.config
 
-     Log File  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
-     ${mcs_config_content_orig}   get file   ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
+     Log File  ${MCS_CONFIG}
+     ${mcs_config_content_orig}   get file   ${MCS_CONFIG}
 
     # Populate some of the purge directories with garbage to prove they are purged during a migration
     # Events and datfeed rsults not included here beacuse the product removes them if they are invalid
@@ -232,18 +232,18 @@ Register With Cloud And Fail To Migrate To Another Cloud Server
     Wait Until Keyword Succeeds
     ...  20s
     ...  1s
-    ...  File Should Exist  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
+    ...  File Should Exist  ${MCS_CONFIG}
 
     Wait Until Keyword Succeeds
     ...  20s
     ...  1s
-    ...  File Should Exist  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs_policy.config
+    ...  File Should Exist  ${MCS_POLICY_CONFIG}
 
-    Log File  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs_policy.config
-    ${mcs_policy_config_ts_new}    Get Modified Time   ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs_policy.config
+    Log File  ${MCS_POLICY_CONFIG}
+    ${mcs_policy_config_ts_new}    Get Modified Time   ${MCS_POLICY_CONFIG}
 
-    Log File  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
-    ${mcs_config_ts_new}    Get Modified Time   ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
+    Log File  ${MCS_CONFIG}
+    ${mcs_config_ts_new}    Get Modified Time   ${MCS_CONFIG}
 
     Log File  ${SOPHOS_INSTALL}/base/etc/mcs.config
     ${mcs_root_config_ts_new}    Get Modified Time   ${SOPHOS_INSTALL}/base/etc/mcs.config
@@ -251,12 +251,12 @@ Register With Cloud And Fail To Migrate To Another Cloud Server
     Should Be Equal As Strings  ${mcs_policy_config_ts_new}  ${mcs_policy_config_ts_orig}
     Should Be Equal As Strings  ${mcs_root_config_ts_new}  ${mcs_root_config_ts_orig}
 
-    Log File  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
-    ${mcs_config_content_new}   get file   ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
+    Log File  ${MCS_CONFIG}
+    ${mcs_config_content_new}   get file   ${MCS_CONFIG}
     Should Be Equal As Strings  ${mcs_config_content_new}  ${mcs_config_content_orig}
 
-    ${new_mcsid}  get_value_from_ini_file  MCSID  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
-    ${new_jwt_token}  get_value_from_ini_file  jwt_token  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
+    ${new_mcsid}  get_value_from_ini_file  MCSID  ${MCS_CONFIG}
+    ${new_jwt_token}  get_value_from_ini_file  jwt_token  ${MCS_CONFIG}
 
     Should Be Equal As Strings  ${original_mcsid}  ${new_mcsid}
     Should Be Equal As Strings  ${original_jwt_token}  ${new_jwt_token}
@@ -281,7 +281,7 @@ Register With Cloud And Fail To Migrate To Another Cloud Server
 *** Keywords ***
 Mcs Config Has Key
     [Arguments]  ${key}
-    get_value_from_ini_file  ${key}  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
+    get_value_from_ini_file  ${key}  ${MCS_CONFIG}
 
 Backup Version Ini
     Copy File  ${SOPHOS_INSTALL}/base/VERSION.ini  /tmp/VERSION.ini.bk

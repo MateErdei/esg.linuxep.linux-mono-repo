@@ -324,8 +324,8 @@ Installer Copies MCS Config Files Into place When Passed In As Args
     File Exists With Permissions  ${SOPHOS_INSTALL}/base/etc/mcs.config  sophos-spl-local  sophos-spl-group  -rw-r-----
     ${root_contents} =  Get File  ${SOPHOS_INSTALL}/base/etc/mcs.config
     Should Be Equal As Strings  ${root_contents}  "MCSID=root\nMCSToken=root"
-    File Exists With Permissions  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config  sophos-spl-local  sophos-spl-group  -rw-r-----
-    ${policy_contents} =  Get File  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
+    File Exists With Permissions  ${MCS_CONFIG}  sophos-spl-local  sophos-spl-group  -rw-r-----
+    ${policy_contents} =  Get File  ${MCS_CONFIG}
     Should Be Equal As Strings  ${policy_contents}  "MCSID=policy\nMCSToken=policy"
 
 All Installed Libs Are Built With A Consistent GCC Version

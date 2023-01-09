@@ -65,8 +65,8 @@ MCSRouter Default Test Teardown
 
     Cleanup MCSRouter Directories
     Create File  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json  {}
-    Remove File  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs_policy.config
-    Remove File  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
+    Remove File  ${MCS_POLICY_CONFIG}
+    Remove File  ${MCS_CONFIG}
     # ensure no other msc router is running even those not created by this test.
     Kill Mcsrouter
     Unset_CA_Environment_Variable
@@ -125,11 +125,11 @@ Check Cloud Server Log For EDR Response Body
     ...  Cloud Server Log Should Contain  ${app_id} response (${correlation_id}) = ${expected_body}
 
 Check Cloud Server Log For Scheduled Query
-    [Arguments]    ${feed_id}  ${occurrence}=1
+    [Arguments]    ${feed_id}  ${device_id}=example-device-id  ${occurrence}=1
     Wait Until Keyword Succeeds
     ...  1 min
     ...  5 secs
-    ...  Check Cloud Server Log Contains    POST - /mcs/v2/data_feed/device/example-device-id/feed_id/${feed_id}    ${occurrence}
+    ...  Check Cloud Server Log Contains    POST - /mcs/v2/data_feed/device/${device_id}/feed_id/${feed_id}    ${occurrence}
 
 Check Cloud Server Log For Scheduled Query Body
     [Arguments]    ${feed_id}    ${expected_body}
@@ -163,13 +163,13 @@ Check Default Policies Exist
 
 Check MCS Policy Config Contains
     [Arguments]   ${StringToContain}
-    ${MCS_Policy_Conf}=  Set Variable  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs_policy.config
+    ${MCS_Policy_Conf}=  Set Variable  ${MCS_POLICY_CONFIG}
     Check Log Contains  ${StringToContain}  ${MCS_Policy_Conf}  MCS Policy Config
 
 
 Check MCS Policy Config Does Not Contain
     [Arguments]   ${StringToContain}
-    ${MCS_Policy_Conf}=  Set Variable  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs_policy.config
+    ${MCS_Policy_Conf}=  Set Variable  ${MCS_POLICY_CONFIG}
     Check Log Does Not Contain  ${StringToContain}  ${MCS_Policy_Conf}  MCS Policy Config
 
 
@@ -327,3 +327,7 @@ Get MCSRouter PID
     ${r} =  Run Process  pgrep  -f  mcsrouter
     Should Be Equal As Strings  ${r.rc}  0
     [Return]  ${r.stdout}
+
+Get Device ID From Config
+    ${device_id}  get_value_from_ini_file  device_id  ${MCS_CONFIG}
+    [Return]  ${device_id}

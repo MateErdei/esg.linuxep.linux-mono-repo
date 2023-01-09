@@ -107,9 +107,9 @@ Setup Update Scheduler Environment and Stop All Services
     Stop Management Agent Via WDCTL
 
 setup mcs config with JWT token
-    create file    ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config    jwt_token=stuff
-    Run Process  chmod  640  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
-    Run Process  chown  sophos-spl-local:sophos-spl-group  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
+    create file    ${MCS_CONFIG}  jwt_token=stuff
+    Run Process  chmod  640  ${MCS_CONFIG}
+    Run Process  chown  sophos-spl-local:sophos-spl-group  ${MCS_CONFIG}
 
 Setup Current Update Scheduler Environment
     Require Fresh Install

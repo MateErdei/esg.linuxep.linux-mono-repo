@@ -28,7 +28,8 @@ Basic XDR Datafeed Sent
     Start MCSRouter
     ${json_to_send} =   Set Variable  {"abc":"def123"}
     send_xdr_datafeed_result  scheduled_query  2001298948  ${json_to_send}
-    Check Cloud Server Log For Scheduled Query   scheduled_query
+    ${device_id} =  Get Device ID From Config
+    Check Cloud Server Log For Scheduled Query   scheduled_query  ${device_id}
     Check Cloud Server Log For Scheduled Query Body   scheduled_query   ${json_to_send}
     Cloud Server Log Should Not Contain  Failed to decompress response body content
 
@@ -39,7 +40,8 @@ Basic XDR Datafeed size is logged
     Start MCSRouter
     ${json_to_send} =   Set Variable  {"abc":"def123"}
     send_xdr_datafeed_result  scheduled_query  2001298948  ${json_to_send}
-    Check Cloud Server Log For Scheduled Query   scheduled_query
+    ${device_id} =  Get Device ID From Config
+    Check Cloud Server Log For Scheduled Query   scheduled_query  ${device_id}
     Wait Until Keyword Succeeds
     ...  10s
     ...  1s
@@ -51,7 +53,8 @@ Large XDR Datafeed size is logged
     Start MCSRouter
     ${json_to_send} =   Set Variable  {"abc":"def123"}
     send_xdr_datafeed_result  scheduled_query  2001298948  ${json_to_send}
-    Check Cloud Server Log For Scheduled Query   scheduled_query
+    ${device_id} =  Get Device ID From Config
+    Check Cloud Server Log For Scheduled Query   scheduled_query  ${device_id}
     Wait Until Keyword Succeeds
     ...  10s
     ...  1s
@@ -71,7 +74,8 @@ Invalid Datafeed Filename Not Sent But Does not Block Other Datafeed Files
     ...  10s
     ...  1s
     ...  Check MCS Router Log Contains   Malformed datafeed file: scheduled_query-invalid.json
-    Check Cloud Server Log For Scheduled Query   scheduled_query
+    ${device_id} =  Get Device ID From Config
+    Check Cloud Server Log For Scheduled Query   scheduled_query  ${device_id}
     Check Cloud Server Log For Scheduled Query Body   scheduled_query   ${json_to_send2}
     Cloud Server Log Should Not Contain  ${json_to_send1}
     Directory Should Be Empty  ${MCS_DIR}/datafeed
@@ -199,7 +203,8 @@ Ensure correct sending protocol handles all possible datafeed states at same tim
     ...  1s
     ...  Check MCS Router Log Contains  No datafeed result files
 
-    Check Cloud Server Log For Scheduled Query   scheduled_query
+    ${device_id} =  Get Device ID From Config
+    Check Cloud Server Log For Scheduled Query   scheduled_query  ${device_id}
     Check Cloud Server Log For Scheduled Query Body   scheduled_query   ${ok_size_content_expected_to_be_sent}
     Cloud Server Log Should Not Contain  Failed to decompress response body content
     Cloud Server Log Should Not Contain  ${ok_size_content}

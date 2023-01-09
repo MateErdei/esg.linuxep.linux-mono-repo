@@ -306,18 +306,18 @@ Telemetry Executable Uses Correct Configuration For Build Type
 
 Telemetry Executable Handles Errors When Reading Missing MCS Config For Endpoint ID
     Drop ALC Policy Into Place
-    Remove File  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
+    Remove File  ${MCS_CONFIG}
     Should Not Exist  ${TELEMETRY_OUTPUT_JSON}
     Run Telemetry And Expect Field Missing  endpointId
 
 Telemetry Executable Handles Errors When Reading MCS Config With Missing Key For Endpoint ID
     Drop ALC Policy Into Place
-    Drop sophos-spl-local File Into Place  ${SUPPORT_FILES}/base_data/mcs.config-missing-mcs-id  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
+    Drop sophos-spl-local File Into Place  ${SUPPORT_FILES}/base_data/mcs.config-missing-mcs-id  ${MCS_CONFIG}
     Run Telemetry And Expect Field Missing  endpointId
 
 Telemetry Executable Handles Errors When Reading Corrupt MCS Config For Endpoint ID
     Drop ALC Policy Into Place
-    Drop sophos-spl-local File Into Place  ${SUPPORT_FILES}/base_data/garbage-text  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
+    Drop sophos-spl-local File Into Place  ${SUPPORT_FILES}/base_data/garbage-text  ${MCS_CONFIG}
     Run Telemetry And Expect Field Missing  endpointId
 
 Telemetry Executable Handles Errors When Reading Machine ID With Invalid Permissions

@@ -58,6 +58,8 @@ Global Setup Tasks
     Set Global Variable  ${CURRENT_PROXY_FILE}          ${ETC_DIR}/sophosspl/current_proxy
     Set Global Variable  ${SHS_STATUS_FILE}             ${MCS_DIR}/status/SHS_status.xml
     Set Global Variable  ${SHS_POLICY_FILE}             ${MCS_DIR}/internal_policy/internal_EPHEALTH.json
+    Set Global Variable  ${MCS_CONFIG}                  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
+    Set Global Variable  ${MCS_POLICY_CONFIG}           ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs_policy.config
 
     Set Global Variable  ${WATCHDOG_SERVICE}            sophos-spl
     Set Global Variable  ${UPDATE_SERVICE}              sophos-spl-update

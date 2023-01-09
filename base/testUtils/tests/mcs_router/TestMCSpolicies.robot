@@ -201,10 +201,10 @@ New JWT Is Requested When Device ID In MCS Policy Changes
     Wait Until Keyword Succeeds
     ...  10s
     ...  1s
-    ...  get_value_from_ini_file  jwt_token  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
+    ...  get_value_from_ini_file  jwt_token  ${MCS_CONFIG}
 
-    ${device_id}  get_value_from_ini_file  device_id  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
-    ${original_jwt_token}  get_value_from_ini_file  jwt_token  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
+    ${device_id} =  Get Device ID From Config
+    ${original_jwt_token}  get_value_from_ini_file  jwt_token  ${MCS_CONFIG}
 
     Mark MCSRouter Log
     Send Policy File  mcs  ${SUPPORT_FILES}/CentralXml/MCS_policy_new_deviceID.xml
@@ -219,7 +219,7 @@ New JWT Is Requested When Device ID In MCS Policy Changes
     ...  3 secs
     ...  Check MCS Config Contains Value  device_id  ThisIsANewDeviceID+1002
 
-    ${new_device_id}  get_value_from_ini_file  device_id  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
+    ${new_device_id} =  Get Device ID From Config
     Should Not Be Equal As Strings  ${device_id}  ${new_device_id}
 
     Wait Until Keyword Succeeds
@@ -227,7 +227,7 @@ New JWT Is Requested When Device ID In MCS Policy Changes
     ...  2s
     ...  Check Marked MCSRouter Log Contains  Request JWT token from
 
-    ${new_jwt_token}  get_value_from_ini_file  jwt_token  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
+    ${new_jwt_token}  get_value_from_ini_file  jwt_token  ${MCS_CONFIG}
     Should Not Be Equal As Strings  ${original_jwt_token}  ${new_jwt_token}
 
 
@@ -236,11 +236,11 @@ New JWT Is Requested When Device ID In MCS Policy Changes
 # Checks etc/sophosspl/mcs.config
 Check MCS Config Contains Value
     [Arguments]  ${key}  ${expected_value}
-    ${value}  get_value_from_ini_file  ${key}  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
+    ${value}  get_value_from_ini_file  ${key}  ${MCS_CONFIG}
     Should Be Equal As Strings  ${value}  ${expected_value}
 
 # Checks etc/sophosspl/mcs_policy.config
 Check MCS Policy Config Contains Value
     [Arguments]  ${key}  ${expected_value}
-    ${value}  get_value_from_ini_file  ${key}  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs_policy.config
+    ${value}  get_value_from_ini_file  ${key}  ${MCS_POLICY_CONFIG}
     Should Be Equal As Strings  ${value}  ${expected_value}

@@ -331,7 +331,7 @@ Thin Installer Passes MCS Config To Base Installer Via Args And Only One Registr
     Check Thininstaller Log Contains    Successfully installed product
 
     ${root_config_contents} =  Get File  ${SOPHOS_INSTALL}/base/etc/mcs.config
-    ${policy_config_contents} =  Get File  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
+    ${policy_config_contents} =  Get File  ${MCS_CONFIG}
     Should Contain  ${policy_config_contents}  MCSID=ThisIsAnMCSID+1001
     Should Contain  ${policy_config_contents}  MCSPassword=ThisIsThePassword
     Should Contain  ${root_config_contents}  MCSToken=ThisIsARegToken

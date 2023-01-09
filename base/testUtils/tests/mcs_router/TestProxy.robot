@@ -80,7 +80,7 @@ Proxy Creds And Message Relay Information Used On Registration
     [Tags]  MCS  FAKE_CLOUD  MCS_ROUTER  REGISTRATION
     Start Proxy Server With Basic Auth    3000    username    password
     Register With Local Cloud Server With Proxy Creds And Message Relay  username  password  localhost:3000,0,1
-    ${contents} =  Get File  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs_policy.config
+    ${contents} =  Get File  ${MCS_POLICY_CONFIG}
     Should Contain  ${contents}  mcs_policy_proxy_credentials=CC
     Should Contain  ${contents}  message_relay_address1=localhost
     Should Contain  ${contents}  message_relay_port1=3000
@@ -232,7 +232,7 @@ Policy proxy overrides local proxy
     ...  20 secs
     ...  1 secs
     ...  Check MCS Policy Config Contains    message_relay_address1=localhost
-    Check Log Contains    message_relay_port1=3333     ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs_policy.config     Mcs_policy_config
+    Check Log Contains    message_relay_port1=3333     ${MCS_POLICY_CONFIG}     Mcs_policy_config
 
     Wait Until Keyword Succeeds
     ...  30 secs
@@ -250,7 +250,7 @@ Fallback to direct connection when policy proxy fails
     ${Proxy_Port_One} =  Set Variable  3346
     ${Proxy_Name_One} =  Set Variable  deadbeef-feedbeef
     Start Simple Proxy Server    ${Proxy_Port_One}
-    Remove File   ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs_policy.config
+    Remove File   ${MCS_POLICY_CONFIG}
     Register With Local Cloud Server
     Start MCSRouter
     Wait Until Keyword Succeeds
@@ -267,7 +267,7 @@ Fallback to direct connection when policy proxy fails
     Wait Until Keyword Succeeds
     ...  30 secs
     ...  5 secs
-    ...  File Should Exist   ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs_policy.config
+    ...  File Should Exist   ${MCS_POLICY_CONFIG}
 
     Send Mcs Policy With New Message Relay   <messageRelay priority='0' port='${Proxy_Port_One}' address='localhost' id='${Proxy_Name_One}'/>
     Mark Mcsrouter Log
@@ -421,12 +421,12 @@ Status Sent After Message Relay Changed
     Check MCSRouter Log Does Not Contain   Successfully connected to localhost:4443 via localhost:${Proxy_Port_Two}
     Check MCSRouter Log Does Not Contain   Push client successfully connected to ${push_server_address} via localhost:${Proxy_Port_Two}
 
-    Check Log Contains    message_relay_address1=localhost          ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs_policy.config     Mcs_policy_config
-    Check Log Contains    message_relay_port1=${Proxy_Port_One}     ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs_policy.config     Mcs_policy_config
-    Check Log Contains    message_relay_address2=localhost          ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs_policy.config     Mcs_policy_config
-    Check Log Contains    message_relay_port2=${Proxy_Port_Two}     ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs_policy.config     Mcs_policy_config
+    Check Log Contains    message_relay_address1=localhost          ${MCS_POLICY_CONFIG}     Mcs_policy_config
+    Check Log Contains    message_relay_port1=${Proxy_Port_One}     ${MCS_POLICY_CONFIG}     Mcs_policy_config
+    Check Log Contains    message_relay_address2=localhost          ${MCS_POLICY_CONFIG}     Mcs_policy_config
+    Check Log Contains    message_relay_port2=${Proxy_Port_Two}     ${MCS_POLICY_CONFIG}     Mcs_policy_config
 
-    ${fileContent}  Get File  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
+    ${fileContent}  Get File  ${MCS_CONFIG}
     Should Contain  ${fileContent}  current_relay_id=${Proxy_Name_One}
 
     # Check status associated with first proxy connection is received in fake cloud before stopping proxy

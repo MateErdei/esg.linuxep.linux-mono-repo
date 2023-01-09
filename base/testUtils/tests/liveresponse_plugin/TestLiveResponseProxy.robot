@@ -42,7 +42,7 @@ Liveresponse Plugin Proxy
     Wait Until Keyword Succeeds
         ...  10
         ...  1
-        ...  File Should Exist    ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs_policy.config
+        ...  File Should Exist    ${MCS_POLICY_CONFIG}
     ${correlationId} =  Get Correlation Id
 
     Mark Managementagent Log

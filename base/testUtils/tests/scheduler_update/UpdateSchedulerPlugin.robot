@@ -116,7 +116,7 @@ UpdateScheduler updates the device id and tenant id before an update
     Should Contain   ${File}  "JWToken": "stuff",
     ${eventPath} =  Check Status and Events Are Created
     Check Event Report Success  ${eventPath}
-    Create File       ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config   jwt_token=newjwt\ndevice_id=newdevice\ntenant_id=newtenant
+    Create File       ${MCS_CONFIG}  jwt_token=newjwt\ndevice_id=newdevice\ntenant_id=newtenant
     Simulate Update Now
     Wait Until Keyword Succeeds
     ...   20 secs

@@ -223,8 +223,8 @@ Test Teardown
     Deregister From Central
 
 #    Cleanup MCSRouter Directories
-    Remove File  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs_policy.config
-    Remove File  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
+    Remove File  ${MCS_POLICY_CONFIG}
+    Remove File  ${MCS_CONFIG}
     # ensure no other msc router is running even those not created by this test.
     Kill Mcsrouter
     Unset CA Environment Variable
