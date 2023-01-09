@@ -768,10 +768,6 @@ def run_safestore_restoration_test():
 
     try:
         stop_sspl_process("mcsrouter")
-
-        get_safestore_tool()
-        quarantined_threats = [item for item in get_safestore_db_content_as_dict() if item["Location"] == SAFESTORE_MALWARE_PATH]
-
         if os.path.exists(corc_policy_path):
             shutil.copyfile(corc_policy_path, tmp_corc_policy_path)
         else:
@@ -800,10 +796,6 @@ def run_safestore_restoration_test():
             logging.warning(e)
 
         for threat in expected_malware:
-            # Skip if the threat is not currently quarantined
-            if threat["fileName"] not in quarantined_threats:
-                continue
-
             file_path = threat["filePath"]
             log_utils.wait_for_safestore_log_contains_after_mark(f"Reporting successful restoration of {file_path}", 60)
 
