@@ -71,11 +71,14 @@ def sync(src, dest):
 
 
 def do_reprocess(dest):
-    files = os.listdir(dest)
-    files = [ f for f in files if f.endswith("-output.xml") ]
-    for f in files:
-        p = os.path.join(dest, f)
-        reprocess.reprocess(p)
+    try:
+        files = os.listdir(dest)
+        files = [ f for f in files if f.endswith("-output.xml") ]
+        for f in files:
+            p = os.path.join(dest, f)
+            reprocess.reprocess(p)
+    except Exception as ex:
+        print("Failed to reprocess:", str(ex))
 
 
 def main(argv):

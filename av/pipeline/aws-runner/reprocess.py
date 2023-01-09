@@ -15,8 +15,7 @@ def replace_top_level_suite(output_xml_file):
     basename = os.path.basename(output_xml_file)
     dest = os.path.join("results-combined-workspace", basename)
     if os.path.isfile(dest):
-        print("Already produced", dest)
-        return
+        return dest
 
     assert basename.endswith("-output.xml")
     hostname = basename[:-len("-output.xml")]
@@ -24,6 +23,7 @@ def replace_top_level_suite(output_xml_file):
                "-N", hostname, output_xml_file]
     print(" ".join(command))
     subprocess.check_call(command)
+    return dest
 
 
 def get_arguments(hostname):
