@@ -197,9 +197,9 @@ MCS policy without Pushserver Updates MCS Policy Config Correctly
 
 New JWT Is Requested When Device ID In MCS Policy Changes
     Install Register And Wait First MCS Policy
-
+    Restart MCS Router With Debug Logging
     Wait Until Keyword Succeeds
-    ...  5s
+    ...  10s
     ...  1s
     ...  get_value_from_ini_file  jwt_token  ${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config
 
