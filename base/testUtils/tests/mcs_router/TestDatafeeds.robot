@@ -90,7 +90,7 @@ Retrieve JWT Tokens from Central
     ...  1s
     ...  Check Log Contains String N Times   ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log   MCS Router Log   Setting Tenant ID: example-tenant-id   1
     Check Log Contains String N Times   ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log   MCS Router Log   Setting Device ID: ThisIsADeviceID+1001  1
-    Check Log Contains String N Times   ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log   MCS Router Log   Setting JWT Token: JWT_TOKEN-ThisIsAnMCSID+1001  1
+    Check Log Contains String N Times   ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log   MCS Router Log   Setting JWT Token: JWT_TOKEN-ThisIsADeviceID+1001  1
     JWT Token Is Updated In MCS Config
 
 Retrieve JWT Tokens from Central only once per connection
@@ -108,7 +108,7 @@ Retrieve JWT Tokens from Central only once per connection
     ...  1s
     ...  Check Marked Mcsrouter Log Contains String N Times   Setting Tenant ID: example-tenant-id   1
     Check Marked Mcsrouter Log Contains String N Times   Setting Device ID: ThisIsADeviceID+1001  1
-    Check Marked Mcsrouter Log Contains String N Times   Setting JWT Token: JWT_TOKEN-ThisIsAnMCSID+1001  1
+    Check Marked Mcsrouter Log Contains String N Times   Setting JWT Token: JWT_TOKEN-ThisIsADeviceID+1001  1
     JWT Token Is Updated In MCS Config
 
     Wait Until Keyword Succeeds
@@ -129,7 +129,7 @@ JWT Tokens expire and a new token is requested
     ...  1s
     ...  Check Log Contains String N Times   ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log   MCS Router Log   Setting Tenant ID: example-tenant-id   1
     Check Log Contains String N Times   ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log   MCS Router Log   Setting Device ID: ThisIsADeviceID+1001  1
-    Check Log Contains String N Times   ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log   MCS Router Log   Setting JWT Token: JWT_TOKEN-ThisIsAnMCSID+1001  1
+    Check Log Contains String N Times   ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log   MCS Router Log   Setting JWT Token: JWT_TOKEN-ThisIsADeviceID+1001  1
 
     Wait Until Keyword Succeeds
     ...  50s
