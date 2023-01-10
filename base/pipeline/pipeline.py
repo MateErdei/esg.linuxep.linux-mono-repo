@@ -1,5 +1,6 @@
 import logging
 import os
+import sys
 import time
 import tap.v1 as tap
 from tap._pipeline.tasks import ArtisanInput
@@ -237,7 +238,6 @@ def sspl_base(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
     # For cmdline/local builds, determine build mode by how tap was called
     # Not sure it's possible to pass parameters into tap so doing this for now.
     determined_build_mode=None
-    import sys
     if f"{component.name}.build.{DEBUG_MODE}" in sys.argv:
         determined_build_mode = DEBUG_MODE
     elif f"{component.name}.build.{RELEASE_MODE}" in sys.argv:
