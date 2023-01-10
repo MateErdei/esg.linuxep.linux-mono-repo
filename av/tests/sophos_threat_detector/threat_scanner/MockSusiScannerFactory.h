@@ -17,7 +17,7 @@ namespace
             {
                 ON_CALL(*this, update).WillByDefault(Return(true));
                 ON_CALL(*this, reload).WillByDefault(Return(true));
-                ON_CALL(*this, susiIsInitialized).WillByDefault(Return(true));
+                ON_CALL(*this, susiIsInitialized).WillByDefault(Return(false));
             };
 
             MOCK_METHOD(threat_scanner::IThreatScannerPtr, createScanner, (bool scanArchives, bool scanimages), (override));
