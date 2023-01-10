@@ -37,11 +37,7 @@ namespace {
             fs::create_directories(m_testDir);
             fs::current_path(m_testDir);
 
-            const fs::path testUpdateSocketPath = m_testDir / "update_socket";
-            const fs::path testScanningServerSocketPath = m_testDir / "scanning_server_socket";
-            const fs::path testProcessControllerSocketPath = m_testDir / "process_control_socket";
-            m_MockThreatDetectorResources = std::make_shared<NiceMock<MockThreatDetectorResources>>
-            (testUpdateSocketPath, testScanningServerSocketPath, testProcessControllerSocketPath);
+            m_MockThreatDetectorResources = std::make_shared<NiceMock<MockThreatDetectorResources>>(m_testDir);
         }
 
         void TearDown() override
@@ -236,18 +232,11 @@ TEST_F(TestSophosThreatDetectorMain, logsWhenAttemptDNSQueryFailsWithEAI_SYSTEM)
 
     EXPECT_CALL(*m_MockThreatDetectorResources, createSystemCallWrapper()).WillOnce(Return(mockSysCallWrapper));
     EXPECT_CALL(*mockSysCallWrapper, getaddrinfo(_,_,_,_)).WillOnce(SetErrnoAndReturn(EIO, EAI_SYSTEM));
-    //Todo currently fails because we dont have mocks/tests for rest of pass, also take out of try catch
-    EXPECT_CALL(*mockSysCallWrapper, chroot(_)).WillOnce(Return(-1));
+    EXPECT_CALL(*mockSysCallWrapper, ppoll(_,_,_,_)).WillOnce(pollReturnsWithRevents(0, POLLIN));
 
-    try
-    {
-        auto treatDetectorMain = sspl::sophosthreatdetectorimpl::SophosThreatDetectorMain();
-        treatDetectorMain.inner_main(m_MockThreatDetectorResources);
+    auto treatDetectorMain = sspl::sophosthreatdetectorimpl::SophosThreatDetectorMain();
+    treatDetectorMain.inner_main(m_MockThreatDetectorResources);
 
-    }
-    catch (std::exception& ex)
-    {
-    }
     EXPECT_TRUE(waitForLog("Failed DNS query of 4.sophosxl.net: system error in getaddrinfo: Input/output error"));
 }
 
@@ -259,6 +248,7 @@ TEST_F(TestSophosThreatDetectorMain, logsWhenAttemptDNSQueryFailsWithOtherError)
 
     EXPECT_CALL(*m_MockThreatDetectorResources, createSystemCallWrapper()).WillOnce(Return(mockSysCallWrapper));
     EXPECT_CALL(*mockSysCallWrapper, getaddrinfo(_,_,_,_)).WillOnce(Return(EAI_AGAIN));
+    EXPECT_CALL(*mockSysCallWrapper, ppoll(_,_,_,_)).WillOnce(pollReturnsWithRevents(0, POLLIN));
 
     auto treatDetectorMain = sspl::sophosthreatdetectorimpl::SophosThreatDetectorMain();
     treatDetectorMain.inner_main(m_MockThreatDetectorResources);
@@ -268,7 +258,7 @@ TEST_F(TestSophosThreatDetectorMain, logsWhenAttemptDNSQueryFailsWithOtherError)
 TEST_F(TestSophosThreatDetectorMain, FailureToUpdateScannerFactoryExitsInnerMain)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
-    getLogger().setLogLevel(log4cplus::FATAL_LOG_LEVEL);
+    m_memoryAppender->setLayout(std::make_unique<log4cplus::PatternLayout>("[%p] %m%n"));
 
     auto mockScannerFactory = std::make_shared<NiceMock<MockSusiScannerFactory>>();
 
@@ -278,12 +268,98 @@ TEST_F(TestSophosThreatDetectorMain, FailureToUpdateScannerFactoryExitsInnerMain
     auto treatDetectorMain = sspl::sophosthreatdetectorimpl::SophosThreatDetectorMain();
     EXPECT_EQ(common::E_GENERIC_FAILURE, treatDetectorMain.inner_main(m_MockThreatDetectorResources));
 
-    EXPECT_TRUE(waitForLog("Update of scanner at startup failed exiting threat detector main"));
+    EXPECT_TRUE(waitForLog("[FATAL] Update of scanner at startup failed exiting threat detector main"));
+    getLogger().setLogLevel(log4cplus::DEBUG_LOG_LEVEL);
 }
 
-
-TEST_F(TestSophosThreatDetectorMain, General)
+TEST_F(TestSophosThreatDetectorMain, continuesWhenReceivesErrorEINTR)
 {
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    auto mockSysCallWrapper = std::make_shared<NiceMock<MockSystemCallWrapper>>();
+
+    EXPECT_CALL(*m_MockThreatDetectorResources, createSystemCallWrapper()).WillOnce(Return(mockSysCallWrapper));
+    EXPECT_CALL(*mockSysCallWrapper, ppoll(_,_,_,_))
+        .WillOnce(SetErrnoAndReturn(EINTR, -1))
+        .WillOnce(pollReturnsWithRevents(0, POLLIN));
+
     auto treatDetectorMain = sspl::sophosthreatdetectorimpl::SophosThreatDetectorMain();
-    treatDetectorMain.inner_main(m_MockThreatDetectorResources);
+    EXPECT_EQ(common::E_CLEAN_SUCCESS, treatDetectorMain.inner_main(m_MockThreatDetectorResources));
+
+    EXPECT_TRUE(waitForLog("Ignoring EINTR from ppoll"));
+}
+
+TEST_F(TestSophosThreatDetectorMain, exitsWhenPpollReturnsOtherError)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    auto mockSysCallWrapper = std::make_shared<NiceMock<MockSystemCallWrapper>>();
+
+    EXPECT_CALL(*m_MockThreatDetectorResources, createSystemCallWrapper()).WillOnce(Return(mockSysCallWrapper));
+    EXPECT_CALL(*mockSysCallWrapper, ppoll(_,_,_,_)).WillOnce(SetErrnoAndReturn(EACCES, -1));
+
+    auto treatDetectorMain = sspl::sophosthreatdetectorimpl::SophosThreatDetectorMain();
+    EXPECT_EQ(common::E_GENERIC_FAILURE, treatDetectorMain.inner_main(m_MockThreatDetectorResources));
+
+    EXPECT_TRUE(waitForLog("Failed to poll signals. Error: "));
+}
+
+class TestSophosThreatDetectorMainPpollErrorsParameterized
+    : public ::testing::TestWithParam<std::pair<int, int>>
+{
+protected:
+    void SetUp() override
+    {
+        m_appConfig.setData("PLUGIN_INSTALL", m_pluginInstall);
+
+        const ::testing::TestInfo* const test_info = ::testing::UnitTest::GetInstance()->current_test_info();
+        m_testDir = fs::temp_directory_path();
+        m_testDir /= test_info->test_case_name();
+        //m_testDir /= test_info->name();
+        fs::remove_all(m_testDir);
+        fs::create_directories(m_testDir);
+        fs::current_path(m_testDir);
+
+        m_MockThreatDetectorResources = std::make_shared<NiceMock<MockThreatDetectorResources>>(m_testDir);
+        m_loggingSetup = Common::Logging::LOGOFFFORTEST();
+    }
+
+    void TearDown() override
+    {
+        fs::current_path(fs::temp_directory_path());
+        fs::remove_all(m_testDir);
+    }
+
+    Common::Logging::ConsoleLoggingSetup m_loggingSetup;
+    fs::path m_testDir;
+    const std::string m_pluginInstall = "/tmp/TestSophosThreatDetectorMainPpollErrorsParameterized";
+    Common::ApplicationConfiguration::IApplicationConfiguration& m_appConfig = Common::ApplicationConfiguration::applicationConfiguration();
+    std::shared_ptr<NiceMock<MockThreatDetectorResources>> m_MockThreatDetectorResources;
+    std::shared_ptr<StrictMock<MockSystemCallWrapper>> m_mockSysCallWrapper;
+};
+
+INSTANTIATE_TEST_SUITE_P(
+    TestSophosThreatDetectorMainErrorHandling,
+    TestSophosThreatDetectorMainPpollErrorsParameterized,
+    ::testing::Values(
+        std::make_pair(EFAULT, common::E_GENERIC_FAILURE),
+        std::make_pair(EINTR, common::E_CLEAN_SUCCESS),
+        std::make_pair(EINVAL, common::E_GENERIC_FAILURE),
+        std::make_pair(ENOMEM, common::E_GENERIC_FAILURE),
+        std::make_pair(EAGAIN, common::E_GENERIC_FAILURE)
+                 ));
+
+TEST_P(TestSophosThreatDetectorMainPpollErrorsParameterized, innerMainReturnPpollError)
+{
+    auto mockSysCallWrapper = std::make_shared<NiceMock<MockSystemCallWrapper>>();
+
+    EXPECT_CALL(*mockSysCallWrapper, ppoll(_,_,_,_))
+        .WillOnce(SetErrnoAndReturn(std::get<0>(GetParam()), -1))
+        //Is will repeatedly because some params wont call this at all
+        .WillRepeatedly(pollReturnsWithRevents(0, POLLIN));
+
+    EXPECT_CALL(*m_MockThreatDetectorResources, createSystemCallWrapper()).WillOnce(Return(mockSysCallWrapper));
+
+    auto treatDetectorMain = sspl::sophosthreatdetectorimpl::SophosThreatDetectorMain();
+    EXPECT_EQ(std::get<1>(GetParam()), treatDetectorMain.inner_main(m_MockThreatDetectorResources));
 }
