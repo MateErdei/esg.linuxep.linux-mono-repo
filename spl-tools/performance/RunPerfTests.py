@@ -93,8 +93,8 @@ def get_test_inputs_from_base():
     tar.close()
 
     cloud_automation_inputs = os.path.join(SCRIPT_DIR, "SystemProductTestOutput", "testUtils", "SupportFiles","CloudAutomation")
-    shutil.move(os.path.join(cloud_automation_inputs, "cloudClient.py"), SCRIPT_DIR)
-    shutil.move(os.path.join(cloud_automation_inputs, "SophosHTTPSClient.py"), SCRIPT_DIR)
+    shutil.move(os.path.join(cloud_automation_inputs, "cloudClient.py"), os.path.join(SCRIPT_DIR, "cloudClient.py"))
+    shutil.move(os.path.join(cloud_automation_inputs, "SophosHTTPSClient.py"), os.path.join(SCRIPT_DIR, "SophosHTTPSClient.py"))
 
     if not os.path.exists(os.path.join(SCRIPT_DIR, "cloudClient.py")):
         logging.error(f"cloudClient.py does not exists: {os.listdir(SCRIPT_DIR)}")
