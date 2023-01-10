@@ -27,19 +27,19 @@ namespace
     class MockThreatDetectorResources : public sspl::sophosthreatdetectorimpl::IThreatDetectorResources
     {
     public:
-        MockThreatDetectorResources(const fs::path& testUpdateSocketPath, const fs::path& testScanningServerSocketPath, const fs::path& testProcessControllerSocketPath)
+        MockThreatDetectorResources(const fs::path& testDirectory)
         {
             m_mockSysCalls = std::make_shared<NiceMock<MockSystemCallWrapper>>();
             m_mockSigHandler = std::make_shared<NiceMock<MockSignalHandler>>();
             m_mockPidLock = std::make_shared<NiceMock<MockPidLock>>();
             m_mockThreatReporter = std::make_shared<NiceMock<MockThreatReporter>>();
             m_mockShutdownTimer = std::make_shared<NiceMock<MockShutdownTimer>>();
-            m_mockUpdateCompleteServerSocket = std::make_shared<NiceMock<MockUpdateCompleteServerSocket>>(testUpdateSocketPath, 0777);
+            m_mockUpdateCompleteServerSocket = std::make_shared<NiceMock<MockUpdateCompleteServerSocket>>(fs::path(testDirectory / "update_socket"), 0777);
             m_mockSusiScannerFactory = std::make_shared<NiceMock<MockSusiScannerFactory>>();
-            m_mockScanningServerSocket = std::make_shared<NiceMock<MockScanningServerSocket>>(testScanningServerSocketPath, 0777, m_mockSusiScannerFactory);
+            m_mockScanningServerSocket = std::make_shared<NiceMock<MockScanningServerSocket>>(fs::path(testDirectory / "scanning_server_socket"), 0777, m_mockSusiScannerFactory);
 
             auto mockThreatDetectorControlCallbacks = std::make_shared<NiceMock<MockThreatDetectorControlCallbacks>>();
-            m_processControlServerSocket = std::make_shared<unixsocket::ProcessControllerServerSocket>(testProcessControllerSocketPath, 0777, mockThreatDetectorControlCallbacks);
+            m_processControlServerSocket = std::make_shared<unixsocket::ProcessControllerServerSocket>(fs::path(testDirectory / "process_control_socket"), 0777, mockThreatDetectorControlCallbacks);
 
             ON_CALL(*this, createSystemCallWrapper).WillByDefault(Return(m_mockSysCalls));
             ON_CALL(*this, createSignalHandler).WillByDefault(Return(m_mockSigHandler));
@@ -84,7 +84,7 @@ namespace
         std::shared_ptr<NiceMock<MockUpdateCompleteServerSocket>> m_mockUpdateCompleteServerSocket;
         std::shared_ptr<NiceMock<MockSusiScannerFactory>> m_mockSusiScannerFactory;
         std::shared_ptr<NiceMock<MockScanningServerSocket>> m_mockScanningServerSocket;
-
+        //Todo LINUXDAR-6030 Not a mock for now
         std::shared_ptr<unixsocket::ProcessControllerServerSocket> m_processControlServerSocket;
     };
 }
