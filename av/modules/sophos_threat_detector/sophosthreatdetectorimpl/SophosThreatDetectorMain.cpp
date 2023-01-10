@@ -512,7 +512,7 @@ namespace sspl::sophosthreatdetectorimpl
             timeout.tv_sec = shutdownTimer->timeout();
             LOGDEBUG("Setting shutdown timeout to " << timeout.tv_sec << " seconds");
             // wait for an activity on one of the sockets
-            int activity = ::ppoll(fds, std::size(fds), &timeout, nullptr);
+            int activity = m_sysCallWrapper->ppoll(fds, std::size(fds), &timeout, nullptr);
 
             if (activity < 0)
             {
@@ -520,7 +520,7 @@ namespace sspl::sophosthreatdetectorimpl
                 int error = errno;
                 if (error == EINTR)
                 {
-                    LOGDEBUG("Ignoring EINTR from pselect");
+                    LOGDEBUG("Ignoring EINTR from ppoll");
                     continue;
                 }
 
