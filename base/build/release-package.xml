@@ -239,25 +239,26 @@
         <release-asset artifact-path="sspl-base-060/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="060"/>
         <release-asset artifact-path="sspl-base-060/SDDS3-PACKAGE" source-dir="output/SDDS3-PACKAGE" mode="060"/>
 
+        <!--TODO: LINUXDAR-6488 - get all build modes working with old artifact path-->
         <!-- debug -->
-        <build-asset artifact-path="sspl-base/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="debug"/>
-        <build-asset artifact-path="sspl-base/SDDS3-PACKAGE" source-dir="output/SDDS3-PACKAGE" mode="debug"/>
+        <build-asset artifact-path="sspl-base-debug/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="debug"/>
+        <build-asset artifact-path="sspl-base-debug/SDDS3-PACKAGE" source-dir="output/SDDS3-PACKAGE" mode="debug"/>
 
-        <build-asset artifact-path="sspl-base/openssl" source-dir="/build/redist/openssl" mode="debug"/>
-        <build-asset artifact-path="sspl-base/pluginapi" source-dir="output" mode="debug">
+        <build-asset artifact-path="sspl-base-debug/openssl" source-dir="/build/redist/openssl" mode="debug"/>
+        <build-asset artifact-path="sspl-base-debug/pluginapi" source-dir="output" mode="debug">
             <include glob="pluginapi.tar.gz"/>
         </build-asset>
-        <build-asset artifact-path="sspl-base/cmcsrouterapi" source-dir="output" mode="debug">
+        <build-asset artifact-path="sspl-base-debug/cmcsrouterapi" source-dir="output" mode="debug">
             <include glob="cmcsrouterapi.tar.gz"/>
         </build-asset>
-        <build-asset artifact-path="sspl-base/mcs" source-dir="output" mode="debug">
+        <build-asset artifact-path="sspl-base-debug/mcs" source-dir="output" mode="debug">
             <include glob="mcs.tar.gz"/>
         </build-asset>
-        <build-asset artifact-path="sspl-base/system_test" source-dir="output" mode="debug">
+        <build-asset artifact-path="sspl-base-debug/system_test" source-dir="output" mode="debug">
             <include glob="SystemProductTestOutput.tar.gz"/>
             <include glob="symbols"/>
         </build-asset>
-        <build-asset artifact-path="sspl-base/fake-management" source-dir="testUtils/SupportFiles/FakeManagement" mode="debug"/>
+        <build-asset artifact-path="sspl-base-debug/fake-management" source-dir="testUtils/SupportFiles/FakeManagement" mode="debug"/>
 
         <publishbranches>master,feature,release,develop,bugfix,debug</publishbranches>
     </publish>

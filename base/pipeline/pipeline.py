@@ -171,12 +171,20 @@ def unified_artifact(context: tap.PipelineContext, component: str, branch: str, 
 
 def get_inputs(context: tap.PipelineContext, base_build: ArtisanInput, mode: str):
     test_inputs = None
-    if mode == 'release' or mode == 'debug':
+    if mode == 'release':
         test_inputs = dict(
             test_scripts=context.artifact.from_folder('./testUtils'),
             base_sdds=base_build / 'sspl-base/SDDS-COMPONENT',
             system_test=base_build / 'sspl-base/system_test',
             openssl=base_build / 'sspl-base' / 'openssl',
+            websocket_server=context.artifact.from_component('liveterminal', 'prod', '1-0-267/219514') / 'websocket_server'
+        )
+    if mode == 'debug':
+        test_inputs = dict(
+            test_scripts=context.artifact.from_folder('./testUtils'),
+            base_sdds=base_build / 'sspl-base-debug/SDDS-COMPONENT',
+            system_test=base_build / 'sspl-base-debug/system_test',
+            openssl=base_build / 'sspl-base-debug' / 'openssl',
             websocket_server=context.artifact.from_component('liveterminal', 'prod', '1-0-267/219514') / 'websocket_server'
         )
     if mode == 'coverage':
