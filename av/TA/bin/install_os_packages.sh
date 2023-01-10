@@ -63,7 +63,6 @@ then
     }
 
     yum install -y "gcc" "gcc-c++" "make" nfs-utils zip samba gdb util-linux nc
-    #TODO: LINUXDAR-6432 fix for RHEL8/Centos-Stream
     yum install -y ntfs-3g
 
 else
