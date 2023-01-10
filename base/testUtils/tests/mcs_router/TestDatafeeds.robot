@@ -29,7 +29,6 @@ Basic XDR Datafeed Sent
     ${json_to_send} =   Set Variable  {"abc":"def123"}
     send_xdr_datafeed_result  scheduled_query  2001298948  ${json_to_send}
 
-    # experimental change
     ${device_id} =  Wait Until Keyword Succeeds  30s  1s  Get Device ID From Config
     Check Cloud Server Log For Scheduled Query   scheduled_query  ${device_id}
     Check Cloud Server Log For Scheduled Query Body   scheduled_query   ${json_to_send}
@@ -42,11 +41,13 @@ Basic XDR Datafeed size is logged
     Start MCSRouter
     ${json_to_send} =   Set Variable  {"abc":"def123"}
     send_xdr_datafeed_result  scheduled_query  2001298948  ${json_to_send}
-    Check Cloud Server Log For Scheduled Query   scheduled_query  ThisIsADeviceID+1001
+    ${device_id} =  Wait Until Keyword Succeeds  30s  1s  Get Device ID From Config
+    Check Cloud Server Log For Scheduled Query   scheduled_query  ${device_id}
     Wait Until Keyword Succeeds
     ...  10s
     ...  1s
     ...  Check MCS Router Log Contains    we have sent 0.447kB of scheduled query data to Central
+
 Large XDR Datafeed size is logged
     Register With Local Cloud Server
     Check Correct MCS Password And ID For Local Cloud Saved
@@ -54,7 +55,8 @@ Large XDR Datafeed size is logged
     Start MCSRouter
     ${json_to_send} =   Set Variable  {"abc":"def123"}
     send_xdr_datafeed_result  scheduled_query  2001298948  ${json_to_send}
-    Check Cloud Server Log For Scheduled Query   scheduled_query  ThisIsADeviceID+1001
+    ${device_id} =  Wait Until Keyword Succeeds  30s  1s  Get Device ID From Config
+    Check Cloud Server Log For Scheduled Query   scheduled_query  ${device_id}
     Wait Until Keyword Succeeds
     ...  10s
     ...  1s
@@ -74,7 +76,7 @@ Invalid Datafeed Filename Not Sent But Does not Block Other Datafeed Files
     ...  10s
     ...  1s
     ...  Check MCS Router Log Contains   Malformed datafeed file: scheduled_query-invalid.json
-    ${device_id} =  Get Device ID From Config
+    ${device_id} =  Wait Until Keyword Succeeds  30s  1s  Get Device ID From Config
     Check Cloud Server Log For Scheduled Query   scheduled_query  ${device_id}
     Check Cloud Server Log For Scheduled Query Body   scheduled_query   ${json_to_send2}
     Cloud Server Log Should Not Contain  ${json_to_send1}
@@ -103,9 +105,6 @@ Retrieve JWT Tokens from Central only once per connection
     ...  20s
     ...  1s
     ...  Check MCS Router Running
-    # We need the same device ID in the policy as fake cloud will generate otherwise we will request a new JWT.
-    # MCS gets a new JWT if the deivce ID changes to support de-dupe, the ID will be: ThisIsADeviceID+1001
-    Send Policy File  mcs  ${SUPPORT_FILES}/CentralXml/MCS_policy_with_same_device_ID_as_fake_cloud.xml
     Wait Until Keyword Succeeds
     ...  30s
     ...  1s
@@ -207,8 +206,8 @@ Ensure correct sending protocol handles all possible datafeed states at same tim
     ...  30s
     ...  1s
     ...  Check MCS Router Log Contains  No datafeed result files
-
-    Check Cloud Server Log For Scheduled Query   scheduled_query  ThisIsADeviceID+1001
+    ${device_id} =  Wait Until Keyword Succeeds  30s  1s  Get Device ID From Config
+    Check Cloud Server Log For Scheduled Query   scheduled_query  ${device_id}
     Check Cloud Server Log For Scheduled Query Body   scheduled_query   ${ok_size_content_expected_to_be_sent}
     Cloud Server Log Should Not Contain  Failed to decompress response body content
     Cloud Server Log Should Not Contain  ${ok_size_content}
@@ -362,7 +361,9 @@ Test Teardown
     Create File  ${SOPHOS_INSTALL}/base/etc/datafeed-config-scheduled_query.json  ${SCHEDULED_QUERY_DATAFEED_CONFIG}
 
 Test Setup
-    Start Local Cloud Server
+    # We need the same device ID in the policy as fake cloud will generate otherwise we will request a new JWT.
+    # MCS gets a new JWT if the deivce ID changes to support de-dupe, the ID will be: ThisIsADeviceID+1001
+    Start Local Cloud Server  --initial-mcs-policy  ${SUPPORT_FILES}/CentralXml/MCS_policy_with_same_device_ID_as_fake_cloud.xml
 
 Datafeed Dir Less Than 1GB
     ${size_mb}=    Get Datafeed Directory Size In MB
