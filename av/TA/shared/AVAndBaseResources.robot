@@ -97,47 +97,44 @@ Configure and run scan now
     Configure scan now
     Run Scan Now After Mark  ${av_mark}
 
-
-Configure and check scan now with offset
-    Configure scan now
-    Check scan now with Offset
-
 Configure and check scan now with lookups disabled
+    ${av_mark} =  Get AV Log Mark
     Configure scan now with lookups disabled
-    Check scan now with Offset
+    Run Scan Now After Mark  ${av_mark}
 
 Configure scan now
-    Mark AV Log
+    ${av_mark} =  Get AV Log Mark
     Send Sav Policy To Base With Exclusions Filled In  SAV_Policy_Scan_Now.xml
     # Run Keyword and Ignore Error
-    Wait until scheduled scan updated With Offset
+    Wait until scheduled scan updated After Mark  ${av_mark}
 
 Configure scan now with lookups disabled
+    ${av_mark} =  Get AV Log Mark
     Send Sav Policy To Base With Exclusions Filled In  SAV_Policy_Scan_Now_Lookup_Disabled.xml
-    Wait Until AV Plugin Log Contains With Offset  Reloading susi as policy configuration has changed
-    AV Plugin Log Does Not Contain With Offset  Failed to send shutdown request: Failed to connect to unix socket
+    Wait For AV Log Contains After Mark  Reloading susi as policy configuration has changed  ${av_mark}
+    Check AV Log Does Not Contain After Mark  Failed to send shutdown request: Failed to connect to unix socket  ${av_mark}
 
     # Force SUSI to be loaded:
     Check avscanner can detect eicar
 
     Wait Until Sophos Threat Detector Log Contains With Offset  SXL Lookups will be disabled   timeout=10
-    Run Keyword and Ignore Error  Wait until scheduled scan updated
+    Run Keyword and Ignore Error  Wait until scheduled scan updated After Mark  ${av_mark}
 
 Check scan now with Offset
-    Mark AV Log
+    ${av_mark} =  Get AV Log Mark
     Register On Fail If Unique  dump log  ${SCANNOW_LOG_PATH}
     Send Sav Action To Base  ScanNow_Action.xml
-    Wait Until AV Plugin Log Contains With Offset  Completed scan Scan Now  timeout=180  interval=10
-    AV Plugin Log Contains With Offset  Evaluating Scan Now
-    AV Plugin Log Contains With Offset  Starting scan Scan Now
+    Wait For AV Log Contains After Mark  Completed scan Scan Now  ${av_mark}  timeout=180
+    Check AV Log Contains After Mark  Evaluating Scan Now  ${av_mark}
+    Check AV Log Contains After Mark  Starting scan Scan Now  ${av_mark}
 
 Run Scan Now After Mark
     [Arguments]  ${av_mark}
     Register On Fail If Unique  dump log  ${SCANNOW_LOG_PATH}
     Send Sav Action To Base  ScanNow_Action.xml
-    wait_for_log_contains_from_mark  ${av_mark}  Completed scan Scan Now  timeout=180
-    check_av_log_contains_after_mark  Evaluating Scan Now  mark=${av_mark}
-    check_av_log_contains_after_mark  Starting scan Scan Now  mark=${av_mark}
+    Wait For AV Log Contains After Mark  Completed scan Scan Now  ${av_mark}  timeout=180
+    Check AV Log Contains After Mark  Evaluating Scan Now  ${av_mark}
+    Check AV Log Contains After Mark  Starting scan Scan Now  ${av_mark}
 
 
 Validate latest Event

@@ -874,10 +874,6 @@ Wait until scheduled scan updated
     Wait Until AV Plugin Log exists  timeout=30
     Wait Until AV Plugin Log Contains  Configured number of Scheduled Scans  timeout=240
 
-Wait until scheduled scan updated With Offset
-    Wait Until AV Plugin Log exists  timeout=30
-    Wait Until AV Plugin Log Contains With Offset  Configured number of Scheduled Scans  timeout=180
-
 Wait until scheduled scan updated After Mark
     [Arguments]  ${mark}
     wait_for_av_log_contains_after_mark  Configured number of Scheduled Scans  timeout=180  mark=${mark}

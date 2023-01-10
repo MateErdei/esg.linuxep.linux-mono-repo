@@ -153,6 +153,28 @@ class LogMark:
         self.dump_marked_log()
         raise AssertionError("Failed to find %s in %s" % (expected, self.get_path()))
 
+    def wait_for_log_contains_one_of_from_mark(self, expectedList, timeout) -> None:
+        expectedList = ensure_binary(expectedList, "UTF-8")
+        start = time.time()
+        old_contents = ""
+        while time.time() < start + timeout:
+            contents = self.get_contents()
+            if contents is not None:
+                if len(contents) > len(old_contents):
+                    logger.debug(contents[:len(old_contents)])
+
+                for expected in expectedList:
+                    if self.__check_for_str_in_contents(expected, contents):
+                        return
+
+                old_contents = contents
+
+            time.sleep(0.5)
+
+        logger.error("Failed to find %s in %s after %s" % (expected, self.get_path(), self))
+        self.dump_marked_log()
+        raise AssertionError("Failed to find %s in %s" % (expected, self.get_path()))
+
 
 class LogHandler:
     def __init__(self, log_path: str):
