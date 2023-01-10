@@ -18,7 +18,17 @@ def unpack_sdds3_artifact(build_url, artifact_name, output_dir):
     z = zipfile.ZipFile(io.BytesIO(r.content))
     z.extractall(unpack_location)
 
+def get_warehouse_branches(branch_filter,url,type,version_separator):
+    release_branches =[]
+    for path in ArtifactoryPath(url):
+        branch_name = os.path.basename(path)
+        if branch_name.startswith(branch_filter):
+            release_branches.append(branch_name)
 
+    # Remove sprint branches
+    if type == "current_shipping":
+        release_branches = [i for i in release_branches if int(i.strip(branch_filter).split(version_separator)[0]) <= 4]
+    return release_branches
 def gather_sdds3_warehouse_files(output_dir, release_type):
     release_branches, builds = [], []
     version_separator = ""
@@ -34,14 +44,11 @@ def gather_sdds3_warehouse_files(output_dir, release_type):
         raise AssertionError(f"Invalid argument {release_type}: use dogfood or current_shipping")
 
     branch_filter = f"release--{current_year}{version_separator}"
-    for path in ArtifactoryPath(warehouse_repo_url):
-        branch_name = os.path.basename(path)
-        if branch_name.startswith(branch_filter):
-            release_branches.append(branch_name)
+    release_branches = get_warehouse_branches(branch_filter, warehouse_repo_url, release_type, version_separator)
 
-    # Remove sprint branches
-    if release_type == "current_shipping":
-        release_branches = [i for i in release_branches if int(i.strip(branch_filter).split(version_separator)[0]) <= 4]
+    if len(release_branches) == 0:
+        branch_filter = f"release--{current_year-1}{version_separator}"
+        release_branches = get_warehouse_branches(branch_filter, warehouse_repo_url, release_type, version_separator)
 
     release_branch = sorted(release_branches,
                             key=lambda x: float(x[len(branch_filter):].split(version_separator)[0]),

@@ -15,7 +15,7 @@ import boto.s3.key
 from boto.s3.connection import S3Connection
 
 
-TIMEOUT_FOR_ALL_TESTS = 8*60*60  #seconds
+TIMEOUT_FOR_ALL_TESTS = 3*60*60  #seconds
 STACK = os.environ.get("STACK",None)
 TEST_PASS_UUID = os.environ.get("TEST_PASS_UUID",None)
 

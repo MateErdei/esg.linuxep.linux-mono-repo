@@ -112,7 +112,7 @@ Check On Access Detects Threats
     Register Cleanup  Remove File  ${threat_path}
 
     ${mark} =  get_on_access_log_mark
-    wait for on access log contains after mark  Detected "${threat_path}" is infected with EICAR-AV-Test  mark=${mark}
+    wait for on access log contains after mark  etected "${threat_path}" is infected with EICAR-AV-Test  mark=${mark}
 
 Enable On Access Via Policy
     ${mark} =  get_on_access_log_mark
