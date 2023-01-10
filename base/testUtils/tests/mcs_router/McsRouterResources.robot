@@ -288,9 +288,9 @@ JWT Token Is Updated In MCS Config
     Wait Until Keyword Succeeds
     ...  15s
     ...  2s
-    ...  File Should Contain  /opt/sophos-spl/base/etc/sophosspl/mcs.config  jwt_token=
-    File Should Contain  /opt/sophos-spl/base/etc/sophosspl/mcs.config  tenant_id=
-    File Should Contain  /opt/sophos-spl/base/etc/sophosspl/mcs.config  device_id=
+    ...  File Should Contain  ${MCS_CONFIG}  jwt_token=
+    File Should Contain  ${MCS_CONFIG}  tenant_id=
+    File Should Contain  ${MCS_CONFIG}  device_id=
 
 Restart MCS Router With Debug Logging
     Stop Mcsrouter If Running

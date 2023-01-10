@@ -97,12 +97,15 @@ Retrieve JWT Tokens from Central only once per connection
     Override LogConf File as Global Level  DEBUG
     Register With Local Cloud Server
     Check Correct MCS Password And ID For Local Cloud Saved
+    Mark Mcsrouter Log
     Start MCSRouter
     Wait Until Keyword Succeeds
     ...  20s
     ...  1s
     ...  Check MCS Router Running
-    Mark Mcsrouter Log
+    # We need the same device ID in the policy as fake cloud will generate otherwise we will request a new JWT.
+    # MCS gets a new JWT if the deivce ID changes to support de-dupe, the ID will be: ThisIsADeviceID+1001
+    Send Policy File  mcs  ${SUPPORT_FILES}/CentralXml/MCS_policy_with_same_device_ID_as_fake_cloud.xml
     Wait Until Keyword Succeeds
     ...  30s
     ...  1s
@@ -110,6 +113,8 @@ Retrieve JWT Tokens from Central only once per connection
     Check Marked Mcsrouter Log Contains String N Times   Setting Device ID: ThisIsADeviceID+1001  1
     Check Marked Mcsrouter Log Contains String N Times   Setting JWT Token: JWT_TOKEN-ThisIsADeviceID+1001  1
     JWT Token Is Updated In MCS Config
+    Log File  ${MCS_CONFIG}
+    Log File  ${MCS_POLICY_CONFIG}
 
     Wait Until Keyword Succeeds
     ...  30s

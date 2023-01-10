@@ -645,8 +645,11 @@ class LogUtils(object):
             self.check_log_does_not_contain("Caught exception at top-level;", self.mcs_router_log, "MCS router")
 
     def mark_mcsrouter_log(self):
-        contents = get_log_contents(self.mcs_router_log)
-        self.marked_mcsrouter_logs = len(contents)
+        if os.path.isfile(self.mcs_router_log):
+            contents = get_log_contents(self.mcs_router_log)
+            self.marked_mcsrouter_logs = len(contents)
+        else:
+            self.marked_mcsrouter_logs = 0
         logger.info(f"mcsrouter log marked at line: {self.marked_mcsrouter_logs}")
 
     def check_marked_mcsrouter_log_contains(self, string_to_contain):
