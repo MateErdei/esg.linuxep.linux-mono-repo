@@ -12,7 +12,7 @@
 
 
 using namespace sspl::sophosthreatdetectorimpl;
-using namespace testing;
+using namespace ::testing;
 
 
 //Todo - current mock structure gets us to creating the ScanningServerSocket: ln~435 of sophosthreatdetector main
@@ -304,44 +304,17 @@ TEST_F(TestSophosThreatDetectorMain, exitsWhenPpollReturnsOtherError)
     EXPECT_TRUE(waitForLog("Failed to poll signals. Error: "));
 }
 
-class TestSophosThreatDetectorMainPpollErrorsParameterized
-    : public ::testing::TestWithParam<std::pair<int, int>>
-{
-protected:
-    void SetUp() override
-    {
-        m_appConfig.setData("PLUGIN_INSTALL", m_pluginInstall);
-
-        const ::testing::TestInfo* const test_info = ::testing::UnitTest::GetInstance()->current_test_info();
-        m_testDir = fs::temp_directory_path();
-        m_testDir /= test_info->test_case_name();
-        //m_testDir /= test_info->name();
-        fs::remove_all(m_testDir);
-        fs::create_directories(m_testDir);
-        fs::current_path(m_testDir);
-
-        m_MockThreatDetectorResources = std::make_shared<NiceMock<MockThreatDetectorResources>>(m_testDir);
-        m_loggingSetup = Common::Logging::LOGOFFFORTEST();
-    }
-
-    void TearDown() override
-    {
-        fs::current_path(fs::temp_directory_path());
-        fs::remove_all(m_testDir);
-    }
-
-    Common::Logging::ConsoleLoggingSetup m_loggingSetup;
-    fs::path m_testDir;
-    const std::string m_pluginInstall = "/tmp/TestSophosThreatDetectorMainPpollErrorsParameterized";
-    Common::ApplicationConfiguration::IApplicationConfiguration& m_appConfig = Common::ApplicationConfiguration::applicationConfiguration();
-    std::shared_ptr<NiceMock<MockThreatDetectorResources>> m_MockThreatDetectorResources;
-    std::shared_ptr<StrictMock<MockSystemCallWrapper>> m_mockSysCallWrapper;
-};
+namespace {
+    class TestPpollErrors :
+            public TestSophosThreatDetectorMain,
+            public testing::WithParamInterface<std::pair<int, int>>
+    {};
+}
 
 INSTANTIATE_TEST_SUITE_P(
-    TestSophosThreatDetectorMainErrorHandling,
-    TestSophosThreatDetectorMainPpollErrorsParameterized,
-    ::testing::Values(
+    TestSophosThreatDetectorMainPpoll,
+    TestPpollErrors,
+    testing::Values(
         std::make_pair(EFAULT, common::E_GENERIC_FAILURE),
         std::make_pair(EINTR, common::E_CLEAN_SUCCESS),
         std::make_pair(EINVAL, common::E_GENERIC_FAILURE),
@@ -349,7 +322,7 @@ INSTANTIATE_TEST_SUITE_P(
         std::make_pair(EAGAIN, common::E_GENERIC_FAILURE)
                  ));
 
-TEST_P(TestSophosThreatDetectorMainPpollErrorsParameterized, innerMainReturnPpollError)
+TEST_P(TestPpollErrors, innerMainReturnPpollError)
 {
     auto mockSysCallWrapper = std::make_shared<NiceMock<MockSystemCallWrapper>>();
 
@@ -362,4 +335,66 @@ TEST_P(TestSophosThreatDetectorMainPpollErrorsParameterized, innerMainReturnPpol
 
     auto treatDetectorMain = sspl::sophosthreatdetectorimpl::SophosThreatDetectorMain();
     EXPECT_EQ(std::get<1>(GetParam()), treatDetectorMain.inner_main(m_MockThreatDetectorResources));
+}
+
+
+namespace {
+    class TestFdEvents :
+        public TestSophosThreatDetectorMain,
+        public testing::WithParamInterface<std::tuple<int, int, int, std::string>>
+    {};
+}
+
+constexpr int SIGTERM_MONITOR = 0;
+constexpr int USR1_MONITOR = 1;
+constexpr int SYSTEM_FILE_CHANGE = 2;
+
+INSTANTIATE_TEST_SUITE_P(
+    TestSophosThreatDetectorMainFdEvents,
+    TestFdEvents,
+    testing::Values(
+        std::tuple(SIGTERM_MONITOR, POLLERR, common::E_GENERIC_FAILURE, "[FATAL] Error from sigterm pipe"),
+        std::tuple(SIGTERM_MONITOR, POLLIN, common::E_CLEAN_SUCCESS, "[INFO] Sophos Threat Detector received SIGTERM - shutting down"),
+        std::tuple(USR1_MONITOR, POLLERR, common::E_GENERIC_FAILURE, "[FATAL] Error from USR1 monitor"),
+        std::tuple(USR1_MONITOR, POLLIN,  common::E_CLEAN_SUCCESS, "[INFO] Sophos Threat Detector received SIGUSR1 - reloading"),
+        std::tuple(SYSTEM_FILE_CHANGE, POLLERR, common::E_GENERIC_FAILURE, "[FATAL] Error from system file change pipe"),
+        std::tuple(SYSTEM_FILE_CHANGE, POLLIN,  common::E_QUICK_RESTART_SUCCESS, "[INFO] Sophos Threat Detector is restarting to pick up changed system files")
+        ));
+
+
+TEST_P(TestFdEvents, innerMainFdEvents)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    m_memoryAppender->setLayout(std::make_unique<log4cplus::PatternLayout>("[%p] %m%n"));
+
+    auto mockSysCallWrapper = std::make_shared<NiceMock<MockSystemCallWrapper>>();
+
+    EXPECT_CALL(*mockSysCallWrapper, ppoll(_,_,_,_))
+        .WillOnce(pollReturnsWithRevents(std::get<0>(GetParam()), std::get<1>(GetParam())))
+        //Is will repeatedly because some params wont call this at all
+        .WillRepeatedly(pollReturnsWithRevents(0, POLLIN));
+
+    EXPECT_CALL(*m_MockThreatDetectorResources, createSystemCallWrapper()).WillOnce(Return(mockSysCallWrapper));
+
+    auto treatDetectorMain = sspl::sophosthreatdetectorimpl::SophosThreatDetectorMain();
+    EXPECT_EQ(std::get<2>(GetParam()), treatDetectorMain.inner_main(m_MockThreatDetectorResources));
+    EXPECT_TRUE(waitForLog(std::get<3>(GetParam())));
+}
+
+
+TEST_F(TestSophosThreatDetectorMain, innerMainTriggersusr1MonitorWhenReceivesSIGUSR1)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    auto mockSysCallWrapper = std::make_shared<NiceMock<MockSystemCallWrapper>>();
+
+    EXPECT_CALL(*m_MockThreatDetectorResources, createSystemCallWrapper()).WillOnce(Return(mockSysCallWrapper));
+    EXPECT_CALL(*mockSysCallWrapper, ppoll(_,_,_,_))
+        .WillOnce(SetErrnoAndReturn(EINTR, -1))
+        .WillOnce(pollReturnsWithRevents(0, POLLIN));
+
+    auto treatDetectorMain = sspl::sophosthreatdetectorimpl::SophosThreatDetectorMain();
+    EXPECT_EQ(common::E_CLEAN_SUCCESS, treatDetectorMain.inner_main(m_MockThreatDetectorResources));
+
+    EXPECT_TRUE(waitForLog("Ignoring EINTR from ppoll"));
 }
