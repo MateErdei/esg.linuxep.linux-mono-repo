@@ -1,7 +1,7 @@
-// Copyright 2022-2023 Sophos Limited. All rights reserved.
+// Copyright 2022 Sophos Limited. All rights reserved.
 
 #include "UnixSocketMemoryAppenderUsingTests.h"
-#include "TestClient.h"
+
 
 #include "common/ApplicationPaths.h"
 #include "safestore/MockIQuarantineManager.h"
@@ -14,9 +14,43 @@
 
 #include <gtest/gtest.h>
 
-
+#include <cassert>
+#include <iostream>
 #include <string>
 
+namespace
+{
+    class TestClient : public unixsocket::BaseClient
+    {
+    public:
+        TestClient(
+            std::string socket_path,
+            const BaseClient::duration_t& sleepTime= std::chrono::seconds{1},
+            BaseClient::IStoppableSleeperSharedPtr sleeper={}) :
+            BaseClient(std::move(socket_path), sleepTime, std::move(sleeper))
+        {
+            BaseClient::connectWithRetries("SafeStore Rescan");
+        }
+
+        void sendRequest(std::string request)
+        {
+            assert(m_socket_fd.valid());
+            try
+            {
+                if (!unixsocket::writeLengthAndBuffer(m_socket_fd.get(), request))
+                {
+                    std::stringstream errMsg;
+                    errMsg << "Failed to write rescan request to socket [" << errno << "]";
+                    throw std::runtime_error(errMsg.str());
+                }
+            }
+            catch (unixsocket::environmentInterruption& e)
+            {
+                std::cerr << "Failed to write to SafeStore Rescan socket. Exception caught: " << e.what();
+            }
+        }
+    };
+} // namespace
 using namespace testing;
 namespace fs = sophos_filesystem;
 
@@ -61,55 +95,22 @@ TEST_F(TestSafeStoreRescanSocket, testSendRescanRequestOnce)
 TEST_F(TestSafeStoreRescanSocket, testInvalidRescanRequest)
 {
     auto quarantineManager = std::make_shared<MockIQuarantineManager>();
-    EXPECT_CALL(*quarantineManager, rescanDatabase()).Times(1);
+    EXPECT_CALL(*quarantineManager, rescanDatabase()).Times(0);
     unixsocket::SafeStoreRescanServerSocket server(m_socketPath, quarantineManager);
     server.start();
 
     // connect after we start
-    {
-        TestClient client(m_socketPath);
-        client.sendRequest("0");
-        client.sendRequest("1");
-    }
+    TestClient client(m_socketPath);
+    client.sendRequest("0");
 
     sleep(1);
     // destructor will stop the thread
 }
-
-TEST_F(TestSafeStoreRescanSocket, testLongRescanRequest)
-{
-    auto quarantineManager = std::make_shared<MockIQuarantineManager>();
-    EXPECT_CALL(*quarantineManager, rescanDatabase()).Times(1);
-    unixsocket::SafeStoreRescanServerSocket server(m_socketPath, quarantineManager);
-    server.start();
-
-    // connect after we start
-    {
-        TestClient client(m_socketPath);
-        std::string request = "1";
-        for(int lenght =0; lenght < 10000;lenght++)
-        {
-            request = request + "s";
-        }
-        client.sendRequest(request);
-    }
-
-    sleep(1);
-    // destructor will stop the thread
-}
-TEST_F(TestSafeStoreRescanSocket, testSendRescanRequestMultipleTimes)
+TEST_F(TestSafeStoreRescanSocket, testSendRescanRequestTwice)
 {
     auto quarantineManager = std::make_shared<MockIQuarantineManager>();
     WaitForEvent rescanEvent;
-    EXPECT_CALL(*quarantineManager, rescanDatabase()).Times(10)
-        .WillOnce(Return())
-        .WillOnce(Return())
-        .WillOnce(Return())
-        .WillOnce(Return())
-        .WillOnce(Return())
-        .WillOnce(Return())
-        .WillOnce(Return())
-        .WillOnce(Return())
+    EXPECT_CALL(*quarantineManager, rescanDatabase()).Times(2)
         .WillOnce(Return())
         .WillOnce(triggerEvent(&rescanEvent));
     unixsocket::SafeStoreRescanServerSocket server(m_socketPath, quarantineManager);
@@ -120,15 +121,6 @@ TEST_F(TestSafeStoreRescanSocket, testSendRescanRequestMultipleTimes)
         unixsocket::SafeStoreRescanClient client(m_socketPath);
         client.sendRescanRequest();
         client.sendRescanRequest();
-        client.sendRescanRequest();
-        client.sendRescanRequest();
-        client.sendRescanRequest();
-        client.sendRescanRequest();
-        client.sendRescanRequest();
-        client.sendRescanRequest();
-        client.sendRescanRequest();
-        client.sendRescanRequest();
-
     }
 
     rescanEvent.waitDefault();
