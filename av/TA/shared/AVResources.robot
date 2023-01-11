@@ -27,6 +27,7 @@ ${AV_PLUGIN_BIN}                                ${COMPONENT_BIN_PATH}
 ${CLI_SCANNER_PATH}                             ${COMPONENT_ROOT_PATH}/bin/avscanner
 ${AV_LOG_PATH}                                  ${AV_PLUGIN_PATH}/log/${COMPONENT}.log
 ${AV_CHROOT_DIR}                                ${AV_PLUGIN_PATH}/chroot
+${AV_VAR_DIR}                                   ${AV_PLUGIN_PATH}/var
 ${AV_CHROOT_VAR_DIR}                            ${AV_CHROOT_DIR}/var
 ${AV_CHROOT_LOG_DIR}                            ${AV_CHROOT_DIR}/log
 ${SOPHOS_THREAT_DETECTOR_SHUTDOWN_FILE_PATH}    ${AV_CHROOT_VAR_DIR}/threat_detector_expected_shutdown

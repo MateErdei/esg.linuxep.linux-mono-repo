@@ -4,6 +4,7 @@ Library         ../Libs/BaseInteractionTools/PolicyUtils.py
 Library         ../Libs/ExclusionHelper.py
 Library         ../Libs/HttpsServer.py
 Library         ../Libs/LogUtils.py
+Library         ../Libs/OnAccessUtils.py
 Library         ../Libs/OnFail.py
 Library         ../Libs/Telemetry.py
 Library         String

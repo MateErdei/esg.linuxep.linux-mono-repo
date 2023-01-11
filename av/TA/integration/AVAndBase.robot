@@ -971,6 +971,16 @@ Scheduled Scan Can Work Despite Specified Log File Being Read-Only
     check_log_does_not_contain_after_mark  ${CLOUDSCAN_LOG_PATH}  Detected "${NORMAL_DIRECTORY}/${file_name}" is infected with EICAR-AV-Test  ${scheduledscanmark}
     Wait Until AV Plugin Log Contains Detection Name And Path After Mark  ${avmark}  EICAR-AV-Test  /tmp_test/${file_name}
 
-AV Does Not Fall Over When Failing To Write OA Config File
+AV Does Not Fall Over When OA Config Is Read Only
     [Tags]  FAULT INJECTION
 
+    ${avmark} =  get_av_log_mark
+
+    Wait Until Created   ${AV_VAR_DIR}/on_access_policy.json  timeout=10sec
+
+    Run  chmod 444 '${AV_VAR_DIR}/on_access_policy.json'
+
+    ${result} =  Run Process  ls  -l  ${AV_VAR_DIR}/on_access_policy.json
+    Log  New permissions: ${result.stdout}
+
+    Send Policies to enable on-access
