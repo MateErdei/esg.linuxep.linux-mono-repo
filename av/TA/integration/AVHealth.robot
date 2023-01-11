@@ -266,7 +266,7 @@ Clean Scan Now Result Does Not Reset Threat Health
     Create File     /tmp_test/naughty_eicar    ${EICAR_STRING}
 
     Mark AV Log
-    Configure and check scan now with offset
+    Configure and run scan now
     Wait Until AV Plugin Log Contains With Offset  Completed scan  timeout=180
     AV Plugin Log Contains With Offset   Completed scan Scan Now and detected threats
 
@@ -275,7 +275,7 @@ Clean Scan Now Result Does Not Reset Threat Health
     Remove File  /tmp_test/naughty_eicar
 
     Mark AV Log
-    Configure and check scan now with offset
+    Configure and run scan now
     Wait Until AV Plugin Log Contains With Offset  Completed scan  timeout=180
     AV Plugin Log Contains With Offset   Completed scan Scan Now without detecting any threats
 
@@ -287,23 +287,23 @@ Clean Scheduled Scan Result Does Not Resets Threat Health
 
     Create File  /tmp_test/naughty_eicar  ${EICAR_STRING}
 
-    Mark AV Log
+    ${av_mark} =  Get AV Log Mark
     Send Sav Policy With Imminent Scheduled Scan To Base
     File Should Exist  /opt/sophos-spl/base/mcs/policy/SAV-2_policy.xml
-    Wait until scheduled scan updated With Offset
-    Wait Until AV Plugin Log Contains With Offset  Starting scan Sophos Cloud Scheduled Scan  timeout=180
-    Wait Until AV Plugin Log Contains With Offset  Completed scan  timeout=210
+    Wait Until Scheduled Scan Updated After Mark  ${av_mark}
+    Wait For AV Log Contains After Mark  Starting scan Sophos Cloud Scheduled Scan  ${av_mark}  timeout=180
+    Wait For AV Log Contains After Mark  Completed scan  ${av_mark}  timeout=210
 
     Check Threat Health is Reporting Correctly    SUSPICIOUS
 
     Remove File  /tmp_test/naughty_eicar
 
-    Mark AV Log
+    ${av_mark2} =  Get AV Log Mark
     Send Sav Policy With Imminent Scheduled Scan To Base
     File Should Exist  /opt/sophos-spl/base/mcs/policy/SAV-2_policy.xml
-    Wait until scheduled scan updated With Offset
-    Wait Until AV Plugin Log Contains With Offset  Starting scan Sophos Cloud Scheduled Scan  timeout=180
-    Wait Until AV Plugin Log Contains With Offset  Completed scan  timeout=210
+    Wait Until Scheduled Scan Updated After Mark  ${av_mark2}
+    Wait For AV Log Contains After Mark  Starting scan Sophos Cloud Scheduled Scan  ${av_mark2}  timeout=180
+    Wait For AV Log Contains After Mark  Completed scan  ${av_mark2}  timeout=210
 
     Check Threat Health is Reporting Correctly    SUSPICIOUS
 

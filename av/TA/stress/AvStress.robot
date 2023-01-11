@@ -17,7 +17,7 @@ Test Teardown   AV And Base Teardown
 AV plugin runs scan now and completes
      Create EICAR files  1000  /tmp_test/stress
      Check Plugin Installed and Running
-     Configure and check scan now with offset
+     Configure and run scan now
      ${result} =  Count AV Log Lines
      Should be true  ${result} > ${1000}
      [Teardown]  Remove Directory  /tmp_test/stress  True

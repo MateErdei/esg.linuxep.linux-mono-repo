@@ -54,9 +54,10 @@ AV Plugin Gets Sxl Lookup Setting From SAV Policy
     ${susiStartupSettingsChrootFile} =   Set Variable   ${AV_PLUGIN_PATH}/chroot${SUSI_STARTUP_SETTINGS_FILE}
     Remove Files   ${SUSI_STARTUP_SETTINGS_FILE}   ${susiStartupSettingsChrootFile}
 
+    ${av_mark} =  Get AV Log Mark
     ${policyContent} =   Get SAV Policy   sxlLookupEnabled=false
     send av policy  ${SAV_APPID}  ${policyContent}
-    Wait until scheduled scan updated With Offset
+    Wait Until Scheduled Scan Updated After Mark  ${av_mark}
 
     wait_for_log_contains_after_last_restart  ${AV_LOG_PATH}  SAV policy received for the first time.
     Wait Until Created   ${SUSI_STARTUP_SETTINGS_FILE}   timeout=5sec
@@ -249,6 +250,7 @@ AV Plugin Can Exclude Filepaths From Scheduled Scans
     # Remove the scan log so later tests don't fail due to this step
     register late cleanup  Remove File  ${myscan_log}
 
+    ${av_mark} =  Get AV Log Mark
     ${currentTime} =  Get Current Date
     ${scanTime} =  Add Time To Date  ${currentTime}  60 seconds  result_format=%H:%M:%S
     ${schedule} =  Set Variable  <schedule><daySet><day>monday</day><day>tuesday</day><day>wednesday</day><day>thursday</day><day>friday</day><day>saturday</day><day>sunday</day></daySet><timeSet><time>${scanTime}</time></timeSet></schedule>
@@ -257,9 +259,9 @@ AV Plugin Can Exclude Filepaths From Scheduled Scans
     ${scanSet} =  Set Variable  <onDemandScan>${exclusions}<scanSet><scan><name>MyScan</name>${schedule}<settings><scanObjectSet><CDDVDDrives>false</CDDVDDrives><hardDrives>true</hardDrives><networkDrives>false</networkDrives><removableDrives>false</removableDrives></scanObjectSet></settings></scan></scanSet></onDemandScan>
     ${policyContent} =  Set Variable  <?xml version="1.0"?><config xmlns="http://www.sophos.com/EE/EESavConfiguration"><csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/>${scanSet}</config>
     send av policy  ${SAV_APPID}  ${policyContent}
-    Wait until scheduled scan updated With Offset
+    Wait until scheduled scan updated After Mark  ${av_mark}
 
-    Wait Until AV Plugin Log Contains  Completed scan MyScan  timeout=240  interval=5
+    Wait For AV Log Contains After Mark  Completed scan MyScan  ${av_mark}  timeout=240
     AV Plugin Log Contains  Starting scan MyScan
 
     # Thread Detector should still be running:
@@ -528,6 +530,7 @@ Test Remote Share
     ${allButTmp} =  Configure Scan Exclusions Everything Else  /testmnt/
     ${exclusions} =  Set Variable  <posixExclusions><filePathSet>${allButTmp}</filePathSet></posixExclusions>
 
+    ${av_mark} =  Get AV Log Mark
     ${currentTime} =  Get Current Date
     ${scanTime} =  Add Time To Date  ${currentTime}  15 seconds  result_format=%H:%M:%S
     ${schedule} =  Set Variable  <schedule>${POLICY_7DAYS}<timeSet><time>${scanTime}</time></timeSet></schedule>
@@ -535,10 +538,10 @@ Test Remote Share
     ${scanSet} =  Set Variable  <onDemandScan>${exclusions}<scanSet><scan><name>${remoteFSscanningDisabled}</name>${schedule}<settings>${scanObjectSet}</settings></scan></scanSet></onDemandScan>
     ${policyContent} =  Set Variable  <?xml version="1.0"?><config xmlns="http://www.sophos.com/EE/EESavConfiguration"><csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/>${scanSet}</config>
     send av policy  ${SAV_APPID}  ${policyContent}
-    Wait until scheduled scan updated With Offset
-    Wait Until AV Plugin Log Contains With Offset  Starting scan ${remoteFSscanningDisabled}  timeout=120  interval=5
+    Wait Until Scheduled Scan Updated After Mark  ${av_mark}
+    Wait For AV Log Contains After Mark  Starting scan ${remoteFSscanningDisabled}  ${av_mark}  timeout=120
     Require Sophos Threat Detector Running
-    Wait Until AV Plugin Log Contains With Offset  Completed scan ${remoteFSscanningDisabled}  timeout=240  interval=5
+    Wait For AV Log Contains After Mark  Completed scan ${remoteFSscanningDisabled}  ${av_mark}  timeout=240
     File Should Exist  ${remoteFSscanningDisabled_log}
     File Log Should Not Contain  ${remoteFSscanningDisabled_log}  "${destination}/eicar.com" is infected with EICAR
 
@@ -551,8 +554,8 @@ Test Remote Share
     ${policyContent} =  Set Variable  <?xml version="1.0"?><config xmlns="http://www.sophos.com/EE/EESavConfiguration"><csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/>${scanSet}</config>
     send av policy  ${SAV_APPID}  ${policyContent}
 
-    Wait Until AV Plugin Log Contains With Offset  Starting scan ${remoteFSscanningEnabled}  timeout=120  interval=5
+    Wait For AV Log Contains After Mark  Starting scan ${remoteFSscanningEnabled}  ${av_mark}  timeout=120
     Require Sophos Threat Detector Running
-    Wait Until AV Plugin Log Contains With Offset  Completed scan ${remoteFSscanningEnabled}  timeout=240  interval=5
+    Wait For AV Log Contains After Mark  Completed scan ${remoteFSscanningEnabled}  ${av_mark}  timeout=240
     File Should Exist  ${remoteFSscanningEnabled_log}
     File Log Contains  ${remoteFSscanningEnabled_log}  "${destination}/eicar.com" is infected with EICAR

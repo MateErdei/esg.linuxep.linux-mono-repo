@@ -147,7 +147,7 @@ Scan Now Increments Telemetry Threat Eicar And Scan Now Count
     Create File  ${dirtyfile}  ${EICAR_STRING}
     Register Cleanup  Remove File  ${dirtyfile}
 
-    Configure and check scan now with offset
+    Configure and run scan now
 
     Run Telemetry Executable With HTTPS Protocol  port=${4435}
 
@@ -172,7 +172,7 @@ Scan Now Increments Telemetry Threat And Scan Now Count
     DeObfuscate File  ${RESOURCES_PATH}/file_samples_obfuscated/MLengHighScore.exe  /tmp_test/MLengHighScore-excluded.exe
     Register Cleanup  Remove File  /tmp_test/MLengHighScore-excluded.exe
 
-    Configure and check scan now with offset
+    Configure and run scan now
 
     Run Telemetry Executable With HTTPS Protocol  port=${4435}
 

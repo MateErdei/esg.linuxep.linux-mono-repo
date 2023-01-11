@@ -96,12 +96,33 @@ AV Plugin sends non-zero processInfo to Telemetry
     Should Not Be Equal As Integers  ${memUsage}  ${0}
     Should Be True  ${0} < ${processAge} < ${10}
 
+
+AV Plugin Scan Now Updates Telemetry Count
+    # Run telemetry to reset counters to 0
+    Run Telemetry Executable With HTTPS Protocol  port=${4435}
+
+    # run a scan, count should increase to 1
+    Configure and run scan now
+
+    Run Telemetry Executable With HTTPS Protocol    port=${4421}
+
+    ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
+    Log   ${telemetryFileContents}
+
+    ${telemetryJson}=    Evaluate     json.loads("""${telemetryFileContents}""")    json
+    ${avDict}=    Set Variable     ${telemetryJson['av']}
+
+    Dictionary Should Contain Item   ${avDict}   scan-now-count   ${1}
+
+    av_log_contains_only_one_no_saved_telemetry_per_start
+
+
 AV plugin Saves and Restores Scan Now Counter
     # Run telemetry to reset counters to 0
     Run Telemetry Executable With HTTPS Protocol    port=${4433}
 
     # run a scan, count should increase to 1
-    Configure and check scan now with offset
+    Configure and run scan now
 
     Stop AV Plugin
 
@@ -137,7 +158,7 @@ AV plugin increments Scan Now Counter after Save and Restore
     Run Telemetry Executable With HTTPS Protocol  port=${4435}
 
     # run a scan, count should increase to 1
-    Configure and check scan now with offset
+    Configure and run scan now
 
     Stop AV Plugin
 
@@ -155,7 +176,7 @@ AV plugin increments Scan Now Counter after Save and Restore
     Start AV Plugin
 
     # run a scan, count should increase to 1
-    Configure and check scan now with offset
+    Configure and run scan now
 
     Run Telemetry Executable With HTTPS Protocol  port=${4435}
 
