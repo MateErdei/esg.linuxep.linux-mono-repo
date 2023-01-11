@@ -1,6 +1,6 @@
 // Copyright 2022, Sophos Limited.  All rights reserved.
 
-#include "../../common/LogInitializedTests.h"
+#include "../../common/MemoryAppender.h"
 #include "sophos_threat_detector/sophosthreatdetectorimpl/SafeStoreRescanWorker.h"
 
 #include "Common/FileSystem/IFileSystemException.h"
@@ -14,13 +14,21 @@ using namespace testing;
 
 namespace
 {
-    class TestSafeStoreRescanWorker : public LogInitializedTests
+    class TestSafeStoreRescanWorker : public MemoryAppenderUsingTests
     {
+    public:
+        TestSafeStoreRescanWorker() :  MemoryAppenderUsingTests("SophosThreatDetectorImpl")
+        {}
+
         void SetUp() override
         {
             auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
             appConfig.setData("PLUGIN_INSTALL", "/tmp/TestSafeStoreRescanWorker");
+
+            m_mockFileSystem = std::make_unique<StrictMock<MockFileSystem>>();
         }
+
+        std::unique_ptr<StrictMock<MockFileSystem>> m_mockFileSystem;
     };
 
     class TestableWorker : public SafeStoreRescanWorker
@@ -42,13 +50,12 @@ namespace
 
 TEST_F(TestSafeStoreRescanWorker, testExitsOnDestructDuringWait) 
 {
-    testing::internal::CaptureStderr();
-    auto* filesystemMock = new StrictMock<MockFileSystem>();
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(
-        filesystemMock) };
+    UsingMemoryAppender memoryAppenderHolder(*this);
 
-    EXPECT_CALL(*filesystemMock, exists(_)).WillOnce(Return(true));
-    EXPECT_CALL(*filesystemMock, readFile(_)).WillOnce(Return("10"));
+    EXPECT_CALL(*m_mockFileSystem, exists(_)).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockFileSystem, readFile(_)).WillOnce(Return("10"));
+
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(m_mockFileSystem) };
 
     bool haveIBeenCalled = false;
     {
@@ -57,27 +64,24 @@ TEST_F(TestSafeStoreRescanWorker, testExitsOnDestructDuringWait)
         sleep(1);
     }
 
-    std::string logMessage = internal::GetCapturedStderr();
-    ASSERT_THAT(
-        logMessage,
-        ::testing::HasSubstr("SafeStore Rescan Worker interval setting file found -- attempting to parse."));
-    ASSERT_THAT(logMessage, ::testing::HasSubstr("Setting rescan interval to: 10 seconds"));
-    ASSERT_THAT(logMessage, ::testing::HasSubstr("SafeStore Rescan socket path: \"no socket\""));
-    ASSERT_THAT(logMessage, ::testing::HasSubstr("SafeStore Rescan interval: 10"));
-    ASSERT_THAT(logMessage, ::testing::HasSubstr("SafeStoreRescanWorker stop requested"));
-    ASSERT_THAT(logMessage, ::testing::HasSubstr("Exiting SafeStoreRescanWorker"));
-    ASSERT_FALSE(haveIBeenCalled);
+    EXPECT_TRUE(appenderContains("SafeStore Rescan Worker interval setting file found -- attempting to parse."));
+    EXPECT_TRUE(appenderContains("Setting rescan interval to: 10 seconds"));
+    EXPECT_TRUE(appenderContains("SafeStore Rescan socket path: \"no socket\""));
+    EXPECT_TRUE(appenderContains("SafeStore Rescan interval: 10"));
+    EXPECT_TRUE(appenderContains("SafeStoreRescanWorker stop requested"));
+    EXPECT_TRUE(appenderContains("Exiting SafeStoreRescanWorker"));
+
+    EXPECT_FALSE(haveIBeenCalled);
 }
 
 TEST_F(TestSafeStoreRescanWorker, testTriggerRescan) 
 {
-    testing::internal::CaptureStderr();
-    auto* filesystemMock = new StrictMock<MockFileSystem>();
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(
-        filesystemMock) };
+    UsingMemoryAppender memoryAppenderHolder(*this);
 
-    EXPECT_CALL(*filesystemMock, exists(_)).WillOnce(Return(true));
-    EXPECT_CALL(*filesystemMock, readFile(_)).WillOnce(Return("10"));
+    EXPECT_CALL(*m_mockFileSystem, exists(_)).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockFileSystem, readFile(_)).WillOnce(Return("10"));
+
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(m_mockFileSystem) };
 
     bool haveIBeenCalled = false;
     TestableWorker testWorker("no socket", haveIBeenCalled);
@@ -85,139 +89,121 @@ TEST_F(TestSafeStoreRescanWorker, testTriggerRescan)
     testWorker.triggerRescan();
     sleep(1);
 
-    std::string logMessage = internal::GetCapturedStderr();
-    ASSERT_THAT(
-        logMessage,
-        ::testing::HasSubstr("SafeStore Rescan Worker interval setting file found -- attempting to parse."));
-    ASSERT_THAT(logMessage, ::testing::HasSubstr("Setting rescan interval to: 10 seconds"));
-    ASSERT_THAT(logMessage, ::testing::HasSubstr("SafeStore Rescan socket path: \"no socket\""));
-    ASSERT_THAT(logMessage, ::testing::HasSubstr("SafeStore Rescan interval: 10"));
-    ASSERT_TRUE(haveIBeenCalled);
+    EXPECT_TRUE(appenderContains("SafeStore Rescan Worker interval setting file found -- attempting to parse."));
+    EXPECT_TRUE(appenderContains("Setting rescan interval to: 10 seconds"));
+    EXPECT_TRUE(appenderContains("SafeStore Rescan socket path: \"no socket\""));
+    EXPECT_TRUE(appenderContains("SafeStore Rescan interval: 10"));
+
+    EXPECT_TRUE(haveIBeenCalled);
 }
 
 TEST_F(TestSafeStoreRescanWorker, timeOutTriggersRescan) 
 {
-    testing::internal::CaptureStderr();
-    auto* filesystemMock = new StrictMock<MockFileSystem>();
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(
-        filesystemMock) };
+    UsingMemoryAppender memoryAppenderHolder(*this);
 
-    EXPECT_CALL(*filesystemMock, exists(_)).WillOnce(Return(true));
-    EXPECT_CALL(*filesystemMock, readFile(_)).WillOnce(Return("1"));
+    EXPECT_CALL(*m_mockFileSystem, exists(_)).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockFileSystem, readFile(_)).WillOnce(Return("1"));
+
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(m_mockFileSystem) };
 
     bool haveIBeenCalled = false;
     TestableWorker testWorker("no socket", haveIBeenCalled);
     testWorker.start();
     sleep(3);
 
-    std::string logMessage = internal::GetCapturedStderr();
-    ASSERT_THAT(
-        logMessage,
-        ::testing::HasSubstr("SafeStore Rescan Worker interval setting file found -- attempting to parse."));
-    ASSERT_THAT(logMessage, ::testing::HasSubstr("Setting rescan interval to: 1 seconds"));
-    ASSERT_THAT(logMessage, ::testing::HasSubstr("SafeStore Rescan socket path: \"no socket\""));
-    ASSERT_THAT(logMessage, ::testing::HasSubstr("SafeStore Rescan interval: 1"));
-    ASSERT_TRUE(haveIBeenCalled);
+    EXPECT_TRUE(appenderContains("SafeStore Rescan Worker interval setting file found -- attempting to parse."));
+    EXPECT_TRUE(appenderContains("Setting rescan interval to: 1 seconds"));
+    EXPECT_TRUE(appenderContains("SafeStore Rescan socket path: \"no socket\""));
+    EXPECT_TRUE(appenderContains("SafeStore Rescan interval: 1"));
+
+    EXPECT_TRUE(haveIBeenCalled);
 }
 
 TEST_F(TestSafeStoreRescanWorker, parseIntervalConfigUseDefaultIfConfigDoesntExist) 
 {
-    testing::internal::CaptureStderr();
-    auto* filesystemMock = new StrictMock<MockFileSystem>();
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(
-        filesystemMock) };
+    UsingMemoryAppender memoryAppenderHolder(*this);
 
-    EXPECT_CALL(*filesystemMock, exists(_)).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFileSystem, exists(_)).WillOnce(Return(false));
+
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(m_mockFileSystem) };
 
     bool haveIBeenCalled = false;
     TestableWorker testWorker("no socket", haveIBeenCalled);
     testWorker.start();
     sleep(1);
 
-    std::string logMessage = internal::GetCapturedStderr();
-    ASSERT_THAT(
-        logMessage,
-        Not(::testing::HasSubstr("SafeStore Rescan Worker interval setting file found -- attempting to parse.")));
-    ASSERT_THAT(logMessage, ::testing::HasSubstr("SafeStore Rescan socket path: \"no socket\""));
-    ASSERT_THAT(logMessage, ::testing::HasSubstr("SafeStore Rescan interval: 14400"));
-    ASSERT_FALSE(haveIBeenCalled);
+    EXPECT_FALSE(appenderContains("SafeStore Rescan Worker interval setting file found -- attempting to parse."));
+    EXPECT_TRUE(appenderContains("SafeStore Rescan socket path: \"no socket\""));
+    EXPECT_TRUE(appenderContains("SafeStore Rescan interval: 14400"));
+
+    EXPECT_FALSE(haveIBeenCalled);
 }
 
 TEST_F(TestSafeStoreRescanWorker, parseIntervalConfigHandlesFileReadException) 
 {
-    testing::internal::CaptureStderr();
-    auto* filesystemMock = new StrictMock<MockFileSystem>();
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(
-        filesystemMock) };
+    UsingMemoryAppender memoryAppenderHolder(*this);
 
-    EXPECT_CALL(*filesystemMock, exists(_)).WillOnce(Return(true));
-    EXPECT_CALL(*filesystemMock, readFile(_)).WillOnce(Throw(Common::FileSystem::IFileSystemException("TEST")));
+    EXPECT_CALL(*m_mockFileSystem, exists(_)).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockFileSystem, readFile(_)).WillOnce(Throw(Common::FileSystem::IFileSystemException("TEST")));
+
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(m_mockFileSystem) };
 
     bool haveIBeenCalled = false;
     TestableWorker testWorker("no socket", haveIBeenCalled);
     testWorker.start();
     sleep(1);
 
-    std::string logMessage = internal::GetCapturedStderr();
-    ASSERT_THAT(
-        logMessage,
-        ::testing::HasSubstr("SafeStore Rescan Worker interval setting file found -- attempting to parse."));
-    ASSERT_THAT(logMessage, ::testing::HasSubstr("Could not read rescanInterval file due to: TEST"));
-    ASSERT_THAT(logMessage, ::testing::HasSubstr("Setting rescan interval to default 4 hours"));
-    ASSERT_THAT(logMessage, ::testing::HasSubstr("SafeStore Rescan socket path: \"no socket\""));
-    ASSERT_THAT(logMessage, ::testing::HasSubstr("SafeStore Rescan interval: 14400"));
-    ASSERT_FALSE(haveIBeenCalled);
+    EXPECT_TRUE(appenderContains("SafeStore Rescan Worker interval setting file found -- attempting to parse."));
+    EXPECT_TRUE(appenderContains("Could not read rescanInterval file due to: TEST"));
+    EXPECT_TRUE(appenderContains("Setting rescan interval to default 4 hours"));
+    EXPECT_TRUE(appenderContains("SafeStore Rescan socket path: \"no socket\""));
+    EXPECT_TRUE(appenderContains("SafeStore Rescan interval: 14400"));
+
+    EXPECT_FALSE(haveIBeenCalled);
 }
 
 TEST_F(TestSafeStoreRescanWorker, parseIntervalConfigHandlesNonIntegerContent) 
 {
-    testing::internal::CaptureStderr();
-    auto* filesystemMock = new StrictMock<MockFileSystem>();
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(
-        filesystemMock) };
+    UsingMemoryAppender memoryAppenderHolder(*this);
 
-    EXPECT_CALL(*filesystemMock, exists(_)).WillOnce(Return(true));
-    EXPECT_CALL(*filesystemMock, readFile(_)).WillOnce(Return("One second please"));
+    EXPECT_CALL(*m_mockFileSystem, exists(_)).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockFileSystem, readFile(_)).WillOnce(Return("One second please"));
+
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(m_mockFileSystem) };
 
     bool haveIBeenCalled = false;
     TestableWorker testWorker("no socket", haveIBeenCalled);
     testWorker.start();
     sleep(1);
 
-    std::string logMessage = internal::GetCapturedStderr();
-    ASSERT_THAT(
-        logMessage,
-        ::testing::HasSubstr("SafeStore Rescan Worker interval setting file found -- attempting to parse."));
-    ASSERT_THAT(
-        logMessage, ::testing::HasSubstr("Error parsing integer for rescan interval setting: One second please"));
-    ASSERT_THAT(logMessage, ::testing::HasSubstr("Setting rescan interval to default 4 hours"));
-    ASSERT_THAT(logMessage, ::testing::HasSubstr("SafeStore Rescan socket path: \"no socket\""));
-    ASSERT_THAT(logMessage, ::testing::HasSubstr("SafeStore Rescan interval: 14400"));
-    ASSERT_FALSE(haveIBeenCalled);
+    EXPECT_TRUE(appenderContains("SafeStore Rescan Worker interval setting file found -- attempting to parse."));
+    EXPECT_TRUE(appenderContains("Error parsing integer for rescan interval setting: One second please"));
+    EXPECT_TRUE(appenderContains("Setting rescan interval to default 4 hours"));
+    EXPECT_TRUE(appenderContains("SafeStore Rescan socket path: \"no socket\""));
+    EXPECT_TRUE(appenderContains("SafeStore Rescan interval: 14400"));
+
+    EXPECT_FALSE(haveIBeenCalled);
 }
 
 TEST_F(TestSafeStoreRescanWorker, parseIntervalConfigHandlesLessThanOneInteger) 
 {
-    testing::internal::CaptureStderr();
-    auto* filesystemMock = new StrictMock<MockFileSystem>();
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(
-        filesystemMock) };
+    UsingMemoryAppender memoryAppenderHolder(*this);
 
-    EXPECT_CALL(*filesystemMock, exists(_)).WillOnce(Return(true));
-    EXPECT_CALL(*filesystemMock, readFile(_)).WillOnce(Return("-1"));
+    EXPECT_CALL(*m_mockFileSystem, exists(_)).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockFileSystem, readFile(_)).WillOnce(Return("-1"));
+
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(m_mockFileSystem) };
 
     bool haveIBeenCalled = false;
     TestableWorker testWorker("no socket", haveIBeenCalled);
     testWorker.start();
     sleep(1);
 
-    std::string logMessage = internal::GetCapturedStderr();
-    ASSERT_THAT(
-        logMessage,
-        ::testing::HasSubstr("SafeStore Rescan Worker interval setting file found -- attempting to parse."));
-    ASSERT_THAT(logMessage, ::testing::HasSubstr("Rescan interval cannot be less than 1. Value found: -1"));
-    ASSERT_THAT(logMessage, ::testing::HasSubstr("Setting rescan interval to default 4 hours"));
-    ASSERT_THAT(logMessage, ::testing::HasSubstr("SafeStore Rescan socket path: \"no socket\""));
-    ASSERT_THAT(logMessage, ::testing::HasSubstr("SafeStore Rescan interval: 14400"));
-    ASSERT_FALSE(haveIBeenCalled);
+    EXPECT_TRUE(appenderContains("SafeStore Rescan Worker interval setting file found -- attempting to parse."));
+    EXPECT_TRUE(appenderContains("Rescan interval cannot be less than 1. Value found: -1"));
+    EXPECT_TRUE(appenderContains("Setting rescan interval to default 4 hours"));
+    EXPECT_TRUE(appenderContains("SafeStore Rescan socket path: \"no socket\""));
+    EXPECT_TRUE(appenderContains("SafeStore Rescan interval: 14400"));
+
+    EXPECT_FALSE(haveIBeenCalled);
 }
