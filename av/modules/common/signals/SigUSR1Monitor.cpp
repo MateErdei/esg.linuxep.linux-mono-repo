@@ -31,6 +31,7 @@ namespace common::signals
         : SignalHandlerBase(SIGUSR1),
         m_reloader(std::move(reloadable))
     {
+        LOGINFO("Starting USR1 monitor");
         // Setup signal handler
         GL_USR1_MONITOR_PIPE = setSignalHandler(common::signals::signal_handler<GL_USR1_MONITOR_PIPE>, true);
     }

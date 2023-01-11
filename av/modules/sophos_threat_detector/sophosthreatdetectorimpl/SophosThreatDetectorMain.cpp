@@ -36,6 +36,8 @@
 #include <sys/prctl.h>
 #include <zlib.h>
 
+using namespace std::chrono_literals;
+
 namespace sspl::sophosthreatdetectorimpl
 {
     namespace fs = sophos_filesystem;
@@ -355,12 +357,13 @@ namespace sspl::sophosthreatdetectorimpl
     int SophosThreatDetectorMain::inner_main(const IThreatDetectorResourcesSharedPtr& resources)
     {
         m_sysCallWrapper = resources->createSystemCallWrapper();
+        assert(m_sysCallWrapper);
 
-        using namespace std::chrono_literals;
         auto processForceExitTimer = std::make_shared<ProcessForceExitTimer>(10s, m_sysCallWrapper);
         common::ThreadRunner processForceExitTimerThread(processForceExitTimer, "processForceExitTimer", false);
 
-        auto sigTermMonitor = resources->createSignalHandler(true);
+        auto sigTermMonitor = resources->createSigTermHandler(true);
+        assert(sigTermMonitor);
 
         // Ignore SIGPIPE. send*() or write() on a broken pipe will now fail with errno=EPIPE rather than crash.
         struct sigaction ignore {};
@@ -455,14 +458,15 @@ namespace sspl::sophosthreatdetectorimpl
         auto pidLock = resources->createPidLockFile(lockfile);
 
         auto threatReporter = resources->createThreatReporter(threat_reporter_socket(pluginInstall));
-
+        assert(threatReporter);
         auto shutdownTimer = resources->createShutdownTimer(threat_detector_config(pluginInstall));
+        assert(shutdownTimer);
 
         m_updateCompleteNotifier = resources->createUpdateCompleteNotifier(updateCompletePath, 0700);
-
         common::ThreadRunner updateCompleteNotifierThread (m_updateCompleteNotifier, "updateCompleteNotifier", true);
 
         m_scannerFactory = resources->createSusiScannerFactory(threatReporter, shutdownTimer, m_updateCompleteNotifier);
+        assert(m_scannerFactory);
         ScannerFactoryResetter scannerFactoryShutdown(m_scannerFactory);
 
         if (sigTermMonitor->triggered())
@@ -479,21 +483,24 @@ namespace sspl::sophosthreatdetectorimpl
         }
 
         m_reloader = std::make_shared<Reloader>(m_scannerFactory);
+        assert(m_reloader);
 
         auto server = resources->createScanningServerSocket(scanningSocketPath, 0666, m_scannerFactory);
         common::ThreadRunner scanningServerSocketThread (server, "scanningServerSocket", true);
 
-        LOGINFO("Starting USR1 monitor");
-        common::signals::SigUSR1Monitor usr1Monitor(m_reloader); // Create monitor before loading SUSI
+        auto usr1Monitor = resources->createUsr1Monitor(m_reloader);//Todo LINUXDAR-6030 test this: Create monitor before loading SUSI
+        assert(usr1Monitor);
 
-        //Always create processController after m_reloader is initialized
+        ////Todo LINUXDAR-6030 test this: Always create processController after m_reloader is initialized
         fs::path processControllerSocketPath = "/var/process_control_socket";
         std::shared_ptr<ThreatDetectorControlCallbacks> callbacks = std::make_shared<ThreatDetectorControlCallbacks>(*this);
         auto processController = resources->createProcessControllerServerSocket(processControllerSocketPath, 0660, callbacks);
         common::ThreadRunner processControllerSocketThread (processController, "processControllerSocket", true);
 
         m_safeStoreRescanWorker = std::make_shared<SafeStoreRescanWorker>(Plugin::getSafeStoreRescanSocketPath());
-        common::ThreadRunner safeStoreRescanWorkerThread (m_safeStoreRescanWorker, "safestoreRescanWorker", true);
+        //common::ThreadRunner safeStoreRescanWorkerThread (m_safeStoreRescanWorker, "safestoreRescanWorker", true);
+
+        m_safeStoreRescanWorker->start();
 
         int returnCode = common::E_CLEAN_SUCCESS;
 
@@ -502,7 +509,7 @@ namespace sspl::sophosthreatdetectorimpl
         constexpr int SYSTEM_FILE_CHANGE = 2;
         struct pollfd fds[] {
             { .fd = sigTermMonitor->monitorFd(), .events = POLLIN, .revents = 0 },
-            { .fd = usr1Monitor.monitorFd(), .events = POLLIN, .revents = 0 },
+            { .fd = usr1Monitor->monitorFd(), .events = POLLIN, .revents = 0 },
             { .fd = m_systemFileRestartTrigger.readFd(), .events = POLLIN, .revents = 0 },
         };
 
@@ -578,7 +585,7 @@ namespace sspl::sophosthreatdetectorimpl
             if ((fds[USR1_MONITOR].revents & POLLIN) != 0)
             {
                 LOGINFO("Sophos Threat Detector received SIGUSR1 - reloading");
-                usr1Monitor.triggered();
+                usr1Monitor->triggered();
                 // Continue running
             }
 
