@@ -7,6 +7,8 @@ Resource    ../shared/AVResources.robot
 Library         OperatingSystem
 Library         Process
 
+Test Setup      No Operation
+
 *** Test Cases ***
 SafeStoreWrapper Tests
     ${Files} =  List Files In Directory  ${AV_TEST_TOOLS}
