@@ -3,6 +3,7 @@
 #pragma once
 
 #include "common/IPidLockFile.h"
+#include "common/signals/IReloadable.h"
 #include "common/signals/ISignalHandlerBase.h"
 #include "datatypes/ISystemCallWrapper.h"
 #include "datatypes/sophos_filesystem.h"
@@ -20,7 +21,8 @@ namespace sspl::sophosthreatdetectorimpl
     public:
         virtual ~IThreatDetectorResources() = default;
 
-        virtual common::signals::ISignalHandlerSharedPtr createSignalHandler(bool _restartSyscalls) = 0;
+        virtual common::signals::ISignalHandlerSharedPtr createSigTermHandler(bool _restartSyscalls) = 0;
+        virtual common::signals::ISignalHandlerSharedPtr createUsr1Monitor(common::signals::IReloadablePtr _reloadable) = 0;
 
         virtual common::IPidLockFileSharedPtr createPidLockFile(const std::string& _path) = 0;
 
@@ -40,15 +42,15 @@ namespace sspl::sophosthreatdetectorimpl
             (const sophos_filesystem::path _serverPath, mode_t _mode) = 0;
 
         virtual unixsocket::ScanningServerSocketPtr createScanningServerSocket(
-            const std::string& path,
-            mode_t mode,
-            threat_scanner::IThreatScannerFactorySharedPtr scannerFactory
+            const std::string& _path,
+            mode_t _mode,
+            threat_scanner::IThreatScannerFactorySharedPtr _scannerFactory
             ) = 0;
 
         virtual unixsocket::ProcessControllerServerSocketPtr createProcessControllerServerSocket(
-            const std::string& path,
-            mode_t mode,
-            std::shared_ptr<unixsocket::IProcessControlMessageCallback> processControlCallbacks
+            const std::string& _path,
+            mode_t _mode,
+            std::shared_ptr<unixsocket::IProcessControlMessageCallback> _processControlCallbacks
             ) = 0;
     };
     using IThreatDetectorResourcesSharedPtr = std::shared_ptr<IThreatDetectorResources>;

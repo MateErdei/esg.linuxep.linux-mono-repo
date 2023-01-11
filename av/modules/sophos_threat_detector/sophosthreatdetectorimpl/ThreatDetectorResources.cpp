@@ -3,6 +3,7 @@
 #include "ThreatDetectorResources.h"
 
 #include "common/signals/SigTermMonitor.h"
+#include "common/signals/SigUSR1Monitor.h"
 #include "common/PidLockFile.h"
 #include "datatypes/SystemCallWrapperFactory.h"
 #include "sophos_threat_detector/sophosthreatdetectorimpl/ThreatReporter.h"
@@ -12,16 +13,20 @@
 
 using namespace sspl::sophosthreatdetectorimpl;
 
-
 datatypes::ISystemCallWrapperSharedPtr ThreatDetectorResources::createSystemCallWrapper()
 {
     auto sysCallFact = datatypes::SystemCallWrapperFactory();
     return sysCallFact.createSystemCallWrapper();
 }
 
-common::signals::ISignalHandlerSharedPtr ThreatDetectorResources::createSignalHandler(bool restartSyscalls)
+common::signals::ISignalHandlerSharedPtr ThreatDetectorResources::createSigTermHandler(bool _restartSyscalls)
 {
-    return std::make_shared<common::signals::SigTermMonitor>(restartSyscalls);
+    return std::make_shared<common::signals::SigTermMonitor>(_restartSyscalls);
+}
+
+common::signals::ISignalHandlerSharedPtr ThreatDetectorResources::createUsr1Monitor(common::signals::IReloadablePtr _reloadable)
+{
+    return std::make_shared<common::signals::SigUSR1Monitor>(_reloadable);
 }
 
 common::IPidLockFileSharedPtr ThreatDetectorResources::createPidLockFile(const std::string& _path)
@@ -54,19 +59,19 @@ unixsocket::updateCompleteSocket::UpdateCompleteServerSocketPtr ThreatDetectorRe
 }
 
 unixsocket::ScanningServerSocketPtr ThreatDetectorResources::createScanningServerSocket(
-    const std::string& path,
-    mode_t mode,
-    threat_scanner::IThreatScannerFactorySharedPtr scannerFactory
+    const std::string& _path,
+    mode_t _mode,
+    threat_scanner::IThreatScannerFactorySharedPtr _scannerFactory
     )
 {
-    return std::make_shared<unixsocket::ScanningServerSocket>(path, mode, scannerFactory);
+    return std::make_shared<unixsocket::ScanningServerSocket>(_path, _mode, _scannerFactory);
 }
 
 unixsocket::ProcessControllerServerSocketPtr ThreatDetectorResources::createProcessControllerServerSocket(
-    const std::string& path,
-    mode_t mode,
-    std::shared_ptr<unixsocket::IProcessControlMessageCallback> processControlCallbacks
+    const std::string& _path,
+    mode_t _mode,
+    std::shared_ptr<unixsocket::IProcessControlMessageCallback> _processControlCallbacks
     )
 {
-    return std::make_shared<unixsocket::ProcessControllerServerSocket>(path, mode, processControlCallbacks);
+    return std::make_shared<unixsocket::ProcessControllerServerSocket>(_path, _mode, _processControlCallbacks);
 }

@@ -11,7 +11,8 @@ namespace sspl::sophosthreatdetectorimpl
         public:
             datatypes::ISystemCallWrapperSharedPtr createSystemCallWrapper() override;
 
-            common::signals::ISignalHandlerSharedPtr createSignalHandler(bool _restartSyscalls) override;
+            common::signals::ISignalHandlerSharedPtr createSigTermHandler(bool _restartSyscalls) override;
+            common::signals::ISignalHandlerSharedPtr createUsr1Monitor(common::signals::IReloadablePtr _reloadable) override;
 
             common::IPidLockFileSharedPtr createPidLockFile(const std::string& _path) override;
 
@@ -35,7 +36,7 @@ namespace sspl::sophosthreatdetectorimpl
                 threat_scanner::IThreatScannerFactorySharedPtr scannerFactory
                 ) override;
 
-            virtual unixsocket::ProcessControllerServerSocketPtr createProcessControllerServerSocket(
+            unixsocket::ProcessControllerServerSocketPtr createProcessControllerServerSocket(
                 const std::string& path,
                 mode_t mode,
                 std::shared_ptr<unixsocket::IProcessControlMessageCallback> processControlCallbacks
