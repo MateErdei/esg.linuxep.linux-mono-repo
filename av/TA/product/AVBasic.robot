@@ -75,9 +75,10 @@ AV Plugin Gets ML Lookup Setting From CORE Policy
     check_json_contains  ${json}  machineLearning  ${false}
 
 AV Plugin Can Receive Actions
+    ${av_mark} =  Get AV Log Mark
     ${actionContent} =  Set Variable  <?xml version="1.0"?><a:action xmlns:a="com.sophos/msys/action" type="Test" id="" subtype="TestAction" replyRequired="1"/>
     Send Plugin Action  av  ${SAV_APPID}  corr123  ${actionContent}
-    Wait Until AV Plugin Log Contains With Offset  Received new Action
+    Wait For AV Log Contains After Mark  Received new Action  ${av_mark}
 
 
 AV plugin Can Send Status
@@ -96,15 +97,16 @@ AV plugin Can Send Status
 
 
 AV Plugin Can Process Scan Now
+    ${av_mark} =  Get AV Log Mark
     ${exclusions} =  Configure Scan Exclusions Everything Else  /tmp_test/
     ${policyContent} =  Set Variable  <?xml version="1.0"?><config xmlns="http://www.sophos.com/EE/EESavConfiguration"><csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/><onDemandScan><posixExclusions><filePathSet>${exclusions}</filePathSet></posixExclusions></onDemandScan></config>
     ${actionContent} =  Set Variable  <?xml version="1.0"?><a:action xmlns:a="com.sophos/msys/action" type="ScanNow" id="" subtype="ScanMyComputer" replyRequired="1"/>
     send av policy  ${SAV_APPID}  ${policyContent}
     Send Plugin Action  av  ${SAV_APPID}  corr123  ${actionContent}
-    Wait Until AV Plugin Log Contains With Offset  Completed scan Scan Now  timeout=180  interval=5
-    AV Plugin Log Contains With Offset  Received new Action
-    AV Plugin Log Contains With Offset  Evaluating Scan Now
-    AV Plugin Log Contains With Offset  Starting scan Scan Now
+    Wait For AV Log Contains After Mark  Completed scan Scan Now  ${av_mark}  timeout=180
+    Check AV Log Contains After Mark  Received new Action  ${av_mark}
+    Check AV Log Contains After Mark  Evaluating Scan Now  ${av_mark}
+    Check AV Log Contains After Mark  Starting scan Scan Now  ${av_mark}
     Check ScanNow Log Exists
 
 
@@ -121,7 +123,7 @@ Scheduled Scan Configuration Is Correct
 
 
 Scan Now Excludes Files And Directories As Expected
-    Mark AV Log
+    ${av_mark} =  Get AV Log Mark
     Create Directory  /directory_excluded/
     Create Directory  /file_excluded/
 
@@ -134,7 +136,7 @@ Scan Now Excludes Files And Directories As Expected
 
     Run Scan Now Scan For Excluded Files Test
 
-    Wait Until AV Plugin Log Contains With Offset  Completed scan Scan Now  timeout=240  interval=5
+    Wait For AV Log Contains After Mark  Completed scan Scan Now  ${av_mark}  timeout=240
 
     File Log Contains             ${SCANNOW_LOG_PATH}        Excluding file: /eicar.com
     File Log Contains             ${SCANNOW_LOG_PATH}        "/file_excluded/eicar.com" is infected with EICAR-AV-Test
@@ -144,6 +146,7 @@ Scan Now Excludes Files And Directories As Expected
 
 
 Scan Now Logs Should Be As Expected
+    ${av_mark} =  Get AV Log Mark
     Create Directory  /file_excluded/
 
     Create File  /file_excluded/eicar.com       ${EICAR_STRING}
@@ -152,16 +155,16 @@ Scan Now Logs Should Be As Expected
 
     Run Scan Now Scan For Excluded Files Test
 
-    AV Plugin Log Contains With Offset  Received new Action
-    Wait Until AV Plugin Log Contains With Offset  Evaluating Scan Now
-    Wait Until AV Plugin Log Contains With Offset  Starting scan Scan Now  timeout=10
+    Check AV Log Contains After Mark  Received new Action  ${av_mark}
+    Wait For AV Log Contains After Mark  Evaluating Scan Now  ${av_mark}
+    Wait For AV Log Contains After Mark  Starting scan Scan Now  ${av_mark}  timeout=10
 
-    Wait Until AV Plugin Log Contains With Offset  Completed scan Scan Now  timeout=240  interval=5
+    Wait For AV Log Contains After Mark  Completed scan Scan Now  ${av_mark}  timeout=240
 
     File Log Contains             ${SCANNOW_LOG_PATH}        End of Scan Summary:
     File Log Contains             ${SCANNOW_LOG_PATH}        1 file out of
     File Log Contains             ${SCANNOW_LOG_PATH}        1 EICAR-AV-Test infection discovered.
-    AV Plugin Log Should Not Contain With Offset             Notify trimmed output
+    Check AV Log Does Not Contain After Mark  Notify trimmed output  ${av_mark}
 
 
 
@@ -276,15 +279,17 @@ AV Plugin Can Exclude Filepaths From Scheduled Scans
 
 
 AV Plugin Scan Now Does Not Detect PUA
+    ${av_mark} =  Get AV Log Mark
+    ${scan_now_mark} =  Get Scan Now Log Mark
     Create File      /tmp_test/eicar_pua.com    ${EICAR_PUA_STRING}
 
     Run Scan Now Scan
 
-    Wait Until AV Plugin Log Contains With Offset  Completed scan Scan Now  timeout=240  interval=5
+    Wait For AV Log Contains After Mark  Completed scan Scan Now  ${av_mark}  timeout=240
 
-    AV Plugin Log Does Not Contain With Offset  /tmp_test/eicar_pua.com
+    Check AV Log Does Not Contain After Mark  /tmp_test/eicar_pua.com  ${av_mark}
 
-    File Log Should Not Contain With Offset  ${SCANNOW_LOG_PATH}  "/tmp_test/eicar_pua.com" is infected
+    Check Scan Now Log Does Not Contain After Mark  "/tmp_test/eicar_pua.com" is infected  ${scan_now_mark}
 
     Exclude Scan Now mount point does not exist
 
@@ -302,11 +307,11 @@ AV Plugin Scan Now with Bind Mount
 
     Should Exist      ${destination}/eicar.com
 
+    ${av_mark} =  Get AV Log Mark
     Run Scan Now Scan
-    Wait Until AV Plugin Log Contains With Offset   Completed scan Scan Now   timeout=240   interval=5
+    Wait For AV Log Contains After Mark   Completed scan Scan Now  ${av_mark}  timeout=240
 
-    ${count} =        Count Lines In Log With Offset   ${AV_LOG_PATH}  Found 'EICAR-AV-Test'  ${AV_LOG_MARK}
-    Should Be Equal As Integers  ${1}  ${count}
+    AV Log Contains Multiple Times After Mark  Found 'EICAR-AV-Test'  ${av_mark}  ${1}
 
 
 AV Plugin Scan Now with ISO mount
@@ -320,9 +325,10 @@ AV Plugin Scan Now with ISO mount
     Register Cleanup  Run Shell Process   umount ${destination}   OnError=Failed to release loopback mount
     Should Exist      ${destination}/DIR/subdir/eicar.com
 
+    ${av_mark} =  Get AV Log Mark
     Run Scan Now Scan
-    Wait Until AV Plugin Log Contains With Offset  Completed scan Scan Now   timeout=240   interval=5
-    AV Plugin Log Contains With Offset  Found 'EICAR-AV-Test' in '/tmp_test/iso_mount/DIR/subdir/eicar.com'
+    Wait For AV Log Contains After Mark  Completed scan Scan Now   ${av_mark}  timeout=240
+    Check AV Log Contains After Mark  Found 'EICAR-AV-Test' in '${destination}/DIR/subdir/eicar.com'   ${av_mark}
 
 AV Plugin Scan two mounts same inode numbers
     # Mount two copies of the same iso file. inode numbers on the mounts will be identical, but device numbers should
@@ -347,10 +353,11 @@ AV Plugin Scan two mounts same inode numbers
     Register Cleanup  Run Shell Process   umount ${destination2}   OnError=Failed to release loopback mount
     Should Exist      ${destination2}/DIR/subdir/eicar.com
 
+    ${av_mark} =  Get AV Log Mark
     Run Scan Now Scan
-    Wait Until AV Plugin Log Contains With Offset  Completed scan Scan Now   timeout=240   interval=5
-    AV Plugin Log Contains With Offset   Found 'EICAR-AV-Test' in '/tmp_test/iso_mount/DIR/subdir/eicar.com'
-    AV Plugin Log Contains With Offset  Found 'EICAR-AV-Test' in '/tmp_test/iso_mount2/DIR/subdir/eicar.com'
+    Wait For AV Log Contains After Mark  Completed scan Scan Now   ${av_mark}  timeout=240
+    Check AV Log Contains After Mark   Found 'EICAR-AV-Test' in '/tmp_test/iso_mount/DIR/subdir/eicar.com'  ${av_mark}
+    Check AV Log Contains After Mark   Found 'EICAR-AV-Test' in '/tmp_test/iso_mount2/DIR/subdir/eicar.com'  ${av_mark}
 
 
 AV Plugin Gets Customer ID
@@ -419,11 +426,13 @@ AV Plugin Scan Now Can Scan Special File That Cannot Be Read
     ${policyContent} =  Set Variable  <?xml version="1.0"?><config xmlns="http://www.sophos.com/EE/EESavConfiguration"><csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/><onDemandScan><posixExclusions><filePathSet>${exclusions}</filePathSet></posixExclusions></onDemandScan></config>
     ${actionContent} =  Set Variable  <?xml version="1.0"?><a:action xmlns:a="com.sophos/msys/action" type="ScanNow" id="" subtype="ScanMyComputer" replyRequired="1"/>
     send av policy  ${SAV_APPID}  ${policyContent}
+
+    ${av_mark} =  Get AV Log Mark
     Send Plugin Action  av  ${SAV_APPID}  corr123  ${actionContent}
-    Wait Until AV Plugin Log Contains With Offset  Completed scan Scan Now  timeout=180  interval=5
-    AV Plugin Log Contains With Offset  Received new Action
-    AV Plugin Log Contains With Offset  Evaluating Scan Now
-    AV Plugin Log Contains With Offset  Starting scan Scan Now
+    Wait For AV Log Contains After Mark  Completed scan Scan Now  ${av_mark}  timeout=180
+    Check AV Log Contains After Mark  Received new Action  ${av_mark}
+    Check AV Log Contains After Mark  Evaluating Scan Now  ${av_mark}
+    Check AV Log Contains After Mark  Starting scan Scan Now  ${av_mark}
     Check ScanNow Log Exists
     File Log Contains  ${SCANNOW_LOG_PATH}  Failed to scan /run/netns/avtest as it could not be read
 

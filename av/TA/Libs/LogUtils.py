@@ -1261,6 +1261,10 @@ File Log Contains
     def check_susi_debug_log_does_not_contain_after_mark(self, not_expected, mark):
         return self.check_log_does_not_contain_after_mark(self.susi_debug_log, not_expected, mark)
 
+    def wait_for_susi_debug_log_contains_after_mark(self, expected: str, mark: LogHandler.LogMark, timeout: int = 10):
+        assert isinstance(mark, LogHandler.LogMark), "mark is not an instance of LogMark in wait_for_susi_debug_log_contains_after_mark"
+        return self.wait_for_log_contains_after_mark(self.susi_debug_log, expected, mark, timeout=timeout)
+
 #####################################################################
 # SafeStore Log
 

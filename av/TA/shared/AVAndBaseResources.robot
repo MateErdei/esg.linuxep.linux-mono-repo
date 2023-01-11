@@ -110,6 +110,7 @@ Configure scan now
 
 Configure scan now with lookups disabled
     ${av_mark} =  Get AV Log Mark
+    ${threat_detector_mark} =  Get Sophos Threat Detector Log Mark
     Send Sav Policy To Base With Exclusions Filled In  SAV_Policy_Scan_Now_Lookup_Disabled.xml
     Wait For AV Log Contains After Mark  Reloading susi as policy configuration has changed  ${av_mark}
     Check AV Log Does Not Contain After Mark  Failed to send shutdown request: Failed to connect to unix socket  ${av_mark}
@@ -117,16 +118,9 @@ Configure scan now with lookups disabled
     # Force SUSI to be loaded:
     Check avscanner can detect eicar
 
-    Wait Until Sophos Threat Detector Log Contains With Offset  SXL Lookups will be disabled   timeout=10
+    Wait For Sophos Threat Detector Log Contains After Mark  SXL Lookups will be disabled   ${threat_detector_mark}  timeout=10
     Run Keyword and Ignore Error  Wait until scheduled scan updated After Mark  ${av_mark}
 
-Check scan now with Offset
-    ${av_mark} =  Get AV Log Mark
-    Register On Fail If Unique  dump log  ${SCANNOW_LOG_PATH}
-    Send Sav Action To Base  ScanNow_Action.xml
-    Wait For AV Log Contains After Mark  Completed scan Scan Now  ${av_mark}  timeout=180
-    Check AV Log Contains After Mark  Evaluating Scan Now  ${av_mark}
-    Check AV Log Contains After Mark  Starting scan Scan Now  ${av_mark}
 
 Run Scan Now After Mark
     [Arguments]  ${av_mark}
@@ -187,11 +181,9 @@ Restart sophos_threat_detector and mark logs
 
 Really Restart sophos_threat_detector and mark logs
     Stop sophos_threat_detector
-    Mark AV Log
-    Mark Sophos Threat Detector Log
-    Mark Susi Debug Log
+    ${threat_detector_mark} =  Get Sophos Threat Detector Log Mark
     Start sophos_threat_detector
-    Wait until threat detector running with offset
+    Wait until threat detector running after mark  ${threat_detector_mark}
 
 Debug Restart sophos_threat_detector Failure
     # do some debug work before killing the stuck watchdog process

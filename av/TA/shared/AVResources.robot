@@ -582,9 +582,11 @@ Check Plugin Installed and Running
     Wait until threat detector running
 
 Check Plugin Installed and Running With Offset
+    ${av_mark} =  Get AV Log Mark
+    ${threat_detector_mark} =  Get Sophos Threat Detector Log Mark
     File Should Exist   ${PLUGIN_BINARY}
-    Wait until AV Plugin running with offset
-    Wait until threat detector running with offset
+    Wait until AV Plugin running after mark  ${av_mark}
+    Wait until threat detector running after mark  ${threat_detector_mark}
 
 Wait until AV Plugin running
     ProcessUtils.wait_for_pid  ${PLUGIN_BINARY}  ${10}
