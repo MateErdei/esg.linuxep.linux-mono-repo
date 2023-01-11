@@ -29,13 +29,13 @@ namespace
                 if (!unixsocket::writeLengthAndBuffer(m_socket_fd.get(), request))
                 {
                     std::stringstream errMsg;
-                    errMsg << "Failed to write Threat Report to socket [" << errno << "]";
+                    errMsg << "Failed to write to to socket [" << errno << "]";
                     throw std::runtime_error(errMsg.str());
                 }
             }
             catch (unixsocket::environmentInterruption& e)
             {
-                std::cerr << "Failed to write to SafeStore Rescan socket. Exception caught: " << e.what();
+                std::cerr << "Failed to write to socket. Exception caught: " << e.what();
             }
         }
         void sendRequestAndFD(std::string request, int fd=0)
@@ -51,7 +51,7 @@ namespace
             }
             catch (unixsocket::environmentInterruption& e)
             {
-                std::cerr << "Failed to write to SafeStore Rescan socket. Exception caught: " << e.what();
+                std::cerr << "Failed to write file descriptor to Threat Reporter socket. Exception caught: " << e.what();
             }
         }
 
