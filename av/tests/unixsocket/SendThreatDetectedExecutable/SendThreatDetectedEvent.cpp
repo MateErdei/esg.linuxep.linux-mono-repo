@@ -1,4 +1,4 @@
-// Copyright 2023 Sophos Limited.  All rights reserved.
+// Copyright 2023, Sophos Limited.  All rights reserved.
 
 #include "modules/scan_messages/ThreatDetected.h"
 #include "tests/unixsocket/TestClient.h"
@@ -8,17 +8,13 @@
 #include <unistd.h>
 #include <iostream>
 #include <fcntl.h>
-#include <getopt.h>
+
 // Generate AV TDO
 //  SendThreatDetectedEvent -p /opt/sophos-spl/plugins/av/var/safestore_socket -f /tmp/testfile -t threatName -s e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
 
 void printUsageAndExit(const std::string name)
 {
-    std::cout << "usage: " << name << std::endl
-        << "--socketpath <socket path>"<< std::endl
-        << "--filepath <file path of threat>" << std::endl
-        << "--sha <sha of threat>" << std::endl
-        << "--threatname <name of threat>" << std::endl;
+    std::cout << "usage: " << name << " [-s <socket path> -f <file path of threat>]" << std::endl;
     exit(EXIT_FAILURE);
 }
 
@@ -34,17 +30,10 @@ int main(int argc, char* argv[])
     std::string sha;
     std::string filePath;
     std::string threatName;
-    const char* const short_opts = "p:t:s:f:";
-    const option long_opts[] = {
-        {"socketpath", required_argument, nullptr, 'p'},
-        {"threatname", required_argument, nullptr, 't'},
-        {"sha", required_argument, nullptr, 's'},
-        {"filepath", required_argument, nullptr, 'f'},
-        {nullptr, no_argument, nullptr, 0}
-    };
+
     int opt = 0;
 
-    while ((opt = getopt_long(argc, argv, short_opts,long_opts, nullptr )) != -1)
+    while ((opt = getopt(argc, argv, "p:t:s:f:")) != -1)
     {
         switch (opt)
         {

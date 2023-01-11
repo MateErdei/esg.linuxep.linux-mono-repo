@@ -109,7 +109,7 @@ target_link_libraries(threatDetectorClientExecutable  PUBLIC
         unixsocket avscannerimpl ${STD_FILESYSTEM_IF_REQUIRED})
 target_include_directories(threatDetectorClientExecutable PUBLIC ${CMAKE_SOURCE_DIR}/modules)
 target_include_directories(threatDetectorClientExecutable SYSTEM PRIVATE ${BOOSTPATH})
-add_subdirectory(sendTDOToSocketExe)
+add_subdirectory(SendThreatDetectedExecutable)
 if (DEFINED ENV{USE_LIBFUZZER})
 SET_TARGET_PROPERTIES( threatDetectorClientExecutable
         threatDetectorServerExecutable

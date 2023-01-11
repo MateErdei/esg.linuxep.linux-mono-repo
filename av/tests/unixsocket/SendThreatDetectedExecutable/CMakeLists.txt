@@ -11,7 +11,7 @@ SET_TARGET_PROPERTIES(SendThreatDetectedEvent
         INSTALL_RPATH "$ORIGIN:$ORIGIN/../../../base/lib64:/opt/sophos-spl/plugins/av/lib64:/opt/sophos-spl/base/lib64")
 
 install(TARGETS SendThreatDetectedEvent
-        DESTINATION ${CMAKE_BINARY_DIR}/tap_test_output
+        DESTINATION ../manualtests
+        PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE
         )
 
-add_dependencies(SendThreatDetectedEvent copy_libs)

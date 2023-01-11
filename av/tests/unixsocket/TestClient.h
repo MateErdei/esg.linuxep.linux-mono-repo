@@ -1,12 +1,11 @@
-#include <iostream>
-#include <sstream>
-#include <cassert>
-#include <string>
-#include <thread>
+// Copyright 2023, Sophos Limited.  All rights reserved.
+
 #include "modules/unixsocket/BaseClient.h"
 #include "modules/unixsocket/SocketUtils.h"
-// Generate AV event
-//  EventPubSub -s /opt/sophos-spl/plugins/av/var/threatEventPublisherSocketPath send
+
+#include <iostream>
+#include <cassert>
+#include <sstream>
 
 namespace
 {
