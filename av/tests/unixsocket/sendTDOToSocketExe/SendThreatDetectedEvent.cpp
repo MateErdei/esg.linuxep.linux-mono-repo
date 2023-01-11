@@ -7,7 +7,7 @@
 #include <Common/ZMQWrapperApi/IContext.h>
 #include <Common/ZeroMQWrapper/ISocketPublisher.h>
 #include <Common/ZeroMQWrapper/ISocketSubscriber.h>
-#include "TestClient.h"
+#include "tests/unixsocket/TestClient.h"
 #include <pwd.h>
 #include <sys/stat.h>
 #include <sys/types.h>

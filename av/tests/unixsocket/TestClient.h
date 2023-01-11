@@ -1,11 +1,12 @@
-// Copyright 2023, Sophos Limited.  All rights reserved.
-
+#include <iostream>
+#include <sstream>
+#include <cassert>
+#include <string>
+#include <thread>
 #include "modules/unixsocket/BaseClient.h"
 #include "modules/unixsocket/SocketUtils.h"
-
-#include <iostream>
-#include <cassert>
-#include <sstream>
+// Generate AV event
+//  EventPubSub -s /opt/sophos-spl/plugins/av/var/threatEventPublisherSocketPath send
 
 namespace
 {
@@ -29,31 +30,14 @@ namespace
                 if (!unixsocket::writeLengthAndBuffer(m_socket_fd.get(), request))
                 {
                     std::stringstream errMsg;
-                    errMsg << "Failed to write to to socket [" << errno << "]";
+                    errMsg << "Failed to write rescan request to socket [" << errno << "]";
                     throw std::runtime_error(errMsg.str());
                 }
             }
             catch (unixsocket::environmentInterruption& e)
             {
-                std::cerr << "Failed to write to socket. Exception caught: " << e.what();
+                std::cerr << "Failed to write to SafeStore Rescan socket. Exception caught: " << e.what();
             }
         }
-        void sendRequestAndFD(std::string request, int fd=0)
-        {
-            assert(m_socket_fd.valid());
-            try
-            {
-                sendRequest(request);
-                if (unixsocket::send_fd(m_socket_fd.get(), fd) < 0)
-                {
-                    throw std::runtime_error("Failed to write file descriptor to Threat Reporter socket");
-                }
-            }
-            catch (unixsocket::environmentInterruption& e)
-            {
-                std::cerr << "Failed to write file descriptor to Threat Reporter socket. Exception caught: " << e.what();
-            }
-        }
-
     };
 } // namespace
