@@ -7,24 +7,11 @@ Resource    ../shared/AVResources.robot
 Library         OperatingSystem
 Library         Process
 
-Test Setup     SafeStoreWrapper Test Setup
-Test Teardown  SafeStoreWrapper Test Teardown
-
-*** Keywords ***
-
-SafeStoreWrapper Test Setup
-    Set Suite Variable  ${safestore_unpacked}  /tmp/safestorewrapper
-    Unpack SafeStore Tools To  ${safestore_unpacked}
-
-SafeStoreWrapper Test Teardown
-    Remove Directory    ${safestore_unpacked}   recursive=True
-
 *** Test Cases ***
-
 SafeStoreWrapper Tests
-    ${Files} =  List Files In Directory  ${safestore_unpacked}
+    ${Files} =  List Files In Directory  ${AV_TEST_TOOLS}
     log  ${Files}
-    ${safestore_tests_binary} =   Set Variable  ${safestore_unpacked}/tap_test_output/SafeStoreTapTests
+    ${safestore_tests_binary} =   Set Variable  ${AV_TEST_TOOLS}/SafeStoreTapTests
     ${result} =   Run Process   ${safestore_tests_binary}
     Log  ${result.stdout}
     Log  ${result.stderr}
