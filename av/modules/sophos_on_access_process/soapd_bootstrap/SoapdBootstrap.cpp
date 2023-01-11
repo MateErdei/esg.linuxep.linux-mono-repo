@@ -169,13 +169,13 @@ void SoapdBootstrap::innerRun()
 
     ProcessPolicy();
 
-    std::timespec timeout{};
+    timespec timeout{};
     timeout.tv_nsec = 0;
     timeout.tv_sec = 60;
 
     while (true)
     {
-        std::timespec* timeoutPtr = nullptr;
+        timespec* timeoutPtr = nullptr;
         if (m_currentOaEnabledState && m_localSettings.highPriorityThreatDetector)
         {
             timeoutPtr = &timeout;
