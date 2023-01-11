@@ -1,8 +1,9 @@
-// Copyright 2022, Sophos Limited.  All rights reserved.
+// Copyright 2022-2023, Sophos Limited.  All rights reserved.
 
 #pragma once
 
 #include "OnAccessConfigurationUtils.h"
+#include "OnAccessStatusFile.h"
 #include "OnAccessServiceImpl.h"
 
 #include "common/ThreadRunner.h"
@@ -10,6 +11,7 @@
 #include "mount_monitor/mountinfoimpl/DeviceUtil.h"
 #include "sophos_on_access_process/fanotifyhandler/EventReaderThread.h"
 #include "sophos_on_access_process/fanotifyhandler/IFanotifyHandler.h"
+#include "sophos_on_access_process/local_settings/OnAccessLocalSettings.h"
 #include "sophos_on_access_process/onaccessimpl/OnAccessTelemetryUtility.h"
 #include "sophos_on_access_process/onaccessimpl/ScanRequestQueue.h"
 
@@ -40,12 +42,11 @@ namespace sophos_on_access_process::soapd_bootstrap
 
         void innerRun();
 
+        // these two methods are not thread safe, but are only called from ProcessPolicy and innerRun (after stopping the policy handler)
         void enableOnAccess();
         void disableOnAccess();
 
-        OnAccessConfig::OnAccessConfiguration getPolicyConfiguration();
-
-        datatypes::ISystemCallWrapperSharedPtr m_systemCallWrapper;
+        bool getPolicyConfiguration(sophos_on_access_process::OnAccessConfig::OnAccessConfiguration& oaConfig);
 
         std::unique_ptr<common::ThreadRunner> m_eventReaderThread;
         std::shared_ptr<fanotifyhandler::IFanotifyHandler> m_fanotifyHandler;
@@ -55,8 +56,7 @@ namespace sophos_on_access_process::soapd_bootstrap
         std::mutex m_pendingConfigActionMutex;
         std::atomic_bool m_currentOaEnabledState = false;
 
-        int m_maxNumberOfScanThreads = 0;
-        bool m_dumpPerfData = false;
+        sophos_on_access_process::local_settings::OnAccessLocalSettings m_localSettings;
 
         std::shared_ptr<onaccessimpl::ScanRequestQueue> m_scanRequestQueue;
         std::vector<std::shared_ptr<common::ThreadRunner>> m_scanHandlerThreads;
@@ -65,5 +65,8 @@ namespace sophos_on_access_process::soapd_bootstrap
 
         std::shared_ptr<onaccessimpl::onaccesstelemetry::OnAccessTelemetryUtility> m_TelemetryUtility = nullptr;
         std::unique_ptr<service_impl::OnAccessServiceImpl> m_ServiceImpl;
+        datatypes::ISystemCallWrapperSharedPtr m_sysCallWrapper;
+
+        OnAccessStatusFile m_statusFile;
     };
 }
