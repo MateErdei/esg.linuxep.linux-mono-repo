@@ -159,15 +159,14 @@ Threat detector is killed gracefully
 Threat detector triggers reload on SIGUSR1
     Dump and Reset Logs
     ${td_mark} =  LogUtils.Get Sophos Threat Detector Log Mark
-    Mark Sophos Threat Detector Log
     Start AV
     Wait until threat detector running after mark    ${td_mark}
     ${rc}   ${pid} =    Run And Return Rc And Output    pgrep sophos_threat
 
-    Wait Until Sophos Threat Detector Log Contains With Offset  Starting USR1 monitor  timeout=60
+    Wait For Sophos Threat Detector Log Contains After Mark  Starting USR1 monitor  ${td_mark}  timeout=60
     Run Process   /bin/kill   -SIGUSR1   ${pid}
 
-    Wait Until Sophos Threat Detector Log Contains With Offset  Sophos Threat Detector received SIGUSR1 - reloading  timeout=60
+    Wait For Sophos Threat Detector Log Contains After Mark  Sophos Threat Detector received SIGUSR1 - reloading  ${td_mark}  timeout=60
 
     # Verify SIGUSR1 is not logged at error level
     Verify Sophos Threat Detector Log Line is informational   Sophos Threat Detector received SIGUSR1 - reloading
@@ -197,9 +196,9 @@ Threat detector exits if it cannot acquire the susi update lock
 
     Run Process   /bin/kill   -SIGUSR1   ${pid}
 
-    Wait Until Sophos Threat Detector Log Contains  Reload triggered by USR1
-    Wait Until Sophos Threat Detector Log Contains  Failed to acquire lock on ${lockfile}  timeout=120
-    Wait Until Sophos Threat Detector Log Contains  UnixSocket <> Closing Scanning Server socket
+    Wait For Sophos Threat Detector Log Contains After Mark  Reload triggered by USR1  ${td_mark}
+    Wait For Sophos Threat Detector Log Contains After Mark  Failed to acquire lock on ${lockfile}  ${td_mark}  timeout=120
+    Wait For Sophos Threat Detector Log Contains After Mark  UnixSocket <> Closing Scanning Server socket  ${td_mark}
 
     Wait Until Keyword Succeeds
     ...  30 secs
@@ -209,27 +208,29 @@ Threat detector exits if it cannot acquire the susi update lock
 
 Threat Detector Logs Susi Version when applicable
     Dump and Reset Logs
+    ${td_mark} =  Get Sophos Threat Detector Log Mark
     Start AV
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} /bin/bash
-    Wait Until Sophos Threat Detector Log Contains With Offset  Initializing SUSI
-    Wait Until Sophos Threat Detector Log Contains With Offset  SUSI Libraries loaded:
-    mark sophos threat detector log
+    Wait For Sophos Threat Detector Log Contains After Mark  Initializing SUSI  ${td_mark}
+    Wait For Sophos Threat Detector Log Contains After Mark  SUSI Libraries loaded:  ${td_mark}
+    ${td_mark2} =  Get Sophos Threat Detector Log Mark
 
     ${rc2}   ${output2} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} /bin/bash
-    Wait Until Sophos Threat Detector Log Contains With Offset  SUSI already initialised
+    Wait For Sophos Threat Detector Log Contains After Mark  SUSI already initialised  ${td_mark2}
     Sleep  1s  Allow a second for Threat Detector to log the loading of SUSI Libraries
-    threat detector log should not contain with offset  SUSI Libraries loaded:
-    mark sophos threat detector log
+    Check Sophos Threat Detector Log Does Not Contain After Mark  SUSI Libraries loaded:  ${td_mark2}
+    ${td_mark3} =  Get Sophos Threat Detector Log Mark
 
     ${rc}   ${pid} =    Run And Return Rc And Output    pgrep sophos_threat
     Run Process   /bin/kill   -SIGUSR1   ${pid}
-    Wait Until Sophos Threat Detector Log Contains With Offset  Threat scanner is already up to date
+    Wait For Sophos Threat Detector Log Contains After Mark  Threat scanner is already up to date  ${td_mark3}
     Sleep  1s  Allow a second for Threat Detector to log the loading of SUSI Libraries
-    threat detector log should not contain with offset  SUSI Libraries loaded:
+    Check Sophos Threat Detector Log Does Not Contain After Mark  SUSI Libraries loaded:  ${td_mark3}
 
 
 Threat Detector Doesnt Log Every Scan
     Dump and Reset Logs
+    ${td_mark} =  Get Sophos Threat Detector Log Mark
     Register On Fail   dump log  ${SUSI_DEBUG_LOG_PATH}
     Set Log Level  INFO
     Register Cleanup       Set Log Level  DEBUG
@@ -237,7 +238,7 @@ Threat Detector Doesnt Log Every Scan
     Start AV
 
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} /bin/bash
-    Wait Until Sophos Threat Detector Log Contains With Offset  Initializing SUSI
+    Wait For Sophos Threat Detector Log Contains After Mark  Initializing SUSI  ${td_mark}
     Sleep  1s  Allow a second for Threat Detector to log the starting and finishing of the scan
     check log does not contain   Starting scan of    ${SUSI_DEBUG_LOG_PATH}  Susi Debug Log
     check log does not contain   Finished scanning   ${SUSI_DEBUG_LOG_PATH}  Susi Debug Log

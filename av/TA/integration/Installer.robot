@@ -317,8 +317,8 @@ Installer doesnt try to create an existing user
 
 
 Scanner works after upgrade
-    Mark AV Log
-    Mark Sophos Threat Detector Log
+    ${av_mark} =  Get AV Log Mark
+    ${threat_detector_mark} =  Get Sophos Threat Detector Log Mark
 
     # modify the manifest to force the installer to perform a full product update
     Modify manifest
@@ -326,22 +326,24 @@ Scanner works after upgrade
 
     # Existing robot functions don't check marked logs, so we do our own log check instead
     Check Plugin Installed and Running With Offset
-    Wait Until Sophos Threat Detector Log Contains With Offset
+    Wait For Sophos Threat Detector Log Contains After Mark
     ...   UnixSocket <> Process Controller Server starting listening on socket:
+    ...   ${threat_detector_mark}
     ...   timeout=60
-    Wait Until AV Plugin Log Contains With Offset
+    Wait For AV Log Contains After Mark
     ...   Starting threatReporter
+    ...   ${av_mark}
     ...   timeout=60
 
-    Mark AV Log
-    Mark Sophos Threat Detector Log
+    ${av_mark2} =  Get AV Log Mark
+    ${threat_detector_mark2} =  Get Sophos Threat Detector Log Mark
 
     # Check we can detect EICAR following upgrade
     Check avscanner can detect eicar
 
     # check that the logs are still working (LINUXDAR-2535)
-    Wait Until Sophos Threat Detector Log Contains With Offset  EICAR-AV-Test
-    Wait Until AV Plugin Log Contains With Offset  EICAR-AV-Test
+    Wait For Sophos Threat Detector Log Contains After Mark  EICAR-AV-Test  ${threat_detector_mark2}
+    Wait For AV Log Contains After Mark  EICAR-AV-Test  ${av_mark2}
 
 Services restarted after upgrade
     Mark On Access Log

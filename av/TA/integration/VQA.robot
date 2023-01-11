@@ -63,10 +63,10 @@ SUSI config can scan a media file
     #      "typeId" : "GIF"
     #    }
     #  ]
-    Mark Susi Debug Log
+    ${susi_debug_mark} =  Get SUSI Debug Log Mark
     Check File Clean  test.gif
-    SUSI Debug Log Contains With Offset  "group" : "Image"
-    SUSI Debug Log Contains With Offset  "name" : "TFT/GIF-A"
+    Check SUSI Debug Log Contains After Mark  "group" : "Image"  ${susi_debug_mark}
+    Check SUSI Debug Log Contains After Mark  "name" : "TFT/GIF-A"  ${susi_debug_mark}
 
 
 SUSI config can scan a selfextractor file
@@ -80,10 +80,10 @@ SUSI config can scan a selfextractor file
     #      "typeId" : "Windows"
     #    }
     #  ]
-    Mark Susi Debug Log
+    ${susi_debug_mark} =  Get SUSI Debug Log Mark
     Check File Clean  Firefox.exe
-    SUSI Debug Log Contains With Offset  "group" : "Executable"
-    SUSI Debug Log Contains With Offset  "name" : "TFT/EXE-A"
+    Check SUSI Debug Log Contains After Mark  "group" : "Executable"  ${susi_debug_mark}
+    Check SUSI Debug Log Contains After Mark  "name" : "TFT/EXE-A"  ${susi_debug_mark}
 
 
 *** Variables ***

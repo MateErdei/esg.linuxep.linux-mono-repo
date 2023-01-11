@@ -48,11 +48,11 @@ AV plugin runs scheduled scan and updates telemetry
     # Run telemetry to reset counters to 0
     Run Telemetry Executable With HTTPS Protocol    port=${4421}
 
-    Mark AV Log
+    ${av_mark} =  Get AV Log Mark
     Send Sav Policy With Imminent Scheduled Scan To Base
     File Should Exist  ${MCS_PATH}/policy/SAV-2_policy.xml
 
-    Wait Until AV Plugin Log Contains With Offset  Completed scan  timeout=180
+    Wait For AV Log Contains After Mark  Completed scan  ${av_mark}  timeout=180
 
     Run Telemetry Executable With HTTPS Protocol    port=${4421}
 
@@ -138,9 +138,9 @@ AV plugin Saves and Restores Scan Now Counter
     Dictionary Should Contain Item   ${rootkeyDict}   scan-now-count   ${1}
     Dictionary Should Contain Item   ${rootkeyDict}   threatHealth   ${1}
 
-    Mark AV Log
+    ${av_mark} =  Get AV Log Mark
     Start AV Plugin
-    Wait Until AV Plugin Log Contains With Offset  Restoring telemetry from disk for plugin: av
+    Wait For AV Log Contains After Mark  Restoring telemetry from disk for plugin: av  ${av_mark}
     Run Telemetry Executable With HTTPS Protocol    port=${4434}
 
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}

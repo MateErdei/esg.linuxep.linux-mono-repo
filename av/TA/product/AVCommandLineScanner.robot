@@ -207,13 +207,14 @@ CLS Does Not Ordinarily Output To Stderr
 
 
 CLS Can Scan Infected File
+    ${threat_detector_mark} =  Get Sophos Threat Detector Log Mark
     Create File     ${NORMAL_DIRECTORY}/naughty_eicar    ${EICAR_STRING}
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naughty_eicar
 
     Log  return code is ${rc}
     Log  output is ${output}
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-    Sophos Threat Detector Log Contains With Offset   Detected "EICAR-AV-Test" in ${NORMAL_DIRECTORY}/naughty_eicar (On Demand)
+    Wait For Sophos Threat Detector Log Contains After Mark  Detected "EICAR-AV-Test" in ${NORMAL_DIRECTORY}/naughty_eicar (On Demand)  ${threat_detector_mark}
 
 
 CLS Can Scan Shallow Archive But not Deep Archive
@@ -1355,24 +1356,16 @@ CLS Scans file on NFS
 CLS Reconnects And Continues Scan If Sophos Threat Detector Is Restarted
     ${LOG_FILE} =          Set Variable   ${NORMAL_DIRECTORY}/scan.log
 
+    ${cli_mark} =  Mark Log Size   ${LOG_FILE}
     ${HANDLE} =    Start Process    ${CLI_SCANNER_PATH}   /  -x  /mnt/  file_samples/  stdout=${LOG_FILE}   stderr=STDOUT
-    Wait Until Keyword Succeeds
-    ...  60 secs
-    ...  1 secs
-    ...  File Log Contains  ${LOG_FILE}  Scanning
+    Wait For Log Contains After Mark  ${LOG_FILE}  Scanning  ${cli_mark}
     Stop AV
     Start AV
-    Wait Until Keyword Succeeds
-    ...  120 secs
-    ...  1 secs
-    ...  File Log Contains  ${LOG_FILE}  Reconnected to Sophos Threat Detector
-    File Log Should Not Contain  ${LOG_FILE}  Reached total maximum number of reconnection attempts. Aborting scan.
+    Wait For Log Contains After Mark  ${LOG_FILE}  Reconnected to Sophos Threat Detector  ${cli_mark}
+    Check Log Does Not Contain After Mark  ${LOG_FILE}  Reached total maximum number of reconnection attempts. Aborting scan.  ${cli_mark}
 
-    ${offset} =  Count File Log Lines   ${LOG_FILE}
-    Wait Until Keyword Succeeds
-    ...  60 secs
-    ...  1 secs
-    ...  File Log Contains With Offset  ${LOG_FILE}   Scanning   offset=${offset}
+    ${cli_mark2} =  Mark Log Size   ${LOG_FILE}
+    Wait For Log Contains After Mark  ${LOG_FILE}  Scanning  ${cli_mark2}
 
     Process should Be Running   handle=${HANDLE}
     ${result} =   Terminate Process   handle=${HANDLE}

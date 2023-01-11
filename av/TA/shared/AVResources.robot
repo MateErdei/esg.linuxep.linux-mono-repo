@@ -612,7 +612,7 @@ Wait Until On Access running
         ...  2 secs
         ...  On Access Log Contains  ProcessPolicy
 
-Wait Until On Access running with offset
+Wait Until On Access Running After Mark
     [Arguments]  ${mark}
     ProcessUtils.wait_for_pid  ${ON_ACCESS_BIN}  ${30}
     LogUtils.Wait For Log Contains After Mark    ${ON_ACCESS_LOG_PATH}    ProcessPolicy    ${mark}  timeout=60

@@ -120,9 +120,10 @@ Scan Now Excludes Infected Files Successfully
     Create File  /test/ddirectory/subpart/partdirectory/more/eicar_to_detect.com                        ${CLEAN_STRING}
     Register Cleanup    Remove Directory  /test/                                 recursive=True
 
+    ${av_mark} =  Get AV Log Mark
     Run Scan Now Scan With All Types of Exclusions
-    Wait Until AV Plugin Log Contains With Offset  Starting scan Scan Now  timeout=10
-    Wait Until AV Plugin Log Contains With Offset  Completed scan Scan Now  timeout=20
+    Wait For AV Log Contains After Mark  Starting scan Scan Now  ${av_mark}  timeout=10
+    Wait For AV Log Contains After Mark  Completed scan Scan Now  ${av_mark}  timeout=20
 
     Dump Log  ${SCANNOW_LOG_PATH}
     ${scan_now_contents} =  Get File    ${SCANNOW_LOG_PATH}
@@ -222,11 +223,11 @@ Scan Now scans dir with name similar to excluded mount
     Create File  /process/eicar.com       ${EICAR_STRING}
 
     Remove File   ${AV_PLUGIN_PATH}/log/Scan Now.log
-    Mark AV Log
+    ${av_mark} =  get_av_log_mark
     Trigger Scan Now Scan
-    Wait Until AV Plugin Log Contains With Offset  Completed scan Scan Now  timeout=240
+    Wait For AV Log Contains After Mark  Completed scan Scan Now  ${av_mark}  timeout=240
 
-    AV Plugin Log Contains With Offset  /process/eicar.com
+    Check AV Log Contains After Mark  /process/eicar.com  ${av_mark}
     File Log Contains  ${AV_PLUGIN_PATH}/log/Scan Now.log  "/process/eicar.com" is infected
 
 
@@ -242,13 +243,13 @@ Scan Now scan errors do not get logged to av log
     Copy File  ${RESOURCES_PATH}/file_samples/corrupted.xls  /process
 
     Remove File   ${AV_PLUGIN_PATH}/log/Scan Now.log
-    Mark AV Log
+    ${av_mark} =  get_av_log_mark
     Trigger Scan Now Scan
-    Wait Until AV Plugin Log Contains With Offset  Completed scan Scan Now  timeout=240
+    Wait For AV Log Contains After Mark  Completed scan Scan Now  ${av_mark}  timeout=240
     File Log Contains  ${SCANNOW_LOG_PATH}  Failed to scan /process/passwd-protected.xls as it is password protected
     File Log Contains  ${SCANNOW_LOG_PATH}  Failed to scan /process/corrupted.xls as it is corrupted
 
-    AV Plugin Log Does Not Contain With Offset   Failed to scan
+    Check AV Log Contains After Mark   Failed to scan  ${av_mark}
 
 
 *** Keywords ***

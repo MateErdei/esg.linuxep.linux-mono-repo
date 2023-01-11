@@ -54,7 +54,7 @@ Start On Access without Log check
 Start On Access
     ${mark} =  get_on_access_log_mark
     Start On Access without Log check
-    Wait Until On Access running with offset  ${mark}
+    Wait Until On Access Running After Mark  ${mark}
 
 Start AV
     Remove Files   /tmp/av.stdout  /tmp/av.stderr
