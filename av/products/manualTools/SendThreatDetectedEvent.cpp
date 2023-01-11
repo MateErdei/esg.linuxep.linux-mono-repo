@@ -1,8 +1,4 @@
-/***********************************************************************************************
-
-Copyright 2021-2021 Sophos Limited. All rights reserved.
-
-***********************************************************************************************/
+// Copyright 2023, Sophos Limited.  All rights reserved.
 
 #include "modules/scan_messages/ThreatDetected.h"
 #include "modules/unixsocket/BaseClient.h"
@@ -11,7 +7,7 @@ Copyright 2021-2021 Sophos Limited. All rights reserved.
 #include <Common/ZMQWrapperApi/IContext.h>
 #include <Common/ZeroMQWrapper/ISocketPublisher.h>
 #include <Common/ZeroMQWrapper/ISocketSubscriber.h>
-
+#include "TestClient.h"
 #include <pwd.h>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -36,39 +32,6 @@ void printUsageAndExit(const std::string name)
     exit(EXIT_FAILURE);
 }
 
-namespace
-{
-    class TestClient : public unixsocket::BaseClient
-    {
-    public:
-        TestClient(
-            std::string socket_path,
-            const BaseClient::duration_t& sleepTime= std::chrono::seconds{1},
-            BaseClient::IStoppableSleeperSharedPtr sleeper={}) :
-            BaseClient(std::move(socket_path), sleepTime, std::move(sleeper))
-        {
-            BaseClient::connectWithRetries("SafeStore Rescan");
-        }
-
-        void sendRequest(std::string request)
-        {
-            assert(m_socket_fd.valid());
-            try
-            {
-                if (!unixsocket::writeLengthAndBuffer(m_socket_fd.get(), request))
-                {
-                    std::stringstream errMsg;
-                    errMsg << "Failed to write rescan request to socket [" << errno << "]";
-                    throw std::runtime_error(errMsg.str());
-                }
-            }
-            catch (unixsocket::environmentInterruption& e)
-            {
-                std::cerr << "Failed to write to SafeStore Rescan socket. Exception caught: " << e.what();
-            }
-        }
-    };
-} // namespace
 
 int main(int argc, char* argv[])
 {
