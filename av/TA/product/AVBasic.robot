@@ -484,6 +484,7 @@ AV Plugin Replaces Path With Request To Check Log If Path Contains Bad Unicode
 *** Keywords ***
 AVBasic Suite Setup
     Start Fake Management If Required
+    set_default_policy_from_file  ALC    ${RESOURCES_PATH}/alc_policy/template/base_and_av_VUT.xml
     Create File  ${COMPONENT_ROOT_PATH}/var/inhibit_system_file_change_restart_threat_detector
 
 AVBasic Suite Teardown
