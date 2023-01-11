@@ -1391,17 +1391,6 @@ List AV Plugin Path
     Log  ls -lR: ${result.stdout}
     Remove File  ${TESTTMP}/lsstdout
 
-Unpack SafeStore Tools To
-    [Arguments]  ${unpack_destination}
-    Create Directory  ${unpack_destination}
-    Register Cleanup   Remove Directory  ${unpack_destination}  recursive=True
-
-    # Tar parent directory is: "/tap_test_output/", remember to add it to your path when accessing its contents.
-    ${result} =   Run Process   tar    xzf    ${BUILD_ARTEFACTS_FOR_TAP}/tap_test_output.tar.gz    -C    ${unpack_destination}/
-    Log  ${result.stdout}
-    Log  ${result.stderr}
-    Should Be Equal As Integers   ${result.rc}  ${0}
-
 Get SHA256
     [Arguments]  ${path}
     ${result} =  Run Process  sha256sum  -b  ${path}
