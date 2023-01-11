@@ -15,7 +15,6 @@ using namespace sspl::sophosthreatdetectorimpl;
 using namespace ::testing;
 
 
-//Todo - current mock structure gets us to creating the ScanningServerSocket: ln~435 of sophosthreatdetector main
 //Todo - Write additional tests LINUXDAR-6030
 
 namespace {
