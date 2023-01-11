@@ -3,7 +3,6 @@
 # define TEST_PUBLIC public
 
 #include "sophos_on_access_process/soapd_bootstrap/OnAccessServiceCallback.h"
-#include "sophos_on_access_process/onaccessimpl/OnAccessTelemetryFields.h"
 #include "sophos_on_access_process/onaccessimpl/OnAccessTelemetryUtility.h"
 
 #include "common/LogInitializedTests.h"
@@ -23,8 +22,8 @@ class TestOnAccessServiceCallback : public LogInitializedTests
 protected:
     void SetUp() override
     {
-        auto telemetryUtilty = std::make_shared<OnAccessTelemetryUtility>();
-        m_callback = std::make_unique<OnAccessServiceCallback>(telemetryUtilty);
+        auto telemetryUtility = std::make_shared<OnAccessTelemetryUtility>();
+        m_callback = std::make_unique<OnAccessServiceCallback>(telemetryUtility);
     }
     std::unique_ptr<OnAccessServiceCallback> m_callback;
 };

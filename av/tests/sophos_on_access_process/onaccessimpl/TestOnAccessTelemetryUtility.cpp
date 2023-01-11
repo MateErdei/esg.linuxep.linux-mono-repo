@@ -171,8 +171,8 @@ TEST_F(TestOnAccessTelemetryUtility, HandlesExtremeValues)
 
     auto result = m_TelemetryUtility.getTelemetry();
 
-    EXPECT_TRUE(fabs(result.m_percentageEventsDropped - expectedEventsDroppedPer) < 1e-22f);
-    EXPECT_TRUE(fabs(result.m_percentageScanErrors - expectedScanErrorsPer) < 0.00000001f);
+    EXPECT_TRUE(fabsf(result.m_percentageEventsDropped - expectedEventsDroppedPer) < 1e-22f);
+    EXPECT_TRUE(fabsf(result.m_percentageScanErrors - expectedScanErrorsPer) < 0.00000001f);
 }
 
 TEST_F(TestOnAccessTelemetryUtility, HandlesIncrementingBeyondLimitEvents)

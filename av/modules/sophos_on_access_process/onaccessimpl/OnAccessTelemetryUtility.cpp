@@ -8,14 +8,6 @@
 
 using namespace sophos_on_access_process::onaccessimpl::onaccesstelemetry;
 
-OnAccessTelemetryUtility::OnAccessTelemetryUtility()
-{
-    m_eventsDropped.store(0);
-    m_eventsReceived.store(0);
-    m_scanErrors.store(0);
-    m_scansRequested.store(0);
-}
-
 OnAccessTelemetryUtility::TelemetryEntry OnAccessTelemetryUtility::getTelemetry()
 {
     TelemetryEntry telemetryToSend{};

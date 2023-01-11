@@ -16,7 +16,7 @@ add_library(soapdbootstrap SHARED
 
 target_include_directories(soapdbootstrap PUBLIC ${CMAKE_SOURCE_DIR}/products/distribution/include)
 
-target_link_libraries(soapdbootstrap  PUBLIC
+target_link_libraries(soapdbootstrap PUBLIC
         common
         fanotifyhandler
         mountmonitor

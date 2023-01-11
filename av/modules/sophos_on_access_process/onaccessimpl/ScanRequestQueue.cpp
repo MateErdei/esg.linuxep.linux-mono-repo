@@ -111,7 +111,7 @@ void ScanRequestQueue::clearQueue()
     m_deDupData.clear();
 }
 
-bool ScanRequestQueue::sizeIsLessThan(size_t buffer)
+bool ScanRequestQueue::sizeIsLessThan(size_t buffer) const
 {
     return size() <= (m_maxSize - buffer);
 }

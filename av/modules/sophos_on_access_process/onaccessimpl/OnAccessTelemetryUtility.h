@@ -26,7 +26,7 @@ namespace sophos_on_access_process::onaccessimpl::onaccesstelemetry
         void incrementEventReceived(bool dropped);
         void incrementFilesScanned(bool error);
 
-        OnAccessTelemetryUtility();
+        OnAccessTelemetryUtility() = default;
         OnAccessTelemetryUtility(const OnAccessTelemetryUtility&) = delete;
         OnAccessTelemetryUtility& operator=(const OnAccessTelemetryUtility&) = delete;
         OnAccessTelemetryUtility(OnAccessTelemetryUtility&&) = delete;
@@ -41,10 +41,10 @@ namespace sophos_on_access_process::onaccessimpl::onaccesstelemetry
         std::atomic_bool m_scansAtLimit = false;
 
     TEST_PUBLIC:
-        std::atomic_ulong m_eventsReceived;
-        std::atomic_uint m_eventsDropped;
-        std::atomic_ulong m_scansRequested;
-        std::atomic_uint m_scanErrors;
+        std::atomic_ulong m_eventsReceived { 0 };
+        std::atomic_uint m_eventsDropped { 0 };
+        std::atomic_ulong m_scansRequested { 0 };
+        std::atomic_uint m_scanErrors { 0 };
     };
 
     using OnAccessTelemetryUtilitySharedPtr = std::shared_ptr<OnAccessTelemetryUtility>;
