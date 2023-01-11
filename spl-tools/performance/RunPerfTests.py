@@ -67,7 +67,7 @@ ALL_USERS_QUERY = ("all-users", "SELECT * FROM users;")
 
 def fetch_artifacts(project, repo, artifact_path, output_dir=SCRIPT_DIR):
     if not os.path.isdir(output_dir):
-        os.mkdirs(output_dir)
+        os.makedirs(output_dir)
 
     builds = []
     repo_url = f"https://artifactory.sophos-ops.com/artifactory/esg-build-tested/{project}.{repo}/develop"
