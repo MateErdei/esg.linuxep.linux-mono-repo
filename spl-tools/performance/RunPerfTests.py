@@ -67,7 +67,7 @@ ALL_USERS_QUERY = ("all-users", "SELECT * FROM users;")
 
 def fetch_artifacts(project, repo, artifact_path, output_dir=SCRIPT_DIR):
     if not os.path.isdir(output_dir):
-        os.mkdir(output_dir)
+        os.mkdirs(output_dir)
 
     builds = []
     repo_url = f"https://artifactory.sophos-ops.com/artifactory/esg-build-tested/{project}.{repo}/develop"
@@ -97,11 +97,11 @@ def get_test_inputs_from_base():
     shutil.move(os.path.join(cloud_automation_inputs, "SophosHTTPSClient.py"), os.path.join(SCRIPT_DIR, "SophosHTTPSClient.py"))
 
     if not os.path.exists(os.path.join(SCRIPT_DIR, "cloudClient.py")):
-        logging.error(f"cloudClient.py does not exists: {os.listdir(SCRIPT_DIR)}")
+        logging.error(f"cloudClient.py does not exist: {os.listdir(SCRIPT_DIR)}")
         exit(1)
 
     if not os.path.exists(os.path.join(SCRIPT_DIR, "SophosHTTPSClient.py")):
-        logging.error(f"SophosHTTPSClient.py does not exists: {os.listdir(SCRIPT_DIR)}")
+        logging.error(f"SophosHTTPSClient.py does not exist: {os.listdir(SCRIPT_DIR)}")
         exit(1)
 
     os.environ["CLOUD_CLIENT_SCRIPT"] = os.path.join(SCRIPT_DIR, "cloudClient.py")
@@ -114,11 +114,11 @@ def get_test_inputs_from_event_journaler():
     journal_reader_tool_path = os.path.join(SCRIPT_DIR, "JournalReader")
 
     if not os.path.exists(event_pub_sub_tool_path):
-        logging.error(f"EventPubSub does not exists: {os.listdir(SCRIPT_DIR)}")
+        logging.error(f"EventPubSub does not exist: {os.listdir(SCRIPT_DIR)}")
         exit(1)
 
     if not os.path.exists(journal_reader_tool_path):
-        logging.error(f"JournalReader does not exists: {os.listdir(SCRIPT_DIR)}")
+        logging.error(f"JournalReader does not exist: {os.listdir(SCRIPT_DIR)}")
         exit(1)
 
     os.chmod(event_pub_sub_tool_path, os.stat(event_pub_sub_tool_path).st_mode | stat.S_IEXEC)
