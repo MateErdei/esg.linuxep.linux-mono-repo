@@ -795,7 +795,6 @@ Sophos Threat Detector sets default if susi startup settings permissions incorre
     Wait Until Sophos Threat Detector Log Contains With Offset   Turning Live Protection on as default - could not read SUSI settings
 
 AV Plugin Can Work Despite Specified Log File Being Read-Only
-    # LINUXDAR-4743 - Disable until test can be made more reliable
     [Tags]  FAULT INJECTION
     Register Cleanup    Exclude MCS Router is dead
     Register Cleanup    Exclude SPL Base Not In Subscription Of The Policy
@@ -971,3 +970,7 @@ Scheduled Scan Can Work Despite Specified Log File Being Read-Only
     Log File  ${CLOUDSCAN_LOG_PATH}
     check_log_does_not_contain_after_mark  ${CLOUDSCAN_LOG_PATH}  Detected "${NORMAL_DIRECTORY}/${file_name}" is infected with EICAR-AV-Test  ${scheduledscanmark}
     Wait Until AV Plugin Log Contains Detection Name And Path After Mark  ${avmark}  EICAR-AV-Test  /tmp_test/${file_name}
+
+AV Does Not Fall Over When Failing To Write OA Config File
+    [Tags]  FAULT INJECTION
+
