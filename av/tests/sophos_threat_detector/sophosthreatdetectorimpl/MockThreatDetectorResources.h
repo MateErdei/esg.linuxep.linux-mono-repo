@@ -12,9 +12,9 @@
 
 #include "sophos_threat_detector/threat_scanner/MockSusiScannerFactory.h"
 
-#include <datatypes/MockSysCalls.h>
 #include <common/MockPidLock.h>
 #include <common/MockSignalHandler.h>
+#include <datatypes/MockSysCalls.h>
 #include <sophos_threat_detector/sophosthreatdetectorimpl/ThreatDetectorResources.h>
 #include <unixsocket/processControllerSocket/ProcessControllerServerSocket.h>
 
@@ -27,10 +27,11 @@ namespace
     class MockThreatDetectorResources : public sspl::sophosthreatdetectorimpl::IThreatDetectorResources
     {
     public:
-        MockThreatDetectorResources(const fs::path& testDirectory)
+        MockThreatDetectorResources(const fs::path& testDirectory, std::shared_ptr<NiceMock<MockSystemCallWrapper>> mockSysCallWrapper)
         {
-            m_mockSysCalls = std::make_shared<NiceMock<MockSystemCallWrapper>>();
-            m_mockSigHandler = std::make_shared<NiceMock<MockSignalHandler>>();
+            m_mockSysCalls = mockSysCallWrapper;
+            m_mockSigTermHandler = std::make_shared<NiceMock<MockSignalHandler>>();
+            m_mockUsr1Monitor = std::make_shared<NiceMock<MockSignalHandler>>();
             m_mockPidLock = std::make_shared<NiceMock<MockPidLock>>();
             m_mockThreatReporter = std::make_shared<NiceMock<MockThreatReporter>>();
             m_mockShutdownTimer = std::make_shared<NiceMock<MockShutdownTimer>>();
@@ -42,7 +43,8 @@ namespace
             m_processControlServerSocket = std::make_shared<unixsocket::ProcessControllerServerSocket>(fs::path(testDirectory / "process_control_socket"), 0777, mockThreatDetectorControlCallbacks);
 
             ON_CALL(*this, createSystemCallWrapper).WillByDefault(Return(m_mockSysCalls));
-            ON_CALL(*this, createSignalHandler).WillByDefault(Return(m_mockSigHandler));
+            ON_CALL(*this, createSigTermHandler).WillByDefault(Return(m_mockSigTermHandler));
+            ON_CALL(*this, createUsr1Monitor).WillByDefault(Return(m_mockUsr1Monitor));
             ON_CALL(*this, createPidLockFile).WillByDefault(Return(m_mockPidLock));
             ON_CALL(*this, createThreatReporter).WillByDefault(Return(m_mockThreatReporter));
             ON_CALL(*this, createShutdownTimer).WillByDefault(Return(m_mockShutdownTimer));
@@ -53,7 +55,10 @@ namespace
         }
 
         MOCK_METHOD(datatypes::ISystemCallWrapperSharedPtr, createSystemCallWrapper, (), (override));
-        MOCK_METHOD(common::signals::ISignalHandlerSharedPtr, createSignalHandler, (bool), (override));
+        MOCK_METHOD(common::signals::ISignalHandlerSharedPtr, createSigTermHandler, (bool), (override));
+        MOCK_METHOD(common::signals::ISignalHandlerSharedPtr, createUsr1Monitor, (common::signals::IReloadablePtr), (override));
+
+
         MOCK_METHOD(common::IPidLockFileSharedPtr, createPidLockFile, (const std::string& _path), (override));
         MOCK_METHOD(threat_scanner::IThreatReporterSharedPtr, createThreatReporter, (const sophos_filesystem::path _socketPath), (override));
         MOCK_METHOD(threat_scanner::IScanNotificationSharedPtr , createShutdownTimer, (const sophos_filesystem::path _configPath), (override));
@@ -77,7 +82,8 @@ namespace
 
     private:
         std::shared_ptr<NiceMock<MockSystemCallWrapper>> m_mockSysCalls;
-        std::shared_ptr<NiceMock<MockSignalHandler>> m_mockSigHandler;
+        std::shared_ptr<NiceMock<MockSignalHandler>> m_mockSigTermHandler;
+        std::shared_ptr<NiceMock<MockSignalHandler>> m_mockUsr1Monitor;
         std::shared_ptr<NiceMock<MockPidLock>> m_mockPidLock;
         std::shared_ptr<NiceMock<MockThreatReporter>> m_mockThreatReporter;
         std::shared_ptr<NiceMock<MockShutdownTimer>> m_mockShutdownTimer;
