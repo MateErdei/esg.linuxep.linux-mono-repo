@@ -36,6 +36,7 @@ mkdir -p /opt/test/inputs/av
 ln -s $SCRIPT_DIR/TA /opt/test/inputs/test_scripts
 OUTPUT=${SCRIPT_DIR}/download/output
 ln -s $OUTPUT/test-resources /opt/test/inputs/av/test-resources
+ln -s $OUTPUT/manualtests /opt/test/inputs/av/manualtests
 ln -s $OUTPUT/SDDS-COMPONENT /opt/test/inputs/av/SDDS-COMPONENT
 ln -s $OUTPUT/base-sdds /opt/test/inputs/av/base-sdds
 
