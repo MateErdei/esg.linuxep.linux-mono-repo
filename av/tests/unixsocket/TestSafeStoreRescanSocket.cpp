@@ -1,7 +1,7 @@
-// Copyright 2022 Sophos Limited. All rights reserved.
+// Copyright 2022-2023 Sophos Limited. All rights reserved.
 
 #include "UnixSocketMemoryAppenderUsingTests.h"
-
+#include "TestClient.h"
 
 #include "common/ApplicationPaths.h"
 #include "safestore/MockIQuarantineManager.h"
@@ -14,43 +14,9 @@
 
 #include <gtest/gtest.h>
 
-#include <cassert>
-#include <iostream>
+
 #include <string>
 
-namespace
-{
-    class TestClient : public unixsocket::BaseClient
-    {
-    public:
-        TestClient(
-            std::string socket_path,
-            const BaseClient::duration_t& sleepTime= std::chrono::seconds{1},
-            BaseClient::IStoppableSleeperSharedPtr sleeper={}) :
-            BaseClient(std::move(socket_path), sleepTime, std::move(sleeper))
-        {
-            BaseClient::connectWithRetries("SafeStore Rescan");
-        }
-
-        void sendRequest(std::string request)
-        {
-            assert(m_socket_fd.valid());
-            try
-            {
-                if (!unixsocket::writeLengthAndBuffer(m_socket_fd.get(), request))
-                {
-                    std::stringstream errMsg;
-                    errMsg << "Failed to write rescan request to socket [" << errno << "]";
-                    throw std::runtime_error(errMsg.str());
-                }
-            }
-            catch (unixsocket::environmentInterruption& e)
-            {
-                std::cerr << "Failed to write to SafeStore Rescan socket. Exception caught: " << e.what();
-            }
-        }
-    };
-} // namespace
 using namespace testing;
 namespace fs = sophos_filesystem;
 
