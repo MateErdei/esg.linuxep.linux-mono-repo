@@ -76,8 +76,7 @@ TEST_F(QuarantineManagerRescanTests, scanExtractedFilesForRestoreListDoesNothing
     EXPECT_THAT(logMessage, ::testing::HasSubstr("No files to Rescan"));
 }
 
-// TODO: LINUXDAR-6280 - Re-enable test after figuring out its flakiness
-TEST_F(QuarantineManagerRescanTests, DISABLED_scanExtractedFiles)
+TEST_F(QuarantineManagerRescanTests, scanExtractedFiles)
 {
     QuarantineManagerImpl quarantineManager{ std::unique_ptr<StrictMock<MockISafeStoreWrapper>>(m_mockSafeStoreWrapper),
                                              std::move(m_mockSysCallWrapper) };
@@ -203,8 +202,7 @@ TEST_F(QuarantineManagerRescanTests, scanExtractedFilesSocketFailure)
     EXPECT_THAT(logMessage, ::testing::HasSubstr("ERROR Error on rescan request: "));
 }
 
-// TODO: LINUXDAR-6280 - Re-enable test after figuring out its flakiness
-TEST_F(QuarantineManagerRescanTests, DISABLED_scanExtractedFilesSkipsHandleFailure)
+TEST_F(QuarantineManagerRescanTests, scanExtractedFilesSkipsHandleFailure)
 {
     testing::internal::CaptureStderr();
     QuarantineManagerImpl quarantineManager{ std::unique_ptr<StrictMock<MockISafeStoreWrapper>>(m_mockSafeStoreWrapper),
@@ -270,8 +268,7 @@ TEST_F(QuarantineManagerRescanTests, DISABLED_scanExtractedFilesSkipsHandleFailu
     EXPECT_THAT(logMessage, ::testing::HasSubstr("Rescan found quarantined file still a threat: /threat/path/two"));
 }
 
-// TODO: LINUXDAR-6280 - Re-enable test after figuring out its flakiness
-TEST_F(QuarantineManagerRescanTests, DISABLED_scanExtractedFilesHandlesNameAndLocationFailure)
+TEST_F(QuarantineManagerRescanTests, scanExtractedFilesHandlesNameAndLocationFailure)
 {
     testing::internal::CaptureStderr();
     QuarantineManagerImpl quarantineManager{ std::unique_ptr<StrictMock<MockISafeStoreWrapper>>(m_mockSafeStoreWrapper),
