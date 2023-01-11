@@ -43,6 +43,7 @@ SafeStore Database is Initialised
 
 
 SafeStore Can Reinitialise Database Containing Threats
+    Unpack SafeStore Tools To  ${safestore_tools_unpacked}
     ${av_mark} =  Get AV Log Mark
     Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
     Wait For Log Contains From Mark  ${av_mark}  SafeStore flag set. Setting SafeStore to enabled.    timeout=60
@@ -55,7 +56,7 @@ SafeStore Can Reinitialise Database Containing Threats
     Check avscanner can detect eicar
     Wait For Log Contains From Mark  ${safestore_mark}  Received Threat:
 
-    ${filesInSafeStoreDb1} =  Run Process  ${AV_TEST_TOOLS}/safestore_print_tool
+    ${filesInSafeStoreDb1} =  Run Process  ${safestore_tools_unpacked}/tap_test_output/safestore_print_tool
     Log  ${filesInSafeStoreDb1.stdout}
 
     Stop SafeStore
@@ -71,7 +72,7 @@ SafeStore Can Reinitialise Database Containing Threats
     ${ssPassword2} =    Get File    ${SAFESTORE_DB_PASSWORD_PATH}
     Should Be Equal As Strings    ${ssPassword1}    ${ssPassword2}
 
-    ${filesInSafeStoreDb2} =  Run Process  ${AV_TEST_TOOLS}/safestore_print_tool
+    ${filesInSafeStoreDb2} =  Run Process  ${safestore_tools_unpacked}/tap_test_output/safestore_print_tool
     Log  ${filesInSafeStoreDb2.stdout}
 
     Should Be Equal    ${filesInSafeStoreDb1.stdout}    ${filesInSafeStoreDb2.stdout}
@@ -315,6 +316,8 @@ SafeStore Purges The Oldest Detection In Its Database When It Exceeds Storage Ca
 
     Wait Until SafeStore running
 
+    Unpack SafeStore Tools To  ${safestore_tools_unpacked}
+
     Stop SafeStore
     # The MaxSafeStoreSize could cause flakiness in the future if the footprint of the SafeStore instance grows, which we can't avoid (fix by increasing its size further)
     Create File     ${COMPONENT_ROOT_PATH}/var/safestore_config.json    { "MaxObjectSize" : 32000, "MaxSafeStoreSize" : 144000 }
@@ -334,7 +337,7 @@ SafeStore Purges The Oldest Detection In Its Database When It Exceeds Storage Ca
     Wait For Log Contains From Mark  ${av_mark}  Found 'EICAR-AV-Test'
     Wait For Log Contains From Mark  ${ss_mark}  Quarantined ${SCAN_DIRECTORY}/${eicar1} successfully
 
-    ${filesInSafeStoreDb} =  Run Process  ${AV_TEST_TOOLS}/safestore_print_tool
+    ${filesInSafeStoreDb} =  Run Process  ${safestore_tools_unpacked}/tap_test_output/safestore_print_tool
     Log  ${filesInSafeStoreDb.stdout}
     Should Contain  ${filesInSafeStoreDb.stdout}  ${eicar1}
 
@@ -346,7 +349,7 @@ SafeStore Purges The Oldest Detection In Its Database When It Exceeds Storage Ca
     Wait For Log Contains From Mark  ${av_mark}  Found 'EICAR-AV-Test'
     Wait For Log Contains From Mark  ${ss_mark}  Quarantined ${NORMAL_DIRECTORY}/${eicar2} successfully
 
-    ${filesInSafeStoreDb} =  Run Process  ${AV_TEST_TOOLS}/safestore_print_tool
+    ${filesInSafeStoreDb} =  Run Process  ${safestore_tools_unpacked}/tap_test_output/safestore_print_tool
     Log  ${filesInSafeStoreDb.stdout}
     Should Contain  ${filesInSafeStoreDb.stdout}  ${eicar1}
     Should Contain  ${filesInSafeStoreDb.stdout}  ${eicar2}
@@ -359,7 +362,7 @@ SafeStore Purges The Oldest Detection In Its Database When It Exceeds Storage Ca
     Wait For Log Contains From Mark  ${av_mark}  Found 'EICAR-AV-Test'
     Wait For Log Contains From Mark  ${ss_mark}  Quarantined ${NORMAL_DIRECTORY}/${eicar3} successfully
 
-    ${filesInSafeStoreDb} =  Run Process  ${AV_TEST_TOOLS}/safestore_print_tool
+    ${filesInSafeStoreDb} =  Run Process  ${safestore_tools_unpacked}/tap_test_output/safestore_print_tool
     Log  ${filesInSafeStoreDb.stdout}
     Should Contain  ${filesInSafeStoreDb.stdout}  ${eicar2}
     Should Contain  ${filesInSafeStoreDb.stdout}  ${eicar3}
@@ -369,6 +372,8 @@ SafeStore Purges The Oldest Detection In Its Database When It Exceeds Storage Ca
 
 SafeStore Purges The Oldest Detection In Its Database When It Exceeds Detection Count
     register cleanup    Exclude Watchdog Log Unable To Open File Error
+
+    Unpack SafeStore Tools To  ${safestore_tools_unpacked}
 
     Stop SafeStore
     Create File     ${COMPONENT_ROOT_PATH}/var/safestore_config.json    { "MaxStoredObjectCount" : 2 }
@@ -396,7 +401,7 @@ SafeStore Purges The Oldest Detection In Its Database When It Exceeds Detection 
     Wait For Log Contains From Mark  ${av_mark}  Found 'EICAR-AV-Test'
     Wait For Log Contains From Mark  ${ss_mark}  Quarantined ${NORMAL_DIRECTORY}/${eicar1} successfully
 
-    ${filesInSafeStoreDb} =  Run Process  ${AV_TEST_TOOLS}/safestore_print_tool
+    ${filesInSafeStoreDb} =  Run Process  ${safestore_tools_unpacked}/tap_test_output/safestore_print_tool
     Log  ${filesInSafeStoreDb.stdout}
     Should Contain  ${filesInSafeStoreDb.stdout}  ${eicar1}
 
@@ -408,7 +413,7 @@ SafeStore Purges The Oldest Detection In Its Database When It Exceeds Detection 
     Wait For Log Contains From Mark  ${av_mark}  Found 'EICAR-AV-Test'
     Wait For Log Contains From Mark  ${ss_mark}  Quarantined ${NORMAL_DIRECTORY}/${eicar2} successfully
 
-    ${filesInSafeStoreDb} =  Run Process  ${AV_TEST_TOOLS}/safestore_print_tool
+    ${filesInSafeStoreDb} =  Run Process  ${safestore_tools_unpacked}/tap_test_output/safestore_print_tool
     Log  ${filesInSafeStoreDb.stdout}
     Should Contain  ${filesInSafeStoreDb.stdout}  ${eicar1}
     Should Contain  ${filesInSafeStoreDb.stdout}  ${eicar2}
@@ -421,7 +426,7 @@ SafeStore Purges The Oldest Detection In Its Database When It Exceeds Detection 
     Wait For Log Contains From Mark  ${av_mark}  Found 'EICAR-AV-Test'
     Wait For Log Contains From Mark  ${ss_mark}  Quarantined ${NORMAL_DIRECTORY}/${eicar3} successfully
 
-    ${filesInSafeStoreDb} =  Run Process  ${AV_TEST_TOOLS}/safestore_print_tool
+    ${filesInSafeStoreDb} =  Run Process  ${safestore_tools_unpacked}/tap_test_output/safestore_print_tool
     Log  ${filesInSafeStoreDb.stdout}
     Should Contain  ${filesInSafeStoreDb.stdout}  ${eicar2}
     Should Contain  ${filesInSafeStoreDb.stdout}  ${eicar3}
@@ -498,6 +503,8 @@ Threat Detector Triggers SafeStore Rescan On Timeout
 SafeStore Rescan Does Not Restore Or Report Threats
     register cleanup    Exclude Watchdog Log Unable To Open File Error
 
+    Unpack SafeStore Tools To  ${safestore_tools_unpacked}
+
     ${eicar1}=    Set Variable     eicar1
     ${eicar2}=    Set Variable     eicar2
 
@@ -526,7 +533,7 @@ SafeStore Rescan Does Not Restore Or Report Threats
     Wait For Log Contains From Mark  ${av_mark}  Found 'EICAR-AV-Test'
     Wait For Log Contains From Mark  ${ss_mark}  Quarantined ${NORMAL_DIRECTORY}/${eicar2} successfully
 
-    ${filesInSafeStoreDb} =  Run Process  ${AV_TEST_TOOLS}/safestore_print_tool
+    ${filesInSafeStoreDb} =  Run Process  ${safestore_tools_unpacked}/tap_test_output/safestore_print_tool
     Log  ${filesInSafeStoreDb.stdout}
     Should Contain  ${filesInSafeStoreDb.stdout}  ${eicar1}
     Should Contain  ${filesInSafeStoreDb.stdout}  ${eicar2}
@@ -627,7 +634,8 @@ AV Plugin Does Not Quarantine File When SafeStore Is Disabled
 
     File Should Exist   ${SCAN_DIRECTORY}/eicar.com
 
-    ${print_tool_result} =  Run Process  ${AV_TEST_TOOLS}/safestore_print_tool
+    Unpack SafeStore Tools To  ${safestore_tools_unpacked}
+    ${print_tool_result} =  Run Process  ${safestore_tools_unpacked}/tap_test_output/safestore_print_tool
     Log  ${print_tool_result.stdout}
     Should Not Contain  ${print_tool_result.stdout}  eicar.com
 
@@ -655,7 +663,8 @@ SafeStore Does Not Quarantine Ml Detection By Default
 
     File Should Exist  ${NORMAL_DIRECTORY}/MLengHighScore.exe
 
-    ${print_tool_result} =  Run Process  ${AV_TEST_TOOLS}/safestore_print_tool
+    Unpack SafeStore Tools To  ${safestore_tools_unpacked}
+    ${print_tool_result} =  Run Process  ${safestore_tools_unpacked}/tap_test_output/safestore_print_tool
     Log  ${print_tool_result.stdout}
     Should Not Contain  ${print_tool_result.stdout}  MLengHighScore.exe
 
@@ -684,7 +693,8 @@ SafeStore Quarantines Ml Detection If Ml Flag Is Enabled
     ...  result=0
     ...  path=${NORMAL_DIRECTORY}/MLengHighScore.exe
 
-    ${print_tool_result} =  Run Process  ${AV_TEST_TOOLS}/safestore_print_tool
+    Unpack SafeStore Tools To  ${safestore_tools_unpacked}
+    ${print_tool_result} =  Run Process  ${safestore_tools_unpacked}/tap_test_output/safestore_print_tool
     Log  ${print_tool_result.stdout}
     Should Contain  ${print_tool_result.stdout}  MLengHighScore.exe
 
@@ -711,7 +721,8 @@ SafeStore Does Not Quarantine Pua Detection
 
     File Should Exist  ${NORMAL_DIRECTORY}/PsExec.exe
 
-    ${print_tool_result} =  Run Process  ${AV_TEST_TOOLS}/safestore_print_tool
+    Unpack SafeStore Tools To  ${safestore_tools_unpacked}
+    ${print_tool_result} =  Run Process  ${safestore_tools_unpacked}/tap_test_output/safestore_print_tool
     Log  ${print_tool_result.stdout}
     Should Not Contain  ${print_tool_result.stdout}  PsExec.exe
 
@@ -802,6 +813,7 @@ SafeStore Test Setup
     Start SafeStore
     Wait Until SafeStore Started Successfully
 
+    Set Suite Variable  ${safestore_tools_unpacked}  /tmp/safestoretools/tap_test_output
     Create Directory  ${NORMAL_DIRECTORY}
 
     # Start from known place with a CORC policy with an empty allow list
