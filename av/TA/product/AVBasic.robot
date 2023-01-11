@@ -365,6 +365,10 @@ AV Plugin Scan two mounts same inode numbers
 AV Plugin Gets Customer ID
     ${customerIdFile1} =   Set Variable   ${AV_PLUGIN_PATH}/var/customer_id.txt
     ${customerIdFile2} =   Set Variable   ${AV_PLUGIN_PATH}/chroot${customerIdFile1}
+
+    #Wait for default policy to be processed first
+    Wait Until Created   ${customerIdFile1}   timeout=10sec
+    Wait Until Created   ${customerIdFile2}   timeout=5sec
     Remove Files   ${customerIdFile1}   ${customerIdFile2}
 
     ${policyContent} =   Get ALC Policy   userpassword=A  username=B
@@ -385,6 +389,10 @@ AV Plugin Gets Customer ID
 AV Plugin Gets Customer ID from Obfuscated Creds
     ${customerIdFile1} =   Set Variable   ${AV_PLUGIN_PATH}/var/customer_id.txt
     ${customerIdFile2} =   Set Variable   ${AV_PLUGIN_PATH}/chroot${customerIdFile1}
+
+    #Wait for default policy to be processed first
+    Wait Until Created   ${customerIdFile1}   timeout=10sec
+    Wait Until Created   ${customerIdFile2}   timeout=5sec
     Remove Files   ${customerIdFile1}   ${customerIdFile2}
 
     ${policyContent} =   Get ALC Policy
