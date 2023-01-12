@@ -171,16 +171,6 @@ Restart sophos_threat_detector
 
 Really Restart sophos_threat_detector
     Stop sophos_threat_detector
-    Start sophos_threat_detector
-    Wait until threat detector running
-
-Restart sophos_threat_detector
-    # with added checks/debugging for LINUXDAR-5808
-    ${status} =      Run Keyword And Return Status   Really Restart sophos_threat_detector
-    Run Keyword If   ${status} != True   Debug Restart sophos_threat_detector Failure
-
-Really Restart sophos_threat_detector
-    Stop sophos_threat_detector
     ${threat_detector_mark} =  Get Sophos Threat Detector Log Mark
     Start sophos_threat_detector
     Wait until threat detector running after mark  ${threat_detector_mark}
