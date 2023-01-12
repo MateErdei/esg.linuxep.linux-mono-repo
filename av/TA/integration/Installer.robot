@@ -42,13 +42,15 @@ IDE update doesnt restart av processes
     ${AVPLUGIN_PID} =  Record AV Plugin PID
     ${SOPHOS_THREAT_DETECTOR_PID} =  Record Sophos Threat Detector PID
     ${SOAPD_PID} =  Record Soapd Plugin PID
+    ${oa_mark} =  Get On Access Log Mark
+    ${threat_detector_mark} =  Get Sophos Threat Detector Log Mark
     Replace Virus Data With Test Dataset A And Run IDE update without SUSI loaded
     Check AV Plugin Has Same PID  ${AVPLUGIN_PID}
     Check Sophos Threat Detector Has Same PID  ${SOPHOS_THREAT_DETECTOR_PID}
     Check Soapd Plugin has same PID  ${SOAPD_PID}
 
-    Wait Until Sophos Threat Detector Log Contains With Offset  Notify clients that the update has completed
-    Wait Until On Access Log Contains With Offset  Clearing on-access cache
+    Wait For Sophos Threat Detector Log Contains After Mark  Notify clients that the update has completed  ${threat_detector_mark}
+    Wait For On Access Log Contains After Mark  Clearing on-access cache  ${oa_mark}
 
     # Check we can detect EICAR following update
     Check avscanner can detect eicar
@@ -95,7 +97,7 @@ Restart then Update Sophos Threat Detector
 IDE update during command line scan
     # Assumes that /usr/share/ takes long enough to scan, and that all files take well under one second to be scanned.
     # If this proves to be false on any of our test systems, we'll need to create a dummy fileset to scan instead.
-    Mark Sophos Threat Detector Log
+    ${threat_detector_mark} =  Get Sophos Threat Detector Log Mark
 
     ${scan_log} =   Set Variable  /tmp/cli.log
     ${cls_handle} =   Start Process  ${CLI_SCANNER_PATH}  /usr/share/  stdout=${scan_log}  stderr=STDOUT
@@ -104,7 +106,7 @@ IDE update during command line scan
     Register Cleanup  Terminate Process  ${cls_handle}
 
     # ensure scan is running
-    Wait Until Sophos Threat Detector Log Contains With Offset  Scan requested of
+    Wait For Sophos Threat Detector Log Contains After Mark  Scan requested of  ${threat_detector_mark}
 
     ${start_time} =   Get Current Date   time_zone=UTC   exclude_millis=True
     Sleep  1 second   Allow some scans to occur before the update
@@ -113,8 +115,8 @@ IDE update during command line scan
     Replace Virus Data With Test Dataset A And Run IDE update with SUSI loaded
 
     # ensure scan is still running
-    Mark Sophos Threat Detector Log
-    Wait Until Sophos Threat Detector Log Contains With Offset  Scan requested of
+    ${threat_detector_mark2} =  Get Sophos Threat Detector Log Mark
+    Wait For Sophos Threat Detector Log Contains After Mark  Scan requested of  ${threat_detector_mark2}
 
     Sleep  1 second   Allow some scans to occur after the update
     ${end_time} =   Get Current Date   time_zone=UTC   exclude_millis=True
@@ -187,16 +189,16 @@ On access continues during update
     # start a background process to cause ~10 on-access events per second
     ${handle} =   Start Process   while :; do echo foo >${test_file}; sleep 0.1; done   shell=True
 
-    Mark Sophos Threat Detector Log
-    Wait Until Sophos Threat Detector Log Contains With Offset     Scan requested of ${test_file}
+    ${threat_detector_mark} =  Get Sophos Threat Detector Log Mark
+    Wait For Sophos Threat Detector Log Contains After Mark     Scan requested of ${test_file}  ${threat_detector_mark}
 
     ${start_time} =   Get Current Date   time_zone=UTC   exclude_millis=True
     Sleep   1s   let on-access do its thing
 
     Replace Virus Data With Test Dataset A And Run IDE update with SUSI loaded
 
-    Mark Sophos Threat Detector Log
-    Wait Until Sophos Threat Detector Log Contains With Offset     Scan requested of ${test_file}
+    ${threat_detector_mark2} =  Get Sophos Threat Detector Log Mark
+    Wait For Sophos Threat Detector Log Contains After Mark     Scan requested of ${test_file}  ${threat_detector_mark2}
 
     Sleep   1s   let on-access do its thing
     ${end_time} =   Get Current Date   time_zone=UTC   exclude_millis=True
@@ -244,6 +246,7 @@ Concurrent scans get pending update
 Update then Restart Sophos Threat Detector
     # ensure SUSI is initialized
     check avscanner can detect eicar
+    ${threat_detector_mark} =  Get Sophos Threat Detector Log Mark
 
     ${SOPHOS_THREAT_DETECTOR_PID} =  Wait For Pid  ${SOPHOS_THREAT_DETECTOR_BINARY}
     Replace Virus Data With Test Dataset A And Run IDE update with SUSI loaded
@@ -252,8 +255,9 @@ Update then Restart Sophos Threat Detector
     Mark Sophos Threat Detector Log
     Restart sophos_threat_detector
     Check Plugin Installed and Running
-    Wait Until Sophos Threat Detector Log Contains With Offset
+    Wait For Sophos Threat Detector Log Contains After Mark
     ...   UnixSocket <> Process Controller Server starting listening on socket:
+    ...   ${threat_detector_mark}
     ...   timeout=60
 
     # Check we can detect PEEND following update
@@ -273,8 +277,9 @@ Update before Init then Restart Threat Detector
 
     # restart STD and create a pending update
     Restart sophos_threat_detector and mark logs
+    ${threat_detector_mark} =  Get Sophos Threat Detector Log Mark
     Replace Virus Data With Test Dataset A And Run IDE update without SUSI loaded
-    Wait Until Sophos Threat Detector Log Contains With Offset   Threat scanner update is pending
+    Wait For Sophos Threat Detector Log Contains After Mark   Threat scanner update is pending  ${threat_detector_mark}
 
     # start a scan in the background, to trigger SUSI init & update
     ${LOG_FILE} =       Set Variable   /tmp/scan.log
@@ -286,19 +291,16 @@ Update before Init then Restart Threat Detector
 
     Register Cleanup    Terminate Process  ${cls_handle}
 
-    Wait Until Sophos Threat Detector Log Contains With Offset   Scan requested
-    Wait Until Sophos Threat Detector Log Contains With Offset   Initializing SUSI   timeout=30
+    Wait For Sophos Threat Detector Log Contains After Mark   Scan requested  ${threat_detector_mark}
+    Wait For Sophos Threat Detector Log Contains After Mark   Initializing SUSI  ${threat_detector_mark}   timeout=30
 
     # try to restart as soon as SUSI starts to load
     Restart sophos_threat_detector and mark logs
 
     # check the state of our scan (it *should* work, eventually)
     Process Should Be Running   ${cls_handle}
-    Mark Log   ${LOG_FILE}
-    Wait Until Keyword Succeeds
-    ...  20 secs
-    ...  2 secs
-    ...  File Log Contains With Offset   ${LOG_FILE}   Scanning   ${LOG_MARK}
+    ${cls_mark} =  Mark Log Size   ${LOG_FILE}
+    Wait For Log Contains From Mark  ${cls_mark}  Scanning
 
     # Stop CLS
     ${result} =   Terminate Process  ${cls_handle}
@@ -407,11 +409,12 @@ AV Plugin gets customer id after upgrade
     Should Be Equal   ${customerId2}   ${expectedId}
 
 IDE can be removed
-    Mark Sophos Threat Detector Log
+    ${threat_detector_mark} =  Get Sophos Threat Detector Log Mark
     Restart sophos_threat_detector
     Check Plugin Installed and Running
-    Wait Until Sophos Threat Detector Log Contains With Offset
+    Wait For Sophos Threat Detector Log Contains After Mark
     ...   UnixSocket <> Process Controller Server starting listening on socket: /var/process_control_socket
+    ...   ${threat_detector_mark}
     ...   timeout=60
     File should not exist  ${INSTALL_IDE_DIR}/${ide_name}
     ${SOPHOS_THREAT_DETECTOR_PID} =  Record Sophos Threat Detector PID
@@ -437,14 +440,14 @@ sophos_threat_detector can start after multiple IDE updates
     Force SUSI to be initialized
     # can't check for SUSI in logs, as it may have already been initialized
 
-    mark sophos threat detector log
+    ${threat_detector_mark} =  Get Sophos Threat Detector Log Mark
 
     Replace Virus Data With Test Dataset A
     Register Cleanup  Revert Virus Data and Run Update if Required
     Run IDE update with SUSI loaded
-    Sophos Threat Detector Log Contains With Offset  Threat scanner successfully updated
-    Sophos Threat Detector Log Contains With Offset  SUSI Libraries loaded:
-    mark sophos threat detector log
+    Check Sophos Threat Detector Log Contains After Mark  Threat scanner successfully updated  ${threat_detector_mark}
+    Check Sophos Threat Detector Log Contains After Mark  SUSI Libraries loaded:  ${threat_detector_mark}
+    ${threat_detector_mark} =  Get Sophos Threat Detector Log Mark
     Revert Virus Data To Live Dataset A
     Run IDE update with SUSI loaded
     Replace Virus Data With Test Dataset A
@@ -454,8 +457,9 @@ sophos_threat_detector can start after multiple IDE updates
     Check Sophos Threat Detector has same PID  ${SOPHOS_THREAT_DETECTOR_PID}
     Restart sophos_threat_detector
     Check Plugin Installed and Running
-    Wait Until Sophos Threat Detector Log Contains With Offset
+    Wait For Sophos Threat Detector Log Contains After Mark
     ...   UnixSocket <> Process Controller Server starting listening on socket:
+    ...   ${threat_detector_mark}
     ...   timeout=60
     dump log  ${THREAT_DETECTOR_LOG_PATH}
 
@@ -564,11 +568,12 @@ Check logging symlink
     Should exist   ${AV_PLUGIN_PATH}/chroot/log/testfile
 
 Check no duplicate virus data files
-    Mark Sophos Threat Detector Log
+    ${threat_detector_mark} =  Get Sophos Threat Detector Log Mark
     Restart sophos_threat_detector
     Check Plugin Installed and Running
-    Wait Until Sophos Threat Detector Log Contains With Offset
+    Wait For Sophos Threat Detector Log Contains After Mark
     ...   UnixSocket <> Process Controller Server starting listening on socket: /var/process_control_socket
+    ...   ${threat_detector_mark}
     ...   timeout=60
     ${rc}   ${susiHash} =    Run And Return Rc And Output   head -n 1 ${COMPONENT_ROOT_PATH}/chroot/susi/update_source/package_manifest.txt
     Should Be Equal As Integers  ${rc}  ${0}
@@ -632,14 +637,16 @@ Check installer corrects permissions of chroot files on upgrade
     Change Owner  ${COMPONENT_ROOT_PATH}/chroot/etc/resolv.conf  sophos-spl-user  sophos-spl-group
     Change Owner  ${COMPONENT_ROOT_PATH}/chroot/etc/ld.so.cache  sophos-spl-user  sophos-spl-group
     Change Owner  ${COMPONENT_ROOT_PATH}/chroot/etc/hosts  sophos-spl-user  sophos-spl-group
+    ${threat_detector_mark} =  Get Sophos Threat Detector Log Mark
     stop sophos_threat_detector
     wait until threat detector not running
-    Wait Until Sophos Threat Detector Log Contains With Offset  Closing lock file
+    Wait For Sophos Threat Detector Log Contains After Mark  Closing lock file  ${threat_detector_mark}
     #Product will log the chroot path, so only /var/threat_detector.pid will show up in the threat detector log
     ${tdPidFile} =  Set Variable  ${COMPONENT_ROOT_PATH}/chroot/var/threat_detector.pid
     Create file   ${tdPidFile}
     Change Owner  ${tdPidFile}  sophos-spl-user  sophos-spl-group
     Modify manifest
+    ${threat_detector_mark2} =  Get Sophos Threat Detector Log Mark
 
     Install AV Directly from SDDS
     ${rc}  ${output} =  Run And Return Rc And Output  ls -l ${COMPONENT_ROOT_PATH}/chroot/opt/sophos-spl/plugins/av/var/
@@ -653,10 +660,10 @@ Check installer corrects permissions of chroot files on upgrade
     Create File     ${NORMAL_DIRECTORY}/eicar.com    ${EICAR_STRING}
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-    threat detector log should not contain with offset  Failed to read customerID - using default value
+    Check Sophos Threat Detector Log Does Not Contain After Mark  Failed to read customerID - using default value  ${threat_detector_mark2}
 
     #Product logs the chroot path
-    wait until sophos threat detector log contains with offset  Lock taken on: /var/threat_detector.pid
+    Wait For Sophos Threat Detector Log Contains After Mark  Lock taken on: /var/threat_detector.pid  ${threat_detector_mark2}
 
 Check installer can handle versioned copied Virus Data from 1-0-0
     # Simulate the versioned copied Virus Data that exists in a 1.0.0 install
@@ -683,11 +690,12 @@ AV Plugin Can Send Telemetry After IDE Update
     Run Process  ${SOPHOS_INSTALL}/bin/wdctl  start  av
 
     Send Policies to enable on-access
-    Mark Sophos Threat Detector Log
+    ${threat_detector_mark} =  Get Sophos Threat Detector Log Mark
     Restart sophos_threat_detector
     Check Plugin Installed and Running
-    Wait Until Sophos Threat Detector Log Contains With Offset
+    Wait For Sophos Threat Detector Log Contains After Mark
     ...   UnixSocket <> Process Controller Server starting listening on socket: /var/process_control_socket
+    ...   ${threat_detector_mark}
     ...   timeout=60
     Force SUSI to be initialized
 
@@ -715,16 +723,17 @@ AV Plugin Can Send Telemetry After Upgrade
     #reset telemetry values
     Run Process  ${SOPHOS_INSTALL}/bin/wdctl  stop  av
     Remove File  ${SOPHOS_INSTALL}/base/telemetry/cache/av-telemetry.json
-    Mark AV Log
+    ${av_mark} =  Get AV Log Mark
     Run Process  ${SOPHOS_INSTALL}/bin/wdctl  start  av
-    Wait until AV Plugin running with offset
+    Wait until AV Plugin running after mark  ${av_mark}
     Send Policies to enable on-access
 
-    Mark Sophos Threat Detector Log
+    ${threat_detector_mark} =  Get Sophos Threat Detector Log Mark
     Restart sophos_threat_detector
     Check Plugin Installed and Running
-    Wait Until Sophos Threat Detector Log Contains With Offset
+    Wait For Sophos Threat Detector Log Contains After Mark
     ...   UnixSocket <> Process Controller Server starting listening on socket: /var/process_control_socket
+    ...   ${threat_detector_mark}
     ...   timeout=60
     Run  chmod go-rwx ${AV_PLUGIN_PATH}/chroot/susi/update_source/*
 
@@ -933,11 +942,12 @@ IDE Update Invalidates On Access Cache
 
 
 SSPLAV can load old VDL
-    Mark Sophos Threat Detector Log
+    ${threat_detector_mark} =  Get Sophos Threat Detector Log Mark
     Restart sophos_threat_detector
     Check Plugin Installed and Running
-    Wait Until Sophos Threat Detector Log Contains With Offset
+    Wait For Sophos Threat Detector Log Contains After Mark
     ...   UnixSocket <> Process Controller Server starting listening on socket: /var/process_control_socket
+    ...   ${threat_detector_mark}
     ...   timeout=60
 
     Replace Virus Data With Test Dataset A  dataset=20220503
@@ -947,7 +957,7 @@ SSPLAV can load old VDL
     # Check we can detect EICAR following update
     Check avscanner can detect eicar
 
-    Wait Until Sophos Threat Detector Log Contains With Offset  SUSI Loaded old data
+    Wait For Sophos Threat Detector Log Contains After Mark  SUSI Loaded old data  ${threat_detector_mark}
 
 
 *** Variables ***
@@ -992,8 +1002,6 @@ Installer Test Setup
     Register On Fail  dump log  ${SOPHOS_INSTALL}/logs/base/watchdog.log
 
     Require Plugin Installed and Running
-    Mark AV Log
-    Mark Sophos Threat Detector Log
 
     #Register Cleanup has LIFO order, so checking for errors is done last.
     Register Cleanup    Check All Product Logs Do Not Contain Error
