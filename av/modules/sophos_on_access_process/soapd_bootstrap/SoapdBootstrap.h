@@ -42,6 +42,7 @@ namespace sophos_on_access_process::soapd_bootstrap
 
         void innerRun();
 
+        void setupOnAccess();
         // these two methods are not thread safe, but are only called from ProcessPolicy and innerRun (after stopping the policy handler)
         void enableOnAccess();
         void disableOnAccess();
@@ -57,6 +58,7 @@ namespace sophos_on_access_process::soapd_bootstrap
         std::atomic_bool m_currentOaEnabledState = false;
 
         sophos_on_access_process::local_settings::OnAccessLocalSettings m_localSettings;
+        OnAccessConfig::OnAccessConfiguration m_config;
 
         std::shared_ptr<onaccessimpl::ScanRequestQueue> m_scanRequestQueue;
         std::vector<std::shared_ptr<common::ThreadRunner>> m_scanHandlerThreads;

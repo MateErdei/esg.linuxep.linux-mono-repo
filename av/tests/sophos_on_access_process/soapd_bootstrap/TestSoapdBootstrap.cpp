@@ -1,4 +1,4 @@
-// Copyright 2022, Sophos Limited.  All rights reserved.
+// Copyright 2022-2023, Sophos Limited.  All rights reserved.
 
 #include "../SoapMemoryAppenderUsingTests.h"
 #include "common/MemoryAppender.h"
@@ -24,7 +24,7 @@ namespace
             m_testDir /= test_info->name();
             fs::remove_all(m_testDir);
             fs::create_directories(m_testDir / "var"); // for pidfile
-            fs::create_directories(m_testDir / "var" / "ipc" / "plugins"); // for pluginapi ipc
+            // fs::create_directories(m_testDir / "var" / "ipc" / "plugins"); // for pluginapi ipc
 
             auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
             appConfig.setData(Common::ApplicationConfiguration::SOPHOS_INSTALL, m_testDir );
@@ -75,4 +75,15 @@ TEST_F(TestSoapdBootstrap, checkIfOAShouldBeEnabled_flagEnabled_policyEnabled)
 
     EXPECT_EQ(SoapdBootstrap::checkIfOAShouldBeEnabled(true, true), true);
     EXPECT_TRUE(appenderContains("No policy override, following policy settings"));
+}
+
+TEST_F(TestSoapdBootstrap, initialize)
+{
+    auto SoapdInstance = SoapdBootstrap(m_mockSysCallWrapper);
+}
+
+TEST_F(TestSoapdBootstrap, runSoapd)
+{
+    int ret = SoapdBootstrap::runSoapd(m_mockSysCallWrapper);
+    EXPECT_EQ(ret, 1);
 }

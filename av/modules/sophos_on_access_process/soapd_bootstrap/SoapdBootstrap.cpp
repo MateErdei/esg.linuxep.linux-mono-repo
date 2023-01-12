@@ -53,7 +53,6 @@ int SoapdBootstrap::runSoapd(datatypes::ISystemCallWrapperSharedPtr systemCallWr
 
 int SoapdBootstrap::outerRun()
 {
-    m_sysCallWrapper = std::make_shared<datatypes::SystemCallWrapper>();
     try
     {
         innerRun();
@@ -82,48 +81,15 @@ void SoapdBootstrap::innerRun()
     auto sigIntMonitor{common::signals::SigIntMonitor::getSigIntMonitor(true)};
     auto sigTermMonitor{common::signals::SigTermMonitor::getSigTermMonitor(true)};
 
-    OnAccessConfig::OnAccessConfiguration config;
-
-    m_localSettings = OnAccessConfig::readLocalSettingsFile(m_sysCallWrapper);
-    size_t maxScanQueueSize = m_localSettings.maxScanQueueSize;
-
-    const struct rlimit file_lim = { onAccessProcessFdLimit, onAccessProcessFdLimit };
-    m_sysCallWrapper->setrlimit(RLIMIT_NOFILE, &file_lim);
-
-    m_fanotifyHandler = std::make_shared<FanotifyHandler>(m_sysCallWrapper);
-
-    auto sysPathsFactory = std::make_shared<mount_monitor::mountinfoimpl::SystemPathsFactory>();
-    m_mountMonitor = std::make_shared<mount_monitor::mount_monitor::MountMonitor>(config,
-                                                                                  m_sysCallWrapper,
-                                                                                  m_fanotifyHandler,
-                                                                                  sysPathsFactory);
-    m_mountMonitorThread = std::make_unique<common::ThreadRunner>(m_mountMonitor,
-                                                                  "mountMonitor",
-                                                                  false);
-
-    fs::path updateSocketPath = common::getPluginInstallPath() / "chroot/var/update_complete_socket";
-    auto updateClient = std::make_shared<UpdateCompleteClientSocketThread>(updateSocketPath, m_fanotifyHandler);
-    auto updateClientThread = std::make_unique<common::ThreadRunner>(updateClient, "updateClient", true);
-
-    m_scanRequestQueue = std::make_shared<ScanRequestQueue>(maxScanQueueSize);
-
     m_ServiceImpl = std::make_unique<service_impl::OnAccessServiceImpl>();
     m_TelemetryUtility = m_ServiceImpl->getTelemetryUtility();
 
-    m_deviceUtil = std::make_shared<mount_monitor::mountinfoimpl::DeviceUtil>(m_sysCallWrapper);
+    setupOnAccess();
 
-    m_eventReader = std::make_shared<EventReaderThread>(m_fanotifyHandler,
-                                                        m_sysCallWrapper,
-                                                        common::getPluginInstallPath(),
-                                                        m_scanRequestQueue,
-                                                        m_TelemetryUtility,
-                                                        m_deviceUtil);
-    m_eventReader->setCacheAllEvents(m_localSettings.cacheAllEvents);
-    m_eventReaderThread = std::make_unique<common::ThreadRunner>(m_eventReader,
-                                                                 "eventReader",
-                                                                 false);
-
-
+    fs::path updateSocketPath = common::getPluginInstallPath() / "chroot/var/update_complete_socket";
+    assert(m_fanotifyHandler); // should be set by setupOnAccess() above
+    auto updateClient = std::make_shared<UpdateCompleteClientSocketThread>(updateSocketPath, m_fanotifyHandler);
+    auto updateClientThread = std::make_unique<common::ThreadRunner>(updateClient, "updateClient", true);
 
     fs::path socketPath = common::getPluginInstallPath() / "var/soapd_controller";
     LOGDEBUG("Control Server Socket is at: " << socketPath);
@@ -136,13 +102,12 @@ void SoapdBootstrap::innerRun()
                                                                                 "processControlServer",
                                                                                 true);
 
+    ProcessPolicy();
+
     struct pollfd fds[] {
         { .fd = sigIntMonitor->monitorFd(), .events = POLLIN, .revents = 0 },
         { .fd = sigTermMonitor->monitorFd(), .events = POLLIN, .revents = 0 }
     };
-
-    ProcessPolicy();
-
     std::timespec timeout { .tv_sec=60, .tv_nsec=0 };
 
     while (true)
@@ -249,6 +214,42 @@ bool SoapdBootstrap::checkIfOAShouldBeEnabled(bool OnAccessEnabledFlag, bool OnA
     }
 }
 
+void SoapdBootstrap::setupOnAccess()
+{
+    m_localSettings = OnAccessConfig::readLocalSettingsFile(m_sysCallWrapper);
+
+    const struct rlimit file_lim = { onAccessProcessFdLimit, onAccessProcessFdLimit };
+    m_sysCallWrapper->setrlimit(RLIMIT_NOFILE, &file_lim);
+
+    m_fanotifyHandler = std::make_shared<FanotifyHandler>(m_sysCallWrapper);
+
+    auto sysPathsFactory = std::make_shared<mount_monitor::mountinfoimpl::SystemPathsFactory>();
+    m_mountMonitor = std::make_shared<mount_monitor::mount_monitor::MountMonitor>(m_config,
+                                                                                  m_sysCallWrapper,
+                                                                                  m_fanotifyHandler,
+                                                                                  sysPathsFactory);
+    m_mountMonitorThread = std::make_unique<common::ThreadRunner>(m_mountMonitor,
+                                                                  "mountMonitor",
+                                                                  false);
+
+    size_t maxScanQueueSize = m_localSettings.maxScanQueueSize;
+    m_scanRequestQueue = std::make_shared<ScanRequestQueue>(maxScanQueueSize);
+
+    m_deviceUtil = std::make_shared<mount_monitor::mountinfoimpl::DeviceUtil>(m_sysCallWrapper);
+
+    assert(m_TelemetryUtility); // should be set by innerRun() before we're called
+    m_eventReader = std::make_shared<EventReaderThread>(m_fanotifyHandler,
+                                                        m_sysCallWrapper,
+                                                        common::getPluginInstallPath(),
+                                                        m_scanRequestQueue,
+                                                        m_TelemetryUtility,
+                                                        m_deviceUtil);
+    m_eventReader->setCacheAllEvents(m_localSettings.cacheAllEvents);
+    m_eventReaderThread = std::make_unique<common::ThreadRunner>(m_eventReader,
+                                                                 "eventReader",
+                                                                 false);
+}
+
 void SoapdBootstrap::disableOnAccess()
 {
     // Log if on-access was enabled before
@@ -268,6 +269,8 @@ void SoapdBootstrap::disableOnAccess()
      * mount monitor should be thread-safe vs. fanotify handler being closed
      * but isn't worth running when fanotify is turned off.
      */
+
+    assert(m_fanotifyHandler); // should have been set by setupOnAccess()
 
     // Async stop event reader and mount monitor
     m_eventReader->tryStop();
@@ -311,6 +314,7 @@ void SoapdBootstrap::enableOnAccess()
 
     LOGINFO("Enabling on-access scanning");
 
+    assert(m_fanotifyHandler); // should have been set by setupOnAccess()
     m_fanotifyHandler->init();
 
     // Ensure queue is empty and running before we put anything in to it.
