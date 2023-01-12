@@ -87,7 +87,7 @@ TEST_F(TestSafeStoreRescanSocket, testLongRescanRequest)
     {
         TestClient client(m_socketPath);
         std::string request = "1";
-        for(int lenght =0; lenght < 10000;lenght++)
+        for (int length = 0; length < 10000; length++)
         {
             request = request + "s";
         }

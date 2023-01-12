@@ -1,7 +1,7 @@
 // Copyright 2023, Sophos Limited.  All rights reserved.
 
-#include "modules/unixsocket/BaseClient.h"
-#include "modules/unixsocket/SocketUtils.h"
+#include "unixsocket/BaseClient.h"
+#include "unixsocket/SocketUtils.h"
 
 #include <iostream>
 #include <cassert>

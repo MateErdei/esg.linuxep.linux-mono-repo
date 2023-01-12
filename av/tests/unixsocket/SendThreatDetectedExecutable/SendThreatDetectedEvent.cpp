@@ -1,7 +1,7 @@
 // Copyright 2023 Sophos Limited.  All rights reserved.
 
-#include "modules/scan_messages/ThreatDetected.h"
-#include "tests/unixsocket/TestClient.h"
+#include "scan_messages/ThreatDetected.h"
+#include "unixsocket/TestClient.h"
 
 #include <Common/Logging/ConsoleLoggingSetup.h>
 
