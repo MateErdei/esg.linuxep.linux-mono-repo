@@ -19,7 +19,7 @@ namespace scan_messages
 
         bool operator==(const ThreatDetected& other) const;
 
-        [[nodiscard]] std::string serialise() const;
+        [[nodiscard]] std::string serialise(bool validateData=true) const;
 
         // Checks whether the contained data is valid; throws if not
         void validate() const;

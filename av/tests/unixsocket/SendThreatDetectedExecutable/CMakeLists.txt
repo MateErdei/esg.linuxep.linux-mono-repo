@@ -15,3 +15,21 @@ install(TARGETS SendThreatDetectedEvent
         )
 
 add_dependencies(SendThreatDetectedEvent copy_libs)
+
+add_executable(SendDataToSocket
+        ../TestClient.h
+        SendDataToSocket.cpp)
+
+target_include_directories(SendDataToSocket PUBLIC ../../../ ${pluginapiinclude})
+
+target_link_libraries(SendDataToSocket ${zmqlib} ${pluginapilib} ${log4cpluslib} ${CAPNPROTO_LIBRARIES} scanmessages unixsocket)
+
+SET_TARGET_PROPERTIES(SendDataToSocket
+        PROPERTIES BUILD_RPATH "/opt/sophos-spl/plugins/av/lib64;${CMAKE_BINARY_DIR}/libs"
+        INSTALL_RPATH "$ORIGIN:$ORIGIN/../../../base/lib64:/opt/sophos-spl/plugins/av/lib64:/opt/sophos-spl/base/lib64")
+
+install(TARGETS SendDataToSocket
+        DESTINATION ${CMAKE_BINARY_DIR}/tap_test_output
+        )
+
+add_dependencies(SendDataToSocket copy_libs)

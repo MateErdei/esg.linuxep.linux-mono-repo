@@ -36,9 +36,12 @@ ThreatDetected ThreatDetected::deserialise(Sophos::ssplav::ThreatDetected::Reade
     return threatDetected;
 }
 
-std::string ThreatDetected::serialise() const
+std::string ThreatDetected::serialise(bool validateData) const
 {
-    validate();
+    if (validateData)
+    {
+        validate();
+    }
 
     ::capnp::MallocMessageBuilder message;
     Sophos::ssplav::ThreatDetected::Builder threatDetectedBuilder = message.initRoot<Sophos::ssplav::ThreatDetected>();
