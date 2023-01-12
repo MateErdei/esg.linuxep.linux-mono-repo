@@ -27,8 +27,11 @@ SafeStoreRescanWorker::~SafeStoreRescanWorker()
 
 void SafeStoreRescanWorker::tryStop()
 {
-    m_stopRequested = true;
-    m_rescanWakeUp.notify_all();
+    m_stopRequested.store(true);
+    {
+        std::unique_lock lock(m_rescanLock);
+        m_rescanWakeUp.notify_all();
+    }
 }
 
 void SafeStoreRescanWorker::run()
@@ -38,12 +41,11 @@ void SafeStoreRescanWorker::run()
     announceThreadStarted();
 
     std::unique_lock lock(m_rescanLock);
-    while (!m_stopRequested)
+    while (!m_stopRequested.load())
     {
         m_rescanWakeUp.wait_for(
-            lock, std::chrono::seconds(m_rescanInterval), [this] { return m_manualRescan || m_stopRequested; });
-
-        if (m_stopRequested)
+            lock, std::chrono::seconds(m_rescanInterval), [this] { return m_manualRescan.load() || m_stopRequested.load(); });
+        if (m_stopRequested.load())
         {
             LOGDEBUG("SafeStoreRescanWorker stop requested");
             break;
@@ -51,7 +53,7 @@ void SafeStoreRescanWorker::run()
 
         // else if ( m_manualRescan || wait_for(timeout))
         sendRescanRequest();
-        m_manualRescan = false;
+        m_manualRescan.store(false);
     }
     LOGDEBUG("Exiting SafeStoreRescanWorker");
 }
@@ -60,7 +62,7 @@ void SafeStoreRescanWorker::triggerRescan()
 {
     {
         std::lock_guard lock(m_rescanLock);
-        m_manualRescan = true;
+        m_manualRescan.store(true);
     }
     m_rescanWakeUp.notify_one();
 }
