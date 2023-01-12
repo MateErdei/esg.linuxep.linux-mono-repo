@@ -30,7 +30,7 @@ Dump and Reset Logs
     Remove File  ${SAFESTORE_LOG_PATH}*
 
 *** Test Cases ***
-Send Successful Quarantine To Safestore
+Send A Valid Threat Detected Object To Safestore
     Create File  /tmp/testfile
     ${result} =  Run Shell Process  ${SEND_THREAT_DETECTED_TOOL} --socketpath /opt/sophos-spl/plugins/av/var/safestore_socket --filepath /tmp/testfile --threatname threatName --sha e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855    OnError=Failed to run SendThreatDetectedEvent binary   timeout=10
     Wait Until Keyword Succeeds
@@ -38,7 +38,7 @@ Send Successful Quarantine To Safestore
     ...  1 secs
     ...  SafeStore Log Contains  Quarantined /tmp/testfile successfully
 
-Send only message To Safestore
+Send Only Message To Safestore
     Create File  /tmp/testfile
     ${result} =  Run Shell Process  ${SEND_THREAT_DETECTED_TOOL} --socketpath /opt/sophos-spl/plugins/av/var/safestore_socket --filepath /tmp/testfile --threatname threatName --sha e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 --nosendfd    OnError=Failed to run SendThreatDetectedEvent binary   timeout=10
     Wait Until Keyword Succeeds
@@ -47,7 +47,7 @@ Send only message To Safestore
     ...  SafeStore Log Contains  Aborting SafeStore connection thread: failed to read fd
     mark_expected_error_in_log  ${SAFESTORE_LOG_PATH}  Aborting SafeStore connection thread: failed to read fd
 
-Send only fd To Safestore
+Send Only FD To Safestore
     Create File  /tmp/testfile
     ${result} =  Run Shell Process  ${SEND_THREAT_DETECTED_TOOL} --socketpath /opt/sophos-spl/plugins/av/var/safestore_socket --filepath /tmp/testfile --nosendmessage    OnError=Failed to run SendThreatDetectedEvent binary   timeout=10
     Wait Until Keyword Succeeds
@@ -55,7 +55,7 @@ Send only fd To Safestore
     ...  1 secs
     ...  SafeStore Log Contains  Ignoring length of zero / No new messages
 
-Send short sha To Safestore
+Send Short SHA To Safestore
     Create File  /tmp/testfile
     ${result} =  Run Shell Process  ${SEND_THREAT_DETECTED_TOOL} --socketpath /opt/sophos-spl/plugins/av/var/safestore_socket --filepath /tmp/testfile --threatname threatName --sha e3b0c44298fc1c149afbf4c8996f    OnError=Failed to run SendThreatDetectedEvent binary   timeout=10
     Wait Until Keyword Succeeds
@@ -64,7 +64,7 @@ Send short sha To Safestore
     ...  SafeStore Log Contains  Quarantined /tmp/testfile successfully
 
 
-Send long sha To Safestore
+Send Long SHA To Safestore
     Create File  /tmp/testfile
     ${result} =  Run Shell Process  ${SEND_THREAT_DETECTED_TOOL} --socketpath /opt/sophos-spl/plugins/av/var/safestore_socket --filepath /tmp/testfile --threatname threatName --sha e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b85555    OnError=Failed to run SendThreatDetectedEvent binary   timeout=10
     Wait Until Keyword Succeeds
@@ -72,7 +72,7 @@ Send long sha To Safestore
     ...  1 secs
     ...  SafeStore Log Contains  Quarantined /tmp/testfile successfully
 
-Send invalid sha with captial letters To Safestore
+Send invalid SHA with captial letters To Safestore
     Create File  /tmp/testfile
     ${result} =  Run Shell Process  ${SEND_THREAT_DETECTED_TOOL} --socketpath /opt/sophos-spl/plugins/av/var/safestore_socket --filepath /tmp/testfile --threatname threatName --sha E3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855    OnError=Failed to run SendThreatDetectedEvent binary   timeout=10
     Wait Until Keyword Succeeds
@@ -80,7 +80,7 @@ Send invalid sha with captial letters To Safestore
     ...  1 secs
     ...  SafeStore Log Contains  Quarantined /tmp/testfile successfully
 
-Send sha that is in json format To Safestore
+Send SHA that is in json format To Safestore
     Create File  /tmp/testfile
     ${result} =  Run Shell Process  ${SEND_THREAT_DETECTED_TOOL} --socketpath /opt/sophos-spl/plugins/av/var/safestore_socket --filepath /tmp/testfile --threatname threatName --sha {"hellow":1000}    OnError=Failed to run SendThreatDetectedEvent binary   timeout=10
     Wait Until Keyword Succeeds
@@ -88,7 +88,7 @@ Send sha that is in json format To Safestore
     ...  1 secs
     ...  SafeStore Log Contains  Quarantined /tmp/testfile successfully
 
-Send sha that is in xml format To Safestore
+Send SHA that is in xml format To Safestore
     Create File  /tmp/testfile
     ${result} =  Run Shell Process  ${SEND_THREAT_DETECTED_TOOL} --socketpath /opt/sophos-spl/plugins/av/var/safestore_socket --filepath /tmp/testfile --threatname threatName --sha <xmltag>aaaa<\xmltag>    OnError=Failed to run SendThreatDetectedEvent binary   timeout=10
     Wait Until Keyword Succeeds
@@ -96,7 +96,7 @@ Send sha that is in xml format To Safestore
     ...  1 secs
     ...  SafeStore Log Contains  Quarantined /tmp/testfile successfully
 
-Send TDO with empty sha To Safestore
+Send TDO with empty SHA To Safestore
     Create File  /tmp/testfile
     ${result} =  Run Shell Process  ${SEND_THREAT_DETECTED_TOOL} --socketpath /opt/sophos-spl/plugins/av/var/safestore_socket --filepath /tmp/testfile --threatname threatName   OnError=Failed to run SendThreatDetectedEvent binary   timeout=10
     Wait Until Keyword Succeeds
@@ -105,7 +105,7 @@ Send TDO with empty sha To Safestore
     ...  SafeStore Log Contains  Quarantined /tmp/testfile successfully
     mark_expected_error_in_log  ${SAFESTORE_LOG_PATH}  Got DATA_TAG_NOT_SET while setting custom data, name: SHA256
 
-Send invalid sha To safestore
+Send invalid SHA To safestore
     Create File  /tmp/testfile
     ${result} =  Run Shell Process  ${SEND_THREAT_DETECTED_TOOL} --socketpath /opt/sophos-spl/plugins/av/var/safestore_socket --filepath /tmp/testfile --threatname threatName --sha e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b8==    OnError=Failed to run SendThreatDetectedEvent binary   timeout=10
     Wait Until Keyword Succeeds
@@ -113,7 +113,7 @@ Send invalid sha To safestore
     ...  1 secs
     ...  SafeStore Log Contains  Quarantined /tmp/testfile successfully
 
-Send sha with foreign char Safestore
+Send SHA with foreign char Safestore
     Create File  /tmp/testfile
     ${result} =  Run Shell Process  ${SEND_THREAT_DETECTED_TOOL} --socketpath /opt/sophos-spl/plugins/av/var/safestore_socket --filepath /tmp/testfile --threatname threatName --sha e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b8សួស្តី    OnError=Failed to run SendThreatDetectedEvent binary   timeout=10
     Wait Until Keyword Succeeds
