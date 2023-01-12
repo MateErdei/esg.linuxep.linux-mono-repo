@@ -107,9 +107,10 @@ class FakeManagement(object):
 
     def send_plugin_policy(self, plugin_name, app_id, content):
         plugin = self.__get_requester(plugin_name)
-        if app_id == "sav":
-            self.logger.info("Upgrading appid 'sav' to 'SAV'")
-            app_id = "SAV"
+        if app_id.islower():
+            self.logger.error("appid:{} is lower case".format(app_id))
+            app_id = app_id.upper()
+
         plugin.policy(app_id, content)
         if self.agent is not None:
             self.agent.set_default_policy(app_id, content)
