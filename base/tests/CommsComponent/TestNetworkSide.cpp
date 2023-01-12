@@ -36,8 +36,12 @@ void sendMessageToNetworkSideAndCheckItRespondsWithoutCrashing(std::string& msgC
     // that we can parse large body content inside NetworkSide. We only expect this once even though there are
     // two messages being pushed in because our proper message will be the only one to generate and send a reply to
     // mockedOutCommsDitributorSide.
-    EXPECT_CALL(mockedOutCommsDistributorSide,
-                pushMessage(HasSubstr("URL using bad/illegal format or missing URL"))).Times(1);
+    EXPECT_CALL(
+        mockedOutCommsDistributorSide,
+        pushMessage(AnyOf(
+            HasSubstr("URL using bad/illegal format or missing URL"),
+            HasSubstr("Couldn't resolve host name"))))
+        .Times(1);
     // Only way to get out of the endless loop was to add a message we know will throw so we have to expect that to
     // throw here.
     EXPECT_THROW(commsNetwork(channel, mockedOutCommsDistributorSide), std::runtime_error);
