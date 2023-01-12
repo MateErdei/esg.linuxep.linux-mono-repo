@@ -359,7 +359,32 @@ TEST_F(TestSophosThreatDetectorMain, ppollTimeoutWithUninitialisedSusiResetsShut
     EXPECT_TRUE(appenderContains("SUSI is not initialised - resetting shutdown timer"));
 }
 
+TEST_F(TestSophosThreatDetectorMain, ensureUSR1MonitorIsCreatedBeforeLoadingSUSI)
+{
+    auto treatDetectorMain = sspl::sophosthreatdetectorimpl::SophosThreatDetectorMain();
+    {
+        InSequence sequence;
+        EXPECT_CALL(*m_mockThreatDetectorResources, createUsr1Monitor(_));
+        EXPECT_CALL(*m_mockThreatDetectorResources, createScanningServerSocket(_,_,_));
+    }
+    EXPECT_CALL(*m_mockSystemCallWrapper, ppoll(_,_,_,_)).WillOnce(pollReturnsWithRevents(0, POLLIN));
 
+    EXPECT_EQ(common::E_CLEAN_SUCCESS, treatDetectorMain.inner_main(m_mockThreatDetectorResources));
+}
+
+
+TEST_F(TestSophosThreatDetectorMain, ensureProcessControllerIsSetupAfterReloader)
+{
+    auto treatDetectorMain = sspl::sophosthreatdetectorimpl::SophosThreatDetectorMain();
+    {
+        InSequence sequence;
+        EXPECT_CALL(*m_mockThreatDetectorResources, createReloader(_));
+        EXPECT_CALL(*m_mockThreatDetectorResources, createProcessControllerServerSocket(_,_,_));
+    }
+    EXPECT_CALL(*m_mockSystemCallWrapper, ppoll(_,_,_,_)).WillOnce(pollReturnsWithRevents(0, POLLIN));
+
+    EXPECT_EQ(common::E_CLEAN_SUCCESS, treatDetectorMain.inner_main(m_mockThreatDetectorResources));
+}
 
 
 namespace {
