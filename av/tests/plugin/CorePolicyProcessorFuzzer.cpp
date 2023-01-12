@@ -6,6 +6,7 @@
 
 #include "Common/FileSystem/IFileSystem.h"
 #include "Common/Logging/ConsoleLoggingSetup.h"
+#include "Common/XmlUtilities/AttributesMap.h"
 
 #include <fstream>
 #include <string>
@@ -18,10 +19,17 @@
 static int fuzzCorePolicy(const uint8_t *Data, size_t Size)
 {
     std::string fuzzString(reinterpret_cast<const char*>(Data), Size);
-    auto parsedFuzzString = Common::XmlUtilities::parseXml(fuzzString);
-    auto taskQueue = std::make_shared<Plugin::TaskQueue>();
-    Plugin::PolicyProcessor policyProcessor(taskQueue);
-    policyProcessor.processCOREpolicy(parsedFuzzString);
+    try
+    {
+        auto parsedFuzzString = Common::XmlUtilities::parseXml(fuzzString);
+        auto taskQueue = std::make_shared<Plugin::TaskQueue>();
+        Plugin::PolicyProcessor policyProcessor(taskQueue);
+        policyProcessor.processCOREPolicy(parsedFuzzString);
+    }
+    catch (Common::XmlUtilities::XmlUtilitiesException& e)
+    {
+        // Do nothing as parsing xml exception handled
+    }
 
     return 0;
 }
