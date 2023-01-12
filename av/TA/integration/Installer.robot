@@ -325,7 +325,7 @@ Scanner works after upgrade
     Run Installer From Install Set
 
     # Existing robot functions don't check marked logs, so we do our own log check instead
-    Check Plugin Installed and Running With Offset
+    Check Plugin Installed and Running After Marks  ${av_mark}  ${threat_detector_mark}
     Wait For Sophos Threat Detector Log Contains After Mark
     ...   UnixSocket <> Process Controller Server starting listening on socket:
     ...   ${threat_detector_mark}

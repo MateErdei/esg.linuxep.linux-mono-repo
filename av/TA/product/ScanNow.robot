@@ -249,7 +249,7 @@ Scan Now scan errors do not get logged to av log
     File Log Contains  ${SCANNOW_LOG_PATH}  Failed to scan /process/passwd-protected.xls as it is password protected
     File Log Contains  ${SCANNOW_LOG_PATH}  Failed to scan /process/corrupted.xls as it is corrupted
 
-    Check AV Log Contains After Mark   Failed to scan  ${av_mark}
+    Check AV Log Does Not Contain After Mark   Failed to scan  ${av_mark}
 
 
 *** Keywords ***

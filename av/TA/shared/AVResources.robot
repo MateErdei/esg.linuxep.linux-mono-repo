@@ -581,9 +581,8 @@ Check Plugin Installed and Running
     Wait until AV Plugin running
     Wait until threat detector running
 
-Check Plugin Installed and Running With Offset
-    ${av_mark} =  Get AV Log Mark
-    ${threat_detector_mark} =  Get Sophos Threat Detector Log Mark
+Check Plugin Installed and Running After Marks
+    [Arguments]  ${av_mark}  ${threat_detector_mark}
     File Should Exist   ${PLUGIN_BINARY}
     Wait until AV Plugin running after mark  ${av_mark}
     Wait until threat detector running after mark  ${threat_detector_mark}
@@ -663,7 +662,8 @@ Check AV Plugin Installed from Marks
     wait_for_log_contains_from_mark  ${fake_management_mark}  Registered plugin: ${COMPONENT}  timeout=${15}
 
 Check AV Plugin Installed With Offset
-    Check Plugin Installed and Running With Offset
+    [Arguments]  ${av_mark}  ${threat_detector_mark}
+    Check Plugin Installed and Running After Marks  ${av_mark}  ${threat_detector_mark}
     Wait Until Keyword Succeeds
     ...  15 secs
     ...  3 secs
