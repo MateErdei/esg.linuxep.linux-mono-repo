@@ -73,7 +73,7 @@ Bootstrap SUSI From Update Source
 
 Setup Component For Testing
     Run  pgrep -f sophos-spl | xargs kill -9
-    Copy Directory   ${COMPONENT_SDDS}/files/plugins   ${SOPHOS_INSTALL}
+    Copy Directory   ${COMPONENT_INSTALL_SET}/files/plugins   ${SOPHOS_INSTALL}
     ## Change permissions for all executables
     Run Process  chmod  -R  +x  ${COMPONENT_ROOT_PATH}/sbin  ${COMPONENT_ROOT_PATH}/bin  ${BASH_SCRIPTS_PATH}  shell=True
     Run Process  chmod  +x  ${COMPONENT_ROOT_PATH}/sophos_certs/InstallCertificateToSystem.sh

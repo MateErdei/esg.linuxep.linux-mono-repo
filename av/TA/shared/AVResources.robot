@@ -47,8 +47,7 @@ ${COMPONENT_ROOT_PATH_CHROOT}                   ${COMPONENT_ROOT_PATH}/chroot/${
 ${CHROOT_LOGGING_SYMLINK}                       ${COMPONENT_ROOT_PATH_CHROOT}/log/sophos_threat_detector
 ${SUSI_STARTUP_SETTINGS_FILE}                   ${AV_PLUGIN_PATH}/var/susi_startup_settings.json
 ${SUSI_STARTUP_SETTINGS_FILE_CHROOT}            ${COMPONENT_ROOT_PATH_CHROOT}/var/susi_startup_settings.json
-${AV_SDDS}                                      ${COMPONENT_SDDS}
-${PLUGIN_SDDS}                                  ${COMPONENT_SDDS}
+${AV_SDDS}                                      ${COMPONENT_INSTALL_SET}
 ${PLUGIN_BINARY}                                ${COMPONENT_ROOT_PATH}/sbin/${COMPONENT}
 ${SCHEDULED_FILE_WALKER_LAUNCHER}               ${COMPONENT_ROOT_PATH}/sbin/scheduled_file_walker_launcher
 ${ON_ACCESS_BIN}                                ${COMPONENT_ROOT_PATH}/sbin/soapd
