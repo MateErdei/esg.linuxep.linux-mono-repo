@@ -484,22 +484,19 @@ namespace sspl::sophosthreatdetectorimpl
         m_reloader = resources->createReloader(m_scannerFactory);
         assert(m_reloader);
 
+        auto usr1Monitor = resources->createUsr1Monitor(m_reloader);
+        assert(usr1Monitor);
+
         auto server = resources->createScanningServerSocket(scanningSocketPath, 0666, m_scannerFactory);
         common::ThreadRunner scanningServerSocketThread (server, "scanningServerSocket", true);
 
-        auto usr1Monitor = resources->createUsr1Monitor(m_reloader);//Todo LINUXDAR-6030 test this: Create monitor before loading SUSI
-        assert(usr1Monitor);
-
-        ////Todo LINUXDAR-6030 test this: Always create processController after m_reloader is initialized
         fs::path processControllerSocketPath = "/var/process_control_socket";
         std::shared_ptr<ThreatDetectorControlCallbacks> callbacks = std::make_shared<ThreatDetectorControlCallbacks>(*this);
         auto processController = resources->createProcessControllerServerSocket(processControllerSocketPath, 0660, callbacks);
         common::ThreadRunner processControllerSocketThread (processController, "processControllerSocket", true);
 
         m_safeStoreRescanWorker = std::make_shared<SafeStoreRescanWorker>(Plugin::getSafeStoreRescanSocketPath());
-        //common::ThreadRunner safeStoreRescanWorkerThread (m_safeStoreRescanWorker, "safestoreRescanWorker", true);
-
-        m_safeStoreRescanWorker->start();
+        common::ThreadRunner safeStoreRescanWorkerThread (m_safeStoreRescanWorker, "safestoreRescanWorker", true);
 
         int returnCode = common::E_CLEAN_SUCCESS;
 
