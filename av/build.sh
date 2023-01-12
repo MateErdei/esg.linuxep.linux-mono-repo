@@ -603,13 +603,7 @@ function build()
         cp -rL ${BUILD_DIR}/tools/avscanner/mountinfoimpl/PrintMounts  output/componenttests/ \
             || exitFailure $FAILURE_COPY_SDDS_FAILED  "Failed to copy PrintMounts"
     fi
-    mkdir -p ${OUTPUT}/manualtests
-    cp -L TA/manual/*.sh TA/manual/*.py ${OUTPUT}/manualtests/
-    if [[ -d ${BUILD_DIR}/manualtests ]]
-    then
-        cp -a ${BUILD_DIR}/manualtests/* ${OUTPUT}/manualtests \
-            || exitFailure $FAILURE_COPY_SDDS_FAILED  "Failed to copy manualTest tools"
-    fi
+
     python3 TA/process_capnp_files.py
 
     if [[ -d ${BUILD_DIR}/symbols ]]

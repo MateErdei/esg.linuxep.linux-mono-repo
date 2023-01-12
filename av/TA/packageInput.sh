@@ -34,7 +34,6 @@ rsync -va --copy-unsafe-links --delete "$OUTPUT/SDDS-COMPONENT/"  "$AV/SDDS-COMP
 rsync -va --copy-unsafe-links "$OUTPUT/tap_test_output.tar.gz"    "$INPUTS/tap_test_output_from_build/tap_test_output.tar.gz"
 rsync -va --copy-unsafe-links --delete "${BASE_OUTPUT}/"          "$AV/base-sdds"
 rsync -va --copy-unsafe-links --delete "$OUTPUT/test-resources"   "$AV/"
-rsync -va --copy-unsafe-links --delete "$OUTPUT/manualtests"   "$AV/manualtests"
 exec tar cjf /tmp/inputs.tar.bz2 -C ${DEST_BASE} ${TEST_DIR_NAME}
 
 ## To unpack:

@@ -32,7 +32,7 @@ Dump and Reset Logs
 *** Test Cases ***
 Send Successful Quarantine To Safestore
     Create File  /tmp/testfile
-    ${result} =  Run Shell Process  ${SEND_THREAT_DETECTED_TOOL} -p /opt/sophos-spl/plugins/av/var/safestore_socket -f /tmp/testfile -t threatName -s e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855    OnError=Failed to run SendThreatDetectedEvent binary   timeout=10
+    ${result} =  Run Shell Process  ${SEND_THREAT_DETECTED_TOOL} --socketpath /opt/sophos-spl/plugins/av/var/safestore_socket --filepath /tmp/testfile --threatname threatName --sha e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855    OnError=Failed to run SendThreatDetectedEvent binary   timeout=10
     Wait Until Keyword Succeeds
     ...  10 secs
     ...  1 secs

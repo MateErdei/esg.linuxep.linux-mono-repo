@@ -45,8 +45,6 @@ mv "$OUTPUT/base-sdds/"      "$AV/base-sdds"
 chmod 700 "$AV/base-sdds/install.sh"
 rm -rf "$AV/test-resources"
 mv "$OUTPUT/test-resources"  "$AV/"
-rm -rf "$AV/manualtests"
-mv "$OUTPUT/manualtests"  "$AV/"
 
 if [[ -n $SYMBOLS ]]
 then
