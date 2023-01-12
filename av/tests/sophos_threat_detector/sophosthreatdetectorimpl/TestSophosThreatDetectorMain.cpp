@@ -198,10 +198,10 @@ TEST_F(TestSophosThreatDetectorMain, sigTermTerminatesProcess)
     auto treatDetectorMain = sspl::sophosthreatdetectorimpl::SophosThreatDetectorMain();
     treatDetectorMain.inner_main(m_mockThreatDetectorResources);
 
-    ASSERT_TRUE(waitForLog("Starting updateCompleteNotifier"));
-    EXPECT_TRUE(waitForLog("Sophos Threat Detector received SIGTERM - shutting down"));
-    EXPECT_TRUE(waitForLog("Stopping updateCompleteNotifier"));
-    EXPECT_TRUE(waitForLog("Joining updateCompleteNotifier"));
+    ASSERT_TRUE(appenderContains("Starting updateCompleteNotifier"));
+    EXPECT_TRUE(appenderContains("Sophos Threat Detector received SIGTERM - shutting down"));
+    EXPECT_TRUE(appenderContains("Stopping updateCompleteNotifier"));
+    EXPECT_TRUE(appenderContains("Joining updateCompleteNotifier"));
 }
 
 
@@ -216,7 +216,7 @@ TEST_F(TestSophosThreatDetectorMain, logsWhenAttemptDNSQueryFailsWithEAI_SYSTEM)
     auto treatDetectorMain = sspl::sophosthreatdetectorimpl::SophosThreatDetectorMain();
     treatDetectorMain.inner_main(m_mockThreatDetectorResources);
 
-    EXPECT_TRUE(waitForLog("Failed DNS query of 4.sophosxl.net: system error in getaddrinfo: Input/output error"));
+    EXPECT_TRUE(appenderContains("Failed DNS query of 4.sophosxl.net: system error in getaddrinfo: Input/output error"));
 }
 
 TEST_F(TestSophosThreatDetectorMain, logsWhenAttemptDNSQueryFailsWithOtherError)
@@ -229,10 +229,29 @@ TEST_F(TestSophosThreatDetectorMain, logsWhenAttemptDNSQueryFailsWithOtherError)
 
     auto treatDetectorMain = sspl::sophosthreatdetectorimpl::SophosThreatDetectorMain();
     treatDetectorMain.inner_main(m_mockThreatDetectorResources);
-    EXPECT_TRUE(waitForLog("Failed DNS query of 4.sophosxl.net: error in getaddrinfo: Temporary failure in name resolution"));
+    EXPECT_TRUE(appenderContains("Failed DNS query of 4.sophosxl.net: error in getaddrinfo: Temporary failure in name resolution"));
 }
 
-TEST_F(TestSophosThreatDetectorMain, FailureToUpdateScannerFactoryExitsInnerMain)
+TEST_F(TestSophosThreatDetectorMain, logsShutdownTimeoutBeforePpoll)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    auto mockShutdownTimer = std::make_shared<NiceMock<MockShutdownTimer>>();
+
+    EXPECT_CALL(*m_mockThreatDetectorResources, createShutdownTimer(_)).WillOnce(Return(mockShutdownTimer));
+
+    {
+        InSequence sequence;
+        EXPECT_CALL(*mockShutdownTimer, timeout()).WillOnce(Return(10));
+        EXPECT_CALL(*m_mockSystemCallWrapper, ppoll(_,_,_,_)).WillOnce(pollReturnsWithRevents(0, POLLIN));;
+    }
+
+    auto treatDetectorMain = sspl::sophosthreatdetectorimpl::SophosThreatDetectorMain();
+    EXPECT_EQ(common::E_CLEAN_SUCCESS, treatDetectorMain.inner_main(m_mockThreatDetectorResources));
+
+    EXPECT_TRUE(appenderContains("Setting shutdown timeout to 10 seconds"));
+}
+
+TEST_F(TestSophosThreatDetectorMain, failureToUpdateScannerFactoryExitsInnerMain)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
     m_memoryAppender->setLayout(std::make_unique<log4cplus::PatternLayout>("[%p] %m%n"));
@@ -245,8 +264,7 @@ TEST_F(TestSophosThreatDetectorMain, FailureToUpdateScannerFactoryExitsInnerMain
     auto treatDetectorMain = sspl::sophosthreatdetectorimpl::SophosThreatDetectorMain();
     EXPECT_EQ(common::E_GENERIC_FAILURE, treatDetectorMain.inner_main(m_mockThreatDetectorResources));
 
-    EXPECT_TRUE(waitForLog("[FATAL] Update of scanner at startup failed exiting threat detector main"));
-    getLogger().setLogLevel(log4cplus::DEBUG_LOG_LEVEL);
+    EXPECT_TRUE(appenderContains("[FATAL] Update of scanner at startup failed exiting threat detector main"));
 }
 
 TEST_F(TestSophosThreatDetectorMain, continuesWhenReceivesErrorEINTR)
@@ -261,21 +279,88 @@ TEST_F(TestSophosThreatDetectorMain, continuesWhenReceivesErrorEINTR)
     auto treatDetectorMain = sspl::sophosthreatdetectorimpl::SophosThreatDetectorMain();
     EXPECT_EQ(common::E_CLEAN_SUCCESS, treatDetectorMain.inner_main(m_mockThreatDetectorResources));
 
-    EXPECT_TRUE(waitForLog("Ignoring EINTR from ppoll"));
+    EXPECT_TRUE(appenderContains("Ignoring EINTR from ppoll"));
 }
 
 TEST_F(TestSophosThreatDetectorMain, exitsWhenPpollReturnsOtherError)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    EXPECT_CALL(*m_mockThreatDetectorResources, createSystemCallWrapper()).WillOnce(Return(m_mockSystemCallWrapper));
     EXPECT_CALL(*m_mockSystemCallWrapper, ppoll(_,_,_,_)).WillOnce(SetErrnoAndReturn(EACCES, -1));
 
     auto treatDetectorMain = sspl::sophosthreatdetectorimpl::SophosThreatDetectorMain();
     EXPECT_EQ(common::E_GENERIC_FAILURE, treatDetectorMain.inner_main(m_mockThreatDetectorResources));
 
-    EXPECT_TRUE(waitForLog("Failed to poll signals. Error: "));
+    EXPECT_TRUE(appenderContains("Failed to poll signals. Error: "));
 }
+
+TEST_F(TestSophosThreatDetectorMain, timeoutExpiredWithInitialisedSusiResultsInQuickRestart)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    auto mockScannerFactory = std::make_shared<NiceMock<MockSusiScannerFactory>>();
+    auto mockShutdownTimer = std::make_shared<NiceMock<MockShutdownTimer>>();
+
+    EXPECT_CALL(*mockScannerFactory, susiIsInitialized()).WillOnce(Return(true));
+    EXPECT_CALL(*mockShutdownTimer, timeout()).WillRepeatedly(Return(0));
+    EXPECT_CALL(*m_mockSystemCallWrapper, ppoll(_,_,_,_)).WillOnce(Return(0));
+
+    EXPECT_CALL(*m_mockThreatDetectorResources, createShutdownTimer(_)).WillOnce(Return(mockShutdownTimer));
+    EXPECT_CALL(*m_mockThreatDetectorResources, createSusiScannerFactory(_,_,_)).WillOnce(Return(mockScannerFactory));
+
+    auto treatDetectorMain = sspl::sophosthreatdetectorimpl::SophosThreatDetectorMain();
+    EXPECT_EQ(common::E_QUICK_RESTART_SUCCESS, treatDetectorMain.inner_main(m_mockThreatDetectorResources));
+
+    EXPECT_TRUE(appenderContains("No scans requested for 0 seconds - shutting down."));
+}
+
+TEST_F(TestSophosThreatDetectorMain, timeoutWithValueAndInitialisedSusiDoesntQuickRestart)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    auto mockScannerFactory = std::make_shared<NiceMock<MockSusiScannerFactory>>();
+    auto mockShutdownTimer = std::make_shared<NiceMock<MockShutdownTimer>>();
+
+    EXPECT_CALL(*mockScannerFactory, susiIsInitialized()).WillOnce(Return(true));
+    EXPECT_CALL(*mockShutdownTimer, timeout()).WillRepeatedly(Return(5));
+    EXPECT_CALL(*m_mockSystemCallWrapper, ppoll(_,_,_,_))
+        .WillOnce(Return(0))
+        .WillOnce(pollReturnsWithRevents(0, POLLIN));
+
+    EXPECT_CALL(*m_mockThreatDetectorResources, createShutdownTimer(_)).WillOnce(Return(mockShutdownTimer));
+    EXPECT_CALL(*m_mockThreatDetectorResources, createSusiScannerFactory(_,_,_)).WillOnce(Return(mockScannerFactory));
+
+    auto treatDetectorMain = sspl::sophosthreatdetectorimpl::SophosThreatDetectorMain();
+    EXPECT_EQ(common::E_CLEAN_SUCCESS, treatDetectorMain.inner_main(m_mockThreatDetectorResources));
+
+    EXPECT_TRUE(appenderContains("Scan requested less than 5 seconds ago - continuing"));
+}
+
+TEST_F(TestSophosThreatDetectorMain, ppollTimeoutWithUninitialisedSusiResetsShutdownTimer)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    auto mockScannerFactory = std::make_shared<NiceMock<MockSusiScannerFactory>>();
+    auto mockShutdownTimer = std::make_shared<NiceMock<MockShutdownTimer>>();
+
+    EXPECT_CALL(*mockScannerFactory, susiIsInitialized()).WillOnce(Return(false));
+    EXPECT_CALL(*mockShutdownTimer, timeout()).WillRepeatedly(Return(5));
+    EXPECT_CALL(*mockShutdownTimer, reset()).Times(1);
+    EXPECT_CALL(*m_mockSystemCallWrapper, ppoll(_,_,_,_))
+        .WillOnce(Return(0))
+        .WillOnce(pollReturnsWithRevents(0, POLLIN));
+
+    EXPECT_CALL(*m_mockThreatDetectorResources, createShutdownTimer(_)).WillOnce(Return(mockShutdownTimer));
+    EXPECT_CALL(*m_mockThreatDetectorResources, createSusiScannerFactory(_,_,_)).WillOnce(Return(mockScannerFactory));
+
+    auto treatDetectorMain = sspl::sophosthreatdetectorimpl::SophosThreatDetectorMain();
+    EXPECT_EQ(common::E_CLEAN_SUCCESS, treatDetectorMain.inner_main(m_mockThreatDetectorResources));
+
+    EXPECT_TRUE(appenderContains("SUSI is not initialised - resetting shutdown timer"));
+}
+
+
+
 
 namespace {
     class TestPpollErrors :
@@ -347,7 +432,7 @@ TEST_P(TestFdEvents, innerMainFdEvents)
 
     auto treatDetectorMain = sspl::sophosthreatdetectorimpl::SophosThreatDetectorMain();
     EXPECT_EQ(std::get<2>(GetParam()), treatDetectorMain.inner_main(m_mockThreatDetectorResources));
-    EXPECT_TRUE(waitForLog(std::get<3>(GetParam())));
+    EXPECT_TRUE(appenderContains(std::get<3>(GetParam())));
 }
 
 TEST_F(TestSophosThreatDetectorMain, innerMainTriggersUsr1MonitorWhenReceivesUSR1)
@@ -382,3 +467,5 @@ TEST_F(TestSophosThreatDetectorMain, innerMainTriggersSigTermHandlerWhenReceives
     auto treatDetectorMain = sspl::sophosthreatdetectorimpl::SophosThreatDetectorMain();
     EXPECT_EQ(common::E_CLEAN_SUCCESS, treatDetectorMain.inner_main(m_mockThreatDetectorResources));
 }
+
+
