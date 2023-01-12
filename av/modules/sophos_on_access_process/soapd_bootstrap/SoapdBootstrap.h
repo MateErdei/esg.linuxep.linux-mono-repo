@@ -6,6 +6,8 @@
 #include "OnAccessStatusFile.h"
 #include "OnAccessServiceImpl.h"
 
+#include "IPolicyProcessor.h"
+
 #include "common/ThreadRunner.h"
 #include "mount_monitor/mount_monitor/MountMonitor.h"
 #include "mount_monitor/mountinfoimpl/DeviceUtil.h"
@@ -20,7 +22,7 @@
 
 namespace sophos_on_access_process::soapd_bootstrap
 {
-    class SoapdBootstrap
+    class SoapdBootstrap : public IPolicyProcessor
     {
     public:
         explicit SoapdBootstrap(datatypes::ISystemCallWrapperSharedPtr systemCallWrapper);
@@ -33,7 +35,7 @@ namespace sophos_on_access_process::soapd_bootstrap
          * Called by OnAccessProcessControlCallback.
          * The function blocks on m_pendingConfigActionMutex to ensure that all actions it takes are thread safe.
          */
-        void ProcessPolicy();
+        void ProcessPolicy() override;
 
         static bool checkIfOAShouldBeEnabled(bool OnAccessEnabledFlag, bool OnAccessEnabledPolicySetting);
 

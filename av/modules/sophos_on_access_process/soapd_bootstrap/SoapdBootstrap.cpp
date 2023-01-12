@@ -165,7 +165,7 @@ void SoapdBootstrap::innerRun()
     disableOnAccess();
 }
 
-bool SoapdBootstrap::getPolicyConfiguration(sophos_on_access_process::OnAccessConfig::OnAccessConfiguration& oaConfig)
+bool SoapdBootstrap::getPolicyConfiguration(OnAccessConfiguration& oaConfig)
 {
     auto jsonString = OnAccessConfig::readPolicyConfigFile();
     return OnAccessConfig::parseOnAccessPolicySettingsFromJson(jsonString, oaConfig);
@@ -297,8 +297,7 @@ void SoapdBootstrap::disableOnAccess()
 
     if (m_localSettings.highPriorityThreatDetector)
     {
-        sophos_on_access_process::soapd_bootstrap::setThreatDetectorPriority(
-            0, m_sysCallWrapper); // Return to default priority
+        setThreatDetectorPriority(0, m_sysCallWrapper); // Return to default priority
     }
 
     LOGINFO("On-access scanning disabled");
@@ -347,8 +346,7 @@ void SoapdBootstrap::enableOnAccess()
 
     if (m_localSettings.highPriorityThreatDetector)
     {
-        sophos_on_access_process::soapd_bootstrap::setThreatDetectorPriority(
-            -20, m_sysCallWrapper); // Set TD to high priority
+        setThreatDetectorPriority(-20, m_sysCallWrapper); // Set TD to high priority
     }
 
     m_statusFile.enabled();

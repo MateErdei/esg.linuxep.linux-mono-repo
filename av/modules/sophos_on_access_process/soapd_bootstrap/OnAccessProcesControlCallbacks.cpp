@@ -25,7 +25,7 @@ namespace sophos_on_access_process::OnAccessConfig
     {
         try
         {
-            m_soapd.ProcessPolicy();
+            m_policyProcessor.ProcessPolicy();
         }
         catch (const std::exception& ex)
         {
