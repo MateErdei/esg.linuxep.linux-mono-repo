@@ -96,7 +96,7 @@ int main(int argc, char* argv[])
             threatDetected.threatName = threatName;
             threatDetected.threatId = "00010203-0405-0607-0809-0a0b0c0d0e0f";
             threatDetected.correlationId = "00010203-0405-0607-0809-0a0b0c0d0e0f";
-            std::string dataAsString = threatDetected.serialise();
+            std::string dataAsString = threatDetected.serialise(false);
             if (sendFD)
             {
                 client.sendRequestAndFD(dataAsString,open(filePath.c_str(), O_PATH));}
