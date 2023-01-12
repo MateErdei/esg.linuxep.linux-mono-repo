@@ -134,15 +134,16 @@ Scan Now Excludes Files And Directories As Expected
     Register Cleanup  Remove Directory  /directory_excluded  recursive=True
     Register Cleanup  Remove Files  /eicar.com  /directory_excluded/eicar.com  /file_excluded/eicar.com
 
+    ${scan_now_mark} =  Get Scan Now Log Mark
     Run Scan Now Scan For Excluded Files Test
 
     Wait For AV Log Contains After Mark  Completed scan Scan Now  ${av_mark}  timeout=240
 
-    File Log Contains             ${SCANNOW_LOG_PATH}        Excluding file: /eicar.com
-    File Log Contains             ${SCANNOW_LOG_PATH}        "/file_excluded/eicar.com" is infected with EICAR-AV-Test
-    File Log Contains             ${SCANNOW_LOG_PATH}        Excluding directory: /directory_excluded/
-    File Log Should Not Contain   ${SCANNOW_LOG_PATH}        "/directory_excluded/eicar.com" is infected with EICAR-AV-Test
-    File Log Should Not Contain   ${SCANNOW_LOG_PATH}        Excluding file: /directory_excluded/eicar.com
+    Check Scan Now Log Contains After Mark  Excluding file: /eicar.com  ${scan_now_mark}
+    Check Scan Now Log Contains After Mark  "/file_excluded/eicar.com" is infected with EICAR-AV-Test  ${scan_now_mark}
+    Check Scan Now Log Contains After Mark  Excluding directory: /directory_excluded/  ${scan_now_mark}
+    Check Scan Now Log Does Not Contain After Mark  "/directory_excluded/eicar.com" is infected with EICAR-AV-Test  ${scan_now_mark}
+    Check Scan Now Log Does Not Contain After Mark  Excluding file: /directory_excluded/eicar.com  ${scan_now_mark}
 
 
 Scan Now Logs Should Be As Expected
@@ -262,6 +263,7 @@ AV Plugin Can Exclude Filepaths From Scheduled Scans
     ${scanSet} =  Set Variable  <onDemandScan>${exclusions}<scanSet><scan><name>MyScan</name>${schedule}<settings><scanObjectSet><CDDVDDrives>false</CDDVDDrives><hardDrives>true</hardDrives><networkDrives>false</networkDrives><removableDrives>false</removableDrives></scanObjectSet></settings></scan></scanSet></onDemandScan>
     ${policyContent} =  Set Variable  <?xml version="1.0"?><config xmlns="http://www.sophos.com/EE/EESavConfiguration"><csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/>${scanSet}</config>
     send av policy  ${SAV_APPID}  ${policyContent}
+    ${myscan_mark} =  Mark Log Size  ${myscan_log}
     Wait until scheduled scan updated After Mark  ${av_mark}
 
     Wait For AV Log Contains After Mark  Completed scan MyScan  ${av_mark}  timeout=240
@@ -271,11 +273,11 @@ AV Plugin Can Exclude Filepaths From Scheduled Scans
     Check Sophos Threat Detector Running
 
     File Should Exist  ${myscan_log}
-    File Log Should Not Contain  ${myscan_log}  "${eicar_path1}" is infected with EICAR-AV-Test
-    File Log Should Not Contain  ${myscan_log}  "${eicar_path2}" is infected with EICAR-AV-Test
-    File Log Should Not Contain  ${myscan_log}  "${eicar_path3}" is infected with EICAR-AV-Test
-    File Log Should Not Contain  ${myscan_log}  "${eicar_path4}" is infected with EICAR-AV-Test
-    File Log Contains            ${myscan_log}  "${eicar_path5}" is infected with EICAR-AV-Test (Scheduled)
+    Check Log Does Not Contain After Mark  ${myscan_log}  "${eicar_path1}" is infected with EICAR-AV-Test  ${myscan_mark}
+    Check Log Does Not Contain After Mark  ${myscan_log}  "${eicar_path2}" is infected with EICAR-AV-Test  ${myscan_mark}
+    Check Log Does Not Contain After Mark  ${myscan_log}  "${eicar_path3}" is infected with EICAR-AV-Test  ${myscan_mark}
+    Check Log Does Not Contain After Mark  ${myscan_log}  "${eicar_path4}" is infected with EICAR-AV-Test  ${myscan_mark}
+    Check Log Contains After Mark          ${myscan_log}  "${eicar_path5}" is infected with EICAR-AV-Test (Scheduled)  ${myscan_mark}
 
 
 AV Plugin Scan Now Does Not Detect PUA
@@ -505,9 +507,6 @@ Product Test Setup
     Start AV
     Component Test Setup
     Delete Eicars From Tmp
-    mark av log
-    mark sophos threat detector log
-    mark susi debug log
     register on fail  Dump Log  ${COMPONENT_ROOT_PATH}/log/${COMPONENT_NAME}.log
     register on fail  Dump Log  ${FAKEMANAGEMENT_AGENT_LOG_PATH}
     register on fail  Dump Log  ${THREAT_DETECTOR_LOG_PATH}

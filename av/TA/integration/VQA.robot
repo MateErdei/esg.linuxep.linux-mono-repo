@@ -107,7 +107,6 @@ VQA Test Setup
     Register On Fail  dump log  ${SUSI_DEBUG_LOG_PATH}
     Register On Fail  dump log  ${AV_LOG_PATH}
     Check Plugin Installed and Running
-    Mark AV Log
     Register Cleanup   Check All Product Logs Do Not Contain Error
     Register Cleanup   Exclude MCS Router is dead
     Register Cleanup   Exclude CustomerID Failed To Read Error

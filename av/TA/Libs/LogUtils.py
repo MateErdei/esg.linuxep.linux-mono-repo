@@ -1234,6 +1234,14 @@ File Log Contains
     def dump_sophos_threat_detector_log_after_mark(self, mark):
         return self.dump_marked_log(self.sophos_threat_detector_log, mark)
 
+    def sophos_threat_detector_log_contains_multiple_times_after_mark(self, expected: str, mark: LogHandler.LogMark, times):
+        assert isinstance(mark, LogHandler.LogMark), "mark is not an instance of LogMark in sophos_threat_detector_log_contains_multiple_times_after_mark"
+        return self.check_log_contains_n_times_after_mark(self.sophos_threat_detector_log, expected, times, mark)
+
+    def wait_for_sophos_threat_detector_log_contains_one_of_after_mark(self, expected: list, mark: LogHandler.LogMark, timeout: int = 10):
+        assert isinstance(mark, LogHandler.LogMark), "mark is not an instance of LogMark in wait_for_sophos_threat_detector_log_contains_one_of_after_mark"
+        return self.wait_for_log_contains_one_of_after_mark(self.sophos_threat_detector_log, expected, mark, timeout=timeout)
+
 #####################################################################
 # Scan Now Log
 
@@ -1242,6 +1250,9 @@ File Log Contains
 
     def get_scan_now_log_after_mark(self, mark):
         return self.get_log_after_mark(self.scan_now_log, mark)
+
+    def check_scan_now_log_contains_after_mark(self, expected, mark):
+        return self.check_log_contains_after_mark(self.scan_now_log, expected, mark)
 
     def check_scan_now_log_does_not_contain_after_mark(self, not_expected, mark):
         return self.check_log_does_not_contain_after_mark(self.scan_now_log, not_expected, mark)

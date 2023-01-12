@@ -81,7 +81,7 @@ AV Plugin sends non-zero processInfo to Telemetry
     Create File  ${COMPONENT_ROOT_PATH}/var/inhibit_system_file_change_restart_threat_detector
     Register Cleanup  Remove File  ${COMPONENT_ROOT_PATH}/var/inhibit_system_file_change_restart_threat_detector
 
-    Restart sophos_threat_detector and mark logs
+    Restart Sophos Threat Detector
     Run Telemetry Executable With HTTPS Protocol    port=${4432}
 
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}

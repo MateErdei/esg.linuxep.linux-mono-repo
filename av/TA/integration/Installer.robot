@@ -60,7 +60,6 @@ IDE update doesnt restart av processes
     Check Threat Detected  peend.exe  PE/ENDTEST
 
 IDE update copies updated ide
-    Mark Sophos Threat Detector Log
     Force SUSI to be initialized
     ${AVPLUGIN_PID} =  Record AV Plugin PID
     ${SOPHOS_THREAT_DETECTOR_PID} =  Record Sophos Threat Detector PID
@@ -80,7 +79,7 @@ IDE update copies updated ide
 Restart then Update Sophos Threat Detector
     Check file clean   peend.exe
 
-    Restart sophos_threat_detector and mark logs
+    Restart Sophos Threat Detector
 
     ${SOPHOS_THREAT_DETECTOR_PID} =  Wait For Pid  ${SOPHOS_THREAT_DETECTOR_BINARY}
     Replace Virus Data With Test Dataset A And Run IDE update without SUSI loaded
@@ -180,7 +179,6 @@ On access gets IDE update to new scanners
 
 
 On access continues during update
-    Mark On Access Log
     Send Policies to enable on-access
 
     ${test_file} =   Set Variable   /tmp/testfile
@@ -221,7 +219,7 @@ Concurrent scans get pending update
     Check file clean   peend.exe
 
     # prepare the pending update
-    Restart sophos_threat_detector and mark logs
+    Restart Sophos Threat Detector
     Replace Virus Data With Test Dataset A And Run IDE update without SUSI loaded
 
     # Check we can detect PEEND following update
@@ -246,13 +244,12 @@ Concurrent scans get pending update
 Update then Restart Sophos Threat Detector
     # ensure SUSI is initialized
     check avscanner can detect eicar
-    ${threat_detector_mark} =  Get Sophos Threat Detector Log Mark
 
     ${SOPHOS_THREAT_DETECTOR_PID} =  Wait For Pid  ${SOPHOS_THREAT_DETECTOR_BINARY}
     Replace Virus Data With Test Dataset A And Run IDE update with SUSI loaded
 
     Check Sophos Threat Detector Has Same PID  ${SOPHOS_THREAT_DETECTOR_PID}
-    Mark Sophos Threat Detector Log
+    ${threat_detector_mark} =  Get Sophos Threat Detector Log Mark
     Restart sophos_threat_detector
     Check Plugin Installed and Running
     Wait For Sophos Threat Detector Log Contains After Mark
@@ -276,7 +273,7 @@ Update before Init then Restart Threat Detector
     check avscanner can detect eicar
 
     # restart STD and create a pending update
-    Restart sophos_threat_detector and mark logs
+    Restart Sophos Threat Detector
     ${threat_detector_mark} =  Get Sophos Threat Detector Log Mark
     Replace Virus Data With Test Dataset A And Run IDE update without SUSI loaded
     Wait For Sophos Threat Detector Log Contains After Mark   Threat scanner update is pending  ${threat_detector_mark}
@@ -295,7 +292,7 @@ Update before Init then Restart Threat Detector
     Wait For Sophos Threat Detector Log Contains After Mark   Initializing SUSI  ${threat_detector_mark}   timeout=30
 
     # try to restart as soon as SUSI starts to load
-    Restart sophos_threat_detector and mark logs
+    Restart Sophos Threat Detector
 
     # check the state of our scan (it *should* work, eventually)
     Process Should Be Running   ${cls_handle}
@@ -348,7 +345,6 @@ Scanner works after upgrade
     Wait For AV Log Contains After Mark  EICAR-AV-Test  ${av_mark2}
 
 Services restarted after upgrade
-    Mark On Access Log
     ${soapd_log_mark} =  Mark Log Size  ${ON_ACCESS_LOG_PATH}
     ${safestore_log_mark} =  Mark Log Size  ${SAFESTORE_LOG_PATH}
 
@@ -390,8 +386,6 @@ AV Plugin gets customer id after upgrade
     Should Be Equal   ${customerId2}   ${expectedId}
 
     # force an upgrade, check that customer id is set
-    Mark Sophos Threat Detector Log
-
     Remove Files   ${customerIdFile}   ${customerIdFile_chroot}
 
     # modify the manifest to force the installer to perform a full product update

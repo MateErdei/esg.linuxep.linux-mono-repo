@@ -211,7 +211,6 @@ AV plugin fails scan now if no policy
     Stop AV Plugin
     Remove File     ${MCS_PATH}/policy/SAV-2_policy.xml
     ${av_mark} =  Get AV Log Mark
-    Mark Sophos Threat Detector Log
     Start AV Plugin
 
     Wait until AV Plugin running after mark  ${av_mark}
@@ -625,7 +624,6 @@ AV Runs Scan With SXL Lookup Disabled
 
     ${av_mark} =  Get AV Log Mark
     ${susi_debug_mark} =  Get SUSI Debug Log Mark
-    Mark Sophos Threat Detector Log
 
     Configure and check scan now with lookups disabled
 
@@ -671,14 +669,14 @@ AV Plugin does not restart threat detector on customer id change
     ${policyContent} =   Get ALC Policy   revid=${id2}  userpassword=${id1}  username=${id1}
     Log   ${policyContent}
     Create File  ${RESOURCES_PATH}/tempAlcPolicy.xml  ${policyContent}
-    ${av_mark} =  Get AV Log Mark
-    Mark Sophos Threat Detector Log
+    ${av_mark2} =  Get AV Log Mark
+    ${threat_detector_mark2} =  Get Sophos Threat Detector Log Mark
     Send Alc Policy To Base  tempAlcPolicy.xml
 
-    Wait For AV Log Contains After Mark   Received new policy  ${av_mark}
+    Wait For AV Log Contains After Mark   Received new policy  ${av_mark2}
     Run Keyword And Expect Error
     ...   Failed to find b'Reloading susi as policy configuration has changed' in ${AV_LOG_PATH}
-    ...   Wait For AV Log Contains After Mark   Reloading susi as policy configuration has changed  ${av_mark}   timeout=5
+    ...   Wait For AV Log Contains After Mark   Reloading susi as policy configuration has changed  ${av_mark2}   timeout=5
     Check Sophos Threat Detector has same PID   ${pid}
 
     # change credentials, avp should issue not a susi reload request
@@ -689,14 +687,14 @@ AV Plugin does not restart threat detector on customer id change
     Log   ${policyContent}
     Create File  ${RESOURCES_PATH}/tempAlcPolicy.xml  ${policyContent}
 
-    ${av_mark} =  Get AV Log Mark
-    Mark Sophos Threat Detector Log
+    ${av_mark3} =  Get AV Log Mark
+    ${threat_detector_mark3} =  Get Sophos Threat Detector Log Mark
     Send Alc Policy To Base  tempAlcPolicy.xml
 
-    Wait For AV Log Contains After Mark   Received new policy  ${av_mark}
-    Wait For AV Log Contains After Mark   Reloading susi as policy configuration has changed  ${av_mark}
+    Wait For AV Log Contains After Mark   Received new policy  ${av_mark3}
+    Wait For AV Log Contains After Mark   Reloading susi as policy configuration has changed  ${av_mark3}
     #Wait For Sophos Threat Detector Log Contains After Mark   Skipping susi reload because susi is not initialised  ${threat_detector_mark}
-    Wait For Sophos Threat Detector Log Contains After Mark   Susi configuration reloaded  ${threat_detector_mark}
+    Wait For Sophos Threat Detector Log Contains After Mark   Susi configuration reloaded  ${threat_detector_mark3}
     Check Sophos Threat Detector has same PID   ${pid}
 
 
@@ -715,7 +713,7 @@ AV Plugin tries to restart threat detector on susi startup settings change
     Wait Until SAV Status XML Contains  RevID="${revid}"
 
     ${threat_detector_mark} =  Get Sophos Threat Detector Log Mark
-    Restart sophos_threat_detector and mark logs
+    Restart Sophos Threat Detector
     Wait For Sophos Threat Detector Log Contains After Mark
     ...   UnixSocket <> Process Controller Server starting listening on socket: /var/process_control_socket
     ...   ${threat_detector_mark}
@@ -770,7 +768,7 @@ Sophos Threat Detector sets default if susi startup settings permissions incorre
     Register Cleanup    Exclude Invalid Settings No Primary Product
 
     ${threat_detector_mark} =  Get Sophos Threat Detector Log Mark
-    Restart sophos_threat_detector and mark logs
+    Restart Sophos Threat Detector
     Wait For Sophos Threat Detector Log Contains After Mark
     ...   UnixSocket <> Process Controller Server starting listening on socket: /var/process_control_socket
     ...   ${threat_detector_mark}
@@ -882,8 +880,6 @@ Scan Now Can Work Despite Specified Log File Being Read-Only
 
     ${result} =  Run Process  ls  -l  ${SCANNOW_LOG_PATH}
     Log  Old permissions: ${result.stdout}
-
-    Mark Scan Now Log
 
     Run  chmod 444 '${SCANNOW_LOG_PATH}'
     Register Cleanup  Run  chmod 600 '${SCANNOW_LOG_PATH}'

@@ -68,9 +68,6 @@ AVCommandLineScanner Test Setup
     ${result} =     Check If The Logs Are Close To Rotating
     run keyword if  ${result}   Clear logs
 
-    Mark logs
-
-
     Register Cleanup      Check All Product Logs Do Not Contain Error
     Register Cleanup      Exclude CustomerID Failed To Read Error
     Register Cleanup      Exclude Expected Sweep Errors
@@ -114,11 +111,6 @@ Clear logs
     Set Suite Variable   ${SUSI_DEBUG_LOG_MARK}  ${None}
 
     Start AV
-
-Mark logs
-    Mark AV Log
-    Mark Sophos Threat Detector Log
-    Mark Susi Debug Log
 
 Stop AV Plugin process
     ${proc} =  Get Process Object  ${AV_PLUGIN_HANDLE}
@@ -1863,6 +1855,7 @@ AV Scanner stops promptly while trying to connect
 AV Scanner stops promptly during a scan
     ${HANDLE} =    Start Process    ${CLI_SCANNER_PATH}   /  -x  /mnt/  file_samples/  stdout=${LOG_FILE}   stderr=STDOUT
     Wait Until File exists  ${LOG_FILE}
+    ${cls_mark} =  Mark Log Size  ${LOG_FILE}
     Wait For File With Particular Contents   \ Scanning\   ${LOG_FILE}
 
     #Stop Threat detector during a scan
@@ -1875,5 +1868,6 @@ AV Scanner stops promptly during a scan
 
     Dump Log   ${LOG_FILE}
     #Depending on whether a scan is being processed or it is being requested one of these 2 errors should appear
-    File Log Contains One of   ${LOG_FILE}  0  Failed to receive scan response  Failed to send scan request
+    ${expected} =  Create List  Failed to receive scan response  Failed to send scan request
+    Wait For Log Contains One Of After Mark   ${LOG_FILE}   ${expected}   ${cls_mark}
     Should Be Equal As Integers  ${result.rc}  ${MANUAL_INTERUPTION_RESULT}

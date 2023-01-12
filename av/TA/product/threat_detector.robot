@@ -34,7 +34,6 @@ ${SOMETIMES_SYMLINKED_SYSPATH}  /etc/${SOMETIMES_SYMLINKED_SYSFILE}
 
 Threat Detector Test Setup
     Component Test Setup
-    Mark Sophos Threat Detector Log
     Register Cleanup  Require No Unhandled Exception
     Register Cleanup  Check For Coredumps  ${TEST NAME}
     Register Cleanup  Check Dmesg For Segfaults

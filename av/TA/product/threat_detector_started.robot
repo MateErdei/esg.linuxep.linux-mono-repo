@@ -39,7 +39,6 @@ Threat Detector Suite Setup
 
 Threat Detector Test Setup
     Component Test Setup
-    Mark Sophos Threat Detector Log
     Register Cleanup  Require No Unhandled Exception
     Register Cleanup  Check For Coredumps  ${TEST NAME}
     Register Cleanup  Check Dmesg For Segfaults
@@ -60,8 +59,6 @@ Threat Detector Test Teardown
 
 Start AV
     Remove Files   /tmp/av.stdout  /tmp/av.stderr
-    Mark AV Log
-    Mark Sophos Threat Detector Log
     Check AV Plugin Not Running
     Check Threat Detector Not Running
     Check Threat Detector PID File Does Not Exist

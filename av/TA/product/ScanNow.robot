@@ -265,9 +265,6 @@ ScanNow Test Setup
     Component Test Setup
     Require Sophos Threat Detector Running
     Delete Eicars From Tmp
-    mark av log
-    mark sophos threat detector log
-    mark susi debug log
 
     Register Cleanup      Check All Product Logs Do Not Contain Error
     Register Cleanup      Exclude On Access Scan Errors
