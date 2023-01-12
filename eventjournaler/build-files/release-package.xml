@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<package name="sspl-event-journaler-plugin" version="1.0.3">
+<package name="sspl-event-journaler-plugin" version="1.0.4">
     <versioning>
         <workingdir>./products/distribution/include/AutoVersioningHeaders</workingdir>
     </versioning>
@@ -7,16 +7,16 @@
     <inputs>
         <workingdir>.</workingdir>
         <build-asset project="linuxep" repo="everest-base">
-            <release-version branch="release/2022-48"
-                             build-id="20221120203615-3366f54a200355d24cc68279aa2058b63b6e6df8-xhcyE7"/>
+            <release-version branch="release/Version_1_2_2"
+                             build-id="20230105165814-606006af2bd8111005b887fb5442761795481be5-0kLokq"/>
             <development-version branch="develop"/>
             <include artifact-path="sspl-base/pluginapi" dest-dir="/build/input"/>
             <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="/build/input/base-sdds"/>
             <include artifact-path="sspl-base/fake-management" dest-dir="/build/input/fake-management"/>
         </build-asset>
         <build-asset project="winep" repo="sed">
-            <release-version branch="release/SED_2022.48_libs"
-                             build-id="20221117224033-2870ce2d8227b6dc85bed11690e109ebb0dd71b4-6WiNjb"/>
+            <release-version branch="release/SED_2022.51_libs"
+                             build-id="20221208212349-316be004287bdd2a180782345077cf38e5bd510b-3c7d0H"/>
             <development-version branch="develop"/>
             <include artifact-path="sed-libs-linux/JournalLib-x64" dest-dir="/build/input"/>
             <include artifact-path="sed-libs-linux/JournalReader-x64" dest-dir="/build/input"/>
