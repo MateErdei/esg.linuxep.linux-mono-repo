@@ -29,6 +29,11 @@ common::signals::ISignalHandlerSharedPtr ThreatDetectorResources::createUsr1Moni
     return std::make_shared<common::signals::SigUSR1Monitor>(_reloadable);
 }
 
+std::shared_ptr<Reloader> ThreatDetectorResources::createReloader(threat_scanner::IThreatScannerFactorySharedPtr _scannerFactory)
+{
+    return std::make_shared<Reloader>(_scannerFactory);
+}
+
 common::IPidLockFileSharedPtr ThreatDetectorResources::createPidLockFile(const std::string& _path)
 {
     return std::make_shared<common::PidLockFile>(_path);

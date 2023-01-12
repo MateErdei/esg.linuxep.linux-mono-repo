@@ -4,7 +4,6 @@
 
 #include "Logger.h"
 #include "ProcessForceExitTimer.h"
-#include "Reloader.h"
 #include "SafeStoreRescanWorker.h"
 #include "ThreatDetectorResources.h"
 
@@ -482,7 +481,7 @@ namespace sspl::sophosthreatdetectorimpl
             return common::E_GENERIC_FAILURE;
         }
 
-        m_reloader = std::make_shared<Reloader>(m_scannerFactory);
+        m_reloader = resources->createReloader(m_scannerFactory);
         assert(m_reloader);
 
         auto server = resources->createScanningServerSocket(scanningSocketPath, 0666, m_scannerFactory);

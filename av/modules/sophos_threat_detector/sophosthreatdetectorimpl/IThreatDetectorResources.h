@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "Reloader.h"
 #include "common/IPidLockFile.h"
 #include "common/signals/IReloadable.h"
 #include "common/signals/ISignalHandlerBase.h"
@@ -23,6 +24,7 @@ namespace sspl::sophosthreatdetectorimpl
 
         virtual common::signals::ISignalHandlerSharedPtr createSigTermHandler(bool _restartSyscalls) = 0;
         virtual common::signals::ISignalHandlerSharedPtr createUsr1Monitor(common::signals::IReloadablePtr _reloadable) = 0;
+        virtual std::shared_ptr<Reloader> createReloader(threat_scanner::IThreatScannerFactorySharedPtr scannerFactory) = 0;
 
         virtual common::IPidLockFileSharedPtr createPidLockFile(const std::string& _path) = 0;
 

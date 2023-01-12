@@ -13,6 +13,7 @@ namespace sspl::sophosthreatdetectorimpl
 
             common::signals::ISignalHandlerSharedPtr createSigTermHandler(bool _restartSyscalls) override;
             common::signals::ISignalHandlerSharedPtr createUsr1Monitor(common::signals::IReloadablePtr _reloadable) override;
+            std::shared_ptr<Reloader>  createReloader(threat_scanner::IThreatScannerFactorySharedPtr scannerFactory) override;
 
             common::IPidLockFileSharedPtr createPidLockFile(const std::string& _path) override;
 

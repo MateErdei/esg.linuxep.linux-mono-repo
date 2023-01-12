@@ -11,11 +11,11 @@
 #include "MockUpdateCompleteServerSocket.h"
 
 #include "sophos_threat_detector/threat_scanner/MockSusiScannerFactory.h"
+#include "sophos_threat_detector/sophosthreatdetectorimpl/ThreatDetectorResources.h"
 
 #include <common/MockPidLock.h>
 #include <common/MockSignalHandler.h>
 #include <datatypes/MockSysCalls.h>
-#include <sophos_threat_detector/sophosthreatdetectorimpl/ThreatDetectorResources.h>
 #include <unixsocket/processControllerSocket/ProcessControllerServerSocket.h>
 
 #include <gmock/gmock.h>
@@ -41,6 +41,7 @@ namespace
 
             auto mockThreatDetectorControlCallbacks = std::make_shared<NiceMock<MockThreatDetectorControlCallbacks>>();
             m_processControlServerSocket = std::make_shared<unixsocket::ProcessControllerServerSocket>(fs::path(testDirectory / "process_control_socket"), 0777, mockThreatDetectorControlCallbacks);
+            m_reloader = std::make_shared<sspl::sophosthreatdetectorimpl::Reloader>(m_mockSusiScannerFactory);
 
             ON_CALL(*this, createSystemCallWrapper).WillByDefault(Return(m_mockSysCalls));
             ON_CALL(*this, createSigTermHandler).WillByDefault(Return(m_mockSigTermHandler));
@@ -51,13 +52,14 @@ namespace
             ON_CALL(*this, createUpdateCompleteNotifier).WillByDefault(Return(m_mockUpdateCompleteServerSocket));
             ON_CALL(*this, createSusiScannerFactory).WillByDefault(Return(m_mockSusiScannerFactory));
             ON_CALL(*this, createScanningServerSocket).WillByDefault(Return(m_mockScanningServerSocket));
+            ON_CALL(*this, createReloader).WillByDefault(Return(m_reloader));
             ON_CALL(*this, createProcessControllerServerSocket).WillByDefault(Return(m_processControlServerSocket));
         }
 
         MOCK_METHOD(datatypes::ISystemCallWrapperSharedPtr, createSystemCallWrapper, (), (override));
         MOCK_METHOD(common::signals::ISignalHandlerSharedPtr, createSigTermHandler, (bool), (override));
         MOCK_METHOD(common::signals::ISignalHandlerSharedPtr, createUsr1Monitor, (common::signals::IReloadablePtr), (override));
-
+        MOCK_METHOD(std::shared_ptr<sspl::sophosthreatdetectorimpl::Reloader>, createReloader, (threat_scanner::IThreatScannerFactorySharedPtr), (override));
 
         MOCK_METHOD(common::IPidLockFileSharedPtr, createPidLockFile, (const std::string& _path), (override));
         MOCK_METHOD(threat_scanner::IThreatReporterSharedPtr, createThreatReporter, (const sophos_filesystem::path _socketPath), (override));
@@ -90,7 +92,9 @@ namespace
         std::shared_ptr<NiceMock<MockUpdateCompleteServerSocket>> m_mockUpdateCompleteServerSocket;
         std::shared_ptr<NiceMock<MockSusiScannerFactory>> m_mockSusiScannerFactory;
         std::shared_ptr<NiceMock<MockScanningServerSocket>> m_mockScanningServerSocket;
-        //Todo LINUXDAR-6030 Not a mock for now
+
+        //Not Mocked
+        std::shared_ptr<sspl::sophosthreatdetectorimpl::Reloader> m_reloader;
         std::shared_ptr<unixsocket::ProcessControllerServerSocket> m_processControlServerSocket;
     };
 }
