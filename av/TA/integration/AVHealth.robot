@@ -168,12 +168,12 @@ Sophos On-Access Process Crashing Triggers Bad Health
 
 
 Sophos SafeStore Process Not Running Does Not Trigger Bad Status Health When SafeStore Is Not Enabled
-    Mark AV Log
+    ${av_mark} =  Get AV Log Mark
     Send Flags Policy To Base  flags_policy/flags.json
     Check Status Health is Reporting Correctly    GOOD
 
     Stop SafeStore
-    AV Plugin Log Contains With Offset  SafeStore flag not set. Setting SafeStore to disabled.
+    Check AV Log Contains After Mark  SafeStore flag not set. Setting SafeStore to disabled.  ${av_mark}
     Check Status Health is Reporting Correctly    GOOD
 
     Start SafeStore
@@ -181,12 +181,12 @@ Sophos SafeStore Process Not Running Does Not Trigger Bad Status Health When Saf
     Check Status Health is Reporting Correctly    GOOD
 
 Sophos SafeStore Process Not Running Triggers Bad Status Health
-    Mark AV Log
-    Send Flags Policy To Base  flags_policy/flags_enabled.json
+    ${av_mark} =  Get AV Log Mark
+    Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
     Check Status Health is Reporting Correctly    GOOD
 
     Stop SafeStore
-    AV Plugin Log Contains With Offset  SafeStore flag set. Setting SafeStore to enabled.
+    Check AV Log Contains After Mark  SafeStore flag set. Setting SafeStore to enabled.  ${av_mark}
     Check Status Health is Reporting Correctly    BAD
 
     Start SafeStore
@@ -194,10 +194,11 @@ Sophos SafeStore Process Not Running Triggers Bad Status Health
     Check Status Health is Reporting Correctly    GOOD
 
 Sophos SafeStore Crashing Triggers Bad Health
-    Mark AV Log
-    Send Flags Policy To Base  flags_policy/flags_enabled.json
-    Wait Until AV Plugin Log Contains With Offset
+    ${av_mark} =  Get AV Log Mark
+    Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
+    Wait For AV Log Contains After Mark
     ...   SafeStore flag set. Setting SafeStore to enabled.
+    ...   ${av_mark}
     ...   timeout=60
 
     Check Status Health is Reporting Correctly    GOOD
@@ -225,15 +226,15 @@ Clean CLS Result Does Not Reset Threat Health
     Create File     /tmp_test/naughty_eicar    ${EICAR_STRING}
     Create File     /tmp_test/clean_file       ${CLEAN_STRING}
 
-    mark av log
-    mark sophos threat detector log
+    ${av_mark} =  Get AV Log Mark
+    ${threat_detector_mark} =  Get Sophos Threat Detector Log Mark
 
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} /tmp_test/naughty_eicar
     Log  return code is ${rc}
     Log  output is ${output}
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-    Sophos Threat Detector Log Contains With Offset   Detected "EICAR-AV-Test" in /tmp_test/naughty_eicar
-    Wait Until AV Plugin Log Contains With Offset  Threat health changed to suspicious
+    Wait For Sophos Threat Detector Log Contains After Mark   Detected "EICAR-AV-Test" in /tmp_test/naughty_eicar  ${threat_detector_mark}
+    Wait For AV Log Contains After Mark  Threat health changed to suspicious  ${av_mark}
 
     Check Threat Health is Reporting Correctly    SUSPICIOUS
 
@@ -265,19 +266,19 @@ Clean Scan Now Result Does Not Reset Threat Health
 
     Create File     /tmp_test/naughty_eicar    ${EICAR_STRING}
 
-    Mark AV Log
+    ${av_mark} =  Get AV Log Mark
     Configure and run scan now
-    Wait Until AV Plugin Log Contains With Offset  Completed scan  timeout=180
-    AV Plugin Log Contains With Offset   Completed scan Scan Now and detected threats
+    Wait For AV Log Contains After Mark  Completed scan  ${av_mark}  timeout=180
+    Check AV Log Contains After Mark   Completed scan Scan Now and detected threats  ${av_mark}
 
     Check Threat Health is Reporting Correctly    SUSPICIOUS
 
     Remove File  /tmp_test/naughty_eicar
 
-    Mark AV Log
+    ${av_mark} =  Get AV Log Mark
     Configure and run scan now
-    Wait Until AV Plugin Log Contains With Offset  Completed scan  timeout=180
-    AV Plugin Log Contains With Offset   Completed scan Scan Now without detecting any threats
+    Wait For AV Log Contains After Mark  Completed scan  ${av_mark}  timeout=180
+    Check AV Log Contains After Mark   Completed scan Scan Now without detecting any threats  ${av_mark}
 
     Check Threat Health is Reporting Correctly    SUSPICIOUS
 
