@@ -63,7 +63,6 @@ Send Short SHA To Safestore
     ...  1 secs
     ...  SafeStore Log Contains  Quarantined /tmp/testfile successfully
 
-
 Send Long SHA To Safestore
     Create File  /tmp/testfile
     ${result} =  Run Shell Process  ${SEND_THREAT_DETECTED_TOOL} --socketpath /opt/sophos-spl/plugins/av/var/safestore_socket --filepath /tmp/testfile --threatname threatName --sha e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b85555    OnError=Failed to run SendThreatDetectedEvent binary   timeout=10
@@ -90,7 +89,7 @@ Send SHA that is in json format To Safestore
 
 Send SHA that is in xml format To Safestore
     Create File  /tmp/testfile
-    ${result} =  Run Shell Process  ${SEND_THREAT_DETECTED_TOOL} --socketpath /opt/sophos-spl/plugins/av/var/safestore_socket --filepath /tmp/testfile --threatname threatName --sha <xmltag>aaaa<\xmltag>    OnError=Failed to run SendThreatDetectedEvent binary   timeout=10
+    ${result} =  Run Shell Process  ${SEND_THREAT_DETECTED_TOOL} --socketpath /opt/sophos-spl/plugins/av/var/safestore_socket --filepath /tmp/testfile --threatname threatName --sha "<xmltag>aaaa<\xmltag>"    OnError=Failed to run SendThreatDetectedEvent binary   timeout=10
     Wait Until Keyword Succeeds
     ...  10 secs
     ...  1 secs

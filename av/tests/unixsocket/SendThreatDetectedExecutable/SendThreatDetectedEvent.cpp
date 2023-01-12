@@ -64,6 +64,7 @@ int main(int argc, char* argv[])
                 break;
             case 's':
                 sha = optarg;
+                std::cout << sha << std::endl;
                 break;
             case 'm':
                 sendMessage = false;
