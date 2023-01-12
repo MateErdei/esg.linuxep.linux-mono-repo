@@ -19,6 +19,12 @@ def get_log_contents(path_to_log):
         contents = log.read()
     return contents
 
+def get_log_length(path_to_log):
+    if not os.path.isfile(path_to_log):
+        return 0
+    with open(path_to_log, "r") as log:
+        contents = log.read()
+    return len(contents)
 
 def log_contains_in_order(log_location, log_name, args, log_finds=True):
     contents = get_log_contents(log_location)
@@ -463,8 +469,7 @@ class LogUtils(object):
                                  f"times not the requested {expected_occurrence} times")
 
     def mark_sul_log(self):
-        contents = get_log_contents(self.suldownloader_log)
-        self.marked_sul_logs = len(contents)
+        self.marked_sul_logs = get_log_length(self.suldownloader_log)
 
     def check_marked_sul_log_contains(self, string_to_contain):
         sul_log = self.suldownloader_log
@@ -491,8 +496,7 @@ class LogUtils(object):
         self.dump_log(self.watchdog_log)
 
     def mark_watchdog_log(self):
-        contents = get_log_contents(self.watchdog_log)
-        self.marked_watchdog_logs = len(contents)
+        self.marked_watchdog_logs = get_log_length(self.watchdog_log)
 
     def check_watchdog_log_contains(self, string_to_contain):
         self.check_log_contains(string_to_contain, self.watchdog_log, "Watchdog")
@@ -615,8 +619,7 @@ class LogUtils(object):
         raise AssertionError(f"Failed to find {status_same} in statuses: {status_numbers}")
 
     def mark_mcs_envelope_log(self):
-        contents = get_log_contents(self.mcs_envelope_log)
-        self.marked_mcs_envelope_logs = len(contents)
+        self.marked_mcs_envelope_logs = get_log_length(self.mcs_envelope_log)
 
     def check_marked_mcs_envelope_log_contains(self, string_to_contain):
         contents = get_log_contents(self.mcs_envelope_log)
@@ -645,12 +648,8 @@ class LogUtils(object):
             self.check_log_does_not_contain("Caught exception at top-level;", self.mcs_router_log, "MCS router")
 
     def mark_mcsrouter_log(self):
-        if os.path.isfile(self.mcs_router_log):
-            contents = get_log_contents(self.mcs_router_log)
-            self.marked_mcsrouter_logs = len(contents)
-        else:
-            self.marked_mcsrouter_logs = 0
-        logger.info(f"mcsrouter log marked at line: {self.marked_mcsrouter_logs}")
+        self.marked_mcsrouter_logs = get_log_length(self.mcs_router_log)
+        logger.info(f"mcsrouter log marked at char: {self.marked_mcsrouter_logs}")
 
     def check_marked_mcsrouter_log_contains(self, string_to_contain):
         contents = get_log_contents(self.mcs_router_log)
@@ -685,8 +684,7 @@ class LogUtils(object):
         self.dump_log(self.managementagent_log)
 
     def mark_managementagent_log(self):
-        contents = get_log_contents(self.managementagent_log)
-        self.marked_managementagent_log = len(contents)
+        self.marked_managementagent_log = get_log_length(self.managementagent_log)
 
     def check_management_agent_log_contains(self, string_to_contain):
         log = self.managementagent_log
@@ -754,8 +752,7 @@ class LogUtils(object):
                                  f"the requested {expected_occurrence} times")
 
     def mark_update_scheduler_log(self):
-        contents = get_log_contents(self.update_scheduler_log)
-        self.marked_update_scheduler_logs = len(contents)
+        self.marked_update_scheduler_logs = get_log_length(self.update_scheduler_log)
 
     def check_marked_update_scheduler_log_contains(self, string_to_contain):
         update_scheduler_log = self.update_scheduler_log
@@ -769,8 +766,7 @@ class LogUtils(object):
 
     # AV Plugin Log Utils
     def mark_av_log(self):
-        contents = get_log_contents(self.av_log)
-        self.marked_av_log = len(contents)
+        self.marked_av_log = get_log_length(self.av_log)
 
     def check_marked_av_log_contains(self, string_to_contain):
         av_log = self.av_log
@@ -789,8 +785,7 @@ class LogUtils(object):
         self.check_log_does_not_contain(string_to_not_contain, self.safestore_log, "SafeStore")
 
     def mark_safestore_log(self):
-        contents = get_log_contents(self.safestore_log)
-        self.marked_safestore_log = len(contents)
+        self.marked_safestore_log = get_log_length(self.safestore_log)
 
     def check_marked_safestore_log_contains(self, string_to_contain):
         safestore_log = self.safestore_log
@@ -803,8 +798,7 @@ class LogUtils(object):
             raise AssertionError(f"SafeStore log did not contain: {string_to_contain}")
 
     def mark_sophos_threat_detector_log(self):
-        contents = get_log_contents(self.sophos_threat_detector_log)
-        self.marked_sophos_threat_detector_log = len(contents)
+        self.marked_sophos_threat_detector_log = get_log_length(self.sophos_threat_detector_log)
 
     def check_marked_sophos_threat_detector_log_contains(self, string_to_contain):
         sophos_threat_detector_log = self.sophos_threat_detector_log
@@ -835,8 +829,7 @@ class LogUtils(object):
                                  f"{expected_occurrence} times")
 
     def mark_edr_log(self):
-        contents = get_log_contents(self.edr_log)
-        self.marked_edr_log = len(contents)
+        self.marked_edr_log = get_log_length(self.edr_log)
 
     def check_marked_edr_log_contains(self, string_to_contain):
         contents = get_log_contents(self.edr_log)
@@ -847,8 +840,7 @@ class LogUtils(object):
             raise AssertionError(f"EDR did not contain: {string_to_contain}")
 
     def mark_edr_osquery_log(self):
-        contents = get_log_contents(self.edr_osquery_log)
-        self.marked_edr_osquery_log = len(contents)
+        self.marked_edr_osquery_log = get_log_length(self.edr_osquery_log)
 
     def check_marked_edr_osquery_log_contains(self, string_to_contain):
         contents = get_log_contents(self.edr_osquery_log)
@@ -864,15 +856,9 @@ class LogUtils(object):
     def check_livequery_log_contains(self, string_to_contain):
         self.check_log_contains(string_to_contain, self.livequery_log, "Livequery")
 
-    def mark_livequery_log(self, expect_log_exists=True):
-        livequery_log = self.livequery_log
-        if not expect_log_exists:
-            if not os.path.isfile(livequery_log):
-                self.marked_livequery_log = 0
-                return
-        contents = get_log_contents(livequery_log)
-        self.marked_livequery_log = len(contents)
-        logger.info(f"livequery log marked at line: {self.marked_livequery_log}")
+    def mark_livequery_log(self):
+        self.marked_livequery_log = get_log_length(self.livequery_log)
+        logger.info(f"livequery log marked at char: {self.marked_livequery_log}")
 
     def check_marked_livequery_log_contains(self, string_to_contain):
         contents = get_log_contents(self.livequery_log)

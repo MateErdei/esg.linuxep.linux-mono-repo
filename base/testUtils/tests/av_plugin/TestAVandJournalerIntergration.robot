@@ -40,7 +40,7 @@ Default Tags   EVENT_JOURNALER_PLUGIN   AV_PLUGIN   EDR_PLUGIN
 Test av can publish events and that journaler can receive them
     [Timeout]  10 minutes
     Check Journal Is Empty
-    Mark Livequery Log  False
+    Mark Livequery Log
 
     Detect EICAR And Read With Livequery Via Event Journaler
     Wait Until Keyword Succeeds
@@ -51,7 +51,7 @@ Test av can publish events and that journaler can receive them
 Test av can publish events and that journaler can receive them after av restart
     [Timeout]  10 minutes
     Check Journal Is Empty
-    Mark Livequery Log  False
+    Mark Livequery Log
 
     Detect EICAR And Read With Livequery Via Event Journaler
     Wait Until Keyword Succeeds
@@ -95,7 +95,7 @@ Test av can publish events and that journaler can receive them after av restart
 Test av can publish events and that journaler can receive them after event journaler restart
     [Timeout]  10 minutes
     Check Journal Is Empty
-    Mark Livequery Log  False
+    Mark Livequery Log
 
     Detect EICAR And Read With Livequery Via Event Journaler
     Wait Until Keyword Succeeds
@@ -117,7 +117,7 @@ Test av can publish events and that journaler can receive them after event journ
 Test av can publish events and that journaler can receive them after edr restart
     [Timeout]  10 minutes
     Check Journal Is Empty
-    Mark Livequery Log  False
+    Mark Livequery Log
 
     Detect EICAR And Read With Livequery Via Event Journaler
     Wait Until Keyword Succeeds
@@ -139,7 +139,7 @@ Test av can publish events and that journaler can receive them after edr restart
 Test av can publish events for onaccess and that journaler can receive them
     [Timeout]  10 minutes
     Check Journal Is Empty
-    Mark Livequery Log  False
+    Mark Livequery Log
     send_policy_file  core  ${SUPPORT_FILES}/CentralXml/CORE-36_oa_enabled.xml
 
     Copy File  ${SUPPORT_FILES}/CentralXml/FLAGS_onaccess_enabled.json  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json
