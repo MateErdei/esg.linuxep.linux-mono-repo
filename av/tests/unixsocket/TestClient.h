@@ -21,7 +21,7 @@ namespace
             unixsocket::BaseClient::connectWithRetries("SafeStore Rescan");
         }
 
-        void sendRequest(std::string request)
+        void sendRequest(const std::string& request)
         {
             assert(m_socket_fd.valid());
             try
@@ -38,12 +38,13 @@ namespace
                 std::cerr << "Failed to write to socket. Exception caught: " << e.what();
             }
         }
-        void sendRequestAndFD(std::string request, int fd=0)
+
+        void sendFD(int fd)
         {
             assert(m_socket_fd.valid());
             try
             {
-                sendRequest(request);
+
                 if (unixsocket::send_fd(m_socket_fd.get(), fd) < 0)
                 {
                     throw std::runtime_error("Failed to write file descriptor to Threat Reporter socket");
@@ -53,6 +54,12 @@ namespace
             {
                 std::cerr << "Failed to write file descriptor to Threat Reporter socket. Exception caught: " << e.what();
             }
+        }
+
+        void sendRequestAndFD(const std::string& request, int fd=0)
+        {
+            sendRequest(request);
+            sendFD(fd);
         }
 
     };

@@ -34,12 +34,16 @@ int main(int argc, char* argv[])
     std::string sha;
     std::string filePath;
     std::string threatName;
-    const char* const short_opts = "p:t:s:f:";
+    bool sendFD = true;
+    bool sendMessage = true;
+    const char* const short_opts = "p:t:s:f:mn";
     const option long_opts[] = {
         {"socketpath", required_argument, nullptr, 'p'},
         {"threatname", required_argument, nullptr, 't'},
         {"sha", required_argument, nullptr, 's'},
         {"filepath", required_argument, nullptr, 'f'},
+        {"nosendmessage", no_argument, nullptr, 'm'},
+        {"nosendfd", no_argument, nullptr, 'n'},
         {nullptr, no_argument, nullptr, 0}
     };
     int opt = 0;
@@ -61,27 +65,47 @@ int main(int argc, char* argv[])
             case 's':
                 sha = optarg;
                 break;
+            case 'm':
+                sendMessage = false;
+                break;
+            case 'n':
+                sendFD = false;
+                break;
             default:
                 printUsageAndExit(argv[0]);
         }
     }
 
-    if (!socketPath.empty())
-    {
-        scan_messages::ThreatDetected threatDetected;
-        threatDetected.filePath = filePath;
-        threatDetected.sha256 = sha;
-        threatDetected.threatName = threatName;
-        threatDetected.threatId = "00010203-0405-0607-0809-0a0b0c0d0e0f";
-        threatDetected.correlationId = "00010203-0405-0607-0809-0a0b0c0d0e0f";
-        std::string dataAsString = threatDetected.serialise();
-        TestClient client(socketPath);
-        client.sendRequestAndFD(dataAsString,open(filePath.c_str(), O_PATH));
-    }
-    else
+    if (socketPath.empty())
     {
         printUsageAndExit(argv[0]);
     }
+    else
+    {
+        TestClient client(socketPath);
+        if (!sendMessage && sendFD)
+        {
+            client.sendFD(open(filePath.c_str(), O_PATH));
+        }
+        else if (sendMessage)
+        {
+            scan_messages::ThreatDetected threatDetected;
+            threatDetected.filePath = filePath;
+            threatDetected.sha256 = sha;
+            threatDetected.threatName = threatName;
+            threatDetected.threatId = "00010203-0405-0607-0809-0a0b0c0d0e0f";
+            threatDetected.correlationId = "00010203-0405-0607-0809-0a0b0c0d0e0f";
+            std::string dataAsString = threatDetected.serialise();
+            if (sendFD)
+            {
+                client.sendRequestAndFD(dataAsString,open(filePath.c_str(), O_PATH));}
+            else
+            {
+                client.sendRequest(dataAsString);
+            }
+        }
+    }
+
 
     return EXIT_SUCCESS;
 }
