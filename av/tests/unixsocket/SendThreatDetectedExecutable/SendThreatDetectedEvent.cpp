@@ -34,6 +34,7 @@ int main(int argc, char* argv[])
     std::string sha;
     std::string filePath;
     std::string threatName;
+    int fd = 0;
     bool sendFD = true;
     bool sendMessage = true;
     const char* const short_opts = "p:t:s:f:mn";
@@ -42,6 +43,7 @@ int main(int argc, char* argv[])
         {"threatname", required_argument, nullptr, 't'},
         {"sha", required_argument, nullptr, 's'},
         {"filepath", required_argument, nullptr, 'f'},
+        {"filedescriptor", required_argument, nullptr, 'd'},
         {"nosendmessage", no_argument, nullptr, 'm'},
         {"nosendfd", no_argument, nullptr, 'n'},
         {nullptr, no_argument, nullptr, 0}
@@ -68,6 +70,10 @@ int main(int argc, char* argv[])
             case 's':
                 sha = optarg;
                 std::cout << sha << std::endl;
+                break;
+            case 'd':
+                fd = std::atoi(optarg);
+                std::cout << fd << std::endl;
                 break;
             case 'm':
                 sendMessage = false;
@@ -102,7 +108,12 @@ int main(int argc, char* argv[])
             std::string dataAsString = threatDetected.serialise(false);
             if (sendFD)
             {
-                client.sendRequestAndFD(dataAsString,open(filePath.c_str(), O_PATH));}
+                if (fd == 0)
+                {
+                    fd = open(filePath.c_str(), O_PATH);
+                }
+                client.sendRequestAndFD(dataAsString,fd);
+            }
             else
             {
                 client.sendRequest(dataAsString);
