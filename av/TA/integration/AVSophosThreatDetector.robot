@@ -36,7 +36,12 @@ Test Global Rep works in chroot
 
 Sophos Threat Detector Has No Unnecessary Capabilities
     # ensure that threat_detector is fully started up
+    ${threat_detector_mark} =  Get Sophos Threat Detector Log Mark
     Restart Sophos Threat Detector
+    Wait For Sophos Threat Detector Log Contains After Mark
+    ...   UnixSocket <> Process Controller Server starting listening on socket: /var/process_control_socket
+    ...   ${threat_detector_mark}
+    ...   timeout=60
 
     ${rc}   ${pid} =       Run And Return Rc And Output    pgrep sophos_threat
     ${rc}   ${output} =    Run And Return Rc And Output    getpcaps ${pid}
