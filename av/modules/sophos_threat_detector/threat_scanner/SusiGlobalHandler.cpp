@@ -202,8 +202,6 @@ namespace threat_scanner
         std::filesystem::path updateSource = "/susi/update_source";
         std::filesystem::path installDest = "/susi/distribution_version";
 
-        auto prevUmask = ::umask(077);
-
         LOGINFO("Bootstrapping SUSI from update source: " << updateSource);
         SusiResult susiResult =  m_susiWrapper->SUSI_Install(updateSource.c_str(), installDest.c_str());
         if (!SUSI_FAILURE(susiResult))
@@ -215,7 +213,6 @@ namespace threat_scanner
             LOGERROR("Failed to bootstrap SUSI with error: " << susiResult);
         }
 
-        ::umask(prevUmask);
         return susiResult;
     }
 
