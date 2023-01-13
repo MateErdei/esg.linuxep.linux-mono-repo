@@ -53,7 +53,7 @@ void SafeStoreRescanWorker::run()
 
         // else if ( m_manualRescan || wait_for(timeout))
         sendRescanRequest();
-        m_manualRescan =false;
+        m_manualRescan = false;
     }
     LOGDEBUG("Exiting SafeStoreRescanWorker");
 }
@@ -62,7 +62,7 @@ void SafeStoreRescanWorker::triggerRescan()
 {
     {
         std::lock_guard lock(m_rescanLock);
-        m_manualRescan =true;
+        m_manualRescan = true;
     }
     m_rescanWakeUp.notify_one();
 }
