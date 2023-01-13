@@ -30,8 +30,8 @@ Dump and Reset Logs
     Remove File  ${SAFESTORE_LOG_PATH}*
 
 send TDO To socket
-    [Arguments]  ${socketpath}=/opt/sophos-spl/plugins/av/var/safestore_socket  ${filepath}=/tmp/testfile  ${threatname}=threatName  ${sha}=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
-    ${result} =  Run Shell Process  ${SEND_THREAT_DETECTED_TOOL} --socketpath ${socketpath} --filepath ${filepath} --threatname ${threatname} --sha ${sha}   OnError=Failed to run SendThreatDetectedEvent binary   timeout=10
+    [Arguments]  ${socketpath}=/opt/sophos-spl/plugins/av/var/safestore_socket  ${filepath}=/tmp/testfile  ${threatname}=threatName  ${sha}=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  ${fd}=0
+    ${result} =  Run Shell Process  ${SEND_THREAT_DETECTED_TOOL} --socketpath ${socketpath} --filepath ${filepath} --threatname ${threatname} --sha ${sha} --filedescriptor ${fd}   OnError=Failed to run SendThreatDetectedEvent binary   timeout=10
     [Return]  ${result}
 
 *** Test Cases ***
@@ -69,7 +69,7 @@ Send Empty ThreatName To Safestore
     ...  SafeStore Log Contains  Aborting SafeStore connection thread: failed to parse detection
     mark_expected_error_in_log  ${SAFESTORE_LOG_PATH}  Aborting SafeStore connection thread: failed to parse detection
 
-Send ThreatName with foriegn chars To Safestore
+Send ThreatName with foreign chars To Safestore
     Create File  /tmp/testfile
     ${result} =  send TDO To socket  threatname=threatNameこんにちは
     Wait Until Keyword Succeeds
@@ -109,6 +109,14 @@ Send Filepath with xml To Safestore
     ...  1 secs
     ...  SafeStore Log Contains  Quarantined /tmp/<xml><\xml> successfully
 
+Send Filepath with foreign char Safestore
+    Create File  /tmp/こんにちは
+    ${result} =  send TDO To socket  filepath="/tmp/こんにちは"
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  1 secs
+    ...  SafeStore Log Contains  Quarantined /tmp/こんにちは successfully
+
 Send Filepath that is a dir To Safestore
     Create Directory  /tmp/Dir
     ${result} =  send TDO To socket  filepath=/tmp/Dir
@@ -116,6 +124,30 @@ Send Filepath that is a dir To Safestore
     ...  10 secs
     ...  1 secs
     ...  SafeStore Log Contains  Quarantined /tmp/Dir successfully
+
+Send empty File To Safestore
+    ${result} =  send TDO To socket  filepath=""  fd=1
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  1 secs
+    ...  SafeStore Log Contains  Aborting SafeStore connection thread: failed to parse detection
+    mark_expected_error_in_log  ${SAFESTORE_LOG_PATH}  Aborting SafeStore connection thread: failed to parse detection
+
+Send Filepath only slashes To Safestore
+    ${result} =  send TDO To socket  filepath="//"  fd=1
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  1 secs
+    ...  SafeStore Log Contains  Cannot quarantine // as it was moved
+    mark_expected_error_in_log  ${SAFESTORE_LOG_PATH}  Cannot quarantine // as it was moved
+
+Send Filepath no slashes To Safestore
+    ${result} =  send TDO To socket  filepath="tmp"  fd=1
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  1 secs
+    ...  SafeStore Log Contains  Cannot quarantine tmp as it was moved
+    mark_expected_error_in_log  ${SAFESTORE_LOG_PATH}  Cannot quarantine tmp as it was moved
 
 Send Short SHA To Safestore
     Create File  /tmp/testfile
