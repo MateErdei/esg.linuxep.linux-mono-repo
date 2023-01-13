@@ -29,6 +29,8 @@ namespace
     public:
         MOCK_METHOD(void, update, (), (override));
         MOCK_METHOD(void, reload, (), (override));
+
+        MOCK_METHOD(bool, updateSusiConfig, (), (override));
     };
 }
 
@@ -46,6 +48,10 @@ namespace
         void reload() override
         {
             m_reloadCount++;
+        }
+        bool updateSusiConfig() override
+        {
+            return true;
         }
     };
 }
