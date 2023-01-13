@@ -1,4 +1,4 @@
-// Copyright 2021-2022, Sophos Limited.  All rights reserved.
+// Copyright 2021-2023, Sophos Limited.  All rights reserved.
 
 #include "modules/common/signals/SigUSR1Monitor.h"
 #include <modules/common/FDUtils.h>
