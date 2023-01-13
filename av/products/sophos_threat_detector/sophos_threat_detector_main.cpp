@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+//Copyright 2020-2023, Sophos Limited.  All rights reserved.
 
 #include "LogSetup.h"
 
@@ -27,6 +23,6 @@ int main()
 
     LogSetup logging;
     ::umask(023);
-    auto treatDetectorMain = sspl::sophosthreatdetectorimpl::SophosThreatDetectorMain();
-    return treatDetectorMain.sophos_threat_detector_main();
+    auto treatDetectorMain = std::make_shared<sspl::sophosthreatdetectorimpl::SophosThreatDetectorMain>();
+    return treatDetectorMain->sophos_threat_detector_main();
 }
