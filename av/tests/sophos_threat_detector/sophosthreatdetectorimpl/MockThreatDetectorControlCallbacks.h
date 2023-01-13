@@ -1,4 +1,6 @@
-// Copyright 2022, Sophos Limited.  All rights reserved.
+// Copyright 2023, Sophos Limited.  All rights reserved.
+
+#pragma once
 
 #include <unixsocket/processControllerSocket/IProcessControlMessageCallback.h>
 
