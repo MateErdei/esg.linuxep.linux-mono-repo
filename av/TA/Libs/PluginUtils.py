@@ -49,7 +49,8 @@ def start_av_plugin_if_not_running():
     av_exe = os.path.join(PLUGIN_INSTALL, "sbin", "av")
     pid = ProcessUtils.pidof(av_exe)
     if pid == -1:
-        mark = LogUtils.get_av_log_mark()
+        logUtility = LogUtils.LogUtils()
+        mark = logUtility.get_av_log_mark()
         __start_plugin("av")
         ProcessUtils.wait_for_pid(av_exe, 15)
         BuiltIn().run_keyword("Wait until AV Plugin running after mark", mark)
@@ -61,7 +62,8 @@ def start_on_access_if_not_running():
     oa_exe = os.path.join(PLUGIN_INSTALL, "sbin", "soapd")
     pid = ProcessUtils.pidof(oa_exe)
     if pid == -1:
-        mark = LogUtils.get_on_access_log_mark()
+        logUtility = LogUtils.LogUtils()
+        mark = logUtility.get_on_access_log_mark()
         __start_plugin("soapd")
         ProcessUtils.wait_for_pid(oa_exe, 15)
         BuiltIn().run_keyword("Wait Until On Access running after mark", mark)
@@ -72,7 +74,8 @@ def start_sophos_threat_detector_if_not_running():
     threat_detector_exe = os.path.join(PLUGIN_INSTALL, "sbin", "sophos_threat_detector")
     pid = ProcessUtils.pidof(threat_detector_exe)
     if pid == -1:
-        mark = LogUtils.get_sophos_threat_detector_log_mark()
+        logUtility = LogUtils.LogUtils()
+        mark = logUtility.get_sophos_threat_detector_log_mark()
         __start_plugin("threat_detector")
         pid = ProcessUtils.wait_for_pid(threat_detector_exe, 15)
 
