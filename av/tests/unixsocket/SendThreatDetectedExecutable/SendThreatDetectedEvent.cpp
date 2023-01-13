@@ -18,7 +18,9 @@ void printUsageAndExit(const std::string name)
         << "--socketpath <socket path>"<< std::endl
         << "--filepath <file path of threat>" << std::endl
         << "--sha <sha of threat>" << std::endl
-        << "--threatname <name of threat>" << std::endl;
+        << "--threatname <name of threat>" << std::endl
+        << "--threatid <threatid>" << std::endl
+        << "--filedescriptor <filedescriptor>" << std::endl;
     exit(EXIT_FAILURE);
 }
 
@@ -34,13 +36,15 @@ int main(int argc, char* argv[])
     std::string sha;
     std::string filePath;
     std::string threatName;
+    std::string threatID = "00010203-0405-0607-0809-0a0b0c0d0e0f";
     int fd = 0;
     bool sendFD = true;
     bool sendMessage = true;
-    const char* const short_opts = "p:t:s:f:mn";
+    const char* const short_opts = "p:t:s:f:i:d:mn";
     const option long_opts[] = {
         {"socketpath", required_argument, nullptr, 'p'},
         {"threatname", required_argument, nullptr, 't'},
+        {"threatid", required_argument, nullptr, 'i'},
         {"sha", required_argument, nullptr, 's'},
         {"filepath", required_argument, nullptr, 'f'},
         {"filedescriptor", required_argument, nullptr, 'd'},
@@ -62,6 +66,10 @@ int main(int argc, char* argv[])
             case 't':
                 threatName = optarg;
                 std::cout << threatName << std::endl;
+                break;
+            case 'i':
+                threatID = optarg;
+                std::cout << threatID << std::endl;
                 break;
             case 'f':
                 filePath = optarg;
@@ -103,8 +111,8 @@ int main(int argc, char* argv[])
             threatDetected.filePath = filePath;
             threatDetected.sha256 = sha;
             threatDetected.threatName = threatName;
-            threatDetected.threatId = "00010203-0405-0607-0809-0a0b0c0d0e0f";
-            threatDetected.correlationId = "00010203-0405-0607-0809-0a0b0c0d0e0f";
+            threatDetected.threatId = threatID;
+            threatDetected.correlationId = threatID;
             std::string dataAsString = threatDetected.serialise(false);
             if (sendFD)
             {
