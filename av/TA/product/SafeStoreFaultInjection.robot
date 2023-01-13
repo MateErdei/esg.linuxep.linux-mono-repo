@@ -29,10 +29,15 @@ Dump and Reset Logs
     Dump log  ${SAFESTORE_LOG_PATH}
     Remove File  ${SAFESTORE_LOG_PATH}*
 
+send TDO To socket
+    [Arguments]  ${socketpath}=/opt/sophos-spl/plugins/av/var/safestore_socket  ${filepath}=/tmp/testfile  ${threatname}=threatName  ${sha}=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+    ${result} =  Run Shell Process  ${SEND_THREAT_DETECTED_TOOL} --socketpath ${socketpath} --filepath ${filepath} --threatname ${threatname} --sha ${sha}   OnError=Failed to run SendThreatDetectedEvent binary   timeout=10
+    [Return]  ${result}
+
 *** Test Cases ***
 Send A Valid Threat Detected Object To Safestore
     Create File  /tmp/testfile
-    ${result} =  Run Shell Process  ${SEND_THREAT_DETECTED_TOOL} --socketpath /opt/sophos-spl/plugins/av/var/safestore_socket --filepath /tmp/testfile --threatname threatName --sha e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855    OnError=Failed to run SendThreatDetectedEvent binary   timeout=10
+    ${result} =  send TDO To socket
     Wait Until Keyword Succeeds
     ...  10 secs
     ...  1 secs
@@ -57,7 +62,7 @@ Send Only FD To Safestore
 
 Send Empty ThreatName To Safestore
     Create File  /tmp/testfile
-    ${result} =  Run Shell Process  ${SEND_THREAT_DETECTED_TOOL} --socketpath /opt/sophos-spl/plugins/av/var/safestore_socket --filepath /tmp/testfile --sha e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855    OnError=Failed to run SendThreatDetectedEvent binary   timeout=10
+    ${result} =  send TDO To socket  threatname=""
     Wait Until Keyword Succeeds
     ...  10 secs
     ...  1 secs
@@ -66,8 +71,7 @@ Send Empty ThreatName To Safestore
 
 Send ThreatName with foriegn chars To Safestore
     Create File  /tmp/testfile
-    Create File  /tmp/testfile
-    ${result} =  Run Shell Process  ${SEND_THREAT_DETECTED_TOOL} --socketpath /opt/sophos-spl/plugins/av/var/safestore_socket --filepath /tmp/testfile --threatname threatNameこんにちは --sha e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855    OnError=Failed to run SendThreatDetectedEvent binary   timeout=10
+    ${result} =  send TDO To socket  threatname=threatNameこんにちは
     Wait Until Keyword Succeeds
     ...  10 secs
     ...  1 secs
@@ -75,8 +79,7 @@ Send ThreatName with foriegn chars To Safestore
 
 Send ThreatName with xml To Safestore
     Create File  /tmp/testfile
-    Create File  /tmp/testfile
-    ${result} =  Run Shell Process  ${SEND_THREAT_DETECTED_TOOL} --socketpath /opt/sophos-spl/plugins/av/var/safestore_socket --filepath /tmp/testfile --threatname "<tag></tag>" --sha e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855    OnError=Failed to run SendThreatDetectedEvent binary   timeout=10
+    ${result} =  send TDO To socket  threatname="<tag></tag>"
     Wait Until Keyword Succeeds
     ...  10 secs
     ...  1 secs
@@ -84,7 +87,7 @@ Send ThreatName with xml To Safestore
 
 Send Short SHA To Safestore
     Create File  /tmp/testfile
-    ${result} =  Run Shell Process  ${SEND_THREAT_DETECTED_TOOL} --socketpath /opt/sophos-spl/plugins/av/var/safestore_socket --filepath /tmp/testfile --threatname threatName --sha e3b0c44298fc1c149afbf4c8996f    OnError=Failed to run SendThreatDetectedEvent binary   timeout=10
+    ${result} =  send TDO To socket  sha=e3b0c44298fc1c149afbf4c8996f
     Wait Until Keyword Succeeds
     ...  10 secs
     ...  1 secs
@@ -92,7 +95,7 @@ Send Short SHA To Safestore
 
 Send Long SHA To Safestore
     Create File  /tmp/testfile
-    ${result} =  Run Shell Process  ${SEND_THREAT_DETECTED_TOOL} --socketpath /opt/sophos-spl/plugins/av/var/safestore_socket --filepath /tmp/testfile --threatname threatName --sha e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b85555    OnError=Failed to run SendThreatDetectedEvent binary   timeout=10
+    ${result} =  send TDO To socket  sha=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b85555
     Wait Until Keyword Succeeds
     ...  10 secs
     ...  1 secs
@@ -100,7 +103,7 @@ Send Long SHA To Safestore
 
 Send invalid SHA with captial letters To Safestore
     Create File  /tmp/testfile
-    ${result} =  Run Shell Process  ${SEND_THREAT_DETECTED_TOOL} --socketpath /opt/sophos-spl/plugins/av/var/safestore_socket --filepath /tmp/testfile --threatname threatName --sha E3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855    OnError=Failed to run SendThreatDetectedEvent binary   timeout=10
+    ${result} =  send TDO To socket  sha=E3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
     Wait Until Keyword Succeeds
     ...  10 secs
     ...  1 secs
@@ -108,7 +111,7 @@ Send invalid SHA with captial letters To Safestore
 
 Send SHA that is in json format To Safestore
     Create File  /tmp/testfile
-    ${result} =  Run Shell Process  ${SEND_THREAT_DETECTED_TOOL} --socketpath /opt/sophos-spl/plugins/av/var/safestore_socket --filepath /tmp/testfile --threatname threatName --sha {"hellow":1000}    OnError=Failed to run SendThreatDetectedEvent binary   timeout=10
+    ${result} =  send TDO To socket  sha={"hellow":1000}
     Wait Until Keyword Succeeds
     ...  10 secs
     ...  1 secs
@@ -116,7 +119,7 @@ Send SHA that is in json format To Safestore
 
 Send SHA that is in xml format To Safestore
     Create File  /tmp/testfile
-    ${result} =  Run Shell Process  ${SEND_THREAT_DETECTED_TOOL} --socketpath /opt/sophos-spl/plugins/av/var/safestore_socket --filepath /tmp/testfile --threatname threatName --sha "<xmltag>aaaa<\xmltag>"    OnError=Failed to run SendThreatDetectedEvent binary   timeout=10
+    ${result} =  send TDO To socket  sha="<xmltag>aaaa<\xmltag>"
     Wait Until Keyword Succeeds
     ...  10 secs
     ...  1 secs
@@ -124,7 +127,7 @@ Send SHA that is in xml format To Safestore
 
 Send TDO with empty SHA To Safestore
     Create File  /tmp/testfile
-    ${result} =  Run Shell Process  ${SEND_THREAT_DETECTED_TOOL} --socketpath /opt/sophos-spl/plugins/av/var/safestore_socket --filepath /tmp/testfile --threatname threatName   OnError=Failed to run SendThreatDetectedEvent binary   timeout=10
+    ${result} =  send TDO To socket  sha=""
     Wait Until Keyword Succeeds
     ...  10 secs
     ...  1 secs
@@ -133,7 +136,7 @@ Send TDO with empty SHA To Safestore
 
 Send invalid SHA To safestore
     Create File  /tmp/testfile
-    ${result} =  Run Shell Process  ${SEND_THREAT_DETECTED_TOOL} --socketpath /opt/sophos-spl/plugins/av/var/safestore_socket --filepath /tmp/testfile --threatname threatName --sha e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b8==    OnError=Failed to run SendThreatDetectedEvent binary   timeout=10
+    ${result} =  send TDO To socket  sha=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b8==
     Wait Until Keyword Succeeds
     ...  10 secs
     ...  1 secs
@@ -141,7 +144,7 @@ Send invalid SHA To safestore
 
 Send SHA with foreign char Safestore
     Create File  /tmp/testfile
-    ${result} =  Run Shell Process  ${SEND_THREAT_DETECTED_TOOL} --socketpath /opt/sophos-spl/plugins/av/var/safestore_socket --filepath /tmp/testfile --threatname threatName --sha e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b8សួស្តី    OnError=Failed to run SendThreatDetectedEvent binary   timeout=10
+    ${result} =  send TDO To socket  sha=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b8សួស្តី
     Wait Until Keyword Succeeds
     ...  10 secs
     ...  1 secs
