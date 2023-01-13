@@ -258,3 +258,57 @@ Send threatid with uppercase chars To Safestore
     ...  10 secs
     ...  1 secs
     ...  SafeStore Log Contains  Quarantined /tmp/testfile successfully
+
+Send threatid with no hyphens To Safestore
+    Create File  /tmp/testfile
+    ${result} =  send TDO To socket  threatid="0001020300405006070080900a0b0c0d0e0F"
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  1 secs
+    ...  SafeStore Log Contains  Aborting SafeStore connection thread: failed to parse detection
+    mark_expected_error_in_log  ${SAFESTORE_LOG_PATH}  Aborting SafeStore connection thread: failed to parse detection
+
+Send threatid with only hyphens To Safestore
+    Create File  /tmp/testfile
+    ${result} =  send TDO To socket  threatid="------------------------------------"
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  1 secs
+    ...  SafeStore Log Contains  Aborting SafeStore connection thread: failed to parse detection
+    mark_expected_error_in_log  ${SAFESTORE_LOG_PATH}  Aborting SafeStore connection thread: failed to parse detection
+
+Send threatid with only four hyphens To Safestore
+    Create File  /tmp/testfile
+    ${result} =  send TDO To socket  threatid="----"
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  1 secs
+    ...  SafeStore Log Contains  Aborting SafeStore connection thread: failed to parse detection
+    mark_expected_error_in_log  ${SAFESTORE_LOG_PATH}  Aborting SafeStore connection thread: failed to parse detection
+
+Send threatid with foreign char To Safestore
+    Create File  /tmp/testfile
+    ${result} =  send TDO To socket  threatid="00010203-0405-0607-0809-0a0b0c0d0e0こ"
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  1 secs
+    ...  SafeStore Log Contains  Aborting SafeStore connection thread: failed to parse detection
+    mark_expected_error_in_log  ${SAFESTORE_LOG_PATH}  Aborting SafeStore connection thread: failed to parse detection
+
+Send threatid with json To Safestore
+    Create File  /tmp/testfile
+    ${result} =  send TDO To socket  threatid="{'00010203-0405-0607-0809-0a0b0c0d0e0j':90}"
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  1 secs
+    ...  SafeStore Log Contains  Aborting SafeStore connection thread: failed to parse detection
+    mark_expected_error_in_log  ${SAFESTORE_LOG_PATH}  Aborting SafeStore connection thread: failed to parse detection
+
+Send threatid with xml To Safestore
+    Create File  /tmp/testfile
+    ${result} =  send TDO To socket  threatid="<exmapletag></exampletag>"
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  1 secs
+    ...  SafeStore Log Contains  Aborting SafeStore connection thread: failed to parse detection
+    mark_expected_error_in_log  ${SAFESTORE_LOG_PATH}  Aborting SafeStore connection thread: failed to parse detection
