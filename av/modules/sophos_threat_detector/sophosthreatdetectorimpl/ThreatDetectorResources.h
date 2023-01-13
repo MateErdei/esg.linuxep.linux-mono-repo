@@ -11,25 +11,25 @@ namespace sspl::sophosthreatdetectorimpl
         public:
             datatypes::ISystemCallWrapperSharedPtr createSystemCallWrapper() override;
 
-            common::signals::ISignalHandlerSharedPtr createSigTermHandler(bool _restartSyscalls) override;
-            common::signals::ISignalHandlerSharedPtr createUsr1Monitor(common::signals::IReloadablePtr _reloadable) override;
+            common::signals::ISignalHandlerSharedPtr createSigTermHandler(bool restartSyscalls) override;
+            common::signals::ISignalHandlerSharedPtr createUsr1Monitor(common::signals::IReloadablePtr reloadable) override;
             std::shared_ptr<common::signals::IReloadable>  createReloader(threat_scanner::IThreatScannerFactorySharedPtr scannerFactory) override;
 
-            common::IPidLockFileSharedPtr createPidLockFile(const std::string& _path) override;
+            common::IPidLockFileSharedPtr createPidLockFile(const std::string& path) override;
 
             ISafeStoreRescanWorkerPtr createSafeStoreRescanWorker(const sophos_filesystem::path& safeStoreRescanSocket) override;
 
-            threat_scanner::IThreatReporterSharedPtr createThreatReporter(const sophos_filesystem::path _socketPath) override;
+            threat_scanner::IThreatReporterSharedPtr createThreatReporter(const sophos_filesystem::path socketPath) override;
 
-            threat_scanner::IScanNotificationSharedPtr createShutdownTimer(const sophos_filesystem::path _configPath) override;
+            threat_scanner::IScanNotificationSharedPtr createShutdownTimer(const sophos_filesystem::path configPath) override;
 
             threat_scanner::IThreatScannerFactorySharedPtr createSusiScannerFactory(
-                threat_scanner::IThreatReporterSharedPtr _reporter,
-                threat_scanner::IScanNotificationSharedPtr _shutdownTimer,
-                threat_scanner::IUpdateCompleteCallbackPtr _updateCompleteCallback) override;
+                threat_scanner::IThreatReporterSharedPtr reporter,
+                threat_scanner::IScanNotificationSharedPtr shutdownTimer,
+                threat_scanner::IUpdateCompleteCallbackPtr updateCompleteCallback) override;
 
             unixsocket::updateCompleteSocket::UpdateCompleteServerSocketPtr createUpdateCompleteNotifier
-                (const sophos_filesystem::path _serverPath, mode_t _mode) override;
+                (const sophos_filesystem::path serverPath, mode_t mode) override;
 
             unixsocket::ScanningServerSocketPtr createScanningServerSocket(
                 const std::string& path,
@@ -44,7 +44,7 @@ namespace sspl::sophosthreatdetectorimpl
                 ) override;
 
             unixsocket::IProcessControlMessageCallbackPtr createThreatDetectorCallBacks(
-                ISophosThreatDetectorMainPtr _threatDetectorMain
+                ISophosThreatDetectorMainPtr threatDetectorMain
                 ) override;
     };
 }

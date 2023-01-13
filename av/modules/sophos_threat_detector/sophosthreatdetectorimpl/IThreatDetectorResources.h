@@ -23,42 +23,42 @@ namespace sspl::sophosthreatdetectorimpl
     public:
         virtual ~IThreatDetectorResources() = default;
 
-        virtual common::signals::ISignalHandlerSharedPtr createSigTermHandler(bool _restartSyscalls) = 0;
-        virtual common::signals::ISignalHandlerSharedPtr createUsr1Monitor(common::signals::IReloadablePtr _reloadable) = 0;
+        virtual common::signals::ISignalHandlerSharedPtr createSigTermHandler(bool restartSyscalls) = 0;
+        virtual common::signals::ISignalHandlerSharedPtr createUsr1Monitor(common::signals::IReloadablePtr reloadable) = 0;
         virtual std::shared_ptr<common::signals::IReloadable> createReloader(threat_scanner::IThreatScannerFactorySharedPtr scannerFactory) = 0;
 
-        virtual common::IPidLockFileSharedPtr createPidLockFile(const std::string& _path) = 0;
+        virtual common::IPidLockFileSharedPtr createPidLockFile(const std::string& path) = 0;
 
         virtual ISafeStoreRescanWorkerPtr createSafeStoreRescanWorker(const sophos_filesystem::path& safeStoreRescanSocket) = 0;
 
         virtual datatypes::ISystemCallWrapperSharedPtr createSystemCallWrapper() = 0;
 
-        virtual threat_scanner::IThreatReporterSharedPtr createThreatReporter(const sophos_filesystem::path _socketPath) = 0;
+        virtual threat_scanner::IThreatReporterSharedPtr createThreatReporter(const sophos_filesystem::path socketPath) = 0;
 
-        virtual threat_scanner::IScanNotificationSharedPtr createShutdownTimer(const sophos_filesystem::path _configPath) = 0;
+        virtual threat_scanner::IScanNotificationSharedPtr createShutdownTimer(const sophos_filesystem::path configPath) = 0;
 
         virtual threat_scanner::IThreatScannerFactorySharedPtr createSusiScannerFactory(
-            threat_scanner::IThreatReporterSharedPtr _reporter,
-            threat_scanner::IScanNotificationSharedPtr _shutdownTimer,
-            threat_scanner::IUpdateCompleteCallbackPtr _updateCompleteCallback) = 0;
+            threat_scanner::IThreatReporterSharedPtr reporter,
+            threat_scanner::IScanNotificationSharedPtr shutdownTimer,
+            threat_scanner::IUpdateCompleteCallbackPtr updateCompleteCallback) = 0;
 
         virtual unixsocket::updateCompleteSocket::UpdateCompleteServerSocketPtr createUpdateCompleteNotifier
-            (const sophos_filesystem::path _serverPath, mode_t _mode) = 0;
+            (const sophos_filesystem::path serverPath, mode_t mode) = 0;
 
         virtual unixsocket::ScanningServerSocketPtr createScanningServerSocket(
-            const std::string& _path,
-            mode_t _mode,
-            threat_scanner::IThreatScannerFactorySharedPtr _scannerFactory
+            const std::string& path,
+            mode_t mode,
+            threat_scanner::IThreatScannerFactorySharedPtr scannerFactory
             ) = 0;
 
         virtual unixsocket::ProcessControllerServerSocketPtr createProcessControllerServerSocket(
-            const std::string& _path,
-            mode_t _mode,
-            std::shared_ptr<unixsocket::IProcessControlMessageCallback> _processControlCallbacks
+            const std::string& path,
+            mode_t mode,
+            std::shared_ptr<unixsocket::IProcessControlMessageCallback> processControlCallbacks
             ) = 0;
 
         virtual unixsocket::IProcessControlMessageCallbackPtr createThreatDetectorCallBacks(
-            ISophosThreatDetectorMainPtr _threatDetectorMain
+            ISophosThreatDetectorMainPtr threatDetectorMain
             ) = 0;
     };
     using IThreatDetectorResourcesSharedPtr = std::shared_ptr<IThreatDetectorResources>;

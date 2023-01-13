@@ -67,14 +67,14 @@ namespace
         MOCK_METHOD(common::IPidLockFileSharedPtr, createPidLockFile, (const std::string& _path), (override));
         MOCK_METHOD(ISafeStoreRescanWorkerPtr, createSafeStoreRescanWorker, (const sophos_filesystem::path& safeStoreRescanSocket), (override));
 
-        MOCK_METHOD(threat_scanner::IThreatReporterSharedPtr, createThreatReporter, (const sophos_filesystem::path _socketPath), (override));
-        MOCK_METHOD(threat_scanner::IScanNotificationSharedPtr , createShutdownTimer, (const sophos_filesystem::path _configPath), (override));
+        MOCK_METHOD(threat_scanner::IThreatReporterSharedPtr, createThreatReporter, (const sophos_filesystem::path socketPath), (override));
+        MOCK_METHOD(threat_scanner::IScanNotificationSharedPtr , createShutdownTimer, (const sophos_filesystem::path configPath), (override));
         MOCK_METHOD(unixsocket::updateCompleteSocket::UpdateCompleteServerSocketPtr, createUpdateCompleteNotifier,
-                    (const sophos_filesystem::path _serverPath, mode_t _mode), (override));
+                    (const sophos_filesystem::path serverPath, mode_t mode), (override));
         MOCK_METHOD(threat_scanner::IThreatScannerFactorySharedPtr, createSusiScannerFactory,
-                    (threat_scanner::IThreatReporterSharedPtr _reporter,
-                    threat_scanner::IScanNotificationSharedPtr _shutdownTimer,
-                    threat_scanner::IUpdateCompleteCallbackPtr _updateCompleteCallback),
+                    (threat_scanner::IThreatReporterSharedPtr reporter,
+                    threat_scanner::IScanNotificationSharedPtr shutdownTimer,
+                    threat_scanner::IUpdateCompleteCallbackPtr updateCompleteCallback),
                     (override));
         MOCK_METHOD(unixsocket::ScanningServerSocketPtr, createScanningServerSocket,
                     (const std::string& path,
@@ -87,13 +87,13 @@ namespace
                     std::shared_ptr<unixsocket::IProcessControlMessageCallback> processControlCallbacks),
                     (override));
         MOCK_METHOD(unixsocket::IProcessControlMessageCallbackPtr, createThreatDetectorCallBacks,
-                    (ISophosThreatDetectorMainPtr _threatDetectorMain),
+                    (ISophosThreatDetectorMainPtr threatDetectorMain),
                     (override));
 
 
-        void setThreatDetectorCallback(std::shared_ptr<ThreatDetectorControlCallback> _callback)
+        void setThreatDetectorCallback(std::shared_ptr<ThreatDetectorControlCallback> callback)
         {
-            m_callbacks = std::move(_callback);
+            m_callbacks = std::move(callback);
         }
 
         //This is required while there is difficult inheritance from UpdateCompleteServerSocket

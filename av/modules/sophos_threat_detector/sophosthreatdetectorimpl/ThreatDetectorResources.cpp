@@ -22,76 +22,76 @@ datatypes::ISystemCallWrapperSharedPtr ThreatDetectorResources::createSystemCall
     return sysCallFact.createSystemCallWrapper();
 }
 
-common::signals::ISignalHandlerSharedPtr ThreatDetectorResources::createSigTermHandler(bool _restartSyscalls)
+common::signals::ISignalHandlerSharedPtr ThreatDetectorResources::createSigTermHandler(bool restartSyscalls)
 {
-    return std::make_shared<common::signals::SigTermMonitor>(_restartSyscalls);
+    return std::make_shared<common::signals::SigTermMonitor>(restartSyscalls);
 }
 
-common::signals::ISignalHandlerSharedPtr ThreatDetectorResources::createUsr1Monitor(common::signals::IReloadablePtr _reloadable)
+common::signals::ISignalHandlerSharedPtr ThreatDetectorResources::createUsr1Monitor(common::signals::IReloadablePtr reloadable)
 {
-    return std::make_shared<common::signals::SigUSR1Monitor>(_reloadable);
+    return std::make_shared<common::signals::SigUSR1Monitor>(reloadable);
 }
 
-std::shared_ptr<common::signals::IReloadable> ThreatDetectorResources::createReloader(threat_scanner::IThreatScannerFactorySharedPtr _scannerFactory)
+std::shared_ptr<common::signals::IReloadable> ThreatDetectorResources::createReloader(threat_scanner::IThreatScannerFactorySharedPtr scannerFactory)
 {
-    return std::make_shared<Reloader>(_scannerFactory);
+    return std::make_shared<Reloader>(scannerFactory);
 }
 
-common::IPidLockFileSharedPtr ThreatDetectorResources::createPidLockFile(const std::string& _path)
+common::IPidLockFileSharedPtr ThreatDetectorResources::createPidLockFile(const std::string& path)
 {
-    return std::make_shared<common::PidLockFile>(_path);
+    return std::make_shared<common::PidLockFile>(path);
 }
 
-ISafeStoreRescanWorkerPtr ThreatDetectorResources::createSafeStoreRescanWorker(const sophos_filesystem::path& _safeStoreRescanSocket)
+ISafeStoreRescanWorkerPtr ThreatDetectorResources::createSafeStoreRescanWorker(const sophos_filesystem::path& safeStoreRescanSocket)
 {
-    return std::make_shared<SafeStoreRescanWorker>(_safeStoreRescanSocket);
+    return std::make_shared<SafeStoreRescanWorker>(safeStoreRescanSocket);
 }
 
-threat_scanner::IThreatReporterSharedPtr ThreatDetectorResources::createThreatReporter(const sophos_filesystem::path _socketPath)
+threat_scanner::IThreatReporterSharedPtr ThreatDetectorResources::createThreatReporter(const sophos_filesystem::path socketPath)
 {
-    return std::make_shared<ThreatReporter>(_socketPath);
+    return std::make_shared<ThreatReporter>(socketPath);
 }
 
-threat_scanner::IScanNotificationSharedPtr ThreatDetectorResources::createShutdownTimer(const sophos_filesystem::path _configPath)
+threat_scanner::IScanNotificationSharedPtr ThreatDetectorResources::createShutdownTimer(const sophos_filesystem::path configPath)
 {
-    return std::make_shared<ShutdownTimer>(_configPath);
+    return std::make_shared<ShutdownTimer>(configPath);
 }
 
 threat_scanner::IThreatScannerFactorySharedPtr ThreatDetectorResources::createSusiScannerFactory(
-    threat_scanner::IThreatReporterSharedPtr _reporter,
-    threat_scanner::IScanNotificationSharedPtr _shutdownTimer,
-    threat_scanner::IUpdateCompleteCallbackPtr _updateCompleteCallback)
+    threat_scanner::IThreatReporterSharedPtr reporter,
+    threat_scanner::IScanNotificationSharedPtr shutdownTimer,
+    threat_scanner::IUpdateCompleteCallbackPtr updateCompleteCallback)
 {
-    return std::make_shared<threat_scanner::SusiScannerFactory>(_reporter, _shutdownTimer, _updateCompleteCallback);
+    return std::make_shared<threat_scanner::SusiScannerFactory>(reporter, shutdownTimer, updateCompleteCallback);
 }
 
 unixsocket::updateCompleteSocket::UpdateCompleteServerSocketPtr ThreatDetectorResources::createUpdateCompleteNotifier
-    (const sophos_filesystem::path _serverPath, mode_t _mode)
+    (const sophos_filesystem::path serverPath, mode_t mode)
 {
-    return std::make_shared<unixsocket::updateCompleteSocket::UpdateCompleteServerSocket>(_serverPath, _mode);
+    return std::make_shared<unixsocket::updateCompleteSocket::UpdateCompleteServerSocket>(serverPath, mode);
 }
 
 unixsocket::ScanningServerSocketPtr ThreatDetectorResources::createScanningServerSocket(
-    const std::string& _path,
-    mode_t _mode,
-    threat_scanner::IThreatScannerFactorySharedPtr _scannerFactory
+    const std::string& path,
+    mode_t mode,
+    threat_scanner::IThreatScannerFactorySharedPtr scannerFactory
     )
 {
-    return std::make_shared<unixsocket::ScanningServerSocket>(_path, _mode, _scannerFactory);
+    return std::make_shared<unixsocket::ScanningServerSocket>(path, mode, scannerFactory);
 }
 
 unixsocket::ProcessControllerServerSocketPtr ThreatDetectorResources::createProcessControllerServerSocket(
-    const std::string& _path,
-    mode_t _mode,
-    std::shared_ptr<unixsocket::IProcessControlMessageCallback> _processControlCallbacks
+    const std::string& path,
+    mode_t mode,
+    std::shared_ptr<unixsocket::IProcessControlMessageCallback> processControlCallbacks
     )
 {
-    return std::make_shared<unixsocket::ProcessControllerServerSocket>(_path, _mode, _processControlCallbacks);
+    return std::make_shared<unixsocket::ProcessControllerServerSocket>(path, mode, processControlCallbacks);
 }
 
 unixsocket::IProcessControlMessageCallbackPtr ThreatDetectorResources::createThreatDetectorCallBacks(
-    ISophosThreatDetectorMainPtr _threatDetectorMain
+    ISophosThreatDetectorMainPtr threatDetectorMain
     )
 {
-    return std::make_shared<ThreatDetectorControlCallback>(_threatDetectorMain);
+    return std::make_shared<ThreatDetectorControlCallback>(threatDetectorMain);
 }
