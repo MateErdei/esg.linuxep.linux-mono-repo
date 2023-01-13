@@ -202,7 +202,7 @@ namespace threat_scanner
         std::filesystem::path updateSource = "/susi/update_source";
         std::filesystem::path installDest = "/susi/distribution_version";
 
-        auto prevUmask = ::umask(023);
+        auto prevUmask = ::umask(0177);
 
         LOGINFO("Bootstrapping SUSI from update source: " << updateSource);
         SusiResult susiResult =  m_susiWrapper->SUSI_Install(updateSource.c_str(), installDest.c_str());
