@@ -43,6 +43,14 @@ Send A Valid Threat Detected Object To Safestore
     ...  1 secs
     ...  SafeStore Log Contains  Quarantined /tmp/testfile successfully
 
+Send An invalid capnproto message To Safestore
+    ${result} =  Run Shell Process  ${SEND_DATA_TO_SOCKET_TOOL} --socketpath /opt/sophos-spl/plugins/av/var/safestore_socket --data 2222222    OnError=Failed to run SendDataToSocket binary   timeout=10
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  1 secs
+    ...  SafeStore Log Contains  Aborting SafeStore connection thread: failed to parse detection
+    mark_expected_error_in_log  ${SAFESTORE_LOG_PATH}  Aborting SafeStore connection thread: failed to parse detection
+
 Send Only Message To Safestore
     Create File  /tmp/testfile
     ${result} =  Run Shell Process  ${SEND_THREAT_DETECTED_TOOL} --socketpath /opt/sophos-spl/plugins/av/var/safestore_socket --filepath /tmp/testfile --threatname threatName --sha e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 --nosendfd    OnError=Failed to run SendThreatDetectedEvent binary   timeout=10
@@ -126,11 +134,20 @@ Send Filepath with foreign char Safestore
     ...  1 secs
     ...  SafeStore Log Contains  Quarantined /tmp/こんにちは successfully
 
+Send Filepath with null char Safestore
+    Create File  /tmp/file\000
+    ${result} =  send TDO To socket  filepath="/tmp/file\000"
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  1 secs
+    ...  SafeStore Log Contains  Quarantined /tmp/file\000 successfully
+
 Send very long Filepath To Safestore
     ${long_string}=  Run Process  tr -dc A-Za-z0-9 </dev/urandom | head -c 249  shell=True
     ${s}=  Set Variable   ${long_string.stdout}
     ${long_filepath}=  Set Variable   /tmp/${s}/${s}/${s}/${s}/${s}/${s}/${s}/${s}/${s}/${s}/${s}/${s}/${s}/${s}/${s}
     Create File  ${long_filepath}
+    Register Cleanup   Remove Directory  /tmp/${s}  recursive=True
     ${result} =  send TDO To socket  filepath=${long_filepath}
     Wait Until Keyword Succeeds
     ...  10 secs
