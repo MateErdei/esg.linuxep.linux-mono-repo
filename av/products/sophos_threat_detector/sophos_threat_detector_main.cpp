@@ -22,7 +22,7 @@ int main()
     appConfig.setData("PLUGIN_INSTALL", pluginInstall);
 
     LogSetup logging;
-    ::umask(0177);
+    ::umask(177);
     auto treatDetectorMain = sspl::sophosthreatdetectorimpl::SophosThreatDetectorMain();
     return treatDetectorMain.sophos_threat_detector_main();
 }
