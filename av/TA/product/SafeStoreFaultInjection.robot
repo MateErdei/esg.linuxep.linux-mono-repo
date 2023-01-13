@@ -30,8 +30,8 @@ Dump and Reset Logs
     Remove File  ${SAFESTORE_LOG_PATH}*
 
 send TDO To socket
-    [Arguments]  ${socketpath}=/opt/sophos-spl/plugins/av/var/safestore_socket  ${filepath}=/tmp/testfile  ${threatname}=threatName  ${sha}=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  ${fd}=0
-    ${result} =  Run Shell Process  ${SEND_THREAT_DETECTED_TOOL} --socketpath ${socketpath} --filepath ${filepath} --threatname ${threatname} --sha ${sha} --filedescriptor ${fd}   OnError=Failed to run SendThreatDetectedEvent binary   timeout=10
+    [Arguments]  ${socketpath}=/opt/sophos-spl/plugins/av/var/safestore_socket  ${filepath}=/tmp/testfile  ${threatname}=threatName  ${sha}=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  ${fd}=0  ${threatid}=00010203-0405-0607-0809-0a0b0c0d0e0f
+    ${result} =  Run Shell Process  ${SEND_THREAT_DETECTED_TOOL} --socketpath ${socketpath} --filepath ${filepath} --threatname ${threatname} --sha ${sha} --filedescriptor ${fd} --threatid ${threatid}  OnError=Failed to run SendThreatDetectedEvent binary   timeout=10
     [Return]  ${result}
 
 *** Test Cases ***
@@ -123,7 +123,8 @@ Send Filepath that is a dir To Safestore
     Wait Until Keyword Succeeds
     ...  10 secs
     ...  1 secs
-    ...  SafeStore Log Contains  Quarantined /tmp/Dir successfully
+    ...  SafeStore Log Contains  Failed to quarantine /tmp/Dir due to: MaxObjectSizeExceeded
+    mark_expected_error_in_log  ${SAFESTORE_LOG_PATH}  Failed to quarantine /tmp/Dir due to: MaxObjectSizeExceeded
 
 Send empty File To Safestore
     ${result} =  send TDO To socket  filepath=""  fd=1
@@ -209,6 +210,50 @@ Send invalid SHA To safestore
 Send SHA with foreign char Safestore
     Create File  /tmp/testfile
     ${result} =  send TDO To socket  sha=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b8សួស្តី
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  1 secs
+    ...  SafeStore Log Contains  Quarantined /tmp/testfile successfully
+
+Send empty threatid To Safestore
+    Create File  /tmp/testfile
+    ${result} =  send TDO To socket  threatid=""
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  1 secs
+    ...  SafeStore Log Contains  Aborting SafeStore connection thread: failed to parse detection
+    mark_expected_error_in_log  ${SAFESTORE_LOG_PATH}  Aborting SafeStore connection thread: failed to parse detection
+
+Send long threatid To Safestore
+    Create File  /tmp/testfile
+    ${result} =  send TDO To socket  threatid="00010203-0405-0607-0809-0a0b0c0d0e0ff"
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  1 secs
+    ...  SafeStore Log Contains  Aborting SafeStore connection thread: failed to parse detection
+    mark_expected_error_in_log  ${SAFESTORE_LOG_PATH}  Aborting SafeStore connection thread: failed to parse detection
+
+Send short threatid To Safestore
+    Create File  /tmp/testfile
+    ${result} =  send TDO To socket  threatid="00010203-0405-0607-0809-0a0b"
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  1 secs
+    ...  SafeStore Log Contains  Aborting SafeStore connection thread: failed to parse detection
+    mark_expected_error_in_log  ${SAFESTORE_LOG_PATH}  Aborting SafeStore connection thread: failed to parse detection
+
+Send threatid with non hex chars To Safestore
+    Create File  /tmp/testfile
+    ${result} =  send TDO To socket  threatid="00010203-0405-0607-0809-0a0b0c0d0e=="
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  1 secs
+    ...  SafeStore Log Contains  Aborting SafeStore connection thread: failed to parse detection
+    mark_expected_error_in_log  ${SAFESTORE_LOG_PATH}  Aborting SafeStore connection thread: failed to parse detection
+
+Send threatid with uppercase chars To Safestore
+    Create File  /tmp/testfile
+    ${result} =  send TDO To socket  threatid="00010203-0405-0607-0809-0a0b0c0d0e0F"
     Wait Until Keyword Succeeds
     ...  10 secs
     ...  1 secs
