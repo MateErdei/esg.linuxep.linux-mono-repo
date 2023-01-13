@@ -8,8 +8,8 @@ GITHUB_PATH="/vagrant/esg.linuxep.sspl-plugin-anti-virus"
 
 if [ -d "$GITHUB_PATH" ]
 then
-  AV_PATH=$GITHUB_PATH
-elif [ -d "$STASH_PATH"]
+  AV_PATH="$GITHUB_PATH"
+elif [ -d "$STASH_PATH" ]
 then
   AV_PATH="$STASH_PATH"
 else
