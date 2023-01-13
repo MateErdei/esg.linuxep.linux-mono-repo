@@ -47,7 +47,9 @@ namespace
 
                 if (unixsocket::send_fd(m_socket_fd.get(), fd) < 0)
                 {
-                    throw std::runtime_error("Failed to write file descriptor to Threat Reporter socket");
+                    std::stringstream errMsg;
+                    errMsg << "Failed to write file descriptor to Threat Reporter socket fd: " << std::to_string(fd) << std::endl;
+                    throw std::runtime_error(errMsg.str());
                 }
             }
             catch (unixsocket::environmentInterruption& e)

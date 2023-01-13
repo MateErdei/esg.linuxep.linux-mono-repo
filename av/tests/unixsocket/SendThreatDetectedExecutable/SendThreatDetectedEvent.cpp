@@ -55,12 +55,15 @@ int main(int argc, char* argv[])
 
             case 'p':
                 socketPath = optarg;
+                std::cout << socketPath << std::endl;
                 break;
             case 't':
                 threatName = optarg;
+                std::cout << threatName << std::endl;
                 break;
             case 'f':
                 filePath = optarg;
+                std::cout << filePath << std::endl;
                 break;
             case 's':
                 sha = optarg;

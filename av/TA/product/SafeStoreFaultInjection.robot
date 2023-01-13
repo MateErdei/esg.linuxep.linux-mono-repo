@@ -85,6 +85,38 @@ Send ThreatName with xml To Safestore
     ...  1 secs
     ...  SafeStore Log Contains  Quarantined /tmp/testfile successfully
 
+Send ThreatName with json To Safestore
+    Create File  /tmp/testfile
+    ${result} =  send TDO To socket  threatname="{\"blob\":1000}"
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  1 secs
+    ...  SafeStore Log Contains  Quarantined /tmp/testfile successfully
+
+Send Filepath with json To Safestore
+    Create File  /tmp/{\'blob\':1000}
+    ${result} =  send TDO To socket  filepath="/tmp/{'blob':1000}"
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  1 secs
+    ...  SafeStore Log Contains  Quarantined /tmp/{'blob':1000} successfully
+
+Send Filepath with xml To Safestore
+    Create File  /tmp/<xml><\xml>
+    ${result} =  send TDO To socket  filepath="/tmp/<xml><\xml>"
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  1 secs
+    ...  SafeStore Log Contains  Quarantined /tmp/<xml><\xml> successfully
+
+Send Filepath that is a dir To Safestore
+    Create Directory  /tmp/Dir
+    ${result} =  send TDO To socket  filepath=/tmp/Dir
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  1 secs
+    ...  SafeStore Log Contains  Quarantined /tmp/Dir successfully
+
 Send Short SHA To Safestore
     Create File  /tmp/testfile
     ${result} =  send TDO To socket  sha=e3b0c44298fc1c149afbf4c8996f
