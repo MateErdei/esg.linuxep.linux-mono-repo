@@ -93,6 +93,15 @@ Send ThreatName with json To Safestore
     ...  1 secs
     ...  SafeStore Log Contains  Quarantined /tmp/testfile successfully
 
+Send very long threatname To Safestore
+    Create File  /tmp/testfile
+    ${long_string}=  Run Process  tr -dc A-Za-z0-9 </dev/urandom | head -c 50000  shell=True
+    ${result} =  send TDO To socket  threatname=${long_string.stdout}
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  1 secs
+    ...  SafeStore Log Contains  Quarantined /tmp/testfile successfully
+
 Send Filepath with json To Safestore
     Create File  /tmp/{\'blob\':1000}
     ${result} =  send TDO To socket  filepath="/tmp/{'blob':1000}"
@@ -116,6 +125,17 @@ Send Filepath with foreign char Safestore
     ...  10 secs
     ...  1 secs
     ...  SafeStore Log Contains  Quarantined /tmp/こんにちは successfully
+
+Send very long Filepath To Safestore
+    ${long_string}=  Run Process  tr -dc A-Za-z0-9 </dev/urandom | head -c 249  shell=True
+    ${s}=  Set Variable   ${long_string.stdout}
+    ${long_filepath}=  Set Variable   /tmp/${s}/${s}/${s}/${s}/${s}/${s}/${s}/${s}/${s}/${s}/${s}/${s}/${s}/${s}/${s}
+    Create File  ${long_filepath}
+    ${result} =  send TDO To socket  filepath=${long_filepath}
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  1 secs
+    ...  SafeStore Log Contains  Quarantined ${long_filepath} successfully
 
 Send Filepath that is a dir To Safestore
     Create Directory  /tmp/Dir
@@ -215,6 +235,14 @@ Send SHA with foreign char Safestore
     ...  1 secs
     ...  SafeStore Log Contains  Quarantined /tmp/testfile successfully
 
+Send very long SHA To Safestore
+    Create File  /tmp/testfile
+    ${long_string}=  Run Process  tr -dc A-Za-z0-9 </dev/urandom | head -c 50000  shell=True
+    ${result} =  send TDO To socket  sha=${long_string.stdout}
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  1 secs
+    ...  SafeStore Log Contains  Quarantined /tmp/testfile successfully
 Send empty threatid To Safestore
     Create File  /tmp/testfile
     ${result} =  send TDO To socket  threatid=""
@@ -307,6 +335,16 @@ Send threatid with json To Safestore
 Send threatid with xml To Safestore
     Create File  /tmp/testfile
     ${result} =  send TDO To socket  threatid="<exmapletag></exampletag>"
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  1 secs
+    ...  SafeStore Log Contains  Aborting SafeStore connection thread: failed to parse detection
+    mark_expected_error_in_log  ${SAFESTORE_LOG_PATH}  Aborting SafeStore connection thread: failed to parse detection
+
+Send very long threatid To Safestore
+    Create File  /tmp/testfile
+    ${long_string}=  Run Process  tr -dc A-Za-z0-9 </dev/urandom | head -c 50000  shell=True
+    ${result} =  send TDO To socket  threatid=${long_string.stdout}
     Wait Until Keyword Succeeds
     ...  10 secs
     ...  1 secs
