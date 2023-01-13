@@ -58,6 +58,6 @@ private:
     std::condition_variable m_rescanWakeUp;
     fs::path m_safeStoreRescanSocket;
     uint m_rescanInterval; // in seconds
-    std::atomic<bool> m_manualRescan = false;
-    std::atomic<bool> m_stopRequested = false;
+    bool m_manualRescan = false;
+    bool m_stopRequested = false;
 };
