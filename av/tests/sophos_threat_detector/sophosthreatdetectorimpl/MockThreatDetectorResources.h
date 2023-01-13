@@ -1,4 +1,4 @@
-// Copyright 2022, Sophos Limited.  All rights reserved.
+// Copyright 2022-2023, Sophos Limited.  All rights reserved.
 
 #pragma once
 
@@ -10,17 +10,18 @@
 #include "MockThreatReporter.h"
 #include "MockUpdateCompleteServerSocket.h"
 
-#include "sophos_threat_detector/threat_scanner/MockSusiScannerFactory.h"
+#include "sophos_threat_detector/sophosthreatdetectorimpl/ThreatDetectorControlCallback.h"
 #include "sophos_threat_detector/sophosthreatdetectorimpl/ThreatDetectorResources.h"
+#include "sophos_threat_detector/threat_scanner/MockSusiScannerFactory.h"
 
 #include <common/MockPidLock.h>
 #include <common/MockSignalHandler.h>
 #include <datatypes/MockSysCalls.h>
+#include <gmock/gmock.h>
 #include <unixsocket/processControllerSocket/ProcessControllerServerSocket.h>
 
-#include <gmock/gmock.h>
-
 using namespace testing;
+using namespace sspl::sophosthreatdetectorimpl;
 
 namespace
 {
@@ -29,7 +30,7 @@ namespace
     public:
         MockThreatDetectorResources(const fs::path& testDirectory, std::shared_ptr<NiceMock<MockSystemCallWrapper>> mockSysCallWrapper)
         {
-            m_mockSysCalls = mockSysCallWrapper;
+            m_mockSysCalls = std::move(mockSysCallWrapper);
             m_mockSigTermHandler = std::make_shared<NiceMock<MockSignalHandler>>();
             m_mockUsr1Monitor = std::make_shared<NiceMock<MockSignalHandler>>();
             m_mockPidLock = std::make_shared<NiceMock<MockPidLock>>();
@@ -38,10 +39,11 @@ namespace
             m_mockUpdateCompleteServerSocket = std::make_shared<NiceMock<MockUpdateCompleteServerSocket>>(fs::path(testDirectory / "update_socket"), 0777);
             m_mockSusiScannerFactory = std::make_shared<NiceMock<MockSusiScannerFactory>>();
             m_mockScanningServerSocket = std::make_shared<NiceMock<MockScanningServerSocket>>(fs::path(testDirectory / "scanning_server_socket"), 0777, m_mockSusiScannerFactory);
+            m_reloader = std::make_shared<NiceMock<MockReloader>>();
+            m_safeStoreRescanWorker = std::make_shared<NiceMock<MockSafeStoreRescanWorker>>();
 
             auto mockThreatDetectorControlCallbacks = std::make_shared<NiceMock<MockThreatDetectorControlCallbacks>>();
             m_processControlServerSocket = std::make_shared<unixsocket::ProcessControllerServerSocket>(fs::path(testDirectory / "process_control_socket"), 0777, mockThreatDetectorControlCallbacks);
-            m_reloader = std::make_shared<sspl::sophosthreatdetectorimpl::Reloader>(m_mockSusiScannerFactory);
 
             ON_CALL(*this, createSystemCallWrapper).WillByDefault(Return(m_mockSysCalls));
             ON_CALL(*this, createSigTermHandler).WillByDefault(Return(m_mockSigTermHandler));
@@ -54,14 +56,17 @@ namespace
             ON_CALL(*this, createScanningServerSocket).WillByDefault(Return(m_mockScanningServerSocket));
             ON_CALL(*this, createReloader).WillByDefault(Return(m_reloader));
             ON_CALL(*this, createProcessControllerServerSocket).WillByDefault(Return(m_processControlServerSocket));
+            ON_CALL(*this, createSafeStoreRescanWorker).WillByDefault(Return(m_safeStoreRescanWorker));
         }
 
         MOCK_METHOD(datatypes::ISystemCallWrapperSharedPtr, createSystemCallWrapper, (), (override));
         MOCK_METHOD(common::signals::ISignalHandlerSharedPtr, createSigTermHandler, (bool), (override));
         MOCK_METHOD(common::signals::ISignalHandlerSharedPtr, createUsr1Monitor, (common::signals::IReloadablePtr), (override));
-        MOCK_METHOD(std::shared_ptr<sspl::sophosthreatdetectorimpl::Reloader>, createReloader, (threat_scanner::IThreatScannerFactorySharedPtr), (override));
+        MOCK_METHOD(std::shared_ptr<common::signals::IReloadable>, createReloader, (threat_scanner::IThreatScannerFactorySharedPtr), (override));
 
         MOCK_METHOD(common::IPidLockFileSharedPtr, createPidLockFile, (const std::string& _path), (override));
+        MOCK_METHOD(ISafeStoreRescanWorkerPtr, createSafeStoreRescanWorker, (const sophos_filesystem::path& safeStoreRescanSocket), (override));
+
         MOCK_METHOD(threat_scanner::IThreatReporterSharedPtr, createThreatReporter, (const sophos_filesystem::path _socketPath), (override));
         MOCK_METHOD(threat_scanner::IScanNotificationSharedPtr , createShutdownTimer, (const sophos_filesystem::path _configPath), (override));
         MOCK_METHOD(unixsocket::updateCompleteSocket::UpdateCompleteServerSocketPtr, createUpdateCompleteNotifier,
@@ -81,6 +86,21 @@ namespace
                     mode_t mode,
                     std::shared_ptr<unixsocket::IProcessControlMessageCallback> processControlCallbacks),
                     (override));
+        MOCK_METHOD(unixsocket::IProcessControlMessageCallbackPtr, createThreatDetectorCallBacks,
+                    (ISophosThreatDetectorMainPtr _threatDetectorMain),
+                    (override));
+
+
+        void setThreatDetectorCallback(std::shared_ptr<ThreatDetectorControlCallback> _callback)
+        {
+            m_callbacks = std::move(_callback);
+        }
+
+        //This is required while there is difficult inheritance from UpdateCompleteServerSocket
+        void setUpdateCompleteSocketExpectation(int expectTimes)
+        {
+            EXPECT_CALL(*m_mockUpdateCompleteServerSocket, updateComplete()).Times(expectTimes);
+        }
 
     private:
         std::shared_ptr<NiceMock<MockSystemCallWrapper>> m_mockSysCalls;
@@ -92,9 +112,11 @@ namespace
         std::shared_ptr<NiceMock<MockUpdateCompleteServerSocket>> m_mockUpdateCompleteServerSocket;
         std::shared_ptr<NiceMock<MockSusiScannerFactory>> m_mockSusiScannerFactory;
         std::shared_ptr<NiceMock<MockScanningServerSocket>> m_mockScanningServerSocket;
+        std::shared_ptr<NiceMock<MockReloader>> m_reloader;
+        std::shared_ptr<NiceMock<MockSafeStoreRescanWorker>> m_safeStoreRescanWorker;
 
         //Not Mocked
-        std::shared_ptr<sspl::sophosthreatdetectorimpl::Reloader> m_reloader;
+        std::shared_ptr<ThreatDetectorControlCallback> m_callbacks;
         std::shared_ptr<unixsocket::ProcessControllerServerSocket> m_processControlServerSocket;
     };
 }

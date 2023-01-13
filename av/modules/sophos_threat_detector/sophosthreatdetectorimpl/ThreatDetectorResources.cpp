@@ -1,13 +1,16 @@
 // Copyright 2022, Sophos Limited.  All rights reserved.
 
+#include "Reloader.h"
+#include "SafeStoreRescanWorker.h"
 #include "ThreatDetectorResources.h"
+#include "ThreatDetectorControlCallback.h"
 
+#include "common/PidLockFile.h"
 #include "common/signals/SigTermMonitor.h"
 #include "common/signals/SigUSR1Monitor.h"
-#include "common/PidLockFile.h"
 #include "datatypes/SystemCallWrapperFactory.h"
-#include "sophos_threat_detector/sophosthreatdetectorimpl/ThreatReporter.h"
 #include "sophos_threat_detector/sophosthreatdetectorimpl/ShutdownTimer.h"
+#include "sophos_threat_detector/sophosthreatdetectorimpl/ThreatReporter.h"
 #include "sophos_threat_detector/threat_scanner/SusiScannerFactory.h"
 #include "unixsocket/updateCompleteSocket/UpdateCompleteServerSocket.h"
 
@@ -29,7 +32,7 @@ common::signals::ISignalHandlerSharedPtr ThreatDetectorResources::createUsr1Moni
     return std::make_shared<common::signals::SigUSR1Monitor>(_reloadable);
 }
 
-std::shared_ptr<Reloader> ThreatDetectorResources::createReloader(threat_scanner::IThreatScannerFactorySharedPtr _scannerFactory)
+std::shared_ptr<common::signals::IReloadable> ThreatDetectorResources::createReloader(threat_scanner::IThreatScannerFactorySharedPtr _scannerFactory)
 {
     return std::make_shared<Reloader>(_scannerFactory);
 }
@@ -37,6 +40,11 @@ std::shared_ptr<Reloader> ThreatDetectorResources::createReloader(threat_scanner
 common::IPidLockFileSharedPtr ThreatDetectorResources::createPidLockFile(const std::string& _path)
 {
     return std::make_shared<common::PidLockFile>(_path);
+}
+
+ISafeStoreRescanWorkerPtr ThreatDetectorResources::createSafeStoreRescanWorker(const sophos_filesystem::path& _safeStoreRescanSocket)
+{
+    return std::make_shared<SafeStoreRescanWorker>(_safeStoreRescanSocket);
 }
 
 threat_scanner::IThreatReporterSharedPtr ThreatDetectorResources::createThreatReporter(const sophos_filesystem::path _socketPath)
@@ -79,4 +87,11 @@ unixsocket::ProcessControllerServerSocketPtr ThreatDetectorResources::createProc
     )
 {
     return std::make_shared<unixsocket::ProcessControllerServerSocket>(_path, _mode, _processControlCallbacks);
+}
+
+unixsocket::IProcessControlMessageCallbackPtr ThreatDetectorResources::createThreatDetectorCallBacks(
+    ISophosThreatDetectorMainPtr _threatDetectorMain
+    )
+{
+    return std::make_shared<ThreatDetectorControlCallback>(_threatDetectorMain);
 }

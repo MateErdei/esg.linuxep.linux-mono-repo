@@ -2,7 +2,8 @@
 
 #pragma once
 
-#include "Reloader.h"
+#include "ISafeStoreRescanWorker.h"
+#include "ISophosThreatDetectorMain.h"
 #include "common/IPidLockFile.h"
 #include "common/signals/IReloadable.h"
 #include "common/signals/ISignalHandlerBase.h"
@@ -24,9 +25,11 @@ namespace sspl::sophosthreatdetectorimpl
 
         virtual common::signals::ISignalHandlerSharedPtr createSigTermHandler(bool _restartSyscalls) = 0;
         virtual common::signals::ISignalHandlerSharedPtr createUsr1Monitor(common::signals::IReloadablePtr _reloadable) = 0;
-        virtual std::shared_ptr<Reloader> createReloader(threat_scanner::IThreatScannerFactorySharedPtr scannerFactory) = 0;
+        virtual std::shared_ptr<common::signals::IReloadable> createReloader(threat_scanner::IThreatScannerFactorySharedPtr scannerFactory) = 0;
 
         virtual common::IPidLockFileSharedPtr createPidLockFile(const std::string& _path) = 0;
+
+        virtual ISafeStoreRescanWorkerPtr createSafeStoreRescanWorker(const sophos_filesystem::path& safeStoreRescanSocket) = 0;
 
         virtual datatypes::ISystemCallWrapperSharedPtr createSystemCallWrapper() = 0;
 
@@ -39,7 +42,6 @@ namespace sspl::sophosthreatdetectorimpl
             threat_scanner::IScanNotificationSharedPtr _shutdownTimer,
             threat_scanner::IUpdateCompleteCallbackPtr _updateCompleteCallback) = 0;
 
-        //Sockets
         virtual unixsocket::updateCompleteSocket::UpdateCompleteServerSocketPtr createUpdateCompleteNotifier
             (const sophos_filesystem::path _serverPath, mode_t _mode) = 0;
 
@@ -53,6 +55,10 @@ namespace sspl::sophosthreatdetectorimpl
             const std::string& _path,
             mode_t _mode,
             std::shared_ptr<unixsocket::IProcessControlMessageCallback> _processControlCallbacks
+            ) = 0;
+
+        virtual unixsocket::IProcessControlMessageCallbackPtr createThreatDetectorCallBacks(
+            ISophosThreatDetectorMainPtr _threatDetectorMain
             ) = 0;
     };
     using IThreatDetectorResourcesSharedPtr = std::shared_ptr<IThreatDetectorResources>;

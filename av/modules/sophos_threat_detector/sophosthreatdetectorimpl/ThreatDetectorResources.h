@@ -1,4 +1,4 @@
-// Copyright 2022, Sophos Limited.  All rights reserved.
+// Copyright 2022-2023, Sophos Limited.  All rights reserved.
 
 #pragma once
 
@@ -13,9 +13,11 @@ namespace sspl::sophosthreatdetectorimpl
 
             common::signals::ISignalHandlerSharedPtr createSigTermHandler(bool _restartSyscalls) override;
             common::signals::ISignalHandlerSharedPtr createUsr1Monitor(common::signals::IReloadablePtr _reloadable) override;
-            std::shared_ptr<Reloader>  createReloader(threat_scanner::IThreatScannerFactorySharedPtr scannerFactory) override;
+            std::shared_ptr<common::signals::IReloadable>  createReloader(threat_scanner::IThreatScannerFactorySharedPtr scannerFactory) override;
 
             common::IPidLockFileSharedPtr createPidLockFile(const std::string& _path) override;
+
+            ISafeStoreRescanWorkerPtr createSafeStoreRescanWorker(const sophos_filesystem::path& safeStoreRescanSocket) override;
 
             threat_scanner::IThreatReporterSharedPtr createThreatReporter(const sophos_filesystem::path _socketPath) override;
 
@@ -26,8 +28,6 @@ namespace sspl::sophosthreatdetectorimpl
                 threat_scanner::IScanNotificationSharedPtr _shutdownTimer,
                 threat_scanner::IUpdateCompleteCallbackPtr _updateCompleteCallback) override;
 
-
-            //Sockets
             unixsocket::updateCompleteSocket::UpdateCompleteServerSocketPtr createUpdateCompleteNotifier
                 (const sophos_filesystem::path _serverPath, mode_t _mode) override;
 
@@ -41,6 +41,10 @@ namespace sspl::sophosthreatdetectorimpl
                 const std::string& path,
                 mode_t mode,
                 std::shared_ptr<unixsocket::IProcessControlMessageCallback> processControlCallbacks
+                ) override;
+
+            unixsocket::IProcessControlMessageCallbackPtr createThreatDetectorCallBacks(
+                ISophosThreatDetectorMainPtr _threatDetectorMain
                 ) override;
     };
 }
