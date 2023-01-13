@@ -1,4 +1,4 @@
-// Copyright 2020-2022, Sophos Limited.  All rights reserved.
+// Copyright 2020-2023, Sophos Limited.  All rights reserved.
 
 #ifndef TEST_PUBLIC
 # define TEST_PUBLIC private
@@ -17,7 +17,7 @@
 
 namespace sspl::sophosthreatdetectorimpl
 {
-    class SophosThreatDetectorMain
+    class SophosThreatDetectorMain : public ISophosThreatDetectorMain, public std::enable_shared_from_this<SophosThreatDetectorMain>
     {
     public:
         int sophos_threat_detector_main();
@@ -26,15 +26,16 @@ namespace sspl::sophosthreatdetectorimpl
          * Calls SusiGlobalHandler::reload and SusiGlobalHandler::susiIsInitialized()
          * both functions try to ensure thread safety
          */
-        void reloadSUSIGlobalConfiguration();
-        void shutdownThreatDetector();
+        void reloadSUSIGlobalConfiguration() override;
+        void shutdownThreatDetector() override;
+        std::shared_ptr<SophosThreatDetectorMain> getSharedPointer() { return shared_from_this(); }
 
     private:
-        std::shared_ptr<Reloader> m_reloader;
+        std::shared_ptr<common::signals::IReloadable> m_reloader;
         threat_scanner::IThreatScannerFactorySharedPtr m_scannerFactory;
         datatypes::ISystemCallWrapperSharedPtr m_sysCallWrapper;
         Common::Threads::NotifyPipe m_systemFileRestartTrigger;
-        std::shared_ptr<SafeStoreRescanWorker> m_safeStoreRescanWorker;
+        std::shared_ptr<ISafeStoreRescanWorker> m_safeStoreRescanWorker;
         unixsocket::updateCompleteSocket::UpdateCompleteServerSocketPtr m_updateCompleteNotifier;
 
         int dropCapabilities();

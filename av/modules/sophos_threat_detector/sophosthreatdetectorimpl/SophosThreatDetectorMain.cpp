@@ -4,15 +4,15 @@
 
 #include "Logger.h"
 #include "ProcessForceExitTimer.h"
-#include "SafeStoreRescanWorker.h"
+#include "ThreatDetectorControlCallback.h"
 #include "ThreatDetectorResources.h"
 
 #include "common/ApplicationPaths.h"
 #include "common/Define.h"
 #include "common/SaferStrerror.h"
+#include "common/ThreadRunner.h"
 #include "common/ThreatDetector/SusiSettings.h"
 #include "common/signals/SigUSR1Monitor.h"
-#include "common/ThreadRunner.h"
 
 #ifdef USE_SUSI
 #else
@@ -214,31 +214,7 @@ namespace sspl::sophosthreatdetectorimpl
             ofs.close();
         }
 
-        class ThreatDetectorControlCallbacks : public unixsocket::IProcessControlMessageCallback
-        {
-        public:
-            explicit ThreatDetectorControlCallbacks(SophosThreatDetectorMain& mainInstance)
-                : m_mainInstance(mainInstance)
-            {}
 
-            void processControlMessage(const scan_messages::E_COMMAND_TYPE& command) override
-            {
-                switch (command)
-                {
-                    case scan_messages::E_SHUTDOWN:
-                        m_mainInstance.shutdownThreatDetector();
-                        break;
-                    case scan_messages::E_RELOAD:
-                        m_mainInstance.reloadSUSIGlobalConfiguration();
-                        break;
-                    default:
-                        LOGWARN("Sophos On Access Process received unknown process control message");
-                }
-            }
-
-        private:
-            SophosThreatDetectorMain& m_mainInstance;
-        };
     } // namespace
 
     void SophosThreatDetectorMain::attempt_dns_query()
@@ -355,14 +331,13 @@ namespace sspl::sophosthreatdetectorimpl
 
     int SophosThreatDetectorMain::inner_main(const IThreatDetectorResourcesSharedPtr& resources)
     {
+        assert(resources);
         m_sysCallWrapper = resources->createSystemCallWrapper();
-        assert(m_sysCallWrapper);
 
         auto processForceExitTimer = std::make_shared<ProcessForceExitTimer>(10s, m_sysCallWrapper);
         common::ThreadRunner processForceExitTimerThread(processForceExitTimer, "processForceExitTimer", false);
 
         auto sigTermMonitor = resources->createSigTermHandler(true);
-        assert(sigTermMonitor);
 
         // Ignore SIGPIPE. send*() or write() on a broken pipe will now fail with errno=EPIPE rather than crash.
         struct sigaction ignore {};
@@ -457,15 +432,12 @@ namespace sspl::sophosthreatdetectorimpl
         auto pidLock = resources->createPidLockFile(lockfile);
 
         auto threatReporter = resources->createThreatReporter(threat_reporter_socket(pluginInstall));
-        assert(threatReporter);
         auto shutdownTimer = resources->createShutdownTimer(threat_detector_config(pluginInstall));
-        assert(shutdownTimer);
 
         m_updateCompleteNotifier = resources->createUpdateCompleteNotifier(updateCompletePath, 0700);
         common::ThreadRunner updateCompleteNotifierThread (m_updateCompleteNotifier, "updateCompleteNotifier", true);
 
         m_scannerFactory = resources->createSusiScannerFactory(threatReporter, shutdownTimer, m_updateCompleteNotifier);
-        assert(m_scannerFactory);
         ScannerFactoryResetter scannerFactoryShutdown(m_scannerFactory);
 
         if (sigTermMonitor->triggered())
@@ -482,21 +454,20 @@ namespace sspl::sophosthreatdetectorimpl
         }
 
         m_reloader = resources->createReloader(m_scannerFactory);
-        assert(m_reloader);
 
         auto usr1Monitor = resources->createUsr1Monitor(m_reloader);
-        assert(usr1Monitor);
 
         auto server = resources->createScanningServerSocket(scanningSocketPath, 0666, m_scannerFactory);
         common::ThreadRunner scanningServerSocketThread (server, "scanningServerSocket", true);
 
+        m_safeStoreRescanWorker = resources->createSafeStoreRescanWorker(Plugin::getSafeStoreRescanSocketPath());
+        common::ThreadRunner safeStoreRescanWorkerThread (m_safeStoreRescanWorker, "safestoreRescanWorker", true);
+
         fs::path processControllerSocketPath = "/var/process_control_socket";
-        std::shared_ptr<ThreatDetectorControlCallbacks> callbacks = std::make_shared<ThreatDetectorControlCallbacks>(*this);
+
+        auto callbacks = std::make_shared<ThreatDetectorControlCallback>(getSharedPointer());
         auto processController = resources->createProcessControllerServerSocket(processControllerSocketPath, 0660, callbacks);
         common::ThreadRunner processControllerSocketThread (processController, "processControllerSocket", true);
-
-        m_safeStoreRescanWorker = std::make_shared<SafeStoreRescanWorker>(Plugin::getSafeStoreRescanSocketPath());
-        common::ThreadRunner safeStoreRescanWorkerThread (m_safeStoreRescanWorker, "safestoreRescanWorker", true);
 
         int returnCode = common::E_CLEAN_SUCCESS;
 
