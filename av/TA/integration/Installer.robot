@@ -59,6 +59,19 @@ IDE update doesnt restart av processes
     # This test also proves that SUSI is configured to scan executables
     Check Threat Detected  peend.exe  PE/ENDTEST
 
+Installer Does Not Confuse Sophos Threat Detector For A Similar Named Process
+    [Tags]  Fault Injection
+
+    ${handle}=     Start Process   while :; do echo "I am pretending to be sophos_threat_d"; sleep 1000;done  shell=True  alias=sophos_threat_d
+
+    #If the installer confuses the process above for threat_detector it will never send a signal to the real process and the keyword will fail
+    Force SUSI to be initialized
+    Replace Virus Data With Test Dataset A And Run IDE update with SUSI loaded  setOldTimestamps=${True}
+
+    Process should Be Running   handle=${handle}
+    Terminate Process   ${handle}
+
+
 IDE update copies updated ide
     Force SUSI to be initialized
     ${AVPLUGIN_PID} =  Record AV Plugin PID
@@ -993,6 +1006,7 @@ Installer Test Setup
     Register On Fail  dump log  ${AV_LOG_PATH}
     Register On Fail  dump log  ${ON_ACCESS_LOG_PATH}
     Register On Fail  dump log  ${SAFESTORE_LOG_PATH}
+    Register On Fail  dump log  ${AV_INSTALL_LOG}
     Register On Fail  dump log  ${SOPHOS_INSTALL}/logs/base/watchdog.log
 
     Require Plugin Installed and Running

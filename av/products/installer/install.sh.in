@@ -502,7 +502,7 @@ function update_supplement()
     generate_susi_package_manifest
 
     # update sophos_threat_detector
-    local PID=$(ps -C sophos_threat_d -o pid=)
+    local PID=$(pgrep -G ${GROUP_NAME} sophos_threat_d)
     if [[ -n "$PID" ]]
     then
         kill -SIGUSR1 $PID
