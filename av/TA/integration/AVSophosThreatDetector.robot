@@ -85,7 +85,7 @@ Threat detector aborts if logging symlink cannot be created
     ${threat_detector_mark} =  Get Sophos Threat Detector Log Mark
     Restart Sophos Threat Detector
 
-    Check Sophos Threat Detector Log Contains After Mark   LogSetup <> Failed to create symlink for logs at  ${threat_detector_mark}
+    Wait For Sophos Threat Detector Log Contains After Mark   LogSetup <> Failed to create symlink for logs at  ${threat_detector_mark}
     Check Sophos Threat Detector Log Does Not Contain After Mark   LogSetup <> Create symlink for logs at  ${threat_detector_mark}
     Should Not Exist   ${CHROOT_LOGGING_SYMLINK}
 

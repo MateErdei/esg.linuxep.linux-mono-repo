@@ -104,8 +104,8 @@ IDE update during command line scan
     Register Cleanup  Dump Log  ${scan_log}
     Register Cleanup  Terminate Process  ${cls_handle}
 
-    # ensure scan is running
-    Wait For Sophos Threat Detector Log Contains After Mark  Scan requested of  ${threat_detector_mark}
+    # ensure scan is running and that we have had a result from SUSI to prove it is initialised
+    Wait For Sophos Threat Detector Log Contains After Mark  Scanning result details  ${threat_detector_mark}
 
     ${start_time} =   Get Current Date   time_zone=UTC   exclude_millis=True
     Sleep  1 second   Allow some scans to occur before the update
