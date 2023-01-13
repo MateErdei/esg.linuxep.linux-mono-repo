@@ -191,7 +191,7 @@ namespace plugin::manager::scanprocessmonitor
         while (true)
         {
             fd_set temp_readFds = readFds;
-            // TODO: LINUXDAR-6439 Replace this with ppoll(). Please do not re-use pselect() elsewhere in the code
+            //AVOID using pselect in any other place, ppoll should be used instead in any new code.
             int active = m_sysCalls->pselect(max_fd + 1, &temp_readFds, nullptr, nullptr, nullptr, nullptr);
 
             if (stopRequested())
