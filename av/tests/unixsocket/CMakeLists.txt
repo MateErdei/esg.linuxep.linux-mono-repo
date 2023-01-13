@@ -75,6 +75,7 @@ if (NOT DEFINED ENV{USE_LIBFUZZER})
     target_link_libraries(UpdateCompleteClient  PUBLIC
             unixsocket)
 
+    add_subdirectory(SendThreatDetectedExecutable)
 endif (NOT DEFINED ENV{USE_LIBFUZZER})
 
 add_executable(ProcessControlServerExecutable
@@ -108,7 +109,7 @@ target_link_libraries(threatDetectorClientExecutable  PUBLIC
         unixsocket avscannerimpl ${STD_FILESYSTEM_IF_REQUIRED})
 target_include_directories(threatDetectorClientExecutable PUBLIC ${CMAKE_SOURCE_DIR}/modules)
 target_include_directories(threatDetectorClientExecutable SYSTEM PRIVATE ${BOOSTPATH})
-add_subdirectory(SendThreatDetectedExecutable)
+
 if (DEFINED ENV{USE_LIBFUZZER})
 SET_TARGET_PROPERTIES( threatDetectorClientExecutable
         threatDetectorServerExecutable
