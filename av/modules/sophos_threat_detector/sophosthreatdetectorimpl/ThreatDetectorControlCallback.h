@@ -11,11 +11,11 @@ namespace sspl::sophosthreatdetectorimpl
     class ThreatDetectorControlCallback : public unixsocket::IProcessControlMessageCallback
     {
     public:
-        explicit ThreatDetectorControlCallback(ISophosThreatDetectorMainPtr mainInstance);
+        explicit ThreatDetectorControlCallback(ISophosThreatDetectorMain& mainInstance);
 
         void processControlMessage(const scan_messages::E_COMMAND_TYPE& command) override;
 
     private:
-        ISophosThreatDetectorMainPtr m_mainInstance;
+        ISophosThreatDetectorMain& m_mainInstance;
     };
 }

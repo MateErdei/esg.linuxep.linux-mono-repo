@@ -87,7 +87,7 @@ namespace
                     std::shared_ptr<unixsocket::IProcessControlMessageCallback> processControlCallbacks),
                     (override));
         MOCK_METHOD(unixsocket::IProcessControlMessageCallbackPtr, createThreatDetectorCallBacks,
-                    (ISophosThreatDetectorMainPtr threatDetectorMain),
+                    (ISophosThreatDetectorMain& threatDetectorMain),
                     (override));
 
 

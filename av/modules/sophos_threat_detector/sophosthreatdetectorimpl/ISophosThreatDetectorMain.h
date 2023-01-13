@@ -16,7 +16,5 @@ namespace sspl::sophosthreatdetectorimpl
         virtual void reloadSUSIGlobalConfiguration() = 0;
         virtual void shutdownThreatDetector() = 0;
     };
-
-    using ISophosThreatDetectorMainPtr = std::shared_ptr<ISophosThreatDetectorMain>;
 }
 

@@ -465,7 +465,7 @@ namespace sspl::sophosthreatdetectorimpl
 
         fs::path processControllerSocketPath = "/var/process_control_socket";
 
-        auto callbacks = std::make_shared<ThreatDetectorControlCallback>(getSharedPointer());
+        auto callbacks = std::make_shared<ThreatDetectorControlCallback>(*this);
         auto processController = resources->createProcessControllerServerSocket(processControllerSocketPath, 0660, callbacks);
         common::ThreadRunner processControllerSocketThread (processController, "processControllerSocket", true);
 

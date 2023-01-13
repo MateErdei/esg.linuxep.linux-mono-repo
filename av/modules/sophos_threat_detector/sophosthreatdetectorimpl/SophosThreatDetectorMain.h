@@ -17,7 +17,7 @@
 
 namespace sspl::sophosthreatdetectorimpl
 {
-    class SophosThreatDetectorMain : public ISophosThreatDetectorMain, public std::enable_shared_from_this<SophosThreatDetectorMain>
+    class SophosThreatDetectorMain : public ISophosThreatDetectorMain
     {
     public:
         int sophos_threat_detector_main();
@@ -28,7 +28,6 @@ namespace sspl::sophosthreatdetectorimpl
          */
         void reloadSUSIGlobalConfiguration() override;
         void shutdownThreatDetector() override;
-        std::shared_ptr<SophosThreatDetectorMain> getSharedPointer() { return shared_from_this(); }
 
     private:
         std::shared_ptr<common::signals::IReloadable> m_reloader;

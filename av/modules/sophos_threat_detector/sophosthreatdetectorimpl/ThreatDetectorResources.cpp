@@ -90,7 +90,7 @@ unixsocket::ProcessControllerServerSocketPtr ThreatDetectorResources::createProc
 }
 
 unixsocket::IProcessControlMessageCallbackPtr ThreatDetectorResources::createThreatDetectorCallBacks(
-    ISophosThreatDetectorMainPtr threatDetectorMain
+    ISophosThreatDetectorMain& threatDetectorMain
     )
 {
     return std::make_shared<ThreatDetectorControlCallback>(threatDetectorMain);

@@ -44,7 +44,7 @@ namespace sspl::sophosthreatdetectorimpl
                 ) override;
 
             unixsocket::IProcessControlMessageCallbackPtr createThreatDetectorCallBacks(
-                ISophosThreatDetectorMainPtr threatDetectorMain
+                ISophosThreatDetectorMain& threatDetectorMain
                 ) override;
     };
 }

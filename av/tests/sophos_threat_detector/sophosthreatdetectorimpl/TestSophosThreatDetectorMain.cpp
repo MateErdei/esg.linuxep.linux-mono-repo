@@ -59,7 +59,7 @@ namespace {
         std::shared_ptr<SophosThreatDetectorMain> createSophosThreatDetector()
         {
             auto threatDetectorMain = std::make_shared<SophosThreatDetectorMain>();
-            auto threatDetectorCallback = std::make_shared<ThreatDetectorControlCallback>(threatDetectorMain);
+            auto threatDetectorCallback = std::make_shared<ThreatDetectorControlCallback>(*threatDetectorMain);
             setResourcesThreatDetectorCallback(threatDetectorCallback);
             return threatDetectorMain;
         }
@@ -492,7 +492,7 @@ TEST_F(TestSophosThreatDetectorMain, sophosThreatDetectorMainShutsDownWithCallba
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    auto threatDetectorMain = std::make_shared<SophosThreatDetectorMain>();
+    auto threatDetectorMain = SophosThreatDetectorMain();
     auto threatDetectorCallback = std::make_shared<ThreatDetectorControlCallback>(threatDetectorMain);
     setResourcesThreatDetectorCallback(threatDetectorCallback);
 
@@ -517,7 +517,7 @@ TEST_F(TestSophosThreatDetectorMain, sophosThreatDetectorResetsSusiSettingsChang
     EXPECT_CALL(*m_mockSystemCallWrapper, ppoll(_,_,_,_))
         .WillOnce(pollReturnsWithRevents(0, POLLIN));
 
-    auto threatDetectorMain = std::make_shared<SophosThreatDetectorMain>();
+    auto threatDetectorMain = SophosThreatDetectorMain();
     auto threatDetectorCallback = std::make_shared<ThreatDetectorControlCallback>(threatDetectorMain);
     setResourcesThreatDetectorCallback(threatDetectorCallback);
 
@@ -529,7 +529,7 @@ TEST_F(TestSophosThreatDetectorMain, sophosThreatDetectorResetsSusiSettingsChang
     EXPECT_CALL(*mockSafeStoreReworker, triggerRescan()).Times(1);
 
     //Let this run and exit so that member classes are available
-    threatDetectorMain->inner_main(m_mockThreatDetectorResources);
+    threatDetectorMain.inner_main(m_mockThreatDetectorResources);
 
     //Run test function
     threatDetectorCallback->processControlMessage(scan_messages::E_RELOAD);
@@ -555,7 +555,7 @@ TEST_F(TestSophosThreatDetectorMain, sophosThreatDetectorResetsSusiSettingsChang
     EXPECT_CALL(*m_mockSystemCallWrapper, ppoll(_,_,_,_))
         .WillOnce(pollReturnsWithRevents(0, POLLIN));
 
-    auto threatDetectorMain = std::make_shared<SophosThreatDetectorMain>();
+    auto threatDetectorMain = SophosThreatDetectorMain();
     auto threatDetectorCallback = std::make_shared<ThreatDetectorControlCallback>(threatDetectorMain);
     setResourcesThreatDetectorCallback(threatDetectorCallback);
 
@@ -567,7 +567,7 @@ TEST_F(TestSophosThreatDetectorMain, sophosThreatDetectorResetsSusiSettingsChang
     EXPECT_CALL(*mockSafeStoreReworker, triggerRescan()).Times(1);
 
     //Let this run and exit so that member classes are available
-    threatDetectorMain->inner_main(m_mockThreatDetectorResources);
+    threatDetectorMain.inner_main(m_mockThreatDetectorResources);
 
     //Run test function
     threatDetectorCallback->processControlMessage(scan_messages::E_RELOAD);
@@ -592,7 +592,7 @@ TEST_F(TestSophosThreatDetectorMain, sophosThreatDetectorResetsSusiSettingsNotCh
     EXPECT_CALL(*m_mockSystemCallWrapper, ppoll(_,_,_,_))
         .WillOnce(pollReturnsWithRevents(0, POLLIN));
 
-    auto threatDetectorMain = std::make_shared<SophosThreatDetectorMain>();
+    auto threatDetectorMain = SophosThreatDetectorMain();
     auto threatDetectorCallback = std::make_shared<ThreatDetectorControlCallback>(threatDetectorMain);
     setResourcesThreatDetectorCallback(threatDetectorCallback);
 
@@ -604,7 +604,7 @@ TEST_F(TestSophosThreatDetectorMain, sophosThreatDetectorResetsSusiSettingsNotCh
     EXPECT_CALL(*mockSafeStoreReworker, triggerRescan()).Times(0);
 
     //Let this run and exit so that member classes are available
-    threatDetectorMain->inner_main(m_mockThreatDetectorResources);
+    threatDetectorMain.inner_main(m_mockThreatDetectorResources);
 
     //Run test function
     threatDetectorCallback->processControlMessage(scan_messages::E_RELOAD);
@@ -629,7 +629,7 @@ TEST_F(TestSophosThreatDetectorMain, sophosThreatDetectorResetsSusiSettingsNotCh
     EXPECT_CALL(*m_mockSystemCallWrapper, ppoll(_,_,_,_))
         .WillOnce(pollReturnsWithRevents(0, POLLIN));
 
-    auto threatDetectorMain = std::make_shared<SophosThreatDetectorMain>();
+    auto threatDetectorMain = SophosThreatDetectorMain();
     auto threatDetectorCallback = std::make_shared<ThreatDetectorControlCallback>(threatDetectorMain);
     setResourcesThreatDetectorCallback(threatDetectorCallback);
 
@@ -641,7 +641,7 @@ TEST_F(TestSophosThreatDetectorMain, sophosThreatDetectorResetsSusiSettingsNotCh
     EXPECT_CALL(*mockSafeStoreReworker, triggerRescan()).Times(0);
 
     //Let this run and exit so that member classes are available
-    threatDetectorMain->inner_main(m_mockThreatDetectorResources);
+    threatDetectorMain.inner_main(m_mockThreatDetectorResources);
 
     //Run test function
     threatDetectorCallback->processControlMessage(scan_messages::E_RELOAD);

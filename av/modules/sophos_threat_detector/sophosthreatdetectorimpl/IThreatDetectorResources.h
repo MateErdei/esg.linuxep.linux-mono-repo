@@ -58,7 +58,7 @@ namespace sspl::sophosthreatdetectorimpl
             ) = 0;
 
         virtual unixsocket::IProcessControlMessageCallbackPtr createThreatDetectorCallBacks(
-            ISophosThreatDetectorMainPtr threatDetectorMain
+            ISophosThreatDetectorMain& threatDetectorMain
             ) = 0;
     };
     using IThreatDetectorResourcesSharedPtr = std::shared_ptr<IThreatDetectorResources>;

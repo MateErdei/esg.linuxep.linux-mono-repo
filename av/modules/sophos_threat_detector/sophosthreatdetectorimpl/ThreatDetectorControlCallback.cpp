@@ -5,8 +5,8 @@
 
 using namespace sspl::sophosthreatdetectorimpl;
 
-ThreatDetectorControlCallback::ThreatDetectorControlCallback(ISophosThreatDetectorMainPtr mainInstance)
-    : m_mainInstance(std::move(mainInstance))
+ThreatDetectorControlCallback::ThreatDetectorControlCallback(ISophosThreatDetectorMain& mainInstance)
+    : m_mainInstance(mainInstance)
 {}
 
 void ThreatDetectorControlCallback::processControlMessage(const scan_messages::E_COMMAND_TYPE& command)
@@ -14,10 +14,10 @@ void ThreatDetectorControlCallback::processControlMessage(const scan_messages::E
     switch (command)
     {
         case scan_messages::E_SHUTDOWN:
-            m_mainInstance->shutdownThreatDetector();
+            m_mainInstance.shutdownThreatDetector();
             break;
         case scan_messages::E_RELOAD:
-            m_mainInstance->reloadSUSIGlobalConfiguration();
+            m_mainInstance.reloadSUSIGlobalConfiguration();
             break;
         default:
             LOGWARN("Sophos On Access Process received unknown process control message");
