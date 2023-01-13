@@ -2,6 +2,8 @@
 
 #pragma once
 
+#include "ISafeStoreRescanWorker.h"
+
 #include "datatypes/sophos_filesystem.h"
 #include "unixsocket/safeStoreRescanSocket/SafeStoreRescanClient.h"
 
@@ -13,7 +15,7 @@
 
 namespace fs = sophos_filesystem;
 
-class SafeStoreRescanWorker : public common::AbstractThreadPluginInterface
+class SafeStoreRescanWorker : public sspl::sophosthreatdetectorimpl::ISafeStoreRescanWorker
 {
 public:
     explicit SafeStoreRescanWorker(const fs::path& safeStoreRescanSocket);
@@ -27,9 +29,9 @@ public:
      */
     void tryStop() final;
     void run() override;
-    void triggerRescan();
+    void triggerRescan() override;
 
-    virtual void sendRescanRequest();
+    virtual void sendRescanRequest() override;
 
 protected:
     std::mutex m_rescanLock;

@@ -29,7 +29,7 @@ namespace sspl::sophosthreatdetectorimpl
             m_scannerFactory = std::move(scannerFactory);
         }
 
-        bool updateSusiConfig();
+        bool updateSusiConfig() override;
 
     private:
         threat_scanner::IThreatScannerFactorySharedPtr m_scannerFactory;

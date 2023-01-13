@@ -11,8 +11,12 @@ add_library(sophosthreatdetectorimpl SHARED
         ProcessForceExitTimer.h
         SafeStoreRescanWorker.cpp
         SafeStoreRescanWorker.h
+        ISafeStoreRescanWorker.h
         SophosThreatDetectorMain.cpp
         SophosThreatDetectorMain.h
+        ISophosThreatDetectorMain.h
+        ThreatDetectorControlCallback.cpp
+        ThreatDetectorControlCallback.h
         ThreatDetectorResources.cpp
         ThreatDetectorResources.h
         IThreatDetectorResources.h
