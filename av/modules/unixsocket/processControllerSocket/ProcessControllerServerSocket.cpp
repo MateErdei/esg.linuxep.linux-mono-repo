@@ -16,6 +16,17 @@ ProcessControllerServerSocket::ProcessControllerServerSocket(
     m_socketName = "Process Controller Server";
 }
 
+ProcessControllerServerSocket::ProcessControllerServerSocket(
+    const std::string& path,
+    const std::string& userName,
+    const std::string& groupName,
+    const mode_t mode,
+    std::shared_ptr<IProcessControlMessageCallback> processControlCallback)
+    : ProcessControllerServerSocket(path, mode, std::move(processControlCallback))
+{
+    setUserAndGroup(userName, groupName);
+}
+
 ProcessControllerServerSocket::~ProcessControllerServerSocket()
 {
     requestStop();

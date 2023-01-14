@@ -12,7 +12,8 @@ add_library(soapdbootstrap SHARED
         Logger.h
         SoapdBootstrap.cpp
         SoapdBootstrap.h
-        )
+        SoapdResources.cpp
+        SoapdResources.h)
 
 target_include_directories(soapdbootstrap PUBLIC ${CMAKE_SOURCE_DIR}/products/distribution/include)
 

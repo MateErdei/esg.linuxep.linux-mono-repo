@@ -16,10 +16,8 @@ namespace unixsocket::updateCompleteSocket
                                              public common::AbstractThreadPluginInterface
     {
     public:
-        using IUpdateCompleteCallback = threat_scanner::IUpdateCompleteCallback;
-        using IUpdateCompleteCallbackPtr = std::shared_ptr<IUpdateCompleteCallback>;
         UpdateCompleteClientSocketThread(std::string socket_path,
-                                         IUpdateCompleteCallbackPtr callback,
+                                         threat_scanner::IUpdateCompleteCallbackPtr callback,
                                          struct timespec reconnectInterval={1,0}
             );
 
@@ -28,7 +26,7 @@ namespace unixsocket::updateCompleteSocket
     private:
         void connectIfNotConnected();
 
-        IUpdateCompleteCallbackPtr m_callback;
+        threat_scanner::IUpdateCompleteCallbackPtr m_callback;
         struct timespec m_reconnectInterval;
     };
 }

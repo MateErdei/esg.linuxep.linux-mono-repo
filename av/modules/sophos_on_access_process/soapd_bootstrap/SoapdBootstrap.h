@@ -2,9 +2,14 @@
 
 #pragma once
 
+#ifndef TEST_PUBLIC
+# define TEST_PUBLIC private
+#endif
+
 #include "OnAccessConfigurationUtils.h"
 #include "OnAccessStatusFile.h"
-#include "OnAccessServiceImpl.h"
+#include "IOnAccessService.h"
+#include "ISoapdResources.h"
 
 #include "IPolicyProcessor.h"
 
@@ -14,7 +19,7 @@
 #include "sophos_on_access_process/fanotifyhandler/EventReaderThread.h"
 #include "sophos_on_access_process/fanotifyhandler/IFanotifyHandler.h"
 #include "sophos_on_access_process/local_settings/OnAccessLocalSettings.h"
-#include "sophos_on_access_process/onaccessimpl/OnAccessTelemetryUtility.h"
+#include "sophos_on_access_process/onaccessimpl/IOnAccessTelemetryUtility.h"
 #include "sophos_on_access_process/onaccessimpl/ScanRequestQueue.h"
 
 #include <atomic>
@@ -25,11 +30,11 @@ namespace sophos_on_access_process::soapd_bootstrap
     class SoapdBootstrap : public IPolicyProcessor
     {
     public:
-        explicit SoapdBootstrap(datatypes::ISystemCallWrapperSharedPtr systemCallWrapper);
+        explicit SoapdBootstrap(ISoapdResources& soapdResources);
         SoapdBootstrap(const SoapdBootstrap&) =delete;
         SoapdBootstrap& operator=(const SoapdBootstrap&) =delete;
 
-        static int runSoapd(datatypes::ISystemCallWrapperSharedPtr systemCallWrapper);
+        static int runSoapd();
         /**
          * Reads and uses the policy settings if m_policyOverride is false.
          * Called by OnAccessProcessControlCallback.
@@ -39,9 +44,10 @@ namespace sophos_on_access_process::soapd_bootstrap
 
         static bool checkIfOAShouldBeEnabled(bool OnAccessEnabledFlag, bool OnAccessEnabledPolicySetting);
 
-    private:
+TEST_PUBLIC:
         int outerRun();
 
+    private:
         void innerRun();
 
         void setupOnAccess();
@@ -51,13 +57,15 @@ namespace sophos_on_access_process::soapd_bootstrap
 
         bool getPolicyConfiguration(sophos_on_access_process::OnAccessConfig::OnAccessConfiguration& oaConfig);
 
+        ISoapdResources& m_soapdResources;
+
         std::unique_ptr<common::ThreadRunner> m_eventReaderThread;
         std::shared_ptr<fanotifyhandler::IFanotifyHandler> m_fanotifyHandler;
         std::shared_ptr<mount_monitor::mount_monitor::MountMonitor> m_mountMonitor;
         std::shared_ptr<common::ThreadRunner> m_mountMonitorThread;
 
         std::mutex m_pendingConfigActionMutex;
-        std::atomic_bool m_currentOaEnabledState = false;
+        std::atomic_bool m_currentOaEnabledState{ false };
 
         sophos_on_access_process::local_settings::OnAccessLocalSettings m_localSettings;
         OnAccessConfig::OnAccessConfiguration m_config;
@@ -67,8 +75,8 @@ namespace sophos_on_access_process::soapd_bootstrap
         std::shared_ptr<fanotifyhandler::EventReaderThread> m_eventReader;
         mount_monitor::mountinfoimpl::DeviceUtilSharedPtr m_deviceUtil;
 
-        std::shared_ptr<onaccessimpl::onaccesstelemetry::OnAccessTelemetryUtility> m_TelemetryUtility = nullptr;
-        std::unique_ptr<service_impl::OnAccessServiceImpl> m_ServiceImpl;
+        onaccessimpl::onaccesstelemetry::IOnAccessTelemetryUtilitySharedPtr m_TelemetryUtility{ nullptr };
+        service_impl::IOnAccessServicePtr m_ServiceImpl;
         datatypes::ISystemCallWrapperSharedPtr m_sysCallWrapper;
 
         OnAccessStatusFile m_statusFile;

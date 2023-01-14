@@ -6,6 +6,7 @@
 #include "Logger.h"
 #include "OnAccessProcesControlCallbacks.h"
 #include "ProcessPriorityUtils.h"
+#include "SoapdResources.h"
 // Component
 #include "sophos_on_access_process/fanotifyhandler/FanotifyHandler.h"
 #include "sophos_on_access_process/local_settings/OnAccessProductConfigDefaults.h"
@@ -17,16 +18,13 @@
 #include "common/signals/SigIntMonitor.h"
 #include "common/signals/SigTermMonitor.h"
 #include "mount_monitor/mountinfoimpl/SystemPathsFactory.h"
-#include "unixsocket/processControllerSocket/ProcessControllerServerSocket.h"
 #include "unixsocket/threatDetectorSocket/ScanningClientSocket.h"
-#include "unixsocket/updateCompleteSocket/UpdateCompleteClientSocketThread.h"
 
 // Auto version headers
 #include "AutoVersioningHeaders/AutoVersion.h"
 
 // Std C++
 #include <memory>
-#include <utility>
 // Std C
 #include <poll.h>
 
@@ -36,23 +34,23 @@ using namespace sophos_on_access_process::soapd_bootstrap;
 using namespace sophos_on_access_process::fanotifyhandler;
 using namespace sophos_on_access_process::onaccessimpl;
 using namespace sophos_on_access_process::OnAccessConfig;
-using namespace unixsocket::updateCompleteSocket;
 
-SoapdBootstrap::SoapdBootstrap(datatypes::ISystemCallWrapperSharedPtr systemCallWrapper)
-    : m_sysCallWrapper(std::move(systemCallWrapper))
+SoapdBootstrap::SoapdBootstrap(ISoapdResources& soapdResources)
+    : m_soapdResources(soapdResources)
 {
-    assert(m_sysCallWrapper);
 }
 
-int SoapdBootstrap::runSoapd(datatypes::ISystemCallWrapperSharedPtr systemCallWrapper)
+int SoapdBootstrap::runSoapd()
 {
-    LOGINFO("Sophos on access process " << _AUTOVER_COMPONENTAUTOVERSION_STR_ << " started");
-    auto SoapdInstance = SoapdBootstrap(std::move(systemCallWrapper));
+    SoapdResources soapdResources;
+    auto SoapdInstance = SoapdBootstrap(soapdResources);
     return SoapdInstance.outerRun();
 }
 
 int SoapdBootstrap::outerRun()
 {
+    LOGINFO("Sophos on access process " << _AUTOVER_COMPONENTAUTOVERSION_STR_ << " started");
+
     try
     {
         innerRun();
@@ -74,6 +72,8 @@ int SoapdBootstrap::outerRun()
 
 void SoapdBootstrap::innerRun()
 {
+    m_sysCallWrapper = m_soapdResources.getSystemCallWrapper();
+
     // Take soapd lock file
     fs::path lockfile = common::getPluginInstallPath() / "var/soapd.pid";
     common::PidLockFile lock(lockfile);
@@ -81,26 +81,23 @@ void SoapdBootstrap::innerRun()
     auto sigIntMonitor{common::signals::SigIntMonitor::getSigIntMonitor(true)};
     auto sigTermMonitor{common::signals::SigTermMonitor::getSigTermMonitor(true)};
 
-    m_ServiceImpl = std::make_unique<service_impl::OnAccessServiceImpl>();
+    m_ServiceImpl = m_soapdResources.getOnAccessServiceImpl();
     m_TelemetryUtility = m_ServiceImpl->getTelemetryUtility();
 
     setupOnAccess();
 
     fs::path updateSocketPath = common::getPluginInstallPath() / "chroot/var/update_complete_socket";
     assert(m_fanotifyHandler); // should be set by setupOnAccess() above
-    auto updateClient = std::make_shared<UpdateCompleteClientSocketThread>(updateSocketPath, m_fanotifyHandler);
+    auto updateClient = m_soapdResources.getUpdateClient(updateSocketPath, m_fanotifyHandler);
     auto updateClientThread = std::make_unique<common::ThreadRunner>(updateClient, "updateClient", true);
 
     fs::path socketPath = common::getPluginInstallPath() / "var/soapd_controller";
     LOGDEBUG("Control Server Socket is at: " << socketPath);
     auto processControlCallbacks = std::make_shared<OnAccessProcessControlCallback>(*this);
-    auto processControllerServer = std::make_shared<unixsocket::ProcessControllerServerSocket>(socketPath,
-                                                                                               0600,
-                                                                                               processControlCallbacks);
-    processControllerServer->setUserAndGroup("sophos-spl-av", "sophos-spl-group");
-    auto processControllerServerThread = std::make_unique<common::ThreadRunner>(processControllerServer,
-                                                                                "processControlServer",
-                                                                                true);
+    auto processControllerServer = m_soapdResources.getProcessController(
+            socketPath, "sophos-spl-av", "sophos-spl-group", 0600, processControlCallbacks);
+    auto processControllerServerThread =
+        std::make_unique<common::ThreadRunner>(processControllerServer, "processControlServer", true);
 
     ProcessPolicy();
 
@@ -216,6 +213,7 @@ bool SoapdBootstrap::checkIfOAShouldBeEnabled(bool OnAccessEnabledFlag, bool OnA
 
 void SoapdBootstrap::setupOnAccess()
 {
+    assert(m_sysCallWrapper); // should be set by innerRun() before we're called
     m_localSettings = OnAccessConfig::readLocalSettingsFile(m_sysCallWrapper);
 
     const struct rlimit file_lim = { onAccessProcessFdLimit, onAccessProcessFdLimit };

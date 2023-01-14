@@ -2,19 +2,21 @@
 
 #pragma once
 
-#include "sophos_on_access_process/onaccessimpl/OnAccessTelemetryUtility.h"
+#include "IOnAccessService.h"
+
+#include "sophos_on_access_process/onaccessimpl/IOnAccessTelemetryUtility.h"
 
 #include "Common/PluginApiImpl/PluginCallBackHandler.h"
 #include "Common/ZMQWrapperApi/IContext.h"
 
 namespace sophos_on_access_process::service_impl
 {
-    class OnAccessServiceImpl
+    class OnAccessServiceImpl : public IOnAccessService
     {
     public:
         OnAccessServiceImpl();
 
-        onaccessimpl::onaccesstelemetry::OnAccessTelemetryUtilitySharedPtr getTelemetryUtility()
+        onaccessimpl::onaccesstelemetry::IOnAccessTelemetryUtilitySharedPtr getTelemetryUtility() override
         {
             return m_TelemetryUtility;
         }
@@ -22,6 +24,6 @@ namespace sophos_on_access_process::service_impl
     private:
         Common::ZMQWrapperApi::IContextSharedPtr m_onAccessContext;
         std::unique_ptr<Common::PluginApiImpl::PluginCallBackHandler> m_pluginHandler;
-        onaccessimpl::onaccesstelemetry::OnAccessTelemetryUtilitySharedPtr m_TelemetryUtility;
+        onaccessimpl::onaccesstelemetry::IOnAccessTelemetryUtilitySharedPtr m_TelemetryUtility;
     };
 }

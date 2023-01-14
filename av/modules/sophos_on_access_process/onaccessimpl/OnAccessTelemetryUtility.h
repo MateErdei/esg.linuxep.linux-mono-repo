@@ -6,6 +6,8 @@
 # define TEST_PUBLIC private
 #endif
 
+#include "IOnAccessTelemetryUtility.h"
+
 #include "OnAccessTelemetryFields.h"
 
 #include <atomic>
@@ -13,18 +15,12 @@
 
 namespace sophos_on_access_process::onaccessimpl::onaccesstelemetry
 {
-    class OnAccessTelemetryUtility
+    class OnAccessTelemetryUtility : public IOnAccessTelemetryUtility
     {
     public:
-        struct TelemetryEntry
-        {
-            float m_percentageEventsDropped = 0.0;
-            float m_percentageScanErrors = 0.0;
-        };
-
-        TelemetryEntry getTelemetry();
-        void incrementEventReceived(bool dropped);
-        void incrementFilesScanned(bool error);
+        TelemetryEntry getTelemetry() override;
+        void incrementEventReceived(bool dropped) override;
+        void incrementFilesScanned(bool error) override;
 
         OnAccessTelemetryUtility() = default;
         OnAccessTelemetryUtility(const OnAccessTelemetryUtility&) = delete;
@@ -37,8 +33,8 @@ namespace sophos_on_access_process::onaccessimpl::onaccesstelemetry
         float calculatePerScanErrors();
         float calculatePercentage(unsigned long total, unsigned int problems);
 
-        std::atomic_bool m_eventsAtLimit = false;
-        std::atomic_bool m_scansAtLimit = false;
+        std::atomic_bool m_eventsAtLimit{ false };
+        std::atomic_bool m_scansAtLimit{ false };
 
     TEST_PUBLIC:
         std::atomic_ulong m_eventsReceived { 0 };

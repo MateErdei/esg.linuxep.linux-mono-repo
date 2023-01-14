@@ -26,7 +26,7 @@ namespace sophos_on_access_process::onaccessimpl
             IScanningClientSocketSharedPtr socket,
             fanotifyhandler::IFanotifyHandlerSharedPtr fanotifyHandler,
             mount_monitor::mountinfo::IDeviceUtilSharedPtr deviceUtil,
-            onaccessimpl::onaccesstelemetry::OnAccessTelemetryUtilitySharedPtr telemetryUtility,
+            onaccessimpl::onaccesstelemetry::IOnAccessTelemetryUtilitySharedPtr telemetryUtility,
             int handlerId=1,
             sophos_on_access_process::local_settings::OnAccessLocalSettings localSettings={}
             );
@@ -42,7 +42,7 @@ namespace sophos_on_access_process::onaccessimpl
         fanotifyhandler::IFanotifyHandlerSharedPtr m_fanotifyHandler;
         std::unique_ptr<ClientSocketWrapper> m_socketWrapper;
         mount_monitor::mountinfo::IDeviceUtilSharedPtr  m_deviceUtil;
-        onaccessimpl::onaccesstelemetry::OnAccessTelemetryUtilitySharedPtr m_telemetryUtility;
+        onaccessimpl::onaccesstelemetry::IOnAccessTelemetryUtilitySharedPtr m_telemetryUtility;
         int m_handlerId;
         sophos_on_access_process::local_settings::OnAccessLocalSettings m_localSettings;
     };

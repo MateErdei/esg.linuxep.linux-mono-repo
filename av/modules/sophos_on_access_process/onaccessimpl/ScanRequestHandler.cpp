@@ -30,7 +30,7 @@ ScanRequestHandler::ScanRequestHandler(
     IScanningClientSocketSharedPtr socket,
     fanotifyhandler::IFanotifyHandlerSharedPtr fanotifyHandler,
     mount_monitor::mountinfo::IDeviceUtilSharedPtr deviceUtil,
-    onaccessimpl::onaccesstelemetry::OnAccessTelemetryUtilitySharedPtr telemetryUtility,
+    onaccessimpl::onaccesstelemetry::IOnAccessTelemetryUtilitySharedPtr telemetryUtility,
     int handlerId,
     sophos_on_access_process::local_settings::OnAccessLocalSettings localSettings)
     : m_scanRequestQueue(std::move(scanRequestQueue))

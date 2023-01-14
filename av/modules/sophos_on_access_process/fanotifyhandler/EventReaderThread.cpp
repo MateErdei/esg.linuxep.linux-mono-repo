@@ -33,13 +33,15 @@ EventReaderThread::EventReaderThread(
     datatypes::ISystemCallWrapperSharedPtr sysCalls,
     const fs::path& pluginInstall,
     onaccessimpl::ScanRequestQueueSharedPtr scanRequestQueue,
-    onaccessimpl::onaccesstelemetry::OnAccessTelemetryUtilitySharedPtr telemetryUtility,
+    onaccessimpl::onaccesstelemetry::IOnAccessTelemetryUtilitySharedPtr telemetryUtility,
+    mount_monitor::mountinfo::IDeviceUtilSharedPtr deviceUtil,
     int logNotFullThreshold)
     : m_fanotify(std::move(fanotify))
     , m_sysCalls(std::move(sysCalls))
     , m_pluginLogDir(pluginInstall / "log" / "")
     , m_scanRequestQueue(std::move(scanRequestQueue))
     , m_telemetryUtility(std::move(telemetryUtility))
+    , m_deviceUtil(std::move(deviceUtil))
     , m_pid(getpid())
     , m_logNotFullThreshold(logNotFullThreshold)
 {
@@ -56,10 +58,14 @@ bool EventReaderThread::skipScanningOfEvent(
 
     if (eventMetadata->pid == m_pid)
     {
+        // Don't ever get the file-path - which is only used when reporting errors
+        // At least for the investigation, don't change this...
+        // Don't think we want to cache these files?
         return true;
     }
 
     filePath = getFilePathFromFd(eventFd);
+
     //Either path was too long or fd was invalid
     if(filePath.empty())
     {
@@ -183,13 +189,19 @@ bool EventReaderThread::handleFanotifyEvent()
             continue;
         }
 
-        auto scanRequest = std::make_shared<scan_messages::ClientScanRequest>(m_sysCalls, eventFd); // DONATED
-
+        auto scanRequest = std::make_shared<scan_request_t>(m_sysCalls, eventFd); // DONATED
         scanRequest->setPath(filePath);
         scanRequest->setScanType(eventType);
         scanRequest->setUserID(uid);
         scanRequest->setPid(metadata->pid);
         scanRequest->setExecutablePath(executablePath);
+
+        // Cache if we are going to scan the file
+        if (cacheIfAllowed(*scanRequest))
+        {
+            LOGTRACE("Cached " << escapedPath << " from Process " << executablePath << "(PID=" << metadata->pid << ") " << "and UID " << uid);
+            scanRequest->setIsCached(true);
+        }
 
         if (!m_scanRequestQueue->emplace(std::move(scanRequest)))
         {
@@ -533,5 +545,23 @@ ENOENT  fuse?
             break;
         }
     }
+}
 
+void EventReaderThread::setCacheAllEvents(bool enable)
+{
+    m_cacheAllEvents = enable;
+}
+
+bool EventReaderThread::cacheIfAllowed(const scan_request_t& request)
+{
+    if (!m_cacheAllEvents)
+    {
+        return false;
+    }
+    if (!m_deviceUtil->isCachable(request.getFd()))
+    {
+        return false;
+    }
+    int ret = m_fanotify->cacheFd(request.getFd(), request.getPath(), false);
+    return ret == 0;
 }

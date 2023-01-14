@@ -12,7 +12,7 @@
 
 unixsocket::updateCompleteSocket::UpdateCompleteClientSocketThread::UpdateCompleteClientSocketThread(
     std::string socket_path,
-    unixsocket::updateCompleteSocket::UpdateCompleteClientSocketThread::IUpdateCompleteCallbackPtr callback,
+    threat_scanner::IUpdateCompleteCallbackPtr callback,
     struct timespec reconnectInterval)
     :
     BaseClient(std::move(socket_path)),

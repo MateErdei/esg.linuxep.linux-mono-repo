@@ -15,7 +15,13 @@ namespace unixsocket
     public:
         ProcessControllerServerSocket(
             const std::string& path,
-            const mode_t mode,
+            mode_t mode,
+            std::shared_ptr<IProcessControlMessageCallback> processControlCallback);
+        ProcessControllerServerSocket(
+            const std::string& path,
+            const std::string& userName,
+            const std::string& groupName,
+            mode_t mode,
             std::shared_ptr<IProcessControlMessageCallback> processControlCallback);
         ~ProcessControllerServerSocket() override;
 

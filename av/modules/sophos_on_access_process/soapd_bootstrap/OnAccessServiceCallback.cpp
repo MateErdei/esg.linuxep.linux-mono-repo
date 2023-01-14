@@ -11,7 +11,7 @@
 using namespace sophos_on_access_process::service_callback;
 using namespace sophos_on_access_process::onaccessimpl::onaccesstelemetry;
 
-OnAccessServiceCallback::OnAccessServiceCallback(OnAccessTelemetryUtilitySharedPtr telemetryUtility) :
+OnAccessServiceCallback::OnAccessServiceCallback(IOnAccessTelemetryUtilitySharedPtr telemetryUtility) :
 m_telemetryUtility(std::move(telemetryUtility))
 {
 
