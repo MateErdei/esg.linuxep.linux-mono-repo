@@ -24,7 +24,7 @@ static int fuzzCorePolicy(const uint8_t *Data, size_t Size)
         auto parsedFuzzString = Common::XmlUtilities::parseXml(fuzzString);
         auto taskQueue = std::make_shared<Plugin::TaskQueue>();
         Plugin::PolicyProcessor policyProcessor(taskQueue);
-        policyProcessor.processCOREPolicy(parsedFuzzString);
+        policyProcessor.processCOREpolicy(parsedFuzzString);
     }
     catch (Common::XmlUtilities::XmlUtilitiesException& e)
     {
