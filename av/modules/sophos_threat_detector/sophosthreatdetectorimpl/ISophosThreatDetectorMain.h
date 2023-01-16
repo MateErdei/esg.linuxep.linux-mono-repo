@@ -11,8 +11,6 @@ namespace sspl::sophosthreatdetectorimpl
     public:
         virtual ~ISophosThreatDetectorMain() = default;
 
-        int sophos_threat_detector_main();
-
         virtual void reloadSUSIGlobalConfiguration() = 0;
         virtual void shutdownThreatDetector() = 0;
     };
