@@ -22,6 +22,7 @@ int main()
     appConfig.setData("PLUGIN_INSTALL", pluginInstall);
 
     LogSetup logging;
+    //Only allow the owner to read/write/execute, SUSI's least permissive umask is 077
     ::umask(077);
     auto treatDetectorMain = sspl::sophosthreatdetectorimpl::SophosThreatDetectorMain();
     return treatDetectorMain.sophos_threat_detector_main();
