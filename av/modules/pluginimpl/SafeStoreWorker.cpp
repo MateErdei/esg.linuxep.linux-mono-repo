@@ -112,7 +112,7 @@ void SafeStoreWorker::run()
                 }
             }
 
-            const std::string escapedPath = common::escapePathForLogging(threatDetected.filePath);
+            const std::string escapedPath = common::pathForLogging(threatDetected.filePath);
             if (threatDetected.quarantineResult == common::CentralEnums::QuarantineResult::SUCCESS)
             {
                 LOGINFO("Threat cleaned up at path: " << escapedPath);
