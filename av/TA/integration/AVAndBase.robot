@@ -64,7 +64,7 @@ AV plugin Can Start sophos_threat_detector
     Should Exist   ${CHROOT_LOGGING_SYMLINK}/sophos_threat_detector.log
 
 AV plugin runs scan now
-    Configure and check scan now with offset
+    Configure and run scan now
 
 AV plugin runs scan now while CLS is running
 
@@ -86,29 +86,23 @@ AV plugin runs scan now while CLS is running
 
     # Start Scan Now
     Configure scan now
-    Mark AV Log
+    ${av_mark} =  Get AV Log Mark
     Send Sav Action To Base  ScanNow_Action.xml
-    Wait Until AV Plugin Log Contains With Offset  Starting scan Scan Now  timeout=5
+    Wait For AV Log Contains After Mark    Starting scan Scan Now  ${av_mark}   timeout=5
 
     # check CLS is still scanning
     Process Should Be Running   ${cls_handle}
-    Mark Log   ${LOG_FILE}
-    Wait Until Keyword Succeeds
-    ...  30 secs
-    ...  1 secs
-    ...  File Log Contains With Offset   ${LOG_FILE}   Scanning   ${LOG_MARK}
+    ${cls_mark} =  Mark Log Size  ${LOG_FILE}
+    Wait For Log Contains After Mark   ${LOG_FILE}   Scanning   ${cls_mark}
 
     # Wait for Scan Now to complete
-    Wait Until AV Plugin Log Contains With Offset  Completed scan  timeout=180
-    Wait Until AV Plugin Log Contains With Offset  Sending scan complete
+    Wait For AV Log Contains After Mark    Completed scan  ${av_mark}  timeout=180
+    Wait For AV Log Contains After Mark    Sending scan complete  ${av_mark}
 
     # check CLS is still scanning
     Process Should Be Running   ${cls_handle}
-    Mark Log   ${LOG_FILE}
-    Wait Until Keyword Succeeds
-    ...  30 secs
-    ...  1 secs
-    ...  File Log Contains With Offset   ${LOG_FILE}   Scanning   ${LOG_MARK}
+    ${cls_mark2} =  Mark Log Size  ${LOG_FILE}
+    Wait For Log Contains After Mark   ${LOG_FILE}   Scanning   ${cls_mark2}
 
     # Stop CLS
     ${result} =   Terminate Process  ${cls_handle}
@@ -123,77 +117,77 @@ AV plugin runs CLS while scan now is running
 
     # start scan now
     Configure scan now
-    Mark AV Log
+    ${av_mark} =  Get AV Log Mark
     Send Sav Action To Base  ScanNow_Action.xml
-    Wait Until AV Plugin Log Contains With Offset  Starting scan Scan Now  timeout=5
+    Wait For AV Log Contains After Mark  Starting scan Scan Now  ${av_mark}  timeout=5
 
     # ensure avscanner is working
     check avscanner can detect eicar
 
     # check ScanNow is still scanning
-    AV Plugin Log Should Not Contain With Offset   Completed scan
+    Check AV Log Does Not Contain After Mark   Completed scan  ${av_mark}
 
     # wait for scan now to complete
-    Wait Until AV Plugin Log Contains With Offset  Completed scan  timeout=180
-    Wait Until AV Plugin Log Contains With Offset  Sending scan complete
+    Wait For AV Log Contains After Mark  Completed scan  ${av_mark}  timeout=180
+    Wait For AV Log Contains After Mark  Sending scan complete  ${av_mark}
 
 AV plugin runs scan now twice consecutively
-    Configure and check scan now with offset
-    Check scan now with Offset
+    ${av_mark} =  Get AV Log Mark
+    Configure and run scan now
+    Run Scan Now After Mark  ${av_mark}
 
 AV plugin attempts to run scan now twice simultaneously
     Register On Fail  dump log  ${SCANNOW_LOG_PATH}
-    Mark AV Log
+    ${av_mark} =  Get AV Log Mark
     Run Process  bash  ${BASH_SCRIPTS_PATH}/fileMaker.sh  2500  stderr=STDOUT
     Register Cleanup    Remove Directory    /tmp_test/file_maker/  recursive=True
     Configure scan now
 
     Send Sav Action To Base  ScanNow_Action.xml
-    Wait Until AV Plugin Log Contains With Offset  Starting scan Scan Now  timeout=5
+    Wait For AV Log Contains After Mark  Starting scan Scan Now  ${av_mark}  timeout=5
 
     Send Sav Action To Base  ScanNow_Action.xml
 
     ## Wait for 1 scan to happen
-    Wait Until AV Plugin Log Contains With Offset  Completed scan  timeout=180
-    Wait Until AV Plugin Log Contains With Offset  Sending scan complete
+    Wait For AV Log Contains After Mark  Completed scan  ${av_mark}  timeout=180
+    Wait For AV Log Contains After Mark  Sending scan complete  ${av_mark}
 
     ## Check we refused to start the second scan
-    AV Plugin Log Contains With Offset  Refusing to run a second Scan named: Scan Now
+    Check AV Log Contains After Mark  Refusing to run a second Scan named: Scan Now  ${av_mark}
 
     ## Check we started only one scan
-    ${count} =   count lines in log with offset   ${AV_LOG_PATH}   Starting scan Scan Now   ${AV_LOG_MARK}
-    Should Be Equal As Integers  ${1}  ${count}
+    Check Log Contains N Times After Mark   ${AV_LOG_PATH}  Starting scan Scan Now  ${1}  ${av_mark}
 
 AV plugin runs scheduled scan
-    Mark AV Log
+    ${av_mark} =  Get AV Log Mark
     Send Sav Policy With Imminent Scheduled Scan To Base
     File Should Exist  ${MCS_PATH}/policy/SAV-2_policy.xml
 
-    Wait until scheduled scan updated With Offset
-    Wait Until AV Plugin Log Contains With Offset  Starting scan Sophos Cloud Scheduled Scan  timeout=150
-    Wait Until AV Plugin Log Contains With Offset  Completed scan  timeout=180
+    Wait until scheduled scan updated After Mark  ${av_mark}
+    Wait For AV Log Contains After Mark  Starting scan Sophos Cloud Scheduled Scan  ${av_mark}  timeout=150
+    Wait For AV Log Contains After Mark  Completed scan  ${av_mark}  timeout=180
 
 
 AV plugin runs multiple scheduled scans
     Register Cleanup    Exclude MCS Router is dead
     Register Cleanup    Exclude File Name Too Long For Cloud Scan
-    Mark AV Log
+    ${av_mark} =  Get AV Log Mark
     Register Cleanup  Restart AV Plugin And Clear The Logs For Integration Tests
     Send Sav Policy With Multiple Imminent Scheduled Scans To Base
     File Should Exist  ${MCS_PATH}/policy/SAV-2_policy.xml
-    Wait until scheduled scan updated With Offset
-    Wait Until AV Plugin Log Contains With Offset  Starting scan Sophos Cloud Scheduled Scan  timeout=150
-    Wait Until AV Plugin Log Contains With Offset  Refusing to run a second Scan named: Sophos Cloud Scheduled Scan  timeout=120
+    Wait until scheduled scan updated After Mark  ${av_mark}
+    Wait For AV Log Contains After Mark  Starting scan Sophos Cloud Scheduled Scan  ${av_mark}  timeout=150
+    Wait For AV Log Contains After Mark  Refusing to run a second Scan named: Sophos Cloud Scheduled Scan  ${av_mark}  timeout=120
 
 AV plugin runs scheduled scan after restart
     Send Sav Policy With Imminent Scheduled Scan To Base
     Stop AV Plugin
-    Mark AV Log
+    ${av_mark} =  Get AV Log Mark
     Start AV Plugin
     File Should Exist  ${MCS_PATH}/policy/SAV-2_policy.xml
-    Wait until scheduled scan updated With Offset
-    Wait Until AV Plugin Log Contains With Offset  Starting scan Sophos Cloud Scheduled Scan  timeout=150
-    Wait Until AV Plugin Log Contains With Offset  Completed scan  timeout=180
+    Wait until scheduled scan updated After Mark  ${av_mark}
+    Wait For AV Log Contains After Mark  Starting scan Sophos Cloud Scheduled Scan  ${av_mark}  timeout=150
+    Wait For AV Log Contains After Mark  Completed scan  ${av_mark}  timeout=180
     Exclude Communication Between AV And Base Due To No Incoming Data
 
 AV plugin reports an info message if no policy is received
@@ -201,25 +195,24 @@ AV plugin reports an info message if no policy is received
     Remove File     ${MCS_PATH}/policy/ALC-1_policy.xml
     Remove File     ${MCS_PATH}/policy/SAV-2_policy.xml
 
-    Mark AV Log
+    ${av_mark} =  Get AV Log Mark
     Start AV Plugin
-    Wait Until AV Plugin Log Contains With Offset  Failed to request SAV policy at startup (No Policy Available)
-    Wait Until AV Plugin Log Contains With Offset  Failed to request ALC policy at startup (No Policy Available)
+    Wait For AV Log Contains After Mark  Failed to request SAV policy at startup (No Policy Available)  ${av_mark}
+    Wait For AV Log Contains After Mark  Failed to request ALC policy at startup (No Policy Available)  ${av_mark}
 
 AV plugin fails scan now if no policy
     Register Cleanup    Exclude Scan As Invalid
     Stop AV Plugin
     Remove File     ${MCS_PATH}/policy/SAV-2_policy.xml
-    Mark AV Log
-    Mark Sophos Threat Detector Log
+    ${av_mark} =  Get AV Log Mark
     Start AV Plugin
 
-    Wait until AV Plugin running with offset
+    Wait until AV Plugin running after mark  ${av_mark}
 
-    Mark AV Log
+    ${av_mark} =  Get AV Log Mark
     Send Sav Action To Base  ScanNow_Action.xml
-    Wait Until AV Plugin Log Contains With Offset  Evaluating Scan Now
-    AV Plugin Log Contains With Offset  Refusing to run invalid scan: INVALID
+    Wait For AV Log Contains After Mark  Evaluating Scan Now  ${av_mark}
+    Check AV Log Contains After Mark  Refusing to run invalid scan: INVALID  ${av_mark}
 
 AV plugin SAV Status contains revision ID of policy
     Register Cleanup    Exclude Invalid Day From Policy
@@ -231,13 +224,13 @@ AV plugin SAV Status contains revision ID of policy
 
 AV plugin sends Scan Complete event and (fake) Report To Central
     ${now} =  Get Current Date  result_format=epoch
-    Mark AV Log
+    ${av_mark} =  Get AV Log Mark
     Send Sav Policy To Base With Exclusions Filled In  SAV_Policy_No_Scans.xml
     Send Sav Action To Base  ScanNow_Action.xml
     Wait Until Management Log Contains  Action SAV_action
-    Wait Until AV Plugin Log Contains With Offset  Starting scan
-    Wait Until AV Plugin Log Contains With Offset  Completed scan  timeout=180
-    Wait Until AV Plugin Log Contains With Offset  Sending scan complete
+    Wait For AV Log Contains After Mark  Starting scan  ${av_mark}
+    Wait For AV Log Contains After Mark  Completed scan  ${av_mark}  timeout=180
+    Wait For AV Log Contains After Mark  Sending scan complete  ${av_mark}
     Validate latest Event  ${now}
 
 AV Gets SAV Policy When Plugin Restarts
@@ -302,12 +295,12 @@ AV Gets ALC Policy When Plugin Restarts
 AV Configures No Scheduled Scan Correctly
     Register Cleanup    Exclude UpdateScheduler Fails
     Register Cleanup    Exclude Failed To connect To Warehouse Error
-    Mark AV Log
+    ${av_mark} =  Get AV Log Mark
     Send Sav Policy With No Scheduled Scans
     File Should Exist  ${MCS_PATH}/policy/SAV-2_policy.xml
     Wait until scheduled scan updated
-    Wait Until AV Plugin Log Contains With Offset  Configured number of Scheduled Scans: 0
-    AV Plugin Log Should Not Contain With Offset  Unable to accept policy as scan information is invalid. Following scans wont be run:
+    Wait For AV Log Contains After Mark  Configured number of Scheduled Scans: 0  ${av_mark}
+    Check AV Log Does Not Contain After Mark  Unable to accept policy as scan information is invalid. Following scans wont be run:  ${av_mark}
 
 
 AV plugin runs scheduled scan while CLS is running
@@ -333,28 +326,22 @@ AV plugin runs scheduled scan while CLS is running
     ...  1 secs
     ...  File Log Contains  ${LOG_FILE}  Scanning
 
-    Mark AV Log
+    ${av_mark} =  Get AV Log Mark
     Send Sav Policy With Imminent Scheduled Scan To Base
-    Wait Until AV Plugin Log Contains With Offset  Configured number of Scheduled Scans: 1
-    Wait Until AV Plugin Log Contains With Offset  Starting scan Sophos Cloud Scheduled Scan  timeout=150
+    Wait For AV Log Contains After Mark  Configured number of Scheduled Scans: 1  ${av_mark}
+    Wait For AV Log Contains After Mark  Starting scan Sophos Cloud Scheduled Scan  ${av_mark}  timeout=150
 
     # check CLS is still scanning
     Process Should Be Running   ${cls_handle}
-    Mark Log   ${LOG_FILE}
-    Wait Until Keyword Succeeds
-    ...  10 secs
-    ...  1 secs
-    ...  File Log Contains With Offset   ${LOG_FILE}   Scanning   ${LOG_MARK}
+    ${cls_mark} =  Mark Log Size  ${LOG_FILE}
+    Wait For Log Contains After Mark   ${LOG_FILE}   Scanning   ${cls_mark}
 
-    Wait Until AV Plugin Log Contains With Offset  Completed scan  timeout=180
+    Wait For AV Log Contains After Mark  Completed scan  ${av_mark}  timeout=180
 
     # check CLS is still scanning
     Process Should Be Running   ${cls_handle}
-    Mark Log   ${LOG_FILE}
-    Wait Until Keyword Succeeds
-    ...  10 secs
-    ...  1 secs
-    ...  File Log Contains With Offset   ${LOG_FILE}   Scanning   ${LOG_MARK}
+    ${cls_mark2} =  Mark Log Size  ${LOG_FILE}
+    Wait For Log Contains After Mark   ${LOG_FILE}   Scanning   ${cls_mark2}
 
     # Stop CLS
     ${result} =   Terminate Process  ${cls_handle}
@@ -362,73 +349,73 @@ AV plugin runs scheduled scan while CLS is running
 
 AV plugin runs CLS while scheduled scan is running
     Register Cleanup    Exclude Failed To connect To Warehouse Error
-    Mark AV Log
+    ${av_mark} =  Get AV Log Mark
     Send Sav Policy With Imminent Scheduled Scan To Base
 
     # create something for scheduled scan to work on
     Create Big Dir   count=60   path=/tmp_test/bigdir/
 
-    Wait Until AV Plugin Log Contains With Offset  Starting scan Sophos Cloud Scheduled Scan  timeout=150
+    Wait For AV Log Contains After Mark  Starting scan Sophos Cloud Scheduled Scan  ${av_mark}  timeout=150
 
     check avscanner can detect eicar
 
-    AV Plugin Log Should Not Contain With Offset   Completed scan
-    Wait Until AV Plugin Log Contains With Offset  Completed scan  timeout=180
+    Check AV Log Does Not Contain After Mark   Completed scan  ${av_mark}
+    Wait For AV Log Contains After Mark  Completed scan  ${av_mark}  timeout=180
 
 AV Configures Single Scheduled Scan Correctly
-    Mark AV Log
+    ${av_mark} =  Get AV Log Mark
     Send Fixed Sav Policy
     File Should Exist  ${MCS_PATH}/policy/SAV-2_policy.xml
-    Wait until scheduled scan updated With Offset
-    Wait Until AV Plugin Log Contains With Offset  Configured number of Scheduled Scans: 1
-    Wait Until AV Plugin Log Contains With Offset  Scheduled Scan: Sophos Cloud Scheduled Scan
-    Wait Until AV Plugin Log Contains With Offset  Days: Monday
-    Wait Until AV Plugin Log Contains With Offset  Times: 11:00:00
-    Wait Until AV Plugin Log Contains With Offset  Configured number of Exclusions: 28
-    Wait Until AV Plugin Log Contains With Offset  Configured number of Sophos Defined Extension Exclusions: 3
-    Wait Until AV Plugin Log Contains With Offset  Configured number of User Defined Extension Exclusions: 4
+    Wait until scheduled scan updated After Mark  ${av_mark}
+    Wait For AV Log Contains After Mark  Configured number of Scheduled Scans: 1  ${av_mark}
+    Wait For AV Log Contains After Mark  Scheduled Scan: Sophos Cloud Scheduled Scan  ${av_mark}
+    Wait For AV Log Contains After Mark  Days: Monday  ${av_mark}
+    Wait For AV Log Contains After Mark  Times: 11:00:00  ${av_mark}
+    Wait For AV Log Contains After Mark  Configured number of Exclusions: 28  ${av_mark}
+    Wait For AV Log Contains After Mark  Configured number of Sophos Defined Extension Exclusions: 3  ${av_mark}
+    Wait For AV Log Contains After Mark  Configured number of User Defined Extension Exclusions: 4  ${av_mark}
 
 AV Configures Multiple Scheduled Scans Correctly
-    Mark AV Log
+    ${av_mark} =  Get AV Log Mark
     Send Sav Policy With Multiple Scheduled Scans
     File Should Exist  ${MCS_PATH}/policy/SAV-2_policy.xml
-    Wait until scheduled scan updated With Offset
-    Wait Until AV Plugin Log Contains With Offset  Configured number of Scheduled Scans: 2
-    Wait Until AV Plugin Log Contains With Offset  Scheduled Scan: Sophos Cloud Scheduled Scan One
-    Wait Until AV Plugin Log Contains With Offset  Days: Tuesday Saturday
-    Wait Until AV Plugin Log Contains With Offset  Times: 04:00:00 16:00:00
-    Wait Until AV Plugin Log Contains With Offset  Scheduled Scan: Sophos Cloud Scheduled Scan Two
-    Wait Until AV Plugin Log Contains With Offset  Days: Monday Thursday
-    Wait Until AV Plugin Log Contains With Offset  Times: 11:00:00 23:00:00
-    Wait Until AV Plugin Log Contains With Offset  Configured number of Exclusions: 25
-    Wait Until AV Plugin Log Contains With Offset  Configured number of Sophos Defined Extension Exclusions: 0
-    Wait Until AV Plugin Log Contains With Offset  Configured number of User Defined Extension Exclusions: 0
+    Wait until scheduled scan updated After Mark  ${av_mark}
+    Wait For AV Log Contains After Mark  Configured number of Scheduled Scans: 2  ${av_mark}
+    Wait For AV Log Contains After Mark  Scheduled Scan: Sophos Cloud Scheduled Scan One  ${av_mark}
+    Wait For AV Log Contains After Mark  Days: Tuesday Saturday  ${av_mark}
+    Wait For AV Log Contains After Mark  Times: 04:00:00 16:00:00  ${av_mark}
+    Wait For AV Log Contains After Mark  Scheduled Scan: Sophos Cloud Scheduled Scan Two  ${av_mark}
+    Wait For AV Log Contains After Mark  Days: Monday Thursday  ${av_mark}
+    Wait For AV Log Contains After Mark  Times: 11:00:00 23:00:00  ${av_mark}
+    Wait For AV Log Contains After Mark  Configured number of Exclusions: 25  ${av_mark}
+    Wait For AV Log Contains After Mark  Configured number of Sophos Defined Extension Exclusions: 0  ${av_mark}
+    Wait For AV Log Contains After Mark  Configured number of User Defined Extension Exclusions: 0  ${av_mark}
 
 AV Reconfigures Scans Correctly
-    Mark AV Log
+    ${av_mark} =  Get AV Log Mark
     Send Fixed Sav Policy
     File Should Exist  ${MCS_PATH}/policy/SAV-2_policy.xml
-    Wait until scheduled scan updated With Offset
+    Wait until scheduled scan updated After Mark  ${av_mark}
     AV Plugin Log Contains  Configured number of Scheduled Scans: 1
-    Wait Until AV Plugin Log Contains With Offset  Scheduled Scan: Sophos Cloud Scheduled Scan
-    Wait Until AV Plugin Log Contains With Offset  Days: Monday
-    Wait Until AV Plugin Log Contains With Offset  Times: 11:00:00
-    Wait Until AV Plugin Log Contains With Offset  Configured number of Exclusions: 28
-    Wait Until AV Plugin Log Contains With Offset  Configured number of Sophos Defined Extension Exclusions: 3
-    Wait Until AV Plugin Log Contains With Offset  Configured number of User Defined Extension Exclusions: 4
+    Wait For AV Log Contains After Mark  Scheduled Scan: Sophos Cloud Scheduled Scan  ${av_mark}
+    Wait For AV Log Contains After Mark  Days: Monday  ${av_mark}
+    Wait For AV Log Contains After Mark  Times: 11:00:00  ${av_mark}
+    Wait For AV Log Contains After Mark  Configured number of Exclusions: 28  ${av_mark}
+    Wait For AV Log Contains After Mark  Configured number of Sophos Defined Extension Exclusions: 3  ${av_mark}
+    Wait For AV Log Contains After Mark  Configured number of User Defined Extension Exclusions: 4  ${av_mark}
     Send Sav Policy With Multiple Scheduled Scans
     File Should Exist  ${MCS_PATH}/policy/SAV-2_policy.xml
-    Wait until scheduled scan updated With Offset
-    Wait Until AV Plugin Log Contains With Offset  Configured number of Scheduled Scans: 2
-    Wait Until AV Plugin Log Contains With Offset  Scheduled Scan: Sophos Cloud Scheduled Scan One
-    Wait Until AV Plugin Log Contains With Offset  Days: Tuesday Saturday
-    Wait Until AV Plugin Log Contains With Offset  Times: 04:00:00 16:00:00
-    Wait Until AV Plugin Log Contains With Offset  Scheduled Scan: Sophos Cloud Scheduled Scan Two
-    Wait Until AV Plugin Log Contains With Offset  Days: Monday Thursday
-    Wait Until AV Plugin Log Contains With Offset  Times: 11:00:00 23:00:00
-    Wait Until AV Plugin Log Contains With Offset  Configured number of Exclusions: 25
-    Wait Until AV Plugin Log Contains With Offset  Configured number of Sophos Defined Extension Exclusions: 0
-    Wait Until AV Plugin Log Contains With Offset  Configured number of User Defined Extension Exclusions: 0
+    Wait until scheduled scan updated After Mark  ${av_mark}
+    Wait For AV Log Contains After Mark  Configured number of Scheduled Scans: 2  ${av_mark}
+    Wait For AV Log Contains After Mark  Scheduled Scan: Sophos Cloud Scheduled Scan One  ${av_mark}
+    Wait For AV Log Contains After Mark  Days: Tuesday Saturday  ${av_mark}
+    Wait For AV Log Contains After Mark  Times: 04:00:00 16:00:00  ${av_mark}
+    Wait For AV Log Contains After Mark  Scheduled Scan: Sophos Cloud Scheduled Scan Two  ${av_mark}
+    Wait For AV Log Contains After Mark  Days: Monday Thursday  ${av_mark}
+    Wait For AV Log Contains After Mark  Times: 11:00:00 23:00:00  ${av_mark}
+    Wait For AV Log Contains After Mark  Configured number of Exclusions: 25  ${av_mark}
+    Wait For AV Log Contains After Mark  Configured number of Sophos Defined Extension Exclusions: 0  ${av_mark}
+    Wait For AV Log Contains After Mark  Configured number of User Defined Extension Exclusions: 0  ${av_mark}
 
 AV Deletes Scan Correctly
     ${avmark} =  get_av_log_mark
@@ -559,9 +546,9 @@ AV Plugin Reports The Right Error Code If Sophos Threat Detector Dies During Sca
     Run Process  bash  ${BASH_SCRIPTS_PATH}/fileMaker.sh  1000  stderr=STDOUT
     Register Cleanup    Remove Directory    /tmp_test/file_maker/  recursive=True
 
-    Mark AV Log
+    ${av_mark} =  Get AV Log Mark
     Send Sav Action To Base  ScanNow_Action.xml
-    Wait Until AV Plugin Log Contains With Offset  Starting scan Scan Now  timeout=5
+    Wait For AV Log Contains After Mark  Starting scan Scan Now  ${av_mark}  timeout=5
 
     Move File  ${SOPHOS_THREAT_DETECTOR_BINARY}.0  ${SOPHOS_THREAT_DETECTOR_BINARY}_moved
     Register Cleanup    Restart AV Plugin And Clear The Logs For Integration Tests
@@ -569,8 +556,8 @@ AV Plugin Reports The Right Error Code If Sophos Threat Detector Dies During Sca
     ${pid} =   Record Sophos Threat Detector PID
     Run Process   /bin/kill   -SIGSEGV   ${pid}
 
-    Wait Until AV Plugin Log Contains With Offset  Scan: Scan Now, terminated with exit code: ${SCAN_ABORTED}
-    ...  timeout=${AVSCANNER_TOTAL_CONNECTION_TIMEOUT_WAIT_PERIOD}    interval=10
+    Wait For AV Log Contains After Mark  Scan: Scan Now, terminated with exit code: ${SCAN_ABORTED}  ${av_mark}
+    ...  timeout=${AVSCANNER_TOTAL_CONNECTION_TIMEOUT_WAIT_PERIOD}
 
 AV Plugin Reports The Right Error Code If Sophos Threat Detector Dies During Scan Now With Threats
     [Timeout]  15min
@@ -587,15 +574,15 @@ AV Plugin Reports The Right Error Code If Sophos Threat Detector Dies During Sca
     Run Process  bash  ${BASH_SCRIPTS_PATH}/eicarMaker.sh   /tmp_test/many_eicars  600  stderr=STDOUT
     Register Cleanup    Remove Directory    /tmp_test/many_eicars  recursive=True
 
-    Mark AV Log
+    ${av_mark} =  Get AV Log Mark
     Register Cleanup    Remove File  ${SCANNOW_LOG_PATH}
     Remove File  ${SCANNOW_LOG_PATH}
     Register On Fail  dump log  ${SCANNOW_LOG_PATH}
 
     Send Sav Action To Base  ScanNow_Action.xml
-    Wait Until AV Plugin Log Contains With Offset  Starting scan Scan Now  timeout=5
+    Wait For AV Log Contains After Mark  Starting scan Scan Now  ${av_mark}  timeout=5
     ## Scan only takes ~3 seconds once scanning starts, so we need to finish this quickly
-    Wait Until AV Plugin Log Contains With Offset  Sending threat detection notification to central  timeout=60  interval=1
+    Wait For AV Log Contains After Mark  Sending threat detection notification to central  ${av_mark}  timeout=60
 
     Move File  ${SOPHOS_THREAT_DETECTOR_BINARY}.0  ${SOPHOS_THREAT_DETECTOR_BINARY}_moved
     Register Cleanup    Restart AV Plugin And Clear The Logs For Integration Tests
@@ -603,36 +590,36 @@ AV Plugin Reports The Right Error Code If Sophos Threat Detector Dies During Sca
     ${pid} =   Record Sophos Threat Detector PID
     Run Process   /bin/kill   -SIGSEGV   ${pid}
 
-    Wait Until AV Plugin Log Contains With Offset  Scan: Scan Now, found threats but aborted with exit code: ${SCAN_ABORTED_WITH_THREAT}
-    ...  timeout=${AVSCANNER_TOTAL_CONNECTION_TIMEOUT_WAIT_PERIOD}    interval=20
+    Wait For AV Log Contains After Mark  Scan: Scan Now, found threats but aborted with exit code: ${SCAN_ABORTED_WITH_THREAT}
+    ...  ${av_mark}  timeout=${AVSCANNER_TOTAL_CONNECTION_TIMEOUT_WAIT_PERIOD}
 
 AV Runs Scan With SXL Lookup Enabled
     Run Process  bash  ${BASH_SCRIPTS_PATH}/eicarMaker.sh   stderr=STDOUT
     Register Cleanup    Remove Directory    /tmp_test/three_hundred_eicars/  recursive=True
 
-    Mark Susi Debug Log
-    Configure and check scan now with offset
-    Wait Until AV Plugin Log Contains With Offset   Sending threat detection notification to central   timeout=60
-    Wait Until AV Plugin Log Contains With Offset  Completed scan Scan Now
+    ${av_mark} =  Get AV Log Mark
+    ${susi_debug_mark} =  Get SUSI Debug Log Mark
+    Configure and run scan now
+    Wait For AV Log Contains After Mark  Sending threat detection notification to central  ${av_mark}   timeout=60
+    Wait For AV Log Contains After Mark  Completed scan Scan Now  ${av_mark}
 
-    SUSI Debug Log Contains With Offset  Post-scan lookup succeeded
+    Check SUSI Debug Log Contains After Mark  Post-scan lookup succeeded  ${susi_debug_mark}
 
 
 AV Runs Scan With SXL Lookup Disabled
     Run Process  bash  ${BASH_SCRIPTS_PATH}/eicarMaker.sh   stderr=STDOUT
     Register Cleanup    Remove Directory    /tmp_test/three_hundred_eicars/  recursive=True
 
-    Mark AV Log
-    Mark Susi Debug Log
-    Mark Sophos Threat Detector Log
+    ${av_mark} =  Get AV Log Mark
+    ${susi_debug_mark} =  Get SUSI Debug Log Mark
 
     Configure and check scan now with lookups disabled
 
-    Wait Until AV Plugin Log Contains With Offset  Sending threat detection notification to central   timeout=60
-    Wait Until AV Plugin Log Contains With Offset  Completed scan Scan Now
+    Wait For AV Log Contains After Mark  Sending threat detection notification to central  ${av_mark}   timeout=60
+    Wait For AV Log Contains After Mark  Completed scan Scan Now  ${av_mark}
 
-    SUSI Debug Log Does Not Contain With Offset   Post-scan lookup started
-    SUSI Debug Log Does Not Contain With Offset   Post-scan lookup succeeded
+    Check SUSI Debug Log Does Not Contain After Mark   Post-scan lookup started  ${susi_debug_mark}
+    Check SUSI Debug Log Does Not Contain After Mark   Post-scan lookup succeeded  ${susi_debug_mark}
     AV Plugin Log Does Not Contain   Failed to send shutdown request: Failed to connect to unix socket
 
 
@@ -652,15 +639,15 @@ AV Plugin does not restart threat detector on customer id change
     Log   ${policyContent}
     Create File  ${RESOURCES_PATH}/tempAlcPolicy.xml  ${policyContent}
 
-    Mark AV Log
-    Mark Sophos Threat Detector Log
+    ${av_mark} =  Get AV Log Mark
+    ${threat_detector_mark} =  Get Sophos Threat Detector Log Mark
 
     Send Alc Policy To Base  tempAlcPolicy.xml
 
-    Wait Until AV Plugin Log Contains With Offset   Received new policy
-    Wait Until AV Plugin Log Contains With Offset   Reloading susi as policy configuration has changed
-    #Wait Until Sophos Threat Detector Log Contains With Offset   Skipping susi reload because susi is not initialised
-    Wait Until Sophos Threat Detector Log Contains With Offset   Susi configuration reloaded
+    Wait For AV Log Contains After Mark   Received new policy  ${av_mark}
+    Wait For AV Log Contains After Mark   Reloading susi as policy configuration has changed  ${av_mark}
+    #Wait For Sophos Threat Detector Log Contains After Mark   Skipping susi reload because susi is not initialised  ${threat_detector_mark}
+    Wait For Sophos Threat Detector Log Contains After Mark   Susi configuration reloaded  ${threat_detector_mark}
     Check Sophos Threat Detector has same PID   ${pid}
 
     # change revid only, threat_detector should not restart
@@ -670,14 +657,14 @@ AV Plugin does not restart threat detector on customer id change
     ${policyContent} =   Get ALC Policy   revid=${id2}  userpassword=${id1}  username=${id1}
     Log   ${policyContent}
     Create File  ${RESOURCES_PATH}/tempAlcPolicy.xml  ${policyContent}
-    Mark AV Log
-    Mark Sophos Threat Detector Log
+    ${av_mark2} =  Get AV Log Mark
+    ${threat_detector_mark2} =  Get Sophos Threat Detector Log Mark
     Send Alc Policy To Base  tempAlcPolicy.xml
 
-    Wait Until AV Plugin Log Contains With Offset   Received new policy
+    Wait For AV Log Contains After Mark   Received new policy  ${av_mark2}
     Run Keyword And Expect Error
-    ...   REGEXP:Keyword '.*' failed after retrying for [0-9]* seconds\..*
-    ...   Wait Until AV Plugin Log Contains With Offset   Reloading susi as policy configuration has changed   timeout=5
+    ...   Failed to find b'Reloading susi as policy configuration has changed' in ${AV_LOG_PATH}
+    ...   Wait For AV Log Contains After Mark   Reloading susi as policy configuration has changed  ${av_mark2}   timeout=5
     Check Sophos Threat Detector has same PID   ${pid}
 
     # change credentials, avp should issue not a susi reload request
@@ -688,14 +675,14 @@ AV Plugin does not restart threat detector on customer id change
     Log   ${policyContent}
     Create File  ${RESOURCES_PATH}/tempAlcPolicy.xml  ${policyContent}
 
-    Mark AV Log
-    Mark Sophos Threat Detector Log
+    ${av_mark3} =  Get AV Log Mark
+    ${threat_detector_mark3} =  Get Sophos Threat Detector Log Mark
     Send Alc Policy To Base  tempAlcPolicy.xml
 
-    Wait Until AV Plugin Log Contains With Offset   Received new policy
-    Wait Until AV Plugin Log Contains With Offset   Reloading susi as policy configuration has changed
-    #Wait Until Sophos Threat Detector Log Contains With Offset   Skipping susi reload because susi is not initialised
-    Wait Until Sophos Threat Detector Log Contains With Offset   Susi configuration reloaded
+    Wait For AV Log Contains After Mark   Received new policy  ${av_mark3}
+    Wait For AV Log Contains After Mark   Reloading susi as policy configuration has changed  ${av_mark3}
+    #Wait For Sophos Threat Detector Log Contains After Mark   Skipping susi reload because susi is not initialised  ${threat_detector_mark}
+    Wait For Sophos Threat Detector Log Contains After Mark   Susi configuration reloaded  ${threat_detector_mark3}
     Check Sophos Threat Detector has same PID   ${pid}
 
 
@@ -713,16 +700,18 @@ AV Plugin tries to restart threat detector on susi startup settings change
     Send Sav Policy To Base  tempSavPolicy.xml
     Wait Until SAV Status XML Contains  RevID="${revid}"
 
-    Restart sophos_threat_detector and mark logs
-    Wait Until Sophos Threat Detector Log Contains With Offset
+    ${threat_detector_mark} =  Get Sophos Threat Detector Log Mark
+    Restart Sophos Threat Detector
+    Wait For Sophos Threat Detector Log Contains After Mark
     ...   UnixSocket <> Process Controller Server starting listening on socket: /var/process_control_socket
+    ...   ${threat_detector_mark}
     ...   timeout=60
+    ${av_mark} =  Get AV Log Mark
     stop sophos_threat_detector
 
     Comment  disable SXL lookups, AV should try to reload SUSI
 
-    Mark AV Log
-    Mark Sophos Threat Detector Log
+    ${threat_detector_mark2} =  Get Sophos Threat Detector Log Mark
 
     ${revid} =   Generate Random String
     ${policyContent} =   Get SAV Policy  revid=${revid}  sxlLookupEnabled=false
@@ -730,18 +719,18 @@ AV Plugin tries to restart threat detector on susi startup settings change
     Create File  ${RESOURCES_PATH}/tempSavPolicy.xml  ${policyContent}
     Send Sav Policy To Base  tempSavPolicy.xml
 
-    Wait Until AV Plugin Log Contains With Offset   Received new policy
-    Wait Until AV Plugin Log Contains With Offset   Reloading susi as policy configuration has changed   timeout=60
-    AV Plugin Log Contains With Offset  Failed to connect to ${COMPONENT_ROOT_PATH}/chroot/var/process_control_socket - retrying after sleep
-    Wait Until AV Plugin Log Contains With Offset  Reached total maximum number of connection attempts.
+    Wait For AV Log Contains After Mark   Received new policy  ${av_mark}
+    Wait For AV Log Contains After Mark   Reloading susi as policy configuration has changed  ${av_mark}   timeout=60
+    Check AV Log Contains After Mark  Failed to connect to ${COMPONENT_ROOT_PATH}/chroot/var/process_control_socket - retrying after sleep  ${av_mark}
+    Wait For AV Log Contains After Mark  Reached total maximum number of connection attempts.  ${av_mark}
 
     start sophos_threat_detector
-    Wait until threat detector running with offset
+    Wait until threat detector running after mark  ${threat_detector_mark2}
 
     Comment  change lookup setting, threat_detector should reload SUSI
 
-    Mark AV Log
-    Mark Sophos Threat Detector Log
+    ${av_mark2} =  Get AV Log Mark
+    ${threat_detector_mark3} =  Get Sophos Threat Detector Log Mark
     ${pid} =   Record Sophos Threat Detector PID
 
     ${revid} =   Generate Random String
@@ -750,49 +739,51 @@ AV Plugin tries to restart threat detector on susi startup settings change
     Create File  ${RESOURCES_PATH}/tempSavPolicy.xml  ${policyContent}
     Send Sav Policy To Base  tempSavPolicy.xml
 
-    Wait Until AV Plugin Log Contains With Offset   Received new policy
-    Wait Until AV Plugin Log Contains With Offset   Reloading susi as policy configuration has changed   timeout=60
-    AV Plugin Log Does Not Contain With Offset  Failed to send shutdown request: Failed to connect to unix socket
-    AV Plugin Log Does Not Contain With Offset  Failed to connect to ${COMPONENT_ROOT_PATH}/chroot/var/process_control_socket - retrying after sleep
+    Wait For AV Log Contains After Mark   Received new policy  ${av_mark2}
+    Wait For AV Log Contains After Mark   Reloading susi as policy configuration has changed  ${av_mark2}   timeout=60
+    Check AV Log Does Not Contain After Mark  Failed to send shutdown request: Failed to connect to unix socket  ${av_mark2}
+    Check AV Log Does Not Contain After Mark  Failed to connect to ${COMPONENT_ROOT_PATH}/chroot/var/process_control_socket - retrying after sleep  ${av_mark2}
     Check Sophos Threat Detector has same PID   ${pid}
 
     # scan eicar to trigger susi to be loaded
     Check avscanner can detect eicar
 
-    Wait Until Sophos Threat Detector Log Contains With Offset  SXL Lookups will be enabled   timeout=180
+    Wait For Sophos Threat Detector Log Contains After Mark  SXL Lookups will be enabled   ${threat_detector_mark3}  timeout=180
 
 Sophos Threat Detector sets default if susi startup settings permissions incorrect
     [Tags]  FAULT INJECTION
     Register Cleanup    Exclude Configuration Data Invalid
     Register Cleanup    Exclude Invalid Settings No Primary Product
 
-    Restart sophos_threat_detector and mark logs
-    Wait Until Sophos Threat Detector Log Contains With Offset
+    ${threat_detector_mark} =  Get Sophos Threat Detector Log Mark
+    Restart Sophos Threat Detector
+    Wait For Sophos Threat Detector Log Contains After Mark
     ...   UnixSocket <> Process Controller Server starting listening on socket: /var/process_control_socket
+    ...   ${threat_detector_mark}
     ...   timeout=60
-    Mark Sophos Threat Detector Log
+    ${threat_detector_mark2} =  Get Sophos Threat Detector Log Mark
 
-    Mark AV Log
+    ${av_mark} =  Get AV Log Mark
     ${policyContent} =   Get SAV Policy  sxlLookupEnabled=false
     Log   ${policyContent}
     Create File  ${RESOURCES_PATH}/tempSavPolicy.xml  ${policyContent}
     Send Sav Policy To Base  tempSavPolicy.xml
-    Wait Until AV Plugin Log Contains With Offset   Received new policy
+    Wait For AV Log Contains After Mark   Received new policy  ${av_mark}
 
-    Wait Until Sophos Threat Detector Log Contains With Offset  Skipping susi reload because susi is not initialised
+    Wait For Sophos Threat Detector Log Contains After Mark  Skipping susi reload because susi is not initialised  ${threat_detector_mark2}
 
     Run Process  chmod  000  ${SUSI_STARTUP_SETTINGS_FILE}
     Run Process  chmod  000  ${SUSI_STARTUP_SETTINGS_FILE_CHROOT}
     Register Cleanup   Remove File   ${SUSI_STARTUP_SETTINGS_FILE}
     Register Cleanup   Remove File   ${SUSI_STARTUP_SETTINGS_FILE_CHROOT}
 
-    Mark Sophos Threat Detector Log
+    ${threat_detector_mark3} =  Get Sophos Threat Detector Log Mark
     Restart sophos_threat_detector
 
     # scan eicar to trigger susi to be loaded
     Check avscanner can detect eicar
 
-    Wait Until Sophos Threat Detector Log Contains With Offset   Turning Live Protection on as default - could not read SUSI settings
+    Wait For Sophos Threat Detector Log Contains After Mark   Turning Live Protection on as default - could not read SUSI settings  ${threat_detector_mark3}
 
 AV Plugin Can Work Despite Specified Log File Being Read-Only
     [Tags]  FAULT INJECTION
@@ -877,8 +868,6 @@ Scan Now Can Work Despite Specified Log File Being Read-Only
     ${result} =  Run Process  ls  -l  ${SCANNOW_LOG_PATH}
     Log  Old permissions: ${result.stdout}
 
-    Mark Scan Now Log
-
     Run  chmod 444 '${SCANNOW_LOG_PATH}'
     Register Cleanup  Run  chmod 600 '${SCANNOW_LOG_PATH}'
 
@@ -887,6 +876,7 @@ Scan Now Can Work Despite Specified Log File Being Read-Only
 
     Configure scan now
     ${avmark} =  get_av_log_mark
+    ${scan_now_mark} =  get_scan_now_log_mark
 
     Send Sav Action To Base  ScanNow_Action.xml
 
@@ -894,7 +884,7 @@ Scan Now Can Work Despite Specified Log File Being Read-Only
     wait_for_av_log_contains_after_mark  Completed scan  ${avmark}  timeout=180
     wait_for_av_log_contains_after_mark  Sending scan complete  ${avmark}
     Log File  ${SCANNOW_LOG_PATH}
-    File Log Should Not Contain With Offset  ${SCANNOW_LOG_PATH}  Detected "${NORMAL_DIRECTORY}/${file_name}" is infected with EICAR-AV-Test  ${SCAN_NOW_LOG_MARK}
+    Check Scan Now Log Does Not Contain After Mark  Detected "${NORMAL_DIRECTORY}/${file_name}" is infected with EICAR-AV-Test  ${scan_now_mark}
     Wait Until AV Plugin Log Contains Detection Name And Path After Mark  ${avmark}  EICAR-AV-Test  /tmp_test/${file_name}
 
 
@@ -902,25 +892,25 @@ First SAV Policy With Invalid Day And Time Is Not Accepted
     Remove File   ${MCS_PATH}/policy/SAV-2_policy.xml
     File Should Not Exist  ${MCS_PATH}/policy/SAV-2_policy.xml
 
-    Mark AV Log
+    ${av_mark} =  Get AV Log Mark
     Restart AV Plugin
-    Wait Until AV Plugin Log Contains With Offset  SAV policy has not been sent to the plugin
+    Wait For AV Log Contains After Mark  SAV policy has not been sent to the plugin  ${av_mark}
 
-    Mark AV Log
+    ${av_mark} =  Get AV Log Mark
 
     Send Invalid Sav Policy
     File Should Exist  ${MCS_PATH}/policy/SAV-2_policy.xml
 
-    Wait Until AV Plugin Log Contains With Offset  Invalid day from policy: TheDayOfDays
-    Wait Until AV Plugin Log Contains Times With Offset  Invalid day from policy:  times=2
-    Wait Until AV Plugin Log Contains With Offset  Invalid time from policy: 45:67:89
-    Wait Until AV Plugin Log Contains With Offset  Invalid time from policy: whatisthismadness
-    Wait Until AV Plugin Log Contains Times With Offset  Invalid time from policy:  times=3
-    Wait Until AV Plugin Log Contains With Offset  Unable to accept policy as scan information is invalid. Following scans wont be run:
+    Wait For AV Log Contains After Mark  Invalid day from policy: TheDayOfDays  ${av_mark}
+    AV Log Contains Multiple Times After Mark   Invalid day from policy:  ${av_mark}  times=2
+    Wait For AV Log Contains After Mark  Invalid time from policy: 45:67:89  ${av_mark}
+    Wait For AV Log Contains After Mark  Invalid time from policy: whatisthismadness  ${av_mark}
+    AV Log Contains Multiple Times After Mark  Invalid time from policy:  ${av_mark}  times=3
+    Wait For AV Log Contains After Mark  Unable to accept policy as scan information is invalid. Following scans wont be run:  ${av_mark}
 
-    AV Plugin Log Does Not Contain With Offset  SAV policy received for the first time.
-    AV Plugin Log Does Not Contain With Offset  Configured number of Scheduled Scans: 1
-    AV Plugin Log Does Not Contain With Offset  Processing request to restart sophos threat detector
+    Check AV Log Does Not Contain After Mark  SAV policy received for the first time.  ${av_mark}
+    Check AV Log Does Not Contain After Mark  Configured number of Scheduled Scans: 1  ${av_mark}
+    Check AV Log Does Not Contain After Mark  Processing request to restart sophos threat detector  ${av_mark}
 
 
 Scheduled Scan Can Work Despite Specified Log File Being Read-Only
