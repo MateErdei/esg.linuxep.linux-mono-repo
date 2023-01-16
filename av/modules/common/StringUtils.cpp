@@ -179,6 +179,13 @@ namespace common
         return pathToEscape;
     }
 
+    std::string pathForLogging(const std::string& path)
+    {
+        std::stringstream ss;
+        ss << "'" << escapePathForLogging(path) << "'";
+        return ss.str();
+    }
+
     bool contains(const std::string& string, const std::string& value)
     {
         return string.find(value, 0) != std::string::npos;

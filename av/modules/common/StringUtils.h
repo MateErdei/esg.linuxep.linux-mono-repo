@@ -12,6 +12,7 @@ namespace common
     std::string fromLogLevelToString(const log4cplus::LogLevel& logLevel);
     std::string pluralize(int number, std::string singularString, std::string pluralString);
     std::string escapePathForLogging(const std::string& path, bool appendUtf8Conversion = false, bool Utf8ConversionThrows = false, bool escapeXmlCharacters = false);
+    std::string pathForLogging(const std::string& path);
     bool contains(const std::string& string, const std::string& value);
     bool isStringHex(const std::string& stringToCheck);
     std::string getSusiStyleTimestamp();

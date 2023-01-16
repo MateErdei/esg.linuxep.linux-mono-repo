@@ -168,3 +168,40 @@ TEST_F(TestStringUtils, testgetSuSiStyleTimestamp) //NOLINT
 
     EXPECT_TRUE( std::regex_match(getSusiStyleTimestamp(), expected_regex));
 }
+
+TEST_F(TestStringUtils, escapePathForLogging) //NOLINT
+{
+    std::string threatPath = "ありったけの夢をかき集め \1 \2 \3 \4 \5 \6"
+                             " \016 \017 \020 \021 \022 \023 \024 \025 \026 \027"
+                             " \030 \031 \032 \033 \034 \035 \036 \037"
+                             " \177 \\ Ἄνδρα μοι ἔννεπε \a \b \t \n \v \f \r Ä Ö Ü ß";
+    auto escaped = escapePathForLogging(threatPath);
+    EXPECT_EQ(escaped, "ありったけの夢をかき集め \\001 \\002 \\003 \\004 \\005 \\006"
+                          " \\016 \\017 \\020 \\021 \\022 \\023 \\024 \\025 \\026 \\027"
+                          " \\030 \\031 \\032 \\033 \\034 \\035 \\036 \\037"
+                          " \\177 \\\\ Ἄνδρα μοι ἔννεπε \\a \\b \\t \\n \\v \\f \\r Ä Ö Ü ß");
+}
+
+TEST_F(TestStringUtils, pathForLoggingAddsSingleQuotes) //NOLINT
+{
+    std::string threatPath = "/tmp/A path with spaces that looks horrible in the logs";
+    auto escapedAndSingleQuoted = pathForLogging(threatPath);
+    EXPECT_EQ(escapedAndSingleQuoted, "'/tmp/A path with spaces that looks horrible in the logs'");
+
+    threatPath = "";
+    escapedAndSingleQuoted = pathForLogging(threatPath);
+    EXPECT_EQ(escapedAndSingleQuoted, "''");
+}
+
+TEST_F(TestStringUtils, pathForLoggingAddsSingleQuotesAndEscapes) //NOLINT
+{
+    std::string threatPath = "ありったけの夢をかき集め \1 \2 \3 \4 \5 \6"
+                             " \016 \017 \020 \021 \022 \023 \024 \025 \026 \027"
+                             " \030 \031 \032 \033 \034 \035 \036 \037"
+                             " \177 \\ Ἄνδρα μοι ἔννεπε \a \b \t \n \v \f \r Ä Ö Ü ß";
+    auto escapedAndSingleQuoted = pathForLogging(threatPath);
+    EXPECT_EQ(escapedAndSingleQuoted, "'ありったけの夢をかき集め \\001 \\002 \\003 \\004 \\005 \\006"
+                       " \\016 \\017 \\020 \\021 \\022 \\023 \\024 \\025 \\026 \\027"
+                       " \\030 \\031 \\032 \\033 \\034 \\035 \\036 \\037"
+                       " \\177 \\\\ Ἄνδρα μοι ἔννεπε \\a \\b \\t \\n \\v \\f \\r Ä Ö Ü ß'");
+}

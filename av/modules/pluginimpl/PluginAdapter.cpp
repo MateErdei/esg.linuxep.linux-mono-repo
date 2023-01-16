@@ -49,7 +49,7 @@ namespace Plugin
 
             void processMessage(scan_messages::ThreatDetected detection) override
             {
-                const std::string escapedPath = common::escapePathForLogging(detection.filePath);
+                const std::string escapedPath = common::pathForLogging(detection.filePath);
                 bool shouldQuarantine = true;
 
                 if (!m_adapter.isSafeStoreEnabled())
