@@ -24,6 +24,7 @@
 namespace fs = sophos_filesystem;
 
 using namespace sophos_on_access_process::fanotifyhandler;
+using namespace scan_messages;
 
 // Set the buffer size to the size of one memory page
 static constexpr size_t FAN_BUFFER_SIZE = 4096;

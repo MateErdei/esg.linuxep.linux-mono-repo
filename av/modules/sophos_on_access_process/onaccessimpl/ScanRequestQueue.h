@@ -17,8 +17,6 @@
 # define TEST_PUBLIC private
 #endif
 
-using namespace scan_messages;
-
 namespace sophos_on_access_process::onaccessimpl
 {
     class ScanRequestQueue
@@ -78,7 +76,7 @@ namespace sophos_on_access_process::onaccessimpl
         std::condition_variable m_condition;
 
         const size_t m_maxSize;
-        std::atomic_bool m_shuttingDown = false;
+        std::atomic_bool m_shuttingDown{ false };
         bool m_useDeDup;
     };
 

@@ -19,6 +19,6 @@ namespace unixsocket
     protected:
         void setIsRunning(bool value);
     private:
-        std::atomic_bool m_isRunning = false;
+        std::atomic_bool m_isRunning{ false };
     };
 }

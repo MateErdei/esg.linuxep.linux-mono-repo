@@ -24,6 +24,7 @@
 
 namespace fs = sophos_filesystem;
 using namespace sophos_on_access_process::onaccessimpl;
+using namespace scan_messages;
 
 ScanRequestHandler::ScanRequestHandler(
    ScanRequestQueueSharedPtr scanRequestQueue,

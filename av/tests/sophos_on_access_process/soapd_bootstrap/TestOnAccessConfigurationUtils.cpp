@@ -974,7 +974,7 @@ TEST_F(TestOnAccessConfigurationUtils, readLocalSettingsSetsToMinPossibleValueWh
 }
 
 class TestOnAccessConfigUtilsParameterized
-    : public ::testing::TestWithParam<std::pair<int, int>>
+    : public ::testing::TestWithParam<std::pair<unsigned int, int>>
 {
 protected:
     void SetUp() override
@@ -1002,11 +1002,18 @@ INSTANTIATE_TEST_SUITE_P(
         std::make_pair(2, 1),
         std::make_pair(3, 2),
         std::make_pair(8, 4),
-        std::make_pair(16, 8)
+        std::make_pair(15, 8),
+        std::make_pair(16, 8),
+        std::make_pair(17, 9),
+        std::make_pair(99, 50),
+        std::make_pair(100, 50),
+        std::make_pair(101, 51)
             ));
 
 TEST_P(TestOnAccessConfigUtilsParameterized, readLocalSettingsEmpty_numberOfCoresDeterminesNumberOfScanningThreads)
 {
+    auto [ concurrency, numScanThreads ] = GetParam();
+
     EXPECT_CALL(*m_mockIFileSystemPtr, readFile(_)).WillOnce(Return(""));
     Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
 
@@ -1014,10 +1021,9 @@ TEST_P(TestOnAccessConfigUtilsParameterized, readLocalSettingsEmpty_numberOfCore
     int numThreads = 0;
     bool dumpPerfData = true;
 
-    EXPECT_CALL(*m_mockSysCallWrapper, hardware_concurrency()).WillOnce(Return(std::get<0>(GetParam())));
+    EXPECT_CALL(*m_mockSysCallWrapper, hardware_concurrency()).WillOnce(Return(concurrency));
     readLocalSettingsFile(maxScanQueueItems, numThreads, dumpPerfData, m_mockSysCallWrapper);
 
-    auto numScanThreads = std::get<1>(GetParam());
     EXPECT_EQ(maxScanQueueItems, defaultMaxScanQueueSize);
     EXPECT_EQ(numThreads, numScanThreads);
     EXPECT_FALSE(dumpPerfData);
