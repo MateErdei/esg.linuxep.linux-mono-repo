@@ -621,7 +621,7 @@ Wait until threat detector running
     [Arguments]  ${timeout}=${60}
     # wait for sophos_threat_detector to initialize
     ProcessUtils.wait_for_pid  ${SOPHOS_THREAT_DETECTOR_BINARY}  ${30}
-    Wait_For_Log_contains_after_last_restart  ${THREAT_DETECTOR_LOG_PATH}  SophosThreatDetectorImpl <> Starting USR1 monitor  ${timeout}
+    Wait_For_Log_contains_after_last_restart  ${THREAT_DETECTOR_LOG_PATH}  Common <> Starting USR1 monitor  ${timeout}
     # Only output in debug mode:
     # ...  Threat Detector Log Contains  UnixSocket <> Starting listening on socket: /var/process_control_socket
 
@@ -629,7 +629,7 @@ Wait until threat detector running after mark
     [Arguments]  ${mark}  ${timeout}=${60}
     # wait for sophos_threat_detector to initialize
     ProcessUtils.wait_for_pid  ${SOPHOS_THREAT_DETECTOR_BINARY}  ${30}
-    Wait_For_Log_contains_after_last_restart  ${THREAT_DETECTOR_LOG_PATH}  SophosThreatDetectorImpl <> Starting USR1 monitor  ${timeout}  mark=${mark}
+    Wait_For_Log_contains_after_last_restart  ${THREAT_DETECTOR_LOG_PATH}  Common <> Starting USR1 monitor  ${timeout}  mark=${mark}
     # Only output in debug mode:
     # ...  Threat Detector Log Contains  UnixSocket <> Starting listening on socket: /var/process_control_socket
 
@@ -637,7 +637,7 @@ Wait until threat detector running with offset
     [Arguments]  ${timeout}=${60}
     ProcessUtils.wait_for_pid  ${SOPHOS_THREAT_DETECTOR_BINARY}  ${timeout}
     Wait Until Sophos Threat Detector Log Contains With Offset
-    ...  SophosThreatDetectorImpl <> Starting USR1 monitor
+    ...  Common <> Starting USR1 monitor
     ...  timeout=${timeout}
 
 Wait until threat detector not running

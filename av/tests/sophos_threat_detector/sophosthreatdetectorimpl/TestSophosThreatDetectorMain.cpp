@@ -417,7 +417,6 @@ TEST_P(TestPpollErrors, innerMainReturnPpollError)
     EXPECT_EQ(std::get<1>(GetParam()), treatDetectorMain->inner_main(m_mockThreatDetectorResources));
 }
 
-
 namespace {
     class TestFdEvents :
         public TestSophosThreatDetectorMain,

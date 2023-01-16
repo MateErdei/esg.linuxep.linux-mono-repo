@@ -28,7 +28,7 @@ namespace
     class MockThreatDetectorResources : public sspl::sophosthreatdetectorimpl::IThreatDetectorResources
     {
     public:
-        MockThreatDetectorResources(const fs::path& testDirectory, std::shared_ptr<NiceMock<MockSystemCallWrapper>> mockSysCallWrapper)
+        MockThreatDetectorResources(const fs::path& testDirectory, std::shared_ptr<MockSystemCallWrapper> mockSysCallWrapper)
         {
             m_mockSysCalls = std::move(mockSysCallWrapper);
             m_mockSigTermHandler = std::make_shared<NiceMock<MockSignalHandler>>();
@@ -103,17 +103,17 @@ namespace
         }
 
     private:
-        std::shared_ptr<NiceMock<MockSystemCallWrapper>> m_mockSysCalls;
-        std::shared_ptr<NiceMock<MockSignalHandler>> m_mockSigTermHandler;
-        std::shared_ptr<NiceMock<MockSignalHandler>> m_mockUsr1Monitor;
-        std::shared_ptr<NiceMock<MockPidLock>> m_mockPidLock;
-        std::shared_ptr<NiceMock<MockThreatReporter>> m_mockThreatReporter;
-        std::shared_ptr<NiceMock<MockShutdownTimer>> m_mockShutdownTimer;
-        std::shared_ptr<NiceMock<MockUpdateCompleteServerSocket>> m_mockUpdateCompleteServerSocket;
-        std::shared_ptr<NiceMock<MockSusiScannerFactory>> m_mockSusiScannerFactory;
-        std::shared_ptr<NiceMock<MockScanningServerSocket>> m_mockScanningServerSocket;
-        std::shared_ptr<NiceMock<MockReloader>> m_reloader;
-        std::shared_ptr<NiceMock<MockSafeStoreRescanWorker>> m_safeStoreRescanWorker;
+        std::shared_ptr<MockSystemCallWrapper> m_mockSysCalls;
+        std::shared_ptr<MockSignalHandler> m_mockSigTermHandler;
+        std::shared_ptr<MockSignalHandler> m_mockUsr1Monitor;
+        std::shared_ptr<MockPidLock> m_mockPidLock;
+        std::shared_ptr<MockThreatReporter> m_mockThreatReporter;
+        std::shared_ptr<MockShutdownTimer> m_mockShutdownTimer;
+        std::shared_ptr<MockUpdateCompleteServerSocket> m_mockUpdateCompleteServerSocket;
+        std::shared_ptr<MockSusiScannerFactory> m_mockSusiScannerFactory;
+        std::shared_ptr<MockScanningServerSocket> m_mockScanningServerSocket;
+        std::shared_ptr<MockReloader> m_reloader;
+        std::shared_ptr<MockSafeStoreRescanWorker> m_safeStoreRescanWorker;
 
         //Not Mocked
         std::shared_ptr<ThreatDetectorControlCallback> m_callbacks;
