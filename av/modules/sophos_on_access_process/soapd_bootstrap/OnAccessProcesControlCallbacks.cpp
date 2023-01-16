@@ -4,7 +4,7 @@
 
 #include "Logger.h"
 
-namespace sophos_on_access_process::OnAccessConfig
+namespace sophos_on_access_process::soapd_bootstrap
 {
     void OnAccessProcessControlCallback::processControlMessage(const scan_messages::E_COMMAND_TYPE& command)
     {

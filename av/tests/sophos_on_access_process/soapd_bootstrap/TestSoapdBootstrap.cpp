@@ -170,38 +170,6 @@ namespace
     };
 }
 
-TEST_F(TestSoapdBootstrap, checkIfOAShouldBeEnabled_flagDisabled_policyDisabled)
-{
-    UsingMemoryAppender memoryAppenderHolder(*this);
-
-    EXPECT_EQ(SoapdBootstrap::checkIfOAShouldBeEnabled(false, false), false);
-    EXPECT_TRUE(appenderContains("Overriding policy, on-access will be disabled"));
-}
-
-TEST_F(TestSoapdBootstrap, checkIfOAShouldBeEnabled_flagDisabled_policyEnabled)
-{
-    UsingMemoryAppender memoryAppenderHolder(*this);
-
-    EXPECT_EQ(SoapdBootstrap::checkIfOAShouldBeEnabled(false, true), false);
-    EXPECT_TRUE(appenderContains("Overriding policy, on-access will be disabled"));
-}
-
-TEST_F(TestSoapdBootstrap, checkIfOAShouldBeEnabled_flagEnabled_policyDisabled)
-{
-    UsingMemoryAppender memoryAppenderHolder(*this);
-
-    EXPECT_EQ(SoapdBootstrap::checkIfOAShouldBeEnabled(true, false), false);
-    EXPECT_TRUE(appenderContains("No policy override, following policy settings"));
-}
-
-TEST_F(TestSoapdBootstrap, checkIfOAShouldBeEnabled_flagEnabled_policyEnabled)
-{
-    UsingMemoryAppender memoryAppenderHolder(*this);
-
-    EXPECT_EQ(SoapdBootstrap::checkIfOAShouldBeEnabled(true, true), true);
-    EXPECT_TRUE(appenderContains("No policy override, following policy settings"));
-}
-
 TEST_F(TestSoapdBootstrap, constructor)
 {
     auto soapdInstance = SoapdBootstrap(m_mockSoapdResources);

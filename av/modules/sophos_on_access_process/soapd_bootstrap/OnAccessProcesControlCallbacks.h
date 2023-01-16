@@ -6,7 +6,7 @@
 
 #include "unixsocket/processControllerSocket/IProcessControlMessageCallback.h"
 
-namespace sophos_on_access_process::OnAccessConfig
+namespace sophos_on_access_process::soapd_bootstrap
 {
     class OnAccessProcessControlCallback : public unixsocket::IProcessControlMessageCallback
     {
