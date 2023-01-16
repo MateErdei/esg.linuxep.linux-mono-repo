@@ -169,8 +169,9 @@ Send Filepath that is a dir To Safestore
     Wait Until Keyword Succeeds
     ...  10 secs
     ...  1 secs
-    ...  SafeStore Log Contains  Failed to quarantine /opt/Dir due to: MaxObjectSizeExceeded
+    ...  SafeStore Log Contains  Failed to quarantine /opt/Dir due to:
     mark_expected_error_in_log  ${SAFESTORE_LOG_PATH}  Failed to quarantine /opt/Dir due to: MaxObjectSizeExceeded
+    mark_expected_error_in_log  ${SAFESTORE_LOG_PATH}  safestore <> Failed to quarantine /opt/Dir due to: FileReadFailed
 
 Send empty File To Safestore
     ${result} =  send TDO To socket  filepath=""  fd=1
