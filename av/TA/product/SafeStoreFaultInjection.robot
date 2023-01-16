@@ -155,13 +155,14 @@ Send very long Filepath To Safestore
     ...  SafeStore Log Contains  Quarantined ${long_filepath} successfully
 
 Send Filepath that is a dir To Safestore
-    Create Directory  /tmp/Dir
-    ${result} =  send TDO To socket  filepath=/tmp/Dir
+    Create Directory  /opt/Dir
+    Register Cleanup   Remove Directory  /opt/Dir  recursive=True
+    ${result} =  send TDO To socket  filepath=/opt/Dir
     Wait Until Keyword Succeeds
     ...  10 secs
     ...  1 secs
-    ...  SafeStore Log Contains  Failed to quarantine /tmp/Dir due to: MaxObjectSizeExceeded
-    mark_expected_error_in_log  ${SAFESTORE_LOG_PATH}  Failed to quarantine /tmp/Dir due to: MaxObjectSizeExceeded
+    ...  SafeStore Log Contains  Failed to quarantine /opt/Dir due to: MaxObjectSizeExceeded
+    mark_expected_error_in_log  ${SAFESTORE_LOG_PATH}  Failed to quarantine /opt/Dir due to: MaxObjectSizeExceeded
 
 Send empty File To Safestore
     ${result} =  send TDO To socket  filepath=""  fd=1
