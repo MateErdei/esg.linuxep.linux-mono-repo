@@ -1,15 +1,14 @@
 *** Settings ***
 Resource    ../shared/ComponentSetup.robot
 Resource    ../shared/GlobalSetup.robot
+Resource    ../shared/AVAndBaseResources.robot
 
 Suite Setup     Fault Injection Test Suite Setup Tasks
+Suite Teardown  Global Teardown Tasks
 
-Test Setup      Fault Injection Test Setup
 
 *** Keywords ***
 
 Fault Injection Test Suite Setup Tasks
-    Setup Base And Component
+    Install With Base SDDS
 
-Fault Injection Test Setup
-    Component Test Setup
