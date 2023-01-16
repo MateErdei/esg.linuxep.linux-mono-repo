@@ -1,4 +1,4 @@
-// Copyright 2020-2023, Sophos Limited.  All rights reserved.
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #ifndef TEST_PUBLIC
 # define TEST_PUBLIC private
