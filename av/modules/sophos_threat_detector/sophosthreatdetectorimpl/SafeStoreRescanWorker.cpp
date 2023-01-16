@@ -60,8 +60,6 @@ void SafeStoreRescanWorker::tryStop()
 
 void SafeStoreRescanWorker::run()
 {
-    LOGDEBUG("Starting SafeStoreRescanWorker");
-
     announceThreadStarted();
 
     std::unique_lock lock(m_rescanLock);
