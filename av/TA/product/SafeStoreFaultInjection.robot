@@ -15,6 +15,7 @@ SafeStore Test Setup
     Component Test Setup
     Start SafeStore Manually
     Wait Until SafeStore Started Successfully
+    save_log_marks_at_start_of_test
 
 SafeStore Test Teardown
     Stop SafeStore Manually
@@ -38,117 +39,75 @@ send TDO To socket
 Send A Valid Threat Detected Object To Safestore
     Create File  /tmp/testfile
     ${result} =  send TDO To socket
-    Wait Until Keyword Succeeds
-    ...  10 secs
-    ...  1 secs
-    ...  SafeStore Log Contains  Quarantined /tmp/testfile successfully
+    wait_for_safestore_log_contains_after_mark  Quarantined /tmp/testfile successfully      mark=${SAFESTORE_LOG_MARK_FROM_START_OF_TEST}
 
 Send An invalid capnproto message To Safestore
     ${result} =  Run Shell Process  ${SEND_DATA_TO_SOCKET_TOOL} --socketpath /opt/sophos-spl/plugins/av/var/safestore_socket --data 2222222    OnError=Failed to run SendDataToSocket binary   timeout=10
-    Wait Until Keyword Succeeds
-    ...  10 secs
-    ...  1 secs
-    ...  SafeStore Log Contains  Aborting SafeStore connection thread: failed to parse detection
+    wait_for_safestore_log_contains_after_mark  Aborting SafeStore connection thread: failed to parse detection   mark=${SAFESTORE_LOG_MARK_FROM_START_OF_TEST}
     mark_expected_error_in_log  ${SAFESTORE_LOG_PATH}  Aborting SafeStore connection thread: failed to parse detection
 
 Send An valid capnproto message that is not tdo To Safestore
     ${result} =  Run Shell Process  ${SEND_DATA_TO_SOCKET_TOOL} --socketpath /opt/sophos-spl/plugins/av/var/safestore_socket --sendclientscan    OnError=Failed to run SendDataToSocket binary   timeout=10
-    Wait Until Keyword Succeeds
-    ...  10 secs
-    ...  1 secs
-    ...  SafeStore Log Contains  Aborting SafeStore connection thread: failed to parse detection
+    wait_for_safestore_log_contains_after_mark  Aborting SafeStore connection thread: failed to parse detection   mark=${SAFESTORE_LOG_MARK_FROM_START_OF_TEST}
     mark_expected_error_in_log  ${SAFESTORE_LOG_PATH}  Aborting SafeStore connection thread: failed to parse detection
 
 Send Only Message To Safestore
     Create File  /tmp/testfile
     ${result} =  Run Shell Process  ${SEND_THREAT_DETECTED_TOOL} --socketpath /opt/sophos-spl/plugins/av/var/safestore_socket --filepath /tmp/testfile --threatname threatName --sha e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 --nosendfd    OnError=Failed to run SendThreatDetectedEvent binary   timeout=10
-    Wait Until Keyword Succeeds
-    ...  10 secs
-    ...  1 secs
-    ...  SafeStore Log Contains  Aborting SafeStore connection thread: failed to read fd
+    wait_for_safestore_log_contains_after_mark  Aborting SafeStore connection thread: failed to read fd   mark=${SAFESTORE_LOG_MARK_FROM_START_OF_TEST}
     mark_expected_error_in_log  ${SAFESTORE_LOG_PATH}  Aborting SafeStore connection thread: failed to read fd
 
 Send Only FD To Safestore
     Create File  /tmp/testfile
     ${result} =  Run Shell Process  ${SEND_THREAT_DETECTED_TOOL} --socketpath /opt/sophos-spl/plugins/av/var/safestore_socket --filepath /tmp/testfile --nosendmessage    OnError=Failed to run SendThreatDetectedEvent binary   timeout=10
-    Wait Until Keyword Succeeds
-    ...  10 secs
-    ...  1 secs
-    ...  SafeStore Log Contains  Ignoring length of zero / No new messages
+    wait_for_safestore_log_contains_after_mark  Ignoring length of zero / No new messages       mark=${SAFESTORE_LOG_MARK_FROM_START_OF_TEST}
 
 Send Empty ThreatName To Safestore
     Create File  /tmp/testfile
     ${result} =  send TDO To socket  threatname=""
-    Wait Until Keyword Succeeds
-    ...  10 secs
-    ...  1 secs
-    ...  SafeStore Log Contains  Aborting SafeStore connection thread: failed to parse detection
+    wait_for_safestore_log_contains_after_mark  Aborting SafeStore connection thread: failed to parse detection   mark=${SAFESTORE_LOG_MARK_FROM_START_OF_TEST}
     mark_expected_error_in_log  ${SAFESTORE_LOG_PATH}  Aborting SafeStore connection thread: failed to parse detection
 
 Send ThreatName with foreign chars To Safestore
     Create File  /tmp/testfile
     ${result} =  send TDO To socket  threatname=threatNameこんにちは
-    Wait Until Keyword Succeeds
-    ...  10 secs
-    ...  1 secs
-    ...  SafeStore Log Contains  Quarantined /tmp/testfile successfully
+    wait_for_safestore_log_contains_after_mark  Quarantined /tmp/testfile successfully   mark=${SAFESTORE_LOG_MARK_FROM_START_OF_TEST}
 
 Send ThreatName with xml To Safestore
     Create File  /tmp/testfile
     ${result} =  send TDO To socket  threatname="<tag></tag>"
-    Wait Until Keyword Succeeds
-    ...  10 secs
-    ...  1 secs
-    ...  SafeStore Log Contains  Quarantined /tmp/testfile successfully
+    wait_for_safestore_log_contains_after_mark  Quarantined /tmp/testfile successfully   mark=${SAFESTORE_LOG_MARK_FROM_START_OF_TEST}
 
 Send ThreatName with json To Safestore
     Create File  /tmp/testfile
     ${result} =  send TDO To socket  threatname="{\"blob\":1000}"
-    Wait Until Keyword Succeeds
-    ...  10 secs
-    ...  1 secs
-    ...  SafeStore Log Contains  Quarantined /tmp/testfile successfully
+    wait_for_safestore_log_contains_after_mark  Quarantined /tmp/testfile successfully   mark=${SAFESTORE_LOG_MARK_FROM_START_OF_TEST}
 
 Send very long threatname To Safestore
     Create File  /tmp/testfile
     ${long_string}=  Run Process  tr -dc A-Za-z0-9 </dev/urandom | head -c 50000  shell=True
     ${result} =  send TDO To socket  threatname=${long_string.stdout}
-    Wait Until Keyword Succeeds
-    ...  10 secs
-    ...  1 secs
-    ...  SafeStore Log Contains  Quarantined /tmp/testfile successfully
+    wait_for_safestore_log_contains_after_mark  Quarantined /tmp/testfile successfully   mark=${SAFESTORE_LOG_MARK_FROM_START_OF_TEST}
 
 Send Filepath with json To Safestore
     Create File  /tmp/{\'blob\':1000}
     ${result} =  send TDO To socket  filepath="/tmp/{'blob':1000}"
-    Wait Until Keyword Succeeds
-    ...  10 secs
-    ...  1 secs
-    ...  SafeStore Log Contains  Quarantined /tmp/{'blob':1000} successfully
+    wait_for_safestore_log_contains_after_mark  Quarantined /tmp/{'blob':1000} successfully   mark=${SAFESTORE_LOG_MARK_FROM_START_OF_TEST}
 
 Send Filepath with xml To Safestore
     Create File  /tmp/<xml><\xml>
     ${result} =  send TDO To socket  filepath="/tmp/<xml><\xml>"
-    Wait Until Keyword Succeeds
-    ...  10 secs
-    ...  1 secs
-    ...  SafeStore Log Contains  Quarantined /tmp/<xml><\xml> successfully
+    wait_for_safestore_log_contains_after_mark  Quarantined /tmp/<xml><\xml> successfully   mark=${SAFESTORE_LOG_MARK_FROM_START_OF_TEST}
 
 Send Filepath with foreign char Safestore
     Create File  /tmp/こんにちは
     ${result} =  send TDO To socket  filepath="/tmp/こんにちは"
-    Wait Until Keyword Succeeds
-    ...  10 secs
-    ...  1 secs
-    ...  SafeStore Log Contains  Quarantined /tmp/こんにちは successfully
+    wait_for_safestore_log_contains_after_mark  Quarantined /tmp/こんにちは successfully   mark=${SAFESTORE_LOG_MARK_FROM_START_OF_TEST}
 
 Send Filepath with null char Safestore
     Create File  /tmp/file\000
     ${result} =  send TDO To socket  filepath="/tmp/file\000"
-    Wait Until Keyword Succeeds
-    ...  10 secs
-    ...  1 secs
-    ...  SafeStore Log Contains  Quarantined /tmp/file\000 successfully
+    wait_for_safestore_log_contains_after_mark  Quarantined /tmp/file\000 successfully   mark=${SAFESTORE_LOG_MARK_FROM_START_OF_TEST}
 
 Send very long Filepath To Safestore
     ${long_string}=  Run Process  tr -dc A-Za-z0-9 </dev/urandom | head -c 249  shell=True
@@ -157,223 +116,145 @@ Send very long Filepath To Safestore
     Create File  ${long_filepath}
     Register Cleanup   Remove Directory  /tmp/${s}  recursive=True
     ${result} =  send TDO To socket  filepath=${long_filepath}
-    Wait Until Keyword Succeeds
-    ...  10 secs
-    ...  1 secs
-    ...  SafeStore Log Contains  Quarantined ${long_filepath} successfully
+    wait_for_safestore_log_contains_after_mark  Quarantined ${long_filepath} successfully   mark=${SAFESTORE_LOG_MARK_FROM_START_OF_TEST}
 
 Send Filepath that is a dir To Safestore
     Create Directory  /opt/Dir
     Register Cleanup   Remove Directory  /opt/Dir  recursive=True
     ${result} =  send TDO To socket  filepath=/opt/Dir
-    Wait Until Keyword Succeeds
-    ...  10 secs
-    ...  1 secs
-    ...  SafeStore Log Contains  Failed to quarantine /opt/Dir due to:
+    wait_for_safestore_log_contains_after_mark  Failed to quarantine /opt/Dir due to:   mark=${SAFESTORE_LOG_MARK_FROM_START_OF_TEST}
     mark_expected_error_in_log  ${SAFESTORE_LOG_PATH}  Failed to quarantine /opt/Dir due to: MaxObjectSizeExceeded
     mark_expected_error_in_log  ${SAFESTORE_LOG_PATH}  safestore <> Failed to quarantine /opt/Dir due to: FileReadFailed
 
 Send empty File To Safestore
     ${result} =  send TDO To socket  filepath=""  fd=1
-    Wait Until Keyword Succeeds
-    ...  10 secs
-    ...  1 secs
-    ...  SafeStore Log Contains  Aborting SafeStore connection thread: failed to parse detection
+    wait_for_safestore_log_contains_after_mark  Aborting SafeStore connection thread: failed to parse detection   mark=${SAFESTORE_LOG_MARK_FROM_START_OF_TEST}
     mark_expected_error_in_log  ${SAFESTORE_LOG_PATH}  Aborting SafeStore connection thread: failed to parse detection
 
 Send Filepath only slashes To Safestore
     ${result} =  send TDO To socket  filepath="//"  fd=1
-    Wait Until Keyword Succeeds
-    ...  10 secs
-    ...  1 secs
-    ...  SafeStore Log Contains  Cannot quarantine // as it was moved
+    wait_for_safestore_log_contains_after_mark  Cannot quarantine // as it was moved   mark=${SAFESTORE_LOG_MARK_FROM_START_OF_TEST}
     mark_expected_error_in_log  ${SAFESTORE_LOG_PATH}  Cannot quarantine // as it was moved
 
 Send Filepath no slashes To Safestore
     ${result} =  send TDO To socket  filepath="tmp"  fd=1
-    Wait Until Keyword Succeeds
-    ...  10 secs
-    ...  1 secs
-    ...  SafeStore Log Contains  Cannot quarantine tmp as it was moved
+    wait_for_safestore_log_contains_after_mark  Cannot quarantine tmp as it was moved   mark=${SAFESTORE_LOG_MARK_FROM_START_OF_TEST}
     mark_expected_error_in_log  ${SAFESTORE_LOG_PATH}  Cannot quarantine tmp as it was moved
 
 Send Short SHA To Safestore
     Create File  /tmp/testfile
     ${result} =  send TDO To socket  sha=e3b0c44298fc1c149afbf4c8996f
-    Wait Until Keyword Succeeds
-    ...  10 secs
-    ...  1 secs
-    ...  SafeStore Log Contains  Quarantined /tmp/testfile successfully
+    wait_for_safestore_log_contains_after_mark  Quarantined /tmp/testfile successfully   mark=${SAFESTORE_LOG_MARK_FROM_START_OF_TEST}
 
 Send Long SHA To Safestore
     Create File  /tmp/testfile
     ${result} =  send TDO To socket  sha=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b85555
-    Wait Until Keyword Succeeds
-    ...  10 secs
-    ...  1 secs
-    ...  SafeStore Log Contains  Quarantined /tmp/testfile successfully
+    wait_for_safestore_log_contains_after_mark  Quarantined /tmp/testfile successfully   mark=${SAFESTORE_LOG_MARK_FROM_START_OF_TEST}
 
 Send invalid SHA with captial letters To Safestore
     Create File  /tmp/testfile
     ${result} =  send TDO To socket  sha=E3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
-    Wait Until Keyword Succeeds
-    ...  10 secs
-    ...  1 secs
-    ...  SafeStore Log Contains  Quarantined /tmp/testfile successfully
+    wait_for_safestore_log_contains_after_mark  Quarantined /tmp/testfile successfully   mark=${SAFESTORE_LOG_MARK_FROM_START_OF_TEST}
 
 Send SHA that is in json format To Safestore
     Create File  /tmp/testfile
     ${result} =  send TDO To socket  sha={"hellow":1000}
-    Wait Until Keyword Succeeds
-    ...  10 secs
-    ...  1 secs
-    ...  SafeStore Log Contains  Quarantined /tmp/testfile successfully
+    wait_for_safestore_log_contains_after_mark  Quarantined /tmp/testfile successfully   mark=${SAFESTORE_LOG_MARK_FROM_START_OF_TEST}
 
 Send SHA that is in xml format To Safestore
     Create File  /tmp/testfile
     ${result} =  send TDO To socket  sha="<xmltag>aaaa<\xmltag>"
-    Wait Until Keyword Succeeds
-    ...  10 secs
-    ...  1 secs
-    ...  SafeStore Log Contains  Quarantined /tmp/testfile successfully
+    wait_for_safestore_log_contains_after_mark  Quarantined /tmp/testfile successfully   mark=${SAFESTORE_LOG_MARK_FROM_START_OF_TEST}
 
 Send TDO with empty SHA To Safestore
     Create File  /tmp/testfile
     ${result} =  send TDO To socket  sha=""
-    Wait Until Keyword Succeeds
-    ...  10 secs
-    ...  1 secs
-    ...  SafeStore Log Contains  Quarantined /tmp/testfile successfully
+    wait_for_safestore_log_contains_after_mark  Quarantined /tmp/testfile successfully   mark=${SAFESTORE_LOG_MARK_FROM_START_OF_TEST}
     mark_expected_error_in_log  ${SAFESTORE_LOG_PATH}  Got DATA_TAG_NOT_SET while setting custom data, name: SHA256
 
 Send invalid SHA To safestore
     Create File  /tmp/testfile
     ${result} =  send TDO To socket  sha=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b8==
-    Wait Until Keyword Succeeds
-    ...  10 secs
-    ...  1 secs
-    ...  SafeStore Log Contains  Quarantined /tmp/testfile successfully
+    wait_for_safestore_log_contains_after_mark  Quarantined /tmp/testfile successfully   mark=${SAFESTORE_LOG_MARK_FROM_START_OF_TEST}
 
 Send SHA with foreign char Safestore
     Create File  /tmp/testfile
     ${result} =  send TDO To socket  sha=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b8សួស្តី
-    Wait Until Keyword Succeeds
-    ...  10 secs
-    ...  1 secs
-    ...  SafeStore Log Contains  Quarantined /tmp/testfile successfully
+    wait_for_safestore_log_contains_after_mark  Quarantined /tmp/testfile successfully   mark=${SAFESTORE_LOG_MARK_FROM_START_OF_TEST}
 
 Send very long SHA To Safestore
     Create File  /tmp/testfile
     ${long_string}=  Run Process  tr -dc A-Za-z0-9 </dev/urandom | head -c 50000  shell=True
     ${result} =  send TDO To socket  sha=${long_string.stdout}
-    Wait Until Keyword Succeeds
-    ...  10 secs
-    ...  1 secs
-    ...  SafeStore Log Contains  Quarantined /tmp/testfile successfully
+    wait_for_safestore_log_contains_after_mark  Quarantined /tmp/testfile successfully   mark=${SAFESTORE_LOG_MARK_FROM_START_OF_TEST}
 Send empty threatid To Safestore
     Create File  /tmp/testfile
     ${result} =  send TDO To socket  threatid=""
-    Wait Until Keyword Succeeds
-    ...  10 secs
-    ...  1 secs
-    ...  SafeStore Log Contains  Aborting SafeStore connection thread: failed to parse detection
+    wait_for_safestore_log_contains_after_mark  Aborting SafeStore connection thread: failed to parse detection   mark=${SAFESTORE_LOG_MARK_FROM_START_OF_TEST}
     mark_expected_error_in_log  ${SAFESTORE_LOG_PATH}  Aborting SafeStore connection thread: failed to parse detection
 
 Send long threatid To Safestore
     Create File  /tmp/testfile
     ${result} =  send TDO To socket  threatid="00010203-0405-0607-0809-0a0b0c0d0e0ff"
-    Wait Until Keyword Succeeds
-    ...  10 secs
-    ...  1 secs
-    ...  SafeStore Log Contains  Aborting SafeStore connection thread: failed to parse detection
+    wait_for_safestore_log_contains_after_mark  Aborting SafeStore connection thread: failed to parse detection   mark=${SAFESTORE_LOG_MARK_FROM_START_OF_TEST}
     mark_expected_error_in_log  ${SAFESTORE_LOG_PATH}  Aborting SafeStore connection thread: failed to parse detection
 
 Send short threatid To Safestore
     Create File  /tmp/testfile
     ${result} =  send TDO To socket  threatid="00010203-0405-0607-0809-0a0b"
-    Wait Until Keyword Succeeds
-    ...  10 secs
-    ...  1 secs
-    ...  SafeStore Log Contains  Aborting SafeStore connection thread: failed to parse detection
+    wait_for_safestore_log_contains_after_mark  Aborting SafeStore connection thread: failed to parse detection   mark=${SAFESTORE_LOG_MARK_FROM_START_OF_TEST}
     mark_expected_error_in_log  ${SAFESTORE_LOG_PATH}  Aborting SafeStore connection thread: failed to parse detection
 
 Send threatid with non hex chars To Safestore
     Create File  /tmp/testfile
     ${result} =  send TDO To socket  threatid="00010203-0405-0607-0809-0a0b0c0d0e=="
-    Wait Until Keyword Succeeds
-    ...  10 secs
-    ...  1 secs
-    ...  SafeStore Log Contains  Aborting SafeStore connection thread: failed to parse detection
+    wait_for_safestore_log_contains_after_mark  Aborting SafeStore connection thread: failed to parse detection   mark=${SAFESTORE_LOG_MARK_FROM_START_OF_TEST}
     mark_expected_error_in_log  ${SAFESTORE_LOG_PATH}  Aborting SafeStore connection thread: failed to parse detection
 
 Send threatid with uppercase chars To Safestore
     Create File  /tmp/testfile
     ${result} =  send TDO To socket  threatid="00010203-0405-0607-0809-0a0b0c0d0e0F"
-    Wait Until Keyword Succeeds
-    ...  10 secs
-    ...  1 secs
-    ...  SafeStore Log Contains  Quarantined /tmp/testfile successfully
+    wait_for_safestore_log_contains_after_mark  Quarantined /tmp/testfile successfully   mark=${SAFESTORE_LOG_MARK_FROM_START_OF_TEST}
 
 Send threatid with no hyphens To Safestore
     Create File  /tmp/testfile
     ${result} =  send TDO To socket  threatid="0001020300405006070080900a0b0c0d0e0F"
-    Wait Until Keyword Succeeds
-    ...  10 secs
-    ...  1 secs
-    ...  SafeStore Log Contains  Aborting SafeStore connection thread: failed to parse detection
+    wait_for_safestore_log_contains_after_mark  Aborting SafeStore connection thread: failed to parse detection   mark=${SAFESTORE_LOG_MARK_FROM_START_OF_TEST}
     mark_expected_error_in_log  ${SAFESTORE_LOG_PATH}  Aborting SafeStore connection thread: failed to parse detection
 
 Send threatid with only hyphens To Safestore
     Create File  /tmp/testfile
     ${result} =  send TDO To socket  threatid="------------------------------------"
-    Wait Until Keyword Succeeds
-    ...  10 secs
-    ...  1 secs
-    ...  SafeStore Log Contains  Aborting SafeStore connection thread: failed to parse detection
+    wait_for_safestore_log_contains_after_mark  Aborting SafeStore connection thread: failed to parse detection   mark=${SAFESTORE_LOG_MARK_FROM_START_OF_TEST}
     mark_expected_error_in_log  ${SAFESTORE_LOG_PATH}  Aborting SafeStore connection thread: failed to parse detection
 
 Send threatid with only four hyphens To Safestore
     Create File  /tmp/testfile
     ${result} =  send TDO To socket  threatid="----"
-    Wait Until Keyword Succeeds
-    ...  10 secs
-    ...  1 secs
-    ...  SafeStore Log Contains  Aborting SafeStore connection thread: failed to parse detection
+    wait_for_safestore_log_contains_after_mark  Aborting SafeStore connection thread: failed to parse detection   mark=${SAFESTORE_LOG_MARK_FROM_START_OF_TEST}
     mark_expected_error_in_log  ${SAFESTORE_LOG_PATH}  Aborting SafeStore connection thread: failed to parse detection
 
 Send threatid with foreign char To Safestore
     Create File  /tmp/testfile
     ${result} =  send TDO To socket  threatid="00010203-0405-0607-0809-0a0b0c0d0e0こ"
-    Wait Until Keyword Succeeds
-    ...  10 secs
-    ...  1 secs
-    ...  SafeStore Log Contains  Aborting SafeStore connection thread: failed to parse detection
+    wait_for_safestore_log_contains_after_mark  Aborting SafeStore connection thread: failed to parse detection   mark=${SAFESTORE_LOG_MARK_FROM_START_OF_TEST}
     mark_expected_error_in_log  ${SAFESTORE_LOG_PATH}  Aborting SafeStore connection thread: failed to parse detection
 
 Send threatid with json To Safestore
     Create File  /tmp/testfile
     ${result} =  send TDO To socket  threatid="{'00010203-0405-0607-0809-0a0b0c0d0e0j':90}"
-    Wait Until Keyword Succeeds
-    ...  10 secs
-    ...  1 secs
-    ...  SafeStore Log Contains  Aborting SafeStore connection thread: failed to parse detection
+    wait_for_safestore_log_contains_after_mark  Aborting SafeStore connection thread: failed to parse detection   mark=${SAFESTORE_LOG_MARK_FROM_START_OF_TEST}
     mark_expected_error_in_log  ${SAFESTORE_LOG_PATH}  Aborting SafeStore connection thread: failed to parse detection
 
 Send threatid with xml To Safestore
     Create File  /tmp/testfile
     ${result} =  send TDO To socket  threatid="<exmapletag></exampletag>"
-    Wait Until Keyword Succeeds
-    ...  10 secs
-    ...  1 secs
-    ...  SafeStore Log Contains  Aborting SafeStore connection thread: failed to parse detection
+    wait_for_safestore_log_contains_after_mark  Aborting SafeStore connection thread: failed to parse detection   mark=${SAFESTORE_LOG_MARK_FROM_START_OF_TEST}
     mark_expected_error_in_log  ${SAFESTORE_LOG_PATH}  Aborting SafeStore connection thread: failed to parse detection
 
 Send very long threatid To Safestore
     Create File  /tmp/testfile
     ${long_string}=  Run Process  tr -dc A-Za-z0-9 </dev/urandom | head -c 50000  shell=True
     ${result} =  send TDO To socket  threatid=${long_string.stdout}
-    Wait Until Keyword Succeeds
-    ...  10 secs
-    ...  1 secs
-    ...  SafeStore Log Contains  Aborting SafeStore connection thread: failed to parse detection
+    wait_for_safestore_log_contains_after_mark  Aborting SafeStore connection thread: failed to parse detection   mark=${SAFESTORE_LOG_MARK_FROM_START_OF_TEST}
     mark_expected_error_in_log  ${SAFESTORE_LOG_PATH}  Aborting SafeStore connection thread: failed to parse detection
