@@ -103,7 +103,7 @@ class TeardownTools(object):
         CLOUD_SETUP_SEGFAULT_RE = re.compile(r"nm-cloud-setup\[\d+\]: segfault at [0-9a-f]+ ip [0-9a-f]+ sp [0-9a-f]+ error 4 in libglib-2.0.so.*\[[0-9a-f]+\+[0-9a-f]+\]")
 
         if grep_process.returncode == 0 and not CLOUD_SETUP_SEGFAULT_RE.search(str(dmesg_process.stdout)):
-            raise AssertionError("segfault found : " + stdout)
+            raise AssertionError("segfault found : " + str(stdout))
 
         return stdout
 

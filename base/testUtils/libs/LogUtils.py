@@ -89,7 +89,7 @@ class LogUtils(object):
         self.cloud_server_log = os.path.join(self.tmp_path, "cloudServer.log")
         self.marked_mcsrouter_logs = 0
         self.marked_mcs_envelope_logs = 0
-        self.marked_watchdog_log = 0
+        self.marked_watchdog_logs = 0
         self.marked_managementagent_logs = 0
         self.marked_av_log = 0
         self.marked_sophos_threat_detector_log = 0

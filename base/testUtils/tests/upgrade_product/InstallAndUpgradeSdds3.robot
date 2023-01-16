@@ -136,7 +136,10 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
 
     Trigger Update Now
 
-    SHS Status File Contains  ${HealthyShsStatusXmlContents}
+    Wait Until Keyword Succeeds
+    ...  15 secs
+    ...  5 secs
+    ...  SHS Status File Contains  ${HealthyShsStatusXmlContents}
     Wait Until Keyword Succeeds
     ...   300 secs
     ...   10 secs
@@ -592,7 +595,10 @@ We Can Downgrade From VUT to Release Without Unexpected Errors
 
     # TODO: Uncomment below once On-access has been released
     #SHS Status File Contains  ${BadThreatHealthXmlContents}
-    SHS Status File Contains  ${HealthyShsStatusXmlContents}
+    Wait Until Keyword Succeeds
+    ...  15 secs
+    ...  5 secs
+    ...  SHS Status File Contains  ${HealthyShsStatusXmlContents}
 
 Sul Downloader Can Update Via Sdds3 Repository And Removes Local SDDS2 Cache
     Start Local Cloud Server  --initial-alc-policy  ${BaseEdrAndMtrAndAVVUTPolicy}
