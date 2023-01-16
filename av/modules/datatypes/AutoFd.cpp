@@ -48,8 +48,3 @@ int AutoFd::release()
 {
     return std::exchange(m_fd, invalid_fd);
 }
-
-bool AutoFd::operator==(const AutoFd& other) const
-{
-    return m_fd == other.m_fd;
-}

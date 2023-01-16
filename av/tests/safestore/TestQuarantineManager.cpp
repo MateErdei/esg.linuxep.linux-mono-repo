@@ -1,4 +1,6 @@
-// Copyright 2022 Sophos Limited. All rights reserved.
+// Copyright 2022-2023 Sophos Limited. All rights reserved.
+
+#define AUTO_FD_IMPLICIT_INT
 
 #include "MockISafeStoreWrapper.h"
 #include "SafeStoreMemoryAppenderUsingTests.h"
@@ -956,13 +958,12 @@ TEST_F(QuarantineManagerTests, extractQuarantinedFiles)
     std::shared_ptr<IQuarantineManager> quarantineManager =
         std::make_shared<QuarantineManagerImpl>(std::move(m_mockSafeStoreWrapper), std::move(m_mockSysCallWrapper));
 
-    datatypes::AutoFd fd(100);
     std::vector<ObjectHandleHolder> searchResults;
     ObjectHandleHolder holder = safestore::SafeStoreWrapper::ObjectHandleHolder(mockGetIdMethods, mockReleaseMethods);
     searchResults.emplace_back(std::move(holder));
     auto actualFiles = quarantineManager->extractQuarantinedFiles(std::move(searchResults));
     EXPECT_EQ(1, actualFiles.size());
-    EXPECT_EQ(fd, actualFiles[0].first);
+    EXPECT_EQ(100, actualFiles[0].first);
 }
 
 TEST_F(QuarantineManagerTests, extractQuarantinedFilesHandlesFailedToRemoveFileFollowedByAFailToRemoveUnpackDir)
@@ -1004,7 +1005,6 @@ TEST_F(QuarantineManagerTests, extractQuarantinedFilesHandlesFailedToRemoveFileF
     std::shared_ptr<IQuarantineManager> quarantineManager =
         std::make_shared<QuarantineManagerImpl>(std::move(m_mockSafeStoreWrapper), std::move(m_mockSysCallWrapper));
 
-    datatypes::AutoFd fd(100);
     std::vector<ObjectHandleHolder> searchResults;
     ObjectHandleHolder holder = safestore::SafeStoreWrapper::ObjectHandleHolder(mockGetIdMethods, mockReleaseMethods);
     searchResults.emplace_back(std::move(holder));
@@ -1012,7 +1012,7 @@ TEST_F(QuarantineManagerTests, extractQuarantinedFilesHandlesFailedToRemoveFileF
     EXPECT_TRUE(appenderContains("Failed to clean up threat with error: exception"));
     EXPECT_TRUE(appenderContains("Failed to clean up staging location for rescan with error:"));
     EXPECT_EQ(1, actualFiles.size());
-    EXPECT_EQ(fd, actualFiles[0].first);
+    EXPECT_EQ(100, actualFiles[0].first);
 }
 
 TEST_F(QuarantineManagerTests, extractQuarantinedFilesHandlesAFailToRemoveUnpackDir)
@@ -1053,15 +1053,13 @@ TEST_F(QuarantineManagerTests, extractQuarantinedFilesHandlesAFailToRemoveUnpack
     std::shared_ptr<IQuarantineManager> quarantineManager =
         std::make_shared<QuarantineManagerImpl>(std::move(m_mockSafeStoreWrapper), std::move(m_mockSysCallWrapper));
 
-    datatypes::AutoFd fd(100);
-
     std::vector<ObjectHandleHolder> searchResults;
     ObjectHandleHolder holder = safestore::SafeStoreWrapper::ObjectHandleHolder(mockGetIdMethods, mockReleaseMethods);
     searchResults.emplace_back(std::move(holder));
     auto actualFiles = quarantineManager->extractQuarantinedFiles(std::move(searchResults));
     EXPECT_TRUE(appenderContains("Failed to clean up staging location for rescan with error:"));
     EXPECT_EQ(1, actualFiles.size());
-    EXPECT_EQ(fd, actualFiles[0].first);
+    EXPECT_EQ(100, actualFiles[0].first);
 }
 TEST_F(QuarantineManagerTests, extractQuarantinedFilesAbortsWhenThereIsMoreThanOneFileInUnpackDir)
 {
@@ -1227,10 +1225,6 @@ TEST_F(QuarantineManagerTests, extractQuarantinedFilesWithMultipleThreatsInDatab
     std::shared_ptr<IQuarantineManager> quarantineManager =
         std::make_shared<QuarantineManagerImpl>(std::move(m_mockSafeStoreWrapper), std::move(m_mockSysCallWrapper));
 
-    datatypes::AutoFd fd1(100);
-    datatypes::AutoFd fd2(200);
-    datatypes::AutoFd fd3(300);
-
     std::vector<ObjectHandleHolder> searchResults;
     ObjectHandleHolder holder1 = safestore::SafeStoreWrapper::ObjectHandleHolder(mockGetIdMethods, mockReleaseMethods);
     ObjectHandleHolder holder2 = safestore::SafeStoreWrapper::ObjectHandleHolder(mockGetIdMethods, mockReleaseMethods);
@@ -1241,9 +1235,9 @@ TEST_F(QuarantineManagerTests, extractQuarantinedFilesWithMultipleThreatsInDatab
 
     auto actualFiles = quarantineManager->extractQuarantinedFiles(std::move(searchResults));
     EXPECT_EQ(3, actualFiles.size());
-    EXPECT_EQ(fd1, actualFiles[0].first);
-    EXPECT_EQ(fd2, actualFiles[1].first);
-    EXPECT_EQ(fd3, actualFiles[2].first);
+    EXPECT_EQ(100, actualFiles[0].first);
+    EXPECT_EQ(200, actualFiles[1].first);
+    EXPECT_EQ(300, actualFiles[2].first);
 }
 
 TEST_F(QuarantineManagerTests, extractQuarantinedFilesWhenDatabaseEmpty)
@@ -1602,7 +1596,8 @@ TEST_F(QuarantineManagerTests, QuarantineFailsIfFileRenamedToHaveDeletedAtEnd)
         .WillOnce(Return(InitReturnCode::OK));
 
     EXPECT_CALL(*filesystemMock, readlink).Times(1).WillOnce(Return(m_path + " (deleted)"));
-    EXPECT_CALL(*filesystemMock, getFileInfoDescriptorFromDirectoryFD(_, m_file + " (deleted)")).WillOnce(Return(100));
+    EXPECT_CALL(*filesystemMock, getFileInfoDescriptorFromDirectoryFD(_, m_file + " (deleted)")).WillOnce(Return(101));
+    EXPECT_CALL(*filesystemMock, compareFileDescriptors(101, 100)).WillOnce(Return(true));
 
     std::shared_ptr<IQuarantineManager> quarantineManager =
         std::make_shared<QuarantineManagerImpl>(std::move(m_mockSafeStoreWrapper), std::move(m_mockSysCallWrapper));

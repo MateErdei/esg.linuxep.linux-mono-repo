@@ -276,7 +276,7 @@ namespace safestore::QuarantineManager
         {
             datatypes::AutoFd fdFromDir(
                 fs->getFileInfoDescriptorFromDirectoryFD(directoryFd.get(), filename + " (deleted)"));
-            if (fdFromDir.valid() && fdFromDir == autoFd)
+            if (fdFromDir.valid() && fs->compareFileDescriptors(fdFromDir.get(), autoFd.get()))
             {
                 LOGERROR("Cannot quarantine " << escapedPath << " as it was moved");
                 return common::CentralEnums::QuarantineResult::NOT_FOUND;

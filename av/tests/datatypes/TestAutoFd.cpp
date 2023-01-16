@@ -37,16 +37,3 @@ TEST(TestAutoFd, assignmentOperator)
     EXPECT_EQ(fd.release(), -2);
     EXPECT_EQ(fd2.release(), -3);
 }
-
-TEST(TestAutoFd, equalityOperator)
-{
-    AutoFd fd(-2);
-    AutoFd fd2(-3);
-
-    EXPECT_TRUE(fd == fd);
-
-    EXPECT_FALSE(fd == fd2);
-
-    fd2.reset(-2);
-    EXPECT_TRUE(fd == fd2);
-}

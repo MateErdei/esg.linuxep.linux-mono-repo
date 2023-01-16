@@ -12,8 +12,6 @@ namespace datatypes
         AutoFd& operator=(const AutoFd&) = delete;
         AutoFd(AutoFd&&) noexcept;
         AutoFd& operator=(AutoFd&&) noexcept;
-        bool operator==(const AutoFd& other) const;
-
         ~AutoFd();
 
 #ifdef AUTO_FD_IMPLICIT_INT
@@ -33,6 +31,9 @@ namespace datatypes
 #ifdef AUTO_FD_IMPLICIT_BOOL
         [[nodiscard]] operator bool() const { return valid(); }
 #endif /* AUTO_FD_IMPLICIT_BOOL */
+
+        // operator== deleted, as no two AutoFd objects should ever reference the same fd
+        bool operator==(const AutoFd& other) = delete;
 
         void reset(int fd=invalid_fd);
         void close();
