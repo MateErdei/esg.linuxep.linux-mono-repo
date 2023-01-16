@@ -39,7 +39,7 @@ namespace
         {
         }
 
-        void sendRescanRequest() override
+        void sendRescanRequest(std::unique_lock<std::mutex>&) override
         {
             m_rescanSent = true;
         }

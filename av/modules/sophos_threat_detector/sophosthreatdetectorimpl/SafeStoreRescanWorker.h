@@ -31,29 +31,13 @@ public:
     void run() override;
     void triggerRescan() override;
 
-    virtual void sendRescanRequest() override;
+    virtual void sendRescanRequest(std::unique_lock<std::mutex>& lock) override;
 
 protected:
     std::mutex m_rescanLock;
-    std::mutex m_sleeperLock;
 
 private:
     static uint parseRescanIntervalConfig();
-
-    class rescanStoppableSleeper : public common::StoppableSleeper
-    {
-    public:
-        explicit rescanStoppableSleeper(SafeStoreRescanWorker& parent);
-
-    private:
-        /**
-         *
-         * @param sleepTime
-         * @return True if the sleep was stopped
-         */
-        bool stoppableSleep(duration_t sleepTime) override;
-        SafeStoreRescanWorker& m_parent;
-    };
 
     std::condition_variable m_rescanWakeUp;
     fs::path m_safeStoreRescanSocket;

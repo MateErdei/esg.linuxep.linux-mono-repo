@@ -15,7 +15,7 @@ namespace
             MockSafeStoreRescanWorker() {}
 
             MOCK_METHOD(void, triggerRescan, (),(override));
-            MOCK_METHOD(void, sendRescanRequest, (), (override));
+            MOCK_METHOD(void, sendRescanRequest, (std::unique_lock<std::mutex>& lock), (override));
 
             void tryStop() override
             {

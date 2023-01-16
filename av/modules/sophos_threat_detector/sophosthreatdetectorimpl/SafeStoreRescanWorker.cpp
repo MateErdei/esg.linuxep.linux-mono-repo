@@ -12,6 +12,30 @@
 #include "Common/FileSystem/IFileSystemException.h"
 #include "Common/UtilityImpl/StringUtils.h"
 
+
+namespace {
+
+    class rescanStoppableSleeper : public common::StoppableSleeper
+    {
+    public:
+        explicit rescanStoppableSleeper(std::unique_lock<std::mutex>& lock, bool& stopRequested, std::condition_variable& rescanWakeup)
+        : m_lock(lock),
+        m_stopRequested(stopRequested),
+        m_rescanWakeup(rescanWakeup)
+        { }
+
+        bool stoppableSleep(common::StoppableSleeper::duration_t sleepTime) override
+        {
+            return m_rescanWakeup.wait_for(m_lock, sleepTime, [this]() { return m_stopRequested; });
+        }
+
+    private:
+        std::unique_lock<std::mutex>& m_lock;
+        bool& m_stopRequested;
+        std::condition_variable& m_rescanWakeup;
+    };
+}
+
 SafeStoreRescanWorker::SafeStoreRescanWorker(const fs::path& safeStoreRescanSocket) :
     m_safeStoreRescanSocket(safeStoreRescanSocket), m_rescanInterval(parseRescanIntervalConfig())
 {
@@ -52,7 +76,7 @@ void SafeStoreRescanWorker::run()
         }
 
         // else if ( m_manualRescan || wait_for(timeout))
-        sendRescanRequest();
+        sendRescanRequest(lock);
         m_manualRescan = false;
     }
     LOGDEBUG("Exiting SafeStoreRescanWorker");
@@ -67,9 +91,9 @@ void SafeStoreRescanWorker::triggerRescan()
     m_rescanWakeUp.notify_one();
 }
 
-void SafeStoreRescanWorker::sendRescanRequest()
+void SafeStoreRescanWorker::sendRescanRequest(std::unique_lock<std::mutex>& lock)
 {
-    auto sleeper = std::make_shared<rescanStoppableSleeper>(*this);
+    auto sleeper = std::make_shared<rescanStoppableSleeper>(lock, m_stopRequested, m_rescanWakeUp);
     unixsocket::SafeStoreRescanClient safeStoreRescanClient(
         m_safeStoreRescanSocket, std::chrono::seconds { 1 }, sleeper);
     safeStoreRescanClient.sendRescanRequest();
@@ -110,12 +134,5 @@ uint SafeStoreRescanWorker::parseRescanIntervalConfig()
     return 14400;
 }
 
-SafeStoreRescanWorker::rescanStoppableSleeper::rescanStoppableSleeper(SafeStoreRescanWorker& parent) : m_parent(parent)
-{
-}
 
-bool SafeStoreRescanWorker::rescanStoppableSleeper::stoppableSleep(common::StoppableSleeper::duration_t sleepTime)
-{
-    std::unique_lock<std::mutex> lck(m_parent.m_sleeperLock);
-    return m_parent.m_rescanWakeUp.wait_for(lck, sleepTime, [this]() { return m_parent.m_stopRequested; });
-}
+

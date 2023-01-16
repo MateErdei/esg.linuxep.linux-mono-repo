@@ -14,7 +14,7 @@ namespace sspl::sophosthreatdetectorimpl
         virtual ~ISafeStoreRescanWorker() = default;
 
         virtual void triggerRescan() = 0;
-        virtual void sendRescanRequest() = 0;
+        virtual void sendRescanRequest(std::unique_lock<std::mutex>& lock) = 0;
     };
 
     using ISafeStoreRescanWorkerPtr = std::shared_ptr<ISafeStoreRescanWorker>;
