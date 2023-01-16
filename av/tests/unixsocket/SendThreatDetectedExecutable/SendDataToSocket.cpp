@@ -1,14 +1,16 @@
 // Copyright 2023 Sophos Limited.  All rights reserved.
 
+#include "scan_messages/ClientScanRequest.h"
 #include "scan_messages/ThreatDetected.h"
 #include "unixsocket/TestClient.h"
 
 #include <Common/Logging/ConsoleLoggingSetup.h>
 
-#include <unistd.h>
-#include <iostream>
 #include <fcntl.h>
 #include <getopt.h>
+#include <unistd.h>
+
+#include <iostream>
 
 //  SendDataToSocket -p /opt/sophos-spl/plugins/av/var/safestore_socket -d data
 
@@ -30,11 +32,12 @@ int main(int argc, char* argv[])
     Common::Logging::ConsoleLoggingSetup();
     std::string socketPath = "event.sock";
     std::string data;
-    const char* const short_opts = "p:d:";
+    bool sendClientScan = false;
+    const char* const short_opts = "p:d:c";
     const option long_opts[] = {
         {"socketpath", required_argument, nullptr, 'p'},
         {"data", required_argument, nullptr, 'd'},
-
+        {"sendclientscan", no_argument, nullptr, 'c'},
         {nullptr, no_argument, nullptr, 0}
     };
     int opt = 0;
@@ -50,6 +53,9 @@ int main(int argc, char* argv[])
             case 'd':
                 data = optarg;
                 break;
+            case 'c':
+                sendClientScan = true;
+                break;
             default:
                 printUsageAndExit(argv[0]);
         }
@@ -62,7 +68,15 @@ int main(int argc, char* argv[])
     else
     {
         TestClient client(socketPath);
-        client.sendRequest(data);
+        if (sendClientScan)
+        {
+            scan_messages::ClientScanRequest request;
+            client.sendRequest(request.serialise());
+        }
+        else
+        {
+            client.sendRequest(data);
+        }
     }
 
 
