@@ -14,6 +14,8 @@ Resource    ../shared/FakeManagementResources.robot
 
 Resource    ../shared/OnAccessResources.robot
 
+Library         ../Libs/FileSampleObfuscator.py
+
 Suite Setup     On Access Suite Setup
 Suite Teardown  On Access Suite Teardown
 
@@ -193,6 +195,20 @@ On Access Scans A File When It Is Closed Following A Write
 
 On Access Scans A File When It Is Opened
     On-access Scan Eicar Open
+
+
+On-Access Scans A File On Execute
+    ${mark} =  get_on_access_log_mark
+    Disable OA Scanning
+
+    DeObfuscate File  ${RESOURCES_PATH}/file_samples_obfuscated/linux_elf_threat_obf  ${NORMAL_DIRECTORY}/linux_elf_threat.exe
+    Run Process  chmod  770  ${NORMAL_DIRECTORY}/linux_elf_threat.exe
+
+    Enable OA Scanning
+
+    Run Shell Process   ${NORMAL_DIRECTORY}/linux_elf_threat.exe 10     OnError=Failed to run exec-threat
+
+    wait_for_on_access_log_contains_after_mark  linux_elf_threat.exe" is infected with Linux/Test-D (Open)  mark=${mark}
 
 
 On Access Scans File Created By non-root User
