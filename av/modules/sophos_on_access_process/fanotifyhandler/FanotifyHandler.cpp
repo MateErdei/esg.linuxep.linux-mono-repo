@@ -67,7 +67,7 @@ int FanotifyHandler::markMount(const std::string& path) const
     int fanotify_fd = fanotify_autofd->fd();
     if (fanotify_fd < 0)
     {
-        LOGWARN("Skipping markMount for " << path << " as fanotify disabled");
+        LOGDEBUG("Skipping markMount for " << path << " as fanotify disabled");
         return 0;
     }
 
@@ -86,7 +86,7 @@ int FanotifyHandler::unmarkMount(const std::string& path) const
     int fanotify_fd = fanotify_autofd->fd();
     if (fanotify_fd < 0)
     {
-        LOGWARN("Skipping unmarkMount for " << path << " as fanotify disabled");
+        LOGDEBUG("Skipping unmarkMount for " << path << " as fanotify disabled");
         return 0;
     }
 
