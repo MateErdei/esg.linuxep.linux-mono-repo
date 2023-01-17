@@ -132,8 +132,8 @@ AV plugin runs CLS while scan now is running
     Wait For AV Log Contains After Mark  Sending scan complete  ${av_mark}
 
 AV plugin runs scan now twice consecutively
-    ${av_mark} =  Get AV Log Mark
     Configure and run scan now
+    ${av_mark} =  Get AV Log Mark
     Run Scan Now After Mark  ${av_mark}
 
 AV plugin attempts to run scan now twice simultaneously
