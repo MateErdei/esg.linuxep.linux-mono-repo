@@ -50,16 +50,22 @@ bool BaseClient::connectWithRetries(const std::string& socketName, int max_retri
 {
     int count = 0;
     m_connectStatus = attemptConnect();
+    bool connectRetryLogged = false;
 
     while (m_connectStatus != 0)
     {
         if (++count >= max_retries)
         {
-            LOGDEBUG("Reached total maximum number of connection attempts.");
+            LOGDEBUG("Reached the maximum number of attempts connecting to " << socketName);
             return false;
         }
 
-        LOGDEBUG("Failed to connect to " << socketName << " - retrying after sleep");
+        if (!connectRetryLogged)
+        {
+            LOGDEBUG("Failed to connect to " << socketName << " - retrying upto " << max_retries << " times with a sleep of "
+                                             << std::chrono::duration_cast<std::chrono::seconds>(m_sleepTime).count() << "s");
+            connectRetryLogged = true;
+        }
         if (m_sleeper->stoppableSleep(m_sleepTime))
         {
             LOGINFO("Stop requested while connecting to "<< socketName);
