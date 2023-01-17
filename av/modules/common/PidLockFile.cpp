@@ -131,7 +131,7 @@ namespace
         int error = errno;
         if (error == EWOULDBLOCK)
         {
-            LOGDEBUG("Unable to acquire lock on " << pidfile << " as it is already locked");
+            LOGTRACE("Process is running as unable to acquire lock on " << pidfile << " as it is already locked");
             return fd;
         }
         else

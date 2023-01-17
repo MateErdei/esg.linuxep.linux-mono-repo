@@ -23,6 +23,7 @@
 
 log4cplus::Logger& getCommonLogger();
 
+#define LOGTRACE(x) LOG4CPLUS_TRACE(getCommonLogger(), x)  // NOLINT
 #define LOGDEBUG(x) LOG4CPLUS_DEBUG(getCommonLogger(), x)  // NOLINT
 #define LOGINFO(x) LOG4CPLUS_INFO(getCommonLogger(), x)    // NOLINT
 #define LOGSUPPORT(x) LOG4CPLUS_SUPPORT(getCommonLogger(), x) // NOLINT
