@@ -29,7 +29,7 @@ namespace unixsocket
 
     protected:
         int attemptConnect();
-        void connectWithRetries();
+
         virtual void connectWithRetries(const std::string& socketName);
         virtual bool connectWithRetries(const std::string& socketName, int max_retries);
 

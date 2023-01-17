@@ -13,7 +13,7 @@
 unixsocket::ProcessControllerClientSocket::ProcessControllerClientSocket(std::string socket_path, const duration_t& sleepTime)
         : BaseClient(std::move(socket_path), sleepTime)
 {
-    connectWithRetries();
+    connectWithRetries("Process Controller");
 }
 
 unixsocket::ProcessControllerClientSocket::ProcessControllerClientSocket(
@@ -33,7 +33,7 @@ void unixsocket::ProcessControllerClientSocket::sendProcessControlRequest(const 
 {
     if (m_connectStatus == -1)
     {
-        LOGWARN("Invalid connection status: message was not sent");
+        LOGWARN("Process Control has invalid connection status: message was not sent");
         return;
     }
 
@@ -45,7 +45,7 @@ void unixsocket::ProcessControllerClientSocket::sendProcessControlRequest(const 
         if (! writeLengthAndBuffer(m_socket_fd, dataAsString))
         {
             std::stringstream errMsg;
-            errMsg << "Failed to write Process Control Client to socket [" << errno << "]";
+            errMsg << "Failed to write Process Control Request to socket [" << errno << "]";
             throw std::runtime_error(errMsg.str());
         }
     }

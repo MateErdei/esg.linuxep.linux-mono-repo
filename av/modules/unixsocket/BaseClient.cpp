@@ -41,11 +41,6 @@ int unixsocket::BaseClient::attemptConnect()
     return ::connect(m_socket_fd.get(), reinterpret_cast<struct sockaddr*>(&addr), SUN_LEN(&addr));
 }
 
-void unixsocket::BaseClient::connectWithRetries()
-{
-    connectWithRetries(m_socketPath);
-}
-
 void unixsocket::BaseClient::connectWithRetries(const std::string& socketName)
 {
     std::ignore = connectWithRetries(socketName, DEFAULT_MAX_RETRIES);
