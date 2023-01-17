@@ -679,7 +679,6 @@ namespace safestore::QuarantineManager
 
     void QuarantineManagerImpl::rescanDatabase()
     {
-        LOGINFO("SafeStore Database Rescan request received.");
         SafeStoreWrapper::SafeStoreFilter filter; // we want to rescan everything in database
         std::vector<SafeStoreWrapper::ObjectHandleHolder> threatObjects = m_safeStore->find(filter);
         if (threatObjects.empty())
@@ -687,7 +686,7 @@ namespace safestore::QuarantineManager
             LOGDEBUG("No threats to rescan");
             return;
         }
-        LOGINFO("Number of quarantined files to Rescan: " << threatObjects.size());
+        LOGINFO("SafeStore Database Rescan request received. Number of quarantined files to Rescan: " << threatObjects.size());
 
         // Batch size is currently 1 but this can be increased, if needed, in the future.
         constexpr int batchSize = 1;
