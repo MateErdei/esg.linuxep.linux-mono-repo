@@ -45,9 +45,8 @@ TEST_F(TestFanotifyHandler, testInit)
     handler.init();
     EXPECT_EQ(handler.getFd(), fanotifyFd);
 
-    EXPECT_TRUE(appenderContains("Fanotify successfully initialised"));
     std::stringstream logMsg;
-    logMsg << "Fanotify FD set to " << fanotifyFd;
+    logMsg << "Fanotify successfully initialised: Fanotify FD=" << fanotifyFd;
     EXPECT_TRUE(appenderContains(logMsg.str()));
     EXPECT_FALSE(appenderContains("Unable to initialise fanotify:"));
 }

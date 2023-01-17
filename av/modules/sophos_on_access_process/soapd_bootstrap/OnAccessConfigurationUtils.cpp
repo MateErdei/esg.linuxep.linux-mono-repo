@@ -214,19 +214,19 @@ namespace sophos_on_access_process::OnAccessConfig
         }
         catch (const json::parse_error& e)
         {
-            LOGDEBUG("Failed to parse json configuration of flags due to parse error, reason: " << e.what());
+            LOGWARN("Failed to parse json configuration of flags due to parse error, reason: " << e.what());
         }
         catch (const json::out_of_range & e)
         {
-            LOGDEBUG("Failed to parse json configuration of flags due to out of range error, reason: " << e.what());
+            LOGWARN("Failed to parse json configuration of flags due to out of range error, reason: " << e.what());
         }
         catch (const json::type_error & e)
         {
-            LOGDEBUG("Failed to parse json configuration of flags due to type error, reason: " << e.what());
+            LOGWARN("Failed to parse json configuration of flags due to type error, reason: " << e.what());
         }
         catch (const json::other_error & e)
         {
-            LOGDEBUG("Failed to parse json configuration of flags, reason: " << e.what());
+            LOGWARN("Failed to parse json configuration of flags, reason: " << e.what());
         }
 
         LOGWARN("Failed to parse flag configuration, keeping existing settings");
@@ -243,19 +243,19 @@ namespace sophos_on_access_process::OnAccessConfig
 
             OnAccessConfiguration configuration{};
             configuration.enabled = toBoolean(parsedConfig, "enabled", false);
-            LOGINFO("On-access enabled: " << (configuration.enabled ? "true" : "false")  << "");
+            LOGDEBUG("On-access enabled: " << (configuration.enabled ? "true" : "false")  << "");
 
 
             configuration.excludeRemoteFiles = toBoolean(parsedConfig, "excludeRemoteFiles", false);
             std::string scanNetwork = configuration.excludeRemoteFiles ? "false" : "true";
-            LOGINFO("On-access scan network: " << scanNetwork);
+            LOGDEBUG("On-access scan network: " << scanNetwork);
             if (parsedConfig.contains("exclusions"))
             {
                 for (const auto& exclusion : parsedConfig["exclusions"])
                 {
                     configuration.exclusions.emplace_back(exclusion);
                 }
-                LOGINFO("On-access exclusions: " << parsedConfig["exclusions"]);
+                LOGDEBUG("On-access exclusions: " << parsedConfig["exclusions"]);
             }
 
             oaConfig = std::move(configuration);
@@ -263,23 +263,23 @@ namespace sophos_on_access_process::OnAccessConfig
         }
         catch (const json::parse_error& e)
         {
-            LOGDEBUG("Failed to parse json configuration due to parse error, reason: " << e.what());
+            LOGWARN("Failed to parse json configuration due to parse error, reason: " << e.what());
         }
         catch (const json::out_of_range & e)
         {
-            LOGDEBUG("Failed to parse json configuration due to out of range error, reason: " << e.what());
+            LOGWARN("Failed to parse json configuration due to out of range error, reason: " << e.what());
         }
         catch (const json::type_error & e)
         {
-            LOGDEBUG("Failed to parse json configuration due to type error, reason: " << e.what());
+            LOGWARN("Failed to parse json configuration due to type error, reason: " << e.what());
         }
         catch (const json::other_error & e)
         {
-            LOGDEBUG("Failed to parse json configuration, reason: " << e.what());
+            LOGWARN("Failed to parse json configuration, reason: " << e.what());
         }
         catch (const std::exception& e)
         {
-            LOGDEBUG("Failed to parse json configuration due to generic exception, reason:" << e.what());
+            LOGWARN("Failed to parse json configuration due to generic exception, reason:" << e.what());
         }
 
         LOGWARN("Failed to parse json configuration, keeping existing settings");

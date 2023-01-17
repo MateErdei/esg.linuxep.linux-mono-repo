@@ -14,7 +14,7 @@ namespace sophos_on_access_process::OnAccessConfig
                 LOGINFO("Dismissing request to shutdown on-access");
                 break;
             case scan_messages::E_RELOAD:
-                LOGINFO("Sophos On Access Process received configuration reload request");
+                LOGDEBUG("Sophos On Access Process received configuration reload request");
                 ProcessPolicy();
                 break;
             default:

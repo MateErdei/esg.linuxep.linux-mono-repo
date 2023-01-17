@@ -96,7 +96,7 @@ void SoapdBootstrap::innerRun()
 {
     // Take soapd lock file
     fs::path lockfile = common::getPluginInstallPath() / "var/soapd.pid";
-    common::PidLockFile lock(lockfile);
+    common::PidLockFile lock(lockfile, true);
 
     auto sigIntMonitor{common::signals::SigIntMonitor::getSigIntMonitor(true)};
     auto sigTermMonitor{common::signals::SigTermMonitor::getSigTermMonitor(true)};
@@ -273,7 +273,7 @@ bool SoapdBootstrap::checkIfOAShouldBeEnabled(bool OnAccessEnabledFlag, bool OnA
     }
     else
     {
-        LOGINFO("No policy override, following policy settings");
+        LOGDEBUG("No policy override, following policy settings");
         return OnAccessEnabledPolicySetting;
     }
 }
@@ -286,7 +286,10 @@ void SoapdBootstrap::disableOnAccess()
         return;
     }
 
-    LOGINFO("Disabling on-access scanning");
+    LOGDEBUG("Disabling on-access scanning");
+
+    m_statusFile.disabled();
+
     /*
      * EventReader and scanHandler threads are not thread-safe with
      * fanotify handler being closed.
@@ -335,7 +338,7 @@ void SoapdBootstrap::enableOnAccess()
         return;
     }
 
-    LOGINFO("Enabling on-access scanning");
+    LOGDEBUG("Enabling on-access scanning");
 
     m_fanotifyHandler->init();
 
@@ -373,6 +376,7 @@ void SoapdBootstrap::enableOnAccess()
             -20, m_sysCallWrapper); // Set TD to high priority
     }
 
+    m_statusFile.enabled();
     LOGINFO("On-access scanning enabled");
     m_currentOaEnabledState.store(true);
 }

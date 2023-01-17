@@ -34,11 +34,9 @@ void FanotifyHandler::init()
         errMsg << "Unable to initialise fanotify: " << common::safer_strerror(errno);
         throw std::runtime_error(errMsg.str());
     }
-    LOGINFO("Fanotify successfully initialised");
-
     auto fanotify_autofd = m_fd.lock();
     fanotify_autofd->reset(fanotifyFd);
-    LOGDEBUG("Fanotify FD set to " << fanotify_autofd->fd());
+    LOGDEBUG("Fanotify successfully initialised: Fanotify FD=" << fanotify_autofd->fd());
 }
 
 void FanotifyHandler::close()
