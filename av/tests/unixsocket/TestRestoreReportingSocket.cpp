@@ -204,8 +204,8 @@ TEST_F(TestRestoreReportSocket, TestClientTimesOut)
     UsingMemoryAppender memoryAppenderHolder(*this);
     RestoreReportingClient client{ nullptr };
 
-    EXPECT_TRUE(appenderContains("Failed to connect to Restore Reporting Server - retrying after sleep"));
-    EXPECT_TRUE(appenderContains("Reached total maximum number of connection attempts."));
+    EXPECT_TRUE(appenderContains("Failed to connect to Restore Reporting Server - retrying upto 10 times with a sleep of 1s"));
+    EXPECT_TRUE(appenderContains("Reached the maximum number of attempts connecting to Restore Reporting Server"));
 }
 
 TEST_F(TestRestoreReportSocket, TestClientTimeOutInterrupted)
@@ -218,13 +218,13 @@ TEST_F(TestRestoreReportSocket, TestClientTimeOutInterrupted)
 
     std::thread t1([&notifyPipeSleeper]() { RestoreReportingClient client{ std::move(notifyPipeSleeper) }; });
 
-    EXPECT_TRUE(waitForLog("Failed to connect to Restore Reporting Server - retrying after sleep", 2s));
+    EXPECT_TRUE(waitForLog("Failed to connect to Restore Reporting Server - retrying upto 10 times with a sleep of 1s", 2s));
     notifyPipe.notify();
 
     t1.join();
 
     EXPECT_TRUE(appenderContains("Stop requested while connecting to Restore Reporting Server"));
-    EXPECT_FALSE(appenderContains("Reached total maximum number of connection attempts."));
+    EXPECT_FALSE(appenderContains("Reached the maximum number of attempts connecting to Restore Reporting Server"));
 }
 
 TEST_F(TestRestoreReportSocket, TestClientsDontBlockAndAllConnectionsGetResolvedInOrder)

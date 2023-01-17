@@ -115,8 +115,8 @@ TEST_F(TestThreatReporterSocket, testClientSocketTriesToReconnect) // NOLINT
         unixsocket::ThreatReporterClientSocket threatReporterSocket(m_socketPath, std::chrono::seconds{ 0 });
     }
 
-    EXPECT_TRUE(appenderContains("Failed to connect to Threat reporter - retrying after sleep", 9));
-    EXPECT_TRUE(appenderContains("Reached total maximum number of connection attempts."));
+    EXPECT_TRUE(appenderContains("Failed to connect to Threat reporter - retrying upto 10 times with a sleep of 0s", 1));
+    EXPECT_TRUE(appenderContains("Reached the maximum number of attempts connecting to Threat reporter"));
 }
 
 TEST_F(TestThreatReporterSocket, TestSendThreatReportWithInvalidData)
