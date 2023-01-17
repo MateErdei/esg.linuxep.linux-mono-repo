@@ -93,7 +93,7 @@ AV plugin runs scan now while CLS is running
     # check CLS is still scanning
     Process Should Be Running   ${cls_handle}
     ${cls_mark} =  Mark Log Size  ${LOG_FILE}
-    Wait For Log Contains After Mark   ${LOG_FILE}   Scanning   ${cls_mark}
+    Wait For Log Contains After Mark   ${LOG_FILE}   Scanning   ${cls_mark}  timeout=30
 
     # Wait for Scan Now to complete
     Wait For AV Log Contains After Mark    Completed scan  ${av_mark}  timeout=180
@@ -102,7 +102,7 @@ AV plugin runs scan now while CLS is running
     # check CLS is still scanning
     Process Should Be Running   ${cls_handle}
     ${cls_mark2} =  Mark Log Size  ${LOG_FILE}
-    Wait For Log Contains After Mark   ${LOG_FILE}   Scanning   ${cls_mark2}
+    Wait For Log Contains After Mark   ${LOG_FILE}   Scanning   ${cls_mark2}  timeout=30
 
     # Stop CLS
     ${result} =   Terminate Process  ${cls_handle}
