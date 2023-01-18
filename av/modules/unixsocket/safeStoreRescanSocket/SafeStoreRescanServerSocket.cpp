@@ -9,9 +9,8 @@ using namespace unixsocket;
 SafeStoreRescanServerSocket::SafeStoreRescanServerSocket(
     const std::string& path,
     std::shared_ptr<safestore::QuarantineManager::IQuarantineManager> quarantineManager) :
-    rescanSafeStoreServerSocketBase(path, 0600), m_quarantineManager(std::move(quarantineManager))
+    rescanSafeStoreServerSocketBase(path, "Rescan SafeStore Server", 0600), m_quarantineManager(std::move(quarantineManager))
 {
-    m_socketName = "Rescan SafeStore Server";
 }
 
 SafeStoreRescanServerSocket::~SafeStoreRescanServerSocket()

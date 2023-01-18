@@ -20,7 +20,7 @@ unixsocket::SafeStoreRescanClient::SafeStoreRescanClient(
 
 void unixsocket::SafeStoreRescanClient::sendRescanRequest()
 {
-    LOGDEBUG("Sending rescan request to SafeStore");
+    LOGDEBUG(m_name + " sending rescan request to SafeStore");
     assert(m_socket_fd.valid());
     std::string dataAsString = "1";
 
@@ -29,12 +29,12 @@ void unixsocket::SafeStoreRescanClient::sendRescanRequest()
         if (!writeLengthAndBuffer(m_socket_fd, dataAsString))
         {
             std::stringstream errMsg;
-            errMsg << "Failed to write rescan request to socket [" << errno << "]";
+            errMsg << m_name << " failed to write rescan request to socket [" << errno << "]";
             throw std::runtime_error(errMsg.str());
         }
     }
     catch (unixsocket::environmentInterruption& e)
     {
-        LOGWARN("Failed to write to SafeStore Rescan socket. Exception caught: " << e.what());
+        LOGWARN(m_name + " failed to write to socket. Exception caught: " << e.what());
     }
 }
