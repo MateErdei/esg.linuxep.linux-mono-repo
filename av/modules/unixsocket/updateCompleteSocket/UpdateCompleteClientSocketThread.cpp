@@ -15,7 +15,7 @@ unixsocket::updateCompleteSocket::UpdateCompleteClientSocketThread::UpdateComple
     threat_scanner::IUpdateCompleteCallbackPtr callback,
     struct timespec reconnectInterval)
     :
-    BaseClient(std::move(socket_path)),
+    BaseClient(std::move(socket_path), "Update Complete Client"),
     m_callback(std::move(callback)),
     m_reconnectInterval(reconnectInterval)
 {
@@ -64,7 +64,7 @@ void unixsocket::updateCompleteSocket::UpdateCompleteClientSocketThread::run()
                 continue;
             }
 
-            LOGFATAL("Error from ppoll: " << common::safer_strerror(errno));
+            LOGFATAL(m_name << " error from ppoll: " << common::safer_strerror(errno));
             return;
         }
 

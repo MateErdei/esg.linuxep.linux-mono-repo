@@ -9,15 +9,14 @@ using namespace unixsocket::updateCompleteSocket;
 UpdateCompleteServerSocket::UpdateCompleteServerSocket(
     const sophos_filesystem::path& path,
     mode_t mode) :
-    BaseServerSocket(path, mode)
+    BaseServerSocket(path, "Update Complete Server", mode)
 {
-    m_socketName = "Update Complete Server";
 }
 
 bool UpdateCompleteServerSocket::handleConnection(datatypes::AutoFd& fd)
 {
     std::scoped_lock lock(m_connectionsLock);
-    LOGINFO("New connection on "<<fd.get() << " to be notified about SUSI updates");
+    LOGINFO(m_socketName << " got a new connection on " << fd.get() << " to be notified about SUSI updates");
     m_connections.push_back(std::move(fd));
     return false;
 }
@@ -29,13 +28,13 @@ void UpdateCompleteServerSocket::publishUpdateComplete()
         // try to send to connection
         if (trySendUpdateComplete(*it))
         {
-            LOGINFO("Send SUSI updated to " << (*it).get());
+            LOGINFO(m_socketName << " sent SUSI updated to " << (*it).get());
             ++it;
         }
         else
         {
             // Connection broken
-            LOGINFO("Connection " << (*it).get() << " has disconnected");
+            LOGINFO(m_socketName << " connection " << (*it).get() << " has disconnected");
             it = m_connections.erase(it);
         }
     }
