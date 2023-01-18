@@ -11,16 +11,67 @@
 
 #include <capnp/serialize-packed.h>
 
-namespace
+namespace unixsocket
 {
-    enum class PollStatus
+    RestoreReportingServer::RestoreReportingServer(const IRestoreReportProcessor& restoreReportProcessor) :
+        BaseServerSocket{ Plugin::getRestoreReportSocketPath(), "Restore Reporting Server", 0600 },
+        m_restoreReportProcessor{ restoreReportProcessor }
     {
-        readyToRead,
-        skip,
-        exit
-    };
+    }
 
-    PollStatus poll(int fd, int notifyPipeFd)
+    RestoreReportingServer::~RestoreReportingServer()
+    {
+        requestStop();
+        join();
+    }
+
+    bool RestoreReportingServer::handleConnection(datatypes::AutoFd& connectionFd)
+    {
+        try
+        {
+            LOGDEBUG(m_socketName << " got connection with fd " << connectionFd.get());
+
+            auto pollStatus = poll(connectionFd.get(), m_notifyPipe.readFd());
+            switch (pollStatus)
+            {
+                case PollStatus::readyToRead:
+                    break;
+                case PollStatus::skip:
+                    LOGDEBUG(m_socketName << " awaiting new connection");
+                    return false;
+                case PollStatus::exit:
+                    LOGDEBUG("Closing " << m_socketName);
+                    return true;
+            }
+
+            LOGDEBUG(m_socketName << " ready to receive data");
+
+            ::capnp::PackedFdMessageReader message{ connectionFd.get() };
+            auto restoreReportReader = message.getRoot<Sophos::ssplav::RestoreReport>();
+
+            LOGDEBUG(m_socketName << " received a report");
+
+            const scan_messages::RestoreReport restoreReport{ restoreReportReader };
+
+            restoreReport.validate();
+
+            auto successStr = restoreReport.wasSuccessful ? "successful" : "unsuccessful";
+            LOGDEBUG(m_socketName << ": Path: " << common::escapePathForLogging(restoreReport.path)
+                         << ", correlation ID: " << restoreReport.correlationId << ", "
+                         << successStr);
+
+            m_restoreReportProcessor.processRestoreReport(restoreReport);
+        }
+        catch (const std::exception& e)
+        {
+            LOGERROR(m_socketName << " failed to receive a report: " << e.what());
+        }
+
+        LOGDEBUG(m_socketName << " awaiting new connection");
+        return false;
+    }
+
+    RestoreReportingServer::PollStatus RestoreReportingServer::poll(int fd, int notifyPipeFd)
     {
         struct pollfd pollFds[] = {
             { .fd = fd, .events = POLLIN, .revents = 0 },
@@ -35,11 +86,11 @@ namespace
             {
                 if (errno == EINTR)
                 {
-                    LOGDEBUG("Ignoring EINTR from ppoll");
+                    LOGDEBUG(m_socketName << " ignoring EINTR from ppoll");
                     continue;
                 }
 
-                throw std::runtime_error("ppoll error: " + common::safer_strerror(errno));
+                throw std::runtime_error(m_socketName + " ppoll error: " + common::safer_strerror(errno));
             }
 
             assert(ret > 0); // 0 is not possible since ppoll can't time out
@@ -48,15 +99,15 @@ namespace
             {
                 if ((pollFds[1].revents & POLLIN) != 0)
                 {
-                    LOGDEBUG("Restore Reporting Server got notified by NotifyPipe");
+                    LOGDEBUG(m_socketName << " got notified by NotifyPipe");
                 }
                 else if ((pollFds[1].revents & POLLERR) != 0)
                 {
-                    LOGERROR("Restore Reporting Server got error on NotifyPipe fd");
+                    LOGERROR(m_socketName << " got error on NotifyPipe fd");
                 }
                 else
                 {
-                    LOGWARN("Restore Reporting Server NotifyPipe closed before notifying");
+                    LOGWARN(m_socketName << " NotifyPipe closed before notifying");
                 }
 
                 return PollStatus::exit;
@@ -64,12 +115,12 @@ namespace
 
             if ((pollFds[0].revents & (POLLHUP | POLLNVAL)) != 0)
             {
-                LOGDEBUG("Restore Reporting Server connection fd closed");
+                LOGDEBUG(m_socketName << " connection fd closed");
             }
 
             if ((pollFds[0].revents & POLLERR) != 0)
             {
-                LOGDEBUG("Restore Reporting Server got error on connection fd");
+                LOGDEBUG(m_socketName << " got error on connection fd");
                 return PollStatus::skip;
             }
             else if ((pollFds[0].revents & POLLIN) != 0)
@@ -81,68 +132,6 @@ namespace
                 return PollStatus::skip;
             }
         }
-    }
-}
-
-namespace unixsocket
-{
-    RestoreReportingServer::RestoreReportingServer(const IRestoreReportProcessor& restoreReportProcessor) :
-        BaseServerSocket{ Plugin::getRestoreReportSocketPath(), 0600 },
-        m_restoreReportProcessor{ restoreReportProcessor }
-    {
-        m_socketName = "Restore Reporting Server";
-    }
-
-    RestoreReportingServer::~RestoreReportingServer()
-    {
-        requestStop();
-        join();
-    }
-
-    bool RestoreReportingServer::handleConnection(datatypes::AutoFd& connectionFd)
-    {
-        try
-        {
-            LOGDEBUG("Restore Reporting Server got connection with fd " << connectionFd.get());
-
-            auto pollStatus = poll(connectionFd.get(), m_notifyPipe.readFd());
-            switch (pollStatus)
-            {
-                case PollStatus::readyToRead:
-                    break;
-                case PollStatus::skip:
-                    LOGDEBUG("Restore Reporting Server awaiting new connection");
-                    return false;
-                case PollStatus::exit:
-                    LOGDEBUG("Closing Restore Reporting Server");
-                    return true;
-            }
-
-            LOGDEBUG("Restore Reporting Server ready to receive data");
-
-            ::capnp::PackedFdMessageReader message{ connectionFd.get() };
-            auto restoreReportReader = message.getRoot<Sophos::ssplav::RestoreReport>();
-
-            LOGDEBUG("Restore Reporting Server received a report");
-
-            const scan_messages::RestoreReport restoreReport{ restoreReportReader };
-
-            restoreReport.validate();
-
-            LOGDEBUG(
-                "Path: " << common::escapePathForLogging(restoreReport.path)
-                         << ", correlation ID: " << restoreReport.correlationId << ", "
-                         << (restoreReport.wasSuccessful ? "successful" : "unsuccessful"));
-
-            m_restoreReportProcessor.processRestoreReport(restoreReport);
-        }
-        catch (const std::exception& e)
-        {
-            LOGERROR("Restore Reporting Server failed to receive a report: " << e.what());
-        }
-
-        LOGDEBUG("Restore Reporting Server awaiting new connection");
-        return false;
     }
 
     // We don't spawn connection threads, so do nothing

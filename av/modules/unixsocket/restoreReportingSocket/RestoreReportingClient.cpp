@@ -15,7 +15,7 @@
 namespace unixsocket
 {
     RestoreReportingClient::RestoreReportingClient(std::shared_ptr<common::StoppableSleeper> sleeper) :
-        BaseClient{ Plugin::getRestoreReportSocketPath(), "Restore Reporting", BaseClient::DEFAULT_SLEEP_TIME, std::move(sleeper) }
+        BaseClient{ Plugin::getRestoreReportSocketPath(), "Restore Reporting Client", BaseClient::DEFAULT_SLEEP_TIME, std::move(sleeper) }
     {
         BaseClient::connectWithRetries();
     }
@@ -25,9 +25,8 @@ namespace unixsocket
         assert(m_socket_fd.valid());
 
         const std::string escapedPath = common::escapePathForLogging(restoreReport.path);
-        LOGINFO(
-            "Reporting " << (restoreReport.wasSuccessful ? "successful" : "unsuccessful") << " restoration of "
-                         << escapedPath);
+        auto successString = restoreReport.wasSuccessful ? "successful" : "unsuccessful";
+        LOGINFO(m_name << " reports " << successString << " restoration of " << escapedPath);
         LOGDEBUG("Correlation ID: " << restoreReport.correlationId);
 
         ::capnp::writePackedMessageToFd(m_socket_fd.get(), *restoreReport.serialise());

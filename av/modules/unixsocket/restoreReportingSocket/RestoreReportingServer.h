@@ -20,5 +20,14 @@ namespace unixsocket
         void killThreads() override;
 
         const IRestoreReportProcessor& m_restoreReportProcessor;
+
+        enum class PollStatus
+        {
+            readyToRead,
+            skip,
+            exit
+        };
+
+        PollStatus poll(int fd, int notifyPipeFd);
     };
 } // namespace unixsocket
