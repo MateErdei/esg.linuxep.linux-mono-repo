@@ -9,7 +9,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <utility>
 
 FakeDetectionServer::FakeServerSocket::FakeServerSocket(const std::string& path, mode_t mode) :
-    FakeServerSocketBase(path, mode)
+    FakeServerSocketBase(path, "FakeServerSocket",mode)
 {
 }
 

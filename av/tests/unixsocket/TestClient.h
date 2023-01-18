@@ -16,9 +16,9 @@ namespace
             std::string socket_path,
             const BaseClient::duration_t& sleepTime= std::chrono::seconds{1},
             BaseClient::IStoppableSleeperSharedPtr sleeper={}) :
-            BaseClient(std::move(socket_path), sleepTime, std::move(sleeper))
+            BaseClient(std::move(socket_path),"SafeStore Rescan", sleepTime, std::move(sleeper))
         {
-            unixsocket::BaseClient::connectWithRetries("SafeStore Rescan");
+            unixsocket::BaseClient::connectWithRetries();
         }
 
         void sendRequest(const std::string& request)

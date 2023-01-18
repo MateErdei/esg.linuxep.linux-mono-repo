@@ -5,7 +5,6 @@
 
 #include <Common/Logging/ConsoleLoggingSetup.h>
 
-#include <unistd.h>
 #include <iostream>
 #include <fcntl.h>
 #include <getopt.h>
