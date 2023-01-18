@@ -19,7 +19,7 @@
 namespace unixsocket
 {
     ScanningClientSocket::ScanningClientSocket(std::string socket_path) :
-        BaseClient(std::move(socket_path))
+        BaseClient(std::move(socket_path), "ScanningClientSocket")
     {
     }
 
@@ -90,18 +90,16 @@ namespace unixsocket
             if (ex.getType() == kj::Exception::Type::UNIMPLEMENTED)
             {
                 // Fatal since this means we have a coding error that calls something unimplemented in kj.
-                LOGFATAL(
-                    "Terminated ScanningClientSocket with serialisation unimplemented exception: "
-                    << ex.getDescription().cStr());
+                LOGFATAL("Terminated " << m_name << " with serialisation unimplemented exception: "
+                        << ex.getDescription().cStr());
             }
             else
             {
-                LOGERROR(
-                    "Terminated ScanningClientSocket with serialisation exception: " << ex.getDescription().cStr());
+                LOGERROR("Terminated " << m_name << " with serialisation exception: " << ex.getDescription().cStr());
             }
 
             std::stringstream errorMsg;
-            errorMsg << "Malformed response from Sophos Threat Detector (" << ex.getDescription().cStr() << ")";
+            errorMsg << m_name << " received malformed response from Sophos Threat Detector (" << ex.getDescription().cStr() << ")";
             throw common::AbortScanException(errorMsg.str());
         }
         catch (const std::exception& ex)

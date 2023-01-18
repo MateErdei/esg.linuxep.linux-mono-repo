@@ -14,14 +14,13 @@ unixsocket::ScanningServerSocket::ScanningServerSocket(
         const std::string& path,
         mode_t mode,
         threat_scanner::IThreatScannerFactorySharedPtr scannerFactory)
-        : ImplServerSocket<ScanningServerConnectionThread>(path, mode)
+        : ImplServerSocket<ScanningServerConnectionThread>(path, "ScanningServerSocket", mode)
         , m_scannerFactory(std::move(scannerFactory))
 {
     if (m_scannerFactory.get() == nullptr)
     {
-        throw std::runtime_error("Attempting to create ScanningServerSocket without scanner factory");
+        throw std::runtime_error("Attempting to create " + m_socketName + " without scanner factory");
     }
-    m_socketName = "Scanning Server";
 }
 
 unixsocket::ScanningServerSocket::~ScanningServerSocket()
