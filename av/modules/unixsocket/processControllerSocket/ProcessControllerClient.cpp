@@ -11,9 +11,9 @@
 #include <sstream>
 
 unixsocket::ProcessControllerClientSocket::ProcessControllerClientSocket(std::string socket_path, const duration_t& sleepTime)
-        : BaseClient(std::move(socket_path), sleepTime)
+        : BaseClient(std::move(socket_path), "Process Controller", sleepTime)
 {
-    connectWithRetries("Process Controller");
+    connectWithRetries();
 }
 
 unixsocket::ProcessControllerClientSocket::ProcessControllerClientSocket(

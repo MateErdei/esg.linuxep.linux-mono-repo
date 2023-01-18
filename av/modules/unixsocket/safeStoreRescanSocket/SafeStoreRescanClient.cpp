@@ -13,9 +13,9 @@ unixsocket::SafeStoreRescanClient::SafeStoreRescanClient(
     std::string socket_path,
     const duration_t& sleepTime,
     IStoppableSleeperSharedPtr sleeper) :
-    BaseClient(std::move(socket_path), sleepTime, std::move(sleeper))
+    BaseClient(std::move(socket_path), "SafeStore Rescan", sleepTime, std::move(sleeper))
 {
-    BaseClient::connectWithRetries("SafeStore Rescan");
+    BaseClient::connectWithRetries();
 }
 
 void unixsocket::SafeStoreRescanClient::sendRescanRequest()

@@ -25,9 +25,9 @@ unixsocket::SafeStoreClient::SafeStoreClient(
     Common::Threads::NotifyPipe& notifyPipe,
     const duration_t& sleepTime,
     IStoppableSleeperSharedPtr sleeper) :
-    BaseClient(std::move(socket_path), sleepTime, std::move(sleeper)), m_notifyPipe(notifyPipe)
+    BaseClient(std::move(socket_path), "SafeStore", sleepTime, std::move(sleeper)), m_notifyPipe(notifyPipe)
 {
-    BaseClient::connectWithRetries("SafeStore");
+    BaseClient::connectWithRetries();
     if (isConnected())
     {
         LOGDEBUG("Connected to SafeStore");

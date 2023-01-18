@@ -17,9 +17,9 @@
 #include <sstream>
 
 unixsocket::ThreatReporterClientSocket::ThreatReporterClientSocket(std::string socket_path, const duration_t& sleepTime)
-    : BaseClient(std::move(socket_path), sleepTime)
+    : BaseClient(std::move(socket_path), "Threat reporter", sleepTime)
 {
-    connectWithRetries("Threat reporter");
+    connectWithRetries();
 }
 
 void unixsocket::ThreatReporterClientSocket::sendThreatDetection(const scan_messages::ThreatDetected& detection)
