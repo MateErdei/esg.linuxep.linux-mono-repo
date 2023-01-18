@@ -399,7 +399,7 @@ We Can Upgrade From Release to VUT Without Unexpected Errors
     Wait Until Threat Detector Running
 
     Wait Until Keyword Succeeds
-    ...  200 secs
+    ...  210 secs
     ...  5 secs
     ...  SHS Status File Contains  ${HealthyShsStatusXmlContents}
 

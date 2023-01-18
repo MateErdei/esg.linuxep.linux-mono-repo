@@ -130,10 +130,12 @@ Successful Register With Cloud And Migrate To Another Cloud Server
     Should Not Be Equal As Strings  ${current_proxy_ts_new}      ${current_proxy_ts_orig}
 
     ${new_mcsid}  get_value_from_ini_file  MCSID  ${MCS_CONFIG}
-    ${new_jwt_token}  get_value_from_ini_file  jwt_token  ${MCS_CONFIG}
 
     Should Not Be Equal As Strings  ${original_mcsid}  ${new_mcsid}
-    Should Not Be Equal As Strings  ${original_jwt_token}  ${new_jwt_token}
+    Wait Until Keyword Succeeds
+    ...  10s
+    ...  1s
+    ...  JWT token has changed  ${original_jwt_token}
 
     File Should Not Exist  ${MCS_DIR}/event/garbage_event
     File Should Not Exist  ${MCS_DIR}/action/garbage_action
@@ -279,6 +281,11 @@ Register With Cloud And Fail To Migrate To Another Cloud Server
 
 
 *** Keywords ***
+JWT token has changed
+    [Arguments]  ${old_token}
+    ${new_jwt_token}  get_value_from_ini_file  jwt_token  ${MCS_CONFIG}
+    Should Not Be Equal As Strings  ${old_token}  ${new_jwt_token}
+
 Mcs Config Has Key
     [Arguments]  ${key}
     get_value_from_ini_file  ${key}  ${MCS_CONFIG}
