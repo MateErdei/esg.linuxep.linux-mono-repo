@@ -588,7 +588,7 @@ Check Plugin Installed and Running With Offset
 
 Wait until AV Plugin running
     ProcessUtils.wait_for_pid  ${PLUGIN_BINARY}  ${10}
-    LogUtils.Wait For AV Log contains after last restart  Common <> Starting scanScheduler  timeout=${20}
+    LogUtils.Wait For AV Log contains after last restart  Starting Scan Scheduler  timeout=${20}
 
 Wait until AV Plugin running with offset
     ProcessUtils.wait_for_pid  ${PLUGIN_BINARY}  ${10}
@@ -597,7 +597,7 @@ Wait until AV Plugin running with offset
 Wait until AV Plugin running after mark
     [Arguments]   ${mark}
     ProcessUtils.wait_for_pid  ${PLUGIN_BINARY}  ${30}
-    wait_for_av_log_contains_after_mark  Common <> Starting scanScheduler  timeout=${40}  mark=${mark}
+    wait_for_av_log_contains_after_mark  Starting Scan Scheduler  timeout=${40}  mark=${mark}
 
 Wait until AV Plugin not running
     [Arguments]  ${timeout}=${30}

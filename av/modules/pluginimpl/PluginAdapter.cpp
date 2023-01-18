@@ -175,6 +175,7 @@ namespace Plugin
 
     void PluginAdapter::startThreads()
     {
+        LOGINFO("Starting Scan Scheduler");
         m_schedulerThread = std::make_unique<common::ThreadRunner>(m_scanScheduler, "scanScheduler", true);
         m_threatDetectorThread = std::make_unique<common::ThreadRunner>(m_threatDetector, "scanProcessMonitor", true);
         m_safeStoreWorkerThread = std::make_unique<common::ThreadRunner>(m_safeStoreWorker, "safeStoreWorker", true);
