@@ -15,10 +15,12 @@ using namespace unixsocket;
 
 BaseClient::BaseClient(
     std::string socket_path,
+    std::string name,
     const duration_t& sleepTime,
     BaseClient::IStoppableSleeperSharedPtr sleeper)
     : m_socketPath(std::move(socket_path)),
       m_sleepTime(sleepTime),
+      m_name(name),
       m_sleeper(std::move(sleeper))
 {
     if (!m_sleeper)
@@ -41,12 +43,7 @@ int unixsocket::BaseClient::attemptConnect()
     return ::connect(m_socket_fd.get(), reinterpret_cast<struct sockaddr*>(&addr), SUN_LEN(&addr));
 }
 
-void unixsocket::BaseClient::connectWithRetries(const std::string& socketName)
-{
-    std::ignore = connectWithRetries(socketName, DEFAULT_MAX_RETRIES);
-}
-
-bool BaseClient::connectWithRetries(const std::string& socketName, int max_retries)
+bool BaseClient::connectWithRetries(int max_retries)
 {
     int count = 0;
     m_connectStatus = attemptConnect();
@@ -56,19 +53,19 @@ bool BaseClient::connectWithRetries(const std::string& socketName, int max_retri
     {
         if (++count >= max_retries)
         {
-            LOGDEBUG("Reached the maximum number of attempts connecting to " << socketName);
+            LOGDEBUG("Reached the maximum number of attempts connecting to " << m_name);
             return false;
         }
 
         if (!connectRetryLogged)
         {
-            LOGDEBUG("Failed to connect to " << socketName << " - retrying upto " << max_retries << " times with a sleep of "
+            LOGDEBUG("Failed to connect to " << m_name << " - retrying upto " << max_retries << " times with a sleep of "
                                              << std::chrono::duration_cast<std::chrono::seconds>(m_sleepTime).count() << "s");
             connectRetryLogged = true;
         }
         if (m_sleeper->stoppableSleep(m_sleepTime))
         {
-            LOGINFO("Stop requested while connecting to "<< socketName);
+            LOGINFO("Stop requested while connecting to "<< m_name);
             return false;
         }
 

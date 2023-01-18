@@ -22,7 +22,7 @@ namespace unixsocket
 
         BaseClient& operator=(const BaseClient&) = delete;
         BaseClient(const BaseClient&) = delete;
-        explicit BaseClient(std::string socket_path, const duration_t& sleepTime=DEFAULT_SLEEP_TIME, IStoppableSleeperSharedPtr sleeper={});
+        explicit BaseClient(std::string socket_path, std::string name, const duration_t& sleepTime=DEFAULT_SLEEP_TIME, IStoppableSleeperSharedPtr sleeper={});
         virtual ~BaseClient() = default;
 
         [[nodiscard]] bool isConnected() const;
@@ -30,13 +30,13 @@ namespace unixsocket
     protected:
         int attemptConnect();
 
-        virtual void connectWithRetries(const std::string& socketName);
-        virtual bool connectWithRetries(const std::string& socketName, int max_retries);
+        virtual bool connectWithRetries(int max_retries = DEFAULT_MAX_RETRIES);
 
         int m_connectStatus = -1;
         datatypes::AutoFd m_socket_fd;
         std::string m_socketPath;
         const duration_t m_sleepTime;
+        const std::string m_name;
     private:
         IStoppableSleeperSharedPtr m_sleeper;
     };
