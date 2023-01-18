@@ -551,7 +551,7 @@ On Access logs if the kernel queue overflows
     ${mark} =  get_on_access_log_mark
     Terminate On Access
     Start On Access without Log check
-    wait for on access log contains after mark  Starting scanHandler  mark=${mark}
+    wait for on access log contains after mark  On-access scanning enabled  mark=${mark}
     Sleep  1s
 
     Mark On Access Log
