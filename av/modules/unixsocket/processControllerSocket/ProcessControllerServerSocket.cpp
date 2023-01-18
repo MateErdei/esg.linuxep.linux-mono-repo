@@ -10,11 +10,9 @@ ProcessControllerServerSocket::ProcessControllerServerSocket(
     const std::string& path,
     const mode_t mode,
     std::shared_ptr<IProcessControlMessageCallback> processControlCallback)
-    : ProcessControllerServerSocketBase(path, mode),
+    : ProcessControllerServerSocketBase(path, "Process Controller Server", mode),
     m_processControlCallback(std::move(processControlCallback))
-{
-    m_socketName = "Process Controller Server";
-}
+{}
 
 ProcessControllerServerSocket::ProcessControllerServerSocket(
     const std::string& path,

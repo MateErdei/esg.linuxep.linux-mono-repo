@@ -21,11 +21,11 @@ unixsocket::ProcessControllerClientSocket::ProcessControllerClientSocket(
     unixsocket::BaseClient::IStoppableSleeperSharedPtr sleeper,
     int max_retries,
     const unixsocket::BaseClient::duration_t& sleepTime)
-    : BaseClient(std::move(socket_path), sleepTime, std::move(sleeper))
+    : BaseClient(std::move(socket_path), "Process Control Client", sleepTime, std::move(sleeper))
 {
     if (max_retries >= 0)
     {
-        connectWithRetries(m_socketPath, max_retries);
+        connectWithRetries(max_retries);
     }
 }
 
@@ -33,7 +33,7 @@ void unixsocket::ProcessControllerClientSocket::sendProcessControlRequest(const 
 {
     if (m_connectStatus == -1)
     {
-        LOGWARN("Process Control has invalid connection status: message was not sent");
+        LOGWARN(m_name << " has invalid connection status: message was not sent");
         return;
     }
 
@@ -45,12 +45,12 @@ void unixsocket::ProcessControllerClientSocket::sendProcessControlRequest(const 
         if (! writeLengthAndBuffer(m_socket_fd, dataAsString))
         {
             std::stringstream errMsg;
-            errMsg << "Failed to write Process Control Request to socket [" << errno << "]";
+            errMsg << m_name << " failed to write Process Control Request to socket [" << errno << "]";
             throw std::runtime_error(errMsg.str());
         }
     }
     catch (unixsocket::environmentInterruption& e)
     {
-        LOGWARN("Failed to write Process Control Request to socket "<< m_socketPath << ". Exception caught: " << e.what());
+        LOGWARN(m_name << "failed to write Process Control Request to socket "<< m_socketPath << ". Exception caught: " << e.what());
     }
 }
