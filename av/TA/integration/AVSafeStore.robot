@@ -809,6 +809,24 @@ SafeStore Quarantines Ml Detection If Ml Flag Is Enabled
     Log  ${print_tool_result.stdout}
     Should Contain  ${print_tool_result.stdout}  MLengHighScore.exe
 
+Safestore Quarantines On Access Execute Detection
+    ${oa_mark} =  get_on_access_log_mark
+    ${ss_mark} =  Get SafeStore Log Mark
+
+    Send Policies to disable on-access
+
+    DeObfuscate File  ${RESOURCES_PATH}/file_samples_obfuscated/linux_elf_threat_obf  ${NORMAL_DIRECTORY}/linux_elf_threat.exe
+    Run Process  chmod  770  ${NORMAL_DIRECTORY}/linux_elf_threat.exe
+
+    Send Policies to enable on-access  flags_policy/flags_safestore_onaccess_and_ml_enabled.json  ${oa_mark}
+
+    ${handle} =     Start Process   ${NORMAL_DIRECTORY}/linux_elf_threat.exe    15
+
+    wait_for_on_access_log_contains_after_mark  linux_elf_threat.exe" is infected with Linux/Test-D (Open)  mark=${oa_mark}
+    Wait For Log Contains From Mark  ${ss_mark}     Quarantined ${NORMAL_DIRECTORY}/linux_elf_threat.exe successfully
+
+    Process should Be Running   handle=${handle}
+    Terminate Process   ${handle}
 
 SafeStore Does Not Quarantine Pua Detection
     ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
