@@ -679,6 +679,7 @@ namespace safestore::QuarantineManager
 
     void QuarantineManagerImpl::rescanDatabase()
     {
+        LOGDEBUG("SafeStore Database Rescan request received."); // Log at debug level, since find() will also log at debug level
         SafeStoreWrapper::SafeStoreFilter filter; // we want to rescan everything in database
         std::vector<SafeStoreWrapper::ObjectHandleHolder> threatObjects = m_safeStore->find(filter);
         if (threatObjects.empty())
