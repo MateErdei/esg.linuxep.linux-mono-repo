@@ -36,7 +36,7 @@ static void throwIfBadFd(int fd, const std::string& message)
 
 unixsocket::BaseServerSocket::BaseServerSocket(const sophos_filesystem::path& path, std::string name, const mode_t mode)
     : m_socketPath(path),
-    m_socketName(name)
+    m_socketName(std::move(name))
 {
     m_socket_fd.reset(socket(PF_UNIX, SOCK_STREAM, 0));
     throwIfBadFd(m_socket_fd, "Failed to create socket");
@@ -50,7 +50,7 @@ unixsocket::BaseServerSocket::BaseServerSocket(const sophos_filesystem::path& pa
 
     unlink(path.c_str());
     int ret = bind(m_socket_fd, reinterpret_cast<struct sockaddr*>(&addr), SUN_LEN(&addr));
-    throwOnError(ret, "Failed to bind to unix socket path");
+    throwOnError(ret, m_socketName + " failed to bind to unix socket path");
 
     ::chmod(path.c_str(), mode);
 }
@@ -90,7 +90,7 @@ void unixsocket::BaseServerSocket::run()
         {
             if (errno == EINTR)
             {
-                LOGDEBUG("Ignoring EINTR from ppoll");
+                LOGDEBUG(m_socketName + " ignoring EINTR from ppoll");
                 continue;
             }
 

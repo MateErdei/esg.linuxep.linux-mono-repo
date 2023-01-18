@@ -20,7 +20,7 @@ BaseClient::BaseClient(
     BaseClient::IStoppableSleeperSharedPtr sleeper)
     : m_socketPath(std::move(socket_path)),
       m_sleepTime(sleepTime),
-      m_name(name),
+      m_name(std::move(name)),
       m_sleeper(std::move(sleeper))
 {
     if (!m_sleeper)
@@ -73,6 +73,7 @@ bool BaseClient::connectWithRetries(int max_retries)
     }
 
     assert(m_connectStatus == 0);
+    LOGDEBUG(m_name << " connected");
     return true;
 }
 
