@@ -34,7 +34,7 @@ namespace unixsocket
          * @param path
          * @param mode
          */
-        explicit BaseServerSocket(const sophos_filesystem::path& path, mode_t mode);
+        explicit BaseServerSocket(const sophos_filesystem::path& path, std::string name, mode_t mode);
 
     public:
         void run() override;
@@ -67,7 +67,7 @@ namespace unixsocket
 
         datatypes::AutoFd m_socket_fd;
         static const int m_max_threads = MAX_CLIENT_CONNECTIONS;
-        std::string m_socketName = "Base Server Socket";
+        const std::string m_socketName;
 
         /**
          * Kill any extra threads started to handle incoming connections

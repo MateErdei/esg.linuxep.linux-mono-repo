@@ -1,4 +1,4 @@
-// Copyright 2020-2023 Sophos Limited. All rights reserved.
+// Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 #include "BaseServerSocket.h"
 
@@ -34,8 +34,9 @@ static void throwIfBadFd(int fd, const std::string& message)
     throw std::runtime_error(message);
 }
 
-unixsocket::BaseServerSocket::BaseServerSocket(const sophos_filesystem::path& path, const mode_t mode)
-    : m_socketPath(path)
+unixsocket::BaseServerSocket::BaseServerSocket(const sophos_filesystem::path& path, std::string name, const mode_t mode)
+    : m_socketPath(path),
+    m_socketName(name)
 {
     m_socket_fd.reset(socket(PF_UNIX, SOCK_STREAM, 0));
     throwIfBadFd(m_socket_fd, "Failed to create socket");
@@ -66,8 +67,8 @@ void unixsocket::BaseServerSocket::run()
         { .fd = m_notifyPipe.readFd(), .events = POLLIN, .revents = 0 },
     };
 
-    int ret = ::listen(m_socket_fd, 2);
-    if (ret != 0)
+    int listenRet = ::listen(m_socket_fd, 2);
+    if (listenRet != 0)
     {
         std::stringstream stream;
         stream << m_socketName;
@@ -84,8 +85,8 @@ void unixsocket::BaseServerSocket::run()
     while (!terminate)
     {
         //wait for an activity on one of the sockets , timeout is NULL , so wait indefinitely
-        ret = ::ppoll(fds, std::size(fds), nullptr, nullptr);
-        if (ret < 0)
+        auto ppollRet = ::ppoll(fds, std::size(fds), nullptr, nullptr);
+        if (ppollRet < 0)
         {
             if (errno == EINTR)
             {
@@ -97,7 +98,7 @@ void unixsocket::BaseServerSocket::run()
             break;
         }
 #ifndef USING_LIBFUZZER
-        assert(ret > 0);
+        assert(ppollRet > 0);
 #endif
         if ((fds[1].revents & POLLERR) != 0)
         {
