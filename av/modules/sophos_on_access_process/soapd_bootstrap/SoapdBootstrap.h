@@ -20,6 +20,7 @@
 #include "Common/ZMQWrapperApi/IContext.h"
 
 #include <atomic>
+#include <optional>
 #include <vector>
 
 namespace sophos_on_access_process::soapd_bootstrap
@@ -33,10 +34,10 @@ namespace sophos_on_access_process::soapd_bootstrap
          * Called by OnAccessProcessControlCallback.
          * The function blocks on m_pendingConfigActionMutex to ensure that all actions it takes are thread safe.
          *
-         * @param onStart - true when we are starting soapd - log if disabling on-access when disabled
+         * @return The flag settings if flag file is present
          *
          */
-        void ProcessPolicy();
+        std::optional<bool> ProcessPolicy();
 
         static bool checkIfOAShouldBeEnabled(bool OnAccessEnabledFlag, bool OnAccessEnabledPolicySetting);
 

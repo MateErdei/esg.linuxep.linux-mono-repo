@@ -159,15 +159,14 @@ void SoapdBootstrap::innerRun()
         { .fd = sigTermMonitor->monitorFd(), .events = POLLIN, .revents = 0 }
     };
 
-    auto flagJsonString = OnAccessConfig::readFlagConfigFile();
-    //if flagJsonString is empty then readFlagConfigFile has already logged a WARN
-    if(!flagJsonString.empty())
+    // Read the flag value under the lock, and only read it once
+    auto onAccessFlag = ProcessPolicy();
+    if (onAccessFlag.has_value())
     {
-        std::string setting = OnAccessConfig::parseFlagConfiguration(flagJsonString) ? "not override policy" : "override policy";
+        std::string setting = onAccessFlag.value() ? "not override policy" : "override policy";
         LOGINFO("Flag is set to " << setting);
     }
 
-    ProcessPolicy();
 
     timespec timeout{};
     timeout.tv_nsec = 0;
@@ -235,13 +234,18 @@ bool SoapdBootstrap::getPolicyConfiguration(sophos_on_access_process::OnAccessCo
     return OnAccessConfig::parseOnAccessPolicySettingsFromJson(jsonString, oaConfig);
 }
 
-void SoapdBootstrap::ProcessPolicy()
+std::optional<bool> SoapdBootstrap::ProcessPolicy()
 {
     std::lock_guard<std::mutex> guard(m_pendingConfigActionMutex);
     LOGDEBUG("ProcessPolicy");
 
     auto flagJsonString = OnAccessConfig::readFlagConfigFile();
-    auto OnAccessEnabledFlag = OnAccessConfig::parseFlagConfiguration(flagJsonString);
+    std::optional<bool> OnAccessEnabledFlagOptional;
+    if (!flagJsonString.empty())
+    {
+        OnAccessEnabledFlagOptional = OnAccessConfig::parseFlagConfiguration(flagJsonString);
+    }
+    bool OnAccessEnabledFlag = OnAccessEnabledFlagOptional.has_value() && OnAccessEnabledFlagOptional.value();
     OnAccessConfig::OnAccessConfiguration oaConfig{};
 
     if (getPolicyConfiguration(oaConfig))
@@ -261,6 +265,7 @@ void SoapdBootstrap::ProcessPolicy()
         }
         LOGDEBUG("Finished ProcessPolicy");
     }
+    return OnAccessEnabledFlagOptional;
     //Logging for failure done in calls from getPolicyConfiguration
 }
 

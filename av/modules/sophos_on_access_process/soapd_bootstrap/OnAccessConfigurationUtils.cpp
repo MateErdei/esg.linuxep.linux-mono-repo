@@ -207,6 +207,11 @@ namespace sophos_on_access_process::OnAccessConfig
 
     bool parseFlagConfiguration(const std::string& jsonString)
     {
+        if (jsonString.empty())
+        {
+            // Avoid trying to parse empty string
+            return false;
+        }
         try
         {
             json parsedConfig = json::parse(jsonString);
@@ -236,6 +241,10 @@ namespace sophos_on_access_process::OnAccessConfig
 
     bool parseOnAccessPolicySettingsFromJson(const std::string& jsonString, OnAccessConfiguration& oaConfig)
     {
+        if (jsonString.empty())
+        {
+            return false;
+        }
         json parsedConfig;
         try
         {
