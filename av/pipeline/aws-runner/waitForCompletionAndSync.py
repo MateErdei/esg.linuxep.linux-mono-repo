@@ -104,7 +104,7 @@ def main(argv):
 
     start = time.time()
     #  and check for machines running
-    delay = 120
+    delay = 120  # Check slowly for the first 20 minutes
     while time.time() < start + TIMEOUT_FOR_ALL_TESTS:
         try:
             if checkMachinesAllTerminated(TEST_PASS_UUID, start, dest):

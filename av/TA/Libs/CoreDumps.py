@@ -191,6 +191,12 @@ class CoreDumps(object):
                 os.unlink(file_path)
                 continue
 
+            # Ignore telemetry core files until LINUXDAR-6202 is fixed
+            if "!opt!sophos-spl!base!bin!telemetry." in file:
+                logger.error("LINUXDAR-6202: Ignoring core file from telemetry")
+                os.unlink(file_path)
+                continue
+
             stat_result = os.stat(file_path)
             timestamp = datetime.datetime.utcfromtimestamp(stat_result.st_mtime)
             logger.error("Found core dump at %s, generated at %s UTC" % (file_path, timestamp))
