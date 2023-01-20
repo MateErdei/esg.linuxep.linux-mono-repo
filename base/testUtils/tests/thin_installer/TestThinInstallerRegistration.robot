@@ -58,5 +58,12 @@ Thin Installer Registers With Group
     Should Not Exist   ${SOPHOS_INSTALL}
     Check Cloud Server Log Contains  <deviceGroup>testgroupname</deviceGroup>
 
+Thin Installer send migrate when uninstalling sav
+    Start Local Cloud Server
+    Run Default Thininstaller With Args  18  --uninstall-sav
+    Check Thininstaller Log Contains    Successfully registered with Sophos Central
+    Should Not Exist   ${SOPHOS_INSTALL}
+    Check Cloud Server Log Contains  <migratedFromSAV>1</migratedFromSAV>
+
 
 
