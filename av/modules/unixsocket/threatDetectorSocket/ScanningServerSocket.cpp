@@ -14,7 +14,7 @@ unixsocket::ScanningServerSocket::ScanningServerSocket(
         const std::string& path,
         mode_t mode,
         threat_scanner::IThreatScannerFactorySharedPtr scannerFactory)
-        : ImplServerSocket<ScanningServerConnectionThread>(path, "ScanningServerSocket", mode)
+        : ImplServerSocket<ScanningServerConnectionThread>(path, "ScanningServer", mode)
         , m_scannerFactory(std::move(scannerFactory))
 {
     if (m_scannerFactory.get() == nullptr)

@@ -30,19 +30,20 @@ unixsocket::ScanningServerConnectionThread::ScanningServerConnectionThread(
         threat_scanner::IThreatScannerFactorySharedPtr scannerFactory,
         datatypes::ISystemCallWrapperSharedPtr sysCalls,
         int maxIterations)
-    : m_socketFd(std::move(fd))
+    : BaseServerConnectionThread("ScanningServerConnectionThread")
+    , m_socketFd(std::move(fd))
     , m_scannerFactory(std::move(scannerFactory))
     , m_sysCalls(sysCalls)
     , m_maxIterations(maxIterations)
 {
     if (m_socketFd < 0)
     {
-        throw std::runtime_error("Attempting to construct ScanningServerConnectionThread with invalid socket fd");
+        throw std::runtime_error("Attempting to construct " + m_threadName + " with invalid socket fd");
     }
 
     if (m_scannerFactory.get() == nullptr)
     {
-        throw std::runtime_error("Attempting to construct ScanningServerConnectionThread with null scanner factory");
+        throw std::runtime_error("Attempting to construct " + m_threadName + " with null scanner factory");
     }
 }
 
@@ -82,6 +83,7 @@ static std::shared_ptr<scan_messages::ScanRequest> parseRequest(kj::Array<capnp:
 void unixsocket::ScanningServerConnectionThread::run()
 {
     setIsRunning(true);
+    announceThreadStarted();
 
     // LINUXDAR-4543: Block signals in this thread, and all threads started from this thread
     sigset_t signals;
@@ -94,9 +96,7 @@ void unixsocket::ScanningServerConnectionThread::run()
     std::ignore = s; assert(s == 0);
 
     // Start server:
-    LOGDEBUG("Starting Scanning Server connection thread");
-
-    announceThreadStarted();
+    LOGDEBUG("Starting " << m_threadName);
 
     try
     {
@@ -107,27 +107,27 @@ void unixsocket::ScanningServerConnectionThread::run()
         if (ex.getType() == kj::Exception::Type::UNIMPLEMENTED)
         {
             // Fatal since this means we have a coding error that calls something unimplemented in kj.
-            LOGFATAL("Terminated ScanningServerConnectionThread with serialisation unimplemented exception: "
+            LOGFATAL("Terminated " << m_threadName << " with serialisation unimplemented exception: "
                      << ex.getDescription().cStr());
         }
         else
         {
             LOGERROR(
-                "Terminated ScanningServerConnectionThread with serialisation exception: "
+                "Terminated " << m_threadName << " with serialisation exception: "
                 << ex.getDescription().cStr());
         }
     }
     catch (const std::exception& ex)
     {
-        LOGERROR("Terminated ScanningServerConnectionThread with exception: " << ex.what());
+        LOGERROR("Terminated " << m_threadName << " with exception: " << ex.what());
     }
     catch (...)
     {
         // Fatal since this means we have thrown something that isn't a subclass of std::exception
-        LOGFATAL("Terminated ScanningServerConnectionThread with unknown exception");
+        LOGFATAL("Terminated " << m_threadName << " with unknown exception");
     }
 
-    LOGDEBUG("Stopping Scanning Server connection thread");
+    LOGDEBUG("Stopping " << m_threadName);
 
     setIsRunning(false);
 }
@@ -139,13 +139,13 @@ bool unixsocket::ScanningServerConnectionThread::sendResponse(datatypes::AutoFd&
     {
         if (!writeLengthAndBuffer(socket_fd, serialised_result))
         {
-            LOGWARN("Failed to write result to unix socket");
+            LOGWARN(m_threadName << " failed to write result to unix socket");
             return false;
         }
     }
     catch (unixsocket::environmentInterruption& e)
     {
-        LOGWARN("Exiting Scanning Connection Thread: " << e.what());
+        LOGWARN("Exiting " << m_threadName << ": " << e.what());
         return false;
     }
     return true;
@@ -154,7 +154,7 @@ bool unixsocket::ScanningServerConnectionThread::sendResponse(datatypes::AutoFd&
 void unixsocket::ScanningServerConnectionThread::inner_run()
 {
     datatypes::AutoFd socket_fd(std::move(m_socketFd));
-    LOGDEBUG("Scanning Server thread got connection " << socket_fd.fd());
+    LOGDEBUG(m_threadName << " got connection " << socket_fd.fd());
     uint32_t buffer_size = 256;
     auto proto_buffer = kj::heapArray<capnp::word>(buffer_size);
 
@@ -184,26 +184,26 @@ void unixsocket::ScanningServerConnectionThread::inner_run()
                 continue;
             }
 
-            LOGFATAL("Error from ppoll: " << common::safer_strerror(errno));
+            LOGFATAL(m_threadName << " error from ppoll: " << common::safer_strerror(errno));
             break;
         }
         assert(ret > 0);
 
         if ((fds[1].revents & POLLERR) != 0)
         {
-            LOGERROR("Closing Scanning Server connection thread, error from notify pipe");
+            LOGERROR("Closing " << m_threadName << ", error from notify pipe");
             break;
         }
 
         if ((fds[0].revents & POLLERR) != 0)
         {
-            LOGDEBUG("Closing Scanning Server connection thread, error from socket");
+            LOGDEBUG("Closing " << m_threadName << ", error from socket");
             break;
         }
 
         if ((fds[1].revents & POLLIN) != 0)
         {
-            LOGSUPPORT("Closing Scanning connection thread");
+            LOGSUPPORT("Closing " << m_threadName);
             break;
         }
 
@@ -213,19 +213,19 @@ void unixsocket::ScanningServerConnectionThread::inner_run()
             auto length = unixsocket::readLength(socket_fd);
             if (length == -2)
             {
-                LOGDEBUG("Scanning connection thread closed: EOF");
+                LOGDEBUG(m_threadName << " closed: EOF");
                 break;
             }
             else if (length < 0)
             {
-                LOGDEBUG("Aborting Scanning connection thread: failed to read length");
+                LOGDEBUG("Aborting " << m_threadName << ": failed to read length");
                 break;
             }
             else if (length == 0)
             {
                 if (not loggedLengthOfZero)
                 {
-                    LOGDEBUG("Ignoring length of zero / No new messages");
+                    LOGDEBUG(m_threadName << " ignoring length of zero / No new messages");
                     loggedLengthOfZero = true;
                 }
                 continue;
@@ -239,28 +239,28 @@ void unixsocket::ScanningServerConnectionThread::inner_run()
             {
                 result.setErrorMsg(errMsg);
                 sendResponse(socket_fd, result);
-                LOGERROR(errMsg);
+                LOGERROR(m_threadName << ": " << errMsg);
                 break;
             }
-            LOGDEBUG("Read capn of " << bytes_read);
+            LOGDEBUG(m_threadName << " read capn of " << bytes_read);
             std::shared_ptr<scan_messages::ScanRequest> requestReader = parseRequest(proto_buffer, bytes_read);
 
             std::string escapedPath(requestReader->getPath());
             common::escapeControlCharacters(escapedPath);
 
-            LOGDEBUG("Scan requested of " << escapedPath);
+            LOGDEBUG(m_threadName << " scan requested of " << escapedPath);
 
             // read fd
             datatypes::AutoFd file_fd(unixsocket::recv_fd(socket_fd));
             if (file_fd.get() < 0)
             {
-                errMsg = "Aborting Scanning connection thread: failed to read fd";
+                errMsg = "Aborting " + m_threadName + ": failed to read fd";
                 result.setErrorMsg(errMsg);
                 sendResponse(socket_fd, result);
                 LOGERROR(errMsg);
                 break;
             }
-            LOGDEBUG("Managed to get file descriptor: " << file_fd.get());
+            LOGDEBUG(m_threadName << " managed to get file descriptor: " << file_fd.get());
 
             // Keep the connection open if we can read the message but get a file that we can't scan
             if (!isReceivedFdFile(m_sysCalls, file_fd, errMsg) || !isReceivedFileOpen(m_sysCalls, file_fd, errMsg))
@@ -279,7 +279,7 @@ void unixsocket::ScanningServerConnectionThread::inner_run()
                         requestReader->scanInsideArchives(), requestReader->scanInsideImages());
                     if (!scanner)
                     {
-                        throw std::runtime_error("Failed to create scanner");
+                        throw std::runtime_error(m_threadName + " failed to create scanner");
                     }
                 }
 
@@ -290,7 +290,7 @@ void unixsocket::ScanningServerConnectionThread::inner_run()
             }
             catch (FailedToInitializeSusiException&)
             {
-                errMsg = "Aborting scan, failed to initialise SUSI";
+                errMsg = m_threadName + " aborting scan, failed to initialise SUSI";
                 result.setErrorMsg(errMsg);
                 sendResponse(socket_fd, result);
                 LOGERROR(errMsg);
@@ -298,7 +298,7 @@ void unixsocket::ScanningServerConnectionThread::inner_run()
             }
             catch (ShuttingDownException&)
             {
-                errMsg = "Aborting scan, scanner is shutting down";
+                errMsg =  m_threadName + " aborting scan, scanner is shutting down";
                 result.setErrorMsg(errMsg);
                 sendResponse(socket_fd, result);
                 LOGERROR(errMsg);

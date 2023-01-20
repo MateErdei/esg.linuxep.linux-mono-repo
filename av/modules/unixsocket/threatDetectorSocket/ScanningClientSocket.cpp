@@ -19,7 +19,7 @@
 namespace unixsocket
 {
     ScanningClientSocket::ScanningClientSocket(std::string socket_path) :
-        BaseClient(std::move(socket_path), "ScanningClientSocket")
+        BaseClient(std::move(socket_path), "ScanningClient")
     {
     }
 

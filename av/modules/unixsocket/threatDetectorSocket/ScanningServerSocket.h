@@ -29,7 +29,7 @@ namespace unixsocket
 
         void logMaxConnectionsError() override
         {
-            logError("Refusing connection: Maximum number of scanners reached");
+            logError(m_socketName + " refusing connection: Maximum number of scanners reached");
         }
 
     private:
