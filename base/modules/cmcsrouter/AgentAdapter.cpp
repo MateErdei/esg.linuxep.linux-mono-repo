@@ -131,11 +131,6 @@ namespace MCS
             }
             optionals << "</macAddresses>";
         }
-        std::shared_ptr<OSUtilities::ISystemUtils> systemUtils = std::make_shared<OSUtilitiesImpl::SystemUtils>();
-        if (systemUtils->getEnvironmentVariable("FORCE_UNINSTALL_SAV") == "1")
-        {
-            optionals << "<migratedFromSAV>1</migratedFromSAV>";
-        }
         return optionals.str();
     }
 
