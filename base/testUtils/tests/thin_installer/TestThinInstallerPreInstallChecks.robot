@@ -36,13 +36,6 @@ SAV Teardown
     Remove SAV files
     Thininstaller Test Teardown
 
-Run ThinInstaller Instdir And Check It Fails
-    [Arguments]    ${path}
-    Log  ${path}
-    Run Default Thininstaller With Args  19  --instdir=${path}
-    Check Thininstaller Log Contains  The --instdir path provided contains invalid characters. Only alphanumeric and '/' '-' '_' '.' characters are accepted
-    Remove Thininstaller Log
-
 Run ThinInstaller With Bad Group Name And Check It Fails
     [Arguments]    ${groupName}
     Log  ${GroupName}
@@ -85,41 +78,7 @@ Thin Installer fails to install on system without enough memory
 
 Thin Installer fails to install on system without enough storage
     Run Default Thininstaller With Fake Small Disk
-    Check Thininstaller Log Contains    Not enough space in / to install Sophos Linux Protection. You can install elsewhere by re-running this installer with the --instdir argument
-
-Thin Installer fails to install to the tmp folder
-    ${Install_Path}=  Set Variable  /tmp
-    Run Default Thininstaller With Args  19  --instdir=${Install_Path}
-    Check Thininstaller Log Contains  The --instdir path provided is in the non-persistent /tmp folder. Please choose a location that is persistent
-
-Thin Installer fails to install to a folder within the temp folder
-    ${Install_Path}=  Set Variable  /tmp/dir2/dir2
-    Run Default Thininstaller With Args  19  --instdir=${Install_Path}
-    Check Thininstaller Log Contains  The --instdir path provided is in the non-persistent /tmp folder. Please choose a location that is persistent
-
-Thin Installer Fails With Invalid Paths
-    Run ThinInstaller Instdir And Check It Fails   /abc"def
-    Run ThinInstaller Instdir And Check It Fails   /abc'def
-    Run ThinInstaller Instdir And Check It Fails   /abc*def
-    Run ThinInstaller Instdir And Check It Fails   /"abc\def"
-    Run ThinInstaller Instdir And Check It Fails   /abc&def
-    Run ThinInstaller Instdir And Check It Fails   /abc<def
-    Run ThinInstaller Instdir And Check It Fails   /abc>def
-    Run ThinInstaller Instdir And Check It Fails   /abc%def
-    Run ThinInstaller Instdir And Check It Fails   /abc!def
-    Run ThinInstaller Instdir And Check It Fails   /'abc£def'
-    Run ThinInstaller Instdir And Check It Fails   /abc^def
-    Run ThinInstaller Instdir And Check It Fails   /abc(def
-    Run ThinInstaller Instdir And Check It Fails   /abc)def
-    Run ThinInstaller Instdir And Check It Fails   /abc[def
-    Run ThinInstaller Instdir And Check It Fails   /abc]def
-    Run ThinInstaller Instdir And Check It Fails   /abc{def
-    Run ThinInstaller Instdir And Check It Fails   /abc}def
-    Run ThinInstaller Instdir And Check It Fails   /{}!"£%^^&^&*$"£$!
-    Run ThinInstaller Instdir And Check It Fails   /abc:def
-    Run ThinInstaller Instdir And Check It Fails   /abc;def
-    Run ThinInstaller Instdir And Check It Fails   /abc def
-    Run ThinInstaller Instdir And Check It Fails   /abc=def
+    Check Thininstaller Log Contains    Not enough space in / to install Sophos Linux Protection. You need at least 2048mB to install Sophos Linux Protection
 
 Thin Installer Tells Us It Is Governed By A License
     Run Default Thininstaller    3
