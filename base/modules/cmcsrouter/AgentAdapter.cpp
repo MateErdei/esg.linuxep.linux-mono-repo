@@ -131,11 +131,6 @@ namespace MCS
             }
             optionals << "</macAddresses>";
         }
-        std::shared_ptr<OSUtilities::ISystemUtils> systemUtils = std::make_shared<OSUtilitiesImpl::SystemUtils>();
-        if (systemUtils->getEnvironmentVariable("FORCE_UNINSTALL_SAV") == "1")
-        {
-            optionals << "<migratedFromSAV>1</migratedFromSAV>";
-        }
         return optionals.str();
     }
 
@@ -157,8 +152,14 @@ namespace MCS
                           << "<osName>" << m_platformUtils->getOsName() << "</osName>"
                           << "<kernelVersion>" << m_platformUtils->getKernelVersion() << "</kernelVersion>"
                           << "<osMajorVersion>" << m_platformUtils->getOsMajorVersion() << "</osMajorVersion>"
-                          << "<osMinorVersion>" << m_platformUtils->getOsMinorVersion() << "</osMinorVersion>"
-                          << "</posixPlatformDetails>";
+                          << "<osMinorVersion>" << m_platformUtils->getOsMinorVersion() << "</osMinorVersion>";
+
+        std::shared_ptr<OSUtilities::ISystemUtils> systemUtils = std::make_shared<OSUtilitiesImpl::SystemUtils>();
+        if (systemUtils->getEnvironmentVariable("FORCE_UNINSTALL_SAV") == "1")
+        {
+            platformStatusXml << "<migratedFromSAV>1</migratedFromSAV>";
+        }
+        platformStatusXml << "</posixPlatformDetails>";
         return platformStatusXml.str();
     }
 
