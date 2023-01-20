@@ -14,7 +14,7 @@
 namespace unixsocket
 {
     RestoreReportingServer::RestoreReportingServer(const IRestoreReportProcessor& restoreReportProcessor) :
-        BaseServerSocket{ Plugin::getRestoreReportSocketPath(), "Restore Reporting Server", 0600 },
+        BaseServerSocket{ Plugin::getRestoreReportSocketPath(), "RestoreReportingServer", 0600 },
         m_restoreReportProcessor{ restoreReportProcessor }
     {
     }
