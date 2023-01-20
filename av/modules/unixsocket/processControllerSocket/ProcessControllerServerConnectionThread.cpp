@@ -23,13 +23,14 @@ using namespace unixsocket;
 ProcessControllerServerConnectionThread::ProcessControllerServerConnectionThread(datatypes::AutoFd& fd,
                                                                                  std::shared_ptr<IProcessControlMessageCallback> processControlCallback,
                                                                                  datatypes::ISystemCallWrapperSharedPtr sysCalls)
-    : m_fd(std::move(fd))
+    : BaseServerConnectionThread("ProcessControllerServerConnectionThread")
+    , m_fd(std::move(fd))
     , m_controlMessageCallback(std::move(processControlCallback))
     , m_sysCalls(std::move(sysCalls))
 {
     if (m_fd < 0)
     {
-        throw std::runtime_error("Attempting to construct ProcessControllerServerConnectionThread with invalid socket fd");
+        throw std::runtime_error("Attempting to construct " + m_threadName + " with invalid socket fd");
     }
 }
 
@@ -67,24 +68,24 @@ void ProcessControllerServerConnectionThread::run()
         if (ex.getType() == kj::Exception::Type::UNIMPLEMENTED)
         {
             // Fatal since this means we have a coding error that calls something unimplemented in kj.
-            LOGFATAL("Terminated ProcessControllerServerConnectionThread with serialisation unimplemented exception: "
+            LOGFATAL("Terminated " << m_threadName << " with serialisation unimplemented exception: "
                          << ex.getDescription().cStr());
         }
         else
         {
             LOGERROR(
-                "Terminated ProcessControllerServerConnectionThread with serialisation exception: "
+                "Terminated " << m_threadName << " with serialisation exception: "
                     << ex.getDescription().cStr());
         }
     }
     catch (const std::exception& ex)
     {
-        LOGERROR("Terminated ProcessControllerServerConnectionThread with exception: " << ex.what());
+        LOGERROR("Terminated " << m_threadName << " with exception: " << ex.what());
     }
     catch (...)
     {
         // Fatal since this means we have thrown something that isn't a subclass of std::exception
-        LOGFATAL("Terminated ProcessControllerServerConnectionThread with unknown exception");
+        LOGFATAL("Terminated " << m_threadName << " with unknown exception");
     }
     setIsRunning(false);
 }
@@ -92,7 +93,7 @@ void ProcessControllerServerConnectionThread::run()
 void ProcessControllerServerConnectionThread::inner_run()
 {
     datatypes::AutoFd socket_fd(std::move(m_fd));
-    LOGDEBUG("Process Controller Server thread got connection " << socket_fd.fd());
+    LOGDEBUG(m_threadName << " got connection " << socket_fd.fd());
     uint32_t buffer_size = 512;
     auto proto_buffer = kj::heapArray<capnp::word>(buffer_size);
 
@@ -107,31 +108,32 @@ void ProcessControllerServerConnectionThread::inner_run()
         auto ret = m_sysCalls->ppoll(fds, std::size(fds), nullptr, nullptr);
         if (ret < 0)
         {
-            if (errno == EINTR)
+            int error = errno;
+            if (error == EINTR)
             {
                 continue;
             }
 
-            LOGFATAL("Error from ppoll: " << common::safer_strerror(errno));
+            LOGFATAL(m_threadName << " got error from ppoll: " << common::safer_strerror(error) << " (" << error << ')');
             return;
         }
         assert(ret > 0);
 
         if ((fds[1].revents & POLLERR) != 0)
         {
-            LOGERROR("Closing Process Controller connection thread, error from notify pipe");
+            LOGERROR("Closing " << m_threadName << ", error from notify pipe");
             break;
         }
 
         if ((fds[0].revents & POLLERR) != 0)
         {
-            LOGERROR("Closing Process Controller connection thread, error from socket");
+            LOGERROR("Closing " << m_threadName << ", error from socket");
             break;
         }
 
         if ((fds[1].revents & POLLIN) != 0)
         {
-            LOGSUPPORT("Closing Process Controller connection thread");
+            LOGSUPPORT("Closing " << m_threadName);
             break;
         }
 
@@ -141,19 +143,19 @@ void ProcessControllerServerConnectionThread::inner_run()
             ssize_t length = unixsocket::readLength(socket_fd);
             if (length == -2)
             {
-                LOGDEBUG("Process Controller connection thread closed: EOF");
+                LOGDEBUG(m_threadName << " closed: EOF");
                 break;
             }
             else if (length < 0)
             {
-                LOGERROR("Aborting Process Controller connection thread: failed to read length");
+                LOGERROR("Aborting " << m_threadName << ": failed to read length");
                 break;
             }
             else if (length == 0)
             {
                 if (not loggedLengthOfZero)
                 {
-                    LOGDEBUG("Ignoring length of zero / No new messages");
+                    LOGDEBUG(m_threadName << " ignoring length of zero / No new messages");
                     loggedLengthOfZero = true;
                 }
                 continue;
@@ -171,16 +173,16 @@ void ProcessControllerServerConnectionThread::inner_run()
             ssize_t bytes_read = ::read(socket_fd, proto_buffer.begin(), length);
             if (bytes_read < 0)
             {
-                LOGERROR("Process Controller connection thread aborting socket connection: " << errno);
+                LOGERROR(m_threadName << " aborting socket connection: " << errno);
                 break;
             }
             else if (bytes_read != length)
             {
-                LOGERROR("Process Controller connection thread aborting socket connection: failed to read entire message");
+                LOGERROR(m_threadName << " aborting socket connection: failed to read entire message");
                 break;
             }
 
-            LOGDEBUG("Read capn of " << bytes_read);
+            LOGDEBUG(m_threadName << " read capn of " << bytes_read);
             auto processControlReader = parseProcessControlRequest(proto_buffer, bytes_read);
 
             m_controlMessageCallback->processControlMessage(processControlReader.getCommandType());

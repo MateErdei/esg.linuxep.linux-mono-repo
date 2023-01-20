@@ -2,6 +2,8 @@
 
 #include "ProcessControllerClient.h"
 
+#include "common/SaferStrerror.h"
+
 #include "unixsocket/SocketUtils.h"
 #include "unixsocket/Logger.h"
 
@@ -21,7 +23,7 @@ unixsocket::ProcessControllerClientSocket::ProcessControllerClientSocket(
     unixsocket::BaseClient::IStoppableSleeperSharedPtr sleeper,
     int max_retries,
     const unixsocket::BaseClient::duration_t& sleepTime)
-    : BaseClient(std::move(socket_path), "Process Control Client", sleepTime, std::move(sleeper))
+    : BaseClient(std::move(socket_path), "ProcessControlClient", sleepTime, std::move(sleeper))
 {
     if (max_retries >= 0)
     {
@@ -45,7 +47,7 @@ void unixsocket::ProcessControllerClientSocket::sendProcessControlRequest(const 
         if (! writeLengthAndBuffer(m_socket_fd, dataAsString))
         {
             std::stringstream errMsg;
-            errMsg << m_name << " failed to write Process Control Request to socket [" << errno << "]";
+            errMsg << m_name << " failed to write Process Control Request to socket [" << common::safer_strerror(errno) << "]";
             throw std::runtime_error(errMsg.str());
         }
     }
