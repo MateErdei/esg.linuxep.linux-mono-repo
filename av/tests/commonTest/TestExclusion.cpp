@@ -193,6 +193,31 @@ TEST(Exclusion, TestGlobTypes)
     EXPECT_TRUE(regexMetaCharExcl2.appliesToPath("/tmp/(e|E)ic{2,3}ar.com"));
 }
 
+TEST(Exclusion, AbsolutePathWithDirectoryNameSuffix)
+{
+    // /directory/*.directorynamesuffix/
+    Exclusion ex("/lib/*.so/");
+    EXPECT_EQ(ex.type(), GLOB);
+    EXPECT_EQ(ex.displayPath(), "/lib/*.so/");
+    EXPECT_TRUE(ex.appliesToPath("/lib/foo.so/bar"));
+    EXPECT_TRUE(ex.appliesToPath("/lib/foo/bar.so/baz"));
+    EXPECT_FALSE(ex.appliesToPath("/lib/foo.so"));
+//    EXPECT_TRUE(ex.appliesToPath("/lib/foo.so", true, false));
+}
+
+TEST(Exclusion, AbsolutePathWithDirectoryNamePrefix)
+{
+    // /directory/directorynameprefix.*/
+    Exclusion ex("/lib/libz.*/");
+    EXPECT_EQ(ex.type(), GLOB);
+    EXPECT_EQ(ex.displayPath(), "/lib/libz.*/");
+    EXPECT_TRUE(ex.appliesToPath("/lib/libz.so/foo"));
+    EXPECT_TRUE(ex.appliesToPath("/lib/libz.so.1/bar"));
+    EXPECT_FALSE(ex.appliesToPath("/lib/foo.so"));
+    EXPECT_FALSE(ex.appliesToPath("/lib/libz.so.1"));
+    //    EXPECT_TRUE(ex.appliesToPath("/lib/libz.so.1", true, false));
+}
+
 TEST(Exclusion, TestFilenameTypes)
 {
     Exclusion filenameExcl("foo.txt");
@@ -213,6 +238,7 @@ TEST(Exclusion, TestFilenameTypes)
 
 TEST(Exclusion, TestRelativeTypes)
 {
+    // Directory Name
     Exclusion dirExcl("bar/");
     EXPECT_EQ(dirExcl.type(), RELATIVE_STEM);
     EXPECT_EQ(dirExcl.path(), "/bar/");
@@ -228,6 +254,23 @@ TEST(Exclusion, TestRelativeTypes)
     EXPECT_TRUE(dirAndFileExcl.appliesToPath("/tmp/bar/foo.txt"));
     EXPECT_FALSE(dirAndFileExcl.appliesToPath("/tmp/foobar/foo.txt"));
     EXPECT_FALSE(dirAndFileExcl.appliesToPath("/tmp/foo/bar"));
+}
+
+TEST(Exclusion, RelativePathToADirectory)
+{
+    // Relative path to a directory
+    Exclusion dir2Excl("foo/bar/");
+    EXPECT_EQ(dir2Excl.type(), RELATIVE_STEM);
+    EXPECT_EQ(dir2Excl.path(), "/foo/bar/");
+    EXPECT_EQ(dir2Excl.displayPath(), "foo/bar/");
+    EXPECT_TRUE(dir2Excl.appliesToPath("/foo/bar/abc.txt"));
+    EXPECT_TRUE(dir2Excl.appliesToPath("/baz/foo/bar/abc.txt"));
+    EXPECT_FALSE(dir2Excl.appliesToPath("/baz/foobar/abc.txt"));
+    EXPECT_FALSE(dir2Excl.appliesToPath("/baz/foofoo/bar/abc.txt"));
+    EXPECT_FALSE(dir2Excl.appliesToPath("/baz/foo/bar"));
+    //    EXPECT_TRUE(dir2Excl.appliesToPath("/baz/foo/bar", true, false));
+    EXPECT_FALSE(dir2Excl.appliesToPath("/baz/foo/bar", false, false));
+    EXPECT_FALSE(dir2Excl.appliesToPath("/baz/foo/bar", false, true));
 }
 
 TEST(Exclusion, TestRelativeGlobTypes)
