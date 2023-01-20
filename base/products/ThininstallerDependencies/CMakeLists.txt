@@ -47,6 +47,8 @@ add_custom_target(
         COMMAND mkdir -p mcslibrary/include mcslibrary/lib64
         COMMAND cp ${NLOHMANN_JSON_INCLUDE_DIR}/json.hpp mcslibrary/include
         COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:cmcsrouterapi> mcslibrary/lib64
+        COMMAND chmod +x ${CMAKE_SOURCE_DIR}/products/installer/rpath_lib.sh
+        COMMAND ${CMAKE_SOURCE_DIR}/products/installer/rpath_lib.sh  mcslibrary/lib64/libcmcsrouterapi.so
         COMMAND ${CMAKE_COMMAND} -E copy ${zmqfull} mcslibrary/lib64
         COMMAND ${CMAKE_COMMAND} -E copy ${log4cplusfull} mcslibrary/lib64
         COMMAND ${CMAKE_COMMAND} -E copy ${protobuffull} mcslibrary/lib64
