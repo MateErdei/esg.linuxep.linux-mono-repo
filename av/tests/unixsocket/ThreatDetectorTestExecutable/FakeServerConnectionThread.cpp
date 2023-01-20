@@ -20,7 +20,8 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 FakeDetectionServer::FakeServerConnectionThread::FakeServerConnectionThread(
     datatypes::AutoFd socketFd,
     std::shared_ptr<std::vector<uint8_t>> Data)
-    :  m_socketFd(std::move(socketFd))
+    : unixsocket::BaseServerConnectionThread("FakeServerConnectionThread")
+    , m_socketFd(std::move(socketFd))
     , m_data(std::move(Data))
 {
 }
