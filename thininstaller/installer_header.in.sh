@@ -181,7 +181,7 @@ function check_free_storage()
     then
         return 0
     fi
-    failure ${EXITCODE_NOT_ENOUGH_SPACE} "Not enough space in $mountpoint to install ${PRODUCT_NAME}. You can install elsewhere by re-running this installer with the --instdir argument"
+    failure ${EXITCODE_NOT_ENOUGH_SPACE} "Not enough space in $mountpoint to install ${PRODUCT_NAME}. You need at least ${space}mB to install ${PRODUCT_NAME}"
 }
 
 function check_install_path_has_correct_permissions()
@@ -375,20 +375,6 @@ do
             export OVERRIDE_SOPHOS_CREDS="${i#*=}"
             shift
         ;;
-        --instdir=*)
-            SOPHOS_INSTALL="${i#*=}"
-            #set this here so if the --instdir passed in wrong we don't try to remove the root directory
-            export SOPHOS_INSTALL="${SOPHOS_INSTALL}/sophos-spl"
-            if ((${#SOPHOS_INSTALL} > 50))
-            then
-                failure ${EXITCODE_BAD_INSTALL_PATH} "The --instdir path provided is too long and needs to be 50 characters or less. ${SOPHOS_INSTALL} is ${#SOPHOS_INSTALL} characters long"
-            fi
-            if [[ "${SOPHOS_INSTALL}" == /tmp* ]]
-            then
-                failure ${EXITCODE_BAD_INSTALL_PATH} "The --instdir path provided is in the non-persistent /tmp folder. Please choose a location that is persistent"
-            fi
-            shift
-        ;;
         --proxy-credentials=*)
             export PROXY_CREDENTIALS="${i#*=}"
         ;;
@@ -436,12 +422,6 @@ SWEEP=$(which sweep 2>/dev/null)
 [ -x "$SWEEP" ] && check_SAV_installed "$SWEEP"
 check_SAV_installed '/usr/local/bin/sweep'
 check_SAV_installed '/usr/bin/sweep'
-
-# Verify that instdir does not contain special characters that may cause problems.
-if ! echo "${SOPHOS_INSTALL}" | grep -q '^[-a-zA-Z0-9\/\_\.]*$'
-then
-    failure ${EXITCODE_BAD_INSTALL_PATH} "The --instdir path provided contains invalid characters. Only alphanumeric and '/' '-' '_' '.' characters are accepted"
-fi
 
 # Check to see if the Sophos credentials override is being used.
 [ -n "$OVERRIDE_SOPHOS_CREDS" ] && {
