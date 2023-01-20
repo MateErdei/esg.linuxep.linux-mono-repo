@@ -17,7 +17,7 @@
 #include <sstream>
 
 unixsocket::ThreatReporterClientSocket::ThreatReporterClientSocket(std::string socket_path, const duration_t& sleepTime)
-    : BaseClient(std::move(socket_path), "Threat reporter", sleepTime)
+    : BaseClient(std::move(socket_path), "ThreatReporterClient", sleepTime)
 {
     connectWithRetries();
 }
@@ -33,17 +33,17 @@ void unixsocket::ThreatReporterClientSocket::sendThreatDetection(const scan_mess
         if (!writeLengthAndBuffer(m_socket_fd, dataAsString))
         {
             std::stringstream errMsg;
-            errMsg << "Failed to write Threat Report to socket [" << errno << "]";
+            errMsg << m_name << " failed to write to socket [" << common::safer_strerror(errno) << "]";
             throw std::runtime_error(errMsg.str());
         }
 
         if (send_fd(m_socket_fd, fd) < 0)
         {
-            throw std::runtime_error("Failed to write file descriptor to Threat Reporter socket");
+            throw std::runtime_error(m_name + " failed to write file descriptor to socket");
         }
     }
     catch (unixsocket::environmentInterruption& e)
     {
-        LOGERROR("Failed to write Threat Report Client to socket. Exception caught: " << e.what());
+        LOGERROR(m_name << " failed to write to socket. Exception caught: " << e.what());
     }
 }

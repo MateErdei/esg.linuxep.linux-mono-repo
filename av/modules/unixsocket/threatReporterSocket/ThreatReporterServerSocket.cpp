@@ -12,7 +12,7 @@ ThreatReporterServerSocket::ThreatReporterServerSocket(
     const std::string& path,
     const mode_t mode,
     std::shared_ptr<IMessageCallback> threatReportCallback)
-    : ThreatReporterServerSocketBase(path, "Threat Reporter Server", mode)
+    : ThreatReporterServerSocketBase(path, "ThreatReporterServer", mode)
     , m_threatReportCallback(std::move(threatReportCallback))
 {
 }

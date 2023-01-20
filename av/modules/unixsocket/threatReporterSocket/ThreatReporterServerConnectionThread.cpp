@@ -26,16 +26,19 @@ ThreatReporterServerConnectionThread::ThreatReporterServerConnectionThread(
     datatypes::AutoFd& fd,
     std::shared_ptr<IMessageCallback> threatReportCallback,
     datatypes::ISystemCallWrapperSharedPtr sysCalls) :
-    m_fd(std::move(fd)), m_threatReportCallback(std::move(threatReportCallback)), m_sysCalls(sysCalls)
+    BaseServerConnectionThread("ThreatReporterServerConnectionThread")
+    ,m_fd(std::move(fd))
+    , m_threatReportCallback(std::move(threatReportCallback))
+    , m_sysCalls(sysCalls)
 {
     if (m_fd < 0)
     {
-        throw std::runtime_error("Attempting to construct ThreatReporterServerConnectionThread with invalid socket fd");
+        throw std::runtime_error("Attempting to construct " + m_threadName + " with invalid socket fd");
     }
 
     if (!m_threatReportCallback)
     {
-        throw std::runtime_error("Attempting to construct ThreatReporterServerConnectionThread with null callback");
+        throw std::runtime_error("Attempting to construct " + m_threadName + " with null callback");
     }
 }
 
@@ -77,24 +80,24 @@ void ThreatReporterServerConnectionThread::run()
         {
             // Fatal since this means we have a coding error that calls something unimplemented in kj.
             LOGFATAL(
-                "Terminated ThreatReporterServerConnectionThread with serialisation unimplemented exception: "
+                "Terminated " << m_threadName << " with serialisation unimplemented exception: "
                 << ex.getDescription().cStr());
         }
         else
         {
             LOGERROR(
-                "Terminated ThreatReporterServerConnectionThread with serialisation exception: "
+                "Terminated " << m_threadName << " with serialisation exception: "
                 << ex.getDescription().cStr());
         }
     }
     catch (const std::exception& ex)
     {
-        LOGERROR("Terminated ThreatReporterServerConnectionThread with exception: " << ex.what());
+        LOGERROR("Terminated " << m_threadName << " with exception: " << ex.what());
     }
     catch (...)
     {
         // Fatal since this means we have thrown something that isn't a subclass of std::exception
-        LOGFATAL("Terminated ThreatReporterServerConnectionThread with unknown exception");
+        LOGFATAL("Terminated " << m_threadName << " with unknown exception");
     }
     setIsRunning(false);
 }
@@ -102,7 +105,7 @@ void ThreatReporterServerConnectionThread::run()
 void ThreatReporterServerConnectionThread::inner_run()
 {
     datatypes::AutoFd socket_fd(std::move(m_fd));
-    LOGDEBUG("Threat Reporter Server thread got connection " << socket_fd.fd());
+    LOGDEBUG(m_threadName << " got connection " << socket_fd.fd());
     uint32_t buffer_size = 512;
     auto proto_buffer = kj::heapArray<capnp::word>(buffer_size);
 
@@ -125,26 +128,26 @@ void ThreatReporterServerConnectionThread::inner_run()
                 continue;
             }
 
-            LOGFATAL("Error from ppoll: " << common::safer_strerror(errno));
+            LOGFATAL(m_threadName << " error from ppoll: " << common::safer_strerror(errno));
             break;
         }
         assert(ret > 0);
 
         if ((fds[1].revents & POLLERR) != 0)
         {
-            LOGERROR("Closing Threat Reporter connection thread, error from notify pipe");
+            LOGERROR("Closing " << m_threadName << ", error from notify pipe");
             break;
         }
 
         if ((fds[0].revents & POLLERR) != 0)
         {
-            LOGERROR("Closing Threat Reporter connection thread, error from socket");
+            LOGERROR("Closing " << m_threadName << ", error from socket");
             break;
         }
 
         if ((fds[1].revents & POLLIN) != 0)
         {
-            LOGSUPPORT("Closing Threat Reporter connection thread");
+            LOGSUPPORT("Closing " << m_threadName);
             break;
         }
 
@@ -154,19 +157,19 @@ void ThreatReporterServerConnectionThread::inner_run()
             int32_t length = unixsocket::readLength(socket_fd);
             if (length == -2)
             {
-                LOGDEBUG("Threat Reporter connection thread closed: EOF");
+                LOGDEBUG(m_threadName << " closed: EOF");
                 break;
             }
             else if (length < 0)
             {
-                LOGERROR("Aborting Threat Reporter connection thread: failed to read length");
+                LOGERROR("Aborting " << m_threadName << ": failed to read length");
                 break;
             }
             else if (length == 0)
             {
                 if (not loggedLengthOfZero)
                 {
-                    LOGDEBUG("Ignoring length of zero / No new messages");
+                    LOGDEBUG(m_threadName << " ignoring length of zero / No new messages");
                     loggedLengthOfZero = true;
                 }
                 continue;
@@ -183,12 +186,12 @@ void ThreatReporterServerConnectionThread::inner_run()
             ssize_t bytes_read = ::read(socket_fd, proto_buffer.begin(), length);
             if (bytes_read < 0)
             {
-                LOGERROR("Aborting Threat Reporter connection thread: " << errno);
+                LOGERROR("Aborting " << m_threadName << ": " << errno);
                 break;
             }
             else if (bytes_read != length)
             {
-                LOGERROR("Aborting Threat Reporter connection thread: failed to read entire message");
+                LOGERROR("Aborting " << m_threadName << ": failed to read entire message");
                 break;
             }
 
@@ -201,7 +204,7 @@ void ThreatReporterServerConnectionThread::inner_run()
             }
             catch (const std::exception& e)
             {
-                LOGERROR("Aborting Threat Reporter connection thread: Failed to parse detection: " << e.what());
+                LOGERROR("Aborting " << m_threadName << ": Failed to parse detection: " << e.what());
                 break;
             }
             scan_messages::ThreatDetected detectionReader = std::move(threatDetectedOptional.value());
@@ -210,15 +213,15 @@ void ThreatReporterServerConnectionThread::inner_run()
             datatypes::AutoFd file_fd(unixsocket::recv_fd(socket_fd));
             if (file_fd.get() < 0)
             {
-                LOGERROR("Aborting Threat Reporter connection thread: failed to read fd");
+                LOGERROR("Aborting " << m_threadName << ": failed to read fd");
                 break;
             }
-            LOGDEBUG("Managed to get file descriptor: " << file_fd.get());
+            LOGDEBUG(m_threadName << " managed to get file descriptor: " << file_fd.get());
             detectionReader.autoFd = std::move(file_fd);
 
             if (detectionReader.filePath.empty())
             {
-                LOGERROR("Missing file path in detection report ( size=" << bytes_read << ")");
+                LOGERROR(m_threadName << " missing file path in detection report ( size=" << bytes_read << ")");
             }
             m_threatReportCallback->processMessage(std::move(detectionReader));
         }

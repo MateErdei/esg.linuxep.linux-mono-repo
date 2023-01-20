@@ -73,13 +73,13 @@ bool unixsocket::readCapnProtoMsg(
     if (bytes_read < 0)
     {
         std::stringstream errSS;
-        errSS << "Aborting Scanning connection thread: " << common::safer_strerror(errno);
+        errSS << "Aborting: " << common::safer_strerror(errno);
         errMsg = errSS.str();
         return false;
     }
     else if (bytes_read != length)
     {
-        errMsg = "Aborting Scanning connection thread: failed to read entire message";
+        errMsg = "Aborting: failed to read entire message";
         return false;
     }
 
