@@ -79,8 +79,8 @@ add_custom_target(
         COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/thirdparty/nlohmann-json pluginapi/include/thirdparty/nlohmann-json
         COMMAND ${CMAKE_COMMAND} -E copy_directory ${LOG4CPLUS_INPUT}/include/log4cplus pluginapi/include/log4cplus
         COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:pluginapi> pluginapi/lib64
-        COMMAND chmod +x ${CMAKE_SOURCE_DIR}/products/PluginApi/rpath_pluginapi.sh
-        COMMAND ${CMAKE_SOURCE_DIR}/products/PluginApi/rpath_pluginapi.sh
+        COMMAND chmod +x ${CMAKE_SOURCE_DIR}/products/installer/rpath_lib.sh
+        COMMAND ${CMAKE_SOURCE_DIR}/products/installer/rpath_lib.sh  pluginapi/lib64/libpluginapi.so
         COMMAND ${CMAKE_COMMAND} -E copy ${zmqfull} pluginapi/lib64
         COMMAND ${CMAKE_COMMAND} -E copy ${log4cplusfull} pluginapi/lib64
         COMMAND ${CMAKE_COMMAND} -E copy ${protobuffull} pluginapi/lib64

@@ -6,7 +6,7 @@ add_library(cmcsrouterapi SHARED
         $<TARGET_OBJECTS:centralregistrationimpl>
         $<TARGET_OBJECTS:filesystemimpl>
         $<TARGET_OBJECTS:filesystemimplobject>
-        $<TARGET_OBJECTS:HttpRequestsImpl>
+        $<TARGET_OBJECTS:httpsenderimpl>
         $<TARGET_OBJECTS:logging>
         $<TARGET_OBJECTS:loggingobject>
         $<TARGET_OBJECTS:mcsimpl>
@@ -21,10 +21,10 @@ add_library(cmcsrouterapi SHARED
         )
 
 target_link_libraries(cmcsrouterapi PUBLIC
-        zmq -L${ZEROMQ_INPUT}
+        zmq -L${ZEROMQ_INPUT}/lib
         log4cplus -L${LOG4CPLUS_INPUT}/lib
         protobuf -L${Protobuf_root}/lib
-        expat -L${EXPAT_INPUT}
+        expat -L${EXPAT_INPUT}/lib64
         ${OPENSSLCRYPTO_LIBRARY}
         )
 
@@ -35,11 +35,11 @@ SET_TARGET_PROPERTIES( cmcsrouterapi
         BUILD_RPATH "$ORIGIN")
 
 INCLUDE(FindLibraryFullPath)
-FindLibraryFullPath( zmqfull zmq ${ZEROMQ_INPUT})
+FindLibraryFullPath( zmqfull zmq ${ZEROMQ_INPUT}/lib)
 FindLibraryFullPath( log4cplusfull log4cplus ${LOG4CPLUS_INPUT}/lib)
 FindLibraryFullPath( protobuffull protobuf ${Protobuf_root}/lib)
-FindLibraryFullPath( expatfull expat ${EXPAT_INPUT})
-FindLibraryFullPath( zlibfull zlib ${ZLIB_INPUT})
+FindLibraryFullPath( expatfull   expat  ${EXPAT_INPUT}/lib64)
+FindLibraryFullPath( zlibfull  z   ${ZLIB_INPUT}/lib64)
 FindLibraryFullPath( opensslcryptofull crypto ${OPENSSL_INPUT}/lib64)
 
 add_custom_target(
@@ -47,8 +47,8 @@ add_custom_target(
         COMMAND mkdir -p mcslibrary/include mcslibrary/lib64
         COMMAND cp ${NLOHMANN_JSON_INCLUDE_DIR}/json.hpp mcslibrary/include
         COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:cmcsrouterapi> mcslibrary/lib64
-        COMMAND chmod +x ${CMAKE_SOURCE_DIR}/products/Base/installer/rpath_lib.sh
-        COMMAND ${CMAKE_SOURCE_DIR}/products/Base/installer/rpath_lib.sh  mcslibrary/lib64/libcmcsrouterapi.so
+        COMMAND chmod +x ${CMAKE_SOURCE_DIR}/products/installer/rpath_lib.sh
+        COMMAND ${CMAKE_SOURCE_DIR}/products/installer/rpath_lib.sh  mcslibrary/lib64/libcmcsrouterapi.so
         COMMAND ${CMAKE_COMMAND} -E copy ${zmqfull} mcslibrary/lib64
         COMMAND ${CMAKE_COMMAND} -E copy ${log4cplusfull} mcslibrary/lib64
         COMMAND ${CMAKE_COMMAND} -E copy ${protobuffull} mcslibrary/lib64
@@ -78,4 +78,4 @@ add_copy_directory(Common/OSUtilities)
 add_copy_directory(Common/CurlWrapper)
 add_copy_directory(Common/HttpRequests)
 add_copy_directory(Common/HttpRequestsImpl)
-
+add_copy_directory(Common/HttpSenderImpl)

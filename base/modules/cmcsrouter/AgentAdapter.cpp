@@ -6,6 +6,9 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 
 #include "AgentAdapter.h"
 
+//#include <Common/OSUtilities/ISystemUtils.h>
+#include <Common/OSUtilitiesImpl/SystemUtils.h>
+
 #include <Common/CurlWrapper/CurlWrapper.h>
 #include <Common/HttpRequestsImpl/HttpRequesterImpl.h>
 #include <Common/OSUtilitiesImpl/PlatformUtils.h>
@@ -130,6 +133,11 @@ namespace MCS
                 optionals << "<macAddress>" << macAddress << "</macAddress>";
             }
             optionals << "</macAddresses>";
+        }
+        std::shared_ptr<OSUtilities::ISystemUtils> systemUtils = std::make_shared<OSUtilitiesImpl::SystemUtils>();
+        if (systemUtils->getEnvironmentVariable("FORCE_UNINSTALL_SAV") == "1")
+        {
+            optionals << "<migratedFromSAV>1</migratedFromSAV>";
         }
         return optionals.str();
     }
