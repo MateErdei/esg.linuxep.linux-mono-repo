@@ -30,11 +30,12 @@ SafeStoreServerConnectionThread::SafeStoreServerConnectionThread(
     datatypes::AutoFd& fd,
     std::shared_ptr<safestore::QuarantineManager::IQuarantineManager> quarantineManager,
     datatypes::ISystemCallWrapperSharedPtr sysCalls) :
+    BaseServerConnectionThread("SafeStoreServerConnectionThread"),
     m_fd(std::move(fd)), m_quarantineManager(std::move(quarantineManager)), m_sysCalls(sysCalls)
 {
     if (m_fd < 0)
     {
-        throw std::runtime_error("Attempting to construct SafeStoreServerConnectionThread with invalid socket fd");
+        throw std::runtime_error("Attempting to construct " + m_threadName + " with invalid socket fd");
     }
 }
 
@@ -85,24 +86,24 @@ void SafeStoreServerConnectionThread::run()
         {
             // Fatal since this means we have a coding error that calls something unimplemented in kj.
             LOGFATAL(
-                "Terminated SafeStoreServerConnectionThread with serialisation unimplemented exception: "
+                "Terminated " << m_threadName << " with serialisation unimplemented exception: "
                 << ex.getDescription().cStr());
         }
         else
         {
             LOGERROR(
-                "Terminated SafeStoreServerConnectionThread with serialisation exception: "
+                "Terminated " << m_threadName << " with serialisation exception: "
                 << ex.getDescription().cStr());
         }
     }
     catch (const std::exception& ex)
     {
-        LOGERROR("Terminated SafeStoreServerConnectionThread with exception: " << ex.what());
+        LOGERROR("Terminated " << m_threadName << " with exception: " << ex.what());
     }
     catch (...)
     {
         // Fatal since this means we have thrown something that isn't a subclass of std::exception
-        LOGFATAL("Terminated SafeStoreServerConnectionThread with unknown exception");
+        LOGFATAL("Terminated " << m_threadName << " with unknown exception");
     }
     setIsRunning(false);
 }
@@ -110,7 +111,7 @@ void SafeStoreServerConnectionThread::run()
 void SafeStoreServerConnectionThread::inner_run()
 {
     datatypes::AutoFd socket_fd(std::move(m_fd));
-    LOGDEBUG("SafeStore Server thread got connection " << socket_fd.fd());
+    LOGDEBUG(m_threadName << " got connection " << socket_fd.fd());
     uint32_t buffer_size = 512;
     auto proto_buffer = kj::heapArray<capnp::word>(buffer_size);
 
@@ -131,26 +132,26 @@ void SafeStoreServerConnectionThread::inner_run()
                 continue;
             }
 
-            LOGFATAL("Error from ppoll: " << common::safer_strerror(errno));
+            LOGFATAL(m_threadName << " error from ppoll: " << common::safer_strerror(errno));
             break;
         }
         assert(ret > 0);
 
         if ((fds[1].revents & POLLERR) != 0)
         {
-            LOGERROR("Closing SafeStore connection thread, error from notify pipe");
+            LOGERROR("Closing " << m_threadName << ", error from notify pipe");
             break;
         }
 
         if ((fds[0].revents & POLLERR) != 0)
         {
-            LOGERROR("Closing SafeStore connection thread, error from socket");
+            LOGERROR("Closing " << m_threadName << ", error from socket");
             break;
         }
 
         if ((fds[1].revents & POLLIN) != 0)
         {
-            LOGSUPPORT("Closing SafeStore connection thread");
+            LOGSUPPORT("Closing " << m_threadName);
             break;
         }
 
@@ -160,19 +161,19 @@ void SafeStoreServerConnectionThread::inner_run()
             int32_t length = unixsocket::readLength(socket_fd);
             if (length == -2)
             {
-                LOGDEBUG("SafeStore connection thread closed: EOF");
+                LOGDEBUG(m_threadName << " closed: EOF");
                 break;
             }
             else if (length < 0)
             {
-                LOGERROR("Aborting SafeStore connection thread: failed to read length");
+                LOGERROR("Aborting " << m_threadName << ": failed to read length");
                 break;
             }
             else if (length == 0)
             {
                 if (not loggedLengthOfZero)
                 {
-                    LOGDEBUG("Ignoring length of zero / No new messages");
+                    LOGDEBUG(m_threadName << " ignoring length of zero / No new messages");
                     loggedLengthOfZero = true;
                 }
                 continue;
@@ -189,16 +190,16 @@ void SafeStoreServerConnectionThread::inner_run()
             ssize_t bytes_read = ::read(socket_fd, proto_buffer.begin(), length);
             if (bytes_read < 0)
             {
-                LOGERROR("Aborting SafeStore connection thread: " << errno);
+                LOGERROR("Aborting " << m_threadName << ": " << errno);
                 break;
             }
             else if (bytes_read != length)
             {
-                LOGERROR("Aborting SafeStore connection thread: failed to read entire message");
+                LOGERROR("Aborting " << m_threadName << ": failed to read entire message");
                 break;
             }
 
-            LOGDEBUG("Read capn of " << bytes_read);
+            LOGDEBUG(m_threadName << " read capn of " << bytes_read);
             std::optional<scan_messages::ThreatDetected> threatDetectedOptional;
 
             try
@@ -207,7 +208,7 @@ void SafeStoreServerConnectionThread::inner_run()
             }
             catch (const std::exception& e)
             {
-                LOGERROR("Aborting SafeStore connection thread: failed to parse detection");
+                LOGERROR("Aborting " << m_threadName << ": failed to parse detection");
                 break;
             }
 
@@ -217,15 +218,15 @@ void SafeStoreServerConnectionThread::inner_run()
             datatypes::AutoFd file_fd(unixsocket::recv_fd(socket_fd));
             if (file_fd.get() < 0)
             {
-                LOGERROR("Aborting SafeStore connection thread: failed to read fd");
+                LOGERROR("Aborting " << m_threadName << ": failed to read fd");
                 break;
             }
-            LOGDEBUG("Managed to get file descriptor: " << file_fd.get());
+            LOGDEBUG(m_threadName << " managed to get file descriptor: " << file_fd.get());
             threatDetected.autoFd = std::move(file_fd);
 
             if (threatDetected.filePath.empty())
             {
-                LOGERROR("Missing file path in detection report ( size=" << bytes_read << ")");
+                LOGERROR(m_threadName << " missing file path in detection report ( size=" << bytes_read << ")");
             }
             const std::string escapedPath = common::escapePathForLogging(threatDetected.filePath);
             LOGDEBUG(
@@ -274,13 +275,13 @@ void SafeStoreServerConnectionThread::inner_run()
             {
                 if (!writeLengthAndBuffer(socket_fd, serialised_result))
                 {
-                    LOGWARN("Failed to write result to unix socket");
+                    LOGWARN(m_threadName << " failed to write result to unix socket");
                     break;
                 }
             }
             catch (unixsocket::environmentInterruption& e)
             {
-                LOGWARN("Exiting Safestore Connection Thread: " << e.what());
+                LOGWARN("Exiting " << m_threadName << ": " << e.what());
                 break;
             }
         }

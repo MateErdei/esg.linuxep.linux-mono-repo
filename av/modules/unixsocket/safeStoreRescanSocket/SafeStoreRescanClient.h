@@ -9,7 +9,6 @@
 #include "unixsocket/BaseClient.h"
 
 #include <string>
-
 namespace unixsocket
 {
     class SafeStoreRescanClient : public unixsocket::BaseClient

@@ -19,6 +19,7 @@ using namespace unixsocket;
 SafeStoreRescanServerConnectionThread::SafeStoreRescanServerConnectionThread(
     datatypes::AutoFd& fd,
     std::shared_ptr<safestore::QuarantineManager::IQuarantineManager> quarantineManager) :
+    BaseServerConnectionThread("SafeStoreRescanServerConnectionThread"),
     m_fd(std::move(fd)), m_quarantineManager(std::move(quarantineManager))
 {
     if (!m_fd.valid())
@@ -38,12 +39,12 @@ void SafeStoreRescanServerConnectionThread::run()
     }
     catch (const std::exception& ex)
     {
-        LOGERROR("Terminated SafeStoreRescanServerConnectionThread with exception: " << ex.what());
+        LOGERROR("Terminated " << m_threadName << " with exception: " << ex.what());
     }
     catch (...)
     {
         // Fatal since this means we have thrown something that isn't a subclass of std::exception
-        LOGFATAL("Terminated SafeStoreRescanServerConnectionThread with unknown exception");
+        LOGFATAL("Terminated " << m_threadName << " with unknown exception");
     }
     setIsRunning(false);
 }
@@ -51,7 +52,7 @@ void SafeStoreRescanServerConnectionThread::run()
 void SafeStoreRescanServerConnectionThread::inner_run()
 {
     datatypes::AutoFd socket_fd(std::move(m_fd));
-    LOGDEBUG("SafeStore Rescan Server thread got connection " << socket_fd.fd());
+    LOGDEBUG(m_threadName << " got connection " << socket_fd.fd());
     const uint32_t bufferSize = 1;
 
     int exitFD = m_notifyPipe.readFd();
@@ -78,14 +79,14 @@ void SafeStoreRescanServerConnectionThread::inner_run()
                 continue;
             }
 
-            LOGERROR("Closing SafeStore Rescan connection thread,Error: "
+            LOGERROR("Closing " << m_threadName << ",Error: "
                      << common::safer_strerror(error) << " (" << error << ')');
             break;
         }
 
         if ((fds[0].revents & POLLIN) != 0)
         {
-            LOGDEBUG("Closing SafeStore Rescan connection thread");
+            LOGDEBUG("Closing " << m_threadName);
             break;
         }
         else
@@ -99,19 +100,19 @@ void SafeStoreRescanServerConnectionThread::inner_run()
             int32_t length = unixsocket::readLength(socket_fd);
             if (length == unixsocket::SU_EOF)
             {
-                LOGDEBUG("SafeStore Rescan connection thread closed: EOF");
+                LOGDEBUG(m_threadName << " closed: EOF");
                 break;
             }
             else if (length == unixsocket::SU_ERROR)
             {
-                LOGERROR("Aborting SafeStore Rescan connection thread: failed to read length");
+                LOGERROR("Aborting " << m_threadName << ": failed to read length");
                 break;
             }
             else if (length == unixsocket::SU_ZERO)
             {
                 if (not loggedLengthOfZero)
                 {
-                    LOGDEBUG("Ignoring length of zero / No new messages");
+                    LOGDEBUG(m_threadName << " ignoring length of zero / No new messages");
                     loggedLengthOfZero = true;
                 }
                 continue;
@@ -121,7 +122,7 @@ void SafeStoreRescanServerConnectionThread::inner_run()
             auto charsRead = ::read(socket_fd.get(), buffer, bufferSize);
             if (charsRead < 0)
             {
-                LOGERROR("Aborting SafeStore Rescan connection thread: " << errno);
+                LOGERROR("Aborting " << m_threadName << errno);
                 break;
             }
             else if (charsRead == bufferSize && buffer[0] == '1')

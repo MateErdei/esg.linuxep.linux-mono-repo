@@ -13,7 +13,7 @@ unixsocket::SafeStoreRescanClient::SafeStoreRescanClient(
     std::string socket_path,
     const duration_t& sleepTime,
     IStoppableSleeperSharedPtr sleeper) :
-    BaseClient(std::move(socket_path), "SafeStore Rescan", sleepTime, std::move(sleeper))
+    BaseClient(std::move(socket_path), "SafeStoreRescanClient", sleepTime, std::move(sleeper))
 {
     BaseClient::connectWithRetries();
 }
@@ -29,7 +29,7 @@ void unixsocket::SafeStoreRescanClient::sendRescanRequest()
         if (!writeLengthAndBuffer(m_socket_fd, dataAsString))
         {
             std::stringstream errMsg;
-            errMsg << m_name << " failed to write rescan request to socket [" << errno << "]";
+            errMsg << m_name << " failed to write rescan request to socket [" << common::safer_strerror(errno) << "]";
             throw std::runtime_error(errMsg.str());
         }
     }
