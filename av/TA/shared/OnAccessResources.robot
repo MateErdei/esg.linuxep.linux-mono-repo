@@ -183,6 +183,22 @@ On-access Scan Eicar Open
     wait_for_on_access_log_contains_after_mark  On-open event for ${dirtyfile} from  mark=${mark}
     wait_for_on_access_log_contains_after_mark  "${dirtyfile}" is infected with      mark=${mark}
 
+On-access Scan On Execute
+    [Arguments]  ${check_safestore}=${FALSE}    ${ss_mark}=
+    ${mark} =  get_on_access_log_mark
+
+    DeObfuscate File  ${RESOURCES_PATH}/file_samples_obfuscated/linux_elf_threat_obf  ${NORMAL_DIRECTORY}/linux_elf_threat-excluded.exe
+    Run Process  chmod  770  ${NORMAL_DIRECTORY}/linux_elf_threat-excluded.exe
+    Move File   ${NORMAL_DIRECTORY}/linux_elf_threat-excluded.exe   ${NORMAL_DIRECTORY}/linux_elf_threat.exe
+
+    ${handle} =     Start Process   ${NORMAL_DIRECTORY}/linux_elf_threat.exe    10
+
+    wait_for_on_access_log_contains_after_mark  linux_elf_threat.exe" is infected with Linux/Test-D (Open)  mark=${mark}
+    run keyword if  ${check_safestore}   wait_for_safestore_log_contains_after_mark     Quarantined ${NORMAL_DIRECTORY}/linux_elf_threat.exe successfully   ${ss_mark}
+
+    Process should Be Running   handle=${handle}
+    Terminate Process   ${handle}
+
 Create Large Eicar
     ${dirtyfile} =  Set Variable  /tmp_test/dirtyfile_large.txt
     # create a file without generating fanotify events
