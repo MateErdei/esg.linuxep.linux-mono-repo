@@ -43,30 +43,30 @@ Send A Valid Threat Detected Object To Safestore
 
 Send An invalid capnproto message To Safestore
     ${result} =  Run Shell Process  ${SEND_DATA_TO_SOCKET_TOOL} --socketpath /opt/sophos-spl/plugins/av/var/safestore_socket --data 2222222    OnError=Failed to run SendDataToSocket binary   timeout=10
-    wait_for_safestore_log_contains_after_mark  Aborting SafeStore connection thread: failed to parse detection   mark=${SAFESTORE_LOG_MARK_FROM_START_OF_TEST}
-    mark_expected_error_in_log  ${SAFESTORE_LOG_PATH}  Aborting SafeStore connection thread: failed to parse detection
+    wait_for_safestore_log_contains_after_mark  Aborting ScanningServerConnectionThread: failed to parse detection   mark=${SAFESTORE_LOG_MARK_FROM_START_OF_TEST}
+    mark_expected_error_in_log  ${SAFESTORE_LOG_PATH}  Aborting ScanningServerConnectionThread: failed to parse detection
 
 Send An valid capnproto message that is not tdo To Safestore
     ${result} =  Run Shell Process  ${SEND_DATA_TO_SOCKET_TOOL} --socketpath /opt/sophos-spl/plugins/av/var/safestore_socket --sendclientscan    OnError=Failed to run SendDataToSocket binary   timeout=10
-    wait_for_safestore_log_contains_after_mark  Aborting SafeStore connection thread: failed to parse detection   mark=${SAFESTORE_LOG_MARK_FROM_START_OF_TEST}
-    mark_expected_error_in_log  ${SAFESTORE_LOG_PATH}  Aborting SafeStore connection thread: failed to parse detection
+    wait_for_safestore_log_contains_after_mark  Aborting ScanningServerConnectionThread: failed to parse detection   mark=${SAFESTORE_LOG_MARK_FROM_START_OF_TEST}
+    mark_expected_error_in_log  ${SAFESTORE_LOG_PATH}  Aborting ScanningServerConnectionThread: failed to parse detection
 
 Send Only Message To Safestore
     Create File  /tmp/testfile
     ${result} =  Run Shell Process  ${SEND_THREAT_DETECTED_TOOL} --socketpath /opt/sophos-spl/plugins/av/var/safestore_socket --filepath /tmp/testfile --threatname threatName --sha e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 --nosendfd    OnError=Failed to run SendThreatDetectedEvent binary   timeout=10
-    wait_for_safestore_log_contains_after_mark  Aborting SafeStore connection thread: failed to read fd   mark=${SAFESTORE_LOG_MARK_FROM_START_OF_TEST}
-    mark_expected_error_in_log  ${SAFESTORE_LOG_PATH}  Aborting SafeStore connection thread: failed to read fd
+    wait_for_safestore_log_contains_after_mark  Aborting ScanningServerConnectionThread: failed to read fd   mark=${SAFESTORE_LOG_MARK_FROM_START_OF_TEST}
+    mark_expected_error_in_log  ${SAFESTORE_LOG_PATH}  Aborting ScanningServerConnectionThread: failed to read fd
 
 Send Only FD To Safestore
     Create File  /tmp/testfile
     ${result} =  Run Shell Process  ${SEND_THREAT_DETECTED_TOOL} --socketpath /opt/sophos-spl/plugins/av/var/safestore_socket --filepath /tmp/testfile --nosendmessage    OnError=Failed to run SendThreatDetectedEvent binary   timeout=10
-    wait_for_safestore_log_contains_after_mark  Ignoring length of zero / No new messages       mark=${SAFESTORE_LOG_MARK_FROM_START_OF_TEST}
+    wait_for_safestore_log_contains_after_mark   SafeStoreServerConnectionThread ignoring length of zero / No new messages       mark=${SAFESTORE_LOG_MARK_FROM_START_OF_TEST}
 
 Send Empty ThreatName To Safestore
     Create File  /tmp/testfile
     ${result} =  send TDO To socket  threatname=""
-    wait_for_safestore_log_contains_after_mark  Aborting SafeStore connection thread: failed to parse detection   mark=${SAFESTORE_LOG_MARK_FROM_START_OF_TEST}
-    mark_expected_error_in_log  ${SAFESTORE_LOG_PATH}  Aborting SafeStore connection thread: failed to parse detection
+    wait_for_safestore_log_contains_after_mark  Aborting SafeStoreServerConnectionThread: failed to parse detection   mark=${SAFESTORE_LOG_MARK_FROM_START_OF_TEST}
+    mark_expected_error_in_log  ${SAFESTORE_LOG_PATH}  Aborting SafeStoreServerConnectionThread: failed to parse detection
 
 Send ThreatName with foreign chars To Safestore
     Create File  /tmp/testfile
@@ -128,8 +128,8 @@ Send Filepath that is a dir To Safestore
 
 Send empty File To Safestore
     ${result} =  send TDO To socket  filepath=""  fd=1
-    wait_for_safestore_log_contains_after_mark  Aborting SafeStore connection thread: failed to parse detection   mark=${SAFESTORE_LOG_MARK_FROM_START_OF_TEST}
-    mark_expected_error_in_log  ${SAFESTORE_LOG_PATH}  Aborting SafeStore connection thread: failed to parse detection
+    wait_for_safestore_log_contains_after_mark  Aborting ScanningServerConnectionThread: failed to parse detection   mark=${SAFESTORE_LOG_MARK_FROM_START_OF_TEST}
+    mark_expected_error_in_log  ${SAFESTORE_LOG_PATH}  Aborting ScanningServerConnectionThread: failed to parse detection
 
 Send Filepath only slashes To Safestore
     ${result} =  send TDO To socket  filepath="//"  fd=1
@@ -190,26 +190,26 @@ Send very long SHA To Safestore
 Send empty threatid To Safestore
     Create File  /tmp/testfile
     ${result} =  send TDO To socket  threatid=""
-    wait_for_safestore_log_contains_after_mark  Aborting SafeStore connection thread: failed to parse detection   mark=${SAFESTORE_LOG_MARK_FROM_START_OF_TEST}
-    mark_expected_error_in_log  ${SAFESTORE_LOG_PATH}  Aborting SafeStore connection thread: failed to parse detection
+    wait_for_safestore_log_contains_after_mark  Aborting ScanningServerConnectionThread: failed to parse detection   mark=${SAFESTORE_LOG_MARK_FROM_START_OF_TEST}
+    mark_expected_error_in_log  ${SAFESTORE_LOG_PATH}  Aborting ScanningServerConnectionThread: failed to parse detection
 
 Send long threatid To Safestore
     Create File  /tmp/testfile
     ${result} =  send TDO To socket  threatid="00010203-0405-0607-0809-0a0b0c0d0e0ff"
-    wait_for_safestore_log_contains_after_mark  Aborting SafeStore connection thread: failed to parse detection   mark=${SAFESTORE_LOG_MARK_FROM_START_OF_TEST}
-    mark_expected_error_in_log  ${SAFESTORE_LOG_PATH}  Aborting SafeStore connection thread: failed to parse detection
+    wait_for_safestore_log_contains_after_mark  Aborting ScanningServerConnectionThread: failed to parse detection   mark=${SAFESTORE_LOG_MARK_FROM_START_OF_TEST}
+    mark_expected_error_in_log  ${SAFESTORE_LOG_PATH}  Aborting ScanningServerConnectionThread: failed to parse detection
 
 Send short threatid To Safestore
     Create File  /tmp/testfile
     ${result} =  send TDO To socket  threatid="00010203-0405-0607-0809-0a0b"
-    wait_for_safestore_log_contains_after_mark  Aborting SafeStore connection thread: failed to parse detection   mark=${SAFESTORE_LOG_MARK_FROM_START_OF_TEST}
-    mark_expected_error_in_log  ${SAFESTORE_LOG_PATH}  Aborting SafeStore connection thread: failed to parse detection
+    wait_for_safestore_log_contains_after_mark  Aborting ScanningServerConnectionThread: failed to parse detection   mark=${SAFESTORE_LOG_MARK_FROM_START_OF_TEST}
+    mark_expected_error_in_log  ${SAFESTORE_LOG_PATH}  Aborting ScanningServerConnectionThread: failed to parse detection
 
 Send threatid with non hex chars To Safestore
     Create File  /tmp/testfile
     ${result} =  send TDO To socket  threatid="00010203-0405-0607-0809-0a0b0c0d0e=="
-    wait_for_safestore_log_contains_after_mark  Aborting SafeStore connection thread: failed to parse detection   mark=${SAFESTORE_LOG_MARK_FROM_START_OF_TEST}
-    mark_expected_error_in_log  ${SAFESTORE_LOG_PATH}  Aborting SafeStore connection thread: failed to parse detection
+    wait_for_safestore_log_contains_after_mark  Aborting ScanningServerConnectionThread: failed to parse detection   mark=${SAFESTORE_LOG_MARK_FROM_START_OF_TEST}
+    mark_expected_error_in_log  ${SAFESTORE_LOG_PATH}  Aborting ScanningServerConnectionThread: failed to parse detection
 
 Send threatid with uppercase chars To Safestore
     Create File  /tmp/testfile
@@ -219,42 +219,42 @@ Send threatid with uppercase chars To Safestore
 Send threatid with no hyphens To Safestore
     Create File  /tmp/testfile
     ${result} =  send TDO To socket  threatid="0001020300405006070080900a0b0c0d0e0F"
-    wait_for_safestore_log_contains_after_mark  Aborting SafeStore connection thread: failed to parse detection   mark=${SAFESTORE_LOG_MARK_FROM_START_OF_TEST}
-    mark_expected_error_in_log  ${SAFESTORE_LOG_PATH}  Aborting SafeStore connection thread: failed to parse detection
+    wait_for_safestore_log_contains_after_mark  Aborting ScanningServerConnectionThread: failed to parse detection   mark=${SAFESTORE_LOG_MARK_FROM_START_OF_TEST}
+    mark_expected_error_in_log  ${SAFESTORE_LOG_PATH}  Aborting ScanningServerConnectionThread: failed to parse detection
 
 Send threatid with only hyphens To Safestore
     Create File  /tmp/testfile
     ${result} =  send TDO To socket  threatid="------------------------------------"
-    wait_for_safestore_log_contains_after_mark  Aborting SafeStore connection thread: failed to parse detection   mark=${SAFESTORE_LOG_MARK_FROM_START_OF_TEST}
-    mark_expected_error_in_log  ${SAFESTORE_LOG_PATH}  Aborting SafeStore connection thread: failed to parse detection
+    wait_for_safestore_log_contains_after_mark  Aborting ScanningServerConnectionThread: failed to parse detection   mark=${SAFESTORE_LOG_MARK_FROM_START_OF_TEST}
+    mark_expected_error_in_log  ${SAFESTORE_LOG_PATH}  Aborting ScanningServerConnectionThread: failed to parse detection
 
 Send threatid with only four hyphens To Safestore
     Create File  /tmp/testfile
     ${result} =  send TDO To socket  threatid="----"
-    wait_for_safestore_log_contains_after_mark  Aborting SafeStore connection thread: failed to parse detection   mark=${SAFESTORE_LOG_MARK_FROM_START_OF_TEST}
-    mark_expected_error_in_log  ${SAFESTORE_LOG_PATH}  Aborting SafeStore connection thread: failed to parse detection
+    wait_for_safestore_log_contains_after_mark  Aborting ScanningServerConnectionThread: failed to parse detection   mark=${SAFESTORE_LOG_MARK_FROM_START_OF_TEST}
+    mark_expected_error_in_log  ${SAFESTORE_LOG_PATH}  Aborting ScanningServerConnectionThread: failed to parse detection
 
 Send threatid with foreign char To Safestore
     Create File  /tmp/testfile
     ${result} =  send TDO To socket  threatid="00010203-0405-0607-0809-0a0b0c0d0e0こ"
-    wait_for_safestore_log_contains_after_mark  Aborting SafeStore connection thread: failed to parse detection   mark=${SAFESTORE_LOG_MARK_FROM_START_OF_TEST}
-    mark_expected_error_in_log  ${SAFESTORE_LOG_PATH}  Aborting SafeStore connection thread: failed to parse detection
+    wait_for_safestore_log_contains_after_mark  Aborting ScanningServerConnectionThread: failed to parse detection   mark=${SAFESTORE_LOG_MARK_FROM_START_OF_TEST}
+    mark_expected_error_in_log  ${SAFESTORE_LOG_PATH}  Aborting ScanningServerConnectionThread: failed to parse detection
 
 Send threatid with json To Safestore
     Create File  /tmp/testfile
     ${result} =  send TDO To socket  threatid="{'00010203-0405-0607-0809-0a0b0c0d0e0j':90}"
-    wait_for_safestore_log_contains_after_mark  Aborting SafeStore connection thread: failed to parse detection   mark=${SAFESTORE_LOG_MARK_FROM_START_OF_TEST}
-    mark_expected_error_in_log  ${SAFESTORE_LOG_PATH}  Aborting SafeStore connection thread: failed to parse detection
+    wait_for_safestore_log_contains_after_mark  Aborting ScanningServerConnectionThread: failed to parse detection   mark=${SAFESTORE_LOG_MARK_FROM_START_OF_TEST}
+    mark_expected_error_in_log  ${SAFESTORE_LOG_PATH}  Aborting ScanningServerConnectionThread: failed to parse detection
 
 Send threatid with xml To Safestore
     Create File  /tmp/testfile
     ${result} =  send TDO To socket  threatid="<exmapletag></exampletag>"
-    wait_for_safestore_log_contains_after_mark  Aborting SafeStore connection thread: failed to parse detection   mark=${SAFESTORE_LOG_MARK_FROM_START_OF_TEST}
-    mark_expected_error_in_log  ${SAFESTORE_LOG_PATH}  Aborting SafeStore connection thread: failed to parse detection
+    wait_for_safestore_log_contains_after_mark  Aborting ScanningServerConnectionThread: failed to parse detection   mark=${SAFESTORE_LOG_MARK_FROM_START_OF_TEST}
+    mark_expected_error_in_log  ${SAFESTORE_LOG_PATH}  Aborting ScanningServerConnectionThread: failed to parse detection
 
 Send very long threatid To Safestore
     Create File  /tmp/testfile
     ${long_string}=  Run Process  tr -dc A-Za-z0-9 </dev/urandom | head -c 50000  shell=True
     ${result} =  send TDO To socket  threatid=${long_string.stdout}
-    wait_for_safestore_log_contains_after_mark  Aborting SafeStore connection thread: failed to parse detection   mark=${SAFESTORE_LOG_MARK_FROM_START_OF_TEST}
-    mark_expected_error_in_log  ${SAFESTORE_LOG_PATH}  Aborting SafeStore connection thread: failed to parse detection
+    wait_for_safestore_log_contains_after_mark  Aborting ScanningServerConnectionThread: failed to parse detection   mark=${SAFESTORE_LOG_MARK_FROM_START_OF_TEST}
+    mark_expected_error_in_log  ${SAFESTORE_LOG_PATH}  Aborting ScanningServerConnectionThread: failed to parse detection

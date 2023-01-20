@@ -2,6 +2,8 @@
 
 #include "SafeStoreRescanClient.h"
 
+#include "common/SaferStrerror.h"
+
 #include "unixsocket/Logger.h"
 #include "unixsocket/SocketUtils.h"
 

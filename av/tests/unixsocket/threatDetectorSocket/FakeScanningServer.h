@@ -12,7 +12,9 @@ class TestServerConnectionThread : public BaseServerConnectionThread
 {
 public:
     explicit TestServerConnectionThread(datatypes::AutoFd& fd)
-        : m_socketFd{std::move(fd)}
+        :
+        BaseServerConnectionThread("TestServerConnectionThread")
+        , m_socketFd{std::move(fd)}
     {}
     datatypes::AutoFd m_socketFd;
     void run() override
@@ -36,9 +38,9 @@ class FakeScanningServer : public ImplServerSocket<TestServerConnectionThread>
 {
 public:
     explicit FakeScanningServer(const std::string& path, mode_t mode=0700)
-        : ImplServerSocket<connection_thread_t>(path, mode)
+        :
+        ImplServerSocket<connection_thread_t>(path, "TestServerSocket", mode)
     {
-        m_socketName = "TestServerSocket";
     }
     std::string m_nextResponse;
     TestServerConnectionThread* m_latestThread = nullptr; // Borrowed pointer to latested thread

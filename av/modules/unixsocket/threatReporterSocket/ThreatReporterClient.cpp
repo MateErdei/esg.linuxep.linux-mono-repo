@@ -2,18 +2,14 @@
 
 #include "ThreatReporterClient.h"
 
+#include "common/SaferStrerror.h"
+
 #include "unixsocket/SocketUtils.h"
 #include "unixsocket/Logger.h"
 #include "scan_messages/ThreatDetected.h"
-#include <ScanResponse.capnp.h>
 
 #include <string>
-#include <cstdio>
-#include <cstdlib>
 #include <cassert>
-
-#include <sys/socket.h>
-#include <sys/un.h>
 #include <sstream>
 
 unixsocket::ThreatReporterClientSocket::ThreatReporterClientSocket(std::string socket_path, const duration_t& sleepTime)
