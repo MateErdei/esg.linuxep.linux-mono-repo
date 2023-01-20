@@ -102,7 +102,7 @@ TEST_F(TestProcessControllerServerConnectionThread, fail_construction_with_bad_f
 
 TEST_F(TestProcessControllerServerConnectionThread, stop_while_running)
 {
-    const std::string expected = "Closing Process Controller connection thread";
+    const std::string expected = "Closing ProcessControllerServerConnectionThread";
     UsingMemoryAppender memoryAppenderHolder(*this);
 
     datatypes::AutoFd fdHolder(::open("/dev/zero", O_RDONLY));
@@ -123,7 +123,7 @@ TEST_F(TestProcessControllerServerConnectionThread, stop_while_running)
 
 TEST_F(TestProcessControllerServerConnectionThread, eof_while_running)
 {
-    const std::string expected = "Process Controller connection thread closed: EOF";
+    const std::string expected = "ProcessControllerServerConnectionThread closed: EOF";
     UsingMemoryAppender memoryAppenderHolder(*this);
 
     datatypes::AutoFd fdHolder(::open("/dev/null", O_RDONLY));
@@ -139,7 +139,7 @@ TEST_F(TestProcessControllerServerConnectionThread, eof_while_running)
 TEST_F(TestProcessControllerServerConnectionThread, send_zero_length)
 {
     const unsigned char zeroLengthMessage[] = { 0x00 };
-    const std::string expected = "Ignoring length of zero / No new messages";
+    const std::string expected = "ProcessControllerServerConnectionThread ignoring length of zero / No new messages";
     UsingMemoryAppender memoryAppenderHolder(*this);
 
     int socket_fds[2];
@@ -164,7 +164,7 @@ TEST_F(TestProcessControllerServerConnectionThread, send_zero_length)
 TEST_F(TestProcessControllerServerConnectionThread, send_zero_length_twice_logs_once)
 {
     const unsigned char zeroLengthMessage[] = { 0x00 };
-    const std::string expected = "Ignoring length of zero / No new messages";
+    const std::string expected = "ProcessControllerServerConnectionThread ignoring length of zero / No new messages";
     UsingMemoryAppender memoryAppenderHolder(*this);
 
     int socket_fds[2];
@@ -193,7 +193,7 @@ TEST_F(TestProcessControllerServerConnectionThread, send_zero_length_twice_logs_
 TEST_F(TestProcessControllerServerConnectionThread, send_zero_length_twice_logs_again_after_valid_message)
 {
     const unsigned char zeroLengthMessage[] = { 0x00 };
-    const std::string expected = "Ignoring length of zero / No new messages";
+    const std::string expected = "ProcessControllerServerConnectionThread ignoring length of zero / No new messages";
     UsingMemoryAppender memoryAppenderHolder(*this);
 
     int socket_fds[2];
@@ -225,7 +225,7 @@ TEST_F(TestProcessControllerServerConnectionThread, send_zero_length_twice_logs_
 
 TEST_F(TestProcessControllerServerConnectionThread, bad_notify_pipe_fd)
 {
-    const std::string expected = "Closing Process Controller connection thread, error from notify pipe";
+    const std::string expected = "Closing ProcessControllerServerConnectionThread, error from notify pipe";
     UsingMemoryAppender memoryAppenderHolder(*this);
 
     datatypes::AutoFd fdHolder(::open("/dev/zero", O_RDONLY));
@@ -246,7 +246,7 @@ TEST_F(TestProcessControllerServerConnectionThread, bad_notify_pipe_fd)
 
 TEST_F(TestProcessControllerServerConnectionThread, bad_socket_fd)
 {
-    const std::string expected = "Closing Process Controller connection thread, error from socket";
+    const std::string expected = "Closing ProcessControllerServerConnectionThread, error from socket";
     UsingMemoryAppender memoryAppenderHolder(*this);
 
     datatypes::AutoFd fdHolder(::open("/dev/zero", O_RDONLY));
@@ -268,7 +268,7 @@ TEST_F(TestProcessControllerServerConnectionThread, bad_socket_fd)
 
 TEST_F(TestProcessControllerServerConnectionThread, ignore_EINTR)
 {
-    const std::string expected = "Closing Process Controller connection thread\n";
+    const std::string expected = "Closing ProcessControllerServerConnectionThread\n";
     UsingMemoryAppender memoryAppenderHolder(*this);
 
     datatypes::AutoFd fdHolder(::open("/dev/zero", O_RDONLY));
@@ -290,7 +290,7 @@ TEST_F(TestProcessControllerServerConnectionThread, ignore_EINTR)
 
 TEST_F(TestProcessControllerServerConnectionThread, ppoll_fails_with_EINVAL)
 {
-    const std::string expected = "Error from ppoll: Invalid argument";
+    const std::string expected = "ProcessControllerServerConnectionThread got error from ppoll: Invalid argument";
     UsingMemoryAppender memoryAppenderHolder(*this);
 
     datatypes::AutoFd fdHolder(::open("/dev/zero", O_RDONLY));
@@ -311,7 +311,7 @@ TEST_F(TestProcessControllerServerConnectionThread, ppoll_fails_with_EINVAL)
 
 TEST_F(TestProcessControllerServerConnectionThread, over_max_length)
 {
-    const std::string expected = "Aborting Process Controller connection thread: failed to read length";
+    const std::string expected = "Aborting ProcessControllerServerConnectionThread: failed to read length";
 
     int socket_fds[2];
     int ret = socketpair(AF_UNIX, SOCK_STREAM, 0, socket_fds);
@@ -332,7 +332,7 @@ TEST_F(TestProcessControllerServerConnectionThread, over_max_length)
 
 TEST_F(TestProcessControllerServerConnectionThread, max_length)
 {
-    const std::string expected = "Process Controller connection thread aborting socket connection: failed to read entire message";
+    const std::string expected = "ProcessControllerServerConnectionThread aborting socket connection: failed to read entire message";
 
     int socket_fds[2];
     int ret = socketpair(AF_UNIX, SOCK_STREAM, 0, socket_fds);

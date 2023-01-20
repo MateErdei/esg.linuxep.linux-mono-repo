@@ -62,24 +62,27 @@ TEST_F(TestRestoreReportSocket, TestSendRestoreReport)
 
         guard.wait();
 
-        EXPECT_TRUE(appenderContains("Restore Reporting Server starting listening on socket: "));
-        EXPECT_TRUE(appenderContains("Restore Reporting Server got connection with fd "));
-        EXPECT_TRUE(appenderContains("Reporting successful restoration of /path/eicar.txt"));
+        EXPECT_TRUE(appenderContains("RestoreReportingServer starting listening on socket: "));
+        EXPECT_TRUE(appenderContains("RestoreReportingServer got connection with fd "));
+        EXPECT_TRUE(appenderContains("RestoreReportingClient reports successful restoration of /path/eicar.txt"));
         EXPECT_TRUE(appenderContains("Correlation ID: 00000000-0000-0000-0000-000000000000"));
-        EXPECT_TRUE(appenderContains("Restore Reporting Server ready to receive data"));
-        EXPECT_TRUE(appenderContains("Restore Reporting Server received a report"));
+        EXPECT_TRUE(appenderContains("RestoreReportingServer ready to receive data"));
+        EXPECT_TRUE(appenderContains("RestoreReportingServer received a report"));
         EXPECT_TRUE(appenderContains(
             "Path: /path/eicar.txt, correlation ID: 00000000-0000-0000-0000-000000000000, successful"));
 
         // This means the connection has closed
-        EXPECT_TRUE(waitForLog("Restore Reporting Server awaiting new connection", 100ms));
+        EXPECT_TRUE(waitForLog("RestoreReportingServer awaiting new connection", 100ms));
     }
 
-    EXPECT_TRUE(appenderContains("Closing Restore Reporting Server socket"));
+    EXPECT_TRUE(appenderContains("Closing RestoreReportingServer socket"));
 }
 
 TEST_F(TestRestoreReportSocket, TestSendUnsuccessfulRestoreReport)
 {
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    m_memoryAppender->setLayout(std::make_unique<log4cplus::PatternLayout>("[%p] %m%n"));
+
     const scan_messages::RestoreReport restoreReport{
         0, "/path/eicar.txt", "00000000-0000-0000-0000-000000000000", false
     };
@@ -88,8 +91,6 @@ TEST_F(TestRestoreReportSocket, TestSendUnsuccessfulRestoreReport)
     WaitForEvent guard;
     EXPECT_CALL(mockReporter, processRestoreReport(restoreReport))
         .WillOnce(InvokeWithoutArgs([&guard]() { guard.onEventNoArgs(); }));
-
-    internal::CaptureStderr();
 
     RestoreReportingServer server{ mockReporter };
     server.start();
@@ -101,15 +102,15 @@ TEST_F(TestRestoreReportSocket, TestSendUnsuccessfulRestoreReport)
 
     guard.wait();
 
-    const auto log = internal::GetCapturedStderr();
-    EXPECT_THAT(log, HasSubstr(" INFO Reporting unsuccessful restoration of /path/eicar.txt"));
-    EXPECT_THAT(
-        log,
-        HasSubstr("DEBUG Path: /path/eicar.txt, correlation ID: 00000000-0000-0000-0000-000000000000, unsuccessful"));
+    EXPECT_TRUE(appenderContains("[INFO] RestoreReportingClient reports unsuccessful restoration of /path/eicar.txt"));
+    EXPECT_TRUE(appenderContains(("[DEBUG] RestoreReportingServer: Path: /path/eicar.txt, correlation ID: 00000000-0000-0000-0000-000000000000, unsuccessful")));
 }
 
 TEST_F(TestRestoreReportSocket, TestSendTwoReports)
 {
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    m_memoryAppender->setLayout(std::make_unique<log4cplus::PatternLayout>("[%p] %m%n"));
+
     const scan_messages::RestoreReport restoreReport1{
         0, "/path/eicar1.txt", "00000000-0000-0000-0000-000000000000", true
     };
@@ -133,34 +134,22 @@ TEST_F(TestRestoreReportSocket, TestSendTwoReports)
             server.start();
 
             {
-                internal::CaptureStderr();
-
                 RestoreReportingClient client{ nullptr };
                 client.sendRestoreReport(restoreReport1);
                 guard1.wait();
 
-                const auto log = internal::GetCapturedStderr();
-                EXPECT_THAT(log, HasSubstr(" INFO Reporting successful restoration of /path/eicar1.txt"));
-                EXPECT_THAT(log, HasSubstr("DEBUG Correlation ID: 00000000-0000-0000-0000-000000000000"));
-                EXPECT_THAT(
-                    log,
-                    HasSubstr(
-                        "DEBUG Path: /path/eicar1.txt, correlation ID: 00000000-0000-0000-0000-000000000000, successful"));
+                EXPECT_TRUE(appenderContains("[INFO] RestoreReportingClient reports successful restoration of /path/eicar1.txt"));
+                EXPECT_TRUE(appenderContains(
+                        "[DEBUG] RestoreReportingServer: Path: /path/eicar1.txt, correlation ID: 00000000-0000-0000-0000-000000000000, successful"));
             }
             {
-                internal::CaptureStderr();
-
                 RestoreReportingClient client{ nullptr };
                 client.sendRestoreReport(restoreReport2);
                 guard2.wait();
 
-                const auto log = internal::GetCapturedStderr();
-                EXPECT_THAT(log, HasSubstr(" INFO Reporting unsuccessful restoration of /path/eicar2.txt"));
-                EXPECT_THAT(log, HasSubstr("DEBUG Correlation ID: 11111111-1111-1111-1111-111111111111"));
-                EXPECT_THAT(
-                    log,
-                    HasSubstr(
-                        "DEBUG Path: /path/eicar2.txt, correlation ID: 11111111-1111-1111-1111-111111111111, unsuccessful"));
+                EXPECT_TRUE(appenderContains("[INFO] RestoreReportingClient reports unsuccessful restoration of /path/eicar2.txt"));
+                EXPECT_TRUE(appenderContains(
+                        "[DEBUG] RestoreReportingServer: Path: /path/eicar2.txt, correlation ID: 11111111-1111-1111-1111-111111111111, unsuccessful"));
             }
         }
     }
@@ -184,10 +173,11 @@ TEST_F(TestRestoreReportSocket, TestSendInvalidReportDoesntPreventValidReportFro
 
         {
             UsingMemoryAppender memoryAppenderHolder(*this);
+            m_memoryAppender->setLayout(std::make_unique<log4cplus::PatternLayout>("[%p] %m%n"));
             RestoreReportingClient client{ nullptr };
             client.sendRestoreReport(invalidRestoreReport);
             EXPECT_TRUE(waitForLog(
-                "Restore Reporting Server failed to receive a report: Correlation ID is not a valid UUID", 100ms));
+                "[ERROR] RestoreReportingServer failed to receive a report: Correlation ID is not a valid UUID", 100ms));
         }
 
         {
@@ -204,8 +194,8 @@ TEST_F(TestRestoreReportSocket, TestClientTimesOut)
     UsingMemoryAppender memoryAppenderHolder(*this);
     RestoreReportingClient client{ nullptr };
 
-    EXPECT_TRUE(appenderContains("Failed to connect to Restore Reporting Server - retrying upto 10 times with a sleep of 1s"));
-    EXPECT_TRUE(appenderContains("Reached the maximum number of attempts connecting to Restore Reporting Server"));
+    EXPECT_TRUE(appenderContains("RestoreReportingClient failed to connect - retrying upto 10 times with a sleep of 1s"));
+    EXPECT_TRUE(appenderContains("RestoreReportingClient reached the maximum number of attempts"));
 }
 
 TEST_F(TestRestoreReportSocket, TestClientTimeOutInterrupted)
@@ -218,13 +208,13 @@ TEST_F(TestRestoreReportSocket, TestClientTimeOutInterrupted)
 
     std::thread t1([&notifyPipeSleeper]() { RestoreReportingClient client{ std::move(notifyPipeSleeper) }; });
 
-    EXPECT_TRUE(waitForLog("Failed to connect to Restore Reporting Server - retrying upto 10 times with a sleep of 1s", 2s));
+    EXPECT_TRUE(waitForLog("RestoreReportingClient failed to connect - retrying upto 10 times with a sleep of 1s", 2s));
     notifyPipe.notify();
 
     t1.join();
 
-    EXPECT_TRUE(appenderContains("Stop requested while connecting to Restore Reporting Server"));
-    EXPECT_FALSE(appenderContains("Reached the maximum number of attempts connecting to Restore Reporting Server"));
+    EXPECT_TRUE(appenderContains("RestoreReportingClient received stop request while connecting"));
+    EXPECT_FALSE(appenderContains("RestoreReportingClient reached the maximum number of attempts"));
 }
 
 TEST_F(TestRestoreReportSocket, TestClientsDontBlockAndAllConnectionsGetResolvedInOrder)

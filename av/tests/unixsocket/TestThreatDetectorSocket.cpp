@@ -71,8 +71,8 @@ TEST_F(TestThreatDetectorSocket, test_running)
     server.requestStop();
     server.join();
 
-    EXPECT_TRUE(appenderContains("Scanning Server starting listening on socket"));
-    EXPECT_TRUE(appenderContains("Closing Scanning Server socket"));
+    EXPECT_TRUE(appenderContains("ScanningServer starting listening on socket"));
+    EXPECT_TRUE(appenderContains("Closing ScanningServer"));
 }
 
 static scan_messages::ScanResponse scan(
@@ -152,10 +152,10 @@ TEST_F(TestThreatDetectorSocket, test_scan_threat)
     server.requestStop();
     server.join();
 
-    EXPECT_TRUE(appenderContains("Scanning Server starting listening on socket:"));
-    EXPECT_TRUE(appenderContains("Scanning Server accepting connection:"));
-    EXPECT_TRUE(appenderContains("Scanning Server thread got connection"));
-    EXPECT_TRUE(appenderContains("Closing Scanning Server socket"));
+    EXPECT_TRUE(appenderContains("ScanningServer starting listening on socket:"));
+    EXPECT_TRUE(appenderContains("ScanningServer accepting connection:"));
+    EXPECT_TRUE(appenderContains("ScanningServerConnectionThread got connection"));
+    EXPECT_TRUE(appenderContains("Closing ScanningServer socket"));
 }
 
 TEST_F(TestThreatDetectorSocket, test_scan_clean)
@@ -298,7 +298,7 @@ TEST_F(TestThreatDetectorSocket, test_too_many_connections_are_refused)
 
     ASSERT_FALSE(client_sockets.empty());
     // Can't continue test if we don't have refused connections
-    ASSERT_TRUE(waitForLog("Refusing connection: Maximum number of scanners reached", 500ms));
+    ASSERT_TRUE(waitForLog("ScanningServer refusing connection: Maximum number of scanners reached", 500ms));
 
     // Try a scan with the last connection
     {

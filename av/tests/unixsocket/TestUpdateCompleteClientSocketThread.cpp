@@ -70,7 +70,7 @@ TEST_F(TestUpdateCompleteClientSocketThread, notificationPassedToClient)
     server.start();
 
     std::stringstream expected;
-    expected << "Update Complete Server starting listening on socket: " << m_socketPath.string();
+    expected << "UpdateCompleteServer starting listening on socket: " << m_socketPath.string();
     EXPECT_TRUE(waitForLog(expected.str()));
 
     // Start client
@@ -98,7 +98,7 @@ TEST_F(TestUpdateCompleteClientSocketThread, notificationPassedToClient)
     client.join();
     server.join();
 
-    EXPECT_TRUE(waitForLog("Closing Update Complete Server socket"));
+    EXPECT_TRUE(waitForLog("Closing UpdateCompleteServer socket"));
 }
 
 TEST_F(TestUpdateCompleteClientSocketThread, clientConnectsIfStartedFirst)

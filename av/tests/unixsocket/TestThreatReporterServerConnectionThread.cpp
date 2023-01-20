@@ -74,7 +74,7 @@ TEST_F(TestThreatReporterServerConnectionThread, fail_construction_with_null_fac
 
 TEST_F(TestThreatReporterServerConnectionThread, stop_while_running) //NOLINT
 {
-    const std::string expected = "Closing Threat Reporter connection thread";
+    const std::string expected = "Closing ThreatReporterServerConnectionThread";
     UsingMemoryAppender memoryAppenderHolder(*this);
 
     auto mock_callback = std::make_shared<StrictMock<MockIThreatReportCallbacks>>();
@@ -95,7 +95,7 @@ TEST_F(TestThreatReporterServerConnectionThread, stop_while_running) //NOLINT
 
 TEST_F(TestThreatReporterServerConnectionThread, eof_while_running) //NOLINT
 {
-    const std::string expected = "Threat Reporter connection thread closed: EOF";
+    const std::string expected = "ThreatReporterServerConnectionThread closed: EOF";
     UsingMemoryAppender memoryAppenderHolder(*this);
 
     auto mock_callback = std::make_shared<StrictMock<MockIThreatReportCallbacks>>();
@@ -113,7 +113,7 @@ TEST_F(TestThreatReporterServerConnectionThread, eof_while_running) //NOLINT
 
 TEST_F(TestThreatReporterServerConnectionThread, send_zero_length) //NOLINT
 {
-    const std::string expected = "Ignoring length of zero / No new messages";
+    const std::string expected = "ThreatReporterServerConnectionThread ignoring length of zero / No new messages";
     UsingMemoryAppender memoryAppenderHolder(*this);
 
     auto mock_callback = std::make_shared<StrictMock<MockIThreatReportCallbacks>>();
@@ -131,7 +131,7 @@ TEST_F(TestThreatReporterServerConnectionThread, send_zero_length) //NOLINT
 
 TEST_F(TestThreatReporterServerConnectionThread, bad_notify_pipe_fd) //NOLINT
 {
-    const std::string expected = "Closing Threat Reporter connection thread, error from notify pipe";
+    const std::string expected = "Closing ThreatReporterServerConnectionThread, error from notify pipe";
     UsingMemoryAppender memoryAppenderHolder(*this);
 
     auto mock_callback = std::make_shared<StrictMock<MockIThreatReportCallbacks>>();
@@ -156,7 +156,7 @@ TEST_F(TestThreatReporterServerConnectionThread, bad_notify_pipe_fd) //NOLINT
 
 TEST_F(TestThreatReporterServerConnectionThread, bad_socket_fd) //NOLINT
 {
-    const std::string expected = "Closing Threat Reporter connection thread, error from socket";
+    const std::string expected = "Closing ThreatReporterServerConnectionThread, error from socket";
     UsingMemoryAppender memoryAppenderHolder(*this);
 
     auto mock_callback = std::make_shared<StrictMock<MockIThreatReportCallbacks>>();

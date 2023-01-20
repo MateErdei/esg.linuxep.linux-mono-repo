@@ -100,7 +100,7 @@ TEST_F(TestSafeStoreServerConnectionThread, fail_construction_with_bad_fd)
 
 TEST_F(TestSafeStoreServerConnectionThread, stop_while_running)
 {
-    const std::string expected = "Closing SafeStore connection thread";
+    const std::string expected = "Closing SafeStoreServerConnectionThread";
     UsingMemoryAppender memoryAppenderHolder(*this);
 
     datatypes::AutoFd fdHolder(::open("/dev/zero", O_RDONLY));
@@ -120,7 +120,7 @@ TEST_F(TestSafeStoreServerConnectionThread, stop_while_running)
 
 TEST_F(TestSafeStoreServerConnectionThread, eof_while_running)
 {
-    const std::string expected = "SafeStore connection thread closed: EOF";
+    const std::string expected = "SafeStoreServerConnectionThread closed: EOF";
     UsingMemoryAppender memoryAppenderHolder(*this);
 
     datatypes::AutoFd fdHolder(::open("/dev/null", O_RDONLY));
@@ -137,7 +137,7 @@ TEST_F(TestSafeStoreServerConnectionThread, eof_while_running)
 
 TEST_F(TestSafeStoreServerConnectionThread, send_zero_length)
 {
-    const std::string expected = "Ignoring length of zero / No new messages";
+    const std::string expected = "SafeStoreServerConnectionThread ignoring length of zero / No new messages";
     UsingMemoryAppender memoryAppenderHolder(*this);
 
     datatypes::AutoFd fdHolder(::open("/dev/zero", O_RDONLY));
@@ -154,7 +154,7 @@ TEST_F(TestSafeStoreServerConnectionThread, send_zero_length)
 
 TEST_F(TestSafeStoreServerConnectionThread, bad_notify_pipe_fd)
 {
-    const std::string expected = "Closing SafeStore connection thread, error from notify pipe";
+    const std::string expected = "Closing SafeStoreServerConnectionThread, error from notify pipe";
     UsingMemoryAppender memoryAppenderHolder(*this);
 
     datatypes::AutoFd fdHolder(::open("/dev/zero", O_RDONLY));
@@ -177,7 +177,7 @@ TEST_F(TestSafeStoreServerConnectionThread, bad_notify_pipe_fd)
 
 TEST_F(TestSafeStoreServerConnectionThread, bad_socket_fd)
 {
-    const std::string expected = "Closing SafeStore connection thread, error from socket";
+    const std::string expected = "Closing SafeStoreServerConnectionThread, error from socket";
     UsingMemoryAppender memoryAppenderHolder(*this);
 
     datatypes::AutoFd fdHolder(::open("/dev/zero", O_RDONLY));
@@ -200,7 +200,7 @@ TEST_F(TestSafeStoreServerConnectionThread, bad_socket_fd)
 
 TEST_F(TestSafeStoreServerConnectionThread, over_max_length)
 {
-    const std::string expected = "Aborting SafeStore connection thread: failed to read length";
+    const std::string expected = "Aborting SafeStoreServerConnectionThread: failed to read length";
 
     int socket_fds[2];
     int ret = socketpair(AF_UNIX, SOCK_STREAM, 0, socket_fds);
@@ -223,7 +223,7 @@ TEST_F(TestSafeStoreServerConnectionThread, over_max_length)
 
 TEST_F(TestSafeStoreServerConnectionThread, max_length)
 {
-    const std::string expected = "Aborting SafeStore connection thread: failed to read entire message";
+    const std::string expected = "Aborting SafeStoreServerConnectionThread: failed to read entire message";
 
     int socket_fds[2];
     int ret = socketpair(AF_UNIX, SOCK_STREAM, 0, socket_fds);
@@ -248,7 +248,7 @@ TEST_F(TestSafeStoreServerConnectionThread, max_length)
 
 TEST_F(TestSafeStoreServerConnectionThread, corrupt_request)
 {
-    const std::string expected = "Terminated SafeStoreServerConnectionThread with serialisation exception: ";
+    const std::string expected = "Aborting SafeStoreServerConnectionThread: failed to parse detection";
 
     const std::string request = { 0x01, 0x00 };
 

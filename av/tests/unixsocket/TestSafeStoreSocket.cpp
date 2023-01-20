@@ -90,9 +90,11 @@ namespace
     };
 } // namespace
 
-TEST_F(TestSafeStoreSocket, TestSendThreatDetected) // NOLINT
+TEST_F(TestSafeStoreSocket, TestSendThreatDetected)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
+    log4cplus::Logger baseClientLogger = Common::Logging::getInstance("UnixSocket");
+    baseClientLogger.addAppender(m_sharedAppender);
     setupFakeSophosThreatDetectorConfig();
 
     {
@@ -130,11 +132,11 @@ TEST_F(TestSafeStoreSocket, TestSendThreatDetected) // NOLINT
         // destructor will stop the thread
     }
 
-    EXPECT_TRUE(appenderContains("Connected to SafeStore"));
-    EXPECT_TRUE(appenderContains("Sending quarantine request to SafeStore for file: /path/to/eicar.txt"));
-    EXPECT_TRUE(appenderContains("SafeStore Server thread got connection"));
-    EXPECT_TRUE(appenderContains("Read capn of"));
-    EXPECT_TRUE(appenderContains("Managed to get file descriptor:"));
+    EXPECT_TRUE(appenderContains("SafeStoreClient connected"));
+    EXPECT_TRUE(appenderContains("SafeStoreClient sending quarantine request to SafeStore for file: /path/to/eicar.txt"));
+    EXPECT_TRUE(appenderContains("SafeStoreServerConnectionThread got connection"));
+    EXPECT_TRUE(appenderContains("SafeStoreServerConnectionThread read capn of"));
+    EXPECT_TRUE(appenderContains("SafeStoreServerConnectionThread managed to get file descriptor:"));
     EXPECT_TRUE(appenderContains("Received Threat:"));
     EXPECT_TRUE(appenderContains("File path: /path/to/eicar.txt"));
     EXPECT_TRUE(appenderContains("Threat ID: 01234567-89ab-cdef-0123-456789abcdef"));
@@ -143,7 +145,7 @@ TEST_F(TestSafeStoreSocket, TestSendThreatDetected) // NOLINT
     EXPECT_TRUE(appenderContains("File descriptor:"));
 }
 
-TEST_F(TestSafeStoreSocket, TestSendTwoThreatDetecteds) // NOLINT
+TEST_F(TestSafeStoreSocket, TestSendTwoThreatDetecteds)
 {
     setupFakeSophosThreatDetectorConfig();
     WaitForEvent serverWaitGuard;
@@ -292,9 +294,9 @@ TEST_F(TestSafeStoreSocket, TestSendThreatDetectedReceiveResponse)
 
     EXPECT_EQ(client.waitForResponse(), common::CentralEnums::QuarantineResult::NOT_FOUND);
 
-    EXPECT_TRUE(appenderContains("Sending quarantine request to SafeStore for file: /path/to/eicar.txt"));
-    EXPECT_TRUE(appenderContains("Sent quarantine request to SafeStore"));
-    EXPECT_TRUE(appenderContains("Received quarantine result from SafeStore: failure"));
+    EXPECT_TRUE(appenderContains("SafeStoreClient sending quarantine request to SafeStore for file: /path/to/eicar.txt"));
+    EXPECT_TRUE(appenderContains("SafeStoreClient sent quarantine request to SafeStore"));
+    EXPECT_TRUE(appenderContains("SafeStoreClient received quarantine result from SafeStore: failure"));
 }
 
 TEST_F(TestSafeStoreClientSocket, testClientSocketTriesToReconnect)
@@ -303,6 +305,6 @@ TEST_F(TestSafeStoreClientSocket, testClientSocketTriesToReconnect)
     unixsocket::SafeStoreClient client(m_socketPath, m_notifyPipe, std::chrono::seconds{ 0 });
     EXPECT_FALSE(client.isConnected());
 
-    EXPECT_TRUE(appenderContains("Failed to connect to SafeStore - retrying upto 10 times with a sleep of 0s", 1));
-    EXPECT_TRUE(appenderContains("Reached the maximum number of attempts connecting to SafeStore"));
+    EXPECT_TRUE(appenderContains("SafeStoreClient failed to connect - retrying upto 10 times with a sleep of 0s", 1));
+    EXPECT_TRUE(appenderContains("SafeStoreClient reached the maximum number of attempts"));
 }

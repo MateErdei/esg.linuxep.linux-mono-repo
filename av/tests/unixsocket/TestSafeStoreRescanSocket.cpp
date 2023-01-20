@@ -142,6 +142,6 @@ TEST_F(TestSafeStoreRescanSocket, testClientSocketTriesToReconnect)
     unixsocket::SafeStoreRescanClient client(m_socketPath, 1ns);
     client.sendRescanRequest();
 
-    EXPECT_TRUE(appenderContains("Failed to connect to SafeStore Rescan - retrying upto 10 times with a sleep of 0s", 1));
-    EXPECT_TRUE(appenderContains("Reached the maximum number of attempts connecting to SafeStore Rescan"));
+    EXPECT_TRUE(appenderContains("SafeStoreRescanClient failed to connect - retrying upto 10 times with a sleep of 0s", 1));
+    EXPECT_TRUE(appenderContains("SafeStoreRescanClient reached the maximum number of attempts"));
 }

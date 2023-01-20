@@ -45,7 +45,7 @@ namespace
     };
 } // namespace
 
-TEST_F(TestThreatReporterSocket, TestSendThreatReport) // NOLINT
+TEST_F(TestThreatReporterSocket, TestSendThreatReport)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
     {
@@ -71,13 +71,13 @@ TEST_F(TestThreatReporterSocket, TestSendThreatReport) // NOLINT
         // destructor will stop the thread
     }
 
-    EXPECT_TRUE(appenderContains("Threat Reporter Server starting listening on socket:"));
-    EXPECT_TRUE(appenderContains("Threat Reporter Server accepting connection:"));
-    EXPECT_TRUE(appenderContains("Threat Reporter Server thread got connection"));
-    EXPECT_TRUE(appenderContains("Closing Threat Reporter Server socket"));
+    EXPECT_TRUE(appenderContains("ThreatReporterServer starting listening on socket:"));
+    EXPECT_TRUE(appenderContains("ThreatReporterServer accepting connection:"));
+    EXPECT_TRUE(appenderContains("ThreatReporterServerConnectionThread got connection"));
+    EXPECT_TRUE(appenderContains("Closing ThreatReporterServer socket"));
 }
 
-TEST_F(TestThreatReporterSocket, TestSendTwoThreatReports) // NOLINT
+TEST_F(TestThreatReporterSocket, TestSendTwoThreatReports)
 {
     setupFakeSophosThreatDetectorConfig();
     WaitForEvent serverWaitGuard;
@@ -107,7 +107,7 @@ TEST_F(TestThreatReporterSocket, TestSendTwoThreatReports) // NOLINT
     // destructor will stop the thread
 }
 
-TEST_F(TestThreatReporterSocket, testClientSocketTriesToReconnect) // NOLINT
+TEST_F(TestThreatReporterSocket, testClientSocketTriesToReconnect)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
     {
@@ -115,8 +115,8 @@ TEST_F(TestThreatReporterSocket, testClientSocketTriesToReconnect) // NOLINT
         unixsocket::ThreatReporterClientSocket threatReporterSocket(m_socketPath, std::chrono::seconds{ 0 });
     }
 
-    EXPECT_TRUE(appenderContains("Failed to connect to Threat reporter - retrying upto 10 times with a sleep of 0s", 1));
-    EXPECT_TRUE(appenderContains("Reached the maximum number of attempts connecting to Threat reporter"));
+    EXPECT_TRUE(appenderContains("ThreatReporterClient failed to connect - retrying upto 10 times with a sleep of 0s", 1));
+    EXPECT_TRUE(appenderContains("ThreatReporterClient reached the maximum number of attempts"));
 }
 
 TEST_F(TestThreatReporterSocket, TestSendThreatReportWithInvalidData)

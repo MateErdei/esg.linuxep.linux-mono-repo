@@ -195,7 +195,7 @@ TEST_F(TestScanningServerConnectionThread, fail_construction_with_null_factory)
 
 TEST_F(TestScanningServerConnectionThread, stop_while_running)
 {
-    const std::string expected = "Closing Scanning connection thread";
+    const std::string expected = "Closing ScanningServerConnectionThread";
 
     auto scannerFactory = std::make_shared<StrictMock<MockScannerFactory>>();
     datatypes::AutoFd fdHolder(::open("/dev/zero", O_RDONLY));
@@ -215,7 +215,7 @@ TEST_F(TestScanningServerConnectionThread, stop_while_running)
 
 TEST_F(TestScanningServerConnectionThread, eof_while_running)
 {
-    const std::string expected = "Scanning connection thread closed: EOF";
+    const std::string expected = "ScanningServerConnectionThread closed: EOF";
 
 
     auto scannerFactory = std::make_shared<StrictMock<MockScannerFactory>>();
@@ -233,7 +233,7 @@ TEST_F(TestScanningServerConnectionThread, eof_while_running)
 
 TEST_F(TestScanningServerConnectionThread, send_zero_length)
 {
-    const std::string expected = "Ignoring length of zero / No new messages";
+    const std::string expected = "ScanningServerConnectionThread ignoring length of zero / No new messages";
 
     auto scannerFactory = std::make_shared<StrictMock<MockScannerFactory>>();
     datatypes::AutoFd fdHolder(::open("/dev/zero", O_RDONLY));
@@ -250,7 +250,7 @@ TEST_F(TestScanningServerConnectionThread, send_zero_length)
 
 TEST_F(TestScanningServerConnectionThread, bad_notify_pipe_fd)
 {
-    const std::string expected = "Closing Scanning Server connection thread, error from notify pipe";
+    const std::string expected = "Closing ScanningServerConnectionThread, error from notify pipe";
 
     auto scannerFactory = std::make_shared<StrictMock<MockScannerFactory>>();
     datatypes::AutoFd fdHolder(::open("/dev/zero", O_RDONLY));
@@ -274,7 +274,7 @@ TEST_F(TestScanningServerConnectionThread, bad_notify_pipe_fd)
 
 TEST_F(TestScanningServerConnectionThread, bad_socket_fd)
 {
-    const std::string expected = "Closing Scanning Server connection thread, error from socket";
+    const std::string expected = "Closing ScanningServerConnectionThread, error from socket";
 
     auto scannerFactory = std::make_shared<StrictMock<MockScannerFactory>>();
     datatypes::AutoFd fdHolder(::open("/dev/zero", O_RDONLY));
@@ -298,7 +298,7 @@ TEST_F(TestScanningServerConnectionThread, bad_socket_fd)
 
 TEST_F(TestScanningServerConnectionThread, over_max_length)
 {
-    const std::string expected = "Aborting Scanning connection thread: failed to read length";
+    const std::string expected = "Aborting ScanningServerConnectionThread: failed to read length";
 
     auto scannerFactory = std::make_shared<StrictMock<MockScannerFactory>>();
     int socket_fds[2];
@@ -322,7 +322,7 @@ TEST_F(TestScanningServerConnectionThread, over_max_length)
 
 TEST_F(TestScanningServerConnectionThread, max_length)
 {
-    const std::string expected = "Aborting Scanning connection thread: failed to read entire message";
+    const std::string expected = "ScanningServerConnectionThread: Aborting: failed to read entire message";
 
     auto scannerFactory = std::make_shared<StrictMock<MockScannerFactory>>();
     int socket_fds[2];
@@ -374,7 +374,7 @@ TEST_F(TestScanningServerConnectionThread, corrupt_request)
 
 TEST_F(TestScanningServerConnectionThreadWithSocketConnection, valid_request_no_fd)
 {
-    const std::string expected = "Aborting Scanning connection thread: failed to read fd";
+    const std::string expected = "Aborting ScanningServerConnectionThread: failed to read fd";
 
     m_connectionThread->start();
     EXPECT_TRUE(m_connectionThread->isRunning());
@@ -390,7 +390,7 @@ TEST_F(TestScanningServerConnectionThreadWithSocketConnection, valid_request_no_
 
 TEST_F(TestScanningServerConnectionThreadWithSocketPair, send_fd) // NOLINT
 {
-    const std::string expected = "Managed to get file descriptor: ";
+    const std::string expected = "ScanningServerConnectionThread managed to get file descriptor: ";
 
     auto scannerFactory = std::make_shared<StrictMock<MockScannerFactory>>();
     auto scanner = std::make_unique<StrictMock<MockScanner>>();

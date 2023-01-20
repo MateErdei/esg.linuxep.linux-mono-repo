@@ -34,7 +34,7 @@ TEST_F(TestThreatDetectedMessageUtils, readCapnProtoMsg_returnsFalseWithNegative
     std::string errMsg;
     datatypes::AutoFd fdHolder(::open("/dev/null", O_RDONLY));
     EXPECT_FALSE(unixsocket::readCapnProtoMsg(m_mockSysCalls, length, buffer_size, proto_buffer, fdHolder, bytes_read, loggedLengthOfZero, errMsg));
-    EXPECT_EQ(errMsg, "Aborting Scanning connection thread: No such file or directory");
+    EXPECT_EQ(errMsg, "Aborting: No such file or directory");
 }
 
 TEST_F(TestThreatDetectedMessageUtils, readCapnProtoMsg_returnsFalseWithUnexpectedLengthReturnedByRead) //NOLINT
@@ -49,7 +49,7 @@ TEST_F(TestThreatDetectedMessageUtils, readCapnProtoMsg_returnsFalseWithUnexpect
     std::string errMsg;
     datatypes::AutoFd fdHolder(::open("/dev/null", O_RDONLY));
     EXPECT_FALSE(unixsocket::readCapnProtoMsg(m_mockSysCalls, length, buffer_size, proto_buffer, fdHolder, bytes_read, loggedLengthOfZero, errMsg));
-    EXPECT_EQ(errMsg, "Aborting Scanning connection thread: failed to read entire message");
+    EXPECT_EQ(errMsg, "Aborting: failed to read entire message");
 }
 
 TEST_F(TestThreatDetectedMessageUtils, isReceivedFdFile_returnsFalseWithNegativeFstatRetCode) //NOLINT
