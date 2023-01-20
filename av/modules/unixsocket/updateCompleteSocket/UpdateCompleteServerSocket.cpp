@@ -9,7 +9,7 @@ using namespace unixsocket::updateCompleteSocket;
 UpdateCompleteServerSocket::UpdateCompleteServerSocket(
     const sophos_filesystem::path& path,
     mode_t mode) :
-    BaseServerSocket(path, "Update Complete Server", mode)
+    BaseServerSocket(path, "UpdateCompleteServer", mode)
 {
 }
 

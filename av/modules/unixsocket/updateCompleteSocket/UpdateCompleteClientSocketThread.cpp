@@ -15,7 +15,7 @@ unixsocket::updateCompleteSocket::UpdateCompleteClientSocketThread::UpdateComple
     threat_scanner::IUpdateCompleteCallbackPtr callback,
     struct timespec reconnectInterval)
     :
-    BaseClient(std::move(socket_path), "Update Complete Client"),
+    BaseClient(std::move(socket_path), "UpdateCompleteClient"),
     m_callback(std::move(callback)),
     m_reconnectInterval(reconnectInterval)
 {
