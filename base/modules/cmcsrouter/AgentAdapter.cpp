@@ -6,9 +6,6 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 
 #include "AgentAdapter.h"
 
-//#include <Common/OSUtilities/ISystemUtils.h>
-#include <Common/OSUtilitiesImpl/SystemUtils.h>
-
 #include <Common/CurlWrapper/CurlWrapper.h>
 #include <Common/HttpRequestsImpl/HttpRequesterImpl.h>
 #include <Common/OSUtilitiesImpl/PlatformUtils.h>
