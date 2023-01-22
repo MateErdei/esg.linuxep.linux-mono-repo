@@ -14,6 +14,8 @@ namespace sophos_on_access_process::soapd_bootstrap
     public:
         ~SoapdResources() override = default;
 
+        std::unique_ptr<common::IPidLockFile> getPidLockFile(const std::string& pidfile, bool changePidGroup) override;
+
         datatypes::ISystemCallWrapperSharedPtr getSystemCallWrapper() override;
         service_impl::IOnAccessServicePtr getOnAccessServiceImpl() override;
 

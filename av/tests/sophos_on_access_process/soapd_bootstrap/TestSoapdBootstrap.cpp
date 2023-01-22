@@ -4,6 +4,7 @@
 
 #include "../SoapMemoryAppenderUsingTests.h"
 #include "common/MemoryAppender.h"
+#include "common/MockPidLock.h"
 #include "datatypes/MockSysCalls.h"
 
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
@@ -101,6 +102,14 @@ namespace
         datatypes::ISystemCallWrapperSharedPtr getSystemCallWrapper() override
         {
             return m_systemCallWrapper;
+        }
+
+        std::unique_ptr<common::IPidLockFile> getPidLockFile(const std::string& pidfile, bool changePidGroup) override
+        {
+            std::ignore = pidfile;
+            std::ignore = changePidGroup;
+
+            return std::make_unique<MockPidLock>();
         }
 
         IOnAccessServicePtr getOnAccessServiceImpl() override

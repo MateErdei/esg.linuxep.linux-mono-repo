@@ -186,8 +186,13 @@ void OnAccessRunner::ProcessPolicy()
     std::lock_guard<std::mutex> guard(m_pendingConfigActionMutex);
     LOGDEBUG("ProcessPolicy");
 
+    bool OnAccessEnabledFlag = false;
     auto flagJsonString = OnAccessConfig::readFlagConfigFile();
-    auto OnAccessEnabledFlag = OnAccessConfig::parseFlagConfiguration(flagJsonString);
+    if (!flagJsonString.empty())
+    {
+        OnAccessEnabledFlag = OnAccessConfig::parseFlagConfiguration(flagJsonString);
+    }
+
     OnAccessConfig::OnAccessConfiguration oaConfig{};
 
     if (getPolicyConfiguration(oaConfig))
@@ -218,7 +223,7 @@ bool OnAccessRunner::checkIfOAShouldBeEnabled(bool OnAccessEnabledFlag, bool OnA
     }
     else
     {
-        LOGINFO("No policy override, following policy settings");
+        LOGDEBUG("No policy override, following policy settings");
         return OnAccessEnabledPolicySetting;
     }
 }

@@ -42,6 +42,11 @@ namespace sophos_on_access_process::soapd_bootstrap
         void enableOnAccess();
         void disableOnAccess();
 
+        /**
+         * Reads and uses the policy settings if m_policyOverride is false.
+         * Called by OnAccessProcessControlCallback.
+         * The function blocks on m_pendingConfigActionMutex to ensure that all actions it takes are thread safe.
+         */
         void ProcessPolicy() override;
 
         std::timespec* getTimeout();

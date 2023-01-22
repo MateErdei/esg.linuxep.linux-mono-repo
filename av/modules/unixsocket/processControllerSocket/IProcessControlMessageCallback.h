@@ -4,6 +4,7 @@
 
 #include "scan_messages/ProcessControlSerialiser.h"
 
+#include <memory>
 #include <string>
 
 namespace unixsocket

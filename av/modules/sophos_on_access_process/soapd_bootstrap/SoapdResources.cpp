@@ -2,6 +2,7 @@
 
 #include "SoapdResources.h"
 
+#include "common/PidLockFile.h"
 #include "datatypes/SystemCallWrapper.h"
 #include "unixsocket/processControllerSocket/ProcessControllerServerSocket.h"
 #include "unixsocket/updateCompleteSocket/UpdateCompleteClientSocketThread.h"
@@ -9,6 +10,11 @@
 using namespace sophos_on_access_process;
 using namespace sophos_on_access_process::soapd_bootstrap;
 using namespace unixsocket::updateCompleteSocket;
+
+std::unique_ptr<common::IPidLockFile> SoapdResources::getPidLockFile(const std::string& pidfile, bool changePidGroup)
+{
+    return std::make_unique<common::PidLockFile>(pidfile, changePidGroup);
+}
 
 datatypes::ISystemCallWrapperSharedPtr SoapdResources::getSystemCallWrapper()
 {

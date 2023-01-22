@@ -68,7 +68,7 @@ void SoapdBootstrap::innerRun()
 
     // Take soapd lock file
     fs::path lockfile = common::getPluginInstallPath() / "var/soapd.pid";
-    common::PidLockFile lock(lockfile);
+    std::unique_ptr<common::IPidLockFile> lock =m_soapdResources.getPidLockFile(lockfile, true);
 
     auto sigIntMonitor{common::signals::SigIntMonitor::getSigIntMonitor(true)};
     auto sigTermMonitor{common::signals::SigTermMonitor::getSigTermMonitor(true)};
@@ -101,7 +101,7 @@ void SoapdBootstrap::innerRun()
 
     while (true)
     {
-        std::timespec* timeout = m_onAccessRunner->getTimeout();
+        timespec* timeout = m_onAccessRunner->getTimeout();
 
         // wait for an activity on one of the fds
         int activity = m_sysCallWrapper->ppoll(fds, std::size(fds), timeout, nullptr);

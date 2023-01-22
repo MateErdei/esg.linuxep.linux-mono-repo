@@ -39,12 +39,10 @@ void FanotifyHandler::init()
         errMsg << "Unable to initialise fanotify: " << common::safer_strerror(errno);
         throw std::runtime_error(errMsg.str());
     }
-    LOGINFO("Fanotify successfully initialised");
     std::remove(Plugin::getOnAccessUnhealthyFlagPath().c_str());
-
     auto fanotify_autoFd = m_fd.lock();
     fanotify_autoFd->reset(fanotifyFd);
-    LOGDEBUG("Fanotify FD set to " << fanotify_autoFd->fd());
+    LOGDEBUG("Fanotify successfully initialised: Fanotify FD=" << fanotify_autoFd->fd());
 }
 
 void FanotifyHandler::close()
@@ -72,7 +70,7 @@ int FanotifyHandler::markMount(const std::string& path) const
     int fanotify_fd = fanotify_autoFd->fd();
     if (fanotify_fd < 0)
     {
-        LOGWARN("Skipping markMount for " << path << " as fanotify disabled");
+        LOGDEBUG("Skipping markMount for " << path << " as fanotify disabled");
         return 0;
     }
 
@@ -89,7 +87,7 @@ int FanotifyHandler::unmarkMount(const std::string& path) const
     int fanotify_fd = fanotify_autoFd->fd();
     if (fanotify_fd < 0)
     {
-        LOGWARN("Skipping unmarkMount for " << path << " as fanotify disabled");
+        LOGDEBUG("Skipping unmarkMount for " << path << " as fanotify disabled");
         return 0;
     }
 
