@@ -6,7 +6,7 @@ echo "This software is governed by the terms and conditions of a licence agreeme
 
 args="$*"
 VERSION=@PRODUCT_VERSION_REPLACEMENT_STRING@
-PRODUCT_NAME="Sophos Protection Linux"
+PRODUCT_NAME="Sophos Protection for Linux"
 INSTALL_FILE=$0
 # Display help
 escaped_args=$(echo $args | sed s/--/x--/g)
