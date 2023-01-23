@@ -29,8 +29,9 @@ def ensure_unicode(s, encoding="UTF-8"):
 
 
 class LogMark:
-    def __init__(self, log_path):
+    def __init__(self, log_path, position=-1):
         self.__m_log_path = log_path
+        self.__m_override_position = position
         try:
             self.__m_stat = os.stat(self.__m_log_path)
             self.__m_inode = self.__m_stat.st_ino
@@ -45,7 +46,7 @@ class LogMark:
         mark_time = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime(self.__m_mark_time))
         if self.__m_stat is None:
             return "Missing file at %s" % mark_time
-        return "%d bytes at %s" % (self.__m_stat.st_size, mark_time)
+        return "%d bytes at %s" % (self.get_size(), mark_time)
 
     def get_inode(self) -> int:
         return self.__m_inode
@@ -69,6 +70,9 @@ class LogMark:
         return inode == self.__m_inode
 
     def get_size(self) -> int:
+        if self.__m_override_position >= 0:
+            return self.__m_override_position
+
         if self.__m_stat is not None:
             return self.__m_stat.st_size
         # log file didn't exist when Mark created, so entire file is valid
@@ -182,6 +186,9 @@ class LogHandler:
 
     def get_mark(self) -> LogMark:
         return LogMark(self.__m_log_path)
+
+    def get_mark_at_start_of_current_file(self) -> LogMark:
+        return LogMark(self.__m_log_path, 0)
 
     def assert_mark_is_good(self, mark: LogMark):
         assert isinstance(mark, LogMark)

@@ -114,7 +114,7 @@ Threat Detector Log Rotates while in chroot
     Increase Threat Detector Log To Max Size   remaining=1024
     Start AV
     Wait Until Created   ${AV_PLUGIN_PATH}/log/sophos_threat_detector/sophos_threat_detector.log.1   timeout=10s
-    Wait Until Sophos Threat Detector Log Contains  Process Controller Server starting listening on socket:
+    Wait Until Sophos Threat Detector Log Contains   Process Controller Server starting listening on socket:
     Stop AV
 
     ${result} =  Run Process  ls  -altr  ${AV_PLUGIN_PATH}/log/sophos_threat_detector/

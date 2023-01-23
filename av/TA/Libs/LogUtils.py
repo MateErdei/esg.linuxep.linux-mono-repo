@@ -1227,7 +1227,10 @@ File Log Contains
         assert isinstance(mark, LogHandler.LogMark), "mark is not an instance of LogMark in wait_for_av_log_contains_after_mark"
         return self.wait_for_log_contains_one_of_after_mark(self.sophos_threat_detector_log, expected, mark, timeout=timeout)
 
-
+    def wait_until_latest_sophos_threat_detector_log_contains(self, expected: str, timeout: int = 15):
+        handler = self.get_log_handler(self.sophos_threat_detector_log)
+        mark = handler.get_mark_at_start_of_current_file()
+        return mark.wait_for_log_contains_from_mark(expected, timeout)
 
     def check_sophos_threat_detector_log_does_not_contain_after_mark(self, not_expected, mark):
         return self.check_log_does_not_contain_after_mark(self.sophos_threat_detector_log, not_expected, mark)

@@ -234,7 +234,7 @@ Wait Until File Log Contains One Of
     ...  ${logCheck}  @{inputs}
 
 Wait Until File Log Contains
-    [Arguments]  ${logCheck}  ${input}  ${timeout}=15  ${interval}=3
+    [Arguments]  ${logCheck}  ${input}  ${timeout}=${15}  ${interval}=${3}
     Wait Until Keyword Succeeds
     ...  ${timeout} secs
     ...  ${interval} secs
@@ -327,8 +327,8 @@ Wait Until SUSI DEBUG Log Contains With Offset
     ...   File Log Contains With Offset  ${SUSI_DEBUG_LOG_PATH}   ${input}   offset=${offset}
 
 Wait Until Sophos Threat Detector Log Contains
-    [Arguments]  ${input}  ${timeout}=15
-    Wait Until File Log Contains  Threat Detector Log Contains   ${input}   timeout=${timeout}
+    [Arguments]  ${input}  ${timeout}=${15}
+    LogUtils.wait_until_latest_sophos_threat_detector_log_contains  ${input}  ${timeout}
 
 Sophos Threat Detector Log Contains With Offset
     [Arguments]  ${input}
