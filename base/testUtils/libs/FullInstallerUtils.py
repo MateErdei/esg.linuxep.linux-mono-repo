@@ -466,7 +466,19 @@ def Uninstall_SSPL(installdir=None):
                 print("Failed to run uninstaller", e)
             if returncode != 0:
                 logger.info(contents)
+                processes, processes_returncode = run_proc_with_safe_output(["ps", "-ef"])
+                logger.info(f"processes:")
+                logger.info(f"{processes}\n")
 
+                with open("/etc/passwd", 'r') as f:
+                    passwd = f.read()
+                    logger.info(f"users:")
+                    logger.info(f"{passwd}\n")
+
+                with open("/etc/group", 'r') as f:
+                    group = f.read()
+                    logger.info(f"groups:")
+                    logger.info(f"{group}\n")
         while counter < 5 and os.path.exists(installdir):
             counter = counter + 1
             try:
