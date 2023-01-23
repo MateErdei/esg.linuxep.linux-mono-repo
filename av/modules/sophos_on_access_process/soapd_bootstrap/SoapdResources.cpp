@@ -27,10 +27,10 @@ service_impl::IOnAccessServicePtr SoapdResources::getOnAccessServiceImpl()
 }
 
 std::shared_ptr<common::AbstractThreadPluginInterface> SoapdResources::getUpdateClient(
-    std::string socket_path,
+    std::string socketPath,
     threat_scanner::IUpdateCompleteCallbackPtr callback)
 {
-    return std::make_shared<UpdateCompleteClientSocketThread>(socket_path, callback);
+    return std::make_shared<UpdateCompleteClientSocketThread>(socketPath, callback);
 }
 std::shared_ptr<common::AbstractThreadPluginInterface> SoapdResources::getProcessController(
     const std::string& socketPath,

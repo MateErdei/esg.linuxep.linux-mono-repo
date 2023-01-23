@@ -68,7 +68,7 @@ void SoapdBootstrap::innerRun()
 
     // Take soapd lock file
     fs::path lockfile = common::getPluginInstallPath() / "var/soapd.pid";
-    std::unique_ptr<common::IPidLockFile> lock =m_soapdResources.getPidLockFile(lockfile, true);
+    auto lock =m_soapdResources.getPidLockFile(lockfile, true);
 
     auto sigIntMonitor{common::signals::SigIntMonitor::getSigIntMonitor(true)};
     auto sigTermMonitor{common::signals::SigTermMonitor::getSigTermMonitor(true)};

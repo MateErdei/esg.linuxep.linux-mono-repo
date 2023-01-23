@@ -118,11 +118,11 @@ namespace
         }
 
         std::shared_ptr<common::AbstractThreadPluginInterface> getUpdateClient(
-            std::string socket_path,
+            std::string socketPath,
             threat_scanner::IUpdateCompleteCallbackPtr callback
             ) override
         {
-            return std::make_shared<DummyUpdateClient>(socket_path, callback);
+            return std::make_shared<DummyUpdateClient>(socketPath, callback);
         }
 
         std::shared_ptr<common::AbstractThreadPluginInterface> getProcessController(

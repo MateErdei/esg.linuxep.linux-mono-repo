@@ -1,4 +1,4 @@
-//Copyright 2022, Sophos Limited.  All rights reserved.
+// Copyright 2022-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
@@ -12,8 +12,6 @@ namespace sophos_on_access_process::fanotifyhandler
     class IFanotifyHandler : public threat_scanner::IUpdateCompleteCallback
     {
     public:
-        ~IFanotifyHandler() override = default;
-
         [[nodiscard]] virtual int getFd() const = 0;
         [[nodiscard]] virtual int markMount(const std::string& path) const = 0;
         [[nodiscard]] virtual int unmarkMount(const std::string& path) const = 0;

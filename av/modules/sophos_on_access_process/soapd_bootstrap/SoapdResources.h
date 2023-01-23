@@ -20,7 +20,7 @@ namespace sophos_on_access_process::soapd_bootstrap
         service_impl::IOnAccessServicePtr getOnAccessServiceImpl() override;
 
         std::shared_ptr<common::AbstractThreadPluginInterface> getUpdateClient(
-            std::string socket_path,
+            std::string socketPath,
             threat_scanner::IUpdateCompleteCallbackPtr callback
             ) override;
 

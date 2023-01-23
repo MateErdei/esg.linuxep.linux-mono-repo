@@ -1,4 +1,4 @@
-// Copyright 2022, Sophos Limited.  All rights reserved.
+// Copyright 2022-2023 Sophos Limited. All rights reserved.
 
 // Class
 #include "OnAccessServiceImpl.h"
@@ -17,10 +17,8 @@ namespace sophos_on_access_process::service_impl
     using namespace service_callback;
     using namespace onaccessimpl::onaccesstelemetry;
 
-    OnAccessServiceImpl::OnAccessServiceImpl()
+    OnAccessServiceImpl::OnAccessServiceImpl() : m_TelemetryUtility(std::make_shared<OnAccessTelemetryUtility>())
     {
-        m_TelemetryUtility = std::make_shared<OnAccessTelemetryUtility>();
-
         Common::Telemetry::TelemetryHelper::getInstance().restore(ON_ACCESS_TELEMETRY_SOCKET);
 
         m_onAccessContext = Common::ZMQWrapperApi::createContext();

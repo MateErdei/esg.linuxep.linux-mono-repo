@@ -25,7 +25,7 @@ namespace sophos_on_access_process::soapd_bootstrap
         virtual service_impl::IOnAccessServicePtr getOnAccessServiceImpl() = 0;
 
         virtual std::shared_ptr<common::AbstractThreadPluginInterface> getUpdateClient(
-            std::string socket_path,
+            std::string socketPath,
             threat_scanner::IUpdateCompleteCallbackPtr callback) = 0;
 
         virtual std::shared_ptr<common::AbstractThreadPluginInterface> getProcessController(
