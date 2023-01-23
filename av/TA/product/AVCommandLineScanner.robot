@@ -1675,7 +1675,7 @@ CLS Can Append Summary To Log When SIGHUP Is Received
     Check Specific File Content    Scan aborted due to environment interruption  ${SCAN_LOG}
     Check Specific File Content    End of Scan Summary:  ${SCAN_LOG}
 
-    wait_for_log_contains_from_mark  ${td_mark}  Stopping Scanning Server thread
+    wait_for_log_contains_from_mark  ${td_mark}  Stopping Scanning Server connection thread
 
 CLS Can Append Summary To Log When SIGHUP Is Received strace
     [Tags]  STRACE   MANUAL
