@@ -35,8 +35,9 @@ namespace
     public:
         void SetUp() override
         {
-            m_mockFileSystem = new StrictMock<MockFileSystem>; // keep as a borrowed pointer
-            Tests::replaceFileSystem(std::unique_ptr<MockFileSystem>(m_mockFileSystem));
+            auto mockFileSystem = std::make_unique<StrictMock<MockFileSystem>>();
+            m_mockFileSystem = mockFileSystem.get(); // keep as a borrowed pointer
+            Tests::replaceFileSystem(std::move(mockFileSystem));
 
             setupFakeSophosThreatDetectorConfig();
             setupFakeSafeStoreConfig();
