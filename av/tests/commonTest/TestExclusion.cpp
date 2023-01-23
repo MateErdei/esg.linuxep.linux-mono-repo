@@ -202,6 +202,7 @@ TEST(Exclusion, AbsolutePathWithDirectoryNameSuffix)
     EXPECT_TRUE(ex.appliesToPath("/lib/foo.so/bar"));
     EXPECT_TRUE(ex.appliesToPath("/lib/foo/bar.so/baz"));
     EXPECT_FALSE(ex.appliesToPath("/lib/foo.so"));
+    // Special-directory handling only applies to stems, but logically should apply here as well:
 //    EXPECT_TRUE(ex.appliesToPath("/lib/foo.so", true, false));
 }
 
@@ -215,6 +216,7 @@ TEST(Exclusion, AbsolutePathWithDirectoryNamePrefix)
     EXPECT_TRUE(ex.appliesToPath("/lib/libz.so.1/bar"));
     EXPECT_FALSE(ex.appliesToPath("/lib/foo.so"));
     EXPECT_FALSE(ex.appliesToPath("/lib/libz.so.1"));
+    // Special-directory handling only applies to stems, but logically should apply here as well:
     //    EXPECT_TRUE(ex.appliesToPath("/lib/libz.so.1", true, false));
 }
 
@@ -268,6 +270,7 @@ TEST(Exclusion, RelativePathToADirectory)
     EXPECT_FALSE(dir2Excl.appliesToPath("/baz/foobar/abc.txt"));
     EXPECT_FALSE(dir2Excl.appliesToPath("/baz/foofoo/bar/abc.txt"));
     EXPECT_FALSE(dir2Excl.appliesToPath("/baz/foo/bar"));
+    // Special-directory handling only applies to stems, but logically should apply here as well:
     //    EXPECT_TRUE(dir2Excl.appliesToPath("/baz/foo/bar", true, false));
     EXPECT_FALSE(dir2Excl.appliesToPath("/baz/foo/bar", false, false));
     EXPECT_FALSE(dir2Excl.appliesToPath("/baz/foo/bar", false, true));
