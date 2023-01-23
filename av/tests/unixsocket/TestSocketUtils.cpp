@@ -539,7 +539,7 @@ TEST(TestSocketUtils, environmentInterruptionReportsWhat)
 {
     try
     {
-        throw unixsocket::environmentInterruption();
+        throw unixsocket::environmentInterruption(__FUNCTION__);
     }
     catch (const unixsocket::environmentInterruption& ex)
     {

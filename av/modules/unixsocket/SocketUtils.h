@@ -4,6 +4,7 @@
 
 #include <memory>
 #include <string>
+#include <utility>
 
 namespace unixsocket
 {
@@ -17,6 +18,13 @@ namespace unixsocket
 
     struct environmentInterruption : public std::exception
     {
+        explicit environmentInterruption(const char* where)
+            : where_(where)
+        {
+        }
+
+        const char* where_;
+
         [[nodiscard]] const char * what () const noexcept override
         {
             return "Environment interruption";

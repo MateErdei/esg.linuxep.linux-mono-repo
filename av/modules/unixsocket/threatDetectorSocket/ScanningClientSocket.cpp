@@ -46,6 +46,7 @@ namespace unixsocket
         }
         catch (const environmentInterruption& e)
         {
+            LOGDEBUG("Failed to send request at " << e.where_ << " errno=" << errno);
             return false;
         }
 
