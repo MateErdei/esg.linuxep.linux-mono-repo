@@ -77,10 +77,10 @@ include_directories(BEFORE ${CURL_INPUT}/include64 ${MCS_LIBRARY_INCLUDE} ${PLUG
 set(CMAKE_EXE_LINKER_FLAGS -Wl,-rpath,\$ORIGIN/../lib64)
 set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Wall -fstack-protector-all")
 
-add_executable(thininstaller installer.cpp)
+add_executable(installer installer.cpp)
 
-target_include_directories(thininstaller PUBLIC ${MCS_LIBRARY_DIR}  ${PLUGINAPI_LIBRARY_INCLUDE} )
-target_link_libraries(thininstaller PUBLIC  ${CURL_LIBRARY} ${MCS_LIBRARY}
+target_include_directories(installer PUBLIC ${MCS_LIBRARY_DIR}  ${PLUGINAPI_LIBRARY_INCLUDE} )
+target_link_libraries(installer PUBLIC  ${CURL_LIBRARY} ${MCS_LIBRARY}
         libcmcsrouterapi.so
         ${zmqlib}
         ${log4cpluslib}
@@ -110,10 +110,17 @@ endif()
 set(bin_dir ${INSTALLERDIR}/bin)
 set(libs_dir ${INSTALLERDIR}/lib64)
 
+SET_TARGET_PROPERTIES( installer
+        PROPERTIES INSTALL_RPATH "$ORIGIN/../lib64"
+        BUILD_RPATH "${CMAKE_BINARY_DIR}/libs"
+        )
+
+install(TARGETS installer
+        DESTINATION ${bin_dir})
+
 add_custom_target(
         copyInstaller
         COMMAND mkdir -p "${bin_dir}"
-        COMMAND cp thininstaller ${bin_dir}/installer
         COMMAND cp -a ${VERSIG_INPUT}/bin64/versig ${bin_dir}/
         COMMAND cp -a ${MCS_LIBRARY_INPUT}/bin/SulDownloader* ${bin_dir}/
         COMMAND strip ${bin_dir}/*

@@ -6,7 +6,7 @@ echo "This software is governed by the terms and conditions of a licence agreeme
 
 args="$*"
 VERSION=@PRODUCT_VERSION_REPLACEMENT_STRING@
-PRODUCT_NAME="Sophos Linux Protection"
+PRODUCT_NAME="Sophos Protection Linux"
 INSTALL_FILE=$0
 # Display help
 escaped_args=$(echo $args | sed s/--/x--/g)
@@ -623,7 +623,7 @@ mkdir -p "${SOPHOS_INSTALL}/base/etc/sophosspl"
 echo "[global]" > "${SOPHOS_INSTALL}/base/etc/logger.conf"
 echo "VERBOSITY = INFO" >> "${SOPHOS_INSTALL}/base/etc/logger.conf"
 
-${BIN}/installer credentials.txt ${MCS_TOKEN} ${MCS_URL} ${CUSTOMER_TOKEN_ARGUMENT} ${CMCSROUTER_MESSAGE_RELAYS} ${CMCSROUTER_PRODUCT_ARGUMENTS} ${REGISTRATION_GROUP_ARGS}
+FORCE_UNINSTALL_SAV=$FORCE_UNINSTALL_SAV ${BIN}/installer credentials.txt ${MCS_TOKEN} ${MCS_URL} ${CUSTOMER_TOKEN_ARGUMENT} ${CMCSROUTER_MESSAGE_RELAYS} ${CMCSROUTER_PRODUCT_ARGUMENTS} ${REGISTRATION_GROUP_ARGS}
 handle_register_errorcodes $?
 #setup for running suldownloader
 mkdir -p "${SOPHOS_INSTALL}/base/update/rootcerts"

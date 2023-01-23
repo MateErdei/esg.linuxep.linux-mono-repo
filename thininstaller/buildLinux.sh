@@ -168,6 +168,7 @@ function build()
     chmod +x "$INPUT/cmake/bin/cmake"
     "$INPUT/cmake/bin/cmake" -DREDIST="${REDIST}" -DINSTALLERDIR="${installer_dir}" -DOUTPUT="${output}" ..
     make || exitFailure 15 "Failed to build thininstaller"
+    make install || exitFailure 15 "Failed to build thininstaller"
     make copyInstaller || exitFailure $FAILED_TO_COPY_INSTALLED "Failed to copy installer"
     popd
 
