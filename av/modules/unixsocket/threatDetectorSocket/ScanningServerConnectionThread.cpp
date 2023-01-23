@@ -82,7 +82,6 @@ static std::shared_ptr<scan_messages::ScanRequest> parseRequest(kj::Array<capnp:
 void unixsocket::ScanningServerConnectionThread::run()
 {
     setIsRunning(true);
-    announceThreadStarted();
 
     // LINUXDAR-4543: Block signals in this thread, and all threads started from this thread
     sigset_t signals;
@@ -95,7 +94,9 @@ void unixsocket::ScanningServerConnectionThread::run()
     std::ignore = s; assert(s == 0);
 
     // Start server:
-    LOGDEBUG("Starting Scanning Server thread");
+    LOGDEBUG("Starting Scanning Server connection thread");
+
+    announceThreadStarted();
 
     try
     {
@@ -126,7 +127,7 @@ void unixsocket::ScanningServerConnectionThread::run()
         LOGFATAL("Terminated ScanningServerConnectionThread with unknown exception");
     }
 
-    LOGDEBUG("Stopping Scanning Server thread");
+    LOGDEBUG("Stopping Scanning Server connection thread");
 
     setIsRunning(false);
 }

@@ -320,7 +320,7 @@ TEST_F(QuarantineManagerRescanTests, scanExtractedFilesHandlesNameAndLocationFai
     auto result = quarantineManager.scanExtractedFilesForRestoreList(std::move(testFiles));
     EXPECT_EQ(expectedResult, result);
 
-    server.requestStop();
+    server.tryStop();
     server.join();
 
     std::string logMessage = internal::GetCapturedStderr();

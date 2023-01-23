@@ -44,7 +44,7 @@ namespace unixsocket
                 return false;
             }
         }
-        catch (environmentInterruption& e)
+        catch (const environmentInterruption& e)
         {
             return false;
         }
