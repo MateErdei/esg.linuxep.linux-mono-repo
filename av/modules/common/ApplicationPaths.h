@@ -1,4 +1,4 @@
-// Copyright 2022, Sophos Limited.  All rights reserved.
+// Copyright 2022-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
@@ -26,5 +26,5 @@ namespace Plugin
     std::string getSoapdPidPath();
     std::string getOnAccessStatusPath();
     std::string getSusiStartupSettingsPath();
-    std::string getRelativeSusiStartupSettingsPath();
+    std::string getScanningSocketPath();
 } // namespace Plugin

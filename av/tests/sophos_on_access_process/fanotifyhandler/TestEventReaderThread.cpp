@@ -1,4 +1,4 @@
-//Copyright 2022, Sophos Limited.  All rights reserved.
+// Copyright 2022-2023 Sophos Limited. All rights reserved.
 
 #include "FanotifyHandlerMemoryAppenderUsingTests.h"
 
@@ -7,9 +7,10 @@
 #include "common/ThreadRunner.h"
 #include "common/WaitForEvent.h"
 #include "datatypes/MockSysCalls.h"
-#include "sophos_on_access_process/onaccessimpl/OnAccessTelemetryUtility.h"
+#include "modules/sophos_on_access_process/local_settings/OnAccessProductConfigDefaults.h"
 #include "sophos_on_access_process/fanotifyhandler/EventReaderThread.h"
-#include "sophos_on_access_process/soapd_bootstrap/OnAccessProductConfigDefaults.h"
+#include "sophos_on_access_process/onaccessimpl/OnAccessTelemetryUtility.h"
+#include "tests/mount_monitor/mountinfoimpl/MockDeviceUtil.h"
 
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 
@@ -21,6 +22,7 @@
 using namespace ::testing;
 using namespace sophos_on_access_process::fanotifyhandler;
 using namespace sophos_on_access_process::onaccessimpl;
+using namespace sophos_on_access_process::local_settings;
 using namespace sophos_on_access_process::onaccessimpl::onaccesstelemetry;
 
 
@@ -62,6 +64,12 @@ namespace
         }
         void updateComplete() override {};
     };
+
+    class MockFanotify : public FakeFanotify
+    {
+    public:
+        MOCK_METHOD(int, cacheFd, (const int&, const std::string&, bool), (const, override));
+    };
 }
 
 ACTION(fstatInodeIncrementing)
@@ -77,18 +85,21 @@ protected:
     void SetUp() override
     {
         m_mockSysCallWrapper = std::make_shared<StrictMock<MockSystemCallWrapper>>();
-        m_scanRequestQueue = std::make_shared<ScanRequestQueue>(sophos_on_access_process::OnAccessConfig::defaultMaxScanQueueSize);
+        m_scanRequestQueue = std::make_shared<ScanRequestQueue>(defaultMaxScanQueueSize);
         m_fakeFanotify = std::make_shared<FakeFanotify>();
         m_smallScanRequestQueue = std::make_shared<ScanRequestQueue>(3);
         m_telemetryUtility = std::make_shared<OnAccessTelemetryUtility>();
         auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
         appConfig.setData("PLUGIN_INSTALL", m_pluginInstall);
         m_statbuf.st_uid = 321;
+        m_mockDeviceUtil = std::make_shared<MockDeviceUtil>();
     }
+
+    static constexpr int32_t EVENT_FD = 345;
 
     static fanotify_event_metadata getMetaData(
         uint64_t _mask = FAN_CLOSE_WRITE,
-        int32_t _fd = 345,
+        int32_t _fd = EVENT_FD,
         int32_t _pid = 1999999999,
         uint8_t _ver = FANOTIFY_METADATA_VERSION // Very unlikely to want to override this
         )
@@ -138,12 +149,23 @@ protected:
 
     std::shared_ptr<EventReaderThread> makeDefaultEventReaderThread()
     {
-        return std::make_shared<EventReaderThread>(m_fakeFanotify, m_mockSysCallWrapper, m_pluginInstall, m_scanRequestQueue, m_telemetryUtility);
+        return std::make_shared<EventReaderThread>(m_fakeFanotify,
+                                                   m_mockSysCallWrapper,
+                                                   m_pluginInstall,
+                                                   m_scanRequestQueue,
+                                                   m_telemetryUtility,
+                                                   m_mockDeviceUtil);
     }
 
     std::shared_ptr<EventReaderThread> makeSmallEventReaderThread(int logNotFull = 1)
     {
-        return std::make_shared<EventReaderThread>(m_fakeFanotify, m_mockSysCallWrapper, m_pluginInstall, m_smallScanRequestQueue, m_telemetryUtility, logNotFull);
+        return std::make_shared<EventReaderThread>(m_fakeFanotify,
+                                                   m_mockSysCallWrapper,
+                                                   m_pluginInstall,
+                                                   m_smallScanRequestQueue,
+                                                   m_telemetryUtility,
+                                                   m_mockDeviceUtil,
+                                                   logNotFull);
     }
 
     std::shared_ptr<MockSystemCallWrapper> m_mockSysCallWrapper;
@@ -151,7 +173,8 @@ protected:
     ScanRequestQueueSharedPtr m_smallScanRequestQueue;
     OnAccessTelemetryUtilitySharedPtr m_telemetryUtility;
     fs::path m_pluginInstall = "/opt/sophos-spl/plugins/av";
-    IFanotifyHandlerSharedPtr m_fakeFanotify;
+    std::shared_ptr<FakeFanotify> m_fakeFanotify;
+    std::shared_ptr<MockDeviceUtil> m_mockDeviceUtil;
     struct ::stat m_statbuf {};
 };
 
@@ -211,6 +234,7 @@ TEST_F(TestEventReaderThread, ReceiveEvent)
     ASSERT_TRUE(event);
     EXPECT_EQ(event->getPath(), filePath);
     EXPECT_FALSE(event->isOpenEvent());
+    EXPECT_FALSE(event->isCached());
 }
 
 TEST_F(TestEventReaderThread, ReceiveBadUnicode)
@@ -475,7 +499,7 @@ TEST_F(TestEventReaderThread, TestReaderSetUnknownPathIfReadLinkFails)
     ASSERT_EQ(m_scanRequestQueue->size(), 1); // 0 will cause pop() to hang forever
     auto event = m_scanRequestQueue->pop();
     ASSERT_TRUE(event);
-    EXPECT_EQ(event->getFd(), 345);
+    EXPECT_EQ(event->getFd(), EVENT_FD);
     EXPECT_EQ(event->getPath(), "unknown");
 }
 
@@ -552,7 +576,7 @@ TEST_F(TestEventReaderThread, TestReaderSkipsEventsWithSoapdPid)
     UsingMemoryAppender memoryAppenderHolder(*this);
 
     int fanotifyFD = FANOTIFY_FD;
-    auto metadata = getMetaData(FAN_CLOSE,  345, getpid());
+    auto metadata = getMetaData(FAN_CLOSE,  EVENT_FD, getpid());
 
     EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))
         .WillOnce(pollReturnsWithRevents(1, POLLIN))
@@ -1458,4 +1482,34 @@ TEST_F(TestEventReaderThread, TestReaderIncrementsTelemetryOnEventDropped)
 
     auto telemetry = m_telemetryUtility->getTelemetry();
     EXPECT_EQ(telemetry.m_percentageEventsDropped, 50.0f);
+}
+
+TEST_F(TestEventReaderThread, setCacheAll)
+{
+    auto eventReader = makeSmallEventReaderThread();
+    EXPECT_NO_THROW(eventReader->setCacheAllEvents(true));
+    EXPECT_NO_THROW(eventReader->setCacheAllEvents(false));
+}
+
+TEST_F(TestEventReaderThread, CacheEvent)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    getLogger().setLogLevel(log4cplus::TRACE_LOG_LEVEL);
+    const char* filePath = "/tmp/test";
+    setupExpectationsForOneEvent(filePath);
+    EXPECT_CALL(*m_mockDeviceUtil, isCachable(EVENT_FD)).WillOnce(Return(true));
+    auto fakeFanotify = std::make_shared<MockFanotify>();
+    m_fakeFanotify = fakeFanotify;
+    EXPECT_CALL(*fakeFanotify, cacheFd(EVENT_FD,filePath,false)).Times(1);
+
+    {
+        auto eventReader = makeDefaultEventReaderThread();
+        EXPECT_NO_THROW(eventReader->setCacheAllEvents(true));
+        common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
+    }
+    ASSERT_EQ(m_scanRequestQueue->size(), 1);
+    auto event = m_scanRequestQueue->pop();
+    ASSERT_TRUE(event);
+    EXPECT_TRUE(event->isCached());
+    EXPECT_TRUE(waitForLog("Cached /tmp/test from Process (PID=1999999999) and UID 321"));
 }

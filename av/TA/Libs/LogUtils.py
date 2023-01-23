@@ -1,6 +1,6 @@
 #!/bin/env python3
 # -*- coding: utf-8 -*-
-# Copyright (C) 2021-2022 Sophos Ltd
+# Copyright 2020-2023 Sophos Limited. All rights reserved.
 # All rights reserved.
 import os
 import glob

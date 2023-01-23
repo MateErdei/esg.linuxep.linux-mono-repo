@@ -1,4 +1,4 @@
-// Copyright 2022, Sophos Limited.  All rights reserved.
+// Copyright 2022-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
@@ -22,7 +22,8 @@ namespace safestore::QuarantineManager
     {
     public:
         explicit QuarantineManagerImpl(
-            std::unique_ptr<safestore::SafeStoreWrapper::ISafeStoreWrapper> safeStoreWrapper);
+            std::unique_ptr<safestore::SafeStoreWrapper::ISafeStoreWrapper> safeStoreWrapper,
+            std::shared_ptr<datatypes::ISystemCallWrapper> sysCallWrapper);
         void initialise() override;
         QuarantineManagerState getState() override;
         bool deleteDatabase() override;
@@ -31,10 +32,9 @@ namespace safestore::QuarantineManager
             const std::string& threatId,
             const std::string& threatName,
             const std::string& sha256,
+            const std::string& correlationId,
             datatypes::AutoFd autoFd) override;
-        std::vector<FdsObjectIdsPair> extractQuarantinedFiles(
-            datatypes::ISystemCallWrapper& sysCallWrapper,
-            std::vector<SafeStoreWrapper::ObjectHandleHolder> threatsToExtract) override;
+        std::vector<FdsObjectIdsPair> extractQuarantinedFiles( std::vector<SafeStoreWrapper::ObjectHandleHolder> threatsToExtract) override;
         void setState(const safestore::QuarantineManager::QuarantineManagerState& newState) override;
         void rescanDatabase() override;
         void parseConfig() override;
@@ -48,6 +48,8 @@ namespace safestore::QuarantineManager
         void callOnDbError();
         void callOnDbSuccess();
         void setConfigWrapper(nlohmann::json json, const safestore::SafeStoreWrapper::ConfigOption& option);
+        void storeCorrelationId(SafeStoreWrapper::ObjectHandleHolder& objectHandle, const std::string& correlationId);
+        [[nodiscard]] std::string getCorrelationId(SafeStoreWrapper::ObjectHandleHolder& objectHandle);
         QuarantineManagerState m_state;
         std::unique_ptr<safestore::SafeStoreWrapper::ISafeStoreWrapper> m_safeStore;
         std::mutex m_interfaceMutex;
@@ -60,5 +62,6 @@ namespace safestore::QuarantineManager
         int m_databaseErrorCount = 0;
         Common::PersistentValue<int> m_dbErrorCountThreshold;
         static scan_messages::ScanResponse scan(unixsocket::ScanningClientSocket& socket, int fd);
+        std::shared_ptr<datatypes::ISystemCallWrapper> m_sysCallWrapper;
     };
 } // namespace safestore::QuarantineManager
