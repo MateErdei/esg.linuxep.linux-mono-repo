@@ -114,7 +114,7 @@ Threat Detector Log Rotates while in chroot
     Increase Threat Detector Log To Max Size   remaining=1024
     Start AV
     Wait Until Created   ${AV_PLUGIN_PATH}/log/sophos_threat_detector/sophos_threat_detector.log.1   timeout=10s
-    Wait Until Sophos Threat Detector Log Contains   Process Controller Server starting listening on socket:
+    Wait Until Sophos Threat Detector Log Contains  ProcessControlServer  starting listening on socket:
     Stop AV
 
     ${result} =  Run Process  ls  -altr  ${AV_PLUGIN_PATH}/log/sophos_threat_detector/
@@ -135,7 +135,7 @@ Threat detector is killed gracefully
     Register Cleanup  Dump Log  ${TESTTMP}/cli.log
     Register Cleanup  Terminate Process  ${cls_handle}
 
-    Wait Until Sophos Threat Detector Log Contains  Scan requested of
+    Wait Until Sophos Threat Detector Log Contains  ScanningServerConnectionThread scan requested of
 
     ${rc}   ${pid} =    Run And Return Rc And Output    pgrep sophos_threat
     Evaluate  os.kill(${pid}, signal.SIGTERM)  modules=os, signal
@@ -182,7 +182,7 @@ Threat detector exits if it cannot acquire the susi update lock
 #    Register Cleanup    Exclude Failed To Acquire Susi Lock
     Start AV
     Wait until threat detector running after mark    ${td_mark}
-    Wait Until Sophos Threat Detector Log Contains  Process Controller Server starting listening on socket: /var/process_control_socket  timeout=120
+    Wait Until Sophos Threat Detector Log Contains  ProcessControllerServer starting listening on socket: /var/process_control_socket  timeout=120
     ${rc}   ${pid} =    Run And Return Rc And Output    pgrep sophos_threat
 
     # Request a scan in order to load SUSI

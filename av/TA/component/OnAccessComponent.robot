@@ -63,7 +63,7 @@ soapd handles process control socket already exists as a directory
     ${oa_mark} =  get_on_access_log_mark
     Start On Access without Log check
 
-    wait for on access log contains after mark   Exception caught at top-level: Failed to bind to unix socket path
+    wait for on access log contains after mark   Exception caught at top-level: ProcessControlServer failed to bind to unix socket path
             ...  mark=${oa_mark}  timeout=${5}
 
 *** Variables ***

@@ -703,7 +703,7 @@ AV Plugin tries to restart threat detector on susi startup settings change
     ${threat_detector_mark} =  Get Sophos Threat Detector Log Mark
     Restart Sophos Threat Detector
     Wait For Sophos Threat Detector Log Contains After Mark
-    ...   UnixSocket <> Process Controller Server starting listening on socket: /var/process_control_socket
+    ...   UnixSocket <> ProcessControllerServer starting listening on socket: /var/process_control_socket
     ...   ${threat_detector_mark}
     ...   timeout=60
     ${av_mark} =  Get AV Log Mark
@@ -758,7 +758,7 @@ Sophos Threat Detector sets default if susi startup settings permissions incorre
     ${threat_detector_mark} =  Get Sophos Threat Detector Log Mark
     Restart Sophos Threat Detector
     Wait For Sophos Threat Detector Log Contains After Mark
-    ...   UnixSocket <> Process Controller Server starting listening on socket: /var/process_control_socket
+    ...   UnixSocket <> ProcessControllerServer starting listening on socket: /var/process_control_socket
     ...   ${threat_detector_mark}
     ...   timeout=60
     ${threat_detector_mark2} =  Get Sophos Threat Detector Log Mark

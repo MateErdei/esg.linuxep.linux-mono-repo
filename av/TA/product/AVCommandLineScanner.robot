@@ -706,8 +706,8 @@ CLS Encoded Eicars
 
     check_sophos_threat_detector_log_contains_after_mark  Detected "EICAR-AV-Test" in /tmp_test/encoded_eicars/NEWLINEDIR\\n/\\n/bin/sh  mark=${td_mark}
     check_sophos_threat_detector_log_contains_after_mark  Detected "EICAR-AV-Test" in /tmp_test/encoded_eicars/PairDoubleQuote-"VIRUS.com"  mark=${td_mark}
-    check_sophos_threat_detector_log_contains_after_mark  Scan requested of /tmp_test/encoded_eicars/PairDoubleQuote-"VIRUS.com"  mark=${td_mark}
-    check_sophos_threat_detector_log_contains_after_mark  Scan requested of /tmp_test/encoded_eicars/NEWLINEDIR\\n/\\n/bin/sh  mark=${td_mark}
+    check_sophos_threat_detector_log_contains_after_mark  ScanningServerConnectionThread scan requested of /tmp_test/encoded_eicars/PairDoubleQuote-"VIRUS.com"  mark=${td_mark}
+    check_sophos_threat_detector_log_contains_after_mark  ScanningServerConnectionThread scan requested of /tmp_test/encoded_eicars/NEWLINEDIR\\n/\\n/bin/sh  mark=${td_mark}
 
     # Check "not contains" at end to give maximum chance for it to be logged
     check_sophos_threat_detector_log_does_not_contain_after_mark  Failed to parse response from SUSI  mark=${td_mark}
@@ -1675,7 +1675,7 @@ CLS Can Append Summary To Log When SIGHUP Is Received
     Check Specific File Content    Scan aborted due to environment interruption  ${SCAN_LOG}
     Check Specific File Content    End of Scan Summary:  ${SCAN_LOG}
 
-    wait_for_log_contains_from_mark  ${td_mark}  Stopping Scanning Server connection thread
+    wait_for_log_contains_from_mark  ${td_mark}  Stopping ScanningServerConnectionThread
 
 CLS Can Append Summary To Log When SIGHUP Is Received strace
     [Tags]  STRACE   MANUAL
@@ -1701,7 +1701,7 @@ CLS Can Append Summary To Log When SIGHUP Is Received strace
     Check Specific File Content    Scan aborted due to environment interruption  ${SCAN_LOG}
     Check Specific File Content    End of Scan Summary:  ${SCAN_LOG}
 
-    wait_for_log_contains_from_mark  ${td_mark}  Stopping Scanning Server thread
+    wait_for_log_contains_from_mark  ${td_mark}  Stopping ScanningServerConnectionThread
 
 CLS Can Complete A Scan Despite Specified Log File Being Read-Only
     Register Cleanup  Remove File  /tmp/scan.log
@@ -1793,9 +1793,9 @@ Threat Detector Client Attempts To Reconnect If AV Plugin Is Not Ready
     ${td_mark} =  LogUtils.Get Sophos Threat Detector Log Mark
     ${HANDLE} =    Start Process    ${CLI_SCANNER_PATH}   ${NORMAL_DIRECTORY}  -x  /mnt/   stdout=${LOG_FILE}   stderr=STDOUT
     wait_for_log_contains_from_mark  ${td_mark}     Detected     timeout=120
-    wait_for_log_contains_from_mark  ${td_mark}     Failed to connect to Threat reporter - retrying after sleep      timeout=120
+    wait_for_log_contains_from_mark  ${td_mark}     ThreatReporterClient failed to connect - retrying upto 10 times with a sleep of 1s      timeout=120
     Start AV Plugin Process
-    wait_for_log_contains_from_mark  ${td_mark}     Successfully connected to Threat Reporter       timeout=120
+    wait_for_log_contains_from_mark  ${td_mark}     ThreatReporterClient connected    timeout=120
 
     Wait Until AV Plugin Log Contains Detection Name And Path After Mark  ${av_mark}  EICAR-AV-Test  ${NORMAL_DIRECTORY}/eicar_file
     Wait Until AV Plugin Log Contains Detection Event XML After Mark
