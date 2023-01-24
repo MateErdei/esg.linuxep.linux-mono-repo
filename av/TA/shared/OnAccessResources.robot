@@ -192,6 +192,7 @@ On-access Scan On Execute
     #Ensure the fanotify events for the excluded path have been processed before moving the file.
     On-access Scan Clean File
     Move File   ${NORMAL_DIRECTORY}/linux_elf_threat-excluded.exe   ${NORMAL_DIRECTORY}/linux_elf_threat.exe
+    register cleanup    Remove File     ${NORMAL_DIRECTORY}/linux_elf_threat.exe
 
     ${handle} =     Start Process   ${NORMAL_DIRECTORY}/linux_elf_threat.exe    10
 
