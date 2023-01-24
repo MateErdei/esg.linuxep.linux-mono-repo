@@ -189,6 +189,8 @@ On-access Scan On Execute
 
     DeObfuscate File  ${RESOURCES_PATH}/file_samples_obfuscated/linux_elf_threat_obf  ${NORMAL_DIRECTORY}/linux_elf_threat-excluded.exe
     Run Process  chmod  770  ${NORMAL_DIRECTORY}/linux_elf_threat-excluded.exe
+    #Ensure the fanotify events for the excluded path have been processed before moving the file.
+    On-access Scan Clean File
     Move File   ${NORMAL_DIRECTORY}/linux_elf_threat-excluded.exe   ${NORMAL_DIRECTORY}/linux_elf_threat.exe
 
     ${handle} =     Start Process   ${NORMAL_DIRECTORY}/linux_elf_threat.exe    10
