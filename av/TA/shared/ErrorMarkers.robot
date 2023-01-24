@@ -246,12 +246,12 @@ Exclude VDL Folder Missing Errors
     mark_expected_error_in_log  ${THREAT_DETECTOR_INFO_LOG_PATH}  Package not found: vdl: SUSI error 0xc0000015
     mark_expected_error_in_log  ${THREAT_DETECTOR_INFO_LOG_PATH}  Failed to install SUSI core data.
     mark_expected_error_in_log  ${THREAT_DETECTOR_INFO_LOG_PATH}  Failed to bootstrap SUSI with error: -1073741803
-    mark_expected_error_in_log  ${THREAT_DETECTOR_INFO_LOG_PATH}  Aborting scan, failed to initialise SUSI
+    mark_expected_error_in_log  ${THREAT_DETECTOR_INFO_LOG_PATH}  ScanningServerConnectionThread aborting scan, failed to initialise SUSI
 
     mark_expected_error_in_log  ${THREAT_DETECTOR_LOG_PATH}  Package not found: vdl: SUSI error 0xc0000015
     mark_expected_error_in_log  ${THREAT_DETECTOR_LOG_PATH}  Failed to install SUSI core data.
     mark_expected_error_in_log  ${THREAT_DETECTOR_LOG_PATH}  Failed to bootstrap SUSI with error: -1073741803
-    mark_expected_error_in_log  ${THREAT_DETECTOR_LOG_PATH}  Aborting scan, failed to initialise SUSI
+    mark_expected_error_in_log  ${THREAT_DETECTOR_LOG_PATH}  ScanningServerConnectionThread aborting scan, failed to initialise SUSI
 
 Exclued SafeStore Internal Error On Quarantine
     [Arguments]  ${path_name}

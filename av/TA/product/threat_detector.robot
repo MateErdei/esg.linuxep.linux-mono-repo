@@ -114,7 +114,7 @@ Threat Detector Log Rotates while in chroot
     Increase Threat Detector Log To Max Size   remaining=1024
     Start AV
     Wait Until Created   ${AV_PLUGIN_PATH}/log/sophos_threat_detector/sophos_threat_detector.log.1   timeout=10s
-    Wait Until Sophos Threat Detector Log Contains  ProcessControlServer  starting listening on socket:
+    Wait Until Sophos Threat Detector Log Contains  ProcessControlServer starting listening on socket:
     Stop AV
 
     ${result} =  Run Process  ls  -altr  ${AV_PLUGIN_PATH}/log/sophos_threat_detector/
@@ -182,7 +182,7 @@ Threat detector exits if it cannot acquire the susi update lock
 #    Register Cleanup    Exclude Failed To Acquire Susi Lock
     Start AV
     Wait until threat detector running after mark    ${td_mark}
-    Wait Until Sophos Threat Detector Log Contains  ProcessControllerServer starting listening on socket: /var/process_control_socket  timeout=120
+    Wait Until Sophos Threat Detector Log Contains  ProcessControlServer starting listening on socket: /var/process_control_socket  timeout=120
     ${rc}   ${pid} =    Run And Return Rc And Output    pgrep sophos_threat
 
     # Request a scan in order to load SUSI
@@ -197,7 +197,7 @@ Threat detector exits if it cannot acquire the susi update lock
 
     Wait For Sophos Threat Detector Log Contains After Mark  Reload triggered by USR1  ${td_mark}
     Wait For Sophos Threat Detector Log Contains After Mark  Failed to acquire lock on ${lockfile}  ${td_mark}  timeout=120
-    Wait For Sophos Threat Detector Log Contains After Mark  UnixSocket <> Closing Scanning Server socket  ${td_mark}
+    Wait For Sophos Threat Detector Log Contains After Mark  UnixSocket <> Closing ScanningServer socket  ${td_mark}
 
     Wait Until Keyword Succeeds
     ...  30 secs

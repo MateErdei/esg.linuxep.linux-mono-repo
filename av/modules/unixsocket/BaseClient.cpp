@@ -59,7 +59,7 @@ bool BaseClient::connectWithRetries(int max_retries)
 
         if (!connectRetryLogged)
         {
-            LOGDEBUG(m_name << " failed to connect - retrying upto " << max_retries << " times with a sleep of "
+            LOGDEBUG(m_name << " failed to connect to " << m_socketPath << " - retrying upto " << max_retries << " times with a sleep of "
                                              << std::chrono::duration_cast<std::chrono::seconds>(m_sleepTime).count() << "s");
             connectRetryLogged = true;
         }

@@ -703,7 +703,7 @@ AV Plugin tries to restart threat detector on susi startup settings change
     ${threat_detector_mark} =  Get Sophos Threat Detector Log Mark
     Restart Sophos Threat Detector
     Wait For Sophos Threat Detector Log Contains After Mark
-    ...   UnixSocket <> ProcessControllerServer starting listening on socket: /var/process_control_socket
+    ...   UnixSocket <> ProcessControlServer starting listening on socket: /var/process_control_socket
     ...   ${threat_detector_mark}
     ...   timeout=60
     ${av_mark} =  Get AV Log Mark
@@ -721,7 +721,7 @@ AV Plugin tries to restart threat detector on susi startup settings change
 
     Wait For AV Log Contains After Mark   Received new policy  ${av_mark}
     Wait For AV Log Contains After Mark   Reloading susi as policy configuration has changed  ${av_mark}   timeout=60
-    Check AV Log Contains After Mark  Failed to connect to ${COMPONENT_ROOT_PATH}/chroot/var/process_control_socket - retrying after sleep  ${av_mark}
+    Check AV Log Contains After Mark  ProcessControlClient failed to connect to ${COMPONENT_ROOT_PATH}/chroot/var/process_control_socket - retrying  ${av_mark}
     Wait For AV Log Contains After Mark  Reached total maximum number of connection attempts.  ${av_mark}
 
     start sophos_threat_detector
@@ -758,7 +758,7 @@ Sophos Threat Detector sets default if susi startup settings permissions incorre
     ${threat_detector_mark} =  Get Sophos Threat Detector Log Mark
     Restart Sophos Threat Detector
     Wait For Sophos Threat Detector Log Contains After Mark
-    ...   UnixSocket <> ProcessControllerServer starting listening on socket: /var/process_control_socket
+    ...   UnixSocket <> ProcessControlServer starting listening on socket: /var/process_control_socket
     ...   ${threat_detector_mark}
     ...   timeout=60
     ${threat_detector_mark2} =  Get Sophos Threat Detector Log Mark

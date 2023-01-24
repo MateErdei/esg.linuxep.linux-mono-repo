@@ -39,7 +39,7 @@ Sophos Threat Detector Has No Unnecessary Capabilities
     ${threat_detector_mark} =  Get Sophos Threat Detector Log Mark
     Restart Sophos Threat Detector
     Wait For Sophos Threat Detector Log Contains After Mark
-    ...   UnixSocket <> ProcessControllerServer starting listening on socket: /var/process_control_socket
+    ...   UnixSocket <> ProcessControlServer starting listening on socket: /var/process_control_socket
     ...   ${threat_detector_mark}
     ...   timeout=60
 
@@ -98,7 +98,7 @@ Threat Detector Restarts When /etc/hosts changed
     # ensure that both AV and threat_detector are ready
     Wait_For_Log_contains_after_last_restart  ${AV_LOG_PATH}  Starting sophos_threat_detector monitor
     Wait_For_Log_contains_after_last_restart  ${THREAT_DETECTOR_LOG_PATH}
-    ...  ProcessControllerServer starting listening on socket: /var/process_control_socket  timeout=${120}
+    ...  ProcessControlServer starting listening on socket: /var/process_control_socket  timeout=${120}
 
     ${SOPHOS_THREAT_DETECTOR_PID_AT_START} =  Get Sophos Threat Detector PID From File
 
@@ -117,7 +117,7 @@ Threat Detector Restarts When /etc/hosts changed
 
     # Should have restarted almost immediately, but less than 10 seconds mean we've started faster than the normal watchdog timeout
     # Unfortunately TA machines seem to be slower that my test VM
-    wait_for_log_contains_from_mark  ${td_mark}  ProcessControllerServer starting listening on socket: /var/process_control_socket  timeout=8
+    wait_for_log_contains_from_mark  ${td_mark}  ProcessControlServer starting listening on socket: /var/process_control_socket  timeout=8
     Wait until threat detector running after mark  ${td_mark}
 
     ${SOPHOS_THREAT_DETECTOR_PID_AT_END} =  Get Sophos Threat Detector PID From File
@@ -131,7 +131,7 @@ Threat Detector restarts if no scans requested within the configured timeout
 
     ${td_mark} =  LogUtils.Get Sophos Threat Detector Log Mark
     Start sophos_threat_detector
-    wait_for_log_contains_from_mark  ${td_mark}  ProcessControllerServer starting listening on socket: /var/process_control_socket  timeout=120
+    wait_for_log_contains_from_mark  ${td_mark}  ProcessControlServer starting listening on socket: /var/process_control_socket  timeout=120
     wait_for_log_contains_from_mark  ${td_mark}  Default shutdown timeout set to 15 seconds.
     wait_for_log_contains_from_mark  ${td_mark}  Setting shutdown timeout to
 
@@ -145,7 +145,7 @@ Threat Detector restarts if no scans requested within the configured timeout
     wait_for_log_contains_from_mark  ${td_mark}  Sophos Threat Detector is exiting
 
     # TD should restart immediately:
-    wait_for_log_contains_from_mark  ${td_mark}  ProcessControllerServer starting listening on socket: /var/process_control_socket  timeout=2
+    wait_for_log_contains_from_mark  ${td_mark}  ProcessControlServer starting listening on socket: /var/process_control_socket  timeout=2
     wait_for_log_contains_from_mark  ${td_mark}  Default shutdown timeout set to 15 seconds.
     wait_for_log_contains_from_mark  ${td_mark}  Setting shutdown timeout to
     Wait until threat detector running after mark  ${td_mark}
@@ -161,7 +161,7 @@ Threat Detector prolongs timeout if a scan is requested within the configured ti
 
     ${threat_detector_mark} =  Get Sophos Threat Detector Log Mark
     Start sophos_threat_detector
-    Wait For Sophos Threat Detector Log Contains After Mark  ProcessControllerServer starting listening on socket: /var/process_control_socket  ${threat_detector_mark}  timeout=120
+    Wait For Sophos Threat Detector Log Contains After Mark  ProcessControlServer starting listening on socket: /var/process_control_socket  ${threat_detector_mark}  timeout=120
     ${SOPHOS_THREAT_DETECTOR_PID} =  Record Sophos Threat Detector PID
     Wait For Sophos Threat Detector Log Contains After Mark  Default shutdown timeout set to 15 seconds.  ${threat_detector_mark}
     Wait For Sophos Threat Detector Log Contains After Mark  Setting shutdown timeout to  ${threat_detector_mark}
@@ -181,7 +181,7 @@ Threat Detector prolongs timeout if a scan is requested within the configured ti
     # No scans requested for ${timeout2} seconds - shutting down.
     Wait For Sophos Threat Detector Log Contains After Mark  No scans requested for  ${threat_detector_mark2}  timeout=20
     Wait For Sophos Threat Detector Log Contains After Mark  Sophos Threat Detector is exiting  ${threat_detector_mark2}
-    Wait For Sophos Threat Detector Log Contains After Mark  ProcessControllerServer starting listening on socket: /var/process_control_socket  ${threat_detector_mark2}  timeout=120
+    Wait For Sophos Threat Detector Log Contains After Mark  ProcessControlServer starting listening on socket: /var/process_control_socket  ${threat_detector_mark2}  timeout=120
     Check Sophos Threat Detector has different PID  ${SOPHOS_THREAT_DETECTOR_PID}
 
     Log File   ${THREAT_DETECTOR_LOG_PATH}  encoding_errors=replace

@@ -128,7 +128,7 @@ IDE update during command line scan
 
     # ensure scan is still running
     ${threat_detector_mark2} =  Get Sophos Threat Detector Log Mark
-    Wait For Sophos Threat Detector Log Contains After Mark  Scan requested of  ${threat_detector_mark2}
+    Wait For Sophos Threat Detector Log Contains After Mark  ScanningServerConnectionThread scan requested of  ${threat_detector_mark2}
 
     Sleep  1 second   Allow some scans to occur after the update
     ${end_time} =   Get Current Date   time_zone=UTC   exclude_millis=True
@@ -201,7 +201,7 @@ On access continues during update
     ${handle} =   Start Process   while :; do echo foo >${test_file}; sleep 0.1; done   shell=True
 
     ${threat_detector_mark} =  Get Sophos Threat Detector Log Mark
-    Wait For Sophos Threat Detector Log Contains After Mark     Scan requested of ${test_file}  ${threat_detector_mark}
+    Wait For Sophos Threat Detector Log Contains After Mark     ScanningServerConnectionThread scan requested of ${test_file}  ${threat_detector_mark}
 
     ${start_time} =   Get Current Date   time_zone=UTC   exclude_millis=True
     Sleep   1s   let on-access do its thing
@@ -209,7 +209,7 @@ On access continues during update
     Replace Virus Data With Test Dataset A And Run IDE update with SUSI loaded
 
     ${threat_detector_mark2} =  Get Sophos Threat Detector Log Mark
-    Wait For Sophos Threat Detector Log Contains After Mark     Scan requested of ${test_file}  ${threat_detector_mark2}
+    Wait For Sophos Threat Detector Log Contains After Mark     ScanningServerConnectionThread scan requested of ${test_file}  ${threat_detector_mark2}
 
     Sleep   1s   let on-access do its thing
     ${end_time} =   Get Current Date   time_zone=UTC   exclude_millis=True
@@ -223,7 +223,7 @@ On access continues during update
     ${time_diff} =   Subtract Date From Date   ${end_time}   ${start_time}   exclude_millis=True
     FOR   ${offset}   IN RANGE   ${time_diff}
         ${timestamp} =   Add Time To Date   ${start_time}   ${offset}   result_format=%H:%M:%S
-        ${lines} =   Grep File   ${THREAT_DETECTOR_LOG_PATH}   T${timestamp}.* Scan requested of
+        ${lines} =   Grep File   ${THREAT_DETECTOR_LOG_PATH}   T${timestamp}.* ScanningServerConnectionThread scan requested of
         ${line_count} =   Get Line Count   ${lines}
         Should Be True   ${1} <= ${line_count}
     END
@@ -266,7 +266,7 @@ Update then Restart Sophos Threat Detector
     Restart sophos_threat_detector
     Check Plugin Installed and Running
     Wait For Sophos Threat Detector Log Contains After Mark
-    ...   UnixSocket <> ProcessControllerServer starting listening on socket:
+    ...   UnixSocket <> ProcessControlServer starting listening on socket:
     ...   ${threat_detector_mark}
     ...   timeout=60
 
@@ -339,7 +339,7 @@ Scanner works after upgrade
     # Existing robot functions don't check marked logs, so we do our own log check instead
     Check Plugin Installed and Running After Marks  ${av_mark}  ${threat_detector_mark}
     Wait For Sophos Threat Detector Log Contains After Mark
-    ...   UnixSocket <> ProcessControllerServer starting listening on socket:
+    ...   UnixSocket <> ProcessControlServer starting listening on socket:
     ...   ${threat_detector_mark}
     ...   timeout=60
     Wait For AV Log Contains After Mark
@@ -420,7 +420,7 @@ IDE can be removed
     Restart sophos_threat_detector
     Check Plugin Installed and Running
     Wait For Sophos Threat Detector Log Contains After Mark
-    ...   UnixSocket <> ProcessControllerServer starting listening on socket: /var/process_control_socket
+    ...   UnixSocket <> ProcessControlServer starting listening on socket: /var/process_control_socket
     ...   ${threat_detector_mark}
     ...   timeout=60
     File should not exist  ${INSTALL_IDE_DIR}/${ide_name}
@@ -465,7 +465,7 @@ sophos_threat_detector can start after multiple IDE updates
     Restart sophos_threat_detector
     Check Plugin Installed and Running
     Wait For Sophos Threat Detector Log Contains After Mark
-    ...   UnixSocket <> ProcessControllerServer starting listening on socket:
+    ...   UnixSocket <> ProcessControlServer starting listening on socket:
     ...   ${threat_detector_mark}
     ...   timeout=60
     dump log  ${THREAT_DETECTOR_LOG_PATH}
@@ -579,7 +579,7 @@ Check no duplicate virus data files
     Restart sophos_threat_detector
     Check Plugin Installed and Running
     Wait For Sophos Threat Detector Log Contains After Mark
-    ...   UnixSocket <> ProcessControllerServer starting listening on socket: /var/process_control_socket
+    ...   UnixSocket <> ProcessControlServer starting listening on socket: /var/process_control_socket
     ...   ${threat_detector_mark}
     ...   timeout=60
     ${rc}   ${susiHash} =    Run And Return Rc And Output   head -n 1 ${COMPONENT_ROOT_PATH}/chroot/susi/update_source/package_manifest.txt
@@ -701,7 +701,7 @@ AV Plugin Can Send Telemetry After IDE Update
     Restart sophos_threat_detector
     Check Plugin Installed and Running
     Wait For Sophos Threat Detector Log Contains After Mark
-    ...   UnixSocket <> ProcessControllerServer starting listening on socket: /var/process_control_socket
+    ...   UnixSocket <> ProcessControlServer starting listening on socket: /var/process_control_socket
     ...   ${threat_detector_mark}
     ...   timeout=60
     Force SUSI to be initialized
@@ -739,7 +739,7 @@ AV Plugin Can Send Telemetry After Upgrade
     Restart sophos_threat_detector
     Check Plugin Installed and Running
     Wait For Sophos Threat Detector Log Contains After Mark
-    ...   UnixSocket <> ProcessControllerServer starting listening on socket: /var/process_control_socket
+    ...   UnixSocket <> ProcessControlServer starting listening on socket: /var/process_control_socket
     ...   ${threat_detector_mark}
     ...   timeout=60
     Run  chmod go-rwx ${AV_PLUGIN_PATH}/chroot/susi/update_source/*
@@ -953,7 +953,7 @@ SSPLAV can load old VDL
     Restart sophos_threat_detector
     Check Plugin Installed and Running
     Wait For Sophos Threat Detector Log Contains After Mark
-    ...   UnixSocket <> ProcessControllerServer starting listening on socket: /var/process_control_socket
+    ...   UnixSocket <> ProcessControlServer starting listening on socket: /var/process_control_socket
     ...   ${threat_detector_mark}
     ...   timeout=60
 

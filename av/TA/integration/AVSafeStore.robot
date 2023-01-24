@@ -645,7 +645,7 @@ Threat Detector Rescan Socket Does Not Block Shutdown
     Stop SafeStore
     ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
     Create Rescan Interval File
-    wait_for_log_contains_from_mark  ${td_mark}  Failed to connect to SafeStore Rescan - retrying after sleep
+    wait_for_log_contains_from_mark  ${td_mark}  SafeStoreRescanClient failed to connect - retrying upto 10 times with a sleep of 1s
     Stop sophos_threat_detector
     wait_for_log_contains_from_mark  ${td_mark}  Stop requested while connecting to SafeStore Rescan
 
@@ -972,7 +972,7 @@ Threat Is Re-detected By On-access After Being Cached If Removed From Allow-list
     Send CORC Policy To Base   corc_policy.xml
     Wait For Log Contains From Mark  ${ss_mark}  SafeStore Database Rescan request received
     Wait For Log Contains From Mark  ${ss_mark}  Rescan found quarantined file no longer a threat: ${allow_listed_threat_file}
-    Wait For Log Contains From Mark  ${ss_mark}  Reporting successful restoration of ${allow_listed_threat_file}
+    Wait For Log Contains From Mark  ${ss_mark}  RestoreReportingClient reports successful restoration of ${allow_listed_threat_file}
     File Should Exist  ${allow_listed_threat_file}
 
     # Perform an on-access detection on the file to make sure it is cached as safe

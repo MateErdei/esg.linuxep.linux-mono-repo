@@ -250,7 +250,7 @@ SafeStore Telemetry Is Incremented When File Is Successfully Restored
     Wait For Log Contains From Mark    ${avMark}    Added SHA256 to allow list: c88e20178a82af37a51b030cb3797ed144126cad09193a6c8c7e95957cf9c3f9
     Wait For Log Contains From Mark    ${safeStoreMark}    SafeStore Database Rescan request received
 
-    Wait For Log Contains From Mark    ${safeStoreMark}     Reporting successful restoration of ${threat_file}    timeout=60
+    Wait For Log Contains From Mark    ${safeStoreMark}    RestoreReportingClient reports successful restoration of ${threat_file}    timeout=60
     Check SafeStore Telemetry    successful-file-restorations   ${1}
 
 SafeStore Telemetry Is Incremented When File Restoration Fails

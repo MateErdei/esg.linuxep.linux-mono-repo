@@ -679,7 +679,7 @@ Install With Base SDDS
     Install AV Directly from SDDS
     wait_for_av_log_contains_after_last_restart  Starting sophos_threat_detector monitor
     wait_for_sophos_threat_detector_log_contains_after_last_restart
-    ...  ProcessControllerServer starting listening on socket: /var/process_control_socket  timeout=120
+    ...  ProcessControlServer starting listening on socket: /var/process_control_socket  timeout=120
 
 
 Uninstall And Revert Setup
