@@ -49,7 +49,7 @@ namespace sophos_on_access_process::soapd_bootstrap
          */
         void ProcessPolicy() override;
 
-        std::timespec* getTimeout();
+        timespec* getTimeout();
         void onTimeout();
 
         threat_scanner::IUpdateCompleteCallbackPtr getUpdateCompleteCallbackPtr()

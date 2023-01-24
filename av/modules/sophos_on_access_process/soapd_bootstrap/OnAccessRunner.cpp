@@ -228,9 +228,9 @@ bool OnAccessRunner::checkIfOAShouldBeEnabled(bool OnAccessEnabledFlag, bool OnA
     }
 }
 
-std::timespec* OnAccessRunner::getTimeout()
+timespec* OnAccessRunner::getTimeout()
 {
-    static std::timespec timeout { .tv_sec=60, .tv_nsec=0 };
+    static timespec timeout { .tv_sec=60, .tv_nsec=0 };
 
     if (m_currentOaEnabledState && m_localSettings.highPriorityThreatDetector)
     {
