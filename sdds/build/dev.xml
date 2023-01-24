@@ -26,7 +26,7 @@
           <include artifact-path="sspl-base-999/SDDS3-PACKAGE" dest-dir="redist/base/latest/x64" mode="999"/>
       </build-asset>
 
-      <build-asset project="linuxep" repo="capsule8-sensor" mode="release-package,release-package-query-pack,release-package-base-999,release-package-edr-999,release-package-mdr-999,release-package-edr-mdr-999,release-package-060,dev,999">
+      <build-asset project="linuxep" repo="runtimedetections" mode="release-package,release-package-query-pack,release-package-base-999,release-package-edr-999,release-package-mdr-999,release-package-edr-mdr-999,release-package-060,dev,999">
         <development-version branch="master"/>
           <include artifact-path="SDDS-COMPONENT" dest-dir="redist/runtimedetections" mode="release-package-edr-999,release-package,release-package-base-999,release-package-mdr-999,release-package-060,release-package-query-pack"/>
           <include artifact-path="SDDS-COMPONENT-999" dest-dir="redist/runtimedetections" mode="release-package-edr-mdr-999"/>
@@ -88,8 +88,7 @@
         </build-asset>
 
         <!--supplements-->
-        <build-asset project="linuxep" repo="capsule8-sensor" mode="dev,999,prod">
-            <release-version branch="release/DNR-2022-09-SDDS3-Test" build-id="20220304101156-b59c655eaecd56ac569c6286a1cdecee2778e74b-TEXz6J"/>
+        <build-asset project="linuxep" repo="runtimedetections" mode="dev,999,prod">
             <development-version branch="master"/>
             <include artifact-path="sspl-rdrules-scit" dest-dir="inputs/supplements/RuntimeDetectionRules"/>
         </build-asset>
