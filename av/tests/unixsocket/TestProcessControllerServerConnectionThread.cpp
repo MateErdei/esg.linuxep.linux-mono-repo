@@ -1,4 +1,4 @@
-// Copyright 2021-2022, Sophos Limited.  All rights reserved.
+// Copyright 2021-2023 Sophos Limited. All rights reserved.
 
 #include "UnixSocketMemoryAppenderUsingTests.h"
 #include "common/WaitForEvent.h"

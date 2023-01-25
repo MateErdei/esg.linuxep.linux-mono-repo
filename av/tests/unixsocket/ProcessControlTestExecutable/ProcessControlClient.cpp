@@ -1,4 +1,4 @@
-// Copyright 2021, Sophos Limited.  All rights reserved.
+// Copyright 2021-2023 Sophos Limited. All rights reserved.
 
 
 #include "unixsocket/processControllerSocket/ProcessControllerClient.h"

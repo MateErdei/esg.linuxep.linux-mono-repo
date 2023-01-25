@@ -1,4 +1,4 @@
-// Copyright 2023, Sophos Limited.  All rights reserved.
+// Copyright 2023 Sophos Limited. All rights reserved.
 
 #include "unixsocket/BaseClient.h"
 #include "unixsocket/SocketUtils.h"
