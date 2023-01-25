@@ -1,7 +1,6 @@
 #!/bin/env python3
 # -*- coding: utf-8 -*-
 # Copyright 2022-2023 Sophos Limited. All rights reserved.
-# Copyright (C) 2022 Sophos Ltd
 # All rights reserved.
 
 import os
