@@ -19,7 +19,7 @@ namespace unixsocket
         public IScanningClientSocket
     {
     public:
-        explicit ScanningClientSocket(std::string socket_path);
+        explicit ScanningClientSocket(std::string socket_path, const duration_t& sleepTime=DEFAULT_SLEEP_TIME, IStoppableSleeperSharedPtr sleeper={});
 
 
         int connect() override;

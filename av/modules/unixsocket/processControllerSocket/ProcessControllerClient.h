@@ -14,7 +14,7 @@
 
 namespace unixsocket
 {
-    class ProcessControllerClientSocket final : public unixsocket::BaseClient
+    class ProcessControllerClientSocket final : public BaseClient
     {
     public:
         explicit ProcessControllerClientSocket(std::string socket_path, const duration_t& sleepTime=BaseClient::DEFAULT_SLEEP_TIME);

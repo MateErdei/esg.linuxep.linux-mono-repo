@@ -14,10 +14,10 @@
 
 namespace unixsocket
 {
-    class ThreatReporterClientSocket : unixsocket::BaseClient
+    class ThreatReporterClientSocket : BaseClient
     {
     public:
-        explicit ThreatReporterClientSocket(std::string  socket_path, const duration_t& sleepTime=DEFAULT_SLEEP_TIME);
+        explicit ThreatReporterClientSocket(std::string  socket_path, const duration_t& sleepTime=DEFAULT_SLEEP_TIME, IStoppableSleeperSharedPtr sleeper={});
 
         void sendThreatDetection(const scan_messages::ThreatDetected& detection);
     };

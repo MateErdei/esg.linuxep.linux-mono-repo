@@ -2,6 +2,7 @@
 
 #include "UnixSocketMemoryAppenderUsingTests.h"
 
+#include "common/NotifyPipeSleeper.h"
 #include "datatypes/sophos_filesystem.h"
 #include "tests/common/Common.h"
 #include "tests/common/WaitForEvent.h"
@@ -16,6 +17,7 @@
 
 using namespace scan_messages;
 using namespace testing;
+using namespace unixsocket;
 namespace fs = sophos_filesystem;
 using namespace common::CentralEnums;
 
@@ -58,12 +60,12 @@ TEST_F(TestThreatReporterSocket, TestSendThreatReport)
             .Times(1)
             .WillOnce(InvokeWithoutArgs(&serverWaitGuard, &WaitForEvent::onEventNoArgs));
 
-        unixsocket::ThreatReporterServerSocket threatReporterServer(m_socketPath, 0600, mockThreatReportCallback);
+        ThreatReporterServerSocket threatReporterServer(m_socketPath, 0600, mockThreatReportCallback);
 
         threatReporterServer.start();
 
         // connect after we start
-        unixsocket::ThreatReporterClientSocket threatReporterSocket(m_socketPath);
+        ThreatReporterClientSocket threatReporterSocket(m_socketPath);
 
         threatReporterSocket.sendThreatDetection(createThreatDetectedWithRealFd({}));
 
@@ -90,12 +92,12 @@ TEST_F(TestThreatReporterSocket, TestSendTwoThreatReports)
         .WillOnce(InvokeWithoutArgs(&serverWaitGuard, &WaitForEvent::onEventNoArgs))
         .WillOnce(InvokeWithoutArgs(&serverWaitGuard2, &WaitForEvent::onEventNoArgs));
 
-    unixsocket::ThreatReporterServerSocket threatReporterServer(m_socketPath, 0600, mockThreatReportCallback);
+    ThreatReporterServerSocket threatReporterServer(m_socketPath, 0600, mockThreatReportCallback);
 
     threatReporterServer.start();
 
     // connect after we start
-    unixsocket::ThreatReporterClientSocket threatReporterSocket(m_socketPath);
+    ThreatReporterClientSocket threatReporterSocket(m_socketPath);
 
     scan_messages::ThreatDetected threatDetected = createThreatDetectedWithRealFd({});
 
@@ -112,11 +114,29 @@ TEST_F(TestThreatReporterSocket, testClientSocketTriesToReconnect)
     UsingMemoryAppender memoryAppenderHolder(*this);
     {
         // Attempt to reconnect - it should stop after 9 attempts
-        unixsocket::ThreatReporterClientSocket threatReporterSocket(m_socketPath, std::chrono::seconds{ 0 });
+        ThreatReporterClientSocket threatReporterSocket(m_socketPath, std::chrono::seconds{ 0 });
     }
 
-    EXPECT_TRUE(appenderContains("ThreatReporterClient failed to connect - retrying upto 10 times with a sleep of 0s", 1));
+    EXPECT_TRUE(appenderContains("ThreatReporterClient failed to connect to " + m_socketPath + " - retrying upto 10 times with a sleep of 0s", 1));
     EXPECT_TRUE(appenderContains("ThreatReporterClient reached the maximum number of attempts"));
+}
+
+TEST_F(TestThreatReporterSocket, TestClientSocketTimeOutInterrupted)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    Common::Threads::NotifyPipe notifyPipe;
+    auto notifyPipeSleeper = std::make_unique<common::NotifyPipeSleeper>(notifyPipe);
+
+    std::thread t1([&]() { ThreatReporterClientSocket client{ m_socketPath, std::chrono::seconds{ 1 }, std::move(notifyPipeSleeper) }; });
+
+    EXPECT_TRUE(waitForLog("ThreatReporterClient failed to connect to " + m_socketPath + " - retrying upto 10 times with a sleep of 1s", 2s));
+    notifyPipe.notify();
+
+    t1.join();
+
+    EXPECT_TRUE(appenderContains("ThreatReporterClient received stop request while connecting"));
+    EXPECT_FALSE(appenderContains("ThreatReporterClient reached the maximum number of attempts"));
 }
 
 TEST_F(TestThreatReporterSocket, TestSendThreatReportWithInvalidData)
@@ -128,9 +148,9 @@ TEST_F(TestThreatReporterSocket, TestSendThreatReportWithInvalidData)
     setupFakeSophosThreatDetectorConfig();
 
     auto mockThreatReportCallback = std::make_shared<StrictMock<MockIThreatReportCallbacks>>();
-    unixsocket::ThreatReporterServerSocket threatReporterServer(m_socketPath, 0600, mockThreatReportCallback);
+    ThreatReporterServerSocket threatReporterServer(m_socketPath, 0600, mockThreatReportCallback);
     threatReporterServer.start();
 
-    unixsocket::ThreatReporterClientSocket client(m_socketPath);
+    ThreatReporterClientSocket client(m_socketPath);
     EXPECT_ANY_THROW(client.sendThreatDetection(createThreatDetected({ .threatId = "invalid threat id" })));
 }

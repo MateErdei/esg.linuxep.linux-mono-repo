@@ -9,7 +9,7 @@
 
 namespace unixsocket
 {
-    class RestoreReportingClient : public unixsocket::BaseClient
+    class RestoreReportingClient : public BaseClient
     {
     public:
         explicit RestoreReportingClient(std::shared_ptr<common::StoppableSleeper> sleeper);

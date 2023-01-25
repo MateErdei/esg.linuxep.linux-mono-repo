@@ -13,7 +13,7 @@
 #include <sstream>
 
 unixsocket::ProcessControllerClientSocket::ProcessControllerClientSocket(std::string socket_path, const duration_t& sleepTime)
-        : BaseClient(std::move(socket_path), "Process Controller", sleepTime)
+        : BaseClient(std::move(socket_path), "ProcessControlClient", sleepTime)
 {
     connectWithRetries();
 }

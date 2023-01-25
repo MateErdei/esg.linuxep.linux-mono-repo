@@ -12,7 +12,7 @@
 
 namespace unixsocket::updateCompleteSocket
 {
-    class UpdateCompleteClientSocketThread : public unixsocket::BaseClient,
+    class UpdateCompleteClientSocketThread : public BaseClient,
                                              public common::AbstractThreadPluginInterface
     {
     public:

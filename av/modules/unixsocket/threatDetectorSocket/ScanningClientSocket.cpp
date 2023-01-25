@@ -18,8 +18,11 @@
 
 namespace unixsocket
 {
-    ScanningClientSocket::ScanningClientSocket(std::string socket_path) :
-        BaseClient(std::move(socket_path), "ScanningClient")
+    ScanningClientSocket::ScanningClientSocket(
+        std::string socket_path,
+        const duration_t& sleepTime,
+        IStoppableSleeperSharedPtr sleeper) :
+        BaseClient(std::move(socket_path), "ScanningClient", sleepTime, std::move(sleeper))
     {
     }
 

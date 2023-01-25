@@ -14,7 +14,7 @@
 
 namespace unixsocket
 {
-    class SafeStoreClient : public unixsocket::BaseClient
+    class SafeStoreClient : public BaseClient
     {
     public:
         explicit SafeStoreClient(std::string socket_path, Common::Threads::NotifyPipe& notifyPipe, const duration_t& sleepTime = DEFAULT_SLEEP_TIME, IStoppableSleeperSharedPtr sleeper={});

@@ -4,6 +4,7 @@
 
 #include "../common/Common.h"
 #include "../common/WaitForEvent.h"
+#include "common/ApplicationPaths.h"
 #include "common/NotifyPipeSleeper.h"
 #include "unixsocket/restoreReportingSocket/RestoreReportingClient.h"
 #include "unixsocket/restoreReportingSocket/RestoreReportingServer.h"
@@ -22,12 +23,15 @@ namespace
         void SetUp() override
         {
             setupFakeSafeStoreConfig();
+            m_socketPath = Plugin::getRestoreReportSocketPath();
         }
 
         void TearDown() override
         {
             sophos_filesystem::remove_all(tmpdir());
         }
+
+        std::string m_socketPath;
     };
 
     class MockRestoreReportProcessor : public IRestoreReportProcessor
@@ -194,7 +198,7 @@ TEST_F(TestRestoreReportSocket, TestClientTimesOut)
     UsingMemoryAppender memoryAppenderHolder(*this);
     RestoreReportingClient client{ nullptr };
 
-    EXPECT_TRUE(appenderContains("RestoreReportingClient failed to connect - retrying upto 10 times with a sleep of 1s"));
+    EXPECT_TRUE(appenderContains("RestoreReportingClient failed to connect to " + m_socketPath + " - retrying upto 10 times with a sleep of 1s"));
     EXPECT_TRUE(appenderContains("RestoreReportingClient reached the maximum number of attempts"));
 }
 
@@ -208,7 +212,7 @@ TEST_F(TestRestoreReportSocket, TestClientTimeOutInterrupted)
 
     std::thread t1([&notifyPipeSleeper]() { RestoreReportingClient client{ std::move(notifyPipeSleeper) }; });
 
-    EXPECT_TRUE(waitForLog("RestoreReportingClient failed to connect - retrying upto 10 times with a sleep of 1s", 2s));
+    EXPECT_TRUE(waitForLog("RestoreReportingClient failed to connect to " + m_socketPath + " - retrying upto 10 times with a sleep of 1s", 2s));
     notifyPipe.notify();
 
     t1.join();

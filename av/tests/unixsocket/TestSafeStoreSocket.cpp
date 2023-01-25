@@ -4,6 +4,7 @@
 #include "UnixSocketMemoryAppenderUsingTests.h"
 
 #include "common/ApplicationPaths.h"
+#include "common/NotifyPipeSleeper.h"
 #include "safestore/MockIQuarantineManager.h"
 #include "safestore/SafeStoreServiceCallback.h"
 #include "scan_messages/ThreatDetected.h"
@@ -21,6 +22,7 @@
 
 using namespace testing;
 using namespace scan_messages;
+using namespace unixsocket;
 namespace fs = sophos_filesystem;
 using namespace common::CentralEnums;
 using json = nlohmann::json;
@@ -60,7 +62,7 @@ namespace
             int quarantineFailureValue,
             int unlinkFailureValue)
         {
-            unixsocket::SafeStoreClient client(m_socketPath, m_notifyPipe);
+            SafeStoreClient client(m_socketPath, m_notifyPipe);
 
             client.sendQuarantineRequest(createThreatDetectedWithRealFd({}));
             client.waitForResponse();
@@ -117,12 +119,12 @@ TEST_F(TestSafeStoreSocket, TestSendThreatDetected)
                     return common::CentralEnums::QuarantineResult::NOT_FOUND;
                 }));
 
-        unixsocket::SafeStoreServerSocket server(m_socketPath, quarantineManager);
+        SafeStoreServerSocket server(m_socketPath, quarantineManager);
 
         server.start();
 
         // connect after we start
-        unixsocket::SafeStoreClient client(m_socketPath, m_notifyPipe);
+        SafeStoreClient client(m_socketPath, m_notifyPipe);
 
         auto threatDetected = createThreatDetectedWithRealFd({});
         client.sendQuarantineRequest(threatDetected);
@@ -167,13 +169,13 @@ TEST_F(TestSafeStoreSocket, TestSendTwoThreatDetecteds)
                 return common::CentralEnums::QuarantineResult::NOT_FOUND;
             }));
 
-    unixsocket::SafeStoreServerSocket server(m_socketPath, quarantineManager);
+    SafeStoreServerSocket server(m_socketPath, quarantineManager);
 
     server.start();
 
     // connect after we start
-    unixsocket::SafeStoreClient client(m_socketPath, m_notifyPipe);
-    unixsocket::SafeStoreClient client2(m_socketPath, m_notifyPipe);
+    SafeStoreClient client(m_socketPath, m_notifyPipe);
+    SafeStoreClient client2(m_socketPath, m_notifyPipe);
 
     client.sendQuarantineRequest(createThreatDetectedWithRealFd({}));
     EXPECT_EQ(client.waitForResponse(), common::CentralEnums::QuarantineResult::NOT_FOUND);
@@ -203,7 +205,7 @@ TEST_F(TestSafeStoreSocket, SafeStoreTelemetryReturnsExpectedDataAfterSuccessful
                 serverWaitGuard.onEventNoArgs();
                 return QuarantineResult::SUCCESS;
             }));
-    unixsocket::SafeStoreServerSocket server(m_socketPath, quarantineManager);
+    SafeStoreServerSocket server(m_socketPath, quarantineManager);
     server.start();
 
     EXPECT_EQ(initialTelemetry["quarantine-successes"], 0);
@@ -227,7 +229,7 @@ TEST_F(TestSafeStoreSocket, SafeStoreTelemetryReturnsExpectedDataAfterFailedQuar
                 serverWaitGuard.onEventNoArgs();
                 return QuarantineResult::NOT_FOUND;
             }));
-    unixsocket::SafeStoreServerSocket server(m_socketPath, quarantineManager);
+    SafeStoreServerSocket server(m_socketPath, quarantineManager);
     server.start();
 
     EXPECT_EQ(initialTelemetry["quarantine-failures"], 0);
@@ -251,7 +253,7 @@ TEST_F(TestSafeStoreSocket, SafeStoreTelemetryReturnsExpectedDataAfterUnlinkFail
                 serverWaitGuard.onEventNoArgs();
                 return QuarantineResult::FAILED_TO_DELETE_FILE;
             }));
-    unixsocket::SafeStoreServerSocket server(m_socketPath, quarantineManager);
+    SafeStoreServerSocket server(m_socketPath, quarantineManager);
     server.start();
 
     EXPECT_EQ(initialTelemetry["unlink-failures"], 0);
@@ -266,10 +268,10 @@ TEST_F(TestSafeStoreSocket, TestSendInvalidData)
     UsingMemoryAppender memoryAppenderHolder(*this);
     setupFakeSophosThreatDetectorConfig();
 
-    unixsocket::SafeStoreServerSocket server(m_socketPath, nullptr);
+    SafeStoreServerSocket server(m_socketPath, nullptr);
     server.start();
 
-    unixsocket::SafeStoreClient client(m_socketPath, m_notifyPipe);
+    SafeStoreClient client(m_socketPath, m_notifyPipe);
 
     auto threatDetected = createThreatDetectedWithRealFd({ .threatId = "invalid threat id" });
     EXPECT_ANY_THROW(client.sendQuarantineRequest(threatDetected));
@@ -284,10 +286,10 @@ TEST_F(TestSafeStoreSocket, TestSendThreatDetectedReceiveResponse)
     EXPECT_CALL(*quarantineManager, quarantineFile(_, _, _, _, _, _))
         .WillOnce(Return(common::CentralEnums::QuarantineResult::NOT_FOUND));
 
-    unixsocket::SafeStoreServerSocket server(m_socketPath, quarantineManager);
+    SafeStoreServerSocket server(m_socketPath, quarantineManager);
     server.start();
 
-    unixsocket::SafeStoreClient client(m_socketPath, m_notifyPipe);
+    SafeStoreClient client(m_socketPath, m_notifyPipe);
 
     auto threatDetected = createThreatDetectedWithRealFd({});
     client.sendQuarantineRequest(threatDetected);
@@ -302,9 +304,27 @@ TEST_F(TestSafeStoreSocket, TestSendThreatDetectedReceiveResponse)
 TEST_F(TestSafeStoreClientSocket, testClientSocketTriesToReconnect)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
-    unixsocket::SafeStoreClient client(m_socketPath, m_notifyPipe, std::chrono::seconds{ 0 });
+    SafeStoreClient client(m_socketPath, m_notifyPipe, std::chrono::seconds{ 0 });
     EXPECT_FALSE(client.isConnected());
 
-    EXPECT_TRUE(appenderContains("SafeStoreClient failed to connect - retrying upto 10 times with a sleep of 0s", 1));
+    EXPECT_TRUE(appenderContains("SafeStoreClient failed to connect to " + m_socketPath + " - retrying upto 10 times with a sleep of 0s", 1));
     EXPECT_TRUE(appenderContains("SafeStoreClient reached the maximum number of attempts"));
+}
+
+TEST_F(TestSafeStoreClientSocket, TestClientSocketTimeOutInterrupted)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    Common::Threads::NotifyPipe notifyPipe;
+    auto notifyPipeSleeper = std::make_unique<common::NotifyPipeSleeper>(notifyPipe);
+
+    std::thread t1([&]() { SafeStoreClient client{m_socketPath, notifyPipe, std::chrono::seconds{ 1 }, std::move(notifyPipeSleeper) }; });
+
+    EXPECT_TRUE(waitForLog("SafeStoreClient failed to connect to " + m_socketPath + " - retrying upto 10 times with a sleep of 1s", 2s));
+    notifyPipe.notify();
+
+    t1.join();
+
+    EXPECT_TRUE(appenderContains("SafeStoreClient received stop request while connecting"));
+    EXPECT_FALSE(appenderContains("SafeStoreClient reached the maximum number of attempts"));
 }
