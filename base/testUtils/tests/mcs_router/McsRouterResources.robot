@@ -75,12 +75,13 @@ MCSRouter Default Test Teardown
 Restart MCSRouter And Clear Logs
     Stop Mcsrouter If Running
     Wait Until Keyword Succeeds
-    ...  5 secs
+    ...  10 secs
     ...  1 secs
     ...  Check MCS Router Not Running
     Remove File  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log
     Remove File  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcs_envelope.log
     Start MCSRouter
+    Wait For MCS Router To Be Running
 
 
 Regenerate Certificates
@@ -271,11 +272,14 @@ Push Server Test Teardown
 
 Install Register And Wait First MCS Policy With MCS Policy
     [Arguments]  ${mcs_policy}
+    Override LogConf File as Global Level  DEBUG
+    Remove File  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log
+    Remove File  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcs_envelope.log
     Start Local Cloud Server  --initial-mcs-policy  ${mcs_policy}
     Register With Local Cloud Server
     Check Correct MCS Password And ID For Local Cloud Saved
-    Override LogConf File as Global Level  DEBUG
-    Restart MCSRouter And Clear Logs
+    Start MCSRouter
+    Wait For MCS Router To Be Running
     Wait New MCS Policy Downloaded
 
 File Should Contain

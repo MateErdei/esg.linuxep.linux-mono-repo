@@ -16,7 +16,7 @@ Resource    ../mcs_router/McsPushClientResources.robot
 Resource   ../scheduler_update/SchedulerUpdateResources.robot
 Resource    ../liveresponse_plugin/LiveResponseResources.robot
 
-Default Tags   EDR_PLUGIN   FAKE_CLOUD   THIN_INSTALLER  INSTALLER
+Default Tags   EDR_PLUGIN   FAKE_CLOUD  INSTALLER
 Force Tags  LOAD1
 
 
@@ -47,7 +47,7 @@ EDR Uninstaller Does Not Report That It Could Not Remove EDR If Watchdog Is Not 
     ${result} =  Uninstall EDR Plugin
     Should Not Contain  ${result.stderr}  Failed to remove edr: Watchdog is not running
 EDR sets up syslog pipe correctly
-    [Tags]  EXCLUDE_UBUNTU18  EDR_PLUGIN   FAKE_CLOUD   THIN_INSTALLER  INSTALLER
+    [Tags]  EXCLUDE_UBUNTU18  EDR_PLUGIN   FAKE_CLOUD  INSTALLER
     Run Full Installer
     Install EDR Directly
 

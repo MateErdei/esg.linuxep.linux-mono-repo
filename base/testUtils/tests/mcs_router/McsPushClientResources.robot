@@ -53,3 +53,7 @@ Push Client Test Teardown
     Push Server Teardown with MCS Fake Server
     Stop Proxy Servers
     Stop Mcsrouter If Running
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  1 secs
+    ...  Check MCS Router Not Running

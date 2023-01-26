@@ -1100,6 +1100,8 @@ class MCSRouter(object):
             if os.path.basename(root_path).startswith("ServerProtectionLinux"):
                 continue
             for file in files:
+                if file.startswith(".coverage"):
+                    continue
                 atomic_files.append(os.path.join(root_path, file))
         return atomic_files
 
