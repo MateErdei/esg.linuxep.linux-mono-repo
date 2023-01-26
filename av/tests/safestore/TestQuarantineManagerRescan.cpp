@@ -2,7 +2,7 @@
 
 #include "MockISafeStoreWrapper.h"
 
-#include "../common/LogInitializedTests.h"
+#include "../common/MemoryAppender.h"
 #include "common/ApplicationPaths.h"
 #include "common/Common.h"
 #include "common/MockScanner.h"
@@ -15,7 +15,6 @@
 #include "unixsocket/threatDetectorSocket/ScanningServerSocket.h"
 
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
-#include "Common/FileSystem/IFileSystemException.h"
 #include "Common/Helpers/FileSystemReplaceAndRestore.h"
 #include "Common/Helpers/MockFilePermissions.h"
 #include "Common/Helpers/MockFileSystem.h"
@@ -30,9 +29,13 @@ namespace fs = sophos_filesystem;
 
 namespace
 {
-    class QuarantineManagerRescanTests : public LogInitializedTests
+    class QuarantineManagerRescanTests : public MemoryAppenderUsingTests
     {
     public:
+        QuarantineManagerRescanTests() :  MemoryAppenderUsingTests("safestore")
+        {}
+
+
         void SetUp() override
         {
             auto mockFileSystem = std::make_unique<StrictMock<MockFileSystem>>();
@@ -82,14 +85,14 @@ namespace
 
 TEST_F(QuarantineManagerRescanTests, scanExtractedFilesForRestoreListDoesNothingWithEmptyArgs)
 {
-    testing::internal::CaptureStderr();
+    UsingMemoryAppender memoryAppenderHolder(*this);
     auto quarantineManager = makeQuarantineManager();
 
     std::vector<FdsObjectIdsPair> testFiles;
 
     quarantineManager.scanExtractedFilesForRestoreList(std::move(testFiles));
-    std::string logMessage = internal::GetCapturedStderr();
-    EXPECT_THAT(logMessage, ::testing::HasSubstr("No files to Rescan"));
+
+    EXPECT_TRUE(appenderContains("No files to Rescan"));
 }
 
 TEST_F(QuarantineManagerRescanTests, scanExtractedFiles)
@@ -199,7 +202,8 @@ TEST_F(QuarantineManagerRescanTests, scanExtractedFiles)
 
 TEST_F(QuarantineManagerRescanTests, scanExtractedFilesSocketFailure)
 {
-    testing::internal::CaptureStderr();
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    m_memoryAppender->setLayout(std::make_unique<log4cplus::PatternLayout>("[%p] %m%n"));
     auto quarantineManager = makeQuarantineManager();
 
     TestFile cleanFile1("cleanFile1");
@@ -212,13 +216,15 @@ TEST_F(QuarantineManagerRescanTests, scanExtractedFilesSocketFailure)
     auto result = quarantineManager.scanExtractedFilesForRestoreList(std::move(testFiles));
     EXPECT_EQ(expectedResult, result);
 
-    std::string logMessage = internal::GetCapturedStderr();
-    EXPECT_THAT(logMessage, ::testing::HasSubstr("ERROR Error on rescan request: "));
+
+    EXPECT_TRUE(appenderContains("[ERROR] Error on rescan request: "));
 }
 
 TEST_F(QuarantineManagerRescanTests, scanExtractedFilesSkipsHandleFailure)
 {
-    testing::internal::CaptureStderr();
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    m_memoryAppender->setLayout(std::make_unique<log4cplus::PatternLayout>("[%p] %m%n"));
+
     auto quarantineManager = makeQuarantineManager();
     auto scannerFactory = std::make_shared<StrictMock<MockScannerFactory>>();
     auto scanner = std::make_unique<StrictMock<MockScanner>>();
@@ -276,14 +282,15 @@ TEST_F(QuarantineManagerRescanTests, scanExtractedFilesSkipsHandleFailure)
     server.requestStop();
     server.join();
 
-    std::string logMessage = internal::GetCapturedStderr();
-    EXPECT_THAT(logMessage, ::testing::HasSubstr("ERROR Couldn't get object handle for: objectId1, continuing..."));
-    EXPECT_THAT(logMessage, ::testing::HasSubstr("Rescan found quarantined file still a threat: /threat/path/two"));
+    EXPECT_TRUE(appenderContains("[ERROR] Couldn't get object handle for: objectId1, continuing..."));
+    EXPECT_TRUE(appenderContains("Rescan found quarantined file still a threat: /threat/path/two"));
 }
 
 TEST_F(QuarantineManagerRescanTests, scanExtractedFilesHandlesNameAndLocationFailure)
 {
-    testing::internal::CaptureStderr();
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    m_memoryAppender->setLayout(std::make_unique<log4cplus::PatternLayout>("[%p] %m%n"));
+
     auto quarantineManager = makeQuarantineManager();
     auto scannerFactory = std::make_shared<StrictMock<MockScannerFactory>>();
     auto scanner = std::make_unique<StrictMock<MockScanner>>();
@@ -323,14 +330,16 @@ TEST_F(QuarantineManagerRescanTests, scanExtractedFilesHandlesNameAndLocationFai
     server.tryStop();
     server.join();
 
-    std::string logMessage = internal::GetCapturedStderr();
-    EXPECT_THAT(logMessage, ::testing::HasSubstr("WARN Couldn't get object name for: objectId1."));
-    EXPECT_THAT(logMessage, ::testing::HasSubstr("WARN Couldn't get object location for: objectId1."));
+
+    EXPECT_TRUE(appenderContains("[WARN] Couldn't get object name for: objectId1."));
+    EXPECT_TRUE(appenderContains("[WARN] Couldn't get object location for: objectId1."));
 }
 
 TEST_F(QuarantineManagerRescanTests, restoreFileDoesNothingIfCannotGetObjectHandle)
 {
-    testing::internal::CaptureStderr();
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    m_memoryAppender->setLayout(std::make_unique<log4cplus::PatternLayout>("[%p] %m%n"));
+
     auto quarantineManager = makeQuarantineManager();
 
     std::string objectId = "objectId";
@@ -346,13 +355,15 @@ TEST_F(QuarantineManagerRescanTests, restoreFileDoesNothingIfCannotGetObjectHand
 
     EXPECT_FALSE(quarantineManager.restoreFile(objectId).has_value());
 
-    std::string logMessage = internal::GetCapturedStderr();
-    EXPECT_THAT(logMessage, ::testing::HasSubstr("ERROR Couldn't get object handle for: objectId"));
+
+    EXPECT_TRUE(appenderContains("[ERROR] Couldn't get object handle for: objectId"));
 }
 
 TEST_F(QuarantineManagerRescanTests, restoreFileReturnsEarlyOnMissingNameAndLocation)
 {
-    testing::internal::CaptureStderr();
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    m_memoryAppender->setLayout(std::make_unique<log4cplus::PatternLayout>("[%p] %m%n"));
+
     auto quarantineManager = makeQuarantineManager();
 
     std::string objectId = "objectId";
@@ -373,13 +384,15 @@ TEST_F(QuarantineManagerRescanTests, restoreFileReturnsEarlyOnMissingNameAndLoca
 
     EXPECT_FALSE(quarantineManager.restoreFile(objectId).has_value());
 
-    std::string logMessage = internal::GetCapturedStderr();
-    EXPECT_THAT(logMessage, ::testing::HasSubstr("ERROR Couldn't get object name for: objectId"));
+
+    EXPECT_TRUE(appenderContains("[ERROR] Couldn't get object name for: objectId"));
 }
 
 TEST_F(QuarantineManagerRescanTests, restoreFileReturnsEarlyOnMissingLocation)
 {
-    testing::internal::CaptureStderr();
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    m_memoryAppender->setLayout(std::make_unique<log4cplus::PatternLayout>("[%p] %m%n"));
+
     auto quarantineManager = makeQuarantineManager();
 
     std::string objectId = "objectId";
@@ -401,13 +414,15 @@ TEST_F(QuarantineManagerRescanTests, restoreFileReturnsEarlyOnMissingLocation)
 
     EXPECT_FALSE(quarantineManager.restoreFile(objectId).has_value());
 
-    std::string logMessage = internal::GetCapturedStderr();
-    EXPECT_THAT(logMessage, ::testing::HasSubstr("ERROR Couldn't get object location for: objectId"));
+
+    EXPECT_TRUE(appenderContains("[ERROR] Couldn't get object location for: objectId"));
 }
 
 TEST_F(QuarantineManagerRescanTests, restoreFileDoesNothingIfCannotGetCorrelationId)
 {
-    testing::internal::CaptureStderr();
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    m_memoryAppender->setLayout(std::make_unique<log4cplus::PatternLayout>("[%p] %m%n"));
+
     auto quarantineManager = makeQuarantineManager();
 
     std::string objectId = "objectId";
@@ -431,16 +446,14 @@ TEST_F(QuarantineManagerRescanTests, restoreFileDoesNothingIfCannotGetCorrelatio
 
     EXPECT_FALSE(quarantineManager.restoreFile(objectId).has_value());
 
-    std::string logMessage = internal::GetCapturedStderr();
-    EXPECT_THAT(
-        logMessage,
-        ::testing::HasSubstr(
-            "ERROR Unable to restore /path/to/location/testName, couldn't get correlation ID: Failed to get SafeStore object custom string 'correlationId'"));
+    EXPECT_TRUE(appenderContains("[ERROR] Unable to restore /path/to/location/testName, couldn't get correlation ID: Failed to get SafeStore object custom string 'correlationId'"));
 }
 
 TEST_F(QuarantineManagerRescanTests, restoreFileReturnsEarlyIfRestoreFails)
 {
-    testing::internal::CaptureStderr();
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    m_memoryAppender->setLayout(std::make_unique<log4cplus::PatternLayout>("[%p] %m%n"));
+
     auto quarantineManager = makeQuarantineManager();
 
     std::string objectId = "objectId";
@@ -467,13 +480,14 @@ TEST_F(QuarantineManagerRescanTests, restoreFileReturnsEarlyIfRestoreFails)
 
     EXPECT_FALSE(quarantineManager.restoreFile(objectId).value().wasSuccessful);
 
-    std::string logMessage = internal::GetCapturedStderr();
-    EXPECT_THAT(logMessage, ::testing::HasSubstr("ERROR Unable to restore clean file: /path/to/location/testName"));
+    EXPECT_TRUE(appenderContains("[ERROR] Unable to restore clean file: /path/to/location/testName"));
 }
 
 TEST_F(QuarantineManagerRescanTests, restoreFileReturnsEarlyIfDeleteFails)
 {
-    testing::internal::CaptureStderr();
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    m_memoryAppender->setLayout(std::make_unique<log4cplus::PatternLayout>("[%p] %m%n"));
+
     auto quarantineManager = makeQuarantineManager();
 
     std::string objectId = "objectId";
@@ -501,16 +515,15 @@ TEST_F(QuarantineManagerRescanTests, restoreFileReturnsEarlyIfDeleteFails)
 
     EXPECT_FALSE(quarantineManager.restoreFile(objectId).value().wasSuccessful);
 
-    std::string logMessage = internal::GetCapturedStderr();
-    EXPECT_THAT(logMessage, ::testing::HasSubstr("INFO Restored file to disk: /path/to/location/testName"));
-    EXPECT_THAT(
-        logMessage,
-        ::testing::HasSubstr("WARN File was restored to disk, but unable to remove it from SafeStore database: /path/to/location/testName"));
+    EXPECT_TRUE(appenderContains("[INFO] Restored file to disk: /path/to/location/testName"));
+    EXPECT_TRUE(appenderContains("[WARN] File was restored to disk, but unable to remove it from SafeStore database: /path/to/location/testName"));
 }
 
 TEST_F(QuarantineManagerRescanTests, restoreFileReturnsReportOnSuccess)
 {
-    testing::internal::CaptureStderr();
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    m_memoryAppender->setLayout(std::make_unique<log4cplus::PatternLayout>("[%p] %m%n"));
+
     auto quarantineManager = makeQuarantineManager();
 
     std::string objectId = "objectId";
@@ -541,7 +554,6 @@ TEST_F(QuarantineManagerRescanTests, restoreFileReturnsReportOnSuccess)
     EXPECT_EQ(result.value().path, "/path/to/location/testName");
     EXPECT_EQ(result.value().correlationId, correlationId);
 
-    std::string logMessage = internal::GetCapturedStderr();
-    EXPECT_THAT(logMessage, ::testing::HasSubstr("INFO Restored file to disk: /path/to/location/testName"));
-    EXPECT_THAT(logMessage, ::testing::HasSubstr("DEBUG ObjectId successfully deleted from database: objectId"));
+    EXPECT_TRUE(appenderContains("[INFO] Restored file to disk: /path/to/location/testName"));
+    EXPECT_TRUE(appenderContains("[DEBUG] ObjectId successfully deleted from database: objectId"));
 }

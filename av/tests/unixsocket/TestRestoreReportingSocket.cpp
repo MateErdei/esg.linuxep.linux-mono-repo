@@ -199,7 +199,7 @@ TEST_F(TestRestoreReportSocket, TestClientTimesOut)
     RestoreReportingClient client{ nullptr };
 
     EXPECT_TRUE(appenderContains("RestoreReportingClient failed to connect to " + m_socketPath + " - retrying upto 10 times with a sleep of 1s"));
-    EXPECT_TRUE(appenderContains("RestoreReportingClient reached the maximum number of attempts"));
+    EXPECT_TRUE(appenderContains("RestoreReportingClient reached the maximum number of connection attempts"));
 }
 
 TEST_F(TestRestoreReportSocket, TestClientTimeOutInterrupted)
@@ -218,7 +218,7 @@ TEST_F(TestRestoreReportSocket, TestClientTimeOutInterrupted)
     t1.join();
 
     EXPECT_TRUE(appenderContains("RestoreReportingClient received stop request while connecting"));
-    EXPECT_FALSE(appenderContains("RestoreReportingClient reached the maximum number of attempts"));
+    EXPECT_FALSE(appenderContains("RestoreReportingClient reached the maximum number of connection attempts"));
 }
 
 TEST_F(TestRestoreReportSocket, TestClientsDontBlockAndAllConnectionsGetResolvedInOrder)

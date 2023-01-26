@@ -118,7 +118,7 @@ TEST_F(TestThreatReporterSocket, testClientSocketTriesToReconnect)
     }
 
     EXPECT_TRUE(appenderContains("ThreatReporterClient failed to connect to " + m_socketPath + " - retrying upto 10 times with a sleep of 0s", 1));
-    EXPECT_TRUE(appenderContains("ThreatReporterClient reached the maximum number of attempts"));
+    EXPECT_TRUE(appenderContains("ThreatReporterClient reached the maximum number of connection attempts"));
 }
 
 TEST_F(TestThreatReporterSocket, TestClientSocketTimeOutInterrupted)
@@ -136,7 +136,7 @@ TEST_F(TestThreatReporterSocket, TestClientSocketTimeOutInterrupted)
     t1.join();
 
     EXPECT_TRUE(appenderContains("ThreatReporterClient received stop request while connecting"));
-    EXPECT_FALSE(appenderContains("ThreatReporterClient reached the maximum number of attempts"));
+    EXPECT_FALSE(appenderContains("ThreatReporterClient reached the maximum number of connection attempts"));
 }
 
 TEST_F(TestThreatReporterSocket, TestSendThreatReportWithInvalidData)

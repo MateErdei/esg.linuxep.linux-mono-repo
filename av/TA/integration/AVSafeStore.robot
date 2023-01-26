@@ -645,9 +645,9 @@ Threat Detector Rescan Socket Does Not Block Shutdown
     Stop SafeStore
     ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
     Create Rescan Interval File
-    wait_for_log_contains_from_mark  ${td_mark}  SafeStoreRescanClient failed to connect - retrying upto 10 times with a sleep of 1s
+    wait_for_log_contains_from_mark  ${td_mark}  SafeStoreRescanClient failed to connect
     Stop sophos_threat_detector
-    wait_for_log_contains_from_mark  ${td_mark}  Stop requested while connecting to SafeStore Rescan
+    wait_for_log_contains_from_mark  ${td_mark}  SafeStoreRescanClient received stop request while connecting
 
 
 Allow Listed Files Are Removed From Quarantine

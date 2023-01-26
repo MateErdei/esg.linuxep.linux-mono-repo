@@ -53,7 +53,7 @@ bool BaseClient::connectWithRetries(int max_retries)
     {
         if (++count >= max_retries)
         {
-            LOGDEBUG(m_name << " reached the maximum number of attempts");
+            LOGDEBUG(m_name << " reached the maximum number of connection attempts");
             return false;
         }
 

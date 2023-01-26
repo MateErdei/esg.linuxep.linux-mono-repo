@@ -301,7 +301,7 @@ Update before Init then Restart Threat Detector
 
     Register Cleanup    Terminate Process  ${cls_handle}
 
-    Wait For Sophos Threat Detector Log Contains After Mark   Scan requested  ${threat_detector_mark}
+    Wait For Sophos Threat Detector Log Contains After Mark   ScanningServerConnectionThread scan requested  ${threat_detector_mark}
     Wait For Sophos Threat Detector Log Contains After Mark   Initializing SUSI  ${threat_detector_mark}   timeout=30
 
     # try to restart as soon as SUSI starts to load

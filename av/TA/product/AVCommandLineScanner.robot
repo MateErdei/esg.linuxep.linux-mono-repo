@@ -294,7 +294,7 @@ CLS Summary is Printed When Avscanner Is Terminated Prematurely
     Should Not Be Equal As Integers	${result.rc}  ${0}
 
     Should Contain   ${result.stdout}  Received SIGINT
-    Should Not Contain  ${result.stdout}  Reached total maximum number of reconnection attempts. Aborting scan.
+    Should Not Contain  ${result.stdout}  reached the maximum number of connection reconnection attempts. Aborting scan.
     Should Not Contain  ${result.stdout}  Reconnected to Sophos Threat Detector after
     Should Not Contain  ${result.stdout}  - retrying after sleep
     Should Not Contain  ${result.stdout}  Failed to reconnect to Sophos Threat Detector - retrying...
@@ -1350,7 +1350,7 @@ CLS Reconnects And Continues Scan If Sophos Threat Detector Is Restarted
     Stop AV
     Start AV
     Wait For Log Contains After Mark  ${LOG_FILE}  Reconnected to Sophos Threat Detector  ${cli_mark}
-    Check Log Does Not Contain After Mark  ${LOG_FILE}  Reached total maximum number of reconnection attempts. Aborting scan.  ${cli_mark}
+    Check Log Does Not Contain After Mark  ${LOG_FILE}  reached the maximum number of connection reconnection attempts. Aborting scan.  ${cli_mark}
 
     ${cli_mark2} =  Mark Log Size   ${LOG_FILE}
     Wait For Log Contains After Mark  ${LOG_FILE}  Scanning  ${cli_mark2}
@@ -1793,7 +1793,7 @@ Threat Detector Client Attempts To Reconnect If AV Plugin Is Not Ready
     ${td_mark} =  LogUtils.Get Sophos Threat Detector Log Mark
     ${HANDLE} =    Start Process    ${CLI_SCANNER_PATH}   ${NORMAL_DIRECTORY}  -x  /mnt/   stdout=${LOG_FILE}   stderr=STDOUT
     wait_for_log_contains_from_mark  ${td_mark}     Detected     timeout=120
-    wait_for_log_contains_from_mark  ${td_mark}     ThreatReporterClient failed to connect - retrying upto 10 times with a sleep of 1s      timeout=120
+    wait_for_log_contains_from_mark  ${td_mark}     ThreatReporterClient failed to connect      timeout=120
     Start AV Plugin Process
     wait_for_log_contains_from_mark  ${td_mark}     ThreatReporterClient connected    timeout=120
 

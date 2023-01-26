@@ -722,7 +722,7 @@ AV Plugin tries to restart threat detector on susi startup settings change
     Wait For AV Log Contains After Mark   Received new policy  ${av_mark}
     Wait For AV Log Contains After Mark   Reloading susi as policy configuration has changed  ${av_mark}   timeout=60
     Check AV Log Contains After Mark  ProcessControlClient failed to connect to ${COMPONENT_ROOT_PATH}/chroot/var/process_control_socket - retrying  ${av_mark}
-    Wait For AV Log Contains After Mark  Reached total maximum number of connection attempts.  ${av_mark}
+    Wait For AV Log Contains After Mark  ProcessControlClient reached the maximum number of connection attempts  ${av_mark}
 
     start sophos_threat_detector
     Wait until threat detector running after mark  ${threat_detector_mark2}
