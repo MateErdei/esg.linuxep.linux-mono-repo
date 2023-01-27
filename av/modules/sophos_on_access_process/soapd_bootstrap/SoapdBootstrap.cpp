@@ -27,15 +27,20 @@ using namespace sophos_on_access_process::soapd_bootstrap;
 using namespace sophos_on_access_process::OnAccessConfig;
 using namespace onaccessimpl::onaccesstelemetry;
 
-SoapdBootstrap::SoapdBootstrap(ISoapdResources& soapdResources)
+SoapdBootstrap::SoapdBootstrap(ISoapdResources& soapdResources, std::shared_ptr<IOnAccessRunner> onAccessRunner)
     : m_soapdResources(soapdResources)
+    , m_onAccessRunner(onAccessRunner)
 {
 }
 
 int SoapdBootstrap::runSoapd()
 {
     SoapdResources soapdResources;
-    auto SoapdInstance = SoapdBootstrap(soapdResources);
+    auto sysCallWrapper = soapdResources.getSystemCallWrapper();
+    auto serviceImpl = soapdResources.getOnAccessServiceImpl();
+    auto TelemetryUtility = serviceImpl->getTelemetryUtility();
+    auto onAccessRunner = std::make_shared<OnAccessRunner>(sysCallWrapper, TelemetryUtility);
+    auto SoapdInstance = SoapdBootstrap(soapdResources, onAccessRunner);
     return SoapdInstance.outerRun();
 }
 
@@ -73,10 +78,6 @@ void SoapdBootstrap::innerRun()
     auto sigIntMonitor{common::signals::SigIntMonitor::getSigIntMonitor(true)};
     auto sigTermMonitor{common::signals::SigTermMonitor::getSigTermMonitor(true)};
 
-    m_ServiceImpl = m_soapdResources.getOnAccessServiceImpl();
-    auto TelemetryUtility = m_ServiceImpl->getTelemetryUtility();
-
-    m_onAccessRunner = std::make_unique<OnAccessRunner>(m_sysCallWrapper, TelemetryUtility);
     m_onAccessRunner->setupOnAccess();
 
     fs::path updateSocketPath = common::getPluginInstallPath() / "chroot/var/update_complete_socket";

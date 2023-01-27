@@ -7,6 +7,7 @@
 
 #include "datatypes/sophos_filesystem.h"
 
+#include "tests/common/MockUpdateCompleteCallback.h"
 #include "tests/common/WaitForEvent.h"
 
 #include <gtest/gtest.h>
@@ -22,12 +23,6 @@ namespace fs = sophos_filesystem;
 
 namespace
 {
-    class MockIUpdateCompleteCallback : public threat_scanner::IUpdateCompleteCallback
-    {
-    public:
-        MOCK_METHOD(void, updateComplete, (), (override));
-    };
-
     class TestUpdateCompleteClientSocketThread : public UnixSocketMemoryAppenderUsingTests
     {
     public:
@@ -57,7 +52,7 @@ namespace
 
 TEST_F(TestUpdateCompleteClientSocketThread, constructionDoesNotCallback)
 {
-    auto callback = std::make_shared<StrictMock<MockIUpdateCompleteCallback>>();
+    auto callback = std::make_shared<StrictMock<MockUpdateCompleteCallback>>();
     UpdateCompleteClientSocketThread foo(m_socketPath, callback);
 }
 
@@ -66,7 +61,7 @@ TEST_F(TestUpdateCompleteClientSocketThread, notificationPassedToClient)
     UsingMemoryAppender memoryAppenderHolder(*this);
 
     WaitForEvent callbackGuard;
-    auto callback = std::make_shared<StrictMock<MockIUpdateCompleteCallback>>();
+    auto callback = std::make_shared<StrictMock<MockUpdateCompleteCallback>>();
     EXPECT_CALL(*callback, updateComplete()).WillOnce(
         InvokeWithoutArgs(&callbackGuard, &WaitForEvent::onEventNoArgs));
 
@@ -109,7 +104,7 @@ TEST_F(TestUpdateCompleteClientSocketThread, notificationPassedToClient)
 TEST_F(TestUpdateCompleteClientSocketThread, clientConnectsIfStartedFirst)
 {
     WaitForEvent callbackGuard;
-    auto callback = std::make_shared<StrictMock<MockIUpdateCompleteCallback>>();
+    auto callback = std::make_shared<StrictMock<MockUpdateCompleteCallback>>();
     EXPECT_CALL(*callback, updateComplete()).WillOnce(
         InvokeWithoutArgs(&callbackGuard, &WaitForEvent::onEventNoArgs));
 
@@ -148,7 +143,7 @@ TEST_F(TestUpdateCompleteClientSocketThread, clientConnectsIfStartedFirst)
 TEST_F(TestUpdateCompleteClientSocketThread, clientReconnects)
 {
     WaitForEvent callbackGuard;
-    auto callback = std::make_shared<StrictMock<MockIUpdateCompleteCallback>>();
+    auto callback = std::make_shared<StrictMock<MockUpdateCompleteCallback>>();
     EXPECT_CALL(*callback, updateComplete()).WillOnce(
         InvokeWithoutArgs(&callbackGuard, &WaitForEvent::onEventNoArgs));
 

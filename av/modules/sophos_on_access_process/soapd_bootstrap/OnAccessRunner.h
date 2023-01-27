@@ -8,7 +8,7 @@
 
 #include "OnAccessStatusFile.h"
 
-#include "IPolicyProcessor.h"
+#include "IOnAccessRunner.h"
 
 #include "common/ThreadRunner.h"
 #include "mount_monitor/mount_monitor/MountMonitor.h"
@@ -24,7 +24,7 @@
 
 namespace sophos_on_access_process::soapd_bootstrap
 {
-    class OnAccessRunner : public IPolicyProcessor
+    class OnAccessRunner : public IOnAccessRunner
     {
     public:
         OnAccessRunner(
@@ -36,11 +36,11 @@ namespace sophos_on_access_process::soapd_bootstrap
             assert(m_TelemetryUtility);
         }
 
-        void setupOnAccess();
+        void setupOnAccess() override;
         // these two methods are not thread safe, but are only called from ProcessPolicy and innerRun (after stopping
         // the policy handler)
-        void enableOnAccess();
-        void disableOnAccess();
+        void enableOnAccess() override;
+        void disableOnAccess() override;
 
         /**
          * Reads and uses the policy settings if m_policyOverride is false.
@@ -49,10 +49,10 @@ namespace sophos_on_access_process::soapd_bootstrap
          */
         void ProcessPolicy() override;
 
-        timespec* getTimeout();
-        void onTimeout();
+        timespec* getTimeout() override;
+        void onTimeout() override;
 
-        threat_scanner::IUpdateCompleteCallbackPtr getUpdateCompleteCallbackPtr()
+        threat_scanner::IUpdateCompleteCallbackPtr getUpdateCompleteCallbackPtr() override
         {
             return m_fanotifyHandler;
         }

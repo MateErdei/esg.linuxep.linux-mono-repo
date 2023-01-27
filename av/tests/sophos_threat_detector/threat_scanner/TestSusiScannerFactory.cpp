@@ -8,7 +8,8 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
-#include "../../common/LogInitializedTests.h"
+#include "tests/common/LogInitializedTests.h"
+#include "tests/common/MockUpdateCompleteCallback.h"
 
 #define TEST_PUBLIC public
 
@@ -135,19 +136,10 @@ TEST_F(TestSusiScannerFactory, testCreateScannerWithMockSusiWrapperImagesTrue)
     EXPECT_NO_THROW(auto scanner = factory.createScanner(false, true));
 }
 
-namespace
-{
-    class MockUpdateCallback : public threat_scanner::IUpdateCompleteCallback
-    {
-    public:
-        MOCK_METHOD(void, updateComplete, (), (override));
-    };
-}
-
 TEST_F(TestSusiScannerFactory, callbackAfterSuccessfulUpdate)
 {
     auto wrapperFactory = std::make_shared<::testing::StrictMock<MockSusiWrapperFactory>>();
-    auto mockCallback = std::make_shared<::testing::StrictMock<MockUpdateCallback>>();
+    auto mockCallback = std::make_shared<::testing::StrictMock<MockUpdateCompleteCallback>>();
     SusiScannerFactory factory(wrapperFactory, nullptr, nullptr, mockCallback);
 
     EXPECT_CALL(*mockCallback, updateComplete()).Times(1);
@@ -160,7 +152,7 @@ TEST_F(TestSusiScannerFactory, callbackAfterSuccessfulUpdate)
 TEST_F(TestSusiScannerFactory, noCallbackAfterSuccessfulUpdate)
 {
     auto wrapperFactory = std::make_shared<::testing::StrictMock<MockSusiWrapperFactory>>();
-    auto mockCallback = std::make_shared<::testing::StrictMock<MockUpdateCallback>>();
+    auto mockCallback = std::make_shared<::testing::StrictMock<MockUpdateCompleteCallback>>();
     SusiScannerFactory factory(wrapperFactory, nullptr, nullptr, mockCallback);
 
     EXPECT_CALL(*wrapperFactory, update()).WillOnce(testing::Return(false));
