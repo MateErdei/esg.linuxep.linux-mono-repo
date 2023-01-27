@@ -474,6 +474,7 @@ UpdateScheduler Report Failure to Update Multiple Times In Telemetry
 
 UpdateScheduler Start and Restart
     Setup Plugin Install Failed  startTime=2  syncTime=1
+    Overwrite MCS Flags File
     Simulate Update Now
     ${eventPath} =  Check Status and Events Are Created
     Check Event Report Install Failed   ${eventPath}
@@ -482,7 +483,7 @@ UpdateScheduler Start and Restart
     Remove File  ${statusPath}
 
     Restart Update Scheduler
-    Send Policy With Cache
+    Send Policy With No Cache And No Proxy
     @{features}=  Create List   CORE
     Setup Base and Plugin Upgraded  ${features}  startTime=3  syncTime=3
     Simulate Update Now
