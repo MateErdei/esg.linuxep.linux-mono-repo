@@ -207,6 +207,8 @@ Setup Event Journaler End To End
     Install EDR Directly
     Install Event Journaler Directly
     Install AV Plugin Directly
+    Create Query Packs
+    Register Cleanup   Cleanup Query Packs
 
 Check Logs Detected EICAR Event
     [Arguments]  ${EXPECTED_EICARS}

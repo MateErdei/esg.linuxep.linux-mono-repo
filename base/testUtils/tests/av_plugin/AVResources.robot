@@ -18,6 +18,7 @@ ${SOPHOS_THREAT_DETECTOR_BINARY}    ${AV_PLUGIN_PATH}/sbin/sophos_threat_detecto
 ${CLS_PATH}                         ${AV_PLUGIN_PATH}/bin/avscanner
 ${PLUGIN_BINARY}                    ${AV_PLUGIN_PATH}/sbin/av
 ${SULDownloaderLog}                 ${SOPHOS_INSTALL}/logs/base/suldownloader.log
+${QUERY_PACKS_PATH}                 ${SOPHOS_INSTALL}/plugins/edr/etc/query_packs
 
 ${VIRUS_DETECTED_RESULT}            ${24}
 ${CLEAN_STRING}                     I am not a virus
@@ -100,21 +101,35 @@ Check AV Plugin Permissions
     Should Be Empty  ${output}
 
 Check AV Plugin Can Scan Files
+    [Arguments]  ${dirty_file}=/tmp/dirty_excluded_file
     Create File     /tmp/clean_file    ${CLEAN_STRING}
-    Create File     /tmp/dirty_excluded_file    ${EICAR_STRING}
+    Create File     ${dirty_file}    ${EICAR_STRING}
 
-    ${rc}   ${output} =    Run And Return Rc And Output    ${CLS_PATH} /tmp/clean_file /tmp/dirty_excluded_file
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLS_PATH} /tmp/clean_file ${dirty_file}
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
 
 Check On Access Detects Threats
     ${threat_path} =  Set Variable  /tmp/eicar.com
-    ${mark} =  get_on_access_log_mark
     Create File     ${threat_path}    ${EICAR_STRING}
     Register Cleanup  Remove File  ${threat_path}
 
-    wait for on access log contains after mark  etected "${threat_path}" is infected with EICAR-AV-Test  mark=${mark}
+    ${mark} =  get_on_access_log_mark
+    wait for on access log contains after mark  detected "${threat_path}" is infected with EICAR-AV-Test  mark=${mark}
 
 Enable On Access Via Policy
     ${mark} =  get_on_access_log_mark
     send_policy_file  core  ${SUPPORT_FILES}/CentralXml/CORE-36_oa_enabled.xml
-    wait for on access log contains after mark  On-access scanning enabled  mark=${mark}
+    wait for on access log contains after mark   On-access scanning enabled  mark=${mark}
+
+Create Query Packs
+    ${pack_content} =  Set Variable   {"query": "select * from uptime;","interval": 2, "denylist": false}
+    Create File   ${QUERY_PACKS_PATH}/sophos-scheduled-query-pack.conf   {"schedule": {"latest_xdr_query": ${pack_content}}}
+    Create File   ${QUERY_PACKS_PATH}/sophos-scheduled-query-pack.mtr.conf   {"schedule": {"latest_mtr_query": ${pack_content}}}
+    Create File   ${QUERY_PACKS_PATH}/sophos-scheduled-query-pack-next.conf    {"schedule": {"next_xdr_query": ${pack_content}}}
+    Create File   ${QUERY_PACKS_PATH}/sophos-scheduled-query-pack-next.mtr.conf    {"schedule": {"next_mtr_query": ${pack_content}}}
+
+Cleanup Query Packs
+    Remove File   ${QUERY_PACKS_PATH}/sophos-scheduled-query-pack.conf
+    Remove File   ${QUERY_PACKS_PATH}/sophos-scheduled-query-pack.mtr.conf
+    Remove File   ${QUERY_PACKS_PATH}/sophos-scheduled-query-pack-next.conf
+    Remove File   ${QUERY_PACKS_PATH}/sophos-scheduled-query-pack-next.mtr.conf
