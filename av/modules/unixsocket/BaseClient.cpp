@@ -65,7 +65,7 @@ bool BaseClient::connectWithRetries(int max_retries)
         }
         if (m_sleeper->stoppableSleep(m_sleepTime))
         {
-            LOGINFO(m_name << " received stop request while connecting");
+            LOGDEBUG(m_name << " received stop request while connecting");
             return false;
         }
 

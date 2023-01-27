@@ -83,7 +83,6 @@ static std::shared_ptr<scan_messages::ScanRequest> parseRequest(kj::Array<capnp:
 void unixsocket::ScanningServerConnectionThread::run()
 {
     setIsRunning(true);
-    announceThreadStarted();
 
     // LINUXDAR-4543: Block signals in this thread, and all threads started from this thread
     sigset_t signals;
@@ -97,6 +96,8 @@ void unixsocket::ScanningServerConnectionThread::run()
 
     // Start server:
     LOGDEBUG("Starting " << m_threadName);
+
+    announceThreadStarted();
 
     try
     {
