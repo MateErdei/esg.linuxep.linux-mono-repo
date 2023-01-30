@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2018, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #include "EventTask.h"
 
@@ -15,9 +11,11 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <sstream>
 #include <sys/stat.h>
 
-ManagementAgent::EventReceiverImpl::EventTask::EventTask(std::string appId, std::string eventXml) :
+ManagementAgent::EventReceiverImpl::EventTask::EventTask(std::string appId, std::string eventXml,
+                                                         IOutbreakModeControllerPtr outbreakModeController) :
     m_appId(std::move(appId)),
-    m_eventXml(std::move(eventXml))
+    m_eventXml(std::move(eventXml)),
+    outbreakModeController_(std::move(outbreakModeController))
 {
 }
 
@@ -42,6 +40,15 @@ namespace
 
 void ManagementAgent::EventReceiverImpl::EventTask::run()
 {
+    // Determine if event should be filtered by Outbreak Mode
+    if (
+        outbreakModeController_->recordEventAndDetermineIfItShouldBeDropped(m_appId, m_eventXml)
+    )
+    {
+        // Drop the event
+        return;
+    }
+
     LOGSUPPORT("Send event from appid " << m_appId << " to mcsrouter");
     Path eventDir = Common::ApplicationConfiguration::applicationPathManager().getMcsEventFilePath();
     assert(!eventDir.empty());

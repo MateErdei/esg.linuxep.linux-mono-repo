@@ -10,30 +10,56 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
 #include <tests/Common/Helpers/MockFileSystem.h>
 
-class TestEventTask : public ::testing::Test
+using namespace ManagementAgent::EventReceiverImpl;
+
+namespace
 {
-public:
-    TestEventTask() : m_loggingSetup(new Common::Logging::ConsoleLoggingSetup()) {}
+    class FakeOutbreakModeController : public IOutbreakModeController
+    {
+    public:
+        bool recordEventAndDetermineIfItShouldBeDropped(const std::string&, const std::string&) override
+        {
+            return false;
+        }
+    };
 
-private:
-    std::unique_ptr<Common::Logging::ConsoleLoggingSetup> m_loggingSetup;
-};
+    class TestEventTask : public ::testing::Test
+    {
+    public:
+        TestEventTask() : m_loggingSetup(new Common::Logging::ConsoleLoggingSetup()) {}
 
-TEST_F(TestEventTask, Construction) // NOLINT
+        void SetUp() override
+        {
+            outbreakModeController_ = std::make_shared<FakeOutbreakModeController>();
+        }
+
+    protected:
+        std::shared_ptr<FakeOutbreakModeController> outbreakModeController_;
+    private:
+        std::unique_ptr<Common::Logging::ConsoleLoggingSetup> m_loggingSetup;
+    };
+
+
+}
+
+TEST_F(TestEventTask, Construction)
 {
     EXPECT_NO_THROW( // NOLINT
-        ManagementAgent::EventReceiverImpl::EventTask task("APPID", "EventXml"));
+        ManagementAgent::EventReceiverImpl::EventTask task("APPID", "EventXml", outbreakModeController_));
 }
 
-StrictMock<MockFileSystem>* createMockFileSystem()
+namespace
 {
-    auto filesystemMock = new StrictMock<MockFileSystem>();
-    return filesystemMock;
+    StrictMock<MockFileSystem>* createMockFileSystem()
+    {
+        auto filesystemMock = new StrictMock<MockFileSystem>();
+        return filesystemMock;
+    }
 }
 
-TEST_F(TestEventTask, RunningATaskCausesAFileToBeCreated) // NOLINT
+TEST_F(TestEventTask, RunningATaskCausesAFileToBeCreated)
 {
-    ManagementAgent::EventReceiverImpl::EventTask task("APPID", "EventXml");
+    ManagementAgent::EventReceiverImpl::EventTask task("APPID", "EventXml", outbreakModeController_);
 
     auto filesystemMock = createMockFileSystem();
 
@@ -48,11 +74,11 @@ TEST_F(TestEventTask, RunningATaskCausesAFileToBeCreated) // NOLINT
     task.run();
 }
 
-TEST_F(TestEventTask, RunningTwoIdenticalTasksResultsInTwoDifferentFilesBeingCreated) // NOLINT
+TEST_F(TestEventTask, RunningTwoIdenticalTasksResultsInTwoDifferentFilesBeingCreated)
 {
-    ManagementAgent::EventReceiverImpl::EventTask task("APPID", "EventXml");
+    ManagementAgent::EventReceiverImpl::EventTask task("APPID", "EventXml", outbreakModeController_);
 
-    ManagementAgent::EventReceiverImpl::EventTask task2("APPID", "EventXml");
+    ManagementAgent::EventReceiverImpl::EventTask task2("APPID", "EventXml", outbreakModeController_);
 
     auto filesystemMock = createMockFileSystem();
 

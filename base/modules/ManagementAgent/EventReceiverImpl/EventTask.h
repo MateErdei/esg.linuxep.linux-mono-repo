@@ -1,10 +1,8 @@
-/******************************************************************************************************
-
-Copyright 2018, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #pragma once
+
+#include "IOutbreakModeController.h"
 
 #include <Common/TaskQueue/ITask.h>
 
@@ -17,12 +15,14 @@ namespace ManagementAgent
         class EventTask : public virtual Common::TaskQueue::ITask
         {
         public:
-            EventTask(std::string appId, std::string eventXml);
+            EventTask(std::string appId, std::string eventXml,
+                      IOutbreakModeControllerPtr outbreakModeController);
             void run() override;
 
         private:
             std::string m_appId;
             std::string m_eventXml;
+            IOutbreakModeControllerPtr outbreakModeController_;
         };
     } // namespace EventReceiverImpl
 } // namespace ManagementAgent

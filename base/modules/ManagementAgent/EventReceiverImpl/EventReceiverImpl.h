@@ -1,10 +1,8 @@
-/******************************************************************************************************
-
-Copyright 2018, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #pragma once
+
+#include "OutbreakModeController.h"
 
 #include <Common/TaskQueue/ITaskQueue.h>
 #include <ManagementAgent/PluginCommunication/IEventReceiver.h>
@@ -22,6 +20,7 @@ namespace ManagementAgent
 
         private:
             Common::TaskQueue::ITaskQueueSharedPtr m_taskQueue;
+            OutbreakModeControllerPtr outbreakModeController_;
         };
 
     } // namespace EventReceiverImpl

@@ -2,7 +2,12 @@ add_library(eventreceiverimpl SHARED
         EventReceiverImpl.cpp EventReceiverImpl.h
         ../PluginCommunication/IEventReceiver.h
         EventTask.cpp
-        EventTask.h)
+        EventTask.h
+        IOutbreakModeController.h
+        OutbreakModeController.cpp
+        OutbreakModeController.h
+        )
+
 target_include_directories(eventreceiverimpl PUBLIC  ../../Common ${LOG4CPLUS_INCLUDE_DIR})
 target_link_libraries(eventreceiverimpl PUBLIC applicationconfigurationimpl managementagentloggerimpl taskqueueimpl)
 
