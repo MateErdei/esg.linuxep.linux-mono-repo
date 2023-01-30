@@ -18,7 +18,7 @@ if (NOT DEFINED ENV{USE_LIBFUZZER})
             TestPluginAdapter.cpp
             TestPluginAdapterDetections.cpp
             TestPluginCallback.cpp
-            TestPolicyUtils.cpp
+            TestStringUtils.cpp
             TestPolicyWaiter.cpp
             TestSafeStoreWorker.cpp
             TestTaskQueue.cpp
