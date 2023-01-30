@@ -15,6 +15,8 @@ namespace
             : MemoryAppenderUsingTests("managementagent")
         {}
     };
+
+    const int OUTBREAK_COUNT = 100;
 }
 
 TEST_F(TestOutbreakModeController, construction)
@@ -37,10 +39,61 @@ TEST_F(TestOutbreakModeController, outbreak_mode_logged)
 
     auto controller = std::make_shared<OutbreakModeController>();
 
-    for (auto i=0; i<101; i++)
+    for (auto i=0; i<OUTBREAK_COUNT+1; i++)
     {
         controller->recordEventAndDetermineIfItShouldBeDropped("CORE", detection_xml);
     }
 
     EXPECT_TRUE(waitForLog("Entering outbreak mode"));
+}
+
+
+TEST_F(TestOutbreakModeController, do_not_enter_outbreak_mode_for_cleanups)
+{
+    const std::string event_xml = R"(<?xml version="1.0" encoding="utf-8"?>
+<event type="sophos.core.clean" ts="1970-01-01T00:02:03.000Z">
+  <alert id="fedcba98-7654-3210-fedc-ba9876543210" succeeded="1" origin="1">
+    <items totalItems="1">
+      <item type="file" result="0">
+        <descriptor>/path/to/eicar.txt</descriptor>
+      </item>
+    </items>
+  </alert>
+</event>)";
+
+    UsingMemoryAppender recorder(*this);
+
+    auto controller = std::make_shared<OutbreakModeController>();
+
+    for (auto i=0; i<OUTBREAK_COUNT+1; i++)
+    {
+        controller->recordEventAndDetermineIfItShouldBeDropped("CORE", event_xml);
+    }
+
+    EXPECT_FALSE(appenderContains("Entering outbreak mode"));
+}
+
+TEST_F(TestOutbreakModeController, insufficient_alerts_do_not_enter_outbreak_mode)
+{
+    const std::string event_xml = R"(<?xml version="1.0" encoding="utf-8"?>
+<event type="sophos.core.clean" ts="1970-01-01T00:02:03.000Z">
+  <alert id="fedcba98-7654-3210-fedc-ba9876543210" succeeded="1" origin="1">
+    <items totalItems="1">
+      <item type="file" result="0">
+        <descriptor>/path/to/eicar.txt</descriptor>
+      </item>
+    </items>
+  </alert>
+</event>)";
+
+    UsingMemoryAppender recorder(*this);
+
+    auto controller = std::make_shared<OutbreakModeController>();
+
+    for (auto i=0; i<OUTBREAK_COUNT-1; i++)
+    {
+        controller->recordEventAndDetermineIfItShouldBeDropped("CORE", event_xml);
+    }
+
+    EXPECT_FALSE(appenderContains("Entering outbreak mode"));
 }

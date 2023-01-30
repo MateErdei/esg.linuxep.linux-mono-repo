@@ -41,7 +41,7 @@ namespace Common
              */
             static inline bool startswith(const std::string& haystack, const std::string& needle)
             {
-                return haystack.find(needle) == 0;
+                return haystack.rfind(needle, 0) == 0;
             }
 
             /**
