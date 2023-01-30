@@ -114,6 +114,7 @@ namespace
         MockedSoapdResources()
         {
             m_systemCallWrapper = std::make_shared<MockSystemCallWrapper>();
+            m_onAccessRunner = std::make_shared<MockOnAccessRunner>();
             ON_CALL(*m_systemCallWrapper, setrlimit(_, _)).WillByDefault(Return(0));
         }
 
@@ -160,10 +161,11 @@ namespace
             onaccessimpl::onaccesstelemetry::IOnAccessTelemetryUtilitySharedPtr /*telemetryUtility*/
             ) override
         {
-            return std::make_shared<MockOnAccessRunner>();
+            return m_onAccessRunner;
         }
 
         std::shared_ptr<MockSystemCallWrapper> m_systemCallWrapper;
+        std::shared_ptr<MockOnAccessRunner> m_onAccessRunner;
 
     };
 
@@ -186,7 +188,6 @@ namespace
             appConfig.setData(Common::ApplicationConfiguration::SOPHOS_INSTALL, m_testDir );
             appConfig.setData("PLUGIN_INSTALL", m_testDir );
 
-            m_onaccessRunner = std::make_shared<MockOnAccessRunner>();
             m_updateCompleteCallback = std::make_shared<MockUpdateCompleteCallback>();
         }
 
@@ -205,28 +206,27 @@ namespace
         fs::path m_testDir;
         fs::path m_localSettings;
         MockedSoapdResources m_mockSoapdResources;
-        std::shared_ptr<MockOnAccessRunner> m_onaccessRunner;
         std::shared_ptr<MockUpdateCompleteCallback> m_updateCompleteCallback;
     };
 }
 
 TEST_F(TestSoapdBootstrap, constructor)
 {
-    auto soapdInstance = SoapdBootstrap(m_mockSoapdResources, m_onaccessRunner);
+    auto soapdInstance = SoapdBootstrap(m_mockSoapdResources);
 }
 
 TEST_F(TestSoapdBootstrap, outerRun_SIGINT)
 {
     EXPECT_CALL(*m_mockSoapdResources.m_systemCallWrapper, ppoll(_, _, _, _))
         .WillOnce(pollReturnsWithRevents(0, POLLIN));
-    EXPECT_CALL(*m_onaccessRunner, setupOnAccess());
-    EXPECT_CALL(*m_onaccessRunner, getUpdateCompleteCallbackPtr()).WillOnce(Return(m_updateCompleteCallback));
-    EXPECT_CALL(*m_onaccessRunner, ProcessPolicy());
+    EXPECT_CALL(*m_mockSoapdResources.m_onAccessRunner, setupOnAccess());
+    EXPECT_CALL(*m_mockSoapdResources.m_onAccessRunner, getUpdateCompleteCallbackPtr()).WillOnce(Return(m_updateCompleteCallback));
+    EXPECT_CALL(*m_mockSoapdResources.m_onAccessRunner, ProcessPolicy());
     static timespec timeout { .tv_sec=60, .tv_nsec=0 };
-    EXPECT_CALL(*m_onaccessRunner, getTimeout()).WillOnce(Return(&timeout));
-    EXPECT_CALL(*m_onaccessRunner, disableOnAccess());
+    EXPECT_CALL(*m_mockSoapdResources.m_onAccessRunner, getTimeout()).WillOnce(Return(&timeout));
+    EXPECT_CALL(*m_mockSoapdResources.m_onAccessRunner, disableOnAccess());
 
-    auto soapdInstance = SoapdBootstrap(m_mockSoapdResources, m_onaccessRunner);
+    auto soapdInstance = SoapdBootstrap(m_mockSoapdResources);
     auto ret = soapdInstance.outerRun();
 
     EXPECT_EQ(ret, 0);
@@ -236,14 +236,14 @@ TEST_F(TestSoapdBootstrap, outerRun_SIGTERM)
 {
     EXPECT_CALL(*m_mockSoapdResources.m_systemCallWrapper, ppoll(_, _, _, _))
         .WillOnce(pollReturnsWithRevents(1, POLLIN));
-    EXPECT_CALL(*m_onaccessRunner, setupOnAccess());
-    EXPECT_CALL(*m_onaccessRunner, getUpdateCompleteCallbackPtr()).WillOnce(Return(m_updateCompleteCallback));
-    EXPECT_CALL(*m_onaccessRunner, ProcessPolicy());
+    EXPECT_CALL(*m_mockSoapdResources.m_onAccessRunner, setupOnAccess());
+    EXPECT_CALL(*m_mockSoapdResources.m_onAccessRunner, getUpdateCompleteCallbackPtr()).WillOnce(Return(m_updateCompleteCallback));
+    EXPECT_CALL(*m_mockSoapdResources.m_onAccessRunner, ProcessPolicy());
     static timespec timeout { .tv_sec=60, .tv_nsec=0 };
-    EXPECT_CALL(*m_onaccessRunner, getTimeout()).WillOnce(Return(&timeout));
-    EXPECT_CALL(*m_onaccessRunner, disableOnAccess());
+    EXPECT_CALL(*m_mockSoapdResources.m_onAccessRunner, getTimeout()).WillOnce(Return(&timeout));
+    EXPECT_CALL(*m_mockSoapdResources.m_onAccessRunner, disableOnAccess());
 
-    auto soapdInstance = SoapdBootstrap(m_mockSoapdResources, m_onaccessRunner);
+    auto soapdInstance = SoapdBootstrap(m_mockSoapdResources);
     auto ret = soapdInstance.outerRun();
 
     EXPECT_EQ(ret, 0);
@@ -254,15 +254,15 @@ TEST_F(TestSoapdBootstrap, outerRun_timeout)
     EXPECT_CALL(*m_mockSoapdResources.m_systemCallWrapper, ppoll(_, _, _, _))
         .WillOnce(Return(0))
         .WillOnce(pollReturnsWithRevents(1, POLLIN));
-    EXPECT_CALL(*m_onaccessRunner, setupOnAccess());
-    EXPECT_CALL(*m_onaccessRunner, getUpdateCompleteCallbackPtr()).WillOnce(Return(m_updateCompleteCallback));
-    EXPECT_CALL(*m_onaccessRunner, ProcessPolicy());
+    EXPECT_CALL(*m_mockSoapdResources.m_onAccessRunner, setupOnAccess());
+    EXPECT_CALL(*m_mockSoapdResources.m_onAccessRunner, getUpdateCompleteCallbackPtr()).WillOnce(Return(m_updateCompleteCallback));
+    EXPECT_CALL(*m_mockSoapdResources.m_onAccessRunner, ProcessPolicy());
     static timespec timeout { .tv_sec=60, .tv_nsec=0 };
-    EXPECT_CALL(*m_onaccessRunner, getTimeout()).WillRepeatedly(Return(&timeout));
-    EXPECT_CALL(*m_onaccessRunner, disableOnAccess());
-    EXPECT_CALL(*m_onaccessRunner, onTimeout());
+    EXPECT_CALL(*m_mockSoapdResources.m_onAccessRunner, getTimeout()).WillRepeatedly(Return(&timeout));
+    EXPECT_CALL(*m_mockSoapdResources.m_onAccessRunner, disableOnAccess());
+    EXPECT_CALL(*m_mockSoapdResources.m_onAccessRunner, onTimeout());
 
-    auto soapdInstance = SoapdBootstrap(m_mockSoapdResources, m_onaccessRunner);
+    auto soapdInstance = SoapdBootstrap(m_mockSoapdResources);
     auto ret = soapdInstance.outerRun();
 
     EXPECT_EQ(ret, 0);
@@ -273,14 +273,14 @@ TEST_F(TestSoapdBootstrap, outerRun_ppollFailsWithEINTR)
     EXPECT_CALL(*m_mockSoapdResources.m_systemCallWrapper, ppoll(_, _, _, _))
         .WillOnce(SetErrnoAndReturn(EINTR, -1))
         .WillOnce(pollReturnsWithRevents(1, POLLIN));
-    EXPECT_CALL(*m_onaccessRunner, setupOnAccess());
-    EXPECT_CALL(*m_onaccessRunner, getUpdateCompleteCallbackPtr()).WillOnce(Return(m_updateCompleteCallback));
-    EXPECT_CALL(*m_onaccessRunner, ProcessPolicy());
+    EXPECT_CALL(*m_mockSoapdResources.m_onAccessRunner, setupOnAccess());
+    EXPECT_CALL(*m_mockSoapdResources.m_onAccessRunner, getUpdateCompleteCallbackPtr()).WillOnce(Return(m_updateCompleteCallback));
+    EXPECT_CALL(*m_mockSoapdResources.m_onAccessRunner, ProcessPolicy());
     static timespec timeout { .tv_sec=60, .tv_nsec=0 };
-    EXPECT_CALL(*m_onaccessRunner, getTimeout()).WillRepeatedly(Return(&timeout));
-    EXPECT_CALL(*m_onaccessRunner, disableOnAccess());
+    EXPECT_CALL(*m_mockSoapdResources.m_onAccessRunner, getTimeout()).WillRepeatedly(Return(&timeout));
+    EXPECT_CALL(*m_mockSoapdResources.m_onAccessRunner, disableOnAccess());
 
-    auto soapdInstance = SoapdBootstrap(m_mockSoapdResources, m_onaccessRunner);
+    auto soapdInstance = SoapdBootstrap(m_mockSoapdResources);
     auto ret = soapdInstance.outerRun();
 
     EXPECT_EQ(ret, 0);
@@ -290,14 +290,14 @@ TEST_F(TestSoapdBootstrap, outerRun_ppollFailsWithErrorOtherThanEINTR)
 {
     EXPECT_CALL(*m_mockSoapdResources.m_systemCallWrapper, ppoll(_, _, _, _))
         .WillOnce(SetErrnoAndReturn(EBADF, -1));
-    EXPECT_CALL(*m_onaccessRunner, setupOnAccess());
-    EXPECT_CALL(*m_onaccessRunner, getUpdateCompleteCallbackPtr()).WillOnce(Return(m_updateCompleteCallback));
-    EXPECT_CALL(*m_onaccessRunner, ProcessPolicy());
+    EXPECT_CALL(*m_mockSoapdResources.m_onAccessRunner, setupOnAccess());
+    EXPECT_CALL(*m_mockSoapdResources.m_onAccessRunner, getUpdateCompleteCallbackPtr()).WillOnce(Return(m_updateCompleteCallback));
+    EXPECT_CALL(*m_mockSoapdResources.m_onAccessRunner, ProcessPolicy());
     static timespec timeout { .tv_sec=60, .tv_nsec=0 };
-    EXPECT_CALL(*m_onaccessRunner, getTimeout()).WillRepeatedly(Return(&timeout));
-    EXPECT_CALL(*m_onaccessRunner, disableOnAccess());
+    EXPECT_CALL(*m_mockSoapdResources.m_onAccessRunner, getTimeout()).WillRepeatedly(Return(&timeout));
+    EXPECT_CALL(*m_mockSoapdResources.m_onAccessRunner, disableOnAccess());
 
-    auto soapdInstance = SoapdBootstrap(m_mockSoapdResources, m_onaccessRunner);
+    auto soapdInstance = SoapdBootstrap(m_mockSoapdResources);
     auto ret = soapdInstance.outerRun();
 
     EXPECT_EQ(ret, 0);

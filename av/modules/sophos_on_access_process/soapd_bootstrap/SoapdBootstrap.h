@@ -15,7 +15,7 @@ namespace sophos_on_access_process::soapd_bootstrap
     class SoapdBootstrap
     {
     public:
-        explicit SoapdBootstrap(ISoapdResources& soapdResources, std::shared_ptr<IOnAccessRunner> onAccessRunner);
+        explicit SoapdBootstrap(ISoapdResources& soapdResources);
         SoapdBootstrap(const SoapdBootstrap&) =delete;
         SoapdBootstrap& operator=(const SoapdBootstrap&) =delete;
 
@@ -34,7 +34,6 @@ TEST_PUBLIC:
 
         ISoapdResources& m_soapdResources;
 
-        std::shared_ptr<IOnAccessRunner> m_onAccessRunner;
         datatypes::ISystemCallWrapperSharedPtr m_sysCallWrapper;
     };
 }

@@ -27,20 +27,15 @@ using namespace sophos_on_access_process::soapd_bootstrap;
 using namespace sophos_on_access_process::OnAccessConfig;
 using namespace onaccessimpl::onaccesstelemetry;
 
-SoapdBootstrap::SoapdBootstrap(ISoapdResources& soapdResources, std::shared_ptr<IOnAccessRunner> onAccessRunner)
+SoapdBootstrap::SoapdBootstrap(ISoapdResources& soapdResources)
     : m_soapdResources(soapdResources)
-    , m_onAccessRunner(onAccessRunner)
 {
 }
 
 int SoapdBootstrap::runSoapd()
 {
     SoapdResources soapdResources;
-    auto sysCallWrapper = soapdResources.getSystemCallWrapper();
-    auto serviceImpl = soapdResources.getOnAccessServiceImpl();
-    auto TelemetryUtility = serviceImpl->getTelemetryUtility();
-    auto onAccessRunner = soapdResources.getOnAccessRunner(sysCallWrapper, TelemetryUtility);
-    auto SoapdInstance = SoapdBootstrap(soapdResources, onAccessRunner);
+    auto SoapdInstance = SoapdBootstrap(soapdResources);
     return SoapdInstance.outerRun();
 }
 
@@ -78,22 +73,26 @@ void SoapdBootstrap::innerRun()
     auto sigIntMonitor{common::signals::SigIntMonitor::getSigIntMonitor(true)};
     auto sigTermMonitor{common::signals::SigTermMonitor::getSigTermMonitor(true)};
 
-    m_onAccessRunner->setupOnAccess();
+    auto sysCallWrapper = m_soapdResources.getSystemCallWrapper();
+    auto serviceImpl = m_soapdResources.getOnAccessServiceImpl();
+    auto TelemetryUtility = serviceImpl->getTelemetryUtility();
+    auto onAccessRunner = m_soapdResources.getOnAccessRunner(sysCallWrapper, TelemetryUtility);
+    onAccessRunner->setupOnAccess();
 
     fs::path updateSocketPath = common::getPluginInstallPath() / "chroot/var/update_complete_socket";
-    auto updateCompleteCallback = m_onAccessRunner->getUpdateCompleteCallbackPtr();
+    auto updateCompleteCallback = onAccessRunner->getUpdateCompleteCallbackPtr();
     auto updateClient = m_soapdResources.getUpdateClient(updateSocketPath, updateCompleteCallback);
     auto updateClientThread = std::make_unique<common::ThreadRunner>(updateClient, "updateClient", true);
 
     fs::path socketPath = common::getPluginInstallPath() / "var/soapd_controller";
     LOGDEBUG("Control Server Socket is at: " << socketPath);
-    auto processControlCallbacks = std::make_shared<OnAccessProcessControlCallback>(*m_onAccessRunner);
+    auto processControlCallbacks = std::make_shared<OnAccessProcessControlCallback>(*onAccessRunner);
     auto processControllerServer = m_soapdResources.getProcessController(
             socketPath, "sophos-spl-av", "sophos-spl-group", 0600, processControlCallbacks);
     auto processControllerServerThread =
         std::make_unique<common::ThreadRunner>(processControllerServer, "processControlServer", true);
 
-    m_onAccessRunner->ProcessPolicy();
+    onAccessRunner->ProcessPolicy();
 
     struct pollfd fds[] {
         { .fd = sigIntMonitor->monitorFd(), .events = POLLIN, .revents = 0 },
@@ -102,7 +101,7 @@ void SoapdBootstrap::innerRun()
 
     while (true)
     {
-        timespec* timeout = m_onAccessRunner->getTimeout();
+        timespec* timeout = onAccessRunner->getTimeout();
 
         // wait for an activity on one of the fds
         int activity = m_sysCallWrapper->ppoll(fds, std::size(fds), timeout, nullptr);
@@ -137,7 +136,7 @@ void SoapdBootstrap::innerRun()
 
         if (timeout)
         {
-            m_onAccessRunner->onTimeout();
+            onAccessRunner->onTimeout();
         }
     }
 
@@ -147,6 +146,6 @@ void SoapdBootstrap::innerRun()
     processControllerServerThread.reset();
     updateClientThread.reset();
 
-    m_onAccessRunner->disableOnAccess();
+    onAccessRunner->disableOnAccess();
 }
 
