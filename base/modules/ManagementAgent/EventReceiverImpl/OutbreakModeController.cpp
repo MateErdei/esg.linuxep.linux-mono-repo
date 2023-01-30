@@ -2,6 +2,8 @@
 
 #include "OutbreakModeController.h"
 
+#include <ManagementAgent/LoggerImpl/Logger.h>
+
 #include <tuple>
 
 bool ManagementAgent::EventReceiverImpl::OutbreakModeController::recordEventAndDetermineIfItShouldBeDropped(
@@ -10,5 +12,10 @@ bool ManagementAgent::EventReceiverImpl::OutbreakModeController::recordEventAndD
 {
     std::ignore = appId;
     std::ignore = eventXml;
+    detectionCount_++;
+    if (detectionCount_ == 100)
+    {
+        LOGWARN("Entering outbreak mode");
+    }
     return false;
 }

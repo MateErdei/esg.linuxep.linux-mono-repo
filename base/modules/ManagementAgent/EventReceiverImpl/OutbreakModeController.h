@@ -10,6 +10,8 @@ namespace ManagementAgent::EventReceiverImpl
     {
     public:
         bool recordEventAndDetermineIfItShouldBeDropped(const std::string& appId, const std::string& eventXml) override;
+    private:
+        int detectionCount_ = 0;
     };
 
     using OutbreakModeControllerPtr = std::shared_ptr<OutbreakModeController>;
