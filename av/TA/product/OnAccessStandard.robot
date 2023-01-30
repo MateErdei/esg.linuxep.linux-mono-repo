@@ -648,7 +648,7 @@ On Access Doesn't cache remote files
     Should Be Equal As Strings   ${content}   ${CLEAN_STRING}
     wait for on access log contains after mark  On-open event for ${destination}/testfile from Process  mark=${mark}
 
-    Check On Access Log Does Not Contain Before Timeout  Caching ${destination}/testfile   ${mark}  ${1}
+    wait_for_on_access_log_contains_after_mark  not caching ${destination}/testfile  mark=${mark}  timeout=1
 
     # replace the file content on the server
     Create File   ${source}/testfile  ${EICAR_STRING}   # assumes robot framework will re-use the same file

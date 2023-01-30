@@ -949,7 +949,7 @@ Correlation Id Stays The Same Until The File Is Quarantined And Changes For Rede
 
     Should Not Be Equal  ${correlation_id1}  ${correlation_id2}
 
-Threat Is Re-detected By On-access If Removed From Allow-list
+Threat Is Re-detected By On-access After Being Cached If Removed From Allow-list
     ${ss_mark} =  Get SafeStore Log Mark
     ${av_mark} =  Get AV Log Mark
     ${oa_mark} =  Get on access log mark
@@ -965,6 +965,8 @@ Threat Is Re-detected By On-access If Removed From Allow-list
     Wait For Log Contains From Mark  ${ss_mark}  Quarantined ${allow_listed_threat_file} successfully
     File Should Not Exist  ${allow_listed_threat_file}
 
+    ${oa_mark} =  get_on_access_log_mark
+
     # Allow-list the file and wait for it to be restored
     ${ss_mark} =  Get SafeStore Log Mark
     Send CORC Policy To Base   corc_policy.xml
@@ -972,6 +974,10 @@ Threat Is Re-detected By On-access If Removed From Allow-list
     Wait For Log Contains From Mark  ${ss_mark}  Rescan found quarantined file no longer a threat: ${allow_listed_threat_file}
     Wait For Log Contains From Mark  ${ss_mark}  Reporting successful restoration of ${allow_listed_threat_file}
     File Should Exist  ${allow_listed_threat_file}
+
+    # Perform an on-access detection on the file to make sure it is cached as safe
+    Open And Close File  ${allow_listed_threat_file}
+    Wait For Log Contains From Mark  ${oa_mark}  caching ${allow_listed_threat_file}
 
     # Clear the allow list and wait for it to be received
     ${ss_mark} =  Get SafeStore Log Mark
@@ -981,7 +987,7 @@ Threat Is Re-detected By On-access If Removed From Allow-list
 
     # Re-detect the file with on access
     ${ss_mark} =  Get SafeStore Log Mark
-    ${result} =  run process  touch  ${allow_listed_threat_file}
+    Open And Close File  ${allow_listed_threat_file}
     Wait For Log Contains From Mark  ${ss_mark}  Quarantined ${allow_listed_threat_file} successfully
     File Should Not Exist  ${allow_listed_threat_file}
 

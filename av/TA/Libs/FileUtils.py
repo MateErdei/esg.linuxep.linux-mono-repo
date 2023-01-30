@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# Copyright 2021-2023 Sophos Limited. All rights reserved.
 
 import os
 import re
@@ -123,3 +124,9 @@ def wait_for_file_to_contain(path, expected, timeout=30):
             return
         time.sleep(0.5)
     raise AssertionError("Failed to find %s in %s: last contents: %s" % (expected, path, contents))
+
+
+def open_and_close_file(path):
+    with open(path) as _:
+        logger.info("Opened " + path)
+    logger.info("Closed " + path)
