@@ -41,10 +41,14 @@ bool ManagementAgent::EventReceiverImpl::OutbreakModeController::recordEventAndD
         return false;
     }
 
-    detectionCount_++;
-    if (detectionCount_ == 100)
+    if (!outbreakMode_)
     {
-        LOGWARN("Entering outbreak mode");
+        detectionCount_++;
+        if (detectionCount_ >= 100)
+        {
+            LOGWARN("Entering outbreak mode");
+            outbreakMode_ = true;
+        }
     }
     return false;
 }

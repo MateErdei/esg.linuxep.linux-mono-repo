@@ -30,6 +30,7 @@ namespace ManagementAgent::EventReceiverImpl
         int savedYear_ = 0;
         int savedMonth_ = -1;
         int savedDay_ = 0;
+        bool outbreakMode_ = false;
     };
 
     using OutbreakModeControllerPtr = std::shared_ptr<OutbreakModeController>;

@@ -112,3 +112,28 @@ TEST_F(TestOutbreakModeController, alerts_over_two_days_do_not_enter_outbreak_mo
 
     EXPECT_FALSE(appenderContains("Entering outbreak mode"));
 }
+
+TEST_F(TestOutbreakModeController, we_do_not_enter_outbreak_mode_if_we_are_already_in_it)
+{
+    const std::string event_xml = DETECTION_XML;
+    UsingMemoryAppender recorder(*this);
+    auto controller = std::make_shared<OutbreakModeController>();
+
+    auto now = OutbreakModeController::clock_t::now();
+    auto yesterday = now - std::chrono::hours{24};
+
+    for (auto i=0; i<OUTBREAK_COUNT+1; i++)
+    {
+        controller->recordEventAndDetermineIfItShouldBeDropped("CORE", event_xml, yesterday);
+    }
+    ASSERT_TRUE(appenderContains("Entering outbreak mode"));
+    clearMemoryAppender();
+
+    // After we enter outbreak mode, we shouldn't enter it the next day, we should already be in it.
+
+    for (auto i=0; i<OUTBREAK_COUNT+1; i++)
+    {
+        controller->recordEventAndDetermineIfItShouldBeDropped("CORE", event_xml, now);
+    }
+    EXPECT_FALSE(appenderContains("Entering outbreak mode"));
+}
