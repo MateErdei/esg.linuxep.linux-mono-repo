@@ -155,6 +155,14 @@ namespace
                 socketPath, userName, groupName, mode, processControlCallback);
         }
 
+        std::shared_ptr<IOnAccessRunner> getOnAccessRunner(
+            datatypes::ISystemCallWrapperSharedPtr /*sysCallWrapper*/,
+            onaccessimpl::onaccesstelemetry::IOnAccessTelemetryUtilitySharedPtr /*telemetryUtility*/
+            ) override
+        {
+            return std::make_shared<MockOnAccessRunner>();
+        }
+
         std::shared_ptr<MockSystemCallWrapper> m_systemCallWrapper;
 
     };

@@ -39,7 +39,7 @@ int SoapdBootstrap::runSoapd()
     auto sysCallWrapper = soapdResources.getSystemCallWrapper();
     auto serviceImpl = soapdResources.getOnAccessServiceImpl();
     auto TelemetryUtility = serviceImpl->getTelemetryUtility();
-    auto onAccessRunner = std::make_shared<OnAccessRunner>(sysCallWrapper, TelemetryUtility);
+    auto onAccessRunner = soapdResources.getOnAccessRunner(sysCallWrapper, TelemetryUtility);
     auto SoapdInstance = SoapdBootstrap(soapdResources, onAccessRunner);
     return SoapdInstance.outerRun();
 }

@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "IOnAccessRunner.h"
 #include "IOnAccessService.h"
 
 #include "common/AbstractThreadPluginInterface.h"
@@ -34,5 +35,10 @@ namespace sophos_on_access_process::soapd_bootstrap
             const std::string& groupName,
             mode_t mode,
             std::shared_ptr<unixsocket::IProcessControlMessageCallback> processControlCallback) = 0;
+
+        virtual std::shared_ptr<IOnAccessRunner> getOnAccessRunner(
+            datatypes::ISystemCallWrapperSharedPtr sysCallWrapper,
+            onaccessimpl::onaccesstelemetry::IOnAccessTelemetryUtilitySharedPtr telemetryUtility
+            ) = 0;
     };
 } // namespace sophos_on_access_process::soapd_bootstrap

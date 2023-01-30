@@ -30,6 +30,11 @@ namespace sophos_on_access_process::soapd_bootstrap
             const std::string& groupName,
             mode_t mode,
             std::shared_ptr<unixsocket::IProcessControlMessageCallback> processControlCallback
-        ) override;
+            ) override;
+
+        std::shared_ptr<IOnAccessRunner> getOnAccessRunner(
+            datatypes::ISystemCallWrapperSharedPtr sysCallWrapper,
+            onaccessimpl::onaccesstelemetry::IOnAccessTelemetryUtilitySharedPtr telemetryUtility
+            ) override;
     };
 } // namespace sophos_on_access_process::soapd_bootstrap

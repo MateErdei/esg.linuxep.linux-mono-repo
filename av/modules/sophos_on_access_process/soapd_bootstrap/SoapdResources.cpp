@@ -2,6 +2,8 @@
 
 #include "SoapdResources.h"
 
+#include "OnAccessRunner.h"
+
 #include "common/PidLockFile.h"
 #include "datatypes/SystemCallWrapper.h"
 #include "unixsocket/processControllerSocket/ProcessControllerServerSocket.h"
@@ -41,4 +43,11 @@ std::shared_ptr<common::AbstractThreadPluginInterface> SoapdResources::getProces
 {
     return std::make_shared<unixsocket::ProcessControllerServerSocket>(
                      socketPath, userName, groupName, mode, processControlCallback);
+}
+
+std::shared_ptr<IOnAccessRunner> SoapdResources::getOnAccessRunner(
+    datatypes::ISystemCallWrapperSharedPtr sysCallWrapper,
+    onaccessimpl::onaccesstelemetry::IOnAccessTelemetryUtilitySharedPtr telemetryUtility)
+{
+    return std::make_shared<OnAccessRunner>(sysCallWrapper, telemetryUtility);
 }
