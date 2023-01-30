@@ -7,7 +7,7 @@ Resource    ../upgrade_product/UpgradeResources.robot
 Resource    SulDownloaderResources.robot
 
 Default Tags  SULDOWNLOADER
-
+Force Tags  LOAD6
 *** Test Cases ***
 
 Give invalid update config to Suldownloader running in sdds3 mode

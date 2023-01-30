@@ -9,7 +9,6 @@ Resource    ../mcs_router/McsRouterResources.robot
 Resource    ../installer/InstallerResources.robot
 
 *** Test Case ***
-
 Default SAV Policy Is Written To File and Passed Through The Management Agent To The Plugin
     [Tags]  MANAGEMENT_AGENT  MCS  FAKE_CLOUD  MCS_ROUTER
     Register With Local Cloud Server
@@ -34,7 +33,5 @@ Default SAV Policy Is Written To File and Passed Through The Management Agent To
     Should Be True   """${pluginPolicy}""" == """${pluginPolicyFromFile}"""
 
     # clean up
-    Stop Plugin
-    Stop Management Agent
     Check Temp Policy Folder Doesnt Contain Policies
 

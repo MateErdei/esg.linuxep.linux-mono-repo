@@ -18,7 +18,7 @@ Suite Teardown    Terminate All Processes    kill=True
 
 Test Setup        Setup Tmpdir
 Test Teardown     Teardown Tmpdir
-
+Force Tags  LOAD6
 *** Keywords ***
 
 Setup Tmpdir

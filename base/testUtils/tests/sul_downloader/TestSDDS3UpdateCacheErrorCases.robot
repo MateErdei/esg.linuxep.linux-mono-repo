@@ -5,7 +5,7 @@ Suite Teardown   Suite Teardown Without Ostia
 Test Setup       Test Setup
 Test Teardown    UC Error Test Teardown
 
-
+Force Tags  LOAD6
 Test Timeout  10 mins
 
 Library     ${LIBS_DIRECTORY}/LogUtils.py

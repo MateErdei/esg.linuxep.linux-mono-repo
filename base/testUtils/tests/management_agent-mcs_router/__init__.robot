@@ -9,10 +9,9 @@ Suite Setup      Setup MCS And Management Agent Tests
 Suite Teardown   Cleanup MCS And Management Agent Tests
 
 Test Setup        Set Test Variable    ${tmpdir}     ./tmp
-Test Teardown     MCSRouter Default Test Teardown
+Test Teardown    Test Fake Plugin Teardown
 
 *** Keywords ***
-
 Setup MCS And Management Agent Tests
     Regenerate Certificates
     Setup MCS Tests

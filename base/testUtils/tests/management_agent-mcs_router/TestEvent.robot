@@ -4,7 +4,6 @@ Library    ${LIBS_DIRECTORY}/MCSRouter.py
 Library    ${LIBS_DIRECTORY}/FakePluginWrapper.py
 Library    ${LIBS_DIRECTORY}/LogUtils.py
 
-Resource    ../installer/InstallerResources.robot
 Resource    ../mcs_router/McsRouterResources.robot
 Resource    ../management_agent/ManagementAgentResources.robot
 
@@ -34,6 +33,3 @@ Verify Event Sent To Management Agent Will Be Passed To MCS And Received In Fake
     ...  5 secs
     ...  Check Event Directory Empty
 
-    # clean up
-    Stop Plugin
-    Stop Management Agent

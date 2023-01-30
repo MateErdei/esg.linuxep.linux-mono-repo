@@ -25,7 +25,7 @@ Test Setup        Setup For Test
 Test Teardown     Teardown for Test
 
 Default Tags  SULDOWNLOADER
-
+Force Tags  LOAD7
 *** Keywords ***
 
 Recreate Installation In Temp Dir

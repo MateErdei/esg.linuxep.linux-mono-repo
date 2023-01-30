@@ -42,7 +42,8 @@ class FakePluginWrapper(object):
             "pluginName": self.__m_pluginName,
             "threatServiceHealth": True,
             "serviceHealth": True,
-            "displayPluginName": self.__m_pluginName
+            "displayPluginName": self.__m_pluginName,
+            "executableUserAndGroup": "root:root",
         }
 
         config = json.dumps(config)

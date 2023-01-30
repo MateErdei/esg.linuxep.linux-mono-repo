@@ -24,7 +24,7 @@ Resource    ../upgrade_product/UpgradeResources.robot
 Resource    SulDownloaderResources.robot
 
 Default Tags  SULDOWNLOADER
-
+Force Tags  LOAD6
 
 *** Variables ***
 ${sdds2_primary}                            ${SOPHOS_INSTALL}/base/update/cache/primary

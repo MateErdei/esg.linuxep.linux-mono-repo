@@ -108,10 +108,10 @@ Check AV Plugin Can Scan Files
 
 Check On Access Detects Threats
     ${threat_path} =  Set Variable  /tmp/eicar.com
+    ${mark} =  get_on_access_log_mark
     Create File     ${threat_path}    ${EICAR_STRING}
     Register Cleanup  Remove File  ${threat_path}
 
-    ${mark} =  get_on_access_log_mark
     wait for on access log contains after mark  etected "${threat_path}" is infected with EICAR-AV-Test  mark=${mark}
 
 Enable On Access Via Policy

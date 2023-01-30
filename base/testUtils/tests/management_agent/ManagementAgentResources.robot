@@ -146,3 +146,9 @@ SHS Status File Contains
     ${shsStatus} =  Get File   ${SHS_STATUS_FILE}
     Log  ${shsStatus}
     Should Contain  ${shsStatus}  ${content_to_contain}
+
+Test Fake Plugin Teardown
+    Run Keyword And Ignore Error  Stop Plugin
+    Run Keyword And Ignore Error  Stop Management Agent
+    Remove Fake Plugin From Registry
+    MCSRouter Default Test Teardown

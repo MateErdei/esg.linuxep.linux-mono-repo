@@ -12,7 +12,6 @@ Resource    ../installer/InstallerResources.robot
 ${SophosManagementLog}         ${SOPHOS_INSTALL}/logs/base/sophosspl/sophos_managementagent.log
 
 *** Test Case ***
-
 Verify Status Sent To Management Agent Will Be Passed To MCS And Received In Fake Cloud
     [Tags]  MANAGEMENT_AGENT  MCS  FAKE_CLOUD  MCS_ROUTER
     Register With Local Cloud Server
@@ -25,7 +24,6 @@ Verify Status Sent To Management Agent Will Be Passed To MCS And Received In Fak
     Start Management Agent
 
     Start Plugin
-
 
     ${statusContent}    Evaluate    str('status contents')
     Send Plugin Status   ${statusContent}
@@ -41,11 +39,6 @@ Verify Status Sent To Management Agent Will Be Passed To MCS And Received In Fak
     #Negative test to confirm these two processes are never registered as plugins LINUXDAR-1637
     Check Log Does Not Contain    Registered plugin mcsrouter   ${SophosManagementLog}    Sophos Management Agent
     Check Log Does Not Contain    Registered plugin managementagent   ${SophosManagementLog}    Sophos Management Agent
-
-
-    # clean up
-    Stop Plugin
-    Stop Management Agent
 
 Verify Health Status Sent To Cloud Only If Changed
     [Tags]  MANAGEMENT_AGENT  MCS  FAKE_CLOUD  MCS_ROUTER
@@ -78,7 +71,3 @@ Verify Health Status Sent To Cloud Only If Changed
     ...  1 min
     ...  5 secs
     ...  Check MCS Router Log Contains  Adapter SHS hasn't changed status
-
-    # clean up
-    Stop Plugin
-    Stop Management Agent

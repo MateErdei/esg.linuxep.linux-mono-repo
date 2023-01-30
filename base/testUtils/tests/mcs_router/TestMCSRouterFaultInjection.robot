@@ -163,9 +163,8 @@ Make File Of Size And Expect No Space Error
     Should Exist  ${path}
 
 Cleanup mount
-    ${r} =  Run Process  umount  ${mountpoint}
-    Should Be Equal As Strings  ${r.rc}  0
-
+    ${r} =  umount_with_retry  ${mountpoint}
+    Should Be Equal As Integers  ${r}  ${0}
 
 Chmod
     [Arguments]  ${settings}  ${path}

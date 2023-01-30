@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # Copyright (C) 2018-2020 Sophos Plc, Oxford, England.
 # All rights reserved.
-
+import logging
 import os
 import shutil
 import subprocess
@@ -981,13 +981,34 @@ def check_watchdog_service_file_has_correct_kill_mode():
     if "KillMode=mixed" not in content:
         raise AssertionError(f'KillMode not set to mixed: {path}: {content}')
 
+def umount_path(fullpath):
+    stdout, code = run_proc_with_safe_output(['umount', fullpath])
+    if 'not mounted' in stdout:
+        return 0
+    if code != 0:
+        logger.info(stdout)
+    return code
+
+def umount_with_retry(directory_path,timeout=30):
+    counter = 0
+    while counter < timeout:
+        ret = umount_path(directory_path)
+        if ret == 0:
+            return 0
+        counter += 1
+        time.sleep(1)
+    return ret
+
+def umount_with_retry_fallback_to_lazy(directory_path,timeout=30):
+    ret = umount_with_retry(directory_path, timeout)
+    if ret != 0:
+        logging.warning(f"Doing a lazy unmount as we could not do a normal umount on {directory_path} after {timeout} secs")
+        run_proc_with_safe_output(['umount', "-l", directory_path])
+        # we want to fail the test if we need to fallback here
+        return ret
+    return 0
+
 def unmount_all_comms_component_folders(skip_stop_proc=False):
-    def _umount_path(fullpath):
-        stdout, code = run_proc_with_safe_output(['umount', fullpath])
-        if 'not mounted' in stdout: 
-            return
-        if code != 0:
-            logger.info(stdout)
 
     def _stop_commscomponent():
         stdout, code = run_proc_with_safe_output(["/opt/sophos-spl/bin/wdctl", "stop", "commscomponent"])
@@ -1011,7 +1032,7 @@ def unmount_all_comms_component_folders(skip_stop_proc=False):
                 break
 
     dirpath = '/opt/sophos-spl/var/sophos-spl-comms/'
-    
+    umount_failed = False
     mounted_entries = ['etc/resolv.conf', 'etc/hosts', 'usr/lib', 'usr/lib64', 'lib', 
                         'etc/ssl/certs', 'etc/pki/tls/certs', 'etc/pki/ca-trust/extracted', 'base/mcs/certs','base/remote-diagnose/output']
     for entry in mounted_entries:        
@@ -1019,10 +1040,16 @@ def unmount_all_comms_component_folders(skip_stop_proc=False):
             fullpath = os.path.join(dirpath, entry)
             if not os.path.exists(fullpath):
                 continue
-            _umount_path(fullpath)
+            ret = umount_with_retry_fallback_to_lazy(fullpath, 5)
+            if ret != 0:
+                umount_failed = True
             if os.path.isfile(fullpath):
                 os.remove(fullpath)
             else:
                 shutil.rmtree(fullpath)
-        except Exception as ex: 
+        except Exception as ex:
+            umount_failed = True
             logger.error(str(ex))
+
+    if umount_failed:
+        raise AssertionError("umounting comms failed")
