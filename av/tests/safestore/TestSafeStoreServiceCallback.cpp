@@ -29,6 +29,7 @@ protected:
 TEST_F(TestSafeStoreServiceCallback, SafeStoreTelemetryReturnsExpectedData)
 {
     safestore::SafeStoreServiceCallback safeStoreCallback{};
+    safeStoreCallback.getTelemetry(); //Clear Telemetry - test did fail due to database-deletions being > 0
 
     auto mockFileSystem = new StrictMock<MockFileSystem>();
     std::unique_ptr<MockFileSystem> mockIFileSystemPtr(mockFileSystem);

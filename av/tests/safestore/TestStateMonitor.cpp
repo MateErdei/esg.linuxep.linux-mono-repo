@@ -2,8 +2,9 @@
 
 #include "MockISafeStoreWrapper.h"
 
-#include "../common/LogInitializedTests.h"
+#include "../common/MemoryAppender.h"
 #include "common/ApplicationPaths.h"
+#include "datatypes/Print.h"
 #include "safestore/QuarantineManager/QuarantineManagerImpl.h"
 #include "safestore/QuarantineManager/StateMonitor.h"
 #include "safestore/SafeStoreWrapper/SafeStoreWrapperImpl.h"
@@ -22,9 +23,12 @@
 using namespace safestore::QuarantineManager;
 using namespace safestore::SafeStoreWrapper;
 
-class StateMonitorTests : public LogInitializedTests
+class StateMonitorTests : public MemoryAppenderUsingTests
 {
 public:
+    StateMonitorTests() :  MemoryAppenderUsingTests("safestore")
+    {}
+
     void SetUp() override
     {
         auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
@@ -307,7 +311,7 @@ TEST_F(StateMonitorTests, stateMonitorIgnoresSpecificInitErrorCodes)
 
 TEST_F(StateMonitorTests, testStateMonitorExitsOnDestructDuringWait)
 {
-    testing::internal::CaptureStderr();
+    UsingMemoryAppender memoryAppenderHolder(*this);
 
     auto* filesystemMock = new StrictMock<MockFileSystem>();
     EXPECT_CALL(*filesystemMock, writeFile("/tmp/av/var/persist-safeStoreDbErrorThreshold", "10"));
@@ -321,12 +325,10 @@ TEST_F(StateMonitorTests, testStateMonitorExitsOnDestructDuringWait)
     {
         TestableStateMonitor stateMonitor = TestableStateMonitor(quarantineManager);
         stateMonitor.start();
-        sleep(1);
+        EXPECT_TRUE(waitForLog("Starting Quarantine Manager state monitor"));
     }
 
-    std::string logMessage = internal::GetCapturedStderr();
-    EXPECT_THAT(logMessage, ::testing::HasSubstr("INFO Starting Quarantine Manager state monitor\n"));
-    EXPECT_THAT(logMessage, ::testing::HasSubstr("State Monitor stop requested"));
+    EXPECT_TRUE(appenderContains("State Monitor stop requested"));
 }
 
 TEST_F(StateMonitorTests, testStateMonitorBackoffNeverExceedsMax)
