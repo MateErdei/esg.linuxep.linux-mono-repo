@@ -7,8 +7,8 @@
 #include "pluginimpl/PluginAdapter.h"
 #include "pluginimpl/StringUtils.h"
 #include "scan_messages/SampleThreatDetected.h"
-#include "tests/common/Common.h"
 #include "tests/common/SetupFakePluginDir.h"
+#include "tests/common/Common.h"
 #include "tests/datatypes/MockUuidGenerator.h"
 
 #include "Common/Helpers/MockApiBaseServices.h"
