@@ -112,8 +112,7 @@ SafeStore Recovers From Corrupt Database With Lock Dir
     ${safestore_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
 
     # Corrupt DB and also create the safestore lock dir
-    Corrupt SafeStore Database
-    Create Directory   ${SAFESTORE_DB_DIR}/safestore.db.lock
+    Corrupt SafeStore Database With Lock
 
     Check SafeStore Dormant Flag Exists
     Wait For Log Contains From Mark  ${safestore_mark}  Successfully removed corrupt SafeStore database    200

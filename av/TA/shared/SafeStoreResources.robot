@@ -137,7 +137,14 @@ Check SafeStore Telemetry
 Corrupt SafeStore Database
     Stop SafeStore
     Create File    ${SOPHOS_INSTALL}/plugins/av/var/persist-safeStoreDbErrorThreshold    1
+    Remove Files    ${SAFESTORE_DB_PATH}    ${SAFESTORE_DB_PASSWORD_PATH}
+    Copy Files    ${RESOURCES_PATH}/safestore_db_corrupt/*    ${SAFESTORE_DB_DIR}
+    Start SafeStore
 
+Corrupt SafeStore Database With Lock
+    Stop SafeStore
+    Create File    ${SOPHOS_INSTALL}/plugins/av/var/persist-safeStoreDbErrorThreshold    1
+    Create Directory   ${SAFESTORE_DB_DIR}/safestore.db.lock
     Remove Files    ${SAFESTORE_DB_PATH}    ${SAFESTORE_DB_PASSWORD_PATH}
     Copy Files    ${RESOURCES_PATH}/safestore_db_corrupt/*    ${SAFESTORE_DB_DIR}
     Start SafeStore
