@@ -386,9 +386,19 @@ CLS Can Scan Multiple Archive Files
     Create File  ${ARCHIVE_DIR}/4_clean    ${CLEAN_STRING}
     Create File  ${ARCHIVE_DIR}/5_eicar    ${EICAR_STRING}
 
-    Run Process     tar  -cf  ${SCAN_DIR}/test.tar  ${ARCHIVE_DIR}
-    Run Process     tar  -czf  ${SCAN_DIR}/test.tgz  ${ARCHIVE_DIR}
-    Run Process     tar  -cjf  ${SCAN_DIR}/test.tar.bz2  ${ARCHIVE_DIR}
+    ${tarresult} =  Run Process     tar  -cf  ${SCAN_DIR}/test.tar  ${ARCHIVE_DIR}   stderr=STDOUT
+    ${tgzresult} =  Run Process     tar  -czf  ${SCAN_DIR}/test.tgz  ${ARCHIVE_DIR}   stderr=STDOUT
+    ${tarbz2result} =  Run Process     tar  -cjf  ${SCAN_DIR}/test.tar.bz2  ${ARCHIVE_DIR}    stderr=STDOUT
+
+    #Test failed due to very quick scan of archive, check  process succeeded
+    Log  ${tarresult.stdout}
+    Log  ${tgzresult.stdout}
+    Log  ${tarbz2result.stdout}
+
+    Should Be Equal As Integers  ${tarresult.rc}  ${0}
+    Should Be Equal As Integers  ${tgzresult.rc}  ${0}
+    Should Be Equal As Integers  ${tarbz2result.rc}  ${0}
+
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${SCAN_DIR} --scan-archives
 
     Log  return code is ${rc}
