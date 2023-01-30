@@ -1,8 +1,5 @@
-/******************************************************************************************************
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
-Copyright 2018-2022, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
 #pragma once
 
 #include <Common/FileSystem/IFileSystem.h>
