@@ -18,9 +18,9 @@ if (NOT DEFINED ENV{USE_LIBFUZZER})
             TestPluginAdapter.cpp
             TestPluginAdapterDetections.cpp
             TestPluginCallback.cpp
+            TestPolicyUtils.cpp
             TestPolicyWaiter.cpp
             TestSafeStoreWorker.cpp
-            TestStringUtils.cpp
             TestTaskQueue.cpp
             TestThreatDatabase.cpp
             PROJECTS pluginimpl fanotifyhandler

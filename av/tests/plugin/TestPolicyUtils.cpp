@@ -1,8 +1,8 @@
-// Copyright 2020-2022 Sophos Limited. All rights reserved.
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #include "ThreatDetected.capnp.h"
 
-#include "pluginimpl/StringUtils.h"
+#include "pluginimpl/PolicyUtils.h"
 #include "scan_messages/SampleThreatDetected.h"
 #include "tests/common/LogInitializedTests.h"
 
@@ -18,12 +18,12 @@ using namespace common::CentralEnums;
 
 namespace
 {
-    class TestStringUtils : public LogInitializedTests
+    class TestPolicyUtils : public LogInitializedTests
     {
     };
 } // namespace
 
-TEST_F(TestStringUtils, TestgenerateThreatDetectedXml)
+TEST_F(TestPolicyUtils, TestgenerateThreatDetectedXml)
 {
     std::string dataAsString = createThreatDetected({}).serialise();
 
@@ -50,7 +50,7 @@ TEST_F(TestStringUtils, TestgenerateThreatDetectedXml)
     EXPECT_EQ(result, expectedXML);
 }
 
-TEST_F(TestStringUtils, TestgenerateThreatDetectedXmlUmlats)
+TEST_F(TestPolicyUtils, TestgenerateThreatDetectedXmlUmlats)
 {
     scan_messages::ThreatDetected threatDetected = createThreatDetected({
         .userID = "πολλῶν δ’ ἀνθρώπων ἴδεν ἄστεα καὶ νόον ἔγνω,, German umlats: Ä Ö Ü ß",
@@ -82,7 +82,7 @@ TEST_F(TestStringUtils, TestgenerateThreatDetectedXmlUmlats)
     EXPECT_EQ(result, expectedXML);
 }
 
-TEST_F(TestStringUtils, TestgenerateThreatDetectedXmlJapaneseCharacters)
+TEST_F(TestPolicyUtils, TestgenerateThreatDetectedXmlJapaneseCharacters)
 {
     scan_messages::ThreatDetected threatDetected = createThreatDetected({
         .userID = "羅針盤なんて 渋滞のもと",
@@ -114,7 +114,7 @@ TEST_F(TestStringUtils, TestgenerateThreatDetectedXmlJapaneseCharacters)
     EXPECT_EQ(result, expectedXML);
 }
 
-TEST_F(TestStringUtils, TestEmptyPathXML)
+TEST_F(TestPolicyUtils, TestEmptyPathXML)
 {
     scan_messages::ThreatDetected threatDetectedMessage = createThreatDetected({ .filePath = "" });
     std::string result = generateThreatDetectedXml(threatDetectedMessage);
@@ -131,7 +131,7 @@ TEST_F(TestStringUtils, TestEmptyPathXML)
     EXPECT_EQ(result, expectedXML);
 }
 
-TEST_F(TestStringUtils, TestLongPathXML)
+TEST_F(TestPolicyUtils, TestLongPathXML)
 {
     std::string longPath(centralLimitedStringMaxSize + 1, '/');
     std::string truncatedPath(centralLimitedStringMaxSize, '/');
@@ -151,7 +151,7 @@ TEST_F(TestStringUtils, TestLongPathXML)
     EXPECT_EQ(result, expectedXML);
 }
 
-TEST_F(TestStringUtils, TestEmptyThreatPathJSON)
+TEST_F(TestPolicyUtils, TestEmptyThreatPathJSON)
 {
     std::string result = generateThreatDetectedJson(createThreatDetected({ .filePath = "" }));
 
@@ -161,7 +161,7 @@ TEST_F(TestStringUtils, TestEmptyThreatPathJSON)
     EXPECT_EQ(result, expectedJSON);
 }
 
-TEST_F(TestStringUtils, TestOnDemandEventJson)
+TEST_F(TestPolicyUtils, TestOnDemandEventJson)
 {
     // Set pid and executablePath to prove they are not included in the JSON even if set
     std::string result = generateThreatDetectedJson(createThreatDetected({ .pid = 1, .executablePath = "path" }));
@@ -172,7 +172,7 @@ TEST_F(TestStringUtils, TestOnDemandEventJson)
     EXPECT_EQ(result, expectedJSON);
 }
 
-TEST_F(TestStringUtils, TestOnAccessEventJson)
+TEST_F(TestPolicyUtils, TestOnAccessEventJson)
 {
     std::string result = generateThreatDetectedJson(createOnAccessThreatDetected({}));
 
@@ -182,7 +182,7 @@ TEST_F(TestStringUtils, TestOnAccessEventJson)
     EXPECT_EQ(result, expectedJSON);
 }
 
-TEST_F(TestStringUtils, TestEmptyThreatNameJSON)
+TEST_F(TestPolicyUtils, TestEmptyThreatNameJSON)
 {
     std::string result = generateThreatDetectedJson(createThreatDetected({ .threatName = "" }));
 
@@ -192,7 +192,7 @@ TEST_F(TestStringUtils, TestEmptyThreatNameJSON)
     EXPECT_EQ(result, expectedJSON);
 }
 
-TEST_F(TestStringUtils, TestGenerateOnAcessConfig)
+TEST_F(TestPolicyUtils, TestGenerateOnAcessConfig)
 {
     std::vector<std::string> exclusionList = { "x", "y", "z" };
 
@@ -207,7 +207,7 @@ TEST_F(TestStringUtils, TestGenerateOnAcessConfig)
     EXPECT_EQ(expectedResult, generateOnAccessConfig(false, exclusionList, true));
 }
 
-TEST_F(TestStringUtils, generateCoreCleanEventXmlQuarantineSuccess)
+TEST_F(TestPolicyUtils, generateCoreCleanEventXmlQuarantineSuccess)
 {
     std::string expectedEventXml = R"(<?xml version="1.0" encoding="utf-8"?>
 <event type="sophos.core.clean" ts="1970-01-01T00:02:03.000Z">
@@ -227,7 +227,7 @@ TEST_F(TestStringUtils, generateCoreCleanEventXmlQuarantineSuccess)
     ASSERT_EQ(xml, expectedEventXml);
 }
 
-TEST_F(TestStringUtils, generateCoreCleanEventXmlQuarantineFailedToDeleteFile)
+TEST_F(TestPolicyUtils, generateCoreCleanEventXmlQuarantineFailedToDeleteFile)
 {
     std::string expectedEventXml = R"(<?xml version="1.0" encoding="utf-8"?>
 <event type="sophos.core.clean" ts="1970-01-01T00:02:03.000Z">
@@ -247,7 +247,7 @@ TEST_F(TestStringUtils, generateCoreCleanEventXmlQuarantineFailedToDeleteFile)
     ASSERT_EQ(xml, expectedEventXml);
 }
 
-TEST_F(TestStringUtils, generateCoreCleanEventXmlFromMlDetection)
+TEST_F(TestPolicyUtils, generateCoreCleanEventXmlFromMlDetection)
 {
     std::string expectedEventXml = R"(<?xml version="1.0" encoding="utf-8"?>
 <event type="sophos.core.clean" ts="1970-01-01T00:02:03.000Z">
@@ -268,7 +268,7 @@ TEST_F(TestStringUtils, generateCoreCleanEventXmlFromMlDetection)
     ASSERT_EQ(xml, expectedEventXml);
 }
 
-TEST_F(TestStringUtils, generateCoreRestoreEventXml)
+TEST_F(TestPolicyUtils, generateCoreRestoreEventXml)
 {
     scan_messages::RestoreReport restoreReport{ 123, "/threat/path", "fedcba98-7654-3210-fedc-ba9876543210", false };
 
@@ -288,7 +288,7 @@ TEST_F(TestStringUtils, generateCoreRestoreEventXml)
     ASSERT_EQ(xml, expectedEventXml);
 }
 
-TEST_F(TestStringUtils, TestBadUnicodePaths)
+TEST_F(TestPolicyUtils, TestBadUnicodePaths)
 {
     auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
     appConfig.setData("PLUGIN_INSTALL", "/test/");

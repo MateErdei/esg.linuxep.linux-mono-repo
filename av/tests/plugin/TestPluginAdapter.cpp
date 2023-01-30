@@ -1,4 +1,4 @@
-// Copyright 2020-2022 Sophos Limited. All rights reserved.
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #define PLUGIN_INTERNAL public
 
@@ -9,7 +9,7 @@
 #include "pluginimpl/DetectionReporter.h"
 #include "pluginimpl/Logger.h"
 #include "pluginimpl/PluginAdapter.h"
-#include "pluginimpl/StringUtils.h"
+#include "pluginimpl/PolicyUtils.h"
 #include "tests/common/Common.h"
 #include "tests/common/SetupFakePluginDir.h"
 #include "tests/scan_messages/SampleThreatDetected.h"

@@ -25,8 +25,8 @@ sophos_add_library(pluginimpl SHARED
         PluginAdapter.h
         SafeStoreWorker.cpp
         SafeStoreWorker.h
-        StringUtils.cpp
-        StringUtils.h
+        PolicyUtils.cpp
+        PolicyUtils.h
         TaskQueue.cpp
         TaskQueue.h
         ThreatDatabase.cpp

@@ -1,14 +1,14 @@
-// Copyright 2020-2022 Sophos Limited. All rights reserved.
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #include "PluginMemoryAppenderUsingTests.h"
 
 #include "common/WaitForEvent.h"
 #include "datatypes/UuidGeneratorImpl.h"
 #include "pluginimpl/PluginAdapter.h"
-#include "pluginimpl/StringUtils.h"
+#include "pluginimpl/PolicyUtils.h"
 #include "scan_messages/SampleThreatDetected.h"
-#include "tests/common/SetupFakePluginDir.h"
 #include "tests/common/Common.h"
+#include "tests/common/SetupFakePluginDir.h"
 #include "tests/datatypes/MockUuidGenerator.h"
 
 #include "Common/Helpers/MockApiBaseServices.h"

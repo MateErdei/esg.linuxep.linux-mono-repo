@@ -8,7 +8,7 @@
 #include "HealthStatus.h"
 #include "Logger.h"
 #include "OnAccessStatusMonitor.h"
-#include "StringUtils.h"
+#include "PolicyUtils.h"
 
 #include "common/ApplicationPaths.h"
 #include "common/PluginUtils.h"
