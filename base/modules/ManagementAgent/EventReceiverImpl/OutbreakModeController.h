@@ -25,7 +25,11 @@ namespace ManagementAgent::EventReceiverImpl
                                                         );
 
     private:
+        void resetCountOnDayChange(time_point_t now);
         int detectionCount_ = 0;
+        int savedYear_ = 0;
+        int savedMonth_ = -1;
+        int savedDay_ = 0;
     };
 
     using OutbreakModeControllerPtr = std::shared_ptr<OutbreakModeController>;

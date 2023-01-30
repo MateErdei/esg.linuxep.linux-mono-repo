@@ -6,6 +6,7 @@
 
 #include "Common/UtilityImpl/StringUtils.h"
 
+#include <ctime>
 #include <tuple>
 
 namespace
@@ -33,7 +34,7 @@ bool ManagementAgent::EventReceiverImpl::OutbreakModeController::recordEventAndD
     const std::string& eventXml,
     time_point_t now)
 {
-    std::ignore = now;
+    resetCountOnDayChange(now);
 
     if (!isCountableEvent(appId, eventXml))
     {
@@ -46,4 +47,20 @@ bool ManagementAgent::EventReceiverImpl::OutbreakModeController::recordEventAndD
         LOGWARN("Entering outbreak mode");
     }
     return false;
+}
+
+void ManagementAgent::EventReceiverImpl::OutbreakModeController::resetCountOnDayChange(
+    ManagementAgent::EventReceiverImpl::OutbreakModeController::time_point_t now)
+{
+    auto nowTime = clock_t::to_time_t(now);
+    struct tm nowTm{};
+    localtime_r(&nowTime, &nowTm);
+    if (savedDay_ != nowTm.tm_mday || savedMonth_ != nowTm.tm_mon || savedYear_ != nowTm.tm_year)
+    {
+        // Reset count if the Day Of Month changes
+        detectionCount_ = 0;
+        savedDay_ = nowTm.tm_mday;
+        savedMonth_ = nowTm.tm_mon;
+        savedYear_ = nowTm.tm_year;
+    }
 }
