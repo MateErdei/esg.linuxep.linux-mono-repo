@@ -10,6 +10,7 @@ add_library(testhelpersobject OBJECT
         FilePermissionsReplaceAndRestore.cpp
         FileSystemReplaceAndRestore.h
         FileSystemReplaceAndRestore.cpp
+        MemoryAppender.h
         MockApiBaseServices.h
         MockFilePermissions.h
         MockFileSystem.h
