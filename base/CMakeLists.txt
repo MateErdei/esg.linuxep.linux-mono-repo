@@ -97,7 +97,7 @@ if(NOT DEFINED PRODUCT_LINE_ID)
     endif()
 endif()
 
-set(RA_PLUGIN_NAME TemplatePlugin)
+set(RA_PLUGIN_NAME ResponseActions)
 string( TOLOWER ${RA_PLUGIN_NAME} ra_plugin_name)
 set(RA_PRODUCT_LINE_ID ServerProtectionLinux-Plugin-${RA_PLUGIN_NAME})
 # DEFAULT_HOME_FOLDER

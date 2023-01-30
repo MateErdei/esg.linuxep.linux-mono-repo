@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 
-// Copyright 2023 Sophos Limited. All rights reserved.
+# Copyright 2018 Sophos Limited.  All rights reserved.
 
-PLUGIN_NAME=@RA_PLUGIN_NAME@
-PRODUCT_LINE_ID="@RA_PRODUCT_LINE_ID@"
+PLUGIN_NAME=@PLUGIN_NAME@
+PRODUCT_LINE_ID="@PRODUCT_LINE_ID@"
 
 EXIT_FAIL_CREATE_DIRECTORY=10
 EXIT_FAIL_FIND_GROUPADD=11
@@ -22,7 +22,7 @@ then
     SCRIPTDIR=${STARTINGDIR}
 fi
 
-ABS_SCRIPTDIR=$(cd "$SCRIPTDIR" && pwd)
+ABS_SCRIPTDIR=$(cd $SCRIPTDIR && pwd)
 
 source ${ABS_SCRIPTDIR}/cleanupinstall.sh
 
@@ -40,8 +40,8 @@ export DIST
 export SOPHOS_INSTALL
 export LD_LIBRARY_PATH="$SOPHOS_INSTALL/base/lib64"
 
-USER_NAME=root
-GROUP_NAME=root
+USER_NAME=sophos-spl-user
+GROUP_NAME=sophos-spl-group
 
 function is_already_installed()
 {

@@ -2,12 +2,11 @@
   "policyAppIds": [
   ],
   "actionAppIds": [
-  "CORE"
   ],
   "statusAppIds": [
   ],
-  "pluginName": "@RA_PLUGIN_NAME@",
-  "executableFullPath": "plugins/@RA_PLUGIN_NAME@/bin/@RA_PLUGIN_NAME@",
+  "pluginName": "@PLUGIN_NAME@",
+  "executableFullPath": "plugins/@PLUGIN_NAME@/bin/@plugin_name@",
   "executableArguments": [
   ],
   "environmentVariables": [
@@ -16,6 +15,5 @@
       "value": "SOPHOS_INSTALL_VALUE"
     }
   ],
-  "executableUserAndGroup": "root:root",
-  "secondsToShutDown": 30
+  "executableUserAndGroup": "sophos-spl-user:sophos-spl-group"
 }
