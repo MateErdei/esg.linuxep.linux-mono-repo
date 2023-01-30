@@ -55,6 +55,10 @@ void ManagementAgent::EventReceiverImpl::OutbreakModeController::resetCountOnDay
     auto nowTime = clock_t::to_time_t(now);
     struct tm nowTm{};
     localtime_r(&nowTime, &nowTm);
+    // We need to compare year, month and day, to avoid aliasing
+    // e.g. 99 alters 2023-01-17, and 2 more 2023-02-17, would go into outbreak mode
+    // if we only recorded day of month, and didn't get any events in between
+    // same issue with year: 2023-01-17 and 2024-01-17, and no events in between
     if (savedDay_ != nowTm.tm_mday || savedMonth_ != nowTm.tm_mon || savedYear_ != nowTm.tm_year)
     {
         // Reset count if the Day Of Month changes
