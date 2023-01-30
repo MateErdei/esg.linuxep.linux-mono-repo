@@ -25,6 +25,16 @@ bool ManagementAgent::EventReceiverImpl::OutbreakModeController::recordEventAndD
     const std::string& appId,
     const std::string& eventXml)
 {
+    return recordEventAndDetermineIfItShouldBeDropped(appId, eventXml, clock_t::now());
+}
+
+bool ManagementAgent::EventReceiverImpl::OutbreakModeController::recordEventAndDetermineIfItShouldBeDropped(
+    const std::string& appId,
+    const std::string& eventXml,
+    time_point_t now)
+{
+    std::ignore = now;
+
     if (!isCountableEvent(appId, eventXml))
     {
         return false;
