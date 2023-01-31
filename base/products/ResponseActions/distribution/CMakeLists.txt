@@ -65,8 +65,8 @@ execute_process(
 
 configure_file(VERSION.ini.in VERSION.ini @ONLY)
 
-install(FILES ${CMAKE_SOURCE_DIR}/products/ResponseActions/distribution/VERSION.ini
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/VERSION.ini
         DESTINATION ra/files/plugins/${PLUGIN_NAME}/)
 
-install(FILES ${CMAKE_SOURCE_DIR}/products/ResponseActions/distribution/VERSION.ini
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/VERSION.ini
         DESTINATION ra)
