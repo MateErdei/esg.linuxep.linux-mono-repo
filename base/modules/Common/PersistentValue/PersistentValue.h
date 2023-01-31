@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
@@ -33,7 +29,7 @@ namespace Common
     class PersistentValue
     {
     public:
-        PersistentValue(std::string pathToVarDir, std::string name, T defaultValue) :
+        PersistentValue(const std::string& pathToVarDir, const std::string& name, T defaultValue) :
             m_defaultValue(defaultValue), m_pathToFile(Common::FileSystem::join(pathToVarDir, "persist-" + name))
         {
             try
@@ -56,6 +52,7 @@ namespace Common
             catch (std::exception& exception)
             {
                 // Not a lot we can do if this happens
+                // Can't use log4cplus since we want to use this header without logging setup
                 std::cerr << "ERROR Failed to save value to " << m_pathToFile << " with error " << exception.what();
             }
         }
