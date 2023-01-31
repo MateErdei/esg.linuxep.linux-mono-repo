@@ -10,6 +10,6 @@ SET_TARGET_PROPERTIES( ${ra_plugin_name}
         )
 
 install(TARGETS ${ra_plugin_name}
-        DESTINATION files/plugins/${ra_plugin_name}/bin
+        DESTINATION ra/files/plugins/${ra_plugin_name}/bin
         PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE  GROUP_READ GROUP_EXECUTE)
 

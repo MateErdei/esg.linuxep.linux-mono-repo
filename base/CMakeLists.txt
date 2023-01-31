@@ -100,6 +100,7 @@ endif()
 set(RA_PLUGIN_NAME ResponseActions)
 string( TOLOWER ${RA_PLUGIN_NAME} ra_plugin_name)
 set(RA_PRODUCT_LINE_ID ServerProtectionLinux-Plugin-${RA_PLUGIN_NAME})
+
 # DEFAULT_HOME_FOLDER
 if(NOT DEFINED DEFAULT_HOME_FOLDER)
     if (DEFINED ENV{DEFAULT_HOME_FOLDER})
@@ -109,6 +110,8 @@ if(NOT DEFINED DEFAULT_HOME_FOLDER)
     endif()
 endif()
 
+set(DISTRIBUTION_TOOL_DIR ${CMAKE_SOURCE_DIR}/products/distribution)
+
 if(NOT DEFINED UPDATESCHEDULER_PRETTY_NAME)
     set(UPDATESCHEDULER_PRETTY_NAME "Update Scheduler")
 endif()
@@ -116,6 +119,7 @@ endif()
 #Specify the feature list of the form "feature1, feature2, feature3"
 #Set "" for no features when including in a component suite
 set(FEATURE_LIST "CORE")
+set(RA_FEATURE_LIST "MTR")
 
 find_package(PkgConfig)
 FIND_PACKAGE ( Threads REQUIRED )
