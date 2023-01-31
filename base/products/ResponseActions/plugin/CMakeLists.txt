@@ -1,7 +1,7 @@
 add_executable(${ra_plugin_name}
         main.cpp)
 
-message(${ra_plugin_name})
+include_directories(${ra_plugin_name} PUBLIC ${PROJECT_SOURCE_DIR}/modules/ResponseActions ${LOG4CPLUS_INCLUDE_DIR})
 target_link_libraries(${ra_plugin_name} PUBLIC pluginimpl)
 
 SET_TARGET_PROPERTIES( ${ra_plugin_name}

@@ -16,4 +16,17 @@ add_library(pluginimpl SHARED
 
 include_directories(pluginimpl BEFORE ${CMAKE_CURRENT_BINARY_DIR} ${LOG4CPLUS_INCLUDE_DIR})
 
-target_link_libraries(pluginimpl PUBLIC ${zmqlib} ${LOG4CPLUS_LIBRARY} ${protobuflib})
+target_link_libraries(pluginimpl PUBLIC
+        logging
+        pluginapiimpl
+        applicationconfigurationimpl
+        telemetryhelperimpl
+        filesystemimplobject)
+
+SET_TARGET_PROPERTIES(pluginimpl
+        PROPERTIES
+        INSTALL_RPATH "$ORIGIN"
+        BUILD_RPATH "${CMAKE_BINARY_DIR}/libs"
+        )
+
+add_dependencies(pluginimpl copy_libs)

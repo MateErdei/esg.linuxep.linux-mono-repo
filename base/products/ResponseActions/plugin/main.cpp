@@ -4,16 +4,17 @@ Copyright 2018 Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "modules/ResponseActions/pluginimpl/config.h"
-
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/Logging/PluginLoggingSetup.h>
-#include <Common/PluginApi/IBaseServiceApi.h>
-#include <Common/PluginApi/IPluginResourceManagement.h>
 #include <Common/PluginApi/ApiException.h>
 #include <Common/PluginApi/ErrorCodes.h>
-#include <modules/ResponseActions/pluginimpl/Logger.h>
-#include <modules/ResponseActions/pluginimpl/PluginAdapter.h>
+#include <Common/PluginApi/IBaseServiceApi.h>
+#include <Common/PluginApi/IPluginResourceManagement.h>
+#include <ResponseActions/pluginimpl/Logger.h>
+#include <ResponseActions/pluginimpl/PluginAdapter.h>
+#include <ResponseActions/pluginimpl/config.h.in>
+
+#include <sstream>
 
 const char* PluginName = RA_PLUGIN_NAME;
 
@@ -42,7 +43,9 @@ int main()
     }
     catch (const Common::PluginApi::ApiException & apiException)
     {
-        LOGERROR("Plugin Api could not be instantiated: " << apiException.what());
+        std::stringstream errorMsg;
+        errorMsg << "Plugin Api could not be instantiated: " << apiException.what();
+        LOGERROR(errorMsg.str());
         return Common::PluginApi::ErrorCodes::PLUGIN_API_CREATION_FAILED;
     }
 
@@ -59,7 +62,9 @@ int main()
     }
     catch (const std::exception& ex)
     {
-        LOGERROR("Plugin threw an exception at top level: " << ex.what());
+        std::stringstream errorMsg;
+        errorMsg << "Plugin threw an exception at top level: " << ex.what();
+        LOGERROR(errorMsg.str());
         ret = EXCEPTIONTHROWN;
     }
     sharedPluginCallBack->setRunning(false);

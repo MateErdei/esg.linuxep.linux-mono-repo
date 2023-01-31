@@ -10,7 +10,8 @@ install(FILES ${PROJECT_BINARY_DIR}/install.sh
         DESTINATION .
         PERMISSIONS OWNER_READ OWNER_EXECUTE
         )
-install(FILES ${DISTRIBUTION_TOOL_DIR}/cleanupinstall.sh
+
+install(FILES ${CMAKE_SOURCE_DIR}/products/distribution/cleanupinstall.sh
         DESTINATION .
         PERMISSIONS OWNER_READ OWNER_EXECUTE
         )
