@@ -25,29 +25,20 @@ set(ADD_SYMBOLS_SCRIPT ${DISTRIBUTION_TOOL_DIR}/addSymbols.sh)
 set(SYMBOLS_DIR ${CMAKE_BINARY_DIR}/symbols)
 set(GENERATE_SDDS_IMPORT_MANIFEST_DAT ${DISTRIBUTION_TOOL_DIR}/generateSDDSImportAndManifestDat.py )
 
-add_custom_target(
-        dist
-        COMMAND python3 ${STRIP_EXECUTABLES} ${DIST}/ra ${SYMBOLS_DIR}  ${CMAKE_BUILD_TYPE}
-        COMMAND ${CMAKE_COMMAND} -E copy ${ADD_SYMBOLS_SCRIPT} ${SYMBOLS_DIR}/
-        COMMAND python3 ${GENERATE_SDDS_IMPORT_MANIFEST_DAT} ${DIST}/ra ${CMAKE_BUILD_TYPE} ${CMAKE_SOURCE_DIR}
-        COMMAND ${INPUT}/sdds3/sdds3-builder --build-package --package-dir ${CMAKE_BINARY_DIR}/SDDS3-PACKAGE --sdds-import ${DIST}/ra/SDDS-Import.xml --nonce `sha256sum ${DIST}/SDDS-Import.xml | head -c 10`
-)
+
 
 #install(FILES  ${third_party_libs}
 #        DESTINATION files/plugins/${PLUGIN_NAME}/lib64)
 
 
-if (DEFINED ENV{VERSION_OVERRIDE})
-    set(PRODUCT_VERSION "$ENV{VERSION_OVERRIDE}")
+if (DEFINED ENV{RA_VERSION_OVERRIDE})
+    set(RA_PRODUCT_VERSION "$ENV{RA_VERSION_OVERRIDE}")
+    message("LOOK HERE1")
+    message("version ${RA_PRODUCT_VERSION}")
 else()
     execute_process(
-            COMMAND python3 ${DISTRIBUTION_TOOL_DIR}/getReleasePackageVersion.py ${CMAKE_SOURCE_DIR}/build-files/release-package.xml
-            OUTPUT_VARIABLE RELEASE_PACKAGE_VERSION
-            OUTPUT_STRIP_TRAILING_WHITESPACE)
-
-    execute_process(
-            COMMAND python3 ${DISTRIBUTION_TOOL_DIR}/computeAutoVersion.py ${CMAKE_SOURCE_DIR} ${RELEASE_PACKAGE_VERSION} Jenkinsfile
-            OUTPUT_VARIABLE PRODUCT_VERSION
+            COMMAND versioning_client --component responseactions --version_number 1.0.0
+            OUTPUT_VARIABLE RA_PRODUCT_VERSION
             OUTPUT_STRIP_TRAILING_WHITESPACE)
 endif()
 
