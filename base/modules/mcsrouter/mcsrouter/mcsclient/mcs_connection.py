@@ -1055,9 +1055,15 @@ class MCSConnection:
         command_path = response.get_command_path(self.get_id())
 
         headers = {
-            "Authorization": self._get_basic_authorization_header(),
-            "Content-Type":  "application/json",
-            "ActualSize": response.m_json_body_size
+            "User-Agent": self.__m_user_agent,
+            "Authorization": "Bearer {}".format(self.m_jwt_token),
+            "Accept-Encoding": "gzip",
+            "X-Device-ID": self.m_device_id,
+            "X-Tenant-ID": self.m_tenant_id,
+            "Accept": "application/json",
+            "Content-Length": response.m_gzip_body_size,
+            "Content-Encoding": "deflate",
+            "X-Uncompressed-Content-Length": response.m_json_body_size,
         }
         LOGGER.debug(
             "MCS request url={} body size={}".format(
