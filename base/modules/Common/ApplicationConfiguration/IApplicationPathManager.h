@@ -1,3 +1,4 @@
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 /******************************************************************************************************
 
 Copyright 2018-2021, Sophos Limited.  All rights reserved.
@@ -127,6 +128,8 @@ namespace Common::ApplicationConfiguration
         virtual std::string getOverallHealthFilePath() const = 0;
 
         virtual std::string getMcsCaOverrideFlag() const = 0;
+
+        [[nodiscard]] virtual std::string getOutbreakModeStatusFilePath() const = 0;
     };
 
     IApplicationPathManager& applicationPathManager();

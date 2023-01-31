@@ -15,6 +15,7 @@ namespace ManagementAgent::EventReceiverImpl
     class OutbreakModeController : public IOutbreakModeController
     {
     public:
+        OutbreakModeController();
         bool recordEventAndDetermineIfItShouldBeDropped(const std::string& appId, const std::string& eventXml) override;
     TEST_PUBLIC:
         using clock_t = std::chrono::system_clock;
@@ -23,8 +24,11 @@ namespace ManagementAgent::EventReceiverImpl
                                                         const std::string& eventXml,
                                                         time_point_t now
                                                         );
+        bool outbreakMode() const;
 
     private:
+        void save();
+        void load();
         void resetCountOnDayChange(time_point_t now);
         int detectionCount_ = 0;
         int savedYear_ = 0;

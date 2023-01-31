@@ -1,8 +1,9 @@
-// Copyright 2018-2022, Sophos Limited. All rights reserved.
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #include "FileSystemImpl.h"
 
 #include <Common/FileSystem/IFilePermissions.h>
+#include <Common/FileSystem/IFileNotFoundException.h>
 #include <Common/FileSystem/IFileSystemException.h>
 #include <Common/FileSystem/IFileTooLargeException.h>
 #include <Common/SslImpl/Digest.h>
@@ -231,7 +232,7 @@ namespace Common
 
             if (!inFileStream.good())
             {
-                throw IFileSystemException("Error, Failed to read file: '" + path + "', file does not exist");
+                throw IFileNotFoundException("Error, Failed to read file: '" + path + "', file does not exist");
             }
 
             try

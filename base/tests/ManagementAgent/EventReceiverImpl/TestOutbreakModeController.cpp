@@ -2,9 +2,10 @@
 
 #define TEST_PUBLIC public
 
-#include "tests/Common/Helpers/MemoryAppender.h"
-
 #include "ManagementAgent/EventReceiverImpl/OutbreakModeController.h"
+#include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
+#include "tests/Common/Helpers/MemoryAppender.h"
+#include "tests/Common/Helpers/MockFileSystem.h"
 
 using namespace ManagementAgent::EventReceiverImpl;
 
@@ -136,4 +137,14 @@ TEST_F(TestOutbreakModeController, we_do_not_enter_outbreak_mode_if_we_are_alrea
         controller->recordEventAndDetermineIfItShouldBeDropped("CORE", event_xml, now);
     }
     EXPECT_FALSE(appenderContains("Entering outbreak mode"));
+}
+
+TEST_F(TestOutbreakModeController, loads_outbreak_state_empty_file)
+{
+    auto* filesystemMock = new MockFileSystem();
+    EXPECT_CALL(*filesystemMock, readFile(_,_)).WillOnce(Return(""));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
+
+    auto controller = std::make_shared<OutbreakModeController>();
+    EXPECT_FALSE(controller->outbreakMode());
 }

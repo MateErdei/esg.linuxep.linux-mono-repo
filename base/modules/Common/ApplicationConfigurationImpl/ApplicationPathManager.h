@@ -1,3 +1,4 @@
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 /******************************************************************************************************
 
 Copyright 2018-2021, Sophos Limited.  All rights reserved.
@@ -103,6 +104,7 @@ namespace Common::ApplicationConfigurationImpl
         std::string getOverallHealthFilePath() const override;
         std::string getMcsCaOverrideFlag() const override;
 
+        [[nodiscard]] std::string getOutbreakModeStatusFilePath() const override;
 
 
     private:

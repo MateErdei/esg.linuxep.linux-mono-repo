@@ -2,11 +2,14 @@
 
 #include "OutbreakModeController.h"
 
+#include "ApplicationConfigurationImpl/ApplicationPathManager.h"
+#include "Common/UtilityImpl/StringUtils.h"
+#include "FileSystem/IFileNotFoundException.h"
+#include "FileSystem/IFileSystemException.h"
 #include "ManagementAgent/LoggerImpl/Logger.h"
 
-#include "Common/UtilityImpl/StringUtils.h"
-
 #include <ctime>
+#include <json.hpp>
 #include <tuple>
 
 namespace
@@ -21,6 +24,12 @@ namespace
 <event type="sophos.core.detection")");
     }
 }
+
+ManagementAgent::EventReceiverImpl::OutbreakModeController::OutbreakModeController()
+{
+    load();
+}
+
 
 bool ManagementAgent::EventReceiverImpl::OutbreakModeController::recordEventAndDetermineIfItShouldBeDropped(
     const std::string& appId,
@@ -71,4 +80,42 @@ void ManagementAgent::EventReceiverImpl::OutbreakModeController::resetCountOnDay
         savedMonth_ = nowTm.tm_mon;
         savedYear_ = nowTm.tm_year;
     }
+}
+
+void ManagementAgent::EventReceiverImpl::OutbreakModeController::save()
+{
+    //
+}
+
+void ManagementAgent::EventReceiverImpl::OutbreakModeController::load()
+{
+    //
+    auto* filesystem = Common::FileSystem::fileSystem();
+    auto& paths = Common::ApplicationConfiguration::applicationPathManager();
+    auto path = paths.getOutbreakModeStatusFilePath();
+
+    try
+    {
+        auto contents = filesystem->readFile(path, 1024); // catch exceptions and default
+        nlohmann::json j = nlohmann::json::parse(contents);
+        outbreakMode_ = j.at("outbreakMode").get<bool>();
+    }
+    catch (const Common::FileSystem::IFileNotFoundException& ex)
+    {
+        // Using defaults - no file found
+        LOGDEBUG("Unable to read outbreak status file as it doesn't exist");
+    }
+    catch (const Common::FileSystem::IFileSystemException& ex)
+    {
+        LOGERROR("Unable to read outbreak status file: " << ex.what());
+    }
+    catch (const nlohmann::json::parse_error& ex)
+    {
+        LOGERROR("Failed to parse outbreak status file: " << ex.what());
+    }
+}
+
+bool ManagementAgent::EventReceiverImpl::OutbreakModeController::outbreakMode() const
+{
+    return outbreakMode_;
 }

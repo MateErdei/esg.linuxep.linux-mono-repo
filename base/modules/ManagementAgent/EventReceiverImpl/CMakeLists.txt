@@ -8,7 +8,7 @@ add_library(eventreceiverimpl SHARED
         OutbreakModeController.h
         )
 
-target_include_directories(eventreceiverimpl PUBLIC  ../../Common ${LOG4CPLUS_INCLUDE_DIR})
+target_include_directories(eventreceiverimpl PUBLIC  ../../Common ${LOG4CPLUS_INCLUDE_DIR} ${NLOHMANN_JSON_INCLUDE_DIR})
 target_link_libraries(eventreceiverimpl PUBLIC applicationconfigurationimpl managementagentloggerimpl taskqueueimpl)
 
 SET_TARGET_PROPERTIES( eventreceiverimpl

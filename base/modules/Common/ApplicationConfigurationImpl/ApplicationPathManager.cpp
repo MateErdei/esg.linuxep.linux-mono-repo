@@ -1,3 +1,4 @@
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 /******************************************************************************************************
 
 Copyright 2018-2019, Sophos Limited.  All rights reserved.
@@ -419,6 +420,10 @@ namespace Common
         {
             return Common::FileSystem::join(sophosInstall(), "base/mcs/certs/ca_env_override_flag");
         }
+        std::string ApplicationPathManager::getOutbreakModeStatusFilePath() const
+        {
+            return Common::FileSystem::join(sophosInstall(), "var/sophosspl/outbreak_status.json");
+        }
 
     } // namespace ApplicationConfigurationImpl
 
@@ -439,7 +444,7 @@ namespace Common
         }
         void restoreApplicationPathManager()
         {
-            instance().reset(new ApplicationConfigurationImpl::ApplicationPathManager());
+            instance() = std::make_unique<ApplicationConfigurationImpl::ApplicationPathManager>();
         }
 
     } // namespace ApplicationConfiguration
