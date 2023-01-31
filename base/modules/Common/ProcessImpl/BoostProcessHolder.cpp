@@ -1,15 +1,12 @@
-/******************************************************************************************************
-
-Copyright 2018-2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 #include "BoostProcessHolder.h"
 
 #include "IProcessException.h"
 #include "Logger.h"
 
 #include "../UtilityImpl/StringUtils.h"
-#include "Common/GlobalZmqAccess.h"
+#include "Common/ZeroMQWrapperImpl/ContextCollection.h"
+#include "Common/ZeroMQWrapperImpl/SocketCollection.h"
 #include <zmq.h>
 
 #pragma GCC diagnostic push
@@ -93,29 +90,8 @@ namespace Common
             template<typename Sequence>
             void on_exec_setup(boost::process::extend::posix_executor<Sequence>& exec)
             {
-                std::ofstream logFile;
-                logFile.open ("/tmp/zmq-fork.log");
-                logFile  << "Forking for " << exec.exe << std::endl;
-
-                for (const auto socket: GL_zmqSockets)
-                {
-                    if (socket != nullptr)
-                    {
-                        logFile  << "Closed socket" << std::endl;
-                        zmq_close(socket);
-                    }
-                }
-
-                for (const auto context: GL_zmqContexts)
-                {
-                    if (context != nullptr)
-                    {
-                        logFile  << "Terminated Context" << std::endl;
-                        zmq_ctx_term(context);
-                    }
-                }
-
-                logFile.close();
+                SocketCollection::getInstance().closeAll();
+                ContextCollection::getInstance().closeAll();
 
                 // Must set groups first whilst still root
                 std::string userName = Common::FileSystem::FilePermissionsImpl().getUserName(m_uid);
