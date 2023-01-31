@@ -36,14 +36,14 @@ class Response(object):
             os.remove(self.m_file_path)
             LOGGER.debug("Removed {} response file: {}".format(self.m_app_id, self.m_file_path))
 
-    def get_command_path(self, endpoint_id):
+    def get_command_path(self, device_id):
         """
         get_command_path
-        :param endpoint_id:
+        :param device_id:
         :return: command_path as string
         """
-        return "/responses/endpoint/{}/app_id/{}/correlation_id/{}".format(
-            endpoint_id,
+        return "/v2/responses/device/{}/app_id/{}/correlation_id/{}".format(
+            device_id,
             self.m_app_id,
             self.m_correlation_id)
 

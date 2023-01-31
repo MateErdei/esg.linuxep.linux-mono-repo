@@ -1052,7 +1052,7 @@ class MCSConnection:
         :param response: A response object (responses.py) which contains data from a livequery response file
         :return: The gzipped body of the LiveQuery response file
         """
-        command_path = response.get_command_path(self.get_id())
+        command_path = response.get_command_path(self.m_device_id)
 
         headers = {
             "User-Agent": self.__m_user_agent,
