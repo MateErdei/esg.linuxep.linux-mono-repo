@@ -3,22 +3,18 @@
 #define TEST_PUBLIC public
 
 #include "ManagementAgent/EventReceiverImpl/OutbreakModeController.h"
+
+#include "Common/FileSystem/IFileNotFoundException.h"
+
 #include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
-#include "tests/Common/Helpers/MemoryAppender.h"
+#include "tests/Common/Helpers/TestSpecificDirectory.h"
 #include "tests/Common/Helpers/MockFileSystem.h"
 
 using namespace ManagementAgent::EventReceiverImpl;
+namespace fs = sophos_filesystem;
 
 namespace
 {
-    class TestOutbreakModeController : public MemoryAppenderUsingTests
-    {
-    public:
-        TestOutbreakModeController()
-            : MemoryAppenderUsingTests("managementagent")
-        {}
-    };
-
     const int OUTBREAK_COUNT = 100;
 
     const std::string DETECTION_XML = R"sophos(<?xml version="1.0" encoding="utf-8"?>
@@ -29,6 +25,44 @@ namespace
     <path>/path/to/eicar.txt</path>
   </alert>
 </event>)sophos";
+
+    class TestOutbreakModeController : public TestSpecificDirectory
+    {
+    public:
+        TestOutbreakModeController()
+            : TestSpecificDirectory("managementagent")
+        {}
+
+    protected:
+        void SetUp() override
+        {
+            testDir_ = test_common::createTestSpecificDirectory();
+            fs::current_path(testDir_);
+            auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
+            appConfig.setData(Common::ApplicationConfiguration::SOPHOS_INSTALL, testDir_);
+            fs::create_directories(testDir_ / "tmp");
+            fs::create_directories(testDir_ / "var" / "sophosspl");
+            expectedStatusFile_ = testDir_ / "var" / "sophosspl" / "outbreak_status.json";
+        }
+
+        void TearDown() override
+        {
+            test_common::removeTestSpecificDirectory(testDir_);
+        }
+
+        fs::path testDir_;
+        Path expectedStatusFile_;
+
+        static void enterOutbreakMode(OutbreakModeControllerPtr& controller)
+        {
+            for (auto i=0; i<OUTBREAK_COUNT+1; i++)
+            {
+                controller->recordEventAndDetermineIfItShouldBeDropped("CORE", DETECTION_XML);
+            }
+            EXPECT_TRUE(controller->outbreakMode());
+        }
+    };
+
 }
 
 TEST_F(TestOutbreakModeController, construction)
@@ -49,6 +83,7 @@ TEST_F(TestOutbreakModeController, outbreak_mode_logged)
     }
 
     EXPECT_TRUE(waitForLog("Entering outbreak mode"));
+    EXPECT_TRUE(controller->outbreakMode());
 }
 
 
@@ -75,6 +110,7 @@ TEST_F(TestOutbreakModeController, do_not_enter_outbreak_mode_for_cleanups)
     }
 
     EXPECT_FALSE(appenderContains("Entering outbreak mode"));
+    EXPECT_FALSE(controller->outbreakMode());
 }
 
 TEST_F(TestOutbreakModeController, insufficient_alerts_do_not_enter_outbreak_mode)
@@ -89,6 +125,7 @@ TEST_F(TestOutbreakModeController, insufficient_alerts_do_not_enter_outbreak_mod
     }
 
     EXPECT_FALSE(appenderContains("Entering outbreak mode"));
+    EXPECT_FALSE(controller->outbreakMode());
 }
 
 
@@ -112,6 +149,7 @@ TEST_F(TestOutbreakModeController, alerts_over_two_days_do_not_enter_outbreak_mo
     }
 
     EXPECT_FALSE(appenderContains("Entering outbreak mode"));
+    EXPECT_FALSE(controller->outbreakMode());
 }
 
 TEST_F(TestOutbreakModeController, we_do_not_enter_outbreak_mode_if_we_are_already_in_it)
@@ -128,6 +166,7 @@ TEST_F(TestOutbreakModeController, we_do_not_enter_outbreak_mode_if_we_are_alrea
         controller->recordEventAndDetermineIfItShouldBeDropped("CORE", event_xml, yesterday);
     }
     ASSERT_TRUE(appenderContains("Entering outbreak mode"));
+    EXPECT_TRUE(controller->outbreakMode());
     clearMemoryAppender();
 
     // After we enter outbreak mode, we shouldn't enter it the next day, we should already be in it.
@@ -137,14 +176,61 @@ TEST_F(TestOutbreakModeController, we_do_not_enter_outbreak_mode_if_we_are_alrea
         controller->recordEventAndDetermineIfItShouldBeDropped("CORE", event_xml, now);
     }
     EXPECT_FALSE(appenderContains("Entering outbreak mode"));
+    EXPECT_TRUE(controller->outbreakMode());
 }
 
 TEST_F(TestOutbreakModeController, loads_outbreak_state_empty_file)
 {
     auto* filesystemMock = new MockFileSystem();
-    EXPECT_CALL(*filesystemMock, readFile(_,_)).WillOnce(Return(""));
+    EXPECT_CALL(*filesystemMock, readFile(expectedStatusFile_, _)).WillOnce(Return(""));
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
 
     auto controller = std::make_shared<OutbreakModeController>();
     EXPECT_FALSE(controller->outbreakMode());
+}
+
+TEST_F(TestOutbreakModeController, loads_outbreak_state_absent_file)
+{
+    auto* filesystemMock = new MockFileSystem();
+    EXPECT_CALL(*filesystemMock, readFile(expectedStatusFile_, _)).WillOnce(Throw(
+        Common::FileSystem::IFileNotFoundException("Test text")
+        ));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
+
+    auto controller = std::make_shared<OutbreakModeController>();
+    EXPECT_FALSE(controller->outbreakMode());
+}
+
+TEST_F(TestOutbreakModeController, loads_outbreak_state_directory)
+{
+    fs::create_directories(expectedStatusFile_);
+    auto controller = std::make_shared<OutbreakModeController>();
+    EXPECT_FALSE(controller->outbreakMode());
+}
+
+TEST_F(TestOutbreakModeController, saves_status_file_on_outbreak)
+{
+    auto* filesystemMock = new MockFileSystem();
+    EXPECT_CALL(*filesystemMock, readFile(_,_)).WillOnce(Return(""));
+
+    std::string expected_contents = R"({"outbreakMode":true})";
+
+    EXPECT_CALL(*filesystemMock, writeFileAtomically(expectedStatusFile_, expected_contents, _, _)).WillOnce(Return());
+
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
+
+    auto controller = std::make_shared<OutbreakModeController>();
+    EXPECT_FALSE(controller->outbreakMode());
+    enterOutbreakMode(controller);
+}
+
+TEST_F(TestOutbreakModeController, outbreak_status_survives_restart)
+{
+    auto controller = std::make_shared<OutbreakModeController>();
+    EXPECT_FALSE(controller->outbreakMode());
+    enterOutbreakMode(controller);
+
+    // Replace the controller
+    controller = std::make_shared<OutbreakModeController>();
+    EXPECT_TRUE(controller->outbreakMode());
 }

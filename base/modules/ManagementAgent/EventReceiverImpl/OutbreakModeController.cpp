@@ -55,8 +55,9 @@ bool ManagementAgent::EventReceiverImpl::OutbreakModeController::recordEventAndD
         detectionCount_++;
         if (detectionCount_ >= 100)
         {
-            LOGWARN("Entering outbreak mode");
+            LOGWARN("Entering outbreak mode: Further detections will not be reported to Central");
             outbreakMode_ = true;
+            save();
         }
     }
     return false;
@@ -84,7 +85,13 @@ void ManagementAgent::EventReceiverImpl::OutbreakModeController::resetCountOnDay
 
 void ManagementAgent::EventReceiverImpl::OutbreakModeController::save()
 {
-    //
+    auto* filesystem = Common::FileSystem::fileSystem();
+    auto& paths = Common::ApplicationConfiguration::applicationPathManager();
+    auto path = paths.getOutbreakModeStatusFilePath();
+    nlohmann::json j;
+    j["outbreakMode"] = outbreakMode_;
+    auto contents = j.dump();
+    filesystem->writeFileAtomically(path, contents, paths.getTempPath(), 0600);
 }
 
 void ManagementAgent::EventReceiverImpl::OutbreakModeController::load()
@@ -97,8 +104,12 @@ void ManagementAgent::EventReceiverImpl::OutbreakModeController::load()
     try
     {
         auto contents = filesystem->readFile(path, 1024); // catch exceptions and default
-        nlohmann::json j = nlohmann::json::parse(contents);
-        outbreakMode_ = j.at("outbreakMode").get<bool>();
+        if (!contents.empty())
+        {
+            // Ignore empty files without error
+            nlohmann::json j = nlohmann::json::parse(contents);
+            outbreakMode_ = j.at("outbreakMode").get<bool>();
+        }
     }
     catch (const Common::FileSystem::IFileNotFoundException& ex)
     {
@@ -112,6 +123,14 @@ void ManagementAgent::EventReceiverImpl::OutbreakModeController::load()
     catch (const nlohmann::json::parse_error& ex)
     {
         LOGERROR("Failed to parse outbreak status file: " << ex.what());
+    }
+    if (outbreakMode_)
+    {
+        LOGWARN("In outbreak mode: Detections will not be reported to Central");
+    }
+    else
+    {
+        LOGDEBUG("Not in outbreak mode");
     }
 }
 
