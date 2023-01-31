@@ -33,6 +33,6 @@ target_link_libraries(logging PUBLIC
         )
 
 install(TARGETS logging
-        LIBRARY DESTINATION ${BASE_DIST_PREFIX}/files/base/lib64)
+        LIBRARY DESTINATION base/files/base/lib64)
 
 install(TARGETS logging LIBRARY DESTINATION ${THININSTALLER_DEPS_DIR_LIB64})

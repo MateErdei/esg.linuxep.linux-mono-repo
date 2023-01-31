@@ -58,6 +58,6 @@ target_link_libraries(suldownloaderdata PUBLIC
         ProxyUtilsLib)
 
 install(TARGETS suldownloaderdata
-        LIBRARY DESTINATION ${BASE_DIST_PREFIX}/files/base/lib64)
+        LIBRARY DESTINATION base/files/base/lib64)
 
 install(TARGETS suldownloaderdata LIBRARY DESTINATION ${THININSTALLER_DEPS_DIR_LIB64})

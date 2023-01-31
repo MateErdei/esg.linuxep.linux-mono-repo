@@ -6,7 +6,7 @@ target_link_libraries(sdu PUBLIC remotediagnoseimpl)
 
 configure_file(sdu.json.in  sdu.json @ONLY)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/sdu.json
-        DESTINATION ${BASE_DIST_PREFIX}/installer/plugins
+        DESTINATION base/installer/plugins
         PERMISSIONS OWNER_READ )
 
 SET_TARGET_PROPERTIES( sdu
@@ -15,4 +15,4 @@ SET_TARGET_PROPERTIES( sdu
         )
 
 install(TARGETS sdu
-        DESTINATION ${BASE_DIST_PREFIX}/files/base/bin)
+        DESTINATION base/files/base/bin)

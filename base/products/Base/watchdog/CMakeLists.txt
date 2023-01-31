@@ -7,4 +7,4 @@ SET_TARGET_PROPERTIES( sophos_watchdog
         PROPERTIES INSTALL_RPATH "$ORIGIN/../lib64")
 
 install(TARGETS sophos_watchdog
-        DESTINATION ${BASE_DIST_PREFIX}/files/base/bin)
+        DESTINATION base/files/base/bin)

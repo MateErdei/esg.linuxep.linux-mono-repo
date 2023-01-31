@@ -11,4 +11,4 @@ SET_TARGET_PROPERTIES(telemetryschedulerloggerimpl
         PROPERTIES INSTALL_RPATH "$ORIGIN")
 
 install(TARGETS telemetryschedulerloggerimpl
-        LIBRARY DESTINATION ${BASE_DIST_PREFIX}/files/base/lib64)
+        LIBRARY DESTINATION base/files/base/lib64)

@@ -24,6 +24,6 @@ SET_TARGET_PROPERTIES(mcsimpl
         )
 
 install(TARGETS mcsimpl
-        LIBRARY DESTINATION ${BASE_DIST_PREFIX}/files/base/lib64)
+        LIBRARY DESTINATION base/files/base/lib64)
 
 add_dependencies(mcsimpl copy_libs)

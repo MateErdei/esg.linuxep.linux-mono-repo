@@ -16,4 +16,4 @@ SET_TARGET_PROPERTIES(taskqueueimpl
         PROPERTIES INSTALL_RPATH "$ORIGIN")
 
 install(TARGETS taskqueueimpl
-        LIBRARY DESTINATION ${BASE_DIST_PREFIX}/files/base/lib64)
+        LIBRARY DESTINATION base/files/base/lib64)

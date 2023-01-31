@@ -29,4 +29,4 @@ SET_TARGET_PROPERTIES(pluginprotocol
         PROPERTIES INSTALL_RPATH "$ORIGIN")
 
 install(TARGETS pluginprotocol
-        LIBRARY DESTINATION ${BASE_DIST_PREFIX}/files/base/lib64)
+        LIBRARY DESTINATION base/files/base/lib64)

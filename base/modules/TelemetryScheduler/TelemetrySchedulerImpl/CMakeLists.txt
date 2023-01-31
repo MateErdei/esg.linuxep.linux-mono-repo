@@ -32,6 +32,6 @@ SET_TARGET_PROPERTIES(telemetryschedulerimpl
         )
 
 install(TARGETS telemetryschedulerimpl
-        LIBRARY DESTINATION ${BASE_DIST_PREFIX}/files/base/lib64)
+        LIBRARY DESTINATION base/files/base/lib64)
 
 add_dependencies(telemetryschedulerimpl copy_libs)

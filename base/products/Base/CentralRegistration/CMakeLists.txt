@@ -10,4 +10,4 @@ SET_TARGET_PROPERTIES( centralregistration
         )
 
 install(TARGETS centralregistration
-        DESTINATION ${BASE_DIST_PREFIX}/files/base/bin)
+        DESTINATION base/files/base/bin)

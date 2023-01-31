@@ -5,7 +5,7 @@ target_link_libraries(tscheduler telemetryschedulerimpl)
 
 configure_file(tscheduler.json.in  tscheduler.json @ONLY)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/tscheduler.json
-        DESTINATION ${BASE_DIST_PREFIX}/installer/plugins
+        DESTINATION base/installer/plugins
         PERMISSIONS OWNER_READ)
 
 SET_TARGET_PROPERTIES( tscheduler
@@ -14,4 +14,4 @@ SET_TARGET_PROPERTIES( tscheduler
         )
 
 install(TARGETS tscheduler
-        DESTINATION ${BASE_DIST_PREFIX}/files/base/bin)
+        DESTINATION base/files/base/bin)

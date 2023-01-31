@@ -8,12 +8,14 @@ target_link_libraries(sophos_managementagent
         )
 
 SET_TARGET_PROPERTIES(sophos_managementagent
-        PROPERTIES INSTALL_RPATH "$ORIGIN/../lib64")
+        PROPERTIES INSTALL_RPATH "$ORIGIN/../lib64"
+        BUILD_RPATH "${SUL_LIBRARY_DIRS}"
+        )
 
 install(TARGETS sophos_managementagent
-        DESTINATION ${BASE_DIST_PREFIX}/files/base/bin)
+        DESTINATION base/files/base/bin)
 
 configure_file(managementagent.json.in  managementagent.json @ONLY)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/managementagent.json
-        DESTINATION ${BASE_DIST_PREFIX}/installer/plugins
+        DESTINATION base/installer/plugins
         PERMISSIONS OWNER_READ)

@@ -23,6 +23,6 @@ SET_TARGET_PROPERTIES( centralregistrationimpl
         )
 
 install(TARGETS centralregistrationimpl
-        LIBRARY DESTINATION ${BASE_DIST_PREFIX}/files/base/lib64)
+        LIBRARY DESTINATION base/files/base/lib64)
 
 add_dependencies(centralregistrationimpl copy_libs)

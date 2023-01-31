@@ -27,10 +27,10 @@ set(GENERATE_SDDS_IMPORT_MANIFEST_DAT ${DISTRIBUTION_TOOL_DIR}/generateSDDSImpor
 
 add_custom_target(
         dist
-        COMMAND python3 ${STRIP_EXECUTABLES} ${DIST} ${SYMBOLS_DIR}  ${CMAKE_BUILD_TYPE}
+        COMMAND python3 ${STRIP_EXECUTABLES} ${DIST}/ra ${SYMBOLS_DIR}  ${CMAKE_BUILD_TYPE}
         COMMAND ${CMAKE_COMMAND} -E copy ${ADD_SYMBOLS_SCRIPT} ${SYMBOLS_DIR}/
-        COMMAND python3 ${GENERATE_SDDS_IMPORT_MANIFEST_DAT} ${DIST} ${CMAKE_BUILD_TYPE} ${CMAKE_SOURCE_DIR}
-        COMMAND ${INPUT}/sdds3/sdds3-builder --build-package --package-dir ${CMAKE_BINARY_DIR}/SDDS3-PACKAGE --sdds-import ${DIST}/SDDS-Import.xml --nonce `sha256sum ${DIST}/SDDS-Import.xml | head -c 10`
+        COMMAND python3 ${GENERATE_SDDS_IMPORT_MANIFEST_DAT} ${DIST}/ra ${CMAKE_BUILD_TYPE} ${CMAKE_SOURCE_DIR}
+        COMMAND ${INPUT}/sdds3/sdds3-builder --build-package --package-dir ${CMAKE_BINARY_DIR}/SDDS3-PACKAGE --sdds-import ${DIST}/ra/SDDS-Import.xml --nonce `sha256sum ${DIST}/SDDS-Import.xml | head -c 10`
 )
 
 #install(FILES  ${third_party_libs}
@@ -65,8 +65,8 @@ execute_process(
 
 configure_file(VERSION.ini.in VERSION.ini @ONLY)
 
-install(FILES ../../build64/products/distribution/VERSION.ini
-        DESTINATION files/plugins/${PLUGIN_NAME}/)
+install(FILES ${CMAKE_SOURCE_DIR}/products/ResponseActions/distribution/VERSION.ini
+        DESTINATION ra/files/plugins/${PLUGIN_NAME}/)
 
-install(FILES ../../build64/products/distribution/VERSION.ini
-        DESTINATION .)
+install(FILES ${CMAKE_SOURCE_DIR}/products/ResponseActions/distribution/VERSION.ini
+        DESTINATION ra)

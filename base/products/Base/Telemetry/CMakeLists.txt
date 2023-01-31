@@ -12,4 +12,4 @@ SET_TARGET_PROPERTIES(telemetry
         )
 
 install(TARGETS telemetry
-        DESTINATION ${BASE_DIST_PREFIX}/files/base/bin)
+        DESTINATION base/files/base/bin)

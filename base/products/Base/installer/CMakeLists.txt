@@ -7,51 +7,51 @@ configure_file(install.in.sh install.sh @ONLY)
 configure_file(uninstall.in.sh uninstall.sh @ONLY)
 
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/install.sh
-        DESTINATION .
+        DESTINATION base
         PERMISSIONS OWNER_READ OWNER_EXECUTE
         )
 
 install(FILES ${CMAKE_SOURCE_DIR}/products/distribution/cleanupinstall.sh
-        DESTINATION .
+        DESTINATION base
         PERMISSIONS OWNER_READ OWNER_EXECUTE
         )
 
 install(FILES ${CMAKE_SOURCE_DIR}/products/Base/installer/filestodelete.dat
-        DESTINATION .
+        DESTINATION base
         PERMISSIONS OWNER_READ OWNER_EXECUTE
         )
 
 install(FILES ${CMAKE_SOURCE_DIR}/products/Base/installer/cleanuprealm.dat
-        DESTINATION .
+        DESTINATION base
         PERMISSIONS OWNER_READ OWNER_EXECUTE
         )
 
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/uninstall.sh
-        DESTINATION files/bin
+        DESTINATION base/files/bin
         PERMISSIONS OWNER_READ OWNER_EXECUTE)
 
 install(FILES ${CMAKE_SOURCE_DIR}/products/Base/installer/version
-        DESTINATION files/bin
+        DESTINATION base/files/bin
         PERMISSIONS OWNER_READ OWNER_EXECUTE)
 
 install(FILES ${CMAKE_SOURCE_DIR}/products/Base/installer/logger.conf
-        DESTINATION files/base/etc
+        DESTINATION base/files/base/etc
         PERMISSIONS OWNER_READ OWNER_WRITE)
 
 install(FILES ${CMAKE_SOURCE_DIR}/products/Base/Diagnose/DiagnosePaths.conf
-        DESTINATION files/base/etc
+        DESTINATION base/files/base/etc
         PERMISSIONS OWNER_READ OWNER_WRITE)
 
 install(FILES ${CMAKE_SOURCE_DIR}/products/Base/installer/downgradepaths.dat
-        DESTINATION files/base/etc
+        DESTINATION base/files/base/etc
         PERMISSIONS OWNER_READ OWNER_WRITE)
 
 install(FILES ${CMAKE_SOURCE_DIR}/products/Base/installer/backupfileslist.dat
-        DESTINATION files/base/etc
+        DESTINATION base/files/base/etc
         PERMISSIONS OWNER_READ OWNER_WRITE)
 
 install(FILES ${CMAKE_SOURCE_DIR}/products/Base/installer/rootca384.crt
-        DESTINATION files/base/update/rootcerts
+        DESTINATION base/files/base/update/rootcerts
         PERMISSIONS OWNER_READ OWNER_WRITE)
 
 add_executable(versionedcopy
@@ -65,7 +65,7 @@ SET_TARGET_PROPERTIES( versionedcopy
         PROPERTIES INSTALL_RPATH "$ORIGIN/../lib64")
 
 install(TARGETS versionedcopy
-        DESTINATION files/base/bin)
+        DESTINATION base/files/base/bin)
 
 add_executable(manifestdiff
          ManifestDiffMain.cpp
@@ -88,29 +88,29 @@ SET_TARGET_PROPERTIES( machineid
 
 
 install(TARGETS manifestdiff
-        DESTINATION files/base/bin)
+        DESTINATION base/files/base/bin)
 
 install(TARGETS machineid
-        DESTINATION files/base/bin)
+        DESTINATION base/files/base/bin)
 
 install(FILES ${CMAKE_SOURCE_DIR}/products/Base/installer/licenses.txt
-        DESTINATION files/base/etc
+        DESTINATION base/files/base/etc
         PERMISSIONS OWNER_READ
         )
 
 install(FILES ${TELEMETRY_CONFIG_FILE}
-        DESTINATION files/base/etc
+        DESTINATION base/files/base/etc
         PERMISSIONS OWNER_READ
         )
 
 install ( DIRECTORY ${GCC_INPUT}/lib64
-        DESTINATION files/base/
+        DESTINATION base/files/base/
         CONFIGURATIONS Debug
         FILES_MATCHING PATTERN libasan.so.*
         )
 
 install ( DIRECTORY ${GCC_INPUT}/lib64
-        DESTINATION files/base/
+        DESTINATION base/files/base/
         CONFIGURATIONS Debug
         FILES_MATCHING PATTERN libubsan.so.*
         )

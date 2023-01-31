@@ -4,7 +4,7 @@ configure_file(cleanuprealm.dat.in ${PROJECT_BINARY_DIR}/cleanuprealm.dat @ONLY 
 configure_file(plugin.json.in ${PROJECT_BINARY_DIR}/${ra_plugin_name}.json @ONLY )
 configure_file(uninstall.sh.in ${PROJECT_BINARY_DIR}/uninstall.sh @ONLY )
 
-install(FILES  ${PROJECT_BINARY_DIR}/${ra_plugin_name}.json DESTINATION files/base/pluginRegistry)
+install(FILES  ${PROJECT_BINARY_DIR}/${ra_plugin_name}.json DESTINATION ra/files/base/pluginRegistry)
 
 install(FILES ${PROJECT_BINARY_DIR}/install.sh
         DESTINATION ra

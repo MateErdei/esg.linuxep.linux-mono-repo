@@ -7,4 +7,4 @@ SET_TARGET_PROPERTIES( wdctl
         PROPERTIES INSTALL_RPATH "$ORIGIN/../base/lib64")
 
 install(TARGETS wdctl
-        DESTINATION ${BASE_DIST_PREFIX}/files/bin)
+        DESTINATION base/files/bin)
