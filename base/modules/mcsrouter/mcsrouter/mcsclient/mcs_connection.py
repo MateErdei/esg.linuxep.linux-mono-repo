@@ -50,7 +50,7 @@ class EnvelopeHandler:
         return message.split(":")[0].strip()
 
     def set_request(self, last_request):
-        if "/responses/endpoint/" in last_request or "/data_feed/" in last_request:
+        if "/v2/responses/device/" in last_request or "/data_feed/" in last_request:
             loggable_last_request = self._trim_body_from_request(last_request)
         else:
             loggable_last_request = last_request

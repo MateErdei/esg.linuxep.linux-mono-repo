@@ -120,7 +120,7 @@ class TestMCSConnection(unittest.TestCase):
     @mock.patch("mcsrouter.mcsclient.mcs_connection.MCSConnection._MCSConnection__request", return_value=("header", "body"))
     def test_send_responses_does_not_stop_sending_if_one_response_fails(self, *mockargs):
         mcs_connection = TestMCSResponse.dummyMCSConnection()
-        sucessful_get_command_path = lambda endpoint_id: "/responses/endpoint/testendpointid/app_id/LiveQuery/correlation_id/ABC123abc/"
+        sucessful_get_command_path = lambda endpoint_id: "/v2/responses/device/testendpointid/app_id/LiveQuery/correlation_id/ABC123abc/"
         unsuccessful_get_command_path = lambda endpoint_id: raise_exception("Induced Exception")
         bad_response = SimpleNamespace(m_json_body_size=12, get_command_path=unsuccessful_get_command_path, remove_response_file=dummy_function, m_app_id="bad_app_id", m_correlation_id="bad_correlation_id")
         good_response = SimpleNamespace(m_json_body_size=12, get_command_path=sucessful_get_command_path, remove_response_file=dummy_function, m_app_id="good_app_id", m_correlation_id="good_correlation_id", m_gzip_body_size=12, m_json_body = '{"hello": "world"}')
@@ -137,7 +137,7 @@ class TestMCSConnection(unittest.TestCase):
     def test_send_live_query_response_with_id(self, *mockargs):
         mcs_connection = TestMCSResponse.dummyMCSConnection()
         json_body = '{"hello": "world"}'
-        dummy_get_command_path = lambda endpoint_id: "/responses/endpoint/testendpointid/app_id/LiveQuery/correlation_id/ABC123abc/"
+        dummy_get_command_path = lambda endpoint_id: "/v2/responses/device/testendpointid/app_id/LiveQuery/correlation_id/ABC123abc/"
         response = SimpleNamespace(m_json_body_size=12, m_json_body=json_body, m_gzip_body_size=len(json_body), get_command_path=dummy_get_command_path)
         body = mcs_connection.send_live_query_response_with_id(response)
         self.assertTrue(mcsrouter.mcsclient.mcs_connection.MCSConnection._MCSConnection__request.call_count, 1)
@@ -148,7 +148,7 @@ class TestMCSConnection(unittest.TestCase):
                 side_effect=mcsrouter.mcsclient.mcs_connection.EnvelopeHandler._trim_body_from_request)
     def test_send_request_does_not_log_response_bodies(self, *mockargs):
         mcs_connection = TestMCSResponse.dummyMCSConnection()
-        dummy_path = "/responses/endpoint/testendpointid/app_id/LiveQuery/correlation_id/ABC123abc/"
+        dummy_path = "/v2/responses/device/testendpointid/app_id/LiveQuery/correlation_id/ABC123abc/"
         dummy_body = gzip.compress(bytes("body", "utf-8"))
         envelope_handler = EnvelopeHandler()
         message = mcs_connection._build_request_string("POST", dummy_path, dummy_body)

@@ -37,7 +37,7 @@ EXAMPLE_BODY = """{
 EXAMPLE_BODY_SIZE = len(EXAMPLE_BODY)
 EXAMPLE_BODY_COMPRESSED_SIZE = len(gzip.compress(bytes(EXAMPLE_BODY, "utf-8")))
 
-DUMMY_ENDPOINT_ID = "dummyEndpointID"
+DUMMY_DEVICE_ID = "dummyDeviceID"
 DUMMY_PATH = "/fake/response/path/"
 
 DUMMY_TIMESTAMP = 1576600337.2105377  # '2019-12-17T16:32:17.210537Z'
@@ -63,11 +63,11 @@ class TestResponse(unittest.TestCase):
         self.assertEqual(type(response.m_gzip_body), bytes)
         self.assertEqual(response.m_gzip_body_size, expected_gzip_body_size)
         self.assertEqual(gzip.decompress(response.m_gzip_body).decode("utf-8"), expected_json_body)
-        expected_command_path = "/responses/endpoint/{}/app_id/{}/correlation_id/{}".format(
-            DUMMY_ENDPOINT_ID,
+        expected_command_path = "/v2/responses/device/{}/app_id/{}/correlation_id/{}".format(
+            DUMMY_DEVICE_ID,
             expected_app_id,
             expected_corellation_id)
-        self.assertEqual(expected_command_path, response.get_command_path(DUMMY_ENDPOINT_ID))
+        self.assertEqual(expected_command_path, response.get_command_path(DUMMY_DEVICE_ID))
 
     def test_response_object_sanity(self, *mockargs):
         response = mcsrouter.mcsclient.responses.Response(DUMMY_PATH, "app_id", "correlation_id", "timestamp", EXAMPLE_BODY)
@@ -87,8 +87,8 @@ class TestResponse(unittest.TestCase):
 
     def test_get_command_path_produces_path_in_correct_format(self, *mockargs):
         response = mcsrouter.mcsclient.responses.Response(DUMMY_PATH, "app_id", "correlation_id", "timestamp", EXAMPLE_BODY)
-        expected_command_path = "/responses/endpoint/dummyEndpointID/app_id/app_id/correlation_id/correlation_id"
-        self.assertEqual(expected_command_path, response.get_command_path(DUMMY_ENDPOINT_ID))
+        expected_command_path = "/v2/responses/device/dummyEndpointID/app_id/app_id/correlation_id/correlation_id"
+        self.assertEqual(expected_command_path, response.get_command_path(DUMMY_DEVICE_ID))
 
     def test_responses_can_be_added_and_retrieved_through_responses_object(self, *mockargs):
         responses = mcsrouter.mcsclient.responses.Responses()

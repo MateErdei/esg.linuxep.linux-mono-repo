@@ -1878,22 +1878,22 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
         return self.ret("")
 
     def edr_response(self):
-        match_object = re.match(r"^/mcs/responses/endpoint/([^/]*)/app_id/([^/]*)/correlation_id/([^/]*)$", self.path)
+        match_object = re.match(r"^/mcs/v2/responses/device/([^/]*)/app_id/([^/]*)/correlation_id/([^/]*)$", self.path)
         if not match_object:
             return self.ret("Bad response path", 400)
 
-        endpoint_id = match_object.group(1)
+        device_id = match_object.group(1)
         app_id = match_object.group(2)
         correlation_id = match_object.group(3)
-        endpoint = GL_ENDPOINTS.getEndpointByID(endpoint_id)
-        if endpoint is None:
+        device = GL_ENDPOINTS.getEndpointByID(device_id)
+        if device is None:
             ## Create endpoint?
-            return self.ret("Response for unknown endpoint", 400)
+            return self.ret("Response for unknown device", 400)
         if SERVER_500:
             return self.ret("Internal Server Error", 500)
 
         response_body = self.getBody()
-        endpoint.handle_response(app_id, correlation_id, response_body)
+        device.handle_response(app_id, correlation_id, response_body)
         return self.ret("")
 
     def datafeed(self):
