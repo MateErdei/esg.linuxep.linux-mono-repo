@@ -124,6 +124,14 @@ void ManagementAgent::EventReceiverImpl::OutbreakModeController::load()
     {
         LOGERROR("Failed to parse outbreak status file: " << ex.what());
     }
+    catch (const nlohmann::json::out_of_range& ex)
+    {
+        LOGERROR("Missing key in outbreak status file: " << ex.what());
+    }
+    catch (const nlohmann::json::type_error& ex)
+    {
+        LOGERROR("Invalid type for value in outbreak status file: " << ex.what());
+    }
     if (outbreakMode_)
     {
         LOGWARN("In outbreak mode: Detections will not be reported to Central");

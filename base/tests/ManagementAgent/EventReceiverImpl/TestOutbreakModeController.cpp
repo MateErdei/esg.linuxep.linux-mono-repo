@@ -179,6 +179,39 @@ TEST_F(TestOutbreakModeController, we_do_not_enter_outbreak_mode_if_we_are_alrea
     EXPECT_TRUE(controller->outbreakMode());
 }
 
+TEST_F(TestOutbreakModeController, loads_true)
+{
+    auto* filesystemMock = new MockFileSystem();
+    std::string contents = R"({"outbreakMode":true})";
+    EXPECT_CALL(*filesystemMock, readFile(expectedStatusFile_, _)).WillOnce(Return(contents));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
+
+    auto controller = std::make_shared<OutbreakModeController>();
+    EXPECT_TRUE(controller->outbreakMode());
+}
+
+TEST_F(TestOutbreakModeController, loads_false)
+{
+    auto* filesystemMock = new MockFileSystem();
+    std::string contents = R"({"outbreakMode":false})";
+    EXPECT_CALL(*filesystemMock, readFile(expectedStatusFile_, _)).WillOnce(Return(contents));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
+
+    auto controller = std::make_shared<OutbreakModeController>();
+    EXPECT_FALSE(controller->outbreakMode());
+}
+
+TEST_F(TestOutbreakModeController, loads_missing_key)
+{
+    auto* filesystemMock = new MockFileSystem();
+    std::string contents = R"({})";
+    EXPECT_CALL(*filesystemMock, readFile(expectedStatusFile_, _)).WillOnce(Return(contents));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
+
+    auto controller = std::make_shared<OutbreakModeController>();
+    EXPECT_FALSE(controller->outbreakMode());
+}
+
 TEST_F(TestOutbreakModeController, loads_outbreak_state_empty_file)
 {
     auto* filesystemMock = new MockFileSystem();
@@ -204,6 +237,27 @@ TEST_F(TestOutbreakModeController, loads_outbreak_state_absent_file)
 TEST_F(TestOutbreakModeController, loads_outbreak_state_directory)
 {
     fs::create_directories(expectedStatusFile_);
+    auto controller = std::make_shared<OutbreakModeController>();
+    EXPECT_FALSE(controller->outbreakMode());
+}
+
+TEST_F(TestOutbreakModeController, loads_not_json)
+{
+    auto* filesystemMock = new MockFileSystem();
+    EXPECT_CALL(*filesystemMock, readFile(expectedStatusFile_, _)).WillOnce(Return("abcdef"));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
+
+    auto controller = std::make_shared<OutbreakModeController>();
+    EXPECT_FALSE(controller->outbreakMode());
+}
+
+TEST_F(TestOutbreakModeController, loads_not_boolean)
+{
+    auto* filesystemMock = new MockFileSystem();
+    std::string contents = R"({"outbreakMode":123})";
+    EXPECT_CALL(*filesystemMock, readFile(expectedStatusFile_, _)).WillOnce(Return(contents));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
+
     auto controller = std::make_shared<OutbreakModeController>();
     EXPECT_FALSE(controller->outbreakMode());
 }
