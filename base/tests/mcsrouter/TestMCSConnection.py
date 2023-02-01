@@ -106,6 +106,22 @@ class TestMCSConnection(unittest.TestCase):
         self.assertEqual(dummy_function.call_count, 1)
 
     @mock.patch(__name__ + ".dummy_function")
+    @mock.patch('mcsrouter.mcsclient.mcs_connection.MCSConnection.send_live_query_response_with_id', side_effect=mcsrouter.mcsclient.mcs_connection.MCSHttpForbiddenException(403, "", ""))
+    def test_all_responses_cleared_with_403_exception(self, *mockargs):
+        mcs_connection = TestMCSResponse.dummyMCSConnection()
+        mcs_connection.__m_user_agent = "testagent"
+        response1 = SimpleNamespace(m_json_body_size=12, m_gzip_body_size=10, m_app_id="good_app_id", m_correlation_id="ABC123abc", remove_response_file=dummy_function)
+        response2 = SimpleNamespace(m_json_body_size=12, m_gzip_body_size=10, m_app_id="good_app_id", m_correlation_id="ABC123abc", remove_response_file=dummy_function)
+        responses = [response1, response2]
+        self.assertEqual(len(responses), 2)
+        with self.assertLogs(level="WARNING") as logs:
+            mcsrouter.mcsclient.mcs_connection.MCSConnection.send_responses(mcs_connection, responses)
+        assert_message_in_logs("Discarding all responses due to JWT token expired or missing feature code", logs.output, log_level="WARNING")
+        self.assertEqual(mcsrouter.mcsclient.mcs_connection.MCSConnection.send_live_query_response_with_id.call_count, 1)
+        self.assertEqual(dummy_function.call_count, 2)
+
+
+    @mock.patch(__name__ + ".dummy_function")
     @mock.patch("mcsrouter.mcsclient.mcs_connection.MCSConnection.send_live_query_response_with_id", return_value="")
     def test_send_responses_sends_response_when_body_valid(self, *mockargs):
         mcs_connection = TestMCSResponse.dummyMCSConnection()
@@ -116,6 +132,7 @@ class TestMCSConnection(unittest.TestCase):
         self.assertTrue(mcsrouter.mcsclient.mcs_connection.MCSConnection.send_live_query_response_with_id.called)
         #dummy_function plays the roll of response.remove_response_file
         self.assertEqual(dummy_function.call_count, 1)
+
 
     @mock.patch("mcsrouter.mcsclient.mcs_connection.MCSConnection._MCSConnection__request", return_value=("header", "body"))
     def test_send_responses_does_not_stop_sending_if_one_response_fails(self, *mockargs):
@@ -547,9 +564,11 @@ class TestMCSConnection(unittest.TestCase):
     @mock.patch("mcsrouter.mcsclient.mcs_connection.MCSConnection.get_id", return_value="example-endpoint-id")
     @mock.patch("time.time", return_value=1605708424.2720187)
     @mock.patch("mcsrouter.mcsclient.mcs_connection.MCSConnection.get_jwt_token", return_value='{"access_token":"jwt-token","device_id":"device-id","tenant_id":"tenant-id","expires_in":"invalid"}')
-    def test_set_jwt_token_settings_returns_values_when_expiration_value_is_invalid(self, *mockargs):
+    def test_set_jwt_token_settings_deletes_responses_when_expiration_value_is_invalid(self, *mockargs):
         with self.assertLogs(level="WARNING") as logs:
             mcs_connection = TestMCSResponse.dummyMCSConnection(save=False)
+
+
             mcsrouter.mcsclient.mcs_connection.MCSConnection.set_jwt_token_settings(mcs_connection)
             self.assertEqual(mcs_connection.m_jwt_token, "jwt-token")
             self.assertEqual(mcs_connection.m_device_id, "device-id")

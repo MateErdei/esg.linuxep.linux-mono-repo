@@ -1108,21 +1108,33 @@ class MCSConnection:
         def log_exception_error(app_id, correlation_id, exception):
             LOGGER.error("Failed to send response ({} : {}) : {}".format(app_id, correlation_id, exception))
 
+        clear_all_responses = False
+
         for response in responses:
-            try:
-                if response.m_json_body_size != 0:
-                    self.send_live_query_response_with_id(response)
-                else:
-                    LOGGER.warning("Empty response (Correlation ID: {}). Not sending".format(response.m_correlation_id))
+            if clear_all_responses:
                 response.remove_response_file()
+            else:
+                try:
+                    if response.m_json_body_size != 0:
+                        self.send_live_query_response_with_id(response)
+                    else:
+                        LOGGER.warning("Empty response (Correlation ID: {}). Not sending".format(response.m_correlation_id))
+                    response.remove_response_file()
 
-            except (MCSHttpServiceUnavailableException, MCSHttpInternalServerErrorException) as exception:
-                log_exception_error(response.m_app_id, response.m_correlation_id, exception)
-                LOGGER.debug("Discarding response '{}' due to rejection by central".format(response.m_correlation_id))
-                response.remove_response_file()
+                except (MCSHttpServiceUnavailableException, MCSHttpInternalServerErrorException) as exception:
+                    log_exception_error(response.m_app_id, response.m_correlation_id, exception)
+                    LOGGER.debug("Discarding response '{}' due to rejection by central".format(response.m_correlation_id))
+                    response.remove_response_file()
 
-            except Exception as exception:
-                log_exception_error(response.m_app_id, response.m_correlation_id, exception)
+                except (MCSHttpForbiddenException) as exception:
+                    log_exception_error(response.m_app_id, response.m_correlation_id, exception)
+                    LOGGER.warning("Discarding all responses due to JWT token expired or missing feature code")
+                    response.remove_response_file()
+                    clear_all_responses = True
+
+                except Exception as exception:
+                    log_exception_error(response.m_app_id, response.m_correlation_id, exception)
+
 
     def send_datafeeds(self, datafeeds: datafeeds.Datafeeds) -> int:
         """
