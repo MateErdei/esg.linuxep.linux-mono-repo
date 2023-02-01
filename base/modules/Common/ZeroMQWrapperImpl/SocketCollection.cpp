@@ -5,6 +5,9 @@
 #include "ZeroMQWrapperException.h"
 
 #include <chrono>
+#include <iostream>
+#include <fstream>
+
 #include <zmq.h>
 
 using namespace std::chrono_literals;
@@ -26,10 +29,14 @@ void* SocketCollection::createSocket(void* context,
 
 void SocketCollection::closeAll()
 {
+    std::ofstream logFile;
+    logFile.open ("/tmp/zmq-sockets.log", std::fstream::out | std::fstream::app);
+    logFile  << "SocketCollection::closeAll()" << std::endl;
     for (const auto socket: m_zmqSockets)
     {
         if (socket != nullptr)
         {
+            logFile  << "Closed socket" << std::endl;
             zmq_close(socket);
         }
     }
