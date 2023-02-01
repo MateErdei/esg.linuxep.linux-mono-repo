@@ -12,7 +12,7 @@ Copyright 2018 Sophos Limited.  All rights reserved.
 #include <Common/PluginApi/IPluginResourceManagement.h>
 #include <ResponseActions/pluginimpl/Logger.h>
 #include <ResponseActions/pluginimpl/PluginAdapter.h>
-#include <ResponseActions/pluginimpl/config.h.in>
+#include <pluginimpl/config.h>
 
 #include <sstream>
 

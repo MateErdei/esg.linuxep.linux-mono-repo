@@ -1,7 +1,7 @@
 add_executable(${RA_PLUGIN_NAME}
         main.cpp)
 
-include_directories(${RA_PLUGIN_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/modules/ResponseActions ${LOG4CPLUS_INCLUDE_DIR})
+include_directories(${RA_PLUGIN_NAME} PUBLIC ${CMAKE_BINARY_DIR}/modules/ResponseActions ${LOG4CPLUS_INCLUDE_DIR})
 target_link_libraries(${RA_PLUGIN_NAME} PUBLIC pluginimpl)
 
 SET_TARGET_PROPERTIES( ${RA_PLUGIN_NAME}
