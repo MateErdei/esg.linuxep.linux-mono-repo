@@ -1132,6 +1132,11 @@ class MCSConnection:
                     response.remove_response_file()
                     clear_all_responses = True
 
+                except (MCSHttpPayloadException) as exception:
+                    log_exception_error(response.m_app_id, response.m_correlation_id, exception)
+                    LOGGER.warning("Discarding response '{}' due to request size being over limit".format(response.m_correlation_id))
+                    response.remove_response_file()
+
                 except Exception as exception:
                     log_exception_error(response.m_app_id, response.m_correlation_id, exception)
 
