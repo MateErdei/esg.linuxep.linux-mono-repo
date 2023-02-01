@@ -10,9 +10,11 @@ add_library(testhelpersobject OBJECT
         FilePermissionsReplaceAndRestore.cpp
         FileSystemReplaceAndRestore.h
         FileSystemReplaceAndRestore.cpp
-        MemoryAppender.h
         MockApiBaseServices.h
         MockFilePermissions.h
+        MockFileSystem.h
+        MockHttpRequester.h
+        MockCurlWrapper.h
         MockFileSystem.h
         MockZmqContext.h
         FakeTimeUtils.cpp
@@ -25,19 +27,17 @@ add_library(testhelpersobject OBJECT
         OutputToLog.h
         MockPlatformUtils.h
         MockSystemUtils.h
-        TestSpecificDirectory.h
         )
 
-target_include_directories(testhelpersobject SYSTEM BEFORE PUBLIC "${gmock_SOURCE_DIR}/include" "${gtest_SOURCE_DIR}/include")
+target_include_directories(testhelpersobject SYSTEM BEFORE PUBLIC ${GMOCK_INCLUDE} ${GTEST_INCLUDE})
 
 add_library(testhelpers SHARED $<TARGET_OBJECTS:testhelpersobject>)
 
-target_include_directories(testhelpers SYSTEM BEFORE PUBLIC "${gmock_SOURCE_DIR}/include" "${gtest_SOURCE_DIR}/include" "${gtest_SOURCE_DIR}" ${LOG4CPLUS_INCLUDE_DIR})
+target_include_directories(testhelpers SYSTEM BEFORE PUBLIC ${GMOCK_INCLUDE} ${GTEST_INCLUDE} ${LOG4CPLUS_INCLUDE_DIR})
 
-target_link_libraries(testhelpers PUBLIC filesystemimpl applicationconfigurationimpl gmock gtest pluginapiimpl)
-
+target_link_libraries(testhelpers PUBLIC filesystemimpl applicationconfigurationimpl ${GTEST_LIBRARY} ${GMOCK_LIBRARY}  pluginapiimpl)
 SET_TARGET_PROPERTIES( testhelpers
         PROPERTIES INSTALL_RPATH "$ORIGIN")
 
 install(TARGETS testhelpers
-        LIBRARY DESTINATION ${BASE_DIST_PREFIX}/files/base/lib64)
+        LIBRARY DESTINATION base/files/base/lib64)
