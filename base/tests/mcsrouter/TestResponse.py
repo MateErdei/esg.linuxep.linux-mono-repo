@@ -87,7 +87,7 @@ class TestResponse(unittest.TestCase):
 
     def test_get_command_path_produces_path_in_correct_format(self, *mockargs):
         response = mcsrouter.mcsclient.responses.Response(DUMMY_PATH, "app_id", "correlation_id", "timestamp", EXAMPLE_BODY)
-        expected_command_path = "/v2/responses/device/dummyEndpointID/app_id/app_id/correlation_id/correlation_id"
+        expected_command_path = "/v2/responses/device/dummyDeviceID/app_id/app_id/correlation_id/correlation_id"
         self.assertEqual(expected_command_path, response.get_command_path(DUMMY_DEVICE_ID))
 
     def test_responses_can_be_added_and_retrieved_through_responses_object(self, *mockargs):
