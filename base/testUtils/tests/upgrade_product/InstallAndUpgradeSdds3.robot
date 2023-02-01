@@ -108,6 +108,13 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     ...   Check SulDownloader Log Contains String N Times   Update success  2
     Check SulDownloader Log Should Not Contain    Running in SDDS2 updating mode
 
+    # Update again to ensure we do not get a scheduled update later in the test run
+    Trigger Update Now
+    Wait Until Keyword Succeeds
+    ...   120 secs
+    ...   10 secs
+    ...   Check SulDownloader Log Contains String N Times   Update success  3
+
     Check EAP Release With AV Installed Correctly
     Check SafeStore Installed Correctly
     ${safeStoreDbDirBeforeUpgrade} =    List Files In Directory    ${SAFESTORE_DB_DIR}
@@ -230,6 +237,13 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     ...   10 secs
     ...   Check SulDownloader Log Contains String N Times   Update success  2
     Check SulDownloader Log Should Not Contain    Running in SDDS2 updating mode
+
+    # Update again to ensure we do not get a scheduled update later in the test run
+    Trigger Update Now
+    Wait Until Keyword Succeeds
+    ...   120 secs
+    ...   10 secs
+    ...   Check SulDownloader Log Contains String N Times   Update success  3
 
     Check Current Release With AV Installed Correctly
     ${safeStoreDbDirBeforeUpgrade} =    List Files In Directory    ${SAFESTORE_DB_DIR}
@@ -385,6 +399,13 @@ We Can Upgrade From Release to VUT Without Unexpected Errors
     ...   Check SulDownloader Log Contains String N Times   Update success  2
     Check SulDownloader Log Should Not Contain    Running in SDDS2 updating mode
 
+    # Update again to ensure we do not get a scheduled update later in the test run
+    Trigger Update Now
+    Wait Until Keyword Succeeds
+    ...   120 secs
+    ...   10 secs
+    ...   Check SulDownloader Log Contains String N Times   Update success  3
+
     Check EAP Release With AV Installed Correctly
     Check Expected Versions Against Installed Versions    &{expectedReleaseVersions}
 
@@ -495,6 +516,13 @@ We Can Downgrade From VUT to Release Without Unexpected Errors
     ...   10 secs
     ...   Check SulDownloader Log Contains String N Times   Update success  2
     Check SulDownloader Log Should Not Contain    Running in SDDS2 updating mode
+
+    # Update again to ensure we do not get a scheduled update later in the test run
+    Trigger Update Now
+    Wait Until Keyword Succeeds
+    ...   120 secs
+    ...   10 secs
+    ...   Check SulDownloader Log Contains String N Times   Update success  3
 
     Check Current Release With AV Installed Correctly
     Check Expected Versions Against Installed Versions    &{expectedVUTVersions}
