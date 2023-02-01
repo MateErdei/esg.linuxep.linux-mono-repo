@@ -49,11 +49,19 @@ CMAKE_BUILD_TYPE=$DEBUG_BUILD_TYPE
 export ENABLE_STRIP=1
 VALGRIND=0
 UNIT_TESTS=1
+export SDDS3=1
 
 # Deal with arguments
 while [[ $# -ge 1 ]]
 do
     case $1 in
+        --dev)
+            CLEAN=0
+            UNIT_TESTS=1
+            CMAKE_BUILD_TYPE=$DEBUG_BUILD_TYPE
+            export ENABLE_STRIP=0
+            unset SDDS3
+            ;;
         --clean)
             CLEAN=1
             ;;
@@ -127,7 +135,7 @@ do
         --strace|--strace-support)
             STRACE_SUPPORT="ON"
             ;;
-        --fetch)
+        --fetch|--setup)
             "$BASE/tap_fetch.sh"
             ;;
         --setup-venv)
@@ -146,6 +154,12 @@ EOF
             pip install --upgrade tap keyrings.alt
             exit 0
             ;;
+        --skip-sdds3|--no-sdds3)
+          unset SDDS3
+          ;;
+        --sdds3)
+          export SDDS3=1
+          ;;
         *)
             exitFailure $FAILURE_BAD_ARGUMENT "unknown argument $1"
             ;;
