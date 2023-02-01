@@ -66,6 +66,7 @@ if (NOT EXISTS ${INPUT}/sdds3/sdds3-builder)
 endif()
 INSTALL(CODE "MESSAGE(STATUS \"Generating base SDDS3 manifests\")
     execute_process(
+        COMMAND rm -rf ${CMAKE_BINARY_DIR}/SDDS3-PACKAGE
         COMMAND ${CMAKE_SOURCE_DIR}/PostInstall/RunSdds3Builder.sh ${INPUT}/sdds3/sdds3-builder ${CMAKE_BINARY_DIR}/SDDS3-PACKAGE ${DIST}/base/SDDS-Import.xml
         RESULT_VARIABLE STATUS)
     if(STATUS AND NOT STATUS EQUAL 0)
@@ -74,6 +75,7 @@ INSTALL(CODE "MESSAGE(STATUS \"Generating base SDDS3 manifests\")
 
 INSTALL(CODE "MESSAGE(STATUS \"Generating ra SDDS3 manifests\")
     execute_process(
+        COMMAND rm -rf ${CMAKE_BINARY_DIR}/RA-SDDS3-PACKAGE
         COMMAND ${CMAKE_SOURCE_DIR}/PostInstall/RunSdds3Builder.sh ${INPUT}/sdds3/sdds3-builder ${CMAKE_BINARY_DIR}/RA-SDDS3-PACKAGE ${DIST}/ra/SDDS-Import.xml
         RESULT_VARIABLE STATUS)
     if(STATUS AND NOT STATUS EQUAL 0)
@@ -84,10 +86,12 @@ INSTALL(CODE "MESSAGE(STATUS \"Generating ra SDDS3 manifests\")
 INSTALL(CODE "MESSAGE(STATUS \"Generating output directory\")
     execute_process(COMMAND mkdir -p ${OUTPUT})
     execute_process(COMMAND rm -rf ${OUTPUT}/SDDS-COMPONENT)
+    execute_process(COMMAND rm -rf ${OUTPUT}/SDDS3-COMPONENT)
     execute_process(COMMAND cp -a ${DIST}/base ${OUTPUT}/SDDS-COMPONENT)
     execute_process(COMMAND cp -a ${CMAKE_BINARY_DIR}/SDDS3-PACKAGE ${OUTPUT}/SDDS3-PACKAGE)
     execute_process(COMMAND cp -a ${DIST}/base/SDDS-Import.xml ${OUTPUT}/SDDS3-PACKAGE/)
     execute_process(COMMAND rm -rf ${OUTPUT}/RA-SDDS-COMPONENT)
+    execute_process(COMMAND rm -rf ${OUTPUT}/RA-SDDS3-COMPONENT)
     execute_process(COMMAND cp -a ${DIST}/ra ${OUTPUT}/RA-SDDS-COMPONENT)
     execute_process(COMMAND cp -a ${CMAKE_BINARY_DIR}/RA-SDDS3-PACKAGE ${OUTPUT}/RA-SDDS3-PACKAGE)
     execute_process(COMMAND cp -a ${DIST}/ra/SDDS-Import.xml ${OUTPUT}/RA-SDDS3-PACKAGE/)
