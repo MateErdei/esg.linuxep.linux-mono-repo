@@ -57,7 +57,7 @@ execute_process(
 configure_file(VERSION.ini.in VERSION.ini @ONLY)
 
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/VERSION.ini
-        DESTINATION ra/files/plugins/${PLUGIN_NAME}/)
+        DESTINATION ra/files/plugins/${RA_PLUGIN_NAME}/)
 
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/VERSION.ini
         DESTINATION ra)

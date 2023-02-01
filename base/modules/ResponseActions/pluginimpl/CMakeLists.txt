@@ -29,4 +29,7 @@ SET_TARGET_PROPERTIES(pluginimpl
         BUILD_RPATH "${CMAKE_BINARY_DIR}/libs"
         )
 
+install(TARGETS pluginimpl
+        LIBRARY DESTINATION ra/files/plugins/${RA_PLUGIN_NAME}/lib64)
+
 add_dependencies(pluginimpl copy_libs)
