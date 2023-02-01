@@ -10,7 +10,7 @@ Suite Teardown  Require Uninstalled
 
 Test Teardown  General Test Teardown
 
-Default Tags   RESPONSE_ACTIONS_PLUGIN
+Default Tags   RESPONSE_ACTIONS_PLUGIN  TAP_TESTS
 
 
 *** Test Cases ***
