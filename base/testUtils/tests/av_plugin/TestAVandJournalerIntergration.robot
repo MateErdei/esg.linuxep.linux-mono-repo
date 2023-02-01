@@ -205,10 +205,10 @@ Setup Event Journaler End To End
     Should Be Equal As Strings  0  ${result.rc}
     Register With Fake Cloud
     Install EDR Directly
-    Install Event Journaler Directly
-    Install AV Plugin Directly
     Create Query Packs
     Register Cleanup   Cleanup Query Packs
+    Install Event Journaler Directly
+    Install AV Plugin Directly
 
 Check Logs Detected EICAR Event
     [Arguments]  ${EXPECTED_EICARS}
