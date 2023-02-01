@@ -4,19 +4,23 @@
 
 #include "ZeroMQWrapperException.h"
 
+#include <chrono>
 #include <zmq.h>
+
+using namespace std::chrono_literals;
 
 void* SocketCollection::createSocket(void* context,
                           const int type)
 {
-    std::lock_guard<std::mutex> lock(m_mutex);
+    std::unique_lock<std::mutex> lock(m_mutex);
+    m_cond.wait_for(lock, 1s);
     auto socket = zmq_socket(context, type);
     if (socket == nullptr)
     {
         throw Common::ZeroMQWrapperImpl::ZeroMQWrapperException("Failed to create socket");
     }
     m_zmqSockets.push_back(socket);
-    m_socketCollectionCondition.notify_one();
+    m_cond.notify_one();
     return socket;
 }
 

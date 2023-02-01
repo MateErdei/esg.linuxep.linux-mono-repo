@@ -22,7 +22,7 @@ public:
     void closeAll();
 
     std::mutex m_mutex;
-    std::condition_variable m_contextCollectionCondition;
+    std::condition_variable m_cond;
 private:
     ContextCollection() {}
     std::vector<void*> m_zmqContexts;

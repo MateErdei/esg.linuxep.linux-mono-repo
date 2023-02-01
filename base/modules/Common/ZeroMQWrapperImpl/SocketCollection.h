@@ -23,7 +23,7 @@ public:
     void closeAll();
 
     std::mutex m_mutex;
-    std::condition_variable m_socketCollectionCondition;
+    std::condition_variable m_cond;
 private:
     SocketCollection() {}
     std::vector<void*> m_zmqSockets;

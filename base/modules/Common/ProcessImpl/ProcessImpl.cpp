@@ -154,23 +154,24 @@ namespace Common::ProcessImpl
         m_pid = -1;
         try
         {
-            std::lock_guard<std::mutex> socketLock(SocketCollection::getInstance().m_mutex);
-            std::lock_guard<std::mutex> contextLock(ContextCollection::getInstance().m_mutex);
+            {
+                std::lock_guard<std::mutex> socketLock(SocketCollection::getInstance().m_mutex);
+                std::lock_guard<std::mutex> contextLock(ContextCollection::getInstance().m_mutex);
 
-            m_d = std::make_shared<BoostProcessHolder>(
-                path,
-                arguments,
-                extraEnvironment,
-                uid,
-                gid,
-                m_callback,
-                m_notifyTrimmed,
-                m_outputLimit,
-                m_flushOnNewLine);
-            m_pid = m_d->pid();
-
-            ContextCollection::getInstance().m_contextCollectionCondition.notify_all();
-            SocketCollection::getInstance().m_socketCollectionCondition.notify_all();
+                m_d = std::make_shared<BoostProcessHolder>(
+                    path,
+                    arguments,
+                    extraEnvironment,
+                    uid,
+                    gid,
+                    m_callback,
+                    m_notifyTrimmed,
+                    m_outputLimit,
+                    m_flushOnNewLine);
+                m_pid = m_d->pid();
+            }
+            ContextCollection::getInstance().m_cond.notify_all();
+            SocketCollection::getInstance().m_cond.notify_all();
         }
         catch (Common::Process::IProcessException& ex)
         {
