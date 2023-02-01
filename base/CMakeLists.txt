@@ -122,6 +122,36 @@ endif()
 set(FEATURE_LIST "CORE")
 set(RA_FEATURE_LIST "MTR")
 
+if (DEFINED ENV{VERSION_OVERRIDE})
+    set(PRODUCT_VERSION "$ENV{VERSION_OVERRIDE}")
+else()
+    execute_process(
+            COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/products/distribution/getReleasePackageVersion.py ${CMAKE_SOURCE_DIR}/build/release-package.xml
+            OUTPUT_VARIABLE RELEASE_PACKAGE_VERSION
+            OUTPUT_STRIP_TRAILING_WHITESPACE)
+    execute_process(
+            COMMAND versioning_client --component sspl_base --version_number ${RELEASE_PACKAGE_VERSION}
+            OUTPUT_VARIABLE PRODUCT_VERSION
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+            RESULT_VARIABLE STATUS)
+    if(STATUS AND NOT STATUS EQUAL 0)
+        message(FATAL_ERROR \"Failed to generate version from base: ${STATUS}\")
+    endif()
+endif()
+
+if (DEFINED ENV{RA_VERSION_OVERRIDE})
+    set(RA_PRODUCT_VERSION "$ENV{RA_VERSION_OVERRIDE}")
+else()
+    execute_process(
+            COMMAND versioning_client --component responseactions --version_number 1.0.0
+            OUTPUT_VARIABLE RA_PRODUCT_VERSION
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+            RESULT_VARIABLE STATUS)
+    if(STATUS AND NOT STATUS EQUAL 0)
+        message(FATAL_ERROR \"Failed to generate version from base: ${STATUS}\")
+    endif()
+endif()
+
 find_package(PkgConfig)
 FIND_PACKAGE ( Threads REQUIRED )
 
