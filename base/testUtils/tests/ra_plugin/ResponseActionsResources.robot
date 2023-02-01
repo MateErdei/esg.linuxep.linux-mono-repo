@@ -19,15 +19,7 @@ Install Response Actions Directly
     Log  ${error}
     Log  ${result.stderr}
     Log  ${result.stdout}
-    Wait Until Keyword Succeeds
-    ...  10 secs
-    ...  1 secs
-    ...  Check Response Actions Executable Running
-
-Uninstall Response Actions
-    ${result} =  Run Process     ${RESPONSE_ACTIONS_DIR}/bin/uninstall.sh
-    Should Be Equal As Strings   ${result.rc}  0
-    [Return]  ${result}
+    Check Response Actions Executable Running
 
 Check Response Actions Executable Running
     ${result} =    Run Process  pgrep responseactions | wc -w  shell=true
@@ -45,18 +37,30 @@ Start Response Actions
     Run Process  ${SOPHOS_INSTALL}/bin/wdctl  start  responseactions
 
 Restart Response Actions
-    ${mark} =  mark_log_size  ${RESPONSE_ACTIONS_LOG_PATH}
+    ${mark} =  Mark File  ${RESPONSE_ACTIONS_LOG_PATH}
     Stop Response Actions
     Wait Until Keyword Succeeds
     ...  30 secs
     ...  1 secs
-    ...  wait_for_log_contains_from_mark  ${mark}  responseactions <> Plugin Finished
-    ${mark} =  mark_log_size  ${RESPONSE_ACTIONS_LOG_PATH}
+    ...  Marked File Contains  ${RESPONSE_ACTIONS_LOG_PATH}  responseactions <> Plugin Finished  ${mark}
+    ${mark} =  Mark File  ${RESPONSE_ACTIONS_LOG_PATH}
     Start Response Actions
     Wait Until Keyword Succeeds
     ...  30 secs
     ...  1 secs
-    ...  wait_for_log_contains_from_mark  ${mark}  Entering the main loop
+    ...  Marked File Contains  ${RESPONSE_ACTIONS_LOG_PATH}  Entering the main loop  ${mark}
+
+Mark File
+    [Arguments]  ${path}
+    ${content} =  Get File   ${path}
+    Log  ${content}
+    [Return]  ${content.split("\n").__len__()}
+
+Marked File Contains
+    [Arguments]  ${path}  ${input}  ${mark}
+    ${content} =  Get File   ${path}
+    ${content} =  Evaluate  "\\n".join(${content.__repr__()}.split("\\n")[${mark}:])
+    Should Contain  ${content}  ${input}
 
 Check Response Actions Installed
     Wait Until Keyword Succeeds

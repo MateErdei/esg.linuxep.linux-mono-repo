@@ -237,14 +237,6 @@ def get_sspl_event_journaler_plugin_sdds():
     return get_plugin_sdds("SSPL Event Journaler Plugin", "SSPL_EVENT_JOURNALER_PLUGIN_SDDS", candidates)
 
 def get_sspl_response_actions_plugin_sdds():
-    RA_DIST = os.environ.get("RA_DIST")
-
-    if RA_DIST is not None:
-        installer = os.path.join(RA_DIST, "install.sh")
-        if os.path.isfile(installer):
-            logger.debug("Using installer from RA_DIST: {}".format(installer))
-            return RA_DIST
-
     candidates = []
     local_path_to_plugin = PathManager.find_local_component_dir_path("everest-base")
     if local_path_to_plugin:
