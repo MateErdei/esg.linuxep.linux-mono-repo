@@ -109,7 +109,6 @@ class TestMCSConnection(unittest.TestCase):
     @mock.patch('mcsrouter.mcsclient.mcs_connection.MCSConnection.send_live_query_response_with_id', side_effect=mcsrouter.mcsclient.mcs_connection.MCSHttpForbiddenException(403, "", ""))
     def test_all_responses_cleared_with_403_exception(self, *mockargs):
         mcs_connection = TestMCSResponse.dummyMCSConnection()
-        mcs_connection.__m_user_agent = "testagent"
         response1 = SimpleNamespace(m_json_body_size=12, m_gzip_body_size=10, m_app_id="good_app_id", m_correlation_id="ABC123abc", remove_response_file=dummy_function)
         response2 = SimpleNamespace(m_json_body_size=12, m_gzip_body_size=10, m_app_id="good_app_id", m_correlation_id="ABC123abc", remove_response_file=dummy_function)
         responses = [response1, response2]
@@ -125,7 +124,6 @@ class TestMCSConnection(unittest.TestCase):
     @mock.patch('mcsrouter.mcsclient.mcs_connection.MCSConnection.send_live_query_response_with_id', side_effect=mcsrouter.mcsclient.mcs_connection.MCSHttpPayloadException(413, "", ""))
     def test_one_response_cleared_with_413_exception(self, *mockargs):
         mcs_connection = TestMCSResponse.dummyMCSConnection()
-        mcs_connection.__m_user_agent = "testagent"
         response1 = SimpleNamespace(m_json_body_size=12, m_gzip_body_size=10, m_app_id="good_app_id", m_correlation_id="ABC123abc", remove_response_file=dummy_function)
         response2 = SimpleNamespace(m_json_body_size=12, m_gzip_body_size=10, m_app_id="good_app_id", m_correlation_id="ABC123abc", remove_response_file=dummy_function)
         responses = [response1, response2]
