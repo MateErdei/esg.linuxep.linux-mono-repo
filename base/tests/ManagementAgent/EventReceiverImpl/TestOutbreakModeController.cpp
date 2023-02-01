@@ -152,6 +152,7 @@ TEST_F(TestOutbreakModeController, alerts_over_two_days_do_not_enter_outbreak_mo
     EXPECT_FALSE(controller->outbreakMode());
 }
 
+// Verify AC:  "Outbreak persists over calendar day changes"
 TEST_F(TestOutbreakModeController, we_do_not_enter_outbreak_mode_if_we_are_already_in_it)
 {
     const std::string event_xml = DETECTION_XML;
@@ -161,22 +162,23 @@ TEST_F(TestOutbreakModeController, we_do_not_enter_outbreak_mode_if_we_are_alrea
     auto now = OutbreakModeController::clock_t::now();
     auto yesterday = now - std::chrono::hours{24};
 
+    // Receive 101 events yesterday to go into outbreak mode
     for (auto i=0; i<OUTBREAK_COUNT+1; i++)
     {
         controller->recordEventAndDetermineIfItShouldBeDropped("CORE", event_xml, yesterday);
     }
     ASSERT_TRUE(appenderContains("Entering outbreak mode"));
     EXPECT_TRUE(controller->outbreakMode());
-    clearMemoryAppender();
+    clearMemoryAppender(); // Check we don't log that we are re-entering outbreak mode
 
     // After we enter outbreak mode, we shouldn't enter it the next day, we should already be in it.
 
     for (auto i=0; i<OUTBREAK_COUNT+1; i++)
     {
+        EXPECT_TRUE(controller->outbreakMode()); // We'll be in outbreak mode even after receiving only 1 alert today
         controller->recordEventAndDetermineIfItShouldBeDropped("CORE", event_xml, now);
     }
-    EXPECT_FALSE(appenderContains("Entering outbreak mode"));
-    EXPECT_TRUE(controller->outbreakMode());
+    EXPECT_FALSE(appenderContains("Entering outbreak mode")); // If we hadn't stayed in outbreak mode then we would have logged again
 }
 
 TEST_F(TestOutbreakModeController, loads_true)
@@ -222,7 +224,7 @@ TEST_F(TestOutbreakModeController, loads_outbreak_state_empty_file)
     EXPECT_FALSE(controller->outbreakMode());
 }
 
-TEST_F(TestOutbreakModeController, loads_outbreak_state_absent_file)
+TEST_F(TestOutbreakModeController, loads_absent_file)
 {
     auto* filesystemMock = new MockFileSystem();
     EXPECT_CALL(*filesystemMock, readFile(expectedStatusFile_, _)).WillOnce(Throw(
@@ -234,11 +236,28 @@ TEST_F(TestOutbreakModeController, loads_outbreak_state_absent_file)
     EXPECT_FALSE(controller->outbreakMode());
 }
 
-TEST_F(TestOutbreakModeController, loads_outbreak_state_directory)
+TEST_F(TestOutbreakModeController, loads_directory)
 {
     fs::create_directories(expectedStatusFile_);
     auto controller = std::make_shared<OutbreakModeController>();
     EXPECT_FALSE(controller->outbreakMode());
+}
+
+TEST_F(TestOutbreakModeController, loads_unreadable)
+{
+    if (::getuid() == 0)
+    {
+        // Can't run this test as root
+        return;
+    }
+    // Current FileSystem can't differentiate between can't read and doesn't exist
+    auto path = expectedStatusFile_;
+    const auto contents = R"({"outbreakMode":true})";
+    auto* filesystem = Common::FileSystem::fileSystem();
+    filesystem->writeFileAtomically(expectedStatusFile_, contents, testDir_, 0001);
+    ::chmod(expectedStatusFile_.c_str(), 0);
+    auto controller = std::make_shared<OutbreakModeController>();
+    EXPECT_FALSE(controller->outbreakMode()); // Can't read the file
 }
 
 TEST_F(TestOutbreakModeController, loads_not_json)
