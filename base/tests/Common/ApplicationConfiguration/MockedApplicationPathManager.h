@@ -108,4 +108,6 @@ public:
     MOCK_CONST_METHOD0(getOverallHealthFilePath, std::string (void));
     MOCK_CONST_METHOD0(getMcsCaOverrideFlag, std::string (void));
 
+    MOCK_METHOD(std::string, getOutbreakModeStatusFilePath, (), (const, override));
+
 };
