@@ -1,10 +1,14 @@
-// Copyright 2018-2023 Sophos Limited. All rights reserved.***/
+/******************************************************************************************************
+
+Copyright 2018, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
 
 #include "SocketHolder.h"
 
 #include "ZeroMQWrapperException.h"
 
-#include "Common/ZeroMQWrapperImpl/SocketCollection.h"
+#include "Common/GlobalZmqAccess.h"
 
 #include <cassert>
 #include <zmq.h>
@@ -51,7 +55,12 @@ void Common::ZeroMQWrapperImpl::SocketHolder::reset(
     {
         zmq_close(m_socket);
     }
-    m_socket = SocketCollection::getInstance().createSocket(context->ctx(), type);
+    m_socket = zmq_socket(context->ctx(), type);
+    GL_zmqSockets.push_back(m_socket);
+    if (m_socket == nullptr)
+    {
+        throw ZeroMQWrapperException("Failed to create socket");
+    }
     constexpr int64_t maxSize = 10 * 1024 * 1024; // 10 MB
     if (-1 == zmq_setsockopt(m_socket, ZMQ_MAXMSGSIZE, &maxSize, sizeof(maxSize)))
     {
