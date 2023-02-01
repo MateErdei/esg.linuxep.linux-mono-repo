@@ -18,7 +18,7 @@ namespace Plugin
         enum class TaskType
         {
             POLICY,
-            EXAMPLETASK,
+            ACTION,
             STOP
         };
         TaskType m_taskType;

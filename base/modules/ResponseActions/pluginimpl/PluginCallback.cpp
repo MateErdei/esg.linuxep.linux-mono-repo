@@ -18,14 +18,6 @@ namespace Plugin
 {
     PluginCallback::PluginCallback(std::shared_ptr<QueueTask> task) : m_task(std::move(task))
     {
-        std::string noPolicySetStatus{
-            R"sophos(<?xml version="1.0" encoding="utf-8" ?>
-                    <status xmlns="http://www.sophos.com/EE/EESavStatus">
-                        <CompRes xmlns="com.sophos\msys\csc" Res="NoRef" RevID="" policyType="2" />
-                    </status>)sophos"
-        };
-        Common::PluginApi::StatusInfo noPolicyStatusInfo = { noPolicySetStatus, noPolicySetStatus, "SAV" };
-        m_statusInfo = noPolicyStatusInfo;
         LOGDEBUG("Plugin Callback Started");
     }
 
@@ -35,7 +27,10 @@ namespace Plugin
         m_task->push(Task{ Task::TaskType::POLICY, policyXml});
     }
 
-    void PluginCallback::queueAction(const std::string& /* actionXml */) { LOGDEBUG("Queueing action"); }
+    void PluginCallback::queueAction(const std::string&  actionXml )
+    {
+        m_task->push(Task{ Task::TaskType::ACTION, actionXml });
+    }
 
     void PluginCallback::onShutdown()
     {
@@ -53,14 +48,8 @@ namespace Plugin
 
     Common::PluginApi::StatusInfo PluginCallback::getStatus(const std::string& /* appId */)
     {
-        LOGDEBUG("Received get status request");
-        return m_statusInfo;
-    }
-
-    void PluginCallback::setStatus(Common::PluginApi::StatusInfo statusInfo)
-    {
-        LOGDEBUG("Setting status");
-        m_statusInfo = std::move(statusInfo);
+        LOGDEBUG("Received unexpected get status request");
+        return Common::PluginApi::StatusInfo{};
     }
 
     std::string PluginCallback::getTelemetry()
@@ -73,6 +62,7 @@ namespace Plugin
         {
             telemetry.set(Plugin::Telemetry::version, version.value());
         }
+        Common::Telemetry::TelemetryHelper::getInstance().set(Telemetry::pluginHealthStatus, static_cast<u_long>(1));
         std::string telemetryJson = telemetry.serialiseAndReset();
         LOGDEBUG("Got telemetry JSON data: " << telemetryJson);
 
