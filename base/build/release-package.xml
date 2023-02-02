@@ -113,7 +113,7 @@
 
         <build-asset project="em" repo="esg">
             <release-version branch="release/2023.04/sprint" build-id="20230120201925-31a0379094fc1654506d3d459661d326949dee47-bh0Sgz"/>
-            <development-version branch="feature/thirdparty/LINUXDAR-6719-zlib-is-upgraded-to-1-2-13"/>
+            <development-version branch="develop"/>
             <include artifact-path="sophlib/include" dest-dir="/build/input/sophlib/include/sophlib"/>
             <include artifact-path="sophlib/linux_x86-64" dest-dir="/build/input/sophlib/lib64"/>
 
