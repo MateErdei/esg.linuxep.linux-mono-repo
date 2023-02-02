@@ -82,6 +82,8 @@ Save Current Response Actions InstalledFiles To Local Path
 
 RA Teardown
     Uninstall Response Actions
+    Remove File     ${SOPHOS_INSTALL}/base/etc/logger.conf.local
+    Create File     ${SOPHOS_INSTALL}/base/etc/logger.conf.local
     General Test Teardown
 
 RA Uninstall Teardown
