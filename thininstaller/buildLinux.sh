@@ -118,7 +118,6 @@ function prepare_dependencies()
         untar_input SUL
         untar_input boost
         untar_input expat
-        untar_input zlib
         untar_input cmcsrouterapi
         untar_input pluginapi
 
