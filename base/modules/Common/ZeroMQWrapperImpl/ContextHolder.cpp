@@ -17,7 +17,7 @@ Common::ZeroMQWrapperImpl::ContextHolder::ContextHolder()
     {
         throw ZeroMQWrapperException("Unable to construct ZMQ Context");
     }
-    GL_zmqContexts.push_back(m_context);
+    GL_zmqContexts.insert(m_context);
 }
 
 Common::ZeroMQWrapperImpl::ContextHolder::~ContextHolder()
@@ -34,6 +34,7 @@ void Common::ZeroMQWrapperImpl::ContextHolder::reset()
 {
     if (m_context != nullptr)
     {
+        GL_zmqContexts.erase(m_context);
         zmq_ctx_term(m_context); // http://api.zeromq.org/4-2:zmq-ctx-term replaces destroy (deprecated)
         m_context = nullptr;
     }

@@ -101,6 +101,7 @@ namespace Common
                 {
                     if (socket != nullptr)
                     {
+                        GL_zmqSockets.erase(socket);
                         logFile  << "Closed socket" << std::endl;
                         zmq_close(socket);
                     }
@@ -110,6 +111,7 @@ namespace Common
                 {
                     if (context != nullptr)
                     {
+                        GL_zmqContexts.erase(context);
                         logFile  << "Terminated Context" << std::endl;
                         zmq_ctx_term(context);
                     }

@@ -1,8 +1,8 @@
 
 #pragma once
 
-#include <vector>
+#include <set>
 
 //static std::vector<std::weak_ptr<int>> GL_zmqs;
-static std::vector<void*> GL_zmqSockets;
-static std::vector<void*> GL_zmqContexts;
+static std::set<void*> GL_zmqSockets;
+static std::set<void*> GL_zmqContexts;

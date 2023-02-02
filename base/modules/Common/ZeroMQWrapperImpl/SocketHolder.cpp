@@ -19,6 +19,7 @@ Common::ZeroMQWrapperImpl::SocketHolder::~SocketHolder()
 {
     if (m_socket != nullptr)
     {
+        GL_zmqSockets.erase(m_socket);
         zmq_close(m_socket);
     }
 }
@@ -32,6 +33,7 @@ void Common::ZeroMQWrapperImpl::SocketHolder::reset(void* zmq_socket)
 {
     if (m_socket != nullptr)
     {
+        GL_zmqSockets.erase(m_socket);
         zmq_close(m_socket);
     }
     m_socket = zmq_socket;
@@ -53,10 +55,11 @@ void Common::ZeroMQWrapperImpl::SocketHolder::reset(
     assert(context->ctx() != nullptr);
     if (m_socket != nullptr)
     {
+        GL_zmqSockets.erase(m_socket);
         zmq_close(m_socket);
     }
     m_socket = zmq_socket(context->ctx(), type);
-    GL_zmqSockets.push_back(m_socket);
+    GL_zmqSockets.insert(m_socket);
     if (m_socket == nullptr)
     {
         throw ZeroMQWrapperException("Failed to create socket");
