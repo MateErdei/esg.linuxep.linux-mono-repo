@@ -6,7 +6,6 @@ import datetime
 import os
 import re
 
-
 LOOSE_COPYRIGHT_RE = re.compile(r".*Copyright +(\d{4})(\-\d{4})?.*Sophos.*")
 COPYRIGHT_RE = re.compile(r'.* Copyright ((\d{4})|(\d{4})\-(\d{4})) Sophos Limited\. All rights reserved\.')
 CURRENT_YEAR = str(datetime.datetime.now().year)
@@ -38,13 +37,20 @@ def run(code_file):
             copyright_index = 2
 
     # Remove old-style copyright headers
-    if lines[0].startswith("//===="):
+    elif lines[0].startswith("//===="):
         index = 1
         while not lines[index].startswith("//===="):
             index += 1
 
         lines = [lines[1]] + lines[index + 1:]
         code_file.update(lines)
+    elif (lines[0].startswith("/*********************") and
+          lines[1].strip() == "" and
+          LOOSE_COPYRIGHT_RE.match(lines[2]) and
+          lines[3].strip() == "" and
+          lines[4].startswith("***********************************************")):
+        lines = [lines[2]] + lines[5:]
+        copyright_index = 0
 
     match = COPYRIGHT_RE.match(lines[copyright_index])
     if not match:
