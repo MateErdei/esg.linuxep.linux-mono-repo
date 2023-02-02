@@ -96,7 +96,6 @@ void ManagementAgent::EventReceiverImpl::OutbreakModeController::save()
 
 void ManagementAgent::EventReceiverImpl::OutbreakModeController::load()
 {
-    //
     auto* filesystem = Common::FileSystem::fileSystem();
     auto& paths = Common::ApplicationConfiguration::applicationPathManager();
     auto path = paths.getOutbreakModeStatusFilePath();
@@ -132,6 +131,7 @@ void ManagementAgent::EventReceiverImpl::OutbreakModeController::load()
     {
         LOGERROR("Invalid type for value in outbreak status file: " << ex.what());
     }
+
     if (outbreakMode_)
     {
         LOGWARN("In outbreak mode: Detections will not be reported to Central");
