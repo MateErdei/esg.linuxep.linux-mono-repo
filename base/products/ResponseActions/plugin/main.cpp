@@ -1,9 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2018 Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
-
+// Copyright 2023 Sophos Limited. All rights reserved.
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/Logging/PluginLoggingSetup.h>
 #include <Common/PluginApi/ApiException.h>

@@ -1,6 +1,6 @@
 configure_file(config.h.in config.h )
 
-add_library(pluginimpl SHARED
+add_library(rapluginimpl SHARED
         PluginCallback.cpp
         PluginCallback.h
         ApplicationPaths.cpp
@@ -14,22 +14,22 @@ add_library(pluginimpl SHARED
         Telemetry.cpp
         Telemetry.h)
 
-include_directories(pluginimpl BEFORE ${CMAKE_CURRENT_BINARY_DIR} ${LOG4CPLUS_INCLUDE_DIR})
+include_directories(rapluginimpl BEFORE ${CMAKE_CURRENT_BINARY_DIR} ${LOG4CPLUS_INCLUDE_DIR})
 
-target_link_libraries(pluginimpl PUBLIC
+target_link_libraries(rapluginimpl PUBLIC
         logging
         pluginapiimpl
         applicationconfigurationimpl
         telemetryhelperimpl
         filesystemimplobject)
 
-SET_TARGET_PROPERTIES(pluginimpl
+SET_TARGET_PROPERTIES(rapluginimpl
         PROPERTIES
         INSTALL_RPATH "$ORIGIN"
         BUILD_RPATH "${CMAKE_BINARY_DIR}/libs"
         )
 
-install(TARGETS pluginimpl
+install(TARGETS rapluginimpl
         LIBRARY DESTINATION ra/files/plugins/${RA_PLUGIN_NAME}/lib64)
 
-add_dependencies(pluginimpl copy_libs)
+add_dependencies(rapluginimpl copy_libs)

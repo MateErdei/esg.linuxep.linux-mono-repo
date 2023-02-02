@@ -9,7 +9,7 @@ o777, root, root, /opt/sophos-spl/plugins/liveresponse/lib64/liblog4cplus-2.0.so
 o777, root, root, /opt/sophos-spl/plugins/liveresponse/lib64/liblog4cplus-2.0.so.3.4
 o777, root, root, /opt/sophos-spl/plugins/liveresponse/lib64/liblog4cplus-2.0.so.3.4.6
 o777, root, root, /opt/sophos-spl/plugins/liveresponse/lib64/libpluginapi.so
-o777, root, root, /opt/sophos-spl/plugins/liveresponse/lib64/libpluginimpl.so
+o777, root, root, /opt/sophos-spl/plugins/liveresponse/lib64/librapluginimpl.so
 o777, root, root, /opt/sophos-spl/plugins/liveresponse/lib64/libprotobuf.so
 o777, root, root, /opt/sophos-spl/plugins/liveresponse/lib64/libprotobuf.so.28
 o777, root, root, /opt/sophos-spl/plugins/liveresponse/lib64/libprotobuf.so.28.0
