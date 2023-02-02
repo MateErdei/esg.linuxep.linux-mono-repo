@@ -110,7 +110,7 @@
             <include artifact-path="output" dest-dir="/build/input"/>
         </build-asset>
 
-        <trusted-asset artifact-path="com.osquery/osquery/5.4.0/osquery-5.4.0-linux" dest-dir="/build/input"/>
+        <trusted-asset artifact-path="com.osquery/osquery/5.7.0/osquery-5.7.0-linux" dest-dir="/build/input"/>
     </inputs>
     <buildcommands>
         <!--<command buildtype="prod">-->
