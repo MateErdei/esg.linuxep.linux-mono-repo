@@ -6,6 +6,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include "SocketHolder.h"
 
+#include "Logger.h"
 #include "ZeroMQWrapperException.h"
 
 #include "Common/GlobalZmqAccess.h"
@@ -19,6 +20,7 @@ Common::ZeroMQWrapperImpl::SocketHolder::~SocketHolder()
 {
     if (m_socket != nullptr)
     {
+        LOGINFO(">>> Remove socket");
         GL_zmqSockets.erase(m_socket);
         zmq_close(m_socket);
     }
@@ -33,6 +35,7 @@ void Common::ZeroMQWrapperImpl::SocketHolder::reset(void* zmq_socket)
 {
     if (m_socket != nullptr)
     {
+        LOGINFO(">>> Remove socket");
         GL_zmqSockets.erase(m_socket);
         zmq_close(m_socket);
     }
@@ -55,10 +58,12 @@ void Common::ZeroMQWrapperImpl::SocketHolder::reset(
     assert(context->ctx() != nullptr);
     if (m_socket != nullptr)
     {
+        LOGINFO(">>> Remove socket");
         GL_zmqSockets.erase(m_socket);
         zmq_close(m_socket);
     }
     m_socket = zmq_socket(context->ctx(), type);
+    LOGINFO(">>> Add socket");
     GL_zmqSockets.insert(m_socket);
     if (m_socket == nullptr)
     {
