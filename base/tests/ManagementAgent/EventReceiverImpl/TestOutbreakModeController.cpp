@@ -113,6 +113,7 @@ TEST_F(TestOutbreakModeController, entering_outbreak_mode)
     controller->processEvent(appId, xml);
 
     EXPECT_TRUE(waitForLog("Entering outbreak mode"));
+    EXPECT_TRUE(waitForLog("Generating Outbreak notification with UUID=5df69683-a5a2-5d96-897d-06f9c4c8c7bf"));
     EXPECT_TRUE(controller->outbreakMode());
 
     // Check that we over-write the last event
@@ -227,6 +228,7 @@ TEST_F(TestOutbreakModeController, loads_true)
 
 TEST_F(TestOutbreakModeController, loads_false)
 {
+    UsingMemoryAppender recorder(*this);
     auto* filesystemMock = new MockFileSystem();
     std::string contents = R"({"outbreakMode":false})";
     EXPECT_CALL(*filesystemMock, readFile(expectedStatusFile_, _)).WillOnce(Return(contents));
@@ -234,6 +236,7 @@ TEST_F(TestOutbreakModeController, loads_false)
 
     auto controller = std::make_shared<OutbreakModeController>();
     EXPECT_FALSE(controller->outbreakMode());
+    EXPECT_FALSE(appenderContains("ERROR"));
 }
 
 TEST_F(TestOutbreakModeController, loads_missing_key)
@@ -319,7 +322,7 @@ TEST_F(TestOutbreakModeController, saves_status_file_on_outbreak)
     auto* filesystemMock = new MockFileSystem();
     EXPECT_CALL(*filesystemMock, readFile(_,_)).WillOnce(Return(""));
 
-    std::string expected_contents = R"({"outbreakMode":true})";
+    std::string expected_contents = R"({"outbreakMode":true,"uuid":"5df69683-a5a2-5d96-897d-06f9c4c8c7bf"})";
 
     EXPECT_CALL(*filesystemMock, writeFileAtomically(expectedStatusFile_, expected_contents, _, _)).WillOnce(Return());
 
@@ -387,7 +390,6 @@ TEST_F(TestOutbreakModeController, write_fails_directory_in_place_of_file)
 
 TEST_F(TestOutbreakModeController, write_fails_permission_on_file)
 {
-    auto path = expectedStatusFile_;
     const auto contents = R"({"outbreakMode":123})";
     auto* filesystem = Common::FileSystem::fileSystem();
     filesystem->writeFileAtomically(expectedStatusFile_, contents, testDir_, 0001);

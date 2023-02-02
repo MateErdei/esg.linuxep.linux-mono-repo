@@ -62,6 +62,7 @@ bool ManagementAgent::EventReceiverImpl::OutbreakModeController::processEvent(
             appId = "CORE";
             eventXml = generateCoreOutbreakEvent(now);
             save();
+            LOGINFO("Replacing detection with outbreak mode report: " << eventXml);
         }
     }
     return false;
@@ -71,7 +72,7 @@ std::string ManagementAgent::EventReceiverImpl::OutbreakModeController::generate
     ManagementAgent::EventReceiverImpl::OutbreakModeController::time_point_t now)
 {
     auto timestamp = Common::UtilityImpl::TimeUtils::MessageTimeStamp(now);
-    auto uuid = Common::UtilityImpl::Uuid::CreateVersion5(
+    uuid_ = Common::UtilityImpl::Uuid::CreateVersion5(
         { 0xed, 0xbe, 0x6e, 0x5d,
             0x89, 0x43,
             0x42, 0x6d,
@@ -80,6 +81,7 @@ std::string ManagementAgent::EventReceiverImpl::OutbreakModeController::generate
         }, // "edbe6e5d-8943-426d-a228-98927db0d857" Random Namespace
         "OUTBREAK EVENT" // Name
         );
+    LOGINFO("Generating Outbreak notification with UUID=" << uuid_);
     return Common::UtilityImpl::StringUtils::orderedStringReplace(
         R"(<event type="sophos.core.outbreak" ts="@@timestamp@@">
 <alert id="{{eventCorrelationId}}">
@@ -87,7 +89,7 @@ std::string ManagementAgent::EventReceiverImpl::OutbreakModeController::generate
 </event>)",
         {
             { "@@timestamp@@", timestamp },
-            { "{{eventCorrelationId}}", uuid },
+            { "{{eventCorrelationId}}", uuid_ },
         });
 }
 
@@ -118,6 +120,10 @@ void ManagementAgent::EventReceiverImpl::OutbreakModeController::save()
     auto path = paths.getOutbreakModeStatusFilePath();
     nlohmann::json j;
     j["outbreakMode"] = outbreakMode_;
+    if (!uuid_.empty())
+    {
+        j["uuid"] = uuid_;
+    }
     auto contents = j.dump();
     try
     {
@@ -143,6 +149,10 @@ void ManagementAgent::EventReceiverImpl::OutbreakModeController::load()
             // Ignore empty files without error
             nlohmann::json j = nlohmann::json::parse(contents);
             outbreakMode_ = j.at("outbreakMode").get<bool>();
+            if (j.contains("uuid"))
+            {
+                uuid_ = j.at("uuid").get<std::string>();
+            }
         }
     }
     catch (const Common::FileSystem::IFileNotFoundException& ex)

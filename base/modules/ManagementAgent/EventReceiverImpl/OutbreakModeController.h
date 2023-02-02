@@ -31,6 +31,7 @@ namespace ManagementAgent::EventReceiverImpl
         void save();
         void load();
         void resetCountOnDayChange(time_point_t now);
+        std::string uuid_;
         int detectionCount_ = 0;
         int savedYear_ = 0;
         int savedMonth_ = -1;
