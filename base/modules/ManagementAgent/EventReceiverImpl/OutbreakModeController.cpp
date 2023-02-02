@@ -68,19 +68,26 @@ bool ManagementAgent::EventReceiverImpl::OutbreakModeController::processEvent(
     return false;
 }
 
+
+std::string ManagementAgent::EventReceiverImpl::OutbreakModeController::generateUUID()
+{
+    return Common::UtilityImpl::Uuid::CreateVersion5(
+        { 0xed, 0xbe, 0x6e, 0x5d,
+          0x89, 0x43,
+          0x42, 0x6d,
+          0xa2, 0x28,
+          0x98, 0x92, 0x7d, 0xb0, 0xd8, 0x57
+        }, // "edbe6e5d-8943-426d-a228-98927db0d857" Random Namespace
+        "OUTBREAK EVENT" // Name
+    );
+}
+
+
 std::string ManagementAgent::EventReceiverImpl::OutbreakModeController::generateCoreOutbreakEvent(
     ManagementAgent::EventReceiverImpl::OutbreakModeController::time_point_t now)
 {
     auto timestamp = Common::UtilityImpl::TimeUtils::MessageTimeStamp(now);
-    uuid_ = Common::UtilityImpl::Uuid::CreateVersion5(
-        { 0xed, 0xbe, 0x6e, 0x5d,
-            0x89, 0x43,
-            0x42, 0x6d,
-            0xa2, 0x28,
-            0x98, 0x92, 0x7d, 0xb0, 0xd8, 0x57
-        }, // "edbe6e5d-8943-426d-a228-98927db0d857" Random Namespace
-        "OUTBREAK EVENT" // Name
-        );
+    uuid_ = generateUUID();
     LOGINFO("Generating Outbreak notification with UUID=" << uuid_);
     return Common::UtilityImpl::StringUtils::orderedStringReplace(
         R"(<event type="sophos.core.outbreak" ts="@@timestamp@@">
@@ -152,6 +159,10 @@ void ManagementAgent::EventReceiverImpl::OutbreakModeController::load()
             if (j.contains("uuid"))
             {
                 uuid_ = j.at("uuid").get<std::string>();
+            }
+            else
+            {
+                uuid_ = generateUUID();
             }
         }
     }
