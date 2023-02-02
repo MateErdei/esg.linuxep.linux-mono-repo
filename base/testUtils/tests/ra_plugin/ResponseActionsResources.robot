@@ -21,6 +21,10 @@ Install Response Actions Directly
     Log  ${result.stdout}
     Check Response Actions Executable Running
 
+Uninstall Response Actions
+    ${result} =  Run Process     ${RESPONSE_ACTIONS_DIR}/bin/uninstall.sh
+    Should Be Equal As Strings   ${result.rc}  0
+    [Return]  ${result}
 Check Response Actions Executable Running
     ${result} =    Run Process  pgrep responseactions | wc -w  shell=true
     Should Be Equal As Integers    ${result.stdout}    1       msg="stdout:${result.stdout}\nerr: ${result.stderr}"

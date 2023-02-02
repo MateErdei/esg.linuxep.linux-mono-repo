@@ -120,7 +120,7 @@ endif()
 #Specify the feature list of the form "feature1, feature2, feature3"
 #Set "" for no features when including in a component suite
 set(FEATURE_LIST "CORE")
-set(RA_FEATURE_LIST "MTR")
+set(RA_FEATURE_LIST "MDR")
 
 if (DEFINED ENV{VERSION_OVERRIDE})
     set(PRODUCT_VERSION "$ENV{VERSION_OVERRIDE}")
@@ -139,8 +139,8 @@ else()
     endif()
 endif()
 
-if (DEFINED ENV{RA_VERSION_OVERRIDE})
-    set(RA_PRODUCT_VERSION "$ENV{RA_VERSION_OVERRIDE}")
+if (DEFINED ENV{VERSION_OVERRIDE})
+    set(RA_PRODUCT_VERSION "$ENV{VERSION_OVERRIDE}")
 else()
     execute_process(
             COMMAND versioning_client --component responseactions --version_number 1.0.0
