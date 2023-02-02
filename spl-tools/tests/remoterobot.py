@@ -59,8 +59,8 @@ def newer_folder(folder_one, folder_two):
 
 
 def get_base_folder():
-    baseDebugBuild = os.path.join(VAGRANTROOT, "everest-base/cmake-build-debug/distribution")
-    baseReleaseBuild = os.path.join(VAGRANTROOT, "everest-base/cmake-build-release/distribution")
+    baseDebugBuild = os.path.join(VAGRANTROOT, "everest-base/cmake-build-debug/distribution/base")
+    baseReleaseBuild = os.path.join(VAGRANTROOT, "everest-base/cmake-build-release/distribution/base")
     return newer_folder(baseReleaseBuild, baseDebugBuild)
 
 
