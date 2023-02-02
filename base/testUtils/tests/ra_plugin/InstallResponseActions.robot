@@ -8,7 +8,7 @@ Resource  ../watchdog/WatchdogResources.robot
 Suite Setup     Require Fresh Install
 Suite Teardown  Require Uninstalled
 
-Test Teardown  General Test Teardown
+Test Teardown  Ra Teardown
 
 Default Tags   RESPONSE_ACTIONS_PLUGIN  TAP_TESTS
 
@@ -60,13 +60,30 @@ Verify That Response Actions Logging Can Be Set Individually
     ...  1 secs
     ...  Check Log Contains  Logger responseactions configured for level: DEBUG  ${RESPONSE_ACTIONS_LOG_PATH}  response actions log
 
-
+Uninstall Response actions cleans up
+    [Teardown]  RA Uninstall Teardown
+    Install Response Actions Directly
+    Wait Until Keyword Succeeds
+    ...  15 secs
+    ...  1 secs
+    ...  Check Log Contains  Logger responseactions configured for level: INFO  ${RESPONSE_ACTIONS_LOG_PATH}  response actions log
+    Uninstall Response Actions
+    Directory Should Not Exist  ${RESPONSE_ACTIONS_DIR}
+    Check Response Actions Executable Not Running
 *** Keywords ***
 Response Actions Tests Teardown With Installed File Replacement
     Run Keyword If Test Failed  Save Current Response Actions InstalledFiles To Local Path
-    General Test Teardown
+    RA Teardown
 
 Save Current Response Actions InstalledFiles To Local Path
     Create File  ${ROBOT_TESTS_DIR}/ra_plugin/InstallSet/FileInfo  ${FileInfo}
     Create File  ${ROBOT_TESTS_DIR}/ra_plugin/InstallSet/DirectoryInfo  ${DirectoryInfo}
     Create File  ${ROBOT_TESTS_DIR}/ra_plugin/InstallSet/SymbolicLinkInfo  ${SymbolicLinkInfo}
+
+RA Teardown
+    Uninstall Response Actions
+    General Test Teardown
+
+RA Uninstall Teardown
+    Run Keyword If Test Failed   Uninstall Response Actions
+    General Test Teardown

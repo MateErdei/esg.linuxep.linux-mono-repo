@@ -5,8 +5,8 @@
 # Find the location of where the script is running from
 # Allows the script to be called from anywhere either directly or via symlink
 
-PLUGIN_NAME=@PLUGIN_NAME@
-PRODUCT_LINE_ID="@PRODUCT_LINE_ID@"
+PLUGIN_NAME=@RA_PLUGIN_NAME@
+PRODUCT_LINE_ID="@RA_PRODUCT_LINE_ID@"
 SCRIPT_LOCATION="${BASH_SOURCE[0]}"
 
 # if file is symbolic link
