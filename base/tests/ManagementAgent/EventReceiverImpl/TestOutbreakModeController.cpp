@@ -317,6 +317,17 @@ TEST_F(TestOutbreakModeController, loads_not_boolean)
     EXPECT_FALSE(controller->outbreakMode());
 }
 
+TEST_F(TestOutbreakModeController, loads_uuid_not_string)
+{
+    auto* filesystemMock = new MockFileSystem();
+    std::string contents = R"({"outbreakMode":true, "uuid":false})";
+    EXPECT_CALL(*filesystemMock, readFile(expectedStatusFile_, _)).WillOnce(Return(contents));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
+
+    auto controller = std::make_shared<OutbreakModeController>(); // shouldn't throw
+    EXPECT_TRUE(controller->outbreakMode()); // outbreak mode loaded first ???
+}
+
 TEST_F(TestOutbreakModeController, saves_status_file_on_outbreak)
 {
     auto* filesystemMock = new MockFileSystem();
