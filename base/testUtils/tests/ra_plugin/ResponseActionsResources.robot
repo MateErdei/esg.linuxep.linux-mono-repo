@@ -37,30 +37,18 @@ Start Response Actions
     Run Process  ${SOPHOS_INSTALL}/bin/wdctl  start  responseactions
 
 Restart Response Actions
-    ${mark} =  Mark File  ${RESPONSE_ACTIONS_LOG_PATH}
+    ${mark} =  mark_log_size  ${RESPONSE_ACTIONS_LOG_PATH}
     Stop Response Actions
     Wait Until Keyword Succeeds
     ...  30 secs
     ...  1 secs
-    ...  Marked File Contains  ${RESPONSE_ACTIONS_LOG_PATH}  responseactions <> Plugin Finished  ${mark}
-    ${mark} =  Mark File  ${RESPONSE_ACTIONS_LOG_PATH}
+    ...  wait_for_log_contains_from_mark  ${mark}  responseactions <> Plugin Finished
+    ${mark} =  mark_log_size  ${RESPONSE_ACTIONS_LOG_PATH}
     Start Response Actions
     Wait Until Keyword Succeeds
     ...  30 secs
     ...  1 secs
-    ...  Marked File Contains  ${RESPONSE_ACTIONS_LOG_PATH}  Entering the main loop  ${mark}
-
-Mark File
-    [Arguments]  ${path}
-    ${content} =  Get File   ${path}
-    Log  ${content}
-    [Return]  ${content.split("\n").__len__()}
-
-Marked File Contains
-    [Arguments]  ${path}  ${input}  ${mark}
-    ${content} =  Get File   ${path}
-    ${content} =  Evaluate  "\\n".join(${content.__repr__()}.split("\\n")[${mark}:])
-    Should Contain  ${content}  ${input}
+    ...  wait_for_log_contains_from_mark  ${mark}  Entering the main loop
 
 Check Response Actions Installed
     Wait Until Keyword Succeeds
