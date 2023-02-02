@@ -45,7 +45,7 @@ FindLibraryFullPath( zmqfull zmq ${ZEROMQ_INPUT}/lib)
 FindLibraryFullPath( log4cplusfull log4cplus ${LOG4CPLUS_INPUT}/lib)
 FindLibraryFullPath( protobuffull protobuf ${Protobuf_root}/lib)
 FindLibraryFullPath( expatfull   expat  ${EXPAT_INPUT}/lib64)
-FindLibraryFullPath( zlibfull  z   ${ZLIB_INPUT}/lib64)
+FindLibraryFullPath( zlibfull zlib ${ZLIB_INPUT})
 FindLibraryFullPath( opensslcryptofull crypto ${OPENSSL_INPUT}/lib64)
 configure_file(PluginAPICommitHash.in PluginAPICommitHash @ONLY)
 

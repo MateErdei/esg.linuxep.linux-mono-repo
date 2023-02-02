@@ -16,7 +16,7 @@ execute_process(COMMAND bash ${CMAKE_SOURCE_DIR}/build/gcc-print-file-name.sh li
         OUTPUT_VARIABLE libatomic_path)
 string(STRIP "${libatomic_path}" libatomic_path )
 
-set(third_party_libs ${libstdcpp_path} ${libgcc_s_path} ${libatomic_path})
+set(third_party_libs ${libstdcpp_path} ${libgcc_s_path} ${libatomic_path} ${ZLIB_LIBRARY})
 
 INCLUDE(FindLibraryFullPath)
 
@@ -33,7 +33,6 @@ endforeach(LIB)
 add_third_party_library(minizip ${MINIZIP_INPUT}/lib)
 add_third_party_library(curl ${CURL_INPUT}/lib64)
 add_third_party_library(expat ${EXPAT_INPUT}/lib64)
-add_third_party_library(z  ${ZLIB_INPUT}/lib64)
 add_third_party_library(zmq ${ZEROMQ_INPUT}/lib)
 
 foreach (LIB crypto ssl)

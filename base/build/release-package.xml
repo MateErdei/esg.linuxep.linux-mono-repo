@@ -101,10 +101,6 @@
             <release-version branch="release/Version_2_0_2" build-id="20220310112409-132ecf9b8ced1f937cbb2a7ad73d171a167fe2bf-A6aX2E"/>
             <include artifact-path="watchdog" dest-dir="/build/input"/>
         </build-asset>
-        <build-asset project="thirdparty" repo="zlib">
-            <release-version branch="release/sspl/Version_1_2_12" build-id="20220412084330-fbed66023e864153b2947dbffac57b6600587601-Z87Tnl"/>
-            <include artifact-path="output" dest-dir="/build/input"/>
-        </build-asset>
         <trusted-asset artifact-path="filer5-migrate/pscerts/1-0-1/67228/ps_certificates/ps_rootca.crt" dest-dir="/build/input/"/>
 
         <build-asset project="thirdparty" repo="googletest">
@@ -116,10 +112,12 @@
         </build-asset>
 
         <build-asset project="em" repo="esg">
-            <release-version branch="release/sophlib" build-id="20220713133804-bd190da51ebe34de00b9b24a2740d4aa3429edf0-x1dt3y"/>
-            <development-version branch="develop"/>
+            <release-version branch="release/2023.04/sprint" build-id="20230120201925-31a0379094fc1654506d3d459661d326949dee47-bh0Sgz"/>
+            <development-version branch="feature/thirdparty/LINUXDAR-6719-zlib-is-upgraded-to-1-2-13"/>
             <include artifact-path="sophlib/include" dest-dir="/build/input/sophlib/include/sophlib"/>
             <include artifact-path="sophlib/linux_x86-64" dest-dir="/build/input/sophlib/lib64"/>
+
+            <include artifact-path="thirdparty/zlib-linux-opt" dest-dir="/build/redist/zlib"/>
         </build-asset>
 
         <build-asset project="winep" repo="sau">

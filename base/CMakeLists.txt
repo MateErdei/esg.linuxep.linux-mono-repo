@@ -194,12 +194,14 @@ set( BOOST_INPUT ${INPUT}/boost )
 set( CURL_INPUT ${INPUT}/curl )
 set( OPENSSL_INPUT ${INPUT}/openssl )
 set( EXPAT_INPUT ${INPUT}/expat )
-set( ZLIB_INPUT ${INPUT}/zlib )
 set( LOG4CPLUS_INPUT ${INPUT}/log4cplus )
 set( MINIZIP_INPUT ${INPUT}/minizip )
 set( GSL_INCLUDE ${INPUT}/gsl/include )
 set( BOOST_INCLUDE ${BOOST_INPUT}/include )
 set( GTEST_INPUT ${INPUT}/googletest )
+
+set( ZLIB_INPUT ${INPUT}/zlib )
+set( ZLIB_LIBRARY ${ZLIB_INPUT}/libzlib.so )
 
 if(NOT DEFINED VERSIG_INPUT)
     set( VERSIG_INPUT ${INPUT}/versig)
@@ -290,7 +292,6 @@ find_library(MINIZIP_LIBRARY
         PATHS ${MINIZIP_INPUT}/lib
         )
 set(MINIZIP_INCLUDE_DIR ${MINIZIP_INPUT}/include)
-set(ZLIB_INCLUDE_DIR ${ZLIB_INPUT}/include)
 # ensure valid log4cplus to work with fork
 file(STRINGS ${LOG4CPLUS_LIBRARY} log4cplusStrings)
 string(FIND "${log4cplusStrings}" "implicit initialization is turned off" DisabledImplicitInitialization)
@@ -325,11 +326,6 @@ find_library(CURL_LIBRARY
         NO_DEFAULT_PATH
         )
 
-find_library(ZLIB_LIBRARY
-        NAMES z
-        PATHS ${ZLIB_INPUT}/lib64
-        NO_DEFAULT_PATH
-        )
 
 set( GTEST_INCLUDE ${GTEST_INPUT}/gtest-headers )
 find_library(GTEST_LIBRARY
