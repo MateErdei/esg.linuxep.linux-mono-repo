@@ -422,7 +422,7 @@ function build()
         (( LOCAL_CMAKE == 0 )) && ln -snf $INPUT/cmake $REDIST/
         untar_input capnproto
         untar_input boost
-        untar_input zlib
+        ln -snf $INPUT/zlib $REDIST/
         unzip -o -d ${INPUT}/safestore_input/ ${INPUT}/safestore_input/safestore-linux-x64.zip
         if [[ ! -d "$INPUT/googletest" ]]
         then

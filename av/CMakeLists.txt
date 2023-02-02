@@ -217,12 +217,7 @@ set_target_properties(safestorelib PROPERTIES
         )
 
 set(ZLIB_INPUT ${REDIST}/zlib)
-set(ZLIB_INCLUDE_DIR ${ZLIB_INPUT}/include)
-find_library(ZLIB_LIBRARY
-        NAMES z
-        PATHS ${ZLIB_INPUT}/lib64
-        NO_DEFAULT_PATH
-        )
+set(ZLIB_LIBRARY ${ZLIB_INPUT}/libzlib.so)
 
 set(JSON_INPUT ${pluginapiinclude}/thirdparty/nlohmann-json)
 

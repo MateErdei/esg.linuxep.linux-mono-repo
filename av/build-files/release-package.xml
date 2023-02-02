@@ -10,9 +10,9 @@
         <!--Plugin Api Candidate Build - Change values below to match the latest Candidate build of base.
             -->
         <build-asset project="linuxep" repo="everest-base">
-            <release-version branch="release/2023-07"
-                             build-id="20230213100232-7ad900d5bc8d2014534aed272e3c6dc7c0821f48-9SVSfl"/>
-            <development-version branch="develop"/>
+            <release-version branch="release/Version_1_2_2"
+                             build-id="20230105165814-606006af2bd8111005b887fb5442761795481be5-0kLokq"/>
+            <development-version branch="feature/LINUXDAR-6719-zlib-is-migrated-and-upgraded-to-1-2-13"/>
             <include artifact-path="sspl-base/pluginapi" dest-dir="input"/>
             <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="input/base-sdds"/>
         </build-asset>
@@ -24,8 +24,15 @@
 
         <build-asset project="em" repo="esg">
             <release-version branch="release/2023.04/sprint" build-id="20230120201925-31a0379094fc1654506d3d459661d326949dee47-bh0Sgz"/>
+            <development-version branch="feature/thirdparty/LINUXDAR-6719-zlib-is-upgraded-to-1-2-13"/>
+            <include artifact-path="thirdparty/zlib-linux-opt" dest-dir="input/zlib"/>
+        </build-asset>
+
+        <build-asset project="winep" repo="sau">
+            <release-version branch="release/sspl/Version_1_0_0"
+                             build-id="20220825150631-43a7c87ceb5905f316aef54df45de777a5961022-O0LZyf"/>
             <development-version branch="develop"/>
-            <include artifact-path="sophlib/sdds3-tools-x64-linux" dest-dir="input/sdds3"/>
+            <include artifact-path="Linux-x64/SDDS3-Utils" dest-dir="input/sdds3"/>
         </build-asset>
 
         <build-asset project="thirdparty" repo="boost">
@@ -33,14 +40,25 @@
                              build-id="20220310141901-bdae372a9027e1760f105dc819023a49ef444765-xdQFp9"/>
             <include artifact-path="output" dest-dir="input"/>
         </build-asset>
+        <build-asset project="thirdparty" repo="cmake">
+            <release-version branch="release/sophos/v3.22.1"
+                             build-id="20220412085321-29886e1a6f8ae2867207fa5c4873eaac5c6075a7-VxG3sr"/>
+            <include artifact-path="cmake" dest-dir="input/cmake"/>
+        </build-asset>
         <build-asset project="thirdparty" repo="gcc">
             <release-version branch="release/Version_11_2_0"
                              build-id="20220310091547-cf8f7ca9572a3bc9a68f05138086815341a49224-cZ84iF"/>
             <include artifact-path="output" dest-dir="input"/>
         </build-asset>
-        <build-asset project="thirdparty" repo="zlib">
-            <release-version branch="release/sspl/Version_1_2_12" build-id="20220412084330-fbed66023e864153b2947dbffac57b6600587601-Z87Tnl"/>
-            <include artifact-path="output" dest-dir="input"/>
+        <build-asset project="thirdparty" repo="googletest">
+            <release-version branch="release/sspl/Version_1_11_0"
+                             build-id="20220311153539-356cccfb1e6553d381af902d0dcc7f74379ececd-JevvWV"/>
+            <include artifact-path="thirdparty/googletest/gmock-headers"
+                     dest-dir="input/googletest/gmock-headers/gmock"/>
+            <include artifact-path="thirdparty/googletest/gmock-libs" dest-dir="input/googletest/gmock-libs"/>
+            <include artifact-path="thirdparty/googletest/gtest-headers"
+                     dest-dir="input/googletest/gtest-headers/gtest"/>
+            <include artifact-path="thirdparty/googletest/gtest-libs" dest-dir="input/googletest/gtest-libs"/>
         </build-asset>
         <!-- Need to compile our own messages -->
         <build-asset project="thirdparty" repo="capnproto">
@@ -53,13 +71,6 @@
             <release-version branch="release/sspl/Version_1_1_1q"
                              build-id="20220725102623-b49f6c504d454be8e7bc6a7dc7f7528b53920bdc-iF7TY0"/>
             <include artifact-path="output" dest-dir="input"/>
-        </build-asset>
-
-        <!-- MonoRepo -->
-        <build-asset project="em" repo="esg">
-            <!--            <release-version branch="thirdparty/googletest-linux-opt" build-id=""/>-->
-            <development-version branch="develop"/>
-            <include artifact-path="thirdparty/googletest-linux-opt" dest-dir="/build/input/googletest"/>
         </build-asset>
 
         <!-- SUSI imports -->
@@ -123,7 +134,7 @@
             <include artifact-path="openssl-linux-x64" dest-dir="input/susi_input/openssl/lib"/>
         </build-asset>
 
-        <trusted-asset artifact-path="org.cmake/cmake-3.26.0/cmake-3.26.0" dest-dir="input/cmake"/>
+
     </inputs>
     <buildcommands>
         <command mode="release,oldci">
