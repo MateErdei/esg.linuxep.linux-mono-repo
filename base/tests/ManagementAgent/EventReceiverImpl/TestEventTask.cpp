@@ -13,7 +13,12 @@ namespace
     class FakeOutbreakModeController : public IOutbreakModeController
     {
     public:
-        bool recordEventAndDetermineIfItShouldBeDropped(const std::string&, const std::string&) override
+        bool processEvent(std::string&, std::string&) override
+        {
+            return false;
+        }
+
+        [[nodiscard]] bool outbreakMode() const override
         {
             return false;
         }

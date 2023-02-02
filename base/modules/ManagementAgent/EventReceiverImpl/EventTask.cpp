@@ -42,7 +42,7 @@ void ManagementAgent::EventReceiverImpl::EventTask::run()
 {
     // Determine if event should be filtered by Outbreak Mode
     if (
-        outbreakModeController_->recordEventAndDetermineIfItShouldBeDropped(m_appId, m_eventXml)
+        outbreakModeController_->processEvent(m_appId, m_eventXml)
     )
     {
         // Drop the event

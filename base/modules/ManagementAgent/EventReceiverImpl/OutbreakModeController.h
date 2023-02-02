@@ -16,17 +16,18 @@ namespace ManagementAgent::EventReceiverImpl
     {
     public:
         OutbreakModeController();
-        bool recordEventAndDetermineIfItShouldBeDropped(const std::string& appId, const std::string& eventXml) override;
+        bool processEvent(std::string& appId, std::string& eventXml) override;
+        [[nodiscard]] bool outbreakMode() const override;
     TEST_PUBLIC:
         using clock_t = std::chrono::system_clock;
         using time_point_t = std::chrono::time_point<clock_t>;
-        bool recordEventAndDetermineIfItShouldBeDropped(const std::string& appId,
-                                                        const std::string& eventXml,
-                                                        time_point_t now
-                                                        );
-        bool outbreakMode() const;
+        bool processEvent(std::string& appId,
+                          std::string& eventXml,
+                          time_point_t now
+                        );
 
     private:
+        std::string generateCoreOutbreakEvent(time_point_t now);
         void save();
         void load();
         void resetCountOnDayChange(time_point_t now);

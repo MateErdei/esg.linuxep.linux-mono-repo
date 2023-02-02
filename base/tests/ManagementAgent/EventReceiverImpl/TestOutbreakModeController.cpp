@@ -55,12 +55,37 @@ namespace
         fs::path varDir_;
         Path expectedStatusFile_;
 
+        static bool processEventThrowAwayArgs(OutbreakModeControllerPtr& controller,
+                                              const std::string& appID,
+                                              const std::string& xml)
+        {
+            std::string temp_appId{appID};
+            std::string temp_xml{xml};
+            return controller->processEvent(temp_appId, temp_xml);
+        }
+
+        static bool processEventThrowAwayArgs(OutbreakModeControllerPtr& controller,
+                                              const std::string& appID,
+                                              const std::string& xml,
+                                              OutbreakModeController::time_point_t now)
+        {
+            std::string temp_appId{appID};
+            std::string temp_xml{xml};
+            return controller->processEvent(temp_appId, temp_xml, now);
+        }
+
+        static void repeatProcessEvent(OutbreakModeControllerPtr& controller,
+                                       const std::string& xml, int count, const std::string& appID="CORE")
+        {
+            for (auto i=0; i<count; i++)
+            {
+                std::ignore = processEventThrowAwayArgs(controller, appID, xml);
+            }
+        }
+
         static void enterOutbreakMode(OutbreakModeControllerPtr& controller)
         {
-            for (auto i=0; i<OUTBREAK_COUNT+1; i++)
-            {
-                controller->recordEventAndDetermineIfItShouldBeDropped("CORE", DETECTION_XML);
-            }
+            repeatProcessEvent(controller, DETECTION_XML, OUTBREAK_COUNT+1);
             EXPECT_TRUE(controller->outbreakMode());
         }
     };
@@ -72,22 +97,28 @@ TEST_F(TestOutbreakModeController, construction)
     EXPECT_NO_THROW(std::make_shared<OutbreakModeController>());
 }
 
-TEST_F(TestOutbreakModeController, outbreak_mode_logged)
+TEST_F(TestOutbreakModeController, entering_outbreak_mode)
 {
     const std::string detection_xml = DETECTION_XML;
     UsingMemoryAppender recorder(*this);
 
     auto controller = std::make_shared<OutbreakModeController>();
 
-    for (auto i=0; i<OUTBREAK_COUNT+1; i++)
+    for (auto i=0; i<OUTBREAK_COUNT-1; i++)
     {
-        controller->recordEventAndDetermineIfItShouldBeDropped("CORE", detection_xml);
+        processEventThrowAwayArgs(controller, "CORE", detection_xml);
     }
+    std::string appId{"CORE"};
+    std::string xml{detection_xml};
+    controller->processEvent(appId, xml);
 
     EXPECT_TRUE(waitForLog("Entering outbreak mode"));
     EXPECT_TRUE(controller->outbreakMode());
-}
 
+    // Check that we over-write the last event
+    EXPECT_EQ(appId, "CORE");
+    EXPECT_THAT(xml, HasSubstr("sophos.core.outbreak"));
+}
 
 TEST_F(TestOutbreakModeController, do_not_enter_outbreak_mode_for_cleanups)
 {
@@ -108,7 +139,7 @@ TEST_F(TestOutbreakModeController, do_not_enter_outbreak_mode_for_cleanups)
 
     for (auto i=0; i<OUTBREAK_COUNT+1; i++)
     {
-        controller->recordEventAndDetermineIfItShouldBeDropped("CORE", event_xml);
+        processEventThrowAwayArgs(controller, "CORE", event_xml);
     }
 
     EXPECT_FALSE(appenderContains("Entering outbreak mode"));
@@ -123,7 +154,7 @@ TEST_F(TestOutbreakModeController, insufficient_alerts_do_not_enter_outbreak_mod
 
     for (auto i=0; i<OUTBREAK_COUNT-1; i++)
     {
-        controller->recordEventAndDetermineIfItShouldBeDropped("CORE", event_xml);
+        processEventThrowAwayArgs(controller, "CORE", event_xml);
     }
 
     EXPECT_FALSE(appenderContains("Entering outbreak mode"));
@@ -142,12 +173,12 @@ TEST_F(TestOutbreakModeController, alerts_over_two_days_do_not_enter_outbreak_mo
 
     for (auto i=0; i<OUTBREAK_COUNT-1; i++)
     {
-        controller->recordEventAndDetermineIfItShouldBeDropped("CORE", event_xml, yesterday);
+        processEventThrowAwayArgs(controller, "CORE", event_xml, yesterday);
     }
 
     for (auto i=0; i<OUTBREAK_COUNT-1; i++)
     {
-        controller->recordEventAndDetermineIfItShouldBeDropped("CORE", event_xml, now);
+        processEventThrowAwayArgs(controller, "CORE", event_xml, now);
     }
 
     EXPECT_FALSE(appenderContains("Entering outbreak mode"));
@@ -167,7 +198,7 @@ TEST_F(TestOutbreakModeController, we_do_not_enter_outbreak_mode_if_we_are_alrea
     // Receive 101 events yesterday to go into outbreak mode
     for (auto i=0; i<OUTBREAK_COUNT+1; i++)
     {
-        controller->recordEventAndDetermineIfItShouldBeDropped("CORE", event_xml, yesterday);
+        processEventThrowAwayArgs(controller, "CORE", event_xml, yesterday);
     }
     ASSERT_TRUE(appenderContains("Entering outbreak mode"));
     EXPECT_TRUE(controller->outbreakMode());
@@ -178,7 +209,7 @@ TEST_F(TestOutbreakModeController, we_do_not_enter_outbreak_mode_if_we_are_alrea
     for (auto i=0; i<OUTBREAK_COUNT+1; i++)
     {
         EXPECT_TRUE(controller->outbreakMode()); // We'll be in outbreak mode even after receiving only 1 alert today
-        controller->recordEventAndDetermineIfItShouldBeDropped("CORE", event_xml, now);
+        processEventThrowAwayArgs(controller, "CORE", event_xml, now);
     }
     EXPECT_FALSE(appenderContains("Entering outbreak mode")); // If we hadn't stayed in outbreak mode then we would have logged again
 }

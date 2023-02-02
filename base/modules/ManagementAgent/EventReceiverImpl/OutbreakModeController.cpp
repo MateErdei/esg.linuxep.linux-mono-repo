@@ -4,6 +4,8 @@
 
 #include "ApplicationConfigurationImpl/ApplicationPathManager.h"
 #include "Common/UtilityImpl/StringUtils.h"
+#include "Common/UtilityImpl/TimeUtils.h"
+#include "Common/UtilityImpl/Uuid.h"
 #include "FileSystem/IFileNotFoundException.h"
 #include "FileSystem/IFileSystemException.h"
 #include "ManagementAgent/LoggerImpl/Logger.h"
@@ -31,16 +33,16 @@ ManagementAgent::EventReceiverImpl::OutbreakModeController::OutbreakModeControll
 }
 
 
-bool ManagementAgent::EventReceiverImpl::OutbreakModeController::recordEventAndDetermineIfItShouldBeDropped(
-    const std::string& appId,
-    const std::string& eventXml)
+bool ManagementAgent::EventReceiverImpl::OutbreakModeController::processEvent(
+    std::string& appId,
+    std::string& eventXml)
 {
-    return recordEventAndDetermineIfItShouldBeDropped(appId, eventXml, clock_t::now());
+    return processEvent(appId, eventXml, clock_t::now());
 }
 
-bool ManagementAgent::EventReceiverImpl::OutbreakModeController::recordEventAndDetermineIfItShouldBeDropped(
-    const std::string& appId,
-    const std::string& eventXml,
+bool ManagementAgent::EventReceiverImpl::OutbreakModeController::processEvent(
+    std::string& appId,
+    std::string& eventXml,
     time_point_t now)
 {
     resetCountOnDayChange(now);
@@ -57,10 +59,36 @@ bool ManagementAgent::EventReceiverImpl::OutbreakModeController::recordEventAndD
         {
             LOGWARN("Entering outbreak mode: Further detections will not be reported to Central");
             outbreakMode_ = true;
+            appId = "CORE";
+            eventXml = generateCoreOutbreakEvent(now);
             save();
         }
     }
     return false;
+}
+
+std::string ManagementAgent::EventReceiverImpl::OutbreakModeController::generateCoreOutbreakEvent(
+    ManagementAgent::EventReceiverImpl::OutbreakModeController::time_point_t now)
+{
+    auto timestamp = Common::UtilityImpl::TimeUtils::MessageTimeStamp(now);
+    auto uuid = Common::UtilityImpl::Uuid::CreateVersion5(
+        { 0xed, 0xbe, 0x6e, 0x5d,
+            0x89, 0x43,
+            0x42, 0x6d,
+            0xa2, 0x28,
+            0x98, 0x92, 0x7d, 0xb0, 0xd8, 0x57
+        }, // "edbe6e5d-8943-426d-a228-98927db0d857" Random Namespace
+        "OUTBREAK EVENT" // Name
+        );
+    return Common::UtilityImpl::StringUtils::orderedStringReplace(
+        R"(<event type="sophos.core.outbreak" ts="@@timestamp@@">
+<alert id="{{eventCorrelationId}}">
+</alert>
+</event>)",
+        {
+            { "@@timestamp@@", timestamp },
+            { "{{eventCorrelationId}}", uuid },
+        });
 }
 
 void ManagementAgent::EventReceiverImpl::OutbreakModeController::resetCountOnDayChange(
