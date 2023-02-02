@@ -62,7 +62,7 @@ bool ManagementAgent::EventReceiverImpl::OutbreakModeController::processEvent(
             appId = "CORE";
             eventXml = generateCoreOutbreakEvent(now);
             save();
-            LOGINFO("Replacing detection with outbreak mode report: " << eventXml);
+            LOGDEBUG("Replacing detection with outbreak mode report: " << eventXml);
         }
     }
     return false;
