@@ -5,7 +5,7 @@
     "Properties" : {
       "IamInstanceProfile": { "Ref": "RegressionTestInstanceProfile" },
       "KeyName" : { "Ref" : "KeyName" },
-      "ImageId" : "ami-001500beb1aa5600e",
+      "ImageId" : "ami-0fdf81f04cdf8c1c7",
       "InstanceType": "c4.large",
       "InstanceInitiatedShutdownBehavior": "terminate",
       "Tags" : [
@@ -52,9 +52,12 @@
         "echo $'#cloud-config\nhostname: '${HOSTNAME} $'\nfqdn: '${HOSTNAME} >/etc/cloud/cloud.cfg.d/99_hostname.cfg\n",
         "sed -i 's/127.0.0.1/127.0.0.1 '$HOSTNAME'/' /etc/hosts\n",
         "getenforce >>/tmp/cloudFormationInit.log\n",
+        "yum install -y iptables >>/tmp/cloudFormationInit.log\n",
+        "systemctl stop sssd >>/tmp/cloudFormationInit.log\n",
+        "rm -rf /var/lib/sss/db/* >>/tmp/cloudFormationInit.log\n",
+        "systemctl restart sssd >>/tmp/cloudFormationInit.log\n",
         "echo 'Created aws config. Now grabbing tests...' >> /tmp/cloudFormationInit.log\n",
         "echo 'Key passed from parent stack: ", { "Ref" : "KeyName" }, "' >> /tmp/cloudFormationInit.log\n",
-        "yum install -y openssl-perl >> /tmp/cloudFormationInit.log 2>&1\n",
         "aws s3 cp s3://sspl-testbucket/sspl/sspl-test-", { "Ref": "StackName" }, ".tgz /opt/sspl-test.tgz >> /tmp/cloudFormationInit.log 2>&1\n",
         "mkdir -p /opt/sspl >> /tmp/cloudFormationInit.log 2>&1\n",
         "tar xvzf /opt/sspl-test.tgz -C /opt/sspl >> /tmp/cloudFormationInit.log 2>&1\n",
