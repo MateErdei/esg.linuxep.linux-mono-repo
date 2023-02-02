@@ -19,8 +19,7 @@ namespace Plugin
 
     void PluginCallback::applyNewPolicy(const std::string& policyXml)
     {
-        LOGDEBUG("Applying new policy");
-        m_task->push(Task{ Task::TaskType::POLICY, policyXml});
+        LOGDEBUG("Unexpected policy recieved");
     }
 
     void PluginCallback::queueAction(const std::string&  actionXml )

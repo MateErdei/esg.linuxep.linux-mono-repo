@@ -28,11 +28,7 @@ namespace Plugin
             std::shared_ptr<PluginCallback> callback);
         void mainLoop();
 
-        static std::string
-        waitForTheFirstPolicy(QueueTask& queueTask, std::chrono::seconds timeoutInS, int maxTasksThreshold,
-                              const std::string& policyAppId);
-
     private:
-        void processPolicy(const std::string& policyXml);
+        void processAction(const std::string& policyXml);
     };
 } // namespace Plugin

@@ -13,7 +13,6 @@ namespace Plugin
     {
         enum class TaskType
         {
-            POLICY,
             ACTION,
             STOP
         };
@@ -34,7 +33,6 @@ namespace Plugin
         Task pop();
         void pushStop();
         bool pop(Task&, int timeout);
-        void pushPolicy(const std::string& appId, const std::string& policyXMl);
     };
 
 } // namespace Plugin

@@ -43,9 +43,4 @@ namespace Plugin
         push(stopTask);
     }
 
-    void QueueTask::pushPolicy(const std::string& appId, const std::string& policyXMl)
-    {
-        Task task{ .m_taskType = Task::TaskType::POLICY, .m_content = policyXMl, .m_appId = appId, .m_correlationId = "" };
-        push(task);
-    }
 } // namespace Plugin
