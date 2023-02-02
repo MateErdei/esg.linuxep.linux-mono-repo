@@ -91,7 +91,14 @@ void ManagementAgent::EventReceiverImpl::OutbreakModeController::save()
     nlohmann::json j;
     j["outbreakMode"] = outbreakMode_;
     auto contents = j.dump();
-    filesystem->writeFileAtomically(path, contents, paths.getTempPath(), 0600);
+    try
+    {
+        filesystem->writeFileAtomically(path, contents, paths.getTempPath(), 0600);
+    }
+    catch (const Common::FileSystem::IFileSystemException& ex)
+    {
+        LOGERROR("Failed to write outbreak status to file: " << ex.what());
+    }
 }
 
 void ManagementAgent::EventReceiverImpl::OutbreakModeController::load()

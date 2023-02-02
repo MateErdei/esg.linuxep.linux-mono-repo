@@ -41,7 +41,8 @@ namespace
             auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
             appConfig.setData(Common::ApplicationConfiguration::SOPHOS_INSTALL, testDir_);
             fs::create_directories(testDir_ / "tmp");
-            fs::create_directories(testDir_ / "var" / "sophosspl");
+            varDir_ = testDir_ / "var" / "sophosspl";
+            fs::create_directories(varDir_);
             expectedStatusFile_ = testDir_ / "var" / "sophosspl" / "outbreak_status.json";
         }
 
@@ -51,6 +52,7 @@ namespace
         }
 
         fs::path testDir_;
+        fs::path varDir_;
         Path expectedStatusFile_;
 
         static void enterOutbreakMode(OutbreakModeControllerPtr& controller)
@@ -302,8 +304,66 @@ TEST_F(TestOutbreakModeController, outbreak_status_survives_restart)
     auto controller = std::make_shared<OutbreakModeController>();
     EXPECT_FALSE(controller->outbreakMode());
     enterOutbreakMode(controller);
+    ASSERT_TRUE(controller->outbreakMode());
+    controller.reset();
 
     // Replace the controller
+    UsingMemoryAppender recorder(*this);
     controller = std::make_shared<OutbreakModeController>();
+    EXPECT_TRUE(controller->outbreakMode());
+}
+
+TEST_F(TestOutbreakModeController, write_fails_no_directory)
+{
+    fs::remove(varDir_); // Remove the directory we are supposed to write to
+
+    UsingMemoryAppender recorder(*this);
+    auto controller = std::make_shared<OutbreakModeController>();
+    EXPECT_FALSE(controller->outbreakMode());
+    EXPECT_NO_THROW(enterOutbreakMode(controller));
+    EXPECT_TRUE(controller->outbreakMode());
+    EXPECT_TRUE(appenderContains("No such file or directory"));
+}
+
+TEST_F(TestOutbreakModeController, write_fails_no_permission)
+{
+    if (::getuid() == 0)
+    {
+        // Can't run this test as root
+        return;
+    }
+    UsingMemoryAppender recorder(*this);
+    ::chmod(varDir_.c_str(), 0);
+    auto controller = std::make_shared<OutbreakModeController>();
+    EXPECT_FALSE(controller->outbreakMode());
+    EXPECT_NO_THROW(enterOutbreakMode(controller));
+    EXPECT_TRUE(controller->outbreakMode());
+    EXPECT_TRUE(appenderContains("Permission denied"));
+}
+
+TEST_F(TestOutbreakModeController, write_fails_directory_in_place_of_file)
+{
+    UsingMemoryAppender recorder(*this);
+    // Create a directory where we are supposed to write the status file
+    fs::create_directories(expectedStatusFile_);
+
+    auto controller = std::make_shared<OutbreakModeController>();
+    EXPECT_FALSE(controller->outbreakMode());
+    EXPECT_NO_THROW(enterOutbreakMode(controller));
+    EXPECT_TRUE(controller->outbreakMode());
+    EXPECT_TRUE(appenderContains("Is a directory"));
+}
+
+TEST_F(TestOutbreakModeController, write_fails_permission_on_file)
+{
+    auto path = expectedStatusFile_;
+    const auto contents = R"({"outbreakMode":123})";
+    auto* filesystem = Common::FileSystem::fileSystem();
+    filesystem->writeFileAtomically(expectedStatusFile_, contents, testDir_, 0001);
+    ::chmod(expectedStatusFile_.c_str(), 0);
+
+    auto controller = std::make_shared<OutbreakModeController>();
+    EXPECT_FALSE(controller->outbreakMode());
+    EXPECT_NO_THROW(enterOutbreakMode(controller));
     EXPECT_TRUE(controller->outbreakMode());
 }

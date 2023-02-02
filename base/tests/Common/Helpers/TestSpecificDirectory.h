@@ -61,7 +61,7 @@ namespace
     public:
         using MemoryAppenderUsingTests::MemoryAppenderUsingTests;
 
-        static sophos_filesystem::path createTestSpecificDirectory()
+        [[maybe_unused]] static sophos_filesystem::path createTestSpecificDirectory()
         {
             return test_common::createTestSpecificDirectory();
         }
@@ -74,7 +74,7 @@ namespace
 
 
     template<const char* loggerInstanceName>
-    class TestSpecificDirectoryTemplate : public TestSpecificDirectory
+    class [[maybe_unused]] TestSpecificDirectoryTemplate : public TestSpecificDirectory
     {
     public:
         TestSpecificDirectoryTemplate()
