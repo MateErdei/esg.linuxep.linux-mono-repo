@@ -8,7 +8,10 @@
 
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 
-#include <unistd.h>
+#include <chrono>
+#include <thread>
+
+using namespace std::chrono_literals;
 
 namespace Plugin
 {
@@ -29,15 +32,20 @@ namespace Plugin
 
     void PluginCallback::onShutdown()
     {
-        LOGDEBUG("Shutdown signal received");
+        LOGSUPPORT("Shutdown signal received");
         m_task->pushStop();
-        int timeoutCounter = 0;
-        int shutdownTimeout = 30;
-        while(isRunning() && timeoutCounter < shutdownTimeout)
+
+        auto deadline = std::chrono::steady_clock::now() + 30s;
+        auto nextLog = std::chrono::steady_clock::now() + 1s;
+
+        while(isRunning() && std::chrono::steady_clock::now() < deadline)
         {
-            LOGDEBUG("Shutdown waiting for all processes to complete");
-            sleep(1);
-            timeoutCounter++;
+            if ( std::chrono::steady_clock::now() > nextLog )
+            {
+                nextLog = std::chrono::steady_clock::now() + 1s;
+                LOGSUPPORT("Shutdown waiting for all processes to complete");
+            }
+            std::this_thread::sleep_for(50ms);
         }
     }
 
