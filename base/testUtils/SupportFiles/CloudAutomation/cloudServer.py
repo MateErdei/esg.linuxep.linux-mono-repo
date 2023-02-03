@@ -1236,7 +1236,8 @@ class Endpoints(object):
 
     def getFlags(self):
         for e in self.__m_endpoints.values():
-            e.getFlags()
+            return e.getFlags()
+
     def setOnAccess(self, enable):
         for e in self.__m_endpoints.values():
             e.setOnAccess(enable)
