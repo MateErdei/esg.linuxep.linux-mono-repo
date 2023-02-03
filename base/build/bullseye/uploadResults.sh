@@ -46,20 +46,49 @@ fi
 
 echo "Bullseye location: $BULLSEYE_DIR"
 
+function remount()
+{
+    echo before:
+    cat /proc/mounts
+    umount -fl /mnt/pandorum || true
+    umount -fl /mnt/pandorum/BullseyeLM || true
+    mount /mnt/pandorum/BullseyeLM || true
+    mount /mnt/pandorum || true
+    echo after:
+    cat /proc/mounts
+}
+
 if [[ -z ${UPLOAD_ONLY} ]]
 then
-  echo "Exclusions:"
-  $BULLSEYE_DIR/bin/covselect --list --no-banner --file "$COVFILE"
+  function do_covhtml()
+  {
+      $BULLSEYE_DIR/bin/covhtml \
+          --file "$COVFILE"     \
+          --srcdir /            \
+          --verbose             \
+          "$htmldir"            \
+          </dev/null
+  }
+
+  function list_exclusions()
+  {
+      echo "Exclusions:"
+      $BULLSEYE_DIR/bin/covselect --list --no-banner --file "$COVFILE"
+  }
+
+  if ! list_exclusions
+  then
+      remount
+      list_exclusions
+  fi
 
   #Will produce an error if the source directory is not available but the output html is generated anyway
-  #When source is not avaible the output shows down to the function/member function level
-  $BULLSEYE_DIR/bin/covhtml \
-      --file "$COVFILE"     \
-      --srcdir /            \
-      --verbose             \
-      "$htmldir"            \
-      </dev/null            \
-      || exitFailure $FAILURE_BULLSEYE "Failed to generate bullseye html"
+  #When source is not available the output shows down to the function/member function level
+
+  if ! do_covhtml
+  then
+      remount
+      do_covhtml || exitFailure $FAILURE_BULLSEYE "Failed to generate bullseye html"
 else
   #upload results
   BULLSEYE_UPLOAD=1
