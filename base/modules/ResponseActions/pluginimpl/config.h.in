@@ -1,7 +1,0 @@
-// Copyright 2023 Sophos Limited. All rights reserved.
-
-#pragma once
-
-
-#define RA_PLUGIN_NAME "@RA_PLUGIN_NAME@"
-#define RA_PRODUCT_LINE_ID "@RA_PRODUCT_LINE_ID@"

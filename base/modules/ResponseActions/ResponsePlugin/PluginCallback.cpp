@@ -15,7 +15,7 @@ using namespace std::chrono_literals;
 
 namespace ResponsePlugin
 {
-    PluginCallback::PluginCallback(std::shared_ptr<TaskQueue> task) : m_task(std::move(task))
+    PluginCallback::PluginCallback(std::shared_ptr<QueueTask> task) : m_task(std::move(task))
     {
         LOGDEBUG("Plugin Callback Started");
     }

@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "TaskQueue.h"
+#include "QueueTask.h"
 
 #include <Common/PluginApi/IPluginCallbackApi.h>
 
@@ -12,10 +12,10 @@ namespace ResponsePlugin
 {
     class PluginCallback : public virtual Common::PluginApi::IPluginCallbackApi
     {
-        std::shared_ptr<TaskQueue> m_task;
+        std::shared_ptr<QueueTask> m_task;
 
     public:
-        explicit PluginCallback(std::shared_ptr<TaskQueue> task);
+        explicit PluginCallback(std::shared_ptr<QueueTask> task);
 
         void applyNewPolicy(const std::string& policyXml) override;
 
