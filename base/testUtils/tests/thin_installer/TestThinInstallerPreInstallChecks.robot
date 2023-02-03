@@ -160,16 +160,18 @@ Thin Installer Fails When No Path In Systemd File
     # Install to default location and break it
     Create Initial Installation
 
-    Log File  /lib/systemd/system/sophos-spl.service
+    ${serviceDir} =  Get Service Folder
 
-    ${result}=  Run Process  sed  -i  s/SOPHOS_INSTALL.*/SOPHbroken/  /lib/systemd/system/sophos-spl.service
+    Log File  ${serviceDir}/sophos-spl.service
+
+    ${result}=  Run Process  sed  -i  s/SOPHOS_INSTALL.*/SOPHbroken/  ${serviceDir}/sophos-spl.service
     Should Be Equal As Integers    ${result.rc}    0
 
-    Log File  /lib/systemd/system/sophos-spl.service
+    Log File  ${serviceDir}/sophos-spl.service
 
     ${result}=  Run Process  systemctl  daemon-reload
 
-    Log File  /lib/systemd/system/sophos-spl.service
+    Log File  ${serviceDir}/sophos-spl.service
 
     Build Default Creds Thininstaller From Sections
     Run Default Thininstaller  20

@@ -250,7 +250,8 @@ namespace Common::HttpSenderImpl
         if (certPath.empty())
         {
             const std::vector<Path> caPaths = { "/etc/ssl/certs/ca-certificates.crt",
-                                                "/etc/pki/tls/certs/ca-bundle.crt" };
+                                                "/etc/pki/tls/certs/ca-bundle.crt",
+                                                "/etc/ssl/ca-bundle.pem" };
 
             bool caPathFound = false;
 

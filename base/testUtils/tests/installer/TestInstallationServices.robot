@@ -3,6 +3,7 @@ Documentation    Test correct services are started when installer is run
 
 Library    String
 Library    ${LIBS_DIRECTORY}/FullInstallerUtils.py
+Library    ${LIBS_DIRECTORY}/OSUtils.py
 
 Resource  ../installer/InstallerResources.robot
 Resource  ../GeneralTeardownResource.robot
@@ -21,8 +22,8 @@ Verify Watchdog Service Installed And Uninstalled Correctly
     Should Be Equal As Integers  ${result.rc}  0  Unable to get status of ${WATCHDOG_SERVICE} after installation
 
     Run Process    ${SOPHOS_INSTALL}/bin/uninstall.sh  --force
-    File Should Not Exist    /lib/systemd/system/${WATCHDOG_SERVICE}.service
-    File Should Not Exist    /usr/lib/systemd/system/${WATCHDOG_SERVICE}.service
+    ${serviceDir} =  Get Service Folder
+    File Should Not Exist    ${serviceDir}/${WATCHDOG_SERVICE}.service
     ${result} =  Run Process    systemctl    is-active    ${WATCHDOG_SERVICE}
     Should Be Equal  ${result.stdout}    inactive
     ${result} =  Run Process    systemctl status ${WATCHDOG_SERVICE} | grep "Main PID.*sophos_watchdog"  shell=true
@@ -54,8 +55,8 @@ Verify Update Service Installed And Uninstalled Correctly
     Should Contain    ${result.stdout}    Sophos Server Protection Update Service
 
     Run Process    ${SOPHOS_INSTALL}/bin/uninstall.sh  --force
-    File Should Not Exist    /lib/systemd/system/${UPDATE_SERVICE}.service
-    File Should Not Exist    /usr/lib/systemd/system/${UPDATE_SERVICE}.service
+    ${serviceDir} =  Get Service Folder
+    File Should Not Exist    ${serviceDir}/${UPDATE_SERVICE}.service
     ${result} =  Run Process    systemctl  status  ${UPDATE_SERVICE}   stderr=STDOUT
     Log    ${result.stdout}
     ## Ubuntu 16.04  returns 3 for unknown services

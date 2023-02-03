@@ -11,6 +11,11 @@ install_cert()
 	elif [ -n "$(which yum)" ]
 	then
 		install_cert_rhel $certificate || ( echo "cert install failed" && exit 1 )
+  elif [ -n "$(which zypper)" ]
+  then
+    install_cert_sles $certificate || ( echo "cert install failed" && exit 1 )
+  else
+    echo "System is not rhel-based, sles-based or ubuntu-based, cannot install certs"
 	else
 		echo "System is not rhel-based or ubuntu, cannot install certs"
 		exit 1
@@ -26,6 +31,12 @@ install_cert_rhel()
 install_cert_ubuntu()
 {
 	cp $1 /usr/local/share/ca-certificates/SOPHOS$(basename $1) || ( echo "Failed to copy cert" && exit 1 )
+	update-ca-certificates -f
+}
+
+install_cert_sles()
+{
+	cp $1 /etc/pki/ca-trust/source/anchors/SOPHOS$(basename $1) || ( echo "Failed to copy cert" && exit 1 )
 	update-ca-certificates -f
 }
 

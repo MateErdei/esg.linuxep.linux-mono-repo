@@ -2,7 +2,7 @@
 # Copyright 2020 Sophos Plc, Oxford, England.
 
 from . import path_manager
-from . import atomic_write
+from . import filesystem_utils
 
 import json
 import logging
@@ -21,7 +21,7 @@ def write_combined_flags_file(body):
         target_path = path_manager.combined_flags_file()
         LOGGER.debug("Writing combined flags to {}".format(target_path))
         body = json.dumps(body)
-        atomic_write.atomic_write(target_path, path_tmp, stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP, body)
+        filesystem_utils.atomic_write(target_path, path_tmp, stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP, body)
         if os.path.isfile(target_path):
             LOGGER.info("Flags combined and written to disk")
     except TypeError as error:

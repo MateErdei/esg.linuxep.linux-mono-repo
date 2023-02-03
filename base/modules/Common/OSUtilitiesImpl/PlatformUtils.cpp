@@ -41,13 +41,14 @@ namespace Common::OSUtilitiesImpl
                 lsbReleasePath = "/etc/lsb-release";
             }
 
-            const std::array<std::string, 6> distroCheckFiles = {
+            const std::array<std::string, 7> distroCheckFiles = {
                 "/etc/issue",
                 "/etc/centos-release",
                 "/etc/oracle-release",
                 "/etc/redhat-release",
                 "/etc/system-release",
-                "/etc/miraclelinux-release"
+                "/etc/miraclelinux-release",
+                "/etc/SuSE-release"
             };
             
             auto *fs = FileSystem::fileSystem();
@@ -84,6 +85,49 @@ namespace Common::OSUtilitiesImpl
                     }
                 }
             }
+
+            if (m_vendor == "UNKNOWN")
+            {
+                std::string distro = extractDistroFromOSFile();
+                if (!distro.empty())
+                {
+                    m_vendor = distro;
+                }
+            }
+        }
+
+        std::string PlatformUtils::extractDistroFromOSFile()
+        {
+            std::map<std::string, std::string> distroNames = {
+                std::make_pair("redhat", "redhat"), std::make_pair("ubuntu", "ubuntu"),
+                std::make_pair("centos", "centos"), std::make_pair("amazonlinux", "amazon"),
+                std::make_pair("oracle", "oracle"), std::make_pair("miracle", "miracle"),
+                std::make_pair("suse", "suse")
+            };
+
+            auto *fs = FileSystem::fileSystem();
+            std::string distro;
+            std::string path = "/etc/os-release";
+            if (fs->isFile(path))
+            {
+                std::string pretty_name = UtilityImpl::StringUtils::extractValueFromConfigFile(path, "PRETTY_NAME");
+                if (!pretty_name.empty())
+                {
+                    pretty_name = UtilityImpl::StringUtils::replaceAll(pretty_name, " ", "");
+                    pretty_name = UtilityImpl::StringUtils::replaceAll(pretty_name, "/", "_");
+
+                    UtilityImpl::StringUtils::toLower(pretty_name);
+
+                    for (const auto& [key, value] : distroNames)
+                    {
+                        if (UtilityImpl::StringUtils::isSubstring(pretty_name, key))
+                        {
+                            return value;
+                        }
+                    }
+                }
+            }
+            return "";
         }
 
         std::string PlatformUtils::extractDistroFromFile(const std::string& filePath)
@@ -94,7 +138,8 @@ namespace Common::OSUtilitiesImpl
                 std::make_pair("centos", "centos"),
                 std::make_pair("amazonlinux", "amazon"),
                 std::make_pair("oracle", "oracle"),
-                std::make_pair("miracle", "miracle")
+                std::make_pair("miracle", "miracle"),
+                std::make_pair("suse", "suse")
             };
 
             auto *fs = FileSystem::fileSystem();

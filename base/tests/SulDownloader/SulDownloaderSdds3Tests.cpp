@@ -2641,6 +2641,7 @@ TEST_F( // NOLINT
     auto& fileSystem = setupFileSystemAndGetMock(1, 1, 0);
     EXPECT_CALL(fileSystem, isFile("/etc/ssl/certs/ca-certificates.crt")).WillOnce(Return(false));
     EXPECT_CALL(fileSystem, isFile("/etc/pki/tls/certs/ca-bundle.crt")).WillOnce(Return(false));
+    EXPECT_CALL(fileSystem, isFile("/etc/ssl/ca-bundle.pem")).WillOnce(Return(false));
     testing::internal::CaptureStdout();
     testing::internal::CaptureStderr();
     auto settings = defaultSettings();
@@ -2670,6 +2671,7 @@ TEST_F( // NOLINT
     auto& fileSystem = setupFileSystemAndGetMock(1,1, 0);
     EXPECT_CALL(fileSystem, isFile("/etc/ssl/certs/ca-certificates.crt")).WillOnce(Return(false));
     EXPECT_CALL(fileSystem, isFile("/etc/pki/tls/certs/ca-bundle.crt")).WillOnce(Return(false));
+    EXPECT_CALL(fileSystem, isFile("/etc/ssl/ca-bundle.pem")).WillOnce(Return(false));
     testing::internal::CaptureStdout();
     testing::internal::CaptureStderr();
     auto settings = defaultSettings();

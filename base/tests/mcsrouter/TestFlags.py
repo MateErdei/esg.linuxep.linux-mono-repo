@@ -2,7 +2,7 @@
 
 import PathManager
 import mcsrouter.utils.flags as flags
-import mcsrouter.utils.atomic_write
+import mcsrouter.utils.filesystem_utils
 
 import unittest
 import os
@@ -152,21 +152,21 @@ class TestFlags(unittest.TestCase):
         self.assertDictEqual(content, {})
         self.assertTrue(logging.Logger.warning.called)
 
-    @mock.patch('mcsrouter.utils.atomic_write.atomic_write')
+    @mock.patch('mcsrouter.utils.filesystem_utils.atomic_write')
     @mock.patch('os.chmod')
     @mock.patch("logging.Logger.error")
     def test_write_combined_flags_file_catches_type_error(self, *mockargs):
         flags.write_combined_flags_file({b'asd': False})
-        self.assertFalse(mcsrouter.utils.atomic_write.atomic_write.called)
+        self.assertFalse(mcsrouter.utils.filesystem_utils.atomic_write.called)
         self.assertTrue(logging.Logger.error.called)
         self.assertFalse(os.chmod.called)
 
-    @mock.patch('mcsrouter.utils.atomic_write.atomic_write')
+    @mock.patch('mcsrouter.utils.filesystem_utils.atomic_write')
     @mock.patch('os.chmod')
     @mock.patch("logging.Logger.error")
     def test_write_combined_flags_file_writes_file(self, *mockargs):
         flags.write_combined_flags_file({"endpoint.flag1.enabled": False})
-        self.assertTrue(mcsrouter.utils.atomic_write.atomic_write.called)
+        self.assertTrue(mcsrouter.utils.filesystem_utils.atomic_write.called)
         self.assertFalse(logging.Logger.error.called)
 
     @mock.patch('os.path.isfile', return_value=True)

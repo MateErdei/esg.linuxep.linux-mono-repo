@@ -9,10 +9,8 @@ import os
 
 import mcsrouter.adapters.generic_adapter as generic_adapter
 import mcsrouter.adapters.adapter_base
-import mcsrouter.utils.atomic_write
+import mcsrouter.utils.filesystem_utils
 import mcsrouter.utils.timestamp
-import mcsrouter.utils.utf8_write
-import mcsrouter.utils.xml_helper as xml_helper
 
 LOGGER = logging.getLogger(__name__)
 

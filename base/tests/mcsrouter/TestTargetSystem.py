@@ -7,7 +7,7 @@ import platform
 import stat
 from unittest.mock import patch, mock_open
 import logging
-logger = logging.getLogger("TestResponseReceiver")
+logger = logging.getLogger("TestTargetSystem")
 
 import PathManager
 import mcsrouter.utils.target_system_manager
@@ -121,7 +121,7 @@ class TestTargetSystem(unittest.TestCase):
     @mock.patch('mcsrouter.utils.path_manager.instance_metadata_config', return_value='/tmp/test-instance-metadata.json')
     @mock.patch('mcsrouter.utils.path_manager.temp_dir', return_value='/tmp/')
     @mock.patch('os.getuid', return_value=0)
-    @mock.patch('mcsrouter.utils.atomic_write.atomic_write', return_value='')
+    @mock.patch('mcsrouter.utils.filesystem_utils.atomic_write', return_value='')
     def test_chown_to_metadata_conf_logs_on_permission_error(self, *mockargs):
 
         test_json = {"platform": "test",

@@ -60,6 +60,8 @@ def get_platform():
                     return "ubuntu"
                 if "Debian" in contents:
                     return "debian"
+                if "SUSE" in contents:
+                    return "sles"
         except FileNotFoundError:
             pass
     return "unknown"
@@ -81,6 +83,8 @@ def get_expected_files_for_platform():
         return ["systemd-system.conf", "hosts", "fstab", "meminfo", "cpuinfo", "os-release", "selinux-config"]
     elif "miraclelinux" == platform:
         return ["systemd-system.conf", "hosts", "fstab", "meminfo", "cpuinfo", "os-release", "boot.log"]
+    elif "sles" == platform:
+        return ["systemd-system.conf", "hosts", "fstab", "meminfo", "cpuinfo", "os-release"]
     raise ValueError('Platform unknown')
 
 

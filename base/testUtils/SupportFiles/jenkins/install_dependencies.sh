@@ -18,19 +18,22 @@ function install_system_packages
   local pkg_manager
   if [ -n "$(which apt-get)" ]
     then
-      pkg_manager="apt-get"
+      pkg_manager="apt-get -y"
   elif [ -n "$(which yum)" ]
     then
-      pkg_manager="yum"
+      pkg_manager="yum -y"
+  elif [ -n "$(which zypper)" ]
+      then
+        pkg_manager="zypper --non-interactive"
   else
-    echo "System is not rhel-based or ubuntu, cannot install packages"
+    echo "System is not rhel-based, sles-based or debian-based, cannot install packages"
     exit 1
   fi
 
   local installed_ok=0
   for (( i=1; i<=20; i++ ))
   do
-    if sudo $pkg_manager -y install $@
+    if sudo $pkg_manager install $@
     then
       installed_ok=1
       break

@@ -278,7 +278,8 @@ namespace Common::HttpRequestsImpl
         else
         {
             const std::vector<std::string> caPaths = { "/etc/ssl/certs/ca-certificates.crt",
-                                                       "/etc/pki/tls/certs/ca-bundle.crt" };
+                                                       "/etc/pki/tls/certs/ca-bundle.crt",
+                                                       "/etc/ssl/ca-bundle.pem" };
             bool caPathFound = false;
             for (const auto& caPath : caPaths)
             {

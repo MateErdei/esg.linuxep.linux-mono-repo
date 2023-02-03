@@ -12,7 +12,7 @@ import xml.parsers.expat  # for xml.parsers.expat.ExpatError
 
 import mcsrouter.utils.path_manager as path_manager
 import mcsrouter.utils.default_values as default_values
-import mcsrouter.utils.utf8_write
+import mcsrouter.utils.filesystem_utils
 import mcsrouter.utils.xml_helper
 
 LOGGER = logging.getLogger(__name__)
@@ -74,7 +74,7 @@ class MCSPolicyHandler:
             path = self.__policy_path()
 
         policy_path_tmp = os.path.join(path_manager.policy_temp_dir(), self.policy_base_name())
-        mcsrouter.utils.utf8_write.utf8_write(policy_path_tmp, policy_xml)
+        mcsrouter.utils.filesystem_utils.utf8_write(policy_path_tmp, policy_xml)
 
     def __load_policy(self):
         """
@@ -155,12 +155,12 @@ class MCSPolicyHandler:
         """
         __apply_policy_setting
         """
-        if config_option is None:
+        if not config_option:
             config_option = policy_option
 
         node = self.__get_element(dom, policy_option)
 
-        if node is None:
+        if not node:
             if treat_missing_as_empty:
                 value = ""
             else:
@@ -384,7 +384,7 @@ class MCSPolicyHandler:
         """
         __apply_policy
         """
-        assert self.__m_policy_config is not None
+        assert self.__m_policy_config
 
         policy_xml = self.__m_policy_xml
         try:

@@ -8,8 +8,11 @@ clean_up_installed_certs()
 	elif [ -n "$(which yum)" ]
 	then
 		clean_up_certs_rhel || ( echo "cert clean-up failed" && exit 1 )
-	else
-		echo "System is not rhel-based or ubuntu"
+  elif [ -n "$(which zypper)" ]
+    then
+      clean_up_certs_sles || ( echo "cert clean-up failed" && exit 1 )
+  else
+    echo "System is not rhel-based, sles-based or ubuntu-based"
 		exit 1
 	fi
 }
@@ -23,6 +26,12 @@ clean_up_certs_rhel()
 clean_up_certs_ubuntu()
 {
 	rm -rf /usr/local/share/ca-certificates/SOPHOS*
+	update-ca-certificates -f
+}
+
+clean_up_certs_sles()
+{
+	rm -rf /etc/pki/ca-trust/source/anchors/SOPHOS*
 	update-ca-certificates -f
 }
 

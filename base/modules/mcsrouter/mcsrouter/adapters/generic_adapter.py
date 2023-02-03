@@ -13,10 +13,9 @@ import xml.dom.minidom
 import stat
 
 import mcsrouter.adapters.adapter_base
-import mcsrouter.utils.atomic_write
+import mcsrouter.utils.filesystem_utils
 import mcsrouter.utils.path_manager as path_manager
 import mcsrouter.utils.timestamp
-import mcsrouter.utils.utf8_write
 import mcsrouter.utils.xml_helper as xml_helper
 from mcsrouter.mcsclient.mcs_exception import MCSException
 
@@ -89,7 +88,7 @@ class GenericAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
             policy_name = "%s_policy.xml" % (self.__m_app_id)
 
         policy_path_tmp = os.path.join(path_manager.policy_temp_dir(), policy_name)
-        mcsrouter.utils.utf8_write.utf8_write(policy_path_tmp, policy)
+        mcsrouter.utils.filesystem_utils.utf8_write(policy_path_tmp, policy)
 
         # Make sure that policy is group readable so that Management Agent (or plugins) can read the file.
         os.chmod(policy_path_tmp, stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP )
@@ -119,7 +118,7 @@ class GenericAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
 
     def _write_tmp_action(self, action_name, body):
         action_path_tmp = os.path.join(path_manager.actions_temp_dir(), action_name)
-        mcsrouter.utils.utf8_write.utf8_write(action_path_tmp, body)
+        mcsrouter.utils.filesystem_utils.utf8_write(action_path_tmp, body)
 
         # Make sure that action is group readable so that Management Agent (or plugins) can read the file.
         os.chmod(action_path_tmp, stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP )
