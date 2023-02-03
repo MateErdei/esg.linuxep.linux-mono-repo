@@ -856,7 +856,7 @@ We can Install With SDDS3 Perform an SDDS3 Initial Update With SDDS3 Flag True T
 
     #prevent mcs overwriting flags
     File Should Contain  ${UPDATE_CONFIG}     "useSDDS3": true
-    Overwrite MCS Flags File  {"sdds3.enabled": false}
+    send flags file  ${SUPPORT_FILES}/CentralXml/FLAGS_sdds2.json
     Wait Until Keyword Succeeds
     ...     10s
     ...     2s
