@@ -38,9 +38,7 @@ int main()
     }
     catch (const Common::PluginApi::ApiException & apiException)
     {
-        std::stringstream errorMsg;
-        errorMsg << "Plugin Api could not be instantiated: " << apiException.what();
-        LOGERROR(errorMsg.str());
+        LOGERROR("Plugin Api could not be instantiated: " << apiException.what());
         return Common::PluginApi::ErrorCodes::PLUGIN_API_CREATION_FAILED;
     }
 
@@ -57,16 +55,12 @@ int main()
     }
     catch (const std::exception& ex)
     {
-        std::stringstream errorMsg;
-        errorMsg << "Plugin threw an exception at top level: " << ex.what();
-        LOGERROR(errorMsg.str());
+        LOGERROR("Plugin threw an exception at top level: " << ex.what());
         ret = EXCEPTIONTHROWN;
     }
     catch (...)
     {
-        std::stringstream errorMsg;
-        errorMsg << "Plugin threw an unknown exception at top level";
-        LOGERROR(errorMsg.str());
+        LOGERROR("Plugin threw an unknown exception at top level");
         ret = EXCEPTIONTHROWN;
     }
     sharedPluginCallBack->setRunning(false);
