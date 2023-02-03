@@ -624,7 +624,7 @@ class MCSRouter(object):
         conn.getresponse()
         conn.close()
 
-    def send_mcs_flags_file(self, flags_path):
+    def send_flags_file(self, flags_path):
         f = open(flags_path, 'r')
         flags_contents = f.read()
         self.send_flags(flags_contents)
