@@ -30,6 +30,6 @@ SET_TARGET_PROPERTIES(rapluginimpl
         )
 
 install(TARGETS rapluginimpl
-        LIBRARY DESTINATION ra/files/plugins/${RA_PLUGIN_NAME}/lib64)
+        LIBRARY DESTINATION ${RA_DIST_PREFIX}/files/plugins/${RA_PLUGIN_NAME}/lib64)
 
 add_dependencies(rapluginimpl copy_libs)
