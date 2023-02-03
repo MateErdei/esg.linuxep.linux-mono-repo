@@ -40,8 +40,8 @@ export DIST
 export SOPHOS_INSTALL
 export LD_LIBRARY_PATH="$SOPHOS_INSTALL/base/lib64"
 
-USER_NAME=sophos-spl-user
-GROUP_NAME=sophos-spl-group
+USER_NAME=root
+GROUP_NAME=root
 
 function is_already_installed()
 {
