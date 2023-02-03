@@ -173,11 +173,11 @@ def getProductName():
 
     return getVariable("PRODUCT_NAME", "PRODUCT_NAME", "Product/Plugin Name", "Sophos Server Protection Linux - Base")
 
-def getVersion():
+def getVersion(BASE):
     temp = os.environ.get("VERSION", None)
     if temp is not None:
         return temp
-    raise AssertionError("Env variable version not set")
+    return readVersion.readVersion(BASE)
 
 def getFeatureList():
     #   Read csv list of features of the form: feature1, feature2, feature3
@@ -209,7 +209,7 @@ def generate_sdds_import(dist, file_objects, BASE=None):
     tidyXml(doc)
 
     productName = getProductName()
-    fullVersion = getVersion()
+    fullVersion = getVersion(BASE)
     rigidName = getRigidName()
     defaultHomeFolder = getVariable("DEFAULT_HOME_FOLDER", "DEFAULT_HOME_FOLDER", "defaultHomeFolder", "sspl-base")
     featureList = getFeatureList()
