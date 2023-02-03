@@ -13,7 +13,7 @@ SET_TARGET_PROPERTIES( SulDownloader
 
 
 install(TARGETS SulDownloader
-        DESTINATION base/files/base/bin)
+        DESTINATION ${BASE_DIST_PREFIX}/files/base/bin)
 
 # Export suldownloader for thin installer as well.
 install(TARGETS SulDownloader DESTINATION ${THININSTALLER_DEPS_DIR_BIN})
@@ -26,5 +26,5 @@ set( CERTIFICATES ${INPUT}/certificates )
 install(FILES
         ${CERTIFICATES}/ps_rootca.crt
         ${CERTIFICATES}/rootca.crt
-        DESTINATION base/files/base/update/rootcerts
+        DESTINATION ${BASE_DIST_PREFIX}/files/base/update/rootcerts
         PERMISSIONS OWNER_READ)

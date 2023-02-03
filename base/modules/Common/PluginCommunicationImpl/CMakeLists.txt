@@ -20,4 +20,4 @@ SET_TARGET_PROPERTIES(plugincommunicationimplcommon
 add_dependencies(plugincommunicationimplcommon pluginapiimpl)
 
 install(TARGETS plugincommunicationimplcommon
-        LIBRARY DESTINATION base/files/base/lib64)
+        LIBRARY DESTINATION ${BASE_DIST_PREFIX}/files/base/lib64)

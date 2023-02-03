@@ -14,4 +14,4 @@ SET_TARGET_PROPERTIES( mcsrouterplugincommunicationimpl
         PROPERTIES INSTALL_RPATH "$ORIGIN")
 
 install(TARGETS mcsrouterplugincommunicationimpl
-        LIBRARY DESTINATION base/files/base/lib64)
+        LIBRARY DESTINATION ${BASE_DIST_PREFIX}/files/base/lib64)

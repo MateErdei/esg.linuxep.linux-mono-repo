@@ -13,7 +13,7 @@ SET_TARGET_PROPERTIES(sophos_managementagent
         )
 
 install(TARGETS sophos_managementagent
-        DESTINATION base/files/base/bin)
+        DESTINATION ${BASE_DIST_PREFIX}/files/base/bin)
 
 configure_file(managementagent.json.in  managementagent.json @ONLY)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/managementagent.json

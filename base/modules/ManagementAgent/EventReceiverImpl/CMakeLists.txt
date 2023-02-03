@@ -10,4 +10,4 @@ SET_TARGET_PROPERTIES( eventreceiverimpl
         PROPERTIES INSTALL_RPATH "$ORIGIN")
 
 install(TARGETS eventreceiverimpl
-        LIBRARY DESTINATION base/files/base/lib64)
+        LIBRARY DESTINATION ${BASE_DIST_PREFIX}/files/base/lib64)

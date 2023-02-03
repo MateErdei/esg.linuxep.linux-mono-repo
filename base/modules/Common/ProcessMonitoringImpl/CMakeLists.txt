@@ -16,4 +16,4 @@ SET_TARGET_PROPERTIES(processmonitoringimpl
         PROPERTIES INSTALL_RPATH "$ORIGIN")
 
 install(TARGETS processmonitoringimpl
-        LIBRARY DESTINATION base/files/base/lib64)
+        LIBRARY DESTINATION ${BASE_DIST_PREFIX}/files/base/lib64)

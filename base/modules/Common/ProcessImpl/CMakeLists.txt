@@ -20,6 +20,6 @@ SET_TARGET_PROPERTIES(processimpl
         PROPERTIES INSTALL_RPATH "$ORIGIN")
 
 install(TARGETS processimpl
-        LIBRARY DESTINATION base/files/base/lib64)
+        LIBRARY DESTINATION ${BASE_DIST_PREFIX}/files/base/lib64)
 
 install(TARGETS processimpl LIBRARY DESTINATION ${THININSTALLER_DEPS_DIR_LIB64})

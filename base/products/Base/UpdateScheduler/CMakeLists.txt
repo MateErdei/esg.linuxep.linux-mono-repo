@@ -14,4 +14,4 @@ SET_TARGET_PROPERTIES( UpdateScheduler
         )
 
 install(TARGETS UpdateScheduler
-        DESTINATION base/files/base/bin)
+        DESTINATION ${BASE_DIST_PREFIX}/files/base/bin)

@@ -15,4 +15,4 @@ SET_TARGET_PROPERTIES( sdu
         )
 
 install(TARGETS sdu
-        DESTINATION base/files/base/bin)
+        DESTINATION ${BASE_DIST_PREFIX}/files/base/bin)

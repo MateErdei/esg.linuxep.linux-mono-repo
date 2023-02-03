@@ -11,7 +11,7 @@ SET_TARGET_PROPERTIES(CommsComponent
         PROPERTIES INSTALL_RPATH "$ORIGIN/../lib64")
 
 install(TARGETS CommsComponent
-        DESTINATION base/files/base/bin)
+        DESTINATION ${BASE_DIST_PREFIX}/files/base/bin)
 
 configure_file(commscomponent.json.in  commscomponent.json @ONLY)
 

@@ -67,10 +67,10 @@ function(add_python_library INPUT_PATH  PACKAGE_NAME)
 
     if (IS_DIRECTORY ${CMAKE_BINARY_DIR}/${PACKAGE_NAME} )
         install(DIRECTORY ${CMAKE_BINARY_DIR}/${PACKAGE_NAME}
-                DESTINATION base/files/base/lib/python3.9/site-packages)
+                DESTINATION ${BASE_DIST_PREFIX}/files/base/lib/python3.9/site-packages)
     else()
         install(FILES ${CMAKE_BINARY_DIR}/${PACKAGE_NAME}
-                DESTINATION base/files/base/lib/python3.9/site-packages)
+                DESTINATION ${BASE_DIST_PREFIX}/files/base/lib/python3.9/site-packages)
     endif()
 
 endfunction(add_python_library)
@@ -86,7 +86,7 @@ add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/Crypto
         )
 
 install(DIRECTORY ${CMAKE_BINARY_DIR}/Crypto
-            DESTINATION base/files/base/lib/python3.9/site-packages)
+            DESTINATION ${BASE_DIST_PREFIX}/files/base/lib/python3.9/site-packages)
 
 foreach (PYTHON_PACKAGE_NAME  watchdog pathtools certifi chardet idna requests six.py sseclient.py urllib3)
     add_python_library(${INPUT}/${PYTHON_PACKAGE_NAME} ${PYTHON_PACKAGE_NAME})
@@ -100,22 +100,22 @@ add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/python3
 
 if ( PythonCoverage )
     install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/mcsrouter
-            DESTINATION base/files/base/lib64)
+            DESTINATION ${BASE_DIST_PREFIX}/files/base/lib64)
 else()
     install(FILES ${CMAKE_BINARY_DIR}/mcsrouter.zip
-            DESTINATION base/files/base/lib64)
+            DESTINATION ${BASE_DIST_PREFIX}/files/base/lib64)
 endif()
 
 
 
 install(FILES ${CMAKE_BINARY_DIR}/python39.zip
-        DESTINATION base/files/base/lib64)
+        DESTINATION ${BASE_DIST_PREFIX}/files/base/lib64)
 
 install(DIRECTORY ${CMAKE_BINARY_DIR}/lib-dynload
-        DESTINATION base/files/base/lib/python3.9/)
+        DESTINATION ${BASE_DIST_PREFIX}/files/base/lib/python3.9/)
 
 install(FILES ${CMAKE_BINARY_DIR}/python3
-        DESTINATION base/files/base/bin)
+        DESTINATION ${BASE_DIST_PREFIX}/files/base/bin)
 
 install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/engine/mcs_rootca.crt
-        DESTINATION base/files/base/mcs/certs)
+        DESTINATION ${BASE_DIST_PREFIX}/files/base/mcs/certs)

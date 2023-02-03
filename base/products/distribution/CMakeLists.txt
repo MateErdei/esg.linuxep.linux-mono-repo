@@ -48,10 +48,10 @@ add_third_party_library(protobuf ${Protobuf_root}/lib)
 add_third_party_library(log4cplus ${LOG4CPLUS_INPUT}/lib)
 
 install(FILES ${third_party_libs}
-        DESTINATION base/files/base/lib64)
+        DESTINATION ${BASE_DIST_PREFIX}/files/base/lib64)
 
 install(FILES ${VERSIG_INPUT}/bin64/versig
-        DESTINATION base/files/base/update)
+        DESTINATION ${BASE_DIST_PREFIX}/files/base/update)
 
 # libasan and libubsan are only used during debug builds and needed for unit tests to run but we do not want to add
 # them to the shipped third party library list, so create a separate list of build time only libs
@@ -73,21 +73,21 @@ add_custom_target(
 configure_file(VERSION.ini.in VERSION.ini @ONLY)
 
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/VERSION.ini
-        DESTINATION base/files/base/)
+        DESTINATION ${BASE_DIST_PREFIX}/files/base/)
 
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/VERSION.ini
-        DESTINATION base)
+        DESTINATION ${BASE_DIST_PREFIX})
 
 install(FILES datafeed-config-scheduled_query.json
-        DESTINATION base/files/base/etc/)
+        DESTINATION ${BASE_DIST_PREFIX}/files/base/etc/)
 
 if (DEFINED ENV{O_SIX_O})
     install(FILES ../../faker_lib.so.2.23.999
-            DESTINATION base/files/base/lib64/)
+            DESTINATION ${BASE_DIST_PREFIX}/files/base/lib64/)
 
     install(FILES ../../fake_lib.so.1.66.999
-            DESTINATION base/files/base/lib64/)
+            DESTINATION ${BASE_DIST_PREFIX}/files/base/lib64/)
 
     install(FILES ../../also_a_fake_lib.so.5.86.999
-            DESTINATION base/files/base/lib64/)
+            DESTINATION ${BASE_DIST_PREFIX}/files/base/lib64/)
 endif()

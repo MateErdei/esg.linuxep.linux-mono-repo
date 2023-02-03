@@ -14,4 +14,4 @@ SET_TARGET_PROPERTIES( tscheduler
         )
 
 install(TARGETS tscheduler
-        DESTINATION base/files/base/bin)
+        DESTINATION ${BASE_DIST_PREFIX}/files/base/bin)

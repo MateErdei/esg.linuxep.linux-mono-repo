@@ -12,4 +12,4 @@ SET_TARGET_PROPERTIES(securityutils
         PROPERTIES INSTALL_RPATH "$ORIGIN")
 
 install(TARGETS securityutils
-        LIBRARY DESTINATION base/files/base/lib64)
+        LIBRARY DESTINATION ${BASE_DIST_PREFIX}/files/base/lib64)

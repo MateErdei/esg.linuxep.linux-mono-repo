@@ -22,4 +22,4 @@ SET_TARGET_PROPERTIES(reactorimpl
         PROPERTIES INSTALL_RPATH "$ORIGIN")
 
 install(TARGETS reactorimpl
-        LIBRARY DESTINATION base/files/base/lib64)
+        LIBRARY DESTINATION ${BASE_DIST_PREFIX}/files/base/lib64)
