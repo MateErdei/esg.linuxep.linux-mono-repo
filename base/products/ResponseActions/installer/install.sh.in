@@ -22,7 +22,7 @@ then
     SCRIPTDIR=${STARTINGDIR}
 fi
 
-ABS_SCRIPTDIR=$(cd $SCRIPTDIR && pwd)
+ABS_SCRIPTDIR=$(cd "$SCRIPTDIR" && pwd)
 
 source ${ABS_SCRIPTDIR}/cleanupinstall.sh
 

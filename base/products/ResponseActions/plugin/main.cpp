@@ -5,8 +5,8 @@
 #include <Common/PluginApi/ErrorCodes.h>
 #include <Common/PluginApi/IBaseServiceApi.h>
 #include <Common/PluginApi/IPluginResourceManagement.h>
-#include <ResponseActions/pluginimpl/Logger.h>
-#include <ResponseActions/pluginimpl/PluginAdapter.h>
+#include <ResponseActions/ResponsePlugin/Logger.h>
+#include <ResponseActions/ResponsePlugin/PluginAdapter.h>
 #include <pluginimpl/config.h>
 
 #include <sstream>
@@ -59,6 +59,13 @@ int main()
     {
         std::stringstream errorMsg;
         errorMsg << "Plugin threw an exception at top level: " << ex.what();
+        LOGERROR(errorMsg.str());
+        ret = EXCEPTIONTHROWN;
+    }
+    catch (...)
+    {
+        std::stringstream errorMsg;
+        errorMsg << "Plugin threw an unknown exception at top level";
         LOGERROR(errorMsg.str());
         ret = EXCEPTIONTHROWN;
     }

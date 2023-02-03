@@ -1,6 +1,6 @@
 // Copyright 2023 Sophos Limited. All rights reserved.
 
-#include "modules/ResponseActions/pluginimpl/PluginAdapter.h"
+#include "modules/ResponseActions/ResponsePlugin/PluginAdapter.h"
 
 #include "tests/Common/Helpers/MemoryAppender.h"
 #include "tests/Common/Helpers/MockApiBaseServices.h"

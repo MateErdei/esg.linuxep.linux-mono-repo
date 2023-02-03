@@ -40,4 +40,4 @@ SYMLINKVERSION="$BASEDIR/base/update/var/installedproductversions/${PRODUCT_LINE
 rm -rf "$UNINSTALLDIR"
 rm -r "$SYMLINK"
 rm -r "$SYMLINKVERSION"
-rm -f ${BASEDIR}/var/ipc/plugins/${PLUGIN_NAME}.ipc
+rm -f "${BASEDIR}/var/ipc/plugins/${PLUGIN_NAME}.ipc"

@@ -16,5 +16,6 @@
       "value": "SOPHOS_INSTALL_VALUE"
     }
   ],
-  "executableUserAndGroup": "root:root"
+  "executableUserAndGroup": "root:root",
+  "secondsToShutDown": 30
 }
