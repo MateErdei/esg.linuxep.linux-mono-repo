@@ -27,57 +27,10 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <boost/process/pipe.hpp>
 #include <boost/system/error_code.hpp>
 
-#include <chrono>
-#include <ctime>
 #include <iostream>
 #include <fstream>
 
 #pragma GCC diagnostic pop
-
-// strftime format
-#define LOGGER_PRETTY_TIME_FORMAT "%Y-%m-%d %H:%M:%S"
-
-// printf format
-#define LOGGER_PRETTY_MS_FORMAT ".%03d"
-
-
-// convert current time to milliseconds since unix epoch
-template <typename T>
-static int to_ms(const std::chrono::time_point<T>& tp)
-{
-    using namespace std::chrono;
-
-    auto dur = tp.time_since_epoch();
-    return static_cast<int>(duration_cast<milliseconds>(dur).count());
-}
-
-
-// format it in two parts: main part with date and time and part with milliseconds
-static std::string pretty_time()
-{
-    auto tp = std::chrono::system_clock::now();
-    std::time_t current_time = std::chrono::system_clock::to_time_t(tp);
-
-    // this function use static global pointer. so it is not thread safe solution
-    std::tm* time_info = std::localtime(&current_time);
-
-    char buffer[128];
-
-    int string_size = strftime(
-        buffer, sizeof(buffer),
-        LOGGER_PRETTY_TIME_FORMAT,
-        time_info
-    );
-
-    int ms = to_ms(tp) % 1000;
-
-    string_size += std::snprintf(
-        buffer + string_size, sizeof(buffer) - string_size,
-        LOGGER_PRETTY_MS_FORMAT, ms
-    );
-
-    return std::string(buffer, buffer + string_size);
-}
 
 namespace
 {
@@ -142,15 +95,14 @@ namespace Common
             {
                 std::ofstream logFile;
                 logFile.open ("/tmp/zmq-fork.log");
-                std::string formatted_time = pretty_time();
-                logFile << formatted_time << ": Forking for " << exec.exe << std::endl;
+                logFile  << "Forking for " << exec.exe << std::endl;
 
                 for (const auto socket: GL_zmqSockets)
                 {
                     if (socket != nullptr)
                     {
                         GL_zmqSockets.erase(socket);
-                        logFile << formatted_time << ": Closed socket" << std::endl;
+                        logFile  << "Closed socket" << std::endl;
                         zmq_close(socket);
                     }
                 }
@@ -160,7 +112,7 @@ namespace Common
                     if (context != nullptr)
                     {
                         GL_zmqContexts.erase(context);
-                        logFile << formatted_time << ": Terminated Context" << std::endl;
+                        logFile  << "Terminated Context" << std::endl;
                         zmq_ctx_term(context);
                     }
                 }

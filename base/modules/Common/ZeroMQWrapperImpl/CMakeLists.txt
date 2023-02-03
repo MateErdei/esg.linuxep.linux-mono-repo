@@ -1,6 +1,5 @@
 add_library(zeromqwrapperimplobject OBJECT
         ContextHolder.cpp ContextHolder.h
-        Logger.cpp Logger.h
         PollerImpl.cpp PollerImpl.h
         ProxyImpl.cpp ProxyImpl.h
         SocketHolder.cpp SocketHolder.h
@@ -28,9 +27,9 @@ add_library(zeromqwrapperimplobject OBJECT
         ../ZeroMQWrapper/IProxy.h
         ../ZeroMQWrapper/IWritable.h
         )
-target_include_directories(zeromqwrapperimplobject PUBLIC ${ZeroMQ_INCLUDE_DIR} ${LOG4CPLUS_INCLUDE_DIR})
+target_include_directories(zeromqwrapperimplobject PUBLIC ${ZeroMQ_INCLUDE_DIR})
 add_library(zeromqwrapperimpl SHARED $<TARGET_OBJECTS:zeromqwrapperimplobject>)
-target_link_libraries(zeromqwrapperimpl PUBLIC ${LOG4CPLUS_LIBRARY} logging ${ZeroMQ_LIBRARY} threads)
+target_link_libraries(zeromqwrapperimpl PUBLIC ${ZeroMQ_LIBRARY} threads)
 
 SET_TARGET_PROPERTIES(zeromqwrapperimpl
         PROPERTIES INSTALL_RPATH "$ORIGIN")

@@ -5,7 +5,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "ContextHolder.h"
-#include "Logger.h"
 
 #include "ZeroMQWrapperException.h"
 #include "Common/GlobalZmqAccess.h"
@@ -18,7 +17,6 @@ Common::ZeroMQWrapperImpl::ContextHolder::ContextHolder()
     {
         throw ZeroMQWrapperException("Unable to construct ZMQ Context");
     }
-    LOGINFO(">>> Add context");
     GL_zmqContexts.insert(m_context);
 }
 
@@ -36,7 +34,6 @@ void Common::ZeroMQWrapperImpl::ContextHolder::reset()
 {
     if (m_context != nullptr)
     {
-        LOGINFO(">>> Remove context");
         GL_zmqContexts.erase(m_context);
         zmq_ctx_term(m_context); // http://api.zeromq.org/4-2:zmq-ctx-term replaces destroy (deprecated)
         m_context = nullptr;
