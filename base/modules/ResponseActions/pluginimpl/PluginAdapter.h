@@ -7,7 +7,7 @@
 
 #include <Common/PluginApi/IBaseServiceApi.h>
 
-namespace Plugin
+namespace ResponsePlugin
 {
     class DetectRequestToStop : public std::runtime_error
     {
@@ -31,4 +31,4 @@ namespace Plugin
     private:
         void processAction(const std::string& policyXml);
     };
-} // namespace Plugin
+} // namespace ResponsePlugin

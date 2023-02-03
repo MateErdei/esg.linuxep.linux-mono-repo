@@ -11,13 +11,13 @@ namespace
     const std::string PRODUCT_VERSION_STR = "PRODUCT_VERSION";
 } // namespace
 
-namespace Plugin
+namespace ResponsePlugin
 {
     std::optional<std::string> getVersion()
     {
         try
         {
-            std::string versionIniFilepath = Plugin::getVersionIniFilePath();
+            std::string versionIniFilepath = ResponsePlugin::getVersionIniFilePath();
             return Common::UtilityImpl::StringUtils::extractValueFromIniFile(versionIniFilepath,PRODUCT_VERSION_STR);
         }
         catch (std::exception& ex)
@@ -26,4 +26,4 @@ namespace Plugin
             return std::nullopt;
         }
     }
-} // namespace Plugin
+} // namespace ResponsePlugin

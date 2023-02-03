@@ -8,7 +8,7 @@
 
 #include <atomic>
 
-namespace Plugin
+namespace ResponsePlugin
 {
     class PluginCallback : public virtual Common::PluginApi::IPluginCallbackApi
     {
@@ -33,4 +33,4 @@ namespace Plugin
     private:
         std::atomic_bool m_running = false;
     };
-}; // namespace Plugin
+}; // namespace ResponsePlugin

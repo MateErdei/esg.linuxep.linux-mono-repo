@@ -1,7 +1,7 @@
 // Copyright 2023 Sophos Limited. All rights reserved.
 
 #include "QueueTask.h"
-namespace Plugin
+namespace ResponsePlugin
 {
     void QueueTask::push(const Task& task)
     {
@@ -43,4 +43,4 @@ namespace Plugin
         push(stopTask);
     }
 
-} // namespace Plugin
+} // namespace ResponsePlugin

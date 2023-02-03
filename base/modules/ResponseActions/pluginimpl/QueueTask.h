@@ -7,7 +7,7 @@
 #include <mutex>
 #include <string>
 
-namespace Plugin
+namespace ResponsePlugin
 {
     struct Task
     {
@@ -35,4 +35,4 @@ namespace Plugin
         bool pop(Task&, int timeout);
     };
 
-} // namespace Plugin
+} // namespace ResponsePlugin

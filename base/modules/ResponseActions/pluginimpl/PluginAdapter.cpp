@@ -3,7 +3,7 @@
 #include "Logger.h"
 #include "PluginAdapter.h"
 
-namespace Plugin
+namespace ResponsePlugin
 {
     PluginAdapter::PluginAdapter(
         std::shared_ptr<QueueTask> queueTask,
@@ -37,4 +37,4 @@ namespace Plugin
 
     void PluginAdapter::processAction(const std::string& actionXml) { LOGDEBUG("Process policy: " << actionXml); }
 
-} // namespace Plugin
+} // namespace ResponsePlugin

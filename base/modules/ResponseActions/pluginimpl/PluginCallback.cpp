@@ -13,7 +13,7 @@
 
 using namespace std::chrono_literals;
 
-namespace Plugin
+namespace ResponsePlugin
 {
     PluginCallback::PluginCallback(std::shared_ptr<QueueTask> task) : m_task(std::move(task))
     {
@@ -60,12 +60,12 @@ namespace Plugin
         LOGDEBUG("Received get telemetry request");
         auto& telemetry = Common::Telemetry::TelemetryHelper::getInstance();
 
-        std::optional<std::string> version = Plugin::getVersion();
+        std::optional<std::string> version = ResponsePlugin::getVersion();
         if (version)
         {
-            telemetry.set(Plugin::Telemetry::version, version.value());
+            telemetry.set(ResponsePlugin::Telemetry::version, version.value());
         }
-        Common::Telemetry::TelemetryHelper::getInstance().set(Telemetry::pluginHealthStatus, static_cast<u_long>(1));
+        telemetry.set(Telemetry::pluginHealthStatus, static_cast<u_long>(1));
         std::string telemetryJson = telemetry.serialiseAndReset();
         LOGDEBUG("Got telemetry JSON data: " << telemetryJson);
 
@@ -88,4 +88,4 @@ namespace Plugin
         return m_running;
     }
 
-} // namespace Plugin
+} // namespace ResponsePlugin

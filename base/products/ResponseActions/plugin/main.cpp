@@ -20,7 +20,7 @@ enum returnCode {
 
 int main()
 {
-    using namespace Plugin;
+    using namespace ResponsePlugin;
     int ret = SUCCESS;
     Common::Logging::PluginLoggingSetup loggerSetup(PluginName);
 

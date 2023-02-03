@@ -6,7 +6,7 @@
 #include <string>
 #include <optional>
 
-namespace Plugin
+namespace ResponsePlugin
 {
     std::optional<std::string> getVersion();
-} // namespace Plugin
+} // namespace ResponsePlugin

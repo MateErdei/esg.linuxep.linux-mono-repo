@@ -2,7 +2,7 @@
 #pragma once
 
 #include <string>
-namespace Plugin
+namespace ResponsePlugin
 {
     std::string getVersionIniFilePath();
-} // namespace Plugin
+} // namespace ResponsePlugin
