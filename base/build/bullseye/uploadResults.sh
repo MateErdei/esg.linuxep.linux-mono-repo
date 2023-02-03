@@ -89,6 +89,7 @@ then
   then
       remount
       do_covhtml || exitFailure $FAILURE_BULLSEYE "Failed to generate bullseye html"
+  fi
 else
   #upload results
   BULLSEYE_UPLOAD=1
