@@ -1057,18 +1057,18 @@ class MCSConnection:
         headers = {
             "User-Agent": self.__m_user_agent,
             "Authorization": "Bearer {}".format(self.m_jwt_token),
-            "Accept-Encoding": "gzip",
+            "Content-Type": "application/json",
             "X-Device-ID": self.m_device_id,
             "X-Tenant-ID": self.m_tenant_id,
             "Accept": "application/json",
-            "Content-Length": response.m_gzip_body_size,
+            "Content-Length": response.m_json_body_size,
             "Content-Encoding": "deflate",
             "X-Uncompressed-Content-Length": response.m_json_body_size,
         }
         LOGGER.debug(
             "MCS request url={} body size={}".format(
                 command_path,
-                response.m_gzip_body_size))
+                response.m_json_body_size))
         (headers, body) = self.__request(command_path, headers, response.m_json_body, "POST")
         return body
 
@@ -1128,7 +1128,7 @@ class MCSConnection:
 
                 except (MCSHttpForbiddenException) as exception:
                     log_exception_error(response.m_app_id, response.m_correlation_id, exception)
-                    LOGGER.warning("Discarding all responses due to JWT token expired or missing feature code")
+                    LOGGER.warning("Discarding {} responses due to JWT token expired or missing feature code".format(len(responses)))
                     response.remove_response_file()
                     clear_all_responses = True
 

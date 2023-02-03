@@ -121,7 +121,7 @@ Check Cloud Server Log For EDR Response
     Wait Until Keyword Succeeds
     ...  1 min
     ...  5 secs
-    ...  Check Cloud Server Log Contains    POST - /mcs/v2/responses/device/ThisIsAnMCSID+1001/app_id/${app_id}/correlation_id/${correlation_id}    ${occurrence}
+    ...  Check Cloud Server Log Contains    POST - /mcs/v2/responses/device/ThisIsADeviceID+1001/app_id/${app_id}/correlation_id/${correlation_id}    ${occurrence}
 
 Check Cloud Server Log For EDR Response Body
     [Arguments]    ${app_id}  ${correlation_id}  ${expected_body}

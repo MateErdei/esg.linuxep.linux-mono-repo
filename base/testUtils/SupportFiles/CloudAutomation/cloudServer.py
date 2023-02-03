@@ -1142,6 +1142,13 @@ class Endpoints(object):
             results.append(e.report())
         return results
 
+
+    def getDevicebyDeviceID(self, deviceId) -> Endpoint:
+        for e in self.__m_endpoints.values():
+            if e.device_id() == deviceId:
+                return e
+            return None
+
     def getEndpointByID(self, eid) -> Endpoint:
         for e in self.__m_endpoints.values():
             if e.id() == eid:
@@ -1885,10 +1892,14 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
         device_id = match_object.group(1)
         app_id = match_object.group(2)
         correlation_id = match_object.group(3)
-        device = GL_ENDPOINTS.getEndpointByID(device_id)
+        device = GL_ENDPOINTS.getDevicebyDeviceID(device_id)
         if device is None:
             ## Create endpoint?
             return self.ret("Response for unknown device", 400)
+        if SERVER_403:
+            return self.ret("JWT token error", 403)
+        if SERVER_413:
+            return self.ret("Message to large", 413)
         if SERVER_500:
             return self.ret("Internal Server Error", 500)
 
@@ -1940,7 +1951,7 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
         MCSRequestHandler.m_userAgent = self.headers.get("User-Agent", "<unknown>")
         if self.path.startswith("/mcs/events/endpoint"):
             return self.mcs_event()
-        elif self.path.startswith("/mcs/responses/endpoint"):
+        elif self.path.startswith("/mcs/v2/responses/device"):
             return self.edr_response()
         elif self.path.startswith("/mcs/v2/data_feed/device"):
             return self.datafeed()

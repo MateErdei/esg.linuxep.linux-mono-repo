@@ -115,7 +115,7 @@ class TestMCSConnection(unittest.TestCase):
         self.assertEqual(len(responses), 2)
         with self.assertLogs(level="WARNING") as logs:
             mcsrouter.mcsclient.mcs_connection.MCSConnection.send_responses(mcs_connection, responses)
-        assert_message_in_logs("Discarding all responses due to JWT token expired or missing feature code", logs.output, log_level="WARNING")
+        assert_message_in_logs("Discarding 2 responses due to JWT token expired or missing feature code", logs.output, log_level="WARNING")
         self.assertEqual(mcsrouter.mcsclient.mcs_connection.MCSConnection.send_live_query_response_with_id.call_count, 1)
         self.assertEqual(dummy_function.call_count, 2)
 
