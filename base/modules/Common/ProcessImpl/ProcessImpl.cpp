@@ -1,4 +1,4 @@
-// Copyright 2018-2022, Sophos Limited.  All rights reserved.
+// Copyright 2018-2023, Sophos Limited.  All rights reserved.
 
 #include "ProcessImpl.h"
 
@@ -6,6 +6,8 @@
 #include "Logger.h"
 
 #include <Common/Process/IProcessException.h>
+#include "Common/ZeroMQWrapperImpl/ContextCollection.h"
+#include "Common/ZeroMQWrapperImpl/SocketCollection.h"
 
 #include <algorithm>
 #include <future>
@@ -152,6 +154,9 @@ namespace Common::ProcessImpl
         m_pid = -1;
         try
         {
+            std::lock_guard<std::mutex> socketLock(SocketCollection::getInstance().m_mutex);
+            std::lock_guard<std::mutex> contextLock(ContextCollection::getInstance().m_mutex);
+
             m_d = std::make_shared<BoostProcessHolder>(
                 path,
                 arguments,
