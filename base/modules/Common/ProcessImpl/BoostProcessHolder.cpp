@@ -94,14 +94,13 @@ namespace Common
             void on_exec_setup(boost::process::extend::posix_executor<Sequence>& exec)
             {
                 std::ofstream logFile;
-                logFile.open ("/tmp/zmq-fork.log");
+                logFile.open("/tmp/zmq-fork.log", std::fstream::out | std::fstream::app);
                 logFile  << "Forking for " << exec.exe << std::endl;
 
                 for (const auto socket: GL_zmqSockets)
                 {
                     if (socket != nullptr)
                     {
-                        GL_zmqSockets.erase(socket);
                         logFile  << "Closed socket" << std::endl;
                         zmq_close(socket);
                     }
@@ -111,7 +110,6 @@ namespace Common
                 {
                     if (context != nullptr)
                     {
-                        GL_zmqContexts.erase(context);
                         logFile  << "Terminated Context" << std::endl;
                         zmq_ctx_term(context);
                     }
