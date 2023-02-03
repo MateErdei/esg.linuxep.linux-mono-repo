@@ -20,7 +20,7 @@ RESULTS_DIR = '/opt/test/results'
 INPUTS_DIR = '/opt/test/inputs'
 
 COMPONENT = 'sspl_base'
-BUILD_TEMPLATE = 'JenkinsLinuxTemplate7'
+BUILD_TEMPLATE = 'centos79_x64_build_20230202'
 RELEASE_PKG = './build/release-package.xml'
 RELEASE_MODE = 'release'
 DEBUG_MODE = 'debug'
