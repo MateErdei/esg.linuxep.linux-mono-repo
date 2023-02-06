@@ -276,9 +276,8 @@ Install master of base and edr and mtr and upgrade to new query pack
     ...   60 secs
     ...   10 secs
     ...   Check MCS Envelope Contains Event Success On N Event Sent  1
-    Send ALC Policy And Prepare For Upgrade  ${querypackPolicy}
-
-
+    Setup SUS only edr 999
+    Trigger Update now
 
     Wait Until Keyword Succeeds
     ...  120 secs

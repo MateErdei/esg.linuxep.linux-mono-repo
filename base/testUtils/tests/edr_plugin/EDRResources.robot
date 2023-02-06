@@ -222,14 +222,6 @@ Setup SUS only edr 999
     Copy File  ${SYSTEMPRODUCT_TEST_INPUT}/sdds3/launchdarkly-999/release.linuxep.ServerProtectionLinux-Plugin-EDR.json  /tmp/launchdarkly
     Copy File  ${SYSTEMPRODUCT_TEST_INPUT}/sdds3/launchdarkly/release.linuxep.ServerProtectionLinux-Plugin-MDR.json  /tmp/launchdarkly
 
-Setup SUS only base 999
-    Remove Directory   /tmp/launchdarkly   recursive=True
-    Create Directory   /tmp/launchdarkly
-    Copy File  ${SYSTEMPRODUCT_TEST_INPUT}/sdds3/launchdarkly-999/release.linuxep.ServerProtectionLinux-Base.json   /tmp/launchdarkly
-    Copy File  ${SYSTEMPRODUCT_TEST_INPUT}/sdds3/launchdarkly/release.linuxep.ServerProtectionLinux-Plugin-AV.json   /tmp/launchdarkly
-    Copy File  ${SYSTEMPRODUCT_TEST_INPUT}/sdds3/launchdarkly/release.linuxep.ServerProtectionLinux-Plugin-EDR.json  /tmp/launchdarkly
-    Copy File  ${SYSTEMPRODUCT_TEST_INPUT}/sdds3/launchdarkly/release.linuxep.ServerProtectionLinux-Plugin-MDR.json  /tmp/launchdarkly
-
 Setup SUS all non-base plugins 999
     Remove Directory   /tmp/launchdarkly   recursive=True
     Create Directory   /tmp/launchdarkly
