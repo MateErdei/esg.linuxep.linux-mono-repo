@@ -48,7 +48,7 @@ namespace Common::OSUtilitiesImpl
                 "/etc/redhat-release",
                 "/etc/system-release",
                 "/etc/miraclelinux-release",
-                "/etc/SuSE-release"
+                "/etc/SUSE-brand"
             };
             
             auto *fs = FileSystem::fileSystem();
@@ -99,9 +99,12 @@ namespace Common::OSUtilitiesImpl
         std::string PlatformUtils::extractDistroFromOSFile()
         {
             std::map<std::string, std::string> distroNames = {
-                std::make_pair("redhat", "redhat"), std::make_pair("ubuntu", "ubuntu"),
-                std::make_pair("centos", "centos"), std::make_pair("amazonlinux", "amazon"),
-                std::make_pair("oracle", "oracle"), std::make_pair("miracle", "miracle"),
+                std::make_pair("redhat", "redhat"),
+                std::make_pair("ubuntu", "ubuntu"),
+                std::make_pair("centos", "centos"),
+                std::make_pair("amazonlinux", "amazon"),
+                std::make_pair("oracle", "oracle"),
+                std::make_pair("miracle", "miracle"),
                 std::make_pair("suse", "suse")
             };
 
@@ -139,7 +142,7 @@ namespace Common::OSUtilitiesImpl
                 std::make_pair("amazonlinux", "amazon"),
                 std::make_pair("oracle", "oracle"),
                 std::make_pair("miracle", "miracle"),
-                std::make_pair("suse", "suse")
+                std::make_pair("sle", "suse")
             };
 
             auto *fs = FileSystem::fileSystem();

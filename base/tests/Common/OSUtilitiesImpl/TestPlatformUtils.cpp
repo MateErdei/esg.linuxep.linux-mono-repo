@@ -146,6 +146,32 @@ TEST(TestPlatformUtils, PopulateVendorDetailsForMiracleLinux) // NOLINT
     scopedReplaceFileSystem.reset();
 }
 
+TEST(TestPlatformUtils, PopulateVendorDetailsForSLES12) // NOLINT
+{
+    std::vector<std::string> suseReleaseContents = { "SLE",
+                                                     "VERSION = 15" };
+
+    auto* filesystemMock = new StrictMock<MockFileSystem>();
+    std::unique_ptr<Tests::ScopedReplaceFileSystem> scopedReplaceFileSystem =
+        std::make_unique<Tests::ScopedReplaceFileSystem>(
+            std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
+
+    EXPECT_CALL(*filesystemMock, isFile("/etc/lsb-release")).WillOnce(Return(false));
+    EXPECT_CALL(*filesystemMock, isFile("/etc/issue")).WillOnce(Return(false));
+    EXPECT_CALL(*filesystemMock, isFile("/etc/centos-release")).WillOnce(Return(false));
+    EXPECT_CALL(*filesystemMock, isFile("/etc/oracle-release")).WillOnce(Return(false));
+    EXPECT_CALL(*filesystemMock, isFile("/etc/redhat-release")).WillOnce(Return(false));
+    EXPECT_CALL(*filesystemMock, isFile("/etc/system-release")).WillOnce(Return(false));
+    EXPECT_CALL(*filesystemMock, isFile("/etc/miraclelinux-release")).WillRepeatedly(Return(false));
+    EXPECT_CALL(*filesystemMock, isFile("/etc/SUSE-brand")).WillRepeatedly(Return(true));
+    EXPECT_CALL(*filesystemMock, readLines("/etc/SUSE-brand")).WillRepeatedly(Return(suseReleaseContents));
+
+    PlatformUtils platformUtils;
+    ASSERT_EQ(platformUtils.getVendor(), "suse");
+
+    scopedReplaceFileSystem.reset();
+}
+
 TEST(TestPlatformUtils, GetAndConvertAwsMetadataToXml) // NOLINT
 {
     std::string responseBody = R"({

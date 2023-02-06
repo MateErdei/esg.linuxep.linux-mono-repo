@@ -32,7 +32,7 @@ DISTRIBUTION_NAME_MAP = {
     'amazonlinux': 'amazon',
     'oracle': 'oracle',
     'miracle': 'miracle',
-    'suse': 'suse'
+    'sle': 'suse'
 }
 
 #-----------------------------------------------------------------------------
@@ -110,7 +110,7 @@ class TargetSystem:
                               '/etc/redhat-release',
                               '/etc/system-release',
                               '/etc/miraclelinux-release',
-                              '/etc/SuSE-release']
+                              '/etc/SUSE-brand']
         for distro_file in distro_check_files:
             distro_identified = self._check_distro_file(distro_file)
             if distro_identified:
@@ -131,7 +131,11 @@ class TargetSystem:
             # conversion mapping between string at start of file and distro name
             for distro_string in DISTRIBUTION_NAME_MAP:
                 if check_contents.startswith(distro_string):
-                    self.m_description = contents.strip()
+                    # For SUSE use the brand file to identify distro but os-release to get description
+                    if distro_file == '/etc/SUSE-brand':
+                        self._check_os_file()
+                    else:
+                        self.m_description = contents.strip()
                     return DISTRIBUTION_NAME_MAP[distro_string]
         return None
 

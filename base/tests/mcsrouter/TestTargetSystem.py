@@ -83,13 +83,11 @@ class TestTargetSystem(unittest.TestCase):
         target_system = mcsrouter.targetsystem.TargetSystem('/tmp/sophos-spl')
         self.assertEqual('miracle', target_system.vendor())
 
-
-
     @mock.patch('mcsrouter.targetsystem._collect_lsb_release', return_value=NO_LSB)
-    @mock.patch('builtins.open', new_callable=mock_open, read_data="Fedora release 27")
-    def test_os_version_retrieves_unknown_vendor(self, *mockargs):
+    @mock.patch('builtins.open', new_callable=mock_open, read_data="SLE")
+    def test_os_version_retrieves_suse_linux_vendor(self, *mockargs):
         target_system = mcsrouter.targetsystem.TargetSystem('/tmp/sophos-spl')
-        self.assertEqual('unknown', target_system.vendor())
+        self.assertEqual('suse', target_system.vendor())
 
     @mock.patch('mcsrouter.targetsystem._collect_lsb_release', return_value=UBUNTU_3_VERSION)
     def test_read_uname_calls_os_uname(self, *mockargs):
