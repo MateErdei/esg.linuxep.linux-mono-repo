@@ -3,6 +3,8 @@ add_library(eventreceiverimpl SHARED
         ../PluginCommunication/IEventReceiver.h
         EventTask.cpp
         EventTask.h
+        EventUtils.cpp
+        EventUtils.h
         IOutbreakModeController.h
         OutbreakModeController.cpp
         OutbreakModeController.h

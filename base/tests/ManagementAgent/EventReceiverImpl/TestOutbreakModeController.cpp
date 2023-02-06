@@ -43,6 +43,8 @@ namespace
             fs::create_directories(testDir_ / "tmp");
             varDir_ = testDir_ / "var" / "sophosspl";
             fs::create_directories(varDir_);
+            eventDir_ = testDir_ / "base" / "mcs" / "event";
+            fs::create_directories(eventDir_);
             expectedStatusFile_ = testDir_ / "var" / "sophosspl" / "outbreak_status.json";
         }
 
@@ -53,6 +55,7 @@ namespace
 
         fs::path testDir_;
         fs::path varDir_;
+        fs::path eventDir_;
         Path expectedStatusFile_;
 
         static bool processEventThrowAwayArgs(OutbreakModeControllerPtr& controller,
@@ -88,8 +91,26 @@ namespace
             repeatProcessEvent(controller, DETECTION_XML, OUTBREAK_COUNT+1);
             EXPECT_TRUE(controller->outbreakMode());
         }
+
+        void checkOutbreakEventSent();
     };
 
+    void TestOutbreakModeController::checkOutbreakEventSent()
+    {
+        auto* filesystem = Common::FileSystem::fileSystem();
+        // List eventDir_
+        auto files = filesystem->listFiles(eventDir_);
+        EXPECT_EQ(files.size(), 1);
+        if (files.size() == 1)
+        {
+            auto path = files[0];
+            auto name = Common::FileSystem::basename(path);
+            auto contents = filesystem->readFile(path);
+            EXPECT_THAT(contents, HasSubstr("sophos.core.outbreak"));
+            EXPECT_THAT(name, StartsWith("CORE_event-"));
+            EXPECT_THAT(name, EndsWith(".xml"));
+        }
+    }
 }
 
 TEST_F(TestOutbreakModeController, construction)
@@ -110,15 +131,17 @@ TEST_F(TestOutbreakModeController, entering_outbreak_mode)
     }
     std::string appId{"CORE"};
     std::string xml{detection_xml};
-    controller->processEvent(appId, xml);
+    auto result = controller->processEvent(appId, xml);
+
+    EXPECT_FALSE(result); // keep the event
+    EXPECT_EQ(xml, detection_xml); // Still report the event
+
+    // Check we have an event reported for outbreak mode
+    checkOutbreakEventSent();
 
     EXPECT_TRUE(waitForLog("Entering outbreak mode"));
     EXPECT_TRUE(waitForLog("Generating Outbreak notification with UUID=5df69683-a5a2-5d96-897d-06f9c4c8c7bf"));
     EXPECT_TRUE(controller->outbreakMode());
-
-    // Check that we over-write the last event
-    EXPECT_EQ(appId, "CORE");
-    EXPECT_THAT(xml, HasSubstr("sophos.core.outbreak"));
 }
 
 TEST_F(TestOutbreakModeController, do_not_enter_outbreak_mode_for_cleanups)
@@ -336,6 +359,9 @@ TEST_F(TestOutbreakModeController, saves_status_file_on_outbreak)
     std::string expected_contents = R"({"outbreakMode":true,"uuid":"5df69683-a5a2-5d96-897d-06f9c4c8c7bf"})";
 
     EXPECT_CALL(*filesystemMock, writeFileAtomically(expectedStatusFile_, expected_contents, _, _)).WillOnce(Return());
+    EXPECT_CALL(*filesystemMock, writeFileAtomically(
+                                     HasSubstr("base/mcs/event/CORE_event-"),
+                                     HasSubstr("sophos.core.outbreak"), _, _)).WillOnce(Return());
 
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
 

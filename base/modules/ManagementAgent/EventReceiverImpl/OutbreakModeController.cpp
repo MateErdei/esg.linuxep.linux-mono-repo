@@ -2,6 +2,8 @@
 
 #include "OutbreakModeController.h"
 
+#include "EventUtils.h"
+
 #include "ApplicationConfigurationImpl/ApplicationPathManager.h"
 #include "Common/UtilityImpl/StringUtils.h"
 #include "Common/UtilityImpl/TimeUtils.h"
@@ -34,16 +36,16 @@ ManagementAgent::EventReceiverImpl::OutbreakModeController::OutbreakModeControll
 
 
 bool ManagementAgent::EventReceiverImpl::OutbreakModeController::processEvent(
-    std::string& appId,
-    std::string& eventXml)
+    const std::string& appId,
+    const std::string& eventXml)
 {
     return processEvent(appId, eventXml, clock_t::now());
 }
 
 bool ManagementAgent::EventReceiverImpl::OutbreakModeController::processEvent(
-    std::string& appId,
-    std::string& eventXml,
-    time_point_t now)
+    const std::string& appId,
+    const std::string& eventXml,
+    const time_point_t now)
 {
     resetCountOnDayChange(now);
 
@@ -52,20 +54,23 @@ bool ManagementAgent::EventReceiverImpl::OutbreakModeController::processEvent(
         return false;
     }
 
-    if (!outbreakMode_)
+    if (outbreakMode_)
     {
-        detectionCount_++;
-        if (detectionCount_ >= 100)
-        {
-            LOGWARN("Entering outbreak mode: Further detections will not be reported to Central");
-            outbreakMode_ = true;
-            appId = "CORE";
-            eventXml = generateCoreOutbreakEvent(now);
-            save();
-            LOGDEBUG("Replacing detection with outbreak mode report: " << eventXml);
-        }
+        return false; // TODO LINUXDAR-6616 stop blockable events
     }
-    return false;
+
+    detectionCount_++;
+    if (detectionCount_ >= 100)
+    {
+        LOGWARN("Entering outbreak mode: Further detections will not be reported to Central");
+        outbreakMode_ = true;
+        // Sent before the 100th event, but shouldn't cause huge problems
+        auto outbreakXml = generateCoreOutbreakEvent(now);
+        LOGDEBUG("Sending outbreak mode report: " << outbreakXml);
+        ManagementAgent::EventReceiverImpl::sendEvent("CORE", outbreakXml);
+        save();
+    }
+    return false; // Still send the 100th event
 }
 
 
