@@ -21,7 +21,7 @@ namespace ManagementAgent::EventReceiverImpl
          * @param eventXml      IN XML contents of event
          * @return True if we should drop the event and not send to Central
          */
-        virtual bool processEvent(
+        [[nodiscard]] virtual bool processEvent(
             const std::string& appId,
             const std::string& eventXml
             ) = 0;
