@@ -63,6 +63,8 @@ Install all plugins 999 then downgrade to all plugins develop
     Should contain   ${contents}   PRODUCT_VERSION = 99.99.99
     ${contents} =  Get File  ${EVENTJOURNALER_DIR}/VERSION.ini
     Should contain   ${contents}   PRODUCT_VERSION = 9.99.9
+    ${contents} =  Get File  ${RESPONSE_ACTIONS_DIR}/VERSION.ini
+    Should contain   ${contents}   PRODUCT_VERSION = 99.9.9.999
     ${contents} =  Get File  ${RUNTIMEDETECTIONS_DIR}/VERSION.ini
     Should contain   ${contents}   PRODUCT_VERSION = 999.999.999
     ${pre_downgrade_rtd_log} =  Get File  ${RUNTIMEDETECTIONS_DIR}/log/runtimedetections.log
@@ -86,6 +88,7 @@ Install all plugins 999 then downgrade to all plugins develop
     Check Log Contains  Preparing ServerProtectionLinux-Base-component for downgrade  ${SULDownloaderLogDowngrade}  backedup suldownloader log
 
     Check Log Contains  Component ServerProtectionLinux-Base-component is being downgraded   ${SULDownloaderLogDowngrade}  backedup suldownloader log
+    Check Log Contains  Component ServerProtectionLinux-Plugin-responseactions is being downgraded   ${SULDownloaderLogDowngrade}  backedup suldownloader log
     Check Log Contains  Component ServerProtectionLinux-Plugin-RuntimeDetections is being downgraded   ${SULDownloaderLogDowngrade}  backedup suldownloader log
     Check Log Contains  Component ServerProtectionLinux-Plugin-liveresponse is being downgraded   ${SULDownloaderLogDowngrade}  backedup suldownloader log
     Check Log Contains  Component ServerProtectionLinux-Plugin-EventJournaler is being downgraded   ${SULDownloaderLogDowngrade}  backedup suldownloader log
@@ -319,7 +322,7 @@ Install master of base and edr and mtr and av and upgrade to edr 999 and mtr 999
     Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-AV version: 1.
 
     Check log Does not Contain   Installing product: ServerProtectionLinux-Base-component version: 99.9.9   ${SULDOWNLOADER_LOG_PATH}  Sul-Downloader
-    Check log Does not Contain   Installing product: ServerProtectionLinux-Plugin-ResponseActions version: 99.9.9   ${SULDOWNLOADER_LOG_PATH}  Sul-Downloader
+    Check log Does not Contain   Installing product: ServerProtectionLinux-Plugin-responseactions version: 99.9.9   ${SULDOWNLOADER_LOG_PATH}  Sul-Downloader
     Check Log Does Not Contain    Installing product: ServerProtectionLinux-Plugin-MDR version: 9.99.9     ${SULDOWNLOADER_LOG_PATH}  Sul-Downloader
     Check Log Does Not Contain    Installing product: ServerProtectionLinux-Plugin-EDR version: 9.99.9     ${SULDOWNLOADER_LOG_PATH}  Sul-Downloader
     Check Log Does Not Contain    Installing product: ServerProtectionLinux-Plugin-AV version: 9.99.9     ${SULDOWNLOADER_LOG_PATH}  Sul-Downloader
@@ -376,7 +379,10 @@ Install master of base and edr and mtr and av and upgrade to edr 999 and mtr 999
     ...  120 secs
     ...  2 secs
     ...  Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-RuntimeDetections version: 999.999.999
-
+    Wait Until Keyword Succeeds
+    ...  120 secs
+    ...  2 secs
+    ...  Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-responseactions version: 99.9.9.999
     # check plugins are running.
     Wait Until Keyword Succeeds
     ...  30 secs
@@ -466,6 +472,10 @@ Install master of base and edr and mtr and av and upgrade to edr 999 and mtr 999
     ...  wdctl <> stop eventjournaler
     ...  wdctl <> start eventjournaler
 
+    Check Log Contains In Order
+    ...  ${WDCTL_LOG_PATH}
+    ...  wdctl <> stop responseactions
+    ...  wdctl <> start responseactions
     #Log SSPLAV logs to the test report
     Log File      ${AV_LOG_FILE}
     Log File      ${THREAT_DETECTOR_LOG_PATH}
