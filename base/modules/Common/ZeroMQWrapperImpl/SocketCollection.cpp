@@ -31,7 +31,7 @@ void SocketCollection::closeSocket(void* socket)
 
 void SocketCollection::closeAll()
 {
-    for (const auto socket: m_zmqSockets)
+    for (auto socket: m_zmqSockets)
     {
         if (socket != nullptr)
         {

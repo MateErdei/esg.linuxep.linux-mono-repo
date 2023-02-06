@@ -30,7 +30,7 @@ void ContextCollection::closeContext(void* context)
 
 void ContextCollection::closeAll()
 {
-    for (const auto context: m_zmqContexts)
+    for (auto context: m_zmqContexts)
     {
         if (context != nullptr)
         {
