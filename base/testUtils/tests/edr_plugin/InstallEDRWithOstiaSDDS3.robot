@@ -63,8 +63,6 @@ Install all plugins 999 then downgrade to all plugins develop
     Should contain   ${contents}   PRODUCT_VERSION = 99.99.99
     ${contents} =  Get File  ${EVENTJOURNALER_DIR}/VERSION.ini
     Should contain   ${contents}   PRODUCT_VERSION = 9.99.9
-    ${contents} =  Get File  ${RESPONSE_ACTIONS_DIR}/VERSION.ini
-    Should contain   ${contents}   PRODUCT_VERSION = 99.9.9.999
     ${contents} =  Get File  ${RUNTIMEDETECTIONS_DIR}/VERSION.ini
     Should contain   ${contents}   PRODUCT_VERSION = 999.999.999
     ${pre_downgrade_rtd_log} =  Get File  ${RUNTIMEDETECTIONS_DIR}/log/runtimedetections.log
@@ -88,7 +86,6 @@ Install all plugins 999 then downgrade to all plugins develop
     Check Log Contains  Preparing ServerProtectionLinux-Base-component for downgrade  ${SULDownloaderLogDowngrade}  backedup suldownloader log
 
     Check Log Contains  Component ServerProtectionLinux-Base-component is being downgraded   ${SULDownloaderLogDowngrade}  backedup suldownloader log
-    Check Log Contains  Component ServerProtectionLinux-Plugin-responseactions is being downgraded   ${SULDownloaderLogDowngrade}  backedup suldownloader log
     Check Log Contains  Component ServerProtectionLinux-Plugin-RuntimeDetections is being downgraded   ${SULDownloaderLogDowngrade}  backedup suldownloader log
     Check Log Contains  Component ServerProtectionLinux-Plugin-liveresponse is being downgraded   ${SULDownloaderLogDowngrade}  backedup suldownloader log
     Check Log Contains  Component ServerProtectionLinux-Plugin-EventJournaler is being downgraded   ${SULDownloaderLogDowngrade}  backedup suldownloader log
@@ -258,6 +255,61 @@ Install master of base and edr and mtr and upgrade to edr 999
     Check All Product Logs Do Not Contain Error
     Check All Product Logs Do Not Contain Critical
 
+Install master of base and edr and mtr and upgrade to new query pack
+    Setup SUS all develop
+    Install EDR SDDS3  ${BaseAndEdrAndMtrVUTPolicy}
+
+    Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-EDR version: 1.
+    Wait Until Keyword Succeeds
+    ...  20 secs
+    ...  5 secs
+    ...  file should exist  ${EDR_DIR}/VERSION.ini
+    ${edr_version_contents} =  Get File  ${EDR_DIR}/VERSION.ini
+
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  5 secs
+    ...  file should exist  ${Sophos_Scheduled_Query_Pack}
+    ${query_pack_vut} =  Get File  ${Sophos_Scheduled_Query_Pack}
+    ${osquery_pid_before_query_pack_reload} =  Get Edr OsQuery PID
+    Wait Until Keyword Succeeds
+    ...   60 secs
+    ...   10 secs
+    ...   Check MCS Envelope Contains Event Success On N Event Sent  1
+    Send ALC Policy And Prepare For Upgrade  ${querypackPolicy}
+
+
+
+    Wait Until Keyword Succeeds
+    ...  120 secs
+    ...  10 secs
+    ...  Check Log Contains String At Least N Times   ${SULDOWNLOADER_LOG_PATH}   SULDownloader Log   Generating the report file in   3
+
+
+    # Ensure EDR was restarted during upgrade.
+    Check Log Contains In Order
+    ...  ${WDCTL_LOG_PATH}
+    ...  wdctl <> stop edr
+    ...  wdctl <> start edr
+
+    Wait Until Keyword Succeeds
+    ...  20 secs
+    ...  5 secs
+    ...  file should exist  ${Sophos_Scheduled_Query_Pack}
+    ${query_pack_99} =  Get File  ${Sophos_Scheduled_Query_Pack}
+    ${osquery_pid_after_query_pack_reload} =  Get Edr OsQuery PID
+    ${edr_version_contents1} =  Get File  ${EDR_DIR}/VERSION.ini
+    Should Not Be Equal As Strings  ${query_pack_99}  ${query_pack_vut}
+    Should Be Equal As Strings  ${edr_version_contents1}  ${edr_version_contents}
+    Should Not Be Equal As Integers  ${osquery_pid_after_query_pack_reload}  ${osquery_pid_before_query_pack_reload}
+
+    Wait For Suldownloader To Finish
+    Mark Known Upgrade Errors
+
+    Check All Product Logs Do Not Contain Error
+    Check All Product Logs Do Not Contain Critical
+
+
 Install master of base and edr and mtr and av and upgrade to edr 999 and mtr 999 and av 999
     [Timeout]  10 minutes
     Setup SUS all develop
@@ -268,7 +320,7 @@ Install master of base and edr and mtr and av and upgrade to edr 999 and mtr 999
     Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-AV version: 1.
 
     Check log Does not Contain   Installing product: ServerProtectionLinux-Base-component version: 99.9.9   ${SULDOWNLOADER_LOG_PATH}  Sul-Downloader
-    Check log Does not Contain   Installing product: ServerProtectionLinux-Plugin-responseactions version: 99.9.9   ${SULDOWNLOADER_LOG_PATH}  Sul-Downloader
+    Check log Does not Contain   Installing product: ServerProtectionLinux-Plugin-ResponseActions version: 99.9.9   ${SULDOWNLOADER_LOG_PATH}  Sul-Downloader
     Check Log Does Not Contain    Installing product: ServerProtectionLinux-Plugin-MDR version: 9.99.9     ${SULDOWNLOADER_LOG_PATH}  Sul-Downloader
     Check Log Does Not Contain    Installing product: ServerProtectionLinux-Plugin-EDR version: 9.99.9     ${SULDOWNLOADER_LOG_PATH}  Sul-Downloader
     Check Log Does Not Contain    Installing product: ServerProtectionLinux-Plugin-AV version: 9.99.9     ${SULDOWNLOADER_LOG_PATH}  Sul-Downloader
@@ -282,7 +334,7 @@ Install master of base and edr and mtr and av and upgrade to edr 999 and mtr 999
 
     Check SulDownloader Log Contains String N Times   Update success  2
 
-    Setup SUS all 999
+    Setup SUS all non-base plugins 999
     Send ALC Policy And Prepare For Upgrade  ${BaseAndMTREdrAV999Policy}
     #truncate log so that check mdr plugin installed works correctly later in the test
     ${result} =  Run Process   truncate   -s   0   ${MTR_DIR}/log/mtr.log
@@ -325,10 +377,7 @@ Install master of base and edr and mtr and av and upgrade to edr 999 and mtr 999
     ...  120 secs
     ...  2 secs
     ...  Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-RuntimeDetections version: 999.999.999
-    Wait Until Keyword Succeeds
-    ...  120 secs
-    ...  2 secs
-    ...  Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-responseactions version: 99.9.9.999
+
     # check plugins are running.
     Wait Until Keyword Succeeds
     ...  30 secs
@@ -418,10 +467,6 @@ Install master of base and edr and mtr and av and upgrade to edr 999 and mtr 999
     ...  wdctl <> stop eventjournaler
     ...  wdctl <> start eventjournaler
 
-    Check Log Contains In Order
-    ...  ${WDCTL_LOG_PATH}
-    ...  wdctl <> stop responseactions
-    ...  wdctl <> start responseactions
     #Log SSPLAV logs to the test report
     Log File      ${AV_LOG_FILE}
     Log File      ${THREAT_DETECTOR_LOG_PATH}
@@ -431,10 +476,7 @@ Install master of base and edr and mtr and av and upgrade to edr 999 and mtr 999
     # Specific to this test:
     #TODO LINUXDAR-5140 remove when this defect is closed
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/av.log  ScanProcessMonitor <> failure in ConfigMonitor: pselect failed: Bad file descriptor
-    #TODO LINUXDAR-6371 remove when this defect is closed
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/sophos_managementagent.log  managementagent <> Failure on sending message to runtimedetections. Reason: No incoming data
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/sophos_managementagent.log  managementagent <> Failure on sending message to mtr. Reason: No incoming data
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/sophos_managementagent.log  managementagent <> Failure on sending message to edr. Reason: No incoming data
+
     Check All Product Logs Do Not Contain Error
     Check All Product Logs Do Not Contain Critical
 
