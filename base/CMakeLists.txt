@@ -201,7 +201,7 @@ set( BOOST_INCLUDE ${BOOST_INPUT}/include )
 set( GTEST_INPUT ${INPUT}/googletest )
 
 set( ZLIB_INPUT ${INPUT}/zlib )
-set( ZLIB_LIBRARY ${ZLIB_INPUT}/libzlib.so )
+set( ZLIB_LIBRARY ${ZLIB_INPUT}/libz.so )
 
 if(NOT DEFINED VERSIG_INPUT)
     set( VERSIG_INPUT ${INPUT}/versig)
