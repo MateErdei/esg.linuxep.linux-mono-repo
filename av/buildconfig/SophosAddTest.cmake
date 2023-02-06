@@ -48,7 +48,6 @@ macro(SophosAddTest TARGET)
             PUBLIC
             ${GTEST_LIBRARY}
             ${GTEST_MAIN_LIBRARY}
-            ${GMOCK_LIBRARY}
             pthread
             )
 
