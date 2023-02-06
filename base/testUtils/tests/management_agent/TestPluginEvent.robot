@@ -7,18 +7,18 @@ Library           Process
 Library           OperatingSystem
 Library           Collections
 
+Library     ${LIBS_DIRECTORY}/EventUtils.py
 Library     ${LIBS_DIRECTORY}/LogUtils.py
+Library     ${LIBS_DIRECTORY}/OnFail.py
 Library     ${LIBS_DIRECTORY}/FakePluginWrapper.py
 
 Resource    ManagementAgentResources.robot
 Resource  ../GeneralTeardownResource.robot
 
-Default Tags   MANAGEMENT_AGENT
-
+Force Tags     MANAGEMENT_AGENT
 
 *** Test Cases ***
 Verify Management Agent Creates New Event File When Plugin Raises A New Event
-    [Tags]  SMOKE  MANAGEMENT_AGENT  TAP_TESTS
     # make sure no previous event xml file exists.
     Remove Event Xml Files
 
@@ -34,6 +34,33 @@ Verify Management Agent Creates New Event File When Plugin Raises A New Event
     ...  10 secs
     ...  1 secs
     ...  Check Event File     ${eventContent}
+
+Verify Management Agent Goes Into Outbreak Mode After 100 Events
+    [Tags]  SMOKE  MANAGEMENT_AGENT  TAP_TESTS
+    # make sure no previous event xml file exists.
+    Remove Event Xml Files
+
+    Setup Plugin Registry
+    Start Management Agent
+
+    Start Plugin
+
+    ${eventContent} =  Get File  ${SUPPORT_FILES}/CORE_events/detection.xml
+
+    ${mark} =  mark_log_size  ${BASE_LOGS_DIR}/sophosspl/sophos_managementagent.log
+    register on fail  dump_marked_log  ${BASE_LOGS_DIR}/sophosspl/sophos_managementagent.log  ${mark}
+
+    Repeat Keyword  110 times  Send Plugin Event   ${eventContent}
+
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  1 secs
+    ...  Check Event File     ${eventContent}
+
+    wait for log contains from mark  ${mark}  Entering outbreak mode: Further detections will not be reported to Central
+
+    # Check we have the outbreak event
+    check_at_least_one_event_has_substr  ${SOPHOS_INSTALL}/base/mcs/event  sophos.core.outbreak
 
 
 Verify Sending Bad Message On Management Agent Socket Does Not Stop Plugin Registering Or Working
@@ -73,6 +100,7 @@ Verify Sending Bad Message On Management Agent Socket Does Not Stop Plugin Regis
 *** Keywords ***
 
 Plugin Event Test Teardown
+    run teardown functions
     General Test Teardown
     Stop Plugin
     Stop Management Agent

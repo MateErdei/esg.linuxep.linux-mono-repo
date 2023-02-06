@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<event type="sophos.core.detection" ts="2020-01-01T01:01:00.000Z">
+    <user userId="server"/>
+    <alert id="ThreatID" name="TestThreatSSPLBase" threatType="1" origin="8" remote="false">
+        <sha256>e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855</sha256>
+        <path>/sspl/base/product/test</path>
+    </alert>
+</event>

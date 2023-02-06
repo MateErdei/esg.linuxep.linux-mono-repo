@@ -30,7 +30,6 @@ def getSystemProductTestOutput(install_base_path=None):
     except EnvironmentError:
         deststat = None
 
-    
     everest_base_path = PathManager.find_local_base_dir_path()
     system_product_test_output = []
     if everest_base_path:
@@ -68,9 +67,9 @@ def getSystemProductTestOutput(install_base_path=None):
                 break
 
     if not system_product_test_output_found:
-        LOGGER.info(TEST_UTILS_PATH)
+        LOGGER.info(system_product_test_output)
         LOGGER.error("Can't find System Product Test Output!")
-        raise AssertionError("Can't find System Product Test Output!, looked at {}".format(TEST_UTILS_PATH))
+        raise AssertionError("Can't find System Product Test Output!, looked at {}".format(system_product_test_output))
 
     return system_product_test_path
 
