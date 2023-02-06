@@ -1,4 +1,3 @@
-o600, root, root, /opt/sophos-spl/plugins/responseactions/lib64/librapluginimpl.so.0
 o600, root, root, /opt/sophos-spl/plugins/responseactions/lib64/libresponseplugin.so.0
 o600, root, root, /opt/sophos-spl/plugins/responseactions/log/responseactions.log
 o600, root, root, /opt/sophos-spl/plugins/responseactions/VERSION.ini.0
