@@ -4,13 +4,14 @@ Documentation    Test base uninstaller clean up all components
 Library    ${LIBS_DIRECTORY}/FullInstallerUtils.py
 
 Resource  ../event_journaler/EventJournalerResources.robot
+Resource  ../ra_plugin/ResponseActionsResources.robot
 Resource  ../edr_plugin/EDRResources.robot
 Resource  ../mdr_plugin/MDRResources.robot
 Resource  ../liveresponse_plugin/LiveResponseResources.robot
 Resource  ../scheduler_update/SchedulerUpdateResources.robot
 Resource  ../GeneralTeardownResource.robot
 
-Default Tags  INSTALLER  EDR_PLUGIN  LIVERESPONSE_PLUGIN  MDR_PLUGIN  UPDATE_SCHEDULER  SMOKE
+Default Tags  INSTALLER  EDR_PLUGIN  LIVERESPONSE_PLUGIN  MDR_PLUGIN  UPDATE_SCHEDULER  SMOKE  RESPONSE_ACTIONS_PLUGIN
 
 *** Test Cases ***
 Test Components Shutdown Cleanly
@@ -30,6 +31,7 @@ Test Components Shutdown Cleanly
     ...  20 secs
     ...  1 secs
     ...  Check Event Journaler Installed
+    Install Response Actions Directly
     Block Connection Between EndPoint And FleetManager
     Install MDR Directly
     Check MDR Component Suite Installed Correctly
@@ -60,7 +62,11 @@ Test Components Shutdown Cleanly
     Wait Until Keyword Succeeds
     ...  30 secs
     ...  1 secs
-    ...  Check Log Contains   Plugin Finished   ${EVENTJOURNALER_DIR}/log/eventjournaler.log   LiveResponseLog
+    ...  Check Log Contains   Plugin Finished   ${EVENTJOURNALER_DIR}/log/eventjournaler.log   event journaler log
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  1 secs
+    ...  Check Log Contains   Plugin Finished   ${RESPONSE_ACTIONS_LOG_PATH}   ra log
     Wait Until Keyword Succeeds
     ...  30 secs
     ...  1 secs

@@ -35,4 +35,4 @@ SET_TARGET_PROPERTIES(watchdogservice
         PROPERTIES INSTALL_RPATH "$ORIGIN")
 
 install(TARGETS watchdogservice
-        LIBRARY DESTINATION files/base/lib64)
+        LIBRARY DESTINATION ${BASE_DIST_PREFIX}/files/base/lib64)

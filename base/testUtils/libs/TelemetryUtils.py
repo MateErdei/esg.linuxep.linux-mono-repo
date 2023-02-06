@@ -138,7 +138,16 @@ class TelemetryUtils:
 
         return telemetry
 
-    def generate_edr_telemetry_dict(self, num_osquery_restarts, num_database_purges, num_osquery_restarts_cpu,
+    def generate_ra_telemetry_dict(self):
+        version = get_plugin_version("responseactions")
+        telemetry = {
+            "health": 1,
+            "version": version
+        }
+
+        return telemetry
+
+    def generate_edr_telemetry_dict(self, num_osquery_restarts, num_osquery_restarts_cpu,
                                     num_osquery_restarts_memory,
                                     num_extension_restarts,
                                     num_extension_restarts_cpu,
@@ -156,7 +165,6 @@ class TelemetryUtils:
             "mtr-extension-restarts-memory": int(num_extension_restarts_memory),
             "version": version,
             "events-max": events_max,
-            "osquery-database-purges": int(num_database_purges),
             "xdr-is-enabled": xdr_is_enabled,
             "reached-max-process-events" : True,
             "reached-max-selinux-events" : True,
@@ -405,21 +413,10 @@ class TelemetryUtils:
 
     def check_mtr_telemetry_json_is_correct(self, json_string,
                                             num_sophos_mtr_restarts=0,
-                                            ignore_cpu_restarts=False,
-                                            ignore_memory_restarts=False,
                                             ignore_health=True):
         expected_mtr_telemetry_dict = self.generate_mtr_telemetry_dict(num_sophos_mtr_restarts)
         actual_mtr_telemetry_dict = json.loads(json_string)["mtr"]
 
-        if ignore_cpu_restarts:
-            cpu_restarts_key = "osquery-restarts-cpu"
-            expected_mtr_telemetry_dict.pop(cpu_restarts_key, None)
-            actual_mtr_telemetry_dict.pop(cpu_restarts_key, None)
-
-        if ignore_memory_restarts:
-            mem_restarts_key = "osquery-restarts-memory"
-            expected_mtr_telemetry_dict.pop(mem_restarts_key, None)
-            actual_mtr_telemetry_dict.pop(mem_restarts_key, None)
 
         if ignore_health:
             health_key = "health"
@@ -430,9 +427,16 @@ class TelemetryUtils:
             raise AssertionError(
                 f"MTR telemetry doesn't match telemetry expected by test. expected: {expected_mtr_telemetry_dict}, actual: {actual_mtr_telemetry_dict}")
 
+    def check_ra_telemetry_json_is_correct(self, json_string):
+        expected_ra_telemetry_dict = self.generate_ra_telemetry_dict()
+        actual_ra_telemetry_dict = json.loads(json_string)["responseactions"]
+
+        if actual_ra_telemetry_dict != expected_ra_telemetry_dict:
+            raise AssertionError(
+                f"MTR telemetry doesn't match telemetry expected by test. expected: {expected_ra_telemetry_dict}, actual: {actual_ra_telemetry_dict}")
+
     def check_edr_telemetry_json_is_correct(self, json_string,
                                             num_osquery_restarts=0,
-                                            num_database_purges=0,
                                             num_osquery_restarts_cpu=0,
                                             num_osquery_restarts_memory=0,
                                             num_extension_restarts=0,
@@ -453,7 +457,6 @@ class TelemetryUtils:
                                             ignore_user_events=True,
                                             folded_query=False):
         expected_edr_telemetry_dict = self.generate_edr_telemetry_dict(num_osquery_restarts,
-                                                                       num_database_purges,
                                                                        num_osquery_restarts_cpu,
                                                                        num_osquery_restarts_memory,
                                                                        num_extension_restarts,

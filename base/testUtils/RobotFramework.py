@@ -27,6 +27,7 @@ def main():
     os.environ['OPENSSL_INPUT'] = '/opt/test/inputs/openssl'
     os.environ['SYSTEM_PRODUCT_TEST_OUTPUT'] = '/opt/test/inputs/system_test/'
     os.environ['BASE_DIST'] = '/opt/test/inputs/base_sdds'
+    os.environ['RA_DIST'] = '/opt/test/inputs/ra_sdds'
     os.environ['OUTPUT'] = '/opt/test/inputs/base/'
     os.environ['WEBSOCKET_SERVER'] = '/opt/test/inputs/websocket_server'
 

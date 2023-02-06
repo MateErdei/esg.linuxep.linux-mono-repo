@@ -73,6 +73,14 @@ Check Diagnose Output For EDR Plugin logs
     ${Files} =  List Files In Directory  ${UNPACK_DIRECTORY}/${DiagnoseOutput}/BaseFiles
     Should Contain  ${Files}    edr.json
 
+Check Diagnose Output For RA Plugin logs
+    ${Files} =  List Files In Directory  ${UNPACK_DIRECTORY}/${DiagnoseOutput}/PluginFiles/responseactions
+    Should Contain  ${Files}    responseactions.log
+
+    # Check the plugin registry files
+    ${Files} =  List Files In Directory  ${UNPACK_DIRECTORY}/${DiagnoseOutput}/BaseFiles
+    Should Contain  ${Files}    responseactions.json
+
 Check Diagnose Output For Additional EDR Plugin File
     ${EDRFiles} =  List Files In Directory  ${UNPACK_DIRECTORY}/${DiagnoseOutput}/PluginFiles/edr
     ${EDRConfFiles} =  List Files In Directory  ${UNPACK_DIRECTORY}/${DiagnoseOutput}/PluginFiles/edr/etc

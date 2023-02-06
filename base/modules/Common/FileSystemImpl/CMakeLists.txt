@@ -25,6 +25,6 @@ SET_TARGET_PROPERTIES(filesystemimpl
         PROPERTIES INSTALL_RPATH "$ORIGIN")
 
 install(TARGETS filesystemimpl
-        LIBRARY DESTINATION files/base/lib64)
+        LIBRARY DESTINATION ${BASE_DIST_PREFIX}/files/base/lib64)
 
 install(TARGETS filesystemimpl LIBRARY DESTINATION ${THININSTALLER_DEPS_DIR_LIB64})

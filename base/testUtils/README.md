@@ -85,6 +85,7 @@ The following tags can be used to select which tests can be run, using the inclu
 * PUB_SUB - Tests which use the protobuf pub sub pipeline
 * PLUGIN_DOWNGRADE - Test cases where a plugin is downgraded
 * OSTIA - Tests which use ostia
+* RESPONSE_ACTIONS_PLUGIN - Tests which exercise the ra plugin
 * REGISTRATION - Tests that exercise the registration code
 * RUNTIMEDETECTIONS_PLUGIN - Tests focusing on RunTimedetections capabilities
 * SAV - Tests which install SAV

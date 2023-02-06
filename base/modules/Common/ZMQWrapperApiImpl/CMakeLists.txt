@@ -19,4 +19,4 @@ SET_TARGET_PROPERTIES(zmqwrapperapiimpl
         PROPERTIES INSTALL_RPATH "$ORIGIN")
 
 install(TARGETS zmqwrapperapiimpl
-        LIBRARY DESTINATION files/base/lib64)
+        LIBRARY DESTINATION ${BASE_DIST_PREFIX}/files/base/lib64)

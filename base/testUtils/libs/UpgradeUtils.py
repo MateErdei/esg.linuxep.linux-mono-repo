@@ -33,6 +33,7 @@ def check_versioned_copy_file_manifest(manifest_name, expected_version):
     skip_symlink_check_list = [os.path.join(install_dir, "base/pluginRegistry/mtr.json"),
                                os.path.join(install_dir, "base/pluginRegistry/liveresponse.json"),
                                os.path.join(install_dir, "base/pluginRegistry/eventjournaler.json"),
+                               os.path.join(install_dir, "base/pluginRegistry/responseactions.json"),
                                os.path.join(install_dir, "base/pluginRegistry/edr.json")]
 
     logger.trace("Symlink skip list: {}".format(skip_symlink_check_list))

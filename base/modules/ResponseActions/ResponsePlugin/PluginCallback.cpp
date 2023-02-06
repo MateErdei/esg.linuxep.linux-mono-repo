@@ -1,0 +1,91 @@
+// Copyright 2023 Sophos Limited. All rights reserved.
+
+#include "PluginCallback.h"
+
+#include "Logger.h"
+#include "Telemetry.h"
+#include "TelemetryConsts.h"
+
+#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
+
+#include <chrono>
+#include <thread>
+
+using namespace std::chrono_literals;
+
+namespace ResponsePlugin
+{
+    PluginCallback::PluginCallback(std::shared_ptr<QueueTask> task) : m_task(std::move(task))
+    {
+        LOGDEBUG("Plugin Callback Started");
+    }
+
+    void PluginCallback::applyNewPolicy(const std::string& /*policyXml*/)
+    {
+        LOGDEBUG("Unexpected policy received");
+    }
+
+    void PluginCallback::queueAction(const std::string&  actionXml )
+    {
+        m_task->push(Task{ Task::TaskType::ACTION, actionXml });
+    }
+
+    void PluginCallback::onShutdown()
+    {
+        LOGSUPPORT("Shutdown signal received");
+        m_task->pushStop();
+
+        auto deadline = std::chrono::steady_clock::now() + 30s;
+        auto nextLog = std::chrono::steady_clock::now() + 1s;
+
+        while(isRunning() && std::chrono::steady_clock::now() < deadline)
+        {
+            if ( std::chrono::steady_clock::now() > nextLog )
+            {
+                nextLog = std::chrono::steady_clock::now() + 1s;
+                LOGSUPPORT("Shutdown waiting for all processes to complete");
+            }
+            std::this_thread::sleep_for(50ms);
+        }
+    }
+
+    Common::PluginApi::StatusInfo PluginCallback::getStatus(const std::string& /* appId */)
+    {
+        LOGDEBUG("Received unexpected get status request");
+        return Common::PluginApi::StatusInfo{};
+    }
+
+    std::string PluginCallback::getTelemetry()
+    {
+        LOGDEBUG("Received get telemetry request");
+        auto& telemetry = Common::Telemetry::TelemetryHelper::getInstance();
+
+        std::optional<std::string> version = ResponsePlugin::getVersion();
+        if (version)
+        {
+            telemetry.set(ResponsePlugin::Telemetry::version, version.value());
+        }
+        telemetry.set(Telemetry::pluginHealthStatus, static_cast<u_long>(1));
+        std::string telemetryJson = telemetry.serialiseAndReset();
+        LOGDEBUG("Got telemetry JSON data: " << telemetryJson);
+
+        return telemetryJson;
+    }
+
+    std::string PluginCallback::getHealth()
+    {
+        LOGDEBUG("Received health request");
+        return "{}";
+    }
+
+    void PluginCallback::setRunning(bool running)
+    {
+        m_running = running;
+    }
+
+    bool PluginCallback::isRunning()
+    {
+        return m_running;
+    }
+
+} // namespace ResponsePlugin

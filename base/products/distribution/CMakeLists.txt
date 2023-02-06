@@ -44,10 +44,10 @@ add_third_party_library(protobuf ${Protobuf_root}/lib)
 add_third_party_library(log4cplus ${LOG4CPLUS_INPUT}/lib)
 
 install(FILES ${third_party_libs}
-        DESTINATION files/base/lib64)
+        DESTINATION ${BASE_DIST_PREFIX}/files/base/lib64)
 
 install(FILES ${VERSIG_INPUT}/bin64/versig
-        DESTINATION files/base/update)
+        DESTINATION ${BASE_DIST_PREFIX}/files/base/update)
 
 # libasan and libubsan are only used during debug builds and needed for unit tests to run but we do not want to add
 # them to the shipped third party library list, so create a separate list of build time only libs
@@ -65,43 +65,25 @@ add_custom_target(
         COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/libs
         COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/copy_libs.py ${CMAKE_BINARY_DIR}/libs ${third_party_libs} ${build_time_only_libs}
 )
-if (DEFINED ENV{VERSION_OVERRIDE})
-    set(PRODUCT_VERSION "$ENV{VERSION_OVERRIDE}")
-else()
-    execute_process(
-            COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/getReleasePackageVersion.py ${CMAKE_SOURCE_DIR}/build/release-package.xml
-            OUTPUT_VARIABLE RELEASE_PACKAGE_VERSION
-            OUTPUT_STRIP_TRAILING_WHITESPACE)
-    execute_process(
-            COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/computeAutoVersion.py ${CMAKE_SOURCE_DIR} ${RELEASE_PACKAGE_VERSION} CIJenkinsfile
-            OUTPUT_VARIABLE PRODUCT_VERSION
-            OUTPUT_STRIP_TRAILING_WHITESPACE)
-endif()
-
-execute_process(
-        COMMAND date +%Y-%m-%d
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-        OUTPUT_VARIABLE BUILD_DATE
-        OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 configure_file(VERSION.ini.in VERSION.ini @ONLY)
 
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/VERSION.ini
-        DESTINATION files/base/)
+        DESTINATION ${BASE_DIST_PREFIX}/files/base/)
 
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/VERSION.ini
-        DESTINATION .)
+        DESTINATION ${BASE_DIST_PREFIX})
 
 install(FILES datafeed-config-scheduled_query.json
-        DESTINATION files/base/etc/)
+        DESTINATION ${BASE_DIST_PREFIX}/files/base/etc/)
 
 if (DEFINED ENV{O_SIX_O})
     install(FILES ../../faker_lib.so.2.23.999
-            DESTINATION files/base/lib64/)
+            DESTINATION ${BASE_DIST_PREFIX}/files/base/lib64/)
 
     install(FILES ../../fake_lib.so.1.66.999
-            DESTINATION files/base/lib64/)
+            DESTINATION ${BASE_DIST_PREFIX}/files/base/lib64/)
 
     install(FILES ../../also_a_fake_lib.so.5.86.999
-            DESTINATION files/base/lib64/)
+            DESTINATION ${BASE_DIST_PREFIX}/files/base/lib64/)
 endif()

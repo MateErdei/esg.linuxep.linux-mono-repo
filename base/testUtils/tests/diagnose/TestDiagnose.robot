@@ -13,6 +13,7 @@ Resource    ../edr_plugin/EDRResources.robot
 Resource    ../liveresponse_plugin/LiveResponseResources.robot
 Resource    DiagnoseResources.robot
 Resource    ../runtimedetections_plugin/RuntimeDetectionsResources.robot
+Resource    ../ra_plugin/ResponseActionsResources.robot
 
 Suite Setup  Require Fresh Install
 Suite Teardown  Ensure Uninstalled
@@ -190,6 +191,39 @@ Diagnose Tool Gathers RuntimeDetections Logs When Run From Installation
     Check Diagnose Output For Additional RuntimeDetections Plugin Files
     Check Diagnose Output For System Command Files
     Check Diagnose Output For System Files
+
+    ${contents} =  Get File  /tmp/diagnose.log
+    Should Not Contain  ${contents}  error  ignore_case=True
+    Should Contain  ${contents}   Created tarfile: ${Files[0]} in directory ${TAR_FILE_DIRECTORY}
+
+Diagnose Tool Gathers Response actions Logs When Run From Installation
+    [Tags]  DIAGNOSE  RESPONSE_ACTIONS_PLUGIN  TAP_TESTS
+    Wait Until Created  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcs_envelope.log     20 seconds
+
+    Create Directory  ${TAR_FILE_DIRECTORY}
+
+    Install Response Actions Directly
+
+    Wait Until Keyword Succeeds
+        ...   10 secs
+        ...   1 secs
+        ...   File Should Exist  ${RESPONSE_ACTIONS_LOG_PATH}
+
+    ${retcode} =  Run Diagnose    ${SOPHOS_INSTALL}/bin/     ${TAR_FILE_DIRECTORY}
+    Should Be Equal As Integers   ${retcode}  0
+
+    # Check diagnose tar created
+    ${Files} =  List Files In Directory  ${TAR_FILE_DIRECTORY}/
+    ${fileCount} =    Get length    ${Files}
+    Should Be Equal As Numbers  ${fileCount}  1
+    ${folder}=  Fetch From Left   ${Files[0]}   .tar.gz
+    Set Suite Variable  ${DiagnoseOutput}  ${folder}
+    # Untar diagnose tar to check contents
+    Create Directory  ${UNPACK_DIRECTORY}
+    ${result} =   Run Process   tar    xzf    ${TAR_FILE_DIRECTORY}/${Files[0]}    -C    ${UNPACK_DIRECTORY}/
+    Should Be Equal As Strings   ${result.rc}  0
+
+    Check Diagnose Output For RA Plugin logs
 
     ${contents} =  Get File  /tmp/diagnose.log
     Should Not Contain  ${contents}  error  ignore_case=True

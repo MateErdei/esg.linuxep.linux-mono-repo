@@ -97,6 +97,11 @@ if(NOT DEFINED PRODUCT_LINE_ID)
     endif()
 endif()
 
+set(RA_PLUGIN_NAME responseactions)
+
+set(RA_PRODUCT_LINE_ID ServerProtectionLinux-Plugin-${RA_PLUGIN_NAME})
+set(RA_PRODUCT_NAME ServerProtectionLinux-Plugin-${RA_PLUGIN_NAME})
+
 # DEFAULT_HOME_FOLDER
 if(NOT DEFINED DEFAULT_HOME_FOLDER)
     if (DEFINED ENV{DEFAULT_HOME_FOLDER})
@@ -106,6 +111,8 @@ if(NOT DEFINED DEFAULT_HOME_FOLDER)
     endif()
 endif()
 
+set(DISTRIBUTION_TOOL_DIR ${CMAKE_SOURCE_DIR}/products/distribution)
+
 if(NOT DEFINED UPDATESCHEDULER_PRETTY_NAME)
     set(UPDATESCHEDULER_PRETTY_NAME "Update Scheduler")
 endif()
@@ -113,6 +120,40 @@ endif()
 #Specify the feature list of the form "feature1, feature2, feature3"
 #Set "" for no features when including in a component suite
 set(FEATURE_LIST "CORE")
+set(RA_FEATURE_LIST "MDR")
+
+set(BASE_DIST_PREFIX "base")
+set(RA_DIST_PREFIX "ra")
+
+if (DEFINED ENV{VERSION_OVERRIDE})
+    set(PRODUCT_VERSION "$ENV{VERSION_OVERRIDE}")
+else()
+    execute_process(
+            COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/products/distribution/getReleasePackageVersion.py ${CMAKE_SOURCE_DIR}/build/release-package.xml
+            OUTPUT_VARIABLE RELEASE_PACKAGE_VERSION
+            OUTPUT_STRIP_TRAILING_WHITESPACE)
+    execute_process(
+            COMMAND versioning_client --component sspl_base --version_number ${RELEASE_PACKAGE_VERSION}
+            OUTPUT_VARIABLE PRODUCT_VERSION
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+            RESULT_VARIABLE STATUS)
+    if(STATUS AND NOT STATUS EQUAL 0)
+        message(FATAL_ERROR \"Failed to generate version from base: ${STATUS}\")
+    endif()
+endif()
+
+if (DEFINED ENV{VERSION_OVERRIDE})
+    set(RA_PRODUCT_VERSION "$ENV{VERSION_OVERRIDE}")
+else()
+    execute_process(
+            COMMAND versioning_client --component responseactions --version_number 1.0.0
+            OUTPUT_VARIABLE RA_PRODUCT_VERSION
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+            RESULT_VARIABLE STATUS)
+    if(STATUS AND NOT STATUS EQUAL 0)
+        message(FATAL_ERROR \"Failed to generate version from base: ${STATUS}\")
+    endif()
+endif()
 
 find_package(PkgConfig)
 FIND_PACKAGE ( Threads REQUIRED )

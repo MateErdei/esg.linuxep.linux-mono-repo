@@ -13,4 +13,4 @@ target_link_libraries(xmlutilities PUBLIC
         ${LOG4CPLUS_LIBRARY})
 
 install(TARGETS xmlutilities
-        LIBRARY DESTINATION files/base/lib64)
+        LIBRARY DESTINATION ${BASE_DIST_PREFIX}/files/base/lib64)

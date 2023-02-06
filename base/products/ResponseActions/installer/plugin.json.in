@@ -1,0 +1,21 @@
+{
+  "policyAppIds": [
+  ],
+  "actionAppIds": [
+  "CORE"
+  ],
+  "statusAppIds": [
+  ],
+  "pluginName": "@RA_PLUGIN_NAME@",
+  "executableFullPath": "plugins/@RA_PLUGIN_NAME@/bin/@RA_PLUGIN_NAME@",
+  "executableArguments": [
+  ],
+  "environmentVariables": [
+    {
+      "name": "SOPHOS_INSTALL",
+      "value": "SOPHOS_INSTALL_VALUE"
+    }
+  ],
+  "executableUserAndGroup": "root:root",
+  "secondsToShutDown": 30
+}

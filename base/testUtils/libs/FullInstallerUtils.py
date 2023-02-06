@@ -80,13 +80,13 @@ def get_full_installer():
             return installer
         paths_tried.append(installer)
 
-    installer = os.path.join("../everest-base/cmake-build-release/distribution/install.sh")
+    installer = os.path.join("../everest-base/cmake-build-release/distribution/base/install.sh")
     if os.path.isfile(installer):
         logger.debug("Using installer from cmake-build-release: {}".format(installer))
         return installer
     paths_tried.append(installer)
 
-    installer = os.path.join("../everest-base/cmake-build-debug/distribution/install.sh")
+    installer = os.path.join("../everest-base/cmake-build-debug/distribution/base/install.sh")
     if os.path.isfile(installer):
         logger.debug("Using installer from cmake-build-debug: {}".format(installer))
         return installer
@@ -235,6 +235,22 @@ def get_sspl_event_journaler_plugin_sdds():
         candidates.append(os.path.join(local_path_to_plugin, "cmake-build-debug/sdds"))
         candidates.append(os.path.join(local_path_to_plugin, "output/SDDS-COMPONENT"))
     return get_plugin_sdds("SSPL Event Journaler Plugin", "SSPL_EVENT_JOURNALER_PLUGIN_SDDS", candidates)
+
+def get_sspl_response_actions_plugin_sdds():
+    RA_DIST = os.environ.get("RA_DIST")
+
+    if RA_DIST is not None:
+        installer = os.path.join(RA_DIST, "install.sh")
+        if os.path.isfile(installer):
+            logger.debug("Using installer from RA_DIST: {}".format(installer))
+            return RA_DIST
+
+    candidates = []
+    local_path_to_plugin = PathManager.find_local_component_dir_path("everest-base")
+    if local_path_to_plugin:
+        candidates.append(os.path.join(local_path_to_plugin, "cmake-build-release/distribution/ra"))
+        candidates.append(os.path.join(local_path_to_plugin, "cmake-build-debug/distribution/ra"))
+    return get_plugin_sdds("SSPL Response Actions Plugin", "SSPL_RA_PLUGIN_SDDS", candidates)
 
 def get_sspl_anti_virus_plugin_sdds():
     candidates = []

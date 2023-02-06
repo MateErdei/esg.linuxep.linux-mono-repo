@@ -139,6 +139,17 @@ def kill_by_file_and_wait_it_to_shutdown(file_path, secs2wait, number_of_attempt
 
     raise AssertionError("Process not killed after {} seconds".format(secs2wait * number_of_attempts))
 
+def dump_all_processes():
+    pstree = '/usr/bin/pstree'
+    if os.path.isfile(pstree):
+        logger.info(subprocess.check_output([pstree, '-ap'], stderr=subprocess.PIPE))
+    else:
+        logger.info(subprocess.check_output(['/bin/ps', '-elf'], stderr=subprocess.PIPE))
+    try:
+        top_path = [candidate for candidate in ['bin/top', '/usr/bin/top'] if os.path.isfile(candidate)][0]
+        logger.info(subprocess.check_output([top_path, '-bHn1', '-o', '+%CPU', '-o', '+%MEM']))
+    except Exception as ex:
+        logger.warn(ex.message)
 
 def remove_dir_if_exists(dir):
     if os.path.isdir(dir):

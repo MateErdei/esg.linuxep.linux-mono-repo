@@ -73,12 +73,9 @@ MTR Telemetry Suite Setup
 MTR Telemetry Suite Teardown
     Uninstall SSPL
 
-MTR Telemetry Test Setup Without Preparing To Run Telemetry Executable
+MTR Telemetry Test Setup
     Require Installed
     Create Directory   ${COMPONENT_TEMP_DIR}
-
-MTR Telemetry Test Setup
-    MTR Telemetry Test Setup Without Preparing To Run Telemetry Executable
     Prepare To Run Telemetry Executable
 
 MTR Telemetry Test Teardown

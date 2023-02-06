@@ -20,4 +20,4 @@ target_link_libraries(telemetryhelperimpl PUBLIC ${LOG4CPLUS_LIBRARY} logging)
 
 SET_TARGET_PROPERTIES(telemetryhelperimpl PROPERTIES INSTALL_RPATH "$ORIGIN")
 
-install(TARGETS telemetryhelperimpl LIBRARY DESTINATION files/base/lib64)
+install(TARGETS telemetryhelperimpl LIBRARY DESTINATION ${BASE_DIST_PREFIX}/files/base/lib64)

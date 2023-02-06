@@ -939,18 +939,6 @@ class LogUtils(object):
         if actual_version != expected_version:
             raise AssertionError(f"Expected version {actual_version} to be {expected_version}")
 
-    def dump_all_processes(self):
-        pstree = '/usr/bin/pstree'
-        if os.path.isfile(pstree):
-            logger.info(subprocess.check_output([pstree, '-ap'], stderr=subprocess.PIPE))
-        else:
-            logger.info(subprocess.check_output(['/bin/ps', '-elf'], stderr=subprocess.PIPE))
-        try:
-            top_path = [candidate for candidate in ['bin/top', '/usr/bin/top'] if os.path.isfile(candidate)][0]
-            logger.info(subprocess.check_output([top_path, '-bHn1', '-o', '+%CPU', '-o', '+%MEM']))
-        except Exception as ex:
-            logger.warn(ex.message)
-
     def dump_push_server_log(self):
         server_log = os.path.join(self.tmp_path, "push_server_log.log")
         self.dump_log(server_log)

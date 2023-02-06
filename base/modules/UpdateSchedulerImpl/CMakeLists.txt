@@ -86,4 +86,4 @@ SET_TARGET_PROPERTIES( updateschedulerimpl
         PROPERTIES INSTALL_RPATH "$ORIGIN")
 
 install(TARGETS updateschedulerimpl
-        LIBRARY DESTINATION files/base/lib64)
+        LIBRARY DESTINATION ${BASE_DIST_PREFIX}/files/base/lib64)

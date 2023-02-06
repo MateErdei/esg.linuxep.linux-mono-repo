@@ -189,7 +189,9 @@
 
         <!-- Release -->
         <release-asset artifact-path="sspl-base/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="release"/>
+        <release-asset artifact-path="sspl-base/RA-SDDS-COMPONENT" source-dir="output/RA-SDDS-COMPONENT" mode="release"/>
         <release-asset artifact-path="sspl-base/SDDS3-PACKAGE" source-dir="output/SDDS3-PACKAGE" mode="release"/>
+        <release-asset artifact-path="sspl-base/RA-SDDS3-PACKAGE" source-dir="output/RA-SDDS3-PACKAGE" mode="release"/>
         <release-asset artifact-path="sspl-base/symbols" source-dir="output/symbols" mode="release"/>
 
         <build-asset artifact-path="sspl-base/openssl" source-dir="/build/redist/openssl" mode="release"/>
@@ -209,7 +211,9 @@
 
         <!-- coverage(bullseye) -->
         <build-asset artifact-path="sspl-base-coverage/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="coverage"/>
+        <build-asset artifact-path="sspl-base-coverage/RA-SDDS-COMPONENT" source-dir="output/RA-SDDS-COMPONENT" mode="coverage"/>
         <build-asset artifact-path="sspl-base-coverage/SDDS3-PACKAGE" source-dir="output/SDDS3-PACKAGE" mode="coverage"/>
+        <build-asset artifact-path="sspl-base-coverage/RA-SDDS3-PACKAGE" source-dir="output/RA-SDDS3-PACKAGE" mode="coverage"/>
         <build-asset artifact-path="sspl-base-coverage/openssl" source-dir="/build/redist/openssl" mode="coverage"/>
         <build-asset artifact-path="sspl-base-coverage/pluginapi" source-dir="output" mode="coverage">
             <include glob="pluginapi.tar.gz"/>
@@ -235,6 +239,8 @@
         <!-- 999 -->
         <release-asset artifact-path="sspl-base-999/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="999"/>
         <release-asset artifact-path="sspl-base-999/SDDS3-PACKAGE" source-dir="output/SDDS3-PACKAGE" mode="999"/>
+        <release-asset artifact-path="sspl-base-999/RA-SDDS-COMPONENT" source-dir="output/RA-SDDS-COMPONENT" mode="999"/>
+        <release-asset artifact-path="sspl-base-999/RA-SDDS3-PACKAGE" source-dir="output/RA-SDDS3-PACKAGE" mode="999"/>
         <!-- 060 -->
         <release-asset artifact-path="sspl-base-060/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="060"/>
         <release-asset artifact-path="sspl-base-060/SDDS3-PACKAGE" source-dir="output/SDDS3-PACKAGE" mode="060"/>

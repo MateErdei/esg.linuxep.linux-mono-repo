@@ -10,4 +10,4 @@ include_directories(flagutilsobject BEFORE ${NLOHMANN_JSON_INCLUDE_DIR})
 
 SET_TARGET_PROPERTIES(flagutilsobject PROPERTIES INSTALL_RPATH "$ORIGIN")
 
-install(TARGETS flagutilsobject LIBRARY DESTINATION files/base/lib64)
+install(TARGETS flagutilsobject LIBRARY DESTINATION ${BASE_DIST_PREFIX}/files/base/lib64)

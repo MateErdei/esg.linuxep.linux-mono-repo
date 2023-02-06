@@ -25,7 +25,7 @@ SET_TARGET_PROPERTIES(HttpRequestsImpl
         )
 
 install(TARGETS HttpRequestsImpl
-        LIBRARY DESTINATION files/base/lib64)
+        LIBRARY DESTINATION ${BASE_DIST_PREFIX}/files/base/lib64)
 
 # Suldownloader that is called from the thin installer uses this lib
 install(TARGETS HttpRequestsImpl LIBRARY DESTINATION ${THININSTALLER_DEPS_DIR_LIB64})

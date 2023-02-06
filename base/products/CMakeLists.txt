@@ -1,20 +1,15 @@
-add_subdirectory(commandline)
-add_subdirectory(ThininstallerDependencies)
-add_subdirectory(CommsComponent)
+execute_process(
+        COMMAND date +%Y-%m-%d
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        OUTPUT_VARIABLE BUILD_DATE
+        OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+add_subdirectory(Base)
 add_subdirectory(distribution)
-add_subdirectory(Diagnose)
-add_subdirectory(installer)
-add_subdirectory(ManagementAgent)
-add_subdirectory(mcsrouter)
-add_subdirectory(SDU)
-add_subdirectory(SulDownloader)
-add_subdirectory(UpdateScheduler)
-add_subdirectory(watchdog)
-add_subdirectory(wdctl)
-add_subdirectory(SystemProductTestOutput)
 add_subdirectory(PluginApi)
-add_subdirectory(Telemetry)
-add_subdirectory(TelemetryScheduler)
-add_subdirectory(CentralRegistration)
+add_subdirectory(ResponseActions)
+add_subdirectory(SystemProductTestOutput)
+add_subdirectory(ThininstallerDependencies)
+
 
 
