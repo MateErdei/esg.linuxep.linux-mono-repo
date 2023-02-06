@@ -23,6 +23,7 @@ void SocketCollection::closeSocket(void* socket)
 {
     if (socket != nullptr)
     {
+        std::lock_guard<std::mutex> lock(m_mutex);
         m_zmqSockets.erase(socket);
         zmq_close(socket);
     }

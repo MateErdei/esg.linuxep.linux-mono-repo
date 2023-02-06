@@ -22,6 +22,7 @@ void ContextCollection::closeContext(void* context)
 {
     if (context != nullptr)
     {
+        std::lock_guard<std::mutex> lock(m_mutex);
         m_zmqContexts.erase(context);
         zmq_ctx_term(context); // http://api.zeromq.org/4-2:zmq-ctx-term replaces destroy (deprecated)
     }
