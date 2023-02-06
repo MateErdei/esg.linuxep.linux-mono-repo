@@ -7,7 +7,6 @@
 #include "../UtilityImpl/StringUtils.h"
 #include "Common/ZeroMQWrapperImpl/ContextCollection.h"
 #include "Common/ZeroMQWrapperImpl/SocketCollection.h"
-#include <zmq.h>
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"
