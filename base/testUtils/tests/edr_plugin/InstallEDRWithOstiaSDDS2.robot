@@ -374,7 +374,7 @@ Install master of base and edr and mtr and av and upgrade to edr 999 and mtr 999
     Wait Until Keyword Succeeds
     ...  30 secs
     ...  2 secs
-    ...  Check AV Plugin Installed
+    ...  Check AV Plugin Installed sdds2
 
     Wait Until Keyword Succeeds
     ...  30 secs

@@ -334,7 +334,7 @@ Install master of base and edr and mtr and av and upgrade to edr 999 and mtr 999
 
     Check SulDownloader Log Contains String N Times   Update success  2
 
-    Setup SUS all non-base plugins 999
+    Setup SUS all 999
     Send ALC Policy And Prepare For Upgrade  ${BaseAndMTREdrAV999Policy}
     #truncate log so that check mdr plugin installed works correctly later in the test
     ${result} =  Run Process   truncate   -s   0   ${MTR_DIR}/log/mtr.log
