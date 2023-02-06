@@ -5,8 +5,8 @@ add_library(responseplugin SHARED
         PluginCallback.h
         ApplicationPaths.cpp
         ApplicationPaths.h
-        QueueTask.cpp
-        QueueTask.h
+        TaskQueue.cpp
+        TaskQueue.h
         Logger.h
         Logger.cpp
         PluginAdapter.cpp

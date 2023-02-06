@@ -6,7 +6,7 @@
 namespace ResponsePlugin
 {
     PluginAdapter::PluginAdapter(
-        std::shared_ptr<QueueTask> queueTask,
+        std::shared_ptr<TaskQueue> queueTask,
         std::unique_ptr<Common::PluginApi::IBaseServiceApi> baseService,
         std::shared_ptr<PluginCallback> callback) :
         m_queueTask(std::move(queueTask)),

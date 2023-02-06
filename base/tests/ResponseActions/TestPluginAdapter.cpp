@@ -16,11 +16,11 @@ public:
     {}
     void SetUp() override
     {
-        m_taskQueue = std::make_shared<ResponsePlugin::QueueTask>();
+        m_taskQueue = std::make_shared<ResponsePlugin::TaskQueue>();
         m_callback = std::make_shared<ResponsePlugin::PluginCallback>(m_taskQueue);
     }
 
-    std::shared_ptr<ResponsePlugin::QueueTask> m_taskQueue;
+    std::shared_ptr<ResponsePlugin::TaskQueue> m_taskQueue;
     std::shared_ptr<ResponsePlugin::PluginCallback> m_callback;
 };
 
