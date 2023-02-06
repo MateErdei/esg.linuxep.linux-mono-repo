@@ -35,7 +35,7 @@ void ManagementAgent::EventReceiverImpl::sendEvent(
     const std::string& eventXml
 )
 {
-    LOGSUPPORT("Send event from appid " << appId << " to mcsrouter");
+    LOGDEBUG("Send event from appid " << appId << " to mcsrouter");
     Path eventDir = Common::ApplicationConfiguration::applicationPathManager().getMcsEventFilePath();
     assert(!eventDir.empty());
     Path tmpDir = Common::ApplicationConfiguration::applicationPathManager().getTempPath();
