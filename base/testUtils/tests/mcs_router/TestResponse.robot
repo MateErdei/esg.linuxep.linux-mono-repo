@@ -76,11 +76,14 @@ Test Response 403 From Central Deletes Other Responses
     ${expected_body} =  Send EDR Response     LiveQuery  f291664d-112a-328b-e3ed-f920012cdea1
     ${expected_body} =  Send EDR Response     LiveQuery  f291664d-112a-328b-e3ed-f920012cdea2
     ${expected_body} =  Send EDR Response     LiveQuery  f291664d-112a-328b-e3ed-f920012cdea3
-    Check Cloud Server Log Contains   JWT token error
     Wait Until Keyword Succeeds
     ...  10s
     ...  2s
-    ...  Check MCSRouter Log Contains  Discarding 3 reponses due to JWT token expired or missing feature code
+    ...  Check Cloud Server Log Contains  JWT token error
+    Wait Until Keyword Succeeds
+    ...  10s
+    ...  2s
+    ...  Check MCSRouter Log Contains  Discarding 3 responses due to JWT token expired or missing feature code
 
 
 *** Keywords ***
