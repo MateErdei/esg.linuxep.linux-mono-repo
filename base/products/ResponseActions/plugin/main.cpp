@@ -7,7 +7,7 @@
 #include <Common/PluginApi/IPluginResourceManagement.h>
 #include <ResponseActions/ResponsePlugin/Logger.h>
 #include <ResponseActions/ResponsePlugin/PluginAdapter.h>
-#include <pluginimpl/config.h>
+#include <ResponsePlugin/config.h>
 
 #include <sstream>
 
