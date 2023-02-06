@@ -24,7 +24,7 @@ public:
     std::shared_ptr<ResponsePlugin::PluginCallback> m_callback;
 };
 
-TEST_F(PluginAdapterTests, actionIsLoggedWhenSent) // NOLINT
+TEST_F(PluginAdapterTests, actionIsLoggedWhenSent)
 {
 
     auto mockBaseService = std::make_unique<::testing::StrictMock<MockApiBaseServices>>();

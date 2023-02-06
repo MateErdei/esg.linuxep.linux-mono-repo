@@ -16,5 +16,5 @@ install(TARGETS CommsComponent
 configure_file(commscomponent.json.in  commscomponent.json @ONLY)
 
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/commscomponent.json
-        DESTINATION base/installer/plugins
+        DESTINATION ${BASE_DIST_PREFIX}/installer/plugins
         PERMISSIONS OWNER_READ)

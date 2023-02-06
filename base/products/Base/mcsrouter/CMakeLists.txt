@@ -5,5 +5,5 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/mcsrouter.sh
         PERMISSIONS OWNER_READ OWNER_EXECUTE)
 configure_file(mcsrouter.json.in  mcsrouter.json @ONLY)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/mcsrouter.json
-        DESTINATION base/installer/plugins
+        DESTINATION ${BASE_DIST_PREFIX}/installer/plugins
         PERMISSIONS OWNER_READ)

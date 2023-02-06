@@ -17,5 +17,5 @@ install(TARGETS sophos_managementagent
 
 configure_file(managementagent.json.in  managementagent.json @ONLY)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/managementagent.json
-        DESTINATION base/installer/plugins
+        DESTINATION ${BASE_DIST_PREFIX}/installer/plugins
         PERMISSIONS OWNER_READ)

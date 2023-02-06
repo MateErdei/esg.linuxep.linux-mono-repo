@@ -5,7 +5,7 @@ target_link_libraries(UpdateScheduler PUBLIC updateschedulerimpl)
 
 configure_file(updatescheduler.json.in  updatescheduler.json @ONLY)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/updatescheduler.json
-        DESTINATION base/installer/plugins
+        DESTINATION ${BASE_DIST_PREFIX}/installer/plugins
         PERMISSIONS OWNER_READ )
 
 SET_TARGET_PROPERTIES( UpdateScheduler

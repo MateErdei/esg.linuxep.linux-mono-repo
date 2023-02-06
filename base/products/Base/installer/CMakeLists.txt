@@ -7,22 +7,22 @@ configure_file(install.in.sh install.sh @ONLY)
 configure_file(uninstall.in.sh uninstall.sh @ONLY)
 
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/install.sh
-        DESTINATION base
+        DESTINATION ${BASE_DIST_PREFIX}
         PERMISSIONS OWNER_READ OWNER_EXECUTE
         )
 
 install(FILES ${CMAKE_SOURCE_DIR}/products/distribution/cleanupinstall.sh
-        DESTINATION base
+        DESTINATION ${BASE_DIST_PREFIX}
         PERMISSIONS OWNER_READ OWNER_EXECUTE
         )
 
 install(FILES ${CMAKE_SOURCE_DIR}/products/Base/installer/filestodelete.dat
-        DESTINATION base
+        DESTINATION ${BASE_DIST_PREFIX}
         PERMISSIONS OWNER_READ OWNER_EXECUTE
         )
 
 install(FILES ${CMAKE_SOURCE_DIR}/products/Base/installer/cleanuprealm.dat
-        DESTINATION base
+        DESTINATION ${BASE_DIST_PREFIX}
         PERMISSIONS OWNER_READ OWNER_EXECUTE
         )
 
