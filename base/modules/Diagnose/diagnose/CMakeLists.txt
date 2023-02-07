@@ -16,7 +16,7 @@ add_library(diagnoseimpl STATIC
         $<TARGET_OBJECTS:applicationconfigurationimplobject>
         $<TARGET_OBJECTS:processimplobject>
         $<TARGET_OBJECTS:threadsobject>
-        ../../Common/UtilityImpl/TimeUtils.cppyea
+        ../../Common/UtilityImpl/TimeUtils.cpp
         ../../Common/UtilityImpl/TimeUtils.h
         ../../Common/UtilityImpl/StringUtils.h
         ../../Common/ZipUtilities/ZipUtils.h

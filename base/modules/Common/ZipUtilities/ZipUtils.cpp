@@ -1,22 +1,25 @@
-//
-// Created by pair on 03/02/23.
-//
+// Copyright 2023 Sophos Limited. All rights reserved.
 
 #include "ZipUtils.h"
 
 #include "Logger.h"
 
-#include <zip.h>
-#include <unzip.h>
+#include <Common/FileSystem/IFilePermissions.h>
+#include <Common/FileSystemImpl/FilePermissionsImpl.h>
+
+#include <fstream>
 #include <iostream>
+#include <unzip.h>
+#include <zip.h>
+#include <zlib.h>
 
 namespace Common::ZipUtilities
 {
     using namespace Common::FileSystem;
 
-    SystemCommands::SystemCommands(const std::string& destination) : m_destination(destination) {}
+//    SystemCommands::SystemCommands(const std::string& destination) : m_destination(destination) {}
 
-    void SystemCommands::produceZip(const std::string& srcPath, const std::string& destPath) const
+    void produceZip(const std::string& srcPath, const std::string& destPath)
     {
         zipFile zf = zipOpen(std::string(destPath.begin(), destPath.end()).c_str(), APPEND_STATUS_CREATE);
         if (zf == NULL)
