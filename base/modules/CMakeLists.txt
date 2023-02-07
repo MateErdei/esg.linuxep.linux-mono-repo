@@ -1,7 +1,6 @@
 add_subdirectory(CentralRegistration)
 add_subdirectory(cmcsrouter)
 add_subdirectory(Common)
-add_subdirectory(CommsComponent)
 add_subdirectory(Diagnose)
 add_subdirectory(Installer)
 add_subdirectory(ManagementAgent)
