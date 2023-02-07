@@ -343,16 +343,6 @@ namespace Common
             return Common::FileSystem::join(getSulDownloaderReportPath(), getPreviousUpdateConfigFileName());
         }
 
-        std::string ApplicationPathManager::getCommsRequestDirPath() const
-        {
-            return Common::FileSystem::join(sophosInstall(), "var/comms/requests");
-        }
-
-        std::string ApplicationPathManager::getCommsResponseDirPath() const
-        {
-            return Common::FileSystem::join(sophosInstall(), "var/comms/responses");
-        }
-
         std::string ApplicationPathManager::getVersionIniFileForComponent(const std::string& component) const
         {
             std::string path;

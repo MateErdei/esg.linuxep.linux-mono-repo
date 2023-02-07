@@ -84,9 +84,6 @@ namespace Common::ApplicationConfigurationImpl
         std::string getPreviousUpdateConfigFileName() const override;
         std::string getSulDownloaderPreviousConfigFilePath() const override;
 
-        std::string getCommsRequestDirPath() const override;
-        std::string getCommsResponseDirPath() const override;
-
         std::string getVersionIniFileForComponent(const std::string& component) const override;
         std::string getFeaturesJsonPath() const override;
 
