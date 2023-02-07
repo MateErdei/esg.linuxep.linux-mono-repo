@@ -18,10 +18,10 @@ import urllib.request
 import logging
 import stat
 
-from utils import path_manager
-from utils import filesystem_utils
-from utils import get_ids
-from utils.byte2utf8 import to_utf8
+from .utils import path_manager
+from .utils import filesystem_utils
+from .utils import get_ids
+from .utils.byte2utf8 import to_utf8
 
 LOGGER = logging.getLogger(__name__)
 # Keys must never be a sub-set of another key
