@@ -2,15 +2,15 @@
 
 #include "Event.h"
 
-#include "ManagementAgent/LoggerImpl/Logger.h"
-
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "Common/FileSystem/IFileSystem.h"
+#include "ManagementAgent/LoggerImpl/Logger.h"
+#include "UtilityImpl/StringUtils.h"
+
+#include <sys/stat.h>
 
 #include <chrono>
 #include <utility>
-
-#include <sys/stat.h>
 
 using namespace ManagementAgent::EventReceiverImpl;
 
@@ -52,4 +52,15 @@ void Event::send() const
     assert(!dest.empty());
 
     Common::FileSystem::fileSystem()->writeFileAtomically(dest, eventXml_, tmpDir, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
+}
+
+bool Event::isCountableEvent() const
+{
+    return Common::UtilityImpl::StringUtils::startswith(eventXml_, R"(<?xml version="1.0" encoding="utf-8"?>
+<event type="sophos.core.detection")");
+}
+
+bool Event::isBlockableEvent() const
+{
+    return isCountableEvent();
 }

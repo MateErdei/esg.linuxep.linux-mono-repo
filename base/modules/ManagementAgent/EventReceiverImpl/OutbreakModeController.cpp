@@ -14,17 +14,6 @@
 
 #include <ctime>
 #include <json.hpp>
-#include <tuple>
-
-namespace
-{
-    using namespace ManagementAgent::EventReceiverImpl;
-    bool isCountableEvent(const Event& event)
-    {
-        return Common::UtilityImpl::StringUtils::startswith(event.eventXml_, R"(<?xml version="1.0" encoding="utf-8"?>
-<event type="sophos.core.detection")");
-    }
-}
 
 ManagementAgent::EventReceiverImpl::OutbreakModeController::OutbreakModeController()
 {
@@ -40,18 +29,27 @@ bool ManagementAgent::EventReceiverImpl::OutbreakModeController::processEvent(
     const Event& event,
     const time_point_t now)
 {
+    // We always reset the day count, even for non-countable/non-blockable events
     resetCountOnDayChange(now);
 
-    if (!isCountableEvent(event))
+    if (!event.isBlockableEvent()) // Current assumed to be a superclass of countable
     {
         return false;
     }
 
     if (outbreakMode_)
     {
-        return false; // TODO LINUXDAR-6616 stop blockable events
+        // assert is blockable here
+        return true;
     }
 
+    if (!event.isCountableEvent())
+    {
+        // Assert not in outbreak mode here
+        return false;
+    }
+
+    // Assert countable event here
     detectionCount_++;
     if (detectionCount_ >= 100)
     {

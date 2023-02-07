@@ -15,6 +15,9 @@ namespace ManagementAgent::EventReceiverImpl
 
         void send() const;
 
+        bool isCountableEvent() const;
+        bool isBlockableEvent() const;
+
     };
 
 
