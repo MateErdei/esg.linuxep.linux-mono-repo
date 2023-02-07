@@ -15,8 +15,6 @@ ManagementAgent::EventReceiverImpl::EventReceiverImpl::EventReceiverImpl(
 
 void EventReceiverImpl::receivedSendEvent(const std::string& appId, const std::string& eventXml)
 {
-    // Write file to directory
-    Common::TaskQueue::ITaskPtr task(new EventTask(appId, eventXml, outbreakModeController_));
-
+    Common::TaskQueue::ITaskPtr task(new EventTask({appId, eventXml}, outbreakModeController_));
     m_taskQueue->queueTask(std::move(task));
 }

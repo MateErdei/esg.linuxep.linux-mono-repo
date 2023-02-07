@@ -18,6 +18,8 @@ namespace ManagementAgent
         public:
             EventTask(std::string appId, std::string eventXml,
                       IOutbreakModeControllerPtr outbreakModeController);
+            EventTask(Event event,
+                      IOutbreakModeControllerPtr outbreakModeController);
             void run() override;
 
         private:
