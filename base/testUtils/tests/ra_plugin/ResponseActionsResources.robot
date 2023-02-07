@@ -19,7 +19,10 @@ Install Response Actions Directly
     Log  ${error}
     Log  ${result.stderr}
     Log  ${result.stdout}
-    Check Response Actions Executable Running
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  1 secs
+    ...  Check Response Actions Executable Running
 
 Uninstall Response Actions
     ${result} =  Run Process     ${RESPONSE_ACTIONS_DIR}/bin/uninstall.sh
