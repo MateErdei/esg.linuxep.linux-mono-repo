@@ -8,8 +8,10 @@ Copyright 2021 Sophos Limited.  All rights reserved.
 #include "PluginUtils.h"
 #include "Logger.h"
 
-#include <Common/HttpSender/RequestConfig.h>
-#include <CommsComponent/HttpRequester.h>
+#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
+#include <Common/CurlWrapper/CurlWrapper.h>
+#include <Common/HttpRequests/IHttpRequester.h>
+#include <Common/HttpRequestsImpl/HttpRequesterImpl.h>
 #include <Common/XmlUtilities/AttributesMap.h>
 #include <Common/UtilityImpl/StringUtils.h>
 #include <Common/FileSystem/IFileSystemException.h>
@@ -67,19 +69,26 @@ namespace RemoteDiagnoseImpl
             port = data.port;
         }
 
-        Common::HttpSender::RequestConfig requestConfig{Common::HttpSender::RequestType::PUT,
-                                                        std::vector<std::string>{},data.domain,
-                                                        port,"",data.resourcePath,
-                                                        chrootPath};
+        Common::HttpRequests::RequestConfig requestConfig;
+        requestConfig.url = data.domain + data.resourcePath;
+        requestConfig.port = port;
+        requestConfig.fileToUpload = chrootPath;
+        requestConfig.timeout = 60;
 
         try
         {
-            auto response = CommsComponent::HttpRequester::triggerRequest("UploadDiagnose", requestConfig, std::chrono::minutes(1));
+            std::shared_ptr<Common::CurlWrapper::ICurlWrapper> curlWrapper = std::make_shared<Common::CurlWrapper::CurlWrapper>();
+            Common::HttpRequestsImpl::HttpRequesterImpl client = Common::HttpRequestsImpl::HttpRequesterImpl(curlWrapper);
 
-            if (response.httpCode != 200)
+            Common::HttpRequests::Response response = client.put(requestConfig);
+
+            if (response.errorCode == Common::HttpRequests::ResponseErrorCode::OK)
             {
-                LOGINFO("Response HttpCode: " << response.httpCode);
-                LOGINFO(response.description);
+                if (response.status != 200)
+                {
+                    LOGINFO("Response HttpCode: " << response.status);
+                    LOGINFO(response.body);
+                }
             }
         }
         catch (std::exception& ex)
