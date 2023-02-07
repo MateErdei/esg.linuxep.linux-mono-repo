@@ -22,16 +22,20 @@ def get_duration(start):
     return "%02d:%02d" % (minutes, seconds)
 
 
+def get_hostname(instance):
+    if "Hostname" in instance.tags:
+        return instance.tags['Hostname']
+    return "%s-%s" % (
+        instance.tags.get('Name', "<unknown>"),
+        instance.tags.get('Slice', "<unknown-slice>")
+    )
+
+
 def checkMachinesAllTerminated(uuid, start, dest):
     conn = waitForTestRunCompletion.connect_to_aws()
     for instance in waitForTestRunCompletion.generate_unterminated_instances(conn, uuid):
-        hostname = "%s-%s" % (
-            instance.tags.get('Name', "<unknown>"),
-            instance.tags.get('Slice', "<unknown-slice>")
-        )
-
+        hostname = get_hostname(instance)
         formation_log = os.path.join(dest, hostname+"-cloudFormationInit.log")
-
         duration = get_duration(start)
 
         if os.path.isfile(formation_log):
