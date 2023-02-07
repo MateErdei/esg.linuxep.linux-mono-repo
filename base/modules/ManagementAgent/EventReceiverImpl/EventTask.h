@@ -16,8 +16,6 @@ namespace ManagementAgent
         class EventTask : public virtual Common::TaskQueue::ITask
         {
         public:
-            EventTask(std::string appId, std::string eventXml,
-                      IOutbreakModeControllerPtr outbreakModeController);
             EventTask(Event event,
                       IOutbreakModeControllerPtr outbreakModeController);
             void run() override;

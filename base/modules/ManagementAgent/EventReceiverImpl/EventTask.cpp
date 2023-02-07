@@ -4,13 +4,6 @@
 
 #include "EventUtils.h"
 
-ManagementAgent::EventReceiverImpl::EventTask::EventTask(std::string appId, std::string eventXml,
-                                                         IOutbreakModeControllerPtr outbreakModeController) :
-    event_(std::move(appId), std::move(eventXml)),
-    outbreakModeController_(std::move(outbreakModeController))
-{
-}
-
 ManagementAgent::EventReceiverImpl::EventTask::EventTask(
     ManagementAgent::EventReceiverImpl::Event event,
     ManagementAgent::EventReceiverImpl::IOutbreakModeControllerPtr outbreakModeController) :

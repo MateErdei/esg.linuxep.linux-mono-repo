@@ -1,8 +1,10 @@
 include(GoogleTest)
 add_executable(TestEventReceiverImpl
+        TestEvent.cpp
         TestEventReceiverImpl.cpp
         TestEventTask.cpp
-        TestOutbreakModeController.cpp)
+        TestOutbreakModeController.cpp
+        )
 
 target_include_directories(TestEventReceiverImpl SYSTEM BEFORE PUBLIC "${GTEST_INCLUDE}" "${GMOCK_INCLUDE}")
 target_include_directories(TestEventReceiverImpl BEFORE PUBLIC ${CMAKE_SOURCE_DIR})

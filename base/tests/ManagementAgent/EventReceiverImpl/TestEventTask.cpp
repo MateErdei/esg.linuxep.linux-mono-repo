@@ -6,6 +6,8 @@
 #include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
 #include <tests/Common/Helpers/MockFileSystem.h>
 
+#include <utility>
+
 using namespace ManagementAgent::EventReceiverImpl;
 
 namespace
@@ -46,7 +48,7 @@ namespace
 TEST_F(TestEventTask, Construction)
 {
     EXPECT_NO_THROW( // NOLINT
-        ManagementAgent::EventReceiverImpl::EventTask task("APPID", "EventXml", outbreakModeController_));
+        ManagementAgent::EventReceiverImpl::EventTask task({"APPID", "EventXml"}, outbreakModeController_));
 }
 
 namespace
@@ -60,7 +62,7 @@ namespace
 
 TEST_F(TestEventTask, RunningATaskCausesAFileToBeCreated)
 {
-    ManagementAgent::EventReceiverImpl::EventTask task("APPID", "EventXml", outbreakModeController_);
+    ManagementAgent::EventReceiverImpl::EventTask task({"APPID", "EventXml"}, outbreakModeController_);
 
     auto filesystemMock = createMockFileSystem();
 
@@ -77,9 +79,9 @@ TEST_F(TestEventTask, RunningATaskCausesAFileToBeCreated)
 
 TEST_F(TestEventTask, RunningTwoIdenticalTasksResultsInTwoDifferentFilesBeingCreated)
 {
-    ManagementAgent::EventReceiverImpl::EventTask task("APPID", "EventXml", outbreakModeController_);
+    ManagementAgent::EventReceiverImpl::EventTask task({"APPID", "EventXml"}, outbreakModeController_);
 
-    ManagementAgent::EventReceiverImpl::EventTask task2("APPID", "EventXml", outbreakModeController_);
+    ManagementAgent::EventReceiverImpl::EventTask task2({"APPID", "EventXml"}, outbreakModeController_);
 
     auto filesystemMock = createMockFileSystem();
 
