@@ -22,5 +22,5 @@ void ManagementAgent::EventReceiverImpl::EventTask::run()
         return;
     }
 
-    ManagementAgent::EventReceiverImpl::sendEvent(event_);
+    event_.send();
 }

@@ -12,5 +12,10 @@ namespace ManagementAgent::EventReceiverImpl
         Event(std::string appId, std::string eventXml);
         std::string appId_;
         std::string eventXml_;
+
+        void send() const;
+
     };
+
+
 }
