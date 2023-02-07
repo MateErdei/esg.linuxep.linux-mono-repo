@@ -18,10 +18,10 @@ import urllib.request
 import logging
 import stat
 
-from .utils import path_manager
-from .utils import filesystem_utils
-from .utils import get_ids
-from .utils.byte2utf8 import to_utf8
+from utils import path_manager
+from utils import filesystem_utils
+from utils import get_ids
+from utils.byte2utf8 import to_utf8
 
 LOGGER = logging.getLogger(__name__)
 # Keys must never be a sub-set of another key
@@ -32,7 +32,7 @@ DISTRIBUTION_NAME_MAP = {
     'amazonlinux': 'amazon',
     'oracle': 'oracle',
     'miracle': 'miracle',
-    'sle': 'suse'
+    'SUSE': 'suse'
 }
 
 #-----------------------------------------------------------------------------
@@ -109,8 +109,7 @@ class TargetSystem:
                               '/etc/oracle-release',
                               '/etc/redhat-release',
                               '/etc/system-release',
-                              '/etc/miraclelinux-release',
-                              '/etc/SUSE-brand']
+                              '/etc/miraclelinux-release']
         for distro_file in distro_check_files:
             distro_identified = self._check_distro_file(distro_file)
             if distro_identified:
@@ -142,7 +141,7 @@ class TargetSystem:
     def _check_os_file(self):
         pretty_name = filesystem_utils.return_line_from_file('/etc/os-release', "PRETTY_NAME")
         if pretty_name:
-            pretty_name.split("=")[-1].strip()
+            pretty_name = pretty_name.split("=")[-1].strip().strip('\"')
             # conversion mapping between string at start of file and distro name
             for distro_string in DISTRIBUTION_NAME_MAP:
                 if pretty_name.startswith(distro_string):
@@ -411,3 +410,8 @@ def write_info_to_metadata_json(metaDataAsJson):
             os.chown(instance_metadata_json_filepath, get_ids.get_uid("sophos-spl-local"), get_ids.get_gid("sophos-spl-group"))
     except PermissionError as e:
         LOGGER.warning(f"Cannot update file {instance_metadata_json_filepath} with error : {e}")
+
+if __name__ == '__main__':
+    ts = TargetSystem()
+    print("vendor = {}".format(ts.vendor()))
+    print("os_name = {}".format(ts.os_name()))
