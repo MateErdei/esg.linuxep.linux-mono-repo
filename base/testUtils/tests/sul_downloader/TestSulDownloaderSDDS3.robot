@@ -183,6 +183,7 @@ SDDS3 updates supplements
     ${handle}=  Start Local SDDS3 server with fake files
     Set Suite Variable    ${GL_handle}    ${handle}
     Setup Install SDDS3 Base
+    Create File         ${SOPHOS_INSTALL}/base/etc/logger.conf.local   [mcs_router]\nVERBOSITY=DEBUG\n
     Create File    ${MCS_DIR}/certs/ca_env_override_flag
     Create Local SDDS3 Override
     # should be purged before SDDS3 sync
@@ -198,14 +199,17 @@ SDDS3 updates supplements
     ...    60s
     ...    5s
     ...    Check SulDownloader Log Contains  Update success
+    Log File  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json
     File Should Not Contain  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json  "tests"
-    Generate Warehouse From Local Base Input  ${content}="{\"tests\":1000}"
+    Generate Warehouse From Local Base Input  "{\"tests\":\"false\"}"
+    Setup Dev Certs for sdds3
     Trigger Update Now
     Wait Until Keyword Succeeds
-    ...    60s
+    ...    80s
     ...    5s
     ...    Check Log Contains String At Least N Times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  2
     File Should Contain  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json  tests
+    Log File  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json
 
 Sul Downloader Installs SDDS3 Through update cache
     write_ALC_update_cache_policy   ${SUPPORT_FILES}/https/ca/root-ca.crt.pem
