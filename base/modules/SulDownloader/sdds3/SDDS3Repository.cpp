@@ -8,10 +8,8 @@ Copyright 2022-2022 Sophos Limited. All rights reserved.
 
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/UtilityImpl/StringUtils.h>
-#include <CommsComponent/CommsComponentUtils.h>
 #include <SulDownloader/suldownloaderdata/CatalogueInfo.h>
 #include <SulDownloader/suldownloaderdata/Logger.h>
-#include <SulDownloader/suldownloaderdata/ProductSelection.h>
 #include "CurlWrapper.h"
 #include "ICurlWrapper.h"
 

@@ -31,7 +31,6 @@ target_link_libraries(telemetryimpl PUBLIC
         threads
         plugincommunicationimpl
         xmlutilities
-        commscomponentimpl
         )
 
 SET_TARGET_PROPERTIES(telemetryimpl
