@@ -32,6 +32,10 @@ Install AV Plugin Directly
     Log  ${result.stderr}
     Log  ${result.stdout}
     Check AV Plugin Installed Directly
+    Wait Until Keyword Succeeds
+    ...  15 secs
+    ...  1 secs
+    ...  AV Plugin Log Contains  <> Starting Scan Scheduler
 
 Install Virus data
     Get Av Supplements
@@ -46,28 +50,16 @@ Check AV Plugin Installed Directly
     ...  15 secs
     ...  1 secs
     ...  Check AV Plugin Running
-    Wait Until Keyword Succeeds
-    ...  15 secs
-    ...  1 secs
-    ...  AV Plugin Log Contains  <> Starting Scan Scheduler
 
-Check AV Plugin Installed sdds2
-    Check Log Does Not Contain  Failed to install as setcap is not installed  ${SULDownloaderLog}  SulDownloaderLog
-    File Should Exist   ${AVPLUGIN_PATH}/bin/avscanner
-    Wait Until Keyword Succeeds
-    ...  15 secs
-    ...  1 secs
-    ...  Check AV Plugin Running
-    Wait Until Keyword Succeeds
-    ...  15 secs
-    ...  1 secs
-    ...  AV Plugin Log Contains  <> Starting Scan Scheduler
 Check AV Plugin Running
     ${result} =    Run Process  pgrep  -f  ${PLUGIN_BINARY}
     Log  ${result.stderr}
     Log  ${result.stdout}
     Should Be Equal As Integers    ${result.rc}    0
-
+    Wait Until Keyword Succeeds
+    ...  15 secs
+    ...  1 secs
+    ...  AV Plugin Log Contains  <> Starting Scan Scheduler
 Check AV Plugin Executable Not Running
     ${result} =    Run Process  pgrep  -f  ${PLUGIN_BINARY}
     Run Keyword If  ${result.rc}==0   Report On Process   ${result.stdout}
