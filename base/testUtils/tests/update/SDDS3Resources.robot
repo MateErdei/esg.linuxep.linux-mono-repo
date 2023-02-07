@@ -21,12 +21,12 @@ Generate Fake sdds3 warehouse
     ${base_package}=  Generate Fake Base SDDS3 Package
 
     Generate Suite dat File  ${base_package}
-    Generate Fake Supplement  "{\"random\":\"stuff\"\}"
+    Generate Fake Supplement  "{}"
     #launch darkly flag
     write_sdds3_flag
 
 Generate Warehouse From Local Base Input
-    [Arguments]  ${flagscontent}="{\"random\":\"stuff\"\}"
+    [Arguments]  ${content}="{}"
     Create Directories For Fake SDDS3 Warehouse
     Create Directory   ${SDDS3_FAKEPACKAGES}
     ${Files} =  List Files In Directory  ${SYSTEMPRODUCT_TEST_INPUT}/sspl-base-sdds3  *.zip
@@ -36,7 +36,7 @@ Generate Warehouse From Local Base Input
     #${base} =  get_sdds3_base
     #Copy File  ${base}  ${SDDS3_FAKEPACKAGES}/
     #Generate Suite dat File  ${base}
-    Generate Fake Supplement  ${flagscontent}
+    Generate Fake Supplement  ${content}
     #launch darkly flag
     write_sdds3_flag
     Create Directory   ${SDDS3_DEVCERTS}
@@ -84,10 +84,11 @@ Generate Suite dat File
     Should Be Equal As Strings   ${result1.rc}  0
 
 Generate Fake Supplement
-    [Arguments]  ${flagscontent}
+    [Arguments]  ${content}
     Create Directory  ${SDDS3_FAKESSPLFLAG}
+    Create Directory  ${SDDS3_FAKESSPLFLAG}/content
 
-    Create File       ${SDDS3_FAKESSPLFLAG}/flags-warehouse.json   ${flagscontent}
+    Create File       ${SDDS3_FAKESSPLFLAG}/content/flags-warehouse.json   ${content}
 
     Set Environment Variable    PRODUCT_NAME   SSPLFLAGS
     Set Environment Variable    FEATURE_LIST    CORE

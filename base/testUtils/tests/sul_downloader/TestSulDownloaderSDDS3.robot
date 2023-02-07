@@ -29,7 +29,6 @@ Force Tags  LOAD6
 *** Variables ***
 ${sdds2_primary}                            ${SOPHOS_INSTALL}/base/update/cache/primary
 ${sdds2_primary_warehouse}                  ${SOPHOS_INSTALL}/base/update/cache/primarywarehouse
-${sdds3_override_file}                      ${SOPHOS_INSTALL}/base/update/var/sdds3_override_settings.ini
 ${sdds3_server_output}                      /tmp/sdds3_server.log
 
 *** Test Cases ***
@@ -114,7 +113,7 @@ Sul Downloader Uses Current Proxy File for SUS Requests
     Require Fresh Install
     Create File    ${MCS_DIR}/certs/ca_env_override_flag
     Create Local SDDS3 Override
-    Log File  ${SOPHOS_INSTALL}/base/update/var/sdds3_override_settings.ini
+    Log File    ${SDDS3_OVERRIDE_FILE}
     Register With Local Cloud Server
     Wait Until Keyword Succeeds
     ...    10s
@@ -184,7 +183,6 @@ SDDS3 updates supplements
     ${handle}=  Start Local SDDS3 server with fake files
     Set Suite Variable    ${GL_handle}    ${handle}
     Setup Install SDDS3 Base
-
     Create File    ${MCS_DIR}/certs/ca_env_override_flag
     Create Local SDDS3 Override
     # should be purged before SDDS3 sync
@@ -200,17 +198,14 @@ SDDS3 updates supplements
     ...    60s
     ...    5s
     ...    Check SulDownloader Log Contains  Update success
-
     File Should Not Contain  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json  "tests"
-    Generate Warehouse From Local Base Input  "{\"tests\":\"false\"}"
-    Setup Dev Certs for sdds3
+    Generate Warehouse From Local Base Input  ${content}="{\"tests\":1000}"
     Trigger Update Now
     Wait Until Keyword Succeeds
-    ...    80s
+    ...    60s
     ...    5s
     ...    Check Log Contains String At Least N Times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  2
     File Should Contain  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json  tests
-
 
 Sul Downloader Installs SDDS3 Through update cache
     write_ALC_update_cache_policy   ${SUPPORT_FILES}/https/ca/root-ca.crt.pem
