@@ -18,6 +18,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <Common/UtilityImpl/StrError.h>
 #include <Common/UtilityImpl/TimeUtils.h>
 #include <Common/UtilityImpl/SystemExecutableUtils.h>
+#include <Common/ZipUtilities/ZipUtils.h>
 
 #include <algorithm>
 #include <iostream>
@@ -235,7 +236,8 @@ namespace diagnose
         std::string zipfiletemp = Common::FileSystem::join(destPath, zipFileName + ".temp");
         std::string zipfile = Common::FileSystem::join(destPath, zipFileName);
 
-        produceZip(srcPath, zipfiletemp);
+        Common::ZipUtilities::ZipUtils obj;
+        obj.produceZip(srcPath, zipfiletemp);
 
         try
         {
