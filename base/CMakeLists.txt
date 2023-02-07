@@ -125,10 +125,9 @@ set(RA_FEATURE_LIST "MDR")
 set(BASE_DIST_PREFIX "base")
 set(RA_DIST_PREFIX "ra")
 
-find_program(VERSIONING_CLIENT "versioning_client")
-if (NOT VERSIONING_CLIENT)
-    set(VERSIONING_CLIENT ${CMAKE_SOURCE_DIR}/tap_venv/bin/versioning_client)
-endif()
+find_program(VERSIONING_CLIENT "versioning_client"
+        PATHS ${CMAKE_SOURCE_DIR}/tap_venv/bin
+        REQUIRED)
 
 if (DEFINED ENV{VERSION_OVERRIDE})
     set(PRODUCT_VERSION "$ENV{VERSION_OVERRIDE}")
