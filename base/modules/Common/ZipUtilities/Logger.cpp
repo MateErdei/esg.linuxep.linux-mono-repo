@@ -1,6 +1,4 @@
-//
-// Created by pair on 06/02/23.
-//
+// Copyright 2023 Sophos Limited. All rights reserved.
 
 #include "Logger.h"
 #include <Common/Logging/LoggerConfig.h>

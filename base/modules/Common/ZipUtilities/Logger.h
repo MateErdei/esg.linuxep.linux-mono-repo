@@ -1,9 +1,4 @@
-//
-// Created by pair on 06/02/23.
-//
-
-#ifndef ESG_LINUXEP_EVEREST_BASE_LOGGER_H
-#define ESG_LINUXEP_EVEREST_BASE_LOGGER_H
+// Copyright 2023 Sophos Limited. All rights reserved.
 
 #pragma once
 

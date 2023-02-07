@@ -5,19 +5,16 @@
 #include "Logger.h"
 
 #include <Common/FileSystem/IFilePermissions.h>
-#include <Common/FileSystemImpl/FilePermissionsImpl.h>
 
 #include <fstream>
 #include <iostream>
 #include <unzip.h>
+//#include <zlib.h>
 #include <zip.h>
-#include <zlib.h>
 
 namespace Common::ZipUtilities
 {
     using namespace Common::FileSystem;
-
-//    SystemCommands::SystemCommands(const std::string& destination) : m_destination(destination) {}
 
     void produceZip(const std::string& srcPath, const std::string& destPath)
     {
@@ -48,7 +45,7 @@ namespace Common::ZipUtilities
 
                         std::string fileName = path.substr(srcPath.size()+1);
 
-                        if (0 == zipOpenNewFileInZip(zf, (fileName).c_str(), &zfi, NULL, 0, NULL, 0, NULL, Z_DEFLATED, Z_DEFAULT_COMPRESSION))
+                        if (0 == zipOpenNewFileInZip(zf, (fileName).c_str(), &zfi, NULL, 0, NULL, 0, NULL, Z_DEFLATED, 6)) //6 =  Z_DEFAULT_COMPRESSION
                         {
                             if (ZIP_OK != zipWriteInFileInZip(zf, size == 0 ? "" : &buffer[0], size))
                             {
@@ -77,19 +74,19 @@ namespace Common::ZipUtilities
 
     }
 
-//    void SystemCommands::unzipFolder(const std::string& srcPath)
+//    void unzipFolder(const char *srcPath)
 //    {
-//        unzFile zf = unzOpen(std::string(srcPath.begin));
+//        //get file to unzip and open
+//        unzFile zf = unzOpen(srcPath);
 //        if (zf == NULL)
 //        {
-//            LOGWARN("Zip file: " << destPath << " not found");
-//            return -1;
+//            LOGWARN("Zip file: " << srcPath << " not found");
 //        }
 //
 //        auto fs = Common::FileSystem::fileSystem();
 //
-//        std::vector<Path> filesToUnzip
 //
-//        std::vector<Path> filesToZip = fs->listAllFilesInDirectoryTree(srcPath);
+//
+//
 //    }
 } // namespace diagnose
