@@ -9,7 +9,6 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include "Logger.h"
 
 #include "ApplicationConfigurationImpl/ApplicationPathManager.h"
-#include "CommsComponent/Configurator.h"
 #include "UtilityImpl/StrError.h"
 #include "UtilityImpl/StringUtils.h"
 #include "UtilityImpl/SystemExecutableUtils.h"
@@ -161,13 +160,11 @@ namespace
         static unsigned long getProductDiskUsage()
         {
             auto path = Common::UtilityImpl::SystemExecutableUtils::getSystemExecutablePath("du");
-
             auto process = Common::Process::createProcess();
             const auto& commandExecutablePath = path;
             std::string installPath = Common::ApplicationConfiguration::applicationPathManager().sophosInstall();
-            std::string excludePath = CommsComponent::CommsConfigurator::chrootPathForSSPL(installPath);
 
-            process->exec(commandExecutablePath,{ "-B", "1000", "-sx", "--exclude=" + excludePath, installPath });
+            process->exec(commandExecutablePath,{ "-B", "1000", "-sx", installPath });
             process->setOutputLimit(1024 * 10);
 
             auto status = process->wait(Common::Process::Milliseconds(1000), 120);

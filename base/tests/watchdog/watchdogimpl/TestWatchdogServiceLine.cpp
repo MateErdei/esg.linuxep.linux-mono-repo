@@ -149,7 +149,7 @@ TEST_F(TestWatchdogServiceLine, WatchdogTelemetryReturnsExpectedData) // NOLINT
 
     ProcessReplacement processReplacement([]() {
         auto mockProcess = new StrictMock<MockProcess>();
-        std::vector<std::string> args{"-B", "1000", "-sx", "--exclude=/opt/sophos-spl/var/sophos-spl-comms", "/opt/sophos-spl"};
+        std::vector<std::string> args{"-B", "1000", "-sx", "/opt/sophos-spl"};
 
         EXPECT_CALL(*mockProcess, exec(HasSubstr("du"), args)).Times(1);
         EXPECT_CALL(*mockProcess, setOutputLimit(_));
@@ -174,7 +174,7 @@ TEST_F(TestWatchdogServiceLine, WatchdogTelemetryReturnsExpectedDataWhenProductD
 
     ProcessReplacement processReplacement([]() {
         auto mockProcess = new StrictMock<MockProcess>();
-        std::vector<std::string> args{"-B", "1000", "-sx", "--exclude=/opt/sophos-spl/var/sophos-spl-comms", "/opt/sophos-spl"};
+        std::vector<std::string> args{"-B", "1000", "-sx", "/opt/sophos-spl"};
 
         EXPECT_CALL(*mockProcess, exec(HasSubstr("du"), args)).Times(1);
         EXPECT_CALL(*mockProcess, setOutputLimit(_));
@@ -200,8 +200,7 @@ TEST_F(TestWatchdogServiceLine, WatchdogTelemetryReturnsExpectedDataWhenProductD
 
     ProcessReplacement processReplacement([installPath]() {
         auto mockProcess = new StrictMock<MockProcess>();
-        std::string exclude = "--exclude=" + installPath + "/var/sophos-spl-comms";
-        std::vector<std::string> args{"-B", "1000", "-sx", exclude, installPath};
+        std::vector<std::string> args{"-B", "1000", "-sx", installPath};
 
         EXPECT_CALL(*mockProcess, exec(HasSubstr("du"), args)).Times(1);
         EXPECT_CALL(*mockProcess, setOutputLimit(_));
@@ -226,7 +225,7 @@ TEST_F(TestWatchdogServiceLine, WatchdogTelemetryReturnsExpectedDataWhenProductD
 
     ProcessReplacement processReplacement([]() {
         auto mockProcess = new StrictMock<MockProcess>();
-        std::vector<std::string> args{"-B", "1000", "-sx", "--exclude=/opt/sophos-spl/var/sophos-spl-comms", "/opt/sophos-spl"};
+        std::vector<std::string> args{"-B", "1000", "-sx", "/opt/sophos-spl"};
 
         EXPECT_CALL(*mockProcess, exec(HasSubstr("du"), args)).Times(1);
         EXPECT_CALL(*mockProcess, setOutputLimit(_));
@@ -251,7 +250,7 @@ TEST_F(TestWatchdogServiceLine, WatchdogTelemetryReturnsExpectedDataWhenProductD
 
     ProcessReplacement processReplacement([]() {
         auto mockProcess = new StrictMock<MockProcess>();
-        std::vector<std::string> args{"-B", "1000", "-sx", "--exclude=/opt/sophos-spl/var/sophos-spl-comms", "/opt/sophos-spl"};
+        std::vector<std::string> args{"-B", "1000", "-sx", "/opt/sophos-spl"};
 
         EXPECT_CALL(*mockProcess, exec(HasSubstr("du"), args)).Times(1);
         EXPECT_CALL(*mockProcess, setOutputLimit(_));

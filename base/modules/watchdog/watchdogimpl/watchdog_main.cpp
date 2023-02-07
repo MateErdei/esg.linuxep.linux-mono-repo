@@ -12,7 +12,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <Common/Logging/FileLoggingSetup.h>
 #include <Common/UtilityImpl/ConfigException.h>
-#include <CommsComponent/Configurator.h>
 #include <sys/stat.h>
 
 #include <unistd.h>
