@@ -13,7 +13,7 @@ namespace
     class FakeOutbreakModeController : public IOutbreakModeController
     {
     public:
-        bool processEvent(const std::string&, const std::string&) override
+        bool processEvent(const Event&) override
         {
             return false;
         }

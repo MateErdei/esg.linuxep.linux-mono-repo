@@ -2,6 +2,8 @@
 
 #pragma once
 
+#include "Event.h"
+
 #include <memory>
 #include <string>
 
@@ -22,8 +24,7 @@ namespace ManagementAgent::EventReceiverImpl
          * @return True if we should drop the event and not send to Central
          */
         [[nodiscard]] virtual bool processEvent(
-            const std::string& appId,
-            const std::string& eventXml
+            const Event& event
             ) = 0;
 
         [[nodiscard]] virtual bool outbreakMode() const = 0;

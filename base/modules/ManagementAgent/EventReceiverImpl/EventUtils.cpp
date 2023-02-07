@@ -30,22 +30,19 @@ namespace
     }
 } // namespace
 
-void ManagementAgent::EventReceiverImpl::sendEvent(
-    const std::string& appId,
-    const std::string& eventXml
-)
+void ManagementAgent::EventReceiverImpl::sendEvent(const Event& event)
 {
-    LOGDEBUG("Send event from appid " << appId << " to mcsrouter");
+    LOGDEBUG("Send event from appid " << event.appId_ << " to mcsrouter");
     Path eventDir = Common::ApplicationConfiguration::applicationPathManager().getMcsEventFilePath();
     assert(!eventDir.empty());
     Path tmpDir = Common::ApplicationConfiguration::applicationPathManager().getTempPath();
     assert(!tmpDir.empty());
 
-    Path basename = createEventBasename(appId);
+    Path basename = createEventBasename(event.appId_);
     assert(!basename.empty());
 
     Path dest = Common::FileSystem::join(eventDir, basename);
     assert(!dest.empty());
 
-    Common::FileSystem::fileSystem()->writeFileAtomically(dest, eventXml, tmpDir, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
+    Common::FileSystem::fileSystem()->writeFileAtomically(dest, event.eventXml_, tmpDir, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
 }

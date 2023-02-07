@@ -2,17 +2,13 @@
 
 #pragma once
 
-#include <string>
+#include "Event.h"
 
 namespace ManagementAgent::EventReceiverImpl
 {
     /**
      * Send event to mcsrouter via filesystem
-     * @param appId
-     * @param eventXml
+     * @param event
      */
-    void sendEvent(
-        const std::string& appId,
-        const std::string& eventXml
-        );
+    void sendEvent(const Event& event);
 }

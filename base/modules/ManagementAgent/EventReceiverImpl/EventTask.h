@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "Event.h"
 #include "IOutbreakModeController.h"
 
 #include <Common/TaskQueue/ITask.h>
@@ -20,8 +21,7 @@ namespace ManagementAgent
             void run() override;
 
         private:
-            std::string m_appId;
-            std::string m_eventXml;
+            Event event_;
             IOutbreakModeControllerPtr outbreakModeController_;
         };
     } // namespace EventReceiverImpl

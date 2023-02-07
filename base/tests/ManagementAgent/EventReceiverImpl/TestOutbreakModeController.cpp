@@ -62,9 +62,7 @@ namespace
                                               const std::string& appID,
                                               const std::string& xml)
         {
-            std::string temp_appId{appID};
-            std::string temp_xml{xml};
-            return controller->processEvent(temp_appId, temp_xml);
+            return controller->processEvent({appID, xml});
         }
 
         static bool processEventThrowAwayArgs(OutbreakModeControllerPtr& controller,
@@ -72,9 +70,7 @@ namespace
                                               const std::string& xml,
                                               OutbreakModeController::time_point_t now)
         {
-            std::string temp_appId{appID};
-            std::string temp_xml{xml};
-            return controller->processEvent(temp_appId, temp_xml, now);
+            return controller->processEvent({appID, xml}, now);
         }
 
         static void repeatProcessEvent(OutbreakModeControllerPtr& controller,
@@ -131,7 +127,7 @@ TEST_F(TestOutbreakModeController, entering_outbreak_mode)
     }
     std::string appId{"CORE"};
     std::string xml{detection_xml};
-    auto result = controller->processEvent(appId, xml);
+    auto result = controller->processEvent({appId, xml});
 
     EXPECT_FALSE(result); // keep the event
     EXPECT_EQ(xml, detection_xml); // Still report the event

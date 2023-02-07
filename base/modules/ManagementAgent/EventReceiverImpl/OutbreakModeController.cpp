@@ -18,13 +18,10 @@
 
 namespace
 {
-    bool isCountableEvent(
-        const std::string& appId,
-        const std::string& eventXml)
+    using namespace ManagementAgent::EventReceiverImpl;
+    bool isCountableEvent(const Event& event)
     {
-        std::ignore = appId;
-
-        return Common::UtilityImpl::StringUtils::startswith(eventXml, R"(<?xml version="1.0" encoding="utf-8"?>
+        return Common::UtilityImpl::StringUtils::startswith(event.eventXml_, R"(<?xml version="1.0" encoding="utf-8"?>
 <event type="sophos.core.detection")");
     }
 }
@@ -34,22 +31,18 @@ ManagementAgent::EventReceiverImpl::OutbreakModeController::OutbreakModeControll
     load();
 }
 
-
-bool ManagementAgent::EventReceiverImpl::OutbreakModeController::processEvent(
-    const std::string& appId,
-    const std::string& eventXml)
+bool ManagementAgent::EventReceiverImpl::OutbreakModeController::processEvent(const Event& event)
 {
-    return processEvent(appId, eventXml, clock_t::now());
+    return processEvent(event, clock_t::now());
 }
 
 bool ManagementAgent::EventReceiverImpl::OutbreakModeController::processEvent(
-    const std::string& appId,
-    const std::string& eventXml,
+    const Event& event,
     const time_point_t now)
 {
     resetCountOnDayChange(now);
 
-    if (!isCountableEvent(appId, eventXml))
+    if (!isCountableEvent(event))
     {
         return false;
     }
@@ -67,7 +60,7 @@ bool ManagementAgent::EventReceiverImpl::OutbreakModeController::processEvent(
         // Sent before the 100th event, but shouldn't cause huge problems
         auto outbreakXml = generateCoreOutbreakEvent(now);
         LOGDEBUG("Sending outbreak mode report: " << outbreakXml);
-        ManagementAgent::EventReceiverImpl::sendEvent("CORE", outbreakXml);
+        ManagementAgent::EventReceiverImpl::sendEvent({"CORE", outbreakXml});
         save();
     }
     return false; // Still send the 100th event
