@@ -1,9 +1,7 @@
 add_library(zeromqwrapperimplobject OBJECT
-        ContextCollection.cpp ContextCollection.h
         ContextHolder.cpp ContextHolder.h
         PollerImpl.cpp PollerImpl.h
         ProxyImpl.cpp ProxyImpl.h
-        SocketCollection.cpp SocketCollection.h
         SocketHolder.cpp SocketHolder.h
         SocketImpl.cpp SocketImpl.h
         SocketPublisherImpl.cpp SocketPublisherImpl.h

@@ -48,7 +48,6 @@ target_link_libraries(commscomponentimpl PUBLIC
         directorywatcherimpl
         procutilimpl
         ProxyUtilsLib
-        ${ZeroMQ_LIBRARY}
         )
 
 SET_TARGET_PROPERTIES( commscomponentimpl

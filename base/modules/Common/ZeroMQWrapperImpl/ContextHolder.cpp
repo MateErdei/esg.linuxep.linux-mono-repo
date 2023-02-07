@@ -1,14 +1,22 @@
-// Copyright 2018-2023 Sophos Limited. All rights reserved.
+/******************************************************************************************************
+
+Copyright 2018, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
 
 #include "ContextHolder.h"
 
 #include "ZeroMQWrapperException.h"
-#include "Common/ZeroMQWrapperImpl/ContextCollection.h"
+
 #include <zmq.h>
 
 Common::ZeroMQWrapperImpl::ContextHolder::ContextHolder()
 {
-    m_context = ContextCollection::getInstance().createContext();
+    m_context = zmq_ctx_new();
+    if (m_context == nullptr)
+    {
+        throw ZeroMQWrapperException("Unable to construct ZMQ Context");
+    }
 }
 
 Common::ZeroMQWrapperImpl::ContextHolder::~ContextHolder()
@@ -23,6 +31,9 @@ void* Common::ZeroMQWrapperImpl::ContextHolder::ctx()
 
 void Common::ZeroMQWrapperImpl::ContextHolder::reset()
 {
-    ContextCollection::getInstance().closeContext(m_context);
-    m_context = nullptr;
+    if (m_context != nullptr)
+    {
+        zmq_ctx_term(m_context); // http://api.zeromq.org/4-2:zmq-ctx-term replaces destroy (deprecated)
+        m_context = nullptr;
+    }
 }

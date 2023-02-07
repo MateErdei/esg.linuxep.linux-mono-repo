@@ -1,12 +1,14 @@
-// Copyright 2018-2023 Sophos Limited. All rights reserved.
+/******************************************************************************************************
+
+Copyright 2018-2019, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
 #include "BoostProcessHolder.h"
 
 #include "IProcessException.h"
 #include "Logger.h"
 
 #include "../UtilityImpl/StringUtils.h"
-#include "Common/ZeroMQWrapperImpl/ContextCollection.h"
-#include "Common/ZeroMQWrapperImpl/SocketCollection.h"
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"
@@ -86,8 +88,6 @@ namespace Common
             template<typename Sequence>
             void on_exec_setup(boost::process::extend::posix_executor<Sequence>& exec)
             {
-                SocketCollection::getInstance().closeAll();
-                ContextCollection::getInstance().closeAll();
 
                 // Must set groups first whilst still root
                 std::string userName = Common::FileSystem::FilePermissionsImpl().getUserName(m_uid);
