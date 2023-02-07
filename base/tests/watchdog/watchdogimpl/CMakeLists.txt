@@ -17,3 +17,14 @@ SET_TARGET_PROPERTIES(TestWatchdog
         INSTALL_RPATH "${CMAKE_BINARY_DIR}/libs"
         BUILD_RPATH "${CMAKE_BINARY_DIR}/libs"
         )
+
+add_executable(RequestUpdateNow
+        RequestUpdateNow.cpp)
+target_include_directories(RequestUpdateNow BEFORE PUBLIC "${CMAKE_SOURCE_DIR}")
+target_link_libraries(RequestUpdateNow applicationconfigurationimpl watchdogimpl)
+
+SET_TARGET_PROPERTIES(RequestUpdateNow
+        PROPERTIES
+        INSTALL_RPATH "/opt/sophos-spl/base/lib64"
+        BUILD_RPATH "${CMAKE_BINARY_DIR}/libs:/opt/sophos-spl/base/lib64"
+        )
