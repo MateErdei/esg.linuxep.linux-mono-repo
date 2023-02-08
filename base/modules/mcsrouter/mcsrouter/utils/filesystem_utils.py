@@ -25,7 +25,7 @@ def utf8_write(path, data):
         with codecs.open(path, mode="w", encoding='utf-8', buffering=-1) as file_to_write:
             file_to_write.write(data)
     except (OSError, IOError) as exception:
-        LOGGER.error("utf8 write failed with message: %s", str(exception))
+        LOGGER.warning("utf8 write failed with message: %s", str(exception))
 
 def atomic_write(path, tmp_path, mode, data):
     """
@@ -40,7 +40,7 @@ def atomic_write(path, tmp_path, mode, data):
         os.chmod(tmp_path, mode)
         os.rename(tmp_path, path)
     except (OSError, IOError) as exception:
-        LOGGER.error(f"Atomic write failed with message: {str(exception)}")
+        LOGGER.warning(f"Atomic write failed with message: {str(exception)}")
 
 
 def read_file_if_exists(file_path):
