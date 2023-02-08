@@ -149,17 +149,13 @@ find_library(LZMA_LIBRARY
 set(GTEST_INCLUDE ${GTEST_INPUT}/gtest-headers)
 find_library(GTEST_LIBRARY
         NAMES gtest
-        PATHS ${GTEST_INPUT}/gtest-libs
+        PATHS ${GTEST_INPUT}
         NO_DEFAULT_PATH)
 find_library(GTEST_MAIN_LIBRARY
         NAMES gtest_main
-        PATHS ${GTEST_INPUT}/gtest-libs
+        PATHS ${GTEST_INPUT}
         NO_DEFAULT_PATH)
 set( GMOCK_INCLUDE ${GTEST_INPUT}/gmock-headers )
-find_library(GMOCK_LIBRARY
-        NAMES gmock
-        PATHS ${GTEST_INPUT}/gmock-libs
-        NO_DEFAULT_PATH)
 
 file(GLOB zmqlib ${PLUGINAPIPATH}/lib64/libzmq.so.*)
 file(GLOB log4cpluslib ${PLUGINAPIPATH}/lib64/liblog4cplus-*.so.*)
