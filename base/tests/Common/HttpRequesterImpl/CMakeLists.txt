@@ -10,26 +10,26 @@ add_executable(HttpRequesterTests
 
 target_include_directories(HttpRequesterTests SYSTEM BEFORE PUBLIC
         ${PROTOBUF_INCLUDE_DIR}
-        "${gtest_SOURCE_DIR}/include"
-        "${gmock_SOURCE_DIR}/include"
+        ${GMOCK_INCLUDE}
+        ${GTEST_INCLUDE}
         ${CURL_INCLUDE_DIR})
 
 target_link_libraries(HttpRequesterTests
         HttpRequestsImpl
-        gtest
-        gtest_main)
+        ${OPENSSL_LIBRARY}
+        ${OPENSSL_CRYPTO_LIBRARY}
+        ${}
+        ${GTEST_LIBRARY}
+        ${GTEST_MAIN_LIBRARY}
+        testhelpers
+        )
 
-target_link_libraries(HttpRequesterTests gtest gmock gtest_main -L"${CMAKE_BINARY_DIR}/libs" ssl crypto testhelpers)
+#target_link_libraries(HttpRequesterTests gtest gmock gtest_main -L"${CMAKE_BINARY_DIR}/libs" ssl crypto testhelpers)
+set_target_properties(HttpRequesterTests PROPERTIES
+        BUILD_RPATH "${CMAKE_BINARY_DIR}/libs")
 gtest_discover_tests(HttpRequesterTests)
 
-#SET_TARGET_PROPERTIES(HttpRequesterTests
-#        PROPERTIES
-#        INSTALL_RPATH "${CMAKE_BINARY_DIR}/libs"
-#        BUILD_RPATH "${CMAKE_BINARY_DIR}/libs"
-#        )
-#
-#set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Wall")
-
+#------------------------
 
 # Live network tests
 add_executable(HttpRequesterLiveNetworkTests
@@ -40,19 +40,23 @@ add_executable(HttpRequesterLiveNetworkTests
 
 target_include_directories(HttpRequesterLiveNetworkTests SYSTEM BEFORE PUBLIC
         ${PROTOBUF_INCLUDE_DIR}
-        "${gtest_SOURCE_DIR}/include"
-        "${gmock_SOURCE_DIR}/include"
-        ${CURL_INCLUDE_DIR})
+        ${CURL_INCLUDE_DIR}
+        ${GMOCK_INCLUDE}
+        ${GTEST_INCLUDE}
+        )
 
 target_link_libraries(HttpRequesterLiveNetworkTests
         HttpRequestsImpl
-        gtest
-        gtest_main)
+        ${OPENSSL_LIBRARY}
+        ${OPENSSL_CRYPTO_LIBRARY}
+        ${GTEST_LIBRARY}
+        ${GTEST_MAIN_LIBRARY}
+        testhelpers
+        )
 
 set_target_properties(HttpRequesterLiveNetworkTests PROPERTIES
+        BUILD_RPATH "${CMAKE_BINARY_DIR}/libs"
         INSTALL_RPATH "/opt/sophos-spl/base/lib64/" )
 
 install(TARGETS HttpRequesterLiveNetworkTests
         DESTINATION ${CMAKE_BINARY_DIR}/SystemProductTestOutput)
-
-target_link_libraries(HttpRequesterLiveNetworkTests gtest gmock gtest_main -L"${CMAKE_BINARY_DIR}/libs" ssl crypto testhelpers)

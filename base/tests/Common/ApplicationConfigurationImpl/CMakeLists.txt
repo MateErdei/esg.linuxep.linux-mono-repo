@@ -7,7 +7,7 @@ target_include_directories(ApplicationConfigurationImplTests SYSTEM BEFORE PUBLI
         ${GTEST_INCLUDE}
         ${CMAKE_SOURCE_DIR}
         )
-target_link_libraries(ApplicationConfigurationImplTests ${GMOCK_LIBRARY} ${GTEST_LIBRARY} ${GTEST_MAIN_LIBRARY} testhelpers)
+target_link_libraries(ApplicationConfigurationImplTests ${GTEST_LIBRARY} ${GTEST_MAIN_LIBRARY} testhelpers)
 gtest_discover_tests(ApplicationConfigurationImplTests)
 SET_TARGET_PROPERTIES(ApplicationConfigurationImplTests
         PROPERTIES

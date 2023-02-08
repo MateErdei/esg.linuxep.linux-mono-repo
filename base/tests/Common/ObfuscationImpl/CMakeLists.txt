@@ -5,7 +5,7 @@ add_executable(TestObfuscation
         TestCipher.cpp
         TestObscurity.cpp)
 target_include_directories(TestObfuscation SYSTEM BEFORE PUBLIC ${GMOCK_INCLUDE} ${GTEST_INCLUDE} ${CMAKE_SOURCE_DIR})
-target_link_libraries(TestObfuscation ${GMOCK_LIBRARY} ${GTEST_LIBRARY} ${GTEST_MAIN_LIBRARY} obfuscationimpl logging)
+target_link_libraries(TestObfuscation ${GTEST_LIBRARY} ${GTEST_MAIN_LIBRARY} obfuscationimpl logging)
 gtest_discover_tests(TestObfuscation)
 SET_TARGET_PROPERTIES(TestObfuscation
         PROPERTIES

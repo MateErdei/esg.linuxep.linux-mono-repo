@@ -330,20 +330,16 @@ find_library(ZLIB_LIBRARY
         NO_DEFAULT_PATH
         )
 
-set( GTEST_INCLUDE ${GTEST_INPUT}/gtest-headers )
+set( GTEST_INCLUDE ${GTEST_INPUT}/googletest )
 find_library(GTEST_LIBRARY
         NAMES gtest
-        PATHS ${GTEST_INPUT}/gtest-libs
+        PATHS ${GTEST_INPUT}
         NO_DEFAULT_PATH)
 find_library(GTEST_MAIN_LIBRARY
         NAMES gtest_main
-        PATHS ${GTEST_INPUT}/gtest-libs
+        PATHS ${GTEST_INPUT}
         NO_DEFAULT_PATH)
-set( GMOCK_INCLUDE ${GTEST_INPUT}/gmock-headers )
-find_library(GMOCK_LIBRARY
-        NAMES gmock
-        PATHS ${GTEST_INPUT}/gmock-libs
-        NO_DEFAULT_PATH)
+set( GMOCK_INCLUDE ${GTEST_INPUT}/googlemock )
 
 ## Allow this to be redirected for python development
 if(NOT DEFINED PYTHON_INPUT)

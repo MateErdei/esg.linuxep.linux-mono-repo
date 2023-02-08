@@ -3,7 +3,7 @@ add_executable(TestWdctlArguments
         TestWdctlArguments.cpp
         )
 target_include_directories(TestWdctlArguments BEFORE PUBLIC "${GTEST_INCLUDE}" "${GMOCK_INCLUDE}" "${CMAKE_SOURCE_DIR}")
-target_link_libraries(TestWdctlArguments ${GTEST_LIBRARY} ${GMOCK_LIBRARY} ${GTEST_MAIN_LIBRARY} pthread)
+target_link_libraries(TestWdctlArguments ${GTEST_LIBRARY} ${GTEST_MAIN_LIBRARY} pthread)
 target_link_libraries(TestWdctlArguments wdctlarguments)
 gtest_discover_tests(TestWdctlArguments)
 add_dependencies(TestWdctlArguments wdctlimpl)

@@ -5,7 +5,7 @@ target_include_directories(TestProxyUtils SYSTEM BEFORE PUBLIC ${GTEST_INCLUDE} 
 target_link_libraries(TestProxyUtils
         ${GTEST_LIBRARY}
         ${GTEST_MAIN_LIBRARY}
-        ${GMOCK_LIBRARY}
+        ${}
         utilityimpl
         ProxyUtilsLib
         filesystemimpl

@@ -12,7 +12,7 @@ target_include_directories(TestPluginProtocol
 target_link_libraries(TestPluginProtocol
         ${GTEST_LIBRARY}
         ${GTEST_MAIN_LIBRARY}
-        ${GMOCK_LIBRARY})
+        ${})
 target_link_libraries(TestPluginProtocol pluginprotocol testhelpers logging)
 gtest_discover_tests(TestPluginProtocol)
 SET_TARGET_PROPERTIES(TestPluginProtocol

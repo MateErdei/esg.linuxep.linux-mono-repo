@@ -103,14 +103,6 @@
         </build-asset>
         <trusted-asset artifact-path="filer5-migrate/pscerts/1-0-1/67228/ps_certificates/ps_rootca.crt" dest-dir="/build/input/"/>
 
-        <build-asset project="thirdparty" repo="googletest">
-            <release-version branch="release/sspl/Version_1_11_0" build-id="20220311153539-356cccfb1e6553d381af902d0dcc7f74379ececd-JevvWV"/>
-            <include artifact-path="thirdparty/googletest/gmock-headers" dest-dir="/build/input/googletest/gmock-headers/gmock"/>
-            <include artifact-path="thirdparty/googletest/gmock-libs" dest-dir="/build/input/googletest/gmock-libs"/>
-            <include artifact-path="thirdparty/googletest/gtest-headers" dest-dir="/build/input/googletest/gtest-headers/gtest"/>
-            <include artifact-path="thirdparty/googletest/gtest-libs" dest-dir="/build/input/googletest/gtest-libs"/>
-        </build-asset>
-
         <build-asset project="em" repo="esg">
             <release-version branch="release/2023.04/sprint" build-id="20230120201925-31a0379094fc1654506d3d459661d326949dee47-bh0Sgz"/>
             <development-version branch="develop"/>
@@ -119,6 +111,21 @@
 
             <include artifact-path="thirdparty/zlib-linux-opt" dest-dir="/build/redist/zlib"/>
         </build-asset>
+
+        <build-asset project="em" repo="esg">
+            <!--            <release-version branch="thirdparty/googletest" build-id="20230202135916-551d638c1f6e6de78acdf690401160e9789365b0-LTBz3g"/>-->
+            <development-version branch="feature/thirdparty/LINUXDAR-6721-update-googletest"/>
+            <include artifact-path="thirdparty/googletest-linux-opt" dest-dir="/build/input/googletest"/>
+        </build-asset>
+
+
+<!--        <build-asset project="thirdparty" repo="googletest">-->
+<!--            <release-version branch="release/sspl/Version_1_11_0" build-id="20220311153539-356cccfb1e6553d381af902d0dcc7f74379ececd-JevvWV"/>-->
+<!--            <include artifact-path="thirdparty/googletest/gmock-headers" dest-dir="/build/input/googletest/gmock-headers/gmock"/>-->
+<!--            <include artifact-path="thirdparty/googletest/gmock-libs" dest-dir="/build/input/googletest/gmock-libs"/>-->
+<!--            <include artifact-path="thirdparty/googletest/gtest-headers" dest-dir="/build/input/googletest/gtest-headers/gtest"/>-->
+<!--            <include artifact-path="thirdparty/googletest/gtest-libs" dest-dir="/build/input/googletest/gtest-libs"/>-->
+<!--        </build-asset>-->
 
         <build-asset project="winep" repo="sau">
             <release-version branch="release/sspl/Version_1_0_0" build-id="20220825150631-43a7c87ceb5905f316aef54df45de777a5961022-O0LZyf"/>

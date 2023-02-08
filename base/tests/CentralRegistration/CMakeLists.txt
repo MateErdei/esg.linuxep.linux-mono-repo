@@ -5,7 +5,7 @@ add_executable(centralregistrationtests
         TestCentralRegistrationMain.cpp
         )
 target_include_directories(centralregistrationtests SYSTEM BEFORE PUBLIC ${GTEST_INCLUDE} ${CMAKE_SOURCE_DIR})
-target_link_libraries(centralregistrationtests ${GMOCK_LIBRARY} ${GTEST_LIBRARY} ${GTEST_MAIN_LIBRARY} filesystemimpl testhelpers centralregistrationimpl mcsimpl)
+target_link_libraries(centralregistrationtests ${GTEST_LIBRARY} ${GTEST_MAIN_LIBRARY} filesystemimpl testhelpers centralregistrationimpl mcsimpl)
 gtest_discover_tests(centralregistrationtests)
 SET_TARGET_PROPERTIES(centralregistrationtests
         PROPERTIES

@@ -13,6 +13,6 @@ SET_TARGET_PROPERTIES(TestManifestDiff
         BUILD_RPATH "${CMAKE_BINARY_DIR}/libs"
         )
 
-target_link_libraries(TestManifestDiff ${GTEST_LIBRARY} ${GTEST_MAIN_LIBRARY} ${GMOCK_LIBRARY})
+target_link_libraries(TestManifestDiff ${GTEST_LIBRARY} ${GTEST_MAIN_LIBRARY} ${})
 target_link_libraries(TestManifestDiff manifestdifflib testhelpers -L"${BOOST_LIB_DIRS}" -lboost_filesystem -lboost_system )
 gtest_discover_tests(TestManifestDiff)

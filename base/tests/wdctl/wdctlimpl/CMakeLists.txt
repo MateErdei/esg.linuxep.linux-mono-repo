@@ -4,7 +4,7 @@ add_executable(TestWdctl
         )
 target_include_directories(TestWdctl SYSTEM BEFORE PUBLIC "${GTEST_INCLUDE}" "${GMOCK_INCLUDE}")
 target_include_directories(TestWdctl BEFORE PUBLIC "${CMAKE_SOURCE_DIR}")
-target_link_libraries(TestWdctl ${GTEST_LIBRARY} ${GMOCK_LIBRARY} ${GTEST_MAIN_LIBRARY})
+target_link_libraries(TestWdctl ${GTEST_LIBRARY} ${GTEST_MAIN_LIBRARY})
 target_link_libraries(TestWdctl wdctlimpl)
 gtest_discover_tests(TestWdctl)
 add_dependencies(TestWdctl wdctlimpl)

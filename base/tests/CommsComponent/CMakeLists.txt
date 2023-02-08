@@ -16,7 +16,7 @@ add_executable(TestCommsComponent
         )
 
 target_include_directories(TestCommsComponent BEFORE PUBLIC "${GTEST_INCLUDE}" "${GMOCK_INCLUDE}"  ${CMAKE_SOURCE_DIR})
-target_link_libraries(TestCommsComponent ${GTEST_LIBRARY} ${GTEST_MAIN_LIBRARY} ${GMOCK_LIBRARY} commscomponentimpl testhelpers utilityimpl)
+target_link_libraries(TestCommsComponent ${GTEST_LIBRARY} ${GTEST_MAIN_LIBRARY} commscomponentimpl testhelpers utilityimpl)
 gtest_discover_tests(TestCommsComponent)
 SET_TARGET_PROPERTIES(TestCommsComponent
         PROPERTIES

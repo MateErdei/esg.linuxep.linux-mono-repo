@@ -35,7 +35,7 @@ add_library(testhelpers SHARED $<TARGET_OBJECTS:testhelpersobject>)
 
 target_include_directories(testhelpers SYSTEM BEFORE PUBLIC ${GMOCK_INCLUDE} ${GTEST_INCLUDE} ${LOG4CPLUS_INCLUDE_DIR})
 
-target_link_libraries(testhelpers PUBLIC filesystemimpl applicationconfigurationimpl ${GTEST_LIBRARY} ${GMOCK_LIBRARY}  pluginapiimpl)
+target_link_libraries(testhelpers PUBLIC filesystemimpl applicationconfigurationimpl ${GTEST_LIBRARY}  pluginapiimpl)
 SET_TARGET_PROPERTIES( testhelpers
         PROPERTIES INSTALL_RPATH "$ORIGIN")
 
