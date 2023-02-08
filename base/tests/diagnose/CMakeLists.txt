@@ -11,9 +11,7 @@ target_link_libraries(TestDiagnose
         diagnoseimpl
         testhelpers
         ${OPENSSL_LIBRARY}
-        ${OPENSSL_CRYPTO_LIBRARY}
-        ${ZLIB_LIBRARY}
-        ${MINIZIP_LIBRARY})
+        ${OPENSSL_CRYPTO_LIBRARY})
 gtest_discover_tests(TestDiagnose)
 SET_TARGET_PROPERTIES(TestDiagnose
         PROPERTIES

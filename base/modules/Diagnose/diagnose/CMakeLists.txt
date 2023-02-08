@@ -19,9 +19,8 @@ add_library(diagnoseimpl STATIC
         ../../Common/UtilityImpl/TimeUtils.cpp
         ../../Common/UtilityImpl/TimeUtils.h
         ../../Common/UtilityImpl/StringUtils.h
-        ../../Common/ZipUtilities/ZipUtils.h
         )
 
-target_include_directories(diagnoseimpl SYSTEM PUBLIC ${LOG4CPLUS_INCLUDE_DIR}  ${MINIZIP_INCLUDE_DIR} ${ZLIB_INCLUDE_DIR})
+target_include_directories(diagnoseimpl SYSTEM PUBLIC ${LOG4CPLUS_INCLUDE_DIR})
 
-target_link_libraries(diagnoseimpl PUBLIC ziputilities logging ${OPENSSL_LIBRARY} ${OPENSSL_CRYPTO_LIBRARY} ${ZLIB_LIBRARY} ${MINIZIP_LIBRARY})
+target_link_libraries(diagnoseimpl PUBLIC ziputilities logging ${OPENSSL_LIBRARY} ${OPENSSL_CRYPTO_LIBRARY})

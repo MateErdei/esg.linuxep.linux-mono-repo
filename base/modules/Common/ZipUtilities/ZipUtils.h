@@ -14,6 +14,7 @@ namespace Common::ZipUtilities
         * Archive the diagnose output into a zip ready for upload to Central location
          */
         void produceZip(const std::string& srcPath, const std::string& destPath) const;
+        bool unzip(const std::string& srcPath, const std::string& destPath);
     };
 
 } // namespace Common::ZipUtilities

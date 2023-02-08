@@ -23,9 +23,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <algorithm>
 #include <iostream>
 #include <sys/stat.h>
-#include <zip.h>
 #include <fstream>
-#include <zlib.h>
 
 namespace diagnose
 {
