@@ -2,7 +2,7 @@
 
 #include "EventTask.h"
 
-#include "EventUtils.h"
+#include "ManagementAgent/LoggerImpl/Logger.h"
 
 ManagementAgent::EventReceiverImpl::EventTask::EventTask(
     ManagementAgent::EventReceiverImpl::Event event,
@@ -21,6 +21,7 @@ void ManagementAgent::EventReceiverImpl::EventTask::run()
     )
     {
         // Drop the event
+        LOGDEBUG("Dropping event as we are in outbreak mode: "<<event_.appId_ << ": " << event_.eventXml_);
         return;
     }
 

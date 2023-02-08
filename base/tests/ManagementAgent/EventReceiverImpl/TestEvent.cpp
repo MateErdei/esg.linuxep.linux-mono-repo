@@ -46,3 +46,53 @@ TEST_F(TestEvent, Send)
     ManagementAgent::EventReceiverImpl::Event event{"APPID", "XML"};
     event.send();
 }
+
+TEST_F(TestEvent, Detection)
+{
+    const auto XML = R"sophos(<?xml version="1.0" encoding="utf-8"?>
+<event type="sophos.core.detection" ts="@@TS@@">
+  <user userId="@@USER_ID@@"/>
+  <alert id="@@ID@@" name="@@NAME@@" threatType="@@THREAT_TYPE@@" origin="@@ORIGIN@@" remote="@@REMOTE@@">
+    <sha256>@@SHA256@@</sha256>
+    <path>@@PATH@@</path>
+  </alert>
+</event>)sophos";
+    ManagementAgent::EventReceiverImpl::Event event{"CORE", XML};
+    EXPECT_TRUE(event.isCountableEvent());
+    EXPECT_TRUE(event.isBlockableEvent());
+}
+
+TEST_F(TestEvent, Clean)
+{
+    const auto XML = R"sophos(<?xml version="1.0" encoding="utf-8"?>
+<event type="sophos.core.clean" ts="@@TS@@">
+  <alert id="@@CORRELATION_ID@@" succeeded="@@SUCCESS_OVERALL@@" origin="@@ORIGIN@@">
+    <items totalItems="@@TOTAL_ITEMS@@">
+      <item type="file" result="@@SUCCESS_DETAILED@@">
+        <descriptor>@@PATH@@</descriptor>
+      </item>
+    </items>
+  </alert>
+</event>)sophos";
+    ManagementAgent::EventReceiverImpl::Event event{"CORE", XML};
+    EXPECT_FALSE(event.isCountableEvent());
+    EXPECT_TRUE(event.isBlockableEvent());
+}
+
+
+TEST_F(TestEvent, Restore)
+{
+    const auto XML = R"sophos(<?xml version="1.0" encoding="utf-8"?>
+<event type="sophos.core.restore" ts="@@TS@@">
+  <alert id="@@ID@@" succeeded="@@SUCCEEDED@@">
+    <items totalItems="1">
+      <item type="file">
+        <descriptor>@@PATH@@</descriptor>
+      </item>
+    </items>
+  </alert>
+</event>)sophos";
+    ManagementAgent::EventReceiverImpl::Event event{"CORE", XML};
+    EXPECT_FALSE(event.isCountableEvent());
+    EXPECT_FALSE(event.isBlockableEvent());
+}

@@ -62,5 +62,7 @@ bool Event::isCountableEvent() const
 
 bool Event::isBlockableEvent() const
 {
-    return isCountableEvent();
+    return isCountableEvent() ||
+           Common::UtilityImpl::StringUtils::startswith(eventXml_, R"(<?xml version="1.0" encoding="utf-8"?>
+<event type="sophos.core.clean")");
 }

@@ -9,7 +9,6 @@
 #include "Common/UtilityImpl/TimeUtils.h"
 #include "Common/UtilityImpl/Uuid.h"
 #include "FileSystem/IFileNotFoundException.h"
-#include "FileSystem/IFileSystemException.h"
 #include "ManagementAgent/LoggerImpl/Logger.h"
 
 #include <ctime>
