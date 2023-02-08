@@ -18,7 +18,7 @@ namespace ResponsePlugin
             return ActionType::NONE;
         }
 
-        if (obj.find("type") == obj.end())
+        if (!obj.contains("type"))
         {
             return ActionType::NONE;
         }
