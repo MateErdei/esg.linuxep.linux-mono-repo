@@ -90,7 +90,7 @@ void TelemetryProcessor::gatherTelemetry()
 void TelemetryProcessor::sendTelemetry(const std::string& telemetryJson)
 {
     Common::HttpRequests::RequestConfig requestConfig;
-    requestConfig.url = m_config->getServer() + m_config->getResourcePath();
+    requestConfig.url = "https://" + m_config->getServer() + "/" + m_config->getResourcePath();
     requestConfig.headers = m_config->getHeaders();
     requestConfig.port = m_config->getPort();
     requestConfig.certPath = m_config->getTelemetryServerCertificatePath();

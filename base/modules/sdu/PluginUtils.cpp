@@ -70,9 +70,9 @@ namespace RemoteDiagnoseImpl
         }
 
         Common::HttpRequests::RequestConfig requestConfig;
-        requestConfig.url = data.domain + data.resourcePath;
+        requestConfig.url = "https://" + data.domain + "/" + data.resourcePath;
         requestConfig.port = port;
-        requestConfig.fileToUpload = chrootPath;
+        requestConfig.fileToUpload = processedfilepath;
         requestConfig.timeout = 60;
 
         try
