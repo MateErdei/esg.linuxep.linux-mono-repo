@@ -7,10 +7,8 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include "TelemetryProcessor.h"
 
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
-#include <Common/CurlWrapper/CurlWrapper.h>
 #include <Common/FileSystem/IFileSystemException.h>
 #include <Common/HttpRequests/IHttpRequester.h>
-#include <Common/HttpRequestsImpl/HttpRequesterImpl.h>
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 #include <Common/TelemetryHelperImpl/TelemetrySerialiser.h>
 #include <Telemetry/LoggerImpl/Logger.h>
@@ -23,8 +21,9 @@ using namespace Common::Telemetry;
 
 TelemetryProcessor::TelemetryProcessor(
     std::shared_ptr<const Common::TelemetryConfigImpl::Config> config,
+    std::shared_ptr<Common::HttpRequests::IHttpRequester> httpRequester,
     std::vector<std::shared_ptr<ITelemetryProvider>> telemetryProviders) :
-    m_config(std::move(config)), m_telemetryProviders(std::move(telemetryProviders))
+    m_config(std::move(config)), m_httpRequester(std::move(httpRequester)), m_telemetryProviders(std::move(telemetryProviders))
 {
 }
 
@@ -105,10 +104,8 @@ void TelemetryProcessor::sendTelemetry(const std::string& telemetryJson)
     requestConfig.data = telemetryJson;
 
     LOGINFO("Sending telemetry...");
-    std::shared_ptr<Common::CurlWrapper::ICurlWrapper> curlWrapper = std::make_shared<Common::CurlWrapper::CurlWrapper>();
-    Common::HttpRequestsImpl::HttpRequesterImpl client = Common::HttpRequestsImpl::HttpRequesterImpl(curlWrapper);
 
-    Common::HttpRequests::Response response = client.put(requestConfig);
+    Common::HttpRequests::Response response = m_httpRequester->put(requestConfig);
 
     if (response.errorCode == Common::HttpRequests::ResponseErrorCode::OK)
     {

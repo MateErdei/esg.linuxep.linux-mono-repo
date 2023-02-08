@@ -25,6 +25,7 @@ namespace Telemetry
     public:
         TelemetryProcessor(
             std::shared_ptr<const Config> config,
+            std::shared_ptr<Common::HttpRequests::IHttpRequester> httpRequester,
             std::vector<std::shared_ptr<ITelemetryProvider>> telemetryProviders);
         virtual ~TelemetryProcessor() = default;
 
@@ -39,6 +40,7 @@ namespace Telemetry
 
     private:
         std::shared_ptr<const Config> m_config;
+        std::shared_ptr<Common::HttpRequests::IHttpRequester> m_httpRequester;
         Common::Telemetry::TelemetryHelper m_telemetryHelper;
         std::vector<std::shared_ptr<ITelemetryProvider>> m_telemetryProviders;
     };
