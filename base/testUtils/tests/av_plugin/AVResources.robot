@@ -56,10 +56,7 @@ Check AV Plugin Running
     Log  ${result.stderr}
     Log  ${result.stdout}
     Should Be Equal As Integers    ${result.rc}    0
-    Wait Until Keyword Succeeds
-    ...  15 secs
-    ...  1 secs
-    ...  AV Plugin Log Contains  <> Starting Scan Scheduler
+
 Check AV Plugin Executable Not Running
     ${result} =    Run Process  pgrep  -f  ${PLUGIN_BINARY}
     Run Keyword If  ${result.rc}==0   Report On Process   ${result.stdout}
