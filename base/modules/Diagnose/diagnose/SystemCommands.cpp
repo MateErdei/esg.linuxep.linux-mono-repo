@@ -174,8 +174,8 @@ namespace diagnose
         std::string zipfiletemp = Common::FileSystem::join(destPath, zipFileName + ".temp");
         std::string zipfile = Common::FileSystem::join(destPath, zipFileName);
 
-        Common::ZipUtilities::ZipUtils zip;
-        zip.produceZip(srcPath, zipfiletemp);
+        Common::ZipUtilities::ZipUtils zipUtils;
+        zipUtils.zip(srcPath, zipfiletemp);
 
         try
         {
