@@ -12,7 +12,6 @@ Resource  TelemetryResources.robot
 Resource  ../GeneralTeardownResource.robot
 Resource  ../installer/InstallerResources.robot
 Resource  ../mcs_router/McsRouterResources.robot
-Resource  ../comms_component/CommsComponentResources.robot
 Resource  ../scheduler_update/SchedulerUpdateResources.robot
 
 Suite Setup      Setup Telemetry Tests
@@ -111,7 +110,6 @@ Telemetry Executable Generates System Base and Watchdog Telemetry
     Check System Telemetry Json Is Correct  ${telemetryFileContents}
     Check Watchdog Telemetry Json Is Correct  ${telemetryFileContents}
     Check Base Telemetry Json Is Correct  ${telemetryFileContents}
-    Check Comms Component Network Log Contains   Trying 127.0.0.1:443
 
 Telemetry Executable Generates Cloud Platform Metadata
     [Tags]  SMOKE  TELEMETRY  AMAZON_LINUX

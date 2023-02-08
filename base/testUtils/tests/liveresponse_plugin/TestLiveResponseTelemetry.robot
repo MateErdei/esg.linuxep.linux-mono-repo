@@ -12,7 +12,6 @@ Resource  ../telemetry/TelemetryResources.robot
 Resource  LiveResponseResources.robot
 Resource  ../upgrade_product/UpgradeResources.robot
 Resource  ../mdr_plugin/MDRResources.robot
-Resource  ../comms_component/CommsComponentResources.robot
 
 Test Setup  LiveResponse Telemetry Test Setup
 Test Teardown  LiveResponse Telemetry Test Teardown

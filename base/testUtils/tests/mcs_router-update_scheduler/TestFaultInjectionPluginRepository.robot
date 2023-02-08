@@ -13,7 +13,6 @@ Resource  ../installer/InstallerResources.robot
 Resource  ../watchdog/WatchdogResources.robot
 Resource  ../scheduler_update/SchedulerUpdateResources.robot
 Resource  ../mcs_router/McsRouterResources.robot
-Resource  ../comms_component/CommsComponentResources.robot
 
 Suite Teardown   Require Uninstalled
 

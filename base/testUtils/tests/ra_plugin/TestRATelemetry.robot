@@ -2,7 +2,6 @@
 Resource  ../installer/InstallerResources.robot
 Resource  ResponseActionsResources.robot
 Resource  ../telemetry/TelemetryResources.robot
-Resource  ../comms_component/CommsComponentResources.robot
 
 Suite Setup     RA Telemetry Suite Setup
 Suite Teardown  Require Uninstalled

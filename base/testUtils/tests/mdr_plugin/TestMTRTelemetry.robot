@@ -8,7 +8,6 @@ Resource  ../GeneralTeardownResource.robot
 Resource  ../watchdog/LogControlResources.robot
 Resource  ../watchdog/WatchdogResources.robot
 Resource  ../telemetry/TelemetryResources.robot
-Resource  ../comms_component/CommsComponentResources.robot
 Resource  MDRResources.robot
 
 

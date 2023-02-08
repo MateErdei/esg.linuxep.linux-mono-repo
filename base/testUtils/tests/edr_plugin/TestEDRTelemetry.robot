@@ -12,7 +12,6 @@ Resource  ../telemetry/TelemetryResources.robot
 Resource  EDRResources.robot
 Resource  ../upgrade_product/UpgradeResources.robot
 Resource  ../mdr_plugin/MDRResources.robot
-Resource  ../comms_component/CommsComponentResources.robot
 
 Test Setup  EDR Telemetry Test Setup
 Test Teardown  EDR Telemetry Test Teardown

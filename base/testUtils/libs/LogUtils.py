@@ -57,8 +57,6 @@ class LogUtils(object):
         self.register_log = os.path.join(self.base_logs_dir, "register_central.log")
         self.suldownloader_log = os.path.join(self.base_logs_dir, "suldownloader.log")
         self.watchdog_log = os.path.join(self.base_logs_dir, "watchdog.log")
-        self.comms_component_network_log = os.path.join(self.base_logs_dir, "sophos-spl-comms", "comms_network.log")
-        self.comms_component_log = os.path.join(self.base_logs_dir, "sophosspl", "comms_component.log")
         self.managementagent_log = os.path.join(self.base_logs_dir, "sophosspl", "sophos_managementagent.log")
         self.mcs_envelope_log = os.path.join(self.base_logs_dir, "sophosspl", "mcs_envelope.log")
         self.mcs_router_log = os.path.join(self.base_logs_dir, "sophosspl", "mcsrouter.log")
@@ -522,22 +520,6 @@ class LogUtils(object):
         if string_to_contain in contents:
             self.dump_watchdog_log()
             raise AssertionError(f"Marked watchdog log did not contain: {string_to_contain}")
-
-    # Comms Component Log Utils
-    def check_comms_component_log_contains(self, string_to_contain):
-        self.check_log_contains(string_to_contain, self.comms_component_log, "Comms Component Log")
-        logger.info(self.comms_component_log)
-
-    def check_comms_component_log_does_not_contain_error(self):
-        self.check_log_does_not_contain("ERROR", self.comms_component_log, "Comms Component")
-        logger.info(self.comms_component_log)
-
-    def check_comms_component_network_log_contains(self, string_to_contain):
-        self.check_log_contains(string_to_contain, self.comms_component_network_log, "Comms Component Network Log")
-        logger.info(self.comms_component_network_log)
-
-    def check_comms_component_network_log_does_not_contain(self, string_to_not_contain):
-        self.check_log_does_not_contain(string_to_not_contain, self.comms_component_network_log, "Comms Component Network Log")
 
     # MCS Router Log Utils
     def dump_mcs_config(self):
