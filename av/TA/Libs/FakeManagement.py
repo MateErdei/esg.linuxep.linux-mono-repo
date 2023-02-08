@@ -111,9 +111,12 @@ class FakeManagement(object):
             self.logger.error("appid:{} is lower case".format(app_id))
             app_id = app_id.upper()
 
-        plugin.policy(app_id, content)
         if self.agent is not None:
             self.agent.set_default_policy(app_id, content)
+        else:
+            self.logger.error("send_plugin_policy without agent active")
+
+        plugin.policy(app_id, content)
 
     def set_default_policy(self, app_id, content):
         if self.agent is None:
