@@ -196,12 +196,6 @@ Check Telemetry Scheduler Copy Is Running
     ${result} =     Run Process     pgrep  -f   newTscheduler
     Should Be Equal As Integers     ${result.rc}    0
 
-Check Comms Component Is Running
-    ${result_is_running} =     Run Process     pgrep  -f   ${COMMS_COMPONENT}
-    Log  ${result_is_running.stdout}
-    #stdout will have <pid1>\n <pid2>.
-    Should Be Equal As Integers  ${result_is_running.stdout.split().__len__()}  2
-
 Check Watchdog Not Running
     ${result} =    Run Process  pgrep  sophos_watchdog
     Should Not Be Equal As Integers    ${result.rc}    0
@@ -218,10 +212,6 @@ Check Telemetry Scheduler Plugin Not Running
     ${result} =    Run Process  pgrep  tscheduler
     Should Not Be Equal As Integers    ${result.rc}    0
 
-Check Comms Component Not Running
-    ${result} =    Run Process  pgrep  -f   ${COMMS_COMPONENT}
-    Should Not Be Equal As Integers    ${result.rc}    0
-
 Wait For Base Processes To Be Running
     Wait Until Keyword Succeeds
     ...  10 secs
@@ -233,7 +223,6 @@ Check Expected Base Processes Are Running
     Check Management Agent Running
     Check Update Scheduler Running
     Check Telemetry Scheduler Is Running
-    Check Comms Component Is Running
     Check SDU Running
 
 Check Expected Base Processes Except SDU Are Running
@@ -241,7 +230,6 @@ Check Expected Base Processes Except SDU Are Running
     Check Management Agent Running
     Check Update Scheduler Running
     Check Telemetry Scheduler Is Running
-    Check Comms Component Is Running
 
 Check Base Processes Are Not Running
     Check Watchdog Not Running

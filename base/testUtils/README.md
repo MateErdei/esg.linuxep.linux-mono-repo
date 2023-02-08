@@ -60,7 +60,6 @@ The following tags can be used to select which tests can be run, using the inclu
 * AV_PLUGIN - Test cases which test anti-virus plugin
 * BASE_DOWNGRADE - Test cases where base is downgraded
 * CENTRAL - Tests which run against Central or Nova
-* COMMS - Test cases which test the comms component
 * DATAFEED - Datafeed test cases
 * DEBUG - Tests which are useful for debugging
 * DIAGNOSE - Tests which exercise sophos_diagnose

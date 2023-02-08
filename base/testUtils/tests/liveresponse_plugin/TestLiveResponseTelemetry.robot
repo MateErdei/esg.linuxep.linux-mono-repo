@@ -188,9 +188,8 @@ Liveresponse Plugin saves mutiple session with different thumbprints in telemetr
 LiveResponse Telemetry Suite Setup
     Require Fresh Install
     Set Log Level For Component Plus Subcomponent And Reset and Return Previous Log   liveresponse   DEBUG
-    Create File    ${SOPHOS_INSTALL}/base/etc/logger.conf.local   [global]\nVERBOSITY=DEBUG\n[comms_component]\nVERBOSITY=DEBUG\n
+    Create File    ${SOPHOS_INSTALL}/base/etc/logger.conf.local   [global]\nVERBOSITY=DEBUG\n
     Override LogConf File as Global Level  DEBUG
-    Restart Comms
     Liveresponse Suite Setup
     Copy Telemetry Config File in To Place
 

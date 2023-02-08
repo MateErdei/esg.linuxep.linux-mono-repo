@@ -282,7 +282,6 @@ Get Number Of Osquery Restarts
 EDR Telemetry Suite Setup
     Require Fresh Install
     Override LogConf File as Global Level  DEBUG
-    Restart Comms
     Copy Telemetry Config File in To Place
 
 

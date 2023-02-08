@@ -35,7 +35,6 @@ Setup Telemetry Tests
     Check Correct MCS Password And ID For Local Cloud Saved
     Copy Telemetry Config File in To Place
     Create File    ${SOPHOS_INSTALL}/base/etc/logger.conf.local   [comms_network]\nVERBOSITY=DEBUG\n[comms_component]\nVERBOSITY=DEBUG\n
-    Restart Comms
 
 
 ### Suite Cleanup
@@ -389,33 +388,3 @@ Test With Proxy
 
     Check Log Contains   Setup proxy for the connection: localhost:3000    ${SOPHOS_INSTALL}/var/sophos-spl-comms/logs/comms_network.log    comms network
 
-Telemetry Causing Comms To Hang Does Not Stop Comms Restarting
-    [Tags]   TELEMETRY   COMMS
-    [Documentation]    Telemetry Executable Generates System Telemetry
-    [Setup]  Telemetry Test Setup With Broken Put Requests
-
-
-    Run Telemetry Executable That Hangs     ${EXE_CONFIG_FILE}
-    Wait Until Keyword Succeeds
-    ...  40s
-    ...  5s
-    ...  check log contains  Sleeping  /tmp/https_server.log   https server log
-    ${local_pid} =  get_pid_of_comms  local
-    ${network_pid} =  get_pid_of_comms  network
-    ${r} =  Run Process  kill  -9  ${local_pid}
-    Should Be Equal As Strings  ${r.rc}  0
-
-    Wait Until Keyword Succeeds
-    ...  60s
-    ...  10s
-    ...  Check Comms Component Is Running
-
-    Wait Until Keyword Succeeds
-    ...  40s
-    ...  3s
-    ...  get_pid_of_comms  local
-
-    ${local_pid2} =  get_pid_of_comms  local
-    Should Not Be Equal As Strings  ${local_pid}  ${local_pid2}
-    ${network_pid2} =  get_pid_of_comms  network
-    Should Not Be Equal As Strings  ${network_pid}  ${network_pid2}

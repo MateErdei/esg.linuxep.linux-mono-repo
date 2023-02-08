@@ -30,7 +30,7 @@ ${statusPath}  ${SOPHOS_INSTALL}/base/mcs/status/ALC_status.xml
 *** Test Case ***
 Plugin Entry That Can Not Be Read Should Not Break Other Plugins
     Create Directory   ${SOPHOS_INSTALL}/base/pluginRegistry/plugin.json
-    Start Up System
+    Start System Watchdog
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
     # directory will be ignored for the other executables reading pluginRegistry
     Wait Until Keyword Succeeds
@@ -41,7 +41,7 @@ Plugin Entry That Can Not Be Read Should Not Break Other Plugins
 
 Invalid Plugin Entry Not Break Other Plugins
     Create File  ${SOPHOS_INSTALL}/base/pluginRegistry/plugin.json    this is an invalid json and hence invalid plugin
-    Start Up System
+    Start System Watchdog
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
     Wait Until Keyword Succeeds
     ...  30 secs
@@ -52,7 +52,7 @@ Invalid Plugin Entry Not Break Other Plugins
 
 Plugin With Binary Entry Should Not Break Other Plugins
     Copy File   /bin/echo   ${SOPHOS_INSTALL}/base/pluginRegistry/plugin.json
-    Start Up System
+    Start System Watchdog
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
     Wait Until Keyword Succeeds
     ...  30 secs
@@ -65,7 +65,7 @@ Plugin With Binary Entry Should Not Break Other Plugins
 Plugin With Wrong Permissions Should Not Break Other Plugins
     Run Process   chmod  0100   ${SOPHOS_INSTALL}/base/pluginRegistry/updatescheduler.json
     Run Process   chown  root   ${SOPHOS_INSTALL}/base/pluginRegistry/updatescheduler.json
-    Start Up System
+    Start System Watchdog
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
     Wait Until Keyword Succeeds
     ...  30 secs
@@ -85,7 +85,7 @@ Installation Without PluginRegistry Will Fail But Should Not SegFault Or Not Be 
 
 Remove Permission to Read Status and Write Policy From McsRouter Will Make it To Fail But Should Not Crash
     Run Process   chown  root:root   ${SOPHOS_INSTALL}/base/mcs/policy  ${SOPHOS_INSTALL}/base/mcs/status
-    Start Up System
+    Start System Watchdog
     Wait Until Keyword Succeeds
     ...  35 secs
     ...  5 secs
@@ -115,18 +115,11 @@ Install And Wait System Stable
     Set Local CA Environment Variable
     Start Local Cloud Server
     Register With Local Cloud Server
-    Create File    ${SOPHOS_INSTALL}/base/etc/logger.conf.local   [comms_network]\nVERBOSITY=DEBUG\n[comms_component]\nVERBOSITY=DEBUG\n
-    Restart Comms
     Check Correct MCS Password And ID For Local Cloud Saved
     Wait For Update Status File To Contain RevId
     Prepare To Run Telemetry Executable
     Stop System Watchdog
-Start Up System
-    Start System Watchdog
-    Wait Until Keyword Succeeds
-    ...  10s
-    ...  1s
-    ...  Check Comms Component Is Running
+
 Local Test Teardown
     Kill Telemetry If Running
     Require No Unhandled Exception

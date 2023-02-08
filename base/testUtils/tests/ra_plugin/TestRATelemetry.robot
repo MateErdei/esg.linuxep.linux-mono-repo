@@ -25,8 +25,7 @@ RA Plugin Reports Telemetry Correctly
 RA Telemetry Suite Setup
     Require Fresh Install
     Copy Telemetry Config File in To Place
-    Create File    ${SOPHOS_INSTALL}/base/etc/logger.conf.local   [comms_network]\nVERBOSITY=DEBUG\n[comms_component]\nVERBOSITY=DEBUG\n[telemetry]\nVERBOSITY=DEBUG\n
-    Restart Comms
+    Create File    ${SOPHOS_INSTALL}/base/etc/logger.conf.local   [telemetry]\nVERBOSITY=DEBUG\n
 
 RA Telemetry Test Setup
     Require Installed
