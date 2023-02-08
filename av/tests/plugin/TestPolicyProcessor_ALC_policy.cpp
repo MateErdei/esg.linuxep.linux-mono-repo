@@ -99,6 +99,25 @@ TEST_F(TestPolicyProcessor_ALC_policy, getCustomerIdFromAttributeMap)
     EXPECT_EQ(customerId, "5e259db8da3ae4df8f18a2add2d3d47d");
 }
 
+TEST_F(TestPolicyProcessor_ALC_policy, customerIDFromPlaceholders)
+{
+    const auto policyXml = R"sophos(<?xml version="1.0"?>
+<AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
+    <csc:Comp RevID="thisIsAnUpgradeTestRevID" policyType="1"/>
+    <AUConfig platform="Linux">
+        <sophos_address address="http://es-web.sophos.com/update"/>
+        <primary_location>
+            <server BandwidthLimit="256" AutoDial="false" Algorithm="Clear" UserPassword="@PASSWORD@" UserName="@USERNAME@" UseSophos="true" UseHttps="true" UseDelta="true" ConnectionAddress="@CONNECTIONADDRESS@" AllowLocalConfig="false"/>
+            <proxy ProxyType="0" ProxyUserPassword="" ProxyUserName="" ProxyPortNumber="0" ProxyAddress="" AllowLocalConfig="false"/>
+        </primary_location>
+    </AUConfig>
+</AUConfigurations>)sophos";
+
+    auto attributeMap = Common::XmlUtilities::parseXml(policyXml);
+    auto customerId = Plugin::PolicyProcessor::getCustomerId(attributeMap);
+    EXPECT_EQ(customerId, "391dd69f3899e6f978d466e7512f7ab3");
+}
+
 
 TEST_F(TestPolicyProcessor_ALC_policy, getCustomerIdFromMinimalAttributeMap)
 {
