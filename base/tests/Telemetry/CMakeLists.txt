@@ -4,8 +4,6 @@ set(ENV{LD_LIBRARY_PATH} ${CMAKE_BINARY_DIR}/libs)
 include(GoogleTest)
 add_executable(TelemetryTests
         BaseTelemetryReporterTests.cpp
-        TelemetryProcessorHttpSenderTests.cpp
-        MockHttpSender.h
         SystemTelemetryCollectorImplTests.cpp
         ../Common/Helpers/MockProcess.h
         MockSystemTelemetryCollector.h

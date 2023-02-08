@@ -17,19 +17,20 @@ add_library(telemetryimpl SHARED
         BaseTelemetryReporter.h
         TelemetryUtils.cpp
         TelemetryUtils.h
-        TelemetrySender.h
-        TelemetrySender.cpp)
+        ../../Common/CurlWrapper/CurlWrapper.h
+        ../../Common/CurlWrapper/CurlWrapper.cpp
+        )
 
 include_directories(telemetryimpl BEFORE ${CURL_INCLUDE_DIR} ${LOG4CPLUS_INCLUDE_DIR} ${NLOHMANN_JSON_INCLUDE_DIR} ../../ManagementAgent ${BOOST_INCLUDE_DIR} ${CMAKE_SOURCE_DIR})
 
 target_link_libraries(telemetryimpl PUBLIC
-        telemetryloggerimpl
-        httpsenderimpl
+        HttpRequestsImpl
+        plugincommunicationimpl
+        processimpl
         telemetryconfigimpl
         telemetryhelperimpl
-        processimpl
+        telemetryloggerimpl
         threads
-        plugincommunicationimpl
         xmlutilities
         )
 

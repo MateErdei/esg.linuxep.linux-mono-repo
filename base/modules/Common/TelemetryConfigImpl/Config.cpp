@@ -6,6 +6,8 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include "Config.h"
 
+#include "UtilityImpl/StringUtils.h"
+
 using namespace Common::TelemetryConfigImpl;
 
 Config::Config() :
@@ -155,14 +157,35 @@ void Config::setPort(unsigned int port)
     m_port = port;
 }
 
-const std::vector<std::string>& Config::getHeaders() const
+const Common::HttpRequests::Headers& Config::getHeaders() const
 {
     return m_headers;
 }
 
-void Config::setHeaders(const std::vector<std::string>& headers)
+void Config::setHeaders(const  Common::HttpRequests::Headers& headers)
 {
     m_headers = headers;
+}
+
+std::vector<std::string> Config::getHeadersForJson() const
+{
+    std::vector<std::string> headers;
+
+    for (std::pair<std::string, std::string> header : m_headers)
+    {
+        headers.emplace_back(header.first.append(":" + header.second));
+    }
+    return headers;
+}
+
+void Config::setHeadersFromJson(const std::vector<std::string>& headers)
+{
+    m_headers.clear();
+    for (const std::string& header : headers)
+    {
+        std::vector<std::string> splitHeader = Common::UtilityImpl::StringUtils::splitString(header, ":");
+        m_headers[splitHeader[0]] = splitHeader[1];
+    }
 }
 
 std::string Config::getVerb() const

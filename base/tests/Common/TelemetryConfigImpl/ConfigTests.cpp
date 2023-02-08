@@ -24,7 +24,7 @@ public:
     const unsigned int m_validPort = 300;
     const unsigned int m_invalidPort = 70000;
     const std::string m_jsonString =
-        R"({"additionalHeaders":["header1","header2"],"externalProcessWaitRetries":2,"externalProcessWaitTime":3,)"
+        R"({"additionalHeaders":["header1:data","header2:data"],"externalProcessWaitRetries":2,"externalProcessWaitTime":3,)"
         R"("interval":42,"maxJsonSize":10,)"
         R"("messageRelays":[{"authentication":1,"id":"ID",)"
         R"("password":"CCAcWWDAL1sCAV1YiHE20dTJIXMaTLuxrBppRLRbXgGOmQBrysz16sn7RuzXPaX6XHk=",)"
@@ -45,7 +45,7 @@ public:
         m_config.setInterval(42);
         m_config.setExternalProcessWaitTime(3);
         m_config.setExternalProcessWaitRetries(2);
-        m_config.setHeaders({ "header1", "header2" });
+        m_config.setHeadersFromJson({ "header1:data", "header2:data" });
         m_config.setMaxJsonSize(10);
         m_config.setPort(m_validPort);
         m_config.setResourceRoot("test");

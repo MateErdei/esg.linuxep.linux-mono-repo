@@ -79,7 +79,7 @@ namespace Common::TelemetryConfigImpl
                             { RESOURCE_ROOT_CONFIG_KEY, config.getResourceRoot() },
                             { RESOURCE_PATH_CONFIG_KEY, config.getResourcePath() },
                             { PORT_CONFIG_KEY, config.getPort() },
-                            { HEADERS_CONFIG_KEY, config.getHeaders() },
+                            { HEADERS_CONFIG_KEY, config.getHeadersForJson() },
                             { VERB_CONFIG_KEY, config.getVerb() },
                             { INTERVAL_CONFIG_KEY, config.getInterval() },
                             { PROXIES_CONFIG_KEY, config.getProxies() },
@@ -136,7 +136,7 @@ namespace Common::TelemetryConfigImpl
 
         if (j.contains(HEADERS_CONFIG_KEY))
         {
-            config.setHeaders(j.at(HEADERS_CONFIG_KEY));
+            config.setHeadersFromJson(j.at(HEADERS_CONFIG_KEY));
         }
 
         if (j.contains(VERB_CONFIG_KEY))

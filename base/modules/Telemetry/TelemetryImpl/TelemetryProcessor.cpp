@@ -7,8 +7,10 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include "TelemetryProcessor.h"
 
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
+#include <Common/CurlWrapper/CurlWrapper.h>
 #include <Common/FileSystem/IFileSystemException.h>
-#include <Common/HttpSender/IHttpSender.h>
+#include <Common/HttpRequests/IHttpRequester.h>
+#include <Common/HttpRequestsImpl/HttpRequesterImpl.h>
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 #include <Common/TelemetryHelperImpl/TelemetrySerialiser.h>
 #include <Telemetry/LoggerImpl/Logger.h>
@@ -21,9 +23,8 @@ using namespace Common::Telemetry;
 
 TelemetryProcessor::TelemetryProcessor(
     std::shared_ptr<const Common::TelemetryConfigImpl::Config> config,
-    std::unique_ptr<Common::HttpSender::IHttpSender> httpSender,
     std::vector<std::shared_ptr<ITelemetryProvider>> telemetryProviders) :
-    m_config(config), m_httpSender(std::move(httpSender)), m_telemetryProviders(std::move(telemetryProviders))
+    m_config(std::move(config)), m_telemetryProviders(std::move(telemetryProviders))
 {
 }
 
@@ -89,33 +90,43 @@ void TelemetryProcessor::gatherTelemetry()
 
 void TelemetryProcessor::sendTelemetry(const std::string& telemetryJson)
 {
-    Common::HttpSender::RequestConfig requestConfig(
-        Common::HttpSender::RequestConfig::stringToRequestType(m_config->getVerb()),
-        m_config->getHeaders(),
-        m_config->getServer(),
-        m_config->getPort(),
-        m_config->getTelemetryServerCertificatePath(),
-        m_config->getResourcePath());
+    Common::HttpRequests::RequestConfig requestConfig;
+    requestConfig.url = m_config->getServer() + m_config->getResourcePath();
+    requestConfig.headers = m_config->getHeaders();
+    requestConfig.port = m_config->getPort();
+    requestConfig.certPath = m_config->getTelemetryServerCertificatePath();
+    requestConfig.timeout = 300;
 
-    if (!requestConfig.getCertPath().empty() && !Common::FileSystem::fileSystem()->isFile(requestConfig.getCertPath()))
+    if (requestConfig.certPath.has_value() && !Common::FileSystem::fileSystem()->isFile(requestConfig.certPath.value()))
     {
         throw std::runtime_error("Certificate file is not valid");
     }
 
-    requestConfig.setData(telemetryJson);
+    requestConfig.data = telemetryJson;
 
     LOGINFO("Sending telemetry...");
-    auto result = m_httpSender->doHttpsRequest(requestConfig);
-    LOGDEBUG("HTTP result: " << result);
-    const int successCode = 200;
-    if (result != successCode)
-    {
-        std::stringstream msg;
-        msg << "HTTP was expected to be 200, actual: " << result;
-        throw std::runtime_error(msg.str());
-    }
+    std::shared_ptr<Common::CurlWrapper::ICurlWrapper> curlWrapper = std::make_shared<Common::CurlWrapper::CurlWrapper>();
+    Common::HttpRequestsImpl::HttpRequesterImpl client = Common::HttpRequestsImpl::HttpRequesterImpl(curlWrapper);
 
-    LOGINFO("Sent telemetry");
+    Common::HttpRequests::Response response = client.put(requestConfig);
+
+    if (response.errorCode == Common::HttpRequests::ResponseErrorCode::OK)
+    {
+        LOGDEBUG("HTTP result: " << response.status);
+
+        if (response.status != Common::HttpRequests::HTTP_STATUS_OK)
+        {
+            std::stringstream msg;
+            msg << "HTTP was expected to be 200, actual: " << response.status;
+            throw std::runtime_error(msg.str());
+        }
+
+        LOGINFO("Sent telemetry");
+    }
+    else
+    {
+        LOGWARN("Failed to contact telemetry server");
+    }
 }
 
 void TelemetryProcessor::saveTelemetry(const std::string& telemetryJson) const

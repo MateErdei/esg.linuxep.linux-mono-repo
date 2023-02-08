@@ -7,12 +7,10 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include "Telemetry.h"
 
 #include "BaseTelemetryReporter.h"
-#include "ISystemTelemetryCollector.h"
 #include "PluginTelemetryReporter.h"
 #include "SystemTelemetryCollectorImpl.h"
 #include "SystemTelemetryReporter.h"
 #include "TelemetryProcessor.h"
-#include "TelemetrySender.h"
 
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/Logging/FileLoggingSetup.h>
@@ -21,9 +19,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <Common/PluginRegistryImpl/PluginInfo.h>
 #include <Common/TelemetryConfigImpl/Config.h>
 #include <Common/TelemetryConfigImpl/Serialiser.h>
-#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 #include <Common/ZMQWrapperApi/IContext.h>
-#include <Common/ZeroMQWrapper/ISocketRequester.h>
 #include <Telemetry/LoggerImpl/Logger.h>
 #include <watchdog/watchdogimpl/WatchdogServiceLine.h>
 
@@ -104,8 +100,7 @@ namespace Telemetry
         // Plugins telemetry providers
         appendTelemetryProvidersForPlugins(telemetryProviders, telemetryConfig);
 
-        std::unique_ptr<TelemetryProcessor> telemetryProcessor = std::make_unique<TelemetryProcessor>(
-            telemetryConfig, std::make_unique<TelemetrySender>(), telemetryProviders);
+        std::unique_ptr<TelemetryProcessor> telemetryProcessor = std::make_unique<TelemetryProcessor>(telemetryConfig, telemetryProviders);
 
         return telemetryProcessor;
     }

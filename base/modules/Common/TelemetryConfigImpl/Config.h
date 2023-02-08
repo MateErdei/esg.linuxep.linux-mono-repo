@@ -10,6 +10,8 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include "MessageRelay.h"
 #include "Proxy.h"
 
+#include <Common/HttpRequests/IHttpRequester.h>
+
 #include <string>
 #include <vector>
 
@@ -42,8 +44,10 @@ namespace Common::TelemetryConfigImpl
         unsigned int getPort() const;
         void setPort(unsigned int port);
 
-        const std::vector<std::string>& getHeaders() const;
-        void setHeaders(const std::vector<std::string>& headers);
+        const Common::HttpRequests::Headers& getHeaders() const;
+        void setHeaders(const HttpRequests::Headers& headers);
+        std::vector<std::string> getHeadersForJson() const;
+        void setHeadersFromJson(const std::vector<std::string>& headers);
 
         std::string getVerb() const;
         void setVerb(const std::string& verb);
@@ -85,7 +89,7 @@ namespace Common::TelemetryConfigImpl
         std::string m_resourceRoot;
         std::string m_resourcePath;
         unsigned int m_port{};
-        std::vector<std::string> m_headers;
+        Common::HttpRequests::Headers m_headers;
         std::string m_verb;
         unsigned int m_interval{};
         std::vector<Proxy> m_proxies;

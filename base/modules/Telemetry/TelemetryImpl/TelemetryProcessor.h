@@ -10,8 +10,6 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include <Common/FileSystem/IFilePermissions.h>
 #include <Common/FileSystem/IFileSystem.h>
-#include <Common/HttpSender/IHttpSender.h>
-#include <Common/HttpSender/RequestConfig.h>
 #include <Common/TelemetryConfigImpl/Config.h>
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 
@@ -27,8 +25,8 @@ namespace Telemetry
     public:
         TelemetryProcessor(
             std::shared_ptr<const Config> config,
-            std::unique_ptr<Common::HttpSender::IHttpSender> httpSender,
             std::vector<std::shared_ptr<ITelemetryProvider>> telemetryProviders);
+        virtual ~TelemetryProcessor() = default;
 
         virtual void Run();
 
@@ -41,7 +39,6 @@ namespace Telemetry
 
     private:
         std::shared_ptr<const Config> m_config;
-        std::unique_ptr<Common::HttpSender::IHttpSender> m_httpSender;
         Common::Telemetry::TelemetryHelper m_telemetryHelper;
         std::vector<std::shared_ptr<ITelemetryProvider>> m_telemetryProviders;
     };

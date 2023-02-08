@@ -8,7 +8,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include "TelemetryProcessor.h"
 
-#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
+#include <Common/ApplicationConfigurationImpl/ApplicationPathManager.h>
 #include <Common/TelemetryHelperImpl/TelemetrySerialiser.h>
 #include <Common/UtilityImpl/FileUtils.h>
 #include <Common/XmlUtilities/AttributesMap.h>
