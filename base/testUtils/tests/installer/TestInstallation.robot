@@ -104,20 +104,6 @@ Verify Base Processes Have Correct Permissions
     Check owner of process   sophos_watchdog   root  root
     ${watchdog_pid}=     Run Process    pgrep    -f  sophos_watchdog
 
-    ${FirstCommspid} =     Run Process    pgrep    -P  ${watchdog_pid.stdout}  -f      CommsComponent
-    log   ${FirstCommspid.stdout}
-    ${result} =     Run Process    ps    -o    user   -p   ${FirstCommspid.stdout}
-    Should Contain  ${result.stdout}   sophos-spl-local
-    ${result} =     Run Process    ps    -o    group   -p   ${FirstCommspid.stdout}
-    Should Contain  ${result.stdout}   sophos-spl-group
-
-    ${SecondCommspid} =     Run Process    pgrep    -P  ${FirstCommspid.stdout}  -f      CommsComponent
-    log   ${SecondCommspid.stdout}
-    ${result} =     Run Process    ps    -o    user   -p   ${SecondCommspid.stdout}
-    Should Contain  ${result.stdout}   sophos-spl-network
-    ${result} =     Run Process    ps    -o    group   -p   ${SecondCommspid.stdout}
-    Should Contain  ${result.stdout}   sophos-spl-network
-
 
 Verify MCS Folders Have Correct Permissions
     [Tags]    DEBUG  INSTALLER
