@@ -16,10 +16,8 @@ install_cert()
     install_cert_sles $certificate || ( echo "cert install failed" && exit 1 )
   else
     echo "System is not rhel-based, sles-based or ubuntu-based, cannot install certs"
-	else
-		echo "System is not rhel-based or ubuntu, cannot install certs"
-		exit 1
-	fi
+    exit 1
+  fi
 }
 
 install_cert_rhel()
