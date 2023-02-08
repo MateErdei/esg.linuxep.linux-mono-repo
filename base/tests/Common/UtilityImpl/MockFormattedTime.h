@@ -15,5 +15,6 @@ class MockFormattedTime : public Common::UtilityImpl::IFormattedTime
 public:
     MOCK_CONST_METHOD0(currentTime, std::string(void));
     MOCK_CONST_METHOD0(currentEpochTimeInSeconds, std::string(void));
+    MOCK_CONST_METHOD0(currentEpochTimeInSecondsAsInteger, u_int64_t(void));
     MOCK_CONST_METHOD0(bootTime, std::string(void));
 };

@@ -23,6 +23,7 @@ namespace Common
             virtual ~IFormattedTime() = default;
             virtual std::string currentTime() const = 0;
             virtual std::string currentEpochTimeInSeconds() const = 0;
+            virtual u_int64_t currentEpochTimeInSecondsAsInteger() const = 0;
             virtual std::string bootTime() const = 0;
         };
 
@@ -98,6 +99,7 @@ namespace Common
         public:
             std::string currentTime() const override;
             std::string currentEpochTimeInSeconds() const override;
+            u_int64_t currentEpochTimeInSecondsAsInteger() const override;
             std::string bootTime() const override;
         };
     } // namespace UtilityImpl

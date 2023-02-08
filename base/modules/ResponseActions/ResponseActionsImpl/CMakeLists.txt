@@ -1,6 +1,7 @@
 add_library(responseactionsimpl SHARED
         ActionsUtils.cpp
         ActionsUtils.h
+        ActionStructs.h
         IActionsImpl.h
         Logger.cpp
         Logger.h

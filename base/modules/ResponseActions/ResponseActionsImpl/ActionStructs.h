@@ -11,7 +11,7 @@ namespace ResponseActionsImpl
         std::string url;
         bool compress = false;
         std::string password;
-        int expiration;
+        u_int64_t expiration;
         int timeout;
         int maxSize;
     };

@@ -85,21 +85,10 @@ namespace ResponseActionsImpl
         return info;
     }
 
-    bool ActionsUtils::isExpired(int expiry)
+    bool ActionsUtils::isExpired(u_int64_t expiry)
     {
         Common::UtilityImpl::FormattedTime time;
-        std::string now = time.currentEpochTimeInSeconds();
-        int currentTime;
-        std::pair<int, std::string> value = Common::UtilityImpl::StringUtils::stringToInt(now);
-        if (value.second.empty())
-        {
-            currentTime = value.first;
-        }
-        else
-        {
-            LOGWARN("Cannot calculate current time");
-            return true;
-        }
+        u_int64_t currentTime = time.currentEpochTimeInSecondsAsInteger();
         
         return (currentTime > expiry);
     }

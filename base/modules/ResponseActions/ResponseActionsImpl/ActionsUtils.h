@@ -12,7 +12,7 @@ namespace ResponseActionsImpl
 
 
         UploadInfo readUploadAction(const std::string& actionJson, UploadType& type);
-        bool isExpired(int expiry);
+        bool isExpired(u_int64_t expiry);
     };
 }
 
