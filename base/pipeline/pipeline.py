@@ -12,12 +12,14 @@ SYSTEM_TEST_BULLSEYE_JENKINS_JOB_URL = 'https://sspljenkins.eng.sophos/job/SSPL-
 # For branch names, remember that slashes are replaced with hyphens:  '/' -> '-'
 SYSTEM_TEST_BULLSEYE_CI_BUILD_BRANCH = 'develop'
 
-COVFILE_UNITTEST = '/opt/test/inputs/coverage/sspl-base-unittest.cov'
-COVFILE_TAPTESTS = '/opt/test/inputs/coverage/sspl-base-taptests.cov'
-UPLOAD_SCRIPT = '/opt/test/inputs/bullseye_files/uploadResults.sh'
+INPUTS_DIR = '/opt/test/inputs'
+COVFILE_UNITTEST = os.path.join(INPUTS_DIR, 'coverage/sspl-base-unittest.cov')
+COVFILE_TAPTESTS = os.path.join(INPUTS_DIR, 'coverage/sspl-base-taptests.cov')
+BULLSEYE_SCRIPT_DIR = os.path.join(INPUTS_DIR, 'bullseye_files')
+UPLOAD_SCRIPT = os.path.join(BULLSEYE_SCRIPT_DIR, 'uploadResults.sh')
+UPLOAD_ROBOT_LOG_SCRIPT = os.path.join(BULLSEYE_SCRIPT_DIR, 'uploadRobotLog.sh')
 
 RESULTS_DIR = '/opt/test/results'
-INPUTS_DIR = '/opt/test/inputs'
 
 COMPONENT = 'sspl_base'
 BUILD_TEMPLATE = 'centos79_x64_build_20230202'
@@ -28,6 +30,8 @@ ANALYSIS_MODE = 'analysis'
 COVERAGE_MODE = 'coverage'
 NINE_NINE_NINE_MODE = '999'
 ZERO_SIX_ZERO_MODE = '060'
+
+BRANCH_NAME = "develop"
 
 logger = logging.getLogger(__name__)
 
@@ -86,7 +90,17 @@ def install_requirements(machine: tap.Machine):
         # the previous command will fail if user already exists. But this is not an error
         print("On adding installing requirements: {}".format(ex))
 
+
+def get_suffix():
+    global BRANCH_NAME
+    if BRANCH_NAME == "develop":
+        return ""
+    return "-" + BRANCH_NAME
+
+
 def robot_task(machine: tap.Machine):
+    global BRANCH_NAME
+    machine_name = machine.template
     try:
         if machine.run('which', 'apt-get', return_exit_code=True) == 0:
             package_install(machine, 'python3.7-dev')
@@ -101,6 +115,11 @@ def robot_task(machine: tap.Machine):
         machine.run('python3', machine.inputs.test_scripts / 'move_robot_results.py')
         machine.output_artifact('/opt/test/logs', 'logs')
         machine.output_artifact('/opt/test/results', 'results')
+        machine.run('bash', UPLOAD_ROBOT_LOG_SCRIPT, "/opt/test/results/log.html",
+                    BRANCH_NAME + "/base" + get_suffix() + "_" + machine_name + "-log.html")
+        machine.run('bash', UPLOAD_ROBOT_LOG_SCRIPT, "/opt/test/results/report.html",
+                    BRANCH_NAME + "/base" + get_suffix() + "_" + machine_name + "-report.html")
+
 
 def coverage_task(machine: tap.Machine, branch: str):
     try:
@@ -163,12 +182,14 @@ def coverage_task(machine: tap.Machine, branch: str):
         machine.output_artifact('/opt/test/results', 'results')
         machine.output_artifact('/opt/test/logs', 'logs')
 
+
 def unified_artifact(context: tap.PipelineContext, component: str, branch: str, sub_directory: str):
     """Return an input artifact from an unified pipeline build"""
     artifact = context.artifact.from_component(component, branch, org='', storage='esg-build-tested')
     # Using the truediv operator to set the sub directory forgets the storage option
     artifact.sub_directory = sub_directory
     return artifact
+
 
 def get_inputs(context: tap.PipelineContext, base_build: ArtisanInput, mode: str):
     test_inputs = None
@@ -179,7 +200,8 @@ def get_inputs(context: tap.PipelineContext, base_build: ArtisanInput, mode: str
             ra_sdds=base_build / 'sspl-base/RA-SDDS-COMPONENT',
             system_test=base_build / 'sspl-base/system_test',
             openssl=base_build / 'sspl-base' / 'openssl',
-            websocket_server=context.artifact.from_component('liveterminal', 'prod', '1-0-267/219514') / 'websocket_server'
+            websocket_server=context.artifact.from_component('liveterminal', 'prod', '1-0-267/219514') / 'websocket_server',
+            bullseye_files=context.artifact.from_folder('./build/bullseye'),  # used for robot upload
         )
     if mode == 'debug':
         test_inputs = dict(
@@ -187,7 +209,8 @@ def get_inputs(context: tap.PipelineContext, base_build: ArtisanInput, mode: str
             base_sdds=base_build / 'sspl-base-debug/SDDS-COMPONENT',
             system_test=base_build / 'sspl-base-debug/system_test',
             openssl=base_build / 'sspl-base-debug' / 'openssl',
-            websocket_server=context.artifact.from_component('liveterminal', 'prod', '1-0-267/219514') / 'websocket_server'
+            websocket_server=context.artifact.from_component('liveterminal', 'prod', '1-0-267/219514') / 'websocket_server',
+            bullseye_files=context.artifact.from_folder('./build/bullseye'),  # used for robot upload
         )
     if mode == 'coverage':
         test_inputs = dict(
@@ -233,12 +256,16 @@ def build_060(stage: tap.Root, component: tap.Component):
         name=ZERO_SIX_ZERO_MODE, component=component, image=BUILD_TEMPLATE,
         mode=ZERO_SIX_ZERO_MODE, release_package=RELEASE_PKG)
 
+
 @tap.pipeline(version=1, component=COMPONENT, root_sequential=False)
 def sspl_base(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Parameters):
+    global BRANCH_NAME
+    BRANCH_NAME = context.branch
+
     component = tap.Component(name=COMPONENT, base_version=get_base_version())
     # For cmdline/local builds, determine build mode by how tap was called
-    # Not sure it's possible to pass parameters into tap so doing this for now.
-    determined_build_mode=None
+    # Not sure it is possible to pass parameters into tap so doing this for now.
+    determined_build_mode = None
     if f"{component.name}.build.{DEBUG_MODE}" in sys.argv:
         determined_build_mode = DEBUG_MODE
     elif f"{component.name}.build.{RELEASE_MODE}" in sys.argv:
