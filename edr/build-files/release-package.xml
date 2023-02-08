@@ -69,16 +69,6 @@
                              build-id="20220314082521-27d6119d2fc83a6e47e5595c30fe4837f66fcbf0-j15Bo9"/>
             <include artifact-path="output" dest-dir="/build/input"/>
         </build-asset>
-        <build-asset project="thirdparty" repo="googletest">
-            <release-version branch="release/sspl/Version_1_11_0"
-                             build-id="20220311153539-356cccfb1e6553d381af902d0dcc7f74379ececd-JevvWV"/>
-            <include artifact-path="thirdparty/googletest/gmock-headers"
-                     dest-dir="/build/input/googletest/gmock-headers/gmock"/>
-            <include artifact-path="thirdparty/googletest/gmock-libs" dest-dir="/build/input/googletest/gmock-libs"/>
-            <include artifact-path="thirdparty/googletest/gtest-headers"
-                     dest-dir="/build/input/googletest/gtest-headers/gtest"/>
-            <include artifact-path="thirdparty/googletest/gtest-libs" dest-dir="/build/input/googletest/gtest-libs"/>
-        </build-asset>
         <build-asset project="thirdparty" repo="jsoncpp">
             <release-version branch="release/sspl/Version_1_9_4"
                              build-id="20220311153906-f02cffa15c473a0ad01713ebc48cfec8ae2f8edb-UFvRK0"/>
@@ -108,6 +98,12 @@
         <build-asset project="em" repo="esg">
             <development-version branch="feature/thirdparty/LINUXDAR-6727-update-minizip-ng-to-3.0.8"/>
             <include artifact-path="thirdparty/liblzma-linux-opt" dest-dir="/build/redist/lzma"/>
+        </build-asset>
+        <!-- MonoRepo -->
+        <build-asset project="em" repo="esg">
+            <!--            <release-version branch="thirdparty/googletest" build-id="20230202135916-551d638c1f6e6de78acdf690401160e9789365b0-LTBz3g"/>-->
+            <development-version branch="feature/thirdparty/LINUXDAR-6721-update-googletest"/>
+            <include artifact-path="thirdparty/googletest-linux-opt" dest-dir="input/googletest"/>
         </build-asset>
 
         <trusted-asset artifact-path="com.osquery/osquery/5.7.0/osquery-5.7.0-linux" dest-dir="/build/input"/>
