@@ -20,7 +20,7 @@ namespace ResponsePlugin
         void applyNewPolicy(const std::string& policyXml) override;
 
         void queueAction(const std::string& actionXml) override;
-
+        void queueActionWithCorrelation(const std::string& actionJson, const std::string& correlationId) override;
         void onShutdown() override;
         Common::PluginApi::StatusInfo getStatus(const std::string& appId) override;
 

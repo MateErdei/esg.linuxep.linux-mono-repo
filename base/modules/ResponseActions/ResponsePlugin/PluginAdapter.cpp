@@ -2,6 +2,7 @@
 
 #include "Logger.h"
 #include "PluginAdapter.h"
+#include "PluginUtils.h"
 
 namespace ResponsePlugin
 {
@@ -35,6 +36,16 @@ namespace ResponsePlugin
         }
     }
 
-    void PluginAdapter::processAction(const std::string& actionXml) { LOGDEBUG("Process policy: " << actionXml); }
+    void PluginAdapter::processAction(const std::string& action) {
+        LOGDEBUG("Process action: " << action);
+        ActionType type = PluginUtils::getType(action);
+        switch(type)
+        {
+            case ActionType::UPLOAD_FILE:
+                LOGWARN("Running upload");
+            case ActionType::NONE:
+                LOGWARN("unknown action throwing it away");
+        }
+    }
 
 } // namespace ResponsePlugin

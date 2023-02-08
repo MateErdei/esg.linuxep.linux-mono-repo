@@ -25,9 +25,14 @@ namespace ResponsePlugin
         LOGDEBUG("Unexpected policy received");
     }
 
-    void PluginCallback::queueAction(const std::string&  actionXml )
+    void PluginCallback::queueAction(const std::string& /* actionXml */)
     {
-        m_task->push(Task{ Task::TaskType::ACTION, actionXml });
+        LOGERROR("This method should never be called.");
+    }
+
+    void PluginCallback::queueActionWithCorrelation(const std::string& queryJson, const std::string& correlationId)
+    {
+        m_task->push(Task { Task::TaskType::ACTION, queryJson, correlationId });
     }
 
     void PluginCallback::onShutdown()

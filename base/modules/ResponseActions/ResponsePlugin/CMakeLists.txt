@@ -1,20 +1,23 @@
 configure_file(config.h.in config.h )
 
 add_library(responseplugin SHARED
-        PluginCallback.cpp
-        PluginCallback.h
         ApplicationPaths.cpp
         ApplicationPaths.h
-        TaskQueue.cpp
-        TaskQueue.h
+        CentralEnums.h
         Logger.h
         Logger.cpp
         PluginAdapter.cpp
         PluginAdapter.h
+        PluginCallback.cpp
+        PluginCallback.h
+        PluginUtils.cpp
+        PluginUtils.h
+        TaskQueue.cpp
+        TaskQueue.h
         Telemetry.cpp
         Telemetry.h)
 
-include_directories(responseplugin BEFORE ${CMAKE_CURRENT_BINARY_DIR} ${LOG4CPLUS_INCLUDE_DIR})
+include_directories(responseplugin BEFORE ${CMAKE_CURRENT_BINARY_DIR} ${LOG4CPLUS_INCLUDE_DIR} ../../../thirdparty/nlohmann-json)
 
 target_link_libraries(responseplugin PUBLIC
         logging
