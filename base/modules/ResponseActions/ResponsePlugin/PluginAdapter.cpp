@@ -43,8 +43,10 @@ namespace ResponsePlugin
         {
             case ActionType::UPLOAD_FILE:
                 LOGWARN("Running upload");
+                break;
             case ActionType::NONE:
-                LOGWARN("unknown action throwing it away");
+                LOGWARN("Unknown action throwing it away");
+                break;
         }
     }
 

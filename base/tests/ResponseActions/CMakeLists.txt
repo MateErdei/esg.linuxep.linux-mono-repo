@@ -2,6 +2,7 @@ include(GoogleTest)
 
 add_executable(ResponseActionsTests
         TestPluginAdapter.cpp
+        TestPluginUtils.cpp
 )
 
 target_include_directories(ResponseActionsTests SYSTEM BEFORE PUBLIC ${PROTOBUF_INCLUDE_DIR} "${GTEST_INCLUDE}" "${GMOCK_INCLUDE}" )

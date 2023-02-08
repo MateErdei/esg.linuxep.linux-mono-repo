@@ -24,7 +24,7 @@ public:
     std::shared_ptr<ResponsePlugin::PluginCallback> m_callback;
 };
 
-TEST_F(PluginAdapterTests, actionIsLoggedWhenSent)
+TEST_F(PluginAdapterTests, invalidActionIsThrownAway)
 {
 
     auto mockBaseService = std::make_unique<::testing::StrictMock<MockApiBaseServices>>();
@@ -34,11 +34,30 @@ TEST_F(PluginAdapterTests, actionIsLoggedWhenSent)
     ResponsePlugin::PluginAdapter pluginAdapter(
         m_taskQueue, std::move(mockBaseService), m_callback);
 
-    m_taskQueue->push(ResponsePlugin::Task{ ResponsePlugin::Task::TaskType::ACTION, "action here" });
+    m_taskQueue->push(ResponsePlugin::Task{ ResponsePlugin::Task::TaskType::ACTION, "{\"type\":\"string\"}" });
     m_taskQueue->pushStop();
     UsingMemoryAppender recorder(*this);
     pluginAdapter.mainLoop();
 
-    EXPECT_TRUE(appenderContains("action here"));
+    EXPECT_TRUE(appenderContains("Unknown action throwing it away"));
+
+}
+
+TEST_F(PluginAdapterTests, ValidactionIsRun)
+{
+
+    auto mockBaseService = std::make_unique<::testing::StrictMock<MockApiBaseServices>>();
+    MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
+    ASSERT_NE(mockBaseServicePtr, nullptr);
+
+    ResponsePlugin::PluginAdapter pluginAdapter(
+        m_taskQueue, std::move(mockBaseService), m_callback);
+
+    m_taskQueue->push(ResponsePlugin::Task{ ResponsePlugin::Task::TaskType::ACTION, "{\"type\":\"sophos.mgt.action.UploadFile\"}" });
+    m_taskQueue->pushStop();
+    UsingMemoryAppender recorder(*this);
+    pluginAdapter.mainLoop();
+
+    EXPECT_TRUE(appenderContains("Running upload"));
 
 }
