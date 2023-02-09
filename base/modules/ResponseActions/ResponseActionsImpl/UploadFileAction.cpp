@@ -53,7 +53,7 @@ namespace ResponseActionsImpl
         if (response["sizeBytes"] > info.maxSize)
         {
             std::stringstream error;
-            error << info.targetPath + " is above the size limit" << info.maxSize;
+            error << info.targetPath + " is above the size limit " << info.maxSize <<" bytes";
             LOGWARN(error.str());
             actionsUtils.setErrorInfo(response,1,error.str(),"exceed_size_limit");
             return response.dump();
@@ -74,6 +74,7 @@ namespace ResponseActionsImpl
             {
                 std::string error = "File to be uploaded is being written to and has gone over the max size";
                 actionsUtils.setErrorInfo(response,1,error,"exceed_size_limit");
+                return response.dump();
             }
         }
         response["sha256"] = sha256;

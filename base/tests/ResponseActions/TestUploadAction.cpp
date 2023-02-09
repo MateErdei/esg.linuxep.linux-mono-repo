@@ -2,7 +2,10 @@
 
 #include "modules/ResponseActions/ResponseActionsImpl/UploadFileAction.h"
 #include "modules/Common/UtilityImpl/TimeUtils.h"
+#include "modules/Common/FileSystem/IFileTooLargeException.h"
+#include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
 
+#include <tests/Common/Helpers/MockFileSystem.h>
 #include "tests/Common/Helpers/MemoryAppender.h"
 
 #include <json.hpp>
@@ -15,6 +18,7 @@ public:
     UploadFileTests()
         : MemoryAppenderUsingTests("responseactions")
     {}
+    virtual void TearDown() { Tests::restoreFileSystem(); }
     nlohmann::json getDefaultUploadObject()
     {
         nlohmann::json action;
@@ -22,9 +26,9 @@ public:
         action["url"] = "https://s3.com/somewhere";
         action["compress"] = false;
         action["password"] = "";
-        action["expiration"] = 1444444;
+        action["expiration"] = 144444000000004;
         action["timeout"] = 10;
-        action["maxUploadSizeBytes"] = 10000000;
+        action["maxUploadSizeBytes"] = 1000;
         return action;
     }
 };
@@ -34,9 +38,70 @@ TEST_F(UploadFileTests, cannotParseActions)
     ResponseActionsImpl::UploadFileAction uploadFileAction;
 
     std::string response = uploadFileAction.run("");
-    nlohmann::json reponseJson = nlohmann::json::parse(response);
-    EXPECT_EQ(reponseJson["result"],1);
-    EXPECT_EQ(reponseJson["errorType"],"invalid_path");
-    EXPECT_EQ(reponseJson["errorMessage"],"Error parsing command from Central");
+    nlohmann::json responseJson = nlohmann::json::parse(response);
+    EXPECT_EQ(responseJson["result"],1);
+    EXPECT_EQ(responseJson["errorType"],"invalid_path");
+    EXPECT_EQ(responseJson["errorMessage"],"Error parsing command from Central");
+}
 
+TEST_F(UploadFileTests, actionExipired)
+{
+    ResponseActionsImpl::UploadFileAction uploadFileAction;
+    nlohmann::json action = getDefaultUploadObject();
+    action["expiration"] = 0;
+    std::string response = uploadFileAction.run(action.dump());
+    nlohmann::json responseJson = nlohmann::json::parse(response);
+    EXPECT_EQ(responseJson["result"],4);
+    EXPECT_EQ(responseJson["errorMessage"],"Action has expired");
+}
+
+TEST_F(UploadFileTests, FileDoesNotExist)
+{
+    ResponseActionsImpl::UploadFileAction uploadFileAction;
+    nlohmann::json action = getDefaultUploadObject();
+
+    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
+    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>{ mockFileSystem });
+    EXPECT_CALL(*mockFileSystem, isFile("path")).WillOnce(Return(false));
+
+    std::string response = uploadFileAction.run(action.dump());
+    nlohmann::json responseJson = nlohmann::json::parse(response);
+    EXPECT_EQ(responseJson["result"],1);
+    EXPECT_EQ(responseJson["errorType"],"invalid_path");
+    EXPECT_EQ(responseJson["errorMessage"],"path is not a file");
+}
+
+TEST_F(UploadFileTests, FileOverSizeLimit)
+{
+    ResponseActionsImpl::UploadFileAction uploadFileAction;
+    nlohmann::json action = getDefaultUploadObject();
+
+    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
+    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>{ mockFileSystem });
+    EXPECT_CALL(*mockFileSystem, isFile("path")).WillOnce(Return(true));
+    EXPECT_CALL(*mockFileSystem, fileSize("path")).WillOnce(Return(10000));
+
+    std::string response = uploadFileAction.run(action.dump());
+    nlohmann::json responseJson = nlohmann::json::parse(response);
+    EXPECT_EQ(responseJson["result"],1);
+    EXPECT_EQ(responseJson["errorType"],"exceed_size_limit");
+    EXPECT_EQ(responseJson["errorMessage"],"path is above the size limit 1000 bytes");
+}
+
+TEST_F(UploadFileTests, FileBeingWrittenToAndOverSizeLimit)
+{
+    ResponseActionsImpl::UploadFileAction uploadFileAction;
+    nlohmann::json action = getDefaultUploadObject();
+
+    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
+    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>{ mockFileSystem });
+    EXPECT_CALL(*mockFileSystem, isFile("path")).WillOnce(Return(true));
+    EXPECT_CALL(*mockFileSystem, fileSize("path")).WillOnce(Return(100));
+    EXPECT_CALL(*mockFileSystem, readFile("path",_)).WillOnce(Throw(Common::FileSystem::IFileTooLargeException("")));
+
+    std::string response = uploadFileAction.run(action.dump());
+    nlohmann::json responseJson = nlohmann::json::parse(response);
+    EXPECT_EQ(responseJson["result"],1);
+    EXPECT_EQ(responseJson["errorType"],"exceed_size_limit");
+    EXPECT_EQ(responseJson["errorMessage"],"File to be uploaded is being written to and has gone over the max size");
 }
