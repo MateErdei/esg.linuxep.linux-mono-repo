@@ -17,7 +17,7 @@ namespace ResponseActionsImpl
          * @param correlationID of actions
          * @return true
          */
-        virtual void run(const std::string& actionJson,const std::string& correlationID) = 0;
+        virtual std::string run(const std::string& actionJson) const = 0;
 
     };
 }

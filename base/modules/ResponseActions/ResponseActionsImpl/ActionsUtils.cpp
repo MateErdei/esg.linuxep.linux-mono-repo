@@ -6,7 +6,6 @@
 #include <Common/UtilityImpl/TimeUtils.h>
 #include <Common/UtilityImpl/StringUtils.h>
 
-#include <json.hpp>
 
 namespace ResponseActionsImpl
 {
@@ -95,5 +94,19 @@ namespace ResponseActionsImpl
         u_int64_t currentTime = time.currentEpochTimeInSecondsAsInteger();
         
         return (currentTime > expiry);
+    }
+
+    void ActionsUtils::setErrorInfo(nlohmann::json& response, int result, const std::string& errorMessage,const std::string& errorType)
+    {
+        response["result"] = result;
+        if (!errorType.empty())
+        {
+            response["errorType"] = errorType;
+        }
+
+        if (!errorMessage.empty())
+        {
+            response["errorMessage"] = errorMessage;
+        }
     }
 }

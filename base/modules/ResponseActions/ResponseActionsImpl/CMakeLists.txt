@@ -5,6 +5,8 @@ add_library(responseactionsimpl SHARED
         IActionsImpl.h
         Logger.cpp
         Logger.h
+        UploadFileAction.cpp
+        UploadFileAction.h
 )
 
 include_directories(responseactionsimpl BEFORE ${CMAKE_CURRENT_BINARY_DIR} ${LOG4CPLUS_INCLUDE_DIR} ../../../thirdparty/nlohmann-json)
