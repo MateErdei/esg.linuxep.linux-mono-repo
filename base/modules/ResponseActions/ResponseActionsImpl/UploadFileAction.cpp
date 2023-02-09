@@ -28,7 +28,7 @@ namespace ResponseActionsImpl
         catch (const std::runtime_error& exception)
         {
             LOGWARN(exception.what());
-            actionsUtils.setErrorInfo(response,1,"invalid_path","Error parsing command from Central");
+            actionsUtils.setErrorInfo(response,1,"Error parsing command from Central","invalid_path");
             return response.dump();
         }
 

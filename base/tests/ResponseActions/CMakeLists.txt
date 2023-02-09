@@ -1,9 +1,10 @@
 include(GoogleTest)
 
 add_executable(ResponseActionsTests
+        TestActionsUtils.cpp
         TestPluginAdapter.cpp
         TestPluginUtils.cpp
-        TestActionsUtils.cpp
+        TestUploadAction.cpp
 )
 
 target_include_directories(ResponseActionsTests SYSTEM BEFORE PUBLIC "${GTEST_INCLUDE}" "${GMOCK_INCLUDE}" )

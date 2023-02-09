@@ -30,5 +30,6 @@ namespace ResponsePlugin
 
     private:
         void processAction(const std::string& policyXml);
+        void doUpload(const std::string& action);
     };
 } // namespace ResponsePlugin

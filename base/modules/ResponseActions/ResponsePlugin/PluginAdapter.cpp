@@ -4,6 +4,8 @@
 #include "PluginAdapter.h"
 #include "PluginUtils.h"
 
+#include "ResponseActions/ResponseActionsImpl/UploadFileAction.h"
+
 namespace ResponsePlugin
 {
     PluginAdapter::PluginAdapter(
@@ -42,12 +44,19 @@ namespace ResponsePlugin
         switch(type)
         {
             case ActionType::UPLOAD_FILE:
-                LOGWARN("Running upload");
+                LOGINFO("Running upload");
+                doUpload(action);
                 break;
             case ActionType::NONE:
                 LOGWARN("Unknown action throwing it away");
                 break;
         }
+    }
+
+    void PluginAdapter::doUpload(const std::string& action)
+    {
+        ResponseActionsImpl::UploadFileAction uploadFileAction;
+        std::string response = uploadFileAction.run(action);
     }
 
 } // namespace ResponsePlugin

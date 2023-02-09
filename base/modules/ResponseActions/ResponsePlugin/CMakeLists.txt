@@ -21,6 +21,7 @@ include_directories(responseplugin BEFORE ${CMAKE_CURRENT_BINARY_DIR} ${LOG4CPLU
 
 target_link_libraries(responseplugin PUBLIC
         logging
+        responseactionsimpl
         pluginapiimpl
         applicationconfigurationimpl
         telemetryhelperimpl

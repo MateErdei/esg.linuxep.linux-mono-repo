@@ -43,7 +43,7 @@ TEST_F(PluginAdapterTests, invalidActionIsThrownAway)
 
 }
 
-TEST_F(PluginAdapterTests, ValidactionIsRun)
+TEST_F(PluginAdapterTests, UploadFileActionTriggersRun)
 {
 
     auto mockBaseService = std::make_unique<::testing::StrictMock<MockApiBaseServices>>();
