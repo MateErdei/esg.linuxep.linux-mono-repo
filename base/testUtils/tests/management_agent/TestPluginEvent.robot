@@ -44,6 +44,7 @@ Verify Management Agent Goes Into Outbreak Mode After 100 Events
     Start Management Agent
 
     Start Plugin
+    set_fake_plugin_app_id  CORE
 
     ${eventContent} =  Get File  ${SUPPORT_FILES}/CORE_events/detection.xml
 
@@ -60,7 +61,11 @@ Verify Management Agent Goes Into Outbreak Mode After 100 Events
     wait for log contains from mark  ${mark}  Entering outbreak mode: Further detections will not be reported to Central
 
     # Check we have the outbreak event
-    check_at_least_one_event_has_substr  ${SOPHOS_INSTALL}/base/mcs/event  sophos.core.outbreak
+    check at least one event has substr  ${SOPHOS_INSTALL}/base/mcs/event  sophos.core.outbreak
+
+    # count events
+    ${count} =  Count Files in Directory  ${SOPHOS_INSTALL}/base/mcs/event
+    Should be equal as Integers  ${count}  101
 
 
 Verify Sending Bad Message On Management Agent Socket Does Not Stop Plugin Registering Or Working

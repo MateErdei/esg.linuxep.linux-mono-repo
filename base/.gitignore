@@ -53,3 +53,4 @@ testUtils/SupportFiles/CloudAutomation/server-*.pem
 testUtils/SupportFiles/CloudAutomation/utm.cert.pem
 testUtils/*-VBoxSVC-*.log
 /tap_venv/
+/.idea/RobotProjectPreferences.xml
