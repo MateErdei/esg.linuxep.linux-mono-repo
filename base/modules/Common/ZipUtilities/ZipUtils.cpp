@@ -9,12 +9,12 @@
 #include <fstream>
 
 #include <unzip.h>
-#include <mz.h>
-#include <mz_os.h>
-#include <mz_strm.h>
-#include <mz_strm_buf.h>
-#include <mz_strm_split.h>
-#include <mz_zip.h>
+#include <mz_compat.h>
+
+# include <unistd.h>
+# include <utime.h>
+
+#define WRITEBUFFERSIZE (8192)
 
 namespace Common::ZipUtilities
 {
@@ -78,204 +78,200 @@ namespace Common::ZipUtilities
 
     }
 
-    int32_t minizipExtractCurrentfile(void *handle, const char *destination, const char *password)
+    static void changeFileDate(
+        const char *filename,
+        unsigned long dosdate,
+        tm_unz tmu_date)
     {
-        mz_zip_file *file_info = NULL;
-        uint8_t buf[INT16_MAX];
-        int32_t read = 0;
-        int32_t written = 0;
-        int32_t err = MZ_OK;
-        int32_t err_close = MZ_OK;
-        void *stream = NULL;
-        const char *filename = NULL;
-        char out_name[512];
-        char out_path[512];
-        char directory[512];
+        (void)dosdate;
+        struct utimbuf ut;
+        struct tm newdate;
+        newdate.tm_sec = tmu_date.tm_sec;
+        newdate.tm_min=tmu_date.tm_min;
+        newdate.tm_hour=tmu_date.tm_hour;
+        newdate.tm_mday=tmu_date.tm_mday;
+        newdate.tm_mon=tmu_date.tm_mon;
+        if (tmu_date.tm_year > 1900)
+            newdate.tm_year=tmu_date.tm_year - 1900;
+        else
+            newdate.tm_year=tmu_date.tm_year ;
+        newdate.tm_isdst=-1;
 
-        if (mz_zip_entry_get_info(handle, &file_info) != MZ_OK)
+        ut.actime=ut.modtime=mktime(&newdate);
+        utime(filename,&ut);
+    }
+
+    static int extractCurrentfile(
+        unzFile uf,
+        const char* password)
+    {
+        char filename_inzip[256];
+        char* filename_withoutpath;
+        char* p;
+        FILE *fout=NULL;
+        void* buf;
+        unsigned int size_buf;
+        auto fs = Common::FileSystem::fileSystem();
+
+        unz_file_info64 file_info;
+        int err = unzGetCurrentFileInfo64(uf, &file_info, filename_inzip, sizeof(filename_inzip), NULL, 0, NULL, 0);
+        if (err != UNZ_OK)
         {
-            LOGWARN("Error getting entry info in zip file: " << err);
+            LOGWARN("Error getting current fil info from zipfile: " << err);
             return err;
         }
 
-        if (mz_path_get_filename(file_info->filename, &filename) != MZ_OK)
+        size_buf = WRITEBUFFERSIZE;
+        buf = (void*)malloc(size_buf);
+        if (buf == NULL)
         {
-            filename = file_info->filename;
+            LOGWARN("Error allocating memory");
+            return UNZ_INTERNALERROR;
         }
 
-        // Construct output path
-        out_path[0] = 0;
-        if ((*file_info->filename == '/') || (file_info->filename[1] == ':'))
+        p = filename_withoutpath = filename_inzip;
+        while ((*p) != '\0')
         {
-            strncpy(out_path, file_info->filename, sizeof(out_path));
+            if (((*p)=='/') || ((*p)=='\\'))
+            {
+                filename_withoutpath = p + 1;
+            }
+            p++;
+        }
+
+        if ((*filename_withoutpath)=='\0')
+        {
+            LOGINFO("Creating directory: " << filename_inzip);
+            fs->makedirs(filename_inzip);
         }
         else
         {
-            if (destination != NULL)
+            const char* write_filename;
+            int skip=0;
+
+            write_filename = filename_inzip;
+
+            err = unzOpenCurrentFilePassword(uf, password);
+            if (err != UNZ_OK)
             {
-                mz_path_combine(out_path, destination, sizeof(out_path));
+                LOGWARN("Error opening zipfile with password: " << err);
             }
 
-            err = mz_path_resolve(file_info->filename, out_name, sizeof(out_name));
-            if (err != MZ_OK)
+            if ((skip==0) && (err==UNZ_OK))
             {
-                LOGWARN("Error resolving output path: " << err);
-                return err;
-            }
-            mz_path_combine(out_path, out_name, sizeof(out_path));
-        }
-        // If zip entry is a directory then create it on disk
-        if (mz_zip_attrib_is_dir(file_info->external_fa, file_info->version_madeby) == MZ_OK)
-        {
-            LOGDEBUG("Creating directory: " << out_path);
-            mz_os_make_dir(out_path);
-            return err;
-        }
-        err = mz_zip_entry_read_open(handle, 0, password);
-        if (err != MZ_OK)
-        {
-            LOGWARN("Error opening entry in zip file: " << err);
-            return err;
-        }
-        mz_stream_raw_create(&stream);
-        // Create the file on disk so we can unzip to it
-        if (err == MZ_OK)
-        {
-            // Some zips don't contain directory alone before file
-            err = mz_stream_raw_open(stream, out_path, MZ_OPEN_MODE_CREATE);
-            if ((err != MZ_OK) && (filename != file_info->filename))
-            {
-                // Create the directory of the output path
-                strncpy(directory, out_path, sizeof(directory));
-                mz_path_remove_filename(directory);
-                mz_os_make_dir(directory);
-                err = mz_stream_raw_open(stream, out_path, MZ_OPEN_MODE_CREATE);
-            }
-        }
-        // Read from the zip, unzip to buffer, and write to disk
-        if (err == MZ_OK)
-        {
-            LOGDEBUG("Extracting: " << out_path);
-            while (1)
-            {
-                read = mz_zip_entry_read(handle, buf, sizeof(buf));
-                if (read < 0)
+                fout = fopen64(write_filename, "wb");
+                /* some zipfile don't contain directory alone before file */
+                if ((fout == NULL) && (filename_withoutpath != (char*)filename_inzip))
                 {
-                    err = read;
-                    LOGWARN("Error reading entry in zip file: " << err);
-                    break;
+                    char c = *(filename_withoutpath-1);
+                    *(filename_withoutpath-1) = '\0';
+                    fs->makedirs(write_filename);
+                    *(filename_withoutpath-1) = c;
+                    fout = fopen64(write_filename,"wb");
                 }
-                if (read == 0)
+
+                if (fout == NULL)
                 {
-                    break;
-                }
-                written = mz_stream_raw_write(stream, buf, read);
-                if (written != read)
-                {
-                    err = mz_stream_raw_error(stream);
-                    LOGWARN("Error in writing extracted file: " << err);
-                    break;
+                    LOGWARN("Error opening: " << write_filename);
                 }
             }
-            mz_stream_raw_close(stream);
-            // Set the time of the file that has been unzipped
-            if (err == MZ_OK)
+
+            if (fout != NULL)
             {
-                mz_os_set_file_date(out_path, file_info->modified_date, file_info->accessed_date, file_info->creation_date);
+                LOGINFO(" extracting: " << write_filename);
+
+                do
+                {
+                    err = unzReadCurrentFile(uf, buf, size_buf);
+                    if (err < 0)
+                    {
+                        LOGWARN("Error reading current file in zipfile: " << err);
+                        break;
+                    }
+                    if (err > 0)
+                    {
+                        if (fwrite(buf, (unsigned)err, 1, fout) != 1)
+                        {
+                            LOGWARN("Error writing extracted file");
+                            err = UNZ_ERRNO;
+                            break;
+                        }
+                    }
+                }
+                while (err > 0);
+
+                if (fout)
+                {
+                    fclose(fout);
+                }
+
+                if (err == 0)
+                {
+                    changeFileDate(write_filename, file_info.dosDate, file_info.tmu_date);
+                }
+            }
+
+            if (err == UNZ_OK)
+            {
+                err = unzCloseCurrentFile(uf);
+                if (err != UNZ_OK)
+                {
+                    LOGWARN("Error closing current file in zipfile: " << err);
+                }
+            }
+            else
+            {
+                unzCloseCurrentFile(uf);
             }
         }
-        else
-        {
-            LOGWARN("Error opening " << out_path << " (" << err << ")");
-        }
-        mz_stream_raw_delete(&stream);
-        err_close = mz_zip_entry_close(handle);
-        if (err_close != MZ_OK)
-        {
-            LOGWARN("Error closing entry in zip file: " << err_close);
-            err = err_close;
-        }
+
+        free(buf);
         return err;
     }
 
-    int32_t minizipExtractAll(void *handle, const char *destination, const char *password)
+    static void extractAll(
+        unzFile uf,
+        const char* password)
     {
-        int32_t err = MZ_OK;
-        err = mz_zip_goto_first_entry(handle);
-        if (err == MZ_END_OF_LIST)
+        unz_global_info64 gi;
+        int err = unzGetGlobalInfo64(uf, &gi);
+        if (err != UNZ_OK)
         {
-            return MZ_OK;
+            LOGWARN("Error getting global file info from zipfile: " << err);
         }
-        if (err != MZ_OK)
+
+        for (unsigned int i = 0; i < gi.number_entry; i++)
         {
-            LOGWARN("Error going to first entry in zip file: " << err);
-        }
-        while (err == MZ_OK)
-        {
-            err = minizipExtractCurrentfile(handle, destination, password);
-            if (err != MZ_OK)
+            if (extractCurrentfile(uf, password) != UNZ_OK)
             {
                 break;
             }
-            err = mz_zip_goto_next_entry(handle);
-            if (err == MZ_END_OF_LIST)
+
+            if ((i+1) < gi.number_entry)
             {
-                return MZ_OK;
-            }
-            if (err != MZ_OK)
-            {
-                LOGWARN("Error going to next entry in zip file: " << err);
+                err = unzGoToNextFile(uf);
+                if (err != UNZ_OK)
+                {
+                    LOGWARN("Error getting next file in zipfile: " << err);
+                    break;
+                }
             }
         }
-        return err;
     }
 
     void ZipUtils::unzip(const std::string& srcPath, const std::string& destPath)
     {
-        void *handle = NULL;
-        void *file_stream = NULL;
-        void *split_stream = NULL;
-        void *buf_stream = NULL;
-        char *password = NULL;
-        std::int64_t disk_size = 0;
-        int32_t mode = MZ_OPEN_MODE_CREATE;
+        const char *password = NULL;
 
-        mz_stream_raw_create(&file_stream);
-        mz_stream_buffered_create(&buf_stream);
-        mz_stream_split_create(&split_stream);
-        //mz_stream_set_base(buf_stream, file_stream);
-        mz_stream_set_base(split_stream, file_stream);
-        mz_stream_split_set_prop_int64(split_stream, MZ_STREAM_PROP_DISK_SIZE, disk_size);
-        auto err = mz_stream_open(split_stream, srcPath.c_str(), mode);
-        if (err != MZ_OK)
+        unzFile uf = unzOpen64(srcPath.c_str());
+        if (uf == NULL)
         {
-            LOGWARN("Error opening file " << srcPath.c_str());
+            LOGWARN("Error opening zip: " << srcPath.c_str());
         }
-        else
-        {
-            err = mz_zip_open(handle, split_stream, mode);
-            if (handle == NULL)
-            {
-                LOGWARN("Error opening zip: " << srcPath.c_str());
-                err = MZ_FORMAT_ERROR;
-            }
 
-            auto err = minizipExtractAll(handle, destPath.c_str(), password);
-            if (err != MZ_OK)
-            {
-                LOGWARN("Error extracting " << srcPath.c_str() << "(" << err << ")");
-            }
+        chdir(destPath.c_str());
+        extractAll(uf, password);
 
-            auto err_close = mz_zip_close(handle);
-            if (err_close != MZ_OK)
-            {
-                LOGWARN("Error in closing " << srcPath.c_str() << "(" << err_close << ")");
-                err = err_close;
-            }
-            mz_stream_close(split_stream);
-        }
-        mz_stream_split_delete(&split_stream);
-        mz_stream_buffered_delete(&buf_stream);
-        mz_stream_raw_delete(&file_stream);
+        unzClose(uf);
     }
 } // namespace Common::ZipUtilities
