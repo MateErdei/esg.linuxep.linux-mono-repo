@@ -1,8 +1,5 @@
-/******************************************************************************************************
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
-Copyright 2018-2021, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
 #include "ProcUtilities.h"
 #include "Logger.h"
 

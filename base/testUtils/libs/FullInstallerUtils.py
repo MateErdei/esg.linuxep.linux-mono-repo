@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# Copyright (C) 2018-2020 Sophos Plc, Oxford, England.
+# Copyright (C) 2018-2023 Sophos Plc, Oxford, England.
 # All rights reserved.
 import logging
 import os
