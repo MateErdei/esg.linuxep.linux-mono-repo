@@ -217,7 +217,7 @@ set_target_properties(safestorelib PROPERTIES
         )
 
 set(ZLIB_INPUT ${REDIST}/zlib)
-set(ZLIB_LIBRARY ${ZLIB_INPUT}/libz.so)
+set(ZLIB_LIBRARY ${ZLIB_INPUT}/libzlib.so)
 
 set(JSON_INPUT ${pluginapiinclude}/thirdparty/nlohmann-json)
 
