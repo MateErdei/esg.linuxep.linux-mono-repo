@@ -118,15 +118,6 @@
             <include artifact-path="thirdparty/googletest-linux-opt" dest-dir="/build/input/googletest"/>
         </build-asset>
 
-
-<!--        <build-asset project="thirdparty" repo="googletest">-->
-<!--            <release-version branch="release/sspl/Version_1_11_0" build-id="20220311153539-356cccfb1e6553d381af902d0dcc7f74379ececd-JevvWV"/>-->
-<!--            <include artifact-path="thirdparty/googletest/gmock-headers" dest-dir="/build/input/googletest/gmock-headers/gmock"/>-->
-<!--            <include artifact-path="thirdparty/googletest/gmock-libs" dest-dir="/build/input/googletest/gmock-libs"/>-->
-<!--            <include artifact-path="thirdparty/googletest/gtest-headers" dest-dir="/build/input/googletest/gtest-headers/gtest"/>-->
-<!--            <include artifact-path="thirdparty/googletest/gtest-libs" dest-dir="/build/input/googletest/gtest-libs"/>-->
-<!--        </build-asset>-->
-
         <build-asset project="winep" repo="sau">
             <release-version branch="release/sspl/Version_1_0_0" build-id="20220825150631-43a7c87ceb5905f316aef54df45de777a5961022-O0LZyf"/>
             <development-version branch="develop"/>

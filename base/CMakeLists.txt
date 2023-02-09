@@ -125,6 +125,10 @@ set(RA_FEATURE_LIST "MDR")
 set(BASE_DIST_PREFIX "base")
 set(RA_DIST_PREFIX "ra")
 
+find_program(VERSIONING_CLIENT "versioning_client"
+        PATHS ${CMAKE_SOURCE_DIR}/tap_venv/bin
+        REQUIRED)
+
 if (DEFINED ENV{VERSION_OVERRIDE})
     set(PRODUCT_VERSION "$ENV{VERSION_OVERRIDE}")
 else()
@@ -133,7 +137,7 @@ else()
             OUTPUT_VARIABLE RELEASE_PACKAGE_VERSION
             OUTPUT_STRIP_TRAILING_WHITESPACE)
     execute_process(
-            COMMAND versioning_client --component sspl_base --version_number ${RELEASE_PACKAGE_VERSION}
+            COMMAND ${VERSIONING_CLIENT} --component sspl_base --version_number ${RELEASE_PACKAGE_VERSION}
             OUTPUT_VARIABLE PRODUCT_VERSION
             OUTPUT_STRIP_TRAILING_WHITESPACE
             RESULT_VARIABLE STATUS)
@@ -146,7 +150,7 @@ if (DEFINED ENV{VERSION_OVERRIDE})
     set(RA_PRODUCT_VERSION "$ENV{VERSION_OVERRIDE}")
 else()
     execute_process(
-            COMMAND versioning_client --component responseactions --version_number 1.0.0
+            COMMAND ${VERSIONING_CLIENT} --component responseactions --version_number 1.0.0
             OUTPUT_VARIABLE RA_PRODUCT_VERSION
             OUTPUT_STRIP_TRAILING_WHITESPACE
             RESULT_VARIABLE STATUS)
