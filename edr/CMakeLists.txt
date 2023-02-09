@@ -150,13 +150,13 @@ set( THRIFT_INCLUDE_DIR ${THRIFT_INPUT}/install64/include )
 set( SQLITE_INCLUDE_DIR ${INPUT}/sqlite )
 set( JOURNAL_INCLUDE_DIR ${INPUT}/JournalLib/include )
 set( CAPNPROTO_INCLUDE_DIR ${INPUT}/capnproto/include )
-set( LZMA_INCLUDE_DIR ${INPUT}/xzutils/include)
+set( LZMA_INCLUDE_DIR ${INPUT}/lzma/src/liblzma/api/lzma)
 
 set( CAPNPROTO_LIBRARY_DIR ${INPUT}/capnproto/lib64)
-set( LZMA_LIBRARY_DIR ${INPUT}/xzutils/lib)
+set( LZMA_LIBRARY_DIR ${INPUT}/lzma)
 
 set( JOURNAL_LIBRARY ${INPUT}/JournalLib/lib/libJournalLib.a)
-set( LZMA_LIBRARY ${LZMA_LIBRARY_DIR}/liblzma.so)
+set( LZMA_LIBRARY ${LZMA_LIBRARY_DIR}/libliblzma.so)
 
 set(pluginapiinclude ${PLUGINAPIPATH}/include)
 set(pluginapilib ${PLUGINAPIPATH}/lib64/libpluginapi.so)
