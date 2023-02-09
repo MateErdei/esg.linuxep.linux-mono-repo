@@ -4,7 +4,7 @@ add_subdirectory(DirectoryWatcherImpl)
 add_subdirectory(FileSystemImpl)
 add_subdirectory(FlagUtils)
 add_subdirectory(HttpRequestsImpl)
-add_subdirectory(HttpSenderImpl)
+
 add_subdirectory(Logging)
 add_subdirectory(OSUtilitiesImpl)
 add_subdirectory(ObfuscationImpl)

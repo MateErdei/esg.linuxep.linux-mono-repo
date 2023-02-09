@@ -5,7 +5,7 @@ add_subdirectory(FlagUtils)
 add_subdirectory(Helpers)
 add_subdirectory(HelpersTest)
 add_subdirectory(HttpRequesterImpl)
-add_subdirectory(HttpSenderImpl)
+
 add_subdirectory(Logging)
 add_subdirectory(OSUtilitiesImpl)
 add_subdirectory(ObfuscationImpl)

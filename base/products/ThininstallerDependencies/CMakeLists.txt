@@ -6,7 +6,7 @@ add_library(cmcsrouterapi SHARED
         $<TARGET_OBJECTS:centralregistrationimpl>
         $<TARGET_OBJECTS:filesystemimpl>
         $<TARGET_OBJECTS:filesystemimplobject>
-        $<TARGET_OBJECTS:httpsenderimpl>
+        $<TARGET_OBJECTS:HttpRequestsImpl>
         $<TARGET_OBJECTS:logging>
         $<TARGET_OBJECTS:loggingobject>
         $<TARGET_OBJECTS:mcsimpl>
@@ -78,4 +78,4 @@ add_copy_directory(Common/OSUtilities)
 add_copy_directory(Common/CurlWrapper)
 add_copy_directory(Common/HttpRequests)
 add_copy_directory(Common/HttpRequestsImpl)
-add_copy_directory(Common/HttpSenderImpl)
+
