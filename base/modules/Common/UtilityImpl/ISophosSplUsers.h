@@ -24,22 +24,12 @@ namespace sophos
         [[nodiscard]] virtual std::string splGroup() const = 0;
 
         /*
-         * Comms component network facing low privilege user
-         */
-        [[nodiscard]] virtual std::string splNetworkUser() const = 0;
-
-        /*
-         * Comms component network facing group
-         */
-        [[nodiscard]] virtual std::string splNetworkGroup() const = 0;
-
-        /*
-         * Comms component local low privilege user
+         * Local low privilege user
          */
         [[nodiscard]] virtual std::string splLocalUser() const = 0;
 
         /*
-         * Comms component local group
+         * Local group
          */
         [[nodiscard]] virtual std::string splLocalGroup() const = 0;
     };

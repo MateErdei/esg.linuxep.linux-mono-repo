@@ -9,8 +9,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(SOPHOS_SPL_USER "sophos-spl-user")
 set(SOPHOS_SPL_GROUP "sophos-spl-group")
 set(SOPHOS_SPL_IPC_GROUP "sophos-spl-ipc")
-set(SOPHOS_SPL_NETWORK "sophos-spl-network")   #comms network facing user
-set(SOPHOS_SPL_LOCAL "sophos-spl-local")       #comms product facing user
+set(SOPHOS_SPL_LOCAL "sophos-spl-local")       #low privilege user
 set(SOPHOS_SPL_UPDATESCHEDULER "sophos-spl-updatescheduler")  #user which updatescheduler runs as
 
 execute_process(

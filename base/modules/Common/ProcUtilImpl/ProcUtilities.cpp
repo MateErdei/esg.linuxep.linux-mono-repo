@@ -17,9 +17,6 @@ namespace
 {
     std::optional<long int> convertTolong(const std::string& number)
     {
-        // Do not put any logging in this function because
-        // this will be at least called from the comms component at a time when the logging has not been setup
-
         std::stringstream numbStr(number);
         long int longInt;
         numbStr >> longInt;
@@ -46,9 +43,6 @@ namespace
 
 std::optional<Proc::ProcStat> Proc::parseProcStat(const std::string& contentOfProcStat)
 {
-    // Do not put any logging in this function because
-    // this will be at least called from the comms component at a time when the logging has not been setup
-
     static std::string finishedStates = "xXZ";
     static std::string validStates = "RSDZTtWXxKWP";
 
@@ -225,9 +219,6 @@ int Proc::getNumberOfOwnFileDescriptors()
 
 void Proc::killProcess(int pid)
 {
-    // Do not put any logging in this function because
-    // this will be at least called from the comms component at a time when the logging has not been setup
-
     int count = 0;
     if (pid == -1 || pid == 1)
     {
@@ -264,9 +255,6 @@ void Proc::killProcess(int pid)
 
 int Proc::getUserIdFromStatus(const long pid)
 {
-    // Do not put any logging in this function because
-    // this will be at least called from the comms component at a time when the logging has not been setup
-
     int uid = -1;
 
     std::optional<std::string> content = Common::FileSystem::fileSystem()->readProcFile(pid, "status");
@@ -311,9 +299,6 @@ int Proc::getUserIdFromStatus(const long pid)
 
 std::vector<int> Proc::listProcWithUserName(std::string& userName)
 {
-    // Do not put any logging in this function because
-    // this will be at least called from the comms component at a time when the logging has not been setup
-
     std::vector<int> procList;
     std::vector<std::string> entries = Common::FileSystem::fileSystem()->listFilesAndDirectories("/proc");
     auto filePermissions = Common::FileSystem::filePermissions();
@@ -338,9 +323,6 @@ std::vector<int> Proc::listProcWithUserName(std::string& userName)
 
 void Proc::killAllProcessesInProcList(std::vector<int>& procList)
 {
-    // Do not put any logging in this function because
-    // this will be at least called from the comms component at a time when the logging has not been setup
-
     for (const auto& procPid : procList)
     {
         try

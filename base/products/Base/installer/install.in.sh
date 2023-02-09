@@ -320,6 +320,64 @@ function add_to_group()
     "${USERMOD}" -a -G "$groupname" "$username"  || failure ${EXIT_FAIL_ADDUSER} "Failed to add user $username to group $groupname"
 }
 
+function cleanup_comms_component()
+{
+  function check_user_exists()
+  {
+    grep  "$1" /etc/passwd &>/dev/null
+  }
+  function check_group_exists()
+  {
+    grep  "$1" /etc/group &>/dev/null
+  }
+
+  local GROUPNAME="sophos-spl-network"
+  local USERNAME="sophos-spl-network"
+
+  GROUP_DELETER=$(which delgroup 2>/dev/null)
+  [[ -x "$GROUP_DELETER" ]] || GROUP_DELETER=$(which groupdel 2>/dev/null)
+  if [[ -x "$GROUP_DELETER" ]]
+  then
+      check_group_exists  "$GROUPNAME"
+      GROUP_EXISTS=$?
+      GROUP_DELETE_TRIES=0
+      while [ $GROUP_EXISTS -eq 0 ] && [ $GROUP_DELETE_TRIES -le 10 ]
+      do
+          sleep 1
+          "$GROUP_DELETER" "$GROUPNAME" 2>/dev/null >/dev/null && GROUP_EXISTS=1
+          GROUP_DELETE_TRIES=$((GROUP_DELETE_TRIES+1))
+      done
+      check_group_exists "$GROUPNAME"
+      [ $? -eq 0 ] && echo "Warning: Failed to delete group: $GROUPNAME"
+  else
+      echo "Unable to delete group $GROUPNAME" >&2
+  fi
+
+  USER_DELETER=$(which deluser 2>/dev/null)
+  [[ -x "$USER_DELETER" ]] || USER_DELETER=$(which userdel 2>/dev/null)
+  if [[ -x "$USER_DELETER" ]]
+  then
+      check_user_exists "$USERNAME"
+      USER_EXISTS=$?
+      local USER_DELETE_TRIES=0
+      while [ $USER_EXISTS -eq 0 ] && [ $USER_DELETE_TRIES -le 10 ]
+      do
+          sleep 1
+          "$USER_DELETER" "$USERNAME" 2>/dev/null >/dev/null && USER_EXISTS=1
+          USER_DELETE_TRIES=$((USER_DELETE_TRIES+1))
+      done
+      check_user_exists "$USERNAME"
+      [ $? -eq 0 ]  && echo "Warning: Failed to delete user: $USERNAME"
+  else
+      echo "Unable to delete user $USERNAME" >&2
+  fi
+
+  [[ -d "${SOPHOS_INSTALL}/logs/base/sophos-spl-comms" ]] && unlink "${SOPHOS_INSTALL}/logs/base/sophos-spl-comms"
+  [[ -d "${SOPHOS_INSTALL}/var/sophos-spl-comms" ]] && rm -rf "${SOPHOS_INSTALL}/var/sophos-spl-comms"
+  [[ -d "${SOPHOS_INSTALL}/var/comms" ]] && rm -rf "${SOPHOS_INSTALL}/var/sophos-spl-comms"
+  [[ -f "${SOPHOS_INSTALL}/logs/base/sophosspl/comms_component.log" ]] && rm "${SOPHOS_INSTALL}/logs/base/sophosspl/comms_component.log"*
+}
+
 if build_version_less_than_system_version
 then
     failure ${EXIT_FAIL_WRONG_LIBC_VERSION} "Failed to install on unsupported system. Detected GLIBC version ${system_libc_version} < required ${BUILD_LIBC_VERSION}"
@@ -331,7 +389,6 @@ export SOPHOS_INSTALL
 
 ## Add a low-privilege group
 GROUP_NAME=@SOPHOS_SPL_GROUP@
-NETWORK_GROUP_NAME=@SOPHOS_SPL_NETWORK@
 SOPHOS_SPL_IPC_GROUP=@SOPHOS_SPL_IPC_GROUP@
 
 GETENT=/usr/bin/getent
@@ -339,7 +396,6 @@ GETENT=/usr/bin/getent
 [[ -x "${GETENT}" ]] || failure ${EXIT_FAIL_FIND_GETENT} "Failed to find getent"
 
 add_group "${GROUP_NAME}"
-add_group "${NETWORK_GROUP_NAME}"
 add_group "${SOPHOS_SPL_IPC_GROUP}"
 
 makeRootDirectory "${SOPHOS_INSTALL}"
@@ -350,12 +406,10 @@ touch "${SOPHOS_INSTALL}/.sophos" || failure ${EXIT_FAIL_DIR_MARKER} "Failed to 
 
 ## Add a low-privilege users
 USER_NAME=@SOPHOS_SPL_USER@
-NETWORK_USER_NAME=@SOPHOS_SPL_NETWORK@
 LOCAL_USER_NAME=@SOPHOS_SPL_LOCAL@
 UPDATESCHEDULER_USER_NAME=@SOPHOS_SPL_UPDATESCHEDULER@
 
 add_user "${USER_NAME}" "${GROUP_NAME}"
-add_user "${NETWORK_USER_NAME}" "${NETWORK_GROUP_NAME}"
 add_user "${LOCAL_USER_NAME}" "${GROUP_NAME}"
 add_user "${UPDATESCHEDULER_USER_NAME}" "${GROUP_NAME}"
 
@@ -392,7 +446,6 @@ chown "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/var/sophosspl"
 makedir 711 "${SOPHOS_INSTALL}/logs"
 makedir 711 "${SOPHOS_INSTALL}/logs/base"
 makedir 770 "${SOPHOS_INSTALL}/logs/base/sophosspl"
-ln -snf "${SOPHOS_INSTALL}/var/sophos-spl-comms/logs" "${SOPHOS_INSTALL}/logs/base/sophos-spl-comms"
 chown "root:" "${SOPHOS_INSTALL}/logs/base"
 chown "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/logs/base/sophosspl"
 
@@ -404,11 +457,6 @@ fi
 if [[ -f "${SOPHOS_INSTALL}/logs/base/sophosspl/mcs_envelope.log" ]]
 then
     chown "${LOCAL_USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/logs/base/sophosspl/mcs_envelope.log"*
-fi
-
-if [[ -f "${SOPHOS_INSTALL}/logs/base/sophosspl/comms_component.log" ]]
-then
-    chown "${LOCAL_USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/logs/base/sophosspl/comms_component.log"*
 fi
 
 if [[ -f "${SOPHOS_INSTALL}/logs/base/sophosspl/remote_diagnose.log" ]]
@@ -615,11 +663,6 @@ makedir 770 "${SOPHOS_INSTALL}/base/mcs/event"
 makedir 770 "${SOPHOS_INSTALL}/base/mcs/eventcache"
 makedir 751 "${SOPHOS_INSTALL}/base/mcs/certs"
 makedir 750 "${SOPHOS_INSTALL}/base/mcs/tmp"
-makedir 750 "${SOPHOS_INSTALL}/var/comms/responses"
-makedir 770 "${SOPHOS_INSTALL}/var/comms/requests"
-chmod   750 "${SOPHOS_INSTALL}/var/comms"
-chown -R "${LOCAL_USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/var/comms/"
-chown -R "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/var/comms/requests"
 
 makedir 711 "${SOPHOS_INSTALL}/plugins"
 chown "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/plugins"
@@ -748,6 +791,7 @@ then
 fi
 
 unset LD_LIBRARY_PATH
+cleanup_comms_component
 
 for F in "$DIST/installer/plugins"/*
 do

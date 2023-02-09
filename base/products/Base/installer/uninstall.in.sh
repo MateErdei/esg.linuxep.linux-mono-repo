@@ -88,15 +88,6 @@ function removeWatchdogSystemdService()
     systemctl daemon-reload
 }
 
-
-function unmountCommsComponentDependencies()
-{
-  CommsComponentChroot=$1
-  for entry in etc/resolv.conf etc/hosts usr/lib usr/lib64 lib etc/ssl/certs etc/pki/tls/certs /etc/pki/ca-trust/extracted base/mcs/certs base/remote-diagnose/output; do
-    umount --force "${CommsComponentChroot}"/${entry}  > /dev/null 2>&1
-  done
-}
-
 if (( $DOWNGRADE == 0 ))
 then
   removeUpdaterSystemdService || failure "Failed to remove updating service files"  ${FAILURE_REMOVE_UPDATE_SERVICE_FILES}
@@ -124,8 +115,6 @@ fi
 removeWatchdogSystemdService || failure "Failed to remove watchdog service files"  ${FAILURE_REMOVE_WATCHDOG_SERVICE_FILES}
 removeDiagnoseSystemdService || failure "Failed to remove diagnose service files"  ${FAILURE_REMOVE_DIAGNOSE_SERVICE_FILES}
 
-CommsComponentChroot=${SOPHOS_INSTALL}/var/sophos-spl-comms
-unmountCommsComponentDependencies "${CommsComponentChroot}"
 
 if (( $DOWNGRADE == 0 ))
 then
@@ -227,9 +216,6 @@ then
   then
     SOPHOS_SPL_USER_NAME="@SOPHOS_SPL_USER@"
     removeUser    ${SOPHOS_SPL_USER_NAME}
-
-    NETWORK_USER_NAME="@SOPHOS_SPL_NETWORK@"
-    removeUser    ${NETWORK_USER_NAME}
 
     LOCAL_USER_NAME="@SOPHOS_SPL_LOCAL@"
     removeUser    ${LOCAL_USER_NAME}

@@ -20,22 +20,12 @@ namespace sophos
         [[nodiscard]] std::string splGroup() const override;
 
         /*
-         * Comms component network facing low privilege user
-         */
-        [[nodiscard]] std::string splNetworkUser() const override;
-
-        /*
-         * Comms component network facing group
-         */
-        [[nodiscard]] std::string splNetworkGroup() const override;
-
-        /*
-         * Comms component local low privilege user
+         * Local low privilege user
          */
         [[nodiscard]] std::string splLocalUser() const override;
 
         /*
-         * Comms component local group
+         * Local group
          */
         [[nodiscard]] std::string splLocalGroup() const override;
     };

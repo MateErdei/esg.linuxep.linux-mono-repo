@@ -13,14 +13,3 @@ ABS_SCRIPTDIR=$(cd $SCRIPTDIR && pwd)
 
 cd $SOPHOS_INSTALL
 cp -av $ABS_SCRIPTDIR/files/* .
-
-for file in $(find . -name sophos-spl-comms -prune -o -name *.debug)
-do
-    (
-        cd $(dirname $file)
-        base=$(basename $file)
-        target=${base%.debug}
-        echo $base $target
-        objcopy --add-gnu-debuglink=$base $target
-    )
-done
