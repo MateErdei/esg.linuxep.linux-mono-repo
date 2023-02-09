@@ -9,11 +9,13 @@ add_library(responseactionsimpl SHARED
         UploadFileAction.h
 )
 
-include_directories(responseactionsimpl BEFORE ${CMAKE_CURRENT_BINARY_DIR} ${LOG4CPLUS_INCLUDE_DIR} ../../../thirdparty/nlohmann-json)
+include_directories(responseactionsimpl BEFORE ${CMAKE_CURRENT_BINARY_DIR} ${LOG4CPLUS_INCLUDE_DIR} ${CURL_INCLUDE_DIR} ${NLOHMANN_JSON_INCLUDE_DIR})
 
 target_link_libraries(responseactionsimpl PUBLIC
         logging
         utilityimpl
+        HttpRequestsImpl
+        httpsenderimpl
         filesystemimplobject)
 
 SET_TARGET_PROPERTIES(responseactionsimpl
