@@ -166,7 +166,7 @@ namespace Common::ZipUtilities
         int err = unzGetCurrentFileInfo64(uf, &file_info, filename_inzip, sizeof(filename_inzip), NULL, 0, NULL, 0);
         if (err != UNZ_OK)
         {
-            LOGWARN("Error getting current fil info from zipfile: " << err);
+            LOGWARN("Error getting current fil info from zipfile: " << std::to_string(err));
             return err;
         }
 
@@ -202,7 +202,7 @@ namespace Common::ZipUtilities
             err = unzOpenCurrentFilePassword(uf, password);
             if (err != UNZ_OK)
             {
-                LOGWARN("Error opening zipfile with password: " << err);
+                LOGWARN("Error opening zipfile with password: " << std::to_string(err));
             }
             else
             {
@@ -232,7 +232,7 @@ namespace Common::ZipUtilities
                     err = unzReadCurrentFile(uf, buf, size_buf);
                     if (err < 0)
                     {
-                        LOGWARN("Error reading current file in zipfile: " << err);
+                        LOGWARN("Error reading current file in zipfile: " << std::to_string(err));
                         break;
                     }
                     if (err > 0)
@@ -263,7 +263,7 @@ namespace Common::ZipUtilities
                 err = unzCloseCurrentFile(uf);
                 if (err != UNZ_OK)
                 {
-                    LOGWARN("Error closing current file in zipfile: " << err);
+                    LOGWARN("Error closing current file in zipfile: " << std::to_string(err));
                 }
             }
             else
@@ -284,7 +284,7 @@ namespace Common::ZipUtilities
         int err = unzGetGlobalInfo64(uf, &gi);
         if (err != UNZ_OK)
         {
-            LOGWARN("Error getting global file info from zipfile: " << err);
+            LOGWARN("Error getting global file info from zipfile: " << std::to_string(err));
         }
 
         for (unsigned int i = 0; i < gi.number_entry; i++)
@@ -299,7 +299,7 @@ namespace Common::ZipUtilities
                 err = unzGoToNextFile(uf);
                 if (err != UNZ_OK)
                 {
-                    LOGWARN("Error getting next file in zipfile: " << err);
+                    LOGWARN("Error getting next file in zipfile: " << std::to_string(err));
                     break;
                 }
             }
