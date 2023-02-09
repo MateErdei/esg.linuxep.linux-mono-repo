@@ -251,7 +251,6 @@ Thin Installer Force Works
 
     # Remove install directory
     Should Exist  ${REGISTER_CENTRAL}
-    Unmount All Comms Component Folders
     Remove Directory  /opt/sophos-spl  recursive=True
     Should Not Exist  ${REGISTER_CENTRAL}
     ${time} =  Get Current Date  exclude_millis=true

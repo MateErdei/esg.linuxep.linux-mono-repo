@@ -259,7 +259,6 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
 
     ${sspl_user_uid} =       Get UID From Username    sophos-spl-user
     ${sspl_local_uid} =      Get UID From Username    sophos-spl-local
-    ${sspl_network_uid} =    Get UID From Username    sophos-spl-network
     ${sspl_update_uid} =     Get UID From Username    sophos-spl-updatescheduler
 
     # Changing the policy here will result in an automatic update
@@ -332,11 +331,9 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     # Check users haven't been removed and added back
     ${new_sspl_user_uid} =       Get UID From Username    sophos-spl-user
     ${new_sspl_local_uid} =      Get UID From Username    sophos-spl-local
-    ${new_sspl_network_uid} =    Get UID From Username    sophos-spl-network
     ${new_sspl_update_uid} =     Get UID From Username    sophos-spl-updatescheduler
     Should Be Equal As Integers    ${sspl_user_uid}          ${new_sspl_user_uid}
     Should Be Equal As Integers    ${sspl_local_uid}         ${new_sspl_local_uid}
-    Should Be Equal As Integers    ${sspl_network_uid}       ${new_sspl_network_uid}
     Should Be Equal As Integers    ${sspl_update_uid}        ${new_sspl_update_uid}
 
     # Upgrade back to master to check we can upgrade from a downgraded product

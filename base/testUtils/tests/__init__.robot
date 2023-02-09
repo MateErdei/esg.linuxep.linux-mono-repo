@@ -37,7 +37,6 @@ Global Setup Tasks
     Set Global Variable  ${MCS_ROUTER}                  ${SOPHOS_INSTALL}/base/bin/mcsrouter
     Set Global Variable  ${REGISTER_CENTRAL}            ${SOPHOS_INSTALL}/base/bin/registerCentral
     Set Global Variable  ${MANAGEMENT_AGENT}            ${SOPHOS_INSTALL}/base/bin/sophos_managementagent
-    Set Global Variable  ${COMMS_COMPONENT}             ${SOPHOS_INSTALL}/base/bin/CommsComponent
     Set Global Variable  ${ETC_DIR}                     ${SOPHOS_INSTALL}/base/etc
     Set Global Variable  ${VAR_DIR}                     ${SOPHOS_INSTALL}/var
     Set Global Variable  ${MCS_DIR}                     ${SOPHOS_INSTALL}/base/mcs

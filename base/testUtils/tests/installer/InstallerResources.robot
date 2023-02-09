@@ -2,7 +2,6 @@
 Library    Process
 Library    OperatingSystem
 Library    ../libs/FullInstallerUtils.py
-Library    ../libs/CommsComponentUtils.py
 Library     ../libs/UpgradeUtils.py
 
 Resource  ../GeneralTeardownResource.robot
@@ -50,10 +49,6 @@ Kill Sophos Processes That Arent Watchdog
     Run Keyword If  ${result.rc} == 0  Run Process  kill  -9  ${result.stdout}
     ${result} =  Run Process   pgrep   liveresponse
     Run Keyword If  ${result.rc} == 0  Run Process  kill  -9  ${result.stdout}
-    ${result} =  Run Process   pgrep   -f   ${COMMS_COMPONENT}
-    Return from keyword if  ${result.rc} == 1
-    ${r} =  Run Process  kill -9 ${result.stdout.replace("\n", " ")}  shell=True
-    Should Be Equal As Strings  ${r.rc}  0
 
 Kill Sophos Processes
     ${result} =  Run Process   pgrep   sophos_watchdog
@@ -112,10 +107,6 @@ Display All SSPL Files Installed
     Log  ${result.stdout}
     Log  ${result.stderr}
     ${handle}=  Start Process  find ${SOPHOS_INSTALL}/logs -not -type d | xargs ls -l  shell=True
-    ${result}=  Wait For Process  ${handle}  timeout=30  on_timeout=kill
-    Log  ${result.stdout}
-    Log  ${result.stderr}
-    ${handle}=  Start Process  find ${SOPHOS_INSTALL}/var -not -type d | grep -v sophos-spl-comms | xargs ls -l  shell=True
     ${result}=  Wait For Process  ${handle}  timeout=30  on_timeout=kill
     Log  ${result.stdout}
     Log  ${result.stderr}
@@ -241,7 +232,6 @@ Check Base Processes Are Not Running
 Verify Sophos Users And Sophos Groups Are Created
     Verify User Created   sophos-spl-user
     Verify Group Created  sophos-spl-group
-    Verify User Created   sophos-spl-network
     Verify User Created   sophos-spl-local
     Verify User Created   sophos-spl-updatescheduler
 

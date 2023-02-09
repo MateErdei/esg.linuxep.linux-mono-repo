@@ -6,7 +6,6 @@ Library           ${LIBS_DIRECTORY}/MCSRouter.py
 Library           ${LIBS_DIRECTORY}/SystemInfo.py
 Library           OperatingSystem
 Library           ${LIBS_DIRECTORY}/LogUtils.py
-Library           ${LIBS_DIRECTORY}/CommsComponentUtils.py
 
 Resource  TelemetryResources.robot
 Resource  ../GeneralTeardownResource.robot
@@ -33,7 +32,6 @@ Setup Telemetry Tests
     Register With Local Cloud Server
     Check Correct MCS Password And ID For Local Cloud Saved
     Copy Telemetry Config File in To Place
-    Create File    ${SOPHOS_INSTALL}/base/etc/logger.conf.local   [comms_network]\nVERBOSITY=DEBUG\n[comms_component]\nVERBOSITY=DEBUG\n
 
 
 ### Suite Cleanup
@@ -383,6 +381,3 @@ Test With Proxy
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
     Check System Telemetry Json Is Correct  ${telemetryFileContents}  None  Proxy
-
-    Check Log Contains   Setup proxy for the connection: localhost:3000    ${SOPHOS_INSTALL}/var/sophos-spl-comms/logs/comms_network.log    comms network
-

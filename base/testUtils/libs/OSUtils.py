@@ -363,7 +363,6 @@ def get_dictionary_of_expected_base_logs_and_permissions():
     return {
         "/opt/sophos-spl/logs/base/watchdog.log":                         ["root", "root", "-rw-------"],
         "/opt/sophos-spl/logs/base/wdctl.log":                            ["root", "root", "-rw-------"],
-        "/opt/sophos-spl/logs/base/sophosspl/comms_component.log":        ["sophos-spl-local", "sophos-spl-group", "-rw-------"],
         "/opt/sophos-spl/logs/base/sophosspl/mcs_envelope.log":           ["sophos-spl-local", "sophos-spl-group", "-rw-------"],
         "/opt/sophos-spl/logs/base/sophosspl/mcsrouter.log":              ["sophos-spl-local", "sophos-spl-group", "-rw-------"],
         "/opt/sophos-spl/logs/base/sophosspl/sophos_managementagent.log": ["sophos-spl-user", "sophos-spl-group", "-rw-------"],

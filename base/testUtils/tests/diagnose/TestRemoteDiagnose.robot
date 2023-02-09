@@ -50,7 +50,6 @@ Test Remote Diagnose can process SDU action
         ...  5 secs
         ...  Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log   mcsrouter  Sending status for SDU adapter   2
 
-    Check Log Contains   We are completely uploaded and fine    ${SOPHOS_INSTALL}/logs/base/sophos-spl-comms/comms_network.log   Comms Network
     Directory Should Be Empty  ${SOPHOS_INSTALL}/base/remote-diagnose/output
 
 Test Remote Diagnose can handle two SDU actions
