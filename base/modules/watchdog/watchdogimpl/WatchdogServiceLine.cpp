@@ -321,7 +321,7 @@ namespace watchdog
         {
             if (m_pluginHandler)
             {
-                m_pluginHandler->stop();
+                m_pluginHandler->stopAndJoin();
             }
             Common::Telemetry::TelemetryHelper::getInstance().save();
         }

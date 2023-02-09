@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2018-2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #include "AbstractListenerServer.h"
 
@@ -49,7 +45,9 @@ namespace Common
 
         void AbstractListenerServer::start() { m_reactor->start(); }
 
-        void AbstractListenerServer::stop()
+        void AbstractListenerServer::stop() { m_reactor->stop(); }
+
+        void AbstractListenerServer::stopAndJoin()
         {
             m_reactor->stop();
             m_reactor->join();

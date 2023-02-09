@@ -37,7 +37,7 @@ Common::PluginApiImpl::BaseServiceAPI::~BaseServiceAPI()
 {
     if (m_pluginCallbackHandler)
     {
-        m_pluginCallbackHandler->stop();
+        m_pluginCallbackHandler->stopAndJoin();
     }
 }
 

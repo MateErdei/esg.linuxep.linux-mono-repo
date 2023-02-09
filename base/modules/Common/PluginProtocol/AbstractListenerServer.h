@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2018, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
@@ -34,6 +30,7 @@ namespace Common
                 ARMSHUTDOWNPOLICY armshutdownpolicy);
             void start();
             void stop();
+            void stopAndJoin();
 
         private:
             virtual DataMessage process(const DataMessage& request) const = 0;

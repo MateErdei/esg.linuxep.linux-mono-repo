@@ -82,7 +82,8 @@ namespace ManagementAgent
         {
             if (m_serverCallbackHandler)
             {
-                m_serverCallbackHandler->stop();
+                // Need to stop and join the reactor before we delete it
+                m_serverCallbackHandler->stopAndJoin();
             }
         }
 
@@ -92,7 +93,8 @@ namespace ManagementAgent
         {
             if (m_serverCallbackHandler)
             {
-                m_serverCallbackHandler->stop();
+                // About to delete current m_serverCallbackHandler so need to stop and join reactor
+                m_serverCallbackHandler->stopAndJoin();
             }
             m_serverCallbackHandler = std::make_unique<PluginServerCallbackHandler>(
                 std::move(replier), std::move(serverCallback), m_healthStatus);
