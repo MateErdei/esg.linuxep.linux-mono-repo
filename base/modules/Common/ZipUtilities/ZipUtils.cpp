@@ -8,8 +8,8 @@
 
 #include <fstream>
 
+#include <zlib.h>
 #include <unzip.h>
-#include <mz_compat.h>
 
 # include <unistd.h>
 # include <utime.h>
@@ -20,7 +20,52 @@ namespace Common::ZipUtilities
 {
     using namespace Common::FileSystem;
 
-    void ZipUtils::zip(const std::string& srcPath, const std::string& destPath) const
+    static int getFileCrc(const char* filenameInZip, void* buf, unsigned long size_buf, unsigned long* resultCrc)
+    {
+        unsigned long calculateCrc = 0;
+        int err = ZIP_OK;
+        FILE* fin = fopen64(filenameInZip, "rb");
+
+        unsigned long sizeRead = 0;
+        if (fin == NULL)
+        {
+            err = ZIP_ERRNO;
+        }
+
+        if (err == ZIP_OK)
+        {
+            do
+            {
+                err = ZIP_OK;
+                sizeRead = fread(buf, 1, size_buf, fin);
+                if (sizeRead < size_buf)
+                {
+                    if (feof(fin) == 0)
+                    {
+                        LOGWARN("Error in reading " << filenameInZip);
+                        err = ZIP_ERRNO;
+                    }
+                }
+
+                if (sizeRead > 0)
+                {
+                    calculateCrc = crc32_z(calculateCrc, (unsigned char*)buf, sizeRead);
+                }
+
+            } while ((err == ZIP_OK) && (sizeRead > 0));
+        }
+
+        if (fin)
+        {
+            fclose(fin);
+        }
+
+        *resultCrc = calculateCrc;
+        LOGDEBUG("File " << filenameInZip << ", crc " << calculateCrc);
+        return err;
+    }
+
+    void ZipUtils::zip(const std::string& srcPath, const std::string& destPath, const std::string& password) const
     {
         zipFile zf = zipOpen(std::string(destPath.begin(), destPath.end()).c_str(), APPEND_STATUS_CREATE);
         if (zf == NULL)
@@ -49,7 +94,12 @@ namespace Common::ZipUtilities
 
                         std::string fileName = path.substr(srcPath.size()+1);
 
-                        if (0 == zipOpenNewFileInZip(zf, (fileName).c_str(), &zfi, NULL, 0, NULL, 0, NULL, MZ_COMPRESS_METHOD_DEFLATE, MZ_COMPRESS_LEVEL_DEFAULT))
+                        unsigned long crcFile=0;
+                        getFileCrc(fileName.c_str(), &buffer[0], size, &crcFile);
+
+                        if (0 == zipOpenNewFileInZip3(zf, fileName.c_str(), &zfi, NULL, 0, NULL, 0, NULL,
+                                                     MZ_COMPRESS_METHOD_DEFLATE, MZ_COMPRESS_LEVEL_DEFAULT,
+                                                     0,  -MAX_WBITS, DEF_MEM_LEVEL, Z_DEFAULT_STRATEGY, password.c_str(), crcFile))
                         {
                             if (ZIP_OK != zipWriteInFileInZip(zf, size == 0 ? "" : &buffer[0], size))
                             {
@@ -259,10 +309,8 @@ namespace Common::ZipUtilities
         }
     }
 
-    void ZipUtils::unzip(const std::string& srcPath, const std::string& destPath)
+    void ZipUtils::unzip(const std::string& srcPath, const std::string& destPath, const std::string& password)
     {
-        const char *password = NULL;
-
         unzFile uf = unzOpen64(srcPath.c_str());
         if (uf == NULL)
         {
@@ -270,7 +318,7 @@ namespace Common::ZipUtilities
         }
 
         chdir(destPath.c_str());
-        extractAll(uf, password);
+        extractAll(uf, password.c_str());
 
         unzClose(uf);
     }

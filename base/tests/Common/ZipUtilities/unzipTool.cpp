@@ -8,14 +8,19 @@
 int main(int argc, char* argv[])
 {
     Common::Logging::ConsoleLoggingSetup m_loggingSetup;
-    if (argc != 3)
+    Common::ZipUtilities::ZipUtils zipUtils;
+    if (argc == 3)
+    {
+        zipUtils.unzip(argv[1], argv[2]);
+    }
+    else if (argc == 4)
+    {
+        zipUtils.unzip(argv[1], argv[2], argv[3]);
+    }
+    else
     {
         std::cerr << " Invalid argument. Usage: " << argv[0] << " <zip file> <unpack destination>" << std::endl;
         return 1;
     }
-
-    Common::ZipUtilities::ZipUtils zipUtils;
-    zipUtils.unzip(argv[1], argv[2]);
-
     return 0;
 }
