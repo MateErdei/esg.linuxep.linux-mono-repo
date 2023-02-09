@@ -26,7 +26,6 @@ namespace Common::ZipUtilities
         int err = ZIP_OK;
         FILE* fin = fopen64(filenameInZip, "rb");
 
-        unsigned long sizeRead = 0;
         if (fin == NULL)
         {
             err = ZIP_ERRNO;
@@ -37,7 +36,7 @@ namespace Common::ZipUtilities
             do
             {
                 err = ZIP_OK;
-                sizeRead = fread(buf, 1, size_buf, fin);
+                unsigned long sizeRead = fread(buf, 1, size_buf, fin);
                 if (sizeRead < size_buf)
                 {
                     if (feof(fin) == 0)
@@ -197,7 +196,6 @@ namespace Common::ZipUtilities
         else
         {
             const char* write_filename;
-            int skip=0;
 
             write_filename = filename_inzip;
 
@@ -206,8 +204,7 @@ namespace Common::ZipUtilities
             {
                 LOGWARN("Error opening zipfile with password: " << err);
             }
-
-            if ((skip==0) && (err==UNZ_OK))
+            else
             {
                 fout = fopen64(write_filename, "wb");
                 /* some zipfile don't contain directory alone before file */
