@@ -34,7 +34,7 @@
         </build-asset>
 
         <build-asset project="em" repo="esg">
-            <release-version branch="release/sophlib" build-id="20220713133804-bd190da51ebe34de00b9b24a2740d4aa3429edf0-x1dt3y"/>
+            <release-version branch="release/2023.04/sprint" build-id="20230120201925-31a0379094fc1654506d3d459661d326949dee47-bh0Sgz"/>
             <development-version branch="develop"/>
             <include artifact-path="sophlib/sdds3-tools-x64-linux" dest-dir="/build/input/sdds3"/>
         </build-asset>
