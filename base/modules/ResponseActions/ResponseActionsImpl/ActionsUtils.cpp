@@ -10,7 +10,7 @@
 
 namespace ResponseActionsImpl
 {
-    UploadInfo ActionsUtils::readUploadAction(const std::string& actionJson, UploadType& type)
+    UploadInfo ActionsUtils::readUploadAction(const std::string& actionJson, UploadType type)
     {
         UploadInfo info;
         nlohmann::json obj;
@@ -22,12 +22,6 @@ namespace ResponseActionsImpl
         {
             LOGWARN("Cannot parse action with error : " << exception.what());
         }
-        if (!obj.contains("url"))
-        {
-            throw std::runtime_error("Invalid command format. No url.");
-        }
-        
-        info.url = obj["url"];
 
         std::string targetKey;
         switch (type)
@@ -46,8 +40,37 @@ namespace ResponseActionsImpl
         {
             throw std::runtime_error("Invalid command format. No " + targetKey + ".");
         }
+        if (!obj.contains("timeout"))
+        {
+            throw std::runtime_error("Invalid command format. Missing timeout.");
+        }
+        if (!obj.contains("maxUploadSizeBytes"))
+        {
+            throw std::runtime_error("Invalid command format. Missing maxUploadSizeBytes.");
+        }
+        if (!obj.contains("expiration"))
+        {
+            throw std::runtime_error("Invalid command format. Missing expiration.");
+        }
+        if (!obj.contains("url"))
+        {
+            throw std::runtime_error("Invalid command format. No url.");
+        }
 
-        info.maxSize = obj[targetKey];
+        try
+        {
+            info.url = obj["url"];
+            info.targetPath = obj[targetKey];
+            info.timeout = obj["timeout"];
+            info.maxSize = obj["maxUploadSizeBytes"];
+            info.expiration = obj["expiration"];
+        }
+        catch (const nlohmann::json::type_error& exception)
+        {
+            std::stringstream errorMsg;
+            errorMsg << "Failed to parse json, json value in unexpected type : " << exception.what();
+            throw std::runtime_error(errorMsg.str());
+        }
 
         if (obj.contains("compress"))
         {
@@ -61,25 +84,6 @@ namespace ResponseActionsImpl
             {
                 info.password = parsedPassword;
             }
-        }
-
-        if (!obj.contains("timeout"))
-        {
-            throw std::runtime_error("Invalid command format. Missing timeout.");
-        }
-
-        info.timeout = obj["timeout"];
-
-        if (!obj.contains("maxUploadSizeBytes"))
-        {
-            throw std::runtime_error("Invalid command format. Missing maxUploadSizeBytes.");
-        }
-
-        info.maxSize = obj["maxUploadSizeBytes"];
-
-        if (!obj.contains("expiration"))
-        {
-            throw std::runtime_error("Invalid command format. Missing expiration.");
         }
 
         return info;

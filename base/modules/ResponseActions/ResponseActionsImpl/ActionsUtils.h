@@ -11,7 +11,7 @@ namespace ResponseActionsImpl
     public:
 
 
-        UploadInfo readUploadAction(const std::string& actionJson, UploadType& type);
+        UploadInfo readUploadAction(const std::string& actionJson, UploadType type);
         bool isExpired(u_int64_t expiry);
     };
 }
