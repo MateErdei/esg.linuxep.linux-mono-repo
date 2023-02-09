@@ -24,7 +24,7 @@ namespace Common
         {
         public:
             ReactorThreadImpl();
-            ~ReactorThreadImpl();
+            ~ReactorThreadImpl() override;
 
             void addListener(Common::ZeroMQWrapper::IReadable*, Reactor::ICallbackListener*);
             void setShutdownListener(Reactor::IShutdownListener*);
@@ -36,12 +36,12 @@ namespace Common
             Reactor::IShutdownListener* m_shutdownListener;
         };
 
-        class ReactorImpl : public virtual Reactor::IReactor
+        class ReactorImpl final : public virtual Reactor::IReactor
         {
         public:
             ReactorImpl();
 
-            ~ReactorImpl();
+            ~ReactorImpl() override;
             void addListener(Common::ZeroMQWrapper::IReadable* readable, Reactor::ICallbackListener* callback) override;
             void armShutdownListener(Reactor::IShutdownListener* shutdownListener) override;
             void start() override;

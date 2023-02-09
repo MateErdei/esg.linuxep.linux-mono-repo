@@ -49,7 +49,11 @@ namespace Common
 
         void AbstractListenerServer::start() { m_reactor->start(); }
 
-        void AbstractListenerServer::stop() { m_reactor->stop(); }
+        void AbstractListenerServer::stop()
+        {
+            m_reactor->stop();
+            m_reactor->join();
+        }
 
         void AbstractListenerServer::notifyShutdownRequested() { onShutdownRequested(); }
     } // namespace PluginProtocol
