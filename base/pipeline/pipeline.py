@@ -117,10 +117,8 @@ def robot_task(machine: tap.Machine):
         machine.run('python3', machine.inputs.test_scripts / 'move_robot_results.py')
         machine.output_artifact('/opt/test/logs', 'logs')
         machine.output_artifact('/opt/test/results', 'results')
-        machine.run('bash', UPLOAD_ROBOT_LOG_SCRIPT, "/opt/test/results/log.html",
+        machine.run('bash', UPLOAD_ROBOT_LOG_SCRIPT, "/opt/test/logs/log.html",
                     BRANCH_NAME + "/base" + get_suffix() + "_" + machine_name + "-log.html")
-        machine.run('bash', UPLOAD_ROBOT_LOG_SCRIPT, "/opt/test/results/report.html",
-                    BRANCH_NAME + "/base" + get_suffix() + "_" + machine_name + "-report.html")
 
 
 def coverage_task(machine: tap.Machine, branch: str):
