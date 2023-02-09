@@ -138,7 +138,7 @@ def sync_sdds3_supplement(supplement, builder, mirror, tag="LINUX_SCAN", release
     for pkgref in root.findall('package-ref'):
         src = pkgref.attrib['src']
         if not is_pkgref_for_release_group(pkgref, tag, release_group):
-            trace(f"Ignoring {src} as it doesn't match tags")
+            trace(f"Ignoring {src} as it doesn't match tags/release_group")
             continue
 
         dest = f'{mirror}/package/{src}'
@@ -150,6 +150,9 @@ def sync_sdds3_supplement(supplement, builder, mirror, tag="LINUX_SCAN", release
         copy_file_or_url(f'{repo}/package/{src}', dest)
         return dest
 
+    trace("Failed to find any matching tag/release_group packages in " + result.stdout)
+    trace("Looking for tag=" + tag)
+    trace("With release_group=" + release_group)
     return None
 
 
@@ -171,7 +174,7 @@ def unpack(builder, dest_zipfile, unpack_dir):
     os.chmod(unpack_dir, 0o755)
 
 
-def sync_sdds3_supplement_name(name, builder, destination, tag):
+def sync_sdds3_supplement_name(name, builder, destination, tag, release_group="0"):
     if not name.startswith("sdds3."):
         print("Forcing supplement name to start with sdds3.")
         name = "sdds3." + name
@@ -179,7 +182,7 @@ def sync_sdds3_supplement_name(name, builder, destination, tag):
     supplement_name = name
     supplement = "https://sdds3.sophosupd.com/supplement/" + supplement_name + ".dat"
 
-    return sync_sdds3_supplement(supplement, builder, destination, tag)
+    return sync_sdds3_supplement(supplement, builder, destination, tag, release_group=release_group)
 
 
 def main():

@@ -47,8 +47,11 @@ def run(argv):
 
     sdds3_temp_dir = os.path.join(dest, "sdds3_temp")
     safe_mkdir(sdds3_temp_dir)
+
     datasetA_zip = SDDS3supplementSync.sync_sdds3_supplement_name(
-        "sdds3.DataSetA", builder, sdds3_temp_dir, "LATEST_CLOUD_ENDPOINT")
+        "sdds3.DataSetA", builder, sdds3_temp_dir, "LATEST_CLOUD_ENDPOINT", "GranularInitial")
+    assert datasetA_zip is not None, "Failed to download DataSet-A supplement"
+
     mlmodel_zip  = SDDS3supplementSync.sync_sdds3_supplement_name(
         "sdds3.ML_MODEL3_LINUX_X86_64", builder, sdds3_temp_dir, "LINUX_SCAN")
     localrep_zip = SDDS3supplementSync.sync_sdds3_supplement_name(
