@@ -11,10 +11,6 @@ Copyright 2019-2020, Sophos Limited.  All rights reserved.
 #include "DerivedTelemetryProcessor.h"
 #include "MockTelemetryProvider.h"
 
-#include "tests/Common/Helpers/MockHttpRequester.h"
-
-#include <gmock/gmock.h>
-#include <gtest/gtest.h>
 #include <modules/Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <modules/Telemetry/TelemetryImpl/TelemetryProcessor.h>
 #include <tests/Common/Helpers/FilePermissionsReplaceAndRestore.h>
@@ -23,6 +19,9 @@ Copyright 2019-2020, Sophos Limited.  All rights reserved.
 #include <tests/Common/Helpers/MockFilePermissions.h>
 #include <tests/Common/Helpers/MockFileSystem.h>
 #include <tests/Common/Helpers/MockHttpRequester.h>
+
+#include <gmock/gmock.h>
+#include <gtest/gtest.h>
 
 using ::testing::StrictMock;
 
