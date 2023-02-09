@@ -182,7 +182,7 @@ def sync_sdds3_supplement_name(name, builder, destination, tag, release_group="0
     supplement_name = name
     supplement = "https://sdds3.sophosupd.com/supplement/" + supplement_name + ".dat"
 
-    return sync_sdds3_supplement(supplement, builder, destination, tag, release_group=release_group)
+    return sync_sdds3_supplement(supplement, builder, destination, tag, release_group)
 
 
 def main():
