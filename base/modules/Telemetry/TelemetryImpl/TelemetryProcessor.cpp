@@ -93,14 +93,7 @@ void TelemetryProcessor::sendTelemetry(const std::string& telemetryJson)
     requestConfig.url = "https://" + m_config->getServer() + "/" + m_config->getResourcePath();
     requestConfig.headers = m_config->getHeaders();
     requestConfig.port = m_config->getPort();
-    requestConfig.certPath = m_config->getTelemetryServerCertificatePath();
     requestConfig.timeout = 300;
-
-    if (requestConfig.certPath.has_value() && !Common::FileSystem::fileSystem()->isFile(requestConfig.certPath.value()))
-    {
-        throw std::runtime_error("Certificate file is not valid");
-    }
-
     requestConfig.data = telemetryJson;
 
     LOGINFO("Sending telemetry...");

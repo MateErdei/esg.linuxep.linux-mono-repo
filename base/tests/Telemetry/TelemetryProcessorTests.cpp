@@ -134,10 +134,6 @@ TEST_F(TelemetryProcessorTest, telemetryProcessorThreeProvidersOneThrows) // NOL
 
 TEST_F(TelemetryProcessorTest, telemetryProcessorWritesJsonToFile) // NOLINT
 {
-    std::string defaultCertPath = Common::FileSystem::join(
-        Common::ApplicationConfiguration::applicationPathManager().getBaseSophossplConfigFileDirectory(),
-        "telemetry_cert.pem");
-
     auto mockTelemetryProvider = std::make_shared<MockTelemetryProvider>();
 
     Common::HttpRequests::Response response;
@@ -148,7 +144,6 @@ TEST_F(TelemetryProcessorTest, telemetryProcessorWritesJsonToFile) // NOLINT
     EXPECT_CALL(*m_mockFilePermissions, chmod(m_jsonFilePath, S_IRUSR | S_IWUSR)).Times(testing::AtLeast(1));
     EXPECT_CALL(*mockTelemetryProvider, getTelemetry()).WillOnce(Return(R"({"key":1})"));
     EXPECT_CALL(*mockTelemetryProvider, getName()).WillOnce(Return("Mock"));
-    EXPECT_CALL(*m_mockFileSystem, isFile(defaultCertPath)).WillOnce(Return(true));
     EXPECT_CALL(*m_httpRequester, put(_)).WillOnce(Return(response));
 
     std::vector<std::shared_ptr<Telemetry::ITelemetryProvider>> telemetryProviders;
@@ -156,7 +151,6 @@ TEST_F(TelemetryProcessorTest, telemetryProcessorWritesJsonToFile) // NOLINT
 
     auto config = std::make_shared<Common::TelemetryConfigImpl::Config>();
     config->setResourceRoot("PROD");
-    config->setTelemetryServerCertificatePath(defaultCertPath);
     config->setServer(m_defaultServer);
     config->setMaxJsonSize(1000);
 
