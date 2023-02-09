@@ -25,7 +25,6 @@ namespace Common::ZipUtilities
         unsigned long calculateCrc = 0;
         int err = ZIP_OK;
         FILE* fin = fopen64(filenameInZip, "rb");
-
         if (fin == NULL)
         {
             err = ZIP_ERRNO;
@@ -33,10 +32,11 @@ namespace Common::ZipUtilities
 
         if (err == ZIP_OK)
         {
+            unsigned long sizeRead = 0;
             do
             {
                 err = ZIP_OK;
-                unsigned long sizeRead = fread(buf, 1, size_buf, fin);
+                sizeRead = fread(buf, 1, size_buf, fin);
                 if (sizeRead < size_buf)
                 {
                     if (feof(fin) == 0)
