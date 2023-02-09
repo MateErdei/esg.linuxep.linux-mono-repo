@@ -331,45 +331,44 @@ function cleanup_comms_component()
     grep  "$1" /etc/group &>/dev/null
   }
 
-  local GROUPNAME="sophos-spl-network"
-  local USERNAME="sophos-spl-network"
+  local COMMSUSER="sophos-spl-network"
 
   GROUP_DELETER=$(which delgroup 2>/dev/null)
   [[ -x "$GROUP_DELETER" ]] || GROUP_DELETER=$(which groupdel 2>/dev/null)
   if [[ -x "$GROUP_DELETER" ]]
   then
-      check_group_exists  "$GROUPNAME"
+      check_group_exists  "$COMMSUSER"
       GROUP_EXISTS=$?
       GROUP_DELETE_TRIES=0
       while [ $GROUP_EXISTS -eq 0 ] && [ $GROUP_DELETE_TRIES -le 10 ]
       do
           sleep 1
-          "$GROUP_DELETER" "$GROUPNAME" 2>/dev/null >/dev/null && GROUP_EXISTS=1
+          "$GROUP_DELETER" "$COMMSUSER" 2>/dev/null >/dev/null && GROUP_EXISTS=1
           GROUP_DELETE_TRIES=$((GROUP_DELETE_TRIES+1))
       done
-      check_group_exists "$GROUPNAME"
-      [ $? -eq 0 ] && echo "Warning: Failed to delete group: $GROUPNAME"
+      check_group_exists "$COMMSUSER"
+      [ $? -eq 0 ] && echo "Warning: Failed to delete group: $COMMSUSER"
   else
-      echo "Unable to delete group $GROUPNAME" >&2
+      echo "Unable to delete group $COMMSUSER" >&2
   fi
 
   USER_DELETER=$(which deluser 2>/dev/null)
   [[ -x "$USER_DELETER" ]] || USER_DELETER=$(which userdel 2>/dev/null)
   if [[ -x "$USER_DELETER" ]]
   then
-      check_user_exists "$USERNAME"
+      check_user_exists "$COMMSUSER"
       USER_EXISTS=$?
       local USER_DELETE_TRIES=0
       while [ $USER_EXISTS -eq 0 ] && [ $USER_DELETE_TRIES -le 10 ]
       do
           sleep 1
-          "$USER_DELETER" "$USERNAME" 2>/dev/null >/dev/null && USER_EXISTS=1
+          "$USER_DELETER" "$COMMSUSER" 2>/dev/null >/dev/null && USER_EXISTS=1
           USER_DELETE_TRIES=$((USER_DELETE_TRIES+1))
       done
-      check_user_exists "$USERNAME"
-      [ $? -eq 0 ]  && echo "Warning: Failed to delete user: $USERNAME"
+      check_user_exists "$COMMSUSER"
+      [ $? -eq 0 ]  && echo "Warning: Failed to delete user: $COMMSUSER"
   else
-      echo "Unable to delete user $USERNAME" >&2
+      echo "Unable to delete user $COMMSUSER" >&2
   fi
 
   [[ -d "${SOPHOS_INSTALL}/logs/base/sophos-spl-comms" ]] && unlink "${SOPHOS_INSTALL}/logs/base/sophos-spl-comms"
