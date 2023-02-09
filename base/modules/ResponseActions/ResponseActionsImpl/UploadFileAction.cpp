@@ -77,12 +77,32 @@ namespace ResponseActionsImpl
             }
         }
         response["sha256"] = sha256;
+
         Common::HttpRequests::RequestConfig request{ .url = info.url, .fileToUpload=info.targetPath, .timeout = info.timeout};
         std::shared_ptr<Common::CurlWrapper::ICurlWrapper> curlWrapper =
             std::make_shared<Common::CurlWrapper::CurlWrapper>();
         std::shared_ptr<Common::HttpRequests::IHttpRequester> client =
             std::make_shared<Common::HttpRequestsImpl::HttpRequesterImpl>(curlWrapper);
         Common::HttpRequests::Response httpresponse = client->put(request);
+        std::string filename = Common::FileSystem::basename(info.targetPath);
+        response["fileName"] = filename;
+        if (httpresponse.errorCode == Common::HttpRequests::ResponseErrorCode::OK)
+        {
+            response["result"] = 0;
+        }
+        else if (httpresponse.errorCode == Common::HttpRequests::ResponseErrorCode::TIMEOUT)
+        {
+            std::stringstream error;
+            error << "Timeout Uploading file: " << filename;
+            actionsUtils.setErrorInfo(response,2,error.str());
+        }
+        else
+        {
+            std::stringstream error;
+            error << "Failed to upload file: " << filename;
+            actionsUtils.setErrorInfo(response,1,error.str(),"network_error");
+        }
+
         response["httpStatus"] = httpresponse.status;
         u_int64_t end = time.currentEpochTimeInSecondsAsInteger();
         response["duration"] = start - end;
