@@ -124,7 +124,7 @@ set(testhelperslib ${PLUGINAPIPATH}/tests/lib64/libsharedtesthelpers.so)
 set(GTEST_INPUT ${INPUT}/googletest)
 
 set(JOURNAL_INPUT ${INPUT}/JournalLib)
-set(XZUTILS_INPUT ${INPUT}/xzutils)
+set(XZUTILS_INPUT ${INPUT}/lzma)
 
 set(CAPNPROTO_INPUT ${INPUT}/capnproto )
 set(CAPNPROTO_INCLUDE_DIR ${CAPNPROTO_INPUT}/include)
@@ -133,7 +133,7 @@ set(CAPNPROTO_EXECUTABLE_DIR ${CAPNPROTO_INPUT}/bin)
 set(CAPNPROTO_EXECUTABLE ${CAPNPROTO_INPUT}/bin/capnp)
 set(CAPNPROTO_LD_LIBRARY_PATH ${CAPNPROTO_LIBRARY_DIR}:$ENV{LD_LIBRARY_PATH} )
 set( ENV{LD_LIBRARY_PATH} ${CAPNPROTO_LD_LIBRARY_PATH} )
-set( XZUTILS_INCLUDE_DIR ${XZUTILS_INPUT}/include)
+set( XZUTILS_INCLUDE_DIR ${XZUTILS_INPUT}/src/liblzma/api)
 message( ${CAPNPROTO_LD_LIBRARY_PATH})
 
 set(JOURNAL_INCLUDE_DIR ${JOURNAL_INPUT}/include)
@@ -142,8 +142,8 @@ find_library(JOURNAL_LIBRARY
         PATHS ${INPUT}/JournalLib/lib
         NO_DEFAULT_PATH)
 find_library(LZMA_LIBRARY
-        NAMES liblzma.so
-        PATHS ${INPUT}/xzutils/lib
+        NAMES libliblzma.so
+        PATHS ${XZUTILS_INPUT}
         NO_DEFAULT_PATH)
 
 set(GTEST_INCLUDE ${GTEST_INPUT}/gtest-headers)

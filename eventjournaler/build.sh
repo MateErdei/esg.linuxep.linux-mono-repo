@@ -276,7 +276,6 @@ function build()
         fi
         untar_input JournalLib
         untar_input capnproto
-        untar_input xzutils "" "" xzutils
     fi
 
     PATH=$REDIST/cmake/bin:$PATH
