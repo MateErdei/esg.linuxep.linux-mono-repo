@@ -12,7 +12,7 @@
         <build-asset project="linuxep" repo="everest-base">
             <release-version branch="release/Version_1_2_2"
                              build-id="20230105165814-606006af2bd8111005b887fb5442761795481be5-0kLokq"/>
-            <development-version branch="feature/LINUXDAR-6719-zlib-is-migrated-and-upgraded-to-1-2-13"/>
+            <development-version branch="develop"/>
             <include artifact-path="sspl-base/pluginapi" dest-dir="input"/>
             <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="input/base-sdds"/>
         </build-asset>
@@ -24,7 +24,7 @@
 
         <build-asset project="em" repo="esg">
             <release-version branch="release/2023.04/sprint" build-id="20230120201925-31a0379094fc1654506d3d459661d326949dee47-bh0Sgz"/>
-            <development-version branch="feature/thirdparty/LINUXDAR-6719-zlib-is-upgraded-to-1-2-13"/>
+            <development-version branch="develop"/>
             <include artifact-path="thirdparty/zlib-linux-opt" dest-dir="input/zlib"/>
         </build-asset>
 
