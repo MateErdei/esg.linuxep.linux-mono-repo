@@ -1062,8 +1062,6 @@ class MCSConnection:
             "X-Tenant-ID": self.m_tenant_id,
             "Accept": "application/json",
             "Content-Length": response.m_json_body_size,
-            "Content-Encoding": "deflate",
-            "X-Uncompressed-Content-Length": response.m_json_body_size,
         }
         LOGGER.debug(
             "MCS request url={} body size={}".format(
