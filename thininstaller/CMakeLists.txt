@@ -131,7 +131,7 @@ add_custom_target(
         COMMAND cp -a ${BOOST_INPUT}/lib64/*.so* ${libs_dir}/
         COMMAND cp -a ${OPENSSL_INPUT}/lib64/*.so* ${libs_dir}/
         COMMAND cp -a ${EXPAT_INPUT}/lib64/*.so* ${libs_dir}/
-        COMMAND cp -a ${ZLIB_INPUT}/libz.so ${libs_dir}/
+        COMMAND cp -a ${ZLIB_INPUT}/*.so* ${libs_dir}/
         COMMAND cp -a ${libstdcpp_path} ${libs_dir}/
         COMMAND cp -a ${libatomic_path} ${libs_dir}/
         COMMAND cp -a ${libgcc_s_path} ${libs_dir}/
