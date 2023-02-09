@@ -423,6 +423,7 @@ function build()
         untar_input capnproto
         untar_input boost
         ln -snf $INPUT/zlib $REDIST/
+        ln -s $REDIST/zlib/libzlib.so $REDIST/zlib/libz.so.1
         unzip -o -d ${INPUT}/safestore_input/ ${INPUT}/safestore_input/safestore-linux-x64.zip
         if [[ ! -d "$INPUT/googletest" ]]
         then
