@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+# Copyright 2020-2023 Sophos Limited. All rights reserved.
 import logging
 import os
 import sys
