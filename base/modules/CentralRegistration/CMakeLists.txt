@@ -9,6 +9,8 @@ add_library(centralregistrationimpl SHARED
         Main.h
         MessageRelayExtractor.h
         MessageRelaySorter.h
+        ../Common/CurlWrapper/CurlWrapper.cpp
+        ../Common/CurlWrapper/CurlWrapper.h
         )
 
 target_include_directories(centralregistrationimpl SYSTEM PUBLIC ${LOG4CPLUS_INCLUDE_DIR} ${BOOST_INCLUDE_DIR} ${CURL_INCLUDE_DIR} )
