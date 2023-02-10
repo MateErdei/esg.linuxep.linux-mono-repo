@@ -92,6 +92,11 @@ void TelemetryProcessor::sendTelemetry(const std::string& telemetryJson)
     requestConfig.timeout = 300;
     requestConfig.data = telemetryJson;
 
+    if (!m_config->getTelemetryServerCertificatePath().empty() && Common::FileSystem::fileSystem()->isFile(m_config->getTelemetryServerCertificatePath()))
+    {
+        requestConfig.certPath = m_config->getTelemetryServerCertificatePath();
+    }
+
     LOGINFO("Sending telemetry...");
 
     Common::HttpRequests::Response response = m_httpRequester->put(requestConfig);
@@ -111,7 +116,7 @@ void TelemetryProcessor::sendTelemetry(const std::string& telemetryJson)
     }
     else
     {
-        LOGWARN("Failed to contact telemetry server");
+        LOGERROR("Failed to contact telemetry server: " << response.errorCode);
     }
 }
 
