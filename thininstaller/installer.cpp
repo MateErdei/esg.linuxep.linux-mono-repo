@@ -524,7 +524,7 @@ int main(int argc, char** argv)
         policyOptions.config[MCS::DEVICE_ID] = jwt[MCS::DEVICE_ID];
         policyOptions.config["jwt_token"] = jwt[MCS::JWT_TOKEN];
 
-        int i = 0;
+        int i = 1;
         for (auto const& messagerelay: relaysForConfig)
         {
             std::string key = std::to_string(i);
