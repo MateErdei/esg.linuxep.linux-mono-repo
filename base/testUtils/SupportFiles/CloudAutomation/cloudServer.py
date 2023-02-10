@@ -597,6 +597,8 @@ class CoreEndpointManager(object):
         self.__m_policy = INITIAL_CORE_POLICY
         GL_POLICIES.addPolicy(self.__m_policyID, self.__m_policy)
         self.__m_resetHealth = None
+        self.__command = ""
+        self.__id = ""
 
     def resetHealthPending(self):
         return self.__m_resetHealth is not None
