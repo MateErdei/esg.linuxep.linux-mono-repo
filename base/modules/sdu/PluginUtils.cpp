@@ -74,7 +74,7 @@ namespace RemoteDiagnoseImpl
         try
         {
             std::shared_ptr<Common::CurlWrapper::ICurlWrapper> curlWrapper = std::make_shared<Common::CurlWrapper::CurlWrapper>();
-            Common::HttpRequestsImpl::HttpRequesterImpl client = Common::HttpRequestsImpl::HttpRequesterImpl(curlWrapper);
+            Common::HttpRequestsImpl::HttpRequesterImpl client = Common::HttpRequestsImpl::HttpRequesterImpl(std::move(curlWrapper));
 
             Common::HttpRequests::Response response = client.put(requestConfig);
 
