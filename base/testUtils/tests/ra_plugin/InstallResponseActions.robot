@@ -26,7 +26,10 @@ Verify that the response actions installer works correctly
 ## -----------------------------------------------------------------------------------------------------
     [Teardown]  Response Actions Tests Teardown With Installed File Replacement
     Install Response Actions Directly
-
+    Wait Until Keyword Succeeds
+    ...  15 secs
+    ...  1 secs
+    ...  Check Log Contains  Logger responseactions configured for level: INFO  ${RESPONSE_ACTIONS_LOG_PATH}  response actions log
     ${DirectoryInfo}  ${FileInfo}  ${SymbolicLinkInfo} =   get file info for installation  responseactions
     Set Test Variable  ${FileInfo}
     Set Test Variable  ${DirectoryInfo}
