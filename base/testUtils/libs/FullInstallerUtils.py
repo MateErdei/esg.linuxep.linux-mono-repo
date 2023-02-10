@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# Copyright (C) 2018-2023 Sophos Plc, Oxford, England.
+# Copyright (C) 2018-2020 Sophos Plc, Oxford, England.
 # All rights reserved.
 import logging
 import os
@@ -499,6 +499,7 @@ def Uninstall_SSPL(installdir=None):
             counter = counter + 1
             try:
                 logger.info("try to rm all")
+                unmount_all_comms_component_folders(True)
                 output, returncode = run_proc_with_safe_output(['rm', '-rf', installdir])
                 if returncode != 0:
                     logger.error(output)
@@ -543,7 +544,7 @@ def Uninstall_SSPL(installdir=None):
     while does_group_exist() and counter2 < 5:
         logger.info(f"Removing group, it should have already been removed by now. Counter: {counter2}")
         counter2 = counter2 + 1
-        for user in ['sophos-spl-user', 'sophos-spl-local', 'sophos-spl-updatescheduler']:
+        for user in ['sophos-spl-user', 'sophos-spl-network', 'sophos-spl-local', 'sophos-spl-updatescheduler']:
             if does_user_exist(user):
                 remove_user(delete_user_cmd, user)
 
@@ -1023,3 +1024,48 @@ def umount_with_retry_fallback_to_lazy(directory_path,timeout=30):
         return ret
     return 0
 
+def unmount_all_comms_component_folders(skip_stop_proc=False):
+
+    def _stop_commscomponent():
+        stdout, code = run_proc_with_safe_output(["/opt/sophos-spl/bin/wdctl", "stop", "commscomponent"])
+        if code != 0 and not 'Watchdog is not running' in stdout:
+            logger.info(stdout)
+
+    if os.path.exists('/opt/sophos-spl/bin/wdctl'):
+
+        # stop the comms component as it could be holding the mounted paths and
+        # would not allow them to be unmounted.
+        counter = 0
+        while not skip_stop_proc and counter < 5:
+            counter = counter + 1
+            stdout, errcode = run_proc_with_safe_output(['pidof', 'CommsComponent'])
+            if errcode == 0:
+                logger.info("Commscomponent running {}".format(stdout))
+                _stop_commscomponent()
+                time.sleep(1)
+            else:
+                logger.info("Skip stop comms componenent")
+                break
+
+    dirpath = '/opt/sophos-spl/var/sophos-spl-comms/'
+    umount_failed = False
+    mounted_entries = ['etc/resolv.conf', 'etc/hosts', 'usr/lib', 'usr/lib64', 'lib',
+                        'etc/ssl/certs', 'etc/pki/tls/certs', 'etc/pki/ca-trust/extracted', 'base/mcs/certs','base/remote-diagnose/output']
+    for entry in mounted_entries:
+        try:
+            fullpath = os.path.join(dirpath, entry)
+            if not os.path.exists(fullpath):
+                continue
+            ret = umount_with_retry_fallback_to_lazy(fullpath, 5)
+            if ret != 0:
+                umount_failed = True
+            if os.path.isfile(fullpath):
+                os.remove(fullpath)
+            else:
+                shutil.rmtree(fullpath)
+        except Exception as ex:
+            umount_failed = True
+            logger.error(str(ex))
+
+    if umount_failed:
+        raise AssertionError("umounting comms failed")
