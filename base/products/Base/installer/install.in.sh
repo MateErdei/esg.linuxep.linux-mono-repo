@@ -333,25 +333,6 @@ function cleanup_comms_component()
 
   local COMMSUSER="sophos-spl-network"
 
-  GROUP_DELETER=$(which delgroup 2>/dev/null)
-  [[ -x "$GROUP_DELETER" ]] || GROUP_DELETER=$(which groupdel 2>/dev/null)
-  if [[ -x "$GROUP_DELETER" ]]
-  then
-      check_group_exists  "$COMMSUSER"
-      GROUP_EXISTS=$?
-      GROUP_DELETE_TRIES=0
-      while [ $GROUP_EXISTS -eq 0 ] && [ $GROUP_DELETE_TRIES -le 10 ]
-      do
-          sleep 1
-          "$GROUP_DELETER" "$COMMSUSER" 2>/dev/null >/dev/null && GROUP_EXISTS=1
-          GROUP_DELETE_TRIES=$((GROUP_DELETE_TRIES+1))
-      done
-      check_group_exists "$COMMSUSER"
-      [ $? -eq 0 ] && echo "Warning: Failed to delete group: $COMMSUSER"
-  else
-      echo "Unable to delete group $COMMSUSER" >&2
-  fi
-
   USER_DELETER=$(which deluser 2>/dev/null)
   [[ -x "$USER_DELETER" ]] || USER_DELETER=$(which userdel 2>/dev/null)
   if [[ -x "$USER_DELETER" ]]
@@ -371,8 +352,35 @@ function cleanup_comms_component()
       echo "Unable to delete user $COMMSUSER" >&2
   fi
 
+  GROUP_DELETER=$(which delgroup 2>/dev/null)
+  [[ -x "$GROUP_DELETER" ]] || GROUP_DELETER=$(which groupdel 2>/dev/null)
+  if [[ -x "$GROUP_DELETER" ]]
+  then
+      check_group_exists  "$COMMSUSER"
+      GROUP_EXISTS=$?
+      GROUP_DELETE_TRIES=0
+      while [ $GROUP_EXISTS -eq 0 ] && [ $GROUP_DELETE_TRIES -le 10 ]
+      do
+          sleep 1
+          "$GROUP_DELETER" "$COMMSUSER" 2>/dev/null >/dev/null && GROUP_EXISTS=1
+          GROUP_DELETE_TRIES=$((GROUP_DELETE_TRIES+1))
+      done
+      check_group_exists "$COMMSUSER"
+      [ $? -eq 0 ] && echo "Warning: Failed to delete group: $COMMSUSER"
+  else
+      echo "Unable to delete group $COMMSUSER" >&2
+  fi
+
   [[ -d "${SOPHOS_INSTALL}/logs/base/sophos-spl-comms" ]] && unlink "${SOPHOS_INSTALL}/logs/base/sophos-spl-comms"
-  [[ -d "${SOPHOS_INSTALL}/var/sophos-spl-comms" ]] && rm -rf "${SOPHOS_INSTALL}/var/sophos-spl-comms"
+
+  if [[ -d "${SOPHOS_INSTALL}/var/sophos-spl-comms" ]]
+  then
+    for entry in etc/resolv.conf etc/hosts usr/lib usr/lib64 lib etc/ssl/certs etc/pki/tls/certs /etc/pki/ca-trust/extracted base/mcs/certs base/remote-diagnose/output; do
+        umount --force "${SOPHOS_INSTALL}/var/sophos-spl-comms/${entry}"  > /dev/null 2>&1
+    done
+    [[ -z "$(ls -A "${SOPHOS_INSTALL}"/var/sophos-spl-comms)" ]] && rm -rf "${SOPHOS_INSTALL}/var/sophos-spl-comms"
+  fi
+
   [[ -d "${SOPHOS_INSTALL}/var/comms" ]] && rm -rf "${SOPHOS_INSTALL}/var/sophos-spl-comms"
   [[ -f "${SOPHOS_INSTALL}/logs/base/sophosspl/comms_component.log" ]] && rm "${SOPHOS_INSTALL}/logs/base/sophosspl/comms_component.log"*
 }
