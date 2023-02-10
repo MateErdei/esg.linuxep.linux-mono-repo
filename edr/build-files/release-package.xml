@@ -51,11 +51,6 @@
                              build-id="20220310141901-bdae372a9027e1760f105dc819023a49ef444765-xdQFp9"/>
             <include artifact-path="output" dest-dir="/build/input"/>
         </build-asset>
-        <build-asset project="thirdparty" repo="cmake">
-            <release-version branch="release/sophos/v3.22.1"
-                             build-id="20220412085321-29886e1a6f8ae2867207fa5c4873eaac5c6075a7-VxG3sr"/>
-            <include artifact-path="cmake" dest-dir="/build/redist/cmake"/>
-        </build-asset>
         <build-asset project="thirdparty" repo="capnproto">
             <release-version branch="release/sspl/Version_0_8_0"
                              build-id="20220314153844-e29cb764e609e0e34cd89aadd802d528f8020536-wQNt99"/>
@@ -107,6 +102,7 @@
             <include artifact-path="thirdparty/liblzma-linux-opt" dest-dir="/build/redist/lzma"/>
         </build-asset>
 
+        <trusted-asset artifact-path="org.cmake/cmake-3.26.0/cmake-3.26.0" dest-dir="/build/input/cmake"/>
         <trusted-asset artifact-path="com.osquery/osquery/5.7.0/osquery-5.7.0-linux" dest-dir="/build/input"/>
     </inputs>
     <buildcommands>
