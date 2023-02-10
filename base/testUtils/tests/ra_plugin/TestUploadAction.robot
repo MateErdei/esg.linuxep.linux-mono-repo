@@ -41,7 +41,9 @@ RA Upload Suite Setup
 
 RA Upload Test Setup
     Require Installed
-    Prepare To Run Telemetry Executable
+    HttpsServer.Start Https Server  /tmp/cert.crt  443  tlsv1_2  True
+    install_system_ca_cert  /tmp/cert.crt
+    install_system_ca_cert  /tmp/ca.crt
 
 RA Upload Test Teardown
     General Test Teardown
@@ -49,6 +51,7 @@ RA Upload Test Teardown
     Remove file  ${TELEMETRY_OUTPUT_JSON}
     Run Keyword If Test Failed  LogUtils.Dump Log  ${HTTPS_LOG_FILE_PATH}
     Cleanup Telemetry Server
+    cleanup_system_ca_certs
     Remove File  ${EXE_CONFIG_FILE}
     Run Keyword If Test Failed    Dump Cloud Server Log
     Stop Local Cloud Server

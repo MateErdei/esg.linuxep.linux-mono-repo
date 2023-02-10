@@ -318,7 +318,7 @@ def Send_Query_From_Fake_Cloud(name, query, command_id="correlation-id"):
 
 def Send_Upload_File_From_Fake_Cloud(command_id="correlation-id"):
     query_dict = {"type": "sophos.mgt.action.UploadFile",
-                  "url": "localhost:443",
+                  "url": "https://localhost:443/randompath",
                   "targetFile": "/tmp/file",
                   "compress": False,
                   "password": "",
