@@ -12,11 +12,10 @@ Suite Teardown  Require Uninstalled
 Test Setup  RA Upload Test Setup
 Test Teardown  RA Upload Test Teardown
 
-Default Tags   RESPONSE_ACTIONS_PLUGIN  TAP_TESTS
-
+Default Tags   RESPONSE_ACTIONS_PLUGIN
 
 *** Test Cases ***
-RA Plugin Uploads A file succesfully
+RA Plugin uploads a file successfully
     Create File         ${SOPHOS_INSTALL}/base/etc/logger.conf.local   [responseactions]\nVERBOSITY=DEBUG\n
     Install Response Actions Directly
     Create File  /tmp/file  string
