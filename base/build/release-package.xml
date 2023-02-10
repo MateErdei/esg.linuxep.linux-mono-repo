@@ -113,8 +113,8 @@
         </build-asset>
 
         <build-asset project="em" repo="esg">
-            <!--            <release-version branch="thirdparty/googletest" build-id="20230202135916-551d638c1f6e6de78acdf690401160e9789365b0-LTBz3g"/>-->
-            <development-version branch="feature/thirdparty/LINUXDAR-6721-update-googletest"/>
+<!--            <release-version branch="thirdparty/googletest-linux-opt" build-id=""/>-->
+            <development-version branch="develop"/>
             <include artifact-path="thirdparty/googletest-linux-opt" dest-dir="/build/input/googletest"/>
         </build-asset>
 
