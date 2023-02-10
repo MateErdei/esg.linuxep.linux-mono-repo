@@ -11,8 +11,10 @@ namespace ResponsePlugin
     class PluginUtils
     {
     public:
-
-        static ActionType getType(const std::string actionJson);
+        PluginUtils() = default;
+        ~PluginUtils() = default;
+        static ActionType getType(const std::string& actionJson);
+        static void sendResponse(const std::string& correlationId,const std::string& content);
     };
 
 }

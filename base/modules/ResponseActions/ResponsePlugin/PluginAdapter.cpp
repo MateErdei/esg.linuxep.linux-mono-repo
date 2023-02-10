@@ -33,21 +33,21 @@ namespace ResponsePlugin
                 case Task::TaskType::STOP:
                     return;
                 case Task::TaskType::ACTION:
-                    processAction(task.m_content);
+                    processAction(task.m_content,task.m_correlationId);
                     break;
 
             }
         }
     }
 
-    void PluginAdapter::processAction(const std::string& action) {
+    void PluginAdapter::processAction(const std::string& action,const std::string& correlationId) {
         LOGDEBUG("Process action: " << action);
         ActionType type = PluginUtils::getType(action);
         switch(type)
         {
             case ActionType::UPLOAD_FILE:
                 LOGINFO("Running upload");
-                doUpload(action);
+                doUpload(action,correlationId);
                 break;
             case ActionType::NONE:
                 LOGWARN("Unknown action throwing it away");
@@ -55,7 +55,7 @@ namespace ResponsePlugin
         }
     }
 
-    void PluginAdapter::doUpload(const std::string& action)
+    void PluginAdapter::doUpload(const std::string& action,const std::string& correlationId)
     {
         std::shared_ptr<Common::CurlWrapper::ICurlWrapper> curlWrapper =
             std::make_shared<Common::CurlWrapper::CurlWrapper>();
@@ -63,6 +63,7 @@ namespace ResponsePlugin
             std::make_shared<Common::HttpRequestsImpl::HttpRequesterImpl>(curlWrapper);
         ResponseActionsImpl::UploadFileAction uploadFileAction(client);
         std::string response = uploadFileAction.run(action);
+        PluginUtils::sendResponse(correlationId,action);
     }
 
 } // namespace ResponsePlugin

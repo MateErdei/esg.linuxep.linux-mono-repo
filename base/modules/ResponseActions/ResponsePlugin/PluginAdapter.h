@@ -29,7 +29,7 @@ namespace ResponsePlugin
         void mainLoop();
 
     private:
-        void processAction(const std::string& policyXml);
-        void doUpload(const std::string& action);
+        void processAction(const std::string& actionJson,const std::string& correlationId);
+        void doUpload(const std::string& action, const std::string& correlationId);
     };
 } // namespace ResponsePlugin
