@@ -35,7 +35,7 @@ public:
     }
 };
 
-TEST_F(UploadFileTests, SucessCase)
+TEST_F(UploadFileTests, SuccessCase)
 {
     auto httpRequester = std::make_shared<StrictMock<MockHTTPRequester>>();
     Common::HttpRequests::Response httpresponse;
@@ -135,3 +135,49 @@ TEST_F(UploadFileTests, FileBeingWrittenToAndOverSizeLimit)
     EXPECT_EQ(responseJson["errorMessage"],"File to be uploaded cannot be accessed");
 }
 
+TEST_F(UploadFileTests, FailureDueToTimeout)
+{
+    auto httpRequester = std::make_shared<StrictMock<MockHTTPRequester>>();
+    Common::HttpRequests::Response httpresponse;
+    httpresponse.status = 500;
+    httpresponse.errorCode = Common::HttpRequests::ResponseErrorCode::TIMEOUT;
+    EXPECT_CALL(*httpRequester, put(_)).WillOnce(Return(httpresponse));
+    ResponseActionsImpl::UploadFileAction uploadFileAction(httpRequester);
+    nlohmann::json action = getDefaultUploadObject();
+
+    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
+    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>{ mockFileSystem });
+    EXPECT_CALL(*mockFileSystem, isFile("path")).WillOnce(Return(true));
+    EXPECT_CALL(*mockFileSystem, fileSize("path")).WillOnce(Return(100));
+    EXPECT_CALL(*mockFileSystem, calculateDigest(Common::SslImpl::Digest::sha256,"path")).WillOnce(Return("sha256string"));
+
+    std::string response = uploadFileAction.run(action.dump());
+    nlohmann::json responseJson = nlohmann::json::parse(response);
+    EXPECT_EQ(responseJson["result"],2);
+    EXPECT_EQ(responseJson["httpStatus"],-1);
+    EXPECT_EQ(responseJson["errorMessage"],"Timeout Uploading file: path");
+}
+
+TEST_F(UploadFileTests, FailureDueToNetworkError)
+{
+    auto httpRequester = std::make_shared<StrictMock<MockHTTPRequester>>();
+    Common::HttpRequests::Response httpresponse;
+    httpresponse.status = 500;
+    httpresponse.errorCode = Common::HttpRequests::ResponseErrorCode::TIMEOUT;
+    EXPECT_CALL(*httpRequester, put(_)).WillOnce(Return(httpresponse));
+    ResponseActionsImpl::UploadFileAction uploadFileAction(httpRequester);
+    nlohmann::json action = getDefaultUploadObject();
+
+    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
+    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>{ mockFileSystem });
+    EXPECT_CALL(*mockFileSystem, isFile("path")).WillOnce(Return(true));
+    EXPECT_CALL(*mockFileSystem, fileSize("path")).WillOnce(Return(100));
+    EXPECT_CALL(*mockFileSystem, calculateDigest(Common::SslImpl::Digest::sha256,"path")).WillOnce(Return("sha256string"));
+
+    std::string response = uploadFileAction.run(action.dump());
+    nlohmann::json responseJson = nlohmann::json::parse(response);
+    EXPECT_EQ(responseJson["result"],1);
+    EXPECT_EQ(responseJson["httpStatus"],500);
+    EXPECT_EQ(responseJson["errorMessage"],"Failed to upload file:  path");
+    EXPECT_EQ(responseJson["errorType"],"network_error");
+}
