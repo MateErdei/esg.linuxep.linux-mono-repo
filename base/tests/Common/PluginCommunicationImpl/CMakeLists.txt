@@ -11,7 +11,6 @@ target_include_directories(CommonPluginCommunicationImplTests BEFORE PUBLIC ${GT
 target_link_libraries(CommonPluginCommunicationImplTests
         ${GTEST_LIBRARY}
         ${GTEST_MAIN_LIBRARY}
-        ${}
         plugincommunicationimplcommon
         testhelpers
         logging)

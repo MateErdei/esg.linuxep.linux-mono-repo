@@ -16,7 +16,6 @@ target_include_directories(McsRouterPluginCommunicationImplTests BEFORE PUBLIC $
 target_link_libraries(McsRouterPluginCommunicationImplTests
         ${GTEST_LIBRARY}
         ${GTEST_MAIN_LIBRARY}
-        ${}
         xmlutilities
         mcsrouterplugincommunicationimpl
         testhelpers

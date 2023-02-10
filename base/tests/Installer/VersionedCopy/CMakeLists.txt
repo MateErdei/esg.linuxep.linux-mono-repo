@@ -12,7 +12,7 @@ SET_TARGET_PROPERTIES(TestVersionedCopy
         BUILD_RPATH "${TestVersionedCopy_RPATH}"
         )
 
-target_link_libraries(TestVersionedCopy ${GTEST_LIBRARY} ${GTEST_MAIN_LIBRARY} ${})
+target_link_libraries(TestVersionedCopy ${GTEST_LIBRARY} ${GTEST_MAIN_LIBRARY})
 target_link_libraries(TestVersionedCopy versionedcopylib testhelpers -L"${BOOST_LIB_DIRS}" -lboost_filesystem -lboost_system )
 gtest_discover_tests(TestVersionedCopy)
 

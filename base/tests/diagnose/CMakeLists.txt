@@ -7,7 +7,6 @@ target_include_directories(TestDiagnose BEFORE PUBLIC "${GTEST_INCLUDE}" "${GMOC
 target_link_libraries(TestDiagnose
         ${GTEST_LIBRARY}
         ${GTEST_MAIN_LIBRARY}
-        ${}
         diagnoseimpl
         testhelpers
         ${OPENSSL_LIBRARY}

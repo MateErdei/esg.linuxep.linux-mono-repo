@@ -16,7 +16,7 @@ add_executable(TestHelpersTest
         ${PROJECT_SOURCE_DIR}/modules/Common/CurlWrapper/CurlWrapper.cpp
         )
 target_include_directories(TestHelpersTest SYSTEM BEFORE PUBLIC ${GTEST_INCLUDE} ${GMOCK_INCLUDE} ${CMAKE_SOURCE_DIR} ${CURL_INCLUDE_DIR})
-target_link_libraries(TestHelpersTest ${GTEST_LIBRARY} ${GTEST_MAIN_LIBRARY} ${})
+target_link_libraries(TestHelpersTest ${GTEST_LIBRARY} ${GTEST_MAIN_LIBRARY})
 target_link_libraries(TestHelpersTest filesystemimpl testhelpers utilityimpl ${CURL_LIBRARY})
 gtest_discover_tests(TestHelpersTest)
 SET_TARGET_PROPERTIES(TestHelpersTest

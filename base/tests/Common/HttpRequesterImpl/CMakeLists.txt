@@ -18,7 +18,6 @@ target_link_libraries(HttpRequesterTests
         HttpRequestsImpl
         ${OPENSSL_LIBRARY}
         ${OPENSSL_CRYPTO_LIBRARY}
-        ${}
         ${GTEST_LIBRARY}
         ${GTEST_MAIN_LIBRARY}
         testhelpers

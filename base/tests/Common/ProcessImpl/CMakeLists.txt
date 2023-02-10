@@ -5,7 +5,7 @@ target_include_directories(ProcessImplTests SYSTEM BEFORE PUBLIC
         ${GMOCK_INCLUDE}
         ${CMAKE_SOURCE_DIR}
         ${BOOST_INCLUDE_DIR})
-target_link_libraries(ProcessImplTests ${GTEST_LIBRARY} ${GTEST_MAIN_LIBRARY} ${})
+target_link_libraries(ProcessImplTests ${GTEST_LIBRARY} ${GTEST_MAIN_LIBRARY})
 target_link_libraries(ProcessImplTests processimpl threads testhelpers)
 target_compile_options(ProcessImplTests PRIVATE -DOutDir="${CMAKE_CURRENT_BINARY_DIR}")
 add_dependencies(ProcessImplTests PickYourPoison)
