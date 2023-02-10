@@ -316,6 +316,18 @@ def Send_Query_From_Fake_Cloud(name, query, command_id="correlation-id"):
                   "query": query}
     CloudAutomation.SendToFakeCloud.sendLiveQueryToFakeCloud(json.dumps(query_dict), command_id=command_id)
 
+def Send_Upload_File_From_Fake_Cloud(command_id="correlation-id"):
+    query_dict = {"type": "sophos.mgt.action.UploadFile",
+                  "url": "localhost:443",
+                  "targetFile": "/tmp/file",
+                  "compress": False,
+                  "password": "",
+                  "timeout": 10,
+                  "maxUploadSizeBytes" : 1000000,
+                  "expiration":144444000000004,
+                  }
+    CloudAutomation.SendToFakeCloud.sendResponseActionToFakeCloud(json.dumps(query_dict), command_id=command_id)
+
 def Set_Local_CA_Environment_Variable():
     MCS_CA = os.path.join(PathManager.get_support_file_path(), "CloudAutomation", "root-ca.crt.pem")
     if os.path.exists("/home/bullseye"):

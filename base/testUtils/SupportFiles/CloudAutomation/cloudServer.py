@@ -624,6 +624,22 @@ class CoreEndpointManager(object):
     def getPolicy(self):
         return self.__m_policy
 
+    def commandPending(self):
+        return self.__command != ""
+
+    def setCommand(self, query, command_id):
+        self.__command = query
+        self.__id = command_id
+
+    def command(self):
+        if self.__command == "":
+            raise AssertionError("No command available")
+        return self.__command, self.__id
+
+    def clearCommand(self):
+        self.__command = ""
+        self.__id = ""
+
 # CORC POLICY
 class CorcEndpointManager(object):
     def __init__(self):
@@ -942,6 +958,18 @@ class Endpoint(object):
         <body>{}</body>
       </command>""".format(id, now, xml.sax.saxutils.escape(body.decode("utf-8")))
 
+    def coreCommand(self):
+        body, id = self.__core.command()
+        self.__core.clearCommand()
+        now = datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+        return r"""<command>
+        <id>{}</id>
+        <appId>CORE</appId>
+        <creationTime>{}</creationTime>
+        <ttl>PT10000S</ttl>
+        <body>{}</body>
+      </command>""".format(id, now, xml.sax.saxutils.escape(body.decode("utf-8")))
+
     def liveTerminalCommand(self):
         body, id = self.__liveTerminal.liveTerminal()
         self.__liveTerminal.clearLiveTerminal()
@@ -973,6 +1001,8 @@ class Endpoint(object):
             commands.append(self.migrateCommand())
         if "CORE" in apps and self.__core.resetHealthPending():
             commands.append(self.resetHealthCommand())
+        if "CORE" in apps and self.__core.commandPending():
+            commands.append(self.coreCommand())
         if "ALC" in apps and self.__alc.policyPending():
             for policy_id in self.__alc.policiesID():
                 commands.append(self.policyCommand("ALC", policy_id))
@@ -1071,6 +1101,9 @@ class Endpoint(object):
 
     def setQuery(self, query, command_id):
         self.__edr.setQuery(query, command_id)
+
+    def setCommand(self, command, command_id):
+        self.__core.setCommand(command, command_id)
 
     def setFlags(self,flags):
         self.__flags.updateFlags(flags)
@@ -1229,6 +1262,12 @@ class Endpoints(object):
         assert adapter == "LiveQuery"
         for e in self.__m_endpoints.values():
             e.setQuery(query, command_id)
+
+    def setCoreAction(self, query, command_id):
+        logger.info("core command {}".format(query))
+        assert query != ""
+        for e in self.__m_endpoints.values():
+            e.setCommand(query, command_id)
 
     def setFlags(self,flags):
         for e in self.__m_endpoints.values():
@@ -2032,6 +2071,9 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
         elif self.path.lower() == "/controller/livequery/command":
             command_id = self.headers.get("Command-ID")
             GL_ENDPOINTS.setQuery("LiveQuery", self.getBody(), command_id)
+        elif self.path.lower() == "/controller/core/command":
+            command_id = self.headers.get("Command-ID")
+            GL_ENDPOINTS.setCoreAction(self.getBody(), command_id)
         elif self.path.lower() == "/controller/flags":
             GL_ENDPOINTS.setFlags(self.getBody())
         else:

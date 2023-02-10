@@ -28,7 +28,7 @@ def remove_response_file(file_path):
 def receive():
     """
     This function is to be used as a generator in for loops to yield a tuple
-    containing data about LiveQuery response files.
+    containing data about response files.
     """
 
     response_dir = os.path.join(path_manager.response_dir())
