@@ -2,7 +2,6 @@ add_library(responseactionsimpl SHARED
         ActionsUtils.cpp
         ActionsUtils.h
         ActionStructs.h
-        IActionsImpl.h
         Logger.cpp
         Logger.h
         UploadFileAction.cpp
@@ -15,7 +14,6 @@ target_link_libraries(responseactionsimpl PUBLIC
         logging
         utilityimpl
         HttpRequestsImpl
-        httpsenderimpl
         filesystemimplobject)
 
 SET_TARGET_PROPERTIES(responseactionsimpl

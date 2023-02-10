@@ -216,7 +216,7 @@ set(SOPHLIB_LIBRARIES ${SOPHLIB_INPUT}/lib64/file/libfile.pic.a
   ${SOPHLIB_INPUT}/lib64/string/libstring.pic.a
   ${SOPHLIB_INPUT}/lib64/time/libtime.pic.a)
 
-set(NLOHMANN_JSON_INCLUDE_DIR ../../../thirdparty/nlohmann-json)
+set(NLOHMANN_JSON_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/nlohmann-json)
 
 ## Allow this to be redirected for SUL development
 if(NOT DEFINED SUL_INPUT)

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-// Copyright 2023 Sophos Limited. All rights reserved.
+#// Copyright 2023 Sophos Limited. All rights reserved.
 
 PLUGIN_NAME=@RA_PLUGIN_NAME@
 PRODUCT_LINE_ID="@RA_PRODUCT_LINE_ID@"

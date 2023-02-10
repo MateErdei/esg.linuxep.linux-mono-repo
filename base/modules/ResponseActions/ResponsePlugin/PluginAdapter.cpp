@@ -6,6 +6,8 @@
 
 #include "ResponseActions/ResponseActionsImpl/UploadFileAction.h"
 
+#include <Common/CurlWrapper/CurlWrapper.h>
+#include <Common/HttpRequestsImpl/HttpRequesterImpl.h>
 namespace ResponsePlugin
 {
     PluginAdapter::PluginAdapter(
@@ -55,7 +57,11 @@ namespace ResponsePlugin
 
     void PluginAdapter::doUpload(const std::string& action)
     {
-        ResponseActionsImpl::UploadFileAction uploadFileAction;
+        std::shared_ptr<Common::CurlWrapper::ICurlWrapper> curlWrapper =
+            std::make_shared<Common::CurlWrapper::CurlWrapper>();
+        std::shared_ptr<Common::HttpRequests::IHttpRequester> client =
+            std::make_shared<Common::HttpRequestsImpl::HttpRequesterImpl>(curlWrapper);
+        ResponseActionsImpl::UploadFileAction uploadFileAction(client);
         std::string response = uploadFileAction.run(action);
     }
 

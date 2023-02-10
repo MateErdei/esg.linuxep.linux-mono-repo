@@ -1,10 +1,12 @@
 // Copyright 2023 Sophos Limited. All rights reserved.
 
 #include "modules/ResponseActions/ResponseActionsImpl/UploadFileAction.h"
+
 #include "modules/Common/UtilityImpl/TimeUtils.h"
 #include "modules/Common/FileSystem/IFileTooLargeException.h"
-#include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
 
+#include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
+#include <tests/Common/Helpers/MockHttpRequester.h>
 #include <tests/Common/Helpers/MockFileSystem.h>
 #include "tests/Common/Helpers/MemoryAppender.h"
 
@@ -35,7 +37,8 @@ public:
 
 TEST_F(UploadFileTests, cannotParseActions)
 {
-    ResponseActionsImpl::UploadFileAction uploadFileAction;
+    auto httpRequester = std::make_shared<StrictMock<MockHTTPRequester>>();
+    ResponseActionsImpl::UploadFileAction uploadFileAction(httpRequester);
 
     std::string response = uploadFileAction.run("");
     nlohmann::json responseJson = nlohmann::json::parse(response);
@@ -46,7 +49,8 @@ TEST_F(UploadFileTests, cannotParseActions)
 
 TEST_F(UploadFileTests, actionExipired)
 {
-    ResponseActionsImpl::UploadFileAction uploadFileAction;
+    auto httpRequester = std::make_shared<StrictMock<MockHTTPRequester>>();
+    ResponseActionsImpl::UploadFileAction uploadFileAction(httpRequester);
     nlohmann::json action = getDefaultUploadObject();
     action["expiration"] = 0;
     std::string response = uploadFileAction.run(action.dump());
@@ -57,7 +61,8 @@ TEST_F(UploadFileTests, actionExipired)
 
 TEST_F(UploadFileTests, FileDoesNotExist)
 {
-    ResponseActionsImpl::UploadFileAction uploadFileAction;
+    auto httpRequester = std::make_shared<StrictMock<MockHTTPRequester>>();
+    ResponseActionsImpl::UploadFileAction uploadFileAction(httpRequester);
     nlohmann::json action = getDefaultUploadObject();
 
     auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
@@ -73,7 +78,8 @@ TEST_F(UploadFileTests, FileDoesNotExist)
 
 TEST_F(UploadFileTests, FileOverSizeLimit)
 {
-    ResponseActionsImpl::UploadFileAction uploadFileAction;
+    auto httpRequester = std::make_shared<StrictMock<MockHTTPRequester>>();
+    ResponseActionsImpl::UploadFileAction uploadFileAction(httpRequester);
     nlohmann::json action = getDefaultUploadObject();
 
     auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
@@ -90,7 +96,8 @@ TEST_F(UploadFileTests, FileOverSizeLimit)
 
 TEST_F(UploadFileTests, FileBeingWrittenToAndOverSizeLimit)
 {
-    ResponseActionsImpl::UploadFileAction uploadFileAction;
+    auto httpRequester = std::make_shared<StrictMock<MockHTTPRequester>>();
+    ResponseActionsImpl::UploadFileAction uploadFileAction(httpRequester);
     nlohmann::json action = getDefaultUploadObject();
 
     auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();

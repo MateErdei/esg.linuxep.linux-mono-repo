@@ -8,12 +8,14 @@
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/FileSystem/IFileTooLargeException.h>
 #include <Common/UtilityImpl/TimeUtils.h>
-#include <Common/CurlWrapper/CurlWrapper.h>
-#include <Common/HttpRequestsImpl/HttpRequesterImpl.h>
+
 
 #include <json.hpp>
 namespace ResponseActionsImpl
 {
+    UploadFileAction::UploadFileAction(std::shared_ptr<Common::HttpRequests::IHttpRequester> client):
+        m_client(client){}
+
     std::string UploadFileAction::run(const std::string& actionJson) const
     {
         nlohmann::json response;
@@ -80,11 +82,8 @@ namespace ResponseActionsImpl
         response["sha256"] = sha256;
 
         Common::HttpRequests::RequestConfig request{ .url = info.url, .fileToUpload=info.targetPath, .timeout = info.timeout};
-        std::shared_ptr<Common::CurlWrapper::ICurlWrapper> curlWrapper =
-            std::make_shared<Common::CurlWrapper::CurlWrapper>();
-        std::shared_ptr<Common::HttpRequests::IHttpRequester> client =
-            std::make_shared<Common::HttpRequestsImpl::HttpRequesterImpl>(curlWrapper);
-        Common::HttpRequests::Response httpresponse = client->put(request);
+
+        Common::HttpRequests::Response httpresponse = m_client->put(request);
         std::string filename = Common::FileSystem::basename(info.targetPath);
         response["fileName"] = filename;
         if (httpresponse.errorCode == Common::HttpRequests::ResponseErrorCode::OK)
