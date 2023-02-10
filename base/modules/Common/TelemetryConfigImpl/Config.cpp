@@ -167,9 +167,9 @@ std::vector<std::string> Config::getHeadersForJson() const
 {
     std::vector<std::string> headers;
 
-    for (std::pair<std::string, std::string> header : m_headers)
+    for (auto& [key, value] : m_headers)
     {
-        headers.emplace_back(header.first.append(":" + header.second));
+        headers.emplace_back(key + ":" += value);
     }
     return headers;
 }
@@ -180,7 +180,10 @@ void Config::setHeadersFromJson(const std::vector<std::string>& headers)
     for (const std::string& header : headers)
     {
         std::vector<std::string> splitHeader = Common::UtilityImpl::StringUtils::splitString(header, ":");
-        m_headers[splitHeader[0]] = splitHeader[1];
+        if (splitHeader.size() == 2 && !splitHeader[1].empty())
+        {
+            m_headers[splitHeader[0]] = splitHeader[1];
+        }
     }
 }
 

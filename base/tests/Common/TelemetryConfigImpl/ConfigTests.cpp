@@ -24,7 +24,7 @@ public:
     const unsigned int m_validPort = 300;
     const unsigned int m_invalidPort = 70000;
     const std::string m_jsonString =
-        R"({"additionalHeaders":["header1:data","header2:data"],"externalProcessWaitRetries":2,"externalProcessWaitTime":3,)"
+        R"({"additionalHeaders":["header1:value1","header2:value2"],"externalProcessWaitRetries":2,"externalProcessWaitTime":3,)"
         R"("interval":42,"maxJsonSize":10,)"
         R"("messageRelays":[{"authentication":1,"id":"ID",)"
         R"("password":"CCAcWWDAL1sCAV1YiHE20dTJIXMaTLuxrBppRLRbXgGOmQBrysz16sn7RuzXPaX6XHk=",)"
@@ -45,7 +45,7 @@ public:
         m_config.setInterval(42);
         m_config.setExternalProcessWaitTime(3);
         m_config.setExternalProcessWaitRetries(2);
-        m_config.setHeadersFromJson({ "header1:data", "header2:data" });
+        m_config.setHeadersFromJson({ "header1:value1", "header2:value2" });
         m_config.setMaxJsonSize(10);
         m_config.setPort(m_validPort);
         m_config.setResourceRoot("test");
@@ -74,7 +74,7 @@ public:
         m_jsonObject["verb"] = "PUT";
         m_jsonObject["externalProcessWaitTime"] = 3;
         m_jsonObject["externalProcessWaitRetries"] = 2;
-        m_jsonObject["additionalHeaders"] = { "header1", "header2" }, m_jsonObject["maxJsonSize"] = 10;
+        m_jsonObject["additionalHeaders"] = { "header1:value1", "header2:value2" }, m_jsonObject["maxJsonSize"] = 10;
         m_jsonObject["port"] = m_validPort;
         m_jsonObject["resourceRoot"] = "TEST";
         m_jsonObject["telemetryServerCertificatePath"] = "some/path";
@@ -431,4 +431,34 @@ TEST_F(ConfigTests, buildExeConfigFromSupplementaryConfig) // NOLINT
 
     EXPECT_EQ("", exeConfig.getResourceRoot());
     EXPECT_NE(m_config.getInterval(), exeConfig.getInterval());
+}
+
+TEST_F(ConfigTests, getHeadersForJsonReturnsValidJson) // NOLINT
+{
+    Config config;
+    Common::HttpRequests::Headers additionalHeaders;
+    additionalHeaders["header1"] = "value1";
+    additionalHeaders["header2"] = "value2";
+
+    config.setHeaders(additionalHeaders);
+    config.setPort(m_validPort);
+    config.setResourcePath("test/name");
+    config.setServer("localhost");
+    config.setVerb("GET");
+
+    Config expectedConfig = Config::buildExeConfigFromTelemetryConfig(m_config, "name");
+
+    EXPECT_EQ(config, expectedConfig);
+    EXPECT_EQ(Serialiser::deserialise(Serialiser::serialise(config)), expectedConfig);
+
+    std::vector<std::string> convertedHeaders = {"header1:value1", "header2:value2"};
+    EXPECT_EQ(config.getHeadersForJson(), convertedHeaders);
+}
+
+TEST_F(ConfigTests, setHeadersFromJsonDoesNotThrowWhenConfigIsMalformed) // NOLINT
+{
+    Config c;
+    std::vector<std::string> malformedHeaders = {"header1:", "header2"};
+    EXPECT_NO_THROW(c.setHeadersFromJson(malformedHeaders));
+    EXPECT_EQ(c.getHeaders(), Common::HttpRequests::Headers{});
 }
