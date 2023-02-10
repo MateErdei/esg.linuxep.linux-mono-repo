@@ -55,7 +55,7 @@ namespace ResponseActionsImpl
         if (response["sizeBytes"] > info.maxSize)
         {
             std::stringstream error;
-            error << info.targetPath + " is above the size limit " << info.maxSize <<" bytes";
+            error << "File at path " << info.targetPath + " is size "<< response["sizeBytes"] << " bytes which is above the size limit " << info.maxSize <<" bytes";
             LOGWARN(error.str());
             actionsUtils.setErrorInfo(response,1,error.str(),"exceed_size_limit");
             return response.dump();
@@ -69,13 +69,12 @@ namespace ResponseActionsImpl
         {
             try
             {
-                std::string content = fs->readFile(info.targetPath, 1024 * 1024 * 1024);
-                sha256 = fs->calculateDigest(Common::SslImpl::Digest::sha256, content);
+                sha256 = fs->calculateDigest(Common::SslImpl::Digest::sha256, info.targetPath);
             }
-            catch (const Common::FileSystem::IFileTooLargeException&)
+            catch (const Common::FileSystem::IFileSystemException&)
             {
-                std::string error = "File to be uploaded is being written to and has gone over the max size";
-                actionsUtils.setErrorInfo(response,1,error,"exceed_size_limit");
+                std::string error = "File to be uploaded cannot be accessed";
+                actionsUtils.setErrorInfo(response,1,error,"access_denied");
                 return response.dump();
             }
         }
