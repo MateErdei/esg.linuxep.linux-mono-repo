@@ -33,6 +33,7 @@ endforeach(LIB)
 add_third_party_library(minizip ${MINIZIP_INPUT}/lib)
 add_third_party_library(curl ${CURL_INPUT}/lib64)
 add_third_party_library(expat ${EXPAT_INPUT}/lib64)
+add_third_party_library(zlib  ${ZLIB_INPUT})
 add_third_party_library(zmq ${ZEROMQ_INPUT}/lib)
 
 foreach (LIB crypto ssl)
