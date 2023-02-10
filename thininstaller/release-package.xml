@@ -37,11 +37,6 @@
                              build-id="20220310141901-bdae372a9027e1760f105dc819023a49ef444765-xdQFp9"/>
             <include artifact-path="output" dest-dir="/build/input"/>
         </build-asset>
-        <build-asset project="thirdparty" repo="cmake">
-            <release-version branch="release/sophos/v3.22.1"
-                             build-id="20220412085321-29886e1a6f8ae2867207fa5c4873eaac5c6075a7-VxG3sr"/>
-            <include artifact-path="cmake" dest-dir="/build/input/cmake"/>
-        </build-asset>
         <build-asset project="thirdparty" repo="curl">
             <release-version branch="release/sspl/Version_7_84_0" build-id="20220822152212-f128f504bb954bd08e1b0f48fada7c5a73dc94f8-SnVSla"/>
             <include artifact-path="output" dest-dir="/build/input"/>
@@ -64,6 +59,7 @@
 
         <trusted-asset artifact-path="filer5-migrate/pscerts/1-0-1/67228/ps_certificates/ps_rootca.crt"
                        dest-dir="/build/input/update_certs/."/>
+        <trusted-asset artifact-path="org.cmake/cmake-3.26.0/cmake-3.26.0" dest-dir="/build/input/cmake"/>
     </inputs>
 
     <buildcommands>
