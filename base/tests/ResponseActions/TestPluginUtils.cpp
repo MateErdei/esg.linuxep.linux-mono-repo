@@ -8,15 +8,15 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-class PluginUtilsTests : public MemoryAppenderUsingTests
+class RAPluginUtilsTests : public MemoryAppenderUsingTests
 {
 public:
-    PluginUtilsTests()
+    RAPluginUtilsTests()
         : MemoryAppenderUsingTests("responseactions")
     {}
 };
 
-TEST_F(PluginUtilsTests, invalidActionReturnsEnumNone)
+TEST_F(RAPluginUtilsTests, invalidActionReturnsEnumNone)
 {
     UsingMemoryAppender recorder(*this);
     ResponsePlugin::ActionType type = ResponsePlugin::PluginUtils::getType("");
@@ -24,7 +24,7 @@ TEST_F(PluginUtilsTests, invalidActionReturnsEnumNone)
     EXPECT_TRUE(appenderContains("Cannot parse action with error"));
 }
 
-TEST_F(PluginUtilsTests, ValidUploadFileActionReturnCorrectEnum)
+TEST_F(RAPluginUtilsTests, ValidUploadFileActionReturnCorrectEnum)
 {
     UsingMemoryAppender recorder(*this);
     ResponsePlugin::ActionType type = ResponsePlugin::PluginUtils::getType("{\"type\":\"sophos.mgt.action.UploadFile\"}");
@@ -32,7 +32,7 @@ TEST_F(PluginUtilsTests, ValidUploadFileActionReturnCorrectEnum)
     EXPECT_FALSE(appenderContains("Cannot parse action with error"));
 }
 
-TEST_F(PluginUtilsTests, invalidTypeBoolReturnsEnumThrow)
+TEST_F(RAPluginUtilsTests, invalidTypeBoolReturnsEnumThrow)
 {
     UsingMemoryAppender recorder(*this);
     ResponsePlugin::ActionType type = ResponsePlugin::PluginUtils::getType("{\"type\":false}");
@@ -40,7 +40,7 @@ TEST_F(PluginUtilsTests, invalidTypeBoolReturnsEnumThrow)
     EXPECT_TRUE(appenderContains("Type value: false is not a string"));
 }
 
-TEST_F(PluginUtilsTests, invalidTypeIntReturnsEnumThrow)
+TEST_F(RAPluginUtilsTests, invalidTypeIntReturnsEnumThrow)
 {
     UsingMemoryAppender recorder(*this);
     ResponsePlugin::ActionType type = ResponsePlugin::PluginUtils::getType("{\"type\":1000}");
