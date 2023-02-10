@@ -1,4 +1,5 @@
 o777, root, root, /opt/sophos-spl/plugins/responseactions/bin/responseactions
 o777, root, root, /opt/sophos-spl/plugins/responseactions/bin/uninstall.sh
+o777, root, root, /opt/sophos-spl/plugins/responseactions/lib64/libresponseactionsimpl.so
 o777, root, root, /opt/sophos-spl/plugins/responseactions/lib64/libresponseplugin.so
 o777, root, root, /opt/sophos-spl/plugins/responseactions/VERSION.ini
