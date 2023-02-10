@@ -15,6 +15,7 @@ instances:
               - ssplflags
           event-journaler.latest.x64:
           liveresponse.latest.x64:
+          responseactions.latest.x64:
           runtimedetections.latest.x64:
             supplements:
               - rdrules
