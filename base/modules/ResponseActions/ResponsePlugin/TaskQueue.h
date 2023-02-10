@@ -22,7 +22,7 @@ namespace ResponsePlugin
         std::string m_correlationId="";
     };
 
-    class QueueTask
+    class TaskQueue
     {
         std::mutex m_mutex;
         std::condition_variable m_cond;

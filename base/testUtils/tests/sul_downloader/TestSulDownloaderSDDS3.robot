@@ -178,6 +178,40 @@ Sul Downloader Installs SDDS3 Through Proxy
     Check Sul Downloader log does not contain    Connecting to update source directly
     Log File  ${SOPHOS_INSTALL}/base/pluginRegistry/updatescheduler.json
 
+SDDS3 updates supplements
+    Start Local Cloud Server  --initial-alc-policy  ${SUPPORT_FILES}/CentralXml/ALC_policy_direct_just_base.xml
+    Generate Warehouse From Local Base Input
+    ${handle}=  Start Local SDDS3 server with fake files
+    Set Suite Variable    ${GL_handle}    ${handle}
+    Setup Install SDDS3 Base
+
+    Create File    ${MCS_DIR}/certs/ca_env_override_flag
+    Create Local SDDS3 Override
+    # should be purged before SDDS3 sync
+    Register With Local Cloud Server
+    Wait Until Keyword Succeeds
+    ...    10s
+    ...    1s
+    ...    Log File    ${UPDATE_CONFIG}
+    ${content}=  Get File    ${UPDATE_CONFIG}
+    File Should Contain  ${UPDATE_CONFIG}     JWToken
+    Trigger Update Now
+    Wait Until Keyword Succeeds
+    ...    60s
+    ...    5s
+    ...    Check SulDownloader Log Contains  Update success
+
+    File Should Not Contain  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json  "tests"
+    Generate Warehouse From Local Base Input  "{\"tests\":\"false\"}"
+    Setup Dev Certs for sdds3
+    Trigger Update Now
+    Wait Until Keyword Succeeds
+    ...    80s
+    ...    5s
+    ...    Check Log Contains String At Least N Times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  2
+    File Should Contain  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json  tests
+
+
 Sul Downloader Installs SDDS3 Through update cache
     write_ALC_update_cache_policy   ${SUPPORT_FILES}/https/ca/root-ca.crt.pem
     Start Local Cloud Server  --initial-alc-policy  /tmp/ALC_policy.xml

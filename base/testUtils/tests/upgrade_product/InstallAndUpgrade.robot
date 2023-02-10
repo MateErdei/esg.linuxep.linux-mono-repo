@@ -79,7 +79,7 @@ We Can Install From A Ballista Warehouse
     ${ballista_policy} =  Create Ballista Config From Template Policy  ${policy_template}  ${username}  ${password}
     Log File  ${ballista_policy}
 
-    Start Local Cloud Server  --initial-alc-policy  ${ballista_policy}
+    Start Local Cloud Server  --initial-alc-policy  ${ballista_policy}   --initial-flags  ${SUPPORT_FILES}/CentralXml/FLAGS_sdds2.json
 
     Log File  /etc/hosts
     Configure And Run Thininstaller Using Real Warehouse Policy  0  ${ballista_policy}
@@ -749,7 +749,7 @@ Ensure Supplement Updates Only Perform A Supplement Update
     [Timeout]    20 minutes
 
     ## This policy has a weekly schedule for 3am yesterday
-    Start Local Cloud Server  --initial-alc-policy  ${BaseOnlyVUT_weekly_schedule_Policy}
+    Start Local Cloud Server  --initial-alc-policy  ${BaseOnlyVUT_weekly_schedule_Policy}    --initial-flags  ${SUPPORT_FILES}/CentralXml/FLAGS_sdds2.json
 
     Log File  /etc/hosts
     Log File  ${BaseOnlyVUT_weekly_schedule_Policy}
@@ -787,7 +787,7 @@ Ensure Supplement Updates Only Perform A Supplement Update
 Test That Only Subscriptions Appear As Subscriptions In ALC Status File
     [Tags]  INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
 
-    Start Local Cloud Server  --initial-alc-policy  ${BaseAndMtrVUTPolicy}
+    Start Local Cloud Server  --initial-alc-policy  ${BaseAndMtrVUTPolicy}  --initial-flags  ${SUPPORT_FILES}/CentralXml/FLAGS_sdds2.json
 
     Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndMtrVUTPolicy}
 
@@ -802,7 +802,7 @@ Test That Only Subscriptions Appear As Subscriptions In ALC Status File
 Check Installed Version In Status Message Is Correctly Reported Based On Version Ini File
     [Tags]  INSTALLER  THIN_INSTALLER  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
     # Setup for test.
-    Start Local Cloud Server  --initial-alc-policy  ${BaseAndMtrVUTPolicy}
+    Start Local Cloud Server  --initial-alc-policy  ${BaseAndMtrVUTPolicy}   --initial-flags  ${SUPPORT_FILES}/CentralXml/FLAGS_sdds2.json
 
     Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndMtrVUTPolicy}
     Wait Until Keyword Succeeds

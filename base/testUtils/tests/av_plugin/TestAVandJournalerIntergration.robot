@@ -206,6 +206,7 @@ Setup Event Journaler End To End
     Register With Fake Cloud
     Install EDR Directly
     Create Query Packs
+    Restart EDR Plugin
     Register Cleanup   Cleanup Query Packs
     Install Event Journaler Directly
     Install AV Plugin Directly

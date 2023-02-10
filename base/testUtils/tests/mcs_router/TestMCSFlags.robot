@@ -20,7 +20,11 @@ Force Tags  LOAD3
 
 *** Test Case ***
 MCS creates and updates flags file
-    Install Register And Wait First MCS Policy
+    Start Local Cloud Server   --initial-flags  ${SUPPORT_FILES}/CentralXml/FLAGS_testflags.json
+    Register With Local Cloud Server
+    Check Correct MCS Password And ID For Local Cloud Saved
+    Start MCSRouter
+    Wait New MCS Policy Downloaded
     Wait Until Keyword Succeeds
       ...  10 secs
       ...  1 secs
@@ -50,7 +54,11 @@ MCS creates and updates flags file
 
 MCS Combines Flags Files
     Create File  /opt/sophos-spl/base/etc/sophosspl/flags-warehouse.json  {"livequery.network-tables.available" : "true","endpoint.flag3.enabled" : "always","endpoint.flag4.enabled" : "true", "endpoint.flag5.enabled" : "always"}
-    Install Register And Wait First MCS Policy
+    Start Local Cloud Server  --initial-flags  ${SUPPORT_FILES}/CentralXml/FLAGS_testflags.json
+    Register With Local Cloud Server
+    Check Correct MCS Password And ID For Local Cloud Saved
+    Start MCSRouter
+    Wait New MCS Policy Downloaded
     Wait Until Keyword Succeeds
           ...  10 secs
           ...  1 secs

@@ -32,6 +32,10 @@ Install AV Plugin Directly
     Log  ${result.stderr}
     Log  ${result.stdout}
     Check AV Plugin Installed Directly
+    Wait Until Keyword Succeeds
+    ...  15 secs
+    ...  1 secs
+    ...  AV Plugin Log Contains  <> Starting Scan Scheduler
 
 Install Virus data
     Get Av Supplements
@@ -46,10 +50,6 @@ Check AV Plugin Installed Directly
     ...  15 secs
     ...  1 secs
     ...  Check AV Plugin Running
-    Wait Until Keyword Succeeds
-    ...  15 secs
-    ...  1 secs
-    ...  AV Plugin Log Contains  <> Starting scanScheduler
 
 Check AV Plugin Running
     ${result} =    Run Process  pgrep  -f  ${PLUGIN_BINARY}
@@ -122,7 +122,7 @@ Enable On Access Via Policy
     wait for on access log contains after mark   On-access scanning enabled  mark=${mark}
 
 Create Query Packs
-    ${pack_content} =  Set Variable   {"query": "select * from uptime;","interval": 2, "denylist": false}
+    ${pack_content} =  Set Variable   {"query": "select * from uptime;","interval": 100, "denylist": false}
     Create File   ${QUERY_PACKS_PATH}/sophos-scheduled-query-pack.conf   {"schedule": {"latest_xdr_query": ${pack_content}}}
     Create File   ${QUERY_PACKS_PATH}/sophos-scheduled-query-pack.mtr.conf   {"schedule": {"latest_mtr_query": ${pack_content}}}
     Create File   ${QUERY_PACKS_PATH}/sophos-scheduled-query-pack-next.conf    {"schedule": {"next_xdr_query": ${pack_content}}}

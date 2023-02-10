@@ -648,6 +648,18 @@ class CorcEndpointManager(object):
 
     def getPolicy(self):
         return self.__m_policy
+
+class FlagsEndpointManager(object):
+    def __init__(self):
+        self.__m_policy = INITIAL_FLAGS
+
+    def updateFlags(self, body):
+        self.__m_policy = body
+        logger.info("Updating flags: %s",self.__m_policy)
+
+    def getFlags(self):
+        return self.__m_policy
+
 class Endpoint(object):
     def __init__(self, status):
         global ID
@@ -666,6 +678,7 @@ class Endpoint(object):
         self.__mdr = MDREndpointManager()
         self.__livequery = LiveQueryEndpointManager()
         self.__corc = CorcEndpointManager()
+        self.__flags = FlagsEndpointManager()
         self.__m_doc = None
         self.__m_health = 0
         self.__m_updatesource = None
@@ -1059,6 +1072,12 @@ class Endpoint(object):
     def setQuery(self, query, command_id):
         self.__edr.setQuery(query, command_id)
 
+    def setFlags(self,flags):
+        self.__flags.updateFlags(flags)
+
+    def getFlags(self):
+        return self.__flags.getFlags()
+
     def initiateLiveTerminal(self, body, command_id):
         self.__liveTerminal.initiateLiveTerminal(body, command_id)
 
@@ -1217,6 +1236,14 @@ class Endpoints(object):
         assert adapter == "LiveQuery"
         for e in self.__m_endpoints.values():
             e.setQuery(query, command_id)
+
+    def setFlags(self,flags):
+        for e in self.__m_endpoints.values():
+            e.setFlags(flags)
+
+    def getFlags(self):
+        for e in self.__m_endpoints.values():
+            return e.getFlags()
 
     def setOnAccess(self, enable):
         for e in self.__m_endpoints.values():
@@ -1409,23 +1436,7 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
         return self.ret(commands)
 
     def mcs_flags(self):
-        flag_file_path = os.path.join("/tmp", "mcs_flags")
-        if os.path.isfile(flag_file_path):
-            logger.info(f"Getting flags from {flag_file_path}")
-            with open(flag_file_path) as flag_file:
-                return self.ret(flag_file.read())
-        logger.info(f"Using default flags")
-        FLAGS = r"""{
-  "livequery.network-tables.available" : true,
-  "endpoint.flag2.enabled" : false,
-  "endpoint.flag3.enabled" : false,
-  "jwt-token.available" : true,
-  "mcs.v2.data_feed.available": true,
-  "av.onaccess.enabled": true,
-  "safestore.enabled": true
-}
-"""
-        return self.ret(FLAGS)
+        return self.ret(GL_ENDPOINTS.getFlags())
 
     def mcs_jwt_token(self):
         if FAIL_JWT:
@@ -2032,6 +2043,8 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
         elif self.path.lower() == "/controller/livequery/command":
             command_id = self.headers.get("Command-ID")
             GL_ENDPOINTS.setQuery("LiveQuery", self.getBody(), command_id)
+        elif self.path.lower() == "/controller/flags":
+            GL_ENDPOINTS.setFlags(self.getBody())
         else:
             logger.warn("unknown do_PUT_controller: %s", self.path)
             message = "<html><body>UNKNOWN PUT REQUEST</body></html>"
@@ -2203,6 +2216,7 @@ def setDefaultPolicies(options):
     global INITIAL_LIVEQUERY_POLICY
     global INITIAL_CORE_POLICY
     global INITIAL_CORC_POLICY
+    global INITIAL_FLAGS
 
     with open(options.INITIAL_ALC_POLICY) as policy_file:
         INITIAL_ALC_POLICY = policy_file.read()
@@ -2225,6 +2239,8 @@ def setDefaultPolicies(options):
     with open(options.INITIAL_CORC_POLICY) as policy_file:
         INITIAL_CORC_POLICY = policy_file.read()
 
+    with open(options.INITIAL_FLAGS) as policy_file:
+        INITIAL_FLAGS = policy_file.read()
 def main(argv):
     try:
         setupLogging()

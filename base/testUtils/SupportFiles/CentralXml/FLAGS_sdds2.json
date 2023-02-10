@@ -1,0 +1,6 @@
+{"livequery.network-tables.available" : true,
+"jwt-token.available" : true,
+"mcs.v2.data_feed.available": true,
+"av.onaccess.enabled": true,
+"safestore.enabled": true
+}

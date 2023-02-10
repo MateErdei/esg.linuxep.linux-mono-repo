@@ -523,7 +523,7 @@ Install master of base and edr and mtr and upgrade to base 999 using SDDS2
 
 
 Install Base And Edr Vut Then Transition To Base Edr And Mtr Vut using SDDS2
-    Start Local Cloud Server  --initial-alc-policy  ${BaseAndEdrVUTPolicy}
+    Start Local Cloud Server  --initial-alc-policy  ${BaseAndEdrVUTPolicy}  --initial-flags  ${SUPPORT_FILES}/CentralXml/FLAGS_sdds2.json
     ${statusPath}=  Set Variable  ${MCS_DIR}/status/ALC_status.xml
     Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndEdrVUTPolicy}
 
@@ -580,7 +580,7 @@ Install Base And Edr Vut Then Transition To Base Edr And Mtr Vut using SDDS2
     Check All Product Logs Do Not Contain Critical
 
 Install Base Edr And Mtr Vut Then Transition To Base Edr Vut using SDDS2
-    Start Local Cloud Server  --initial-alc-policy  ${BaseAndEdrAndMtrVUTPolicy}
+    Start Local Cloud Server  --initial-alc-policy  ${BaseAndEdrAndMtrVUTPolicy}  --initial-flags  ${SUPPORT_FILES}/CentralXml/FLAGS_sdds2.json
     Log File  /etc/hosts
     Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseAndEdrAndMtrVUTPolicy}
     Override Local LogConf File Using Content  [global]\nVERBOSITY = DEBUG\n

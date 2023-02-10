@@ -15,7 +15,7 @@ Default Tags    SULDOWNLOADER    FAULTINJECTION
 
 *** Test Cases ***
 SulDownloader Updates Via SDDS2 When useSDDS3 is Missing In Update Config
-    Start Local Cloud Server  --initial-alc-policy  ${GeneratedWarehousePolicies}/base_edr_and_mtr_and_av_VUT.xml
+    Start Local Cloud Server  --initial-alc-policy  ${GeneratedWarehousePolicies}/base_edr_and_mtr_and_av_VUT.xml  --initial-flags  ${SUPPORT_FILES}/CentralXml/FLAGS_sdds2.json
     ${handle}=  Start Local SDDS3 Server
     Set Suite Variable    ${GL_handle}    ${handle}
 
@@ -42,7 +42,7 @@ SulDownloader Updates Via SDDS2 When useSDDS3 is Missing In Update Config
 
 SulDownloader Fails Update When SDDS3 Enabled Flag Is Not A Bool
     [Timeout]  10 minutes
-    Start Local Cloud Server    --initial-alc-policy    ${GeneratedWarehousePolicies}/base_edr_and_mtr_and_av_VUT.xml
+    Start Local Cloud Server    --initial-alc-policy    ${GeneratedWarehousePolicies}/base_edr_and_mtr_and_av_VUT.xml  --initial-flags  ${SUPPORT_FILES}/CentralXml/FLAGS_sdds2.json
     ${handle}=  Start Local SDDS3 Server
     Set Suite Variable    ${GL_handle}    ${handle}
 

@@ -629,7 +629,7 @@ We Can Downgrade From VUT to Release Without Unexpected Errors
     ...  SHS Status File Contains  ${HealthyShsStatusXmlContents}
 
 Sul Downloader Can Update Via Sdds3 Repository And Removes Local SDDS2 Cache
-    Start Local Cloud Server  --initial-alc-policy  ${BaseEdrAndMtrAndAVVUTPolicy}
+    Start Local Cloud Server  --initial-alc-policy  ${BaseEdrAndMtrAndAVVUTPolicy}   --initial-flags  ${SUPPORT_FILES}/CentralXml/FLAGS_sdds2.json
     ${handle}=  Start Local SDDS3 Server
     Set Suite Variable    ${GL_handle}    ${handle}
 
@@ -688,9 +688,7 @@ SDDS3 updating respects ALC feature codes
     ...   150 secs
     ...   10 secs
     ...   Check SulDownloader Log Contains String N Times   Update success  2
-    Check Local SDDS2 Cache Has Contents
 
-    Create Local SDDS3 Override
     Send Policy File  alc  ${SUPPORT_FILES}/CentralXml/ALC_CORE_only_feature_code.policy.xml  wait_for_policy=${True}
     Mark Sul Log
     Trigger Update Now
@@ -789,7 +787,7 @@ SDDS3 updating when warehouse files have not changed does not extract the zip fi
 
 
 We can Install With SDDS3 Perform an SDDS2 Initial Update With SDDS3 Flag False Then Update Using SDDS3 When Flag Turns True
-    Start Local Cloud Server  --initial-alc-policy  ${BaseEdrAndMtrAndAVVUTPolicy}
+    Start Local Cloud Server  --initial-alc-policy  ${BaseEdrAndMtrAndAVVUTPolicy}  --initial-flags  ${SUPPORT_FILES}/CentralXml/FLAGS_sdds2.json
     ${handle}=  Start Local SDDS3 Server
     Set Suite Variable    ${GL_handle}    ${handle}
 
@@ -835,18 +833,6 @@ We can Install With SDDS3 Perform an SDDS2 Initial Update With SDDS3 Flag False 
 
 
 We can Install With SDDS3 Perform an SDDS3 Initial Update With SDDS3 Flag True Then Update Using SDDS2 When Flag Turns False
-    [Teardown]    Test Teardown With Ostia And Fake Cloud MCS Flag Override
-    ${desired_flags} =     Catenate    SEPARATOR=\n
-    ...  {
-    ...    "livequery.network-tables.available" : true,
-    ...    "endpoint.flag2.enabled" : false,
-    ...    "endpoint.flag3.enabled" : false,
-    ...    "jwt-token.available" : true,
-    ...    "mcs.v2.data_feed.available": true,
-    ...    "sdds3.enabled": true
-    ...  }
-
-    Create File  /tmp/mcs_flags  ${desired_flags}
     Start Local Cloud Server  --initial-alc-policy  ${BaseEdrAndMtrAndAVVUTPolicy}
     ${handle}=  Start Local SDDS3 Server
     Set Suite Variable    ${GL_handle}    ${handle}
@@ -922,7 +908,7 @@ Consecutive SDDS3 Updates Without Changes Should Not Trigger Additional Installa
 
 
 During Transition From SDDS3 to SDDS2 SDDS3 Cache Is Removed Before Downloading SDDS2 Files
-    Start Local Cloud Server  --initial-alc-policy  ${BaseEdrAndMtrAndAVVUTPolicy}
+    Start Local Cloud Server  --initial-alc-policy  ${BaseEdrAndMtrAndAVVUTPolicy}  --initial-flags  ${SUPPORT_FILES}/CentralXml/FLAGS_sdds2.json
     ${handle}=  Start Local SDDS3 Server
     Set Suite Variable    ${GL_handle}    ${handle}
 
@@ -991,7 +977,7 @@ Schedule Query Pack Next Exists in SDDS3 and is Equal to Schedule Query Pack
 
 SDDS3 Mechanism Is Updated in UpdateScheduler Telemetry After Successful Update To SDDS3
     Cleanup Telemetry Server
-    Start Local Cloud Server  --initial-alc-policy  ${BaseEdrAndMtrAndAVVUTPolicy}
+    Start Local Cloud Server  --initial-alc-policy  ${BaseEdrAndMtrAndAVVUTPolicy}  --initial-flags  ${SUPPORT_FILES}/CentralXml/FLAGS_sdds2.json
     ${handle}=  Start Local SDDS3 Server
     Set Suite Variable    ${GL_handle}    ${handle}
     Configure And Run SDDS3 Thininstaller  0  https://localhost:8080   https://localhost:8080
@@ -1049,9 +1035,6 @@ Test Teardown With Ostia
     Teardown Ostia Warehouse Environment
     Test Teardown
 
-Test Teardown With Ostia And Fake Cloud MCS Flag Override
-    Test Teardown With Ostia
-    Remove File  /tmp/mcs_flags
 
 Create Dummy Local SDDS2 Cache Files
     Create File         ${sdds2_primary}/1

@@ -43,10 +43,11 @@ Check Suldownloader Is Not Running
     ${result} =    Run Process  pgrep SulDownloader  shell=true
     Should Be Equal As Integers    ${result.rc}    1       msg="stdout:${result.stdout}\nerr: ${result.stderr}"
 
+Setup Dev Certs for sdds3
+    Copy File  ${SUPPORT_FILES}/sophos_certs/rootca384.crt  ${SOPHOS_INSTALL}/base/update/rootcerts/devrootca384.crt
 
 Setup Install SDDS3 Base
     Require Fresh Install
     Remove File    ${SOPHOS_INSTALL}/base/VERSION.ini.0
     Copy File  ${SYSTEMPRODUCT_TEST_INPUT}/sspl-base/VERSION.ini  ${SOPHOS_INSTALL}/base/VERSION.ini.0
-    Remove File    ${SOPHOS_INSTALL}/base/update/rootcerts/rootca384.crt.0
-    Copy File  ${SUPPORT_FILES}/sophos_certs/rootca384.crt  ${SOPHOS_INSTALL}/base/update/rootcerts/rootca384.crt.0
+    Setup Dev Certs for sdds3

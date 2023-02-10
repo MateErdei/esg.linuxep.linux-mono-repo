@@ -25,7 +25,7 @@ Test SSPL Will Updated To A Fixed Version When Paused Updating Is Activated And 
     [Timeout]  10mins
     [Tags]  PAUSED_UPDATE  INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA  EXCLUDE_UBUNTU20
     [Teardown]  Test Teardown And Replace Policy
-    Start Local Cloud Server  --initial-alc-policy  ${BaseOnlyVUTPolicy}
+    Start Local Cloud Server  --initial-alc-policy  ${BaseOnlyVUTPolicy}  --initial-flags  ${SUPPORT_FILES}/CentralXml/FLAGS_sdds2.json
 
     Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseOnlyVUTPolicy}
 

@@ -1,16 +1,16 @@
 // Copyright 2023 Sophos Limited. All rights reserved.
 
-#include "QueueTask.h"
+#include "TaskQueue.h"
 namespace ResponsePlugin
 {
-    void QueueTask::push(const Task& task)
+    void TaskQueue::push(const Task& task)
     {
         std::lock_guard<std::mutex> lck(m_mutex);
         m_list.push_back(task);
         m_cond.notify_one();
     }
 
-    Task QueueTask::pop()
+    Task TaskQueue::pop()
     {
         std::unique_lock<std::mutex> lck(m_mutex);
         m_cond.wait(lck, [this] { return !m_list.empty(); });
@@ -19,7 +19,7 @@ namespace ResponsePlugin
         return val;
     }
 
-    bool QueueTask::pop(Task& task, int timeout)
+    bool TaskQueue::pop(Task& task, int timeout)
     {
         std::unique_lock<std::mutex> lock(m_mutex);
         std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
@@ -37,7 +37,7 @@ namespace ResponsePlugin
         return true;
     }
 
-    void QueueTask::pushStop()
+    void TaskQueue::pushStop()
     {
         Task stopTask{ .m_taskType = Task::TaskType::STOP, .m_content = "" };
         push(stopTask);

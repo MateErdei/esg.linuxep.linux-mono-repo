@@ -615,6 +615,20 @@ class MCSRouter(object):
             else:
                 raise AssertionError(f"Policy {policy_path} not written to policy dir within 10 seconds")
 
+    def send_flags(self, data):
+        headers = {"Content-type": "application/octet-stream", "Accept": "text/plain"}
+
+        # Open HTTPS connection to fake cloud at https://127.0.0.1:4443
+        conn = http.client.HTTPSConnection("127.0.0.1","4443", context=ssl._create_unverified_context())
+        conn.request("PUT", "/controller/flags", data.encode('utf-8'), headers)
+        conn.getresponse()
+        conn.close()
+
+    def send_mcs_flags_file(self, flags_path):
+        f = open(flags_path, 'r')
+        flags_contents = f.read()
+        self.send_flags(flags_contents)
+
     def send_fake_alc_policy(self):
         data = DUMMY_ALC_POLICY
         self.send_policy("alc", data)
