@@ -305,6 +305,52 @@ static std::vector<ServerAddress> extractPrioritisedAddresses(const std::string&
     return proxies;
 }
 
+static std::vector<MCS::MessageRelay> extractRelays(const std::string& deliminated_addresses)
+{
+    std::vector<MCS::MessageRelay> relays;
+    std::vector<std::string> proxyStrings = splitString(deliminated_addresses, ";");
+    for (auto& proxyString : proxyStrings)
+    {
+        std::vector<std::string> addressAndPriority = splitString(proxyString, ",");
+        if (addressAndPriority.size() < 2)
+        {
+            logError("Malformed proxy,priority,id: " + proxyString);
+            continue;
+        }
+
+
+        std::vector<std::string> addressAndPort = splitString(addressAndPriority[0], ":");
+        if (addressAndPriority.size() != 2)
+        {
+            logError("Malformed address:port: " + addressAndPriority[0]);
+            continue;
+        }
+        std::string address = addressAndPort[0];
+        std::string port = addressAndPort[1];
+        std::string priorityString = addressAndPriority[1];
+        std::string id = addressAndPriority[2];
+        int priority = 1;
+        try
+        {
+            priority = std::stoi(priorityString);
+        }
+        catch (...)
+        {
+            logError("Malformed priority (" + priorityString + ") for proxy defaulting to 1");
+            continue;
+        }
+        MCS::MessageRelay relay;
+        relay.address = address;
+        relay.priority = priority;
+        relay.port = port;
+        relay.id = id;
+        relays.push_back(relay);
+    }
+    std::stable_sort(relays.begin(), relays.end(), [](const MCS::MessageRelay& p1, const MCS::MessageRelay& p2) {
+                         return p1.priority < p2.priority;
+                     });
+    return relays;
+}
 int main(int argc, char** argv)
 {
     g_DebugMode = static_cast<bool>(getenv("DEBUG_THIN_INSTALLER"));
@@ -347,6 +393,7 @@ int main(int argc, char** argv)
     }
 
     std::vector<ServerAddress> relays;
+    std::vector<MCS::MessageRelay> relaysForConfig;
     std::vector<ServerAddress> update_caches;
 
     while (!feof(f))
@@ -376,6 +423,7 @@ int main(int argc, char** argv)
             else if (argname == "MESSAGE_RELAYS")
             {
                 relays = extractPrioritisedAddresses(argvalue);
+                relaysForConfig = extractRelays(argvalue);
             }
             else if (argname == "UPDATE_CACHES")
             {
@@ -475,6 +523,17 @@ int main(int argc, char** argv)
         policyOptions.config[MCS::TENANT_ID] = jwt[MCS::TENANT_ID];
         policyOptions.config[MCS::DEVICE_ID] = jwt[MCS::DEVICE_ID];
         policyOptions.config["jwt_token"] = jwt[MCS::JWT_TOKEN];
+
+        int i = 0;
+        for (auto const& messagerelay: relaysForConfig)
+        {
+            std::string key = std::to_string(i);
+            ++i;
+            policyOptions.config["message_relay_priority"+key] = messagerelay.priority;
+            policyOptions.config["message_relay_port"+key] = messagerelay.port;
+            policyOptions.config["message_relay_address"+key] = messagerelay.address;
+            policyOptions.config["message_relay_id"+key] = messagerelay.id;
+        }
 
         rootConfigOptions.config[MCS::MCS_ID] = "";
         rootConfigOptions.config[MCS::MCS_PASSWORD] = "";
