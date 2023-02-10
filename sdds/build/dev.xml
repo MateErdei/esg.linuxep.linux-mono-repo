@@ -23,7 +23,9 @@
         <include artifact-path="sspl-base-999/SDDS-COMPONENT" dest-dir="redist/sspl-base" mode="release-package-base-999,release-package-edr-mdr-999"/>
         <include artifact-path="sspl-base-060/SDDS-COMPONENT" dest-dir="redist/sspl-base" mode="release-package-060"/>
           <include artifact-path="sspl-base/SDDS3-PACKAGE" dest-dir="redist/base/latest/x64" mode="dev"/>
+          <include artifact-path="sspl-base/RA-SDDS3-PACKAGE" dest-dir="redist/responseactions/latest/x64" mode="dev"/>
           <include artifact-path="sspl-base-999/SDDS3-PACKAGE" dest-dir="redist/base/latest/x64" mode="999"/>
+          <include artifact-path="sspl-base-999/RA-SDDS3-PACKAGE" dest-dir="redist/responseactions/latest/x64" mode="999"/>
       </build-asset>
 
       <build-asset project="linuxep" repo="runtimedetections" mode="release-package,release-package-query-pack,release-package-base-999,release-package-edr-999,release-package-mdr-999,release-package-edr-mdr-999,release-package-060,dev,999">
@@ -96,9 +98,8 @@
           <release-version branch="release/scheduled_query_pack/1.13" build-id="20220824140550-05ec7c0da54e978fa40839ee052374983a4a057a-JbkaIM"/>
           <development-version branch="develop" />
           <include artifact-path="scheduled-query-pack-sdds" dest-dir="redist/scheduled-query-pack-sdds" mode="release-package-mdr-999,release-package-edr-mdr-999,release-package-060,release-package-edr-999,release-package,release-package-base-999"/>
-          <include artifact-path="scheduled-query-pack-scit" dest-dir="inputs/supplements/scheduled-query-pack" mode="dev,999,prod"/>
+          <include artifact-path="scheduled-query-pack-scit" dest-dir="inputs/supplements/scheduled-query-pack" mode="dev,prod,999"/>
       </build-asset>
-
         <build-asset project="linuxep" repo="sspl-flags">
             <release-version branch="release/2023-1" build-id="20221110132249-4d8f64b248ffbad913fae69834246afcbbcedab6-c2UMnV"/>
             <development-version branch="develop"/>

@@ -243,7 +243,7 @@ class SDDS3RequestHandler(SimpleHTTPRequestHandler):
 
         data = json.dumps({
             'suites': suites,
-            'release-groups': ['0'],
+            'release-groups': ['0','GranularInitial'],
         }).encode('utf-8')
 
         self.log_message('Signing LaunchDarkly SUS response...')

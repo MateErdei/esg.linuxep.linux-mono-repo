@@ -34,3 +34,7 @@ runtimedetections.latest.x64:
   prod-artifact: esg-releasable-candidate/linuxep.capsule8-sensor/release--sensor--version_5_4_0/20221222183153-58344da92769aea65c0be47e43f5fb25721c7a0e-PIVnFT/SDDS3-PACKAGE/
   line-id: ServerProtectionLinux-Plugin-RuntimeDetections
   mountpoint: ServerProtectionLinux-Plugin-RuntimeDetections
+responseactions.latest.x64:
+#  prod-artifact:
+  line-id: ServerProtectionLinux-Plugin-responseactions
+  mountpoint: ServerProtectionLinux-Plugin-responseactions
