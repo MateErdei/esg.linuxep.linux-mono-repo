@@ -649,9 +649,10 @@ cp "$CERT" "${SOPHOS_INSTALL}/base/update/rootcerts/rootca384.crt"
 [ -n "$SDDS3_USE_HTTP" ] && echo "USE_HTTP = true" >> "${SOPHOS_INSTALL}/base/update/var/sdds3_override_settings.ini"
 [ -n "$USE_SDDS3" ] && echo "USE_SDDS3 = true" >> "${SOPHOS_INSTALL}/base/update/var/sdds3_override_settings.ini"
 
-#copy mcs files in pace to base
+#copy mcs files in place to base
 cp mcs.config  "${SOPHOS_INSTALL}/base/etc"
 cp mcsPolicy.config  "${SOPHOS_INSTALL}/base/etc/sophosspl/mcs.config"
+cp mcs_policy.config  "${SOPHOS_INSTALL}/base/etc/sophosspl/mcs_policy.config"
 
 if [[ -n ${https_proxy} ]]
 then

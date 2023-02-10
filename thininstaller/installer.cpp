@@ -525,20 +525,22 @@ int main(int argc, char** argv)
         policyOptions.config["jwt_token"] = jwt[MCS::JWT_TOKEN];
 
         int i = 1;
+        MCS::ConfigOptions MsgConfig;
         for (auto const& messagerelay: relaysForConfig)
         {
             std::string key = std::to_string(i);
             ++i;
-            policyOptions.config["message_relay_priority"+key] = messagerelay.priority;
-            policyOptions.config["message_relay_port"+key] = messagerelay.port;
-            policyOptions.config["message_relay_address"+key] = messagerelay.address;
-            policyOptions.config["message_relay_id"+key] = messagerelay.id;
+            MsgConfig.config["message_relay_priority"+key] = messagerelay.priority;
+            MsgConfig.config["message_relay_port"+key] = messagerelay.port;
+            MsgConfig.config["message_relay_address"+key] = messagerelay.address;
+            MsgConfig.config["message_relay_id"+key] = messagerelay.id;
         }
 
         rootConfigOptions.config[MCS::MCS_ID] = "";
         rootConfigOptions.config[MCS::MCS_PASSWORD] = "";
         rootConfigOptions.writeToDisk("./mcs.config");
         policyOptions.writeToDisk("./mcsPolicy.config");
+        MsgConfig.writeToDisk("./mcs_policy.config");
         std::string versigPath = Common::FileSystem::join( fs->currentWorkingDirectory(),"installer/bin/versig");
         nlohmann::json j;
         //Dummy values for now
