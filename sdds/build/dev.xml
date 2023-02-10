@@ -122,13 +122,10 @@
 
         <!-- sdds3 only-->
         <build-asset project="em" repo="esg" mode="dev,999,prod">
-            <release-version branch="release/bazeltools" build-id="20220209132531-8fe21319f1312c7db02ef2c8f0a2750603df2f54-LvLU7i"/>
-            <include artifact-path="bazel-tools" dest-dir="." />
-        </build-asset>
-        <build-asset project="winep" repo="sau" mode="dev,999,prod">
             <!-- Import a specific release version of SDDS3 tools, because we don't want the sdds3 repo rebuilding for each SAU build. -->
-            <release-version branch="release--LINUXDAR-2022-12" build-id="20220302174339-8b76fb6e86387f1129318420fa531163b0fcb708-AM08eB"/>
-            <include artifact-path="Linux-x64/SDDS3-Utils" dest-dir="redist/sdds3"/>
+            <release-version branch="release--2023.04.1--sprint" build-id="20230207145141-775465470cd8579d3d451d6287e19d570b6fe863-A8vT3z"/>
+            <include artifact-path="bazel-tools" dest-dir="." />
+            <include artifact-path="sophlib/sdds3-tools-x64-linux" dest-dir="redist/sdds3"/>
         </build-asset>
         <!-- gcc -->
         <build-asset project="thirdparty" repo="gcc">
