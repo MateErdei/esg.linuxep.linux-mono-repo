@@ -50,6 +50,15 @@ def args():
         yield ""
 
 
+def set_or_add_base_ami(tags, ami):
+    for tag in tags:
+        if tag['Key'] == "BaseAmi":
+            tag['Value'] = ami
+            return
+
+    tags.append({ "Key": "BaseAmi", "Value": ami})
+
+
 def main():
     with open("sspl-system.template") as main_template_file:
         main_template_json = json.loads(main_template_file.read())
@@ -64,12 +73,14 @@ def main():
                                                          .replace("@SLICE@", str(index))
                                         )
             tags = json_with_args["Properties"]["Tags"]
+            ami = json_with_args["Properties"]["ImageId"]
             tags.extend(
                 [
                     { "Key": "Hostname", "Value": hostname},
                     { "Key": "Slice", "Value": str(index)}
                 ]
             )
+            set_or_add_base_ami(tags, ami)
             main_template_json["Resources"][unique_template_name] = json_with_args
 
     with open("sspl-system.template.with_args", "w") as outFile:
