@@ -154,7 +154,7 @@ TEST_F(UploadFileTests, FailureDueToTimeout)
     std::string response = uploadFileAction.run(action.dump());
     nlohmann::json responseJson = nlohmann::json::parse(response);
     EXPECT_EQ(responseJson["result"],2);
-    EXPECT_EQ(responseJson["httpStatus"],-1);
+    EXPECT_EQ(responseJson["httpStatus"],500);
     EXPECT_EQ(responseJson["errorMessage"],"Timeout Uploading file: path");
 }
 
@@ -163,7 +163,7 @@ TEST_F(UploadFileTests, FailureDueToNetworkError)
     auto httpRequester = std::make_shared<StrictMock<MockHTTPRequester>>();
     Common::HttpRequests::Response httpresponse;
     httpresponse.status = 500;
-    httpresponse.errorCode = Common::HttpRequests::ResponseErrorCode::TIMEOUT;
+    httpresponse.errorCode = Common::HttpRequests::ResponseErrorCode::FAILED;
     EXPECT_CALL(*httpRequester, put(_)).WillOnce(Return(httpresponse));
     ResponseActionsImpl::UploadFileAction uploadFileAction(httpRequester);
     nlohmann::json action = getDefaultUploadObject();
@@ -178,6 +178,6 @@ TEST_F(UploadFileTests, FailureDueToNetworkError)
     nlohmann::json responseJson = nlohmann::json::parse(response);
     EXPECT_EQ(responseJson["result"],1);
     EXPECT_EQ(responseJson["httpStatus"],500);
-    EXPECT_EQ(responseJson["errorMessage"],"Failed to upload file:  path");
+    EXPECT_EQ(responseJson["errorMessage"],"Failed to upload file: path with error code 500");
     EXPECT_EQ(responseJson["errorType"],"network_error");
 }

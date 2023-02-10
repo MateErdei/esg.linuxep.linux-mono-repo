@@ -16,18 +16,20 @@ Default Tags   RESPONSE_ACTIONS_PLUGIN  TAP_TESTS
 
 
 *** Test Cases ***
-RA Plugin Can do Upload File
+RA Plugin Uploads A file succesfully
+    Create File         ${SOPHOS_INSTALL}/base/etc/logger.conf.local   [responseactions]\nVERBOSITY=DEBUG\n
     Install Response Actions Directly
+    Create File  /tmp/file  string
     Send_Upload_File_From_Fake_Cloud
-    create File  /tmp/file
     Wait Until Keyword Succeeds
-    ...  15 secs
+    ...  25 secs
     ...  1 secs
     ...  Check Log Contains  Running upload  ${RESPONSE_ACTIONS_LOG_PATH}  response actions log
     Wait Until Keyword Succeeds
     ...  15 secs
     ...  1 secs
-    ...  Check Log Contains  Sent upload response to Central ${RESPONSE_ACTIONS_LOG_PATH}  response actions log
+    ...  Check Log Contains  Sent upload response to Central  ${RESPONSE_ACTIONS_LOG_PATH}  response actions log
+    Check Log Contains  Upload for /tmp/file succeeded  ${RESPONSE_ACTIONS_LOG_PATH}  response actions log
 *** Keywords ***
 RA Upload Suite Setup
     Start Local Cloud Server
@@ -35,7 +37,7 @@ RA Upload Suite Setup
     Set Local CA Environment Variable
     Run Full Installer
     Create File  /opt/sophos-spl/base/mcs/certs/ca_env_override_flag
-    Register With Fake Cloud
+    Register With Local Cloud Server
 
 RA Upload Test Setup
     Require Installed

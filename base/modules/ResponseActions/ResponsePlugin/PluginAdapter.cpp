@@ -64,6 +64,7 @@ namespace ResponsePlugin
         ResponseActionsImpl::UploadFileAction uploadFileAction(client);
         std::string response = uploadFileAction.run(action);
         PluginUtils::sendResponse(correlationId,action);
+        LOGINFO("Sent upload response to Central");
     }
 
 } // namespace ResponsePlugin

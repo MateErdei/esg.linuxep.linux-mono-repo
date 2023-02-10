@@ -81,24 +81,27 @@ namespace ResponseActionsImpl
         response["sha256"] = sha256;
 
         Common::HttpRequests::RequestConfig request{ .url = info.url, .fileToUpload=info.targetPath, .timeout = info.timeout};
-
+        LOGINFO("Uploading file: " << info.targetPath << " to url: " << info.url);
         Common::HttpRequests::Response httpresponse = m_client->put(request);
         std::string filename = Common::FileSystem::basename(info.targetPath);
         response["fileName"] = filename;
         if (httpresponse.errorCode == Common::HttpRequests::ResponseErrorCode::OK)
         {
             response["result"] = 0;
+            LOGINFO("Upload for " << info.targetPath << " succeeded");
         }
         else if (httpresponse.errorCode == Common::HttpRequests::ResponseErrorCode::TIMEOUT)
         {
             std::stringstream error;
             error << "Timeout Uploading file: " << filename;
+            LOGWARN(error.str());
             actionsUtils.setErrorInfo(response,2,error.str());
         }
         else
         {
             std::stringstream error;
-            error << "Failed to upload file: " << filename;
+            error << "Failed to upload file: " << filename << " with error code " << httpresponse.status ;
+            LOGWARN(error.str());
             actionsUtils.setErrorInfo(response,1,error.str(),"network_error");
         }
 
