@@ -1,3 +1,16 @@
+include(GoogleTest)
+add_executable(TestZipUtilities
+        TestZipUtils.cpp)
+target_include_directories(TestZipUtilities SYSTEM BEFORE PUBLIC ${GTEST_INCLUDE} ${GMOCK_INCLUDE} ${CMAKE_SOURCE_DIR})
+target_link_libraries(TestZipUtilities ${GTEST_LIBRARY} ${GTEST_MAIN_LIBRARY} ${GMOCK_LIBRARY} testhelpers ziputilities)
+target_link_libraries(TestZipUtilities)
+gtest_discover_tests(TestZipUtilities)
+SET_TARGET_PROPERTIES(TestZipUtilities
+        PROPERTIES
+        INSTALL_RPATH "${CMAKE_BINARY_DIR}/libs"
+        BUILD_RPATH "${CMAKE_BINARY_DIR}/libs"
+        )
+
 add_executable(zipTool zipTool.cpp)
 
 target_include_directories(zipTool PUBLIC ${LOG4CPLUS_INCLUDE_DIR} ${PROJECT_SOURCE_DIR})
