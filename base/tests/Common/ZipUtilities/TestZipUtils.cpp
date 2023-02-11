@@ -1,17 +1,18 @@
 // Copyright 2023 Sophos Limited. All rights reserved.
 
-#include <gtest/gtest.h>
-
 #include "Common/FileSystem/IFileSystem.h"
 #include "Common/ZipUtilities/ZipUtils.h"
 
 #include "tests/Common/Helpers/LogInitializedTests.h"
+
+#include <gtest/gtest.h>
 
 namespace
 {
     class TestZipUtils : public LogInitializedTests
     {};
 
+    // cppcheck-suppress syntaxError
     TEST_F(TestZipUtils, unzip_nonExistentFile)
     {
         EXPECT_NE(Common::ZipUtilities::ZipUtils::unzip("nonExistent.zip", "/tmp"), 0);
