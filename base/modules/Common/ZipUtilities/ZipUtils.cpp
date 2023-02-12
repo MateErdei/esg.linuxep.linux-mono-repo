@@ -24,7 +24,7 @@ namespace Common::ZipUtilities
         zipFile zf = zipOpen(std::string(destPath.begin(), destPath.end()).c_str(), APPEND_STATUS_CREATE);
         if (zf == nullptr)
         {
-            LOGWARN("Error opening zip file: " << destPath);
+            LOGERROR("Error opening zip file: " << destPath);
             return ENOENT;
         }
 
@@ -32,67 +32,71 @@ namespace Common::ZipUtilities
 
         std::vector<Path> filesToZip = fs->listAllFilesInDirectoryTree(srcPath);
 
-        for (auto& path : filesToZip)
+        for (auto& fullFilePath : filesToZip)
         {
-            if (fs->isFile(path))
+            if (fs->isFile(fullFilePath))
             {
-                std::fstream file(path.c_str(), std::ios::binary | std::ios::in);
+                std::ifstream file(fullFilePath.c_str(), std::ios::binary | std::ios::in);
                 if (file.is_open())
                 {
                     file.seekg(0, std::ios::end);
                     long size = file.tellg();
                     file.seekg(0, std::ios::beg);
                     std::vector<char> buffer(size);
-                    if (size == 0 || file.read(&buffer[0], size))
+
+                    if (size > 0)
                     {
-                        zip_fileinfo zfi;
-
-                        std::string fileName = path.substr(srcPath.size()+1);
-
-                        unsigned long crcFile=0;
-                        crcFile = crc32_z(crcFile, (unsigned char*)&buffer[0], size);
-                        LOGDEBUG("Filename: " << fileName << ", crc: " << crcFile);
-
-                        if (passwordProtected)
+                        if (!file.read(&buffer[0], size))
                         {
-                            ret = zipOpenNewFileInZip3(zf, fileName.c_str(), &zfi, nullptr, 0, nullptr, 0, nullptr,
-                                                       MZ_COMPRESS_METHOD_DEFLATE, MZ_COMPRESS_LEVEL_DEFAULT,
-                                                       0,  -MAX_WBITS, DEF_MEM_LEVEL, Z_DEFAULT_STRATEGY, password.c_str(), crcFile);
-                        }
-                        else
-                        {
-                            ret = zipOpenNewFileInZip(zf, (fileName).c_str(), &zfi, nullptr, 0, nullptr, 0, nullptr,
-                                                      MZ_COMPRESS_METHOD_DEFLATE, MZ_COMPRESS_LEVEL_DEFAULT);
-                        }
-
-                        if (ret == ZIP_OK)
-                        {
-                            ret = zipWriteInFileInZip(zf, size == 0 ? "" : &buffer[0], size);
-                            if (ZIP_OK != ret)
-                            {
-                                LOGWARN("Error zipping up file: " << fileName);
-                            }
-
-                            ret = zipCloseFileInZip(zf);
-                            if (ZIP_OK != ret)
-                            {
-                                LOGWARN("Error closing zip file: " << fileName);
-                            }
-
-                            file.close();
+                            LOGERROR("Could not read contents of file: " << fullFilePath);
                             continue;
                         }
                     }
                     file.close();
+
+                    zip_fileinfo zfi;
+                    std::string relativeFilePath = fullFilePath.substr(srcPath.size()+1);
+
+                    unsigned long crcFile=0;
+                    crcFile = crc32_z(crcFile, (unsigned char*)&buffer[0], size);
+                    LOGDEBUG("Filename: " << relativeFilePath << ", crc: " << crcFile);
+
+                    if (passwordProtected)
+                    {
+                        ret = zipOpenNewFileInZip3(zf, relativeFilePath.c_str(), &zfi, nullptr, 0, nullptr, 0, nullptr,
+                                                   MZ_COMPRESS_METHOD_DEFLATE, MZ_COMPRESS_LEVEL_DEFAULT,
+                                                   0,  -MAX_WBITS, DEF_MEM_LEVEL, Z_DEFAULT_STRATEGY, password.c_str(), crcFile);
+                    }
+                    else
+                    {
+                        ret = zipOpenNewFileInZip(zf, relativeFilePath.c_str(), &zfi, nullptr, 0, nullptr, 0, nullptr,
+                                                  MZ_COMPRESS_METHOD_DEFLATE, MZ_COMPRESS_LEVEL_DEFAULT);
+                    }
+
+                    if (ret == ZIP_OK)
+                    {
+                        ret = zipWriteInFileInZip(zf, size == 0 ? "" : &buffer[0], size);
+                        if (ZIP_OK != ret)
+                        {
+                            LOGERROR("Error zipping up file: " << relativeFilePath);
+                        }
+
+                        ret = zipCloseFileInZip(zf);
+                        if (ZIP_OK != ret)
+                        {
+                            LOGERROR("Error closing zip file: " << relativeFilePath);
+                        }
+                        continue;
+                    }
                 }
-                LOGWARN("Could not open zip file: " << path);
+                LOGWARN("Could not add file " << fullFilePath << " to zip file");
             }
         }
 
         ret = zipClose(zf, nullptr);
         if (ZIP_OK != ret)
         {
-            LOGWARN("Error closing zip file: " << destPath);
+            LOGERROR("Error closing zip file: " << destPath);
         }
         return ret;
     }
@@ -134,7 +138,7 @@ namespace Common::ZipUtilities
         int err = unzGetCurrentFileInfo64(uf, &file_info, filename_inzip, sizeof(filename_inzip), nullptr, 0, nullptr, 0);
         if (err != UNZ_OK)
         {
-            LOGWARN("Error getting current fil info from zipfile: " << std::to_string(err));
+            LOGERROR("Error getting current file info from zipfile: " << std::to_string(err));
             return err;
         }
 
@@ -142,7 +146,7 @@ namespace Common::ZipUtilities
         buf = (void*)malloc(size_buf);
         if (buf == nullptr)
         {
-            LOGWARN("Error allocating memory");
+            LOGERROR("Error allocating memory");
             return UNZ_INTERNALERROR;
         }
 
@@ -187,7 +191,7 @@ namespace Common::ZipUtilities
 
                 if (fout == nullptr)
                 {
-                    LOGWARN("Error opening: " << write_filename);
+                    LOGERROR("Error opening: " << write_filename);
                 }
             }
 
@@ -200,14 +204,14 @@ namespace Common::ZipUtilities
                     err = unzReadCurrentFile(uf, buf, size_buf);
                     if (err < 0)
                     {
-                        LOGWARN("Error reading current file in zipfile: " << std::to_string(err));
+                        LOGERROR("Error reading current file in zipfile: " << std::to_string(err));
                         break;
                     }
                     if (err > 0)
                     {
                         if (fwrite(buf, (unsigned)err, 1, fout) != 1)
                         {
-                            LOGWARN("Error writing extracted file");
+                            LOGERROR("Error writing extracted file");
                             err = UNZ_ERRNO;
                             break;
                         }
@@ -231,7 +235,7 @@ namespace Common::ZipUtilities
                 err = unzCloseCurrentFile(uf);
                 if (err != UNZ_OK)
                 {
-                    LOGWARN("Error closing current file in zipfile: " << std::to_string(err));
+                    LOGERROR("Error closing current file in zipfile: " << std::to_string(err));
                 }
             }
             else
@@ -252,7 +256,7 @@ namespace Common::ZipUtilities
         int err = unzGetGlobalInfo64(uf, &gi);
         if (err != UNZ_OK)
         {
-            LOGWARN("Error getting global file info from zipfile: " << std::to_string(err));
+            LOGERROR("Error getting global file info from zipfile: " << std::to_string(err));
             return err;
         }
 
@@ -269,7 +273,7 @@ namespace Common::ZipUtilities
                 err = unzGoToNextFile(uf);
                 if (err != UNZ_OK)
                 {
-                    LOGWARN("Error getting next file in zipfile: " << std::to_string(err));
+                    LOGERROR("Error getting next file in zipfile: " << std::to_string(err));
                     break;
                 }
             }
@@ -283,7 +287,7 @@ namespace Common::ZipUtilities
         unzFile uf = unzOpen64(srcPath.c_str());
         if (uf == nullptr)
         {
-            LOGWARN("Error opening zip: " << srcPath.c_str());
+            LOGERROR("Error opening zip: " << srcPath.c_str());
             return ENOENT;
         }
 
