@@ -4,6 +4,8 @@
 #include "unixsocket/TestClient.h"
 
 #include <Common/Logging/ConsoleLoggingSetup.h>
+#include <Common/Logging/SophosLoggerMacros.h>
+#include <Common/Logging/LoggerConfig.h>
 
 #include <iostream>
 #include <fcntl.h>
@@ -11,7 +13,15 @@
 // Generate AV TDO
 //  SendThreatDetectedEvent -p /opt/sophos-spl/plugins/av/var/safestore_socket -f /tmp/testfile -t threatName -s e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
 
-void printUsageAndExit(const std::string name)
+static log4cplus::Logger& getSendThreatDetectedEventLogger()
+{
+    static log4cplus::Logger STATIC_LOGGER = Common::Logging::getInstance("SendThreatDetectedEvent");
+    return STATIC_LOGGER;
+}
+
+#define LOGFATAL(x) LOG4CPLUS_FATAL(getSendThreatDetectedEventLogger(), x)  // NOLINT
+
+static void printUsageAndExit(const std::string& name)
 {
     std::cout << "usage: " << name << std::endl
         << "--socketpath <socket path>"<< std::endl
@@ -23,20 +33,19 @@ void printUsageAndExit(const std::string name)
     exit(EXIT_FAILURE);
 }
 
-
-int main(int argc, char* argv[])
+static int inner_main(int argc, char* argv[])
 {
     if (argc < 2)
     {
         printUsageAndExit(argv[0]);
     }
-    Common::Logging::ConsoleLoggingSetup();
+    Common::Logging::ConsoleLoggingSetup logging;
     std::string socketPath = "event.sock";
     std::string sha;
     std::string filePath;
     std::string threatName;
     std::string threatID = "00010203-0405-0607-0809-0a0b0c0d0e0f";
-    int fd = 0;
+    int fd = -1;
     bool sendFD = true;
     bool sendMessage = true;
     const char* const short_opts = "p:t:s:f:i:d:mn";
@@ -79,7 +88,7 @@ int main(int argc, char* argv[])
                 std::cout << sha << std::endl;
                 break;
             case 'd':
-                fd = std::atoi(optarg);
+                fd = std::stoi(optarg);
                 std::cout << fd << std::endl;
                 break;
             case 'm':
@@ -115,11 +124,11 @@ int main(int argc, char* argv[])
             std::string dataAsString = threatDetected.serialise(false);
             if (sendFD)
             {
-                if (fd == 0)
+                if (fd == -1)
                 {
                     fd = open(filePath.c_str(), O_PATH);
                 }
-                client.sendRequestAndFD(dataAsString,fd);
+                client.sendRequestAndFD(dataAsString, fd);
             }
             else
             {
@@ -130,4 +139,23 @@ int main(int argc, char* argv[])
 
 
     return EXIT_SUCCESS;
+}
+
+
+int main(int argc, char* argv[])
+{
+    try
+    {
+        return inner_main(argc, argv);
+    }
+    catch (const std::exception& ex)
+    {
+        LOGFATAL("Caught std::exception at top-level: " << ex.what());
+        return 10;
+    }
+    catch (...)
+    {
+        LOGFATAL("Caught ... at top-level");
+        return 20;
+    }
 }
