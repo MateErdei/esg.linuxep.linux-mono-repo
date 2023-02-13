@@ -45,7 +45,10 @@ static int inner_main(int argc, char* argv[])
     std::string filePath;
     std::string threatName;
     std::string threatID = "00010203-0405-0607-0809-0a0b0c0d0e0f";
-    int fd = -1;
+    /**
+     * 0 is used as a marker from tests to open the file ourselves
+     */
+    int fd = 0;
     bool sendFD = true;
     bool sendMessage = true;
     const char* const short_opts = "p:t:s:f:i:d:mn";
@@ -124,7 +127,7 @@ static int inner_main(int argc, char* argv[])
             std::string dataAsString = threatDetected.serialise(false);
             if (sendFD)
             {
-                if (fd == -1)
+                if (fd == 0)
                 {
                     fd = open(filePath.c_str(), O_PATH);
                 }
