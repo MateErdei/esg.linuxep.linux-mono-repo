@@ -3,13 +3,12 @@
 #include "ZipUtils.h"
 
 #include "Logger.h"
+#include "UnzipFileWrapper.h"
 
 #include "Common/FileSystem/IFileSystem.h"
 
 #include <fstream>
-
-#include <zlib.h>
-#include <unzip.h>
+#include <memory>
 
 #include <unistd.h>
 #include <utime.h>
@@ -40,7 +39,7 @@ namespace
     }
 
     int extractCurrentfile(
-        unzFile uf,
+        std::shared_ptr<Common::ZipUtilities::UnzipFileWrapper> uf,
         const char* password)
     {
         char filename_inzip[256];
@@ -52,7 +51,7 @@ namespace
         auto fs = Common::FileSystem::fileSystem();
 
         unz_file_info64 file_info;
-        int err = unzGetCurrentFileInfo64(uf, &file_info, filename_inzip, sizeof(filename_inzip), nullptr, 0, nullptr, 0);
+        int err = unzGetCurrentFileInfo64(uf->get(), &file_info, filename_inzip, sizeof(filename_inzip), nullptr, 0, nullptr, 0);
         if (err != UNZ_OK)
         {
             LOGERROR("Error getting current file info from zipfile: " << std::to_string(err));
@@ -88,7 +87,7 @@ namespace
 
             write_filename = filename_inzip;
 
-            err = unzOpenCurrentFilePassword(uf, password);
+            err = unzOpenCurrentFilePassword(uf->get(), password);
             if (err != UNZ_OK)
             {
                 LOGWARN("Error opening zipfile with password: " << std::to_string(err));
@@ -118,7 +117,7 @@ namespace
 
                 do
                 {
-                    err = unzReadCurrentFile(uf, buf, size_buf);
+                    err = unzReadCurrentFile(uf->get(), buf, size_buf);
                     if (err < 0)
                     {
                         LOGERROR("Error reading current file in zipfile: " << std::to_string(err));
@@ -149,7 +148,7 @@ namespace
 
             if (err == UNZ_OK)
             {
-                err = unzCloseCurrentFile(uf);
+                err = unzCloseCurrentFile(uf->get());
                 if (err != UNZ_OK)
                 {
                     LOGERROR("Error closing current file in zipfile: " << std::to_string(err));
@@ -157,7 +156,7 @@ namespace
             }
             else
             {
-                unzCloseCurrentFile(uf);
+                unzCloseCurrentFile(uf->get());
             }
         }
 
@@ -166,11 +165,11 @@ namespace
     }
 
     int extractAll(
-        unzFile uf,
+        std::shared_ptr<Common::ZipUtilities::UnzipFileWrapper> uf,
         const char* password)
     {
         unz_global_info64 gi;
-        int err = unzGetGlobalInfo64(uf, &gi);
+        int err = unzGetGlobalInfo64(uf->get(), &gi);
         if (err != UNZ_OK)
         {
             LOGERROR("Error getting global file info from zipfile: " << std::to_string(err));
@@ -187,7 +186,7 @@ namespace
 
             if ((i+1) < gi.number_entry)
             {
-                err = unzGoToNextFile(uf);
+                err = unzGoToNextFile(uf->get());
                 if (err != UNZ_OK)
                 {
                     LOGERROR("Error getting next file in zipfile: " << std::to_string(err));
@@ -219,13 +218,6 @@ namespace Common::ZipUtilities
         {
             if (!fs->isFile(fullFilePath))
             {
-                continue;
-            }
-
-            std::ifstream file(fullFilePath.c_str(), std::ios::binary | std::ios::in);
-            if (!file.is_open())
-            {
-                LOGWARN("Could not open file " << fullFilePath);
                 continue;
             }
 
@@ -290,8 +282,8 @@ namespace Common::ZipUtilities
     int ZipUtils::unzip(const std::string& srcPath, const std::string& destPath, bool passwordProtected, const std::string& passwordStr)
     {
         int ret = UNZ_OK;
-        unzFile uf = unzOpen64(srcPath.c_str());
-        if (uf == nullptr)
+        auto uf = std::make_shared<UnzipFileWrapper>(unzOpen64(srcPath.c_str()));
+        if (uf->get() == nullptr)
         {
             LOGERROR("Error opening zip: " << srcPath.c_str());
             return ENOENT;
@@ -306,8 +298,6 @@ namespace Common::ZipUtilities
         {
             ret = extractAll(uf, nullptr);
         }
-
-        unzClose(uf);
         return ret;
     }
 } // namespace Common::ZipUtilities

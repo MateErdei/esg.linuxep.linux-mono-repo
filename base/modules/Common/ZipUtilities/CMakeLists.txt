@@ -1,8 +1,10 @@
 add_library(ziputiltiesobject OBJECT
-        ZipUtils.cpp
-        ZipUtils.h
         Logger.cpp
         Logger.h
+        UnzipFileWrapper.cpp
+        UnzipFileWrapper.h
+        ZipUtils.cpp
+        ZipUtils.h
         $<TARGET_OBJECTS:filesystemimplobject>)
 
 
