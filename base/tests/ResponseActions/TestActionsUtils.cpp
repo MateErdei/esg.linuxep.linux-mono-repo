@@ -76,6 +76,12 @@ TEST_F(ActionsUtilsTests, testSucessfulParseUploadFolder)
     EXPECT_EQ(info.timeout,10);
 }
 
+TEST_F(ActionsUtilsTests, testParseFailsWhenActionIsInvalidJson)
+{
+    nlohmann::json action = getDefaultUploadObject(ResponseActionsImpl::UploadType::FILE);
+    EXPECT_THROW(ResponseActionsImpl::ActionsUtils::readUploadAction("",ResponseActionsImpl::UploadType::FILE),std::runtime_error);
+}
+
 TEST_F(ActionsUtilsTests, testParseFailsWhenActionISUploadFileWhenExpectingFolder)
 {
     nlohmann::json action = getDefaultUploadObject(ResponseActionsImpl::UploadType::FILE);
