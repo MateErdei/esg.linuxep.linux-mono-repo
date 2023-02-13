@@ -507,15 +507,12 @@ o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libxmlcpp.so.0.0
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libxmlcpp.so.0.0.0
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libxmlutilities.so
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libzeromqwrapperimpl.so
+o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libzlib.so
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libzmq.so
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libzmq.so.5
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libzmq.so.5.2
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libzmq.so.5.2.4
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libzmqwrapperapiimpl.so
-o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libz.so
-o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libz.so.1
-o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libz.so.1.2
-o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libz.so.1.2.12
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/mcsrouter.zip
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/python39.zip
 o777, sophos-spl-group, root, /opt/sophos-spl/base/mcs/certs/mcs_rootca.crt
