@@ -99,7 +99,19 @@ void TelemetryProcessor::sendTelemetry(const std::string& telemetryJson)
 
     LOGINFO("Sending telemetry...");
 
-    Common::HttpRequests::Response response = m_httpRequester->put(requestConfig);
+    Common::HttpRequests::Response response;
+    if (m_config->getVerb() == "GET")
+    {
+        response = m_httpRequester->get(requestConfig);
+    }
+    else if (m_config->getVerb() == "POST")
+    {
+        response = m_httpRequester->post(requestConfig);
+    }
+    else
+    {
+        response = m_httpRequester->put(requestConfig);
+    }
 
     if (response.errorCode == Common::HttpRequests::ResponseErrorCode::OK)
     {
