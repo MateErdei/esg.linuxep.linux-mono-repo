@@ -97,7 +97,7 @@ public:
     }
 };
 
-TEST_F(ConfigTests, defaultConstrutor) // NOLINT
+TEST_F(ConfigTests, defaultConstrutor)
 {
     Config c;
 
@@ -111,33 +111,33 @@ TEST_F(ConfigTests, defaultConstrutor) // NOLINT
     ASSERT_TRUE(c.isValid());
 }
 
-TEST_F(ConfigTests, serialise) // NOLINT
+TEST_F(ConfigTests, serialise)
 {
     std::string jsonString = Serialiser::serialise(m_config);
     EXPECT_EQ(m_jsonString, jsonString);
 }
 
-TEST_F(ConfigTests, deserialise) // NOLINT
+TEST_F(ConfigTests, deserialise)
 {
     Config c = Serialiser::deserialise(m_jsonString);
     EXPECT_EQ(m_config, c);
 }
 
-TEST_F(ConfigTests, serialiseAndDeserialise) // NOLINT
+TEST_F(ConfigTests, serialiseAndDeserialise)
 {
     ASSERT_EQ(m_config, Serialiser::deserialise(Serialiser::serialise(m_config)));
 }
 
-TEST_F(ConfigTests, invalidConfigCannotBeSerialised) // NOLINT
+TEST_F(ConfigTests, invalidConfigCannotBeSerialised)
 {
     Config invalidConfig = m_config;
     invalidConfig.setPort(m_invalidPort);
 
     // Try to convert the invalidConfig object to a json string
-    EXPECT_THROW(Serialiser::serialise(invalidConfig), std::invalid_argument); // NOLINT
+    EXPECT_THROW(Serialiser::serialise(invalidConfig), std::invalid_argument);
 }
 
-TEST_F(ConfigTests, invalidJsonCannotBeDeserialised) // NOLINT
+TEST_F(ConfigTests, invalidJsonCannotBeDeserialised)
 {
     nlohmann::json invalidJsonObject = m_jsonObject;
     invalidJsonObject["port"] = m_invalidPort;
@@ -145,16 +145,16 @@ TEST_F(ConfigTests, invalidJsonCannotBeDeserialised) // NOLINT
     std::string invalidJsonString = invalidJsonObject.dump();
 
     // Try to convert the invalidJsonString to a config object
-    EXPECT_THROW(Serialiser::deserialise(invalidJsonString), std::runtime_error); // NOLINT
+    EXPECT_THROW(Serialiser::deserialise(invalidJsonString), std::runtime_error);
 }
 
-TEST_F(ConfigTests, brokenJsonCannotBeDeserialised) // NOLINT
+TEST_F(ConfigTests, brokenJsonCannotBeDeserialised)
 {
     // Try to convert broken JSON to a config object
-    EXPECT_THROW(Serialiser::deserialise("imbroken:("), std::runtime_error); // NOLINT
+    EXPECT_THROW(Serialiser::deserialise("imbroken:("), std::runtime_error);
 }
 
-TEST_F(ConfigTests, parseValidConfigJsonDirectlySucceeds) // NOLINT
+TEST_F(ConfigTests, parseValidConfigJsonDirectlySucceeds)
 {
     const std::string validTelemetryJson = R"(
     {
@@ -176,7 +176,7 @@ TEST_F(ConfigTests, parseValidConfigJsonDirectlySucceeds) // NOLINT
     Serialiser::deserialise(validTelemetryJson);
 }
 
-TEST_F(ConfigTests, parseSubsetConfigJsonDirectlySucceeds) // NOLINT
+TEST_F(ConfigTests, parseSubsetConfigJsonDirectlySucceeds)
 {
     const std::string subsetTelemetryJson = R"(
     {
@@ -190,7 +190,7 @@ TEST_F(ConfigTests, parseSubsetConfigJsonDirectlySucceeds) // NOLINT
     Serialiser::deserialise(subsetTelemetryJson);
 }
 
-TEST_F(ConfigTests, parseSupersetConfigJsonDirectlySucceeds) // NOLINT
+TEST_F(ConfigTests, parseSupersetConfigJsonDirectlySucceeds)
 {
     const std::string supersetTelemetryJson = R"(
     {
@@ -211,7 +211,7 @@ TEST_F(ConfigTests, parseSupersetConfigJsonDirectlySucceeds) // NOLINT
     Serialiser::deserialise(supersetTelemetryJson);
 }
 
-TEST_F(ConfigTests, UnauthenticatedProxyWithoutCredentials) // NOLINT
+TEST_F(ConfigTests, UnauthenticatedProxyWithoutCredentials)
 {
     Config customConfig = m_config;
     customConfig.setProxies({});
@@ -229,7 +229,7 @@ TEST_F(ConfigTests, UnauthenticatedProxyWithoutCredentials) // NOLINT
     EXPECT_EQ(customConfig, newConfig);
 }
 
-TEST_F(ConfigTests, UnauthenticatedProxyWithCredentials) // NOLINT
+TEST_F(ConfigTests, UnauthenticatedProxyWithCredentials)
 {
     Config customConfig = m_config;
     customConfig.setProxies({});
@@ -243,10 +243,10 @@ TEST_F(ConfigTests, UnauthenticatedProxyWithCredentials) // NOLINT
 
     customConfig.setProxies({ customProxy });
 
-    EXPECT_THROW(Serialiser::serialise(customConfig), std::invalid_argument); // NOLINT
+    EXPECT_THROW(Serialiser::serialise(customConfig), std::invalid_argument);
 }
 
-TEST_F(ConfigTests, AuthenticatedProxyWithCredentials) // NOLINT
+TEST_F(ConfigTests, AuthenticatedProxyWithCredentials)
 {
     Config customConfig = m_config;
     customConfig.setProxies({});
@@ -266,7 +266,7 @@ TEST_F(ConfigTests, AuthenticatedProxyWithCredentials) // NOLINT
     EXPECT_EQ(customConfig, newConfig);
 }
 
-TEST_F(ConfigTests, AuthenticatedProxyWithoutCredentials) // NOLINT
+TEST_F(ConfigTests, AuthenticatedProxyWithoutCredentials)
 {
     Config customConfig = m_config;
     customConfig.setProxies({});
@@ -278,10 +278,10 @@ TEST_F(ConfigTests, AuthenticatedProxyWithoutCredentials) // NOLINT
 
     customConfig.setProxies({ customProxy });
 
-    EXPECT_THROW(Serialiser::serialise(customConfig), std::invalid_argument); // NOLINT
+    EXPECT_THROW(Serialiser::serialise(customConfig), std::invalid_argument);
 }
 
-TEST_F(ConfigTests, UnauthenticatedMessageRelayWithoutCredentials) // NOLINT
+TEST_F(ConfigTests, UnauthenticatedMessageRelayWithoutCredentials)
 {
     Config customConfig = m_config;
     customConfig.setMessageRelays({});
@@ -299,7 +299,7 @@ TEST_F(ConfigTests, UnauthenticatedMessageRelayWithoutCredentials) // NOLINT
     EXPECT_EQ(customConfig, newConfig);
 }
 
-TEST_F(ConfigTests, UnauthenticatedMessageRelayWithCredentials) // NOLINT
+TEST_F(ConfigTests, UnauthenticatedMessageRelayWithCredentials)
 {
     Config customConfig = m_config;
     customConfig.setMessageRelays({});
@@ -313,10 +313,10 @@ TEST_F(ConfigTests, UnauthenticatedMessageRelayWithCredentials) // NOLINT
 
     customConfig.setMessageRelays({ messageRelay });
 
-    EXPECT_THROW(Serialiser::serialise(customConfig), std::invalid_argument); // NOLINT
+    EXPECT_THROW(Serialiser::serialise(customConfig), std::invalid_argument);
 }
 
-TEST_F(ConfigTests, AuthenticatedMessageRelayWithCredentials) // NOLINT
+TEST_F(ConfigTests, AuthenticatedMessageRelayWithCredentials)
 {
     Config customConfig = m_config;
     customConfig.setMessageRelays({});
@@ -336,7 +336,7 @@ TEST_F(ConfigTests, AuthenticatedMessageRelayWithCredentials) // NOLINT
     EXPECT_EQ(customConfig, newConfig);
 }
 
-TEST_F(ConfigTests, AuthenticatedMessageRelayWithoutCredentials) // NOLINT
+TEST_F(ConfigTests, AuthenticatedMessageRelayWithoutCredentials)
 {
     Config customConfig = m_config;
     customConfig.setMessageRelays({});
@@ -348,66 +348,66 @@ TEST_F(ConfigTests, AuthenticatedMessageRelayWithoutCredentials) // NOLINT
 
     customConfig.setMessageRelays({ messageRelay });
 
-    EXPECT_THROW(Serialiser::serialise(customConfig), std::invalid_argument); // NOLINT
+    EXPECT_THROW(Serialiser::serialise(customConfig), std::invalid_argument);
 }
 
-TEST_F(ConfigTests, InvalidPort) // NOLINT
+TEST_F(ConfigTests, InvalidPort)
 {
     Config c = m_config;
     c.setPort(m_invalidPort);
-    EXPECT_THROW(Serialiser::serialise(c), std::invalid_argument); // NOLINT
+    EXPECT_THROW(Serialiser::serialise(c), std::invalid_argument);
 }
 
-TEST_F(ConfigTests, ProcessWaitTimeoutTooSmall) // NOLINT
+TEST_F(ConfigTests, ProcessWaitTimeoutTooSmall)
 {
     Config c = m_config;
     c.setExternalProcessWaitTime(MIN_PROCESS_WAIT_TIMEOUT - 1);
-    EXPECT_THROW(Serialiser::serialise(c), std::invalid_argument); // NOLINT
+    EXPECT_THROW(Serialiser::serialise(c), std::invalid_argument);
 }
 
-TEST_F(ConfigTests, ProcessWaitTimeoutTooLarge) // NOLINT
+TEST_F(ConfigTests, ProcessWaitTimeoutTooLarge)
 {
     Config c = m_config;
     c.setExternalProcessWaitTime(MAX_PROCESS_WAIT_TIMEOUT + 1);
-    EXPECT_THROW(Serialiser::serialise(c), std::invalid_argument); // NOLINT
+    EXPECT_THROW(Serialiser::serialise(c), std::invalid_argument);
 }
 
-TEST_F(ConfigTests, ProcessWaitRetriesTooLarge) // NOLINT
+TEST_F(ConfigTests, ProcessWaitRetriesTooLarge)
 {
     Config c = m_config;
     c.setExternalProcessWaitRetries(MAX_PROCESS_WAIT_RETRIES + 1);
-    EXPECT_THROW(Serialiser::serialise(c), std::invalid_argument); // NOLINT
+    EXPECT_THROW(Serialiser::serialise(c), std::invalid_argument);
 }
 
-TEST_F(ConfigTests, PluginSendReceiveTimeoutTooLow) // NOLINT
+TEST_F(ConfigTests, PluginSendReceiveTimeoutTooLow)
 {
     Config c = m_config;
     c.setPluginSendReceiveTimeout(MIN_PLUGIN_TIMEOUT - 1);
-    EXPECT_THROW(Serialiser::serialise(c), std::invalid_argument); // NOLINT
+    EXPECT_THROW(Serialiser::serialise(c), std::invalid_argument);
 }
 
-TEST_F(ConfigTests, PluginSendReceiveTimeoutTooLarge) // NOLINT
+TEST_F(ConfigTests, PluginSendReceiveTimeoutTooLarge)
 {
     Config c = m_config;
     c.setPluginSendReceiveTimeout(MAX_PLUGIN_TIMEOUT + 1);
-    EXPECT_THROW(Serialiser::serialise(c), std::invalid_argument); // NOLINT
+    EXPECT_THROW(Serialiser::serialise(c), std::invalid_argument);
 }
 
-TEST_F(ConfigTests, PluginConnectionTimeoutTooLow) // NOLINT
+TEST_F(ConfigTests, PluginConnectionTimeoutTooLow)
 {
     Config c = m_config;
     c.setPluginConnectionTimeout(MIN_PLUGIN_TIMEOUT - 1);
-    EXPECT_THROW(Serialiser::serialise(c), std::invalid_argument); // NOLINT
+    EXPECT_THROW(Serialiser::serialise(c), std::invalid_argument);
 }
 
-TEST_F(ConfigTests, PluginConnectionTimeoutTooLarge) // NOLINT
+TEST_F(ConfigTests, PluginConnectionTimeoutTooLarge)
 {
     Config c = m_config;
     c.setPluginConnectionTimeout(MAX_PLUGIN_TIMEOUT + 1);
-    EXPECT_THROW(Serialiser::serialise(c), std::invalid_argument); // NOLINT
+    EXPECT_THROW(Serialiser::serialise(c), std::invalid_argument);
 }
 
-TEST_F(ConfigTests, configEquality) // NOLINT
+TEST_F(ConfigTests, configEquality)
 {
     Config a;
     Config b;
@@ -419,7 +419,7 @@ TEST_F(ConfigTests, configEquality) // NOLINT
     ASSERT_EQ(a, b);
 }
 
-TEST_F(ConfigTests, buildExeConfigFromSupplementaryConfig) // NOLINT
+TEST_F(ConfigTests, buildExeConfigFromSupplementaryConfig)
 {
     const std::string resourceName = "name";
     Config exeConfig = Config::buildExeConfigFromTelemetryConfig(m_config, resourceName);
@@ -433,7 +433,7 @@ TEST_F(ConfigTests, buildExeConfigFromSupplementaryConfig) // NOLINT
     EXPECT_NE(m_config.getInterval(), exeConfig.getInterval());
 }
 
-TEST_F(ConfigTests, getHeadersForJsonReturnsValidJson) // NOLINT
+TEST_F(ConfigTests, getHeadersForJsonReturnsValidJson)
 {
     Config config;
     Common::HttpRequests::Headers additionalHeaders;
@@ -455,7 +455,7 @@ TEST_F(ConfigTests, getHeadersForJsonReturnsValidJson) // NOLINT
     EXPECT_EQ(config.getHeadersForJson(), convertedHeaders);
 }
 
-TEST_F(ConfigTests, setHeadersFromJsonDoesNotThrowWhenConfigIsMalformed) // NOLINT
+TEST_F(ConfigTests, setHeadersFromJsonDoesNotThrowWhenConfigIsMalformed)
 {
     Config c;
     std::vector<std::string> malformedHeaders = {"header1:", "header2"};
