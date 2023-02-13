@@ -77,7 +77,7 @@ def get_package_version(package_path):
     package_node = package_tree.getroot()
     return package_node.attrib['version']
 
-BUILD_TEMPLATE = 'centos79_x64_build_20230202 '
+BUILD_TEMPLATE = 'centos79_x64_build_20230202'
 PACKAGE_PATH = './build-files/release-package.xml'
 PACKAGE_VERSION = get_package_version(PACKAGE_PATH)
 def install_requirements(machine: tap.Machine):
