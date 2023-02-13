@@ -10,8 +10,6 @@ add_library(suldownloaderimpl SHARED
         warehouse/WarehouseRepository.h
         warehouse/WarehouseRepositoryFactory.cpp
         warehouse/WarehouseRepositoryFactory.h
-        ../Common/CurlWrapper/CurlWrapper.h
-        ../Common/CurlWrapper/CurlWrapper.cpp
         sdds3/SDDS3Repository.cpp
         sdds3/SDDS3Repository.h
         sdds3/Sdds3RepositoryFactory.cpp
@@ -44,7 +42,16 @@ include_directories(suldownloaderimpl BEFORE ${SOPHLIB_INCLUDE_DIR} ${SUL_INPUT}
 set(SUL_LIBRARY -L${SUL_LIBRARY_DIR} -lSUL)
 set(SDDS3_LIBRARY -L${SDDS3LIB_INPUT} -lsdds3 -ldelta -lpugixml -lutils -lminizip -lsdds3crypto -lminizip)
 target_compile_options(suldownloaderimpl PUBLIC -Wno-unused-value -Wno-unused-parameter -Wno-maybe-uninitialized -Wno-stringop-overflow)
-target_link_libraries(suldownloaderimpl PUBLIC suldownloaderdata ${SUL_LIBRARY} ${SDDS3_LIBRARY} ${SOPHLIB_LIBRARIES} osutilitiesimpl HttpRequestsImpl  stdc++fs -Wno-maybe-uninitialized -Wno-stringop-overflow)
+target_link_libraries(suldownloaderimpl PUBLIC
+        ${SUL_LIBRARY}
+        ${SDDS3_LIBRARY}
+        ${SOPHLIB_LIBRARIES}
+        suldownloaderdata
+        osutilitiesimpl
+        HttpRequestsImpl
+        curlwrapper
+        stdc++fs
+        -Wno-maybe-uninitialized -Wno-stringop-overflow)
 
 SET_TARGET_PROPERTIES( suldownloaderimpl
         PROPERTIES

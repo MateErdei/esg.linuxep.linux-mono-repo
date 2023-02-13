@@ -1,4 +1,5 @@
 add_subdirectory(ApplicationConfigurationImpl)
+add_subdirectory(CurlWrapper)
 add_subdirectory(DirectoryWatcherImpl)
 add_subdirectory(FileSystemImpl)
 add_subdirectory(FlagUtils)

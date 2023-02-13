@@ -21,14 +21,13 @@ add_library(remotediagnoseimpl SHARED
         runnerModule/DiagnoseRunner.h
         runnerModule/DiagnoseRunnerFactory.cpp
         runnerModule/DiagnoseRunnerFactory.h
-        ../Common/CurlWrapper/CurlWrapper.h
-        ../Common/CurlWrapper/CurlWrapper.cpp
         )
 
 include_directories(remotediagnoseimpl BEFORE ${LOG4CPLUS_INCLUDE_DIR} ${NLOHMANN_JSON_INCLUDE_DIR} ${CURL_INCLUDE_DIR})
 
 target_link_libraries(remotediagnoseimpl PUBLIC
         applicationconfigurationimpl
+        curlwrapper
         directorywatcherimpl
         HttpRequestsImpl
         osutilitiesimpl
