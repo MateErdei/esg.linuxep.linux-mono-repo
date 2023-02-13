@@ -1058,3 +1058,36 @@ TEST_F(TestPluginAdapter, testCanStopWhileWaitingForFirstPolicies)
     EXPECT_FALSE(appenderContains("ALC policy has not been sent to the plugin"));
     EXPECT_FALSE(appenderContains("SAV policy has not been sent to the plugin"));
 }
+
+
+TEST_F(TestPluginAdapter, testCanStopAfterReceivingFirstPolicy)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    std::string policyXml = R"sophos(<?xml version="1.0"?><invalidPolicy />)sophos";
+    Task policyTask = { .taskType = Task::TaskType::Policy, .Content = policyXml, .appId = "SAV" };
+
+    auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
+    expectedDefaultPolicyRequests(*mockBaseService);
+    EXPECT_CALL(*mockBaseService, sendThreatHealth("{\"ThreatHealth\":1}")).Times(1);
+    EXPECT_CALL(*mockBaseService, sendStatus(_, _, _)).WillRepeatedly(Return());
+
+    auto pluginAdapter = std::make_shared<PluginAdapter>(
+        m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 1);
+    auto pluginThread = std::thread(&PluginAdapter::mainLoop, pluginAdapter);
+
+    EXPECT_TRUE(waitForLog("Starting the main program loop"));
+
+    m_taskQueue->push(policyTask);
+
+    EXPECT_TRUE(waitForLog("Received SAV policy"));
+
+    m_taskQueue->pushStop();
+
+    EXPECT_TRUE(waitForLog("Stopping the main program loop"));
+
+    pluginThread.join();
+
+    EXPECT_FALSE(appenderContains("ALC policy has not been sent to the plugin"));
+    EXPECT_FALSE(appenderContains("SAV policy has not been sent to the plugin"));
+}
