@@ -31,7 +31,10 @@ RA Plugin uploads a file successfully
     Check Log Contains  Upload for /tmp/file succeeded  ${RESPONSE_ACTIONS_LOG_PATH}  response actions log
     Check Log Contains  Received HTTP PUT Request  ${HTTPS_LOG_FILE_PATH}  https server log
     Check Log Contains  tempfilecontent  ${HTTPS_LOG_FILE_PATH}  https server log
-
+    Wait Until Keyword Succeeds
+    ...  1 min
+    ...  5 secs
+    ...  Check Cloud Server Log Contains    \"fileName\":\"file\",\"httpStatus\":200,\"result\":0,\"sha256\":\"382a1f7b76ca05728a4e9e6b3a4877f8634fb33b08decc5251933705a684f34f\"
 *** Keywords ***
 RA Upload Suite Setup
     Start Local Cloud Server
