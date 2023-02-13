@@ -4,7 +4,7 @@ add_library(responseactionsimpl SHARED
         ActionStructs.h
         Logger.cpp
         Logger.h
-        ResponseActionsException.h
+        InvalidCommandFormat.h
         UploadFileAction.cpp
         UploadFileAction.h
 )

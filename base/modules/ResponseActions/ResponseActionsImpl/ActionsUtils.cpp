@@ -1,12 +1,12 @@
 // Copyright 2023 Sophos Limited. All rights reserved.
 
 #include "ActionsUtils.h"
+
+#include "InvalidCommandFormat.h"
 #include "Logger.h"
-#include "ResponseActionsException.h"
 
-#include <Common/UtilityImpl/TimeUtils.h>
 #include <Common/UtilityImpl/StringUtils.h>
-
+#include <Common/UtilityImpl/TimeUtils.h>
 
 namespace ResponseActionsImpl
 {
@@ -38,23 +38,23 @@ namespace ResponseActionsImpl
 
         if (!obj.contains(targetKey))
         {
-            throw ResponseActionsException("Invalid command format. No " + targetKey + ".");
+            throw InvalidCommandFormat("No " + targetKey + ".");
         }
         if (!obj.contains("timeout"))
         {
-            throw ResponseActionsException("Invalid command format. Missing timeout.");
+            throw InvalidCommandFormat("Missing timeout.");
         }
         if (!obj.contains("maxUploadSizeBytes"))
         {
-            throw ResponseActionsException("Invalid command format. Missing maxUploadSizeBytes.");
+            throw InvalidCommandFormat("Missing maxUploadSizeBytes.");
         }
         if (!obj.contains("expiration"))
         {
-            throw ResponseActionsException("Invalid command format. Missing expiration.");
+            throw InvalidCommandFormat("Missing expiration.");
         }
         if (!obj.contains("url"))
         {
-            throw ResponseActionsException("Invalid command format. No url.");
+            throw InvalidCommandFormat("No url.");
         }
 
         try
@@ -82,7 +82,7 @@ namespace ResponseActionsImpl
         {
             std::stringstream errorMsg;
             errorMsg << "Failed to parse json, json value in unexpected type : " << exception.what();
-            throw ResponseActionsException(errorMsg.str());
+            throw InvalidCommandFormat(errorMsg.str());
         }
 
         return info;

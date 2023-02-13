@@ -1,6 +1,7 @@
 // Copyright 2023 Sophos Limited. All rights reserved.
 
 #include "modules/ResponseActions/ResponseActionsImpl/ActionsUtils.h"
+#include "modules/ResponseActions/ResponseActionsImpl/InvalidCommandFormat.h"
 #include "modules/Common/UtilityImpl/TimeUtils.h"
 
 #include "tests/Common/Helpers/MemoryAppender.h"
@@ -29,7 +30,7 @@ public:
                 targetKey = "targetFolder";
                 break;
             default:
-                throw std::runtime_error("invalid type");
+                throw ResponseActionsImpl::InvalidCommandFormat("invalid type");
         }
         action[targetKey] = "path";
         action["url"] = "https://s3.com/somewhere";
@@ -79,13 +80,13 @@ TEST_F(ActionsUtilsTests, testSucessfulParseUploadFolder)
 TEST_F(ActionsUtilsTests, testParseFailsWhenActionIsInvalidJson)
 {
     nlohmann::json action = getDefaultUploadObject(ResponseActionsImpl::UploadType::FILE);
-    EXPECT_THROW(ResponseActionsImpl::ActionsUtils::readUploadAction("",ResponseActionsImpl::UploadType::FILE),std::runtime_error);
+    EXPECT_THROW(ResponseActionsImpl::ActionsUtils::readUploadAction("",ResponseActionsImpl::UploadType::FILE),ResponseActionsImpl::InvalidCommandFormat);
 }
 
 TEST_F(ActionsUtilsTests, testParseFailsWhenActionISUploadFileWhenExpectingFolder)
 {
     nlohmann::json action = getDefaultUploadObject(ResponseActionsImpl::UploadType::FILE);
-    EXPECT_THROW(ResponseActionsImpl::ActionsUtils::readUploadAction(action.dump(),ResponseActionsImpl::UploadType::FOLDER),std::runtime_error);
+    EXPECT_THROW(ResponseActionsImpl::ActionsUtils::readUploadAction(action.dump(),ResponseActionsImpl::UploadType::FOLDER),ResponseActionsImpl::InvalidCommandFormat);
 }
 
 TEST_F(ActionsUtilsTests, testSucessfulParseCompressionEnabled)
@@ -103,40 +104,40 @@ TEST_F(ActionsUtilsTests, testFailedParseInvalidValue)
 {
     nlohmann::json action = getDefaultUploadObject(ResponseActionsImpl::UploadType::FILE);
     action["url"] = 1000;
-    EXPECT_THROW(ResponseActionsImpl::ActionsUtils::readUploadAction(action.dump(),ResponseActionsImpl::UploadType::FILE),std::runtime_error);
+    EXPECT_THROW(ResponseActionsImpl::ActionsUtils::readUploadAction(action.dump(),ResponseActionsImpl::UploadType::FILE),ResponseActionsImpl::InvalidCommandFormat);
 }
 
 TEST_F(ActionsUtilsTests, testFailedParseMissingUrl)
 {
     nlohmann::json action = getDefaultUploadObject(ResponseActionsImpl::UploadType::FILE);
     action.erase("url");
-    EXPECT_THROW(ResponseActionsImpl::ActionsUtils::readUploadAction(action.dump(),ResponseActionsImpl::UploadType::FILE),std::runtime_error);
+    EXPECT_THROW(ResponseActionsImpl::ActionsUtils::readUploadAction(action.dump(),ResponseActionsImpl::UploadType::FILE),ResponseActionsImpl::InvalidCommandFormat);
 }
 
 TEST_F(ActionsUtilsTests, testFailedParseMissingExpiration)
 {
     nlohmann::json action = getDefaultUploadObject(ResponseActionsImpl::UploadType::FILE);
     action.erase("expiration");
-    EXPECT_THROW(ResponseActionsImpl::ActionsUtils::readUploadAction(action.dump(),ResponseActionsImpl::UploadType::FILE),std::runtime_error);
+    EXPECT_THROW(ResponseActionsImpl::ActionsUtils::readUploadAction(action.dump(),ResponseActionsImpl::UploadType::FILE),ResponseActionsImpl::InvalidCommandFormat);
 }
 
 TEST_F(ActionsUtilsTests, testFailedParseMissingTimeout)
 {
     nlohmann::json action = getDefaultUploadObject(ResponseActionsImpl::UploadType::FILE);
     action.erase("timeout");
-    EXPECT_THROW(ResponseActionsImpl::ActionsUtils::readUploadAction(action.dump(),ResponseActionsImpl::UploadType::FILE),std::runtime_error);
+    EXPECT_THROW(ResponseActionsImpl::ActionsUtils::readUploadAction(action.dump(),ResponseActionsImpl::UploadType::FILE),ResponseActionsImpl::InvalidCommandFormat);
 }
 
 TEST_F(ActionsUtilsTests, testFailedParseMissingMaxUploadSizeBytes)
 {
     nlohmann::json action = getDefaultUploadObject(ResponseActionsImpl::UploadType::FILE);
     action.erase("maxUploadSizeBytes");
-    EXPECT_THROW(ResponseActionsImpl::ActionsUtils::readUploadAction(action.dump(),ResponseActionsImpl::UploadType::FILE),std::runtime_error);
+    EXPECT_THROW(ResponseActionsImpl::ActionsUtils::readUploadAction(action.dump(),ResponseActionsImpl::UploadType::FILE),ResponseActionsImpl::InvalidCommandFormat);
 }
 
 TEST_F(ActionsUtilsTests, testFailedParseMissingTargetFile)
 {
     nlohmann::json action = getDefaultUploadObject(ResponseActionsImpl::UploadType::FILE);
     action.erase("targetFile");
-    EXPECT_THROW(ResponseActionsImpl::ActionsUtils::readUploadAction(action.dump(),ResponseActionsImpl::UploadType::FILE),std::runtime_error);
+    EXPECT_THROW(ResponseActionsImpl::ActionsUtils::readUploadAction(action.dump(),ResponseActionsImpl::UploadType::FILE),ResponseActionsImpl::InvalidCommandFormat);
 }

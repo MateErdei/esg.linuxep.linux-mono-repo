@@ -1,15 +1,15 @@
 // Copyright 2023 Sophos Limited. All rights reserved.
 
 #include "UploadFileAction.h"
+
 #include "ActionStructs.h"
 #include "ActionsUtils.h"
+#include "InvalidCommandFormat.h"
 #include "Logger.h"
-#include "ResponseActionsException.h"
 
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/FileSystem/IFileTooLargeException.h>
 #include <Common/UtilityImpl/TimeUtils.h>
-
 
 #include <json.hpp>
 namespace ResponseActionsImpl
@@ -27,7 +27,7 @@ namespace ResponseActionsImpl
         {
             info = ActionsUtils::readUploadAction(actionJson, UploadType::FILE);
         }
-        catch (const ResponseActionsException& exception)
+        catch (const InvalidCommandFormat& exception)
         {
             LOGWARN(exception.what());
             ActionsUtils::setErrorInfo(response,1,"Error parsing command from Central","invalid_path");
@@ -75,6 +75,13 @@ namespace ResponseActionsImpl
             {
                 std::string error = "File to be uploaded cannot be accessed";
                 ActionsUtils::setErrorInfo(response,1,error,"access_denied");
+                return response.dump();
+            }
+            catch (const std::exception& exception)
+            {
+                std::stringstream error;
+                error << "Unknown error when calculating digest of file :"  << exception.what();
+                ActionsUtils::setErrorInfo(response,1,error.str());
                 return response.dump();
             }
         }

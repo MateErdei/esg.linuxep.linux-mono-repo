@@ -9,10 +9,10 @@ namespace ResponseActionsImpl
         /**
          * Exception class to report failures when handling response actions
          */
-        class ResponseActionsException : public std::runtime_error
+        class InvalidCommandFormat : public std::runtime_error
         {
         public:
-            explicit ResponseActionsException(const std::string& what) : std::runtime_error(what) {}
+            explicit InvalidCommandFormat(const std::string& what) : std::runtime_error("Invalid command format. " + what) {}
         };
     } // namespace PluginApi
 
