@@ -3,7 +3,7 @@ configure_file(config.h.in config.h )
 add_library(responseplugin SHARED
         ApplicationPaths.cpp
         ApplicationPaths.h
-        CentralEnums.h
+        ActionType.h
         Logger.h
         Logger.cpp
         PluginAdapter.cpp

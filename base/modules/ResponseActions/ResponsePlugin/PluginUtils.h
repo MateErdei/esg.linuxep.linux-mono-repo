@@ -1,9 +1,9 @@
 // Copyright 2023 Sophos Limited. All rights reserved.
 
 #pragma once
-#include "CentralEnums.h"
-#include <json.hpp>
+#include "ActionType.h"
 
+#include <json.hpp>
 #include <string>
 namespace ResponsePlugin
 {

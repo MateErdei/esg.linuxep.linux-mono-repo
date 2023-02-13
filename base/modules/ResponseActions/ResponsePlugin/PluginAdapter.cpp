@@ -50,7 +50,7 @@ namespace ResponsePlugin
                 doUpload(action,correlationId);
                 break;
             case ActionType::NONE:
-                LOGWARN("Unknown action throwing it away");
+                LOGWARN("Throwing away unknown action: " << action);
                 break;
         }
     }

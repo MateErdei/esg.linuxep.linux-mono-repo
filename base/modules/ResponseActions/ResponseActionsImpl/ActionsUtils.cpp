@@ -20,7 +20,7 @@ namespace ResponseActionsImpl
         }
         catch (const nlohmann::json::exception& exception)
         {
-            LOGWARN("Cannot parse action with error : " << exception.what());
+            LOGWARN("Cannot parse action with error: " << exception.what());
         }
 
         std::string targetKey;

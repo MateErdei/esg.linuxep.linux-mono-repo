@@ -598,7 +598,7 @@ class CoreEndpointManager(object):
         GL_POLICIES.addPolicy(self.__m_policyID, self.__m_policy)
         self.__m_resetHealth = None
         self.__command = ""
-        self.__id = ""
+        self.__command_id = ""
 
     def resetHealthPending(self):
         return self.__m_resetHealth is not None
@@ -631,11 +631,11 @@ class CoreEndpointManager(object):
 
     def setCommand(self, query, command_id):
         self.__command = query
-        self.__id = command_id
+        self.__command_id = command_id
 
     def command(self):
         assert self.__command != "", "No command available"
-        return self.__command, self.__id
+        return self.__command, self.__command_id
 
     def clearCommand(self):
         self.__command = ""

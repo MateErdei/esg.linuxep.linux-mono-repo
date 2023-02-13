@@ -65,7 +65,6 @@ TEST_F(UploadFileTests, cannotParseActions)
     std::string response = uploadFileAction.run("");
     nlohmann::json responseJson = nlohmann::json::parse(response);
     EXPECT_EQ(responseJson["result"],1);
-    EXPECT_EQ(responseJson["errorType"],"invalid_path");
     EXPECT_EQ(responseJson["errorMessage"],"Error parsing command from Central");
 }
 

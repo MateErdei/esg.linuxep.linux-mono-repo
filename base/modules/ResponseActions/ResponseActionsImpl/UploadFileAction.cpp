@@ -30,7 +30,7 @@ namespace ResponseActionsImpl
         catch (const InvalidCommandFormat& exception)
         {
             LOGWARN(exception.what());
-            ActionsUtils::setErrorInfo(response,1,"Error parsing command from Central","invalid_path");
+            ActionsUtils::setErrorInfo(response, 1, "Error parsing command from Central");
             return response.dump();
         }
 

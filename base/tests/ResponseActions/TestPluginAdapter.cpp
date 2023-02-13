@@ -53,16 +53,14 @@ TEST_F(PluginAdapterTests, invalidActionIsThrownAway)
     MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
     ASSERT_NE(mockBaseServicePtr, nullptr);
 
-    ResponsePlugin::PluginAdapter pluginAdapter(
-        m_taskQueue, std::move(mockBaseService), m_callback);
+    ResponsePlugin::PluginAdapter pluginAdapter(m_taskQueue, std::move(mockBaseService), m_callback);
 
     m_taskQueue->push(ResponsePlugin::Task{ ResponsePlugin::Task::TaskType::ACTION, "{\"type\":\"string\"}" });
     m_taskQueue->pushStop();
     UsingMemoryAppender recorder(*this);
     pluginAdapter.mainLoop();
 
-    EXPECT_TRUE(appenderContains("Unknown action throwing it away"));
-
+    EXPECT_TRUE(appenderContains("Throwing away unknown action: {\"type\":\"string\"}"));
 }
 
 TEST_F(PluginAdapterTests, UploadFileActionTriggersRun)
