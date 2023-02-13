@@ -24,7 +24,7 @@ public:
     const unsigned int m_validPort = 300;
     const unsigned int m_invalidPort = 70000;
     const std::string m_jsonString =
-        R"({"additionalHeaders":["header1:value1","header2:value2"],"externalProcessWaitRetries":2,"externalProcessWaitTime":3,)"
+        R"({"additionalHeaders":{"header1":"value1","header2":"value2"},"externalProcessWaitRetries":2,"externalProcessWaitTime":3,)"
         R"("interval":42,"maxJsonSize":10,)"
         R"("messageRelays":[{"authentication":1,"id":"ID",)"
         R"("password":"CCAcWWDAL1sCAV1YiHE20dTJIXMaTLuxrBppRLRbXgGOmQBrysz16sn7RuzXPaX6XHk=",)"
@@ -45,7 +45,12 @@ public:
         m_config.setInterval(42);
         m_config.setExternalProcessWaitTime(3);
         m_config.setExternalProcessWaitRetries(2);
-        m_config.setHeadersFromJson({ "header1:value1", "header2:value2" });
+
+        Common::HttpRequests::Headers headers;
+        headers.insert({"header1", "value1"});
+        headers.insert({"header2", "value2"});
+        m_config.setHeaders(headers);
+
         m_config.setMaxJsonSize(10);
         m_config.setPort(m_validPort);
         m_config.setResourceRoot("test");
@@ -74,7 +79,8 @@ public:
         m_jsonObject["verb"] = "PUT";
         m_jsonObject["externalProcessWaitTime"] = 3;
         m_jsonObject["externalProcessWaitRetries"] = 2;
-        m_jsonObject["additionalHeaders"] = { "header1:value1", "header2:value2" }, m_jsonObject["maxJsonSize"] = 10;
+        m_jsonObject["additionalHeaders"] = headers,
+        m_jsonObject["maxJsonSize"] = 10;
         m_jsonObject["port"] = m_validPort;
         m_jsonObject["resourceRoot"] = "TEST";
         m_jsonObject["telemetryServerCertificatePath"] = "some/path";
@@ -161,7 +167,7 @@ TEST_F(ConfigTests, parseValidConfigJsonDirectlySucceeds)
         "telemetryServerCertificatePath": "",
         "externalProcessWaitRetries": 10,
         "externalProcessWaitTime": 100,
-        "additionalHeaders": ["x-amz-acl:bucket-owner-full-control"],
+        "additionalHeaders": {"x-amz-acl":"bucket-owner-full-control"},
         "maxJsonSize": 100000,
         "messageRelays": [],
         "port": 443,
@@ -197,7 +203,7 @@ TEST_F(ConfigTests, parseSupersetConfigJsonDirectlySucceeds)
         "telemetryServerCertificatePath": "",
         "externalProcessWaitRetries": 10,
         "externalProcessWaitTime": 100,
-        "additionalHeaders": ["x-amz-acl:bucket-owner-full-control"],
+        "additionalHeaders": {"x-amz-acl":"bucket-owner-full-control"},
         "maxJsonSize": 100000,
         "messageRelays": [],
         "CURRENTLY_UNKNOWN" : "extra",
@@ -431,34 +437,4 @@ TEST_F(ConfigTests, buildExeConfigFromSupplementaryConfig)
 
     EXPECT_EQ("", exeConfig.getResourceRoot());
     EXPECT_NE(m_config.getInterval(), exeConfig.getInterval());
-}
-
-TEST_F(ConfigTests, getHeadersForJsonReturnsValidJson)
-{
-    Config config;
-    Common::HttpRequests::Headers additionalHeaders;
-    additionalHeaders["header1"] = "value1";
-    additionalHeaders["header2"] = "value2";
-
-    config.setHeaders(additionalHeaders);
-    config.setPort(m_validPort);
-    config.setResourcePath("test/name");
-    config.setServer("localhost");
-    config.setVerb("GET");
-
-    Config expectedConfig = Config::buildExeConfigFromTelemetryConfig(m_config, "name");
-
-    EXPECT_EQ(config, expectedConfig);
-    EXPECT_EQ(Serialiser::deserialise(Serialiser::serialise(config)), expectedConfig);
-
-    std::vector<std::string> convertedHeaders = {"header1:value1", "header2:value2"};
-    EXPECT_EQ(config.getHeadersForJson(), convertedHeaders);
-}
-
-TEST_F(ConfigTests, setHeadersFromJsonDoesNotThrowWhenConfigIsMalformed)
-{
-    Config c;
-    std::vector<std::string> malformedHeaders = {"header1:", "header2"};
-    EXPECT_NO_THROW(c.setHeadersFromJson(malformedHeaders));
-    EXPECT_EQ(c.getHeaders(), Common::HttpRequests::Headers{});
 }

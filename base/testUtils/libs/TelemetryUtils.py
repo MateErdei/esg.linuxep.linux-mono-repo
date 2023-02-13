@@ -28,7 +28,7 @@ class TelemetryUtils:
             "telemetryServerCertificatePath": "",
             "externalProcessWaitRetries": 10,
             "externalProcessWaitTime": 100,
-            "additionalHeaders": ["x-amz-acl: bucket-owner-full-control"],
+            "additionalHeaders": {"x-amz-acl": "bucket-owner-full-control"},
             "maxJsonSize": 100000,
             "messageRelays": [],
             "port": 443,
@@ -661,7 +661,7 @@ class TelemetryUtils:
                 config = json.loads(supplFile.read())
 
                 config['interval'] = int(new_interval_in_seconds)
-                config["additionalHeaders"] = ["x-amz-acl:bucket-owner-full-control"]
+                config["additionalHeaders"] = {"x-amz-acl":"bucket-owner-full-control"}
                 supplFile.seek(0)
                 supplFile.write(json.dumps(config))
                 supplFile.truncate()
@@ -710,7 +710,7 @@ class TelemetryUtils:
             with open(self.telemetry_supplementary_filepath, "r+") as supplFile:
                 config = json.loads(supplFile.read())
 
-                config["additionalHeaders"] = ["x-amz-acl:not-really-valid"]
+                config["additionalHeaders"] = {"x-amz-acl":"not-really-valid"}
                 supplFile.seek(0)
                 supplFile.write(json.dumps(config))
                 supplFile.truncate()

@@ -54,7 +54,7 @@ public:
         "server": "localhost",
         "port": 443,
         "verb": "PUT",
-        "additionalHeaders": ["x-amz-acl:bucket-owner-full-control"],
+        "additionalHeaders": {"x-amz-acl":"bucket-owner-full-control"},
         "resourceRoot": "linux/dev",
         "interval": 1
     })";
@@ -64,7 +64,7 @@ public:
         "server": "localhost",
         "port": 443,
         "verb": "PUT",
-        "additionalHeaders": ["x-amz-acl:bucket-owner-full-control"],
+        "additionalHeaders": {"x-amz-acl":"bucket-owner-full-control"},
         "resourceRoot": "linux/dev",
         "interval": "1"
     })"; // interval as string
@@ -74,7 +74,7 @@ public:
         "server": "localhost",
         "port": 443,
         "verb": "PUT",
-        "additionalHeaders": ["x-amz-acl:bucket-owner-full-control"],
+        "additionalHeaders": {"x-amz-acl":"bucket-owner-full-control"},
         "resourceRoot": "linux/dev",
         "interval": 12000000000000000
     })"; // interval as big number
@@ -84,7 +84,7 @@ public:
         "server": "localhost",
         "port": 443,
         "verb": "PUT",
-        "additionalHeaders": ["x-amz-acl:bucket-owner-full-control"],
+        "additionalHeaders": {"x-amz-acl":"bucket-owner-full-control"},
         "resourceRoot": "linux/dev",
         "interval": -1
     })"; // interval negative

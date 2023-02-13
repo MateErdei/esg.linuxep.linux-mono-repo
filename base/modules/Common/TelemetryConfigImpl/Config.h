@@ -42,8 +42,6 @@ namespace Common::TelemetryConfigImpl
 
         const Common::HttpRequests::Headers& getHeaders() const;
         void setHeaders(const HttpRequests::Headers& headers);
-        std::vector<std::string> getHeadersForJson() const;
-        void setHeadersFromJson(const std::vector<std::string>& headers);
 
         std::string getVerb() const;
         void setVerb(const std::string& verb);
