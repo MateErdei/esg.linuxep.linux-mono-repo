@@ -190,9 +190,7 @@ namespace diagnose
         }
         catch (IFileSystemException& exception)
         {
-            std::stringstream errormsg;
-            errormsg << "Error creating zip file: " << exception.what();
-            throw std::runtime_error(errormsg.str());
+            throw std::runtime_error(std::string("Error zipping ") + srcPath);
         }
 
         LOGINFO("Created tarfile: " << zipFileName << " in directory " << destPath);

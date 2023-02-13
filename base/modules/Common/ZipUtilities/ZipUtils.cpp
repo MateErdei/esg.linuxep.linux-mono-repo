@@ -16,95 +16,9 @@
 
 #define WRITEBUFFERSIZE (8192)
 
-namespace Common::ZipUtilities
+namespace
 {
-    int ZipUtils::zip(const std::string& srcPath, const std::string& destPath, bool passwordProtected, const std::string& password)
-    {
-        int ret = ZIP_OK;
-        zipFile zf = zipOpen(std::string(destPath.begin(), destPath.end()).c_str(), APPEND_STATUS_CREATE);
-        if (zf == nullptr)
-        {
-            LOGERROR("Error opening zip file: " << destPath);
-            return ENOENT;
-        }
-
-        auto fs = Common::FileSystem::fileSystem();
-
-        std::vector<Path> filesToZip = fs->listAllFilesInDirectoryTree(srcPath);
-
-        for (auto& fullFilePath : filesToZip)
-        {
-            if (fs->isFile(fullFilePath))
-            {
-                std::ifstream file(fullFilePath.c_str(), std::ios::binary | std::ios::in);
-                if (!file.is_open())
-                {
-                    LOGWARN("Could not open file " << fullFilePath);
-                    continue;
-                }
-                file.seekg(0, std::ios::end);
-                long size = file.tellg();
-                file.seekg(0, std::ios::beg);
-                std::vector<char> buffer(size);
-
-                if (size > 0)
-                {
-                    if (!file.read(&buffer[0], size))
-                    {
-                        LOGERROR("Could not read contents of file: " << fullFilePath);
-                        continue;
-                    }
-                }
-                file.close();
-
-                zip_fileinfo zfi;
-                std::string relativeFilePath = fullFilePath.substr(srcPath.size()+1);
-
-                unsigned long crcFile=0;
-                crcFile = crc32_z(crcFile, (unsigned char*)&buffer[0], size);
-                LOGDEBUG("Filename: " << relativeFilePath << ", crc: " << crcFile);
-
-                if (passwordProtected)
-                {
-                    ret = zipOpenNewFileInZip3(zf, relativeFilePath.c_str(), &zfi, nullptr, 0, nullptr, 0, nullptr,
-                                               MZ_COMPRESS_METHOD_DEFLATE, MZ_COMPRESS_LEVEL_DEFAULT,
-                                               0,  -MAX_WBITS, DEF_MEM_LEVEL, Z_DEFAULT_STRATEGY, password.c_str(), crcFile);
-                }
-                else
-                {
-                    ret = zipOpenNewFileInZip(zf, relativeFilePath.c_str(), &zfi, nullptr, 0, nullptr, 0, nullptr,
-                                              MZ_COMPRESS_METHOD_DEFLATE, MZ_COMPRESS_LEVEL_DEFAULT);
-                }
-
-                if (ret != ZIP_OK)
-                {
-                    LOGWARN("Could not add file " << fullFilePath << " to zip file");
-                    continue;
-                }
-
-                ret = zipWriteInFileInZip(zf, size == 0 ? "" : &buffer[0], size);
-                if (ZIP_OK != ret)
-                {
-                    LOGERROR("Error zipping up file: " << relativeFilePath);
-                }
-
-                ret = zipCloseFileInZip(zf);
-                if (ZIP_OK != ret)
-                {
-                    LOGERROR("Error closing zip file: " << relativeFilePath);
-                }
-            }
-        }
-
-        ret = zipClose(zf, nullptr);
-        if (ZIP_OK != ret)
-        {
-            LOGERROR("Error closing zip file: " << destPath);
-        }
-        return ret;
-    }
-
-    static void changeFileDate(
+    void changeFileDate(
         const char *filename,
         tm_unz tmu_date)
     {
@@ -125,7 +39,7 @@ namespace Common::ZipUtilities
         utime(filename,&ut);
     }
 
-    static int extractCurrentfile(
+    int extractCurrentfile(
         unzFile uf,
         const char* password)
     {
@@ -251,7 +165,7 @@ namespace Common::ZipUtilities
         return err;
     }
 
-    static int extractAll(
+    int extractAll(
         unzFile uf,
         const char* password)
     {
@@ -282,6 +196,95 @@ namespace Common::ZipUtilities
             }
         }
         return err;
+    }
+}
+
+namespace Common::ZipUtilities
+{
+    int ZipUtils::zip(const std::string& srcPath, const std::string& destPath, bool passwordProtected, const std::string& password)
+    {
+        int ret = ZIP_OK;
+        zipFile zf = zipOpen(std::string(destPath.begin(), destPath.end()).c_str(), APPEND_STATUS_CREATE);
+        if (zf == nullptr)
+        {
+            LOGERROR("Error opening zip file: " << destPath);
+            return ENOENT;
+        }
+
+        auto fs = Common::FileSystem::fileSystem();
+
+        std::vector<Path> filesToZip = fs->listAllFilesInDirectoryTree(srcPath);
+
+        for (auto& fullFilePath : filesToZip)
+        {
+            if (!fs->isFile(fullFilePath))
+            {
+                continue;
+            }
+
+            std::ifstream file(fullFilePath.c_str(), std::ios::binary | std::ios::in);
+            if (!file.is_open())
+            {
+                LOGWARN("Could not open file " << fullFilePath);
+                continue;
+            }
+
+            std::string fileContents;
+            try
+            {
+                fileContents = fs->readFile(fullFilePath);
+            }
+            catch (const std::exception& exception)
+            {
+                std::stringstream errorMessage;
+                errorMessage << "Could not read contents of file: " << fullFilePath << " with error: " << exception.what();
+                throw std::runtime_error(errorMessage.str());
+            }
+
+            zip_fileinfo zfi;
+            std::string relativeFilePath = fullFilePath.substr(srcPath.size()+1);
+
+            unsigned long crcFile=0;
+            crcFile = crc32_z(crcFile, (unsigned char*)&fileContents[0], fileContents.size());
+            LOGDEBUG("Filename: " << relativeFilePath << ", crc: " << crcFile);
+
+            if (passwordProtected)
+            {
+                ret = zipOpenNewFileInZip3(zf, relativeFilePath.c_str(), &zfi, nullptr, 0, nullptr, 0, nullptr,
+                                           MZ_COMPRESS_METHOD_DEFLATE, MZ_COMPRESS_LEVEL_DEFAULT,
+                                           0,  -MAX_WBITS, DEF_MEM_LEVEL, Z_DEFAULT_STRATEGY, password.c_str(), crcFile);
+            }
+            else
+            {
+                ret = zipOpenNewFileInZip(zf, relativeFilePath.c_str(), &zfi, nullptr, 0, nullptr, 0, nullptr,
+                                          MZ_COMPRESS_METHOD_DEFLATE, MZ_COMPRESS_LEVEL_DEFAULT);
+            }
+
+            if (ret != ZIP_OK)
+            {
+                LOGWARN("Could not add file " << fullFilePath << " to zip file");
+                continue;
+            }
+
+            ret = zipWriteInFileInZip(zf, &fileContents[0], fileContents.size());
+            if (ZIP_OK != ret)
+            {
+                LOGERROR("Error zipping up file: " << relativeFilePath);
+            }
+
+            ret = zipCloseFileInZip(zf);
+            if (ZIP_OK != ret)
+            {
+                LOGERROR("Error closing zip file: " << relativeFilePath);
+            }
+        }
+
+        ret = zipClose(zf, nullptr);
+        if (ZIP_OK != ret)
+        {
+            LOGERROR("Error closing zip file: " << destPath);
+        }
+        return ret;
     }
 
     int ZipUtils::unzip(const std::string& srcPath, const std::string& destPath, bool passwordProtected, const std::string& passwordStr)
