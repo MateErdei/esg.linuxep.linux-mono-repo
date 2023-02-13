@@ -8,7 +8,7 @@ add_library(ziputiltiesobject OBJECT
         $<TARGET_OBJECTS:filesystemimplobject>)
 
 
-target_include_directories(ziputiltiesobject PUBLIC ${LOG4CPLUS_INCLUDE_DIR} ${MINIZIP_INCLUDE_DIR} ${ZLIB_INCLUDE_DIR})
+target_include_directories(ziputiltiesobject PUBLIC ${LOG4CPLUS_INCLUDE_DIR} ${MINIZIP_INCLUDE_DIR} ${ZLIB_LIBRARY})
 add_library(ziputilities SHARED $<TARGET_OBJECTS:ziputiltiesobject>)
 target_link_libraries(ziputilities PUBLIC
         ${LOG4CPLUS_LIBRARY} ${ZLIB_LIBRARY} ${MINIZIP_LIBRARY})
