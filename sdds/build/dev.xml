@@ -91,6 +91,7 @@
 
         <!--supplements-->
         <build-asset project="linuxep" repo="runtimedetections" mode="dev,999,prod">
+            <release-version branch="release--content--version_5_4_0" build-id="20230126175443-bdfb2d342160abcf3aedd03d1c39a3a9114b7f4a-IpTd6n"/>
             <development-version branch="master"/>
             <include artifact-path="sspl-rdrules-scit" dest-dir="inputs/supplements/RuntimeDetectionRules"/>
         </build-asset>
