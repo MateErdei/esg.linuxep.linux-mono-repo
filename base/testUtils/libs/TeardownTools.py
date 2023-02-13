@@ -82,28 +82,28 @@ class TeardownTools(object):
             self.log_mark_dict[log_key] = None
 
     def check_dmesg_for_segfaults(self):
-        dmesg_process = sp.Popen(["dmesg", "-T"], stdout=sp.PIPE)
-        grep_process = sp.Popen(["grep", "-n3", "segfault"], stdin=dmesg_process.stdout, stdout=sp.PIPE)
+        dmesg_process = sp.Popen(["dmesg", "-T"], stdout=sp.PIPE, stderr=sp.STDOUT)
+        grep_process = sp.Popen(["grep", "-n3", "segfault"], stdin=dmesg_process.stdout, stdout=sp.PIPE, stderr=sp.STDOUT)
         dmesg_process.wait()
         dmesg_process.stdout.close()
-        logger.info(dmesg_process.returncode)
         grep_process.wait()
         stdout, stderr = grep_process.communicate()
         logger.info(stdout)
-        logger.info(stderr)
         logger.info("dmesg return code: {}, expecting 0".format(dmesg_process.returncode))
         assert dmesg_process.returncode == 0
         logger.info("grep return code: {}, expecting 1".format(grep_process.returncode))
-        if grep_process.returncode == 0: #
-            #Clear the dmesg logs on a segfault to stop all subsequent tests failing for a single segfault
-            dmesg_process_clear_log = sp.Popen(["dmesg", "-C"], stdout=sp.PIPE)
-            dmesg_process_clear_log.wait()
+        # grep return code 0 means we found a match
+        # return code 1 means no match
+        if grep_process.returncode == 0:
+            # Clear the dmesg logs on a segfault to stop all subsequent tests failing for a single segfault
+            sp.run(["dmesg", "-C"])
             logger.info("Clear dmesg after segfault detected")
-
-        CLOUD_SETUP_SEGFAULT_RE = re.compile(r"nm-cloud-setup\[\d+\]: segfault at [0-9a-f]+ ip [0-9a-f]+ sp [0-9a-f]+ error 4 in libglib-2.0.so.*\[[0-9a-f]+\+[0-9a-f]+\]")
-
-        if grep_process.returncode == 0 and not CLOUD_SETUP_SEGFAULT_RE.search(str(dmesg_process.stdout)):
-            raise AssertionError("segfault found : " + str(stdout))
+            output = str(stdout)
+            CLOUD_SETUP_SEGFAULT_RE = re.compile(r"nm-cloud-setup\[\d+\]: segfault at [0-9a-f]+ ip [0-9a-f]+ sp [0-9a-f]+ error 4 in libglib-2.0.so.*\[[0-9a-f]+\+[0-9a-f]+\]")
+            if CLOUD_SETUP_SEGFAULT_RE.search(output) is None:
+                raise AssertionError("segfault found : " + output)
+            else:
+                logger.error("Ignoring segfault from nm-cloud-setup: " + output)
 
         return stdout
 
