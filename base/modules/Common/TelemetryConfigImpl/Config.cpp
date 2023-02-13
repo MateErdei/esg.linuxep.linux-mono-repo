@@ -169,7 +169,7 @@ std::vector<std::string> Config::getHeadersForJson() const
 
     for (auto& [key, value] : m_headers)
     {
-        headers.emplace_back(key + ":" += value);
+        headers.emplace_back(key + ":" + value);
     }
     return headers;
 }
