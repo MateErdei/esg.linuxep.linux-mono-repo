@@ -40,6 +40,7 @@ namespace Common::ZipUtilities
                 if (!file.is_open())
                 {
                     LOGWARN("Could not open file " << fullFilePath);
+                    continue;
                 }
                 file.seekg(0, std::ios::end);
                 long size = file.tellg();
