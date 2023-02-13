@@ -4,6 +4,7 @@
 #include "ActionStructs.h"
 #include "ActionsUtils.h"
 #include "Logger.h"
+#include "ResponseActionsException.h"
 
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/FileSystem/IFileTooLargeException.h>
@@ -14,7 +15,7 @@
 namespace ResponseActionsImpl
 {
     UploadFileAction::UploadFileAction(std::shared_ptr<Common::HttpRequests::IHttpRequester> client):
-        m_client(client){}
+        m_client(std::move(client)){}
 
     std::string UploadFileAction::run(const std::string& actionJson) const
     {
@@ -27,7 +28,7 @@ namespace ResponseActionsImpl
         {
             info = actionsUtils.readUploadAction(actionJson, UploadType::FILE);
         }
-        catch (const std::runtime_error& exception)
+        catch (const ResponseActionsException& exception)
         {
             LOGWARN(exception.what());
             actionsUtils.setErrorInfo(response,1,"Error parsing command from Central","invalid_path");

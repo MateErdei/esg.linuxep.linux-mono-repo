@@ -2,6 +2,7 @@
 
 #include "ActionsUtils.h"
 #include "Logger.h"
+#include "ResponseActionsException.h"
 
 #include <Common/UtilityImpl/TimeUtils.h>
 #include <Common/UtilityImpl/StringUtils.h>
@@ -32,28 +33,28 @@ namespace ResponseActionsImpl
                 targetKey = "targetFolder";
                 break;
             default:
-                throw std::runtime_error("invalid type");
+                assert(false);
         }
 
         if (!obj.contains(targetKey))
         {
-            throw std::runtime_error("Invalid command format. No " + targetKey + ".");
+            throw ResponseActionsException("Invalid command format. No " + targetKey + ".");
         }
         if (!obj.contains("timeout"))
         {
-            throw std::runtime_error("Invalid command format. Missing timeout.");
+            throw ResponseActionsException("Invalid command format. Missing timeout.");
         }
         if (!obj.contains("maxUploadSizeBytes"))
         {
-            throw std::runtime_error("Invalid command format. Missing maxUploadSizeBytes.");
+            throw ResponseActionsException("Invalid command format. Missing maxUploadSizeBytes.");
         }
         if (!obj.contains("expiration"))
         {
-            throw std::runtime_error("Invalid command format. Missing expiration.");
+            throw ResponseActionsException("Invalid command format. Missing expiration.");
         }
         if (!obj.contains("url"))
         {
-            throw std::runtime_error("Invalid command format. No url.");
+            throw ResponseActionsException("Invalid command format. No url.");
         }
 
         try
@@ -63,26 +64,25 @@ namespace ResponseActionsImpl
             info.timeout = obj["timeout"];
             info.maxSize = obj["maxUploadSizeBytes"];
             info.expiration = obj["expiration"];
+            if (obj.contains("compress"))
+            {
+                info.compress = obj["compress"];
+            }
+
+            if (obj.contains("password"))
+            {
+                auto parsedPassword = obj["password"];
+                if (!parsedPassword.empty())
+                {
+                    info.password = parsedPassword;
+                }
+            }
         }
         catch (const nlohmann::json::type_error& exception)
         {
             std::stringstream errorMsg;
             errorMsg << "Failed to parse json, json value in unexpected type : " << exception.what();
-            throw std::runtime_error(errorMsg.str());
-        }
-
-        if (obj.contains("compress"))
-        {
-            info.compress = obj["compress"];
-        }
-
-        if (obj.contains("password"))
-        {
-            auto parsedPassword = obj["password"];
-            if (!parsedPassword.empty())
-            {
-                info.password = parsedPassword;
-            }
+            throw ResponseActionsException(errorMsg.str());
         }
 
         return info;

@@ -145,6 +145,7 @@ namespace Common
         {
             return std::stoul(TimeUtils::fromTime(TimeUtils::getCurrTime(), "%s"));
         }
+
         ScopedReplaceITime::ScopedReplaceITime(std::unique_ptr<ITime> mockTimer)
         {
             staticTimeSource().reset(mockTimer.release());
