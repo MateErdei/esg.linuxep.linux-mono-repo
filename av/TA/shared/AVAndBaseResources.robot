@@ -8,6 +8,7 @@ Library         ../Libs/CoreDumps.py
 
 AV and Base Setup
     # ignore occasional SXL4 timeouts
+    Register Cleanup  clear outbreak mode if required
     Register Cleanup  Exclude Globalrep Timeout Errors
     Register Cleanup  Require No Unhandled Exception
     Register Cleanup  analyse Journalctl   print_always=True

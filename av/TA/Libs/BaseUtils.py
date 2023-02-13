@@ -123,3 +123,17 @@ def set_spl_log_level_and_restart_watchdog_if_changed(loglevel: str):
 
     logger.info("Restarting sophos-spl")
     subprocess.check_call(['systemctl', 'restart', 'sophos-spl'])
+
+
+def clear_outbreak_mode_if_required():
+    SOPHOS_INSTALL = get_variable("SOPHOS_INSTALL", "/opt/sophos-spl")
+    outbreak_status_path = os.path.join(SOPHOS_INSTALL, "var", "sophosspl", "outbreak_status.json")
+    if not os.path.isfile(outbreak_status_path):
+        logger.info("DEBUG::: Not in outbreak mode: " + outbreak_status_path)
+        return
+
+    logger.info("Clearing outbreak mode")
+    wdctl = os.path.join(SOPHOS_INSTALL, "bin", "wdctl")
+    subprocess.check_call([wdctl, "stop", "managementagent"])
+    os.unlink(outbreak_status_path)
+    subprocess.check_call([wdctl, "start", "managementagent"])

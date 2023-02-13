@@ -594,8 +594,8 @@ AV Plugin Reports The Right Error Code If Sophos Threat Detector Dies During Sca
     ...  ${av_mark}  timeout=${AVSCANNER_TOTAL_CONNECTION_TIMEOUT_WAIT_PERIOD}
 
 AV Runs Scan With SXL Lookup Enabled
-    Run Process  bash  ${BASH_SCRIPTS_PATH}/eicarMaker.sh   stderr=STDOUT
-    Register Cleanup    Remove Directory    /tmp_test/three_hundred_eicars/  recursive=True
+    Run Process  bash  ${BASH_SCRIPTS_PATH}/eicarMaker.sh  /tmp_test/eicars  10  stderr=STDOUT
+    Register Cleanup    Remove Directory    /tmp_test/eicars/  recursive=True
 
     ${av_mark} =  Get AV Log Mark
     ${susi_debug_mark} =  Get SUSI Debug Log Mark
@@ -607,8 +607,8 @@ AV Runs Scan With SXL Lookup Enabled
 
 
 AV Runs Scan With SXL Lookup Disabled
-    Run Process  bash  ${BASH_SCRIPTS_PATH}/eicarMaker.sh   stderr=STDOUT
-    Register Cleanup    Remove Directory    /tmp_test/three_hundred_eicars/  recursive=True
+    Run Process  bash  ${BASH_SCRIPTS_PATH}/eicarMaker.sh  /tmp_test/eicars  3  stderr=STDOUT
+    Register Cleanup    Remove Directory    /tmp_test/eicars/  recursive=True
 
     ${av_mark} =  Get AV Log Mark
     ${susi_debug_mark} =  Get SUSI Debug Log Mark
@@ -793,6 +793,9 @@ AV Plugin Can Work Despite Specified Log File Being Read-Only
     Register Cleanup    Empty Directory  ${MCS_PATH}/event/
     Register Cleanup    List Directory  ${MCS_PATH}/event/
     Empty Directory    ${MCS_PATH}/event/
+
+    clear outbreak mode if required
+
     ${avmark} =  get_av_log_mark
 
     Create File  ${NORMAL_DIRECTORY}/naughty_eicar  ${EICAR_STRING}
