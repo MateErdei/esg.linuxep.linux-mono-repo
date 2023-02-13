@@ -17,7 +17,6 @@
         {"Key" : "CostCentre", "Value" : "GB11601200"},
         {"Key" : "Project", "Value" : { "Ref" : "Project" } },
         {"Key" : "Application", "Value" : "linux-endpoint-testing"},
-        {"Key" : "BaseAmi", "Value" : "ami-086204573aef93048"},
         {"Key" : "Environment", "Value" : "development"},
         {"Key" : "AutomationExcluded", "Value" : "true"},
         {"Key" : "SecurityClassification", "Value" : "none low"},
