@@ -124,6 +124,8 @@
         <build-asset project="em" repo="esg" mode="dev,999,prod">
             <!-- Import a specific release version of SDDS3 tools, because we don't want the sdds3 repo rebuilding for each SAU build. -->
             <release-version branch="release--2023.04.1--sprint" build-id="20230207145141-775465470cd8579d3d451d6287e19d570b6fe863-A8vT3z"/>
+            <!-- Temp change to test new versions -->
+            <development-version branch="develop"/>
             <include artifact-path="bazel-tools" dest-dir="." />
             <include artifact-path="sophlib/sdds3-tools-x64-linux" dest-dir="redist/sdds3"/>
         </build-asset>
