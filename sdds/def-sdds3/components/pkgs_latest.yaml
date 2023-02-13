@@ -23,7 +23,7 @@ base.latest.x64:
   line-id: ServerProtectionLinux-Base-component
   mountpoint: ServerProtectionLinux-Base-component
 event-journaler.latest.x64:
-  prod-artifact: esg-releasable-candidate/linuxep.sspl-plugin-event-journaler/release--2023-07/20230213140757-ac6564cd746ea215c4e39a159b8685d38dea3821-zmB6xf/
+  prod-artifact: esg-releasable-candidate/linuxep.sspl-plugin-event-journaler/release--2023-07/20230213140757-ac6564cd746ea215c4e39a159b8685d38dea3821-zmB6xf/SDDS3-PACKAGE/
   line-id: ServerProtectionLinux-Plugin-EventJournaler
   mountpoint: ServerProtectionLinux-Plugin-EventJournaler
 liveresponse.latest.x64:
