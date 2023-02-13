@@ -174,7 +174,12 @@ namespace diagnose
         std::string zipfiletemp = Common::FileSystem::join(destPath, zipFileName + ".temp");
         std::string zipfile = Common::FileSystem::join(destPath, zipFileName);
 
-        Common::ZipUtilities::ZipUtils::zip(srcPath, zipfiletemp);
+        if (Common::ZipUtilities::ZipUtils::zip(srcPath, zipfiletemp) != 0)
+        {
+            std::stringstream errormsg;
+            errormsg << "Error zipping " << srcPath;
+            throw std::runtime_error(errormsg.str());
+        }
 
         try
         {
