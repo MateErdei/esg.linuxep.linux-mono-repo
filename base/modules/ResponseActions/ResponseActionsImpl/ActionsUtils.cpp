@@ -59,19 +59,19 @@ namespace ResponseActionsImpl
 
         try
         {
-            info.url = obj["url"];
-            info.targetPath = obj[targetKey];
-            info.timeout = obj["timeout"];
-            info.maxSize = obj["maxUploadSizeBytes"];
-            info.expiration = obj["expiration"];
+            info.url = obj.at("url");
+            info.targetPath = obj.at(targetKey);
+            info.timeout = obj.at("timeout");
+            info.maxSize = obj.at("maxUploadSizeBytes");
+            info.expiration = obj.at("expiration");
             if (obj.contains("compress"))
             {
-                info.compress = obj["compress"];
+                info.compress = obj.at("compress");
             }
 
             if (obj.contains("password"))
             {
-                auto parsedPassword = obj["password"];
+                auto parsedPassword = obj.at("password");
                 if (!parsedPassword.empty())
                 {
                     info.password = parsedPassword;
