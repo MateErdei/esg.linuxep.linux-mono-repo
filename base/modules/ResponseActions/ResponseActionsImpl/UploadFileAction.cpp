@@ -69,7 +69,7 @@ namespace ResponseActionsImpl
 
         try
         {
-            sha256 = fs->calculateDigest(Common::SslImpl::Digest::sha256, info.targetPath);
+            response["sha256"] = fs->calculateDigest(Common::SslImpl::Digest::sha256, info.targetPath);
         }
         catch (const Common::FileSystem::IFileSystemException&)
         {
@@ -84,8 +84,6 @@ namespace ResponseActionsImpl
             ActionsUtils::setErrorInfo(response, 1, error.str());
             return response.dump();
         }
-
-        response["sha256"] = sha256;
 
         Common::HttpRequests::RequestConfig request{ .url = info.url,
                                                      .fileToUpload = info.targetPath,

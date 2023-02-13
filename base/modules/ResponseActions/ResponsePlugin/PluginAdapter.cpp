@@ -63,7 +63,7 @@ namespace ResponsePlugin
             std::make_shared<Common::HttpRequestsImpl::HttpRequesterImpl>(curlWrapper);
         ResponseActionsImpl::UploadFileAction uploadFileAction(client);
         std::string response = uploadFileAction.run(action);
-        PluginUtils::sendResponse(correlationId,action);
+        PluginUtils::sendResponse(correlationId, response);
         LOGINFO("Sent upload response to Central");
     }
 
