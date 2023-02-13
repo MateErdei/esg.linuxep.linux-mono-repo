@@ -216,12 +216,11 @@ Telemetry Executable Telemetry Config File Certificate Path Empty
     [Documentation]    Telemetry Executable Creates Fails to Send Telemetry Data if Certificate Path Key in Config File is Empty
     Create Test Telemetry Config File     ${EXE_CONFIG_FILE}    ""  ${USERNAME}
 
-
-
     ${result} =    Run Process  sudo  -u  ${USERNAME}    ${SOPHOS_INSTALL}/base/bin/telemetry      ${EXE_CONFIG_FILE}
     Log    "stdout = ${result.stdout}"
     Log    "stderr = ${result.stderr}"
-    Should Be Equal As Integers   ${result.rc}       ${FAILED}      Telemetry executable returned an unexpected error code
+    Should Be Equal As Integers   ${result.rc}       ${0}
+    Check Telemetry Log Contains   Failed to contact telemetry server: 5
 
 
 Telemetry Executable Telemetry Config File Path Invalid
@@ -361,17 +360,12 @@ Telemetry Executable HTTP PUT Request Will Fail When Server Highest TLS is Less 
     [Documentation]    Telemetry Executable Creates HTTP PUT Request With Collected Telemetry Content
     Cleanup Telemetry Server
     Prepare To Run Telemetry Executable With HTTPS Protocol   TLSProtocol=tlsv1_1
-    Run Telemetry Executable    ${EXE_CONFIG_FILE}     ${FAILED}   checkResult=0
 
-    Wait Until Keyword Succeeds
-    ...     5 seconds
-    ...     1 seconds
-    ...     Check Log Contains   Response HttpCode: 35   ${SOPHOS_INSTALL}/logs/base/sophosspl/telemetry.log   TelemetryLog
-
-    Wait Until Keyword Succeeds
-    ...     5 seconds
-    ...     1 seconds
-    ...     Check Log Contains   SSL connect error   ${SOPHOS_INSTALL}/logs/base/sophosspl/telemetry.log   TelemetryLog
+    ${result} =    Run Process  sudo  -u  ${USERNAME}    ${SOPHOS_INSTALL}/base/bin/telemetry      ${EXE_CONFIG_FILE}
+    Log    "stdout = ${result.stdout}"
+    Log    "stderr = ${result.stderr}"
+    Should Be Equal As Integers   ${result.rc}       ${0}
+    Check Telemetry Log Contains   Failed to contact telemetry server: 5
 
 Test With Proxy
     [Teardown]  Teardown With Proxy Clear
