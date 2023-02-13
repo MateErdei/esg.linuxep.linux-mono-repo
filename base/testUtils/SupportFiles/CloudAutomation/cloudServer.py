@@ -634,8 +634,7 @@ class CoreEndpointManager(object):
         self.__id = command_id
 
     def command(self):
-        if self.__command == "":
-            raise AssertionError("No command available")
+        assert self.__command != "", "No command available"
         return self.__command, self.__id
 
     def clearCommand(self):
