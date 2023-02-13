@@ -44,20 +44,18 @@ public:
 
 TEST_F(ActionsUtilsTests, testExpiry)
 {
-    ResponseActionsImpl::ActionsUtils actionsUtils;
-    EXPECT_TRUE(actionsUtils.isExpired(1000));
-    EXPECT_FALSE(actionsUtils.isExpired(1991495566));
+    EXPECT_TRUE(ResponseActionsImpl::ActionsUtils::isExpired(1000));
+    EXPECT_FALSE(ResponseActionsImpl::ActionsUtils::isExpired(1991495566));
     Common::UtilityImpl::FormattedTime time;
     u_int64_t currentTime = time.currentEpochTimeInSecondsAsInteger();
-    EXPECT_TRUE(actionsUtils.isExpired(currentTime-10));
-    EXPECT_FALSE(actionsUtils.isExpired(currentTime+10));
+    EXPECT_TRUE(ResponseActionsImpl::ActionsUtils::isExpired(currentTime-10));
+    EXPECT_FALSE(ResponseActionsImpl::ActionsUtils::isExpired(currentTime+10));
 }
 
 TEST_F(ActionsUtilsTests, testSucessfulParseUploadFile)
 {
-    ResponseActionsImpl::ActionsUtils actionsUtils;
     nlohmann::json action = getDefaultUploadObject(ResponseActionsImpl::UploadType::FILE);
-    ResponseActionsImpl::UploadInfo info = actionsUtils.readUploadAction(action.dump(),ResponseActionsImpl::UploadType::FILE);
+    ResponseActionsImpl::UploadInfo info = ResponseActionsImpl::ActionsUtils::readUploadAction(action.dump(),ResponseActionsImpl::UploadType::FILE);
     EXPECT_EQ(info.targetPath,"path");
     EXPECT_EQ(info.maxSize,10000000);
     EXPECT_EQ(info.compress,false);
@@ -68,9 +66,8 @@ TEST_F(ActionsUtilsTests, testSucessfulParseUploadFile)
 
 TEST_F(ActionsUtilsTests, testSucessfulParseUploadFolder)
 {
-    ResponseActionsImpl::ActionsUtils actionsUtils;
     nlohmann::json action = getDefaultUploadObject(ResponseActionsImpl::UploadType::FOLDER);
-    ResponseActionsImpl::UploadInfo info = actionsUtils.readUploadAction(action.dump(),ResponseActionsImpl::UploadType::FOLDER);
+    ResponseActionsImpl::UploadInfo info = ResponseActionsImpl::ActionsUtils::readUploadAction(action.dump(),ResponseActionsImpl::UploadType::FOLDER);
     EXPECT_EQ(info.targetPath,"path");
     EXPECT_EQ(info.maxSize,10000000);
     EXPECT_EQ(info.compress,false);
@@ -81,18 +78,16 @@ TEST_F(ActionsUtilsTests, testSucessfulParseUploadFolder)
 
 TEST_F(ActionsUtilsTests, testParseFailsWhenActionISUploadFileWhenExpectingFolder)
 {
-    ResponseActionsImpl::ActionsUtils actionsUtils;
     nlohmann::json action = getDefaultUploadObject(ResponseActionsImpl::UploadType::FILE);
-    EXPECT_THROW(actionsUtils.readUploadAction(action.dump(),ResponseActionsImpl::UploadType::FOLDER),std::runtime_error);
+    EXPECT_THROW(ResponseActionsImpl::ActionsUtils::readUploadAction(action.dump(),ResponseActionsImpl::UploadType::FOLDER),std::runtime_error);
 }
 
 TEST_F(ActionsUtilsTests, testSucessfulParseCompressionEnabled)
 {
-    ResponseActionsImpl::ActionsUtils actionsUtils;
     nlohmann::json action = getDefaultUploadObject(ResponseActionsImpl::UploadType::FILE);
     action["compress"] = true;
     action["password"] = "password";
-    ResponseActionsImpl::UploadInfo info = actionsUtils.readUploadAction(action.dump(),ResponseActionsImpl::UploadType::FILE);
+    ResponseActionsImpl::UploadInfo info = ResponseActionsImpl::ActionsUtils::readUploadAction(action.dump(),ResponseActionsImpl::UploadType::FILE);
 
     EXPECT_EQ(info.compress,true);
     EXPECT_EQ(info.password,"password");
@@ -100,48 +95,42 @@ TEST_F(ActionsUtilsTests, testSucessfulParseCompressionEnabled)
 
 TEST_F(ActionsUtilsTests, testFailedParseInvalidValue)
 {
-    ResponseActionsImpl::ActionsUtils actionsUtils;
     nlohmann::json action = getDefaultUploadObject(ResponseActionsImpl::UploadType::FILE);
     action["url"] = 1000;
-    EXPECT_THROW(actionsUtils.readUploadAction(action.dump(),ResponseActionsImpl::UploadType::FOLDER),std::runtime_error);
+    EXPECT_THROW(ResponseActionsImpl::ActionsUtils::readUploadAction(action.dump(),ResponseActionsImpl::UploadType::FILE),std::runtime_error);
 }
 
 TEST_F(ActionsUtilsTests, testFailedParseMissingUrl)
 {
-    ResponseActionsImpl::ActionsUtils actionsUtils;
     nlohmann::json action = getDefaultUploadObject(ResponseActionsImpl::UploadType::FILE);
     action.erase("url");
-    EXPECT_THROW(actionsUtils.readUploadAction(action.dump(),ResponseActionsImpl::UploadType::FOLDER),std::runtime_error);
+    EXPECT_THROW(ResponseActionsImpl::ActionsUtils::readUploadAction(action.dump(),ResponseActionsImpl::UploadType::FILE),std::runtime_error);
 }
 
 TEST_F(ActionsUtilsTests, testFailedParseMissingExpiration)
 {
-    ResponseActionsImpl::ActionsUtils actionsUtils;
     nlohmann::json action = getDefaultUploadObject(ResponseActionsImpl::UploadType::FILE);
     action.erase("expiration");
-    EXPECT_THROW(actionsUtils.readUploadAction(action.dump(),ResponseActionsImpl::UploadType::FOLDER),std::runtime_error);
+    EXPECT_THROW(ResponseActionsImpl::ActionsUtils::readUploadAction(action.dump(),ResponseActionsImpl::UploadType::FILE),std::runtime_error);
 }
 
 TEST_F(ActionsUtilsTests, testFailedParseMissingTimeout)
 {
-    ResponseActionsImpl::ActionsUtils actionsUtils;
     nlohmann::json action = getDefaultUploadObject(ResponseActionsImpl::UploadType::FILE);
     action.erase("timeout");
-    EXPECT_THROW(actionsUtils.readUploadAction(action.dump(),ResponseActionsImpl::UploadType::FOLDER),std::runtime_error);
+    EXPECT_THROW(ResponseActionsImpl::ActionsUtils::readUploadAction(action.dump(),ResponseActionsImpl::UploadType::FILE),std::runtime_error);
 }
 
 TEST_F(ActionsUtilsTests, testFailedParseMissingMaxUploadSizeBytes)
 {
-    ResponseActionsImpl::ActionsUtils actionsUtils;
     nlohmann::json action = getDefaultUploadObject(ResponseActionsImpl::UploadType::FILE);
     action.erase("maxUploadSizeBytes");
-    EXPECT_THROW(actionsUtils.readUploadAction(action.dump(),ResponseActionsImpl::UploadType::FOLDER),std::runtime_error);
+    EXPECT_THROW(ResponseActionsImpl::ActionsUtils::readUploadAction(action.dump(),ResponseActionsImpl::UploadType::FILE),std::runtime_error);
 }
 
 TEST_F(ActionsUtilsTests, testFailedParseMissingTargetFile)
 {
-    ResponseActionsImpl::ActionsUtils actionsUtils;
     nlohmann::json action = getDefaultUploadObject(ResponseActionsImpl::UploadType::FILE);
     action.erase("targetFile");
-    EXPECT_THROW(actionsUtils.readUploadAction(action.dump(),ResponseActionsImpl::UploadType::FOLDER),std::runtime_error);
+    EXPECT_THROW(ResponseActionsImpl::ActionsUtils::readUploadAction(action.dump(),ResponseActionsImpl::UploadType::FILE),std::runtime_error);
 }

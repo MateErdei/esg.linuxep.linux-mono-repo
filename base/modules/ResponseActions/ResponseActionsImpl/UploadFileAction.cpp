@@ -21,25 +21,24 @@ namespace ResponseActionsImpl
     {
         nlohmann::json response;
         response["type"] = "sophos.mgt.response.UploadFile";
-        ActionsUtils actionsUtils;
         UploadInfo info;
 
         try
         {
-            info = actionsUtils.readUploadAction(actionJson, UploadType::FILE);
+            info = ActionsUtils::readUploadAction(actionJson, UploadType::FILE);
         }
         catch (const ResponseActionsException& exception)
         {
             LOGWARN(exception.what());
-            actionsUtils.setErrorInfo(response,1,"Error parsing command from Central","invalid_path");
+            ActionsUtils::setErrorInfo(response,1,"Error parsing command from Central","invalid_path");
             return response.dump();
         }
 
-        if (actionsUtils.isExpired(info.expiration))
+        if (ActionsUtils::isExpired(info.expiration))
         {
             std::string error = "Action has expired";
             LOGWARN(error);
-            actionsUtils.setErrorInfo(response,4,error);
+            ActionsUtils::setErrorInfo(response,4,error);
             return response.dump();
         }
 
@@ -48,7 +47,7 @@ namespace ResponseActionsImpl
         {
             std::string error = info.targetPath + " is not a file";
             LOGWARN(error);
-            actionsUtils.setErrorInfo(response,1,error,"invalid_path");
+            ActionsUtils::setErrorInfo(response,1,error,"invalid_path");
             return response.dump();
         }
 
@@ -58,7 +57,7 @@ namespace ResponseActionsImpl
             std::stringstream error;
             error << "File at path " << info.targetPath + " is size "<< response["sizeBytes"] << " bytes which is above the size limit " << info.maxSize <<" bytes";
             LOGWARN(error.str());
-            actionsUtils.setErrorInfo(response,1,error.str(),"exceed_size_limit");
+            ActionsUtils::setErrorInfo(response,1,error.str(),"exceed_size_limit");
             return response.dump();
         }
 
@@ -75,7 +74,7 @@ namespace ResponseActionsImpl
             catch (const Common::FileSystem::IFileSystemException&)
             {
                 std::string error = "File to be uploaded cannot be accessed";
-                actionsUtils.setErrorInfo(response,1,error,"access_denied");
+                ActionsUtils::setErrorInfo(response,1,error,"access_denied");
                 return response.dump();
             }
         }
@@ -96,14 +95,14 @@ namespace ResponseActionsImpl
             std::stringstream error;
             error << "Timeout Uploading file: " << filename;
             LOGWARN(error.str());
-            actionsUtils.setErrorInfo(response,2,error.str());
+            ActionsUtils::setErrorInfo(response,2,error.str());
         }
         else
         {
             std::stringstream error;
             error << "Failed to upload file: " << filename << " with error code " << httpresponse.status ;
             LOGWARN(error.str());
-            actionsUtils.setErrorInfo(response,1,error.str(),"network_error");
+            ActionsUtils::setErrorInfo(response,1,error.str(),"network_error");
         }
 
         response["httpStatus"] = httpresponse.status;
