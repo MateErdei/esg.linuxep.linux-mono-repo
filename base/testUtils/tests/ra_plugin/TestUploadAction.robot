@@ -18,7 +18,7 @@ Default Tags   RESPONSE_ACTIONS_PLUGIN
 RA Plugin uploads a file successfully
     Create File         ${SOPHOS_INSTALL}/base/etc/logger.conf.local   [responseactions]\nVERBOSITY=DEBUG\n
     Install Response Actions Directly
-    Create File  /tmp/file  string
+    Create File  /tmp/file  tempfilecontent
     Send_Upload_File_From_Fake_Cloud
     Wait Until Keyword Succeeds
     ...  25 secs
@@ -29,6 +29,9 @@ RA Plugin uploads a file successfully
     ...  1 secs
     ...  Check Log Contains  Sent upload response to Central  ${RESPONSE_ACTIONS_LOG_PATH}  response actions log
     Check Log Contains  Upload for /tmp/file succeeded  ${RESPONSE_ACTIONS_LOG_PATH}  response actions log
+    Check Log Contains  Received HTTP PUT Request  ${HTTPS_LOG_FILE_PATH}  https server log
+    Check Log Contains  tempfilecontent  ${HTTPS_LOG_FILE_PATH}  https server log
+
 *** Keywords ***
 RA Upload Suite Setup
     Start Local Cloud Server

@@ -42,7 +42,7 @@ namespace ResponseActionsImpl
             return response.dump();
         }
 
-        auto fs = Common::FileSystem::fileSystem();
+        auto* fs = Common::FileSystem::fileSystem();
         if (!fs->isFile(info.targetPath))
         {
             std::string error = info.targetPath + " is not a file";
@@ -55,9 +55,10 @@ namespace ResponseActionsImpl
         if (response["sizeBytes"] > info.maxSize)
         {
             std::stringstream error;
-            error << "File at path " << info.targetPath + " is size "<< response["sizeBytes"] << " bytes which is above the size limit " << info.maxSize <<" bytes";
+            error << "File at path " << info.targetPath + " is size " << response["sizeBytes"]
+                  << " bytes which is above the size limit " << info.maxSize << " bytes";
             LOGWARN(error.str());
-            ActionsUtils::setErrorInfo(response,1,error.str(),"exceed_size_limit");
+            ActionsUtils::setErrorInfo(response, 1, error.str(), "exceed_size_limit");
             return response.dump();
         }
 
@@ -65,29 +66,30 @@ namespace ResponseActionsImpl
         u_int64_t start = time.currentEpochTimeInSecondsAsInteger();
         response["startedAt"] = start;
         std::string sha256;
-        //scoping so we don't keep content in memory any longer than we have to
+
+        try
         {
-            try
-            {
-                sha256 = fs->calculateDigest(Common::SslImpl::Digest::sha256, info.targetPath);
-            }
-            catch (const Common::FileSystem::IFileSystemException&)
-            {
-                std::string error = "File to be uploaded cannot be accessed";
-                ActionsUtils::setErrorInfo(response,1,error,"access_denied");
-                return response.dump();
-            }
-            catch (const std::exception& exception)
-            {
-                std::stringstream error;
-                error << "Unknown error when calculating digest of file :"  << exception.what();
-                ActionsUtils::setErrorInfo(response,1,error.str());
-                return response.dump();
-            }
+            sha256 = fs->calculateDigest(Common::SslImpl::Digest::sha256, info.targetPath);
         }
+        catch (const Common::FileSystem::IFileSystemException&)
+        {
+            std::string error = "File to be uploaded cannot be accessed";
+            ActionsUtils::setErrorInfo(response, 1, error, "access_denied");
+            return response.dump();
+        }
+        catch (const std::exception& exception)
+        {
+            std::stringstream error;
+            error << "Unknown error when calculating digest of file :" << exception.what();
+            ActionsUtils::setErrorInfo(response, 1, error.str());
+            return response.dump();
+        }
+
         response["sha256"] = sha256;
 
-        Common::HttpRequests::RequestConfig request{ .url = info.url, .fileToUpload=info.targetPath, .timeout = info.timeout};
+        Common::HttpRequests::RequestConfig request{ .url = info.url,
+                                                     .fileToUpload = info.targetPath,
+                                                     .timeout = info.timeout };
         LOGINFO("Uploading file: " << info.targetPath << " to url: " << info.url);
         Common::HttpRequests::Response httpresponse = m_client->put(request);
         std::string filename = Common::FileSystem::basename(info.targetPath);

@@ -27,7 +27,7 @@ namespace ResponsePlugin
 
     void PluginCallback::queueAction(const std::string& /* actionXml */)
     {
-        LOGERROR("This method should never be called.");
+        LOGDEBUG("Throwing away unwanted action");
     }
 
     void PluginCallback::queueActionWithCorrelation(const std::string& queryJson, const std::string& correlationId)

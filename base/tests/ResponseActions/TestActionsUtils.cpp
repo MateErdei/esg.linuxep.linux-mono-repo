@@ -46,6 +46,7 @@ public:
 TEST_F(ActionsUtilsTests, testExpiry)
 {
     EXPECT_TRUE(ResponseActionsImpl::ActionsUtils::isExpired(1000));
+    // time is set here to Tue 8 Feb 17:12:46 GMT 2033
     EXPECT_FALSE(ResponseActionsImpl::ActionsUtils::isExpired(1991495566));
     Common::UtilityImpl::FormattedTime time;
     u_int64_t currentTime = time.currentEpochTimeInSecondsAsInteger();
