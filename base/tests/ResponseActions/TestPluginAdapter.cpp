@@ -33,12 +33,12 @@ public:
     void mockSendingResponse()
     {
         auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
-        Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>{ mockFileSystem });
+        Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>{ std::move(mockFileSystem) });
         EXPECT_CALL(*mockFileSystem, writeFile(_,_)).Times(1);
         EXPECT_CALL(*mockFileSystem, moveFile(_,_)).Times(1);
         auto mockFilePermissions = new StrictMock<MockFilePermissions>();
         std::unique_ptr<MockFilePermissions> mockIFilePermissionsPtr =
-            std::unique_ptr<MockFilePermissions>(mockFilePermissions);
+            std::unique_ptr<MockFilePermissions>(std::move(mockFilePermissions));
         Tests::replaceFilePermissions(std::move(mockIFilePermissionsPtr));
         EXPECT_CALL(*mockFilePermissions, chmod(_, _)).WillRepeatedly(Return());
         EXPECT_CALL(*mockFilePermissions, chown(_, _, _)).WillRepeatedly(Return());
