@@ -13,10 +13,10 @@ namespace ResponseActionsImpl
     UploadInfo ActionsUtils::readUploadAction(const std::string& actionJson, UploadType type)
     {
         UploadInfo info;
-        nlohmann::json obj;
+        nlohmann::json actionObject;
         try
         {
-            obj = nlohmann::json::parse(actionJson);
+            actionObject = nlohmann::json::parse(actionJson);
         }
         catch (const nlohmann::json::exception& exception)
         {
@@ -36,42 +36,42 @@ namespace ResponseActionsImpl
                 assert(false);
         }
 
-        if (!obj.contains(targetKey))
+        if (!actionObject.contains(targetKey))
         {
             throw InvalidCommandFormat("No " + targetKey + ".");
         }
-        if (!obj.contains("timeout"))
+        if (!actionObject.contains("timeout"))
         {
             throw InvalidCommandFormat("Missing timeout.");
         }
-        if (!obj.contains("maxUploadSizeBytes"))
+        if (!actionObject.contains("maxUploadSizeBytes"))
         {
             throw InvalidCommandFormat("Missing maxUploadSizeBytes.");
         }
-        if (!obj.contains("expiration"))
+        if (!actionObject.contains("expiration"))
         {
             throw InvalidCommandFormat("Missing expiration.");
         }
-        if (!obj.contains("url"))
+        if (!actionObject.contains("url"))
         {
             throw InvalidCommandFormat("No url.");
         }
 
         try
         {
-            info.url = obj.at("url");
-            info.targetPath = obj.at(targetKey);
-            info.timeout = obj.at("timeout");
-            info.maxSize = obj.at("maxUploadSizeBytes");
-            info.expiration = obj.at("expiration");
-            if (obj.contains("compress"))
+            info.url = actionObject.at("url");
+            info.targetPath = actionObject.at(targetKey);
+            info.timeout = actionObject.at("timeout");
+            info.maxSize = actionObject.at("maxUploadSizeBytes");
+            info.expiration = actionObject.at("expiration");
+            if (actionObject.contains("compress"))
             {
-                info.compress = obj.at("compress");
+                info.compress = actionObject.at("compress");
             }
 
-            if (obj.contains("password"))
+            if (actionObject.contains("password"))
             {
-                auto parsedPassword = obj.at("password");
+                auto parsedPassword = actionObject.at("password");
                 if (!parsedPassword.empty())
                 {
                     info.password = parsedPassword;
