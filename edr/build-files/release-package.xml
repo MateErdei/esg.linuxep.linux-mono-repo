@@ -33,6 +33,13 @@
             <include artifact-path="sed-libs-linux/JournalLib-x64" dest-dir="/build/input"/>
         </build-asset>
 
+        <!-- MonoRepo -->
+        <build-asset project="em" repo="esg">
+            <!--            <release-version branch="thirdparty/googletest-linux-opt" build-id=""/>-->
+            <development-version branch="develop"/>
+            <include artifact-path="thirdparty/googletest-linux-opt" dest-dir="/build/input/googletest"/>
+        </build-asset>
+
         <build-asset project="em" repo="esg">
             <release-version branch="release/2023.04/sprint" build-id="20230120201925-31a0379094fc1654506d3d459661d326949dee47-bh0Sgz"/>
             <development-version branch="develop"/>
@@ -98,12 +105,6 @@
         <build-asset project="em" repo="esg">
             <development-version branch="feature/thirdparty/LINUXDAR-6727-update-minizip-ng-to-3.0.8"/>
             <include artifact-path="thirdparty/liblzma-linux-opt" dest-dir="/build/redist/lzma"/>
-        </build-asset>
-        <!-- MonoRepo -->
-        <build-asset project="em" repo="esg">
-            <!--            <release-version branch="thirdparty/googletest-linux-opt" build-id=""/>-->
-            <development-version branch="develop"/>
-            <include artifact-path="thirdparty/googletest-linux-opt" dest-dir="/build/input/googletest"/>
         </build-asset>
 
         <trusted-asset artifact-path="com.osquery/osquery/5.7.0/osquery-5.7.0-linux" dest-dir="/build/input"/>
