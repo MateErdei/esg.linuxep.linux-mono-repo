@@ -6,6 +6,46 @@ import xmltodict
 import sys
 import json
 
+repoNameToPackageName = {
+    "liveterminal": "liveterminal_linux",
+    "capsule8-sensor": "runtimedetections",
+    "sau": "sau_xg",
+    "sed": "sed",
+    "everest-base": "sspl-base",
+    "sspl-plugin-edr-componentsuite": "sspl-componentsuite",
+    "sspl-plugin-event-journaler": "sspl-event-journaler-plugin",
+    "sspl-flags": "sspl-flags",
+    "sspl-plugin-mdr-component": "sspl-mdr-control-plugin",
+    "sspl-plugin-anti-virus": "sspl-plugin-anti-virus",
+    "sspl-plugin-edr-component": "sspl-plugin-edr-component",
+    "thininstaller": "sspl-thininstaller",
+    "sspl-warehouse": "sspl-warehouse",
+    "versig": "versig",
+    "livequery": "xdrsharedcomponents",
+    "boost": "boostlinux11",
+    "capnproto": "capnprotolinux11",
+    "cmake": "cmakelinux",
+    "curl": "curllinux11",
+    "libexpat": "expatlinux11",
+    "flatbuffers": "flatbuffers",
+    "gflags": "gflagslinux11",
+    "glog": "gloglinux11",
+    "googletest": "googletest",
+    "grpc": "grpc",
+    "jsoncpp": "jsoncpplinux11",
+    "libffi": "libffi",
+    "libxcrypt": "libxcrypt",
+    "log4cplus": "log4cpluslinux11",
+    "minizip": "miniziplinux11",
+    "openssl": "openssllinux11",
+    "protobuf": "protobuflinux11",
+    "cpython": "pythonlinux11",
+    "sul": "sullinux11",
+    "thrift": "thriftlinux11",
+    "xzutils": "xzutilslinux",
+    "libzmq": "zeromqlinux11",
+    "zlib": "zliblinux11"
+}
 
 def find_all_release_xmls(start_dir):
     release_package_names = ["release-package-linux.xml", "linux-release-package.xml", "linux_package.xml",
@@ -78,7 +118,8 @@ def process_release_files(release_files):
                     print(f"Skipping input: {input_pkg['@repo']} in: {release_file_path}, as there is no release-version")
                     continue
 
-                input_dict = {"name": input_pkg["@repo"],
+                input_dict = {"name": repoNameToPackageName[input_pkg["@repo"]],
+                              "repo_name": input_pkg["@repo"],
                               "branch": input_pkg["release-version"]["@branch"],
                               "build_id": input_pkg["release-version"]["@build-id"],
                               "artifacts": []}
