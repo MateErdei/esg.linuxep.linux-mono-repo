@@ -25,6 +25,8 @@
             <release-version branch="release/2023.04/sprint" build-id="20230120201925-31a0379094fc1654506d3d459661d326949dee47-bh0Sgz"/>
             <development-version branch="develop"/>
             <include artifact-path="sophlib/sdds3-tools-x64-linux" dest-dir="/build/input/sdds3"/>
+
+            <include artifact-path="thirdparty/googletest-linux-opt" dest-dir="/build/input/googletest"/>
         </build-asset>
 
         <build-asset project="thirdparty" repo="capnproto">
