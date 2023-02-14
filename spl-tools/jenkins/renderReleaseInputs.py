@@ -3,6 +3,20 @@
 import os
 import json
 from graphviz import Digraph
+
+
+def format_name(name):
+    names_to_format = {
+        "sspl-plugin-edr-component": "EDR",
+        "sspl-plugin-event-journaler": "Event Journaler",
+        "sspl-plugin-mdr-component": "MTR",
+        "sspl-warehouse": "Warehouse",
+        "sspl-plugin-anti-virus": "AV",
+        "everest-base": "Base"
+    }
+    return names_to_format[name] if name in names_to_format else name
+
+
 dot = Digraph(comment='Dependencies', engine="dot", format='png')
 
 json_file_source = "releaseInputs.json"
@@ -20,22 +34,15 @@ all_inputs = {}
 
 dot.attr(rankdir='LR')
 
-dot.node("KEY - SSPL Components", color='blue', shape='doublecircle')
-dot.node("KEY - Repos we build", color='blue')
-
 for component_name, info_dict in root_dictionary.items():
-    component_id = f"{component_name} ({info_dict['version']})"
-
-    if "sspl" in component_id.lower():
-        dot.node(component_id, color='blue', shape='doublecircle')
-    else:
-        dot.node(component_id, color='blue')
+    component_id = format_name(component_name)
+    dot.node(component_id, color='blue', shape='doublecircle')
 
     for i in info_dict["inputs"]:
-        input_id = f"{i['name']}\n{i['branch']}\n{i['build_id']}"
+        input_id = format_name(i['name'])
         dot.edge(input_id, component_id)
 
-dot.attr('graph', overlap='false')
+dot.attr('graph', overlap='false', splines='ortho')
 
 # Save as png image
 dot.attr('graph', format='png')
