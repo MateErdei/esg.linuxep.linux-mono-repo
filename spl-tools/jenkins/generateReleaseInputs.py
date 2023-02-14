@@ -21,7 +21,6 @@ repoNameToPackageName = {
     "liveterminal": "liveterminal_linux",
     "livequery": "xdrsharedcomponents",
     "sau": "sau_xg",
-    "safestore": "safestore",
     "sed": "sed",
     "boost": "boostlinux11",
     "capnproto": "capnprotolinux11",
@@ -135,8 +134,10 @@ def process_release_files(release_files):
                     print(f"Skipping input: {input_pkg['@repo']} in: {release_file_path}, as there is no release-version")
                     continue
 
-                input_dict = {"name": repoNameToPackageName[input_pkg["@repo"]],
-                              "repo_name": input_pkg["@repo"],
+                repo_name = input_pkg["@repo"]
+                package_name = repoNameToPackageName[repo_name] if repo_name in repoNameToPackageName else repo_name
+                input_dict = {"name": package_name,
+                              "repo_name": repo_name,
                               "branch": input_pkg["release-version"]["@branch"],
                               "build_id": input_pkg["release-version"]["@build-id"],
                               "artifacts": []}
