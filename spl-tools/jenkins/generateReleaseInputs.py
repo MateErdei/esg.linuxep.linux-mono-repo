@@ -7,7 +7,6 @@ import sys
 import json
 
 packageNameToRepoName = {
-    "runtimedetections": "capsule8-sensor",
     "sspl-base": "everest-base",
     "sspl-event-journaler-plugin": "sspl-plugin-event-journaler",
     "sspl-mdr-control-plugin": "sspl-plugin-mdr-component",
