@@ -21,6 +21,7 @@ repoNameToPackageName = {
     "liveterminal": "liveterminal_linux",
     "livequery": "xdrsharedcomponents",
     "sau": "sau_xg",
+    "safestore": "safestore",
     "sed": "sed",
     "boost": "boostlinux11",
     "capnproto": "capnprotolinux11",
