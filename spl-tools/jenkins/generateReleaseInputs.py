@@ -6,61 +6,36 @@ import xmltodict
 import sys
 import json
 
-repoNameToPackageName = {
-    "capsule8-sensor": "runtimedetections",
-    "everest-base": "sspl-base",
-    "sspl-flags": "sspl-flags",
-    "sspl-plugin-anti-virus": "sspl-plugin-anti-virus",
-    "sspl-plugin-edr-component": "sspl-plugin-edr-component",
-    "sspl-plugin-event-journaler": "sspl-event-journaler-plugin",
-    "sspl-plugin-mdr-component": "sspl-mdr-control-plugin",
-    "sspl-warehouse": "sspl-warehouse",
-    "thininstaller": "sspl-thininstaller",
-    "versig": "versig",
-    "dbos": "dbos",
-    "liveterminal": "liveterminal_linux",
-    "livequery": "xdrsharedcomponents",
-    "sau": "sau_xg",
-    "sed": "sed",
-    "boost": "boostlinux11",
-    "capnproto": "capnprotolinux11",
-    "cmake": "cmakelinux",
-    "cpython": "pythonlinux11",
-    "crosstool-ng": "gcclinux",
-    "curl": "curllinux11",
-    "flatbuffers": "flatbuffers",
-    "gcc": "gcclinux",
-    "gflags": "gflagslinux11",
-    "glog": "gloglinux11",
-    "googletest": "googletest",
-    "grpc": "grpc",
-    "gsl": "gsl",
-    "jsoncpp": "jsoncpplinux11",
-    "libexpat": "expatlinux11",
-    "libffi": "libffi",
-    "libxcrypt": "libxcrypt",
-    "libzmq": "zeromqlinux11",
-    "llvm": "llvm",
-    "log4cplus": "log4cpluslinux11",
-    "minizip": "miniziplinux11",
-    "openssl": "openssllinux11",
-    "protobuf": "protobuflinux11",
-    "pycryptodome": "pycryptodomelinux11",
-    "python-certifi": "python-certifi",
-    "python-chardet": "python-chardet",
-    "python-idna": "python-idna",
-    "python-pathtools": "python-pathtools",
-    "python-requests": "python-requests",
-    "python-six": "python-six",
-    "python-sseclient": "python-sseclient",
-    "python-urllib3": "python-urllib3",
-    "python-watchdog": "python-watchdog",
-    "rust-vendor": "rust-vendor",
-    "sqlite": "sqlite-amalgamation",
-    "sul": "sullinux11",
-    "thrift": "thriftlinux11",
-    "xzutils": "xzutilslinux",
-    "zlib": "zliblinux11"
+packageNameToRepoName = {
+    "runtimedetections": "capsule8-sensor",
+    "sspl-base": "everest-base",
+    "sspl-event-journaler-plugin": "sspl-plugin-event-journaler",
+    "sspl-mdr-control-plugin": "sspl-plugin-mdr-component",
+    "sspl-thininstaller": "thininstaller",
+    "liveterminal_linux": "liveterminal",
+    "xdrsharedcomponents": "livequery",
+    "sau_xg": "sau",
+    "boostlinux11": "boost",
+    "capnprotolinux11": "capnproto",
+    "cmakelinux": "cmake",
+    "pythonlinux11": "cpython",
+    "curllinux11": "curl",
+    "gcclinux": "gcc",
+    "gflagslinux11": "gflags",
+    "gloglinux11": "glog",
+    "jsoncpplinux11": "jsoncpp",
+    "expatlinux11": "libexpat",
+    "zeromqlinux11": "libzmq",
+    "log4cpluslinux11": "log4cplus",
+    "miniziplinux11": "minizip",
+    "openssllinux11": "openssl",
+    "protobuflinux11": "protobuf",
+    "pycryptodomelinux11": "pycryptodome",
+    "sqlite-amalgamation": "sqlite",
+    "sullinux11": "sul",
+    "thriftlinux11": "thrift",
+    "xzutilslinux": "xzutils",
+    "zliblinux11": "zlib"
 }
 
 def find_all_release_xmls(start_dir):
@@ -119,6 +94,7 @@ def process_release_files(release_files):
                 print(f"Skipping: {name} as it has no inputs")
                 continue
 
+            name = packageNameToRepoName[name] if name in packageNameToRepoName else name
             all_dict[name] = {}
             this_entry = all_dict[name]
             this_entry["version"] = version
@@ -134,10 +110,7 @@ def process_release_files(release_files):
                     print(f"Skipping input: {input_pkg['@repo']} in: {release_file_path}, as there is no release-version")
                     continue
 
-                repo_name = input_pkg["@repo"]
-                package_name = repoNameToPackageName[repo_name] if repo_name in repoNameToPackageName else repo_name
-                input_dict = {"name": package_name,
-                              "repo_name": repo_name,
+                input_dict = {"name": input_pkg["@repo"],
                               "branch": input_pkg["release-version"]["@branch"],
                               "build_id": input_pkg["release-version"]["@build-id"],
                               "artifacts": []}
