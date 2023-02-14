@@ -110,11 +110,6 @@
             <include artifact-path="sophlib/linux_x86-64" dest-dir="/build/input/sophlib/lib64"/>
 
             <include artifact-path="thirdparty/zlib-linux-opt" dest-dir="/build/redist/zlib"/>
-        </build-asset>
-
-        <build-asset project="em" repo="esg">
-<!--            <release-version branch="thirdparty/googletest-linux-opt" build-id=""/>-->
-            <development-version branch="develop"/>
             <include artifact-path="thirdparty/googletest-linux-opt" dest-dir="/build/input/googletest"/>
         </build-asset>
 
