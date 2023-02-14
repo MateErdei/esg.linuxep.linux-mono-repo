@@ -7,16 +7,16 @@
     <inputs>
         <workingdir>.</workingdir>
         <build-asset project="linuxep" repo="everest-base">
-            <release-version branch="release/Version_1_2_2"
-                             build-id="20230105165814-606006af2bd8111005b887fb5442761795481be5-0kLokq"/>
+            <release-version branch="release/2023-07"
+                             build-id="20230213100232-7ad900d5bc8d2014534aed272e3c6dc7c0821f48-9SVSfl"/>
             <development-version branch="develop"/>
             <include artifact-path="sspl-base/pluginapi" dest-dir="/build/input"/>
             <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="/build/input/base-sdds"/>
         </build-asset>
 
         <build-asset project="winep" repo="livequery">
-            <release-version branch="release/2022.51"
-                             build-id="20221209125052-6efb03e7dda1497560fca39ee941b5ab0e993f28-LL5NUc"/>
+            <release-version branch="release/2023.07"
+                             build-id="20230210164123-2620ec1273c6fc9ce9738e44e1824bc94cd6e866-QL2Cra"/>
             <development-version branch="develop"/>
             <include artifact-path="sspl-osquery-components" dest-dir="/build/input/sspl-osquery-components"/>
         </build-asset>
@@ -27,27 +27,24 @@
             <include artifact-path="linux-x64-extension" dest-dir="/build/input/linux-x64-extension"/>
         </build-asset>
         <build-asset project="winep" repo="sed">
-            <release-version branch="release/SED_2022.51_libs"
-                             build-id="20221208212349-316be004287bdd2a180782345077cf38e5bd510b-3c7d0H"/>
+            <release-version branch="release/SED_2023.07_libs"
+                             build-id="20230210144321-a2d9e6449798342d03c9fbe56c868307dfa66eb3-VKaed8"/>
             <development-version branch="develop"/>
             <include artifact-path="sed-libs-linux/JournalLib-x64" dest-dir="/build/input"/>
         </build-asset>
-        <build-asset project="winep" repo="sau">
-            <release-version branch="release/sspl/Version_1_0_0"
-                             build-id="20220825150631-43a7c87ceb5905f316aef54df45de777a5961022-O0LZyf"/>
+
+        <build-asset project="em" repo="esg">
+            <release-version branch="release/2023.04/sprint" build-id="20230120201925-31a0379094fc1654506d3d459661d326949dee47-bh0Sgz"/>
             <development-version branch="develop"/>
-            <include artifact-path="Linux-x64/SDDS3-Utils" dest-dir="/build/input/sdds3"/>
+            <include artifact-path="sophlib/sdds3-tools-x64-linux" dest-dir="/build/input/sdds3"/>
+
+            <include artifact-path="thirdparty/googletest-linux-opt" dest-dir="/build/input/googletest"/>
         </build-asset>
 
         <build-asset project="thirdparty" repo="boost">
             <release-version branch="release/sspl/Version_1_78_0"
                              build-id="20220310141901-bdae372a9027e1760f105dc819023a49ef444765-xdQFp9"/>
             <include artifact-path="output" dest-dir="/build/input"/>
-        </build-asset>
-        <build-asset project="thirdparty" repo="cmake">
-            <release-version branch="release/sophos/v3.22.1"
-                             build-id="20220412085321-29886e1a6f8ae2867207fa5c4873eaac5c6075a7-VxG3sr"/>
-            <include artifact-path="cmake" dest-dir="/build/redist/cmake"/>
         </build-asset>
         <build-asset project="thirdparty" repo="capnproto">
             <release-version branch="release/sspl/Version_0_8_0"
@@ -68,16 +65,6 @@
             <release-version branch="release/sspl/Version_0_4_0"
                              build-id="20220314082521-27d6119d2fc83a6e47e5595c30fe4837f66fcbf0-j15Bo9"/>
             <include artifact-path="output" dest-dir="/build/input"/>
-        </build-asset>
-        <build-asset project="thirdparty" repo="googletest">
-            <release-version branch="release/sspl/Version_1_11_0"
-                             build-id="20220311153539-356cccfb1e6553d381af902d0dcc7f74379ececd-JevvWV"/>
-            <include artifact-path="thirdparty/googletest/gmock-headers"
-                     dest-dir="/build/input/googletest/gmock-headers/gmock"/>
-            <include artifact-path="thirdparty/googletest/gmock-libs" dest-dir="/build/input/googletest/gmock-libs"/>
-            <include artifact-path="thirdparty/googletest/gtest-headers"
-                     dest-dir="/build/input/googletest/gtest-headers/gtest"/>
-            <include artifact-path="thirdparty/googletest/gtest-libs" dest-dir="/build/input/googletest/gtest-libs"/>
         </build-asset>
         <build-asset project="thirdparty" repo="jsoncpp">
             <release-version branch="release/sspl/Version_1_9_4"
@@ -110,7 +97,8 @@
             <include artifact-path="output" dest-dir="/build/input"/>
         </build-asset>
 
-        <trusted-asset artifact-path="com.osquery/osquery/5.4.0/osquery-5.4.0-linux" dest-dir="/build/input"/>
+        <trusted-asset artifact-path="org.cmake/cmake-3.26.0/cmake-3.26.0" dest-dir="/build/redist/cmake"/>
+        <trusted-asset artifact-path="com.osquery/osquery/5.7.0/osquery-5.7.0-linux" dest-dir="/build/input"/>
     </inputs>
     <buildcommands>
         <!--<command buildtype="prod">-->
