@@ -52,7 +52,7 @@ source "${VENV}/bin/activate" || exit 11
   "$TEST_UTILS/SupportFiles/jenkins/SetupCIBuildScripts.sh" || fail 'Error: Failed to get CI scripts'
   export BUILD_JWT=$(cat "$TEST_UTILS/SupportFiles/jenkins/jwt_token.txt")
   python3 -m build_scripts.artisan_fetch -m "$MODE" "$TEST_UTILS/$TEST_PACKAGE_XML" || fail "Error: Failed to fetch inputs"
-  python3 "$TEST_UTILS/libs/GatherReleaseWarehouses.py"  ${SYSTEMPRODUCT_TEST_INPUT}
+  python3 "$TEST_UTILS/libs/GatherReleaseWarehouses.py"  ${SYSTEMPRODUCT_TEST_INPUT} 2>&1 | tee ${SYSTEMPRODUCT_TEST_INPUT}/GatherReleaseWarehouses.log
 deactivate
 chmod +x ${SYSTEMPRODUCT_TEST_INPUT}/sdds3/sdds3-builder || fail "Error: Failed to chmod sdds3-builder inputs"
 unzip -o -d ${SYSTEMPRODUCT_TEST_INPUT}/safestore_tools/ ${SYSTEMPRODUCT_TEST_INPUT}/safestore_tools/safestore-linux-x64.zip

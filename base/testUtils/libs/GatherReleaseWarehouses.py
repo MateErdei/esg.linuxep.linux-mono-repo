@@ -6,7 +6,30 @@ import sys
 import zipfile
 
 import requests
+from requests.adapters import HTTPAdapter
+from requests.packages.urllib3.util.retry import Retry
+
 from artifactory import ArtifactoryPath
+
+
+def requests_retry_session(
+        retries=3,
+        backoff_factor=0.3,
+        status_forcelist=(500, 502, 504),
+        session=None,
+):
+    session = session or requests.Session()
+    retry = Retry(
+        total=retries,
+        read=retries,
+        connect=retries,
+        backoff_factor=backoff_factor,
+        status_forcelist=status_forcelist,
+    )
+    adapter = HTTPAdapter(max_retries=retry)
+    session.mount('http://', adapter)
+    session.mount('https://', adapter)
+    return session
 
 
 def unpack_sdds3_artifact(build_url, artifact_name, output_dir):
@@ -14,7 +37,7 @@ def unpack_sdds3_artifact(build_url, artifact_name, output_dir):
 
     artifact_url = os.path.join(build_url, "build", f"prod-sdds3-{artifact_name}.zip")
 
-    r = requests.get(artifact_url)
+    r = requests_retry_session().get(artifact_url)
     z = zipfile.ZipFile(io.BytesIO(r.content))
     z.extractall(unpack_location)
 

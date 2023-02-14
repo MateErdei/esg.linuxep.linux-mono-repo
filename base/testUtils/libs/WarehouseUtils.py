@@ -795,7 +795,15 @@ class WarehouseUtils(object):
             warehouse_root = os.path.join(SYSTEMPRODUCT_TEST_INPUT, f"sdds3-{release_type}", "repo", "package")
         product_name = self.RIGIDNAMES_AGAINST_PRODUCT_NAMES_IN_VERSION_INI_FILES[rigidname]
 
-        packages = os.listdir(warehouse_root)
+        try:
+            packages = os.listdir(warehouse_root)
+        except EnvironmentError:
+            logger.error("Can't list warehouse_root: %s" % warehouse_root)
+            log = os.path.join(SYSTEMPRODUCT_TEST_INPUT, "GatherReleaseWarehouses.log")
+            if os.path.isfile(log):
+                contents = str(open(log).read())
+                logger.error("GatherReleaseWarehouses.log: %s" % contents)
+            raise
         for package in packages:
             if package.startswith(product_name):
                 version = package[len(product_name)+1:-15]
