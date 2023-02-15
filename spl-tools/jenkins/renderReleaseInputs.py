@@ -7,12 +7,14 @@ from graphviz import Digraph
 
 def format_name(name):
     names_to_format = {
+        "esg": "Mono Repo",
+        "everest-base": "Base",
+        "runtimedetections": "RTD",
+        "sspl-plugin-anti-virus": "AV",
         "sspl-plugin-edr-component": "EDR",
         "sspl-plugin-event-journaler": "Event Journaler",
         "sspl-plugin-mdr-component": "MTR",
-        "sspl-warehouse": "Warehouse",
-        "sspl-plugin-anti-virus": "AV",
-        "everest-base": "Base"
+        "sspl-warehouse": "SSPL\nWarehouse",
     }
     return names_to_format[name] if name in names_to_format else name
 
