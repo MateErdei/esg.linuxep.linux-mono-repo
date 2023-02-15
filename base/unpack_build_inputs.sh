@@ -265,20 +265,6 @@ function unpack_zips()
    shopt -u nullglob
 }
 
-function google_test()
-{
-    if [[ -d "$FETCHED_INPUTS_DIR/googletest" ]]
-    then
-        if [[ ! -d $REDIST/googletest ]]
-        then
-            ln -sf $FETCHED_INPUTS_DIR/googletest $REDIST/googletest
-        fi
-    else
-        echo "ERROR - googletest not found here: $FETCHED_INPUTS_DIR/googletest"
-        exit 1
-    fi
-}
-
 function copy_certs()
 {
   mkdir -p "$REDIST/certificates"
@@ -340,7 +326,6 @@ function setup_cmake()
 unpack_tars
 unpack_gzipped_tars
 unpack_zips
-google_test
 copy_certs
 copy_sdds3builder
 copy_sophlib

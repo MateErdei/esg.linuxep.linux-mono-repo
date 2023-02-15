@@ -110,7 +110,7 @@
             <include artifact-path="sophlib/linux_x86-64" dest-dir="/build/input/sophlib/lib64"/>
 
             <include artifact-path="thirdparty/zlib-linux-opt" dest-dir="/build/redist/zlib"/>
-            <include artifact-path="thirdparty/googletest-linux-opt" dest-dir="/build/input/googletest"/>
+            <include artifact-path="thirdparty/googletest-linux-opt" dest-dir="/build/redist/googletest"/>
         </build-asset>
 
         <build-asset project="winep" repo="sau">
