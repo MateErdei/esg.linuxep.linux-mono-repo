@@ -267,7 +267,6 @@ function unpack_zips()
 
 function google_test()
 {
-    ls /build/input/googletest
     if [[ -d "$FETCHED_INPUTS_DIR/googletest" ]]
     then
         if [[ ! -d $REDIST/googletest ]]
