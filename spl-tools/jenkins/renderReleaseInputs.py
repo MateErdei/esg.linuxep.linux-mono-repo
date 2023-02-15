@@ -16,7 +16,7 @@ def format_name(name):
         "sspl-plugin-mdr-component": "MTR",
         "sspl-warehouse": "SSPL\nWarehouse",
     }
-    return names_to_format[name] if name in names_to_format else name
+    return names_to_format.get(name, name)
 
 
 dot = Digraph(comment='Dependencies', engine="dot", format='png')
