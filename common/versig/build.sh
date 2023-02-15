@@ -77,10 +77,8 @@ function build()
 
     unpack_scaffold_gcc_make $INPUT
 
-    [[ -d $BASE/tests/googlemock ]] && rm -rf $BASE/tests/googlemock
     [[ -d $BASE/tests/googletest ]] && rm -rf $BASE/tests/googletest
-    cp -r $INPUT/googlemock $BASE/tests
-    cp -r $INPUT/googletest $BASE/tests
+    cp -r $INPUT/googletest/ $BASE/tests
 
     OPENSSL_TAR=$INPUT/openssl.tar
     [[ -f $OPENSSL_TAR ]] || exitFailure 12 "Failed to find openssl"
