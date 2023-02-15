@@ -90,8 +90,7 @@ add_executable(versig_test
         tests/test_versig.cpp
         src/versig.h)
 
-set(GOOGLE_MOCK_LIB_DIR ${CMAKE_SOURCE_DIR}/tests/googlemock)
-set(GOOGLE_TEST_LIB_DIR ${CMAKE_SOURCE_DIR}/tests/googletest)
+set(GOOGLE_TEST_LIB_DIR ${CMAKE_SOURCE_DIR}/tests)
 set(GOOGLE_TEST_INC_DIR ${CMAKE_SOURCE_DIR}/tests/googletest/include)
 
 target_include_directories(versig_test SYSTEM BEFORE PUBLIC "${GOOGLE_TEST_INC_DIR}")
@@ -101,9 +100,7 @@ target_link_libraries(versig_test PUBLIC
         versig_lib
         -L${OPENSSL_LIBRARY_DIR}
         ${GOOGLE_TEST_LIB_DIR}/libgtest.a
-        ${GOOGLE_MOCK_LIB_DIR}/libgmock.a
         ${GOOGLE_TEST_LIB_DIR}/libgtest_main.a
-        ${GOOGLE_MOCK_LIB_DIR}/libgmock_main.a
         ssl
         crypto
         pthread
