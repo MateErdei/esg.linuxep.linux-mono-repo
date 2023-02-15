@@ -30,7 +30,7 @@ macro(SophosAddTest TARGET)
     add_executable(${TARGET} ${INPUTFILES})
 
     target_include_directories(${TARGET} SYSTEM BEFORE PUBLIC ${GMOCK_INCLUDE} ${GTEST_INCLUDE})
-    target_link_libraries(${TARGET}  PUBLIC  ${GTEST_LIBRARY} ${GTEST_MAIN_LIBRARY} ${GMOCK_LIBRARY})
+    target_link_libraries(${TARGET}  PUBLIC  ${GTEST_LIBRARY} ${GTEST_MAIN_LIBRARY})
 
     if ( AddTest_PROJECTS )
         target_link_libraries(${TARGET} PUBLIC ${AddTest_PROJECTS})
