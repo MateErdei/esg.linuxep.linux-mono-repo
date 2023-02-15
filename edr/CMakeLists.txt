@@ -260,7 +260,7 @@ find_library(OPENSSLCRYPTO_LIBRARY
         NO_DEFAULT_PATH
         )
 
-set(GTEST_INCLUDE ${GTEST_INPUT}/gtest-headers)
+set(GTEST_INCLUDE ${GTEST_INPUT}/googletest/include)
 find_library(GTEST_LIBRARY
         NAMES gtest
         PATHS ${GTEST_INPUT}
@@ -269,7 +269,7 @@ find_library(GTEST_MAIN_LIBRARY
         NAMES gtest_main
         PATHS ${GTEST_INPUT}
         NO_DEFAULT_PATH)
-set( GMOCK_INCLUDE ${GTEST_INPUT}/gmock-headers )
+set( GMOCK_INCLUDE ${GTEST_INPUT}/googlemock/include )
 
 include(cppcheck.cmake)
 add_subdirectory(modules)
