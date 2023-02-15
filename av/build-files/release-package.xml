@@ -23,7 +23,7 @@
         </build-asset>
 
         <build-asset project="em" repo="esg">
-            <release-version branch="release/2023.04/sprint" build-id="20230120201925-31a0379094fc1654506d3d459661d326949dee47-bh0Sgz"/>
+            <release-version branch="release/2023.04.1/sprint" build-id="20230207145141-775465470cd8579d3d451d6287e19d570b6fe863-A8vT3z"/>
             <development-version branch="develop"/>
             <include artifact-path="thirdparty/zlib-linux-opt" dest-dir="input/zlib"/>
             <include artifact-path="thirdparty/googletest-linux-opt" dest-dir="input/googletest"/>

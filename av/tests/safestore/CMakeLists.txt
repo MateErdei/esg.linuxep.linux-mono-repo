@@ -29,6 +29,7 @@ target_include_directories(SafeStoreTapTests SYSTEM BEFORE PUBLIC
         )
 
 target_link_libraries(SafeStoreTapTests
+        PUBLIC
         ${GTEST_LIBRARY}
         ${GTEST_MAIN_LIBRARY}
         ${testhelperslib}
