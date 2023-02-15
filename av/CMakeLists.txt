@@ -171,6 +171,7 @@ find_library(GTEST_MAIN_LIBRARY
         NAMES gtest_main
         PATHS ${GTEST_INPUT}
         NO_DEFAULT_PATH)
+set(GMOCK_INCLUDE ${GTEST_INPUT}/googlemock/include )
 
 if(NOT DEFINED SUSIPATH)
     SET( SUSIPATH ${REDIST}/susi_build)

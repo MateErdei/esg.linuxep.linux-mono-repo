@@ -26,6 +26,7 @@
             <release-version branch="release/2023.04/sprint" build-id="20230120201925-31a0379094fc1654506d3d459661d326949dee47-bh0Sgz"/>
             <development-version branch="develop"/>
             <include artifact-path="thirdparty/zlib-linux-opt" dest-dir="input/zlib"/>
+            <include artifact-path="thirdparty/googletest-linux-opt" dest-dir="input/googletest"/>
         </build-asset>
 
         <build-asset project="winep" repo="sau">
@@ -49,16 +50,6 @@
             <release-version branch="release/Version_11_2_0"
                              build-id="20220310091547-cf8f7ca9572a3bc9a68f05138086815341a49224-cZ84iF"/>
             <include artifact-path="output" dest-dir="input"/>
-        </build-asset>
-        <build-asset project="thirdparty" repo="googletest">
-            <release-version branch="release/sspl/Version_1_11_0"
-                             build-id="20220311153539-356cccfb1e6553d381af902d0dcc7f74379ececd-JevvWV"/>
-            <include artifact-path="thirdparty/googletest/gmock-headers"
-                     dest-dir="input/googletest/gmock-headers/gmock"/>
-            <include artifact-path="thirdparty/googletest/gmock-libs" dest-dir="input/googletest/gmock-libs"/>
-            <include artifact-path="thirdparty/googletest/gtest-headers"
-                     dest-dir="input/googletest/gtest-headers/gtest"/>
-            <include artifact-path="thirdparty/googletest/gtest-libs" dest-dir="input/googletest/gtest-libs"/>
         </build-asset>
         <!-- Need to compile our own messages -->
         <build-asset project="thirdparty" repo="capnproto">
