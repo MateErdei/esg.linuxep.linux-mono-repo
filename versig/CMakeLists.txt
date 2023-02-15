@@ -90,8 +90,8 @@ add_executable(versig_test
         tests/test_versig.cpp
         src/versig.h)
 
-set(GOOGLE_TEST_LIB_DIR ${CMAKE_SOURCE_DIR}/tests)
-set(GOOGLE_TEST_INC_DIR ${CMAKE_SOURCE_DIR}/tests/googletest/include)
+set(GOOGLE_TEST_LIB_DIR ${CMAKE_SOURCE_DIR}/tests/googletest)
+set(GOOGLE_TEST_INC_DIR ${CMAKE_SOURCE_DIR}/tests/googletest/googletest/include)
 
 target_include_directories(versig_test SYSTEM BEFORE PUBLIC "${GOOGLE_TEST_INC_DIR}")
 target_include_directories(versig_test BEFORE PUBLIC "${GOOGLE_TEST_INC_DIR}" src)
