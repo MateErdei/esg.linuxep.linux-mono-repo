@@ -143,8 +143,8 @@ int CurlFunctionsProvider::curlWriteDebugFunc(
             should_log = true;
             break;
         case CURLINFO_DATA_OUT:
-            debugLine += "=> Send data: ";
-            should_log = true;
+            // This can be encrypted, so not logging it
+            debugLine += "=> Send data.";
             break;
         case CURLINFO_SSL_DATA_OUT:
             // This can be quite noisy, so not logging it

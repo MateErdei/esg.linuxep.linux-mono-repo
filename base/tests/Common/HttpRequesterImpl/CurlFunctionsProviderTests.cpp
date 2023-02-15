@@ -203,7 +203,7 @@ TEST_F(CurlFunctionsProviderTests, curlWriteDebugFuncDataOut)
     char* dataPtr = someDebugData;
     auto rc =  CurlFunctionsProvider::curlWriteDebugFunc(fakeCurlHandle, curl_infotype::CURLINFO_DATA_OUT, dataPtr, strlen(dataPtr), fakeUserPtr);
     std::string logMessages = testing::internal::GetCapturedStderr();
-    std::string expected = "cURL => Send data: " + std::string (someDebugData);
+    std::string expected = "cURL => Send data.";
     EXPECT_THAT(logMessages, ::testing::HasSubstr(expected));
     ASSERT_EQ(rc, 0);
 }
