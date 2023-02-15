@@ -44,7 +44,7 @@ for component_name, info_dict in root_dictionary.items():
         input_id = format_name(i['name'])
         dot.edge(input_id, component_id)
 
-dot.attr('graph', overlap='false', splines='ortho')
+dot.attr('graph', overlap='false')
 
 # Save as png image
 dot.attr('graph', format='png')
