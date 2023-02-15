@@ -93,7 +93,7 @@ Wait until threat detector running
     Wait Until Keyword Succeeds
     ...  60 secs
     ...  2 secs
-    ...  Threat Detector Log Contains  SophosThreatDetectorImpl <> Starting USR1 monitor
+    ...  Threat Detector Log Contains    Starting USR1 monitor
 
 Check AV Plugin Permissions
     ${rc}   ${output} =    Run And Return Rc And Output   find ${AV_PLUGIN_PATH} -user sophos-spl-user -print
