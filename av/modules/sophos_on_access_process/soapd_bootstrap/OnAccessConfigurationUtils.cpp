@@ -131,8 +131,15 @@ namespace sophos_on_access_process::OnAccessConfig
             assert(hardwareConcurrency < std::numeric_limits<int>::max());
             // Add 1 so that the result is rounded up and never less than 1
             int numScanThreads = (static_cast<int>(hardwareConcurrency) + 1) / 2;
-            LOGDEBUG("Setting number of scanning threads from Hardware Concurrency: " << numScanThreads);
             assert(numScanThreads > 0);
+            if (numScanThreads > maxConcurrencyScanningThreads)
+            {
+                LOGDEBUG("Hardware concurrency set " << numScanThreads << ". Reducing number of threadss to " << maxConcurrencyScanningThreads);
+            }
+            else
+            {
+                LOGDEBUG("Setting number of scanning threads from Hardware Concurrency: " << numScanThreads);
+            }
             settings.numScanThreads = numScanThreads;
         }
         else
