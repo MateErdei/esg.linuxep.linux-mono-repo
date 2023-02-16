@@ -59,3 +59,6 @@ set_target_properties(HttpRequesterLiveNetworkTests PROPERTIES
 
 install(TARGETS HttpRequesterLiveNetworkTests
         DESTINATION ${CMAKE_BINARY_DIR}/SystemProductTestOutput)
+
+install(FILES ${GTEST_LIBRARY} ${GTEST_MAIN_LIBRARY}
+        DESTINATION ${CMAKE_BINARY_DIR}/SystemProductTestOutput)
