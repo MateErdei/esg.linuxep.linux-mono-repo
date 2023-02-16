@@ -46,15 +46,17 @@
                              build-id="20220310091547-cf8f7ca9572a3bc9a68f05138086815341a49224-cZ84iF"/>
             <include artifact-path="output" dest-dir="/build/input"/>
         </build-asset>
-        <build-asset project="thirdparty" repo="libexpat">
-            <release-version branch="release/sspl/Version_2_4_8"
-                             build-id="20220412084210-700180882b0055f197dcf0198d71f0be516561bc-ihDKUE"/>
-            <include artifact-path="output" dest-dir="/build/input"/>
-        </build-asset>
         <build-asset project="thirdparty" repo="openssl">
             <release-version branch="release/sspl/Version_1_1_1q"
                              build-id="20220725102623-b49f6c504d454be8e7bc6a7dc7f7528b53920bdc-iF7TY0"/>
             <include artifact-path="output" dest-dir="/build/input"/>
+        </build-asset>
+
+        <build-asset project="em" repo="esg">
+            <!-- Thirdparties are not on a release branch yet -->
+<!--            <release-version branch="release/sophlib" build-id="20220713133804-bd190da51ebe34de00b9b24a2740d4aa3429edf0-x1dt3y"/>-->
+            <development-version branch="develop"/>
+            <include artifact-path="thirdparty/expat-linux-opt" dest-dir="/build/redist/expat"/>
         </build-asset>
 
         <trusted-asset artifact-path="filer5-migrate/pscerts/1-0-1/67228/ps_certificates/ps_rootca.crt"
