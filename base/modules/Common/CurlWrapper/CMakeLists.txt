@@ -12,3 +12,5 @@ SET_TARGET_PROPERTIES(curlwrapper
 
 install(TARGETS curlwrapper
         LIBRARY DESTINATION ${BASE_DIST_PREFIX}/files/base/lib64)
+
+install(TARGETS curlwrapper LIBRARY DESTINATION ${THININSTALLER_DEPS_DIR_LIB64})
