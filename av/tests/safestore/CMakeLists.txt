@@ -46,4 +46,7 @@ set_target_properties(SafeStoreTapTests PROPERTIES
 install(TARGETS SafeStoreTapTests
         DESTINATION ${CMAKE_BINARY_DIR}/tap_test_output)
 
+install(FILES ${GTEST_LIBRARY} ${GTEST_MAIN_LIBRARY}
+        DESTINATION ${CMAKE_BINARY_DIR}/tap_test_output)
+
 add_dependencies(SafeStoreTapTests copy_libs)
