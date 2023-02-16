@@ -80,11 +80,15 @@ namespace RemoteDiagnoseImpl
 
             if (response.errorCode == Common::HttpRequests::ResponseErrorCode::OK)
             {
-                if (response.status != 200)
+                if (response.status != Common::HttpRequests::HTTP_STATUS_OK)
                 {
-                    LOGINFO("Response HttpCode: " << response.status);
-                    LOGINFO(response.body);
+                    LOGWARN("HTTP was expected to be 200, actual: " << response.status);
+                    LOGWARN(response.body);
                 }
+            }
+            else
+            {
+                LOGERROR("Failed to contact remote diagnose server (" << response.errorCode << "): " << response.error);
             }
         }
         catch (std::exception& ex)

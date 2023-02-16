@@ -128,7 +128,7 @@ void TelemetryProcessor::sendTelemetry(const std::string& telemetryJson)
     }
     else
     {
-        LOGERROR("Failed to contact telemetry server: " << response.errorCode);
+        LOGERROR("Failed to contact telemetry server (" << response.errorCode << "): " << response.error);
     }
 }
 
