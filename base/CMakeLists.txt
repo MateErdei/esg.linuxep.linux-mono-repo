@@ -272,14 +272,9 @@ execute_process(
         COMMAND chrpath -r \$ORIGIN ${ZEROMQ_INPUT}/lib/libzmq.so
         COMMAND_ERROR_IS_FATAL ANY)
 
-find_path(EXPAT_INCLUDE_DIR
-        NAMES expat.h
-        PATHS ${EXPAT_INPUT}/include
-        NO_DEFAULT_PATH
-        )
 find_library(EXPAT_LIBRARY
         NAMES expat
-        PATHS ${EXPAT_INPUT}/lib64
+        PATHS ${EXPAT_INPUT}
         NO_DEFAULT_PATH
         )
 
