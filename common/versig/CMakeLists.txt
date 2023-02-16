@@ -98,9 +98,9 @@ target_include_directories(versig_test BEFORE PUBLIC "${GOOGLE_TEST_INC_DIR}" sr
 
 target_link_libraries(versig_test PUBLIC
         versig_lib
-        -L${OPENSSL_LIBRARY_DIR}
-        ${GOOGLE_TEST_LIB_DIR}/libgtest.a
         ${GOOGLE_TEST_LIB_DIR}/libgtest_main.a
+        ${GOOGLE_TEST_LIB_DIR}/libgtest.a
+        -L${OPENSSL_LIBRARY_DIR}
         ssl
         crypto
         pthread
