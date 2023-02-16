@@ -324,11 +324,11 @@ function cleanup_comms_component()
 {
   function check_user_exists()
   {
-    grep  "$1" /etc/passwd &>/dev/null
+    getent passwd "$1"
   }
   function check_group_exists()
   {
-    grep  "$1" /etc/group &>/dev/null
+    getent group "$1"
   }
 
   local COMMSUSER="sophos-spl-network"
@@ -346,8 +346,7 @@ function cleanup_comms_component()
           "$USER_DELETER" "$COMMSUSER" 2>/dev/null >/dev/null && USER_EXISTS=1
           USER_DELETE_TRIES=$((USER_DELETE_TRIES+1))
       done
-      check_user_exists "$COMMSUSER"
-      [ $? -eq 0 ]  && echo "Warning: Failed to delete user: $COMMSUSER"
+      check_user_exists "$COMMSUSER" && echo "Warning: Failed to delete user: $COMMSUSER"
   else
       echo "Unable to delete user $COMMSUSER" >&2
   fi
@@ -365,8 +364,7 @@ function cleanup_comms_component()
           "$GROUP_DELETER" "$COMMSUSER" 2>/dev/null >/dev/null && GROUP_EXISTS=1
           GROUP_DELETE_TRIES=$((GROUP_DELETE_TRIES+1))
       done
-      check_group_exists "$COMMSUSER"
-      [ $? -eq 0 ] && echo "Warning: Failed to delete group: $COMMSUSER"
+      check_group_exists "$COMMSUSER" && echo "Warning: Failed to delete group: $COMMSUSER"
   else
       echo "Unable to delete group $COMMSUSER" >&2
   fi
