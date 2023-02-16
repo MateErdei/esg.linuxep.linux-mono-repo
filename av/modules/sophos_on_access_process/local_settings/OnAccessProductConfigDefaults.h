@@ -44,7 +44,8 @@ namespace sophos_on_access_process::local_settings
     constexpr bool defaultHighPriorityThreatDetector = false;
 
     //Scanning Threads
-    constexpr int maxAllowedScanningThreads = 100;
-    constexpr int minAllowedScanningThreads = 1;
+    constexpr int maxConcurrencyScanningThreads = 40;
+    constexpr int maxConfigurableScanningThreads = 100;
+    constexpr int minConfigurableScanningThreads = 1;
     constexpr int defaultScanningThreads = 10;
 }

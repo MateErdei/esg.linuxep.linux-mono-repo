@@ -916,7 +916,7 @@ TEST_F(TestOnAccessConfigurationUtils, readLocalSettingsSetsToMaxPossibleValueWh
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    const int aboveMaxThreads = maxAllowedScanningThreads + 1;
+    const int aboveMaxThreads = maxConfigurableScanningThreads + 1;
     const int aboveMaxQueue = maxAllowedQueueSize + 1;
 
     std::stringstream returnStr;
@@ -929,13 +929,13 @@ TEST_F(TestOnAccessConfigurationUtils, readLocalSettingsSetsToMaxPossibleValueWh
     auto result = readLocalSettingsFile(m_sysCallWrapper);
 
     EXPECT_EQ(result.maxScanQueueSize, maxAllowedQueueSize);
-    EXPECT_EQ(result.numScanThreads, maxAllowedScanningThreads);
+    EXPECT_EQ(result.numScanThreads, maxConfigurableScanningThreads);
 
     std::stringstream queueSizeLogMsg;
     queueSizeLogMsg << "Queue size of " << aboveMaxQueue << " is greater than maximum allowed of " << maxAllowedQueueSize;
 
     std::stringstream threadCountLogMsg;
-    threadCountLogMsg << "Scanning Thread count of " << aboveMaxThreads << " is greater than maximum allowed of " << maxAllowedScanningThreads;
+    threadCountLogMsg << "Scanning Thread count of " << aboveMaxThreads << " is greater than maximum allowed of " << maxConfigurableScanningThreads;
 
     EXPECT_TRUE(appenderContains("Setting Queue size from file: " + std::to_string(aboveMaxQueue)));
     EXPECT_TRUE(appenderContains("Setting Scanning Thread count from file: " + std::to_string(aboveMaxThreads)));
@@ -947,7 +947,7 @@ TEST_F(TestOnAccessConfigurationUtils, readLocalSettingsSetsToMinPossibleValueWh
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    const int belowMinThreads = minAllowedScanningThreads - 1;
+    const int belowMinThreads = minConfigurableScanningThreads - 1;
     const int belowMinQueue = minAllowedQueueSize - 1;
 
     std::stringstream returnStr;
@@ -959,13 +959,13 @@ TEST_F(TestOnAccessConfigurationUtils, readLocalSettingsSetsToMinPossibleValueWh
     auto result = readLocalSettingsFile(m_sysCallWrapper);
 
     EXPECT_EQ(result.maxScanQueueSize, minAllowedQueueSize);
-    EXPECT_EQ(result.numScanThreads, minAllowedScanningThreads);
+    EXPECT_EQ(result.numScanThreads, minConfigurableScanningThreads);
 
     std::stringstream queueSizeLogMsg;
     queueSizeLogMsg << "Queue size of " << belowMinQueue << " is less than minimum allowed of " << minAllowedQueueSize;
 
     std::stringstream threadCountLogMsg;
-    threadCountLogMsg << "Scanning Thread count of " << belowMinThreads << " is less than minimum allowed of " << minAllowedScanningThreads;
+    threadCountLogMsg << "Scanning Thread count of " << belowMinThreads << " is less than minimum allowed of " << minConfigurableScanningThreads;
 
     EXPECT_TRUE(appenderContains("Setting Queue size from file: " + std::to_string(belowMinQueue)));
     EXPECT_TRUE(appenderContains("Setting Scanning Thread count from file: " + std::to_string(belowMinThreads)));

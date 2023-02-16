@@ -18,6 +18,12 @@ using json = nlohmann::json;
 
 namespace
 {
+
+    [[maybe_unused]] std::string booleanToString(const bool& value)
+    {
+        return value ? "true" : "false";
+    }
+
     bool toBoolean(const json::value_type& value)
     {
         if (value.is_boolean())
@@ -39,13 +45,18 @@ namespace
     {
         try
         {
-            return toBoolean(parsedConfig.at(key));
+            auto res = toBoolean(parsedConfig.at(key));
+            LOGDEBUG("Setting " << key << " from file: " << booleanToString(res));
+            return res;
         }
         catch (const json::out_of_range&)
         {
+            LOGDEBUG("Setting " << key << " from default: " << booleanToString(defaultValue));
             return defaultValue;
         }
     }
+
+
 
     template<typename T>
     T toLimitedInteger(const json& parsedConfigJson,
@@ -60,6 +71,9 @@ namespace
         assert(minValue <= defaultValue);
 
         auto value = parsedConfigJson.value(key, defaultValue);
+
+        std::string source = value == defaultValue ? " from default: " : " from file: ";
+        LOGDEBUG("Setting " << name << source << value);
 
         if (value > maxValue)
         {
@@ -96,7 +110,7 @@ namespace sophos_on_access_process::OnAccessConfig
         }
         catch (const Common::FileSystem::IFileSystemException& ex)
         {
-            LOGWARN("Failed to read on-access configuration, keeping existing configuration");
+            LOGWARN("Failed to read on-access configuration, keeping existing configuration: " << ex.what());
             return  "";
         }
     }
@@ -117,40 +131,42 @@ namespace sophos_on_access_process::OnAccessConfig
             assert(hardwareConcurrency < std::numeric_limits<int>::max());
             // Add 1 so that the result is rounded up and never less than 1
             int numScanThreads = (static_cast<int>(hardwareConcurrency) + 1) / 2;
-            LOGDEBUG("Number of scanning threads set to " << numScanThreads);
+            LOGDEBUG("Setting number of scanning threads from Hardware Concurrency: " << numScanThreads);
             assert(numScanThreads > 0);
             settings.numScanThreads = numScanThreads;
         }
         else
         {
-            LOGDEBUG("Could not determine hardware concurrency. Number of scanning threads defaulting to " << settings.numScanThreads);
+            LOGDEBUG("Could not determine hardware concurrency using default of " << settings.numScanThreads);
         }
-
 
         auto* sophosFsAPI = Common::FileSystem::fileSystem();
         auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
         fs::path pluginInstall = appConfig.getData("PLUGIN_INSTALL");
         auto productConfigPath = pluginInstall / "var/on_access_local_settings.json";
 
-        bool usedFileValues = false;
+        bool noLocalSettingsFile = false;
 
         try
         {
             std::string configJson = sophosFsAPI->readFile(productConfigPath.string());
-            //If the configJson is empty or the content is empty we load from defaults
-            if (!configJson.empty() && configJson != "{}")
+
+            if (!configJson.empty())
             {
                 try
                 {
                     auto parsedConfigJson = json::parse(configJson);
-                    settings.dumpPerfData = toBoolean(parsedConfigJson, "dumpPerfData", settings.dumpPerfData);
-                    settings.cacheAllEvents = toBoolean(parsedConfigJson, "cacheAllEvents", settings.cacheAllEvents);
-                    settings.uncacheDetections = toBoolean(parsedConfigJson, "uncacheDetections", settings.uncacheDetections);
-                    settings.highPrioritySoapd = toBoolean(parsedConfigJson, "highPrioritySoapd", settings.highPrioritySoapd);
-                    settings.highPriorityThreatDetector =
-                        toBoolean(parsedConfigJson, "highPriorityThreatDetector", settings.highPriorityThreatDetector);
 
-                    settings.maxScanQueueSize = toLimitedInteger(
+                    if (!parsedConfigJson.empty())
+                    {
+                        settings.dumpPerfData = toBoolean(parsedConfigJson, "dumpPerfData", settings.dumpPerfData);
+                        settings.cacheAllEvents = toBoolean(parsedConfigJson, "cacheAllEvents", settings.cacheAllEvents);
+                        settings.uncacheDetections = toBoolean(parsedConfigJson, "uncacheDetections", settings.uncacheDetections);
+                        settings.highPrioritySoapd = toBoolean(parsedConfigJson, "highPrioritySoapd", settings.highPrioritySoapd);
+                        settings.highPriorityThreatDetector =
+                            toBoolean(parsedConfigJson, "highPriorityThreatDetector", settings.highPriorityThreatDetector);
+
+                        settings.maxScanQueueSize = toLimitedInteger(
                             parsedConfigJson,
                             "maxscanqueuesize",
                             "Queue size",
@@ -159,29 +175,48 @@ namespace sophos_on_access_process::OnAccessConfig
                             maxAllowedQueueSize
                         );
 
-                    settings.numScanThreads = toLimitedInteger(
-                        parsedConfigJson,
-                        "numThreads",
-                        "Scanning Thread count",
-                        settings.numScanThreads, // Dynamic from CPU core count
-                        minAllowedScanningThreads,
-                        maxAllowedScanningThreads
+                        settings.numScanThreads = toLimitedInteger(
+                            parsedConfigJson,
+                            "numThreads",
+                            "Scanning Thread count",
+                            settings.numScanThreads, // Dynamic from CPU core count
+                            minConfigurableScanningThreads,
+                            maxConfigurableScanningThreads
                         );
-
-                    usedFileValues = true;
+                    }
+                    else
+                    {
+                        noLocalSettingsFile = true;
+                    }
                 }
                 catch (const std::exception& e)
                 {
-                    LOGWARN("Failed to read product config file info: " << e.what());
+                    LOGWARN("Failed to read local settings: " << e.what());
+                    noLocalSettingsFile = true;
                 }
+            }
+            else
+            {
+                LOGDEBUG("Local Settings file is empty");
+                noLocalSettingsFile = true;
             }
         }
         catch (const Common::FileSystem::IFileSystemException& ex)
         {
+            LOGDEBUG("Local Settings file could not be read: " << ex.what());
+            noLocalSettingsFile = true;
         }
-        std::string logmsg = usedFileValues ? "Setting from file: " : "Setting from defaults: ";
 
-        LOGDEBUG(logmsg << "Max queue size set to " << settings.maxScanQueueSize << " and Max threads set to " << settings.numScanThreads);
+        if (noLocalSettingsFile)
+        {
+            LOGDEBUG("Some or all local settings weren't set from file: " <<
+                     "Queue Size: " << settings.maxScanQueueSize <<
+                     ", Max threads: " << settings.numScanThreads <<
+                     ", Perf dump: " << booleanToString(settings.dumpPerfData) <<
+                     ", Cache all events: " << booleanToString(settings.cacheAllEvents) <<
+                     ", Uncache detections: " << booleanToString(settings.uncacheDetections));
+        }
+
         return settings;
     }
 
@@ -200,7 +235,7 @@ namespace sophos_on_access_process::OnAccessConfig
         }
         catch (const Common::FileSystem::IFileSystemException& ex)
         {
-            LOGWARN("Failed to read flag configuration, keeping existing configuration");
+            LOGWARN("Failed to read flag configuration, keeping existing configuration: " << ex.what());
             return  "";
         }
     }
@@ -249,6 +284,11 @@ namespace sophos_on_access_process::OnAccessConfig
         try
         {
             parsedConfig = json::parse(jsonString);
+
+            if (parsedConfig.empty())
+            {
+                return false;
+            }
 
             OnAccessConfiguration configuration{};
             configuration.enabled = toBoolean(parsedConfig, "enabled", false);
