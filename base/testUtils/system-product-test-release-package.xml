@@ -40,7 +40,7 @@
         </build-asset>
         <build-asset project="core" repo="safestore">
             <development-version branch="develop" />
-            <include mode="system-test,base-coverage,ej-coverage,mdr-coverage,edr-coverage,lr-coverage" artifact-path="safestore/linux-x64/safestore_package" dest-dir="safestore_tools"/>
+            <include mode="system-test,base-coverage,ej-coverage,mdr-coverage,edr-coverage,lr-coverage" artifact-path="release/linux-x64/safestore" dest-dir="safestore_tools"/>
         </build-asset>
         <build-asset project="linuxep" repo="sspl-plugin-mdr-component">
             <development-version branch="develop"/>
