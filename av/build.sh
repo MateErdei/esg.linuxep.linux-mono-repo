@@ -425,7 +425,6 @@ function build()
         # Copy required by SUSI dependency (to remove when they move to monorepo zlib input)
         cp $INPUT/zlib/libzlib.so $INPUT/zlib/libz.so.1
         ln -snf $INPUT/zlib $REDIST/
-        unzip -o -d ${INPUT}/safestore_input/ ${INPUT}/safestore_input/safestore-linux-x64.zip
         if [[ ! -d "$INPUT/googletest" ]]
         then
             echo "ERROR - googletest not found here: $INPUT/googletest"
