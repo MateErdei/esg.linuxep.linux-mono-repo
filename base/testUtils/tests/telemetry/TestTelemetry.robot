@@ -220,7 +220,7 @@ Telemetry Executable Telemetry Config File Certificate Path Empty
     Log    "stdout = ${result.stdout}"
     Log    "stderr = ${result.stderr}"
     Should Be Equal As Integers   ${result.rc}       ${0}
-    Check Telemetry Log Contains   Failed to contact telemetry server: 5
+    Check Telemetry Log Contains   Failed to contact telemetry server (5): SSL peer certificate or SSH remote key was not OK
 
 
 Telemetry Executable Telemetry Config File Path Invalid
@@ -365,7 +365,7 @@ Telemetry Executable HTTP PUT Request Will Fail When Server Highest TLS is Less 
     Log    "stdout = ${result.stdout}"
     Log    "stderr = ${result.stderr}"
     Should Be Equal As Integers   ${result.rc}       ${0}
-    Check Telemetry Log Contains   Failed to contact telemetry server: 5
+    Check Telemetry Log Contains   Failed to contact telemetry server (5): SSL connect error
 
 Test With Proxy
     [Teardown]  Teardown With Proxy Clear
