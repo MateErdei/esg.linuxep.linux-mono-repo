@@ -25,7 +25,7 @@ target_link_libraries(pluginapi PUBLIC
         zmq -L${ZEROMQ_INPUT}/lib
         log4cplus -L${LOG4CPLUS_INPUT}/lib
         protobuf -L${Protobuf_root}/lib
-        expat -L${EXPAT_INPUT}
+        expat -L${EXPAT_INPUT}/lib64
         ${OPENSSLCRYPTO_LIBRARY}
         )
 
@@ -44,7 +44,7 @@ INCLUDE(FindLibraryFullPath)
 FindLibraryFullPath( zmqfull zmq ${ZEROMQ_INPUT}/lib)
 FindLibraryFullPath( log4cplusfull log4cplus ${LOG4CPLUS_INPUT}/lib)
 FindLibraryFullPath( protobuffull protobuf ${Protobuf_root}/lib)
-FindLibraryFullPath( expatfull expat ${EXPAT_INPUT})
+FindLibraryFullPath( expatfull   expat  ${EXPAT_INPUT}/lib64)
 FindLibraryFullPath( zlibfull zlib ${ZLIB_INPUT})
 FindLibraryFullPath( opensslcryptofull crypto ${OPENSSL_INPUT}/lib64)
 configure_file(PluginAPICommitHash.in PluginAPICommitHash @ONLY)
