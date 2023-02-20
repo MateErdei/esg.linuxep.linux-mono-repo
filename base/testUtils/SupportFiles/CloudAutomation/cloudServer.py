@@ -796,16 +796,11 @@ class Endpoint(object):
             logger.error("Attempting to handle event for unknown app: %s", app)
 
     def handle_response(self, app_id, correlation_id, response_body):
-        # TODO - LINUXDAR-922 revert this when central supports compression
-        decompressed_body = response_body
-        # try:
-        #     fake_file = StringIO.StringIO(response_body)
-        #     decompressed_fake_file = gzip.GzipFile(fileobj=fake_file, mode='rb')
-        #     decompressed_body = decompressed_fake_file.read()
-        #
-        # except Exception as e:
-        #     logger.error("Failed to decompress response body content: {}".format(e))
-        #     return
+        try:
+            decompressed_body = zlib.decompress(response_body)
+        except Exception as e:
+            logger.error("Failed to decompress response body content: {}".format(e))
+            return
         logger.info("{} response ({}) = {}".format(app_id, correlation_id, decompressed_body.decode()))
         with open(os.path.join(_get_log_dir(), "last_query_response.json"), 'w') as live_query_response_file:
             live_query_response_file.write(decompressed_body.decode())

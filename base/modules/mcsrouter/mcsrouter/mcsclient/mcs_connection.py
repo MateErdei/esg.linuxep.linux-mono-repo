@@ -1048,7 +1048,7 @@ class MCSConnection:
 
     def send_live_query_response_with_id(self, response):
         """
-        prepare a HTTP request to send to central containing a LiveQuery response
+        prepare an HTTP request to send to central containing a LiveQuery response
         :param response: A response object (responses.py) which contains data from a livequery response file
         :return: The gzipped body of the LiveQuery response file
         """
@@ -1057,17 +1057,18 @@ class MCSConnection:
         headers = {
             "User-Agent": self.__m_user_agent,
             "Authorization": "Bearer {}".format(self.m_jwt_token),
-            "Content-Type": "application/json",
             "X-Device-ID": self.m_device_id,
             "X-Tenant-ID": self.m_tenant_id,
             "Accept": "application/json",
-            "Content-Length": response.m_json_body_size,
+            "Content-Length": response.m_gzip_body_size,
+            "Content-Encoding": "deflate",
+            "X-Uncompressed-Content-Length": response.m_json_body_size
         }
         LOGGER.debug(
             "MCS request url={} body size={}".format(
                 command_path,
-                response.m_json_body_size))
-        (headers, body) = self.__request(command_path, headers, response.m_json_body, "POST")
+                response.m_gzip_body_size))
+        (headers, body) = self.__request(command_path, headers, response.m_gzip_body, "POST")
         return body
 
     def send_status_event(self, status):
