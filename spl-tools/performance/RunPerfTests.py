@@ -129,9 +129,7 @@ def get_test_inputs_from_event_journaler():
 
 
 def get_safestore_tool():
-    fetch_artifacts("core", "safestore", "safestore/linux-x64/safestore_package")
-    z = zipfile.ZipFile(os.path.join(SCRIPT_DIR, "safestore-linux-x64.zip"))
-    z.extractall(SCRIPT_DIR)
+    fetch_artifacts("core", "safestore", "release/linux-x64/safestore")
     safestore_tool = os.path.join(SCRIPT_DIR, "ssr", "ssr")
 
     os.chmod(safestore_tool, os.stat(safestore_tool).st_mode | stat.S_IEXEC)
