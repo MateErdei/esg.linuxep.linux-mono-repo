@@ -85,15 +85,26 @@ namespace MCS
         {
             client.setCertPath(configOptions.config[MCS::MCS_CERT]);
         }
-        
-        client.setProxyInfo(proxy, configOptions.config[MCS::MCS_PROXY_USERNAME], configOptions.config[MCS::MCS_PROXY_PASSWORD]);
-        Common::HttpRequests::Response response = client.sendRegistration(statusXml, configOptions.config[MCS::MCS_TOKEN]);
+        std::stringstream connectionInfo;
+        if (proxy.empty())
+        {
+            connectionInfo << " going direct";
+        }
+        else
+        {
+            connectionInfo << " via proxy " << proxy;
+        }
+        client.setProxyInfo(
+            proxy, configOptions.config[MCS::MCS_PROXY_USERNAME], configOptions.config[MCS::MCS_PROXY_PASSWORD]);
+        Common::HttpRequests::Response response =
+            client.sendRegistration(statusXml, configOptions.config[MCS::MCS_TOKEN]);
         if (response.errorCode == Common::HttpRequests::ResponseErrorCode::OK)
         {
             if (response.status == Common::HttpRequests::HTTP_STATUS_OK)
             {
                 std::string messageBody = Common::ObfuscationImpl::Base64::Decode(response.body);
-                std::vector<std::string> responseValues = Common::UtilityImpl::StringUtils::splitString(messageBody, ":");
+                std::vector<std::string> responseValues =
+                    Common::UtilityImpl::StringUtils::splitString(messageBody, ":");
                 if (responseValues.size() == 2)
                 {
                     // Note that updating the configOptions here should be propagated back to the caller as it is all
@@ -105,12 +116,14 @@ namespace MCS
             }
             else
             {
-                LOGWARN("Unexpected status returned during registration: " << response.status << ".");
+                LOGWARN(
+                    "Unexpected status returned during registration" << connectionInfo.str() << ": " << response.status
+                                                                     << ".");
             }
         }
         else
         {
-            LOGWARN("Connection error during registration: " << response.error);
+            LOGWARN("Connection error during registration" << connectionInfo.str() << ": " << response.error);
         }
         return false;
     }
