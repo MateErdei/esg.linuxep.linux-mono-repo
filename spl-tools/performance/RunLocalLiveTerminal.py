@@ -17,7 +17,7 @@ def trigger_endpoint_terminal(path: str):
     path_to_write_file = f"/opt/sophos-spl/plugins/liveresponse/var/{path}"
 
     trigger = {"url": f"https://localhost:4443/{path}",
-               "thumbprint": "2d03c43bfc9ebe133e0c22df61b840f94b3a3bd5b05d1d715cc92b2debcb6f9d",
+               "thumbprint": certificates.CERTIFICATE_HASH,
                "endpoint_id": "endpointid",
                "customer_id": "customerid",
                "jwt_token": "jwt-token",
