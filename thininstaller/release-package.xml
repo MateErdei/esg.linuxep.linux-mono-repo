@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<package name="sspl-thininstaller" version="1.2.3">
+<package name="sspl-thininstaller" version="1.2.4">
     <versioning>
         <workingdir>sspl-thininstaller-build/AutoVersioningHeaders</workingdir>
     </versioning>
@@ -7,7 +7,7 @@
         <workingdir>.</workingdir>
         <build-asset project="linuxep" repo="everest-base">
             <release-version branch="release--2023.1-thinstaller-only"
-                             build-id="20230123103852-68072471670cee985b283e675d274ad15b11d371-nRSAvk"/>
+                             build-id="20230221155428-083f0f2ea0241672d001ebfa250848a5139d094a-qdAp4p"/>
             <development-version branch="develop"/>
             <include artifact-path="sspl-base/pluginapi" dest-dir="/build/input"/>
             <include artifact-path="sspl-base/cmcsrouterapi" dest-dir="/build/input"/>
