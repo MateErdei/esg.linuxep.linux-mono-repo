@@ -10,6 +10,7 @@
 #include "Common/UtilityImpl/Uuid.h"
 #include "FileSystem/IFileNotFoundException.h"
 #include "ManagementAgent/LoggerImpl/Logger.h"
+#include "XmlUtilities/AttributesMap.h"
 
 #include <ctime>
 #include <json.hpp>
@@ -200,5 +201,20 @@ bool ManagementAgent::EventReceiverImpl::OutbreakModeController::outbreakMode() 
 
 void ManagementAgent::EventReceiverImpl::OutbreakModeController::processAction(const std::string& actionXml)
 {
-    std::ignore = actionXml;
+    auto xml = Common::XmlUtilities::parseXml(actionXml);
+    auto action = xml.lookup("action");
+    if (action.value("type", "") == "sophos.core.threat.sav.clear")
+    {
+        leaveOutbreakMode();
+    }
+}
+
+void ManagementAgent::EventReceiverImpl::OutbreakModeController::leaveOutbreakMode()
+{
+    if (!outbreakMode_)
+    {
+        return;
+    }
+    LOGINFO("Leaving outbreak mode");
+    outbreakMode_ = false;
 }

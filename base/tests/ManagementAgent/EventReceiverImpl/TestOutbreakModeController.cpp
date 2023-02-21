@@ -434,3 +434,27 @@ TEST_F(TestOutbreakModeController, write_fails_permission_on_file)
     EXPECT_NO_THROW(enterOutbreakMode(controller));
     EXPECT_TRUE(controller->outbreakMode());
 }
+
+TEST_F(TestOutbreakModeController, action_leaves_outbreak_mode)
+{
+    auto controller = std::make_shared<OutbreakModeController>();
+    EXPECT_FALSE(controller->outbreakMode());
+    enterOutbreakMode(controller);
+    ASSERT_TRUE(controller->outbreakMode());
+
+    controller->processAction(R"(<?xml version="1.0"?><action type="sophos.core.threat.sav.clear"><item id="5df69683-a5a2-5d96-897d-06f9c4c8c7bf"/></action>)");
+    EXPECT_FALSE(controller->outbreakMode());
+}
+
+
+TEST_F(TestOutbreakModeController, ignore_irrelevant_action)
+{
+    auto controller = std::make_shared<OutbreakModeController>();
+    EXPECT_FALSE(controller->outbreakMode());
+    enterOutbreakMode(controller);
+    ASSERT_TRUE(controller->outbreakMode());
+
+    controller->processAction(R"(<?xml version="1.0"?><action type="sophos.core.do.something"><item id="5df69683-a5a2-5d96-897d-06f9c4c8c7bf"/></action>)");
+    EXPECT_TRUE(controller->outbreakMode());
+}
+

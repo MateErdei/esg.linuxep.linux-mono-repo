@@ -33,6 +33,8 @@ namespace ManagementAgent::EventReceiverImpl
         void save();
         void load();
         void resetCountOnDayChange(time_point_t now);
+        void leaveOutbreakMode();
+
         std::string uuid_;
         int detectionCount_ = 0;
         int savedYear_ = 0;
