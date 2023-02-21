@@ -517,7 +517,7 @@ TEST_F(TestOnAccessConfigurationUtils, readLocalSettingsLogsWhenSettingFromHardw
     EXPECT_TRUE(appenderContains("Setting number of scanning threads from Hardware Concurrency: 5"));
 }
 
-TEST_F(TestOnAccessConfigurationUtils, numberOfThreadsSetByHardwareConcurrencyIsLimitedTo40)
+TEST_F(TestOnAccessConfigurationUtils, numberOfThreadsSetByHardwareConcurrencyIsLimitedToUpperBound40)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
@@ -530,6 +530,21 @@ TEST_F(TestOnAccessConfigurationUtils, numberOfThreadsSetByHardwareConcurrencyIs
 
     EXPECT_TRUE(appenderContains("Hardware concurrency result is 50 which is to high. Reducing number of threads to " + std::to_string(maxConcurrencyScanningThreads)));
     EXPECT_EQ(result.numScanThreads, 40);
+}
+
+TEST_F(TestOnAccessConfigurationUtils, numberOfThreadsSetByHardwareConcurrencyIsLimitedToLowerBound4)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    EXPECT_CALL(*m_mockSysCallWrapper, hardware_concurrency()).WillOnce(Return(4));
+
+    expectReadConfig(*m_mockIFileSystemPtr, "");
+
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(m_mockIFileSystemPtr) };
+    auto result = readLocalSettingsFile(m_mockSysCallWrapper);
+
+    EXPECT_TRUE(appenderContains("Hardware concurrency result is 2 which is to low. Increasing number of threads to " + std::to_string(minConcurrencyScanningThreads)));
+    EXPECT_EQ(result.numScanThreads, 4);
 }
 
 TEST_F(TestOnAccessConfigurationUtils, readLocalSettingsLogsWhenCantSetFromHardwareConcurrency)
