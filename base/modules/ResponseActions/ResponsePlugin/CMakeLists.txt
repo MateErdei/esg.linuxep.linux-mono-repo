@@ -23,7 +23,7 @@ target_link_libraries(responseplugin PUBLIC
         logging
         responseactionsimpl
         HttpRequestsImpl
-        httpsenderimpl
+        curlwrapper
         pluginapiimpl
         applicationconfigurationimpl
         telemetryhelperimpl
