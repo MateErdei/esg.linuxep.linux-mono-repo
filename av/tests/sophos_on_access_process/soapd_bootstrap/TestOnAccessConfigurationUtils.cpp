@@ -496,10 +496,10 @@ TEST_F(TestOnAccessConfigurationUtils, readLocalSettingsFromEmptyFile)
     expectReadConfig(*m_mockIFileSystemPtr, "");
 
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(m_mockIFileSystemPtr) };
-    auto result = sophos_on_access_process::OnAccessConfig::readLocalSettingsFile(m_mockSysCallWrapper);
-    EXPECT_EQ(result.maxScanQueueSize, sophos_on_access_process::OnAccessConfig::defaultMaxScanQueueSize);
-    EXPECT_EQ(result.dumpPerfData, sophos_on_access_process::OnAccessConfig::defaultDumpPerfData);
-    EXPECT_EQ(result.cacheAllEvents, sophos_on_access_process::OnAccessConfig::defaultCacheAllEvents);
+    auto result = readLocalSettingsFile(m_mockSysCallWrapper);
+    EXPECT_EQ(result.maxScanQueueSize, defaultMaxScanQueueSize);
+    EXPECT_EQ(result.dumpPerfData, defaultDumpPerfData);
+    EXPECT_EQ(result.cacheAllEvents, defaultCacheAllEvents);
     EXPECT_EQ(result.numScanThreads, 4);
 
     EXPECT_TRUE(appenderContains("Local Settings file is empty"));
@@ -512,7 +512,7 @@ TEST_F(TestOnAccessConfigurationUtils, readLocalSettingsLogsWhenSettingFromHardw
     expectReadConfig(*m_mockIFileSystemPtr, "");
 
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(m_mockIFileSystemPtr) };
-    sophos_on_access_process::OnAccessConfig::readLocalSettingsFile(m_mockSysCallWrapper);
+    readLocalSettingsFile(m_mockSysCallWrapper);
 
     EXPECT_TRUE(appenderContains("Setting number of scanning threads from Hardware Concurrency: 5"));
 }
@@ -526,7 +526,7 @@ TEST_F(TestOnAccessConfigurationUtils, numberOfThreadsSetByHardwareConcurrencyIs
     expectReadConfig(*m_mockIFileSystemPtr, "");
 
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(m_mockIFileSystemPtr) };
-    auto result = sophos_on_access_process::OnAccessConfig::readLocalSettingsFile(m_mockSysCallWrapper);
+    auto result = readLocalSettingsFile(m_mockSysCallWrapper);
 
     EXPECT_TRUE(appenderContains("Hardware concurrency result is 50 which is to high. Reducing number of threads to " + std::to_string(maxConcurrencyScanningThreads)));
     EXPECT_EQ(result.numScanThreads, 40);
@@ -540,7 +540,7 @@ TEST_F(TestOnAccessConfigurationUtils, readLocalSettingsLogsWhenCantSetFromHardw
     EXPECT_CALL(*m_mockSysCallWrapper, hardware_concurrency()).WillOnce(Return(0));
 
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(m_mockIFileSystemPtr) };
-    sophos_on_access_process::OnAccessConfig::readLocalSettingsFile(m_mockSysCallWrapper);
+    readLocalSettingsFile(m_mockSysCallWrapper);
 
     EXPECT_TRUE(appenderContains("Could not determine hardware concurrency using default of 10"));
 }
@@ -558,8 +558,8 @@ TEST_F(TestOnAccessConfigurationUtils, readLocalSettingsInvalidJsonSyntax)
     EXPECT_EQ(result.maxScanQueueSize, defaultMaxScanQueueSize);
     EXPECT_EQ(result.dumpPerfData, defaultDumpPerfData);
     EXPECT_EQ(result.cacheAllEvents, defaultCacheAllEvents);
-    EXPECT_EQ(result.highPrioritySoapd, sophos_on_access_process::OnAccessConfig::defaultHighPrioritySoapd);
-    EXPECT_EQ(result.highPriorityThreatDetector, sophos_on_access_process::OnAccessConfig::defaultHighPriorityThreatDetector);
+    EXPECT_EQ(result.highPrioritySoapd, defaultHighPrioritySoapd);
+    EXPECT_EQ(result.highPriorityThreatDetector, defaultHighPriorityThreatDetector);
     EXPECT_EQ(result.uncacheDetections, defaultUncacheDetections);
     EXPECT_EQ(result.numScanThreads, m_defaultThreads);
 
@@ -583,7 +583,7 @@ TEST_F(TestOnAccessConfigurationUtils, jsonOverrides)
     })");
 
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock) };
-    auto result = sophos_on_access_process::OnAccessConfig::readLocalSettingsFile(sysCallWrapper);
+    auto result = readLocalSettingsFile(sysCallWrapper);
     EXPECT_EQ(result.maxScanQueueSize, 1038);
     EXPECT_TRUE(result.dumpPerfData);
     EXPECT_TRUE(result.cacheAllEvents);
@@ -638,7 +638,7 @@ TEST_F(TestOnAccessConfigurationUtils, readLocalSettingsJsonSuccessfullyMeansWeD
     })");
 
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(m_mockIFileSystemPtr) };
-    auto result = sophos_on_access_process::OnAccessConfig::readLocalSettingsFile(m_mockSysCallWrapper);
+    auto result = readLocalSettingsFile(m_mockSysCallWrapper);
 
     EXPECT_EQ(result.numScanThreads, 99);
 }
@@ -650,7 +650,7 @@ TEST_F(TestOnAccessConfigurationUtils, readLocalSettingsJsonIsNotOverridenByConc
     })");
 
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(m_mockIFileSystemPtr) };
-    auto result = sophos_on_access_process::OnAccessConfig::readLocalSettingsFile(m_mockSysCallWrapper);
+    auto result = readLocalSettingsFile(m_mockSysCallWrapper);
     EXPECT_EQ(result.numScanThreads, 100);
 }
 
@@ -662,7 +662,7 @@ TEST_F(TestOnAccessConfigurationUtils, readLocalSettingsMinLimitQueue)
     })");
 
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(m_mockIFileSystemPtr) };
-    auto result = sophos_on_access_process::OnAccessConfig::readLocalSettingsFile(m_mockSysCallWrapper);
+    auto result = readLocalSettingsFile(m_mockSysCallWrapper);
     EXPECT_EQ(result.maxScanQueueSize, 1000);
 }
 
@@ -673,7 +673,7 @@ TEST_F(TestOnAccessConfigurationUtils, readLocalSettingsMaxThreadCount)
     })");
 
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(m_mockIFileSystemPtr) };
-    auto result = sophos_on_access_process::OnAccessConfig::readLocalSettingsFile(m_mockSysCallWrapper);
+    auto result = readLocalSettingsFile(m_mockSysCallWrapper);
     EXPECT_EQ(result.numScanThreads, 100);
 }
 
@@ -683,8 +683,8 @@ TEST_F(TestOnAccessConfigurationUtils, readLocalSettingsZeroCpu)
     expectReadConfig(*m_mockIFileSystemPtr, "");
 
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(m_mockIFileSystemPtr) };
-    auto result = sophos_on_access_process::OnAccessConfig::readLocalSettingsFile(m_mockSysCallWrapper);
-    EXPECT_EQ(result.numScanThreads, sophos_on_access_process::OnAccessConfig::defaultScanningThreads);
+    auto result = readLocalSettingsFile(m_mockSysCallWrapper);
+    EXPECT_EQ(result.numScanThreads, defaultScanningThreads);
 }
 
 TEST_F(TestOnAccessConfigurationUtils, readLocalSettingsTenCPUCores)
@@ -693,7 +693,7 @@ TEST_F(TestOnAccessConfigurationUtils, readLocalSettingsTenCPUCores)
     expectReadConfig(*m_mockIFileSystemPtr, "");
 
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(m_mockIFileSystemPtr) };
-    auto result = sophos_on_access_process::OnAccessConfig::readLocalSettingsFile(m_mockSysCallWrapper);
+    auto result = readLocalSettingsFile(m_mockSysCallWrapper);
     EXPECT_EQ(result.numScanThreads, 5);
 }
 
@@ -707,8 +707,8 @@ TEST_F(TestOnAccessConfigurationUtils, JustHighPrioritySoapdTrue)
     })");
 
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock) };
-    auto result = sophos_on_access_process::OnAccessConfig::readLocalSettingsFile(sysCallWrapper);
-    EXPECT_EQ(result.highPriorityThreatDetector, sophos_on_access_process::OnAccessConfig::defaultHighPriorityThreatDetector);
+    auto result = readLocalSettingsFile(sysCallWrapper);
+    EXPECT_EQ(result.highPriorityThreatDetector, defaultHighPriorityThreatDetector);
     EXPECT_TRUE(result.highPrioritySoapd);
 }
 
@@ -722,8 +722,8 @@ TEST_F(TestOnAccessConfigurationUtils, JustHighPrioritySoapdFalse)
     })");
 
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock) };
-    auto result = sophos_on_access_process::OnAccessConfig::readLocalSettingsFile(sysCallWrapper);
-    EXPECT_EQ(result.highPriorityThreatDetector, sophos_on_access_process::OnAccessConfig::defaultHighPriorityThreatDetector);
+    auto result = readLocalSettingsFile(sysCallWrapper);
+    EXPECT_EQ(result.highPriorityThreatDetector, defaultHighPriorityThreatDetector);
     EXPECT_FALSE(result.highPrioritySoapd);
 }
 
@@ -737,8 +737,8 @@ TEST_F(TestOnAccessConfigurationUtils, JustHighPriorityThreatDetectorTrue)
     })");
 
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock) };
-    auto result = sophos_on_access_process::OnAccessConfig::readLocalSettingsFile(sysCallWrapper);
-    EXPECT_EQ(result.highPrioritySoapd, sophos_on_access_process::OnAccessConfig::defaultHighPrioritySoapd);
+    auto result = readLocalSettingsFile(sysCallWrapper);
+    EXPECT_EQ(result.highPrioritySoapd, defaultHighPrioritySoapd);
     EXPECT_TRUE(result.highPriorityThreatDetector);
 }
 
@@ -752,8 +752,8 @@ TEST_F(TestOnAccessConfigurationUtils, JustHighPriorityThreatDetectorFalse)
     })");
 
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock) };
-    auto result = sophos_on_access_process::OnAccessConfig::readLocalSettingsFile(sysCallWrapper);
-    EXPECT_EQ(result.highPrioritySoapd, sophos_on_access_process::OnAccessConfig::defaultHighPrioritySoapd);
+    auto result = readLocalSettingsFile(sysCallWrapper);
+    EXPECT_EQ(result.highPrioritySoapd, defaultHighPrioritySoapd);
     EXPECT_FALSE(result.highPriorityThreatDetector);
 }
 
