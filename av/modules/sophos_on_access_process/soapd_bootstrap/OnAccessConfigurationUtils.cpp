@@ -134,13 +134,14 @@ namespace sophos_on_access_process::OnAccessConfig
             assert(numScanThreads > 0);
             if (numScanThreads > maxConcurrencyScanningThreads)
             {
-                LOGDEBUG("Hardware concurrency set " << numScanThreads << ". Reducing number of threadss to " << maxConcurrencyScanningThreads);
+                LOGDEBUG("Hardware concurrency set to " << numScanThreads << ". Reducing number of threads to " << maxConcurrencyScanningThreads);
+                settings.numScanThreads = maxConcurrencyScanningThreads;
             }
             else
             {
                 LOGDEBUG("Setting number of scanning threads from Hardware Concurrency: " << numScanThreads);
+                settings.numScanThreads = numScanThreads;
             }
-            settings.numScanThreads = numScanThreads;
         }
         else
         {
