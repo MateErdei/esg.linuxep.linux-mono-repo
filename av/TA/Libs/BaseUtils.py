@@ -59,7 +59,9 @@ def create_test_telemetry_config_file(telemetry_config_file_path, certificate_pa
         "telemetryServerCertificatePath": certificate_path,
         "externalProcessWaitRetries": 10,
         "externalProcessWaitTime": 100,
-        "additionalHeaders": ["x-amz-acl: bucket-owner-full-control"],
+        "additionalHeaders": {
+            "x-amz-acl": "bucket-owner-full-control"
+        },
         "maxJsonSize": 100000,
         "messageRelays": [],
         "port": int(port),
