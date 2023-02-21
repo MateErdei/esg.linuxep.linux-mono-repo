@@ -320,7 +320,7 @@ static std::vector<MCS::MessageRelay> extractRelays(const std::string& deliminat
 
 
         std::vector<std::string> addressAndPort = splitString(addressAndPriority[0], ":");
-        if (addressAndPriority.size() != 2)
+        if (addressAndPort.size() != 2)
         {
             logError("Malformed address:port: " + addressAndPriority[0]);
             continue;
