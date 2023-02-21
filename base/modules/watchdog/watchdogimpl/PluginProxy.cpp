@@ -13,7 +13,6 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 #include <watchdog/watchdogimpl/Watchdog.h>
 
-#include <cassert>
 #include <memory>
 
 using namespace watchdog::watchdogimpl;
@@ -52,6 +51,7 @@ bool PluginProxy::updatePluginInfo(const Common::PluginRegistryImpl::PluginInfo&
     if (info.getExecutableUserAndGroupAsString() != getPluginInfo().getExecutableUserAndGroupAsString())
     {
         LOGINFO("Executable user and group has changed");
+        Watchdog::writeExecutableUserAndGroupToWatchdogConfig(info.getExecutableUserAndGroupAsString());
         changed = true;
     }
     if (info.getExecutableFullPath() != getPluginInfo().getExecutableFullPath())

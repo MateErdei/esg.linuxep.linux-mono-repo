@@ -12,11 +12,13 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include "Common/ProcessMonitoringImpl/SignalHandler.h"
 
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
+#include <Common/FileSystem/IFileSystem.h>
 #include <Common/FileSystem/IFilePermissions.h>
 #include <Common/FileSystem/IFileSystemException.h>
 #include <Common/PluginRegistryImpl/PluginInfo.h>
 #include <Common/Threads/NotifyPipe.h>
 #include <Common/UtilityImpl/ConfigException.h>
+#include <Common/UtilityImpl/StringUtils.h>
 #include <Common/ZMQWrapperApi/IContext.h>
 #include <Common/ZeroMQWrapper/IPoller.h>
 #include <Common/ZeroMQWrapper/ISocketReplier.h>
@@ -25,6 +27,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 #include <cassert>
 #include <cstdlib>
+#include <json.hpp>
 #include <memory>
 #include <unistd.h>
 
@@ -60,6 +63,7 @@ int Watchdog::initialiseAndRun()
 
         for (auto& info : pluginConfigs)
         {
+            writeExecutableUserAndGroupToWatchdogConfig(info.getExecutableUserAndGroupAsString());
             addProcessToMonitor(std::make_unique<PluginProxy>(std::move(info)));
         }
 
@@ -268,5 +272,46 @@ std::string Watchdog::checkPluginIsRunning(const std::string& pluginName)
         case PluginStatus::NotFound:
         default:
             return PLUGINNOTFOUND;
+    }
+}
+
+void Watchdog::writeExecutableUserAndGroupToWatchdogConfig(const std::string& executableUserAndGroupAsString)
+{
+    auto fileSystem = Common::FileSystem::fileSystem();
+    auto filePermissions = Common::FileSystem::filePermissions();
+    std::string watchdogConfigPath = Common::ApplicationConfiguration::applicationPathManager().getWatchdogConfigPath();
+
+    try
+    {
+        nlohmann::json watchdogConfig;
+        if (fileSystem->isFile(watchdogConfigPath))
+        {
+            watchdogConfig = nlohmann::json::parse(fileSystem->readFile(watchdogConfigPath));
+        }
+
+        if (Common::UtilityImpl::StringUtils::isSubstring(executableUserAndGroupAsString, ":"))
+        {
+            std::vector<std::string> userAndGroup = Common::UtilityImpl::StringUtils::splitString(
+                executableUserAndGroupAsString, ":");
+
+            if (userAndGroup.size() == 2)
+            {
+                std::string userName = userAndGroup[0];
+                std::string groupName = userAndGroup[1];
+
+                watchdogConfig["users"][userName] = filePermissions->getUserId(userName);
+                watchdogConfig["groups"][groupName] = filePermissions->getGroupId(groupName);
+            }
+        }
+        else
+        {
+            watchdogConfig["users"][executableUserAndGroupAsString] = filePermissions->getUserId(executableUserAndGroupAsString);
+        }
+
+        fileSystem->writeFile(watchdogConfigPath, watchdogConfig.dump());
+    }
+    catch (Common::FileSystem::IFileSystemException& error)
+    {
+        LOGERROR(error.what());
     }
 }

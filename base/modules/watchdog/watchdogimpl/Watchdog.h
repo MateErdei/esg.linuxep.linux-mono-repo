@@ -18,9 +18,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 #include <list>
 
-namespace watchdog
-{
-    namespace watchdogimpl
+namespace watchdog::watchdogimpl
     {
         using PluginInfoVector = Common::PluginRegistryImpl::PluginInfoVector;
         using ProxyList = std::list<watchdog::watchdogimpl::PluginProxy>;
@@ -37,6 +35,7 @@ namespace watchdog
             int initialiseAndRun();
             PluginInfoVector readPluginConfigs();
             std::vector<std::string> getListOfPluginNames();
+            static void writeExecutableUserAndGroupToWatchdogConfig(const std::string& executableUserAndGroupAsString);
 
         protected:
             std::string getIPCPath();
@@ -58,5 +57,4 @@ namespace watchdog
             Common::ZeroMQWrapper::ISocketReplierPtr m_socket;
             WatchdogServiceLine m_watchdogservice;
         };
-    } // namespace watchdogimpl
-} // namespace watchdog
+    } // namespace watchdog::watchdogimpl

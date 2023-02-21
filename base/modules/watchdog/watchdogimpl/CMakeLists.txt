@@ -21,6 +21,7 @@ target_link_libraries(watchdogimpl PUBLIC
         ${LOG4CPLUS_LIBRARY}
         )
 target_include_directories(watchdogservice SYSTEM PUBLIC ${LOG4CPLUS_INCLUDE_DIR})
+include_directories(watchdogservice BEFORE ${NLOHMANN_JSON_INCLUDE_DIR})
 
 target_link_libraries(watchdogservice PUBLIC
         logging
