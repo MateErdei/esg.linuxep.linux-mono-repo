@@ -195,13 +195,13 @@ namespace sophos_on_access_process::OnAccessConfig
             noLocalSettingsFile = true;
         }
 
+        if (!threadsSetLocally)
+        {
+            settings.numScanThreads = numberOfThreadsFromConcurrency(sysCalls);
+        }
+
         if (noLocalSettingsFile)
         {
-            if (!threadsSetLocally)
-            {
-                settings.numScanThreads = numberOfThreadsFromConcurrency(sysCalls);
-            }
-
             LOGDEBUG("Some or all local settings weren't set from file: " <<
                      "Queue Size: " << settings.maxScanQueueSize <<
                      ", Max threads: " << settings.numScanThreads <<

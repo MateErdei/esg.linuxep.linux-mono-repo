@@ -491,7 +491,8 @@ TEST_F(TestOnAccessConfigurationUtils, readLocalSettingsFromEmptyFile)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    EXPECT_CALL(*m_mockSysCallWrapper, hardware_concurrency()).WillOnce(Return(1));
+    //Set to 8 as we dont want to exercise hardware concurrency minimum limit code
+    EXPECT_CALL(*m_mockSysCallWrapper, hardware_concurrency()).WillOnce(Return(8));
     expectReadConfig(*m_mockIFileSystemPtr, "");
 
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(m_mockIFileSystemPtr) };
@@ -499,7 +500,7 @@ TEST_F(TestOnAccessConfigurationUtils, readLocalSettingsFromEmptyFile)
     EXPECT_EQ(result.maxScanQueueSize, sophos_on_access_process::OnAccessConfig::defaultMaxScanQueueSize);
     EXPECT_EQ(result.dumpPerfData, sophos_on_access_process::OnAccessConfig::defaultDumpPerfData);
     EXPECT_EQ(result.cacheAllEvents, sophos_on_access_process::OnAccessConfig::defaultCacheAllEvents);
-    EXPECT_EQ(result.numScanThreads, 1); // 1 CPU core
+    EXPECT_EQ(result.numScanThreads, 4);
 
     EXPECT_TRUE(appenderContains("Local Settings file is empty"));
 }
@@ -527,7 +528,7 @@ TEST_F(TestOnAccessConfigurationUtils, numberOfThreadsSetByHardwareConcurrencyIs
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(m_mockIFileSystemPtr) };
     auto result = sophos_on_access_process::OnAccessConfig::readLocalSettingsFile(m_mockSysCallWrapper);
 
-    EXPECT_TRUE(appenderContains("Hardware concurrency set to 50. Reducing number of threads to " + std::to_string(maxConcurrencyScanningThreads)));
+    EXPECT_TRUE(appenderContains("Hardware concurrency result is 50 which is to high. Reducing number of threads to " + std::to_string(maxConcurrencyScanningThreads)));
     EXPECT_EQ(result.numScanThreads, 40);
 }
 
@@ -571,7 +572,6 @@ TEST_F(TestOnAccessConfigurationUtils, jsonOverrides)
 {
     auto sysCallWrapper = std::make_shared<StrictMock<MockSystemCallWrapper>>();
     auto* filesystemMock = new StrictMock<MockFileSystem>();
-    EXPECT_CALL(*sysCallWrapper, hardware_concurrency()).WillOnce(Return(10));
     expectReadConfig(*filesystemMock, R"({
         "dumpPerfData" : true,
         "cacheAllEvents" : true,
@@ -629,11 +629,9 @@ TEST_F(TestOnAccessConfigurationUtils, readLocalSettingsEmptyJSON)
     EXPECT_TRUE(appenderContains(m_localSettingsNotUsedMessage));
 }
 
-TEST_F(TestOnAccessConfigurationUtils, readLocalSettingsJsonOverridesHardwareConcurrencyLimit)
+TEST_F(TestOnAccessConfigurationUtils, readLocalSettingsJsonSuccessfullyMeansWeDontCheckConcurrency)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
-
-    EXPECT_CALL(*m_mockSysCallWrapper, hardware_concurrency()).WillOnce(Return(100));
 
     expectReadConfig(*m_mockIFileSystemPtr, R"({
         "numThreads" : 99
@@ -642,7 +640,6 @@ TEST_F(TestOnAccessConfigurationUtils, readLocalSettingsJsonOverridesHardwareCon
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(m_mockIFileSystemPtr) };
     auto result = sophos_on_access_process::OnAccessConfig::readLocalSettingsFile(m_mockSysCallWrapper);
 
-    EXPECT_TRUE(appenderContains("Hardware concurrency set to 50. Reducing number of threads to " + std::to_string(maxConcurrencyScanningThreads)));
     EXPECT_EQ(result.numScanThreads, 99);
 }
 
@@ -1021,9 +1018,9 @@ INSTANTIATE_TEST_SUITE_P(
     TestOnAccessConfigUtilsParameterized,
     ::testing::Values(
         std::make_pair(0, defaultScanningThreads),
-        std::make_pair(1, 1),
-        std::make_pair(2, 1),
-        std::make_pair(3, 2),
+        std::make_pair(1, 4),
+        std::make_pair(2, 4),
+        std::make_pair(3, 4),
         std::make_pair(8, 4),
         std::make_pair(15, 8),
         std::make_pair(16, 8),
