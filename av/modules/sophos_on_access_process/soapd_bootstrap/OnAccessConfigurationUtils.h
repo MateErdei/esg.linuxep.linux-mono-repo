@@ -42,6 +42,6 @@ namespace sophos_on_access_process::OnAccessConfig
     OnAccessLocalSettings readLocalSettingsFile(const std::shared_ptr<datatypes::ISystemCallWrapper>& sysCalls);
 
     bool parseFlagConfiguration(const std::string& jsonString);
-
+    int numberOfThreadsFromConcurrency(const std::shared_ptr<datatypes::ISystemCallWrapper>& sysCalls);
     bool isSettingTrue(const std::string& settingString);
 }

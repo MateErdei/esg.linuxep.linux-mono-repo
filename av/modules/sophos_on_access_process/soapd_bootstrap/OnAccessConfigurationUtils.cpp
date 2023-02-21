@@ -124,36 +124,13 @@ namespace sophos_on_access_process::OnAccessConfig
     {
         OnAccessLocalSettings settings{};
 
-        //may return 0 when not able to detect
-        auto hardwareConcurrency = sysCalls->hardware_concurrency();
-        if (hardwareConcurrency > 0)
-        {
-            assert(hardwareConcurrency < std::numeric_limits<int>::max());
-            // Add 1 so that the result is rounded up and never less than 1
-            int numScanThreads = (static_cast<int>(hardwareConcurrency) + 1) / 2;
-            assert(numScanThreads > 0);
-            if (numScanThreads > maxConcurrencyScanningThreads)
-            {
-                LOGDEBUG("Hardware concurrency set to " << numScanThreads << ". Reducing number of threads to " << maxConcurrencyScanningThreads);
-                settings.numScanThreads = maxConcurrencyScanningThreads;
-            }
-            else
-            {
-                LOGDEBUG("Setting number of scanning threads from Hardware Concurrency: " << numScanThreads);
-                settings.numScanThreads = numScanThreads;
-            }
-        }
-        else
-        {
-            LOGDEBUG("Could not determine hardware concurrency using default of " << settings.numScanThreads);
-        }
-
         auto* sophosFsAPI = Common::FileSystem::fileSystem();
         auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
         fs::path pluginInstall = appConfig.getData("PLUGIN_INSTALL");
         auto productConfigPath = pluginInstall / "var/on_access_local_settings.json";
 
         bool noLocalSettingsFile = false;
+        bool threadsSetLocally = false;
 
         try
         {
@@ -183,14 +160,17 @@ namespace sophos_on_access_process::OnAccessConfig
                             maxAllowedQueueSize
                         );
 
-                        settings.numScanThreads = toLimitedInteger(
-                            parsedConfigJson,
-                            "numThreads",
-                            "Scanning Thread count",
-                            settings.numScanThreads, // Dynamic from CPU core count
-                            minConfigurableScanningThreads,
-                            maxConfigurableScanningThreads
-                        );
+                        if (parsedConfigJson.contains("numThreads"))
+                        {
+                            settings.numScanThreads = toLimitedInteger(
+                                parsedConfigJson,
+                                "numThreads",
+                                "Scanning Thread count",
+                                settings.numScanThreads, // Dynamic from CPU core count
+                                minConfigurableScanningThreads,
+                                maxConfigurableScanningThreads);
+                            threadsSetLocally = true;
+                        }
                     }
                     else
                     {
@@ -217,6 +197,11 @@ namespace sophos_on_access_process::OnAccessConfig
 
         if (noLocalSettingsFile)
         {
+            if (!threadsSetLocally)
+            {
+                settings.numScanThreads = numberOfThreadsFromConcurrency(sysCalls);
+            }
+
             LOGDEBUG("Some or all local settings weren't set from file: " <<
                      "Queue Size: " << settings.maxScanQueueSize <<
                      ", Max threads: " << settings.numScanThreads <<
@@ -354,5 +339,40 @@ namespace sophos_on_access_process::OnAccessConfig
         //return false for any other possibility
         return false;
     }
+
+    int numberOfThreadsFromConcurrency(const std::shared_ptr<datatypes::ISystemCallWrapper>& sysCalls)
+    {
+        int threadsFromConcurrency = defaultScanningThreads;
+        //may return 0 when not able to detect
+        auto hardwareConcurrency = sysCalls->hardware_concurrency();
+        if (hardwareConcurrency > 0)
+        {
+            assert(hardwareConcurrency < std::numeric_limits<int>::max());
+            // Add 1 so that the result is rounded up and never less than 1
+            int numScanThreads = (static_cast<int>(hardwareConcurrency) + 1) / 2;
+            assert(numScanThreads > 0);
+            if (numScanThreads > maxConcurrencyScanningThreads)
+            {
+                LOGDEBUG("Hardware concurrency result is " << numScanThreads << " which is to high. Reducing number of threads to " << maxConcurrencyScanningThreads);
+                threadsFromConcurrency = maxConcurrencyScanningThreads;
+            }
+            else if (numScanThreads < minConcurrencyScanningThreads)
+            {
+                LOGDEBUG("Hardware concurrency set to " << numScanThreads << " which is to low. Increasing number of threads to " << maxConcurrencyScanningThreads);
+                threadsFromConcurrency = minConcurrencyScanningThreads;
+            }
+            else
+            {
+                LOGDEBUG("Setting number of scanning threads from Hardware Concurrency: " << numScanThreads);
+                threadsFromConcurrency = numScanThreads;
+            }
+        }
+        else
+        {
+            LOGDEBUG("Could not determine hardware concurrency using default of " << defaultScanningThreads);
+        }
+        return threadsFromConcurrency;
+    }
+
 }
 

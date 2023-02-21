@@ -45,6 +45,7 @@ namespace sophos_on_access_process::local_settings
 
     //Scanning Threads
     constexpr int maxConcurrencyScanningThreads = 40;
+    constexpr int minConcurrencyScanningThreads = 4;
     constexpr int maxConfigurableScanningThreads = 100;
     constexpr int minConfigurableScanningThreads = 1;
     constexpr int defaultScanningThreads = 10;
