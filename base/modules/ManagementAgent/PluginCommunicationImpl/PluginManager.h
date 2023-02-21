@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2018-2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
@@ -28,6 +24,9 @@ namespace ManagementAgent
         class PluginManager : virtual public PluginCommunication::IPluginManager
         {
         public:
+            using ServerCallback_t = PluginCommunicationImpl::PluginServerCallbackHandler::ServerCallback_t;
+            using ServerCallbackPtr = std::shared_ptr<ServerCallback_t>;
+
             PluginManager();
             ~PluginManager() override;
 
@@ -51,12 +50,12 @@ namespace ManagementAgent
 
             Common::ZMQWrapperApi::IContextSharedPtr getSocketContext();
             void setServerCallback(
-                std::shared_ptr<PluginCommunication::IPluginServerCallback> pluginCallback,
+                ServerCallbackPtr pluginCallback,
                 Common::ZeroMQWrapper::ISocketReplierPtr replierPtr);
 
             void setStatusReceiver(std::shared_ptr<PluginCommunication::IStatusReceiver>& statusReceiver) override;
 
-            void setEventReceiver(std::shared_ptr<PluginCommunication::IEventReceiver>& receiver) override;
+            void setEventReceiver(PluginCommunication::IEventReceiverPtr& receiver) override;
 
             void setPolicyReceiver(std::shared_ptr<PluginCommunication::IPolicyReceiver>& receiver) override;
             void setThreatHealthReceiver(std::shared_ptr<PluginCommunication::IThreatHealthReceiver>& receiver) override;
@@ -80,6 +79,7 @@ namespace ManagementAgent
             std::map<std::string, std::unique_ptr<Common::PluginCommunication::IPluginProxy>> m_RegisteredPlugins;
             std::shared_ptr<ManagementAgent::HealthStatusImpl::HealthStatus> m_healthStatus;
             std::unique_ptr<PluginServerCallbackHandler> m_serverCallbackHandler;
+            PluginCommunication::IEventReceiverPtr eventReceiver_;
             int m_defaultTimeout;
             int m_defaultConnectTimeout;
             std::mutex m_pluginMapMutex;
@@ -104,7 +104,7 @@ namespace ManagementAgent
              * @param statusAppIds
              * @param lock Force a lock_guard to be passed in to verify that we have locked a mutex
              */
-            void locked_setAppIds(
+            static void locked_setAppIds(
                 Common::PluginCommunication::IPluginProxy* plugin,
                 const std::vector<std::string>& policyAppIds,
                 const std::vector<std::string>& actionAppIds,
@@ -120,7 +120,7 @@ namespace ManagementAgent
              * @param displayName
              * @param lock
              */
-            void locked_setHealth(
+            static void locked_setHealth(
                 Common::PluginCommunication::IPluginProxy* plugin,
                 bool serviceHealth,
                 bool threatHealth,
@@ -134,7 +134,7 @@ namespace ManagementAgent
              * @param filePath
              * @return true if task is threat reset
              */
-            bool isThreatResetTask(std::string filePath);
+            static bool isThreatResetTask(const std::string& filePath);
         };
 
     } // namespace PluginCommunicationImpl

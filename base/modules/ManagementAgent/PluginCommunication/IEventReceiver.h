@@ -1,11 +1,7 @@
-///////////////////////////////////////////////////////////
-//
-// Copyright (C) 2018 Sophos Plc, Oxford, England.
-// All rights reserved.
-//
-///////////////////////////////////////////////////////////
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 #pragma once
 
+#include <memory>
 #include <string>
 
 namespace ManagementAgent
@@ -24,6 +20,14 @@ namespace ManagementAgent
              * @param eventXml
              */
             virtual void receivedSendEvent(const std::string& appId, const std::string& eventXml) = 0;
+
+            /**
+             * Handle any actions we need to take for recovering from Outbreak mode
+             * @param actionXml
+             */
+            virtual void handleAction(const std::string& actionXml) = 0;
         };
+
+        using IEventReceiverPtr = std::shared_ptr<IEventReceiver>;
     } // namespace PluginCommunication
 } // namespace ManagementAgent

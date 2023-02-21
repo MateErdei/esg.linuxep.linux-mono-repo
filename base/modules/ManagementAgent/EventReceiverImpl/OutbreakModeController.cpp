@@ -197,3 +197,8 @@ bool ManagementAgent::EventReceiverImpl::OutbreakModeController::outbreakMode() 
 {
     return outbreakMode_;
 }
+
+void ManagementAgent::EventReceiverImpl::OutbreakModeController::processAction(const std::string& actionXml)
+{
+    std::ignore = actionXml;
+}

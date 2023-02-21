@@ -18,11 +18,13 @@ namespace ManagementAgent::EventReceiverImpl
         OutbreakModeController();
         bool processEvent(const Event& event) override;
         [[nodiscard]] bool outbreakMode() const override;
+        void processAction(const std::string& actionXml) override;
+
     TEST_PUBLIC:
         using clock_t = std::chrono::system_clock;
         using time_point_t = std::chrono::time_point<clock_t>;
         bool processEvent(const Event& event,
-                          const time_point_t now
+                          time_point_t now
                         );
 
     private:

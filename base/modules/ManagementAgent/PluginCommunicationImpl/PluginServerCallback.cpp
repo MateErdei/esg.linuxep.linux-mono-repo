@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2018, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #include "PluginServerCallback.h"
 
@@ -14,7 +10,8 @@ namespace ManagementAgent
 {
     namespace PluginCommunicationImpl
     {
-        PluginServerCallback::PluginServerCallback(PluginManager& pluginManagerPtr) : m_pluginManager(pluginManagerPtr)
+        PluginServerCallback::PluginServerCallback(PluginCommunication::IPluginManager& pluginManagerPtr)
+                : m_pluginManager(pluginManagerPtr)
         {
         }
 
@@ -24,6 +21,14 @@ namespace ManagementAgent
             if (m_eventReceiver != nullptr)
             {
                 m_eventReceiver->receivedSendEvent(appId, eventXml);
+            }
+        }
+
+        void PluginServerCallback::handleAction(const std::string& actionXml)
+        {
+            if (m_eventReceiver)
+            {
+                m_eventReceiver->handleAction(actionXml);
             }
         }
 

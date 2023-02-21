@@ -1,9 +1,7 @@
-/******************************************************************************************************
-
-Copyright 2018-2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 #pragma once
+
+#include "ISettablePluginServerCallback.h"
 
 #include <Common/PluginProtocol/AbstractListenerServer.h>
 #include <Common/PluginProtocol/MessageBuilder.h>
@@ -22,9 +20,12 @@ namespace ManagementAgent
         class PluginServerCallbackHandler : public AbstractListenerServer
         {
         public:
+            using ServerCallback_t = ManagementAgent::PluginCommunicationImpl::ISettablePluginServerCallback;
+            using ServerCallbackPtr = std::shared_ptr<ServerCallback_t>;
+
             PluginServerCallbackHandler(
                 std::unique_ptr<Common::ZeroMQWrapper::IReadWrite> ireadWrite,
-                std::shared_ptr<PluginCommunication::IPluginServerCallback> serverCallback,
+                ServerCallbackPtr serverCallback,
                 std::shared_ptr<ManagementAgent::HealthStatusImpl::HealthStatus> healthStatusSharedObj);
 
             void setStatusReceiver(std::shared_ptr<PluginCommunication::IStatusReceiver>& statusReceiver);
@@ -33,12 +34,12 @@ namespace ManagementAgent
             void setThreatHealthReceiver(std::shared_ptr<PluginCommunication::IThreatHealthReceiver>& receiver);
 
         private:
-            DataMessage process(const DataMessage& request) const override;
+            [[nodiscard]] DataMessage process(const DataMessage& request) const override;
 
             void onShutdownRequested() override;
 
             MessageBuilder m_messageBuilder;
-            std::shared_ptr<PluginCommunication::IPluginServerCallback> m_serverCallback;
+            ServerCallbackPtr m_serverCallback;
             std::shared_ptr<ManagementAgent::HealthStatusImpl::HealthStatus> m_healthStatusSharedObj;
         };
 
