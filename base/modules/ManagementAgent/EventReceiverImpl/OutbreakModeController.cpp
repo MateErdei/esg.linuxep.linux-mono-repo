@@ -201,20 +201,31 @@ bool ManagementAgent::EventReceiverImpl::OutbreakModeController::outbreakMode() 
 
 void ManagementAgent::EventReceiverImpl::OutbreakModeController::processAction(const std::string& actionXml)
 {
+    if (!outbreakMode_)
+    {
+        // no point parsing XML if we aren't in outbreak mode
+        return;
+    }
     auto xml = Common::XmlUtilities::parseXml(actionXml);
     auto action = xml.lookup("action");
     if (action.value("type", "") == "sophos.core.threat.sav.clear")
     {
-        leaveOutbreakMode();
+        auto items = xml.lookupMultiple("action/item");
+        for (const auto& item : items)
+        {
+            if (item.value("id") == uuid_)
+            {
+                leaveOutbreakMode();
+                return; // no point searching further
+            }
+        }
     }
 }
 
 void ManagementAgent::EventReceiverImpl::OutbreakModeController::leaveOutbreakMode()
 {
-    if (!outbreakMode_)
-    {
-        return;
-    }
     LOGINFO("Leaving outbreak mode");
     outbreakMode_ = false;
+    uuid_ = "";
+    save();
 }

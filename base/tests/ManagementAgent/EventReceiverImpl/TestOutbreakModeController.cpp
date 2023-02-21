@@ -446,6 +446,22 @@ TEST_F(TestOutbreakModeController, action_leaves_outbreak_mode)
     EXPECT_FALSE(controller->outbreakMode());
 }
 
+TEST_F(TestOutbreakModeController, leaving_outbreak_mode_is_persisted)
+{
+    auto controller = std::make_shared<OutbreakModeController>();
+    EXPECT_FALSE(controller->outbreakMode());
+    enterOutbreakMode(controller);
+    ASSERT_TRUE(controller->outbreakMode());
+    controller->processAction(R"(<?xml version="1.0"?><action type="sophos.core.threat.sav.clear"><item id="5df69683-a5a2-5d96-897d-06f9c4c8c7bf"/></action>)");
+    ASSERT_FALSE(controller->outbreakMode());
+
+    controller.reset();
+
+    // Replace the controller
+    UsingMemoryAppender recorder(*this);
+    controller = std::make_shared<OutbreakModeController>();
+    EXPECT_FALSE(controller->outbreakMode());
+}
 
 TEST_F(TestOutbreakModeController, ignore_irrelevant_action)
 {
@@ -458,3 +474,18 @@ TEST_F(TestOutbreakModeController, ignore_irrelevant_action)
     EXPECT_TRUE(controller->outbreakMode());
 }
 
+
+TEST_F(TestOutbreakModeController, ignore_wrong_id_clearing_outbreak_mode)
+{
+    auto* filesystemMock = new MockFileSystem();
+    std::string contents = R"({"outbreakMode":true,"uuid":"5df69683-a5a2-5d96-897d-06f9c4c8c7bf"})";
+    EXPECT_CALL(*filesystemMock, readFile(expectedStatusFile_, _)).WillOnce(Return(contents));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
+
+    auto controller = std::make_shared<OutbreakModeController>();
+    ASSERT_TRUE(controller->outbreakMode());
+
+    controller->processAction(
+        R"(<?xml version="1.0"?><action type="sophos.core.threat.sav.clear"><item id="5df69683-a5a2-ffff-ffff-06f9c4c8c7bf"/></action>)");
+    EXPECT_TRUE(controller->outbreakMode());
+}
