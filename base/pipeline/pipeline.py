@@ -207,23 +207,27 @@ def get_inputs(context: tap.PipelineContext, base_build: ArtisanInput, mode: str
         test_inputs = dict(
             test_scripts=context.artifact.from_folder('./testUtils'),
             base_sdds=base_build / 'sspl-base-debug/SDDS-COMPONENT',
+            ra_sdds=base_build / 'sspl-base-debug/RA-SDDS-COMPONENT',
             system_test=base_build / 'sspl-base-debug/system_test',
             openssl=base_build / 'sspl-base-debug' / 'openssl',
-            websocket_server=context.artifact.from_component('liveterminal', 'prod', '1-0-267/219514') / 'websocket_server',
+            websocket_server=context.artifact.from_component('liveterminal', 'prod',
+                                                             '1-0-267/219514') / 'websocket_server',
             bullseye_files=context.artifact.from_folder('./build/bullseye'),  # used for robot upload
         )
     if mode == 'coverage':
         test_inputs = dict(
-        test_scripts=context.artifact.from_folder('./testUtils'),
-        base_sdds=base_build / 'sspl-base-coverage/SDDS-COMPONENT',
-        system_test=base_build / 'sspl-base-coverage/system_test',
-        openssl=base_build / 'sspl-base-coverage' / 'openssl',
-        websocket_server=context.artifact.from_component('liveterminal', 'prod', '1-0-267/219514') / 'websocket_server',
-        bullseye_files=context.artifact.from_folder('./build/bullseye'),
-        coverage=base_build / 'sspl-base-coverage/covfile',
-        coverage_unittest=base_build / 'sspl-base-coverage/unittest-htmlreport',
-        bazel_tools=unified_artifact(context, 'em.esg', 'develop', 'build/bazel-tools')
-    )
+            test_scripts=context.artifact.from_folder('./testUtils'),
+            base_sdds=base_build / 'sspl-base-coverage/SDDS-COMPONENT',
+            ra_sdds=base_build / 'sspl-base-coverage/RA-SDDS-COMPONENT',
+            system_test=base_build / 'sspl-base-coverage/system_test',
+            openssl=base_build / 'sspl-base-coverage' / 'openssl',
+            websocket_server=context.artifact.from_component('liveterminal', 'prod',
+                                                             '1-0-267/219514') / 'websocket_server',
+            bullseye_files=context.artifact.from_folder('./build/bullseye'),
+            coverage=base_build / 'sspl-base-coverage/covfile',
+            coverage_unittest=base_build / 'sspl-base-coverage/unittest-htmlreport',
+            bazel_tools=unified_artifact(context, 'em.esg', 'develop', 'build/bazel-tools')
+        )
     return test_inputs
 
 def build_release(stage: tap.Root, component: tap.Component):
