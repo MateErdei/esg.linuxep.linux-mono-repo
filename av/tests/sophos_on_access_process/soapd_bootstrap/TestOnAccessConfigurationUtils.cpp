@@ -527,7 +527,7 @@ TEST_F(TestOnAccessConfigurationUtils, numberOfThreadsSetByHardwareConcurrencyIs
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(m_mockIFileSystemPtr) };
     auto result = sophos_on_access_process::OnAccessConfig::readLocalSettingsFile(m_mockSysCallWrapper);
 
-    EXPECT_TRUE(appenderContains("Hardware concurrency set 50. Reducing number of threadss to " + std::to_string(maxConcurrencyScanningThreads)));
+    EXPECT_TRUE(appenderContains("Hardware concurrency set to 50. Reducing number of threads to " + std::to_string(maxConcurrencyScanningThreads)));
     EXPECT_EQ(result.numScanThreads, 40);
 }
 
@@ -642,7 +642,7 @@ TEST_F(TestOnAccessConfigurationUtils, readLocalSettingsJsonOverridesHardwareCon
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(m_mockIFileSystemPtr) };
     auto result = sophos_on_access_process::OnAccessConfig::readLocalSettingsFile(m_mockSysCallWrapper);
 
-    EXPECT_TRUE(appenderContains("Hardware concurrency set 50. Reducing number of threads to " + std::to_string(maxConcurrencyScanningThreads)));
+    EXPECT_TRUE(appenderContains("Hardware concurrency set to 50. Reducing number of threads to " + std::to_string(maxConcurrencyScanningThreads)));
     EXPECT_EQ(result.numScanThreads, 99);
 }
 
@@ -698,16 +698,6 @@ TEST_F(TestOnAccessConfigurationUtils, readLocalSettingsTenCPUCores)
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(m_mockIFileSystemPtr) };
     auto result = sophos_on_access_process::OnAccessConfig::readLocalSettingsFile(m_mockSysCallWrapper);
     EXPECT_EQ(result.numScanThreads, 5);
-}
-
-TEST_F(TestOnAccessConfigurationUtils, readLocalSettingsHardwareConcurrencyBypassesMaxThreads)
-{
-    EXPECT_CALL(*m_mockSysCallWrapper, hardware_concurrency()).WillOnce(Return(400));
-    expectReadConfig(*m_mockIFileSystemPtr, "");
-
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(m_mockIFileSystemPtr) };
-    auto result = sophos_on_access_process::OnAccessConfig::readLocalSettingsFile(m_mockSysCallWrapper);
-    EXPECT_EQ(result.numScanThreads, 200);
 }
 
 TEST_F(TestOnAccessConfigurationUtils, JustHighPrioritySoapdTrue)
@@ -1038,9 +1028,12 @@ INSTANTIATE_TEST_SUITE_P(
         std::make_pair(15, 8),
         std::make_pair(16, 8),
         std::make_pair(17, 9),
-        std::make_pair(99, 50),
-        std::make_pair(100, 50),
-        std::make_pair(101, 51)
+        std::make_pair(17, 9),
+        std::make_pair(78, 39),
+        std::make_pair(80, 40),
+        std::make_pair(99, 40),
+        std::make_pair(100, 40),
+        std::make_pair(101, 40)
             ));
 
 TEST_P(TestOnAccessConfigUtilsParameterized, readLocalSettingsEmpty_numberOfCoresDeterminesNumberOfScanningThreads)
