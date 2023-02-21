@@ -463,6 +463,19 @@ TEST_F(TestOutbreakModeController, leaving_outbreak_mode_is_persisted)
     EXPECT_FALSE(controller->outbreakMode());
 }
 
+TEST_F(TestOutbreakModeController, leaving_outbreak_mode_resets_count)
+{
+    auto controller = std::make_shared<OutbreakModeController>();
+    EXPECT_FALSE(controller->outbreakMode());
+    enterOutbreakMode(controller);
+    ASSERT_TRUE(controller->outbreakMode());
+    controller->processAction(R"(<?xml version="1.0"?><action type="sophos.core.threat.sav.clear"><item id="5df69683-a5a2-5d96-897d-06f9c4c8c7bf"/></action>)");
+    ASSERT_FALSE(controller->outbreakMode());
+
+    processEventThrowAwayArgs(controller, "CORE", DETECTION_XML);
+    EXPECT_FALSE(controller->outbreakMode());
+}
+
 TEST_F(TestOutbreakModeController, ignore_irrelevant_action)
 {
     auto controller = std::make_shared<OutbreakModeController>();

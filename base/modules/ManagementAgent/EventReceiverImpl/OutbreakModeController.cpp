@@ -227,5 +227,6 @@ void ManagementAgent::EventReceiverImpl::OutbreakModeController::leaveOutbreakMo
     LOGINFO("Leaving outbreak mode");
     outbreakMode_ = false;
     uuid_ = "";
+    detectionCount_ = 0;
     save();
 }
