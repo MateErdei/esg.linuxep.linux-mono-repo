@@ -193,7 +193,7 @@ static bool canConnectToCloud(const std::string& proxy = "")
 /// Note that we only log success here, failure message will be handled by the bash script.
 /// \param proxies Vector of Message Relays which will be used first to test connectivity.
 /// \return Return true if Central is contactable, false otherwise.
-static bool canConnectToCloudDirectOrProxies(const std::vector<ServerAddress>& proxies)
+static bool canConnectToCloudDirectOrProxies(const std::vector<MCS::MessageRelay>& proxies)
 {
     CurlSession init;
     log("Attempting to connect to Sophos Central");
@@ -202,10 +202,11 @@ static bool canConnectToCloudDirectOrProxies(const std::vector<ServerAddress>& p
     // Try message relays
     for (auto& proxy : proxies)
     {
-        if (canConnectToCloud(proxy.getAddress()))
+        std::string fullAddress = proxy.address+":"+proxy.port;
+        if (canConnectToCloud(fullAddress))
         {
             connected = true;
-            log("Successfully verified connection to Sophos Central via Message Relay: " + proxy.getAddress());
+            log("Successfully verified connection to Sophos Central via Message Relay: " + fullAddress);
             break;
         }
     }
@@ -267,44 +268,6 @@ static std::vector<std::string> splitString(std::string string_to_split, const s
     return splitStrings;
 }
 
-/// Returns a vector of server addresses which can represent Update Caches or Message Relays
-/// \param deliminated_addresses should be in the format: hostname1:port1,priority1,id1;hostname2:port2,priority2,id2...
-/// \return
-static std::vector<ServerAddress> extractPrioritisedAddresses(const std::string& deliminated_addresses)
-{
-    std::vector<ServerAddress> proxies;
-    std::vector<std::string> proxyStrings = splitString(deliminated_addresses, ";");
-    for (auto& proxyString : proxyStrings)
-    {
-        std::vector<std::string> addressAndPriority = splitString(proxyString, ",");
-        if (addressAndPriority.size() < 2)
-        {
-            logError("Malformed proxy,priority,id: " + proxyString);
-            continue;
-        }
-
-        // Note, we ignore the MR or UC ID
-        std::string address = addressAndPriority[0];
-        std::string priorityString = addressAndPriority[1];
-        int priority;
-        try
-        {
-            priority = std::stoi(priorityString);
-        }
-        catch (...)
-        {
-            logError("Malformed priority (" + priorityString + ") for proxy defaulting to 1");
-            continue;
-        }
-        ServerAddress proxy = ServerAddress(address, priority);
-        proxies.push_back(proxy);
-    }
-    std::stable_sort(proxies.begin(), proxies.end(), [](const ServerAddress& p1, const ServerAddress& p2) {
-        return p1.getPriority() < p2.getPriority();
-    });
-    return proxies;
-}
-
 static std::vector<MCS::MessageRelay> extractRelays(const std::string& deliminated_addresses)
 {
     std::vector<MCS::MessageRelay> relays;
@@ -312,7 +275,7 @@ static std::vector<MCS::MessageRelay> extractRelays(const std::string& deliminat
     for (auto& proxyString : proxyStrings)
     {
         std::vector<std::string> addressAndPriority = splitString(proxyString, ",");
-        if (addressAndPriority.size() < 2)
+        if (addressAndPriority.size() != 3)
         {
             logError("Malformed proxy,priority,id: " + proxyString);
             continue;
@@ -351,6 +314,7 @@ static std::vector<MCS::MessageRelay> extractRelays(const std::string& deliminat
                      });
     return relays;
 }
+
 int main(int argc, char** argv)
 {
     g_DebugMode = static_cast<bool>(getenv("DEBUG_THIN_INSTALLER"));
@@ -392,9 +356,8 @@ int main(int argc, char** argv)
         registerArgValues.emplace_back(argv[i]);
     }
 
-    std::vector<ServerAddress> relays;
-    std::vector<MCS::MessageRelay> relaysForConfig;
-    std::vector<ServerAddress> update_caches;
+    std::vector<MCS::MessageRelay> relays;
+    std::vector<MCS::MessageRelay> update_caches;
 
     while (!feof(f))
     {
@@ -422,12 +385,11 @@ int main(int argc, char** argv)
             }
             else if (argname == "MESSAGE_RELAYS")
             {
-                relays = extractPrioritisedAddresses(argvalue);
-                relaysForConfig = extractRelays(argvalue);
+                relays = extractRelays(argvalue);
             }
             else if (argname == "UPDATE_CACHES")
             {
-                update_caches = extractPrioritisedAddresses(argvalue);
+                update_caches = extractRelays(argvalue);
             }
         }
     }
@@ -526,7 +488,7 @@ int main(int argc, char** argv)
 
         int i = 1;
         MCS::ConfigOptions MsgConfig;
-        for (auto const& messagerelay: relaysForConfig)
+        for (auto const& messagerelay: relays)
         {
             std::string key = std::to_string(i);
             ++i;
@@ -572,7 +534,8 @@ int main(int argc, char** argv)
             j["updateCacheCertPath"] = updateCachePath;
             for (const auto& cache: update_caches)
             {
-                j["updateCache"].emplace_back(cache.getAddress());
+                std::string fullAddress = cache.address+":"+cache.port;
+                j["updateCache"].emplace_back(fullAddress);
             }
 
         }
