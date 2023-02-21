@@ -36,17 +36,16 @@
             <release-version branch="release/sophos" build-id="20200911164143-1923fa9a9b1636f552266b4c9082714d04d869e6-tbYSwR"/>
             <include artifact-path="include" dest-dir="/build/redist/gsl/include"/>
         </build-asset>
+        <build-asset project="thirdparty" repo="libexpat">
+            <release-version branch="release/sspl/Version_2_4_8" build-id="20220412084210-700180882b0055f197dcf0198d71f0be516561bc-ihDKUE"/>
+            <include artifact-path="output" dest-dir="/build/input"/>
+        </build-asset>
         <build-asset project="thirdparty" repo="libzmq">
             <release-version branch="release/sspl/Version_4_3_4" build-id="20220310142454-6680251ccb165f18f672e5bfad0df9041fb1e431-JsvEqi"/>
             <include artifact-path="output" dest-dir="/build/input"/>
         </build-asset>
         <build-asset project="thirdparty" repo="log4cplus">
             <release-version branch="release/sspl/Version_2_0_7" build-id="20220310142847-3a4bb813dfdcbf28d538394d253449fbb7c78bad-rAcfZX"/>
-            <include artifact-path="output" dest-dir="/build/input"/>
-        </build-asset>
-        <build-asset project="thirdparty" repo="minizip">
-            <release-version branch="release/linux-3.0.2" build-id="20220727094518-4b69c4f15c0e809f6fa147e9347b3cfec2ee6beb-ckevhm"/>
-            <development-version branch="sophos/linux-sspl-master"/>
             <include artifact-path="output" dest-dir="/build/input"/>
         </build-asset>
         <build-asset project="thirdparty" repo="openssl">
@@ -107,11 +106,13 @@
 
             <include artifact-path="thirdparty/zlib-linux-opt" dest-dir="/build/redist/zlib"/>
             <include artifact-path="thirdparty/googletest-linux-opt" dest-dir="/build/redist/googletest"/>
-            <include artifact-path="thirdparty/expat-linux-opt" dest-dir="/build/redist/expat"/>
+            <include artifact-path="thirdparty/minizip-linux-opt" dest-dir="/build/redist/minizip"/>
+            <include artifact-path="thirdparty/liblzma-linux-opt" dest-dir="/build/redist/lzma"/>
+            <include artifact-path="thirdparty/bzip2-linux-opt" dest-dir="/build/redist/bzip2"/>
         </build-asset>
 
         <build-asset project="winep" repo="sau">
-            <release-version branch="release/sspl/Version_1_0_0" build-id="20220825150631-43a7c87ceb5905f316aef54df45de777a5961022-O0LZyf"/>
+            <release-version branch="release/WINEP-2022.39-DTP2" build-id="20221003091945-90720120553d2d122effccb97edd4ccbcc5ea61e-MzUwFE"/>
             <development-version branch="develop"/>
             <include artifact-path="Linux-x64/SDDS3-Lib" dest-dir="/build/input"/>
             <include artifact-path="Linux-x64/SDDS3-Utils" dest-dir="/build/input/sdds3"/>
@@ -234,9 +235,7 @@
         <!--TODO: LINUXDAR-6488 - get all build modes working with old artifact path-->
         <!-- debug -->
         <build-asset artifact-path="sspl-base-debug/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="debug"/>
-        <build-asset artifact-path="sspl-base-debug/RA-SDDS-COMPONENT" source-dir="output/RA-SDDS-COMPONENT" mode="debug"/>
         <build-asset artifact-path="sspl-base-debug/SDDS3-PACKAGE" source-dir="output/SDDS3-PACKAGE" mode="debug"/>
-        <build-asset artifact-path="sspl-base-debug/RA-SDDS3-COMPONENT" source-dir="output/RA-SDDS-COMPONENT" mode="debug"/>
 
         <build-asset artifact-path="sspl-base-debug/openssl" source-dir="/build/redist/openssl" mode="debug"/>
         <build-asset artifact-path="sspl-base-debug/pluginapi" source-dir="output" mode="debug">

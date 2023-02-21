@@ -285,9 +285,18 @@ find_library(LOG4CPLUS_LIBRARY
         )
 find_library(MINIZIP_LIBRARY
         NAMES minizip
-        PATHS ${MINIZIP_INPUT}/lib
+        PATHS ${MINIZIP_INPUT}
         )
-set(MINIZIP_INCLUDE_DIR ${MINIZIP_INPUT}/include)
+set(MINIZIP_INCLUDE_DIR ${MINIZIP_INPUT})
+
+set( LZMA_INCLUDE_DIR ${INPUT}/lzma/src/liblzma/api/lzma)
+set( LZMA_LIBRARY_DIR ${INPUT}/lzma)
+set( LZMA_LIBRARY ${LZMA_LIBRARY_DIR}/libliblzma.so)
+
+set( BZ2_INCLUDE_DIR ${INPUT}/bzip2)
+set( BZ2_LIBRARY_DIR ${INPUT}/bzip2)
+set( BZ2_LIBRARY ${BZ2_LIBRARY_DIR}/libbzip2.so)
+
 # ensure valid log4cplus to work with fork
 file(STRINGS ${LOG4CPLUS_LIBRARY} log4cplusStrings)
 string(FIND "${log4cplusStrings}" "implicit initialization is turned off" DisabledImplicitInitialization)

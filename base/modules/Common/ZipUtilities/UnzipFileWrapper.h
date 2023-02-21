@@ -3,7 +3,7 @@
 #pragma once
 
 #include <zlib.h>
-#include <unzip.h>
+#include <mz_compat.h>
 
 namespace Common::ZipUtilities
 {

@@ -8,10 +8,10 @@ add_library(ziputiltiesobject OBJECT
         $<TARGET_OBJECTS:filesystemimplobject>)
 
 
-target_include_directories(ziputiltiesobject PUBLIC ${LOG4CPLUS_INCLUDE_DIR} ${MINIZIP_INCLUDE_DIR} ${ZLIB_INPUT})
+target_include_directories(ziputiltiesobject PUBLIC ${LOG4CPLUS_INCLUDE_DIR} ${MINIZIP_INCLUDE_DIR} ${ZLIB_INPUT} ${LZMA_INCLUDE_DIR} ${BZ2_INCLUDE_DIR})
 add_library(ziputilities SHARED $<TARGET_OBJECTS:ziputiltiesobject>)
 target_link_libraries(ziputilities PUBLIC
-        ${LOG4CPLUS_LIBRARY} ${ZLIB_LIBRARY} ${MINIZIP_LIBRARY})
+        ${LOG4CPLUS_LIBRARY} ${ZLIB_LIBRARY} ${MINIZIP_LIBRARY} ${LZMA_LIBRARY} ${BZ2_LIBRARY})
 
 SET_TARGET_PROPERTIES(ziputilities
         PROPERTIES INSTALL_RPATH "$ORIGIN")

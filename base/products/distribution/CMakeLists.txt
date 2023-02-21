@@ -30,7 +30,9 @@ foreach (LIB boost_atomic boost_chrono boost_date_time boost_filesystem boost_re
     add_third_party_library(${LIB} ${BOOST_INPUT}/lib64)
 endforeach(LIB)
 
-add_third_party_library(minizip ${MINIZIP_INPUT}/lib)
+add_third_party_library(bzip2 ${BZ2_LIBRARY_DIR})
+add_third_party_library(liblzma ${LZMA_LIBRARY_DIR})
+add_third_party_library(minizip ${MINIZIP_INPUT})
 add_third_party_library(curl ${CURL_INPUT}/lib64)
 add_third_party_library(expat ${EXPAT_INPUT})
 add_third_party_library(zlib  ${ZLIB_INPUT})
