@@ -19,11 +19,11 @@ import time
 import datetime
 import xml.dom.minidom
 import xml.sax.saxutils
-import io
 import zlib
 import urllib.parse
 import json
 import gzip
+from io import StringIO
 
 import logging
 import logging.handlers
