@@ -14,6 +14,7 @@ namespace Common::ApplicationConfiguration
         virtual std::string getPluginSocketAddress(const std::string& pluginName) const = 0;
         virtual std::string getManagementAgentSocketAddress() const = 0;
         virtual std::string getWatchdogSocketAddress() const = 0;
+        virtual std::string getWatchdogConfigPath() const = 0;
         virtual std::string getEventSubscriberSocketAddress() const = 0;
         virtual std::string getEventSubscriberSocketFile() const = 0;
         virtual std::string getEventJournalsPath() const = 0;

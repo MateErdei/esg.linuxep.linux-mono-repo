@@ -38,6 +38,11 @@ namespace Common
 
         std::string ApplicationPathManager::getWatchdogSocketAddress() const { return socketPath("watchdog.ipc"); }
 
+        std::string ApplicationPathManager::getWatchdogConfigPath() const
+        {
+            return Common::FileSystem::join(sophosInstall(), "base/etc/watchdog.conf");
+        }
+
         std::string ApplicationPathManager::sophosInstall() const
         {
             return Common::ApplicationConfiguration::applicationConfiguration().getData(

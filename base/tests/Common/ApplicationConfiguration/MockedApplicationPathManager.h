@@ -14,6 +14,7 @@ public:
     MOCK_CONST_METHOD1(getPluginSocketAddress, std::string(const std::string&));
     MOCK_CONST_METHOD0(getManagementAgentSocketAddress, std::string(void));
     MOCK_CONST_METHOD0(getWatchdogSocketAddress, std::string(void));
+    MOCK_CONST_METHOD0(getWatchdogConfigPath, std::string(void));
     MOCK_CONST_METHOD0(getEventSubscriberSocketAddress, std::string(void));
     MOCK_CONST_METHOD0(getEventSubscriberSocketFile, std::string(void));
     MOCK_CONST_METHOD0(getEventJournalsPath, std::string(void));
