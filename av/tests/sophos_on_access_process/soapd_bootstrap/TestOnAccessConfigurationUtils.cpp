@@ -516,6 +516,21 @@ TEST_F(TestOnAccessConfigurationUtils, readLocalSettingsLogsWhenSettingFromHardw
     EXPECT_TRUE(appenderContains("Setting number of scanning threads from Hardware Concurrency: 5"));
 }
 
+TEST_F(TestOnAccessConfigurationUtils, numberOfThreadsSetByHardwareConcurrencyIsLimitedTo40)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    EXPECT_CALL(*m_mockSysCallWrapper, hardware_concurrency()).WillOnce(Return(100));
+
+    expectReadConfig(*m_mockIFileSystemPtr, "");
+
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(m_mockIFileSystemPtr) };
+    auto result = sophos_on_access_process::OnAccessConfig::readLocalSettingsFile(m_mockSysCallWrapper);
+
+    EXPECT_TRUE(appenderContains("Hardware concurrency set 50. Reducing number of threadss to " + std::to_string(maxConcurrencyScanningThreads)));
+    EXPECT_EQ(result.numScanThreads, 40);
+}
+
 TEST_F(TestOnAccessConfigurationUtils, readLocalSettingsLogsWhenCantSetFromHardwareConcurrency)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
@@ -614,16 +629,34 @@ TEST_F(TestOnAccessConfigurationUtils, readLocalSettingsEmptyJSON)
     EXPECT_TRUE(appenderContains(m_localSettingsNotUsedMessage));
 }
 
-TEST_F(TestOnAccessConfigurationUtils, readLocalSettingsJsonOverridesHardwareConcurrency)
+TEST_F(TestOnAccessConfigurationUtils, readLocalSettingsJsonOverridesHardwareConcurrencyLimit)
 {
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    EXPECT_CALL(*m_mockSysCallWrapper, hardware_concurrency()).WillOnce(Return(100));
+
     expectReadConfig(*m_mockIFileSystemPtr, R"({
-        "numThreads" : 42
+        "numThreads" : 99
     })");
 
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(m_mockIFileSystemPtr) };
     auto result = sophos_on_access_process::OnAccessConfig::readLocalSettingsFile(m_mockSysCallWrapper);
-    EXPECT_EQ(result.numScanThreads, 42);
+
+    EXPECT_TRUE(appenderContains("Hardware concurrency set 50. Reducing number of threads to " + std::to_string(maxConcurrencyScanningThreads)));
+    EXPECT_EQ(result.numScanThreads, 99);
 }
+
+TEST_F(TestOnAccessConfigurationUtils, readLocalSettingsJsonIsNotOverridenByConcurrencyMaximum)
+{
+    expectReadConfig(*m_mockIFileSystemPtr, R"({
+        "numThreads" : 100
+    })");
+
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(m_mockIFileSystemPtr) };
+    auto result = sophos_on_access_process::OnAccessConfig::readLocalSettingsFile(m_mockSysCallWrapper);
+    EXPECT_EQ(result.numScanThreads, 100);
+}
+
 
 TEST_F(TestOnAccessConfigurationUtils, readLocalSettingsMinLimitQueue)
 {
