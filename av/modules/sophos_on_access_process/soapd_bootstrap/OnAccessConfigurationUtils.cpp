@@ -358,7 +358,7 @@ namespace sophos_on_access_process::OnAccessConfig
             }
             else if (numScanThreads < minConcurrencyScanningThreads)
             {
-                LOGDEBUG("Hardware concurrency set to " << numScanThreads << " which is to low. Increasing number of threads to " << maxConcurrencyScanningThreads);
+                LOGDEBUG("Hardware concurrency result is " << numScanThreads << " which is to low. Increasing number of threads to " << maxConcurrencyScanningThreads);
                 threadsFromConcurrency = minConcurrencyScanningThreads;
             }
             else

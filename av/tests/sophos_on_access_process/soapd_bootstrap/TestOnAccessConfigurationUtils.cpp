@@ -669,6 +669,21 @@ TEST_F(TestOnAccessConfigurationUtils, readLocalSettingsJsonIsNotOverridenByConc
     EXPECT_EQ(result.numScanThreads, 100);
 }
 
+TEST_F(TestOnAccessConfigurationUtils, readLocalSettingsWithNoThreadFieldSetsFromConcurrency)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    EXPECT_CALL(*m_mockSysCallWrapper, hardware_concurrency()).WillOnce(Return(8));
+    expectReadConfig(*m_mockIFileSystemPtr, R"({
+        "maxscanqueuesize" : 38
+    })");
+
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(m_mockIFileSystemPtr) };
+    auto result = readLocalSettingsFile(m_mockSysCallWrapper);
+    EXPECT_EQ(result.numScanThreads, 4);
+    EXPECT_TRUE(waitForLog("Setting number of scanning threads from Hardware Concurrency"));
+}
+
 
 TEST_F(TestOnAccessConfigurationUtils, readLocalSettingsMinLimitQueue)
 {
