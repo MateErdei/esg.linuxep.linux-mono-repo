@@ -23,7 +23,6 @@ import zlib
 import urllib.parse
 import json
 import gzip
-import io
 
 import logging
 import logging.handlers
@@ -798,9 +797,7 @@ class Endpoint(object):
 
     def handle_response(self, app_id, correlation_id, response_body):
         try:
-            fake_file = io.StringIO(response_body)
-            decompressed_fake_file = gzip.GzipFile(fileobj=fake_file, mode='rb')
-            decompressed_body = decompressed_fake_file.read()
+            decompressed_body = gzip.decompress(response_body)
         except Exception as e:
             logger.error("Failed to decompress response body content: {}".format(e))
             return
