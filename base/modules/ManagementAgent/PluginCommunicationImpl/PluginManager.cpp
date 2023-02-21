@@ -15,6 +15,7 @@
 #include <Common/UtilityImpl/StringUtils.h>
 #include <Common/ZMQWrapperApi/IContext.h>
 #include <Common/ZeroMQWrapper/ISocketRequester.h>
+#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 #include <ManagementAgent/LoggerImpl/Logger.h>
 #include <ManagementAgent/PluginCommunication/PluginHealthStatus.h>
 #include <sys/stat.h>
@@ -224,6 +225,7 @@ namespace ManagementAgent
         {
             LOGDEBUG("PluginManager: get telemetry " << pluginName);
             std::lock_guard<std::mutex> lock(m_pluginMapMutex);
+            Common::Telemetry::TelemetryHelper::getInstance().increment("Outbreak mode", 0UL);
             return getPlugin(pluginName)->getTelemetry();
         }
 
