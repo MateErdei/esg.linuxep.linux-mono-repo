@@ -201,11 +201,17 @@ bool ManagementAgent::EventReceiverImpl::OutbreakModeController::outbreakMode() 
 
 void ManagementAgent::EventReceiverImpl::OutbreakModeController::processAction(const std::string& actionXml)
 {
+    if (actionXml.empty())
+    {
+        return;
+    }
     if (!outbreakMode_)
     {
         // no point parsing XML if we aren't in outbreak mode
+        LOGDEBUG("Ignoring action as not in outbreak mode");
         return;
     }
+    LOGDEBUG("Considering action: " << actionXml);
     auto xml = Common::XmlUtilities::parseXml(actionXml);
     auto action = xml.lookup("action");
     if (action.value("type", "") == "sophos.core.threat.sav.clear")
@@ -218,7 +224,15 @@ void ManagementAgent::EventReceiverImpl::OutbreakModeController::processAction(c
                 leaveOutbreakMode();
                 return; // no point searching further
             }
+            else
+            {
+                LOGDEBUG("Ignoring clear action with UUID=" << item.value("id"));
+            }
         }
+    }
+    else
+    {
+        LOGDEBUG("Ignoring action that isn't clear: " << actionXml);
     }
 }
 

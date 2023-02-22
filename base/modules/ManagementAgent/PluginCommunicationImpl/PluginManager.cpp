@@ -23,6 +23,25 @@
 #include <memory>
 #include <thread>
 
+namespace
+{
+    std::string readAction(const std::string& filePath)
+    {
+        auto fs = Common::FileSystem::fileSystem();
+        Path fullPath = Common::FileSystem::join(
+            Common::ApplicationConfiguration::applicationPathManager().getMcsActionFilePath(), filePath);
+        try
+        {
+            return fs->readFile(fullPath);
+        }
+        catch (Common::FileSystem::IFileSystemException& ex)
+        {
+            LOGWARN("Unable to read Health Action Task at: " << filePath << " due to: " << ex.what());
+        }
+        return "";
+    }
+}
+
 namespace ManagementAgent
 {
     namespace PluginCommunicationImpl
@@ -147,14 +166,15 @@ namespace ManagementAgent
             // extra check for does MA also subscribe to this APPID then ingest/use
             if (appId == "CORE")
             {
-                if (isThreatResetTask(actionXml))
+                std::string xml = readAction(actionXml); // Actually filename
+                if (isThreatResetTask(xml))
                 {
                     LOGDEBUG("Processing Health Reset Action.");
                     m_healthStatus->resetThreatDetectionHealth();
                 }
                 if (eventReceiver_)
                 {
-                    eventReceiver_->handleAction(actionXml);
+                    eventReceiver_->handleAction(xml);
                 }
             }
 
@@ -212,24 +232,14 @@ namespace ManagementAgent
             return getPlugin(pluginName)->getHealth();
         }
 
-        bool PluginManager::isThreatResetTask(const std::string& filePath)
+        bool PluginManager::isThreatResetTask(const std::string& xml)
         {
-            auto fs = Common::FileSystem::fileSystem();
+            if (xml.empty())
+            {
+                return false;
+            }
             std::string expectedActionFileContents = "type=\"sophos.core.threat.reset\"";
-            Path fullPath = Common::FileSystem::join(Common::ApplicationConfiguration::applicationPathManager().getMcsActionFilePath(), filePath);
-            try
-            {
-                std::string actionFileContents = fs->readFile(fullPath);
-                if (Common::UtilityImpl::StringUtils::isSubstring(actionFileContents, expectedActionFileContents))
-                {
-                    return true;
-                }
-            }
-            catch (Common::FileSystem::IFileSystemException& ex)
-            {
-                LOGWARN("Unable to read Health Action Task at: " << filePath << " due to: " << ex.what());
-            }
-            return false;
+            return Common::UtilityImpl::StringUtils::isSubstring(xml, expectedActionFileContents);
         }
 
         void PluginManager::locked_setAppIds(
