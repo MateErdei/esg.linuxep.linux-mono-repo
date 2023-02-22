@@ -268,11 +268,15 @@ def sspl_base(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
 
     component = tap.Component(name=COMPONENT, base_version=get_base_version())
     # For cmdline/local builds, determine build mode by how tap was called
-    # Not sure it is possible to pass parameters into tap so doing this for now.
+    # Can override this with `TAP_PARAMETER_MODE=debug` prefacing tap command
     determined_build_mode = None
     if f"{component.name}.build.{DEBUG_MODE}" in sys.argv:
         determined_build_mode = DEBUG_MODE
-    elif f"{component.name}.build.{RELEASE_MODE}" in sys.argv:
+    if f"{component.name}.build.{COVERAGE_MODE}" in sys.argv:
+        determined_build_mode = COVERAGE_MODE
+    # ls logic check here acts to make all builds default to release apart from "tap ls" if
+    # another build mode cannot be determined. Tap ls needs to have no build mode to see all builds
+    elif f"{component.name}.build.{RELEASE_MODE}" in sys.argv or sys.argv[1] != 'ls':
         determined_build_mode = RELEASE_MODE
 
     # In CI parameters.mode will be set

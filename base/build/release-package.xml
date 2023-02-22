@@ -234,7 +234,9 @@
         <!--TODO: LINUXDAR-6488 - get all build modes working with old artifact path-->
         <!-- debug -->
         <build-asset artifact-path="sspl-base-debug/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="debug"/>
+        <build-asset artifact-path="sspl-base-debug/RA-SDDS-COMPONENT" source-dir="output/RA-SDDS-COMPONENT" mode="debug"/>
         <build-asset artifact-path="sspl-base-debug/SDDS3-PACKAGE" source-dir="output/SDDS3-PACKAGE" mode="debug"/>
+        <build-asset artifact-path="sspl-base-debug/RA-SDDS3-COMPONENT" source-dir="output/RA-SDDS-COMPONENT" mode="debug"/>
 
         <build-asset artifact-path="sspl-base-debug/openssl" source-dir="/build/redist/openssl" mode="debug"/>
         <build-asset artifact-path="sspl-base-debug/pluginapi" source-dir="output" mode="debug">

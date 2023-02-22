@@ -28,20 +28,26 @@ This runs automatically during pipeline builds. However, it's also possible to r
 Once complete, you can view the html report in `index.html`.
     
 ### Unified Pipeline Operations
-1) Fetch build inputs as specified in `build/release-package.xml`:
+1) See all tap build options:
 
-       tap fetch sspl_base
+       tap ls
 
-2) Build everest-base on local machine:
+2) Fetch build inputs as specified in `build/release-package.xml`:
 
-       tap run sspl_base.build --build-backend=local
+       tap fetch sspl_base.build.{option}
 
-3) Build base on local machine and run tests:
+3) Build everest-base on local machine:
 
-       export TAP_PARAMETER_MODE=mode -> one of "release|analysis"
-       tap run sspl_base --build-backend=local
+       tap build sspl_base.build.{option}
 
-4) Run tests on branch with unified pipeline build:
+4) Build base on local machine and run tests:
 
-       export TAP_PARAMETER_MODE=mode -> one of "release|coverage" - 'release' is the default so no need to export
-       tap run sspl_base
+       tap run sspl_base.integration.{option} --build-backend=local
+
+5) Run tests on branch with unified pipeline build:
+
+       tap run sspl_base.integration.{option}
+
+6) To specify your build mode for tests (options are debug, release, and coverage):
+
+       TAP_PARAMETER_MODE={mode} tap run sspl_base.integration.{option}
