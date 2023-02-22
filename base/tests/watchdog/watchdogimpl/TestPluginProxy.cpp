@@ -63,22 +63,6 @@ TEST_F(TestPluginProxy, TestPluginInfoCanBeUpdatedInPluginProxy) // NOLINT
     EXPECT_NO_THROW(proxy.reset(new PluginProxyExposePluginInfo(std::move(info)))); // NOLINT
     auto& pluginProxyInfo = proxy->getPluginInfoPublic();
 
-    auto filesystemMock = new StrictMock<MockFileSystem>();
-    std::unique_ptr<MockFileSystem> mockIFileSystemPtr(filesystemMock);
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
-
-    auto mockFilePermissions = new StrictMock<MockFilePermissions>();
-    std::unique_ptr<MockFilePermissions> mockIFilePermissionsPtr = std::unique_ptr<MockFilePermissions>(mockFilePermissions);
-    Tests::replaceFilePermissions(std::move(mockIFilePermissionsPtr));
-
-    std::string expectedWatchdogConfig = R"({"groups":{"group":2},"users":{"user":1}})";
-    std::string watchdogConfPath = Common::ApplicationConfiguration::applicationPathManager().getWatchdogConfigPath();
-    EXPECT_CALL(*filesystemMock, isFile(watchdogConfPath)).WillOnce(Return(false));
-    EXPECT_CALL(*mockFilePermissions, getUserId("user")).WillOnce(Return(1));
-    EXPECT_CALL(*mockFilePermissions, getGroupId("group")).WillRepeatedly(Return(2));
-    EXPECT_CALL(*mockFilePermissions, getUserAndGroupId("user")).Times(1);
-    EXPECT_CALL(*filesystemMock, writeFile(watchdogConfPath, expectedWatchdogConfig)).Times(1);
-
     EXPECT_EQ(pluginProxyInfo.getPluginName(), "");
     EXPECT_EQ(pluginProxyInfo.getXmlTranslatorPath(), "");
     EXPECT_EQ(pluginProxyInfo.getExecutableFullPath(), "");

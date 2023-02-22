@@ -299,13 +299,23 @@ void Watchdog::writeExecutableUserAndGroupToWatchdogConfig(const std::string& ex
                 std::string userName = userAndGroup[0];
                 std::string groupName = userAndGroup[1];
 
-                watchdogConfig["users"][userName] = filePermissions->getUserId(userName);
-                watchdogConfig["groups"][groupName] = filePermissions->getGroupId(groupName);
+                if (Common::UtilityImpl::StringUtils::startswith(userName, "sophos-spl"))
+                {
+                    watchdogConfig["users"][userName] = filePermissions->getUserId(userName);
+                }
+
+                if (Common::UtilityImpl::StringUtils::startswith(groupName, "sophos-spl"))
+                {
+                    watchdogConfig["groups"][groupName] = filePermissions->getGroupId(groupName);
+                }
             }
         }
         else
         {
-            watchdogConfig["users"][executableUserAndGroupAsString] = filePermissions->getUserId(executableUserAndGroupAsString);
+            if (Common::UtilityImpl::StringUtils::startswith(executableUserAndGroupAsString, "sophos-spl"))
+            {
+                watchdogConfig["users"][executableUserAndGroupAsString] = filePermissions->getUserId(executableUserAndGroupAsString);
+            }
         }
 
         if (!watchdogConfig.empty())
