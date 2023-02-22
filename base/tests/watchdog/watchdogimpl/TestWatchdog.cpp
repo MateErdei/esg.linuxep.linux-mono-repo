@@ -138,12 +138,13 @@ TEST_F(TestWatchdog, stopPluginViaIPC_test_plugin) // NOLINT
 TEST_F(TestWatchdog, writeExecutableUserAndGroupToWatchdogConfigWritesConfigFile)
 {
     std::string userAndGroup = "user:group";
-    std::string expectedWatchdogConfig = R"({"groups":{"group":2},"users":{"user":1}})";
+    std::string expectedWatchdogConfig = R"({"groups":{"group":2,"sophos-spl-ipc":0},"users":{"user":1}})";
 
     EXPECT_CALL(*m_mockFileSystemPtr, isFile(m_watchdogConfigPath)).WillOnce(Return(false));
 
     EXPECT_CALL(*m_mockFilePermissionsPtr, getUserId("user")).WillOnce(Return(1));
-    EXPECT_CALL(*m_mockFilePermissionsPtr, getGroupId("group")).WillRepeatedly(Return(2));
+    EXPECT_CALL(*m_mockFilePermissionsPtr, getGroupId("group")).WillOnce(Return(2));
+    EXPECT_CALL(*m_mockFilePermissionsPtr, getGroupId("sophos-spl-ipc")).WillOnce(Return(0));
 
     EXPECT_CALL(*m_mockFileSystemPtr, writeFile(m_watchdogConfigPath, expectedWatchdogConfig)).Times(1);
 
@@ -155,8 +156,8 @@ TEST_F(TestWatchdog, writeExecutableUserAndGroupToWatchdogConfigUpdatesExistingC
     std::string userAndGroup1 = "user1:group1";
     std::string userAndGroup2 = "user2:group2";
 
-    std::string expectedWatchdogConfig = R"({"groups":{"group1":1},"users":{"user1":1}})";
-    std::string expectedWatchdogConfig2 = R"({"groups":{"group1":1,"group2":2},"users":{"user1":1,"user2":2}})";
+    std::string expectedWatchdogConfig = R"({"groups":{"group1":1,"sophos-spl-ipc":0},"users":{"user1":1}})";
+    std::string expectedWatchdogConfig2 = R"({"groups":{"group1":1,"group2":2,"sophos-spl-ipc":0},"users":{"user1":1,"user2":2}})";
 
     EXPECT_CALL(*m_mockFileSystemPtr, isFile(m_watchdogConfigPath)).Times(2)
         .WillOnce(Return(false))
@@ -165,8 +166,9 @@ TEST_F(TestWatchdog, writeExecutableUserAndGroupToWatchdogConfigUpdatesExistingC
 
     EXPECT_CALL(*m_mockFilePermissionsPtr, getUserId("user1")).WillOnce(Return(1));
     EXPECT_CALL(*m_mockFilePermissionsPtr, getUserId("user2")).WillOnce(Return(2));
-    EXPECT_CALL(*m_mockFilePermissionsPtr, getGroupId("group1")).WillRepeatedly(Return(1));
-    EXPECT_CALL(*m_mockFilePermissionsPtr, getGroupId("group2")).WillRepeatedly(Return(2));
+    EXPECT_CALL(*m_mockFilePermissionsPtr, getGroupId("group1")).WillOnce(Return(1));
+    EXPECT_CALL(*m_mockFilePermissionsPtr, getGroupId("group2")).WillOnce(Return(2));
+    EXPECT_CALL(*m_mockFilePermissionsPtr, getGroupId("sophos-spl-ipc")).WillRepeatedly(Return(0));
 
     EXPECT_CALL(*m_mockFileSystemPtr, writeFile(m_watchdogConfigPath, expectedWatchdogConfig)).Times(1);
     EXPECT_CALL(*m_mockFileSystemPtr, writeFile(m_watchdogConfigPath, expectedWatchdogConfig2)).Times(1);
@@ -182,10 +184,10 @@ TEST_F(TestWatchdog, writeExecutableUserAndGroupToWatchdogConfigHandlesMultipleG
     std::string userAndGroup3 = "user3:group3";
     std::string user4 = "user4";
 
-    std::string expectedWatchdogConfig = R"({"groups":{"group1":1},"users":{"user1":1}})";
-    std::string expectedWatchdogConfig2 = R"({"groups":{"group1":1},"users":{"user1":1,"user2":2}})";
-    std::string expectedWatchdogConfig3 = R"({"groups":{"group1":1,"group3":3},"users":{"user1":1,"user2":2,"user3":3}})";
-    std::string expectedWatchdogConfig4 = R"({"groups":{"group1":1,"group3":3},"users":{"user1":1,"user2":2,"user3":3,"user4":4}})";
+    std::string expectedWatchdogConfig = R"({"groups":{"group1":1,"sophos-spl-ipc":0},"users":{"user1":1}})";
+    std::string expectedWatchdogConfig2 = R"({"groups":{"group1":1,"sophos-spl-ipc":0},"users":{"user1":1,"user2":2}})";
+    std::string expectedWatchdogConfig3 = R"({"groups":{"group1":1,"group3":3,"sophos-spl-ipc":0},"users":{"user1":1,"user2":2,"user3":3}})";
+    std::string expectedWatchdogConfig4 = R"({"groups":{"group1":1,"group3":3,"sophos-spl-ipc":0},"users":{"user1":1,"user2":2,"user3":3,"user4":4}})";
 
 
     EXPECT_CALL(*m_mockFileSystemPtr, isFile(m_watchdogConfigPath)).Times(4)
@@ -202,10 +204,9 @@ TEST_F(TestWatchdog, writeExecutableUserAndGroupToWatchdogConfigHandlesMultipleG
     EXPECT_CALL(*m_mockFilePermissionsPtr, getUserId(user2)).WillOnce(Return(2));
     EXPECT_CALL(*m_mockFilePermissionsPtr, getUserId("user3")).WillOnce(Return(3));
     EXPECT_CALL(*m_mockFilePermissionsPtr, getUserId(user4)).WillOnce(Return(4));
-    EXPECT_CALL(*m_mockFilePermissionsPtr, getGroupId("group1")).WillRepeatedly(Return(1));
-    EXPECT_CALL(*m_mockFilePermissionsPtr, getGroupId("group2")).WillRepeatedly(Return(2));
-    EXPECT_CALL(*m_mockFilePermissionsPtr, getGroupId("group3")).WillRepeatedly(Return(3));
-    EXPECT_CALL(*m_mockFilePermissionsPtr, getGroupId("group4")).WillRepeatedly(Return(4));
+    EXPECT_CALL(*m_mockFilePermissionsPtr, getGroupId("group1")).WillOnce(Return(1));
+    EXPECT_CALL(*m_mockFilePermissionsPtr, getGroupId("group3")).WillOnce(Return(3));
+    EXPECT_CALL(*m_mockFilePermissionsPtr, getGroupId("sophos-spl-ipc")).WillRepeatedly(Return(0));
 
     EXPECT_CALL(*m_mockFileSystemPtr, writeFile(m_watchdogConfigPath, expectedWatchdogConfig)).Times(1);
     EXPECT_CALL(*m_mockFileSystemPtr, writeFile(m_watchdogConfigPath, expectedWatchdogConfig2)).Times(1);
