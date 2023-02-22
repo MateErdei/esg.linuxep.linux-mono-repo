@@ -964,8 +964,6 @@ Threat Is Re-detected By On-access After Being Cached If Removed From Allow-list
     Wait For Log Contains From Mark  ${ss_mark}  Quarantined ${allow_listed_threat_file} successfully
     File Should Not Exist  ${allow_listed_threat_file}
 
-    ${oa_mark} =  get_on_access_log_mark
-
     # Allow-list the file and wait for it to be restored
     ${ss_mark} =  Get SafeStore Log Mark
     Send CORC Policy To Base   corc_policy.xml
@@ -975,6 +973,7 @@ Threat Is Re-detected By On-access After Being Cached If Removed From Allow-list
     File Should Exist  ${allow_listed_threat_file}
 
     # Perform an on-access detection on the file to make sure it is cached as safe
+    ${oa_mark} =  get_on_access_log_mark
     Open And Close File  ${allow_listed_threat_file}
     Wait For Log Contains From Mark  ${oa_mark}  caching ${allow_listed_threat_file}
 
