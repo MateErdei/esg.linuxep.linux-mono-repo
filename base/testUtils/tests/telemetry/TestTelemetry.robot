@@ -375,3 +375,20 @@ Test With Proxy
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
     Check System Telemetry Json Is Correct  ${telemetryFileContents}  None  Proxy
+
+Telemetry Executable Generates Outbreak Mode Telemetry
+
+#    Cleanup Telemetry Server
+#    Require Fresh Install
+
+    Mark Management Agent Log
+    Wait Until Keyword Succeeds
+    ...  60 secs
+    ...  10 secs
+    ...  Check Marked Managementagent Log Contains     Starting service health checks
+
+    Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
+    ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
+    Should contain  ${telemetryFileContents}  "managementagent":{"outbreak-mode-count": 0}
+
+Telemetry Executable Generates Outbreak Mode Telemetry that Increments

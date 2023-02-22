@@ -5,6 +5,7 @@
 #include "EventUtils.h"
 
 #include "ApplicationConfigurationImpl/ApplicationPathManager.h"
+#include "Common/TelemetryHelperImpl/TelemetryHelper.h"
 #include "Common/UtilityImpl/StringUtils.h"
 #include "Common/UtilityImpl/TimeUtils.h"
 #include "Common/UtilityImpl/Uuid.h"
@@ -55,6 +56,7 @@ bool ManagementAgent::EventReceiverImpl::OutbreakModeController::processEvent(
     {
         LOGWARN("Entering outbreak mode: Further detections will not be reported to Central");
         outbreakMode_ = true;
+        Common::Telemetry::TelemetryHelper::getInstance().increment("Outbreak-mode-count", 1UL);
         // Sent before the 100th event, but shouldn't cause huge problems
         auto outbreakXml = generateCoreOutbreakEvent(now);
         LOGDEBUG("Sending outbreak mode report: " << outbreakXml);
