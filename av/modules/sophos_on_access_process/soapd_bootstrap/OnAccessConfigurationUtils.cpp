@@ -166,7 +166,7 @@ namespace sophos_on_access_process::OnAccessConfig
                                 parsedConfigJson,
                                 "numThreads",
                                 "Scanning Thread count",
-                                settings.numScanThreads, // Dynamic from CPU core count
+                                settings.numScanThreads,
                                 minConfigurableScanningThreads,
                                 maxConfigurableScanningThreads);
                             threadsSetLocally = true;
