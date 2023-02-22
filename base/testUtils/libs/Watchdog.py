@@ -2,20 +2,22 @@
 # -*- coding: utf-8 -*-
 # Copyright (C) 2019-2020 Sophos Plc, Oxford, England.
 # All rights reserved.
-
+import grp
 import json
 import os
+import pwd
 import shutil
 import subprocess
 
 import signal
 import time
+from pwd import getpwnam
 
 from robot.api import logger
 
 
 def get_install():
-    return os.environ.get("SOPHOS_INSTALL","/opt/sophos-spl")
+    return os.environ.get("SOPHOS_INSTALL", "/opt/sophos-spl")
 
 
 class Watchdog(object):
@@ -35,19 +37,19 @@ class Watchdog(object):
             logger.info("Terminating manual watchdog")
             self.m_watchdog_process.terminate()
             code = self.m_watchdog_process.wait()
-            logger.debug("Watchdog exited with %d", code)
+            logger.debug(f"Watchdog exited with {code}")
             self.m_watchdog_process = None
 
     def setup_test_plugin_config(self, cmd, dest=None, pluginName=None, pluginFileName="testPlugin.sh"):
         testPluginExe = os.path.join(get_install(), pluginFileName)
-        open(testPluginExe, "w").write("#!/bin/bash\n"+cmd+"\n")
+        open(testPluginExe, "w").write("#!/bin/bash\n" + cmd + "\n")
         subprocess.check_call(["chmod", "0700", testPluginExe])
         if dest is None:
             dest = os.path.join(get_install(), "base", "pluginRegistry")
         if pluginName is None:
             pluginName = "fakePlugin"
 
-        testPluginRegistry = os.path.join(dest, pluginName+".json")
+        testPluginRegistry = os.path.join(dest, pluginName + ".json")
         data = {
             "executableFullPath": testPluginExe,
             "pluginName": pluginName,
@@ -57,21 +59,22 @@ class Watchdog(object):
 
     def setup_test_plugin_config_with_given_executable(self, path, pluginName=None, pluginFileName="testPlugin"):
         testPluginExe = os.path.join(get_install(), pluginFileName)
-        shutil.copy(path,testPluginExe)
+        shutil.copy(path, testPluginExe)
         subprocess.check_call(["chmod", "0700", testPluginExe])
 
         dest = os.path.join(get_install(), "base", "pluginRegistry")
         if pluginName is None:
             pluginName = "fakePlugin"
 
-        testPluginRegistry = os.path.join(dest, pluginName+".json")
+        testPluginRegistry = os.path.join(dest, pluginName + ".json")
         data = {
             "executableFullPath": testPluginExe,
             "pluginName": pluginName,
             "executableUserAndGroup": "root:root",
-            "secondsToShutDown":5
+            "secondsToShutDown": 5
         }
         open(testPluginRegistry, "w").write(json.dumps(data))
+
     def wait_for_marker_to_be_created(self, p, duration):
         duration = float(duration)
         start = time.time()
@@ -81,7 +84,7 @@ class Watchdog(object):
                 return
             time.sleep(1)
 
-        raise AssertionError("%s not created in %f seconds"%(p,duration))
+        raise AssertionError(f"{p} not created in {duration} seconds")
 
     def wait_for_plugin_to_start(self, p, duration):
         return self.wait_for_marker_to_be_created(p, duration)
@@ -101,9 +104,32 @@ class Watchdog(object):
                 return
             time.sleep(0.5)
 
-        raise AssertionError("Plugin process not restarted in %f seconds" % duration)
+        raise AssertionError(f"Plugin process not restarted in {duration} seconds")
 
     def kill_plugin(self, pidfile):
         lines = open(pidfile).readlines()
         pid = int(lines[-1].strip())
         os.kill(pid, signal.SIGTERM)
+
+    def verify_watchdog_config(self):
+        with open(os.path.join(get_install(), "base", "etc", "watchdog.conf")) as config_file:
+            watchdog_config = json.loads(config_file.read())
+
+        expected_config = {"groups": {}, "users": {}}
+
+        for group_data in grp.getgrall():
+            group = group_data[0]
+            if group.startswith("sophos-spl"):
+                gid = grp.getgrnam(group)[2]
+                expected_config["groups"][group] = gid
+
+        for user_data in pwd.getpwall():
+            user = user_data[0]
+            if user.startswith("sophos-spl"):
+                uid = getpwnam(user).pw_uid
+                expected_config["users"][user] = uid
+
+        if expected_config != watchdog_config:
+            raise AssertionError(f"Watchdog config does not match expected\n"
+                                 f"Expected config: {expected_config}\n"
+                                 f"Actual config: {watchdog_config}")

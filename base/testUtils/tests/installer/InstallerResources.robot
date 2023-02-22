@@ -2,7 +2,8 @@
 Library    Process
 Library    OperatingSystem
 Library    ../libs/FullInstallerUtils.py
-Library     ../libs/UpgradeUtils.py
+Library    ../libs/UpgradeUtils.py
+Library    ../libs/Watchdog.py
 
 Resource  ../GeneralTeardownResource.robot
 
@@ -215,6 +216,7 @@ Check Expected Base Processes Are Running
     Check Update Scheduler Running
     Check Telemetry Scheduler Is Running
     Check SDU Running
+    Verify Watchdog Config
 
 Check Expected Base Processes Except SDU Are Running
     Check Watchdog Running

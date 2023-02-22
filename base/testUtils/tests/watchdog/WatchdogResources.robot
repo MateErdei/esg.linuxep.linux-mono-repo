@@ -58,3 +58,9 @@ Wdctl Test Teardown
     General Test Teardown
     Run Keyword If Test Failed  Dump All Processes
     Uninstall and Stop Manual Watchdog
+
+Verify Watchdog Conf Has Changed
+    [Arguments]    ${originalTime}
+    ${latest}    Get Modified Time   ${WATCHDOG_CONFIG}
+    Should Not Be Equal    ${originalTime}    ${latest}
+
