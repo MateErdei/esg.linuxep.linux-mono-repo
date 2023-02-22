@@ -379,7 +379,7 @@ function cleanup_comms_component()
     [[ -z "$(ls -A "${SOPHOS_INSTALL}"/var/sophos-spl-comms)" ]] && rm -rf "${SOPHOS_INSTALL}/var/sophos-spl-comms"
   fi
 
-  [[ -d "${SOPHOS_INSTALL}/var/comms" ]] && rm -rf "${SOPHOS_INSTALL}/var/sophos-spl-comms"
+  [[ -d "${SOPHOS_INSTALL}/var/comms" ]] && rm -rf "${SOPHOS_INSTALL}/var/comms"
   [[ -f "${SOPHOS_INSTALL}/logs/base/sophosspl/comms_component.log" ]] && rm "${SOPHOS_INSTALL}/logs/base/sophosspl/comms_component.log"*
   [[ -f "${SOPHOS_INSTALL}/base/pluginRegistry/commscomponent.json" ]] && rm "${SOPHOS_INSTALL}/base/pluginRegistry/commscomponent.json"
 }
