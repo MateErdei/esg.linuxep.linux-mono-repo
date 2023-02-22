@@ -472,8 +472,18 @@ TEST_F(TestOutbreakModeController, leaving_outbreak_mode_resets_count)
     controller->processAction(R"(<?xml version="1.0"?><action type="sophos.core.threat.sav.clear"><item id="5df69683-a5a2-5d96-897d-06f9c4c8c7bf"/></action>)");
     ASSERT_FALSE(controller->outbreakMode());
 
-    processEventThrowAwayArgs(controller, "CORE", DETECTION_XML);
+    bool drop = processEventThrowAwayArgs(controller, "CORE", DETECTION_XML);
+    EXPECT_FALSE(drop);
     EXPECT_FALSE(controller->outbreakMode());
+
+    int count = 1; // done one already
+    while (!drop && count < OUTBREAK_COUNT * 2)
+    {
+        drop = processEventThrowAwayArgs(controller, "CORE", DETECTION_XML);
+        count += 1;
+    }
+    EXPECT_EQ(count, OUTBREAK_COUNT + 1);
+    EXPECT_TRUE(controller->outbreakMode());
 }
 
 TEST_F(TestOutbreakModeController, ignore_irrelevant_action)
