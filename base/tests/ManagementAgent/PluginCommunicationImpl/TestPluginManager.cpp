@@ -399,18 +399,18 @@ TEST_F(TestPluginManager, testGetHealthReturnsCorrectJsonForMissingUtmInformatio
 
 TEST_F(TestPluginManager, TestGetTelemetryOnRegisteredPlugins) // NOLINT
 {
-   // EXPECT_CALL(*m_mockedPluginApiCallback, getTelemetry()).Times(1).WillOnce(Return("{\"Outbreak-mode-count\":0}"));
+    EXPECT_CALL(*m_mockedPluginApiCallback, getTelemetry()).Times(1).WillOnce(Return("telemetryContent"));
     std::thread getTelemetry(
-        [this]() { ASSERT_EQ(m_pluginManagerPtr->getTelemetry(m_pluginOneName), "{\"Outbreak-mode-count\":0}"); });
+        [this]() { ASSERT_EQ(m_pluginManagerPtr->getTelemetry(m_pluginOneName), "telemetryContent"); });
     getTelemetry.join();
 }
 
-//TEST_F(TestPluginManager, TestGetTelemetryOnUnregisteredPluginThrows) // NOLINT
-//{
-//    EXPECT_THROW(                                                  // NOLINT
-//        m_pluginManagerPtr->getTelemetry("plugin_not_registered"), // NOLINT
-//        Common::PluginCommunication::IPluginCommunicationException);
-//}
+TEST_F(TestPluginManager, TestGetTelemetryOnUnregisteredPluginThrows) // NOLINT
+{
+    EXPECT_THROW(                                                  // NOLINT
+        m_pluginManagerPtr->getTelemetry("plugin_not_registered"), // NOLINT
+        Common::PluginCommunication::IPluginCommunicationException);
+}
 
 TEST_F(TestPluginManager, TestGetTelemetryOnRemovedPluginThrows) // NOLINT
 {

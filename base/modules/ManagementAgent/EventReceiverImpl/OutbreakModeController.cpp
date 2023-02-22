@@ -18,6 +18,7 @@
 
 ManagementAgent::EventReceiverImpl::OutbreakModeController::OutbreakModeController()
 {
+    Common::Telemetry::TelemetryHelper::getInstance().increment("outbreak-mode-count", 0UL);
     load();
 }
 
@@ -56,7 +57,7 @@ bool ManagementAgent::EventReceiverImpl::OutbreakModeController::processEvent(
     {
         LOGWARN("Entering outbreak mode: Further detections will not be reported to Central");
         outbreakMode_ = true;
-        Common::Telemetry::TelemetryHelper::getInstance().increment("Outbreak-mode-count", 1UL);
+        Common::Telemetry::TelemetryHelper::getInstance().increment("outbreak-mode-count", 1UL);
         // Sent before the 100th event, but shouldn't cause huge problems
         auto outbreakXml = generateCoreOutbreakEvent(now);
         LOGDEBUG("Sending outbreak mode report: " << outbreakXml);

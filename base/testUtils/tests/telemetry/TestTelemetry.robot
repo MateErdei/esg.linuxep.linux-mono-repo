@@ -13,6 +13,7 @@ Resource  ../installer/InstallerResources.robot
 Resource  ../mcs_router/McsRouterResources.robot
 Resource  ../scheduler_update/SchedulerUpdateResources.robot
 
+
 Suite Setup      Setup Telemetry Tests
 Suite Teardown   Cleanup Telemetry Tests
 
@@ -392,3 +393,15 @@ Telemetry Executable Generates Outbreak Mode Telemetry
     Should contain  ${telemetryFileContents}  "managementagent":{"outbreak-mode-count": 0}
 
 Telemetry Executable Generates Outbreak Mode Telemetry that Increments
+
+    Mark Management Agent Log
+    Wait Until Keyword Succeeds
+    ...  60 secs
+    ...  10 secs
+    ...  Check Marked Managementagent Log Contains     Starting service health checks
+
+    Enter Outbreak Mode
+
+    Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
+    ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
+    Should contain  ${telemetryFileContents}  "managementagent":{"outbreak-mode-count": 1}
