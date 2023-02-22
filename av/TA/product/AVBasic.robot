@@ -68,9 +68,11 @@ AV Plugin Gets ML Lookup Setting From CORE Policy
     ${susiStartupSettingsChrootFile} =   Set Variable   ${AV_PLUGIN_PATH}/chroot${SUSI_STARTUP_SETTINGS_FILE}
     Remove Files   ${SUSI_STARTUP_SETTINGS_FILE}   ${susiStartupSettingsChrootFile}
 
+    ${av_mark} =  Get AV Log Mark
     send av policy from file  CORE  ${RESOURCES_PATH}/core_policy/CORE-36_ml_disabled.xml
 
     Wait Until Created   ${SUSI_STARTUP_SETTINGS_FILE}   timeout=5sec
+    Wait For AV Log Contains After Mark  Machine Learning detections disabled in CORE policy  ${av_mark}
     ${json} =   load_json_from_file  ${SUSI_STARTUP_SETTINGS_FILE}
     check_json_contains  ${json}  machineLearning  ${false}
 
