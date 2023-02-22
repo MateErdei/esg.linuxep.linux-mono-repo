@@ -2,16 +2,13 @@
 
 #include "InotifyFD.h"
 
-#include "Logger.h"
-#include "SaferStrerror.h"
-
 #include <sys/inotify.h>
+
+#include <cassert>
 
 using namespace common;
 
-InotifyFD::InotifyFD()
-    :
-    m_inotifyFD(inotify_init())
+InotifyFD::InotifyFD() : m_inotifyFD(inotify_init())
 {
     assert(m_inotifyFD.valid());
 }
