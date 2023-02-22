@@ -23,7 +23,7 @@ Suite Teardown   LiveResponse Suite Teardown
 Default Tags   LIVERESPONSE_PLUGIN
 
 *** Variables ***
-${Thumbprint}               2D03C43BFC9EBE133E0C22DF61B840F94B3A3BD5B05D1D715CC92B2DEBCB6F9D
+${Thumbprint}               84FBA8EB96564DEAB461103478497E51621EE9F5D1CEEAAE11D939309C65BEB8
 ${websocket_server_url}     wss://localhost
 *** Test Cases ***
 Liveresponse Plugin Proxy
