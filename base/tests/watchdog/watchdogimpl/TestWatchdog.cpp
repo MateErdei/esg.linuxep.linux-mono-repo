@@ -5,33 +5,44 @@ Copyright 2018-2020, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
+#include <Common/FileSystem/IFileSystemException.h>
 #include <Common/FileSystemImpl/FilePermissionsImpl.h>
 #include <Common/FileSystemImpl/FileSystemImpl.h>
 #include <Common/ZeroMQWrapper/ISocketRequester.h>
-#include <gmock/gmock.h>
-#include <gtest/gtest.h>
+
 #include <tests/Common/Helpers/FilePermissionsReplaceAndRestore.h>
 #include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
+#include <tests/Common/Helpers/LogInitializedTests.h>
 #include <tests/Common/Helpers/MockFilePermissions.h>
 #include <tests/Common/Helpers/MockFileSystem.h>
-#include <tests/Common/Helpers/LogInitializedTests.h>
 #include <watchdog/watchdogimpl/Watchdog.h>
+
+#include <gmock/gmock.h>
+#include <gtest/gtest.h>
 
 namespace
 {
     class TestWatchdog : public LogOffInitializedTests
     {
-        IgnoreFilePermissions ignoreFilePermissions;
-        Tests::ScopedReplaceFileSystem m_replacer; 
+        Tests::ScopedReplaceFileSystem m_fileSystemReplacer;
+        Tests::ScopedReplaceFilePermissions m_filePermissionsReplacer;
 
+    protected:
+        MockFilePermissions* m_mockFilePermissionsPtr;
+        MockFileSystem* m_mockFileSystemPtr;
+        std::string m_watchdogConfigPath;
     public:
         TestWatchdog()
         {
-            auto mockFileSystem = new StrictMock<MockFileSystem>();
-            m_replacer.replace(std::unique_ptr<Common::FileSystem::IFileSystem>(mockFileSystem));            
+            m_mockFileSystemPtr = new StrictMock<MockFileSystem>();
+            m_mockFilePermissionsPtr = new NiceMock<MockFilePermissions>();
+            m_fileSystemReplacer.replace(std::unique_ptr<Common::FileSystem::IFileSystem>(m_mockFileSystemPtr));
+            m_filePermissionsReplacer.replace(std::unique_ptr<Common::FileSystem::IFilePermissions>(m_mockFilePermissionsPtr));
 
-            EXPECT_CALL(*mockFileSystem, isDirectory(HasSubstr("base/telemetry/cache"))).WillRepeatedly(Return(false));
-            EXPECT_CALL(*mockFileSystem, isFile(HasSubstr("base/telemetry/cache"))).WillRepeatedly(Return(false));
+            m_watchdogConfigPath = Common::ApplicationConfiguration::applicationPathManager().getWatchdogConfigPath();
+
+            EXPECT_CALL(*m_mockFileSystemPtr, isDirectory(HasSubstr("base/telemetry/cache"))).WillRepeatedly(Return(false));
+            EXPECT_CALL(*m_mockFileSystemPtr, isFile(HasSubstr("base/telemetry/cache"))).WillRepeatedly(Return(false));
             std::string pluginname =
                     "plugins/" + watchdog::watchdogimpl::WatchdogServiceLine::WatchdogServiceLineName() + ".ipc";
             Common::ApplicationConfiguration::applicationConfiguration().setData(pluginname,
@@ -122,6 +133,114 @@ TEST_F(TestWatchdog, stopPluginViaIPC_test_plugin) // NOLINT
 
     Common::ZeroMQWrapper::IReadable::data_t result = requester->read();
     EXPECT_EQ(result.at(0), watchdog::watchdogimpl::watchdogReturnsOk);
+}
+
+TEST_F(TestWatchdog, writeExecutableUserAndGroupToWatchdogConfigWritesConfigFile)
+{
+    std::string userAndGroup = "user:group";
+    std::string expectedWatchdogConfig = R"({"groups":{"group":2},"users":{"user":1}})";
+
+    EXPECT_CALL(*m_mockFileSystemPtr, isFile(m_watchdogConfigPath)).WillOnce(Return(false));
+
+    EXPECT_CALL(*m_mockFilePermissionsPtr, getUserId("user")).WillOnce(Return(1));
+    EXPECT_CALL(*m_mockFilePermissionsPtr, getGroupId("group")).WillRepeatedly(Return(2));
+
+    EXPECT_CALL(*m_mockFileSystemPtr, writeFile(m_watchdogConfigPath, expectedWatchdogConfig)).Times(1);
+
+    EXPECT_NO_THROW(TestableWatchdog::writeExecutableUserAndGroupToWatchdogConfig(userAndGroup));
+}
+
+TEST_F(TestWatchdog, writeExecutableUserAndGroupToWatchdogConfigUpdatesExistingConfigFile)
+{
+    std::string userAndGroup1 = "user1:group1";
+    std::string userAndGroup2 = "user2:group2";
+
+    std::string expectedWatchdogConfig = R"({"groups":{"group1":1},"users":{"user1":1}})";
+    std::string expectedWatchdogConfig2 = R"({"groups":{"group1":1,"group2":2},"users":{"user1":1,"user2":2}})";
+
+    EXPECT_CALL(*m_mockFileSystemPtr, isFile(m_watchdogConfigPath)).Times(2)
+        .WillOnce(Return(false))
+        .WillOnce(Return(true));
+    EXPECT_CALL(*m_mockFileSystemPtr, readFile(m_watchdogConfigPath)).WillOnce(Return(expectedWatchdogConfig));
+
+    EXPECT_CALL(*m_mockFilePermissionsPtr, getUserId("user1")).WillOnce(Return(1));
+    EXPECT_CALL(*m_mockFilePermissionsPtr, getUserId("user2")).WillOnce(Return(2));
+    EXPECT_CALL(*m_mockFilePermissionsPtr, getGroupId("group1")).WillRepeatedly(Return(1));
+    EXPECT_CALL(*m_mockFilePermissionsPtr, getGroupId("group2")).WillRepeatedly(Return(2));
+
+    EXPECT_CALL(*m_mockFileSystemPtr, writeFile(m_watchdogConfigPath, expectedWatchdogConfig)).Times(1);
+    EXPECT_CALL(*m_mockFileSystemPtr, writeFile(m_watchdogConfigPath, expectedWatchdogConfig2)).Times(1);
+
+    EXPECT_NO_THROW(TestableWatchdog::writeExecutableUserAndGroupToWatchdogConfig(userAndGroup1));
+    EXPECT_NO_THROW(TestableWatchdog::writeExecutableUserAndGroupToWatchdogConfig(userAndGroup2));
+}
+
+TEST_F(TestWatchdog, writeExecutableUserAndGroupToWatchdogConfigHandlesMultipleGroupsAndUsers)
+{
+    std::string userAndGroup1 = "user1:group1";
+    std::string user2 = "user2";
+    std::string userAndGroup3 = "user3:group3";
+    std::string user4 = "user4";
+
+    std::string expectedWatchdogConfig = R"({"groups":{"group1":1},"users":{"user1":1}})";
+    std::string expectedWatchdogConfig2 = R"({"groups":{"group1":1},"users":{"user1":1,"user2":2}})";
+    std::string expectedWatchdogConfig3 = R"({"groups":{"group1":1,"group3":3},"users":{"user1":1,"user2":2,"user3":3}})";
+    std::string expectedWatchdogConfig4 = R"({"groups":{"group1":1,"group3":3},"users":{"user1":1,"user2":2,"user3":3,"user4":4}})";
+
+
+    EXPECT_CALL(*m_mockFileSystemPtr, isFile(m_watchdogConfigPath)).Times(4)
+        .WillOnce(Return(false))
+        .WillOnce(Return(true))
+        .WillOnce(Return(true))
+        .WillOnce(Return(true));
+    EXPECT_CALL(*m_mockFileSystemPtr, readFile(m_watchdogConfigPath)).Times(3)
+        .WillOnce(Return(expectedWatchdogConfig))
+        .WillOnce(Return(expectedWatchdogConfig2))
+        .WillOnce(Return(expectedWatchdogConfig3));
+
+    EXPECT_CALL(*m_mockFilePermissionsPtr, getUserId("user1")).WillOnce(Return(1));
+    EXPECT_CALL(*m_mockFilePermissionsPtr, getUserId(user2)).WillOnce(Return(2));
+    EXPECT_CALL(*m_mockFilePermissionsPtr, getUserId("user3")).WillOnce(Return(3));
+    EXPECT_CALL(*m_mockFilePermissionsPtr, getUserId(user4)).WillOnce(Return(4));
+    EXPECT_CALL(*m_mockFilePermissionsPtr, getGroupId("group1")).WillRepeatedly(Return(1));
+    EXPECT_CALL(*m_mockFilePermissionsPtr, getGroupId("group2")).WillRepeatedly(Return(2));
+    EXPECT_CALL(*m_mockFilePermissionsPtr, getGroupId("group3")).WillRepeatedly(Return(3));
+    EXPECT_CALL(*m_mockFilePermissionsPtr, getGroupId("group4")).WillRepeatedly(Return(4));
+
+    EXPECT_CALL(*m_mockFileSystemPtr, writeFile(m_watchdogConfigPath, expectedWatchdogConfig)).Times(1);
+    EXPECT_CALL(*m_mockFileSystemPtr, writeFile(m_watchdogConfigPath, expectedWatchdogConfig2)).Times(1);
+    EXPECT_CALL(*m_mockFileSystemPtr, writeFile(m_watchdogConfigPath, expectedWatchdogConfig3)).Times(1);
+    EXPECT_CALL(*m_mockFileSystemPtr, writeFile(m_watchdogConfigPath, expectedWatchdogConfig4)).Times(1);
+
+    EXPECT_NO_THROW(TestableWatchdog::writeExecutableUserAndGroupToWatchdogConfig(userAndGroup1));
+    EXPECT_NO_THROW(TestableWatchdog::writeExecutableUserAndGroupToWatchdogConfig(user2));
+    EXPECT_NO_THROW(TestableWatchdog::writeExecutableUserAndGroupToWatchdogConfig(userAndGroup3));
+    EXPECT_NO_THROW(TestableWatchdog::writeExecutableUserAndGroupToWatchdogConfig(user4));
+}
+
+TEST_F(TestWatchdog, writeExecutableUserAndGroupToWatchdogConfigHandlesMalformedGroupsAndUsers)
+{
+    std::string userAndGroup = "user1group1";
+    std::string user = "user2:";
+
+    EXPECT_CALL(*m_mockFileSystemPtr, isFile(m_watchdogConfigPath)).Times(2).WillRepeatedly(Return(false));
+
+    EXPECT_CALL(*m_mockFilePermissionsPtr, getUserId("user1group1")).WillOnce(Throw(Common::FileSystem::IFileSystemException("TEST")));
+
+    EXPECT_NO_THROW(TestableWatchdog::writeExecutableUserAndGroupToWatchdogConfig(userAndGroup));
+    EXPECT_NO_THROW(TestableWatchdog::writeExecutableUserAndGroupToWatchdogConfig(user));
+}
+
+
+TEST_F(TestWatchdog, writeExecutableUserAndGroupToWatchdogConfigDoesNotThrowWithMalformedExistingConfigs)
+{
+    std::string userAndGroup = "user:group";
+    std::string malformedWatchdogConfig = R"({"groups":{"g":{"user":1}})";
+
+    EXPECT_CALL(*m_mockFileSystemPtr, isFile(m_watchdogConfigPath)).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockFileSystemPtr, readFile(m_watchdogConfigPath)).WillOnce(Return(malformedWatchdogConfig));
+
+    EXPECT_NO_THROW(TestableWatchdog::writeExecutableUserAndGroupToWatchdogConfig(userAndGroup));
 }
 
 class TestC
