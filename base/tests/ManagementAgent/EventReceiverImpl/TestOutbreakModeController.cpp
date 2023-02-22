@@ -482,7 +482,7 @@ TEST_F(TestOutbreakModeController, leaving_outbreak_mode_resets_count)
         drop = processEventThrowAwayArgs(controller, "CORE", DETECTION_XML);
         count += 1;
     }
-    EXPECT_EQ(count, OUTBREAK_COUNT + 1);
+    EXPECT_EQ(count, OUTBREAK_COUNT + 1); // counts the first drop
     EXPECT_TRUE(controller->outbreakMode());
 }
 

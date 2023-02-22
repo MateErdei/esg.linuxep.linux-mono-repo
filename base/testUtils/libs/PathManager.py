@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# Copyright (C) 2019-2020 Sophos Plc, Oxford, England.
-# All rights reserved.
+# Copyright 2019-2023 Sophos Limited. All rights reserved.
 
 import os
 import sys
@@ -102,4 +101,4 @@ def addPathToSysPath(p):
 
 SYSTEM_PRODUCT_TEST_INPUTS = os.environ.get("SYSTEMPRODUCT_TEST_INPUT", default="/tmp/system-product-test-inputs")
 
-SOPHOS_INSTALL = os.path.join("/","opt", "sophos-spl")
+SOPHOS_INSTALL = os.path.join("/", "opt", "sophos-spl")
