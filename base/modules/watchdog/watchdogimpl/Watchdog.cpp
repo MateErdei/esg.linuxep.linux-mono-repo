@@ -294,7 +294,7 @@ void Watchdog::writeExecutableUserAndGroupToWatchdogConfig(const std::string& ex
             std::vector<std::string> userAndGroup = Common::UtilityImpl::StringUtils::splitString(
                 executableUserAndGroupAsString, ":");
 
-            if (userAndGroup.size() == 2)
+            if (userAndGroup.size() == 2 && !userAndGroup[1].empty())
             {
                 std::string userName = userAndGroup[0];
                 std::string groupName = userAndGroup[1];
@@ -308,10 +308,18 @@ void Watchdog::writeExecutableUserAndGroupToWatchdogConfig(const std::string& ex
             watchdogConfig["users"][executableUserAndGroupAsString] = filePermissions->getUserId(executableUserAndGroupAsString);
         }
 
-        fileSystem->writeFile(watchdogConfigPath, watchdogConfig.dump());
+        if (!watchdogConfig.empty())
+        {
+            LOGDEBUG("Updating watchdog config: " << watchdogConfig.dump());
+            fileSystem->writeFile(watchdogConfigPath, watchdogConfig.dump());
+        }
     }
     catch (Common::FileSystem::IFileSystemException& error)
     {
         LOGERROR(error.what());
+    }
+    catch (nlohmann::json::parse_error& ex)
+    {
+        LOGERROR("Failed to read " << watchdogConfigPath << ": " << ex.what());
     }
 }
