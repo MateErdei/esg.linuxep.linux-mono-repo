@@ -63,6 +63,7 @@ int Watchdog::initialiseAndRun()
 
         for (auto& info : pluginConfigs)
         {
+            LOGINFO("HERE: " << info.getPluginName());
             writeExecutableUserAndGroupToWatchdogConfig(info.getExecutableUserAndGroupAsString());
             addProcessToMonitor(std::make_unique<PluginProxy>(std::move(info)));
         }
@@ -277,6 +278,7 @@ std::string Watchdog::checkPluginIsRunning(const std::string& pluginName)
 
 void Watchdog::writeExecutableUserAndGroupToWatchdogConfig(const std::string& executableUserAndGroupAsString)
 {
+    LOGINFO("HERE: Adding " << executableUserAndGroupAsString << " to watchdog config");
     auto fileSystem = Common::FileSystem::fileSystem();
     auto filePermissions = Common::FileSystem::filePermissions();
     std::string watchdogConfigPath = Common::ApplicationConfiguration::applicationPathManager().getWatchdogConfigPath();
