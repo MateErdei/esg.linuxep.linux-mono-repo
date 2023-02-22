@@ -381,6 +381,9 @@ Telemetry Executable Generates Outbreak Mode Telemetry
 
 #    Cleanup Telemetry Server
 #    Require Fresh Install
+#    Override LogConf File as Global Level  DEBUG
+    Set Log Level For Component And Reset and Return Previous Log  sophos_managementagent  DEBUG
+    Set Log Level For Component And Reset and Return Previous Log  telemetry  DEBUG
 
     Mark Management Agent Log
     Wait Until Keyword Succeeds
