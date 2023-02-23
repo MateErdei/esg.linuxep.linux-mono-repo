@@ -200,7 +200,7 @@ TEST_F(TestWatchdog, writeExecutableUserAndGroupToWatchdogConfigUpdatesExistingC
     EXPECT_NO_THROW(watchdog.writeExecutableUserAndGroupToWatchdogConfig());
 }
 
-TEST_F(TestWatchdog, DISABLED_writeExecutableUserAndGroupToWatchdogConfigHandlesMultipleGroupsAndUsers)
+TEST_F(TestWatchdog, writeExecutableUserAndGroupToWatchdogConfigHandlesMultipleGroupsAndUsers)
 {
     Common::ZMQWrapperApi::IContextSharedPtr context(Common::ZMQWrapperApi::createContext());
     TestableWatchdog watchdog(context);
@@ -250,7 +250,7 @@ TEST_F(TestWatchdog, writeExecutableUserAndGroupToWatchdogConfigIgnoresRootUser)
     EXPECT_NO_THROW(watchdog.writeExecutableUserAndGroupToWatchdogConfig());
 }
 
-TEST_F(TestWatchdog, DISABLED_writeExecutableUserAndGroupToWatchdogConfigHandlesMalformedGroupsAndUsers)
+TEST_F(TestWatchdog, writeExecutableUserAndGroupToWatchdogConfigHandlesMalformedGroupsAndUsers)
 {
     Common::ZMQWrapperApi::IContextSharedPtr context(Common::ZMQWrapperApi::createContext());
     TestableWatchdog watchdog(context);
