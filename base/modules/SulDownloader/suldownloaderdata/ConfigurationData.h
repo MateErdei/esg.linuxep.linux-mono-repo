@@ -329,18 +329,6 @@ namespace SulDownloader::suldownloaderdata
         [[nodiscard]] bool getUseSlowSupplements() const;
 
         /**
-         * Set whether to use SDDS3 updating
-         * @param useSDDS3
-         */
-        void setUseSDDS3(bool useSDDS3);
-
-        /**
-         * Get whether to use SDDS3 updating or not.
-         * @return
-         */
-        [[nodiscard]] bool getUseSDDS3() const;
-
-        /**
          * Used to verify all required settings stored in the ConfigurationData object
          * @test sophosUpdateUrls list is not empty
          * @test productSelection list is not empty
@@ -414,7 +402,6 @@ namespace SulDownloader::suldownloaderdata
         std::vector<std::string> m_manifestNames;
         std::vector<std::string> m_optionalManifestNames;
         bool m_useSlowSupplements = false;
-        bool m_useSDDS3 = false;
         WeekDayAndTimeForDelay m_scheduledUpdate;
     };
 } // namespace SulDownloader::suldownloaderdata

@@ -666,16 +666,6 @@ bool ConfigurationData::getUseSlowSupplements() const
     return m_useSlowSupplements;
 }
 
-void ConfigurationData::setUseSDDS3(bool useSDDS3)
-{
-    m_useSDDS3 = useSDDS3;
-}
-
-bool ConfigurationData::getUseSDDS3() const
-{
-    return m_useSDDS3;
-}
-
 std::optional<Proxy> ConfigurationData::currentMcsProxy()
 {
     // current_proxy file (whichever proxy MCS is using) added here for SDDS3 SUS Requests.
