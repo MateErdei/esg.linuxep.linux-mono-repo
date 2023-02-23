@@ -8,7 +8,9 @@
 
 #include <chrono>
 
-namespace watchdog::watchdogimpl
+namespace watchdog
+{
+    namespace watchdogimpl
     {
         class PluginProxy : public Common::ProcessMonitoringImpl::ProcessProxy
         {
@@ -38,4 +40,5 @@ namespace watchdog::watchdogimpl
              */
             [[nodiscard]] Common::PluginRegistryImpl::PluginInfo& getPluginInfo() const;
         };
-    } // namespace watchdog::watchdogimpl
+    } // namespace watchdogimpl
+} // namespace watchdog

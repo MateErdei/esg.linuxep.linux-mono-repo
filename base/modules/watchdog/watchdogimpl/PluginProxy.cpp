@@ -13,6 +13,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 #include <watchdog/watchdogimpl/Watchdog.h>
 
+#include <cassert>
 #include <memory>
 
 using namespace watchdog::watchdogimpl;

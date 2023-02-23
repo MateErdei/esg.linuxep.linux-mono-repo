@@ -1,7 +1,6 @@
 *** Settings ***
 Documentation   Test wdctl can ask watchdog to restart a process
 
-Library    Collections
 Library    Process
 Library    OperatingSystem
 Library    ${LIBS_DIRECTORY}/FullInstallerUtils.py
