@@ -18,6 +18,7 @@ Copyright 2018-2020, Sophos Limited.  All rights reserved.
 #include <tests/Common/Helpers/MockFileSystem.h>
 #include <watchdog/watchdogimpl/Watchdog.h>
 
+#include <json.hpp>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
@@ -86,41 +87,23 @@ namespace
     };
 } // namespace
 
-std::string createPluginRegistryJson(const std::string& oldPartString, const std::string& newPartString)
+std::string createPluginRegistryJson(const std::string& pluginName, const std::string& userAndGroup)
 {
-    std::string jsonString = R"({
-                                 "policyAppIds": [
-                                 "app1"
-                                 ],
-                                 "actionAppIds": [
-                                 "app2"
-                                 ],
-                                 "statusAppIds": [
-                                 "app3"
-                                 ],
-                                 "pluginName": "PluginName",
-                                 "executableFullPath": "plugin/bin/executable",
-                                 "executableArguments": [
-                                 ],
-                                 "environmentVariables": [
-                                 {
-                                 "name": "SOPHOS_INSTALL",
-                                 "value": "/opt/sophos-spl"
-                                 }
-                                 ],
-                                 "threatServiceHealth": true,
-                                 "serviceHealth": true,
-                                 "displayPluginName": "Plugin Name",
-                                 "executableUserAndGroup": "user:group",
-                                 "secondsToShutDown": 10
-                                 })";
-    if (!oldPartString.empty())
-    {
-        size_t pos = jsonString.find(oldPartString);
-        EXPECT_NE(pos, std::string::npos);
-        jsonString.replace(pos, oldPartString.size(), newPartString);
-    }
-    return jsonString;
+    nlohmann::json pluginJson;
+    pluginJson["policyAppIds"] = "";
+    pluginJson["actionAppIds"] = "";
+    pluginJson["statusAppIds"] = "";
+    pluginJson["pluginName"] = pluginName;
+    pluginJson["executableFullPath"] = "";
+    pluginJson["executableArguments"] = {};
+    pluginJson["environmentVariables"] = {};
+    pluginJson["threatServiceHealth"] = true;
+    pluginJson["serviceHealth"] = true;
+    pluginJson["displayPluginName"] = "Display Name";
+    pluginJson["executableUserAndGroup"] = userAndGroup;
+    pluginJson["secondsToShutDown"] = 10;
+
+    return pluginJson.dump();
 }
 
 TEST_F(TestWatchdog, Construction) // NOLINT
@@ -180,7 +163,8 @@ TEST_F(TestWatchdog, writeExecutableUserAndGroupToWatchdogConfigWritesConfigFile
 
     std::vector<std::string> files{"/tmp/plugins/PluginName.json"};
     EXPECT_CALL(*m_mockFileSystemPtr, listFiles(_)).WillOnce(Return(files));
-    EXPECT_CALL(*m_mockFileSystemPtr, readFile(files[0])).WillOnce(Return(createPluginRegistryJson("", "")));
+    EXPECT_CALL(*m_mockFileSystemPtr, readFile(files[0])).WillOnce(
+        Return(createPluginRegistryJson("PluginName", "user:group")));
 
     EXPECT_CALL(*m_mockFileSystemPtr, isFile(m_watchdogConfigPath)).WillOnce(Return(false));
 
@@ -200,7 +184,8 @@ TEST_F(TestWatchdog, writeExecutableUserAndGroupToWatchdogConfigUpdatesExistingC
 
     std::vector<std::string> files{"/tmp/plugins/PluginName.json"};
     EXPECT_CALL(*m_mockFileSystemPtr, listFiles(_)).WillOnce(Return(files));
-    EXPECT_CALL(*m_mockFileSystemPtr, readFile(files[0])).WillOnce(Return(createPluginRegistryJson("", "")));
+    EXPECT_CALL(*m_mockFileSystemPtr, readFile(files[0])).WillOnce(
+        Return(createPluginRegistryJson("PluginName", "user:group")));
 
     EXPECT_CALL(*m_mockFileSystemPtr, isFile(m_watchdogConfigPath)).WillOnce(Return(true));
     EXPECT_CALL(*m_mockFileSystemPtr, readFile(m_watchdogConfigPath)).WillOnce(
@@ -226,13 +211,13 @@ TEST_F(TestWatchdog, writeExecutableUserAndGroupToWatchdogConfigHandlesMultipleG
                                     "/tmp/plugins/PluginName4.json"};
     EXPECT_CALL(*m_mockFileSystemPtr, listFiles(_)).WillOnce(Return(files));
     EXPECT_CALL(*m_mockFileSystemPtr, readFile(files[0])).WillOnce(Return(
-        createPluginRegistryJson("user:group", "user1:group1")));
+        createPluginRegistryJson("PluginName1", "user1:group1")));
     EXPECT_CALL(*m_mockFileSystemPtr, readFile(files[1])).WillOnce(Return(
-        createPluginRegistryJson("user:group", "user2")));
+        createPluginRegistryJson("PluginName2", "user2")));
     EXPECT_CALL(*m_mockFileSystemPtr, readFile(files[2])).WillOnce(Return(
-        createPluginRegistryJson("user:group", "user3:group3")));
+        createPluginRegistryJson("PluginName3", "user3:group3")));
     EXPECT_CALL(*m_mockFileSystemPtr, readFile(files[3])).WillOnce(Return(
-        createPluginRegistryJson("user:group", "user4")));
+        createPluginRegistryJson("PluginName4", "user4")));
 
     EXPECT_CALL(*m_mockFileSystemPtr, isFile(m_watchdogConfigPath)).WillOnce(Return(false));
 
@@ -240,8 +225,8 @@ TEST_F(TestWatchdog, writeExecutableUserAndGroupToWatchdogConfigHandlesMultipleG
     EXPECT_CALL(*m_mockFilePermissionsPtr, getUserId("user2")).WillOnce(Return(2));
     EXPECT_CALL(*m_mockFilePermissionsPtr, getUserId("user3")).WillOnce(Return(3));
     EXPECT_CALL(*m_mockFilePermissionsPtr, getUserId("user4")).WillOnce(Return(4));
-    EXPECT_CALL(*m_mockFilePermissionsPtr, getGroupId("group1")).WillOnce(Return(1));
-    EXPECT_CALL(*m_mockFilePermissionsPtr, getGroupId("group3")).WillOnce(Return(3));
+    EXPECT_CALL(*m_mockFilePermissionsPtr, getGroupId("group1")).WillRepeatedly(Return(1));
+    EXPECT_CALL(*m_mockFilePermissionsPtr, getGroupId("group3")).WillRepeatedly(Return(3));
     EXPECT_CALL(*m_mockFilePermissionsPtr, getGroupId("sophos-spl-ipc")).WillRepeatedly(Return(0));
 
     EXPECT_CALL(*m_mockFileSystemPtr, writeFile(m_watchdogConfigPath,
@@ -257,7 +242,7 @@ TEST_F(TestWatchdog, writeExecutableUserAndGroupToWatchdogConfigIgnoresRootUser)
     std::vector<std::string> files{"/tmp/plugins/PluginName.json"};
     EXPECT_CALL(*m_mockFileSystemPtr, listFiles(_)).WillOnce(Return(files));
     EXPECT_CALL(*m_mockFileSystemPtr, readFile(files[0])).WillOnce(Return(
-        createPluginRegistryJson("user:group", "root")));
+        createPluginRegistryJson("PluginName", "root")));
 
     EXPECT_CALL(*m_mockFileSystemPtr, isFile(m_watchdogConfigPath)).WillOnce(Return(false));
 
@@ -270,18 +255,21 @@ TEST_F(TestWatchdog, writeExecutableUserAndGroupToWatchdogConfigHandlesMalformed
     Common::ZMQWrapperApi::IContextSharedPtr context(Common::ZMQWrapperApi::createContext());
     TestableWatchdog watchdog(context);
 
-    std::vector<std::string> files{"/tmp/plugins/PluginName1.json", "/tmp/plugins/PluginName2.json"};
+    std::vector<std::string> files{"/tmp/plugins/PluginName1.json",
+                                    "/tmp/plugins/PluginName2.json",
+                                    "/tmp/plugins/PluginName3.json"};
     EXPECT_CALL(*m_mockFileSystemPtr, listFiles(_)).WillOnce(Return(files));
     EXPECT_CALL(*m_mockFileSystemPtr, readFile(files[0])).WillOnce(Return(
-        createPluginRegistryJson("user:group", "user1group1")));
+        createPluginRegistryJson("PluginName1", "user1group1")));
     EXPECT_CALL(*m_mockFileSystemPtr, readFile(files[1])).WillOnce(Return(
-        createPluginRegistryJson("user:group", "user2:")));
+        createPluginRegistryJson("PluginName2", "user2:")));
+    EXPECT_CALL(*m_mockFileSystemPtr, readFile(files[2])).WillOnce(Return(
+        createPluginRegistryJson("PluginName3", "user3::")));
 
     EXPECT_CALL(*m_mockFileSystemPtr, isFile(m_watchdogConfigPath)).WillOnce(Return(false));
 
     EXPECT_CALL(*m_mockFilePermissionsPtr, getUserId("user1group1")).WillOnce(Throw(Common::FileSystem::IFileSystemException("TEST")));
 
-    EXPECT_CALL(*m_mockFileSystemPtr, writeFile(m_watchdogConfigPath, R"({"groups":{"sophos-spl-ipc":0}})")).Times(1);
     EXPECT_NO_THROW(watchdog.writeExecutableUserAndGroupToWatchdogConfig());
 }
 
@@ -293,7 +281,7 @@ TEST_F(TestWatchdog, writeExecutableUserAndGroupToWatchdogConfigDoesNotThrowWith
 
     std::vector<std::string> files{"/tmp/plugins/PluginName.json"};
     EXPECT_CALL(*m_mockFileSystemPtr, listFiles(_)).WillOnce(Return(files));
-    EXPECT_CALL(*m_mockFileSystemPtr, readFile(files[0])).WillOnce(Return(createPluginRegistryJson("", "")));
+    EXPECT_CALL(*m_mockFileSystemPtr, readFile(files[0])).WillOnce(Return(createPluginRegistryJson("PluginName", "user:group")));
 
     EXPECT_CALL(*m_mockFileSystemPtr, isFile(m_watchdogConfigPath)).WillOnce(Return(true));
     EXPECT_CALL(*m_mockFileSystemPtr, readFile(m_watchdogConfigPath)).WillOnce(Return(R"({"groups":{"g":{"user":1}})"));
