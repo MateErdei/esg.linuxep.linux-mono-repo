@@ -161,6 +161,7 @@ set(GTEST_INPUT ${INPUT}/googletest)
 file(GLOB zmqlib ${PLUGINAPIPATH}/lib64/libzmq.so.*.*.*)
 file(GLOB log4cpluslib ${PLUGINAPIPATH}/lib64/liblog4cplus-*.so.*.*.*)
 file(GLOB protobuflib ${PLUGINAPIPATH}/lib64/libprotobuf.so.*.*.*)
+file(GLOB expatlib ${PLUGINAPIPATH}/lib64/libexpat.so)
 
 set(GTEST_INCLUDE ${GTEST_INPUT}/googletest/include)
 find_library(GTEST_LIBRARY

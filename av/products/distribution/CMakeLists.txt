@@ -26,6 +26,7 @@ set(third_party_libs
         ${zmqlib}
         ${log4cpluslib}
         ${protobuflib}
+        ${expatlib}
         ${OPENSSLCRYPTO_LIBRARY_ABSOLUTE}
         ${ZLIB_LIBRARY}
         )
