@@ -328,7 +328,9 @@ TEST_F(StateMonitorTests, testStateMonitorExitsOnDestructDuringWait)
         EXPECT_TRUE(waitForLog("Starting Quarantine Manager state monitor"));
     }
 
-    EXPECT_TRUE(appenderContains("State Monitor stop requested"));
+    // Log4CPlus is slightly async, so we can't assume the log will always be there immediately
+    // after the thread exits
+    EXPECT_TRUE(waitForLog("State Monitor stop requested"));
 }
 
 TEST_F(StateMonitorTests, testStateMonitorBackoffNeverExceedsMax)
