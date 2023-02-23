@@ -602,75 +602,6 @@ namespace SulDownloader
         }
         return std::make_pair(true, std::move(repository));
     }
-    std::pair<bool, IRepositoryPtr> updateFromSDDS2Warehouse( const ConfigurationData& configurationData,
-                                                              bool supplementOnly)
-    {
-
-        SULInit init;
-
-        auto warehouseRepository = WarehouseRepositoryFactory::instance().createWarehouseRepository();
-        assert(warehouseRepository);
-
-        bool success = false;
-
-        ConnectionSelector connectionSelector;
-        auto candidates = connectionSelector.getConnectionCandidates(configurationData);
-
-        removeSDDS3Cache();
-
-        for (const auto& connectionSetup : candidates)
-        {
-            success =
-                internal_runSULDownloader(warehouseRepository, configurationData, connectionSetup, supplementOnly);
-            if (success)
-            {
-                LOGDEBUG("Successfully ran SUL Downloader");
-                break;
-            }
-            else if (isImmediateFailure(warehouseRepository))
-            {
-                // Immediate failures: currently UPDATESOURCEMISSING
-                // Currently no immediate failures are possible for supplement-only updating - but need to abort if
-                // supplementOnly=False
-                assert(!supplementOnly); // currently never-supplement only - change message if this changes
-                LOGERROR("Immediate failure of updating");
-                break; // would still try updating products, if it were supplementOnly
-            }
-        }
-
-        if (supplementOnly && !success)
-        {
-            LOGINFO("Retry with product update, in case the supplement config has changed");
-            // retry with product update, in case the supplement config has changed
-            // also if we get an immediate failure from the supplement-only update, we retry product-update
-            // (This can't happen currently, since the only immediate failure can't happen with local meta-data)
-            supplementOnly = false;
-            for (const auto& connectionSetup : candidates)
-            {
-                success =
-                    internal_runSULDownloader(warehouseRepository, configurationData, connectionSetup, supplementOnly);
-                if (success)
-                {
-                    LOGDEBUG("Successfully ran SUL Downloader");
-                    break;
-                }
-                else if (isImmediateFailure(warehouseRepository))
-                {
-                    // Immediate failures: currently UPDATESOURCEMISSING
-                    LOGERROR("Immediate failure of updating");
-                    break;
-                }
-            }
-        }
-
-        if(!success)
-        {
-            // Failed to download from SDDS
-            warehouseRepository->dumpLogs();
-        }
-
-        return std::make_pair(success, std::move(warehouseRepository));
-    }
 
     DownloadReport runSULDownloader(
         const ConfigurationData& configurationData,
@@ -705,14 +636,16 @@ namespace SulDownloader
         timeTracker.setStartTime(TimeUtils::getCurrTime());
 
         std::pair<bool, IRepositoryPtr> repositoryResult;
-        std::string overrideFile = Common::ApplicationConfiguration::applicationPathManager().getSdds3OverrideSettingsFile();
-        bool useSdds3 = configurationData.getUseSDDS3();
+
+        //todo what do we do here, do we need the override file
+        //std::string overrideFile = Common::ApplicationConfiguration::applicationPathManager().getSdds3OverrideSettingsFile();
+       /* bool useSdds3 = configurationData.getUseSDDS3();
         if (!useSdds3 && Common::FileSystem::fileSystem()->exists(overrideFile))
         {
             useSdds3 = !(StringUtils::extractValueFromIniFile(overrideFile, "USE_SDDS3").empty());
-        }
-
-        if (useSdds3 && !configurationData.getPrimarySubscription().fixedVersion().empty())
+        }*/
+        //todo if the version is older than 2022 what do we do
+        /*if (useSdds3 && !configurationData.getPrimarySubscription().fixedVersion().empty())
         {
             if (StringUtils::isVersionOlder("2022", configurationData.getPrimarySubscription().fixedVersion()))
             {
@@ -721,20 +654,15 @@ namespace SulDownloader
                     configurationData.getPrimarySubscription().fixedVersion() + ". Reverting to SDDS2 mode.");
                 useSdds3 = false;
             }
-        }
-
-        if (!configurationData.getJWToken().empty() && useSdds3)
+        }*/
+        //todo what do we do if JWToken is empty
+        if (!configurationData.getJWToken().empty())
         {
             LOGINFO("Running in SDDS3 updating mode");
             // Make sure root directories are created
             createSdds3UpdateCacheFolders();
             repositoryResult = updateFromSDDS3Repository(configurationData, supplementOnly, previousDownloadReport,
                                                          forceReinstallAllProducts);
-        }
-        else
-        {
-            LOGINFO("Running in SDDS2 updating mode");
-            repositoryResult = updateFromSDDS2Warehouse(configurationData, supplementOnly);
         }
 
         return processRepositoryAndGenerateReport(repositoryResult.first,
