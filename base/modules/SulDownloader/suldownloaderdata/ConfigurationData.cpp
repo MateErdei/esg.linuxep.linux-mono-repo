@@ -414,7 +414,6 @@ ConfigurationData ConfigurationData::fromJsonSettings(const std::string& setting
     configurationData.setOptionalManifestNames(optionalManifestnames);
 
     configurationData.setUseSlowSupplements(settings.useslowsupplements());
-    configurationData.setUseSDDS3(settings.usesdds3());
 
     return configurationData;
 }
@@ -569,7 +568,6 @@ std::string ConfigurationData::toJsonSettings(const ConfigurationData& configura
     }
 
     settings.set_useslowsupplements(configurationData.getUseSlowSupplements());
-    settings.set_usesdds3(configurationData.getUseSDDS3());
 
     for (const auto& optionalManifestName : configurationData.getOptionalManifestNames())
     {

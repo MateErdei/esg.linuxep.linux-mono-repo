@@ -112,46 +112,6 @@ namespace SulDownloader
         return false;
     }
 
-    static bool internal_runSULDownloader(
-        IWarehouseRepositoryPtr& warehouseRepository,
-        const ConfigurationData& configurationData,
-        const suldownloaderdata::ConnectionSetup& connectionSetup,
-        bool supplementOnly)
-    {
-        warehouseRepository->reset();
-        warehouseRepository->tryConnect(connectionSetup, supplementOnly, configurationData);
-
-        if (warehouseRepository->hasError())
-        {
-            LOGDEBUG("Failed to connect to warehouse: " << warehouseRepository->getError().Description);
-            return false;
-        }
-
-        // apply product selection and download the needed products
-        auto productSelection = ProductSelection::CreateProductSelection(configurationData);
-        warehouseRepository->synchronize(productSelection);
-
-        if (warehouseRepository->hasError())
-        {
-            LOGDEBUG("Failed to synchronise warehouse: " << warehouseRepository->getError().Description);
-            return false;
-        }
-
-        warehouseRepository->distribute();
-        if (warehouseRepository->hasError())
-        {
-            LOGDEBUG("Failed to distribute warehouse: " << warehouseRepository->getError().Description);
-            return false;
-        }
-
-        return true;
-    }
-
-    static bool isImmediateFailure(const IWarehouseRepositoryPtr& warehouseRepository)
-    {
-        return warehouseRepository->hasImmediateFailError();
-    }
-
     suldownloaderdata::DownloadReport processRepositoryAndGenerateReport(const bool success,
                                                                          IRepositoryPtr repository,
                                                                          TimeTracker& timeTracker,
