@@ -40,7 +40,10 @@ def read_flags_file(file_path):
             body = file_to_read.read()
             return json.loads(body)
     except (json.JSONDecodeError, UnicodeDecodeError) as error:
-        LOGGER.warning("Failed to load json file \"{}\". Error: {}".format(file_path, str(error)))
+        LOGGER.warning("Failed to load json file \"{}\". Error: TEST {}".format(file_path, str(error)))
+        TESTING = open(file_path, 'r', encoding= 'utf-8')          #REMOVE
+        TESTING_CONTENTS = TESTING.read()  #REMOVE
+        LOGGER.warning("Test: ", TESTING_CONTENTS)   #REMOVE
     except OSError as error:
         # OSErrors can happen here due to insufficient permissions or the file is no longer there.
         # In both situations there is no point attempting to remove the file so just log the error.
