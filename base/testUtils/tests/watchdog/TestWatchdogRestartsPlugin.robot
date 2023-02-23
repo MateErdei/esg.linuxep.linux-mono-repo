@@ -48,7 +48,6 @@ Test Watchdog Config is Updated When Watchdog is Asked to Restart a Process
     ...    2 secs
     ...    Log File    ${WATCHDOG_CONFIG}
     ${watchdogConfOriginal}    Get Modified Time    ${WATCHDOG_CONFIG}
-    List Files In Directory    ${SOPHOS_INSTALL}/base/pluginRegistry
 
     Verify Watchdog Config
 

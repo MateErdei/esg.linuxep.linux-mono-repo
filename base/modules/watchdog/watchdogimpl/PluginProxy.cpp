@@ -48,7 +48,6 @@ std::string PluginProxy::name() const
 bool PluginProxy::updatePluginInfo(const Common::PluginRegistryImpl::PluginInfo& info)
 {
     bool changed = false;
-    Watchdog::writeExecutableUserAndGroupToWatchdogConfig(info.getExecutableUserAndGroupAsString());
     if (info.getExecutableUserAndGroupAsString() != getPluginInfo().getExecutableUserAndGroupAsString())
     {
         LOGINFO("Executable user and group has changed");

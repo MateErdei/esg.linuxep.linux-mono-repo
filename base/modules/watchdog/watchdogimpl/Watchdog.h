@@ -35,7 +35,7 @@ namespace watchdog::watchdogimpl
             int initialiseAndRun();
             PluginInfoVector readPluginConfigs();
             std::vector<std::string> getListOfPluginNames();
-            static void writeExecutableUserAndGroupToWatchdogConfig(const std::string& executableUserAndGroupAsString);
+            void writeExecutableUserAndGroupToWatchdogConfig();
 
         protected:
             std::string getIPCPath();

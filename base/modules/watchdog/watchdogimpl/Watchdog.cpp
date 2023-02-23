@@ -63,11 +63,11 @@ int Watchdog::initialiseAndRun()
 
         for (auto& info : pluginConfigs)
         {
-            writeExecutableUserAndGroupToWatchdogConfig(info.getExecutableUserAndGroupAsString());
             addProcessToMonitor(std::make_unique<PluginProxy>(std::move(info)));
         }
 
         pluginConfigs.clear();
+        writeExecutableUserAndGroupToWatchdogConfig();
 
         setupSocket();
 
@@ -181,10 +181,11 @@ std::string Watchdog::enablePlugin(const std::string& pluginName)
     {
         // update info from disk
 
-        auto infoUpdater = [&loadResult](Common::ProcessMonitoring::IProcessProxy& processProxy) {
+        auto infoUpdater = [&loadResult, this](Common::ProcessMonitoring::IProcessProxy& processProxy) {
             auto* proxy = dynamic_cast<PluginProxy*>(&processProxy);
             if (proxy != nullptr)
             {
+                writeExecutableUserAndGroupToWatchdogConfig();
                 bool changed = proxy->updatePluginInfo(loadResult.first);
                 if (changed && proxy->isRunning())
                 {
@@ -207,6 +208,7 @@ std::string Watchdog::removePlugin(const std::string& pluginName)
     LOGINFO("Removing " << pluginName);
 
     bool found = ProcessMonitor::removePluginByName(pluginName);
+    writeExecutableUserAndGroupToWatchdogConfig();
 
     if (!found)
     {
@@ -275,11 +277,48 @@ std::string Watchdog::checkPluginIsRunning(const std::string& pluginName)
     }
 }
 
-void Watchdog::writeExecutableUserAndGroupToWatchdogConfig(const std::string& executableUserAndGroupAsString)
+void Watchdog::writeExecutableUserAndGroupToWatchdogConfig()
 {
     auto fileSystem = Common::FileSystem::fileSystem();
     auto filePermissions = Common::FileSystem::filePermissions();
     std::string watchdogConfigPath = Common::ApplicationConfiguration::applicationPathManager().getWatchdogConfigPath();
+
+    std::vector<std::string> groups{"sophos-spl-ipc"};
+    std::vector<std::string> users;
+
+    PluginInfoVector pluginConfigs = readPluginConfigs();
+    for (const auto& config : pluginConfigs)
+    {
+        std::string executableUserAndGroupAsString = config.getExecutableUserAndGroupAsString();
+
+        if (Common::UtilityImpl::StringUtils::isSubstring(executableUserAndGroupAsString, ":"))
+        {
+            std::vector<std::string> userAndGroup = Common::UtilityImpl::StringUtils::splitString(executableUserAndGroupAsString, ":");
+            if (userAndGroup.size() == 2 && !userAndGroup[1].empty())
+            {
+                std::string userName = userAndGroup[0];
+                std::string groupName = userAndGroup[1];
+
+                if (userName != "root")
+                {
+                    users.push_back(userName);
+                }
+
+                if (groupName != "root")
+                {
+                    groups.push_back(groupName);
+                }
+            }
+        }
+        else
+        {
+            if (executableUserAndGroupAsString != "root")
+            {
+                users.push_back(executableUserAndGroupAsString);
+            }
+        }
+    }
+    pluginConfigs.clear();
 
     try
     {
@@ -289,39 +328,17 @@ void Watchdog::writeExecutableUserAndGroupToWatchdogConfig(const std::string& ex
             watchdogConfig = nlohmann::json::parse(fileSystem->readFile(watchdogConfigPath));
         }
 
-        if (Common::UtilityImpl::StringUtils::isSubstring(executableUserAndGroupAsString, ":"))
+        for (const std::string& user: users)
         {
-            std::vector<std::string> userAndGroup = Common::UtilityImpl::StringUtils::splitString(
-                executableUserAndGroupAsString, ":");
-
-            if (userAndGroup.size() == 2 && !userAndGroup[1].empty())
-            {
-                std::string userName = userAndGroup[0];
-                std::string groupName = userAndGroup[1];
-
-                if (userName != "root")
-                {
-                    watchdogConfig["users"][userName] = filePermissions->getUserId(userName);
-                }
-
-                if (groupName != "root")
-                {
-                    watchdogConfig["groups"][groupName] = filePermissions->getGroupId(groupName);
-                }
-            }
+            watchdogConfig["users"][user] = filePermissions->getUserId(user);
         }
-        else
+        for (const std::string& group: groups)
         {
-            if (executableUserAndGroupAsString != "root")
-            {
-                watchdogConfig["users"][executableUserAndGroupAsString] = filePermissions->getUserId(executableUserAndGroupAsString);
-            }
+            watchdogConfig["groups"][group] = filePermissions->getGroupId(group);
         }
 
         if (!watchdogConfig.empty())
         {
-            watchdogConfig["groups"]["sophos-spl-ipc"] = filePermissions->getGroupId("sophos-spl-ipc");
-
             LOGDEBUG("Updating watchdog config: " << watchdogConfig.dump());
             fileSystem->writeFile(watchdogConfigPath, watchdogConfig.dump());
         }
