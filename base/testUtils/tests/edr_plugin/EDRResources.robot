@@ -82,23 +82,6 @@ Install EDR SDDS3
     Should Exist  ${EDR_DIR}
 
 
-Install EDR SDDS2
-    [Arguments]  ${policy}  ${args}=${None}
-    Start Local Cloud Server  --initial-alc-policy  ${policy}  --initial-flags  ${SUPPORT_FILES}/CentralXml/FLAGS_sdds2.json
-    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${policy}  args=${args}
-
-    Send ALC Policy And Prepare For Upgrade  ${policy}
-    Trigger Update Now
-    Wait Until Keyword Succeeds
-    ...   200 secs
-    ...   10 secs
-    ...   Check Suldownloader Log Contains In Order     Installing product: ServerProtectionLinux-Plugin-EDR   Generating the report file
-
-    Wait For EDR to be Installed
-
-    Should Exist  ${EDR_DIR}
-
-
 Run Query Until It Gives Expected Results
     [Arguments]  ${query}  ${expectedResponseJson}
     Send Query From Fake Cloud    ProcessEvents  ${query}  command_id=queryname

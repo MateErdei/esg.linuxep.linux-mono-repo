@@ -596,8 +596,6 @@ Install Base Edr And Mtr Vut Then Transition To Base Edr Vut
 Update Run that Does Not Change The Product Does not ReInstall The Product using SDDS2
     [Tags]  TESTFAILURE
 
-    Install EDR SDDS2  ${BaseAndEdrAndMtrVUTPolicy}
-
     Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-MDR version: 1.
     Wait for first update
     Prepare Installation For Upgrade Using Policy   ${BaseAndEdrAndMtrVUTPolicy}
