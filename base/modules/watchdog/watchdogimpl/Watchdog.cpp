@@ -340,11 +340,8 @@ void Watchdog::writeExecutableUserAndGroupToWatchdogConfig()
             watchdogConfig["groups"][group] = filePermissions->getGroupId(group);
         }
 
-        if (!watchdogConfig.empty())
-        {
-            LOGDEBUG("Updating watchdog config: " << watchdogConfig.dump());
-            fileSystem->writeFile(watchdogConfigPath, watchdogConfig.dump());
-        }
+        LOGDEBUG("Updating watchdog config: " << watchdogConfig.dump());
+        fileSystem->writeFile(watchdogConfigPath, watchdogConfig.dump());
     }
     catch (Common::FileSystem::IFileSystemException& error)
     {
