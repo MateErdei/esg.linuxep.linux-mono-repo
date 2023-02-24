@@ -73,6 +73,10 @@ Install EDR SDDS3
     ...   10 secs
     ...   Check Log Contains String At Least N times    ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  2
 
+    #TODO: LINUXDAR-4015 remove once issue is closed
+    ${result} =  Run Process    free
+    Log  ${result.stdout}
+
     Wait For EDR to be Installed
 
     Should Exist  ${EDR_DIR}

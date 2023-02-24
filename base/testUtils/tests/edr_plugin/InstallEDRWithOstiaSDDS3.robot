@@ -48,6 +48,11 @@ ${Sophos_Scheduled_Query_Pack}      ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.co
 *** Test Cases ***
 Install all plugins 999 then downgrade to all plugins develop
     [Tags]  BASE_DOWNGRADE  OSTIA  THIN_INSTALLER  INSTALLER  UNINSTALLER
+
+    #TODO: LINUXDAR-4015 remove once issue is closed
+    ${result} =  Run Process    free
+    Log  ${result.stdout}
+
     Setup SUS all 999
     Install EDR SDDS3  ${BaseAndMTREdr999Policy}
     Wait Until EDR OSQuery Running  30
