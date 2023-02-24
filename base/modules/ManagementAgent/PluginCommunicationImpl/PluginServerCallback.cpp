@@ -21,6 +21,7 @@ namespace ManagementAgent
             if (m_eventReceiver)
             {
                 m_eventReceiver->receivedSendEvent(appId, eventXml);
+                m_pluginManager.getSharedHealthStatusObj()->setOutbreakMode(m_eventReceiver->outbreakMode());
             }
         }
 

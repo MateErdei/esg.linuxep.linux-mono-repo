@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "OutbreakModeController.h"
+#include "IOutbreakModeController.h"
 
 #include <Common/TaskQueue/ITaskQueue.h>
 #include <ManagementAgent/PluginCommunication/IEventReceiver.h>
@@ -20,14 +20,11 @@ namespace ManagementAgent
 
             void handleAction(const std::string& actionXml) override;
 
-            [[nodiscard]] bool outbreakMode() const override
-            {
-                return outbreakModeController_->outbreakMode();
-            }
+            [[nodiscard]] bool outbreakMode() const override;
 
         private:
             Common::TaskQueue::ITaskQueueSharedPtr m_taskQueue;
-            OutbreakModeControllerPtr outbreakModeController_;
+            IOutbreakModeControllerPtr outbreakModeController_;
         };
 
     } // namespace EventReceiverImpl

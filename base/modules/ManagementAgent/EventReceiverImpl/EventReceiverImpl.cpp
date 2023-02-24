@@ -3,6 +3,9 @@
 #include "EventReceiverImpl.h"
 
 #include "EventTask.h"
+#include "OutbreakModeController.h"
+
+#include "ManagementAgent/LoggerImpl/Logger.h"
 
 using ManagementAgent::EventReceiverImpl::EventReceiverImpl;
 
@@ -22,4 +25,9 @@ void EventReceiverImpl::receivedSendEvent(const std::string& appId, const std::s
 void ManagementAgent::EventReceiverImpl::EventReceiverImpl::handleAction(const std::string& actionXml)
 {
     outbreakModeController_->processAction(actionXml);
+}
+
+bool ManagementAgent::EventReceiverImpl::EventReceiverImpl::outbreakMode() const
+{
+    return outbreakModeController_->outbreakMode();
 }

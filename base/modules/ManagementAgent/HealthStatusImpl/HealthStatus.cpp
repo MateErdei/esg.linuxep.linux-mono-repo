@@ -122,6 +122,7 @@ namespace ManagementAgent
             if (outbreakStatus_)
             {
                 // In outbreak mode force threat Health to RED
+                LOGDEBUG("In outbreak mode so detection health RED");
                 healthValue = 3; // Straight to bad
             }
             else
@@ -235,6 +236,12 @@ namespace ManagementAgent
                 LOGDEBUG("Threat Health JSON file does not exist at: " << threatHealthJsonFilePath);
             }
         }
+
+        void HealthStatus::setOutbreakMode(bool outbreakStatus)
+        {
+            outbreakStatus_ = outbreakStatus;
+        }
+
 
     } // namespace HealthStatusImpl
 } // namespace ManagementAgent

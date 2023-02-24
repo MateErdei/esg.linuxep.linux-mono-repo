@@ -65,10 +65,7 @@ namespace ManagementAgent
              */
             void resetCachedHealthStatusXml();
 
-            void setOutbreakMode(bool outbreakStatus)
-            {
-                outbreakStatus_ = outbreakStatus;
-            }
+            void setOutbreakMode(bool outbreakStatus);
 
         private:
             static healthValue_t convertDetailedValueToOverallValue(healthValue_t value);

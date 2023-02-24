@@ -34,7 +34,7 @@ namespace
         {
             return fs->readFile(fullPath);
         }
-        catch (Common::FileSystem::IFileSystemException& ex)
+        catch (const Common::FileSystem::IFileSystemException& ex)
         {
             LOGWARN("Unable to read Health Action Task at: " << fullPath << " due to: " << ex.what());
         }
