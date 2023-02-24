@@ -33,3 +33,17 @@ TEST_F(TestEventReceiverImpl, ReceivingEventCausesATaskToBeQueued)
     foo.receivedSendEvent("APPID", "EventXML");
     EXPECT_FALSE(queue->empty());
 }
+
+TEST_F(TestEventReceiverImpl, ReceivingActionDoesnNotThrow)
+{
+    std::shared_ptr<FakeQueue> queue(new FakeQueue);
+    ManagementAgent::EventReceiverImpl::EventReceiverImpl foo(queue);
+    EXPECT_NO_THROW(foo.handleAction(""));
+}
+
+TEST_F(TestEventReceiverImpl, NotInOutbreakMode)
+{
+    std::shared_ptr<FakeQueue> queue(new FakeQueue);
+    ManagementAgent::EventReceiverImpl::EventReceiverImpl foo(queue);
+    EXPECT_FALSE(foo.outbreakMode());
+}
