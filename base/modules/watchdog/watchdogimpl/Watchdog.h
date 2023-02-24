@@ -31,12 +31,11 @@ namespace watchdog::watchdogimpl
             int initialiseAndRun();
             PluginInfoVector readPluginConfigs();
             std::vector<std::string> getListOfPluginNames();
-            void writeExecutableUserAndGroupToWatchdogConfig();
-
         protected:
             std::string getIPCPath();
             void setupSocket();
             void handleSocketRequest();
+            void writeExecutableUserAndGroupToWatchdogConfig();
             std::string handleCommand(Common::ZeroMQWrapper::IReadable::data_t input);
 
             std::string disablePlugin(const std::string& pluginName);

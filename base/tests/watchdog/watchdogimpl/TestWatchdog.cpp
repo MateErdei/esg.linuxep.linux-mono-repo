@@ -66,6 +66,8 @@ namespace
         void callSetupIpc() { setupSocket(); }
 
         void callHandleSocketRequest() { handleSocketRequest(); };
+        
+        void callWriteExecutableUserAndGroupToWatchdogConfig() { writeExecutableUserAndGroupToWatchdogConfig(); };
 
         /**
          * Give access to the context so that we can share connections
@@ -170,7 +172,7 @@ TEST_F(TestWatchdog, writeExecutableUserAndGroupToWatchdogConfigWritesConfigFile
 
     EXPECT_CALL(*m_mockFileSystemPtr, writeFile(m_watchdogConfigPath,
                                                 R"({"groups":{"group":2,"sophos-spl-ipc":0},"users":{"user":1}})")).Times(1);
-    EXPECT_NO_THROW(watchdog.writeExecutableUserAndGroupToWatchdogConfig());
+    EXPECT_NO_THROW(watchdog.callWriteExecutableUserAndGroupToWatchdogConfig());
 }
 
 TEST_F(TestWatchdog, writeExecutableUserAndGroupToWatchdogConfigHandlesDuplicateUsersAndGroups)
@@ -193,7 +195,7 @@ TEST_F(TestWatchdog, writeExecutableUserAndGroupToWatchdogConfigHandlesDuplicate
 
     EXPECT_CALL(*m_mockFileSystemPtr, writeFile(m_watchdogConfigPath,
                                                 R"({"groups":{"group":2,"sophos-spl-ipc":0},"users":{"user":1}})")).Times(1);
-    EXPECT_NO_THROW(watchdog.writeExecutableUserAndGroupToWatchdogConfig());
+    EXPECT_NO_THROW(watchdog.callWriteExecutableUserAndGroupToWatchdogConfig());
 }
 
 TEST_F(TestWatchdog, writeExecutableUserAndGroupToWatchdogConfigUpdatesExistingConfigFile)
@@ -216,7 +218,7 @@ TEST_F(TestWatchdog, writeExecutableUserAndGroupToWatchdogConfigUpdatesExistingC
 
     EXPECT_CALL(*m_mockFileSystemPtr, writeFile(m_watchdogConfigPath,
                                                 R"({"groups":{"group":966,"group1":1,"group2":2,"sophos-spl-ipc":0},"users":{"user":999,"user1":1,"user2":2}})")).Times(1);
-    EXPECT_NO_THROW(watchdog.writeExecutableUserAndGroupToWatchdogConfig());
+    EXPECT_NO_THROW(watchdog.callWriteExecutableUserAndGroupToWatchdogConfig());
 }
 
 TEST_F(TestWatchdog, writeExecutableUserAndGroupToWatchdogConfigHandlesMultipleGroupsAndUsers)
@@ -250,7 +252,7 @@ TEST_F(TestWatchdog, writeExecutableUserAndGroupToWatchdogConfigHandlesMultipleG
 
     EXPECT_CALL(*m_mockFileSystemPtr, writeFile(m_watchdogConfigPath,
                                                 R"({"groups":{"group1":1,"group3":3,"sophos-spl-ipc":0},"users":{"user1":1,"user2":2,"user3":3,"user4":4}})")).Times(1);
-    EXPECT_NO_THROW(watchdog.writeExecutableUserAndGroupToWatchdogConfig());
+    EXPECT_NO_THROW(watchdog.callWriteExecutableUserAndGroupToWatchdogConfig());
 }
 
 TEST_F(TestWatchdog, writeExecutableUserAndGroupToWatchdogConfigIgnoresRootUser)
@@ -266,7 +268,7 @@ TEST_F(TestWatchdog, writeExecutableUserAndGroupToWatchdogConfigIgnoresRootUser)
     EXPECT_CALL(*m_mockFileSystemPtr, isFile(m_watchdogConfigPath)).WillOnce(Return(false));
 
     EXPECT_CALL(*m_mockFileSystemPtr, writeFile(m_watchdogConfigPath, R"({"groups":{"sophos-spl-ipc":0}})")).Times(1);
-    EXPECT_NO_THROW(watchdog.writeExecutableUserAndGroupToWatchdogConfig());
+    EXPECT_NO_THROW(watchdog.callWriteExecutableUserAndGroupToWatchdogConfig());
 }
 
 TEST_F(TestWatchdog, writeExecutableUserAndGroupToWatchdogConfigHandlesMalformedGroupsAndUsers)
@@ -289,7 +291,7 @@ TEST_F(TestWatchdog, writeExecutableUserAndGroupToWatchdogConfigHandlesMalformed
 
     EXPECT_CALL(*m_mockFilePermissionsPtr, getUserId("user1group1")).WillOnce(Throw(Common::FileSystem::IFileSystemException("TEST")));
 
-    EXPECT_NO_THROW(watchdog.writeExecutableUserAndGroupToWatchdogConfig());
+    EXPECT_NO_THROW(watchdog.callWriteExecutableUserAndGroupToWatchdogConfig());
 }
 
 
@@ -310,7 +312,7 @@ TEST_F(TestWatchdog, writeExecutableUserAndGroupToWatchdogConfigDoesNotThrowWith
     EXPECT_CALL(*m_mockFileSystemPtr, readFile(m_watchdogConfigPath)).WillOnce(Return(R"({"groups":{"g":{"user":1}})"));
 
     EXPECT_CALL(*m_mockFileSystemPtr, writeFile(m_watchdogConfigPath, R"({"groups":{"sophos-spl-ipc":0}})")).Times(1);
-    EXPECT_NO_THROW(watchdog.writeExecutableUserAndGroupToWatchdogConfig());
+    EXPECT_NO_THROW(watchdog.callWriteExecutableUserAndGroupToWatchdogConfig());
 
     ASSERT_THAT(testing::internal::GetCapturedStderr(), ::testing::HasSubstr(expectedWarnMessage));
 }
