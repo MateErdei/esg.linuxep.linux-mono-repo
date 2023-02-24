@@ -335,9 +335,12 @@ def bullseye_coverage_combine_task(machine: tap.Machine, include_tag: str):
 def get_test_machines(test_inputs, parameters: tap.Parameters):
     test_environments = {'ubuntu1804': 'ubuntu1804_x64_server_en_us',
                          'ubuntu2004': 'ubuntu2004_x64_server_en_us',
-                         'centos77': 'centos77_x64_server_en_us',
-                         'amzn2': 'amzlinux2_x64_server_en_us',
-                         'centos8': 'centos82_x64_server_en_us'
+                         'ubuntu2204': 'ubuntu2204_x64_aws_server_en_us',
+                         'centos79': 'centos79_x64_server_en_us',
+                         'centos84': 'centos84_x64_server_en_us',
+                         'centos8stream': 'centos8stream_x64_aws_server_en_us',
+                         'centos9stream': 'centos9stream_x64_aws_server_en_us',
+                         'amazonlinux2': 'amzlinux2_x64_server_en_us',
                          }
 
     ret = []
