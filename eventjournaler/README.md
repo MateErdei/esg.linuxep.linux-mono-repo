@@ -21,7 +21,7 @@ This is the component that records published events into Event Journals.
 
        tap fetch event_journaler.build.{option}
 
-3) Build everest-base on local machine:
+3) Build event journaler on local machine:
 
        tap build event_journaler.build.{option}
 
