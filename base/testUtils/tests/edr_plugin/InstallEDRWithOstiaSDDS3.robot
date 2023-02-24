@@ -17,6 +17,7 @@ Resource    ../av_plugin/AVResources.robot
 Resource    ../event_journaler/EventJournalerResources.robot
 Resource    ../GeneralTeardownResource.robot
 Resource    ../watchdog/LogControlResources.robot
+Resource    ../watchdog/WatchdogResources.robot
 Resource    EDRResources.robot
 Resource    ../mcs_router/McsPushClientResources.robot
 Resource    ../liveresponse_plugin/LiveResponseResources.robot
@@ -47,13 +48,14 @@ ${Sophos_Scheduled_Query_Pack}      ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.co
 *** Test Cases ***
 Install all plugins 999 then downgrade to all plugins develop
     [Tags]  BASE_DOWNGRADE  OSTIA  THIN_INSTALLER  INSTALLER  UNINSTALLER
-    Override LogConf File as Global Level  DEBUG
-
     Setup SUS all 999
     Install EDR SDDS3  ${BaseAndMTREdr999Policy}
     Wait Until EDR OSQuery Running  30
 
     Check Log Does Not Contain    wdctl <> stop edr     ${WDCTL_LOG_PATH}  WatchDog
+
+    #TODO: LINUXDAR-4015 remove once issue is closed
+    Override Local LogConf File Using Content  [runtimedetections]\nVERBOSITY = DEBUG\n
 
     Wait for first update
 
