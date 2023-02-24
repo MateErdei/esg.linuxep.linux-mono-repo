@@ -187,14 +187,12 @@ TEST_F(TestWatchdog, writeExecutableUserAndGroupToWatchdogConfigHandlesDuplicate
 
     EXPECT_CALL(*m_mockFileSystemPtr, isFile(m_watchdogConfigPath)).WillOnce(Return(false));
 
-    EXPECT_CALL(*m_mockFilePermissionsPtr, getUserId("user"))
-        .WillOnce(Return(1))
-        .WillOnce(Return(2));
+    EXPECT_CALL(*m_mockFilePermissionsPtr, getUserId("user")).WillOnce(Return(1));
     EXPECT_CALL(*m_mockFilePermissionsPtr, getGroupId("group")).WillRepeatedly(Return(2));
     EXPECT_CALL(*m_mockFilePermissionsPtr, getGroupId("sophos-spl-ipc")).WillOnce(Return(0));
 
     EXPECT_CALL(*m_mockFileSystemPtr, writeFile(m_watchdogConfigPath,
-                                                R"({"groups":{"group":2,"sophos-spl-ipc":0},"users":{"user":2}})")).Times(1);
+                                                R"({"groups":{"group":2,"sophos-spl-ipc":0},"users":{"user":1}})")).Times(1);
     EXPECT_NO_THROW(watchdog.writeExecutableUserAndGroupToWatchdogConfig());
 }
 

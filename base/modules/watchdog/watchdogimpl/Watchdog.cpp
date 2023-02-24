@@ -25,6 +25,7 @@
 #include <cstdlib>
 #include <json.hpp>
 #include <memory>
+#include <set>
 #include <unistd.h>
 
 namespace
@@ -279,8 +280,8 @@ void Watchdog::writeExecutableUserAndGroupToWatchdogConfig()
     auto filePermissions = Common::FileSystem::filePermissions();
     std::string watchdogConfigPath = Common::ApplicationConfiguration::applicationPathManager().getWatchdogConfigPath();
 
-    std::vector<std::string> groups{"sophos-spl-ipc"};
-    std::vector<std::string> users;
+    std::set<std::string> groups{"sophos-spl-ipc"};
+    std::set<std::string> users;
 
     PluginInfoVector pluginConfigs = readPluginConfigs();
     for (const auto& config : pluginConfigs)
@@ -297,12 +298,12 @@ void Watchdog::writeExecutableUserAndGroupToWatchdogConfig()
 
                 if (userName != "root")
                 {
-                    users.push_back(userName);
+                    users.insert(userName);
                 }
 
                 if (groupName != "root")
                 {
-                    groups.push_back(groupName);
+                    groups.insert(groupName);
                 }
             }
         }
@@ -310,7 +311,7 @@ void Watchdog::writeExecutableUserAndGroupToWatchdogConfig()
         {
             if (executableUserAndGroupAsString != "root")
             {
-                users.push_back(executableUserAndGroupAsString);
+                users.insert(executableUserAndGroupAsString);
             }
         }
     }
