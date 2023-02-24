@@ -343,7 +343,7 @@ void Watchdog::writeExecutableUserAndGroupToWatchdogConfig()
         LOGDEBUG("Updating watchdog config: " << watchdogConfig.dump());
         fileSystem->writeFile(watchdogConfigPath, watchdogConfig.dump());
     }
-    catch (Common::FileSystem::IFileSystemException& error)
+    catch (const Common::FileSystem::IFileSystemException& error)
     {
         LOGERROR(error.what());
     }
