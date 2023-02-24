@@ -46,7 +46,7 @@
              "Description" : "run a subset of platforms",
              "Type": "String",
              "Default": "",
-             "AllowedValues": [ "","rhel", "ubuntu", "amazonlinux", "centosstream", "oracle", "miraclelinux" ]
+             "AllowedValues": [ "","rhel", "ubuntu", "amazonlinux", "oracle", "miraclelinux" ]
             },
             "RunOne": {
              "Description" : "Run one specified test machine",
@@ -79,7 +79,6 @@
     "RunMiracleLinux" : {"Fn::Equals" : [{"Ref" : "RunSome"}, "miraclelinux"]},
     "RunUbuntu" : {"Fn::Equals" : [{"Ref" : "RunSome"}, "ubuntu"]},
     "RunAmazon" : {"Fn::Equals" : [{"Ref" : "RunSome"}, "amazonlinux"]},
-    "RunCentosStream" : {"Fn::Equals" : [{"Ref" : "RunSome"}, "centosstream"]},
     "RunDebian" : {"Fn::Equals" : [{"Ref" : "RunSome"}, "debian"]},
     "RunOracle" : {"Fn::Equals" : [{"Ref" : "RunSome"}, "oracle"]},
     "RunRhel78x64" : {"Fn::Or": [
@@ -108,11 +107,6 @@
           {"Condition" : "RunAll"},
           {"Fn::Equals" : [{"Ref" : "RunOne"}, "amazonlinux2022x64"]}
         ]},
-    "RunCentosStreamx64" : {"Fn::Or": [
-        {"Condition" : "RunCentosStream"},
-        {"Condition" : "RunAll"},
-        {"Fn::Equals" : [{"Ref" : "RunOne"}, "centosstreamx64"]}
-        ]},
     "RunDebian10x64" : {"Fn::Or": [
       {"Condition" : "RunDebian"},
       {"Condition" : "RunAll"},
@@ -137,12 +131,7 @@
         {"Condition" : "RunUbuntu"},
         {"Condition" : "RunAll"},
         {"Fn::Equals" : [{"Ref" : "RunOne"}, "ubuntu1804minimal"]}
-        ]},
-    "RunUbuntu2204x64" : {"Fn::Or": [
-      {"Condition" : "RunUbuntu"},
-      {"Condition" : "RunAll"},
-      {"Fn::Equals" : [{"Ref" : "RunOne"}, "ubuntu2204x64"]}
-    ]}
+        ]}
   },
 
   "Resources" : {
