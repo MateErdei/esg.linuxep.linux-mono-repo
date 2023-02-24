@@ -4,12 +4,11 @@ Copyright 2021 Sophos Limited. All rights reserved.
 
 ***********************************************************************************************/
 
-#include <Logging/ConsoleLoggingSetup.h>
-#include <Common/FileSystem/IFileSystemException.h>
-#include <ManagementAgent/HealthStatusImpl/SerialiseFunctions.cpp>
-
-#include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
-#include <tests/Common/Helpers/MockFileSystem.h>
+#include "modules/Common/FileSystem/IFileSystemException.h"
+#include "modules/Common/Logging/ConsoleLoggingSetup.h"
+#include "modules/ManagementAgent/HealthStatusImpl/SerialiseFunctions.cpp"
+#include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
+#include "tests/Common/Helpers/MockFileSystem.h"
 
 #include <gtest/gtest.h>
 

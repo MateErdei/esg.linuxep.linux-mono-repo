@@ -4,16 +4,16 @@ Copyright 2021-2021 Sophos Limited. All rights reserved.
 
 ***********************************************************************************************/
 
-#include "MockPluginManager.h"
+#include "modules/Common/FileSystem/IFileSystemException.h"
+#include "modules/Common/FileSystemImpl/FileSystemImpl.h"
+#include "modules/Common/Logging/ConsoleLoggingSetup.h"
+#include "modules/ManagementAgent/HealthStatusImpl/HealthTask.h"
+#include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
+#include "tests/Common/Helpers/MockFileSystem.h"
+#include "tests/ManagementAgent/McsRouterPluginCommunicationImpl/MockPluginManager.h"
 
-#include <Common/FileSystemImpl/FileSystemImpl.h>
-#include <Common/Logging/ConsoleLoggingSetup.h>
-#include <FileSystem/IFileSystemException.h>
-#include <ManagementAgent/HealthStatusImpl/HealthTask.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
-#include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
-#include <tests/Common/Helpers/MockFileSystem.h>
 
 class HealthTaskTests : public testing::Test
 {

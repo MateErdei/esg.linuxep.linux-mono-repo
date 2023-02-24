@@ -6,9 +6,7 @@ add_executable(McsRouterPluginCommunicationImplTests
         PolicyTaskTests.cpp
         TaskDirectoryListenerTests.cpp
         ActionTaskTests.cpp
-        HealthTaskTests.cpp
-        HealthStatusTests.cpp
-        SerialiseFunctionsTests.cpp)
+        )
 
 target_include_directories(McsRouterPluginCommunicationImplTests SYSTEM BEFORE PUBLIC ${GTEST_INCLUDE} ${GMOCK_INCLUDE})
 target_include_directories(McsRouterPluginCommunicationImplTests BEFORE PUBLIC ${CMAKE_SOURCE_DIR})

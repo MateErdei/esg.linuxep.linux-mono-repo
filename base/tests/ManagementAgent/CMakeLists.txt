@@ -1,5 +1,6 @@
 add_subdirectory(EventReceiverImpl)
 add_subdirectory(PluginCommunicationImpl)
+add_subdirectory(HealthStatusImpl)
 add_subdirectory(McsRouterPluginCommunicationImpl)
 add_subdirectory(PolicyReceiverImpl)
 add_subdirectory(StatusReceiverImpl)
