@@ -25,18 +25,18 @@
 
 namespace
 {
-    std::string readAction(const std::string& filePath)
+    std::string readAction(const std::string& filename)
     {
         auto fs = Common::FileSystem::fileSystem();
         Path fullPath = Common::FileSystem::join(
-            Common::ApplicationConfiguration::applicationPathManager().getMcsActionFilePath(), filePath);
+            Common::ApplicationConfiguration::applicationPathManager().getMcsActionFilePath(), filename);
         try
         {
             return fs->readFile(fullPath);
         }
         catch (Common::FileSystem::IFileSystemException& ex)
         {
-            LOGWARN("Unable to read Health Action Task at: " << filePath << " due to: " << ex.what());
+            LOGWARN("Unable to read Health Action Task at: " << fullPath << " due to: " << ex.what());
         }
         return "";
     }
