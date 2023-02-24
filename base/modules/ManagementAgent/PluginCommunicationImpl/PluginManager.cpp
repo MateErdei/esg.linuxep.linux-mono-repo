@@ -335,6 +335,9 @@ namespace ManagementAgent
         void PluginManager::setEventReceiver(PluginCommunication::IEventReceiverPtr& receiver)
         {
             eventReceiver_ = receiver;
+            assert(m_healthStatus);
+            m_healthStatus->setOutbreakMode(eventReceiver_->outbreakMode());
+
             if (m_serverCallbackHandler != nullptr)
             {
                 m_serverCallbackHandler->setEventReceiver(receiver);
