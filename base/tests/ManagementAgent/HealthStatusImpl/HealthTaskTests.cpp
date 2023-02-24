@@ -1,8 +1,4 @@
-/***********************************************************************************************
-
-Copyright 2021-2021 Sophos Limited. All rights reserved.
-
-***********************************************************************************************/
+// Copyright 2021-2023 Sophos Limited. All rights reserved.
 
 #include "modules/Common/FileSystem/IFileSystemException.h"
 #include "modules/Common/FileSystemImpl/FileSystemImpl.h"
@@ -15,31 +11,34 @@ Copyright 2021-2021 Sophos Limited. All rights reserved.
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
-class HealthTaskTests : public testing::Test
+namespace
 {
-protected:
-    void SetUp() override
+    class HealthTaskTests : public testing::Test
     {
-        m_healthStatus = std::make_shared<ManagementAgent::HealthStatusImpl::HealthStatus>();
+    protected:
+        void SetUp() override
+        {
+            m_healthStatus = std::make_shared<ManagementAgent::HealthStatusImpl::HealthStatus>();
 
-        auto xml = m_healthStatus->generateHealthStatusXml();
-        EXPECT_TRUE(xml.hasStatusChanged);
-    }
+            auto xml = m_healthStatus->generateHealthStatusXml();
+            EXPECT_TRUE(xml.hasStatusChanged);
+        }
 
-    const std::string m_tempDir = "/opt/sophos-spl/tmp";
-    const std::string m_statusFilePath = "/opt/sophos-spl/base/mcs/status/SHS_status.xml";
-    const std::string m_healthFilePath = "/opt/sophos-spl/base/mcs/internal_policy/internal_EPHEALTH.json";
-    const std::string m_healthDir = "/opt/sophos-spl/base/mcs/internal_policy";
-    const mode_t m_statusFileMode = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP;
+        const std::string m_tempDir = "/opt/sophos-spl/tmp";
+        const std::string m_statusFilePath = "/opt/sophos-spl/base/mcs/status/SHS_status.xml";
+        const std::string m_healthFilePath = "/opt/sophos-spl/base/mcs/internal_policy/internal_EPHEALTH.json";
+        const std::string m_healthDir = "/opt/sophos-spl/base/mcs/internal_policy";
+        const mode_t m_statusFileMode = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP;
 
-    StrictMock<MockPluginManager> m_mockPluginManager;
-    std::shared_ptr<ManagementAgent::HealthStatusImpl::HealthStatus> m_healthStatus;
+        StrictMock<MockPluginManager> m_mockPluginManager;
+        std::shared_ptr<ManagementAgent::HealthStatusImpl::HealthStatus> m_healthStatus;
 
-private:
-    Common::Logging::ConsoleLoggingSetup m_loggingSetup;
-};
+    private:
+        Common::Logging::ConsoleLoggingSetup m_loggingSetup;
+    };
+}
 
-TEST_F(HealthTaskTests, run_healthStatusMessageIsUpdatedWhenDifferentFromCachedValue) // NOLINT
+TEST_F(HealthTaskTests, run_healthStatusMessageIsUpdatedWhenDifferentFromCachedValue)
 {
     auto filesystemMock = new StrictMock<MockFileSystem>();
     std::unique_ptr<Tests::ScopedReplaceFileSystem> scopedReplaceFileSystem =
@@ -62,7 +61,7 @@ TEST_F(HealthTaskTests, run_healthStatusMessageIsUpdatedWhenDifferentFromCachedV
     task.run();
 }
 
-TEST_F(HealthTaskTests, run_healthStatusMessageIsNotUpdatedWhenStatusValueHasNotChanged) // NOLINT
+TEST_F(HealthTaskTests, run_healthStatusMessageIsNotUpdatedWhenStatusValueHasNotChanged)
 {
     auto filesystemMock = new StrictMock<MockFileSystem>();
     std::unique_ptr<Tests::ScopedReplaceFileSystem> scopedReplaceFileSystem =
@@ -87,7 +86,7 @@ TEST_F(HealthTaskTests, run_healthStatusMessageIsNotUpdatedWhenStatusValueHasNot
     task2.run();
 }
 
-TEST_F(HealthTaskTests, run_healthStatusMessageIsUpdatedWhenStatusFileFailsToWriteSuccessfully) // NOLINT
+TEST_F(HealthTaskTests, run_healthStatusMessageIsUpdatedWhenStatusFileFailsToWriteSuccessfully)
 {
     auto filesystemMock = new StrictMock<MockFileSystem>();
     std::unique_ptr<Tests::ScopedReplaceFileSystem> scopedReplaceFileSystem =
@@ -134,7 +133,7 @@ TEST_F(HealthTaskTests, run_healthStatusMessageIsUpdatedWhenStatusFileFailsToWri
     task3.run();
 }
 
-TEST_F(HealthTaskTests, run_healthStatusMessageIsUpdatedWithCorrectUtmInformationWhenStatusFileFailsToWriteSuccessfully) // NOLINT
+TEST_F(HealthTaskTests, run_healthStatusMessageIsUpdatedWithCorrectUtmInformationWhenStatusFileFailsToWriteSuccessfully)
 {
     auto filesystemMock = new StrictMock<MockFileSystem>();
     std::unique_ptr<Tests::ScopedReplaceFileSystem> scopedReplaceFileSystem =
@@ -185,7 +184,7 @@ TEST_F(HealthTaskTests, run_healthStatusMessageIsUpdatedWithCorrectUtmInformatio
     task3.run();
 }
 
-TEST_F(HealthTaskTests, run_healthRemovesMissingPluginsIfNotFoundInRegistry) // NOLINT
+TEST_F(HealthTaskTests, run_healthRemovesMissingPluginsIfNotFoundInRegistry)
 {
     auto filesystemMock = new StrictMock<MockFileSystem>();
     std::unique_ptr<Tests::ScopedReplaceFileSystem> scopedReplaceFileSystem =

@@ -1,8 +1,4 @@
-/***********************************************************************************************
-
-Copyright 2021-2021 Sophos Limited. All rights reserved.
-
-***********************************************************************************************/
+// Copyright 2021-2023 Sophos Limited. All rights reserved.
 
 #include "modules/Common/ApplicationConfigurationImpl/ApplicationPathManager.h"
 #include "modules/Common/FileSystem/IFileSystemException.h"
@@ -16,39 +12,41 @@ Copyright 2021-2021 Sophos Limited. All rights reserved.
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
-class HealthStatusTests : public LogInitializedTests
+namespace
 {
-protected:
-    void xmlAttributesContainExpectedValues(
-        const Common::XmlUtilities::AttributesMap& xmlMap,
-        const std::vector<std::string>& xmlPaths,
-        const std::pair<std::string, std::string>& valueToCompare,
-        int expectedNumberOfInstances)
+    class HealthStatusTests : public LogInitializedTests
     {
-        int itemFoundCount = 0;
-
-        SCOPED_TRACE("name: " + valueToCompare.first + ", value: " + valueToCompare.second);
-
-        for (auto& path : xmlPaths)
+    protected:
+        void xmlAttributesContainExpectedValues(
+            const Common::XmlUtilities::AttributesMap& xmlMap,
+            const std::vector<std::string>& xmlPaths,
+            const std::pair<std::string, std::string>& valueToCompare,
+            int expectedNumberOfInstances)
         {
-            auto attributesList = xmlMap.lookup(path);
-            auto obtainedNameString = attributesList.value("name");
-            auto obtainedValue = attributesList.value("value");
-            if (obtainedNameString == valueToCompare.first && obtainedValue == valueToCompare.second)
+            int itemFoundCount = 0;
+
+            SCOPED_TRACE("name: " + valueToCompare.first + ", value: " + valueToCompare.second);
+
+            for (auto& path : xmlPaths)
             {
-                itemFoundCount++;
+                auto attributesList = xmlMap.lookup(path);
+                auto obtainedNameString = attributesList.value("name");
+                auto obtainedValue = attributesList.value("value");
+                if (obtainedNameString == valueToCompare.first && obtainedValue == valueToCompare.second)
+                {
+                    itemFoundCount++;
+                }
             }
+
+            EXPECT_EQ(itemFoundCount, expectedNumberOfInstances)
+                << "name: " + valueToCompare.first + ", value: " + valueToCompare.second;
         }
 
-        EXPECT_EQ(itemFoundCount, expectedNumberOfInstances)
-            << "name: " + valueToCompare.first + ", value: " + valueToCompare.second;
-    }
+        ManagementAgent::HealthStatusImpl::HealthStatus m_status;
+    };
+}
 
-    ManagementAgent::HealthStatusImpl::HealthStatus m_status;
-
-};
-
-TEST_F(HealthStatusTests, healthStatusXML_CreatedCorrectlyWhenGoodServiceHealthValues) // NOLINT
+TEST_F(HealthStatusTests, healthStatusXML_CreatedCorrectlyWhenGoodServiceHealthValues)
 {
     ManagementAgent::PluginCommunication::PluginHealthStatus pluginStatusOne;
     pluginStatusOne.healthType = ManagementAgent::PluginCommunication::HealthType::SERVICE;
@@ -76,7 +74,7 @@ TEST_F(HealthStatusTests, healthStatusXML_CreatedCorrectlyWhenGoodServiceHealthV
     xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("Test Plugin Two", "0"), 1);
 }
 
-TEST_F(HealthStatusTests, healthStatusXML_CreatedCorrectlyWithOneBadServiceHealthValues) // NOLINT
+TEST_F(HealthStatusTests, healthStatusXML_CreatedCorrectlyWithOneBadServiceHealthValues)
 {
     ManagementAgent::PluginCommunication::PluginHealthStatus pluginStatusOne;
     pluginStatusOne.healthType = ManagementAgent::PluginCommunication::HealthType::SERVICE;
@@ -104,7 +102,7 @@ TEST_F(HealthStatusTests, healthStatusXML_CreatedCorrectlyWithOneBadServiceHealt
     xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("Test Plugin Two", "1"), 1);
 }
 
-TEST_F(HealthStatusTests, healthStatusXML_CreatedCorrectlyWhenGoodThreatServiceHealthValues) // NOLINT
+TEST_F(HealthStatusTests, healthStatusXML_CreatedCorrectlyWhenGoodThreatServiceHealthValues)
 {
     ManagementAgent::PluginCommunication::PluginHealthStatus pluginStatusOne;
     pluginStatusOne.healthType = ManagementAgent::PluginCommunication::HealthType::THREAT_SERVICE;
@@ -132,7 +130,7 @@ TEST_F(HealthStatusTests, healthStatusXML_CreatedCorrectlyWhenGoodThreatServiceH
     xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("Test Plugin Two", "0"), 1);
 }
 
-TEST_F(HealthStatusTests, healthStatusXML_CreatedCorrectlyWithOneBadThreatServiceHealthValues) // NOLINT
+TEST_F(HealthStatusTests, healthStatusXML_CreatedCorrectlyWithOneBadThreatServiceHealthValues)
 {
     ManagementAgent::PluginCommunication::PluginHealthStatus pluginStatusOne;
     pluginStatusOne.healthType = ManagementAgent::PluginCommunication::HealthType::THREAT_SERVICE;
@@ -160,7 +158,7 @@ TEST_F(HealthStatusTests, healthStatusXML_CreatedCorrectlyWithOneBadThreatServic
     xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("Test Plugin Two", "1"), 1);
 }
 
-TEST_F(HealthStatusTests, healthStatusXML_CreatedCorrectlyForServiceAndThreatServiceHealthValues) // NOLINT
+TEST_F(HealthStatusTests, healthStatusXML_CreatedCorrectlyForServiceAndThreatServiceHealthValues)
 {
     ManagementAgent::PluginCommunication::PluginHealthStatus pluginStatusOne;
     pluginStatusOne.healthType = ManagementAgent::PluginCommunication::HealthType::SERVICE_AND_THREAT;
@@ -188,7 +186,7 @@ TEST_F(HealthStatusTests, healthStatusXML_CreatedCorrectlyForServiceAndThreatSer
     xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("Test Plugin Two", "1"), 2);
 }
 
-TEST_F(HealthStatusTests, healthStatusXML_CreatedCorrectlyForThreatDetectionsHealthValues) // NOLINT
+TEST_F(HealthStatusTests, healthStatusXML_CreatedCorrectlyForThreatDetectionsHealthValues)
 {
     ManagementAgent::PluginCommunication::PluginHealthStatus pluginStatusOne;
     pluginStatusOne.healthType = ManagementAgent::PluginCommunication::HealthType::THREAT_DETECTION;
@@ -216,7 +214,7 @@ TEST_F(HealthStatusTests, healthStatusXML_CreatedCorrectlyForThreatDetectionsHea
     xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("Test Plugin Two", "1"), 0);
 }
 
-TEST_F(HealthStatusTests, healthStatusXML_CreatedCorrectlyForMultipleValuesForTypesAndServiceHealth) // NOLINT
+TEST_F(HealthStatusTests, healthStatusXML_CreatedCorrectlyForMultipleValuesForTypesAndServiceHealth)
 {
     ManagementAgent::PluginCommunication::PluginHealthStatus pluginServiceStatusOne;
     pluginServiceStatusOne.healthType = ManagementAgent::PluginCommunication::HealthType::SERVICE;
@@ -284,7 +282,7 @@ TEST_F(HealthStatusTests, healthStatusXML_CreatedCorrectlyForMultipleValuesForTy
     xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("Test Plugin Service And Threat One", "2"), 2);
 }
 
-TEST_F(HealthStatusTests, healthStatusXML_StatusMarkedAsUnchangedWhenStatusNotChanged) // NOLINT
+TEST_F(HealthStatusTests, healthStatusXML_StatusMarkedAsUnchangedWhenStatusNotChanged)
 {
     ManagementAgent::PluginCommunication::PluginHealthStatus pluginStatusOne;
     pluginStatusOne.healthType = ManagementAgent::PluginCommunication::HealthType::SERVICE;
@@ -308,7 +306,7 @@ TEST_F(HealthStatusTests, healthStatusXML_StatusMarkedAsUnchangedWhenStatusNotCh
     EXPECT_FALSE(xmlStatus2.hasStatusChanged);
 }
 
-TEST_F(HealthStatusTests, healthStatusXML_StatusMarkedAsUnchangedWhenStatusReordedAndNotChanged) // NOLINT
+TEST_F(HealthStatusTests, healthStatusXML_StatusMarkedAsUnchangedWhenStatusReordedAndNotChanged)
 {
     ManagementAgent::PluginCommunication::PluginHealthStatus pluginStatusOne;
     pluginStatusOne.healthType = ManagementAgent::PluginCommunication::HealthType::SERVICE;
@@ -328,7 +326,7 @@ TEST_F(HealthStatusTests, healthStatusXML_StatusMarkedAsUnchangedWhenStatusReord
     EXPECT_FALSE(xmlStatus2.hasStatusChanged);
 }
 
-TEST_F(HealthStatusTests, healthStatusXML_ResetThreatDetectionHealthMakesAllThreatDetectionPluginsHealthy) // NOLINT
+TEST_F(HealthStatusTests, healthStatusXML_ResetThreatDetectionHealthMakesAllThreatDetectionPluginsHealthy)
 {
     ManagementAgent::PluginCommunication::PluginHealthStatus pluginStatusJustService;
     pluginStatusJustService.healthType = ManagementAgent::PluginCommunication::HealthType::SERVICE;
@@ -384,7 +382,7 @@ TEST_F(HealthStatusTests, healthStatusXML_ResetThreatDetectionHealthMakesAllThre
     xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("Plugin With Threat Service Health", "3"), 1);
 }
 
-TEST_F(HealthStatusTests, healthStatusXML_ResetThreatDetectionHealthMakesSingleThreatDetectionPluginHealthy) // NOLINT
+TEST_F(HealthStatusTests, healthStatusXML_ResetThreatDetectionHealthMakesSingleThreatDetectionPluginHealthy)
 {
     ManagementAgent::PluginCommunication::PluginHealthStatus pluginStatusThreatDetection;
     pluginStatusThreatDetection.healthType = ManagementAgent::PluginCommunication::HealthType::THREAT_DETECTION;
@@ -414,7 +412,7 @@ TEST_F(HealthStatusTests, healthStatusXML_ResetThreatDetectionHealthMakesSingleT
     xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("threat", "1"), 1);
 }
 
-TEST_F(HealthStatusTests, healthStatusXML_ResetThreatDetectionHealthHasNoEffectIfThereAreNoThreatDetectionPlugins) // NOLINT
+TEST_F(HealthStatusTests, healthStatusXML_ResetThreatDetectionHealthHasNoEffectIfThereAreNoThreatDetectionPlugins)
 {
     ManagementAgent::PluginCommunication::PluginHealthStatus pluginServiceStatusOne;
     pluginServiceStatusOne.healthType = ManagementAgent::PluginCommunication::HealthType::SERVICE;
@@ -514,7 +512,7 @@ TEST_F(HealthStatusTests, healthStatusXML_ResetThreatDetectionHealthHasNoEffectI
     xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("Test Plugin Service And Threat One", "2"), 2);
 }
 
-TEST_F(HealthStatusTests, healthStatusXML_ResetThreatDetectionHealthHasNoEffectWhenThreatIsAlreadyHealthy) // NOLINT
+TEST_F(HealthStatusTests, healthStatusXML_ResetThreatDetectionHealthHasNoEffectWhenThreatIsAlreadyHealthy)
 {
     ManagementAgent::PluginCommunication::PluginHealthStatus pluginStatusThreatDetection;
     pluginStatusThreatDetection.healthType = ManagementAgent::PluginCommunication::HealthType::THREAT_DETECTION;
@@ -562,7 +560,7 @@ TEST_F(HealthStatusTests, healthStatusXML_ResetThreatDetectionHealthHasNoEffectW
     xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("health", "1"), 1);
     xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("threat", "1"), 1);
 }
-TEST_F(HealthStatusTests, HealthStatusConstructorDestructorValidJsonTest) // NOLINT
+TEST_F(HealthStatusTests, HealthStatusConstructorDestructorValidJsonTest)
 {
     auto mockFileSystem = new StrictMock<MockFileSystem>();
     std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
@@ -585,7 +583,7 @@ TEST_F(HealthStatusTests, HealthStatusConstructorDestructorValidJsonTest) // NOL
     }
 }
 
-TEST_F(HealthStatusTests, HealthStatusConstructorDestructorInvalidJsonTest) // NOLINT
+TEST_F(HealthStatusTests, HealthStatusConstructorDestructorInvalidJsonTest)
 {
     auto mockFileSystem = new StrictMock<MockFileSystem>();
     std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
@@ -610,7 +608,7 @@ TEST_F(HealthStatusTests, HealthStatusConstructorDestructorInvalidJsonTest) // N
     }
 }
 
-TEST_F(HealthStatusTests, HealthStatusConstructorDestructorInvalidNoJsonFileTest) // NOLINT
+TEST_F(HealthStatusTests, HealthStatusConstructorDestructorInvalidNoJsonFileTest)
 {
     auto mockFileSystem = new StrictMock<MockFileSystem>();
     std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
@@ -630,7 +628,7 @@ TEST_F(HealthStatusTests, HealthStatusConstructorDestructorInvalidNoJsonFileTest
     }
 }
 
-TEST_F(HealthStatusTests, HealthStatusConstructorDestructorReadThrowsFileTest) // NOLINT
+TEST_F(HealthStatusTests, HealthStatusConstructorDestructorReadThrowsFileTest)
 {
     auto mockFileSystem = new StrictMock<MockFileSystem>();
     std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
@@ -655,7 +653,7 @@ TEST_F(HealthStatusTests, HealthStatusConstructorDestructorReadThrowsFileTest) /
     }
 }
 
-TEST_F(HealthStatusTests, HealthStatusDoesNotAddPluginHealthWithEmptyName) // NOLINT
+TEST_F(HealthStatusTests, HealthStatusDoesNotAddPluginHealthWithEmptyName)
 {
     ManagementAgent::PluginCommunication::PluginHealthStatus pluginStatusOne;
     pluginStatusOne.healthType = ManagementAgent::PluginCommunication::HealthType::SERVICE;
@@ -671,7 +669,7 @@ TEST_F(HealthStatusTests, HealthStatusDoesNotAddPluginHealthWithEmptyName) // NO
 }
 
 
-TEST_F(HealthStatusTests, healthStatusXML_IncludesCorrectUTMInformation) // NOLINT
+TEST_F(HealthStatusTests, healthStatusXML_IncludesCorrectUTMInformation)
 {
     ManagementAgent::PluginCommunication::PluginHealthStatus pluginOne;
     pluginOne.healthType = ManagementAgent::PluginCommunication::HealthType::SERVICE;

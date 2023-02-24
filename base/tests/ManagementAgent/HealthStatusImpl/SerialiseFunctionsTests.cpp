@@ -1,8 +1,4 @@
-/***********************************************************************************************
-
-Copyright 2021 Sophos Limited. All rights reserved.
-
-***********************************************************************************************/
+// Copyright 2021-2023 Sophos Limited. All rights reserved.
 
 #include "modules/Common/FileSystem/IFileSystemException.h"
 #include "modules/Common/Logging/ConsoleLoggingSetup.h"
@@ -12,13 +8,16 @@ Copyright 2021 Sophos Limited. All rights reserved.
 
 #include <gtest/gtest.h>
 
-class SerialiseFunctionsTests : public testing::Test
+namespace
 {
-private:
-    Common::Logging::ConsoleLoggingSetup m_loggingSetup;
-};
+    class SerialiseFunctionsTests : public testing::Test
+    {
+    private:
+        Common::Logging::ConsoleLoggingSetup m_loggingSetup;
+    };
+}
 
-TEST_F(SerialiseFunctionsTests, serialiseThreatDetectionPluginHealthStatusObj) // NOLINT
+TEST_F(SerialiseFunctionsTests, serialiseThreatDetectionPluginHealthStatusObj)
 {
     std::map<std::string, ManagementAgent::PluginCommunication::PluginHealthStatus> pluginHealthStatusMap;
 
@@ -38,7 +37,7 @@ TEST_F(SerialiseFunctionsTests, serialiseThreatDetectionPluginHealthStatusObj) /
         R"({"AV":{"displayName":"AV Plugin","healthType":4,"healthValue":123},"RTD":{"displayName":"RTD Plugin","healthType":4,"healthValue":789}})");
 }
 
-TEST_F(SerialiseFunctionsTests, deserialiseThreatDetectionPluginHealthStatusObj) // NOLINT
+TEST_F(SerialiseFunctionsTests, deserialiseThreatDetectionPluginHealthStatusObj)
 {
     std::map<std::string, ManagementAgent::PluginCommunication::PluginHealthStatus> pluginHealthStatusMapExpected;
 
@@ -59,7 +58,7 @@ TEST_F(SerialiseFunctionsTests, deserialiseThreatDetectionPluginHealthStatusObj)
     ASSERT_EQ(pluginHealthStatusMap, pluginHealthStatusMapExpected);
 }
 
-TEST_F(SerialiseFunctionsTests, compareAndUpdateOverallHealthWhenHealthDoesNotChange) // NOLINT
+TEST_F(SerialiseFunctionsTests, compareAndUpdateOverallHealthWhenHealthDoesNotChange)
 {
     auto filesystemMock = new NiceMock<MockFileSystem>();
     std::string contents = "{\"health\":1,\"service\":1,\"threat\":1,\"threatService\":1}";
@@ -70,7 +69,7 @@ TEST_F(SerialiseFunctionsTests, compareAndUpdateOverallHealthWhenHealthDoesNotCh
     EXPECT_EQ(info.first,false);
 }
 
-TEST_F(SerialiseFunctionsTests, compareAndUpdateOverallHealthWhenHealthGoesBad) // NOLINT
+TEST_F(SerialiseFunctionsTests, compareAndUpdateOverallHealthWhenHealthGoesBad)
 {
     auto filesystemMock = new NiceMock<MockFileSystem>();
     std::string contents = "{\"health\":1,\"service\":1,\"threat\":1,\"threatService\":1}";
@@ -83,7 +82,7 @@ TEST_F(SerialiseFunctionsTests, compareAndUpdateOverallHealthWhenHealthGoesBad) 
     EXPECT_EQ(info.second,expected);
 }
 
-TEST_F(SerialiseFunctionsTests, compareAndUpdateOverallHealthReturnNewHealthIfParsingOldHealthFails) // NOLINT
+TEST_F(SerialiseFunctionsTests, compareAndUpdateOverallHealthReturnNewHealthIfParsingOldHealthFails)
 {
     auto filesystemMock = new NiceMock<MockFileSystem>();
     std::string contents = "{\"health\":2,\"service\":2,\"threat\":1,\"threatService\":1}";
@@ -97,7 +96,7 @@ TEST_F(SerialiseFunctionsTests, compareAndUpdateOverallHealthReturnNewHealthIfPa
 
 }
 
-TEST_F(SerialiseFunctionsTests, compareAndUpdateOverallHealthReturnsNewHealthWhenNoOldHealth) // NOLINT
+TEST_F(SerialiseFunctionsTests, compareAndUpdateOverallHealthReturnsNewHealthWhenNoOldHealth)
 {
     auto filesystemMock = new NiceMock<MockFileSystem>();
     std::string contents = "{\"health\":2,\"service\":2,\"threat\":1,\"threatService\":1}";
