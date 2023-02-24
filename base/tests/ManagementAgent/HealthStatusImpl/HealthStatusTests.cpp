@@ -214,6 +214,47 @@ TEST_F(HealthStatusTests, healthStatusXML_CreatedCorrectlyForThreatDetectionsHea
     xmlAttributesContainExpectedValues(xmlMap, xmlPaths, std::make_pair("Test Plugin Two", "1"), 0);
 }
 
+using namespace ManagementAgent::HealthStatusImpl;
+namespace
+{
+    bool checkThreatHealthEq( const HealthStatus::HealthInfo& info,
+                     HealthStatus::healthValue_t expectedThreatHealth
+                     )
+    {
+        auto xmlString = info.statusXML;
+        auto xmlMap = Common::XmlUtilities::parseXml(xmlString);
+        auto xmlPaths = xmlMap.entitiesThatContainPath("health/item", true);
+
+        for (const auto& path : xmlPaths)
+        {
+            const auto m = xmlMap.lookup(path);
+            auto obtainedNameString = m.value("name");
+            auto obtainedValue = m.value("value");
+            if (obtainedNameString != "threat")
+            {
+                continue;
+            }
+            HealthStatus::healthValue_t actualThreatHealth = std::stoi(obtainedValue);
+            return actualThreatHealth == expectedThreatHealth;
+        }
+        return false;
+    }
+}
+
+TEST_F(HealthStatusTests, outbreakModeMakesHealthRed)
+{
+    auto status = m_status.generateHealthStatusXml();
+    EXPECT_TRUE(checkThreatHealthEq(status, 1)); // Green
+
+    m_status.setOutbreakMode(true);
+    status = m_status.generateHealthStatusXml();
+    EXPECT_TRUE(checkThreatHealthEq(status, 3)); // Red
+
+    m_status.setOutbreakMode(false);
+    status = m_status.generateHealthStatusXml();
+    EXPECT_TRUE(checkThreatHealthEq(status, 1)); // Green
+}
+
 TEST_F(HealthStatusTests, healthStatusXML_CreatedCorrectlyForMultipleValuesForTypesAndServiceHealth)
 {
     ManagementAgent::PluginCommunication::PluginHealthStatus pluginServiceStatusOne;

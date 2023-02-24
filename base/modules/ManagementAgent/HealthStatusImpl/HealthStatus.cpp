@@ -119,14 +119,18 @@ namespace ManagementAgent
             m_overallPluginThreatServiceHealth = healthValue;
 
             healthValue = 1;
-            for (const auto& health : m_pluginThreatDetectionHealth)
-            {
-                healthValue = std::max(health.second.healthValue, healthValue);
-            }
             if (outbreakStatus_)
             {
                 // In outbreak mode force threat Health to RED
-                healthValue = 2; // Straight to bad
+                healthValue = 3; // Straight to bad
+            }
+            else
+            {
+                // Otherwise we check each plugin for threat Detection health
+                for (const auto& health : m_pluginThreatDetectionHealth)
+                {
+                    healthValue = std::max(health.second.healthValue, healthValue);
+                }
             }
             m_overallPluginThreatDetectionHealth = healthValue;
 
