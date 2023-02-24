@@ -314,14 +314,20 @@ void Watchdog::writeExecutableUserAndGroupToWatchdogConfig()
             }
         }
     }
-    pluginConfigs.clear();
 
     try
     {
         nlohmann::json watchdogConfig;
         if (fileSystem->isFile(watchdogConfigPath))
         {
-            watchdogConfig = nlohmann::json::parse(fileSystem->readFile(watchdogConfigPath));
+            try
+            {
+                watchdogConfig = nlohmann::json::parse(fileSystem->readFile(watchdogConfigPath));
+            }
+            catch (nlohmann::json::parse_error& ex)
+            {
+                LOGWARN("Overwriting existing watchdog config as " << watchdogConfigPath << " could not be read due to: " << ex.what());
+            }
         }
 
         for (const std::string& user: users)
@@ -342,9 +348,5 @@ void Watchdog::writeExecutableUserAndGroupToWatchdogConfig()
     catch (Common::FileSystem::IFileSystemException& error)
     {
         LOGERROR(error.what());
-    }
-    catch (nlohmann::json::parse_error& ex)
-    {
-        LOGERROR("Failed to read " << watchdogConfigPath << ": " << ex.what());
     }
 }
