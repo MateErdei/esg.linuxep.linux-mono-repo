@@ -212,27 +212,36 @@ void ManagementAgent::EventReceiverImpl::OutbreakModeController::processAction(c
         return;
     }
     LOGDEBUG("Considering action: " << actionXml);
-    auto xml = Common::XmlUtilities::parseXml(actionXml);
-    auto action = xml.lookup("action");
-    if (action.value("type", "") == "sophos.core.threat.sav.clear")
+
+    try
     {
-        auto items = xml.lookupMultiple("action/item");
-        for (const auto& item : items)
+        auto xml = Common::XmlUtilities::parseXml(actionXml);
+        auto action = xml.lookup("action");
+        if (action.value("type", "") == "sophos.core.threat.sav.clear")
         {
-            if (item.value("id") == uuid_)
+            auto items = xml.lookupMultiple("action/item");
+            for (const auto& item : items)
             {
-                leaveOutbreakMode();
-                return; // no point searching further
-            }
-            else
-            {
-                LOGDEBUG("Ignoring clear action with UUID=" << item.value("id"));
+                if (item.value("id") == uuid_)
+                {
+                    leaveOutbreakMode();
+                    return; // no point searching further
+                }
+                else
+                {
+                    LOGDEBUG("Ignoring clear action with UUID=" << item.value("id"));
+                }
             }
         }
+        else
+        {
+            LOGDEBUG("Ignoring action that isn't clear: " << actionXml);
+        }
     }
-    else
+    catch (const Common::XmlUtilities::XmlUtilitiesException& ex)
     {
-        LOGDEBUG("Ignoring action that isn't clear: " << actionXml);
+        // Ignore action XML that are invalid
+        LOGERROR("Failed to parse action XML: " << actionXml << ": " << ex.what());
     }
 }
 

@@ -114,6 +114,19 @@ TEST_F(TestOutbreakModeController, construction)
     EXPECT_NO_THROW(std::make_shared<OutbreakModeController>());
 }
 
+TEST_F(TestOutbreakModeController, handle_invalid_event_xml)
+{
+    /*
+     * Still counted, since we are just doing prefix string matching for events.
+     */
+    std::string xml = R"sophos(<?xml version="1.0" encoding="utf-8"?>
+<event type="sophos.core.detection" ts="1970-01-01T00:02:03.000Z">
+  <user userId="username"/>
+  <alert id="fedcba98)sophos";
+    auto controller = std::make_shared<OutbreakModeController>();
+    processEventThrowAwayArgs(controller, "CORE", xml);
+}
+
 TEST_F(TestOutbreakModeController, entering_outbreak_mode)
 {
     const std::string detection_xml = DETECTION_XML;
@@ -497,6 +510,27 @@ TEST_F(TestOutbreakModeController, ignore_irrelevant_action)
     EXPECT_TRUE(controller->outbreakMode());
 }
 
+TEST_F(TestOutbreakModeController, ignore_missing_item_in_action_xml)
+{
+    auto controller = std::make_shared<OutbreakModeController>();
+    EXPECT_FALSE(controller->outbreakMode());
+    enterOutbreakMode(controller);
+    ASSERT_TRUE(controller->outbreakMode());
+
+    controller->processAction(R"(<?xml version="1.0"?><action type="sophos.core.threat.sav.clear"></action>)");
+    EXPECT_TRUE(controller->outbreakMode());
+}
+
+TEST_F(TestOutbreakModeController, ignore_broken_action_xml)
+{
+    auto controller = std::make_shared<OutbreakModeController>();
+    EXPECT_FALSE(controller->outbreakMode());
+    enterOutbreakMode(controller);
+    ASSERT_TRUE(controller->outbreakMode());
+
+    controller->processAction(R"(<?xml version="1.0"?><action)");
+    EXPECT_TRUE(controller->outbreakMode());
+}
 
 TEST_F(TestOutbreakModeController, ignore_wrong_id_clearing_outbreak_mode)
 {
