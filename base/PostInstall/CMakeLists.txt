@@ -33,33 +33,6 @@ INSTALL(CODE "MESSAGE(STATUS \"Copying addSymbol script to ${SYMBOLS_DIR}\")
         message(STATUS \"Failed to copy symbols to output: ${STATUS}\")
     endif()")
 
-# Generate SDDS2 manifests
-INSTALL(CODE "MESSAGE(STATUS \"Generating base SDDS2 manifests\")
-    set(ENV{PRODUCT_NAME} \"${PRODUCT_NAME}\")
-    set(ENV{PRODUCT_LINE_ID} \"${PRODUCT_LINE_ID}\")
-    set(ENV{DEFAULT_HOME_FOLDER} \"${DEFAULT_HOME_FOLDER}\")
-    set(ENV{FEATURE_LIST} \"${FEATURE_LIST}\")
-    set(ENV{VERSION} \"${PRODUCT_VERSION}\")
-    execute_process(
-        COMMAND python3 ${GENERATE_SDDS_IMPORT_MANIFEST_DAT} ${DIST}/${BASE_DIST_PREFIX} ${CMAKE_BUILD_TYPE} ${CMAKE_SOURCE_DIR}
-        RESULT_VARIABLE STATUS)
-    if(STATUS AND NOT STATUS EQUAL 0)
-        message(FATAL_ERROR \"Failed to generate SDDS2 manifests: ${STATUS}\")
-    endif()")
-
-INSTALL(CODE "MESSAGE(STATUS \"Generating ra SDDS2 manifests\")
-    set(ENV{PRODUCT_NAME} \"${RA_PRODUCT_NAME}\")
-    set(ENV{PRODUCT_LINE_ID} \"${RA_PRODUCT_LINE_ID}\")
-    set(ENV{DEFAULT_HOME_FOLDER} \"${DEFAULT_HOME_FOLDER}\")
-    set(ENV{FEATURE_LIST} \"${RA_FEATURE_LIST}\")
-    set(ENV{VERSION} \"${RA_PRODUCT_VERSION}\")
-    execute_process(
-        COMMAND python3 ${GENERATE_SDDS_IMPORT_MANIFEST_DAT} ${DIST}/${RA_DIST_PREFIX} ${CMAKE_BUILD_TYPE} ${CMAKE_SOURCE_DIR}
-        RESULT_VARIABLE STATUS)
-    if(STATUS AND NOT STATUS EQUAL 0)
-        message(FATAL_ERROR \"Failed to generate SDDS2 manifests: ${STATUS}\")
-    endif()")
-
 # Generate SDDS3 manifests
 if (NOT EXISTS ${INPUT}/sdds3/sdds3-builder)
     message(FATAL_ERROR "Could not find SDDS3 Builder: ${INPUT}/sdds3/sdds3-builder")
@@ -84,19 +57,12 @@ INSTALL(CODE "MESSAGE(STATUS \"Generating ra SDDS3 manifests\")
 
 # Generate the output dir to be published
 INSTALL(CODE "MESSAGE(STATUS \"Generating output directory\")
-    execute_process(COMMAND mkdir -p ${OUTPUT})
-    execute_process(COMMAND rm -rf ${OUTPUT}/SDDS-COMPONENT)
-    execute_process(COMMAND cp -a ${DIST}/${BASE_DIST_PREFIX} ${OUTPUT}/SDDS-COMPONENT)
-    execute_process(COMMAND rm -rf ${OUTPUT}/RA-SDDS-COMPONENT)
-    execute_process(COMMAND cp -a ${DIST}/${RA_DIST_PREFIX} ${OUTPUT}/RA-SDDS-COMPONENT)
-if (DEFINED ENV{SDDS3})
     execute_process(COMMAND rm -rf ${OUTPUT}/SDDS3-COMPONENT)
     execute_process(COMMAND cp -a ${CMAKE_BINARY_DIR}/SDDS3-PACKAGE ${OUTPUT}/SDDS3-PACKAGE)
     execute_process(COMMAND cp -a ${DIST}/${BASE_DIST_PREFIX}/SDDS-Import.xml ${OUTPUT}/SDDS3-PACKAGE/)
     execute_process(COMMAND rm -rf ${OUTPUT}/RA-SDDS3-COMPONENT)
     execute_process(COMMAND cp -a ${CMAKE_BINARY_DIR}/RA-SDDS3-PACKAGE ${OUTPUT}/RA-SDDS3-PACKAGE)
     execute_process(COMMAND cp -a ${DIST}/${RA_DIST_PREFIX}/SDDS-Import.xml ${OUTPUT}/RA-SDDS3-PACKAGE/)
-endif()
     execute_process(COMMAND cp -a ${CMAKE_BINARY_DIR}/products/PluginApi/pluginapi.tar.gz ${OUTPUT}/pluginapi.tar.gz)
     execute_process(COMMAND tar -zcvf ${OUTPUT}/SystemProductTestOutput.tar.gz -C ${CMAKE_BINARY_DIR} SystemProductTestOutput/)
     execute_process(COMMAND bash -c \"[[ -d ${CMAKE_BINARY_DIR}/symbols/base ]] && cp -a ${CMAKE_BINARY_DIR}/symbols/base ${OUTPUT}/base-symbols && echo copied base symbols to output \")
