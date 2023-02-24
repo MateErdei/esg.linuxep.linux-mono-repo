@@ -1,8 +1,4 @@
-/***********************************************************************************************
-
-Copyright 2021-2021 Sophos Limited. All rights reserved.
-
-***********************************************************************************************/
+// Copyright 2021-2023 Sophos Limited. All rights reserved.
 
 #include "HealthTask.h"
 
@@ -24,13 +20,14 @@ namespace ManagementAgent
         void HealthTask::run()
         {
             LOGDEBUG("Process health task");
+            auto healthStatus = m_pluginManager.getSharedHealthStatusObj();
 
             std::map<std::string, PluginCommunication::PluginHealthStatus> prevServiceHealth =
-                m_pluginManager.getSharedHealthStatusObj()->getPluginServiceHealthLists();
+                healthStatus->getPluginServiceHealthLists();
             std::map<std::string, PluginCommunication::PluginHealthStatus> prevThreatServiceHealth =
-                m_pluginManager.getSharedHealthStatusObj()->getPluginThreatServiceHealthLists();
+                healthStatus->getPluginThreatServiceHealthLists();
 
-            m_pluginManager.getSharedHealthStatusObj()->resetPluginHealthLists();
+            healthStatus->resetPluginHealthLists();
 
             for (const auto& pluginName : m_pluginManager.getRegisteredPluginNames())
             {
@@ -61,7 +58,7 @@ namespace ManagementAgent
                 }
                 else
                 {
-                    m_pluginManager.getSharedHealthStatusObj()->addPluginHealth(pluginName, pluginHealthStatus);
+                    healthStatus->addPluginHealth(pluginName, pluginHealthStatus);
                 }
 
             }
@@ -71,9 +68,9 @@ namespace ManagementAgent
             mcsRouterHealthStatus.healthValue = 0;
             mcsRouterHealthStatus.healthType = ManagementAgent::PluginCommunication::HealthType::SERVICE_AND_THREAT;
             mcsRouterHealthStatus.displayName = "Sophos MCS Client";
-            m_pluginManager.getSharedHealthStatusObj()->addPluginHealth("MCS", mcsRouterHealthStatus);
+            healthStatus->addPluginHealth("MCS", mcsRouterHealthStatus);
 
-            HealthStatus::HealthInfo statusXmlResult =  m_pluginManager.getSharedHealthStatusObj()->generateHealthStatusXml();
+            HealthStatus::HealthInfo statusXmlResult =  healthStatus->generateHealthStatusXml();
 
             Path tempDir = Common::ApplicationConfiguration::applicationPathManager().getTempPath();
             Path statusDir = Common::ApplicationConfiguration::applicationPathManager().getMcsStatusFilePath();

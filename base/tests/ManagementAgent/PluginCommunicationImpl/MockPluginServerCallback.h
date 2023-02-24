@@ -19,6 +19,7 @@ namespace
     public:
         MOCK_METHOD2(receivedSendEvent, void(const std::string&, const std::string&));
         MOCK_METHOD(void, handleAction, (const std::string& actionXml), (override));
+        MOCK_METHOD(bool, outbreakMode, (), (const, override));
         
         MOCK_METHOD2(receivedChangeStatus, void(const std::string&, const Common::PluginApi::StatusInfo&));
         MOCK_METHOD0(shutdown, void());

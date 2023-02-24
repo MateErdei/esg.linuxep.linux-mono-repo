@@ -117,5 +117,15 @@ namespace ManagementAgent
             }
             return successful;
         }
+
+        bool PluginServerCallback::outbreakMode() const
+        {
+            assert(m_eventReceiver);
+            if (m_eventReceiver)
+            {
+                return m_eventReceiver->outbreakMode();
+            }
+            return false;
+        }
     } // namespace PluginCommunicationImpl
 } // namespace ManagementAgent

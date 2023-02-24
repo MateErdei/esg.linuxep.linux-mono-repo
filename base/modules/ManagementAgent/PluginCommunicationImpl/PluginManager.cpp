@@ -74,10 +74,8 @@ namespace ManagementAgent
                     << exception.what());
             }
 
-            std::shared_ptr<PluginServerCallback> serverCallback = std::make_shared<PluginServerCallback>(*this);
-            m_serverCallbackHandler = std::make_unique<PluginServerCallbackHandler>
-                (std::move(replier), serverCallback, m_healthStatus);
-            m_serverCallbackHandler->start();
+            auto serverCallback = std::make_shared<PluginServerCallback>(*this);
+            setServerCallback(std::move(serverCallback), std::move(replier));
         }
 
         PluginManager::~PluginManager()
@@ -170,11 +168,14 @@ namespace ManagementAgent
                 if (isThreatResetTask(xml))
                 {
                     LOGDEBUG("Processing Health Reset Action.");
+                    assert(m_healthStatus);
                     m_healthStatus->resetThreatDetectionHealth();
                 }
                 if (eventReceiver_)
                 {
                     eventReceiver_->handleAction(xml);
+                    assert(m_healthStatus);
+                    m_healthStatus->setOutbreakMode(eventReceiver_->outbreakMode());
                 }
             }
 

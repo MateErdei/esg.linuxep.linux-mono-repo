@@ -20,6 +20,11 @@ namespace ManagementAgent
 
             void handleAction(const std::string& actionXml) override;
 
+            [[nodiscard]] bool outbreakMode() const override
+            {
+                return outbreakModeController_->outbreakMode();
+            }
+
         private:
             Common::TaskQueue::ITaskQueueSharedPtr m_taskQueue;
             OutbreakModeControllerPtr outbreakModeController_;

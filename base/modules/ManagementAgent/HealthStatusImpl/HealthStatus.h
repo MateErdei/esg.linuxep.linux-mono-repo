@@ -1,8 +1,4 @@
-/***********************************************************************************************
-
-Copyright 2021-2021 Sophos Limited. All rights reserved.
-
-***********************************************************************************************/
+// Copyright 2021-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
@@ -18,6 +14,7 @@ namespace ManagementAgent
         class HealthStatus
         {
         public:
+            using healthValue_t = PluginCommunication::PluginHealthStatus::healthValue_t;
             HealthStatus();
             ~HealthStatus();
             struct HealthInfo
@@ -58,7 +55,8 @@ namespace ManagementAgent
 
             /**
              * generates a xml string to be used for the health status sent to central.
-             * @return pair<bool, string> true if status has changes false otherwise, and the status xml string
+             * generates a JSON of the health status
+             * @return HealthInfo with true if status has changes false otherwise, and the status xml string
              */
             HealthInfo generateHealthStatusXml();
 
@@ -67,27 +65,33 @@ namespace ManagementAgent
              */
             void resetCachedHealthStatusXml();
 
+            void setOutbreakMode(bool outbreakStatus)
+            {
+                outbreakStatus_ = outbreakStatus;
+            }
+
         private:
-            unsigned int convertDetailedValueToOverallValue(unsigned int value);
+            static healthValue_t convertDetailedValueToOverallValue(healthValue_t value);
             void updateOverallHealthStatus();
-            void updateServiceHealthXml(
+            static void updateServiceHealthXml(
                 const std::string& typeName,
                 std::stringstream& statusXml,
                 std::map<std::string, PluginCommunication::PluginHealthStatus>& healthMap,
-                unsigned int overallHealthValue);
+                healthValue_t overallHealthValue);
             void storeThreatHealth();
             void loadThreatHealth();
 
             std::map<std::string, PluginCommunication::PluginHealthStatus> m_pluginServiceHealth;
             std::map<std::string, PluginCommunication::PluginHealthStatus> m_pluginThreatServiceHealth;
             std::map<std::string, PluginCommunication::PluginHealthStatus> m_pluginThreatDetectionHealth;
-            unsigned int m_overallHealth;
-            unsigned int m_overallPluginServiceHealth;
-            unsigned int m_overallPluginThreatServiceHealth;
-            unsigned int m_overallPluginThreatDetectionHealth;
+            healthValue_t m_overallHealth = 0;
+            healthValue_t m_overallPluginServiceHealth = 0;
+            healthValue_t m_overallPluginThreatServiceHealth = 0;
+            healthValue_t m_overallPluginThreatDetectionHealth = 0;
             std::string m_activeHeartbeatUtmId;
-            bool m_activeHeartbeat;
             std::string m_cachedHealthStatusXml;
+            bool m_activeHeartbeat = false;
+            bool outbreakStatus_ = false;
         };
     } // namespace HealthStatusImpl
 } // namespace ManagementAgent

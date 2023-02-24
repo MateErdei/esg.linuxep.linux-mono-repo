@@ -1,8 +1,4 @@
-/***********************************************************************************************
-
-Copyright 2021-2021 Sophos Limited. All rights reserved.
-
-***********************************************************************************************/
+// Copyright 2021-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
@@ -23,6 +19,21 @@ namespace ManagementAgent
 
         struct PluginHealthStatus
         {
+            /**
+             * Integer values from
+             * https://sophos.atlassian.net/wiki/spaces/SophosCloud/pages/42132014794/EMP+status-health
+             * For detail values:
+             *  0 running
+             *  1 not running
+             *  2 missing
+             *
+             *  For summaries:
+             *  1 good
+             *  2 suspicious
+             *  3 bad
+             *
+             */
+            using healthValue_t = unsigned int;
             PluginHealthStatus() : healthType(HealthType::NONE), healthValue(0) {}
 
             bool operator==(const PluginHealthStatus& rhs) const
@@ -31,9 +42,9 @@ namespace ManagementAgent
                        this->healthValue == rhs.healthValue && this->activeHeartbeat == rhs.activeHeartbeat && this->activeHeartbeatUtmId == rhs.activeHeartbeatUtmId;
             }
 
-            HealthType healthType;
             std::string displayName;
-            unsigned int healthValue;
+            HealthType healthType;
+            healthValue_t healthValue;
             std::string activeHeartbeatUtmId = "";
             bool activeHeartbeat = false;
         };

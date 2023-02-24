@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2021, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2021-2023 Sophos Limited. All rights reserved.
 
 #include "SerialiseFunctions.h"
 
@@ -78,7 +74,7 @@ namespace ManagementAgent::HealthStatusImpl
         return threatHealthMap;
     }
 
-    std::pair<bool,std::string> compareAndUpdateOverallHealth(int health,int service,int threatService, int threat)
+    std::pair<bool,std::string> compareAndUpdateOverallHealth(healthValue_t health,healthValue_t service,healthValue_t threatService, healthValue_t threat)
     {
         std::pair<bool,std::string> healthInfo = std::make_pair(false,"");
         nlohmann::json currentJson;

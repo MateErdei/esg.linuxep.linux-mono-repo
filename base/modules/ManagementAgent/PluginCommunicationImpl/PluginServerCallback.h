@@ -33,6 +33,8 @@ namespace ManagementAgent
             void setPolicyReceiver(std::shared_ptr<PluginCommunication::IPolicyReceiver>& receiver) override;
             void setThreatHealthReceiver(std::shared_ptr<PluginCommunication::IThreatHealthReceiver>& receiver) override;
 
+            bool outbreakMode() const override;
+
         private:
             PluginCommunication::IPluginManager& m_pluginManager;
             std::shared_ptr<PluginCommunication::IStatusReceiver> m_statusReceiver;

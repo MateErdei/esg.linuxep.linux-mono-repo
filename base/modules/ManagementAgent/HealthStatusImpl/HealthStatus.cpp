@@ -1,8 +1,4 @@
-/***********************************************************************************************
-
-Copyright 2021-2021 Sophos Limited. All rights reserved.
-
-***********************************************************************************************/
+// Copyright 2021-2023 Sophos Limited. All rights reserved.
 
 #include "HealthStatus.h"
 
@@ -18,14 +14,7 @@ namespace ManagementAgent
 {
     namespace HealthStatusImpl
     {
-        HealthStatus::HealthStatus() :
-            m_overallHealth(0),
-            m_overallPluginServiceHealth(0),
-            m_overallPluginThreatServiceHealth(0),
-            m_overallPluginThreatDetectionHealth(0),
-            m_activeHeartbeatUtmId(""),
-            m_activeHeartbeat(false),
-            m_cachedHealthStatusXml("")
+        HealthStatus::HealthStatus()
         {
             loadThreatHealth();
         }
@@ -87,7 +76,7 @@ namespace ManagementAgent
             }
         }
 
-        unsigned int HealthStatus::convertDetailedValueToOverallValue(unsigned int value)
+        healthValue_t HealthStatus::convertDetailedValueToOverallValue(healthValue_t value)
         {
             if (value == 0)
             {
@@ -104,8 +93,8 @@ namespace ManagementAgent
         void HealthStatus::updateOverallHealthStatus()
         {
             // done this in one method, but we can break it out if needs be.
-            unsigned int healthValue = 1;
-            std::string activeHeartbeatUtmId = "";
+            healthValue_t healthValue = 1;
+            std::string activeHeartbeatUtmId; //  = ""
             bool activeHeartbeat = false;
             for (const auto& health : m_pluginServiceHealth)
             {
@@ -134,6 +123,11 @@ namespace ManagementAgent
             {
                 healthValue = std::max(health.second.healthValue, healthValue);
             }
+            if (outbreakStatus_)
+            {
+                // In outbreak mode force threat Health to RED
+                healthValue = 2; // Straight to bad
+            }
             m_overallPluginThreatDetectionHealth = healthValue;
 
             healthValue = std::max(m_overallPluginServiceHealth, m_overallPluginThreatServiceHealth);
@@ -145,7 +139,7 @@ namespace ManagementAgent
             const std::string& typeName,
             std::stringstream& statusXml,
             std::map<std::string, PluginCommunication::PluginHealthStatus>& healthMap,
-            unsigned int overallHealthValue)
+            healthValue_t overallHealthValue)
         {
             statusXml << R"(<item name=")" << typeName << R"(" value=")" << overallHealthValue << R"(" >)";
 

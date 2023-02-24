@@ -26,6 +26,13 @@ namespace ManagementAgent
              * @param actionXml
              */
             virtual void handleAction(const std::string& actionXml) = 0;
+
+            /**
+             * Are we in outbreak mode?
+             * @return
+             */
+            [[nodiscard]] virtual bool outbreakMode() const = 0;
+
         };
 
         using IEventReceiverPtr = std::shared_ptr<IEventReceiver>;
