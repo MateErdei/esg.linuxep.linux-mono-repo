@@ -273,7 +273,6 @@ namespace UpdateSchedulerImpl
             settingsHolder.configurationData.setJWToken(token);
             settingsHolder.configurationData.setDeviceId(UpdateSchedulerUtils::getDeviceId());
             settingsHolder.configurationData.setTenantId(UpdateSchedulerUtils::getTenantId());
-            settingsHolder.configurationData.setUseSDDS3(m_sdds3Enabled);
             writeConfigurationData(settingsHolder.configurationData);
             m_scheduledUpdateConfig = settingsHolder.weeklySchedule;
             m_featuresInPolicy = settingsHolder.configurationData.getFeatures();
@@ -401,7 +400,6 @@ namespace UpdateSchedulerImpl
         if (config.has_value())
         {
             SulDownloader::suldownloaderdata::ConfigurationData currentConfigData = config.value();
-            currentConfigData.setUseSDDS3(m_sdds3Enabled);
             writeConfigurationData(currentConfigData);
         }
     }
