@@ -320,13 +320,28 @@ def sspl_base(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
     test_inputs = get_inputs(context, base_build, mode)
     machines = (
         ("ubuntu1804",
-         tap.Machine('ubuntu1804_x64_server_en_us', inputs=test_inputs,
-                     platform=tap.Platform.Linux)),
-        ("centos77",
-         tap.Machine('centos77_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)),
+         tap.Machine('ubuntu1804_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)),
 
-        ("centos82",
-         tap.Machine('centos82_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)),
+        ("ubuntu2004",
+         tap.Machine('ubuntu2004_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)),
+
+        ("ubuntu2204",
+         tap.Machine('ubuntu2204_x64_aws_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)),
+
+        ("centos79",
+         tap.Machine('centos79_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)),
+
+        ("centos84",
+         tap.Machine('centos84_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)),
+
+        ("centos8stream",
+         tap.Machine('centos8stream_x64_aws_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)),
+
+        ("centos9stream",
+         tap.Machine('centos9stream_x64_aws_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)),
+
+        ("amazonlinux2",
+         tap.Machine('amzlinux2_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)),
         # add other distros here
     )
 
