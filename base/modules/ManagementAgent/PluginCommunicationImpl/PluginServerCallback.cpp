@@ -18,7 +18,7 @@ namespace ManagementAgent
         void PluginServerCallback::receivedSendEvent(const std::string& appId, const std::string& eventXml)
         {
             LOGDEBUG("Management: Event received for  " << appId);
-            if (m_eventReceiver != nullptr)
+            if (m_eventReceiver)
             {
                 m_eventReceiver->receivedSendEvent(appId, eventXml);
             }
@@ -29,6 +29,11 @@ namespace ManagementAgent
             if (m_eventReceiver)
             {
                 m_eventReceiver->handleAction(actionXml);
+            }
+            else
+            {
+                LOGFATAL("handleAction called without m_eventReceiver set!");
+                assert(m_eventReceiver); // Fail in debug mode
             }
         }
 
