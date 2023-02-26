@@ -1,3 +1,4 @@
+import sys
 import tap.v1 as tap
 from tap._pipeline.tasks import ArtisanInput
 import os
@@ -18,6 +19,13 @@ LOGS_DIR = '/opt/test/logs'
 RESULTS_DIR = '/opt/test/results'
 INPUTS_DIR = '/opt/test/inputs'
 
+RELEASE_MODE = 'release'
+ANALYSIS_MODE = 'analysis'
+COVERAGE_MODE = 'coverage'
+NINE_NINE_NINE_MODE = '999'
+
+BUILD_TEMPLATE = 'centos79_x64_build_20230202'
+RELEASE_PACKAGE = './build-files/release-package.xml'
 
 def pip_install(machine: tap.Machine, *install_args: str):
     """Installs python packages onto a TAP machine"""
@@ -64,7 +72,7 @@ def robot_task(machine: tap.Machine):
         machine.output_artifact('/opt/test/results', 'results')
 
 
-def combined_task(machine: tap.Machine, branch: str):
+def coverage_task(machine: tap.Machine, branch: str):
     try:
         install_requirements(machine)
         tests_dir = str(machine.inputs.test_scripts)
@@ -175,39 +183,66 @@ def get_package_version(package_path):
     package_node = package_tree.getroot()
     return package_node.attrib['version']
 
-BUILD_TEMPLATE = 'centos79_x64_build_20230202'
-PACKAGE_PATH = './build-files/release-package.xml'
-PACKAGE_VERSION = get_package_version(PACKAGE_PATH)
+
+def build_release(stage: tap.Root, component: tap.Component):
+    return stage.artisan_build(
+        name=RELEASE_MODE, component=component, image=BUILD_TEMPLATE,
+        mode=RELEASE_MODE, release_package=RELEASE_PACKAGE)
+
+def build_analysis(stage: tap.Root, component: tap.Component):
+    return stage.artisan_build(
+        name=ANALYSIS_MODE, component=component, image=BUILD_TEMPLATE,
+        mode=ANALYSIS_MODE, release_package=RELEASE_PACKAGE)
+
+def build_coverage(stage: tap.Root, component: tap.Component):
+    return stage.artisan_build(
+        name=COVERAGE_MODE, component=component, image=BUILD_TEMPLATE,
+        mode=COVERAGE_MODE, release_package=RELEASE_PACKAGE)
+
+def build_999(stage: tap.Root, component: tap.Component):
+    return stage.artisan_build(
+        name=NINE_NINE_NINE_MODE, component=component, image=BUILD_TEMPLATE,
+        mode=NINE_NINE_NINE_MODE, release_package=RELEASE_PACKAGE)
+
 
 @tap.pipeline(version=1, component='sspl-plugin-edr-component')
 def edr_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Parameters):
-    BUILD_TEMPLATE = 'JenkinsLinuxTemplate7'
-    release_mode = 'release'
-    analysis_mode = 'analysis'
-    coverage_mode = 'coverage'
-    nine_nine_nine_mode = '999'
-    mode = parameters.mode or release_mode
-    component = tap.Component(name='edr', base_version=PACKAGE_VERSION)
+
+    # For cmdline/local builds, determine build mode by how tap was called
+    # Can override this with `TAP_PARAMETER_MODE=debug` prefacing tap command
+    component_argument_name = "edr_plugin"
+    determined_build_mode = None
+    if f"{component_argument_name}.build.{ANALYSIS_MODE}" in sys.argv:
+        determined_build_mode = ANALYSIS_MODE
+    if f"{component_argument_name}.build.{COVERAGE_MODE}" in sys.argv:
+        determined_build_mode = COVERAGE_MODE
+    # ls logic check here acts to make all builds default to release apart from "tap ls" if
+    # another build mode cannot be determined. Tap ls needs to have no build mode to see all builds
+    elif f"{component_argument_name}.build.{RELEASE_MODE}" in sys.argv or sys.argv[1] != 'ls':
+        determined_build_mode = RELEASE_MODE
+
+    # In CI parameters.mode will be set
+    mode = parameters.mode or determined_build_mode
+    component = tap.Component(name='edr', base_version=get_package_version(RELEASE_PACKAGE))
 
     #export TAP_PARAMETER_MODE=release|analysis|coverage*(requires bullseye)
     edr_build = None
     with stage.parallel('build'):
-        if mode == release_mode or mode == analysis_mode:
-            edr_build = stage.artisan_build(name=release_mode, component=component, image=BUILD_TEMPLATE,
-                                            mode=release_mode, release_package=PACKAGE_PATH)
-            nine_nine_nine_build = stage.artisan_build(name=nine_nine_nine_mode, component=component, image=BUILD_TEMPLATE,
-                                                       mode=nine_nine_nine_mode, release_package=PACKAGE_PATH)
-            edr_analysis_build = stage.artisan_build(name=analysis_mode, component=component, image=BUILD_TEMPLATE,
-                                                     mode=analysis_mode, release_package=PACKAGE_PATH)
-        elif mode == coverage_mode:
-            release_build = stage.artisan_build(name=release_mode, component=component, image=BUILD_TEMPLATE,
-                                                mode=release_mode, release_package=PACKAGE_PATH)
-            edr_build = stage.artisan_build(name=coverage_mode, component=component, image=BUILD_TEMPLATE,
-                                            mode=coverage_mode, release_package=PACKAGE_PATH)
-            nine_nine_nine_build = stage.artisan_build(name=nine_nine_nine_mode, component=component, image=BUILD_TEMPLATE,
-                                                       mode=nine_nine_nine_mode, release_package=PACKAGE_PATH)
+        if mode == RELEASE_MODE or mode == ANALYSIS_MODE:
+            build_analysis(stage, component)
+            edr_build = build_release(stage, component)
+            build_999(stage, component)
+        elif mode == COVERAGE_MODE:
+            edr_build = build_coverage(stage, component)
+            build_release(stage, component)
+            build_999(stage, component)
+        else:
+            build_release(stage, component)
+            build_analysis(stage, component)
+            build_coverage(stage, component)
+            build_999(stage, component)
 
-    if mode == analysis_mode:
+    if mode == ANALYSIS_MODE:
         return
 
     with stage.parallel('test'):
@@ -225,7 +260,7 @@ def edr_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Pa
         if mode == 'coverage':
             with stage.parallel('combined'):
                 for template_name, machine in coverage_machines:
-                    stage.task(task_name=template_name, func=combined_task, machine=machine, branch=context.branch)
+                    stage.task(task_name=template_name, func=coverage_task, machine=machine, branch=context.branch)
         else:
             with stage.parallel('integration'):
                 for template_name, machine in machines:

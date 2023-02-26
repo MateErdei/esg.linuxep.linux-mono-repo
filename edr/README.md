@@ -48,3 +48,28 @@ but a default is passed from release-package.xml
     * RESULTS published to folder "analysis" both on filer6 & artifactory
 
 
+### Unified Pipeline Operations
+1) See all tap build options:
+
+       tap ls
+
+2) Fetch build inputs as specified in `build-files/release-package.xml`:
+
+       tap fetch edr_plugin.build.{option}
+
+3) Build on local machine:
+
+       tap build edr_plugin.build.{option}
+
+4) Build on local machine and run tests:
+
+       tap run edr_plugin.{integration|component}.{option} --build-backend=local
+
+5) Run tests on branch with unified pipeline build:
+
+       tap run edr_plugin.{integration|component}.{option}
+
+6) To specify your build mode for tests (options for modes are release and coverage):
+
+       TAP_PARAMETER_MODE={mode} tap run edr_plugin.{integration|component}.{option}
+
