@@ -5,7 +5,6 @@ add_library(plugincommunicationimpl SHARED
         ../PluginCommunication/IStatusReceiver.h
         ../PluginCommunication/IPluginManager.h
         ../PluginCommunication/PluginHealthStatus.h
-        ISettablePluginServerCallback.h
         PluginServerCallbackHandler.h
         PluginServerCallbackHandler.cpp
         PluginManager.cpp

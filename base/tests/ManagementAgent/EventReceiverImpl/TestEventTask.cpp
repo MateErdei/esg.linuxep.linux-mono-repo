@@ -20,10 +20,9 @@ namespace
             return false;
         }
 
-        [[nodiscard]] bool outbreakMode() const override { return false; }
-
-        void processAction(const std::string&) override
+        [[nodiscard]] bool outbreakMode() const override
         {
+            return false;
         }
     };
 

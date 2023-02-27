@@ -29,8 +29,6 @@ namespace ManagementAgent::EventReceiverImpl
 
         [[nodiscard]] virtual bool outbreakMode() const = 0;
 
-
-        virtual void processAction(const std::string& actionXml) = 0;
     };
 
     using IOutbreakModeControllerPtr = std::shared_ptr<IOutbreakModeController>;

@@ -10,7 +10,6 @@
 #include "Common/UtilityImpl/Uuid.h"
 #include "FileSystem/IFileNotFoundException.h"
 #include "ManagementAgent/LoggerImpl/Logger.h"
-#include "XmlUtilities/AttributesMap.h"
 
 #include <ctime>
 #include <json.hpp>
@@ -197,59 +196,4 @@ void ManagementAgent::EventReceiverImpl::OutbreakModeController::load()
 bool ManagementAgent::EventReceiverImpl::OutbreakModeController::outbreakMode() const
 {
     return outbreakMode_;
-}
-
-void ManagementAgent::EventReceiverImpl::OutbreakModeController::processAction(const std::string& actionXml)
-{
-    if (actionXml.empty())
-    {
-        return;
-    }
-    if (!outbreakMode_)
-    {
-        // no point parsing XML if we aren't in outbreak mode
-        LOGDEBUG("Ignoring action as not in outbreak mode");
-        return;
-    }
-    LOGDEBUG("Considering action: " << actionXml);
-
-    try
-    {
-        auto xml = Common::XmlUtilities::parseXml(actionXml);
-        auto action = xml.lookup("action");
-        if (action.value("type", "") == "sophos.core.threat.sav.clear")
-        {
-            auto items = xml.lookupMultiple("action/item");
-            for (const auto& item : items)
-            {
-                if (item.value("id") == uuid_)
-                {
-                    leaveOutbreakMode();
-                    return; // no point searching further
-                }
-                else
-                {
-                    LOGDEBUG("Ignoring clear action with UUID=" << item.value("id"));
-                }
-            }
-        }
-        else
-        {
-            LOGDEBUG("Ignoring action that isn't clear: " << actionXml);
-        }
-    }
-    catch (const Common::XmlUtilities::XmlUtilitiesException& ex)
-    {
-        // Ignore action XML that are invalid
-        LOGERROR("Failed to parse action XML: " << actionXml << ": " << ex.what());
-    }
-}
-
-void ManagementAgent::EventReceiverImpl::OutbreakModeController::leaveOutbreakMode()
-{
-    LOGINFO("Leaving outbreak mode");
-    outbreakMode_ = false;
-    uuid_ = "";
-    detectionCount_ = 0;
-    save();
 }

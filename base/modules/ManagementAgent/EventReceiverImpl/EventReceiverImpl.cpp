@@ -18,8 +18,3 @@ void EventReceiverImpl::receivedSendEvent(const std::string& appId, const std::s
     Common::TaskQueue::ITaskPtr task(new EventTask({appId, eventXml}, outbreakModeController_));
     m_taskQueue->queueTask(std::move(task));
 }
-
-void ManagementAgent::EventReceiverImpl::EventReceiverImpl::handleAction(const std::string& actionXml)
-{
-    outbreakModeController_->processAction(actionXml);
-}

@@ -1,4 +1,8 @@
-// Copyright 2018-2023 Sophos Limited. All rights reserved.
+/******************************************************************************************************
+
+Copyright 2018-2019, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
 
 #include "PluginManager.h"
 
@@ -20,27 +24,7 @@
 #include <sys/stat.h>
 #include <json.hpp>
 
-#include <memory>
 #include <thread>
-
-namespace
-{
-    std::string readAction(const std::string& filename)
-    {
-        auto fs = Common::FileSystem::fileSystem();
-        Path fullPath = Common::FileSystem::join(
-            Common::ApplicationConfiguration::applicationPathManager().getMcsActionFilePath(), filename);
-        try
-        {
-            return fs->readFile(fullPath);
-        }
-        catch (Common::FileSystem::IFileSystemException& ex)
-        {
-            LOGWARN("Unable to read Health Action Task at: " << fullPath << " due to: " << ex.what());
-        }
-        return "";
-    }
-}
 
 namespace ManagementAgent
 {
@@ -75,8 +59,7 @@ namespace ManagementAgent
             }
 
             std::shared_ptr<PluginServerCallback> serverCallback = std::make_shared<PluginServerCallback>(*this);
-            m_serverCallbackHandler = std::make_unique<PluginServerCallbackHandler>
-                (std::move(replier), serverCallback, m_healthStatus);
+            m_serverCallbackHandler.reset(new PluginServerCallbackHandler(std::move(replier), serverCallback, m_healthStatus));
             m_serverCallbackHandler->start();
         }
 
@@ -89,15 +72,15 @@ namespace ManagementAgent
         }
 
         void PluginManager::setServerCallback(
-            ServerCallbackPtr serverCallback,
+            std::shared_ptr<PluginCommunication::IPluginServerCallback> serverCallback,
             Common::ZeroMQWrapper::ISocketReplierPtr replier)
         {
             if (m_serverCallbackHandler)
             {
                 m_serverCallbackHandler->stop();
             }
-            m_serverCallbackHandler = std::make_unique<PluginServerCallbackHandler>(
-                std::move(replier), std::move(serverCallback), m_healthStatus);
+            m_serverCallbackHandler.reset(
+                new PluginServerCallbackHandler(std::move(replier), std::move(serverCallback), m_healthStatus));
             m_serverCallbackHandler->start();
         }
 
@@ -125,7 +108,7 @@ namespace ManagementAgent
                     }
                     catch (std::exception& ex)
                     {
-                        pluginNamesAndErrors.emplace_back(proxy.first, ex.what());
+                        pluginNamesAndErrors.emplace_back(std::pair<std::string, std::string>(proxy.first, ex.what()));
                     }
                 }
             }
@@ -158,7 +141,7 @@ namespace ManagementAgent
                     }
                     catch (std::exception& ex)
                     {
-                        pluginNamesAndErrors.emplace_back(proxy.first, ex.what());
+                        pluginNamesAndErrors.emplace_back(std::pair<std::string, std::string>(proxy.first, ex.what()));
                     }
                 }
             }
@@ -166,15 +149,10 @@ namespace ManagementAgent
             // extra check for does MA also subscribe to this APPID then ingest/use
             if (appId == "CORE")
             {
-                std::string xml = readAction(actionXml); // Actually filename
-                if (isThreatResetTask(xml))
+                if (isThreatResetTask(actionXml))
                 {
                     LOGDEBUG("Processing Health Reset Action.");
                     m_healthStatus->resetThreatDetectionHealth();
-                }
-                if (eventReceiver_)
-                {
-                    eventReceiver_->handleAction(xml);
                 }
             }
 
@@ -232,14 +210,24 @@ namespace ManagementAgent
             return getPlugin(pluginName)->getHealth();
         }
 
-        bool PluginManager::isThreatResetTask(const std::string& xml)
+        bool PluginManager::isThreatResetTask(std::string filePath)
         {
-            if (xml.empty())
-            {
-                return false;
-            }
+            auto fs = Common::FileSystem::fileSystem();
             std::string expectedActionFileContents = "type=\"sophos.core.threat.reset\"";
-            return Common::UtilityImpl::StringUtils::isSubstring(xml, expectedActionFileContents);
+            Path fullPath = Common::FileSystem::join(Common::ApplicationConfiguration::applicationPathManager().getMcsActionFilePath(), filePath);
+            try
+            {
+                std::string actionFileContents = fs->readFile(fullPath);
+                if (Common::UtilityImpl::StringUtils::isSubstring(actionFileContents, expectedActionFileContents))
+                {
+                    return true;
+                }
+            }
+            catch (Common::FileSystem::IFileSystemException& ex)
+            {
+                LOGWARN("Unable to read Health Action Task at: " << filePath << " due to: " << ex.what());
+            }
+            return false;
         }
 
         void PluginManager::locked_setAppIds(
@@ -293,8 +281,8 @@ namespace ManagementAgent
             Common::PluginApiImpl::PluginResourceManagement::setupRequester(
                 *requester, pluginName, m_defaultTimeout, m_defaultConnectTimeout);
             std::unique_ptr<Common::PluginCommunication::IPluginProxy> proxyPlugin =
-                std::make_unique<Common::PluginCommunicationImpl::PluginProxy>(
-                    std::move(requester), pluginName);
+                std::unique_ptr<Common::PluginCommunicationImpl::PluginProxy>(
+                    new Common::PluginCommunicationImpl::PluginProxy(std::move(requester), pluginName));
             m_RegisteredPlugins[pluginName] = std::move(proxyPlugin);
             return m_RegisteredPlugins[pluginName].get();
         }
@@ -331,9 +319,8 @@ namespace ManagementAgent
             }
         }
 
-        void PluginManager::setEventReceiver(PluginCommunication::IEventReceiverPtr& receiver)
+        void PluginManager::setEventReceiver(std::shared_ptr<PluginCommunication::IEventReceiver>& receiver)
         {
-            eventReceiver_ = receiver;
             if (m_serverCallbackHandler != nullptr)
             {
                 m_serverCallbackHandler->setEventReceiver(receiver);

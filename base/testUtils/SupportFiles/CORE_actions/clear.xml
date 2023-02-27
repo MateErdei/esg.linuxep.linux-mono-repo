@@ -1,4 +1,0 @@
-<?xml version="1.0"?>
-<action type="sophos.core.threat.sav.clear">
-    <item id="UUID"/>
-</action>

@@ -18,8 +18,6 @@ namespace ManagementAgent
 
             void receivedSendEvent(const std::string& appId, const std::string& eventXml) override;
 
-            void handleAction(const std::string& actionXml) override;
-
         private:
             Common::TaskQueue::ITaskQueueSharedPtr m_taskQueue;
             OutbreakModeControllerPtr outbreakModeController_;
