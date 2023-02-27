@@ -62,7 +62,7 @@ then
         fi
     }
 
-    yum install -y "gcc" "gcc-c++" "make" nfs-utils zip samba gdb util-linux nc
+    yum install -y "gcc" "gcc-c++" "make" nfs-utils zip samba gdb util-linux nc bzip2
     yum install -y ntfs-3g
 
 else
