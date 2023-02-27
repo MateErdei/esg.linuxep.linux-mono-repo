@@ -198,7 +198,7 @@ TEST_F(TestWatchdog, writeExecutableUserAndGroupToWatchdogConfigHandlesDuplicate
     EXPECT_NO_THROW(watchdog.callWriteExecutableUserAndGroupToWatchdogConfig());
 }
 
-TEST_F(TestWatchdog, writeExecutableUserAndGroupToWatchdogConfigUpdatesExistingConfigFile)
+TEST_F(TestWatchdog, writeExecutableUserAndGroupToWatchdogConfigOverwritesExistingConfigFile)
 {
     Common::ZMQWrapperApi::IContextSharedPtr context(Common::ZMQWrapperApi::createContext());
     TestableWatchdog watchdog(context);
@@ -209,15 +209,13 @@ TEST_F(TestWatchdog, writeExecutableUserAndGroupToWatchdogConfigUpdatesExistingC
         Return(createPluginRegistryJson("PluginName", "user:group")));
 
     EXPECT_CALL(*m_mockFileSystemPtr, isFile(m_watchdogConfigPath)).WillOnce(Return(true));
-    EXPECT_CALL(*m_mockFileSystemPtr, readFile(m_watchdogConfigPath)).WillOnce(
-        Return(R"({"groups":{"group1":1,"group2":2,"sophos-spl-ipc":0},"users":{"user1":1,"user2":2}})"));
 
     EXPECT_CALL(*m_mockFilePermissionsPtr, getUserId("user")).WillOnce(Return(999));
     EXPECT_CALL(*m_mockFilePermissionsPtr, getGroupId("group")).WillRepeatedly(Return(966));
     EXPECT_CALL(*m_mockFilePermissionsPtr, getGroupId("sophos-spl-ipc")).WillRepeatedly(Return(0));
 
     EXPECT_CALL(*m_mockFileSystemPtr, writeFile(m_watchdogConfigPath,
-                                                R"({"groups":{"group":966,"group1":1,"group2":2,"sophos-spl-ipc":0},"users":{"user":999,"user1":1,"user2":2}})")).Times(1);
+                                                R"({"groups":{"group":966,"sophos-spl-ipc":0},"users":{"user":999}})")).Times(1);
     EXPECT_NO_THROW(watchdog.callWriteExecutableUserAndGroupToWatchdogConfig());
 }
 
@@ -292,29 +290,6 @@ TEST_F(TestWatchdog, writeExecutableUserAndGroupToWatchdogConfigHandlesMalformed
     EXPECT_CALL(*m_mockFilePermissionsPtr, getUserId("user1group1")).WillOnce(Throw(Common::FileSystem::IFileSystemException("TEST")));
 
     EXPECT_NO_THROW(watchdog.callWriteExecutableUserAndGroupToWatchdogConfig());
-}
-
-
-TEST_F(TestWatchdog, writeExecutableUserAndGroupToWatchdogConfigDoesNotThrowWithMalformedExistingConfigs)
-{
-    Common::Logging::ConsoleLoggingSetup consoleLogger;
-    testing::internal::CaptureStderr();
-    Common::ZMQWrapperApi::IContextSharedPtr context(Common::ZMQWrapperApi::createContext());
-    TestableWatchdog watchdog(context);
-
-    std::stringstream expectedWarnMessageStream;
-    expectedWarnMessageStream << "Overwriting existing watchdog config as " << m_watchdogConfigPath << " could not be read due to:";
-    std::string expectedWarnMessage = expectedWarnMessageStream.str();
-
-    EXPECT_CALL(*m_mockFileSystemPtr, listFiles(_)).WillOnce(Return(std::vector<std::string>{}));
-
-    EXPECT_CALL(*m_mockFileSystemPtr, isFile(m_watchdogConfigPath)).WillOnce(Return(true));
-    EXPECT_CALL(*m_mockFileSystemPtr, readFile(m_watchdogConfigPath)).WillOnce(Return(R"({"groups":{"g":{"user":1}})"));
-
-    EXPECT_CALL(*m_mockFileSystemPtr, writeFile(m_watchdogConfigPath, R"({"groups":{"sophos-spl-ipc":0}})")).Times(1);
-    EXPECT_NO_THROW(watchdog.callWriteExecutableUserAndGroupToWatchdogConfig());
-
-    ASSERT_THAT(testing::internal::GetCapturedStderr(), ::testing::HasSubstr(expectedWarnMessage));
 }
 
 class TestC
