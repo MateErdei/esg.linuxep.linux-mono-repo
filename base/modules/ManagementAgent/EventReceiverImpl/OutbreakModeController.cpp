@@ -5,7 +5,6 @@
 #include "EventUtils.h"
 
 #include "ApplicationConfigurationImpl/ApplicationPathManager.h"
-#include "Common/TelemetryHelperImpl/TelemetryHelper.h"
 #include "Common/UtilityImpl/StringUtils.h"
 #include "Common/UtilityImpl/TimeUtils.h"
 #include "Common/UtilityImpl/Uuid.h"
@@ -18,7 +17,6 @@
 
 ManagementAgent::EventReceiverImpl::OutbreakModeController::OutbreakModeController()
 {
-    Common::Telemetry::TelemetryHelper::getInstance().increment("outbreak-mode-count", 0UL);
     load();
 }
 
@@ -57,12 +55,12 @@ bool ManagementAgent::EventReceiverImpl::OutbreakModeController::processEvent(
     {
         LOGWARN("Entering outbreak mode: Further detections will not be reported to Central");
         outbreakMode_ = true;
-        Common::Telemetry::TelemetryHelper::getInstance().increment("outbreak-mode-count", 1UL);
         // Sent before the 100th event, but shouldn't cause huge problems
-        auto outbreakXml = generateCoreOutbreakEvent(now);
+        auto timestamp = Common::UtilityImpl::TimeUtils::MessageTimeStamp(now);
+        auto outbreakXml = generateCoreOutbreakEvent(timestamp);
         LOGDEBUG("Sending outbreak mode report: " << outbreakXml);
         ManagementAgent::EventReceiverImpl::sendEvent({"CORE", outbreakXml});
-        save();
+        save(timestamp);
     }
     return false; // Still send the 100th event
 }
@@ -83,18 +81,19 @@ std::string ManagementAgent::EventReceiverImpl::OutbreakModeController::generate
 
 
 std::string ManagementAgent::EventReceiverImpl::OutbreakModeController::generateCoreOutbreakEvent(
-    ManagementAgent::EventReceiverImpl::OutbreakModeController::time_point_t now)
+    std::string timestamp)
 {
-    auto timestamp = Common::UtilityImpl::TimeUtils::MessageTimeStamp(now);
     uuid_ = generateUUID();
+    std::string obCurrentlyStr;
+
     LOGINFO("Generating Outbreak notification with UUID=" << uuid_);
     return Common::UtilityImpl::StringUtils::orderedStringReplace(
-        R"(<event type="sophos.core.outbreak" ts="@@timestamp@@">
+        R"(<event type="sophos.core.outbreak" ts="{{timestamp}}">
 <alert id="{{eventCorrelationId}}">
 </alert>
 </event>)",
         {
-            { "@@timestamp@@", timestamp },
+            { "{{timestamp}}", timestamp },
             { "{{eventCorrelationId}}", uuid_ },
         });
 }
@@ -119,13 +118,14 @@ void ManagementAgent::EventReceiverImpl::OutbreakModeController::resetCountOnDay
     }
 }
 
-void ManagementAgent::EventReceiverImpl::OutbreakModeController::save()
+void ManagementAgent::EventReceiverImpl::OutbreakModeController::save(std::string timestamp)
 {
     auto* filesystem = Common::FileSystem::fileSystem();
     auto& paths = Common::ApplicationConfiguration::applicationPathManager();
     auto path = paths.getOutbreakModeStatusFilePath();
     nlohmann::json j;
-    j["outbreakMode"] = outbreakMode_;
+    j["outbreak-mode"] = outbreakMode_;
+    j["timestamp"] = timestamp;
     if (!uuid_.empty())
     {
         j["uuid"] = uuid_;

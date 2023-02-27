@@ -4,6 +4,8 @@
 
 #include "TelemetryProcessor.h"
 
+#include "EventReceiverImpl/OutbreakModeController.h"
+
 #include <Common/ApplicationConfigurationImpl/ApplicationPathManager.h>
 #include <Common/TelemetryHelperImpl/TelemetrySerialiser.h>
 #include <Common/UtilityImpl/FileUtils.h>
@@ -44,6 +46,9 @@ namespace Telemetry
         updateTelemetryRoot(root, "machineId", getMachineId);
         updateTelemetryRoot(root, "version", getVersion);
         updateTelemetryRoot(root, "overall-health", getOverallHealth);
+        updateTelemetryRoot(root, "outbreak-mode-current", getOutbreakModeCurrent); // this name is probably unnecessary
+        updateTelemetryRoot(root, "outbreak-mode-historic", getOutbreakModeHistoric); // this name is atrocious
+        updateTelemetryRoot(root, "outbreak-mode-today", getOutbreakModeToday); // this name isn't entirely accurate
 
         return TelemetrySerialiser::serialise(root);
     }
@@ -106,6 +111,35 @@ namespace Telemetry
         LOGWARN("Could not find the SHS status file at: " << shsStatusFilepath);
         return std::nullopt;
     }
+
+    std::optional<std::string> getOutbreakModeCurrent(const std::string& outbreakXml)
+    {
+        Path outbreakModeStatusFilepath =
+            Common::ApplicationConfiguration::applicationPathManager().getOutbreakModeStatusFilePath();
+        auto fs = Common::FileSystem::fileSystem();
+        if (fs->isFile(outbreakModeStatusFilepath))
+        {
+            return extractValueFromFile(outbreakModeStatusFilepath, "outbreak-mode");
+        }
+        std::string neverReachedOutbreak = "false";
+        return neverReachedOutbreak;
+    }
+
+    std::optional<std::string> getOutbreakModeHistoric(const std::string& outbreakXml)
+    {
+        Path outbreakModeStatusFilepath =
+            Common::ApplicationConfiguration::applicationPathManager().getOutbreakModeStatusFilePath();
+        auto fs = Common::FileSystem::fileSystem();
+        if (fs->isFile(outbreakModeStatusFilepath))
+        {
+            return extractValueFromFile(
+                outbreakModeStatusFilepath, "timestamp"); // comes in as a string, need to either change it back to a timestamp or preferably never recieve a string
+        }
+        std::string neverReachedOutbreak = "false";
+        return neverReachedOutbreak;
+    }
+
+    std::optional<std::string> getOutbreakModeToday(const std::string& outbreakXml) {}
 
     std::optional<std::string> extractValueFromFile(const Path& filePath, const std::string& key)
     {
@@ -197,4 +231,9 @@ namespace Telemetry
         }
         return std::nullopt;
     }
-} // namespace Telemetry
+
+    ManagementAgent::EventReceiverImpl::OutbreakModeController::time_point_t extractTimestamp()
+    {
+
+    }
+    } // namespace Telemetry

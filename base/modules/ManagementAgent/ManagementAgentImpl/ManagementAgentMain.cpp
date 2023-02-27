@@ -299,7 +299,6 @@ namespace ManagementAgent
             {
                 Common::Telemetry::TelemetryHelper::getInstance().restore(sophosManagementPluginName);
             }
-            Common::Telemetry::TelemetryHelper::getInstance().increment("test", 0UL);
 
             // Setup SIGNAL handling for shutdown.
             Common::ZeroMQWrapper::IHasFDPtr shutdownPipePtr;

@@ -394,17 +394,3 @@ Telemetry Executable Generates Outbreak Mode Telemetry
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
     Should contain  ${telemetryFileContents}  "managementagent":{"outbreak-mode-count": 0}
-
-Telemetry Executable Generates Outbreak Mode Telemetry that Increments
-
-    Mark Management Agent Log
-    Wait Until Keyword Succeeds
-    ...  60 secs
-    ...  10 secs
-    ...  Check Marked Managementagent Log Contains     Starting service health checks
-
-    Enter Outbreak Mode
-
-    Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
-    ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
-    Should contain  ${telemetryFileContents}  "managementagent":{"outbreak-mode-count": 1}

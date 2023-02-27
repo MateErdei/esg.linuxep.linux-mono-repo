@@ -29,8 +29,8 @@ namespace ManagementAgent::EventReceiverImpl
 
     private:
         static std::string generateUUID();
-        std::string generateCoreOutbreakEvent(time_point_t now);
-        void save();
+        std::string generateCoreOutbreakEvent(std::string timestamp);
+        void save(std::string timestamp);
         void load();
         void resetCountOnDayChange(time_point_t now);
         void leaveOutbreakMode();
