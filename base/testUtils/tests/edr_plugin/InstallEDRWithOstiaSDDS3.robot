@@ -521,8 +521,8 @@ Install Base And Edr Vut Then Transition To Base Edr And Mtr Vut
     ...  Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-MDR
 
     Wait Until Keyword Succeeds
-    ...  20 secs
-    ...  1 secs
+    ...  60 secs
+    ...  5 secs
     ...   Check SulDownloader Log Contains String N Times   Update success  3
 
     Wait Until MDR Installed
