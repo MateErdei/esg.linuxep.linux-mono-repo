@@ -381,7 +381,7 @@ function cleanup_comms_component()
 
   [[ -d "${SOPHOS_INSTALL}/var/comms" ]] && rm -rf "${SOPHOS_INSTALL}/var/sophos-spl-comms"
   [[ -f "${SOPHOS_INSTALL}/logs/base/sophosspl/comms_component.log" ]] && rm "${SOPHOS_INSTALL}/logs/base/sophosspl/comms_component.log"*
-  [[ -f "${SOPHOS_INSTALL}/base/pluginRegistry/commscomponent.json" ]] && rm "${SOPHOS_INSTALL}/logs/base/pluginRegistry/commscomponent.json"
+  [[ -f "${SOPHOS_INSTALL}/base/pluginRegistry/commscomponent.json" ]] && rm "${SOPHOS_INSTALL}/base/pluginRegistry/commscomponent.json"
 }
 
 if build_version_less_than_system_version
