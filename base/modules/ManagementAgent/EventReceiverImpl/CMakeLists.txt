@@ -11,7 +11,12 @@ add_library(eventreceiverimpl SHARED
         Event.cpp Event.h)
 
 target_include_directories(eventreceiverimpl PUBLIC  ../../Common ${LOG4CPLUS_INCLUDE_DIR} ${NLOHMANN_JSON_INCLUDE_DIR})
-target_link_libraries(eventreceiverimpl PUBLIC applicationconfigurationimpl managementagentloggerimpl taskqueueimpl)
+target_link_libraries(eventreceiverimpl PUBLIC
+        applicationconfigurationimpl
+        managementagentloggerimpl
+        taskqueueimpl
+        xmlutilities
+        )
 
 SET_TARGET_PROPERTIES( eventreceiverimpl
         PROPERTIES INSTALL_RPATH "$ORIGIN")

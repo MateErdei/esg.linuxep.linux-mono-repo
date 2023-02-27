@@ -114,6 +114,19 @@ TEST_F(TestOutbreakModeController, construction)
     EXPECT_NO_THROW(std::make_shared<OutbreakModeController>());
 }
 
+TEST_F(TestOutbreakModeController, handle_invalid_event_xml)
+{
+    /*
+     * Still counted, since we are just doing prefix string matching for events.
+     */
+    std::string xml = R"sophos(<?xml version="1.0" encoding="utf-8"?>
+<event type="sophos.core.detection" ts="1970-01-01T00:02:03.000Z">
+  <user userId="username"/>
+  <alert id="fedcba98)sophos";
+    auto controller = std::make_shared<OutbreakModeController>();
+    processEventThrowAwayArgs(controller, "CORE", xml);
+}
+
 TEST_F(TestOutbreakModeController, entering_outbreak_mode)
 {
     const std::string detection_xml = DETECTION_XML;
@@ -432,5 +445,104 @@ TEST_F(TestOutbreakModeController, write_fails_permission_on_file)
     auto controller = std::make_shared<OutbreakModeController>();
     EXPECT_FALSE(controller->outbreakMode());
     EXPECT_NO_THROW(enterOutbreakMode(controller));
+    EXPECT_TRUE(controller->outbreakMode());
+}
+
+TEST_F(TestOutbreakModeController, action_leaves_outbreak_mode)
+{
+    auto controller = std::make_shared<OutbreakModeController>();
+    EXPECT_FALSE(controller->outbreakMode());
+    enterOutbreakMode(controller);
+    ASSERT_TRUE(controller->outbreakMode());
+
+    controller->processAction(R"(<?xml version="1.0"?><action type="sophos.core.threat.sav.clear"><item id="5df69683-a5a2-5d96-897d-06f9c4c8c7bf"/></action>)");
+    EXPECT_FALSE(controller->outbreakMode());
+}
+
+TEST_F(TestOutbreakModeController, leaving_outbreak_mode_is_persisted)
+{
+    auto controller = std::make_shared<OutbreakModeController>();
+    EXPECT_FALSE(controller->outbreakMode());
+    enterOutbreakMode(controller);
+    ASSERT_TRUE(controller->outbreakMode());
+    controller->processAction(R"(<?xml version="1.0"?><action type="sophos.core.threat.sav.clear"><item id="5df69683-a5a2-5d96-897d-06f9c4c8c7bf"/></action>)");
+    ASSERT_FALSE(controller->outbreakMode());
+
+    controller.reset();
+
+    // Replace the controller
+    UsingMemoryAppender recorder(*this);
+    controller = std::make_shared<OutbreakModeController>();
+    EXPECT_FALSE(controller->outbreakMode());
+}
+
+TEST_F(TestOutbreakModeController, leaving_outbreak_mode_resets_count)
+{
+    auto controller = std::make_shared<OutbreakModeController>();
+    EXPECT_FALSE(controller->outbreakMode());
+    enterOutbreakMode(controller);
+    ASSERT_TRUE(controller->outbreakMode());
+    controller->processAction(R"(<?xml version="1.0"?><action type="sophos.core.threat.sav.clear"><item id="5df69683-a5a2-5d96-897d-06f9c4c8c7bf"/></action>)");
+    ASSERT_FALSE(controller->outbreakMode());
+
+    bool drop = processEventThrowAwayArgs(controller, "CORE", DETECTION_XML);
+    EXPECT_FALSE(drop);
+    EXPECT_FALSE(controller->outbreakMode());
+
+    int count = 1; // done one already
+    while (!drop && count < OUTBREAK_COUNT * 2)
+    {
+        drop = processEventThrowAwayArgs(controller, "CORE", DETECTION_XML);
+        count += 1;
+    }
+    EXPECT_EQ(count, OUTBREAK_COUNT + 1); // counts the first drop
+    EXPECT_TRUE(controller->outbreakMode());
+}
+
+TEST_F(TestOutbreakModeController, ignore_irrelevant_action)
+{
+    auto controller = std::make_shared<OutbreakModeController>();
+    EXPECT_FALSE(controller->outbreakMode());
+    enterOutbreakMode(controller);
+    ASSERT_TRUE(controller->outbreakMode());
+
+    controller->processAction(R"(<?xml version="1.0"?><action type="sophos.core.do.something"><item id="5df69683-a5a2-5d96-897d-06f9c4c8c7bf"/></action>)");
+    EXPECT_TRUE(controller->outbreakMode());
+}
+
+TEST_F(TestOutbreakModeController, ignore_missing_item_in_action_xml)
+{
+    auto controller = std::make_shared<OutbreakModeController>();
+    EXPECT_FALSE(controller->outbreakMode());
+    enterOutbreakMode(controller);
+    ASSERT_TRUE(controller->outbreakMode());
+
+    controller->processAction(R"(<?xml version="1.0"?><action type="sophos.core.threat.sav.clear"></action>)");
+    EXPECT_TRUE(controller->outbreakMode());
+}
+
+TEST_F(TestOutbreakModeController, ignore_broken_action_xml)
+{
+    auto controller = std::make_shared<OutbreakModeController>();
+    EXPECT_FALSE(controller->outbreakMode());
+    enterOutbreakMode(controller);
+    ASSERT_TRUE(controller->outbreakMode());
+
+    controller->processAction(R"(<?xml version="1.0"?><action)");
+    EXPECT_TRUE(controller->outbreakMode());
+}
+
+TEST_F(TestOutbreakModeController, ignore_wrong_id_clearing_outbreak_mode)
+{
+    auto* filesystemMock = new MockFileSystem();
+    std::string contents = R"({"outbreakMode":true,"uuid":"5df69683-a5a2-5d96-897d-06f9c4c8c7bf"})";
+    EXPECT_CALL(*filesystemMock, readFile(expectedStatusFile_, _)).WillOnce(Return(contents));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
+
+    auto controller = std::make_shared<OutbreakModeController>();
+    ASSERT_TRUE(controller->outbreakMode());
+
+    controller->processAction(
+        R"(<?xml version="1.0"?><action type="sophos.core.threat.sav.clear"><item id="5df69683-a5a2-ffff-ffff-06f9c4c8c7bf"/></action>)");
     EXPECT_TRUE(controller->outbreakMode());
 }

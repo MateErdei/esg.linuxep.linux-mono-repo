@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2018-2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #include "PluginServerCallbackHandler.h"
 
@@ -19,7 +15,7 @@ namespace ManagementAgent
     {
         PluginServerCallbackHandler::PluginServerCallbackHandler(
             std::unique_ptr<Common::ZeroMQWrapper::IReadWrite> ireadWrite,
-            std::shared_ptr<PluginCommunication::IPluginServerCallback> serverCallback,
+            ServerCallbackPtr serverCallback,
             std::shared_ptr<ManagementAgent::HealthStatusImpl::HealthStatus> healthStatusSharedObj) :
             AbstractListenerServer(std::move(ireadWrite), ARMSHUTDOWNPOLICY::DONOTARM),
             m_messageBuilder("NotUsed"),
@@ -89,47 +85,40 @@ namespace ManagementAgent
         void PluginServerCallbackHandler::setStatusReceiver(
             std::shared_ptr<PluginCommunication::IStatusReceiver>& statusReceiver)
         {
-            auto serverCallbackAsPluginServerCallback = dynamic_cast<PluginServerCallback*>(m_serverCallback.get());
-            assert(serverCallbackAsPluginServerCallback != nullptr);
-
-            if (serverCallbackAsPluginServerCallback != nullptr) // for non-debug builds, don't crash
+            assert(m_serverCallback);
+            if (m_serverCallback) // for non-debug builds, don't crash
             {
-                serverCallbackAsPluginServerCallback->setStatusReceiver(statusReceiver);
+                m_serverCallback->setStatusReceiver(statusReceiver);
             }
         }
 
         void PluginServerCallbackHandler::setEventReceiver(
             std::shared_ptr<PluginCommunication::IEventReceiver>& receiver)
         {
-            auto serverCallbackAsPluginServerCallback = dynamic_cast<PluginServerCallback*>(m_serverCallback.get());
-            assert(serverCallbackAsPluginServerCallback != nullptr);
-
-            if (serverCallbackAsPluginServerCallback != nullptr) // for non-debug builds, don't crash
+            assert(m_serverCallback);
+            if (m_serverCallback) // for non-debug builds, don't crash
             {
-                serverCallbackAsPluginServerCallback->setEventReceiver(receiver);
+                m_serverCallback->setEventReceiver(receiver);
             }
         }
 
         void PluginServerCallbackHandler::setPolicyReceiver(
             std::shared_ptr<PluginCommunication::IPolicyReceiver>& policyReceiver)
         {
-            auto serverCallbackAsPluginServerCallback = dynamic_cast<PluginServerCallback*>(m_serverCallback.get());
-            assert(serverCallbackAsPluginServerCallback != nullptr);
-
-            if (serverCallbackAsPluginServerCallback != nullptr) // for non-debug builds, don't crash
+            assert(m_serverCallback);
+            if (m_serverCallback) // for non-debug builds, don't crash
             {
-                serverCallbackAsPluginServerCallback->setPolicyReceiver(policyReceiver);
+                m_serverCallback->setPolicyReceiver(policyReceiver);
             }
         }
+
         void PluginServerCallbackHandler::setThreatHealthReceiver(
             std::shared_ptr<PluginCommunication::IThreatHealthReceiver>& receiver)
         {
-            auto serverCallbackAsPluginServerCallback = dynamic_cast<PluginServerCallback*>(m_serverCallback.get());
-            assert(serverCallbackAsPluginServerCallback != nullptr);
-
-            if (serverCallbackAsPluginServerCallback != nullptr)
+            assert(m_serverCallback);
+            if (m_serverCallback)
             {
-                serverCallbackAsPluginServerCallback->setThreatHealthReceiver(receiver);
+                m_serverCallback->setThreatHealthReceiver(receiver);
             }
         }
     } // namespace PluginCommunicationImpl

@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# Copyright (C) 2018-2020 Sophos Plc, Oxford, England.
-# All rights reserved.
+# Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 
+import datetime
 import os
 import time
 import json
@@ -159,3 +159,16 @@ class FakePluginWrapper(object):
         :return: Current time in format %Y%m%d %H%M%S"
         """
         return time.strftime("%Y%m%d %H%M%S")
+
+    def get_valid_creation_time_and_ttl(self):
+        ttl = int(time.time())+10000
+        creation_time = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+        return f"{creation_time}_{ttl}"
+
+    def send_action(self, src_file_name, dest_file_name, **replacements):
+        contents = open(src_file_name).read()
+        for k, v in replacements.items():
+            contents = contents.replace(k, v)
+        tmp_name = os.path.join(PathManager.SOPHOS_INSTALL, "tmp", "TempAction.xml")
+        open(tmp_name, "w").write(contents)
+        os.rename(tmp_name, dest_file_name)
