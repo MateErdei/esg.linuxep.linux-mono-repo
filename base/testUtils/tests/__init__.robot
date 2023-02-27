@@ -60,7 +60,7 @@ Global Setup Tasks
     Set Global Variable  ${CURRENT_PROXY_FILE}          ${ETC_DIR}/sophosspl/current_proxy
     Set Global Variable  ${MCS_CONFIG}                  ${ETC_DIR}/sophosspl/mcs.config
     Set Global Variable  ${MCS_POLICY_CONFIG}           ${ETC_DIR}/sophosspl/mcs_policy.config
-    Set Global Variable  ${WATCHDOG_CONFIG}             ${ETC_DIR}/watchdog.conf
+    Set Global Variable  ${WATCHDOG_CONFIG}             ${ETC_DIR}/user-group-ids-actual.conf
 
     Set Global Variable  ${WATCHDOG_SERVICE}            sophos-spl
     Set Global Variable  ${UPDATE_SERVICE}              sophos-spl-update

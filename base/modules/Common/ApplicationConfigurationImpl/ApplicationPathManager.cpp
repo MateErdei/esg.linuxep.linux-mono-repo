@@ -40,7 +40,7 @@ namespace Common
 
         std::string ApplicationPathManager::getWatchdogConfigPath() const
         {
-            return Common::FileSystem::join(sophosInstall(), "base/etc/watchdog.conf");
+            return Common::FileSystem::join(sophosInstall(), "base/etc/user-group-ids-actual.conf");
         }
 
         std::string ApplicationPathManager::sophosInstall() const

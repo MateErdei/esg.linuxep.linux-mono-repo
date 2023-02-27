@@ -112,7 +112,7 @@ class Watchdog(object):
         os.kill(pid, signal.SIGTERM)
 
     def verify_watchdog_config(self):
-        with open(os.path.join(get_install(), "base", "etc", "watchdog.conf")) as config_file:
+        with open(os.path.join(get_install(), "base", "etc", "user-group-ids-actual.conf")) as config_file:
             watchdog_config = json.loads(config_file.read())
 
         expected_config = {"groups": {}, "users": {}}
