@@ -79,14 +79,15 @@ Systemctl Can Detect SulDownloader Service Runs Without Error After Error Report
 
     Replace Sul Downloader With Fake Broken Version
     ${startresult} =  Run Process   /bin/systemctl  start  sophos-spl-update.service
+    Sleep  1s  We need to allow fake sul downloader to run
     ${result} =    Run Process   /bin/systemctl  is-failed  sophos-spl-update.service
-    Should Be Equal As Integers  ${result.rc}  0  msg="Detected error in sophos-spl-update.service error. stdout: ${result.stdout} stderr: ${result.stderr}. Start stdout: ${startresult.stdout}. stderr: ${startresult.stderr}"
+    Should Be Equal As Integers  ${result.rc}  ${0}  msg="Detected error in sophos-spl-update.service error. stdout: ${result.stdout} stderr: ${result.stderr}. Start stdout: ${startresult.stdout}. stderr: ${startresult.stderr}"
 
     Replace Original Sul Downloader
 
     ${startresult} =  Run Process   /bin/systemctl  start  sophos-spl-update.service
     ${result} =    Run Process   /bin/systemctl  is-failed  sophos-spl-update.service
-    Should Be Equal As Integers  ${result.rc}  1  msg="Failed to detect sophos-spl-update.service error. stdout: ${result.stdout} stderr: ${result.stderr}. Start stdout: ${startresult.stdout}. stderr: ${startresult.stderr}"
+    Should Be Equal As Integers  ${result.rc}  ${1}  msg="Failed to detect sophos-spl-update.service error. stdout: ${result.stdout} stderr: ${result.stderr}. Start stdout: ${startresult.stdout}. stderr: ${startresult.stderr}"
 
 UpdateScheduler Regenerates The Config File If It Does Not Exist
     [Documentation]  Demonstrate that Events and Status will be generated during on the first run of Update Scheduler
@@ -786,7 +787,7 @@ Failed Download Telemetry Test
 *** Keywords ***
 Teardown For Test
     Log SystemCtl Update Status
-    Run Keyword If Test Failed  Log File  /opt/sophos-spl/tmp/fakesul.log
+    Dump Log On Failure  /opt/sophos-spl/tmp/fakesul.log
     Run Keyword If Test Failed  Dump Mcs Router Dir Contents
     Run Keyword And Ignore Error  Move File  /etc/hosts.bk  /etc/hosts
     General Test Teardown

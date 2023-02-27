@@ -58,11 +58,9 @@ class UpdateSchedulerHelper(object):
             sys.stderr.write(str(ex))
 
     def replace_sul_downloader_with_fake_broken_version(self):
-        broken_sul_downloader_exe = \
-        """
-        #!/bin/bash   
-        exit 1
-        """
+        broken_sul_downloader_exe = """#!/bin/bash
+exit 1
+"""
         open(os.path.join(self.get_install(), BASE_BIN_PATH, "SulDownloader.0"), 'w').write(broken_sul_downloader_exe)
 
     def check_event_file_generated(self, wait_time_seconds=20, installdir=None):

@@ -191,6 +191,9 @@ class LogUtils(object):
         else:
             logger.info("File does not exist")
 
+    def dump_log_on_failure(self, filename):
+        robot.libraries.BuiltIn.BuiltIn().run_keyword_if_test_failed("LogUtils.Dump Log", filename)
+
     def check_log_contains(self, string_to_contain, path_to_log, log_name):
         if not (os.path.isfile(path_to_log)):
             raise AssertionError(f"Log file {log_name} at location {path_to_log} does not exist ")
