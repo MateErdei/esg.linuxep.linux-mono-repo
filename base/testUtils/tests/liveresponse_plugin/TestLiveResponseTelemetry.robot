@@ -1,5 +1,6 @@
 *** Settings ***
 Documentation    Suite description
+Library     ${LIBS_DIRECTORY}/ActionUtils.py
 Library     ${LIBS_DIRECTORY}/LogUtils.py
 Library     ${LIBS_DIRECTORY}/LiveQueryUtils.py
 

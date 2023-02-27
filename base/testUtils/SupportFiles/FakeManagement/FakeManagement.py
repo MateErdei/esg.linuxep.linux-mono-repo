@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# Copyright (C) 2018-2019 Sophos Plc, Oxford, England.
-# All rights reserved.
+# Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 import zmq
 import os
@@ -9,10 +8,12 @@ import grp
 import pwd
 import time
 import datetime
+import ActionUtils
 from PluginCommunicationTools import FakeManagementAgent
 from PluginCommunicationTools.common.socket_utils import try_get_socket, ZMQ_CONTEXT
 from PluginCommunicationTools.common import PathsLocation
 from PluginCommunicationTools.common.ProtobufSerialisation import Message, Messages, deserialise_message, serialise_message
+
 
 class ManagementAgentPluginRequester(object):
     def __init__(self, plugin_name, logger):
@@ -36,7 +37,7 @@ class ManagementAgentPluginRequester(object):
                                                                                   correlation,
                                                                                   self.name,
                                                                                   self.__m_socket_path))
-        filename = "LiveQuery_{}_request_{}.json".format(correlation, self.get_valid_creation_time_and_ttl())
+        filename = "LiveQuery_{}_request_{}.json".format(correlation, ActionUtils.get_valid_creation_time_and_ttl())
         sophos_install = os.environ['SOPHOS_INSTALL']
         with open(os.path.join(sophos_install,"base/mcs/action/"+filename), "a") as f:
             f.write(action)
@@ -109,10 +110,6 @@ class ManagementAgentPluginRequester(object):
         gid = grp.getgrnam('sophos-spl-group')[2]
         os.chown(file_path, uid, gid)
 
-    def get_valid_creation_time_and_ttl(self):
-        ttl = int(time.time())+10000
-        creation_time = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%fZ")
-        return f"{creation_time}_{ttl}"
 
 class FakeManagement(object):
 

@@ -1,13 +1,13 @@
+# Copyright 2020-2023 Sophos Limited. All rights reserved.
 import json
 import os
 import grp
 import shutil
 from pwd import getpwnam
 from random import randrange
-import time
-import datetime
 import PathManager
 
+import ActionUtils
 import BaseInfo as base_info
 
 TMP_ACTIONS_DIR = os.path.join(PathManager.SOPHOS_INSTALL, "tmp")
@@ -44,7 +44,8 @@ def make_file_readable_by_mcs(file_path):
 def run_live_query(query, name):
     random_correlation_id = "correlation-id-{}".format(randrange(10000000))
     query_json = '{"type": "sophos.mgt.action.RunLiveQuery", "name": "' + name + '", "query": "' + query + '"}'
-    query_file_name = "LiveQuery_{}_request_{}.json".format(random_correlation_id, get_valid_creation_time_and_ttl())
+    query_file_name = "LiveQuery_{}_request_{}.json".format(random_correlation_id,
+                                                            ActionUtils.get_valid_creation_time_and_ttl())
     query_file_path = os.path.join(TMP_ACTIONS_DIR, query_file_name)
     with open(query_file_path, 'w') as action_file:
         action_file.write(query_json)
@@ -56,8 +57,3 @@ def run_live_query(query, name):
 def get_correlation_id():
     import uuid
     return str(uuid.uuid4())
-
-def get_valid_creation_time_and_ttl():
-    ttl = int(time.time())+10000
-    creation_time = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%fZ")
-    return f"{creation_time}_{ttl}"

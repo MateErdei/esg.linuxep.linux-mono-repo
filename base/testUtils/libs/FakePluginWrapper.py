@@ -160,11 +160,6 @@ class FakePluginWrapper(object):
         """
         return time.strftime("%Y%m%d %H%M%S")
 
-    def get_valid_creation_time_and_ttl(self):
-        ttl = int(time.time())+10000
-        creation_time = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%fZ")
-        return f"{creation_time}_{ttl}"
-
     def send_action(self, src_file_name, dest_file_name, **replacements):
         contents = open(src_file_name).read()
         for k, v in replacements.items():

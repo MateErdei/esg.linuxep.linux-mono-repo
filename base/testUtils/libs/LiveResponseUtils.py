@@ -1,7 +1,9 @@
+# Copyright 2020-2023 Sophos Limited. All rights reserved.
 import os
 import glob
 import datetime
 import shutil
+import ActionUtils
 import LiveQueryUtils
 
 import BaseInfo as base_info
@@ -54,7 +56,7 @@ class LiveResponseUtils:
     def run_live_response(self, query, correlationId):
 
         query_file_name = "LiveTerminal_{}_action_{}.json".format(correlationId,
-                                                                  LiveQueryUtils.get_valid_creation_time_and_ttl())
+                                                                  ActionUtils.get_valid_creation_time_and_ttl())
         query_file_path = os.path.join(self.tmp_actions_dir, query_file_name)
         with open(query_file_path, 'w') as action_file:
             action_file.write(query)

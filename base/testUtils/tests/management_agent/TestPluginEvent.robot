@@ -7,6 +7,7 @@ Library           Process
 Library           OperatingSystem
 Library           Collections
 
+Library     ${LIBS_DIRECTORY}/ActionUtils.py
 Library     ${LIBS_DIRECTORY}/EventUtils.py
 Library     ${LIBS_DIRECTORY}/LogUtils.py
 Library     ${LIBS_DIRECTORY}/OnFail.py
