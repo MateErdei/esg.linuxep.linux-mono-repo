@@ -21,7 +21,7 @@ ${EDR_PLUGIN_BIN}   ${COMPONENT_BIN_PATH}
 ${EDR_LOG_PATH}    ${EDR_PLUGIN_PATH}/log/edr.log
 
 *** Test Cases ***
-EDR Plugin Can Recieve Actions
+EDR Plugin Can Receive Actions
     create_users_and_group
     ${handle} =  Start Process  ${EDR_PLUGIN_BIN}
 
