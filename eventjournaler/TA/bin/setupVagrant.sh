@@ -22,7 +22,9 @@ mkdir -p /opt/test/inputs/event_journaler/
 ln -snf "$JOURNALER_PATH/output/SDDS-COMPONENT" /opt/test/inputs/event_journaler_sdds
 ln -snf "$JOURNALER_PATH/output/manualTools"  /opt/test/inputs/manual_tools
 ln -snf "$JOURNALER_PATH/TA"  /opt/test/inputs/test_scripts
+ln -snf "$JOURNALER_PATH/output/fake-management"  /opt/test/inputs/fake_management
 ln -snf "$BASE_PATH/output/SDDS-COMPONENT" /opt/test/inputs/base_sdds
+
 apt-get -y install python3 python3-pip
 python3 -m pip install -r "$JOURNALER_PATH/TA/requirements.txt"
 
