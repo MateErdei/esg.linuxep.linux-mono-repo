@@ -41,7 +41,7 @@ TEST_F(TestEventReceiverImpl, ReceivingActionDoesNotThrow)
     EXPECT_NO_THROW(foo.handleAction(""));
 }
 
-TEST_F(TestEventReceiverImpl, NotInOutbreakMode)
+TEST_F(TestEventReceiverImpl, NotInOutbreakModeOnInitialisation)
 {
     auto queue = std::make_shared<FakeQueue>();
     ManagementAgent::EventReceiverImpl::EventReceiverImpl foo(queue);
