@@ -27,4 +27,6 @@ ln -snf "$BASE_PATH/output/SDDS-COMPONENT" /opt/test/inputs/base_sdds
 apt-get -y install python3 python3-pip python3-pkgconfig
 python3 -m pip install -r "$EDR_PATH/TA/requirements.txt"
 
+# Remove markers from other runs because at the moment they all share "/opt/test/inputs/test_scripts"
+rm /tmp/ran_*_setup_vagrant_script
 touch /tmp/ran_edr_setup_vagrant_script
