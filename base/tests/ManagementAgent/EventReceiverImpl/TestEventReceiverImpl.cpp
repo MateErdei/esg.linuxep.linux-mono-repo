@@ -21,14 +21,14 @@ namespace
 TEST_F(TestEventReceiverImpl, Construction)
 {
     std::string mcs_dir = "test/mcs";
-    Common::TaskQueue::ITaskQueueSharedPtr queue(new FakeQueue);
+    Common::TaskQueue::ITaskQueueSharedPtr queue = std::make_shared<FakeQueue>();
     EXPECT_NO_THROW( // NOLINT
         ManagementAgent::EventReceiverImpl::EventReceiverImpl foo(queue));
 }
 
 TEST_F(TestEventReceiverImpl, ReceivingEventCausesATaskToBeQueued)
 {
-    std::shared_ptr<FakeQueue> queue(new FakeQueue);
+    auto queue = std::make_shared<FakeQueue>();
     ManagementAgent::EventReceiverImpl::EventReceiverImpl foo(queue);
     foo.receivedSendEvent("APPID", "EventXML");
     EXPECT_FALSE(queue->empty());
@@ -36,14 +36,14 @@ TEST_F(TestEventReceiverImpl, ReceivingEventCausesATaskToBeQueued)
 
 TEST_F(TestEventReceiverImpl, ReceivingActionDoesNotThrow)
 {
-    std::shared_ptr<FakeQueue> queue(new FakeQueue);
+    auto queue = std::make_shared<FakeQueue>();
     ManagementAgent::EventReceiverImpl::EventReceiverImpl foo(queue);
     EXPECT_NO_THROW(foo.handleAction(""));
 }
 
 TEST_F(TestEventReceiverImpl, NotInOutbreakMode)
 {
-    std::shared_ptr<FakeQueue> queue(new FakeQueue);
+    auto queue = std::make_shared<FakeQueue>();
     ManagementAgent::EventReceiverImpl::EventReceiverImpl foo(queue);
     EXPECT_FALSE(foo.outbreakMode());
 }
