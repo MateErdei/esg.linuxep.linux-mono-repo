@@ -22,8 +22,6 @@ import tempfile
 import time
 import yaml
 
-from retry import retry
-
 
 TOOLS = os.path.dirname(os.path.abspath(__file__))
 BASE = os.path.dirname(TOOLS)
@@ -462,8 +460,17 @@ def make_sdds3_supplement(args):
         run_with_retries(cmd)
 
 
-@retry(exceptions=subprocess.CalledProcessError, tries=5, delay=2, backoff=2)
+# @retry(exceptions=subprocess.CalledProcessError, tries=5, delay=2, backoff=2)
 def run_with_retries(cmd):
+    retry_count = 4
+    sleep = 2
+    while retry_count > 0:
+        result = subprocess.run(cmd)
+        if result.returncode == 0:
+            return
+        time.sleep(sleep)
+        sleep *= 2
+        retry_count -= 1
     subprocess.check_call(cmd)
 
 
