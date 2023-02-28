@@ -389,7 +389,6 @@ TEST_F(TestOutbreakModeController, outbreak_status_survives_restart)
     controller.reset();
 
     // Replace the controller
-    UsingMemoryAppender recorder(*this);
     controller = std::make_shared<OutbreakModeController>();
     EXPECT_TRUE(controller->outbreakMode());
 }
@@ -471,7 +470,6 @@ TEST_F(TestOutbreakModeController, leaving_outbreak_mode_is_persisted)
     controller.reset();
 
     // Replace the controller
-    UsingMemoryAppender recorder(*this);
     controller = std::make_shared<OutbreakModeController>();
     EXPECT_FALSE(controller->outbreakMode());
 }
