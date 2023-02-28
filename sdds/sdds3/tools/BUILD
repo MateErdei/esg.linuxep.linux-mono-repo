@@ -8,7 +8,6 @@ py_binary(
     visibility = ["//sdds3:__pkg__"],
     deps = [
         requirement("pyyaml"),
-        requirement("retry"),
     ],
 )
 
