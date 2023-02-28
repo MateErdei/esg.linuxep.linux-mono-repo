@@ -91,10 +91,10 @@
                              build-id="20220727094638-d9af386276e633f1c908e5c90cf1fd2275c21197-v9nY0g"/>
             <include artifact-path="output" dest-dir="/build/input"/>
         </build-asset>
-        <build-asset project="thirdparty" repo="xzutils">
-            <release-version branch="release/sspl/Version_5_2_4"
-                             build-id="20220727094833-3570e1781161f0e1e80d256ec3acfa2e74b27587-rh91S8"/>
-            <include artifact-path="output" dest-dir="/build/input"/>
+
+        <build-asset project="em" repo="esg">
+            <development-version branch="develop"/>
+            <include artifact-path="thirdparty/liblzma-linux-opt" dest-dir="/build/redist/lzma"/>
         </build-asset>
 
         <trusted-asset artifact-path="org.cmake/cmake-3.26.0/cmake-3.26.0" dest-dir="/build/redist/cmake"/>
