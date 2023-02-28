@@ -191,8 +191,8 @@
         <workingdir>./linuxep_suites</workingdir>
     </command>
     <command mode="dev,999,prod">
-        <program>chmod</program>
-        <args>+x redist/sdds3/sdds3-builder</args>
+        <program>/bin/bash</program>
+        <args>sdds3/setup.sh</args>
         <workingdir>.</workingdir>
     </command>
     <command mode="dev,999,prod">
