@@ -103,7 +103,7 @@ def warehouse(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
                 build_dev_warehouse(stage=stage, name="release-package-edr-mdr-999")
             if zero_six_zero:
                 build_dev_warehouse(stage=stage, name="release-package-060")
-            build_dev_warehouse(stage=stage, name="localwarehouse", image='JenkinsLinuxTemplate7')
+            build_dev_warehouse(stage=stage, name="localwarehouse", image='centos79_x64_build_20230202')
             run_tests
         else:
             build = False
