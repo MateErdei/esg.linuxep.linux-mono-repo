@@ -38,6 +38,7 @@
             <development-version branch="develop"/>
             <include artifact-path="sophlib/sdds3-tools-x64-linux" dest-dir="/build/input/sdds3"/>
 
+            <include artifact-path="thirdparty/liblzma-linux-opt" dest-dir="/build/redist/lzma"/>
             <include artifact-path="thirdparty/googletest-linux-opt" dest-dir="/build/input/googletest"/>
         </build-asset>
 
@@ -90,11 +91,6 @@
             <release-version branch="release/sspl/Version_0_14_2"
                              build-id="20220727094638-d9af386276e633f1c908e5c90cf1fd2275c21197-v9nY0g"/>
             <include artifact-path="output" dest-dir="/build/input"/>
-        </build-asset>
-
-        <build-asset project="em" repo="esg">
-            <development-version branch="develop"/>
-            <include artifact-path="thirdparty/liblzma-linux-opt" dest-dir="/build/redist/lzma"/>
         </build-asset>
 
         <trusted-asset artifact-path="org.cmake/cmake-3.26.0/cmake-3.26.0" dest-dir="/build/redist/cmake"/>
