@@ -33,5 +33,5 @@ systemctl stop nmbd.service
 systemctl stop smbd.service
 
 # Remove markers from other runs because at the moment they all share "/opt/test/inputs/test_scripts"
-rm /tmp/ran_*_setup_vagrant_script
+rm -f /tmp/ran_*_setup_vagrant_script
 touch /tmp/ran_av_setup_vagrant_script
