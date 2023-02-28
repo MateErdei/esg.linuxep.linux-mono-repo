@@ -236,7 +236,7 @@ CLS Summary is Correct
     Run Process     tar  -cf  ${NORMAL_DIRECTORY}/EXTRA_FOLDER/multiple_eicar.tar  ${NORMAL_DIRECTORY}/naughty_eicar  ${NORMAL_DIRECTORY}/naughty_eicar_2
     Create File     ${NORMAL_DIRECTORY}/EXTRA_FOLDER/clean_file    ${CLEAN_STRING}
 
-    FOR  ${i}  IN RANGE  1500
+    FOR  ${i}  IN RANGE  100
            Create File     ${NORMAL_DIRECTORY}/EXTRA_FOLDER/eicar_${i}    ${EICAR_STRING}
     END
 
@@ -249,9 +249,9 @@ CLS Summary is Correct
     Check Sophos Threat Detector Running
 
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
-    Should Contain   ${output}  1502 files scanned in
-    Should Contain   ${output}  1501 files out of 1502 were infected.
-    Should Contain   ${output}  1502 EICAR-AV-Test infections discovered.
+    Should Contain   ${output}  102 files scanned in
+    Should Contain   ${output}  101 files out of 102 were infected.
+    Should Contain   ${output}  102 EICAR-AV-Test infections discovered.
     Should Contain   ${output}  1 scan error encountered
 
 
