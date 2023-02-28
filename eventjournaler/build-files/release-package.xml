@@ -55,7 +55,7 @@
         </build-asset>
 
         <build-asset project="em" repo="esg">
-            <development-version branch="feature/thirdparty/LINUXDAR-6727-update-minizip-ng-to-3.0.8"/>
+            <development-version branch="develop"/>
             <include artifact-path="thirdparty/liblzma-linux-opt" dest-dir="/build/redist/lzma"/>
         </build-asset>
     </inputs>
