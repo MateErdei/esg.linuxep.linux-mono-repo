@@ -34,7 +34,7 @@ TEST_F(TestEventReceiverImpl, ReceivingEventCausesATaskToBeQueued)
     EXPECT_FALSE(queue->empty());
 }
 
-TEST_F(TestEventReceiverImpl, ReceivingActionDoesnNotThrow)
+TEST_F(TestEventReceiverImpl, ReceivingActionDoesNotThrow)
 {
     std::shared_ptr<FakeQueue> queue(new FakeQueue);
     ManagementAgent::EventReceiverImpl::EventReceiverImpl foo(queue);
