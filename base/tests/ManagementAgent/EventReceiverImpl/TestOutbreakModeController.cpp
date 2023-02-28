@@ -124,7 +124,7 @@ TEST_F(TestOutbreakModeController, handle_invalid_event_xml)
   <user userId="username"/>
   <alert id="fedcba98)sophos";
     auto controller = std::make_shared<OutbreakModeController>();
-    processEventThrowAwayArgs(controller, "CORE", xml);
+    EXPECT_NO_THROW(processEventThrowAwayArgs(controller, "CORE", xml));
 }
 
 TEST_F(TestOutbreakModeController, entering_outbreak_mode)
