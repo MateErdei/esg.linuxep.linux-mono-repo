@@ -217,9 +217,7 @@ TEST_F(HealthStatusTests, healthStatusXML_CreatedCorrectlyForThreatDetectionsHea
 using namespace ManagementAgent::HealthStatusImpl;
 namespace
 {
-    bool checkThreatHealthEq( const HealthStatus::HealthInfo& info,
-                     HealthStatus::healthValue_t expectedThreatHealth
-                     )
+    bool checkThreatHealthEq(const HealthStatus::HealthInfo& info, HealthStatus::healthValue_t expectedThreatHealth)
     {
         auto xmlString = info.statusXML;
         auto xmlMap = Common::XmlUtilities::parseXml(xmlString);
@@ -239,7 +237,7 @@ namespace
         }
         return false;
     }
-}
+} // namespace
 
 TEST_F(HealthStatusTests, outbreakModeMakesHealthRed)
 {
