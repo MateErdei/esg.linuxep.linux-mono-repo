@@ -66,6 +66,7 @@ namespace Common
              * The time stamp is composed of ASCII characters so may be used in UTF-8 files.
              */
 
+            static long int getMinutesSince(std::string timestamp);
             static std::string MessageTimeStamp(const std::chrono::system_clock::time_point& time_point, Common::UtilityImpl::Granularity granularity = Granularity::milliseconds) noexcept;
 
             static std::time_t getCurrTime();

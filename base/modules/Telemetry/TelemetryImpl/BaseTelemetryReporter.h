@@ -38,5 +38,8 @@ namespace Telemetry
         static std::optional<std::string> getMachineId();
         static std::optional<std::string> getVersion();
         static std::optional<std::string> getOverallHealth();
+        static std::optional<std::string> getOutbreakModeCurrent();
+        static std::optional<std::string> getOutbreakModeToday();
+        static std::optional<std::string> getOutbreakModeHistoric();
     };
 } // namespace Telemetry

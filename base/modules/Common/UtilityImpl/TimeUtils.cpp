@@ -116,6 +116,25 @@ namespace Common
             return std::to_string(std::chrono::duration_cast<std::chrono::seconds>(tp.time_since_epoch()).count());
         }
 
+        long int TimeUtils::getMinutesSince(std::string timestamp)
+        {
+
+            tm tm = {};
+            std::stringstream ss(timestamp);
+            ss >> std::get_time(&tm, "%Y-%m-%dT%H:%M:%S");
+
+            std::chrono::system_clock::time_point then =
+                std::chrono::system_clock::from_time_t(mktime(&tm));
+
+            std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
+
+            return
+                std::chrono::duration_cast<std::chrono::minutes>(
+                    now.time_since_epoch()-
+                    then.time_since_epoch()
+                        ).count();
+        }
+
         // copied from SED
         static constexpr uint64_t WINDOWS_FILETIME_OFFSET = 0x019db1ded53e8000;
         static constexpr uint64_t WINDOWS_100NANO_PER_SECOND = 10000000;
@@ -152,5 +171,6 @@ namespace Common
         }
 
         ScopedReplaceITime::~ScopedReplaceITime() { staticTimeSource().reset(new TimeSource{}); }
+
     } // namespace UtilityImpl
 } // namespace Common

@@ -5,12 +5,16 @@
 #include "TelemetryProcessor.h"
 
 #include "EventReceiverImpl/OutbreakModeController.h"
+#include "Common/UtilityImpl/TimeUtils.h"
 
 #include <Common/ApplicationConfigurationImpl/ApplicationPathManager.h>
 #include <Common/TelemetryHelperImpl/TelemetrySerialiser.h>
 #include <Common/UtilityImpl/FileUtils.h>
 #include <Common/XmlUtilities/AttributesMap.h>
 #include <Telemetry/LoggerImpl/Logger.h>
+
+#include <chrono>
+#include <iomanip>
 
 namespace
 {
@@ -111,8 +115,7 @@ namespace Telemetry
         LOGWARN("Could not find the SHS status file at: " << shsStatusFilepath);
         return std::nullopt;
     }
-
-    std::optional<std::string> getOutbreakModeCurrent(const std::string& outbreakXml)
+    std::optional<std::string> BaseTelemetryReporter::getOutbreakModeCurrent()
     {
         Path outbreakModeStatusFilepath =
             Common::ApplicationConfiguration::applicationPathManager().getOutbreakModeStatusFilePath();
@@ -121,25 +124,52 @@ namespace Telemetry
         {
             return extractValueFromFile(outbreakModeStatusFilepath, "outbreak-mode");
         }
-        std::string neverReachedOutbreak = "false";
-        return neverReachedOutbreak;
+        LOGWARN("Could not find the Outbreak Mode status file at: " << outbreakModeStatusFilepath);
+        return std::nullopt;
     }
 
-    std::optional<std::string> getOutbreakModeHistoric(const std::string& outbreakXml)
+    std::optional<std::string> BaseTelemetryReporter::getOutbreakModeHistoric() //just check if file exists
     {
+        Path outbreakModeStatusFilepath =
+            Common::ApplicationConfiguration::applicationPathManager().getOutbreakModeStatusFilePath();
+        auto fs = Common::FileSystem::fileSystem();
+        std::string everReachedOutbreak;
+        if (fs->isFile(outbreakModeStatusFilepath))
+        {
+            return "true";
+        }
+        return "false";
+    }
+
+    std::optional<std::string> BaseTelemetryReporter::getOutbreakModeToday() {
+        if (getOutbreakModeCurrent() == "true")
+        {
+            return "true";
+        }
+
+        long int minSinceOutbreak;
         Path outbreakModeStatusFilepath =
             Common::ApplicationConfiguration::applicationPathManager().getOutbreakModeStatusFilePath();
         auto fs = Common::FileSystem::fileSystem();
         if (fs->isFile(outbreakModeStatusFilepath))
         {
-            return extractValueFromFile(
-                outbreakModeStatusFilepath, "timestamp"); // comes in as a string, need to either change it back to a timestamp or preferably never recieve a string
+            std::optional<std::string> time = extractValueFromFile(outbreakModeStatusFilepath, "timestamp");
+            if (time)
+            {
+                minSinceOutbreak = Common::UtilityImpl::TimeUtils::getMinutesSince(*time);
+                if (minSinceOutbreak < 1440)
+                {
+                    return "true";
+                }
+                return "false";
+            }
+            LOGWARN("Could not parse timestamp of last outbreak event at: " << outbreakModeStatusFilepath);
+            return std::nullopt;
         }
-        std::string neverReachedOutbreak = "false";
-        return neverReachedOutbreak;
+        LOGWARN("Could not find the Outbreak Mode status file at: " << outbreakModeStatusFilepath);
+        return std::nullopt;
     }
 
-    std::optional<std::string> getOutbreakModeToday(const std::string& outbreakXml) {}
 
     std::optional<std::string> extractValueFromFile(const Path& filePath, const std::string& key)
     {
@@ -230,10 +260,5 @@ namespace Telemetry
             LOGWARN("Invalid status XML received. Error: " << ex.what());
         }
         return std::nullopt;
-    }
-
-    ManagementAgent::EventReceiverImpl::OutbreakModeController::time_point_t extractTimestamp()
-    {
-
     }
     } // namespace Telemetry
