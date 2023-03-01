@@ -122,12 +122,19 @@ namespace SulDownloader
     {
         if (!success)
         {
-            DownloadReport report = DownloadReport::Report(*repository, timeTracker);
-            if(report.getProducts().empty() && report.getRepositoryComponents().empty())
+            DownloadReport report;
+            if (repository == nullptr)
             {
-                // Populate report products warehouse components from previous report, so that any issues from previously update are
-                // carried over into the next update.
-                report.combinePreviousReportIfRequired(previousDownloadReport);
+                report.setStatus(suldownloaderdata::RepositoryStatus::DOWNLOADFAILED);
+            }
+            else
+            {
+                report = DownloadReport::Report(*repository, timeTracker);
+                if (report.getProducts().empty() && report.getRepositoryComponents().empty())
+                {
+                    // Populate report products warehouse components from previous report, so that any issues from previously update are carried over into the next update.
+                    report.combinePreviousReportIfRequired(previousDownloadReport);
+                }
             }
             return report;
         }
@@ -635,7 +642,7 @@ namespace SulDownloader
         TimeTracker timeTracker;
         timeTracker.setStartTime(TimeUtils::getCurrTime());
 
-        std::pair<bool, IRepositoryPtr> repositoryResult;
+        std::pair<bool, IRepositoryPtr> repositoryResult = std::make_pair(false, nullptr);
 
         //todo what do we do here, do we need the override file
         //std::string overrideFile = Common::ApplicationConfiguration::applicationPathManager().getSdds3OverrideSettingsFile();
@@ -655,7 +662,7 @@ namespace SulDownloader
                 useSdds3 = false;
             }
         }*/
-        //todo what do we do if JWToken is empty
+
         if (!configurationData.getJWToken().empty())
         {
             LOGINFO("Running in SDDS3 updating mode");
@@ -683,6 +690,7 @@ namespace SulDownloader
         bool supplementOnly)
     {
         bool readSuccessful = false;
+        auto report = DownloadReport::Report("SulDownloader failed.");
         try
         {
             int readAttempt = 0;
@@ -755,18 +763,13 @@ namespace SulDownloader
                 LOGSUPPORT(ex.what());
             }
 
-            auto report =
-                runSULDownloader(configurationData, previousConfigurationData, previousDownloadReport, supplementOnly);
+                report = runSULDownloader(configurationData, previousConfigurationData, previousDownloadReport, supplementOnly);
 
             // If the installation was successful then we can safely update the list of installed features
             if (report.getExitCode() == 0)
             {
                 writeInstalledFeatures(configurationData.getFeatures());
             }
-
-            auto reportAndExitCode = DownloadReport::CodeAndSerialize(report);
-            return std::tuple<int, std::string, bool>(
-                std::get<0>(reportAndExitCode), std::get<1>(reportAndExitCode), report.wasBaseDowngraded());
         }
         catch (Common::FileSystem::IFileSystemException& exception)
         {
@@ -781,7 +784,7 @@ namespace SulDownloader
             LOGERROR(ex.what());
 
         }
-        auto report = DownloadReport::Report("SulDownloader failed.");
+
         auto reportAndExitCode = DownloadReport::CodeAndSerialize(report);
         return std::tuple<int, std::string, bool>(
             std::get<0>(reportAndExitCode), std::get<1>(reportAndExitCode), report.wasBaseDowngraded());
