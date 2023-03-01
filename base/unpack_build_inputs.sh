@@ -296,7 +296,6 @@ function unpack_pypi_pkgs()
   shopt -s nullglob
   for pkg_name in ${PYPI_PKGS[@]}
   do
-    echo ">>> Handling $pkg_name"
     pkg_path=$(ls "$FETCHED_INPUTS_DIR/pypi/${pkg_name}"*)
     dest_dir="${REDIST}/pypi/"
     mkdir -p $dest_dir
@@ -311,9 +310,7 @@ function unpack_pypi_pkgs()
     else
       echo "Unexpected file extension, ignoring: $pkg_path"
     fi
-    echo ">>> Done with $pkg_name"
   done
-  echo ">>> Done with PYPI packages"
   shopt -u nullglob
 }
 
@@ -375,10 +372,22 @@ function setup_cmake()
     echo "cmake synced to $REDIST/cmake"
 }
 
+function apply_third_party_patches()
+{
+  # This patch allows us to know when sseclient has lost a connection
+  # We catch the StopIteration exception in mcs_push_client.py and handle it
+  if [ ! -f ${REDIST}/pypi/sseclient_patched ]
+  then
+    touch ${REDIST}/pypi/sseclient_patched
+    patch ${REDIST}/pypi/sseclient.py < tools/sseclient.patch
+  fi
+}
+
 unpack_tars
 unpack_gzipped_tars
 unpack_zips
 unpack_pypi_pkgs
+apply_third_party_patches
 copy_certs
 copy_sdds3builder
 copy_sophlib

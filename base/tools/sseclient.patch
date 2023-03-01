@@ -1,0 +1,12 @@
+--- sseclient.py	2020-09-25 03:41:25.000000000 +0100
++++ sseclient_new.py	2023-03-01 16:15:00.099046546 +0000
+@@ -94,7 +94,8 @@
+                     raise EOFError()
+                 self.buf += self.decoder.decode(next_chunk)
+ 
+-            except (StopIteration, requests.RequestException, EOFError, six.moves.http_client.IncompleteRead) as e:
++            # Removed StopIteration
++            except (requests.RequestException, EOFError, six.moves.http_client.IncompleteRead) as e:
+                 print(e)
+                 time.sleep(self.retry / 1000.0)
+                 self._connect()
