@@ -8,8 +8,8 @@ target_link_libraries(FlagUtilsTests ${GTEST_LIBRARY} ${GTEST_MAIN_LIBRARY} test
 
 SET_TARGET_PROPERTIES(FlagUtilsTests
         PROPERTIES
-        INSTALL_RPATH "${SUL_LIBRARY_DIRS}"
-        BUILD_RPATH "${SUL_LIBRARY_DIRS}"
+        INSTALL_RPATH "${CMAKE_BINARY_DIR}/libs"
+        BUILD_RPATH "${CMAKE_BINARY_DIR}/libs"
         )
 
 gtest_discover_tests(FlagUtilsTests)

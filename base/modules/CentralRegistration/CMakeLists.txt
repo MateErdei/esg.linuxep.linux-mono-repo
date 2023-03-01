@@ -19,7 +19,7 @@ target_link_libraries(centralregistrationimpl PUBLIC logging HttpRequestsImpl os
 SET_TARGET_PROPERTIES( centralregistrationimpl
         PROPERTIES
         INSTALL_RPATH "$ORIGIN"
-        BUILD_RPATH "${SUL_LIBRARY_DIRS}"
+        BUILD_RPATH "${CMAKE_BINARY_DIR}/libs"
         )
 
 install(TARGETS centralregistrationimpl

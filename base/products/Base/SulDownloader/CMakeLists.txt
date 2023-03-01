@@ -8,7 +8,7 @@ target_link_libraries(SulDownloader  suldownloaderimpl)
 SET_TARGET_PROPERTIES( SulDownloader
         PROPERTIES
         INSTALL_RPATH "$ORIGIN/../lib64"
-        BUILD_RPATH "${SUL_LIBRARY_DIRS}"
+        BUILD_RPATH "${CMAKE_BINARY_DIR}/libs"
         )
 
 

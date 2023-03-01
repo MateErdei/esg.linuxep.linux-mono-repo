@@ -11,7 +11,7 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/sdu.json
 
 SET_TARGET_PROPERTIES( sdu
         PROPERTIES INSTALL_RPATH "$ORIGIN/../lib64"
-        BUILD_RPATH "${SUL_LIBRARY_DIRS}"
+        BUILD_RPATH "${CMAKE_BINARY_DIR}/libs"
         )
 
 install(TARGETS sdu
