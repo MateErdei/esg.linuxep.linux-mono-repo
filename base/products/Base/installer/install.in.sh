@@ -373,10 +373,10 @@ function cleanup_comms_component()
 
   if [[ -d "${SOPHOS_INSTALL}/var/sophos-spl-comms" ]]
   then
-    for entry in etc/resolv.conf etc/hosts usr/lib usr/lib64 lib etc/ssl/certs etc/pki/tls/certs /etc/pki/ca-trust/extracted base/mcs/certs base/remote-diagnose/output; do
+    for entry in lib usr/lib etc/hosts etc/resolv.conf usr/lib64 etc/ssl/certs etc/pki/tls/certs etc/pki/ca-trust/extracted base/mcs/certs base/remote-diagnose/output; do
         umount --force "${SOPHOS_INSTALL}/var/sophos-spl-comms/${entry}"  > /dev/null 2>&1
     done
-    [[ -z "$(ls -A "${SOPHOS_INSTALL}"/var/sophos-spl-comms)" ]] && rm -rf "${SOPHOS_INSTALL}/var/sophos-spl-comms"
+    rm -rf "${SOPHOS_INSTALL}/var/sophos-spl-comms"
   fi
 
   [[ -d "${SOPHOS_INSTALL}/var/comms" ]] && rm -rf "${SOPHOS_INSTALL}/var/comms"
