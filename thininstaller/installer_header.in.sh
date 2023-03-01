@@ -623,6 +623,10 @@ mkdir -p "${SOPHOS_INSTALL}/base/etc/sophosspl"
 echo "[global]" > "${SOPHOS_INSTALL}/base/etc/logger.conf"
 echo "VERBOSITY = INFO" >> "${SOPHOS_INSTALL}/base/etc/logger.conf"
 
+# Avoid new-line at end of file
+echo -n $(hostname -f) >${SOPHOS_TEMP_DIRECTORY}/SOPHOS_HOSTNAME_F
+export SOPHOS_HOSTNAME_F=${SOPHOS_TEMP_DIRECTORY}/SOPHOS_HOSTNAME_F
+
 FORCE_UNINSTALL_SAV=$FORCE_UNINSTALL_SAV ${BIN}/installer credentials.txt ${MCS_TOKEN} ${MCS_URL} ${CUSTOMER_TOKEN_ARGUMENT} ${CMCSROUTER_MESSAGE_RELAYS} ${CMCSROUTER_PRODUCT_ARGUMENTS} ${REGISTRATION_GROUP_ARGS}
 handle_register_errorcodes $?
 #setup for running suldownloader
