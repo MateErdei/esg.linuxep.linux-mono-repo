@@ -18,6 +18,7 @@ namespace Common
             virtual ~IPlatformUtils() = default;
 
             virtual std::string getHostname() const = 0;
+            virtual std::string getFQDN() const = 0;
             virtual std::string getPlatform() const = 0;
             virtual std::string getVendor() const = 0;
             virtual std::string getArchitecture() const = 0;

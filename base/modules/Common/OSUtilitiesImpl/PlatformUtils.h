@@ -28,6 +28,7 @@ namespace Common::OSUtilitiesImpl
             ~ PlatformUtils() = default;
 
             [[nodiscard]] std::string getHostname() const override;
+            [[nodiscard]] std::string getFQDN() const override;
             [[nodiscard]] std::string getPlatform() const override;
             [[nodiscard]] std::string getVendor() const override;
             [[nodiscard]] std::string getArchitecture() const override;

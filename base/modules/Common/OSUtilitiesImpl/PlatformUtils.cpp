@@ -20,6 +20,8 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 #include <json.hpp>
 #include <map>
 
+#include <unistd.h>
+
 
 namespace Common::OSUtilitiesImpl
     {
@@ -176,6 +178,66 @@ namespace Common::OSUtilitiesImpl
         std::string PlatformUtils::getHostname() const
         {
             return PlatformUtils::getUtsname().nodename;
+        }
+
+        static std::string gethostnameWrapper()
+        {
+            std::vector<char> hostname(1024);
+            while (true)
+            {
+                hostname[hostname.size()-1] = 0;
+                auto result = ::gethostname(hostname.data(), hostname.size() - 1);
+                if (result == 0)
+                {
+                    return {hostname.data()};
+                }
+                hostname.resize(hostname.size() * 2);
+            }
+        }
+
+        std::string PlatformUtils::getFQDN() const
+        {
+            auto hostname = gethostnameWrapper();
+            struct addrinfo hints{};
+            hints.ai_family = AF_UNSPEC;
+            hints.ai_flags = AI_CANONNAME;
+
+            struct addrinfo* res = nullptr;
+            std::string result;
+            if (::getaddrinfo(hostname.c_str(),0,&hints,&res) == 0)
+            {
+                // The hostname was successfully resolved.
+                result = res->ai_canonname;
+                freeaddrinfo(res);
+            }
+            else
+            {
+                // Not resolved, so fall back to hostname returned by OS.
+                result = hostname;
+            }
+
+            if (result.find('.') != std::string::npos)
+            {
+                return result;
+            }
+
+            // Backup if SOPHOS_HOSTNAME_F environment variable is set
+            const char* SOPHOS_HOSTNAME_F = ::getenv("SOPHOS_HOSTNAME_F");
+            if (SOPHOS_HOSTNAME_F != nullptr)
+            {
+                auto *fs = FileSystem::fileSystem();
+                if (fs->isFile(SOPHOS_HOSTNAME_F))
+                {
+                    auto contents = fs->readFile(SOPHOS_HOSTNAME_F);
+                    if (contents.find('.') != std::string::npos)
+                    {
+                        return contents;
+                    }
+                }
+            }
+
+            // Fall back to getaddrinfo if hostname -f didn't find something better
+            return result;
         }
 
         std::string PlatformUtils::getPlatform() const
