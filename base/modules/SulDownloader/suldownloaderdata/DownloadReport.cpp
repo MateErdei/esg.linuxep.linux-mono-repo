@@ -85,7 +85,6 @@ bool SulDownloader::suldownloaderdata::operator< (SulDownloader::suldownloaderda
 namespace SulDownloader
 {
     using namespace Common::UtilityImpl;
-    DownloadReport::DownloadReport() : m_status(RepositoryStatus::UNSPECIFIED) {}
 
     DownloadReport DownloadReport::Report(
         const suldownloaderdata::IRepository& repository,

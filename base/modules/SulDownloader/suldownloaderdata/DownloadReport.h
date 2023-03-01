@@ -56,9 +56,9 @@ namespace SulDownloader
          */
         class DownloadReport
         {
-            DownloadReport();
-
         public:
+            DownloadReport() {};
+
             friend class DownloadReportTestBuilder;
 
             enum class VerifyState
@@ -94,6 +94,7 @@ namespace SulDownloader
             static DownloadReport toReport(const std::string& serializedVersion);
 
             RepositoryStatus getStatus() const;
+            void setStatus(const RepositoryStatus& status) { m_status = std::move(status); }
 
             const std::string& getDescription() const;
 
