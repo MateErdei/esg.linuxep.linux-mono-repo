@@ -2759,6 +2759,50 @@ TEST_F( // NOLINT
     EXPECT_EQ(SulDownloader::main_entry(3, args.argc()), 0);
 }
 
+TEST_F(SULDownloaderSdds3Test,updateFailsIfNoJWTToken) // NOLINT
+{
+    setupFileSystemAndGetMock(1, 0, 0);
+    testing::internal::CaptureStderr();
+
+    auto settings = defaultSettings();
+    settings.set_loglevel(ConfigurationSettings::NORMAL);
+    settings.mutable_jwtoken()->assign("");
+    ConfigurationData configurationData = configData(settings);
+    ConfigurationData previousConfigurationData;
+    configurationData.verifySettingsAreValid();
+    DownloadReport previousDownloadReport = DownloadReport::Report("Not assigned");
+
+    auto report =
+        SulDownloader::runSULDownloader(configurationData, previousConfigurationData, previousDownloadReport);
+
+    EXPECT_EQ(report.getStatus(), suldownloaderdata::RepositoryStatus::DOWNLOADFAILED);
+
+    std::string errStd = testing::internal::GetCapturedStderr();
+    ASSERT_THAT(errStd, ::testing::HasSubstr("Failed to update because JWToken was empty"));
+}
+
+TEST_F(SULDownloaderSdds3Test,updateFailsIfOldVersion) // NOLINT
+{
+    setupFileSystemAndGetMock(1, 0, 0);
+    testing::internal::CaptureStderr();
+
+    auto settings = defaultSettings();
+    auto primarySubscription = ProductSubscription("rigidname", "baseversion", "tag", "2020");
+    settings.set_loglevel(ConfigurationSettings::NORMAL);
+    ConfigurationData configurationData = configData(settings);
+    configurationData.setPrimarySubscription(primarySubscription);
+    ConfigurationData previousConfigurationData;
+    configurationData.verifySettingsAreValid();
+    DownloadReport previousDownloadReport = DownloadReport::Report("Not assigned");
+
+    auto report =
+        SulDownloader::runSULDownloader(configurationData, previousConfigurationData, previousDownloadReport);
+
+    EXPECT_EQ(report.getStatus(), suldownloaderdata::RepositoryStatus::DOWNLOADFAILED);
+
+    std::string errStd = testing::internal::GetCapturedStderr();
+    ASSERT_THAT(errStd, ::testing::HasSubstr("The requested fixed version is not available on SDDS3"));
+}
 
 // Suldownloader WriteInstalledFeatures()
 class TestSuldownloaderWriteInstalledFeaturesFunction: public LogOffInitializedTests{};
