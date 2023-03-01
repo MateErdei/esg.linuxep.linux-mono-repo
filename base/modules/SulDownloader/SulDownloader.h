@@ -30,10 +30,6 @@ namespace SulDownloader
                                                                          const bool forceReinstallAllProducts,
                                                                          const bool supplementOnly);
 
-    std::pair<bool, suldownloaderdata::IRepositoryPtr> updateFromSDDS2Warehouse(
-        const suldownloaderdata::ConfigurationData& configurationData,
-        bool supplementOnly=false);
-
     /**
      * Executes the core functionality of SULDownloader.
      *
