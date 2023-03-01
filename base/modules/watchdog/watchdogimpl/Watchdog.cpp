@@ -278,7 +278,7 @@ void Watchdog::writeExecutableUserAndGroupToWatchdogConfig()
 {
     auto fileSystem = Common::FileSystem::fileSystem();
     auto filePermissions = Common::FileSystem::filePermissions();
-    std::string watchdogConfigPath = Common::ApplicationConfiguration::applicationPathManager().getWatchdogConfigPath();
+    std::string watchdogConfigPath = Common::ApplicationConfiguration::applicationPathManager().getActualUserGroupIdConfigPath();
 
     std::set<std::string> groups{"sophos-spl-ipc"};
     std::set<std::string> users;

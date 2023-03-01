@@ -51,9 +51,14 @@ namespace Common
             return socketPath("watchdog.ipc");
         }
 
-        std::string ApplicationPathManager::getWatchdogConfigPath() const
+        std::string ApplicationPathManager::getActualUserGroupIdConfigPath() const
         {
             return Common::FileSystem::join(sophosInstall(), "base/etc/user-group-ids-actual.conf");
+        }
+
+        std::string ApplicationPathManager::getRequestedUserGroupIdConfigPath() const
+        {
+            return Common::FileSystem::join(sophosInstall(), "base/etc/user-group-ids-requested.conf");
         }
 
         std::string ApplicationPathManager::sophosInstall() const
