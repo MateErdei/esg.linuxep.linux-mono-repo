@@ -320,6 +320,35 @@ function add_to_group()
     "${USERMOD}" -a -G "$groupname" "$username"  || failure ${EXIT_FAIL_ADDUSER} "Failed to add user $username to group $groupname"
 }
 
+function generate_local_user_group_id_config()
+{
+  [[ -d "${SOPHOS_INSTALL}/base/etc" ]] || failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to generate user and group ID template file, ${SOPHOS_INSTALL}/base/etc dir does not exist"
+  local configPath="${SOPHOS_INSTALL}/base/etc/user-group-ids-requested.conf"
+  if [[ ! -f "${configPath}" ]]
+  then
+    cat > "${configPath}" << EOF
+# TODO LINUXDAR-6704 - Finish  this text!
+# This file allows the user and group IDs of the SPL product to be specified
+# note - mention the other file requested vs actual tell users to read that for all users and groups.
+# security notes go here
+#Using the following template:
+#{
+#    "users": {
+#        "username1": uid1,
+#        "username2": uid2
+#    },
+#    "groups": {
+#        "groupname1": gid1,
+#        "groupname2": gid2
+#    },
+#}
+#
+EOF
+  fi
+  chown root:root "${configPath}"
+  chmod 600 "${configPath}"
+}
+
 function cleanup_comms_component()
 {
   function check_user_exists()
@@ -798,6 +827,7 @@ fi
 
 unset LD_LIBRARY_PATH
 cleanup_comms_component
+generate_local_user_group_id_config
 
 for F in "$DIST/installer/plugins"/*
 do
