@@ -3,7 +3,10 @@ add_executable(TestWatchdog
         WatchdogTests.cpp
         TestPluginProxy.cpp
         TestWatchdog.cpp
-        TestWatchdogAndWdctl.cpp TestWatchdogServiceLine.cpp MockIWatchdogRequest.h)
+        TestWatchdogAndWdctl.cpp
+        TestWatchdogServiceLine.cpp
+        MockIWatchdogRequest.h
+        TestUserGroupUtils.cpp)
 target_include_directories(TestWatchdog SYSTEM BEFORE PUBLIC ${GTEST_INCLUDE} ${GMOCK_INCLUDE})
 target_include_directories(TestWatchdog BEFORE PUBLIC "${CMAKE_SOURCE_DIR}" ${NLOHMANN_JSON_INCLUDE_DIR})
 target_link_libraries(TestWatchdog ${GTEST_LIBRARY} ${GTEST_MAIN_LIBRARY})

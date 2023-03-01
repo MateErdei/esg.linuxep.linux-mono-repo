@@ -13,6 +13,8 @@ add_library(watchdogimpl STATIC
         PluginProxy.h
         Watchdog.cpp
         Watchdog.h
+        UserGroupUtils.cpp
+        UserGroupUtils.h
         )
 
 target_link_libraries(watchdogimpl PUBLIC
