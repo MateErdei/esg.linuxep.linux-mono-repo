@@ -100,18 +100,14 @@ def get_suffix():
     return "-" + BRANCH_NAME
 
 
-def robot_task(machine: tap.Machine):
+def robot_task(machine: tap.Machine, robot_args: str):
     global BRANCH_NAME
     machine_name = machine.template
     try:
         if machine.run('which', 'apt-get', return_exit_code=True) == 0:
             package_install(machine, 'python3.7-dev')
         install_requirements(machine)
-        if DEBUG_MODE:
-            machine.run('DEBUG=true', 'python3', machine.inputs.test_scripts / 'RobotFramework.py',
-                        timeout=3600)
-        else:
-            machine.run('python3', machine.inputs.test_scripts / 'RobotFramework.py',
+        machine.run(robot_args, 'python3', machine.inputs.test_scripts / 'RobotFramework.py',
                     timeout=3600)
     finally:
         machine.run('python3', machine.inputs.test_scripts / 'move_robot_results.py')
@@ -121,7 +117,7 @@ def robot_task(machine: tap.Machine):
                     BRANCH_NAME + "/base" + get_suffix() + "_" + machine_name + "-log.html")
 
 
-def coverage_task(machine: tap.Machine, branch: str):
+def coverage_task(machine: tap.Machine, branch: str, robot_args=None):
     try:
         if machine.run('which', 'apt-get', return_exit_code=True) == 0:
             package_install(machine, 'python3.7-dev')
@@ -153,7 +149,7 @@ def coverage_task(machine: tap.Machine, branch: str):
         # run component pytest -- these are disabled
         # run tap-tests
         try:
-            machine.run('python3', machine.inputs.test_scripts / 'RobotFramework.py',
+            machine.run(robot_args, 'python3', machine.inputs.test_scripts / 'RobotFramework.py',
                         timeout=3600,
                         environment={'COVFILE': COVFILE_TAPTESTS})
         finally:
@@ -345,10 +341,22 @@ def sspl_base(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
         # add other distros here
     )
 
+    # Add args to pass env vars to RobotFramework.py call in test runs
+    robot_args_list = []
+    if mode is DEBUG_MODE:
+        robot_args_list.append("DEBUG=true")
+    if parameters.test:
+        robot_args_list.append("TEST=" + parameters.test)
+    if parameters.suite:
+        robot_args_list.append("SUITE=" + parameters.suite)
+    robot_args = " ".join(robot_args_list)
+
     with stage.parallel('integration'):
-        task_func = robot_task
         if mode == COVERAGE_MODE:
-            stage.task(task_name="centos77", func=coverage_task, machine=tap.Machine('centos77_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux), branch=context.branch)
+            stage.task(task_name="centos77", func=coverage_task,
+                       machine=tap.Machine('centos77_x64_server_en_us', inputs=test_inputs,
+                                           platform=tap.Platform.Linux), branch=context.branch,
+                       robot_args=robot_args)
         else:
             for template_name, machine in machines:
-                stage.task(task_name=template_name, func=task_func, machine=machine)
+                stage.task(task_name=template_name, func=robot_task, machine=machine, robot_args=robot_args)

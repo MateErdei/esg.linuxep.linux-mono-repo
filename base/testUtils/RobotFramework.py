@@ -24,6 +24,11 @@ def main():
         'suite': '*'
     }
 
+    if os.environ.get('TEST'):
+        robot_args['test'] = os.environ.get('TEST')
+    if os.environ.get('SUITE'):
+        robot_args['suite'] = os.environ.get('SUITE')
+
     os.environ['OPENSSL_INPUT'] = '/opt/test/inputs/openssl'
     os.environ['SYSTEM_PRODUCT_TEST_OUTPUT'] = '/opt/test/inputs/system_test/'
     os.environ['BASE_DIST'] = '/opt/test/inputs/base_sdds'

@@ -4,6 +4,8 @@ def params = [
     choice(name: 'MODE', choices: ['release', 'coverage','analysis', 'debug'], defaultValue: 'release', description: 'Build mode'),
     booleanParam(name: 'INCLUDE_BUILD_IN_PIPELINE', defaultValue: true, description: 'Perform a build via the pipeline: unified builds'),
     string(name: 'test_type', defaultValue: 'regression', description: 'Test type [regression|faultinjection]'),
+    string(name: 'robot_test', defaultValue: '', description: 'Optional specific Robot test to run'),
+    string(name: 'robot_suite', defaultValue: '', description: 'Optional specific Robot suite to run'),
 ]
 
 CIPipeline { pipelineEntryPoint = 'sspl_base'; buildParameters = params }
