@@ -644,14 +644,7 @@ namespace SulDownloader
 
         std::pair<bool, IRepositoryPtr> repositoryResult = std::make_pair(false, nullptr);
 
-        //todo what do we do here, do we need the override file
-        //std::string overrideFile = Common::ApplicationConfiguration::applicationPathManager().getSdds3OverrideSettingsFile();
-       /* bool useSdds3 = configurationData.getUseSDDS3();
-        if (!useSdds3 && Common::FileSystem::fileSystem()->exists(overrideFile))
-        {
-            useSdds3 = !(StringUtils::extractValueFromIniFile(overrideFile, "USE_SDDS3").empty());
-        }*/
-        //todo if the version is older than 2022 what do we do
+        //todo LINUXDAR-6832 if the version is older than 2022 what do we do
         /*if (useSdds3 && !configurationData.getPrimarySubscription().fixedVersion().empty())
         {
             if (StringUtils::isVersionOlder("2022", configurationData.getPrimarySubscription().fixedVersion()))
