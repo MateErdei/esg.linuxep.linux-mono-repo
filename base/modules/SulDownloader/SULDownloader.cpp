@@ -758,7 +758,7 @@ namespace SulDownloader
                 LOGSUPPORT(ex.what());
             }
 
-                report = runSULDownloader(configurationData, previousConfigurationData, previousDownloadReport, supplementOnly);
+            report = runSULDownloader(configurationData, previousConfigurationData, previousDownloadReport, supplementOnly);
 
             // If the installation was successful then we can safely update the list of installed features
             if (report.getExitCode() == 0)

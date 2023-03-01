@@ -2775,6 +2775,7 @@ TEST_F(SULDownloaderSdds3Test,updateFailsIfNoJWTToken) // NOLINT
     auto report =
         SulDownloader::runSULDownloader(configurationData, previousConfigurationData, previousDownloadReport);
 
+    //We wont writeInstalledFeatures if return code is non zero
     EXPECT_EQ(report.getStatus(), suldownloaderdata::RepositoryStatus::DOWNLOADFAILED);
 
     std::string errStd = testing::internal::GetCapturedStderr();
@@ -2798,6 +2799,7 @@ TEST_F(SULDownloaderSdds3Test,updateFailsIfOldVersion) // NOLINT
     auto report =
         SulDownloader::runSULDownloader(configurationData, previousConfigurationData, previousDownloadReport);
 
+    //We wont writeInstalledFeatures if return code is non zero
     EXPECT_EQ(report.getStatus(), suldownloaderdata::RepositoryStatus::DOWNLOADFAILED);
 
     std::string errStd = testing::internal::GetCapturedStderr();
