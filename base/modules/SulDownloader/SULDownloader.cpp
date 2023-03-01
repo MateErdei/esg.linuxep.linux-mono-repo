@@ -8,30 +8,29 @@ Copyright 2018-2022, Sophos Limited.  All rights reserved.
 
 #include "UpdateUtilities/InstalledFeatures.h"
 
-#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
-#include <Common/FileSystem/IFilePermissions.h>
-#include <Common/FileSystem/IFileSystem.h>
-#include <Common/FileSystem/IFileSystemException.h>
-#include <Common/FileSystem/IPidLockFileUtils.h>
-#include <Common/Logging/FileLoggingSetup.h>
-#include <Common/UtilityImpl/ProjectNames.h>
-#include <Common/UtilityImpl/StringUtils.h>
-#include <Common/UtilityImpl/TimeUtils.h>
-#include <SulDownloader/Logger.h>
-#include <SulDownloader/ProductUninstaller.h>
-#include <SulDownloader/SulDownloader.h>
-#include <SulDownloader/sdds3/SDDS3Utils.h>
-#include <SulDownloader/sdds3/Sdds3RepositoryFactory.h>
-#include <SulDownloader/suldownloaderdata/ConfigurationData.h>
-#include <SulDownloader/suldownloaderdata/ConfigurationDataUtil.h>
-#include <SulDownloader/suldownloaderdata/DownloadReport.h>
-#include <SulDownloader/suldownloaderdata/DownloadedProduct.h>
-#include <SulDownloader/suldownloaderdata/ProductSelection.h>
-#include <SulDownloader/suldownloaderdata/SulDownloaderException.h>
-#include <SulDownloader/suldownloaderdata/TimeTracker.h>
-#include <SulDownloader/warehouse/SULRaii.h>
-#include <SulDownloader/warehouse/WarehouseRepository.h>
-#include <SulDownloader/warehouse/WarehouseRepositoryFactory.h>
+#include "Logger.h"
+#include "ProductUninstaller.h"
+#include "SulDownloader.h"
+#include "sdds3/SDDS3Utils.h"
+#include "sdds3/Sdds3RepositoryFactory.h"
+#include "suldownloaderdata/ConfigurationData.h"
+#include "suldownloaderdata/ConfigurationDataUtil.h"
+#include "suldownloaderdata/ConnectionSelector.h"
+#include "suldownloaderdata/DownloadReport.h"
+#include "suldownloaderdata/DownloadedProduct.h"
+#include "suldownloaderdata/SulDownloaderException.h"
+#include "suldownloaderdata/TimeTracker.h"
+
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include "Common/FileSystem/IFilePermissions.h"
+#include "Common/FileSystem/IFileSystem.h"
+#include "Common/FileSystem/IFileSystemException.h"
+#include "Common/FileSystem/IPidLockFileUtils.h"
+#include "Common/Logging/FileLoggingSetup.h"
+#include "Common/UtilityImpl/ProjectNames.h"
+#include "Common/UtilityImpl/StringUtils.h"
+#include "Common/UtilityImpl/TimeUtils.h"
+
 #include <sys/stat.h>
 
 #include <algorithm>
