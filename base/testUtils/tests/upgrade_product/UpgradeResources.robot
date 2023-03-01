@@ -229,6 +229,19 @@ Check Current Release With AV Installed Correctly
     Check AV Plugin Installed
     Check SafeStore Installed Correctly
     Check Installed Correctly
+    Check Comms Component Is Not Present
+
+Check Comms Component Is Not Present
+    Verify Group Removed    sophos-spl-network
+    Verify User Removed    sophos-spl-network
+
+    File Should Not Exist    ${SOPHOS_INSTALL}/base/bin/CommsComponent
+    File Should Not Exist    ${SOPHOS_INSTALL}/logs/base/sophosspl/comms_component.log
+    File Should Not Exist    ${SOPHOS_INSTALL}/base/pluginRegistry/commscomponent.json
+
+    Directory Should Not Exist   ${SOPHOS_INSTALL}/var/sophos-spl-comms
+    Directory Should Not Exist   ${SOPHOS_INSTALL}/var/comms
+    Directory Should Not Exist   ${SOPHOS_INSTALL}/logs/base/sophos-spl-comms
 
 Check Installed Correctly
     Should Exist    ${SOPHOS_INSTALL}
