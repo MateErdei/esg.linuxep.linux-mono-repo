@@ -9,12 +9,9 @@ add_executable(SulDownloaderTests
         TestSdds3RepositoryHelper.h
         TestSdds3RepositoryHelper.cpp
         TestSDDS3Utils.cpp
-        MockWarehouseRepositoryTest.cpp
-        MockWarehouseRepository.h
         MockSdds3Repository.h
         MockSdds3Wrapper.h
         SulDownloaderSdds3Tests.cpp
-        TestDownloadReport.cpp
         TestConnectionSelector.cpp
         TestProductSelection.cpp
         MockVersig.h

@@ -7,16 +7,6 @@ Copyright 2018-2020, Sophos Limited.  All rights reserved.
 
 using namespace SulDownloader;
 
-void TestWarehouseHelper::replaceWarehouseCreator(WarehouseRespositoryCreaterFunc creator)
-{
-    WarehouseRepositoryFactory::instance().replaceCreator(std::move(creator));
-}
-
-void SulDownloader::TestWarehouseHelper::restoreWarehouseFactory()
-{
-    SulDownloader::WarehouseRepositoryFactory::instance().restoreCreator();
-}
-
 ::testing::AssertionResult SulDownloader::productInfoIsEquivalent(
     const char* m_expr,
     const char* n_expr,

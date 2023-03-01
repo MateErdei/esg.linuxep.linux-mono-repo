@@ -7,7 +7,6 @@ Copyright 2018-2020, Sophos Limited.  All rights reserved.
 #include "DownloadReport.h"
 
 #include "DownloadedProduct.h"
-#include "IWarehouseRepository.h"
 #include "Logger.h"
 #include "SulDownloaderException.h"
 #include "TimeTracker.h"

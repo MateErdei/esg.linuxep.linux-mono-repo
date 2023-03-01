@@ -5,10 +5,10 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 #pragma once
 
-#include "IWarehouseRepository.h"
 #include "ProductMetadata.h"
 
 #include <unordered_map>
+
 namespace SulDownloader
 {
     namespace suldownloaderdata

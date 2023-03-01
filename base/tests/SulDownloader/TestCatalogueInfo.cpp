@@ -11,7 +11,6 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <gtest/gtest.h>
 #include <modules/SulDownloader/suldownloaderdata/CatalogueInfo.h>
 #include <modules/SulDownloader/suldownloaderdata/DownloadedProduct.h>
-#include <modules/SulDownloader/suldownloaderdata/IWarehouseRepository.h>
 
 using namespace SulDownloader;
 using namespace SulDownloader::suldownloaderdata;

@@ -7,7 +7,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #pragma once
 
 #include <SulDownloader/suldownloaderdata/DownloadedProduct.h>
-#include <SulDownloader/suldownloaderdata/IWarehouseRepository.h>
+#include <SulDownloader/suldownloaderdata/IRepository.h>
 
 #include <map>
 #include <string>

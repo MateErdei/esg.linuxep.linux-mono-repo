@@ -17,7 +17,6 @@ add_library(suldownloaderimpl SHARED
         sdds3/SusRequester.cpp
         sdds3/Logger.h
         sdds3/Logger.cpp
-        suldownloaderdata/IWarehouseRepository.h
         SULDownloader.cpp
         SulDownloader.h
         ProductUninstaller.cpp
