@@ -32,7 +32,7 @@ class ProductUninstallerTest : public LogInitializedTests
 
         // If SOPHOS_INSTALL isn't /opt/sophos-spl this path needs to match:
         m_defaultDistributionPath = Common::FileSystem::join(
-            Common::ApplicationConfiguration::applicationPathManager().getLocalDistributionRepository(),
+            Common::ApplicationConfiguration::applicationPathManager().getLocalSdds3DistributionRepository(),
             "product"
         ); // "/opt/sophos-spl/base/update/cache/primary/product" by default
     }
@@ -150,7 +150,7 @@ TEST_F( // NOLINT
     std::vector<std::string> fileList = createDefaultFileList(3);
     std::vector<suldownloaderdata::DownloadedProduct> productList = createDefaultDownloadProductList(2);
     EXPECT_CALL(*m_fileSystemMock, isDirectory(_)).WillOnce(Return(true));
-    EXPECT_CALL(*m_fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primary/product")).WillOnce(Return(true));
+    EXPECT_CALL(*m_fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/sdds3primary/product")).WillOnce(Return(true));
     EXPECT_CALL(*m_fileSystemMock, listFiles(_)).WillOnce(Return(fileList));
     EXPECT_CALL(*m_fileSystemMock, removeFileOrDirectory(_)).Times(1);
     ProductUninstaller uninstallManager;
@@ -180,7 +180,7 @@ TEST_F( // NOLINT
     std::vector<std::string> fileList = createDefaultFileList(3);
     std::vector<suldownloaderdata::DownloadedProduct> productList = createDefaultDownloadProductList(2);
     EXPECT_CALL(*m_fileSystemMock, isDirectory(_)).WillOnce(Return(true));
-    EXPECT_CALL(*m_fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/primary/product")).WillOnce(Return(false));
+    EXPECT_CALL(*m_fileSystemMock, isDirectory("/opt/sophos-spl/base/update/cache/sdds3primary/product")).WillOnce(Return(false));
     EXPECT_CALL(*m_fileSystemMock, listFiles(_)).WillOnce(Return(fileList));
 
     ProductUninstaller uninstallManager;
