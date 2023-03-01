@@ -13,7 +13,6 @@
 #include <Common/XmlUtilities/AttributesMap.h>
 #include <Telemetry/LoggerImpl/Logger.h>
 
-#include <chrono>
 #include <iomanip>
 
 namespace
@@ -141,7 +140,7 @@ namespace Telemetry
         return "false";
     }
 
-    std::optional<std::string> BaseTelemetryReporter::getOutbreakModeToday() {
+    std::optional<std::string> BaseTelemetryReporter::getOutbreakModeToday(/*FormattedTime:: timeFormat?*/) {
         if (getOutbreakModeCurrent() == "true")
         {
             return "true";
@@ -157,7 +156,9 @@ namespace Telemetry
             if (time)
             {
                 minSinceOutbreak = Common::UtilityImpl::TimeUtils::getMinutesSince(*time);
-                if (minSinceOutbreak < 1440)
+                // reformattedTime = ::toTime(time, format);
+                // timeNow = FormattedTime::now();
+                if (minSinceOutbreak < 1440) // if (timeNow - time > 256000)
                 {
                     return "true";
                 }

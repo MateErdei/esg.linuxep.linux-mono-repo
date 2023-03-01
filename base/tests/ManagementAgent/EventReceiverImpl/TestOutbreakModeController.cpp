@@ -2,13 +2,12 @@
 
 #define TEST_PUBLIC public
 
-#include "ManagementAgent/EventReceiverImpl/OutbreakModeController.h"
-
 #include "Common/FileSystem/IFileNotFoundException.h"
-
+#include "ManagementAgent/EventReceiverImpl/OutbreakModeController.h"
 #include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
-#include "tests/Common/Helpers/TestSpecificDirectory.h"
 #include "tests/Common/Helpers/MockFileSystem.h"
+#include "tests/Common/Helpers/TestSpecificDirectory.h"
+#include "tests/Common/UtilityImpl/MockFormattedTime.h"
 
 using namespace ManagementAgent::EventReceiverImpl;
 namespace fs = sophos_filesystem;
@@ -110,6 +109,7 @@ namespace
         }
 
         void checkOutbreakEventSent();
+        std::unique_ptr<MockFormattedTime> m_formattedTime;
     };
 
     void TestOutbreakModeController::checkOutbreakEventSent()
@@ -271,7 +271,7 @@ TEST_F(TestOutbreakModeController, we_do_not_enter_outbreak_mode_if_we_are_alrea
 TEST_F(TestOutbreakModeController, loads_true)
 {
     auto* filesystemMock = new MockFileSystem();
-    std::string contents = R"({"outbreakMode":true})";
+    std::string contents = R"({"outbreak-mode":true})";
     EXPECT_CALL(*filesystemMock, readFile(expectedStatusFile_, _)).WillOnce(Return(contents));
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
 
@@ -283,7 +283,7 @@ TEST_F(TestOutbreakModeController, loads_false)
 {
     UsingMemoryAppender recorder(*this);
     auto* filesystemMock = new MockFileSystem();
-    std::string contents = R"({"outbreakMode":false})";
+    std::string contents = R"({"outbreak-mode":false})";
     EXPECT_CALL(*filesystemMock, readFile(expectedStatusFile_, _)).WillOnce(Return(contents));
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
 
@@ -341,7 +341,7 @@ TEST_F(TestOutbreakModeController, loads_unreadable)
     }
     // Current FileSystem can't differentiate between can't read and doesn't exist
     auto path = expectedStatusFile_;
-    const auto contents = R"({"outbreakMode":true})";
+    const auto contents = R"({"outbreak-mode":true})";
     auto* filesystem = Common::FileSystem::fileSystem();
     filesystem->writeFileAtomically(expectedStatusFile_, contents, testDir_, 0001);
     ::chmod(expectedStatusFile_.c_str(), 0);
@@ -362,7 +362,7 @@ TEST_F(TestOutbreakModeController, loads_not_json)
 TEST_F(TestOutbreakModeController, loads_not_boolean)
 {
     auto* filesystemMock = new MockFileSystem();
-    std::string contents = R"({"outbreakMode":123})";
+    std::string contents = R"({"outbreak-mode":123})";
     EXPECT_CALL(*filesystemMock, readFile(expectedStatusFile_, _)).WillOnce(Return(contents));
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
 
@@ -373,7 +373,7 @@ TEST_F(TestOutbreakModeController, loads_not_boolean)
 TEST_F(TestOutbreakModeController, loads_uuid_not_string)
 {
     auto* filesystemMock = new MockFileSystem();
-    std::string contents = R"({"outbreakMode":true, "uuid":false})";
+    std::string contents = R"({"outbreak-mode":true, "uuid":false})";
     EXPECT_CALL(*filesystemMock, readFile(expectedStatusFile_, _)).WillOnce(Return(contents));
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
 
@@ -387,7 +387,10 @@ TEST_F(TestOutbreakModeController, saves_status_file_on_outbreak)
     auto* filesystemMock = new MockFileSystem();
     EXPECT_CALL(*filesystemMock, readFile(_,_)).WillOnce(Return(""));
 
-    std::string expected_contents = R"({"outbreakMode":true,"uuid":"5df69683-a5a2-5d96-897d-06f9c4c8c7bf"})";
+    auto now = OutbreakModeController::clock_t::now();
+    auto timestamp = Common::UtilityImpl::TimeUtils::MessageTimeStamp(now);
+
+    std::string expected_contents = R"({"outbreak-mode":true,"timestamp":")" + timestamp + R"(","uuid":"5df69683-a5a2-5d96-897d-06f9c4c8c7bf"})";
 
     EXPECT_CALL(*filesystemMock, writeFileAtomically(expectedStatusFile_, expected_contents, _, _)).WillOnce(Return());
     EXPECT_CALL(*filesystemMock, writeFileAtomically(
@@ -457,7 +460,7 @@ TEST_F(TestOutbreakModeController, write_fails_directory_in_place_of_file)
 
 TEST_F(TestOutbreakModeController, write_fails_permission_on_file)
 {
-    const auto contents = R"({"outbreakMode":123})";
+    const auto contents = R"({"outbreak-mode":123})";
     auto* filesystem = Common::FileSystem::fileSystem();
     filesystem->writeFileAtomically(expectedStatusFile_, contents, testDir_, 0001);
     ::chmod(expectedStatusFile_.c_str(), 0);
@@ -554,7 +557,7 @@ TEST_F(TestOutbreakModeController, ignore_broken_action_xml)
 TEST_F(TestOutbreakModeController, ignore_wrong_id_clearing_outbreak_mode)
 {
     auto* filesystemMock = new MockFileSystem();
-    std::string contents = R"({"outbreakMode":true,"uuid":"5df69683-a5a2-5d96-897d-06f9c4c8c7bf"})";
+    std::string contents = R"({"outbreak-mode":true,"uuid":"5df69683-a5a2-5d96-897d-06f9c4c8c7bf"})";
     EXPECT_CALL(*filesystemMock, readFile(expectedStatusFile_, _)).WillOnce(Return(contents));
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
 

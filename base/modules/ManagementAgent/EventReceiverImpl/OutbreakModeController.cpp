@@ -124,8 +124,8 @@ void ManagementAgent::EventReceiverImpl::OutbreakModeController::save(std::strin
     auto& paths = Common::ApplicationConfiguration::applicationPathManager();
     auto path = paths.getOutbreakModeStatusFilePath();
     nlohmann::json j;
-    j["outbreak-mode"] = outbreakMode_;
     j["timestamp"] = timestamp;
+    j["outbreak-mode"] = outbreakMode_;
     if (!uuid_.empty())
     {
         j["uuid"] = uuid_;
@@ -154,7 +154,7 @@ void ManagementAgent::EventReceiverImpl::OutbreakModeController::load()
         {
             // Ignore empty files without error
             nlohmann::json j = nlohmann::json::parse(contents);
-            outbreakMode_ = j.at("outbreakMode").get<bool>();
+            outbreakMode_ = j.at("outbreak-mode").get<bool>();
             if (j.contains("uuid"))
             {
                 uuid_ = j.at("uuid").get<std::string>();
@@ -260,5 +260,7 @@ void ManagementAgent::EventReceiverImpl::OutbreakModeController::leaveOutbreakMo
     outbreakMode_ = false;
     uuid_ = "";
     detectionCount_ = 0;
-    save();
+
+    auto timestamp = Common::UtilityImpl::TimeUtils::MessageTimeStamp(clock_t::now());
+    save(timestamp);
 }

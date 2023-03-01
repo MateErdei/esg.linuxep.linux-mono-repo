@@ -152,3 +152,34 @@ Test Fake Plugin Teardown
     Run Keyword And Ignore Error  Stop Management Agent
     Remove Fake Plugin From Registry
     MCSRouter Default Test Teardown
+
+Send Clear Action
+    [Arguments]  ${uuid}
+
+    ${creation_time_and_ttl} =  get_valid_creation_time_and_ttl
+    ${actionFileName} =    Set Variable    ${SOPHOS_INSTALL}/base/mcs/action/CORE_action_${creation_time_and_ttl}.xml
+    ${srcFileName} =  Set Variable  ${SUPPORT_FILES}/CORE_actions/clear.xml
+    send_action  ${srcFileName}  ${actionFileName}  UUID=${uuid}
+
+
+Enter Outbreak Mode
+    [Arguments]  ${eventContent}
+
+    ${mark} =  mark_log_size  ${BASE_LOGS_DIR}/sophosspl/sophos_managementagent.log
+    register on fail  dump_marked_log  ${BASE_LOGS_DIR}/sophosspl/sophos_managementagent.log  ${mark}
+
+    Repeat Keyword  110 times  Send Plugin Event   ${eventContent}
+
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  1 secs
+    ...  Check Event File     ${eventContent}
+
+    wait for log contains from mark  ${mark}  Entering outbreak mode: Further detections will not be reported to Central
+
+    # Check we have the outbreak event
+    check at least one event has substr  ${SOPHOS_INSTALL}/base/mcs/event  sophos.core.outbreak
+
+    # count events
+    ${count} =  Count Files in Directory  ${SOPHOS_INSTALL}/base/mcs/event
+    Should be equal as Integers  ${count}  101

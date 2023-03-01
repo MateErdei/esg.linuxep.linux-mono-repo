@@ -7,6 +7,7 @@ Library           Process
 Library           OperatingSystem
 Library           Collections
 
+Library     ${LIBS_DIRECTORY}/ActionUtils.py
 Library     ${LIBS_DIRECTORY}/EventUtils.py
 Library     ${LIBS_DIRECTORY}/LogUtils.py
 Library     ${LIBS_DIRECTORY}/OnFail.py
@@ -34,39 +35,6 @@ Verify Management Agent Creates New Event File When Plugin Raises A New Event
     ...  10 secs
     ...  1 secs
     ...  Check Event File     ${eventContent}
-
-Verify Management Agent Goes Into Outbreak Mode After 100 Events
-    [Tags]  SMOKE  MANAGEMENT_AGENT  TAP_TESTS
-    # make sure no previous event xml file exists.
-    Remove Event Xml Files
-
-    Setup Plugin Registry
-    Start Management Agent
-
-    Start Plugin
-    set_fake_plugin_app_id  CORE
-
-    ${eventContent} =  Get File  ${SUPPORT_FILES}/CORE_events/detection.xml
-
-    ${mark} =  mark_log_size  ${BASE_LOGS_DIR}/sophosspl/sophos_managementagent.log
-    register on fail  dump_marked_log  ${BASE_LOGS_DIR}/sophosspl/sophos_managementagent.log  ${mark}
-
-    Repeat Keyword  110 times  Send Plugin Event   ${eventContent}
-
-    Wait Until Keyword Succeeds
-    ...  10 secs
-    ...  1 secs
-    ...  Check Event File     ${eventContent}
-
-    wait for log contains from mark  ${mark}  Entering outbreak mode: Further detections will not be reported to Central
-
-    # Check we have the outbreak event
-    check at least one event has substr  ${SOPHOS_INSTALL}/base/mcs/event  sophos.core.outbreak
-
-    # count events
-    ${count} =  Count Files in Directory  ${SOPHOS_INSTALL}/base/mcs/event
-    Should be equal as Integers  ${count}  101
-
 
 Verify Sending Bad Message On Management Agent Socket Does Not Stop Plugin Registering Or Working
     ${errorMessage} =  Set Variable  reactor <> Reactor: callback process failed with message: Bad formed message: Protobuf parse error
@@ -101,6 +69,33 @@ Verify Sending Bad Message On Management Agent Socket Does Not Stop Plugin Regis
     ...  1 secs
     ...  Management Agent Log Contains Error N Times  ${errorMessage}  2
 
+Verify Management Agent Goes Into Outbreak Mode And Out After Clear Action
+    [Tags]  SMOKE  MANAGEMENT_AGENT  TAP_TESTS
+    # make sure no previous event xml file exists.
+    Remove Event Xml Files
+
+    Setup Plugin Registry
+    Start Management Agent
+
+    Start Plugin
+    set_fake_plugin_app_id  CORE
+
+    ${eventContent} =  Get File  ${SUPPORT_FILES}/CORE_events/detection.xml
+    Enter Outbreak Mode  ${eventContent}
+
+    Remove Event Xml Files
+    ${mark} =  mark_log_size  ${BASE_LOGS_DIR}/sophosspl/sophos_managementagent.log
+    ${uuid} =  Set Variable  5df69683-a5a2-5d96-897d-06f9c4c8c7bf
+    Send Clear Action  ${uuid}
+    wait for log contains from mark  ${mark}  Leaving outbreak mode
+
+    Send Plugin Event   ${eventContent}
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  1 secs
+    ...  Check Event File     ${eventContent}
+
+
 
 *** Keywords ***
 
@@ -116,17 +111,5 @@ Management Agent Log Contains Error N Times
     ${managementLog} =  Get File  ${BASE_LOGS_DIR}/sophosspl/sophos_managementagent.log
     Should Contain X Times  ${managementLog}  ${errorMessage}  ${expectedTimes}  Management agent should contain : "${errorMessage}" only ${expectedTimes} time/s
 
-Enter Outbreak Mode
-    ${eventContent} =  Get File  ${SUPPORT_FILES}/CORE_events/detection.xml
 
-    ${mark} =  mark_log_size  ${BASE_LOGS_DIR}/sophosspl/sophos_managementagent.log
-    register on fail  dump_marked_log  ${BASE_LOGS_DIR}/sophosspl/sophos_managementagent.log  ${mark}
 
-    Repeat Keyword  110 times  Send Plugin Event   ${eventContent}
-
-    Wait Until Keyword Succeeds
-    ...  10 secs
-    ...  1 secs
-    ...  Check Event File     ${eventContent}
-
-    wait for log contains from mark  ${mark}  Entering outbreak mode: Further detections will not be reported to Central

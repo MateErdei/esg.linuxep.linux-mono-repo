@@ -12,6 +12,7 @@ Resource  ../GeneralTeardownResource.robot
 Resource  ../installer/InstallerResources.robot
 Resource  ../mcs_router/McsRouterResources.robot
 Resource  ../scheduler_update/SchedulerUpdateResources.robot
+Resource  ../management_agent/ManagementAgentResources.robot
 
 
 Suite Setup      Setup Telemetry Tests
@@ -379,9 +380,6 @@ Test With Proxy
 
 Telemetry Executable Generates Outbreak Mode Telemetry
 
-#    Cleanup Telemetry Server
-#    Require Fresh Install
-#    Override LogConf File as Global Level  DEBUG
     Set Log Level For Component And Reset and Return Previous Log  sophos_managementagent  DEBUG
     Set Log Level For Component And Reset and Return Previous Log  telemetry  DEBUG
 
@@ -393,4 +391,34 @@ Telemetry Executable Generates Outbreak Mode Telemetry
 
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
-    Should contain  ${telemetryFileContents}  "managementagent":{"outbreak-mode-count": 0}
+    Should contain  ${telemetryFileContents}  "outbreak-mode-historic":"false"
+
+Generates Correct Outbreak Mode Telemetry When In Outbreak Mode
+
+        Set Log Level For Component And Reset and Return Previous Log  sophos_managementagent  DEBUG
+        Set Log Level For Component And Reset and Return Previous Log  telemetry  DEBUG
+
+        Remove Event Xml Files
+
+        Setup Plugin Registry
+        Start Management Agent
+
+        Start Plugin
+        set_fake_plugin_app_id  CORE
+
+        Mark Management Agent Log
+            Wait Until Keyword Succeeds
+            ...  60 secs
+            ...  10 secs
+            ...  Check Marked Managementagent Log Contains     Starting service health checks
+
+        ${eventContent} =  Get File  ${SUPPORT_FILES}/CORE_events/detection.xml
+        Enter Outbreak Mode  ${eventContent}
+
+        Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
+        ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
+        Should contain  ${telemetryFileContents}  "outbreak-mode-historic":"true"
+        Should contain  ${telemetryFileContents}  "outbreak-mode-current":"true"
+        Should contain  ${telemetryFileContents}  "outbreak-mode-today":"true"
+
+Generates Correct Outbreak Mode Telemetry Having Left Outbreak Mode
