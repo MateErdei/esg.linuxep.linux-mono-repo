@@ -644,27 +644,27 @@ namespace SulDownloader
 
         std::pair<bool, IRepositoryPtr> repositoryResult = std::make_pair(false, nullptr);
 
-        if (!configurationData.getPrimarySubscription().fixedVersion().empty())
+        if (!configurationData.getPrimarySubscription().fixedVersion().empty() &&
+            StringUtils::isVersionOlder("2022", configurationData.getPrimarySubscription().fixedVersion()))
         {
-            if (StringUtils::isVersionOlder("2022", configurationData.getPrimarySubscription().fixedVersion()))
-            {
-                LOGERROR(
-                    "The requested fixed version is not available on SDDS3: " +
-                    configurationData.getPrimarySubscription().fixedVersion() + ". Package to old.");
-            }
-        }
-
-        if (!configurationData.getJWToken().empty())
-        {
-            LOGINFO("Running SDDS3 update");
-            // Make sure root directories are created
-            createSdds3UpdateCacheFolders();
-            repositoryResult = updateFromSDDS3Repository(configurationData, supplementOnly, previousDownloadReport,
-                                                         forceReinstallAllProducts);
+            LOGERROR(
+                "The requested fixed version is not available on SDDS3: " +
+                configurationData.getPrimarySubscription().fixedVersion() + ". Package to old.");
         }
         else
         {
-            LOGERROR("Failed to update because JWToken was empty");
+            if (!configurationData.getJWToken().empty())
+            {
+                LOGINFO("Running SDDS3 update");
+                // Make sure root directories are created
+                createSdds3UpdateCacheFolders();
+                repositoryResult = updateFromSDDS3Repository(configurationData, supplementOnly, previousDownloadReport,
+                                                             forceReinstallAllProducts);
+            }
+            else
+            {
+                LOGERROR("Failed to update because JWToken was empty");
+            }
         }
 
         return processRepositoryAndGenerateReport(repositoryResult.first,
