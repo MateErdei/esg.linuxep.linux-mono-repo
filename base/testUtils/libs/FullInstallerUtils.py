@@ -27,12 +27,14 @@ import robot.libraries.BuiltIn
 
 PUB_SUB_LOGGING_DIST_LOCATION = "/tmp/pub_sub_logging_dist"
 SYSTEM_PRODUCT_TEST_INPUTS = os.environ.get("SYSTEMPRODUCT_TEST_INPUT", default="/tmp/system-product-test-inputs")
+BASE_REPO_NAME="esg.linuxep.everest-base"
+
 # using the subprocess.PIPE can make the robot test to hang as the buffer could be filled up. 
 # this auxiliary method ensure that this does not happen. It also uses a temporary file in 
 # order not to keep files or other stuff around. 
 def run_proc_with_safe_output(args, shell=False):
     logger.debug('Run Command: {}'.format(args))
-    with tempfile.TemporaryFile(dir=os.path.abspath('.')) as tmpfile: 
+    with tempfile.TemporaryFile(dir=os.path.abspath('/tmp')) as tmpfile:
         p = subprocess.Popen(args, stdout=tmpfile, stderr=tmpfile, shell=shell)
         p.wait()        
         tmpfile.seek(0)
@@ -41,7 +43,7 @@ def run_proc_with_safe_output(args, shell=False):
 
 def run_proc_with_safe_output_and_custom_env(args,custom_env,shell=False):
     logger.debug('Run Command: {}'.format(args))
-    with tempfile.TemporaryFile(dir=os.path.abspath('.')) as tmpfile:
+    with tempfile.TemporaryFile(dir=os.path.abspath('/tmp')) as tmpfile:
         p = subprocess.Popen(args, stdout=tmpfile, stderr=tmpfile, shell=shell,env=custom_env)
         p.wait()
         tmpfile.seek(0)
@@ -54,9 +56,24 @@ def get_variable(varName, defaultValue=None):
     except robot.libraries.BuiltIn.RobotNotRunningError:
         return os.environ.get(varName, defaultValue)
 
+
 def get_sophos_install():
     return get_variable("SOPHOS_INSTALL")
 
+
+def newer_file(file_one: str, file_two: str) -> str:
+    if os.path.isfile(file_one) and os.path.isfile(file_two):
+        newest_timestamp_one = os.path.getctime(file_one)
+        newest_timestamp_two = os.path.getctime(file_two)
+        if newest_timestamp_one >= newest_timestamp_two:
+            return file_one
+        else:
+            return file_two
+    elif os.path.isfile(file_one):
+        return file_one
+    elif os.path.isfile(file_two):
+        return file_two
+    return ""
 
 def get_full_installer():
     OUTPUT = os.environ.get("OUTPUT")
@@ -80,19 +97,17 @@ def get_full_installer():
             return installer
         paths_tried.append(installer)
 
-    installer = os.path.join("../everest-base/cmake-build-release/distribution/base/install.sh")
-    if os.path.isfile(installer):
-        logger.debug("Using installer from cmake-build-release: {}".format(installer))
-        return installer
-    paths_tried.append(installer)
+    installer_release = os.path.join(f"/vagrant/{BASE_REPO_NAME}/cmake-build-release/distribution/base/install.sh")
+    installer_debug = os.path.join(f"/vagrant/{BASE_REPO_NAME}/cmake-build-debug/distribution/base/install.sh")
+    paths_tried.append(installer_release)
+    paths_tried.append(installer_debug)
+    installer = newer_file(installer_release, installer_debug)
 
-    installer = os.path.join("../everest-base/cmake-build-debug/distribution/base/install.sh")
     if os.path.isfile(installer):
-        logger.debug("Using installer from cmake-build-debug: {}".format(installer))
+        logger.debug(f"Using installer {installer}")
         return installer
-    paths_tried.append(installer)
 
-    raise Exception("Failed to find installer at: " + str(paths_tried))
+    raise Exception("get_full_installer - Failed to find installer at: " + str(paths_tried))
 
 
 def get_sdds3_base():
@@ -103,7 +118,7 @@ def get_sdds3_base():
 
     paths_tried = []
 
-    local_build = "/vagrant/everest-base/output/SDDS3-PACKAGE"
+    local_build = f"/vagrant/{BASE_REPO_NAME}/output/SDDS3-PACKAGE"
     if os.path.isdir(local_build):
         for (base, dirs, files) in os.walk(local_build):
             for f in files:
@@ -119,7 +134,7 @@ def get_sdds3_base():
                         return os.path.join(BASE_DIST, f)
         paths_tried.append(BASE_DIST)
 
-    raise Exception("Failed to find installer at: " + str(paths_tried))
+    raise Exception("get_sdds3_base - Failed to find installer at: " + str(paths_tried))
 
 
 def get_folder_with_installer():
@@ -129,22 +144,22 @@ def get_folder_with_installer():
 def get_plugin_sdds(plugin_name, environment_variable_name, candidates=None):
     # Check if an environment variable has been set pointing to the example plugin sdds
     SDDS_PATH = os.environ.get(environment_variable_name)
-
+    logger.info(f"SDDS_PATH={SDDS_PATH}")
     env_path = ""
     if SDDS_PATH is not None:
         env_path = SDDS_PATH
         if os.path.exists(SDDS_PATH):
-            logger.info("Using plugin sdds defined by {}: {}".format(environment_variable_name, SDDS_PATH))
+            logger.info(f"Using plugin sdds defined by {environment_variable_name}: {SDDS_PATH}")
             return SDDS_PATH
 
     fullpath_candidates = [os.path.abspath(p) for p in candidates]
 
     for plugin_sdds in fullpath_candidates:
         if os.path.exists(plugin_sdds):
-            logger.info("Using local plugin {} sdds: {}".format(plugin_name, plugin_sdds))
+            logger.info(f"Using local plugin {plugin_name} sdds: {plugin_sdds}")
             return plugin_sdds
 
-    raise Exception("Failed to find plugin {} sdds. Attempted: ".format(plugin_name) + ' '.join(fullpath_candidates) + " " + env_path)
+    raise Exception(f"Failed to find plugin {plugin_name} sdds. Attempted: " + ' '.join(fullpath_candidates) + " " + env_path)
 
 
 class MDREntry(object):
@@ -189,7 +204,7 @@ def get_sspl_mdr_component_suite_1():
 
 def get_sspl_mdr_plugin_sdds():
     candidates = []
-    local_path_to_plugin = PathManager.find_local_component_dir_path("sspl-plugin-mdr-component")
+    local_path_to_plugin = PathManager.find_local_component_dir_path("esg.linuxep.sspl-plugin-mdr-component")
     if local_path_to_plugin:
         candidates.append(os.path.join(local_path_to_plugin, "build64/sdds"))
         candidates.append(os.path.join(local_path_to_plugin, "cmake-build-debug/sdds"))
@@ -205,7 +220,7 @@ def get_sspl_mdr_plugin_060_sdds():
 
 def get_sspl_live_response_plugin_sdds():
     candidates = []
-    local_path_to_plugin = PathManager.find_local_component_dir_path("liveterminal")
+    local_path_to_plugin = PathManager.find_local_component_dir_path("esg.linuxep.liveterminal")
     if local_path_to_plugin:
         candidates.append(os.path.join(local_path_to_plugin, "build64/sdds"))
         candidates.append(os.path.join(local_path_to_plugin, "cmake-build-debug/sdds"))
@@ -213,7 +228,7 @@ def get_sspl_live_response_plugin_sdds():
 
 def get_sspl_edr_plugin_sdds():
     candidates = []
-    local_path_to_plugin = PathManager.find_local_component_dir_path("sspl-plugin-edr-component")
+    local_path_to_plugin = PathManager.find_local_component_dir_path("esg.linuxep.sspl-plugin-edr-component")
     if local_path_to_plugin:
         candidates.append(os.path.join(local_path_to_plugin, "build64/sdds"))
         candidates.append(os.path.join(local_path_to_plugin, "cmake-build-debug/sdds"))
@@ -221,7 +236,7 @@ def get_sspl_edr_plugin_sdds():
 
 def get_sspl_runtimedetections_plugin_sdds():
     candidates = [os.path.join(SYSTEM_PRODUCT_TEST_INPUTS, "sspl-runtimedetections-plugin")]
-    local_path_to_plugin = PathManager.find_local_component_dir_path("sspl-plugin-runtimedetections-component")
+    local_path_to_plugin = PathManager.find_local_component_dir_path("esg.linuxep.sspl-plugin-runtimedetections-component")
     if local_path_to_plugin:
         candidates.append(os.path.join(local_path_to_plugin, "build64/sdds"))
         candidates.append(os.path.join(local_path_to_plugin, "cmake-build-debug/sdds"))
@@ -229,7 +244,7 @@ def get_sspl_runtimedetections_plugin_sdds():
 
 def get_sspl_event_journaler_plugin_sdds():
     candidates = []
-    local_path_to_plugin = PathManager.find_local_component_dir_path("sspl-plugin-event-journaler")
+    local_path_to_plugin = PathManager.find_local_component_dir_path("esg.linuxep.sspl-plugin-event-journaler")
     if local_path_to_plugin:
         candidates.append(os.path.join(local_path_to_plugin, "build64/sdds"))
         candidates.append(os.path.join(local_path_to_plugin, "cmake-build-debug/sdds"))
@@ -246,7 +261,7 @@ def get_sspl_response_actions_plugin_sdds():
             return RA_DIST
 
     candidates = []
-    local_path_to_plugin = PathManager.find_local_component_dir_path("everest-base")
+    local_path_to_plugin = PathManager.find_local_component_dir_path(BASE_REPO_NAME)
     if local_path_to_plugin:
         candidates.append(os.path.join(local_path_to_plugin, "cmake-build-release/distribution/ra"))
         candidates.append(os.path.join(local_path_to_plugin, "cmake-build-debug/distribution/ra"))
@@ -254,7 +269,7 @@ def get_sspl_response_actions_plugin_sdds():
 
 def get_sspl_anti_virus_plugin_sdds():
     candidates = []
-    local_path_to_plugin = PathManager.find_local_component_dir_path("sspl-plugin-anti-virus")
+    local_path_to_plugin = PathManager.find_local_component_dir_path("esg.linuxep.sspl-plugin-anti-virus")
     if local_path_to_plugin:
         candidates.append(os.path.join(local_path_to_plugin, "build64/sdds"))
         candidates.append(os.path.join(local_path_to_plugin, "cmake-build-debug/sdds"))
@@ -274,7 +289,9 @@ def setup_av_install():
         path_to_vdl_data = os.path.join(SYSTEM_PRODUCT_TEST_INPUTS, "vdl")
         path_to_model_data = os.path.join(SYSTEM_PRODUCT_TEST_INPUTS, "ml_model")
         path_to_localrep_data = os.path.join(SYSTEM_PRODUCT_TEST_INPUTS, "local_rep")
-
+    logger.info(f"path_to_vdl_data={path_to_vdl_data}")
+    logger.debug(f"path_to_model_data={path_to_model_data}")
+    logger.info(f"path_to_localrep_data={path_to_localrep_data}")
     full_av_sdds = os.path.join(SYSTEM_PRODUCT_TEST_INPUTS, "av-sdds")
     if os.path.exists(full_av_sdds):
         shutil.rmtree(full_av_sdds)

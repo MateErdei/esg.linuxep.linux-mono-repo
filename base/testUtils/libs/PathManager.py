@@ -4,10 +4,12 @@
 
 import os
 import sys
+
 try:
     from robot.api import logger
 except:
     import logging
+
     logger = logging.getLogger(__name__)
 
 THIS_FILE_PATH = os.path.realpath(__file__)
@@ -30,11 +32,13 @@ def are_basenames_in_directory(directory_to_check, basenames, callback_to_verify
             return False
         if callback_to_verify_paths:
             if not callback_to_verify_paths(path_to_check):
-                raise AssertionError("{} exists but did not return true when passed to {}".format(path_to_check, callback_to_verify_paths))
+                raise AssertionError("{} exists but did not return true when passed to {}".format(path_to_check,
+                                                                                                  callback_to_verify_paths))
     return True
 
 
 def find_local_component_dir_path(component_dirname):
+    logger.info(f"Finding path of {component_dirname}")
     attempts = []
     for dir_path in (os.path.dirname(THIS_FILE_PATH), os.path.dirname(__file__), os.getcwd()):
         # loops until "component_dirname" is in directory pointed to by dir_path
@@ -52,15 +56,18 @@ def find_local_component_dir_path(component_dirname):
         os.path.dirname(THIS_FILE_PATH),
         attempts))
     return None
-    
+
 
 def find_local_base_dir_path():
-    return find_local_component_dir_path("everest-base")
+    local_path = find_local_component_dir_path("esg.linuxep.everest-base")
+    if local_path:
+        return local_path
+    return None
 
 
 def find_local_mtr_dir_path():
-    return find_local_component_dir_path("sspl-plugin-mdr-component")
-    
+    return find_local_component_dir_path("esg.linuxep.sspl-plugin-mdr-component")
+
 
 def libs_supportfiles_and_tests_are_here(dir_path):
     return are_basenames_in_directory(dir_path, ["libs", "SupportFiles", "tests", "testUtilsMarker"])
@@ -71,27 +78,40 @@ def get_testUtils_dir():
     # go up the directory structure until we have the right directory
     while not libs_supportfiles_and_tests_are_here(dir_path):
         dir_path = os.path.dirname(dir_path)
-        if dir_path ==  "/":
+        if dir_path == "/":
             raise AssertionError("Failed to find testUtils dir, recursed till reached root")
     return dir_path
+
 
 ROBOT_ROOT_PATH = get_testUtils_dir()
 
 REPO_ROOT_PATH = os.path.dirname(ROBOT_ROOT_PATH)
+
+
 def get_repo_root_path():
     return REPO_ROOT_PATH
 
+
 SUPPORTFILEPATH = os.path.join(ROBOT_ROOT_PATH, "SupportFiles")
+
+
 def get_support_file_path():
     return SUPPORTFILEPATH
 
+
 LIBS_PATH = os.path.join(ROBOT_ROOT_PATH, "libs")
+
+
 def get_libs_path():
     return LIBS_PATH
 
+
 ROBOT_TESTS_PATH = os.path.join(ROBOT_ROOT_PATH, "tests")
+
+
 def get_robot_tests_path():
     return ROBOT_TESTS_PATH
+
 
 def addPathToSysPath(p):
     p = os.path.normpath(p)

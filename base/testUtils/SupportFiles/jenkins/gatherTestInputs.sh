@@ -45,17 +45,18 @@ fi
 
 # Create venv
 # undo set -eu because venv/bin/activate script produces errors.
-VENV=./venv-for-ci
+VENV=/tmp/venv-for-ci-tools
 set +e
-python3 -m venv "${VENV}" && source "${VENV}/bin/activate"
+[[ -d "${VENV}" ]] || python3 -m venv "${VENV}"
+source "${VENV}/bin/activate" || exit 11
   "$TEST_UTILS/SupportFiles/jenkins/SetupCIBuildScripts.sh" || fail 'Error: Failed to get CI scripts'
   export BUILD_JWT=$(cat "$TEST_UTILS/SupportFiles/jenkins/jwt_token.txt")
   python3 -m build_scripts.artisan_fetch -m "$MODE" "$TEST_UTILS/$TEST_PACKAGE_XML" || fail "Error: Failed to fetch inputs"
   python3 "$TEST_UTILS/libs/GatherReleaseWarehouses.py"  ${SYSTEMPRODUCT_TEST_INPUT}
-deactivate && rm -rf "${VENV}"
+deactivate
 chmod +x ${SYSTEMPRODUCT_TEST_INPUT}/sdds3/sdds3-builder || fail "Error: Failed to chmod sdds3-builder inputs"
 unzip -o -d ${SYSTEMPRODUCT_TEST_INPUT}/safestore_tools/ ${SYSTEMPRODUCT_TEST_INPUT}/safestore_tools/safestore-linux-x64.zip
 chmod +x ${SYSTEMPRODUCT_TEST_INPUT}/safestore_tools/ssr/ssr || fail "Error: Failed to chmod safestore tool"
-try_command_with_backoff cp -r /mnt/filer6/linux/SSPL/testautomation/sdds-specs $SYSTEMPRODUCT_TEST_INPUT/sdds-specs || fail "Error: Failed to fetch inputs"
+try_command_with_backoff cp -rv /mnt/filer6/linux/SSPL/testautomation/sdds-specs $SYSTEMPRODUCT_TEST_INPUT/sdds-specs || fail "Error: Failed to fetch inputs"
 # restore bash strictness (for scripts that source this one)
 set -e

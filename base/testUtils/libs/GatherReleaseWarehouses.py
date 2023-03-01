@@ -18,8 +18,9 @@ def unpack_sdds3_artifact(build_url, artifact_name, output_dir):
     z = zipfile.ZipFile(io.BytesIO(r.content))
     z.extractall(unpack_location)
 
-def get_warehouse_branches(branch_filter,url,type,version_separator):
-    release_branches =[]
+
+def get_warehouse_branches(branch_filter, url, type, version_separator):
+    release_branches = []
     for path in ArtifactoryPath(url):
         branch_name = os.path.basename(path)
         if branch_name.startswith(branch_filter):
@@ -29,7 +30,10 @@ def get_warehouse_branches(branch_filter,url,type,version_separator):
     if type == "current_shipping":
         release_branches = [i for i in release_branches if int(i.strip(branch_filter).split(version_separator)[0]) <= 4]
     return release_branches
+
+
 def gather_sdds3_warehouse_files(output_dir, release_type):
+    print(f"gather_sdds3_warehouse_files {output_dir} {release_type}")
     release_branches, builds = [], []
     version_separator = ""
 
@@ -47,7 +51,7 @@ def gather_sdds3_warehouse_files(output_dir, release_type):
     release_branches = get_warehouse_branches(branch_filter, warehouse_repo_url, release_type, version_separator)
 
     if len(release_branches) == 0:
-        branch_filter = f"release--{current_year-1}{version_separator}"
+        branch_filter = f"release--{current_year - 1}{version_separator}"
         release_branches = get_warehouse_branches(branch_filter, warehouse_repo_url, release_type, version_separator)
 
     release_branch = sorted(release_branches,
@@ -86,6 +90,7 @@ def setup_release_warehouse(dest, release_type):
     files = os.listdir(vut_sdds3_supplement_path)
     for f in files:
         if not os.path.isfile(os.path.join(release_sdds3_supplement_path, f)):
+            print(f"Copying {f}")
             shutil.copy(os.path.join(vut_sdds3_supplement_path, f), release_sdds3_supplement_path)
 
     for (dirpath, dirnames, filenames) in os.walk(vut_sdds3_package_path):
