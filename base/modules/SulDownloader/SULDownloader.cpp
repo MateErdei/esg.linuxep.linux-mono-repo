@@ -644,25 +644,27 @@ namespace SulDownloader
 
         std::pair<bool, IRepositoryPtr> repositoryResult = std::make_pair(false, nullptr);
 
-        //todo LINUXDAR-6832 if the version is older than 2022 what do we do
-        /*if (useSdds3 && !configurationData.getPrimarySubscription().fixedVersion().empty())
+        if (!configurationData.getPrimarySubscription().fixedVersion().empty())
         {
             if (StringUtils::isVersionOlder("2022", configurationData.getPrimarySubscription().fixedVersion()))
             {
-                LOGINFO(
+                LOGERROR(
                     "The requested fixed version is not available on SDDS3: " +
-                    configurationData.getPrimarySubscription().fixedVersion() + ". Reverting to SDDS2 mode.");
-                useSdds3 = false;
+                    configurationData.getPrimarySubscription().fixedVersion() + ". Package to old.");
             }
-        }*/
+        }
 
         if (!configurationData.getJWToken().empty())
         {
-            LOGINFO("Running in SDDS3 updating mode");
+            LOGINFO("Running SDDS3 update");
             // Make sure root directories are created
             createSdds3UpdateCacheFolders();
             repositoryResult = updateFromSDDS3Repository(configurationData, supplementOnly, previousDownloadReport,
                                                          forceReinstallAllProducts);
+        }
+        else
+        {
+            LOGERROR("Failed to update because JWToken was empty");
         }
 
         return processRepositoryAndGenerateReport(repositoryResult.first,
