@@ -1,12 +1,12 @@
 cmake_minimum_required(VERSION 3.5)
 
 file(GLOB_RECURSE python_SRC
-        RELATIVE ${PYTHON_INPUT}/install64/lib/python3.9
-        ${PYTHON_INPUT}/install64/lib/python3.9/*.py
+        RELATIVE ${PYTHON_LIB_DIR}
+        ${PYTHON_LIB_DIR}/*.py
         )
 
 file(GLOB_RECURSE python_full_path_SRC
-        ${PYTHON_INPUT}/install64/lib/python3.9/*.py
+        ${PYTHON_LIB_DIR}/*.py
         )
 
 
@@ -15,7 +15,7 @@ file(GLOB_RECURSE mcs_router_DEPS
 
 add_custom_target(mcsrouter
         DEPENDS ${CMAKE_BINARY_DIR}/mcsrouter.zip
-        ${CMAKE_BINARY_DIR}/python39.zip
+        ${CMAKE_BINARY_DIR}/${PYTHON_ZIP}
         ${CMAKE_BINARY_DIR}/lib-dynload
         ${CMAKE_BINARY_DIR}/pathtools
         ${CMAKE_BINARY_DIR}/watchdog
@@ -38,21 +38,21 @@ add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/mcsrouter.zip
         # force compile all required mcs python code.
         # python3 changed the way to produce .pyc, and in order to allow for 'sourceless' distribution,
         # no python source can be present. https://www.python.org/dev/peps/pep-3147/#case-4-legacy-pyc-files-and-source-less-imports
-        COMMAND ${PYTHON_INPUT}/install64/bin/python3 -m compileall -b -d ${CMAKE_BINARY_DIR}/mcsrouter  ${CMAKE_CURRENT_SOURCE_DIR}/mcsrouter
+        COMMAND ${PYTHON_INPUT}/bin/python3 -m compileall -b -d ${CMAKE_BINARY_DIR}/mcsrouter  ${CMAKE_CURRENT_SOURCE_DIR}/mcsrouter
         COMMAND find mcsrouter | grep -v __pycache__ | grep "pyc" | zip ${CMAKE_BINARY_DIR}/mcsrouter.zip -@
         #COMMAND find mcsrouter | zip ${CMAKE_BINARY_DIR}/mcsrouter.zip -@
         DEPENDS ${mcs_router_DEPS}
         )
 
-add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/python39.zip
-        WORKING_DIRECTORY ${PYTHON_INPUT}/install64/lib/python3.9
-        COMMAND zip ${CMAKE_BINARY_DIR}/python39.zip ${python_SRC}
+add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/${PYTHON_ZIP}
+        WORKING_DIRECTORY ${PYTHON_LIB_DIR}
+        COMMAND zip ${CMAKE_BINARY_DIR}/${PYTHON_ZIP} ${python_SRC}
         DEPENDS ${python_full_path_SRC}
         )
 
 add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/lib-dynload
         WORKING_DIRECTORY ${PYTHON_INPUT}
-        COMMAND cp -r ${PYTHON_INPUT}/install64/lib/python3.9/lib-dynload/ ${CMAKE_BINARY_DIR}
+        COMMAND cp -r ${PYTHON_LIB_DIR}/lib-dynload/ ${CMAKE_BINARY_DIR}
         )
 
 function(add_python_library INPUT_PATH  PACKAGE_NAME)
@@ -67,10 +67,10 @@ function(add_python_library INPUT_PATH  PACKAGE_NAME)
 
     if (IS_DIRECTORY ${CMAKE_BINARY_DIR}/${PACKAGE_NAME} )
         install(DIRECTORY ${CMAKE_BINARY_DIR}/${PACKAGE_NAME}
-                DESTINATION ${BASE_DIST_PREFIX}/files/base/lib/python3.9/site-packages)
+                DESTINATION ${BASE_DIST_PREFIX}/files/base/lib/${PYTHON_VERSION}/site-packages)
     else()
         install(FILES ${CMAKE_BINARY_DIR}/${PACKAGE_NAME}
-                DESTINATION ${BASE_DIST_PREFIX}/files/base/lib/python3.9/site-packages)
+                DESTINATION ${BASE_DIST_PREFIX}/files/base/lib/${PYTHON_VERSION}/site-packages)
     endif()
 
 endfunction(add_python_library)
@@ -86,16 +86,16 @@ add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/Crypto
         )
 
 install(DIRECTORY ${CMAKE_BINARY_DIR}/Crypto
-            DESTINATION ${BASE_DIST_PREFIX}/files/base/lib/python3.9/site-packages)
+            DESTINATION ${BASE_DIST_PREFIX}/files/base/lib/${PYTHON_VERSION}/site-packages)
 
 foreach (PYTHON_PACKAGE_NAME  watchdog pathtools certifi chardet idna requests six.py sseclient.py urllib3)
-    add_python_library(${INPUT}/${PYTHON_PACKAGE_NAME} ${PYTHON_PACKAGE_NAME})
+    add_python_library(${INPUT}/pypi/${PYTHON_PACKAGE_NAME} ${PYTHON_PACKAGE_NAME})
 endforeach(PYTHON_PACKAGE_NAME)
 
 
 add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/python3
         WORKING_DIRECTORY ${PYTHON_INPUT}
-        COMMAND cp ${PYTHON_INPUT}/install64/bin/python3 ${CMAKE_BINARY_DIR}
+        COMMAND cp ${PYTHON_INPUT}/bin/python3 ${CMAKE_BINARY_DIR}
         )
 
 if ( PythonCoverage )
@@ -108,14 +108,17 @@ endif()
 
 
 
-install(FILES ${CMAKE_BINARY_DIR}/python39.zip
+install(FILES ${CMAKE_BINARY_DIR}/${PYTHON_ZIP}
         DESTINATION ${BASE_DIST_PREFIX}/files/base/lib64)
 
 install(DIRECTORY ${CMAKE_BINARY_DIR}/lib-dynload
-        DESTINATION ${BASE_DIST_PREFIX}/files/base/lib/python3.9/)
+        DESTINATION ${BASE_DIST_PREFIX}/files/base/lib/${PYTHON_VERSION}/)
 
 install(FILES ${CMAKE_BINARY_DIR}/python3
         DESTINATION ${BASE_DIST_PREFIX}/files/base/bin)
+
+install(FILES ${PYTHON_LIBRARIES}
+        DESTINATION ${BASE_DIST_PREFIX}/files/base/lib)
 
 install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/engine/mcs_rootca.crt
         DESTINATION ${BASE_DIST_PREFIX}/files/base/mcs/certs)

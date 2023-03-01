@@ -3,6 +3,17 @@
 # Uncomment for debugging
 #set -x
 
+declare -a PYPI_PKGS=("pycryptodome"
+                       "certifi"
+                       "chardet"
+                       "idna"
+                       "pathtools"
+                       "requests"
+                       "six"
+                       "sseclient"
+                       "urllib3"
+                       "watchdog")
+
 set -e
 CLEAN=0
 while [[ $# -ge 1 ]]
@@ -177,92 +188,133 @@ function unpack_tars()
   shopt -u nullglob
 }
 
+function unpack_gzipped_tar()
+{
+  tarfile="$1"
+  dest_dir="$2"
+  optional_args="$3"
+  local archive_basename
+  archive_basename=$(basename "$tarfile")
+  local marker_file="$dest_dir/$archive_basename-marker"
+  if should_skip_based_on_date "$tarfile"
+  then
+    echo "Skipping unpack based on date, already up-to-date: $tarfile"
+    return
+  fi
+
+  # If archive is newer than dir then check if we need to unpack archive based on hash.
+  local archive_hash=$(md5sum "$tarfile" | cut -d ' ' -f 1)
+  if [[ -f $marker_file ]]
+  then
+    echo "$tarfile is newer than $marker_file, will check hash."
+    if [[ $(cat "$marker_file") == "$archive_hash" ]]
+    then
+      touch "$marker_file"
+      echo "Skipping unpack based on hash, already up-to-date: $tarfile"
+      return
+    fi
+  fi
+
+  echo "Extracting .tar.gz: $tarfile - $archive_hash"
+  # Remove old dir if needed
+  output_dir_name=$(tar -tzf "$tarfile" | cut -f1 -d"/" | sort | uniq | head -n 1)
+  output_dir_full_path="$dest_dir/$output_dir_name"
+  [[ -d "$output_dir_full_path" ]] && rm -rf "$output_dir_full_path"
+
+  # Remove old marker if needed
+  rm -f "$marker_file"
+
+  # Unpack
+  tar xzf "$tarfile" $optional_args -C "$dest_dir" || exitFailure 1 "Not a valid input .tar.gz"
+
+  # Create marker
+  echo "$archive_hash" > "$marker_file"
+}
+
 function unpack_gzipped_tars()
 {
   shopt -s nullglob
   for tarfile in "$FETCHED_INPUTS_DIR/"*.tar.gz; do
-    local archive_basename
-    archive_basename=$(basename "$tarfile")
-    local marker_file="$REDIST/$archive_basename-marker"
-    if should_skip_based_on_date "$tarfile"
-    then
-      echo "Skipping unpack based on date, already up-to-date: $tarfile"
-      continue
-    fi
-
-    # If archive is newer than dir then check if we need to unpack archive based on hash.
-    local archive_hash=$(md5sum "$tarfile" | cut -d ' ' -f 1)
-    if [[ -f $marker_file ]]
-    then
-      echo "$tarfile is newer than $marker_file, will check hash."
-      if [[ $(cat "$marker_file") == "$archive_hash" ]]
-      then
-        touch "$marker_file"
-        echo "Skipping unpack based on hash, already up-to-date: $tarfile"
-        continue
-      fi
-    fi
-
-    echo "Extracting .tar.gz: $tarfile - $archive_hash"
-    # Remove old dir if needed
-    output_dir_name=$(tar -tzf "$tarfile" | cut -f1 -d"/" | sort | uniq | head -n 1)
-    output_dir_full_path="$REDIST/$output_dir_name"
-    [[ -d "$output_dir_full_path" ]] && rm -rf "$output_dir_full_path"
-
-    # Remove old marker if needed
-    rm -f "$marker_file"
-
-    # Unpack
-    tar xzf "$tarfile" -C "$REDIST" || exitFailure 1 "Not a valid input .tar.gz"
-
-    # Create marker
-    echo "$archive_hash" > "$marker_file"
+    unpack_gzipped_tar $tarfile $REDIST
   done
   shopt -u nullglob
+}
+
+function unpack_zip()
+{
+  zipfile="$1"
+  dest_dir="$2"
+  local archive_basename
+  archive_basename=$(basename "$zipfile")
+  local marker_file="$dest_dir/$archive_basename-marker"
+  if should_skip_based_on_date "$zipfile"
+  then
+    echo "Skipping unpack based on date, already up-to-date: $zipfile"
+    return
+  fi
+
+  # If archive is newer than marker then check if we need to unpack archive based on hash.
+  local archive_hash=$(md5sum "$zipfile" | cut -d ' ' -f 1)
+  if [[ -f $marker_file ]]
+  then
+    echo "$zipfile is newer than $marker_file, will check hash."
+    if [[ $(cat "$marker_file") == "$archive_hash" ]]
+    then
+      touch "$marker_file"
+      echo "Skipping unpack based on hash, already up-to-date: $zipfile"
+      return
+    fi
+  fi
+
+  echo "Extracting .zip: $zipfile - $archive_hash"
+  # Remove old dir if needed
+  output_dir_name=$(unzip -l "$zipfile" | tail -n +4 | head -n -2 | tr -s ' ' |  cut -d ' ' -f5 | cut -f1 -d"/" | sort | uniq | head -n 1)
+  output_dir_full_path="$dest_dir/$output_dir_name"
+  [[ -d "$output_dir_full_path" ]] && rm -rf "$output_dir_full_path"
+
+  # Remove old marker if needed
+  rm -f "$marker_file"
+
+  # Unpack
+  unzip -qo "$zipfile" -d "$dest_dir" || exitFailure 1 "Not a valid input .zip"
+
+  # Create marker
+  echo "$archive_hash" > "$marker_file"
 }
 
 function unpack_zips()
 {
   shopt -s nullglob
   for zipfile in $FETCHED_INPUTS_DIR/*.zip; do
-    local archive_basename
-    archive_basename=$(basename "$zipfile")
-    local marker_file="$REDIST/$archive_basename-marker"
-    if should_skip_based_on_date "$zipfile"
-    then
-      echo "Skipping unpack based on date, already up-to-date: $zipfile"
-      continue
-    fi
-
-    # If archive is newer than marker then check if we need to unpack archive based on hash.
-    local archive_hash=$(md5sum "$zipfile" | cut -d ' ' -f 1)
-    if [[ -f $marker_file ]]
-    then
-      echo "$zipfile is newer than $marker_file, will check hash."
-      if [[ $(cat "$marker_file") == "$archive_hash" ]]
-      then
-        touch "$marker_file"
-        echo "Skipping unpack based on hash, already up-to-date: $zipfile"
-        continue
-      fi
-    fi
-
-    echo "Extracting .zip: $zipfile - $archive_hash"
-    # Remove old dir if needed
-    output_dir_name=$(unzip -l "$zipfile" | tail -n +4 | head -n -2 | tr -s ' ' |  cut -d ' ' -f5 | cut -f1 -d"/" | sort | uniq | head -n 1)
-    output_dir_full_path="$REDIST/$output_dir_name"
-    [[ -d "$output_dir_full_path" ]] && rm -rf "$output_dir_full_path"
-
-    # Remove old marker if needed
-    rm -f "$marker_file"
-
-    # Unpack
-    unzip -qo "$zipfile" -d "$REDIST" || exitFailure 1 "Not a valid input .zip"
-
-    # Create marker
-    echo "$archive_hash" > "$marker_file"
+    unpack_zip $zipfile $REDIST
   done
    shopt -u nullglob
+}
+
+function unpack_pypi_pkgs()
+{
+  shopt -s nullglob
+  for pkg_name in ${PYPI_PKGS[@]}
+  do
+    echo ">>> Handling $pkg_name"
+    pkg_path=$(ls "$FETCHED_INPUTS_DIR/pypi/${pkg_name}"*)
+    dest_dir="${REDIST}/pypi/"
+    mkdir -p $dest_dir
+    if [[ $pkg_path == *.whl ]]
+    then
+      echo "Extracting wheel file: $pkg_path to $dest_dir"
+      unpack_zip "$pkg_path" "$dest_dir"
+    elif [[ $pkg_path == *.tar.gz ]]
+    then
+      echo "Extracting gzipped tar file: $pkg_path to $dest_dir"
+      unpack_gzipped_tar "$pkg_path" "$dest_dir" "--strip-components 1"
+    else
+      echo "Unexpected file extension, ignoring: $pkg_path"
+    fi
+    echo ">>> Done with $pkg_name"
+  done
+  echo ">>> Done with PYPI packages"
+  shopt -u nullglob
 }
 
 function copy_certs()
@@ -326,6 +378,7 @@ function setup_cmake()
 unpack_tars
 unpack_gzipped_tars
 unpack_zips
+unpack_pypi_pkgs
 copy_certs
 copy_sdds3builder
 copy_sophlib

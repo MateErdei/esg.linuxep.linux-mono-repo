@@ -352,6 +352,14 @@ set( GMOCK_INCLUDE ${GTEST_INPUT}/googlemock/include )
 if(NOT DEFINED PYTHON_INPUT)
     set( PYTHON_INPUT ${INPUT}/python)
 endif()
+set(PYTHON_ZIP python311.zip)
+set(PYTHON_VERSION python3.11)
+set(PYTHON_LIB_DIR "${PYTHON_INPUT}/lib/${PYTHON_VERSION}")
+find_library(PYTHON_LIBRARY
+        NAMES "${PYTHON_VERSION}"
+        PATHS ${PYTHON_INPUT}/lib
+        )
+file(GLOB PYTHON_LIBRARIES "${PYTHON_LIBRARY}*")
 
 ## Allow this to be redirected for pathtools development
 if(NOT DEFINED WATCHDOG_INPUT)
@@ -365,7 +373,7 @@ endif()
 
 ## Allow this to be redirected for pycryptodome development
 if(NOT DEFINED PYCRYPTODOME_INPUT)
-    set( PYCRYPTODOME_INPUT ${INPUT}/pycryptodome)
+    set( PYCRYPTODOME_INPUT ${INPUT}/pypi/)
 endif()
 
 # Telemetry config is different for dev vs prod builds

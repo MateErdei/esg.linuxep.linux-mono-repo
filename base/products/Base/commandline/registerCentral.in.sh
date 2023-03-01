@@ -18,7 +18,7 @@ export INST_DIR
 
 BIN_DIR=${BASE_DIR}/bin
 
-pythonzip=$BASE_DIR/lib64/python39.zip
+pythonzip=$BASE_DIR/lib64/@PYTHON_ZIP@
 mcsrouterzip=$BASE_DIR/lib64/mcsrouter.zip
 pythonExecutable=@PRODUCT_PYTHON_EXECUTABLE@
 

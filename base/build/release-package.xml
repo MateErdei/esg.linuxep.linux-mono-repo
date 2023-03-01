@@ -24,10 +24,6 @@
             <release-version branch="release/sspl/Version_7_84_0" build-id="20220822152212-f128f504bb954bd08e1b0f48fada7c5a73dc94f8-SnVSla"/>
             <include artifact-path="output" dest-dir="/build/input"/>
         </build-asset>
-        <build-asset project="thirdparty" repo="cpython">
-            <release-version branch="release/sspl/Version_3_9_7" build-id="20220727094603-7ff6716a0182eada35ce401609e361e2365c1c12-BpbOIx"/>
-            <include artifact-path="output" dest-dir="/build/input"/>
-        </build-asset>
         <build-asset project="thirdparty" repo="gcc">
             <release-version branch="release/Version_11_2_0" build-id="20220310091547-cf8f7ca9572a3bc9a68f05138086815341a49224-cZ84iF"/>
             <include artifact-path="output" dest-dir="/build/input"/>
@@ -47,46 +43,6 @@
         <build-asset project="thirdparty" repo="protobuf">
             <release-version branch="release/sspl/Version_3_17_3" build-id="20220310143632-66a638734ca9de06319cfc97fdd27ac200fdec15-yMZBAU"/>
             <include artifact-path="output" dest-dir="/build/input"/>
-        </build-asset>
-        <build-asset project="thirdparty" repo="pycryptodome">
-            <release-version branch="release/Version_3_9_8" build-id="20220310111719-b1f9b17dd884a897e221c5ecd87cb515efadfb5f-UukkwD"/>
-            <include artifact-path="pycryptodome" dest-dir="/build/input"/>
-        </build-asset>
-        <build-asset project="thirdparty" repo="python-certifi">
-            <release-version branch="release/Version_2020_12_5" build-id="20220310111821-c30b09255d22f716b5034e888a7f13d13a904fcc-BF2ez4"/>
-            <include artifact-path="certifi" dest-dir="/build/input"/>
-        </build-asset>
-        <build-asset project="thirdparty" repo="python-chardet">
-            <release-version branch="release/Version_3_0_4" build-id="20220310111909-5908be3d4e5f7667dc59ef3d5e8868b18def4a3c-0rWlwQ"/>
-            <include artifact-path="chardet" dest-dir="/build/input"/>
-        </build-asset>
-        <build-asset project="thirdparty" repo="python-idna">
-            <release-version branch="release/Version_3_1_0" build-id="20220310111949-96d731bc5a96490d0a5654fadaf7a7ca1b510314-WutaRR"/>
-            <include artifact-path="idna" dest-dir="/build/input"/>
-        </build-asset>
-        <build-asset project="thirdparty" repo="python-pathtools">
-            <release-version branch="release/Version_0_1_1" build-id="20220310112041-d6506d5a54d7ab64109248a0014834583d1277ae-Bogokc"/>
-            <include artifact-path="pathtools" dest-dir="/build/input"/>
-        </build-asset>
-        <build-asset project="thirdparty" repo="python-requests">
-            <release-version branch="release/Version_2_22_0" build-id="20220310112124-29baed4970a3bcb078732c61dfab3ab26974a938-iAqj9C"/>
-            <include artifact-path="requests" dest-dir="/build/input"/>
-        </build-asset>
-        <build-asset project="thirdparty" repo="python-six">
-            <release-version branch="release/Version_1_14_0" build-id="20220324133918-e2d7f2ac3ba7a14df4ca67e03c3b80a9285985ca-nQUDUk"/>
-            <include artifact-path="six" dest-dir="/build/input"/>
-        </build-asset>
-        <build-asset project="thirdparty" repo="python-sseclient">
-            <release-version branch="release/Version_0_0_23" build-id="20220310112258-ce1aad0abf4fff20e419fb9cd231912bd07cedba-j05GgO"/>
-            <include artifact-path="sseclient" dest-dir="/build/input"/>
-        </build-asset>
-        <build-asset project="thirdparty" repo="python-urllib3">
-            <release-version branch="release/Version_1_25_8" build-id="20220310112334-44f8cd596d6fa095c0a5cb0b10ce68eb94061d17-A0J6oW"/>
-            <include artifact-path="urllib3" dest-dir="/build/input"/>
-        </build-asset>
-        <build-asset project="thirdparty" repo="python-watchdog">
-            <release-version branch="release/Version_2_0_2" build-id="20220310112409-132ecf9b8ced1f937cbb2a7ad73d171a167fe2bf-A6aX2E"/>
-            <include artifact-path="watchdog" dest-dir="/build/input"/>
         </build-asset>
         <trusted-asset artifact-path="filer5-migrate/pscerts/1-0-1/67228/ps_certificates/ps_rootca.crt" dest-dir="/build/input/"/>
 
@@ -113,6 +69,8 @@
         </build-asset>
 
         <trusted-asset artifact-path="org.cmake/cmake-3.26.0/cmake-3.26.0" dest-dir="/build/input/cmake"/>
+        <trusted-asset artifact-path="esg/python_dependencies/20230228/linux_spl" dest-dir="/build/input/pypi"/>
+        <trusted-asset artifact-path="org.python/linux/3.11.1/cpython-3.11.1 20230116-x86_64-unknown-linux-gnu-install_only" dest-dir="/build/input"/>
     </inputs>
     <buildcommands>
 
