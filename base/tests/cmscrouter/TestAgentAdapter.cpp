@@ -201,6 +201,7 @@ TEST_F(AgentAdapterTests, testGetStatusXmlReturnsExpectedXmlWithMigrateFromSAV) 
     EXPECT_CALL(*mockLocalIP, getLocalInterfaces()).WillRepeatedly(Return(MockILocalIP::buildInterfacesHelper()));
     EXPECT_CALL(*mockPlatformUtil, sortInterfaces(_));
     EXPECT_CALL(*mockPlatformUtil, getHostname()).WillRepeatedly(Return(basicXmlContent["hostname"]));
+    EXPECT_CALL(*mockPlatformUtil, getFQDN()).WillRepeatedly(Return(basicXmlContent["hostname"]));
     EXPECT_CALL(*mockPlatformUtil, getPlatform()).WillRepeatedly(Return(basicXmlContent["platform"]));
     EXPECT_CALL(*mockPlatformUtil, getVendor()).WillRepeatedly(Return(basicXmlContent["vendor"]));
     EXPECT_CALL(*mockPlatformUtil, getArchitecture()).WillRepeatedly(Return(basicXmlContent["architecture"]));
@@ -239,6 +240,7 @@ TEST_F(AgentAdapterTests, testGetStatusXmlReturnsExpectedXmlWithMigrateFromSAV) 
     EXPECT_CALL(*mockLocalIP, getLocalInterfaces()).WillRepeatedly(Return(MockILocalIP::buildInterfacesHelper()));
     EXPECT_CALL(*mockPlatformUtil, sortInterfaces(_));
     EXPECT_CALL(*mockPlatformUtil, getHostname()).WillRepeatedly(Return(basicXmlContent["hostname"]));
+    EXPECT_CALL(*mockPlatformUtil, getFQDN()).WillRepeatedly(Return(basicXmlContent["hostname"]));
     EXPECT_CALL(*mockPlatformUtil, getPlatform()).WillRepeatedly(Return(basicXmlContent["platform"]));
     EXPECT_CALL(*mockPlatformUtil, getVendor()).WillRepeatedly(Return(basicXmlContent["vendor"]));
     EXPECT_CALL(*mockPlatformUtil, getArchitecture()).WillRepeatedly(Return(basicXmlContent["architecture"]));
@@ -274,6 +276,7 @@ TEST_F(AgentAdapterTests, testGetStatusXmlReturnsExpectedXmlWithOptions) // NOLI
     std::vector<std::string> emptyStringVector;
 
     EXPECT_CALL(*mockPlatformUtil, getHostname()).WillRepeatedly(Return(basicXmlContent["hostname"]));
+    EXPECT_CALL(*mockPlatformUtil, getFQDN()).WillRepeatedly(Return(basicXmlContent["hostname"]));
     EXPECT_CALL(*mockPlatformUtil, getPlatform()).WillRepeatedly(Return(basicXmlContent["platform"]));
     EXPECT_CALL(*mockPlatformUtil, getVendor()).WillRepeatedly(Return(basicXmlContent["vendor"]));
     EXPECT_CALL(*mockPlatformUtil, getArchitecture()).WillRepeatedly(Return(basicXmlContent["architecture"]));

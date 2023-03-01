@@ -8,6 +8,8 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 
 #include <Common/CurlWrapper/CurlWrapper.h>
 #include <Common/HttpRequestsImpl/HttpRequesterImpl.h>
+#include <Common/OSUtilities/IIPUtils.h>
+#include <Common/OSUtilitiesImpl/LocalIPImpl.h>
 #include <Common/OSUtilitiesImpl/PlatformUtils.h>
 #include <Common/OSUtilitiesImpl/SystemUtils.h>
 #include <Common/UtilityImpl/StringUtils.h>
@@ -19,11 +21,12 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 namespace MCS
 {
     AgentAdapter::AgentAdapter()
-    : m_platformUtils(std::make_shared<Common::OSUtilitiesImpl::PlatformUtils>())
+    : m_platformUtils(std::make_shared<Common::OSUtilitiesImpl::PlatformUtils>()),
+        m_localIp(std::make_shared<Common::OSUtilitiesImpl::LocalIPImpl>())
     {}
 
-    AgentAdapter::AgentAdapter(std::shared_ptr<Common::OSUtilities::IPlatformUtils> platformUtils)
-    : m_platformUtils(platformUtils)
+    AgentAdapter::AgentAdapter(std::shared_ptr<Common::OSUtilities::IPlatformUtils> platformUtils, std::shared_ptr<Common::OSUtilities::ILocalIP> localIp)
+    : m_platformUtils(std::move(platformUtils)), m_localIp(std::move(localIp))
     {}
 
     std::string AgentAdapter::getStatusXml(std::map<std::string, std::string>& configOptions) const
@@ -56,6 +59,12 @@ namespace MCS
     std::string AgentAdapter::getCommonStatusXml(const std::map<std::string, std::string>& configOptions) const
     {
         std::stringstream commonStatusXml;
+
+        std::vector<Common::OSUtilities::Interface> interfaces = m_localIp->getLocalInterfaces();
+        m_platformUtils->sortInterfaces(interfaces);
+        std::vector<std::string> ip4Addresses = m_platformUtils->getIp4Addresses(interfaces);
+        std::vector<std::string> ip6Addresses = m_platformUtils->getIp6Addresses(interfaces);
+
         commonStatusXml << "<commonComputerStatus>"
                         << "<domainName>" << m_platformUtils->getDomainname() << "</domainName>"
                         << "<computerName>" << m_platformUtils->getHostname() << "</computerName>"
@@ -64,16 +73,18 @@ namespace MCS
                         << "<operatingSystem>" << m_platformUtils->getPlatform() << "</operatingSystem>"
                         << "<lastLoggedOnUser>"
                         << "root@" << m_platformUtils->getHostname() << "</lastLoggedOnUser>"
-                        << "<ipv4>" << m_platformUtils->getIp4Address() << "</ipv4>"
-                        << "<ipv6>" << m_platformUtils->getIp6Address() << "</ipv6>"
-                        << "<fqdn>" << m_platformUtils->getHostname() << "</fqdn>"
+                        << "<ipv4>" << m_platformUtils->getFirstIpAddress(ip4Addresses) << "</ipv4>"
+                        << "<ipv6>" << m_platformUtils->getFirstIpAddress(ip6Addresses) << "</ipv6>"
+                        << "<fqdn>" << m_platformUtils->getFQDN() << "</fqdn>"
                         << "<processorArchitecture>" << m_platformUtils->getArchitecture() << "</processorArchitecture>"
-                        << getOptionalStatusValues(configOptions)
+                        << getOptionalStatusValues(configOptions, ip4Addresses, ip6Addresses)
                         << "</commonComputerStatus>";
         return commonStatusXml.str();
     }
 
-    std::string AgentAdapter::getOptionalStatusValues(const std::map<std::string, std::string>& configOptions) const
+    std::string AgentAdapter::getOptionalStatusValues(const std::map<std::string, std::string>& configOptions,
+                                                      const std::vector<std::string>& ip4Addresses,
+                                                      const std::vector<std::string>& ip6Addresses) const
     {
         // For Groups, Products, and IP addresses
         std::stringstream optionals;
@@ -105,8 +116,6 @@ namespace MCS
             }
         }
 
-        std::vector<std::string> ip4Addresses = m_platformUtils->getIp4Addresses();
-        std::vector<std::string> ip6Addresses = m_platformUtils->getIp6Addresses();
         if (!ip4Addresses.empty() || !ip6Addresses.empty())
         {
             optionals << "<ipAddresses>";
