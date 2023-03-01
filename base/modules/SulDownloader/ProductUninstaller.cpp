@@ -175,11 +175,9 @@ namespace SulDownloader
                 LOGSUPPORT("Mark product uninstalled by removing distributed path: " << distributePath);
                 try
                 {
-                    std::string localDistributionRepository =
-                        Common::ApplicationConfiguration::applicationPathManager().getLocalDistributionRepository();
                     std::string localSDDS3DistributionRepository =
                         Common::ApplicationConfiguration::applicationPathManager().getLocalSdds3DistributionRepository();
-                    if (distributePath.find(localDistributionRepository) == std::string::npos && distributePath.find(localSDDS3DistributionRepository) == std::string::npos)
+                    if (distributePath.find(localSDDS3DistributionRepository) == std::string::npos)
                     {
                         throw std::logic_error(
                             "Received a path to remove that is not a local distribution repository sub directory: " +
