@@ -183,16 +183,23 @@ namespace Common::OSUtilitiesImpl
         static std::string gethostnameWrapper()
         {
             std::vector<char> hostname(1024);
-            while (true)
+            while (hostname.size() < 1024 * 1024)
             {
                 hostname[hostname.size()-1] = 0;
                 auto result = ::gethostname(hostname.data(), hostname.size() - 1);
+                int error = errno;
                 if (result == 0)
                 {
                     return {hostname.data()};
                 }
+                else if (error != ENAMETOOLONG)
+                {
+                    throw std::runtime_error("gethostname failed with unexpected error: " + std::to_string(error));
+                }
+
                 hostname.resize(hostname.size() * 2);
             }
+            throw std::runtime_error("hostname is too long");
         }
 
         std::string PlatformUtils::getFQDN() const
