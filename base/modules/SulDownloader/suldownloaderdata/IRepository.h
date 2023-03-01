@@ -63,8 +63,6 @@ namespace SulDownloader
 
             [[nodiscard]] virtual std::vector<ProductInfo> listInstalledProducts() const = 0;
 
-            virtual SulLogsVector getLogs() const = 0;
-
             virtual void purge() const = 0;
 
         };

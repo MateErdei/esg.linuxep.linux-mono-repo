@@ -5,6 +5,7 @@ Copyright 2018-2020, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 #pragma once
 
+#include "IRepository.h"
 #include "RepositoryError.h"
 
 #include <ctime>
