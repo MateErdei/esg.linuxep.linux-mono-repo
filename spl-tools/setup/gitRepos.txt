@@ -1,12 +1,11 @@
-ssh://git@stash.sophos.net:7999/linuxep/everest-base.git
-ssh://git@stash.sophos.net:7999/linuxep/thininstaller.git
-ssh://git@stash.sophos.net:7999/linuxep/sspl-plugin-template.git
-ssh://git@stash.sophos.net:7999/linuxep/sspl-plugin-mdr-component.git
-ssh://git@stash.sophos.net:7999/linuxep/sspl-plugin-mdr-componentsuite.git
-ssh://git@stash.sophos.net:7999/linuxep/sspl-plugin-anti-virus.git
-ssh://git@stash.sophos.net:7999/linuxep/sspl-plugin-heartbeat.git
-ssh://git@stash.sophos.net:7999/linuxep/versig.git
-ssh://git@stash.sophos.net:7999/linuxep/sul.git
-ssh://git@stash.sophos.net:7999/linuxep/sspl-plugin-edr-component.git
-ssh://git@stash.sophos.net:7999/linuxep/sspl-plugin-event-journaler.git
-ssh://git@stash.sophos.net:7999/linuxep/capsule8-sensor.git
+git@github.com:sophos-internal/esg.linuxep.everest-base.git
+git@github.com:sophos-internal/esg.linuxep.runtimedetections.git
+git@github.com:sophos-internal/esg.linuxep.sspl-plugin-anti-virus.git
+git@github.com:sophos-internal/esg.linuxep.sspl-plugin-edr-component.git
+git@github.com:sophos-internal/esg.linuxep.sspl-plugin-edr-componentsuite .git
+git@github.com:sophos-internal/esg.linuxep.sspl-plugin-event-journaler.git
+git@github.com:sophos-internal/esg.linuxep.sspl-plugin-heartbeat.git
+git@github.com:sophos-internal/esg.linuxep.sspl-plugin-mdr-component.git
+git@github.com:sophos-internal/esg.linuxep.sspl-plugin-template.git
+git@github.com:sophos-internal/esg.linuxep.thininstaller.git
+git@github.com:sophos-internal/esg.linuxep.versig.git

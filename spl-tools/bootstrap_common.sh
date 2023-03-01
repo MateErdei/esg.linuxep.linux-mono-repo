@@ -9,7 +9,3 @@ else
     apt-get install sshpass --assume-yes
     apt-get install wget --assume-yes
 fi
-
-cp /vagrant/auditdConfig.txt /etc/audit/auditd.conf
-service auditd restart
-

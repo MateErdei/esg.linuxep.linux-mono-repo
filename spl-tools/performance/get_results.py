@@ -197,7 +197,7 @@ def get_results_for_machine(hostname):
     # This date_key was changed from "day", previously we would average out any tests of the same name that happened
     # within the same day. E.g. 2 tests in a day that built gcc on a machine would be averaged out in terms of
     # duration and cpu use etc. This was done using the day of the test (i.e. no time)
-    # Instead we now use the dull date including the time which means that we generate a unique result per test per day
+    # Instead we now use the full date including the time which means that we generate a unique result per test per day
     # and do not average them
     date_key = "datetime"
 
@@ -349,6 +349,6 @@ def get_results_for_machine(hostname):
 
 
 # Start
-performance_machines = ["sspl-perf-load", "sspl-perf-edr", "sspl-perf-edrmtr", "sspl-perf-stress"]
+performance_machines = ["sspl-perf-edr", "sspl-perf-stress"]
 for machine in performance_machines:
     get_results_for_machine(machine)

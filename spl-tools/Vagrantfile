@@ -4,52 +4,92 @@
 require 'socket'
 
 hostname = Socket.gethostname
+rsync_options = ["--verbose", "--archive", "--delete", "--links"]
 
-# All Vagrant configuration is done below. The "2" in Vagrant.configure
-# configures the configuration version (we support older styles for
-# backwards compatibility). Please don't change it unless you know what
-# you're doing.
+wsl_user = ENV["USER"]
+
+# This is set by vagrant_env_vars.sh
+windows_user = ENV["WINDOWS_USER"]
+
+repos_dir = "/home/" + wsl_user + "/gitrepos"
+
 Vagrant.configure("2") do |config|
+    config.ssh.forward_agent = true
 
     config.vm.define "ubuntu", primary: true do |ubuntu|
-        ubuntu.vm.box = "ubuntu-bionic"
-        ubuntu.vm.box_url = "file:///mnt/filer6/linux/ISOs/Vagrant_Boxes/ubuntu-bionic-bento.box"
-        ubuntu.vm.provider "virtualbox" do |vb|
-            vb.memory = 1024
-            vb.cpus = 2
+        config.vm.boot_timeout = 600
+        config.vm.box = "ubuntu/focal64"
+        config.vm.synced_folder ".", "/vagrant", disabled: true
+
+        # Source to sync
+        config.vm.synced_folder repos_dir + "/esg.linuxep.sspl-tools/", "/vagrant/esg.linuxep.sspl-tools/", type: "rsync",
+        rsync__exclude: ".git/", rsync__args: rsync_options
+
+        # Base
+        config.vm.synced_folder repos_dir + "/esg.linuxep.everest-base/", "/vagrant/esg.linuxep.everest-base/", type: "rsync",
+        rsync__exclude: [".git/, tap_venv/"], rsync__args: rsync_options
+
+
+        # AV
+        if File.directory?(repos_dir + "/esg.linuxep.sspl-plugin-anti-virus/")
+            config.vm.synced_folder repos_dir + "/esg.linuxep.sspl-plugin-anti-virus/", "/vagrant/esg.linuxep.sspl-plugin-anti-virus/", type: "rsync",
+            rsync__exclude: [".git/", "input", "redist"], rsync__args: rsync_options
         end
-        config.vm.provision "file", source: __dir__+"/everest-base/testUtils/SupportFiles/jenkins/auditdConfig.txt", destination: "/home/vagrant/auditdConfig.txt"
+
+        # EDR
+        if File.directory?(repos_dir + "/esg.linuxep.sspl-plugin-edr-component/")
+            config.vm.synced_folder repos_dir + "/esg.linuxep.sspl-plugin-edr-component/", "/vagrant/esg.linuxep.sspl-plugin-edr-component/", type: "rsync",
+            rsync__exclude: ".git/", rsync__args: rsync_options
+        end
+
+        # EDR Component componentsuite
+        if File.directory?(repos_dir + "/esg.linuxep.sspl-plugin-edr-componentsuite/")
+            config.vm.synced_folder repos_dir + "/esg.linuxep.sspl-plugin-edr-componentsuite/", "/vagrant/esg.linuxep.sspl-plugin-edr-componentsuite/", type: "rsync",
+            rsync__exclude: ".git/", rsync__args: rsync_options
+        end
+
+        # Event Journaler
+        if File.directory?(repos_dir + "/esg.linuxep.sspl-plugin-event-journaler/")
+            config.vm.synced_folder repos_dir + "/esg.linuxep.sspl-plugin-event-journaler/", "/vagrant/esg.linuxep.sspl-plugin-event-journaler/", type: "rsync",
+            rsync__exclude: ".git/", rsync__args: rsync_options
+        end
+
+        # MDR
+        if File.directory?(repos_dir + "/esg.linuxep.sspl-plugin-mdr-component/")
+            config.vm.synced_folder repos_dir + "/esg.linuxep.sspl-plugin-mdr-component/", "/vagrant/esg.linuxep.sspl-plugin-mdr-component/", type: "rsync",
+            rsync__exclude: ".git/", rsync__args: rsync_options
+        end
+
+        # Warehouse
+        if File.directory?(repos_dir + "/esg.linuxep.sspl-warehouse/")
+            config.vm.synced_folder repos_dir + "/esg.linuxep.sspl-warehouse/", "/vagrant/esg.linuxep.sspl-warehouse/", type: "rsync",
+            rsync__exclude: ".git/", rsync__args: rsync_options
+        end
+
+        # Thininstaller
+        if File.directory?(repos_dir + "/esg.linuxep.thininstaller/")
+            config.vm.synced_folder repos_dir + "/esg.linuxep.thininstaller/", "/vagrant/esg.linuxep.thininstaller/", type: "rsync",
+            rsync__exclude: ".git/", rsync__args: rsync_options
+        end
+
+        # Live Terminal
+        if File.directory?(repos_dir + "/esg.winep.liveterminal/")
+            config.vm.synced_folder repos_dir + "/esg.winep.liveterminal/", "/vagrant/esg.winep.liveterminal/", type: "rsync",
+            rsync__exclude: ".git/", rsync__args: rsync_options
+        end
+
+        # Filer 6
+        config.vm.synced_folder "/mnt/c/Users/" + windows_user + "/link-filer6", "/mnt/filer6/linux"
+
+        ubuntu.vm.provider "virtualbox" do |vb|
+            vb.memory = 4096
+            vb.cpus = 4
+            vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+            vb.customize ["modifyvm", :id, "--natdnsproxy1", "on"]
+            vb.customize ["modifyvm", :id, "--uartmode1", "disconnected"]
+        end
         ubuntu.vm.provision :shell, path: "bootstrap_ubuntu.sh"
         ubuntu.vm.provision :shell, path: "bootstrap_common.sh"
         config.vm.hostname = "vagrant#{hostname}"
     end
-
-    config.vm.define "centos" do |centos|
-        centos.vm.box = "centos-7"
-        centos.vm.box_url = "file:///mnt/filer6/linux/ISOs/Vagrant_Boxes/centos-7.box"
-
-        centos.vm.provider "virtualbox" do |vb|
-            vb.memory = 1024
-            vb.cpus = 2
-        end
-        config.vm.provision "file", source: __dir__+"/everest-base/testUtils/SupportFiles/jenkins/auditdConfig.txt", destination: "/home/vagrant/auditdConfig.txt"
-        centos.vm.provision :shell, path: "bootstrap_centos.sh"
-        centos.vm.provision :shell, path: "bootstrap_common.sh"
-
-    end
-
-    config.vm.define "rhel" do |rhel|
-        rhel.vm.box = "rhel-7-5"
-        rhel.vm.box_url = "file:///mnt/filer6/linux/ISOs/Vagrant_Boxes/RHEL-7-5.box"
-
-        rhel.vm.provider "virtualbox" do |vb|
-            vb.memory = 1024
-            vb.cpus = 2
-        end
-        config.vm.provision "file", source: __dir__+"/everest-base/testUtils/SupportFiles/jenkins/auditdConfig.txt", destination: "/home/vagrant/auditdConfig.txt"
-        rhel.vm.provision :shell, path: "bootstrap_rhel.sh"
-        rhel.vm.provision :shell, path: "bootstrap_common.sh"
-    end
-
-
 end
