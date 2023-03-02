@@ -78,7 +78,7 @@ namespace
 
             EXPECT_CALL(*mockFilePermissions, getUserId(_)).WillRepeatedly(Return(1));
             EXPECT_CALL(*mockFilePermissions, chmod(_, _)).WillRepeatedly(Return());
-            EXPECT_CALL(*mockFilePermissions, chown(_, _, _)).WillRepeatedly(Return());
+            EXPECT_CALL(*mockFilePermissions, chown(A<const Path&>(), A<const std::string&>(), A<const std::string&>())).WillRepeatedly(Return());
 
             plugin = pluginResourceManagement.createPluginAPI("plugin", mockPluginCallback);
             registration.join();
