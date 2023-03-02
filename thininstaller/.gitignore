@@ -15,3 +15,5 @@ installer_header_versioned.sh
 /installer_header.sh
 /ps_rootca.crt
 /rootca.crt
+/sspl-thininstaller-build/AutoVersioningHeaders/AutoVersion.*
+
