@@ -156,7 +156,7 @@ set( CAPNPROTO_LIBRARY_DIR ${INPUT}/capnproto/lib64)
 set( LZMA_LIBRARY_DIR ${INPUT}/lzma)
 
 set( JOURNAL_LIBRARY ${INPUT}/JournalLib/lib/libJournalLib.a)
-set( LZMA_LIBRARY ${LZMA_LIBRARY_DIR}/libliblzma.so)
+set( LZMA_LIBRARY ${LZMA_LIBRARY_DIR}/liblzma.so)
 
 set(pluginapiinclude ${PLUGINAPIPATH}/include)
 set(pluginapilib ${PLUGINAPIPATH}/lib64/libpluginapi.so)
