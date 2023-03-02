@@ -30,25 +30,25 @@ namespace ResponsePlugin
         LOGDEBUG("Throwing away unwanted action");
     }
 
-    void PluginCallback::queueActionWithCorrelation(const std::string& queryJson, const std::string& correlationId)
+    void PluginCallback::queueActionWithCorrelation(const std::string& actionJson, const std::string& correlationId)
     {
-        m_task->push(Task { Task::TaskType::ACTION, queryJson, correlationId });
+        m_task->push(Task{ Task::TaskType::ACTION, actionJson, "", correlationId });
     }
 
     void PluginCallback::onShutdown()
     {
-        LOGSUPPORT("Shutdown signal received");
+        LOGDEBUG("Shutdown signal received");
         m_task->pushStop();
 
         auto deadline = std::chrono::steady_clock::now() + 30s;
         auto nextLog = std::chrono::steady_clock::now() + 1s;
 
-        while(isRunning() && std::chrono::steady_clock::now() < deadline)
+        while (isRunning() && std::chrono::steady_clock::now() < deadline)
         {
-            if ( std::chrono::steady_clock::now() > nextLog )
+            if (std::chrono::steady_clock::now() > nextLog)
             {
                 nextLog = std::chrono::steady_clock::now() + 1s;
-                LOGSUPPORT("Shutdown waiting for all processes to complete");
+                LOGDEBUG("Shutdown waiting for all processes to complete");
             }
             std::this_thread::sleep_for(50ms);
         }

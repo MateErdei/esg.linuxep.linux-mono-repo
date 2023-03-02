@@ -5,6 +5,7 @@
 #include <Common/PluginApi/ErrorCodes.h>
 #include <Common/PluginApi/IBaseServiceApi.h>
 #include <Common/PluginApi/IPluginResourceManagement.h>
+#include <ResponseActions/ResponsePlugin/ActionRunner.h>
 #include <ResponseActions/ResponsePlugin/Logger.h>
 #include <ResponseActions/ResponsePlugin/PluginAdapter.h>
 #include <ResponsePlugin/config.h>
@@ -31,6 +32,7 @@ int main()
     auto sharedPluginCallBack = std::make_shared<PluginCallback>(queueTask);
 
     std::unique_ptr<Common::PluginApi::IBaseServiceApi> baseService;
+    auto runner = std::make_unique<ResponsePlugin::ActionRunner>();
 
     try
     {
@@ -42,7 +44,7 @@ int main()
         return Common::PluginApi::ErrorCodes::PLUGIN_API_CREATION_FAILED;
     }
 
-    PluginAdapter pluginAdapter(queueTask, std::move(baseService), sharedPluginCallBack);
+    PluginAdapter pluginAdapter(queueTask, std::move(baseService), std::move(runner), sharedPluginCallBack);
 
     try
     {

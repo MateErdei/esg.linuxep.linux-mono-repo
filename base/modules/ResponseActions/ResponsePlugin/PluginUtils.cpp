@@ -3,13 +3,9 @@
 #include "PluginUtils.h"
 #include "Logger.h"
 
-#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
-#include <Common/FileSystem/IFilePermissions.h>
-#include <Common/FileSystem/IFileSystem.h>
-
 namespace ResponsePlugin
 {
-    ActionType PluginUtils::getType(const std::string& actionJson)
+    std::pair<std::string, int> PluginUtils::getType(const std::string& actionJson)
     {
         nlohmann::json obj;
         try
@@ -19,12 +15,13 @@ namespace ResponsePlugin
         catch (const nlohmann::json::exception& exception)
         {
             LOGWARN("Cannot parse action with error : " << exception.what());
-            return ActionType::NONE;
+            return { "", -1 };
         }
 
-        if (!obj.contains("type"))
+        if (!obj.contains("type") || !obj.contains("timeout"))
         {
-            return ActionType::NONE;
+            LOGWARN("Missing either type or timeout field");
+            return { "", -1 };
         }
 
         std::string type;
@@ -35,27 +32,21 @@ namespace ResponsePlugin
         catch (const nlohmann::json::type_error& exception)
         {
             LOGWARN("Type value: " << obj["type"] << " is not a string : " << exception.what());
-            return ActionType::NONE;
+            return { "", -1 };
         }
-
-        if (type == "sophos.mgt.action.UploadFile")
+        int timeout;
+        try
         {
-            return ActionType::UPLOAD_FILE;
+            timeout = obj["timeout"];
+        }
+        catch (const nlohmann::json::type_error& exception)
+        {
+            LOGWARN("Type value: " << obj["timeout"] << " is not a string : " << exception.what());
+            return { "", -1 };
+            ;
         }
 
-        return ActionType::NONE;
+        return { type, timeout };
     }
 
-    void PluginUtils::sendResponse(const std::string& correlationId, const std::string& content)
-    {
-
-        LOGDEBUG("Command result: " << content);
-        std::string tmpPath = Common::ApplicationConfiguration::applicationPathManager().getTempPath();
-        std::string rootInstall = Common::ApplicationConfiguration::applicationPathManager().sophosInstall();
-        std::string targetDir = Common::FileSystem::join(rootInstall, "base/mcs/response");
-        std::string fileName = "CORE_" + correlationId + "_response.json";
-        std::string fullTargetName = Common::FileSystem::join(targetDir, fileName);
-
-        Common::FileSystem::createAtomicFileToSophosUser(content, fullTargetName, tmpPath);
-    }
 }

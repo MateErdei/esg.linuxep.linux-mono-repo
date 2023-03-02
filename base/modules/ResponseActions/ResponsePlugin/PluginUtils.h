@@ -13,8 +13,7 @@ namespace ResponsePlugin
     public:
         PluginUtils() = default;
         ~PluginUtils() = default;
-        static ActionType getType(const std::string& actionJson);
-        static void sendResponse(const std::string& correlationId,const std::string& content);
+        static std::pair<std::string, int> getType(const std::string& actionJson);
     };
 
 }

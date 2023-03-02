@@ -61,8 +61,9 @@ Dump All Logs
     Dump Teardown Log    ${SOPHOS_INSTALL}/plugins/av/log/safestore.log
 
     Dump Teardown Log    ${SOPHOS_INSTALL}/plugins/eventjournaler/log/eventjournaler.log
-    Dump Teardown Log    ${SOPHOS_INSTALL}/plugins/responseactions/log/responseactions.log
 
+    Dump Teardown Log    ${SOPHOS_INSTALL}/plugins/responseactions/log/responseactions.log
+    Dump Teardown Log    ${SOPHOS_INSTALL}/plugins/responseactions/log/actionrunner.log
 
     Dump Teardown Log    ${SOPHOS_INSTALL}/plugins/runtimedetections/log/runtimedetections.log
     Dump Teardown Log    ${SOPHOS_INSTALL}/plugins/heartbeat/log/connection_tracker.log

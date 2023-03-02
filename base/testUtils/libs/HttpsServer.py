@@ -33,6 +33,11 @@ class HttpsHandler(http.server.SimpleHTTPRequestHandler):
         content_length = int(self.headers["Content-Length"])
         content = self.rfile.read(content_length)
         self.log_message("%s", "Content: {}".format(content))
+        self.log_message("url path: " + self.path)
+        if self.path == "/upload":
+            with open("/tmp/upload.zip", 'wb') as f:
+                f.write(content)
+
         self.send_response(200)
         self.send_header('Content-type', 'text/html')
         self.end_headers()

@@ -316,15 +316,15 @@ def Send_Query_From_Fake_Cloud(name, query, command_id="correlation-id"):
                   "query": query}
     CloudAutomation.SendToFakeCloud.sendLiveQueryToFakeCloud(json.dumps(query_dict), command_id=command_id)
 
-def Send_Upload_File_From_Fake_Cloud(command_id="correlation-id"):
+def Send_Upload_File_From_Fake_Cloud(filepath="/tmp/file", compress=False, command_id="correlation-id", password=""):
     query_dict = {"type": "sophos.mgt.action.UploadFile",
-                  "url": "https://localhost:443/randompath",
-                  "targetFile": "/tmp/file",
-                  "compress": False,
-                  "password": "",
-                  "timeout": 10,
-                  "maxUploadSizeBytes" : 1000000,
-                  "expiration":144444000000004,
+                  "url": "https://localhost:443/upload",
+                  "targetFile": filepath,
+                  "compress": compress,
+                  "password": password,
+                  "timeout": 60,
+                  "maxUploadSizeBytes": 1000000,
+                  "expiration": 144444000000004,
                   }
     CloudAutomation.SendToFakeCloud.sendResponseActionToFakeCloud(json.dumps(query_dict), command_id=command_id)
 

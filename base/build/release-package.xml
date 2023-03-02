@@ -175,10 +175,12 @@
 
         <!-- Release -->
         <release-asset artifact-path="sspl-base/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="release"/>
-        <release-asset artifact-path="sspl-base/RA-SDDS-COMPONENT" source-dir="output/RA-SDDS-COMPONENT" mode="release"/>
+        <release-asset artifact-path="sspl-base/RA-SDDS-COMPONENT" source-dir="output/RA-SDDS-COMPONENT"
+                       mode="release"/>
         <release-asset artifact-path="sspl-base/SDDS3-PACKAGE" source-dir="output/SDDS3-PACKAGE" mode="release"/>
         <release-asset artifact-path="sspl-base/RA-SDDS3-PACKAGE" source-dir="output/RA-SDDS3-PACKAGE" mode="release"/>
-        <release-asset artifact-path="sspl-base/symbols" source-dir="output/symbols" mode="release"/>
+        <release-asset artifact-path="sspl-base/base-symbols" source-dir="output/base-symbols" mode="release"/>
+        <release-asset artifact-path="sspl-base/ra-symbols" source-dir="output/ra-symbols" mode="release"/>
 
         <build-asset artifact-path="sspl-base/openssl" source-dir="/build/redist/openssl" mode="release"/>
         <build-asset artifact-path="sspl-base/pluginapi" source-dir="output" mode="release">

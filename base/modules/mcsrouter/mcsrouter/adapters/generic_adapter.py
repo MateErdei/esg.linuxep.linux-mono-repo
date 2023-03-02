@@ -4,6 +4,7 @@ generic_adapter Module
 """
 
 import datetime
+import json
 import logging
 import os
 import time
@@ -91,7 +92,7 @@ class GenericAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
         mcsrouter.utils.filesystem_utils.utf8_write(policy_path_tmp, policy)
 
         # Make sure that policy is group readable so that Management Agent (or plugins) can read the file.
-        os.chmod(policy_path_tmp, stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP )
+        os.chmod(policy_path_tmp, stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP)
         return []
 
     def _get_action_name(self, command):
@@ -99,9 +100,33 @@ class GenericAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
             timestamp = command.get("creationTime")
         except KeyError:
             timestamp = mcsrouter.utils.timestamp.timestamp()
-
         order_tag = datetime.datetime.now().strftime("%Y%m%d%H%M%S%f")
         return "{}_{}_action_{}.xml".format(order_tag, self.__m_app_id, timestamp)
+
+    def _get_action_name_json(self, command):
+        app_id = self.get_app_id()
+        LOGGER.debug("{} received an action".format(app_id))
+
+        correlation_id = command.get("id")
+        try:
+            timestamp = command.get("creationTime")
+        except KeyError as ex:
+            LOGGER.error("Could not get creationTime, using the timestamp. Exception: {}".format(ex))
+            timestamp = mcsrouter.utils.timestamp.timestamp()
+        ttl = self._convert_ttl_to_epoch_time(timestamp, command.get("ttl"))
+        order_tag = datetime.datetime.now().strftime("%Y%m%d%H%M%S%f")
+        return f"{order_tag}_{app_id}_{correlation_id}_request_{timestamp}_{ttl}.json"
+
+    def _is_json(self, command):
+        try:
+            body = command.get("body")
+        except KeyError:
+            return False
+        try:
+            json.loads(body)
+        except (json.JSONDecodeError):
+            return False
+        return True
 
     def _process_action(self, command):
         """
@@ -111,7 +136,11 @@ class GenericAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
         LOGGER.debug("Received %s action", self.get_app_id())
 
         body = command.get("body")
-        action_name = self._get_action_name(command)
+        if self._is_json(command):
+            action_name = self._get_action_name_json(command)
+        else:
+            action_name = self._get_action_name(command)
+
         self._write_tmp_action(action_name, body)
         LOGGER.debug(f"{self.get_app_id()} action saved to path {action_name}")
         return []

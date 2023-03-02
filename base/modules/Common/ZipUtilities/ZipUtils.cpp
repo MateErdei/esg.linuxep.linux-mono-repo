@@ -211,8 +211,22 @@ namespace Common::ZipUtilities
         }
 
         auto fs = Common::FileSystem::fileSystem();
-
-        std::vector<Path> filesToZip = fs->listAllFilesInDirectoryTree(srcPath);
+        std::vector<Path> filesToZip;
+        bool fileOnly = false;
+        if (fs->isFile(srcPath))
+        {
+            fileOnly = true;
+            filesToZip.emplace_back(srcPath);
+        }
+        else if (fs->isDirectory(srcPath))
+        {
+            filesToZip = fs->listAllFilesInDirectoryTree(srcPath);
+        }
+        else
+        {
+            LOGWARN("No file or directory found at input path: " << srcPath);
+            return ENOENT;
+        }
 
         for (auto& fullFilePath : filesToZip)
         {
@@ -229,22 +243,45 @@ namespace Common::ZipUtilities
             catch (const std::exception& exception)
             {
                 std::stringstream errorMessage;
-                errorMessage << "Could not read contents of file: " << fullFilePath << " with error: " << exception.what();
+                errorMessage << "Could not read contents of file: " << fullFilePath
+                             << " with error: " << exception.what();
                 throw std::runtime_error(errorMessage.str());
             }
 
             zip_fileinfo zfi;
-            std::string relativeFilePath = fullFilePath.substr(srcPath.size()+1);
+            std::string relativeFilePath;
+            if (fileOnly)
+            {
+                relativeFilePath = Common::FileSystem::basename(srcPath);
+            }
+            else
+            {
+                relativeFilePath = fullFilePath.substr(srcPath.size() + 1);
+            }
 
-            unsigned long crcFile=0;
+            unsigned long crcFile = 0;
             crcFile = crc32_z(crcFile, (unsigned char*)&fileContents[0], fileContents.size());
             LOGDEBUG("Filename: " << relativeFilePath << ", crc: " << crcFile);
 
             if (passwordProtected)
             {
-                ret = zipOpenNewFileInZip3(zf, relativeFilePath.c_str(), &zfi, nullptr, 0, nullptr, 0, nullptr,
-                                           MZ_COMPRESS_METHOD_DEFLATE, MZ_COMPRESS_LEVEL_DEFAULT,
-                                           0,  -MAX_WBITS, DEF_MEM_LEVEL, Z_DEFAULT_STRATEGY, password.c_str(), crcFile);
+                ret = zipOpenNewFileInZip3(
+                    zf,
+                    relativeFilePath.c_str(),
+                    &zfi,
+                    nullptr,
+                    0,
+                    nullptr,
+                    0,
+                    nullptr,
+                    MZ_COMPRESS_METHOD_DEFLATE,
+                    MZ_COMPRESS_LEVEL_DEFAULT,
+                    0,
+                    -MAX_WBITS,
+                    DEF_MEM_LEVEL,
+                    Z_DEFAULT_STRATEGY,
+                    password.c_str(),
+                    crcFile);
             }
             else
             {

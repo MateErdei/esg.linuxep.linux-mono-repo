@@ -27,7 +27,7 @@ INSTALL(CODE "MESSAGE(STATUS \"Stripping executables\")
 # Copy addSymbol script to symbol dir
 INSTALL(CODE "MESSAGE(STATUS \"Copying addSymbol script to ${SYMBOLS_DIR}\")
     execute_process(
-        COMMAND ${CMAKE_COMMAND} -E copy ${ADD_SYMBOLS_SCRIPT} ${SYMBOLS_DIR}/
+        COMMAND ${CMAKE_COMMAND} -E copy ${ADD_SYMBOLS_SCRIPT} ${SYMBOLS_DIR}/base
         RESULT_VARIABLE STATUS)
     if(STATUS AND NOT STATUS EQUAL 0)
         message(STATUS \"Failed to copy symbols to output: ${STATUS}\")
@@ -99,7 +99,8 @@ if (DEFINED ENV{SDDS3})
 endif()
     execute_process(COMMAND cp -a ${CMAKE_BINARY_DIR}/products/PluginApi/pluginapi.tar.gz ${OUTPUT}/pluginapi.tar.gz)
     execute_process(COMMAND tar -zcvf ${OUTPUT}/SystemProductTestOutput.tar.gz -C ${CMAKE_BINARY_DIR} SystemProductTestOutput/)
-    execute_process(COMMAND bash -c \"[[ -d ${CMAKE_BINARY_DIR}/symbols ]] && cp -a ${CMAKE_BINARY_DIR}/symbols ${OUTPUT}/ && echo copied symbols to output \")
+    execute_process(COMMAND bash -c \"[[ -d ${CMAKE_BINARY_DIR}/symbols/base ]] && cp -a ${CMAKE_BINARY_DIR}/symbols/base ${OUTPUT}/base-symbols && echo copied base symbols to output \")
+    execute_process(COMMAND bash -c \"[[ -d ${CMAKE_BINARY_DIR}/symbols/ra ]] && cp -a ${CMAKE_BINARY_DIR}/symbols/ra ${OUTPUT}/ra-symbols && echo copied ra symbols to output \")
     execute_process(COMMAND cp -a ${CMAKE_BINARY_DIR}/products/ThininstallerDependencies/cmcsrouterapi.tar.gz ${OUTPUT}/cmcsrouterapi.tar.gz)
 ")
 

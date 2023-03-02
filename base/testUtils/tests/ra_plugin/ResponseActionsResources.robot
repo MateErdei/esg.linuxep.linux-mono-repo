@@ -8,10 +8,12 @@ Library    ${LIBS_DIRECTORY}/OSUtils.py
 Resource  ../GeneralTeardownResource.robot
 *** Variables ***
 ${RESPONSE_ACTIONS_LOG_PATH}   ${SOPHOS_INSTALL}/plugins/responseactions/log/responseactions.log
+${ACTIONS_RUNNER_LOG_PATH}   ${SOPHOS_INSTALL}/plugins/responseactions/log/actionrunner.log
 
 
 *** Keywords ***
 Install Response Actions Directly
+    ${mark} =  mark_log_size  ${RESPONSE_ACTIONS_LOG_PATH}
     ${RESPONSE_ACTIONS_SDDS_DIR} =  Get SSPL Response Actions Plugin SDDS
     ${result} =    Run Process  bash -x ${RESPONSE_ACTIONS_SDDS_DIR}/install.sh 2> /tmp/install.log   shell=True
     ${error} =  Get File  /tmp/install.log
@@ -23,7 +25,7 @@ Install Response Actions Directly
     ...  10 secs
     ...  1 secs
     ...  Check Response Actions Executable Running
-
+    wait_for_log_contains_from_mark  ${mark}  Entering the main loop
 Uninstall Response Actions
     ${result} =  Run Process     ${RESPONSE_ACTIONS_DIR}/bin/uninstall.sh
     Should Be Equal As Strings   ${result.rc}  0
@@ -47,16 +49,10 @@ Start Response Actions
 Restart Response Actions
     ${mark} =  mark_log_size  ${RESPONSE_ACTIONS_LOG_PATH}
     Stop Response Actions
-    Wait Until Keyword Succeeds
-    ...  30 secs
-    ...  1 secs
-    ...  wait_for_log_contains_from_mark  ${mark}  responseactions <> Plugin Finished
+    wait_for_log_contains_from_mark  ${mark}  responseactions <> Plugin Finished   30
     ${mark} =  mark_log_size  ${RESPONSE_ACTIONS_LOG_PATH}
     Start Response Actions
-    Wait Until Keyword Succeeds
-    ...  30 secs
-    ...  1 secs
-    ...  wait_for_log_contains_from_mark  ${mark}  Entering the main loop
+    wait_for_log_contains_from_mark  ${mark}  Entering the main loop  30
 
 Check Response Actions Installed
     Wait Until Keyword Succeeds

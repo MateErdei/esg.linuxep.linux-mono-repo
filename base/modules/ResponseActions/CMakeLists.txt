@@ -1,2 +1,3 @@
 add_subdirectory(ResponseActionsImpl)
+add_subdirectory(ActionRunner)
 add_subdirectory(ResponsePlugin)

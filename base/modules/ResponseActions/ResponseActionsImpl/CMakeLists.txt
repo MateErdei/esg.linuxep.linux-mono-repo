@@ -15,7 +15,9 @@ target_link_libraries(responseactionsimpl PUBLIC
         logging
         utilityimpl
         HttpRequestsImpl
-        filesystemimplobject)
+        curlwrapper
+        filesystemimplobject
+        ziputilities)
 
 SET_TARGET_PROPERTIES(responseactionsimpl
         PROPERTIES

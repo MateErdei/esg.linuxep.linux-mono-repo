@@ -1,20 +1,19 @@
 // Copyright 2023 Sophos Limited. All rights reserved.
 
-#include "Logger.h"
 #include "PluginAdapter.h"
+
+#include "Logger.h"
 #include "PluginUtils.h"
 
-#include "ResponseActions/ResponseActionsImpl/UploadFileAction.h"
-
-#include <Common/CurlWrapper/CurlWrapper.h>
-#include <Common/HttpRequestsImpl/HttpRequesterImpl.h>
 namespace ResponsePlugin
 {
     PluginAdapter::PluginAdapter(
         std::shared_ptr<TaskQueue> queueTask,
         std::unique_ptr<Common::PluginApi::IBaseServiceApi> baseService,
+        std::unique_ptr<IActionRunner> runner,
         std::shared_ptr<PluginCallback> callback) :
         m_queueTask(std::move(queueTask)),
+        m_runner(std::move(runner)),
         m_baseService(std::move(baseService)),
         m_callback(std::move(callback))
     {
@@ -27,44 +26,66 @@ namespace ResponsePlugin
 
         while (true)
         {
-            Task task = m_queueTask->pop();
-            switch (task.m_taskType)
+            Task task;
+            if (!m_queueTask->pop(task, 60))
             {
-                case Task::TaskType::STOP:
-                    return;
-                case Task::TaskType::ACTION:
-                    processAction(task.m_content,task.m_correlationId);
-                    break;
-
+                if (!m_runner->getIsRunning() && !m_actionQueue.empty())
+                {
+                    processAction(m_actionQueue[0].m_content, m_actionQueue[0].m_correlationId);
+                    m_actionQueue.pop_front();
+                }
+            }
+            else
+            {
+                switch (task.m_taskType)
+                {
+                    case Task::TaskType::STOP:
+                        if (m_runner->getIsRunning())
+                        {
+                            m_runner->killAction();
+                        }
+                        return;
+                    case Task::TaskType::ACTION:
+                        if (!m_runner->getIsRunning() && m_actionQueue.empty())
+                        {
+                            // if queue is empty and no action is running, run new action straight away
+                            processAction(task.m_content, task.m_correlationId);
+                        }
+                        else
+                        {
+                            // put new action on back of queue
+                            m_actionQueue.emplace_back(task);
+                            if (!m_runner->getIsRunning())
+                            {
+                                // if there is no action running now run next action on queue now instead of waiting 60
+                                // seconds
+                                processAction(m_actionQueue[0].m_content, m_actionQueue[0].m_correlationId);
+                                m_actionQueue.pop_front();
+                            }
+                        }
+                        break;
+                }
             }
         }
     }
 
-    void PluginAdapter::processAction(const std::string& action,const std::string& correlationId) {
-        LOGDEBUG("Process action: " << action);
-        ActionType type = PluginUtils::getType(action);
-        switch(type)
-        {
-            case ActionType::UPLOAD_FILE:
-                LOGINFO("Running upload");
-                doUpload(action,correlationId);
-                break;
-            case ActionType::NONE:
-                LOGWARN("Throwing away unknown action: " << action);
-                break;
-        }
-    }
-
-    void PluginAdapter::doUpload(const std::string& action,const std::string& correlationId)
+    void PluginAdapter::processAction(const std::string& action,const std::string& correlationId)
     {
-        std::shared_ptr<Common::CurlWrapper::ICurlWrapper> curlWrapper =
-            std::make_shared<Common::CurlWrapper::CurlWrapper>();
-        std::shared_ptr<Common::HttpRequests::IHttpRequester> client =
-            std::make_shared<Common::HttpRequestsImpl::HttpRequesterImpl>(curlWrapper);
-        ResponseActionsImpl::UploadFileAction uploadFileAction(client);
-        std::string response = uploadFileAction.run(action);
-        PluginUtils::sendResponse(correlationId, response);
-        LOGINFO("Sent upload response to Central");
+        LOGINFO("Running action: " << correlationId);
+        LOGDEBUG("Process action: " << action);
+        std::pair<std::string, int> actionInfo = PluginUtils::getType(action);
+        if (actionInfo.second == -1)
+        {
+            LOGWARN("Action does not have a valid timeout set discarding it : " << action);
+            return;
+        }
+        if (actionInfo.first == "")
+        {
+            LOGWARN("Throwing away unknown action: " << action);
+            return;
+        }
+
+        m_runner->runAction(action, correlationId, actionInfo.first, actionInfo.second);
     }
 
 } // namespace ResponsePlugin

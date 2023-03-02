@@ -30,13 +30,15 @@ namespace
 
         auto fileNameFields = Common::UtilityImpl::StringUtils::splitString(filename, "_");
         if (Common::UtilityImpl::StringUtils::startswith(filename, "LiveQuery_") ||
-            Common::UtilityImpl::StringUtils::startswith(filename, "LiveTerminal_"))
+            Common::UtilityImpl::StringUtils::startswith(filename, "LiveTerminal_") ||
+            Common::UtilityImpl::StringUtils::isSubstring(filename, "_request_"))
         {
             if (fileNameFields.size() == 5)
             {
                 actionFilenameFields.m_appId = fileNameFields[0];
                 actionFilenameFields.m_correlationId = fileNameFields[1];
-                actionFilenameFields.m_isAlive = ManagementAgent::McsRouterPluginCommunicationImpl::ActionTask::isAlive(fileNameFields[4]);
+                actionFilenameFields.m_isAlive =
+                    ManagementAgent::McsRouterPluginCommunicationImpl::ActionTask::isAlive(fileNameFields[4]);
                 actionFilenameFields.m_isValid = true;
             }
         }

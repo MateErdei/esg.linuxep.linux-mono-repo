@@ -1,9 +1,12 @@
 configure_file(config.h.in config.h )
 
 add_library(responseplugin SHARED
+        ActionRunner.cpp
+        ActionRunner.h
         ApplicationPaths.cpp
         ApplicationPaths.h
         ActionType.h
+        IActionRunner.h
         Logger.h
         Logger.cpp
         PluginAdapter.cpp
@@ -21,9 +24,7 @@ include_directories(responseplugin BEFORE ${CMAKE_CURRENT_BINARY_DIR} ${LOG4CPLU
 
 target_link_libraries(responseplugin PUBLIC
         logging
-        responseactionsimpl
-        HttpRequestsImpl
-        curlwrapper
+        processimpl
         pluginapiimpl
         applicationconfigurationimpl
         telemetryhelperimpl

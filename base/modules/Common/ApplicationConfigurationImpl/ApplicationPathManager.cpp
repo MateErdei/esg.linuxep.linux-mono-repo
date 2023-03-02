@@ -31,12 +31,25 @@ namespace Common
             return Common::FileSystem::join(sophosInstall(), "plugins/eventjournaler", "data/eventjournals");
         }
 
+        std::string ApplicationPathManager::getResponseActionTmpPath() const
+        {
+            return Common::FileSystem::join(sophosInstall(), "plugins/responseactions/tmp");
+        }
+
+        std::string ApplicationPathManager::getResponseActionRunnerPath() const
+        {
+            return Common::FileSystem::join(sophosInstall(), "plugins/responseactions", "bin/sophos_actions");
+        }
+
         std::string ApplicationPathManager::getManagementAgentSocketAddress() const
         {
             return socketPath("mcs_agent.ipc");
         }
 
-        std::string ApplicationPathManager::getWatchdogSocketAddress() const { return socketPath("watchdog.ipc"); }
+        std::string ApplicationPathManager::getWatchdogSocketAddress() const
+        {
+            return socketPath("watchdog.ipc");
+        }
 
         std::string ApplicationPathManager::getWatchdogConfigPath() const
         {

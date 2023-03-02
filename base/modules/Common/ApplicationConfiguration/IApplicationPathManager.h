@@ -18,6 +18,8 @@ namespace Common::ApplicationConfiguration
         virtual std::string getEventSubscriberSocketAddress() const = 0;
         virtual std::string getEventSubscriberSocketFile() const = 0;
         virtual std::string getEventJournalsPath() const = 0;
+        virtual std::string getResponseActionTmpPath() const = 0;
+        virtual std::string getResponseActionRunnerPath() const = 0;
         virtual std::string sophosInstall() const = 0;
 
         virtual std::string getRelativeLogConfFilePath() const = 0;
