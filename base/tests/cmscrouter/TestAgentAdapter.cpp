@@ -12,6 +12,7 @@ class AgentAdapterTests : public LogInitializedTests
 public:
     std::map<std::string, std::string> basicXmlContent{
         { "hostname", "testHostname"},
+        { "fqdn", "testHostname.eng.sophos"},
         { "platform", "testLinux"},
         { "ip4Address", "192.168.168.64"},
         { "ip6Address", "fe90::fce3:3ed2:a5ae:6ea9"},
@@ -100,7 +101,7 @@ public:
                         << "root@" << basicXmlContent["hostname"] << "</lastLoggedOnUser>"
                         << "<ipv4>" << basicXmlContent["ip4Address"] << "</ipv4>"
                         << "<ipv6>" << basicXmlContent["ip6Address"] << "</ipv6>"
-                        << "<fqdn>" << basicXmlContent["hostname"] << "</fqdn>"
+                        << "<fqdn>" << basicXmlContent["fqdn"] << "</fqdn>"
                         << "<processorArchitecture>" << basicXmlContent["architecture"] << "</processorArchitecture>";
         if (options)
         {
@@ -197,7 +198,7 @@ TEST_F(AgentAdapterTests, testGetStatusXmlReturnsExpectedXmlWithMigrateFromSAV) 
     EXPECT_CALL(*mockLocalIP, getLocalInterfaces()).WillRepeatedly(Return(MockILocalIP::buildInterfacesHelper()));
     EXPECT_CALL(*mockPlatformUtil, sortInterfaces(_));
     EXPECT_CALL(*mockPlatformUtil, getHostname()).WillRepeatedly(Return(basicXmlContent["hostname"]));
-    EXPECT_CALL(*mockPlatformUtil, getFQDN()).WillRepeatedly(Return(basicXmlContent["hostname"]));
+    EXPECT_CALL(*mockPlatformUtil, getFQDN()).WillRepeatedly(Return(basicXmlContent["fqdn"]));
     EXPECT_CALL(*mockPlatformUtil, getPlatform()).WillRepeatedly(Return(basicXmlContent["platform"]));
     EXPECT_CALL(*mockPlatformUtil, getVendor()).WillRepeatedly(Return(basicXmlContent["vendor"]));
     EXPECT_CALL(*mockPlatformUtil, getArchitecture()).WillRepeatedly(Return(basicXmlContent["architecture"]));
@@ -236,7 +237,7 @@ TEST_F(AgentAdapterTests, testGetStatusXmlReturnsExpectedXmlWithMigrateFromSAV) 
     EXPECT_CALL(*mockLocalIP, getLocalInterfaces()).WillRepeatedly(Return(MockILocalIP::buildInterfacesHelper()));
     EXPECT_CALL(*mockPlatformUtil, sortInterfaces(_));
     EXPECT_CALL(*mockPlatformUtil, getHostname()).WillRepeatedly(Return(basicXmlContent["hostname"]));
-    EXPECT_CALL(*mockPlatformUtil, getFQDN()).WillRepeatedly(Return(basicXmlContent["hostname"]));
+    EXPECT_CALL(*mockPlatformUtil, getFQDN()).WillRepeatedly(Return(basicXmlContent["fqdn"]));
     EXPECT_CALL(*mockPlatformUtil, getPlatform()).WillRepeatedly(Return(basicXmlContent["platform"]));
     EXPECT_CALL(*mockPlatformUtil, getVendor()).WillRepeatedly(Return(basicXmlContent["vendor"]));
     EXPECT_CALL(*mockPlatformUtil, getArchitecture()).WillRepeatedly(Return(basicXmlContent["architecture"]));
@@ -272,7 +273,7 @@ TEST_F(AgentAdapterTests, testGetStatusXmlReturnsExpectedXmlWithOptions) // NOLI
     std::vector<std::string> emptyStringVector;
 
     EXPECT_CALL(*mockPlatformUtil, getHostname()).WillRepeatedly(Return(basicXmlContent["hostname"]));
-    EXPECT_CALL(*mockPlatformUtil, getFQDN()).WillRepeatedly(Return(basicXmlContent["hostname"]));
+    EXPECT_CALL(*mockPlatformUtil, getFQDN()).WillRepeatedly(Return(basicXmlContent["fqdn"]));
     EXPECT_CALL(*mockPlatformUtil, getPlatform()).WillRepeatedly(Return(basicXmlContent["platform"]));
     EXPECT_CALL(*mockPlatformUtil, getVendor()).WillRepeatedly(Return(basicXmlContent["vendor"]));
     EXPECT_CALL(*mockPlatformUtil, getArchitecture()).WillRepeatedly(Return(basicXmlContent["architecture"]));
