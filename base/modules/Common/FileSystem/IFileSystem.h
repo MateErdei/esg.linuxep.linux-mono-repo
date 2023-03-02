@@ -220,6 +220,17 @@ namespace Common
             virtual std::vector<Path> listAllFilesInDirectoryTree(const Path& root) const = 0;
 
             /**
+             * Provides the fullPath of the files and directories under the directoryPath and in its sub directories
+             *
+             * @note Only regular files are listed, special file system entries will not be listed.
+             * . and .. are not listed
+             *
+             * @param directoryPath
+             * @return List of the full path of files and directories under the directoryPath.
+             */
+            virtual std::vector<Path> listAllFilesAndDirsInDirectoryTree(const Path& root) const = 0;
+
+            /**
              * Provide the full absolute path of the directories under the directoryPath given.
              *
              * @note Only regular directories are listed, special file system entries will not be listed.

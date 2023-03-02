@@ -26,10 +26,19 @@ namespace Common
              * Change ownership of a file or directory
              *
              * @param path - the file or directory to modify
-             * @param user
-             * @param groupString
+             * @param user name (string)
+             * @param group name (string)
              */
             virtual void chown(const Path& path, const std::string& user, const std::string& groupString) const = 0;
+
+            /**
+             * Change ownership of a file or directory
+             *
+             * @param path - the file or directory to modify
+             * @param user ID
+             * @param group ID
+             */
+            virtual void chown(const Path& path, uid_t userId, gid_t groupId) const = 0;
 
             /**
              * Change permissions of a file or directory

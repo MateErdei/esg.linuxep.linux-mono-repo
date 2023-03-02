@@ -21,6 +21,8 @@ namespace Common
 
             void chown(const Path& path, const std::string& user, const std::string& groupString) const override;
 
+            void chown(const Path& path, uid_t userId, gid_t groupId) const override;
+
             gid_t getGroupId(const std::string& groupString) const override;
 
             std::string getGroupName(const gid_t& groupId) const override;

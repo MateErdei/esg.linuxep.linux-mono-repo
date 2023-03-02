@@ -220,7 +220,7 @@ TEST_F(TestWatchdogAndWdctl, WdctlIssuesStopToWatchdog)
         std::pair userAndGroup = std::make_pair(userId,groupId);
         EXPECT_CALL(*mockFilePermissions, getUserAndGroupId(_)).WillRepeatedly(Return(userAndGroup));
         EXPECT_CALL(*mockFilePermissions, chmod(_, _)).WillRepeatedly(Return());
-        EXPECT_CALL(*mockFilePermissions, chown(_, _, _)).WillRepeatedly(Return());
+        EXPECT_CALL(*mockFilePermissions, chown(A<const Path&>(), A<const std::string&>(), A<const std::string&>())).WillRepeatedly(Return());
 
         std::unique_lock<std::mutex> lock{ensureNotInParallel};
         testing::internal::CaptureStderr();
@@ -265,7 +265,7 @@ TEST_F(TestWatchdogAndWdctl, WdctlIsRunningDetectCanDetectStatusOfPlugins) // NO
         std::pair userAndGroup = std::make_pair(userId,groupId);
         EXPECT_CALL(*mockFilePermissions, getUserAndGroupId(_)).WillRepeatedly(Return(userAndGroup));
         EXPECT_CALL(*mockFilePermissions, chmod(_, _)).WillRepeatedly(Return());
-        EXPECT_CALL(*mockFilePermissions, chown(_, _, _)).WillRepeatedly(Return());
+        EXPECT_CALL(*mockFilePermissions, chown(A<const Path&>(), A<const std::string&>(), A<const std::string&>())).WillRepeatedly(Return());
 
         std::unique_lock<std::mutex> lock{ensureNotInParallel};
         WatchdogWdctlRunner watchdogRunner;

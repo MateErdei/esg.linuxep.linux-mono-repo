@@ -15,6 +15,7 @@
 #include <cassert>
 #include <dirent.h>
 #include <fcntl.h>
+#include <filesystem>
 #include <fstream>
 #include <grp.h>
 #include <iostream>
@@ -654,11 +655,22 @@ namespace Common
 
             return files;
         }
+
         std::vector<Path> FileSystemImpl::listAllFilesInDirectoryTree(const Path& root) const
         {
             std::vector<Path> pathCollection;
             walkDirectoryTree(pathCollection, root);
             return pathCollection;
+        }
+
+        std::vector<Path> FileSystemImpl::listAllFilesAndDirsInDirectoryTree(const Path& root) const
+        {
+            std::vector<Path> paths;
+            for (auto const& dirEntry : std::filesystem::recursive_directory_iterator(root))
+            {
+                paths.push_back(dirEntry.path());
+            }
+            return paths;
         }
 
         void FileSystemImpl::walkDirectoryTree(std::vector<Path>& pathCollection, const Path& root) const
@@ -695,6 +707,7 @@ namespace Common
                 walkDirectoryTree(pathCollection, directory);
             }
         }
+
         void FileSystemImpl::removeFile(const Path& path, bool ignoreAbsent) const
         {
             if (::remove(path.c_str()) != 0)

@@ -54,6 +54,16 @@ namespace Common
             }
         }
 
+        void FilePermissionsImpl::chown(const Path& path, uid_t userId, gid_t groupId) const
+        {
+            if (::chown(path.c_str(), userId, groupId) != 0)
+            {
+                std::stringstream errorMessage;
+                errorMessage << "chown by ID failed to set user or group owner on file " << path << " to user ID: " << userId << ", group ID: " << groupId;
+                throw FileSystem::IPermissionDeniedException(errorMessage.str());
+            }
+        }
+
         void FilePermissionsImpl::chmod(const Path& path, __mode_t mode) const
         {
             int ret = ::chmod(path.c_str(), mode);

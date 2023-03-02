@@ -41,6 +41,7 @@ namespace Common
             std::vector<Path> listFilesAndDirectories(const Path& directoryPath, bool includeSymlinks = false)
                 const override;
             std::vector<Path> listAllFilesInDirectoryTree(const Path& root) const override;
+            std::vector<Path> listAllFilesAndDirsInDirectoryTree(const Path& root) const override;
             std::vector<Path> listDirectories(const Path& directoryPath) const override;
 
             void moveFileTryCopy(const Path& sourcePath, const Path& destPath) const override;

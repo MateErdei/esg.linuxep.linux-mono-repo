@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2018-2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #include <Common/FileSystemImpl/FilePermissionsImpl.h>
 #include <Common/FileSystemImpl/FileSystemImpl.h>
@@ -28,105 +24,109 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 using Common::PluginCommunicationImpl::PluginProxy;
 
-class TestPluginManager : public ::testing::Test
+namespace
 {
-public:
-    TestPluginManager()
+    class TestPluginManager : public ::testing::Test
     {
-        m_pluginOneName = "plugin_one";
-        m_pluginTwoName = "plugin_two";
-        MockedApplicationPathManager* mockApplicationPathManager = new NiceMock<MockedApplicationPathManager>();
-        Common::ApplicationConfiguration::replaceApplicationPathManager(
-            std::unique_ptr<Common::ApplicationConfiguration::IApplicationPathManager>(mockApplicationPathManager));
-        ON_CALL(*mockApplicationPathManager, getManagementAgentSocketAddress())
-            .WillByDefault(Return("inproc:///tmp/management.ipc"));
-        ON_CALL(*mockApplicationPathManager, getPluginSocketAddress(m_pluginOneName))
-            .WillByDefault(Return("inproc:///tmp/plugin_one"));
-        ON_CALL(*mockApplicationPathManager, getPluginSocketAddress(m_pluginTwoName))
-            .WillByDefault(Return("inproc:///tmp/plugin_two"));
-        ON_CALL(*mockApplicationPathManager, getPublisherDataChannelAddress())
-            .WillByDefault(Return("inproc:///tmp/pubchannel.ipc"));
-        ON_CALL(*mockApplicationPathManager, getSubscriberDataChannelAddress())
-            .WillByDefault(Return("inproc:///tmp/subchannel.ipc"));
-        m_registryPath = "/registry";
-        ON_CALL(*mockApplicationPathManager, getPluginRegistryPath()).WillByDefault(Return(m_registryPath));
-        ON_CALL(*mockApplicationPathManager, getMcsPolicyFilePath()).WillByDefault(Return("/tmp/"));
-        ON_CALL(*mockApplicationPathManager, getMcsActionFilePath()).WillByDefault(Return("/tmp/"));
+    public:
+        TestPluginManager()
+        {
+            m_pluginOneName = "plugin_one";
+            m_pluginTwoName = "plugin_two";
+            MockedApplicationPathManager* mockApplicationPathManager = new NiceMock<MockedApplicationPathManager>();
+            Common::ApplicationConfiguration::replaceApplicationPathManager(
+                std::unique_ptr<Common::ApplicationConfiguration::IApplicationPathManager>(mockApplicationPathManager));
+            ON_CALL(*mockApplicationPathManager, getManagementAgentSocketAddress())
+                .WillByDefault(Return("inproc:///tmp/management.ipc"));
+            ON_CALL(*mockApplicationPathManager, getPluginSocketAddress(m_pluginOneName))
+                .WillByDefault(Return("inproc:///tmp/plugin_one"));
+            ON_CALL(*mockApplicationPathManager, getPluginSocketAddress(m_pluginTwoName))
+                .WillByDefault(Return("inproc:///tmp/plugin_two"));
+            ON_CALL(*mockApplicationPathManager, getPublisherDataChannelAddress())
+                .WillByDefault(Return("inproc:///tmp/pubchannel.ipc"));
+            ON_CALL(*mockApplicationPathManager, getSubscriberDataChannelAddress())
+                .WillByDefault(Return("inproc:///tmp/subchannel.ipc"));
+            m_registryPath = "/registry";
+            ON_CALL(*mockApplicationPathManager, getPluginRegistryPath()).WillByDefault(Return(m_registryPath));
+            ON_CALL(*mockApplicationPathManager, getMcsPolicyFilePath()).WillByDefault(Return("/tmp/"));
+            ON_CALL(*mockApplicationPathManager, getMcsActionFilePath()).WillByDefault(Return("/tmp/"));
 
-        m_pluginManagerPtr.reset(new ManagementAgent::PluginCommunicationImpl::PluginManager());
+            m_pluginManagerPtr.reset(new ManagementAgent::PluginCommunicationImpl::PluginManager());
 
-        m_mockedPluginApiCallback = std::make_shared<StrictMock<MockedPluginApiCallback>>();
-        m_mgmtCommon.reset(new Common::PluginApiImpl::PluginResourceManagement(m_pluginManagerPtr->getSocketContext()));
-        setupFileSystemAndGetMock();
-        m_pluginApi = m_mgmtCommon->createPluginAPI(m_pluginOneName, m_mockedPluginApiCallback);
-    }
+            m_mockedPluginApiCallback = std::make_shared<StrictMock<MockedPluginApiCallback>>();
+            m_mgmtCommon.reset(
+                new Common::PluginApiImpl::PluginResourceManagement(m_pluginManagerPtr->getSocketContext()));
+            setupFileSystemAndGetMock();
+            m_pluginApi = m_mgmtCommon->createPluginAPI(m_pluginOneName, m_mockedPluginApiCallback);
+        }
 
-    MockFileSystem& setupFileSystemAndGetMock()
-    {
-        std::string plugin_one_settings = R"sophos({
+        MockFileSystem& setupFileSystemAndGetMock()
+        {
+            std::string plugin_one_settings = R"sophos({
 "policyAppIds": ["plugin_one"],
 "actionAppIds": ["plugin_one"],
 "statusAppIds": ["plugin_one"],
 "pluginName": "plugin_one"})sophos";
-        std::string plugin_two_settings = R"sophos({
+            std::string plugin_two_settings = R"sophos({
 "policyAppIds": ["plugin_two"],
 "actionAppIds": ["plugin_two"],
 "statusAppIds": ["plugin_two"],
 "pluginName": "plugin_two"})sophos";
 
-        auto filesystemMock = new NiceMock<MockFileSystem>();
-        ON_CALL(*filesystemMock, listFiles(m_registryPath))
-            .WillByDefault(
-                Return(std::vector<std::string>{ { "/registry/plugin_one.json" }, { "/registry/plugin_two.json" } }));
+            auto filesystemMock = new NiceMock<MockFileSystem>();
+            ON_CALL(*filesystemMock, listFiles(m_registryPath))
+                .WillByDefault(Return(
+                    std::vector<std::string>{ { "/registry/plugin_one.json" }, { "/registry/plugin_two.json" } }));
 
-        ON_CALL(*filesystemMock, isFile("/registry/plugin_one.json")).WillByDefault(Return(true));
-        ON_CALL(*filesystemMock, isFile("/registry/plugin_two.json")).WillByDefault(Return(true));
-        ON_CALL(*filesystemMock, readFile("/registry/plugin_one.json")).WillByDefault(Return(plugin_one_settings));
-        ON_CALL(*filesystemMock, readFile("/registry/plugin_two.json")).WillByDefault(Return(plugin_two_settings));
+            ON_CALL(*filesystemMock, isFile("/registry/plugin_one.json")).WillByDefault(Return(true));
+            ON_CALL(*filesystemMock, isFile("/registry/plugin_two.json")).WillByDefault(Return(true));
+            ON_CALL(*filesystemMock, readFile("/registry/plugin_one.json")).WillByDefault(Return(plugin_one_settings));
+            ON_CALL(*filesystemMock, readFile("/registry/plugin_two.json")).WillByDefault(Return(plugin_two_settings));
 
-        auto mockFilePermissions = new StrictMock<MockFilePermissions>();
-        std::unique_ptr<MockFilePermissions> mockIFilePermissionsPtr =
-            std::unique_ptr<MockFilePermissions>(mockFilePermissions);
-        Tests::replaceFilePermissions(std::move(mockIFilePermissionsPtr));
+            auto mockFilePermissions = new StrictMock<MockFilePermissions>();
+            std::unique_ptr<MockFilePermissions> mockIFilePermissionsPtr =
+                std::unique_ptr<MockFilePermissions>(mockFilePermissions);
+            Tests::replaceFilePermissions(std::move(mockIFilePermissionsPtr));
 
-        EXPECT_CALL(*mockFilePermissions, chmod(_, _)).WillRepeatedly(Return());
-        EXPECT_CALL(*mockFilePermissions, chown(_, _, _)).WillRepeatedly(Return());
-        EXPECT_CALL(*mockFilePermissions, getUserId(_)).WillRepeatedly(Return(1));
-        std::pair userAndGroup = std::make_pair(1,1);
-        EXPECT_CALL(*mockFilePermissions, getUserAndGroupId(_)).WillRepeatedly(Return(userAndGroup));
+            EXPECT_CALL(*mockFilePermissions, chmod(_, _)).WillRepeatedly(Return());
+            EXPECT_CALL(*mockFilePermissions, chown(A<const Path&>(), A<const std::string&>(), A<const std::string&>())).WillRepeatedly(Return());
+            EXPECT_CALL(*mockFilePermissions, getUserId(_)).WillRepeatedly(Return(1));
+            std::pair userAndGroup = std::make_pair(1, 1);
+            EXPECT_CALL(*mockFilePermissions, getUserAndGroupId(_)).WillRepeatedly(Return(userAndGroup));
 
-        /*EXPECT_CALL(*filesystemMock, isDirectory("/installroot")).WillOnce(Return(true));
-        EXPECT_CALL(*filesystemMock,
-        isDirectory("/installroot/base/update/cache/primarywarehouse")).WillOnce(Return(true));
-        EXPECT_CALL(*filesystemMock, isDirectory("/installroot/base/update/cache/primary")).WillOnce(Return(true));
-        EXPECT_CALL(*filesystemMock, exists(_)).WillRepeatedly(Return(true));
-        EXPECT_CALL(*filesystemMock, join(_,_)).WillRepeatedly(Invoke([](const std::string& a, const
-        std::string&b){return a + "/" + b; }));*/
-        auto pointer = filesystemMock;
-        m_replacer.replace(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
-        return *pointer;
-    }
+            /*EXPECT_CALL(*filesystemMock, isDirectory("/installroot")).WillOnce(Return(true));
+            EXPECT_CALL(*filesystemMock,
+            isDirectory("/installroot/base/update/cache/primarywarehouse")).WillOnce(Return(true));
+            EXPECT_CALL(*filesystemMock, isDirectory("/installroot/base/update/cache/primary")).WillOnce(Return(true));
+            EXPECT_CALL(*filesystemMock, exists(_)).WillRepeatedly(Return(true));
+            EXPECT_CALL(*filesystemMock, join(_,_)).WillRepeatedly(Invoke([](const std::string& a, const
+            std::string&b){return a + "/" + b; }));*/
+            auto pointer = filesystemMock;
+            m_replacer.replace(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
+            return *pointer;
+        }
 
-    ~TestPluginManager() override = default;
+        ~TestPluginManager() override = default;
 
-    std::string m_pluginOneName;
-    std::string m_pluginTwoName;
-    std::string m_pluginThreeName;
-    std::string m_registryPath;
-    std::unique_ptr<Common::PluginApiImpl::PluginResourceManagement> m_mgmtCommon;
-    std::shared_ptr<MockedPluginApiCallback> m_mockedPluginApiCallback;
-    std::unique_ptr<ManagementAgent::PluginCommunicationImpl::PluginManager> m_pluginManagerPtr;
-    std::unique_ptr<Common::PluginApi::IBaseServiceApi> m_pluginApi;
-    std::unique_ptr<Common::PluginApi::IBaseServiceApi> m_pluginApiTwo;
-    Tests::ScopedReplaceFileSystem m_replacer;
-    MockFileSystem *m_fileSystemMockPtr;
-    Tests::TempDir m_tempDir;
+        std::string m_pluginOneName;
+        std::string m_pluginTwoName;
+        std::string m_pluginThreeName;
+        std::string m_registryPath;
+        std::unique_ptr<Common::PluginApiImpl::PluginResourceManagement> m_mgmtCommon;
+        std::shared_ptr<MockedPluginApiCallback> m_mockedPluginApiCallback;
+        std::unique_ptr<ManagementAgent::PluginCommunicationImpl::PluginManager> m_pluginManagerPtr;
+        std::unique_ptr<Common::PluginApi::IBaseServiceApi> m_pluginApi;
+        std::unique_ptr<Common::PluginApi::IBaseServiceApi> m_pluginApiTwo;
+        Tests::ScopedReplaceFileSystem m_replacer;
+        MockFileSystem* m_fileSystemMockPtr = nullptr;
+        Tests::TempDir m_tempDir;
 
-private:
-    Common::Logging::ConsoleLoggingSetup m_loggingSetup;
-};
+    private:
+        Common::Logging::ConsoleLoggingSetup m_loggingSetup;
+    };
+}
 
-TEST_F(TestPluginManager, TestApplyPolicyOnRegisteredPlugin) // NOLINT
+TEST_F(TestPluginManager, TestApplyPolicyOnRegisteredPlugin)
 {
     auto& fileSystemMock = setupFileSystemAndGetMock();
     EXPECT_CALL(fileSystemMock, readFile("/tmp/testpolicy.xml")).WillOnce(Return("testpolicy"));
@@ -136,7 +136,7 @@ TEST_F(TestPluginManager, TestApplyPolicyOnRegisteredPlugin) // NOLINT
     applyPolicy.join();
 }
 
-TEST_F(TestPluginManager, TestApplyPolicyOnTwoRegisteredPlugins) // NOLINT
+TEST_F(TestPluginManager, TestApplyPolicyOnTwoRegisteredPlugins)
 {
     auto& fileSystemMock = setupFileSystemAndGetMock();
     EXPECT_CALL(fileSystemMock, readFile("/tmp/testpolicyone.xml")).WillOnce(Return("testpolicyone"));
@@ -155,7 +155,7 @@ TEST_F(TestPluginManager, TestApplyPolicyOnTwoRegisteredPlugins) // NOLINT
     applyPolicy.join();
 }
 
-TEST_F(TestPluginManager, TestApplyPolicyOnFailedPluginLeavesItInRegisteredPluginList) // NOLINT
+TEST_F(TestPluginManager, TestApplyPolicyOnFailedPluginLeavesItInRegisteredPluginList)
 {
     EXPECT_CALL(*m_mockedPluginApiCallback, applyNewPolicyWithAppId(m_pluginOneName,"testpolicyone")).Times(1);
     EXPECT_CALL(*m_mockedPluginApiCallback, applyNewPolicyWithAppId(m_pluginTwoName,"testpolicytwo")).Times(0);
@@ -187,7 +187,7 @@ TEST_F(TestPluginManager, TestApplyPolicyOnFailedPluginLeavesItInRegisteredPlugi
     applyPolicy.join();
 }
 
-TEST_F(TestPluginManager, TestApplyPolicyOnPluginNoLongerInstalledRemovesItFromRegisteredPluginList) // NOLINT
+TEST_F(TestPluginManager, TestApplyPolicyOnPluginNoLongerInstalledRemovesItFromRegisteredPluginList)
 {
     EXPECT_CALL(*m_mockedPluginApiCallback, applyNewPolicyWithAppId(m_pluginOneName,"testpolicyone")).Times(1);
     EXPECT_CALL(*m_mockedPluginApiCallback, applyNewPolicyWithAppId(m_pluginTwoName,"testpolicytwo")).Times(0);
@@ -218,7 +218,7 @@ TEST_F(TestPluginManager, TestApplyPolicyOnPluginNoLongerInstalledRemovesItFromR
     applyPolicy.join();
 }
 
-TEST_F(TestPluginManager, TestDoActionOnRegisteredPlugin) // NOLINT
+TEST_F(TestPluginManager, TestDoActionOnRegisteredPlugin)
 {
     auto& fileSystemMock = setupFileSystemAndGetMock();
     EXPECT_CALL(fileSystemMock, readFile("/tmp/testaction.xml")).WillOnce(Return("testaction"));
@@ -228,14 +228,14 @@ TEST_F(TestPluginManager, TestDoActionOnRegisteredPlugin) // NOLINT
     applyAction.join();
 }
 
-TEST_F(TestPluginManager, TestDoActionNotSentToRegisteredPluginWithWrongAppId) // NOLINT
+TEST_F(TestPluginManager, TestDoActionNotSentToRegisteredPluginWithWrongAppId)
 {
     EXPECT_CALL(*m_mockedPluginApiCallback, queueAction("testaction")).Times(0);
     std::thread applyAction([this]() { EXPECT_EQ(m_pluginManagerPtr->queueAction("wrongappid", "testaction.xml", ""), 0); });
     applyAction.join();
 }
 
-TEST_F(TestPluginManager, TestAppIdCanBeChangedForRegisteredPluginForAction) // NOLINT
+TEST_F(TestPluginManager, TestAppIdCanBeChangedForRegisteredPluginForAction)
 {
     auto& fileSystemMock = setupFileSystemAndGetMock();
 
@@ -257,7 +257,7 @@ TEST_F(TestPluginManager, TestAppIdCanBeChangedForRegisteredPluginForAction) // 
 }
 
 
-TEST_F(TestPluginManager, TestDoActionOnTwoRegisteredPlugins) // NOLINT
+TEST_F(TestPluginManager, TestDoActionOnTwoRegisteredPlugins)
 {
     auto& fileSystemMock = setupFileSystemAndGetMock();
 
@@ -276,7 +276,7 @@ TEST_F(TestPluginManager, TestDoActionOnTwoRegisteredPlugins) // NOLINT
     applyAction.join();
 }
 
-TEST_F(TestPluginManager, TestDoActionOnFailedPluginLeavesItInRegisteredPluginList) // NOLINT
+TEST_F(TestPluginManager, TestDoActionOnFailedPluginLeavesItInRegisteredPluginList)
 {
     EXPECT_CALL(*m_mockedPluginApiCallback, queueAction("testactionone")).Times(1);
     EXPECT_CALL(*m_mockedPluginApiCallback, queueAction("testactiontwo")).Times(0);
@@ -306,7 +306,7 @@ TEST_F(TestPluginManager, TestDoActionOnFailedPluginLeavesItInRegisteredPluginLi
     applyPolicy.join();
 }
 
-TEST_F(TestPluginManager, TestDoActionOnPluginNoLongerInstalledRemovesItFromRegisteredPluginList) // NOLINT
+TEST_F(TestPluginManager, TestDoActionOnPluginNoLongerInstalledRemovesItFromRegisteredPluginList)
 {
     EXPECT_CALL(*m_mockedPluginApiCallback, queueAction("testactionone")).Times(1);
     EXPECT_CALL(*m_mockedPluginApiCallback, queueAction("testactiontwo")).Times(0);
@@ -336,7 +336,7 @@ TEST_F(TestPluginManager, TestDoActionOnPluginNoLongerInstalledRemovesItFromRegi
     applyPolicy.join();
 }
 
-TEST_F(TestPluginManager, TestDoActionOnTwoRegisteredPluginsInOneThread) // NOLINT
+TEST_F(TestPluginManager, TestDoActionOnTwoRegisteredPluginsInOneThread)
 {
     auto& fileSystemMock = setupFileSystemAndGetMock();
     EXPECT_CALL(fileSystemMock, readFile("/tmp/testactionone.xml")).WillOnce(Return("testactionone"));
@@ -351,21 +351,21 @@ TEST_F(TestPluginManager, TestDoActionOnTwoRegisteredPluginsInOneThread) // NOLI
     EXPECT_EQ(m_pluginManagerPtr->queueAction(m_pluginTwoName, "testactiontwo.xml",""), 1);
 }
 
-TEST_F(TestPluginManager, TestGetStatusOnRegisteredPlugins) // NOLINT
+TEST_F(TestPluginManager, TestGetStatusOnRegisteredPlugins)
 {
     EXPECT_CALL(*m_mockedPluginApiCallback, getStatus(m_pluginOneName)).Times(1);
     std::thread getStatus([this]() { m_pluginManagerPtr->getStatus(m_pluginOneName); });
     getStatus.join();
 }
 
-TEST_F(TestPluginManager, TestGetStatusOnUnregisteredPluginThrows) // NOLINT
+TEST_F(TestPluginManager, TestGetStatusOnUnregisteredPluginThrows)
 {
     EXPECT_THROW( // NOLINT
         m_pluginManagerPtr->getStatus("plugin_not_registered"),
         Common::PluginCommunication::IPluginCommunicationException); // NOLINT
 }
 
-TEST_F(TestPluginManager, TestGetStatusOnRemovedPluginThrows) // NOLINT
+TEST_F(TestPluginManager, TestGetStatusOnRemovedPluginThrows)
 {
     EXPECT_CALL(*m_mockedPluginApiCallback, getStatus(m_pluginOneName)).Times(1);
     std::thread getStatus([this]() {
@@ -377,7 +377,7 @@ TEST_F(TestPluginManager, TestGetStatusOnRemovedPluginThrows) // NOLINT
         m_pluginManagerPtr->getStatus(m_pluginOneName), // NOLINT
         Common::PluginCommunication::IPluginCommunicationException);
 }
-TEST_F(TestPluginManager, testGetHealthReturnsCorrectJsonForPopulatedUtmInformation) // NOLINT
+TEST_F(TestPluginManager, testGetHealthReturnsCorrectJsonForPopulatedUtmInformation)
 {
     nlohmann::json hbtJson;
     hbtJson["Health"] = 0;
@@ -386,7 +386,7 @@ TEST_F(TestPluginManager, testGetHealthReturnsCorrectJsonForPopulatedUtmInformat
     EXPECT_CALL(*m_mockedPluginApiCallback, getHealth()).Times(1).WillOnce(Return(hbtJson.dump()));
     ASSERT_EQ(m_pluginManagerPtr->getHealth(m_pluginOneName), hbtJson.dump());
 }
-TEST_F(TestPluginManager, testGetHealthReturnsCorrectJsonForMissingUtmInformation) // NOLINT
+TEST_F(TestPluginManager, testGetHealthReturnsCorrectJsonForMissingUtmInformation)
 {
     nlohmann::json hbtJson;
     hbtJson["Health"] = 0;
@@ -397,7 +397,7 @@ TEST_F(TestPluginManager, testGetHealthReturnsCorrectJsonForMissingUtmInformatio
     ASSERT_EQ(m_pluginManagerPtr->getHealth(m_pluginOneName), hbtJson.dump());
 }
 
-TEST_F(TestPluginManager, TestGetTelemetryOnRegisteredPlugins) // NOLINT
+TEST_F(TestPluginManager, TestGetTelemetryOnRegisteredPlugins)
 {
     EXPECT_CALL(*m_mockedPluginApiCallback, getTelemetry()).Times(1).WillOnce(Return("telemetryContent"));
     std::thread getTelemetry(
@@ -405,14 +405,14 @@ TEST_F(TestPluginManager, TestGetTelemetryOnRegisteredPlugins) // NOLINT
     getTelemetry.join();
 }
 
-TEST_F(TestPluginManager, TestGetTelemetryOnUnregisteredPluginThrows) // NOLINT
+TEST_F(TestPluginManager, TestGetTelemetryOnUnregisteredPluginThrows)
 {
     EXPECT_THROW(                                                  // NOLINT
-        m_pluginManagerPtr->getTelemetry("plugin_not_registered"), // NOLINT
+        m_pluginManagerPtr->getTelemetry("plugin_not_registered"),
         Common::PluginCommunication::IPluginCommunicationException);
 }
 
-TEST_F(TestPluginManager, TestGetTelemetryOnRemovedPluginThrows) // NOLINT
+TEST_F(TestPluginManager, TestGetTelemetryOnRemovedPluginThrows)
 {
     EXPECT_CALL(*m_mockedPluginApiCallback, getTelemetry()).Times(1);
     std::thread getTelemetry([this]() {
@@ -421,11 +421,11 @@ TEST_F(TestPluginManager, TestGetTelemetryOnRemovedPluginThrows) // NOLINT
     });
     getTelemetry.join();
     EXPECT_THROW(                                          // NOLINT
-        m_pluginManagerPtr->getTelemetry(m_pluginOneName), // NOLINT
+        m_pluginManagerPtr->getTelemetry(m_pluginOneName),
         Common::PluginCommunication::IPluginCommunicationException);
 }
 
-TEST_F(TestPluginManager, TestGetHealthOnRegisteredPlugins) // NOLINT
+TEST_F(TestPluginManager, TestGetHealthOnRegisteredPlugins)
 {
     EXPECT_CALL(*m_mockedPluginApiCallback, getHealth()).Times(1).WillOnce(Return("healthContent"));
     std::thread getHealth(
@@ -433,14 +433,14 @@ TEST_F(TestPluginManager, TestGetHealthOnRegisteredPlugins) // NOLINT
     getHealth.join();
 }
 
-TEST_F(TestPluginManager, TestGetHealthOnUnregisteredPluginThrows) // NOLINT
+TEST_F(TestPluginManager, TestGetHealthOnUnregisteredPluginThrows)
 {
     EXPECT_THROW(                                                  // NOLINT
-        m_pluginManagerPtr->getHealth("plugin_not_registered"), // NOLINT
+        m_pluginManagerPtr->getHealth("plugin_not_registered"),
         Common::PluginCommunication::IPluginCommunicationException);
 }
 
-TEST_F(TestPluginManager, TestGetHealthOnRemovedPluginThrows) // NOLINT
+TEST_F(TestPluginManager, TestGetHealthOnRemovedPluginThrows)
 {
     EXPECT_CALL(*m_mockedPluginApiCallback, getHealth()).Times(1);
     std::thread getHealth([this]() {
@@ -449,11 +449,11 @@ TEST_F(TestPluginManager, TestGetHealthOnRemovedPluginThrows) // NOLINT
     });
     getHealth.join();
     EXPECT_THROW(                                          // NOLINT
-        m_pluginManagerPtr->getHealth(m_pluginOneName), // NOLINT
+        m_pluginManagerPtr->getHealth(m_pluginOneName),
         Common::PluginCommunication::IPluginCommunicationException);
 }
 
-TEST_F(TestPluginManager, TestRegistrationOfASeccondPluginWithTheSameName) // NOLINT
+TEST_F(TestPluginManager, TestRegistrationOfASeccondPluginWithTheSameName)
 {
     auto& fileSystemMock = setupFileSystemAndGetMock();
 
@@ -471,7 +471,7 @@ TEST_F(TestPluginManager, TestRegistrationOfASeccondPluginWithTheSameName) // NO
       // the system will fail to create a plugin to bind to the same address.
       ASSERT_THROW(
           m_mgmtCommon->createPluginAPI(m_pluginOneName, secondMockedPluginApiCallback),
-          Common::PluginApi::ApiException); // NOLINT
+          Common::PluginApi::ApiException);
       // shutdown the plugin
       m_pluginApi.reset();
 
@@ -518,7 +518,7 @@ public:
 };
 
 
-TEST_F(TestPluginManager, PluginImplementingQueueActionWithCorrelationShouldReceiveTheCorrelation) // NOLINT
+TEST_F(TestPluginManager, PluginImplementingQueueActionWithCorrelationShouldReceiveTheCorrelation)
 {
     auto& fileSystemMock = setupFileSystemAndGetMock();
 
@@ -538,7 +538,7 @@ TEST_F(TestPluginManager, PluginImplementingQueueActionWithCorrelationShouldRece
 
 }
 
-TEST_F(TestPluginManager, CheckIfSinglePluginInRegistryReturnsTrueWhenPluginIsFound) // NOLINT
+TEST_F(TestPluginManager, CheckIfSinglePluginInRegistryReturnsTrueWhenPluginIsFound)
 {
     auto& fileSystemMock = setupFileSystemAndGetMock();
     std::string plugin = "thisPluginExists";
@@ -551,7 +551,7 @@ TEST_F(TestPluginManager, CheckIfSinglePluginInRegistryReturnsTrueWhenPluginIsFo
     ASSERT_TRUE(m_pluginManagerPtr->checkIfSinglePluginInRegistry(plugin));
 }
 
-TEST_F(TestPluginManager, CheckIfSinglePluginInRegistryReturnsFalseWhenPluginIsNotFound) // NOLINT
+TEST_F(TestPluginManager, CheckIfSinglePluginInRegistryReturnsFalseWhenPluginIsNotFound)
 {
     auto& fileSystemMock = setupFileSystemAndGetMock();
     std::string plugin = "thisPluginDoesNotExist";

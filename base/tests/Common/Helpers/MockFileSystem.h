@@ -51,6 +51,7 @@ public:
     MOCK_CONST_METHOD1(makeExecutable, void(const Path& path));
     MOCK_CONST_METHOD1(listFiles, std::vector<Path>(const Path& directoryPath));
     MOCK_CONST_METHOD2(listFilesAndDirectories, std::vector<Path>(const Path& directoryPath, bool includeSymlinks));
+    MOCK_CONST_METHOD1(listAllFilesAndDirsInDirectoryTree, std::vector<Path>(const Path& directoryPath));
     MOCK_CONST_METHOD1(listDirectories, std::vector<Path>(const Path& directoryPath));
     MOCK_CONST_METHOD1(listAllFilesInDirectoryTree, std::vector<Path>(const Path& directoryPath));
     MOCK_CONST_METHOD2(removeFile, void(const Path& path, bool));
