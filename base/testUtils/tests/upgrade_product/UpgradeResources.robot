@@ -191,7 +191,16 @@ Create Local SDDS3 Override
 
 Start Local SDDS3 Server
     [Arguments]    ${launchdarklyPath}=${SYSTEMPRODUCT_TEST_INPUT}/sdds3/launchdarkly    ${sdds3repoPath}=${SYSTEMPRODUCT_TEST_INPUT}/sdds3/repo
-    ${handle}=  Start Process  bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${LIBS_DIRECTORY}/SDDS3server.py --launchdarkly ${launchdarklyPath} --sdds3 ${sdds3repoPath}  shell=true
+    ${handle}=  Start Process
+    ...  bash  -x
+    ...  ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh
+    ...  python3  ${LIBS_DIRECTORY}/SDDS3server.py
+    ...  --launchdarkly  ${launchdarklyPath}
+    ...  --sdds3  ${sdds3repoPath}
+    ...  stdout=${sdds3_server_output}
+    ...  stderr=STDOUT
+    Set Suite Variable    $GL_handle    ${handle}
+
     [Return]  ${handle}
 
 Start Local Dogfood SDDS3 Server
