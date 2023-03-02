@@ -258,17 +258,17 @@ set( ZEROMQ_INPUT ${INPUT}/zeromq )
 ## use the hint from above to find where 'zmq.hpp' is located
 find_path(ZeroMQ_INCLUDE_DIR
         NAMES zmq.h
-        PATHS ${ZEROMQ_INPUT}/include
+        PATHS ${ZEROMQ_INPUT}
         )
 
 ## use the hint from above to find the location of libzmq
 find_library(ZeroMQ_LIBRARY
         NAMES zmq
-        PATHS ${ZEROMQ_INPUT}/lib
+        PATHS ${ZEROMQ_INPUT}
         )
 
 execute_process(
-        COMMAND chrpath -r \$ORIGIN ${ZEROMQ_INPUT}/lib/libzmq.so
+        COMMAND chrpath -r \$ORIGIN ${ZeroMQ_LIBRARY}
         COMMAND_ERROR_IS_FATAL ANY)
 
 find_library(EXPAT_LIBRARY

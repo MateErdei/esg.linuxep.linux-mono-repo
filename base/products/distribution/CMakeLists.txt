@@ -36,7 +36,7 @@ add_third_party_library(minizip ${MINIZIP_INPUT})
 add_third_party_library(curl ${CURL_INPUT}/lib64)
 add_third_party_library(expat ${EXPAT_INPUT})
 add_third_party_library(zlib  ${ZLIB_INPUT})
-add_third_party_library(zmq ${ZEROMQ_INPUT}/lib)
+add_third_party_library(zmq ${ZEROMQ_INPUT})
 
 foreach (LIB crypto ssl)
     add_third_party_library(${LIB} ${OPENSSL_INPUT}/lib64)

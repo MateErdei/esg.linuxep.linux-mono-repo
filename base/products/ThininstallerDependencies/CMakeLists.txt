@@ -21,7 +21,7 @@ add_library(cmcsrouterapi SHARED
         )
 
 target_link_libraries(cmcsrouterapi PUBLIC
-        zmq -L${ZEROMQ_INPUT}/lib
+        zmq -L${ZEROMQ_INPUT}
         log4cplus -L${LOG4CPLUS_INPUT}/lib
         protobuf -L${Protobuf_root}/lib
         expat -L${EXPAT_INPUT}
@@ -35,7 +35,7 @@ SET_TARGET_PROPERTIES( cmcsrouterapi
         BUILD_RPATH "$ORIGIN")
 
 INCLUDE(FindLibraryFullPath)
-FindLibraryFullPath( zmqfull zmq ${ZEROMQ_INPUT}/lib)
+FindLibraryFullPath( zmqfull zmq ${ZEROMQ_INPUT})
 FindLibraryFullPath( log4cplusfull log4cplus ${LOG4CPLUS_INPUT}/lib)
 FindLibraryFullPath( protobuffull protobuf ${Protobuf_root}/lib)
 FindLibraryFullPath( expatfull expat ${EXPAT_INPUT})

@@ -36,14 +36,6 @@
             <release-version branch="release/sophos" build-id="20200911164143-1923fa9a9b1636f552266b4c9082714d04d869e6-tbYSwR"/>
             <include artifact-path="include" dest-dir="/build/redist/gsl/include"/>
         </build-asset>
-        <build-asset project="thirdparty" repo="libexpat">
-            <release-version branch="release/sspl/Version_2_4_8" build-id="20220412084210-700180882b0055f197dcf0198d71f0be516561bc-ihDKUE"/>
-            <include artifact-path="output" dest-dir="/build/input"/>
-        </build-asset>
-        <build-asset project="thirdparty" repo="libzmq">
-            <release-version branch="release/sspl/Version_4_3_4" build-id="20220310142454-6680251ccb165f18f672e5bfad0df9041fb1e431-JsvEqi"/>
-            <include artifact-path="output" dest-dir="/build/input"/>
-        </build-asset>
         <build-asset project="thirdparty" repo="log4cplus">
             <release-version branch="release/sspl/Version_2_0_7" build-id="20220310142847-3a4bb813dfdcbf28d538394d253449fbb7c78bad-rAcfZX"/>
             <include artifact-path="output" dest-dir="/build/input"/>
@@ -99,12 +91,15 @@
         <trusted-asset artifact-path="filer5-migrate/pscerts/1-0-1/67228/ps_certificates/ps_rootca.crt" dest-dir="/build/input/"/>
 
         <build-asset project="em" repo="esg">
-            <development-version branch="feature/thirdparty/LINUXDAR-6727-update-minizip-ng-to-3.0.8"/>
+            <release-version branch="release/2023.04/sprint" build-id="20230120201925-31a0379094fc1654506d3d459661d326949dee47-bh0Sgz"/>
+            <development-version branch="develop"/>
             <include artifact-path="sophlib/include" dest-dir="/build/input/sophlib/include/sophlib"/>
             <include artifact-path="sophlib/linux_x86-64" dest-dir="/build/input/sophlib/lib64"/>
 
             <include artifact-path="thirdparty/zlib-linux-opt" dest-dir="/build/redist/zlib"/>
+            <include artifact-path="thirdparty/zmq-linux-opt" dest-dir="/build/redist/zeromq"/>
             <include artifact-path="thirdparty/googletest-linux-opt" dest-dir="/build/redist/googletest"/>
+            <include artifact-path="thirdparty/expat-linux-opt" dest-dir="/build/redist/expat"/>
             <include artifact-path="thirdparty/minizip-linux-opt" dest-dir="/build/redist/minizip"/>
             <include artifact-path="thirdparty/liblzma-linux-opt" dest-dir="/build/redist/lzma"/>
             <include artifact-path="thirdparty/bzip2-linux-opt" dest-dir="/build/redist/bzip2"/>
@@ -236,7 +231,9 @@
         <!--TODO: LINUXDAR-6488 - get all build modes working with old artifact path-->
         <!-- debug -->
         <build-asset artifact-path="sspl-base-debug/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="debug"/>
+        <build-asset artifact-path="sspl-base-debug/RA-SDDS-COMPONENT" source-dir="output/RA-SDDS-COMPONENT" mode="debug"/>
         <build-asset artifact-path="sspl-base-debug/SDDS3-PACKAGE" source-dir="output/SDDS3-PACKAGE" mode="debug"/>
+        <build-asset artifact-path="sspl-base-debug/RA-SDDS3-COMPONENT" source-dir="output/RA-SDDS-COMPONENT" mode="debug"/>
 
         <build-asset artifact-path="sspl-base-debug/openssl" source-dir="/build/redist/openssl" mode="debug"/>
         <build-asset artifact-path="sspl-base-debug/pluginapi" source-dir="output" mode="debug">
