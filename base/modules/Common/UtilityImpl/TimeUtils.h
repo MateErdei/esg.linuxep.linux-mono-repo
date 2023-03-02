@@ -65,13 +65,12 @@ namespace Common
              * No exceptions are thrown since a likely use is for logging where handling an exception would be awkward.
              * The time stamp is composed of ASCII characters so may be used in UTF-8 files.
              */
-
-            static long int getMinutesSince(std::string timestamp);
             static std::string MessageTimeStamp(const std::chrono::system_clock::time_point& time_point, Common::UtilityImpl::Granularity granularity = Granularity::milliseconds) noexcept;
 
             static std::time_t getCurrTime();
             static std::string getBootTime();
             static std::time_t getBootTimeAsTimet();
+            static long int getMinutesSince(std::string timestamp);
 
             /**
              * Return timestamp formatted as required by Timestamp Event

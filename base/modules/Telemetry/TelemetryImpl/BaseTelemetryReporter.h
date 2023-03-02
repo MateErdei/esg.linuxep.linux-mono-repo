@@ -9,6 +9,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include "ITelemetryProvider.h"
 
 #include <Common/FileSystem/IFileSystem.h>
+#include <Common/UtilityImpl/TimeUtils.h>
 
 #include <optional>
 #include <utility>
@@ -39,7 +40,8 @@ namespace Telemetry
         static std::optional<std::string> getVersion();
         static std::optional<std::string> getOverallHealth();
         static std::optional<std::string> getOutbreakModeCurrent();
-        static std::optional<std::string> getOutbreakModeToday();
+        static std::optional<std::string> getOutbreakModeTodayWrapper();
+        static std::optional<std::string> getOutbreakModeToday(Common::UtilityImpl::IFormattedTime& iFormattedTime);
         static std::optional<std::string> getOutbreakModeHistoric();
     };
 } // namespace Telemetry

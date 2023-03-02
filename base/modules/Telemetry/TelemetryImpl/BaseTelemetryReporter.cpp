@@ -10,6 +10,7 @@
 #include <Common/ApplicationConfigurationImpl/ApplicationPathManager.h>
 #include <Common/TelemetryHelperImpl/TelemetrySerialiser.h>
 #include <Common/UtilityImpl/FileUtils.h>
+#include <Common/UtilityImpl/StringUtils.h>
 #include <Common/XmlUtilities/AttributesMap.h>
 #include <Telemetry/LoggerImpl/Logger.h>
 
@@ -49,9 +50,9 @@ namespace Telemetry
         updateTelemetryRoot(root, "machineId", getMachineId);
         updateTelemetryRoot(root, "version", getVersion);
         updateTelemetryRoot(root, "overall-health", getOverallHealth);
-        updateTelemetryRoot(root, "outbreak-mode-current", getOutbreakModeCurrent); // this name is probably unnecessary
-        updateTelemetryRoot(root, "outbreak-mode-historic", getOutbreakModeHistoric); // this name is atrocious
-        updateTelemetryRoot(root, "outbreak-mode-today", getOutbreakModeToday); // this name isn't entirely accurate
+        updateTelemetryRoot(root, "outbreak-now", getOutbreakModeCurrent);
+        updateTelemetryRoot(root, "outbreak-ever", getOutbreakModeHistoric);
+        updateTelemetryRoot(root, "outbreak-today", getOutbreakModeTodayWrapper);
 
         return TelemetrySerialiser::serialise(root);
     }
@@ -140,25 +141,34 @@ namespace Telemetry
         return "false";
     }
 
-    std::optional<std::string> BaseTelemetryReporter::getOutbreakModeToday(/*FormattedTime:: timeFormat?*/) {
+    std::optional<std::string> BaseTelemetryReporter::getOutbreakModeTodayWrapper()
+    {
+        Common::UtilityImpl::FormattedTime formattedTime;
+        return getOutbreakModeToday(formattedTime);
+    }
+
+    std::optional<std::string> BaseTelemetryReporter::getOutbreakModeToday(Common::UtilityImpl::IFormattedTime& time)
+    {
         if (getOutbreakModeCurrent() == "true")
         {
             return "true";
         }
 
-        long int minSinceOutbreak;
         Path outbreakModeStatusFilepath =
             Common::ApplicationConfiguration::applicationPathManager().getOutbreakModeStatusFilePath();
         auto fs = Common::FileSystem::fileSystem();
         if (fs->isFile(outbreakModeStatusFilepath))
         {
-            std::optional<std::string> time = extractValueFromFile(outbreakModeStatusFilepath, "timestamp");
-            if (time)
+            std::optional<std::string> recordedTime = extractValueFromFile(outbreakModeStatusFilepath, "timestamp");
+            if (recordedTime)
             {
-                minSinceOutbreak = Common::UtilityImpl::TimeUtils::getMinutesSince(*time);
-                // reformattedTime = ::toTime(time, format);
-                // timeNow = FormattedTime::now();
-                if (minSinceOutbreak < 1440) // if (timeNow - time > 256000)
+                auto [ recordedTimeAsInt, errorString ] = Common::UtilityImpl::StringUtils::stringToInt(recordedTime.value());
+                if (!errorString.empty())
+                {
+                    LOGWARN("Last recorded outbreak timestamp not an integer: " << errorString);
+                    return std::nullopt;
+                }
+                if (time.currentEpochTimeInSecondsAsInteger() - recordedTimeAsInt > 86400) // 1 day in seconds
                 {
                     return "true";
                 }

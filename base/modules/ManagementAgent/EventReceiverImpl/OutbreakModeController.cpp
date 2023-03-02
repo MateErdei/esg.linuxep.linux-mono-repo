@@ -261,6 +261,6 @@ void ManagementAgent::EventReceiverImpl::OutbreakModeController::leaveOutbreakMo
     uuid_ = "";
     detectionCount_ = 0;
 
-    auto timestamp = Common::UtilityImpl::TimeUtils::MessageTimeStamp(clock_t::now());
-    save(timestamp);
+    Common::UtilityImpl::FormattedTime time;
+    save(time.currentEpochTimeInSeconds());
 }
