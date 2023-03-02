@@ -51,6 +51,7 @@ o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libboost_filesystem.so.
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libboost_regex.so.1.78.0.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libboost_system.so.1.78.0.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libboost_thread.so.1.78.0.0
+o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libbzip2.so.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libcentralregistrationimpl.so.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libcurl.so.4.8.0.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libcurlwrapper.so.0
@@ -68,7 +69,7 @@ o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libmanagementagentlogge
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libmanagementagentutilityimpl.so.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libmcsimpl.so.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libmcsrouterplugincommunicationimpl.so.0
-o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libminizip.so.3.0.2.0
+o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libminizip.so.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libobfuscationimpl.so.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libosutilitiesimpl.so.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libpluginapiimpl.so.0
