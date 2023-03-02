@@ -35,6 +35,7 @@ namespace ManagementAgent::EventReceiverImpl
         void resetCountOnDayChange(time_point_t now);
         void leaveOutbreakMode();
 
+    protected:
         std::string uuid_;
         int detectionCount_ = 0;
         int savedYear_ = 0;

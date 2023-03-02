@@ -17,6 +17,16 @@ namespace
 {
     const int OUTBREAK_COUNT = 100;
 
+    class TestableOutbreakModeController : public OutbreakModeController
+    {
+    public:
+        using OutbreakModeController::OutbreakModeController;
+        int getDetectionCount()
+        {
+            return detectionCount_;
+        }
+    };
+
     const std::string DETECTION_XML = R"sophos(<?xml version="1.0" encoding="utf-8"?>
 <event type="sophos.core.detection" ts="1970-01-01T00:02:03.000Z">
   <user userId="username"/>
@@ -25,6 +35,17 @@ namespace
     <path>/path/to/eicar.txt</path>
   </alert>
 </event>)sophos";
+
+    const std::string CLEANUP_XML = R"(<?xml version="1.0" encoding="utf-8"?>
+<event type="sophos.core.clean" ts="1970-01-01T00:02:03.000Z">
+  <alert id="fedcba98-7654-3210-fedc-ba9876543210" succeeded="1" origin="1">
+    <items totalItems="1">
+      <item type="file" result="0">
+        <descriptor>/path/to/eicar.txt</descriptor>
+      </item>
+    </items>
+  </alert>
+</event>)";
 
     class TestOutbreakModeController : public TestSpecificDirectory
     {
@@ -58,14 +79,14 @@ namespace
         fs::path eventDir_;
         Path expectedStatusFile_;
 
-        static bool processEventThrowAwayArgs(OutbreakModeControllerPtr& controller,
+        static bool processEventThrowAwayArgs(const OutbreakModeControllerPtr& controller,
                                               const std::string& appID,
                                               const std::string& xml)
         {
             return controller->processEvent({appID, xml});
         }
 
-        static bool processEventThrowAwayArgs(OutbreakModeControllerPtr& controller,
+        static bool processEventThrowAwayArgs(const OutbreakModeControllerPtr& controller,
                                               const std::string& appID,
                                               const std::string& xml,
                                               OutbreakModeController::time_point_t now)
@@ -73,7 +94,7 @@ namespace
             return controller->processEvent({appID, xml}, now);
         }
 
-        static void repeatProcessEvent(OutbreakModeControllerPtr& controller,
+        static void repeatProcessEvent(const OutbreakModeControllerPtr& controller,
                                        const std::string& xml, int count, const std::string& appID="CORE")
         {
             for (auto i=0; i<count; i++)
@@ -82,7 +103,7 @@ namespace
             }
         }
 
-        static void enterOutbreakMode(OutbreakModeControllerPtr& controller)
+        static void enterOutbreakMode(const OutbreakModeControllerPtr& controller)
         {
             repeatProcessEvent(controller, DETECTION_XML, OUTBREAK_COUNT+1);
             EXPECT_TRUE(controller->outbreakMode());
@@ -543,4 +564,24 @@ TEST_F(TestOutbreakModeController, ignore_wrong_id_clearing_outbreak_mode)
     controller->processAction(
         R"(<?xml version="1.0"?><action type="sophos.core.threat.sav.clear"><item id="5df69683-a5a2-ffff-ffff-06f9c4c8c7bf"/></action>)");
     EXPECT_TRUE(controller->outbreakMode());
+}
+
+TEST_F(TestOutbreakModeController, reset_action_leaves_outbreak_mode)
+{
+    auto controller = std::make_shared<TestableOutbreakModeController>();
+    EXPECT_FALSE(controller->outbreakMode());
+    enterOutbreakMode(controller);
+    ASSERT_TRUE(controller->outbreakMode());
+    bool drop = processEventThrowAwayArgs(controller, "CORE", DETECTION_XML);
+    EXPECT_TRUE(drop);
+    drop = processEventThrowAwayArgs(controller, "CORE", CLEANUP_XML);
+    EXPECT_TRUE(drop);
+
+    controller->processAction(R"(<?xml version="1.0"?><action type="sophos.core.threat.reset"/>)");
+    EXPECT_FALSE(controller->outbreakMode());
+    EXPECT_EQ(controller->getDetectionCount(), 0);
+    drop = processEventThrowAwayArgs(controller, "CORE", DETECTION_XML);
+    EXPECT_FALSE(drop);
+    drop = processEventThrowAwayArgs(controller, "CORE", CLEANUP_XML);
+    EXPECT_FALSE(drop);
 }

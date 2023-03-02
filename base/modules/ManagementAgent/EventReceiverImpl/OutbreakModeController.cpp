@@ -217,6 +217,7 @@ void ManagementAgent::EventReceiverImpl::OutbreakModeController::processAction(c
     {
         auto xml = Common::XmlUtilities::parseXml(actionXml);
         auto action = xml.lookup("action");
+        auto type = action.value("type", "");
         if (action.value("type", "") == "sophos.core.threat.sav.clear")
         {
             auto items = xml.lookupMultiple("action/item");
@@ -232,6 +233,11 @@ void ManagementAgent::EventReceiverImpl::OutbreakModeController::processAction(c
                     LOGDEBUG("Ignoring clear action with UUID=" << item.value("id"));
                 }
             }
+        }
+        else if (type == "sophos.core.threat.reset")
+        {
+            leaveOutbreakMode();
+            return;
         }
         else
         {

@@ -165,17 +165,18 @@ namespace ManagementAgent
             if (appId == "CORE")
             {
                 std::string xml = readAction(actionXml); // Actually filename
-                if (isThreatResetTask(xml))
-                {
-                    LOGDEBUG("Processing Health Reset Action.");
-                    assert(m_healthStatus);
-                    m_healthStatus->resetThreatDetectionHealth();
-                }
+                // Reset outbreak mode first, in case health status regenerates health
                 if (eventReceiver_)
                 {
                     eventReceiver_->handleAction(xml);
                     assert(m_healthStatus);
                     m_healthStatus->setOutbreakMode(eventReceiver_->outbreakMode());
+                }
+                if (isThreatResetTask(xml))
+                {
+                    LOGDEBUG("Processing Health Reset Action.");
+                    assert(m_healthStatus);
+                    m_healthStatus->resetThreatDetectionHealth();
                 }
             }
 
