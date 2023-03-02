@@ -1,18 +1,19 @@
-// Copyright 2018-2023, Sophos Limited. All rights reserved.
+// Copyright 2018-2022, Sophos Limited. All rights reserved.
 
 #include <Common/FileSystem/IFilePermissions.h>
+#include <Common/FileSystem/IFileSystem.h>
 #include <Common/FileSystem/IFileSystemException.h>
 #include <Common/FileSystemImpl/FileSystemImpl.h>
 #include <Common/SslImpl/Digest.h>
+#include <gmock/gmock.h>
+#include <gtest/gtest.h>
 #include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
 #include <tests/Common/Helpers/MockFileSystem.h>
 #include <tests/Common/Helpers/TempDir.h>
 
-#include <gmock/gmock.h>
-#include <gtest/gtest.h>
-
 #include <chrono>
 #include <fcntl.h>
+#include <fstream>
 #include <thread>
 #include <unistd.h>
 
@@ -57,10 +58,11 @@ namespace
             {
                 EXPECT_EQ(ex.what(), message);
             }
-        }};
+        }
+    };
 
     // cppcheck-suppress syntaxError
-    TEST_F(FileSystemImplTest, basenameReturnsCorrectMatchingValue)
+    TEST_F(FileSystemImplTest, basenameReturnsCorrectMatchingValue) // NOLINT
     {
         std::vector<std::pair<std::string, std::string>> values = { { "/tmp/tmpfile.txt", "tmpfile.txt" },
                                                                     { "/tmp/tmpfile/", "" },
@@ -76,7 +78,7 @@ namespace
         }
     }
 
-    TEST_F(FileSystemImplTest, joinReturnsCorrectValueWithNoSeporator)
+    TEST_F(FileSystemImplTest, joinReturnsCorrectValueWithNoSeporator) // NOLINT
     {
         std::string path1("/tmp");
         std::string path2("tempfile.txt");
@@ -84,7 +86,7 @@ namespace
         EXPECT_EQ(Common::FileSystem::join(path1, path2), expectedValue);
     }
 
-    TEST_F(FileSystemImplTest, joinReturnsCorrectValueWithPath1TrailingSeporator)
+    TEST_F(FileSystemImplTest, joinReturnsCorrectValueWithPath1TrailingSeporator) // NOLINT
     {
         std::string path1("/tmp/");
         std::string path2("tempfile.txt");
@@ -92,7 +94,7 @@ namespace
         EXPECT_EQ(Common::FileSystem::join(path1, path2), expectedValue);
     }
 
-    TEST_F(FileSystemImplTest, joinReturnsCorrectValueWithPath2StartingWithSeporator)
+    TEST_F(FileSystemImplTest, joinReturnsCorrectValueWithPath2StartingWithSeporator) // NOLINT
     {
         // python -c 'import os; print os.path.join("/foo","/bar")' -> "/bar
 
@@ -102,7 +104,7 @@ namespace
         EXPECT_EQ(Common::FileSystem::join(path1, path2), expectedValue);
     }
 
-    TEST_F(FileSystemImplTest, joinReturnsCorrectValueWithPath1TrailingSeporatorAndPath2StartingWithSeporator)
+    TEST_F(FileSystemImplTest, joinReturnsCorrectValueWithPath1TrailingSeporatorAndPath2StartingWithSeporator) // NOLINT
     {
         // python -c 'import os; print os.path.join("/tmp/","/tempfile.txt")' -> /tempfile.txt
         std::string path1("/tmp/");
@@ -111,7 +113,7 @@ namespace
         EXPECT_EQ(Common::FileSystem::join(path1, path2), expectedValue);
     }
 
-    TEST_F(FileSystemImplTest, joinWithDotSlashReturnsExpectedPath)
+    TEST_F(FileSystemImplTest, joinWithDotSlashReturnsExpectedPath) // NOLINT
     {
         std::string path1("/tmp/");
         std::string path2("./tempfile.txt");
@@ -119,7 +121,7 @@ namespace
         EXPECT_EQ(Common::FileSystem::join(path1, path2), expectedValue);
     }
 
-    TEST_F(FileSystemImplTest, joinWithDotSlashSlashReturnsExpectedPath)
+    TEST_F(FileSystemImplTest, joinWithDotSlashSlashReturnsExpectedPath) // NOLINT
     {
         // python -c 'import os; print os.path.join("/tmp/",".//tempfile.txt")' -> /tmp/.//tempfile.txt
         // python doesn't have any special handling for ./ in join
@@ -131,7 +133,7 @@ namespace
         EXPECT_EQ(Common::FileSystem::join(path1, path2), expectedValue);
     }
 
-    TEST_F(FileSystemImplTest, joinWithEmptyStringsReturnsExpectedPath)
+    TEST_F(FileSystemImplTest, joinWithEmptyStringsReturnsExpectedPath) // NOLINT
     {
         // python -c 'import os; print os.path.join("","")' -> ""
         std::string path1;
@@ -140,7 +142,7 @@ namespace
         EXPECT_EQ(Common::FileSystem::join(path1, path2), expectedValue);
     }
 
-    TEST_F(FileSystemImplTest, joinWithEmptyPath1AndAbsolutePath2ReturnsPath2)
+    TEST_F(FileSystemImplTest, joinWithEmptyPath1AndAbsolutePath2ReturnsPath2) // NOLINT
     {
         Path path1;
         Path path2("/foo/bar");
@@ -148,7 +150,7 @@ namespace
         EXPECT_EQ(Common::FileSystem::join(path1, path2), expectedValue);
     }
 
-    TEST_F(FileSystemImplTest, joinWithEmptyPath1AndRelativePath2ReturnsExpectedPath)
+    TEST_F(FileSystemImplTest, joinWithEmptyPath1AndRelativePath2ReturnsExpectedPath) // NOLINT
     {
         // python -c 'import os; print os.path.join("","foo/bar")' -> foo/bar
         Path path1;
@@ -157,7 +159,7 @@ namespace
         EXPECT_EQ(Common::FileSystem::join(path1, path2), expectedValue);
     }
 
-    TEST_F(FileSystemImplTest, joinWithEmptyPath2ReturnsExpectedPath)
+    TEST_F(FileSystemImplTest, joinWithEmptyPath2ReturnsExpectedPath) // NOLINT
     {
         // python -c 'import os; print os.path.join("foo/bar","")' -> foo/bar
         Path path1("foo/bar");
@@ -166,7 +168,7 @@ namespace
         EXPECT_EQ(Common::FileSystem::join(path1, path2), expectedValue);
     }
 
-    TEST_F(FileSystemImplTest, joinWithTwoRelativePathsReturnsARelativePath)
+    TEST_F(FileSystemImplTest, joinWithTwoRelativePathsReturnsARelativePath) // NOLINT
     {
         // python -c 'import os; print os.path.join("foo","bar")'
         Path path1("foo");
@@ -175,97 +177,97 @@ namespace
         EXPECT_EQ(Common::FileSystem::join(path1, path2), expectedValue);
     }
 
-    TEST_F(FileSystemImplTest, existReturnsTrueWhenFileExists)
+    TEST_F(FileSystemImplTest, existReturnsTrueWhenFileExists) // NOLINT
     {
         EXPECT_TRUE(m_fileSystem->exists("/etc/passwd"));
     }
 
-    TEST_F(FileSystemImplTest, existReturnsFalseWhenFileOrDirectoryDoesNotExist)
+    TEST_F(FileSystemImplTest, existReturnsFalseWhenFileOrDirectoryDoesNotExist) // NOLINT
     {
         EXPECT_FALSE(m_fileSystem->exists("/etc/ghdfoijsdfgjhszdgvzjsdjvcjsdhzc"));
     }
 
-    TEST_F(FileSystemImplTest, existReturnsTrueWhenPathGivenIsDirectory)
+    TEST_F(FileSystemImplTest, existReturnsTrueWhenPathGivenIsDirectory) // NOLINT
     {
         EXPECT_TRUE(m_fileSystem->exists("/etc"));
     }
 
-    TEST_F(FileSystemImplTest, isFileReturnsTrueWhenPathGivenPointsToAFile)
+    TEST_F(FileSystemImplTest, isFileReturnsTrueWhenPathGivenPointsToAFile) // NOLINT
     {
         EXPECT_TRUE(m_fileSystem->isFile("/etc/passwd"));
     }
 
-    TEST_F(FileSystemImplTest, isFileReturnsFalseWhenPathGivenPointsToADirectory)
+    TEST_F(FileSystemImplTest, isFileReturnsFalseWhenPathGivenPointsToADirectory) // NOLINT
     {
         EXPECT_FALSE(m_fileSystem->isFile("/etc"));
     }
 
-    TEST_F(FileSystemImplTest, isFileReturnsTrueWhenPathGivenPointsToASymLink)
+    TEST_F(FileSystemImplTest, isFileReturnsTrueWhenPathGivenPointsToASymLink) // NOLINT
     {
         EXPECT_TRUE(m_fileSystem->isFile("/proc/self/exe"));
     }
 
-    TEST_F(FileSystemImplTest, isFileReturnsFalseWhenPathGivenPointsToASocket)
+    TEST_F(FileSystemImplTest, isFileReturnsFalseWhenPathGivenPointsToASocket) // NOLINT
     {
         EXPECT_FALSE(m_fileSystem->isFile("/run/systemd/private"));
     }
 
-    TEST_F(FileSystemImplTest, isDirectoryReturnsFalseWhenPathGivenPointsToAFile)
+    TEST_F(FileSystemImplTest, isDirectoryReturnsFalseWhenPathGivenPointsToAFile) // NOLINT
     {
         EXPECT_FALSE(m_fileSystem->isDirectory("/etc/passwd"));
     }
 
-    TEST_F(FileSystemImplTest, isDirectoryReturnsTrueWhenRelativePathGivenPointsToCurrentDirectory)
+    TEST_F(FileSystemImplTest, isDirectoryReturnsTrueWhenRelativePathGivenPointsToCurrentDirectory) // NOLINT
     {
         EXPECT_TRUE(m_fileSystem->isDirectory("."));
     }
 
-    TEST_F(FileSystemImplTest, isDirectoryReturnsFalseWhenDirectoryDoesNotExist)
+    TEST_F(FileSystemImplTest, isDirectoryReturnsFalseWhenDirectoryDoesNotExist) // NOLINT
     {
         EXPECT_FALSE(m_fileSystem->isDirectory("/etc/ghdfoijsdfgjhszdgvzjsdjvcjsdhzc"));
     }
 
-    TEST_F(FileSystemImplTest, isDirectoryReturnsTrueWhenPathGivenIsDirectory)
+    TEST_F(FileSystemImplTest, isDirectoryReturnsTrueWhenPathGivenIsDirectory) // NOLINT
     {
         EXPECT_TRUE(m_fileSystem->isDirectory("/etc"));
     }
 
-    TEST_F(FileSystemImplTest, isFileOrDirectoryReturnsTrueWhenPathGivenPointsToAFile)
+    TEST_F(FileSystemImplTest, isFileOrDirectoryReturnsTrueWhenPathGivenPointsToAFile) // NOLINT
     {
         EXPECT_TRUE(m_fileSystem->isFileOrDirectory("/etc/passwd"));
     }
 
-    TEST_F(FileSystemImplTest, isFileOrDirectoryReturnsTrueWhenPathGivenPointsToASymLink)
+    TEST_F(FileSystemImplTest, isFileOrDirectoryReturnsTrueWhenPathGivenPointsToASymLink) // NOLINT
     {
         EXPECT_TRUE(m_fileSystem->isFileOrDirectory("/proc/self/exe"));
     }
 
-    TEST_F(FileSystemImplTest, isFileOrDirectoryReturnsFalseWhenPathGivenPointsToASocket)
+    TEST_F(FileSystemImplTest, isFileOrDirectoryReturnsFalseWhenPathGivenPointsToASocket) // NOLINT
     {
         EXPECT_FALSE(m_fileSystem->isFileOrDirectory("/run/systemd/private"));
     }
 
-    TEST_F(FileSystemImplTest, isFileOrDirectoryReturnsTrueWhenRelativePathGivenPointsToCurrentDirectory)
+    TEST_F(FileSystemImplTest, isFileOrDirectoryReturnsTrueWhenRelativePathGivenPointsToCurrentDirectory) // NOLINT
     {
         EXPECT_TRUE(m_fileSystem->isFileOrDirectory("."));
     }
 
-    TEST_F(FileSystemImplTest, isFileOrDirectoryReturnsFalseWhenFileDoesNotExist)
+    TEST_F(FileSystemImplTest, isFileOrDirectoryReturnsFalseWhenFileDoesNotExist) // NOLINT
     {
         EXPECT_FALSE(m_fileSystem->isFileOrDirectory("/etc/ghdfoijsdfgjhszdgvzjsdjvcjsdhzc"));
     }
 
-    TEST_F(FileSystemImplTest, isFileOrDirectoryReturnsTrueWhenPathGivenIsDirectory)
+    TEST_F(FileSystemImplTest, isFileOrDirectoryReturnsTrueWhenPathGivenIsDirectory) // NOLINT
     {
         EXPECT_TRUE(m_fileSystem->isFileOrDirectory("/etc"));
     }
 
-    TEST_F(FileSystemImplTest, isSymlinkReturnsTrueForSymlink)
+    TEST_F(FileSystemImplTest, isSymlinkReturnsTrueForSymlink) // NOLINT
     {
         EXPECT_TRUE(m_fileSystem->isSymlink("/proc/self/exe"));
     }
 
-    TEST_F(FileSystemImplTest, currentWorkingDirectoryReturnsCorrectValue)
+    TEST_F(FileSystemImplTest, currentWorkingDirectoryReturnsCorrectValue) // NOLINT
     {
         std::string startingDirectory = m_fileSystem->currentWorkingDirectory();
 
@@ -280,7 +282,7 @@ namespace
         EXPECT_EQ(m_fileSystem->currentWorkingDirectory(), startingDirectory);
     }
 
-    TEST_F(FileSystemImplTest, readWriteStoresAndReadsExpectedContentFromFile)
+    TEST_F(FileSystemImplTest, readWriteStoresAndReadsExpectedContentFromFile) // NOLINT
     {
         std::string filePath =
             Common::FileSystem::join(m_fileSystem->currentWorkingDirectory(), "ReadWriteFileTest.txt");
@@ -293,7 +295,7 @@ namespace
         removeFile(filePath);
     }
 
-    TEST_F(FileSystemImplTest, writeOverwritesExistingFile)
+    TEST_F(FileSystemImplTest, writeOverwritesExistingFile) // NOLINT
     {
         std::string filePath = Common::FileSystem::join(m_fileSystem->currentWorkingDirectory(), "overwriteme.txt");
 
@@ -308,7 +310,7 @@ namespace
         removeFile(filePath);
     }
 
-    TEST_F(FileSystemImplTest, readThrowsForTooLargeFile)
+    TEST_F(FileSystemImplTest, readThrowsForTooLargeFile) // NOLINT
     {
         std::string filePath =
             Common::FileSystem::join(m_fileSystem->currentWorkingDirectory(), "readThrowsForTooLargeFile.txt");
@@ -317,12 +319,12 @@ namespace
 
         m_fileSystem->writeFile(filePath, testContent);
 
-        EXPECT_THROW(m_fileSystem->readFile(filePath, 2), IFileSystemException);
+        EXPECT_THROW(m_fileSystem->readFile(filePath, 2), IFileSystemException); // NOLINT
 
         removeFile(filePath);
     }
 
-    TEST_F(FileSystemImplTest, writeFileUsingDirectoryPathShouldThrow)
+    TEST_F(FileSystemImplTest, writeFileUsingDirectoryPathShouldThrow) // NOLINT
     {
         std::string directoryPath =
             Common::FileSystem::join(m_fileSystem->currentWorkingDirectory(), "WriteToDirectoryTest");
@@ -331,29 +333,29 @@ namespace
 
         std::string testContent("HelloWorld");
 
-        EXPECT_THROW(m_fileSystem->writeFile(directoryPath, testContent), IFileSystemException);
+        EXPECT_THROW(m_fileSystem->writeFile(directoryPath, testContent), IFileSystemException); // NOLINT
 
         ::rmdir(directoryPath.c_str());
     }
 
-    TEST_F(FileSystemImplTest, readFileThatDoesNotExistsShouldThrow)
+    TEST_F(FileSystemImplTest, readFileThatDoesNotExistsShouldThrow) // NOLINT
     {
         std::string filePath = Common::FileSystem::join(m_fileSystem->currentWorkingDirectory(), "ReadFileTest.txt");
-        EXPECT_THROW(m_fileSystem->readFile(filePath), IFileSystemException);
+        EXPECT_THROW(m_fileSystem->readFile(filePath), IFileSystemException); // NOLINT
     }
 
-    TEST_F(FileSystemImplTest, readFileUsingDirectoryPathShouldThrow)
+    TEST_F(FileSystemImplTest, readFileUsingDirectoryPathShouldThrow) // NOLINT
     {
         std::string directoryPath =
             Common::FileSystem::join(m_fileSystem->currentWorkingDirectory(), "WriteToDirectoryTest");
 
         makedir(directoryPath, 0700);
-        EXPECT_THROW(m_fileSystem->readFile(directoryPath), IFileSystemException);
+        EXPECT_THROW(m_fileSystem->readFile(directoryPath), IFileSystemException); // NOLINT
 
         ::rmdir(directoryPath.c_str());
     }
 
-    TEST_F(FileSystemImplTest, readLinesGetsExpectedContentFromFile)
+    TEST_F(FileSystemImplTest, readLinesGetsExpectedContentFromFile) // NOLINT
     {
         std::string filePath = Common::FileSystem::join(m_fileSystem->currentWorkingDirectory(), "ReadLinesTest.txt");
 
@@ -365,7 +367,7 @@ namespace
         removeFile(filePath);
     }
 
-    TEST_F(FileSystemImplTest, readLinesGetsExpectedContentFromEmptyFile)
+    TEST_F(FileSystemImplTest, readLinesGetsExpectedContentFromEmptyFile) // NOLINT
     {
         std::string filePath = Common::FileSystem::join(m_fileSystem->currentWorkingDirectory(), "EmptyFileTest.txt");
 
@@ -375,24 +377,24 @@ namespace
         removeFile(filePath);
     }
 
-    TEST_F(FileSystemImplTest, readLinesForFileThatDoesNotExistsShouldThrow)
+    TEST_F(FileSystemImplTest, readLinesForFileThatDoesNotExistsShouldThrow) // NOLINT
     {
         std::string filePath = Common::FileSystem::join(m_fileSystem->currentWorkingDirectory(), "ReadFileTest.txt");
-        EXPECT_THROW(m_fileSystem->readLines(filePath), IFileSystemException);
+        EXPECT_THROW(m_fileSystem->readLines(filePath), IFileSystemException); // NOLINT
     }
 
-    TEST_F(FileSystemImplTest, readLinesOnDirectoryPathShouldThrow)
+    TEST_F(FileSystemImplTest, readLinesOnDirectoryPathShouldThrow) // NOLINT
     {
         std::string directoryPath =
             Common::FileSystem::join(m_fileSystem->currentWorkingDirectory(), "WriteToDirectoryTest");
 
         makedir(directoryPath, 0700);
-        EXPECT_THROW(m_fileSystem->readLines(directoryPath), IFileSystemException);
+        EXPECT_THROW(m_fileSystem->readLines(directoryPath), IFileSystemException); // NOLINT
 
         ::rmdir(directoryPath.c_str());
     }
 
-    TEST_F(FileSystemImplTest, atomicWriteStoresExpectedContentForFile)
+    TEST_F(FileSystemImplTest, atomicWriteStoresExpectedContentForFile) // NOLINT
     {
         std::string filePath = Common::FileSystem::join(m_fileSystem->currentWorkingDirectory(), "AtomicWrite.txt");
 
@@ -404,7 +406,7 @@ namespace
         removeFile(filePath);
     }
 
-    TEST_F(FileSystemImplTest, dirNameReturnsCorrectMatchingValue)
+    TEST_F(FileSystemImplTest, dirNameReturnsCorrectMatchingValue) // NOLINT
     {
         std::vector<std::pair<std::string, std::string>> values = { { "/tmp/tmpfile.txt", "/tmp" },
                                                                     { "/tmp/tmpfile/", "/tmp" },
@@ -419,36 +421,22 @@ namespace
         }
     }
 
-    TEST_F(FileSystemImplTest, subdirNameFromPathReturnsCorrectMatchingValue)
-    {
-        std::vector<std::pair<std::string, std::string>> values = { { "/tmp/tmpfile.txt", "tmpfile.txt" },
-                                                                    { "/tmp/tmpfile/", "tmpfile" },
-                                                                    { "/tmp/tmp1/tmp2/tmp3/tmpfile.txt",
-                                                                      "tmpfile.txt" },
-                                                                    { "/tmp", "tmp" },
-                                                                    { "tmp", "tmp" },
-                                                                    { "", "" } };
-        for (auto& pair : values)
-        {
-            EXPECT_EQ(Common::FileSystem::subdirNameFromPath(pair.first), pair.second);
-        }
-    }
-    TEST_F(FileSystemImplTest, isExecutableReturnTrueForExecutables)
+    TEST_F(FileSystemImplTest, isExecutableReturnTrueForExecutables) // NOLINT
     {
         EXPECT_TRUE(m_fileSystem->isExecutable("/bin/bash"));
     }
 
-    TEST_F(FileSystemImplTest, isExecutableReturnFalseForNonExecutables)
+    TEST_F(FileSystemImplTest, isExecutableReturnFalseForNonExecutables) // NOLINT
     {
         EXPECT_FALSE(m_fileSystem->isExecutable("/etc/passwd"));
     }
 
-    TEST_F(FileSystemImplTest, isExecutableReturnFalseForNonExistingFiles)
+    TEST_F(FileSystemImplTest, isExecutableReturnFalseForNonExistingFiles) // NOLINT
     {
         EXPECT_FALSE(m_fileSystem->isExecutable("/tmp/thisfiledoesnotexist"));
     }
 
-    TEST_F(FileSystemImplTest, listFilesReturnsAListOfPathsOnlyContainingRegularFiles)
+    TEST_F(FileSystemImplTest, listFilesReturnsAListOfPathsOnlyContainingRegularFiles) // NOLINT
     {
         Tests::TempDir tempDir;
         tempDir.makeDirs("Root/subdir");
@@ -465,7 +453,7 @@ namespace
         EXPECT_EQ(fileList[1], tempDir.absPath("Root/file2"));
     }
 
-    TEST_F(
+    TEST_F( // NOLINT
         FileSystemImplTest,
         listFilesAndDirectoriesReturnsAListOfPathsOnlyContainingRegularFilesAndDirectories)
     {
@@ -487,7 +475,7 @@ namespace
         EXPECT_EQ(fileList[2], tempDir.absPath("Root/subdir"));
     }
 
-    TEST_F(FileSystemImplTest, listDirectoriesReturnsAListOfDirectories)
+    TEST_F(FileSystemImplTest, listDirectoriesReturnsAListOfDirectories) // NOLINT
     {
         Tests::TempDir tempDir;
         tempDir.makeDirs("Root/subdir1");
@@ -509,7 +497,7 @@ namespace
         EXPECT_EQ(fileList[2], tempDir.absPath("Root/subdir2"));
     }
 
-    TEST_F(FileSystemImplTest, canCreateDirectories)
+    TEST_F(FileSystemImplTest, canCreateDirectories) // NOLINT
     {
         Tests::TempDir tempdir("", "FileSystemImplTest_canCreateDirectories");
         Path A = tempdir.absPath("A");
@@ -519,19 +507,19 @@ namespace
         EXPECT_TRUE(m_fileSystem->isDirectory(B));
     }
 
-    TEST_F(FileSystemImplTest, copyFile)
+    TEST_F(FileSystemImplTest, copyFile) // NOLINT
     {
         Tests::TempDir tempdir("", "FileSystemImplTest_copyFile");
         Path A = tempdir.absPath("A");
         Path B = tempdir.absPath("B");
         tempdir.createFile("A", "FOOBAR");
-        EXPECT_NO_THROW(m_fileSystem->copyFile(A, B));
+        EXPECT_NO_THROW(m_fileSystem->copyFile(A, B)); // NOLINT
         EXPECT_TRUE(m_fileSystem->exists(B));
         std::string content = m_fileSystem->readFile(B);
         EXPECT_EQ(content, "FOOBAR");
     }
 
-    TEST_F(FileSystemImplTest, copyLargeFile)
+    TEST_F(FileSystemImplTest, copyLargeFile) // NOLINT
     {
         Tests::TempDir tempdir("", "FileSystemImplTest_copyLargeFile");
         Path A = tempdir.absPath("A");
@@ -544,23 +532,23 @@ namespace
         }
         std::string expected_contents = large_string_stream.str();
         tempdir.createFile("A", expected_contents);
-        EXPECT_NO_THROW(m_fileSystem->copyFile(A, B));
+        EXPECT_NO_THROW(m_fileSystem->copyFile(A, B)); // NOLINT
         EXPECT_TRUE(m_fileSystem->exists(B));
         std::string content = m_fileSystem->readFile(B);
         EXPECT_EQ(content, expected_contents);
     }
 
-    TEST_F(FileSystemImplTest, copyFileDoesNotExist)
+    TEST_F(FileSystemImplTest, copyFileDoesNotExist) // NOLINT
     {
         Tests::TempDir tempdir("", "FileSystemImplTest_copyFile");
         Path A = tempdir.absPath("A");
         Path B = tempdir.absPath("B");
         copyFileAndExpectThrow(A, B, "Failed to copy file: '" + A + "' to '" + B + "', source file does not exist.");
-        ;
+        ; // NOLINT
         EXPECT_FALSE(m_fileSystem->exists(B));
     }
 
-    TEST_F(FileSystemImplTest, copyFileWrongPermissions)
+    TEST_F(FileSystemImplTest, copyFileWrongPermissions) // NOLINT
     {
         Tests::TempDir tempdir("", "FileSystemImplTest_copyFile");
         Path A = tempdir.absPath("A");
@@ -574,7 +562,7 @@ namespace
         EXPECT_FALSE(m_fileSystem->exists(B));
     }
 
-    TEST_F(FileSystemImplTest, copyFileNonAccessibleDest)
+    TEST_F(FileSystemImplTest, copyFileNonAccessibleDest) // NOLINT
     {
         Tests::TempDir tempdir("", "FileSystemImplTest_copyFile");
         Path A = tempdir.absPath("A");
@@ -584,7 +572,7 @@ namespace
         EXPECT_FALSE(m_fileSystem->exists(B));
     }
 
-    TEST_F(FileSystemImplTest, copyFileThrowsOnFailToCopyContent)
+    TEST_F(FileSystemImplTest, copyFileThrowsOnFailToCopyContent) // NOLINT
     {
         Tests::TempDir tempdir("", "FileSystemImplTest_copyFile");
         Path src = tempdir.absPath("A");
@@ -606,7 +594,7 @@ namespace
                 "', contents failed to copy. Check space available on device.");
     }
 
-    TEST_F(FileSystemImplTest, copyFileAndSetPermissions)
+    TEST_F(FileSystemImplTest, copyFileAndSetPermissions) // NOLINT
     {
         Tests::TempDir tempdir("", "FileSystemImplTest_copyFile");
         Path A = tempdir.absPath("A");
@@ -621,7 +609,7 @@ namespace
         EXPECT_FALSE(m_fileSystem->exists(B));
         EXPECT_NE(newFilePermissions, filePermissions->getFilePermissions(A));
         EXPECT_NO_THROW(
-            m_fileSystem->copyFileAndSetPermissions(A, B, newFilePermissions, ownerName, groupName));
+            m_fileSystem->copyFileAndSetPermissions(A, B, newFilePermissions, ownerName, groupName)); // NOLINT
         EXPECT_TRUE(m_fileSystem->exists(B));
 
         std::string content = m_fileSystem->readFile(B);
@@ -631,20 +619,20 @@ namespace
         EXPECT_EQ(newFilePermissions, filePermissionsRead);
     }
 
-    TEST_F(FileSystemImplTest, copyFileOverwritesExistingFile)
+    TEST_F(FileSystemImplTest, copyFileOverwritesExistingFile) // NOLINT
     {
         Tests::TempDir tempdir("", "FileSystemImplTest_copyFile");
         Path A = tempdir.absPath("A");
         Path B = tempdir.absPath("B");
         tempdir.createFile("A", "FOOBAR-A");
         tempdir.createFile("B", "FOOBAR-B");
-        EXPECT_NO_THROW(m_fileSystem->copyFile(A, B));
+        EXPECT_NO_THROW(m_fileSystem->copyFile(A, B)); // NOLINT
         EXPECT_TRUE(m_fileSystem->exists(B));
         std::string content = m_fileSystem->readFile(B);
         EXPECT_EQ(content, "FOOBAR-A");
     }
 
-    TEST_F(FileSystemImplTest, removeFileDeletesFile)
+    TEST_F(FileSystemImplTest, removeFileDeletesFile) // NOLINT
     {
         std::string filePath =
             Common::FileSystem::join(m_fileSystem->currentWorkingDirectory(), "removeFileDeletesFile.txt");
@@ -660,15 +648,15 @@ namespace
         EXPECT_FALSE(m_fileSystem->exists(filePath));
     }
 
-    TEST_F(FileSystemImplTest, removeFileThrowsIfFileDoesNotExist)
+    TEST_F(FileSystemImplTest, removeFileThrowsIfFileDoesNotExist) // NOLINT
     {
         std::string filePath =
             Common::FileSystem::join(m_fileSystem->currentWorkingDirectory(), "removeFileThrowsIfFileDoesNotExist.txt");
         ASSERT_FALSE(m_fileSystem->exists(filePath));
-        EXPECT_THROW(m_fileSystem->removeFile(filePath), IFileSystemException);
+        EXPECT_THROW(m_fileSystem->removeFile(filePath), IFileSystemException); // NOLINT
     }
 
-    TEST_F(FileSystemImplTest, removeDirectoryDeletesFile)
+    TEST_F(FileSystemImplTest, removeDirectoryDeletesFile) // NOLINT
     {
         std::string filePath =
             Common::FileSystem::join(m_fileSystem->currentWorkingDirectory(), "removeDirectoryDeletesFile.txt");
@@ -684,7 +672,7 @@ namespace
         EXPECT_FALSE(m_fileSystem->exists(filePath));
     }
 
-    TEST_F(FileSystemImplTest, removeDirectoryDeletesEmptyDirectory)
+    TEST_F(FileSystemImplTest, removeDirectoryDeletesEmptyDirectory) // NOLINT
     {
         std::string filePath =
             Common::FileSystem::join(m_fileSystem->currentWorkingDirectory(), "removeDirectoryDeletesEmptyDirectory");
@@ -698,7 +686,7 @@ namespace
         EXPECT_FALSE(m_fileSystem->exists(filePath));
     }
 
-    TEST_F(FileSystemImplTest, removeDirectoryDeletesNonEmptyDirectory)
+    TEST_F(FileSystemImplTest, removeDirectoryDeletesNonEmptyDirectory) // NOLINT
     {
         std::string dirPath = Common::FileSystem::join(
             m_fileSystem->currentWorkingDirectory(), "removeDirectoryDeletesNonEmptyDirectory");
@@ -716,7 +704,7 @@ namespace
         EXPECT_FALSE(m_fileSystem->exists(dirPath));
     }
 
-    TEST_F(FileSystemImplTest, removeFileOrDirectoryThrowsOnNonExistentDirectory)
+    TEST_F(FileSystemImplTest, removeFileOrDirectoryThrowsOnNonExistentDirectory) // NOLINT
     {
         std::string dirPath = Common::FileSystem::join(
             m_fileSystem->currentWorkingDirectory(), "removeFileOrDirectoryDoesNotThrowOnNonExistentDirectory");
@@ -724,39 +712,39 @@ namespace
         EXPECT_THROW(m_fileSystem->removeFileOrDirectory(dirPath), std::exception);
     }
 
-    TEST_F(FileSystemImplTest, makeAbsoluteReturnsArgumentWithArgumentIsAbsolute)
+    TEST_F(FileSystemImplTest, makeAbsoluteReturnsArgumentWithArgumentIsAbsolute) // NOLINT
     {
         Path original = "/foo";
         Path result = Common::FileSystem::fileSystem()->makeAbsolute(original);
         EXPECT_EQ(original, result);
     }
 
-    TEST_F(FileSystemImplTest, makeAbsoluteReturnsAbsolutePathWhenArgumentIsRelative)
+    TEST_F(FileSystemImplTest, makeAbsoluteReturnsAbsolutePathWhenArgumentIsRelative) // NOLINT
     {
         Path original = "foo";
         Path result = Common::FileSystem::fileSystem()->makeAbsolute(original);
         EXPECT_EQ(result[0], '/');
     }
 
-    TEST_F(FileSystemImplTest, readLinkReturnsLinkedToPathWhenCalledOnSymbolicLink)
+    TEST_F(FileSystemImplTest, readLinkReturnsLinkedToPathWhenCalledOnSymbolicLink) // NOLINT
     {
         std::optional<Path> findPath = m_fileSystem->readlink("/proc/self/exe");
         ASSERT_TRUE(findPath.has_value());
     }
 
-    TEST_F(FileSystemImplTest, readLinkReturnsEmptyWhenCalledOnNonExistentFile)
+    TEST_F(FileSystemImplTest, readLinkReturnsEmptyWhenCalledOnNonExistentFile) // NOLINT
     {
         std::optional<Path> findPath = m_fileSystem->readlink("/Not/a/file/path");
         ASSERT_FALSE(findPath.has_value());
     }
 
-    TEST_F(FileSystemImplTest, readLinkReturnsEmptyWhenCalledOnNonLinkFile)
+    TEST_F(FileSystemImplTest, readLinkReturnsEmptyWhenCalledOnNonLinkFile) // NOLINT
     {
         std::optional<Path> findPath = m_fileSystem->readlink("/bin/bash");
         ASSERT_FALSE(findPath.has_value());
     }
 
-    TEST_F(FileSystemImplTest, readLinkConvertsRelativeSymlinkTargetToAbsolutePath)
+    TEST_F(FileSystemImplTest, readLinkConvertsRelativeSymlinkTargetToAbsolutePath) // NOLINT
     {
         Tests::TempDir tempDir;
         tempDir.makeDirs("Root/subdir1");
@@ -770,7 +758,7 @@ namespace
         EXPECT_EQ(findPath.value(), tempDir.absPath("Root/subdir1/../subdir2/file1").c_str());
     }
 
-    TEST_F(FileSystemImplTest, lastModifiedTimeReturnsTimeOnDirectories)
+    TEST_F(FileSystemImplTest, lastModifiedTimeReturnsTimeOnDirectories) // NOLINT
     {
         std::time_t curTime = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
         std::this_thread::sleep_for(std::chrono::seconds(1));
@@ -781,7 +769,7 @@ namespace
         ASSERT_GE(time_created, curTime);
     }
 
-    TEST_F(FileSystemImplTest, lastModifiedTimeReturnsTimeOnFiles)
+    TEST_F(FileSystemImplTest, lastModifiedTimeReturnsTimeOnFiles) // NOLINT
     {
         std::time_t curTime = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
         std::this_thread::sleep_for(std::chrono::seconds(1));
@@ -791,7 +779,7 @@ namespace
         ASSERT_GE(time_created, curTime);
     }
 
-    TEST_F(FileSystemImplTest, lastModifiedTimeReturnsTimeOnSymlinks)
+    TEST_F(FileSystemImplTest, lastModifiedTimeReturnsTimeOnSymlinks) // NOLINT
     {
         std::time_t curTime = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
         std::this_thread::sleep_for(std::chrono::seconds(1));
@@ -803,7 +791,7 @@ namespace
         ASSERT_GE(time_created, curTime);
     }
 
-    TEST_F(FileSystemImplTest, removeFilesInDirectoryRemovesFilesInDirectory)
+    TEST_F(FileSystemImplTest, removeFilesInDirectoryRemovesFilesInDirectory) // NOLINT
     {
         std::vector<Path> filesInDirectory{ "file1", "file2", "file3" };
 
@@ -824,7 +812,7 @@ namespace
             Common::FileSystem::fileSystem()->isFile(Common::FileSystem::join(directoryPath, filesInDirectory[2])));
     }
 
-    TEST_F(FileSystemImplTest, removeFilesInDirDoesNotThrowWhenDirectoryDoesNotExist)
+    TEST_F(FileSystemImplTest, removeFilesInDirDoesNotThrowWhenDirectoryDoesNotExist) // NOLINT
     {
         Tests::TempDir tempDir;
         Path directoryPath = Common::FileSystem::join(tempDir.dirPath(), "missing_dir");
@@ -832,7 +820,7 @@ namespace
         EXPECT_NO_THROW(m_fileSystem->removeFilesInDirectory(directoryPath));
     }
 
-    TEST_F(FileSystemImplTest, removeFilesInDirDoesNotThrowWhenFilesDoNotExistDoesNotThrow)
+    TEST_F(FileSystemImplTest, removeFilesInDirDoesNotThrowWhenFilesDoNotExistDoesNotThrow) // NOLINT
     {
         Tests::TempDir tempDir;
         Path directoryPath = tempDir.dirPath();
@@ -841,7 +829,7 @@ namespace
         EXPECT_NO_THROW(m_fileSystem->removeFilesInDirectory(directoryPath));
     }
 
-    TEST_F(FileSystemImplTest, waitForExistingFileReturnsTrue)
+    TEST_F(FileSystemImplTest, waitForExistingFileReturnsTrue) // NOLINT
     {
         Tests::TempDir tempDir;
         Path directoryPath = tempDir.dirPath();
@@ -851,7 +839,7 @@ namespace
         EXPECT_TRUE(m_fileSystem->waitForFile(filePath, 10));
     }
 
-    TEST_F(FileSystemImplTest, waitForNonExistentFileReturnsFalse)
+    TEST_F(FileSystemImplTest, waitForNonExistentFileReturnsFalse) // NOLINT
     {
         Tests::TempDir tempDir;
         Path directoryPath = tempDir.dirPath();
@@ -860,7 +848,7 @@ namespace
         EXPECT_FALSE(m_fileSystem->waitForFile(filePath, 10));
     }
 
-    TEST_F(FileSystemImplTest, appendToFileCreatesAndAppendsToFile)
+    TEST_F(FileSystemImplTest, appendToFileCreatesAndAppendsToFile) // NOLINT
     {
         Tests::TempDir tempDir;
         Path directoryPath = tempDir.dirPath();
@@ -872,7 +860,7 @@ namespace
         EXPECT_EQ(m_fileSystem->readFile(filePath), R"(abc)");
     }
 
-    TEST_F(FileSystemImplTest, appendToFileAppendsToExistingFile)
+    TEST_F(FileSystemImplTest, appendToFileAppendsToExistingFile) // NOLINT
     {
         Tests::TempDir tempDir;
         Path directoryPath = tempDir.dirPath();
@@ -885,7 +873,7 @@ namespace
         EXPECT_EQ(m_fileSystem->readFile(filePath), R"(123abc)");
     }
 
-    TEST_F(FileSystemImplTest, moveFile)
+    TEST_F(FileSystemImplTest, moveFile) // NOLINT
     {
         std::string filePath = Common::FileSystem::join(m_fileSystem->currentWorkingDirectory(), "moveFile.txt");
         std::string filePathMoved = filePath + "moved";
@@ -897,7 +885,7 @@ namespace
         EXPECT_TRUE(m_fileSystem->exists(filePathMoved));
     }
 
-    TEST_F(FileSystemImplTest, moveFileWorksOnDirectories)
+    TEST_F(FileSystemImplTest, moveFileWorksOnDirectories) // NOLINT
     {
         Tests::TempDir tempDir;
         Path directoryPath = tempDir.dirPath();
@@ -917,7 +905,7 @@ namespace
         EXPECT_TRUE(m_fileSystem->exists(testFilePathAfterMove));
     }
 
-    TEST_F(FileSystemImplTest, listAllFilesInDirectoryTreeReturnsExpectedListOfFiles)
+    TEST_F(FileSystemImplTest, listAllFilesInDirectoryTreeReturnsExpectedListOfFiles) // NOLINT
     {
         Tests::TempDir tempDir;
         tempDir.makeDirs("Root/subdir");
@@ -936,7 +924,7 @@ namespace
         EXPECT_EQ(fileList[2], tempDir.absPath("Root/subdir/file1"));
     }
 
-    TEST_F(FileSystemImplTest, listAllFilesInDirectoryTreeHandlesEmptyDirectory)
+    TEST_F(FileSystemImplTest, listAllFilesInDirectoryTreeHandlesEmptyDirectory) // NOLINT
     {
         Tests::TempDir tempDir;
         tempDir.makeDirs("Root");
@@ -946,14 +934,41 @@ namespace
         EXPECT_EQ(fileList.size(), 0);
     }
 
-    TEST_F(FileSystemImplTest, listAllFilesInDirectoryTreeDoesntThrowOnDirThatDoesNotExist)
+    TEST_F(FileSystemImplTest, listAllFilesInDirectoryTreeDoesntThrowOnDirThatDoesNotExist) // NOLINT
     {
         std::vector<Path> fileList;
         EXPECT_NO_THROW(fileList = m_fileSystem->listAllFilesInDirectoryTree("DoesntExistDir"));
         EXPECT_EQ(fileList.size(), 0);
     }
 
-    TEST_F(FileSystemImplTest, calculateDigestFromValidPath)
+    TEST_F(FileSystemImplTest, listAllFilesAndDirsInDirectoryTreeReturnsExpectedListOfFiles)
+    {
+        Tests::TempDir tempDir;
+        tempDir.makeDirs("Root/subdir");
+        tempDir.createFile("Root/file1", "hello");
+        tempDir.createFile("Root/file2", "hello");
+        tempDir.createFile("Root/subdir/file1", "hello");
+
+        std::vector<Path> fileList = m_fileSystem->listAllFilesAndDirsInDirectoryTree(tempDir.absPath("Root"));
+
+        EXPECT_EQ(fileList.size(), 4);
+
+        std::sort(fileList.begin(), fileList.end());
+
+        EXPECT_EQ(fileList[0], tempDir.absPath("Root/file1"));
+        EXPECT_EQ(fileList[1], tempDir.absPath("Root/file2"));
+        EXPECT_EQ(fileList[2], tempDir.absPath("Root/subdir"));
+        EXPECT_EQ(fileList[3], tempDir.absPath("Root/subdir/file1"));
+    }
+
+    TEST_F(FileSystemImplTest, listAllFilesAndDirsInDirectoryTreeDoesNotThrowOnPathThatDoesNotExist)
+    {
+        std::vector<Path> fileList;
+        EXPECT_NO_THROW(fileList = m_fileSystem->listAllFilesAndDirsInDirectoryTree("Does not exist"));
+        EXPECT_EQ(fileList.size(), 0);
+    }
+
+    TEST_F(FileSystemImplTest, calculateDigestFromValidPath) // NOLINT
     {
         const Tests::TempDir tempDir{};
         const std::string filename{ "file" };
@@ -966,20 +981,20 @@ namespace
         EXPECT_EQ(digest, Common::SslImpl::calculateDigest(Common::SslImpl::Digest::md5, content));
     }
 
-    TEST_F(FileSystemImplTest, calculateDigestThrowsOnNonExistentPath)
+    TEST_F(FileSystemImplTest, calculateDigestThrowsOnNonExistentPath) // NOLINT
     {
         const Tests::TempDir tempDir{};
         EXPECT_ANY_THROW(
             std::ignore = m_fileSystem->calculateDigest(Common::SslImpl::Digest::md5, tempDir.absPath("non-existent")));
     }
 
-    TEST_F(FileSystemImplTest, calculateDigestThrowsOnValidDirectoryPath)
+    TEST_F(FileSystemImplTest, calculateDigestThrowsOnValidDirectoryPath) // NOLINT
     {
         const Tests::TempDir tempDir{};
         EXPECT_ANY_THROW(std::ignore = m_fileSystem->calculateDigest(Common::SslImpl::Digest::md5, tempDir.dirPath()));
     }
 
-    TEST_F(FileSystemImplTest, calculateDigestFromValidFd)
+    TEST_F(FileSystemImplTest, calculateDigestFromValidFd) // NOLINT
     {
         const Tests::TempDir tempDir{};
         const std::string filename{ "file" };
@@ -995,7 +1010,7 @@ namespace
         EXPECT_EQ(::close(fd), 0);
     }
 
-    TEST_F(FileSystemImplTest, calculateDigestFromValidFdButAfterDeletingFile)
+    TEST_F(FileSystemImplTest, calculateDigestFromValidFdButAfterDeletingFile) // NOLINT
     {
         const Tests::TempDir tempDir{};
         const std::string filename{ "file" };
@@ -1012,12 +1027,12 @@ namespace
         EXPECT_EQ(::close(fd), 0);
     }
 
-    TEST_F(FileSystemImplTest, calculateDigestThrowsOnInvalidFd)
+    TEST_F(FileSystemImplTest, calculateDigestThrowsOnInvalidFd) // NOLINT
     {
         EXPECT_ANY_THROW(std::ignore = m_fileSystem->calculateDigest(Common::SslImpl::Digest::md5, -1));
     }
 
-    TEST_F(FileSystemImplTest, calculateDigestThrowsOnValidFdButWithoutReadFlag)
+    TEST_F(FileSystemImplTest, calculateDigestThrowsOnValidFdButWithoutReadFlag) // NOLINT
     {
         const Tests::TempDir tempDir{};
         const std::string filename{ "file" };
@@ -1029,7 +1044,7 @@ namespace
         EXPECT_EQ(::close(fd), 0);
     }
 
-    TEST_F(FileSystemImplTest, calculateDigestThrowsOnValidDirectoryFd)
+    TEST_F(FileSystemImplTest, calculateDigestThrowsOnValidDirectoryFd) // NOLINT
     {
         const Tests::TempDir tempDir{};
 
@@ -1038,7 +1053,7 @@ namespace
         EXPECT_EQ(::close(fd), 0);
     }
 
-    TEST_F(FileSystemImplTest, calculateDigestWithFdOffsetCalculatesDigestOfWholeFile)
+    TEST_F(FileSystemImplTest, calculateDigestWithFdOffsetCalculatesDigestOfWholeFile) // NOLINT
     {
         const Tests::TempDir tempDir;
         const std::string filename = "file";
@@ -1055,71 +1070,6 @@ namespace
         EXPECT_EQ(::close(fd), 0);
     }
 
-    class mockFileSystemForMoveFileTryCopy : public FileSystemImpl
-    {
-    public:
-        MOCK_METHOD(int, moveFileImpl, (const Path& sourcePath, const Path& destPath), (const, override));
-        MOCK_METHOD(void, copyFile, (const Path& sourcePath, const Path& destPath), (const, override));
-        MOCK_METHOD(void, removeFile, (const Path& filePath), (const, override));
-    };
-
-
-    TEST_F(FileSystemImplTest, moveFileTryCopyMovesFile)
-    {
-        std::string filePath = Common::FileSystem::join(m_fileSystem->currentWorkingDirectory(), "moveFile.txt");
-        std::string filePathMoved = filePath + "moved";
-        std::string testContent("HelloWorld");
-        m_fileSystem->writeFile(filePath, testContent);
-        EXPECT_TRUE(m_fileSystem->isFile(filePath));
-        m_fileSystem->moveFileTryCopy(filePath, filePathMoved);
-        EXPECT_FALSE(m_fileSystem->exists(filePath));
-        EXPECT_TRUE(m_fileSystem->exists(filePathMoved));
-    }
-
-    TEST_F(FileSystemImplTest, moveFileTryCopyWorksOnDirectories)
-    {
-        Tests::TempDir tempDir;
-        Path directoryPath = tempDir.dirPath();
-        Path dirPath = Common::FileSystem::join(directoryPath, "moveFileTryCopyWorksOnDirectories");
-        std::string dirPathMoved = dirPath + "moved";
-        EXPECT_FALSE(m_fileSystem->exists(dirPath));
-        EXPECT_FALSE(m_fileSystem->exists(dirPathMoved));
-        m_fileSystem->makedirs(dirPath);
-        std::string testFilePath = Common::FileSystem::join(dirPath, "moveFileTryCopyWorksOnDirectories");
-        std::string testFilePathAfterMove =
-            Common::FileSystem::join(dirPathMoved, "moveFileTryCopyWorksOnDirectories");
-        m_fileSystem->writeFile(testFilePath, "HelloWorld");
-        EXPECT_TRUE(m_fileSystem->isFile(testFilePath));
-
-        m_fileSystem->moveFileTryCopy(dirPath, dirPathMoved);
-        EXPECT_FALSE(m_fileSystem->exists(testFilePath));
-        EXPECT_TRUE(m_fileSystem->exists(testFilePathAfterMove));
-    }
-
-    TEST_F(FileSystemImplTest, moveFileTryCopyCopysFileWhenMoveFails_EXDEV)
-    {
-        std::string sourceDir = "Im/a/source/dir";
-        std::string destDir = "Im/a/dest/dir";
-
-        auto mockFileSystem = mockFileSystemForMoveFileTryCopy();
-
-        EXPECT_CALL(mockFileSystem, moveFileImpl(sourceDir, destDir)).WillOnce(Return(EXDEV));
-        EXPECT_CALL(mockFileSystem, copyFile(sourceDir, destDir)).Times(1);
-        EXPECT_CALL(mockFileSystem, removeFile(sourceDir)).Times(1);
-        EXPECT_NO_THROW(mockFileSystem.moveFileTryCopy(sourceDir, destDir));
-    }
-
-    TEST_F(FileSystemImplTest, moveFileTryCopyDoesntCopysFileWhenMoveFails_OTHERERROR)
-    {
-        std::string sourceDir = "Im/a/source/dir";
-        std::string destDir = "Im/a/dest/dir";
-
-        auto mockFileSystem = mockFileSystemForMoveFileTryCopy();
-
-        EXPECT_CALL(mockFileSystem, moveFileImpl(sourceDir, destDir)).WillOnce(Return(1));
-        EXPECT_THROW(mockFileSystem.moveFileTryCopy(sourceDir, destDir), IFileSystemException);
-    }
-
     class mockFileSystemForRecursiveDelete : public FileSystemImpl
     {
     public:
@@ -1129,7 +1079,7 @@ namespace
 
     TEST_F(
         FileSystemImplTest,
-        recursivelyDeleteContentsOfDirectoryRemovesAllFilesAndDirectoriesInPassedDirectory)
+        recursivelyDeleteContentsOfDirectoryRemovesAllFilesAndDirectoriesInPassedDirectory) // NOLINT
     {
         mockFileSystemForRecursiveDelete mockFileSystem = mockFileSystemForRecursiveDelete();
         Path pathToClearOut = "path to delete from";
@@ -1141,7 +1091,7 @@ namespace
         mockFileSystem.recursivelyDeleteContentsOfDirectory(pathToClearOut);
     }
 
-    TEST_F(FileSystemImplTest, recursivelyDeleteContentsOfDirectoryThrowsWhenEncounteringFileSystemException)
+    TEST_F(FileSystemImplTest, recursivelyDeleteContentsOfDirectoryThrowsWhenEncounteringFileSystemException) // NOLINT
     {
         mockFileSystemForRecursiveDelete mockFileSystem = mockFileSystemForRecursiveDelete();
         Path pathToClearOut = "path to delete from";
@@ -1152,7 +1102,7 @@ namespace
             Common::FileSystem::IFileSystemException);
     }
 
-    TEST_F(
+    TEST_F( // NOLINT
         FileSystemImplTest,
         compareFileDescriptor)
     {
@@ -1165,7 +1115,7 @@ namespace
         close(fd2);
     }
 
-    TEST_F(
+    TEST_F( // NOLINT
         FileSystemImplTest,
         compareFileDescriptorFailWhenFileAreDiffrent)
     {
@@ -1179,7 +1129,7 @@ namespace
         close(fd2);
     }
 
-    TEST_F(
+    TEST_F( // NOLINT
         FileSystemImplTest,
         compareFileDescriptorFailsWhenFileDoesNotExist)
     {
@@ -1191,7 +1141,7 @@ namespace
         close(fd2);
     }
 
-    TEST_F(
+    TEST_F( // NOLINT
         FileSystemImplTest,
         getFileDescriptorWorksForDirectory)
     {
@@ -1204,7 +1154,7 @@ namespace
         close(fd2);
     }
 
-    TEST_F(
+    TEST_F( // NOLINT
         FileSystemImplTest,
         getFileDescriptorWorksForFile)
     {
@@ -1217,7 +1167,7 @@ namespace
         close(fd2);
     }
 
-    TEST_F(
+    TEST_F( // NOLINT
         FileSystemImplTest,
         getFileDescriptorReturnsMinus1WhenPathDoesNotExist)
     {
@@ -1226,7 +1176,7 @@ namespace
         close(fd1);
     }
 
-    TEST_F(
+    TEST_F( // NOLINT
         FileSystemImplTest,
         getFileInfoDescriptorFromDirectoryFD)
     {
@@ -1241,7 +1191,7 @@ namespace
         close(fd1);
         close(fd2);
     }
-    TEST_F(
+    TEST_F( // NOLINT
         FileSystemImplTest,
         getFDFromDirectoryFDFailsWhendirDoesNotExist)
     {
@@ -1252,7 +1202,7 @@ namespace
         close(fd1);
     }
 
-    TEST_F(
+    TEST_F( // NOLINT
         FileSystemImplTest,
         getFDFromDirectoryFDFailsWhenFileDoesNotExist)
     {
@@ -1330,13 +1280,5 @@ namespace
         Tests::TempDir tempDir;
         tempDir.makeDirs("Root/subdir");
         EXPECT_THROW(m_fileSystem->unlinkDirUsingDirectoryFD(-1, "subdir"),IFileSystemException);
-    }
-
-    TEST_F(FileSystemImplTest, getDiskSpaceInfo)
-    {
-        auto diskSpaceInfo = m_fileSystem->getDiskSpaceInfo("/");
-        EXPECT_GE(diskSpaceInfo.capacity, diskSpaceInfo.free);
-        EXPECT_GE(diskSpaceInfo.free, diskSpaceInfo.available);
-        EXPECT_GT(diskSpaceInfo.available, 0);
     }
 } // namespace
