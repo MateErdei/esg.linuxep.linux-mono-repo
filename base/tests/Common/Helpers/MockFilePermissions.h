@@ -1,14 +1,11 @@
-/******************************************************************************************************
-
-Copyright 2018, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
+#include "FilePermissionsReplaceAndRestore.h"
+
 #include <Common/FileSystem/IFilePermissions.h>
 #include <gmock/gmock.h>
-#include "FilePermissionsReplaceAndRestore.h"
 
 using namespace ::testing;
 using namespace Common::FileSystem;
@@ -27,6 +24,8 @@ public:
     MOCK_CONST_METHOD1(getUserName, std::string(const uid_t& userId));
     MOCK_CONST_METHOD1(getUserName, std::string(const Path& filePath));
     MOCK_CONST_METHOD1(getFilePermissions, mode_t(const Path& filePath));
+    MOCK_CONST_METHOD0(getAllGroupNamesAndIds, std::map<std::string, gid_t>());
+    MOCK_CONST_METHOD0(getAllUserNamesAndIds, std::map<std::string, uid_t>());
 };
 
 class IgnoreFilePermissions
@@ -39,7 +38,7 @@ public:
         ON_CALL(*mockFilePermissions, chown(A<const Path&>(), A<const std::string&>(), A<const std::string&>())).WillByDefault(Return());
 
         std::unique_ptr<MockFilePermissions> mockIFilePermissionsPtr =
-                std::unique_ptr<MockFilePermissions>(mockFilePermissions);
+            std::unique_ptr<MockFilePermissions>(mockFilePermissions);
         Tests::replaceFilePermissions(std::move(mockIFilePermissionsPtr));
     }
     ~IgnoreFilePermissions()

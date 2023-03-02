@@ -26,7 +26,7 @@ TEST_F(TestUserGroupUtils, Construction) // NOLINT
             "}",
         "}"
     };
-    
+
     auto* filesystemMock = new StrictMock<MockFileSystem>();
     EXPECT_CALL(*filesystemMock, readLines(_)).WillOnce(Return(fileContents));
     auto mock = std::make_unique<Tests::ScopedReplaceFileSystem>(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
