@@ -13,12 +13,18 @@ namespace watchdog::watchdogimpl
     std::string stripCommentsFromRequestedUserGroupIdFile(const std::vector<std::string>& fileContents);
     WatchdogUserGroupIDs validateUserAndGroupIds(WatchdogUserGroupIDs configJson);
     WatchdogUserGroupIDs readRequestedUserGroupIds();
-    std::optional<UserAndGroupId> getUserAndGroupId(const std::string& filePath);
-    void setUserAndGroupId(const std::string& filePath, uid_t userId, gid_t groupId);
+//    std::optional<UserAndGroupId> getUserAndGroupId(const std::string& filePath);
+    void setUserIdOfFile(const std::string& filePath, uid_t userId);
+    void setGroupIdOfFile(const std::string& filePath, gid_t groupId);
+    WatchdogUserGroupIDs validateUserAndGroupIds(WatchdogUserGroupIDs configJson);
 
     /*
-     * For every file and directory in the product installation, change each user ID and group ID from the
-     * current value to the new values.
+     * For every file and directory in rootPath that matches the current IDs passed in, change the file owner
+     * user and group IDs to the new values.
      */
-    void remapUserAndGroupIds(const std::string& rootPath, uid_t currentUserId, gid_t currentGroupId, uid_t newUserId, gid_t newGroupId);
+    void remapUserIdOfFiles(const std::string& rootPath, uid_t currentUserId, uid_t newUserId);
+    void remapGroupIdOfFiles(const std::string& rootPath, gid_t currentGroupId, gid_t newGroupId);
+
+    void applyUserIdConfig(WatchdogUserGroupIDs ids);
+
 }

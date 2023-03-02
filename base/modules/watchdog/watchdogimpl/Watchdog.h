@@ -37,6 +37,7 @@ namespace watchdog::watchdogimpl
             void handleSocketRequest();
             void writeExecutableUserAndGroupToWatchdogConfig();
             std::string handleCommand(Common::ZeroMQWrapper::IReadable::data_t input);
+            void reconfigureUserAndGroupIds();
 
             std::string disablePlugin(const std::string& pluginName);
             std::string enablePlugin(const std::string& pluginName);

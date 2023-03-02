@@ -4,12 +4,13 @@
 
 #include "Logger.h"
 #include "PluginProxy.h"
+#include "UserGroupUtils.h"
 
 #include "Common/ProcessMonitoringImpl/SignalHandler.h"
 
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
-#include <Common/FileSystem/IFileSystem.h>
 #include <Common/FileSystem/IFilePermissions.h>
+#include <Common/FileSystem/IFileSystem.h>
 #include <Common/FileSystem/IFileSystemException.h>
 #include <Common/PluginRegistryImpl/PluginInfo.h>
 #include <Common/Threads/NotifyPipe.h>
@@ -65,6 +66,7 @@ int Watchdog::initialiseAndRun()
 
         pluginConfigs.clear();
         writeExecutableUserAndGroupToWatchdogConfig();
+        reconfigureUserAndGroupIds();
 
         setupSocket();
 
@@ -340,4 +342,11 @@ void Watchdog::writeExecutableUserAndGroupToWatchdogConfig()
     {
         LOGERROR(error.what());
     }
+}
+
+void Watchdog::reconfigureUserAndGroupIds()
+{
+    auto requested = readRequestedUserGroupIds();
+    auto changesNeeded = validateUserAndGroupIds(requested);
+    applyUserIdConfig(changesNeeded);
 }

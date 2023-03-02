@@ -122,46 +122,109 @@ namespace watchdog::watchdogimpl
         return {};
     }
 
-    std::optional<UserAndGroupId> getUserAndGroupId(const std::string& filePath)
+    uid_t getUserIdOfFile(const std::string& filePath)
     {
         auto filePermissions = Common::FileSystem::filePermissions();
-        return UserAndGroupId{ filePermissions->getUserId(filePath), filePermissions->getGroupId(filePath) };
+        auto user = filePermissions->getUserName(filePath);
+        return filePermissions->getUserId(user);
     }
 
-    void setUserAndGroupId(const std::string& filePath, uid_t userId, gid_t groupId)
+    gid_t getGroupIdOfFile(const std::string& filePath)
     {
         auto filePermissions = Common::FileSystem::filePermissions();
-        filePermissions->chown(filePath, userId, groupId);
+        auto group = filePermissions->getGroupName(filePath);
+        return filePermissions->getGroupId(group);
     }
 
-    void remapUserAndGroupIds(const std::string& rootPath, uid_t currentUserId, gid_t currentGroupId, uid_t newUserId, gid_t newGroupId)
+    void setUserIdOfFile(const std::string& filePath, uid_t newUserId)
+    {
+        auto filePermissions = Common::FileSystem::filePermissions();
+        auto currentGroupId = getGroupIdOfFile(filePath);
+        filePermissions->chown(filePath, newUserId, currentGroupId);
+    }
+
+    void setGroupIdOfFile(const std::string& filePath, gid_t newGroupId)
+    {
+        auto filePermissions = Common::FileSystem::filePermissions();
+        auto currentUserId = getUserIdOfFile(filePath);
+        filePermissions->chown(filePath, currentUserId, newGroupId);
+    }
+
+
+    void remapUserIdOfFiles(const std::string& rootPath, uid_t currentUserId, uid_t newUserId)
     {
         auto fs = Common::FileSystem::fileSystem();
-        //        std::string sophosInstall = Common::ApplicationConfiguration::applicationPathManager().sophosInstall();
         if (fs->isFile(rootPath))
         {
-            setUserAndGroupId(rootPath, newUserId, newGroupId);
+            setUserIdOfFile(rootPath, newUserId);
         }
         else if (fs->isDirectory(rootPath))
         {
             auto allSophosFiles = fs->listAllFilesAndDirsInDirectoryTree(rootPath);
             for (const auto& file : allSophosFiles)
             {
-                auto ids = getUserAndGroupId(file);
-                if (ids.has_value())
+                // If the current IDs of the file match the ones we're replacing then perform the remap
+                if (getUserIdOfFile(file) == currentUserId)
                 {
-                    auto& [fileUserId, fileGroupId] = ids.value();
-                    // If the current IDs of the file match the ones we're replacing then perform the remap
-                    if (fileUserId == currentUserId && fileGroupId == currentGroupId)
-                    {
-                        setUserAndGroupId(file, newUserId, newGroupId);
-                    }
+                    setUserIdOfFile(file, newUserId);
                 }
             }
         }
         else
         {
-            throw std::runtime_error("Path given to remap user and group IDs was not a file or directory: " + rootPath);
+            throw std::runtime_error("Path given to remap user IDs was not a file or directory: " + rootPath);
         }
     }
+
+    void remapGroupIdOfFiles(const std::string& rootPath, gid_t currentGroupId, gid_t newGroupId)
+    {
+        auto fs = Common::FileSystem::fileSystem();
+        if (fs->isFile(rootPath))
+        {
+            setGroupIdOfFile(rootPath, newGroupId);
+        }
+        else if (fs->isDirectory(rootPath))
+        {
+            auto allSophosFiles = fs->listAllFilesAndDirsInDirectoryTree(rootPath);
+            for (const auto& file : allSophosFiles)
+            {
+                // If the current IDs of the file match the ones we're replacing then perform the remap
+                if (getGroupIdOfFile(file) == currentGroupId)
+                {
+                    setGroupIdOfFile(file, newGroupId);
+                }
+            }
+        }
+        else
+        {
+            throw std::runtime_error("Path given to remap group IDs was not a file or directory: " + rootPath);
+        }
+    }
+
+    void applyUserIdConfig(WatchdogUserGroupIDs changesNeeded)
+    {
+        auto filePermissions = Common::FileSystem::filePermissions();
+        auto installRoot = Common::ApplicationConfiguration::applicationPathManager().sophosInstall();
+        auto users = changesNeeded["users"];
+        auto groups = changesNeeded["groups"];
+        for (const auto& [userName, newUserId] : users.items())
+        {
+            auto currentUserId = filePermissions->getUserId(userName);
+
+            // TODO Set new ID of user on the system to be newUserId
+
+            remapUserIdOfFiles(installRoot, currentUserId, newUserId);
+        }
+
+        for (const auto& [groupName, newGroupId] : groups.items())
+        {
+            auto currentGroupId = filePermissions->getGroupId(groupName);
+
+            // TODO Set new ID of group on the system to be newUserId
+
+            remapGroupIdOfFiles(installRoot, currentGroupId, newGroupId);
+        }
+
+    }
+
 } // namespace watchdog::watchdogimpl
