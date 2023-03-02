@@ -8,7 +8,7 @@
         <build-asset project="linuxep" repo="everest-base">
             <release-version branch="release/2023.1.2-thinstaller-only-fdqn-fix"
                              build-id="20230301170849-729e8dccf2cc6047bf724eb254426c3b508d5012-IM1wRQ"/>
-<!--            <development-version branch="develop"/>-->
+            <development-version branch="develop"/>
             <include artifact-path="sspl-base/pluginapi" dest-dir="/build/input"/>
             <include artifact-path="sspl-base/cmcsrouterapi" dest-dir="/build/input"/>
             <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="/build/input/base-sdds"/>
