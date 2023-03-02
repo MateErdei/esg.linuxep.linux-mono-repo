@@ -8,8 +8,6 @@
 #include "FileSystem/IFileSystemException.h"
 #include "UtilityImpl/StringUtils.h"
 
-#include <utility>
-
 namespace watchdog::watchdogimpl
 {
     std::string stripCommentsFromRequestedUserGroupIdFile(std::vector<std::string> fileContents)
@@ -26,92 +24,19 @@ namespace watchdog::watchdogimpl
         return userGroupContents;
     }
 
-    WatchdogUserGroupIDs validateUserAndGroupIds(WatchdogUserGroupIDs configJson)
-    {
-        auto filePermissions = Common::FileSystem::filePermissions();
-
-        WatchdogUserGroupIDs verifiedUsersAndGroups = std::move(configJson);
-        std::map<std::string, gid_t> existingGroups;
-        std::map<std::string, uid_t> existingUsers;
-
-        try
-        {
-            existingGroups = filePermissions->getAllGroupNamesAndIds();
-            existingUsers = filePermissions->getAllUserNamesAndIds();
-        }
-        catch (Common::FileSystem::IFileSystemException& exception)
-        {
-            LOGWARN("Failed to verify no duplicate user or group ids due to: " << exception.what());
-            return {};
-        }
-
-        if (verifiedUsersAndGroups["groups"])
-        {
-            auto& groups = verifiedUsersAndGroups["groups"];
-            for (const auto& [groupName, gid] : groups.items())
-            {
-                if (groupName == "root")
-                {
-                    LOGWARN("Will not update group Id as it is root: " << gid);
-                    groups.erase(groupName);
-                }
-
-                for (const auto& [systemGroupName, systemGid] : existingGroups)
-                {
-                    if (gid == systemGid)
-                    {
-                        LOGWARN(
-                            "Will not perform requested group id change on"
-                            << groupName << "as gid (" << gid << ") is already used by " << systemGroupName);
-                        groups.erase(groupName);
-                    }
-                }
-            }
-        }
-
-        if (verifiedUsersAndGroups["users"])
-        {
-            auto& groups = verifiedUsersAndGroups["users"];
-            for (const auto& [userName, uid] : groups.items())
-            {
-                if (userName == "root")
-                {
-                    LOGWARN("Will not update user Id as it is root: " << uid);
-                    groups.erase(userName);
-                }
-
-                for (const auto& [existingUserName, existingUid] : existingUsers)
-                {
-                    if (uid == existingUid)
-                    {
-                        LOGWARN(
-                            "Will not perform requested user id change on"
-                            << userName << "as uid (" << uid << ") is already used by " << existingUserName);
-                        groups.erase(userName);
-                    }
-                }
-            }
-        }
-
-        return verifiedUsersAndGroups;
-    }
-
     WatchdogUserGroupIDs readRequestedUserGroupIds()
     {
-        std::string configPath =
-            Common::ApplicationConfiguration::applicationPathManager().getRequestedUserGroupIdConfigPath();
+        std::string configPath = Common::ApplicationConfiguration::applicationPathManager().getRequestedUserGroupIdConfigPath();
         auto fs = Common::FileSystem::fileSystem();
         try
         {
             auto content = fs->readLines(configPath);
             nlohmann::json j = nlohmann::json::parse(stripCommentsFromRequestedUserGroupIdFile(content));
-            j = validateUserAndGroupIds(j);
             return j;
         }
         catch (const nlohmann::detail::exception& exception)
         {
-            LOGWARN(
-                "Failed to parse the requested user and group IDs file: " << configPath << ", " << exception.what());
+            LOGWARN("Failed to parse the requested user and group IDs file: " << configPath << ", " << exception.what());
         }
         catch (Common::FileSystem::IFileSystemException& exception)
         {
@@ -123,7 +48,7 @@ namespace watchdog::watchdogimpl
     std::optional<UserAndGroupId> getUserAndGroupId(const std::string& filePath)
     {
         auto filePermissions = Common::FileSystem::filePermissions();
-        return UserAndGroupId{ filePermissions->getUserId(filePath), filePermissions->getUserId(filePath) };
+        return UserAndGroupId{filePermissions->getUserId(filePath), filePermissions->getGroupId(filePath)};
     }
 
     void setUserAndGroupId(const std::string& filePath, uid_t userId, gid_t groupId)
@@ -137,7 +62,7 @@ namespace watchdog::watchdogimpl
         auto fs = Common::FileSystem::fileSystem();
         std::string sophosInstall = Common::ApplicationConfiguration::applicationPathManager().sophosInstall();
         auto allSophosFiles = fs->listAllFilesAndDirsInDirectoryTree(sophosInstall);
-        for (const auto& file : allSophosFiles)
+        for (const auto& file: allSophosFiles)
         {
             auto ids = getUserAndGroupId(file);
             if (ids.has_value())
@@ -151,4 +76,4 @@ namespace watchdog::watchdogimpl
             }
         }
     }
-} // namespace watchdog::watchdogimpl
+}
