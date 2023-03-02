@@ -343,7 +343,7 @@ def sspl_base(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
 
     # Add args to pass env vars to RobotFramework.py call in test runs
     robot_args_list = []
-    if mode is DEBUG_MODE:
+    if mode == DEBUG_MODE:
         robot_args_list.append("DEBUG=true")
     if parameters.test:
         robot_args_list.append("TEST=" + parameters.test)
