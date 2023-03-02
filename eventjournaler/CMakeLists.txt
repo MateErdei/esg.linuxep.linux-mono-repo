@@ -142,7 +142,7 @@ find_library(JOURNAL_LIBRARY
         PATHS ${INPUT}/JournalLib/lib
         NO_DEFAULT_PATH)
 find_library(LZMA_LIBRARY
-        NAMES libliblzma.so
+        NAMES liblzma.so
         PATHS ${XZUTILS_INPUT}
         NO_DEFAULT_PATH)
 
