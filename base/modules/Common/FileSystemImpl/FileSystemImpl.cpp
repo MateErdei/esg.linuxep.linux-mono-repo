@@ -666,9 +666,12 @@ namespace Common
         std::vector<Path> FileSystemImpl::listAllFilesAndDirsInDirectoryTree(const Path& root) const
         {
             std::vector<Path> paths;
-            for (auto const& dirEntry : std::filesystem::recursive_directory_iterator(root))
+            if (isDirectory(root))
             {
-                paths.push_back(dirEntry.path());
+                for (auto const& dirEntry : std::filesystem::recursive_directory_iterator(root))
+                {
+                    paths.push_back(dirEntry.path());
+                }
             }
             return paths;
         }

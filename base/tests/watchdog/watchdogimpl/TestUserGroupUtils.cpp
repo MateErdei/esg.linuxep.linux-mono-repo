@@ -38,13 +38,15 @@ TEST_F(TestUserGroupUtils, Construction) // NOLINT
 }
 
 // remapUserAndGroupIds
-TEST_F(TestUserGroupUtils, remapUserAndGroupIds) // NOLINT
+TEST_F(TestUserGroupUtils, remapUserAndGroupIdsHandlesDirectory) // NOLINT
 {
     auto* filesystemMock = new NaggyMock<MockFileSystem>();
     auto* filePermissionsMock = new NaggyMock<MockFilePermissions>();
 
     std::vector<Path> paths = {"/a/path", "/a"};
-    EXPECT_CALL(*filesystemMock, listAllFilesAndDirsInDirectoryTree(Common::ApplicationConfiguration::applicationPathManager().sophosInstall())).WillOnce(Return(paths));
+    EXPECT_CALL(*filesystemMock, listAllFilesAndDirsInDirectoryTree("/pathroot")).WillOnce(Return(paths));
+    EXPECT_CALL(*filesystemMock, isFile("/pathroot")).WillOnce(Return(false));
+    EXPECT_CALL(*filesystemMock, isDirectory("/pathroot")).WillOnce(Return(true));
 
     // The file
     EXPECT_CALL(*filePermissionsMock, getUserId("/a/path")).WillOnce(Return(10));
@@ -59,6 +61,6 @@ TEST_F(TestUserGroupUtils, remapUserAndGroupIds) // NOLINT
     auto fsMock = std::make_unique<Tests::ScopedReplaceFileSystem>(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
     auto fpMock = std::make_unique<Tests::ScopedReplaceFilePermissions>(std::unique_ptr<Common::FileSystem::IFilePermissions>(filePermissionsMock));
 
-    watchdog::watchdogimpl::remapUserAndGroupIds(10,11,20,21);
+    watchdog::watchdogimpl::remapUserAndGroupIds("/pathroot",10,11,20,21);
 }
 

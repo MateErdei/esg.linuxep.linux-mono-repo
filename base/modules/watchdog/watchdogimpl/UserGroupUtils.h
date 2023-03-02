@@ -19,5 +19,5 @@ namespace watchdog::watchdogimpl
      * For every file and directory in the product installation, change each user ID and group ID from the
      * current value to the new values.
      */
-    void remapUserAndGroupIds(uid_t currentUserId, gid_t currentGroupId, uid_t newUserId, gid_t newGroupId);
+    void remapUserAndGroupIds(const std::string& rootPath, uid_t currentUserId, gid_t currentGroupId, uid_t newUserId, gid_t newGroupId);
 }

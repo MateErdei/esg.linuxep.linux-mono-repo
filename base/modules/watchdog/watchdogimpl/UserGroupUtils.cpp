@@ -57,23 +57,34 @@ namespace watchdog::watchdogimpl
         filePermissions->chown(filePath, userId, groupId);
     }
 
-    void remapUserAndGroupIds(uid_t currentUserId, gid_t currentGroupId, uid_t newUserId, gid_t newGroupId)
+    void remapUserAndGroupIds(const std::string& rootPath, uid_t currentUserId, gid_t currentGroupId, uid_t newUserId, gid_t newGroupId)
     {
         auto fs = Common::FileSystem::fileSystem();
-        std::string sophosInstall = Common::ApplicationConfiguration::applicationPathManager().sophosInstall();
-        auto allSophosFiles = fs->listAllFilesAndDirsInDirectoryTree(sophosInstall);
-        for (const auto& file: allSophosFiles)
+        //        std::string sophosInstall = Common::ApplicationConfiguration::applicationPathManager().sophosInstall();
+        if (fs->isFile(rootPath))
         {
-            auto ids = getUserAndGroupId(file);
-            if (ids.has_value())
+            setUserAndGroupId(rootPath, newUserId, newGroupId);
+        }
+        else if (fs->isDirectory(rootPath))
+        {
+            auto allSophosFiles = fs->listAllFilesAndDirsInDirectoryTree(rootPath);
+            for (const auto& file: allSophosFiles)
             {
-                auto& [fileUserId, fileGroupId] = ids.value();
-                // If the current IDs of the file match the ones we're replacing then perform the remap
-                if (fileUserId == currentUserId && fileGroupId == currentGroupId)
+                auto ids = getUserAndGroupId(file);
+                if (ids.has_value())
                 {
-                    setUserAndGroupId(file, newUserId, newGroupId);
+                    auto& [fileUserId, fileGroupId] = ids.value();
+                    // If the current IDs of the file match the ones we're replacing then perform the remap
+                    if (fileUserId == currentUserId && fileGroupId == currentGroupId)
+                    {
+                        setUserAndGroupId(file, newUserId, newGroupId);
+                    }
                 }
             }
+        }
+        else
+        {
+            throw std::runtime_error("Path given to remap user and group IDs was not a file or directory: " + rootPath);
         }
     }
 }
