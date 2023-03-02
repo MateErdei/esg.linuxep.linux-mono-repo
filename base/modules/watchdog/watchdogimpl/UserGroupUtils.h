@@ -10,7 +10,7 @@ namespace watchdog::watchdogimpl
     using WatchdogUserGroupIDs = nlohmann::json;
     using UserAndGroupId = std::pair<uid_t, gid_t>;
 
-    std::string stripCommentsFromRequestedUserGroupIdFile(std::vector<std::string> fileContents);
+    std::string stripCommentsFromRequestedUserGroupIdFile(const std::vector<std::string>& fileContents);
     WatchdogUserGroupIDs readRequestedUserGroupIds();
     std::optional<UserAndGroupId> getUserAndGroupId(const std::string& filePath);
     void setUserAndGroupId(const std::string& filePath, uid_t userId, gid_t groupId);

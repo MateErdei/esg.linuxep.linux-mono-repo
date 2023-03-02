@@ -10,13 +10,13 @@
 
 namespace watchdog::watchdogimpl
 {
-    std::string stripCommentsFromRequestedUserGroupIdFile(std::vector<std::string> fileContents)
+    std::string stripCommentsFromRequestedUserGroupIdFile(const std::vector<std::string>& fileContents)
     {
         std::string userGroupContents;
 
         for (const auto& line : fileContents)
         {
-            if (!Common::UtilityImpl::StringUtils::startswith(line, "#"))
+            if (!Common::UtilityImpl::StringUtils::startswith(Common::UtilityImpl::StringUtils::trim(line), "#"))
             {
                 userGroupContents.append(line);
             }

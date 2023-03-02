@@ -12,9 +12,14 @@
 
 class TestUserGroupUtils : public LogOffInitializedTests{};
 
-TEST_F(TestUserGroupUtils, Construction) // NOLINT
+TEST_F(TestUserGroupUtils, CommentsAreStrippedFromRequestedUserAndGroupIdsFileReturningValidJson)
 {
-    std::vector<std::string> fileContents{
+    nlohmann::json expectedJson = {
+        {"users", {{"username1", 1},{"username2", 2}}},
+        {"groups", {{"group1", 1},{"group2", 2}}}
+    };
+
+    std::vector<std::string> configString{
         "#Comment here",
         "#Another comment here",
         "{",
@@ -29,16 +34,42 @@ TEST_F(TestUserGroupUtils, Construction) // NOLINT
         "}"
     };
 
-    auto* filesystemMock = new StrictMock<MockFileSystem>();
-    EXPECT_CALL(*filesystemMock, readLines(_)).WillOnce(Return(fileContents));
-    auto mock = std::make_unique<Tests::ScopedReplaceFileSystem>(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
+    auto strippedConfigString = watchdog::watchdogimpl::stripCommentsFromRequestedUserGroupIdFile(configString);
+    EXPECT_EQ(nlohmann::json::parse(strippedConfigString), expectedJson);
+}
 
-    auto returnedValue = watchdog::watchdogimpl::readRequestedUserGroupIds();
-    std::cout << returnedValue.dump();
+TEST_F(TestUserGroupUtils, DifferentStructuresOfCommentsAreStrippedFromRequestedUserAndGroupIdsFileReturningValidJson)
+{
+    nlohmann::json expectedJson = {
+        {"users", {{"username1", 1},{"username2", 2}}},
+        {"groups", {{"group1", 1},{"group2", 2}}}
+    };
+
+    std::vector<std::string> configString{
+        "#Comment here",
+        "#Another comment here",
+        " #Comment with spacing here",
+        " # Comment with more spacing here",
+        "               #Comment with lots more spacing here",
+        "## Comment with multiple hashes here",
+        "{",
+            R"("users": {)",
+                R"("username1": 1,)",
+                R"("username2": 2)",
+            "},",
+            R"("groups": {)",
+                R"("group1": 1,)",
+                R"("group2": 2)",
+            "}",
+        "}"
+    };
+
+    auto strippedConfigString = watchdog::watchdogimpl::stripCommentsFromRequestedUserGroupIdFile(configString);
+    EXPECT_EQ(nlohmann::json::parse(strippedConfigString), expectedJson);
 }
 
 // remapUserAndGroupIds
-TEST_F(TestUserGroupUtils, remapUserAndGroupIdsHandlesDirectory) // NOLINT
+TEST_F(TestUserGroupUtils, remapUserAndGroupIdsHandlesDirectory)
 {
     auto* filesystemMock = new NaggyMock<MockFileSystem>();
     auto* filePermissionsMock = new NaggyMock<MockFilePermissions>();
