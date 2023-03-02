@@ -300,7 +300,7 @@ namespace Common::FileSystem
             }
             groups.insert({ entry->gr_name, entry->gr_gid });
         }
-        endpwent();
+        endgrent();
 
         return groups;
     }
