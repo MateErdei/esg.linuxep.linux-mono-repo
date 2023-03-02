@@ -6,8 +6,8 @@
     <inputs>
         <workingdir>.</workingdir>
         <build-asset project="linuxep" repo="everest-base">
-            <release-version branch="hotfix--fqdn_cmcs_improvement"
-                             build-id="20230301140052-9ba6eaec6fb4102f35068d003ee69eb78a8db84f-ykatT7"/>
+            <release-version branch="release/2023.1.2-thinstaller-only-fdqn-fix"
+                             build-id="20230301170849-729e8dccf2cc6047bf724eb254426c3b508d5012-IM1wRQ"/>
 <!--            <development-version branch="develop"/>-->
             <include artifact-path="sspl-base/pluginapi" dest-dir="/build/input"/>
             <include artifact-path="sspl-base/cmcsrouterapi" dest-dir="/build/input"/>
