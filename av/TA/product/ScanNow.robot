@@ -227,7 +227,7 @@ Scan Now scans dir with name similar to excluded mount
     Trigger Scan Now Scan
     Wait For AV Log Contains After Mark  Completed scan Scan Now  ${av_mark}  timeout=240
 
-    Check AV Log Contains After Mark  /process/eicar.com  ${av_mark}
+    Wait For AV Log Contains After Mark  /process/eicar.com  ${av_mark}
     File Log Contains  ${AV_PLUGIN_PATH}/log/Scan Now.log  "/process/eicar.com" is infected
 
 
