@@ -55,3 +55,4 @@ testUtils/*-VBoxSVC-*.log
 /tap_venv/
 /.idea/RobotProjectPreferences.xml
 /.idea/inspectionProfiles/Project_Default.xml
+/testUtils/SupportFiles/FakeManagement/ActionUtils.py
