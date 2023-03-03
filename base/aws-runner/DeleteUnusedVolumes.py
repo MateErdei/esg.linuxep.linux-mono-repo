@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 ## pip install -U boto
 import boto
@@ -13,10 +13,13 @@ ec2 = boto.ec2.connect_to_region("eu-west-1",
         aws_secret_access_key="au+F0ytH203xPgzYfEAxV/VKjoDoHNJLPsX5NM0W")
 
 volumes = ec2.get_all_volumes(filters={
-    "status" : "available"
+    "status": "available"
     })
 
 for volume in volumes:
     print(volume)
-    volume.delete()
+    try:
+        volume.delete()
+    except Exception as ex:
+        print("Failed to delete %s: %s" % (volume, str(ex)))
 
