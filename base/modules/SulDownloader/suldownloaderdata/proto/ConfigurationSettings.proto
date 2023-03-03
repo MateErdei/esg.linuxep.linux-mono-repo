@@ -58,5 +58,9 @@ message ConfigurationSettings
         Configures SulDownloader to download from slow supplements, where such a choice is available.
      */
     optional bool useSlowSupplements = 17 [default=false];
+
+    //useSDDS3 is no longer used
+    optional bool useSDDS3 = 18 [default=false];
+
     optional string updateCacheCertPath = 19;
 }
