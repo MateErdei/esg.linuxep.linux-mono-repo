@@ -113,21 +113,21 @@ public:
     }
 };
 
-TEST_F(TestCatalogueInfo, calculatedListProducts_simpleComponentDownloadedShouldBeListed) // NOLINT
+TEST_F(TestCatalogueInfo, calculatedListProducts_simpleComponentDownloadedShouldBeListed)
 {
     auto expected = getProductInfos({ ProdId::SIMPLE_COMPONENT });
     auto calculated = simulateAlgorithmOfGettingProductInfo({ ProdId::SIMPLE_COMPONENT });
     EXPECT_PRED_FORMAT2(listProductInfoIsEquivalent, expected, calculated);
 }
 
-TEST_F(TestCatalogueInfo, calculatedListProducts_componentSuiteShouldListOnlySubComponents) // NOLINT
+TEST_F(TestCatalogueInfo, calculatedListProducts_componentSuiteShouldListOnlySubComponents)
 {
     auto expected = getProductInfos({ ProdId::SUB_COMPONENT1, ProdId::SUB_COMPONENT2 });
     auto calculated = simulateAlgorithmOfGettingProductInfo({ ProdId::COMPONENT_SUITE });
     EXPECT_PRED_FORMAT2(listProductInfoIsEquivalent, expected, calculated);
 }
 
-TEST_F(TestCatalogueInfo, calculatedListProducts_shouldCombineAllTheProducts) // NOLINT
+TEST_F(TestCatalogueInfo, calculatedListProducts_shouldCombineAllTheProducts)
 {
     auto expected = getProductInfos({ ProdId::SIMPLE_COMPONENT, ProdId::SUB_COMPONENT1, ProdId::SUB_COMPONENT2 });
     auto calculated = simulateAlgorithmOfGettingProductInfo({ ProdId::SIMPLE_COMPONENT, ProdId::COMPONENT_SUITE });

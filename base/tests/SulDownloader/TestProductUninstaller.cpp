@@ -79,15 +79,15 @@ public:
     
 };
 
-TEST_F(ProductUninstallerTest, defaultConstructorDoesNotThrow) // NOLINT
+TEST_F(ProductUninstallerTest, defaultConstructorDoesNotThrow)
 {
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-variable"
-    EXPECT_NO_THROW(ProductUninstaller uninstallManager); // NOLINT
+    EXPECT_NO_THROW(ProductUninstaller uninstallManager);
 #pragma GCC diagnostic pop
 }
 
-TEST_F( // NOLINT
+TEST_F(
     ProductUninstallerTest,
     removeProductsNotDownloadedDoesNotAttemptToUninstallProductWhenNoProductsInstalled)
 {
@@ -100,7 +100,7 @@ TEST_F( // NOLINT
     EXPECT_EQ(uninstallManager.removeProductsNotDownloaded(emptyProductList, m_mockSDDS3WarehouseRepository).size(), 0);
 }
 
-TEST_F( // NOLINT
+TEST_F(
     ProductUninstallerTest,
     removeProductsNotDownloadedDoesNotAttemptToUninstallProductWhenInstalledProductDirectoryDoesNotExist)
 {
@@ -113,7 +113,7 @@ TEST_F( // NOLINT
     EXPECT_EQ(uninstallManager.removeProductsNotDownloaded(emptyProductList, m_mockSDDS3WarehouseRepository).size(), 0);
 }
 
-TEST_F( // NOLINT
+TEST_F(
     ProductUninstallerTest,
     removeProductsNotDownloadedDoesNotAttemptToUninstallProductWhenOnlyInstalledProductsInList)
 {
@@ -126,7 +126,7 @@ TEST_F( // NOLINT
     EXPECT_EQ(uninstallManager.removeProductsNotDownloaded(productList, m_mockSDDS3WarehouseRepository).size(), 0);
 }
 
-TEST_F( // NOLINT
+TEST_F(
     ProductUninstallerTest,
     removeProductsNotDownloadedDoesNotAttemptToUninstallProductWhenMoreProductsAreInDownloadListThanInstalled)
 {
@@ -139,7 +139,7 @@ TEST_F( // NOLINT
     EXPECT_EQ(uninstallManager.removeProductsNotDownloaded(productList, m_mockSDDS3WarehouseRepository).size(), 0);
 }
 
-TEST_F( // NOLINT
+TEST_F(
     ProductUninstallerTest,
     removeProductsNotDownloaded_ExpectToUninstallProductWhenProductNotInDownloadListButIsInstalled)
 {
@@ -160,7 +160,7 @@ TEST_F( // NOLINT
     });
     EXPECT_CALL(m_mockSDDS3WarehouseRepository, getProductDistributionPath(_)).WillOnce(Return(m_defaultDistributionPath));
     std::vector<suldownloaderdata::DownloadedProduct> actualProductList;
-    EXPECT_NO_THROW(  // NOLINT
+    EXPECT_NO_THROW( 
         actualProductList = uninstallManager.removeProductsNotDownloaded(
                         productList, m_mockSDDS3WarehouseRepository));
     ASSERT_EQ(actualProductList.size(), 1);
@@ -169,7 +169,7 @@ TEST_F( // NOLINT
     EXPECT_EQ(actualProductList[0].getLine(), fileList[2].substr(0, fileList[2].find(".sh")));
 }
 
-TEST_F( // NOLINT
+TEST_F(
     ProductUninstallerTest,
     removeProductsNotDownloaded_DoNotTryToRemoveDistributeDirWhenItDoesntExist)
 {
@@ -190,7 +190,7 @@ TEST_F( // NOLINT
                                                                    });
     EXPECT_CALL(m_mockSDDS3WarehouseRepository, getProductDistributionPath(_)).WillOnce(Return(m_defaultDistributionPath));
     std::vector<suldownloaderdata::DownloadedProduct> actualProductList;
-    EXPECT_NO_THROW(  // NOLINT
+    EXPECT_NO_THROW( 
         actualProductList = uninstallManager.removeProductsNotDownloaded(
             productList, m_mockSDDS3WarehouseRepository));
     ASSERT_EQ(actualProductList.size(), 1);
@@ -199,7 +199,7 @@ TEST_F( // NOLINT
     EXPECT_EQ(actualProductList[0].getLine(), fileList[2].substr(0, fileList[2].find(".sh")));
 }
 
-TEST_F(ProductUninstallerTest, removeProductsNotDownloaded_FailureToUninstallProductThrowsAndIsHandled) // NOLINT
+TEST_F(ProductUninstallerTest, removeProductsNotDownloaded_FailureToUninstallProductThrowsAndIsHandled)
 {
     std::vector<std::string> fileList = createDefaultFileList(3);
     std::vector<suldownloaderdata::DownloadedProduct> productList = createDefaultDownloadProductList(2);
@@ -216,7 +216,7 @@ TEST_F(ProductUninstallerTest, removeProductsNotDownloaded_FailureToUninstallPro
     EXPECT_CALL(m_mockSDDS3WarehouseRepository, getProductDistributionPath(_)).WillOnce(Return(m_defaultDistributionPath));
     std::vector<suldownloaderdata::DownloadedProduct> actualProductList;
     EXPECT_NO_THROW(actualProductList = uninstallManager.removeProductsNotDownloaded(
-                        productList, m_mockSDDS3WarehouseRepository)); // NOLINT
+                        productList, m_mockSDDS3WarehouseRepository));
     EXPECT_EQ(actualProductList.size(), 1);
     EXPECT_TRUE(actualProductList[0].getProductIsBeingUninstalled());
     EXPECT_EQ(actualProductList[0].getLine(), fileList[2].substr(0, fileList[2].find(".sh")));
@@ -225,7 +225,7 @@ TEST_F(ProductUninstallerTest, removeProductsNotDownloaded_FailureToUninstallPro
     EXPECT_EQ(actualProductList[0].getError().LibError, "");
 }
 
-TEST_F(ProductUninstallerTest, removeProductsNotDownloaded_FailureToUninstallProductReturnsNonZeroErrorCode) // NOLINT
+TEST_F(ProductUninstallerTest, removeProductsNotDownloaded_FailureToUninstallProductReturnsNonZeroErrorCode)
 {
     std::vector<std::string> fileList = createDefaultFileList(3);
     std::vector<suldownloaderdata::DownloadedProduct> productList = createDefaultDownloadProductList(2);
@@ -243,7 +243,7 @@ TEST_F(ProductUninstallerTest, removeProductsNotDownloaded_FailureToUninstallPro
     EXPECT_CALL(m_mockSDDS3WarehouseRepository, getProductDistributionPath(_)).WillOnce(Return(m_defaultDistributionPath));
     std::vector<suldownloaderdata::DownloadedProduct> actualProductList;
     EXPECT_NO_THROW(actualProductList = uninstallManager.removeProductsNotDownloaded(
-                        productList, m_mockSDDS3WarehouseRepository)); // NOLINT
+                        productList, m_mockSDDS3WarehouseRepository));
     EXPECT_EQ(actualProductList.size(), 1);
     EXPECT_TRUE(actualProductList[0].getProductIsBeingUninstalled());
     EXPECT_EQ(actualProductList[0].getLine(), fileList[2].substr(0, fileList[2].find(".sh")));
@@ -253,7 +253,7 @@ TEST_F(ProductUninstallerTest, removeProductsNotDownloaded_FailureToUninstallPro
     EXPECT_EQ(actualProductList[0].getError().LibError, "");
 }
 
-TEST_F( // NOLINT
+TEST_F(
     ProductUninstallerTest,
     shouldRefuseToRemoveSlashDirectory)
 {
@@ -278,5 +278,5 @@ TEST_F( // NOLINT
 
     EXPECT_THROW(
         uninstallManager.removeProductsNotDownloaded(productList, m_mockSDDS3WarehouseRepository),
-        std::logic_error); // NOLINT
+        std::logic_error);
 }
