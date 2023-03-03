@@ -30,7 +30,7 @@ public:
 TEST_F(TestUserGroupUtils, CommentsAreStrippedFromRequestedUserAndGroupIdsFileReturningValidJson)
 {
     nlohmann::json expectedJson = {
-        {"users", {{"username1", 1},{"username2", 2}}},
+        {"users", {{"user1", 1},{"user2", 2}}},
         {"groups", {{"group1", 1},{"group2", 2}}}
     };
 
@@ -39,8 +39,8 @@ TEST_F(TestUserGroupUtils, CommentsAreStrippedFromRequestedUserAndGroupIdsFileRe
         "#Another comment here",
         "{",
             R"("users": {)",
-                R"("username1": 1,)",
-                R"("username2": 2)",
+                R"("user1": 1,)",
+                R"("user2": 2)",
             "},",
             R"("groups": {)",
                 R"("group1": 1,)",
@@ -56,7 +56,7 @@ TEST_F(TestUserGroupUtils, CommentsAreStrippedFromRequestedUserAndGroupIdsFileRe
 TEST_F(TestUserGroupUtils, DifferentStructuresOfCommentsAreStrippedFromRequestedUserAndGroupIdsFileReturningValidJson)
 {
     nlohmann::json expectedJson = {
-        {"users", {{"username1", 1},{"username2", 2}}},
+        {"users", {{"user1", 1},{"user2", 2}}},
         {"groups", {{"group1", 1},{"group2", 2}}}
     };
 
@@ -69,8 +69,8 @@ TEST_F(TestUserGroupUtils, DifferentStructuresOfCommentsAreStrippedFromRequested
         "## Comment with multiple hashes here",
         "{",
             R"("users": {)",
-                R"("username1": 1,)",
-                R"("username2": 2)",
+                R"("user1": 1,)",
+                R"("user2": 2)",
             "},",
             R"("groups": {)",
                 R"("group1": 1,)",
@@ -101,10 +101,28 @@ TEST_F(TestUserGroupUtils, validateUserAndGroupIdsRemovesRoot)
     EXPECT_EQ(validateUserAndGroupIds(configJson), validatedJson);
 }
 
+TEST_F(TestUserGroupUtils, validateUserAndGroupIdsRemovesDuplicateIds)
+{
+    nlohmann::json configJson = {
+        {"users", {{"user1", 1},{"root", 0},{"user2", 2}}},
+        {"groups", {{"group1", 1},{"root", 0},{"group2", 2}}}
+    };
+
+    nlohmann::json validatedJson = {
+        {"users", {{"user2", 2}}},
+        {"groups", {{"group2", 2}}}
+    };
+
+    EXPECT_CALL(*m_mockFilePermissionsPtr, getAllGroupNamesAndIds()).WillOnce(Return(std::map<std::string, gid_t>{{"group1", 1}}));
+    EXPECT_CALL(*m_mockFilePermissionsPtr, getAllUserNamesAndIds()).WillOnce(Return(std::map<std::string, uid_t>{{"user1", 1}}));
+
+    EXPECT_EQ(validateUserAndGroupIds(configJson), validatedJson);
+}
+
 TEST_F(TestUserGroupUtils, validateUserAndGroupIdsReturnsEmptyWhenGroupDatabasesCannotBeRead)
 {
     nlohmann::json configJson = {
-        {"users", {{"username1", 1},{"username2", 2}}},
+        {"users", {{"user1", 1},{"user2", 2}}},
         {"groups", {{"group1", 1},{"group2", 2}}}
     };
 
@@ -117,7 +135,7 @@ TEST_F(TestUserGroupUtils, validateUserAndGroupIdsReturnsEmptyWhenGroupDatabases
 TEST_F(TestUserGroupUtils, validateUserAndGroupIdsReturnsEmptyWhenUserDatabaseCannotBeRead)
 {
     nlohmann::json configJson = {
-        {"users", {{"username1", 1},{"username2", 2}}},
+        {"users", {{"user1", 1},{"user2", 2}}},
         {"groups", {{"group1", 1},{"group2", 2}}}
     };
 
@@ -139,6 +157,22 @@ TEST_F(TestUserGroupUtils, validateUserAndGroupIdsHandlesOnlyGroups)
     EXPECT_EQ(validateUserAndGroupIds(configJson), configJson);
 }
 
+TEST_F(TestUserGroupUtils, validateUserAndGroupIdsRemovesDuplicateIdsWhenThereAreOnlyGroups)
+{
+    nlohmann::json configJson = {
+        {"groups", {{"group1", 1},{"group2", 2}}}
+    };
+
+    nlohmann::json validatedJson = {
+        {"groups", {{"group2", 2}}}
+    };
+
+    EXPECT_CALL(*m_mockFilePermissionsPtr, getAllGroupNamesAndIds()).WillOnce(Return(std::map<std::string, gid_t>{{"group1", 1}}));
+    EXPECT_CALL(*m_mockFilePermissionsPtr, getAllUserNamesAndIds()).WillOnce(Return(std::map<std::string, uid_t>{{"user1", 1}}));
+
+    EXPECT_EQ(validateUserAndGroupIds(configJson), validatedJson);
+}
+
 TEST_F(TestUserGroupUtils, validateUserAndGroupIdsHandlesOnlyUsers)
 {
     nlohmann::json configJson = {
@@ -149,4 +183,20 @@ TEST_F(TestUserGroupUtils, validateUserAndGroupIdsHandlesOnlyUsers)
     EXPECT_CALL(*m_mockFilePermissionsPtr, getAllUserNamesAndIds()).WillOnce(Return(std::map<std::string, uid_t>{}));
 
     EXPECT_EQ(validateUserAndGroupIds(configJson), configJson);
+}
+
+TEST_F(TestUserGroupUtils, validateUserAndGroupIdsRemovesDuplicateIdsWhenThereAreOnlyUsers)
+{
+    nlohmann::json configJson = {
+        {"users", {{"user1", 1},{"user2", 2}}}
+    };
+
+    nlohmann::json validatedJson = {
+        {"users", {{"user2", 2}}}
+    };
+
+    EXPECT_CALL(*m_mockFilePermissionsPtr, getAllGroupNamesAndIds()).WillOnce(Return(std::map<std::string, gid_t>{{"group1", 1}}));
+    EXPECT_CALL(*m_mockFilePermissionsPtr, getAllUserNamesAndIds()).WillOnce(Return(std::map<std::string, uid_t>{{"user1", 1}}));
+
+    EXPECT_EQ(validateUserAndGroupIds(configJson), validatedJson);
 }

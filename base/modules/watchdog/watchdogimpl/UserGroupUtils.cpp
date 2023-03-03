@@ -60,19 +60,18 @@ namespace watchdog::watchdogimpl
             {
                 if (groupName == "root")
                 {
-
                     LOGWARN("Will not update group Id as it is root: " << gid);
                     groupsToRemove.emplace_back(groupName);
                     continue;
                 }
 
-                for (const auto& [systemGroupName, systemGid] : existingGroups)
+                for (const auto& [existingGroupName, existingGid] : existingGroups)
                 {
-                    if (gid == systemGid)
+                    if (gid == existingGid)
                     {
                         LOGWARN(
                             "Will not perform requested group id change on"
-                            << groupName << "as gid (" << gid << ") is already used by " << systemGroupName);
+                            << groupName << "as gid (" << gid << ") is already used by " << existingGroupName);
                         groupsToRemove.emplace_back(groupName);
                         break;
                     }
@@ -88,7 +87,7 @@ namespace watchdog::watchdogimpl
 
         if (verifiedUsersAndGroups.contains(USERS_KEY))
         {
-            auto& users = verifiedUsersAndGroups[USERS_KEY];
+            auto users = verifiedUsersAndGroups[USERS_KEY];
             std::vector<std::string> usersToRemove;
             for (const auto& [userName, uid] : users.items())
             {
@@ -111,6 +110,7 @@ namespace watchdog::watchdogimpl
                     }
                 }
             }
+
             for (const auto& userToRemove : usersToRemove)
             {
                 users.erase(userToRemove);
