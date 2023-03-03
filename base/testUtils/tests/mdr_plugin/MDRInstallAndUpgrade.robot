@@ -138,7 +138,7 @@ ALC Policy Matches
 SulDownloader Report Success
     ${log} =  Get File  ${SULDOWNLOADER_LOG_PATH}
     Should Contain  ${log}  Update success
-    Should Not Contain  ${log}  Failed to connect to the warehouse
+    Should Not Contain  ${log}  Failed to
 
 Wait MDR Policy And Status Is Reported
     Wait until MDR policy is Downloaded
