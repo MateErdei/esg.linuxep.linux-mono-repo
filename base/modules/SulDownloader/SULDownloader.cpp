@@ -649,7 +649,7 @@ namespace SulDownloader
         {
             LOGERROR(
                 "The requested fixed version is not available on SDDS3: " +
-                configurationData.getPrimarySubscription().fixedVersion() + ". Package to old.");
+                configurationData.getPrimarySubscription().fixedVersion() + ". Package too old.");
         }
         else
         {
