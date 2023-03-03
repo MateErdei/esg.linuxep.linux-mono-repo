@@ -82,6 +82,7 @@ add_executable(installer installer.cpp)
 target_include_directories(installer PUBLIC ${MCS_LIBRARY_DIR}  ${PLUGINAPI_LIBRARY_INCLUDE} )
 target_link_libraries(installer PUBLIC  ${CURL_LIBRARY} ${MCS_LIBRARY}
         libcmcsrouterapi.so
+        libcurlwrapper.so
         ${zmqlib}
         ${log4cpluslib}
         ${protobuflib}
