@@ -1,8 +1,5 @@
-/******************************************************************************************************
+//Copyright 2018-2023 Sophos Limited.  All rights reserved.
 
-Copyright 2018-2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
 #pragma once
 
 #include <SulDownloader/suldownloaderdata/ConfigurationData.h>
