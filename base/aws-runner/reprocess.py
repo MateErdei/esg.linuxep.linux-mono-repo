@@ -4,6 +4,7 @@
 import datetime
 import json
 import os
+import shutil
 import subprocess
 import sys
 import time
@@ -22,9 +23,18 @@ def replace_top_level_suite(output_xml_file):
     command = ["python3", "-m", "robot.rebot", "--merge", "-o", dest, "-l", "none", "-r", "none",
                "-N", "combined", output_xml_file]
     print(" ".join(command))
-    subprocess.check_output(command)
-    return dest
+    result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    if not os.path.isfile(dest):
+        print("Copying", basename, "to ensure it is present in results-combine-workspace")
+        shutil.copyfile(output_xml_file, dest)  # ensure we have something to work with
+        if result.returncode == 0:
+            result.returncode = -1
+    if result.returncode != 0:
+        print("robot.rebot failed for", basename)
+        print(result.stdout)
 
+    assert os.path.isfile(dest)
+    return dest
 
 
 def duration(starttime, endtime):

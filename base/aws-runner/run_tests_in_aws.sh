@@ -305,6 +305,13 @@ DEST="./allresults"
 rm -rf ${DEST}
 mkdir ${DEST}
 
+# rebot operations are done incrementally in waitForCompletionAndSync.py
+rm -rf results-combine-workspace
+mkdir results-combine-workspace
+
+# waitForCompletionAndSync.py uses robot as well
+python3 -m pip install --upgrade robotframework
+
 # Once all test runs have finished
 cleanupStack() {
     echo "Beginning cleanup check for $STACK at $(date)" >&2
@@ -329,16 +336,14 @@ aws s3 rm ${TAR_DESTINATION_FOLDER}/${TAR_BASENAME}
 
 combineResults()
 {
-  python3 -m pip install --upgrade robotframework
-
   ls -l ./results-combine-workspace
   ls -l ./allresults
-  rm -rf results-combine-workspace
-  mkdir results-combine-workspace
   rm -rf results
   mkdir results
 
+  # Process any results that didn't get completed before
   python3 ./reprocess.py ./allresults/*-output.xml
+  # delete allresults?
 
   python3 -m robot.rebot --merge -o ./results/amazonlinux2x64-output.xml -l none -r none -N amazonlinux2x64  ./results-combine-workspace/amazonlinux2x64*
   rm -rf ./results-combine-workspace/amazonlinux2x64*
