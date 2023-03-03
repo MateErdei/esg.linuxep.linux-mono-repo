@@ -62,9 +62,9 @@ o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libfilesystemimpl.so.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libgcc_s.so.1.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libHealthStatusImpl.so.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libHttpRequestsImpl.so.0
-o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libliblzma.so.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/liblog4cplus-2.0.so.3.4.6.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/liblogging.so.0
+o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/liblzma.so.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libmanagementagentimpl.so.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libmanagementagentloggerimpl.so.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libmanagementagentutilityimpl.so.0

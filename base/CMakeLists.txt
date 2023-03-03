@@ -291,7 +291,7 @@ set(MINIZIP_INCLUDE_DIR ${MINIZIP_INPUT})
 
 set( LZMA_INCLUDE_DIR ${INPUT}/lzma/src/liblzma/api/lzma)
 set( LZMA_LIBRARY_DIR ${INPUT}/lzma)
-set( LZMA_LIBRARY ${LZMA_LIBRARY_DIR}/libliblzma.so)
+set( LZMA_LIBRARY ${LZMA_LIBRARY_DIR}/liblzma.so)
 
 set( BZ2_INCLUDE_DIR ${INPUT}/bzip2)
 set( BZ2_LIBRARY_DIR ${INPUT}/bzip2)
