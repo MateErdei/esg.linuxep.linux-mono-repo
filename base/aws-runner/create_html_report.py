@@ -4,7 +4,7 @@ import json
 from datetime import datetime
 def get_run_time_from_file(filepath):
     content = []
-    with open("./results/"+filepath, 'r') as f:
+    with open("./allresults/"+filepath, 'r') as f:
         content = f.readlines()
     starttime = ""
     for line in content:
@@ -31,7 +31,7 @@ def extract_timestamp(key, xml):
     return timestamp
 
 def main():
-    files = os.listdir("results")
+    files = os.listdir("allresults")
     outputfiles = []
     for file in files:
         if "output.xml" in file:
