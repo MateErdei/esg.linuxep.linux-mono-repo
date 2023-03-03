@@ -117,7 +117,7 @@ def robot_task(machine: tap.Machine, robot_args: str):
                     BRANCH_NAME + "/base" + get_suffix() + "_" + machine_name + "-log.html")
 
 
-def coverage_task(machine: tap.Machine, branch: str, robot_args=None):
+def coverage_task(machine: tap.Machine, branch: str, robot_args: str):
     try:
         if machine.run('which', 'apt-get', return_exit_code=True) == 0:
             package_install(machine, 'python3.7-dev')
