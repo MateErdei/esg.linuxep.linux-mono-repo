@@ -1,6 +1,7 @@
 // Copyright 2023 Sophos Limited. All rights reserved.
 
 #include "ApplicationConfigurationImpl/ApplicationPathManager.h"
+#include "FileSystem/IFileSystemException.h"
 #include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
 #include "tests/Common/Helpers/LogInitializedTests.h"
 #include "tests/Common/Helpers/MockFilePermissions.h"
@@ -10,6 +11,7 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
+using namespace watchdog::watchdogimpl;
 class TestUserGroupUtils : public LogOffInitializedTests{};
 
 TEST_F(TestUserGroupUtils, CommentsAreStrippedFromRequestedUserAndGroupIdsFileReturningValidJson)
@@ -34,7 +36,7 @@ TEST_F(TestUserGroupUtils, CommentsAreStrippedFromRequestedUserAndGroupIdsFileRe
         "}"
     };
 
-    auto strippedConfigString = watchdog::watchdogimpl::stripCommentsFromRequestedUserGroupIdFile(configString);
+    auto strippedConfigString = stripCommentsFromRequestedUserGroupIdFile(configString);
     EXPECT_EQ(nlohmann::json::parse(strippedConfigString), expectedJson);
 }
 
@@ -64,8 +66,104 @@ TEST_F(TestUserGroupUtils, DifferentStructuresOfCommentsAreStrippedFromRequested
         "}"
     };
 
-    auto strippedConfigString = watchdog::watchdogimpl::stripCommentsFromRequestedUserGroupIdFile(configString);
+    auto strippedConfigString = stripCommentsFromRequestedUserGroupIdFile(configString);
     EXPECT_EQ(nlohmann::json::parse(strippedConfigString), expectedJson);
+}
+
+TEST_F(TestUserGroupUtils, validateUserAndGroupIdsRemovesRoot)
+{
+    auto* filePermissionsMock = new NaggyMock<MockFilePermissions>();
+
+    nlohmann::json configJson = {
+        {"users", {{"username1", 1},{"root", 0}}},
+        {"groups", {{"group1", 1},{"root", 0}}}
+    };
+
+    nlohmann::json validatedJson = {
+        {"users", {{"username1", 1}}},
+        {"groups", {{"group1", 1}}}
+    };
+
+    std::map<std::string, gid_t> systemGroups = { { "root", 0 }, { "group2", 2 } };
+    std::map<std::string, uid_t> systemUsers = { { "root", 0 }, { "user2", 2 } };
+
+    EXPECT_CALL(*filePermissionsMock, getAllGroupNamesAndIds()).WillOnce(Return(systemGroups));
+    EXPECT_CALL(*filePermissionsMock, getAllUserNamesAndIds()).WillOnce(Return(systemUsers));
+
+    auto fpMock = std::make_unique<Tests::ScopedReplaceFilePermissions>(std::unique_ptr<Common::FileSystem::IFilePermissions>(filePermissionsMock));
+    EXPECT_EQ(validateUserAndGroupIds(configJson), validatedJson);
+}
+
+TEST_F(TestUserGroupUtils, validateUserAndGroupIdsReturnsEmptyWhenGroupDatabasesCannotBeRead)
+{
+    auto* filePermissionsMock = new NaggyMock<MockFilePermissions>();
+
+    nlohmann::json configJson = {
+        {"users", {{"username1", 1},{"username2", 2}}},
+        {"groups", {{"group1", 1},{"group2", 2}}}
+    };
+
+    EXPECT_CALL(*filePermissionsMock, getAllGroupNamesAndIds()).WillOnce(Throw(Common::FileSystem::IFileSystemException("Failed")));
+    auto fpMock = std::make_unique<Tests::ScopedReplaceFilePermissions>(std::unique_ptr<Common::FileSystem::IFilePermissions>(filePermissionsMock));
+    ASSERT_TRUE(validateUserAndGroupIds(configJson).empty());
+}
+
+TEST_F(TestUserGroupUtils, validateUserAndGroupIdsReturnsEmptyWhenUserDatabaseCannotBeRead)
+{
+    auto* filePermissionsMock = new NaggyMock<MockFilePermissions>();
+
+    nlohmann::json configJson = {
+        {"users", {{"username1", 1},{"username2", 2}}},
+        {"groups", {{"group1", 1},{"group2", 2}}}
+    };
+
+    EXPECT_CALL(*filePermissionsMock, getAllUserNamesAndIds()).WillOnce(Throw(Common::FileSystem::IFileSystemException("Failed")));
+    auto fpMock = std::make_unique<Tests::ScopedReplaceFilePermissions>(std::unique_ptr<Common::FileSystem::IFilePermissions>(filePermissionsMock));
+    ASSERT_TRUE(validateUserAndGroupIds(configJson).empty());
+}
+
+TEST_F(TestUserGroupUtils, validateUserAndGroupIdsHandlesOnlyGroups)
+{
+    auto* filePermissionsMock = new NaggyMock<MockFilePermissions>();
+
+    nlohmann::json configJson = {
+        {"groups", {{"group", 0},{"group1", 1},{"group2", 2}}}
+    };
+
+    nlohmann::json validatedJson = {
+        {"groups", {{"group1", 1},{"group2", 2}}}
+    };
+
+    std::map<std::string, gid_t> systemGroups = { { "root", 0 } };
+    std::map<std::string, uid_t> systemUsers = { { "root", 0 } };
+
+    EXPECT_CALL(*filePermissionsMock, getAllGroupNamesAndIds()).WillOnce(Return(systemGroups));
+    EXPECT_CALL(*filePermissionsMock, getAllUserNamesAndIds()).WillOnce(Return(systemUsers));
+
+    auto fpMock = std::make_unique<Tests::ScopedReplaceFilePermissions>(std::unique_ptr<Common::FileSystem::IFilePermissions>(filePermissionsMock));
+    EXPECT_EQ(validateUserAndGroupIds(configJson), validatedJson);
+}
+
+TEST_F(TestUserGroupUtils, validateUserAndGroupIdsHandlesOnlyUsers)
+{
+    auto* filePermissionsMock = new NaggyMock<MockFilePermissions>();
+
+    nlohmann::json configJson = {
+        {"users", {{"user1", 1},{"user2", 2}}}
+    };
+
+    nlohmann::json validatedJson = {
+        {"users", {{"user1", 1},{"user2", 2}}}
+    };
+
+    std::map<std::string, gid_t> systemGroups = { { "root", 0 } };
+    std::map<std::string, uid_t> systemUsers = { { "root", 0 } };
+
+    EXPECT_CALL(*filePermissionsMock, getAllGroupNamesAndIds()).WillOnce(Return(systemGroups));
+    EXPECT_CALL(*filePermissionsMock, getAllUserNamesAndIds()).WillOnce(Return(systemUsers));
+
+    auto fpMock = std::make_unique<Tests::ScopedReplaceFilePermissions>(std::unique_ptr<Common::FileSystem::IFilePermissions>(filePermissionsMock));
+    EXPECT_EQ(validateUserAndGroupIds(configJson), validatedJson);
 }
 
 // remapUserAndGroupIds
