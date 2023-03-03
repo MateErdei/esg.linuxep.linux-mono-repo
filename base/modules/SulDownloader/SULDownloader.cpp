@@ -138,6 +138,7 @@ namespace SulDownloader
             return report;
         }
 
+        assert(repository != nullptr);
         assert(success);
 
         auto products = repository->getProducts();
