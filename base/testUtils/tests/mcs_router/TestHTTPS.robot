@@ -22,12 +22,12 @@ Fail Register with TLS1_2 Bad Certificate
 Test Register With TLS Below Minimum Accepted of TLSv1_2 Fails
     [Tags]  MCS  FAKE_CLOUD  MCS_ROUTER  EXCLUDE_UBUNTU20  EXCLUDE_UBUNTU22  EXCLUDE_RHEL9
     Start HTTPS Server    --tls1
-    Fail Register With HTTPS Server   [SSL: UNSUPPORTED_PROTOCOL]
+    Fail Register With HTTPS Server   [SSL: SSLV3_ALERT_HANDSHAKE_FAILURE]
     
 Fail Register If TLS1_1
     [Tags]  MCS  FAKE_CLOUD  MCS_ROUTER  EXCLUDE_UBUNTU20  EXCLUDE_UBUNTU22  EXCLUDE_RHEL9
     Start HTTPS Server    --tls1_1
-    Fail Register With HTTPS Server   [SSL: UNSUPPORTED_PROTOCOL]
+    Fail Register With HTTPS Server   [SSL: SSLV3_ALERT_HANDSHAKE_FAILURE]
 
 Register with TLS1_2
     Start HTTPS Server    --tls1_2
