@@ -130,6 +130,28 @@ namespace Common
             return Path(path.begin(), (path.end() - endPos));
         }
 
+        std::string subdirNameFromPath(const Path& path)
+        {
+            std::string tempPath;
+            if (path.back() == '/')
+            {
+                tempPath = std::string(path.begin(), path.end() - 1);
+            }
+            else
+            {
+                tempPath = path;
+            }
+
+            size_t pos = tempPath.rfind('/');
+
+            if (pos == Path::npos)
+            {
+                return tempPath; // no parent directory
+            }
+
+            return Path(tempPath.begin() + pos + 1, tempPath.end());
+        }
+
         bool FileSystemImpl::exists(const Path& path) const
         {
             struct stat statbuf; // NOLINT

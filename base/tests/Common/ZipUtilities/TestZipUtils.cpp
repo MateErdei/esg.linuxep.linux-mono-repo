@@ -15,12 +15,12 @@ namespace
     // cppcheck-suppress syntaxError
     TEST_F(TestZipUtils, unzip_nonExistentFile)
     {
-        EXPECT_NE(Common::ZipUtilities::ZipUtils::unzip("nonExistent.zip", "/tmp"), 0);
+        EXPECT_NE(Common::ZipUtilities::zipUtils().unzip("nonExistent.zip", "/tmp"), 0);
     }
 
     TEST_F(TestZipUtils, zip_targetIsDirectory)
     {
-        EXPECT_NE(Common::ZipUtilities::ZipUtils::zip("/tmp", "/tmp"), 0);
+        EXPECT_NE(Common::ZipUtilities::zipUtils().zip("/tmp", "/tmp", false), 0);
     }
 
     TEST_F(TestZipUtils, zip_emptyDirectory)
@@ -28,7 +28,7 @@ namespace
         std::string testDir = "testDir";
         auto fs = Common::FileSystem::fileSystem();
         fs->makedirs(testDir);
-        EXPECT_NE(Common::ZipUtilities::ZipUtils::unzip(testDir, "/tmp"), 0);
+        EXPECT_NE(Common::ZipUtilities::zipUtils().unzip(testDir, "/tmp"), 0);
         fs->removeFileOrDirectory(testDir);
     }
 }

@@ -5,6 +5,7 @@ add_executable(ResponseActionsTests
         TestPluginAdapter.cpp
         TestPluginUtils.cpp
         TestUploadAction.cpp
+        TestUploadFolderAction.cpp
 )
 
 target_include_directories(ResponseActionsTests SYSTEM BEFORE PUBLIC "${GTEST_INCLUDE}" "${GMOCK_INCLUDE}" )

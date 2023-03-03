@@ -1,17 +1,33 @@
 // Copyright 2023 Sophos Limited. All rights reserved.
 
 #pragma once
-
-#include <Common/FileSystem/IFileSystem.h>
+#include "IZipUtils.h"
 
 namespace Common::ZipUtilities
 {
 
-    class ZipUtils
+    class ZipUtils : public virtual IZipUtils
     {
     public:
-        [[nodiscard]] static int zip(const std::string& srcPath, const std::string& destPath, bool passwordProtected=false, const std::string& password="");
-        [[nodiscard]] static int unzip(const std::string& srcPath, const std::string& destPath, bool passwordProtected=false, const std::string& password="");
+        [[nodiscard]] int zip(const std::string& srcPath, const std::string& destPath, bool ignoreFileError)
+            const override;
+        [[nodiscard]] int zip(
+            const std::string& srcPath,
+            const std::string& destPath,
+            bool ignoreFileError,
+            bool passwordProtected) const override;
+        [[nodiscard]] int zip(
+            const std::string& srcPath,
+            const std::string& destPath,
+            bool ignoreFileError,
+            bool passwordProtected,
+            const std::string& password) const override;
+        [[nodiscard]] int unzip(const std::string& srcPath, const std::string& destPath) const override;
+        [[nodiscard]] int unzip(
+            const std::string& srcPath,
+            const std::string& destPath,
+            bool passwordProtected,
+            const std::string& password) const override;
     };
 
 } // namespace Common::ZipUtilities

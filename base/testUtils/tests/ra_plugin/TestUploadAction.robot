@@ -37,8 +37,8 @@ RA Plugin uploads a file successfully
 RA Plugin runs actions in order
     Create File         ${SOPHOS_INSTALL}/base/etc/logger.conf.local   [responseactions]\nVERBOSITY=DEBUG\n
     Install Response Actions Directly
-    generate_file  /tmp/file  500
-    Register Cleanup  Remove File  /tmp/file
+    generate_file  /tmp/largefile  500
+    Register Cleanup  Remove File  /tmp/largefile
     Simulate Upload Action Now
     Simulate Upload Action Now  id2
 
@@ -73,6 +73,30 @@ RA Plugin uploads a file successfully with compression
     File Should exist  /tmp/unpackzip/file
     File Should Contain  /tmp/unpackzip/file     tempfilecontent
 
+RA Plugin uploads a folder successfully with compression
+    Install Response Actions Directly
+    Create Directory  /tmp/compressionTest
+    Create File  /tmp/compressionTest/file.txt  tempfilecontent
+    Register Cleanup  Remove Directory  /tmp/compressionTest
+    Send_Upload_Folder_From_Fake_Cloud   /tmp/compressionTest  ${TRUE}  corrid  password
+    Wait Until Keyword Succeeds
+    ...  25 secs
+    ...  1 secs
+    ...  Check Log Contains  Action corrid has succeeded  ${RESPONSE_ACTIONS_LOG_PATH}  response actions log
+    Wait Until Keyword Succeeds
+    ...  15 secs
+    ...  1 secs
+    ...  Check Log Contains  Sent upload folder response for id corrid to Central  ${ACTIONS_RUNNER_LOG_PATH}  response actions log
+    File Should exist  /tmp/upload.zip
+    Create Directory  /tmp/unpackzip/
+    Register Cleanup  Remove Directory  /tmp/unpackzip/
+    ${unzipTool} =  Set Variable  SystemProductTestOutput/unzipTool
+    ${result} =    Run Process  LD_LIBRARY_PATH\=/opt/sophos-spl/base/lib64/ ${unzipTool} /tmp/upload.zip /tmp/unpackzip/ password  shell=True
+    Log  ${result.stderr}
+    Log  ${result.stdout}
+    Should Be Equal As Integers    ${result.rc}    0   "zip utility failed: Reason ${result.stderr}"
+    File Should exist  /tmp/unpackzip/file
+    File Should Contain  /tmp/unpackzip/file     tempfilecontent
 *** Keywords ***
 Simulate Upload Action Now
     [Arguments]  ${id_suffix}=id1

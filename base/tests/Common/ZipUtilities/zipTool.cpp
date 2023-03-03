@@ -10,11 +10,11 @@ int main(int argc, char* argv[])
     Common::Logging::ConsoleLoggingSetup m_loggingSetup;
     if (argc == 3)
     {
-        return Common::ZipUtilities::ZipUtils::zip(argv[1], argv[2]);
+        return Common::ZipUtilities::zipUtils().zip(argv[1], argv[2], true);
     }
     else if (argc == 4)
     {
-        return Common::ZipUtilities::ZipUtils::zip(argv[1], argv[2], true, argv[3]);
+        return Common::ZipUtilities::zipUtils().zip(argv[1], argv[2], true, true, argv[3]);
     }
     else
     {

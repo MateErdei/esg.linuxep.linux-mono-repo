@@ -5,6 +5,7 @@
 #include "Logger.h"
 
 #include "ResponseActions/ResponseActionsImpl/UploadFileAction.h"
+#include "ResponseActions/ResponseActionsImpl/UploadFolderAction.h"
 
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/CurlWrapper/CurlWrapper.h>
@@ -24,6 +25,15 @@ namespace ActionRunner
         return uploadFileAction.run(action);
     }
 
+    std::string RunUtils::doUploadFolder(const std::string& action)
+    {
+        std::shared_ptr<Common::CurlWrapper::ICurlWrapper> curlWrapper =
+            std::make_shared<Common::CurlWrapper::CurlWrapper>();
+        std::shared_ptr<Common::HttpRequests::IHttpRequester> client =
+            std::make_shared<Common::HttpRequestsImpl::HttpRequesterImpl>(curlWrapper);
+        ResponseActionsImpl::UploadFolderAction uploadFolderAction(client);
+        return uploadFolderAction.run(action);
+    }
     void RunUtils::sendResponse(const std::string& correlationId, const std::string& content)
     {
         LOGDEBUG("Command result: " << content);

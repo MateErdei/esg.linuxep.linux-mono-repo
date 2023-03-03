@@ -200,7 +200,26 @@ namespace
 
 namespace Common::ZipUtilities
 {
-    int ZipUtils::zip(const std::string& srcPath, const std::string& destPath, bool passwordProtected, const std::string& password)
+    int ZipUtils::zip(const std::string& srcPath, const std::string& destPath, bool ignoreFileError) const
+    {
+        return zip(srcPath, destPath, ignoreFileError, false, "");
+    }
+
+    int ZipUtils::zip(
+        const std::string& srcPath,
+        const std::string& destPath,
+        bool ignoreFileError,
+        bool passwordProtected) const
+    {
+        return zip(srcPath, destPath, ignoreFileError, passwordProtected, "");
+    }
+
+    int ZipUtils::zip(
+        const std::string& srcPath,
+        const std::string& destPath,
+        bool ignoreFileError,
+        bool passwordProtected,
+        const std::string& password) const
     {
         int ret = ZIP_OK;
         zipFile zf = zipOpen(std::string(destPath.begin(), destPath.end()).c_str(), APPEND_STATUS_CREATE);
@@ -238,14 +257,19 @@ namespace Common::ZipUtilities
             std::string fileContents;
             try
             {
-                fileContents = fs->readFile(fullFilePath);
+                // set maxsize of file we accept to 1GB
+                fileContents = fs->readFile(fullFilePath, 1024 * 1024 * 1024);
             }
             catch (const std::exception& exception)
             {
                 std::stringstream errorMessage;
                 errorMessage << "Could not read contents of file: " << fullFilePath
                              << " with error: " << exception.what();
-                throw std::runtime_error(errorMessage.str());
+                LOGWARN(errorMessage.str());
+                if (!ignoreFileError)
+                {
+                    throw std::runtime_error(errorMessage.str());
+                }
             }
 
             zip_fileinfo zfi;
@@ -316,7 +340,16 @@ namespace Common::ZipUtilities
         return ret;
     }
 
-    int ZipUtils::unzip(const std::string& srcPath, const std::string& destPath, bool passwordProtected, const std::string& passwordStr)
+    int ZipUtils::unzip(const std::string& srcPath, const std::string& destPath) const
+    {
+        return unzip(srcPath, destPath, false, "");
+    }
+
+    int ZipUtils::unzip(
+        const std::string& srcPath,
+        const std::string& destPath,
+        bool passwordProtected,
+        const std::string& passwordStr) const
     {
         int ret = UNZ_OK;
         auto uf = std::make_shared<UnzipFileWrapper>(unzOpen64(srcPath.c_str()));
@@ -336,5 +369,26 @@ namespace Common::ZipUtilities
             ret = extractAll(uf, nullptr);
         }
         return ret;
+    }
+} // namespace Common::ZipUtilities
+namespace
+{
+    std::unique_ptr<Common::ZipUtilities::IZipUtils> instance = std::make_unique<Common::ZipUtilities::ZipUtils>();
+}
+namespace Common::ZipUtilities
+{
+    IZipUtils& zipUtils()
+    {
+        return *instance;
+    }
+    /** Use only for test */
+    void replaceZipUtils(std::unique_ptr<Common::ZipUtilities::IZipUtils> zipUtils)
+    {
+        instance = std::move(zipUtils);
+    }
+
+    void restoreZipUtils()
+    {
+        instance = std::make_unique<ZipUtils>();
     }
 } // namespace Common::ZipUtilities

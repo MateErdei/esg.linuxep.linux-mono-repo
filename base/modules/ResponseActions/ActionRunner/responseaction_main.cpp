@@ -32,6 +32,13 @@ namespace ActionRunner
             RunUtils::sendResponse(correlationId, response);
             LOGINFO("Sent upload response for id " << correlationId << " to Central");
         }
+        else if (type == "sophos.mgt.action.UploadFolder")
+        {
+            LOGINFO("Running upload folder action: " << correlationId);
+            std::string response = RunUtils::doUploadFolder(action);
+            RunUtils::sendResponse(correlationId, response);
+            LOGINFO("Sent upload folder response for id " << correlationId << " to Central");
+        }
         else
         {
             LOGWARN("Throwing away unknown action: " << action);

@@ -40,6 +40,12 @@ namespace Common
          */
         std::string dirName(const Path& path);
 
+        /**
+         * Gets the last part i.e. file name or subDirname from the given path
+         * @param path to operate on
+         * @return the base name of the path, i.e. file name or subDir
+         */
+        std::string subdirNameFromPath(const Path& path);
         class IFileSystem
         {
         public:

@@ -421,6 +421,20 @@ namespace
         }
     }
 
+    TEST_F(FileSystemImplTest, subdirNameFromPathReturnsCorrectMatchingValue)
+    {
+        std::vector<std::pair<std::string, std::string>> values = { { "/tmp/tmpfile.txt", "tmpfile.txt" },
+                                                                    { "/tmp/tmpfile/", "tmpfile" },
+                                                                    { "/tmp/tmp1/tmp2/tmp3/tmpfile.txt",
+                                                                      "tmpfile.txt" },
+                                                                    { "/tmp", "tmp" },
+                                                                    { "tmp", "tmp" },
+                                                                    { "", "" } };
+        for (auto& pair : values)
+        {
+            EXPECT_EQ(Common::FileSystem::subdirNameFromPath(pair.first), pair.second);
+        }
+    }
     TEST_F(FileSystemImplTest, isExecutableReturnTrueForExecutables) // NOLINT
     {
         EXPECT_TRUE(m_fileSystem->isExecutable("/bin/bash"));

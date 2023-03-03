@@ -1,4 +1,5 @@
 add_library(ziputiltiesobject OBJECT
+        IZipUtils.h
         Logger.cpp
         Logger.h
         UnzipFileWrapper.cpp

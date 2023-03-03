@@ -16,6 +16,7 @@ add_library(testhelpersobject OBJECT
         MockHttpRequester.h
         MockCurlWrapper.h
         MockFileSystem.h
+        MockZipUtils.h
         MockZmqContext.h
         FakeTimeUtils.cpp
         FakeTimeUtils.h

@@ -7,7 +7,9 @@ add_library(responseactionsimpl SHARED
         InvalidCommandFormat.h
         UploadFileAction.cpp
         UploadFileAction.h
-)
+        UploadFolderAction.cpp
+        UploadFolderAction.h
+        )
 
 include_directories(responseactionsimpl BEFORE ${CMAKE_CURRENT_BINARY_DIR} ${LOG4CPLUS_INCLUDE_DIR} ${CURL_INCLUDE_DIR} ${NLOHMANN_JSON_INCLUDE_DIR})
 
