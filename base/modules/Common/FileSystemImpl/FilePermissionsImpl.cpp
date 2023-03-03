@@ -59,6 +59,17 @@ namespace Common::FileSystem
         }
     }
 
+    void FilePermissionsImpl::lchown(const Path& path, uid_t userId, gid_t groupId) const
+    {
+        if (::lchown(path.c_str(), userId, groupId) != 0)
+        {
+            std::stringstream errorMessage;
+            errorMessage << "lchown by ID failed to set user or group owner on file " << path
+                         << " to user ID: " << userId << ", group ID: " << groupId;
+            throw FileSystem::IPermissionDeniedException(errorMessage.str());
+        }
+    }
+
     void FilePermissionsImpl::chmod(const Path& path, __mode_t mode) const
     {
         int ret = ::chmod(path.c_str(), mode);
@@ -148,7 +159,7 @@ namespace Common::FileSystem
 
     std::string FilePermissionsImpl::getGroupName(const Path& filePath) const
     {
-        if (!FileSystem::fileSystem()->isFile(filePath))
+        if (!FileSystem::fileSystem()->exists(filePath))
         {
             throw FileSystem::IFileSystemException("File does not exist");
         }
@@ -166,7 +177,7 @@ namespace Common::FileSystem
 
     std::string FilePermissionsImpl::getUserName(const Path& filePath) const
     {
-        if (!FileSystem::fileSystem()->isFile(filePath))
+        if (!FileSystem::fileSystem()->exists(filePath))
         {
             throw FileSystem::IFileSystemException("File does not exist");
         }

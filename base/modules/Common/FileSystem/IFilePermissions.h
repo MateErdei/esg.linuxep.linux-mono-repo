@@ -27,13 +27,22 @@ namespace Common::FileSystem
         virtual void chown(const Path& path, const std::string& user, const std::string& groupString) const = 0;
 
         /**
-         * Change ownership of a file or directory
+         * Change ownership of a file or directory, which is dereferenced if it is a symbolic link.
          *
          * @param path - the file or directory to modify
          * @param user ID
          * @param group ID
          */
         virtual void chown(const Path& path, uid_t userId, gid_t groupId) const = 0;
+
+        /**
+         * Change ownership of a file or directory but does not dereference symbolic links.
+         *
+         * @param path - the file or directory to modify
+         * @param user ID
+         * @param group ID
+         */
+        virtual void lchown(const Path& path, uid_t userId, gid_t groupId) const = 0;
 
         /**
          * Change permissions of a file or directory

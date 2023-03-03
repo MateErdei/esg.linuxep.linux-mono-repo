@@ -16,6 +16,7 @@ public:
     MOCK_CONST_METHOD2(chmod, void(const Path& path, __mode_t mode));
     MOCK_CONST_METHOD3(chown, void(const Path& path, const std::string& user, const std::string& group));
     MOCK_CONST_METHOD3(chown, void(const Path& path, uid_t userId, gid_t groupId));
+    MOCK_CONST_METHOD3(lchown, void(const Path& path, uid_t userId, gid_t groupId));
     MOCK_CONST_METHOD1(getGroupId, gid_t(const std::string& groupString));
     MOCK_CONST_METHOD1(getGroupName, std::string(const Path& filePath));
     MOCK_CONST_METHOD1(getUserIdOfDirEntry, uid_t (const Path& filePath));

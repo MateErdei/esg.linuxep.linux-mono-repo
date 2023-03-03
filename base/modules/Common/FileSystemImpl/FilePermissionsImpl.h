@@ -17,6 +17,8 @@ namespace Common::FileSystem
 
         void chown(const Path& path, uid_t userId, gid_t groupId) const override;
 
+        void lchown(const Path& path, uid_t userId, gid_t groupId) const override;
+
         gid_t getGroupId(const std::string& groupString) const override;
 
         std::string getGroupName(const gid_t& groupId) const override;

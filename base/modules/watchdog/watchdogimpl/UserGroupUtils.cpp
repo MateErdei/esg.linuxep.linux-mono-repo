@@ -160,7 +160,7 @@ namespace watchdog::watchdogimpl
         try
         {
             auto currentGroupId = getGroupIdOfFile(filePath);
-            filePermissions->chown(filePath, newUserId, currentGroupId);
+            filePermissions->lchown(filePath, newUserId, currentGroupId);
             LOGDEBUG("Updated user Id of " << filePath << " to " << newUserId);
         }
         catch (const Common::FileSystem::IFileSystemException& exception)
@@ -175,7 +175,7 @@ namespace watchdog::watchdogimpl
         try
         {
             auto currentUserId = getUserIdOfFile(filePath);
-            filePermissions->chown(filePath, currentUserId, newGroupId);
+            filePermissions->lchown(filePath, currentUserId, newGroupId);
             LOGDEBUG("Updated group Id of " << filePath << " to " << newGroupId);
         }
         catch (const Common::FileSystem::IFileSystemException& exception)
@@ -268,7 +268,7 @@ namespace watchdog::watchdogimpl
         }
 
         LOGDEBUG("Using '" << groupmodCmd << "' to modify group Id");
-        process->exec(groupmodCmd, { "-u", std::to_string(newGroupId), groupname });
+        process->exec(groupmodCmd, { "-g", std::to_string(newGroupId), groupname });
 
         auto state = process->wait(Common::Process::milli(100), 100);
         if (state != Common::Process::ProcessStatus::FINISHED)
@@ -284,7 +284,8 @@ namespace watchdog::watchdogimpl
         }
         else
         {
-            LOGERROR("Failed to set group ID of " << groupname << " to " << newGroupId);
+
+            LOGERROR("Failed to set group ID of " << groupname << " to " << newGroupId << ", exit code: " << exitCode << ", output: " << process->output());
             // TODO handle error
             // throw?
         }
@@ -336,7 +337,7 @@ namespace watchdog::watchdogimpl
                 // If the current IDs of the entry match the ones we're replacing then perform the remap
                 if (getGroupIdOfFile(entry) == currentGroupId)
                 {
-                    LOGDEBUG("Remapping group id of " << rootPath << " from " << currentGroupId << " to " << newGroupId);
+                    LOGDEBUG("Remapping group id of " << entry << " from " << currentGroupId << " to " << newGroupId);
                     setGroupIdOfFile(entry, newGroupId);
                 }
             }
