@@ -19,9 +19,6 @@
 
       <build-asset project="linuxep" repo="everest-base" mode="release-package,release-package-query-pack,release-package-base-999,release-package-edr-999,release-package-mdr-999,release-package-edr-mdr-999,release-package-060,dev,999">
         <development-version branch="develop"/>
-        <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="redist/sspl-base" mode="release-package,release-package-edr-999,release-package-mdr-999,release-package-query-pack"/>
-        <include artifact-path="sspl-base-999/SDDS-COMPONENT" dest-dir="redist/sspl-base" mode="release-package-base-999,release-package-edr-mdr-999"/>
-        <include artifact-path="sspl-base-060/SDDS-COMPONENT" dest-dir="redist/sspl-base" mode="release-package-060"/>
           <include artifact-path="sspl-base/SDDS3-PACKAGE" dest-dir="redist/base/latest/x64" mode="dev"/>
           <include artifact-path="sspl-base/RA-SDDS3-PACKAGE" dest-dir="redist/responseactions/latest/x64" mode="dev"/>
           <include artifact-path="sspl-base-999/SDDS3-PACKAGE" dest-dir="redist/base/latest/x64" mode="999"/>
@@ -30,16 +27,11 @@
 
       <build-asset project="linuxep" repo="runtimedetections" mode="release-package,release-package-query-pack,release-package-base-999,release-package-edr-999,release-package-mdr-999,release-package-edr-mdr-999,release-package-060,dev,999">
         <development-version branch="master"/>
-          <include artifact-path="SDDS-COMPONENT" dest-dir="redist/runtimedetections" mode="release-package-edr-999,release-package,release-package-base-999,release-package-mdr-999,release-package-060,release-package-query-pack"/>
-          <include artifact-path="SDDS-COMPONENT-999" dest-dir="redist/runtimedetections" mode="release-package-edr-mdr-999"/>
           <include artifact-path="SDDS3-PACKAGE" dest-dir="redist/runtimedetections/latest/x64" mode="dev"/>
-          <include artifact-path="SDDS3-COMPONENT-999" dest-dir="redist/runtimedetections/latest/x64" mode="999"/>
       </build-asset>
       
       <build-asset project="linuxep" repo="sspl-plugin-heartbeat" mode="release-package,release-package-query-pack,release-package-base-999,release-package-edr-999,release-package-mdr-999,release-package-edr-mdr-999,release-package-060,dev,999">
         <development-version branch="develop"/>
-        <include artifact-path="sspl-plugin-heartbeat/SDDS-COMPONENT" dest-dir="redist/sspl-plugin-heartbeat" mode="release-package-edr-999,release-package,release-package-base-999,release-package-mdr-999,release-package-060,release-package-query-pack"/>
-        <include artifact-path="sspl-plugin-heartbeat-999/SDDS-COMPONENT" dest-dir="redist/sspl-plugin-heartbeat-999" mode="release-package-edr-mdr-999"/>
           <include artifact-path="sspl-plugin-heartbeat/SDDS3-PACKAGE" dest-dir="redist/heartbeat/latest/x64" mode="dev"/>
           <include artifact-path="sspl-plugin-heartbeat-999/SDDS3-PACKAGE" dest-dir="redist/heartbeat/latest/x64" mode="999"/>
       </build-asset>
@@ -54,25 +46,18 @@
 
       <build-asset project="linuxep" repo="sspl-plugin-edr-component" mode="release-package,release-package-query-pack,release-package-base-999,release-package-edr-999,release-package-mdr-999,release-package-edr-mdr-999,release-package-060,dev,999">
         <development-version branch="develop"/>
-        <include artifact-path="edr/SDDS-COMPONENT" dest-dir="redist/sspl-plugin-edr-component" mode="release-package,release-package-base-999,release-package-mdr-999,release-package-060,release-package-query-pack"/>
-        <include artifact-path="edr-999/SDDS-COMPONENT" dest-dir="redist/sspl-plugin-edr-component" mode="release-package-edr-999,release-package-edr-mdr-999"/>
           <include artifact-path="edr/SDDS3-PACKAGE" dest-dir="redist/edr/latest/x64" mode="dev"/>
           <include artifact-path="edr-999/SDDS3-PACKAGE" dest-dir="redist/edr/latest/x64" mode="999"/>
       </build-asset>
 
     <build-asset project="linuxep" repo="sspl-plugin-event-journaler" mode="release-package,release-package-query-pack,release-package-base-999,release-package-edr-999,release-package-mdr-999,release-package-edr-mdr-999,release-package-060,dev,999">
         <development-version branch="develop"/>
-        <include artifact-path="eventjournaler/SDDS-COMPONENT" dest-dir="redist/sspl-plugin-event-journaler" mode="release-package-edr-999,release-package,release-package-base-999,release-package-mdr-999,release-package-060,release-package-query-pack"/>
-        <include artifact-path="eventjournaler-999/SDDS-COMPONENT" dest-dir="redist/sspl-plugin-event-journaler" mode="release-package-edr-mdr-999"/>
         <include artifact-path="eventjournaler/SDDS3-PACKAGE" dest-dir="redist/event-journaler/latest/x64" mode="dev"/>
         <include artifact-path="eventjournaler-999/SDDS3-PACKAGE" dest-dir="redist/event-journaler/latest/x64" mode="999"/>
     </build-asset>
 
       <build-asset project="linuxep" repo="sspl-plugin-mdr-component" mode="release-package,release-package-query-pack,release-package-base-999,release-package-edr-999,release-package-mdr-999,release-package-edr-mdr-999,release-package-060,dev,999">
           <development-version branch="develop"/>
-          <include artifact-path="mdr/SDDS-COMPONENT" dest-dir="redist/sspl-plugin-mdr-component" mode="release-package,release-package-base-999,release-package-edr-999,release-package-query-pack"/>
-          <include artifact-path="mdr-999/SDDS-COMPONENT" dest-dir="redist/sspl-plugin-mdr-component" mode="release-package-mdr-999,release-package-edr-mdr-999"/>
-          <include artifact-path="mdr-060/SDDS-COMPONENT" dest-dir="redist/sspl-plugin-mdr-component" mode="release-package-060"/>
           <include artifact-path="mdr/SDDS3-PACKAGE" dest-dir="redist/mdr/latest/x64" mode="dev"/>
           <include artifact-path="mdr-999/SDDS3-PACKAGE" dest-dir="redist/mdr/latest/x64" mode="999"/>
       </build-asset>
@@ -83,11 +68,6 @@
           <include artifact-path="sspl-plugin-anti-virus-999/SDDS3-PACKAGE" dest-dir="redist/av/latest/x64" mode="999"/>
       </build-asset>
 
-        <build-asset project="linuxep" repo="sspl-plugin-anti-virus" mode="release-package,release-package-query-pack,release-package-base-999,release-package-edr-999,release-package-mdr-999,release-package-edr-mdr-999,release-package-060">
-            <development-version branch="release/version_1_0_7"/> <!-- AV 1.0.8+ doesn't support SDDS2 -->
-            <include artifact-path="sspl-plugin-anti-virus/SDDS-COMPONENT" dest-dir="redist/sspl-plugin-anti-virus" mode="release-package,release-package-mdr-999,release-package-edr-999,release-package-base-999,release-package-query-pack"/>
-            <include artifact-path="sspl-plugin-anti-virus-999/SDDS-COMPONENT" dest-dir="redist/sspl-plugin-anti-virus" mode="release-package-edr-mdr-999"/>
-        </build-asset>
 
         <!--supplements-->
         <build-asset project="linuxep" repo="runtimedetections" mode="dev,999,prod">
@@ -138,53 +118,6 @@
     </inputs>
 
     <buildcommands>
-        <!--release-package-->
-      <command mode="release-package,release-package-query-pack,release-package-base-999,release-package-edr-999,release-package-mdr-999,release-package-edr-mdr-999,release-package-060">
-        <program>py.exe</program>
-        <args>-3 -u prepare.py</args>
-        <workingdir>src</workingdir>
-      </command>
-      <command mode="release-package,release-package-query-pack,release-package-base-999,release-package-edr-999,release-package-mdr-999,release-package-edr-mdr-999,release-package-060">
-        <program>py.exe</program>
-        <args>-3 -u warehouse_sign\patch_renderer_signing.py</args>
-        <workingdir>src</workingdir>
-      </command>
-      <command mode="release-package">
-        <program>py.exe</program>
-        <args>-3 GenerateWarehouse.py dict-en.xml ..\def\supplements-warehouse-def.yaml ..\def\cloud-warehouse-def.yaml</args>
-        <workingdir>src</workingdir>
-      </command>
-      <command mode="release-package-query-pack">
-        <program>py.exe</program>
-        <args>-3 GenerateWarehouse.py dict-en.xml ..\def\supplements-warehouse-def.yaml ..\def\cloud-warehouse-def-query-pack.yaml</args>
-        <workingdir>src</workingdir>
-      </command>
-      <command mode="release-package-base-999">
-        <program>py.exe</program>
-        <args>-3 GenerateWarehouse.py dict-en.xml ..\def\supplements-warehouse-def.yaml ..\def\cloud-warehouse-def-base-999.yaml</args>
-        <workingdir>src</workingdir>
-      </command>
-      <command mode="release-package-edr-999">
-        <program>py.exe</program>
-        <args>-3 GenerateWarehouse.py dict-en.xml ..\def\supplements-warehouse-def.yaml ..\def\cloud-warehouse-def-edr-999.yaml</args>
-        <workingdir>src</workingdir>
-      </command>
-      <command mode="release-package-mdr-999">
-        <program>py.exe</program>
-        <args>-3 GenerateWarehouse.py dict-en.xml ..\def\supplements-warehouse-def.yaml ..\def\cloud-warehouse-def-mdr-999.yaml</args>
-        <workingdir>src</workingdir>
-      </command>
-      <command mode="release-package-edr-mdr-999">
-        <program>py.exe</program>
-        <args>-3 GenerateWarehouse.py dict-en.xml ..\def\supplements-warehouse-def.yaml ..\def\cloud-warehouse-def-edr-mdr-999.yaml</args>
-        <workingdir>src</workingdir>
-      </command>
-      <command mode="release-package-060">
-        <program>py.exe</program>
-        <args>-3 GenerateWarehouse.py dict-en.xml ..\def\supplements-warehouse-def.yaml ..\def\cloud-warehouse-def-060.yaml</args>
-        <workingdir>src</workingdir>
-      </command>
-        <!--sdds3-->
     <command mode="dev,999,prod">
         <program>python3</program>
         <args>makesuites.py</args>
@@ -249,9 +182,6 @@
       </release-asset>
       <release-asset artifact-path="prod-sdds3-launchdarkly" source-dir="output/launchdarkly" mode="prod">
           <include glob="*.json"/>
-      </release-asset>
-      <release-asset artifact-path="sdds2-specs" source-dir="specs" mode="prod">
-          <include glob="release*/**"/>
       </release-asset>
 
       <!--release-package-->
