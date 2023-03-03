@@ -18,6 +18,10 @@ namespace watchdog::watchdogimpl
     void setGroupIdOfFile(const std::string& filePath, gid_t groupId);
     WatchdogUserGroupIDs validateUserAndGroupIds(WatchdogUserGroupIDs configJson);
 
+    void changeUserId(const std::string& username, uid_t newUserId);
+    void changeGroupId(const std::string& groupname, gid_t newGroupId);
+
+
     /*
      * For every file and directory in rootPath that matches the current IDs passed in, change the file owner
      * user and group IDs to the new values.
@@ -25,6 +29,6 @@ namespace watchdog::watchdogimpl
     void remapUserIdOfFiles(const std::string& rootPath, uid_t currentUserId, uid_t newUserId);
     void remapGroupIdOfFiles(const std::string& rootPath, gid_t currentGroupId, gid_t newGroupId);
 
-    void applyUserIdConfig(WatchdogUserGroupIDs ids);
+    void applyUserIdConfig(const WatchdogUserGroupIDs& ids);
 
 }

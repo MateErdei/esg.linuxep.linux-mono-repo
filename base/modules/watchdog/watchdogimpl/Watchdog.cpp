@@ -346,7 +346,6 @@ void Watchdog::writeExecutableUserAndGroupToWatchdogConfig()
 
 void Watchdog::reconfigureUserAndGroupIds()
 {
-    auto requested = readRequestedUserGroupIds();
-    auto changesNeeded = validateUserAndGroupIds(requested);
+    auto changesNeeded = readRequestedUserGroupIds();
     applyUserIdConfig(changesNeeded);
 }
