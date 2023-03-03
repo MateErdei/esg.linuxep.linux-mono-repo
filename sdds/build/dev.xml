@@ -28,6 +28,7 @@
       <build-asset project="linuxep" repo="runtimedetections" mode="release-package,release-package-query-pack,release-package-base-999,release-package-edr-999,release-package-mdr-999,release-package-edr-mdr-999,release-package-060,dev,999">
         <development-version branch="master"/>
           <include artifact-path="SDDS3-PACKAGE" dest-dir="redist/runtimedetections/latest/x64" mode="dev"/>
+          <include artifact-path="SDDS3-COMPONENT-999" dest-dir="redist/runtimedetections/latest/x64" mode="999"/>
       </build-asset>
       
       <build-asset project="linuxep" repo="sspl-plugin-heartbeat" mode="release-package,release-package-query-pack,release-package-base-999,release-package-edr-999,release-package-mdr-999,release-package-edr-mdr-999,release-package-060,dev,999">
