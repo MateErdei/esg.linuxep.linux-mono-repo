@@ -279,7 +279,10 @@ Fallback to direct connection when policy proxy fails
     ...  50 secs
     ...  5 secs
     ...  Check Marked MCSRouter Log Contains   Successfully connected to localhost:4443 via localhost:${Proxy_Port_One}
-    Check Marked MCSRouter Log Contains   Push client successfully connected to ${push_server_address} via localhost:${Proxy_Port_One}
+    Wait Until Keyword Succeeds
+    ...  50 secs
+    ...  5 secs
+    ...  Check Marked MCSRouter Log Contains   Push client successfully connected to ${push_server_address} via localhost:${Proxy_Port_One}
 
     Stop Proxy Server On Port  3346
 
