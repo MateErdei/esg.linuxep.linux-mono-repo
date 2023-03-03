@@ -6,7 +6,7 @@ Resource  BaseResources.robot
 Library     ../libs/Cleanup.py
 Library     ../libs/LogUtils.py
 
-Force Tags  WAREHOUSE  SSPLAV
+Force Tags  SSPLAV
 Suite Setup  SDDS3 server setup
 Suite Teardown  SDDS3 Server Teardown
 Test Setup      Base Test Setup
