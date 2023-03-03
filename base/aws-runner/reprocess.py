@@ -30,8 +30,8 @@ def replace_top_level_suite(output_xml_file):
         if result.returncode == 0:
             result.returncode = -1
     if result.returncode != 0:
-        print("robot.rebot failed for", basename)
-        print(result.stdout)
+        print("robot.rebot failed for", basename, "with exit code", result.returncode)
+        print("Output:", str(result.stdout))
 
     assert os.path.isfile(dest)
     return dest
