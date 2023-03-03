@@ -130,7 +130,7 @@ TEST_F(TestUserGroupUtils, validateUserAndGroupIdsReturnsEmptyWhenUserDatabaseCa
 TEST_F(TestUserGroupUtils, validateUserAndGroupIdsHandlesOnlyGroups)
 {
     nlohmann::json configJson = {
-        {"groups", {{"group", 0},{"group1", 1},{"group2", 2}}}
+        {"groups", {{"group1", 1},{"group2", 2}}}
     };
 
     EXPECT_CALL(*m_mockFilePermissionsPtr, getAllGroupNamesAndIds()).WillOnce(Return(std::map<std::string, gid_t>{}));
