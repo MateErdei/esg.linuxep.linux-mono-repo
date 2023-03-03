@@ -288,7 +288,7 @@ function unpack_zips()
   for zipfile in $FETCHED_INPUTS_DIR/*.zip; do
     unpack_zip $zipfile $REDIST
   done
-   shopt -u nullglob
+  shopt -u nullglob
 }
 
 function unpack_pypi_pkgs()
