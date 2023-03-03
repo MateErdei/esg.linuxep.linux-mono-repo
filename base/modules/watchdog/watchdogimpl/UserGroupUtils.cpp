@@ -53,7 +53,6 @@ namespace watchdog::watchdogimpl
 
         if (verifiedUsersAndGroups.contains(GROUPS_KEY))
         {
-            // todo maybe lambda for erasing?
             auto groups = verifiedUsersAndGroups[GROUPS_KEY];
             std::vector<std::string> groupsToRemove;
             for (const auto& [groupName, gid] : groups.items())
@@ -160,15 +159,31 @@ namespace watchdog::watchdogimpl
     void setUserIdOfFile(const std::string& filePath, uid_t newUserId)
     {
         auto filePermissions = Common::FileSystem::filePermissions();
-        auto currentGroupId = getGroupIdOfFile(filePath);
-        filePermissions->chown(filePath, newUserId, currentGroupId);
+        try
+        {
+            auto currentGroupId = getGroupIdOfFile(filePath);
+            filePermissions->chown(filePath, newUserId, currentGroupId);
+            LOGDEBUG("Updated user Id of " << filePath << " to " << newUserId);
+        }
+        catch (const Common::FileSystem::IFileSystemException& exception)
+        {
+            LOGERROR("Failed to set user Id of " << filePath << " to " << newUserId << " due to: " << exception.what());
+        }
     }
 
     void setGroupIdOfFile(const std::string& filePath, gid_t newGroupId)
     {
         auto filePermissions = Common::FileSystem::filePermissions();
-        auto currentUserId = getUserIdOfFile(filePath);
-        filePermissions->chown(filePath, currentUserId, newGroupId);
+        try
+        {
+            auto currentUserId = getUserIdOfFile(filePath);
+            filePermissions->chown(filePath, currentUserId, newGroupId);
+            LOGDEBUG("Updated group Id of " << filePath << " to " << newGroupId);
+        }
+        catch (const Common::FileSystem::IFileSystemException& exception)
+        {
+            LOGERROR("Failed to set group Id of " << filePath << " to " << newGroupId << " due to: " << exception.what());
+        }
     }
 
 
@@ -216,6 +231,7 @@ namespace watchdog::watchdogimpl
             }
         }
 
+        LOGDEBUG("Using '" << usermodCmd << "' to modify user Id");
         process->exec(usermodCmd, { "-u", std::to_string(newUserId), username });
 
         auto state = process->wait(Common::Process::milli(100), 100);
@@ -253,6 +269,7 @@ namespace watchdog::watchdogimpl
             }
         }
 
+        LOGDEBUG("Using '" << groupmodCmd << "' to modify group Id");
         process->exec(groupmodCmd, { "-u", std::to_string(newGroupId), groupname });
 
         auto state = process->wait(Common::Process::milli(100), 100);
@@ -281,6 +298,7 @@ namespace watchdog::watchdogimpl
         auto fs = Common::FileSystem::fileSystem();
         if (fs->isFile(rootPath))
         {
+            LOGDEBUG("Remapping user id of " << rootPath << " from " << currentUserId << " to " << newUserId);
             setUserIdOfFile(rootPath, newUserId);
         }
         else if (fs->isDirectory(rootPath))
@@ -291,6 +309,7 @@ namespace watchdog::watchdogimpl
                 // If the current IDs of the file match the ones we're replacing then perform the remap
                 if (getUserIdOfFile(file) == currentUserId)
                 {
+                    LOGDEBUG("Remapping user id of " << file << " from " << currentUserId << " to " << newUserId);
                     setUserIdOfFile(file, newUserId);
                 }
             }
@@ -306,6 +325,7 @@ namespace watchdog::watchdogimpl
         auto fs = Common::FileSystem::fileSystem();
         if (fs->isFile(rootPath))
         {
+            LOGDEBUG("Remapping group id of " << rootPath << " from " << currentGroupId << " to " << newGroupId);
             setGroupIdOfFile(rootPath, newGroupId);
         }
         else if (fs->isDirectory(rootPath))
@@ -316,6 +336,7 @@ namespace watchdog::watchdogimpl
                 // If the current IDs of the file match the ones we're replacing then perform the remap
                 if (getGroupIdOfFile(file) == currentGroupId)
                 {
+                    LOGDEBUG("Remapping group id of " << rootPath << " from " << currentGroupId << " to " << newGroupId);
                     setGroupIdOfFile(file, newGroupId);
                 }
             }
@@ -329,19 +350,7 @@ namespace watchdog::watchdogimpl
     void applyUserIdConfig(const WatchdogUserGroupIDs& changesNeeded)
     {
         auto filePermissions = Common::FileSystem::filePermissions();
-//        std::string installRoot = "";
-//        try
-//        {
         auto installRoot = Common::ApplicationConfiguration::applicationPathManager().sophosInstall();
-//        }
-//        catch (const std::exception& blah)
-//        {
-//            std::cout << blah.what();
-//            return;
-//        }
-//        std::cout << changesNeeded.dump();
-//        std::cout << installRoot;
-//        std::cout << filePermissions->getUserId("alex");
 
         if (changesNeeded.contains(USERS_KEY))
         {
@@ -349,6 +358,8 @@ namespace watchdog::watchdogimpl
             for (const auto& [userName, newUserId] : users.items())
             {
                 auto currentUserId = filePermissions->getUserId(userName);
+
+                LOGDEBUG("Changing " << userName << "user Id from " << currentUserId << " to " << newUserId);
                 changeUserId(userName, newUserId);
                 remapUserIdOfFiles(installRoot, currentUserId, newUserId);
             }
@@ -360,6 +371,8 @@ namespace watchdog::watchdogimpl
             for (const auto& [groupName, newGroupId] : groups.items())
             {
                 auto currentGroupId = filePermissions->getGroupId(groupName);
+
+                LOGDEBUG("Changing " << groupName << "group Id from " << currentGroupId << " to " << newGroupId);
                 changeGroupId(groupName, newGroupId);
                 remapGroupIdOfFiles(installRoot, currentGroupId, newGroupId);
             }

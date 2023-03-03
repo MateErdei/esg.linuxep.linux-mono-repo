@@ -347,5 +347,6 @@ void Watchdog::writeExecutableUserAndGroupToWatchdogConfig()
 void Watchdog::reconfigureUserAndGroupIds()
 {
     auto changesNeeded = readRequestedUserGroupIds();
+    LOGDEBUG("Request to reconfigure the following user and group Ids: " << changesNeeded.dump());
     applyUserIdConfig(changesNeeded);
 }
