@@ -79,6 +79,24 @@ namespace Common::FileSystem
         virtual uid_t getUserId(const std::string& userString) const = 0;
 
         /**
+         * Get the user ID of a file or directory
+         *
+         *
+         * @param TODO
+         * @return
+         */
+        virtual uid_t getUserIdOfDirEntry(const Path& path) const = 0;
+
+        /**
+         * Get the group ID of a file or directory
+         *
+         *
+         * @param TODO
+         * @return
+         */
+        virtual gid_t getGroupIdOfDirEntry(const Path& path) const = 0;
+
+        /**
          * Get the user id and group id from user name
          * @param userString
          * @return returns either the userId and group Id or  -1 if there is none

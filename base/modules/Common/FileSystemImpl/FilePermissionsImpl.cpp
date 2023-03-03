@@ -330,6 +330,40 @@ namespace Common::FileSystem
         return users;
     }
 
+    uid_t FilePermissionsImpl::getUserIdOfDirEntry(const std::string& path) const
+    {
+        if (!FileSystem::fileSystem()->exists(path))
+        {
+            throw FileSystem::IFileSystemException("getUserIdOfDirEntry: File does not exist");
+        }
+        struct stat statbuf;
+        int ret = stat(path.c_str(), &statbuf);
+        if (ret != 0)
+        {
+            std::stringstream errorMessage;
+            errorMessage << "getUserIdOfDirEntry: Calling stat on " << path << " caused this error: " << std::strerror(errno);
+            throw FileSystem::IFileSystemException(errorMessage.str());
+        }
+        return statbuf.st_uid;
+    }
+
+    gid_t FilePermissionsImpl::getGroupIdOfDirEntry(const std::string& path) const
+    {
+        if (!FileSystem::fileSystem()->exists(path))
+        {
+            throw FileSystem::IFileSystemException("getGroupIdOfDirEntry: File does not exist");
+        }
+        struct stat statbuf;
+        int ret = stat(path.c_str(), &statbuf);
+        if (ret != 0)
+        {
+            std::stringstream errorMessage;
+            errorMessage << "getGroupIdOfDirEntry: Calling stat on " << path << " caused this error: " << std::strerror(errno);
+            throw FileSystem::IFileSystemException(errorMessage.str());
+        }
+        return statbuf.st_gid;
+    }
+
     std::unique_ptr<Common::FileSystem::IFilePermissions>& filePermissionsStaticPointer()
     {
         static std::unique_ptr<Common::FileSystem::IFilePermissions> instance =

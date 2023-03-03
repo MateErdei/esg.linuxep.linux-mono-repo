@@ -346,7 +346,16 @@ void Watchdog::writeExecutableUserAndGroupToWatchdogConfig()
 
 void Watchdog::reconfigureUserAndGroupIds()
 {
-    auto changesNeeded = readRequestedUserGroupIds();
-    LOGDEBUG("Request to reconfigure the following user and group Ids: " << changesNeeded.dump());
-    applyUserIdConfig(changesNeeded);
+    try
+    {
+        auto changesNeeded = readRequestedUserGroupIds();
+        LOGDEBUG("Request to reconfigure the following user and group Ids: " << changesNeeded.dump());
+        applyUserIdConfig(changesNeeded);
+        // TODO write out the actual IDs file again if changes made.
+    }
+    catch (const std::exception& exception)
+    {
+        LOGERROR("Failed to reconfigure user and group IDs: " << exception.what());
+    }
+
 }

@@ -18,6 +18,8 @@ public:
     MOCK_CONST_METHOD3(chown, void(const Path& path, uid_t userId, gid_t groupId));
     MOCK_CONST_METHOD1(getGroupId, gid_t(const std::string& groupString));
     MOCK_CONST_METHOD1(getGroupName, std::string(const Path& filePath));
+    MOCK_CONST_METHOD1(getUserIdOfDirEntry, uid_t (const Path& filePath));
+    MOCK_CONST_METHOD1(getGroupIdOfDirEntry, gid_t (const Path& filePath));
     MOCK_CONST_METHOD1(getGroupName, std::string(const gid_t& groupId));
     MOCK_CONST_METHOD1(getUserId, uid_t(const std::string& userString));
     MOCK_CONST_METHOD1(getUserAndGroupId, std::pair<uid_t, gid_t>(const std::string& userString));

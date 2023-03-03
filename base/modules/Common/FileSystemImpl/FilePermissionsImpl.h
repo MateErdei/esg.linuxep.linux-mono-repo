@@ -35,6 +35,10 @@ namespace Common::FileSystem
 
         std::map<std::string, gid_t> getAllGroupNamesAndIds() const override;
 
+        uid_t getUserIdOfDirEntry(const Path& path) const override;
+
+        gid_t getGroupIdOfDirEntry(const Path& path) const override;
+
         std::map<std::string, uid_t> getAllUserNamesAndIds() const override;
     };
     std::unique_ptr<IFilePermissions>& filePermissionsStaticPointer();
