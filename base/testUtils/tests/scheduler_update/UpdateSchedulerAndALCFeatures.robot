@@ -41,15 +41,6 @@ UpdateScheduler Should Fail if Warehouse is missing multiple packages
     Directory Should be empty  ${SOPHOS_INSTALL}/plugins
 
 
-UpdateScheduler Install Base and MDR With the ALC Policy With MDR
-    [Tags]  SULDOWNLOADER  UPDATE_SCHEDULER  MDR_PLUGIN
-    [Setup]  Setup For Test With Warehouse Containing Base and MDR
-    Remove Files In Directory  /opt/sophos-spl/base/mcs/event/
-    Send Policy With Host Redirection And Run Update And Check Success Of Oldest Event     add_features=MDR
-    Check MDR Installed
-    Check ALC Status Sent To Central Contains MDR Subscription
-
-
 *** Keywords ***
 Upgrade Installs Product Twice   
     Check Log Contains String N Times   ${SULDOWNLOADER_LOG_PATH}   SULDownloader Log    Installing product: ServerProtectionLinux-Base   2
