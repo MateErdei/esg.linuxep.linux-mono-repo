@@ -24,8 +24,9 @@ Force Tags  LOAD6
 ${SULDOWNLOADER_LOG_PATH}           ${SOPHOS_INSTALL}/logs/base/suldownloader.log
 
 *** Test Cases ***
+#TODO migrate test to SDDS3 - LINUXDAR-6948
 UpdateScheduler Delayed Updating
-    [Tags]  UPDATE_SCHEDULER
+    [Tags]  UPDATE_SCHEDULER  DISABLED
     [Setup]  Setup For Test With Warehouse Containing Base
     Send Policy To UpdateScheduler  ALC_policy_delayed_updating.xml
     Wait Until Keyword Succeeds
@@ -33,7 +34,9 @@ UpdateScheduler Delayed Updating
     ...  1 secs
     ...  Check Log Contains   Scheduling product updates for Sunday 12:00    ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log   Update Scheduler Log
 
+#TODO migrate test to SDDS3 - LINUXDAR-6948
 UpdateScheduler Should Fail if Warehouse is missing multiple packages
+    [Tags]   DISABLED
     [Setup]  Setup For Test With Warehouse Containing Base
     ${eventPath} =  Send Policy With Host Redirection And Run Update And Return Event Path   ALC_policy_direct_local_warehouse.xml   features=LIVEQUERY  remove_subscriptions=MDR
     ${content} =   Get File  ${eventPath}
