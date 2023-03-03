@@ -269,7 +269,6 @@ function build()
         untar_input boost
         untar_input glog
         untar_input gflags
-        untar_input thrift
         untar_input jsoncpp
         ln -sfn libjsoncpp.so.24 $REDIST/jsoncpp/lib64/libjsoncpp.so
 

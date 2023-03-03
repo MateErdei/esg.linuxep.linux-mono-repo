@@ -26,11 +26,7 @@ set(third_party_libs
         ${zlib}
         ${log4cpluslib}
         ${protobuflib}
-        ${OSQUERYSDK_LIBRARY}
-        ${LOGGER_PLUGIN_LIBRARY}
         ${JSON_CPP_LIBRARY}
-        ${OSQUERY_GEN_LIBRARY}
-        ${THRIFT_LIBRARY}
         ${LZMA_LIBRARY}
         )
 
@@ -46,7 +42,6 @@ foreach (LIB boost_chrono boost_date_time boost_filesystem boost_system boost_th
     add_third_party_library(${LIB} ${BOOST_INPUT}/lib64)
 endforeach(LIB)
 
-add_third_party_library(thrift ${INPUT}/thrift/install64/lib)
 add_third_party_library(glog ${INPUT}/glog/install64/lib)
 add_third_party_library(gflags ${INPUT}/gflags/install64/lib)
 add_third_party_library(crypto ${INPUT}/openssl/lib64)
@@ -68,6 +63,13 @@ add_custom_target(
 
 install(FILES  ${third_party_libs}
         DESTINATION files/plugins/${PLUGIN_NAME}/lib64)
+
+install(IMPORTED_RUNTIME_ARTIFACTS
+        thrift_library
+        logger_plugin_library
+        osquery_gen_library
+        osquerysdk_library
+        LIBRARY DESTINATION files/plugins/${PLUGIN_NAME}/lib64)
 
 add_custom_target(
         copy_libs

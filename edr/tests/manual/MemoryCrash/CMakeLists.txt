@@ -8,9 +8,7 @@ add_executable(MemoryCrashTable
 
 target_link_libraries(MemoryCrashTable PUBLIC
         ${GLOG_LIBRARY}
-        ${OSQUERYSDK_LIBRARY}
-        ${OSQUERY_GEN_LIBRARY}
-        ${THRIFT_LIBRARY}
+        osquerysdk_library
         ${BOOST_CHRONO_LIBRARY}
         ${BOOST_SYSTEM_LIBRARY}
         ${BOOST_THREAD_LIBRARY}
@@ -26,7 +24,6 @@ target_link_libraries(MemoryCrashTable PUBLIC
 
 target_include_directories(MemoryCrashTable PUBLIC
         ${CMAKE_CURRENT_BINARY_DIR}
-        ${OSQUERYSDK}/include
         ${GOOGLETESTINCLUDE}
         ${BOOST_INCLUDE_DIR}
         )

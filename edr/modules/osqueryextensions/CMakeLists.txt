@@ -27,17 +27,14 @@ sophos_add_library(OsqueryExtensions SHARED
             ${JOURNAL_LIBRARY}
             ${log4cpluslib}
             ${protobuflib}
-            ${OSQUERYSDK_LIBRARY}
-            ${OSQUERY_GEN_LIBRARY}
-            ${LOGGER_PLUGIN_LIBRARY}
-            ${THRIFT_LIBRARY}
             ${JSON_CPP_LIBRARY}
             ${GFLAG_LIBRARY}
             ${GLOG_LIBRARY}
-            ${THRIFT_GEN_LIBRARY}
             pthread
+            logger_plugin_library
+            osquerysdk_library
 
-        EXTRA_INCLUDES ${OSQUERYSDK}/include ${SQLITE_INCLUDE_DIR} ${CMAKE_BINARY_DIR}  ${INPUT}/jsoncpp/include ${BOOST_INCLUDE_DIR} ${JOURNAL_INCLUDE_DIR}
+        EXTRA_INCLUDES ${SQLITE_INCLUDE_DIR} ${CMAKE_BINARY_DIR}  ${INPUT}/jsoncpp/include ${BOOST_INCLUDE_DIR} ${JOURNAL_INCLUDE_DIR}
         )
 
 set(TABLE_PLUGIN_HDRS

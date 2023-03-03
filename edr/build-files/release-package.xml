@@ -40,6 +40,7 @@
 
             <include artifact-path="thirdparty/liblzma-linux-opt" dest-dir="/build/redist/lzma"/>
             <include artifact-path="thirdparty/googletest-linux-opt" dest-dir="/build/input/googletest"/>
+            <include artifact-path="thirdparty/thrift-linux-opt" dest-dir="/build/redist/thrift"/>
         </build-asset>
 
         <build-asset project="thirdparty" repo="boost">
@@ -86,11 +87,6 @@
             <release-version branch="release/Version_3_36_0"
                              build-id="20220310112434-e65ad9e5d9ee853b8f2462c7de8a648a62f1ba95-fLTYUt"/>
             <include artifact-path="sqlite-amalgamation" dest-dir="/build/input/sqlite-amalgamation"/>
-        </build-asset>
-        <build-asset project="thirdparty" repo="thrift">
-            <release-version branch="release/sspl/Version_0_14_2"
-                             build-id="20220727094638-d9af386276e633f1c908e5c90cf1fd2275c21197-v9nY0g"/>
-            <include artifact-path="output" dest-dir="/build/input"/>
         </build-asset>
 
         <trusted-asset artifact-path="org.cmake/cmake-3.26.0/cmake-3.26.0" dest-dir="/build/redist/cmake"/>

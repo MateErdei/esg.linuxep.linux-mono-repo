@@ -8,9 +8,7 @@ add_executable(BinaryDataTable
 
 target_link_libraries(BinaryDataTable PUBLIC
         ${GLOG_LIBRARY}
-        ${OSQUERYSDK_LIBRARY}
-        ${OSQUERY_GEN_LIBRARY}
-        ${THRIFT_LIBRARY}
+        osquerysdk_library
         ${BOOST_CHRONO_LIBRARY}
         ${BOOST_SYSTEM_LIBRARY}
         ${BOOST_THREAD_LIBRARY}
@@ -26,7 +24,6 @@ target_link_libraries(BinaryDataTable PUBLIC
 
 target_include_directories(BinaryDataTable PUBLIC
         ${CMAKE_CURRENT_BINARY_DIR}
-        ${OSQUERYSDK}/include
         ${GOOGLETESTINCLUDE}
         ${BOOST_INCLUDE_DIR}
         ${SQLITE_INCLUDE_DIR}

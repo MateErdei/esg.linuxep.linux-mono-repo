@@ -12,17 +12,13 @@ sophos_add_library(osqueryclient SHARED
         EXTRA_INCLUDES
                 ${CMAKE_CURRENT_BINARY_DIR}
                 ${CMAKE_SOURCE_DIR}/modules
-                ${OSQUERYSDK}/include
                 ${GOOGLETESTINCLUDE}
                 ${BOOST_INCLUDE_DIR}
-                ${THRIFT_INCLUDE_DIR}
                 ${JSONCPP_INPUT}/include
         EXTRA_LIBS
             ${GLOG_LIBRARY}
             ${GFLAG_LIBRARY}
-            ${OSQUERYSDK_LIBRARY}
-            ${OSQUERY_GEN_LIBRARY}
-            ${THRIFT_LIBRARY}
+            thrift_library
             ${BOOST_CHRONO_LIBRARY}
             ${BOOST_SYSTEM_LIBRARY}
             ${BOOST_THREAD_LIBRARY}

@@ -146,7 +146,6 @@ set( BOOST_INPUT ${INPUT}/boost )
 set( BOOST_INCLUDE_DIR ${BOOST_INPUT}/include )
 set( THRIFT_INPUT ${INPUT}/thrift )
 set( JSONCCP_INPUT ${INPUT}/jsoncpp )
-set( THRIFT_INCLUDE_DIR ${THRIFT_INPUT}/install64/include )
 set( SQLITE_INCLUDE_DIR ${INPUT}/sqlite )
 set( JOURNAL_INCLUDE_DIR ${INPUT}/JournalLib/include )
 set( CAPNPROTO_INCLUDE_DIR ${INPUT}/capnproto/include )
@@ -178,22 +177,44 @@ file(GLOB protobuflib ${PLUGINAPIPATH}/lib64/libprotobuf.so.*)
 file(GLOB expatlib ${PLUGINAPIPATH}/lib64/libexpat.so)
 file(GLOB zlib ${PLUGINAPIPATH}/lib64/libzlib.so*)
 
-find_library(LOGGER_PLUGIN_LIBRARY
-        NAMES LoggerPlugin
-        PATHS ${OSQUERYSDK}/lib64
-        NO_DEFAULT_PATH
+add_library(thrift_library SHARED IMPORTED)
+set_target_properties(thrift_library PROPERTIES
+        IMPORTED_LOCATION ${THRIFT_INPUT}/libthrift.so
+        IMPORTED_NO_SONAME TRUE
+        )
+target_include_directories(thrift_library INTERFACE ${THRIFT_INPUT}/lib/cpp/src)
+target_link_libraries(thrift_library INTERFACE
+        ${zlib}
         )
 
-find_library(OSQUERYSDK_LIBRARY
-        NAMES OsquerySDK
-        PATHS ${OSQUERYSDK}/lib64
-        NO_DEFAULT_PATH
+add_library(logger_plugin_library SHARED IMPORTED)
+set_target_properties(logger_plugin_library PROPERTIES
+        IMPORTED_LOCATION ${OSQUERYSDK}/lib64/libLoggerPlugin.so
+        IMPORTED_NO_SONAME TRUE
         )
-find_library(OSQUERY_GEN_LIBRARY
-        NAMES gen-cpp-linux
-        PATHS ${OSQUERYSDK}/lib64
-        NO_DEFAULT_PATH
+target_include_directories(logger_plugin_library INTERFACE ${OSQUERYSDK}/include)
+
+add_library(osquery_gen_library SHARED IMPORTED)
+set_target_properties(osquery_gen_library PROPERTIES
+        IMPORTED_LOCATION ${OSQUERYSDK}/lib64/libgen-cpp-linux.so
+        IMPORTED_NO_SONAME TRUE
         )
+target_include_directories(osquery_gen_library INTERFACE ${OSQUERYSDK}/include)
+target_link_libraries(osquery_gen_library INTERFACE
+        thrift_library
+        )
+
+add_library(osquerysdk_library SHARED IMPORTED)
+set_target_properties(osquerysdk_library PROPERTIES
+        IMPORTED_LOCATION ${OSQUERYSDK}/lib64/libOsquerySDK.so
+        IMPORTED_NO_SONAME TRUE
+        )
+target_include_directories(osquerysdk_library INTERFACE ${OSQUERYSDK}/include)
+target_link_libraries(osquerysdk_library INTERFACE
+        thrift_library
+        osquery_gen_library
+        )
+
 find_library(JSONCPP_LIBRARY
         NAMES jsoncpp
         PATHS ${INPUT}/jsoncpp/lib64
@@ -203,12 +224,6 @@ find_library(JSONCPP_LIBRARY
 find_library(GLOG_LIBRARY
         NAMES glog
         PATHS ${INPUT}/glog/install64/lib
-        NO_DEFAULT_PATH
-        )
-
-find_library(THRIFT_LIBRARY
-        NAMES thrift
-        PATHS ${THRIFT_INPUT}/install64/lib
         NO_DEFAULT_PATH
         )
 
