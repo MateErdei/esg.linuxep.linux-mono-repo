@@ -109,7 +109,7 @@ endif()
 
 
 install(FILES ${CMAKE_BINARY_DIR}/${PYTHON_ZIP}
-        DESTINATION ${BASE_DIST_PREFIX}/files/base/lib64)
+        DESTINATION ${BASE_DIST_PREFIX}/files/base/lib)
 
 install(DIRECTORY ${CMAKE_BINARY_DIR}/lib-dynload
         DESTINATION ${BASE_DIST_PREFIX}/files/base/lib/${PYTHON_VERSION}/)

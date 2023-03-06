@@ -383,8 +383,6 @@ function apply_third_party_patches()
   fi
 }
 
-rm -f "${REDIST}/python/lib/libpython3.11.so"
-
 unpack_tars
 unpack_gzipped_tars
 unpack_zips

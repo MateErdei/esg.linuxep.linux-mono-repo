@@ -359,7 +359,7 @@ find_library(PYTHON_LIBRARY
         NAMES "${PYTHON_VERSION}"
         PATHS ${PYTHON_INPUT}/lib
         )
-file(GLOB PYTHON_LIBRARIES "${PYTHON_LIBRARY}*")
+file(GLOB PYTHON_LIBRARIES "${PYTHON_LIBRARY}.*")
 
 ## Allow this to be redirected for pathtools development
 if(NOT DEFINED WATCHDOG_INPUT)
