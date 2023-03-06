@@ -393,9 +393,5 @@ copy_sdds3builder
 copy_sophlib
 setup_cmake
 
-# Delete this extra lib that seems to be used on some distros but not others, suspicion is that python might
-# be removing it on some machines.
-[ -f "$REDIST/python/lib/libpython3.so" ] && rm -f "$REDIST/python/lib/libpython3.so"
-
 unlock
 echo "Finished unpacking"
