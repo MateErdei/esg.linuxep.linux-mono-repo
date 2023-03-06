@@ -212,19 +212,17 @@ namespace watchdog::watchdogimpl
         if (exitCode == 0)
         {
             LOGINFO("Set user ID of " << username << " to " << newUserId);
+            return;
         }
-        else
+
+        std::stringstream errorMessage;
+        errorMessage << "Failed to set user ID of " << username << " to " << newUserId << ", exit code: " << exitCode;
+        if (!process->output().empty())
         {
-            std::stringstream errorMessage;
-            errorMessage << "Failed to set user ID of " << username << " to " << newUserId << ", exit code: " << exitCode;
-
-            if (!process->output().empty())
-            {
-                errorMessage << ", output: " << process->output();
-            }
-
-            throw std::runtime_error(errorMessage.str());
+            errorMessage << ", output: " << process->output();
         }
+
+        throw std::runtime_error(errorMessage.str());
     }
 
     void changeGroupId(const std::string& groupname, gid_t newGroupId)
@@ -255,21 +253,18 @@ namespace watchdog::watchdogimpl
         if (exitCode == 0)
         {
             LOGINFO("Set group ID of " << groupname << " to " << newGroupId);
+            return;
         }
-        else
+
+        std::stringstream errorMessage;
+        errorMessage << "Failed to set user ID of " << groupname << " to " << newGroupId << ", exit code: " << exitCode;
+        if (!process->output().empty())
         {
-            std::stringstream errorMessage;
-            errorMessage << "Failed to set user ID of " << groupname << " to " << newGroupId << ", exit code: " << exitCode;
-
-            if (!process->output().empty())
-            {
-                errorMessage << ", output: " << process->output();
-            }
-
-            throw std::runtime_error(errorMessage.str());
+            errorMessage << ", output: " << process->output();
         }
-    }
 
+        throw std::runtime_error(errorMessage.str());
+    }
 
     void remapUserIdOfFiles(const std::string& rootPath, uid_t currentUserId, uid_t newUserId)
     {
