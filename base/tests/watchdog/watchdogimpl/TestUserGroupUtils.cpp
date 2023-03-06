@@ -8,12 +8,15 @@
 #include "tests/Common/Helpers/MockFilePermissions.h"
 #include "tests/Common/Helpers/MockFileSystem.h"
 #include "tests/Common/Helpers/MockProcess.h"
+#include "tests/Common/Helpers/TempDir.h"
 #include "watchdog/watchdogimpl/UserGroupUtils.h"
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
 using namespace watchdog::watchdogimpl;
+class TestUserGroupUtilsRealFileSystem: public LogOffInitializedTests{};
+
 class TestUserGroupUtils : public LogOffInitializedTests
 {
     Tests::ScopedReplaceFileSystem m_fileSystemReplacer;
@@ -353,4 +356,70 @@ TEST_F(TestUserGroupUtils, changeGroupIdThrowsWhenCommandIsStillRunningAfterWait
     });
 
     EXPECT_THROW(changeGroupId("group", 998), std::runtime_error);
+}
+
+TEST_F(TestUserGroupUtilsRealFileSystem, remapUserIdOfFiles)
+{
+    auto filePermissions = Common::FileSystem::filePermissions();
+    std::unique_ptr<Tests::TempDir> tempDir = Tests::TempDir::makeTempDir();
+    
+    std::string startingDir = tempDir->dirPath();
+    tempDir->makeDirs("directory1");
+    tempDir->makeDirs("directory2");
+    tempDir->makeDirs("directory2/subdirectory");
+    tempDir->makeDirs("directory3");
+    tempDir->createFile("file1", "contents");
+    tempDir->createFile("file2", "contents");
+    tempDir->createFile("directory2/file1", "contents");
+    tempDir->createFile("directory2/subdirectory/file2", "contents");
+    tempDir->createFile("directory3/file1", "contents");
+    tempDir->createFile("directory3/file2", "contents");
+    tempDir->createFile("directory3/file3", "contents");
+    
+    EXPECT_NO_THROW(remapUserIdOfFiles(startingDir, filePermissions->getUserIdOfDirEntry(startingDir), 2));
+
+    EXPECT_EQ(filePermissions->getUserIdOfDirEntry(Common::FileSystem::join(startingDir,"directory1")), 2);
+    EXPECT_EQ(filePermissions->getUserIdOfDirEntry(Common::FileSystem::join(startingDir,"directory2")), 2);
+    EXPECT_EQ(filePermissions->getUserIdOfDirEntry(Common::FileSystem::join(startingDir,"directory2/subdirectory")), 2);
+    EXPECT_EQ(filePermissions->getUserIdOfDirEntry(Common::FileSystem::join(startingDir,"directory3")), 2);
+    EXPECT_EQ(filePermissions->getUserIdOfDirEntry(Common::FileSystem::join(startingDir,"file1")), 2);
+    EXPECT_EQ(filePermissions->getUserIdOfDirEntry(Common::FileSystem::join(startingDir,"file2")), 2);
+    EXPECT_EQ(filePermissions->getUserIdOfDirEntry(Common::FileSystem::join(startingDir,"directory2/file1")), 2);
+    EXPECT_EQ(filePermissions->getUserIdOfDirEntry(Common::FileSystem::join(startingDir,"directory2/subdirectory/file2")), 2);
+    EXPECT_EQ(filePermissions->getUserIdOfDirEntry(Common::FileSystem::join(startingDir,"directory3/file1")), 2);
+    EXPECT_EQ(filePermissions->getUserIdOfDirEntry(Common::FileSystem::join(startingDir,"directory3/file2")), 2);
+    EXPECT_EQ(filePermissions->getUserIdOfDirEntry(Common::FileSystem::join(startingDir,"directory3/file3")), 2);
+}
+
+TEST_F(TestUserGroupUtilsRealFileSystem, remapGroupIdOfFiles)
+{
+    auto filePermissions = Common::FileSystem::filePermissions();
+    std::unique_ptr<Tests::TempDir> tempDir = Tests::TempDir::makeTempDir();
+
+    std::string startingDir = tempDir->dirPath();
+    tempDir->makeDirs("directory1");
+    tempDir->makeDirs("directory2");
+    tempDir->makeDirs("directory2/subdirectory");
+    tempDir->makeDirs("directory3");
+    tempDir->createFile("file1", "contents");
+    tempDir->createFile("file2", "contents");
+    tempDir->createFile("directory2/file1", "contents");
+    tempDir->createFile("directory2/subdirectory/file2", "contents");
+    tempDir->createFile("directory3/file1", "contents");
+    tempDir->createFile("directory3/file2", "contents");
+    tempDir->createFile("directory3/file3", "contents");
+
+    EXPECT_NO_THROW(remapGroupIdOfFiles(startingDir, filePermissions->getGroupIdOfDirEntry(startingDir), 2));
+
+    EXPECT_EQ(filePermissions->getGroupIdOfDirEntry(Common::FileSystem::join(startingDir,"directory1")), 2);
+    EXPECT_EQ(filePermissions->getGroupIdOfDirEntry(Common::FileSystem::join(startingDir,"directory2")), 2);
+    EXPECT_EQ(filePermissions->getGroupIdOfDirEntry(Common::FileSystem::join(startingDir,"directory2/subdirectory")), 2);
+    EXPECT_EQ(filePermissions->getGroupIdOfDirEntry(Common::FileSystem::join(startingDir,"directory3")), 2);
+    EXPECT_EQ(filePermissions->getGroupIdOfDirEntry(Common::FileSystem::join(startingDir,"file1")), 2);
+    EXPECT_EQ(filePermissions->getGroupIdOfDirEntry(Common::FileSystem::join(startingDir,"file2")), 2);
+    EXPECT_EQ(filePermissions->getGroupIdOfDirEntry(Common::FileSystem::join(startingDir,"directory2/file1")), 2);
+    EXPECT_EQ(filePermissions->getGroupIdOfDirEntry(Common::FileSystem::join(startingDir,"directory2/subdirectory/file2")), 2);
+    EXPECT_EQ(filePermissions->getGroupIdOfDirEntry(Common::FileSystem::join(startingDir,"directory3/file1")), 2);
+    EXPECT_EQ(filePermissions->getGroupIdOfDirEntry(Common::FileSystem::join(startingDir,"directory3/file2")), 2);
+    EXPECT_EQ(filePermissions->getGroupIdOfDirEntry(Common::FileSystem::join(startingDir,"directory3/file3")), 2);
 }
