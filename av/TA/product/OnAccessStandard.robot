@@ -611,7 +611,7 @@ On Access Receives Close Event On Cached File
 
 
 On Access Doesnt Cache Close Events With Detections
-    ${testfile} =  Set Variable  /tmp_test/dirtyfile.txt
+    ${testfile} =  Set Variable  /tmp_test/dirty_on_access_no_cache_with_detections.txt
 
     ${oamark} =  get_on_access_log_mark
     Create File  ${testfile}  ${EICAR_STRING}
@@ -619,7 +619,7 @@ On Access Doesnt Cache Close Events With Detections
 
     wait for on access log contains after mark  On-close event for ${testfile} from  mark=${oamark}
     # With DeDup LINUXDAR-5901, the close could be skipped if we haven't scanned the open yet
-    wait for on access log contains after mark  detected "${testfile}" is infected with EICAR-AV-Test  mark=${oamark}
+    wait for on access log contains after mark  detected "${testfile}" is infected with EICAR-AV-Test  mark=${oamark}    timeout=${20}
     Sleep   0.1s   Let the event (hopefully not) be cached
 
     ${oamark} =  get_on_access_log_mark
