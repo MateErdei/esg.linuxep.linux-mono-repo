@@ -124,7 +124,6 @@ namespace Telemetry
         {
             return extractValueFromFile(outbreakModeStatusFilepath, "outbreak-mode");
         }
-        LOGWARN("Could not find the Outbreak Mode status file at: " << outbreakModeStatusFilepath);
         return std::nullopt;
     }
 
@@ -144,10 +143,10 @@ namespace Telemetry
     std::optional<std::string> BaseTelemetryReporter::getOutbreakModeTodayWrapper()
     {
         Common::UtilityImpl::FormattedTime formattedTime;
-        return getOutbreakModeToday(formattedTime);
+        return getOutbreakModeToday(clock_t::now());
     }
 
-    std::optional<std::string> BaseTelemetryReporter::getOutbreakModeToday(Common::UtilityImpl::IFormattedTime& time)
+    std::optional<std::string> BaseTelemetryReporter::getOutbreakModeToday(time_point_t now)
     {
         if (getOutbreakModeCurrent() == "true")
         {
@@ -162,13 +161,9 @@ namespace Telemetry
             std::optional<std::string> recordedTime = extractValueFromFile(outbreakModeStatusFilepath, "timestamp");
             if (recordedTime)
             {
-                auto [ recordedTimeAsInt, errorString ] = Common::UtilityImpl::StringUtils::stringToInt(recordedTime.value());
-                if (!errorString.empty())
-                {
-                    LOGWARN("Last recorded outbreak timestamp not an integer: " << errorString);
-                    return std::nullopt;
-                }
-                if (time.currentEpochTimeInSecondsAsInteger() - recordedTimeAsInt > 86400) // 1 day in seconds
+                auto nowTime = clock_t::to_time_t(now);
+                auto recordedTimeAsTime = Common::UtilityImpl::TimeUtils::toTime(recordedTime.value());
+                if (difftime(nowTime, recordedTimeAsTime) > 86400) // 1 day in seconds
                 {
                     return "true";
                 }
@@ -177,7 +172,6 @@ namespace Telemetry
             LOGWARN("Could not parse timestamp of last outbreak event at: " << outbreakModeStatusFilepath);
             return std::nullopt;
         }
-        LOGWARN("Could not find the Outbreak Mode status file at: " << outbreakModeStatusFilepath);
         return std::nullopt;
     }
 
@@ -272,4 +266,4 @@ namespace Telemetry
         }
         return std::nullopt;
     }
-    } // namespace Telemetry
+} // namespace Telemetry

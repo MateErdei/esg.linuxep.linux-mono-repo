@@ -79,12 +79,10 @@ std::string ManagementAgent::EventReceiverImpl::OutbreakModeController::generate
     );
 }
 
-
 std::string ManagementAgent::EventReceiverImpl::OutbreakModeController::generateCoreOutbreakEvent(
-    std::string timestamp)
+    const std::string& timestamp)
 {
     uuid_ = generateUUID();
-    std::string obCurrentlyStr;
 
     LOGINFO("Generating Outbreak notification with UUID=" << uuid_);
     return Common::UtilityImpl::StringUtils::orderedStringReplace(
@@ -118,7 +116,7 @@ void ManagementAgent::EventReceiverImpl::OutbreakModeController::resetCountOnDay
     }
 }
 
-void ManagementAgent::EventReceiverImpl::OutbreakModeController::save(std::string timestamp)
+void ManagementAgent::EventReceiverImpl::OutbreakModeController::save(const std::string& timestamp)
 {
     auto* filesystem = Common::FileSystem::fileSystem();
     auto& paths = Common::ApplicationConfiguration::applicationPathManager();
@@ -154,15 +152,8 @@ void ManagementAgent::EventReceiverImpl::OutbreakModeController::load()
         {
             // Ignore empty files without error
             nlohmann::json j = nlohmann::json::parse(contents);
-            outbreakMode_ = j.at("outbreak-mode").get<bool>();
-            if (j.contains("uuid"))
-            {
-                uuid_ = j.at("uuid").get<std::string>();
-            }
-            else
-            {
-                uuid_ = generateUUID();
-            }
+            outbreakMode_ = j.value("outbreak-mode", false);
+            uuid_ = j.value("uuid", generateUUID());
         }
     }
     catch (const Common::FileSystem::IFileNotFoundException& ex)
@@ -228,7 +219,7 @@ void ManagementAgent::EventReceiverImpl::OutbreakModeController::processAction(c
             {
                 if (item.value("id") == uuid_)
                 {
-                    leaveOutbreakMode();
+                    leaveOutbreakMode(clock_t::now());
                     return; // no point searching further
                 }
                 else
@@ -254,13 +245,12 @@ void ManagementAgent::EventReceiverImpl::OutbreakModeController::processAction(c
     }
 }
 
-void ManagementAgent::EventReceiverImpl::OutbreakModeController::leaveOutbreakMode()
+void ManagementAgent::EventReceiverImpl::OutbreakModeController::leaveOutbreakMode(time_point_t now)
 {
     LOGINFO("Leaving outbreak mode");
     outbreakMode_ = false;
     uuid_ = "";
     detectionCount_ = 0;
 
-    Common::UtilityImpl::FormattedTime time;
-    save(time.currentEpochTimeInSeconds());
+    save(Common::UtilityImpl::TimeUtils::MessageTimeStamp(now));
 }

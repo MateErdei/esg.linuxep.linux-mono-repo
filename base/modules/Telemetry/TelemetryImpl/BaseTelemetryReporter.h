@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2019-2023 Sophos Limited.  All rights reserved.
 
 #pragma once
 
@@ -14,6 +10,10 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <optional>
 #include <utility>
 #include <variant>
+
+#ifndef TEST_PUBLIC
+# define TEST_PUBLIC private
+#endif
 
 namespace Telemetry
 {
@@ -30,6 +30,9 @@ namespace Telemetry
 
         std::string getName() override { return "base-telemetry"; }
         std::string getTelemetry() override;
+    TEST_PUBLIC:
+        using clock_t = std::chrono::system_clock;
+        using time_point_t = std::chrono::time_point<clock_t>;
 
     private:
         static std::optional<std::string> getCustomerId();
@@ -41,7 +44,7 @@ namespace Telemetry
         static std::optional<std::string> getOverallHealth();
         static std::optional<std::string> getOutbreakModeCurrent();
         static std::optional<std::string> getOutbreakModeTodayWrapper();
-        static std::optional<std::string> getOutbreakModeToday(Common::UtilityImpl::IFormattedTime& iFormattedTime);
+        static std::optional<std::string> getOutbreakModeToday(time_point_t now);
         static std::optional<std::string> getOutbreakModeHistoric();
     };
 } // namespace Telemetry
