@@ -455,7 +455,7 @@ protected:
 
 };
 
-TEST_F(SULDownloaderSdds3Test, configurationDataVerificationOfDefaultSettingsReturnsTrue) // NOLINT
+TEST_F(SULDownloaderSdds3Test, configurationDataVerificationOfDefaultSettingsReturnsTrue) 
 {
     auto* filesystemMock = new StrictMock<MockFileSystem>();
     EXPECT_CALL(*filesystemMock, isDirectory("/opt/sophos-spl")).Times(1).WillRepeatedly(Return(true));
@@ -474,14 +474,14 @@ TEST_F(SULDownloaderSdds3Test, configurationDataVerificationOfDefaultSettingsRet
     EXPECT_TRUE(confData.isVerified());
 }
 
-TEST_F(SULDownloaderSdds3Test, main_entry_InvalidArgumentsReturnsTheCorrectErrorCode) // NOLINT
+TEST_F(SULDownloaderSdds3Test, main_entry_InvalidArgumentsReturnsTheCorrectErrorCode) 
 {
     char** argsNotUsed = nullptr;
     EXPECT_EQ(SulDownloader::main_entry(2, argsNotUsed), -1);
     EXPECT_EQ(SulDownloader::main_entry(1, argsNotUsed), -1);
 }
 
-TEST_F(SULDownloaderSdds3Test, main_entry_missingInputFileCausesReturnsCorrectErrorCode) // NOLINT
+TEST_F(SULDownloaderSdds3Test, main_entry_missingInputFileCausesReturnsCorrectErrorCode) 
 {
     auto filesystemMock = new StrictMock<MockFileSystem>();
     m_replacer.replace(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
@@ -499,7 +499,7 @@ TEST_F(SULDownloaderSdds3Test, main_entry_missingInputFileCausesReturnsCorrectEr
     EXPECT_EQ(SulDownloader::main_entry(3, inputFileDoesNotExist), -2);
 }
 
-TEST_F(SULDownloaderSdds3Test, main_entry_inputFileGivenAsDirReturnsCorrectErrorCode) // NOLINT
+TEST_F(SULDownloaderSdds3Test, main_entry_inputFileGivenAsDirReturnsCorrectErrorCode) 
 {
     auto filesystemMock = new MockFileSystem();
     m_replacer.replace(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
@@ -512,7 +512,7 @@ TEST_F(SULDownloaderSdds3Test, main_entry_inputFileGivenAsDirReturnsCorrectError
     EXPECT_EQ(SulDownloader::main_entry(3, args.argc()), -2);
 }
 
-TEST_F( // NOLINT
+TEST_F( 
     SULDownloaderSdds3Test,
     main_entry_onSuccessWhileForcingUpdateAsPreviousDownloadReportDoesNotExistCreatesReportContainingExpectedSuccessResult)
 {
@@ -596,7 +596,7 @@ TEST_F( // NOLINT
     EXPECT_EQ(SulDownloader::main_entry(3, args.argc()), 0);
 }
 
-TEST_F(SULDownloaderSdds3Test, main_entry_onSuccessCreatesReportContainingExpectedSuccessResult) // NOLINT
+TEST_F(SULDownloaderSdds3Test, main_entry_onSuccessCreatesReportContainingExpectedSuccessResult) 
 {
     auto& fileSystemMock = setupFileSystemAndGetMock();
     MockSdds3Repository& mock = repositoryMocked();
@@ -659,7 +659,7 @@ TEST_F(SULDownloaderSdds3Test, main_entry_onSuccessCreatesReportContainingExpect
     EXPECT_EQ(SulDownloader::main_entry(3, args.argc()), 0);
 }
 
-TEST_F( // NOLINT
+TEST_F( 
     SULDownloaderSdds3Test,
     main_entry_onSuccessCreatesReportContainingExpectedSuccessResultEnsuringInvalidPreviousReportFilesAreIgnored)
 {
@@ -734,7 +734,7 @@ MATCHER_P(isProduct, pname, "")
     return (arg.getLine() == pname);
 }
 
-TEST_F( // NOLINT
+TEST_F( 
     SULDownloaderSdds3Test,
     main_entry_onSuccessCreatesReportContainingExpectedSuccessResultAndRemovesProduct)
 {
@@ -813,7 +813,7 @@ TEST_F( // NOLINT
     EXPECT_EQ(SulDownloader::main_entry(3, args.argc()), 0);
 }
 
-TEST_F( // NOLINT
+TEST_F( 
     SULDownloaderSdds3Test,
     main_entry_onSuccessCreatesReportContainingExpectedUninstallFailedResult)
 {
@@ -892,7 +892,7 @@ TEST_F( // NOLINT
 }
 
 // the other execution paths were covered in main_entry_* tests.
-TEST_F( // NOLINT
+TEST_F( 
     SULDownloaderSdds3Test,
     fileEntriesAndRunDownloaderThrowIfCannotCreateOutputFile)
 {
@@ -902,13 +902,13 @@ TEST_F( // NOLINT
     EXPECT_CALL(*filesystemMock, isDirectory("/dir/path/that/cannot/be/created/output.json")).WillOnce(Return(false));
     EXPECT_CALL(*filesystemMock, isDirectory("/dir/path/that/cannot/be/created")).WillOnce(Return(false));
 
-    EXPECT_THROW( // NOLINT
+    EXPECT_THROW( 
         SulDownloader::fileEntriesAndRunDownloader("/dir/input.json", "/dir/path/that/cannot/be/created/output.json", ""),
         SulDownloader::suldownloaderdata::SulDownloaderException);
 }
 
 // configAndRunDownloader
-TEST_F( // NOLINT
+TEST_F( 
     SULDownloaderSdds3Test,
     configAndRunDownloaderInvalidSettingsReportError_RepositoryStatus_UNSPECIFIED)
 {
@@ -936,7 +936,7 @@ TEST_F( // NOLINT
 }
 
 // runSULDownloader
-TEST_F( // NOLINT
+TEST_F( 
     SULDownloaderSdds3Test,
     runSULDownloader_RepositoryConnectionFailureShouldCreateValidConnectionFailureReport)
 {
@@ -980,7 +980,7 @@ TEST_F( // NOLINT
 }
 
 // runSULDownloader
-TEST_F( // NOLINT
+TEST_F( 
     SULDownloaderSdds3Test,
     runSULDownloader_RepositoryConnectionFailureShouldCreateValidConnectionFailureReportContainingPreviousReportDFata)
 {
@@ -1041,7 +1041,7 @@ TEST_F( // NOLINT
 
 
 // runSULDownloader
-TEST_F( // NOLINT
+TEST_F( 
     SULDownloaderSdds3Test,
     runSULDownloader_supplement_only_RepositoryConnectionFailureShouldCreateValidConnectionFailureReport)
 {
@@ -1084,7 +1084,7 @@ TEST_F( // NOLINT
         actualDownloadReport);
 }
 
-TEST_F( // NOLINT
+TEST_F( 
     SULDownloaderSdds3Test,
     runSULDownloader_RepositorySynchronizationFailureShouldCreateValidSyncronizationFailureReport)
 {
@@ -1134,7 +1134,7 @@ TEST_F( // NOLINT
 /**
  * Simulate the error in distributing only one of the products
  */
-TEST_F(SULDownloaderSdds3Test, runSULDownloader_onDistributeFailure) // NOLINT
+TEST_F(SULDownloaderSdds3Test, runSULDownloader_onDistributeFailure) 
 {
     auto& fileSystemMock = setupFileSystemAndGetMock(1, 2, 0);
     MockSdds3Repository& mock = repositoryMocked();
@@ -1200,7 +1200,7 @@ TEST_F(SULDownloaderSdds3Test, runSULDownloader_onDistributeFailure) // NOLINT
         SulDownloader::runSULDownloader(configurationData, previousConfigurationData, previousDownloadReport));
 }
 
-TEST_F( // NOLINT
+TEST_F( 
     SULDownloaderSdds3Test,
     runSULDownloader_RepositorySynchronizationResultingInNoUpdateNeededShouldCreateValidSuccessReport)
 {
@@ -1266,7 +1266,7 @@ TEST_F( // NOLINT
  * Simulate invalid signature
  *
  */
-TEST_F( // NOLINT
+TEST_F( 
     SULDownloaderSdds3Test,
     runSULDownloader_UpdateFailForInvalidSignature)
 {
@@ -1342,7 +1342,7 @@ TEST_F( // NOLINT
 /**
  * Simulate error in installing base successfully but fail to install plugin
  */
-TEST_F( // NOLINT
+TEST_F( 
     SULDownloaderSdds3Test,
     runSULDownloader_PluginInstallationFailureShouldResultInValidInstalledFailedReport)
 {
@@ -1447,7 +1447,7 @@ TEST_F( // NOLINT
  * Simulate successful full update
  *
  */
-TEST_F( // NOLINT
+TEST_F( 
     SULDownloaderSdds3Test,
     runSULDownloader_SuccessfulFullUpdateShouldResultInValidSuccessReport)
 {
@@ -1546,7 +1546,7 @@ TEST_F( // NOLINT
     EXPECT_EQ(productsAndSubscriptions[1].rigidName, products[1].getLine());
 }
 
-TEST_F( // NOLINT
+TEST_F( 
     SULDownloaderSdds3Test,
     runSULDownloader_SuccessfulUpdateToNewVersionShouldNotRunUninstallScriptsAndShouldResultInValidSuccessReport)
 {
@@ -1647,7 +1647,7 @@ TEST_F( // NOLINT
 }
 
 
-TEST_F( // NOLINT
+TEST_F( 
     SULDownloaderSdds3Test,
     runSULDownloader_SuccessfulUpdateToOlderVersionShouldRunUninstallScriptsAndShouldResultInValidSuccessReport)
 {
@@ -1765,7 +1765,7 @@ TEST_F( // NOLINT
     EXPECT_EQ(productsAndSubscriptions[1].rigidName, products[1].getLine());
 }
 
-TEST_F( // NOLINT
+TEST_F( 
     SULDownloaderSdds3Test,
     runSULDownloader_SuccessfulUpdateToOlderVersionOfPluginShouldOnlyRunPluginUninstallScriptsAndShouldResultInValidSuccessReport)
 {
@@ -1883,7 +1883,7 @@ TEST_F( // NOLINT
     EXPECT_EQ(productsAndSubscriptions[1].rigidName, products[1].getLine());
 }
 
-TEST_F( // NOLINT
+TEST_F( 
     SULDownloaderSdds3Test,
     runSULDownloader_SuccessfulFullUpdateWithSubscriptionsDifferentFromProductsShouldBeReportedCorrectly)
 {
@@ -1987,7 +1987,7 @@ TEST_F( // NOLINT
     EXPECT_EQ(subscriptions[0].rigidName, products[0].getProductMetadata().getLine());
 }
 
-TEST_F( // NOLINT
+TEST_F( 
     SULDownloaderSdds3Test,
     runSULDownloader_ListOfSubscriptionListSizeDifferenceResultsInFullSuccessfulUpdate)
 {
@@ -2092,7 +2092,7 @@ TEST_F( // NOLINT
         SulDownloader::runSULDownloader(configurationData, previousConfigurationData, previousDownloadReport));
 }
 
-TEST_F( // NOLINT
+TEST_F( 
     SULDownloaderSdds3Test,
     runSULDownloader_ListOfFeatureListSizeDifferenceResultsInFullSuccessfulUpdate)
 {
@@ -2197,7 +2197,7 @@ TEST_F( // NOLINT
         SulDownloader::runSULDownloader(configurationData, previousConfigurationData, previousDownloadReport));
 }
 
-TEST_F( // NOLINT
+TEST_F( 
     SULDownloaderSdds3Test,
     runSULDownloader_ListOfSubscriptionsWhichDontMatchPreviousConfigResultsInFullSuccessfulUpdate)
 {
@@ -2301,7 +2301,7 @@ TEST_F( // NOLINT
         actualReport);
 }
 
-TEST_F( // NOLINT
+TEST_F( 
     SULDownloaderSdds3Test,
     runSULDownloader_ListOfFeaturesWhichDontMatchPreviousConfigResultsInFullSuccessfulUpdate)
 {
@@ -2406,7 +2406,7 @@ TEST_F( // NOLINT
         SulDownloader::runSULDownloader(configurationData, previousConfigurationData, previousDownloadReport));
 }
 
-TEST_F( // NOLINT
+TEST_F( 
     SULDownloaderSdds3Test,
     runSULDownloader_previousProductChangesShouldResultInSuccessfulFullUpdateAndProduceValidSuccessReport)
 {
@@ -2500,7 +2500,7 @@ TEST_F( // NOLINT
         SulDownloader::runSULDownloader(configurationData, previousConfigurationData, previousDownloadReport));
 }
 
-TEST_F( // NOLINT
+TEST_F( 
     SULDownloaderSdds3Test,
     runSULDownloader_WithUpdateConfigDataMatchingWarehouseSynchronizationResultingInNoUpdateNeededShouldCreateValidSuccessReport)
 {
@@ -2564,7 +2564,7 @@ TEST_F( // NOLINT
         SulDownloader::runSULDownloader(configurationData, previousConfigurationData, previousDownloadReport));
 }
 
-TEST_F( // NOLINT
+TEST_F( 
     SULDownloaderSdds3Test,
     runSULDownloader_supplement_only_WithUpdateConfigDataMatchingWarehouseSynchronizationResultingInNoUpdateNeededShouldCreateValidSuccessReport)
 {
@@ -2630,7 +2630,7 @@ TEST_F( // NOLINT
         actualDownloadReport);
 }
 
-TEST_F( // NOLINT
+TEST_F( 
     SULDownloaderSdds3Test,
     runSULDownloader_checkLogVerbosityVERBOSE)
 {
@@ -2660,7 +2660,7 @@ TEST_F( // NOLINT
     ASSERT_THAT(errStd, ::testing::HasSubstr("Failed to connect to repository"));
 }
 
-TEST_F( // NOLINT
+TEST_F( 
     SULDownloaderSdds3Test,
     runSULDownloader_checkLogVerbosityNORMAL)
 {
@@ -2692,7 +2692,7 @@ TEST_F( // NOLINT
     ASSERT_THAT(errStd, ::testing::HasSubstr("Failed to connect to repository"));
 }
 
-TEST_F( // NOLINT
+TEST_F( 
     SULDownloaderSdds3Test,
     runSULDownloader_failureToPurgeSDDS2CacheDoesNotHaltSync)
 {
@@ -2755,7 +2755,7 @@ TEST_F( // NOLINT
     EXPECT_EQ(SulDownloader::main_entry(3, args.argc()), 0);
 }
 
-TEST_F(SULDownloaderSdds3Test,updateFailsIfNoJWTToken) // NOLINT
+TEST_F(SULDownloaderSdds3Test,updateFailsIfNoJWTToken) 
 {
     setupFileSystemAndGetMock(1, 0, 0);
     testing::internal::CaptureStderr();
@@ -2778,7 +2778,7 @@ TEST_F(SULDownloaderSdds3Test,updateFailsIfNoJWTToken) // NOLINT
     ASSERT_THAT(errStd, ::testing::HasSubstr("Failed to update because JWToken was empty"));
 }
 
-TEST_F(SULDownloaderSdds3Test,updateFailsIfOldVersion) // NOLINT
+TEST_F(SULDownloaderSdds3Test,updateFailsIfOldVersion) 
 {
     setupFileSystemAndGetMock(1, 0, 0);
     testing::internal::CaptureStderr();
@@ -2805,7 +2805,7 @@ TEST_F(SULDownloaderSdds3Test,updateFailsIfOldVersion) // NOLINT
 // Suldownloader WriteInstalledFeatures()
 class TestSuldownloaderWriteInstalledFeaturesFunction: public LogOffInitializedTests{};
 
-TEST_F(TestSuldownloaderWriteInstalledFeaturesFunction, featuresAreWrittenToJsonFile) // NOLINT
+TEST_F(TestSuldownloaderWriteInstalledFeaturesFunction, featuresAreWrittenToJsonFile) 
 {
     setupInstalledFeaturesPermissions();
     auto filesystemMock = new StrictMock<MockFileSystem>();
@@ -2820,7 +2820,7 @@ TEST_F(TestSuldownloaderWriteInstalledFeaturesFunction, featuresAreWrittenToJson
     SulDownloader::writeInstalledFeatures(features);
 }
 
-TEST_F(TestSuldownloaderWriteInstalledFeaturesFunction, emptyListOfFeaturesAreWrittenToJsonFile) // NOLINT
+TEST_F(TestSuldownloaderWriteInstalledFeaturesFunction, emptyListOfFeaturesAreWrittenToJsonFile) 
 {
     setupInstalledFeaturesPermissions();
     auto filesystemMock = new StrictMock<MockFileSystem>();
@@ -2833,7 +2833,7 @@ TEST_F(TestSuldownloaderWriteInstalledFeaturesFunction, emptyListOfFeaturesAreWr
     SulDownloader::writeInstalledFeatures(features);
 }
 
-TEST_F(TestSuldownloaderWriteInstalledFeaturesFunction, noThrowExpectedOnFileSystemError) // NOLINT
+TEST_F(TestSuldownloaderWriteInstalledFeaturesFunction, noThrowExpectedOnFileSystemError) 
 {
     auto filesystemMock = new StrictMock<MockFileSystem>();
     EXPECT_CALL(
