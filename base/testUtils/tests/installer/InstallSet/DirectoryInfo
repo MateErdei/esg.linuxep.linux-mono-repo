@@ -31,7 +31,6 @@ o711, sophos-spl-group, root, /opt/sophos-spl/plugins
 o711, sophos-spl-group, sophos-spl-local, /opt/sophos-spl/base/mcs
 o750, sophos-spl-group, root, /opt/sophos-spl/base/lib
 o750, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.11
-o750, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.11/lib-dynload
 o750, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.11/site-packages
 o750, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.11/site-packages/certifi
 o750, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.11/site-packages/chardet
