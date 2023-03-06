@@ -408,10 +408,6 @@ o777, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.11/site-packages/
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.11/site-packages/watchdog/version.py
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib/python3.11/site-packages/watchdog/watchmedo.py
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib/python311.zip
-o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libaesclib.so
-o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libaesclib.so.0
-o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libaesclib.so.0.0
-o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libaesclib.so.0.0.0
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libapplicationconfigurationimpl.so
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libatomic.so
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libatomic.so.1
