@@ -44,3 +44,7 @@ tmp/
 /cmake-build-fuzz-coverage/
 /tests/googletest
 /build-files/clion-config.sh
+/robot
+/vagrant
+TA/robot
+TA/vagrant
