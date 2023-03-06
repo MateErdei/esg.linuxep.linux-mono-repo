@@ -52,8 +52,12 @@ testUtils/SupportFiles/CloudAutomation/root-ca.crt.*
 testUtils/SupportFiles/CloudAutomation/server-*.pem
 testUtils/SupportFiles/CloudAutomation/utm.cert.pem
 testUtils/*-VBoxSVC-*.log
+/testUtils/SupportFiles/FakeManagement/ActionUtils.py
+/testUtils/vagrant
 /tap_venv/
 /.idea/RobotProjectPreferences.xml
 /.idea/inspectionProfiles/Project_Default.xml
-/testUtils/SupportFiles/FakeManagement/ActionUtils.py
-.vscode/
+/.idea/esg.linuxep.everest-base.iml
+/.vscode/
+/robot
+/vagrant
