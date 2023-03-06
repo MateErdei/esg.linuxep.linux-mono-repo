@@ -229,7 +229,6 @@ namespace watchdog::watchdogimpl
             }
         }
 
-        LOGDEBUG("Using '" << usermodCmd << "' to modify user Id");
         process->exec(usermodCmd, { "-u", std::to_string(newUserId), username });
 
         auto state = process->wait(Common::Process::milli(100), 100);
@@ -267,7 +266,6 @@ namespace watchdog::watchdogimpl
             }
         }
 
-        LOGDEBUG("Using '" << groupmodCmd << "' to modify group Id");
         process->exec(groupmodCmd, { "-g", std::to_string(newGroupId), groupname });
 
         auto state = process->wait(Common::Process::milli(100), 100);
@@ -298,7 +296,6 @@ namespace watchdog::watchdogimpl
         auto fs = Common::FileSystem::fileSystem();
         if (fs->isFile(rootPath))
         {
-            LOGDEBUG("Remapping user id of " << rootPath << " from " << currentUserId << " to " << newUserId);
             setUserIdOfFile(rootPath, newUserId);
         }
         else if (fs->isDirectory(rootPath))
@@ -309,7 +306,6 @@ namespace watchdog::watchdogimpl
                 // If the current IDs of the entry match the ones we're replacing then perform the remap
                 if (getUserIdOfFile(entry) == currentUserId)
                 {
-                    LOGDEBUG("Remapping user id of " << entry << " from " << currentUserId << " to " << newUserId);
                     setUserIdOfFile(entry, newUserId);
                 }
             }
@@ -326,7 +322,6 @@ namespace watchdog::watchdogimpl
         auto fs = Common::FileSystem::fileSystem();
         if (fs->isFile(rootPath))
         {
-            LOGDEBUG("Remapping group id of " << rootPath << " from " << currentGroupId << " to " << newGroupId);
             setGroupIdOfFile(rootPath, newGroupId);
         }
         else if (fs->isDirectory(rootPath))
@@ -337,7 +332,6 @@ namespace watchdog::watchdogimpl
                 // If the current IDs of the entry match the ones we're replacing then perform the remap
                 if (getGroupIdOfFile(entry) == currentGroupId)
                 {
-                    LOGDEBUG("Remapping group id of " << entry << " from " << currentGroupId << " to " << newGroupId);
                     setGroupIdOfFile(entry, newGroupId);
                 }
             }
