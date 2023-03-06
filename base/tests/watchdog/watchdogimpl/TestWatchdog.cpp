@@ -28,7 +28,7 @@ namespace
     protected:
         MockFilePermissions* m_mockFilePermissionsPtr;
         MockFileSystem* m_mockFileSystemPtr;
-        std::string m_watchdogConfigPath;
+        std::string m_actualUserGroupIdConfigPath;
     public:
         TestWatchdog()
         {
@@ -37,7 +37,7 @@ namespace
             m_fileSystemReplacer.replace(std::unique_ptr<Common::FileSystem::IFileSystem>(m_mockFileSystemPtr));
             m_filePermissionsReplacer.replace(std::unique_ptr<Common::FileSystem::IFilePermissions>(m_mockFilePermissionsPtr));
 
-            m_watchdogConfigPath = Common::ApplicationConfiguration::applicationPathManager().getActualUserGroupIdConfigPath();
+            m_actualUserGroupIdConfigPath = Common::ApplicationConfiguration::applicationPathManager().getActualUserGroupIdConfigPath();
 
             EXPECT_CALL(*m_mockFileSystemPtr, isDirectory(HasSubstr("base/telemetry/cache"))).WillRepeatedly(Return(false));
             EXPECT_CALL(*m_mockFileSystemPtr, isFile(HasSubstr("base/telemetry/cache"))).WillRepeatedly(Return(false));
@@ -164,13 +164,13 @@ TEST_F(TestWatchdog, writeExecutableUserAndGroupToWatchdogConfigWritesConfigFile
     EXPECT_CALL(*m_mockFileSystemPtr, readFile(files[0])).WillOnce(
         Return(createPluginRegistryJson("PluginName", "user:group")));
 
-    EXPECT_CALL(*m_mockFileSystemPtr, isFile(m_watchdogConfigPath)).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFileSystemPtr, isFile(m_actualUserGroupIdConfigPath)).WillOnce(Return(false));
 
     EXPECT_CALL(*m_mockFilePermissionsPtr, getUserId("user")).WillOnce(Return(1));
     EXPECT_CALL(*m_mockFilePermissionsPtr, getGroupId("group")).WillRepeatedly(Return(2));
     EXPECT_CALL(*m_mockFilePermissionsPtr, getGroupId("sophos-spl-ipc")).WillOnce(Return(0));
 
-    EXPECT_CALL(*m_mockFileSystemPtr, writeFile(m_watchdogConfigPath,
+    EXPECT_CALL(*m_mockFileSystemPtr, writeFile(m_actualUserGroupIdConfigPath,
                                                 R"({"groups":{"group":2,"sophos-spl-ipc":0},"users":{"user":1}})")).Times(1);
     EXPECT_NO_THROW(watchdog.callWriteExecutableUserAndGroupToWatchdogConfig());
 }
@@ -187,13 +187,13 @@ TEST_F(TestWatchdog, writeExecutableUserAndGroupToWatchdogConfigHandlesDuplicate
     EXPECT_CALL(*m_mockFileSystemPtr, readFile(files[1])).WillOnce(
         Return(createPluginRegistryJson("PluginName2", "user:group")));
 
-    EXPECT_CALL(*m_mockFileSystemPtr, isFile(m_watchdogConfigPath)).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFileSystemPtr, isFile(m_actualUserGroupIdConfigPath)).WillOnce(Return(false));
 
     EXPECT_CALL(*m_mockFilePermissionsPtr, getUserId("user")).WillOnce(Return(1));
     EXPECT_CALL(*m_mockFilePermissionsPtr, getGroupId("group")).WillRepeatedly(Return(2));
     EXPECT_CALL(*m_mockFilePermissionsPtr, getGroupId("sophos-spl-ipc")).WillOnce(Return(0));
 
-    EXPECT_CALL(*m_mockFileSystemPtr, writeFile(m_watchdogConfigPath,
+    EXPECT_CALL(*m_mockFileSystemPtr, writeFile(m_actualUserGroupIdConfigPath,
                                                 R"({"groups":{"group":2,"sophos-spl-ipc":0},"users":{"user":1}})")).Times(1);
     EXPECT_NO_THROW(watchdog.callWriteExecutableUserAndGroupToWatchdogConfig());
 }
@@ -208,13 +208,13 @@ TEST_F(TestWatchdog, writeExecutableUserAndGroupToWatchdogConfigOverwritesExisti
     EXPECT_CALL(*m_mockFileSystemPtr, readFile(files[0])).WillOnce(
         Return(createPluginRegistryJson("PluginName", "user:group")));
 
-    EXPECT_CALL(*m_mockFileSystemPtr, isFile(m_watchdogConfigPath)).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockFileSystemPtr, isFile(m_actualUserGroupIdConfigPath)).WillOnce(Return(true));
 
     EXPECT_CALL(*m_mockFilePermissionsPtr, getUserId("user")).WillOnce(Return(999));
     EXPECT_CALL(*m_mockFilePermissionsPtr, getGroupId("group")).WillRepeatedly(Return(966));
     EXPECT_CALL(*m_mockFilePermissionsPtr, getGroupId("sophos-spl-ipc")).WillRepeatedly(Return(0));
 
-    EXPECT_CALL(*m_mockFileSystemPtr, writeFile(m_watchdogConfigPath,
+    EXPECT_CALL(*m_mockFileSystemPtr, writeFile(m_actualUserGroupIdConfigPath,
                                                 R"({"groups":{"group":966,"sophos-spl-ipc":0},"users":{"user":999}})")).Times(1);
     EXPECT_NO_THROW(watchdog.callWriteExecutableUserAndGroupToWatchdogConfig());
 }
@@ -238,7 +238,7 @@ TEST_F(TestWatchdog, writeExecutableUserAndGroupToWatchdogConfigHandlesMultipleG
     EXPECT_CALL(*m_mockFileSystemPtr, readFile(files[3])).WillOnce(Return(
         createPluginRegistryJson("PluginName4", "user4")));
 
-    EXPECT_CALL(*m_mockFileSystemPtr, isFile(m_watchdogConfigPath)).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFileSystemPtr, isFile(m_actualUserGroupIdConfigPath)).WillOnce(Return(false));
 
     EXPECT_CALL(*m_mockFilePermissionsPtr, getUserId("user1")).WillOnce(Return(1));
     EXPECT_CALL(*m_mockFilePermissionsPtr, getUserId("user2")).WillOnce(Return(2));
@@ -248,7 +248,7 @@ TEST_F(TestWatchdog, writeExecutableUserAndGroupToWatchdogConfigHandlesMultipleG
     EXPECT_CALL(*m_mockFilePermissionsPtr, getGroupId("group3")).WillRepeatedly(Return(3));
     EXPECT_CALL(*m_mockFilePermissionsPtr, getGroupId("sophos-spl-ipc")).WillRepeatedly(Return(0));
 
-    EXPECT_CALL(*m_mockFileSystemPtr, writeFile(m_watchdogConfigPath,
+    EXPECT_CALL(*m_mockFileSystemPtr, writeFile(m_actualUserGroupIdConfigPath,
                                                 R"({"groups":{"group1":1,"group3":3,"sophos-spl-ipc":0},"users":{"user1":1,"user2":2,"user3":3,"user4":4}})")).Times(1);
     EXPECT_NO_THROW(watchdog.callWriteExecutableUserAndGroupToWatchdogConfig());
 }
@@ -263,9 +263,9 @@ TEST_F(TestWatchdog, writeExecutableUserAndGroupToWatchdogConfigIgnoresRootUser)
     EXPECT_CALL(*m_mockFileSystemPtr, readFile(files[0])).WillOnce(Return(
         createPluginRegistryJson("PluginName", "root")));
 
-    EXPECT_CALL(*m_mockFileSystemPtr, isFile(m_watchdogConfigPath)).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFileSystemPtr, isFile(m_actualUserGroupIdConfigPath)).WillOnce(Return(false));
 
-    EXPECT_CALL(*m_mockFileSystemPtr, writeFile(m_watchdogConfigPath, R"({"groups":{"sophos-spl-ipc":0}})")).Times(1);
+    EXPECT_CALL(*m_mockFileSystemPtr, writeFile(m_actualUserGroupIdConfigPath, R"({"groups":{"sophos-spl-ipc":0}})")).Times(1);
     EXPECT_NO_THROW(watchdog.callWriteExecutableUserAndGroupToWatchdogConfig());
 }
 
@@ -285,7 +285,7 @@ TEST_F(TestWatchdog, writeExecutableUserAndGroupToWatchdogConfigHandlesMalformed
     EXPECT_CALL(*m_mockFileSystemPtr, readFile(files[2])).WillOnce(Return(
         createPluginRegistryJson("PluginName3", "user3::")));
 
-    EXPECT_CALL(*m_mockFileSystemPtr, isFile(m_watchdogConfigPath)).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFileSystemPtr, isFile(m_actualUserGroupIdConfigPath)).WillOnce(Return(false));
 
     EXPECT_CALL(*m_mockFilePermissionsPtr, getUserId("user1group1")).WillOnce(Throw(Common::FileSystem::IFileSystemException("TEST")));
 

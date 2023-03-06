@@ -2,8 +2,10 @@
 
 #include "ApplicationConfigurationImpl/ApplicationPathManager.h"
 #include "FileSystem/IFileSystemException.h"
+#include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
 #include "tests/Common/Helpers/LogInitializedTests.h"
 #include "tests/Common/Helpers/MockFilePermissions.h"
+#include "tests/Common/Helpers/MockFileSystem.h"
 #include "watchdog/watchdogimpl/UserGroupUtils.h"
 
 #include <gmock/gmock.h>
@@ -12,17 +14,23 @@
 using namespace watchdog::watchdogimpl;
 class TestUserGroupUtils : public LogOffInitializedTests
 {
+    Tests::ScopedReplaceFileSystem m_fileSystemReplacer;
     Tests::ScopedReplaceFilePermissions m_filePermissionsReplacer;
 
 protected:
+    MockFileSystem* m_mockFileSystemPtr;
     MockFilePermissions* m_mockFilePermissionsPtr;
+    std::string m_requestedUserGroupIdConfigPath;
 
 public:
     TestUserGroupUtils()
     {
+        m_mockFileSystemPtr = new NaggyMock<MockFileSystem>();
         m_mockFilePermissionsPtr = new NaggyMock<MockFilePermissions>();
-        m_filePermissionsReplacer.replace(
-            std::unique_ptr<Common::FileSystem::IFilePermissions>(m_mockFilePermissionsPtr));
+
+        m_fileSystemReplacer.replace(std::unique_ptr<Common::FileSystem::IFileSystem>(m_mockFileSystemPtr));
+        m_filePermissionsReplacer.replace(std::unique_ptr<Common::FileSystem::IFilePermissions>(m_mockFilePermissionsPtr));
+        m_requestedUserGroupIdConfigPath = Common::ApplicationConfiguration::applicationPathManager().getRequestedUserGroupIdConfigPath();
     }
     ~TestUserGroupUtils() override { Tests::restoreFilePermissions(); }
 };
@@ -49,8 +57,8 @@ TEST_F(TestUserGroupUtils, CommentsAreStrippedFromRequestedUserAndGroupIdsFileRe
         "}"
     };
 
-    auto strippedConfigString = stripCommentsFromRequestedUserGroupIdFile(configString);
-    EXPECT_EQ(nlohmann::json::parse(strippedConfigString), expectedJson);
+    EXPECT_CALL(*m_mockFileSystemPtr, readLines(m_requestedUserGroupIdConfigPath)).WillOnce(Return(configString));
+    EXPECT_EQ(readRequestedUserGroupIds(), expectedJson);
 }
 
 TEST_F(TestUserGroupUtils, DifferentStructuresOfCommentsAreStrippedFromRequestedUserAndGroupIdsFileReturningValidJson)
@@ -79,8 +87,62 @@ TEST_F(TestUserGroupUtils, DifferentStructuresOfCommentsAreStrippedFromRequested
         "}"
     };
 
-    auto strippedConfigString = stripCommentsFromRequestedUserGroupIdFile(configString);
-    EXPECT_EQ(nlohmann::json::parse(strippedConfigString), expectedJson);
+    EXPECT_CALL(*m_mockFileSystemPtr, readLines(m_requestedUserGroupIdConfigPath)).WillOnce(Return(configString));
+    EXPECT_EQ(readRequestedUserGroupIds(), expectedJson);
+}
+
+TEST_F(TestUserGroupUtils, readRequestedUserGroupIdsDoesNotThrowOnInvalidJson)
+{
+    WatchdogUserGroupIDs changesNeeded;
+    std::vector<std::string> configString{
+        "Plain text here",
+        "{",
+            R"("users": {)",
+                R"("user1": 1,)",
+                R"("user2": 2)",
+            "},",
+            R"("groups": {)",
+                R"("group1": 1,)",
+                R"("group2": 2)",
+            "}",
+        "}"
+    };
+
+    EXPECT_CALL(*m_mockFileSystemPtr, readLines(m_requestedUserGroupIdConfigPath)).WillOnce(Return(configString));
+
+    EXPECT_NO_THROW(changesNeeded = readRequestedUserGroupIds());
+    ASSERT_TRUE(changesNeeded.empty());
+}
+
+TEST_F(TestUserGroupUtils, readRequestedUserGroupIdsDoesNotThrowOnCorrectlyStrippedInvalidJson)
+{
+    WatchdogUserGroupIDs changesNeeded;
+    std::vector<std::string> configString{
+        "{",
+            R"("users": {)",
+                R"("user1": 1,)",
+                R"("user2": 2)",
+            R"("groups": {)",
+                R"("group1": 1,)",
+                R"("group2": 2)",
+            "}",
+        "}"
+    };
+
+    EXPECT_CALL(*m_mockFileSystemPtr, readLines(m_requestedUserGroupIdConfigPath)).WillOnce(Return(configString));
+
+    EXPECT_NO_THROW(changesNeeded = readRequestedUserGroupIds());
+    ASSERT_TRUE(changesNeeded.empty());
+}
+
+TEST_F(TestUserGroupUtils, readRequestedUserGroupIdsDoesNotThrowWhenReadLinesThrows)
+{
+    WatchdogUserGroupIDs changesNeeded;
+
+    EXPECT_CALL(*m_mockFileSystemPtr, readLines(m_requestedUserGroupIdConfigPath)).WillOnce(Throw(Common::FileSystem::IFileSystemException("TEST")));
+
+    EXPECT_NO_THROW(changesNeeded = readRequestedUserGroupIds());
+    ASSERT_TRUE(changesNeeded.empty());
 }
 
 TEST_F(TestUserGroupUtils, validateUserAndGroupIdsRemovesRoot)
