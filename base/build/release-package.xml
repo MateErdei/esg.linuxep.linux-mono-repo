@@ -28,10 +28,6 @@
             <release-version branch="release/Version_11_2_0" build-id="20220310091547-cf8f7ca9572a3bc9a68f05138086815341a49224-cZ84iF"/>
             <include artifact-path="output" dest-dir="/build/input"/>
         </build-asset>
-        <build-asset project="thirdparty" repo="gsl">
-            <release-version branch="release/sophos" build-id="20200911164143-1923fa9a9b1636f552266b4c9082714d04d869e6-tbYSwR"/>
-            <include artifact-path="include" dest-dir="/build/redist/gsl/include"/>
-        </build-asset>
         <build-asset project="thirdparty" repo="log4cplus">
             <release-version branch="release/sspl/Version_2_0_7" build-id="20220310142847-3a4bb813dfdcbf28d538394d253449fbb7c78bad-rAcfZX"/>
             <include artifact-path="output" dest-dir="/build/input"/>
@@ -59,6 +55,7 @@
             <include artifact-path="thirdparty/minizip-linux-opt" dest-dir="/build/redist/minizip"/>
             <include artifact-path="thirdparty/liblzma-linux-opt" dest-dir="/build/redist/lzma"/>
             <include artifact-path="thirdparty/bzip2-linux-opt" dest-dir="/build/redist/bzip2"/>
+            <include artifact-path="thirdparty/gsl" dest-dir="/build/redist/gsl"/>
         </build-asset>
 
         <build-asset project="winep" repo="sau">
