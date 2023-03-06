@@ -56,3 +56,4 @@ testUtils/*-VBoxSVC-*.log
 /.idea/RobotProjectPreferences.xml
 /.idea/inspectionProfiles/Project_Default.xml
 /testUtils/SupportFiles/FakeManagement/ActionUtils.py
+.vscode/
