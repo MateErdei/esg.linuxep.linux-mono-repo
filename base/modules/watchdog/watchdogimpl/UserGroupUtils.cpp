@@ -59,7 +59,7 @@ namespace watchdog::watchdogimpl
             {
                 if (groupName == "root")
                 {
-                    LOGWARN("Will not update group Id as it is root: " << gid);
+                    LOGWARN("Will not update group ID as it is root: " << gid);
                     groupsToRemove.emplace_back(groupName);
                     continue;
                 }
@@ -69,7 +69,7 @@ namespace watchdog::watchdogimpl
                     if (gid == existingGid)
                     {
                         LOGWARN(
-                            "Will not perform requested group id change on"
+                            "Will not perform requested group ID change on"
                             << groupName << "as gid (" << gid << ") is already used by " << existingGroupName);
                         groupsToRemove.emplace_back(groupName);
                         break;
@@ -92,7 +92,7 @@ namespace watchdog::watchdogimpl
             {
                 if (userName == "root")
                 {
-                    LOGWARN("Will not update user Id as it is root: " << uid);
+                    LOGWARN("Will not update user ID as it is root: " << uid);
                     usersToRemove.emplace_back(userName);
                     continue;
                 }
@@ -102,7 +102,7 @@ namespace watchdog::watchdogimpl
                     if (uid == existingUid)
                     {
                         LOGWARN(
-                            "Will not perform requested user id change on"
+                            "Will not perform requested user ID change on"
                             << userName << "as uid (" << uid << ") is already used by " << existingUserName);
                         usersToRemove.emplace_back(userName);
                         break;
@@ -161,11 +161,11 @@ namespace watchdog::watchdogimpl
         {
             auto currentGroupId = getGroupIdOfFile(filePath);
             filePermissions->lchown(filePath, newUserId, currentGroupId);
-            LOGDEBUG("Updated user Id of " << filePath << " to " << newUserId);
+            LOGDEBUG("Updated user ID of " << filePath << " to " << newUserId);
         }
         catch (const Common::FileSystem::IFileSystemException& exception)
         {
-            LOGERROR("Failed to set user Id of " << filePath << " to " << newUserId << " due to: " << exception.what());
+            LOGERROR("Failed to set user ID of " << filePath << " to " << newUserId << " due to: " << exception.what());
         }
     }
 
@@ -176,44 +176,14 @@ namespace watchdog::watchdogimpl
         {
             auto currentUserId = getUserIdOfFile(filePath);
             filePermissions->lchown(filePath, currentUserId, newGroupId);
-            LOGDEBUG("Updated group Id of " << filePath << " to " << newGroupId);
+            LOGDEBUG("Updated group ID of " << filePath << " to " << newGroupId);
         }
         catch (const Common::FileSystem::IFileSystemException& exception)
         {
-            LOGERROR("Failed to set group Id of " << filePath << " to " << newGroupId << " due to: " << exception.what());
+            LOGERROR("Failed to set group ID of " << filePath << " to " << newGroupId << " due to: " << exception.what());
         }
     }
 
-
-    /*
-     *
-    The usermod command exits with one of the following values:
-
-    0   Success
-
-    2   Invalid command syntax or insufficient privilege.	 A usage message for
-        the usermod command or an error message is displayed.
-
-    3   An invalid argument was provided to an option.
-
-    4   The UID, which is specified with the -u flag is already in use (not
-        unique).
-
-    6   The login to be modified does not exist, or the group does not exist.
-
-    8   The login to be modified is in use.
-
-    9   The new_logname is already in use.
-
-    10  Cannot update the group database.	 Other update requests will be
-        implemented.
-
-    11  Insufficient space to move the home directory (-m flag).	Other update
-        requests will be implemented.
-
-    12  Unable to complete the move of the home directory to the new home
-        directory.
-     */
     void changeUserId(const std::string& username, uid_t newUserId)
     {
         auto process = Common::Process::createProcess();
@@ -245,9 +215,15 @@ namespace watchdog::watchdogimpl
         }
         else
         {
-            LOGERROR("Failed to set user ID of " << username << " to " << newUserId);
-            // TODO handle error
-            // throw?
+            std::stringstream errorMessage;
+            errorMessage << "Failed to set user ID of " << username << " to " << newUserId << ", exit code: " << exitCode;
+
+            if (!process->output().empty())
+            {
+                errorMessage << ", output: " << process->output();
+            }
+
+            throw std::runtime_error(errorMessage.str());
         }
     }
 
@@ -282,10 +258,15 @@ namespace watchdog::watchdogimpl
         }
         else
         {
+            std::stringstream errorMessage;
+            errorMessage << "Failed to set user ID of " << groupname << " to " << newGroupId << ", exit code: " << exitCode;
 
-            LOGERROR("Failed to set group ID of " << groupname << " to " << newGroupId << ", exit code: " << exitCode << ", output: " << process->output());
-            // TODO handle error
-            // throw?
+            if (!process->output().empty())
+            {
+                errorMessage << ", output: " << process->output();
+            }
+
+            throw std::runtime_error(errorMessage.str());
         }
     }
 
@@ -354,11 +335,18 @@ namespace watchdog::watchdogimpl
             auto users = changesNeeded[USERS_KEY];
             for (const auto& [userName, newUserId] : users.items())
             {
-                auto currentUserId = filePermissions->getUserId(userName);
+                try
+                {
+                    auto currentUserId = filePermissions->getUserId(userName);
 
-                LOGDEBUG("Changing " << userName << "user Id from " << currentUserId << " to " << newUserId);
-                changeUserId(userName, newUserId);
-                remapUserIdOfFiles(installRoot, currentUserId, newUserId);
+                    LOGDEBUG("Changing " << userName << "user ID from " << currentUserId << " to " << newUserId);
+                    changeUserId(userName, newUserId);
+                    remapUserIdOfFiles(installRoot, currentUserId, newUserId);
+                }
+                catch (const std::exception& exception)
+                {
+                    LOGERROR("Failed to reconfigure " << userName << "user ID to " << newUserId << ": " << exception.what());
+                }
             }
         }
        
@@ -367,11 +355,18 @@ namespace watchdog::watchdogimpl
             auto groups = changesNeeded[GROUPS_KEY];
             for (const auto& [groupName, newGroupId] : groups.items())
             {
-                auto currentGroupId = filePermissions->getGroupId(groupName);
+                try
+                {
+                    auto currentGroupId = filePermissions->getGroupId(groupName);
 
-                LOGDEBUG("Changing " << groupName << "group Id from " << currentGroupId << " to " << newGroupId);
-                changeGroupId(groupName, newGroupId);
-                remapGroupIdOfFiles(installRoot, currentGroupId, newGroupId);
+                    LOGDEBUG("Changing " << groupName << "group ID from " << currentGroupId << " to " << newGroupId);
+                    changeGroupId(groupName, newGroupId);
+                    remapGroupIdOfFiles(installRoot, currentGroupId, newGroupId);
+                }
+                catch (const std::exception& exception)
+                {
+                    LOGERROR("Failed to reconfigure " << groupName << "group ID to " << newGroupId << ": " << exception.what());
+                }
             }
         }
     }

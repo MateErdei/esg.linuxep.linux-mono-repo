@@ -41,6 +41,7 @@ namespace Common::FileSystem
          * @param path - the file or directory to modify
          * @param user ID
          * @param group ID
+         * @throw IPermissionDeniedException
          */
         virtual void lchown(const Path& path, uid_t userId, gid_t groupId) const = 0;
 
@@ -89,19 +90,18 @@ namespace Common::FileSystem
 
         /**
          * Get the user ID of a file or directory
-         *
-         *
-         * @param TODO
-         * @return
+         * @param path
+         * @return the user Id of a file or directory
+         * @throw IFileSystemException
          */
         virtual uid_t getUserIdOfDirEntry(const Path& path) const = 0;
 
         /**
          * Get the group ID of a file or directory
          *
-         *
-         * @param TODO
-         * @return
+         * @param path
+         * @return the group Id of a file or directory
+         * @throw IFileSystemException
          */
         virtual gid_t getGroupIdOfDirEntry(const Path& path) const = 0;
 
