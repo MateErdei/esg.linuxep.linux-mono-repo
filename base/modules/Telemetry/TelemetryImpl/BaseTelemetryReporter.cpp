@@ -4,10 +4,10 @@
 
 #include "TelemetryProcessor.h"
 
-#include "EventReceiverImpl/OutbreakModeController.h"
 #include "Common/UtilityImpl/TimeUtils.h"
 
 #include <Common/ApplicationConfigurationImpl/ApplicationPathManager.h>
+#include <Common/FileSystem/IFileSystemException.h>
 #include <Common/TelemetryHelperImpl/TelemetrySerialiser.h>
 #include <Common/UtilityImpl/FileUtils.h>
 #include <Common/UtilityImpl/StringUtils.h>
@@ -115,14 +115,15 @@ namespace Telemetry
         LOGWARN("Could not find the SHS status file at: " << shsStatusFilepath);
         return std::nullopt;
     }
+
     std::optional<std::string> BaseTelemetryReporter::getOutbreakModeCurrent()
     {
-        Path outbreakModeStatusFilepath =
-            Common::ApplicationConfiguration::applicationPathManager().getOutbreakModeStatusFilePath();
-        auto fs = Common::FileSystem::fileSystem();
-        if (fs->isFile(outbreakModeStatusFilepath))
+        std::string outbreak;
+        std::optional<nlohmann::json> outbreakStatusContents = parseOutbreakStatusFile();
+        if (outbreakStatusContents.has_value() && outbreakStatusContents->contains("outbreak-mode") &&
+            outbreakStatusContents->at("outbreak-mode").is_boolean())
         {
-            return extractValueFromFile(outbreakModeStatusFilepath, "outbreak-mode");
+            return outbreakStatusContents->at("outbreak-mode") ? "true" : "false";
         }
         return std::nullopt;
     }
@@ -132,7 +133,6 @@ namespace Telemetry
         Path outbreakModeStatusFilepath =
             Common::ApplicationConfiguration::applicationPathManager().getOutbreakModeStatusFilePath();
         auto fs = Common::FileSystem::fileSystem();
-        std::string everReachedOutbreak;
         if (fs->isFile(outbreakModeStatusFilepath))
         {
             return "true";
@@ -148,51 +148,65 @@ namespace Telemetry
 
     std::optional<std::string> BaseTelemetryReporter::getOutbreakModeToday(time_point_t now)
     {
-        if (getOutbreakModeCurrent() == "true")
+        std::optional<nlohmann::json> outbreakStatusContents = parseOutbreakStatusFile();
+        std::string recordedTime;
+        if (outbreakStatusContents.has_value())
         {
-            return "true";
-        }
-
-        Path outbreakModeStatusFilepath =
-            Common::ApplicationConfiguration::applicationPathManager().getOutbreakModeStatusFilePath();
-        auto fs = Common::FileSystem::fileSystem();
-        if (fs->isFile(outbreakModeStatusFilepath))
-        {
-            std::optional<std::string> recordedTime = extractValueFromFile(outbreakModeStatusFilepath, "timestamp");
-            if (recordedTime)
+            recordedTime = outbreakStatusContents.value().value("timestamp", "");
+            if (!recordedTime.empty())
             {
                 auto nowTime = clock_t::to_time_t(now);
-                auto recordedTimeAsTime = Common::UtilityImpl::TimeUtils::toTime(recordedTime.value());
-                if (difftime(nowTime, recordedTimeAsTime) > 86400) // 1 day in seconds
+                auto recordedTimeAsTime = Common::UtilityImpl::TimeUtils::toTime(recordedTime, "%FT%T");
+                if (recordedTimeAsTime == 0)
+                {
+                    LOGWARN("Unable to parse outbreak mode timestamp to time: " << recordedTime);
+                    return std::nullopt;
+                }
+                auto timeDifference = difftime(nowTime, recordedTimeAsTime);
+                if (timeDifference < 86400 && timeDifference > 0) // 1 day in seconds
                 {
                     return "true";
                 }
                 return "false";
             }
-            LOGWARN("Could not parse timestamp of last outbreak event at: " << outbreakModeStatusFilepath);
-            return std::nullopt;
         }
         return std::nullopt;
     }
 
+    std::optional<nlohmann::json> parseOutbreakStatusFile()
+    {
+        Path outbreakModeStatusFilepath =
+            Common::ApplicationConfiguration::applicationPathManager().getOutbreakModeStatusFilePath();
+        auto fs = Common::FileSystem::fileSystem();
+        if (fs->isFile(outbreakModeStatusFilepath))
+        {
+            try
+            {
+                auto fileContents = fs->readFile(outbreakModeStatusFilepath);
+                return nlohmann::json::parse(fileContents);
+            }
+            catch (Common::FileSystem::IFileSystemException& e)
+            {
+                LOGWARN("Unable to read file at: " << outbreakModeStatusFilepath << " with error: " << e.what());
+            }
+            catch (nlohmann::json::parse_error& e)
+            {
+                LOGWARN("Unable to parse json at: " << outbreakModeStatusFilepath << " with error: " << e.what());
+            }
+        }
+        return std::nullopt;
+    }
 
     std::optional<std::string> extractValueFromFile(const Path& filePath, const std::string& key)
     {
-        auto fs = Common::FileSystem::fileSystem();
-        if (fs->isFile(filePath))
+        std::pair<std::string, std::string> value =
+            Common::UtilityImpl::FileUtils::extractValueFromFile(filePath, key);
+        if (value.first.empty() && !value.second.empty())
         {
-            std::pair<std::string, std::string> value =
-                Common::UtilityImpl::FileUtils::extractValueFromFile(filePath, key);
-            if (value.first.empty() && !value.second.empty())
-            {
-                LOGWARN("Failed to find key: " << key << " in file: " << filePath << " due to error: " << value.second);
-                return std::nullopt;
-            }
-            return value.first;
+            LOGWARN("Failed to find key: " << key << " in file: " << filePath << " due to error: " << value.second);
+            return std::nullopt;
         }
-
-        LOGWARN("Could not find file to extract data from, file path: " << filePath);
-        return std::nullopt;
+        return value.first;
     }
 
     std::optional<std::string> extractCustomerId(const std::string& policyXml)

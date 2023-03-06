@@ -124,7 +124,7 @@ namespace Common::ApplicationConfiguration
 
         virtual std::string getMcsCaOverrideFlag() const = 0;
 
-        [[nodiscard]] virtual std::string getOutbreakModeStatusFilePath() const = 0;
+        virtual std::string getOutbreakModeStatusFilePath() const = 0;
     };
 
     IApplicationPathManager& applicationPathManager();

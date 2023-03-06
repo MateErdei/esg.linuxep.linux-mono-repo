@@ -1,9 +1,9 @@
-/******************************************************************************************************
+// Copyright 2019-2023, Sophos Limited.  All rights reserved.
 
-Copyright 2019, Sophos Limited.  All rights reserved.
+#define TEST_PUBLIC public
 
-******************************************************************************************************/
-
+#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
+#include <Common/FileSystem/IFileSystemException.h>
 #include <Common/Logging/ConsoleLoggingSetup.h>
 #include <Telemetry/TelemetryImpl/BaseTelemetryReporter.h>
 #include <gmock/gmock-matchers.h>
@@ -201,4 +201,277 @@ TEST_F(BaseTelemetryReporterTests, extractOverallHealthFindsOverallHealthXml) //
     auto overallHealth = Telemetry::extractOverallHealth(shsStatusXml);
     std::string expectedValue = "1";
     ASSERT_EQ(overallHealth, expectedValue);
+}
+
+TEST_F(BaseTelemetryReporterTests, parseOutbreakStatusWhenFileDoesNotExist)
+{
+    auto mockFileSystem = new StrictMock<MockFileSystem>();
+    std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
+    EXPECT_CALL(
+        *mockFileSystem,
+        isFile(Common::ApplicationConfiguration::applicationPathManager().getOutbreakModeStatusFilePath()))
+        .WillOnce(Return(false));
+    ASSERT_EQ(Telemetry::parseOutbreakStatusFile(), std::nullopt);
+}
+
+TEST_F(BaseTelemetryReporterTests, parseOutbreakStatusCatchesFileSystemException)
+{
+    testing::internal::CaptureStderr();
+    auto mockFileSystem = new StrictMock<MockFileSystem>();
+    std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
+    EXPECT_CALL(
+        *mockFileSystem,
+        isFile(Common::ApplicationConfiguration::applicationPathManager().getOutbreakModeStatusFilePath()))
+        .WillOnce(Return(true));
+    EXPECT_CALL(
+        *mockFileSystem,
+        readFile(Common::ApplicationConfiguration::applicationPathManager().getOutbreakModeStatusFilePath()))
+        .WillOnce(Throw(Common::FileSystem::IFileSystemException("TEST")));
+    ASSERT_EQ(Telemetry::parseOutbreakStatusFile(), std::nullopt);
+
+    std::string logMessage = testing::internal::GetCapturedStderr();
+    EXPECT_THAT(logMessage, ::testing::HasSubstr("Unable to read file at: "));
+}
+
+TEST_F(BaseTelemetryReporterTests, parseOutbreakStatusCatchesParseError)
+{
+    testing::internal::CaptureStderr();
+    auto mockFileSystem = new StrictMock<MockFileSystem>();
+    std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
+    EXPECT_CALL(
+        *mockFileSystem,
+        isFile(Common::ApplicationConfiguration::applicationPathManager().getOutbreakModeStatusFilePath()))
+        .WillOnce(Return(true));
+    EXPECT_CALL(
+        *mockFileSystem,
+        readFile(Common::ApplicationConfiguration::applicationPathManager().getOutbreakModeStatusFilePath()))
+        .WillOnce(Return("not a json"));
+    ASSERT_EQ(Telemetry::parseOutbreakStatusFile(), std::nullopt);
+
+    std::string logMessage = testing::internal::GetCapturedStderr();
+    EXPECT_THAT(logMessage, ::testing::HasSubstr("Unable to parse json at: "));
+}
+
+TEST_F(BaseTelemetryReporterTests, getOutbreakModeCurrentInOutbreakMode)
+{
+    auto mockFileSystem = new StrictMock<MockFileSystem>();
+    std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
+
+    EXPECT_CALL(
+        *mockFileSystem,
+        isFile(Common::ApplicationConfiguration::applicationPathManager().getOutbreakModeStatusFilePath()))
+        .WillOnce(Return(true));
+    EXPECT_CALL(
+        *mockFileSystem,
+        readFile(Common::ApplicationConfiguration::applicationPathManager().getOutbreakModeStatusFilePath()))
+        .WillOnce(Return(R"({ "outbreak-mode" : true })"));
+    ASSERT_EQ(Telemetry::BaseTelemetryReporter::getOutbreakModeCurrent(), "true");
+}
+
+TEST_F(BaseTelemetryReporterTests, getOutbreakModeCurrentNotInOutbreakMode)
+{
+    auto mockFileSystem = new StrictMock<MockFileSystem>();
+    std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
+
+    EXPECT_CALL(
+        *mockFileSystem,
+        isFile(Common::ApplicationConfiguration::applicationPathManager().getOutbreakModeStatusFilePath()))
+        .WillOnce(Return(true));
+    EXPECT_CALL(
+        *mockFileSystem,
+        readFile(Common::ApplicationConfiguration::applicationPathManager().getOutbreakModeStatusFilePath()))
+        .WillOnce(Return(R"({ "outbreak-mode" : false })"));
+    ASSERT_EQ(Telemetry::BaseTelemetryReporter::getOutbreakModeCurrent(), "false");
+}
+
+TEST_F(BaseTelemetryReporterTests, getOutbreakModeCurrentWithInvalidJson)
+{
+    testing::internal::CaptureStderr();
+    auto mockFileSystem = new StrictMock<MockFileSystem>();
+    std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
+
+    EXPECT_CALL(
+        *mockFileSystem,
+        isFile(Common::ApplicationConfiguration::applicationPathManager().getOutbreakModeStatusFilePath()))
+        .WillOnce(Return(true));
+    EXPECT_CALL(
+        *mockFileSystem,
+        readFile(Common::ApplicationConfiguration::applicationPathManager().getOutbreakModeStatusFilePath()))
+        .WillOnce(Return(R"({ .,';" })"));
+    ASSERT_EQ(Telemetry::BaseTelemetryReporter::getOutbreakModeCurrent(), std::nullopt);
+
+    std::string logMessage = testing::internal::GetCapturedStderr();
+    EXPECT_THAT(logMessage, ::testing::HasSubstr("Unable to parse json at: "));
+}
+
+TEST_F(BaseTelemetryReporterTests, getOutbreakModeCurrentWithMissingFile)
+{
+    testing::internal::CaptureStderr();
+    auto mockFileSystem = new StrictMock<MockFileSystem>();
+    std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
+
+    EXPECT_CALL(
+        *mockFileSystem,
+        isFile(Common::ApplicationConfiguration::applicationPathManager().getOutbreakModeStatusFilePath()))
+        .WillOnce(Return(false));
+    ASSERT_EQ(Telemetry::BaseTelemetryReporter::getOutbreakModeCurrent(), std::nullopt);
+
+    std::string logMessage = testing::internal::GetCapturedStderr();
+    EXPECT_EQ(logMessage, ""); //no errors expected
+}
+
+TEST_F(BaseTelemetryReporterTests, getOutbreakModeHistoricWithMissingFile)
+{
+    auto mockFileSystem = new StrictMock<MockFileSystem>();
+    std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
+
+    EXPECT_CALL(
+        *mockFileSystem,
+        isFile(Common::ApplicationConfiguration::applicationPathManager().getOutbreakModeStatusFilePath()))
+        .WillOnce(Return(true));
+    ASSERT_EQ(Telemetry::BaseTelemetryReporter::getOutbreakModeHistoric(), "true");
+}
+
+TEST_F(BaseTelemetryReporterTests, getOutbreakModeHistoricWithFile)
+{
+    auto mockFileSystem = new StrictMock<MockFileSystem>();
+    std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
+
+    EXPECT_CALL(
+        *mockFileSystem,
+        isFile(Common::ApplicationConfiguration::applicationPathManager().getOutbreakModeStatusFilePath()))
+        .WillOnce(Return(false));
+    ASSERT_EQ(Telemetry::BaseTelemetryReporter::getOutbreakModeHistoric(), "false");
+}
+
+TEST_F(BaseTelemetryReporterTests, getOutbreakModeTodayWithLargeTimeDifference)
+{
+    auto mockFileSystem = new StrictMock<MockFileSystem>();
+    std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
+
+    auto now = Telemetry::BaseTelemetryReporter::clock_t::now();
+    auto yesterday = now - std::chrono::hours{25};
+
+    EXPECT_CALL(
+        *mockFileSystem,
+        isFile(Common::ApplicationConfiguration::applicationPathManager().getOutbreakModeStatusFilePath()))
+        .WillOnce(Return(true));
+    EXPECT_CALL(
+        *mockFileSystem,
+        readFile(Common::ApplicationConfiguration::applicationPathManager().getOutbreakModeStatusFilePath()))
+        .WillOnce(Return(R"({ "timestamp" : ")" + Common::UtilityImpl::TimeUtils::MessageTimeStamp(yesterday) + "\" }"));
+    EXPECT_EQ(Telemetry::BaseTelemetryReporter::getOutbreakModeToday(now), "false");
+}
+
+TEST_F(BaseTelemetryReporterTests, getOutbreakModeTodayWithSmallTimeDifference)
+{
+    auto mockFileSystem = new StrictMock<MockFileSystem>();
+    std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
+
+    auto now = Telemetry::BaseTelemetryReporter::clock_t::now();
+    auto earlier = now - std::chrono::hours{23};
+
+    EXPECT_CALL(
+        *mockFileSystem,
+        isFile(Common::ApplicationConfiguration::applicationPathManager().getOutbreakModeStatusFilePath()))
+        .WillOnce(Return(true));
+    EXPECT_CALL(
+        *mockFileSystem,
+        readFile(Common::ApplicationConfiguration::applicationPathManager().getOutbreakModeStatusFilePath()))
+        .WillOnce(Return(R"({ "timestamp" : ")" + Common::UtilityImpl::TimeUtils::MessageTimeStamp(earlier) + "\" }"));
+    EXPECT_EQ(Telemetry::BaseTelemetryReporter::getOutbreakModeToday(now), "true");
+}
+
+TEST_F(BaseTelemetryReporterTests, getOutbreakModeTodayWithFutureTimeDifference)
+{
+    auto mockFileSystem = new StrictMock<MockFileSystem>();
+    std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
+
+    auto now = Telemetry::BaseTelemetryReporter::clock_t::now();
+    auto tomorrow = now + std::chrono::hours{25};
+
+    EXPECT_CALL(
+        *mockFileSystem,
+        isFile(Common::ApplicationConfiguration::applicationPathManager().getOutbreakModeStatusFilePath()))
+        .WillOnce(Return(true));
+    EXPECT_CALL(
+        *mockFileSystem,
+        readFile(Common::ApplicationConfiguration::applicationPathManager().getOutbreakModeStatusFilePath()))
+        .WillOnce(Return(R"({ "timestamp" : ")" + Common::UtilityImpl::TimeUtils::MessageTimeStamp(tomorrow) + "\" }"));
+    EXPECT_EQ(Telemetry::BaseTelemetryReporter::getOutbreakModeToday(now), "false");
+}
+
+TEST_F(BaseTelemetryReporterTests, getOutbreakModeTodayWithInvalidTime)
+{
+    testing::internal::CaptureStderr();
+
+    auto mockFileSystem = new StrictMock<MockFileSystem>();
+    std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
+
+    auto now = Telemetry::BaseTelemetryReporter::clock_t::now();
+
+    EXPECT_CALL(
+        *mockFileSystem,
+        isFile(Common::ApplicationConfiguration::applicationPathManager().getOutbreakModeStatusFilePath()))
+        .WillOnce(Return(true));
+    EXPECT_CALL(
+        *mockFileSystem,
+        readFile(Common::ApplicationConfiguration::applicationPathManager().getOutbreakModeStatusFilePath()))
+        .WillOnce(Return(R"( { "timestamp" : "tomorrow, at some point" } )"));
+    EXPECT_EQ(Telemetry::BaseTelemetryReporter::getOutbreakModeToday(now), std::nullopt);
+
+    std::string logMessage = testing::internal::GetCapturedStderr();
+    EXPECT_THAT(logMessage, ::testing::HasSubstr("Unable to parse outbreak mode timestamp to time: "));
+}
+
+TEST_F(BaseTelemetryReporterTests, getOutbreakModeTodayWithInvalidJson)
+{
+    testing::internal::CaptureStderr();
+
+    auto mockFileSystem = new StrictMock<MockFileSystem>();
+    std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
+
+    auto now = Telemetry::BaseTelemetryReporter::clock_t::now();
+
+    EXPECT_CALL(
+        *mockFileSystem,
+        isFile(Common::ApplicationConfiguration::applicationPathManager().getOutbreakModeStatusFilePath()))
+        .WillOnce(Return(true));
+    EXPECT_CALL(
+        *mockFileSystem,
+        readFile(Common::ApplicationConfiguration::applicationPathManager().getOutbreakModeStatusFilePath()))
+        .WillOnce(Return(R"( { :D "timestamp" : "tomorrow, at some point" } )"));
+    EXPECT_EQ(Telemetry::BaseTelemetryReporter::getOutbreakModeToday(now), std::nullopt);
+
+    std::string logMessage = testing::internal::GetCapturedStderr();
+    EXPECT_THAT(logMessage, ::testing::HasSubstr("Unable to parse json at: "));
+}
+
+TEST_F(BaseTelemetryReporterTests, getOutbreakModeTodayWithFileMissing)
+{
+    auto mockFileSystem = new StrictMock<MockFileSystem>();
+    std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
+
+    auto now = Telemetry::BaseTelemetryReporter::clock_t::now();
+
+    EXPECT_CALL(
+        *mockFileSystem,
+        isFile(Common::ApplicationConfiguration::applicationPathManager().getOutbreakModeStatusFilePath()))
+        .WillOnce(Return(false));
+    EXPECT_EQ(Telemetry::BaseTelemetryReporter::getOutbreakModeToday(now), std::nullopt);
 }
