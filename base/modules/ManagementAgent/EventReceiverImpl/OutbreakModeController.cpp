@@ -10,7 +10,10 @@
 #include "Common/UtilityImpl/Uuid.h"
 #include "FileSystem/IFileNotFoundException.h"
 #include "ManagementAgent/LoggerImpl/Logger.h"
+#include "UtilityImpl/ProjectNames.h"
 #include "XmlUtilities/AttributesMap.h"
+
+#include <Common/FileSystem/IFilePermissions.h>
 
 #include <ctime>
 #include <json.hpp>
@@ -132,6 +135,7 @@ void ManagementAgent::EventReceiverImpl::OutbreakModeController::save(const std:
     try
     {
         filesystem->writeFileAtomically(path, contents, paths.getTempPath(), 0600);
+        Common::FileSystem::filePermissions()->chown(path, sophos::user(), sophos::group());
     }
     catch (const Common::FileSystem::IFileSystemException& ex)
     {
