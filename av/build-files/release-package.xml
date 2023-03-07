@@ -17,7 +17,7 @@
             <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="input/base-sdds"/>
         </build-asset>
         <build-asset project="core" repo="safestore">
-            <release-version branch="release/2.0" build-id="20221215190433-52dff9eacda0a405fec1c581a8c1c0c3478c4267-xJ6msy"/>
+            <release-version branch="release/2.1" build-id="20230302135148-5b9430059affb4c4fcb302c3495a7fee7026c069-V9Q1Dh"/>
             <development-version branch="develop" />
             <include artifact-path="release/linux-x64/safestore" dest-dir="input/safestore_input"/>
         </build-asset>
