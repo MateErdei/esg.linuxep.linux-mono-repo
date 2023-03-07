@@ -184,19 +184,6 @@
       <release-asset artifact-path="prod-sdds3-launchdarkly" source-dir="output/launchdarkly" mode="prod">
           <include glob="*.json"/>
       </release-asset>
-
-      <!--release-package-->
-    <build-asset artifact-path="base-999/def" source-dir="output\def" mode="release-package-base-999"/>
-    <build-asset artifact-path="base-999/logs" source-dir="logs" mode="release-package-base-999"/>
-
-    <build-asset artifact-path="edr-999/def" source-dir="output\def" mode="release-package-edr-999"/>
-    <build-asset artifact-path="edr-999/logs" source-dir="logs" mode="release-package-edr-999"/>
-
-    <build-asset artifact-path="edr-mdr-999/def" source-dir="output\def" mode="release-package-edr-mdr-999"/>
-    <build-asset artifact-path="edr-mdr-999/logs" source-dir="logs" mode="release-package-edr-mdr-999"/>
-
-    <build-asset artifact-path="mdr-999/def" source-dir="output\def" mode="release-package-mdr-999"/>
-    <build-asset artifact-path="mdr-999/logs" source-dir="logs" mode="release-package-mdr-999"/>
   </publish>
 
 </package>
