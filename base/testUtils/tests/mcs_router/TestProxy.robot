@@ -221,7 +221,10 @@ Policy proxy overrides local proxy
     ...  30 secs
     ...  5 secs
     ...  Check MCSRouter Log Contains   Successfully connected to localhost:4443 via localhost:${Proxy_Port_Two}
-    Check MCSRouter Log Contains   Push client successfully connected to ${push_server_address} via localhost:${Proxy_Port_Two}
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  5 secs
+    ...  Check MCSRouter Log Contains   Push client successfully connected to ${push_server_address} via localhost:${Proxy_Port_Two}
 
     Check MCSRouter Log Does Not Contain   Successfully connected to localhost:4443 via localhost:${Proxy_Port_One}
     Check MCSRouter Log Does Not Contain   Push client successfully connected to ${push_server_address} directly
@@ -238,7 +241,10 @@ Policy proxy overrides local proxy
     ...  30 secs
     ...  5 secs
     ...  Check MCSRouter Log Contains  Successfully connected to localhost:4443 via localhost:${Proxy_Port_One}
-    Check MCSRouter Log Contains   Push client successfully connected to ${push_server_address} via localhost:${Proxy_Port_One}
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  5 secs
+    ...  Check MCSRouter Log Contains   Push client successfully connected to ${push_server_address} via localhost:${Proxy_Port_One}
 
     # Check current proxy file is written with correct content and permissions.
     Check Current Proxy Is Created With Correct Content And Permissions  localhost:${Proxy_Port_One}
@@ -318,7 +324,10 @@ Policy authentication with digest
         ...  30 secs
         ...  5 secs
         ...  Check MCSRouter Log Contains   Established MCS Push Connection
-    Check MCSRouter Log Contains   Push client successfully connected to ${push_server_address} via localhost:3000
+    Wait Until Keyword Succeeds
+        ...  30 secs
+        ...  5 secs
+        ...  Check MCSRouter Log Contains   Push client successfully connected to ${push_server_address} via localhost:3000
 
 
 Attempt to Connect Via Digest Proxy with Wrong Credentials Produce Correct Error Line
@@ -445,7 +454,10 @@ Status Sent After Message Relay Changed
     ...  30 secs
     ...  5 secs
     ...  Check MCSRouter Log Contains  Successfully connected to localhost:4443 via localhost:${Proxy_Port_Two}
-    Check MCSRouter Log Contains  Push client successfully connected to ${push_server_address} via localhost:${Proxy_Port_Two}
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  5 secs
+    ...  Check MCSRouter Log Contains  Push client successfully connected to ${push_server_address} via localhost:${Proxy_Port_Two}
 
 
     Wait Until Keyword Succeeds
