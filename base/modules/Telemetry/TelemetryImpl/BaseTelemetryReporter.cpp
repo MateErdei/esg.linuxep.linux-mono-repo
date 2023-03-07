@@ -142,7 +142,6 @@ namespace Telemetry
 
     std::optional<std::string> BaseTelemetryReporter::getOutbreakModeTodayWrapper()
     {
-        Common::UtilityImpl::FormattedTime formattedTime;
         return getOutbreakModeToday(clock_t::now());
     }
 
@@ -163,7 +162,7 @@ namespace Telemetry
                     return std::nullopt;
                 }
                 auto timeDifference = difftime(nowTime, recordedTimeAsTime);
-                if (timeDifference < 86400 && timeDifference > 0) // 1 day in seconds
+                if (timeDifference <= 86400 && timeDifference >= 0) // 1 day in seconds
                 {
                     return "true";
                 }
