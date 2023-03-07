@@ -53,16 +53,16 @@ INSTALL(TARGETS
         SDDS3DownloaderTest
         DESTINATION ${CMAKE_BINARY_DIR}/SystemProductTestOutput)
 
+
 add_executable(diskSpaceUtil DiskSpaceUtil.cpp)
 
-target_include_directories(diskSpaceUtil PUBLIC ${LOG4CPLUS_INCLUDE_DIR} ${PROJECT_SOURCE_DIR})
+target_include_directories(diskSpaceUtil PUBLIC ${PROJECT_SOURCE_DIR})
 
-target_link_libraries(diskSpaceUtil logging filesystemimpl)
+target_link_libraries(diskSpaceUtil filesystemimpl)
 
 SET_TARGET_PROPERTIES(diskSpaceUtil PROPERTIES
         BUILD_RPATH "/opt/sophos-spl/base/lib64"
         INSTALL_RPATH "/opt/sophos-spl/base/lib64")
-
 
 INSTALL(TARGETS
         diskSpaceUtil
