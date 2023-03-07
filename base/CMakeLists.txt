@@ -178,11 +178,6 @@ set(SOPHLIB_LIBRARIES ${SOPHLIB_INPUT}/lib64/file/libfile.pic.a
 
 set(NLOHMANN_JSON_INCLUDE_DIR ../../../thirdparty/nlohmann-json)
 
-## Allow this to be redirected for SUL development
-if(NOT DEFINED SUL_INPUT)
-    set( SUL_INPUT ${INPUT}/SUL )
-endif()
-
 if(NOT DEFINED SDDS3LIB_INPUT)
     set( SDDS3LIB_INPUT ${INPUT}/sdds3lib )
 endif()
