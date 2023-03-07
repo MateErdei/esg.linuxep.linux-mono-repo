@@ -33,13 +33,14 @@ namespace Telemetry
         std::string getName() override { return "base-telemetry"; }
         std::string getTelemetry() override;
 
-    private:
-        TEST_PUBLIC:
-            using clock_t = std::chrono::system_clock;
-            using time_point_t = std::chrono::time_point<clock_t>;
-            static std::optional<std::string> getOutbreakModeCurrent();
-            static std::optional<std::string> getOutbreakModeToday(time_point_t now);
+    TEST_PUBLIC:
+        using clock_t = std::chrono::system_clock;
+        using time_point_t = std::chrono::time_point<clock_t>;
+        static std::optional<std::string> getOutbreakModeCurrent();
+        static std::optional<std::string> getOutbreakModeToday(time_point_t now);
+        static std::optional<std::string> getOutbreakModeHistoric();
 
+    private:
         static std::optional<std::string> getCustomerId();
         static std::optional<std::string> getEndpointId();
         static std::optional<std::string> getTenantId();
@@ -48,6 +49,6 @@ namespace Telemetry
         static std::optional<std::string> getVersion();
         static std::optional<std::string> getOverallHealth();
         static std::optional<std::string> getOutbreakModeTodayWrapper();
-        static std::optional<std::string> getOutbreakModeHistoric();
+
     };
 } // namespace Telemetry
