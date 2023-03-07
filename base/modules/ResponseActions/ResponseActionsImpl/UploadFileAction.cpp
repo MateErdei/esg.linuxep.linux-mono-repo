@@ -2,7 +2,6 @@
 
 #include "UploadFileAction.h"
 
-#include "ActionStructs.h"
 #include "ActionsUtils.h"
 #include "InvalidCommandFormat.h"
 #include "Logger.h"
@@ -10,16 +9,16 @@
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/FileSystem/IFileTooLargeException.h>
+#include <Common/ProxyUtils/ProxyUtils.h>
 #include <Common/UtilityImpl/TimeUtils.h>
 #include <Common/ZipUtilities/ZipUtils.h>
 
-#include <json.hpp>
 namespace ResponseActionsImpl
 {
     UploadFileAction::UploadFileAction(std::shared_ptr<Common::HttpRequests::IHttpRequester> client):
         m_client(std::move(client)){}
 
-    std::string UploadFileAction::run(const std::string& actionJson) const
+    std::string UploadFileAction::run(const std::string& actionJson)
     {
         nlohmann::json response;
         response["type"] = "sophos.mgt.response.UploadFile";
@@ -56,25 +55,43 @@ namespace ResponseActionsImpl
         Common::UtilityImpl::FormattedTime time;
         u_int64_t start = time.currentEpochTimeInSecondsAsInteger();
         response["startedAt"] = start;
-        std::string pathToUpload = "";
+
+        prepareAndUpload(info, response);
+
+        if (info.compress)
+        {
+            if (fs->isFile(m_pathToUpload))
+            {
+                fs->removeFile(m_pathToUpload);
+            }
+        }
+
+        u_int64_t end = time.currentEpochTimeInSecondsAsInteger();
+        response["duration"] = end - start;
+        return response.dump();
+    }
+
+    void UploadFileAction::prepareAndUpload(const UploadInfo& info, nlohmann::json& response)
+    {
+        auto* fs = Common::FileSystem::fileSystem();
         std::string contentType;
         if (info.compress)
         {
             contentType = "application/zip";
             std::string tmpdir = Common::ApplicationConfiguration::applicationPathManager().getResponseActionTmpPath();
             std::string zipName = Common::FileSystem::basename(info.targetPath) + ".zip";
-            pathToUpload = Common::FileSystem::join(tmpdir, zipName);
+            m_pathToUpload = Common::FileSystem::join(tmpdir, zipName);
             int ret;
             try
             {
                 if (info.password.empty())
                 {
-                    ret = Common::ZipUtilities::zipUtils().zip(info.targetPath, pathToUpload, false);
+                    ret = Common::ZipUtilities::zipUtils().zip(info.targetPath, m_pathToUpload, false);
                 }
                 else
                 {
-                    ret =
-                        Common::ZipUtilities::zipUtils().zip(info.targetPath, pathToUpload, false, true, info.password);
+                    ret = Common::ZipUtilities::zipUtils().zip(
+                        info.targetPath, m_pathToUpload, false, true, info.password);
                 }
             }
             catch (const std::runtime_error&)
@@ -88,62 +105,90 @@ namespace ResponseActionsImpl
                 error << "Error zipping " << info.targetPath;
                 LOGWARN(error.str());
                 ActionsUtils::setErrorInfo(response, 3, error.str());
-                if (fs->isFile(pathToUpload))
-                {
-                    fs->removeFile(pathToUpload);
-                }
-                return response.dump();
+                return;
             }
         }
         else
         {
             contentType = "application/octet-stream";
-            pathToUpload = info.targetPath;
+            m_pathToUpload = info.targetPath;
         }
-        response["sizeBytes"] = fs->fileSize(pathToUpload);
+        response["sizeBytes"] = fs->fileSize(m_pathToUpload);
         if (response["sizeBytes"] > info.maxSize)
         {
             std::stringstream error;
-            error << "File at path " << pathToUpload + " is size " << response["sizeBytes"]
+            error << "File at path " << m_pathToUpload + " is size " << response["sizeBytes"]
                   << " bytes which is above the size limit " << info.maxSize << " bytes";
             LOGWARN(error.str());
             ActionsUtils::setErrorInfo(response, 1, error.str(), "exceed_size_limit");
-            return response.dump();
+            return;
         }
 
         std::string sha256;
 
         try
         {
-            response["sha256"] = fs->calculateDigest(Common::SslImpl::Digest::sha256, pathToUpload);
+            response["sha256"] = fs->calculateDigest(Common::SslImpl::Digest::sha256, m_pathToUpload);
         }
         catch (const Common::FileSystem::IFileSystemException&)
         {
             std::string error = "File to be uploaded cannot be accessed";
             ActionsUtils::setErrorInfo(response, 1, error, "access_denied");
-            return response.dump();
+            return;
         }
         catch (const std::exception& exception)
         {
             std::stringstream error;
             error << "Unknown error when calculating digest of file :" << exception.what();
             ActionsUtils::setErrorInfo(response, 1, error.str());
-            return response.dump();
+            return;
         }
+
+        m_filename = Common::FileSystem::basename(m_pathToUpload);
+        response["fileName"] = m_filename;
 
         Common::HttpRequests::Headers requestHeaders{ { "Content-Type", contentType } };
         Common::HttpRequests::RequestConfig request{
-            .url = info.url, .headers = requestHeaders, .fileToUpload = pathToUpload, .timeout = info.timeout
+            .url = info.url, .headers = requestHeaders, .fileToUpload = m_pathToUpload, .timeout = info.timeout
         };
-        LOGINFO("Uploading file: " << pathToUpload << " to url: " << info.url);
-        Common::HttpRequests::Response httpresponse = m_client->put(request);
-        std::string filename = Common::FileSystem::basename(pathToUpload);
-        response["fileName"] = filename;
+        LOGINFO("Uploading file: " << m_pathToUpload << " to url: " << info.url);
+        Common::HttpRequests::Response httpresponse;
 
+        if (Common::ProxyUtils::updateHttpRequestWithProxyInfo(request))
+        {
+            std::stringstream message;
+            message << "Uploading via proxy: " << request.proxy.value();
+            LOGINFO(message.str());
+            httpresponse = m_client->put(request);
+            handleHttpResponse(httpresponse, response);
+            if (response["result"] != 0)
+            {
+                LOGWARN("Connection with proxy failed going direct");
+                request.proxy = "";
+                request.proxyPassword = "";
+                request.proxyUsername = "";
+                ActionsUtils::resetErrorInfo(response);
+                httpresponse = m_client->put(request);
+                handleHttpResponse(httpresponse, response);
+            }
+        }
+        else
+        {
+            LOGINFO("Uploading directly");
+            httpresponse = m_client->put(request);
+            handleHttpResponse(httpresponse, response);
+        }
+        response["httpStatus"] = httpresponse.status;
+    }
+
+    void UploadFileAction::handleHttpResponse(
+        const Common::HttpRequests::Response& httpresponse,
+        nlohmann::json& response)
+    {
         if (httpresponse.errorCode == Common::HttpRequests::ResponseErrorCode::TIMEOUT)
         {
             std::stringstream error;
-            error << "Timeout Uploading file: " << filename;
+            error << "Timeout Uploading file: " << m_filename;
             LOGWARN(error.str());
             ActionsUtils::setErrorInfo(response, 2, error.str());
         }
@@ -152,12 +197,12 @@ namespace ResponseActionsImpl
             if (httpresponse.status == Common::HttpRequests::HTTP_STATUS_OK)
             {
                 response["result"] = 0;
-                LOGINFO("Upload for " << pathToUpload << " succeeded");
+                LOGINFO("Upload for " << m_pathToUpload << " succeeded");
             }
             else
             {
                 std::stringstream error;
-                error << "Failed to upload file: " << filename << " with http error code " << httpresponse.status;
+                error << "Failed to upload file: " << m_filename << " with http error code " << httpresponse.status;
                 LOGWARN(error.str());
                 ActionsUtils::setErrorInfo(response, 1, error.str(), "network_error");
             }
@@ -165,19 +210,9 @@ namespace ResponseActionsImpl
         else
         {
             std::stringstream error;
-            error << "Failed to upload file: " << filename << " with error: " << httpresponse.error;
+            error << "Failed to upload file: " << m_filename << " with error: " << httpresponse.error;
             LOGWARN(error.str());
             ActionsUtils::setErrorInfo(response, 1, error.str(), "network_error");
         }
-
-        if (info.compress)
-        {
-            fs->removeFile(pathToUpload);
-        }
-        response["httpStatus"] = httpresponse.status;
-        u_int64_t end = time.currentEpochTimeInSecondsAsInteger();
-        response["duration"] = end - start;
-        return response.dump();
     }
-
 }

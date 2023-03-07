@@ -1,6 +1,8 @@
 add_library(ProxyUtilsLib SHARED
         ProxyUtils.h
         ProxyUtils.cpp
+        Logger.cpp
+        Logger.h
         )
 
 target_link_libraries(ProxyUtilsLib PUBLIC filesystemimpl utilityimpl applicationconfigurationimpl logging obfuscationimpl)

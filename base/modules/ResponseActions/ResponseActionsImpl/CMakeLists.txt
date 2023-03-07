@@ -16,6 +16,7 @@ include_directories(responseactionsimpl BEFORE ${CMAKE_CURRENT_BINARY_DIR} ${LOG
 target_link_libraries(responseactionsimpl PUBLIC
         logging
         utilityimpl
+        ProxyUtilsLib
         HttpRequestsImpl
         curlwrapper
         filesystemimplobject

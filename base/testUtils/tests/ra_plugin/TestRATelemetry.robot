@@ -9,6 +9,7 @@ Suite Teardown  Require Uninstalled
 Test Setup  RA Telemetry Test Setup
 Test Teardown  RA Telemetry Test Teardown
 
+Force Tags  LOAD7
 Default Tags   RESPONSE_ACTIONS_PLUGIN  TAP_TESTS
 
 

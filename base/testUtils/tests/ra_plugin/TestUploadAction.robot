@@ -7,17 +7,17 @@ Resource  ../mcs_router/McsRouterResources.robot
 Library    ${LIBS_DIRECTORY}/MCSRouter.py
 Library    ${LIBS_DIRECTORY}/OnFail.py
 Library     ${LIBS_DIRECTORY}/CentralUtils.py
-Suite Setup     RA Upload Suite Setup
+Suite Setup     RA Upload Action Suite Setup
 Suite Teardown  RA Suite Teardown
 
 Test Setup  RA Upload Test Setup
 Test Teardown  RA Upload Test Teardown
 
+Force Tags  LOAD5
 Default Tags   RESPONSE_ACTIONS_PLUGIN
 
 *** Test Cases ***
 RA Plugin uploads a file successfully
-    Install Response Actions Directly
     ${response_mark} =  mark_log_size  ${RESPONSE_ACTIONS_LOG_PATH}
     ${action_mark} =  mark_log_size  ${ACTIONS_RUNNER_LOG_PATH}
     Create File  /tmp/file  tempfilecontent
@@ -36,7 +36,7 @@ RA Plugin uploads a file successfully
 
 RA Plugin runs actions in order
     Create File         ${SOPHOS_INSTALL}/base/etc/logger.conf.local   [responseactions]\nVERBOSITY=DEBUG\n
-    Install Response Actions Directly
+    Restart Response Actions
     generate_file  /tmp/largefile  500
     Register Cleanup  Remove File  /tmp/largefile
     Simulate Upload Action Now
@@ -53,7 +53,6 @@ RA Plugin runs actions in order
         ...  Action id2 has succeeded
 
 RA Plugin uploads a file successfully with compression
-    Install Response Actions Directly
     ${response_mark} =  mark_log_size  ${RESPONSE_ACTIONS_LOG_PATH}
     ${action_mark} =  mark_log_size  ${ACTIONS_RUNNER_LOG_PATH}
     Create File  /tmp/file  tempfilecontent
@@ -74,19 +73,14 @@ RA Plugin uploads a file successfully with compression
     File Should Contain  /tmp/unpackzip/file     tempfilecontent
 
 RA Plugin uploads a folder successfully with compression
-    Install Response Actions Directly
+    ${response_mark} =  mark_log_size  ${RESPONSE_ACTIONS_LOG_PATH}
+    ${action_mark} =  mark_log_size  ${ACTIONS_RUNNER_LOG_PATH}
     Create Directory  /tmp/compressionTest
     Create File  /tmp/compressionTest/file.txt  tempfilecontent
     Register Cleanup  Remove Directory  /tmp/compressionTest
     Send_Upload_Folder_From_Fake_Cloud   /tmp/compressionTest  ${TRUE}  corrid  password
-    Wait Until Keyword Succeeds
-    ...  25 secs
-    ...  1 secs
-    ...  Check Log Contains  Action corrid has succeeded  ${RESPONSE_ACTIONS_LOG_PATH}  response actions log
-    Wait Until Keyword Succeeds
-    ...  15 secs
-    ...  1 secs
-    ...  Check Log Contains  Sent upload folder response for id corrid to Central  ${ACTIONS_RUNNER_LOG_PATH}  response actions log
+    wait_for_log_contains_from_mark  ${response_mark}  Action corrid has succeeded   25
+    wait_for_log_contains_from_mark  ${action_mark}  Sent upload folder response for id corrid to Central   15
     File Should exist  /tmp/upload.zip
     Create Directory  /tmp/unpackzip/
     Register Cleanup  Remove Directory  /tmp/unpackzip/
@@ -105,31 +99,6 @@ Simulate Upload Action Now
     Should Be Equal As Integers    ${result.rc}    0  Failed to replace permission to file. Reason: ${result.stderr}
     Move File   ${SOPHOS_INSTALL}/tmp/UploadAction.json  ${SOPHOS_INSTALL}/base/mcs/action/CORE_${id_suffix}_request_2030-02-27T13:45:35.699544Z_144444000000004.json
 
-RA Suite Teardown
-    Stop Local Cloud Server
-    Require Uninstalled
-
-RA Upload Suite Setup
-    Start Local Cloud Server
-    Regenerate Certificates
-    Set Local CA Environment Variable
-    Run Full Installer
-    Create File  /opt/sophos-spl/base/mcs/certs/ca_env_override_flag
+RA Upload Action Suite Setup
+    RA Upload Suite Setup
     Register With Local Cloud Server
-
-RA Upload Test Setup
-    Require Installed
-    HttpsServer.Start Https Server  /tmp/cert.crt  443  tlsv1_2  True
-    install_system_ca_cert  /tmp/cert.crt
-    install_system_ca_cert  /tmp/ca.crt
-
-RA Upload Test Teardown
-    General Test Teardown
-    Uninstall Response Actions
-    Remove file  ${TELEMETRY_OUTPUT_JSON}
-    Run Keyword If Test Failed  LogUtils.Dump Log  ${HTTPS_LOG_FILE_PATH}
-    Cleanup Telemetry Server
-    cleanup_system_ca_certs
-    Remove File  ${EXE_CONFIG_FILE}
-    Run Keyword If Test Failed    Dump Cloud Server Log
-    Remove File   /tmp/upload.zip

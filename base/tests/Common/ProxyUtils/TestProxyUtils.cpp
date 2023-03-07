@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2022, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2022-2023 Sophos Limited. All rights reserved.
 
 #include "json.hpp"
 
@@ -10,14 +6,17 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 #include "../Helpers/LogInitializedTests.h"
 #include "../Helpers/MockFileSystem.h"
 #include "ApplicationConfigurationImpl/ApplicationPathManager.h"
+#include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
+#include "Common/HttpRequests/IHttpRequester.h"
+#include "Common/ProxyUtils/ProxyUtils.h"
 #include "FileSystem/IFileSystemException.h"
 #include "Obfuscation/ICipherException.h"
 
-#include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
-#include <Common/ProxyUtils/ProxyUtils.h>
 #include <gtest/gtest.h>
 
-class TestProxyUtils: public LogOffInitializedTests{};
+class TestProxyUtils : public LogOffInitializedTests
+{
+};
 
 // getCurrentProxy tests
 TEST_F(TestProxyUtils, getCurrentProxyReturnsProxyDetails) // NOLINT
@@ -180,7 +179,7 @@ TEST_F(TestProxyUtils, deobfuscateProxyCreds) // NOLINT
 TEST_F(TestProxyUtils, deobfuscateProxyCredsThrowsOnInvalidInput) // NOLINT
 {
     std::string obfuscatedCreds = "CCD4E57ZjW+t5XPiMSbbbbbbbbbbbbbbbSslIIGV5rUw";
-    EXPECT_THROW(Common::ProxyUtils::deobfuscateProxyCreds(obfuscatedCreds),  Common::Obfuscation::ICipherException);
+    EXPECT_THROW(Common::ProxyUtils::deobfuscateProxyCreds(obfuscatedCreds), Common::Obfuscation::ICipherException);
 }
 
 TEST_F(TestProxyUtils, deobfuscateProxyCredsReturnsEmptyCredsOnEmptyInput) // NOLINT
@@ -188,4 +187,81 @@ TEST_F(TestProxyUtils, deobfuscateProxyCredsReturnsEmptyCredsOnEmptyInput) // NO
     auto [username, password] = Common::ProxyUtils::deobfuscateProxyCreds("");
     ASSERT_EQ(username, "");
     ASSERT_EQ(password, "");
+}
+
+//  updateHttpRequestWithProxyInfo tests
+TEST_F(TestProxyUtils, updateHttpRequestWithProxyInfoWithOnlyAddress)
+{
+    Common::HttpRequests::RequestConfig request;
+    auto currentProxyFilePath = Common::ApplicationConfiguration::applicationPathManager().getMcsCurrentProxyFilePath();
+    auto filesystemMock = new StrictMock<MockFileSystem>();
+    std::string content = R"({"proxy":"localhost"})";
+    EXPECT_CALL(*filesystemMock, isFile(currentProxyFilePath)).WillOnce(Return(true));
+    EXPECT_CALL(*filesystemMock, readFile(currentProxyFilePath)).WillOnce(Return(content));
+    Tests::ScopedReplaceFileSystem ScopedReplaceFileSystem{ std::unique_ptr<Common::FileSystem::IFileSystem>(
+        filesystemMock) };
+
+    bool hasProxy = Common::ProxyUtils::updateHttpRequestWithProxyInfo(request);
+    ASSERT_TRUE(hasProxy);
+    ASSERT_EQ(request.proxy, "localhost");
+    ASSERT_FALSE(request.proxyUsername.has_value());
+    ASSERT_FALSE(request.proxyPassword.has_value());
+}
+
+TEST_F(TestProxyUtils, updateHttpRequestWithProxyInfoWithOnlyAddressAndCreds)
+{
+    Common::HttpRequests::RequestConfig request;
+    auto currentProxyFilePath = Common::ApplicationConfiguration::applicationPathManager().getMcsCurrentProxyFilePath();
+    auto filesystemMock = new StrictMock<MockFileSystem>();
+    std::string obfuscatedCreds =
+        "CCD4E57ZjW+t5XPiMSJH1TurG3MfWCN3DpjJRINMwqNaWl+3zzlVIdyVmifCHUwcmaX6+YTSyyBM8SslIIGV5rUw";
+    std::string content = R"({"proxy":"localhost","credentials":")" + obfuscatedCreds + R"("})";
+    EXPECT_CALL(*filesystemMock, isFile(currentProxyFilePath)).WillOnce(Return(true));
+    EXPECT_CALL(*filesystemMock, readFile(currentProxyFilePath)).WillOnce(Return(content));
+    Tests::ScopedReplaceFileSystem ScopedReplaceFileSystem{ std::unique_ptr<Common::FileSystem::IFileSystem>(
+        filesystemMock) };
+
+    bool hasProxy = Common::ProxyUtils::updateHttpRequestWithProxyInfo(request);
+    ASSERT_TRUE(hasProxy);
+    ASSERT_EQ(request.proxy, "localhost");
+    ASSERT_EQ(request.proxyUsername, "username");
+    ASSERT_EQ(request.proxyPassword, "password");
+}
+
+TEST_F(TestProxyUtils, updateHttpRequestWithProxyHandlesinvalidCreds)
+{
+    Common::HttpRequests::RequestConfig request;
+    auto currentProxyFilePath = Common::ApplicationConfiguration::applicationPathManager().getMcsCurrentProxyFilePath();
+    auto filesystemMock = new StrictMock<MockFileSystem>();
+    std::string obfuscatedCreds =
+        "CCD4E57ZjW+t5XPiMSJH1TurG3MfWCN3DpjJRINMwqNaWl+3zzlVVmifCHUwcmaX6+YTSyyBM8SslIIGV5rUw";
+    std::string content = R"({"proxy":"localhost","credentials":")" + obfuscatedCreds + R"("})";
+    EXPECT_CALL(*filesystemMock, isFile(currentProxyFilePath)).WillOnce(Return(true));
+    EXPECT_CALL(*filesystemMock, readFile(currentProxyFilePath)).WillOnce(Return(content));
+    Tests::ScopedReplaceFileSystem ScopedReplaceFileSystem{ std::unique_ptr<Common::FileSystem::IFileSystem>(
+        filesystemMock) };
+
+    bool hasProxy = Common::ProxyUtils::updateHttpRequestWithProxyInfo(request);
+    ASSERT_FALSE(hasProxy);
+    ASSERT_FALSE(request.proxy.has_value());
+    ASSERT_FALSE(request.proxyUsername.has_value());
+    ASSERT_FALSE(request.proxyPassword.has_value());
+}
+
+TEST_F(TestProxyUtils, updateHttpRequestWithProxyHandlesEmptyFile)
+{
+    Common::HttpRequests::RequestConfig request;
+    auto currentProxyFilePath = Common::ApplicationConfiguration::applicationPathManager().getMcsCurrentProxyFilePath();
+    auto filesystemMock = new StrictMock<MockFileSystem>();
+    std::string content = R"({})";
+    EXPECT_CALL(*filesystemMock, isFile(currentProxyFilePath)).WillOnce(Return(true));
+    EXPECT_CALL(*filesystemMock, readFile(currentProxyFilePath)).WillOnce(Return(content));
+    Tests::ScopedReplaceFileSystem ScopedReplaceFileSystem{ std::unique_ptr<Common::FileSystem::IFileSystem>(
+        filesystemMock) };
+
+    bool hasProxy = Common::ProxyUtils::updateHttpRequestWithProxyInfo(request);
+    ASSERT_FALSE(hasProxy);
+    ASSERT_FALSE(request.proxy.has_value());
+    ASSERT_FALSE(request.proxyUsername.has_value());
+    ASSERT_FALSE(request.proxyPassword.has_value());
 }

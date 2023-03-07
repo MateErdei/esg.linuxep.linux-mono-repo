@@ -10,6 +10,7 @@ Suite Teardown  Require Uninstalled
 
 Test Teardown  Ra Teardown
 
+Force Tags  LOAD7
 Default Tags   RESPONSE_ACTIONS_PLUGIN  TAP_TESTS
 
 

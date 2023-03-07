@@ -109,4 +109,13 @@ namespace ResponseActionsImpl
             response["errorMessage"] = errorMessage;
         }
     }
-}
+
+    void ActionsUtils::resetErrorInfo(nlohmann::json& response)
+    {
+        std::vector<std::string> fieldsToReset = { "result", "errorType", "errorMessage" };
+        for (auto const& field : fieldsToReset)
+        {
+            response.erase(field);
+        }
+    }
+} // namespace ResponseActionsImpl

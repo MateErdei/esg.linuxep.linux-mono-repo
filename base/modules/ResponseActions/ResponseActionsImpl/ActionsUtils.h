@@ -13,7 +13,12 @@ namespace ResponseActionsImpl
     public:
         [[nodiscard]] static UploadInfo readUploadAction(const std::string& actionJson, UploadType type);
         [[nodiscard]] static bool isExpired(u_int64_t expiry);
-        static void setErrorInfo(nlohmann::json& response, int result, const std::string& errorMessage="", const std::string& errorType="");
+        static void setErrorInfo(
+            nlohmann::json& response,
+            int result,
+            const std::string& errorMessage = "",
+            const std::string& errorType = "");
+        static void resetErrorInfo(nlohmann::json& response);
     };
 }
 

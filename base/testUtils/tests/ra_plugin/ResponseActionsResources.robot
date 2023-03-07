@@ -60,3 +60,32 @@ Check Response Actions Installed
     ...  1 secs
     ...  Check Log Contains  Entering the main loop  ${RESPONSE_ACTIONS_LOG_PATH}  Response Actions log
     Check Response Actions Executable Running
+
+RA Suite Teardown
+    Stop Local Cloud Server
+    Require Uninstalled
+
+RA Upload Suite Setup
+    Start Local Cloud Server
+    Regenerate Certificates
+    Set Local CA Environment Variable
+    Run Full Installer
+    Create File  /opt/sophos-spl/base/mcs/certs/ca_env_override_flag
+
+RA Upload Test Setup
+    Require Installed
+    HttpsServer.Start Https Server  /tmp/cert.crt  443  tlsv1_2  True
+    install_system_ca_cert  /tmp/cert.crt
+    install_system_ca_cert  /tmp/ca.crt
+    Install Response Actions Directly
+
+RA Upload Test Teardown
+    General Test Teardown
+    Uninstall Response Actions
+    Remove file  ${TELEMETRY_OUTPUT_JSON}
+    Run Keyword If Test Failed  LogUtils.Dump Log  ${HTTPS_LOG_FILE_PATH}
+    Cleanup Telemetry Server
+    cleanup_system_ca_certs
+    Remove File  ${EXE_CONFIG_FILE}
+    Run Keyword If Test Failed    Dump Cloud Server Log
+    Remove File   /tmp/upload.zip
