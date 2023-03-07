@@ -15,7 +15,7 @@ add_library(filesystemimplobject OBJECT
 
 add_library(filesystemimpl SHARED $<TARGET_OBJECTS:filesystemimplobject>)
 
-target_link_libraries(filesystemimpl PUBLIC sslimpl utilityimpl)
+target_link_libraries(filesystemimpl PUBLIC stdc++fs sslimpl utilityimpl)
 
 SET_TARGET_PROPERTIES(filesystemimpl
         PROPERTIES INSTALL_RPATH "$ORIGIN")

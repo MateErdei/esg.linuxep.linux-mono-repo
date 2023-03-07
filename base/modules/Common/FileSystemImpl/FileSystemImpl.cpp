@@ -973,6 +973,11 @@ namespace Common
 
             return Common::SslImpl::calculateDigest(digestName, inStream);
         }
+
+        std::filesystem::space_info FileSystemImpl::getDiskSpaceInfo(const Path& path) const
+        {
+            return std::filesystem::space(path);
+        }
     } // namespace FileSystem
 } // namespace Common
 

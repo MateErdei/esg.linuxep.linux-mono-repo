@@ -104,6 +104,8 @@ namespace Common
 
             [[nodiscard]] std::string calculateDigest(SslImpl::Digest digestName, int fd) const override;
 
+            [[nodiscard]] std::filesystem::space_info getDiskSpaceInfo(const Path& path) const override;
+
         private:
             void walkDirectoryTree(std::vector<Path>& pathCollection, const Path& root) const;
         };

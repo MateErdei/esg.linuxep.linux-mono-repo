@@ -5,6 +5,7 @@
 #include "Common/SslImpl/Digest.h"
 
 #include <ctime>
+#include <filesystem>
 #include <memory>
 #include <optional>
 #include <string>
@@ -394,6 +395,13 @@ namespace Common
              * @return Lowercase hexadecimal representation of the digest.
              */
             [[nodiscard]] virtual std::string calculateDigest(SslImpl::Digest digestName, int fd) const = 0;
+
+            /**
+             * Gets the disk space information for a give mount point.
+             * @param path Full path to mounted device
+             * @return std::filesystem::space_info struct which contains capacity, free and available space in bytes
+             */
+            [[nodiscard]] virtual std::filesystem::space_info getDiskSpaceInfo(const Path& path) const = 0;
         };
 
         /**
