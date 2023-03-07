@@ -961,6 +961,23 @@ namespace
         EXPECT_EQ(fileList[3], tempDir.absPath("Root/subdir/file1"));
     }
 
+    TEST_F(FileSystemImplTest, listAllFilesAndDirsInDirectoryTreeHandlesEmptyDir)
+    {
+        Tests::TempDir tempDir;
+        tempDir.makeDirs("empty_dir");
+        std::vector<Path> fileList = m_fileSystem->listAllFilesAndDirsInDirectoryTree(tempDir.absPath("empty_dir"));
+        ASSERT_EQ(fileList.size(), 0);
+    }
+
+    TEST_F(FileSystemImplTest, listAllFilesAndDirsInDirectoryTreeHandlesFile)
+    {
+        Tests::TempDir tempDir;
+        tempDir.makeDirs("dir");
+        tempDir.createFile("dir/file1", "hello");
+        std::vector<Path> fileList = m_fileSystem->listAllFilesAndDirsInDirectoryTree(tempDir.absPath("dir/file1"));
+        ASSERT_EQ(fileList.size(), 0);
+    }
+
     TEST_F(FileSystemImplTest, listAllFilesAndDirsInDirectoryTreeDoesNotThrowOnPathThatDoesNotExist)
     {
         std::vector<Path> fileList;
