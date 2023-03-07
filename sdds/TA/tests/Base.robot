@@ -3,7 +3,7 @@ Documentation   Test using thin installer to install base
 
 Resource  BaseResources.robot
 
-Force Tags  BASE
+Force Tags  BASE  PACKAGE
 Suite Setup  SDDS3 server setup
 Suite Teardown  SDDS3 Server Teardown
 Test Setup      Base Test Setup

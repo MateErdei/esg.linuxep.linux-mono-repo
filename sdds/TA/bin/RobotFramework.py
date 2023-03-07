@@ -5,7 +5,7 @@ import sys
 
 def main(argv):
     exclude = argv
-    tags = {'include': ['WAREHOUSE'], 'exclude': exclude}
+    tags = {'include': ['PACKAGE'], 'exclude': exclude}
 
     robot_args = {
         'path':  r'/opt/test/inputs/test_scripts/',
