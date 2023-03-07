@@ -16,7 +16,6 @@ file(GLOB_RECURSE mcs_router_DEPS
 add_custom_target(mcsrouter
         DEPENDS ${CMAKE_BINARY_DIR}/mcsrouter.zip
         ${CMAKE_BINARY_DIR}/${PYTHON_ZIP}
-        ${CMAKE_BINARY_DIR}/lib-dynload
         ${CMAKE_BINARY_DIR}/pathtools
         ${CMAKE_BINARY_DIR}/watchdog
         ${CMAKE_BINARY_DIR}/Crypto
@@ -48,11 +47,6 @@ add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/${PYTHON_ZIP}
         WORKING_DIRECTORY ${PYTHON_LIB_DIR}
         COMMAND zip ${CMAKE_BINARY_DIR}/${PYTHON_ZIP} ${python_SRC}
         DEPENDS ${python_full_path_SRC}
-        )
-
-add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/lib-dynload
-        WORKING_DIRECTORY ${PYTHON_INPUT}
-        COMMAND cp -r ${PYTHON_LIB_DIR}/lib-dynload/ ${CMAKE_BINARY_DIR}
         )
 
 function(add_python_library INPUT_PATH  PACKAGE_NAME)
@@ -111,8 +105,8 @@ endif()
 install(FILES ${CMAKE_BINARY_DIR}/${PYTHON_ZIP}
         DESTINATION ${BASE_DIST_PREFIX}/files/base/lib)
 
-# SDDS3 package generation does not like zero-byte files so add some contents
-file(WRITE ${CMAKE_BINARY_DIR}/lib-dynload/.empty "ensure lib-dynload directory is created")
+# SDDS3 package generation does not like zero-byte dotfiles so add a non-dotfile with contents
+file(WRITE ${CMAKE_BINARY_DIR}/lib-dynload/empty "ensure lib-dynload directory is created")
 install(DIRECTORY ${CMAKE_BINARY_DIR}/lib-dynload
         DESTINATION ${BASE_DIST_PREFIX}/files/base/lib/${PYTHON_VERSION}/)
 
