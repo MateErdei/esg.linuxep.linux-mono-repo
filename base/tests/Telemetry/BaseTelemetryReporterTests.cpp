@@ -212,7 +212,7 @@ TEST_F(BaseTelemetryReporterTests, parseOutbreakStatusWhenFileDoesNotExist)
         *mockFileSystem,
         isFile(Common::ApplicationConfiguration::applicationPathManager().getOutbreakModeStatusFilePath()))
         .WillOnce(Return(false));
-    ASSERT_EQ(Telemetry::parseOutbreakStatusFile(), std::nullopt);
+    EXPECT_EQ(Telemetry::parseOutbreakStatusFile(), std::nullopt);
 }
 
 TEST_F(BaseTelemetryReporterTests, parseOutbreakStatusCatchesFileSystemException)
@@ -229,7 +229,7 @@ TEST_F(BaseTelemetryReporterTests, parseOutbreakStatusCatchesFileSystemException
         *mockFileSystem,
         readFile(Common::ApplicationConfiguration::applicationPathManager().getOutbreakModeStatusFilePath()))
         .WillOnce(Throw(Common::FileSystem::IFileSystemException("TEST")));
-    ASSERT_EQ(Telemetry::parseOutbreakStatusFile(), std::nullopt);
+    EXPECT_EQ(Telemetry::parseOutbreakStatusFile(), std::nullopt);
 
     std::string logMessage = testing::internal::GetCapturedStderr();
     EXPECT_THAT(logMessage, ::testing::HasSubstr("Unable to read file at: "));
@@ -249,7 +249,7 @@ TEST_F(BaseTelemetryReporterTests, parseOutbreakStatusCatchesParseError)
         *mockFileSystem,
         readFile(Common::ApplicationConfiguration::applicationPathManager().getOutbreakModeStatusFilePath()))
         .WillOnce(Return("not a json"));
-    ASSERT_EQ(Telemetry::parseOutbreakStatusFile(), std::nullopt);
+    EXPECT_EQ(Telemetry::parseOutbreakStatusFile(), std::nullopt);
 
     std::string logMessage = testing::internal::GetCapturedStderr();
     EXPECT_THAT(logMessage, ::testing::HasSubstr("Unable to parse json at: "));
@@ -269,7 +269,7 @@ TEST_F(BaseTelemetryReporterTests, getOutbreakModeCurrentInOutbreakMode)
         *mockFileSystem,
         readFile(Common::ApplicationConfiguration::applicationPathManager().getOutbreakModeStatusFilePath()))
         .WillOnce(Return(R"({ "outbreak-mode" : true })"));
-    ASSERT_EQ(Telemetry::BaseTelemetryReporter::getOutbreakModeCurrent(), "true");
+    EXPECT_EQ(Telemetry::BaseTelemetryReporter::getOutbreakModeCurrent(), "true");
 }
 
 TEST_F(BaseTelemetryReporterTests, getOutbreakModeCurrentNotInOutbreakMode)
@@ -286,7 +286,7 @@ TEST_F(BaseTelemetryReporterTests, getOutbreakModeCurrentNotInOutbreakMode)
         *mockFileSystem,
         readFile(Common::ApplicationConfiguration::applicationPathManager().getOutbreakModeStatusFilePath()))
         .WillOnce(Return(R"({ "outbreak-mode" : false })"));
-    ASSERT_EQ(Telemetry::BaseTelemetryReporter::getOutbreakModeCurrent(), "false");
+    EXPECT_EQ(Telemetry::BaseTelemetryReporter::getOutbreakModeCurrent(), "false");
 }
 
 TEST_F(BaseTelemetryReporterTests, getOutbreakModeCurrentWithInvalidJson)
@@ -304,7 +304,7 @@ TEST_F(BaseTelemetryReporterTests, getOutbreakModeCurrentWithInvalidJson)
         *mockFileSystem,
         readFile(Common::ApplicationConfiguration::applicationPathManager().getOutbreakModeStatusFilePath()))
         .WillOnce(Return(R"({ .,';" })"));
-    ASSERT_EQ(Telemetry::BaseTelemetryReporter::getOutbreakModeCurrent(), std::nullopt);
+    EXPECT_EQ(Telemetry::BaseTelemetryReporter::getOutbreakModeCurrent(), std::nullopt);
 
     std::string logMessage = testing::internal::GetCapturedStderr();
     EXPECT_THAT(logMessage, ::testing::HasSubstr("Unable to parse json at: "));
@@ -321,23 +321,10 @@ TEST_F(BaseTelemetryReporterTests, getOutbreakModeCurrentWithMissingFile)
         *mockFileSystem,
         isFile(Common::ApplicationConfiguration::applicationPathManager().getOutbreakModeStatusFilePath()))
         .WillOnce(Return(false));
-    ASSERT_EQ(Telemetry::BaseTelemetryReporter::getOutbreakModeCurrent(), std::nullopt);
+    EXPECT_EQ(Telemetry::BaseTelemetryReporter::getOutbreakModeCurrent(), std::nullopt);
 
     std::string logMessage = testing::internal::GetCapturedStderr();
     EXPECT_EQ(logMessage, ""); //no errors expected
-}
-
-TEST_F(BaseTelemetryReporterTests, getOutbreakModeHistoricWithMissingFile)
-{
-    auto mockFileSystem = new StrictMock<MockFileSystem>();
-    std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
-
-    EXPECT_CALL(
-        *mockFileSystem,
-        isFile(Common::ApplicationConfiguration::applicationPathManager().getOutbreakModeStatusFilePath()))
-        .WillOnce(Return(true));
-    ASSERT_EQ(Telemetry::BaseTelemetryReporter::getOutbreakModeHistoric(), "true");
 }
 
 TEST_F(BaseTelemetryReporterTests, getOutbreakModeHistoricWithFile)
@@ -349,8 +336,21 @@ TEST_F(BaseTelemetryReporterTests, getOutbreakModeHistoricWithFile)
     EXPECT_CALL(
         *mockFileSystem,
         isFile(Common::ApplicationConfiguration::applicationPathManager().getOutbreakModeStatusFilePath()))
+        .WillOnce(Return(true));
+    EXPECT_EQ(Telemetry::BaseTelemetryReporter::getOutbreakModeHistoric(), "true");
+}
+
+TEST_F(BaseTelemetryReporterTests, getOutbreakModeHistoricWithMissingFile)
+{
+    auto mockFileSystem = new StrictMock<MockFileSystem>();
+    std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
+
+    EXPECT_CALL(
+        *mockFileSystem,
+        isFile(Common::ApplicationConfiguration::applicationPathManager().getOutbreakModeStatusFilePath()))
         .WillOnce(Return(false));
-    ASSERT_EQ(Telemetry::BaseTelemetryReporter::getOutbreakModeHistoric(), "false");
+    EXPECT_EQ(Telemetry::BaseTelemetryReporter::getOutbreakModeHistoric(), "false");
 }
 
 TEST_F(BaseTelemetryReporterTests, getOutbreakModeTodayWithLargeTimeDifference)
