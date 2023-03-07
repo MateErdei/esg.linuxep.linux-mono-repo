@@ -119,7 +119,6 @@ o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libzlib.so.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libzmq.so.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libzmqwrapperapiimpl.so.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/mcsrouter.zip.0
-o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/python311.zip.0
 o744, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libcrypto.so.1.1.0
 o750, sophos-spl-group, root, /opt/sophos-spl/base/bin/mcsrouter.0
 o750, sophos-spl-group, root, /opt/sophos-spl/base/bin/sdu.0

@@ -539,5 +539,4 @@ o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libzlib.so
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libzmq.so
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libzmqwrapperapiimpl.so
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/mcsrouter.zip
-o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/python311.zip
 o777, sophos-spl-group, root, /opt/sophos-spl/base/mcs/certs/mcs_rootca.crt
