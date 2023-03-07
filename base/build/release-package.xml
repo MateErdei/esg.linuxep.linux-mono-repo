@@ -5,17 +5,11 @@
     </versioning>
     <inputs>
         <workingdir>.</workingdir>
-        <build-asset project="linuxep" repo="sul">
-            <release-version branch="release/Version_1_0_1" build-id="20220822170900-3cc5f9a78dbbac072646d2b5379de43790212405-AR95mL"/>
-            <development-version branch="develop"/>
-            <include artifact-path="output" dest-dir="/build/input"/>
-        </build-asset>
         <build-asset project="linuxep" repo="versig">
             <release-version branch="release/Version_2_0_0" build-id="20220727094738-a99112d63f8fc2b87e53e7e69e687cf4fd890434-OYVMQC"/>
             <development-version branch="master"/>
             <include artifact-path="output" dest-dir="/build/input/"/>
         </build-asset>
-
         <build-asset project="thirdparty" repo="boost">
             <release-version branch="release/sspl/Version_1_78_0" build-id="20220310141901-bdae372a9027e1760f105dc819023a49ef444765-xdQFp9"/>
             <include artifact-path="output" dest-dir="/build/input"/>
