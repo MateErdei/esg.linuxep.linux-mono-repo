@@ -10,8 +10,8 @@
         <!--Plugin Api Candidate Build - Change values below to match the latest Candidate build of base.
             -->
         <build-asset project="linuxep" repo="everest-base">
-            <release-version branch="release/Version_1_2_2"
-                             build-id="20230105165814-606006af2bd8111005b887fb5442761795481be5-0kLokq"/>
+            <release-version branch="release/2023-10"
+                             build-id="20230307152640-915e8ce2684edf94d4682548778848e6eed67ee1-mVJTVs"/>
             <development-version branch="develop"/>
             <include artifact-path="sspl-base/pluginapi" dest-dir="input"/>
             <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="input/base-sdds"/>
@@ -23,28 +23,17 @@
         </build-asset>
 
         <build-asset project="em" repo="esg">
-            <release-version branch="release/2023.04.1/sprint" build-id="20230207145141-775465470cd8579d3d451d6287e19d570b6fe863-A8vT3z"/>
+            <release-version branch="release/WIN-SPRINT-2023.10" build-id="20230303190457-b2493e357e0f270450a8bc1154c4644841785404-Yo7Ilu"/>
             <development-version branch="develop"/>
+            <include artifact-path="sophlib/sdds3-tools-x64-linux" dest-dir="input/sdds3"/>
             <include artifact-path="thirdparty/zlib-linux-opt" dest-dir="input/zlib"/>
             <include artifact-path="thirdparty/googletest-linux-opt" dest-dir="input/googletest"/>
-        </build-asset>
-
-        <build-asset project="winep" repo="sau">
-            <release-version branch="release/sspl/Version_1_0_0"
-                             build-id="20220825150631-43a7c87ceb5905f316aef54df45de777a5961022-O0LZyf"/>
-            <development-version branch="develop"/>
-            <include artifact-path="Linux-x64/SDDS3-Utils" dest-dir="input/sdds3"/>
         </build-asset>
 
         <build-asset project="thirdparty" repo="boost">
             <release-version branch="release/sspl/Version_1_78_0"
                              build-id="20220310141901-bdae372a9027e1760f105dc819023a49ef444765-xdQFp9"/>
             <include artifact-path="output" dest-dir="input"/>
-        </build-asset>
-        <build-asset project="thirdparty" repo="cmake">
-            <release-version branch="release/sophos/v3.22.1"
-                             build-id="20220412085321-29886e1a6f8ae2867207fa5c4873eaac5c6075a7-VxG3sr"/>
-            <include artifact-path="cmake" dest-dir="input/cmake"/>
         </build-asset>
         <build-asset project="thirdparty" repo="gcc">
             <release-version branch="release/Version_11_2_0"
@@ -125,7 +114,7 @@
             <include artifact-path="openssl-linux-x64" dest-dir="input/susi_input/openssl/lib"/>
         </build-asset>
 
-
+        <trusted-asset artifact-path="org.cmake/cmake-3.26.0/cmake-3.26.0" dest-dir="input/cmake"/>
     </inputs>
     <buildcommands>
         <command mode="release,oldci">
