@@ -234,7 +234,7 @@ void ManagementAgent::EventReceiverImpl::OutbreakModeController::processAction(c
         }
         else if (type == "sophos.core.threat.reset")
         {
-            leaveOutbreakMode();
+            leaveOutbreakMode(clock_t::now());
             return;
         }
         else
