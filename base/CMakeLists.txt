@@ -99,7 +99,7 @@ endif()
 set(RA_PLUGIN_NAME responseactions)
 
 set(RA_PRODUCT_LINE_ID ServerProtectionLinux-Plugin-${RA_PLUGIN_NAME})
-set(RA_PRODUCT_NAME ServerProtectionLinux-Plugin-${RA_PLUGIN_NAME})
+set(RA_PRODUCT_NAME SPL-Response-Actions-Plugin)
 
 # DEFAULT_HOME_FOLDER
 if(NOT DEFINED DEFAULT_HOME_FOLDER)
