@@ -111,6 +111,8 @@ endif()
 install(FILES ${CMAKE_BINARY_DIR}/${PYTHON_ZIP}
         DESTINATION ${BASE_DIST_PREFIX}/files/base/lib)
 
+# SDDS3 package generation does not like zero-byte files so add some contents
+file(WRITE ${CMAKE_BINARY_DIR}/lib-dynload/.empty "ensure lib-dynload directory is created")
 install(DIRECTORY ${CMAKE_BINARY_DIR}/lib-dynload
         DESTINATION ${BASE_DIST_PREFIX}/files/base/lib/${PYTHON_VERSION}/)
 
