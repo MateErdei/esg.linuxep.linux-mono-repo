@@ -115,6 +115,14 @@ Display All SSPL Files Installed
     ${result}=  Wait For Process  ${handle}  timeout=30  on_timeout=kill
     Log  ${result.stdout}
     Log  ${result.stderr}
+    ${handle}=  Start Process  find ${SOPHOS_INSTALL}/var -not -type d | xargs ls -l  shell=True
+    ${result}=  Wait For Process  ${handle}  timeout=30  on_timeout=kill
+    Log  ${result.stdout}
+    Log  ${result.stderr}
+    ${handle}=  Start Process  find ${SOPHOS_INSTALL}/etc -not -type d | xargs ls -l  shell=True
+    ${result}=  Wait For Process  ${handle}  timeout=30  on_timeout=kill
+    Log  ${result.stdout}
+    Log  ${result.stderr}
 
 Display All SSPL Plugins Files Installed
     ${handle}=  Start Process  find ${SOPHOS_INSTALL}/plugins/av -not -type d | grep -v lenses | xargs ls -l  shell=True

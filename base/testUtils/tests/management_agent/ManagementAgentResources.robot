@@ -166,7 +166,6 @@ Enter Outbreak Mode
     [Arguments]  ${eventContent}
 
     ${mark} =  mark_log_size  ${BASE_LOGS_DIR}/sophosspl/sophos_managementagent.log
-    register on fail  dump_marked_log  ${BASE_LOGS_DIR}/sophosspl/sophos_managementagent.log  ${mark}
 
     Repeat Keyword  110 times  Send Plugin Event   ${eventContent}
 
@@ -179,6 +178,12 @@ Enter Outbreak Mode
 
     # Check we have the outbreak event
     check at least one event has substr  ${SOPHOS_INSTALL}/base/mcs/event  sophos.core.outbreak
+
+    #check we have outbreak status
+    Wait Until Keyword Succeeds
+        ...  10 secs
+        ...  1 secs
+        ...  Check File Exists  ${SOPHOS_INSTALL}/base/var/sophosspl/outbreak_status.json
 
     # count events
     ${count} =  Count Files in Directory  ${SOPHOS_INSTALL}/base/mcs/event

@@ -6,6 +6,11 @@ Library           ${LIBS_DIRECTORY}/MCSRouter.py
 Library           ${LIBS_DIRECTORY}/SystemInfo.py
 Library           OperatingSystem
 Library           ${LIBS_DIRECTORY}/LogUtils.py
+Library           ${LIBS_DIRECTORY}/FakePluginWrapper.py
+
+Library     ${LIBS_DIRECTORY}/ActionUtils.py
+Library     ${LIBS_DIRECTORY}/EventUtils.py
+Library     ${LIBS_DIRECTORY}/OnFail.py
 
 Resource  TelemetryResources.robot
 Resource  ../GeneralTeardownResource.robot
@@ -378,47 +383,52 @@ Test With Proxy
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
     Check System Telemetry Json Is Correct  ${telemetryFileContents}  None  Proxy
 
-Telemetry Executable Generates Outbreak Mode Telemetry
+
+Test Outbreak Mode Telemetry
+    Management Agent Test Setup
 
     Set Log Level For Component And Reset and Return Previous Log  sophos_managementagent  DEBUG
     Set Log Level For Component And Reset and Return Previous Log  telemetry  DEBUG
 
+    Remove Event Xml Files
+
+    Setup Plugin Registry
+    Start Management Agent
+
+    Start Plugin
+    set_fake_plugin_app_id  CORE
+
     Mark Management Agent Log
-    Wait Until Keyword Succeeds
-    ...  60 secs
-    ...  10 secs
-    ...  Check Marked Managementagent Log Contains     Starting service health checks
+        Wait Until Keyword Succeeds
+        ...  60 secs
+        ...  10 secs
+        ...  Check Marked Managementagent Log Contains     Starting service health checks
+
+    # Pre-outbreak mode
+    Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
+    ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
+    Should contain  ${telemetryFileContents}  "outbreak-ever":"false"
+    Should not contain  ${telemetryFileContents}  "outbreak-now"
+    Should not contain  ${telemetryFileContents}  "outbreak-today"
+
+    # Enter outbreak mode
+    ${eventContent} =  Get File  ${SUPPORT_FILES}/CORE_events/detection.xml
+    Enter Outbreak Mode  ${eventContent}
 
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
-    Should contain  ${telemetryFileContents}  "outbreak-mode-historic":"false"
+    Should contain  ${telemetryFileContents}  "outbreak-ever":"true"
+    Should contain  ${telemetryFileContents}  "outbreak-now":"true"
+    Should contain  ${telemetryFileContents}  "outbreak-today":"true"
 
-Generates Correct Outbreak Mode Telemetry When In Outbreak Mode
+    # Exit outbreak mode
+    ${mark} =  mark_log_size  ${BASE_LOGS_DIR}/sophosspl/sophos_managementagent.log
+    ${uuid} =  Set Variable  5df69683-a5a2-5d96-897d-06f9c4c8c7bf
+    Send Clear Action  ${uuid}
+    wait for log contains from mark  ${mark}  Leaving outbreak mode
 
-        Set Log Level For Component And Reset and Return Previous Log  sophos_managementagent  DEBUG
-        Set Log Level For Component And Reset and Return Previous Log  telemetry  DEBUG
-
-        Remove Event Xml Files
-
-        Setup Plugin Registry
-        Start Management Agent
-
-        Start Plugin
-        set_fake_plugin_app_id  CORE
-
-        Mark Management Agent Log
-            Wait Until Keyword Succeeds
-            ...  60 secs
-            ...  10 secs
-            ...  Check Marked Managementagent Log Contains     Starting service health checks
-
-        ${eventContent} =  Get File  ${SUPPORT_FILES}/CORE_events/detection.xml
-        Enter Outbreak Mode  ${eventContent}
-
-        Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
-        ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
-        Should contain  ${telemetryFileContents}  "outbreak-mode-historic":"true"
-        Should contain  ${telemetryFileContents}  "outbreak-mode-current":"true"
-        Should contain  ${telemetryFileContents}  "outbreak-mode-today":"true"
-
-Generates Correct Outbreak Mode Telemetry Having Left Outbreak Mode
+    Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
+    ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
+    Should contain  ${telemetryFileContents}  "outbreak-ever":"true"
+    Should contain  ${telemetryFileContents}  "outbreak-now":"false"
+    Should contain  ${telemetryFileContents}  "outbreak-today":"true"
