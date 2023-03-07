@@ -53,9 +53,8 @@ namespace watchdog::watchdogimpl
 
         if (verifiedUsersAndGroups.contains(GROUPS_KEY))
         {
-            auto groups = verifiedUsersAndGroups[GROUPS_KEY];
             std::vector<std::string> groupsToRemove;
-            for (const auto& [groupName, gid] : groups.items())
+            for (const auto& [groupName, gid] : verifiedUsersAndGroups[GROUPS_KEY].items())
             {
                 if (groupName == "root")
                 {
@@ -79,16 +78,14 @@ namespace watchdog::watchdogimpl
 
             for (const auto& groupToRemove : groupsToRemove)
             {
-                groups.erase(groupToRemove);
+                verifiedUsersAndGroups[GROUPS_KEY].erase(groupToRemove);
             }
-            verifiedUsersAndGroups[GROUPS_KEY] = groups;
         }
 
         if (verifiedUsersAndGroups.contains(USERS_KEY))
         {
-            auto users = verifiedUsersAndGroups[USERS_KEY];
             std::vector<std::string> usersToRemove;
-            for (const auto& [userName, uid] : users.items())
+            for (const auto& [userName, uid] : verifiedUsersAndGroups[USERS_KEY].items())
             {
                 if (userName == "root")
                 {
@@ -112,9 +109,8 @@ namespace watchdog::watchdogimpl
 
             for (const auto& userToRemove : usersToRemove)
             {
-                users.erase(userToRemove);
+                verifiedUsersAndGroups[USERS_KEY].erase(userToRemove);
             }
-            verifiedUsersAndGroups[USERS_KEY] = users;
         }
         return verifiedUsersAndGroups;
     }

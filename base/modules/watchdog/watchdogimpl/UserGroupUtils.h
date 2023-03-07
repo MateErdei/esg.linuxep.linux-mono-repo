@@ -8,17 +8,45 @@
 namespace watchdog::watchdogimpl
 {
     using WatchdogUserGroupIDs = nlohmann::json;
-    using UserAndGroupId = std::pair<uid_t, gid_t>;
 
+    /*
+     * TODO Docs
+     */
     std::string stripCommentsFromRequestedUserGroupIdFile(const std::vector<std::string>& fileContents);
-    WatchdogUserGroupIDs validateUserAndGroupIds(WatchdogUserGroupIDs configJson);
-    WatchdogUserGroupIDs readRequestedUserGroupIds();
-//    std::optional<UserAndGroupId> getUserAndGroupId(const std::string& filePath);
-    void setUserIdOfFile(const std::string& filePath, uid_t userId);
-    void setGroupIdOfFile(const std::string& filePath, gid_t groupId);
+
+    /*
+     * TODO Docs
+     */
     WatchdogUserGroupIDs validateUserAndGroupIds(WatchdogUserGroupIDs configJson);
 
+    /*
+     * TODO Docs
+     */
+    WatchdogUserGroupIDs readRequestedUserGroupIds();
+
+    /*
+     * TODO Docs
+     */
+    void setUserIdOfFile(const std::string& filePath, uid_t userId);
+
+    /*
+     * TODO Docs
+     */
+    void setGroupIdOfFile(const std::string& filePath, gid_t groupId);
+
+    /*
+     * TODO Docs
+     */
+    WatchdogUserGroupIDs validateUserAndGroupIds(WatchdogUserGroupIDs configJson);
+
+    /*
+     * TODO Docs
+     */
     void changeUserId(const std::string& username, uid_t newUserId);
+
+    /*
+     * TODO Docs
+     */
     void changeGroupId(const std::string& groupname, gid_t newGroupId);
 
 
