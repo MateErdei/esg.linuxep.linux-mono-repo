@@ -26,7 +26,9 @@
       </build-asset>
 
       <build-asset project="linuxep" repo="runtimedetections" mode="release-package,release-package-query-pack,release-package-base-999,release-package-edr-999,release-package-mdr-999,release-package-edr-mdr-999,release-package-060,dev,999">
-        <development-version branch="master"/>
+        <development-version branch="develop"/>
+          <include artifact-path="SDDS-COMPONENT" dest-dir="redist/runtimedetections" mode="release-package-edr-999,release-package,release-package-base-999,release-package-mdr-999,release-package-060,release-package-query-pack"/>
+          <include artifact-path="SDDS-COMPONENT-999" dest-dir="redist/runtimedetections" mode="release-package-edr-mdr-999"/>
           <include artifact-path="SDDS3-PACKAGE" dest-dir="redist/runtimedetections/latest/x64" mode="dev"/>
           <include artifact-path="SDDS3-COMPONENT-999" dest-dir="redist/runtimedetections/latest/x64" mode="999"/>
       </build-asset>
@@ -73,7 +75,7 @@
         <!--supplements-->
         <build-asset project="linuxep" repo="runtimedetections" mode="dev,999,prod">
             <release-version branch="release--content--version_5_4_0" build-id="20230126175443-bdfb2d342160abcf3aedd03d1c39a3a9114b7f4a-IpTd6n"/>
-            <development-version branch="master"/>
+            <development-version branch="develop"/>
             <include artifact-path="sspl-rdrules-scit" dest-dir="inputs/supplements/RuntimeDetectionRules"/>
         </build-asset>
       <build-asset project="em" repo="esg" >
