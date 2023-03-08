@@ -1268,4 +1268,12 @@ namespace
         tempDir.makeDirs("Root/subdir");
         EXPECT_THROW(m_fileSystem->unlinkDirUsingDirectoryFD(-1, "subdir"),IFileSystemException);
     }
+
+    TEST_F(FileSystemImplTest, getDiskSpaceInfo)
+    {
+        auto diskSpaceInfo = m_fileSystem->getDiskSpaceInfo("/");
+        EXPECT_GE(diskSpaceInfo.capacity, diskSpaceInfo.free);
+        EXPECT_GE(diskSpaceInfo.free, diskSpaceInfo.available);
+        EXPECT_GT(diskSpaceInfo.available, 0);
+    }
 } // namespace
