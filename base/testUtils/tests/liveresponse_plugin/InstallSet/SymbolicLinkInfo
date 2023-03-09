@@ -19,7 +19,4 @@ o777, root, root, /opt/sophos-spl/plugins/liveresponse/lib64/libssl.so
 o777, root, root, /opt/sophos-spl/plugins/liveresponse/lib64/libssl.so.1
 o777, root, root, /opt/sophos-spl/plugins/liveresponse/lib64/libssl.so.1.1
 o777, root, root, /opt/sophos-spl/plugins/liveresponse/lib64/libzmq.so
-o777, root, root, /opt/sophos-spl/plugins/liveresponse/lib64/libzmq.so.5
-o777, root, root, /opt/sophos-spl/plugins/liveresponse/lib64/libzmq.so.5.2
-o777, root, root, /opt/sophos-spl/plugins/liveresponse/lib64/libzmq.so.5.2.4
 o777, root, root, /opt/sophos-spl/plugins/liveresponse/VERSION.ini
