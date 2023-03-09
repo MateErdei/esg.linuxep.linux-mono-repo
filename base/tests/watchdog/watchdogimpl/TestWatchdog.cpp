@@ -170,8 +170,11 @@ TEST_F(TestWatchdog, writeExecutableUserAndGroupToWatchdogConfigWritesConfigFile
     EXPECT_CALL(*m_mockFilePermissionsPtr, getGroupId("group")).WillRepeatedly(Return(2));
     EXPECT_CALL(*m_mockFilePermissionsPtr, getGroupId("sophos-spl-ipc")).WillOnce(Return(0));
 
-    EXPECT_CALL(*m_mockFileSystemPtr, writeFile(m_actualUserGroupIdConfigPath,
-                                                R"({"groups":{"group":2,"sophos-spl-ipc":0},"users":{"user":1}})")).Times(1);
+    // Match indentation of the file being written by the product, we want it pretty printed because it's user facing
+    nlohmann::json expectedJson = nlohmann::json::parse(R"({"groups":{"group":2,"sophos-spl-ipc":0},"users":{"user":1}})");
+    std::string expectedJsonString = expectedJson.dump(4);
+    EXPECT_CALL(*m_mockFileSystemPtr, writeFile(m_actualUserGroupIdConfigPath,expectedJsonString)).Times(1);
+
     EXPECT_NO_THROW(watchdog.callWriteExecutableUserAndGroupToWatchdogConfig());
 }
 
@@ -193,8 +196,10 @@ TEST_F(TestWatchdog, writeExecutableUserAndGroupToWatchdogConfigHandlesDuplicate
     EXPECT_CALL(*m_mockFilePermissionsPtr, getGroupId("group")).WillRepeatedly(Return(2));
     EXPECT_CALL(*m_mockFilePermissionsPtr, getGroupId("sophos-spl-ipc")).WillOnce(Return(0));
 
-    EXPECT_CALL(*m_mockFileSystemPtr, writeFile(m_actualUserGroupIdConfigPath,
-                                                R"({"groups":{"group":2,"sophos-spl-ipc":0},"users":{"user":1}})")).Times(1);
+    // Match indentation of the file being written by the product, we want it pretty printed because it's user facing
+    nlohmann::json expectedJson = nlohmann::json::parse(R"({"groups":{"group":2,"sophos-spl-ipc":0},"users":{"user":1}})");
+    std::string expectedJsonString = expectedJson.dump(4);
+    EXPECT_CALL(*m_mockFileSystemPtr, writeFile(m_actualUserGroupIdConfigPath, expectedJsonString)).Times(1);
     EXPECT_NO_THROW(watchdog.callWriteExecutableUserAndGroupToWatchdogConfig());
 }
 
@@ -214,8 +219,10 @@ TEST_F(TestWatchdog, writeExecutableUserAndGroupToWatchdogConfigOverwritesExisti
     EXPECT_CALL(*m_mockFilePermissionsPtr, getGroupId("group")).WillRepeatedly(Return(966));
     EXPECT_CALL(*m_mockFilePermissionsPtr, getGroupId("sophos-spl-ipc")).WillRepeatedly(Return(0));
 
-    EXPECT_CALL(*m_mockFileSystemPtr, writeFile(m_actualUserGroupIdConfigPath,
-                                                R"({"groups":{"group":966,"sophos-spl-ipc":0},"users":{"user":999}})")).Times(1);
+    // Match indentation of the file being written by the product, we want it pretty printed because it's user facing
+    nlohmann::json expectedJson = nlohmann::json::parse(R"({"groups":{"group":966,"sophos-spl-ipc":0},"users":{"user":999}})");
+    std::string expectedJsonString = expectedJson.dump(4);
+    EXPECT_CALL(*m_mockFileSystemPtr, writeFile(m_actualUserGroupIdConfigPath,expectedJsonString)).Times(1);
     EXPECT_NO_THROW(watchdog.callWriteExecutableUserAndGroupToWatchdogConfig());
 }
 
@@ -248,8 +255,10 @@ TEST_F(TestWatchdog, writeExecutableUserAndGroupToWatchdogConfigHandlesMultipleG
     EXPECT_CALL(*m_mockFilePermissionsPtr, getGroupId("group3")).WillRepeatedly(Return(3));
     EXPECT_CALL(*m_mockFilePermissionsPtr, getGroupId("sophos-spl-ipc")).WillRepeatedly(Return(0));
 
-    EXPECT_CALL(*m_mockFileSystemPtr, writeFile(m_actualUserGroupIdConfigPath,
-                                                R"({"groups":{"group1":1,"group3":3,"sophos-spl-ipc":0},"users":{"user1":1,"user2":2,"user3":3,"user4":4}})")).Times(1);
+    // Match indentation of the file being written by the product, we want it pretty printed because it's user facing
+    nlohmann::json expectedJson = nlohmann::json::parse(R"({"groups":{"group1":1,"group3":3,"sophos-spl-ipc":0},"users":{"user1":1,"user2":2,"user3":3,"user4":4}})");
+    std::string expectedJsonString = expectedJson.dump(4);
+    EXPECT_CALL(*m_mockFileSystemPtr, writeFile(m_actualUserGroupIdConfigPath,expectedJsonString)).Times(1);
     EXPECT_NO_THROW(watchdog.callWriteExecutableUserAndGroupToWatchdogConfig());
 }
 
@@ -265,7 +274,10 @@ TEST_F(TestWatchdog, writeExecutableUserAndGroupToWatchdogConfigIgnoresRootUser)
 
     EXPECT_CALL(*m_mockFileSystemPtr, isFile(m_actualUserGroupIdConfigPath)).WillOnce(Return(false));
 
-    EXPECT_CALL(*m_mockFileSystemPtr, writeFile(m_actualUserGroupIdConfigPath, R"({"groups":{"sophos-spl-ipc":0}})")).Times(1);
+    // Match indentation of the file being written by the product, we want it pretty printed because it's user facing
+    nlohmann::json expectedJson = nlohmann::json::parse(R"({"groups":{"sophos-spl-ipc":0}})");
+    std::string expectedJsonString = expectedJson.dump(4);
+    EXPECT_CALL(*m_mockFileSystemPtr, writeFile(m_actualUserGroupIdConfigPath, expectedJsonString)).Times(1);
     EXPECT_NO_THROW(watchdog.callWriteExecutableUserAndGroupToWatchdogConfig());
 }
 

@@ -336,7 +336,7 @@ void Watchdog::writeExecutableUserAndGroupToWatchdogConfig()
         }
 
         LOGDEBUG("Updating watchdog config: " << watchdogConfig.dump());
-        fileSystem->writeFile(watchdogConfigPath, watchdogConfig.dump());
+        fileSystem->writeFile(watchdogConfigPath, watchdogConfig.dump(4));
     }
     catch (const Common::FileSystem::IFileSystemException& error)
     {
@@ -352,7 +352,7 @@ void Watchdog::reconfigureUserAndGroupIds()
 
         if (!changesNeeded.empty())
         {
-            LOGDEBUG("Request to reconfigure the following user and group Ids: " << changesNeeded.dump());
+            LOGDEBUG("Request to reconfigure the following user and group IDs: " << changesNeeded.dump());
             applyUserIdConfig(changesNeeded);
             writeExecutableUserAndGroupToWatchdogConfig();
         }

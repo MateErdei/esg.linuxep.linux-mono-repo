@@ -11,6 +11,7 @@
 #include "UtilityImpl/StringUtils.h"
 
 #include <utility>
+#include <set>
 
 namespace watchdog::watchdogimpl
 {
@@ -53,13 +54,13 @@ namespace watchdog::watchdogimpl
 
         if (verifiedUsersAndGroups.contains(GROUPS_KEY))
         {
-            std::vector<std::string> groupsToRemove;
+            std::set<std::string> groupsToRemove;
             for (const auto& [groupName, gid] : verifiedUsersAndGroups[GROUPS_KEY].items())
             {
                 if (groupName == "root")
                 {
                     LOGWARN("Will not update group ID as it is root: " << gid);
-                    groupsToRemove.emplace_back(groupName);
+                    groupsToRemove.insert(groupName);
                     continue;
                 }
 
@@ -70,7 +71,17 @@ namespace watchdog::watchdogimpl
                         LOGWARN(
                             "Will not perform requested group ID change on"
                             << groupName << "as gid (" << gid << ") is already used by " << existingGroupName);
-                        groupsToRemove.emplace_back(groupName);
+                        groupsToRemove.insert(groupName);
+                        break;
+                    }
+                }
+
+                for (const auto& [groupNameToCheckForDups, groupIdToCheckForDups] : verifiedUsersAndGroups[GROUPS_KEY].items())
+                {
+                    if (groupName != groupNameToCheckForDups && gid == groupIdToCheckForDups)
+                    {
+                        LOGWARN("Will not update group " << groupName << " to ID " << gid << " because the ID is not unique in config. Conflicting group: " << groupNameToCheckForDups);
+                        groupsToRemove.insert(groupName);
                         break;
                     }
                 }
@@ -84,13 +95,13 @@ namespace watchdog::watchdogimpl
 
         if (verifiedUsersAndGroups.contains(USERS_KEY))
         {
-            std::vector<std::string> usersToRemove;
+            std::set<std::string> usersToRemove;
             for (const auto& [userName, uid] : verifiedUsersAndGroups[USERS_KEY].items())
             {
                 if (userName == "root")
                 {
                     LOGWARN("Will not update user ID as it is root: " << uid);
-                    usersToRemove.emplace_back(userName);
+                    usersToRemove.insert(userName);
                     continue;
                 }
 
@@ -101,7 +112,17 @@ namespace watchdog::watchdogimpl
                         LOGWARN(
                             "Will not perform requested user ID change on"
                             << userName << "as uid (" << uid << ") is already used by " << existingUserName);
-                        usersToRemove.emplace_back(userName);
+                        usersToRemove.insert(userName);
+                        break;
+                    }
+                }
+
+                for (const auto& [userNameToCheckForDups, userIdToCheckForDups] : verifiedUsersAndGroups[USERS_KEY].items())
+                {
+                    if (userName != userNameToCheckForDups && uid == userIdToCheckForDups)
+                    {
+                        LOGWARN("Will not update user " << userName << " to ID " << uid << " because the ID is not unique in config. Conflicting user: " << userNameToCheckForDups);
+                        usersToRemove.insert(userName);
                         break;
                     }
                 }
@@ -120,16 +141,23 @@ namespace watchdog::watchdogimpl
         std::string configPath =
             Common::ApplicationConfiguration::applicationPathManager().getRequestedUserGroupIdConfigPath();
         auto fs = Common::FileSystem::fileSystem();
+        std::string strippedContent;
         try
         {
             auto content = fs->readLines(configPath);
-            nlohmann::json j = nlohmann::json::parse(stripCommentsFromRequestedUserGroupIdFile(content));
+            strippedContent = stripCommentsFromRequestedUserGroupIdFile(content);
+            strippedContent = Common::UtilityImpl::StringUtils::trim(strippedContent);
+            if (strippedContent.empty())
+            {
+                return {};
+            }
+            nlohmann::json j = nlohmann::json::parse(strippedContent);
             j = validateUserAndGroupIds(j);
             return j;
         }
         catch (const nlohmann::detail::exception& exception)
         {
-            LOGWARN("Failed to parse the requested user and group IDs file: " << configPath << ", " << exception.what());
+            LOGWARN("Failed to parse the requested user and group IDs file: " << configPath << ", " << exception.what() << ", content: " << strippedContent);
         }
         catch (Common::FileSystem::IFileSystemException& exception)
         {

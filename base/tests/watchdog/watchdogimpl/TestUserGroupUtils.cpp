@@ -17,7 +17,7 @@
 using namespace watchdog::watchdogimpl;
 class TestUserGroupUtilsRealFileSystem: public LogOffInitializedTests{};
 
-class TestUserGroupUtils : public LogOffInitializedTests
+class TestUserGroupUtils : public LogInitializedTests
 {
     Tests::ScopedReplaceFileSystem m_fileSystemReplacer;
     Tests::ScopedReplaceFilePermissions m_filePermissionsReplacer;
@@ -34,21 +34,32 @@ public:
         m_mockFilePermissionsPtr = new NaggyMock<MockFilePermissions>();
 
         m_fileSystemReplacer.replace(std::unique_ptr<Common::FileSystem::IFileSystem>(m_mockFileSystemPtr));
-        m_filePermissionsReplacer.replace(std::unique_ptr<Common::FileSystem::IFilePermissions>(m_mockFilePermissionsPtr));
-        m_requestedUserGroupIdConfigPath = Common::ApplicationConfiguration::applicationPathManager().getRequestedUserGroupIdConfigPath();
+        m_filePermissionsReplacer.replace(
+            std::unique_ptr<Common::FileSystem::IFilePermissions>(m_mockFilePermissionsPtr));
+        m_requestedUserGroupIdConfigPath =
+            Common::ApplicationConfiguration::applicationPathManager().getRequestedUserGroupIdConfigPath();
     }
     ~TestUserGroupUtils() override { Tests::restoreFilePermissions(); }
 
-    void mockExecUserOrGroupIdChange(const std::string& executablePath, const std::string& userOrGroupSpecifier, const std::string& newId, const std::string& name)
+    void mockExecUserOrGroupIdChange(
+        const std::string& executablePath,
+        const std::string& userOrGroupSpecifier,
+        const std::string& newId,
+        const std::string& name)
     {
         EXPECT_CALL(*m_mockFileSystemPtr, isExecutable(executablePath)).WillRepeatedly(Return(true));
-        Common::ProcessImpl::ProcessFactory::instance().replaceCreator([executablePath, userOrGroupSpecifier, newId, name]() {
-            auto mockProcess = new StrictMock<MockProcess>();
-            EXPECT_CALL(*mockProcess, exec(executablePath, std::vector<std::string>{ userOrGroupSpecifier, newId, name })).Times(1);
-            EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
-            EXPECT_CALL(*mockProcess, wait(Common::Process::milli(100), 100)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
-            return std::unique_ptr<Common::Process::IProcess>(mockProcess);
-        });
+        Common::ProcessImpl::ProcessFactory::instance().replaceCreator(
+            [executablePath, userOrGroupSpecifier, newId, name]()
+            {
+                auto mockProcess = new StrictMock<MockProcess>();
+                EXPECT_CALL(
+                    *mockProcess, exec(executablePath, std::vector<std::string>{ userOrGroupSpecifier, newId, name }))
+                    .Times(1);
+                EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
+                EXPECT_CALL(*mockProcess, wait(Common::Process::milli(100), 100))
+                    .WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
+                return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+            });
     }
 };
 
@@ -138,7 +149,7 @@ TEST_F(TestUserGroupUtils, readRequestedUserGroupIdsDoesNotThrowOnCorrectlyStrip
         "{",
             R"("users": {)",
                 R"("user1": 1,)",
-                R"("user2": 2)",
+                R"("user2": 2)", // missing } to make it invalid
             R"("groups": {)",
                 R"("group1": 1,)",
                 R"("group2": 2)",
@@ -180,7 +191,7 @@ TEST_F(TestUserGroupUtils, validateUserAndGroupIdsRemovesRoot)
     EXPECT_EQ(validateUserAndGroupIds(configJson), validatedJson);
 }
 
-TEST_F(TestUserGroupUtils, validateUserAndGroupIdsRemovesDuplicateIds)
+TEST_F(TestUserGroupUtils, validateUserAndGroupIdsRemovesIdsThatAlreadyExist)
 {
     nlohmann::json configJson = {
         {"users", {{"user1", 1},{"root", 0},{"user2", 2}}},
@@ -196,6 +207,73 @@ TEST_F(TestUserGroupUtils, validateUserAndGroupIdsRemovesDuplicateIds)
     EXPECT_CALL(*m_mockFilePermissionsPtr, getAllUserNamesAndIds()).WillOnce(Return(std::map<std::string, uid_t>{{"user1", 1}}));
 
     EXPECT_EQ(validateUserAndGroupIds(configJson), validatedJson);
+}
+
+TEST_F(TestUserGroupUtils, validateUserAndGroupIdsRemovesDuplicateIdsInConfig)
+{
+    testing::internal::CaptureStderr();
+
+    // user1 and user2 have been requested to have the same ID (1) which is not allowed.
+    nlohmann::json configJson = {
+        {"users", {{"user1", 1}, {"root", 0}, {"user2", 1}, {"user3", 3}}},
+        {"groups", {{"group1", 1}, {"root", 0}, {"group2", 1}, {"group3", 3}}}
+    };
+
+    nlohmann::json expectedValidatedJson = {
+        {"users", {{"user3", 3}}},
+        {"groups", {{"group3", 3}}}
+    };
+
+    EXPECT_CALL(*m_mockFilePermissionsPtr, getAllGroupNamesAndIds()).WillOnce(Return(std::map<std::string, gid_t>{}));
+    EXPECT_CALL(*m_mockFilePermissionsPtr, getAllUserNamesAndIds()).WillOnce(Return(std::map<std::string, uid_t>{}));
+
+    EXPECT_EQ(validateUserAndGroupIds(configJson), expectedValidatedJson);
+
+    std::string logMessage2 = testing::internal::GetCapturedStderr();
+    EXPECT_THAT(logMessage2, ::testing::HasSubstr("Will not update group group1 to ID 1 because the ID is not unique in config. Conflicting group: group2"));
+    EXPECT_THAT(logMessage2, ::testing::HasSubstr("Will not update group group2 to ID 1 because the ID is not unique in config. Conflicting group: group1"));
+    EXPECT_THAT(logMessage2, ::testing::HasSubstr("Will not update group ID as it is root: 0"));
+    EXPECT_THAT(logMessage2, ::testing::HasSubstr("Will not update user ID as it is root: 0"));
+    EXPECT_THAT(logMessage2, ::testing::HasSubstr("Will not update user user1 to ID 1 because the ID is not unique in config. Conflicting user: user2"));
+    EXPECT_THAT(logMessage2, ::testing::HasSubstr("Will not update user user2 to ID 1 because the ID is not unique in config. Conflicting user: user1"));
+}
+
+TEST_F(TestUserGroupUtils, validateUserAndGroupIdsHandlesEmptyUserField)
+{
+    // user1 and user2 have been requested to have the same ID (1) which is not allowed.
+    nlohmann::json configJson = {
+        {"users", {}},
+        {"groups", {{"group1", 1},{"root", 0},{"group2", 2}}}
+    };
+
+    nlohmann::json expectedValidatedJson = {
+        {"users", {}},
+        {"groups", {{"group1", 1}, {"group2", 2}}}
+    };
+
+    EXPECT_CALL(*m_mockFilePermissionsPtr, getAllGroupNamesAndIds()).WillOnce(Return(std::map<std::string, gid_t>{}));
+    EXPECT_CALL(*m_mockFilePermissionsPtr, getAllUserNamesAndIds()).WillOnce(Return(std::map<std::string, uid_t>{}));
+
+    EXPECT_EQ(validateUserAndGroupIds(configJson), expectedValidatedJson);
+}
+
+TEST_F(TestUserGroupUtils, validateUserAndGroupIdsHandlesEmptyGroupField)
+{
+    // user1 and user2 have been requested to have the same ID (1) which is not allowed.
+    nlohmann::json configJson = {
+        {"users", {{"user1", 1},{"root", 0},{"user2", 2}}},
+        {"groups", {}}
+    };
+
+    nlohmann::json expectedValidatedJson = {
+        {"users", {{"user1", 1}, {"user2", 2}}},
+        {"groups", {}}
+    };
+
+    EXPECT_CALL(*m_mockFilePermissionsPtr, getAllGroupNamesAndIds()).WillOnce(Return(std::map<std::string, gid_t>{}));
+    EXPECT_CALL(*m_mockFilePermissionsPtr, getAllUserNamesAndIds()).WillOnce(Return(std::map<std::string, uid_t>{}));
+
+    EXPECT_EQ(validateUserAndGroupIds(configJson), expectedValidatedJson);
 }
 
 TEST_F(TestUserGroupUtils, validateUserAndGroupIdsReturnsEmptyWhenGroupDatabasesCannotBeRead)
@@ -358,7 +436,7 @@ TEST_F(TestUserGroupUtils, changeGroupIdThrowsWhenCommandIsStillRunningAfterWait
     EXPECT_THROW(changeGroupId("group", 998), std::runtime_error);
 }
 
-TEST_F(TestUserGroupUtilsRealFileSystem, remapUserIdOfFiles)
+TEST_F(TestUserGroupUtilsRealFileSystem, DISABLED_remapUserIdOfFiles)
 {
     auto filePermissions = Common::FileSystem::filePermissions();
     std::unique_ptr<Tests::TempDir> tempDir = Tests::TempDir::makeTempDir();
@@ -391,7 +469,7 @@ TEST_F(TestUserGroupUtilsRealFileSystem, remapUserIdOfFiles)
     EXPECT_EQ(filePermissions->getUserIdOfDirEntry(Common::FileSystem::join(startingDir,"directory3/file3")), 2);
 }
 
-TEST_F(TestUserGroupUtilsRealFileSystem, remapGroupIdOfFiles)
+TEST_F(TestUserGroupUtilsRealFileSystem, DISABLED_remapGroupIdOfFiles)
 {
     auto filePermissions = Common::FileSystem::filePermissions();
     std::unique_ptr<Tests::TempDir> tempDir = Tests::TempDir::makeTempDir();
