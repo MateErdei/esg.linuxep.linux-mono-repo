@@ -235,14 +235,24 @@ def query_tarfile_for_contents(path_to_tarfile):
     return "\n".join(member_names)
 
 
-def get_file_owner(filepath):
+def get_file_owner(filepath: str) -> str:
     owner = subprocess.check_output(['stat', '-c', '%U', filepath]).decode().strip()
     return owner
 
 
-def get_file_group(filepath):
+def get_file_owner_id(filepath: str) -> str:
+    owner_id = subprocess.check_output(['stat', '-c', '%u', filepath]).decode().strip()
+    return owner_id
+
+
+def get_file_group(filepath: str) -> str:
     group = subprocess.check_output(['stat', '-c', '%G', filepath]).decode().strip()
     return group
+
+
+def get_file_group_id(filepath: str) -> str:
+    group_id = subprocess.check_output(['stat', '-c', '%g', filepath]).decode().strip()
+    return group_id
 
 
 def get_file_permissions(filepath):
@@ -605,8 +615,14 @@ def running_processes_should_match_the_count(comm_name, match_dir_path, count):
 def is_ubuntu():
     return platform.dist()[0] == "Ubuntu"
 
+
 def get_uid_from_username(username):
     return pwd.getpwnam(username).pw_uid
+
+
+def get_gid_from_groupname(group_name: str):
+    return grp.getgrnam(group_name).gr_gid
+
 
 def get_gcc_version_from_lib(lib_path) -> str:
     result = subprocess.run(["strings", lib_path], stdout=subprocess.PIPE)

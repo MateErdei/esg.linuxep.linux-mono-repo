@@ -1,0 +1,11 @@
+{
+  "groups": {
+    "sophos-spl-group": 1996,
+    "sophos-spl-ipc": 1995
+  },
+  "users": {
+    "sophos-spl-local": 1995,
+    "sophos-spl-updatescheduler": 1994,
+    "sophos-spl-user": 1996
+  }
+}

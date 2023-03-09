@@ -13,6 +13,11 @@ Stop System Watchdog
     ${result} =    Run Process     systemctl       stop        sophos-spl
 
 
+Restart Product
+    ${result} =  Run Process  systemctl  restart  sophos-spl
+    Should Be Equal As Strings  0  ${result.rc}
+
+
 Stop System Watchdog And Wait
     Stop System Watchdog
     Wait Until Keyword Succeeds  10 seconds  0.5 seconds   check managementagent not running
