@@ -37,18 +37,12 @@ namespace watchdog::watchdogimpl
     /*
      * TODO Docs
      */
-    WatchdogUserGroupIDs validateUserAndGroupIds(WatchdogUserGroupIDs configJson);
-
-    /*
-     * TODO Docs
-     */
     void changeUserId(const std::string& username, uid_t newUserId);
 
     /*
      * TODO Docs
      */
     void changeGroupId(const std::string& groupname, gid_t newGroupId);
-
 
     /*
      * For every file and directory in rootPath that matches the current IDs passed in, change the file owner
