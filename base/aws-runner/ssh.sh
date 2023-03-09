@@ -12,6 +12,9 @@ then
     HOST="$USERNAME@$HOST"
 fi
 
+# Permissions required on regressiontesting.pem
+chmod go-rwx $SCRIPT_DIR/ssh-keys/regressiontesting.pem
+
 exec ssh \
     $SSH_ARGS \
     -i $SCRIPT_DIR/ssh-keys/regressiontesting.pem \
