@@ -126,6 +126,9 @@ class TelemetryUtils:
         if overall_health is not None:
             telemetry["overall-health"] = overall_health
 
+        telemetry["outbreak-ever"] = "false"
+
+
         return telemetry
 
     def generate_mtr_telemetry_dict(self, num_SophosMTR_restarts):
