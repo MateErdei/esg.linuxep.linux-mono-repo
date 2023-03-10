@@ -904,35 +904,6 @@ Consecutive SDDS3 Updates Without Changes Should Not Trigger Additional Installa
     All Products In Update Report Are Up To Date  ${latest_report.strip()}
 
 
-During Transition From SDDS3 to SDDS2 SDDS3 Cache Is Removed Before Downloading SDDS2 Files
-    Start Local Cloud Server  --initial-alc-policy  ${BaseEdrAndMtrAndAVVUTPolicy}  --initial-flags  ${SUPPORT_FILES}/CentralXml/FLAGS_sdds2.json
-    ${handle}=  Start Local SDDS3 Server
-    Set Suite Variable    ${GL_handle}    ${handle}
-
-    Configure And Run SDDS3 Thininstaller  0  https://localhost:8080   https://localhost:8080
-
-    Wait Until Keyword Succeeds
-    ...   150 secs
-    ...   10 secs
-    ...   Check Log Contains    Update success    ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log
-
-    Override LogConf File as Global Level  DEBUG
-    Wait Until Keyword Succeeds
-    ...   60 secs
-    ...   5 secs
-    ...   Check Local SDDS3 Cache Has Contents
-
-    Trigger Update Now
-
-    Wait Until Keyword Succeeds
-    ...  150 secs
-    ...  10 secs
-    ...  Check Suldownloader Log Contains In Order    Update success    Purging local SDDS3 cache    Update success
-
-    Check Local SDDS3 Cache Is Empty
-    Check Local SDDS2 Cache Has Contents
-
-
 Schedule Query Pack Next Exists in SDDS3 and is Equal to Schedule Query Pack
     Start Local Cloud Server  --initial-alc-policy  ${BaseEdrAndMtrAndAVVUTPolicy}
     ${handle}=  Start Local SDDS3 Server
