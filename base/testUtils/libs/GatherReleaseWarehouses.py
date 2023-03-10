@@ -21,14 +21,22 @@ def unpack_sdds3_artifact(build_url, artifact_name, output_dir):
 
 def get_warehouse_branches(branch_filter, url, type, version_separator):
     release_branches = []
+    all_paths = []
     for path in ArtifactoryPath(url):
         branch_name = os.path.basename(path)
         if branch_name.startswith(branch_filter):
-            release_branches.append(branch_name)
+            all_paths.append(branch_name)
 
     # Remove sprint branches
     if type == "current_shipping":
-        release_branches = [i for i in release_branches if int(i.strip(branch_filter).split(version_separator)[0]) <= 4]
+        for path in all_paths:
+            try:
+                if int(path.strip(branch_filter).split(version_separator)[0]) <= 4:
+                    release_branches.append(path)
+            except ValueError:
+                pass
+    else:
+        release_branches = all_paths
     return release_branches
 
 
