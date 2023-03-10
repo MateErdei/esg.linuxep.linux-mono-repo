@@ -106,7 +106,7 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     ...   150 secs
     ...   10 secs
     ...   Check SulDownloader Log Contains String N Times   Update success  2
-    Check SulDownloader Log Should Not Contain    Failed to updating mode
+    Check SulDownloader Log Should Not Contain    Failed to
 
     # Update again to ensure we do not get a scheduled update later in the test run
     Trigger Update Now
@@ -151,7 +151,7 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     ...   300 secs
     ...   10 secs
     ...   Check Log Contains String At Least N times    /tmp/preserve-sul-downgrade    Downgrade Log    Update success    2
-    Check SulDownloader Log Should Not Contain    Failed to updating mode
+    Check SulDownloader Log Should Not Contain    Failed to
     SHS Status File Contains  ${HealthyShsStatusXmlContents}
     SHS Status File Contains  ${GoodThreatHealthXmlContents}
 
@@ -236,7 +236,7 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     ...   150 secs
     ...   10 secs
     ...   Check SulDownloader Log Contains String N Times   Update success  2
-    Check SulDownloader Log Should Not Contain    Failed to updating mode
+    Check SulDownloader Log Should Not Contain    Failed to
 
     # Update again to ensure we do not get a scheduled update later in the test run
     Trigger Update Now
@@ -290,7 +290,7 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     ...  200 secs
     ...  10 secs
     ...  Check SulDownloader Log Contains String N Times    Update success    1
-    Check SulDownloader Log Should Not Contain    Failed to updating mode
+    Check SulDownloader Log Should Not Contain    Failed to
 
     Check for Management Agent Failing To Send Message To MTR And Check Recovery
 
@@ -394,7 +394,7 @@ We Can Upgrade From Release to VUT Without Unexpected Errors
     ...   150 secs
     ...   10 secs
     ...   Check SulDownloader Log Contains String N Times   Update success  2
-    Check SulDownloader Log Should Not Contain    Failed to updating mode
+    Check SulDownloader Log Should Not Contain    Failed to
 
     # Update again to ensure we do not get a scheduled update later in the test run
     Trigger Update Now
@@ -428,7 +428,7 @@ We Can Upgrade From Release to VUT Without Unexpected Errors
     ...   300 secs
     ...   10 secs
     ...   Check Log Contains String At Least N times    /tmp/preserve-sul-downgrade    Downgrade Log    Update success    2
-    Check SulDownloader Log Should Not Contain    Failed to updating mode
+    Check SulDownloader Log Should Not Contain    Failed to
 
     SHS Status File Contains  ${HealthyShsStatusXmlContents}
     SHS Status File Contains  ${GoodThreatHealthXmlContents}
@@ -512,7 +512,7 @@ We Can Downgrade From VUT to Release Without Unexpected Errors
     ...   150 secs
     ...   10 secs
     ...   Check SulDownloader Log Contains String N Times   Update success  2
-    Check SulDownloader Log Should Not Contain    Failed to updating mode
+    Check SulDownloader Log Should Not Contain    Failed to
 
     # Update again to ensure we do not get a scheduled update later in the test run
     Trigger Update Now
@@ -563,7 +563,7 @@ We Can Downgrade From VUT to Release Without Unexpected Errors
     ...  200 secs
     ...  10 secs
     ...  Check Log Contains String At Least N times    ${SOPHOS_INSTALL}/logs/base/suldownloader.log    SulDownloader Log    Update success    1
-    Check SulDownloader Log Should Not Contain    Failed to updating mode
+    Check SulDownloader Log Should Not Contain    Failed to
 
     Wait Until Keyword Succeeds
     ...   60 secs
