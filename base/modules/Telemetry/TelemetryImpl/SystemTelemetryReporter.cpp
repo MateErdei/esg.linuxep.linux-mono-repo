@@ -40,10 +40,8 @@ namespace Telemetry
         if (!cloudPlatform.empty())
         {
             jsonConverter.set("cloud-platform", cloudPlatform);
-            LOGWARN("FOUND CLOUDPLATFORM " << cloudPlatform);
         }
 
-        LOGWARN("CLOUDPLATFORM EMPTY");
         std::string mcsProxy = TelemetryUtils::getMCSProxy();
         jsonConverter.set("mcs-connection", mcsProxy);
 
