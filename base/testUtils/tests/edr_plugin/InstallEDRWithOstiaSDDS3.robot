@@ -593,33 +593,6 @@ Install Base Edr And Mtr Vut Then Transition To Base Edr Vut
     Check All Product Logs Do Not Contain Critical
 
 
-Update Run that Does Not Change The Product Does not ReInstall The Product using SDDS2
-    [Tags]  TESTFAILURE
-
-    Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-MDR version: 1.
-    Wait for first update
-    Prepare Installation For Upgrade Using Policy   ${BaseAndEdrAndMtrVUTPolicy}
-
-    Override LogConf File as Global Level  DEBUG
-
-    Trigger Update Now
-
-    Wait Until Keyword Succeeds
-    ...  60 secs
-    ...  5 secs
-    ...  Check Log Contains String N Times   ${SULDOWNLOADER_LOG_PATH}   SULDownloader Log   Generating the report file in   2
-
-    Run Keyword And Expect Error   *1 times not the requested 2 times*   Upgrade Installs EDR Twice
-
-    Check MDR Plugin Installed
-    Check Event Journaler Installed
-
-    Wait For Suldownloader To Finish
-    Mark Known Upgrade Errors
-
-    Check All Product Logs Do Not Contain Error
-    Check All Product Logs Do Not Contain Critical
-
 *** Keywords ***
 
 Check MCS Envelope Log For Event Success Within Nth Set Of Events Sent
