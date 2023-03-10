@@ -28,6 +28,7 @@ namespace Telemetry
                 if (j.find("platform") != j.end())
                 {
                     std::string platform = j["platform"];
+                    LOGWARN("FOUND TEST");
 
                     if (platform == "aws")
                     {
