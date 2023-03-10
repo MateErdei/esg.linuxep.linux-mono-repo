@@ -83,7 +83,9 @@ Sul Downloader Report error correctly when it cannot connect to sdds3
     ...    Check SulDownloader Log Contains  Update failed, with code: 112
 
 
-Sul Downloader Forces SDDS2 When Requested Fixed Version Is Unsupported In SDD3
+Sul Downloader Forces SDDS2 When Requested Fixed Version Is Unsupported In SDDS3
+    [Tags]  TESTFAILURE
+
     Start Local Cloud Server    --initial-alc-policy  ${SUPPORT_FILES}/CentralXml/ALC_FixedVersionPolicyForceSDDS2.xml
     ${handle}=  Start Local SDDS3 Server With Empty Repo
     Set Suite Variable    ${GL_handle}    ${handle}
