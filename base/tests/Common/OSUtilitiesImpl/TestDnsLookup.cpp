@@ -52,7 +52,8 @@ TEST(TestDnsLookup, invalidRequestShouldThrow) // NOLINT
     }
 }
 
-TEST(TestDnsLookup, shouldBeAbleToResolvValidIPv6) // NOLINT
+//Todo LINUXDAR-6988 replace test with a unit test using mock and real robot test
+TEST(TestDnsLookup, DISABLED_shouldBeAbleToResolvValidIPv6) // NOLINT
 {
     auto dns = dnsLookup();
     // the public url that I found that return ip6 and ip4
