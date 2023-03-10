@@ -80,5 +80,5 @@ public:
     MOCK_CONST_METHOD1(recursivelyDeleteContentsOfDirectory, void(const Path& path));
     MOCK_CONST_METHOD2(calculateDigest, std::string(Common::SslImpl::Digest digestName, const Path& path));
     MOCK_CONST_METHOD2(calculateDigest, std::string(Common::SslImpl::Digest digestName, int fd));
-    MOCK_CONST_METHOD1(getDiskSpaceInfo, std::filesystem::space_info(const Path& path));
+    MOCK_METHOD(std::filesystem::space_info, getDiskSpaceInfo, (const Path& path), (const, override));
 };
