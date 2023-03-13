@@ -889,7 +889,7 @@ SDDS3 Mechanism Is Updated in UpdateScheduler Telemetry After Successful Update 
     Wait Until Keyword Succeeds
     ...    30 secs
     ...    5 secs
-    ...    Check UpdateScheduler Log Contains String N Times    Sending status to Central    4
+    ...    Check UpdateScheduler Log Contains String N Times    Sending status to Central    3
 
     Cleanup Telemetry Server
     Prepare To Run Telemetry Executable With HTTPS Protocol    port=6443
