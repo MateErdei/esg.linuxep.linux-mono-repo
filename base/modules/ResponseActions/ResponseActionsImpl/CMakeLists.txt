@@ -2,6 +2,8 @@ add_library(responseactionsimpl SHARED
         ActionsUtils.cpp
         ActionsUtils.h
         ActionStructs.h
+        DownloadFileAction.cpp
+        DownloadFileAction.h
         Logger.cpp
         Logger.h
         InvalidCommandFormat.h
