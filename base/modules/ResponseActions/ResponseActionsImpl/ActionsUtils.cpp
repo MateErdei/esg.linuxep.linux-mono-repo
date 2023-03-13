@@ -88,6 +88,80 @@ namespace ResponseActionsImpl
         return info;
     }
 
+    DownloadInfo ActionsUtils::readDownloadAction(const std::string& actionJson)
+    {
+        DownloadInfo info;
+        nlohmann::json actionObject;
+        try
+        {
+            actionObject = nlohmann::json::parse(actionJson);
+        }
+        catch (const nlohmann::json::exception& exception)
+        {
+            LOGWARN("Cannot parse download action with error: " << exception.what());
+        }
+
+        std::string errorPrefix = "Download command from Central missing required parameter: ";
+        if (!actionObject.contains("url"))
+        {
+            throw InvalidCommandFormat(errorPrefix + "url");
+        }
+        if (!actionObject.contains("targetPath"))
+        {
+            throw InvalidCommandFormat(errorPrefix + "targetPath");
+        }
+        if (!actionObject.contains("sha256"))
+        {
+            throw InvalidCommandFormat(errorPrefix + "sha256");
+        }
+        if (!actionObject.contains("timeout"))
+        {
+            throw InvalidCommandFormat(errorPrefix + "timeout");
+        }
+        if (!actionObject.contains("sizeBytes"))
+        {
+            throw InvalidCommandFormat(errorPrefix + "sizeBytes");
+        }
+        if (!actionObject.contains("expiration"))
+        {
+            throw InvalidCommandFormat(errorPrefix + "expiration");
+        }
+
+        try
+        {
+            //Required fields
+            info.url = actionObject.at("url");
+            info.targetPath = actionObject.at("targetPath");
+            info.sha256 = actionObject.at("sha256");
+            info.sizeBytes = actionObject.at("sizeBytes");
+            info.expiration = actionObject.at("expiration");
+            info.timeout = actionObject.at("timeout");
+
+            //Optional Fields
+            if (actionObject.contains("decompress"))
+            {
+                info.decompress = actionObject.at("decompress");
+            }
+
+            if (actionObject.contains("password"))
+            {
+                auto parsedPassword = actionObject.at("password");
+                if (!parsedPassword.empty())
+                {
+                    info.password = parsedPassword;
+                }
+            }
+        }
+        catch (const nlohmann::json::type_error& exception)
+        {
+            std::stringstream errorMsg;
+            errorMsg << "Failed to parse download command json, json value in unexpected type : " << exception.what();
+            throw InvalidCommandFormat(errorMsg.str());
+        }
+
+        return info;
+    }
+
     bool ActionsUtils::isExpired(u_int64_t expiry)
     {
         Common::UtilityImpl::FormattedTime time;
