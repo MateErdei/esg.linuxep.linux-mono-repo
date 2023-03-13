@@ -134,8 +134,9 @@ void ManagementAgent::EventReceiverImpl::OutbreakModeController::save(const std:
     auto contents = j.dump();
     try
     {
-        filesystem->writeFileAtomically(path, contents, paths.getTempPath(), 0600);
-        Common::FileSystem::filePermissions()->chown(path, sophos::user(), sophos::group());
+        filesystem->writeFileAtomically(path, contents, paths.getTempPath(), 0640);
+        // Set the owner to root:sophos-spl-group so that MA can read the file.
+        Common::FileSystem::filePermissions()->chown(path, "root", sophos::group());
     }
     catch (const Common::FileSystem::IFileSystemException& ex)
     {

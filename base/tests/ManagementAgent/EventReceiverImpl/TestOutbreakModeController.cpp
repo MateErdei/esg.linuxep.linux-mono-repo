@@ -5,6 +5,7 @@
 #include "Common/FileSystem/IFileNotFoundException.h"
 #include "ManagementAgent/EventReceiverImpl/OutbreakModeController.h"
 #include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
+#include "tests/Common/Helpers/MockFilePermissions.h"
 #include "tests/Common/Helpers/MockFileSystem.h"
 #include "tests/Common/Helpers/TestSpecificDirectory.h"
 #include "tests/Common/UtilityImpl/MockFormattedTime.h"
@@ -385,6 +386,7 @@ TEST_F(TestOutbreakModeController, loads_uuid_not_string)
 TEST_F(TestOutbreakModeController, saves_status_file_on_outbreak)
 {
     auto* filesystemMock = new MockFileSystem();
+    auto* mockFilePermissions = new MockFilePermissions();
     EXPECT_CALL(*filesystemMock, readFile(_,_)).WillOnce(Return(""));
 
     auto now = OutbreakModeController::clock_t::now();
@@ -397,7 +399,11 @@ TEST_F(TestOutbreakModeController, saves_status_file_on_outbreak)
                                      HasSubstr("base/mcs/event/CORE_event-"),
                                      HasSubstr("sophos.core.outbreak"), _, _)).WillOnce(Return());
 
+    EXPECT_CALL(*mockFilePermissions, chown(expectedStatusFile_,"root","sophos-spl-group")).WillOnce(Return());
+
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
+    std::unique_ptr<MockFilePermissions> mockIFilePermissionsPtr = std::unique_ptr<MockFilePermissions>(mockFilePermissions);
+    Tests::replaceFilePermissions(std::move(mockIFilePermissionsPtr));
 
     auto controller = std::make_shared<OutbreakModeController>();
     EXPECT_FALSE(controller->outbreakMode());
