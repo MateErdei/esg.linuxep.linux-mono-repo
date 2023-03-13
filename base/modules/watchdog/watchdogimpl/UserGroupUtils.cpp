@@ -212,40 +212,38 @@ namespace watchdog::watchdogimpl
     {
         auto process = Common::Process::createProcess();
         auto fs = Common::FileSystem::fileSystem();
-        std::string usermodCmd;
-        // TODO - add other distro locations here
-        for (std::string candidate : { "/usr/sbin/usermod" })
+        std::string usermodCmd = "/usr/sbin/usermod";
+        std::stringstream errorMessage;
+        errorMessage << "Failed to set user ID of " << username << " to " << newUserId;
+
+        if (fs->isExecutable(usermodCmd))
         {
-            if (fs->isExecutable(candidate))
+            process->exec(usermodCmd, { "-u", std::to_string(newUserId), username });
+
+            auto state = process->wait(Common::Process::milli(100), 100);
+            if (state != Common::Process::ProcessStatus::FINISHED)
             {
-                usermodCmd = candidate;
-                break;
+                LOGWARN("usermod failed to exit after 10s");
+                process->kill();
+            }
+
+            int exitCode = process->exitCode();
+            if (exitCode == 0)
+            {
+                LOGINFO("Set user ID of " << username << " to " << newUserId);
+                return;
+            }
+
+            errorMessage << ", exit code: " << exitCode;
+            if (!process->output().empty())
+            {
+                errorMessage << ", output: " << process->output();
             }
         }
-
-        process->exec(usermodCmd, { "-u", std::to_string(newUserId), username });
-
-        auto state = process->wait(Common::Process::milli(100), 100);
-        if (state != Common::Process::ProcessStatus::FINISHED)
+        else
         {
-            LOGWARN("usermod failed to exit after 10s");
-            process->kill();
+            errorMessage << " as " << usermodCmd << " is not executable";
         }
-
-        int exitCode = process->exitCode();
-        if (exitCode == 0)
-        {
-            LOGINFO("Set user ID of " << username << " to " << newUserId);
-            return;
-        }
-
-        std::stringstream errorMessage;
-        errorMessage << "Failed to set user ID of " << username << " to " << newUserId << ", exit code: " << exitCode;
-        if (!process->output().empty())
-        {
-            errorMessage << ", output: " << process->output();
-        }
-
         throw std::runtime_error(errorMessage.str());
     }
 
@@ -253,40 +251,38 @@ namespace watchdog::watchdogimpl
     {
         auto process = Common::Process::createProcess();
         auto fs = Common::FileSystem::fileSystem();
-        std::string groupmodCmd;
-        // TODO - add other distro locations here
-        for (std::string candidate : { "/usr/sbin/groupmod" })
+        std::string groupmodCmd = "/usr/sbin/groupmod";
+        std::stringstream errorMessage;
+        errorMessage << "Failed to set group ID of " << groupname << " to " << newGroupId;
+
+        if (fs->isExecutable(groupmodCmd))
         {
-            if (fs->isExecutable(candidate))
+            process->exec(groupmodCmd, { "-g", std::to_string(newGroupId), groupname });
+
+            auto state = process->wait(Common::Process::milli(100), 100);
+            if (state != Common::Process::ProcessStatus::FINISHED)
             {
-                groupmodCmd = candidate;
-                break;
+                LOGWARN("groupmod failed to exit after 10s");
+                process->kill();
+            }
+
+            int exitCode = process->exitCode();
+            if (exitCode == 0)
+            {
+                LOGINFO("Set group ID of " << groupname << " to " << newGroupId);
+                return;
+            }
+
+            errorMessage << ", exit code: " << exitCode;
+            if (!process->output().empty())
+            {
+                errorMessage << ", output: " << process->output();
             }
         }
-
-        process->exec(groupmodCmd, { "-g", std::to_string(newGroupId), groupname });
-
-        auto state = process->wait(Common::Process::milli(100), 100);
-        if (state != Common::Process::ProcessStatus::FINISHED)
+        else
         {
-            LOGWARN("groupmod failed to exit after 10s");
-            process->kill();
+            errorMessage << " as " << groupmodCmd << " is not executable";
         }
-
-        int exitCode = process->exitCode();
-        if (exitCode == 0)
-        {
-            LOGINFO("Set group ID of " << groupname << " to " << newGroupId);
-            return;
-        }
-
-        std::stringstream errorMessage;
-        errorMessage << "Failed to set user ID of " << groupname << " to " << newGroupId << ", exit code: " << exitCode;
-        if (!process->output().empty())
-        {
-            errorMessage << ", output: " << process->output();
-        }
-
         throw std::runtime_error(errorMessage.str());
     }
 
