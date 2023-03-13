@@ -651,7 +651,7 @@ namespace SulDownloader
         {
             if (!configurationData.getJWToken().empty())
             {
-                LOGINFO("Running in SDDS3 updating mode");
+                LOGINFO("Running SDDS3 update");
                 // Make sure root directories are created
                 createSdds3UpdateCacheFolders();
                 repositoryResult = updateFromSDDS3Repository(configurationData, supplementOnly, previousDownloadReport,

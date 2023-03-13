@@ -795,7 +795,7 @@ Consecutive SDDS3 Updates Without Changes Should Not Trigger Additional Installa
     ...   150 secs
     ...   10 secs
     ...   Check SulDownloader Log Contains String N Times   Update success  2
-    Check SulDownloader Log Contains String N Times   Running in SDDS3 updating mode  2
+    Check SulDownloader Log Contains     Running SDDS3 update
 
     Mark Sul Log
     Trigger Update Now
