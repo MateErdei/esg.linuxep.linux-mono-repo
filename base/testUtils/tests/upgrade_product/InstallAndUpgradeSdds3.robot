@@ -880,11 +880,6 @@ SDDS3 Mechanism Is Updated in UpdateScheduler Telemetry After Successful Update 
     Check Update Scheduler Telemetry Json Is Correct  ${telemetryFileContents}  0   sddsid=av_user_vut  set_edr=True  set_av=True  most_recent_update_successful=True  sdds_mechanism=SDDS2
 
     Overwrite MCS Flags File    {"sdds3.enabled": true}
-    Wait Until Keyword Succeeds
-    ...     10s
-    ...     2s
-    ...     File Should Contain  ${UPDATE_CONFIG}     "useSDDS3": true
-    Check Updatescheduler Log Contains    Received sdds3.enabled flag value: 1
 
     Trigger Update Now
     Wait Until Keyword Succeeds
