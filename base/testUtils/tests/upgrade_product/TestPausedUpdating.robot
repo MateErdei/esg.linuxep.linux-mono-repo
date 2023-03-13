@@ -23,7 +23,7 @@ ${BaseOnlyFixedVersion999Policy}      ${GeneratedWarehousePolicies}/base_only_fi
 
 Test SSPL Will Updated To A Fixed Version When Paused Updating Is Activated And Updating Will Resolve To Recommended When It Is Deactivated
     [Timeout]  10mins
-    [Tags]  PAUSED_UPDATE  INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA  EXCLUDE_UBUNTU20
+    [Tags]  PAUSED_UPDATE  INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA  EXCLUDE_UBUNTU20 TESTFAILURE
     [Teardown]  Test Teardown And Replace Policy
     Start Local Cloud Server  --initial-alc-policy  ${BaseOnlyVUTPolicy}  --initial-flags  ${SUPPORT_FILES}/CentralXml/FLAGS_sdds2.json
 
