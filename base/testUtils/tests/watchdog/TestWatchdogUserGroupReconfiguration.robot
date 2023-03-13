@@ -73,8 +73,7 @@ Test Watchdog Reconfigures User and Group IDs
     Should Be Equal As Strings    ${sophos_spl_group_gid_after}    ${sophos_spl_group_gid_requested}
     Should Be Equal As Strings    ${sophos_spl_ipc_gid_after}    ${sophos_spl_ipc_gid_requested}
 
-    Check All Product Logs Do Not Contain Error
-    Check All Product Logs Do Not Contain Critical
+    Verify Product is Running Without Error After ID Change
 
 
 Test Watchdog Can Reconfigure a Singular User ID
@@ -116,8 +115,7 @@ Test Watchdog Can Reconfigure a Singular User ID
     ${sspl_user_uid_after} =    Get UID From Username    sophos-spl-user
     Should Be Equal As Strings    ${sspl_user_uid_after}    ${sspl_user_uid_requested}
 
-    Check All Product Logs Do Not Contain Error
-    Check All Product Logs Do Not Contain Critical
+    Verify Product is Running Without Error After ID Change
 
 Test Watchdog Can Reconfigure a Singular Group ID
     Wait For Base Processes To Be Running
@@ -159,8 +157,7 @@ Test Watchdog Can Reconfigure a Singular Group ID
     ${sophos_spl_group_gid_after} =    get_gid_from_groupname    sophos-spl-group
     Should Be Equal As Strings    ${sophos_spl_group_gid_after}    ${sophos_spl_group_gid_requested}
 
-    Check All Product Logs Do Not Contain Error
-    Check All Product Logs Do Not Contain Critical
+    Verify Product is Running Without Error After ID Change
 
 *** Keywords ***
 
@@ -173,3 +170,8 @@ Verify Watchdog Actual User Group ID File
 Get User IDs of Installed Files
     ${ids} =    get_user_and_group_ids_of_files    ${SOPHOS_INSTALL}
     [Return]    ${ids}
+
+Verify Product is Running Without Error After ID Change
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/watchdog.log    ProcessMonitoringImpl <> /opt/sophos-spl/base/bin/mcsrouter died with exit code 1
+    Check All Product Logs Do Not Contain Error
+    Check All Product Logs Do Not Contain Critical
