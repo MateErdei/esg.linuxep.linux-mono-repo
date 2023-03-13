@@ -14,12 +14,6 @@ Test Setup  Require Fresh Install
 
 *** Test Cases ***
 Test Watchdog Reconfigures User and Group IDs
-    ${result}=  Run Process    which    groupmod    shell=True
-    Log  ${result.stdout}
-
-    ${result}=  Run Process    which    usermod    shell=True
-    Log  ${result.stdout}
-
     Wait For Base Processes To Be Running
     Verify Watchdog Actual User Group ID File
     ${ids_before} =    Get User IDs of Installed Files
