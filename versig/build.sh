@@ -24,6 +24,8 @@ source "$BASE"/pathmgr.sh
 [ -f "$BASE"/common.sh ] || { echo "Can't find common.sh" ; exit 11 ; }
 source "$BASE"/common.sh
 
+source "$BASE"/setup_env_vars.sh
+
 export NO_REMOVE_GCC=1
 
 while [[ $# -ge 1 ]]
