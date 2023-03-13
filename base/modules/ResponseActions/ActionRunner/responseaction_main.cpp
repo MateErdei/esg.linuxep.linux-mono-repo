@@ -49,6 +49,13 @@ namespace ActionRunner
             ResponseActions::RACommon::sendResponse(correlationId, response);
             LOGINFO("Sent run command response for ID " << correlationId << " to Central");
         }
+        else if (type == "sophos.mgt.action.DownloadFile")
+        {
+            LOGINFO("Running download file action: " << correlationId);
+            std::string response = RunUtils::doDownloadFile(action);
+            RunUtils::sendResponse(correlationId, response);
+            LOGINFO("Sent download file response for id " << correlationId << " to Central");
+        }
         else
         {
             LOGWARN("Throwing away unknown action: " << action);
