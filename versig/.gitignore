@@ -12,11 +12,12 @@ venv
 .idea/modules.xml
 .idea/versig.iml
 .idea/workspace.xml
+/.idea/esg.linuxep.versig.iml
+/.idea/codeStyles/Project.xml
+/.idea/.name
 build64
 input
 log
 redist
 output
 /versig/
-/.idea/esg.linuxep.versig.iml
-/.idea/codeStyles/Project.xml
