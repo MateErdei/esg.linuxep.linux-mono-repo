@@ -885,7 +885,7 @@ SDDS3 Mechanism Is Updated in UpdateScheduler Telemetry After Successful Update 
     Wait Until Keyword Succeeds
     ...    200 secs
     ...    10 secs
-    ...    Check Suldownloader Log Contains In Order    Update success    Running in SDDS3 updating mode   Generating the report file
+    ...    Check Suldownloader Log Contains In Order    Update success    Running SDDS3 update   Generating the report file
     Wait Until Keyword Succeeds
     ...    30 secs
     ...    5 secs
