@@ -327,11 +327,15 @@ function generate_local_user_group_id_config()
   if [[ ! -f "${configPath}" ]]
   then
     cat > "${configPath}" << EOF
-# TODO LINUXDAR-6704 - Finish  this text!
 # This file allows the user and group IDs of the SPL product to be specified
-# note - mention the other file requested vs actual tell users to read that for all users and groups.
-# security notes go here
-#Using the following template:
+# note - This file is used to request user and group ID changes whereas user-group-ids-actual.conf reflects the IDs currently in use by the product.
+# Before modifying this file, please stop the product: 'systemctl stop sophos-spl'
+# This config is validated to maintain security so the following changes will not be performed
+#  - User or group name is 'root'
+#  - User or group IDs that are already in use
+#  - Duplicated user IDs within this file
+#  - Duplicated group IDs within this file
+# Requested user and group IDs can be made using the following template:
 #{
 #    "users": {
 #        "username1": uid1,
@@ -342,7 +346,6 @@ function generate_local_user_group_id_config()
 #        "groupname2": gid2
 #    },
 #}
-#
 EOF
   fi
   chown root:root "${configPath}"
