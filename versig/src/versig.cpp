@@ -83,7 +83,7 @@ struct Arguments
         checkInstall(false),
         requireAllManifestFilesPresentOnDisk(false),
         requireAllDiskFilesPresentInManifest(false),
-        requireSHA256(false)
+        requireSHA256(true)
     {
     }
 };
