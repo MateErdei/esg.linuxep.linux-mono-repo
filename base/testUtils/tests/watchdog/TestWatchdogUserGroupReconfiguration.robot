@@ -77,6 +77,90 @@ Test Watchdog Reconfigures User and Group IDs
     Check All Product Logs Do Not Contain Critical
 
 
+Test Watchdog Can Reconfigure a Singular User ID
+    Wait For Base Processes To Be Running
+    Verify Watchdog Actual User Group ID File
+    ${ids_before} =    Get User IDs of Installed Files
+
+    # Install time IDs
+    # Users
+    ${sspl_user_uid_before} =    Get UID From Username    sophos-spl-user
+    ${sspl_local_uid_before} =    Get UID From Username    sophos-spl-local
+    ${sspl_update_uid_before} =    Get UID From Username    sophos-spl-updatescheduler
+    # Groups
+    ${sophos_spl_group_gid_before} =    get_gid_from_groupname    sophos-spl-group
+    ${sophos_spl_ipc_gid_before} =    get_gid_from_groupname    sophos-spl-ipc
+
+    # ID we will request to change to
+    # sophos-spl-user 1996
+    ${sspl_user_uid_requested} =  Set Variable  1996
+
+    # Perform the ID changes requests by writing requested IDs json file and restarting the product
+    Append To File  ${WD_REQUESTED_USER_GROUP_IDS}    {"users":{"sophos-spl-user":1996}}
+    Restart Product
+    Wait For Base Processes To Be Running
+
+    # Check file after
+    ${ids_after} =    Get User IDs of Installed Files
+
+    check_changes_of_user_ids   ${ids_before}    ${ids_after}    ${sspl_user_uid_before}    ${sspl_user_uid_requested}
+
+    # Remaining IDs should have stayed the same
+    check_changes_of_user_ids   ${ids_before}    ${ids_after}    ${sspl_local_uid_before}    ${sspl_local_uid_before}
+    check_changes_of_user_ids   ${ids_before}    ${ids_after}    ${sspl_update_uid_before}    ${sspl_update_uid_before}
+    check_changes_of_group_ids   ${ids_before}    ${ids_after}    ${sophos_spl_group_gid_before}    ${sophos_spl_group_gid_before}
+    check_changes_of_group_ids   ${ids_before}    ${ids_after}    ${sophos_spl_ipc_gid_before}    ${sophos_spl_ipc_gid_before}
+
+    # Check product UIDs and GIDs
+    # Users after
+    ${sspl_user_uid_after} =    Get UID From Username    sophos-spl-user
+    Should Be Equal As Strings    ${sspl_user_uid_after}    ${sspl_user_uid_requested}
+
+    Check All Product Logs Do Not Contain Error
+    Check All Product Logs Do Not Contain Critical
+
+Test Watchdog Can Reconfigure a Singular Group ID
+    Wait For Base Processes To Be Running
+    Verify Watchdog Actual User Group ID File
+    ${ids_before} =    Get User IDs of Installed Files
+
+    # Install time IDs
+    # Users
+    ${sspl_user_uid_before} =    Get UID From Username    sophos-spl-user
+    ${sspl_local_uid_before} =    Get UID From Username    sophos-spl-local
+    ${sspl_update_uid_before} =    Get UID From Username    sophos-spl-updatescheduler
+    # Groups
+    ${sophos_spl_group_gid_before} =    get_gid_from_groupname    sophos-spl-group
+    ${sophos_spl_ipc_gid_before} =    get_gid_from_groupname    sophos-spl-ipc
+
+    # IDs we will request to change to
+    # Groups
+    # sophos-spl-group 1996
+    ${sophos_spl_group_gid_requested} =  Set Variable  1996
+
+    # Perform the ID changes requests by writing requested IDs json file and restarting the product
+    Append To File  ${WD_REQUESTED_USER_GROUP_IDS}   {"groups":{"sophos-spl-group":1996}}
+    Restart Product
+    Wait For Base Processes To Be Running
+
+    # Check file after
+    ${ids_after} =    Get User IDs of Installed Files
+
+    check_changes_of_group_ids   ${ids_before}    ${ids_after}    ${sophos_spl_group_gid_before}    ${sophos_spl_group_gid_requested}
+
+    # Remaining IDs should have stayed the same
+    check_changes_of_user_ids   ${ids_before}    ${ids_after}    ${sspl_user_uid_before}    ${sspl_user_uid_before}
+    check_changes_of_user_ids   ${ids_before}    ${ids_after}    ${sspl_local_uid_before}    ${sspl_local_uid_before}
+    check_changes_of_user_ids   ${ids_before}    ${ids_after}    ${sspl_update_uid_before}    ${sspl_update_uid_before}
+    check_changes_of_group_ids   ${ids_before}    ${ids_after}    ${sophos_spl_ipc_gid_before}    ${sophos_spl_ipc_gid_before}
+
+    # Check product UIDs and GIDs
+    # Groups after
+    ${sophos_spl_group_gid_after} =    get_gid_from_groupname    sophos-spl-group
+    Should Be Equal As Strings    ${sophos_spl_group_gid_after}    ${sophos_spl_group_gid_requested}
+
+    Check All Product Logs Do Not Contain Error
+    Check All Product Logs Do Not Contain Critical
 
 *** Keywords ***
 
