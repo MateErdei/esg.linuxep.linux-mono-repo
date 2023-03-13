@@ -8,6 +8,7 @@ namespace ActionRunner
     public:
         static std::string doUpload(const std::string& action);
         static std::string doUploadFolder(const std::string& action);
-        static std::string doRunCommand(const std::string& action, const std::string& correlationId);
+        static std::string doDownloadFile(const std::string& action);
+        static void sendResponse(const std::string& correlationId, const std::string& content);
     };
 } // namespace ActionRunner

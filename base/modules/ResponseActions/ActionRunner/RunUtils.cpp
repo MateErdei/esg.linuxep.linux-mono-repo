@@ -4,10 +4,11 @@
 
 #include "Logger.h"
 
-#include "ResponseActions/ResponseActionsImpl/RunCommandAction.h"
+#include "ResponseActions/ResponseActionsImpl/DownloadFileAction.h"
 #include "ResponseActions/ResponseActionsImpl/UploadFileAction.h"
 #include "ResponseActions/ResponseActionsImpl/UploadFolderAction.h"
 
+#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/CurlWrapper/CurlWrapper.h>
 #include <Common/FileSystem/IFilePermissions.h>
 #include <Common/FileSystem/IFileSystem.h>
@@ -35,9 +36,25 @@ namespace ActionRunner
         return uploadFolderAction.run(action);
     }
 
-    std::string RunUtils::doRunCommand(const std::string& action, const std::string& correlationId)
+    std::string RunUtils::doDownloadFile(const std::string& action)
     {
-        return ResponseActionsImpl::RunCommandAction::run(action, correlationId);
+        std::shared_ptr<Common::CurlWrapper::ICurlWrapper> curlWrapper =
+            std::make_shared<Common::CurlWrapper::CurlWrapper>();
+        std::shared_ptr<Common::HttpRequests::IHttpRequester> client =
+            std::make_shared<Common::HttpRequestsImpl::HttpRequesterImpl>(curlWrapper);
+        ResponseActionsImpl::DownloadFileAction downloadFileAction(client);
+        return downloadFileAction.run(action);
     }
 
+    void RunUtils::sendResponse(const std::string& correlationId, const std::string& content)
+    {
+        LOGDEBUG("Command result: " << content);
+        std::string tmpPath = Common::ApplicationConfiguration::applicationPathManager().getTempPath();
+        std::string rootInstall = Common::ApplicationConfiguration::applicationPathManager().sophosInstall();
+        std::string targetDir = Common::FileSystem::join(rootInstall, "base/mcs/response");
+        std::string fileName = "CORE_" + correlationId + "_response.json";
+        std::string fullTargetName = Common::FileSystem::join(targetDir, fileName);
+
+        Common::FileSystem::createAtomicFileToSophosUser(content, fullTargetName, tmpPath);
+    }
 } // namespace ActionRunner
