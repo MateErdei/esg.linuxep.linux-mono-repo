@@ -137,6 +137,7 @@ namespace crypto
         {
             throw verify_exceptions::ve_crypt("Error opening trusted certificates file");
         }
+        int count = 0;
         for (;;)
         {
             X509_ptr this_cert{PEM_read_bio_X509(in.get(), NULLPTR, NULLPTR, NULLPTR),  ::X509_free};
@@ -144,6 +145,7 @@ namespace crypto
             {
                 break;
             }
+            count++;
             int status = verify_certificate_chain_single_root(sig_cert, untrusted_certs_stack, this_cert);
             switch (status)
             {
@@ -155,6 +157,12 @@ namespace crypto
                     throw verify_exceptions::ve_crypt("Verifying certificate");
             }
         }
+        if (count == 0)
+        {
+            // no root certificates found
+            throw verify_exceptions::ve_crypt("Error loading trusted certificates file");
+        }
+        // At least one verification failed
         throw verify_exceptions::ve_badcert();
     }
 
