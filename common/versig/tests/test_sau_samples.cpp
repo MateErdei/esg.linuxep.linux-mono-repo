@@ -6,7 +6,14 @@
 
 #define TESTS "../tests/SauTestData"
 
-TEST(Test_SAU_sample, valid)
+namespace
+{
+    class Test_SAU_samples : public ::testing::Test
+    {
+    };
+}
+
+TEST_F(Test_SAU_samples, valid)
 {
     // SHA1 only files
     // SHA1 only signature
@@ -22,12 +29,13 @@ TEST(Test_SAU_sample, valid)
     EXPECT_EQ(ret, 0);
 }
 
-TEST(Test_SAU_sample, sha256)
+TEST_F(Test_SAU_samples, sha256)
 {
     std::vector<std::string> argv { "versig_test",
                                     "-c" TESTS "/sha256/root.crt",
                                     "-f" TESTS "/sha256/manifest.dat",
                                     "-d" TESTS "/sha256",
+                                    "--allow-sha1-signature",
                                     "--silent-off"
     };
     int ret = versig_main(argv);
