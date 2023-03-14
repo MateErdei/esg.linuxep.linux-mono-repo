@@ -186,6 +186,11 @@ namespace verify_exceptions
         //   return *this;
         //}
 
+        [[nodiscard]] std::string message() const
+        {
+            return m_Message;
+        }
+
 #    if CPPSTD != 11
         virtual ~ve_crypt() NOEXCEPT
         {

@@ -129,9 +129,10 @@ namespace
     TEST(versig_test, no_sha256)
     {
         std::vector<std::string> argv { "versig_test",
-                                        "-c" TESTS "/cert_files/rootca.crt.valid",
+                                        "-c" TESTS "/cert_files/rootca.crt.valid", // NOLINT
                                         "-f" TESTS "/data_files/manifest.dat.nosha256",
-                                        "-d" TESTS "/data_files/data_good" };
+                                        "-d" TESTS "/data_files/data_good",
+                                        "--no-require-sha256"};
         int ret = versig_main(argv);
         EXPECT_EQ(ret, 0);
     }

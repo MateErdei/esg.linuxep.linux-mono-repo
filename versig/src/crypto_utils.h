@@ -8,6 +8,8 @@
 #if !defined(_CRYPTO_H_INCLUDED_)
 #    define _CRYPTO_H_INCLUDED_
 
+#include "verify_exceptions.h"
+
 #    include <cstdio>
 #    include <iostream>
 #    include <list>
@@ -56,11 +58,11 @@ namespace crypto
     hash_t hex(const std::string & binary);
 
 
-    class crypto_exception : public std::runtime_error
+    class crypto_exception : public verify_exceptions::ve_crypt
     {
     public:
         explicit crypto_exception(const std::string& message)
-            : std::runtime_error(message + " error: " + std::to_string(errno))
+            : verify_exceptions::ve_crypt(message + " error: " + std::to_string(errno))
         {}
     };
 
