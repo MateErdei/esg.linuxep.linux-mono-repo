@@ -7,13 +7,10 @@
 
 #include "crypto_utils.h"
 
-#include "SophosCppStandard.h"
-#include "libcrypto-compat.h"
-#include "print.h"
+#include "libcryptosupport.h"
 #include "verify_exceptions.h"
 
 #include <cstdio>
-#include <fstream>
 #include <sstream>
 #include <stdexcept>
 
@@ -113,94 +110,6 @@ namespace VerificationToolCrypto
     }
 #endif /* ndef NDEBUG */
 
-    // Wrapper around these X509 objects take ownership& ensure memory cleanup
-    struct X509StoreWrapper
-    {
-        X509_STORE* m_ref;
-        X509StoreWrapper() : m_ref(X509_STORE_new())
-        {
-        }
-        ~X509StoreWrapper()
-        {
-            X509_STORE_free(m_ref);
-        }
-        X509_STORE* GetPtr()
-        {
-            return m_ref;
-        }
-    };
-
-    struct X509StoreCtxWrapper
-    {
-        X509_STORE_CTX* m_ref;
-        X509StoreCtxWrapper() : m_ref(X509_STORE_CTX_new())
-        {
-        }
-        ~X509StoreCtxWrapper()
-        {
-            X509_STORE_CTX_free(m_ref);
-        }
-        X509_STORE_CTX* GetPtr()
-        {
-            return m_ref;
-        }
-    };
-
-    struct X509StackWrapper
-    {
-        STACK_OF(X509) * m_ref;
-        X509StackWrapper() : m_ref(sk_X509_new_null()) {};
-        ~X509StackWrapper()
-        {
-            sk_X509_free(m_ref);
-        };
-        STACK_OF(X509) * GetPtr()
-        {
-            return m_ref;
-        }
-    };
-
-    // Helper function to pull a string from a file.
-    static std::string SimpleLoadFile(const std::string& filename)
-    {
-        if (filename.empty())
-        {
-            return std::string();
-        }
-        std::ifstream ifsInput(filename.c_str(), std::ios::binary | std::ios::in);
-
-        if (!ifsInput)
-        {
-            PRINT("File " << filename << " can't be opened");
-            throw ve_crypt("Bad file");
-        }
-
-        std::vector<char> inputBuffer;
-        ifsInput.seekg(0, std::ios_base::end);
-        std::streamoff ifsStreamSize = ifsInput.tellg();
-        if (ifsStreamSize == 0)
-        {
-            return std::string();
-        }
-        else if (ifsStreamSize > 1024 * 1024)
-        {
-            PRINT("File " << filename << " is too large: " << ifsStreamSize);
-            throw ve_crypt("File is too large");
-        }
-        else if (ifsStreamSize < 0)
-        {
-            PRINT("File " << filename << " can't read stream size: " << ifsStreamSize);
-            throw ve_crypt("File size can't be read");
-        }
-        ifsInput.seekg(0, std::ios_base::beg);
-        inputBuffer.resize(ifsStreamSize);
-        char* pBuffer = &inputBuffer[0];
-        ifsInput.read(pBuffer, ifsStreamSize);
-        std::string output(inputBuffer.begin(), inputBuffer.end());
-        ifsInput.close();
-        return output;
-    }
-
     string BIO_read_all(BIO* bio)
     {
         stringstream s;
@@ -216,10 +125,9 @@ namespace VerificationToolCrypto
 
     string base64_decode(const string& data)
     {
-        BIO *memfile, *b64;
-        memfile = BIO_new_mem_buf(const_cast<char*>(data.c_str()), data.length());
-        b64 = BIO_new(BIO_f_base64());
-        BIO_push(b64, memfile);
+        crypto::BIOWrapper memfile(data);
+        BIO* b64 = BIO_new(BIO_f_base64());
+        BIO_push(b64, memfile.release());
         string result = BIO_read_all(b64);
         BIO_free_all(b64);
         return result;
@@ -227,12 +135,9 @@ namespace VerificationToolCrypto
 
     X509* X509_decode(const string& data)
     {
-        BIO* memfile;
-        memfile = BIO_new_mem_buf(const_cast<char*>(data.c_str()), data.length());
-        X509* result = PEM_read_bio_X509(memfile, NULLPTR, NULLPTR, NULLPTR);
+        crypto::BIOWrapper memfile(data);
         // allocates an X509 or returns NULL
-        BIO_free(memfile);
-        return result;
+        return PEM_read_bio_X509(memfile.get(), NULLPTR, NULLPTR, NULLPTR);
     }
 
     typedef string bytestring; // used as just a sequence of bytes

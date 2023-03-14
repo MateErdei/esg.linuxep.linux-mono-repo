@@ -32,12 +32,12 @@ namespace VerificationTool
                   });
 
         auto &body = file_body();
+        int lastError = 0;
         for (const auto &signature : sigs)
         {
-            crypto::X509_certificate x509(signature.certificate_);
-
             try
             {
+                crypto::X509_certificate x509(signature.certificate_);
                 x509.verify_signature(body, signature);
                 x509.verify_certificate_chain(signature.cert_chain_, root_certificates);
                 // Break out of loop and return once there is a successful verification
@@ -45,10 +45,12 @@ namespace VerificationTool
             }
             catch (const verify_exceptions::ve_badsig& ex)
             {
+                lastError = ex.getErrorCode();
                 PRINT("Bad signature: " + std::to_string(ex.getErrorCode()));
             }
             catch (const verify_exceptions::ve_base& ex)
             {
+                lastError = ex.getErrorCode();
                 PRINT("Verification exception: " + std::to_string(ex.getErrorCode()));
             }
             catch (const std::exception& e)
@@ -59,7 +61,13 @@ namespace VerificationTool
         }
 
         // If we've exhausted the certificates and still not validated the chain then throw
-        throw verify_exceptions::ve_badcert();
+        switch (lastError)
+        {
+            case SignedFile::bad_signature:
+                throw verify_exceptions::ve_badsig();
+            default:
+                throw verify_exceptions::ve_badcert();
+        }
     }
 
 } // namespace VerificationTool
