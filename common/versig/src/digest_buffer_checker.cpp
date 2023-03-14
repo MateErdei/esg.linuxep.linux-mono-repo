@@ -29,7 +29,7 @@ namespace VerificationTool
 
         if (all_sigs.empty())
         {
-            throw std::runtime_error("Could not find any signatures: refusing to load unverified content");
+            throw verify_exceptions::ve_missingsig("Could not find any signatures: refusing to load unverified content");
         }
 
         // filter the signatures by the allowed_algorithms
@@ -42,7 +42,7 @@ namespace VerificationTool
 
         if (sigs.empty())
         {
-            throw std::runtime_error("No allowed signature found: refusing to load unverified content");
+            throw verify_exceptions::ve_missingsig("No allowed signature found: refusing to load unverified content");
         }
 
         // sort the signatures by the algorithm strength, descending
