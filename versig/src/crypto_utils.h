@@ -48,6 +48,7 @@ namespace VerificationToolCrypto
 
     string sha1sum(istream&);
     string sha256sum(istream&);
+    string sha384sum(istream&);
     string sha512sum(istream&);
 
     /**
@@ -66,5 +67,21 @@ namespace VerificationToolCrypto
     string MakeErrString(X509_STORE_CTX* stor);
 
 } // namespace VerificationToolCrypto
+
+namespace crypto
+{
+    using hash_t = std::string;
+    hash_t hex(const std::string & binary);
+
+
+    class crypto_exception : public std::runtime_error
+    {
+    public:
+        explicit crypto_exception(const std::string& message)
+            : std::runtime_error(message + " error: " + std::to_string(errno))
+        {}
+    };
+
+}
 
 #endif // !defined(_CRYPTO_H_INCLUDED_)

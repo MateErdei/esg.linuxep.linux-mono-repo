@@ -55,9 +55,18 @@ add_library(versig_lib
         src/digest_buffer.h
         src/digest_buffer_checker.cpp
         src/digest_buffer_checker.h
+        src/file_info.cpp
+        src/file_info.h
+        src/hash.cpp
+        src/hash.h
+        src/hash_exception.h
         src/iostr_utils.h
+        src/libcrypto-compat.h
+        src/libcrypto-compat.cpp
         src/manifest_file.cpp
         src/manifest_file.h
+        src/print.h
+        src/root_cert.h
         src/signed_file.cpp
         src/signed_file.h
         src/verify_exceptions.cpp
@@ -65,9 +74,9 @@ add_library(versig_lib
         src/versig.cpp
         src/versig.h
         src/SophosCppStandard.h
-        src/print.h
-        src/libcrypto-compat.h
-        src/libcrypto-compat.cpp)
+        src/X509_certificate.cpp
+        src/X509_certificate.h
+        src/signature.h src/hash_algorithm.h src/libcryptosupport.cpp src/libcryptosupport.h)
 
 add_executable(versig src/versig_main.cpp src/versig.h)
 

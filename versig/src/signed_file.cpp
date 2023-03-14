@@ -45,6 +45,30 @@ namespace VerificationTool
     //	return true;
     //}
 
+    static std::string read_file(const std::string& filename)
+    {
+        if (filename.empty())
+        {
+            return {};
+        }
+        std::ifstream ifsInput(filename.c_str(), std::ios::binary | std::ios::in);
+        std::stringstream buffer;
+        buffer << ifsInput.rdbuf();
+        return buffer.str();
+    }
+
+    static std::vector<crypto::root_cert> read_root_certs(const string& CertFilepath, const string& CRLFilepath)
+    {
+        auto crl = read_file(CRLFilepath);
+        crypto::root_cert root{
+            .pem_crt = read_file(CertFilepath),
+            .pem_crl = crl
+        };
+        std::vector<crypto::root_cert> root_certs;
+        root_certs.push_back(root);
+        return root_certs;
+    }
+
     void SignedFile::Open(
         const string& SignedFilepath, //[i] Path to signed file
         const string& CertFilepath,   //[i] Path to CA certificate file
@@ -95,7 +119,8 @@ namespace VerificationTool
         }
 
         // Verify digest against certificate(s)
-        m_DigestBuffer.verify_all(CertFilepath, CRLFilepath, fixDate);
+        auto root_certs = read_root_certs(CertFilepath, CRLFilepath);
+        m_DigestBuffer.verify_all(root_certs);
 
         // Read body and confirm format
         if (!ReadBody())

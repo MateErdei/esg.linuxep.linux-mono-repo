@@ -13,6 +13,7 @@
 #include "verify_exceptions.h"
 
 #include <cassert>
+#include <cstdio>
 #include <ctime>
 #include <fstream>
 #include <sstream>
@@ -472,6 +473,11 @@ namespace VerificationToolCrypto
         return hex(sha256sum_raw(in));
     }
 
+    string sha384sum(istream& in)
+    {
+        return hex(sum_raw(in, EVP_sha384()));
+    }
+
     unsigned int sha1size()
     {
         return EVP_MD_size(EVP_sha1()) * 2;
@@ -482,3 +488,23 @@ namespace VerificationToolCrypto
     }
 
 } // namespace VerificationToolCrypto
+
+namespace crypto
+{
+
+    std::string hex(const std::string& data)
+    {
+        std::string result;
+        result.reserve(data.length() * 2); //preallocate double the space (since hex conversion doubles length)
+
+        for (size_t n = 0; n < data.length(); n++)
+        {
+            const size_t HEX_BUFFER_SIZE = 3;
+            char hexbuf[HEX_BUFFER_SIZE];
+            snprintf(hexbuf, HEX_BUFFER_SIZE, "%02x", (unsigned char)data[n]);
+            result += hexbuf[0]; result += hexbuf[1];
+        }
+
+        return result;
+    }
+}

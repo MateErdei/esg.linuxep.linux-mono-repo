@@ -11,6 +11,8 @@
 
 #include <cassert>
 #include <limits>
+#include <regex>
+#include <vector>
 
 namespace VerificationTool
 {
@@ -46,15 +48,34 @@ namespace VerificationTool
     //	<hex>	   = [0-9,a-f]
     //
 
-    static void parseSHA256comment(const std::string& comment, file_info& info)
+    static std::regex shaXXX_regex("#(sha256|sha384) ([a-f0-9]{64,})");
+
+    // Parse comment lines. Comment lines may contain a keyword followed by arguments,
+    // or they contain regular comments, which are ignored. Unknown keywords are ignored
+    // to ensure forwards-compatibility.
+    static void parse_comment_line(istream& in, list<file_info>& files)
     {
-        assert(comment[0] == '#');
-        if (comment.substr(1, 7) != "sha256 ")
-        {
+        using namespace std;
+        vector<char> buffer(65536);
+
+        in.getline(&buffer[0], static_cast<streamsize>(buffer.size()));
+
+        // Comment lines apply to the last file_info; if there isn't one, ignore this line.
+        if (files.empty())
             return;
+
+        file_info& last_file = files.back();
+        string comment(&buffer[0]);
+        smatch match;
+
+        // Look for SHAXXX attribute and save it
+        if (regex_match(comment, match, shaXXX_regex) && match.size() == 3)
+        {
+            if (match[1] == "sha256")
+                last_file.sha256(match[2]);
+            else if (match[1] == "sha384")
+                last_file.sha384(match[2]);
         }
-        std::string sha256 = comment.substr(8, 72);
-        info.setSha256(sha256);
     }
 
     istream& operator>>(istream& in, digest_file_body& v)
@@ -74,20 +95,7 @@ namespace VerificationTool
             { // With an MS iostream, calling peek() on a stream which is in an eof state
               // sets the fail bit! So be careful to only call peek() once. GNU does it ok.
                 case '#':
-                    // Need to work out if we have a sha-256 comment
-                    in.get(comment, 100, '\n');
-                    if (in.gcount() == 72 and !files.empty())
-                    {
-                        // Possibly SHA-256 comment
-                        parseSHA256comment(comment, files.back());
-                    }
-                    else if (in.fail())
-                    {
-                        // comment longer than 100 bytes - never a SHA-256 comment.
-                        in.clear(ios::failbit);
-                    }
-                    // Either a single \n or comment longer than 100 bytes.
-                    in.ignore(numeric_limits<int>::max(), '\n');
+                    parse_comment_line(in, files);
                     continue;
 
                 case '"':
