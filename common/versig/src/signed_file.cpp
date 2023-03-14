@@ -110,11 +110,17 @@ namespace VerificationTool
     // If all well, SignedFile status will be 'valid'.
     // Otherwise, status reflects failure.
     {
-        const auto& CertFilepath = arguments.CertsFilepath;
+        // Check for the manifest file first
+        const auto& SignedFilepath = arguments.SignedFilepath;
+        std::ifstream SignedFilestrm(SignedFilepath.c_str(), ios::in | ios::binary);
+        if (!SignedFilestrm.is_open())
+        {
+            m_Status = notopened;
+            throw ve_file(notopened, SignedFilepath);
+        }
 
-            // Test files exist
-        std::ifstream CertFilestrm(CertFilepath.c_str(), ios::in);
-        if (!CertFilestrm.is_open())
+        const auto& CertFilepath = arguments.CertsFilepath;
+        if (! std::filesystem::exists(CertFilepath))
         {
             throw ve_file(notopened, CertFilepath);
         }
@@ -122,19 +128,10 @@ namespace VerificationTool
         const auto& CRLFilepath = arguments.CRLFilepath;
         if (CRLFilepath.length() > 0)
         {
-            ifstream CRLFilestrm(CRLFilepath.c_str(), ios::in);
-            if (!CRLFilestrm.is_open())
+            if (! std::filesystem::exists(CRLFilepath))
             {
                 throw ve_file(notopened, CRLFilepath);
             }
-        }
-
-        const auto& SignedFilepath = arguments.SignedFilepath;
-        std::ifstream SignedFilestrm(SignedFilepath.c_str(), ios::in | ios::binary);
-        if (!SignedFilestrm.is_open())
-        {
-            m_Status = notopened;
-            throw ve_file(notopened, SignedFilepath);
         }
 
         // Currently not possible to set m_DigestBufferMaxSizeBytes to anything
