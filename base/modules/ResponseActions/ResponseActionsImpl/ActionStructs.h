@@ -25,7 +25,7 @@ namespace ResponseActionsImpl
         std::string targetPath;
         std::string url;
         std::string sha256;
-        u_int32_t sizeBytes; //max 2GB
+        uintmax_t sizeBytes;
         bool decompress;
         std::string password;
         u_int64_t expiration = 0;

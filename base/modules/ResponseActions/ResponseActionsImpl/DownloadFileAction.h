@@ -5,6 +5,7 @@
 #include "ActionStructs.h"
 
 #include "Common/HttpRequestsImpl/HttpRequesterImpl.h"
+#include <Common/FileSystem/IFileSystem.h>
 
 #include <json.hpp>
 #include <string>
@@ -20,9 +21,13 @@ namespace ResponseActionsImpl
     private:
         std::shared_ptr<Common::HttpRequests::IHttpRequester> m_client;
         void handleHttpResponse(const Common::HttpRequests::Response& httpresponse, nlohmann::json& response);
-        void prepareAndUpload(const UploadInfo& info, nlohmann::json& response);
-        std::string m_filename;
-        std::string m_pathToUpload;
+        void prepareAndDownload(const DownloadInfo& info, nlohmann::json& response);
+        void checkAndUnzip(const DownloadInfo& info, nlohmann::json& response);
+
+        std::string m_downloadFilename = "";
+        std::string m_pathToDownload = "";
+
+        Common::FileSystem::IFileSystem* m_fileSystem = Common::FileSystem::fileSystem();
     };
 
 }
