@@ -5,7 +5,9 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "crypto_utils.h"
-#include "digest_body.h"
+
+#include "file_info.h"
+
 #include "print.h"
 
 #include <algorithm>
@@ -14,9 +16,11 @@
 #include <fstream>
 #include <iostream>
 
-namespace VerificationTool
+namespace manifest
 {
-    file_info::verify_result file_info::verify_file(const string& root_path) const
+    using namespace std;
+
+    file_info::verify_result file_info::verify_file(const file_info::path_t& root_path) const
     {
         // Obtain (relative) path to file as recorded in manifest file
         // Allow for preceeding '.'
@@ -46,19 +50,12 @@ namespace VerificationTool
         }
 
         // Compare recorded and actual checksum
-        if (checksum().size() == VerificationToolCrypto::sha1size())
+        if (sha1().size() == VerificationToolCrypto::sha1size())
         {
             std::string actualSHA1 = VerificationToolCrypto::sha1sum(file);
-            if (checksum() != actualSHA1)
+            if (sha1() != actualSHA1)
             {
                 //		    PRINT("Incorrect SHA1: expected="<<checksum()<< " actual="<<actualSHA1);
-                return file_invalid;
-            }
-        }
-        else if (checksum().size() == VerificationToolCrypto::sha512size())
-        {
-            if (checksum() != VerificationToolCrypto::sha512sum(file))
-            {
                 return file_invalid;
             }
         }
@@ -71,10 +68,22 @@ namespace VerificationTool
         if (!sha256().empty())
         {
             file.clear();
-            file.seekg(0, file.beg);
+            file.seekg(0, fstream::beg);
             std::string actualSHA256 = VerificationToolCrypto::sha256sum(file);
             //        PRINT("Checking SHA256: expected="<<sha256()<< " actual="<<actualSHA256);
             if (sha256() != actualSHA256)
+            {
+                return file_invalid;
+            }
+        }
+
+        if (!sha384().empty())
+        {
+            file.clear();
+            file.seekg(0, fstream::beg);
+            std::string actual = VerificationToolCrypto::sha384sum(file);
+            //        PRINT("Checking SHA256: expected="<<sha256()<< " actual="<<actualSHA256);
+            if (sha384() != actual)
             {
                 return file_invalid;
             }

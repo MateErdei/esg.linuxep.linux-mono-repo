@@ -8,8 +8,11 @@
 #include "digest_buffer_checker.h"
 
 #include "crypto_utils.h"
+#include "print.h"
 #include "verify_exceptions.h"
+#include "X509_certificate.h"
 
+#include <algorithm>
 #include <cassert>
 #include <sstream>
 
@@ -17,95 +20,38 @@ namespace VerificationTool
 {
     using namespace VerificationToolCrypto;
     using namespace verify_exceptions;
+    using namespace manifest;
 
-    // These 2 classes are used to automate cleanup of certificates if an
-    // exception is thrown
-    class CertFreer
+    bool digest_buffer_checker::verify_all(const std::vector<crypto::root_cert>& root_certificates)
     {
-        X509* m_Cert;
+        auto sigs = signatures();
 
-    public:
-        explicit CertFreer(X509* cert) : m_Cert(cert) {}
-        ~CertFreer()
+        // sort the signatures by the algorithm strength, descending
+        std::sort(sigs.begin(), sigs.end(), [](const signature &a, const signature &b) {
+                      return b.algo_ < a.algo_;
+                  });
+
+        for (auto &signature : sigs)
         {
-            if (m_Cert)
+            crypto::X509_certificate x509(signature.certificate_);
+            auto &body = file_body();
+
+            try
             {
-                X509_free(m_Cert);
+                x509.verify_signature(body, signature);
+                x509.verify_certificate_chain(signature.cert_chain_, root_certificates);
+                // Break out of loop and return once there is a successful verification
+                return true;
+            }
+            catch (const std::exception& e)
+            {
+                // Maybe don't throw
+                PRINT(e.what());
             }
         }
-    };
 
-    class CertListFreer
-    {
-        list<X509*>& m_List;
-
-    public:
-        explicit CertListFreer(list<X509*>& list) : m_List(list) {}
-        ~CertListFreer()
-        {
-            for (list<X509*>::iterator i = m_List.begin(); i != m_List.end(); ++i)
-            {
-                X509_free(*i);
-            }
-        }
-    };
-
-    class KeyFreer
-    {
-        EVP_PKEY* m_Key;
-
-    public:
-        explicit KeyFreer(EVP_PKEY* key) : m_Key(key) {}
-        ~KeyFreer()
-        {
-            if (m_Key)
-            {
-                EVP_PKEY_free(m_Key);
-            }
-        }
-    };
-
-    bool digest_buffer_checker::verify_all(const string& trusted_certs_file, const string& crl_file, bool fixDate)
-    {
-        // make X509 object from pem encoding
-        X509* cert = X509_decode(certificate());
-        if (!cert)
-        {
-            throw ve_crypt("Decoding certificate");
-        }
-        CertFreer FreeCert(cert);
-
-        // extract public key from certificate
-        EVP_PKEY* pubkey = X509_get_pubkey(cert);
-        if (!pubkey)
-        {
-            throw ve_crypt("Getting public key from certificate");
-        }
-        KeyFreer FreeKey(pubkey);
-
-        // verify the signature against the file body using the public key
-        istringstream file_body_stream(file_body());
-        verify_signature(file_body_stream, base64_decode(signature()), pubkey); // throws
-
-        // make X509 objects from pem encoding for cert chain
-        list<X509*> intermediate_cert_chain;
-        {
-            CertListFreer cert_chain_freers(intermediate_cert_chain);
-            for (list<string>::const_iterator p = cert_chain().begin(); p != cert_chain().end(); ++p)
-            {
-                X509* CurrentCert = X509_decode(*p);
-                if (!CurrentCert)
-                {
-                    throw ve_crypt("Decoding certificate in chain");
-                }
-                intermediate_cert_chain.push_front(CurrentCert);
-            }
-
-            // verify the signing cert's path to a trusted cert
-            verify_certificate_path(cert, trusted_certs_file, intermediate_cert_chain, crl_file, fixDate); // throws
-        }
-
-        return true;
+        // If we've exhausted the certificates and still not validated the chain then throw
+        throw verify_exceptions::ve_badcert();
     }
 
 } // namespace VerificationTool
