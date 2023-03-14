@@ -8,6 +8,7 @@
 #include "signed_file.h"
 #include "verify_exceptions.h"
 
+#include <cassert>
 #include <chrono>
 #include <cstdint>
 #include <sstream>
@@ -80,7 +81,9 @@ namespace crypto
         }
         KeyFreer FreeKey(pubkey);
 
-        auto raw_signature = decode_raw_signature(signature.signature_);
+        assert(signature.signature_.length() > 0);
+        auto raw_signature = decode_raw_signature(signature.signature_ + "\n");
+        assert(raw_signature.length() > 0);
         int result = EVP_VerifyFinal(ctx, (unsigned char*)(raw_signature.c_str()), raw_signature.length(), pubkey);
 
         EVP_MD_CTX_free(ctx);
@@ -90,7 +93,12 @@ namespace crypto
             case 1:
                 return;
             case 0:
+            {
+                auto error = ERR_get_error();
+                char* errorMessage = ERR_error_string(error, nullptr);
+                PRINT("openssl error: " << error << ": " << errorMessage);
                 throw verify_exceptions::ve_badsig();
+            }
             default:
                 throw verify_exceptions::ve_crypt("Error verifying signature");
         }
