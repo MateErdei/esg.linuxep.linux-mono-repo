@@ -6,6 +6,7 @@
 
 #include "signed_file.h"
 
+#include "print.h"
 #include "verify_exceptions.h"
 
 #include <cassert>
@@ -119,7 +120,13 @@ namespace VerificationTool
 
         // Verify digest against certificate(s)
         auto root_certs = read_root_certs(CertFilepath, CRLFilepath);
-        m_DigestBuffer.verify_all(root_certs);
+        int allowed_algorithms = crypto::SECURE_HASH_ALGORTHMS;
+        if (arguments.allowSHA1signature)
+        {
+            PRINT("Allowing SHA1 signatures");
+            allowed_algorithms |= crypto::hash_algo::ALGO_SHA1;
+        }
+        m_DigestBuffer.verify_all(root_certs, allowed_algorithms);
 
         // Read body and confirm format
         if (!ReadBody())

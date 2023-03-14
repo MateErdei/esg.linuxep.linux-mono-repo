@@ -14,4 +14,9 @@ namespace crypto
         ALGO_SHA384 = 0b00001000,
         ALGO_SHA512 = 0b00010000,
     };
+
+    constexpr int ALL_HASH_ALGORITHMS =
+        ALGO_MD5 | ALGO_SHA1 | ALGO_SHA256 | ALGO_SHA384 | ALGO_SHA512;
+
+    constexpr int SECURE_HASH_ALGORTHMS = ALGO_SHA256 | ALGO_SHA384 | ALGO_SHA512;
 }

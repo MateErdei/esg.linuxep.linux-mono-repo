@@ -18,7 +18,7 @@ namespace VerificationTool
     class digest_buffer_checker : public digest_file_buffer
     {
     public:
-        bool verify_all(const std::vector<crypto::root_cert>& root_certificates);
+        bool verify_all(const std::vector<crypto::root_cert>& root_certificates, int allowed_algorithms);
     };
 
 } // namespace VerificationTool

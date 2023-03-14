@@ -259,6 +259,11 @@ static int versig_operation(const Arguments& args)
         Output(Msgstrm.str());
         return g_EXIT_BAD;
     }
+    catch (const std::runtime_error& ex)
+    {
+        Output(ex.what());
+        return g_EXIT_BAD;
+    }
     catch (const std::exception& except)
     {
         ostringstream Msgstrm;

@@ -22,9 +22,28 @@ namespace VerificationTool
     using namespace verify_exceptions;
     using namespace manifest;
 
-    bool digest_buffer_checker::verify_all(const std::vector<crypto::root_cert>& root_certificates)
+    bool digest_buffer_checker::verify_all(const std::vector<crypto::root_cert>& root_certificates, int allowed_algorithms)
     {
-        auto sigs = signatures();
+        auto all_sigs = signatures();
+        decltype(all_sigs) sigs(all_sigs.size());
+
+        if (all_sigs.empty())
+        {
+            throw std::runtime_error("Could not find any signatures: refusing to load unverified content");
+        }
+
+        // filter the signatures by the allowed_algorithms
+        auto end = std::copy_if(
+            all_sigs.begin(),
+            all_sigs.end(),
+            sigs.begin(),
+            [&](const signature& sig) { return allowed_algorithms & sig.algo_; });
+        sigs.resize(std::distance(sigs.begin(), end));
+
+        if (sigs.empty())
+        {
+            throw std::runtime_error("No allowed signature found: refusing to load unverified content");
+        }
 
         // sort the signatures by the algorithm strength, descending
         std::sort(sigs.begin(), sigs.end(), [](const signature &a, const signature &b) {
