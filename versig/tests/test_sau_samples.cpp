@@ -41,3 +41,29 @@ TEST_F(Test_SAU_samples, sha256)
     int ret = versig_main(argv);
     EXPECT_EQ(ret, 0);
 }
+
+TEST_F(Test_SAU_samples, DISABLED_VerifySha256WithLongChain)
+{
+    std::vector<std::string> argv { "versig_test",
+                                    "-c" TESTS "/validLongChain/root.crt",
+                                    "-f" TESTS "/validLongChain/manifest.dat",
+                                    "-d" TESTS "/validLongChain",
+                                    "--allow-sha1-signature",
+                                    "--silent-off"
+    };
+    int ret = versig_main(argv);
+    EXPECT_EQ(ret, 0);
+}
+
+TEST_F(Test_SAU_samples, VerifySha256WithExtendedSignatures)
+{
+    std::vector<std::string> argv { "versig_test",
+                                    "-c" TESTS "/validExtendedSignatures",
+                                    "-f" TESTS "/validExtendedSignatures/manifest.dat",
+                                    "-d" TESTS "/validExtendedSignatures",
+                                    "--allow-sha1-signature",
+                                    "--silent-off"
+    };
+    int ret = versig_main(argv);
+    EXPECT_EQ(ret, 0);
+}
