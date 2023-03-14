@@ -69,3 +69,183 @@ TEST_F(Test_SAU_samples, VerifySha256WithExtendedSignatures)
     int ret = versig_main(argv);
     EXPECT_EQ(ret, 0);
 }
+
+TEST_F(Test_SAU_samples, VerifyFailsWithMissingManifestFile)
+{
+    std::vector<std::string> argv { "versig_test",
+                                    "-c" TESTS "/MissingManifest",
+                                    "-f" TESTS "/MissingManifest/manifest.dat",
+                                    "-d" TESTS "/MissingManifest",
+                                    "--silent-off"
+    };
+
+    int ret = versig_main(argv);
+    EXPECT_EQ(ret, 5);
+}
+
+
+TEST_F(Test_SAU_samples, VerifyFailsWithEmptyManifestFilePath)
+{
+    // Invalid argument syntax
+    std::vector<std::string> argv { "versig_test",
+                                    "-c",
+                                    "-f" TESTS "/MissingManifest/manifest.dat",
+                                    "-d" TESTS "/MissingManifest",
+                                    "--silent-off"
+    };
+
+    int ret = versig_main(argv);
+    EXPECT_EQ(ret, 2);
+}
+
+TEST_F(Test_SAU_samples, VerifyFailsWithZeroByteRootCert)
+{
+    std::vector<std::string> argv { "versig_test",
+                                    "-c" TESTS "/ZeroByteCrt",
+                                    "-f" TESTS "/ZeroByteCrt/manifest.dat",
+                                    "-d" TESTS "/ZeroByteCrt",
+                                    "--allow-sha1-signature",
+                                    "--silent-off" };
+
+    int ret = versig_main(argv);
+    EXPECT_EQ(ret, 4);
+}
+
+// Ignore ZeroByteCrl since we don't care about CRL files
+
+TEST_F(Test_SAU_samples, VerifyEmptyManifest)
+{
+    std::vector<std::string> argv { "versig_test",
+                                    "-c" TESTS "/ZeroByteManifest",
+                                    "-f" TESTS "/ZeroByteManifest/manifest.dat",
+                                    "-d" TESTS "/ZeroByteManifest",
+                                    "--allow-sha1-signature",
+                                    "--silent-off" };
+
+    int ret = versig_main(argv);
+    EXPECT_EQ(ret, 3);
+}
+
+TEST_F(Test_SAU_samples, VerifyRootDoesNotMatchManifest)
+{
+    std::vector<std::string> argv { "versig_test",
+                                    "-c" TESTS "/DifferentRoot",
+                                    "-f" TESTS "/DifferentRoot/manifest.dat",
+                                    "-d" TESTS "/DifferentRoot",
+                                    "--allow-sha1-signature",
+                                    "--silent-off" };
+
+    int ret = versig_main(argv);
+    EXPECT_EQ(ret, 3);
+}
+
+TEST_F(Test_SAU_samples, VerifyManifestWhereSigningCertIssuedByUnrelatedChain)
+{
+    std::vector<std::string> argv { "versig_test",
+                                    "-c" TESTS "/SigningCertIssuedByUnrelatedChain",
+                                    "-f" TESTS "/SigningCertIssuedByUnrelatedChain/manifest.dat",
+                                    "-d" TESTS "/SigningCertIssuedByUnrelatedChain",
+                                    "--allow-sha1-signature",
+                                    "--silent-off" };
+
+    int ret = versig_main(argv);
+    EXPECT_EQ(ret, 3);
+}
+
+
+TEST_F(Test_SAU_samples, VerifyCorruptedRoot)
+{
+    std::vector<std::string> argv { "versig_test",
+                                    "-c" TESTS "/CorruptedRoot",
+                                    "-f" TESTS "/CorruptedRoot/manifest.dat",
+                                    "-d" TESTS "/CorruptedRoot",
+                                    "--allow-sha1-signature",
+                                    "--silent-off" };
+
+    int ret = versig_main(argv);
+    EXPECT_EQ(ret, 4);
+}
+
+// ignore VerifyValidManifestWithRevokedCrl
+
+TEST_F(Test_SAU_samples, VerifyCorruptedSigManifest)
+{
+    std::vector<std::string> argv { "versig_test",
+                                    "-c" TESTS "/CorruptedSig",
+                                    "-f" TESTS "/CorruptedSig/manifest.dat",
+                                    "-d" TESTS "/CorruptedSig",
+                                    "--allow-sha1-signature",
+                                    "--silent-off" };
+
+    int ret = versig_main(argv);
+    EXPECT_EQ(ret, 6);
+}
+
+TEST_F(Test_SAU_samples, VerifyCorruptedBodyManifest)
+{
+    std::vector<std::string> argv { "versig_test",
+                                    "-c" TESTS "/CorruptedBody",
+                                    "-f" TESTS "/CorruptedBody/manifest.dat",
+                                    "-d" TESTS "/CorruptedBody",
+                                    "--allow-sha1-signature",
+                                    "--silent-off" };
+
+    int ret = versig_main(argv);
+    EXPECT_EQ(ret, 6);
+}
+
+TEST_F(Test_SAU_samples, VerifyMissingIntermediateManifest)
+{
+    std::vector<std::string> argv { "versig_test",
+                                    "-c" TESTS "/MissingIntermediateCert",
+                                    "-f" TESTS "/MissingIntermediateCert/manifest.dat",
+                                    "-d" TESTS "/MissingIntermediateCert",
+                                    "--allow-sha1-signature",
+                                    "--silent-off" };
+
+    int ret = versig_main(argv);
+    EXPECT_EQ(ret, 3);
+}
+
+TEST_F(Test_SAU_samples, MissingSigningCertManifestFailsVerification)
+{
+    std::vector<std::string> argv { "versig_test",
+                                    "-c" TESTS "/MissingSigningCert",
+                                    "-f" TESTS "/MissingSigningCert/manifest.dat",
+                                    "-d" TESTS "/MissingSigningCert",
+                                    "--allow-sha1-signature",
+                                    "--silent-off" };
+
+    int ret = versig_main(argv);
+    EXPECT_EQ(ret, 3);
+}
+
+TEST_F(Test_SAU_samples, BadFormatManifestFailsVerification)
+{
+    std::vector<std::string> argv { "versig_test",
+                                    "-c" TESTS "/CorruptedFormat",
+                                    "-f" TESTS "/CorruptedFormat/manifest.dat",
+                                    "-d" TESTS "/CorruptedFormat",
+                                    "--allow-sha1-signature",
+                                    "--silent-off" };
+
+    int ret = versig_main(argv);
+    EXPECT_EQ(ret, 3);
+}
+
+TEST_F(Test_SAU_samples, CorruptCertificateInManifestThrowsCryptoException)
+{
+    std::vector<std::string> argv { "versig_test",
+                                    "-c" TESTS "/CorruptCertInManifest",
+                                    "-f" TESTS "/CorruptCertInManifest/manifest.dat",
+                                    "-d" TESTS "/CorruptCertInManifest",
+                                    "--allow-sha1-signature",
+                                    "--silent-off" };
+
+    int ret = versig_main(argv);
+    EXPECT_EQ(ret, 6);
+}
+
+
+
+
