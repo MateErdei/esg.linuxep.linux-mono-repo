@@ -18,7 +18,7 @@
       <workingdir>.</workingdir>
 
       <build-asset project="linuxep" repo="everest-base" mode="release-package,release-package-query-pack,release-package-base-999,release-package-edr-999,release-package-mdr-999,release-package-edr-mdr-999,release-package-060,dev,999">
-        <development-version branch="feature/LINUXDAR-6832-remove-SDDS2-part-1"/>
+        <development-version branch="develop"/>
         <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="redist/sspl-base" mode="release-package,release-package-edr-999,release-package-mdr-999,release-package-query-pack"/>
         <include artifact-path="sspl-base-999/SDDS-COMPONENT" dest-dir="redist/sspl-base" mode="release-package-base-999,release-package-edr-mdr-999"/>
         <include artifact-path="sspl-base-060/SDDS-COMPONENT" dest-dir="redist/sspl-base" mode="release-package-060"/>
