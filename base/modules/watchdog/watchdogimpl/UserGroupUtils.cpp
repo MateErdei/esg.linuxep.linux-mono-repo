@@ -33,120 +33,138 @@ namespace watchdog::watchdogimpl
         return userGroupContents;
     }
 
+    std::set<std::string> getInvalidIdsToRemove(const std::string& jsonKey, const WatchdogUserGroupIDs& requestedConfigJson, const WatchdogUserGroupIDs& actualConfigJson)
+    {
+        std::set<std::string> idsToRemove;
+
+        if (requestedConfigJson.contains(jsonKey) && actualConfigJson.contains(jsonKey))
+        {
+            std::map<std::string, uint32_t> existingIds;
+            try
+            {
+                auto filePermissions = Common::FileSystem::filePermissions();
+                if (jsonKey == GROUPS_KEY)
+                {
+                    existingIds = filePermissions->getAllGroupNamesAndIds();
+                }
+                if (jsonKey == USERS_KEY)
+                {
+                    existingIds = filePermissions->getAllUserNamesAndIds();
+                }
+            }
+            catch (Common::FileSystem::IFileSystemException& exception)
+            {
+                std::stringstream errorMessage;
+                errorMessage << "Failed to verify that there are no duplicate " << jsonKey << " on the system when reconfiguring IDs due to: " << exception.what();
+                throw std::runtime_error(errorMessage.str());
+            }
+
+            for (const auto& [name, id] : requestedConfigJson[jsonKey].items())
+            {
+                if (name == "root" || id == 1)
+                {
+                    LOGWARN("Will not update ID as it is root: " << id);
+                    idsToRemove.insert(name);
+                    continue;
+                }
+
+                if (id < 0)
+                {
+                    LOGWARN("Will not update ID as it is not valid: " << id);
+                    idsToRemove.insert(name);
+                    continue;
+                }
+
+                if (!actualConfigJson[jsonKey].contains(name))
+                {
+                    LOGWARN("Will not update ID as it is not associated with SPL: " << name);
+                    idsToRemove.insert(name);
+                    continue;
+                }
+
+                for (const auto& [existingName, existingId] : existingIds)
+                {
+                    if (id == existingId)
+                    {
+                        LOGWARN("Will not perform requested ID change on" << name << "as ID (" << id << ") is already used by " << existingName);
+                        idsToRemove.insert(name);
+                        break;
+                    }
+                }
+
+                for (const auto& [nameToCheckForDups, idToCheckForDups] : requestedConfigJson[jsonKey].items())
+                {
+                    if (name != nameToCheckForDups && id == idToCheckForDups)
+                    {
+                        LOGWARN("Will not update " << name << " to ID " << id << " because the ID is not unique in config. Conflict exists with: " << nameToCheckForDups);
+                        idsToRemove.insert(name);
+                        break;
+                    }
+                }
+            }
+        }
+
+        return idsToRemove;
+    }
+
     WatchdogUserGroupIDs validateUserAndGroupIds(WatchdogUserGroupIDs configJson)
     {
-        auto filePermissions = Common::FileSystem::filePermissions();
+        auto fileSystem = Common::FileSystem::fileSystem();
 
         WatchdogUserGroupIDs verifiedUsersAndGroups = std::move(configJson);
-        std::map<std::string, gid_t> existingGroups;
-        std::map<std::string, uid_t> existingUsers;
+        WatchdogUserGroupIDs actualUserGroupConfigJson;
 
+        std::string actualConfigPath = Common::ApplicationConfiguration::applicationPathManager().getActualUserGroupIdConfigPath();
+        std::string actualConfigContent;
         try
         {
-            existingGroups = filePermissions->getAllGroupNamesAndIds();
-            existingUsers = filePermissions->getAllUserNamesAndIds();
+            actualConfigContent = fileSystem->readFile(actualConfigPath);
+            if (actualConfigContent.empty())
+            {
+                LOGWARN("Failed to verify requested user and group ID changes as " << actualConfigPath << " is empty");
+                return {};
+            }
+            actualUserGroupConfigJson = nlohmann::json::parse(actualConfigContent);
+        }
+        catch (const nlohmann::detail::exception& exception)
+        {
+            LOGWARN("Failed to parse the contents of " << actualConfigPath << ", " << exception.what() << ", content: " << actualConfigContent);
+            return {};
         }
         catch (Common::FileSystem::IFileSystemException& exception)
         {
-            LOGWARN("Failed to verify no duplicate user or group ids due to: " << exception.what());
+            LOGWARN("Failed to read " << actualConfigPath << " to verify the requested user and group ID changes due to, " << exception.what());
             return {};
         }
 
-        if (verifiedUsersAndGroups.contains(GROUPS_KEY))
+        try
         {
-            std::set<std::string> groupsToRemove;
-            for (const auto& [groupName, gid] : verifiedUsersAndGroups[GROUPS_KEY].items())
+            if (verifiedUsersAndGroups.contains(GROUPS_KEY))
             {
-                if (groupName == "root" || gid == 1)
-                {
-                    LOGWARN("Will not update group ID as it is root: " << gid);
-                    groupsToRemove.insert(groupName);
-                    continue;
-                }
+                std::set<std::string> groupsToRemove = getInvalidIdsToRemove(GROUPS_KEY, verifiedUsersAndGroups, actualUserGroupConfigJson);
 
-                if (gid < 0)
+                for (const auto& groupToRemove : groupsToRemove)
                 {
-                    LOGWARN("Will not update group ID as gid is not valid: " << gid);
-                    groupsToRemove.insert(groupName);
-                    continue;
-                }
-
-                for (const auto& [existingGroupName, existingGid] : existingGroups)
-                {
-                    if (gid == existingGid)
-                    {
-                        LOGWARN(
-                            "Will not perform requested group ID change on"
-                            << groupName << "as gid (" << gid << ") is already used by " << existingGroupName);
-                        groupsToRemove.insert(groupName);
-                        break;
-                    }
-                }
-
-                for (const auto& [groupNameToCheckForDups, groupIdToCheckForDups] : verifiedUsersAndGroups[GROUPS_KEY].items())
-                {
-                    if (groupName != groupNameToCheckForDups && gid == groupIdToCheckForDups)
-                    {
-                        LOGWARN("Will not update group " << groupName << " to ID " << gid << " because the ID is not unique in config. Conflicting group: " << groupNameToCheckForDups);
-                        groupsToRemove.insert(groupName);
-                        break;
-                    }
+                    verifiedUsersAndGroups[GROUPS_KEY].erase(groupToRemove);
                 }
             }
 
-            for (const auto& groupToRemove : groupsToRemove)
+            if (verifiedUsersAndGroups.contains(USERS_KEY))
             {
-                verifiedUsersAndGroups[GROUPS_KEY].erase(groupToRemove);
+                std::set<std::string> usersToRemove = getInvalidIdsToRemove(USERS_KEY, verifiedUsersAndGroups, actualUserGroupConfigJson);
+
+                for (const auto& userToRemove : usersToRemove)
+                {
+                    verifiedUsersAndGroups[USERS_KEY].erase(userToRemove);
+                }
             }
         }
-
-        if (verifiedUsersAndGroups.contains(USERS_KEY))
+        catch (const std::runtime_error& exception)
         {
-            std::set<std::string> usersToRemove;
-            for (const auto& [userName, uid] : verifiedUsersAndGroups[USERS_KEY].items())
-            {
-                if (userName == "root" || uid == 1)
-                {
-                    LOGWARN("Will not update user ID as it is root: " << uid);
-                    usersToRemove.insert(userName);
-                    continue;
-                }
-
-                if (uid < 0)
-                {
-                    LOGWARN("Will not update group ID as gid is not valid: " << uid);
-                    usersToRemove.insert(userName);
-                    continue;
-                }
-
-                for (const auto& [existingUserName, existingUid] : existingUsers)
-                {
-                    if (uid == existingUid)
-                    {
-                        LOGWARN(
-                            "Will not perform requested user ID change on"
-                            << userName << "as uid (" << uid << ") is already used by " << existingUserName);
-                        usersToRemove.insert(userName);
-                        break;
-                    }
-                }
-
-                for (const auto& [userNameToCheckForDups, userIdToCheckForDups] : verifiedUsersAndGroups[USERS_KEY].items())
-                {
-                    if (userName != userNameToCheckForDups && uid == userIdToCheckForDups)
-                    {
-                        LOGWARN("Will not update user " << userName << " to ID " << uid << " because the ID is not unique in config. Conflicting user: " << userNameToCheckForDups);
-                        usersToRemove.insert(userName);
-                        break;
-                    }
-                }
-            }
-
-            for (const auto& userToRemove : usersToRemove)
-            {
-                verifiedUsersAndGroups[USERS_KEY].erase(userToRemove);
-            }
+            LOGWARN(exception.what());
+            return {};
         }
+
         return verifiedUsersAndGroups;
     }
 
