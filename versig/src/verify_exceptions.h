@@ -61,18 +61,24 @@ namespace verify_exceptions
     // SignedFile::status_enum codes and these should be used to
     // produce a suitable, translated message to the end user.
     //
-    class ve_base : public std::exception
+    class ve_base : public std::runtime_error
     {
     protected:
         SignedFile::status_enum m_Error;
 
     public:
-        // Constructor from an erorr code
-        explicit ve_base(const SignedFile::status_enum ErrorCode) : m_Error(ErrorCode) {}
+        // Constructor from an error code
+        explicit ve_base(const SignedFile::status_enum ErrorCode) :
+            std::runtime_error("Verification exception"),
+            m_Error(ErrorCode)
+        {
+        }
 #    if CPPSTD == 11
         ~ve_base() override = default;
 #    else
-        virtual ~ve_base() NOEXCEPT {}
+        virtual ~ve_base() NOEXCEPT
+        {
+        }
 #    endif
 
         // Copy constructor (defined for the use of derived classes)
@@ -85,7 +91,7 @@ namespace verify_exceptions
         //}
 
         // This function allows the error code to be returned.
-        //      SignedFile::status_enum getErrorCode() const { return m_Error; }
+        [[nodiscard]] SignedFile::status_enum getErrorCode() const { return m_Error; }
 
         // This function ensures that the friend operator correctly redirects to
         // a derived class if accessed through a base class reference.
@@ -123,7 +129,9 @@ namespace verify_exceptions
         }
 
 #    if CPPSTD != 11
-        virtual ~ve_file() NOEXCEPT {}
+        virtual ~ve_file() NOEXCEPT
+        {
+        }
 #    endif
 
         // Copy constructor
@@ -168,7 +176,9 @@ namespace verify_exceptions
         string m_Message;
 
     public:
-        explicit ve_crypt(STRARG Msg) : ve_base(SignedFile::openssl_error), m_Message(STDMOVE(Msg)) {}
+        explicit ve_crypt(STRARG Msg) : ve_base(SignedFile::openssl_error), m_Message(STDMOVE(Msg))
+        {
+        }
         //      ve_crypt( const ve_crypt& rhs ) : ve_base(rhs), m_Message(rhs.m_Message) {}
         // ve_crypt& operator=(const ve_crypt& rhs) {
         //   ve_base::operator=(rhs);
@@ -177,7 +187,9 @@ namespace verify_exceptions
         //}
 
 #    if CPPSTD != 11
-        virtual ~ve_crypt() NOEXCEPT {}
+        virtual ~ve_crypt() NOEXCEPT
+        {
+        }
 #    endif
 
         // OpenSSL errors are in an error queue from which
@@ -210,14 +222,18 @@ namespace verify_exceptions
     class ve_badsig : public ve_base
     {
     public:
-        ve_badsig() : ve_base(SignedFile::bad_signature) {}
+        ve_badsig() : ve_base(SignedFile::bad_signature)
+        {
+        }
         // This function ensures that the friend operator
         // correctly redirects to a derived class if accessed
         // through a base class reference.
         // virtual ostream& output(ostream &s) { s << *this; return s; }
 
 #    if CPPSTD != 11
-        virtual ~ve_badsig() NOEXCEPT {}
+        virtual ~ve_badsig() NOEXCEPT
+        {
+        }
 #    endif
 
         friend ostream& operator<<(ostream& s, ve_badsig& vc);
@@ -251,7 +267,9 @@ namespace verify_exceptions
         }
 
 #    if CPPSTD != 11
-        virtual ~ve_badcert() NOEXCEPT {}
+        virtual ~ve_badcert() NOEXCEPT
+        {
+        }
 #    endif
 
         //      string GetBadCertNames() { return m_BadCertNames; }
