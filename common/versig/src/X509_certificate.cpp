@@ -5,6 +5,7 @@
 #include "crypto_utils.h"
 #include "libcryptosupport.h"
 #include "print.h"
+#include "signed_file.h"
 #include "verify_exceptions.h"
 
 #include <chrono>
@@ -29,7 +30,9 @@ namespace crypto
         {
             cert_.reset(VerificationToolCrypto::X509_decode(cert_text));
             if (!cert_)
-                throw crypto::crypto_exception("Bad certificate");
+            {
+                throw verify_exceptions::ve_crypt("Decoding certificate");
+            }
         }
         X509_certificate_impl(const X509_certificate_impl&) = delete;
         X509_certificate_impl(X509_certificate_impl&&) = default;
@@ -102,16 +105,14 @@ namespace crypto
     {
         X509StoreWrapper store;
 
-        int result = 0; // Must be at least one root certificate
-        X509* this_cert = root_cert.get();
-        if (!this_cert)
+        if (!root_cert.get())
         {
             return 0;
         }
-        result = X509_STORE_add_cert(store.GetPtr(), this_cert);
+        int result = X509_STORE_add_cert(store.GetPtr(), root_cert.get());
         if (!result)
         {
-            return 0;
+            throw verify_exceptions::ve_crypt("Error loading trusted certificates file");
         }
 
         // Verify against this certificate.
@@ -154,16 +155,13 @@ namespace crypto
                     throw verify_exceptions::ve_crypt("Verifying certificate");
             }
         }
-        throw verify_exceptions::ve_crypt("Verifying certificate");
+        throw verify_exceptions::ve_badcert();
     }
 
     void X509_certificate::verify_certificate_chain(
         const std::vector<std::string>& intermediate_certs_text,
         const std::vector<root_cert>& root_certs)
     {
-        if (intermediate_certs_text.empty())
-            throw crypto_exception("Empty chain");
-
         OpenSSL_add_all_digests();
 
         // Convert intermediate certs to X509*
@@ -183,6 +181,8 @@ namespace crypto
         // because it will just return the first certificate that matches the name, and then fail.
         // We need to just iterate across all root
         // certificates until we find the correct one.
+        int lastError = 0;
+        std::string lastErrorMessage;
 
         for (const auto& entry : root_certs)
         {
@@ -193,12 +193,32 @@ namespace crypto
                     return; // matched a root cert
                 }
             }
+            catch (const verify_exceptions::ve_badcert& ex)
+            {
+                lastError = ex.getErrorCode();
+                PRINT("Bad certificate: " << ex.what());
+            }
+            catch (const verify_exceptions::ve_crypt& ex)
+            {
+                lastError = ex.getErrorCode();
+                lastErrorMessage = ex.message();
+                PRINT("OpenSSL error: " << ex.what());
+            }
             catch (const std::runtime_error& ex)
             {
             }
         }
 
-        throw verify_exceptions::ve_crypt("Failed to verify certificate chain");
+        switch (lastError)
+        {
+            case VerificationTool::SignedFile::bad_certificate:
+                throw verify_exceptions::ve_badcert();
+            case VerificationTool::SignedFile::openssl_error:
+                throw verify_exceptions::ve_crypt(lastErrorMessage);
+            default:
+                throw verify_exceptions::ve_crypt("Failed to verify certificate chain");
+        }
+
     }
 
 } // namespace crypto

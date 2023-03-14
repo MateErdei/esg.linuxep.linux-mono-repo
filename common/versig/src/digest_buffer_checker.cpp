@@ -33,6 +33,7 @@ namespace VerificationTool
 
         auto &body = file_body();
         int lastError = 0;
+        std::string lastErrorMessage;
         for (const auto &signature : sigs)
         {
             try
@@ -43,15 +44,32 @@ namespace VerificationTool
                 // Break out of loop and return once there is a successful verification
                 return true;
             }
+            catch (const crypto::crypto_exception& ex)
+            {
+                lastError = 50;
+                lastErrorMessage = ex.what();
+                PRINT("Crypto exception: " << ex.what());
+            }
             catch (const verify_exceptions::ve_badsig& ex)
             {
                 lastError = ex.getErrorCode();
-                PRINT("Bad signature: " + std::to_string(ex.getErrorCode()));
+                PRINT("Bad signature: " << ex.getErrorCode());
+            }
+            catch (const verify_exceptions::ve_badcert& ex)
+            {
+                lastError = ex.getErrorCode();
+                PRINT("Bad certificate: " << ex.what());
+            }
+            catch (const verify_exceptions::ve_crypt& ex)
+            {
+                lastError = ex.getErrorCode();
+                lastErrorMessage = ex.message();
+                PRINT("Openssl crypto error: " << ex.what());
             }
             catch (const verify_exceptions::ve_base& ex)
             {
                 lastError = ex.getErrorCode();
-                PRINT("Verification exception: " + std::to_string(ex.getErrorCode()));
+                PRINT("Verification exception: " << ex.getErrorCode());
             }
             catch (const std::exception& e)
             {
@@ -65,6 +83,12 @@ namespace VerificationTool
         {
             case SignedFile::bad_signature:
                 throw verify_exceptions::ve_badsig();
+            case SignedFile::bad_certificate:
+                throw verify_exceptions::ve_badcert();
+            case SignedFile::openssl_error:
+                throw verify_exceptions::ve_crypt(lastErrorMessage);
+            case 50:
+                throw crypto::crypto_exception(lastErrorMessage);
             default:
                 throw verify_exceptions::ve_badcert();
         }
