@@ -59,7 +59,8 @@ namespace crypto
     void X509_certificate::verify_signature(const std::string& body, const manifest::signature& signature)
     {
         EVP_MD_CTX* ctx = EVP_MD_CTX_new();
-        EVP_VerifyInit(ctx, crypto::construct_digest_algorithm(signature.algo_));
+        auto* algorithm =  crypto::construct_digest_algorithm(signature.algo_);
+        EVP_VerifyInit(ctx, algorithm);
         PRINT(signature.body_length_ << " vs " << body.length());
         EVP_VerifyUpdate(ctx, body.c_str(), signature.body_length_);
 
