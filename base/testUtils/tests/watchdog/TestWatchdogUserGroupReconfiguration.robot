@@ -172,6 +172,7 @@ Get User IDs of Installed Files
     [Return]    ${ids}
 
 Verify Product is Running Without Error After ID Change
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/watchdog.log    ProcessMonitoringImpl <> /opt/sophos-spl/base/bin/mcsrouter died with exit code 1
+    Mark Expected Error In Log    ${SOPHOS_INSTALL}/logs/base/watchdog.log    ProcessMonitoringImpl <> /opt/sophos-spl/base/bin/mcsrouter died with exit code 1
+    Mark Expected Critical In Log    ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log    mcsrouter.mcs <> Not registered: MCSID is not present
     Check All Product Logs Do Not Contain Error
     Check All Product Logs Do Not Contain Critical
