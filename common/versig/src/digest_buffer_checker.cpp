@@ -31,10 +31,10 @@ namespace VerificationTool
                       return b.algo_ < a.algo_;
                   });
 
-        for (auto &signature : sigs)
+        auto &body = file_body();
+        for (const auto &signature : sigs)
         {
             crypto::X509_certificate x509(signature.certificate_);
-            auto &body = file_body();
 
             try
             {
@@ -42,6 +42,14 @@ namespace VerificationTool
                 x509.verify_certificate_chain(signature.cert_chain_, root_certificates);
                 // Break out of loop and return once there is a successful verification
                 return true;
+            }
+            catch (const verify_exceptions::ve_badsig& ex)
+            {
+                PRINT("Bad signature: " + std::to_string(ex.getErrorCode()));
+            }
+            catch (const verify_exceptions::ve_base& ex)
+            {
+                PRINT("Verification exception: " + std::to_string(ex.getErrorCode()));
             }
             catch (const std::exception& e)
             {

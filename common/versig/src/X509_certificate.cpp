@@ -4,6 +4,7 @@
 
 #include "crypto_utils.h"
 #include "libcryptosupport.h"
+#include "print.h"
 #include "verify_exceptions.h"
 
 #include <chrono>
@@ -12,85 +13,21 @@
 #include <stdexcept>
 #include <vector>
 
-using DWORD = uint32_t;
-
 namespace
 {
-    // Wrapper around these X509 objects take ownership& ensure memory cleanup
-    struct X509StoreWrapper
-    {
-        X509_STORE* m_ref;
-        X509StoreWrapper() : m_ref(X509_STORE_new())
-        {
-        }
-        ~X509StoreWrapper()
-        {
-            X509_STORE_free(m_ref);
-        }
-        X509_STORE* GetPtr()
-        {
-            return m_ref;
-        }
-    };
-
-    struct X509StoreCtxWrapper
-    {
-        X509_STORE_CTX* m_ref;
-        X509StoreCtxWrapper() : m_ref(X509_STORE_CTX_new())
-        {
-        }
-        ~X509StoreCtxWrapper()
-        {
-            X509_STORE_CTX_free(m_ref);
-        }
-        X509_STORE_CTX* GetPtr()
-        {
-            return m_ref;
-        }
-    };
-
-    struct X509StackWrapper
-    {
-        STACK_OF(X509) * m_ref;
-        X509StackWrapper() : m_ref(sk_X509_new_null()) {};
-        ~X509StackWrapper()
-        {
-            sk_X509_free(m_ref);
-        };
-        STACK_OF(X509) * GetPtr() const
-        {
-            return m_ref;
-        }
-    };
+    using DWORD = uint32_t;
 }
 
 
 namespace crypto
 {
-    class KeyFreer
-    {
-        EVP_PKEY* m_Key;
-
-    public:
-        explicit KeyFreer(EVP_PKEY* key) : m_Key(key)
-        {
-        }
-        ~KeyFreer()
-        {
-            if (m_Key)
-            {
-                EVP_PKEY_free(m_Key);
-            }
-        }
-    };
-
     class X509_certificate_impl
     {
     public:
         explicit X509_certificate_impl(const std::string& cert_text)
-            : cert_(nullptr)
+            : cert_(nullptr, ::X509_free)
         {
-            cert_ = VerificationToolCrypto::X509_decode(cert_text);
+            cert_.reset(VerificationToolCrypto::X509_decode(cert_text));
             if (!cert_)
                 throw crypto::crypto_exception("Bad certificate");
         }
@@ -99,19 +36,11 @@ namespace crypto
         X509_certificate_impl& operator=(const X509_certificate_impl&) = delete;
         X509_certificate_impl& operator=(X509_certificate_impl&&) = default;
 
-        ~X509_certificate_impl()
-        {
-            if (cert_)
-            {
-                X509_free(cert_);
-            }
-        }
-
-        X509* cert_;
+        X509_ptr cert_;
 
         [[nodiscard]] X509* get() const
         {
-            return cert_;
+            return cert_.get();
         }
     };
 
@@ -131,17 +60,17 @@ namespace crypto
     {
         EVP_MD_CTX* ctx = EVP_MD_CTX_new();
         EVP_VerifyInit(ctx, crypto::construct_digest_algorithm(signature.algo_));
+        PRINT(signature.body_length_ << " vs " << body.length());
         EVP_VerifyUpdate(ctx, body.c_str(), signature.body_length_);
 
 
         // extract public key from certificate
-        EVP_PKEY* pubkey = X509_get_pubkey(data_->cert_);
+        EVP_PKEY* pubkey = X509_get_pubkey(data_->get());
         if (!pubkey)
         {
             throw verify_exceptions::ve_crypt("Getting public key from certificate");
         }
         KeyFreer FreeKey(pubkey);
-
 
         int result = EVP_VerifyFinal(ctx, (unsigned char*)(signature.signature_.c_str()), signature.signature_.length(), pubkey);
 
@@ -159,42 +88,24 @@ namespace crypto
         // -1 for error, 0 for bad sig, 1 for verified sig
     }
 
-    static bool verify_certificate_chain_impl(
-            const X509_certificate_impl& sig_cert,
-            const X509StackWrapper& untrusted_certs_stack,
-            const root_cert& root_cert
-            )
+    static int verify_certificate_chain_single_root(
+        const X509_certificate_impl& sig_cert,
+        const X509StackWrapper& untrusted_certs_stack,
+        X509_ptr& root_cert
+    )
     {
         X509StoreWrapper store;
 
-        int status = 0;
-
-        char* data = const_cast<char*>(root_cert.pem_crt.c_str());
-        BIO* in = BIO_new_mem_buf(data, int(root_cert.pem_crt.length()));
-        if (!in)
-        {
-            throw verify_exceptions::ve_crypt("Error opening trusted certificates file");
-        }
         int result = 0; // Must be at least one root certificate
-        for (;;)
+        X509* this_cert = root_cert.get();
+        if (!this_cert)
         {
-            X509* this_cert = PEM_read_bio_X509(in, NULLPTR, NULLPTR, NULLPTR);
-            if (!this_cert)
-            {
-                break;
-            }
-            result = X509_STORE_add_cert(store.GetPtr(), this_cert);
-            X509_free(this_cert);
-            if (!result)
-            {
-                break;
-            }
+            return 0;
         }
-        BIO_free_all(in);
-
+        result = X509_STORE_add_cert(store.GetPtr(), this_cert);
         if (!result)
         {
-            throw verify_exceptions::ve_crypt("Error loading trusted certificates");
+            return 0;
         }
 
         // Verify against this certificate.
@@ -205,16 +116,39 @@ namespace crypto
             throw verify_exceptions::ve_crypt("Error initialising verification context");
         }
 
-        status = X509_verify_cert(verify_ctx.GetPtr());
-        switch (status)
+        return X509_verify_cert(verify_ctx.GetPtr());
+    }
+
+    static bool verify_certificate_chain_impl(
+            const X509_certificate_impl& sig_cert,
+            const X509StackWrapper& untrusted_certs_stack,
+            const root_cert& root_cert
+            )
+    {
+        BIOWrapper in(root_cert.pem_crt);
+        if (!in.valid())
         {
-            case 1:
-                return true;
-            case 0:
-                throw verify_exceptions::ve_badcert();
-            default:
-                throw verify_exceptions::ve_crypt("Verifying certificate");
+            throw verify_exceptions::ve_crypt("Error opening trusted certificates file");
         }
+        for (;;)
+        {
+            X509_ptr this_cert{PEM_read_bio_X509(in.get(), NULLPTR, NULLPTR, NULLPTR),  ::X509_free};
+            if (!this_cert)
+            {
+                break;
+            }
+            int status = verify_certificate_chain_single_root(sig_cert, untrusted_certs_stack, this_cert);
+            switch (status)
+            {
+                case 1:
+                    return true;
+                case 0:
+                    continue;
+                default:
+                    throw verify_exceptions::ve_crypt("Verifying certificate");
+            }
+        }
+        throw verify_exceptions::ve_crypt("Verifying certificate");
     }
 
     void X509_certificate::verify_certificate_chain(

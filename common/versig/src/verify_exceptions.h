@@ -61,14 +61,18 @@ namespace verify_exceptions
     // SignedFile::status_enum codes and these should be used to
     // produce a suitable, translated message to the end user.
     //
-    class ve_base : public std::exception
+    class ve_base : public std::runtime_error
     {
     protected:
         SignedFile::status_enum m_Error;
 
     public:
-        // Constructor from an erorr code
-        explicit ve_base(const SignedFile::status_enum ErrorCode) : m_Error(ErrorCode) {}
+        // Constructor from an error code
+        explicit ve_base(const SignedFile::status_enum ErrorCode) :
+            std::runtime_error("Verification exception"),
+            m_Error(ErrorCode)
+        {
+        }
 #    if CPPSTD == 11
         ~ve_base() override = default;
 #    else
@@ -85,7 +89,7 @@ namespace verify_exceptions
         //}
 
         // This function allows the error code to be returned.
-        //      SignedFile::status_enum getErrorCode() const { return m_Error; }
+        [[nodiscard]] SignedFile::status_enum getErrorCode() const { return m_Error; }
 
         // This function ensures that the friend operator correctly redirects to
         // a derived class if accessed through a base class reference.
