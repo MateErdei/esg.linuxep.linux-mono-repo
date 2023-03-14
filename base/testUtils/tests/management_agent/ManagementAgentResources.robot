@@ -180,10 +180,7 @@ Enter Outbreak Mode
     check at least one event has substr  ${SOPHOS_INSTALL}/base/mcs/event  sophos.core.outbreak
 
     #check we have outbreak status
-    Wait Until Keyword Succeeds
-        ...  10 secs
-        ...  1 secs
-        ...  Check File Exists  ${SOPHOS_INSTALL}/base/var/sophosspl/outbreak_status.json
+    Wait Until Created   ${SOPHOS_INSTALL}/base/var/sophosspl/outbreak_status.json
 
     # count events
     ${count} =  Count Files in Directory  ${SOPHOS_INSTALL}/base/mcs/event

@@ -398,11 +398,8 @@ Test Outbreak Mode Telemetry
     Start Plugin
     set_fake_plugin_app_id  CORE
 
-    Mark Management Agent Log
-        Wait Until Keyword Succeeds
-        ...  60 secs
-        ...  10 secs
-        ...  Check Marked Managementagent Log Contains     Starting service health checks
+    ${mark} =  mark_log_size   ${BASE_LOGS_DIR}/sophosspl/sophos_managementagent.log
+    wait for log contains from mark  ${mark}     Starting service health checks
 
     # Pre-outbreak mode
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
