@@ -729,6 +729,13 @@ makedir 711 ${SOPHOS_INSTALL}/shared
 
 ln -snf "liblog4cplus-2.0.so" "${SOPHOS_INSTALL}/base/lib64/liblog4cplus.so"
 
+# Make copies of libraries still expected by legacy/unmigrated components
+# TODO LINUXDAR-6716 - Remove once migrated to OpenSSL 3
+# Required by curl
+ln -snf "libzlib.so" "${SOPHOS_INSTALL}/base/lib64/libz.so.1"
+# Required by SUL
+ln -snf "libexpat.so" "${SOPHOS_INSTALL}/base/lib64/libexpat.so.1"
+
 chown -h "root:${GROUP_NAME}" ${SOPHOS_INSTALL}/base/etc/telemetry-config.json*
 chmod 440 ${SOPHOS_INSTALL}/base/etc/telemetry-config.json
 chown root:${GROUP_NAME} "${SOPHOS_INSTALL}/base"

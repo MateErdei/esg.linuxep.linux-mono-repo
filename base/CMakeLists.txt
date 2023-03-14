@@ -159,6 +159,7 @@ set( MINIZIP_INPUT ${INPUT}/minizip )
 set( GSL_INCLUDE ${INPUT}/gsl/include )
 set( BOOST_INCLUDE ${BOOST_INPUT}/include )
 set( GTEST_INPUT ${INPUT}/googletest )
+set(LIBXCRYPT_INPUT ${INPUT}/libxcrypt)
 
 if(NOT DEFINED VERSIG_INPUT)
     set( VERSIG_INPUT ${INPUT}/versig)
