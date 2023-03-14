@@ -330,11 +330,10 @@ function generate_local_user_group_id_config()
 # This file allows the user and group IDs of the SPL product to be specified
 # note - This file is used to request user and group ID changes whereas user-group-ids-actual.conf reflects the IDs currently in use by the product.
 # Before modifying this file, please stop the product: 'systemctl stop sophos-spl'
-# This config is validated to maintain security so the following changes will not be performed
-#  - User or group name is 'root'
-#  - User or group IDs that are already in use
-#  - Duplicated user IDs within this file
-#  - Duplicated group IDs within this file
+# To maintain the security of the endpoint, the following considerations should be made when requesting ID changes
+#  - User or group name should not be 'root'
+#  - User or group ID should not be 1
+#  - User or group IDs should be unique to both existing users and groups on the machine and within this config file
 # Requested user and group IDs can be made using the following template:
 #{
 #    "users": {
