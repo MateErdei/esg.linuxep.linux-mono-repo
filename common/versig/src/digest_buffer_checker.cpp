@@ -64,7 +64,7 @@ namespace VerificationTool
             {
                 lastError = ex.getErrorCode();
                 lastErrorMessage = ex.message();
-                PRINT("Openssl crypto error: " << ex.what());
+                PRINT("Openssl Error: " << lastErrorMessage);
             }
             catch (const verify_exceptions::ve_base& ex)
             {
