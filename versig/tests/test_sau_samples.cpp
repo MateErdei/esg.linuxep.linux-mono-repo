@@ -1,5 +1,7 @@
 // Copyright 2023 Sophos All rights reserved.
 
+#include "crypto_utils.h"
+#include "libcryptosupport.h"
 #include "versig.h"
 
 #include <gtest/gtest.h>
@@ -61,9 +63,9 @@ TEST_F(Test_SAU_samples, VerifySha256WithExtendedSignatures)
                                     "-c" TESTS "/validExtendedSignatures",
                                     "-f" TESTS "/validExtendedSignatures/manifest.dat",
                                     "-d" TESTS "/validExtendedSignatures",
-                                    "--allow-sha1-signature",
                                     "--silent-off"
     };
+
     int ret = versig_main(argv);
     EXPECT_EQ(ret, 0);
 }

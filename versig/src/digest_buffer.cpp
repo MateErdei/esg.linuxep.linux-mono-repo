@@ -146,6 +146,7 @@ std::istream& manifest::operator>>(std::istream &in, digest_file_buffer &v)
                     {
                         auto cert = g_begin_certificate;
                         cert += std::string(base64);
+                        cert += '\n';
                         cert += g_end_certificate;
                         add_cert(cert);
                     }
