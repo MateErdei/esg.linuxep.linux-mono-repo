@@ -30,6 +30,7 @@ namespace manifest
 
         friend std::istream& operator>>(std::istream &s, digest_file_buffer &v);
     };
+    std::istream& operator>>(std::istream &s, digest_file_buffer &v);
 }
 
 namespace VerificationTool

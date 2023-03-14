@@ -69,23 +69,21 @@ namespace VerificationTool
         return root_certs;
     }
 
-    void SignedFile::Open(
-        const string& SignedFilepath, //[i] Path to signed file
-        const string& CertFilepath,   //[i] Path to CA certificate file
-        const string& CRLFilepath,    //[i] Path to Certificate Revocation List file
-        const bool fixDate            //[i] Fix the date of verification to work with old certs
-    )
+    void SignedFile::Open(const manifest::Arguments& arguments)
     // Open a signed file and verify its signature.
     // If all well, SignedFile status will be 'valid'.
     // Otherwise, status reflects failure.
     {
-        // Test files exist
-        ifstream CertFilestrm(CertFilepath.c_str(), ios::in);
+        const auto& CertFilepath = arguments.CertsFilepath;
+
+            // Test files exist
+        std::ifstream CertFilestrm(CertFilepath.c_str(), ios::in);
         if (!CertFilestrm.is_open())
         {
             throw ve_file(notopened, CertFilepath);
         }
 
+        const auto& CRLFilepath = arguments.CRLFilepath;
         if (CRLFilepath.length() > 0)
         {
             ifstream CRLFilestrm(CRLFilepath.c_str(), ios::in);
@@ -95,7 +93,8 @@ namespace VerificationTool
             }
         }
 
-        ifstream SignedFilestrm(SignedFilepath.c_str(), ios::in | ios::binary);
+        const auto& SignedFilepath = arguments.SignedFilepath;
+        std::ifstream SignedFilestrm(SignedFilepath.c_str(), ios::in | ios::binary);
         if (!SignedFilestrm.is_open())
         {
             m_Status = notopened;

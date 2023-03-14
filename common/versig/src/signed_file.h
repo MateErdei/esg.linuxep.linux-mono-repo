@@ -8,8 +8,9 @@
 #if !defined(_SIGNEDFILE_H_INCLUDED_)
 #    define _SIGNEDFILE_H_INCLUDED_
 
-#    include "digest_buffer.h"
-#    include "digest_buffer_checker.h"
+#include "Arguments.h"
+#include "digest_buffer.h"
+#include "digest_buffer_checker.h"
 
 namespace VerificationTool
 {
@@ -42,13 +43,11 @@ namespace VerificationTool
         virtual bool ReadBody() = 0;
         // Read body of signed file
 
-        void Open
-            // Open the signed file and verify signature
-            (const string& SignedFilepath, //[i] Path to signed file
-             const string& CertFilepath,   //[i] Path to CA certificate file
-             const string& CRLFilepath,    //[i] Path to (optional) certificate revocation list
-             const bool fixDate            //[i] Fix the date of verification to work with old certs
-            );
+        /**
+         * Open the signed file and verify signature
+         * @param arguments
+         */
+        void Open(const manifest::Arguments& arguments);
 
         bool IsValid();
         // Returns true if file properly signed
