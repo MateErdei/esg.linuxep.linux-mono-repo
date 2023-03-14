@@ -6,7 +6,8 @@
 
 #include "common/NotifyPipeSleeper.h"
 #include "common/StringUtils.h"
-#include "mount_monitor/mountinfoimpl/Drive.h"
+#include "mount_monitor/mountinfoimpl/Mounts.h"
+#include "mount_monitor/mountinfoimpl/SystemPathsFactory.h"
 #include "scan_messages/QuarantineResponse.h"
 
 #include <utility>
@@ -48,19 +49,27 @@ void SafeStoreWorker::run()
         bool tryQuarantine = true;
         try
         {
-            auto parentMount = mount_monitor::mountinfoimpl::Drive(threatDetected.filePath);
-            const std::string escapedPath = common::escapePathForLogging(threatDetected.filePath);
-            if (parentMount.isNetwork())
+            auto pathsFactory = std::make_shared<mount_monitor::mountinfoimpl::SystemPathsFactory>();
+            auto mountInfo = std::make_shared<mount_monitor::mountinfoimpl::Mounts>(pathsFactory->createSystemPaths());
+            auto parentMount = mountInfo->getMountFromPath(threatDetected.filePath);
+            if (parentMount != nullptr)
             {
-                LOGINFO("File at location: " << escapedPath << " is located on a Network mount: " << parentMount.mountPoint() << ". Will not quarantine.");
-                threatDetected.isRemote = true;
-                tryQuarantine = false;
-            }
-            else if (parentMount.isReadOnly())
-            {
-                LOGINFO(
-                    "File at location: " << escapedPath << " is located on a ReadOnly mount: " << parentMount.mountPoint() << ". Will not quarantine.");
-                tryQuarantine = false;
+                const std::string escapedPath = common::escapePathForLogging(threatDetected.filePath);
+                if (parentMount->isNetwork())
+                {
+                    LOGINFO(
+                        "File at location: " << escapedPath << " is located on a Network mount: "
+                                             << parentMount->mountPoint() << ". Will not quarantine.");
+                    threatDetected.isRemote = true;
+                    tryQuarantine = false;
+                }
+                else if (parentMount->isReadOnly())
+                {
+                    LOGINFO(
+                        "File at location: " << escapedPath << " is located on a ReadOnly mount: "
+                                             << parentMount->mountPoint() << ". Will not quarantine.");
+                    tryQuarantine = false;
+                }
             }
         }
         catch (std::runtime_error& error)

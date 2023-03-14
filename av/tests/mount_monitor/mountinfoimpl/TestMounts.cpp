@@ -7,6 +7,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include "tests/common/LogInitializedTests.h"
 
 #include "mount_monitor/mountinfoimpl/Mounts.h"
+#include "mount_monitor/mountinfoimpl/SystemPaths.h"
 #include "datatypes/sophos_filesystem.h"
 
 #include <gmock/gmock.h>
@@ -293,4 +294,35 @@ TEST_F(TestMounts, octalEscapedInvalid) // NOLINT
     EXPECT_EQ(mountInfo->device("/invalid\\018digit"), "/dev/ghi1");
     auto allMountpoints = mountInfo->mountPoints();
     EXPECT_EQ(allMountpoints.size(), 3);
+}
+
+TEST_F(TestMounts, getMountFromPath_doesNotIncorrectlyMatchToplevelFoldersWithMounts) // NOLINT
+{
+    auto systemPaths = std::make_shared<mount_monitor::mountinfoimpl::SystemPaths>();
+    auto mountInfo = std::make_shared<Mounts>(systemPaths);
+    auto rootMount = mountInfo->getMountFromPath("/procFolder/eicar.com");
+    EXPECT_NE(rootMount->mountPoint(), "/proc");
+    EXPECT_FALSE(rootMount->isSpecial());
+}
+
+TEST_F(TestMounts, getMountFromPath_mountCanBeReadonly) // NOLINT
+{
+    CreateFile(m_mountInfoFile,
+               "/dev/abc1 / ext4 rw,relatime,errors=remount-ro,data=ordered 0 0\n"
+               "//UK-FILER6.ENG.SOPHOS/LINUX /mnt/filer6/linux cifs rw,nosuid,nodev,noexec,vers=2.0 0 0\n"
+               "proc /proc proc rw,nosuid,nodev,noexec,noatime 0 0\n"
+               "rootfs /init rootfs ro,size=8111932k,nr_inodes=2027983 0 0\n"
+               "/dev/sda / ext4 rw,relatime,discard,errors=remount-ro,data=ordered 0 0\n"
+    );
+    CreateFile(m_cmdlineInfoFile, "BOOT_IMAGE=/boot/vmlinuz-4.15.0-123-generic root=LABEL=rootLabel ro quiet splash");
+    CreateFile(m_findfsCmdPath, "#! /bin/sh\necho /init\n", S_IRWXU);
+
+    EXPECT_CALL(*m_systemPaths, mountInfoFilePath()).WillOnce(Return(m_mountInfoFile));
+    EXPECT_CALL(*m_systemPaths, cmdlineInfoFilePath()).WillOnce(Return(m_cmdlineInfoFile));
+    EXPECT_CALL(*m_systemPaths, findfsCmdPath()).WillOnce(Return(m_findfsCmdPath));
+    EXPECT_CALL(*m_systemPaths, mountCmdPath()).Times(0);
+
+    auto mountInfo = std::make_shared<Mounts>(m_systemPaths);
+    auto readOnlyMount = mountInfo->getMountFromPath("/init/thing");
+    EXPECT_TRUE(readOnlyMount->isReadOnly());
 }

@@ -8,10 +8,7 @@
 
 #include "Common/UtilityImpl/StringUtils.h"
 
-#include <climits>
 #include <stdexcept>
-
-#include <mntent.h>
 
 using namespace mount_monitor::mountinfoimpl;
 
@@ -33,61 +30,14 @@ static DeviceUtilSharedPtr getDeviceUtil()
  * @param mountPoint
  * @param type
  */
-Drive::Drive(std::string device, std::string mountPoint, std::string type, bool isDirectory) :
+Drive::Drive(std::string device, std::string mountPoint, std::string type, bool isDirectory, bool isReadOnly) :
     m_deviceUtil(getDeviceUtil()),
     m_mountPoint(std::move(mountPoint)),
     m_device(std::move(device)),
     m_fileSystem(std::move(type)),
     m_isDirectory(isDirectory),
-    m_isReadOnly(false) // placeholder until option unpacking added to DeviceUtil
+    m_isReadOnly(isReadOnly)
 {
-}
-
-Drive::Drive(const std::string& childPath) :
-    m_deviceUtil(getDeviceUtil())
-{
-//    LOGDEBUG("Searching for nearest parent mount of: " << childPath);
-
-    FILE* f = nullptr;
-    f = setmntent("/proc/mounts", "r"); // open file for describing the mounted filesystems
-    mntent* mount;
-    ulong parentPathSize = 0UL;
-
-    mntent mnt_buf {};
-    char buf[PATH_MAX * 3] {};
-
-    if (!f)
-    {
-        throw std::runtime_error("Could not access /proc/mounts to find parent mount of: " + childPath);
-    }
-
-    while ((mount = getmntent_r(f, &mnt_buf, buf, sizeof(buf)))) // read next line
-    {
-        std::string mountPoint = mount->mnt_dir;
-        if (Common::UtilityImpl::StringUtils::startswith(childPath, mountPoint))
-        {
-            m_mountPoint = mount->mnt_dir;
-            m_device = mount->mnt_fsname;
-            m_fileSystem = mount->mnt_type;
-            if (childPath == m_mountPoint)
-            {
-                m_isDirectory = false;
-            }
-            else
-            {
-                m_isDirectory = true;
-            }
-            m_isReadOnly = hasmntopt(mount, "ro");
-            parentPathSize = m_mountPoint.size();
-            LOGDEBUG("Found potential parent: " << m_device << " -- at path: " << m_mountPoint);
-        }
-    }
-    endmntent(f); // close file for describing the mounted filesystems
-    if (parentPathSize == 0UL)
-    {
-        throw std::runtime_error("No parent mounts found for path: " + childPath);
-    }
-    LOGDEBUG("Best fit parent found: " << m_device << " -- at path: " << m_mountPoint);
 }
 
 std::string Drive::mountPoint() const

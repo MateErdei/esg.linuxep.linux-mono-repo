@@ -9,15 +9,7 @@ namespace mount_monitor::mountinfoimpl
     class Drive : virtual public mountinfo::IMountPoint
     {
     public:
-        Drive(std::string device, std::string mountPoint, std::string type, bool isDirectory);
-
-        /**
-         * Constructs Drive of mount point nearest to childPath.
-         * Throws if unable to access /proc/mounts or no parent found (should always find "/").
-         *
-         * @param childPath
-         */
-        explicit Drive(const std::string& childPath);
+        Drive(std::string device, std::string mountPoint, std::string type, bool isDirectory, bool isReadOnly=false);
 
         ~Drive() override = default;
 

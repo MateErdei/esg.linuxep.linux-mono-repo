@@ -18,6 +18,7 @@
 // Standard C
 #include <fstab.h>
 #include <sys/stat.h>
+#include <sys/statvfs.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
@@ -113,7 +114,8 @@ void Mounts::parseProcMounts()
         try
         {
             bool isDir = std::filesystem::is_directory(device);
-            m_devices.push_back(std::make_shared<Drive>(device, mountPoint, type, isDir));
+            bool readOnly = isReadOnly(mountPoint);
+            m_devices.push_back(std::make_shared<Drive>(device, mountPoint, type, isDir, readOnly));
         }
         catch (const std::filesystem::filesystem_error& e)
         {
@@ -411,4 +413,38 @@ std::string Mounts::fixDeviceWithMount(const std::string& device)
 IMountPointSharedVector Mounts::mountPoints()
 {
     return m_devices;
+}
+
+bool Mounts::isReadOnly(const std::string& mountPoint)
+{
+    struct statvfs vfs;
+    statvfs(mountPoint.c_str(), &vfs);
+    return vfs.f_flag & ST_RDONLY;
+}
+
+IMountPointSharedPtr Mounts::getMountFromPath(const std::string& childPath)
+{
+    IMountPointSharedPtr longestMatchingMountDir = nullptr;
+    for (const auto& it : m_devices)
+    {
+        std::string mountDir = it->mountPoint();
+        if (mountDir.back() != '/')
+        {
+            mountDir += '/';
+        }
+        if (Common::UtilityImpl::StringUtils::startswith(childPath, mountDir))
+        {
+            LOGDEBUG("Found potential parent: " << it->device() << " -- at path: " << mountDir);
+            if (longestMatchingMountDir == nullptr || it->mountPoint().size() > longestMatchingMountDir->mountPoint().size())
+            {
+                longestMatchingMountDir = it;
+            }
+        }
+    }
+    if (longestMatchingMountDir == nullptr)
+    {
+        throw std::runtime_error("No parent mounts found for path: " + childPath);
+    }
+    LOGDEBUG("Best fit parent found: " << longestMatchingMountDir->device() << " -- at path: " << longestMatchingMountDir->mountPoint());
+    return longestMatchingMountDir;
 }

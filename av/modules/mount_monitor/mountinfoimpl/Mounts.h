@@ -43,6 +43,11 @@ namespace mount_monitor::mountinfoimpl
          */
         mountinfo::IMountPointSharedVector mountPoints() override;
 
+        /**
+         * Get the mount point where the file at childPath is located
+         */
+        mountinfo::IMountPointSharedPtr getMountFromPath(const std::string& childPath);
+
     private:
         /**
          * Run a command and collect the output.
@@ -84,5 +89,10 @@ namespace mount_monitor::mountinfoimpl
          * Try and parse /proc/mounts.
          */
         void parseProcMounts();
+
+        /**
+         * Determine whether a device is mounted read-only or not
+         */
+        bool isReadOnly(const std::string& mountPoint);
     };
 } // namespace mount_monitor::mountinfoimpl
