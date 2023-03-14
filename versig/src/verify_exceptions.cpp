@@ -94,7 +94,7 @@ namespace verify_exceptions
 
     ostream& operator<<(ostream& s, ve_missingsig& vb)
     {
-        s << "[MISSINGSIG]: " << vb.m_Error << endl;
+        s << "[MISSINGSIG]: " << vb.what() << endl;
         return s;
     }
 

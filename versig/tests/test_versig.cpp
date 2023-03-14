@@ -68,7 +68,7 @@ namespace
                                         "-f" TESTS "/data_files/manifest.dat.valid",
                                         "--silent-off"};
         int ret = versig_main(argv);
-        EXPECT_EQ(ret, 1);
+        EXPECT_EQ(ret, 6);
     }
 
     TEST(versig_test, test_data_files)

@@ -68,11 +68,17 @@ namespace verify_exceptions
 
     public:
         // Constructor from an error code
-        explicit ve_base(const SignedFile::status_enum ErrorCode) :
-            std::runtime_error("Verification exception"),
+        ve_base(const std::string& message, const SignedFile::status_enum ErrorCode) :
+            std::runtime_error(message),
             m_Error(ErrorCode)
         {
         }
+
+        explicit ve_base(const SignedFile::status_enum ErrorCode) :
+            ve_base("Verification exception", ErrorCode)
+        {
+        }
+
 #    if CPPSTD == 11
         ~ve_base() override = default;
 #    else
@@ -227,6 +233,10 @@ namespace verify_exceptions
     class ve_badsig : public ve_base
     {
     public:
+        ve_badsig(const std::string& message)
+            : ve_base(message, SignedFile::bad_signature)
+        {}
+
         ve_badsig() : ve_base(SignedFile::bad_signature)
         {
         }
@@ -247,6 +257,7 @@ namespace verify_exceptions
     class ve_missingsig : public ve_badsig
     {
     public:
+        using ve_badsig::ve_badsig;
         // This function ensures that the friend operator
         // correctly redirects to a derived class if accessed
         // through a base class reference.
