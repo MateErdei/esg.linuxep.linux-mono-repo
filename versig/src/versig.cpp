@@ -34,6 +34,8 @@
 //    customer use.
 
 #include "SophosCppStandard.h"
+
+#include "Arguments.h"
 #include "manifest_file.h"
 #include "verify_exceptions.h"
 
@@ -66,28 +68,6 @@ static void Output(const string& Msg //[i] Message
     }
 }
 
-struct Arguments
-{
-    string SignedFilepath; // Path to signed-file
-    string CertsFilepath;  // Path to certificates-file
-    string CRLFilepath;    // Path to CRL-file
-    string DataDirpath;    // Path to directory containing data files
-    bool fixDate;
-    bool checkInstall;
-    bool requireAllManifestFilesPresentOnDisk;
-    bool requireAllDiskFilesPresentInManifest;
-    bool requireSHA256;
-
-    Arguments() :
-        fixDate(true),
-        checkInstall(false),
-        requireAllManifestFilesPresentOnDisk(false),
-        requireAllDiskFilesPresentInManifest(false),
-        requireSHA256(true)
-    {
-    }
-};
-
 static bool ReadArgs(const std::vector<std::string>& argv, Arguments& args)
 {
     assert(!argv.empty());
@@ -99,9 +79,8 @@ static bool ReadArgs(const std::vector<std::string>& argv, Arguments& args)
 
     // Initialise
     // Assign argument values
-    for (std::vector<std::string>::const_iterator it = argv.begin(); it != argv.end(); ++it)
+    for (const auto& arg : argv)
     {
-        std::string arg = *it;
         if ((arg.compare(0, 2, "-c") == 0) && args.CertsFilepath.empty())
         {
             args.CertsFilepath = arg.substr(2);
@@ -137,6 +116,14 @@ static bool ReadArgs(const std::vector<std::string>& argv, Arguments& args)
         else if (arg == "--no-require-sha256")
         {
             args.requireSHA256 = false;
+        }
+        else if (arg == "--allow-sha1-signature")
+        {
+            args.allowSHA1signature = true;
+        }
+        else if (arg == "--deny-sha1-signature")
+        {
+            args.allowSHA1signature = false;
         }
     }
 
@@ -180,7 +167,7 @@ static int versig_operation(const Arguments& args)
     try
     {
         // Open the signed file (assumed to be manifest file)
-        MF.Open(SignedFilepath, CertsFilepath, CRLFilepath, args.fixDate);
+        MF.Open(args);
 
         // Validate signature
         bool bOK = MF.IsValid();

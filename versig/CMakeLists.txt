@@ -44,6 +44,7 @@ set(CMAKE_EXE_LINKER_FLAGS -Wl,-rpath,\$ORIGIN/../lib64,-rpath-link,${OPENSSL_LI
 include_directories(BEFORE ${OPENSSL_DIR}/64/include)
 
 add_library(versig_lib
+        src/Arguments.h
         src/CertificateTracker.cpp
         src/CertificateTracker.h
         src/crypto_utils.cpp
@@ -59,24 +60,28 @@ add_library(versig_lib
         src/file_info.h
         src/hash.cpp
         src/hash.h
+        src/hash_algorithm.h
         src/hash_exception.h
         src/iostr_utils.h
         src/libcrypto-compat.h
         src/libcrypto-compat.cpp
+        src/libcryptosupport.cpp
+        src/libcryptosupport.h
         src/manifest_file.cpp
         src/manifest_file.h
         src/print.h
         src/root_cert.h
+        src/signature.h
         src/signed_file.cpp
         src/signed_file.h
+        src/SophosCppStandard.h
         src/verify_exceptions.cpp
         src/verify_exceptions.h
         src/versig.cpp
         src/versig.h
-        src/SophosCppStandard.h
         src/X509_certificate.cpp
         src/X509_certificate.h
-        src/signature.h src/hash_algorithm.h src/libcryptosupport.cpp src/libcryptosupport.h)
+        )
 
 add_executable(versig src/versig_main.cpp src/versig.h)
 
