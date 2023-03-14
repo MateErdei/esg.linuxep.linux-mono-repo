@@ -19,7 +19,7 @@ mdr.latest.x64:
   line-id: ServerProtectionLinux-Plugin-MDR
   mountpoint: ServerProtectionLinux-Plugin-MDR
 base.latest.x64:
-  prod-artifact: esg-releasable-candidate/linuxep.everest-base/release--2023-10/20230307152640-915e8ce2684edf94d4682548778848e6eed67ee1-mVJTVs/sspl-base/SDDS3-PACKAGE/
+  prod-artifact: esg-releasable-candidate/linuxep.everest-base/release--2023-10/20230314102357-f2ffb6a0d8a36c6e791c7546455a0b455c2f8e21-VGMV79/sspl-base/SDDS3-PACKAGE/
   line-id: ServerProtectionLinux-Base-component
   mountpoint: ServerProtectionLinux-Base-component
 event-journaler.latest.x64:
