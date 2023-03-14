@@ -89,7 +89,7 @@
                     The customer dest-dir matches up against constants set in WarehouseUtils.lib
         -->
         <build-asset project="linuxep" repo="sspl-warehouse">
-            <development-version branch="feature/LINUXDAR-6832-remove-sdds2-from-warehouse" />
+            <development-version branch="develop" />
             <include artifact-path="sdds3-repo-999" dest-dir="sdds3/repo" />
             <include artifact-path="sdds3-repo" dest-dir="sdds3/repo" />
             <include artifact-path="sdds3-launchdarkly" dest-dir="sdds3/launchdarkly" />
