@@ -10,6 +10,7 @@
 #include "verify_exceptions.h"
 
 #include <cassert>
+#include <filesystem>
 #include <fstream>
 #include <sstream>
 #include <stdexcept>
@@ -60,13 +61,47 @@ namespace VerificationTool
 
     static std::vector<crypto::root_cert> read_root_certs(const string& CertFilepath, const string& CRLFilepath)
     {
-        auto crl = read_file(CRLFilepath);
-        crypto::root_cert root{
-            .pem_crt = read_file(CertFilepath),
-            .pem_crl = crl
-        };
+        namespace fs = std::filesystem;
         std::vector<crypto::root_cert> root_certs;
-        root_certs.push_back(root);
+        if (fs::is_regular_file(CertFilepath))
+        {
+            auto crl = read_file(CRLFilepath);
+            crypto::root_cert root{
+                .pem_crt = read_file(CertFilepath),
+                .pem_crl = crl
+            };
+            root_certs.push_back(root);
+        }
+        else if (fs::is_directory(CertFilepath))
+        {
+            // Read certificates from directory.
+            for (fs::directory_iterator it(CertFilepath); it != fs::directory_iterator(); ++it)
+            {
+                auto cert_path = it->path();
+                if (".crt" == cert_path.extension())
+                {
+                    auto crl_path = cert_path;
+                    crl_path.replace_extension(L".crl");
+                    std::string crl;
+                    if (fs::exists(crl_path))
+                    {
+                        crl = read_file(crl_path);
+                    }
+
+                    auto crt = read_file(cert_path);
+                    root_certs.push_back(
+                        {
+                            .pem_crt =crt,
+                            .pem_crl = crl
+                        }
+                    );
+                }
+            }
+        }
+        else
+        {
+            PRINT("Can't access Root certificates");
+        }
         return root_certs;
     }
 

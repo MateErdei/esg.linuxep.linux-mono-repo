@@ -123,7 +123,17 @@ namespace crypto
             throw verify_exceptions::ve_crypt("Error initialising verification context");
         }
 
-        return X509_verify_cert(verify_ctx.GetPtr());
+        int ret = X509_verify_cert(verify_ctx.GetPtr());
+        if (ret == 0)
+        {
+            int error = X509_STORE_CTX_get_error(verify_ctx.GetPtr());
+            if (error == X509_V_ERR_INVALID_CA)
+            {
+                PRINT("Failed to verify long chain: X509_V_ERR_INVALID_CA");
+            }
+        }
+
+        return ret;
     }
 
     static bool verify_certificate_chain_impl(
