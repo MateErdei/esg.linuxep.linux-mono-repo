@@ -24,24 +24,6 @@ namespace VerificationToolCrypto
 {
     using namespace std;
 
-    // class CleanUpStack {
-    //   STACK_OF(X509) * m_Stack;
-    // public:
-    //   CleanUpStack( STACK_OF(X509) * Stack ) : m_Stack(Stack) {}
-    //   ~CleanUpStack() {
-    //      sk_X509_pop_free(m_Stack, X509_free);
-    //   }
-    //};
-
-    bool verify_signature(istream& body, const string& signature, EVP_PKEY* pubkey);
-
-    bool verify_certificate_path(
-        X509* cert,
-        const string& trusted_certs_file,
-        const list<X509*>& untrusted_certs,
-        const string& crl_file,
-        bool fixDate);
-
     X509* X509_decode(const string&);
 
     string base64_decode(const string&);
