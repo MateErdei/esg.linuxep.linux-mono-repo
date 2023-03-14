@@ -392,9 +392,10 @@ TEST_F(TestOutbreakModeController, saves_status_file_on_outbreak)
     auto now = OutbreakModeController::clock_t::now();
     auto timestamp = Common::UtilityImpl::TimeUtils::MessageTimeStamp(now);
 
-    std::string expected_contents = R"({"outbreak-mode":true,"timestamp":")" + timestamp + R"(","uuid":"5df69683-a5a2-5d96-897d-06f9c4c8c7bf"})";
+    // because mockable time not being used
+    std::string expectedContentRegex = R"(.\"outbreak-mode\":true,\"timestamp\":\".*\",\"uuid\":\"5df69683-a5a2-5d96-897d-06f9c4c8c7bf\".)";
 
-    EXPECT_CALL(*filesystemMock, writeFileAtomically(expectedStatusFile_, expected_contents, _, _)).WillOnce(Return());
+    EXPECT_CALL(*filesystemMock, writeFileAtomically(expectedStatusFile_, MatchesRegex(expectedContentRegex), _, _)).WillOnce(Return());
     EXPECT_CALL(*filesystemMock, writeFileAtomically(
                                      HasSubstr("base/mcs/event/CORE_event-"),
                                      HasSubstr("sophos.core.outbreak"), _, _)).WillOnce(Return());
