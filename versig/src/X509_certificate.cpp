@@ -210,7 +210,6 @@ namespace crypto
             {
                 lastError = ex.getErrorCode();
                 lastErrorMessage = ex.message();
-                PRINT("OpenSSL error: " << ex.what());
             }
             catch (const std::runtime_error& ex)
             {
