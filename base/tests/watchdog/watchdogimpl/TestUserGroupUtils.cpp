@@ -16,7 +16,7 @@
 
 using namespace watchdog::watchdogimpl;
 
-class TestUserGroupUtils : public LogOffInitializedTests
+class TestUserGroupUtils : public LogInitializedTests
 {
     Tests::ScopedReplaceFileSystem m_fileSystemReplacer;
     Tests::ScopedReplaceFilePermissions m_filePermissionsReplacer;
@@ -33,29 +33,46 @@ public:
         m_mockFilePermissionsPtr = new NaggyMock<MockFilePermissions>();
 
         m_fileSystemReplacer.replace(std::unique_ptr<Common::FileSystem::IFileSystem>(m_mockFileSystemPtr));
-        m_filePermissionsReplacer.replace(std::unique_ptr<Common::FileSystem::IFilePermissions>(m_mockFilePermissionsPtr));
-        m_requestedUserGroupIdConfigPath = Common::ApplicationConfiguration::applicationPathManager().getRequestedUserGroupIdConfigPath();
+        m_filePermissionsReplacer.replace(
+            std::unique_ptr<Common::FileSystem::IFilePermissions>(m_mockFilePermissionsPtr));
+        m_requestedUserGroupIdConfigPath =
+            Common::ApplicationConfiguration::applicationPathManager().getRequestedUserGroupIdConfigPath();
     }
     ~TestUserGroupUtils() override { Tests::restoreFilePermissions(); }
 
-    void mockExecUserOrGroupIdChange(const std::string& executablePath, const std::string& userOrGroupSpecifier, const std::string& newId, const std::string& name)
+    void mockExecUserOrGroupIdChange(
+        const std::string& executablePath,
+        const std::string& userOrGroupSpecifier,
+        const std::string& newId,
+        const std::string& name)
     {
         EXPECT_CALL(*m_mockFileSystemPtr, isExecutable(executablePath)).WillRepeatedly(Return(true));
-        Common::ProcessImpl::ProcessFactory::instance().replaceCreator([executablePath, userOrGroupSpecifier, newId, name]() {
-            auto mockProcess = new StrictMock<MockProcess>();
-            EXPECT_CALL(*mockProcess, exec(executablePath, std::vector<std::string>{ userOrGroupSpecifier, newId, name })).Times(1);
-            EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
-            EXPECT_CALL(*mockProcess, wait(Common::Process::milli(100), 100)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
-            return std::unique_ptr<Common::Process::IProcess>(mockProcess);
-        });
+        Common::ProcessImpl::ProcessFactory::instance().replaceCreator(
+            [executablePath, userOrGroupSpecifier, newId, name]()
+            {
+                auto mockProcess = new StrictMock<MockProcess>();
+                EXPECT_CALL(
+                    *mockProcess, exec(executablePath, std::vector<std::string>{ userOrGroupSpecifier, newId, name }))
+                    .Times(1);
+                EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
+                EXPECT_CALL(*mockProcess, wait(Common::Process::milli(100), 100))
+                    .WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
+                return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+            });
+    }
+
+    void setCommonExpectationsForEmptySystemUsersAndGroups()
+    {
+        EXPECT_CALL(*m_mockFilePermissionsPtr, getAllGroupNamesAndIds()).WillOnce(Return(std::map<std::string, gid_t>{}));
+        EXPECT_CALL(*m_mockFilePermissionsPtr, getAllUserNamesAndIds()).WillOnce(Return(std::map<std::string, uid_t>{}));
     }
 };
 
 TEST_F(TestUserGroupUtils, CommentsAreStrippedFromRequestedUserAndGroupIdsFileReturningValidJson)
 {
     nlohmann::json expectedJson = {
-        {"users", {{"user1", 1},{"user2", 2}}},
-        {"groups", {{"group1", 1},{"group2", 2}}}
+        {"users", {{"user1", 100},{"user2", 200}}},
+        {"groups", {{"group1", 100},{"group2", 200}}}
     };
 
     std::vector<std::string> configString{
@@ -63,12 +80,12 @@ TEST_F(TestUserGroupUtils, CommentsAreStrippedFromRequestedUserAndGroupIdsFileRe
         "#Another comment here",
         "{",
             R"("users": {)",
-                R"("user1": 1,)",
-                R"("user2": 2)",
+                R"("user1": 100,)",
+                R"("user2": 200)",
             "},",
             R"("groups": {)",
-                R"("group1": 1,)",
-                R"("group2": 2)",
+                R"("group1": 100,)",
+                R"("group2": 200)",
             "}",
         "}"
     };
@@ -80,8 +97,8 @@ TEST_F(TestUserGroupUtils, CommentsAreStrippedFromRequestedUserAndGroupIdsFileRe
 TEST_F(TestUserGroupUtils, DifferentStructuresOfCommentsAreStrippedFromRequestedUserAndGroupIdsFileReturningValidJson)
 {
     nlohmann::json expectedJson = {
-        {"users", {{"user1", 1},{"user2", 2}}},
-        {"groups", {{"group1", 1},{"group2", 2}}}
+        {"users", {{"user1", 100},{"user2", 200}}},
+        {"groups", {{"group1", 100},{"group2", 200}}}
     };
 
     std::vector<std::string> configString{
@@ -93,12 +110,12 @@ TEST_F(TestUserGroupUtils, DifferentStructuresOfCommentsAreStrippedFromRequested
         "## Comment with multiple hashes here",
         "{",
             R"("users": {)",
-                R"("user1": 1,)",
-                R"("user2": 2)",
+                R"("user1": 100,)",
+                R"("user2": 200)",
             "},",
             R"("groups": {)",
-                R"("group1": 1,)",
-                R"("group2": 2)",
+                R"("group1": 100,)",
+                R"("group2": 200)",
             "}",
         "}"
     };
@@ -114,12 +131,12 @@ TEST_F(TestUserGroupUtils, readRequestedUserGroupIdsDoesNotThrowOnInvalidJson)
         "Plain text here",
         "{",
             R"("users": {)",
-                R"("user1": 1,)",
-                R"("user2": 2)",
+                R"("user1": 100,)",
+                R"("user2": 200)",
             "},",
             R"("groups": {)",
-                R"("group1": 1,)",
-                R"("group2": 2)",
+                R"("group1": 100,)",
+                R"("group2": 200)",
             "}",
         "}"
     };
@@ -136,11 +153,11 @@ TEST_F(TestUserGroupUtils, readRequestedUserGroupIdsDoesNotThrowOnCorrectlyStrip
     std::vector<std::string> configString{
         "{",
             R"("users": {)",
-                R"("user1": 1,)",
-                R"("user2": 2)",
+                R"("user1": 100,)",
+                R"("user2": 200)", // missing } to make it invalid
             R"("groups": {)",
-                R"("group1": 1,)",
-                R"("group2": 2)",
+                R"("group1": 100,)",
+                R"("group2": 200)",
             "}",
         "}"
     };
@@ -161,47 +178,132 @@ TEST_F(TestUserGroupUtils, readRequestedUserGroupIdsDoesNotThrowWhenReadLinesThr
     ASSERT_TRUE(changesNeeded.empty());
 }
 
+TEST_F(TestUserGroupUtils, readRequestedUserGroupIdsReturnsEmptyOnEmptyFile)
+{
+    WatchdogUserGroupIDs changesNeeded;
+
+    EXPECT_CALL(*m_mockFileSystemPtr, readLines(m_requestedUserGroupIdConfigPath)).WillOnce(Return(std::vector<std::string>{}));
+
+    EXPECT_NO_THROW(changesNeeded = readRequestedUserGroupIds());
+    ASSERT_TRUE(changesNeeded.empty());
+}
+
 TEST_F(TestUserGroupUtils, validateUserAndGroupIdsRemovesRoot)
 {
     nlohmann::json configJson = {
-        {"users", {{"user1", 1},{"root", 0},{"user2", 2}}},
-        {"groups", {{"group1", 1},{"root", 0},{"group2", 2}}}
+        {"users", {{"user1", 100},{"root", 0},{"user2", 200}}},
+        {"groups", {{"group1", 100},{"root", 0},{"group2", 200}}}
     };
 
     nlohmann::json validatedJson = {
-        {"users", {{"user1", 1},{"user2", 2}}},
-        {"groups", {{"group1", 1},{"group2", 2}}}
+        {"users", {{"user1", 100},{"user2", 200}}},
+        {"groups", {{"group1", 100},{"group2", 200}}}
     };
 
-    EXPECT_CALL(*m_mockFilePermissionsPtr, getAllGroupNamesAndIds()).WillOnce(Return(std::map<std::string, gid_t>{}));
-    EXPECT_CALL(*m_mockFilePermissionsPtr, getAllUserNamesAndIds()).WillOnce(Return(std::map<std::string, uid_t>{}));
+    setCommonExpectationsForEmptySystemUsersAndGroups();
+    EXPECT_EQ(validateUserAndGroupIds(configJson), validatedJson);
+}
+
+TEST_F(TestUserGroupUtils, validateUserAndGroupIdsRemovesNegativeIDs)
+{
+    nlohmann::json configJson = {
+        {"users", {{"user1", 100},{"user2", 200},{"user3", -1}}},
+        {"groups", {{"group1", 100},{"group2", 200},{"group3", -1}}}
+    };
+
+    nlohmann::json validatedJson = {
+        {"users", {{"user1", 100},{"user2", 200}}},
+        {"groups", {{"group1", 100},{"group2", 200}}}
+    };
+
+    setCommonExpectationsForEmptySystemUsersAndGroups();
+    EXPECT_EQ(validateUserAndGroupIds(configJson), validatedJson);
+}
+
+TEST_F(TestUserGroupUtils, validateUserAndGroupIdsRemovesIdsThatAlreadyExist)
+{
+    nlohmann::json configJson = {
+        {"users", {{"user1", 100},{"root", 0},{"user2", 200}}},
+        {"groups", {{"group1", 100},{"root", 0},{"group2", 200}}}
+    };
+
+    nlohmann::json validatedJson = {
+        {"users", {{"user2", 200}}},
+        {"groups", {{"group2", 200}}}
+    };
+
+    EXPECT_CALL(*m_mockFilePermissionsPtr, getAllGroupNamesAndIds()).WillOnce(Return(std::map<std::string, gid_t>{{"group1", 100}}));
+    EXPECT_CALL(*m_mockFilePermissionsPtr, getAllUserNamesAndIds()).WillOnce(Return(std::map<std::string, uid_t>{{"user1", 100}}));
 
     EXPECT_EQ(validateUserAndGroupIds(configJson), validatedJson);
 }
 
-TEST_F(TestUserGroupUtils, validateUserAndGroupIdsRemovesDuplicateIds)
+TEST_F(TestUserGroupUtils, validateUserAndGroupIdsRemovesDuplicateIdsInConfig)
 {
+    testing::internal::CaptureStderr();
+
+    // user1 and user2 have been requested to have the same ID (1) which is not allowed.
     nlohmann::json configJson = {
-        {"users", {{"user1", 1},{"root", 0},{"user2", 2}}},
-        {"groups", {{"group1", 1},{"root", 0},{"group2", 2}}}
+        {"users", {{"user1", 100}, {"root", 0}, {"user2", 100}, {"user3", 300}}},
+        {"groups", {{"group1", 100}, {"root", 0}, {"group2", 100}, {"group3", 300}}}
     };
 
-    nlohmann::json validatedJson = {
-        {"users", {{"user2", 2}}},
-        {"groups", {{"group2", 2}}}
+    nlohmann::json expectedValidatedJson = {
+        {"users", {{"user3", 300}}},
+        {"groups", {{"group3", 300}}}
     };
 
-    EXPECT_CALL(*m_mockFilePermissionsPtr, getAllGroupNamesAndIds()).WillOnce(Return(std::map<std::string, gid_t>{{"group1", 1}}));
-    EXPECT_CALL(*m_mockFilePermissionsPtr, getAllUserNamesAndIds()).WillOnce(Return(std::map<std::string, uid_t>{{"user1", 1}}));
+    setCommonExpectationsForEmptySystemUsersAndGroups();
+    EXPECT_EQ(validateUserAndGroupIds(configJson), expectedValidatedJson);
 
-    EXPECT_EQ(validateUserAndGroupIds(configJson), validatedJson);
+    std::string logMessage2 = testing::internal::GetCapturedStderr();
+    EXPECT_THAT(logMessage2, ::testing::HasSubstr("Will not update group group1 to ID 100 because the ID is not unique in config. Conflicting group: group2"));
+    EXPECT_THAT(logMessage2, ::testing::HasSubstr("Will not update group group2 to ID 100 because the ID is not unique in config. Conflicting group: group1"));
+    EXPECT_THAT(logMessage2, ::testing::HasSubstr("Will not update group ID as it is root: 0"));
+    EXPECT_THAT(logMessage2, ::testing::HasSubstr("Will not update user ID as it is root: 0"));
+    EXPECT_THAT(logMessage2, ::testing::HasSubstr("Will not update user user1 to ID 100 because the ID is not unique in config. Conflicting user: user2"));
+    EXPECT_THAT(logMessage2, ::testing::HasSubstr("Will not update user user2 to ID 100 because the ID is not unique in config. Conflicting user: user1"));
+}
+
+TEST_F(TestUserGroupUtils, validateUserAndGroupIdsHandlesEmptyUserField)
+{
+    // user1 and user2 have been requested to have the same ID (1) which is not allowed.
+    nlohmann::json configJson = {
+        {"users", {}},
+        {"groups", {{"group1", 100},{"root", 0},{"group2", 200}}}
+    };
+
+    nlohmann::json expectedValidatedJson = {
+        {"users", {}},
+        {"groups", {{"group1", 100}, {"group2", 200}}}
+    };
+
+    setCommonExpectationsForEmptySystemUsersAndGroups();
+    EXPECT_EQ(validateUserAndGroupIds(configJson), expectedValidatedJson);
+}
+
+TEST_F(TestUserGroupUtils, validateUserAndGroupIdsHandlesEmptyGroupField)
+{
+    // user1 and user2 have been requested to have the same ID (1) which is not allowed.
+    nlohmann::json configJson = {
+        {"users", {{"user1", 100},{"root", 0},{"user2", 200}}},
+        {"groups", {}}
+    };
+
+    nlohmann::json expectedValidatedJson = {
+        {"users", {{"user1", 100}, {"user2", 200}}},
+        {"groups", {}}
+    };
+
+    setCommonExpectationsForEmptySystemUsersAndGroups();
+    EXPECT_EQ(validateUserAndGroupIds(configJson), expectedValidatedJson);
 }
 
 TEST_F(TestUserGroupUtils, validateUserAndGroupIdsReturnsEmptyWhenGroupDatabasesCannotBeRead)
 {
     nlohmann::json configJson = {
-        {"users", {{"user1", 1},{"user2", 2}}},
-        {"groups", {{"group1", 1},{"group2", 2}}}
+        {"users", {{"user1", 100},{"user2", 200}}},
+        {"groups", {{"group1", 100},{"group2", 200}}}
     };
 
     EXPECT_CALL(*m_mockFilePermissionsPtr, getAllGroupNamesAndIds())
@@ -213,8 +315,8 @@ TEST_F(TestUserGroupUtils, validateUserAndGroupIdsReturnsEmptyWhenGroupDatabases
 TEST_F(TestUserGroupUtils, validateUserAndGroupIdsReturnsEmptyWhenUserDatabaseCannotBeRead)
 {
     nlohmann::json configJson = {
-        {"users", {{"user1", 1},{"user2", 2}}},
-        {"groups", {{"group1", 1},{"group2", 2}}}
+        {"users", {{"user1", 100},{"user2", 200}}},
+        {"groups", {{"group1", 100},{"group2", 200}}}
     };
 
     EXPECT_CALL(*m_mockFilePermissionsPtr, getAllUserNamesAndIds())
@@ -226,27 +328,25 @@ TEST_F(TestUserGroupUtils, validateUserAndGroupIdsReturnsEmptyWhenUserDatabaseCa
 TEST_F(TestUserGroupUtils, validateUserAndGroupIdsHandlesOnlyGroups)
 {
     nlohmann::json configJson = {
-        {"groups", {{"group1", 1},{"group2", 2}}}
+        {"groups", {{"group1", 100},{"group2", 200}}}
     };
 
-    EXPECT_CALL(*m_mockFilePermissionsPtr, getAllGroupNamesAndIds()).WillOnce(Return(std::map<std::string, gid_t>{}));
-    EXPECT_CALL(*m_mockFilePermissionsPtr, getAllUserNamesAndIds()).WillOnce(Return(std::map<std::string, uid_t>{}));
-
+    setCommonExpectationsForEmptySystemUsersAndGroups();
     EXPECT_EQ(validateUserAndGroupIds(configJson), configJson);
 }
 
 TEST_F(TestUserGroupUtils, validateUserAndGroupIdsRemovesDuplicateIdsWhenThereAreOnlyGroups)
 {
     nlohmann::json configJson = {
-        {"groups", {{"group1", 1},{"group2", 2}}}
+        {"groups", {{"group1", 100},{"group2", 200}}}
     };
 
     nlohmann::json validatedJson = {
-        {"groups", {{"group2", 2}}}
+        {"groups", {{"group2", 200}}}
     };
 
-    EXPECT_CALL(*m_mockFilePermissionsPtr, getAllGroupNamesAndIds()).WillOnce(Return(std::map<std::string, gid_t>{{"group1", 1}}));
-    EXPECT_CALL(*m_mockFilePermissionsPtr, getAllUserNamesAndIds()).WillOnce(Return(std::map<std::string, uid_t>{{"user1", 1}}));
+    EXPECT_CALL(*m_mockFilePermissionsPtr, getAllGroupNamesAndIds()).WillOnce(Return(std::map<std::string, gid_t>{{"group1", 100}}));
+    EXPECT_CALL(*m_mockFilePermissionsPtr, getAllUserNamesAndIds()).WillOnce(Return(std::map<std::string, uid_t>{{"user1", 100}}));
 
     EXPECT_EQ(validateUserAndGroupIds(configJson), validatedJson);
 }
@@ -254,27 +354,25 @@ TEST_F(TestUserGroupUtils, validateUserAndGroupIdsRemovesDuplicateIdsWhenThereAr
 TEST_F(TestUserGroupUtils, validateUserAndGroupIdsHandlesOnlyUsers)
 {
     nlohmann::json configJson = {
-        {"users", {{"user1", 1},{"user2", 2}}}
+        {"users", {{"user1", 100},{"user2", 200}}}
     };
 
-    EXPECT_CALL(*m_mockFilePermissionsPtr, getAllGroupNamesAndIds()).WillOnce(Return(std::map<std::string, gid_t>{}));
-    EXPECT_CALL(*m_mockFilePermissionsPtr, getAllUserNamesAndIds()).WillOnce(Return(std::map<std::string, uid_t>{}));
-
+    setCommonExpectationsForEmptySystemUsersAndGroups();
     EXPECT_EQ(validateUserAndGroupIds(configJson), configJson);
 }
 
 TEST_F(TestUserGroupUtils, validateUserAndGroupIdsRemovesDuplicateIdsWhenThereAreOnlyUsers)
 {
     nlohmann::json configJson = {
-        {"users", {{"user1", 1},{"user2", 2}}}
+        {"users", {{"user1", 100},{"user2", 200}}}
     };
 
     nlohmann::json validatedJson = {
-        {"users", {{"user2", 2}}}
+        {"users", {{"user2", 200}}}
     };
 
-    EXPECT_CALL(*m_mockFilePermissionsPtr, getAllGroupNamesAndIds()).WillOnce(Return(std::map<std::string, gid_t>{{"group1", 1}}));
-    EXPECT_CALL(*m_mockFilePermissionsPtr, getAllUserNamesAndIds()).WillOnce(Return(std::map<std::string, uid_t>{{"user1", 1}}));
+    EXPECT_CALL(*m_mockFilePermissionsPtr, getAllGroupNamesAndIds()).WillOnce(Return(std::map<std::string, gid_t>{{"group1", 100}}));
+    EXPECT_CALL(*m_mockFilePermissionsPtr, getAllUserNamesAndIds()).WillOnce(Return(std::map<std::string, uid_t>{{"user1", 100}}));
 
     EXPECT_EQ(validateUserAndGroupIds(configJson), validatedJson);
 }

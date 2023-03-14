@@ -57,9 +57,16 @@ namespace watchdog::watchdogimpl
             std::set<std::string> groupsToRemove;
             for (const auto& [groupName, gid] : verifiedUsersAndGroups[GROUPS_KEY].items())
             {
-                if (groupName == "root")
+                if (groupName == "root" || gid == 1)
                 {
                     LOGWARN("Will not update group ID as it is root: " << gid);
+                    groupsToRemove.insert(groupName);
+                    continue;
+                }
+
+                if (gid < 0)
+                {
+                    LOGWARN("Will not update group ID as gid is not valid: " << gid);
                     groupsToRemove.insert(groupName);
                     continue;
                 }
@@ -98,9 +105,16 @@ namespace watchdog::watchdogimpl
             std::set<std::string> usersToRemove;
             for (const auto& [userName, uid] : verifiedUsersAndGroups[USERS_KEY].items())
             {
-                if (userName == "root")
+                if (userName == "root" || uid == 1)
                 {
                     LOGWARN("Will not update user ID as it is root: " << uid);
+                    usersToRemove.insert(userName);
+                    continue;
+                }
+
+                if (uid < 0)
+                {
+                    LOGWARN("Will not update group ID as gid is not valid: " << uid);
                     usersToRemove.insert(userName);
                     continue;
                 }
