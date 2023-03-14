@@ -28,20 +28,15 @@ add_library(suldownloaderimpl SHARED
         )
 
 
-include_directories(suldownloaderimpl BEFORE ${SOPHLIB_INCLUDE_DIR} ${SUL_INPUT}/include ${SDDS3LIB_INPUT} ${GSL_INCLUDE} ${CURL_INCLUDE_DIR})
+include_directories(suldownloaderimpl BEFORE ${SUL_INPUT}/include ${GSL_INCLUDE} ${CURL_INCLUDE_DIR})
 
-
-set(SDDS3_LIBRARY -L${SDDS3LIB_INPUT} -lsdds3 -ldelta -lpugixml -lutils -lminizip -lsdds3crypto -lminizip)
-target_compile_options(suldownloaderimpl PUBLIC -Wno-unused-value -Wno-unused-parameter -Wno-maybe-uninitialized -Wno-stringop-overflow)
 target_link_libraries(suldownloaderimpl PUBLIC
-        ${SDDS3_LIBRARY}
-        ${SOPHLIB_LIBRARIES}
+        logging
+        sophlib_sdds3
         suldownloaderdata
-        osutilitiesimpl
         HttpRequestsImpl
         curlwrapper
-        stdc++fs
-        -Wno-maybe-uninitialized -Wno-stringop-overflow)
+        )
 
 SET_TARGET_PROPERTIES( suldownloaderimpl
         PROPERTIES

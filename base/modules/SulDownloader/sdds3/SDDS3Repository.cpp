@@ -2,21 +2,19 @@
 
 #include "SDDS3Repository.h"
 
-#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
-#include <Common/UtilityImpl/StringUtils.h>
-#include <SulDownloader/suldownloaderdata/CatalogueInfo.h>
-#include <SulDownloader/suldownloaderdata/Logger.h>
-#include "CurlWrapper.h"
-#include "ICurlWrapper.h"
-
-#include <Config.h>
-#include <PackageRef.h>
 #include "Sdds3Wrapper.h"
 #include "SusRequestParameters.h"
-#include "HttpRequestsImpl/HttpRequesterImpl.h"
-#include "UpdateUtilities/InstalledFeatures.h"
 
-#include <sophlib/logging/Logging.h>
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include "Common/CurlWrapper/CurlWrapper.h"
+#include "Common/UtilityImpl/StringUtils.h"
+#include "HttpRequestsImpl/HttpRequesterImpl.h"
+#include "SulDownloader/suldownloaderdata/CatalogueInfo.h"
+#include "SulDownloader/suldownloaderdata/Logger.h"
+#include "UpdateUtilities/InstalledFeatures.h"
+#include "sophlib/logging/Logging.h"
+#include "sophlib/sdds3/Config.h"
+#include "sophlib/sdds3/PackageRef.h"
 
 #include <iostream>
 
@@ -33,14 +31,14 @@ class applicationPathManager;
 namespace SulDownloader
 {
     SDDS3Repository::SDDS3Repository(const std::string& repoDir, const std::string& certsDir)
-        : m_session(std::make_shared<sdds3::Session>(std::vector<std::filesystem::path>{certsDir}))
+        : m_session(std::make_shared<sophlib::sdds3::Session>(std::vector<std::filesystem::path>{certsDir}))
         , m_repo(repoDir)
         , m_supplementOnly(false)
     {
         setupSdds3LibLogger();
     }
     SDDS3Repository::SDDS3Repository()
-        : m_session(std::make_shared<sdds3::Session>(std::vector<std::filesystem::path>{}))
+        : m_session(std::make_shared<sophlib::sdds3::Session>(std::vector<std::filesystem::path>{}))
         , m_repo("")
         , m_supplementOnly(false)
     {
@@ -138,7 +136,7 @@ namespace SulDownloader
 
     void SDDS3Repository::purge() const
     {
-        sdds3::purge(*m_session.get(), m_repo, m_config, m_oldConfig);
+        sophlib::sdds3::Purge(*m_session.get(), m_repo, m_config, m_oldConfig);
     }
 
     void SDDS3Repository::setupSdds3LibLogger()
@@ -252,7 +250,7 @@ namespace SulDownloader
             LOGDEBUG("Release Group: '" << releaseGroup << "' is available to be downloaded." );
         }
 
-        m_session = std::make_shared<sdds3::Session>(std::vector<std::filesystem::path>{
+        m_session = std::make_shared<sophlib::sdds3::Session>(std::vector<std::filesystem::path>{
             Common::ApplicationConfiguration::applicationPathManager().getUpdateCertificatesPath()});
         std::string srcUrl = connectionSetup.getUpdateLocationURL();
 
@@ -292,7 +290,7 @@ namespace SulDownloader
             LOGINFO("Connecting to update source directly");
         }
 
-        sdds3::Repo repo(Common::ApplicationConfiguration::applicationPathManager().getLocalSdds3Repository());
+        sophlib::sdds3::Repo repo(Common::ApplicationConfiguration::applicationPathManager().getLocalSdds3Repository());
         m_repo = repo;
 
         m_session->httpConfig.userAgent = generateUserAgentString(configurationData.getTenantId(), configurationData.getDeviceId());
@@ -361,14 +359,14 @@ namespace SulDownloader
 
     void SDDS3Repository::generateProductListFromSdds3PackageInfo(const std::string& primaryRigidName)
     {
-        std::vector<sdds3::PackageRef> packagesWithSupplements;
+        std::vector<sophlib::sdds3::PackageRef> packagesWithSupplements;
         if (m_supplementOnly)
         {
             packagesWithSupplements =
                 SulDownloader::sdds3Wrapper()->getPackagesIncludingSupplements(*m_session.get(), m_repo, m_config);
         }
         m_oldConfig.platform_filter = std::nullopt;
-        std::vector<sdds3::PackageRef> packagesToInstall =
+        std::vector<sophlib::sdds3::PackageRef> packagesToInstall =
             SulDownloader::sdds3Wrapper()->getPackagesToInstall(*m_session.get(), m_repo, m_config, m_oldConfig);
 
         std::string configFilePathString =
@@ -383,12 +381,12 @@ namespace SulDownloader
             LOGERROR("Failed to store SDDS3 config file, error:" << ex.what());
         }
 
-        std::vector<sdds3::PackageRef> allPackages =
+        std::vector<sophlib::sdds3::PackageRef> allPackages =
             SulDownloader::sdds3Wrapper()->getPackages(*m_session.get(), m_repo, m_config);
 
         m_selectedSubscriptions.clear();
 
-        std::vector<sdds3::PackageRef> packagesOfInterest;
+        std::vector<sophlib::sdds3::PackageRef> packagesOfInterest;
 
         if (m_supplementOnly)
         {
@@ -504,7 +502,7 @@ namespace SulDownloader
         }
 
         // Add suites details to the subscription list
-        std::vector<sdds3::Suite> suites = SulDownloader::sdds3Wrapper()->getSuites(*m_session.get(), m_repo, m_config);
+        std::vector<sophlib::sdds3::Suite> suites = SulDownloader::sdds3Wrapper()->getSuites(*m_session.get(), m_repo, m_config);
         for(auto& suite : suites)
         {
             m_selectedSubscriptions.push_back(

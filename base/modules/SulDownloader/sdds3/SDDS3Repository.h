@@ -1,20 +1,16 @@
-/***********************************************************************************************
-
-Copyright 2022-2022 Sophos Limited. All rights reserved.
-
-***********************************************************************************************/
+// Copyright 2022-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
 #include "Sdds3Wrapper.h"
 #include "SusRequester.h"
 
-#include <Common/HttpRequests/IHttpRequester.h>
-#include <SulDownloader/suldownloaderdata/CatalogueInfo.h>
-#include <SulDownloader/suldownloaderdata/ConnectionSetup.h>
-#include <SulDownloader/suldownloaderdata/DownloadedProduct.h>
-#include <SulDownloader/suldownloaderdata/ISdds3Repository.h>
-#include <SulDownloader/suldownloaderdata/Tag.h>
+#include "Common/HttpRequests/IHttpRequester.h"
+#include "SulDownloader/suldownloaderdata/CatalogueInfo.h"
+#include "SulDownloader/suldownloaderdata/ConnectionSetup.h"
+#include "SulDownloader/suldownloaderdata/DownloadedProduct.h"
+#include "SulDownloader/suldownloaderdata/ISdds3Repository.h"
+#include "SulDownloader/suldownloaderdata/Tag.h"
 
 namespace SulDownloader
 {
@@ -67,10 +63,10 @@ namespace SulDownloader
             const suldownloaderdata::ConfigurationData& configurationData);
         bool doesFeatureCodeMatchConfig(const std::vector<std::string>& keys);
         std::string generateUserAgentString(const std::string& tenant_id, const std::string& device_id);
-        std::shared_ptr<sdds3::Session> m_session;
-        sdds3::Repo m_repo;
-        sdds3::Config m_config;
-        sdds3::Config m_oldConfig;
+        std::shared_ptr<sophlib::sdds3::Session> m_session;
+        sophlib::sdds3::Repo m_repo;
+        sophlib::sdds3::Config m_config;
+        sophlib::sdds3::Config m_oldConfig;
         std::vector<suldownloaderdata::DownloadedProduct> m_products;
         suldownloaderdata::RepositoryError m_error;
         suldownloaderdata::CatalogueInfo m_catalogueInfo;

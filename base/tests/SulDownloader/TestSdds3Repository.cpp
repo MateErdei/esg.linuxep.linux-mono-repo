@@ -1,25 +1,20 @@
-/******************************************************************************************************
-
-Copyright 2022, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2022-2023 Sophos Limited. All rights reserved.
 
 #include "MockSdds3Wrapper.h"
 #include "Sdds3ReplaceAndRestore.h"
 
+#include "Common/Logging/ConsoleLoggingSetup.h"
+#include "SulDownloader/sdds3/ISdds3Wrapper.h"
+#include "modules/SulDownloader/sdds3/SDDS3Repository.h"
+#include "modules/SulDownloader/suldownloaderdata/CatalogueInfo.h"
+#include "modules/SulDownloader/suldownloaderdata/DownloadedProduct.h"
+#include "sophlib/sdds3/PackageRef.h"
+#include "tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h"
 #include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
 #include "tests/Common/Helpers/MockFileSystem.h"
 
-#include <Common/Logging/ConsoleLoggingSetup.h>
-#include <SulDownloader/sdds3/ISdds3Wrapper.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
-#include <modules/SulDownloader/sdds3/SDDS3Repository.h>
-#include <modules/SulDownloader/suldownloaderdata/CatalogueInfo.h>
-#include <modules/SulDownloader/suldownloaderdata/DownloadedProduct.h>
-#include <tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h>
-
-#include <PackageRef.h>
 
 using namespace SulDownloader;
 using namespace SulDownloader::suldownloaderdata;
@@ -46,7 +41,7 @@ public:
         Tests::restoreSdds3Wrapper();
         Test::TearDown();
     }
-    MockSdds3Wrapper& setupSdds3WrapperAndGetMock(int expectCallCount = 1)
+    MockSdds3Wrapper& setupSdds3WrapperAndGetMock()
     {
         auto* sdds3WrapperMock = new StrictMock<MockSdds3Wrapper>();
 
@@ -76,16 +71,16 @@ TEST_F(Sdds3RepositoryTest, testGenerateProductListFromSdds3PackageInfoReportsSo
         *filesystemMock, readFile(Common::ApplicationConfiguration::applicationPathManager().getFeaturesJsonPath()))
         .WillOnce(Return(R"(["CORE"])"));
 
-    sdds3::PackageRef package1;
+    sophlib::sdds3::PackageRef package1;
     package1.lineId_ = "line1";
     package1.features_ = { "CORE" };
-    sdds3::PackageRef package2;
+    sophlib::sdds3::PackageRef package2;
     package2.lineId_ = "line2";
     package2.features_ = { "CORE" };
     repository.setFeatures({ "CORE" });
 
-    std::vector<sdds3::PackageRef> packagesToInstall = { package1 };
-    std::vector<sdds3::PackageRef> allPackages = { package1, package2 };
+    std::vector<sophlib::sdds3::PackageRef> packagesToInstall = { package1 };
+    std::vector<sophlib::sdds3::PackageRef> allPackages = { package1, package2 };
     EXPECT_CALL(sdds3Wrapper, getPackagesToInstall(_, _, _, _)).WillOnce(Return(packagesToInstall));
     EXPECT_CALL(sdds3Wrapper, getPackages(_, _, _)).WillOnce(Return(allPackages));
     EXPECT_CALL(sdds3Wrapper, saveConfig(_, _)).Times(1);
@@ -125,15 +120,15 @@ TEST_F(
     SDDS3Repository repository;
     auto& sdds3Wrapper = setupSdds3WrapperAndGetMock();
 
-    sdds3::PackageRef package1;
+    sophlib::sdds3::PackageRef package1;
     package1.lineId_ = "base";
     package1.features_ = { "CORE" };
 
-    sdds3::PackageRef package2;
+    sophlib::sdds3::PackageRef package2;
     package2.lineId_ = "another_package";
     package2.features_ = { "CORE" };
 
-    sdds3::PackageRef package3;
+    sophlib::sdds3::PackageRef package3;
     package3.lineId_ = "liveterminal";
     package3.features_ = { "LIVETERMINAL" };
 
@@ -141,11 +136,11 @@ TEST_F(
     repository.setFeatures({ "CORE", "LIVETERMINAL" });
 
     // Get SUS to tell us there are no new packages to install
-    std::vector<sdds3::PackageRef> packagesToInstall = {};
+    std::vector<sophlib::sdds3::PackageRef> packagesToInstall = {};
     EXPECT_CALL(sdds3Wrapper, getPackagesToInstall(_, _, _, _)).WillOnce(Return(packagesToInstall));
 
     // All packages will contain everything, regardless of install state.
-    std::vector<sdds3::PackageRef> allPackages = { package1, package2, package3 };
+    std::vector<sophlib::sdds3::PackageRef> allPackages = { package1, package2, package3 };
     EXPECT_CALL(sdds3Wrapper, getPackages(_, _, _)).WillOnce(Return(allPackages));
 
     EXPECT_CALL(sdds3Wrapper, saveConfig(_, _)).Times(1);
@@ -212,16 +207,16 @@ TEST_F(Sdds3RepositoryTest, testGenerateProductListFromSdds3PackageInfoReportsAl
     SDDS3Repository repository;
     auto& sdds3Wrapper = setupSdds3WrapperAndGetMock();
 
-    sdds3::PackageRef package1;
+    sophlib::sdds3::PackageRef package1;
     package1.lineId_ = "line1";
     package1.features_ = { "CORE" };
-    sdds3::PackageRef package2;
+    sophlib::sdds3::PackageRef package2;
     package2.lineId_ = "line2";
     package2.features_ = { "CORE" };
     repository.setFeatures({ "CORE" });
 
-    std::vector<sdds3::PackageRef> packagesToInstall = { package1, package2 };
-    std::vector<sdds3::PackageRef> allPackages = { package1, package2 };
+    std::vector<sophlib::sdds3::PackageRef> packagesToInstall = { package1, package2 };
+    std::vector<sophlib::sdds3::PackageRef> allPackages = { package1, package2 };
     EXPECT_CALL(sdds3Wrapper, getPackagesToInstall(_, _, _, _)).WillOnce(Return(packagesToInstall));
     EXPECT_CALL(sdds3Wrapper, getPackages(_, _, _)).WillOnce(Return(allPackages));
     EXPECT_CALL(sdds3Wrapper, saveConfig(_, _)).Times(1);
@@ -244,16 +239,16 @@ TEST_F(
     SDDS3Repository repository;
     auto& sdds3Wrapper = setupSdds3WrapperAndGetMock();
 
-    sdds3::PackageRef package1;
+    sophlib::sdds3::PackageRef package1;
     package1.lineId_ = "line1";
     package1.features_ = { "CORE" };
-    sdds3::PackageRef package2;
+    sophlib::sdds3::PackageRef package2;
     package2.lineId_ = "line2";
     package2.features_ = { "SAV" };
     repository.setFeatures({ "CORE" });
 
-    std::vector<sdds3::PackageRef> packagesToInstall = { package1, package2 };
-    std::vector<sdds3::PackageRef> allPackages = { package1, package2 };
+    std::vector<sophlib::sdds3::PackageRef> packagesToInstall = { package1, package2 };
+    std::vector<sophlib::sdds3::PackageRef> allPackages = { package1, package2 };
     EXPECT_CALL(sdds3Wrapper, getPackagesToInstall(_, _, _, _)).WillOnce(Return(packagesToInstall));
     EXPECT_CALL(sdds3Wrapper, getPackages(_, _, _)).WillOnce(Return(allPackages));
     EXPECT_CALL(sdds3Wrapper, getSuites(_,_,_)).Times(1);
@@ -274,16 +269,16 @@ TEST_F(
     SDDS3Repository repository;
     auto& sdds3Wrapper = setupSdds3WrapperAndGetMock();
 
-    sdds3::PackageRef package1;
+    sophlib::sdds3::PackageRef package1;
     package1.lineId_ = "line1";
     package1.features_ = { "CORE" };
-    sdds3::PackageRef package2;
+    sophlib::sdds3::PackageRef package2;
     package2.lineId_ = "line2";
     package2.features_ = { "SAV" };
     repository.setFeatures({ "CORE", "SAV" });
 
-    std::vector<sdds3::PackageRef> packagesToInstall = { package1, package2 };
-    std::vector<sdds3::PackageRef> allPackages = { package1, package2 };
+    std::vector<sophlib::sdds3::PackageRef> packagesToInstall = { package1, package2 };
+    std::vector<sophlib::sdds3::PackageRef> allPackages = { package1, package2 };
     EXPECT_CALL(sdds3Wrapper, getPackagesToInstall(_, _, _, _)).WillOnce(Return(packagesToInstall));
     EXPECT_CALL(sdds3Wrapper, getPackages(_, _, _)).WillOnce(Return(allPackages));
     EXPECT_CALL(sdds3Wrapper, getSuites(_,_,_)).Times(1);
@@ -304,14 +299,14 @@ TEST_F(Sdds3RepositoryTest, testGenerateProductListFromSdds3PackageInfoHandlesCo
     SDDS3Repository repository;
     auto& sdds3Wrapper = setupSdds3WrapperAndGetMock();
 
-    sdds3::PackageRef package1;
+    sophlib::sdds3::PackageRef package1;
     package1.lineId_ = "line1";
-    sdds3::PackageRef package2;
+    sophlib::sdds3::PackageRef package2;
     package2.lineId_ = "line2";
     repository.setFeatures({ "CORE" });
 
-    std::vector<sdds3::PackageRef> packagesToInstall = { package1, package2 };
-    std::vector<sdds3::PackageRef> allPackages = { package1, package2 };
+    std::vector<sophlib::sdds3::PackageRef> packagesToInstall = { package1, package2 };
+    std::vector<sophlib::sdds3::PackageRef> allPackages = { package1, package2 };
     EXPECT_CALL(sdds3Wrapper, getPackagesToInstall(_, _, _, _)).WillOnce(Return(packagesToInstall));
     EXPECT_CALL(sdds3Wrapper, getPackages(_, _, _)).WillOnce(Return(allPackages));
     EXPECT_CALL(sdds3Wrapper, getSuites(_,_,_)).Times(1);
@@ -327,15 +322,15 @@ TEST_F(Sdds3RepositoryTest, testGenerateProductListFromSdds3PackageInfoReportsPr
     SDDS3Repository repository;
     auto& sdds3Wrapper = setupSdds3WrapperAndGetMock();
 
-    sdds3::PackageRef package1;
+    sophlib::sdds3::PackageRef package1;
     package1.lineId_ = "line1";
     package1.features_ = { "CORE" };
-    sdds3::PackageRef package2;
+    sophlib::sdds3::PackageRef package2;
     package2.lineId_ = "line2_primary";
     package2.features_ = { "CORE" };
     repository.setFeatures({ "CORE" });
-    std::vector<sdds3::PackageRef> packagesToInstall = { package1, package2 };
-    std::vector<sdds3::PackageRef> allPackages = { package1, package2 };
+    std::vector<sophlib::sdds3::PackageRef> packagesToInstall = { package1, package2 };
+    std::vector<sophlib::sdds3::PackageRef> allPackages = { package1, package2 };
     EXPECT_CALL(sdds3Wrapper, getPackagesToInstall(_, _, _, _)).WillOnce(Return(packagesToInstall));
     EXPECT_CALL(sdds3Wrapper, getPackages(_, _, _)).WillOnce(Return(allPackages));
     EXPECT_CALL(sdds3Wrapper, getSuites(_,_,_)).Times(1);
@@ -368,16 +363,16 @@ TEST_F(Sdds3RepositoryTest, testGenerateProductListFromSdds3PackageInfoReportsNo
         *filesystemMock, readFile(Common::ApplicationConfiguration::applicationPathManager().getFeaturesJsonPath()))
         .WillOnce(Return(R"(["CORE"])"));
 
-    sdds3::PackageRef package1;
+    sophlib::sdds3::PackageRef package1;
     package1.lineId_ = "line1";
     package1.features_ = { "CORE" };
-    sdds3::PackageRef package2;
+    sophlib::sdds3::PackageRef package2;
     package2.lineId_ = "line2";
     package2.features_ = { "CORE" };
     repository.setFeatures({ "CORE" });
 
-    std::vector<sdds3::PackageRef> packagesToInstall = {};
-    std::vector<sdds3::PackageRef> allPackages = { package1, package2 };
+    std::vector<sophlib::sdds3::PackageRef> packagesToInstall = {};
+    std::vector<sophlib::sdds3::PackageRef> allPackages = { package1, package2 };
     EXPECT_CALL(sdds3Wrapper, getPackagesToInstall(_, _, _, _)).WillOnce(Return(packagesToInstall));
     EXPECT_CALL(sdds3Wrapper, getPackages(_, _, _)).WillOnce(Return(allPackages));
     EXPECT_CALL(sdds3Wrapper, saveConfig(_, _)).Times(1);
@@ -400,16 +395,16 @@ TEST_F(
     SDDS3Repository repository;
     auto& sdds3Wrapper = setupSdds3WrapperAndGetMock();
 
-    sdds3::PackageRef package1;
+    sophlib::sdds3::PackageRef package1;
     package1.lineId_ = "line1";
     package1.features_ = { "CORE" };
-    sdds3::PackageRef package2;
+    sophlib::sdds3::PackageRef package2;
     package2.lineId_ = "line2";
     package2.features_ = { "CORE" };
 
-    std::vector<sdds3::PackageRef> packagesToInstall = { package1, package2 };
-    std::vector<sdds3::PackageRef> allPackages = { package1, package2 };
-    std::vector<sdds3::PackageRef> packagesWithSupplements = { package2 };
+    std::vector<sophlib::sdds3::PackageRef> packagesToInstall = { package1, package2 };
+    std::vector<sophlib::sdds3::PackageRef> allPackages = { package1, package2 };
+    std::vector<sophlib::sdds3::PackageRef> packagesWithSupplements = { package2 };
     EXPECT_CALL(sdds3Wrapper, getPackagesToInstall(_, _, _, _)).WillOnce(Return(packagesToInstall));
     EXPECT_CALL(sdds3Wrapper, getPackages(_, _, _)).WillOnce(Return(allPackages));
     EXPECT_CALL(sdds3Wrapper, getPackagesIncludingSupplements(_, _, _)).WillOnce(Return(packagesWithSupplements));

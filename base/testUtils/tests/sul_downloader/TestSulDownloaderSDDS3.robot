@@ -313,7 +313,7 @@ Sul Downloader sdds3 sync Does not retry on curl errors
     ...    5s
     ...    Check SulDownloader Log Contains  Update failed
     check_log_does_not_contain    before retry after attempts:   ${SOPHOS_INSTALL}/logs/base/suldownloader_sync.log  sync
-    check_log_contains    caught exception: Couldn't connect to server   ${SOPHOS_INSTALL}/logs/base/suldownloader_sync.log  sync
+    check_log_contains    caught exception: Error performing http request: Couldn't connect to server, we will not retry this url   ${SOPHOS_INSTALL}/logs/base/suldownloader_sync.log  sync
 
 
 SUS Fault Injection Server Hangs

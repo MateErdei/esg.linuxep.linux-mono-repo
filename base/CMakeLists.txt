@@ -9,8 +9,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(SOPHOS_SPL_USER "sophos-spl-user")
 set(SOPHOS_SPL_GROUP "sophos-spl-group")
 set(SOPHOS_SPL_IPC_GROUP "sophos-spl-ipc")
-set(SOPHOS_SPL_NETWORK "sophos-spl-network")   #comms network facing user
-set(SOPHOS_SPL_LOCAL "sophos-spl-local")       #comms product facing user
+set(SOPHOS_SPL_LOCAL "sophos-spl-local")       #low privilege user
 set(SOPHOS_SPL_UPDATESCHEDULER "sophos-spl-updatescheduler")  #user which updatescheduler runs as
 
 execute_process(
@@ -97,6 +96,11 @@ if(NOT DEFINED PRODUCT_LINE_ID)
     endif()
 endif()
 
+set(RA_PLUGIN_NAME responseactions)
+
+set(RA_PRODUCT_LINE_ID ServerProtectionLinux-Plugin-${RA_PLUGIN_NAME})
+set(RA_PRODUCT_NAME SPL-Response-Actions-Plugin)
+
 # DEFAULT_HOME_FOLDER
 if(NOT DEFINED DEFAULT_HOME_FOLDER)
     if (DEFINED ENV{DEFAULT_HOME_FOLDER})
@@ -106,6 +110,8 @@ if(NOT DEFINED DEFAULT_HOME_FOLDER)
     endif()
 endif()
 
+set(DISTRIBUTION_TOOL_DIR ${CMAKE_SOURCE_DIR}/products/distribution)
+
 if(NOT DEFINED UPDATESCHEDULER_PRETTY_NAME)
     set(UPDATESCHEDULER_PRETTY_NAME "Update Scheduler")
 endif()
@@ -113,6 +119,44 @@ endif()
 #Specify the feature list of the form "feature1, feature2, feature3"
 #Set "" for no features when including in a component suite
 set(FEATURE_LIST "CORE")
+set(RA_FEATURE_LIST "MDR")
+
+set(BASE_DIST_PREFIX "base")
+set(RA_DIST_PREFIX "ra")
+
+find_program(VERSIONING_CLIENT "versioning_client"
+        PATHS ${CMAKE_SOURCE_DIR}/tap_venv/bin
+        REQUIRED)
+
+if (DEFINED ENV{VERSION_OVERRIDE})
+    set(PRODUCT_VERSION "$ENV{VERSION_OVERRIDE}")
+else()
+    execute_process(
+            COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/products/distribution/getReleasePackageVersion.py ${CMAKE_SOURCE_DIR}/build/release-package.xml
+            OUTPUT_VARIABLE RELEASE_PACKAGE_VERSION
+            OUTPUT_STRIP_TRAILING_WHITESPACE)
+    execute_process(
+            COMMAND ${VERSIONING_CLIENT} --component sspl_base --version_number ${RELEASE_PACKAGE_VERSION}
+            OUTPUT_VARIABLE PRODUCT_VERSION
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+            RESULT_VARIABLE STATUS)
+    if(STATUS AND NOT STATUS EQUAL 0)
+        message(FATAL_ERROR \"Failed to generate version from base: ${STATUS}\")
+    endif()
+endif()
+
+if (DEFINED ENV{VERSION_OVERRIDE})
+    set(RA_PRODUCT_VERSION "$ENV{VERSION_OVERRIDE}")
+else()
+    execute_process(
+            COMMAND ${VERSIONING_CLIENT} --component responseactions --version_number 1.0.0
+            OUTPUT_VARIABLE RA_PRODUCT_VERSION
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+            RESULT_VARIABLE STATUS)
+    if(STATUS AND NOT STATUS EQUAL 0)
+        message(FATAL_ERROR \"Failed to generate version from base: ${STATUS}\")
+    endif()
+endif()
 
 find_package(PkgConfig)
 FIND_PACKAGE ( Threads REQUIRED )
@@ -153,9 +197,7 @@ set( BOOST_INPUT ${INPUT}/boost )
 set( CURL_INPUT ${INPUT}/curl )
 set( OPENSSL_INPUT ${INPUT}/openssl )
 set( EXPAT_INPUT ${INPUT}/expat )
-set( ZLIB_INPUT ${INPUT}/zlib )
 set( LOG4CPLUS_INPUT ${INPUT}/log4cplus )
-set( MINIZIP_INPUT ${INPUT}/minizip )
 set( GSL_INCLUDE ${INPUT}/gsl/include )
 set( BOOST_INCLUDE ${BOOST_INPUT}/include )
 set( GTEST_INPUT ${INPUT}/googletest )
@@ -165,22 +207,53 @@ if(NOT DEFINED VERSIG_INPUT)
     set( VERSIG_INPUT ${INPUT}/versig)
 endif()
 
-if(NOT DEFINED SOPHLIB_INPUT)
-    set( SOPHLIB_INPUT ${INPUT}/sophlib)
-endif()
+function(add_imported_library name type location include_directory)
+    add_library(${name} ${type} IMPORTED)
+    set_target_properties(${name} PROPERTIES IMPORTED_LOCATION ${location})
+    if(${type} STREQUAL SHARED)
+        set_target_properties(${name} PROPERTIES IMPORTED_NO_SONAME TRUE)
+    endif()
+    target_include_directories(${name} INTERFACE ${include_directory})
+endfunction()
 
-set(SOPHLIB_INCLUDE_DIR ${SOPHLIB_INPUT}/include)
-set(SOPHLIB_LIBRARIES ${SOPHLIB_INPUT}/lib64/file/libfile.pic.a
-  ${SOPHLIB_INPUT}/lib64/logging/liblogging.pic.a
-  ${SOPHLIB_INPUT}/lib64/raii/libraii.pic.a
-  ${SOPHLIB_INPUT}/lib64/string/libstring.pic.a
-  ${SOPHLIB_INPUT}/lib64/time/libtime.pic.a)
+function(add_sophlib_library name)
+    # Linked statically to avoid name clashes with our libraries
+    add_imported_library(sophlib_${name} STATIC ${INPUT}/sophlib/lib64/${name}/lib${name}.pic.a ${INPUT}/sophlib/include)
+endfunction()
 
-set(NLOHMANN_JSON_INCLUDE_DIR ../../../thirdparty/nlohmann-json)
+add_imported_library(bzip2 SHARED ${INPUT}/bzip2/libbzip2.so ${INPUT}/bzip2)
+add_imported_library(lzma SHARED ${INPUT}/lzma/liblzma.so ${INPUT}/lzma/src/liblzma/api/lzma)
+add_imported_library(minizip SHARED ${INPUT}/minizip/minizip/libminizip.so ${INPUT}/minizip)
+add_imported_library(pugixml SHARED ${INPUT}/pugixml/libpugixml.so ${INPUT}/pugixml)
+add_imported_library(zlib SHARED ${INPUT}/zlib/libzlib.so ${INPUT}/zlib)
 
-if(NOT DEFINED SDDS3LIB_INPUT)
-    set( SDDS3LIB_INPUT ${INPUT}/sdds3lib )
-endif()
+add_sophlib_library(crypto)
+add_sophlib_library(file)
+add_sophlib_library(http)
+add_sophlib_library(logging)
+add_sophlib_library(raii)
+add_sophlib_library(sdds3)
+add_sophlib_library(string)
+add_sophlib_library(time)
+add_sophlib_library(zip)
+add_imported_library(sophlib_sdds3_delta STATIC ${INPUT}/sophlib/lib64/sdds3/delta/libdelta.pic.a ${INPUT}/sophlib/include)
+
+# Define dependencies between imported libraries (based on Bazel dependencies in monorepo)
+target_link_libraries(minizip INTERFACE bzip2 lzma zlib)
+target_link_libraries(sophlib_file INTERFACE sophlib_raii)
+target_link_libraries(sophlib_sdds3 INTERFACE
+        pugixml
+        sophlib_crypto
+        sophlib_file
+        sophlib_http
+        sophlib_sdds3_delta
+        sophlib_string
+        sophlib_time
+        sophlib_zip
+        )
+target_link_libraries(sophlib_zip INTERFACE minizip sophlib_logging)
+
+set(NLOHMANN_JSON_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/nlohmann-json)
 
 set( BOOST_INCLUDE_DIR ${BOOST_INPUT}/include )
 
@@ -207,27 +280,22 @@ set( ZEROMQ_INPUT ${INPUT}/zeromq )
 ## use the hint from above to find where 'zmq.hpp' is located
 find_path(ZeroMQ_INCLUDE_DIR
         NAMES zmq.h
-        PATHS ${ZEROMQ_INPUT}/include
+        PATHS ${ZEROMQ_INPUT}
         )
 
 ## use the hint from above to find the location of libzmq
 find_library(ZeroMQ_LIBRARY
         NAMES zmq
-        PATHS ${ZEROMQ_INPUT}/lib
+        PATHS ${ZEROMQ_INPUT}
         )
 
 execute_process(
-        COMMAND chrpath -r \$ORIGIN ${ZEROMQ_INPUT}/lib/libzmq.so
+        COMMAND chrpath -r \$ORIGIN ${ZeroMQ_LIBRARY}
         COMMAND_ERROR_IS_FATAL ANY)
 
-find_path(EXPAT_INCLUDE_DIR
-        NAMES expat.h
-        PATHS ${EXPAT_INPUT}/include
-        NO_DEFAULT_PATH
-        )
 find_library(EXPAT_LIBRARY
         NAMES expat
-        PATHS ${EXPAT_INPUT}/lib64
+        PATHS ${EXPAT_INPUT}
         NO_DEFAULT_PATH
         )
 
@@ -237,12 +305,7 @@ find_library(LOG4CPLUS_LIBRARY
         NAMES log4cplus
         PATHS ${LOG4CPLUS_INPUT}/lib
         )
-find_library(MINIZIP_LIBRARY
-        NAMES minizip
-        PATHS ${MINIZIP_INPUT}/lib
-        )
-set(MINIZIP_INCLUDE_DIR ${MINIZIP_INPUT}/include)
-set(ZLIB_INCLUDE_DIR ${ZLIB_INPUT}/include)
+
 # ensure valid log4cplus to work with fork
 file(STRINGS ${LOG4CPLUS_LIBRARY} log4cplusStrings)
 string(FIND "${log4cplusStrings}" "implicit initialization is turned off" DisabledImplicitInitialization)
@@ -277,31 +340,29 @@ find_library(CURL_LIBRARY
         NO_DEFAULT_PATH
         )
 
-find_library(ZLIB_LIBRARY
-        NAMES z
-        PATHS ${ZLIB_INPUT}/lib64
-        NO_DEFAULT_PATH
-        )
-
-set( GTEST_INCLUDE ${GTEST_INPUT}/gtest-headers )
+set( GTEST_INCLUDE ${GTEST_INPUT}/googletest/include )
 find_library(GTEST_LIBRARY
         NAMES gtest
-        PATHS ${GTEST_INPUT}/gtest-libs
+        PATHS ${GTEST_INPUT}
         NO_DEFAULT_PATH)
 find_library(GTEST_MAIN_LIBRARY
         NAMES gtest_main
-        PATHS ${GTEST_INPUT}/gtest-libs
+        PATHS ${GTEST_INPUT}
         NO_DEFAULT_PATH)
-set( GMOCK_INCLUDE ${GTEST_INPUT}/gmock-headers )
-find_library(GMOCK_LIBRARY
-        NAMES gmock
-        PATHS ${GTEST_INPUT}/gmock-libs
-        NO_DEFAULT_PATH)
+set( GMOCK_INCLUDE ${GTEST_INPUT}/googlemock/include )
 
 ## Allow this to be redirected for python development
 if(NOT DEFINED PYTHON_INPUT)
     set( PYTHON_INPUT ${INPUT}/python)
 endif()
+set(PYTHON_ZIP python311.zip)
+set(PYTHON_VERSION python3.11)
+set(PYTHON_LIB_DIR "${PYTHON_INPUT}/lib/${PYTHON_VERSION}")
+find_library(PYTHON_LIBRARY
+        NAMES "${PYTHON_VERSION}"
+        PATHS ${PYTHON_INPUT}/lib
+        )
+file(GLOB PYTHON_LIBRARIES "${PYTHON_LIBRARY}.*")
 
 ## Allow this to be redirected for pathtools development
 if(NOT DEFINED WATCHDOG_INPUT)
@@ -315,7 +376,7 @@ endif()
 
 ## Allow this to be redirected for pycryptodome development
 if(NOT DEFINED PYCRYPTODOME_INPUT)
-    set( PYCRYPTODOME_INPUT ${INPUT}/pycryptodome)
+    set( PYCRYPTODOME_INPUT ${INPUT}/pypi/)
 endif()
 
 # Telemetry config is different for dev vs prod builds

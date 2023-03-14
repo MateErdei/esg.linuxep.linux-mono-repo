@@ -44,9 +44,9 @@
             <release-version branch="release/WIN-SPRINT-2023.10"
                              build-id="20230303190457-b2493e357e0f270450a8bc1154c4644841785404-Yo7Ilu"/>
             <development-version branch="develop"/>
-            <include artifact-path="sophlib/include" dest-dir="/build/input/sophlib/include/sophlib"/>
-            <include artifact-path="sophlib/linux_x86-64" dest-dir="/build/input/sophlib/lib64"/>
-
+            <include artifact-path="sophlib/include" dest-dir="/build/redist/sophlib/include/sophlib"/>
+            <include artifact-path="sophlib/linux_x86-64" dest-dir="/build/redist/sophlib/lib64"/>
+            <include artifact-path="sophlib/sdds3-tools-x64-linux" dest-dir="/build/redist/sdds3"/>
             <include artifact-path="thirdparty/zlib-linux-opt" dest-dir="/build/redist/zlib"/>
             <include artifact-path="thirdparty/zmq-linux-opt" dest-dir="/build/redist/zeromq"/>
             <include artifact-path="thirdparty/googletest-linux-opt" dest-dir="/build/redist/googletest"/>
@@ -55,13 +55,7 @@
             <include artifact-path="thirdparty/liblzma-linux-opt" dest-dir="/build/redist/lzma"/>
             <include artifact-path="thirdparty/bzip2-linux-opt" dest-dir="/build/redist/bzip2"/>
             <include artifact-path="thirdparty/gsl" dest-dir="/build/redist/gsl"/>
-        </build-asset>
-
-        <build-asset project="winep" repo="sau">
-            <release-version branch="release/WINEP-2022.39-DTP2" build-id="20221003091945-90720120553d2d122effccb97edd4ccbcc5ea61e-MzUwFE"/>
-            <development-version branch="develop"/>
-            <include artifact-path="Linux-x64/SDDS3-Lib" dest-dir="/build/input"/>
-            <include artifact-path="Linux-x64/SDDS3-Utils" dest-dir="/build/input/sdds3"/>
+            <include artifact-path="thirdparty/pugixml-linux-opt" dest-dir="/build/redist/pugixml"/>
         </build-asset>
 
         <trusted-asset artifact-path="org.cmake/cmake-3.26.0/cmake-3.26.0" dest-dir="/build/input/cmake"/>

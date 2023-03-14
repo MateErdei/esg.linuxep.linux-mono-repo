@@ -9,9 +9,9 @@
 
 #include <fstream>
 #include <memory>
-
 #include <unistd.h>
 #include <utime.h>
+#include <zlib.h>
 
 #define WRITEBUFFERSIZE (8192)
 

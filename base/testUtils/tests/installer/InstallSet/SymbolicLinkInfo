@@ -490,6 +490,7 @@ o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libprotobuf.so.28.0
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libprotobuf.so.28.0.3
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libprotobufutil.so
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libProxyUtilsLib.so
+o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libpugixml.so
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libreactorimpl.so
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libremotediagnoseimpl.so
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libsecurityutils.so

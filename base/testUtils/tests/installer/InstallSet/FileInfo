@@ -84,6 +84,7 @@ o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libprocutilimpl.so.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libprotobuf.so.28.0.3.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libprotobufutil.so.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libProxyUtilsLib.so.0
+o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libpugixml.so.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libreactorimpl.so.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libremotediagnoseimpl.so.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libsecurityutils.so.0

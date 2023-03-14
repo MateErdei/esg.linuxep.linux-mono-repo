@@ -1,75 +1,72 @@
-/***********************************************************************************************
-
-Copyright 2022-2022 Sophos Limited. All rights reserved.
-
-***********************************************************************************************/
+// Copyright 2022-2023 Sophos Limited. All rights reserved.
 
 #include "Sdds3Wrapper.h"
+
 #include <filesystem>
 
 class path;
 namespace SulDownloader
 {
-    std::vector<sdds3::Suite> Sdds3Wrapper::getSuites(
-        sdds3::Session& session,
-        const sdds3::Repo& repo,
-        const sdds3::Config& config)
+    std::vector<sophlib::sdds3::Suite> Sdds3Wrapper::getSuites(
+        sophlib::sdds3::Session& session,
+        const sophlib::sdds3::Repo& repo,
+        const sophlib::sdds3::Config& config)
     {
-        return sdds3::get_suites(session, repo, config);
+        return sophlib::sdds3::GetSuites(session, repo, config);
     }
 
-    std::vector<sdds3::PackageRef> Sdds3Wrapper::getPackagesIncludingSupplements(
-        sdds3::Session& session,
-        const sdds3::Repo& repo,
-        const sdds3::Config& config)
+    std::vector<sophlib::sdds3::PackageRef> Sdds3Wrapper::getPackagesIncludingSupplements(
+        sophlib::sdds3::Session& session,
+        const sophlib::sdds3::Repo& repo,
+        const sophlib::sdds3::Config& config)
     {
         const auto filterSupplements =
-            sdds3::FilterPackagesBy(sdds3::PackageFilter::NotInstallable, sdds3::PackageFilter::ReferencedFromSupplement);
-        return sdds3::get_packages(session, repo, config,filterSupplements);
+            sophlib::sdds3::FilterPackagesBy(sophlib::sdds3::PackageFilter::NotInstallable, sophlib::sdds3::PackageFilter::ReferencedFromSupplement);
+        return sophlib::sdds3::GetPackages(session, repo, config,filterSupplements);
     }
-    std::vector<sdds3::PackageRef> Sdds3Wrapper::getPackagesToInstall(
-        sdds3::Session& session,
-        const sdds3::Repo& repo,
-        sdds3::Config& config,
-        const sdds3::Config& oldConfig)
+    std::vector<sophlib::sdds3::PackageRef> Sdds3Wrapper::getPackagesToInstall(
+        sophlib::sdds3::Session& session,
+        const sophlib::sdds3::Repo& repo,
+        sophlib::sdds3::Config& config,
+        const sophlib::sdds3::Config& oldConfig)
     {
-        return sdds3::get_packages_to_install(session, repo, config, oldConfig);
+        return sophlib::sdds3::GetPackagesToInstall(session, repo, config, oldConfig);
     }
 
-    std::vector<sdds3::PackageRef> Sdds3Wrapper::getPackages(
-        sdds3::Session& session,
-        const sdds3::Repo& repo,
-        const sdds3::Config& config)
+    std::vector<sophlib::sdds3::PackageRef> Sdds3Wrapper::getPackages(
+        sophlib::sdds3::Session& session,
+        const sophlib::sdds3::Repo& repo,
+        const sophlib::sdds3::Config& config)
     {
-        return sdds3::get_packages(session, repo, config);
+        return sophlib::sdds3::GetPackages(session, repo, config);
     }
 
     void Sdds3Wrapper::extractPackagesTo(
-        sdds3::Session& session,
-        const sdds3::Repo& repo,
-        const sdds3::Config& config,
+        sophlib::sdds3::Session& session,
+        const sophlib::sdds3::Repo& repo,
+        const sophlib::sdds3::Config& config,
         const std::string& path)
     {
-        sdds3::extract_to(session, repo, config, path);
+        sophlib::sdds3::ExtractTo(session, repo, config, path);
     }
     void Sdds3Wrapper::sync(
-        sdds3::Session& session,
-        const sdds3::Repo& repo,
+        sophlib::sdds3::Session& session,
+        const sophlib::sdds3::Repo& repo,
         const std::string& url,
-        sdds3::Config& config,
-        const sdds3::Config& oldConfig)
+        sophlib::sdds3::Config& config,
+        const sophlib::sdds3::Config& oldConfig)
     {
-        sdds3::sync(session, repo, url, config, oldConfig);
+        sophlib::sdds3::Sync(session, repo, url, config, oldConfig);
     }
-    void Sdds3Wrapper::saveConfig(sdds3::Config& config, std::string& path)
+    void Sdds3Wrapper::saveConfig(sophlib::sdds3::Config& config, std::string& path)
     {
         std::filesystem::path configFilePath(path);
-        sdds3::ConfigXml::save(config, configFilePath);
+        sophlib::sdds3::ConfigXml::Save(config, configFilePath);
     }
-    sdds3::Config Sdds3Wrapper::loadConfig(std::string& path)
+    sophlib::sdds3::Config Sdds3Wrapper::loadConfig(std::string& path)
     {
         std::filesystem::path configFilePath(path);
-        return sdds3::ConfigXml::load(configFilePath);
+        return sophlib::sdds3::ConfigXml::Load(configFilePath);
     }
     std::unique_ptr<ISdds3Wrapper>& sdds3WrapperStaticPointer()
     {

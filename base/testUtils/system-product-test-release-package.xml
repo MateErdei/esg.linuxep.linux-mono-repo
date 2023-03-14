@@ -82,6 +82,11 @@
             <include mode="base-coverage,ej-coverage,mdr-coverage,edr-coverage,lr-coverage" artifact-path="bazel-tools" dest-dir="bazel-tools"/>
         </build-asset>
 
+        <build-asset project="em" repo="esg">
+            <development-version branch="develop"/>
+            <include artifact-path="sophlib/sdds3-tools-x64-linux" dest-dir="sdds3"/>
+        </build-asset>
+
         <!--
                     local warehouses
                     when overriding a warehouse, do not change the customer dest-dir. only change the development-version and the
@@ -95,11 +100,6 @@
             <include artifact-path="sdds3-launchdarkly" dest-dir="sdds3/launchdarkly" />
             <include artifact-path="sdds3-launchdarkly-999" dest-dir="sdds3/launchdarkly-999" />
 
-        </build-asset>
-
-        <build-asset project="winep" repo="sau">
-            <development-version branch="develop"/>
-            <include artifact-path="Linux-x64/SDDS3-Utils" dest-dir="sdds3"/>
         </build-asset>
     </inputs>
 

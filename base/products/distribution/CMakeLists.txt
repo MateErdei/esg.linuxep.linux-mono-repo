@@ -16,7 +16,7 @@ execute_process(COMMAND bash ${CMAKE_SOURCE_DIR}/build/gcc-print-file-name.sh li
         OUTPUT_VARIABLE libatomic_path)
 string(STRIP "${libatomic_path}" libatomic_path )
 
-set(third_party_libs ${libstdcpp_path} ${libgcc_s_path} ${libatomic_path} ${ZLIB_LIBRARY})
+set(third_party_libs ${libstdcpp_path} ${libgcc_s_path} ${libatomic_path})
 
 INCLUDE(FindLibraryFullPath)
 
@@ -30,12 +30,8 @@ foreach (LIB boost_atomic boost_chrono boost_date_time boost_filesystem boost_re
     add_third_party_library(${LIB} ${BOOST_INPUT}/lib64)
 endforeach(LIB)
 
-add_third_party_library(bzip2 ${BZ2_LIBRARY_DIR})
-add_third_party_library(lzma ${LZMA_LIBRARY_DIR})
-add_third_party_library(minizip ${MINIZIP_INPUT})
 add_third_party_library(curl ${CURL_INPUT}/lib64)
 add_third_party_library(expat ${EXPAT_INPUT})
-add_third_party_library(zlib  ${ZLIB_INPUT})
 add_third_party_library(zmq ${ZEROMQ_INPUT})
 
 foreach (LIB crypto ssl)
@@ -47,6 +43,14 @@ add_third_party_library(log4cplus ${LOG4CPLUS_INPUT}/lib)
 
 install(FILES ${third_party_libs}
         DESTINATION ${BASE_DIST_PREFIX}/files/base/lib64)
+
+install(IMPORTED_RUNTIME_ARTIFACTS
+        bzip2
+        lzma
+        minizip
+        pugixml
+        zlib
+        LIBRARY DESTINATION ${BASE_DIST_PREFIX}/files/base/lib64)
 
 install(FILES ${VERSIG_INPUT}/bin64/versig
         DESTINATION ${BASE_DIST_PREFIX}/files/base/update)

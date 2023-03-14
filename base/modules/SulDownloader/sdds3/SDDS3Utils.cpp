@@ -1,17 +1,13 @@
-/***********************************************************************************************
+// Copyright 2022-2023 Sophos Limited. All rights reserved.
 
-Copyright 2022 Sophos Limited. All rights reserved.
+#include "SDDS3Utils.h"
 
-***********************************************************************************************/
+#include "Common/ApplicationConfigurationImpl/ApplicationPathManager.h"
+#include "Common/FileSystem/IFileSystem.h"
+#include "Common/FileSystem/IFileSystemException.h"
+#include "SulDownloader/Logger.h"
+#include "sophlib/sdds3/Config.h"
 
-#include <Common/ApplicationConfigurationImpl/ApplicationPathManager.h>
-#include <Common/FileSystem/IFileSystem.h>
-#include <Common/FileSystem/IFileSystemException.h>
-#include <SulDownloader/Logger.h>
-#include <SulDownloader/sdds3/SDDS3Utils.h>
-
-#include <Config.h>
-#include <PackageRef.h>
 #include <json.hpp>
 
 namespace SulDownloader

@@ -1,14 +1,10 @@
-/******************************************************************************************************
-
-Copyright 2022, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2022-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
-#include "gmock/gmock.h"
+#include "SulDownloader/sdds3/ISdds3Wrapper.h"
 
-#include <SulDownloader/sdds3/ISdds3Wrapper.h>
+#include <gmock/gmock.h>
 
 using namespace ::testing;
 using namespace SulDownloader;
@@ -16,12 +12,12 @@ using namespace SulDownloader;
 class MockSdds3Wrapper : public SulDownloader::ISdds3Wrapper
 {
 public:
-    MOCK_METHOD3(getPackagesIncludingSupplements, std::vector<sdds3::PackageRef> (sdds3::Session& session, const sdds3::Repo& repo, const sdds3::Config& config));
-    MOCK_METHOD3(getSuites, std::vector<sdds3::Suite> (sdds3::Session& session, const sdds3::Repo& repo, const sdds3::Config& config));
-    MOCK_METHOD4(getPackagesToInstall, std::vector<sdds3::PackageRef> (sdds3::Session& session, const sdds3::Repo& repo, sdds3::Config& config, const sdds3::Config& oldConfig));
-    MOCK_METHOD3(getPackages, std::vector<sdds3::PackageRef> (sdds3::Session& session, const sdds3::Repo& repo, const sdds3::Config& config));
-    MOCK_METHOD4(extractPackagesTo, void (sdds3::Session& session, const sdds3::Repo& repo, const sdds3::Config& config, const std::string& path));
-    MOCK_METHOD5(sync, void(sdds3::Session& session, const sdds3::Repo& repo, const std::string& url, sdds3::Config& config, const sdds3::Config& oldConfig));
-    MOCK_METHOD2(saveConfig, void(sdds3::Config& config, std::string& path));
-    MOCK_METHOD1(loadConfig, sdds3::Config (std::string& path));
+    MOCK_METHOD(std::vector<sophlib::sdds3::PackageRef>, getPackagesIncludingSupplements, (sophlib::sdds3::Session& session, const sophlib::sdds3::Repo& repo, const sophlib::sdds3::Config& config));
+    MOCK_METHOD(std::vector<sophlib::sdds3::Suite>, getSuites, (sophlib::sdds3::Session& session, const sophlib::sdds3::Repo& repo, const sophlib::sdds3::Config& config));
+    MOCK_METHOD(std::vector<sophlib::sdds3::PackageRef>, getPackagesToInstall, (sophlib::sdds3::Session& session, const sophlib::sdds3::Repo& repo, sophlib::sdds3::Config& config, const sophlib::sdds3::Config& oldConfig));
+    MOCK_METHOD(std::vector<sophlib::sdds3::PackageRef>, getPackages, (sophlib::sdds3::Session& session, const sophlib::sdds3::Repo& repo, const sophlib::sdds3::Config& config));
+    MOCK_METHOD(void, extractPackagesTo, (sophlib::sdds3::Session& session, const sophlib::sdds3::Repo& repo, const sophlib::sdds3::Config& config, const std::string& path));
+    MOCK_METHOD(void, sync, (sophlib::sdds3::Session& session, const sophlib::sdds3::Repo& repo, const std::string& url, sophlib::sdds3::Config& config, const sophlib::sdds3::Config& oldConfig));
+    MOCK_METHOD(void, saveConfig, (sophlib::sdds3::Config& config, std::string& path));
+    MOCK_METHOD(sophlib::sdds3::Config, loadConfig, (std::string& path));
 };

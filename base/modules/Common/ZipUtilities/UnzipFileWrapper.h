@@ -2,8 +2,7 @@
 
 #pragma once
 
-#include <zlib.h>
-#include <mz_compat.h>
+#include <minizip/mz_compat.h>
 
 namespace Common::ZipUtilities
 {

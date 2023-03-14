@@ -329,32 +329,6 @@ function copy_certs()
   echo "Certificates synced to $REDIST/certificates"
 }
 
-function copy_sdds3builder()
-{
-  mkdir -p "$REDIST/sdds3"
-  if [[ -d $FETCHED_INPUTS_DIR/sdds3 ]]
-  then
-      cp -ru "$FETCHED_INPUTS_DIR/sdds3" "$REDIST/"
-      chmod +x $REDIST/sdds3/*
-  else
-      echo "ERROR - sdds3 tools not found here: $FETCHED_INPUTS_DIR/sdds3"
-      exit 1
-  fi
-  echo "sdds3 tools synced to $REDIST/sdds3"
-}
-
-function copy_sophlib()
-{
-  if [[ -d "$FETCHED_INPUTS_DIR/sophlib" ]]
-  then
-      cp -ru "$FETCHED_INPUTS_DIR/sophlib" "$REDIST/"
-  else
-      echo "ERROR - sophlib not found here: $FETCHED_INPUTS_DIR/sophlib"
-      exit 1
-  fi
-  echo "sophlib synced to $REDIST/sophlib"
-}
-
 function setup_cmake()
 {
     if [[ -f "$FETCHED_INPUTS_DIR/cmake/bin/cmake" ]]
@@ -389,8 +363,6 @@ unpack_zips
 unpack_pypi_pkgs
 apply_third_party_patches
 copy_certs
-copy_sdds3builder
-copy_sophlib
 setup_cmake
 
 unlock

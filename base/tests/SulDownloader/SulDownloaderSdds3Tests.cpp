@@ -9,31 +9,31 @@
 #include "MockVersig.h"
 #include "TestSdds3RepositoryHelper.h"
 
+#include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include "Common/FileSystem/IFileSystemException.h"
+#include "Common/FileSystemImpl/FileSystemImpl.h"
+#include "Common/Logging/ConsoleLoggingSetup.h"
+#include "Common/ProcessImpl/ArgcAndEnv.h"
+#include "Common/ProcessImpl/ProcessImpl.h"
+#include "Common/ProtobufUtil/MessageUtility.h"
+#include "Common/UtilityImpl/ProjectNames.h"
+#include "SulDownloader/SulDownloader.h"
+#include "SulDownloader/suldownloaderdata/ConfigurationData.h"
+#include "SulDownloader/suldownloaderdata/DownloadReport.h"
+#include "SulDownloader/suldownloaderdata/SulDownloaderException.h"
+#include "SulDownloader/suldownloaderdata/TimeTracker.h"
+#include "SulDownloader/suldownloaderdata/VersigImpl.h"
+#include "tests/Common/FileSystemImpl/MockPidLockFileUtils.h"
+#include "tests/Common/Helpers/FilePermissionsReplaceAndRestore.h"
+#include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
 #include "tests/Common/Helpers/LogInitializedTests.h"
+#include "tests/Common/Helpers/MockFilePermissions.h"
+#include "tests/Common/Helpers/MockFileSystem.h"
+#include "tests/Common/Helpers/MockProcess.h"
 
-#include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
-#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
-#include <Common/FileSystem/IFileSystemException.h>
-#include <Common/FileSystemImpl/FileSystemImpl.h>
-#include <Common/Logging/ConsoleLoggingSetup.h>
-#include <Common/ProcessImpl/ArgcAndEnv.h>
-#include <Common/ProcessImpl/ProcessImpl.h>
-#include <Common/ProtobufUtil/MessageUtility.h>
-#include <Common/UtilityImpl/ProjectNames.h>
-#include <SulDownloader/SulDownloader.h>
-#include <SulDownloader/suldownloaderdata/ConfigurationData.h>
-#include <SulDownloader/suldownloaderdata/DownloadReport.h>
-#include <SulDownloader/suldownloaderdata/SulDownloaderException.h>
-#include <SulDownloader/suldownloaderdata/TimeTracker.h>
-#include <SulDownloader/suldownloaderdata/VersigImpl.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
-#include <tests/Common/FileSystemImpl/MockPidLockFileUtils.h>
-#include <tests/Common/Helpers/FilePermissionsReplaceAndRestore.h>
-#include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
-#include <tests/Common/Helpers/MockFilePermissions.h>
-#include <tests/Common/Helpers/MockFileSystem.h>
-#include <tests/Common/Helpers/MockProcess.h>
 
 using namespace SulDownloader::suldownloaderdata;
 
@@ -272,7 +272,7 @@ public:
         return ProductReportVector{ base, plugin };
     }
 
-    MockSdds3Repository& repositoryMocked(int resetCount = 1)
+    MockSdds3Repository& repositoryMocked()
     {
         if (m_mockptr == nullptr)
         {
@@ -1046,7 +1046,7 @@ TEST_F(
     runSULDownloader_supplement_only_RepositoryConnectionFailureShouldCreateValidConnectionFailureReport)
 {
     auto& fileSystemMock = setupFileSystemAndGetMock(1,1, 0);
-    MockSdds3Repository& mock = repositoryMocked(2);  // reset called another time
+    MockSdds3Repository& mock = repositoryMocked();
     SulDownloader::suldownloaderdata::RepositoryError wError;
     wError.Description = "Error description";
     wError.status = SulDownloader::suldownloaderdata::RepositoryStatus::CONNECTIONERROR;
