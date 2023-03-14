@@ -63,21 +63,21 @@ namespace watchdog::watchdogimpl
             {
                 if (name == "root" || id == 1)
                 {
-                    LOGWARN("Will not update ID as it is root: " << id);
+                    LOGWARN("Will not update the ID of " << name << " as it is root: " << id);
                     idsToRemove.insert(name);
                     continue;
                 }
 
                 if (id < 0)
                 {
-                    LOGWARN("Will not update ID as it is not valid: " << id);
+                    LOGWARN("Will not update the ID of " << name << " as it is not a valid ID: " << id);
                     idsToRemove.insert(name);
                     continue;
                 }
 
                 if (!actualConfigJson[jsonKey].contains(name))
                 {
-                    LOGWARN("Will not update ID as it is not associated with SPL: " << name);
+                    LOGWARN("Will not update the ID of " << name << " as it is not associated with SPL");
                     idsToRemove.insert(name);
                     continue;
                 }

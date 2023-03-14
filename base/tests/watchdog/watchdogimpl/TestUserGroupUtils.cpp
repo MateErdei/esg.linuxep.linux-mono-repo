@@ -189,6 +189,56 @@ TEST_F(TestUserGroupUtils, readRequestedUserGroupIdsReturnsEmptyOnEmptyFile)
     ASSERT_TRUE(changesNeeded.empty());
 }
 
+TEST_F(TestUserGroupUtils, validateUserAndGroupIdsReturnsEmptyWhenActualConfigCannotBeRead)
+{
+    nlohmann::json configJson = {
+        {"users", {{"user1", 100},{"root", 0},{"user2", 200}}},
+        {"groups", {{"group1", 100},{"root", 0},{"group2", 200}}}
+    };
+
+    EXPECT_CALL(*m_mockFileSystemPtr, readFile(m_actualUserGroupIdConfigPath)).WillOnce(Throw(Common::FileSystem::IFileSystemException("Failed")));
+    EXPECT_TRUE(validateUserAndGroupIds(configJson).empty());
+}
+
+TEST_F(TestUserGroupUtils, validateUserAndGroupIdsReturnsEmptyWhenActualConfigIsMalformed)
+{
+    nlohmann::json configJson = {
+        {"users", {{"user1", 100},{"root", 0},{"user2", 200}}},
+        {"groups", {{"group1", 100},{"root", 0},{"group2", 200}}}
+    };
+
+    EXPECT_CALL(*m_mockFileSystemPtr, readFile(m_actualUserGroupIdConfigPath)).WillOnce(
+        Return(R"({"groups":{"group1":1,"group2":2rs":{"user1":1,"user2":2}})"));
+    EXPECT_TRUE(validateUserAndGroupIds(configJson).empty());
+}
+
+TEST_F(TestUserGroupUtils, validateUserAndGroupIdsRemovesUsersAndGroupsNotInActualConfig)
+{
+    testing::internal::CaptureStderr();
+
+    nlohmann::json configJson = {
+        {"users", {{"user1", 100},{"user2", 200},{"user3", 300}}},
+        {"groups", {{"group1", 100},{"group2", 200},{"group3", 300}}}
+    };
+
+    nlohmann::json validatedJson = {
+        {"users", {{"user3", 300}}},
+        {"groups", {{"group3", 300}}}
+    };
+
+    EXPECT_CALL(*m_mockFileSystemPtr, readFile(m_actualUserGroupIdConfigPath)).WillOnce(
+        Return(R"({"groups":{"group3":3},"users":{"user3":3}})"));
+    EXPECT_CALL(*m_mockFilePermissionsPtr, getAllGroupNamesAndIds()).WillOnce(Return(std::map<std::string, gid_t>{}));
+    EXPECT_CALL(*m_mockFilePermissionsPtr, getAllUserNamesAndIds()).WillOnce(Return(std::map<std::string, uid_t>{}));
+    EXPECT_EQ(validateUserAndGroupIds(configJson), validatedJson);
+
+    std::string logMessage = testing::internal::GetCapturedStderr();
+    EXPECT_THAT(logMessage, ::testing::HasSubstr("Will not update the ID of group2 as it is not associated with SPL"));
+    EXPECT_THAT(logMessage, ::testing::HasSubstr("Will not update the ID of group1 as it is not associated with SPL"));
+    EXPECT_THAT(logMessage, ::testing::HasSubstr("Will not update the ID of user2 as it is not associated with SPL"));
+    EXPECT_THAT(logMessage, ::testing::HasSubstr("Will not update the ID of user1 as it is not associated with SPL"));
+}
+
 TEST_F(TestUserGroupUtils, validateUserAndGroupIdsRemovesRoot)
 {
     nlohmann::json configJson = {
@@ -268,13 +318,13 @@ TEST_F(TestUserGroupUtils, validateUserAndGroupIdsRemovesDuplicateIdsInConfig)
     EXPECT_CALL(*m_mockFilePermissionsPtr, getAllUserNamesAndIds()).WillOnce(Return(std::map<std::string, uid_t>{}));
     EXPECT_EQ(validateUserAndGroupIds(configJson), expectedValidatedJson);
 
-    std::string logMessage2 = testing::internal::GetCapturedStderr();
-    EXPECT_THAT(logMessage2, ::testing::HasSubstr("Will not update group1 to ID 100 because the ID is not unique in config. Conflict exists with: group2"));
-    EXPECT_THAT(logMessage2, ::testing::HasSubstr("Will not update group2 to ID 100 because the ID is not unique in config. Conflict exists with: group1"));
-    EXPECT_THAT(logMessage2, ::testing::HasSubstr("Will not update ID as it is root: 0"));
-    EXPECT_THAT(logMessage2, ::testing::HasSubstr("Will not update ID as it is root: 0"));
-    EXPECT_THAT(logMessage2, ::testing::HasSubstr("Will not update user1 to ID 100 because the ID is not unique in config. Conflict exists with: user2"));
-    EXPECT_THAT(logMessage2, ::testing::HasSubstr("Will not update user2 to ID 100 because the ID is not unique in config. Conflict exists with: user1"));
+    std::string logMessage = testing::internal::GetCapturedStderr();
+    EXPECT_THAT(logMessage, ::testing::HasSubstr("Will not update group1 to ID 100 because the ID is not unique in config. Conflict exists with: group2"));
+    EXPECT_THAT(logMessage, ::testing::HasSubstr("Will not update group2 to ID 100 because the ID is not unique in config. Conflict exists with: group1"));
+    EXPECT_THAT(logMessage, ::testing::HasSubstr("Will not update the ID of root as it is root: 0"));
+    EXPECT_THAT(logMessage, ::testing::HasSubstr("Will not update the ID of root as it is root: 0"));
+    EXPECT_THAT(logMessage, ::testing::HasSubstr("Will not update user1 to ID 100 because the ID is not unique in config. Conflict exists with: user2"));
+    EXPECT_THAT(logMessage, ::testing::HasSubstr("Will not update user2 to ID 100 because the ID is not unique in config. Conflict exists with: user1"));
 }
 
 TEST_F(TestUserGroupUtils, validateUserAndGroupIdsHandlesEmptyUserField)
