@@ -26,3 +26,28 @@ TEST_F(TestTestData, ExtendedSignaturesOnly)
     int ret = versig_main(argv);
     EXPECT_EQ(ret, 0);
 }
+
+TEST_F(TestTestData, SSPL_Base_allow_sha1_cert)
+{
+    std::vector<std::string> argv { "versig_test",
+                                    "-c" TESTS "/SSPL-Base",
+                                    "-f" TESTS "/SSPL-Base/manifest.dat",
+                                    "--allow-sha1-signature",
+                                    "--silent-off"
+    };
+
+    int ret = versig_main(argv);
+    EXPECT_EQ(ret, 0);
+}
+
+TEST_F(TestTestData, SSPL_Base)
+{
+    std::vector<std::string> argv { "versig_test",
+                                    "-c" TESTS "/SSPL-Base",
+                                    "-f" TESTS "/SSPL-Base/manifest.dat",
+                                    "--silent-off"
+    };
+
+    int ret = versig_main(argv);
+    EXPECT_EQ(ret, 0);
+}

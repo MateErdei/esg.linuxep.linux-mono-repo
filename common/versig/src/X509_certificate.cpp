@@ -137,7 +137,11 @@ namespace crypto
             int error = X509_STORE_CTX_get_error(verify_ctx.GetPtr());
             if (error == X509_V_ERR_INVALID_CA)
             {
-                PRINT("Failed to verify long chain: X509_V_ERR_INVALID_CA");
+                PRINT("Failed to verify chain: X509_V_ERR_INVALID_CA");
+            }
+            else
+            {
+                PRINT("Failed to verify certificate chain: " << error);
             }
         }
 

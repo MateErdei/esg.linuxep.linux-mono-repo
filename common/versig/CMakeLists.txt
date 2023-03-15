@@ -81,7 +81,7 @@ add_library(versig_lib
         src/versig.h
         src/X509_certificate.cpp
         src/X509_certificate.h
-        )
+        src/output.cpp src/output.h)
 
 add_executable(versig src/versig_main.cpp src/versig.h)
 
