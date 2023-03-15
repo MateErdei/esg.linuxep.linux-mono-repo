@@ -5,6 +5,8 @@
 #include "ActionStructs.h"
 
 #include "Common/HttpRequestsImpl/HttpRequesterImpl.h"
+
+#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/FileSystem/IFileSystem.h>
 
 #include <json.hpp>
@@ -20,12 +22,12 @@ namespace ResponseActionsImpl
 
     private:
         std::shared_ptr<Common::HttpRequests::IHttpRequester> m_client;
-        void handleHttpResponse(const Common::HttpRequests::Response& httpresponse, nlohmann::json& response);
+        void handleHttpResponse(const Common::HttpRequests::Response& httpresponse, nlohmann::json& response, const std::string& url);
         void prepareAndDownload(const DownloadInfo& info, nlohmann::json& response);
-        void checkAndUnzip(const DownloadInfo& info, nlohmann::json& response);
+        Path verifyFile(const DownloadInfo& info, nlohmann::json& response);
+        void decompressAndMoveFile(const Path& filePath, const DownloadInfo& info, nlohmann::json& response);
 
-        std::string m_downloadFilename = "";
-        std::string m_pathToDownload = "";
+        const Path m_raTmpDir = Common::ApplicationConfiguration::applicationPathManager().getResponseActionTmpPath();
 
         Common::FileSystem::IFileSystem* m_fileSystem = Common::FileSystem::fileSystem();
     };
