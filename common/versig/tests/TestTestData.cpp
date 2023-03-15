@@ -123,3 +123,17 @@ TEST_F(TestTestData, old_ca)
     int ret = versig_main(argv);
     EXPECT_EQ(ret, 3);
 }
+
+
+TEST_F(TestTestData, old_signing_cert)
+{
+    // old_ca is generated locally using openssl and faketime
+    std::vector<std::string> argv { "versig_test",
+                                    "-c" TESTS "/old_signing_cert/rootca.crt", // Built by Makefile
+                                    "-f" TESTS "/old_signing_cert/manifest.dat",
+                                    "--silent-off"
+    };
+
+    int ret = versig_main(argv);
+    EXPECT_EQ(ret, 3);
+}
