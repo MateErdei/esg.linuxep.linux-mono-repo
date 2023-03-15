@@ -70,3 +70,22 @@ TEST_F(TestTestData, CEPW8SRVFLAGS)
     int ret = versig_main(argv);
     EXPECT_EQ(ret, 0);
 }
+
+
+TEST_F(TestTestData, shattered1)
+{
+    /*
+     * Dev manifest with shattered pdf from https://shattered.io/
+     * SHA1 collision
+     */
+    std::vector<std::string> argv { "versig_test",
+                                    "-c" TESTS "/sha1_collision", // Dev CA
+                                    "-f" TESTS "/sha1_collision/manifest.dat",
+                                    "-d" TESTS "/sha1_collision",
+                                    "--allow-sha1-signature",
+                                    "--silent-off"
+    };
+
+    int ret = versig_main(argv);
+    EXPECT_EQ(ret, 0);
+}
