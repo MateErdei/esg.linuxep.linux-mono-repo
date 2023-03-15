@@ -2,7 +2,7 @@ import tap.v1 as tap
 import logging
 import os
 
-BUILD_TEMPLATE_LINUX = 'JenkinsLinuxTemplate7'
+BUILD_TEMPLATE_LINUX = 'centos79_x64_build_20230202'
 
 RELEASE_PACKAGE = "release-package.xml"
 
