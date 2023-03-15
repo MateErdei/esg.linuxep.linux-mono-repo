@@ -13,22 +13,22 @@ using namespace Common::FileSystem;
 class MockFilePermissions : public Common::FileSystem::IFilePermissions
 {
 public:
-    MOCK_CONST_METHOD2(chmod, void(const Path& path, __mode_t mode));
-    MOCK_CONST_METHOD3(chown, void(const Path& path, const std::string& user, const std::string& group));
-    MOCK_CONST_METHOD3(chown, void(const Path& path, uid_t userId, gid_t groupId));
-    MOCK_CONST_METHOD3(lchown, void(const Path& path, uid_t userId, gid_t groupId));
-    MOCK_CONST_METHOD1(getGroupId, gid_t(const std::string& groupString));
-    MOCK_CONST_METHOD1(getGroupName, std::string(const Path& filePath));
-    MOCK_CONST_METHOD1(getUserIdOfDirEntry, uid_t (const Path& filePath));
-    MOCK_CONST_METHOD1(getGroupIdOfDirEntry, gid_t (const Path& filePath));
-    MOCK_CONST_METHOD1(getGroupName, std::string(const gid_t& groupId));
-    MOCK_CONST_METHOD1(getUserId, uid_t(const std::string& userString));
-    MOCK_CONST_METHOD1(getUserAndGroupId, std::pair<uid_t, gid_t>(const std::string& userString));
-    MOCK_CONST_METHOD1(getUserName, std::string(const uid_t& userId));
-    MOCK_CONST_METHOD1(getUserName, std::string(const Path& filePath));
-    MOCK_CONST_METHOD1(getFilePermissions, mode_t(const Path& filePath));
-    MOCK_CONST_METHOD0(getAllGroupNamesAndIds, std::map<std::string, gid_t>());
-    MOCK_CONST_METHOD0(getAllUserNamesAndIds, std::map<std::string, uid_t>());
+    MOCK_METHOD(void, chmod, (const Path& path, __mode_t mode), (const, override));
+    MOCK_METHOD(void, chown, (const Path& path, const std::string& user, const std::string& group), (const, override));
+    MOCK_METHOD(void, chown, (const Path& path, uid_t userId, gid_t groupId), (const, override));
+    MOCK_METHOD(void, lchown, (const Path& path, uid_t userId, gid_t groupId), (const, override));
+    MOCK_METHOD(gid_t, getGroupId, (const std::string& groupString), (const, override));
+    MOCK_METHOD(std::string, getGroupName, (const Path& filePath), (const, override));
+    MOCK_METHOD(uid_t, getUserIdOfDirEntry, (const Path& filePath), (const, override));
+    MOCK_METHOD(gid_t, getGroupIdOfDirEntry, (const Path& filePath), (const, override));
+    MOCK_METHOD(std::string, getGroupName, (const gid_t& groupId), (const, override));
+    MOCK_METHOD(uid_t, getUserId, (const std::string& userString), (const, override));
+    MOCK_METHOD((std::pair<uid_t, gid_t>), getUserAndGroupId, (const std::string& userString), (const, override));
+    MOCK_METHOD(std::string, getUserName, (const uid_t& userId), (const, override));
+    MOCK_METHOD(std::string, getUserName, (const Path& filePath), (const, override));
+    MOCK_METHOD(mode_t, getFilePermissions, (const Path& filePath), (const, override));
+    MOCK_METHOD((std::map<std::string, gid_t>), getAllGroupNamesAndIds, (), (const, override));
+    MOCK_METHOD((std::map<std::string, uid_t>), getAllUserNamesAndIds, (), (const, override));
 };
 
 class IgnoreFilePermissions
