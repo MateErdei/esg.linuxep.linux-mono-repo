@@ -424,7 +424,8 @@ bool Mounts::isReadOnly(const std::string& mountPoint)
 
 IMountPointSharedPtr Mounts::getMountFromPath(const std::string& childPath)
 {
-    IMountPointSharedPtr longestMatchingMountDir = nullptr;
+    // /proc/mounts is ordered by successive mount layers and therefore the last match is the best one
+    IMountPointSharedPtr lastMatchingMountDir = nullptr;
     for (const auto& it : m_devices)
     {
         std::string mountDir = it->mountPoint();
@@ -435,16 +436,13 @@ IMountPointSharedPtr Mounts::getMountFromPath(const std::string& childPath)
         if (Common::UtilityImpl::StringUtils::startswith(childPath, mountDir))
         {
             LOGDEBUG("Found potential parent: " << it->device() << " -- at path: " << mountDir);
-            if (longestMatchingMountDir == nullptr || it->mountPoint().size() > longestMatchingMountDir->mountPoint().size())
-            {
-                longestMatchingMountDir = it;
-            }
+            lastMatchingMountDir = it;
         }
     }
-    if (longestMatchingMountDir == nullptr)
+    if (lastMatchingMountDir == nullptr)
     {
         throw std::runtime_error("No parent mounts found for path: " + childPath);
     }
-    LOGDEBUG("Best fit parent found: " << longestMatchingMountDir->device() << " -- at path: " << longestMatchingMountDir->mountPoint());
-    return longestMatchingMountDir;
+    LOGDEBUG("Best fit parent found: " << lastMatchingMountDir->device() << " -- at path: " << lastMatchingMountDir->mountPoint());
+    return lastMatchingMountDir;
 }
