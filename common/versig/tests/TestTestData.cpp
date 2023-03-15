@@ -77,12 +77,15 @@ TEST_F(TestTestData, shattered1)
     /*
      * Dev manifest with shattered pdf from https://shattered.io/
      * SHA1 collision
+     * Root CA comes from either:
+     * * <esg.linuxep.everest-base>/testUtils/SupportFiles/sophos_certs/rootca{,384}.crt
+     * * or digest_sign --get_cert root --key manifest_sha1
+     * *    digest_sign --get_cert root --key manifest_sha384
      */
     std::vector<std::string> argv { "versig_test",
                                     "-c" TESTS "/sha1_collision", // Dev CA
                                     "-f" TESTS "/sha1_collision/manifest.dat",
                                     "-d" TESTS "/sha1_collision",
-                                    "--allow-sha1-signature",
                                     "--silent-off"
     };
 
@@ -101,7 +104,6 @@ TEST_F(TestTestData, shattered_invalid)
                                     "-c" TESTS "/sha1_collision", // Dev CA
                                     "-f" TESTS "/sha1_collision/manifest.dat",
                                     "-d" TESTS "/sha1_collision_invalid",
-                                    "--allow-sha1-signature",
                                     "--silent-off"
     };
 
