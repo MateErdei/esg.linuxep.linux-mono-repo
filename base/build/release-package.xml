@@ -34,10 +34,6 @@
             <release-version branch="release/sspl/Version_3_17_3" build-id="20220310143632-66a638734ca9de06319cfc97fdd27ac200fdec15-yMZBAU"/>
             <include artifact-path="output" dest-dir="/build/input"/>
         </build-asset>
-        <build-asset project="thirdparty" repo="libxcrypt">
-            <release-version branch="release/version_4_4_28" build-id="20220325112559-16cdaea644b21a42436fbffb79ab4aa5aa9a1b6e-tFdACT"/>
-            <include artifact-path="libxcrypt" dest-dir="/build/input" />
-        </build-asset>
         <trusted-asset artifact-path="filer5-migrate/pscerts/1-0-1/67228/ps_certificates/ps_rootca.crt" dest-dir="/build/input/"/>
 
         <build-asset project="em" repo="esg">
