@@ -37,6 +37,7 @@
 
 #include "Arguments.h"
 #include "manifest_file.h"
+#include "output.h"
 #include "verify_exceptions.h"
 
 #include <cassert>
@@ -55,26 +56,13 @@ const int g_EXIT_BADFILE = 5;
 const int g_EXIT_BADSIG = 6;
 const int g_EXIT_BADLOGIC = 7;
 
-static bool g_bSilent = true; // Silent by default
-
-static void Output(const string& Msg //[i] Message
-)
-// Output message if not in silent mode.
-// NB: Output in English. Use for debug only.
-{
-    if (!g_bSilent)
-    {
-        cout << Msg << endl;
-    }
-}
-
 static bool ReadArgs(const std::vector<std::string>& argv, Arguments& args)
 {
     assert(!argv.empty());
     // Read and process the command-line arguments
     // Return true if a valid set of arguments found
     // Else return false
-    g_bSilent = true;
+    setSilent(true);
     bool bGoodArgs = false;
 
     // Initialise
@@ -99,7 +87,7 @@ static bool ReadArgs(const std::vector<std::string>& argv, Arguments& args)
         }
         else if ((arg.compare(0, 12, "--silent-off") == 0))
         {
-            g_bSilent = false;
+            setSilent(false);
         }
         else if ((arg.compare(0, 18, "--check-install-sh") == 0))
         {
@@ -135,7 +123,7 @@ static bool ReadArgs(const std::vector<std::string>& argv, Arguments& args)
     // Take action if bad arguments
     if (!bGoodArgs)
     {
-        g_bSilent = false;
+        setSilent(false);
         Output(
             string("Usage: ") + string(argv[0]) + string("\n") + string(" -c<certificate_file_path>\n") +
             string(" [-d<path to data files to be checked>]\n") + string(" -f<signed_file_path>\n") +
