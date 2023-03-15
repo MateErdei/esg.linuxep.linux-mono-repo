@@ -102,7 +102,12 @@ enable_testing()
 
 add_executable(versig_test
         tests/test_versig.cpp
-        src/versig.h tests/test_sau_samples.cpp tests/test_crypto_utils.cpp)
+        src/crypto_utils.h
+        src/versig.h
+        tests/test_sau_samples.cpp
+        tests/test_crypto_utils.cpp
+        tests/TestTestData.cpp
+        )
 
 set(GOOGLE_TEST_LIB_DIR ${CMAKE_SOURCE_DIR}/tests/googletest)
 set(GOOGLE_TEST_INC_DIR ${CMAKE_SOURCE_DIR}/tests/googletest/googletest/include)
