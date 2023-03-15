@@ -31,6 +31,8 @@ namespace Common
             virtual int nativeExitCode() = 0;
 
             virtual std::string output() = 0;
+            virtual std::string stderroutput() = 0;
+            virtual std::string stdoutput() = 0;
 
             virtual bool hasFinished() = 0;
 

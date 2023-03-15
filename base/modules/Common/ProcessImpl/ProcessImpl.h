@@ -43,6 +43,8 @@ namespace Common
             int exitCode() override;
             int nativeExitCode() override;
             std::string output() override;
+            std::string errorOutput() override;
+            std::string standardOutput() override;
             bool kill() override;
             bool kill(int secondsBeforeSIGKILL) override;
 

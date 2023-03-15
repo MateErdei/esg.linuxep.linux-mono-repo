@@ -114,6 +114,8 @@ namespace
         auto process = createProcess();
         process->exec("/bin/echo", { "hello", "world" });
         ASSERT_EQ(process->output(), "hello world\n");
+        ASSERT_EQ(process->output(), process->standardOutput());
+        EXPECT_TRUE(process->errorOutput().empty());
     }
 
     TEST_F(ProcessImpl, OutputBlockForResult) // NOLINT
@@ -177,11 +179,11 @@ namespace
     }
 
 
-    TEST_F(ProcessImpl, ProcessWillNotBlockOnGettingOutputAfterWaitUntillProcessEnds) // NOLINT
+    TEST_F(ProcessImpl, ProcessWillNotBlockOnGettingOutputAfterWaitUntilProcessEnds) // NOLINT
     {
         std::string bashScript = R"(#!/bin/bash
 echo 'started'
->&2 echo {1..300}
+>&1 echo {1..300}
 echo 'keep running'
 sleep 10000
 )";
@@ -192,8 +194,8 @@ sleep 10000
         auto process = createProcess();
         process->setOutputLimit(100);
         std::string captureout;
-        process->setOutputTrimmedCallback([&captureout, &testExecutionSynchronizer, &first](std::string out) {
-            captureout += out;
+        process->setOutputTrimmedCallback([&captureout, &testExecutionSynchronizer, &first](std::string output) {
+            captureout += output;
             if (first)
             {
                 first = false;
@@ -210,11 +212,11 @@ sleep 10000
                 ::kill(pid, SIGTERM);
             }
         });
-        std::cout << "wait untill process ends " << std::endl;
+        std::cout << "wait until process ends " << std::endl;
         process->waitUntilProcessEnds();
-        std::string out = process->output();
+        std::string out = process->standardOutput();
         EXPECT_THAT(out, ::testing::Not(::testing::HasSubstr("started")));
-        // the time to kill and the ammount of bytes written to output are not 'deterministic', hence, only requiring
+        // the time to kill and the amount of bytes written to output are not 'deterministic', hence, only requiring
         // not empty.
         std::cout << "out: " << out << std::endl;
         EXPECT_FALSE(out.empty());
@@ -222,6 +224,27 @@ sleep 10000
         fut.get();
     }
 
+    TEST_F(ProcessImpl, ProcessStderrAndStdout) // NOLINT
+    {
+        std::string bashScript = R"(#!/bin/bash
+>&1 echo 1
+>&2 echo 2
+)";
+        Tests::TempDir tempdir;
+        tempdir.createFile("script", bashScript);
+
+        auto process = createProcess();
+        process->setOutputLimit(100);
+
+        process->exec("/bin/bash", { tempdir.absPath("script") });
+
+        process->waitUntilProcessEnds();
+
+        EXPECT_THAT(process->standardOutput(), ::testing::HasSubstr("1"));
+        EXPECT_THAT(process->errorOutput(), ::testing::HasSubstr("2"));
+        EXPECT_THAT(process->output(), ::testing::HasSubstr("1\n\n2"));
+
+    }
     TEST_F(ProcessImpl, ProcessNotifyOnClosureShouldAlsoWorkForInvalidProcess) // NOLINT
     {
         auto process = createProcess();

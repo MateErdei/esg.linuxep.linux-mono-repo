@@ -832,19 +832,19 @@ namespace UpdateSchedulerImpl
                 }
                 else if (exitCode != 0 && exitCode != SIGTERM)
                 {
-                    LOGWARN("pidof -z (SulDownloader) returned " << exitCode);
+                    LOGWARN("pidof -z (SulDownloader) returned " << exitCode << "with error output: "<< iProcess->errorOutput());
                     UpdateSchedulerUtils::cleanUpMarkerFile();
                     break;
                 }
             }
             else if (exitCode != 0 && exitCode != SIGTERM)
             {
-                LOGWARN("pidof(SulDownloader) returned " << exitCode);
+                LOGWARN("pidof(SulDownloader) returned " << exitCode << "with error output: "<< iProcess->errorOutput());
                 UpdateSchedulerUtils::cleanUpMarkerFile();
                 break;
             }
 
-            std::string outputPidOf = iProcess->output();
+            std::string outputPidOf = iProcess->standardOutput();
             LOGDEBUG("Pid of SulDownloader: '" << outputPidOf << "'");
 
             std::pair<int, std::string> value = Common::UtilityImpl::StringUtils::stringToInt(outputPidOf);

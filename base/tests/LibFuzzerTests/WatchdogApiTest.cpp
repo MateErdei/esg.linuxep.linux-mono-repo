@@ -155,6 +155,20 @@ public:
         }
         return std::string();
     };
+    std::string errorOutput() override
+    {
+        while (wait(Common::Process::Milliseconds{ 5 }, 50) != Common::Process::ProcessStatus::FINISHED)
+        {
+        }
+        return std::string();
+    };
+    std::string standardOutput() override
+    {
+        while (wait(Common::Process::Milliseconds{ 5 }, 50) != Common::Process::ProcessStatus::FINISHED)
+        {
+        }
+        return std::string();
+    };
     Common::Process::ProcessStatus getStatus() override { return m_status; };
     void setOutputLimit(size_t limit) override{};
     void setFlushBufferOnNewLine(bool flushOnNewLine) override{};

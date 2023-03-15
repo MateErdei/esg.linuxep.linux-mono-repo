@@ -41,7 +41,8 @@ public:
     MOCK_METHOD0(waitUntilProcessEnds, void(void));
     MOCK_METHOD1(setCoreDumpMode, void(const bool));
     MOCK_METHOD1(setOutputTrimmedCallback, void(std::function<void(std::string)>));
-
+    MOCK_METHOD(std::string, errorOutput, (), (override));
+    MOCK_METHOD(std::string, standardOutput, (), (override));
     // gmock issued a compiler error with the mock below. Hence, the full definition.
     void setNotifyProcessFinishedCallBack(Common::Process::IProcess::functor) override {}
 };

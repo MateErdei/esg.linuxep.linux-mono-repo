@@ -109,6 +109,8 @@ namespace Common
              * @pre requires exec to be called before this method.
              */
             virtual std::string output() = 0;
+            virtual std::string standardOutput() = 0;
+            virtual std::string errorOutput() = 0;
 
             /**
              * Non-blocking get the current status of the process

@@ -125,15 +125,29 @@ namespace Common
         void BoostProcessHolder::armAsyncReaderForChildStdOutput()
         {
             boost::asio::async_read(
-                asyncPipe,
-                boost::asio::buffer(m_bufferForIOService),
+                asyncPipeOut,
+                boost::asio::buffer(m_bufferForIOServiceOut),
                 [this](const boost::system::error_code& ec, std::size_t size) -> std::size_t {
-                    return this->completionCondition(ec, size);
+                    return this->completionCondition(ec, size,m_bufferForIOServiceOut);
                 },
                 [this](const boost::system::error_code& ec, std::size_t size) {
-                    return this->handleMessage(ec, size);
+                    return this->handleOutMessage(ec, size);
                 });
         }
+
+        void BoostProcessHolder::armAsyncReaderForChildStdErr()
+        {
+            boost::asio::async_read(
+                asyncPipeErr,
+                boost::asio::buffer(m_bufferForIOServiceErr),
+                [this](const boost::system::error_code& ec, std::size_t size) -> std::size_t {
+                    return this->completionCondition(ec, size,m_bufferForIOServiceErr);
+                },
+                [this](const boost::system::error_code& ec, std::size_t size) {
+                    return this->handleErrMessage(ec, size);
+                });
+        }
+
 
         /** Method that is executed when the asio io service detects that either an error occurred or the
          *  given buffer was full.
@@ -141,7 +155,8 @@ namespace Common
          * @param ec : error case ( or end of file)
          * @param size : number of bytes written to the buffer.
          */
-        void BoostProcessHolder::handleMessage(const boost::system::error_code& ec, std::size_t size)
+
+        void BoostProcessHolder::handleOutMessage(const boost::system::error_code& ec, std::size_t size)
         {
             std::lock_guard<std::mutex> lock{ m_outputAccess };
             if (ec)
@@ -155,8 +170,8 @@ namespace Common
                 // buffer, hence, the output is just updated.
                 if (size > 0)
                 {
-                    m_output +=
-                        std::string(this->m_bufferForIOService.begin(), this->m_bufferForIOService.begin() + size);
+                    m_stdout +=
+                        std::string(this->m_bufferForIOServiceOut.begin(), this->m_bufferForIOServiceOut.begin() + size);
                 }
             }
             else
@@ -167,8 +182,8 @@ namespace Common
                     // if m_outputLimit was set to 0 or not as it will require the execution of notified trimmed
                     if (m_outputLimit == 0)
                     {
-                        m_output +=
-                            std::string(this->m_bufferForIOService.begin(), this->m_bufferForIOService.begin() + size);
+                        m_stdout +=
+                            std::string(this->m_bufferForIOServiceOut.begin(), this->m_bufferForIOServiceOut.begin() + size);
                     }
                     else
                     {
@@ -176,12 +191,12 @@ namespace Common
                         // be executed when size is equal the m_outputLimit.
                         // the promise of the set of output limit is that there will be notification of past strings
                         // in such a way to avoid the remainder of the output to go beyond 2xm_outputLimit
-                        if (!m_output.empty())
+                        if (!m_stdout.empty())
                         {
                             try
                             {
                                 LOGDEBUG("Notify trimmed output");
-                                m_notifyTrimmed(m_output);
+                                m_notifyTrimmed(m_stdout);
                             }
                             catch (std::exception& ex)
                             {
@@ -189,20 +204,85 @@ namespace Common
                             }
                         }
                         // notice the absence of += the output has been assigned the latest value in the
-                        // m_bufferForIOService.
-                        m_output =
-                            std::string(this->m_bufferForIOService.begin(), this->m_bufferForIOService.begin() + size);
+                        // m_bufferForIOServiceOut.
+                        m_stdout =
+                            std::string(this->m_bufferForIOServiceOut.begin(), this->m_bufferForIOServiceOut.begin() + size);
 
-                        if (shouldBufferBeFlushed(size))
+                        if (shouldBufferBeFlushed(size,m_bufferForIOServiceOut))
                         {
-                            m_notifyTrimmed(m_output);
-                            m_output = "";
+                            m_notifyTrimmed(m_stdout);
+                            m_stdout = "";
                         }
                     }
                 }
                 // boost asio requires that async_read is armed again when the buffer has already been used.
                 // this is only applied when there is no error.
                 armAsyncReaderForChildStdOutput();
+            }
+        }
+
+        void BoostProcessHolder::handleErrMessage(const boost::system::error_code& ec, std::size_t size)
+        {
+            std::lock_guard<std::mutex> lock{ m_outputAccess };
+            if (ec)
+            {
+                // end of file ( pipe closed) is a normal thing to happen, no error at all.
+                if (ec.value() != boost::asio::error::eof)
+                {
+                    LOGWARN("Message Output failed with error: " << ec.message());
+                }
+                // on error or when the message finished, there is no need to count the
+                // buffer, hence, the output is just updated.
+                if (size > 0)
+                {
+                    m_stderr +=
+                        std::string(this->m_bufferForIOServiceErr.begin(), this->m_bufferForIOServiceErr.begin() + size);
+                }
+            }
+            else
+            {
+                if (size > 0)
+                {
+                    // there is two cases to consider here:
+                    // if m_outputLimit was set to 0 or not as it will require the execution of notified trimmed
+                    if (m_outputLimit == 0)
+                    {
+                        m_stderr +=
+                            std::string(this->m_bufferForIOServiceErr.begin(), this->m_bufferForIOServiceErr.begin() + size);
+                    }
+                    else
+                    {
+                        // the value of the m_outputLimit has also been given to the buffer, hence, this method will
+                        // be executed when size is equal the m_outputLimit.
+                        // the promise of the set of output limit is that there will be notification of past strings
+                        // in such a way to avoid the remainder of the output to go beyond 2xm_outputLimit
+                        if (!m_stderr.empty())
+                        {
+                            try
+                            {
+                                LOGDEBUG("Notify trimmed error output");
+                                m_notifyTrimmed(m_stderr);
+                            }
+                            catch (std::exception& ex)
+                            {
+                                LOGWARN("Exception on notify error output trimmed: " << ex.what());
+                            }
+                        }
+                        // notice the absence of += the output has been assigned the latest value in the
+                        // m_bufferForIOServiceErr.
+                        m_stderr =
+                            std::string(this->m_bufferForIOServiceErr.begin(), this->m_bufferForIOServiceErr.begin() + size);
+
+                        if (shouldBufferBeFlushed(size,m_bufferForIOServiceErr))
+                        {
+                            m_notifyTrimmed(m_stderr);
+                            m_stderr = "";
+                        }
+                    }
+                }
+                // boost asio requires that async_read is armed again when the buffer has already been used.
+                // this is only applied when there is no error.
+                armAsyncReaderForChildStdErr();
             }
         }
 
@@ -226,7 +306,8 @@ namespace Common
                     // give some extra time to the ioservice to capture any remaining data
                     if (ioservice.wait_for(std::chrono::seconds(10)) != std::future_status::ready)
                     {
-                        asyncPipe.close();
+                        asyncPipeErr.close();
+                        asyncPipeOut.close();
                     }
                 }
                 catch (std::exception& ex)
@@ -243,7 +324,8 @@ namespace Common
                 ProcessResult result;
                 {
                     std::lock_guard<std::mutex> lock{ m_outputAccess };
-                    result.output = m_output;
+                    result.output = m_stdout;
+                    result.errorlog = m_stderr;
                 }
                 result.exitCode = m_child->exit_code(); // Signal overloaded with exit code
                 result.nativeExitCode = m_child->native_exit_code(); // Separate signal and exit code
@@ -316,7 +398,7 @@ namespace Common
             }
         }
 
-        std::size_t BoostProcessHolder::completionCondition(const boost::system::error_code& ec, std::size_t size)
+        std::size_t BoostProcessHolder::completionCondition(const boost::system::error_code& ec, std::size_t size, std::vector<char>& buffer)
         {
             if (ec.value() != 0)
             {
@@ -325,15 +407,15 @@ namespace Common
 
             if (size == 0)
             {
-                return m_outputLimit == 0 ? m_bufferForIOService.size() : m_outputLimit;
+                return m_outputLimit == 0 ? buffer.size() : m_outputLimit;
             }
 
-            if (shouldBufferBeFlushed(size))
+            if (shouldBufferBeFlushed(size,buffer))
             {
                 return 0;
             }
 
-            return m_outputLimit == 0 ? m_bufferForIOService.size() : m_outputLimit;
+            return m_outputLimit == 0 ? buffer.size() : m_outputLimit;
         }
 
         BoostProcessHolder::BoostProcessHolder(
@@ -349,8 +431,10 @@ namespace Common
             m_callback(std::move(callback)),
             m_notifyTrimmed(std::move(notifyTrimmed)),
             m_path(path),
-            m_bufferForIOService(outputLimit == 0 ? 4096 : outputLimit),
-            asyncPipe(asioIOService),
+            m_bufferForIOServiceErr(outputLimit == 0 ? 4096 : outputLimit),
+            m_bufferForIOServiceOut(outputLimit == 0 ? 4096 : outputLimit),
+            asyncPipeErr(asioIOService),
+            asyncPipeOut(asioIOService),
             m_status{ Process::ProcessStatus::NOTSTARTED },
             m_outputLimit(outputLimit),
             m_finished(false),
@@ -371,17 +455,24 @@ namespace Common
 
                 env_[entry.first] = entry.second;
             }
-            int source = asyncPipe.native_source();
-            int sink = asyncPipe.native_sink();
-            auto fds = getFileDescriptorsToCloseAfterFork({ source, sink });
+
+            int sourceErr = asyncPipeErr.native_source();
+            int sinkErr = asyncPipeErr.native_sink();
+            int sourceOut = asyncPipeOut.native_source();
+            int sinkOut = asyncPipeOut.native_sink();
+            auto fds = getFileDescriptorsToCloseAfterFork({ sourceErr, sinkErr, sourceOut, sinkOut});
             m_child = std::unique_ptr<boost::process::child, BoostChildProcessDestructor>(new boost::process::child(
                 boost::process::exe = path,
                 boost::process::args = arguments,
                 env_,
-                (boost::process::std_out & boost::process::std_err) > asyncPipe,
+
+                boost::process::std_out > asyncPipeOut,
+                boost::process::std_err > asyncPipeErr,
                 sophos_exe(uid, gid, fds)));
             LOGDEBUG("Child created");
+
             armAsyncReaderForChildStdOutput();
+            armAsyncReaderForChildStdErr();
             LOGDEBUG("Monitoring of io in place");
 
             m_result = asyncWaitChildProcessToFinish();
@@ -447,6 +538,34 @@ namespace Common
         std::string BoostProcessHolder::output()
         {
             cacheResult();
+            if (m_cached.output.empty() && m_cached.errorlog.empty())
+            {
+                return "";
+            }
+            if (!m_cached.output.empty() && !m_cached.errorlog.empty())
+            {
+                return m_cached.output +"\n"+m_cached.errorlog;
+            }
+            else if(!m_cached.output.empty())
+            {
+                return m_cached.output;
+            }
+            else
+            {
+                return m_cached.errorlog;
+            }
+
+        }
+
+        std::string BoostProcessHolder::stderroutput()
+        {
+            cacheResult();
+            return m_cached.errorlog;
+        }
+
+        std::string BoostProcessHolder::stdoutput()
+        {
+            cacheResult();
             return m_cached.output;
         }
 
@@ -483,12 +602,12 @@ namespace Common
             cacheResult();
         }
 
-        bool BoostProcessHolder::shouldBufferBeFlushed(std::size_t size)
+        bool BoostProcessHolder::shouldBufferBeFlushed(std::size_t size,std::vector<char>& buffer)
         {
             if (m_enableBufferFlushOnNewLine)
             {
-                return std::find(m_bufferForIOService.begin(), m_bufferForIOService.begin() + size, '\n') !=
-                       m_bufferForIOService.end();
+                return std::find(buffer.begin(), buffer.begin() + size, '\n') !=
+                       buffer.end();
             }
             return false;
         }

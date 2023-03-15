@@ -22,6 +22,8 @@ namespace Common
         {
             int exitCode;
             std::string output;
+            std::string errorlog;
+            std::string combinedoutput;
             int nativeExitCode = 0;
         };
 
@@ -58,6 +60,8 @@ namespace Common
             int nativeExitCode() override;
 
             std::string output() override;
+            std::string stderroutput() override;
+            std::string stdoutput() override;
 
             bool hasFinished() override;
 
@@ -68,9 +72,11 @@ namespace Common
 
         private:
             void armAsyncReaderForChildStdOutput();
-            void handleMessage(const boost::system::error_code& ec, std::size_t size);
-            std::size_t completionCondition(const boost::system::error_code& ec, std::size_t size);
-            bool shouldBufferBeFlushed(std::size_t size);
+            void armAsyncReaderForChildStdErr();
+            void handleOutMessage(const boost::system::error_code& ec, std::size_t size);
+            void handleErrMessage(const boost::system::error_code& ec, std::size_t size);
+            std::size_t completionCondition(const boost::system::error_code& ec, std::size_t size,std::vector<char>& buffer);
+            bool shouldBufferBeFlushed(std::size_t size,std::vector<char>& buffer);
             ProcessResult waitChildProcessToFinish();
             std::future<ProcessResult> asyncWaitChildProcessToFinish();
             void cacheResult();
@@ -82,10 +88,13 @@ namespace Common
             std::shared_future<ProcessResult> m_result;
 
             std::string m_path;
-            std::vector<char> m_bufferForIOService;
-            std::string m_output;
+            std::vector<char> m_bufferForIOServiceErr;
+            std::vector<char> m_bufferForIOServiceOut;
+            std::string m_stdout;
+            std::string m_stderr;
             boost::asio::io_service asioIOService;
-            boost::process::async_pipe asyncPipe;
+            boost::process::async_pipe asyncPipeErr;
+            boost::process::async_pipe asyncPipeOut;
             std::unique_ptr<boost::process::child, BoostChildProcessDestructor> m_child;
             int m_pid;
 

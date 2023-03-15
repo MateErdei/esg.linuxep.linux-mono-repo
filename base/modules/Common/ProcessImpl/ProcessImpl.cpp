@@ -63,6 +63,8 @@ namespace Common::ProcessImpl
         int nativeExitCode() override { return m_errorCode; }
 
         std::string output() override { return ""; }
+        std::string stderroutput() override { return ""; }
+        std::string stdoutput() override { return ""; }
 
         bool hasFinished() override { return true; }
 
@@ -96,6 +98,8 @@ namespace Common::ProcessImpl
         }
 
         std::string output() override { throw Process::IProcessException("Output can be called only after exec."); }
+        std::string stderroutput() override { throw Process::IProcessException("Output can be called only after exec."); }
+        std::string stdoutput() override { throw Process::IProcessException("Output can be called only after exec."); }
 
         bool hasFinished() override { return true; }
 
@@ -199,6 +203,18 @@ namespace Common::ProcessImpl
     {
         auto processOnBoost = safeAccess();
         return processOnBoost->output();
+    }
+
+    std::string ProcessImpl::errorOutput()
+    {
+        auto processOnBoost = safeAccess();
+        return processOnBoost->stderroutput();
+    }
+
+    std::string ProcessImpl::standardOutput()
+    {
+        auto processOnBoost = safeAccess();
+        return processOnBoost->stdoutput();
     }
 
     bool ProcessImpl::kill() { return kill(2); }
