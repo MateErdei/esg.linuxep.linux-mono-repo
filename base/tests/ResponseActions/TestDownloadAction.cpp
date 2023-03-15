@@ -19,10 +19,20 @@
 #include <filesystem>
 #include <fstream>
 
+using namespace Common::HttpRequests;
+
 class DownloadFileTests : public MemoryAppenderUsingTests
 {
 public:
-    DownloadFileTests() : MemoryAppenderUsingTests("responseactions") {}
+    DownloadFileTests() : MemoryAppenderUsingTests("ResponseActionsImpl"){}
+
+    void SetUp()
+    {
+        m_mockHttpRequester = std::make_shared<StrictMock<MockHTTPRequester>>();
+        m_mockFileSystem = std::make_unique<StrictMock<MockFileSystem>>();
+
+    }
+
     virtual void TearDown()
     {
         Tests::restoreFileSystem();
@@ -36,37 +46,58 @@ public:
         action["url"] = "https://s3.com/somewhere";
         action["targetPath"] = "path";
         action["sha256"] = "shastring";
-        action["sizeBytes"] = 1024UL * 1024;
+        action["sizeBytes"] = 1024;
         action["decompress"] = false;
         action["password"] = "";
         action["expiration"] = 144444000000004;
         action["timeout"] = 10;
         return action;
     }
+
+    std::shared_ptr<MockHTTPRequester> m_mockHttpRequester;
+    std::unique_ptr<MockFileSystem> m_mockFileSystem;
+
+    void addResponseToRequester(long status, ResponseErrorCode errorCode)
+    {
+        Common::HttpRequests::Response httpresponse;
+        httpresponse.status = status;
+        httpresponse.errorCode = errorCode;
+        EXPECT_CALL(*m_mockHttpRequester, get(_)).WillOnce(Return(httpresponse));
+    }
+
+    void addDiskSpaceExpectToMockFileSystem(std::uintmax_t available)
+    {
+        std::filesystem::space_info spaceinfo;
+        spaceinfo.available = available;
+        EXPECT_CALL(*m_mockFileSystem, getDiskSpaceInfo("/opt/sophos-spl/plugins/responseactions/tmp")).WillOnce(Return(spaceinfo));
+    }
 };
+
 
 TEST_F(DownloadFileTests, SuccessCase)
 {
-    auto httpRequester = std::make_shared<StrictMock<MockHTTPRequester>>();
-    Common::HttpRequests::Response httpresponse;
-    httpresponse.status = Common::HttpRequests::HTTP_STATUS_OK;
-    httpresponse.errorCode = Common::HttpRequests::ResponseErrorCode::OK;
-    EXPECT_CALL(*httpRequester, put(_)).WillOnce(Return(httpresponse));
-    ResponseActionsImpl::DownloadFileAction downloadFileAction(httpRequester);
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    addResponseToRequester(HTTP_STATUS_OK, ResponseErrorCode::OK);
+    EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFileSystem, isFile("path")).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockFileSystem, exists("path")).WillOnce(Return(false));
+    addDiskSpaceExpectToMockFileSystem(1024 * 1024);
+    EXPECT_CALL(*m_mockFileSystem, calculateDigest(Common::SslImpl::Digest::sha256, "/opt/sophos-spl/plugins/responseactions/tmp/path.zip")).WillOnce(Return("shastring"));
+    Tests::replaceFileSystem(std::move(m_mockFileSystem));
+
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
+
     nlohmann::json action = getDefaultDownloadObject();
-
-    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
-    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>{ mockFileSystem });
-    EXPECT_CALL(*mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(false));
-    EXPECT_CALL(*mockFileSystem, isFile("path")).WillOnce(Return(true));
-    EXPECT_CALL(*mockFileSystem, fileSize("path")).WillOnce(Return(100));
-    EXPECT_CALL(*mockFileSystem, calculateDigest(Common::SslImpl::Digest::sha256, "path"))
-        .WillOnce(Return("sha256string"));
-
     std::string response = downloadFileAction.run(action.dump());
     nlohmann::json responseJson = nlohmann::json::parse(response);
+
     EXPECT_EQ(responseJson["result"], 0);
     EXPECT_EQ(responseJson["httpStatus"], 200);
+
+    EXPECT_TRUE(appenderContains("Downloading file: /opt/sophos-spl/plugins/responseactions/tmp/path.zip from url: https://s3.com/somewhere"));
+    EXPECT_TRUE(appenderContains("Downloading directly"));
+    EXPECT_TRUE(appenderContains("Download for /opt/sophos-spl/plugins/responseactions/tmp/path.zip succeeded"));
 }
 
 TEST_F(DownloadFileTests, SuccessCaseWithProxy)
@@ -75,7 +106,7 @@ TEST_F(DownloadFileTests, SuccessCaseWithProxy)
     Common::HttpRequests::Response httpresponse;
     httpresponse.status = Common::HttpRequests::HTTP_STATUS_OK;
     httpresponse.errorCode = Common::HttpRequests::ResponseErrorCode::OK;
-    EXPECT_CALL(*httpRequester, put(_)).WillOnce(Return(httpresponse));
+    EXPECT_CALL(*httpRequester, get(_)).WillOnce(Return(httpresponse));
     ResponseActionsImpl::DownloadFileAction downloadFileAction(httpRequester);
     nlohmann::json action = getDefaultDownloadObject();
 
@@ -107,7 +138,7 @@ TEST_F(DownloadFileTests, ProxyFailureFallsbackDirect)
     httpresponse.errorCode = Common::HttpRequests::ResponseErrorCode::OK;
     failhttpresponse.status = 400;
     failhttpresponse.errorCode = Common::HttpRequests::ResponseErrorCode::OK;
-    EXPECT_CALL(*httpRequester, put(_)).Times(2).WillOnce(Return(failhttpresponse)).WillOnce(Return(httpresponse));
+    EXPECT_CALL(*httpRequester, get(_)).Times(2).WillOnce(Return(failhttpresponse)).WillOnce(Return(httpresponse));
 
     ResponseActionsImpl::DownloadFileAction downloadFileAction(httpRequester);
     nlohmann::json action = getDefaultDownloadObject();
@@ -138,7 +169,7 @@ TEST_F(DownloadFileTests, SuccessCaseCompressionWithPassword)
     Common::HttpRequests::Response httpresponse;
     httpresponse.status = Common::HttpRequests::HTTP_STATUS_OK;
     httpresponse.errorCode = Common::HttpRequests::ResponseErrorCode::OK;
-    EXPECT_CALL(*httpRequester, put(_)).WillOnce(Return(httpresponse));
+    EXPECT_CALL(*httpRequester, get(_)).WillOnce(Return(httpresponse));
 
     Tests::TempDir tempDir;
     tempDir.makeDirs("test");
@@ -331,7 +362,7 @@ TEST_F(DownloadFileTests, FailureDueToTimeout)
     Common::HttpRequests::Response httpresponse;
     httpresponse.status = 500;
     httpresponse.errorCode = Common::HttpRequests::ResponseErrorCode::TIMEOUT;
-    EXPECT_CALL(*httpRequester, put(_)).WillOnce(Return(httpresponse));
+    EXPECT_CALL(*httpRequester, get(_)).WillOnce(Return(httpresponse));
     ResponseActionsImpl::DownloadFileAction downloadFileAction(httpRequester);
     nlohmann::json action = getDefaultDownloadObject();
 
@@ -356,7 +387,7 @@ TEST_F(DownloadFileTests, FailureDueToNetworkError)
     httpresponse.status = 500;
     httpresponse.errorCode = Common::HttpRequests::ResponseErrorCode::FAILED;
     httpresponse.error = "failure";
-    EXPECT_CALL(*httpRequester, put(_)).WillOnce(Return(httpresponse));
+    EXPECT_CALL(*httpRequester, get(_)).WillOnce(Return(httpresponse));
     ResponseActionsImpl::DownloadFileAction downloadFileAction(httpRequester);
     nlohmann::json action = getDefaultDownloadObject();
 
@@ -382,7 +413,7 @@ TEST_F(DownloadFileTests, FailureDueToServerError)
     Common::HttpRequests::Response httpresponse;
     httpresponse.status = 500;
     httpresponse.errorCode = Common::HttpRequests::ResponseErrorCode::OK;
-    EXPECT_CALL(*httpRequester, put(_)).WillOnce(Return(httpresponse));
+    EXPECT_CALL(*httpRequester, get(_)).WillOnce(Return(httpresponse));
     ResponseActionsImpl::DownloadFileAction downloadFileAction(httpRequester);
     nlohmann::json action = getDefaultDownloadObject();
 
