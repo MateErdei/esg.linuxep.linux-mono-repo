@@ -73,9 +73,9 @@ TEST_F(Test_SAU_samples, VerifySha256WithExtendedSignatures)
 TEST_F(Test_SAU_samples, VerifyFailsWithMissingManifestFile)
 {
     std::vector<std::string> argv { "versig_test",
-                                    "-c" TESTS "/MissingManifest",
-                                    "-f" TESTS "/MissingManifest/manifest.dat",
-                                    "-d" TESTS "/MissingManifest",
+                                    "-c" TESTS "/MisingManifest",
+                                    "-f" TESTS "/MisingManifest/manifest.dat",
+                                    "-d" TESTS "/MisingManifest",
                                     "--silent-off"
     };
 
