@@ -144,6 +144,9 @@ namespace crypto
                 case X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT_LOCALLY:
                     manifest::Output("Ceritificate chain not valid: continuing to next chain.");
                     break;
+                case X509_V_ERR_CERT_HAS_EXPIRED:
+                    PRINT("Certificate has expired!");
+                    break;
                 default:
                     manifest::Output("Failed to verify certificate chain: " + std::to_string(error));
                     break;

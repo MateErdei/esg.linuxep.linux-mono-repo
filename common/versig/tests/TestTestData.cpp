@@ -110,3 +110,16 @@ TEST_F(TestTestData, shattered_invalid)
     int ret = versig_main(argv);
     EXPECT_EQ(ret, 5);
 }
+
+TEST_F(TestTestData, old_ca)
+{
+    // old_ca is generated locally using openssl and faketime
+    std::vector<std::string> argv { "versig_test",
+                                    "-c" TESTS "/old_ca/rootca.crt", // Built by Makefile
+                                    "-f" TESTS "/old_ca/manifest.dat",
+                                    "--silent-off"
+    };
+
+    int ret = versig_main(argv);
+    EXPECT_EQ(ret, 3);
+}
