@@ -4,6 +4,7 @@
 
 #include "crypto_utils.h"
 #include "libcryptosupport.h"
+#include "output.h"
 #include "print.h"
 #include "signed_file.h"
 #include "verify_exceptions.h"
@@ -135,13 +136,17 @@ namespace crypto
         if (ret == 0)
         {
             int error = X509_STORE_CTX_get_error(verify_ctx.GetPtr());
-            if (error == X509_V_ERR_INVALID_CA)
+            switch (error)
             {
-                PRINT("Failed to verify chain: X509_V_ERR_INVALID_CA");
-            }
-            else
-            {
-                PRINT("Failed to verify certificate chain: " << error);
+                case X509_V_ERR_INVALID_CA:
+                    PRINT("Failed to verify chain: X509_V_ERR_INVALID_CA");
+                    break;
+                case X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT_LOCALLY:
+                    manifest::Output("Ceritificate chain not valid: continuing to next chain.");
+                    break;
+                default:
+                    manifest::Output("Failed to verify certificate chain: " + std::to_string(error));
+                    break;
             }
         }
 
@@ -157,7 +162,7 @@ namespace crypto
         BIOWrapper in(root_cert.pem_crt);
         if (!in.valid())
         {
-            throw verify_exceptions::ve_crypt("Error opening trusted certificates file");
+            throw verify_exceptions::ve_crypt("Error opening trusted certificates file: " + root_cert.pem_crt);
         }
         int count = 0;
         for (;;)
@@ -182,7 +187,7 @@ namespace crypto
         if (count == 0)
         {
             // no root certificates found
-            throw verify_exceptions::ve_crypt("Error loading trusted certificates file");
+            throw verify_exceptions::ve_crypt("Error loading trusted certificates file: " + root_cert.pem_crt);
         }
         // At least one verification failed
         throw verify_exceptions::ve_badcert();
@@ -226,7 +231,6 @@ namespace crypto
             catch (const verify_exceptions::ve_badcert& ex)
             {
                 lastError = ex.getErrorCode();
-                PRINT("Bad certificate: " << ex.what());
             }
             catch (const verify_exceptions::ve_crypt& ex)
             {
@@ -245,7 +249,7 @@ namespace crypto
             case VerificationTool::SignedFile::openssl_error:
                 throw verify_exceptions::ve_crypt(lastErrorMessage);
             default:
-                throw verify_exceptions::ve_crypt("Failed to verify certificate chain");
+                throw verify_exceptions::ve_crypt("Failed to verify certificate chain, continuing to next chain");
         }
 
     }

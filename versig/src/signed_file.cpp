@@ -6,6 +6,7 @@
 
 #include "signed_file.h"
 
+#include "output.h"
 #include "print.h"
 #include "verify_exceptions.h"
 
@@ -155,7 +156,7 @@ namespace VerificationTool
         int allowed_algorithms = crypto::SECURE_HASH_ALGORTHMS;
         if (arguments.allowSHA1signature)
         {
-            PRINT("Allowing SHA1 signatures");
+            manifest::Output("Allowing SHA1 signatures");
             allowed_algorithms |= crypto::hash_algo::ALGO_SHA1;
         }
         m_DigestBuffer.verify_all(root_certs, allowed_algorithms);
