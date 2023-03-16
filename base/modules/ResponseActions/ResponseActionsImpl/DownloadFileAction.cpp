@@ -35,39 +35,8 @@ namespace ResponseActionsImpl
             return response.dump();
         }
 
-        if (ActionsUtils::isExpired(info.expiration))
+        if (!initialChecks(info, response))
         {
-            std::string error = "Download file action has expired";
-            LOGWARN(error);
-            ActionsUtils::setErrorInfo(response,4,error);
-            return response.dump();
-        }
-
-        const unsigned long maxFileSize = 1024UL * 1024 * 1024 * 2;
-
-        if (info.sizeBytes > maxFileSize)
-        {
-            std::stringstream sizeError;
-            sizeError << "Downloading file to " << info.targetPath << " failed due to size: " << info.sizeBytes << " is to large";
-            LOGWARN(sizeError.str());
-            ActionsUtils::setErrorInfo(response, 1, sizeError.str());
-            return response.dump();
-        }
-
-        if (info.targetPath.front() != '/')
-        {
-            std::string error = info.targetPath + " is not a valid absolute path";
-            LOGWARN(error);
-            ActionsUtils::setErrorInfo(response, 1, error, "invalid_path");
-            return response.dump();
-        }
-
-        if (m_fileSystem->exists(info.targetPath))
-        {
-            std::stringstream existsError;
-            existsError << "Path " << info.targetPath << " already exists";
-            LOGWARN(existsError.str());
-            ActionsUtils::setErrorInfo(response, 1, existsError.str(), "path_exists");
             return response.dump();
         }
 
@@ -75,7 +44,7 @@ namespace ResponseActionsImpl
         u_int64_t start = time.currentEpochTimeInSecondsAsInteger();
         response["startedAt"] = start;
 
-        prepareAndDownload(info, response);
+        download(info, response);
 
         if (response["httpStatus"] == Common::HttpRequests::HTTP_STATUS_OK)
         {
@@ -94,13 +63,48 @@ namespace ResponseActionsImpl
         return response.dump();
     }
 
-    void DownloadFileAction::prepareAndDownload(const DownloadInfo& info, nlohmann::json& response)
+    bool DownloadFileAction::initialChecks(const DownloadInfo& info, nlohmann::json& response)
     {
+        if (ActionsUtils::isExpired(info.expiration))
+        {
+            std::string error = "Download file action has expired";
+            LOGWARN(error);
+            ActionsUtils::setErrorInfo(response,4,error);
+            return false;
+        }
+
+        const unsigned long maxFileSize = 1024UL * 1024 * 1024 * 2;
+
+        if (info.sizeBytes > maxFileSize)
+        {
+            std::stringstream sizeError;
+            sizeError << "Downloading file to " << info.targetPath << " failed due to size: " << info.sizeBytes << " is to large";
+            LOGWARN(sizeError.str());
+            ActionsUtils::setErrorInfo(response, 1, sizeError.str());
+            return false;
+        }
+
+        if (info.targetPath.front() != '/')
+        {
+            std::string error = info.targetPath + " is not a valid absolute path";
+            LOGWARN(error);
+            ActionsUtils::setErrorInfo(response, 1, error, "invalid_path");
+            return false;
+        }
+
+        if (m_fileSystem->exists(info.targetPath))
+        {
+            std::stringstream existsError;
+            existsError << "Path " << info.targetPath << " already exists";
+            LOGWARN(existsError.str());
+            ActionsUtils::setErrorInfo(response, 1, existsError.str(), "path_exists");
+            return false;
+        }
+
         const auto tmpSpaceInfo = m_fileSystem->getDiskSpaceInfo(m_raTmpDir);
         const auto destSpaceinfo = m_fileSystem->getDiskSpaceInfo(info.targetPath);
         std::filesystem::space_info spaceInfoToCheck = tmpSpaceInfo.available > destSpaceinfo.available ? destSpaceinfo : tmpSpaceInfo;
 
-        //Todo is there a better way to ensure enough space to decompress
         if ((!info.decompress && spaceInfoToCheck.available < info.sizeBytes) ||
             (info.decompress && spaceInfoToCheck.available < (info.sizeBytes * 2.5)))
         {
@@ -109,9 +113,14 @@ namespace ResponseActionsImpl
                 " ,destination disk has " << destSpaceinfo.available;
             LOGWARN(spaceError.str());
             ActionsUtils::setErrorInfo(response, 1, spaceError.str(), "not_enough_space");
-            return;
+            return false;
         }
+        return true;
+    }
 
+
+    void DownloadFileAction::download(const DownloadInfo& info, nlohmann::json& response)
+    {
         Common::HttpRequests::RequestConfig request{
             .url = info.url, .fileDownloadLocation = m_raTmpDir, .timeout = info.timeout
         };

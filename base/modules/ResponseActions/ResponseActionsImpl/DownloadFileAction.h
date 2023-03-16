@@ -23,10 +23,11 @@ namespace ResponseActionsImpl
     private:
         std::shared_ptr<Common::HttpRequests::IHttpRequester> m_client;
         void handleHttpResponse(const Common::HttpRequests::Response& httpresponse, nlohmann::json& response, const std::string& url);
-        void prepareAndDownload(const DownloadInfo& info, nlohmann::json& response);
+        void download(const DownloadInfo& info, nlohmann::json& response);
         Path verifyFile(const DownloadInfo& info, nlohmann::json& response);
         void decompressAndMoveFile(const Path& filePath, const DownloadInfo& info, nlohmann::json& response);
         void removeTmpFiles();
+        bool initialChecks(const DownloadInfo& info, nlohmann::json& response);
 
         const Path m_raTmpDir = Common::ApplicationConfiguration::applicationPathManager().getResponseActionTmpPath();
 
