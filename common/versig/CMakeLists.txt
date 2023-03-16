@@ -38,9 +38,6 @@ endif()
 
 set(OPENSSL_DIR ${INPUT}/openssl)
 
-# Hard code openssl LIBVERSION to 3, since the thirdparty.all doesn't provide it
-set(OPENSSL_LIBVERSION 3)
-
 set(OPENSSL_LIBRARY_DIR ${OPENSSL_DIR}/lib64)
 
 set(CMAKE_EXE_LINKER_FLAGS -Wl,-rpath,\$ORIGIN/../lib64,-rpath-link,${OPENSSL_LIBRARY_DIR})
@@ -101,7 +98,6 @@ install(TARGETS versig
         DESTINATION bin)
 
 install(FILES
-            ${OPENSSL_LIBRARY_DIR}/libcrypto.so.${OPENSSL_LIBVERSION}
             ${libstdcpp_path}
             ${libstdcpp_directory}/libstdc++.so.6
             ${libgcc_s_path}
