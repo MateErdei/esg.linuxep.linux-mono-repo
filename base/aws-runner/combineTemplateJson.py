@@ -23,6 +23,7 @@ instances = {
     "rhel78x64": getInstanceJsonAsString("rhel78x64"),
     "rhel81x64": getInstanceJsonAsString("rhel81x64"),
     "rhel9x64": getInstanceJsonAsString("rhel9x64"),
+    "sles15x64": getInstanceJsonAsString("sles15x64"),
     #TODO LINUXDAR-6745 put back when fixed
     # "ubuntu1804minimal": getInstanceJsonAsString("ubuntu1804minimal"),
     "ubuntu1804x64": getInstanceJsonAsString("ubuntu1804x64"),

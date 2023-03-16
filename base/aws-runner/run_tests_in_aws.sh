@@ -393,6 +393,10 @@ combineResults()
   rm -rf ./results-combine-workspace/rhel9x64*
   python3 -m robot.rebot -l ./results/rhel9x64-log.html -r ./results/rhel9x64-report.html -N rhel9x64 ./results/rhel9x64-output.xml
 
+  python3 -m robot.rebot --merge -o ./results/sles15x64-output.xml -l none -r none -N sles15x64  ./results-combine-workspace/sles15x64*
+  rm -rf ./results-combine-workspace/sles15x64*
+  python3 -m robot.rebot -l ./results/sles15x64-log.html -r ./results/sles15x64-report.html -N sles15x64 ./results/sles15x64-output.xml
+
   python3 -m robot.rebot --merge -o ./results/ubuntu1804x64-output.xml -l none -r none -N ubuntu1804x64  ./results-combine-workspace/ubuntu1804x64*
   rm -rf ./results-combine-workspace/ubuntu1804x64*
   python3 -m robot.rebot -l ./results/ubuntu1804x64-log.html -r ./results/ubuntu1804x64-report.html -N ubuntu1804x64 ./results/ubuntu1804x64-output.xml

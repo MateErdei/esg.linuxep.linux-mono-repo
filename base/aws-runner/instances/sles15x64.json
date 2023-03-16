@@ -1,0 +1,72 @@
+{
+  "sles15x64" : {
+    "Type" : "AWS::EC2::Instance",
+    "Condition" :  "RunSles15x64" ,
+    "Properties" : {
+      "IamInstanceProfile": { "Ref": "RegressionTestInstanceProfile" },
+      "KeyName" : { "Ref" : "KeyName" },
+      "ImageId" : "ami-04540ea6730aa87b4",
+      "InstanceType": "c4.large",
+      "InstanceInitiatedShutdownBehavior": "terminate",
+      "Tags" : [
+        {"Key" : "TestPassUUID", "Value" : { "Ref" : "TestPassUUID" } },
+        {"Key" : "OwnerName", "Value" : "ukdevlinuxdarwin"},
+        {"Key" : "OwnerEmail", "Value" : "ukdevlinuxdarwin@sophos.com"},
+        {"Key" : "SupportEmail", "Value" : "ukdevlinuxdarwin@sophos.com"},
+        {"Key" : "BusinessUnit", "Value" : "ESG"},
+        {"Key" : "CostCentre", "Value" : "GB11601200"},
+        {"Key" : "Project", "Value" : "XDR"},
+        {"Key" : "Application", "Value" : "linux-endpoint-testing"},
+        {"Key" : "BaseAmi", "Value" : "ami-0d8cb86e9dd00ff5d"},
+        {"Key" : "Environment", "Value" : "development"},
+        {"Key" : "AutomationExcluded", "Value" : "true"},
+        {"Key" : "SecurityClassification", "Value" : "none low"},
+        {"Key" : "TestImage", "Value" : "true"},
+        {"Key" : "Codeline", "Value" : "SSPL" },
+        {"Key" : "Branch", "Value" : "SSPL" },
+        {"Key" : "Name", "Value" : "sles15x64" },
+        {"Key" : "RootStackname", "Value" : "SSPL" }
+      ],
+      "NetworkInterfaces" : [{
+        "GroupSet"                 : [{ "Ref" : "SSPLsecurityGroup" }],
+        "AssociatePublicIpAddress" : "true",
+        "DeviceIndex"              : "0",
+        "DeleteOnTermination"      : "true",
+        "SubnetId"                 : { "Ref" : "Subnet1" }
+      }],
+      "UserData": { "Fn::Base64" : { "Fn::Join" : ["", [
+        "#!/bin/bash\n",
+        "echo 'Testing ", {"Ref": "BuildName"},"'\n",
+        "echo 'Setting up the system for tests ...' >>/tmp/cloudFormationInit.log\n",
+        "export HOSTNAME=@HOSTNAMEGOESHERE@", "\n",
+        "hostnamectl set-hostname ${HOSTNAME}\n",
+        "sed -i -e '/^HOSTNAME=/ s/=.*/='$HOSTNAME'/' /etc/sysconfig/network\n",
+        "hostname ${HOSTNAME}\n",
+        "echo $'#cloud-config\nhostname: '${HOSTNAME} $'\nfqdn: '${HOSTNAME} >/etc/cloud/cloud.cfg.d/99_hostname.cfg\n",
+        "sed -i 's/127.0.0.1/127.0.0.1 '$HOSTNAME'/' /etc/hosts\n",
+        "service rpcbind start 2>&1 >>/tmp/cloudFormationInit.log\n",
+        "systemctl start nfs 2>&1 >>/tmp/cloudFormationInit.log\n",
+        "systemctl status nfs-server.service 2>&1 >>/tmp/cloudFormationInit.log\n",
+        "python3 --version 2>&1 >>/tmp/cloudFormationInit.log\n",
+        "echo 'Created aws config. Now grabbing tests...' >> /tmp/cloudFormationInit.log\n",
+        "echo 'Key passed from parent stack: ", { "Ref" : "KeyName" }, "' >> /tmp/cloudFormationInit.log\n",
+        "aws s3 cp s3://sspl-testbucket/sspl/sspl-test-", { "Ref": "StackName" }, ".tgz /opt/sspl-test.tgz >> /tmp/cloudFormationInit.log 2>&1\n",
+        "mkdir -p /opt/sspl >> /tmp/cloudFormationInit.log 2>&1\n",
+        "tar xvzf /opt/sspl-test.tgz -C /opt/sspl >> /tmp/cloudFormationInit.log 2>&1\n",
+        "tar xvzf /opt/sspl/pipCache.tar.gz -C /opt/sspl >> /tmp/cloudFormationInit.log 2>&1\n",
+        "python3 -m venv /opt/sspl/tap-venv >> /tmp/cloudFormationInit.log 2>&1\n",
+        "/opt/sspl/tap-venv/bin/python -m pip install --upgrade pip >> /tmp/cloudFormationInit.log 2>&1\n",
+        "/opt/sspl/tap-venv/bin/python -m pip install Cython >> /tmp/cloudFormationInit.log 2>&1\n",
+        "/opt/sspl/tap-venv/bin/python -m pip install pyyaml ruamel.yaml >> /tmp/cloudFormationInit.log 2>&1\n",
+        "/opt/sspl/tap-venv/bin/python -m pip install --find-links=/opt/sspl/pipCache tap >> /tmp/cloudFormationInit.log 2>&1\n",
+        "/opt/sspl/tap-venv/bin/python -m pip install --find-links=/opt/sspl/pipCache build_scripts >> /tmp/cloudFormationInit.log 2>&1\n",
+        "export TAP_VENV=/opt/sspl/tap-venv/bin/activate\n",
+        "ls -l /opt/sspl/tap-venv/bin/ >> /tmp/cloudFormationInit.log 2>&1\n",
+        "bash /opt/sspl/testAndSendResults.sh ", {"Ref": "StackName"}, " @ARGSGOHERE@ >> /tmp/cloudFormationInit.log 2>&1\n",
+        "echo 'Finished.' >> /tmp/cloudFormationInit.log\n",
+        "aws s3 cp /tmp/cloudFormationInit.log s3://sspl-testbucket/test-results/", { "Ref": "StackName" }, "/$HOSTNAME-cloudFormationInit.log\n",
+        "poweroff\n"
+      ]]}}
+    }
+  }
+}

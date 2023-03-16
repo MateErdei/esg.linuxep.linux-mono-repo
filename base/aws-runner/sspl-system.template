@@ -46,7 +46,7 @@
              "Description" : "run a subset of platforms",
              "Type": "String",
              "Default": "",
-             "AllowedValues": [ "","rhel", "ubuntu", "amazonlinux", "centos", "centosstream", "debian", "oracle", "miraclelinux" ]
+             "AllowedValues": [ "","rhel", "ubuntu", "amazonlinux", "centos", "centosstream", "debian", "oracle", "miraclelinux", "sles" ]
             },
             "RunOne": {
              "Description" : "Run one specified test machine",
@@ -67,6 +67,7 @@
       {"Fn::Equals" : [{"Ref" : "RunOne"}, ""]}
       ]},
     "RunRhel" : {"Fn::Equals" : [{"Ref" : "RunSome"}, "rhel"]},
+    "RunSles" : {"Fn::Equals" : [{"Ref" : "RunSome"}, "sles"]},
     "RunMiracleLinux" : {"Fn::Equals" : [{"Ref" : "RunSome"}, "miraclelinux"]},
     "RunUbuntu" : {"Fn::Equals" : [{"Ref" : "RunSome"}, "ubuntu"]},
     "RunAmazon" : {"Fn::Equals" : [{"Ref" : "RunSome"}, "amazonlinux"]},
@@ -133,6 +134,11 @@
             {"Condition" : "RunRhel"},
             {"Condition" : "RunAll"},
             {"Fn::Equals" : [{"Ref" : "RunOne"}, "rhel9x64"]}
+            ]},
+    "RunSles15x64" : {"Fn::Or": [
+            {"Condition" : "RunSles"},
+            {"Condition" : "RunAll"},
+            {"Fn::Equals" : [{"Ref" : "RunOne"}, "sles15x64"]}
             ]},
     "RunUbuntu1804Minimal" : {"Fn::Or": [
         {"Condition" : "RunUbuntu"},
