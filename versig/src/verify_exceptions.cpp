@@ -34,7 +34,13 @@ namespace verify_exceptions
         unsigned long e;
         int flags, line;
         const char *data, *file;
+
+#if OPENSSL_VERSION_NUMBER < 0x30000000L
         e = ERR_get_error_line_data(&file, &line, &data, &flags);
+#else
+        const char* func;
+        e = ERR_get_error_all(&file, &line, &func, &data, &flags);
+#endif
         if (e == 0)
         {
             // No more crypto error, just return false.

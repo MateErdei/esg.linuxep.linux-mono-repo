@@ -64,34 +64,19 @@ function build()
     echo "LD_LIBRARY_PATH=${LD_LIBRARY_PATH:-unset}"
 
     cd $BASE
-    ## Need to do this before we set LD_LIBRARY_PATH, since it uses ssh
-    ## which doesn't like our openssl
-#    git submodule sync --recursive || exitFailure 34 "Failed to sync submodule configuration"
-#    GIT_SSL_NO_VERIFY=true  \
-#        git -c http.sslVerify=false submodule update --init --recursive || {
-#        sleep 1
-#        echo ".gitmodules:"
-#        cat .gitmodules
-#        echo ".git/config:"
-#        cat .git/config
-#        exitFailure 33 "Failed to get googletest via git"
-#    }
 
     unpack_scaffold_gcc_make $INPUT
 
     [[ -d $BASE/tests/googletest ]] && rm -rf $BASE/tests/googletest
     cp -r $INPUT/googletest/ $BASE/tests
 
-    OPENSSL_TAR=$INPUT/openssl.tar
-    [[ -f $OPENSSL_TAR ]] || exitFailure 12 "Failed to find openssl"
-
-    REDIST=$BASE/redist
-
-    mkdir -p $BASE/redist
-    tar xf "$OPENSSL_TAR" -C "$REDIST"
-    export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${REDIST}/openssl/lib${BITS}
-    ln -snf libssl.so.1 ${REDIST}/openssl/lib${BITS}/libssl.so.10
-    ln -snf libcrypto.so.1 ${REDIST}/openssl/lib${BITS}/libcrypto.so.10
+    [[ -f $INPUT/openssl/bin/openssl ]] || exitFailure 12 "Failed to find openssl"
+    OPENSSL_DIR=$INPUT/openssl
+    export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${OPENSSL_DIR}/lib${BITS}
+    # Fix ups for new openssl build:
+    mkdir -p $OPENSSL_DIR/64
+    ln -snf $OPENSSL_DIR/include $OPENSSL_DIR/64/
+    echo "3" >$OPENSSL_DIR/LIBVERSION
 
     addpath "$INPUT/cmake/bin"
     chmod 700 $INPUT/cmake/bin/cmake || exitFailure "Unable to chmod cmake"
@@ -100,7 +85,6 @@ function build()
     COMMON_LDFLAGS="${LINK_OPTIONS:-}"
     COMMON_CFLAGS="${OPTIONS:-} ${CFLAGS:-} ${COMMON_LDFLAGS}"
 
-    rm -rf ${PRODUCT}
     mkdir -p ${PRODUCT}
 
     ## build BITS
@@ -130,7 +114,7 @@ function build()
     mkdir build${BITS}
     cd build${BITS}
     [[ -n ${NPROC:-} ]] || NPROC=2
-    cmake -DINPUT="${REDIST}" -DCMAKE_INSTALL_PREFIX=$INSTALL .. || exitFailure 14 "Failed to configure $PRODUCT"
+    cmake -DINPUT="${INPUT}" -DCMAKE_INSTALL_PREFIX=$INSTALL .. || exitFailure 14 "Failed to configure $PRODUCT"
     make -j${NPROC} || exitFailure 15 "Failed to build $PRODUCT"
     make test || exitFailure 16 "Unit tests failed for $PRODUCT"
     make install || exitFailure 17 "Failed to install $PRODUCT"
@@ -153,6 +137,7 @@ function build()
     echo "Build completed"
 }
 
+rm -rf ${PRODUCT}
 build 64 2>&1 | tee -a $LOG
 EXIT=$?
 cp $LOG $OUTPUT/ || true

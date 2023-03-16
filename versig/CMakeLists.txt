@@ -5,6 +5,10 @@ if (NOT DEFINED CMAKE_CXX_STANDARD)
     set(CMAKE_CXX_STANDARD 17)
 endif (NOT DEFINED CMAKE_CXX_STANDARD)
 
+# Openssl 3 needs threads
+set(THREADS_PREFER_PTHREAD_FLAG ON)
+find_package(Threads REQUIRED)
+
 include_directories(.)
 
 execute_process(COMMAND bash ${CMAKE_SOURCE_DIR}/bin/gcc-print-file-name.sh libstdc++.so
@@ -18,7 +22,7 @@ string(STRIP "${libgcc_s_path}" libgcc_s_path)
 message("${libgcc_s_path}")
 
 if (NOT DEFINED INPUT)
-    set(INPUT ${CMAKE_SOURCE_DIR}/redist)
+    set(INPUT /build/input)
 endif (NOT DEFINED INPUT)
 
 if(NOT EXISTS ${INPUT})
@@ -34,14 +38,14 @@ endif()
 
 set(OPENSSL_DIR ${INPUT}/openssl)
 
-file(READ ${OPENSSL_DIR}/LIBVERSION OPENSSL_LIBVERSION)
-string(STRIP ${OPENSSL_LIBVERSION} OPENSSL_LIBVERSION)
+# Hard code openssl LIBVERSION to 3, since the thirdparty.all doesn't provide it
+set(OPENSSL_LIBVERSION 3)
 
 set(OPENSSL_LIBRARY_DIR ${OPENSSL_DIR}/lib64)
 
 set(CMAKE_EXE_LINKER_FLAGS -Wl,-rpath,\$ORIGIN/../lib64,-rpath-link,${OPENSSL_LIBRARY_DIR})
 
-include_directories(BEFORE ${OPENSSL_DIR}/64/include)
+include_directories(BEFORE ${OPENSSL_DIR}/include)
 
 add_library(versig_lib
         src/Arguments.h
@@ -83,9 +87,15 @@ add_library(versig_lib
         src/X509_certificate.h
         src/output.cpp src/output.h)
 
+target_link_libraries(versig_lib INTERFACE
+        -L${OPENSSL_LIBRARY_DIR} crypto
+        Threads::Threads
+        dl
+        )
+
 add_executable(versig src/versig_main.cpp src/versig.h)
 
-target_link_libraries(versig PUBLIC versig_lib -L${OPENSSL_LIBRARY_DIR} crypto)
+target_link_libraries(versig PRIVATE versig_lib)
 
 install(TARGETS versig
         DESTINATION bin)
@@ -119,10 +129,6 @@ target_link_libraries(versig_test PUBLIC
         versig_lib
         ${GOOGLE_TEST_LIB_DIR}/libgtest_main.a
         ${GOOGLE_TEST_LIB_DIR}/libgtest.a
-        -L${OPENSSL_LIBRARY_DIR}
-        ssl
-        crypto
-        pthread
         )
 
 gtest_discover_tests(versig_test)
