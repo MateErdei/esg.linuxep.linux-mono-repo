@@ -45,8 +45,8 @@ Test Watchdog Config is Updated When Watchdog is Asked to Restart a Process
     Wait Until Keyword Succeeds
     ...    30 secs
     ...    2 secs
-    ...    Log File    ${WATCHDOG_CONFIG}
-    ${watchdogConfOriginal}    Get Modified Time    ${WATCHDOG_CONFIG}
+    ...    Log File    ${WD_ACTUAL_USER_GROUP_IDS}
+    ${watchdogConfOriginal}    Get Modified Time    ${WD_ACTUAL_USER_GROUP_IDS}
 
     Verify Watchdog Config
 
