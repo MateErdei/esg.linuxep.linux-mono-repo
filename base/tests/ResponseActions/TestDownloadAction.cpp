@@ -299,6 +299,46 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompress_BadArchive)
     EXPECT_TRUE(appenderContains(expectedErrMsg));
 }
 
+TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompress_ZipUtilsThrows)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    //more helpful logging is done in ziputil
+    const std::string expectedErrMsg = "Error unzipping /opt/sophos-spl/plugins/responseactions/tmp/download.zip due to error no 1";
+
+    bool decompress = true;
+
+    auto mockZip = std::make_unique<NiceMock<MockZipUtils>>();
+    EXPECT_CALL(*mockZip, unzip(_, _)).WillOnce(Throw(std::runtime_error("error")));
+    Common::ZipUtilities::replaceZipUtils(std::move(mockZip));
+
+    addResponseToMockRequester(HTTP_STATUS_OK, ResponseErrorCode::OK);
+
+    //MockFileSystem
+    addDiskSpaceExpectsToMockFileSystem();
+    addExpectListFilesToMockFileSystem(); //We dont expect the decompress to be successful so dont pass decompress bool
+    EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFileSystem, exists(m_destPath)).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFileSystem, calculateDigest(Common::SslImpl::Digest::sha256, m_raTmpDir + "/" + m_testZipFile))
+        .WillOnce(Return("shastring"));
+    Tests::replaceFileSystem(std::move(m_mockFileSystem));
+
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
+
+    nlohmann::json action = getDownloadObject(decompress);
+    std::string response = downloadFileAction.run(action.dump());
+    nlohmann::json responseJson = nlohmann::json::parse(response);
+
+    EXPECT_EQ(responseJson["result"], 3);
+    EXPECT_EQ(responseJson["httpStatus"], HTTP_STATUS_OK);
+    EXPECT_FALSE(responseJson.contains("errorType"));
+    EXPECT_EQ(responseJson["errorMessage"], expectedErrMsg);
+
+    EXPECT_TRUE(appenderContains("Downloading to /opt/sophos-spl/plugins/responseactions/tmp from url: https://s3.com/download.zip"));
+    EXPECT_TRUE(appenderContains("Downloaded file download.zip"));
+    EXPECT_TRUE(appenderContains(expectedErrMsg));
+}
+
 TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompress_OtherError)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
@@ -768,6 +808,84 @@ TEST_F(DownloadFileTests, FailureDueToFileAlreadyExisting)
     EXPECT_EQ(responseJson["httpStatus"], 500);
     EXPECT_FALSE(responseJson.contains("errorType"));
     EXPECT_EQ(responseJson["errorMessage"], expectedErrStr);
+
+    EXPECT_TRUE(appenderContains(expectedErrStr));
+}
+
+TEST_F(DownloadFileTests, NotEnoughSpaceOnRATmpDisk)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    const std::string expectedErrStr = "Not enough space to complete download action : sophos install disk has 1 ,destination disk has 1048576";
+
+    //MockFileSystem
+    addDiskSpaceExpectsToMockFileSystem(1);
+    EXPECT_CALL(*m_mockFileSystem, exists(m_destPath)).WillOnce(Return(false));
+    Tests::replaceFileSystem(std::move(m_mockFileSystem));
+
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
+
+    nlohmann::json action = getDownloadObject();
+    std::string response = downloadFileAction.run(action.dump());
+    nlohmann::json responseJson = nlohmann::json::parse(response);
+
+    EXPECT_EQ(responseJson["result"], 1);
+    EXPECT_EQ(responseJson["errorMessage"], expectedErrStr);
+    EXPECT_EQ(responseJson["errorType"], "not_enough_space");
+
+    EXPECT_TRUE(appenderContains(expectedErrStr));
+}
+
+TEST_F(DownloadFileTests, NotEnoughSpaceOnDestDisk)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    const std::string expectedErrStr = "Not enough space to complete download action : sophos install disk has 1048576 ,destination disk has 1";
+
+    //MockFileSystem
+    addDiskSpaceExpectsToMockFileSystem(1024 * 1024, 1);
+    EXPECT_CALL(*m_mockFileSystem, exists(m_destPath)).WillOnce(Return(false));
+    Tests::replaceFileSystem(std::move(m_mockFileSystem));
+
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
+
+    nlohmann::json action = getDownloadObject();
+    std::string response = downloadFileAction.run(action.dump());
+    nlohmann::json responseJson = nlohmann::json::parse(response);
+
+    EXPECT_EQ(responseJson["result"], 1);
+    EXPECT_EQ(responseJson["errorMessage"], expectedErrStr);
+    EXPECT_EQ(responseJson["errorType"], "not_enough_space");
+
+    EXPECT_TRUE(appenderContains(expectedErrStr));
+}
+
+TEST_F(DownloadFileTests, Sha256IsWrong)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    const std::string expectedErrStr = "Calculated Sha256 (adifferentshastring) doesnt match that of file downloaded (shastring)";
+
+    addResponseToMockRequester(HTTP_STATUS_OK, ResponseErrorCode::OK);
+
+    //MockFileSystem
+    addDiskSpaceExpectsToMockFileSystem();
+    addExpectListFilesToMockFileSystem();
+    EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFileSystem, exists(m_destPath)).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFileSystem, calculateDigest(Common::SslImpl::Digest::sha256, m_raTmpDir + "/" + m_testZipFile))
+        .WillOnce(Return("adifferentshastring"));
+    Tests::replaceFileSystem(std::move(m_mockFileSystem));
+
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
+
+    nlohmann::json action = getDownloadObject();
+    std::string response = downloadFileAction.run(action.dump());
+    nlohmann::json responseJson = nlohmann::json::parse(response);
+
+    EXPECT_EQ(responseJson["result"], 1);
+    EXPECT_EQ(responseJson["errorMessage"], expectedErrStr);
+    EXPECT_EQ(responseJson["errorType"], "access_denied");
 
     EXPECT_TRUE(appenderContains(expectedErrStr));
 }
