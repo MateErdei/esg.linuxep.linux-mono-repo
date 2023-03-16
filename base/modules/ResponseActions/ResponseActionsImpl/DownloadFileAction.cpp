@@ -31,8 +31,7 @@ namespace ResponseActionsImpl
         }
         catch (const InvalidCommandFormat& exception)
         {
-            LOGWARN(exception.what());
-            ActionsUtils::setErrorInfo(response, 1, "Error parsing command from Central");
+            ActionsUtils::setErrorInfo(response, 1,  "Error parsing command from Central");
             return response.dump();
         }
 
@@ -44,11 +43,31 @@ namespace ResponseActionsImpl
             return response.dump();
         }
 
-        if (!m_fileSystem->isDirectory(info.targetPath))
+        const unsigned long maxFileSize = 1024UL * 1024 * 1024 * 2;
+
+        if (info.sizeBytes > maxFileSize)
         {
-            std::string error = info.targetPath + " is not a valid directory";
+            std::stringstream sizeError;
+            sizeError << "Downloading file to " << info.targetPath << " failed due to size: " << info.sizeBytes << " is to large";
+            LOGWARN(sizeError.str());
+            ActionsUtils::setErrorInfo(response, 1, sizeError.str());
+            return response.dump();
+        }
+
+        if (info.targetPath.front() != '/')
+        {
+            std::string error = info.targetPath + " is not a valid absolute path";
             LOGWARN(error);
             ActionsUtils::setErrorInfo(response, 1, error, "invalid_path");
+            return response.dump();
+        }
+
+        if (m_fileSystem->exists(info.targetPath))
+        {
+            std::stringstream existsError;
+            existsError << "Path " << info.targetPath << " already exists";
+            LOGWARN(existsError.str());
+            ActionsUtils::setErrorInfo(response, 1, existsError.str(), "path_exists");
             return response.dump();
         }
 
@@ -69,14 +88,6 @@ namespace ResponseActionsImpl
                 decompressAndMoveFile(fileName, info, response);
             }
         }
-        //todo
-      /*  if (info.compress)
-        {
-            if (fs->isFile(m_pathToDownload))
-            {
-                fs->removeFile(m_pathToDownload);
-            }
-        }*/
 
         u_int64_t end = time.currentEpochTimeInSecondsAsInteger();
         response["duration"] = end - start;
@@ -85,23 +96,6 @@ namespace ResponseActionsImpl
 
     void DownloadFileAction::prepareAndDownload(const DownloadInfo& info, nlohmann::json& response)
     {
-        const unsigned long maxFileSize = 1024UL * 1024 * 1024 * 2;
-
-        if (info.sizeBytes > maxFileSize)
-        {
-            LOGERROR("Download file " << info.targetPath << " of size " << info.sizeBytes << " is to large");
-            return;
-        }
-
-        if (m_fileSystem->exists(info.targetPath))
-        {
-            std::stringstream existsError;
-            existsError << "Path " << info.targetPath << " already exists";
-            LOGWARN(existsError.str());
-            ActionsUtils::setErrorInfo(response, 1, existsError.str(), "path_exists");
-            return;
-        }
-
         const auto tmpSpaceInfo = m_fileSystem->getDiskSpaceInfo(m_raTmpDir);
         const auto destSpaceinfo = m_fileSystem->getDiskSpaceInfo(info.targetPath);
         std::filesystem::space_info spaceInfoToCheck = tmpSpaceInfo.available > destSpaceinfo.available ? destSpaceinfo : tmpSpaceInfo;
@@ -152,6 +146,11 @@ namespace ResponseActionsImpl
         response["httpStatus"] = httpresponse.status;
     }
 
+    void DownloadFileAction::removeTmpFiles()
+    {
+        m_fileSystem->removeFileOrDirectory(m_raTmpDir);
+    }
+
     Path DownloadFileAction::verifyFile(const DownloadInfo& info, nlohmann::json& response)
     {
         //We are only downloading a single file and response actions should not run in parallel
@@ -170,14 +169,16 @@ namespace ResponseActionsImpl
         }
         catch (const Common::FileSystem::IFileSystemException&)
         {
-            std::string error = "Downloaded file " + fileName + " cannot be accessed";
+            std::string error = fileName + " cannot be accessed";
+            LOGWARN(error);
             ActionsUtils::setErrorInfo(response, 1, error, "access_denied");
             return "";
         }
         catch (const std::exception& exception)
         {
             std::stringstream error;
-            error << "Unknown error when calculating digest of " << fileName << " :" << exception.what();
+            error << "Unknown error when calculating digest of " << fileName << ": " << exception.what();
+            LOGWARN(error.str());
             ActionsUtils::setErrorInfo(response, 1, error.str());
             return "";
         }
@@ -225,7 +226,9 @@ namespace ResponseActionsImpl
             {
                 auto extractedFile = m_fileSystem->listFiles(tmpExtractPath);
                 assert(extractedFile.size() == 1);
+                m_fileSystem->makedirs(info.targetPath);
                 m_fileSystem->moveFile(extractedFile.front(), info.targetPath);
+                removeTmpFiles();
                 auto extractedFileName = Common::FileSystem::basename(extractedFile.front());
                 LOGINFO(info.targetPath << "/" << extractedFileName << " downloaded successfully");
             }
@@ -236,19 +239,19 @@ namespace ResponseActionsImpl
 
                 if (ret == UNZ_BADPASSWORD)
                 {
-                    error << " bad password";
+                    error << "bad password";
                     LOGWARN(error.str());
                     ActionsUtils::setErrorInfo(response, 1, error.str(), "invalid_password");
                 }
                 else if (ret == UNZ_BADZIPFILE)
                 {
-                    error << " bad archive";
+                    error << "bad archive";
                     LOGWARN(error.str());
                     ActionsUtils::setErrorInfo(response, 1, error.str(), "invalid_archive");
                 }
                 else
                 {
-                    error << " error no " << ret;
+                    error << "error no " << ret;
                     LOGWARN(error.str());
                     ActionsUtils::setErrorInfo(response, 3, error.str());
                 }
@@ -256,7 +259,9 @@ namespace ResponseActionsImpl
         }
         else
         {
+            m_fileSystem->makedirs(info.targetPath);
             m_fileSystem->moveFile(filePath, info.targetPath);
+            removeTmpFiles();
             auto zipFileName = Common::FileSystem::basename(filePath);
             LOGINFO(info.targetPath << "/" << zipFileName << " downloaded successfully");
         }
@@ -277,13 +282,10 @@ namespace ResponseActionsImpl
         }
         else if (httpresponse.errorCode == Common::HttpRequests::ResponseErrorCode::DOWNLOAD_TARGET_ALREADY_EXISTS)
         {
-            LOGWARN(httpresponse.error);
-            ActionsUtils::setErrorInfo(response, 1, httpresponse.error);
-        }
-        else if (httpresponse.errorCode == Common::HttpRequests::ResponseErrorCode::FAILED)
-        {
-            LOGWARN(httpresponse.error);
-            ActionsUtils::setErrorInfo(response, 3, httpresponse.error);
+            std::stringstream error;
+            error << "Download failed as target exists already: " + httpresponse.error;
+            LOGWARN(error.str());
+            ActionsUtils::setErrorInfo(response, 1, error.str());
         }
         else if (httpresponse.errorCode == Common::HttpRequests::ResponseErrorCode::OK)
         {
@@ -295,7 +297,7 @@ namespace ResponseActionsImpl
             else
             {
                 std::stringstream error;
-                error << "Failed to download " << url << " : Error code " << httpresponse.status;
+                error << "Failed to download " << url << ": Error code " << httpresponse.status;
                 LOGWARN(error.str());
                 ActionsUtils::setErrorInfo(response, 1, error.str(), "network_error");
             }
