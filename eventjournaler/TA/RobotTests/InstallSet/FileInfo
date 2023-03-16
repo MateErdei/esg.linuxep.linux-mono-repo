@@ -2,6 +2,7 @@ o600, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/plugins/eventjournaler/
 o600, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/plugins/eventjournaler/lib64/libeventjournal.so.0
 o600, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/plugins/eventjournaler/lib64/libeventqueuelib.so.0
 o600, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/plugins/eventjournaler/lib64/libeventwriterlib.so.0
+o600, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/plugins/eventjournaler/lib64/libexpat.so.0
 o600, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/plugins/eventjournaler/lib64/libgcc_s.so.1.0
 o600, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/plugins/eventjournaler/lib64/libheartbeat.so.0
 o600, sophos-spl-group, sophos-spl-user, /opt/sophos-spl/plugins/eventjournaler/lib64/libhelpers.so.0
