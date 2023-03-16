@@ -1,23 +1,20 @@
 // Copyright 2023 Sophos Limited. All rights reserved.
 
-#include "modules/Common/UtilityImpl/TimeUtils.h"
 #include "modules/ResponseActions/ResponseActionsImpl/ActionsUtils.h"
 #include "modules/ResponseActions/ResponseActionsImpl/InvalidCommandFormat.h"
-#include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
-#include "tests/Common/Helpers/MemoryAppender.h"
-#include "tests/Common/Helpers/MockFilePermissions.h"
-#include "tests/Common/Helpers/MockFileSystem.h"
+#include "modules/Common/UtilityImpl/TimeUtils.h"
 
-#include <gmock/gmock.h>
-#include <gtest/gtest.h>
+#include "tests/Common/Helpers/MemoryAppender.h"
 
 #include <json.hpp>
+#include <gtest/gtest.h>
+#include <gmock/gmock.h>
 
 class ActionsUtilsTests : public MemoryAppenderUsingTests
 {
 public:
     ActionsUtilsTests()
-        : MemoryAppenderUsingTests("responseactions")
+        : MemoryAppenderUsingTests("ResponseActionsImpl")
     {}
     nlohmann::json getDefaultUploadObject(ResponseActionsImpl::UploadType type)
     {
@@ -42,6 +39,21 @@ public:
         action["expiration"] = 1444444;
         action["timeout"] = 10;
         action["maxUploadSizeBytes"] = 10000000;
+        return action;
+    }
+
+    nlohmann::json getDefaultDownloadAction()
+    {
+        nlohmann::json action;
+        action["url"] = "https://s3.com/download.zip";
+        action["targetPath"] = "/targetpath";
+        action["sha256"] = "shastring";
+        action["sizeBytes"] = 1024;
+        action["expiration"] = 144444000000004;
+        action["timeout"] = 10;
+        //optional
+        action["decompress"] = false;
+        action["password"] = "";
         return action;
     }
 };
@@ -83,25 +95,14 @@ TEST_F(ActionsUtilsTests, testSucessfulParseUploadFolder)
 
 TEST_F(ActionsUtilsTests, testParseFailsWhenActionIsInvalidJson)
 {
-    EXPECT_THROW(
-        ResponseActionsImpl::ActionsUtils::readUploadAction("", ResponseActionsImpl::UploadType::FILE),
-        ResponseActionsImpl::InvalidCommandFormat);
+    nlohmann::json action = getDefaultUploadObject(ResponseActionsImpl::UploadType::FILE);
+    EXPECT_THROW(ResponseActionsImpl::ActionsUtils::readUploadAction("",ResponseActionsImpl::UploadType::FILE),ResponseActionsImpl::InvalidCommandFormat);
 }
 
 TEST_F(ActionsUtilsTests, testParseFailsWhenActionISUploadFileWhenExpectingFolder)
 {
     nlohmann::json action = getDefaultUploadObject(ResponseActionsImpl::UploadType::FILE);
-    EXPECT_THROW(
-        ResponseActionsImpl::ActionsUtils::readUploadAction(action.dump(), ResponseActionsImpl::UploadType::FOLDER),
-        ResponseActionsImpl::InvalidCommandFormat);
-}
-
-TEST_F(ActionsUtilsTests, testParseFailsWhenActionISUploadFolderWhenExpectingFile)
-{
-    nlohmann::json action = getDefaultUploadObject(ResponseActionsImpl::UploadType::FOLDER);
-    EXPECT_THROW(
-        ResponseActionsImpl::ActionsUtils::readUploadAction(action.dump(), ResponseActionsImpl::UploadType::FILE),
-        ResponseActionsImpl::InvalidCommandFormat);
+    EXPECT_THROW(ResponseActionsImpl::ActionsUtils::readUploadAction(action.dump(),ResponseActionsImpl::UploadType::FOLDER),ResponseActionsImpl::InvalidCommandFormat);
 }
 
 TEST_F(ActionsUtilsTests, testSucessfulParseCompressionEnabled)
@@ -109,11 +110,10 @@ TEST_F(ActionsUtilsTests, testSucessfulParseCompressionEnabled)
     nlohmann::json action = getDefaultUploadObject(ResponseActionsImpl::UploadType::FILE);
     action["compress"] = true;
     action["password"] = "password";
-    ResponseActionsImpl::UploadInfo info =
-        ResponseActionsImpl::ActionsUtils::readUploadAction(action.dump(), ResponseActionsImpl::UploadType::FILE);
+    ResponseActionsImpl::UploadInfo info = ResponseActionsImpl::ActionsUtils::readUploadAction(action.dump(),ResponseActionsImpl::UploadType::FILE);
 
-    EXPECT_EQ(info.compress, true);
-    EXPECT_EQ(info.password, "password");
+    EXPECT_EQ(info.compress,true);
+    EXPECT_EQ(info.password,"password");
 }
 
 TEST_F(ActionsUtilsTests, testFailedParseInvalidValue)
@@ -158,16 +158,118 @@ TEST_F(ActionsUtilsTests, testFailedParseMissingTargetFile)
     EXPECT_THROW(ResponseActionsImpl::ActionsUtils::readUploadAction(action.dump(),ResponseActionsImpl::UploadType::FILE),ResponseActionsImpl::InvalidCommandFormat);
 }
 
-TEST_F(ActionsUtilsTests, testSendResponse)
+//**********************DOWNLOAD ACTION***************************
+TEST_F(ActionsUtilsTests, testMissingUrl)
 {
-    auto mockFileSystem = new NaggyMock<MockFileSystem>();
-    auto mockFilePermissions = new NaggyMock<MockFilePermissions>();
-    EXPECT_CALL(*mockFileSystem, writeFile(_, "content"));
-    EXPECT_CALL(*mockFilePermissions, chown(_, "sophos-spl-user", "sophos-spl-group"));
-    EXPECT_CALL(*mockFilePermissions, chmod(_, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP));
-    EXPECT_CALL(*mockFileSystem, moveFile(_, "/opt/sophos-spl/base/mcs/response/CORE_correlation_id_response.json"));
-    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>{ mockFileSystem });
-    Tests::replaceFilePermissions(std::unique_ptr<Common::FileSystem::IFilePermissions>{mockFilePermissions});
-
-    ResponseActions::RACommon::sendResponse("correlation_id", "content");
+    nlohmann::json action = getDefaultDownloadAction();
+    action.erase("url");
+    try
+    {
+        auto output = ResponseActionsImpl::ActionsUtils::readDownloadAction(action.dump());
+        FAIL() << "Didnt throw due to missing essential action";
+    }
+    catch (const ResponseActionsImpl::InvalidCommandFormat& except)
+    {
+        EXPECT_STREQ(except.what(), "Invalid command format. Download command from Central missing required parameter: url");
+    }
 }
+
+TEST_F(ActionsUtilsTests, testMissingtargetPath)
+{
+    nlohmann::json action = getDefaultDownloadAction();
+    action.erase("targetPath");
+    try
+    {
+        auto output = ResponseActionsImpl::ActionsUtils::readDownloadAction(action.dump());
+        FAIL() << "Didnt throw due to missing essential action";
+    }
+    catch (const ResponseActionsImpl::InvalidCommandFormat& except)
+    {
+        EXPECT_STREQ(except.what(), "Invalid command format. Download command from Central missing required parameter: targetPath");
+    }
+}
+
+TEST_F(ActionsUtilsTests, testMissingsha256)
+{
+    nlohmann::json action = getDefaultDownloadAction();
+    action.erase("sha256");
+    try
+    {
+        auto output = ResponseActionsImpl::ActionsUtils::readDownloadAction(action.dump());
+        FAIL() << "Didnt throw due to missing essential action";
+    }
+    catch (const ResponseActionsImpl::InvalidCommandFormat& except)
+    {
+        EXPECT_STREQ(except.what(), "Invalid command format. Download command from Central missing required parameter: sha256");
+    }
+}
+
+TEST_F(ActionsUtilsTests, testMissingtimeout)
+{
+    nlohmann::json action = getDefaultDownloadAction();
+    action.erase("timeout");
+    try
+    {
+        auto output = ResponseActionsImpl::ActionsUtils::readDownloadAction(action.dump());
+        FAIL() << "Didnt throw due to missing essential action";
+    }
+    catch (const ResponseActionsImpl::InvalidCommandFormat& except)
+    {
+        EXPECT_STREQ(except.what(), "Invalid command format. Download command from Central missing required parameter: timeout");
+    }
+}
+
+TEST_F(ActionsUtilsTests, testMissingsizeBytes)
+{
+    nlohmann::json action = getDefaultDownloadAction();
+    action.erase("sizeBytes");
+    try
+    {
+        auto output = ResponseActionsImpl::ActionsUtils::readDownloadAction(action.dump());
+        FAIL() << "Didnt throw due to missing essential action";
+    }
+    catch (const ResponseActionsImpl::InvalidCommandFormat& except)
+    {
+        EXPECT_STREQ(except.what(), "Invalid command format. Download command from Central missing required parameter: sizeBytes");
+    }
+}
+
+TEST_F(ActionsUtilsTests, testMissingexpiration)
+{
+    nlohmann::json action = getDefaultDownloadAction();
+    action.erase("expiration");
+    try
+    {
+        auto output = ResponseActionsImpl::ActionsUtils::readDownloadAction(action.dump());
+        FAIL() << "Didnt throw due to missing essential action";
+    }
+    catch (const ResponseActionsImpl::InvalidCommandFormat& except)
+    {
+        EXPECT_STREQ(except.what(), "Invalid command format. Download command from Central missing required parameter: expiration");
+    }
+}
+
+TEST_F(ActionsUtilsTests, testMissingpassword)
+{
+    nlohmann::json action = getDefaultDownloadAction();
+    action.erase("password");
+    EXPECT_NO_THROW(ResponseActionsImpl::ActionsUtils::readDownloadAction(action.dump()));
+}
+
+TEST_F(ActionsUtilsTests, testMissingdecompress)
+{
+    nlohmann::json action = getDefaultDownloadAction();
+    action.erase("decompress");
+    EXPECT_NO_THROW(ResponseActionsImpl::ActionsUtils::readDownloadAction(action.dump()));
+}
+/*
+
+action["url"] = "https://s3.com/download.zip";
+action["targetPath"] = "/targetpath";
+action["sha256"] = "shastring";
+action["sizeBytes"] = 1024;
+action["expiration"] = 144444000000004;
+action["timeout"] = 10;
+//optional
+action["decompress"] = false;
+action["password"] = "";*/
