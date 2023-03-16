@@ -262,18 +262,24 @@ def main():
 
     # Translate the arguments from the host machine to the vagrant machine
     remote_args = []
+    exclude_manual = True
+    exclude_slow = True
     for arg in sys.argv[1:]:
         if os.path.exists(arg) and os.path.isabs(arg):
             if vagrant_shared_dir in arg:
                 remote_args.append(arg.replace(vagrant_shared_dir, '/vagrant'))
             raise AttributeError("Path parameter not in the vagrantroot is not supported: Arg=" + arg)
+        elif arg == "--no-exclude-manual":
+            exclude_manual = False
+        elif arg == "--no-exclude-slow":
+            exclude_slow = False
         else:
             remote_args.append(arg)
 
     # Add common parameters used most of the time
-    if "--include=manual" not in remote_args:
+    if exclude_manual and "--include=manual" not in remote_args:
         remote_args.insert(0, '--exclude=manual')
-    if "--include=slow" not in remote_args:
+    if exclude_slow and "--include=slow" not in remote_args:
         remote_args.insert(0, '--exclude=slow')
 
     # Add quotes to args
