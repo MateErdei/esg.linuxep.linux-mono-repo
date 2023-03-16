@@ -276,16 +276,124 @@ TEST_F(ActionsUtilsTests, testSuccessfulParsing)
     EXPECT_EQ(output.url, action.at("url"));
     EXPECT_EQ(output.targetPath, action.at("targetPath"));
     EXPECT_EQ(output.password, action.at("password"));
-
 }
-/*
 
-action["url"] = "https://s3.com/download.zip";
-action["targetPath"] = "/targetpath";
-action["sha256"] = "shastring";
-action["sizeBytes"] = 1024;
-action["expiration"] = 144444000000004;
-action["timeout"] = 10;
-//optional
-action["decompress"] = false;
-action["password"] = "";*/
+TEST_F(ActionsUtilsTests, testWrongTypeDecompress)
+{
+    nlohmann::json action = getDefaultDownloadAction();
+    action["decompress"] = "sickness";
+    try
+    {
+        auto output = ResponseActionsImpl::ActionsUtils::readDownloadAction(action.dump());
+        FAIL() << "Didnt throw due to missing essential action";
+    }
+    catch (const ResponseActionsImpl::InvalidCommandFormat& except)
+    {
+        EXPECT_STREQ(except.what(), "Invalid command format. Failed to parse download command json, json value in unexpected type : [json.exception.type_error.302] type must be boolean, but is string");
+    }
+}
+
+TEST_F(ActionsUtilsTests, testWrongTypeSizeBytes)
+{
+    nlohmann::json action = getDefaultDownloadAction();
+    action["sizeBytes"] = "sizebytes";
+    try
+    {
+        auto output = ResponseActionsImpl::ActionsUtils::readDownloadAction(action.dump());
+        FAIL() << "Didnt throw due to missing essential action";
+    }
+    catch (const ResponseActionsImpl::InvalidCommandFormat& except)
+    {
+        EXPECT_STREQ(except.what(), "Invalid command format. Failed to parse download command json, json value in unexpected type : [json.exception.type_error.302] type must be number, but is string");
+    }
+}
+
+TEST_F(ActionsUtilsTests, testWrongTypeExpiration)
+{
+    nlohmann::json action = getDefaultDownloadAction();
+    action["expiration"] = "expiration";
+    try
+    {
+        auto output = ResponseActionsImpl::ActionsUtils::readDownloadAction(action.dump());
+        FAIL() << "Didnt throw due to missing essential action";
+    }
+    catch (const ResponseActionsImpl::InvalidCommandFormat& except)
+    {
+        EXPECT_STREQ(except.what(), "Invalid command format. Failed to parse download command json, json value in unexpected type : [json.exception.type_error.302] type must be number, but is string");
+    }
+}
+
+TEST_F(ActionsUtilsTests, testWrongTypeTimeout)
+{
+    nlohmann::json action = getDefaultDownloadAction();
+    action["timeout"] = "timeout";
+    try
+    {
+        auto output = ResponseActionsImpl::ActionsUtils::readDownloadAction(action.dump());
+        FAIL() << "Didnt throw due to missing essential action";
+    }
+    catch (const ResponseActionsImpl::InvalidCommandFormat& except)
+    {
+        EXPECT_STREQ(except.what(), "Invalid command format. Failed to parse download command json, json value in unexpected type : [json.exception.type_error.302] type must be number, but is string");
+    }
+}
+
+TEST_F(ActionsUtilsTests, testWrongTypeSHA256)
+{
+    nlohmann::json action = getDefaultDownloadAction();
+    action["sha256"] = 256;
+    try
+    {
+        auto output = ResponseActionsImpl::ActionsUtils::readDownloadAction(action.dump());
+        FAIL() << "Didnt throw due to missing essential action";
+    }
+    catch (const ResponseActionsImpl::InvalidCommandFormat& except)
+    {
+        EXPECT_STREQ(except.what(), "Invalid command format. Failed to parse download command json, json value in unexpected type : [json.exception.type_error.302] type must be string, but is number");
+    }
+}
+
+TEST_F(ActionsUtilsTests, testWrongTypeURL)
+{
+    nlohmann::json action = getDefaultDownloadAction();
+    action["url"] = 123;
+    try
+    {
+        auto output = ResponseActionsImpl::ActionsUtils::readDownloadAction(action.dump());
+        FAIL() << "Didnt throw due to missing essential action";
+    }
+    catch (const ResponseActionsImpl::InvalidCommandFormat& except)
+    {
+        EXPECT_STREQ(except.what(), "Invalid command format. Failed to parse download command json, json value in unexpected type : [json.exception.type_error.302] type must be string, but is number");
+    }
+}
+
+TEST_F(ActionsUtilsTests, testWrongTypeTargetPath)
+{
+    nlohmann::json action = getDefaultDownloadAction();
+    action["targetPath"] = 930752758;
+    try
+    {
+        auto output = ResponseActionsImpl::ActionsUtils::readDownloadAction(action.dump());
+        FAIL() << "Didnt throw due to missing essential action";
+    }
+    catch (const ResponseActionsImpl::InvalidCommandFormat& except)
+    {
+        EXPECT_STREQ(except.what(), "Invalid command format. Failed to parse download command json, json value in unexpected type : [json.exception.type_error.302] type must be string, but is number");
+    }
+}
+
+TEST_F(ActionsUtilsTests, testWrongTypePassword)
+{
+    nlohmann::json action = getDefaultDownloadAction();
+    action["password"] = 999;
+    try
+    {
+        auto output = ResponseActionsImpl::ActionsUtils::readDownloadAction(action.dump());
+        FAIL() << "Didnt throw due to missing essential action";
+    }
+    catch (const ResponseActionsImpl::InvalidCommandFormat& except)
+    {
+        EXPECT_STREQ(except.what(), "Invalid command format. Failed to parse download command json, json value in unexpected type : [json.exception.type_error.302] type must be string, but is number");
+    }
+}
