@@ -12,11 +12,10 @@ add_executable(zmqchecker
         $<TARGET_OBJECTS:loggingobject>
         $<TARGET_OBJECTS:threadsobject>
         $<TARGET_OBJECTS:applicationconfigurationimplobject>
-        $<TARGET_OBJECTS:filesystemimplobject>
         $<TARGET_OBJECTS:utilityimplobject>
         )
 
-target_link_libraries(zmqchecker ${ZeroMQ_LIBRARY} ${LOG4CPLUS_LIBRARY} pthread sslimplobject)
+target_link_libraries(zmqchecker ${ZeroMQ_LIBRARY} ${LOG4CPLUS_LIBRARY} pthread filesystemimplobject)
 add_dependencies(zmqchecker zmqcheckerdir)
 
 set(outputzmqcheckerpath "${CMAKE_BINARY_DIR}/SystemProductTestOutput/zmqchecker")

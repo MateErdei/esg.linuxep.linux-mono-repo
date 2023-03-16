@@ -13,9 +13,11 @@ add_library(filesystemimplobject OBJECT
         TempDir.cpp
         TempDir.h)
 
-add_library(filesystemimpl SHARED $<TARGET_OBJECTS:filesystemimplobject>)
+target_link_libraries(filesystemimplobject INTERFACE sslimpl utilityimpl cap)
 
-target_link_libraries(filesystemimpl PUBLIC sslimpl utilityimpl)
+add_library(filesystemimpl SHARED)
+
+target_link_libraries(filesystemimpl PUBLIC filesystemimplobject)
 
 SET_TARGET_PROPERTIES(filesystemimpl
         PROPERTIES INSTALL_RPATH "$ORIGIN")
