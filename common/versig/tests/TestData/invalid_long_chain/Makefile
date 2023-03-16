@@ -19,6 +19,27 @@ rootca.crt : rootca.key
 		 -key "$<" -out "$@" \
 		 -subj "/C=UK/ST=Oxford/O=VersigLongChain/CN=localhostCA"
 
+rogue_intermediate.key :
+	openssl genrsa -out "$@" 2048
+
+rogue_intermediate.csr : rogue_intermediate.key
+	openssl req -new -sha256 \
+		-config openssl.cnf \
+		-key "$<" \
+		-out "$@" \
+		-subj "/C=UK/ST=Oxford/O=VersigLongChain/CN=intermediate1"
+
+rogue_intermediate.crt : rogue_intermediate.csr rootca.crt
+	openssl x509 \
+          -req -in "$<" \
+          -extfile openssl.cnf \
+          -extensions v3_intermediate_ca \
+          -CA rootca.crt \
+          -CAkey rootca.key \
+          -CAcreateserial \
+          -out "$@" \
+          -days 14000
+
 
 intermediate1.key :
 	openssl genrsa -out "$@" 2048
@@ -52,17 +73,17 @@ intermediate2.csr : intermediate2.key
 		-out "$@" \
 		-subj "/C=UK/ST=Oxford/O=VersigLongChain/CN=intermediate2"
 
-intermediate2.crt : intermediate2.csr intermediate1.crt
+# Deliberate error - using rogue_intermediate
+intermediate2.crt : intermediate2.csr intermediate1.crt rogue_intermediate.crt
 	openssl x509 \
           -req -in "$<" \
           -extfile openssl.cnf \
           -extensions v3_intermediate_ca \
-          -CA intermediate1.crt \
-          -CAkey intermediate1.key \
+          -CA rogue_intermediate.crt \
+          -CAkey rogue_intermediate.key \
           -CAcreateserial \
           -out "$@" \
           -days 13000
-
 
 intermediate3.key :
 	openssl genrsa -out "$@" 2048
@@ -96,7 +117,6 @@ signing.csr.pem : signing.key
 			-out "$@" \
 			-subj "/C=UK/ST=Oxford/L=Abingdon/O=VersigLongChain/CN=signing"
 	[ -s "$@" ]
-
 
 signing.crt : signing.csr.pem intermediate3.crt
 	openssl x509 \
@@ -135,6 +155,7 @@ manifest.dat : manifest-sig.base64 manifest-data.dat
 
 clean :
 	rm -f rootca.crt rootca.key
+	rm -f rogue_intermediate.crt rogue_intermediate.csr rogue_intermediate.key
 	rm -f intermediate1.crt intermediate1.csr intermediate1.key
 	rm -f intermediate2.crt intermediate2.csr intermediate2.key
 	rm -f intermediate3.crt intermediate3.csr intermediate3.key
