@@ -866,16 +866,11 @@ def get_systemd_file_info():
         systemd_paths.append("/etc/systemd/system/multi-user.target.wants/")
 
     fullFiles = []
-
     for systemd_path in systemd_paths:
         for (base, dirs, files) in os.walk(systemd_path):
             for f in files:
-                if not f.startswith("sophos-spl"):
-                    continue
-                p = os.path.join(base, f)
-                #if os.path.islink(p):
-                #    continue
-                fullFiles.append(p)
+                if f.startswith("sophos-spl"):
+                    fullFiles.append(os.path.join(base, f))
 
     results = []
     for p in fullFiles:
