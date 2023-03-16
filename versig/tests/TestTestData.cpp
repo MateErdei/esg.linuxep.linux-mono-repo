@@ -162,3 +162,15 @@ TEST_F(TestTestData, valid_long_chain)
     int ret = versig_main(argv);
     EXPECT_EQ(ret, 0);
 }
+
+TEST_F(TestTestData, invalid_long_chain)
+{
+    std::vector<std::string> argv { "versig_test",
+                                    "-c" TESTS "/invalid_long_chain/rootca.crt",
+                                    "-f" TESTS "/invalid_long_chain/manifest.dat",
+                                    "-d" TESTS "/invalid_long_chain",
+                                    "--silent-off"
+    };
+    int ret = versig_main(argv);
+    EXPECT_EQ(ret, 3);
+}
