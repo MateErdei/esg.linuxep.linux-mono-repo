@@ -369,7 +369,7 @@ def decide_whether_to_do_coverage(parameters: tap.Parameters, context: tap.Pipel
     if parameters.inhibit_run_coverage != 'false':
         return False
     branch = context.branch
-    return branch in ('master', "develop") or branch.startswith("release/") or branch.endswith('coverage')
+    return branch.startswith("release/") or branch.endswith('coverage')
 
 
 def decide_whether_to_run_cppcheck(parameters: tap.Parameters, context: tap.PipelineContext) -> bool:
