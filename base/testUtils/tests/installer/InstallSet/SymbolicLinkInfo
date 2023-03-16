@@ -512,7 +512,6 @@ o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libtelemetryimpl.so
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libtelemetryloggerimpl.so
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libtelemetryschedulerimpl.so
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libtelemetryschedulerloggerimpl.so
-o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libtesthelpers.so
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libthreads.so
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libThreatHealthReceiverImpl.so
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libupdateschedulerimpl.so
