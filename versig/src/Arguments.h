@@ -1,7 +1,6 @@
 // Copyright 2023 Sophos Limited. All rights reserved.
 
-#ifndef VERSIG_ARGUMENTS_H
-#define VERSIG_ARGUMENTS_H
+#pragma once
 
 #include <string>
 
@@ -21,5 +20,3 @@ namespace manifest
         bool allowSHA1signature = false;
     };
 }
-
-#endif // VERSIG_ARGUMENTS_H
