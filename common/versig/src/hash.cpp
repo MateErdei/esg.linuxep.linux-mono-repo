@@ -31,29 +31,6 @@ using hash_t = crypto::hash::hash_t;
 
 namespace
 {
-    /*
-     *
-EVP_MD_CTX* ctx = EVP_MD_CTX_new();
-EVP_DigestInit(ctx, digest);
-char buf[128 * 1024];
-
-while (!in.eof())
-{
-in.read(buf, sizeof(buf));
-if (in.gcount() > 0)
-    EVP_DigestUpdate(ctx, buf, in.gcount());
-}
-
-unsigned char hash_buf[EVP_MAX_MD_SIZE];
-unsigned int hash_len = 0;
-EVP_DigestFinal(ctx, hash_buf, &hash_len);
-EVP_MD_CTX_free(ctx);
-// assert(hash_len != 0);
-
-bytestring result((char*)hash_buf, hash_len);
-return result;
-     */
-
     class one_hash
     {
     public:
