@@ -262,6 +262,22 @@ TEST_F(ActionsUtilsTests, testMissingdecompress)
     action.erase("decompress");
     EXPECT_NO_THROW(ResponseActionsImpl::ActionsUtils::readDownloadAction(action.dump()));
 }
+
+TEST_F(ActionsUtilsTests, testSuccessfulParsing)
+{
+    nlohmann::json action = getDefaultDownloadAction();
+    auto output = ResponseActionsImpl::ActionsUtils::readDownloadAction(action.dump());
+
+    EXPECT_EQ(output.decompress, action.at("decompress"));
+    EXPECT_EQ(output.sizeBytes, action.at("sizeBytes"));
+    EXPECT_EQ(output.expiration, action.at("expiration"));
+    EXPECT_EQ(output.timeout, action.at("timeout"));
+    EXPECT_EQ(output.sha256, action.at("sha256"));
+    EXPECT_EQ(output.url, action.at("url"));
+    EXPECT_EQ(output.targetPath, action.at("targetPath"));
+    EXPECT_EQ(output.password, action.at("password"));
+
+}
 /*
 
 action["url"] = "https://s3.com/download.zip";
