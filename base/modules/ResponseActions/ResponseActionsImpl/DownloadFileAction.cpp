@@ -188,7 +188,8 @@ namespace ResponseActionsImpl
         if (fileSha != info.sha256)
         {
             std::stringstream shaError;
-            shaError << "Sha256 provided in request (" << info.sha256 << ") doesnt match that of file downloaded (" << fileSha << ")";
+            shaError << "Calculated Sha256 (" << fileSha << ") doesnt match that of file downloaded (" << info.sha256 << ")";
+            LOGWARN(shaError.str());
             ActionsUtils::setErrorInfo(response, 1, shaError.str(), "access_denied");
             return "";
         }
