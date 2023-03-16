@@ -73,10 +73,6 @@ function build()
     [[ -f $INPUT/openssl/bin/openssl ]] || exitFailure 12 "Failed to find openssl"
     OPENSSL_DIR=$INPUT/openssl
     export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${OPENSSL_DIR}/lib${BITS}
-    # Fix ups for new openssl build:
-    mkdir -p $OPENSSL_DIR/64
-    ln -snf $OPENSSL_DIR/include $OPENSSL_DIR/64/
-    echo "3" >$OPENSSL_DIR/LIBVERSION
 
     addpath "$INPUT/cmake/bin"
     chmod 700 $INPUT/cmake/bin/cmake || exitFailure "Unable to chmod cmake"
