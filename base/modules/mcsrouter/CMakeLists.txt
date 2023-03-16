@@ -113,7 +113,12 @@ install(DIRECTORY ${CMAKE_BINARY_DIR}/lib-dynload
 install(FILES ${CMAKE_BINARY_DIR}/python3
         DESTINATION ${BASE_DIST_PREFIX}/files/base/bin)
 
-install(FILES ${PYTHON_LIBRARIES}
+INCLUDE(FindLibraryFullPath)
+FindLibraryFullPath(LIBXCRYPT_LIBRARY_ABSOLUTE crypt ${LIBXCRYPT_INPUT}/install64/lib)
+
+install(FILES
+        ${PYTHON_LIBRARIES}
+        ${LIBXCRYPT_LIBRARY_ABSOLUTE}
         DESTINATION ${BASE_DIST_PREFIX}/files/base/lib)
 
 install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/engine/mcs_rootca.crt
