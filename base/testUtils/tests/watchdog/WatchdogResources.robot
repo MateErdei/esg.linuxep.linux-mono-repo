@@ -66,6 +66,6 @@ Wdctl Test Teardown
 
 Verify Watchdog Conf Has Changed
     [Arguments]    ${originalTime}
-    ${latest}    Get Modified Time   ${WATCHDOG_CONFIG}
+    ${latest}    Get Modified Time   ${WD_ACTUAL_USER_GROUP_IDS}
     Should Not Be Equal    ${originalTime}    ${latest}
 
