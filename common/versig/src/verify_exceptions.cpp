@@ -1,9 +1,10 @@
+// Copyright 2003-2023 Sophos Limited. All rights reserved.
+
 // verify_exceptions.cpp. This file implements exception and helper
 // classes for error handling within the verify library.
 //
 //  20030909 RW version 1.0.0
-//
-//////////////////////////////////////////////////////////////////////
+
 #include "verify_exceptions.h"
 
 #include <openssl/err.h>

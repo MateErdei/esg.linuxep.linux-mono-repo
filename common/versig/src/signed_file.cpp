@@ -1,8 +1,8 @@
+// Copyright 2005-2023 Sophos Limited. All rights reserved.
+
 // signed_file.cpp: interface for the SignedFile facade class.
 //
 //  20050322 Modified for SAV for Linux from verify.cpp
-//
-//////////////////////////////////////////////////////////////////////
 
 #include "signed_file.h"
 

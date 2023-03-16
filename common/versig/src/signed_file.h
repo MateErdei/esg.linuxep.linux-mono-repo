@@ -1,9 +1,9 @@
+// Copyright 2003-2023 Sophos Limited. All rights reserved.
+
 // signed_file.h: interface for the SignedFile facade class.
 //
 //  20030902 Original code from DC version 1.0.0
 //  20050322 Modified for use with SAV for Linux
-//
-//////////////////////////////////////////////////////////////////////
 
 #if !defined(_SIGNEDFILE_H_INCLUDED_)
 #    define _SIGNEDFILE_H_INCLUDED_

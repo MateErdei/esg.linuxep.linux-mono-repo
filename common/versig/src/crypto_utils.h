@@ -1,9 +1,8 @@
+// Copyright 2003-2023 Sophos Limited. All rights reserved.
 // crypto_utils.h: interface for the cryptographic verification
 // functions.
 //
 //  20030902 Original code from DC version 1.0.0
-//
-//////////////////////////////////////////////////////////////////////
 
 #if !defined(_CRYPTO_H_INCLUDED_)
 #    define _CRYPTO_H_INCLUDED_
