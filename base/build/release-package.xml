@@ -7,7 +7,7 @@
         <workingdir>.</workingdir>
         <build-asset project="linuxep" repo="versig">
             <release-version branch="release/Version_2_0_0" build-id="20220727094738-a99112d63f8fc2b87e53e7e69e687cf4fd890434-OYVMQC"/>
-            <development-version branch="master"/>
+            <development-version branch="feature--LINUXDAR-5854_upgrade_openssl"/>
             <include artifact-path="output" dest-dir="/build/input/"/>
         </build-asset>
         <!-- TODO LINUXDAR-5854: Remove once using new versig -->
