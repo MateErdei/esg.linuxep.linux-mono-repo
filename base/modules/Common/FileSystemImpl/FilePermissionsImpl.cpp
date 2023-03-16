@@ -294,7 +294,7 @@ namespace Common::FileSystem
     std::map<std::string, gid_t> FilePermissionsImpl::getAllGroupNamesAndIds() const
     {
         std::map<std::string, gid_t> groups;
-
+        setgrent();
         while (true)
         {
             errno = 0; // so we can distinguish errors from no more entries
@@ -320,6 +320,7 @@ namespace Common::FileSystem
     {
         std::map<std::string, uid_t> users;
 
+        setpwent();
         while (true)
         {
             errno = 0; // so we can distinguish errors from no more entries
