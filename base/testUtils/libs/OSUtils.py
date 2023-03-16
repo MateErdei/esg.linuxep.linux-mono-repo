@@ -24,7 +24,7 @@ import PathManager
 def ensure_chmod_file_matches(filepath, expected_chmod_string):
     given_cmod = oct(os.stat(filepath)[stat.ST_MODE])[-3:]
     if given_cmod != expected_chmod_string:
-        raise AssertionError( "Filepath {} chmod is {}. Expected {}".format(filepath, given_cmod, expected_chmod_string))
+        raise AssertionError(f"Filepath {filepath} chmod is {given_cmod}. Expected {expected_chmod_string}")
 
 
 def ensure_owner_and_group_matches(filepath, username, groupname):
@@ -32,24 +32,14 @@ def ensure_owner_and_group_matches(filepath, username, groupname):
     user = pwd.getpwuid(stat_info.st_uid)[0]
     group = grp.getgrgid(stat_info.st_gid)[0]
     if username != user:
-        raise AssertionError("Filepath {} owner is {}. Expected {}.".format(filepath, user, username))
+        raise AssertionError(f"Filepath {filepath} owner is {user}. Expected {username}.")
     if group != groupname:
-        raise AssertionError("Filepath {} belongs to group {}. Expected {}", filepath, group, groupname)
+        raise AssertionError(f"Filepath {filepath} belongs to group {group}. Expected {groupname}")
 
-def get_process_owner(pid) -> str:
-    proc_stat_file = os.stat("/proc/{}".format(pid))
-    uid = proc_stat_file.st_uid
-    return pwd.getpwuid(uid)[0]
-
-def get_process_group(pid) -> str:
-    proc_stat_file = os.stat("/proc/{}".format(pid))
-    gid = proc_stat_file.st_gid
-    return grp.getgrgid(gid).gr_name
 
 def pids_of_file(file_path):
-
     if not os.path.exists(file_path):
-        raise AssertionError("Not a valid path: {}".format(file_path))
+        raise AssertionError(f"Not a valid path: {file_path}")
     pids_of = []
 
     try:
@@ -57,24 +47,25 @@ def pids_of_file(file_path):
         output = output.decode()
         if len(output):
             pids_of = [int(p) for p in output[:-1].split(' ')]
-            logger.info("Pids found: {}".format(pids_of))
-    except subprocess.CalledProcessError as ex: 
+            logger.info(f"Pids found: {pids_of}")
+    except subprocess.CalledProcessError as ex:
         # this is expected, as the process was executed but could 
         # not find any running process for the path
         # hence no process to kill
-        logger.debug(repr(ex)) # for debug purpose only
+        logger.debug(repr(ex))  # for debug purpose only
         pass
 
-    except Exception as ex: 
+    except Exception as ex:
         # any other exception is not expected
         raise
     return pids_of
+
 
 def check_if_process_has_osquery_netlink(file_path):
     pids = pids_of_file(file_path)
 
     if len(pids) < 2:
-        raise AssertionError("Not all osquery processes are running, only {} processes running".format(len(pids)))
+        raise AssertionError(f"Not all osquery processes are running, only {len(pids)} processes running")
     try:
         output = subprocess.check_output(['auditctl', '-s'])
         string_to_check = output.decode()
@@ -89,65 +80,69 @@ def check_if_process_has_osquery_netlink(file_path):
 
     return contains
 
-def check_process_running( file_path, expect='Running'):
+
+def check_process_running(file_path, expect='Running'):
     """
     file_path path of the file
     expect= Running or NotRunning    
     """
     if expect not in ['Running', 'NotRunning']:
-        raise AssertionError('Expect option not supported: {}'.format(expect))
+        raise AssertionError(f'Expect option not supported: {expect}')
     pids_of = pids_of_file(file_path)
-    if pids_of and expect=='Running':
+    if pids_of and expect == 'Running':
         return []
-    if pids_of and expect=='NotRunning':
-        raise AssertionError("Process still running {} with the pids: {}".format(file_path, pids_of))
-    if not pids_of and expect=='NotRunning':
+    if pids_of and expect == 'NotRunning':
+        raise AssertionError(f"Process still running {file_path} with the pids: {pids_of}")
+    if not pids_of and expect == 'NotRunning':
         return []
-    if not pids_of and expect=='Running':
-        raise AssertionError("No Process running with the path: {}".format(file_path))
+    if not pids_of and expect == 'Running':
+        raise AssertionError(f"No Process running with the path: {file_path}")
     return pids_of
+
 
 def kill_by_file(file_path):
     pids_of = pids_of_file(file_path)
     if pids_of:
-        
-        for pid in pids_of: 
-            logger.info("Issuing kill command to pid: {}".format(pid))
-            os.kill(int(pid), signal.SIGTERM) 
-    else: 
+
+        for pid in pids_of:
+            logger.info(f"Issuing kill command to pid: {pid}")
+            os.kill(int(pid), signal.SIGTERM)
+    else:
         logger.info("No process to kill")
     return pids_of
 
+
 def kill_by_command(command):
-    logger.info("Attempt to kill process by command: {}".format(command))
+    logger.info(f"Attempt to kill process by command: {command}")
     if os.path.exists(command):
         kill_by_file(command)
     try:
         # remove the new line at the end
-        file_path = subprocess.check_output(['which',command])[:-1]
-        
-        logger.info('Command path: {}'.format(file_path))
+        file_path = subprocess.check_output(['which', command])[:-1]
+
+        logger.info(f'Command path: {file_path}')
     except Exception as ex:
         logger.info(repr(ex))
-        raise AssertionError( "Command path not found: {}".format(command))
+        raise AssertionError(f"Command path not found: {command}")
     kill_by_file(file_path)
 
 
 def kill_by_file_and_wait_it_to_shutdown(file_path, secs2wait, number_of_attempts):
     pids_before_kill = set(kill_by_file(file_path))
-    logger.info("Sent the signal kill to processes: {}".format(pids_before_kill))
+    logger.info(f"Sent the signal kill to processes: {pids_before_kill}")
     number_of_attempts = int(number_of_attempts)
     secs2wait = int(secs2wait)
-    attempt=0
-    while attempt < number_of_attempts: 
+    attempt = 0
+    while attempt < number_of_attempts:
         attempt += 1
         time.sleep(secs2wait)
         pids_after_kill = set(pids_of_file(file_path))
-        logger.info("Current processes running: {}".format(pids_after_kill))
-        if len(pids_before_kill.intersection(pids_after_kill)) == 0: 
+        logger.info(f"Current processes running: {pids_after_kill}")
+        if len(pids_before_kill.intersection(pids_after_kill)) == 0:
             return
 
-    raise AssertionError("Process not killed after {} seconds".format(secs2wait * number_of_attempts))
+    raise AssertionError(f"Process not killed after {secs2wait * number_of_attempts} seconds")
+
 
 def dump_all_processes():
     pstree = '/usr/bin/pstree'
@@ -161,10 +156,12 @@ def dump_all_processes():
     except Exception as ex:
         logger.warn(ex.message)
 
+
 def remove_dir_if_exists(dir):
     if os.path.isdir(dir):
-        logger.info("Removing dir: ".format(dir))
+        logger.info(f"Removing dir: {dir}")
         shutil.rmtree(dir)
+
 
 def remove_files_in_directory(directory_path):
     for fname in os.listdir(directory_path):
@@ -177,15 +174,17 @@ def remove_files_in_directory(directory_path):
             except IOError:
                 pass
 
-def check_files_have_not_been_removed(install_directory, removed_file_list, root_directory_to_check, files_to_ignore_in_check):
+
+def check_files_have_not_been_removed(install_directory, removed_file_list, root_directory_to_check,
+                                      files_to_ignore_in_check):
     # function used to check that files have not been removed by the installation cleanup processes even if
     # the files are listed in the remove_files_list created by the manifest diff
     # when the files listed are outside of the realm of the component file set.
 
-    #install_directory: location of sophos-spl
-    #removed_file_list: file path of the file created by the manifest diff named removedFiles_manifest files in this list should be prevented from being deleted
-    #root_directory_to_check: component root direcotry
-    #files_to_ignore_in_check: file path to the files to delete dat file.  These files will be correctly deteted by the correct component
+    # install_directory: location of sophos-spl
+    # removed_file_list: file path of the file created by the manifest diff named removedFiles_manifest files in this list should be prevented from being deleted
+    # root_directory_to_check: component root direcotry
+    # files_to_ignore_in_check: file path to the files to delete dat file.  These files will be correctly deteted by the correct component
     #   For example if test is checking plugin does not delete base files, the filestodelete.dat file should be the one for base.
 
     if os.path.isfile(removed_file_list):
@@ -194,7 +193,7 @@ def check_files_have_not_been_removed(install_directory, removed_file_list, root
 
         with open(removed_file_list, "r") as removed_input_file:
             for removed_input_line in removed_input_file:
-                removed_input_line =  removed_input_line.strip()
+                removed_input_line = removed_input_line.strip()
                 if root_directory_to_check in removed_input_line:
                     full_path = os.path.join(install_directory, removed_input_line[len(path_to_remove):])
 
@@ -213,9 +212,8 @@ def check_files_have_not_been_removed(install_directory, removed_file_list, root
                                     ignore_file = True
                                     break
                             if ignore_file == False:
-                                raise AssertionError("A file has been removed that should have been prevented from being deleted: {}".format(full_path))
-
-
+                                raise AssertionError(
+                                    f"A file has been removed that should have been prevented from being deleted: {full_path}")
 
 
 def Create_Symlink(target, destination):
@@ -236,23 +234,23 @@ def query_tarfile_for_contents(path_to_tarfile):
 
 
 def get_file_owner(filepath: str) -> str:
-    owner = subprocess.check_output(['stat', '-c', '%U', filepath]).decode().strip()
+    owner = pwd.getpwuid(os.stat(filepath).st_uid).pw_name
     return owner
 
 
 def get_file_owner_id(filepath: str) -> str:
-    owner_id = subprocess.check_output(['stat', '-c', '%u', filepath]).decode().strip()
-    return owner_id
+    owner_id = pwd.getpwuid(os.stat(filepath).st_uid).pw_uid
+    return str(owner_id)
 
 
 def get_file_group(filepath: str) -> str:
-    group = subprocess.check_output(['stat', '-c', '%G', filepath]).decode().strip()
+    group = grp.getgrgid(os.stat(filepath).st_gid).gr_name
     return group
 
 
 def get_file_group_id(filepath: str) -> str:
-    group_id = subprocess.check_output(['stat', '-c', '%g', filepath]).decode().strip()
-    return group_id
+    group_id = grp.getgrgid(os.stat(filepath).st_gid).gr_gid
+    return str(group_id)
 
 
 def get_file_permissions(filepath):
@@ -270,24 +268,21 @@ def get_all_permissions(filepath):
 
 def check_owner_matches(expected_owner, filepath):
     actual_owner = get_file_owner(filepath)
-    assert actual_owner == expected_owner, "expected owner: {}, doesn't match actual: {}". \
-        format(expected_owner, actual_owner)
+    assert actual_owner == expected_owner, f"expected owner: {expected_owner}, doesn't match actual: {actual_owner}"
 
 
 def check_group_matches(expected_group, filepath):
     actual_group = get_file_group(filepath)
-    assert actual_group == expected_group, "expected group: {}, doesn't match actual: {}". \
-        format(expected_group, actual_group)
+    assert actual_group == expected_group, f"expected group: {expected_group}, doesn't match actual: {actual_group}"
 
 
 def check_file_permissions_match(expected_perms, filepath):
     actual_perms = get_file_permissions(filepath)
-    assert actual_perms == expected_perms, "expected file permissions: {}, don't match actual: {}". \
-        format(expected_perms, actual_perms)
+    assert actual_perms == expected_perms, f"expected file permissions: {expected_perms}, don't match actual: {actual_perms}"
 
 
 def file_exists_with_permissions(path_to_file, owner, group, permissions):
-    assert os.path.isfile(path_to_file), "{} is not a file".format(path_to_file)
+    assert os.path.isfile(path_to_file), f"{path_to_file} is not a file"
     check_owner_matches(owner, path_to_file)
     check_group_matches(group, path_to_file)
     check_file_permissions_match(permissions, path_to_file)
@@ -295,7 +290,7 @@ def file_exists_with_permissions(path_to_file, owner, group, permissions):
 
 def socket_exists_with_permissions(path_to_socket, owner, group, permissions):
     mode = os.stat(path_to_socket).st_mode
-    assert stat.S_ISSOCK(mode), "{} is not a socket".format(path_to_socket)
+    assert stat.S_ISSOCK(mode), f"{path_to_socket} is not a socket"
     check_owner_matches(owner, path_to_socket)
     check_group_matches(group, path_to_socket)
     check_file_permissions_match(permissions, path_to_socket)
@@ -311,12 +306,12 @@ def get_dictionary_of_actual_sockets_and_permissions():
 
     for path_to_socket in all_ipc_files:
         mode = os.stat(path_to_socket).st_mode
-        assert stat.S_ISSOCK(mode), "{} is not a socket".format(path_to_socket)
+        assert stat.S_ISSOCK(mode), f"{path_to_socket} is not a socket"
 
         permissions = get_all_permissions(path_to_socket)
 
         dictionary_of_sockets[path_to_socket] = permissions
-        logger.info("The following socket was added to the dictionary: {}".format(path_to_socket))
+        logger.info(f"The following socket was added to the dictionary: {path_to_socket}")
 
     return dictionary_of_sockets
 
@@ -333,9 +328,10 @@ def get_dictionary_of_actual_base_logs_and_permissions():
         permissions = get_all_permissions(path_to_log_file)
 
         dictionary_of_logs[path_to_log_file] = permissions
-        logger.info("The following socket was added to the dictionary: {}".format(path_to_log_file))
+        logger.info(f"The following socket was added to the dictionary: {path_to_log_file}")
 
     return dictionary_of_logs
+
 
 def get_dictionary_of_actual_mcs_folders_and_permissions():
     dictionary_of_mcs_folders = {}
@@ -353,48 +349,53 @@ def get_dictionary_of_actual_mcs_folders_and_permissions():
         permissions = get_all_permissions(mcs_folder)
 
         dictionary_of_mcs_folders[mcs_folder] = permissions
-        logger.info("The following mcs folder was added to the dictionary: {}".format(mcs_folder))
+        logger.info(f"The following mcs folder was added to the dictionary: {mcs_folder}")
 
     return dictionary_of_mcs_folders
 
+
 def get_directory_of_expected_mcs_folders_and_permissions():
     return {
-        "/opt/sophos-spl/base/mcs/action":      ["sophos-spl-local", "sophos-spl-group", "drwxr-x---"],
-        "/opt/sophos-spl/base/mcs/certs":       ["root", "sophos-spl-group", "drwxr-x--x"],
-        "/opt/sophos-spl/base/mcs/event":       ["root", "sophos-spl-group", "drwxrwx---"],
-        "/opt/sophos-spl/base/mcs/policy":      ["sophos-spl-local", "sophos-spl-group", "drwxr-x---"],
-        "/opt/sophos-spl/base/mcs/response":    ["root", "sophos-spl-group", "drwxrwx---"],
-        "/opt/sophos-spl/base/mcs/status":      ["root", "sophos-spl-group", "drwxrwx---"],
-        "/opt/sophos-spl/base/mcs/tmp":         ["sophos-spl-local", "sophos-spl-group", "drwxr-x---"],
+        "/opt/sophos-spl/base/mcs/action": ["sophos-spl-local", "sophos-spl-group", "drwxr-x---"],
+        "/opt/sophos-spl/base/mcs/certs": ["root", "sophos-spl-group", "drwxr-x--x"],
+        "/opt/sophos-spl/base/mcs/event": ["root", "sophos-spl-group", "drwxrwx---"],
+        "/opt/sophos-spl/base/mcs/policy": ["sophos-spl-local", "sophos-spl-group", "drwxr-x---"],
+        "/opt/sophos-spl/base/mcs/response": ["root", "sophos-spl-group", "drwxrwx---"],
+        "/opt/sophos-spl/base/mcs/status": ["root", "sophos-spl-group", "drwxrwx---"],
+        "/opt/sophos-spl/base/mcs/tmp": ["sophos-spl-local", "sophos-spl-group", "drwxr-x---"],
     }
+
 
 def get_dictionary_of_expected_sockets_and_permissions():
     return {
-        "/opt/sophos-spl/var/ipc/mcs_agent.ipc":                ["sophos-spl-user", "sophos-spl-group", "srw-rw----"],
-        "/opt/sophos-spl/var/ipc/watchdog.ipc":                 ["root",            "root",             "srw-------"],
-        "/opt/sophos-spl/var/ipc/plugins/watchdogservice.ipc":  ["root", "sophos-spl-group", "srw-rw----"],
-        "/opt/sophos-spl/var/ipc/plugins/tscheduler.ipc":       ["sophos-spl-user", "sophos-spl-group", "srw-------"],
-        "/opt/sophos-spl/var/ipc/plugins/sdu.ipc":              ["sophos-spl-user", "sophos-spl-group", "srw-------"],
-        "/opt/sophos-spl/var/ipc/plugins/updatescheduler.ipc":  ["sophos-spl-updatescheduler", "sophos-spl-group", "srw-rw----"]
+        "/opt/sophos-spl/var/ipc/mcs_agent.ipc": ["sophos-spl-user", "sophos-spl-group", "srw-rw----"],
+        "/opt/sophos-spl/var/ipc/watchdog.ipc": ["root", "root", "srw-------"],
+        "/opt/sophos-spl/var/ipc/plugins/watchdogservice.ipc": ["root", "sophos-spl-group", "srw-rw----"],
+        "/opt/sophos-spl/var/ipc/plugins/tscheduler.ipc": ["sophos-spl-user", "sophos-spl-group", "srw-------"],
+        "/opt/sophos-spl/var/ipc/plugins/sdu.ipc": ["sophos-spl-user", "sophos-spl-group", "srw-------"],
+        "/opt/sophos-spl/var/ipc/plugins/updatescheduler.ipc": ["sophos-spl-updatescheduler", "sophos-spl-group",
+                                                                "srw-rw----"]
     }
 
 
 def get_dictionary_of_expected_base_logs_and_permissions():
     return {
-        "/opt/sophos-spl/logs/base/watchdog.log":                         ["root", "root", "-rw-------"],
-        "/opt/sophos-spl/logs/base/wdctl.log":                            ["root", "root", "-rw-------"],
-        "/opt/sophos-spl/logs/base/sophosspl/mcs_envelope.log":           ["sophos-spl-local", "sophos-spl-group", "-rw-------"],
-        "/opt/sophos-spl/logs/base/sophosspl/mcsrouter.log":              ["sophos-spl-local", "sophos-spl-group", "-rw-------"],
-        "/opt/sophos-spl/logs/base/sophosspl/sophos_managementagent.log": ["sophos-spl-user", "sophos-spl-group", "-rw-------"],
-        "/opt/sophos-spl/logs/base/sophosspl/updatescheduler.log":        ["sophos-spl-updatescheduler", "sophos-spl-group", "-rw-------"],
-        "/opt/sophos-spl/logs/base/sophosspl/tscheduler.log":             ["sophos-spl-user", "sophos-spl-group", "-rw-------"],
-        "/opt/sophos-spl/logs/base/sophosspl/remote_diagnose.log":             ["sophos-spl-user", "sophos-spl-group", "-rw-------"]
+        "/opt/sophos-spl/logs/base/watchdog.log": ["root", "root", "-rw-------"],
+        "/opt/sophos-spl/logs/base/wdctl.log": ["root", "root", "-rw-------"],
+        "/opt/sophos-spl/logs/base/sophosspl/mcs_envelope.log": ["sophos-spl-local", "sophos-spl-group", "-rw-------"],
+        "/opt/sophos-spl/logs/base/sophosspl/mcsrouter.log": ["sophos-spl-local", "sophos-spl-group", "-rw-------"],
+        "/opt/sophos-spl/logs/base/sophosspl/sophos_managementagent.log": ["sophos-spl-user", "sophos-spl-group",
+                                                                           "-rw-------"],
+        "/opt/sophos-spl/logs/base/sophosspl/updatescheduler.log": ["sophos-spl-updatescheduler", "sophos-spl-group",
+                                                                    "-rw-------"],
+        "/opt/sophos-spl/logs/base/sophosspl/tscheduler.log": ["sophos-spl-user", "sophos-spl-group", "-rw-------"],
+        "/opt/sophos-spl/logs/base/sophosspl/remote_diagnose.log": ["sophos-spl-user", "sophos-spl-group", "-rw-------"]
     }
 
 
 def get_last_modified_time(path):
-    assert os.path.exists(path), "{} does not exist".format(path)
-    return os.stat(path).st_mtime # epoch time
+    assert os.path.exists(path), f"{path} does not exist"
+    return os.stat(path).st_mtime  # epoch time
 
 
 def find_most_recent_edit_time_from_list_of_files(list_of_files):
@@ -404,6 +405,7 @@ def find_most_recent_edit_time_from_list_of_files(list_of_files):
         if cur_time > most_recent_time:
             most_recent_time = cur_time
     return most_recent_time
+
 
 def install_system_ca_cert(certificate_path):
     script = os.path.join(PathManager.get_support_file_path(), "InstallCertificateToSystem.sh")
@@ -415,8 +417,8 @@ def install_system_ca_cert(certificate_path):
     logger.info(out)
     logger.info(err)
     if process.returncode != 0:
-        logger.info("stdout: {}\nstderr: {}".format(out, err))
-        raise OSError("Failed to install \"{}\" to system".format(certificate_path))
+        logger.info(f"stdout: {out}\nstderr: {err}")
+        raise OSError(f"Failed to install \"{certificate_path}\" to system")
 
 
 def install_system_ca_certs(certificate_paths):
@@ -434,7 +436,7 @@ def cleanup_system_ca_certs():
     out, err = process.communicate()
     logger.info(process.returncode)
     if process.returncode != 0:
-        logger.info("stdout: {}\nstderr: {}".format(out, err))
+        logger.info(f"stdout: {out}\nstderr: {err}")
         raise OSError("Failed to cleanup system certs")
 
 
@@ -462,14 +464,17 @@ def get_interface_mac_addresses():
                 break
     return mac_addresses
 
+
 def get_dirname_of_path(path, require_exists=False):
     directory_path = os.path.dirname(path)
     if require_exists:
-        assert os.path.exists(path), "path \"{}\" does not exist".format(directory_path)
+        assert os.path.exists(path), f"path \"{directory_path}\" does not exist"
     return directory_path
+
 
 def get_basename_of_path(path):
     return os.path.basename(path)
+
 
 def copy_file_if_exists(src, dest):
     if os.path.isfile(src):
@@ -481,49 +486,44 @@ def copy_file_if_exists(src, dest):
 
 def append_to_file_if_not_in_file(file_path, to_append):
     if not os.path.isfile(file_path):
-        raise AssertionError("File path to append to does not exist: {}".format(file_path))
+        raise AssertionError(f"File path to append to does not exist: {file_path}")
     with open(file_path, 'w+') as f:
         contents = f.read()
         if to_append not in contents:
-            f.write("\n{}".format(to_append))
+            f.write(f"\n{to_append}")
 
 
-def generate_file(file_path, size_in_kib):
-    size_in_kib = int(size_in_kib)
-    #       12345678901234567890123456789012
-    text = "GENERATED FILE CONTENTS01234567\n"
-    assert len(text) == 32
-    text = text * 32
-    text = text.encode("UTF-8")
-    assert len(text) == 1024
+def generate_file(file_path, size_in_mb):
     with open(file_path, 'wb') as fout:
-        for i in range(size_in_kib):
-            fout.write(text)
+        for i in range(1024):
+            fout.write(os.urandom(int(size_in_mb)))
 
 
 def replace_service_with_sleep(service_name):
     dir_path = get_service_folder()
 
-    file_path = os.path.join(dir_path,service_name)
+    file_path = os.path.join(dir_path, service_name)
     if not os.path.isfile(file_path):
-        raise AssertionError("no service file detected at {}".format(file_path))
+        raise AssertionError(f"no service file detected at {file_path}")
     with open(file_path, 'r') as f:
         contents = f.readlines()
-    new_contents =[]
+    new_contents = []
     for line in contents:
         if line.startswith("ExecStart"):
             new_contents.append("ExecStart=sleep 1000")
         else:
             new_contents.append(line)
-    shutil.move(file_path, file_path+".bak")
+    shutil.move(file_path, file_path + ".bak")
     with open(file_path, 'w') as f:
         f.write('\n'.join(new_contents))
+
 
 def revert_service(service_name):
     dir_path = get_service_folder()
 
-    file_path = os.path.join(dir_path,service_name)
-    shutil.move(file_path+".bak", file_path)
+    file_path = os.path.join(dir_path, service_name)
+    shutil.move(file_path + ".bak", file_path)
+
 
 def get_service_folder():
     dir_path = ""
@@ -534,6 +534,8 @@ def get_service_folder():
     else:
         raise AssertionError("no service dir detected cannot replace service file")
     return dir_path
+
+
 class ETCHostsWarehouseHandler:
     INTERNAL_WAREHOUSE_IP = '10.1.200.228'
     INTERNAL_WAREHOUSE_NAMES = ['dci.sophosupd.com', 'dci.sophosupd.net',
@@ -551,7 +553,7 @@ class ETCHostsWarehouseHandler:
 
     def _list_internal_warehouse(self):
         all_names = ' '.join(self.INTERNAL_WAREHOUSE_NAMES)
-        return ['{}\t{}'.format(self.INTERNAL_WAREHOUSE_IP, all_names)]
+        return [f'{self.INTERNAL_WAREHOUSE_IP}\t{all_names}']
 
     def _get_etc_host_lines_filtered(self):
         lines_of_etc_hosts = self._get_lines_from_etc_hosts()
@@ -561,7 +563,7 @@ class ETCHostsWarehouseHandler:
 
     def replace_etc_hosts(self, new_entries):
         content_of_etc_hosts = '\n'.join(new_entries)
-        print("Content of the new etc/hosts: {}".format(content_of_etc_hosts))
+        print(f"Content of the new etc/hosts: {content_of_etc_hosts}")
         with open('/etc/hosts.replace', 'w') as etc_host_file:
             etc_host_file.write(content_of_etc_hosts)
         if not os.path.exists('/etc/hosts.bkp'):
@@ -582,8 +584,10 @@ class ETCHostsWarehouseHandler:
         filtered = self._get_etc_host_lines_filtered() + ['']
         self.replace_etc_hosts(filtered)
 
+
 def time_since_epoch_hours():
-    return round(time.time()/3600, 1)
+    return round(time.time() / 3600, 1)
+
 
 def setup_etc_hosts_to_connect_to_internal_warehouse():
     etc = ETCHostsWarehouseHandler()
@@ -596,7 +600,7 @@ def clear_etc_hosts_of_entries_to_connect_to_internal_warehouse():
 
 
 def install_internal_warehouse_certs():
-    directory_path =   '/mnt/filer6/linux/SSPL/tools/setup_sspl/certs/internal_certs/'
+    directory_path = '/mnt/filer6/linux/SSPL/tools/setup_sspl/certs/internal_certs/'
     certs = []
     for file_name in os.listdir(directory_path):
         if file_name.endswith('crt'):
@@ -607,9 +611,9 @@ def install_internal_warehouse_certs():
 def running_processes_should_match_the_count(comm_name, match_dir_path, count):
     count = int(count)
     match_procs = [p for p in psutil.process_iter() if comm_name in p.name() and match_dir_path in p.exe()]
-    print("Matched processes: {}".format(match_procs))
+    print(f"Matched processes: {match_procs}")
     if len(match_procs) != count:
-        raise AssertionError("Expected {} processes. Found: {}. Information: {}".format(count, len(match_procs), match_procs))
+        raise AssertionError(f"Expected {count} processes. Found: {len(match_procs)}. Information: {match_procs}")
 
 
 def is_ubuntu():
@@ -633,6 +637,7 @@ def get_gcc_version_from_lib(lib_path) -> str:
             return line
     return "unknown"
 
+
 def check_libs_for_consistent_gcc_version(directory):
     libs = []
     for lib in os.listdir(directory):
@@ -650,4 +655,4 @@ def check_libs_for_consistent_gcc_version(directory):
         logger.info(f"{lib['name']} - {lib['gcc_version']}")
     logger.info(f"All versions detected: {gcc_versions}")
     if len(gcc_versions) != 1:
-        raise AssertionError( "Multiple GCC versions found across product libs")
+        raise AssertionError("Multiple GCC versions found across product libs")
