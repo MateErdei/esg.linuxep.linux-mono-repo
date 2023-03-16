@@ -175,6 +175,7 @@ std::string Watchdog::enablePlugin(const std::string& pluginName)
         // Not previously loaded, but now available
         assert(loadResult.second);
         addProcessToMonitor(std::make_unique<PluginProxy>(std::move(loadResult.first)));
+        writeExecutableUserAndGroupToWatchdogConfig();
     }
     else if (loadResult.second)
     {

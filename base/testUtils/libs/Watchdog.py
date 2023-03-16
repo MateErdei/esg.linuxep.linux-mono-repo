@@ -111,23 +111,40 @@ class Watchdog(object):
         pid = int(lines[-1].strip())
         os.kill(pid, signal.SIGTERM)
 
-    def verify_watchdog_config(self):
+    def verify_watchdog_config(self, expect_all_users=False):
         with open(os.path.join(get_install(), "base", "etc", "user-group-ids-actual.conf")) as config_file:
             watchdog_config = json.loads(config_file.read())
 
-        expected_config = {"groups": {}, "users": {}}
+        logger.info(f"Actual User/Group ID Config: {watchdog_config}")
 
-        for group_data in grp.getgrall():
-            group = group_data[0]
-            if group.startswith("sophos-spl"):
-                gid = grp.getgrnam(group)[2]
-                expected_config["groups"][group] = gid
+        if expect_all_users:
+            expected_config = {
+                "groups": {
+                    "sophos-spl-group": grp.getgrnam("sophos-spl-group").gr_gid,
+                    "sophos-spl-ipc": grp.getgrnam("sophos-spl-ipc").gr_gid
+                },
+                "users": {
+                    "sophos-spl-av": pwd.getpwnam("sophos-spl-av").pw_uid,
+                    "sophos-spl-local": pwd.getpwnam("sophos-spl-local").pw_uid,
+                    "sophos-spl-threat-detector": pwd.getpwnam("sophos-spl-threat-detector").pw_uid,
+                    "sophos-spl-updatescheduler": pwd.getpwnam("sophos-spl-updatescheduler").pw_uid,
+                    "sophos-spl-user": pwd.getpwnam("sophos-spl-user").pw_uid
+                }
+            }
+        else:
+            expected_config = {"groups": {}, "users": {}}
 
-        for user_data in pwd.getpwall():
-            user = user_data[0]
-            if user.startswith("sophos-spl"):
-                uid = getpwnam(user).pw_uid
-                expected_config["users"][user] = uid
+            for group_data in grp.getgrall():
+                group = group_data[0]
+                if group.startswith("sophos-spl"):
+                    gid = grp.getgrnam(group)[2]
+                    expected_config["groups"][group] = gid
+
+            for user_data in pwd.getpwall():
+                user = user_data[0]
+                if user.startswith("sophos-spl"):
+                    uid = getpwnam(user).pw_uid
+                    expected_config["users"][user] = uid
 
         if expected_config != watchdog_config:
             raise AssertionError(f"Watchdog config does not match expected\n"

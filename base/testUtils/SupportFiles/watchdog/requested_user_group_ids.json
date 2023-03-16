@@ -6,6 +6,8 @@
   "users": {
     "sophos-spl-local": 1995,
     "sophos-spl-updatescheduler": 1994,
-    "sophos-spl-user": 1996
+    "sophos-spl-user": 1996,
+    "sophos-spl-av": 1997,
+    "sophos-spl-threat-detector": 1998
   }
 }
