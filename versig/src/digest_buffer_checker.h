@@ -1,8 +1,8 @@
+// Copyright 2003-2023 Sophos Limited. All rights reserved.
+
 // digest_buffer_checker.h: interface for the digest_buffer_checker class.
 //
 //  20030902 Original code from DC version 1.0.0
-//
-//////////////////////////////////////////////////////////////////////
 
 #if !defined(_DIGEST_BUFFER_CHECKER_H_INCLUDED_)
 #    define _DIGEST_BUFFER_CHECKER_H_INCLUDED_

@@ -1,3 +1,5 @@
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
+
 // versig.cpp
 //
 // Application to verify digitally-signed files and verify data files

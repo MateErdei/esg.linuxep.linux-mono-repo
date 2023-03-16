@@ -1,3 +1,5 @@
+// Copyright 2003-2023 Sophos Limited. All rights reserved.
+
 // verify_exceptions.h. This header file defines exception classes to
 // be thrown in response to error events while reading and verifying.
 //

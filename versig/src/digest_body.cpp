@@ -1,8 +1,8 @@
+// Copyright 2003-2023 Sophos Limited. All rights reserved.
+
 // digest_body.cpp: implementation of the digest_file_body class.
 //
 //  20030902 Original code from DC version 1.0.0
-//
-//////////////////////////////////////////////////////////////////////
 
 #include "digest_body.h"
 

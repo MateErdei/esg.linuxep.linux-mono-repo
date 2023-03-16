@@ -1,9 +1,4 @@
-///////////////////////////////////////////////////////////
-//
-// Copyright (C) 2018 Sophos Plc, Oxford, England.
-// All rights reserved.
-//
-///////////////////////////////////////////////////////////
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #include "SophosCppStandard.h"
 

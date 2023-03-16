@@ -1,9 +1,9 @@
-// crypto_utils.cpp: implementation of the cryptographic verification
-// functions.
+// Copyright 2003-2023 Sophos Limited. All rights reserved.
+
+// digest_buffer.h : interface for the digest_file_buffer class.
 //
 //  20030902 Original code from DC version 1.0.0
 //
-//////////////////////////////////////////////////////////////////////
 
 #include "crypto_utils.h"
 
