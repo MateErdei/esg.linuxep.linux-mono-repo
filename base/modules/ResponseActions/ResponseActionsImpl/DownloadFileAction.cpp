@@ -44,8 +44,7 @@ namespace ResponseActionsImpl
             return response.dump();
         }
 
-        auto* fs = Common::FileSystem::fileSystem();
-        if (!fs->isDirectory(info.targetPath))
+        if (!m_fileSystem->isDirectory(info.targetPath))
         {
             std::string error = info.targetPath + " is not a valid directory";
             LOGWARN(error);
@@ -160,7 +159,7 @@ namespace ResponseActionsImpl
         assert(fileNameVec.size() == 1);
         Path filePath = fileNameVec.front();
         std::string fileName = Common::FileSystem::basename(filePath);
-        LOGINFO("Downloaded file " << fileName);
+        LOGDEBUG("Downloaded file " << fileName);
 
         //Check sha256
         std::string fileSha = "";
@@ -192,7 +191,7 @@ namespace ResponseActionsImpl
             ActionsUtils::setErrorInfo(response, 1, shaError.str(), "access_denied");
             return "";
         }
-        return fileName;
+        return filePath;
     }
 
 
@@ -227,7 +226,8 @@ namespace ResponseActionsImpl
                 auto extractedFile = m_fileSystem->listFiles(tmpExtractPath);
                 assert(extractedFile.size() == 1);
                 m_fileSystem->moveFile(extractedFile.front(), info.targetPath);
-                LOGINFO("File downloaded and extracted successfully: " << info.targetPath);
+                auto extractedFileName = Common::FileSystem::basename(extractedFile.front());
+                LOGINFO(info.targetPath << "/" << extractedFileName << " downloaded successfully");
             }
             else
             {
@@ -257,7 +257,8 @@ namespace ResponseActionsImpl
         else
         {
             m_fileSystem->moveFile(filePath, info.targetPath);
-            LOGINFO("File downloaded successfully: " << info.targetPath);
+            auto zipFileName = Common::FileSystem::basename(filePath);
+            LOGINFO(info.targetPath << "/" << zipFileName << " downloaded successfully");
         }
     }
 
