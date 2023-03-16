@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #include "tests/common/LogInitializedTests.h"
 
@@ -296,7 +292,7 @@ TEST_F(TestMounts, octalEscapedInvalid) // NOLINT
     EXPECT_EQ(allMountpoints.size(), 3);
 }
 
-TEST_F(TestMounts, getMountFromPath_doesNotIncorrectlyMatchToplevelFoldersWithMounts) // NOLINT
+TEST_F(TestMounts, getMountFromPath_doesNotIncorrectlyMatchToplevelFoldersWithMounts)
 {
     auto systemPaths = std::make_shared<mount_monitor::mountinfoimpl::SystemPaths>();
     auto mountInfo = std::make_shared<Mounts>(systemPaths);
