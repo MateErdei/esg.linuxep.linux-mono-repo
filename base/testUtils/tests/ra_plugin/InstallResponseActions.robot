@@ -51,7 +51,8 @@ Verify that the response actions installer works correctly
 
     ## Check systemd files
     ${SystemdInfo}=  get systemd file info
-    ${ExpectedSystemdInfo}=  Get File  ${ROBOT_TESTS_DIR}/ra_plugin/InstallSet/SystemdInfo
+    ${ExpectedSystemdInfo}  Run Keyword If  os.path.isdir("/usr/lib/systemd/system/")  Get File   ${ROBOT_TESTS_DIR}/ra_plugin/InstallSet/SystemdInfo
+    ...  ELSE  Get File   ${ROBOT_TESTS_DIR}/ra_plugin/InstallSet/SystemdInfo_withoutUsrLibSystemd
     Should Be Equal As Strings  ${ExpectedSystemdInfo}  ${SystemdInfo}
 
 Verify That Response Actions Logging Can Be Set Individually

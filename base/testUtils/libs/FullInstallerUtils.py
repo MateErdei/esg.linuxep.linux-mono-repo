@@ -857,7 +857,9 @@ def get_systemd_file_info():
     :return:
     """
 
-    systemd_paths = ["/usr/lib/systemd/system/"]
+    systemd_paths = []
+    if os.path.isdir("/usr/lib/systemd/system/"):
+        systemd_paths.append("/usr/lib/systemd/system/")
     if os.path.isdir("/lib/systemd/system/"):
         systemd_paths.append("/lib/systemd/system/")
     if os.path.isdir("/etc/systemd/system/multi-user.target.wants/"):
