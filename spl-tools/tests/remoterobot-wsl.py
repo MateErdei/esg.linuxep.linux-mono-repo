@@ -106,7 +106,7 @@ def find_repos_root_dir(current_dir: str) -> str:
     stdout_str = find_result.stdout
     repos = stdout_str.splitlines()
     for repo_path in repos:
-        if SSPL_TOOLS_REPO_DIR_NAME in repo_path:
+        if repo_path.endswith(SSPL_TOOLS_REPO_DIR_NAME+"/.git"):
             return str(os.path.dirname(os.path.dirname(repo_path)))
 
 
