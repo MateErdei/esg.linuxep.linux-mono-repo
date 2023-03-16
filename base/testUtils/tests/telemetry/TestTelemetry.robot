@@ -399,7 +399,7 @@ Test Outbreak Mode Telemetry
     set_fake_plugin_app_id  CORE
 
     ${mark} =  mark_log_size   ${BASE_LOGS_DIR}/sophosspl/sophos_managementagent.log
-    wait for log contains from mark  ${mark}     Starting service health checks
+    wait for log contains from mark   ${mark}     Starting service health checks     60
 
     # Pre-outbreak mode
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
