@@ -1,0 +1,7 @@
+intermediate*
+rootca.key
+rootca.srl
+manifest-data.dat
+manifest-sig.base64
+manifest-sig.dat
+signing.*

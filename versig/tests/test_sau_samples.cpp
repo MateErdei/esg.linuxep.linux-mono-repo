@@ -43,6 +43,12 @@ TEST_F(Test_SAU_samples, sha256)
     EXPECT_EQ(ret, 0);
 }
 
+/**
+ * The SAU test set Long chain doesn't have CA:TRUE on the intermediate certificates,
+ * and OpenSSL cares about this (The Verifier Windows Crypto doesn't)
+ *
+ * Replaced with TestData/valid_long_chain
+ */
 TEST_F(Test_SAU_samples, DISABLED_VerifySha256WithLongChain)
 {
     std::vector<std::string> argv { "versig_test",
