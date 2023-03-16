@@ -85,6 +85,7 @@ function removeWatchdogSystemdService()
     systemctl stop sophos-spl.service
     rm -f "/lib/systemd/system/sophos-spl.service"
     rm -f "/usr/lib/systemd/system/sophos-spl.service"
+    rm -f "/etc/systemd/system/multi-user.target.wants/sophos-spl.service"
     systemctl daemon-reload
 }
 

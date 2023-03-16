@@ -111,6 +111,7 @@ namespace diagnose
             systemCommands.runCommand("lshw", std::vector<std::string>(), "lshw"); // Doesn't work on Amazon
             systemCommands.runCommand("ls", { "-l", "/lib/systemd/system" }, "systemd");
             systemCommands.runCommand("ls", { "-l", "/usr/lib/systemd/system" }, "usr-systemd");
+            systemCommands.runCommand("ls", { "-l", "/etc/systemd/system/multi-user.target.wants" }, "etc-systemd");
             systemCommands.runCommand("auditctl", { "-l" }, "auditctl-rules");
             systemCommands.runCommand("auditctl", { "-s" }, "audit-subsystem-status");
             systemCommands.runCommand("systemctl", { "status", "auditd" }, "systemctl-status-auditd");

@@ -857,20 +857,23 @@ def get_systemd_file_info():
     :return:
     """
 
-    systemd_path = "/usr/lib/systemd/system/"
+    systemd_paths = ["/usr/lib/systemd/system/"]
     if os.path.isdir("/lib/systemd/system/"):
-        systemd_path = "/lib/systemd/system/"
+        systemd_paths.append("/lib/systemd/system/")
+    if os.path.isdir("/etc/systemd/system/multi-user.target.wants/"):
+        systemd_paths.append("/etc/systemd/system/multi-user.target.wants/")
 
     fullFiles = []
 
-    for (base, dirs, files) in os.walk(systemd_path):
-        for f in files:
-            if not f.startswith("sophos-spl"):
-                continue
-            p = os.path.join(base, f)
-            if os.path.islink(p):
-                continue
-            fullFiles.append(p)
+    for systemd_path in systemd_paths:
+        for (base, dirs, files) in os.walk(systemd_path):
+            for f in files:
+                if not f.startswith("sophos-spl"):
+                    continue
+                p = os.path.join(base, f)
+                #if os.path.islink(p):
+                #    continue
+                fullFiles.append(p)
 
     results = []
     for p in fullFiles:

@@ -527,6 +527,7 @@ exit 0""" % fake_sav)
     def cleanup_systemd_files(self):
         subprocess.Popen(["rm", "-f", "/lib/systemd/system/sophos-spl.service"])
         subprocess.Popen(["rm", "-f", "/usr/lib/systemd/system/sophos-spl.service"])
+        subprocess.Popen(["rm", "-f", "/etc/systemd/system/multi-user.target.wants/sophos-spl.service"])
         subprocess.Popen(["rm", "-f", "/lib/systemd/system/sophos-spl-update.service"])
         subprocess.Popen(["rm", "-f", "/usr/lib/systemd/system/sophos-spl-update.service"])
         subprocess.Popen(["systemctl", "daemon-reload"])
