@@ -139,16 +139,16 @@ namespace crypto
             switch (error)
             {
                 case X509_V_ERR_INVALID_CA:
-                    PRINT("Failed to verify chain: X509_V_ERR_INVALID_CA");
+                    PRINT("Failed to verify chain: X509_V_ERR_INVALID_CA: continuing to next chain.");
                     break;
                 case X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT_LOCALLY:
                     manifest::Output("Ceritificate chain not valid: continuing to next chain.");
                     break;
                 case X509_V_ERR_CERT_HAS_EXPIRED:
-                    PRINT("Certificate has expired!");
+                    PRINT("Certificate has expired! Continuing to next chain.");
                     break;
                 default:
-                    manifest::Output("Failed to verify certificate chain: " + std::to_string(error));
+                    manifest::Output("Failed to verify certificate chain: " + std::to_string(error) + ": continuing to next chain.");
                     break;
             }
         }
