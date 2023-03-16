@@ -30,7 +30,6 @@ public:
     {
         m_mockHttpRequester = std::make_shared<StrictMock<MockHTTPRequester>>();
         m_mockFileSystem = std::make_unique<StrictMock<MockFileSystem>>();
-
     }
 
     virtual void TearDown()
@@ -40,14 +39,14 @@ public:
         Common::ApplicationConfiguration::restoreApplicationPathManager();
     }
     
-    nlohmann::json getDefaultDownloadObject()
+    nlohmann::json getDownloadObject(bool decompress = false)
     {
         nlohmann::json action;
-        action["url"] = "https://s3.com/somewhere";
-        action["targetPath"] = "path";
+        action["url"] = "https://s3.com/download.zip";
+        action["targetPath"] = m_destPath;
         action["sha256"] = "shastring";
         action["sizeBytes"] = 1024;
-        action["decompress"] = false;
+        action["decompress"] = decompress;
         action["password"] = "";
         action["expiration"] = 144444000000004;
         action["timeout"] = 10;
@@ -57,7 +56,13 @@ public:
     std::shared_ptr<MockHTTPRequester> m_mockHttpRequester;
     std::unique_ptr<MockFileSystem> m_mockFileSystem;
 
-    void addResponseToRequester(long status, ResponseErrorCode errorCode)
+    const Path m_testZipFile = "download.zip";
+    const Path m_testExtractedFile = "download.txt";
+    const Path m_destPath = "/path/to/download/to";
+    const Path m_raTmpDir = "/opt/sophos-spl/plugins/responseactions/tmp";
+    const Path m_raExtractTmpDir = "/opt/sophos-spl/plugins/responseactions/tmp/extract";
+    
+    void addResponseToMockRequester(long status, ResponseErrorCode errorCode)
     {
         Common::HttpRequests::Response httpresponse;
         httpresponse.status = status;
@@ -65,68 +70,187 @@ public:
         EXPECT_CALL(*m_mockHttpRequester, get(_)).WillOnce(Return(httpresponse));
     }
 
-    void addDiskSpaceExpectToMockFileSystem(std::uintmax_t available)
+    void addDiskSpaceExpectsToMockFileSystem(const std::uintmax_t& raAvailable = 1024 * 1024, const std::uintmax_t& tmpAvailable = 1024 * 1024)
     {
-        std::filesystem::space_info spaceinfo;
-        spaceinfo.available = available;
-        EXPECT_CALL(*m_mockFileSystem, getDiskSpaceInfo("/opt/sophos-spl/plugins/responseactions/tmp")).WillOnce(Return(spaceinfo));
+        std::filesystem::space_info raSpaceInfo;
+        raSpaceInfo.available = raAvailable;
+
+        std::filesystem::space_info tmpSpaceInfo;
+        tmpSpaceInfo.available = tmpAvailable;
+
+        EXPECT_CALL(*m_mockFileSystem, getDiskSpaceInfo(m_destPath)).WillOnce(Return(tmpSpaceInfo));
+        EXPECT_CALL(*m_mockFileSystem, getDiskSpaceInfo(m_raTmpDir)).WillOnce(Return(raSpaceInfo));
+    }
+    
+    void addExpectListFilesToMockFileSystem(const bool decompress = false)
+    {
+        std::vector<std::string> zippedList { m_raTmpDir + "/" + m_testZipFile };
+        EXPECT_CALL(*m_mockFileSystem, listFiles(m_raTmpDir)).WillOnce(Return(zippedList));
+
+        if (decompress)
+        {
+            std::vector<std::string> unzippedList { m_raExtractTmpDir + "/" + m_testExtractedFile };
+            EXPECT_CALL(*m_mockFileSystem, listFiles(m_raExtractTmpDir)).WillOnce(Return(unzippedList));
+        }
+    }
+
+    void setupMockZipUtils(const int& returnVal = 0, const bool& usesPassword = false)
+    {
+        auto mockZip = std::make_unique<NiceMock<MockZipUtils>>();
+
+        if (!usesPassword)
+        {
+            EXPECT_CALL(*mockZip, unzip(_, _)).WillOnce(Return(returnVal));
+        }
+        else
+        {
+            EXPECT_CALL(*mockZip, unzip(_, _, _, _)).WillOnce(Return(returnVal));
+        }
+        Common::ZipUtilities::replaceZipUtils(std::move(mockZip));
     }
 };
 
 
-TEST_F(DownloadFileTests, SuccessCase)
+TEST_F(DownloadFileTests, SuccessfulDownload_Direct_NotDecompressed)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    addResponseToRequester(HTTP_STATUS_OK, ResponseErrorCode::OK);
+    addResponseToMockRequester(HTTP_STATUS_OK, ResponseErrorCode::OK);
+
+    //MockFileSystem
+    addDiskSpaceExpectsToMockFileSystem();
+    addExpectListFilesToMockFileSystem();
+    EXPECT_CALL(*m_mockFileSystem, isDirectory(m_destPath)).WillOnce(Return(true));
     EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(false));
-    EXPECT_CALL(*m_mockFileSystem, isFile("path")).WillOnce(Return(true));
-    EXPECT_CALL(*m_mockFileSystem, exists("path")).WillOnce(Return(false));
-    addDiskSpaceExpectToMockFileSystem(1024 * 1024);
-    EXPECT_CALL(*m_mockFileSystem, calculateDigest(Common::SslImpl::Digest::sha256, "/opt/sophos-spl/plugins/responseactions/tmp/path.zip")).WillOnce(Return("shastring"));
+    EXPECT_CALL(*m_mockFileSystem, exists(m_destPath)).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFileSystem, moveFile(m_raTmpDir + "/" + m_testZipFile, m_destPath)).Times(1);
+    EXPECT_CALL(*m_mockFileSystem, calculateDigest(Common::SslImpl::Digest::sha256, m_raTmpDir + "/" + m_testZipFile)).WillOnce(Return("shastring"));
     Tests::replaceFileSystem(std::move(m_mockFileSystem));
 
     ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
 
-    nlohmann::json action = getDefaultDownloadObject();
+    nlohmann::json action = getDownloadObject();
     std::string response = downloadFileAction.run(action.dump());
     nlohmann::json responseJson = nlohmann::json::parse(response);
 
     EXPECT_EQ(responseJson["result"], 0);
     EXPECT_EQ(responseJson["httpStatus"], 200);
+    EXPECT_FALSE(responseJson.contains("errorType"));
+    EXPECT_FALSE(responseJson.contains("errorMessage"));
 
-    EXPECT_TRUE(appenderContains("Downloading file: /opt/sophos-spl/plugins/responseactions/tmp/path.zip from url: https://s3.com/somewhere"));
+    EXPECT_TRUE(appenderContains("Downloading to /opt/sophos-spl/plugins/responseactions/tmp from url: https://s3.com/download.zip"));
     EXPECT_TRUE(appenderContains("Downloading directly"));
-    EXPECT_TRUE(appenderContains("Download for /opt/sophos-spl/plugins/responseactions/tmp/path.zip succeeded"));
+    EXPECT_TRUE(appenderContains("/path/to/download/to/download.zip downloaded successfully"));
 }
 
-TEST_F(DownloadFileTests, SuccessCaseWithProxy)
+TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompressed)
 {
-    auto httpRequester = std::make_shared<StrictMock<MockHTTPRequester>>();
-    Common::HttpRequests::Response httpresponse;
-    httpresponse.status = Common::HttpRequests::HTTP_STATUS_OK;
-    httpresponse.errorCode = Common::HttpRequests::ResponseErrorCode::OK;
-    EXPECT_CALL(*httpRequester, get(_)).WillOnce(Return(httpresponse));
-    ResponseActionsImpl::DownloadFileAction downloadFileAction(httpRequester);
-    nlohmann::json action = getDefaultDownloadObject();
+    UsingMemoryAppender memoryAppenderHolder(*this);
 
-    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
-    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>{ mockFileSystem });
-    EXPECT_CALL(*mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(true));
-    std::string obfuscatedCreds =
-        "CCD4E57ZjW+t5XPiMSJH1TurG3MfWCN3DpjJRINMwqNaWl+3zzlVIdyVmifCHUwcmaX6+YTSyyBM8SslIIGV5rUw";
-    std::string content = R"({"proxy":"localhost","credentials":")" + obfuscatedCreds + R"("})";
-    EXPECT_CALL(*mockFileSystem, readFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy"))
-        .WillOnce(Return(content));
-    EXPECT_CALL(*mockFileSystem, isFile("path")).WillOnce(Return(true));
-    EXPECT_CALL(*mockFileSystem, fileSize("path")).WillOnce(Return(100));
-    EXPECT_CALL(*mockFileSystem, calculateDigest(Common::SslImpl::Digest::sha256, "path"))
-        .WillOnce(Return("sha256string"));
+    bool decompress = true;
+    setupMockZipUtils();
 
+    addResponseToMockRequester(HTTP_STATUS_OK, ResponseErrorCode::OK);
+
+    //MockFileSystem
+    addDiskSpaceExpectsToMockFileSystem();
+    addExpectListFilesToMockFileSystem(decompress);
+    EXPECT_CALL(*m_mockFileSystem, isDirectory(m_destPath)).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFileSystem, exists(m_destPath)).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFileSystem, moveFile(m_raExtractTmpDir + "/" + m_testExtractedFile, m_destPath)).Times(1);
+    EXPECT_CALL(*m_mockFileSystem, calculateDigest(Common::SslImpl::Digest::sha256, m_raTmpDir + "/" + m_testZipFile)).WillOnce(Return("shastring"));
+    Tests::replaceFileSystem(std::move(m_mockFileSystem));
+
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
+
+    nlohmann::json action = getDownloadObject(decompress);
     std::string response = downloadFileAction.run(action.dump());
     nlohmann::json responseJson = nlohmann::json::parse(response);
+
     EXPECT_EQ(responseJson["result"], 0);
     EXPECT_EQ(responseJson["httpStatus"], 200);
+    EXPECT_FALSE(responseJson.contains("errorType"));
+    EXPECT_FALSE(responseJson.contains("errorMessage"));
+
+    EXPECT_TRUE(appenderContains("Downloading to /opt/sophos-spl/plugins/responseactions/tmp from url: https://s3.com/download.zip"));
+    EXPECT_TRUE(appenderContains("Downloading directly"));
+    EXPECT_TRUE(appenderContains("/path/to/download/to/download.txt downloaded successfully"));
+}
+
+TEST_F(DownloadFileTests, SuccessfulDownload_WithProxy_NotDecompressed)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    addResponseToMockRequester(HTTP_STATUS_OK, ResponseErrorCode::OK);
+
+    std::string obfuscatedCreds = "CCD4E57ZjW+t5XPiMSJH1TurG3MfWCN3DpjJRINMwqNaWl+3zzlVIdyVmifCHUwcmaX6+YTSyyBM8SslIIGV5rUw";
+    std::string content = R"({"proxy":"localhost","credentials":")" + obfuscatedCreds + R"("})";
+
+    //MockFileSystem
+    addDiskSpaceExpectsToMockFileSystem();
+    addExpectListFilesToMockFileSystem();
+    EXPECT_CALL(*m_mockFileSystem, isDirectory(m_destPath)).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockFileSystem, readFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(content));
+    EXPECT_CALL(*m_mockFileSystem, exists(m_destPath)).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFileSystem, moveFile(m_raTmpDir + "/" + m_testZipFile, m_destPath)).Times(1);
+    EXPECT_CALL(*m_mockFileSystem, calculateDigest(Common::SslImpl::Digest::sha256, m_raTmpDir + "/" + m_testZipFile)).WillOnce(Return("shastring"));
+    Tests::replaceFileSystem(std::move(m_mockFileSystem));
+
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
+
+    nlohmann::json action = getDownloadObject();
+    std::string response = downloadFileAction.run(action.dump());
+    nlohmann::json responseJson = nlohmann::json::parse(response);
+
+    EXPECT_EQ(responseJson["result"], 0);
+    EXPECT_EQ(responseJson["httpStatus"], 200);
+    EXPECT_FALSE(responseJson.contains("errorType"));
+    EXPECT_FALSE(responseJson.contains("errorMessage"));
+
+    EXPECT_TRUE(appenderContains("Downloading to /opt/sophos-spl/plugins/responseactions/tmp from url: https://s3.com/download.zip"));
+    EXPECT_TRUE(appenderContains("Downloading via proxy: localhost"));
+    EXPECT_TRUE(appenderContains("/path/to/download/to/download.zip downloaded successfully"));
+}
+
+TEST_F(DownloadFileTests, SuccessfulDownload_WithProxy_Decompressed)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    std::string obfuscatedCreds = "CCD4E57ZjW+t5XPiMSJH1TurG3MfWCN3DpjJRINMwqNaWl+3zzlVIdyVmifCHUwcmaX6+YTSyyBM8SslIIGV5rUw";
+    std::string content = R"({"proxy":"localhost","credentials":")" + obfuscatedCreds + R"("})";
+
+    bool decompress = true;
+    setupMockZipUtils();
+
+    addResponseToMockRequester(HTTP_STATUS_OK, ResponseErrorCode::OK);
+
+    //MockFileSystem
+    addDiskSpaceExpectsToMockFileSystem();
+    addExpectListFilesToMockFileSystem(decompress);
+    EXPECT_CALL(*m_mockFileSystem, isDirectory(m_destPath)).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockFileSystem, readFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(content));
+    EXPECT_CALL(*m_mockFileSystem, exists(m_destPath)).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFileSystem, moveFile(m_raExtractTmpDir + "/" + m_testExtractedFile, m_destPath)).Times(1);
+    EXPECT_CALL(*m_mockFileSystem, calculateDigest(Common::SslImpl::Digest::sha256, m_raTmpDir + "/" + m_testZipFile)).WillOnce(Return("shastring"));
+    Tests::replaceFileSystem(std::move(m_mockFileSystem));
+
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
+
+    nlohmann::json action = getDownloadObject(decompress);
+    std::string response = downloadFileAction.run(action.dump());
+    nlohmann::json responseJson = nlohmann::json::parse(response);
+
+    EXPECT_EQ(responseJson["result"], 0);
+    EXPECT_EQ(responseJson["httpStatus"], 200);
+    EXPECT_FALSE(responseJson.contains("errorType"));
+    EXPECT_FALSE(responseJson.contains("errorMessage"));
+
+    EXPECT_TRUE(appenderContains("Downloading to /opt/sophos-spl/plugins/responseactions/tmp from url: https://s3.com/download.zip"));
+    EXPECT_TRUE(appenderContains("Downloading via proxy: localhost"));
+    EXPECT_TRUE(appenderContains("/path/to/download/to/download.txt downloaded successfully"));
 }
 
 TEST_F(DownloadFileTests, ProxyFailureFallsbackDirect)
@@ -141,7 +265,7 @@ TEST_F(DownloadFileTests, ProxyFailureFallsbackDirect)
     EXPECT_CALL(*httpRequester, get(_)).Times(2).WillOnce(Return(failhttpresponse)).WillOnce(Return(httpresponse));
 
     ResponseActionsImpl::DownloadFileAction downloadFileAction(httpRequester);
-    nlohmann::json action = getDefaultDownloadObject();
+    nlohmann::json action = getDownloadObject();
 
     auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>{ mockFileSystem });
@@ -178,7 +302,7 @@ TEST_F(DownloadFileTests, SuccessCaseCompressionWithPassword)
     std::string zipFile = tempDir.absPath("file.txt.zip");
 
     ResponseActionsImpl::DownloadFileAction downloadFileAction(httpRequester);
-    nlohmann::json action = getDefaultDownloadObject();
+    nlohmann::json action = getDownloadObject();
     action["compress"] = true;
     action["password"] = "password";
     action["targetFile"] = filePath;
@@ -227,7 +351,7 @@ TEST_F(DownloadFileTests, ZipFails)
     httpresponse.errorCode = Common::HttpRequests::ResponseErrorCode::OK;
 
     ResponseActionsImpl::DownloadFileAction downloadFileAction(httpRequester);
-    nlohmann::json action = getDefaultDownloadObject();
+    nlohmann::json action = getDownloadObject();
     action["compress"] = true;
     std::string zipFile = "/opt/sophos-spl/plugins/responseactions/tmp/path.zip";
 
@@ -257,7 +381,7 @@ TEST_F(DownloadFileTests, ZipFailsDueToLargeFile)
     httpresponse.errorCode = Common::HttpRequests::ResponseErrorCode::OK;
 
     ResponseActionsImpl::DownloadFileAction downloadFileAction(httpRequester);
-    nlohmann::json action = getDefaultDownloadObject();
+    nlohmann::json action = getDownloadObject();
     action["compress"] = true;
     std::string zipFile = "/opt/sophos-spl/plugins/responseactions/tmp/path.zip";
 
@@ -294,7 +418,7 @@ TEST_F(DownloadFileTests, actionExipired)
 {
     auto httpRequester = std::make_shared<StrictMock<MockHTTPRequester>>();
     ResponseActionsImpl::DownloadFileAction downloadFileAction(httpRequester);
-    nlohmann::json action = getDefaultDownloadObject();
+    nlohmann::json action = getDownloadObject();
     action["expiration"] = 0;
     std::string response = downloadFileAction.run(action.dump());
     nlohmann::json responseJson = nlohmann::json::parse(response);
@@ -306,7 +430,7 @@ TEST_F(DownloadFileTests, FileDoesNotExist)
 {
     auto httpRequester = std::make_shared<StrictMock<MockHTTPRequester>>();
     ResponseActionsImpl::DownloadFileAction downloadFileAction(httpRequester);
-    nlohmann::json action = getDefaultDownloadObject();
+    nlohmann::json action = getDownloadObject();
 
     auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>{ mockFileSystem });
@@ -323,7 +447,7 @@ TEST_F(DownloadFileTests, FileOverSizeLimit)
 {
     auto httpRequester = std::make_shared<StrictMock<MockHTTPRequester>>();
     ResponseActionsImpl::DownloadFileAction downloadFileAction(httpRequester);
-    nlohmann::json action = getDefaultDownloadObject();
+    nlohmann::json action = getDownloadObject();
 
     auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>{ mockFileSystem });
@@ -341,7 +465,7 @@ TEST_F(DownloadFileTests, FileBeingWrittenToAndOverSizeLimit)
 {
     auto httpRequester = std::make_shared<StrictMock<MockHTTPRequester>>();
     ResponseActionsImpl::DownloadFileAction downloadFileAction(httpRequester);
-    nlohmann::json action = getDefaultDownloadObject();
+    nlohmann::json action = getDownloadObject();
 
     auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>{ mockFileSystem });
@@ -364,7 +488,7 @@ TEST_F(DownloadFileTests, FailureDueToTimeout)
     httpresponse.errorCode = Common::HttpRequests::ResponseErrorCode::TIMEOUT;
     EXPECT_CALL(*httpRequester, get(_)).WillOnce(Return(httpresponse));
     ResponseActionsImpl::DownloadFileAction downloadFileAction(httpRequester);
-    nlohmann::json action = getDefaultDownloadObject();
+    nlohmann::json action = getDownloadObject();
 
     auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>{ mockFileSystem });
@@ -389,7 +513,7 @@ TEST_F(DownloadFileTests, FailureDueToNetworkError)
     httpresponse.error = "failure";
     EXPECT_CALL(*httpRequester, get(_)).WillOnce(Return(httpresponse));
     ResponseActionsImpl::DownloadFileAction downloadFileAction(httpRequester);
-    nlohmann::json action = getDefaultDownloadObject();
+    nlohmann::json action = getDownloadObject();
 
     auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>{ mockFileSystem });
@@ -415,7 +539,7 @@ TEST_F(DownloadFileTests, FailureDueToServerError)
     httpresponse.errorCode = Common::HttpRequests::ResponseErrorCode::OK;
     EXPECT_CALL(*httpRequester, get(_)).WillOnce(Return(httpresponse));
     ResponseActionsImpl::DownloadFileAction downloadFileAction(httpRequester);
-    nlohmann::json action = getDefaultDownloadObject();
+    nlohmann::json action = getDownloadObject();
 
     auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>{ mockFileSystem });
