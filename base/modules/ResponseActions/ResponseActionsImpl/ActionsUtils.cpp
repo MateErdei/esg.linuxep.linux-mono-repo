@@ -98,7 +98,8 @@ namespace ResponseActionsImpl
         }
         catch (const nlohmann::json::exception& exception)
         {
-            LOGWARN("Cannot parse download action with error: " << exception.what());
+            LOGWARN(exception.what());
+            throw InvalidCommandFormat("Error parsing command from Central");
         }
 
         std::string errorPrefix = "Download command from Central missing required parameter: ";
