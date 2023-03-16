@@ -102,7 +102,6 @@ o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libtelemetryimpl.so.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libtelemetryloggerimpl.so.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libtelemetryschedulerimpl.so.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libtelemetryschedulerloggerimpl.so.0
-o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libtesthelpers.so.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libthreads.so.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libThreatHealthReceiverImpl.so.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libupdateschedulerimpl.so.0

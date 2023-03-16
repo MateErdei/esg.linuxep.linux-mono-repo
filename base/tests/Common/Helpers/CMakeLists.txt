@@ -39,3 +39,5 @@ target_include_directories(testhelpers SYSTEM BEFORE PUBLIC ${GMOCK_INCLUDE} ${G
 target_link_libraries(testhelpers PUBLIC filesystemimpl applicationconfigurationimpl ${GTEST_LIBRARY}  pluginapiimpl)
 SET_TARGET_PROPERTIES( testhelpers
         PROPERTIES INSTALL_RPATH "$ORIGIN")
+
+INSTALL(TARGETS testhelpers LIBRARY DESTINATION ${CMAKE_BINARY_DIR}/SystemProductTestOutput)
