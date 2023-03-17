@@ -330,7 +330,7 @@ def Send_Upload_File_From_Fake_Cloud(filepath="/tmp/file", compress=False, comma
                    "maxUploadSizeBytes": 1000000,
                    "expiration": 144444000000004,
                    }
-    CloudAutomation.SendToFakeCloud.sendResponseActionToFakeCloud(json.dumps(action_dict), command_id=command_id, "PUT")
+    CloudAutomation.SendToFakeCloud.sendResponseActionToFakeCloud(json.dumps(action_dict), 'PUT', command_id=command_id)
 
 
 def Send_Upload_Folder_From_Fake_Cloud(folderpath="/tmp/folder", compress=False, command_id="correlation-id",
@@ -344,7 +344,7 @@ def Send_Upload_Folder_From_Fake_Cloud(folderpath="/tmp/folder", compress=False,
                    "maxUploadSizeBytes": 1000000,
                    "expiration": 144444000000004,
                    }
-    CloudAutomation.SendToFakeCloud.sendResponseActionToFakeCloud(json.dumps(action_dict), command_id=command_id, "PUT")
+    CloudAutomation.SendToFakeCloud.sendResponseActionToFakeCloud(json.dumps(action_dict), 'PUT', command_id=command_id)
 
 
 def Send_Download_File_From_Fake_Cloud(decompress=False, command_id="correlation-id", password=""):
@@ -358,7 +358,7 @@ def Send_Download_File_From_Fake_Cloud(decompress=False, command_id="correlation
                    "expiration": 144444000000004,
                    "timeout": 60,
                    }
-    CloudAutomation.SendToFakeCloud.sendResponseActionToFakeCloud(json.dumps(action_dict), command_id=command_id, "GET")
+    CloudAutomation.SendToFakeCloud.sendResponseActionToFakeCloud(json.dumps(action_dict), 'GET', command_id=command_id)
 
 
 def verify_run_command_response(response_json_path, result, command_results=None, expect_timeout=False):
