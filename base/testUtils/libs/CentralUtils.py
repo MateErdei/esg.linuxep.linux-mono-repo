@@ -347,10 +347,10 @@ def Send_Upload_Folder_From_Fake_Cloud(folderpath="/tmp/folder", compress=False,
     CloudAutomation.SendToFakeCloud.sendResponseActionToFakeCloud(json.dumps(action_dict), command_id=command_id, "PUT")
 
 
-def Send_Download_File_From_Fake_Cloud(filepath="/tmp/downloadfile", decompress=False, command_id="correlation-id", password=""):
+def Send_Download_File_From_Fake_Cloud(decompress=False, command_id="correlation-id", password=""):
     action_dict = {"type": "sophos.mgt.action.DownloadFile",
                    "url": "https://localhost:443/download",
-                   "targetPath": filepath,
+                   "targetPath": "/tmp/folder",
                    "sha256": "sha256",
                    "sizeBytes": 123,
                    "decompress": decompress,
