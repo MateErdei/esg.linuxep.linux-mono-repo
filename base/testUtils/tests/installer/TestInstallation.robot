@@ -73,8 +73,9 @@ Verify that the full installer works correctly
 
     ## Check systemd files
     ${SystemdInfo}=  get systemd file info
-    ${ExpectedSystemdInfo}  Run Keyword If  os.path.isdir("/usr/lib/systemd/system/")  Get File   ${ROBOT_TESTS_DIR}/installer/InstallSet/SystemdInfo
-    ...  ELSE  Get File   ${ROBOT_TESTS_DIR}/installer/InstallSet/SystemdInfo_withoutUsrLibSystemd
+    ${ExpectedSystemdInfo}  Run Keyword If  not os.path.isdir("/lib/systemd/system/")  Get File   ${ROBOT_TESTS_DIR}/installer/InstallSet/SystemdInfo_withoutLibSystemd
+    ...  ELSE IF    not os.path.isdir("/usr/lib/systemd/system/")  Get File   ${ROBOT_TESTS_DIR}/installer/InstallSet/SystemdInfo_withoutUsrLibSystemd
+    ...  ELSE  Get File   ${ROBOT_TESTS_DIR}/installer/InstallSet/SystemdInfo
     Should Be Equal As Strings  ${ExpectedSystemdInfo}  ${SystemdInfo}
 
 Verify Sockets Have Correct Permissions
