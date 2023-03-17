@@ -74,9 +74,12 @@ VDL="$SUPPLEMENT_DIR/vdl"
 DATASETA_MANIFEST="$VDL/manifestdata.dat"
 ML_MODEL="$SUPPLEMENT_DIR/model"
 $VERSIG -c"$ROOT_CA" -f"$ML_MODEL/manifest.dat" -d"$ML_MODEL" \
-  --no-require-sha256 \
-  --allow-sha1-signature \
-  $VERSIG_OPTIONS || failure ${EXIT_FAIL_SUPPLEMENT_VERIFY_FAIL} "Failed to verify Machine Learning supplement"
+    --no-require-sha256 \
+    --allow-sha1-signature \
+    $VERSIG_OPTIONS || \
+  $VERSIG -c"$ROOT_CA" -f"$ML_MODEL/manifest.dat" -d"$ML_MODEL" \
+    $VERSIG_OPTIONS || \
+     failure ${EXIT_FAIL_SUPPLEMENT_VERIFY_FAIL} "Failed to verify Machine Learning supplement"
 
 SETCAP="$(which setcap)"
 [[ -x "${SETCAP}" ]] || SETCAP=/sbin/setcap
