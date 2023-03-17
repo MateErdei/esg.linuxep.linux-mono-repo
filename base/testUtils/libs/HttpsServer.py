@@ -9,6 +9,7 @@ import subprocess
 import threading
 import time
 import os
+import zipfile
 
 import http.server
 
@@ -46,6 +47,13 @@ class HttpsHandler(http.server.SimpleHTTPRequestHandler):
         self.send_response(200)
         self.send_header('Content-type', 'text/html')
         self.end_headers()
+        if self.path == "/download":
+            with open("/tmp/download.txt", 'w') as f:
+                f.write("content")
+            zipfile.ZipFile('/tmp/download.zip', mode='w').write("/tmp/download.txt")
+            os.remove("/tmp/download.txt")
+
+
         self.wfile.write(b"<html><head><title>Response</title></head><body>Response From HttpsServer</body></html>")
 
     def handle_put_request_with_hang(self):

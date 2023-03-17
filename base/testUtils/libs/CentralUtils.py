@@ -330,7 +330,7 @@ def Send_Upload_File_From_Fake_Cloud(filepath="/tmp/file", compress=False, comma
                    "maxUploadSizeBytes": 1000000,
                    "expiration": 144444000000004,
                    }
-    CloudAutomation.SendToFakeCloud.sendResponseActionToFakeCloud(json.dumps(action_dict), command_id=command_id)
+    CloudAutomation.SendToFakeCloud.sendResponseActionToFakeCloud(json.dumps(action_dict), command_id=command_id, "PUT")
 
 
 def Send_Upload_Folder_From_Fake_Cloud(folderpath="/tmp/folder", compress=False, command_id="correlation-id",
@@ -344,7 +344,21 @@ def Send_Upload_Folder_From_Fake_Cloud(folderpath="/tmp/folder", compress=False,
                    "maxUploadSizeBytes": 1000000,
                    "expiration": 144444000000004,
                    }
-    CloudAutomation.SendToFakeCloud.sendResponseActionToFakeCloud(json.dumps(action_dict), command_id=command_id)
+    CloudAutomation.SendToFakeCloud.sendResponseActionToFakeCloud(json.dumps(action_dict), command_id=command_id, "PUT")
+
+
+def Send_Download_File_From_Fake_Cloud(filepath="/tmp/downloadfile", compress=False, command_id="correlation-id", password=""):
+    action_dict = {"type": "sophos.mgt.action.DownloadFile",
+                   "url": "https://localhost:443/download",
+                   "targetPath": filepath,
+                   "sha256": "sha256",
+                   "sizeBytes": 123,
+                   "decompress": compress,
+                   "password": password,
+                   "expiration": 144444000000004,
+                   "timeout": 60,
+                   }
+    CloudAutomation.SendToFakeCloud.sendResponseActionToFakeCloud(json.dumps(action_dict), command_id=command_id, "GET")
 
 
 def verify_run_command_response(response_json_path, result, command_results=None, expect_timeout=False):

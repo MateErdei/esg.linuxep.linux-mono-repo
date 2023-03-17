@@ -77,14 +77,18 @@ def sendLiveQueryToFakeCloud(query, command_id):
     print("Set livequery response: {}".format(remote_file))
     return 0
 
-def sendResponseActionToFakeCloud(query, command_id):
-    headers = {"Content-type": "application/octet-stream",
-               "Accept": "text/plain",
-               "Command-ID": command_id}
+def sendResponseActionToFakeCloud(query, command_id, request_type):
 
     # Open HTTPS connection to fake cloud at https://127.0.0.1:4443
     conn = http.client.HTTPSConnection("127.0.0.1","4443", context=ssl._create_unverified_context())
-    conn.request("PUT", "/controller/core/command", query, headers)
+    if request_type == "PUT":
+        headers = {"Content-type": "application/octet-stream",
+                   "Accept": "text/plain",
+                   "Command-ID": command_id}
+
+        conn.request("PUT", "/controller/core/command", query, headers)
+    else:
+        conn.request("GET", "/controller/core/command", query)
     response = conn.getresponse()
     remote_file = response.read()
     conn.close()
