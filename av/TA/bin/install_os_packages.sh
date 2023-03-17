@@ -65,6 +65,21 @@ then
     yum install -y "gcc" "gcc-c++" "make" nfs-utils zip samba gdb util-linux nc bzip2
     yum install -y ntfs-3g
 
+elif [[ -x $(which zypper) ]]
+then
+    zypper refresh
+    # Retry 10 times before timeout
+    for (( i=0; i<10; i++ ))
+    do
+       if zypper --non-interactive install nfs-kernel-server zip unzip samba gdb util-linux ntfs-3g netcat-openbsd
+       then
+          echo "Installation succeeded"
+          break
+       else
+          echo "Failed to install packages retrying after sleep..."
+          sleep 10
+       fi
+    done
 else
     echo "Can't find package management system"
     exit 1
