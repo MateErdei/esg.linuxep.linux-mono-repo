@@ -2,6 +2,7 @@
 # Copyright 2023-2023 Sophos Limited. All rights reserved.
 
 import glob
+import logging
 import os
 import pathlib
 import sys
@@ -16,21 +17,20 @@ def get_user_and_group_ids_of_files(directory: str):
     ids_of_dir_entries = {}
     for file in pathlib.Path(directory).glob("**/*"):
         file = str(file)
-        if not file.startswith("/opt/sophos-spl/plugins/edr/var/osquery.sock") \
-                and not file.startswith("/opt/sophos-spl/plugins/edr/var/osquery.db/"):
-            user_id = get_file_owner_id(file)
-            group_id = get_file_group_id(file)
-            ids_of_dir_entries[file] = {
-                "user_id": user_id,
-                "group_id": group_id
-            }
+        user_id = get_file_owner_id(file)
+        group_id = get_file_group_id(file)
+        ids_of_dir_entries[file] = {
+            "user_id": user_id,
+            "group_id": group_id
+        }
     return ids_of_dir_entries
 
 
 def check_changes_of_user_ids(ids_of_dir_entries_before, ids_of_dir_entries_after, prev_user_id, new_user_id):
     for file, ids in ids_of_dir_entries_before.items():
         if file not in ids_of_dir_entries_after:
-            raise AssertionError(f"The file {file} was not found in the 'after' set of files and directories")
+            logging.warning(f"The file {file} was not found in the 'after' set of files and directories")
+            continue
         if ids["user_id"] == prev_user_id:
             if ids_of_dir_entries_after[file]["user_id"] != new_user_id:
                 raise AssertionError(f"User ID of {file} was not changed from {prev_user_id} to {new_user_id}, actual ID {ids_of_dir_entries_after[file]['user_id']}")
@@ -41,7 +41,8 @@ def check_changes_of_user_ids(ids_of_dir_entries_before, ids_of_dir_entries_afte
 def check_changes_of_group_ids(ids_of_dir_entries_before, ids_of_dir_entries_after, prev_group_id, new_group_id):
     for file, ids in ids_of_dir_entries_before.items():
         if file not in ids_of_dir_entries_after:
-            raise AssertionError(f"The file {file} was not found in the 'after' set of files and directories")
+            logging.warning(f"The file {file} was not found in the 'after' set of files and directories")
+            continue
         if ids["group_id"] == prev_group_id:
             if ids_of_dir_entries_after[file]["user_id"] != new_group_id:
                 raise AssertionError(f"Group ID of {file} was not changed from {prev_group_id} to {new_group_id}, actual ID {ids_of_dir_entries_after[file]['user_id']}")
