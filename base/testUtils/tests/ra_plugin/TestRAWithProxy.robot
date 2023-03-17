@@ -7,10 +7,10 @@ Resource  ../mcs_router/McsRouterResources.robot
 Library    ${LIBS_DIRECTORY}/MCSRouter.py
 Library    ${LIBS_DIRECTORY}/OnFail.py
 Library     ${LIBS_DIRECTORY}/CentralUtils.py
-Suite Setup     RA Upload Suite Setup
+Suite Setup     RA Suite Setup
 Suite Teardown  RA Suite Teardown
 
-Test Setup  RA Upload Test Setup
+Test Setup  RA Test Setup
 Test Teardown  RA Upload Proxy Test Teardown
 Force Tags  LOAD5
 Default Tags   RESPONSE_ACTIONS_PLUGIN
@@ -113,7 +113,7 @@ RA Plugin uploads a folder successfully with message relay
 
 *** Keywords ***
 RA Upload Proxy Test Teardown
-    RA Upload Test Teardown
+    RA Test Teardown
     Stop Proxy Servers
     Stop Proxy If Running
     Cleanup Proxy Logs

@@ -6,6 +6,7 @@ Library    ${LIBS_DIRECTORY}/LogUtils.py
 Library    ${LIBS_DIRECTORY}/OSUtils.py
 
 Resource  ../GeneralTeardownResource.robot
+
 *** Variables ***
 ${RESPONSE_ACTIONS_LOG_PATH}   ${SOPHOS_INSTALL}/plugins/responseactions/log/responseactions.log
 ${ACTIONS_RUNNER_LOG_PATH}   ${SOPHOS_INSTALL}/plugins/responseactions/log/actionrunner.log
@@ -66,22 +67,21 @@ RA Suite Teardown
     Stop Local Cloud Server
     Require Uninstalled
 
-# Upload tests keywords
-RA Upload Suite Setup
+RA Suite Setup
     Start Local Cloud Server
     Regenerate Certificates
     Set Local CA Environment Variable
     Run Full Installer
-    Create File  ${MCS_DIR}/certs/ca_env_override_flag
+    Create File  /opt/sophos-spl/base/mcs/certs/ca_env_override_flag
 
-RA Upload Test Setup
+RA Test Setup
     Require Installed
     HttpsServer.Start Https Server  /tmp/cert.crt  443  tlsv1_2  True
     install_system_ca_cert  /tmp/cert.crt
     install_system_ca_cert  /tmp/ca.crt
     Install Response Actions Directly
 
-RA Upload Test Teardown
+RA Test Teardown
     General Test Teardown
     Uninstall Response Actions
     Remove file  ${TELEMETRY_OUTPUT_JSON}
@@ -91,13 +91,3 @@ RA Upload Test Teardown
     Remove File  ${EXE_CONFIG_FILE}
     Run Keyword If Test Failed    Dump Cloud Server Log
     Remove File   /tmp/upload.zip
-
-# Run Command tests keywords
-RA Run Command Suite Setup
-    Start Local Cloud Server
-    Regenerate Certificates
-    Set Local CA Environment Variable
-    Run Full Installer
-    Install Response Actions Directly
-    Create File  ${MCS_DIR}/certs/ca_env_override_flag
-    Register With Local Cloud Server

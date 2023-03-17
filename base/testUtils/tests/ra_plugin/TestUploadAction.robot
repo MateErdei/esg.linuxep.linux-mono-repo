@@ -10,8 +10,8 @@ Library    ${LIBS_DIRECTORY}/CentralUtils.py
 Suite Setup     RA Upload Action Suite Setup
 Suite Teardown  RA Suite Teardown
 
-Test Setup  RA Upload Test Setup
-Test Teardown  RA Upload Test Teardown
+Test Setup  RA Test Setup
+Test Teardown  RA Test Teardown
 
 Force Tags  LOAD5
 Default Tags   RESPONSE_ACTIONS_PLUGIN
@@ -102,5 +102,5 @@ Simulate Upload Action Now
     Move File   ${SOPHOS_INSTALL}/tmp/UploadAction.json  ${SOPHOS_INSTALL}/base/mcs/action/CORE_${id_suffix}_request_2030-02-27T13:45:35.699544Z_144444000000004.json
 
 RA Upload Action Suite Setup
-    RA Upload Suite Setup
+    RA Suite Setup
     Register With Local Cloud Server
