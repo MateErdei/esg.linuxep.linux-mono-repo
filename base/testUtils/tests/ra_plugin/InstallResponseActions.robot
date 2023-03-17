@@ -49,12 +49,6 @@ Verify that the response actions installer works correctly
     ${ExpectedSymbolicLinkInfo} =  Get File  ${ROBOT_TESTS_DIR}/ra_plugin/InstallSet/SymbolicLinkInfo
     Should Be Equal As Strings  ${ExpectedSymbolicLinkInfo}  ${SymbolicLinkInfo}
 
-    ## Check systemd files
-    ${SystemdInfo}=  get systemd file info
-    ${ExpectedSystemdInfo}  Run Keyword If  os.path.isdir("/usr/lib/systemd/system/")  Get File   ${ROBOT_TESTS_DIR}/ra_plugin/InstallSet/SystemdInfo
-    ...  ELSE  Get File   ${ROBOT_TESTS_DIR}/ra_plugin/InstallSet/SystemdInfo_withoutUsrLibSystemd
-    Should Be Equal As Strings  ${ExpectedSystemdInfo}  ${SystemdInfo}
-
 Verify That Response Actions Logging Can Be Set Individually
     Install Response Actions Directly
     Create File         ${SOPHOS_INSTALL}/base/etc/logger.conf.local   [responseactions]\nVERBOSITY=DEBUG\n

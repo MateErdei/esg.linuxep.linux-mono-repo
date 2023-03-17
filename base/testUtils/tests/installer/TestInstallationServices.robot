@@ -24,8 +24,10 @@ Verify Watchdog Service Installed And Uninstalled Correctly
     Run Process    ${SOPHOS_INSTALL}/bin/uninstall.sh  --force
     ${serviceDir} =  Get Service Folder
     File Should Not Exist    ${serviceDir}/${WATCHDOG_SERVICE}.service
+    File Should Not Exist    /etc/systemd/system/multi-user.target.wants/${WATCHDOG_SERVICE}.service
     ${result} =  Run Process    systemctl    is-active    ${WATCHDOG_SERVICE}
-    Should Be Equal  ${result.stdout}    inactive
+    # Due to a bug in systemd it will sometimes return unknown when inactive: https://bugzilla.redhat.com/show_bug.cgi?id=1073481
+    Should Be True  '${result.stdout}'=='inactive' or '${result.stdout}'=='unknown'
     ${result} =  Run Process    systemctl status ${WATCHDOG_SERVICE} | grep "Main PID.*sophos_watchdog"  shell=true
     Should Not Be Equal As Integers  ${result.rc}  0  Able to get status of ${WATCHDOG_SERVICE} after install
 

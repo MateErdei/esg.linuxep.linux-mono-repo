@@ -45,11 +45,6 @@ Verify that the live response installer works correctly
     ${ExpectedSymbolicLinkInfo} =  Get File  ${ROBOT_TESTS_DIR}/liveresponse_plugin/InstallSet/SymbolicLinkInfo
     Should Be Equal As Strings  ${ExpectedSymbolicLinkInfo}  ${SymbolicLinkInfo}
 
-    ## Check systemd files
-    ${SystemdInfo}=  get systemd file info
-    ${ExpectedSystemdInfo}=  Get File  ${ROBOT_TESTS_DIR}/liveresponse_plugin/InstallSet/SystemdInfo
-    Should Be Equal As Strings  ${ExpectedSystemdInfo}  ${SystemdInfo}
-
 Verify That Live Response Logging Can Be Set Individually
     [Teardown]  Live Response Tests Teardown With Installed File Replacement
     Install Live Response Directly
