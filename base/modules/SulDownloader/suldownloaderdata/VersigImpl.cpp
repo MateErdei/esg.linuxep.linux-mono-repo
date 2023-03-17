@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2018-2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 #include "VersigImpl.h"
 
 #include "Logger.h"
@@ -68,12 +64,10 @@ IVersig::VerifySignature VersigImpl::verify(
     const ConfigurationData& configurationData,
     const std::string& productDirectoryPath) const
 {
+    auto certificate_path = Common::ApplicationConfiguration::applicationPathManager().getUpdateCertificatesPath();
+    auto* fileSystem = Common::FileSystem::fileSystem();
 
-    std::string certificate_path = Common::FileSystem::join(
-            Common::ApplicationConfiguration::applicationPathManager().getUpdateCertificatesPath(), "rootca.crt");
-    auto fileSystem = Common::FileSystem::fileSystem();
-
-    if (!fileSystem->isFile(certificate_path))
+    if (!fileSystem->exists(certificate_path)) // Path can be a directory
     {
         LOGERROR(
             "No certificate path to validate signature. Certificate provided does not exist: " << certificate_path);

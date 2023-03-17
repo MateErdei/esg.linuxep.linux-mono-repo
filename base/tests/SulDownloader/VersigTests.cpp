@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2018-2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/FileSystemImpl/FileSystemImpl.h>
@@ -16,60 +12,63 @@ Copyright 2018-2020, Sophos Limited.  All rights reserved.
 #include <tests/Common/Helpers/MockFileSystem.h>
 #include <tests/Common/Helpers/MockProcess.h>
 
-class VersigTests : public ::testing::Test
+namespace
 {
-public:
-    VersigTests() : m_configurationData(SulDownloader::suldownloaderdata::ConfigurationData::DefaultSophosLocationsURL)
+    class VersigTests : public ::testing::Test
     {
-        m_configurationData.setManifestNames({ "manifest.dat" });
-        m_configurationData.setOptionalManifestNames({ "flags_manifest.dat" });
-        rootca = "/opt/sophos-spl/base/update/rootcerts/rootca.crt";
-        productDir = "/opt/sophos-spl/cache/update/Primary/product";
-        m_supplementDir = "/opt/sophos-spl/cache/update/Primary/product/supplement";
-        manifestdat = "/opt/sophos-spl/cache/update/Primary/product/manifest.dat";
-        m_flagsManifest = "/opt/sophos-spl/cache/update/Primary/product/flags_manifest.dat";
-        versigExec = Common::ApplicationConfiguration::applicationPathManager().getVersigPath();
-        fileSystemMock = new MockFileSystem();
-        m_replacer.replace(std::unique_ptr<Common::FileSystem::IFileSystem>(fileSystemMock));        
-    }
-    SulDownloader::suldownloaderdata::ConfigurationData m_configurationData;
-    std::string rootca;
-    std::string productDir;
-    std::string m_supplementDir;
-    std::string versigExec;
-    std::string manifestdat;
-    std::string m_flagsManifest;
-    MockFileSystem* fileSystemMock;
-    Common::Logging::ConsoleLoggingSetup m_loggingSetup;
-    Tests::ScopedReplaceFileSystem m_replacer; 
-
-};
+    public:
+        VersigTests() :
+            m_configurationData(SulDownloader::suldownloaderdata::ConfigurationData::DefaultSophosLocationsURL)
+        {
+            m_configurationData.setManifestNames({ "manifest.dat" });
+            m_configurationData.setOptionalManifestNames({ "flags_manifest.dat" });
+            rootca = "/opt/sophos-spl/base/update/rootcerts";
+            productDir = "/opt/sophos-spl/cache/update/Primary/product";
+            m_supplementDir = "/opt/sophos-spl/cache/update/Primary/product/supplement";
+            manifestdat = "/opt/sophos-spl/cache/update/Primary/product/manifest.dat";
+            m_flagsManifest = "/opt/sophos-spl/cache/update/Primary/product/flags_manifest.dat";
+            versigExec = Common::ApplicationConfiguration::applicationPathManager().getVersigPath();
+            fileSystemMock = new MockFileSystem();
+            m_replacer.replace(std::unique_ptr<Common::FileSystem::IFileSystem>(fileSystemMock));
+        }
+        SulDownloader::suldownloaderdata::ConfigurationData m_configurationData;
+        std::string rootca;
+        std::string productDir;
+        std::string m_supplementDir;
+        std::string versigExec;
+        std::string manifestdat;
+        std::string m_flagsManifest;
+        MockFileSystem* fileSystemMock;
+        Common::Logging::ConsoleLoggingSetup m_loggingSetup;
+        Tests::ScopedReplaceFileSystem m_replacer;
+    };
+}
 using VS = SulDownloader::suldownloaderdata::IVersig::VerifySignature;
 
-TEST_F(VersigTests, verifyReturnsInvalidForInvalidCertificatePath) // NOLINT
+TEST_F(VersigTests, verifyReturnsInvalidForInvalidCertificatePath)
 {
     auto versig = SulDownloader::suldownloaderdata::createVersig();
 
-    EXPECT_CALL(*fileSystemMock, isFile(rootca)).WillOnce(Return(false));
+    EXPECT_CALL(*fileSystemMock, exists(rootca)).WillOnce(Return(false));
 
     ASSERT_EQ(VS::INVALID_ARGUMENTS, versig->verify(m_configurationData, productDir));
 }
 
-TEST_F(VersigTests, verifyReturnsInvalidForInvalidDirectory) // NOLINT
+TEST_F(VersigTests, verifyReturnsInvalidForInvalidDirectory)
 {
     auto versig = SulDownloader::suldownloaderdata::createVersig();
 
-    EXPECT_CALL(*fileSystemMock, isFile(rootca)).WillOnce(Return(true));
+    EXPECT_CALL(*fileSystemMock, exists(rootca)).WillOnce(Return(true));
     EXPECT_CALL(*fileSystemMock, isDirectory(productDir)).WillOnce(Return(false));
 
     ASSERT_EQ(VS::INVALID_ARGUMENTS, versig->verify(m_configurationData, productDir));
 }
 
-TEST_F(VersigTests, returnInvalidIfFailsToFindVersigExecutable) // NOLINT
+TEST_F(VersigTests, returnInvalidIfFailsToFindVersigExecutable)
 {
     auto versig = SulDownloader::suldownloaderdata::createVersig();
 
-    EXPECT_CALL(*fileSystemMock, isFile(rootca)).WillOnce(Return(true));
+    EXPECT_CALL(*fileSystemMock, exists(rootca)).WillOnce(Return(true));
     EXPECT_CALL(*fileSystemMock, isDirectory(productDir)).WillOnce(Return(true));
     EXPECT_CALL(*fileSystemMock, isFile(versigExec)).WillOnce(Return(false));
     EXPECT_CALL(*fileSystemMock, isExecutable(versigExec)).WillOnce(Return(false));
@@ -77,11 +76,11 @@ TEST_F(VersigTests, returnInvalidIfFailsToFindVersigExecutable) // NOLINT
     ASSERT_EQ(VS::INVALID_ARGUMENTS, versig->verify(m_configurationData, productDir));
 }
 
-TEST_F(VersigTests, returnInvalidIfNoManifestDatIsFound) // NOLINT
+TEST_F(VersigTests, returnInvalidIfNoManifestDatIsFound)
 {
     auto versig = SulDownloader::suldownloaderdata::createVersig();
 
-    EXPECT_CALL(*fileSystemMock, isFile(rootca)).WillOnce(Return(true));
+    EXPECT_CALL(*fileSystemMock, exists(rootca)).WillOnce(Return(true));
     EXPECT_CALL(*fileSystemMock, isDirectory(productDir)).WillOnce(Return(true));
     EXPECT_CALL(*fileSystemMock, isFile(versigExec)).WillOnce(Return(true));
     EXPECT_CALL(*fileSystemMock, isExecutable(versigExec)).WillOnce(Return(true));
@@ -92,11 +91,11 @@ TEST_F(VersigTests, returnInvalidIfNoManifestDatIsFound) // NOLINT
     ASSERT_EQ(VS::INVALID_ARGUMENTS, versig->verify(m_configurationData, productDir));
 }
 
-TEST_F(VersigTests, passTheCorrectParametersToProcess) // NOLINT
+TEST_F(VersigTests, passTheCorrectParametersToProcess)
 {
     auto versig = SulDownloader::suldownloaderdata::createVersig();
 
-    EXPECT_CALL(*fileSystemMock, isFile(rootca)).WillOnce(Return(true));
+    EXPECT_CALL(*fileSystemMock, exists(rootca)).WillOnce(Return(true));
     EXPECT_CALL(*fileSystemMock, isDirectory(productDir)).WillOnce(Return(true));
     EXPECT_CALL(*fileSystemMock, isFile(versigExec)).WillOnce(Return(true));
     EXPECT_CALL(*fileSystemMock, isExecutable(versigExec)).WillOnce(Return(true));
@@ -108,7 +107,7 @@ TEST_F(VersigTests, passTheCorrectParametersToProcess) // NOLINT
 
     Common::ProcessImpl::ProcessFactory::instance().replaceCreator([versigExecPath]() {
         std::vector<std::string> args;
-        args.emplace_back("-c/opt/sophos-spl/base/update/rootcerts/rootca.crt");
+        args.emplace_back("-c/opt/sophos-spl/base/update/rootcerts");
         args.emplace_back("-f/opt/sophos-spl/cache/update/Primary/product/manifest.dat");
         args.emplace_back("-d/opt/sophos-spl/cache/update/Primary/product");
         args.emplace_back("--silent-off");
@@ -123,11 +122,11 @@ TEST_F(VersigTests, passTheCorrectParametersToProcess) // NOLINT
     ASSERT_EQ(VS::SIGNATURE_VERIFIED, versig->verify(m_configurationData, productDir));
 }
 
-TEST_F(VersigTests, passTheCorrectParametersToProcessWithMultipleManifestFiles) // NOLINT
+TEST_F(VersigTests, passTheCorrectParametersToProcessWithMultipleManifestFiles)
 {
     auto versig = SulDownloader::suldownloaderdata::createVersig();
     std::vector<Path> supplementPaths = {m_supplementDir};
-    EXPECT_CALL(*fileSystemMock, isFile(rootca)).WillOnce(Return(true));
+    EXPECT_CALL(*fileSystemMock, exists(rootca)).WillOnce(Return(true));
     EXPECT_CALL(*fileSystemMock, isDirectory(productDir)).WillOnce(Return(true));
     EXPECT_CALL(*fileSystemMock, isFile(versigExec)).WillOnce(Return(true));
     EXPECT_CALL(*fileSystemMock, isExecutable(versigExec)).WillOnce(Return(true));
@@ -143,7 +142,7 @@ TEST_F(VersigTests, passTheCorrectParametersToProcessWithMultipleManifestFiles) 
         if (counter++ == 0)
         {
             std::vector<std::string> args;
-            args.emplace_back("-c/opt/sophos-spl/base/update/rootcerts/rootca.crt");
+            args.emplace_back("-c/opt/sophos-spl/base/update/rootcerts");
             args.emplace_back("-f/opt/sophos-spl/cache/update/Primary/product/manifest.dat");
             args.emplace_back("-d/opt/sophos-spl/cache/update/Primary/product");
             args.emplace_back("--silent-off");
@@ -157,7 +156,7 @@ TEST_F(VersigTests, passTheCorrectParametersToProcessWithMultipleManifestFiles) 
         else
         {
             std::vector<std::string> args;
-            args.emplace_back("-c/opt/sophos-spl/base/update/rootcerts/rootca.crt");
+            args.emplace_back("-c/opt/sophos-spl/base/update/rootcerts");
             args.emplace_back("-f/opt/sophos-spl/cache/update/Primary/product/supplement/flags_manifest.dat");
             args.emplace_back("-d/opt/sophos-spl/cache/update/Primary/product/supplement");
             args.emplace_back("--silent-off");
@@ -173,11 +172,11 @@ TEST_F(VersigTests, passTheCorrectParametersToProcessWithMultipleManifestFiles) 
     ASSERT_EQ(VS::SIGNATURE_VERIFIED, versig->verify(m_configurationData, productDir));
 }
 
-TEST_F(VersigTests, signatureFailureIsReportedAsFailure) // NOLINT
+TEST_F(VersigTests, signatureFailureIsReportedAsFailure)
 {
     auto versig = SulDownloader::suldownloaderdata::createVersig();
 
-    EXPECT_CALL(*fileSystemMock, isFile(rootca)).WillOnce(Return(true));
+    EXPECT_CALL(*fileSystemMock, exists(rootca)).WillOnce(Return(true));
     EXPECT_CALL(*fileSystemMock, isDirectory(productDir)).WillOnce(Return(true));
     EXPECT_CALL(*fileSystemMock, isFile(versigExec)).WillOnce(Return(true));
     EXPECT_CALL(*fileSystemMock, isExecutable(versigExec)).WillOnce(Return(true));
@@ -189,7 +188,7 @@ TEST_F(VersigTests, signatureFailureIsReportedAsFailure) // NOLINT
 
     Common::ProcessImpl::ProcessFactory::instance().replaceCreator([versigExecPath]() {
         std::vector<std::string> args;
-        args.emplace_back("-c/opt/sophos-spl/base/update/rootcerts/rootca.crt");
+        args.emplace_back("-c/opt/sophos-spl/base/update/rootcerts");
         args.emplace_back("-f/opt/sophos-spl/cache/update/Primary/product/manifest.dat");
         args.emplace_back("-d/opt/sophos-spl/cache/update/Primary/product");
         args.emplace_back("--silent-off");
@@ -203,11 +202,11 @@ TEST_F(VersigTests, signatureFailureIsReportedAsFailure) // NOLINT
 
     ASSERT_EQ(VS::SIGNATURE_FAILED, versig->verify(m_configurationData, productDir));
 }
-TEST_F(VersigTests, willFailOnSingleSignatureFailureWhenProcessingMultipleManifestFiles) // NOLINT
+TEST_F(VersigTests, willFailOnSingleSignatureFailureWhenProcessingMultipleManifestFiles)
 {
     auto versig = SulDownloader::suldownloaderdata::createVersig();
     std::vector<Path> supplementPaths = {m_supplementDir};
-    EXPECT_CALL(*fileSystemMock, isFile(rootca)).WillOnce(Return(true));
+    EXPECT_CALL(*fileSystemMock, exists(rootca)).WillOnce(Return(true));
     EXPECT_CALL(*fileSystemMock, isDirectory(productDir)).WillOnce(Return(true));
     EXPECT_CALL(*fileSystemMock, isFile(versigExec)).WillOnce(Return(true));
     EXPECT_CALL(*fileSystemMock, isExecutable(versigExec)).WillOnce(Return(true));
@@ -223,7 +222,7 @@ TEST_F(VersigTests, willFailOnSingleSignatureFailureWhenProcessingMultipleManife
         if (counter++ == 0)
         {
             std::vector<std::string> args;
-            args.emplace_back("-c/opt/sophos-spl/base/update/rootcerts/rootca.crt");
+            args.emplace_back("-c/opt/sophos-spl/base/update/rootcerts");
             args.emplace_back("-f/opt/sophos-spl/cache/update/Primary/product/manifest.dat");
             args.emplace_back("-d/opt/sophos-spl/cache/update/Primary/product");
             args.emplace_back("--silent-off");
@@ -237,7 +236,7 @@ TEST_F(VersigTests, willFailOnSingleSignatureFailureWhenProcessingMultipleManife
         else
         {
             std::vector<std::string> args;
-            args.emplace_back("-c/opt/sophos-spl/base/update/rootcerts/rootca.crt");
+            args.emplace_back("-c/opt/sophos-spl/base/update/rootcerts");
             args.emplace_back("-f/opt/sophos-spl/cache/update/Primary/product/supplement/flags_manifest.dat");
             args.emplace_back("-d/opt/sophos-spl/cache/update/Primary/product/supplement");
             args.emplace_back("--silent-off");
