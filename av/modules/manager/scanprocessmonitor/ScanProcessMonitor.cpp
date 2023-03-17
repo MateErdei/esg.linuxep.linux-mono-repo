@@ -66,12 +66,6 @@ namespace plugin::manager::scanprocessmonitor
     {
         LOGSUPPORT("Starting sophos_threat_detector monitor");
 
-        struct timespec restartBackoff
-        {
-            .tv_sec = 0, .tv_nsec = 100L * 1000 * 1000
-        };
-
-
         struct pollfd fds[] {
             { .fd = m_notifyPipe.readFd(), .events = POLLIN, .revents = 0 },
             { .fd = m_config_changed.readFd(), .events = POLLIN, .revents = 0 },
@@ -86,7 +80,7 @@ namespace plugin::manager::scanprocessmonitor
 
         while (true)
         {
-            int active = ::ppoll(fds, std::size(fds), &restartBackoff, nullptr);
+            int active = ::ppoll(fds, std::size(fds), nullptr, nullptr);
 
             if (active < 0 and errno != EINTR)
             {
