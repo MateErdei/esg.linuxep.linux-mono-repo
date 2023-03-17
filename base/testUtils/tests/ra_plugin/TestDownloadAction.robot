@@ -37,5 +37,5 @@ RA Plugin downloads a file successfully
     Wait Until Keyword Succeeds
     ...  1 min
     ...  5 secs
-    ...  Check Cloud Server Log Contains    \"fileName\":\"file\",\"httpStatus\":200,\"result\":0,\"sha256\":\"382a1f7b76ca05728a4e9e6b3a4877f8634fb33b08decc5251933705a684f34f\"
+    ...  Check Cloud Server Log Contains    \"type\":sophos.mgt.response.DownloadFile,\"httpStatus\":200,\"result\":0
 

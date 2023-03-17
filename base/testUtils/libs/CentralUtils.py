@@ -351,7 +351,7 @@ def Send_Download_File_From_Fake_Cloud(decompress=False, command_id="correlation
     action_dict = {"type": "sophos.mgt.action.DownloadFile",
                    "url": "https://localhost:443/download",
                    "targetPath": "/tmp/folder",
-                   "sha256": "sha256",
+                   "sha256": "b99a10144b974d5fcd653157edbfb4f2b9a5f9ce3e2e1ee9b2a5ef23f1aee9f4",
                    "sizeBytes": 123,
                    "decompress": decompress,
                    "password": password,
