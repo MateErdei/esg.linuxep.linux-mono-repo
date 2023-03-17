@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2018-2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #include "ReactorImpl.h"
 
@@ -98,7 +94,7 @@ namespace Common
             bool callBackRequestedStop = false;
             while (!stopRequested() && !callBackRequestedStop)
             {
-                auto filedescriptors = poller->poll(Common::ZeroMQWrapper::ms(10000));
+                auto filedescriptors = poller->poll(Common::ZeroMQWrapper::ms(100000));
 
                 // LOGDEBUG("activity in the file descriptor: " << hasFd->fd());
                 if (monitorForSignalsForShutdown && GL_signalPipe->notified())
