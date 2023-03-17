@@ -80,14 +80,25 @@ TEST_F(ActionsUtilsTests, testSucessfulParseUploadFolder)
 
 TEST_F(ActionsUtilsTests, testParseFailsWhenActionIsInvalidJson)
 {
-    nlohmann::json action = getDefaultUploadObject(ResponseActionsImpl::UploadType::FILE);
-    EXPECT_THROW(ResponseActionsImpl::ActionsUtils::readUploadAction("",ResponseActionsImpl::UploadType::FILE),ResponseActionsImpl::InvalidCommandFormat);
+    EXPECT_THROW(
+        ResponseActionsImpl::ActionsUtils::readUploadAction("", ResponseActionsImpl::UploadType::FILE),
+        ResponseActionsImpl::InvalidCommandFormat);
 }
 
 TEST_F(ActionsUtilsTests, testParseFailsWhenActionISUploadFileWhenExpectingFolder)
 {
     nlohmann::json action = getDefaultUploadObject(ResponseActionsImpl::UploadType::FILE);
-    EXPECT_THROW(ResponseActionsImpl::ActionsUtils::readUploadAction(action.dump(),ResponseActionsImpl::UploadType::FOLDER),ResponseActionsImpl::InvalidCommandFormat);
+    EXPECT_THROW(
+        ResponseActionsImpl::ActionsUtils::readUploadAction(action.dump(), ResponseActionsImpl::UploadType::FOLDER),
+        ResponseActionsImpl::InvalidCommandFormat);
+}
+
+TEST_F(ActionsUtilsTests, testParseFailsWhenActionISUploadFolderWhenExpectingFile)
+{
+    nlohmann::json action = getDefaultUploadObject(ResponseActionsImpl::UploadType::FOLDER);
+    EXPECT_THROW(
+        ResponseActionsImpl::ActionsUtils::readUploadAction(action.dump(), ResponseActionsImpl::UploadType::FILE),
+        ResponseActionsImpl::InvalidCommandFormat);
 }
 
 TEST_F(ActionsUtilsTests, testSucessfulParseCompressionEnabled)
@@ -95,10 +106,11 @@ TEST_F(ActionsUtilsTests, testSucessfulParseCompressionEnabled)
     nlohmann::json action = getDefaultUploadObject(ResponseActionsImpl::UploadType::FILE);
     action["compress"] = true;
     action["password"] = "password";
-    ResponseActionsImpl::UploadInfo info = ResponseActionsImpl::ActionsUtils::readUploadAction(action.dump(),ResponseActionsImpl::UploadType::FILE);
+    ResponseActionsImpl::UploadInfo info =
+        ResponseActionsImpl::ActionsUtils::readUploadAction(action.dump(), ResponseActionsImpl::UploadType::FILE);
 
-    EXPECT_EQ(info.compress,true);
-    EXPECT_EQ(info.password,"password");
+    EXPECT_EQ(info.compress, true);
+    EXPECT_EQ(info.password, "password");
 }
 
 TEST_F(ActionsUtilsTests, testFailedParseInvalidValue)

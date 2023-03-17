@@ -63,6 +63,8 @@ Test Zip And Unzip Directory With Password
     ${result} =    Run Process  LD_LIBRARY_PATH\=/opt/sophos-spl/base/lib64/ ${unzipTool} ${zipFile} ${UNPACK_DIRECTORY}   shell=True
     Log  ${result.stderr}
     Log  ${result.stdout}
+    ${Files} =  List Files In Directory  ${UNPACK_DIRECTORY}
+    Log   ${Files}
     Should Not Be Equal As Integers    ${result.rc}    0   "unzip utility unexpectedly succeeded without password"
 
     ${result} =    Run Process  LD_LIBRARY_PATH\=/opt/sophos-spl/base/lib64/ ${unzipTool} ${zipFile} ${UNPACK_DIRECTORY} ${password}   shell=True

@@ -5,7 +5,7 @@
     "Properties" : {
       "IamInstanceProfile": { "Ref": "RegressionTestInstanceProfile" },
       "KeyName" : { "Ref" : "KeyName" },
-      "ImageId" : "ami-03b1a1af5b75323ab",
+      "ImageId" : "ami-08036f4589dc3cdb1",
       "InstanceType": "c4.large",
       "InstanceInitiatedShutdownBehavior": "terminate",
       "Tags" : [
@@ -46,7 +46,6 @@
         "echo $'#cloud-config\nhostname: '${HOSTNAME} $'\nfqdn: '${HOSTNAME} >/etc/cloud/cloud.cfg.d/99_hostname.cfg\n",
         "sed -i 's/127.0.0.1/127.0.0.1 '$HOSTNAME'/' /etc/hosts\n",
         "apt-get update 2>&1 >>/tmp/cloudFormationInit.log\n",
-        "update-alternatives --set python3 /usr/local/bin/python3.7\n",
         "apt-get -y install python3-pip libcap2-bin auditd zip python3.8-venv 2>&1 >>/tmp/cloudFormationInit.log\n",
         "pip3 install --upgrade setuptools-rust 2>&1 >>/tmp/cloudFormationInit.log\n",
         "pip3 install --upgrade nest_asyncio robotframework psutil zmq protobuf paramiko watchdog python-dateutil requests enum34 packaging 2>&1 >>/tmp/cloudFormationInit.log\n",

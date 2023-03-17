@@ -52,7 +52,7 @@ function install_system_packages
 python3 -m pip install -i https://pypi.org/simple pip --upgrade
 
 # install dependencies
-for python_package in robotframework sseclient aiohttp aiohttp_sse asyncio nest_asyncio python-dateutil websockets packaging protobuf==3.14.0 psutil proxy.py zmq  paramiko watchdog cryptography==3.3.1 requests enum34
+for python_package in robotframework sseclient aiohttp aiohttp_sse asyncio nest_asyncio python-dateutil websockets packaging protobuf==3.14.0 psutil proxy.py zmq  paramiko watchdog cryptography requests enum34
 do
   pip_install ${python_package}
 done
