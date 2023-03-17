@@ -55,12 +55,6 @@ add_library(common SHARED
         ThreatDetector/SusiSettings.h
 )
 
-SET (BOOST_LIBRARYDIR  ${BOOSTPATH}/boost/lib64)
-SET (BOOST_INCLUDEDIR ${BOOSTPATH}/boost/include)
-SET (BOOST_ROOT ${BOOSTPATH}/boost)
-
-find_package( Boost REQUIRED COMPONENTS filesystem locale system)
-
 target_link_libraries(common  PUBLIC
         datatypes
         ${STD_FILESYSTEM_IF_REQUIRED}

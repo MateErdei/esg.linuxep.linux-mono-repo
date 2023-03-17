@@ -150,6 +150,13 @@ if(NOT DEFINED BOOSTPATH)
     SET( BOOSTPATH ${REDIST})
 endif()
 SET(Boost_NO_WARN_NEW_VERSIONS ON)
+SET(BOOST_MIN_VERSION 1.78.0)
+
+SET (BOOST_LIBRARYDIR  ${BOOSTPATH}/boost/lib64)
+SET (BOOST_INCLUDEDIR ${BOOSTPATH}/boost/include)
+SET (BOOST_ROOT ${BOOSTPATH}/boost)
+
+find_package( Boost ${BOOST_MIN_VERSION} REQUIRED COMPONENTS program_options filesystem locale system)
 
 set(pluginapiinclude ${PLUGINAPIPATH}/include)
 set(LOG4CPLUS_INCLUDE_DIR ${pluginapiinclude})

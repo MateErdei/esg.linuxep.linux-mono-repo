@@ -1,10 +1,4 @@
 
-SET (BOOST_LIBRARYDIR  ${BOOSTPATH}/boost/lib64)
-SET (BOOST_INCLUDEDIR ${BOOSTPATH}/boost/include)
-SET (BOOST_ROOT ${BOOSTPATH}/boost)
-
-find_package( Boost REQUIRED COMPONENTS program_options)
-
 add_library(sophosthreatdetectorimpl SHARED
         ../../common/config.h
         ProcessForceExitTimer.cpp

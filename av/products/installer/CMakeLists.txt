@@ -19,12 +19,6 @@ install(FILES ${PROJECT_BINARY_DIR}/uninstall.sh
         DESTINATION files/plugins/${PLUGIN_NAME}/sbin/
         PERMISSIONS OWNER_READ OWNER_EXECUTE)
 
-SET (BOOST_LIBRARYDIR  ${BOOSTPATH}/boost/lib64)
-SET (BOOST_INCLUDEDIR ${BOOSTPATH}/boost/include)
-SET (BOOST_ROOT ${BOOSTPATH}/boost)
-
-find_package( Boost REQUIRED COMPONENTS program_options)
-
 add_executable(sync_versioned_files
         sync_versioned_files/sync_versioned_files.cpp
         sync_versioned_files/sync_versioned_files.h

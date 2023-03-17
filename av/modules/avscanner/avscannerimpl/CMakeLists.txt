@@ -24,12 +24,6 @@ add_library(avscannerimpl SHARED
         ClientSocketWrapper.h
         IClientSocketWrapper.h)
 
-SET (BOOST_LIBRARYDIR  ${BOOSTPATH}/boost/lib64)
-SET (BOOST_INCLUDEDIR ${BOOSTPATH}/boost/include)
-SET (BOOST_ROOT ${BOOSTPATH}/boost)
-
-find_package( Boost REQUIRED COMPONENTS program_options)
-
 target_include_directories(avscannerimpl PUBLIC
         ${CMAKE_SOURCE_DIR}/modules
         "${CAPNPROTO_INCLUDE_DIR}"

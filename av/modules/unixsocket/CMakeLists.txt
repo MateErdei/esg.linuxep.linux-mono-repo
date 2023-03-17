@@ -58,12 +58,6 @@ add_library(unixsocket SHARED
         updateCompleteSocket/UpdateCompleteServerSocket.h
         )
 
-SET (BOOST_LIBRARYDIR  ${BOOSTPATH}/boost/lib64)
-SET (BOOST_INCLUDEDIR ${BOOSTPATH}/boost/include)
-SET (BOOST_ROOT ${BOOSTPATH}/boost)
-
-find_package( Boost REQUIRED COMPONENTS locale)
-
 target_link_libraries(unixsocket  PUBLIC
         common
         datatypes
