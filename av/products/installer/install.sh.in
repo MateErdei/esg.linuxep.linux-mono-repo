@@ -71,13 +71,12 @@ ROOT_CA=$SOPHOS_INSTALL/base/update/rootcerts/rootca.crt
 [[ -f $ROOT_CA ]] || failure ${EXIT_FAIL_MISSING_VERSIG} "Failed to find root CA in SSPL"
 SUPPLEMENT_DIR="$DIST/files/plugins/av/chroot/susi/update_source"
 VDL="$SUPPLEMENT_DIR/vdl"
-DATASETA_MANIFEST=$VDL/manifestdata.dat
-if [[ ! -f $DATASETA_MANIFEST ]]
-then
-    $VERSIG -c"$ROOT_CA" -f"$VDL/vdlmnfst.dat" -d"$VDL" $VERSIG_OPTIONS || failure ${EXIT_FAIL_SUPPLEMENT_VERIFY_FAIL} "Failed to verify VDL supplement"
-fi
+DATASETA_MANIFEST="$VDL/manifestdata.dat"
 ML_MODEL="$SUPPLEMENT_DIR/model"
-$VERSIG -c"$ROOT_CA" -f"$ML_MODEL/manifest.dat" -d"$ML_MODEL" $VERSIG_OPTIONS || failure ${EXIT_FAIL_SUPPLEMENT_VERIFY_FAIL} "Failed to verify Machine Learning supplement"
+$VERSIG -c"$ROOT_CA" -f"$ML_MODEL/manifest.dat" -d"$ML_MODEL" \
+  --no-require-sha256 \
+  --allow-sha1-signature \
+  $VERSIG_OPTIONS || failure ${EXIT_FAIL_SUPPLEMENT_VERIFY_FAIL} "Failed to verify Machine Learning supplement"
 
 SETCAP="$(which setcap)"
 [[ -x "${SETCAP}" ]] || SETCAP=/sbin/setcap
@@ -142,7 +141,7 @@ function generate_susi_package_manifest()
     local package_manifest="${SUSI_UPDATE_SRC}/package_manifest.txt"
     cp ${nonsupplement_manifest} ${temp_manifest}
 
-    vdl_hash=$(sha256sum $DATASETA_MANIFEST | awk '{print $1}')
+    vdl_hash=$(sha256sum "$DATASETA_MANIFEST" | awk '{print $1}')
     echo "vdl ${vdl_hash}" >> ${temp_manifest}
 
     model_hash=$(sha256sum ${SUSI_UPDATE_SRC}/model/manifest.dat | awk '{print $1}')
