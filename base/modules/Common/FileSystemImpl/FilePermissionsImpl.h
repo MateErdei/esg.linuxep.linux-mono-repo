@@ -3,6 +3,7 @@
 #pragma once
 
 #include "Common/FileSystem/IFilePermissions.h"
+#include <sys/capability.h>
 
 namespace Common::FileSystem
 {
@@ -42,6 +43,10 @@ namespace Common::FileSystem
         gid_t getGroupIdOfDirEntry(const Path& path) const override;
 
         std::map<std::string, uid_t> getAllUserNamesAndIds() const override;
+
+        cap_t getFileCapabilities(const Path& path) const override;
+
+        void setFileCapabilities(const Path& path, const cap_t& capabilities) const override;
     };
     std::unique_ptr<IFilePermissions>& filePermissionsStaticPointer();
 } // namespace Common::FileSystem

@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include <sys/capability.h>
 #include <sys/types.h>
 
 #include <grp.h>
@@ -152,6 +153,20 @@ namespace Common::FileSystem
          * @throw IFileSystemException
          */
         [[nodiscard]] virtual std::map<std::string, uid_t> getAllUserNamesAndIds() const = 0;
+
+        /**
+         * Get the file capabilities of a file
+         * @param path
+         * @return file capabilities
+         */
+        [[nodiscard]] virtual cap_t getFileCapabilities(const Path& path) const = 0;
+
+        /**
+         * Set the file capabilities of a file
+         * @param path
+         * @param capabilities
+         */
+        virtual void setFileCapabilities(const Path& path, const cap_t& capabilities) const= 0;
     };
 
     /**

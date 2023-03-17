@@ -213,10 +213,17 @@ namespace watchdog::watchdogimpl
     void setUserIdOfFile(const std::string& filePath, uid_t newUserId)
     {
         auto filePermissions = Common::FileSystem::filePermissions();
+        auto fileSystem = Common::FileSystem::fileSystem();
         try
         {
             auto currentGroupId = getGroupIdOfFile(filePath);
+            auto fileCapabilities = filePermissions->getFileCapabilities(filePath);
             filePermissions->lchown(filePath, newUserId, currentGroupId);
+
+            if (fileCapabilities != nullptr && fileSystem->isFile(filePath) && !fileSystem->isSymlink(filePath))
+            {
+                filePermissions->setFileCapabilities(filePath, fileCapabilities);
+            }
             LOGDEBUG("Updated user ID of " << filePath << " to " << newUserId);
         }
         catch (const Common::FileSystem::IFileSystemException& exception)
@@ -228,10 +235,17 @@ namespace watchdog::watchdogimpl
     void setGroupIdOfFile(const std::string& filePath, gid_t newGroupId)
     {
         auto filePermissions = Common::FileSystem::filePermissions();
+        auto fileSystem = Common::FileSystem::fileSystem();
         try
         {
             auto currentUserId = getUserIdOfFile(filePath);
+            auto fileCapabilities = filePermissions->getFileCapabilities(filePath);
             filePermissions->lchown(filePath, currentUserId, newGroupId);
+
+            if (fileCapabilities != nullptr && fileSystem->isFile(filePath) && !fileSystem->isSymlink(filePath))
+            {
+                filePermissions->setFileCapabilities(filePath, fileCapabilities);
+            }
             LOGDEBUG("Updated group ID of " << filePath << " to " << newGroupId);
         }
         catch (const Common::FileSystem::IFileSystemException& exception)

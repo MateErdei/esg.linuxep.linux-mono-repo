@@ -18,7 +18,6 @@
 #include <pwd.h>
 #include <sstream>
 #include <unistd.h>
-#include <sys/capability.h>
 
 #define LOGSUPPORT(x) std::cout << x << "\n"; // NOLINT
 
@@ -62,18 +61,11 @@ namespace Common::FileSystem
 
     void FilePermissionsImpl::lchown(const Path& path, uid_t userId, gid_t groupId) const
     {
-        cap_t capabilities = cap_get_file(path.c_str());
         if (::lchown(path.c_str(), userId, groupId) != 0)
         {
             std::stringstream errorMessage;
             errorMessage << "lchown by ID failed to set user or group owner on file " << path
                          << " to user ID: " << userId << ", group ID: " << groupId;
-            throw FileSystem::IPermissionDeniedException(errorMessage.str());
-        }
-        if (capabilities != nullptr && cap_set_file(path.c_str(), capabilities) != 0)
-        {
-            std::stringstream errorMessage;
-            errorMessage << "cap_set_file failed to set file capabilities (" << capabilities << ") after lchown on file " << path << " due to " << std::strerror(errno);
             throw FileSystem::IPermissionDeniedException(errorMessage.str());
         }
     }
@@ -382,6 +374,21 @@ namespace Common::FileSystem
             throw FileSystem::IFileSystemException(errorMessage.str());
         }
         return statbuf.st_gid;
+    }
+
+    cap_t FilePermissionsImpl::getFileCapabilities(const Path& path) const
+    {
+        return cap_get_file(path.c_str());
+    }
+
+    void FilePermissionsImpl::setFileCapabilities(const Path& path, const cap_t& capabilities) const
+    {
+        if (capabilities != nullptr && cap_set_file(path.c_str(), capabilities) != 0)
+        {
+            std::stringstream errorMessage;
+            errorMessage << "Failed to set file capabilities (" << capabilities << ") on file " << path << " due to " << std::strerror(errno);
+            throw FileSystem::IPermissionDeniedException(errorMessage.str());
+        }
     }
 
     std::unique_ptr<Common::FileSystem::IFilePermissions>& filePermissionsStaticPointer()
