@@ -28,9 +28,9 @@ ${EICAR_STRING}                     X5O!P%@AP[4\\PZX54(P^)7CC)7}$EICAR-STANDARD-
 Install AV Plugin Directly
     ${AV_SDDS_DIR} =  Setup Av Install
     ${result}=  Run Process  bash  -x  ${AV_SDDS_DIR}/install.sh  stdout=/tmp/av_install.log  stderr=STDOUT  timeout=120s
-    Should Be Equal As Integers    ${result.rc}    0   "AV Installer failed"
     Log  ${result.stderr}
     Log  ${result.stdout}
+    Should Be Equal As Integers    ${result.rc}    0   "AV Installer failed"
     Check AV Plugin Installed Directly
     Wait Until Keyword Succeeds
     ...  15 secs
