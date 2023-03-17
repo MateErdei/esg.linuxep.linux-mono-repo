@@ -243,6 +243,9 @@ def event_journaler(stage: tap.Root, context: tap.PipelineContext, parameters: t
 
         ("amazonlinux2",
          tap.Machine('amzlinux2_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)),
+
+        ("sles15",
+         tap.Machine('sles15_x64_sp4_aws_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)),
         # add other distros here
     )
 
