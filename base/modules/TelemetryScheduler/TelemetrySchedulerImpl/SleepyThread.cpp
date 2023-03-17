@@ -1,10 +1,8 @@
-/******************************************************************************************************
-
-Copyright 2019 Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2019-2023 Sophos Limited. All rights reserved.
 
 #include "SleepyThread.h"
+
+#include <poll.h>
 
 namespace TelemetrySchedulerImpl
 {
@@ -21,18 +19,33 @@ namespace TelemetrySchedulerImpl
 
     void SleepyThread::run()
     {
+        struct pollfd fds[] {
+            { .fd = m_notifyPipe.readFd(), .events = POLLIN, .revents = 0 },
+        };
+        
         announceThreadStarted();
 
         while (!stopRequested())
         {
-            if (std::chrono::system_clock::now() >= m_sleepUntil)
+            auto now = std::chrono::system_clock::now();
+            if (now >= m_sleepUntil)
             {
                 m_finished = true;
                 m_queue->push(m_task);
                 break;
             }
 
-            std::this_thread::sleep_for(std::chrono::seconds(1));
+            struct timespec timeout{};
+            auto time_till_deadline = m_sleepUntil - now;
+            auto nanoseconds = std::chrono::duration_cast<std::chrono::nanoseconds>(time_till_deadline).count();
+            nanoseconds /= 2; // fudge factor so that we wake up before the deadline
+            constexpr long nanoseconds_in_second = 1000000000;
+            nanoseconds = std::max(nanoseconds, nanoseconds_in_second);
+            timeout.tv_nsec = nanoseconds % 1000000000;
+            timeout.tv_sec  = nanoseconds / 1000000000;
+
+            auto ret = ::ppoll(fds, std::size(fds), &timeout, nullptr);
+            std::ignore = ret; // check handled by while loop
         }
     }
 } // namespace TelemetrySchedulerImpl
