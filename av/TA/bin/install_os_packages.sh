@@ -71,7 +71,7 @@ then
     # Retry 10 times before timeout
     for (( i=0; i<10; i++ ))
     do
-       if zypper --non-interactive install nfs-kernel-server zip unzip samba gdb util-linux ntfs-3g netcat-openbsd
+       if zypper --non-interactive install libcap-progs sysvinit-tools nfs-kernel-server zip unzip samba gdb util-linux ntfs-3g netcat-openbsd
        then
           echo "Installation succeeded"
           break
