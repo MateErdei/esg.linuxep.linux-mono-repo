@@ -12,7 +12,7 @@
         <build-asset project="linuxep" repo="everest-base">
             <release-version branch="release/2023-10"
                              build-id="20230307152640-915e8ce2684edf94d4682548778848e6eed67ee1-mVJTVs"/>
-            <development-version branch="develop"/>
+            <development-version branch="feature/LINUXDAR-5854_versig_uses_sha384_signatures"/>
             <include artifact-path="sspl-base/pluginapi" dest-dir="input"/>
             <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="input/base-sdds"/>
         </build-asset>
