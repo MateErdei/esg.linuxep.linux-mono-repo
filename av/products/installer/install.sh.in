@@ -73,7 +73,7 @@ SUPPLEMENT_DIR="$DIST/files/plugins/av/chroot/susi/update_source"
 VDL="$SUPPLEMENT_DIR/vdl"
 DATASETA_MANIFEST="$VDL/manifestdata.dat"
 ML_MODEL="$SUPPLEMENT_DIR/model"
-$VERSIG -c"$ROOT_CA" -f"$ML_MODEL/manifest.dat" -d"$ML_MODEL" \
+$VERSIG -c"$SOPHOS_INSTALL/base/update/rootcerts" -f"$ML_MODEL/manifest.dat" -d"$ML_MODEL" \
     --no-require-sha256 \
     --allow-sha1-signature \
     $VERSIG_OPTIONS || \
