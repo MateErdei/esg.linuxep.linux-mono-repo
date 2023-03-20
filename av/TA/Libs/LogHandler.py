@@ -56,6 +56,10 @@ class LogMark:
         Check if the log files inode matches the inode saved at mark construction time
         :return: True if the inode matches our saved inode
         """
+        if self.__m_inode is None:
+            # If the file didn't exist when mark was made, then all files are valid
+            return False
+
         if inode is None:
             # examine the file directly
             try:
@@ -63,9 +67,6 @@ class LogMark:
                 inode = stat.st_ino
             except OSError:
                 return True
-
-        if self.__m_inode is None:
-            self.__m_inode = inode
 
         return inode == self.__m_inode
 
@@ -105,7 +106,9 @@ class LogMark:
                     contents = f.read() + contents
                 old_index += 1
         except OSError:
-            logger.error("Ran out of log files getting content for " + self.__m_log_path)
+            if self.__m_inode is not None:
+                # no inode means nothing counts as old
+                logger.error("Ran out of log files getting content for " + self.__m_log_path)
             return contents
 
     def generate_reversed_lines(self):
