@@ -239,7 +239,7 @@ def get_file_owner(filepath: str) -> str:
 
 
 def get_file_owner_id(filepath: str) -> str:
-    owner_id = pwd.getpwuid(os.stat(filepath).st_uid).pw_uid
+    owner_id = os.stat(filepath).st_uid
     return str(owner_id)
 
 
@@ -249,7 +249,7 @@ def get_file_group(filepath: str) -> str:
 
 
 def get_file_group_id(filepath: str) -> str:
-    group_id = grp.getgrgid(os.stat(filepath).st_gid).gr_gid
+    group_id = os.stat(filepath).st_gid
     return str(group_id)
 
 
