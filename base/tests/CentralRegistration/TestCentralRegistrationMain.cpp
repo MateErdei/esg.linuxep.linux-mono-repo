@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2022, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2022-2023 Sophos Limited. All rights reserved.
 
 #include "ApplicationConfigurationImpl/ApplicationPathManager.h"
 #include "CentralRegistration/MessageRelaySorter.h"
@@ -21,7 +17,9 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 
 class CentralRegistrationMainTests : public LogInitializedTests
 {
-    virtual void TearDown() { Tests::restoreFileSystem(); }
+protected:
+    std::unique_ptr<::testing::StrictMock<MockFileSystem>> mockFileSystem_ =
+        std::make_unique<::testing::StrictMock<MockFileSystem>>();
 };
 
 TEST_F(CentralRegistrationMainTests, extractor) // NOLINT
@@ -110,6 +108,10 @@ TEST_F(CentralRegistrationMainTests, CanSuccessfullyProcessAndStoreCommandLineAr
     EXPECT_CALL(*mockSystemUtils, getEnvironmentVariable("https_proxy")).WillOnce(Return(""));
     EXPECT_CALL(*mockSystemUtils, getEnvironmentVariable("http_proxy")).WillOnce(Return(""));
 
+    EXPECT_CALL(
+        *mockFileSystem_, exists(Common::ApplicationConfiguration::applicationPathManager().getMcsCaOverrideFlag()))
+        .WillOnce(Return(false));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::move(mockFileSystem_) };
     MCS::ConfigOptions configOptions = CentralRegistration::processCommandLineOptions(argValues, mockSystemUtils);
 
     ASSERT_EQ(configOptions.config[MCS::MCS_TOKEN], argValues[0]);
@@ -142,6 +144,10 @@ TEST_F(CentralRegistrationMainTests, CanSuccessfullyProcessAndStoreCommandLineAr
     EXPECT_CALL(*mockSystemUtils, getEnvironmentVariable("https_proxy")).WillOnce(Return(""));
     EXPECT_CALL(*mockSystemUtils, getEnvironmentVariable("http_proxy")).WillOnce(Return(""));
 
+    EXPECT_CALL(
+        *mockFileSystem_, exists(Common::ApplicationConfiguration::applicationPathManager().getMcsCaOverrideFlag()))
+        .WillOnce(Return(false));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::move(mockFileSystem_) };
     MCS::ConfigOptions configOptions = CentralRegistration::processCommandLineOptions(argValues, mockSystemUtils);
 
     ASSERT_EQ(configOptions.config[MCS::MCS_TOKEN], argValues[0]);
@@ -182,6 +188,10 @@ TEST_F(CentralRegistrationMainTests, CanSuccessfullyProcessAndStoreCommandLineAr
     EXPECT_CALL(*mockSystemUtils, getEnvironmentVariable("https_proxy")).WillOnce(Return(""));
     EXPECT_CALL(*mockSystemUtils, getEnvironmentVariable("http_proxy")).WillOnce(Return(""));
 
+    EXPECT_CALL(
+        *mockFileSystem_, exists(Common::ApplicationConfiguration::applicationPathManager().getMcsCaOverrideFlag()))
+        .WillOnce(Return(false));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::move(mockFileSystem_) };
     MCS::ConfigOptions configOptions = CentralRegistration::processCommandLineOptions(argValues, mockSystemUtils);
 
     ASSERT_EQ(configOptions.config[MCS::MCS_TOKEN], argValues[0]);
@@ -207,11 +217,10 @@ TEST_F(CentralRegistrationMainTests, CanSuccessfullyProcessAndStoreCommandLineAr
     EXPECT_CALL(*mockSystemUtils, getEnvironmentVariable("https_proxy")).WillOnce(Return(""));
     EXPECT_CALL(*mockSystemUtils, getEnvironmentVariable("http_proxy")).WillOnce(Return(""));
 
-    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
-    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>{ mockFileSystem });
     EXPECT_CALL(
-        *mockFileSystem, exists(Common::ApplicationConfiguration::applicationPathManager().getMcsCaOverrideFlag()))
+        *mockFileSystem_, exists(Common::ApplicationConfiguration::applicationPathManager().getMcsCaOverrideFlag()))
         .WillOnce(Return(true));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::move(mockFileSystem_) };
     MCS::ConfigOptions configOptions = CentralRegistration::processCommandLineOptions(argValues, mockSystemUtils);
 
     ASSERT_EQ(configOptions.config[MCS::MCS_TOKEN], argValues[0]);
@@ -236,6 +245,10 @@ TEST_F(CentralRegistrationMainTests, CanSuccessfullyProcessAndStoreCommandLineAr
     EXPECT_CALL(*mockSystemUtils, getEnvironmentVariable("https_proxy")).WillOnce(Return("https://secure_proxy:443"));
     EXPECT_CALL(*mockSystemUtils, getEnvironmentVariable("http_proxy")).Times(0);
 
+    EXPECT_CALL(
+        *mockFileSystem_, exists(Common::ApplicationConfiguration::applicationPathManager().getMcsCaOverrideFlag()))
+        .WillOnce(Return(false));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::move(mockFileSystem_) };
     MCS::ConfigOptions configOptions = CentralRegistration::processCommandLineOptions(argValues, mockSystemUtils);
 
     ASSERT_EQ(configOptions.config[MCS::MCS_TOKEN], argValues[0]);
@@ -260,6 +273,10 @@ TEST_F(CentralRegistrationMainTests, CanSuccessfullyProcessAndStoreCommandLineAr
     EXPECT_CALL(*mockSystemUtils, getEnvironmentVariable("https_proxy")).WillOnce(Return(""));
     EXPECT_CALL(*mockSystemUtils, getEnvironmentVariable("http_proxy")).WillOnce(Return("http://non_secure_proxy:80"));
 
+    EXPECT_CALL(
+        *mockFileSystem_, exists(Common::ApplicationConfiguration::applicationPathManager().getMcsCaOverrideFlag()))
+        .WillOnce(Return(false));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::move(mockFileSystem_) };
     MCS::ConfigOptions configOptions = CentralRegistration::processCommandLineOptions(argValues, mockSystemUtils);
 
     ASSERT_EQ(configOptions.config[MCS::MCS_TOKEN], argValues[0]);
@@ -279,6 +296,7 @@ TEST_F(CentralRegistrationMainTests, FailsWhenNotEnoughArgsGiven) // NOLINT
     auto mockSystemUtils = std::make_shared<StrictMock<MockSystemUtils>>();
     testing::internal::CaptureStderr();
 
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::move(mockFileSystem_) };
     MCS::ConfigOptions configOptions = CentralRegistration::processCommandLineOptions(argValues, mockSystemUtils);
     std::string logMessage = internal::GetCapturedStderr();
 
@@ -296,6 +314,7 @@ TEST_F(CentralRegistrationMainTests, FailsWhenArgTwoIsAnOptionalArg) // NOLINT
     auto mockSystemUtils = std::make_shared<StrictMock<MockSystemUtils>>();
     testing::internal::CaptureStderr();
 
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::move(mockFileSystem_) };
     MCS::ConfigOptions configOptions = CentralRegistration::processCommandLineOptions(argValues, mockSystemUtils);
     std::string logMessage = internal::GetCapturedStderr();
 
@@ -313,6 +332,7 @@ TEST_F(CentralRegistrationMainTests, FailsWhenArgThreeIsAnOptionalArg) // NOLINT
     auto mockSystemUtils = std::make_shared<StrictMock<MockSystemUtils>>();
     testing::internal::CaptureStderr();
 
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::move(mockFileSystem_) };
     MCS::ConfigOptions configOptions = CentralRegistration::processCommandLineOptions(argValues, mockSystemUtils);
     std::string logMessage = internal::GetCapturedStderr();
 
