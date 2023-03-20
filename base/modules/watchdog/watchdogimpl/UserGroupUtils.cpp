@@ -197,25 +197,13 @@ namespace watchdog::watchdogimpl
         return {};
     }
 
-    uid_t getUserIdOfFile(const std::string& filePath)
-    {
-        auto filePermissions = Common::FileSystem::filePermissions();
-        return filePermissions->getUserIdOfDirEntry(filePath);
-    }
-
-    gid_t getGroupIdOfFile(const std::string& filePath)
-    {
-        auto filePermissions = Common::FileSystem::filePermissions();
-        return filePermissions->getGroupIdOfDirEntry(filePath);
-    }
-
     void setUserIdOfFile(const std::string& filePath, uid_t newUserId)
     {
         auto filePermissions = Common::FileSystem::filePermissions();
         auto fileSystem = Common::FileSystem::fileSystem();
         try
         {
-            auto currentGroupId = getGroupIdOfFile(filePath);
+            auto currentGroupId = filePermissions->getGroupIdOfDirEntry(filePath);
             auto fileCapabilities = filePermissions->getFileCapabilities(filePath);
             filePermissions->lchown(filePath, newUserId, currentGroupId);
 
@@ -237,7 +225,7 @@ namespace watchdog::watchdogimpl
         auto fileSystem = Common::FileSystem::fileSystem();
         try
         {
-            auto currentUserId = getUserIdOfFile(filePath);
+            auto currentUserId = filePermissions->getUserIdOfDirEntry(filePath);
             auto fileCapabilities = filePermissions->getFileCapabilities(filePath);
             filePermissions->lchown(filePath, currentUserId, newGroupId);
 
@@ -334,6 +322,7 @@ namespace watchdog::watchdogimpl
     void remapUserIdOfFiles(const std::string& rootPath, uid_t currentUserId, uid_t newUserId)
     {
         LOGDEBUG("Remapping user IDs of directory entries in " << rootPath << " from " << currentUserId << " to " << newUserId);
+        auto filePermissions = Common::FileSystem::filePermissions();
         auto fs = Common::FileSystem::fileSystem();
         if (fs->isFile(rootPath))
         {
@@ -345,7 +334,7 @@ namespace watchdog::watchdogimpl
             for (const auto& entry : allSophosFiles)
             {
                 // If the current IDs of the entry match the ones we're replacing then perform the remap
-                if (getUserIdOfFile(entry) == currentUserId)
+                if (filePermissions->getUserIdOfDirEntry(entry) == currentUserId)
                 {
                     setUserIdOfFile(entry, newUserId);
                 }
@@ -360,6 +349,7 @@ namespace watchdog::watchdogimpl
     void remapGroupIdOfFiles(const std::string& rootPath, gid_t currentGroupId, gid_t newGroupId)
     {
         LOGDEBUG("Remapping group IDs of directory entries in " << rootPath << " from " << currentGroupId << " to " << newGroupId);
+        auto filePermissions = Common::FileSystem::filePermissions();
         auto fs = Common::FileSystem::fileSystem();
         if (fs->isFile(rootPath))
         {
@@ -371,7 +361,7 @@ namespace watchdog::watchdogimpl
             for (const auto& entry : allSophosFiles)
             {
                 // If the current IDs of the entry match the ones we're replacing then perform the remap
-                if (getGroupIdOfFile(entry) == currentGroupId)
+                if (filePermissions->getGroupIdOfDirEntry(entry) == currentGroupId)
                 {
                     setGroupIdOfFile(entry, newGroupId);
                 }
