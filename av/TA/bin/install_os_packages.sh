@@ -68,7 +68,7 @@ then
 elif [[ -x $(which zypper) ]]
 then
     zypper refresh
-    zypper --non-interactive install libcap-progs sysvinit-tools nfs-kernel-server zip unzip samba gdb util-linux ntfs-3g netcat-openbsd
+    zypper --non-interactive install libcap-progs nfs-kernel-server zip unzip samba gdb util-linux netcat-openbsd
 else
     echo "Can't find package management system"
     exit 1
