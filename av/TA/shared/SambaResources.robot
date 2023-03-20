@@ -50,18 +50,18 @@ Remove Local SMB Share
     Remove Directory    ${source}  recursive=True
 
 Restart Samba
-    ${result} =  Run Process  which  yum
+    ${result} =  Run Process  which  apt-get
     Run Keyword If  "${result.rc}" == "0"
-        ...   Run Shell Process   systemctl restart smb  OnError=Failed to restart SMB server
+        ...   Run Shell Process   systemctl restart smbd  OnError=Failed to restart SMB server
         ...   ELSE
-        ...   Run Shell Process   systemctl restart smbd   OnError=Failed to restart SMB server
+        ...   Run Shell Process   systemctl restart smb   OnError=Failed to restart SMB server
 
 Start Samba
-    ${result} =  Run Process  which  yum
+    ${result} =  Run Process  which  apt-get
     Run Keyword If  "${result.rc}" == "0"
-        ...   Run Shell Process   systemctl start smb  OnError=Failed to start SMB server
+        ...   Run Shell Process   systemctl start smbd  OnError=Failed to start SMB server
         ...   ELSE
-        ...   Run Shell Process   systemctl start smbd   OnError=Failed to start SMB server
+        ...   Run Shell Process   systemctl start smb   OnError=Failed to start SMB server
 
 Reload Samba
     Run Process  smbcontrol  all  reload-config

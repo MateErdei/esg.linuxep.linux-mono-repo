@@ -83,6 +83,7 @@ $VERSIG -c"$SOPHOS_INSTALL/base/update/rootcerts" -f"$ML_MODEL/manifest.dat" -d"
 
 SETCAP="$(which setcap)"
 [[ -x "${SETCAP}" ]] || SETCAP=/sbin/setcap
+[[ -x "${SETCAP}" ]] || SETCAP=/usr/sbin/setcap
 [[ -x "${SETCAP}" ]] || failure ${EXIT_FAIL_INSTALL_PACKAGE} "Failed to install as setcap is not installed, please see https://support.sophos.com/support/s/article/KB-000041952"
 
 PLUGIN_INSTALL="${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}"
