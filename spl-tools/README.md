@@ -1,23 +1,13 @@
 General Tools for SSPL
 ======================
 
-Setting up Developer Environment for SSPL
+Setting up Developer Environment for SPL
 =========================================
-#### Prerequisites: 
-* Install an Ubuntu x64 machine, 64GB HDD, 4GB RAM
-* Install git
-* Setup SSH keys for Stash account
-* Clone this repository
 
 #### Setup
-*./setup/Setup.sh* : Setup an Ubuntu machine ready for SSPL development. Performs the following 
-steps:
-1. Update / Upgrade the OS
-2. Install required packages for SSPL
-3. Clone all git repositories required for SSPL development. (As listed in *./gitRepos.txt*)
-4. Setup NFS mounts - filers, redist etc.
-5. Install vagrant
-6. Setup robot test symlink in the everest-systemproducttests repo
+https://sophos.atlassian.net/wiki/spaces/LD/pages/39042169567/How+To+Build+Base+and+setup+a+dev+machine
+
+# Below is old and needs to be updated LINUXDAR-3823
 
 #### Build / Install
 *./setup/Build.sh* : Build all products listed in *gitRepos.txt*.

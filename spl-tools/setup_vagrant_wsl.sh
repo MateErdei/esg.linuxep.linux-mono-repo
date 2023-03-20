@@ -5,7 +5,7 @@ THIS_DIR=$(dirname "$THIS_FILE_FULL_PATH")
 
 # Run this from within WSL instance
 set -e
-VAGRANT_VERSION="2.3.2"
+VAGRANT_VERSION="2.3.4"
 rm -rf /tmp/hashicorp-archive-keyring.gpg
 wget -O- https://apt.releases.hashicorp.com/gpg | gpg --dearmor --output /tmp/hashicorp-archive-keyring.gpg
 sudo cp  /tmp/hashicorp-archive-keyring.gpg /usr/share/keyrings/hashicorp-archive-keyring.gpg
@@ -18,9 +18,6 @@ vagrant plugin install vagrant-scp
 
 # The "./vagrant" script is a wrapper around the "vagrant" command, it sets env vars needed to run under WSL
 chmod +x "$THIS_DIR/vagrant"
-
-# Check if the vagrant box needs updating, this will show a message to the user
-./vagrant box outdated
 
 # Setup symlinks in other repos so when in the root of those repos ./vagrant works and ./robot works.
 bash "$THIS_DIR/setup_robot_vagrant_symlinks.sh"
@@ -49,9 +46,13 @@ echo $WINDOWS_VAGRANT_VERSION
 if [ "$WINDOWS_VAGRANT_VERSION" != "Vagrant $VAGRANT_VERSION" ]
 then
   echo "Please make sure to install Vagrant to your Windows machine, you can get version $VAGRANT_VERSION from: https://releases.hashicorp.com/vagrant/${VAGRANT_VERSION}/vagrant_${VAGRANT_VERSION}_windows_amd64.msi"
+  exit 1
 else
   echo "Windows and WSL Vagrant versions match, both $VAGRANT_VERSION"
 fi
+
+# Check if the vagrant box needs updating, this will show a message to the user
+./vagrant box outdated
 
 echo ""
 echo "Usage"
