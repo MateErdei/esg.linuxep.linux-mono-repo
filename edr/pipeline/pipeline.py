@@ -276,4 +276,4 @@ def edr_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Pa
 
             with stage.parallel('component'):
                 for template_name, machine in machines:
-                    stage.task(task_name=template_name, func=pytest_task, machine=machine, robot_args=robot_args)
+                    stage.task(task_name=template_name, func=pytest_task, machine=machine)
