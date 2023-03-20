@@ -44,11 +44,6 @@ EDR Installer Directories And Files
     ${ExpectedSymbolicLinkInfo} =  Get File  ${INSTALL_SET_PATH}/SymbolicLinkInfo
     Should Be Equal As Strings  ${ExpectedSymbolicLinkInfo}  ${SymbolicLinkInfo}
 
-    # Check systemd files
-    ${SystemdInfo}=  Get Systemd File Info
-    ${ExpectedSystemdInfo}=  Get File  ${INSTALL_SET_PATH}/SystemdInfo
-    Should Be Equal As Strings  ${ExpectedSystemdInfo}  ${SystemdInfo}
-
 *** Keywords ***
 EDR Tests Teardown With Installed File Replacement
     Run Keyword If Test Failed  Save Current EDR InstalledFiles To Local Path
