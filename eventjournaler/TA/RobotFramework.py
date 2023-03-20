@@ -1,6 +1,7 @@
 import json
 import robot
 import sys
+import os
 
 from pubtap.robotframework.tap_result_listener import tap_result_listener
 
