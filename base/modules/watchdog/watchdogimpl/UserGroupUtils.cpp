@@ -11,7 +11,6 @@
 #include "UtilityImpl/StringUtils.h"
 
 #include <utility>
-#include <set>
 
 namespace watchdog::watchdogimpl
 {

@@ -4,6 +4,7 @@
 
 #include <json.hpp>
 #include <optional>
+#include <set>
 
 namespace watchdog::watchdogimpl
 {
@@ -15,6 +16,15 @@ namespace watchdog::watchdogimpl
      * @return Json object without file usage string
      */
     std::string stripCommentsFromRequestedUserGroupIdFile(const std::vector<std::string>& fileContents);
+
+    /**
+     * Inner function to remove invalid requested id changes, i.e root, not SPL users or duplicates
+     * @param jsonKey Determines whether the ids are for "groups" or "users"
+     * @param requestedConfigJson
+     * @param actualConfigJson
+     * @return id changes that are valid and should be applied
+     */
+    std::set<std::string> getInvalidIdsToRemove(const std::string& jsonKey, const WatchdogUserGroupIDs& requestedConfigJson, const WatchdogUserGroupIDs& actualConfigJson);
 
     /**
      * Validates requested user and group ID changes, removing root or duplicated user/group ID
@@ -31,6 +41,7 @@ namespace watchdog::watchdogimpl
 
     /**
      * Change user ID of a file or directory
+     * Logs ERROR on failure instead of throwing
      * @param filePath
      * @param userId
      */
@@ -38,6 +49,7 @@ namespace watchdog::watchdogimpl
 
     /**
      * Change group ID of a file or directory
+     * Logs ERROR on failure instead of throwing
      * @param filePath
      * @param groupId
      */
