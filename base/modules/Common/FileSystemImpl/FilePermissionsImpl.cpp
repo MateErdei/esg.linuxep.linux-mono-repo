@@ -309,7 +309,7 @@ namespace Common::FileSystem
                 }
                 break;
             }
-            groups.insert({ entry->gr_name, entry->gr_gid });
+            groups.insert({ std::string{ entry->gr_name }, entry->gr_gid });
         }
         endgrent();
 
@@ -335,7 +335,7 @@ namespace Common::FileSystem
                 }
                 break;
             }
-            users.insert({ entry->pw_name, entry->pw_uid });
+            users.insert({ std::string{ entry->pw_name }, entry->pw_uid });
         }
         endpwent();
 
