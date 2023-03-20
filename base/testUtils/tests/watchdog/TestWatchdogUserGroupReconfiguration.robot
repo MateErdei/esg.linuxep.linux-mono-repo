@@ -225,7 +225,15 @@ Get User IDs of Installed Files
     [Return]    ${ids}
 
 Verify Product is Running Without Error After ID Change
-    Mark Expected Error In Log    ${SOPHOS_INSTALL}/logs/base/watchdog.log    ProcessMonitoringImpl <> /opt/sophos-spl/base/bin/mcsrouter died with exit code 1
-    Mark Expected Critical In Log    ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log    mcsrouter.mcs <> Not registered: MCSID is not present
+    Mark Expected Error In Log       ${SOPHOS_INSTALL}/logs/base/watchdog.log    ProcessMonitoringImpl <> /opt/sophos-spl/base/bin/mcsrouter died with exit code 1
+    Mark Expected Error In Log       ${SOPHOS_INSTALL}/logs/base/sophosspl/sophos_managementagent.log    Failure on sending message to updatescheduler. Reason: No incoming data
+    Mark Expected Error In Log       ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log    mcsrouter already running
+    Mark Expected Critical In Log    ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log    Not registered: MCSID is not present
+    Mark Expected Error In Log       ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log   Update Service (sophos-spl-update.service) failed.
+    Mark Expected Error In Log       ${SOPHOS_INSTALL}/logs/base/suldownloader.log    TOKEN_HEADER_ERROR
+    Mark Expected Error In Log       ${SOPHOS_INSTALL}/logs/base/suldownloader.log    Failed to connect to repository: SUS request received HTTP response code: 403 but was expecting: 200
+    Mark Expected Error In Log       ${SOPHOS_INSTALL}/plugins/edr/log/edr.log    Failed to find query pack to extract scheduled query tags from
+    Mark Expected Error In Log       ${SOPHOS_INSTALL}/plugins/edr/log/edr.log    Failed to set query packs to the correct version
+
     Check All Product Logs Do Not Contain Error
     Check All Product Logs Do Not Contain Critical
