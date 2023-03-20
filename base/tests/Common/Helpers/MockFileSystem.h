@@ -28,59 +28,47 @@ public:
         }
     }
     MOCK_METHOD(bool, exists, (const Path& path), (const, override));
-    MOCK_CONST_METHOD1(isExecutable, bool(const Path& path));
-    MOCK_CONST_METHOD1(isFile, bool(const Path& path));
-    MOCK_CONST_METHOD1(isDirectory, bool(const Path& path));
-    MOCK_CONST_METHOD1(isFileOrDirectory, bool(const Path& path));
-    MOCK_CONST_METHOD1(isSymlink, bool(const Path& path));
-    MOCK_CONST_METHOD0(currentWorkingDirectory, Path());
+    MOCK_METHOD(bool, isExecutable, (const Path& path), (const, override));
+    MOCK_METHOD(bool, isFile, (const Path& path), (const, override));
+    MOCK_METHOD(bool, isDirectory, (const Path& path), (const, override));
+    MOCK_METHOD(bool, isFileOrDirectory, (const Path& path), (const, override));
+    MOCK_METHOD(bool, isSymlink, (const Path& path), (const, override));
+    MOCK_METHOD(Path, currentWorkingDirectory, (), (const, override));
     MOCK_METHOD(void, moveFile, (const Path& sourcePath, const Path& destPath), (const, override));
-    MOCK_METHOD(void, moveFileTryCopy, (const Path& sourcePath, const Path& destPath), (const, override));
-    MOCK_CONST_METHOD1(readFile, std::string(const Path& path));
-    MOCK_CONST_METHOD2(readFile, std::string(const Path& path, unsigned long maxSize));
-    MOCK_CONST_METHOD1(readLines, std::vector<std::string>(const Path& path));
-    MOCK_CONST_METHOD2(readLines, std::vector<std::string>(const Path& path, unsigned long maxSize));
-    MOCK_CONST_METHOD2(appendFile, void(const Path& path, const std::string& content));
-    MOCK_CONST_METHOD2(writeFile, void(const Path& path, const std::string& content));
-    MOCK_CONST_METHOD3(
-        writeFileAtomically,
-        void(const Path& path, const std::string& content, const Path& tempDir));
-    MOCK_CONST_METHOD4(
-        writeFileAtomically,
-        void(const Path& path, const std::string& content, const Path& tempDir, mode_t mode));
-    MOCK_CONST_METHOD1(makeExecutable, void(const Path& path));
-    MOCK_CONST_METHOD1(listFiles, std::vector<Path>(const Path& directoryPath));
-    MOCK_CONST_METHOD2(listFilesAndDirectories, std::vector<Path>(const Path& directoryPath, bool includeSymlinks));
-    MOCK_CONST_METHOD1(listAllFilesAndDirsInDirectoryTree, std::vector<Path>(const Path& directoryPath));
-    MOCK_CONST_METHOD1(listDirectories, std::vector<Path>(const Path& directoryPath));
-    MOCK_CONST_METHOD1(listAllFilesInDirectoryTree, std::vector<Path>(const Path& directoryPath));
-    MOCK_CONST_METHOD2(removeFile, void(const Path& path, bool));
-    MOCK_CONST_METHOD1(removeFile, void(const Path& path));
-    MOCK_CONST_METHOD1(removeFileOrDirectory, void(const Path& path));
-    MOCK_CONST_METHOD2(copyFile, void(const Path& src, const Path& dest));
-    MOCK_CONST_METHOD5(
-        copyFileAndSetPermissions,
-        void(
-            const Path& src,
-            const Path& dest,
-            const mode_t mode,
-            const std::string& ownerName,
-            const std::string& groupName));
-    MOCK_CONST_METHOD1(makedirs, void(const Path& path));
-    MOCK_CONST_METHOD1(makeAbsolute, Path(const Path& path));
-    MOCK_CONST_METHOD1(readlink, std::optional<Path>(const Path& path));
-    MOCK_CONST_METHOD1(fileSize, off_t(const Path& path));
-    MOCK_CONST_METHOD1(lastModifiedTime, std::time_t(const Path& path));
-    MOCK_CONST_METHOD1(getFileInfoDescriptor, int(const Path& path));
-    MOCK_CONST_METHOD2(getFileInfoDescriptorFromDirectoryFD, int(int fd1, const Path& path));
-    MOCK_CONST_METHOD2(compareFileDescriptors, bool(int fd1, int fd2));
-    MOCK_CONST_METHOD2(unlinkFileUsingDirectoryFD, void(int fd1, const Path& path));
-    MOCK_CONST_METHOD2(unlinkDirUsingDirectoryFD, void(int fd1, const Path& path));
-    MOCK_CONST_METHOD1(removeFilesInDirectory, void(const Path& path));
-    MOCK_CONST_METHOD2(readProcFile, std::optional<std::string>(int pid, const std::string& filename));
-    MOCK_CONST_METHOD2(waitForFile, bool(const Path& path, unsigned int timeout));
-    MOCK_CONST_METHOD1(recursivelyDeleteContentsOfDirectory, void(const Path& path));
-    MOCK_CONST_METHOD2(calculateDigest, std::string(Common::SslImpl::Digest digestName, const Path& path));
-    MOCK_CONST_METHOD2(calculateDigest, std::string(Common::SslImpl::Digest digestName, int fd));
+    MOCK_METHOD(std::string, readFile, (const Path& path), (const, override));
+    MOCK_METHOD(std::string, readFile, (const Path& path, unsigned long maxSize), (const, override));
+    MOCK_METHOD((std::vector<std::string>), readLines, (const Path& path), (const, override));
+    MOCK_METHOD((std::vector<std::string>), readLines, (const Path& path, unsigned long maxSize), (const, override));
+    MOCK_METHOD(void, appendFile, (const Path& path, const std::string& content), (const, override));
+    MOCK_METHOD(void, writeFile, (const Path& path, const std::string& content), (const, override));
+    MOCK_METHOD(void, writeFileAtomically, (const Path& path, const std::string& content, const Path& tempDir), (const, override));
+    MOCK_METHOD(void, writeFileAtomically, (const Path& path, const std::string& content, const Path& tempDir, mode_t mode), (const, override));
+    MOCK_METHOD(void, makeExecutable, (const Path& path), (const, override));
+    MOCK_METHOD((std::vector<Path>), listFiles, (const Path& directoryPath), (const, override));
+    MOCK_METHOD((std::vector<Path>), listFilesAndDirectories, (const Path& directoryPath, bool includeSymlinks), (const, override));
+    MOCK_METHOD((std::vector<Path>), listAllFilesAndDirsInDirectoryTree, (const Path& directoryPath), (const, override));
+    MOCK_METHOD((std::vector<Path>), listDirectories, (const Path& directoryPath), (const, override));
+    MOCK_METHOD((std::vector<Path>), listAllFilesInDirectoryTree, (const Path& directoryPath), (const, override));
+    MOCK_METHOD(void, removeFile, (const Path& path, bool), (const, override));
+    MOCK_METHOD(void, removeFile, (const Path& path), (const, override));
+    MOCK_METHOD(void, removeFileOrDirectory, (const Path& path), (const, override));
+    MOCK_METHOD(void, copyFile, (const Path& src, const Path& dest), (const, override));
+    MOCK_METHOD(void, copyFileAndSetPermissions, (const Path& src, const Path& dest, const mode_t mode, const std::string& ownerName, const std::string& groupName), (const, override));
+    MOCK_METHOD(void, makedirs, (const Path& path), (const, override));
+    MOCK_METHOD(Path, makeAbsolute, (const Path& path), (const, override));
+    MOCK_METHOD((std::optional<Path>), readlink, (const Path& path), (const, override));
+    MOCK_METHOD(off_t, fileSize, (const Path& path), (const, override));
+    MOCK_METHOD(std::time_t, lastModifiedTime, (const Path& path), (const, override));
+    MOCK_METHOD(int, getFileInfoDescriptor, (const Path& path), (const, override));
+    MOCK_METHOD(int, getFileInfoDescriptorFromDirectoryFD, (int fd1, const Path& path), (const, override));
+    MOCK_METHOD(bool, compareFileDescriptors, (int fd1, int fd2), (const, override));
+    MOCK_METHOD(void, unlinkFileUsingDirectoryFD, (int fd1, const Path& path), (const, override));
+    MOCK_METHOD(void, unlinkDirUsingDirectoryFD, (int fd1, const Path& path), (const, override));
+    MOCK_METHOD(void, removeFilesInDirectory, (const Path& path), (const, override));
+    MOCK_METHOD((std::optional<std::string>), readProcFile, (int pid, const std::string& filename), (const, override));
+    MOCK_METHOD(bool, waitForFile, (const Path& path, unsigned int timeout), (const, override));
+    MOCK_METHOD(void, recursivelyDeleteContentsOfDirectory, (const Path& path), (const, override));
+    MOCK_METHOD(std::string, calculateDigest, (Common::SslImpl::Digest digestName, const Path& path), (const, override));
+    MOCK_METHOD(std::string, calculateDigest, (Common::SslImpl::Digest digestName, int fd), (const, override));
     MOCK_METHOD(std::filesystem::space_info, getDiskSpaceInfo, (const Path& path), (const, override));
 };
