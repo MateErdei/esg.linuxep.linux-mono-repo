@@ -26,6 +26,7 @@ target_link_libraries(cmcsrouterapi PUBLIC
         protobuf -L${Protobuf_root}/lib
         expat -L${EXPAT_INPUT}
         ${OPENSSLCRYPTO_LIBRARY}
+        cap
         )
 
 
