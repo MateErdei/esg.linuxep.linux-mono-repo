@@ -68,11 +68,11 @@ def pip_install(machine: tap.Machine, *install_args: str):
 
 def package_install(machine: tap.Machine, *pkg_name: str):
     if machine.run('which', 'apt-get', return_exit_code=True) == 0:
-        install_args = ["apt-get", "-y", "install"]
+        install_args = "apt-get -y install"
     elif machine.run('which', 'yum', return_exit_code=True) == 0:
-        install_args = ["yum", "-y", "install"]
+        install_args = "yum -y install"
     else:
-        install_args = ["/usr/bin/zypper", "--non-interactive", "install"]
+        install_args = "zypper --non-interactive install"
 
     install_args.append(*pkg_name)
     for _ in range(20):
