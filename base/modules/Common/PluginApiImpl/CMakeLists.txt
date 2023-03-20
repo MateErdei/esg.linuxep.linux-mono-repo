@@ -23,7 +23,7 @@ add_library(pluginapiobjects OBJECT
 target_include_directories(pluginapiobjects PUBLIC ../PluginApi ../../Common ${LOG4CPLUS_INCLUDE_DIR})
 add_library(pluginapiimpl SHARED $<TARGET_OBJECTS:pluginapiobjects>)
 
-target_link_libraries(pluginapiimpl PUBLIC threads pluginprotocol ${LOG4CPLUS_LIBRARY} zmqwrapperapiimpl telemetryhelperimpl logging)
+target_link_libraries(pluginapiimpl PUBLIC cap threads pluginprotocol ${LOG4CPLUS_LIBRARY} zmqwrapperapiimpl telemetryhelperimpl logging)
 
 SET_TARGET_PROPERTIES(pluginapiimpl
         PROPERTIES INSTALL_RPATH "$ORIGIN")
