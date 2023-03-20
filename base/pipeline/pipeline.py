@@ -74,9 +74,8 @@ def package_install(machine: tap.Machine, *pkg_name: str):
     else:
         install_args = "zypper --non-interactive install"
 
-    install_args.append(*pkg_name)
     for _ in range(20):
-        if machine.run(install_args,
+        if machine.run(install_args, *pkg_name,
                        log_mode=tap.LoggingMode.ON_ERROR,
                        return_exit_code=True) == 0:
             break
