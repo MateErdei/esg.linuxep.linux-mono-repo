@@ -10,6 +10,7 @@ Library         ../Libs/LogUtils.py
 Library         ../Libs/FakeManagement.py
 Library         ../Libs/FakeWatchdog.py
 Library         ../Libs/FileSampleObfuscator.py
+Library         ../Libs/FileUtils.py
 Library         ../Libs/AVScanner.py
 Library         ../Libs/OnFail.py
 Library         ../Libs/OSUtils.py
@@ -569,6 +570,10 @@ CLS Cannot Open Permission Denied File
     Should Be Equal As Integers  ${rc}  ${ERROR_RESULT}
 
 CLS Long Threat Paths Are Not Truncated
+    # CORE-4999 - threat paths are truncated on SLES15
+    ${file_exists} =  Does File Exist  /etc/SUSE-brand
+    Pass Execution If    ${file_exists}  There is a bug (CORE-4999) in SUSI which means threat paths get truncated on SLES
+
     ${ARCHIVE_DIR} =  Set Variable  ${NORMAL_DIRECTORY}/archive_dir
     Create Directory  ${ARCHIVE_DIR}
     Create File  ${ARCHIVE_DIR}/a-long-path-name-long-enough-for-this-test/i-am-a-deep-seated/dir1/dir2/dir3/dir4/dir5/dir6/dir7/dir8/dir9/dir0/dira/dirb/dirc/dird/1_eicar    ${EICAR_STRING}
