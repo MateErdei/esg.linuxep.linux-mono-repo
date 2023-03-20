@@ -60,7 +60,7 @@ namespace watchdog::watchdogimpl
 
             for (const auto& [name, id] : requestedConfigJson[jsonKey].items())
             {
-                if (name == "root" || id == 1)
+                if (name == "root" || id == 0)
                 {
                     LOGWARN("Will not update the ID of " << name << " as it is root: " << id);
                     idsToRemove.insert(name);
