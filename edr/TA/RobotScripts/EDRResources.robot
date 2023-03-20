@@ -27,7 +27,8 @@ Run Shell Process
     Should Be Equal As Integers  ${result.rc}  0   "${OnError}.\nstdout: \n${result.stdout} \n. stderr: \n${result.stderr}"
 
 Check EDR Plugin Running
-    Run Shell Process  pidof ${SOPHOS_INSTALL}/plugins/edr/bin/edr   OnError=EDR not running
+    ${rc}   ${pid} =    Run And Return Rc And Output    pgrep ${SOPHOS_INSTALL}/plugins/edr/bin/edr
+    Should Be Equal As Integers    ${rc}    0    EDR not running
 
 Mark File
     [Arguments]  ${path}
@@ -244,7 +245,8 @@ Install ALC Policy
 
 
 Check Osquery Running
-    Run Shell Process  pidof ${SOPHOS_INSTALL}/plugins/edr/bin/osqueryd   OnError=osquery not running
+    ${rc}   ${pid} =    Run And Return Rc And Output    pgrep ${SOPHOS_INSTALL}/plugins/edr/bin/osqueryd
+    Should Be Equal As Integers    ${rc}    0    osquery not running
 
 Check Osquery Not Running
     ${result} =    Run Process  pgrep  -a  osqueryd
