@@ -62,17 +62,17 @@ def install_requirements(machine: tap.Machine):
         logger.warning("On adding user and group: {}".format(ex))
 
 
-def robot_task(machine: tap.Machine):
+def robot_task(machine: tap.Machine, robot_args: str):
     try:
         install_requirements(machine)
-        machine.run('python3', machine.inputs.test_scripts / 'RobotFramework.py', timeout=3600)
+        machine.run(robot_args, 'python3', machine.inputs.test_scripts / 'RobotFramework.py', timeout=3600)
     finally:
         machine.run('python3', machine.inputs.test_scripts / 'move_robot_results.py')
         machine.output_artifact('/opt/test/logs', 'logs')
         machine.output_artifact('/opt/test/results', 'results')
 
 
-def coverage_task(machine: tap.Machine, branch: str):
+def coverage_task(machine: tap.Machine, branch: str, robot_args=None):
     try:
         install_requirements(machine)
         tests_dir = str(machine.inputs.test_scripts)
@@ -103,7 +103,7 @@ def coverage_task(machine: tap.Machine, branch: str):
         args = ['python3', '-u', '-m', 'pytest', tests_dir, '--html=/opt/test/results/report.html']
         machine.run(*args, environment={'COVFILE': COVFILE_TAPTESTS})
         try:
-            machine.run('python3', machine.inputs.test_scripts / 'RobotFramework.py', timeout=3600,
+            machine.run(robot_args,'python3', machine.inputs.test_scripts / 'RobotFramework.py', timeout=3600,
                         environment={'COVFILE': COVFILE_TAPTESTS})
         finally:
             machine.run('python3', machine.inputs.test_scripts / 'move_robot_results.py')
@@ -245,6 +245,14 @@ def edr_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Pa
     if mode == ANALYSIS_MODE:
         return
 
+    # Add args to pass env vars to RobotFramework.py call in test runs
+    robot_args_list = []
+    if parameters.test:
+        robot_args_list.append("TEST=" + parameters.test)
+    if parameters.suite:
+        robot_args_list.append("SUITE=" + parameters.suite)
+    robot_args = " ".join(robot_args_list)
+
     with stage.parallel('test'):
         machines = (
             ("ubuntu1804",
@@ -260,12 +268,12 @@ def edr_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Pa
         if mode == 'coverage':
             with stage.parallel('combined'):
                 for template_name, machine in coverage_machines:
-                    stage.task(task_name=template_name, func=coverage_task, machine=machine, branch=context.branch)
+                    stage.task(task_name=template_name, func=coverage_task, machine=machine, branch=context.branch, robot_args=robot_args)
         else:
             with stage.parallel('integration'):
                 for template_name, machine in machines:
-                    stage.task(task_name=template_name, func=robot_task, machine=machine)
+                    stage.task(task_name=template_name, func=robot_task, machine=machine, robot_args=robot_args)
 
             with stage.parallel('component'):
                 for template_name, machine in machines:
-                    stage.task(task_name=template_name, func=pytest_task, machine=machine)
+                    stage.task(task_name=template_name, func=pytest_task, machine=machine, robot_args=robot_args)

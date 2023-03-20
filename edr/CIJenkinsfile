@@ -3,7 +3,10 @@
 
 def params = [
     string(name: 'UPSTREAM_CONTEXT', defaultValue: '{}', description: 'Information about the build which triggered this in JSON.'),
-    choice(name: 'MODE', choices: ['release'], defaultValue: 'release', description: 'Build mode'),
+    choice(name: 'MODE', choices: ['release', 'coverage','analysis'], defaultValue: 'release', description: 'Build mode'),
+    string(name: 'robot_test', defaultValue: '', description: 'Optional specific Robot test to run'),
+    string(name: 'robot_suite', defaultValue: '', description: 'Optional specific Robot suite to run'),
 ]
 
-CIPipeline { pipelineScriptPath = './pipeline/pipeline.py'; pipelineEntryPoint = 'template_plugin'; buildParameters = params }
+CIPipeline { pipelineScriptPath = './pipeline/pipeline.py'; pipelineEntryPoint = 'edr_plugin'; buildParameters = params }
+

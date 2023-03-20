@@ -1,6 +1,7 @@
 import json
 import robot
 import sys
+import os
 
 from pubtap.robotframework.tap_result_listener import tap_result_listener
 
@@ -21,6 +22,11 @@ def main():
         'suite': '*',
         'test': '*'
     }
+
+    if os.environ.get('TEST'):
+        robot_args['test'] = os.environ.get('TEST')
+    if os.environ.get('SUITE'):
+        robot_args['suite'] = os.environ.get('SUITE')
 
     try:
         # Create the TAP Robot result listener.
