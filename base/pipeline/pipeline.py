@@ -72,7 +72,7 @@ def package_install(machine: tap.Machine, *pkg_name: str):
     elif machine.run('which', 'yum', return_exit_code=True) == 0:
         install_args = ["yum", "-y", "install"]
     else:
-        install_args = ["zypper", "--non-interactive", "install"]
+        install_args = ["/usr/bin/zypper", "--non-interactive", "install"]
 
     install_args.append(*pkg_name)
     for _ in range(20):
