@@ -447,8 +447,8 @@ Check Event Source
     Should Contain  ${fileContent}  ${expectedSource}  msg="Event does not report Source: ${expectedSource}"
 
 Check Update Scheduler Run as Sophos-spl-user
-    ${Pid} =   Run Process   pidof UpdateScheduler   shell=yes
-    ${UpdateSchedulerProcess} =  Run Process   ps -o user\= -p ${Pid.stdout}    shell=yes
+    ${rc}   ${pid} =    Run And Return Rc And Output    pgrep UpdateScheduler
+    ${UpdateSchedulerProcess} =  Run Process   ps -o user\= -p ${pid}    shell=yes
     Should Contain   ${UpdateSchedulerProcess.stdout}   sophos-spl-updatescheduler   msg="Failed to detect process ownership of UpdateScheduler. Expected it to run as sophos-spl-updatescheduler. ${UpdateSchedulerProcess.stdout}. Err: ${UpdateSchedulerProcess.stderr}"
 
 

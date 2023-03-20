@@ -202,9 +202,9 @@ ZMQ Suite Teardown
     Run Process  rm  -rf  ${ZMQCheckerDir}
 
 Get Pid of zmqchecker
-    ${result} =    Run Process  pidof  zmqchecker
-    Should Be Equal As Integers    ${result.rc}    0   msg=${result.stderr}
-    [Return]  ${result.stdout}
+    ${rc}   ${pid} =    Run And Return Rc And Output    pgrep zmqchecker
+    Should Be Equal As Integers    ${rc}    0
+    [Return]  ${pid}
 
 Describe information for given Pid
     [Arguments]  ${pid}

@@ -66,16 +66,14 @@ def pip_install(machine: tap.Machine, *install_args: str):
                 'install', *install_args, *pip_index_args,
                 log_mode=tap.LoggingMode.ON_ERROR)
 
-def package_install(machine: tap.Machine, *pkg_name: str):
+def package_install(machine: tap.Machine, *install_args: str):
     if machine.run('which', 'apt-get', return_exit_code=True) == 0:
-        install_args = "apt-get -y install"
-    elif machine.run('which', 'yum', return_exit_code=True) == 0:
-        install_args = "yum -y install"
+        pkg_installer = "apt-get"
     else:
-        install_args = "zypper --non-interactive install"
+        pkg_installer = "yum"
 
     for _ in range(20):
-        if machine.run(install_args, *pkg_name,
+        if machine.run(pkg_installer, '-y', 'install', *install_args,
                        log_mode=tap.LoggingMode.ON_ERROR,
                        return_exit_code=True) == 0:
             break
@@ -108,8 +106,6 @@ def robot_task(machine: tap.Machine, robot_args: str):
     try:
         if machine.run('which', 'apt-get', return_exit_code=True) == 0:
             package_install(machine, 'python3.7-dev')
-        if machine.run('which', 'zypper', return_exit_code=True) == 0:
-            package_install(machine, 'sysvinit-tools')
         install_requirements(machine)
         machine.run(robot_args, 'python3', machine.inputs.test_scripts / 'RobotFramework.py',
                     timeout=3600)
