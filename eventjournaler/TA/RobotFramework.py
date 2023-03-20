@@ -22,6 +22,11 @@ def main():
         'test': '*'
     }
 
+    if os.environ.get('TEST'):
+        robot_args['test'] = os.environ.get('TEST')
+    if os.environ.get('SUITE'):
+        robot_args['suite'] = os.environ.get('SUITE')
+
     try:
         # Create the TAP Robot result listener.
         listener = tap_result_listener(robot_args['path'], tags, robot_args['name'])

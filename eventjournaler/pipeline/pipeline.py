@@ -105,10 +105,10 @@ def pip_install(machine: tap.Machine, *install_args: str):
                 log_mode=tap.LoggingMode.ON_ERROR)
 
 
-def robot_task(machine: tap.Machine):
+def robot_task(machine: tap.Machine, robot_args: str):
     try:
         install_requirements(machine)
-        machine.run('python3', machine.inputs.test_scripts / 'RobotFramework.py', timeout=3600)
+        machine.run(robot_args, 'python3', machine.inputs.test_scripts / 'RobotFramework.py', timeout=3600)
     finally:
         machine.run('python3', machine.inputs.test_scripts / 'move_robot_results.py')
         machine.output_artifact('/opt/test/logs', 'logs')
@@ -246,10 +246,21 @@ def event_journaler(stage: tap.Root, context: tap.PipelineContext, parameters: t
         # add other distros here
     )
 
+    # Add args to pass env vars to RobotFramework.py call in test runs
+    robot_args_list = []
+    if parameters.test:
+        robot_args_list.append("TEST=" + parameters.test)
+    if parameters.suite:
+        robot_args_list.append("SUITE=" + parameters.suite)
+    robot_args = " ".join(robot_args_list)
+
     with stage.parallel('integration'):
         task_func = robot_task
         if mode == COVERAGE_MODE:
-            stage.task(task_name="centos77", func=coverage_task, machine=tap.Machine('centos77_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux), branch=context.branch)
+            stage.task(task_name="centos77", func=coverage_task,
+                       machine=tap.Machine('centos77_x64_server_en_us', inputs=test_inputs,
+                                           platform=tap.Platform.Linux), branch=context.branch,
+                       robot_args=robot_args)
         else:
             for template_name, machine in machines:
-                stage.task(task_name=template_name, func=task_func, machine=machine)
+                stage.task(task_name=template_name, func=robot_task, machine=machine, robot_args=robot_args)
