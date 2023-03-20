@@ -26,6 +26,7 @@ target_include_directories(DelayControlledTable PUBLIC
         ${CMAKE_CURRENT_BINARY_DIR}
         ${GOOGLETESTINCLUDE}
         ${BOOST_INCLUDE_DIR}
+        ${LIVEQUERY_INCLUDE}
         )
 
 SET_TARGET_PROPERTIES(DelayControlledTable

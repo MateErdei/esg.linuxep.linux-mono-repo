@@ -267,8 +267,6 @@ function build()
         fi
 
         untar_input boost
-        untar_input glog
-        untar_input gflags
         untar_input jsoncpp
         ln -sfn libjsoncpp.so.24 $REDIST/jsoncpp/lib64/libjsoncpp.so
 
@@ -283,7 +281,6 @@ function build()
         cp -r ${INPUT}/sdds3 "${REDIST}/sdds3" && chmod +x ${REDIST}/sdds3/*
 
         cp -r ${INPUT}/osquery  "$REDIST"/osquery
-        cp -r ${INPUT}/sspl-osquery-components "$REDIST"/sspl-osquery-components
 
         cp -r ${INPUT}/linux-x64-extension  "$REDIST"/linux-x64-extension
     fi

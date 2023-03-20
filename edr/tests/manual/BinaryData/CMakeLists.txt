@@ -27,6 +27,7 @@ target_include_directories(BinaryDataTable PUBLIC
         ${GOOGLETESTINCLUDE}
         ${BOOST_INCLUDE_DIR}
         ${SQLITE_INCLUDE_DIR}
+        ${LIVEQUERY_INCLUDE}
         )
 
 SET_TARGET_PROPERTIES(BinaryDataTable

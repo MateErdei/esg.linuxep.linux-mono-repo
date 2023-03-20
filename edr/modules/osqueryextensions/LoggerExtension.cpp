@@ -9,7 +9,7 @@ Copyright 2020-2021, Sophos Limited.  All rights reserved.
 
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 #include <Common/FileSystem/IFileSystemException.h>
-#include <SophosLoggerPlugin.h>
+#include <LoggerPlugin/SophosLoggerPlugin.h>
 #include <functional>
 
 

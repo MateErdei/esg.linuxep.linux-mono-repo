@@ -6,7 +6,7 @@ Copyright 2021-2021 Sophos Limited. All rights reserved.
 
 #pragma once
 
-#include "BatchTimerInterface.h"
+#include "LoggerPlugin/BatchTimerInterface.h"
 
 #include <condition_variable>
 #include <future>

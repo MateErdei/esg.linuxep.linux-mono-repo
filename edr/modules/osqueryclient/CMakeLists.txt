@@ -15,6 +15,7 @@ sophos_add_library(osqueryclient SHARED
                 ${GOOGLETESTINCLUDE}
                 ${BOOST_INCLUDE_DIR}
                 ${JSONCPP_INPUT}/include
+
         EXTRA_LIBS
             ${GLOG_LIBRARY}
             ${GFLAG_LIBRARY}
@@ -27,4 +28,5 @@ sophos_add_library(osqueryclient SHARED
             ${OPENSSLCRYPTO_LIBRARY}
             ${OPENSSL_LIBRARY}
             ${JSONCPP_LIBRARY}
+            osquerysdk_library
         )

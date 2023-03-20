@@ -8,7 +8,7 @@ Copyright 2020-2021, Sophos Limited.  All rights reserved.
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/PersistentValue/PersistentValue.h>
 #include <json/value.h>
-#include <ResultsSenderInterface.h>
+#include <LoggerPlugin/ResultsSenderInterface.h>
 #include <functional>
 
 struct ScheduledQuery

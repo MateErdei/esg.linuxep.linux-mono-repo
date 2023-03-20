@@ -136,8 +136,8 @@ if(NOT DEFINED PLUGINAPIPATH)
     SET( PLUGINAPIPATH ${INPUT}/pluginapi)
 endif()
 
-if (NOT DEFINED OSQUERYSDK)
-    SET( OSQUERYSDK ${INPUT}/sspl-osquery-components)
+if (NOT DEFINED LIVEQUERYPATH)
+    SET( LIVEQUERYPATH ${INPUT}/livequery)
 endif()
 if (NOT DEFINED MTREXTENSION)
     SET( MTREXTENSION ${INPUT}/linux-x64-extension/SophosMTRExtension)
@@ -189,27 +189,30 @@ target_link_libraries(thrift_library INTERFACE
 
 add_library(logger_plugin_library SHARED IMPORTED)
 set_target_properties(logger_plugin_library PROPERTIES
-        IMPORTED_LOCATION ${OSQUERYSDK}/lib64/libLoggerPlugin.so
+        IMPORTED_LOCATION ${LIVEQUERYPATH}/LoggerPlugin/libLoggerPlugin.so
         IMPORTED_NO_SONAME TRUE
         )
-target_include_directories(logger_plugin_library INTERFACE ${OSQUERYSDK}/include)
+target_include_directories(logger_plugin_library INTERFACE ${LIVEQUERYPATH}/LoggerPlugin)
 
 add_library(osquery_gen_library SHARED IMPORTED)
 set_target_properties(osquery_gen_library PROPERTIES
-        IMPORTED_LOCATION ${OSQUERYSDK}/lib64/libgen-cpp-linux.so
+        IMPORTED_LOCATION ${LIVEQUERYPATH}/OsquerySDK/gen-cpp-linux/libgen-cpp-linux.so
         IMPORTED_NO_SONAME TRUE
         )
-target_include_directories(osquery_gen_library INTERFACE ${OSQUERYSDK}/include)
+target_include_directories(osquery_gen_library INTERFACE ${LIVEQUERYPATH}/OsquerySDK/gen-cpp-linux)
 target_link_libraries(osquery_gen_library INTERFACE
         thrift_library
         )
 
 add_library(osquerysdk_library SHARED IMPORTED)
 set_target_properties(osquerysdk_library PROPERTIES
-        IMPORTED_LOCATION ${OSQUERYSDK}/lib64/libOsquerySDK.so
+        IMPORTED_LOCATION ${LIVEQUERYPATH}/OsquerySDK/libOsquerySDK.so
         IMPORTED_NO_SONAME TRUE
         )
-target_include_directories(osquerysdk_library INTERFACE ${OSQUERYSDK}/include)
+target_include_directories(osquerysdk_library INTERFACE ${LIVEQUERYPATH})
+
+set( LIVEQUERY_INCLUDE ${LIVEQUERYPATH}/common/livequery )
+
 target_link_libraries(osquerysdk_library INTERFACE
         thrift_library
         osquery_gen_library
@@ -223,15 +226,17 @@ find_library(JSONCPP_LIBRARY
 
 find_library(GLOG_LIBRARY
         NAMES glog
-        PATHS ${INPUT}/glog/install64/lib
+        PATHS ${INPUT}/glog
         NO_DEFAULT_PATH
         )
 
 find_library(GFLAG_LIBRARY
         NAMES gflags
-        PATHS ${INPUT}/gflags/install64/lib
+        PATHS ${INPUT}/gflags
         NO_DEFAULT_PATH
         )
+message(${GLOG_LIBRARY})
+message(${GFLAG_LIBRARY})
 
 find_library(BOOST_CHRONO_LIBRARY
         NAMES boost_chrono

@@ -34,7 +34,7 @@ sophos_add_library(OsqueryExtensions SHARED
             logger_plugin_library
             osquerysdk_library
 
-        EXTRA_INCLUDES ${SQLITE_INCLUDE_DIR} ${CMAKE_BINARY_DIR}  ${INPUT}/jsoncpp/include ${BOOST_INCLUDE_DIR} ${JOURNAL_INCLUDE_DIR}
+        EXTRA_INCLUDES ${SQLITE_INCLUDE_DIR} ${CMAKE_BINARY_DIR}  ${INPUT}/jsoncpp/include ${BOOST_INCLUDE_DIR} ${JOURNAL_INCLUDE_DIR} ${LIVEQUERY_INCLUDE}
         )
 
 set(TABLE_PLUGIN_HDRS
