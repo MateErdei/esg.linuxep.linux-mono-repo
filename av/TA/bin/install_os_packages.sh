@@ -68,18 +68,7 @@ then
 elif [[ -x $(which zypper) ]]
 then
     zypper refresh
-    # Retry 10 times before timeout
-    for (( i=0; i<10; i++ ))
-    do
-       if zypper --non-interactive install libcap-progs sysvinit-tools nfs-kernel-server zip unzip samba gdb util-linux ntfs-3g netcat-openbsd
-       then
-          echo "Installation succeeded"
-          break
-       else
-          echo "Failed to install packages retrying after sleep..."
-          sleep 10
-       fi
-    done
+    zypper --non-interactive install libcap-progs sysvinit-tools nfs-kernel-server zip unzip samba gdb util-linux ntfs-3g netcat-openbsd
 else
     echo "Can't find package management system"
     exit 1
