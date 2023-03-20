@@ -41,8 +41,8 @@ namespace TelemetrySchedulerImpl
             nanoseconds /= 2; // fudge factor so that we wake up before the deadline
             constexpr long nanoseconds_in_second = 1000000000;
             nanoseconds = std::max(nanoseconds, nanoseconds_in_second);
-            timeout.tv_nsec = nanoseconds % 1000000000;
-            timeout.tv_sec  = nanoseconds / 1000000000;
+            timeout.tv_nsec = nanoseconds % nanoseconds_in_second;
+            timeout.tv_sec  = nanoseconds / nanoseconds_in_second;
 
             auto ret = ::ppoll(fds, std::size(fds), &timeout, nullptr);
             std::ignore = ret; // check handled by while loop
