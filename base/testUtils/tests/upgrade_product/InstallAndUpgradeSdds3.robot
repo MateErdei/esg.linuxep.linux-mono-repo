@@ -236,7 +236,7 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     ...   150 secs
     ...   10 secs
     ...   Check SulDownloader Log Contains String N Times   Update success  2
-    Check SulDownloader Log Contains    Running in SDDS3 updating mode
+    Check SulDownloader Log Contains    Running SDDS3 update
 
     # Update again to ensure we do not get a scheduled update later in the test run
     Trigger Update Now
@@ -512,7 +512,7 @@ We Can Downgrade From VUT to Release Without Unexpected Errors
     ...   150 secs
     ...   10 secs
     ...   Check SulDownloader Log Contains String N Times   Update success  2
-    Check SulDownloader Log Contains    Running in SDDS3 updating mode
+    Check SulDownloader Log Contains    Running SDDS3 update
 
     # Update again to ensure we do not get a scheduled update later in the test run
     Trigger Update Now
