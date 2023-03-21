@@ -55,7 +55,7 @@ namespace Common::FileSystem
             std::stringstream errorMessage;
             errorMessage << "chown by ID failed to set user or group owner on file " << path
                          << " to user ID: " << userId << ", group ID: " << groupId;
-            throw FileSystem::IPermissionDeniedException(errorMessage.str());
+            throw FileSystem::IFileSystemException(errorMessage.str());
         }
     }
 
@@ -66,7 +66,7 @@ namespace Common::FileSystem
             std::stringstream errorMessage;
             errorMessage << "lchown by ID failed to set user or group owner on file " << path
                          << " to user ID: " << userId << ", group ID: " << groupId;
-            throw FileSystem::IPermissionDeniedException(errorMessage.str());
+            throw FileSystem::IFileSystemException(errorMessage.str());
         }
     }
 
