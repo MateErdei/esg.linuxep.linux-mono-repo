@@ -46,5 +46,4 @@ sophos_add_library(pluginimpl SHARED
             ${GFLAG_LIBRARY}
             ${GLOG_LIBRARY}
             dl
-            ${OPENSSL_LIBRARY}
 )

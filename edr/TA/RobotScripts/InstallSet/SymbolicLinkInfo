@@ -38,8 +38,7 @@ o777, root, root, /opt/sophos-spl/plugins/edr/lib64/libboost_thread.so.1
 o777, root, root, /opt/sophos-spl/plugins/edr/lib64/libboost_thread.so.1.78
 o777, root, root, /opt/sophos-spl/plugins/edr/lib64/libboost_thread.so.1.78.0
 o777, root, root, /opt/sophos-spl/plugins/edr/lib64/libcrypto.so
-o777, root, root, /opt/sophos-spl/plugins/edr/lib64/libcrypto.so.1
-o777, root, root, /opt/sophos-spl/plugins/edr/lib64/libcrypto.so.1.1
+o777, root, root, /opt/sophos-spl/plugins/edr/lib64/libcrypto.so.3
 o777, root, root, /opt/sophos-spl/plugins/edr/lib64/libeventjournalwrapperimpl.so
 o777, root, root, /opt/sophos-spl/plugins/edr/lib64/libexpat.so
 o777, root, root, /opt/sophos-spl/plugins/edr/lib64/libgcc_s.so
@@ -69,8 +68,7 @@ o777, root, root, /opt/sophos-spl/plugins/edr/lib64/libprotobuf.so.28.0.3
 o777, root, root, /opt/sophos-spl/plugins/edr/lib64/libqueryrunnerimpl.so
 o777, root, root, /opt/sophos-spl/plugins/edr/lib64/libsqlite.so
 o777, root, root, /opt/sophos-spl/plugins/edr/lib64/libssl.so
-o777, root, root, /opt/sophos-spl/plugins/edr/lib64/libssl.so.1
-o777, root, root, /opt/sophos-spl/plugins/edr/lib64/libssl.so.1.1
+o777, root, root, /opt/sophos-spl/plugins/edr/lib64/libssl.so.3
 o777, root, root, /opt/sophos-spl/plugins/edr/lib64/libstdc++.so
 o777, root, root, /opt/sophos-spl/plugins/edr/lib64/libstdc++.so.6
 o777, root, root, /opt/sophos-spl/plugins/edr/lib64/libstdc++.so.6.0

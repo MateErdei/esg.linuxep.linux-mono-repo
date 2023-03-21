@@ -270,7 +270,6 @@ function build()
         untar_input jsoncpp
         ln -sfn libjsoncpp.so.24 $REDIST/jsoncpp/lib64/libjsoncpp.so
 
-        untar_input openssl
         untar_input JournalLib
         untar_input protobuf
         untar_input capnproto

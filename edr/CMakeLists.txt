@@ -136,8 +136,8 @@ if(NOT DEFINED PLUGINAPIPATH)
     SET( PLUGINAPIPATH ${INPUT}/pluginapi)
 endif()
 
-if (NOT DEFINED LIVEQUERYPATH)
-    SET( LIVEQUERYPATH ${INPUT}/livequery)
+if (NOT DEFINED OSQUERYSDK)
+    SET( OSQUERYSDK ${INPUT}/sspl-osquery-components)
 endif()
 if (NOT DEFINED MTREXTENSION)
     SET( MTREXTENSION ${INPUT}/linux-x64-extension/SophosMTRExtension)
@@ -177,53 +177,27 @@ file(GLOB protobuflib ${PLUGINAPIPATH}/lib64/libprotobuf.so.*)
 file(GLOB expatlib ${PLUGINAPIPATH}/lib64/libexpat.so)
 file(GLOB zlib ${PLUGINAPIPATH}/lib64/libzlib.so*)
 
-add_library(sqlite_library SHARED IMPORTED)
-set_target_properties(sqlite_library PROPERTIES
-        IMPORTED_LOCATION ${SQLITE_INPUT}/libsqlite.so
-        IMPORTED_NO_SONAME TRUE
-        )
-target_include_directories(sqlite_library INTERFACE ${SQLITE_INPUT}/)
 
-add_library(thrift_library SHARED IMPORTED)
-set_target_properties(thrift_library PROPERTIES
-        IMPORTED_LOCATION ${THRIFT_INPUT}/libthrift.so
-        IMPORTED_NO_SONAME TRUE
-        )
-target_include_directories(thrift_library INTERFACE ${THRIFT_INPUT}/lib/cpp/src)
-target_link_libraries(thrift_library INTERFACE
-        ${zlib}
-        )
+function(add_imported_library name type location include_directory)
+    add_library(${name} ${type} IMPORTED)
+    set_target_properties(${name} PROPERTIES IMPORTED_LOCATION ${location})
+    if(${type} STREQUAL SHARED)
+        set_target_properties(${name} PROPERTIES IMPORTED_NO_SONAME TRUE)
+    endif()
+    target_include_directories(${name} INTERFACE ${include_directory})
+endfunction()
 
-add_library(logger_plugin_library SHARED IMPORTED)
-set_target_properties(logger_plugin_library PROPERTIES
-        IMPORTED_LOCATION ${LIVEQUERYPATH}/LoggerPlugin/libLoggerPlugin.so
-        IMPORTED_NO_SONAME TRUE
-        )
-target_include_directories(logger_plugin_library INTERFACE ${LIVEQUERYPATH}/LoggerPlugin)
+add_imported_library(sqlite_library SHARED ${SQLITE_INPUT}/libsqlite.so ${SQLITE_INPUT})
+add_imported_library(thrift_library SHARED ${THRIFT_INPUT}/libthrift.so ${THRIFT_INPUT}/lib/cpp/src)
+add_imported_library(logger_plugin_library SHARED ${OSQUERYSDK}/lib64/libLoggerPlugin.so ${OSQUERYSDK}/include)
+add_imported_library(osquery_gen_library SHARED ${OSQUERYSDK}/lib64/libgen-cpp-linux.so ${OSQUERYSDK}/include)
+add_imported_library(osquerysdk_library SHARED ${OSQUERYSDK}/lib64/libOsquerySDK.so ${OSQUERYSDK}/include)
+add_imported_library(openssl_ssl SHARED ${INPUT}/openssl/lib64/libssl.so.3 ${INPUT}/openssl/include)
+add_imported_library(openssl_crypto SHARED ${INPUT}/openssl/lib64/libcrypto.so.3 ${INPUT}/openssl/include)
 
-add_library(osquery_gen_library SHARED IMPORTED)
-set_target_properties(osquery_gen_library PROPERTIES
-        IMPORTED_LOCATION ${LIVEQUERYPATH}/OsquerySDK/gen-cpp-linux/libgen-cpp-linux.so
-        IMPORTED_NO_SONAME TRUE
-        )
-target_include_directories(osquery_gen_library INTERFACE ${LIVEQUERYPATH}/OsquerySDK/gen-cpp-linux)
-target_link_libraries(osquery_gen_library INTERFACE
-        thrift_library
-        )
-
-add_library(osquerysdk_library SHARED IMPORTED)
-set_target_properties(osquerysdk_library PROPERTIES
-        IMPORTED_LOCATION ${LIVEQUERYPATH}/OsquerySDK/libOsquerySDK.so
-        IMPORTED_NO_SONAME TRUE
-        )
-target_include_directories(osquerysdk_library INTERFACE ${LIVEQUERYPATH})
-
-set( LIVEQUERY_INCLUDE ${LIVEQUERYPATH}/common/livequery )
-
-target_link_libraries(osquerysdk_library INTERFACE
-        thrift_library
-        osquery_gen_library
-        )
+target_link_libraries(thrift_library INTERFACE ${zlib} openssl_ssl openssl_crypto)
+target_link_libraries(osquery_gen_library INTERFACE thrift_library)
+target_link_libraries(osquerysdk_library INTERFACE thrift_library osquery_gen_library)
 
 find_library(JSONCPP_LIBRARY
         NAMES jsoncpp
@@ -233,13 +207,13 @@ find_library(JSONCPP_LIBRARY
 
 find_library(GLOG_LIBRARY
         NAMES glog
-        PATHS ${INPUT}/glog
+        PATHS ${INPUT}/glog/install64/lib
         NO_DEFAULT_PATH
         )
 
 find_library(GFLAG_LIBRARY
         NAMES gflags
-        PATHS ${INPUT}/gflags
+        PATHS ${INPUT}/gflags/install64/lib
         NO_DEFAULT_PATH
         )
 
@@ -270,18 +244,6 @@ find_library(BOOST_FILESYSTEM_LIBRARY
 find_library(BOOST_CONTEXT_LIBRARY
         NAMES boost_context
         PATHS ${INPUT}/boost/lib64
-        NO_DEFAULT_PATH
-        )
-
-find_library(OPENSSL_LIBRARY
-        NAMES ssl
-        PATHS ${INPUT}/openssl/lib64
-        NO_DEFAULT_PATH
-        )
-
-find_library(OPENSSLCRYPTO_LIBRARY
-        NAMES crypto
-        PATHS ${INPUT}/openssl/lib64
         NO_DEFAULT_PATH
         )
 

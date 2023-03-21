@@ -12,8 +12,6 @@ target_link_libraries(LiveQueryReport PUBLIC osqueryclient
         ${BOOST_THREAD_LIBRARY}
         ${BOOST_FILESYSTEM_LIBRARY}
         ${BOOST_CONTEXT_LIBRARY}
-        ${OPENSSLCRYPTO_LIBRARY}
-        ${OPENSSL_LIBRARY}
         ${zmqlib}
         ${log4cpluslib}
         ${protobuflib}

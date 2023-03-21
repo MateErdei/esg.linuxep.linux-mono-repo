@@ -13,8 +13,6 @@ target_link_libraries(BinaryDataTable PUBLIC
         ${BOOST_THREAD_LIBRARY}
         ${BOOST_FILESYSTEM_LIBRARY}
         ${BOOST_CONTEXT_LIBRARY}
-        ${OPENSSLCRYPTO_LIBRARY}
-        ${OPENSSL_LIBRARY}
         ${JSONCPP_LIBRARY}
         pthread
         ${CMAKE_DL_LIBS}
