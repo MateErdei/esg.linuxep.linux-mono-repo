@@ -222,7 +222,7 @@ function(add_sophlib_library name)
 endfunction()
 
 add_imported_library(bzip2 SHARED ${INPUT}/bzip2/libbzip2.so ${INPUT}/bzip2)
-add_imported_library(lzma SHARED ${INPUT}/lzma/liblzma.so ${INPUT}/lzma/src/liblzma/api/lzma)
+add_imported_library(lzma SHARED ${INPUT}/lzma/liblzma.so ${INPUT}/lzma/lib/liblzma/api/lzma)
 add_imported_library(minizip SHARED ${INPUT}/minizip/minizip/libminizip.so ${INPUT}/minizip)
 add_imported_library(pugixml SHARED ${INPUT}/pugixml/libpugixml.so ${INPUT}/pugixml)
 add_imported_library(zlib SHARED ${INPUT}/zlib/libzlib.so ${INPUT}/zlib)
