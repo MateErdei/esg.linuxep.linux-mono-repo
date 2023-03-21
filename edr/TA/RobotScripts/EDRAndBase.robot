@@ -15,6 +15,7 @@ Test Teardown   EDR And Base Teardown
 
 *** Test Cases ***
 LiveQuery is Distributed to EDR Plugin and Its Answer is available to MCSRouter
+    [Tags]      TAP_TEST
     Check EDR Plugin Installed With Base
     Simulate Live Query  RequestProcesses.json
     Wait Until Keyword Succeeds
