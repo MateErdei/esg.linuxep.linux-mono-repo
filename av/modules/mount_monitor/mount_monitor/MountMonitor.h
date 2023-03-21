@@ -8,8 +8,9 @@
 
 #include "datatypes/ISystemCallWrapper.h"
 #include "mount_monitor/mountinfo/IMountInfo.h"
-#include "sophos_on_access_process/soapd_bootstrap/OnAccessConfigurationUtils.h"
+#include "mount_monitor/mountinfo/ISystemPathsFactory.h"
 #include "sophos_on_access_process/fanotifyhandler/IFanotifyHandler.h"
+#include "sophos_on_access_process/soapd_bootstrap/OnAccessConfigurationUtils.h"
 
 #include "common/AbstractThreadPluginInterface.h"
 #include "common/Exclusion.h"
@@ -30,7 +31,7 @@ namespace mount_monitor::mount_monitor
             OnAccessConfiguration& config,
             datatypes::ISystemCallWrapperSharedPtr systemCallWrapper,
             fanotifyhandler::IFanotifyHandlerSharedPtr fanotifyHandler,
-            struct timespec pollTimeout = {2,0});
+            mountinfo::ISystemPathsFactorySharedPtr sysPathsFactory);
 
         void updateConfig(const OnAccessConfiguration& config);
 
@@ -50,7 +51,7 @@ namespace mount_monitor::mount_monitor
         OnAccessConfiguration& m_config;
         datatypes::ISystemCallWrapperSharedPtr m_sysCalls;
         fanotifyhandler::IFanotifyHandlerSharedPtr m_fanotifyHandler;
-        const struct timespec m_pollTimeout;
+        mountinfo::ISystemPathsFactorySharedPtr m_sysPathsFactory;
 
     };
 }

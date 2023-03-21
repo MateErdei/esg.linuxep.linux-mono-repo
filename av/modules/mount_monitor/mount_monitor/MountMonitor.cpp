@@ -15,6 +15,7 @@
 #include <poll.h>
 
 #include <sstream>
+#include <utility>
 
 using namespace sophos_on_access_process::OnAccessConfig;
 
@@ -24,13 +25,11 @@ namespace mount_monitor::mount_monitor
         OnAccessConfiguration& config,
         datatypes::ISystemCallWrapperSharedPtr systemCallWrapper,
         fanotifyhandler::IFanotifyHandlerSharedPtr fanotifyHandler,
-        mountinfo::ISystemPathsFactorySharedPtr sysPathsFactory,
-        struct timespec pollTimeout)
+        mountinfo::ISystemPathsFactorySharedPtr sysPathsFactory)
     : m_config(config)
     , m_sysCalls(std::move(systemCallWrapper))
     , m_fanotifyHandler(std::move(fanotifyHandler))
-    , m_sysPathsFactory(sysPathsFactory)
-    , m_pollTimeout(pollTimeout)
+    , m_sysPathsFactory(std::move(sysPathsFactory))
     {
     }
 
@@ -199,8 +198,6 @@ namespace mount_monitor::mount_monitor
         // work out which filesystems are included based of config and mount information
         markMounts(getAllMountpoints());
 
-        LOGDEBUG("Setting poll timeout to " << m_pollTimeout.tv_sec << " seconds");
-
         datatypes::AutoFd mountsFd(open("/proc/mounts", O_RDONLY));
         if (!mountsFd.valid())
         {
@@ -223,7 +220,7 @@ namespace mount_monitor::mount_monitor
 
         while (!stopRequested())
         {
-            int activity = m_sysCalls->ppoll(fds, num_fds, &m_pollTimeout, nullptr);
+            int activity = m_sysCalls->ppoll(fds, num_fds, nullptr, nullptr);
 
             // Check if we should terminate before doing anything else
             if (stopRequested())
