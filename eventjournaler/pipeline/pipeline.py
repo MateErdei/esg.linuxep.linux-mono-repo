@@ -22,7 +22,7 @@ COVERAGE_MODE = 'coverage'
 NINE_NINE_NINE_MODE = '999'
 ZERO_SIX_ZERO_MODE = '060'
 
-def coverage_task(machine: tap.Machine, branch: str):
+def coverage_task(machine: tap.Machine, branch: str, robot_args=None):
     try:
         install_requirements(machine)
         tests_dir = str(machine.inputs.test_scripts)
@@ -53,7 +53,7 @@ def coverage_task(machine: tap.Machine, branch: str):
 
         # run component pytest and tap-tests
         try:
-            machine.run('python3', machine.inputs.test_scripts / 'RobotFramework.py', timeout=3600,
+            machine.run(robot_args, 'python3', machine.inputs.test_scripts / 'RobotFramework.py', timeout=3600,
                         environment={'COVFILE': COVFILE_TAPTESTS})
         finally:
             machine.run('python3', machine.inputs.test_scripts / 'move_robot_results.py')
