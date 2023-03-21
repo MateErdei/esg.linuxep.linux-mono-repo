@@ -28,6 +28,7 @@ namespace ResponseActionsImpl
         void decompressAndMoveFile(const Path& filePath, const DownloadInfo& info, nlohmann::json& response);
         void removeTmpFiles();
         bool initialChecks(const DownloadInfo& info, nlohmann::json& response);
+        Path findBaseDir(const Path& path); //To be moved to Filesystem
 
         const Path m_raTmpDir = Common::ApplicationConfiguration::applicationPathManager().getResponseActionTmpPath();
 

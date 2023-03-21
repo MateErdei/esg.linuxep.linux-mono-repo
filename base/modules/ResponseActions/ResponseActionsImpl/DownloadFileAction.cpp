@@ -101,16 +101,27 @@ namespace ResponseActionsImpl
             return false;
         }
 
-        const auto tmpSpaceInfo = m_fileSystem->getDiskSpaceInfo(m_raTmpDir);
-        const auto destSpaceinfo = m_fileSystem->getDiskSpaceInfo(info.targetPath);
-        std::filesystem::space_info spaceInfoToCheck = tmpSpaceInfo.available > destSpaceinfo.available ? destSpaceinfo : tmpSpaceInfo;
+        std::filesystem::space_info tmpSpaceInfo;
+        std::filesystem::space_info destSpaceInfo;
+
+        try
+        {
+            tmpSpaceInfo = m_fileSystem->getDiskSpaceInfo(m_raTmpDir);
+            destSpaceInfo = m_fileSystem->getDiskSpaceInfo(findBaseDir(info.targetPath));
+        }
+        catch (const std::exception& e)
+        {
+            LOGERROR("Cant determine disk space on filesystem: " <<  e.what());
+            return false;
+        }
+        std::filesystem::space_info spaceInfoToCheck = tmpSpaceInfo.available > destSpaceInfo.available ? destSpaceInfo : tmpSpaceInfo;
 
         if ((!info.decompress && spaceInfoToCheck.available < info.sizeBytes) ||
             (info.decompress && spaceInfoToCheck.available < (info.sizeBytes * 2.5)))
         {
             std::stringstream spaceError;
             spaceError << "Not enough space to complete download action : sophos install disk has "  << tmpSpaceInfo.available <<
-                " ,destination disk has " << destSpaceinfo.available;
+                " ,destination disk has " << destSpaceInfo.available;
             LOGWARN(spaceError.str());
             ActionsUtils::setErrorInfo(response, 1, spaceError.str(), "not_enough_space");
             return false;
@@ -319,5 +330,15 @@ namespace ResponseActionsImpl
             LOGWARN(error.str());
             ActionsUtils::setErrorInfo(response, 1, error.str(), "network_error");
         }
+    }
+
+    Path DownloadFileAction::findBaseDir(const Path& path)
+    {
+        auto pos = path.find('/', 1);
+        if (pos == std::string::npos)
+        {
+            return path;
+        }
+        return path.substr(0, pos);
     }
 }

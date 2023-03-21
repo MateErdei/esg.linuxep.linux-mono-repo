@@ -83,7 +83,7 @@ public:
         std::filesystem::space_info tmpSpaceInfo;
         tmpSpaceInfo.available = tmpAvailable;
 
-        EXPECT_CALL(*m_mockFileSystem, getDiskSpaceInfo(m_destPath)).WillOnce(Return(tmpSpaceInfo));
+        EXPECT_CALL(*m_mockFileSystem, getDiskSpaceInfo("/path")).WillOnce(Return(tmpSpaceInfo));
         EXPECT_CALL(*m_mockFileSystem, getDiskSpaceInfo(m_raTmpDir)).WillOnce(Return(raSpaceInfo));
     }
     
