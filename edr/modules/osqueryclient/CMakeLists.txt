@@ -29,4 +29,5 @@ sophos_add_library(osqueryclient SHARED
             ${OPENSSL_LIBRARY}
             ${JSONCPP_LIBRARY}
             osquerysdk_library
+            sqlite_library
         )

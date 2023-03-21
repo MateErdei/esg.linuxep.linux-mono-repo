@@ -20,6 +20,7 @@ target_link_libraries(LiveQueryReport PUBLIC osqueryclient
         ${JSONCPP_LIBRARY}
         pthread
         ${CMAKE_DL_LIBS}
+        sqlite_library
         )
 
 target_include_directories(LiveQueryReport PUBLIC

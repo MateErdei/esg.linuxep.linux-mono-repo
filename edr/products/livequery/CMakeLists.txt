@@ -1,6 +1,6 @@
 add_executable(sophos_livequery main.cpp)
 
-target_link_libraries(sophos_livequery PUBLIC livemain)
+target_link_libraries(sophos_livequery PUBLIC livemain sqlite_library)
 
 SET_TARGET_PROPERTIES(sophos_livequery
     PROPERTIES 
