@@ -41,7 +41,11 @@ public:
         m_requestedUserGroupIdConfigPath =
             Common::ApplicationConfiguration::applicationPathManager().getRequestedUserGroupIdConfigPath();
     }
-    ~TestUserGroupUtils() override { Tests::restoreFilePermissions(); }
+    ~TestUserGroupUtils()
+    {
+        Tests::restoreFilePermissions();
+        Common::ProcessImpl::ProcessFactory::instance().restoreCreator();
+    }
 
     void mockExecUserOrGroupIdChange(
         const std::string& executablePath,
@@ -49,7 +53,7 @@ public:
         const std::string& newId,
         const std::string& name)
     {
-        EXPECT_CALL(*m_mockFileSystemPtr, isExecutable(executablePath)).WillRepeatedly(Return(true));
+        EXPECT_CALL(*m_mockFileSystemPtr, isExecutable(executablePath)).WillOnce(Return(true));
         Common::ProcessImpl::ProcessFactory::instance().replaceCreator(
             [executablePath, userOrGroupSpecifier, newId, name]()
             {
@@ -493,9 +497,15 @@ TEST_F(TestUserGroupUtils, changeUserId)
     EXPECT_NO_THROW(changeUserId("user", 999));
 }
 
+TEST_F(TestUserGroupUtils, changeUserIdThrowsWhenUsermodDoesNotExist)
+{
+    EXPECT_CALL(*m_mockFileSystemPtr, isExecutable("/usr/sbin/usermod")).WillOnce(Return(false));
+    EXPECT_THROW(changeUserId("user", 999), std::runtime_error);
+}
+
 TEST_F(TestUserGroupUtils, changeUserIdThrowsWhenExitCodeIsNotZero)
 {
-    EXPECT_CALL(*m_mockFileSystemPtr, isExecutable("/usr/sbin/usermod")).WillRepeatedly(Return(true));
+    EXPECT_CALL(*m_mockFileSystemPtr, isExecutable("/usr/sbin/usermod")).WillOnce(Return(true));
     Common::ProcessImpl::ProcessFactory::instance().replaceCreator([]() {
         auto mockProcess = new StrictMock<MockProcess>();
         std::vector<std::string> args = { "-u", "999", "user" };
@@ -511,7 +521,7 @@ TEST_F(TestUserGroupUtils, changeUserIdThrowsWhenExitCodeIsNotZero)
 
 TEST_F(TestUserGroupUtils, changeUserIdThrowsWhenCommandIsStillRunningAfterWait)
 {
-    EXPECT_CALL(*m_mockFileSystemPtr, isExecutable("/usr/sbin/usermod")).WillRepeatedly(Return(true));
+    EXPECT_CALL(*m_mockFileSystemPtr, isExecutable("/usr/sbin/usermod")).WillOnce(Return(true));
     Common::ProcessImpl::ProcessFactory::instance().replaceCreator([]() {
         auto mockProcess = new StrictMock<MockProcess>();
         std::vector<std::string> args = { "-u", "999", "user" };
@@ -532,9 +542,15 @@ TEST_F(TestUserGroupUtils, changeGroupId)
     EXPECT_NO_THROW(changeGroupId("group", 998));
 }
 
+TEST_F(TestUserGroupUtils, changeGroupIdThrowsWhenGroupmodDoesNotExist)
+{
+    EXPECT_CALL(*m_mockFileSystemPtr, isExecutable("/usr/sbin/groupmod")).WillOnce(Return(false));
+    EXPECT_THROW(changeGroupId("group", 998), std::runtime_error);
+}
+
 TEST_F(TestUserGroupUtils, changeGroupIdThrowsWhenExitCodeIsNotZero)
 {
-    EXPECT_CALL(*m_mockFileSystemPtr, isExecutable("/usr/sbin/groupmod")).WillRepeatedly(Return(true));
+    EXPECT_CALL(*m_mockFileSystemPtr, isExecutable("/usr/sbin/groupmod")).WillOnce(Return(true));
     Common::ProcessImpl::ProcessFactory::instance().replaceCreator([]() {
         auto mockProcess = new StrictMock<MockProcess>();
         std::vector<std::string> args = { "-g", "998", "group" };
@@ -550,7 +566,7 @@ TEST_F(TestUserGroupUtils, changeGroupIdThrowsWhenExitCodeIsNotZero)
 
 TEST_F(TestUserGroupUtils, changeGroupIdThrowsWhenCommandIsStillRunningAfterWait)
 {
-    EXPECT_CALL(*m_mockFileSystemPtr, isExecutable("/usr/sbin/groupmod")).WillRepeatedly(Return(true));
+    EXPECT_CALL(*m_mockFileSystemPtr, isExecutable("/usr/sbin/groupmod")).WillOnce(Return(true));
     Common::ProcessImpl::ProcessFactory::instance().replaceCreator([]() {
         auto mockProcess = new StrictMock<MockProcess>();
         std::vector<std::string> args = { "-g", "998", "group" };
