@@ -100,7 +100,7 @@ source $SCRIPT_DIR/SupportFiles/jenkins/checkTestInputsAreAvailable.sh || failur
 
 bash $SCRIPT_DIR/SupportFiles/jenkins/install_dependencies.sh
 
-python3 -m pip install -r requirements.txt
+python3 -m pip install -i https://pypi.org/simple -r requirements.txt
 
 echo "Running tests on $HOSTNAME"
 RESULT=0
