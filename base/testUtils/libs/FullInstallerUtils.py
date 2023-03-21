@@ -488,19 +488,26 @@ def get_delete_group_cmd():
             return "groupdel"
 
 
-def Uninstall_SSPL(installdir=None):
+def Uninstall_SSPL(installdir=None, replaceUninstaller=False):
     if installdir is None:
         installdir = get_sophos_install()
     uninstaller_executed = False
     counter = 0
     if os.path.isdir(installdir):
         p = os.path.join(installdir, "bin", "uninstall.sh")
+        if replaceUninstaller:
+            os.environ["SOPHOS_INSTALL"] = installdir
+            p = os.path.join(PathManager.get_support_file_path(), "DebugUninstall.sh")
+
         if os.path.isfile(p):
             try:
                 contents, returncode = run_proc_with_safe_output(['bash', '-x', p, '--force'])
                 uninstaller_executed = True
             except EnvironmentError as e:
-                print("Failed to run uninstaller", e)
+                logger.error("Failed to run uninstaller: %s" % str(e))
+                contents = str(e)
+                returncode = -1
+
             if returncode != 0:
                 logger.info(contents)
                 processes, processes_returncode = run_proc_with_safe_output(["ps", "-ef"])
@@ -517,7 +524,7 @@ def Uninstall_SSPL(installdir=None):
                     logger.info(f"groups:")
                     logger.info(f"{group}\n")
         while counter < 5 and os.path.exists(installdir):
-            counter = counter + 1
+            counter += 1
             try:
                 logger.info("try to rm all")
                 unmount_all_comms_component_folders(True)
@@ -532,7 +539,6 @@ def Uninstall_SSPL(installdir=None):
             except Exception as ex:
                 logger.error(str(ex))
                 time.sleep(1)
-
 
     # Attempts to uninstall based on the env variables in the sophos-spl .service file
     output, returncode = run_proc_with_safe_output(["systemctl", "show", "-p", "Environment", "sophos-spl"])
@@ -556,7 +562,6 @@ def Uninstall_SSPL(installdir=None):
     delete_user_cmd = get_delete_user_cmd()
     logger.debug(f"Using delete user command:{delete_user_cmd}")
 
-
     # Find delete group command, delgroup on ubuntu and groupdel on centos/rhel.
     delete_group_cmd = get_delete_group_cmd()
     logger.debug(f"Using delete group command:{delete_group_cmd}")
@@ -564,7 +569,7 @@ def Uninstall_SSPL(installdir=None):
     time.sleep(0.2)
     while does_group_exist() and counter2 < 5:
         logger.info(f"Removing group, it should have already been removed by now. Counter: {counter2}")
-        counter2 = counter2 + 1
+        counter2 += 1
         for user in ['sophos-spl-user', 'sophos-spl-network', 'sophos-spl-local', 'sophos-spl-updatescheduler']:
             if does_user_exist(user):
                 remove_user(delete_user_cmd, user)
@@ -574,8 +579,8 @@ def Uninstall_SSPL(installdir=None):
             logger.info(out)
 
         time.sleep(0.5)
-    if uninstaller_executed and ( counter > 0 or counter2 > 0):
-        logger.info( _get_file_content( '/tmp/install.log'))
+    if uninstaller_executed and (counter > 0 or counter2 > 0):
+        logger.info(_get_file_content('/tmp/install.log'))
         message = f"Uninstaller failed to properly clean everything. Attempt to remove /opt/sophos-spl {counter} " \
                   f"attempt to remove group {counter2}"
         logger.warn(message)
@@ -627,7 +632,7 @@ def verify_user_removed(user=SOPHOS_USER):
 
 def require_uninstalled(*args):
     installdir = get_sophos_install()
-    Uninstall_SSPL(installdir)
+    Uninstall_SSPL(installdir, True)
 
 
 def start_system_watchdog():
