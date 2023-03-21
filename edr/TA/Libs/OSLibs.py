@@ -15,6 +15,10 @@ def os_uses_apt() -> bool:
     return command_available_on_system("apt")
 
 
+def os_uses_zypper() -> bool:
+    return command_available_on_system("zypper")
+
+
 def is_package_installed(package_name: str) -> bool:
     print(f"Checking if package is installed: {package_name}")
     if os_uses_apt():
@@ -28,24 +32,29 @@ def is_package_installed(package_name: str) -> bool:
         return False
     elif os_uses_yum():
         return subprocess.call(["yum", "--cacheonly", "list", "--installed", package_name]) == 0
+    elif os_uses_zypper():
+        return subprocess.call(["zypper", "search", "-s", package_name]) == 0
     else:
         print("ERROR, could not determine whether machine uses apt or yum")
 
 
-def get_pkg_manager() -> str:
+def get_pkg_manager():
     if os_uses_apt():
-        package_manager = "apt"
+        package_manager = ["apt", "-y"]
     elif os_uses_yum():
-        package_manager = "yum"
+        package_manager = ["yum", "-y"]
+    elif os_uses_zypper():
+        package_manager = ["zypper", "--non-interactive"]
     else:
         raise AssertionError("Could not determine whether machine uses apt or yum")
     return package_manager
 
 
 def install_package(pkg_name):
-    package_manager = get_pkg_manager()
+    cmd = get_pkg_manager()
     for _ in range(60):
-        if subprocess.run([package_manager, "-y", "install", pkg_name]).returncode == 0:
+        cmd + ["install", pkg_name]
+        if subprocess.run(cmd).returncode == 0:
             return
         else:
             time.sleep(3)
@@ -53,9 +62,10 @@ def install_package(pkg_name):
 
 
 def remove_package(pkg_name):
-    package_manager = get_pkg_manager()
+    cmd = get_pkg_manager()
     for _ in range(60):
-        if subprocess.run([package_manager, "-y", "remove", pkg_name]).returncode == 0:
+        cmd + ["remove", pkg_name]
+        if subprocess.run(cmd).returncode == 0:
             return
         else:
             time.sleep(3)
