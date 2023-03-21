@@ -3,7 +3,6 @@ set(GOOGLETESTINCLUDE ${CMAKE_SOURCE_DIR}/tests/googletest/googletest/include)
 add_executable(BinaryDataTable
         BinaryDataTable.cpp
         BinaryDataTable.h
-        ${SQLITE_INCLUDE_DIR}/sqlite3.c
         ../../osqueryextensions/MockJournalReaderWrapper.h)
 
 target_link_libraries(BinaryDataTable PUBLIC
@@ -20,14 +19,13 @@ target_link_libraries(BinaryDataTable PUBLIC
         pthread
         ${CMAKE_DL_LIBS}
         ${GFLAG_LIBRARY}
+        sqlite_library
         )
 
 target_include_directories(BinaryDataTable PUBLIC
         ${CMAKE_CURRENT_BINARY_DIR}
         ${GOOGLETESTINCLUDE}
         ${BOOST_INCLUDE_DIR}
-        ${SQLITE_INCLUDE_DIR}
-        ${LIVEQUERY_INCLUDE}
         )
 
 SET_TARGET_PROPERTIES(BinaryDataTable

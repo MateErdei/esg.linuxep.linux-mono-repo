@@ -66,6 +66,7 @@ install(FILES  ${third_party_libs}
 
 install(IMPORTED_RUNTIME_ARTIFACTS
         thrift_library
+        sqlite_library
         logger_plugin_library
         osquery_gen_library
         osquerysdk_library

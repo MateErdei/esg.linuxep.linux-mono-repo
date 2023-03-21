@@ -274,9 +274,6 @@ function build()
         untar_input JournalLib
         untar_input protobuf
         untar_input capnproto
-        rm -rf "${REDIST}/sqlite"
-        mkdir -p "${REDIST}/sqlite"
-        unzip ${INPUT}/sqlite-amalgamation/*.zip -d "${REDIST}/sqlite"
 
         cp -r ${INPUT}/sdds3 "${REDIST}/sdds3" && chmod +x ${REDIST}/sdds3/*
 

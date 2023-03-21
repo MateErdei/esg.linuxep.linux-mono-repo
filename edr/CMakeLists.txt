@@ -146,7 +146,7 @@ set( BOOST_INPUT ${INPUT}/boost )
 set( BOOST_INCLUDE_DIR ${BOOST_INPUT}/include )
 set( THRIFT_INPUT ${INPUT}/thrift )
 set( JSONCCP_INPUT ${INPUT}/jsoncpp )
-set( SQLITE_INCLUDE_DIR ${INPUT}/sqlite )
+set( SQLITE_INPUT ${INPUT}/sqlite )
 set( JOURNAL_INCLUDE_DIR ${INPUT}/JournalLib/include )
 set( CAPNPROTO_INCLUDE_DIR ${INPUT}/capnproto/include )
 set( LZMA_INCLUDE_DIR ${INPUT}/lzma/src/liblzma/api/lzma)
@@ -176,6 +176,13 @@ file(GLOB log4cpluslib ${PLUGINAPIPATH}/lib64/liblog4cplus-*.so.*)
 file(GLOB protobuflib ${PLUGINAPIPATH}/lib64/libprotobuf.so.*)
 file(GLOB expatlib ${PLUGINAPIPATH}/lib64/libexpat.so)
 file(GLOB zlib ${PLUGINAPIPATH}/lib64/libzlib.so*)
+
+add_library(sqlite_library SHARED IMPORTED)
+set_target_properties(sqlite_library PROPERTIES
+        IMPORTED_LOCATION ${SQLITE_INPUT}/libsqlite.so
+        IMPORTED_NO_SONAME TRUE
+        )
+target_include_directories(sqlite_library INTERFACE ${SQLITE_INPUT}/)
 
 add_library(thrift_library SHARED IMPORTED)
 set_target_properties(thrift_library PROPERTIES

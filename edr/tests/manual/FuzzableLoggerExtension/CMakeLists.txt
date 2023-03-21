@@ -1,7 +1,5 @@
 add_executable(FuzzableResultSender
         FuzzableResultSender.cpp
-        ${SQLITE_INCLUDE_DIR}/sqlite3.c
-
         )
 
 target_link_libraries(FuzzableResultSender PUBLIC
@@ -26,13 +24,13 @@ target_link_libraries(FuzzableResultSender PUBLIC
         eventjournalwrapperimpl
         ${LZMA_LIBRARY}
         stdc++fs
+        sqlite_library
         )
 target_compile_definitions(FuzzableResultSender PUBLIC -D_HAS_STD_BYTE)
 target_include_directories(FuzzableResultSender PUBLIC
         ${CMAKE_CURRENT_BINARY_DIR}
         ${GOOGLETESTINCLUDE}
         ${BOOST_INCLUDE_DIR}
-        ${SQLITE_INCLUDE_DIR}
         ${INPUT}/jsoncpp/include
         ${pluginapiinclude}
         ${CMAKE_SOURCE_DIR}

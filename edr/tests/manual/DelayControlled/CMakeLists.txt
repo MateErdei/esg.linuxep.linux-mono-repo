@@ -3,7 +3,6 @@ set(GOOGLETESTINCLUDE ${CMAKE_SOURCE_DIR}/tests/googletest/googletest/include)
 add_executable(DelayControlledTable
         DelayControlledTable.cpp
         DelayControlledTable.h
-        ${SQLITE_INCLUDE_DIR}/sqlite3.c
         )
 
 target_link_libraries(DelayControlledTable PUBLIC
@@ -20,6 +19,7 @@ target_link_libraries(DelayControlledTable PUBLIC
         pthread
         ${CMAKE_DL_LIBS}
         ${GFLAG_LIBRARY}
+        sqlite_library
         )
 
 target_include_directories(DelayControlledTable PUBLIC

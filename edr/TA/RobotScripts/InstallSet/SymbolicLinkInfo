@@ -73,6 +73,7 @@ o777, root, root, /opt/sophos-spl/plugins/edr/lib64/libprotobuf.so.28
 o777, root, root, /opt/sophos-spl/plugins/edr/lib64/libprotobuf.so.28.0
 o777, root, root, /opt/sophos-spl/plugins/edr/lib64/libprotobuf.so.28.0.3
 o777, root, root, /opt/sophos-spl/plugins/edr/lib64/libqueryrunnerimpl.so
+o777, root, root, /opt/sophos-spl/plugins/edr/lib64/libsqlite.so
 o777, root, root, /opt/sophos-spl/plugins/edr/lib64/libssl.so
 o777, root, root, /opt/sophos-spl/plugins/edr/lib64/libssl.so.1
 o777, root, root, /opt/sophos-spl/plugins/edr/lib64/libssl.so.1.1
