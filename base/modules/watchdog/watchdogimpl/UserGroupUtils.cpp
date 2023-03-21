@@ -10,6 +10,7 @@
 #include "FileSystem/IFileSystemException.h"
 #include "UtilityImpl/StringUtils.h"
 
+#include <sys/stat.h>
 #include <utility>
 
 namespace watchdog::watchdogimpl
@@ -169,13 +170,19 @@ namespace watchdog::watchdogimpl
 
     WatchdogUserGroupIDs readRequestedUserGroupIds()
     {
-        std::string configPath =
+        std::string requestedConfigPath =
             Common::ApplicationConfiguration::applicationPathManager().getRequestedUserGroupIdConfigPath();
         auto fs = Common::FileSystem::fileSystem();
         std::string strippedContent;
         try
         {
-            auto content = fs->readLines(configPath);
+            if (Common::FileSystem::filePermissions()->getFilePermissions(requestedConfigPath) != (S_IRUSR | S_IWUSR))
+            {
+                LOGWARN("Requested IDs config file " + requestedConfigPath + " does not have the accepted permissions (0600)");
+                return {};
+            }
+
+            auto content = fs->readLines(requestedConfigPath);
             strippedContent = stripCommentsFromRequestedUserGroupIdFile(content);
             strippedContent = Common::UtilityImpl::StringUtils::trim(strippedContent);
             if (strippedContent.empty())
@@ -188,11 +195,11 @@ namespace watchdog::watchdogimpl
         }
         catch (const nlohmann::detail::exception& exception)
         {
-            LOGWARN("Failed to parse the requested user and group IDs file: " << configPath << ", " << exception.what() << ", content: " << strippedContent);
+            LOGWARN("Failed to parse the requested user and group IDs file: " << requestedConfigPath << ", " << exception.what() << ", content: " << strippedContent);
         }
         catch (Common::FileSystem::IFileSystemException& exception)
         {
-            LOGWARN("Failed to read the requested user and group IDs file: " << configPath << ", " << exception.what());
+            LOGWARN("Failed to access the requested user and group IDs file: " << requestedConfigPath << ", " << exception.what());
         }
         return {};
     }
