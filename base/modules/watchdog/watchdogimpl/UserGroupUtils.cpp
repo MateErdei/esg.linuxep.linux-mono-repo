@@ -85,7 +85,7 @@ namespace watchdog::watchdogimpl
                 {
                     if (id == existingId)
                     {
-                        LOGWARN("Will not perform requested ID change on" << name << "as ID (" << id << ") is already used by " << existingName);
+                        LOGWARN("Will not perform requested ID change on " << name << " as ID (" << id << ") is already used by " << existingName);
                         idsToRemove.insert(name);
                         break;
                     }
