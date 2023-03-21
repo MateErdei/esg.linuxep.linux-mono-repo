@@ -241,7 +241,10 @@ namespace Plugin
 
     void OsqueryConfigurator::addTlsServerCertsOsqueryFlag(std::vector<std::string>& flags)
     {
-        const std::vector<Path> caPaths = { "/etc/ssl/certs/ca-certificates.crt", "/etc/pki/tls/certs/ca-bundle.crt"};
+        const std::vector<Path> caPaths = {
+            "/etc/ssl/certs/ca-certificates.crt",
+            "/etc/pki/tls/certs/ca-bundle.crt",
+            "/etc/ssl/ca-bundle.pem"};
 
         for (const auto& caPath : caPaths)
         {

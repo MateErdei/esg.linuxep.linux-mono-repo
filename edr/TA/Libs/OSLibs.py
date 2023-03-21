@@ -53,6 +53,7 @@ def get_pkg_manager():
 def install_package(pkg_name):
     cmd = get_pkg_manager()
     for _ in range(60):
+        print(f"Running command: {cmd}")
         cmd + ["install", pkg_name]
         if subprocess.run(cmd).returncode == 0:
             return
