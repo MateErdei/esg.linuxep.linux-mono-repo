@@ -51,14 +51,14 @@ hex_to_int_response = """{
 grep_query = """{
     "type": "sophos.mgt.action.RunLiveQuery",
     "name": "grep file",
-    "query": "SELECT pattern FROM grep WHERE path = '/etc/os-release' AND pattern = 'NAME'"
+    "query": "SELECT pattern FROM grep WHERE path = '/etc/os-release' AND pattern = 'PRETTY_NAME'"
 }"""
 
 grep_response = """{
         "type": "sophos.mgt.response.RunLiveQuery",
         "queryMetaData": {"errorCode":0,"errorMessage":"OK","rows":1},
         "columnMetaData": [{"name":"pattern","type":"TEXT"}],
-        "columnData": [["NAME"]]
+        "columnData": [["PRETTY_NAME"]]
     }"""
 
 no_column_query = """{
