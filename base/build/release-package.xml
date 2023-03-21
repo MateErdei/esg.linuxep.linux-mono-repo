@@ -34,7 +34,7 @@
         <build-asset project="em" repo="esg">
             <release-version branch="release/WIN-SPRINT-2023.10"
                              build-id="20230303190457-b2493e357e0f270450a8bc1154c4644841785404-Yo7Ilu"/>
-            <development-version branch="bugfix/thirdparty/minizip-revert-broke-linux"/>
+            <development-version branch="develop"/>
             <include artifact-path="sophlib/include" dest-dir="/build/redist/sophlib/include/sophlib"/>
             <include artifact-path="sophlib/linux_x86-64" dest-dir="/build/redist/sophlib/lib64"/>
             <include artifact-path="sophlib/sdds3-tools-x64-linux" dest-dir="/build/redist/sdds3"/>
