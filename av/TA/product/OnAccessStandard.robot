@@ -631,6 +631,10 @@ On Access Doesnt Cache Close Events With Detections
 
 On Access Doesn't cache remote files
     [Tags]  NFS
+    # LINUXDAR-7029 - test broken on SLES
+    ${file_exists} =  Does File Exist  /etc/SUSE-brand
+    Pass Execution If    ${file_exists}  Skipping test on SLES until LINUXDAR-7029 is fixed
+
     ${source} =       Set Variable  ${TESTTMP}/excluded/nfsshare
     ${destination} =  Set Variable  ${TESTTMP}/nfsmount
     Create Directory  ${source}
