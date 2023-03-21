@@ -119,9 +119,9 @@ Store Whether Auditd Is Running
     Set suite variable  ${auditd_already_running_when_suite_started}
 
 Get Audit Package Name
-    # On different distros pkg names differ, on ubuntu it's auditd and on centos it's audit
-    ${uses_yum}=  os_uses_yum
-    ${audit_pkg_name}=  Set Variable If   ${uses_yum}  audit  auditd
+    # On different distros pkg names differ, on ubuntu it's auditd and on centos and sles it's audit
+    ${uses_apt}=  os_uses_apt
+    ${audit_pkg_name}=  Set Variable If   ${uses_apt}  auditd  audit
     [Return]  ${audit_pkg_name}
 
 Start Auditd
