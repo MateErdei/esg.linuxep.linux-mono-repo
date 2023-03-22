@@ -64,8 +64,9 @@ def install_package(pkg_name):
 
 def remove_package(pkg_name):
     cmd = get_pkg_manager()
+    cmd += ["remove", pkg_name]
+    print(f"Running command: {cmd}")
     for _ in range(60):
-        cmd + ["remove", pkg_name]
         if subprocess.run(cmd).returncode == 0:
             return
         else:
