@@ -13,8 +13,7 @@
         </build-asset>
 
         <build-asset project="em" repo="esg">
-            <release-version branch="release/2023.04/sprint" build-id="20230120201925-31a0379094fc1654506d3d459661d326949dee47-bh0Sgz"/>
-            <development-version branch="develop"/>
+            <release-version branch="release--WIN-SPRINT-2023.10" build-id="20230310185512-ddbe91bf2234ca469676038b164872d7bc6e0a4d-4cnPDo" />
             <include artifact-path="thirdparty/googletest-linux-opt" dest-dir="/build/input/googletest"/>
         </build-asset>
 
