@@ -89,19 +89,6 @@ function prepare_dependencies()
     then
         unpack_scaffold_gcc_make "$INPUT"
 
-        # openssl
-        OPENSSL_TAR=${INPUT}/openssl.tar
-        if [[ -f $OPENSSL_TAR ]]
-        then
-            rm -rf $REDIST/openssl
-            tar xf "$OPENSSL_TAR" -C "$REDIST"
-            ln -snf libssl.so.1 ${REDIST}/openssl/lib64/libssl.so.11
-            ln -snf libcrypto.so.1 ${REDIST}/openssl/lib64/libcrypto.so.11
-        else
-            exitFailure 12 "Failed to find openssl"
-        fi
-        export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${REDIST}/openssl/lib64
-
         # cmake
         if [[ -f "$INPUT/cmake/bin/cmake" ]]
         then
@@ -114,9 +101,6 @@ function prepare_dependencies()
         echo "Using cmake: $(which cmake)"
 
         untar_input versig
-        untar_input curl
-        untar_input SUL
-        untar_input boost
         untar_input cmcsrouterapi
         untar_input pluginapi
 
