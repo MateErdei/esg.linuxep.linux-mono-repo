@@ -242,8 +242,6 @@ find_library(GFLAG_LIBRARY
         PATHS ${INPUT}/gflags
         NO_DEFAULT_PATH
         )
-message(${GLOG_LIBRARY})
-message(${GFLAG_LIBRARY})
 
 find_library(BOOST_CHRONO_LIBRARY
         NAMES boost_chrono
