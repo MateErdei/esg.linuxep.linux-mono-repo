@@ -88,6 +88,7 @@ RA Test Setup
 
 RA Test Teardown
     General Test Teardown
+    Run Cleanup Functions
     Uninstall Response Actions
     Remove file  ${TELEMETRY_OUTPUT_JSON}
     Run Keyword If Test Failed  LogUtils.Dump Log  ${HTTPS_LOG_FILE_PATH}
