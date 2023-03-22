@@ -2,7 +2,6 @@
 Library         Process
 Library         OperatingSystem
 
-Default Tags    TAP_TESTS
 *** Keywords ***
 File Should Contain
     [Arguments]  ${file}  ${string_to_contain}
