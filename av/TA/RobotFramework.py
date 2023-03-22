@@ -8,6 +8,7 @@ from pubtap.robotframework.tap_result_listener import tap_result_listener
 
 
 def main():
+
     parser = argparse.ArgumentParser()
     parser.add_argument('--include', nargs='+', help='keywords to include')
     parser.add_argument('--exclude', nargs='+', help='keywords to exclude')
@@ -27,12 +28,23 @@ def main():
         'log': log_files[0],
         'output': log_files[1],
         'report': log_files[2],
-        'suite': '*'
+        'suite': '*',
+        'test': '*'
     }
+
+    if os.environ.get('TEST'):
+        robot_args['test'] = os.environ.get('TEST')
+    if os.environ.get('SUITE'):
+        robot_args['suite'] = os.environ.get('SUITE')
 
     try:
         # Create the TAP Robot result listener.
-        listener = tap_result_listener(robot_args['path'], tags, robot_args['name'])
+        if robot_args.get('test') != '*':
+            listener = tap_result_listener(robot_args['path'], robot_args['test'], robot_args['name'])
+        elif robot_args.get('suite') != '*':
+            listener = tap_result_listener(robot_args['path'], robot_args['suite'], robot_args['name'])
+        else:
+            listener = tap_result_listener(robot_args['path'], tags, robot_args['name'])
     except json.decoder.JSONDecodeError:
         # When running locally you can not initialise the TAP Results Listener
         listener = None

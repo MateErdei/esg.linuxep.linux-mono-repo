@@ -69,7 +69,7 @@ def get_suffix():
     return "-" + BRANCH_NAME
 
 
-def robot_task_with_env(machine: tap.Machine, include_tag: str, environment=None, machine_name=None):
+def robot_task_with_env(machine: tap.Machine, include_tag: str, robot_args: str, environment=None, machine_name=None):
     if machine_name is None:
         machine_name = machine.template
     try:
@@ -78,33 +78,45 @@ def robot_task_with_env(machine: tap.Machine, include_tag: str, environment=None
         # Exclude DISABLED on TAP
         # Exclude STRESS on TAP; as some tests here will not be appropriate
         robot_exclusion_tags = ['OSTIA', 'MANUAL', 'DISABLED', 'STRESS']
-
-        include, *exclude = include_tag.split("NOT")
-        include = include.split("AND")
-        robot_exclusion_tags.extend(exclude)
-
         machine.run('bash', machine.inputs.test_scripts / "bin/install_os_packages.sh")
         machine.run('mkdir', '-p', '/opt/test/coredumps')
-        machine.run(python(machine), machine.inputs.test_scripts / 'RobotFramework.py',
-                    '--include', *include,
-                    '--exclude', *robot_exclusion_tags,
-                    environment=environment,
-                    timeout=5400)
+
+        if include_tag:
+            include, *exclude = include_tag.split("NOT")
+            include = include.split("AND")
+            robot_exclusion_tags.extend(exclude)
+
+            machine.run(python(machine), machine.inputs.test_scripts / 'RobotFramework.py',
+                        '--include', *include,
+                        '--exclude', *robot_exclusion_tags,
+                        environment=environment,
+                        timeout=5400)
+        elif robot_args:
+            machine.run(robot_args, 'python3', machine.inputs.test_scripts / 'RobotFramework.py',
+                        '--exclude', *robot_exclusion_tags,
+                        environment=environment,timeout=5400)
+
     finally:
         machine.run(python(machine), machine.inputs.test_scripts / 'move_robot_results.py')
         machine.output_artifact('/opt/test/logs', 'logs')
         machine.output_artifact('/opt/test/results', 'results')
         machine.output_artifact('/opt/test/coredumps', 'coredumps', raise_on_failure=False)
-        machine.run('bash', UPLOAD_ROBOT_LOG_SCRIPT, "/opt/test/results/log.html",
-                    "av" + get_suffix() + "_" + machine_name + "_" + include_tag + "-log.html")
-        machine.run('bash', UPLOAD_ROBOT_LOG_SCRIPT, "/opt/test/results/report.html",
-                    "av" + get_suffix() + "_" + machine_name + "_" + include_tag + "-report.html")
+        if include_tag:
+            machine.run('bash', UPLOAD_ROBOT_LOG_SCRIPT, "/opt/test/results/log.html",
+                        "av" + get_suffix() + "_" + machine_name + "_" + include_tag + "-log.html")
+            machine.run('bash', UPLOAD_ROBOT_LOG_SCRIPT, "/opt/test/results/report.html",
+                        "av" + get_suffix() + "_" + machine_name + "_" + include_tag + "-report.html")
+        elif robot_args:
+            machine.run('bash', UPLOAD_ROBOT_LOG_SCRIPT, "/opt/test/results/log.html",
+                        "av" + get_suffix() + "_" + machine_name + "_" + robot_args + "-log.html")
+            machine.run('bash', UPLOAD_ROBOT_LOG_SCRIPT, "/opt/test/results/report.html",
+                        "av" + get_suffix() + "_" + machine_name + "_" + robot_args + "-report.html")
 
 
 @tap.timeout(task_timeout=120)
-def robot_task(machine: tap.Machine, include_tag: str):
+def robot_task(machine: tap.Machine, include_tag: str, robot_args: str):
     install_requirements(machine)
-    robot_task_with_env(machine, include_tag)
+    robot_task_with_env(machine, include_tag, robot_args)
 
 
 def pytest_task_with_env(machine: tap.Machine, environment=None):
@@ -399,6 +411,14 @@ def av_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
 
     run_tests: bool = parameters.run_tests != 'false'
     run_aws_tests: bool = decide_whether_to_run_aws_tests(parameters, context)
+
+    # Add args to pass env vars to RobotFramework.py call in test runs
+    robot_args_list = []
+    if parameters.test:
+        robot_args_list.append("TEST=" + parameters.test)
+    elif parameters.suite:
+        robot_args_list.append("SUITE=" + parameters.suite)
+    robot_args = " ".join(robot_args_list)
     # robot_task_with_env will parse this string
     include_tag = parameters.include_tag or "productNOTav_basicNOTavscanner av_basicORavscanner " \
                                             "integrationNOTavbaseNOTav_health avbase av_health"
@@ -432,7 +452,10 @@ def av_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
         if run_aws_tests:
             aws_test_inputs = get_inputs(context, av_build, aws=True)
             machine = tap.Machine('ubuntu1804_x64_server_en_us', inputs=aws_test_inputs, platform=tap.Platform.Linux)
-            stage.task("aws_tests", func=aws_task, machine=machine, include_tag=include_tag)
+            if robot_args:
+                stage.task("aws_tests", func=aws_task, machine=machine, robot_args=robot_args)
+            else:
+                stage.task("aws_tests", func=aws_task, machine=machine, include_tag=include_tag)
 
         # Coverage next, since that is the next slowest
         if do_coverage:
@@ -477,11 +500,17 @@ def av_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
                 test_inputs = get_inputs(context, av_build)
                 # Robot before pytest, since pytest is quick
                 with stage.parallel('robot'):
-                    for include in include_tag.split():
-                        with stage.parallel(include):
+                    if robot_args:
+                        with stage.parallel("integration"):
                             for (name, machine) in get_test_machines(test_inputs, parameters):
                                 stage.task(task_name=name, func=robot_task, machine=machine,
-                                           include_tag=include)
+                                           robot_args=robot_args)
+                    else:
+                        for include in include_tag.split():
+                            with stage.parallel(include):
+                                for (name, machine) in get_test_machines(test_inputs, parameters):
+                                    stage.task(task_name=name, func=robot_task, machine=machine,
+                                               include_tag=include, robot_args="")
 
                 with stage.parallel('pytest'):
                     with stage.parallel('component'):
