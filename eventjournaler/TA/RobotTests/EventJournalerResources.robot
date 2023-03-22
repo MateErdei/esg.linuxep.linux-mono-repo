@@ -5,6 +5,9 @@ Library         String
 Library         ../Libs/EventjournalerUtils.py
 
 Resource  GeneralResources.robot
+
+Default Tags    TAP_TESTS
+
 *** Variables ***
 ${EVENT_JOURNALER_LOG_PATH}     ${COMPONENT_ROOT_PATH}/log/eventjournaler.log
 ${BASE_SDDS}                    ${TEST_INPUT_PATH}/base_sdds/

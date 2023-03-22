@@ -6,10 +6,11 @@ Suite Setup  Setup
 Test Teardown   Event Journaler Teardown
 Suite Teardown  Uninstall Base
 
+Default Tags    TAP_TESTS
+
 *** Test Cases ***
 
 Event Journal Files Are Not Deleted When Downgrading
-    [Tags]      TAP_TEST
     ${filePath} =  set Variable  ${EVENT_JOURNALER_DATA_STORE}/producer/threatEvents/threatEvents-00001-00002-12092029-10202002
     Create Journal Test File  ${filePath}
     Downgrade Event Journaler

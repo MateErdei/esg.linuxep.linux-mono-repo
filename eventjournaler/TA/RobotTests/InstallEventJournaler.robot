@@ -11,6 +11,7 @@ Test Teardown  Run Keywords
 ...            Event Journaler Teardown   AND
 ...            Uninstall Event Journaler
 
+Default Tags    TAP_TESTS
 
 *** Test Cases ***
 Verify that the event journaler installer works correctly

@@ -255,7 +255,6 @@ def event_journaler(stage: tap.Root, context: tap.PipelineContext, parameters: t
     robot_args = " ".join(robot_args_list)
 
     with stage.parallel('integration'):
-        task_func = robot_task
         if mode == COVERAGE_MODE:
             stage.task(task_name="centos77", func=coverage_task,
                        machine=tap.Machine('centos77_x64_server_en_us', inputs=test_inputs,
