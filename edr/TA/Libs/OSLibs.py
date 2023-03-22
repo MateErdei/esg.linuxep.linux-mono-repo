@@ -55,9 +55,11 @@ def install_package(pkg_name):
     cmd += ["install", pkg_name]
     print(f"Running command: {cmd}")
     for _ in range(60):
-        if subprocess.run(cmd).returncode == 0:
+        ret = subprocess.run(cmd, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        if ret.returncode == 0:
             return
         else:
+            print(f"Command output: {ret.stdout}")
             time.sleep(3)
     raise AssertionError(f"Could not install package: {pkg_name}")
 
@@ -67,8 +69,10 @@ def remove_package(pkg_name):
     cmd += ["remove", pkg_name]
     print(f"Running command: {cmd}")
     for _ in range(60):
-        if subprocess.run(cmd).returncode == 0:
+        ret = subprocess.run(cmd, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        if ret.returncode == 0:
             return
         else:
+            print(f"Command output: {ret.stdout}")
             time.sleep(3)
     raise AssertionError(f"Could not remove package: {pkg_name}")
