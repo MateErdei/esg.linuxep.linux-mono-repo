@@ -44,18 +44,11 @@ if(NOT EXISTS ${REDIST})
     message( FATAL_ERROR ${ERRORMESSAGE})
 endif()
 
-#SUL Library
-set(SUL_INPUT ${REDIST}/SUL)
-set(BOOST_INPUT ${REDIST}/boost)
-set(EXPAT_INPUT ${REDIST}/expat)
-set(OPENSSL_INPUT ${REDIST}/openssl)
-set(ZLIB_INPUT ${REDIST}/zlib)
 set(VERSIG_INPUT ${REDIST}/versig)
 
 #curl Library
 set(CURL_INPUT ${REDIST}/curl)
-set(CURL_LIBRARY_DIR ${CURL_INPUT}/lib64)
-set(CURL_LIBRARY -L${CURL_LIBRARY_DIR}  -lcurl)
+set(CURL_LIBRARY -L${CURL_INPUT} -lcurl)
 
 #For central Registration
 set(MCS_LIBRARY_INPUT ${REDIST}/mcslibrary)
@@ -65,13 +58,17 @@ set(MCS_LIBRARY -L${MCS_LIBRARY_DIR})
 file(GLOB zmqlib ${MCS_LIBRARY_DIR}/libzmq.so.*)
 file(GLOB log4cpluslib ${MCS_LIBRARY_DIR}/liblog4cplus-*.so.*)
 file(GLOB protobuflib ${MCS_LIBRARY_DIR}/libprotobuf.so.*)
+set(expatlib ${MCS_LIBRARY_DIR}/libexpat.so)
+set(openssl_ssllib ${MCS_LIBRARY_DIR}/libssl.so.1.1)
+set(openssl_cryptolib ${MCS_LIBRARY_DIR}/libcrypto.so.1.1)
+set(zlib ${MCS_LIBRARY_DIR}/libzlib.so)
 
 #Pluginapi (for common code)
 set(PLUGINAPI_LIBRARY_INPUT ${REDIST}/pluginapi)
 set(PLUGINAPI_LIBRARY_INCLUDE ${PLUGINAPI_LIBRARY_INPUT}/include)
 
 #Include dirs
-include_directories(BEFORE ${CURL_INPUT}/include64 ${MCS_LIBRARY_INCLUDE} ${PLUGINAPI_LIBRARY_INCLUDE})
+include_directories(BEFORE ${CURL_INPUT}/include/curl ${MCS_LIBRARY_INCLUDE} ${PLUGINAPI_LIBRARY_INCLUDE})
 
 # Set flags
 set(CMAKE_EXE_LINKER_FLAGS -Wl,-rpath,\$ORIGIN/../lib64)
@@ -127,12 +124,11 @@ add_custom_target(
         COMMAND strip ${bin_dir}/*
         COMMAND chmod 700 ${bin_dir}/*
         COMMAND mkdir -p "${libs_dir}"
-        COMMAND cp -a ${SUL_INPUT}/lib64/*.so* ${libs_dir}/
-        COMMAND cp -a ${CURL_INPUT}/lib64/*.so* ${libs_dir}/
-        COMMAND cp -a ${BOOST_INPUT}/lib64/*.so* ${libs_dir}/
-        COMMAND cp -a ${OPENSSL_INPUT}/lib64/*.so* ${libs_dir}/
-        COMMAND cp -a ${EXPAT_INPUT}/*.so* ${libs_dir}/
-        COMMAND cp -a ${ZLIB_INPUT}/*.so* ${libs_dir}/
+        COMMAND cp -a ${CURL_INPUT}/libcurl.so ${libs_dir}/
+        COMMAND cp -a ${openssl_ssllib} ${libs_dir}/
+        COMMAND cp -a ${openssl_cryptolib} ${libs_dir}/
+        COMMAND cp -a ${expatlib} ${libs_dir}/
+        COMMAND cp -a ${zlib} ${libs_dir}/
         COMMAND cp -a ${libstdcpp_path} ${libs_dir}/
         COMMAND cp -a ${libatomic_path} ${libs_dir}/
         COMMAND cp -a ${libgcc_s_path} ${libs_dir}/
