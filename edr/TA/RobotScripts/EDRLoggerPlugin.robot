@@ -20,6 +20,8 @@ Test Setup      Run Keywords
 
 Test Teardown   Test Teardown
 
+Default Tags    TAP_TESTS
+
 *** Test Cases ***
 EDR Plugin Detects Data Limit From Policy And That A Status Is Sent On Start
     [Setup]  No Operation

@@ -13,6 +13,8 @@ Test Teardown  Test Teardown
 
 Suite Teardown  Uninstall All
 
+Default Tags    TAP_TESTS
+
 *** Variables ***
 ${BACKUP_SUFFIX}  .back
 

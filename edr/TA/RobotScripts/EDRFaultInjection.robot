@@ -10,6 +10,9 @@ Suite Teardown  Uninstall All
 
 Test Setup      No Operation
 Test Teardown   EDR And Base Teardown
+
+Default Tags    TAP_TESTS
+
 *** Variables ***
 ${OSQUERY_FLAGS_FILE}   ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.flags
 *** Test Cases ***

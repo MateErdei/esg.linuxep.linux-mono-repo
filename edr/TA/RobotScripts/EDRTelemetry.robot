@@ -18,6 +18,8 @@ Test Setup      Run Keywords
 
 Test Teardown   EDR And Base Teardown
 
+Default Tags    TAP_TESTS
+
 *** Test Cases ***
 Edr Plugin reports health correctly
     [Setup]  No operation

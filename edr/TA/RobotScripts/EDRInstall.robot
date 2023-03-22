@@ -9,6 +9,8 @@ Library    ../Libs/InstallerUtils.py
 
 Resource    EDRResources.robot
 
+Default Tags    TAP_TESTS
+
 *** Test Cases ***
 EDR Installer Directories And Files
 ## -------------------------------------READ----ME------------------------------------------------------

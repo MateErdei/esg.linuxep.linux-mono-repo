@@ -14,6 +14,8 @@ Test Teardown   Run Keywords
 ...             EDR And Base Teardown  AND
 ...             Uninstall EDR
 
+Default Tags    TAP_TESTS
+
 *** Test Cases ***
 EDR plugins handles invalid value for events max in plugin conf
     Remove File  ${SOPHOS_INSTALL}/plugins/edr/etc/plugin.conf
