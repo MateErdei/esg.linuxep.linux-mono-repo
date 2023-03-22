@@ -58,7 +58,7 @@ class HttpsHandler(http.server.SimpleHTTPRequestHandler):
             self.wfile.write(contents)
 
             os.remove("/tmp/download.txt")
-            #os.remove("/tmp/download.zip")
+            os.remove("/tmp/download.zip")
         else:
             self.send_response(200)
             self.send_header('Content-type', 'text/html')
