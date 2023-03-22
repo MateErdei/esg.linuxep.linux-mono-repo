@@ -222,15 +222,15 @@ namespace ResponseActionsImpl
         assert(info.sha256 != "");
         assert(fileSha != "");
 
-        LOGINFO(info.targetPath);
-/*        if (fileSha != info.sha256)
+        //LOGINFO(info.targetPath); //For test purposes so info is used
+        if (fileSha != info.sha256)
         {
             std::stringstream shaError;
             shaError << "Calculated Sha256 (" << fileSha << ") doesnt match that of file downloaded (" << info.sha256 << ")";
             LOGWARN(shaError.str());
             ActionsUtils::setErrorInfo(response, 1, shaError.str(), "access_denied");
             return "";
-        }*/
+        }
         return filePath;
     }
 

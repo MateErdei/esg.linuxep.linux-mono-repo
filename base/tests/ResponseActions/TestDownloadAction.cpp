@@ -1112,7 +1112,7 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompress_ToManyFilesUnzipp
     EXPECT_TRUE(appenderContains(expectedErrMsg));
 }
 
-/*TEST_F(DownloadFileTests, Sha256IsWrong)
+TEST_F(DownloadFileTests, Sha256IsWrong)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
@@ -1140,33 +1140,4 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompress_ToManyFilesUnzipp
     EXPECT_EQ(responseJson["errorType"], "access_denied");
 
     EXPECT_TRUE(appenderContains(expectedErrStr));
-}*/
-
-/*
-TEST_F(DownloadFileTests, DownloadFailed)
-{
-    UsingMemoryAppender memoryAppenderHolder(*this);
-
-addResponseToMockRequester(HTTP_STATUS_OK, ResponseErrorCode::OK);
-
-//MockFileSystem
-addDiskSpaceExpectsToMockFileSystem();
-addListFilesExpectsToMockFileSystem();
-EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(false));
-EXPECT_CALL(*m_mockFileSystem, exists(m_destPath)).WillOnce(Return(false));
-EXPECT_CALL(*m_mockFileSystem, listFiles(m_raTmpDir)).WillOnce(Return(std::vector<std::string> {}));
-Tests::replaceFileSystem(std::move(m_mockFileSystem));
-
-ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
-
-nlohmann::json action = getDownloadObject();
-std::string response = downloadFileAction.run(action.dump());
-nlohmann::json responseJson = nlohmann::json::parse(response);
-
-EXPECT_EQ(responseJson["result"], 1);
-EXPECT_EQ(responseJson["errorMessage"], expectedErrStr);
-EXPECT_EQ(responseJson["errorType"], "access_denied");
-
-EXPECT_TRUE(appenderContains(expectedErrStr));
-}*/
-
+}
