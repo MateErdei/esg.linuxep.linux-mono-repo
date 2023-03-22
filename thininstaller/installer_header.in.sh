@@ -21,6 +21,8 @@ then
     echo -e "--group=<group>\t\t\tAdd this endpoint into the Sophos Central group specified"
     echo -e "--group=<path to sub group>\tAdd this endpoint into the Sophos Central nested\n\t\t\t\tgroup specified where path to the nested group\n\t\t\t\tis each group separated by a backslash\n\t\t\t\ti.e. --group=<top-level group>\\\\\<sub-group>\\\\\<bottom-level-group>\n\t\t\t\tor --group='<top-level group>\\\<sub-group>\\\<bottom-level-group>'"
     echo -e "--products='<products>'\t\tComma separated list of products to install\n\t\t\t\ti.e. --products=antivirus,mdr,xdr"
+    echo -e "--user-ids-to-configure=<user name>:<uid>\tComma separated list of users IDs to configure\n\t\t\t\t\t\ti.e. --user-ids-to-configure=<user name>:<uid>,<user name>:<uid>,<user name>:<uid>"
+    echo -e "--group-ids-to-configure=<group name>:<gid>\tComma separated list of groups IDs to configure\n\t\t\t\t\t\ti.e. --group-ids-to-configure=<group name>:<gid>,<group name>:<gid>,<group name>:<gid>"
     echo -e "--uninstall-sav\t\tUninstall Sophos Anti-Virus if installed"
     exit 0
 fi
@@ -59,6 +61,7 @@ EXITCODE_BAD_GROUP_NAME=24
 EXITCODE_GROUP_NAME_EXCEEDS_MAX_SIZE=25
 EXITCODE_DUPLICATE_ARGUMENTS_GIVEN=26
 EXITCODE_BAD_PRODUCT_SELECTED=27
+EXITCODE_INVALID_CUSTOM_ID_GIVEN=28
 EXITCODE_REGISTRATION_FAILED=51
 EXITCODE_AUTHENTICATION_FAILED=52
 
@@ -345,6 +348,22 @@ function check_selected_products_are_valid()
     done
 }
 
+function check_custom_ids_are_valid()
+{
+    [[ "${1: -1}" == "," ]] && failure ${EXITCODE_INVALID_CUSTOM_ID_GIVEN} "Error: Requested group/user ids to configure passed with trailing comma --- aborting install"
+    [[ -n "$1" && "$1" != " " ]] || failure ${EXITCODE_INVALID_CUSTOM_ID_GIVEN} "Error: Requested group/user ids to configure not passed with argument --- aborting install"
+    declare -a valid_ids
+    IFS=',' read -ra IDS_ARRAY <<< "$1"
+    [[ -n "$IDS_ARRAY" && "$IDS_ARRAY" != " " ]] || failure ${EXITCODE_INVALID_CUSTOM_ID_GIVEN} "Error: Requested group/user ids to configure not passed with argument --- aborting install"
+    for id in "${IDS_ARRAY[@]}"; do
+        [[ -n "$id" && "$id" != " " ]] || failure ${EXITCODE_INVALID_CUSTOM_ID_GIVEN} "Error: Requested ID cannot be whitespace"
+        [[ "$id" =~ ^sophos-spl-?(.*):[0-9]+$ ]] || failure ${EXITCODE_INVALID_CUSTOM_ID_GIVEN} "Error: Requested group/user id to configure is not valid: $id --- aborting install."
+        [[ "${valid_ids[*]%%:*}" =~ (^| )"${id%%:*}"($| ) ]] && failure ${EXITCODE_INVALID_CUSTOM_ID_GIVEN} "Error: Duplicate user name given: $id --- aborting install."
+        [[ "${valid_ids[*]#*:}" =~ (^| )"${id#*:}"($| ) ]] && failure ${EXITCODE_INVALID_CUSTOM_ID_GIVEN} "Error: Duplicate id given: $id --- aborting install."
+        valid_ids+=("$id")
+    done
+}
+
 # Check that the OS is Linux
 uname -a | grep -i Linux >/dev/null
 if [ $? -eq 1 ] ; then
@@ -391,6 +410,16 @@ do
         --group=*)
             validate_group_name "${i#*=}"
             REGISTRATION_GROUP_ARGS="--central-group=${i#*=}"
+            INSTALL_OPTIONS_ARGS+=("$i")
+            shift
+        ;;
+        --user-ids-to-configure=*)
+            check_custom_ids_are_valid "${i#*=}"
+            INSTALL_OPTIONS_ARGS+=("$i")
+            shift
+        ;;
+        --group-ids-to-configure=*)
+            check_custom_ids_are_valid "${i#*=}"
             INSTALL_OPTIONS_ARGS+=("$i")
             shift
         ;;
