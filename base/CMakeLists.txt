@@ -226,6 +226,10 @@ add_imported_library(lzma SHARED ${INPUT}/lzma/liblzma.so ${INPUT}/lzma/lib/libl
 add_imported_library(minizip SHARED ${INPUT}/minizip/minizip/libminizip.so ${INPUT}/minizip)
 add_imported_library(pugixml SHARED ${INPUT}/pugixml/libpugixml.so ${INPUT}/pugixml)
 add_imported_library(zlib SHARED ${INPUT}/zlib/libzlib.so ${INPUT}/zlib)
+add_imported_library(curl_library SHARED ${CURL_INPUT}/libcurl.so ${CURL_INPUT}/include)
+target_include_directories(curl_library INTERFACE ${CURL_INPUT}/include/curl) # Extra search path to allow #include <curl.h>
+add_imported_library(openssl SHARED ${OPENSSL_INPUT}/lib64/libssl.so.1.1 ${OPENSSL_INPUT}/include64)
+add_imported_library(openssl_crypto SHARED ${OPENSSL_INPUT}/lib64/libcrypto.so.1.1 ${OPENSSL_INPUT}/include64)
 
 add_sophlib_library(crypto)
 add_sophlib_library(file)
@@ -252,6 +256,7 @@ target_link_libraries(sophlib_sdds3 INTERFACE
         sophlib_zip
         )
 target_link_libraries(sophlib_zip INTERFACE minizip sophlib_logging)
+target_link_libraries(curl_library INTERFACE openssl zlib)
 
 set(NLOHMANN_JSON_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/nlohmann-json)
 
@@ -320,26 +325,6 @@ if(${DisabledImplicitInitialization} EQUAL -1)
     message( FATAL_ERROR ${ERRORMESSAGE})
 endif()
 
-
-set( OPENSSL_INCLUDE_DIR  ${OPENSSL_INPUT}/include64)
-find_library(OPENSSL_LIBRARY
-        NAMES ssl
-        PATHS ${OPENSSL_INPUT}/lib64
-        NO_DEFAULT_PATH
-        )
-find_library(OPENSSLCRYPTO_LIBRARY
-        NAMES crypto
-        PATHS ${OPENSSL_INPUT}/lib64
-        NO_DEFAULT_PATH
-        )
-
-set( CURL_INCLUDE_DIR ${CURL_INPUT}/include64 )
-find_library(CURL_LIBRARY
-        NAMES curl
-        PATHS ${CURL_INPUT}/lib64
-        NO_DEFAULT_PATH
-        )
-
 set( GTEST_INCLUDE ${GTEST_INPUT}/googletest/include )
 find_library(GTEST_LIBRARY
         NAMES gtest
@@ -389,8 +374,6 @@ endif()
 set(TELEMETRY_CONFIG_FILE ${INPUT}/telemetry/telemetry-config.json)
 configure_file(${TELEMETRY_CONFIG_SOURCE} ${TELEMETRY_CONFIG_FILE} COPYONLY)
 message("Telemetry config: ${TELEMETRY_CONFIG_SOURCE} -> ${TELEMETRY_CONFIG_FILE}")
-
-message("openssl"  ${OPENSSLCRYPTO_LIBRARY})
 
 include_directories(modules)
 

@@ -28,7 +28,7 @@ add_library(suldownloaderimpl SHARED
         )
 
 
-include_directories(suldownloaderimpl BEFORE ${SUL_INPUT}/include ${GSL_INCLUDE} ${CURL_INCLUDE_DIR})
+include_directories(suldownloaderimpl BEFORE ${GSL_INCLUDE})
 
 target_link_libraries(suldownloaderimpl PUBLIC
         logging

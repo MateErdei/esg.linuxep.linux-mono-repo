@@ -14,7 +14,7 @@ add_executable(TelemetrySchedulerTests
 target_include_directories(TelemetrySchedulerTests SYSTEM BEFORE PUBLIC ${PROTOBUF_INCLUDE_DIR} ${GTEST_INCLUDE} ${GMOCK_INCLUDE})
 target_include_directories(TelemetrySchedulerTests BEFORE PUBLIC "${PROJECT_SOURCE_DIR}" ../../thirdparty/nlohmann-json)
 
-target_link_libraries(TelemetrySchedulerTests ${GTEST_LIBRARY} ${GTEST_MAIN_LIBRARY} -L"${CMAKE_BINARY_DIR}/libs" ssl crypto testhelpers telemetryschedulerimpl)
+target_link_libraries(TelemetrySchedulerTests ${GTEST_LIBRARY} ${GTEST_MAIN_LIBRARY} -L"${CMAKE_BINARY_DIR}/libs" testhelpers telemetryschedulerimpl)
 
 gtest_discover_tests(TelemetrySchedulerTests)
 

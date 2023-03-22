@@ -12,12 +12,10 @@ add_executable(TestHelpersTest
         TestFakeTimeUtils.cpp
         MockApiBaseServicesTests.cpp
         CurlWrapperTests.cpp
-        ${PROJECT_SOURCE_DIR}/modules/Common/CurlWrapper/CurlWrapper.h
-        ${PROJECT_SOURCE_DIR}/modules/Common/CurlWrapper/CurlWrapper.cpp
         )
-target_include_directories(TestHelpersTest SYSTEM BEFORE PUBLIC ${GTEST_INCLUDE} ${GMOCK_INCLUDE} ${CMAKE_SOURCE_DIR} ${CURL_INCLUDE_DIR})
-target_link_libraries(TestHelpersTest ${GTEST_LIBRARY} ${GTEST_MAIN_LIBRARY})
-target_link_libraries(TestHelpersTest filesystemimpl testhelpers utilityimpl ${CURL_LIBRARY})
+target_include_directories(TestHelpersTest SYSTEM BEFORE PUBLIC ${GTEST_INCLUDE} ${GMOCK_INCLUDE} ${CMAKE_SOURCE_DIR})
+target_link_libraries(TestHelpersTest ${GTEST_LIBRARY} ${GTEST_MAIN_LIBRARY} curlwrapper)
+target_link_libraries(TestHelpersTest filesystemimpl testhelpers utilityimpl)
 gtest_discover_tests(TestHelpersTest)
 SET_TARGET_PROPERTIES(TestHelpersTest
         PROPERTIES

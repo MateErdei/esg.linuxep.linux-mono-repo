@@ -9,8 +9,7 @@ target_link_libraries(TestDiagnose
         ${GTEST_MAIN_LIBRARY}
         diagnoseimpl
         testhelpers
-        ${OPENSSL_LIBRARY}
-        ${OPENSSL_CRYPTO_LIBRARY})
+        )
 gtest_discover_tests(TestDiagnose)
 SET_TARGET_PROPERTIES(TestDiagnose
         PROPERTIES

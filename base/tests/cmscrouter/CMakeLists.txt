@@ -16,7 +16,7 @@ target_include_directories(cMCSTests SYSTEM BEFORE PUBLIC
         ${CMAKE_SOURCE_DIR}
         ${GMOCK_INCLUDE}
         ${GTEST_INCLUDE}
-        ${CURL_INCLUDE_DIR})
+        )
 target_link_libraries(cMCSTests ${GTEST_LIBRARY} ${GTEST_MAIN_LIBRARY} -L"${CMAKE_BINARY_DIR}/libs" testhelpers obfuscationimpl mcsimpl HttpRequestsImpl )
 
 gtest_discover_tests(cMCSTests)

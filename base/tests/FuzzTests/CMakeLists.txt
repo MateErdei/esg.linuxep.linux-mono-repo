@@ -9,8 +9,8 @@ add_executable(loggerconfigtests
 target_include_directories(loggerconfigtests PUBLIC ${LOG4CPLUS_INCLUDE_DIR} ${BOOST_INCLUDE_DIR})
 
 target_link_libraries(loggerconfigtests PUBLIC
-         ${LOG4CPLUS_LIBRARY}
-         sslimpl
+        ${LOG4CPLUS_LIBRARY}
+        sslimplobject
         )
 
 SET_TARGET_PROPERTIES( loggerconfigtests
@@ -74,16 +74,14 @@ add_executable(suldownloaderconfigtests
         $<TARGET_OBJECTS:applicationconfigurationimplobject>
         $<TARGET_OBJECTS:protobufutilobject>
         $<TARGET_OBJECTS:utilityimplobject>
-        $<TARGET_OBJECTS:HttpRequestsImpl>
-        $<TARGET_OBJECTS:ProxyUtilsLib>
         )
 
 target_link_libraries(suldownloaderconfigtests PRIVATE
         ${LOG4CPLUS_LIBRARY}
-        ${CURL_LIBRARY}
         ${Protobuf_LIBRARIES}
         obfuscationimpl
-        sslimpl
+        HttpRequestsImpl
+        ProxyUtilsLib
         )
 
 SET_TARGET_PROPERTIES( suldownloaderconfigtests
@@ -92,7 +90,7 @@ SET_TARGET_PROPERTIES( suldownloaderconfigtests
         INSTALL_RPATH "$ORIGIN/../lib64:$ORIGIN/../../../base/lib64"
         )
 
-target_include_directories(suldownloaderconfigtests PUBLIC ${CMAKE_SOURCE_DIR}/modules ${CMAKE_SOURCE_DIR}/modules/SulDownloader/suldownloaderdata ${LOG4CPLUS_INCLUDE_DIR}   ${CMAKE_CURRENT_BINARY_DIR} ${CURL_INCLUDE_DIR})
+target_include_directories(suldownloaderconfigtests PUBLIC ${CMAKE_SOURCE_DIR}/modules ${CMAKE_SOURCE_DIR}/modules/SulDownloader/suldownloaderdata ${LOG4CPLUS_INCLUDE_DIR}   ${CMAKE_CURRENT_BINARY_DIR})
 
 
 add_executable(suldownloaderreporttests

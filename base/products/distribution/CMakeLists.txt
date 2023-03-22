@@ -30,13 +30,8 @@ foreach (LIB boost_atomic boost_chrono boost_date_time boost_filesystem boost_re
     add_third_party_library(${LIB} ${BOOST_INPUT}/lib64)
 endforeach(LIB)
 
-add_third_party_library(curl ${CURL_INPUT}/lib64)
 add_third_party_library(expat ${EXPAT_INPUT})
 add_third_party_library(zmq ${ZEROMQ_INPUT})
-
-foreach (LIB crypto ssl)
-    add_third_party_library(${LIB} ${OPENSSL_INPUT}/lib64)
-endforeach(LIB)
 
 add_third_party_library(protobuf ${Protobuf_root}/lib)
 add_third_party_library(log4cplus ${LOG4CPLUS_INPUT}/lib)
@@ -46,8 +41,11 @@ install(FILES ${third_party_libs}
 
 install(IMPORTED_RUNTIME_ARTIFACTS
         bzip2
+        curl_library
         lzma
         minizip
+        openssl
+        openssl_crypto
         pugixml
         zlib
         LIBRARY DESTINATION ${BASE_DIST_PREFIX}/files/base/lib64)

@@ -12,7 +12,6 @@ add_library(cmcsrouterapi SHARED
         $<TARGET_OBJECTS:mcsimpl>
         $<TARGET_OBJECTS:obfuscationimpl>
         $<TARGET_OBJECTS:osutilitiesimpl>
-        $<TARGET_OBJECTS:sslimplobject>
         $<TARGET_OBJECTS:threadsobject>
         $<TARGET_OBJECTS:utilityimpl>
         $<TARGET_OBJECTS:utilityimplobject>
@@ -25,7 +24,7 @@ target_link_libraries(cmcsrouterapi PUBLIC
         log4cplus -L${LOG4CPLUS_INPUT}/lib
         protobuf -L${Protobuf_root}/lib
         expat -L${EXPAT_INPUT}
-        ${OPENSSLCRYPTO_LIBRARY}
+        sslimplobject
         )
 
 
@@ -39,7 +38,6 @@ FindLibraryFullPath( zmqfull zmq ${ZEROMQ_INPUT})
 FindLibraryFullPath( log4cplusfull log4cplus ${LOG4CPLUS_INPUT}/lib)
 FindLibraryFullPath( protobuffull protobuf ${Protobuf_root}/lib)
 FindLibraryFullPath( expatfull expat ${EXPAT_INPUT})
-FindLibraryFullPath( opensslcryptofull crypto ${OPENSSL_INPUT}/lib64)
 
 add_custom_target(
         cmcsrouterapitar ALL
@@ -52,12 +50,13 @@ add_custom_target(
         COMMAND ${CMAKE_COMMAND} -E copy ${log4cplusfull} mcslibrary/lib64
         COMMAND ${CMAKE_COMMAND} -E copy ${protobuffull} mcslibrary/lib64
         COMMAND ${CMAKE_COMMAND} -E copy ${expatfull}    mcslibrary/lib64
-        COMMAND ${CMAKE_COMMAND} -E copy ${opensslcryptofull} mcslibrary/lib64
         COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:bzip2> mcslibrary/lib64
         COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:lzma> mcslibrary/lib64
         COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:minizip> mcslibrary/lib64
         COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:pugixml> mcslibrary/lib64
         COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:zlib> mcslibrary/lib64
+        COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:openssl> mcslibrary/lib64
+        COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:openssl_crypto> mcslibrary/lib64
 )
 
 function(add_copy_directory base)

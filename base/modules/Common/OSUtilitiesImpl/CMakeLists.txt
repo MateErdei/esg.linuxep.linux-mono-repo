@@ -20,7 +20,7 @@ add_library(osutilitiesimpl SHARED
         SystemUtils.cpp
         CloudMetadataConverters.h)
 
-target_link_libraries(osutilitiesimpl PUBLIC sslimpl filesystemimpl utilityimpl applicationconfigurationimpl pthread)
+target_link_libraries(osutilitiesimpl PUBLIC filesystemimpl utilityimpl applicationconfigurationimpl pthread)
 
 target_include_directories(osutilitiesimpl PUBLIC BEFORE ${NLOHMANN_JSON_INCLUDE_DIR} ../CurlWrapper)
 

@@ -7,13 +7,11 @@ add_library(HttpRequestsImpl SHARED
         Logger.h
         Logger.cpp)
 
-include_directories(HttpRequestsImpl BEFORE ${CURL_INCLUDE_DIR} ${LOG4CPLUS_INCLUDE_DIR} ${OPENSSL_INCLUDE_DIR} ../HttpRequests)
+include_directories(HttpRequestsImpl BEFORE ${LOG4CPLUS_INCLUDE_DIR} ../HttpRequests)
 
 target_link_libraries(HttpRequestsImpl PUBLIC
-        -L"${CMAKE_BINARY_DIR}/libs"
-        ssl
-        crypto
-        ${CURL_LIBRARY}
+        curlwrapper
+        curl_library
         ${LOG4CPLUS_LIBRARY}
         logging
         )

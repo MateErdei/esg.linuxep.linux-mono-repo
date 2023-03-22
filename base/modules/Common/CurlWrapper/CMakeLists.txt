@@ -1,11 +1,9 @@
-add_library(curlwrapperobject OBJECT
+add_library(curlwrapper SHARED
         CurlWrapper.h
         CurlWrapper.cpp
         )
 
-target_include_directories(curlwrapperobject PUBLIC ${CURL_INCLUDE_DIR})
-
-add_library(curlwrapper SHARED $<TARGET_OBJECTS:curlwrapperobject>)
+target_link_libraries(curlwrapper PUBLIC curl_library)
 
 SET_TARGET_PROPERTIES(curlwrapper
         PROPERTIES INSTALL_RPATH "$ORIGIN")

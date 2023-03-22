@@ -2,11 +2,9 @@ add_library(sslimplobject OBJECT
         Digest.cpp
         Digest.h
         )
-message("opensslinclude: ${OPENSSL_INCLUDE_DIR}")
-target_include_directories(sslimplobject PUBLIC ${OPENSSL_INCLUDE_DIR})
-add_library(sslimpl SHARED $<TARGET_OBJECTS:sslimplobject>)
-
-target_link_libraries(sslimpl PUBLIC ${OPENSSLCRYPTO_LIBRARY})
+target_link_libraries(sslimplobject PUBLIC openssl_crypto)
+add_library(sslimpl SHARED)
+target_link_libraries(sslimpl PUBLIC sslimplobject)
 
 SET_TARGET_PROPERTIES(sslimpl
         PROPERTIES INSTALL_RPATH "$ORIGIN")

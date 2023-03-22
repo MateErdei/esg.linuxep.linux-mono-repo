@@ -11,7 +11,7 @@ add_library(centralregistrationimpl SHARED
         MessageRelaySorter.h
         )
 
-target_include_directories(centralregistrationimpl SYSTEM PUBLIC ${LOG4CPLUS_INCLUDE_DIR} ${BOOST_INCLUDE_DIR} ${CURL_INCLUDE_DIR} )
+target_include_directories(centralregistrationimpl SYSTEM PUBLIC ${LOG4CPLUS_INCLUDE_DIR} ${BOOST_INCLUDE_DIR})
 include_directories(centralregistrationimpl BEFORE ../../thirdparty/nlohmann-json)
 
 target_link_libraries(centralregistrationimpl PUBLIC logging HttpRequestsImpl osutilitiesimpl  mcsimpl ${LOG4CPLUS_LIBRARY} curlwrapper)

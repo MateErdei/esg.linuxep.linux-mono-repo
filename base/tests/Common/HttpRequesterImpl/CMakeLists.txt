@@ -12,18 +12,15 @@ target_include_directories(HttpRequesterTests SYSTEM BEFORE PUBLIC
         ${PROTOBUF_INCLUDE_DIR}
         ${GMOCK_INCLUDE}
         ${GTEST_INCLUDE}
-        ${CURL_INCLUDE_DIR})
+        )
 
 target_link_libraries(HttpRequesterTests
         HttpRequestsImpl
-        ${OPENSSL_LIBRARY}
-        ${OPENSSL_CRYPTO_LIBRARY}
         ${GTEST_LIBRARY}
         ${GTEST_MAIN_LIBRARY}
         testhelpers
         )
 
-#target_link_libraries(HttpRequesterTests gtest gmock gtest_main -L"${CMAKE_BINARY_DIR}/libs" ssl crypto testhelpers)
 set_target_properties(HttpRequesterTests PROPERTIES
         BUILD_RPATH "${CMAKE_BINARY_DIR}/libs")
 gtest_discover_tests(HttpRequesterTests)
@@ -39,15 +36,12 @@ add_executable(HttpRequesterLiveNetworkTests
 
 target_include_directories(HttpRequesterLiveNetworkTests SYSTEM BEFORE PUBLIC
         ${PROTOBUF_INCLUDE_DIR}
-        ${CURL_INCLUDE_DIR}
         ${GMOCK_INCLUDE}
         ${GTEST_INCLUDE}
         )
 
 target_link_libraries(HttpRequesterLiveNetworkTests
         HttpRequestsImpl
-        ${OPENSSL_LIBRARY}
-        ${OPENSSL_CRYPTO_LIBRARY}
         ${GTEST_LIBRARY}
         ${GTEST_MAIN_LIBRARY}
         testhelpers
