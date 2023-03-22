@@ -29,7 +29,7 @@ def get_user_and_group_ids_of_files(directory: str):
 def check_changes_of_user_ids(ids_of_dir_entries_before, ids_of_dir_entries_after, prev_user_id, new_user_id):
     for file, ids in ids_of_dir_entries_before.items():
         if file not in ids_of_dir_entries_after:
-            logging.warning(f"The file {file} was not found in the 'after' set of files and directories")
+            logging.info(f"The file {file} was not found in the 'after' set of files and directories")
             continue
         if ids["user_id"] == prev_user_id:
             if ids_of_dir_entries_after[file]["user_id"] != new_user_id:
@@ -41,7 +41,7 @@ def check_changes_of_user_ids(ids_of_dir_entries_before, ids_of_dir_entries_afte
 def check_changes_of_group_ids(ids_of_dir_entries_before, ids_of_dir_entries_after, prev_group_id, new_group_id):
     for file, ids in ids_of_dir_entries_before.items():
         if file not in ids_of_dir_entries_after:
-            logging.warning(f"The file {file} was not found in the 'after' set of files and directories")
+            logging.info(f"The file {file} was not found in the 'after' set of files and directories")
             continue
         if ids["group_id"] == prev_group_id:
             if ids_of_dir_entries_after[file]["user_id"] != new_group_id:
