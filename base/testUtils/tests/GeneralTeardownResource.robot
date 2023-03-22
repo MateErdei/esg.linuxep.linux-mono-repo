@@ -138,4 +138,3 @@ General Test Teardown
     Run Keyword If Test Failed    Dump All Sophos Processes
     Force Teardown Logging If Env Set
     Combine Coverage If Present
-    Run Cleanup Functions
