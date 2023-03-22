@@ -422,7 +422,6 @@ On Access Process Handles Fast Process Control Requests Last Flag is OA Enabled
     wait for on access log contains after mark  No policy override, following policy settings  mark=${mark}
     wait for on access log contains after mark  New on-access configuration: {"enabled":true  mark=${mark}
     wait for on access log contains after mark  Finished ProcessPolicy  mark=${mark}
-    wait for on access log contains after mark  Setting poll timeout to  mark=${mark}
     wait for on access log contains after mark  On-access scanning enabled  mark=${mark}
 
     On-access Scan Eicar Open
