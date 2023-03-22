@@ -94,7 +94,7 @@ class ThinInstallerUtils(object):
             logger.info("using {} as source".format(source))
             return source
 
-        local_dir = "/vagrant/thininstaller/output"
+        local_dir = "/vagrant/esg.linuxep.thininstaller/output"
         if os.path.isdir(local_dir):
             logger.info("Thin Installer source: " + local_dir)
             return local_dir
