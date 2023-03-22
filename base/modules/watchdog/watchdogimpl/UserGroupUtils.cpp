@@ -176,7 +176,7 @@ namespace watchdog::watchdogimpl
         std::string strippedContent;
         try
         {
-            if (Common::FileSystem::filePermissions()->getFilePermissions(requestedConfigPath) != (S_IRUSR | S_IWUSR))
+            if (Common::FileSystem::filePermissions()->getFilePermissions(requestedConfigPath) != (S_IFREG | S_IRUSR | S_IWUSR))
             {
                 LOGWARN("Requested IDs config file " + requestedConfigPath + " does not have the accepted permissions (0600)");
                 return {};

@@ -93,7 +93,7 @@ TEST_F(TestUserGroupUtils, CommentsAreStrippedFromRequestedUserAndGroupIdsFileRe
 
     EXPECT_CALL(*m_mockFileSystemPtr, readFile(m_actualUserGroupIdConfigPath)).WillOnce(
         Return(R"({"groups":{"group1":1,"group2":2},"users":{"user1":1,"user2":2}})"));
-    EXPECT_CALL(*m_mockFilePermissionsPtr, getFilePermissions(m_requestedUserGroupIdConfigPath)).WillOnce(Return(0600));
+    EXPECT_CALL(*m_mockFilePermissionsPtr, getFilePermissions(m_requestedUserGroupIdConfigPath)).WillOnce(Return((S_IFREG | S_IRUSR | S_IWUSR)));
     EXPECT_CALL(*m_mockFileSystemPtr, readLines(m_requestedUserGroupIdConfigPath)).WillOnce(Return(configString));
     EXPECT_EQ(readRequestedUserGroupIds(), expectedJson);
 }
@@ -126,7 +126,7 @@ TEST_F(TestUserGroupUtils, DifferentStructuresOfCommentsAreStrippedFromRequested
 
     EXPECT_CALL(*m_mockFileSystemPtr, readFile(m_actualUserGroupIdConfigPath)).WillOnce(
         Return(R"({"groups":{"group1":1,"group2":2},"users":{"user1":1,"user2":2}})"));
-    EXPECT_CALL(*m_mockFilePermissionsPtr, getFilePermissions(m_requestedUserGroupIdConfigPath)).WillOnce(Return(0600));
+    EXPECT_CALL(*m_mockFilePermissionsPtr, getFilePermissions(m_requestedUserGroupIdConfigPath)).WillOnce(Return((S_IFREG | S_IRUSR | S_IWUSR)));
     EXPECT_CALL(*m_mockFileSystemPtr, readLines(m_requestedUserGroupIdConfigPath)).WillOnce(Return(configString));
     EXPECT_EQ(readRequestedUserGroupIds(), expectedJson);
 }
@@ -148,7 +148,7 @@ TEST_F(TestUserGroupUtils, readRequestedUserGroupIdsDoesNotThrowOnInvalidJson)
         "}"
     };
 
-    EXPECT_CALL(*m_mockFilePermissionsPtr, getFilePermissions(m_requestedUserGroupIdConfigPath)).WillOnce(Return(0600));
+    EXPECT_CALL(*m_mockFilePermissionsPtr, getFilePermissions(m_requestedUserGroupIdConfigPath)).WillOnce(Return((S_IFREG | S_IRUSR | S_IWUSR)));
     EXPECT_CALL(*m_mockFileSystemPtr, readLines(m_requestedUserGroupIdConfigPath)).WillOnce(Return(configString));
 
     EXPECT_NO_THROW(changesNeeded = readRequestedUserGroupIds());
@@ -170,7 +170,7 @@ TEST_F(TestUserGroupUtils, readRequestedUserGroupIdsDoesNotThrowOnCorrectlyStrip
         "}"
     };
 
-    EXPECT_CALL(*m_mockFilePermissionsPtr, getFilePermissions(m_requestedUserGroupIdConfigPath)).WillOnce(Return(0600));
+    EXPECT_CALL(*m_mockFilePermissionsPtr, getFilePermissions(m_requestedUserGroupIdConfigPath)).WillOnce(Return((S_IFREG | S_IRUSR | S_IWUSR)));
     EXPECT_CALL(*m_mockFileSystemPtr, readLines(m_requestedUserGroupIdConfigPath)).WillOnce(Return(configString));
 
     EXPECT_NO_THROW(changesNeeded = readRequestedUserGroupIds());
@@ -181,7 +181,7 @@ TEST_F(TestUserGroupUtils, readRequestedUserGroupIdsDoesNotThrowWhenReadLinesThr
 {
     WatchdogUserGroupIDs changesNeeded;
 
-    EXPECT_CALL(*m_mockFilePermissionsPtr, getFilePermissions(m_requestedUserGroupIdConfigPath)).WillOnce(Return(0600));
+    EXPECT_CALL(*m_mockFilePermissionsPtr, getFilePermissions(m_requestedUserGroupIdConfigPath)).WillOnce(Return((S_IFREG | S_IRUSR | S_IWUSR)));
     EXPECT_CALL(*m_mockFileSystemPtr, readLines(m_requestedUserGroupIdConfigPath)).WillOnce(Throw(Common::FileSystem::IFileSystemException("TEST")));
 
     EXPECT_NO_THROW(changesNeeded = readRequestedUserGroupIds());
@@ -192,7 +192,7 @@ TEST_F(TestUserGroupUtils, readRequestedUserGroupIdsReturnsEmptyWhenFilePermissi
 {
     WatchdogUserGroupIDs changesNeeded;
 
-    EXPECT_CALL(*m_mockFilePermissionsPtr, getFilePermissions(m_requestedUserGroupIdConfigPath)).WillOnce(Return(0777));
+    EXPECT_CALL(*m_mockFilePermissionsPtr, getFilePermissions(m_requestedUserGroupIdConfigPath)).WillOnce(Return((S_IFREG | S_IRUSR | S_IWUSR | S_IRGRP)));
     EXPECT_NO_THROW(changesNeeded = readRequestedUserGroupIds());
     ASSERT_TRUE(changesNeeded.empty());
 }
@@ -201,7 +201,7 @@ TEST_F(TestUserGroupUtils, readRequestedUserGroupIdsReturnsEmptyOnEmptyFile)
 {
     WatchdogUserGroupIDs changesNeeded;
 
-    EXPECT_CALL(*m_mockFilePermissionsPtr, getFilePermissions(m_requestedUserGroupIdConfigPath)).WillOnce(Return(0600));
+    EXPECT_CALL(*m_mockFilePermissionsPtr, getFilePermissions(m_requestedUserGroupIdConfigPath)).WillOnce(Return((S_IFREG | S_IRUSR | S_IWUSR)));
     EXPECT_CALL(*m_mockFileSystemPtr, readLines(m_requestedUserGroupIdConfigPath)).WillOnce(Return(std::vector<std::string>{}));
 
     EXPECT_NO_THROW(changesNeeded = readRequestedUserGroupIds());
