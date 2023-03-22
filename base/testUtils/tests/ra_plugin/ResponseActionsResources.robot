@@ -75,6 +75,10 @@ RA Suite Setup
     Run Full Installer
     Create File  /opt/sophos-spl/base/mcs/certs/ca_env_override_flag
 
+RA Action With Register Suite Setup
+    RA Suite Setup
+    Register With Local Cloud Server
+
 RA Test Setup
     Require Installed
     HttpsServer.Start Https Server  /tmp/cert.crt  443  tlsv1_2  True
