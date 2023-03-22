@@ -14,12 +14,6 @@
             <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="/build/input/base-sdds"/>
         </build-asset>
 
-        <build-asset project="winep" repo="livequery">
-            <release-version branch="release/2023.07"
-                             build-id="20230210164123-2620ec1273c6fc9ce9738e44e1824bc94cd6e866-QL2Cra"/>
-            <development-version branch="develop"/>
-            <include artifact-path="sspl-osquery-components" dest-dir="/build/input/sspl-osquery-components"/>
-        </build-asset>
         <build-asset project="winep" repo="dbos">
             <release-version branch="release/2022-33-linux"
                              build-id="20220808155426-e2c6cc6ded74ea177ffee3faf6acb550fb085bfc-arqapF"/>
@@ -37,10 +31,14 @@
             <release-version branch="release/WIN-SPRINT-2023.10" build-id="20230303190457-b2493e357e0f270450a8bc1154c4644841785404-Yo7Ilu"/>
             <development-version branch="develop"/>
             <include artifact-path="sophlib/sdds3-tools-x64-linux" dest-dir="/build/input/sdds3"/>
+            <include artifact-path="livequery/linux_x86-64" dest-dir="/build/redist/livequery"/>
+            <include artifact-path="livequery/include" dest-dir="/build/redist/livequery/common/livequery"/>
 
             <include artifact-path="thirdparty/liblzma-linux-opt" dest-dir="/build/redist/lzma"/>
             <include artifact-path="thirdparty/googletest-linux-opt" dest-dir="/build/input/googletest"/>
             <include artifact-path="thirdparty/thrift-linux-opt" dest-dir="/build/redist/thrift"/>
+            <include artifact-path="thirdparty/glog-linux-opt" dest-dir="/build/redist/glog"/>
+            <include artifact-path="thirdparty/gflags-linux-opt" dest-dir="/build/redist/gflags"/>
             <include artifact-path="thirdparty/sqlite-linux-opt" dest-dir="/build/redist/sqlite"/>
         </build-asset>
 
@@ -58,16 +56,6 @@
         <build-asset project="thirdparty" repo="gcc">
             <release-version branch="release/Version_11_2_0"
                              build-id="20220310091547-cf8f7ca9572a3bc9a68f05138086815341a49224-cZ84iF"/>
-            <include artifact-path="output" dest-dir="/build/input"/>
-        </build-asset>
-        <build-asset project="thirdparty" repo="gflags">
-            <release-version branch="release/sspl/Version_2_2_2"
-                             build-id="20220311152651-46f2b36966eb0406fc90f5602339310309af1ab2-XYDhKJ"/>
-            <include artifact-path="output" dest-dir="/build/input"/>
-        </build-asset>
-        <build-asset project="thirdparty" repo="glog">
-            <release-version branch="release/sspl/Version_0_4_0"
-                             build-id="20220314082521-27d6119d2fc83a6e47e5595c30fe4837f66fcbf0-j15Bo9"/>
             <include artifact-path="output" dest-dir="/build/input"/>
         </build-asset>
         <build-asset project="thirdparty" repo="jsoncpp">
