@@ -177,16 +177,16 @@ namespace ResponseActionsImpl
         auto fileNameVec = m_fileSystem->listFiles(m_raTmpDir);
         if (fileNameVec.size() == 0)
         {
-            std::string error = "Download failed, there are no files present in " + m_raTmpDir;
+            std::string error = "Expected one file in " + m_raTmpDir + " but there are none";
             LOGERROR(error);
-            ActionsUtils::setErrorInfo(response, 1, error, "access_denied");
+            ActionsUtils::setErrorInfo(response, 1, error);
             return "";
         }
         if (fileNameVec.size() > 1)
         {
             std::string error = "Expected one file in " + m_raTmpDir + " but there are many";
             LOGERROR(error);
-            ActionsUtils::setErrorInfo(response, 1, error, "access_denied");
+            ActionsUtils::setErrorInfo(response, 1, error);
             return "";
         }
         Path filePath = fileNameVec.front();
@@ -278,7 +278,7 @@ namespace ResponseActionsImpl
 
                 if (extractedFile.size() == 0)
                 {
-                    std::string error = "Unzip successful but no file found";
+                    std::string error = "Unzip successful but no file found in " + tmpExtractPath;
                     LOGWARN(error);
                     ActionsUtils::setErrorInfo(response, 1, error);
                 }
