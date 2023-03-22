@@ -356,10 +356,10 @@ function check_custom_ids_are_valid()
     IFS=',' read -ra IDS_ARRAY <<< "$1"
     [[ -n "$IDS_ARRAY" && "$IDS_ARRAY" != " " ]] || failure ${EXITCODE_INVALID_CUSTOM_ID_GIVEN} "Error: Requested group/user ids to configure not passed with argument --- aborting install"
     for id in "${IDS_ARRAY[@]}"; do
-        [[ -n "$id" && "$id" != " " ]] || failure ${EXITCODE_INVALID_CUSTOM_ID_GIVEN} "Error: Requested ID cannot be whitespace"
-        [[ "$id" =~ ^sophos-spl-?(.*):[0-9]+$ ]] || failure ${EXITCODE_INVALID_CUSTOM_ID_GIVEN} "Error: Requested group/user id to configure is not valid: $id --- aborting install."
-        [[ "${valid_ids[*]%%:*}" =~ (^| )"${id%%:*}"($| ) ]] && failure ${EXITCODE_INVALID_CUSTOM_ID_GIVEN} "Error: Duplicate user name given: $id --- aborting install."
-        [[ "${valid_ids[*]#*:}" =~ (^| )"${id#*:}"($| ) ]] && failure ${EXITCODE_INVALID_CUSTOM_ID_GIVEN} "Error: Duplicate id given: $id --- aborting install."
+        [[ -n "$id" && "$id" != " " ]] || failure ${EXITCODE_INVALID_CUSTOM_ID_GIVEN} "Error: Requested ID cannot contain whitespace: $id  --- aborting install"
+        [[ "$id" =~ ^sophos-spl-?(.*):[0-9]+$ ]] || failure ${EXITCODE_INVALID_CUSTOM_ID_GIVEN} "Error: Requested group/user id to configure is not valid: $id --- aborting install"
+        [[ "${valid_ids[*]%%:*}" =~ (^| )"${id%%:*}"($| ) ]] && failure ${EXITCODE_INVALID_CUSTOM_ID_GIVEN} "Error: Duplicate user name given: $id --- aborting install"
+        [[ "${valid_ids[*]#*:}" =~ (^| )"${id#*:}"($| ) ]] && failure ${EXITCODE_INVALID_CUSTOM_ID_GIVEN} "Error: Duplicate id given: $id --- aborting install"
         valid_ids+=("$id")
     done
 }
