@@ -12,6 +12,7 @@
 #include <Common/Process/IProcess.h>
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 #include <Common/UtilityImpl/StringUtils.h>
+#include <Common/ProcUtilImpl/ProcUtilities.h>
 #include <SulDownloader/suldownloaderdata/ConfigurationDataUtil.h>
 #include <SulDownloader/suldownloaderdata/UpdateSupplementDecider.h>
 #include <UpdateScheduler/SchedulerTaskQueue.h>
@@ -73,6 +74,12 @@ namespace UpdateSchedulerImpl
             LOGERROR("The installed features list could not be deserialised for reading from disk: " << jsonException.what());
         }
         return {};
+    }
+
+    bool isSuldownloaderRunning(const std::string& fullPathOfSulDownloader)
+    {
+        auto procs = Proc::listProcessesByComm("SulDownloader", fullPathOfSulDownloader);
+        return !procs.empty();
     }
 
     using SettingsHolder = UpdateSchedulerImpl::configModule::SettingsHolder;
@@ -784,7 +791,7 @@ namespace UpdateSchedulerImpl
 
     std::string UpdateSchedulerProcessor::getAppId() { return ALC_API; }
 
-    void UpdateSchedulerProcessor::waitForSulDownloaderToFinish(int numberOfSeconds2Wait)
+    void UpdateSchedulerProcessor::waitForSulDownloaderToFinish(int numberOfSecondsToWait)
     {
         std::string pathFromMarkerFile = UpdateSchedulerUtils::readMarkerFile();
         std::string pathOfSulDownloader;
@@ -798,116 +805,29 @@ namespace UpdateSchedulerImpl
             pathOfSulDownloader = "installer/bin/SulDownloader";
         }
 
-        auto* iFileSystem = Common::FileSystem::fileSystem();
-
-        // To check if the SulDownloader is running, we will use pidof to find its process
-        // In 2019 pidof was updated so processes in D state (uninterruptable sleep, usually IO) are no longer detected
-        // https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=926896
-        // Instead, the flag '-z' must be used to enable old behaviour, but the flag doesn't exist on older versions
-        // Both versions return code 0 if process is found, and 1 if it is not.
-        // If the -z flag is run on old version, it gives exit code 1.
-
-        // Here we try pidof without the flag first, and if it fails to find the process, we try with the -z flag
-        // If either command finds the process, then we know for sure the process is still running.
-
-        // If neither command finds the process then we know for sure the process isn't running.
-        // This is because in both versions, one of the commands will always 'tell the truth'.
-        // In old version, the first one, and in the new version, the second one.
-        // But we must try both otherwise we won't be sure that the one we tried 'told the truth'.
-
-        std::string pidOfCommand;
-        for (std::string candidate : { "/bin/pidof", "/usr/sbin/pidof" })
-        {
-            if (iFileSystem->isExecutable(candidate))
-            {
-                pidOfCommand = candidate;
-                break;
-            }
-        }
-
-        if (pidOfCommand.empty())
-        {
-            LOGWARN("Can not verify if SulDownloader is running ");
-            return;
-        }
-
         int i = 0;
         while (true)
         {
-            int pidOfSulDownloader;
-            auto iProcess = Common::Process::createProcess();
-            iProcess->exec(pidOfCommand, { pathOfSulDownloader });
-
-            auto state = iProcess->wait(Common::Process::milli(10), 1000);
-            if (state != Common::Process::ProcessStatus::FINISHED)
+            if (!isSuldownloaderRunning(pathOfSulDownloader))
             {
-                LOGWARN("pidof(SulDownloader) Failed to exit after 10s");
-                iProcess->kill();
-            }
-
-            int exitCode = iProcess->exitCode();
-            if (exitCode == 1)
-            {
-                iProcess->exec(pidOfCommand, { "-z", pathOfSulDownloader });
-
-                state = iProcess->wait(Common::Process::milli(10), 1000);
-                if (state != Common::Process::ProcessStatus::FINISHED)
-                {
-                    LOGWARN("pidof -z (SulDownloader) Failed to exit after 10s");
-                    iProcess->kill();
-                }
-
-                exitCode = iProcess->exitCode();
-                if (exitCode == 1)
-                {
-                    UpdateSchedulerUtils::cleanUpMarkerFile();
-                    break;
-                }
-                else if (exitCode != 0 && exitCode != SIGTERM)
-                {
-                    LOGWARN("pidof -z (SulDownloader) returned " << exitCode << "with error output: "<< iProcess->errorOutput());
-                    UpdateSchedulerUtils::cleanUpMarkerFile();
-                    break;
-                }
-            }
-            else if (exitCode != 0 && exitCode != SIGTERM)
-            {
-                LOGWARN("pidof(SulDownloader) returned " << exitCode << "with error output: "<< iProcess->errorOutput());
                 UpdateSchedulerUtils::cleanUpMarkerFile();
                 break;
-            }
-
-            std::string outputPidOf = iProcess->standardOutput();
-            LOGDEBUG("Pid of SulDownloader: '" << outputPidOf << "'");
-
-            std::pair<int, std::string> value = Common::UtilityImpl::StringUtils::stringToInt(outputPidOf);
-
-            if (value.second.empty())
-            {
-                pidOfSulDownloader = value.first;
-            }
-            else
-            {
-                LOGWARN("Can not convert '" << outputPidOf << "' to int pid of SulDownloader");
-                UpdateSchedulerUtils::cleanUpMarkerFile();
-                break; // Assume empty or non-convertable output means there is no SulDownloader running
             }
 
             if (i == 0)
             {
-                LOGINFO("Waiting for SulDownloader (PID=" << pidOfSulDownloader << ") to finish.");
+                LOGINFO("Waiting for SulDownloader to finish.");
             }
             i++;
             // add new log every minute
             if (i % 60 == 0)
             {
-                LOGINFO("SulDownloader (PID=" << pidOfSulDownloader << ") still running.");
+                LOGINFO("SulDownloader still running.");
             }
 
-            if (i >= numberOfSeconds2Wait)
+            if (i >= numberOfSecondsToWait)
             {
-                assert(pidOfSulDownloader > 0);
-                LOGWARN("SulDownloader (PID=" << pidOfSulDownloader << ") still running after wait period");
+                LOGWARN("SulDownloader still running after wait period");
                 UpdateSchedulerUtils::cleanUpMarkerFile();
                 return;
             }
@@ -920,7 +840,6 @@ namespace UpdateSchedulerImpl
                 break;
             }
         }
-
         LOGINFO("No instance of SulDownloader running.");
     }
 
