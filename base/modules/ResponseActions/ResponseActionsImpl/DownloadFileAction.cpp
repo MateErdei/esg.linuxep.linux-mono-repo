@@ -175,7 +175,20 @@ namespace ResponseActionsImpl
     {
         //We are only downloading a single file and response actions should not run in parallel
         auto fileNameVec = m_fileSystem->listFiles(m_raTmpDir);
-        assert(fileNameVec.size() == 1);
+        if (fileNameVec.size() == 0)
+        {
+            std::string error = "Download failed, there are no files present in " + m_raTmpDir;
+            LOGERROR(error);
+            ActionsUtils::setErrorInfo(response, 1, error, "access_denied");
+            return "";
+        }
+        if (fileNameVec.size() > 1)
+        {
+            std::string error = "Expected one file in " + m_raTmpDir + " but there are many";
+            LOGERROR(error);
+            ActionsUtils::setErrorInfo(response, 1, error, "access_denied");
+            return "";
+        }
         Path filePath = fileNameVec.front();
         std::string fileName = Common::FileSystem::basename(filePath);
         LOGDEBUG("Downloaded file " << fileName);
@@ -203,16 +216,18 @@ namespace ResponseActionsImpl
             return "";
         }
 
+        assert(info.sha256 != "");
         assert(fileSha != "");
 
-        if (fileSha != info.sha256)
+        LOGINFO(info.targetPath);
+/*        if (fileSha != info.sha256)
         {
             std::stringstream shaError;
             shaError << "Calculated Sha256 (" << fileSha << ") doesnt match that of file downloaded (" << info.sha256 << ")";
             LOGWARN(shaError.str());
             ActionsUtils::setErrorInfo(response, 1, shaError.str(), "access_denied");
             return "";
-        }
+        }*/
         return filePath;
     }
 
@@ -225,6 +240,20 @@ namespace ResponseActionsImpl
         {
             int ret;
             const Path tmpExtractPath = m_raTmpDir + "/extract";
+
+            if (!m_fileSystem->exists(tmpExtractPath))
+            {
+                try
+                {
+                    m_fileSystem->makedirs(tmpExtractPath);
+                }
+                catch (const std::exception& e)
+                {
+                    std::string error = "Unable to create path to extract file to :" + tmpExtractPath;
+                    LOGWARN(error);
+                    ActionsUtils::setErrorInfo(response, 1, error, "access_denied");
+                }
+            }
 
             try
             {
@@ -245,13 +274,26 @@ namespace ResponseActionsImpl
 
             if (ret == UNZ_OK)
             {
-                auto extractedFile = m_fileSystem->listFiles(tmpExtractPath);
-                assert(extractedFile.size() == 1);
-                m_fileSystem->makedirs(info.targetPath);
-                m_fileSystem->moveFile(extractedFile.front(), info.targetPath);
-                removeTmpFiles();
-                auto extractedFileName = Common::FileSystem::basename(extractedFile.front());
-                LOGINFO(info.targetPath << "/" << extractedFileName << " downloaded successfully");
+                auto extractedFile = m_fileSystem->listAllFilesInDirectoryTree(tmpExtractPath);
+
+                if (extractedFile.size() == 0)
+                {
+                    std::string error = "Unzip successful but no file found";
+                    LOGWARN(error);
+                    ActionsUtils::setErrorInfo(response, 1, error);
+                }
+                else if (extractedFile.size() > 1)
+                {
+                    std::string error = "Unzip successful but more than one file found in " + tmpExtractPath;
+                    LOGWARN(error);
+                    ActionsUtils::setErrorInfo(response, 1, error);
+                }
+                else
+                {
+                    makeDirAndMoveFile(response, info.targetPath, extractedFile.front());
+                    removeTmpFiles();
+                }
+
             }
             else
             {
@@ -280,13 +322,31 @@ namespace ResponseActionsImpl
         }
         else
         {
-            m_fileSystem->makedirs(info.targetPath);
-            m_fileSystem->moveFile(filePath, info.targetPath);
+            makeDirAndMoveFile(response, info.targetPath, filePath);
             removeTmpFiles();
-            auto zipFileName = Common::FileSystem::basename(filePath);
-            LOGINFO(info.targetPath << "/" << zipFileName << " downloaded successfully");
         }
     }
+
+    void DownloadFileAction::makeDirAndMoveFile(nlohmann::json& response, const Path& destPath, const Path& filePathToMove)
+    {
+        auto fileName = Common::FileSystem::basename(filePathToMove);
+        try
+        {
+            m_fileSystem->makedirs(destPath);
+            m_fileSystem->moveFile(filePathToMove, destPath + "/" + fileName);
+        }
+        catch (const std::exception& e)
+        {
+            std::stringstream error;
+            error << "Unable to make directories and move file: " << e.what();
+            LOGWARN(error.str());
+            ActionsUtils::setErrorInfo(response, 1, error.str(), "access_denied");
+            return;
+        }
+
+        LOGINFO(destPath << "/" << fileName << " downloaded successfully");
+    }
+
 
     void DownloadFileAction::handleHttpResponse(
         const Common::HttpRequests::Response& httpresponse,
