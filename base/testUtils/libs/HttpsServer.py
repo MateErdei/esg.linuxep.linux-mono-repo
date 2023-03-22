@@ -9,7 +9,6 @@ import subprocess
 import threading
 import time
 import os
-import zipfile
 
 import http.server
 
@@ -44,17 +43,28 @@ class HttpsHandler(http.server.SimpleHTTPRequestHandler):
         self.end_headers()
 
     def handle_get_request(self):
-        self.send_response(200)
-        self.send_header('Content-type', 'text/html')
-        self.end_headers()
         if self.path == "/download":
-            with open("/tmp/download.txt", 'w') as f:
-                f.write("content")
-            zipfile.ZipFile('/tmp/download.zip', mode='w').write("/tmp/download.txt")
+            self.log_message("Download action received")
+            with open("/tmp/download.zip", "rb") as file:
+                contents = file.read()
+
+            self.log_message("%s", contents)
+            self.protocol_version = 'HTTP/1.1'
+            self.send_response(200)
+            self.send_header('Content-type', "application/zip")
+            self.send_header('Content-length', len(contents))
+            self.send_header("Content-Disposition", "attachment; filename=/opt/sophos-spl/plugins/responseactions/tmp/download.zip")
+            self.end_headers()
+            self.wfile.write(contents)
+
             os.remove("/tmp/download.txt")
+            #os.remove("/tmp/download.zip")
+        else:
+            self.send_response(200)
+            self.send_header('Content-type', 'text/html')
+            self.end_headers()
 
-
-        self.wfile.write(b"<html><head><title>Response</title></head><body>Response From HttpsServer</body></html>")
+            self.wfile.write(b"<html><head><title>Response</title></head><body>Response From HttpsServer</body></html>")
 
     def handle_put_request_with_hang(self):
         self.log_message("Sleeping for 30s")
@@ -71,6 +81,7 @@ class HttpsHandler(http.server.SimpleHTTPRequestHandler):
             self.handle_request("PUT")
 
     def do_GET(self):
+        self.log_message("Received HTTP GET Request")
         self.handle_get_request()
 
 
