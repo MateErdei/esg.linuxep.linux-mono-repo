@@ -490,6 +490,7 @@ std::vector<Proxy> ConfigurationData::proxiesList() const
             auto savedProxyOpt = proxyFromSavedProxyUrl(savedProxyURL);
             if (savedProxyOpt.has_value())
             {
+                LOGDEBUG("Proxy found in saved proxy file");
                 options.emplace_back(savedProxyOpt.value());
             }
         }

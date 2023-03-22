@@ -127,6 +127,7 @@ Sul Downloader Uses Current Proxy File for SUS Requests
 
     # Stop the product so that our current_proxy file doesn't get overridden by MCS.
     Run Process   systemctl  stop  sophos-spl
+    Run Process   systemctl  stop  sophos-spl-update
 
     # Obfuscated credentials are "user", "password"
     Create File  ${CURRENT_PROXY_FILE}   {"proxy": "localhost:3129", "credentials": "CCBv6oin2yWCd1PUWKpab1GcYXBB0iC1bwnajy0O1XVvOrRTTFGiruMEz5auCd8BpbE="}
