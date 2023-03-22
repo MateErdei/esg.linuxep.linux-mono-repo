@@ -15,6 +15,8 @@ import socket
 import sys
 import subprocess
 import json
+import zipfile
+import hashlib
 
 from robot.api import logger
 from robot.libraries.BuiltIn import BuiltIn, RobotNotRunningError
@@ -330,7 +332,7 @@ def Send_Upload_File_From_Fake_Cloud(filepath="/tmp/file", compress=False, comma
                    "maxUploadSizeBytes": 1000000,
                    "expiration": 144444000000004,
                    }
-    CloudAutomation.SendToFakeCloud.sendResponseActionToFakeCloud(json.dumps(action_dict), 'PUT', command_id=command_id)
+    CloudAutomation.SendToFakeCloud.sendResponseActionToFakeCloud(json.dumps(action_dict), command_id=command_id)
 
 
 def Send_Upload_Folder_From_Fake_Cloud(folderpath="/tmp/folder", compress=False, command_id="correlation-id",
@@ -344,21 +346,26 @@ def Send_Upload_Folder_From_Fake_Cloud(folderpath="/tmp/folder", compress=False,
                    "maxUploadSizeBytes": 1000000,
                    "expiration": 144444000000004,
                    }
-    CloudAutomation.SendToFakeCloud.sendResponseActionToFakeCloud(json.dumps(action_dict), 'PUT', command_id=command_id)
+    CloudAutomation.SendToFakeCloud.sendResponseActionToFakeCloud(json.dumps(action_dict), command_id=command_id)
 
 
 def Send_Download_File_From_Fake_Cloud(decompress=False, command_id="correlation-id", password=""):
+    with open("/tmp/download.txt", 'w') as f:
+        f.write("content")
+    zipfile.ZipFile('/tmp/download.zip', mode='w').write("/tmp/download.txt")
+
+    hash = hashlib.sha256("/tmp/download.zip".encode('UTF-8')).hexdigest()
     action_dict = {"type": "sophos.mgt.action.DownloadFile",
                    "url": "https://localhost:443/download",
                    "targetPath": "/tmp/folder",
-                   "sha256": "b99a10144b974d5fcd653157edbfb4f2b9a5f9ce3e2e1ee9b2a5ef23f1aee9f4",
-                   "sizeBytes": 123,
+                   "sha256": hash,
+                   "sizeBytes": 137,
                    "decompress": decompress,
                    "password": password,
                    "expiration": 144444000000004,
                    "timeout": 60,
                    }
-    CloudAutomation.SendToFakeCloud.sendResponseActionToFakeCloud(json.dumps(action_dict), 'GET', command_id=command_id)
+    CloudAutomation.SendToFakeCloud.sendResponseActionToFakeCloud(json.dumps(action_dict), command_id=command_id)
 
 
 def verify_run_command_response(response_json_path, result, command_results=None, expect_timeout=False):
