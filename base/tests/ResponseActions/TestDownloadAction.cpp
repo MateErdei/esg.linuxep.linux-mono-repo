@@ -874,6 +874,103 @@ TEST_F(DownloadFileTests, NotEnoughSpaceOnDestDisk)
     EXPECT_TRUE(appenderContains(expectedErrStr));
 }
 
+TEST_F(DownloadFileTests, HandlesWhenCantAssessDiskSpace)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    //Success is the default errorcode
+    const std::string expectedErrStr = "Cant determine disk space on filesystem: exception";
+
+    //MockFileSystem
+    EXPECT_CALL(*m_mockFileSystem, getDiskSpaceInfo("/opt/sophos-spl/plugins/responseactions/tmp"))
+        .WillOnce(Throw(Common::FileSystem::IFileSystemException("exception")));
+    EXPECT_CALL(*m_mockFileSystem, exists(m_destPath)).WillOnce(Return(false));
+    Tests::replaceFileSystem(std::move(m_mockFileSystem));
+
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
+
+    nlohmann::json action = getDownloadObject();
+    std::string response = downloadFileAction.run(action.dump());
+    nlohmann::json responseJson = nlohmann::json::parse(response);
+
+    EXPECT_EQ(responseJson["result"], 1);
+    EXPECT_EQ(responseJson["errorMessage"], expectedErrStr);
+    EXPECT_FALSE(responseJson.contains("errorType"));
+
+    EXPECT_TRUE(appenderContains(expectedErrStr));
+}
+
+TEST_F(DownloadFileTests, HandlesWhenCantCreatePathToExtractTo)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    const bool decompress = true;
+
+    //Success is the default errorcode
+    const std::string expectedErrStr = "Unable to create path to extract file to: " + m_raExtractTmpDir + ": exception";
+
+    addResponseToMockRequester(HTTP_STATUS_OK, ResponseErrorCode::OK);
+
+    //MockFileSystem
+    addDiskSpaceExpectsToMockFileSystem();
+    addListFilesExpectsToMockFileSystem();
+    EXPECT_CALL(*m_mockFileSystem, exists(m_destPath)).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFileSystem, exists(m_raExtractTmpDir)).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFileSystem, makedirs(m_raExtractTmpDir))
+        .WillOnce(Throw(Common::FileSystem::IFileSystemException("exception")));
+    EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFileSystem, calculateDigest(Common::SslImpl::Digest::sha256, m_raTmpDir + "/" + m_testZipFile))
+        .WillOnce(Return("shastring"));
+    Tests::replaceFileSystem(std::move(m_mockFileSystem));
+
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
+
+    nlohmann::json action = getDownloadObject(decompress);
+    std::string response = downloadFileAction.run(action.dump());
+    nlohmann::json responseJson = nlohmann::json::parse(response);
+
+    EXPECT_EQ(responseJson["result"], 1);
+    EXPECT_EQ(responseJson["errorMessage"], expectedErrStr);
+    EXPECT_EQ(responseJson["errorType"], "access_denied");
+    EXPECT_EQ(responseJson["httpStatus"], HTTP_STATUS_OK);
+
+    EXPECT_TRUE(appenderContains(expectedErrStr));
+}
+
+TEST_F(DownloadFileTests, HandlesWhenCantCreateOrCopyFileToFinalDestination)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    const std::string expectedErrStr = "Unable to make directory " + m_destPath + " and move " + m_testZipFile + " to it: exception";
+
+    addResponseToMockRequester(HTTP_STATUS_OK, ResponseErrorCode::OK);
+
+    //MockFileSystem
+    addDiskSpaceExpectsToMockFileSystem();
+    addListFilesExpectsToMockFileSystem();
+    EXPECT_CALL(*m_mockFileSystem, exists(m_destPath)).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFileSystem, makedirs(m_destPath))
+        .WillOnce(Throw(Common::FileSystem::IFileSystemException("exception")));
+    EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFileSystem, calculateDigest(Common::SslImpl::Digest::sha256, m_raTmpDir + "/" + m_testZipFile))
+        .WillOnce(Return("shastring"));
+    EXPECT_CALL(*m_mockFileSystem, removeFileOrDirectory(m_raTmpDir)).Times(1);
+    Tests::replaceFileSystem(std::move(m_mockFileSystem));
+
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
+
+    nlohmann::json action = getDownloadObject();
+    std::string response = downloadFileAction.run(action.dump());
+    nlohmann::json responseJson = nlohmann::json::parse(response);
+
+    EXPECT_EQ(responseJson["result"], 1);
+    EXPECT_EQ(responseJson["errorMessage"], expectedErrStr);
+    EXPECT_EQ(responseJson["errorType"], "access_denied");
+    EXPECT_EQ(responseJson["httpStatus"], HTTP_STATUS_OK);
+
+    EXPECT_TRUE(appenderContains(expectedErrStr));
+}
+
 TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompress_NoFilesInDownloadFolder)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);

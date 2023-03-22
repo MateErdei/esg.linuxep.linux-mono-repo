@@ -109,9 +109,12 @@ namespace ResponseActionsImpl
             tmpSpaceInfo = m_fileSystem->getDiskSpaceInfo(m_raTmpDir);
             destSpaceInfo = m_fileSystem->getDiskSpaceInfo(findBaseDir(info.targetPath));
         }
-        catch (const std::exception& e)
+        catch (const Common::FileSystem::IFileSystemException& e)
         {
-            LOGERROR("Cant determine disk space on filesystem: " <<  e.what());
+            std::stringstream exception;
+            exception << "Cant determine disk space on filesystem: " <<  e.what();
+            LOGERROR(exception.str());
+            ActionsUtils::setErrorInfo(response, 1, exception.str());
             return false;
         }
         std::filesystem::space_info spaceInfoToCheck = tmpSpaceInfo.available > destSpaceInfo.available ? destSpaceInfo : tmpSpaceInfo;
@@ -247,11 +250,12 @@ namespace ResponseActionsImpl
                 {
                     m_fileSystem->makedirs(tmpExtractPath);
                 }
-                catch (const std::exception& e)
+                catch (const Common::FileSystem::IFileSystemException& e)
                 {
-                    std::string error = "Unable to create path to extract file to :" + tmpExtractPath;
+                    std::string error = "Unable to create path to extract file to: " + tmpExtractPath + ": " + e.what();
                     LOGWARN(error);
                     ActionsUtils::setErrorInfo(response, 1, error, "access_denied");
+                    return;
                 }
             }
 
@@ -335,10 +339,10 @@ namespace ResponseActionsImpl
             m_fileSystem->makedirs(destPath);
             m_fileSystem->moveFile(filePathToMove, destPath + "/" + fileName);
         }
-        catch (const std::exception& e)
+        catch (const Common::FileSystem::IFileSystemException& e)
         {
             std::stringstream error;
-            error << "Unable to make directories and move file: " << e.what();
+            error << "Unable to make directory " << destPath << " and move " << fileName << " to it: " << e.what();
             LOGWARN(error.str());
             ActionsUtils::setErrorInfo(response, 1, error.str(), "access_denied");
             return;
