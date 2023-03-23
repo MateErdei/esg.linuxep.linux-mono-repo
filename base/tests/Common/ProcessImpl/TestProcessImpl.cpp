@@ -588,5 +588,4 @@ sleep 1
         EXPECT_THAT(out, ::testing::Not(::testing::HasSubstr("This: not found")));
     }
 
-
 } // namespace

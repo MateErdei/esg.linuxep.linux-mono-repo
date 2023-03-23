@@ -25,7 +25,7 @@ namespace ResponseActionsImpl
     std::string UploadFolderAction::run(const std::string& actionJson)
     {
         nlohmann::json response;
-        response["type"] = "sophos.mgt.response.UploadFolder";
+        response["type"] = ResponseActions::RACommon::UPLOAD_FOLDER_RESPONSE_TYPE;
         UploadInfo info;
 
         try

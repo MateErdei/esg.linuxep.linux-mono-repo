@@ -6,7 +6,9 @@
 #include "RunUtils.h"
 #include "config.h"
 
-#include <Common/Logging/PluginLoggingSetup.h>
+#include "ResponseActions/RACommon/ResponseActionsCommon.h"
+
+#include "Common/Logging/PluginLoggingSetup.h"
 
 #include <iostream>
 namespace ActionRunner
@@ -25,19 +27,27 @@ namespace ActionRunner
         std::string action = argv[2];
         std::string type = argv[3];
         int returnCode = 0;
-        if (type == "sophos.mgt.action.UploadFile")
+        if (type == ResponseActions::RACommon::UPLOAD_FILE_REQUEST_TYPE)
         {
             LOGINFO("Running upload action: " << correlationId);
             std::string response = RunUtils::doUpload(action);
-            RunUtils::sendResponse(correlationId, response);
-            LOGINFO("Sent upload response for id " << correlationId << " to Central");
+            ResponseActions::RACommon::sendResponse(correlationId, response);
+            LOGINFO("Sent upload response for ID " << correlationId << " to Central");
         }
-        else if (type == "sophos.mgt.action.UploadFolder")
+        else if (type == ResponseActions::RACommon::UPLOAD_FOLDER_REQUEST_TYPE)
         {
             LOGINFO("Running upload folder action: " << correlationId);
             std::string response = RunUtils::doUploadFolder(action);
-            RunUtils::sendResponse(correlationId, response);
-            LOGINFO("Sent upload folder response for id " << correlationId << " to Central");
+            ResponseActions::RACommon::sendResponse(correlationId, response);
+            LOGINFO("Sent upload folder response for ID " << correlationId << " to Central");
+        }
+        else if (type == ResponseActions::RACommon::RUN_COMMAND_REQUEST_TYPE)
+        {
+            LOGINFO("Performing run command action: " << correlationId);
+            LOGDEBUG(action);
+            auto response = RunUtils::doRunCommand(action, correlationId);
+            ResponseActions::RACommon::sendResponse(correlationId, response);
+            LOGINFO("Sent run command response for ID " << correlationId << " to Central");
         }
         else
         {

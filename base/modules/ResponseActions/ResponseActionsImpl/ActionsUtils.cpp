@@ -92,11 +92,15 @@ namespace ResponseActionsImpl
     {
         Common::UtilityImpl::FormattedTime time;
         u_int64_t currentTime = time.currentEpochTimeInSecondsAsInteger();
-        
+
         return (currentTime > expiry);
     }
 
-    void ActionsUtils::setErrorInfo(nlohmann::json& response, int result, const std::string& errorMessage,const std::string& errorType)
+    void ActionsUtils::setErrorInfo(
+        nlohmann::json& response,
+        int result,
+        const std::string& errorMessage,
+        const std::string& errorType)
     {
         response["result"] = result;
         if (!errorType.empty())

@@ -26,6 +26,7 @@ Install Response Actions Directly
     ...  1 secs
     ...  Check Response Actions Executable Running
     wait_for_log_contains_from_mark  ${mark}  Entering the main loop
+
 Uninstall Response Actions
     ${result} =  Run Process     ${RESPONSE_ACTIONS_DIR}/bin/uninstall.sh
     Should Be Equal As Strings   ${result.rc}  0
@@ -65,12 +66,13 @@ RA Suite Teardown
     Stop Local Cloud Server
     Require Uninstalled
 
+# Upload tests keywords
 RA Upload Suite Setup
     Start Local Cloud Server
     Regenerate Certificates
     Set Local CA Environment Variable
     Run Full Installer
-    Create File    ${MCS_DIR}/certs/ca_env_override_flag
+    Create File  ${MCS_DIR}/certs/ca_env_override_flag
 
 RA Upload Test Setup
     Require Installed
@@ -78,7 +80,6 @@ RA Upload Test Setup
     install_system_ca_cert  /tmp/cert.crt
     install_system_ca_cert  /tmp/ca.crt
     Install Response Actions Directly
-    Create File    ${MCS_DIR}/certs/ca_env_override_flag
 
 RA Upload Test Teardown
     General Test Teardown
@@ -90,3 +91,13 @@ RA Upload Test Teardown
     Remove File  ${EXE_CONFIG_FILE}
     Run Keyword If Test Failed    Dump Cloud Server Log
     Remove File   /tmp/upload.zip
+
+# Run Command tests keywords
+RA Run Command Suite Setup
+    Start Local Cloud Server
+    Regenerate Certificates
+    Set Local CA Environment Variable
+    Run Full Installer
+    Install Response Actions Directly
+    Create File  ${MCS_DIR}/certs/ca_env_override_flag
+    Register With Local Cloud Server

@@ -6,7 +6,7 @@ Resource  ../mcs_router/McsRouterResources.robot
 
 Library    ${LIBS_DIRECTORY}/MCSRouter.py
 Library    ${LIBS_DIRECTORY}/OnFail.py
-Library     ${LIBS_DIRECTORY}/CentralUtils.py
+Library    ${LIBS_DIRECTORY}/CentralUtils.py
 Suite Setup     RA Upload Action Suite Setup
 Suite Teardown  RA Suite Teardown
 
@@ -23,8 +23,8 @@ RA Plugin uploads a file successfully
     Create File  /tmp/file  tempfilecontent
     Register Cleanup  Remove File  /tmp/file
     Send_Upload_File_From_Fake_Cloud
-    wait_for_log_contains_from_mark  ${response_mark}  Action correlation-id has succeeded   60
-    wait_for_log_contains_from_mark  ${action_mark}  Sent upload response for id correlation-id to Centra   15
+    wait_for_log_contains_from_mark  ${response_mark}  Action correlation-id has succeeded   25
+    wait_for_log_contains_from_mark  ${action_mark}  Sent upload response for ID correlation-id to Centra   15
     wait_for_log_contains_from_mark  ${action_mark}   Upload for /tmp/file succeeded
 
     Check Log Contains  Received HTTP PUT Request  ${HTTPS_LOG_FILE_PATH}  https server log
@@ -58,8 +58,8 @@ RA Plugin uploads a file successfully with compression
     Create File  /tmp/file  tempfilecontent
     Register Cleanup  Remove File  /tmp/file
     Send_Upload_File_From_Fake_Cloud   /tmp/file  ${TRUE}  corrid  password
-    wait_for_log_contains_from_mark  ${response_mark}  Action corrid has succeeded   60
-    wait_for_log_contains_from_mark  ${action_mark}  Sent upload response for id corrid to Centra   15
+    wait_for_log_contains_from_mark  ${response_mark}  Action corrid has succeeded   25
+    wait_for_log_contains_from_mark  ${action_mark}  Sent upload response for ID corrid to Centra   15
 
     File Should exist  /tmp/upload.zip
     Create Directory  /tmp/unpackzip/
@@ -79,8 +79,8 @@ RA Plugin uploads a folder successfully with compression
     Create File  /tmp/compressionTest/file.txt  tempfilecontent
     Register Cleanup  Remove Directory  /tmp/compressionTest
     Send_Upload_Folder_From_Fake_Cloud   /tmp/compressionTest  ${TRUE}  corrid  password
-    wait_for_log_contains_from_mark  ${response_mark}  Action corrid has succeeded   60
-    wait_for_log_contains_from_mark  ${action_mark}  Sent upload folder response for id corrid to Central   15
+    wait_for_log_contains_from_mark  ${response_mark}  Action corrid has succeeded   25
+    wait_for_log_contains_from_mark  ${action_mark}  Sent upload folder response for ID corrid to Central   15
     File Should exist  /tmp/upload.zip
     Create Directory  /tmp/unpackzip/
     Register Cleanup  Remove Directory  /tmp/unpackzip/
@@ -91,6 +91,8 @@ RA Plugin uploads a folder successfully with compression
     Should Be Equal As Integers    ${result.rc}    0   "zip utility failed: Reason ${result.stderr}"
     File Should exist  /tmp/unpackzip/file
     File Should Contain  /tmp/unpackzip/file     tempfilecontent
+
+
 *** Keywords ***
 Simulate Upload Action Now
     [Arguments]  ${id_suffix}=id1

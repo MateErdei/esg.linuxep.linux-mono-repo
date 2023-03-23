@@ -18,10 +18,10 @@ namespace ResponseActionsImpl
 
     private:
         std::shared_ptr<Common::HttpRequests::IHttpRequester> m_client;
-        void handleHttpResponse(const Common::HttpRequests::Response& httpresponse, nlohmann::json& response);
+        void handleHttpResponse(const Common::HttpRequests::Response& httpResponse, nlohmann::json& response);
         void prepareAndUpload(const UploadInfo& info, nlohmann::json& response);
         std::string m_filename;
         std::string m_pathToUpload;
     };
 
-}
+} // namespace ResponseActionsImpl

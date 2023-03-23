@@ -1,0 +1,9 @@
+{
+  "type": "sophos.mgt.action.RunCommands",
+  "commands": [
+  "head -c 10000000 < /dev/zero | tr '\\0' '\\141'"
+  ],
+  "ignoreError": false,
+  "timeout": 30,
+  "expiration": 144444000000004
+}

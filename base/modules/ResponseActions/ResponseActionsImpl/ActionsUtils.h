@@ -4,7 +4,6 @@
 #include "ActionStructs.h"
 
 #include <json.hpp>
-
 #include <string>
 namespace ResponseActionsImpl
 {
@@ -20,5 +19,4 @@ namespace ResponseActionsImpl
             const std::string& errorType = "");
         static void resetErrorInfo(nlohmann::json& response);
     };
-}
-
+} // namespace ResponseActionsImpl

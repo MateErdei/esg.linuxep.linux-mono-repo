@@ -1,14 +1,17 @@
 // Copyright 2023 Sophos Limited. All rights reserved.
 
+#include "modules/Common/UtilityImpl/TimeUtils.h"
 #include "modules/ResponseActions/ResponseActionsImpl/ActionsUtils.h"
 #include "modules/ResponseActions/ResponseActionsImpl/InvalidCommandFormat.h"
-#include "modules/Common/UtilityImpl/TimeUtils.h"
-
+#include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
 #include "tests/Common/Helpers/MemoryAppender.h"
+#include "tests/Common/Helpers/MockFilePermissions.h"
+#include "tests/Common/Helpers/MockFileSystem.h"
+
+#include <gmock/gmock.h>
+#include <gtest/gtest.h>
 
 #include <json.hpp>
-#include <gtest/gtest.h>
-#include <gmock/gmock.h>
 
 class ActionsUtilsTests : public MemoryAppenderUsingTests
 {
@@ -153,4 +156,18 @@ TEST_F(ActionsUtilsTests, testFailedParseMissingTargetFile)
     nlohmann::json action = getDefaultUploadObject(ResponseActionsImpl::UploadType::FILE);
     action.erase("targetFile");
     EXPECT_THROW(ResponseActionsImpl::ActionsUtils::readUploadAction(action.dump(),ResponseActionsImpl::UploadType::FILE),ResponseActionsImpl::InvalidCommandFormat);
+}
+
+TEST_F(ActionsUtilsTests, testSendResponse)
+{
+    auto mockFileSystem = new NaggyMock<MockFileSystem>();
+    auto mockFilePermissions = new NaggyMock<MockFilePermissions>();
+    EXPECT_CALL(*mockFileSystem, writeFile(_, "content"));
+    EXPECT_CALL(*mockFilePermissions, chown(_, "sophos-spl-user", "sophos-spl-group"));
+    EXPECT_CALL(*mockFilePermissions, chmod(_, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP));
+    EXPECT_CALL(*mockFileSystem, moveFile(_, "/opt/sophos-spl/base/mcs/response/CORE_correlation_id_response.json"));
+    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>{ mockFileSystem });
+    Tests::replaceFilePermissions(std::unique_ptr<Common::FileSystem::IFilePermissions>{mockFilePermissions});
+
+    ResponseActions::RACommon::sendResponse("correlation_id", "content");
 }

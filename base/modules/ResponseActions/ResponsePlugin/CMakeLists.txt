@@ -3,12 +3,14 @@ configure_file(config.h.in config.h )
 add_library(responseplugin SHARED
         ActionRunner.cpp
         ActionRunner.h
+        ActionType.h
         ApplicationPaths.cpp
         ApplicationPaths.h
-        ActionType.h
+        ../RACommon/ResponseActionsCommon.h
+        ../RACommon/ResponseActionsCommon.cpp
         IActionRunner.h
-        Logger.h
         Logger.cpp
+        Logger.h
         PluginAdapter.cpp
         PluginAdapter.h
         PluginCallback.cpp
@@ -18,7 +20,8 @@ add_library(responseplugin SHARED
         TaskQueue.cpp
         TaskQueue.h
         Telemetry.cpp
-        Telemetry.h)
+        Telemetry.h
+        )
 
 include_directories(responseplugin BEFORE ${CMAKE_CURRENT_BINARY_DIR} ${LOG4CPLUS_INCLUDE_DIR} ${NLOHMANN_JSON_INCLUDE_DIR})
 

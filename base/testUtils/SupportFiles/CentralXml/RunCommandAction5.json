@@ -1,0 +1,12 @@
+{
+  "type": "sophos.mgt.action.RunCommands",
+  "commands": [
+    "echo -n command 1",
+    "echo -n command 2",
+    "echo -n command 3",
+    "echo -n command 4"
+  ],
+  "ignoreError": true,
+  "timeout": 3,
+  "expiration": 144444000000004
+}

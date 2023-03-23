@@ -5,6 +5,8 @@ add_library(responseactionmain SHARED
         RunUtils.h
         Logger.cpp
         Logger.h
+        ../RACommon/ResponseActionsCommon.h
+        ../RACommon/ResponseActionsCommon.cpp
         )
 configure_file(config.h.in config.h)
 include_directories(responseactionmain BEFORE ${CMAKE_CURRENT_BINARY_DIR} ${LOG4CPLUS_INCLUDE_DIR} ${NLOHMANN_JSON_INCLUDE_DIR})

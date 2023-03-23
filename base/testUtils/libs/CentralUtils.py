@@ -23,6 +23,7 @@ from robot.libraries.BuiltIn import BuiltIn, RobotNotRunningError
 os.environ.setdefault("TMPROOT", "/tmp")
 
 import PathManager
+
 PathManager.addPathToSysPath(PathManager.SUPPORTFILEPATH)
 
 import CloudAutomation.cloudClient
@@ -135,8 +136,9 @@ def cloud_command_expecting_zero(*args, **kwargs):
     if ret != 0:
         raise AssertionError("Cloud command failed: {} {} with {}".format(args, kwargs, ret))
 
+
 def cloud_command_wait_for_host(*args):
-    return cloud_command(*args,wait_for_host=True)
+    return cloud_command(*args, wait_for_host=True)
 
 
 def getClient(**kwargs):
@@ -241,7 +243,8 @@ def get_sspl_thinstaller_url():
 
 
 def get_sspl_registration():
-    bashfile = os.path.join(PathManager.get_support_file_path() ,"CloudAutomation/BashScripts/getSSPLInstallerandCommand.sh")
+    bashfile = os.path.join(PathManager.get_support_file_path(),
+                            "CloudAutomation/BashScripts/getSSPLInstallerandCommand.sh")
     command = ["bash", bashfile, get_sspl_thinstaller_url()]
     process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     stdout = process.communicate()[0]
@@ -255,14 +258,14 @@ def get_sspl_registration():
 def get_registration_token_and_url():
     command = get_registration_command()
     args = command.split()
-    return (args[1],args[2])
+    return (args[1], args[2])
 
 
 def delete_updating_policy_for_hostname(hostname=None):
     client = getClient()
     hostname = CloudAutomation.cloudClient.host(hostname)
     output = client.deleteUpdatingPolicyForHostname(hostname)
-    print(output,file=sys.stderr)
+    print(output, file=sys.stderr)
     return 0
 
 
@@ -270,7 +273,7 @@ def Delete_Server_From_Cloud(hostname=None):
     client = getClient()
     hostname = CloudAutomation.cloudClient.host(hostname)
     output = client.deleteServerByName(hostname)
-    print(output,file=sys.stderr)
+    print(output, file=sys.stderr)
     return 0
 
 
@@ -316,6 +319,7 @@ def Send_Query_From_Fake_Cloud(name, query, command_id="correlation-id"):
                   "query": query}
     CloudAutomation.SendToFakeCloud.sendLiveQueryToFakeCloud(json.dumps(query_dict), command_id=command_id)
 
+
 def Send_Upload_File_From_Fake_Cloud(filepath="/tmp/file", compress=False, command_id="correlation-id", password=""):
     action_dict = {"type": "sophos.mgt.action.UploadFile",
                    "url": "https://localhost:443/upload",
@@ -343,12 +347,57 @@ def Send_Upload_Folder_From_Fake_Cloud(folderpath="/tmp/folder", compress=False,
     CloudAutomation.SendToFakeCloud.sendResponseActionToFakeCloud(json.dumps(action_dict), command_id=command_id)
 
 
+def verify_run_command_response(response_json_path, result, command_results=None, expect_timeout=False):
+
+    if command_results is None:
+        command_results = []
+
+    with open(response_json_path) as response_json_file:
+        response = json.loads(response_json_file.read())
+
+    if response["type"] != "sophos.mgt.response.RunCommands":
+        raise AssertionError("type does not equal sophos.mgt.response.RunCommands")
+
+    if response["result"] != result:
+        raise AssertionError(f"result not equal {response['result']} != {result}")
+
+    # If there was a timeout then certain fields will not be populated
+    if not expect_timeout:
+
+        # Ignore duration to stop flaky tests
+        for result in response["commandResults"]:
+            result["duration"] = 0
+        for result in command_results:
+            result["duration"] = 0
+        if response["commandResults"] != command_results:
+            raise AssertionError(f"commandResults not equal {response['commandResults']} != {command_results}")
+
+        # Simple check to make sure started at is reasonable (within last 300 seconds)
+        if abs(response["startedAt"] - int(time.time())) > 300:
+            raise AssertionError(f"startedAt more than 300 seconds ago: {response['startedAt']}")
+
+        # Simple check to make sure duration is reasonable (0 to 100 seconds)
+        if response["duration"] < 0 or response["duration"] > 100:
+            raise AssertionError(f"duration not between 0 and 100 {response['duration']}")
+
+
+def send_run_command_action_from_fake_cloud(commands, ignore_error=True, timeout=60, expiration=2783256334,
+                                            command_id="corrid"):
+    action_dict = {"type": "sophos.mgt.action.RunCommands",
+                   "commands": commands,
+                   "ignoreError": ignore_error,
+                   "timeout": timeout,
+                   "expiration": expiration, }
+    CloudAutomation.SendToFakeCloud.sendResponseActionToFakeCloud(json.dumps(action_dict), command_id=command_id)
+
+
 def Set_Local_CA_Environment_Variable():
     MCS_CA = os.path.join(PathManager.get_support_file_path(), "CloudAutomation", "root-ca.crt.pem")
     if os.path.exists("/home/bullseye"):
         shutil.copy(MCS_CA, "/tmp/root-ca.crt.pem")
         MCS_CA = "/tmp/root-ca.crt.pem"
     Set_MCS_CA_Environment_Variable(MCS_CA)
+
 
 def getSophosGID():
     try:
@@ -362,10 +411,10 @@ def copyCAToTempFile(srcfile):
     return cert
 
 
-def copy_CA_to_file(srcfile,destination):
+def copy_CA_to_file(srcfile, destination):
     MCS_CA = srcfile
 
-    mcs_cert=os.path.join(destination, os.path.basename(srcfile))
+    mcs_cert = os.path.join(destination, os.path.basename(srcfile))
 
     shutil.copy(MCS_CA, mcs_cert)
     assert os.path.isfile(mcs_cert)
@@ -382,6 +431,7 @@ def copy_CA_to_file(srcfile,destination):
 
     return mcs_cert
 
+
 def Setup_MCS_CA_with_incorrect_permissions(cert_source):
     tmp_path = os.path.join("/tmp", "tempcertdir")
     os.makedirs(tmp_path)
@@ -391,6 +441,7 @@ def Setup_MCS_CA_with_incorrect_permissions(cert_source):
     cert_path = os.path.join(tmp_path, os.path.basename(cert_source))
 
     Set_MCS_CA_Environment_Variable(cert_path)
+
 
 def Set_System_test_MCS_CA_Environment_Variable(ca_base_name):
     import SystemProductTestOutputInstall
@@ -448,6 +499,7 @@ def Unset_CA_Environment_Variable():
     except KeyError:
         pass
 
+
 def check_server_last_success_update_time(start_time, hostname=None):
     client = getClient()
     client.options.hostname = CloudAutomation.cloudClient.host(hostname)
@@ -466,7 +518,7 @@ def update_now(hostname=None):
     client.updateNow(CloudAutomation.cloudClient.host(hostname))
 
 
-def set_scheduled_update_time(day,hour,hostname=None):
+def set_scheduled_update_time(day, hour, hostname=None):
     client = getClient()
     client.options.hostname = CloudAutomation.cloudClient.host(hostname)
     client.setDelayedUpdatePolicy(client.options.hostname, day, hour)
@@ -562,9 +614,9 @@ def dump_Appserver_Log(APPSERVER_LINES=2000):
     APPSERVER_PORT = os.environ.get("APPSERVER_PORT", None)
 
     if APPSERVER_PORT:
-        SSH_LINE="[sandbox.sophos]:{}".format(APPSERVER_PORT)
+        SSH_LINE = "[sandbox.sophos]:{}".format(APPSERVER_PORT)
     else:
-        SSH_LINE="sandbox.sophos"
+        SSH_LINE = "sandbox.sophos"
 
     if os.path.isfile("/root/.ssh/known_hosts"):
         subprocess.check_call(["ssh-keygen", "-f", "/root/.ssh/known_hosts", "-R", SSH_LINE])
@@ -572,9 +624,9 @@ def dump_Appserver_Log(APPSERVER_LINES=2000):
     login = OPTIONS.login
 
     SUPPORTFILEPATH = PathManager.get_support_file_path()
-    assert(os.path.isdir(SUPPORTFILEPATH))
-    APPSERVER_KEYFILE=os.path.join(SUPPORTFILEPATH, "nova", "rsa-key-appserver-log-sandbox.pem")
-    assert(os.path.isfile(APPSERVER_KEYFILE))
+    assert (os.path.isdir(SUPPORTFILEPATH))
+    APPSERVER_KEYFILE = os.path.join(SUPPORTFILEPATH, "nova", "rsa-key-appserver-log-sandbox.pem")
+    assert (os.path.isfile(APPSERVER_KEYFILE))
     os.chmod(APPSERVER_KEYFILE, 0o600)
 
     command = ["ssh",
@@ -617,7 +669,8 @@ def set_ostia_credentials():
 
 def set_ostia_ga_credentials():
     client = getClient()
-    client.setUpdateCreds("ga_mtr_user", "password", "https://ostia.eng.sophos/latest/sspl-warehouse/feature-GA-milestone/")
+    client.setUpdateCreds("ga_mtr_user", "password",
+                          "https://ostia.eng.sophos/latest/sspl-warehouse/feature-GA-milestone/")
 
 
 def check_central_clock():

@@ -9,6 +9,8 @@ add_library(responseactionsimpl SHARED
         UploadFileAction.h
         UploadFolderAction.cpp
         UploadFolderAction.h
+        RunCommandAction.cpp
+        RunCommandAction.h
         )
 
 include_directories(responseactionsimpl BEFORE ${CMAKE_CURRENT_BINARY_DIR} ${LOG4CPLUS_INCLUDE_DIR} ${NLOHMANN_JSON_INCLUDE_DIR})
@@ -20,7 +22,8 @@ target_link_libraries(responseactionsimpl PUBLIC
         HttpRequestsImpl
         curlwrapper
         filesystemimplobject
-        ziputilities)
+        ziputilities
+        processimpl)
 
 SET_TARGET_PROPERTIES(responseactionsimpl
         PROPERTIES

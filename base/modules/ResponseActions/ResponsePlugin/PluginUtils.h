@@ -13,6 +13,10 @@ namespace ResponsePlugin
     public:
         PluginUtils() = default;
         ~PluginUtils() = default;
+
+        /*
+         * Returns the action type and the timeout in seconds
+         */
         static std::pair<std::string, int> getType(const std::string& actionJson);
     };
 

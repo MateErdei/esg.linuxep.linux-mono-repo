@@ -15,13 +15,15 @@
 
 namespace ResponseActionsImpl
 {
-    UploadFileAction::UploadFileAction(std::shared_ptr<Common::HttpRequests::IHttpRequester> client):
-        m_client(std::move(client)){}
+    UploadFileAction::UploadFileAction(std::shared_ptr<Common::HttpRequests::IHttpRequester> client) :
+        m_client(std::move(client))
+    {
+    }
 
     std::string UploadFileAction::run(const std::string& actionJson)
     {
         nlohmann::json response;
-        response["type"] = "sophos.mgt.response.UploadFile";
+        response["type"] = ResponseActions::RACommon::UPLOAD_FILE_RESPONSE_TYPE;
         UploadInfo info;
 
         try
@@ -31,7 +33,10 @@ namespace ResponseActionsImpl
         catch (const InvalidCommandFormat& exception)
         {
             LOGWARN(exception.what());
-            ActionsUtils::setErrorInfo(response, 1, "Error parsing command from Central");
+            ActionsUtils::setErrorInfo(
+                response,
+                static_cast<int>(ResponseActions::RACommon::ResponseResult::ERROR),
+                "Error parsing command from Central");
             return response.dump();
         }
 
@@ -39,7 +44,8 @@ namespace ResponseActionsImpl
         {
             std::string error = "Action has expired";
             LOGWARN(error);
-            ActionsUtils::setErrorInfo(response,4,error);
+            ActionsUtils::setErrorInfo(
+                response, static_cast<int>(ResponseActions::RACommon::ResponseResult::EXPIRED), error);
             return response.dump();
         }
 
@@ -48,7 +54,8 @@ namespace ResponseActionsImpl
         {
             std::string error = info.targetPath + " is not a file";
             LOGWARN(error);
-            ActionsUtils::setErrorInfo(response, 1, error, "invalid_path");
+            ActionsUtils::setErrorInfo(
+                response, static_cast<int>(ResponseActions::RACommon::ResponseResult::ERROR), error, "invalid_path");
             return response.dump();
         }
 
@@ -104,7 +111,8 @@ namespace ResponseActionsImpl
                 std::stringstream error;
                 error << "Error zipping " << info.targetPath;
                 LOGWARN(error.str());
-                ActionsUtils::setErrorInfo(response, 3, error.str());
+                ActionsUtils::setErrorInfo(
+                    response, static_cast<int>(ResponseActions::RACommon::ResponseResult::INTERNAL_ERROR), error.str());
                 return;
             }
         }
@@ -120,7 +128,11 @@ namespace ResponseActionsImpl
             error << "File at path " << m_pathToUpload + " is size " << response["sizeBytes"]
                   << " bytes which is above the size limit " << info.maxSize << " bytes";
             LOGWARN(error.str());
-            ActionsUtils::setErrorInfo(response, 1, error.str(), "exceed_size_limit");
+            ActionsUtils::setErrorInfo(
+                response,
+                static_cast<int>(ResponseActions::RACommon::ResponseResult::ERROR),
+                error.str(),
+                "exceed_size_limit");
             return;
         }
 
@@ -133,14 +145,16 @@ namespace ResponseActionsImpl
         catch (const Common::FileSystem::IFileSystemException&)
         {
             std::string error = "File to be uploaded cannot be accessed";
-            ActionsUtils::setErrorInfo(response, 1, error, "access_denied");
+            ActionsUtils::setErrorInfo(
+                response, static_cast<int>(ResponseActions::RACommon::ResponseResult::ERROR), error, "access_denied");
             return;
         }
         catch (const std::exception& exception)
         {
             std::stringstream error;
             error << "Unknown error when calculating digest of file :" << exception.what();
-            ActionsUtils::setErrorInfo(response, 1, error.str());
+            ActionsUtils::setErrorInfo(
+                response, static_cast<int>(ResponseActions::RACommon::ResponseResult::ERROR), error.str());
             return;
         }
 
@@ -182,19 +196,20 @@ namespace ResponseActionsImpl
     }
 
     void UploadFileAction::handleHttpResponse(
-        const Common::HttpRequests::Response& httpresponse,
+        const Common::HttpRequests::Response& httpResponse,
         nlohmann::json& response)
     {
-        if (httpresponse.errorCode == Common::HttpRequests::ResponseErrorCode::TIMEOUT)
+        if (httpResponse.errorCode == Common::HttpRequests::ResponseErrorCode::TIMEOUT)
         {
             std::stringstream error;
             error << "Timeout Uploading file: " << m_filename;
             LOGWARN(error.str());
-            ActionsUtils::setErrorInfo(response, 2, error.str());
+            ActionsUtils::setErrorInfo(
+                response, static_cast<int>(ResponseActions::RACommon::ResponseResult::TIMEOUT), error.str());
         }
-        else if (httpresponse.errorCode == Common::HttpRequests::ResponseErrorCode::OK)
+        else if (httpResponse.errorCode == Common::HttpRequests::ResponseErrorCode::OK)
         {
-            if (httpresponse.status == Common::HttpRequests::HTTP_STATUS_OK)
+            if (httpResponse.status == Common::HttpRequests::HTTP_STATUS_OK)
             {
                 response["result"] = 0;
                 LOGINFO("Upload for " << m_pathToUpload << " succeeded");
@@ -202,17 +217,25 @@ namespace ResponseActionsImpl
             else
             {
                 std::stringstream error;
-                error << "Failed to upload file: " << m_filename << " with http error code " << httpresponse.status;
+                error << "Failed to upload file: " << m_filename << " with http error code " << httpResponse.status;
                 LOGWARN(error.str());
-                ActionsUtils::setErrorInfo(response, 1, error.str(), "network_error");
+                ActionsUtils::setErrorInfo(
+                    response,
+                    static_cast<int>(ResponseActions::RACommon::ResponseResult::ERROR),
+                    error.str(),
+                    "network_error");
             }
         }
         else
         {
             std::stringstream error;
-            error << "Failed to upload file: " << m_filename << " with error: " << httpresponse.error;
+            error << "Failed to upload file: " << m_filename << " with error: " << httpResponse.error;
             LOGWARN(error.str());
-            ActionsUtils::setErrorInfo(response, 1, error.str(), "network_error");
+            ActionsUtils::setErrorInfo(
+                response,
+                static_cast<int>(ResponseActions::RACommon::ResponseResult::ERROR),
+                error.str(),
+                "network_error");
         }
     }
-}
+} // namespace ResponseActionsImpl

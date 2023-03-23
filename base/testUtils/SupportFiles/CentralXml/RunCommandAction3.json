@@ -1,0 +1,11 @@
+{
+  "type": "sophos.mgt.action.RunCommands",
+  "commands": [
+    "echo -n hello",
+    "exit 1",
+    "echo -n I will run"
+  ],
+  "ignoreError": true,
+  "timeout": 60,
+  "expiration": 144444000000004
+}

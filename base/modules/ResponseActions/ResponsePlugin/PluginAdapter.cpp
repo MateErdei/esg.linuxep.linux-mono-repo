@@ -73,19 +73,19 @@ namespace ResponsePlugin
     {
         LOGINFO("Running action: " << correlationId);
         LOGDEBUG("Process action: " << action);
-        std::pair<std::string, int> actionInfo = PluginUtils::getType(action);
-        if (actionInfo.second == -1)
+        auto [actionType, timeout] = PluginUtils::getType(action);
+        if (timeout == -1)
         {
-            LOGWARN("Action does not have a valid timeout set discarding it : " << action);
+            LOGWARN("Action does not have a valid timeout set discarding it: " << action);
             return;
         }
-        if (actionInfo.first == "")
+        if (actionType.empty())
         {
             LOGWARN("Throwing away unknown action: " << action);
             return;
         }
 
-        m_runner->runAction(action, correlationId, actionInfo.first, actionInfo.second);
+        m_runner->runAction(action, correlationId, actionType, timeout);
     }
 
 } // namespace ResponsePlugin
