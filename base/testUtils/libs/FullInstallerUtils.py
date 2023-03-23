@@ -495,11 +495,13 @@ def Uninstall_SSPL(installdir=None, replaceUninstaller=False):
     counter = 0
     if os.path.isdir(installdir):
         p = os.path.join(installdir, "bin", "uninstall.sh")
-        if replaceUninstaller:
-            os.environ["SOPHOS_INSTALL"] = installdir
-            p = os.path.join(PathManager.get_support_file_path(), "DebugUninstall.sh")
-
         if os.path.isfile(p):
+            if replaceUninstaller:
+                # Only replace the uninstaller if the original exists!
+                os.environ["SOPHOS_INSTALL"] = installdir
+                p = os.path.join(PathManager.get_support_file_path(), "DebugUninstall.sh")
+                assert os.path.isfile(p)
+
             try:
                 contents, returncode = run_proc_with_safe_output(['bash', '-x', p, '--force'])
                 uninstaller_executed = True
