@@ -354,17 +354,21 @@ def Send_Download_File_From_Fake_Cloud(decompress=False, command_id="correlation
         f.write("content")
     zipfile.ZipFile('/tmp/download.zip', mode='w').write("/tmp/download.txt")
 
-    hash = hashlib.sha256("/tmp/download.zip".encode('UTF-8')).hexdigest()
+    with open("/tmp/download.zip", 'rb') as zf:
+        contents = zf.read()
+        readable_hash = hashlib.sha256(contents).hexdigest()
+
+
     action_dict = {"type": "sophos.mgt.action.DownloadFile",
-                   "url": "https://localhost:443/download",
-                   "targetPath": "/tmp/folder",
-                   "sha256": hash,
-                   "sizeBytes": 137,
-                   "decompress": decompress,
-                   "password": password,
-                   "expiration": 144444000000004,
-                   "timeout": 60,
-                   }
+           "url": "https://localhost:443/download",
+           "targetPath": "/tmp/folder",
+           "sha256": readable_hash,
+           "sizeBytes": len(contents),
+           "decompress": decompress,
+           "password": password,
+           "expiration": 144444000000004,
+           "timeout": 60,
+           }
     CloudAutomation.SendToFakeCloud.sendResponseActionToFakeCloud(json.dumps(action_dict), command_id=command_id)
 
 

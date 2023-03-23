@@ -222,7 +222,6 @@ namespace ResponseActionsImpl
         assert(info.sha256 != "");
         assert(fileSha != "");
 
-        //LOGINFO(info.targetPath); //For test purposes so info is used
         if (fileSha != info.sha256)
         {
             std::stringstream shaError;

@@ -24,7 +24,6 @@ ${DOWNLOAD_FILENAME_TXT}    download.txt
 
 *** Test Cases ***
 RA Plugin downloads a file successfully
-    [Tags]    TESTFAILURE
     ${response_mark} =  mark_log_size  ${RESPONSE_ACTIONS_LOG_PATH}
     ${action_mark} =  mark_log_size  ${ACTIONS_RUNNER_LOG_PATH}
     Register Cleanup  Remove Directory    /tmp/folder/  recursive=${TRUE}
@@ -47,7 +46,6 @@ RA Plugin downloads a file successfully
 
 
 RA Plugin downloads a file successfully with decompression
-    [Tags]    TESTFAILURE
     ${response_mark} =  mark_log_size  ${RESPONSE_ACTIONS_LOG_PATH}
     ${action_mark} =  mark_log_size  ${ACTIONS_RUNNER_LOG_PATH}
     Register Cleanup  Remove Directory  /tmp/folder  recursive=${TRUE}
