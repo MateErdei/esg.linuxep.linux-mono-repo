@@ -48,7 +48,6 @@ set(VERSIG_INPUT ${REDIST}/versig)
 
 #curl Library
 set(CURL_INPUT ${REDIST}/curl)
-set(CURL_LIBRARY -L${CURL_INPUT} -lcurl)
 
 #For central Registration
 set(MCS_LIBRARY_INPUT ${REDIST}/mcslibrary)
@@ -59,16 +58,29 @@ file(GLOB zmqlib ${MCS_LIBRARY_DIR}/libzmq.so.*)
 file(GLOB log4cpluslib ${MCS_LIBRARY_DIR}/liblog4cplus-*.so.*)
 file(GLOB protobuflib ${MCS_LIBRARY_DIR}/libprotobuf.so.*)
 set(expatlib ${MCS_LIBRARY_DIR}/libexpat.so)
-set(openssl_ssllib ${MCS_LIBRARY_DIR}/libssl.so.1.1)
-set(openssl_cryptolib ${MCS_LIBRARY_DIR}/libcrypto.so.1.1)
+set(openssl_ssllib ${MCS_LIBRARY_DIR}/libssl.so.3)
+set(openssl_cryptolib ${MCS_LIBRARY_DIR}/libcrypto.so.3)
 set(zlib ${MCS_LIBRARY_DIR}/libzlib.so)
 
 #Pluginapi (for common code)
 set(PLUGINAPI_LIBRARY_INPUT ${REDIST}/pluginapi)
 set(PLUGINAPI_LIBRARY_INCLUDE ${PLUGINAPI_LIBRARY_INPUT}/include)
 
+function(add_imported_library name type location include_directory)
+    add_library(${name} ${type} IMPORTED)
+    set_target_properties(${name} PROPERTIES IMPORTED_LOCATION ${location})
+    if(${type} STREQUAL SHARED)
+        set_target_properties(${name} PROPERTIES IMPORTED_NO_SONAME TRUE)
+    endif()
+    target_include_directories(${name} INTERFACE ${include_directory})
+endfunction()
+
+add_imported_library(curl SHARED ${CURL_INPUT}/libcurl.so ${CURL_INPUT}/include)
+target_include_directories(curl INTERFACE ${CURL_INPUT}/include/curl) # Extra search path to allow #include <curl.h>
+target_link_libraries(curl INTERFACE ${openssl_cryptolib})
+
 #Include dirs
-include_directories(BEFORE ${CURL_INPUT}/include/curl ${MCS_LIBRARY_INCLUDE} ${PLUGINAPI_LIBRARY_INCLUDE})
+include_directories(BEFORE ${MCS_LIBRARY_INCLUDE} ${PLUGINAPI_LIBRARY_INCLUDE})
 
 # Set flags
 set(CMAKE_EXE_LINKER_FLAGS -Wl,-rpath,\$ORIGIN/../lib64)
@@ -77,7 +89,9 @@ set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Wall -fstack-protector-all")
 add_executable(installer installer.cpp)
 
 target_include_directories(installer PUBLIC ${MCS_LIBRARY_DIR}  ${PLUGINAPI_LIBRARY_INCLUDE} )
-target_link_libraries(installer PUBLIC  ${CURL_LIBRARY} ${MCS_LIBRARY}
+target_link_libraries(installer PUBLIC
+        curl
+        ${MCS_LIBRARY}
         libcmcsrouterapi.so
         libcurlwrapper.so
         ${zmqlib}
@@ -129,6 +143,8 @@ add_custom_target(
         COMMAND cp -a ${openssl_cryptolib} ${libs_dir}/
         COMMAND cp -a ${expatlib} ${libs_dir}/
         COMMAND cp -a ${zlib} ${libs_dir}/
+        COMMAND cp -a ${REDIST}/openssl/lib64/libcrypto.so.1.1 ${libs_dir}/
+        COMMAND cp -a ${REDIST}/openssl/lib64/libssl.so.1.1 ${libs_dir}/
         COMMAND cp -a ${libstdcpp_path} ${libs_dir}/
         COMMAND cp -a ${libatomic_path} ${libs_dir}/
         COMMAND cp -a ${libgcc_s_path} ${libs_dir}/
