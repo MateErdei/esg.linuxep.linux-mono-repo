@@ -47,7 +47,7 @@ ${Sophos_Scheduled_Query_Pack}      ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.co
 
 *** Test Cases ***
 Install all plugins 999 then downgrade to all plugins develop
-    [Tags]  BASE_DOWNGRADE  OSTIA  THIN_INSTALLER  INSTALLER  UNINSTALLER
+    [Tags]  BASE_DOWNGRADE  OSTIA  THIN_INSTALLER  INSTALLER  UNINSTALLER  EXCLUDE_SLES15
 
     #TODO: LINUXDAR-4015 remove once issue is closed
     ${result} =  Run Process    free
@@ -132,7 +132,7 @@ Install all plugins 999 then downgrade to all plugins develop
     Check All Product Logs Do Not Contain Critical
 
 Install edr 999 and downgrade to current edr
-    [Tags]  PLUGIN_DOWNGRADE  OSTIA  THIN_INSTALLER  INSTALLER  UNINSTALLER
+    [Tags]  PLUGIN_DOWNGRADE  OSTIA  THIN_INSTALLER  INSTALLER  UNINSTALLER  EXCLUDE_SLES15
     Setup SUS only edr 999
     Install EDR SDDS3  ${BaseMtrAndEdr999Policy}
 

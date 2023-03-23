@@ -70,6 +70,7 @@ RA Upload Suite Setup
     Regenerate Certificates
     Set Local CA Environment Variable
     Run Full Installer
+    Create File    ${MCS_DIR}/certs/ca_env_override_flag
 
 RA Upload Test Setup
     Require Installed

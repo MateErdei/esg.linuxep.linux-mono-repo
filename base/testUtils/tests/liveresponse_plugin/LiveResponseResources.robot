@@ -56,7 +56,6 @@ Setup Suite Tmp Dir
     Create Directory    ${SUITE_TMP_DIR}
 
 Liveresponse Test Setup
-    Require Installed
     Start Websocket Server
     Restart Liveresponse Plugin  True
     Check Live Response Plugin Installed

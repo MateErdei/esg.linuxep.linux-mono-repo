@@ -194,7 +194,6 @@ LiveResponse Telemetry Suite Setup
     Copy Telemetry Config File in To Place
 
 LiveResponse Telemetry Test Setup
-    Require Installed
     Restart Liveresponse Plugin  True
     Wait Until Keyword Succeeds
     ...  20 secs

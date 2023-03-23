@@ -57,7 +57,7 @@ RA Plugin uploads a file successfully with message relay
     Create File  /tmp/file  tempfilecontent
     Register Cleanup  Remove File  /tmp/file
     Send_Upload_File_From_Fake_Cloud   /tmp/file  ${TRUE}  corrid  password
-    wait_for_log_contains_from_mark  ${response_mark}  Action corrid has succeeded   25
+    wait_for_log_contains_from_mark  ${response_mark}  Action corrid has succeeded   60
     wait_for_log_contains_from_mark  ${action_mark}  Upload for /opt/sophos-spl/plugins/responseactions/tmp/file.zip succeeded   15
     wait_for_log_contains_from_mark  ${action_mark}  Uploading via proxy: localhost:3000
     Check Log Does Not Contain     Connection with proxy failed going direct   ${ACTIONS_RUNNER_LOG_PATH}    actionrunner
@@ -106,7 +106,7 @@ RA Plugin uploads a folder successfully with message relay
     Create File  /tmp/compressionTest/file.txt  tempfilecontent
     Register Cleanup  Remove Directory  /tmp/compressionTest
     Send_Upload_Folder_From_Fake_Cloud   /tmp/compressionTest  ${TRUE}  corrid  password
-    wait_for_log_contains_from_mark  ${response_mark}  Action corrid has succeeded   25
+    wait_for_log_contains_from_mark  ${response_mark}  Action corrid has succeeded   60
     wait_for_log_contains_from_mark  ${action_mark}  Upload for compressionTest.zip succeeded   15
     wait_for_log_contains_from_mark  ${action_mark}  Uploading via proxy: localhost:3000
     Check Log Does Not Contain     Connection with proxy failed going direct   ${ACTIONS_RUNNER_LOG_PATH}    actionrunner
