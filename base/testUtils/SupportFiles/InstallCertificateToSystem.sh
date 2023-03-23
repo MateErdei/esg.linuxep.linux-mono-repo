@@ -23,19 +23,19 @@ install_cert()
 install_cert_rhel()
 {
 	cp $1 /etc/pki/ca-trust/source/anchors/SOPHOS$(basename $1) || ( echo "Failed to copy cert" && exit 1 )
-	update-ca-trust extract
+	update-ca-trust extract || true
 }
 
 install_cert_ubuntu()
 {
 	cp $1 /usr/local/share/ca-certificates/SOPHOS$(basename $1) || ( echo "Failed to copy cert" && exit 1 )
-	update-ca-certificates -f
+	update-ca-certificates -f || true
 }
 
 install_cert_sles()
 {
 	cp $1 /usr/share/pki/trust/anchors/SOPHOS$(basename $1) || ( echo "Failed to copy cert" && exit 1 )
-	update-ca-certificates -f
+	update-ca-certificates -f || true
 }
 
 CERT=$1
