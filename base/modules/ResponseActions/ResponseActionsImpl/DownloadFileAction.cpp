@@ -226,7 +226,7 @@ namespace ResponseActionsImpl
     {
         //We are only downloading a single file and response actions should not run in parallel
         auto fileNameVec = m_fileSystem->listFiles(m_raTmpDir);
-        if (fileNameVec.size() == 0)
+        if (fileNameVec.empty())
         {
             std::string error = "Expected one file in " + m_raTmpDir + " but there are none";
             LOGERROR(error);
@@ -245,7 +245,7 @@ namespace ResponseActionsImpl
         LOGDEBUG("Downloaded file " << fileName);
 
         //Check sha256
-        std::string fileSha = "";
+        std::string fileSha;
 
         try
         {
@@ -267,8 +267,8 @@ namespace ResponseActionsImpl
             return "";
         }
 
-        assert(info.sha256 != "");
-        assert(fileSha != "");
+        assert(!info.sha256.empty());
+        assert(!fileSha.empty());
 
         if (fileSha != info.sha256)
         {
@@ -336,7 +336,7 @@ namespace ResponseActionsImpl
             {
                 auto extractedFile = m_fileSystem->listAllFilesInDirectoryTree(tmpExtractPath);
 
-                if (extractedFile.size() == 0)
+                if (extractedFile.empty())
                 {
                     std::string error = "Unzip successful but no file found in " + tmpExtractPath;
                     LOGWARN(error);
