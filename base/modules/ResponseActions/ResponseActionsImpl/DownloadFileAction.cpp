@@ -117,6 +117,15 @@ namespace ResponseActionsImpl
             ActionsUtils::setErrorInfo(response, 1, exception.str());
             return false;
         }
+        catch (const std::exception& e)
+        {
+            std::stringstream error;
+            error << "Unknown exception when calculating disk space on filesystem: " << e.what();
+            LOGWARN(error.str());
+            ActionsUtils::setErrorInfo(response, 1, error.str());
+            return false;
+        }
+
         std::filesystem::space_info spaceInfoToCheck = tmpSpaceInfo.available > destSpaceInfo.available ? destSpaceInfo : tmpSpaceInfo;
 
         if ((!info.decompress && spaceInfoToCheck.available < info.sizeBytes) ||
@@ -256,6 +265,15 @@ namespace ResponseActionsImpl
                     ActionsUtils::setErrorInfo(response, 1, error, "access_denied");
                     return;
                 }
+                catch (const std::exception& e)
+                {
+                    std::stringstream error;
+                    error << "Unknown error creating path to extract file to: " + tmpExtractPath + ": " + e.what();
+                    LOGWARN(error.str());
+                    ActionsUtils::setErrorInfo(response, 1, error.str());
+                    return;
+                }
+
             }
 
             try
@@ -344,6 +362,14 @@ namespace ResponseActionsImpl
             error << "Unable to make directory " << destPath << " and move " << fileName << " to it: " << e.what();
             LOGWARN(error.str());
             ActionsUtils::setErrorInfo(response, 1, error.str(), "access_denied");
+            return;
+        }
+        catch (const std::exception& e)
+        {
+            std::stringstream error;
+            error << "Unknown error when making directory " << destPath << " or moving file " << fileName << ": " << e.what();
+            LOGWARN(error.str());
+            ActionsUtils::setErrorInfo(response, 1, error.str());
             return;
         }
 

@@ -874,11 +874,10 @@ TEST_F(DownloadFileTests, NotEnoughSpaceOnDestDisk)
     EXPECT_TRUE(appenderContains(expectedErrStr));
 }
 
-TEST_F(DownloadFileTests, HandlesWhenCantAssessDiskSpace)
+TEST_F(DownloadFileTests, HandlesWhenCantAssessDiskSpace_FileSystemException)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    //Success is the default errorcode
     const std::string expectedErrStr = "Cant determine disk space on filesystem: exception";
 
     //MockFileSystem
@@ -900,13 +899,38 @@ TEST_F(DownloadFileTests, HandlesWhenCantAssessDiskSpace)
     EXPECT_TRUE(appenderContains(expectedErrStr));
 }
 
-TEST_F(DownloadFileTests, HandlesWhenCantCreatePathToExtractTo)
+TEST_F(DownloadFileTests, HandlesWhenCantAssessDiskSpace_Exception)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    const std::string expectedErrStr = "Unknown exception when calculating disk space on filesystem: std::exception";
+
+    //MockFileSystem
+    EXPECT_CALL(*m_mockFileSystem, getDiskSpaceInfo("/opt/sophos-spl/plugins/responseactions/tmp"))
+        .WillOnce(Throw(std::exception()));
+    EXPECT_CALL(*m_mockFileSystem, exists(m_destPath)).WillOnce(Return(false));
+    Tests::replaceFileSystem(std::move(m_mockFileSystem));
+
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
+
+    nlohmann::json action = getDownloadObject();
+    std::string response = downloadFileAction.run(action.dump());
+    nlohmann::json responseJson = nlohmann::json::parse(response);
+
+    EXPECT_EQ(responseJson["result"], 1);
+    EXPECT_EQ(responseJson["errorMessage"], expectedErrStr);
+    EXPECT_FALSE(responseJson.contains("errorType"));
+
+    EXPECT_TRUE(appenderContains(expectedErrStr));
+}
+
+
+TEST_F(DownloadFileTests, HandlesWhenCantCreatePathToExtractTo_FileSystemException)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
     const bool decompress = true;
 
-    //Success is the default errorcode
     const std::string expectedErrStr = "Unable to create path to extract file to: " + m_raExtractTmpDir + ": exception";
 
     addResponseToMockRequester(HTTP_STATUS_OK, ResponseErrorCode::OK);
@@ -937,7 +961,43 @@ TEST_F(DownloadFileTests, HandlesWhenCantCreatePathToExtractTo)
     EXPECT_TRUE(appenderContains(expectedErrStr));
 }
 
-TEST_F(DownloadFileTests, HandlesWhenCantCreateOrCopyFileToFinalDestination)
+TEST_F(DownloadFileTests, HandlesWhenCantCreatePathToExtractTo_Exception)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    const bool decompress = true;
+
+    const std::string expectedErrStr = "Unknown error creating path to extract file to: " + m_raExtractTmpDir + ": std::exception";
+
+    addResponseToMockRequester(HTTP_STATUS_OK, ResponseErrorCode::OK);
+
+    //MockFileSystem
+    addDiskSpaceExpectsToMockFileSystem();
+    addListFilesExpectsToMockFileSystem();
+    EXPECT_CALL(*m_mockFileSystem, exists(m_destPath)).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFileSystem, exists(m_raExtractTmpDir)).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFileSystem, makedirs(m_raExtractTmpDir))
+        .WillOnce(Throw(std::exception()));
+    EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFileSystem, calculateDigest(Common::SslImpl::Digest::sha256, m_raTmpDir + "/" + m_testZipFile))
+        .WillOnce(Return("shastring"));
+    Tests::replaceFileSystem(std::move(m_mockFileSystem));
+
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
+
+    nlohmann::json action = getDownloadObject(decompress);
+    std::string response = downloadFileAction.run(action.dump());
+    nlohmann::json responseJson = nlohmann::json::parse(response);
+
+    EXPECT_EQ(responseJson["result"], 1);
+    EXPECT_EQ(responseJson["errorMessage"], expectedErrStr);
+    EXPECT_FALSE(responseJson.contains("errorType"));
+    EXPECT_EQ(responseJson["httpStatus"], HTTP_STATUS_OK);
+
+    EXPECT_TRUE(appenderContains(expectedErrStr));
+}
+
+TEST_F(DownloadFileTests, HandlesWhenCantCreateOrCopyFileToFinalDestination_FileSystemException)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
@@ -966,6 +1026,40 @@ TEST_F(DownloadFileTests, HandlesWhenCantCreateOrCopyFileToFinalDestination)
     EXPECT_EQ(responseJson["result"], 1);
     EXPECT_EQ(responseJson["errorMessage"], expectedErrStr);
     EXPECT_EQ(responseJson["errorType"], "access_denied");
+    EXPECT_EQ(responseJson["httpStatus"], HTTP_STATUS_OK);
+
+    EXPECT_TRUE(appenderContains(expectedErrStr));
+}
+
+TEST_F(DownloadFileTests, HandlesWhenCantCreateOrCopyFileToFinalDestination_Exception)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    const std::string expectedErrStr = "Unknown error when making directory " + m_destPath + " or moving file " + m_testZipFile + ": std::exception";
+
+    addResponseToMockRequester(HTTP_STATUS_OK, ResponseErrorCode::OK);
+
+    //MockFileSystem
+    addDiskSpaceExpectsToMockFileSystem();
+    addListFilesExpectsToMockFileSystem();
+    EXPECT_CALL(*m_mockFileSystem, exists(m_destPath)).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFileSystem, makedirs(m_destPath))
+        .WillOnce(Throw(std::exception()));
+    EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFileSystem, calculateDigest(Common::SslImpl::Digest::sha256, m_raTmpDir + "/" + m_testZipFile))
+        .WillOnce(Return("shastring"));
+    EXPECT_CALL(*m_mockFileSystem, removeFileOrDirectory(m_raTmpDir)).Times(1);
+    Tests::replaceFileSystem(std::move(m_mockFileSystem));
+
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
+
+    nlohmann::json action = getDownloadObject();
+    std::string response = downloadFileAction.run(action.dump());
+    nlohmann::json responseJson = nlohmann::json::parse(response);
+
+    EXPECT_EQ(responseJson["result"], 1);
+    EXPECT_EQ(responseJson["errorMessage"], expectedErrStr);
+    EXPECT_FALSE(responseJson.contains("errorType"));
     EXPECT_EQ(responseJson["httpStatus"], HTTP_STATUS_OK);
 
     EXPECT_TRUE(appenderContains(expectedErrStr));
