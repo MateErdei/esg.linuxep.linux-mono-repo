@@ -12,10 +12,10 @@ install(FILES
         ${CMAKE_SOURCE_DIR}/products/distribution/generateManifestDat.py
         ${CMAKE_SOURCE_DIR}/products/distribution/readVersion.py
         ${CMAKE_SOURCE_DIR}/products/distribution/fileInfo.py
-        ${INPUT}/openssl/lib64/libcrypto.so.1.1
-        ${INPUT}/openssl/lib64/libssl.so.1.1
+        ${OPENSSL_INPUT}/bin/openssl
+        ${OPENSSL_INPUT}/lib64/libcrypto.so.3
+        ${OPENSSL_INPUT}/lib64/libssl.so.3
         ${INPUT}/gcc/lib64/libssp.so.0.0.0
-        ${INPUT}/openssl/64/bin/openssl
         DESTINATION ${CMAKE_BINARY_DIR}/SystemProductTestOutput
         PERMISSIONS OWNER_READ OWNER_EXECUTE)
 

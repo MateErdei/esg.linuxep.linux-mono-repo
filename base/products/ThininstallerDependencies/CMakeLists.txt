@@ -55,7 +55,7 @@ add_custom_target(
         COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:minizip> mcslibrary/lib64
         COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:pugixml> mcslibrary/lib64
         COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:zlib> mcslibrary/lib64
-        COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:openssl> mcslibrary/lib64
+        COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:openssl_ssl> mcslibrary/lib64
         COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:openssl_crypto> mcslibrary/lib64
 )
 

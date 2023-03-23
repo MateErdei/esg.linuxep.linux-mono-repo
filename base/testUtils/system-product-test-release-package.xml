@@ -70,11 +70,6 @@
             <include mode="system-test,base-coverage,ej-coverage,mdr-coverage,edr-coverage,lr-coverage" artifact-path="output" dest-dir="sspl-legacy-thininstaller" />
         </build-asset>
 
-        <build-asset project="thirdparty" repo="openssl">
-            <release-version branch="release/sspl/Version_1_1_1m" build-id="20220310143347-fb032a83957c266bd183e2bc36460e7d1cd9d718-29xDys"/>
-            <include artifact-path="output" dest-dir="./openssllinux11"/>
-        </build-asset>
-
         <!--        pull the scripts from mono-repo to get the coverage uploaded to redash-->
         <build-asset project="em" repo="esg">
             <!-- release-version fetches for all branches with no development-version -->

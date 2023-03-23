@@ -29,9 +29,6 @@ Global Setup Tasks
     ${placeholder} =  Get Environment Variable  SYSTEMPRODUCT_TEST_INPUT  default=/tmp/system-product-test-inputs
     Set Global Variable  ${SYSTEMPRODUCT_TEST_INPUT}  ${placeholder}
 
-    ${placeholder} =  Get Environment Variable  OPENSSL_INPUT  default=/uk-filer5/prodro/bir/openssllinux11/1-1-1c-16/216598/output
-    Set Global Variable  ${OPENSSL_INPUT}  ${placeholder}
-
     Set Global Variable  ${SUL_DOWNLOADER}              ${SOPHOS_INSTALL}/base/bin/SulDownloader
     Set Global Variable  ${VERSIGPATH}                  ${SOPHOS_INSTALL}/base/update/versig
     Set Global Variable  ${MCS_ROUTER}                  ${SOPHOS_INSTALL}/base/bin/mcsrouter
@@ -80,18 +77,13 @@ Global Setup Tasks
     Set Global Variable  ${EVENT_JOURNALER_TOOLS}  ${placeholder}
     ${placeholder} =  Get Environment Variable  SSPL_EDR_PLUGIN_MANUAL_TOOLS  default=${SYSTEMPRODUCT_TEST_INPUT}/sspl-edr-plugin-manual-tools
     Set Global Variable  ${EDR_PLUGIN_MANUAL_TOOLS}  ${placeholder}
-    ${OPENSSL_FOLDER} =  Unpack Openssl   ${TEMPORARY_DIRECTORIES}
-    Set Global Variable  ${OPENSSL_BIN_PATH}            ${TEMPORARY_DIRECTORIES}/openssl/bin64
-    Set Global Variable  ${OPENSSL_LIB_PATH}            ${TEMPORARY_DIRECTORIES}/openssl/lib64
-
-    # Check that the openssl unpacked otherwise suldownloader and updatescheduler tests may fail with
-    # obscure openssl errors on Centos and Rhel
-    Directory Should Exist  ${OPENSSL_BIN_PATH}
-    Directory Should Exist  ${OPENSSL_LIB_PATH}
 
     ${system_product_test_tar_path}  ${system_product_test_output_path} =  Install System Product Test Output
     Set Global Variable  ${SYSTEM_PRODUCT_TEST_OUTPUT_PATH}  ${system_product_test_output_path}
     ${colored_message} =  Evaluate  "\\033[33mUsing the following for system product test output ${system_product_test_tar_path}\\033[0m"
+
+    Set Global Variable   ${OPENSSL_BIN_PATH}   ${SYSTEM_PRODUCT_TEST_OUTPUT_PATH}
+    Set Global Variable   ${OPENSSL_LIB_PATH}   ${SYSTEM_PRODUCT_TEST_OUTPUT_PATH}
 
     Log To Console  \n${colored_message} \n
 

@@ -209,30 +209,3 @@ class UpdateServer(object):
     def can_curl_url(self, url, proxy=None):
         if self.curl_url(url, proxy) != 0:
             raise AssertionError("cannot reach url: {}".format(url))
-
-    def unpack_openssl(self, tmp_path="/tmp"):
-        openssl_input = get_variable("OPENSSL_INPUT")
-        if openssl_input is None:
-            raise AssertionError("Required env variable 'OPENSSL_INPUT' is not specified")
-        target_path = os.path.join(tmp_path, "openssl")
-
-        openssl_tar = os.path.join(openssl_input, "openssl.tar")
-        if os.path.isfile(openssl_tar):
-            if not os.path.isdir(os.path.join(target_path, "bin64")):
-                os.system("tar xvf {} -C {} >/dev/null".format(openssl_tar, tmp_path))
-        elif os.path.isdir(os.path.join(openssl_input, "bin64")):
-            if not os.path.isdir(target_path):
-                logger.info(f"Using {openssl_input} as openssl")
-                shutil.copytree(openssl_input, target_path)
-        elif not os.path.isdir(target_path):
-            logger.info(f"Using system openssl as {openssl_tar} doesn't exist")
-            os.makedirs(target_path, exist_ok=True)
-            if os.path.isfile("/usr/lib/x86_64-linux-gnu/libcrypto.so.1.1"):
-                os.symlink("/usr/lib/x86_64-linux-gnu", os.path.join(target_path, "lib64"))
-            elif os.path.isfile("/lib64/libcrypto.so.1.1") or os.path.isfile("/lib64/libcrypto.so.10"):
-                os.symlink("/lib64", os.path.join(target_path, "lib64"))
-            else:
-                raise AssertionError("Can't find libcrypto.so.1.1 for system openssl")
-            os.symlink("/usr/bin", os.path.join(target_path, "bin64"))
-
-        return target_path

@@ -132,7 +132,7 @@ ca/root-ca.crt.pem : root-ca.crt.pem
 	cp $< $@
 
 ca : ca/root-ca.crt.pem
-	python c_rehash.py ca || c_rehash ca
+	python2 c_rehash.py ca || c_rehash ca
 
 .PHONY : ca
 

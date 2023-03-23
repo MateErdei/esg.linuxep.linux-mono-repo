@@ -24,5 +24,3 @@ check_exists ${SSPL_EVENT_JOURNALER_PLUGIN_MANUAL_TOOLS}
 check_exists ${THIN_INSTALLER_OVERRIDE}
 check_exists ${SSPL_LIVERESPONSE_PLUGIN_SDDS}
 check_exists ${WEBSOCKET_SERVER}
-
-check_exists ${OPENSSL_INPUT}

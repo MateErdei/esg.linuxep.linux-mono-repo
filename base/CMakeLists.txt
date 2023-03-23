@@ -195,7 +195,7 @@ endif()
 ## Find 3rd party libraries
 set( BOOST_INPUT ${INPUT}/boost )
 set( CURL_INPUT ${INPUT}/curl )
-set( OPENSSL_INPUT ${INPUT}/openssl )
+set( OPENSSL_INPUT ${INPUT}/openssl3 )
 set( EXPAT_INPUT ${INPUT}/expat )
 set( LOG4CPLUS_INPUT ${INPUT}/log4cplus )
 set( GSL_INCLUDE ${INPUT}/gsl/include )
@@ -228,8 +228,8 @@ add_imported_library(pugixml SHARED ${INPUT}/pugixml/libpugixml.so ${INPUT}/pugi
 add_imported_library(zlib SHARED ${INPUT}/zlib/libzlib.so ${INPUT}/zlib)
 add_imported_library(curl_library SHARED ${CURL_INPUT}/libcurl.so ${CURL_INPUT}/include)
 target_include_directories(curl_library INTERFACE ${CURL_INPUT}/include/curl) # Extra search path to allow #include <curl.h>
-add_imported_library(openssl SHARED ${OPENSSL_INPUT}/lib64/libssl.so.1.1 ${OPENSSL_INPUT}/include64)
-add_imported_library(openssl_crypto SHARED ${OPENSSL_INPUT}/lib64/libcrypto.so.1.1 ${OPENSSL_INPUT}/include64)
+add_imported_library(openssl_ssl SHARED ${OPENSSL_INPUT}/lib64/libssl.so.3 ${OPENSSL_INPUT}/include)
+add_imported_library(openssl_crypto SHARED ${OPENSSL_INPUT}/lib64/libcrypto.so.3 ${OPENSSL_INPUT}/include)
 
 add_sophlib_library(crypto)
 add_sophlib_library(file)
@@ -243,7 +243,7 @@ add_sophlib_library(zip)
 add_imported_library(sophlib_sdds3_delta STATIC ${INPUT}/sophlib/lib64/sdds3/delta/libdelta.pic.a ${INPUT}/sophlib/include)
 
 # Define dependencies between imported libraries (based on Bazel dependencies in monorepo)
-target_link_libraries(minizip INTERFACE bzip2 lzma zlib)
+target_link_libraries(minizip INTERFACE bzip2 lzma openssl_crypto zlib)
 target_link_libraries(sophlib_file INTERFACE sophlib_raii)
 target_link_libraries(sophlib_sdds3 INTERFACE
         pugixml
@@ -256,7 +256,8 @@ target_link_libraries(sophlib_sdds3 INTERFACE
         sophlib_zip
         )
 target_link_libraries(sophlib_zip INTERFACE minizip sophlib_logging)
-target_link_libraries(curl_library INTERFACE openssl zlib)
+target_link_libraries(curl_library INTERFACE openssl_ssl zlib)
+target_link_libraries(openssl_crypto INTERFACE dl pthread)
 
 set(NLOHMANN_JSON_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/nlohmann-json)
 
