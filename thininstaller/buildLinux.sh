@@ -103,6 +103,7 @@ function prepare_dependencies()
         untar_input versig
         untar_input cmcsrouterapi
         untar_input pluginapi
+        untar_input openssl
 
         if [[ -f ${INPUT}/update_certs/ps_rootca.crt ]]
         then
