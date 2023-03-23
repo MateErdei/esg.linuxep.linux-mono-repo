@@ -178,9 +178,48 @@ namespace ResponseActionsImpl
         response["httpStatus"] = httpresponse.status;
     }
 
-    void DownloadFileAction::removeTmpFiles()
+    void DownloadFileAction::handleHttpResponse(
+        const Common::HttpRequests::Response& httpresponse,
+        nlohmann::json& response,
+        const std::string& url)
     {
-        m_fileSystem->removeFileOrDirectory(m_raTmpDir);
+
+        if (httpresponse.errorCode == Common::HttpRequests::ResponseErrorCode::TIMEOUT)
+        {
+            std::stringstream error;
+            error << "Timeout downloading from " << url;
+            LOGWARN(error.str());
+            ActionsUtils::setErrorInfo(response, 2, error.str());
+        }
+        else if (httpresponse.errorCode == Common::HttpRequests::ResponseErrorCode::DOWNLOAD_TARGET_ALREADY_EXISTS)
+        {
+            std::stringstream error;
+            error << "Download failed as target exists already: " + httpresponse.error;
+            LOGWARN(error.str());
+            ActionsUtils::setErrorInfo(response, 1, error.str());
+        }
+        else if (httpresponse.errorCode == Common::HttpRequests::ResponseErrorCode::OK)
+        {
+            if (httpresponse.status == Common::HttpRequests::HTTP_STATUS_OK)
+            {
+                response["result"] = 0;
+                //Log success when we have filename
+            }
+            else
+            {
+                std::stringstream error;
+                error << "Failed to download " << url << ": Error code " << httpresponse.status;
+                LOGWARN(error.str());
+                ActionsUtils::setErrorInfo(response, 1, error.str(), "network_error");
+            }
+        }
+        else
+        {
+            std::stringstream error;
+            error << "Failed to download " << url << ", error: " << httpresponse.error;
+            LOGWARN(error.str());
+            ActionsUtils::setErrorInfo(response, 1, error.str(), "network_error");
+        }
     }
 
     Path DownloadFileAction::verifyFile(const DownloadInfo& info, nlohmann::json& response)
@@ -348,13 +387,18 @@ namespace ResponseActionsImpl
         }
     }
 
-    void DownloadFileAction::makeDirAndMoveFile(nlohmann::json& response, const Path& destPath, const Path& filePathToMove)
+    void DownloadFileAction::makeDirAndMoveFile(nlohmann::json& response, Path destPath, const Path& filePathToMove)
     {
+        if (destPath.back() != '/')
+        {
+            destPath.push_back('/');
+        }
+
         auto fileName = Common::FileSystem::basename(filePathToMove);
         try
         {
             m_fileSystem->makedirs(destPath);
-            m_fileSystem->moveFile(filePathToMove, destPath + "/" + fileName);
+            m_fileSystem->moveFile(filePathToMove, destPath + fileName);
         }
         catch (const Common::FileSystem::IFileSystemException& e)
         {
@@ -373,53 +417,9 @@ namespace ResponseActionsImpl
             return;
         }
 
-        LOGINFO(destPath << "/" << fileName << " downloaded successfully");
+        LOGINFO(destPath << fileName << " downloaded successfully");
     }
 
-
-    void DownloadFileAction::handleHttpResponse(
-        const Common::HttpRequests::Response& httpresponse,
-        nlohmann::json& response,
-        const std::string& url)
-    {
-
-        if (httpresponse.errorCode == Common::HttpRequests::ResponseErrorCode::TIMEOUT)
-        {
-            std::stringstream error;
-            error << "Timeout downloading from " << url;
-            LOGWARN(error.str());
-            ActionsUtils::setErrorInfo(response, 2, error.str());
-        }
-        else if (httpresponse.errorCode == Common::HttpRequests::ResponseErrorCode::DOWNLOAD_TARGET_ALREADY_EXISTS)
-        {
-            std::stringstream error;
-            error << "Download failed as target exists already: " + httpresponse.error;
-            LOGWARN(error.str());
-            ActionsUtils::setErrorInfo(response, 1, error.str());
-        }
-        else if (httpresponse.errorCode == Common::HttpRequests::ResponseErrorCode::OK)
-        {
-            if (httpresponse.status == Common::HttpRequests::HTTP_STATUS_OK)
-            {
-                response["result"] = 0;
-                //Log success when we have filename
-            }
-            else
-            {
-                std::stringstream error;
-                error << "Failed to download " << url << ": Error code " << httpresponse.status;
-                LOGWARN(error.str());
-                ActionsUtils::setErrorInfo(response, 1, error.str(), "network_error");
-            }
-        }
-        else
-        {
-            std::stringstream error;
-            error << "Failed to download " << url << ", error: " << httpresponse.error;
-            LOGWARN(error.str());
-            ActionsUtils::setErrorInfo(response, 1, error.str(), "network_error");
-        }
-    }
 
     Path DownloadFileAction::findBaseDir(const Path& path)
     {
@@ -429,5 +429,10 @@ namespace ResponseActionsImpl
             return path;
         }
         return path.substr(0, pos);
+    }
+
+    void DownloadFileAction::removeTmpFiles()
+    {
+        m_fileSystem->removeFileOrDirectory(m_raTmpDir);
     }
 }
