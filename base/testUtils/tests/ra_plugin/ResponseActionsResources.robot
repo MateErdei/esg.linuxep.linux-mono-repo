@@ -70,7 +70,6 @@ RA Upload Suite Setup
     Regenerate Certificates
     Set Local CA Environment Variable
     Run Full Installer
-    Create File  /opt/sophos-spl/base/mcs/certs/ca_env_override_flag
 
 RA Upload Test Setup
     Require Installed
@@ -78,6 +77,7 @@ RA Upload Test Setup
     install_system_ca_cert  /tmp/cert.crt
     install_system_ca_cert  /tmp/ca.crt
     Install Response Actions Directly
+    Create File    ${MCS_DIR}/certs/ca_env_override_flag
 
 RA Upload Test Teardown
     General Test Teardown

@@ -31,7 +31,7 @@ clean_up_certs_ubuntu()
 
 clean_up_certs_sles()
 {
-	rm -rf /etc/pki/ca-trust/source/anchors/SOPHOS*
+	rm -rf /usr/share/pki/trust/anchors/SOPHOS*
 	update-ca-certificates -f
 }
 
