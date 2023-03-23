@@ -53,7 +53,7 @@ namespace ActionRunner
         {
             LOGINFO("Running download file action: " << correlationId);
             std::string response = RunUtils::doDownloadFile(action);
-            RunUtils::sendResponse(correlationId, response);
+            ResponseActions::RACommon::sendResponse(correlationId, response);
             LOGINFO("Sent download file response for id " << correlationId << " to Central");
         }
         else
