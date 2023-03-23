@@ -9,6 +9,10 @@ Library    ${LIBS_DIRECTORY}/SulDownloader.py
 Library    ${LIBS_DIRECTORY}/FullInstallerUtils.py
 
 
+*** Variables ***
+
+${SUL_DOWNLOADER_LOG} =  ${SOPHOS_INSTALL}/logs/base/suldownloader.log
+
 *** Keywords ***
 
 ### Setup
@@ -19,5 +23,4 @@ Setup SUL Downloader Tests
 
 ### Cleanup
 Cleanup SUL Downloader Tests
-    No Operation
     Uninstall SSPL

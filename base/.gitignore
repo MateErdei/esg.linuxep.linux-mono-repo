@@ -15,9 +15,10 @@
 .idea/encodings.xml
 .idea/git_toolbox_prj.xml
 build64/
-cmake-build-debug/
-cmake-build-release/
-cmake-build-relwithdebinfo/
+/cmake-build-debug/
+/cmake-build-release/
+/cmake-build-relwithdebinfo/
+/cmake-build-sspldebug-coverage/
 *.pyc
 input/
 output/
@@ -61,3 +62,4 @@ testUtils/*-VBoxSVC-*.log
 /.vscode/
 /robot
 /vagrant
+/log.html

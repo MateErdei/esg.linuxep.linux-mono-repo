@@ -1,6 +1,9 @@
 *** Settings ***
 Library     ${LIBS_DIRECTORY}/FakeSDDS3WarehouseUtils.py
 
+Library    OperatingSystem
+Library    Process
+
 *** Variables ***
 ${SDDS_IMPORT_AND_MANIFEST}  ${SYSTEM_PRODUCT_TEST_OUTPUT_PATH}/generateSDDSImportAndManifestDat.py
 ${SDDS_IMPORT}  ${SYSTEM_PRODUCT_TEST_OUTPUT_PATH}/generateSDDSImport.py
@@ -78,10 +81,13 @@ Generate Suite dat File
     [Arguments]  ${package}
     #generate suite .dat file
     write_sdds3_suite_xml  ${package}
-    ${result1} =   Run Process   bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh ${SDDS3_Builder} --build-suite --xml ${SDDS3_FAKEREPO}/suite.xml --dir ${SDDS3_FAKESUITES} --nonce ${nonce}  shell=true
+    ${result1} =   Run Process
+    ...  bash  -x  ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh
+    ...  ${SDDS3_Builder}  --build-suite  --xml  ${SDDS3_FAKEREPO}/suite.xml
+    ...  --dir  ${SDDS3_FAKESUITES}  --nonce  ${nonce}
     Log  ${result1.stdout}
     Log  ${result1.stderr}
-    Should Be Equal As Strings   ${result1.rc}  0
+    Should Be Equal As Integers   ${result1.rc}  ${0}
 
 Generate Fake Supplement
     [Arguments]  ${flagscontent}
@@ -92,15 +98,21 @@ Generate Fake Supplement
     Set Environment Variable    PRODUCT_NAME   SSPLFLAGS
     Set Environment Variable    FEATURE_LIST    CORE
     Set Environment Variable    VERSION_OVERRIDE  1.0.0
-    ${result} =   Run Process     bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${SDDS_IMPORT} ${SDDS3_FAKESSPLFLAG}  shell=true
+    ${result} =   Run Process
+    ...  bash  -x  ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh
+    ...  python3  ${SDDS_IMPORT}  ${SDDS3_FAKESSPLFLAG}
     Log  ${result.stdout}
     Log  ${result.stderr}
-    Should Be Equal As Strings   ${result.rc}  0
+    Should Be Equal As Integers   ${result.rc}  ${0}
 
-    ${result1} =   Run Process   bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh ${SDDS3_Builder} --build-package --package-dir ${SDDS3_FAKEPACKAGES} --sdds-import ${SDDS3_FAKESSPLFLAG}/SDDS-Import.xml --nonce ${nonce}  shell=true
+    ${result1} =   Run Process
+    ...  bash  -x  ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh
+    ...  ${SDDS3_Builder}  --build-package  --package-dir  ${SDDS3_FAKEPACKAGES}
+    ...  --sdds-import  ${SDDS3_FAKESSPLFLAG}/SDDS-Import.xml
+    ...  --nonce  ${nonce}
     Log  ${result1.stdout}
     Log  ${result1.stderr}
-    Should Be Equal As Strings   ${result1.rc}  0
+    Should Be Equal As Integers   ${result1.rc}  ${0}
 
     #generate supplment dat file
     write_sdds3_supplement_xml  ${SDDS3_FAKEPACKAGES}/SSPLFLAGS_1.0.0.020fb0c370.zip

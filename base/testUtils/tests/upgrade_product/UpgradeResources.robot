@@ -39,6 +39,8 @@ ${sdds3_server_output}                          /tmp/sdds3_server.log
 
 *** Keywords ***
 Test Setup
+    Set Suite Variable    ${GL_handle}       ${EMPTY}
+    Set Suite Variable    ${GL_UC_handle}    ${EMPTY}
     Require Uninstalled
     Set Environment Variable  CORRUPTINSTALL  no
 
@@ -218,7 +220,9 @@ Start Local SDDS3 Server With Empty Repo
     [Return]  ${handle}
 
 Stop Local SDDS3 Server
+    return from keyword if  "${GL_handle}" == "${EMPTY}"
     Terminate Process  ${GL_handle}  True
+    Set Suite Variable    $GL_handle    ${EMPTY}
     Dump Teardown Log    ${sdds3_server_output}
     Terminate All Processes  True
 

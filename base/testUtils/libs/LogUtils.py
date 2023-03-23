@@ -1005,7 +1005,7 @@ class LogUtils(object):
         if isinstance(expected, str):
             expected = expected.encode("UTF-8")
 
-        mark.assert_is_good(log_path)
+        mark.assert_paths_match(log_path)
         contents = mark.get_contents()
         if expected in contents:
             return
