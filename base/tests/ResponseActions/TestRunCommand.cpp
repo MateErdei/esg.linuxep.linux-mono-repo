@@ -490,7 +490,7 @@ TEST_F(RunCommandTests, runCommandsMultiplCommandsWithErrorsAndIgnoreErrorsTrue)
     EXPECT_GE(response.commandResults[1].duration, 0);
 }
 
-TEST_F(RunCommandTests, runCommandsMultiplCommandsWithErrorsAndIgnoreErrorsFalse)
+TEST_F(RunCommandTests, runCommandsMultipleCommandsWithErrorsAndIgnoreErrorsFalse)
 {
     Common::ProcessImpl::ProcessFactory::instance().replaceCreator(
         []()
