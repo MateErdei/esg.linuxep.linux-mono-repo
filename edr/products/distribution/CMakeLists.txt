@@ -42,8 +42,8 @@ foreach (LIB boost_chrono boost_date_time boost_filesystem boost_system boost_th
     add_third_party_library(${LIB} ${BOOST_INPUT}/lib64)
 endforeach(LIB)
 
-add_third_party_library(glog ${INPUT}/glog/install64/lib)
-add_third_party_library(gflags ${INPUT}/gflags/install64/lib)
+add_third_party_library(glog ${INPUT}/glog)
+add_third_party_library(gflags ${INPUT}/gflags)
 add_third_party_library(jsoncpp ${INPUT}/jsoncpp/lib64)
 
 set(STRIP_EXECUTABLES ${DISTRIBUTION_TOOL_DIR}/stripExecutables.py)
