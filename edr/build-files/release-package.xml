@@ -9,8 +9,7 @@
         <build-asset project="linuxep" repo="everest-base">
             <release-version branch="release/2023-10"
                              build-id="20230307152640-915e8ce2684edf94d4682548778848e6eed67ee1-mVJTVs"/>
-            <!-- TODO (this PR): Revert to develop -->
-            <development-version branch="feature/LINUXDAR-6716-openssl-3-test"/>
+            <development-version branch="develop"/>
             <include artifact-path="sspl-base/pluginapi" dest-dir="/build/input"/>
             <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="/build/input/base-sdds"/>
         </build-asset>
@@ -45,8 +44,7 @@
         </build-asset>
 
         <build-asset project="em" repo="esg">
-            <!-- TODO (this PR): change back to develop once monorepo branch is merged -->
-            <development-version branch="feature/LINUXDAR-6716-openssl-3"/>
+            <development-version branch="develop"/>
             <include artifact-path="thirdparty/thrift-linux-opt" dest-dir="/build/redist/thrift"/>
         </build-asset>
 
