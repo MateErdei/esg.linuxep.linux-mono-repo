@@ -240,6 +240,51 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompressed_PathHasNoTraili
     EXPECT_TRUE(appenderContains("/path/to/download/to/download.txt downloaded successfully"));
 }
 
+TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompressed_DownloadToRoot)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    const Path destPath = "/";
+    bool decompress = true;
+
+    std::filesystem::space_info tmpSpaceInfo;
+    tmpSpaceInfo.available = 1024 * 1024;
+
+    setupMockZipUtils();
+    addResponseToMockRequester(HTTP_STATUS_OK, ResponseErrorCode::OK);
+
+     //MockFileSystem
+    addListFilesExpectsToMockFileSystem(decompress);
+    EXPECT_CALL(*m_mockFileSystem, getDiskSpaceInfo("/")).WillOnce(Return(tmpSpaceInfo));
+    EXPECT_CALL(*m_mockFileSystem, getDiskSpaceInfo(m_raTmpDir)).WillOnce(Return(tmpSpaceInfo));
+    EXPECT_CALL(*m_mockFileSystem, exists(destPath)).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFileSystem, makedirs(destPath)).Times(1);
+    EXPECT_CALL(*m_mockFileSystem, exists(m_raExtractTmpDir)).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFileSystem, makedirs(m_raExtractTmpDir)).Times(1);
+    EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFileSystem, moveFile(m_raExtractTmpDir + "/" + m_testExtractedFile, destPath + m_testExtractedFile)).Times(1);
+    EXPECT_CALL(*m_mockFileSystem, removeFileOrDirectory(m_raTmpDir)).Times(1);
+    EXPECT_CALL(*m_mockFileSystem, calculateDigest(Common::SslImpl::Digest::sha256, m_raTmpDir + "/" + m_testZipFile))
+        .WillOnce(Return("shastring"));
+    Tests::replaceFileSystem(std::move(m_mockFileSystem));
+
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
+
+    nlohmann::json action = getDownloadObject(decompress);
+    action["targetPath"] = destPath;
+    std::string response = downloadFileAction.run(action.dump());
+    nlohmann::json responseJson = nlohmann::json::parse(response);
+
+    EXPECT_EQ(responseJson["result"], 0);
+    EXPECT_EQ(responseJson["httpStatus"], HTTP_STATUS_OK);
+    EXPECT_FALSE(responseJson.contains("errorType"));
+    EXPECT_FALSE(responseJson.contains("errorMessage"));
+
+    EXPECT_TRUE(appenderContains("Downloading to /opt/sophos-spl/plugins/responseactions/tmp from url: https://s3.com/download.zip"));
+    EXPECT_TRUE(appenderContains("Downloading directly"));
+    EXPECT_TRUE(appenderContains("/download.txt downloaded successfully"));
+}
+
 TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompressed_Password)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
