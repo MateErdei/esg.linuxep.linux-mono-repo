@@ -40,12 +40,8 @@
 
             <include artifact-path="thirdparty/liblzma-linux-opt" dest-dir="/build/redist/lzma"/>
             <include artifact-path="thirdparty/googletest-linux-opt" dest-dir="/build/input/googletest"/>
-            <include artifact-path="thirdparty/sqlite-linux-opt" dest-dir="/build/redist/sqlite"/>
-        </build-asset>
-
-        <build-asset project="em" repo="esg">
-            <development-version branch="develop"/>
             <include artifact-path="thirdparty/thrift-linux-opt" dest-dir="/build/redist/thrift"/>
+            <include artifact-path="thirdparty/sqlite-linux-opt" dest-dir="/build/redist/sqlite"/>
         </build-asset>
 
         <build-asset project="thirdparty" repo="all">
