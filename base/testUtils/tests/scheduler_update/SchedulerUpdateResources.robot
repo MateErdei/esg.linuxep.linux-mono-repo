@@ -221,31 +221,6 @@ Setup Warehouse For Mdr
     Can Curl Url    https://localhost:1234/catalogue/sdds.ServerProtectionLinux-Plugin-MDR.xml
     Can Curl Url    https://localhost:1233
 
-Setup Warehouse For Mdr 060
-    Generate Update Certs
-    ${base_dist} =  Get Folder With Installer
-    ${dist} =  get_sspl_mdr_plugin_060_sdds
-
-    Remove Directory  ${tmpdir}/TestInstallFiles/  recursive=${TRUE}
-    Remove Directory  ${tmpdir}/temp_warehouse/  recursive=${TRUE}
-
-
-    Copy Directory     ${base_dist}  ${tmpdir}/TestInstallFiles/${BASE_RIGID_NAME}
-    Copy Directory  ${dist}  ${tmpdir}/TestInstallFiles/ServerProtectionLinux-Plugin-MDR
-    Create File   ${tmpdir}/TestInstallFiles/ServerProtectionLinux-Base/VERSION.ini   PRODUCT_NAME = SPL-Base-Component\nPRODUCT_VERSION = 9.9.9.999\nBUILD_DATE = 2020-11-09
-    log file  ${tmpdir}/TestInstallFiles/ServerProtectionLinux-Base/VERSION.ini
-
-    Add Component Warehouse Config   ${BASE_RIGID_NAME}   ${tmpdir}/TestInstallFiles/    ${tmpdir}/temp_warehouse/   ${BASE_RIGID_NAME}  Warehouse1
-    Add Component Warehouse Config   ServerProtectionLinux-Plugin-MDR   ${tmpdir}/TestInstallFiles/    ${tmpdir}/temp_warehouse/   ServerProtectionLinux-Plugin-MDR    Warehouse1
-    Generate Warehouse    MDR_FEATURES=MDR
-
-    Start Update Server    1233    ${tmpdir}/temp_warehouse//customer_files/
-    Start Update Server    1234    ${tmpdir}/temp_warehouse/warehouses/sophosmain/
-    Can Curl Url    https://localhost:1234/catalogue/sdds.ServerProtectionLinux-Plugin-MDR.xml
-    Can Curl Url    https://localhost:1233
-
-
-
 Setup Servers For Update Scheduler
     Setup Current Update Scheduler Environment
     Setup Warehouse For Base
@@ -377,21 +352,6 @@ Simulate Send Policy And Run Update And Check Success
 
 Check ALC Status Sent To Central Contains MDR Subscription
     Check Status Report Contain  rigidName\=\"ServerProtectionLinux-Plugin-MDR\"
-
-
-Regenerate Warehouse For Update Scheduler
-    [Arguments]   &{kwargs}
-    Stop Update Server
-    Remove Directory    ${tmpdir}/temp_warehouse   Recursive=True
-    Clear Warehouse Config
-    Add Component Warehouse Config   ServerProtectionLinux-Base   ${tmpdir}/TestInstallFiles/    ${tmpdir}/temp_warehouse/   ServerProtectionLinux-Base
-    Generate Warehouse  &{kwargs}
-
-    Start Update Server    1233    ${tmpdir}/temp_warehouse//customer_files/
-    Start Update Server    1234    ${tmpdir}/temp_warehouse/warehouses/sophosmain/
-    Can Curl Url    https://localhost:1234/catalogue/sdds.ServerProtectionLinux-Base.xml
-    Can Curl Url    https://localhost:1233
-
 
 Log Settings Files
     Run Keyword And Ignore Error   Log File  ${tmpdir}/temp_warehouse/ServerProtectionLinux-Base/sdds/SDDS-Import.xml
