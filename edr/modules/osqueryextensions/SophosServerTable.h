@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2020 Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
@@ -38,9 +34,20 @@ namespace OsquerySDK
              * @description
              * The customer id stored on the machine
              */
-            TABLE_PLUGIN_COLUMN(customer_id, TEXT_TYPE, ColumnOptions::DEFAULT))
+            TABLE_PLUGIN_COLUMN(customer_id, TEXT_TYPE, ColumnOptions::DEFAULT),
+
+            /*
+             * @description
+             * Json array containing the installed Sophos component versions
+             * [
+             * {"Name": "SPL-Base-Component", "installed_version": "1.2.3.4"},
+             * {"Name": "SPL-Endpoint-Detection-and-Response-Plugin", "installed_version": "5.6.7.8"}
+             * ]
+             * Base always comes first, and an empty Json array is returned for the whole result if we are unable to
+             * find its version
+             */
+            TABLE_PLUGIN_COLUMN(installed_versions, TEXT_TYPE, ColumnOptions::DEFAULT))
 
         OsquerySDK::TableRows Generate(OsquerySDK::QueryContextInterface& context) override;
-
     };
-}
+} // namespace OsquerySDK

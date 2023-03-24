@@ -14,8 +14,6 @@ Suite Teardown  Uninstall And Revert Setup
 Test Setup      No Operation
 Test Teardown   EDR And Base Teardown
 
-Default Tags    TAP_TESTS
-
 *** Test Cases ***
 LiveQuery is Distributed to EDR Plugin and Its Answer is available to MCSRouter
     Check EDR Plugin Installed With Base
@@ -253,6 +251,21 @@ EDR Plugin Can Run Queries For Event Journal Detection Table And Create Jrl
     ...  Check Sophos Detections Journal Queries Work With Query Id
 
     File Should Exist  ${SOPHOS_INSTALL}/plugins/edr/var/jrl/test_query1
+    File Should Not Be Empty  ${SOPHOS_INSTALL}/plugins/edr/var/jrl/test_query1
+    ${jrl1}=  Get File  ${SOPHOS_INSTALL}/plugins/edr/var/jrl/test_query1
+
+    # Perform a second query to make sure the last JRL is stored
+    Wait Until Keyword Succeeds
+    ...  120 secs
+    ...  5 secs
+    ...  Check Sophos Detections Journal Queries Work With Query Id
+
+    File Should Exist  ${SOPHOS_INSTALL}/plugins/edr/var/jrl/test_query1
+    File Should Not Be Empty  ${SOPHOS_INSTALL}/plugins/edr/var/jrl/test_query1
+    ${jrl2}=  Get File  ${SOPHOS_INSTALL}/plugins/edr/var/jrl/test_query1
+
+    Should Be Equal As Strings  ${jrl1}  ${jrl2}
+
 
 EDR Plugin Returns Query Error If Event Journal Contains Too Many Detections
     # Need to make sure test starts of fresh
@@ -417,6 +430,48 @@ EDR Plugin Stops Without Errors
     EDR Plugin Log Does Not Contain  WARN [
     EDR Plugin Log Does Not Contain  Operation canceled
 
+EDR Plugin Can clean up old osquery info and warning files
+    Check EDR Plugin Installed With Base
+    Stop EDR
+    Create File  ${EDR_LOG_DIR}/osqueryd.INFO.20200117-042121.1001
+    Create File  ${EDR_LOG_DIR}/osqueryd.INFO.20200117-042121.1002
+    Create File  ${EDR_LOG_DIR}/osqueryd.INFO.20200117-042121.1003
+    Create File  ${EDR_LOG_DIR}/osqueryd.INFO.20200117-042121.1004
+    Create File  ${EDR_LOG_DIR}/osqueryd.INFO.20200117-042121.1005
+    Create File  ${EDR_LOG_DIR}/osqueryd.INFO.20200117-042121.1006
+    Create File  ${EDR_LOG_DIR}/osqueryd.INFO.20200117-042121.1007
+    Create File  ${EDR_LOG_DIR}/osqueryd.INFO.20200117-042121.1008
+    Create File  ${EDR_LOG_DIR}/osqueryd.INFO.20200117-042121.1009
+    Create File  ${EDR_LOG_DIR}/osqueryd.INFO.20200117-042121.1010
+    Create File  ${EDR_LOG_DIR}/osqueryd.INFO.20200117-042121.1011
+
+    Create File  ${EDR_LOG_DIR}/osqueryd.WARNING.20200117-042121.1001
+    Create File  ${EDR_LOG_DIR}/osqueryd.WARNING.20200117-042121.1002
+    Create File  ${EDR_LOG_DIR}/osqueryd.WARNING.20200117-042121.1003
+    Create File  ${EDR_LOG_DIR}/osqueryd.WARNING.20200117-042121.1004
+    Create File  ${EDR_LOG_DIR}/osqueryd.WARNING.20200117-042121.1005
+    Create File  ${EDR_LOG_DIR}/osqueryd.WARNING.20200117-042121.1006
+    Create File  ${EDR_LOG_DIR}/osqueryd.WARNING.20200117-042121.1007
+    Create File  ${EDR_LOG_DIR}/osqueryd.WARNING.20200117-042121.1008
+    Create File  ${EDR_LOG_DIR}/osqueryd.WARNING.20200117-042121.1009
+    Create File  ${EDR_LOG_DIR}/osqueryd.WARNING.20200117-042121.1010
+    Create File  ${EDR_LOG_DIR}/osqueryd.WARNING.20200117-042121.1011
+    Start EDR
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  1 secs
+    ...  EDR Plugin Log Contains  Removed old osquery WARNING file:
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  1 secs
+    ...  EDR Plugin Log Contains  Removed old osquery INFO file:
+
+sophos_endpoint_info Has installed_versions Field Which Has Base And Edr Version
+    Check EDR Plugin Installed With Base
+    ${response} =  Run Live Query and Return Result  SELECT installed_versions FROM sophos_endpoint_info
+    Should Contain  ${response}  "errorCode":0,"errorMessage":"OK"
+    Should Contain  ${response}  [{\\"Name\\":\\"SPL-Base-Component\\",\\"installed_version\\":\\"1.2
+    Should Contain  ${response}  ,{\\"Name\\":\\"SPL-Endpoint-Detection-and-Response-Plugin\\",\\"installed_version\\":\\"1.1
 
 *** Keywords ***
 Reinstall With Base
