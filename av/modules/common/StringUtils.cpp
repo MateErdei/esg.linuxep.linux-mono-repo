@@ -1,4 +1,4 @@
-// Copyright 2020-2022 Sophos Limited. All rights reserved.
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #include "StringUtils.h"
 
@@ -90,35 +90,6 @@ namespace common
         }
 
         text.swap(buffer);
-    }
-
-    std::string sha256_hash(const std::string& str)
-    {
-        unsigned char hash[SHA256_DIGEST_LENGTH];
-        SHA256_CTX sha256;
-        SHA256_Init(&sha256);
-        SHA256_Update(&sha256, str.c_str(), str.size());
-        SHA256_Final(hash, &sha256);
-        std::stringstream ss;
-        for(const auto& ch : hash)
-        {
-            ss << std::hex << std::setw(2) << std::setfill('0') << (int)ch;
-        }
-        return ss.str();
-    }
-
-    std::string md5_hash(const std::string& str)
-    {
-        unsigned char hashArray[MD5_DIGEST_LENGTH];
-        MD5((unsigned char*) str.c_str(), str.size(), hashArray);
-
-        std::stringstream ss;
-        ss << std::hex << std::setfill('0')  << std::nouppercase;
-        for(const auto& ch : hashArray)
-        {
-            ss << std::setw(2) << (int)ch;
-        }
-        return ss.str();
     }
 
     std::string toUtf8(const std::string& str, bool appendConversion, bool throws)

@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2020-2022, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
@@ -12,8 +8,6 @@ Copyright 2020-2022, Sophos Limited.  All rights reserved.
 namespace common
 {
     void escapeControlCharacters(std::string& text, bool escapeXML=false);
-    std::string sha256_hash(const std::string& str);
-    std::string md5_hash(const std::string& str);
     std::string toUtf8(const std::string& str, bool appendConversion = true, bool throws = true);
     std::string fromLogLevelToString(const log4cplus::LogLevel& logLevel);
     std::string pluralize(int number, std::string singularString, std::string pluralString);

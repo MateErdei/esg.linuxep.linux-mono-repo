@@ -59,11 +59,10 @@ target_link_libraries(common  PUBLIC
         datatypes
         ${STD_FILESYSTEM_IF_REQUIRED}
         ${pluginapilib}
-        ${CRYPTO_LIBRARY}
         ${Boost_LIBRARIES}
         )
 
-target_include_directories(common PUBLIC ${pluginapiinclude} ${CMAKE_SOURCE_DIR}/modules ${OPENSSL_INCLUDE_DIR} ${JSON_INPUT})
+target_include_directories(common PUBLIC ${pluginapiinclude} ${CMAKE_SOURCE_DIR}/modules ${JSON_INPUT})
 target_include_directories(common SYSTEM PUBLIC ${BOOST_INCLUDEDIR})
 
 install(TARGETS common

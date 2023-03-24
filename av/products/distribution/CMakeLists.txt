@@ -27,7 +27,6 @@ set(third_party_libs
         ${log4cpluslib}
         ${protobuflib}
         ${expatlib}
-        ${OPENSSLCRYPTO_LIBRARY_ABSOLUTE}
         ${ZLIB_LIBRARY}
         )
 
@@ -88,8 +87,10 @@ add_custom_target(
 install(FILES  ${third_party_libs}
         DESTINATION files/plugins/${PLUGIN_NAME}/lib64)
 
-install(IMPORTED_RUNTIME_ARTIFACTS safestorelib LIBRARY
-        DESTINATION files/plugins/${PLUGIN_NAME}/lib64)
+install(IMPORTED_RUNTIME_ARTIFACTS
+        safestorelib
+        openssl_crypto
+        LIBRARY DESTINATION files/plugins/${PLUGIN_NAME}/lib64)
 
 add_custom_target(
         copy_libs

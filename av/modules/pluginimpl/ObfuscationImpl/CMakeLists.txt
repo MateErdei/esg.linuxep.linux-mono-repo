@@ -21,11 +21,8 @@ add_library(obfuscationimpl SHARED
         ../Obfuscation/IObscurityException.h
         )
 
-target_include_directories(obfuscationimpl PUBLIC
-        ${OPENSSL_INCLUDE_DIR} ${LOG4CPLUS_INCLUDE_DIR}
-        )
-
-target_link_libraries(obfuscationimpl PUBLIC ${CRYPTO_LIBRARY} )
+target_include_directories(obfuscationimpl PUBLIC ${LOG4CPLUS_INCLUDE_DIR})
+target_link_libraries(obfuscationimpl PUBLIC openssl_crypto)
 
 SET_TARGET_PROPERTIES( obfuscationimpl
         PROPERTIES INSTALL_RPATH "$ORIGIN")

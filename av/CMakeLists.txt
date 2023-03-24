@@ -211,13 +211,16 @@ set( ENV{LD_LIBRARY_PATH} ${CAPNPROTO_LD_LIBRARY_PATH} )
 
 message("CAPNPROTO_LD_LIBRARY_PATH=${CAPNPROTO_LD_LIBRARY_PATH}")
 
-set(OPENSSL_INPUT ${REDIST}/openssl)
-set(OPENSSL_INCLUDE_DIR  ${OPENSSL_INPUT}/include64)
-find_library(CRYPTO_LIBRARY
-        NAMES crypto
-        PATHS ${OPENSSL_INPUT}/lib64
-        NO_DEFAULT_PATH
-        )
+function(add_imported_library name type location include_directory)
+    add_library(${name} ${type} IMPORTED)
+    set_target_properties(${name} PROPERTIES IMPORTED_LOCATION ${location})
+    if(${type} STREQUAL SHARED)
+        set_target_properties(${name} PROPERTIES IMPORTED_NO_SONAME TRUE)
+    endif()
+    target_include_directories(${name} INTERFACE ${include_directory})
+endfunction()
+
+add_imported_library(openssl_crypto SHARED ${INPUT}/openssl/lib64/libcrypto.so.3 ${INPUT}/openssl/include)
 
 add_library(safestorelib SHARED IMPORTED)
 set_target_properties(safestorelib PROPERTIES
@@ -229,8 +232,6 @@ set(ZLIB_INPUT ${REDIST}/zlib)
 set(ZLIB_LIBRARY ${ZLIB_INPUT}/libz.so.1)
 
 set(JSON_INPUT ${pluginapiinclude}/thirdparty/nlohmann-json)
-
-GET_FILENAME_COMPONENT(OPENSSLCRYPTO_LIBRARY_ABSOLUTE ${CRYPTO_LIBRARY} REALPATH)
 
 add_subdirectory(modules)
 add_subdirectory(products)

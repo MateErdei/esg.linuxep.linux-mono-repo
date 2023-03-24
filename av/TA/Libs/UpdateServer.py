@@ -231,18 +231,3 @@ class UpdateServer(object):
     def can_curl_url(self, url):
         if self.curl_url(url) != 0:
             raise AssertionError("cannot reach url: {}".format(url))
-
-    @staticmethod
-    def unpack_openssl(tmp_path="/tmp"):
-        openssl_input = get_variable("OPENSSL_INPUT")
-        if openssl_input is None:
-            raise AssertionError("Required env variable 'OPENSSL_INPUT' is not specified")
-        target_path = os.path.join(tmp_path, "openssl")
-        if os.path.isdir(openssl_input):
-            if not os.path.isdir(target_path):
-                shutil.copytree(openssl_input, target_path)
-
-        openssl_tar = os.path.join(openssl_input, "openssl.tar")
-        os.system("tar -xvf {} -C {} > /dev/null".format(openssl_tar, tmp_path))
-
-        return target_path

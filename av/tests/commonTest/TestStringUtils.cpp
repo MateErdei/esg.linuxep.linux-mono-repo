@@ -142,38 +142,6 @@ TEST_F(TestStringUtils, TestToUtf8FromLatin1) // NOLINT
     EXPECT_EQ(utf8Path, threatPathUtf8);
 }
 
-TEST_F(TestStringUtils, TestMd5Hash) // NOLINT
-{
-    std::string threatPath = "c1cfcf69a42311a6084bcefe8af02c8a";
-    // b8a6b7dcecd5325b163c16802c45e313 is the output of echo -n c1cfcf69a42311a6084bcefe8af02c8a | md5sum
-    EXPECT_EQ("b8a6b7dcecd5325b163c16802c45e313", common::md5_hash(threatPath));
-
-
-    using PairResult = std::pair<std::string, std::string>;
-    using ListInputOutput = std::vector<PairResult>;
-
-    ListInputOutput listInputOutput = { { "hello world!", "fc3ff98e8c6a0d3087d515c0473f8677" },
-                                        { "this is a\nmultiline string", "ce9107bda89e91c8f277ace9056e1322" },
-                                        { "", "d41d8cd98f00b204e9800998ecf8427e" } };
-
-    for (const auto& inputoutput : listInputOutput)
-    {
-        std::string input = inputoutput.first;
-        std::string expected = inputoutput.second;
-        EXPECT_EQ(common::md5_hash(input), expected);
-    }
-}
-
-
-
-TEST_F(TestStringUtils, TestSha256Hash) // NOLINT
-{
-    std::string threatPath = "c1cfcf69a42311a6084bcefe8af02c8a";
-    // 6a5db0eee72167cec3cd880f79a33bfa0ba02e41831563b4a6b9242c59c594c3 is the output of
-    // echo -n c1cfcf69a42311a6084bcefe8af02c8a | sha256sum
-    EXPECT_EQ("6a5db0eee72167cec3cd880f79a33bfa0ba02e41831563b4a6b9242c59c594c3", common::sha256_hash(threatPath));
-}
-
 TEST_F(TestStringUtils, TestFromLogLevelToStringReturnsExpectedString) // NOLINT
 {
     EXPECT_EQ(fromLogLevelToString(log4cplus::OFF_LOG_LEVEL), "OFF");

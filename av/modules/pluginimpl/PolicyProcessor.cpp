@@ -249,9 +249,9 @@ namespace Plugin
 
         if (unhashed)
         {
-            cred = common::md5_hash(username + ':' + password);
+            cred = Common::SslImpl::calculateDigest(Common::SslImpl::Digest::md5, username + ':' + password);
         }
-        return common::md5_hash(cred); // always do the second hash
+        return Common::SslImpl::calculateDigest(Common::SslImpl::Digest::md5, cred); // always do the second hash
     }
 
     void PolicyProcessor::markOnAccessReloadPending()

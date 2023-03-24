@@ -161,7 +161,7 @@ namespace Plugin
         {
             std::stringstream lrDataContents;
             lrDataContents << filerepFs.rdbuf() << signerrepFs.rdbuf();
-            return common::sha256_hash(lrDataContents.str());
+            return Common::SslImpl::calculateDigest(Common::SslImpl::Digest::sha256, lrDataContents.str());
         }
         return "unknown";
     }
@@ -177,7 +177,7 @@ namespace Plugin
         {
             std::stringstream mlLibContents;
             mlLibContents << mlLibFs.rdbuf();
-            return common::sha256_hash(mlLibContents.str());
+            return Common::SslImpl::calculateDigest(Common::SslImpl::Digest::sha256, mlLibContents.str());
         }
         return "unknown";
     }

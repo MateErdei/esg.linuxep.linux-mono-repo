@@ -430,7 +430,6 @@ function build()
             echo "ERROR - googletest not found here: $INPUT/googletest"
             exit 1
         fi
-        untar_input openssl
     else
         (( LOCAL_GCC == 0 )) && set_gcc_make
     fi
