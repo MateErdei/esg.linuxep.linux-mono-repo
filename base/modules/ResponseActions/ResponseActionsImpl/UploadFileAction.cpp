@@ -165,7 +165,8 @@ namespace ResponseActionsImpl
         Common::HttpRequests::RequestConfig request{
             .url = info.url, .headers = requestHeaders, .fileToUpload = m_pathToUpload, .timeout = info.timeout
         };
-        LOGINFO("Uploading file: " << m_pathToUpload << " to url: " << info.url);
+        LOGINFO("Uploading file: " << m_pathToUpload);
+        LOGDEBUG("Uploading file: " << m_pathToUpload << " to url: " << info.url);
         Common::HttpRequests::Response httpresponse;
 
         if (Common::ProxyUtils::updateHttpRequestWithProxyInfo(request))
