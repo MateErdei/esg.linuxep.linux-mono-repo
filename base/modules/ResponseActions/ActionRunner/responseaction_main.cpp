@@ -41,6 +41,13 @@ namespace ActionRunner
             ResponseActions::RACommon::sendResponse(correlationId, response);
             LOGINFO("Sent upload folder response for ID " << correlationId << " to Central");
         }
+        else if (type == ResponseActions::RACommon::DOWNLOAD_FILE_REQUEST_TYPE)
+        {
+            LOGINFO("Running download file action: " << correlationId);
+            std::string response = RunUtils::doDownloadFile(action);
+            ResponseActions::RACommon::sendResponse(correlationId, response);
+            LOGINFO("Sent download file response for ID " << correlationId << " to Central");
+        }
         else if (type == ResponseActions::RACommon::RUN_COMMAND_REQUEST_TYPE)
         {
             LOGINFO("Performing run command action: " << correlationId);
@@ -48,13 +55,6 @@ namespace ActionRunner
             auto response = RunUtils::doRunCommand(action, correlationId);
             ResponseActions::RACommon::sendResponse(correlationId, response);
             LOGINFO("Sent run command response for ID " << correlationId << " to Central");
-        }
-        else if (type == "sophos.mgt.action.DownloadFile")
-        {
-            LOGINFO("Running download file action: " << correlationId);
-            std::string response = RunUtils::doDownloadFile(action);
-            ResponseActions::RACommon::sendResponse(correlationId, response);
-            LOGINFO("Sent download file response for id " << correlationId << " to Central");
         }
         else
         {

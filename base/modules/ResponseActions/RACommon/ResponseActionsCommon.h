@@ -25,5 +25,8 @@ namespace ResponseActions::RACommon
     constexpr auto UPLOAD_FOLDER_REQUEST_TYPE = "sophos.mgt.action.UploadFolder";
     constexpr auto UPLOAD_FOLDER_RESPONSE_TYPE = "sophos.mgt.response.UploadFolder";
 
+    constexpr auto DOWNLOAD_FILE_REQUEST_TYPE = "sophos.mgt.action.DownloadFile";
+    constexpr auto DOWNLOAD_FILE_RESPONSE_TYPE = "sophos.mgt.response.DownloadFile";
+
     void sendResponse(const std::string& correlationId, const std::string& content);
 } // namespace ResponseActions::RACommon

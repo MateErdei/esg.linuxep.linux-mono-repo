@@ -146,14 +146,12 @@ namespace ResponseActionsImpl
 
         if (Common::ProxyUtils::updateHttpRequestWithProxyInfo(request))
         {
-            std::stringstream message;
-            message << "Uploading via proxy: " << request.proxy.value();
-            LOGINFO(message.str());
+            LOGINFO("Uploading via proxy: " << request.proxy.value());
             httpresponse = m_client->put(request);
             handleHttpResponse(httpresponse, response);
             if (response["result"] != 0)
             {
-                LOGWARN("Connection with proxy failed going direct");
+                LOGWARN("Connection with proxy failed, going direct");
                 request.proxy = "";
                 request.proxyPassword = "";
                 request.proxyUsername = "";

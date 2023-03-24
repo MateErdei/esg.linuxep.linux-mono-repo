@@ -31,6 +31,7 @@ namespace ResponseActionsImpl
         }
         catch (const InvalidCommandFormat& exception)
         {
+            LOGWARN(exception.what());
             ActionsUtils::setErrorInfo(response, 1,  "Error parsing command from Central");
             return response.dump();
         }
@@ -78,7 +79,7 @@ namespace ResponseActionsImpl
         if (info.sizeBytes > maxFileSize)
         {
             std::stringstream sizeError;
-            sizeError << "Downloading file to " << info.targetPath << " failed due to size: " << info.sizeBytes << " is to large";
+            sizeError << "Downloading file to " << info.targetPath << " failed due to size: " << info.sizeBytes << " is too large";
             LOGWARN(sizeError.str());
             ActionsUtils::setErrorInfo(response, 1, sizeError.str());
             return false;
@@ -126,14 +127,14 @@ namespace ResponseActionsImpl
             return false;
         }
 
-        std::filesystem::space_info spaceInfoToCheck = tmpSpaceInfo.available > destSpaceInfo.available ? destSpaceInfo : tmpSpaceInfo;
+        auto spaceInfoToCheck = std::min(tmpSpaceInfo.available, destSpaceInfo.available);
 
-        if ((!info.decompress && spaceInfoToCheck.available < info.sizeBytes) ||
-            (info.decompress && spaceInfoToCheck.available < (info.sizeBytes * 2.5)))
+        if ((!info.decompress && spaceInfoToCheck < info.sizeBytes) ||
+            (info.decompress && spaceInfoToCheck < (info.sizeBytes * 2.5)))
         {
             std::stringstream spaceError;
-            spaceError << "Not enough space to complete download action : sophos install disk has "  << tmpSpaceInfo.available <<
-                " ,destination disk has " << destSpaceInfo.available;
+            spaceError << "Not enough space to complete download action: Sophos install disk has "  << tmpSpaceInfo.available <<
+                ", destination disk has " << destSpaceInfo.available;
             LOGWARN(spaceError.str());
             ActionsUtils::setErrorInfo(response, 1, spaceError.str(), "not_enough_space");
             return false;
@@ -152,15 +153,13 @@ namespace ResponseActionsImpl
 
         if (Common::ProxyUtils::updateHttpRequestWithProxyInfo(request))
         {
-            std::stringstream message;
-            message << "Downloading via proxy: " << request.proxy.value();
-            LOGINFO(message.str());
+            LOGINFO("Downloading via proxy: " << request.proxy.value());
             httpresponse = m_client->get(request);
             handleHttpResponse(httpresponse, response, info.url);
 
             if (response["result"] != 0)
             {
-                LOGWARN("Connection with proxy failed going direct");
+                LOGWARN("Connection with proxy failed, going direct");
                 request.proxy = "";
                 request.proxyPassword = "";
                 request.proxyUsername = "";

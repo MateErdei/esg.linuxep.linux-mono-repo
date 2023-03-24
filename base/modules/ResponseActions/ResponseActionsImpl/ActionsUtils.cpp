@@ -98,8 +98,9 @@ namespace ResponseActionsImpl
         }
         catch (const nlohmann::json::exception& exception)
         {
-            LOGWARN(exception.what());
-            throw InvalidCommandFormat("Error parsing command from Central");
+            std::stringstream exceptMsg;
+            exceptMsg << "Error parsing command from Central: " << exception.what();
+            throw InvalidCommandFormat(exceptMsg.str());
         }
 
         std::string errorPrefix = "Download command from Central missing required parameter: ";
@@ -156,8 +157,19 @@ namespace ResponseActionsImpl
         catch (const nlohmann::json::type_error& exception)
         {
             std::stringstream errorMsg;
-            errorMsg << "Failed to parse download command json, json value in unexpected type : " << exception.what();
+            errorMsg << "Failed to parse download command json, json value in unexpected type: " << exception.what();
             throw InvalidCommandFormat(errorMsg.str());
+        }
+        catch (const std::exception& exception)
+        {
+            std::stringstream errorMsg;
+            errorMsg << "Failed to parse download command json: " << exception.what();
+            throw InvalidCommandFormat(errorMsg.str());
+        }
+
+        if (info.targetPath == "")
+        {
+            throw InvalidCommandFormat("Target Path field is empty");
         }
 
         return info;

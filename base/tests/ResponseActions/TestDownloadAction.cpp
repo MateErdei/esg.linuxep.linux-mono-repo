@@ -596,7 +596,7 @@ TEST_F(DownloadFileTests, ProxyFailureFallsbackDirect_NotDecompressed)
 
     EXPECT_TRUE(appenderContains("Downloading via proxy: localhost"));
     EXPECT_TRUE(appenderContains("Failed to download https://s3.com/download.zip: Error code 400"));
-    EXPECT_TRUE(appenderContains("Connection with proxy failed going direct"));
+    EXPECT_TRUE(appenderContains("Connection with proxy failed, going direct"));
     EXPECT_TRUE(appenderContains("/path/to/download/to/download.zip downloaded successfully"));
 }
 
@@ -643,7 +643,7 @@ TEST_F(DownloadFileTests, ProxyFailureFallsbackDirect_Decompressed)
 
     EXPECT_TRUE(appenderContains("Downloading via proxy: localhost"));
     EXPECT_TRUE(appenderContains("Failed to download https://s3.com/download.zip: Error code 400"));
-    EXPECT_TRUE(appenderContains("Connection with proxy failed going direct"));
+    EXPECT_TRUE(appenderContains("Connection with proxy failed, going direct"));
     EXPECT_TRUE(appenderContains("/path/to/download/to/download.txt downloaded successfully"));
 }
 
@@ -652,7 +652,7 @@ TEST_F(DownloadFileTests, FileToDownloadIsAboveMaxAllowedFileSize)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    std::string expectedErrMsg = "Downloading file to /path/to/download/to/ failed due to size: 3221225472 is to large";
+    std::string expectedErrMsg = "Downloading file to /path/to/download/to/ failed due to size: 3221225472 is too large";
 
     ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
 
@@ -727,7 +727,7 @@ TEST_F(DownloadFileTests, ErrorParsingJson)
     EXPECT_TRUE(appenderContains("json.exception.parse_error.101"));
 }
 
-TEST_F(DownloadFileTests, actionExipired)
+TEST_F(DownloadFileTests, actionExpired)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
@@ -915,7 +915,7 @@ TEST_F(DownloadFileTests, NotEnoughSpaceOnRATmpDisk)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    const std::string expectedErrStr = "Not enough space to complete download action : sophos install disk has 1 ,destination disk has 1048576";
+    const std::string expectedErrStr = "Not enough space to complete download action: Sophos install disk has 1, destination disk has 1048576";
 
     //MockFileSystem
     addDiskSpaceExpectsToMockFileSystem(1);
@@ -939,7 +939,7 @@ TEST_F(DownloadFileTests, NotEnoughSpaceOnDestDisk)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    const std::string expectedErrStr = "Not enough space to complete download action : sophos install disk has 1048576 ,destination disk has 1";
+    const std::string expectedErrStr = "Not enough space to complete download action: Sophos install disk has 1048576, destination disk has 1";
 
     //MockFileSystem
     addDiskSpaceExpectsToMockFileSystem(1024 * 1024, 1);
