@@ -133,8 +133,6 @@ namespace ResponseActionsImpl
             return;
         }
 
-        m_filename = Common::FileSystem::basename(m_pathToUpload);
-        response["fileName"] = m_filename;
         Common::HttpRequests::Headers requestHeaders{ { "Content-Type", "application/zip" } };
 
         Common::HttpRequests::RequestConfig request{
@@ -176,7 +174,7 @@ namespace ResponseActionsImpl
         if (httpresponse.errorCode == Common::HttpRequests::ResponseErrorCode::TIMEOUT)
         {
             std::stringstream error;
-            error << "Timeout uploading zip file: " << m_filename;
+            error << "Timeout uploading zip file: " << m_pathToUpload;
             LOGWARN(error.str());
             ActionsUtils::setErrorInfo(response, 2, error.str());
         }
@@ -185,12 +183,12 @@ namespace ResponseActionsImpl
             if (httpresponse.status == 200)
             {
                 response["result"] = 0;
-                LOGINFO("Upload for " << m_filename << " succeeded");
+                LOGINFO("Upload for " << m_pathToUpload << " succeeded");
             }
             else
             {
                 std::stringstream error;
-                error << "Failed to upload zip file: " << m_filename << " with http error code " << httpresponse.status;
+                error << "Failed to upload zip file: " << m_pathToUpload << " with http error code " << httpresponse.status;
                 LOGWARN(error.str());
                 ActionsUtils::setErrorInfo(response, 1, error.str(), "network_error");
             }
@@ -198,7 +196,7 @@ namespace ResponseActionsImpl
         else
         {
             std::stringstream error;
-            error << "Failed to upload zip file: " << m_filename << " with error code " << httpresponse.errorCode;
+            error << "Failed to upload zip file: " << m_pathToUpload << " with error code " << httpresponse.errorCode;
             LOGWARN(error.str());
             ActionsUtils::setErrorInfo(response, 1, error.str(), "network_error");
         }
