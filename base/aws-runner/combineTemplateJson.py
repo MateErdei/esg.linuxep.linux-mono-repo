@@ -43,11 +43,19 @@ def args():
     else:
         yield ""
 
+
+def set_or_add_base_ami(tags, ami):
+    for tag in tags:
+        if tag['Key'] == "BaseAmi":
+            tag['Value'] = ami
+            return
+
+    tags.append({"Key": "BaseAmi", "Value": ami})
+
+
 def main():
     with open("sspl-system.template") as main_template_file:
         main_template_json = json.loads(main_template_file.read())
-
-
 
     n = 1
     for arguments in args():
@@ -57,17 +65,20 @@ def main():
             json_with_args = json.loads(template_json_str.replace("@ARGSGOHERE@", arguments).replace("@HOSTNAMEGOESHERE@", unique_template_name))
 
             tags = json_with_args["Properties"]["Tags"]
+            ami = json_with_args["Properties"]["ImageId"]
             tags.extend(
-            [
-                {"Key": "Hostname", "Value": unique_template_name},
-                {"Key": "Slice", "Value": "load" + str(n)},
-                {"Key": "Include", "Value": str(arguments)},
-            ])
+                [
+                    {"Key": "Hostname", "Value": unique_template_name},
+                    {"Key": "Slice", "Value": "load" + str(n)},
+                    {"Key": "Include", "Value": str(arguments)},
+                ])
+            set_or_add_base_ami(tags, ami)
             main_template_json["Resources"][unique_template_name] = json_with_args
-        n+=1
+        n += 1
 
     with open("sspl-system.template.with_args", "w") as outFile:
         outFile.write(json.dumps(main_template_json, indent=4))
+
 
 if __name__ == '__main__':
     main()
