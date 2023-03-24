@@ -53,7 +53,7 @@
         <build-asset project="thirdparty" repo="all">
             <release-version branch="release/2023.13" build-id="20230310172501-e459dfc33a663c014e4f901561e1e8190740fae8-kP30VN"/>
             <development-version branch="develop"/>
-            <include artifact-path="openssl_3/openssl_linux64_gcc11-2glibc2-17" dest-dir="/build/redist/openssl3"/>
+            <include artifact-path="openssl_3/openssl_linux64_gcc11-2glibc2-17" dest-dir="/build/redist/openssl"/>
         </build-asset>
 
         <trusted-asset artifact-path="org.cmake/cmake-3.26.0/cmake-3.26.0" dest-dir="/build/input/cmake"/>

@@ -195,7 +195,7 @@ endif()
 ## Find 3rd party libraries
 set( BOOST_INPUT ${INPUT}/boost )
 set( CURL_INPUT ${INPUT}/curl )
-set( OPENSSL_INPUT ${INPUT}/openssl3 )
+set( OPENSSL_INPUT ${INPUT}/openssl )
 set( EXPAT_INPUT ${INPUT}/expat )
 set( LOG4CPLUS_INPUT ${INPUT}/log4cplus )
 set( GSL_INCLUDE ${INPUT}/gsl/include )
