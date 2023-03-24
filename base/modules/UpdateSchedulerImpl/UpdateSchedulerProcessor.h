@@ -32,11 +32,6 @@ namespace UpdateSchedulerImpl
      */
     std::vector<std::string> readInstalledFeatures();
 
-    /*
-     * Returns true if suldownloader is running with the specified path
-     */
-    bool isSuldownloaderRunning(const std::string& fullPathOfSulDownloader);
-
     class DetectRequestToStop : public std::runtime_error
     {
     public:
@@ -64,7 +59,7 @@ namespace UpdateSchedulerImpl
             const std::string& policyAppId);
 
     private:
-        void waitForSulDownloaderToFinish(int numberOfSecondsToWait);
+        void waitForSulDownloaderToFinish(int numberOfSeconds2Wait);
         void waitForJWTokenToArrive(int numberOfSeconds2Wait);
         void processALCPolicy(const std::string& policyXml);
         void processFlags(const std::string& flagsContent);
