@@ -37,8 +37,6 @@ add_third_party_library(protobuf ${Protobuf_root}/lib)
 add_third_party_library(log4cplus ${LOG4CPLUS_INPUT}/lib)
 
 install(FILES ${third_party_libs}
-        ${INPUT}/openssl/lib64/libcrypto.so.1.1
-        ${INPUT}/openssl/lib64/libssl.so.1.1
         DESTINATION ${BASE_DIST_PREFIX}/files/base/lib64)
 
 install(IMPORTED_RUNTIME_ARTIFACTS

@@ -444,8 +444,6 @@ o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libboost_thread.so.1.78
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libbzip2.so
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libcentralregistrationimpl.so
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libcrypto.so
-o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libcrypto.so.1
-o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libcrypto.so.1.1
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libcrypto.so.3
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libcurl.so
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libcurlwrapper.so
@@ -493,8 +491,6 @@ o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libremotediagnoseimpl.s
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libsecurityutils.so
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libsslimpl.so
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libssl.so
-o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libssl.so.1
-o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libssl.so.1.1
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libssl.so.3
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libstatuscacheimpl.so
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libstatusreceiverimpl.so
