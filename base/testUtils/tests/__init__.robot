@@ -10,7 +10,9 @@ Library    ../libs/WarehouseUtils.py
 Library    ../libs/OSUtils.py
 Library    ../libs/UpdateServer.py
 Library    ../libs/PathManager.py
+
 Library           OperatingSystem
+Library           Process
 
 Resource   GeneralTeardownResource.robot
 
@@ -18,6 +20,15 @@ Test Timeout    5 minutes
 Test Teardown   General Test Teardown
 
 *** Keywords ***
+
+Check For Digest Sign
+    ${result}=  Run Process  bash  -x  ${SUPPORT_FILES}/jenkins/hasDigestSign.sh
+    Return From Keyword If    ${result.rc} == 0
+    Log  ${result.stdout}
+    Log  ${result.stderr}
+    Fatal Error  "digest_sign not found PATH or venv - see ${SUPPORT_FILES}/jenkins/hasDigestSign.sh"
+
+
 Global Setup Tasks
     # SOPHOS_INSTALL
     ${placeholder} =  Get Environment Variable  SOPHOS_INSTALL  default=/opt/sophos-spl
@@ -86,6 +97,9 @@ Global Setup Tasks
     Set Global Variable   ${OPENSSL_LIB_PATH}   ${SYSTEM_PRODUCT_TEST_OUTPUT_PATH}
 
     Log To Console  \n${colored_message} \n
+
+    Check For Digest Sign
+
 
     Generate Real Warehouse Alc Files
     Set Global Variable  ${GeneratedWarehousePolicies}  ${SUPPORT_FILES}/CentralXml/RealWarehousePolicies/GeneratedAlcPolicies

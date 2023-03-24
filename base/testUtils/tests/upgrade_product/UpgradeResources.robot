@@ -39,8 +39,6 @@ ${sdds3_server_output}                          /tmp/sdds3_server.log
 
 *** Keywords ***
 Test Setup
-    Set Suite Variable    ${GL_handle}       ${EMPTY}
-    Set Suite Variable    ${GL_UC_handle}    ${EMPTY}
     Require Uninstalled
     Set Environment Variable  CORRUPTINSTALL  no
 
@@ -65,6 +63,8 @@ Test Teardown
     Require Uninstalled
 
 Suite Setup
+    Set Suite Variable    ${GL_handle}       ${EMPTY}
+    Set Suite Variable    ${GL_UC_handle}    ${EMPTY}
     Suite Setup Without Ostia
     Setup Ostia Warehouse Environment
 
