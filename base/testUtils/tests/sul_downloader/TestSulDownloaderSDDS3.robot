@@ -27,8 +27,6 @@ Default Tags  SULDOWNLOADER
 Force Tags  LOAD6
 
 *** Variables ***
-${sdds2_primary}                            ${SOPHOS_INSTALL}/base/update/cache/primary
-${sdds2_primary_warehouse}                  ${SOPHOS_INSTALL}/base/update/cache/primarywarehouse
 ${sdds3_server_output}                      /tmp/sdds3_server.log
 
 *** Test Cases ***
