@@ -31,7 +31,7 @@ RA Plugin downloads a file successfully
     Send_Download_File_From_Fake_Cloud
 
     wait_for_log_contains_from_mark  ${response_mark}  Action correlation-id has succeeded   25
-    wait_for_log_contains_from_mark  ${action_mark}  Sent download file response for id correlation-id to Central   15
+    wait_for_log_contains_from_mark  ${action_mark}  Sent download file response for ID correlation-id to Central   15
     wait_for_log_contains_from_mark  ${action_mark}   ${DOWNLOAD_TARGET_PATH}/${DOWNLOAD_FILENAME_ZIP} downloaded successfully
 
     Check Log Contains  Received HTTP GET Request  ${HTTPS_LOG_FILE_PATH}  https server log
@@ -53,7 +53,7 @@ RA Plugin downloads a file successfully with decompression
     Send_Download_File_From_Fake_Cloud   ${TRUE}
 
     wait_for_log_contains_from_mark  ${response_mark}  Action correlation-id has succeeded   25
-    wait_for_log_contains_from_mark  ${action_mark}  Sent download file response for id correlation-id to Central   15
+    wait_for_log_contains_from_mark  ${action_mark}  Sent download file response for ID correlation-id to Central   15
     wait_for_log_contains_from_mark  ${action_mark}   ${DOWNLOAD_TARGET_PATH}/${DOWNLOAD_FILENAME_TXT} downloaded successfully
 
     Check Log Contains  Received HTTP GET Request  ${HTTPS_LOG_FILE_PATH}  https server log
