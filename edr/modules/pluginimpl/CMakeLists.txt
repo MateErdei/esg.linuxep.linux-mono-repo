@@ -36,7 +36,7 @@ sophos_add_library(pluginimpl SHARED
         LiveQueryPolicyParser.cpp
         LiveQueryPolicyParser.h
         EXTRA_PROJECTS queryrunnerimpl OsqueryExtensions osqueryclient
-        EXTRA_INCLUDES ${CMAKE_BINARY_DIR} ${CMAKE_SOURCE_DIR}/modules ${BOOST_INCLUDE_DIR} ${INPUT}/jsoncpp/include
+        EXTRA_INCLUDES ${CMAKE_BINARY_DIR} ${CMAKE_SOURCE_DIR}/modules ${BOOST_INCLUDE_DIR} ${INPUT}/jsoncpp/include ${CMAKE_SOURCE_DIR}/modules/EdrCommon
         EXTRA_LIBS ${zmqlib}
             ${log4cpluslib}
             ${protobuflib}

@@ -650,11 +650,43 @@ TEST_F(TestResultSender, dataLimitHitGraduallyInvokesCallback)  // NOLINT
 
     while (timesToAddResult>0)
     {
-        resultsSender.Add(resultsSender.PrepareSingleResult(testResult));
+        resultsSender.Add(resultsSender.PrepareSingleResult(testResult).value());
         timesToAddResult--;
     }
 
     ASSERT_EQ(callbackCount, 1);
+}
+
+TEST_F(TestResultSenderWithLogger, maxBatchSizeHitInSingleResultInvokesCallback)
+{
+    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
+    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
+    ResultSenderForUnitTests::mockNoQueryPack(mockFileSystem);
+    ResultSenderForUnitTests::mockPersistentValues(mockFileSystem);
+
+    testing::internal::CaptureStderr();
+
+    // Controlled by DEFAULT_MAX_BATCH_SIZE_BYTES
+    std::string value(2000000, 'a');
+    std::string testResult = R"({"name":"test", "something":")" + value + "\"})";
+    bool callbackCalled = false;
+    ResultsSender resultsSender(
+        INTERMEDIARY_PATH,
+        DATAFEED_PATH,
+        QUERY_PACK_PATH,
+        MTR_QUERY_PACK_PATH,
+        CUSTOM_QUERY_PACK_PATH,
+        PLUGIN_VAR_DIR,
+        DATA_LIMIT,
+        PERIOD_IN_SECONDS,
+        [&callbackCalled]()mutable{callbackCalled = true;});
+
+    EXPECT_FALSE(resultsSender.PrepareSingleResult(testResult).has_value());
+    ASSERT_FALSE(callbackCalled);
+
+    std::string logMessage = testing::internal::GetCapturedStderr();
+    std::string expectedLogLine = "result bigger than 2MB. Query row dropped";
+    EXPECT_THAT(logMessage, ::testing::HasSubstr(expectedLogLine));
 }
 
 TEST_F(TestResultSender, fuzzSamples) // NOLINT
@@ -714,11 +746,11 @@ TEST_F(TestResultSender, testQueryNameCorrectedFromQueryPackMap) // NOLINT
     ResultSenderForUnitTests::mockPersistentValues(mockFileSystem);
     ResultSenderForUnitTests resultsSender(INTERMEDIARY_PATH, DATAFEED_PATH, QUERY_PACK_PATH,MTR_QUERY_PACK_PATH,CUSTOM_QUERY_PACK_PATH);
     std::string testResult = R"({"name":"pack_mtr_pack_query"})";
-    std::string correctedNameResult = "{\"name\":\"pack_query\",\"tag\":\"stream\"}";
+    std::string correctedNameResult = R"({"name":"pack_query","tag":"stream"})";
     std::string testResult1 = R"({"name":"pack_mtr_pack_query_no_tag"})";
 
     EXPECT_EQ(resultsSender.PrepareSingleResult(testResult), correctedNameResult);
-    EXPECT_EQ(resultsSender.PrepareSingleResult(testResult1), "");
+    EXPECT_EQ(resultsSender.PrepareSingleResult(testResult1), std::nullopt);
 }
 
 TEST_F(TestResultSender, prepareBatchResultsAppendsBracketAndReturnsJsonObject) // NOLINT

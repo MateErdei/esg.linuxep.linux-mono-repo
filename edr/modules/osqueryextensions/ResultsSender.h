@@ -29,10 +29,10 @@ public:
         const std::string& osqueryCustomConfigFilePath,
         const std::string& pluginVarDir,
         unsigned long long int dataLimit,
-        unsigned int periodInSeconds
-        ,std::function<void(void)> dataExceededCallback
+        unsigned int periodInSeconds,
+        std::function<void(void)> dataExceededCallback
         );
-    std::string PrepareSingleResult(const std::string& result) override;
+    std::optional<std::string> PrepareSingleResult(const std::string& result) override;
     void Add(const std::string& result) override;
     // cppcheck-suppress virtualCallInConstructor
     void Send() override;

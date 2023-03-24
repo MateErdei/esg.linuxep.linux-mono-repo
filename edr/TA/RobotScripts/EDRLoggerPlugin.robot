@@ -931,8 +931,8 @@ Are Next Query Packs Enabled in Plugin Conf
 Add Uptime Query to Scheduled Queries
     [Arguments]  ${interval}=1
     # TODO: When LINUXDAR-3943 is implemented remove denylist option from the query config, and change test accordingly if required.
-    Create File  ${SOPHOS_INSTALL}/plugins/edr/etc/query_packs/sophos-scheduled-query-pack.conf  {"schedule": {"uptime": {"query": "select * from uptime;","interval": ${interval}, "denylist": false}}}
-    Create File  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf.DISABLED  {"schedule": {"uptime": {"query": "select * from uptime;","interval": ${interval}, "denylist": false}}}
+    Create File  ${SOPHOS_INSTALL}/plugins/edr/etc/query_packs/sophos-scheduled-query-pack.conf  {"schedule": {"uptime": {"query": "select * from uptime;","interval": ${interval}, "tag": "stream", "denylist": false}}}
+    Create File  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf.DISABLED  {"schedule": {"uptime": {"query": "select * from uptime;","interval": ${interval}, "tag": "stream", "denylist": false}}}
 
 Test Teardown
     EDR And Base Teardown

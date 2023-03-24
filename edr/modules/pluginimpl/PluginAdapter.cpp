@@ -1,16 +1,14 @@
-/******************************************************************************************************
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
-Copyright 2018-2022 Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+#include "PluginAdapter.h"
 
 #include "ApplicationPaths.h"
 #include "IOsqueryProcess.h"
 #include "LiveQueryPolicyParser.h"
 #include "Logger.h"
-#include "PluginAdapter.h"
 #include "PluginUtils.h"
 #include "TelemetryConsts.h"
+#include "EdrConstants.h"
 
 #include <Common/FileSystem/IFilePermissions.h>
 #include <Common/FileSystem/IFileSystem.h>
@@ -24,7 +22,6 @@ Copyright 2018-2022 Sophos Limited.  All rights reserved.
 
 #include <cmath>
 #include <fstream>
-#include <thirdparty/nlohmann-json/json.hpp>
 #include <unistd.h>
 
 // helper class that allow to schedule a task.
@@ -69,12 +66,6 @@ public:
 
 namespace Plugin
 {
-    // XDR consts
-    static const int DEFAULT_MAX_BATCH_SIZE_BYTES = 2000000; // 2MB
-    static const int DEFAULT_MAX_BATCH_TIME_SECONDS = 15;
-    static const int DEFAULT_XDR_DATA_LIMIT_BYTES = 250000000; // 250MB
-    static const int DEFAULT_XDR_PERIOD_SECONDS = 86400; // 1 day
-
     PluginAdapter::PluginAdapter(
         std::shared_ptr<QueueTask> queueTask,
         std::unique_ptr<Common::PluginApi::IBaseServiceApi> baseService,
@@ -83,7 +74,7 @@ namespace Plugin
             m_baseService(std::move(baseService)),
             m_callback(std::move(callback)),
             m_parallelQueryProcessor{queryrunner::createQueryRunner(Plugin::osquerySocket(), Plugin::livequeryExecutable())},
-            m_dataLimit(DEFAULT_XDR_DATA_LIMIT_BYTES),
+            m_dataLimit(EdrCommon::DEFAULT_XDR_DATA_LIMIT_BYTES),
             m_loggerExtensionPtr(
                     std::make_shared<LoggerExtension>(
                             Plugin::osqueryXDRResultSenderIntermediaryFilePath(),
@@ -92,11 +83,11 @@ namespace Plugin
                             Plugin::osqueryMTRConfigFilePath(),
                             Plugin::osqueryCustomConfigFilePath(),
                             Plugin::varDir(),
-                            DEFAULT_XDR_DATA_LIMIT_BYTES,
-                            DEFAULT_XDR_PERIOD_SECONDS,
+                            EdrCommon::DEFAULT_XDR_DATA_LIMIT_BYTES,
+                            EdrCommon::DEFAULT_XDR_PERIOD_SECONDS,
                             [this] { dataFeedExceededCallback(); },
-                            DEFAULT_MAX_BATCH_TIME_SECONDS,
-                            DEFAULT_MAX_BATCH_SIZE_BYTES)
+                            EdrCommon::DEFAULT_MAX_BATCH_TIME_SECONDS,
+                            EdrCommon::DEFAULT_MAX_BATCH_SIZE_BYTES)
             ),
             m_scheduleEpoch(Plugin::varDir(),
                         "xdrScheduleEpoch",

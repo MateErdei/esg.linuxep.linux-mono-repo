@@ -1,13 +1,9 @@
-/******************************************************************************************************
-
-Copyright 2020-2021, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #include "ResultsSender.h"
 
 #include "Logger.h"
-
+#include "EdrConstants.h"
 #include <Common/FileSystem/IFileSystemException.h>
 
 #include <Common/UtilityImpl/TimeUtils.h>
@@ -56,7 +52,7 @@ ResultsSender::ResultsSender(
     LOGDEBUG("Initial XDR data limit roll over timestamp: " << m_periodStartTimestamp.getValue());
 }
 
-std::string ResultsSender::PrepareSingleResult(const std::string& result)
+std::optional<std::string> ResultsSender::PrepareSingleResult(const std::string& result)
 {
     LOGDEBUG("Adding XDR results to intermediary file: " << result);
 
@@ -67,27 +63,31 @@ std::string ResultsSender::PrepareSingleResult(const std::string& result)
         std::stringstream logLineStream(result);
         logLineStream >> logLine;
         queryName = logLine["name"].asString();
+        if (result.size() > EdrCommon::DEFAULT_MAX_BATCH_SIZE_BYTES)
+        {
+            LOGWARN("Query row in " << queryName << " result bigger than 2MB. Query row dropped.");
+            return std::nullopt;
+        }
         if (!queryName.empty())
         {
-            auto correctQueryNameAndTag = m_scheduledQueryTagMap[queryName];
-            if (logLine["name"] != correctQueryNameAndTag.first && !correctQueryNameAndTag.first.empty())
+            const auto& [name, correctedTag] = m_scheduledQueryTagMap[queryName];
+            if (logLine["name"] != name && !name.empty())
             {
-                logLine["name"] = correctQueryNameAndTag.first;
+                logLine["name"] = name;
             }
-            if (correctQueryNameAndTag.second.empty())
+            if (correctedTag.empty())
             {
                 LOGDEBUG("Query "<< queryName << " is untagged we will discard the data for this query");
-                return "";
+                return std::nullopt;
             }
-            logLine["tag"] = correctQueryNameAndTag.second;
+            logLine["tag"] = correctedTag;
         }
     }
     catch (const std::exception& e)
     {
         LOGERROR("Invalid JSON log message. " << e.what());
-        return "";
+        return std::nullopt;
     }
-
 
     std::stringstream ss;
     Json::StreamWriterBuilder writerBuilder;
