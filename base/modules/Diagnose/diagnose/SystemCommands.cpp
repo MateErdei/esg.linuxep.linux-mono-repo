@@ -36,7 +36,7 @@ namespace diagnose
         std::vector<std::string> arguments,
         const std::string& filename,
         const std::vector<u_int16_t>& exitcodes,
-        const int& timeout) const
+        const int& retries) const
     {
         Path filePath = Common::FileSystem::join(m_destination, filename);
         LOGINFO("Output file path: " << filePath);
@@ -44,7 +44,7 @@ namespace diagnose
         try
         {
             std::string exePath = Common::UtilityImpl::SystemExecutableUtils::getSystemExecutablePath(command);
-            auto output = runCommandOutputToString(exePath, arguments,exitcodes, timeout);
+            auto output = runCommandOutputToString(exePath, arguments,exitcodes, retries);
             fileSystem()->writeFile(filePath, output);
             return EXIT_SUCCESS;
         }
