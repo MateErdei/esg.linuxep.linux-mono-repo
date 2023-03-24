@@ -171,6 +171,14 @@ namespace ResponseActionsImpl
         {
             throw InvalidCommandFormat("Target Path field is empty");
         }
+        if (info.sha256 == "")
+        {
+            throw InvalidCommandFormat("sha256 field is empty");
+        }
+        if (info.url == "")
+        {
+            throw InvalidCommandFormat("url field is empty");
+        }
 
         return info;
     }

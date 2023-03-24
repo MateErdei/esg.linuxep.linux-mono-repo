@@ -390,7 +390,7 @@ TEST_F(ActionsUtilsTests, testEmptyTargetPath)
     try
     {
         auto output = ResponseActionsImpl::ActionsUtils::readDownloadAction(action.dump());
-        FAIL() << "Didnt throw due to empty target path action";
+        FAIL() << "Didnt throw due to empty target path field";
     }
     catch (const ResponseActionsImpl::InvalidCommandFormat& except)
     {
@@ -398,6 +398,35 @@ TEST_F(ActionsUtilsTests, testEmptyTargetPath)
     }
 }
 
+TEST_F(ActionsUtilsTests, testEmptysha256)
+{
+    nlohmann::json action = getDefaultDownloadAction();
+    action["sha256"] = "";
+    try
+    {
+        auto output = ResponseActionsImpl::ActionsUtils::readDownloadAction(action.dump());
+        FAIL() << "Didnt throw due to empty sha256 field";
+    }
+    catch (const ResponseActionsImpl::InvalidCommandFormat& except)
+    {
+        EXPECT_STREQ(except.what(), "Invalid command format. sha256 field is empty");
+    }
+}
+
+TEST_F(ActionsUtilsTests, testEmptyurl)
+{
+    nlohmann::json action = getDefaultDownloadAction();
+    action["url"] = "";
+    try
+    {
+        auto output = ResponseActionsImpl::ActionsUtils::readDownloadAction(action.dump());
+        FAIL() << "Didnt throw due to empty url field";
+    }
+    catch (const ResponseActionsImpl::InvalidCommandFormat& except)
+    {
+        EXPECT_STREQ(except.what(), "Invalid command format. url field is empty");
+    }
+}
 
 TEST_F(ActionsUtilsTests, testWrongTypePassword)
 {
