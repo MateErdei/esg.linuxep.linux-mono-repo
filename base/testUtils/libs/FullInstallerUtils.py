@@ -58,7 +58,10 @@ def get_variable(varName, defaultValue=None):
 
 
 def get_sophos_install():
-    return get_variable("SOPHOS_INSTALL")
+    sophos_install = get_variable("SOPHOS_INSTALL")
+    if not sophos_install:
+        sophos_install = "/opt/sophos-spl"
+    return sophos_install
 
 
 def newer_file(file_one: str, file_two: str) -> str:

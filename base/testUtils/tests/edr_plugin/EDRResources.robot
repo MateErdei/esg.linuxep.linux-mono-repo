@@ -63,9 +63,17 @@ Restart EDR Plugin
     ...   1 secs
     ...   EDR Plugin Is Running
 
+Cloud Server Is Running
+    ${result} =  Run Process  curl -k https://localhost:4443/mcs   shell=True
+    Should Be Equal As Integers  ${result.rc}  0  "Failed to Verify connection to Fake Cloud\nStdOut: ${result.stdout}\nStdErr: ${result.stderr}"
+
 Install EDR SDDS3
     [Arguments]  ${policy}  ${args}=${None}
     Start Local Cloud Server  --initial-alc-policy  ${policy}
+    Wait Until Keyword Succeeds
+        ...   20 secs
+        ...   1 secs
+        ...   Cloud Server Is Running
     configure_and_run_SDDS3_thininstaller  0  https://localhost:8080   https://localhost:8080
 
     Wait Until Keyword Succeeds
