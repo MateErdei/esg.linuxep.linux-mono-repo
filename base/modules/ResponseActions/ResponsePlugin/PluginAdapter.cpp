@@ -84,7 +84,6 @@ namespace ResponsePlugin
             LOGWARN("Throwing away unknown action: " << action);
             return;
         }
-
         m_runner->runAction(action, correlationId, actionType, timeout);
     }
 

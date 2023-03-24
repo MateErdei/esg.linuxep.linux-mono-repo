@@ -370,7 +370,7 @@ TEST_F(UploadFolderTests, FailureDueToTimeout)
     nlohmann::json responseJson = nlohmann::json::parse(response);
     EXPECT_EQ(responseJson["result"], 2);
     EXPECT_EQ(responseJson["httpStatus"], 500);
-    EXPECT_EQ(responseJson["errorMessage"], "Timeout uploading zip file: path.zip");
+    EXPECT_EQ(responseJson["errorMessage"], "Timeout uploading zip file: /opt/sophos-spl/plugins/responseactions/tmp/path.zip");
 }
 
 TEST_F(UploadFolderTests, FailureDueToNetworkError)
@@ -402,7 +402,7 @@ TEST_F(UploadFolderTests, FailureDueToNetworkError)
     nlohmann::json responseJson = nlohmann::json::parse(response);
     EXPECT_EQ(responseJson["result"], 1);
     EXPECT_EQ(responseJson["httpStatus"], 500);
-    EXPECT_EQ(responseJson["errorMessage"], "Failed to upload zip file: path.zip with error code 7");
+    EXPECT_EQ(responseJson["errorMessage"], "Failed to upload zip file: /opt/sophos-spl/plugins/responseactions/tmp/path.zip with error code 7");
     EXPECT_EQ(responseJson["errorType"], "network_error");
 }
 
@@ -435,6 +435,6 @@ TEST_F(UploadFolderTests, FailureDueToServerError)
     nlohmann::json responseJson = nlohmann::json::parse(response);
     EXPECT_EQ(responseJson["result"], 1);
     EXPECT_EQ(responseJson["httpStatus"], 500);
-    EXPECT_EQ(responseJson["errorMessage"], "Failed to upload zip file: path.zip with http error code 500");
+    EXPECT_EQ(responseJson["errorMessage"], "Failed to upload zip file: /opt/sophos-spl/plugins/responseactions/tmp/path.zip with http error code 500");
     EXPECT_EQ(responseJson["errorType"], "network_error");
 }
