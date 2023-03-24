@@ -44,7 +44,8 @@ Check Suldownloader Is Not Running
     Should Be Equal As Integers    ${result.rc}    1       msg="stdout:${result.stdout}\nerr: ${result.stderr}"
 
 Setup Dev Certs for sdds3
-    Copy File  ${SUPPORT_FILES}/sophos_certs/rootca384.crt  ${SOPHOS_INSTALL}/base/update/rootcerts/devrootca384.crt
+    Copy File  ${SUPPORT_FILES}/sophos_certs/rootca384-local-only.crt  ${SOPHOS_INSTALL}/base/update/rootcerts/devrootca384.crt
+    Copy File  ${SUPPORT_FILES}/sophos_certs/prod_certs/rootca384.crt  ${SOPHOS_INSTALL}/base/update/rootcerts/prodrootca384.crt
 
 Setup Install SDDS3 Base
     Require Fresh Install
