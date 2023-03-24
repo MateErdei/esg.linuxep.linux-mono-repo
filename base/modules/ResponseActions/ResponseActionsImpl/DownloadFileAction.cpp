@@ -57,7 +57,9 @@ namespace ResponseActionsImpl
             {
                 decompressAndMoveFile(fileName, info, response);
             }
+            removeTmpFiles();
         }
+
 
         u_int64_t end = time.currentEpochTimeInSecondsAsInteger();
         response["duration"] = end - start;
@@ -301,7 +303,6 @@ namespace ResponseActionsImpl
                     std::string error = "Unable to create path to extract file to: " + tmpExtractPath + ": " + e.what();
                     LOGWARN(error);
                     ActionsUtils::setErrorInfo(response, 1, error, "access_denied");
-                    removeTmpFiles();
                     return;
                 }
                 catch (const std::exception& e)
@@ -310,7 +311,6 @@ namespace ResponseActionsImpl
                     error << "Unknown error creating path to extract file to: " + tmpExtractPath + ": " + e.what();
                     LOGWARN(error.str());
                     ActionsUtils::setErrorInfo(response, 1, error.str());
-                    removeTmpFiles();
                     return;
                 }
 
@@ -384,7 +384,6 @@ namespace ResponseActionsImpl
         {
             makeDirAndMoveFile(response, info.targetPath, filePath);
         }
-        removeTmpFiles();
     }
 
     void DownloadFileAction::makeDirAndMoveFile(nlohmann::json& response, Path destPath, const Path& filePathToMove)
