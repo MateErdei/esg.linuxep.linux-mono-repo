@@ -179,9 +179,11 @@ Uninstall AuditD If Required
 
 EDR Suite Setup
     UpgradeResources.Suite Setup
+    Stop Local SDDS3 Server
     Generate Local Ssl Certs If They Dont Exist
     Install Local SSL Server Cert To System
     Set Environment Variable  SOPHOS_CORE_DUMP_ON_PLUGIN_KILL  1
+    ${placeholder} =  Get Environment Variable  TAP_VENV
     ${handle}=  Start Process  bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${LIBS_DIRECTORY}/SDDS3server.py --launchdarkly /tmp/launchdarkly --sdds3 ${SYSTEMPRODUCT_TEST_INPUT}/sdds3/repo  shell=true
     Set Suite Variable    ${GL_handle}    ${handle}
 

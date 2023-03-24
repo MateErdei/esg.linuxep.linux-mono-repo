@@ -28,6 +28,7 @@ Require Fresh Install
 Require Installed
     ${result}=  SSPL Is Installed
     Run Keyword If   ${result} != True  Require Fresh Install
+    Run Keyword If   ${result} != True  Register With Local Cloud Server
 
 Run Specific Installer Directly
     [Arguments]    ${installer_path}

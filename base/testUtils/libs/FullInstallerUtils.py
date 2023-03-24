@@ -61,6 +61,7 @@ def get_sophos_install():
     sophos_install = get_variable("SOPHOS_INSTALL")
     if not sophos_install:
         sophos_install = "/opt/sophos-spl"
+    logger.debug(f"Sophos install path is {sophos_install}")
     return sophos_install
 
 
@@ -933,8 +934,9 @@ def SSPL_is_installed():
     installdir = get_sophos_install()
     if os.path.isdir(os.path.join(installdir,"base")):
         if os.path.isfile(os.path.join(installdir,"/bin/wdctl")):
+            logger.info("SPL is installed")
             return True
-
+    logger.info("SPL is not installed")
     return False
 
 def _get_file_content(file_path):
