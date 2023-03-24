@@ -6,8 +6,6 @@
 
 #include "Common/Logging/LoggerConfig.h"
 
-#include <openssl/sha.h>
-#include <openssl/md5.h>
 #include <boost/locale.hpp>
 
 #include <cctype>
