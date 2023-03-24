@@ -143,9 +143,13 @@ AWS_TIMEOUT = 130
 
 
 @tap.timeout(task_timeout=AWS_TIMEOUT)
-def aws_task(machine: tap.Machine, include_tag: str):
+def aws_task(machine: tap.Machine, include_tag: str, robot_args: str):
     try:
-        machine.run("bash", machine.inputs.aws_runner / "run_tests_in_aws.sh", include_tag,
+        if robot_args:
+            machine.run("bash", machine.inputs.aws_runner / "run_tests_in_aws.sh", robot_args,
+                        timeout=((AWS_TIMEOUT - 15) * 60))
+        else:
+            machine.run("bash", machine.inputs.aws_runner / "run_tests_in_aws.sh", include_tag,
                     timeout=((AWS_TIMEOUT - 15) * 60))
     finally:
         machine.output_artifact('/opt/test/results', 'results')
@@ -452,10 +456,7 @@ def av_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
         if run_aws_tests:
             aws_test_inputs = get_inputs(context, av_build, aws=True)
             machine = tap.Machine('ubuntu1804_x64_server_en_us', inputs=aws_test_inputs, platform=tap.Platform.Linux)
-            if robot_args:
-                stage.task("aws_tests", func=aws_task, machine=machine, robot_args=robot_args)
-            else:
-                stage.task("aws_tests", func=aws_task, machine=machine, include_tag=include_tag)
+            stage.task("aws_tests", func=aws_task, machine=machine, include_tag=include_tag, robot_args=robot_args)
 
         # Coverage next, since that is the next slowest
         if do_coverage:
@@ -504,7 +505,7 @@ def av_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
                         with stage.parallel("integration"):
                             for (name, machine) in get_test_machines(test_inputs, parameters):
                                 stage.task(task_name=name, func=robot_task, machine=machine,
-                                           robot_args=robot_args)
+                                           robot_args=robot_args, include_tag="")
                     else:
                         for include in include_tag.split():
                             with stage.parallel(include):

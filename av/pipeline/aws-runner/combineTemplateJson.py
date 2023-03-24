@@ -40,12 +40,18 @@ def args():
             if '"' in arg_line or "'" in arg_line:
                 raise AssertionError('We DO NOT support quotes in these args. If you MUST use a robot argument which \
                                       contains whitespace, please swap it for underscores as robot treats them equally')
-
-            include, *excludes = arg_line.rstrip().split("NOT")
-            arg_vals = ['-i', include]
-            for exclude in excludes:
-                arg_vals.extend(['-e', exclude])
-            yield " ".join(arg_vals)
+            if arg_line.startswith("TEST="):
+                arg_vals = ['-t', arg_line.split('=')[1]]
+                yield " ".join(arg_vals)
+            elif arg_line.startswith("SUITE="):
+                arg_vals = ['-s', arg_line.split('=')[1]]
+                yield " ".join(arg_vals)
+            else:
+                include, *excludes = arg_line.rstrip().split("NOT")
+                arg_vals = ['-i', include]
+                for exclude in excludes:
+                    arg_vals.extend(['-e', exclude])
+                yield " ".join(arg_vals)
     else:
         yield ""
 
