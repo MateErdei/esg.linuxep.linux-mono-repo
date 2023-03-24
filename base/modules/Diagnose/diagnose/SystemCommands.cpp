@@ -27,10 +27,6 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 namespace diagnose
 {
-    constexpr int GL_10mbSize = 10 * 1024 * 1024;
-    const int GL_ProcTimeoutMilliSecs = 500;
-    const int GL_ProcMaxRetries = 20;
-
     using namespace Common::FileSystem;
 
     SystemCommands::SystemCommands(const std::string& destination) : m_destination(destination) {}
@@ -39,7 +35,8 @@ namespace diagnose
         const std::string& command,
         std::vector<std::string> arguments,
         const std::string& filename,
-        const std::vector<u_int16_t>& exitcodes) const
+        const std::vector<u_int16_t>& exitcodes,
+        const int& timeout) const
     {
         Path filePath = Common::FileSystem::join(m_destination, filename);
         LOGINFO("Output file path: " << filePath);
@@ -47,7 +44,7 @@ namespace diagnose
         try
         {
             std::string exePath = Common::UtilityImpl::SystemExecutableUtils::getSystemExecutablePath(command);
-            auto output = runCommandOutputToString(exePath, arguments,exitcodes);
+            auto output = runCommandOutputToString(exePath, arguments,exitcodes, timeout);
             fileSystem()->writeFile(filePath, output);
             return EXIT_SUCCESS;
         }
@@ -75,8 +72,10 @@ namespace diagnose
         return EXIT_FAILURE;
     }
 
-    std::string SystemCommands::runCommandOutputToString(const std::string& command, std::vector<std::string> args, const std::vector<u_int16_t>& exitcodes)
-        const
+    std::string SystemCommands::runCommandOutputToString(const std::string& command
+                                                         , std::vector<std::string> args
+                                                         , const std::vector<u_int16_t>& exitcodes
+                                                         , const int& retries) const
     {
         std::string commandAndArgs(command);
         std::for_each(
@@ -88,7 +87,7 @@ namespace diagnose
 
         processPtr->exec(command, args);
         auto period = Common::Process::milli(GL_ProcTimeoutMilliSecs);
-        if (processPtr->wait(period, GL_ProcMaxRetries) != Common::Process::ProcessStatus::FINISHED)
+        if (processPtr->wait(period, retries) != Common::Process::ProcessStatus::FINISHED)
         {
             processPtr->kill();
             auto output = processPtr->output();

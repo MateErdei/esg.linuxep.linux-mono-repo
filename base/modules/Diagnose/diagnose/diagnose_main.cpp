@@ -147,7 +147,7 @@ namespace diagnose
             systemCommands.runCommand("rpm", { "-qa" }, "rpm-pkgs");
             systemCommands.runCommand("dpkg", { "--get-selections" }, "dpkg-pkgs");
             systemCommands.runCommand("yum", { "-y", "list", "installed" }, "yum-pkgs");
-            systemCommands.runCommand("zypper", { "se", "-i" }, "zypper-pkgs");
+            systemCommands.runCommand("zypper", { "se", "-i" }, "zypper-pkgs", std::vector<u_int16_t>{}, 40);
             systemCommands.runCommand("apt", { "list", "--installed" }, "apt-pkgs");
             systemCommands.runCommand("ldconfig", { "-p" }, "ldconfig");
 
