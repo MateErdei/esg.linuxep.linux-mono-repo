@@ -80,7 +80,9 @@ target_link_libraries(updateschedulerimpl PUBLIC
         telemetryhelperimpl
         watchdogservice
         ${LOG4CPLUS_LIBRARY}
-        protobufutil)
+        protobufutil
+        procutilimpl
+        )
 
 SET_TARGET_PROPERTIES( updateschedulerimpl
         PROPERTIES INSTALL_RPATH "$ORIGIN")
