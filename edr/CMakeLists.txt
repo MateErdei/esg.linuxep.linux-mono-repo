@@ -195,6 +195,7 @@ add_imported_library(osquerysdk_library SHARED ${OSQUERYSDK}/lib64/libOsquerySDK
 add_imported_library(openssl_ssl SHARED ${INPUT}/openssl/lib64/libssl.so.3 ${INPUT}/openssl/include)
 add_imported_library(openssl_crypto SHARED ${INPUT}/openssl/lib64/libcrypto.so.3 ${INPUT}/openssl/include)
 
+target_link_libraries(openssl_crypto INTERFACE dl pthread)
 target_link_libraries(thrift_library INTERFACE ${zlib} openssl_ssl openssl_crypto)
 target_link_libraries(osquery_gen_library INTERFACE thrift_library)
 target_link_libraries(osquerysdk_library INTERFACE thrift_library osquery_gen_library)
