@@ -17,22 +17,13 @@ Library     Process
 Library     OperatingSystem
 
 Resource    ../upgrade_product/UpgradeResources.robot
-Resource    ./ThinInstallerResources.robot
+Resource    ../ThinInstallerResources.robot
 Resource    ../mcs_router/McsRouterResources.robot
 Resource    ../GeneralTeardownResource.robot
 
 Default Tags  THIN_INSTALLER  UPDATE_CACHE
 
 *** Keywords ***
-Setup Update Cache
-    Clear Warehouse Config
-    Generate Install File In Directory     ./tmp/TestInstallFiles/${BASE_RIGID_NAME}
-    Add Component Warehouse Config   ${BASE_RIGID_NAME}   ./tmp/TestInstallFiles/    ./tmp/temp_warehouse/
-    Generate Warehouse  ${FALSE}
-    Start Update Server    1236    ./tmp/temp_warehouse/warehouse_root/
-    Can Curl Url    https://localhost:1236/sophos/customer
-    Can Curl Url    https://localhost:1236/sophos/warehouse/catalogue/sdds.${BASE_RIGID_NAME}.xml
-
 Teardown
     General Test Teardown
     Stop Update Server
