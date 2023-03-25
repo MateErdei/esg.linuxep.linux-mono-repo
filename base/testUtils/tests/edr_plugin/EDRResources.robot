@@ -184,7 +184,7 @@ EDR Suite Setup
     Set Environment Variable  SOPHOS_CORE_DUMP_ON_PLUGIN_KILL  1
     ${placeholder} =  Get Environment Variable  TAP_VENV
     ${handle}=  Start Process  bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${LIBS_DIRECTORY}/SDDS3server.py --launchdarkly /tmp/launchdarkly --sdds3 ${SYSTEMPRODUCT_TEST_INPUT}/sdds3/repo  shell=true
-    Wait Until Keyword Succeeds  10 seconds  0.5 seconds    File Should Exist    /tmp/sdds3_server.log
+    Wait Until Keyword Succeeds  30 seconds  1 seconds    File Should Exist    /tmp/sdds3_server.log
     Set Suite Variable    ${GL_handle}    ${handle}
 
 EDR Suite Teardown
