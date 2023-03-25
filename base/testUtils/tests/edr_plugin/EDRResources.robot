@@ -178,6 +178,8 @@ Uninstall AuditD If Required
     END
 
 EDR Suite Setup
+    Stop Local Cloud Server
+    Cleanup Local Warehouse And Thininstaller
     UpgradeResources.Suite Setup
     Generate Local Ssl Certs If They Dont Exist
     Install Local SSL Server Cert To System
@@ -231,6 +233,7 @@ Setup SUS all non-base plugins 999
     Copy File  ${SYSTEMPRODUCT_TEST_INPUT}/sdds3/launchdarkly-999/release.linuxep.ServerProtectionLinux-Plugin-AV.json   /tmp/launchdarkly
     Copy File  ${SYSTEMPRODUCT_TEST_INPUT}/sdds3/launchdarkly-999/release.linuxep.ServerProtectionLinux-Plugin-EDR.json  /tmp/launchdarkly
     Copy File  ${SYSTEMPRODUCT_TEST_INPUT}/sdds3/launchdarkly-999/release.linuxep.ServerProtectionLinux-Plugin-MDR.json  /tmp/launchdarkly
+
 EDR Test Setup
     UpgradeResources.Test Setup
 
