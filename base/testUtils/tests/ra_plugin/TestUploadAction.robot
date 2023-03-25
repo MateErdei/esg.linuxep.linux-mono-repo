@@ -63,7 +63,7 @@ RA Plugin uploads a file successfully with compression
 
     File Should exist  /tmp/upload.zip
     Create Directory  /tmp/unpackzip/
-    Register Cleanup  Remove Directory  /tmp/unpackzip/
+    Register Cleanup  Remove Directory  /tmp/unpackzip/    recursive=True
     ${unzipTool} =  Set Variable  SystemProductTestOutput/unzipTool
     ${result} =    Run Process  LD_LIBRARY_PATH\=/opt/sophos-spl/base/lib64/ ${unzipTool} /tmp/upload.zip /tmp/unpackzip/ password  shell=True
     Log  ${result.stderr}
@@ -77,7 +77,7 @@ RA Plugin uploads a folder successfully with compression
     ${action_mark} =  mark_log_size  ${ACTIONS_RUNNER_LOG_PATH}
     Create Directory  /tmp/compressionTest
     Create File  /tmp/compressionTest/file.txt  tempfilecontent
-    Register Cleanup  Remove Directory  /tmp/compressionTest
+    Register Cleanup  Remove Directory  /tmp/compressionTest    recursive=True
     Send_Upload_Folder_From_Fake_Cloud   /tmp/compressionTest  ${TRUE}  corrid  password
     wait_for_log_contains_from_mark  ${response_mark}  Action corrid has succeeded   25
     wait_for_log_contains_from_mark  ${action_mark}  Sent upload folder response for id corrid to Central   15
