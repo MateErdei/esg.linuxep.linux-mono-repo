@@ -179,7 +179,6 @@ Uninstall AuditD If Required
 
 EDR Suite Setup
     UpgradeResources.Suite Setup
-    Stop Local SDDS3 Server
     Generate Local Ssl Certs If They Dont Exist
     Install Local SSL Server Cert To System
     Set Environment Variable  SOPHOS_CORE_DUMP_ON_PLUGIN_KILL  1

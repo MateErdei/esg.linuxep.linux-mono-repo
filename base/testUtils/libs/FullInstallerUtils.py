@@ -932,8 +932,8 @@ def component_suite_version_ini_file_contains_proper_format(file):
 
 def SSPL_is_installed():
     installdir = get_sophos_install()
-    if os.path.isdir(os.path.join(installdir,"base")):
-        if os.path.isfile(os.path.join(installdir,"/bin/wdctl")):
+    if os.path.isdir(os.path.join(installdir, "base")):
+        if os.path.isfile(os.path.join(installdir, "bin/wdctl")):
             logger.info("SPL is installed")
             return True
     logger.info("SPL is not installed")
