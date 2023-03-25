@@ -37,8 +37,6 @@ Wait For EDR to be Installed
     ...   5 secs
     ...   File Should exist  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/options.conf
 
-
-
 EDR Plugin Is Running
     ${result} =    Run Process  pgrep  edr
     Should Be Equal As Integers    ${result.rc}    0
@@ -46,9 +44,11 @@ EDR Plugin Is Running
 EDR Plugin Is Not Running
     ${result} =    Run Process  pgrep  edr
     Should Not Be Equal As Integers    ${result.rc}    0   EDR PLugin still running
+
 MTR Extension is running
     ${result} =    Run Process  pgrep  SophosMTR.ext
     Should Be Equal As Integers    ${result.rc}    0
+
 Restart EDR Plugin
     [Arguments]  ${clearLog}=False
     Wdctl Stop Plugin  edr
@@ -89,7 +89,6 @@ Install EDR SDDS3
 
     Should Exist  ${EDR_DIR}
 
-
 Run Query Until It Gives Expected Results
     [Arguments]  ${query}  ${expectedResponseJson}
     Send Query From Fake Cloud    ProcessEvents  ${query}  command_id=queryname
@@ -103,7 +102,6 @@ Report On MCS_CA
     ${result}=  Run Process    ls -l ${mcs_ca}     shell=True
     Log  ${result.stdout}
     Log File  ${mcs_ca}
-
 
 Check AuditD Executable Running
     ${result} =    Run Process  pgrep  ^auditd
@@ -178,13 +176,14 @@ Uninstall AuditD If Required
     END
 
 EDR Suite Setup
-    Stop Local Cloud Server
-    Cleanup Local Warehouse And Thininstaller
     UpgradeResources.Suite Setup
     Generate Local Ssl Certs If They Dont Exist
     Install Local SSL Server Cert To System
     Set Environment Variable  SOPHOS_CORE_DUMP_ON_PLUGIN_KILL  1
     ${placeholder} =  Get Environment Variable  TAP_VENV
+    ${result} =  Run Process    bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${LIBS_DIRECTORY}/SDDS3server.py --launchdarkly /tmp/launchdarkly --sdds3 ${SYSTEMPRODUCT_TEST_INPUT}/sdds3/repo  shell=true    timeout=10s
+    Log  ${result.stdout}
+    Log  ${result.stderr}
     ${handle}=  Start Process  bash -x ${SUPPORT_FILES}/jenkins/runCommandFromPythonVenvIfSet.sh python3 ${LIBS_DIRECTORY}/SDDS3server.py --launchdarkly /tmp/launchdarkly --sdds3 ${SYSTEMPRODUCT_TEST_INPUT}/sdds3/repo  shell=true
     Set Suite Variable    ${GL_handle}    ${handle}
 
@@ -236,7 +235,6 @@ Setup SUS all non-base plugins 999
 
 EDR Test Setup
     UpgradeResources.Test Setup
-    Install Local SSL Server Cert To System
 
 Report Audit Link Ownership
     ${result} =  Run Process   auditctl -s   shell=True
