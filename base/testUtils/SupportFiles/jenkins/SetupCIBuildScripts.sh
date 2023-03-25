@@ -25,7 +25,6 @@ function try_command_with_backoff()
 
 SCRIPTDIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )
 
-export PIP_DEFAULT_TIMEOUT=100
 try_command_with_backoff  python3 -m pip install --upgrade pip
 # pyyaml==5.4.1 is needed by tap
 try_command_with_backoff  python3 -m pip install pyyaml==5.4.1
