@@ -236,6 +236,7 @@ Setup SUS all non-base plugins 999
 
 EDR Test Setup
     UpgradeResources.Test Setup
+    Install Local SSL Server Cert To System
 
 Report Audit Link Ownership
     ${result} =  Run Process   auditctl -s   shell=True
