@@ -174,6 +174,7 @@ Install edr 999 and downgrade to current edr
     Check All Product Logs Do Not Contain Critical
 
 Update Run that Does Not Change The Product Does not ReInstall The Product
+    [Tags]  EXCLUDE_SLES15
     Setup SUS all develop
     Install EDR SDDS3  ${BaseAndEdrAndMtrVUTPolicy}
 
