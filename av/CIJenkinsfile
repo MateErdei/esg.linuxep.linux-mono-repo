@@ -1,7 +1,7 @@
 @Library("tap-pipe")
 
 def params = [
-    string(name: 'MODE', choices: ['release','coverage'], defaultValue: 'release'),
+    choice(name: 'MODE', choices: ['release','coverage'], defaultValue: 'release'),
     booleanParam(name: 'run_tests', defaultValue: true, description: 'Run Test Automation in TAP (default everywhere)'),
     booleanParam(name: 'run_aws_tests', defaultValue: true, description: 'Run Test Automation in AWS (default in feature & release)'),
     string(name: 'include_tag', defaultValue: '', description: "If not empty, then restrict tests to that tag"),
