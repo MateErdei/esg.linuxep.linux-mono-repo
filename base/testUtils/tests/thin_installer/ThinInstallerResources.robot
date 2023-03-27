@@ -98,11 +98,6 @@ Check MCS Config Contains
     ${ret} =  Grep File  ${MCS_CONFIG_FILE}  ${pattern}
     Should Contain  ${ret}  ${pattern}  ${fail_message}
 
-Setup For Test With Warehouse Containing Product
-    Create Directory    ${tmpdir}
-    Setup Warehouse For Base
-    Require Uninstalled
-
 Regenerate HTTPS Certificates
     Run Process    make    clean    cwd=${SUPPORT_FILES}/https/
     Run Process    make    all    cwd=${SUPPORT_FILES}/https/
