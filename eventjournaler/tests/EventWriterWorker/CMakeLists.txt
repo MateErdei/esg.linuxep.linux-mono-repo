@@ -4,7 +4,7 @@ SophosAddTest(TestWriterLib
         TestEventQueuePopper.cpp
         TestWriter.cpp
         PROJECTS eventwriterlib eventqueuelib helpers
-        LIBS ${log4cpluslib} ${pluginapilib} ${testhelperslib} ${protobuflib} heartbeat pthread
+        LIBS ${expatlib} ${log4cpluslib} ${pluginapilib} ${testhelperslib} ${protobuflib} heartbeat pthread
         INC_DIRS ${CMAKE_CURRENT_BINARY_DIR} ${testhelpersinclude}
         )
 

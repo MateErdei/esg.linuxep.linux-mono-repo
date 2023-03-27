@@ -8,7 +8,7 @@ sophos_add_library(subscriberlib SHARED
         EventQueuePusher.h
         EventQueuePusher.cpp
         EXTRA_INCLUDES ${CMAKE_CURRENT_BINARY_DIR} heartbeat
-        EXTRA_LIBS ${zmqlib} ${log4cpluslib} ${protobuflib}
+        EXTRA_LIBS ${expatlib} ${zmqlib} ${log4cpluslib} ${protobuflib}
         )
 
 SET_TARGET_PROPERTIES(subscriberlib
