@@ -1,5 +1,4 @@
-<?xml version='1.0' encoding='utf-8'?>
-<package name="sspl-event-journaler-plugin" version="1.0.4">
+<?xml version="1.0" encoding="utf-8"?><package name="sspl-event-journaler-plugin" version="1.0.4">
     <versioning>
         <workingdir>./products/distribution/include/AutoVersioningHeaders</workingdir>
     </versioning>
@@ -7,22 +6,20 @@
     <inputs>
         <workingdir>.</workingdir>
         <build-asset project="linuxep" repo="everest-base">
-            <release-version branch="release/2023-10"
-                             build-id="20230307152640-915e8ce2684edf94d4682548778848e6eed67ee1-mVJTVs"/>
+            <release-version branch="release/2023-13" build-id="20230327102256-80ee197f61863b4935e099fc513212cc19ca0c6c-tXu2TZ"/>
             <development-version branch="develop"/>
             <include artifact-path="sspl-base/pluginapi" dest-dir="/build/input"/>
             <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="/build/input/base-sdds"/>
             <include artifact-path="sspl-base/fake-management" dest-dir="/build/input/fake-management"/>
         </build-asset>
         <build-asset project="winep" repo="sed">
-            <release-version branch="release/SED_2023.10_libs"
-                             build-id="20230305223649-68df9ee1156ee5ef42224c3b94dea49d93c63db6-AmtbMb"/>
+            <release-version branch="release/SED_2023.10_libs" build-id="20230305223649-68df9ee1156ee5ef42224c3b94dea49d93c63db6-AmtbMb"/>
             <development-version branch="develop"/>
             <include artifact-path="sed-libs-linux/JournalLib-x64" dest-dir="/build/input"/>
             <include artifact-path="sed-libs-linux/JournalReader-x64" dest-dir="/build/input"/>
         </build-asset>
         <build-asset project="em" repo="esg">
-            <release-version branch="release/WIN-SPRINT-2023.10" build-id="20230303190457-b2493e357e0f270450a8bc1154c4644841785404-Yo7Ilu"/>
+            <release-version branch="release/WIN-2023.1" build-id="20230324135436-2be86f5d08f35518a20f832ea8cb1163f414647f-GIRTge"/>
             <development-version branch="develop"/>
             <include artifact-path="sophlib/sdds3-tools-x64-linux" dest-dir="/build/input/sdds3"/>
 
@@ -30,13 +27,11 @@
         </build-asset>
 
         <build-asset project="thirdparty" repo="capnproto">
-            <release-version branch="release/sspl/Version_0_8_0"
-                             build-id="20220314153844-e29cb764e609e0e34cd89aadd802d528f8020536-wQNt99"/>
+            <release-version branch="release/sspl/Version_0_8_0" build-id="20220314153844-e29cb764e609e0e34cd89aadd802d528f8020536-wQNt99"/>
             <include artifact-path="capnproto" dest-dir="/build/input"/>
         </build-asset>
         <build-asset project="thirdparty" repo="gcc">
-            <release-version branch="release/Version_11_2_0"
-                             build-id="20220310091547-cf8f7ca9572a3bc9a68f05138086815341a49224-cZ84iF"/>
+            <release-version branch="release/Version_11_2_0" build-id="20220310091547-cf8f7ca9572a3bc9a68f05138086815341a49224-cZ84iF"/>
             <include artifact-path="output" dest-dir="/build/input"/>
         </build-asset>
         <build-asset project="thirdparty" repo="googletest">
@@ -107,18 +102,12 @@
 
 
         <!--   Coverage outputs   -->
-        <build-asset artifact-path="sspl-plugin-eventjournaler-coverage/SDDS-COMPONENT"
-                     source-dir="output/SDDS-COMPONENT" mode="coverage"/>
-        <release-asset artifact-path="sspl-plugin-eventjournaler-coverage/manualTools" source-dir="output/manualTools"
-                       mode="coverage"/>
-        <build-asset artifact-path="sspl-plugin-eventjournaler-coverage/unittest-htmlreport"
-                     source-dir="output/coverage/sspl-plugin-eventjournaler-unittest" mode="coverage"/>
-        <build-asset artifact-path="sspl-plugin-eventjournaler-coverage/symbols" source-dir="output/symbols"
-                     mode="coverage"/>
-        <build-asset artifact-path="sspl-plugin-eventjournaler-coverage/base/base-sdds" source-dir="output/base-sdds"
-                     mode="coverage"/>
-        <build-asset artifact-path="sspl-plugin-eventjournaler-coverage/base/fake-management"
-                     source-dir="output/fake-management" mode="coverage"/>
+        <build-asset artifact-path="sspl-plugin-eventjournaler-coverage/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="coverage"/>
+        <release-asset artifact-path="sspl-plugin-eventjournaler-coverage/manualTools" source-dir="output/manualTools" mode="coverage"/>
+        <build-asset artifact-path="sspl-plugin-eventjournaler-coverage/unittest-htmlreport" source-dir="output/coverage/sspl-plugin-eventjournaler-unittest" mode="coverage"/>
+        <build-asset artifact-path="sspl-plugin-eventjournaler-coverage/symbols" source-dir="output/symbols" mode="coverage"/>
+        <build-asset artifact-path="sspl-plugin-eventjournaler-coverage/base/base-sdds" source-dir="output/base-sdds" mode="coverage"/>
+        <build-asset artifact-path="sspl-plugin-eventjournaler-coverage/base/fake-management" source-dir="output/fake-management" mode="coverage"/>
         <build-asset artifact-path="sspl-plugin-eventjournaler-coverage/build_log" source-dir="output" mode="coverage">
             <include glob="./build.log"/>
         </build-asset>
