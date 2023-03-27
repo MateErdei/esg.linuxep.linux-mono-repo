@@ -47,6 +47,7 @@ def checkMachinesAllTerminated(uuid, start, dest):
                       instance.ip_address,
                       duration
                   ))
+            instance.terminate()
             # continue checking
         else:
             print("Checking instance %s %s ip %s after %s, formation log %s doesn't exist" % (
