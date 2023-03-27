@@ -115,9 +115,7 @@ Sul Downloader Report error correctly when it cannot connect to sdds3
     ...    Check SulDownloader Log Contains  Update failed, with code: 112
 
 
-Sul Downloader Forces SDDS2 When Requested Fixed Version Is Unsupported In SDDS3
-    [Tags]  TESTFAILURE
-
+Sul Downloader Reports Update Failed When Requested Fixed Version Is Unsupported In SDDS3
     Start Local Cloud Server    --initial-alc-policy  ${SUPPORT_FILES}/CentralXml/ALC_FixedVersionPolicyForceSDDS2.xml
     ${handle}=  Start Local SDDS3 Server With Empty Repo
     Set Suite Variable    ${GL_handle}    ${handle}
@@ -136,7 +134,17 @@ Sul Downloader Forces SDDS2 When Requested Fixed Version Is Unsupported In SDDS3
     Wait Until Keyword Succeeds
     ...   10 secs
     ...   2 secs
-    ...   File Should Contain    ${SOPHOS_INSTALL}/logs/base/suldownloader.log     The requested fixed version is not available on SDDS3: 1.1.0. Reverting to SDDS2 mode.
+    ...   File Should Contain    ${SOPHOS_INSTALL}/logs/base/suldownloader.log     The requested fixed version is not available on SDDS3: 1.1.0. Package too old.
+
+    Wait Until Keyword Succeeds
+    ...   10 secs
+    ...   2 secs
+    ...   File Should Contain    ${SOPHOS_INSTALL}/logs/base/suldownloader.log     Update failed, with code: 107
+
+    Wait Until Keyword Succeeds
+    ...   10 secs
+    ...   2 secs
+    ...   File Should Contain    ${SOPHOS_INSTALL}/logs/base/suldownloader.log     Generating the report file in:
 
 
 Sul Downloader Uses Current Proxy File for SUS Requests
