@@ -2,7 +2,7 @@
 Test Setup      Setup Thininstaller Test
 Test Teardown   Thininstaller Test Teardown
 
-Suite Setup    Suite Setup Without Ostia
+Suite Setup    Upgrade Resources Suite Setup
 
 Library     ${LIBS_DIRECTORY}/WarehouseGenerator.py
 Library     ${LIBS_DIRECTORY}/UpdateServer.py

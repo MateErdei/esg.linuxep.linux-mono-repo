@@ -184,7 +184,7 @@ Uninstall AuditD If Required
     END
 
 EDR Suite Setup
-    UpgradeResources.Suite Setup
+    Upgrade Resources Suite Setup
     Generate Local Ssl Certs If They Dont Exist
     Install Local SSL Server Cert To System
     Set Environment Variable  SOPHOS_CORE_DUMP_ON_PLUGIN_KILL  1
@@ -196,7 +196,7 @@ EDR Suite Setup
     Set Suite Variable    ${GL_handle}    ${handle}
 
 EDR Suite Teardown
-    UpgradeResources.Suite Teardown
+    Upgrade Resources Suite Teardown
     Stop Local SDDS3 Server
     Remove Environment Variable  SOPHOS_CORE_DUMP_ON_PLUGIN_KILL
 
@@ -242,7 +242,7 @@ Setup SUS all non-base plugins 999
     Copy File  ${SYSTEMPRODUCT_TEST_INPUT}/sdds3/launchdarkly-999/release.linuxep.ServerProtectionLinux-Plugin-MDR.json  /tmp/launchdarkly
 
 EDR Test Setup
-    UpgradeResources.Test Setup
+    Upgrade Resources Test Setup
 
 Report Audit Link Ownership
     ${result} =  Run Process   auditctl -s   shell=True

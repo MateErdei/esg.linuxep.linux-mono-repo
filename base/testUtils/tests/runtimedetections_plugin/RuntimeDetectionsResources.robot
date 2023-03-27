@@ -63,19 +63,19 @@ Wait Keyword Succeed
     ...  ${keyword}
 
 RuntimeDetections Suite Setup
-    UpgradeResources.Suite Setup
+    Upgrade Resources Suite Setup
     ${result} =  Run Process  curl -v https://ostia.eng.sophos/latest/sspl-warehouse/master   shell=True
     Should Be Equal As Integers  ${result.rc}  0  "Failed to Verify connection to Update Server. Please, check endpoint is configured. (Hint: tools/setup_sspl/setupEnvironment2.sh).\nStdOut: ${result.stdout}\nStdErr: ${result.stderr}"
 
 RuntimeDetections Suite Teardown
-    UpgradeResources.Suite Teardown
+    Upgrade Resources Suite Teardown
 
 RuntimeDetections Test Setup
-    UpgradeResources.Test Setup
+    Upgrade Resources Test Setup
 
 RuntimeDetections Uninstall Teardown
     Require Watchdog Running
-    Test Teardown
+    Upgrade Resources Test Teardown
 
 Uninstall RuntimeDetections Plugin
     ${result} =  Run Process     ${RUNTIMEDETECTIONS_PLUGIN_PATH}/bin/uninstall.sh

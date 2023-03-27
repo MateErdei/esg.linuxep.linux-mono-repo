@@ -38,15 +38,15 @@ ${WarehouseMDRSuiteVersionFileExtension}        ./TestInstallFiles/ServerProtect
 ${sdds3_server_output}                          /tmp/sdds3_server.log
 
 *** Keywords ***
-Test Setup
+Upgrade Resources Test Setup
     Require Uninstalled
     Set Environment Variable  CORRUPTINSTALL  no
 
-SDDS3 Test Teardown
+Upgrade Resources SDDS3 Test Teardown
     Stop Local SDDS3 Server
     Test Teardown
 
-Test Teardown
+Upgrade Resources Test Teardown
     [Arguments]  ${UninstallAudit}=True
     Run Keyword If Test Failed    Dump Cloud Server Log
     Run Keyword If Test Failed    Log XDR Intermediary File
@@ -62,9 +62,7 @@ Test Teardown
     Cleanup Temporary Folders
     Require Uninstalled
 
-Suite Setup
-    Set Suite Variable    ${GL_handle}       ${EMPTY}
-    Set Suite Variable    ${GL_UC_handle}    ${EMPTY}
+Upgrade Resources Suite Setup
     Suite Setup Without Ostia
     Setup Ostia Warehouse Environment
 
@@ -75,7 +73,7 @@ Suite Setup Without Ostia
     Regenerate Certificates
     Set Local CA Environment Variable
 
-Suite Teardown
+Upgrade Resources Suite Teardown
     Teardown Ostia Warehouse Environment
     Suite Teardown Without Ostia
 

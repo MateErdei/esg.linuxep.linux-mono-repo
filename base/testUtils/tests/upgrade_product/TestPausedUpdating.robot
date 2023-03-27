@@ -7,11 +7,11 @@ Library     ${LIBS_DIRECTORY}/PolicyUtils.py
 
 Resource    ../upgrade_product/UpgradeResources.robot
 
-Suite Setup      Suite Setup
-Suite Teardown   Suite Teardown
+Suite Setup      Upgrade Resources Suite Setup
+Suite Teardown   Upgrade Resources Suite Teardown
 
-Test Setup       Test Setup
-Test Teardown    Test Teardown
+Test Setup       Upgrade Resources Test Setup
+Test Teardown    Upgrade Resources Test Teardown
 
 Force Tags  LOAD7
 *** Variables ***

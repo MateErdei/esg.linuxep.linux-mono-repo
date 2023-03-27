@@ -23,11 +23,11 @@ Resource    ../telemetry/TelemetryResources.robot
 Resource    ../watchdog/LogControlResources.robot
 Resource    UpgradeResources.robot
 
-Suite Setup      Suite Setup Without Ostia
-Suite Teardown   Suite Teardown Without Ostia
+Suite Setup      Upgrade Resources Suite Setup
+Suite Teardown   Upgrade Resources Suite Teardown
 
-Test Setup       Test Setup with Ostia
-Test Teardown    Test Teardown With Ostia
+Test Setup       Upgrade Resources Test Setup
+Test Teardown    Upgrade Resources Test Teardown
 
 Test Timeout  10 mins
 Force Tags  LOAD9
@@ -58,8 +58,7 @@ ${BadThreatHealthXmlContents}               <item name="threat" value="2" />
 
 *** Test Cases ***
 Sul Downloader fails update if expected product missing from SUS
-    [Setup]    Test Setup
-    [Teardown]    SDDS3 Test Teardown
+    [Teardown]    Upgrade Resources SDDS3 Test Teardown
     Start Local Cloud Server  --initial-alc-policy  ${SUPPORT_FILES}/CentralXml/ALC_policy_FakePlugin.xml
     ${handle}=  Start Local SDDS3 Server
     Set Suite Variable    ${GL_handle}    ${handle}
@@ -869,16 +868,6 @@ Schedule Query Pack Next Exists in SDDS3 and is Equal to Schedule Query Pack
 
 
 *** Keywords ***
-Test Setup With Ostia
-    Test Setup
-    Setup Ostia Warehouse Environment
-
-Test Teardown With Ostia
-    Stop Local SDDS3 Server
-    Teardown Ostia Warehouse Environment
-    Test Teardown
-
-
 Create Dummy Local SDDS2 Cache Files
     Create File         ${sdds2_primary}/1
     Create Directory    ${sdds2_primary}/2

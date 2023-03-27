@@ -1,10 +1,9 @@
 *** Settings ***
-Suite Setup      Suite Setup Without Ostia
-Suite Teardown   Suite Teardown Without Ostia
+Suite Setup      Upgrade Resources Suite Setup
+Suite Teardown   Upgrade Resources Suite Teardown
 
-Test Setup       Test Setup
+Test Setup       Upgrade Resources Test Setup
 Test Teardown    Run Keywords
-...                Stop Local SDDS3 Server   AND
 ...                Remove Environment Variable  http_proxy    AND
 ...                Remove Environment Variable  https_proxy  AND
 ...                Stop Proxy If Running    AND
@@ -12,7 +11,7 @@ Test Teardown    Run Keywords
 ...                Clean up fake warehouse  AND
 ...                Remove Environment Variable  COMMAND  AND
 ...                Remove Environment Variable  EXITCODE  AND
-...                 Test Teardown
+...                Upgrade Resources SDDS3 Test Teardown
 
 Library    DateTime
 Library     ${LIBS_DIRECTORY}/FakeSDDS3UpdateCacheUtils.py

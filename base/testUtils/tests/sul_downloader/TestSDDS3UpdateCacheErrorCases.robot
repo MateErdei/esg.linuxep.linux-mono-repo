@@ -1,8 +1,8 @@
 *** Settings ***
-Suite Setup      Suite Setup Without Ostia
-Suite Teardown   Suite Teardown Without Ostia
+Suite Setup      Upgrade Resources Suite Setup
+Suite Teardown   Upgrade Resources Suite Teardown
 
-Test Setup       Test Setup
+Test Setup       Upgrade Resources Test Setup
 Test Teardown    UC Error Test Teardown
 
 Force Tags  LOAD6
@@ -37,7 +37,7 @@ UC Error Test Teardown
     Clean up fake warehouse
     Remove Environment Variable   EXITCODE
     Remove Environment Variable   COMMAND
-    Test Teardown
+    Upgrade Resources Test Teardown
 
 
 *** Variables ***
