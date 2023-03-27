@@ -34,7 +34,8 @@ public:
     MOCK_CONST_METHOD1(isFileOrDirectory, bool(const Path& path));
     MOCK_CONST_METHOD1(isSymlink, bool(const Path& path));
     MOCK_CONST_METHOD0(currentWorkingDirectory, Path());
-    MOCK_CONST_METHOD2(moveFile, void(const Path& sourcePath, const Path& destPath));
+    MOCK_METHOD(void, moveFile, (const Path& sourcePath, const Path& destPath), (const, override));
+    MOCK_METHOD(void, moveFileTryCopy, (const Path& sourcePath, const Path& destPath), (const, override));
     MOCK_CONST_METHOD1(readFile, std::string(const Path& path));
     MOCK_CONST_METHOD2(readFile, std::string(const Path& path, unsigned long maxSize));
     MOCK_CONST_METHOD1(readLines, std::vector<std::string>(const Path& path));

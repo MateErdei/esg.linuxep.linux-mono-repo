@@ -226,13 +226,35 @@ namespace Common
             return Path(currentWorkingDirectory);
         }
 
+        void FileSystemImpl::moveFileTryCopy(const Path& sourcePath, const Path& destPath) const
+        {
+            try
+            {
+                moveFile(sourcePath, destPath);
+            }
+            catch (const IFileSystemException& exception)
+            {
+                std::string exceptStr {exception.what()};
+                auto errBracket = exceptStr.rfind('(');
+                if (exceptStr.find(EXDEV, errBracket) != std::string::npos)
+                {
+                    copyFile(sourcePath, destPath);
+                    removeFile(sourcePath);
+                }
+                else
+                {
+                    throw exception;
+                }
+            }
+        }
+
         void FileSystemImpl::moveFile(const Path& sourcePath, const Path& destPath) const
         {
             if (::rename(sourcePath.c_str(), destPath.c_str()) != 0)
             {
                 int error = errno;
                 std::stringstream errorStream;
-                errorStream << "Could not move " << sourcePath << " to " << destPath << ": " << StrError(error);
+                errorStream << "Could not move " << sourcePath << " to " << destPath << ": " << StrError(error) << "(" << error << ")";
 
                 throw IFileSystemException(errorStream.str());
             }

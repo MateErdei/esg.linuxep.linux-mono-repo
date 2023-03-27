@@ -102,6 +102,16 @@ namespace Common
 
             /**
              * Moves a file from one location to another
+             * ::rename fails if sourcePath and destPath are on different mounts with Errno 18 (EXDEV)
+             * Will try copying and then removing the original if ::rename fails
+             * @param sourcePath, location of the file to be moved.
+             * @param destPath, location of the file to move to.
+             */
+            virtual void moveFileTryCopy(const Path& sourcePath, const Path& destPath) const = 0;
+
+            /**
+             * Moves a file from one location to another
+             * ::rename fails if sourcePath and destPath are on different mounts with Errno 18 (EXDEV)
              * @param sourcePath, location of the file to be moved.
              * @param destPath, location of the file to move to.
              */

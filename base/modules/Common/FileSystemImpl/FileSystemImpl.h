@@ -43,6 +43,8 @@ namespace Common
             std::vector<Path> listAllFilesInDirectoryTree(const Path& root) const override;
             std::vector<Path> listDirectories(const Path& directoryPath) const override;
 
+            void moveFileTryCopy(const Path& sourcePath, const Path& destPath) const override;
+
             void moveFile(const Path& sourcePath, const Path& destPath) const override;
 
             std::string readFile(const Path& path) const override;
