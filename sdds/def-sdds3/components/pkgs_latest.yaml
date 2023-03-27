@@ -15,7 +15,7 @@ av.latest.x64:
   line-id: ServerProtectionLinux-Plugin-AV
   mountpoint: ServerProtectionLinux-Plugin-AV
 mdr.latest.x64:
-  prod-artifact: esg-releasable-candidate/linuxep.sspl-plugin-mdr-component/release--2023-10/20230307175123-3f1ce80ae4a477dd9d384817e7788e06f3bb5368-7j7azg/mdr/SDDS3-PACKAGE/
+  prod-artifact: esg-releasable-candidate/linuxep.sspl-plugin-mdr-component/release--2023-13/20230327140522-60ece49b8db01600d00c95e29feecd12a4ed6474-NMzyvb/mdr/SDDS3-PACKAGE/
   line-id: ServerProtectionLinux-Plugin-MDR
   mountpoint: ServerProtectionLinux-Plugin-MDR
 base.latest.x64:
