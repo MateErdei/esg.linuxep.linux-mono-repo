@@ -82,6 +82,10 @@ Teardown With Proxy Clear
     Remove File   /opt/sophos-spl/base/etc/sophosspl/current_proxy
     Telemetry Test Teardown
 
+Stop Fake Plugin Teardown
+    Stop Plugin
+    Stop Management Agent
+    Telemetry Test Teardown
 
 Reset MachineID Permissions
     Run Process  chmod  640  ${SOPHOS_INSTALL}/base/etc/machine_id.txt
@@ -385,6 +389,7 @@ Test With Proxy
 
 
 Test Outbreak Mode Telemetry
+    [Teardown]  Stop Fake Plugin Teardown
     Management Agent Test Setup
 
     Set Log Level For Component And Reset and Return Previous Log  sophos_managementagent  DEBUG

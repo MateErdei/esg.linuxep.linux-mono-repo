@@ -81,7 +81,7 @@ RA Plugin downloads a file successfully with password protected decompression
 
     File Should exist  /tmp/upload.zip
     Create Directory  /tmp/unpackzip/
-    Register Cleanup  Remove Directory  /tmp/unpackzip/
+    Register Cleanup  Remove Directory  /tmp/unpackzip/    recursive=${True}
     ${unzipTool} =  Set Variable  SystemProductTestOutput/unzipTool
     ${result} =    Run Process  LD_LIBRARY_PATH\=/opt/sophos-spl/base/lib64/ ${unzipTool} /tmp/upload.zip /tmp/unpackzip/ password  shell=True
     Log  ${result.stderr}
