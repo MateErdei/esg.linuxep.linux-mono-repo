@@ -236,7 +236,7 @@ namespace Common
             {
                 std::string exceptStr {exception.what()};
                 auto errBracket = exceptStr.rfind('(');
-                if (exceptStr.find(EXDEV, errBracket) != std::string::npos)
+                if (exceptStr.find(std::to_string(EXDEV), errBracket) != std::string::npos)
                 {
                     copyFile(sourcePath, destPath);
                     removeFile(sourcePath);
