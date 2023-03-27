@@ -364,14 +364,6 @@ def decide_whether_to_run_aws_tests(parameters: tap.Parameters, context: tap.Pip
     else:
         return False
 
-def decide_whether_to_do_coverage(parameters: tap.Parameters, context: tap.PipelineContext) -> bool:
-    if parameters.force_run_coverage != 'false':
-        return True
-    if parameters.inhibit_run_coverage != 'false':
-        return False
-    branch = context.branch
-    return branch.startswith("release/") or branch.endswith('coverage')
-
 
 def decide_whether_to_run_cppcheck(parameters: tap.Parameters, context: tap.PipelineContext) -> bool:
     if parameters.force_run_cppcheck != 'false':
@@ -410,7 +402,7 @@ def av_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
     include_tag = parameters.include_tag or "productNOTav_basicNOTavscanner av_basicORavscanner " \
                                             "integrationNOTavbaseNOTav_health avbase av_health"
 
-    do_coverage: bool = decide_whether_to_do_coverage(parameters, context)
+    do_coverage: bool = parameters.mode == 'coverage'
     do_cppcheck: bool = decide_whether_to_run_cppcheck(parameters, context)
     do_999_build: bool = parameters.do_999_build != 'false'
 
