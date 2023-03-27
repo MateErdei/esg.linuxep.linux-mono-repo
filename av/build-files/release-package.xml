@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<package name="sspl-plugin-anti-virus" version="1.1.0">
+<?xml version="1.0" encoding="utf-8"?><package name="sspl-plugin-anti-virus" version="1.1.0">
     <versioning>
         <workingdir>./products/distribution/include/AutoVersioningHeaders</workingdir>
     </versioning>
@@ -10,20 +9,19 @@
         <!--Plugin Api Candidate Build - Change values below to match the latest Candidate build of base.
             -->
         <build-asset project="linuxep" repo="everest-base">
-            <release-version branch="release/2023-10"
-                             build-id="20230307152640-915e8ce2684edf94d4682548778848e6eed67ee1-mVJTVs"/>
+            <release-version branch="release/2023-13" build-id="20230327102256-80ee197f61863b4935e099fc513212cc19ca0c6c-tXu2TZ"/>
             <development-version branch="develop"/>
             <include artifact-path="sspl-base/pluginapi" dest-dir="input"/>
             <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="input/base-sdds"/>
         </build-asset>
         <build-asset project="core" repo="safestore">
             <release-version branch="release/2.1" build-id="20230302135148-5b9430059affb4c4fcb302c3495a7fee7026c069-V9Q1Dh"/>
-            <development-version branch="develop" />
+            <development-version branch="develop"/>
             <include artifact-path="release/linux-x64/safestore" dest-dir="input/safestore_input"/>
         </build-asset>
 
         <build-asset project="em" repo="esg">
-            <release-version branch="release/WIN-SPRINT-2023.10" build-id="20230303190457-b2493e357e0f270450a8bc1154c4644841785404-Yo7Ilu"/>
+            <release-version branch="release/WIN-2023.1" build-id="20230324135436-2be86f5d08f35518a20f832ea8cb1163f414647f-GIRTge"/>
             <development-version branch="develop"/>
             <include artifact-path="sophlib/sdds3-tools-x64-linux" dest-dir="input/sdds3"/>
             <include artifact-path="thirdparty/zlib-linux-opt" dest-dir="input/zlib"/>
@@ -37,40 +35,33 @@
         </build-asset>
 
         <build-asset project="thirdparty" repo="boost">
-            <release-version branch="release/sspl/Version_1_78_0"
-                             build-id="20220310141901-bdae372a9027e1760f105dc819023a49ef444765-xdQFp9"/>
+            <release-version branch="release/sspl/Version_1_78_0" build-id="20220310141901-bdae372a9027e1760f105dc819023a49ef444765-xdQFp9"/>
             <include artifact-path="output" dest-dir="input"/>
         </build-asset>
         <build-asset project="thirdparty" repo="gcc">
-            <release-version branch="release/Version_11_2_0"
-                             build-id="20220310091547-cf8f7ca9572a3bc9a68f05138086815341a49224-cZ84iF"/>
+            <release-version branch="release/Version_11_2_0" build-id="20220310091547-cf8f7ca9572a3bc9a68f05138086815341a49224-cZ84iF"/>
             <include artifact-path="output" dest-dir="input"/>
         </build-asset>
         <!-- Need to compile our own messages -->
         <build-asset project="thirdparty" repo="capnproto">
-            <release-version branch="release/sspl/Version_0_8_0"
-                             build-id="20220314153844-e29cb764e609e0e34cd89aadd802d528f8020536-wQNt99"/>
+            <release-version branch="release/sspl/Version_0_8_0" build-id="20220314153844-e29cb764e609e0e34cd89aadd802d528f8020536-wQNt99"/>
             <include artifact-path="capnproto" dest-dir="input"/>
         </build-asset>
 
         <!-- SUSI imports -->
         <build-asset project="core" repo="engine">
-            <release-version branch="release/3.86.1"
-                             build-id="20220901161552-8505ebffd3ae66bf2c01fcb27a95f36a1bb5b928-WELKtg"/>
+            <release-version branch="release/3.86.1" build-id="20220901161552-8505ebffd3ae66bf2c01fcb27a95f36a1bb5b928-WELKtg"/>
             <include artifact-path="libsavi_linux64_release_gcc4-9-4glibc2-3-2" dest-dir="input/susi_input/libsavi"/>
-            <include artifact-path="sophtainer_linux64_release_gcc4-9-4glibc2-3-4"
-                     dest-dir="input/susi_input/libsophtainer"/>
+            <include artifact-path="sophtainer_linux64_release_gcc4-9-4glibc2-3-4" dest-dir="input/susi_input/libsophtainer"/>
         </build-asset>
 
         <build-asset project="core" repo="liblocalrep">
-            <release-version branch="release/2.4"
-                             build-id="20221213102110-9c941d0ffb85e493793a6f46b9c34cbfdd8e46e3-5HWtuz"/>
+            <release-version branch="release/2.4" build-id="20221213102110-9c941d0ffb85e493793a6f46b9c34cbfdd8e46e3-5HWtuz"/>
             <include artifact-path="release/linux64/bin" dest-dir="input/susi_input/lrlib"/>
         </build-asset>
 
         <build-asset project="core" repo="susi">
-            <release-version branch="release/2.1"
-                             build-id="20221214092808-6840aaf9bd86f91d163bd7990b14f10b46e39c78-F6Wdxh"/>
+            <release-version branch="release/2.1" build-id="20221214092808-6840aaf9bd86f91d163bd7990b14f10b46e39c78-F6Wdxh"/>
             <include artifact-path="release/linux/libsusi" dest-dir="input/susi_input/susi/lib"/>
             <include artifact-path="release/linux/interface" dest-dir="input/susi_input/susi/include"/>
             <include artifact-path="release/linux/updater" dest-dir="input/susi_input/susi/lib"/>
@@ -78,39 +69,33 @@
         </build-asset>
 
         <build-asset project="core" repo="httpsrequester">
-            <release-version branch="release/1.2"
-                             build-id="20220429060401-fa8db91f110608d19dfaaf3ea553081e11f3df2a-khtLXq"/>
+            <release-version branch="release/1.2" build-id="20220429060401-fa8db91f110608d19dfaaf3ea553081e11f3df2a-khtLXq"/>
             <include artifact-path="release/centos7/libglobalrep" dest-dir="input/susi_input/gr/lib"/>
         </build-asset>
 
         <!-- external dependencies -->
         <build-asset project="thirdparty" repo="icu">
-            <release-version branch="release--sophos--susi--70.1"
-                             build-id="20211122160606-cae4f46bbfdecde35f62a69e9b31f240348c0f8f-hYx1a2"/>
+            <release-version branch="release--sophos--susi--70.1" build-id="20211122160606-cae4f46bbfdecde35f62a69e9b31f240348c0f8f-hYx1a2"/>
             <include artifact-path="linux-x64/lib" dest-dir="input/susi_input/icu/lib"/>
         </build-asset>
 
         <build-asset project="thirdparty" repo="libarchive">
-            <release-version branch="release--sophos--core--3.5.2"
-                             build-id="20220830091606-26250850af1ca762e02788c56d5b4a8c4c13c5e6-8fcn7J"/>
+            <release-version branch="release--sophos--core--3.5.2" build-id="20220830091606-26250850af1ca762e02788c56d5b4a8c4c13c5e6-8fcn7J"/>
             <include artifact-path="release/linux-x64/lib" dest-dir="input/susi_input/libarchive/lib"/>
         </build-asset>
 
         <build-asset project="thirdparty" repo="luajit">
-            <release-version branch="release--sophos--susi--2.1.0"
-                             build-id="20211004080500-1a9d72db49c57f6eabb70705001bd654d3da99ed-NeJf83"/>
+            <release-version branch="release--sophos--susi--2.1.0" build-id="20211004080500-1a9d72db49c57f6eabb70705001bd654d3da99ed-NeJf83"/>
             <include artifact-path="linux-x64/lib" dest-dir="input/susi_input/luajit/lib"/>
         </build-asset>
 
         <build-asset project="thirdparty" repo="boost">
-            <release-version branch="release--sophos--core--1.77.0"
-                             build-id="20211126090955-ef33f0a539b87f97ee9e7e5b1220d25dc313589e-cB3kgN"/>
+            <release-version branch="release--sophos--core--1.77.0" build-id="20211126090955-ef33f0a539b87f97ee9e7e5b1220d25dc313589e-cB3kgN"/>
             <include artifact-path="linux-x64/lib" dest-dir="input/susi_input/boost"/>
         </build-asset>
 
         <build-asset project="thirdparty" repo="openssl">
-            <release-version branch="release--sophos--susi--1.1.1n"
-                             build-id="20220405102536-9699d5a9fc0e21e05bb42046076af371eb94a7ef-jw9CRv"/>
+            <release-version branch="release--sophos--susi--1.1.1n" build-id="20220405102536-9699d5a9fc0e21e05bb42046076af371eb94a7ef-jw9CRv"/>
             <include artifact-path="openssl-linux-x64" dest-dir="input/susi_input/openssl/lib"/>
         </build-asset>
 
@@ -147,14 +132,10 @@
         <workingdir>.</workingdir>
         <destdir>sspl-plugin-anti-virus</destdir>
 
-        <release-asset artifact-path="sspl-plugin-anti-virus/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT"
-                       mode="release"/>
-        <release-asset artifact-path="sspl-plugin-anti-virus/SDDS3-PACKAGE" source-dir="output/SDDS3-PACKAGE"
-                       mode="release"/>
-        <release-asset artifact-path="sspl-plugin-anti-virus-999/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT"
-                       mode="999"/>
-        <release-asset artifact-path="sspl-plugin-anti-virus-999/SDDS3-PACKAGE" source-dir="output/SDDS3-PACKAGE"
-                       mode="999"/>
+        <release-asset artifact-path="sspl-plugin-anti-virus/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="release"/>
+        <release-asset artifact-path="sspl-plugin-anti-virus/SDDS3-PACKAGE" source-dir="output/SDDS3-PACKAGE" mode="release"/>
+        <release-asset artifact-path="sspl-plugin-anti-virus-999/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="999"/>
+        <release-asset artifact-path="sspl-plugin-anti-virus-999/SDDS3-PACKAGE" source-dir="output/SDDS3-PACKAGE" mode="999"/>
 
         <build-asset artifact-path="output" source-dir="output" mode="release,debug">
         </build-asset>
@@ -173,11 +154,11 @@
 
         <buildoutputs>
             <!-- rename logs for coverage builds -->
-            <output name="build_log" srcfolder="log" mode="oldci"></output>
-            <output name="coverage_log" srcfolder="log" mode="oldcoverage"></output>
+            <output name="build_log" srcfolder="log" mode="oldci"/>
+            <output name="coverage_log" srcfolder="log" mode="oldcoverage"/>
 
             <!-- rename output for coverage builds -->
-            <output name="output" srcfolder="output" artifactpath="output" mode="oldci"></output>
+            <output name="output" srcfolder="output" artifactpath="output" mode="oldci"/>
         </buildoutputs>
         <publishbranches>master,develop,feature/LINUXDAR-2501-make-changes-necessary-to-use-2020.47-version-of-susi
         </publishbranches>
