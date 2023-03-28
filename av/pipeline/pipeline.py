@@ -419,12 +419,12 @@ def av_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
             nine_nine_nine_build = stage.artisan_build(name=nine_nine_nine_mode, component=component, image=build_image,
                                                        mode=nine_nine_nine_mode, release_package=release_package)
 
+        av_build = stage.artisan_build(name="normal_build", component=component, image=build_image,
+                                       mode=parameters.mode or "release", release_package=release_package)
+
         if do_coverage:
-            av_build = stage.artisan_build(name="coverage_build", component=component, image=build_image,
-                                           mode="coverage", release_package=release_package)
-        else:
-            av_build = stage.artisan_build(name="normal_build", component=component, image=build_image,
-                                           mode=parameters.mode or "release", release_package=release_package)
+            coverage_build = stage.artisan_build(name="coverage_build", component=component, image=build_image,
+                                                 mode="coverage", release_package=release_package)
 
     with stage.parallel('testing'):
         # AWS first to give the highest chance to start quickest
@@ -436,7 +436,7 @@ def av_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
         # Coverage next, since that is the next slowest
         if do_coverage:
             with stage.parallel('coverage'):
-                coverage_inputs = get_inputs(context, av_build, coverage=True)
+                coverage_inputs = get_inputs(context, coverage_build, coverage=True)
 
                 with stage.parallel('pytest'):
                     machine_bullseye_pytest = \
