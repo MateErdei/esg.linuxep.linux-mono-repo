@@ -137,7 +137,7 @@
         <release-asset artifact-path="sspl-plugin-anti-virus-999/SDDS-COMPONENT" source-dir="output/SDDS-COMPONENT" mode="999"/>
         <release-asset artifact-path="sspl-plugin-anti-virus-999/SDDS3-PACKAGE" source-dir="output/SDDS3-PACKAGE" mode="999"/>
 
-        <build-asset artifact-path="output" source-dir="output" mode="release,debug">
+        <build-asset artifact-path="output" source-dir="output" mode="release,debug,coverage">
         </build-asset>
         <build-asset artifact-path="coverage" source-dir="output" mode="coverage">
         </build-asset>
