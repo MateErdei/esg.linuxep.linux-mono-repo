@@ -149,10 +149,14 @@ function build()
     rm -rf $BASE/output
     rm -rf $BASE/installer
     mkdir -p ${BASE}/build
+
+    GCC_PATH=/build/input/gcc
+    [[ -d $GCC_PATH ]] || exitFailure 10 "GCC not available"
+
 #   Required for build scripts to run on dev machines
-    export LIBRARY_PATH=/build/input/gcc/lib64/:${LIBRARY_PATH}:/usr/lib/x86_64-linux-gnu
-    export CPLUS_INCLUDE_PATH=/build/input/gcc/include/:/usr/include/x86_64-linux-gnu/:${CPLUS_INCLUDE_PATH}
-    export CPATH=/build/input/gcc/include/:${CPATH}
+    export LIBRARY_PATH=${GCC_PATH}/lib64/:${LIBRARY_PATH}:/usr/lib/x86_64-linux-gnu
+    export CPLUS_INCLUDE_PATH=${GCC_PATH}/include/:/usr/include/x86_64-linux-gnu/:${CPLUS_INCLUDE_PATH}
+    export CPATH=${GCC_PATH}/include/:${CPATH}
     installer_dir=$BASE/installer
     output=$BASE/output
     pushd ${BASE}/build
