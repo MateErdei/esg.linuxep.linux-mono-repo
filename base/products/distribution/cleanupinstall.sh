@@ -173,8 +173,11 @@ function perform_cleanup()
         do
             if [[ $(can_delete ${FILE_TO_DELETE} ${WORKING_DIST}) == 1 ]]
             then
-                FILES_OR_DIRECTORIES_DELETED+=", ${FILE_TO_DELETE}"
-                rm -f ${FILE_TO_DELETE}*
+                if [[ ! -L "$file" ]]
+                then
+                  FILES_OR_DIRECTORIES_DELETED+=", ${FILE_TO_DELETE}"
+                  rm -f ${FILE_TO_DELETE}.*
+                fi
             fi
         done
 

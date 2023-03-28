@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2019-2023 Sophos Limited. All rights reserved.
 
 #include "SystemCommands.h"
 
@@ -93,7 +89,7 @@ namespace diagnose
             auto output = processPtr->output();
             std::stringstream ssTimeoutMessage;
             ssTimeoutMessage << "Timed out after "
-                             << std::chrono::duration_cast<std::chrono::seconds>(period * GL_ProcMaxRetries).count()
+                             << std::chrono::duration_cast<std::chrono::seconds>(period * retries).count()
                              << "s while running: '" << commandAndArgs << "'";
             throw SystemCommandsException(ssTimeoutMessage.str(), output);
         }
