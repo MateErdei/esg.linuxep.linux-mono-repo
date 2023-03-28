@@ -904,7 +904,6 @@ SDDS3 Mechanism Is Updated in UpdateScheduler Telemetry After Successful Update 
 Test Setup With Ostia
     Test Setup
     Setup Ostia Warehouse Environment
-    Set Environment Variable    SOPHOS_CORE_DUMP_ON_PLUGIN_KILL    1
 
 Test Teardown With Ostia
     Stop Local SDDS3 Server
