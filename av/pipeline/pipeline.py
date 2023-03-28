@@ -429,7 +429,7 @@ def av_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
     with stage.parallel('testing'):
         # AWS first to give the highest chance to start quickest
         if run_aws_tests:
-            aws_test_inputs = get_inputs(context, av_build, aws=True)
+            aws_test_inputs = get_inputs(context, av_build, coverage=do_coverage, aws=True)
             machine = tap.Machine('ubuntu1804_x64_server_en_us', inputs=aws_test_inputs, platform=tap.Platform.Linux)
             stage.task("aws_tests", func=aws_task, machine=machine, include_tag=include_tag)
 
@@ -473,7 +473,7 @@ def av_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
 
         if run_tests:
             with stage.parallel('TA'):
-                test_inputs = get_inputs(context, av_build)
+                test_inputs = get_inputs(context, av_build, coverage=do_coverage)
                 # Robot before pytest, since pytest is quick
                 with stage.parallel('robot'):
                     for include in include_tag.split():
