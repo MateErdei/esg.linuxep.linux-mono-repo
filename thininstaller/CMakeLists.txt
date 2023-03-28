@@ -143,8 +143,6 @@ add_custom_target(
         COMMAND cp -a ${openssl_cryptolib} ${libs_dir}/
         COMMAND cp -a ${expatlib} ${libs_dir}/
         COMMAND cp -a ${zlib} ${libs_dir}/
-        COMMAND cp -a ${REDIST}/openssl/lib64/libcrypto.so.1.1 ${libs_dir}/
-        COMMAND cp -a ${REDIST}/openssl/lib64/libssl.so.1.1 ${libs_dir}/
         COMMAND cp -a ${libstdcpp_path} ${libs_dir}/
         COMMAND cp -a ${libatomic_path} ${libs_dir}/
         COMMAND cp -a ${libgcc_s_path} ${libs_dir}/

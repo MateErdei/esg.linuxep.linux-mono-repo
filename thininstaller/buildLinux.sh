@@ -28,6 +28,14 @@ do
         --no-unpack)
             NO_UNPACK=1
             ;;
+        --setup)
+            NO_BUILD=1
+            tap fetch sspl_thininstaller
+            ;;
+        --ci)
+            NO_UNPACK=0
+            NO_BUILD=0
+            ;;
         *)
             exitFailure ${FAILURE_BAD_ARGUMENT} "unknown argument $1"
             ;;
@@ -92,9 +100,8 @@ function prepare_dependencies()
         # cmake
         if [[ -f "$INPUT/cmake/bin/cmake" ]]
         then
-            cp -rf $INPUT/cmake $REDIST && \
-            addpath "$REDIST/cmake/bin"
-            chmod 700 $REDIST/cmake/bin/cmake || exitFailure "Unable to chmod cmake"
+            addpath "$INPUT/cmake/bin"
+            chmod 700 $INPUT/cmake/bin/cmake || exitFailure "Unable to chmod cmake"
         else
             echo "WARNING: using system cmake"
         fi
@@ -103,7 +110,6 @@ function prepare_dependencies()
         untar_input versig
         untar_input cmcsrouterapi
         untar_input pluginapi
-        untar_input openssl
 
         if [[ -f ${INPUT}/update_certs/ps_rootca.crt ]]
         then
@@ -137,6 +143,8 @@ function build()
         exit 0
     fi
 
+    PYTHON=python3
+    [[ -x $(which $PYTHON) ]] || PYTHON=python
 
     rm -rf $BASE/output
     rm -rf $BASE/installer
@@ -173,7 +181,8 @@ function build()
         sb_manifest_sign --folder . --output manifest.dat --legacy
     tar cf installer.tar *
     gzip installer.tar
-    sha256=$(python ../sha256OfFile.py installer.tar.gz)
+
+    sha256=$($PYTHON ../sha256OfFile.py installer.tar.gz)
     mv installer.tar.gz "${sha256}.tar.gz"
     echo "{\"name\": \"${sha256}\"}" > latest.json
     rm manifest.dat
