@@ -23,14 +23,16 @@ namespace ResponseActionsImpl
     private:
         bool initialChecks(const DownloadInfo& info, nlohmann::json& response);
         void download(const DownloadInfo& info, nlohmann::json& response);
-        void handleHttpResponse(const Common::HttpRequests::Response& httpresponse, nlohmann::json& response, const std::string& url);
-        Path verifyFile(const DownloadInfo& info, nlohmann::json& response);
-        void decompressAndMoveFile(const Path& filePath, const DownloadInfo& info, nlohmann::json& response);
+        void handleHttpResponse(const Common::HttpRequests::Response& httpresponse, nlohmann::json& response);
+        bool verifyFile(const DownloadInfo& info, nlohmann::json& response);
+        void decompressAndMoveFile(const DownloadInfo& info, nlohmann::json& response);
         void makeDirAndMoveFile(nlohmann::json& response, Path destPath, const Path& filePathToMove);
         Path findBaseDir(const Path& path); //To be made more robust for general use and moved to Filesystem
         void removeTmpFiles();
 
         const Path m_raTmpDir = Common::ApplicationConfiguration::applicationPathManager().getResponseActionTmpPath();
+        const Path m_tmpDownloadFile = m_raTmpDir + "/tmp_download";
+        const Path m_tmpExtractPath = m_raTmpDir + "/extract";
         std::shared_ptr<Common::HttpRequests::IHttpRequester> m_client;
         Common::FileSystem::IFileSystem* m_fileSystem = Common::FileSystem::fileSystem();
     };

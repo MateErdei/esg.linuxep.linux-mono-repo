@@ -52,10 +52,9 @@ namespace ResponseActionsImpl
             assert(!response.contains("errorType"));
             assert(!response.contains("errorMessage"));
 
-            std::string fileName = verifyFile(info, response);
-            if (!fileName.empty())
+            if (verifyFile(info, response))
             {
-                decompressAndMoveFile(fileName, info, response);
+                decompressAndMoveFile(info, response);
             }
             removeTmpFiles();
         }
@@ -148,16 +147,17 @@ namespace ResponseActionsImpl
     void DownloadFileAction::download(const DownloadInfo& info, nlohmann::json& response)
     {
         Common::HttpRequests::RequestConfig request{
-            .url = info.url, .fileDownloadLocation = m_raTmpDir, .timeout = info.timeout
+            .url = info.url, .fileDownloadLocation = m_tmpDownloadFile, .timeout = info.timeout
         };
-        LOGINFO("Downloading to " << m_raTmpDir << " from url: " << info.url);
+        LOGINFO("Beginning download to " << info.targetPath);
+        LOGDEBUG("Download URL is " <<  info.url);
         Common::HttpRequests::Response httpresponse;
 
         if (Common::ProxyUtils::updateHttpRequestWithProxyInfo(request))
         {
             LOGINFO("Downloading via proxy: " << request.proxy.value());
             httpresponse = m_client->get(request);
-            handleHttpResponse(httpresponse, response, info.url);
+            handleHttpResponse(httpresponse, response);
 
             if (response["result"] != 0)
             {
@@ -167,28 +167,27 @@ namespace ResponseActionsImpl
                 request.proxyUsername = "";
                 ActionsUtils::resetErrorInfo(response);
                 httpresponse = m_client->get(request);
-                handleHttpResponse(httpresponse, response, info.url);
+                handleHttpResponse(httpresponse, response);
             }
         }
         else
         {
             LOGINFO("Downloading directly");
             httpresponse = m_client->get(request);
-            handleHttpResponse(httpresponse, response, info.url);
+            handleHttpResponse(httpresponse, response);
         }
         response["httpStatus"] = httpresponse.status;
     }
 
     void DownloadFileAction::handleHttpResponse(
         const Common::HttpRequests::Response& httpresponse,
-        nlohmann::json& response,
-        const std::string& url)
+        nlohmann::json& response)
     {
 
         if (httpresponse.errorCode == Common::HttpRequests::ResponseErrorCode::TIMEOUT)
         {
             std::stringstream error;
-            error << "Timeout downloading from " << url;
+            error << "Download timed out";
             LOGWARN(error.str());
             ActionsUtils::setErrorInfo(response, 2, error.str());
         }
@@ -209,7 +208,7 @@ namespace ResponseActionsImpl
             else
             {
                 std::stringstream error;
-                error << "Failed to download " << url << ": Error code " << httpresponse.status;
+                error << "Failed to download, Error code: " << httpresponse.status;
                 LOGWARN(error.str());
                 ActionsUtils::setErrorInfo(response, 1, error.str(), "network_error");
             }
@@ -217,13 +216,13 @@ namespace ResponseActionsImpl
         else
         {
             std::stringstream error;
-            error << "Failed to download " << url << ", error: " << httpresponse.error;
+            error << "Failed to download, Error: " << httpresponse.error;
             LOGWARN(error.str());
             ActionsUtils::setErrorInfo(response, 1, error.str(), "network_error");
         }
     }
 
-    Path DownloadFileAction::verifyFile(const DownloadInfo& info, nlohmann::json& response)
+    bool DownloadFileAction::verifyFile(const DownloadInfo& info, nlohmann::json& response)
     {
         //We are only downloading a single file and response actions should not run in parallel
         auto fileNameVec = m_fileSystem->listFiles(m_raTmpDir);
@@ -232,32 +231,32 @@ namespace ResponseActionsImpl
             std::string error = "Expected one file in " + m_raTmpDir + " but there are none";
             LOGERROR(error);
             ActionsUtils::setErrorInfo(response, 1, error);
-            return "";
+            return false;
         }
         if (fileNameVec.size() > 1)
         {
-            std::string error = "Expected one file in " + m_raTmpDir + " but there are many";
-            LOGERROR(error);
-            ActionsUtils::setErrorInfo(response, 1, error);
-            return "";
+            std::stringstream error;
+            error << "Expected one file in " << m_raTmpDir << " but there are " << fileNameVec.size();
+            LOGERROR(error.str());
+            ActionsUtils::setErrorInfo(response, 1, error.str());
+            return false;
         }
-        Path filePath = fileNameVec.front();
-        std::string fileName = Common::FileSystem::basename(filePath);
-        LOGDEBUG("Downloaded file " << fileName);
+        std::string fileName = Common::FileSystem::basename(info.targetPath);
+        LOGDEBUG("Downloaded file: " << fileName << " as " << m_tmpDownloadFile);
 
         //Check sha256
         std::string fileSha;
 
         try
         {
-            fileSha = m_fileSystem->calculateDigest(Common::SslImpl::Digest::sha256, filePath);
+            fileSha = m_fileSystem->calculateDigest(Common::SslImpl::Digest::sha256, m_tmpDownloadFile);
         }
         catch (const Common::FileSystem::IFileSystemException&)
         {
             std::string error = fileName + " cannot be accessed";
             LOGWARN(error);
             ActionsUtils::setErrorInfo(response, 1, error, "access_denied");
-            return "";
+            return false;
         }
         catch (const std::exception& exception)
         {
@@ -265,7 +264,7 @@ namespace ResponseActionsImpl
             error << "Unknown error when calculating digest of " << fileName << ": " << exception.what();
             LOGWARN(error.str());
             ActionsUtils::setErrorInfo(response, 1, error.str());
-            return "";
+            return false;
         }
 
         assert(!info.sha256.empty());
@@ -277,30 +276,27 @@ namespace ResponseActionsImpl
             shaError << "Calculated Sha256 (" << fileSha << ") doesnt match that of file downloaded (" << info.sha256 << ")";
             LOGWARN(shaError.str());
             ActionsUtils::setErrorInfo(response, 1, shaError.str(), "access_denied");
-            return "";
+            return false;
         }
-        return filePath;
+        return true;
     }
 
 
-    void DownloadFileAction::decompressAndMoveFile(const Path& filePath, const DownloadInfo& info, nlohmann::json& response)
+    void DownloadFileAction::decompressAndMoveFile(const DownloadInfo& info, nlohmann::json& response)
     {
-        assert(!filePath.empty());
-        //decompress
         if (info.decompress)
         {
             int ret;
-            const Path tmpExtractPath = m_raTmpDir + "/extract";
 
-            if (!m_fileSystem->exists(tmpExtractPath))
+            if (!m_fileSystem->exists(m_tmpExtractPath))
             {
                 try
                 {
-                    m_fileSystem->makedirs(tmpExtractPath);
+                    m_fileSystem->makedirs(m_tmpExtractPath);
                 }
                 catch (const Common::FileSystem::IFileSystemException& e)
                 {
-                    std::string error = "Unable to create path to extract file to: " + tmpExtractPath + ": " + e.what();
+                    std::string error = "Unable to create path to extract file to: " + m_tmpExtractPath + ": " + e.what();
                     LOGWARN(error);
                     ActionsUtils::setErrorInfo(response, 1, error, "access_denied");
                     return;
@@ -308,23 +304,22 @@ namespace ResponseActionsImpl
                 catch (const std::exception& e)
                 {
                     std::stringstream error;
-                    error << "Unknown error creating path to extract file to: " + tmpExtractPath + ": " + e.what();
+                    error << "Unknown error creating path to extract file to: " + m_tmpExtractPath + ": " + e.what();
                     LOGWARN(error.str());
                     ActionsUtils::setErrorInfo(response, 1, error.str());
                     return;
                 }
-
             }
 
             try
             {
                 if (info.password.empty())
                 {
-                    ret = Common::ZipUtilities::zipUtils().unzip(filePath, tmpExtractPath);
+                    ret = Common::ZipUtilities::zipUtils().unzip(m_tmpDownloadFile, m_tmpExtractPath);
                 }
                 else
                 {
-                    ret = Common::ZipUtilities::zipUtils().unzip(filePath, tmpExtractPath, true, info.password);
+                    ret = Common::ZipUtilities::zipUtils().unzip(m_tmpDownloadFile, m_tmpExtractPath, true, info.password);
                 }
             }
             catch (const std::runtime_error&)
@@ -335,17 +330,17 @@ namespace ResponseActionsImpl
 
             if (ret == UNZ_OK)
             {
-                auto extractedFile = m_fileSystem->listAllFilesInDirectoryTree(tmpExtractPath);
+                auto extractedFile = m_fileSystem->listAllFilesInDirectoryTree(m_tmpExtractPath);
 
                 if (extractedFile.empty())
                 {
-                    std::string error = "Unzip successful but no file found in " + tmpExtractPath;
+                    std::string error = "Unzip successful but no file found in " + m_tmpExtractPath;
                     LOGWARN(error);
                     ActionsUtils::setErrorInfo(response, 1, error);
                 }
                 else if (extractedFile.size() > 1)
                 {
-                    std::string error = "Unzip successful but more than one file found in " + tmpExtractPath;
+                    std::string error = "Unzip successful but more than one file found in " + m_tmpExtractPath;
                     LOGWARN(error);
                     ActionsUtils::setErrorInfo(response, 1, error);
                 }
@@ -358,7 +353,7 @@ namespace ResponseActionsImpl
             else
             {
                 std::stringstream error;
-                error << "Error unzipping " << filePath << " due to ";
+                error << "Error unzipping " << m_tmpDownloadFile << " due to ";
 
                 if (ret == UNZ_BADPASSWORD)
                 {
@@ -382,22 +377,24 @@ namespace ResponseActionsImpl
         }
         else
         {
-            makeDirAndMoveFile(response, info.targetPath, filePath);
+            makeDirAndMoveFile(response, info.targetPath, m_tmpDownloadFile);
         }
     }
 
     void DownloadFileAction::makeDirAndMoveFile(nlohmann::json& response, Path destPath, const Path& filePathToMove)
     {
-        if (destPath.back() != '/')
+        auto fileName = Common::FileSystem::basename(destPath);
+        auto dirName = Common::FileSystem::dirName(destPath);
+
+        if (dirName.empty())
         {
-            destPath.push_back('/');
+            dirName = "/";
         }
 
-        auto fileName = Common::FileSystem::basename(filePathToMove);
         try
         {
-            m_fileSystem->makedirs(destPath);
-            m_fileSystem->moveFile(filePathToMove, destPath + fileName);
+            m_fileSystem->makedirs(dirName);
+            m_fileSystem->moveFile(filePathToMove, destPath);
         }
         catch (const Common::FileSystem::IFileSystemException& e)
         {
@@ -416,9 +413,8 @@ namespace ResponseActionsImpl
             return;
         }
 
-        LOGINFO(destPath << fileName << " downloaded successfully");
+        LOGINFO(destPath << " downloaded successfully");
     }
-
 
     Path DownloadFileAction::findBaseDir(const Path& path)
     {
@@ -432,6 +428,10 @@ namespace ResponseActionsImpl
 
     void DownloadFileAction::removeTmpFiles()
     {
-        m_fileSystem->removeFileOrDirectory(m_raTmpDir);
+        if (m_fileSystem->exists(m_tmpDownloadFile))
+        {
+            m_fileSystem->removeFile(m_tmpDownloadFile);
+        }
+        m_fileSystem->removeFileOrDirectory(m_tmpExtractPath);
     }
 }
