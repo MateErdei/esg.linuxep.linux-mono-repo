@@ -103,7 +103,7 @@ namespace Common
             /**
              * Moves a file from one location to another
              * Uses ::rename internally which fails if sourcePath and destPath are on different mounts with Errno 18 (EXDEV)
-             * Will try copying and then removing the original if ::rename fails
+             * Will try copying and then removing the original if ::rename fails for this reason
              * @param sourcePath, location of the file to be moved.
              * @param destPath, location of the file to move to.
              */
@@ -112,6 +112,7 @@ namespace Common
             /**
              * Moves a file from one location to another
              * Uses ::rename internally which fails if sourcePath and destPath are on different mounts with Errno 18 (EXDEV)
+             * Will throw if ::rename fails
              * @param sourcePath, location of the file to be moved.
              * @param destPath, location of the file to move to.
              */

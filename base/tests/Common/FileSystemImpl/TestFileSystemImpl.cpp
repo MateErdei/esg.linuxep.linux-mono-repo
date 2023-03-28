@@ -1,7 +1,6 @@
 // Copyright 2018-2023, Sophos Limited. All rights reserved.
 
 #include <Common/FileSystem/IFilePermissions.h>
-#include <Common/FileSystem/IFileSystem.h>
 #include <Common/FileSystem/IFileSystemException.h>
 #include <Common/FileSystemImpl/FileSystemImpl.h>
 #include <Common/SslImpl/Digest.h>
@@ -1059,7 +1058,7 @@ namespace
     class mockFileSystemForMoveFileTryCopy : public FileSystemImpl
     {
     public:
-        MOCK_METHOD(void, moveFile, (const Path& sourcePath, const Path& destPath), (const, override));
+        MOCK_METHOD(int, moveFileImpl, (const Path& sourcePath, const Path& destPath), (const, override));
         MOCK_METHOD(void, copyFile, (const Path& sourcePath, const Path& destPath), (const, override));
         MOCK_METHOD(void, removeFile, (const Path& filePath), (const, override));
     };
@@ -1097,14 +1096,14 @@ namespace
         EXPECT_TRUE(m_fileSystem->exists(testFilePathAfterMove));
     }
 
-    TEST_F(FileSystemImplTest, moveFileTryCopyCopysFileWhenMoveFails_EXDIR)
+    TEST_F(FileSystemImplTest, moveFileTryCopyCopysFileWhenMoveFails_EXDEV)
     {
         std::string sourceDir = "Im/a/source/dir";
         std::string destDir = "Im/a/dest/dir";
 
         auto mockFileSystem = mockFileSystemForMoveFileTryCopy();
 
-        EXPECT_CALL(mockFileSystem, moveFile(sourceDir, destDir)).WillOnce(Throw(IFileSystemException("im a exception: Invalid cross-device link (18)")));
+        EXPECT_CALL(mockFileSystem, moveFileImpl(sourceDir, destDir)).WillOnce(Return(EXDEV));
         EXPECT_CALL(mockFileSystem, copyFile(sourceDir, destDir)).Times(1);
         EXPECT_CALL(mockFileSystem, removeFile(sourceDir)).Times(1);
         EXPECT_NO_THROW(mockFileSystem.moveFileTryCopy(sourceDir, destDir));
@@ -1117,8 +1116,7 @@ namespace
 
         auto mockFileSystem = mockFileSystemForMoveFileTryCopy();
 
-        EXPECT_CALL(mockFileSystem, moveFile(sourceDir, destDir)).WillOnce(Throw(IFileSystemException("im a exception: Other Error (1)")));
-
+        EXPECT_CALL(mockFileSystem, moveFileImpl(sourceDir, destDir)).WillOnce(Return(1));
         EXPECT_THROW(mockFileSystem.moveFileTryCopy(sourceDir, destDir), IFileSystemException);
     }
 

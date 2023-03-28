@@ -228,36 +228,38 @@ namespace Common
 
         void FileSystemImpl::moveFileTryCopy(const Path& sourcePath, const Path& destPath) const
         {
-            try
+            int ret = moveFileImpl(sourcePath, destPath);
+            if (ret == EXDEV)
             {
-                moveFile(sourcePath, destPath);
+                copyFile(sourcePath, destPath);
+                removeFile(sourcePath);
             }
-            catch (const IFileSystemException& exception)
+            else if (ret != 0)
             {
-                std::string exceptStr {exception.what()};
-                auto errBracket = exceptStr.rfind('(');
-                if (exceptStr.find(std::to_string(EXDEV), errBracket) != std::string::npos)
-                {
-                    copyFile(sourcePath, destPath);
-                    removeFile(sourcePath);
-                }
-                else
-                {
-                    throw exception;
-                }
+                std::stringstream errorStream;
+                errorStream << "Could not move " << sourcePath << " to " << destPath << ": " << StrError(ret) << "(" << ret << ")";
+                throw IFileSystemException(errorStream.str());
             }
         }
 
         void FileSystemImpl::moveFile(const Path& sourcePath, const Path& destPath) const
         {
-            if (::rename(sourcePath.c_str(), destPath.c_str()) != 0)
+            int ret = moveFileImpl(sourcePath.c_str(), destPath.c_str());
+            if (ret != 0)
             {
-                int error = errno;
                 std::stringstream errorStream;
-                errorStream << "Could not move " << sourcePath << " to " << destPath << ": " << StrError(error) << "(" << error << ")";
-
+                errorStream << "Could not move " << sourcePath << " to " << destPath << ": " << StrError(ret) << "(" << ret << ")";
                 throw IFileSystemException(errorStream.str());
             }
+        }
+
+        int FileSystemImpl::moveFileImpl(const Path& sourcePath, const Path& destPath) const
+        {
+            if (::rename(sourcePath.c_str(), destPath.c_str()) != 0)
+            {
+                return errno;
+            }
+            return 0;
         }
 
         std::string FileSystemImpl::readFile(const Path& path) const

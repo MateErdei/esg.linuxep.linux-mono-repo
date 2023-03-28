@@ -108,6 +108,9 @@ namespace Common
 
             [[nodiscard]] std::filesystem::space_info getDiskSpaceInfo(const Path& path) const override;
 
+        protected:
+            virtual int moveFileImpl(const Path& sourcePath, const Path& destPath) const;
+
         private:
             void walkDirectoryTree(std::vector<Path>& pathCollection, const Path& root) const;
         };
