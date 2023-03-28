@@ -419,12 +419,12 @@ def av_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
             nine_nine_nine_build = stage.artisan_build(name=nine_nine_nine_mode, component=component, image=build_image,
                                                        mode=nine_nine_nine_mode, release_package=release_package)
 
-        av_build = stage.artisan_build(name="normal_build", component=component, image=build_image,
-                                       mode=parameters.mode or "release", release_package=release_package)
-
         if do_coverage:
             coverage_build = stage.artisan_build(name="coverage_build", component=component, image=build_image,
                                                  mode="coverage", release_package=release_package)
+        else:
+            av_build = stage.artisan_build(name="normal_build", component=component, image=build_image,
+                                           mode="release", release_package=release_package)
 
     with stage.parallel('testing'):
         # AWS first to give the highest chance to start quickest
