@@ -19,25 +19,67 @@
 
 namespace
 {
-    void changeFileDate(
-        const char *filename,
-        tm_unz tmu_date)
+    void restoreFileInfo(
+        const std::string& filepath,
+        unz_file_info64 file_info)
     {
         struct utimbuf ut;
         struct tm newdate;
+        tm_unz tmu_date = file_info.tmu_date;
         newdate.tm_sec = tmu_date.tm_sec;
-        newdate.tm_min=tmu_date.tm_min;
-        newdate.tm_hour=tmu_date.tm_hour;
-        newdate.tm_mday=tmu_date.tm_mday;
-        newdate.tm_mon=tmu_date.tm_mon;
+        newdate.tm_min = tmu_date.tm_min;
+        newdate.tm_hour = tmu_date.tm_hour;
+        newdate.tm_mday = tmu_date.tm_mday;
+        newdate.tm_mon = tmu_date.tm_mon;
         if (tmu_date.tm_year > 1900)
-            newdate.tm_year=tmu_date.tm_year - 1900;
+            newdate.tm_year = tmu_date.tm_year - 1900;
         else
-            newdate.tm_year=tmu_date.tm_year ;
-        newdate.tm_isdst=-1;
+            newdate.tm_year = tmu_date.tm_year ;
+        newdate.tm_isdst = -1;
 
         ut.actime=ut.modtime=mktime(&newdate);
-        utime(filename,&ut);
+        ::utime(filepath.c_str(),&ut);
+        ::chmod(filepath.c_str(), file_info.external_fa);
+        char f_mode[20];
+        sprintf(f_mode, "%3o", file_info.external_fa & 0777);
+
+        LOGDEBUG("Restoring mode to: " << f_mode);
+    }
+
+    void getFileInfo(
+        const std::string& filepath,
+        zip_fileinfo* zfi,
+        unsigned long crcFile)
+    {
+        struct stat s;
+        struct tm* filedate;
+        time_t tm_t=0;
+
+        if (::stat(filepath.c_str(), &s) != 0)
+        {
+            std::stringstream errorMessage;
+            errorMessage << "Could not stat file: " << filepath;
+            throw std::runtime_error(errorMessage.str());
+        }
+        tm_t = s.st_mtime;
+        filedate = localtime(&tm_t);
+
+        zfi->dosDate = 0;
+        zfi->internal_fa = 0;
+        zfi->external_fa = s.st_mode;
+        zfi->tmz_date.tm_sec  = filedate->tm_sec;
+        zfi->tmz_date.tm_min  = filedate->tm_min;
+        zfi->tmz_date.tm_hour = filedate->tm_hour;
+        zfi->tmz_date.tm_mday = filedate->tm_mday;
+        zfi->tmz_date.tm_mon  = filedate->tm_mon ;
+        zfi->tmz_date.tm_year = filedate->tm_year;
+
+        char time_buf[256];
+        strftime(time_buf, sizeof(time_buf), "%Y-%m-%d %H:%M", filedate);
+
+        char f_mode[20];
+        sprintf(f_mode, "%3o", zfi->external_fa & 0777);
+        LOGDEBUG("Filename: " << filepath << ", crc: " << crcFile << ", timestamp: " << time_buf << ", mode: " << f_mode);
     }
 
     int extractCurrentfile(
@@ -144,7 +186,7 @@ namespace
 
                 if (err == 0)
                 {
-                    changeFileDate(write_filename, file_info.tmu_date);
+                    restoreFileInfo(write_filename, file_info);
                 }
             }
 
@@ -197,38 +239,6 @@ namespace
             }
         }
         return err;
-    }
-
-    std::string getFileTimestamp(
-        const std::string& filepath,
-        zip_fileinfo* zfi)
-    {
-        struct stat s;
-        struct tm* filedate;
-        time_t tm_t=0;
-
-        if (::stat(filepath.c_str(), &s) != 0)
-        {
-            std::stringstream errorMessage;
-            errorMessage << "Could not stat file: " << filepath;
-            throw std::runtime_error(errorMessage.str());
-        }
-        tm_t = s.st_mtime;
-        filedate = localtime(&tm_t);
-
-        zfi->dosDate = 0;
-        zfi->internal_fa = 0;
-        zfi->external_fa = 0;
-        zfi->tmz_date.tm_sec  = filedate->tm_sec;
-        zfi->tmz_date.tm_min  = filedate->tm_min;
-        zfi->tmz_date.tm_hour = filedate->tm_hour;
-        zfi->tmz_date.tm_mday = filedate->tm_mday;
-        zfi->tmz_date.tm_mon  = filedate->tm_mon ;
-        zfi->tmz_date.tm_year = filedate->tm_year;
-
-        char time_buf[256];
-        strftime(time_buf, sizeof(time_buf), "%Y-%m-%d %H:%M", filedate);
-        return time_buf;
     }
 }
 
@@ -320,8 +330,7 @@ namespace Common::ZipUtilities
             unsigned long crcFile = 0;
             crcFile = crc32_z(crcFile, (unsigned char*)&fileContents[0], fileContents.size());
 
-            std::string timeStr = getFileTimestamp(fullFilePath, &zfi);
-            LOGDEBUG("Filename: " << relativeFilePath << ", crc: " << crcFile << ", timestamp: " << timeStr);
+            getFileInfo(fullFilePath, &zfi, crcFile);
 
             if (passwordProtected)
             {
