@@ -22,6 +22,10 @@ ${RESPONSE_ACTIONS_LOG_PATH}   ${SOPHOS_INSTALL}/plugins/responseactions/log/res
 Test Zip And Unzip Directory
     Create Directory   ${TAR_FILE_DIRECTORY}
     Create File   ${TAR_FILE_DIRECTORY}/test.txt   this is a test file
+    ${preZipMode} =    Set Variable    764
+    Run Process  chmod  ${preZipMode}  ${TAR_FILE_DIRECTORY}/test.txt
+    ${result}=    Run Process  ls -l ${TAR_FILE_DIRECTORY}/test.txt  shell=True
+    Log  ${result.stdout}
 
     ${zipTool} =  Set Variable  SystemProductTestOutput/zipTool
     ${unzipTool} =  Set Variable  SystemProductTestOutput/unzipTool
@@ -41,6 +45,11 @@ Test Zip And Unzip Directory
     Log  ${result.stdout}
     Should Be Equal As Integers    ${result.rc}    0   "zip utility failed: Reason ${result.stderr}"
     Directory Should Not Be Empty  ${UNPACK_DIRECTORY}
+    ${extractedModTime} =    Get Last Modified Time    ${UNPACK_DIRECTORY}/test.txt
+    ${result}=    Run Process  ls -l ${UNPACK_DIRECTORY}/test.txt  shell=True
+    Log  ${result.stdout}
+    Should Not Be Equal As Integers    ${extractedModTime}    ${0}    "Timestamp or extracted file not restored"
+    Ensure Chmod File Matches    ${UNPACK_DIRECTORY}/test.txt    ${preZipMode}
 
 Test Zip And Unzip Directory With Password
     Create Directory   ${TAR_FILE_DIRECTORY}
