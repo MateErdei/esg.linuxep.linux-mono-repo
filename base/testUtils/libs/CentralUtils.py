@@ -349,7 +349,7 @@ def Send_Upload_Folder_From_Fake_Cloud(folderpath="/tmp/folder", compress=False,
     CloudAutomation.SendToFakeCloud.sendResponseActionToFakeCloud(json.dumps(action_dict), command_id=command_id)
 
 
-def Send_Download_File_From_Fake_Cloud(decompress=False, command_id="correlation-id", password=""):
+def Send_Download_File_From_Fake_Cloud(decompress=False, targetPath="/tmp/folder/download.zip", password=""):
     with open("/tmp/download.txt", 'w') as f:
         f.write("content")
     zipfile.ZipFile('/tmp/download.zip', mode='w').write("/tmp/download.txt")
@@ -361,7 +361,7 @@ def Send_Download_File_From_Fake_Cloud(decompress=False, command_id="correlation
 
     action_dict = {"type": "sophos.mgt.action.DownloadFile",
            "url": "https://localhost:443/download",
-           "targetPath": "/tmp/folder",
+           "targetPath": targetPath,
            "sha256": readable_hash,
            "sizeBytes": len(contents),
            "decompress": decompress,
@@ -369,7 +369,7 @@ def Send_Download_File_From_Fake_Cloud(decompress=False, command_id="correlation
            "expiration": 144444000000004,
            "timeout": 60,
            }
-    CloudAutomation.SendToFakeCloud.sendResponseActionToFakeCloud(json.dumps(action_dict), command_id=command_id)
+    CloudAutomation.SendToFakeCloud.sendResponseActionToFakeCloud(json.dumps(action_dict), "correlation-id")
 
 
 def verify_run_command_response(response_json_path, result, command_results=None, expect_timeout=False):

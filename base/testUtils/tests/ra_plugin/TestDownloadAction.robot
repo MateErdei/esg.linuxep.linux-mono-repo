@@ -18,7 +18,7 @@ Default Tags   RESPONSE_ACTIONS_PLUGIN
 
 *** Variables ***
 #if these change, change in Send_Download_File_From_Fake_Cloud also
-${DOWNLOAD_TARGET_PATH}    /tmp/folder
+${DOWNLOAD_TARGET_PATH}    /tmp/folder/
 ${DOWNLOAD_FILENAME_ZIP}    download.zip
 ${DOWNLOAD_FILENAME_TXT}    download.txt
 
@@ -26,18 +26,18 @@ ${DOWNLOAD_FILENAME_TXT}    download.txt
 RA Plugin downloads a file successfully
     ${response_mark} =  mark_log_size  ${RESPONSE_ACTIONS_LOG_PATH}
     ${action_mark} =  mark_log_size  ${ACTIONS_RUNNER_LOG_PATH}
-    Register Cleanup  Remove Directory    /tmp/folder/  recursive=${TRUE}
+    Register Cleanup  Remove Directory    ${DOWNLOAD_TARGET_PATH}  recursive=${TRUE}
 
     Send_Download_File_From_Fake_Cloud
 
     wait_for_log_contains_from_mark  ${response_mark}  Action correlation-id has succeeded   25
     wait_for_log_contains_from_mark  ${action_mark}  Sent download file response for ID correlation-id to Central   15
-    wait_for_log_contains_from_mark  ${action_mark}   ${DOWNLOAD_TARGET_PATH}/${DOWNLOAD_FILENAME_ZIP} downloaded successfully
+    wait_for_log_contains_from_mark  ${action_mark}   ${DOWNLOAD_TARGET_PATH}${DOWNLOAD_FILENAME_ZIP} downloaded successfully
 
     Check Log Contains  Received HTTP GET Request  ${HTTPS_LOG_FILE_PATH}  https server log
-    File Should Exist   /tmp/folder/download.zip
+    File Should Exist   ${DOWNLOAD_TARGET_PATH}${DOWNLOAD_FILENAME_ZIP}
 
-    File Should Not Exist    ${RESPONSE_ACTIONS_TMP_PATH}/download.zip
+    File Should Not Exist    ${RESPONSE_ACTIONS_TMP_PATH}/${DOWNLOAD_FILENAME_ZIP}
 
     Wait Until Keyword Succeeds
     ...  1 min
@@ -50,18 +50,18 @@ RA Plugin downloads a file successfully with decompression
     ${action_mark} =  mark_log_size  ${ACTIONS_RUNNER_LOG_PATH}
     Register Cleanup  Remove Directory  /tmp/folder  recursive=${TRUE}
 
-    Send_Download_File_From_Fake_Cloud   ${TRUE}
+    Send_Download_File_From_Fake_Cloud   ${TRUE}  ${DOWNLOAD_TARGET_PATH}${DOWNLOAD_FILENAME_TXT}
 
     wait_for_log_contains_from_mark  ${response_mark}  Action correlation-id has succeeded   25
     wait_for_log_contains_from_mark  ${action_mark}  Sent download file response for ID correlation-id to Central   15
-    wait_for_log_contains_from_mark  ${action_mark}   ${DOWNLOAD_TARGET_PATH}/${DOWNLOAD_FILENAME_TXT} downloaded successfully
+    wait_for_log_contains_from_mark  ${action_mark}   ${DOWNLOAD_TARGET_PATH}${DOWNLOAD_FILENAME_TXT} downloaded successfully
 
     Check Log Contains  Received HTTP GET Request  ${HTTPS_LOG_FILE_PATH}  https server log
-    File Should Exist   /tmp/folder/download.txt
-    File Should Not Exist    /tmp/folder/download.zip
+    File Should Exist   ${DOWNLOAD_TARGET_PATH}${DOWNLOAD_FILENAME_TXT}
+    File Should Not Exist    ${DOWNLOAD_TARGET_PATH}${DOWNLOAD_FILENAME_ZIP}
 
-    File Should Not Exist    ${RESPONSE_ACTIONS_TMP_PATH}/download.zip
-    File Should Not Exist    ${RESPONSE_ACTIONS_TMP_PATH}/extract/download.txt
+    File Should Not Exist    ${RESPONSE_ACTIONS_TMP_PATH}${DOWNLOAD_FILENAME_ZIP}
+    File Should Not Exist    ${RESPONSE_ACTIONS_TMP_PATH}extract/${DOWNLOAD_FILENAME_TXT}
 
     Wait Until Keyword Succeeds
     ...  1 min
