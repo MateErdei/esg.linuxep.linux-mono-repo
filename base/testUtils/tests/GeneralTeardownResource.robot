@@ -93,6 +93,9 @@ Dump All Logs
     Dump Teardown Log    ${SOPHOS_INSTALL}/plugins/edr/VERSION.ini
     Dump Teardown Log    ${SOPHOS_INSTALL}/plugins/av/VERSION.ini
 
+    Dump Teardown Log    ${WD_ACTUAL_USER_GROUP_IDS}
+    Dump Teardown Log    ${WD_REQUESTED_USER_GROUP_IDS}
+
 Dump All Sophos Processes
     ${result}=  Run Process    ps -elf | grep sophos    shell=True
     Log  ${result.stdout}
