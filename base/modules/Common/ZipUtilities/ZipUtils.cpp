@@ -9,6 +9,8 @@
 
 #include <fstream>
 #include <memory>
+#include <stdio.h>
+#include <sys/stat.h>
 #include <unistd.h>
 #include <utime.h>
 #include <zlib.h>
@@ -196,6 +198,38 @@ namespace
         }
         return err;
     }
+
+    std::string getFileTimestamp(
+        const std::string& filepath,
+        zip_fileinfo* zfi)
+    {
+        struct stat s;
+        struct tm* filedate;
+        time_t tm_t=0;
+
+        if (::stat(filepath.c_str(), &s) != 0)
+        {
+            std::stringstream errorMessage;
+            errorMessage << "Could not stat file: " << filepath;
+            throw std::runtime_error(errorMessage.str());
+        }
+        tm_t = s.st_mtime;
+        filedate = localtime(&tm_t);
+
+        zfi->dosDate = 0;
+        zfi->internal_fa = 0;
+        zfi->external_fa = 0;
+        zfi->tmz_date.tm_sec  = filedate->tm_sec;
+        zfi->tmz_date.tm_min  = filedate->tm_min;
+        zfi->tmz_date.tm_hour = filedate->tm_hour;
+        zfi->tmz_date.tm_mday = filedate->tm_mday;
+        zfi->tmz_date.tm_mon  = filedate->tm_mon ;
+        zfi->tmz_date.tm_year = filedate->tm_year;
+
+        char time_buf[256];
+        strftime(time_buf, sizeof(time_buf), "%Y-%m-%d %H:%M", filedate);
+        return time_buf;
+    }
 }
 
 namespace Common::ZipUtilities
@@ -285,7 +319,9 @@ namespace Common::ZipUtilities
 
             unsigned long crcFile = 0;
             crcFile = crc32_z(crcFile, (unsigned char*)&fileContents[0], fileContents.size());
-            LOGDEBUG("Filename: " << relativeFilePath << ", crc: " << crcFile);
+
+            std::string timeStr = getFileTimestamp(fullFilePath, &zfi);
+            LOGDEBUG("Filename: " << relativeFilePath << ", crc: " << crcFile << ", timestamp: " << timeStr);
 
             if (passwordProtected)
             {
