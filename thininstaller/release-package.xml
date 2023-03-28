@@ -6,34 +6,23 @@
     <inputs>
         <workingdir>.</workingdir>
         <build-asset project="linuxep" repo="everest-base">
-<!--            <release-version branch="release/2023.1.2-thinstaller-only-fdqn-fix"-->
-<!--                             build-id="20230301170849-729e8dccf2cc6047bf724eb254426c3b508d5012-IM1wRQ"/>-->
-            <development-version branch="develop"/>
+            <release-version branch="release/2023-13" build-id="20230327102256-80ee197f61863b4935e099fc513212cc19ca0c6c-tXu2TZ"/>
             <include artifact-path="sspl-base/pluginapi" dest-dir="/build/input"/>
             <include artifact-path="sspl-base/cmcsrouterapi" dest-dir="/build/input"/>
         </build-asset>
         <build-asset project="linuxep" repo="versig">
-            <release-version branch="release/Version_2_0_0"
-                             build-id="20220727094738-a99112d63f8fc2b87e53e7e69e687cf4fd890434-OYVMQC"/>
-            <development-version branch="master"/>
+            <release-version branch="release/Version_3_0_0" build-id="20230322153623-e2a0e8a63ecc991fc33e349f9777efe2e7718942-0OdmtP"/>
             <include artifact-path="output" dest-dir="/build/input/"/>
         </build-asset>
 
         <build-asset project="em" repo="esg">
-<!--            <release-version branch="release/2023.04/sprint" build-id="20230120201925-31a0379094fc1654506d3d459661d326949dee47-bh0Sgz"/>-->
-            <development-version branch="develop"/>
+            <release-version branch="release/WIN-2023.1" build-id="20230324135436-2be86f5d08f35518a20f832ea8cb1163f414647f-GIRTge"/>
             <include artifact-path="thirdparty/curl-linux-opt" dest-dir="/build/redist/curl"/>
         </build-asset>
 
         <build-asset project="thirdparty" repo="gcc">
             <release-version branch="release/Version_11_2_0"
                              build-id="20220310091547-cf8f7ca9572a3bc9a68f05138086815341a49224-cZ84iF"/>
-            <include artifact-path="output" dest-dir="/build/input"/>
-        </build-asset>
-        <!-- TODO LINUXDAR-5854: Remove once using new versig -->
-        <build-asset project="thirdparty" repo="openssl">
-            <release-version branch="release/sspl/Version_1_1_1q"
-                             build-id="20220725102623-b49f6c504d454be8e7bc6a7dc7f7528b53920bdc-iF7TY0"/>
             <include artifact-path="output" dest-dir="/build/input"/>
         </build-asset>
 
@@ -46,7 +35,7 @@
         <command>
             <workingdir>.</workingdir>
             <program>/bin/bash</program>
-            <args>./buildLinux.sh</args>
+            <args>./buildLinux.sh --ci</args>
         </command>
     </buildcommands>
     <publish>
