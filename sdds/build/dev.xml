@@ -138,6 +138,7 @@
     <signingexclusions>
         <promotedfile name="dummy.bpf.o"/>
         <promotedfile name="task.bpf.o"/>
+        <promotedfile name="file.bpf.o"/>
     </signingexclusions>
   <publish>
       <!--sdds3-->
