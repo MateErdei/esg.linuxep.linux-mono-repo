@@ -33,7 +33,7 @@ do
             tap fetch sspl_thininstaller
             ;;
         --ci)
-            NO_UNPACK=0
+            NO_UNPACK=
             NO_BUILD=0
             ;;
         *)
