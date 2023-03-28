@@ -79,34 +79,10 @@ def warehouse(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
     if spec_only:
         return
 
-    mdr999 = parameters.mdr_999 != 'false'
-    edr999 = parameters.edr_999 != 'false'
-    base999 = parameters.base_999 != 'false'
-    query_pack = parameters.query_pack != 'false'
-    zero_six_zero = parameters.zero_six_zero != 'false'
     run_tests = parameters.run_tests != 'false'
 
     with stage.parallel('build'):
         branch = context.branch
-        is_release_branch = branch.startswith('release-') or branch.startswith('hotfix-')
-        if not is_release_branch:
-            build = build_dev_warehouse(stage=stage, name="release-package")
-            if base999:
-                build_dev_warehouse(stage=stage, name="release-package-base-999")
-            if query_pack:
-                build_dev_warehouse(stage=stage, name="release-package-query-pack")
-            if edr999:
-                build_dev_warehouse(stage=stage, name="release-package-edr-999")
-            if mdr999:
-                build_dev_warehouse(stage=stage, name="release-package-mdr-999")
-            if edr999 and mdr999:
-                build_dev_warehouse(stage=stage, name="release-package-edr-mdr-999")
-            if zero_six_zero:
-                build_dev_warehouse(stage=stage, name="release-package-060")
-            build_dev_warehouse(stage=stage, name="localwarehouse", image='centos79_x64_build_20230202')
-            run_tests
-        else:
-            build = False
 
         is_release_branch = branch.startswith('release-') or branch.startswith('hotfix-')
 
