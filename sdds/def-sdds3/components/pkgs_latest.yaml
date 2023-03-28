@@ -27,7 +27,7 @@ event-journaler.latest.x64:
   line-id: ServerProtectionLinux-Plugin-EventJournaler
   mountpoint: ServerProtectionLinux-Plugin-EventJournaler
 liveresponse.latest.x64:
-  prod-artifact: esg-releasable-candidate/winep.liveterminal/release--2023-10-linux/20230307203314-c82d1c01095edf3753ddd71b29faa693a7d1aa8f-hey2M7/liveterminal/SDDS3-PACKAGE/
+  prod-artifact: esg-releasable-candidate/winep.liveterminal/release--2023-13-linux-only/20230328103717-f73dba1840b4662453b53fd155317c2816e98b68-giICKK/liveterminal/SDDS3-PACKAGE/
   line-id: ServerProtectionLinux-Plugin-liveresponse
   mountpoint: ServerProtectionLinux-Plugin-liveresponse
 runtimedetections.latest.x64:
