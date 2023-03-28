@@ -420,8 +420,8 @@ def av_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
                                                        mode=nine_nine_nine_mode, release_package=release_package)
 
         if do_coverage:
-            coverage_build = stage.artisan_build(name="coverage_build", component=component, image=build_image,
-                                                 mode="coverage", release_package=release_package)
+            av_build = stage.artisan_build(name="coverage_build", component=component, image=build_image,
+                                           mode="coverage", release_package=release_package)
         else:
             av_build = stage.artisan_build(name="normal_build", component=component, image=build_image,
                                            mode="release", release_package=release_package)
@@ -436,7 +436,7 @@ def av_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
         # Coverage next, since that is the next slowest
         if do_coverage:
             with stage.parallel('coverage'):
-                coverage_inputs = get_inputs(context, coverage_build, coverage=True)
+                coverage_inputs = get_inputs(context, av_build, coverage=True)
 
                 with stage.parallel('pytest'):
                     machine_bullseye_pytest = \
