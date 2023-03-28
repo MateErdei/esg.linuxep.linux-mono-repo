@@ -419,24 +419,24 @@ def av_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
             nine_nine_nine_build = stage.artisan_build(name=nine_nine_nine_mode, component=component, image=build_image,
                                                        mode=nine_nine_nine_mode, release_package=release_package)
 
+        av_build = stage.artisan_build(name="normal_build", component=component, image=build_image,
+                                       mode="release", release_package=release_package)
+
         if do_coverage:
-            av_build = stage.artisan_build(name="coverage_build", component=component, image=build_image,
-                                           mode="coverage", release_package=release_package)
-        else:
-            av_build = stage.artisan_build(name="normal_build", component=component, image=build_image,
-                                           mode="release", release_package=release_package)
+            coverage_build = stage.artisan_build(name="coverage_build", component=component, image=build_image,
+                                                 mode="coverage", release_package=release_package)
 
     with stage.parallel('testing'):
         # AWS first to give the highest chance to start quickest
         if run_aws_tests:
-            aws_test_inputs = get_inputs(context, av_build, coverage=do_coverage, aws=True)
+            aws_test_inputs = get_inputs(context, av_build, aws=True)
             machine = tap.Machine('ubuntu1804_x64_server_en_us', inputs=aws_test_inputs, platform=tap.Platform.Linux)
             stage.task("aws_tests", func=aws_task, machine=machine, include_tag=include_tag)
 
         # Coverage next, since that is the next slowest
         if do_coverage:
             with stage.parallel('coverage'):
-                coverage_inputs = get_inputs(context, av_build, coverage=True)
+                coverage_inputs = get_inputs(context, coverage_build, coverage=True)
 
                 with stage.parallel('pytest'):
                     machine_bullseye_pytest = \
@@ -473,7 +473,7 @@ def av_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
 
         if run_tests:
             with stage.parallel('TA'):
-                test_inputs = get_inputs(context, av_build, coverage=do_coverage)
+                test_inputs = get_inputs(context, av_build)
                 # Robot before pytest, since pytest is quick
                 with stage.parallel('robot'):
                     for include in include_tag.split():
