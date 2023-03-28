@@ -432,6 +432,9 @@ namespace ResponseActionsImpl
         {
             m_fileSystem->removeFile(m_tmpDownloadFile);
         }
-        m_fileSystem->removeFileOrDirectory(m_tmpExtractPath);
+        if (m_fileSystem->exists(m_tmpExtractPath))
+        {
+            m_fileSystem->removeFileOrDirectory(m_tmpExtractPath);
+        }
     }
 }
