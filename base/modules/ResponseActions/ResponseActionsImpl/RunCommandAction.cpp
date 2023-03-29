@@ -31,7 +31,7 @@ namespace ResponseActionsImpl
 
     namespace RunCommandAction
     {
-        std::string run(const std::string& actionJson, const std::string& correlationId)
+        nlohmann::json run(const std::string& actionJson, const std::string& correlationId)
         {
             nlohmann::json response;
             try
@@ -49,7 +49,7 @@ namespace ResponseActionsImpl
                     static_cast<int>(ResponseActions::RACommon::ResponseResult::ERROR),
                     "Error parsing command from Central: " + correlationId);
             }
-            return response.dump();
+            return response;
         }
 
         CommandResponse runCommands(const CommandRequest& action, const std::string& correlationId)

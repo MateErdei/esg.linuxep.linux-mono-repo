@@ -14,7 +14,7 @@ namespace ResponseActionsImpl
     {
     public:
         UploadFolderAction(std::shared_ptr<Common::HttpRequests::IHttpRequester> requester);
-        [[nodiscard]] std::string run(const std::string& actionJson);
+        [[nodiscard]] nlohmann::json run(const std::string& actionJson);
 
     private:
         std::shared_ptr<Common::HttpRequests::IHttpRequester> m_client;

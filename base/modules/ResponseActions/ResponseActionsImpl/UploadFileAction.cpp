@@ -20,7 +20,7 @@ namespace ResponseActionsImpl
     {
     }
 
-    std::string UploadFileAction::run(const std::string& actionJson)
+    nlohmann::json UploadFileAction::run(const std::string& actionJson)
     {
         nlohmann::json response;
         response["type"] = ResponseActions::RACommon::UPLOAD_FILE_RESPONSE_TYPE;
@@ -37,7 +37,7 @@ namespace ResponseActionsImpl
                 response,
                 static_cast<int>(ResponseActions::RACommon::ResponseResult::ERROR),
                 "Error parsing command from Central");
-            return response.dump();
+            return response;
         }
 
         if (ActionsUtils::isExpired(info.expiration))
@@ -46,7 +46,7 @@ namespace ResponseActionsImpl
             LOGWARN(error);
             ActionsUtils::setErrorInfo(
                 response, static_cast<int>(ResponseActions::RACommon::ResponseResult::EXPIRED), error);
-            return response.dump();
+            return response;
         }
 
         auto* fs = Common::FileSystem::fileSystem();
@@ -56,7 +56,7 @@ namespace ResponseActionsImpl
             LOGWARN(error);
             ActionsUtils::setErrorInfo(
                 response, static_cast<int>(ResponseActions::RACommon::ResponseResult::ERROR), error, "invalid_path");
-            return response.dump();
+            return response;
         }
 
         Common::UtilityImpl::FormattedTime time;
@@ -75,7 +75,7 @@ namespace ResponseActionsImpl
 
         u_int64_t end = time.currentEpochTimeInSecondsAsInteger();
         response["duration"] = end - start;
-        return response.dump();
+        return response;
     }
 
     void UploadFileAction::prepareAndUpload(const UploadInfo& info, nlohmann::json& response)

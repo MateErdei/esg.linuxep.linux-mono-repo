@@ -248,13 +248,12 @@ TEST_F(RunCommandTests, runMethodProducesValidOutForSinglecommand)
 
     std::string actionJson = getSingleCommandJsonString();
     std::string correlationId = "correlationID";
-    auto response = ResponseActionsImpl::RunCommandAction::run(actionJson, correlationId);
-    nlohmann::json jsonResponse = nlohmann::json::parse(response);
+    nlohmann::json response = ResponseActionsImpl::RunCommandAction::run(actionJson, correlationId);
 
-    EXPECT_EQ(jsonResponse.at("type"), "sophos.mgt.response.RunCommands");
-    EXPECT_GE(jsonResponse.at("duration"), 0);
-    EXPECT_EQ(jsonResponse.at("result"), 0);
-    EXPECT_GE(jsonResponse.at("startedAt"), 1679057317);
+    EXPECT_EQ(response.at("type"), "sophos.mgt.response.RunCommands");
+    EXPECT_GE(response.at("duration"), 0);
+    EXPECT_EQ(response.at("result"), 0);
+    EXPECT_GE(response.at("startedAt"), 1679057317);
     nlohmann::json cmdResults = nlohmann::json::array();
     nlohmann::json cmdResult;
     cmdResult["stdOut"] = "output message";
@@ -262,7 +261,7 @@ TEST_F(RunCommandTests, runMethodProducesValidOutForSinglecommand)
     cmdResult["exitCode"] = 0;
     cmdResult["duration"] = 0;
     cmdResults.push_back(cmdResult);
-    EXPECT_EQ(jsonResponse.at("commandResults"), cmdResults);
+    EXPECT_EQ(response.at("commandResults"), cmdResults);
 }
 
 TEST_F(RunCommandTests, runMethodHandlesInvalidJson)
@@ -281,9 +280,9 @@ TEST_F(RunCommandTests, runMethodHandlesInvalidJson)
         });
 
     std::string correlationId = "correlationID";
-    auto response = ResponseActionsImpl::RunCommandAction::run("Not json string", correlationId);
-    nlohmann::json jsonResponse = nlohmann::json::parse(response);
-    EXPECT_EQ(jsonResponse.at("result"), 1);
+    nlohmann::json response = ResponseActionsImpl::RunCommandAction::run("Not json string", correlationId);
+
+    EXPECT_EQ(response.at("result"), 1);
 }
 
 // runCommands

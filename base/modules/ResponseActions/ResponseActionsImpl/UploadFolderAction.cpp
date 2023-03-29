@@ -22,7 +22,7 @@ namespace ResponseActionsImpl
     {
     }
 
-    std::string UploadFolderAction::run(const std::string& actionJson)
+    nlohmann::json UploadFolderAction::run(const std::string& actionJson)
     {
         nlohmann::json response;
         response["type"] = ResponseActions::RACommon::UPLOAD_FOLDER_RESPONSE_TYPE;
@@ -36,7 +36,7 @@ namespace ResponseActionsImpl
         {
             LOGWARN(exception.what());
             ActionsUtils::setErrorInfo(response, 1, "Error parsing command from Central");
-            return response.dump();
+            return response;
         }
 
         if (ActionsUtils::isExpired(info.expiration))
@@ -44,7 +44,7 @@ namespace ResponseActionsImpl
             std::string error = "Action has expired";
             LOGWARN(error);
             ActionsUtils::setErrorInfo(response, 4, error);
-            return response.dump();
+            return response;
         }
 
         auto* fs = Common::FileSystem::fileSystem();
@@ -53,7 +53,7 @@ namespace ResponseActionsImpl
             std::string error = info.targetPath + " is not a directory";
             LOGWARN(error);
             ActionsUtils::setErrorInfo(response, 1, error, "invalid_path");
-            return response.dump();
+            return response;
         }
 
         Common::UtilityImpl::FormattedTime time;
@@ -67,7 +67,7 @@ namespace ResponseActionsImpl
 
         u_int64_t end = time.currentEpochTimeInSecondsAsInteger();
         response["duration"] = end - start;
-        return response.dump();
+        return response;
     }
 
     void UploadFolderAction::prepareAndUpload(const UploadInfo& info, nlohmann::json& response)

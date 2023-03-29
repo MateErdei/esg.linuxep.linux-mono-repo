@@ -59,10 +59,10 @@ TEST_F(UploadFileTests, SuccessCase)
     EXPECT_CALL(*mockFileSystem, calculateDigest(Common::SslImpl::Digest::sha256, "path"))
         .WillOnce(Return("sha256string"));
 
-    std::string response = uploadFileAction.run(action.dump());
-    nlohmann::json responseJson = nlohmann::json::parse(response);
-    EXPECT_EQ(responseJson["result"], 0);
-    EXPECT_EQ(responseJson["httpStatus"], 200);
+    nlohmann::json response = uploadFileAction.run(action.dump());
+
+    EXPECT_EQ(response["result"], 0);
+    EXPECT_EQ(response["httpStatus"], 200);
 }
 
 TEST_F(UploadFileTests, SuccessCaseWithProxy)
@@ -88,10 +88,10 @@ TEST_F(UploadFileTests, SuccessCaseWithProxy)
     EXPECT_CALL(*mockFileSystem, calculateDigest(Common::SslImpl::Digest::sha256, "path"))
         .WillOnce(Return("sha256string"));
 
-    std::string response = uploadFileAction.run(action.dump());
-    nlohmann::json responseJson = nlohmann::json::parse(response);
-    EXPECT_EQ(responseJson["result"], 0);
-    EXPECT_EQ(responseJson["httpStatus"], 200);
+    nlohmann::json response = uploadFileAction.run(action.dump());
+
+    EXPECT_EQ(response["result"], 0);
+    EXPECT_EQ(response["httpStatus"], 200);
 }
 
 TEST_F(UploadFileTests, ProxyFailureFallsbackDirect)
@@ -121,10 +121,10 @@ TEST_F(UploadFileTests, ProxyFailureFallsbackDirect)
     EXPECT_CALL(*mockFileSystem, calculateDigest(Common::SslImpl::Digest::sha256, "path"))
         .WillOnce(Return("sha256string"));
 
-    std::string response = uploadFileAction.run(action.dump());
-    nlohmann::json responseJson = nlohmann::json::parse(response);
-    EXPECT_EQ(responseJson["result"], 0);
-    EXPECT_EQ(responseJson["httpStatus"], 200);
+    nlohmann::json response = uploadFileAction.run(action.dump());
+
+    EXPECT_EQ(response["result"], 0);
+    EXPECT_EQ(response["httpStatus"], 200);
 }
 
 TEST_F(UploadFileTests, SuccessCaseCompressionWithPassword)
@@ -168,10 +168,10 @@ TEST_F(UploadFileTests, SuccessCaseCompressionWithPassword)
     EXPECT_CALL(*mockFileSystem, calculateDigest(Common::SslImpl::Digest::sha256, zipFile))
         .WillOnce(Return("sha256string"));
 
-    std::string response = uploadFileAction.run(action.dump());
-    nlohmann::json responseJson = nlohmann::json::parse(response);
-    EXPECT_EQ(responseJson["result"], 0);
-    EXPECT_EQ(responseJson["httpStatus"], 200);
+    nlohmann::json response = uploadFileAction.run(action.dump());
+
+    EXPECT_EQ(response["result"], 0);
+    EXPECT_EQ(response["httpStatus"], 200);
     EXPECT_TRUE(std::filesystem::is_regular_file(zipFile));
     std::string unpack = tempDir.absPath("file.txt");
     int ret = Common::ZipUtilities::zipUtils().unzip(zipFile, tempDir.absPath(""), true, "password");
@@ -208,10 +208,10 @@ TEST_F(UploadFileTests, ZipFails)
     ON_CALL(mockzipUtil, zip(_, _, _)).WillByDefault(Return(1));
     Common::ZipUtilities::replaceZipUtils(std::move(mockZip));
 
-    std::string response = uploadFileAction.run(action.dump());
-    nlohmann::json responseJson = nlohmann::json::parse(response);
-    EXPECT_EQ(responseJson["result"], 3);
-    EXPECT_EQ(responseJson["errorMessage"], "Error zipping path");
+    nlohmann::json response = uploadFileAction.run(action.dump());
+
+    EXPECT_EQ(response["result"], 3);
+    EXPECT_EQ(response["errorMessage"], "Error zipping path");
 }
 
 TEST_F(UploadFileTests, ZipFailsDueToLargeFile)
@@ -238,10 +238,10 @@ TEST_F(UploadFileTests, ZipFailsDueToLargeFile)
     ON_CALL(mockzipUtil, zip(_, _, _)).WillByDefault(Throw(std::runtime_error("")));
     Common::ZipUtilities::replaceZipUtils(std::move(mockZip));
 
-    std::string response = uploadFileAction.run(action.dump());
-    nlohmann::json responseJson = nlohmann::json::parse(response);
-    EXPECT_EQ(responseJson["result"], 3);
-    EXPECT_EQ(responseJson["errorMessage"], "Error zipping path");
+    nlohmann::json response = uploadFileAction.run(action.dump());
+
+    EXPECT_EQ(response["result"], 3);
+    EXPECT_EQ(response["errorMessage"], "Error zipping path");
 }
 
 TEST_F(UploadFileTests, cannotParseActions)
@@ -249,10 +249,10 @@ TEST_F(UploadFileTests, cannotParseActions)
     auto httpRequester = std::make_shared<StrictMock<MockHTTPRequester>>();
     ResponseActionsImpl::UploadFileAction uploadFileAction(httpRequester);
 
-    std::string response = uploadFileAction.run("");
-    nlohmann::json responseJson = nlohmann::json::parse(response);
-    EXPECT_EQ(responseJson["result"], 1);
-    EXPECT_EQ(responseJson["errorMessage"], "Error parsing command from Central");
+    nlohmann::json response = uploadFileAction.run("");
+
+    EXPECT_EQ(response["result"], 1);
+    EXPECT_EQ(response["errorMessage"], "Error parsing command from Central");
 }
 
 TEST_F(UploadFileTests, actionExipired)
@@ -261,10 +261,10 @@ TEST_F(UploadFileTests, actionExipired)
     ResponseActionsImpl::UploadFileAction uploadFileAction(httpRequester);
     nlohmann::json action = getDefaultUploadObject();
     action["expiration"] = 0;
-    std::string response = uploadFileAction.run(action.dump());
-    nlohmann::json responseJson = nlohmann::json::parse(response);
-    EXPECT_EQ(responseJson["result"],4);
-    EXPECT_EQ(responseJson["errorMessage"],"Action has expired");
+    nlohmann::json response = uploadFileAction.run(action.dump());
+
+    EXPECT_EQ(response["result"],4);
+    EXPECT_EQ(response["errorMessage"],"Action has expired");
 }
 
 TEST_F(UploadFileTests, FileDoesNotExist)
@@ -277,11 +277,11 @@ TEST_F(UploadFileTests, FileDoesNotExist)
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>{ mockFileSystem });
     EXPECT_CALL(*mockFileSystem, isFile("path")).WillOnce(Return(false));
 
-    std::string response = uploadFileAction.run(action.dump());
-    nlohmann::json responseJson = nlohmann::json::parse(response);
-    EXPECT_EQ(responseJson["result"],1);
-    EXPECT_EQ(responseJson["errorType"],"invalid_path");
-    EXPECT_EQ(responseJson["errorMessage"],"path is not a file");
+    nlohmann::json response = uploadFileAction.run(action.dump());
+
+    EXPECT_EQ(response["result"],1);
+    EXPECT_EQ(response["errorType"],"invalid_path");
+    EXPECT_EQ(response["errorMessage"],"path is not a file");
 }
 
 TEST_F(UploadFileTests, FileOverSizeLimit)
@@ -295,11 +295,11 @@ TEST_F(UploadFileTests, FileOverSizeLimit)
     EXPECT_CALL(*mockFileSystem, isFile("path")).WillOnce(Return(true));
     EXPECT_CALL(*mockFileSystem, fileSize("path")).WillOnce(Return(10000));
 
-    std::string response = uploadFileAction.run(action.dump());
-    nlohmann::json responseJson = nlohmann::json::parse(response);
-    EXPECT_EQ(responseJson["result"],1);
-    EXPECT_EQ(responseJson["errorType"],"exceed_size_limit");
-    EXPECT_EQ(responseJson["errorMessage"],"File at path path is size 10000 bytes which is above the size limit 1000 bytes");
+    nlohmann::json response = uploadFileAction.run(action.dump());
+
+    EXPECT_EQ(response["result"],1);
+    EXPECT_EQ(response["errorType"],"exceed_size_limit");
+    EXPECT_EQ(response["errorMessage"],"File at path path is size 10000 bytes which is above the size limit 1000 bytes");
 }
 
 TEST_F(UploadFileTests, FileBeingWrittenToAndOverSizeLimit)
@@ -314,11 +314,11 @@ TEST_F(UploadFileTests, FileBeingWrittenToAndOverSizeLimit)
     EXPECT_CALL(*mockFileSystem, fileSize("path")).WillOnce(Return(100));
     EXPECT_CALL(*mockFileSystem, calculateDigest(Common::SslImpl::Digest::sha256,"path")).WillOnce(Throw(Common::FileSystem::IFileSystemException("")));
 
-    std::string response = uploadFileAction.run(action.dump());
-    nlohmann::json responseJson = nlohmann::json::parse(response);
-    EXPECT_EQ(responseJson["result"],1);
-    EXPECT_EQ(responseJson["errorType"],"access_denied");
-    EXPECT_EQ(responseJson["errorMessage"],"File to be uploaded cannot be accessed");
+    nlohmann::json response = uploadFileAction.run(action.dump());
+
+    EXPECT_EQ(response["result"],1);
+    EXPECT_EQ(response["errorType"],"access_denied");
+    EXPECT_EQ(response["errorMessage"],"File to be uploaded cannot be accessed");
 }
 
 TEST_F(UploadFileTests, FailureDueToTimeout)
@@ -338,11 +338,11 @@ TEST_F(UploadFileTests, FailureDueToTimeout)
     EXPECT_CALL(*mockFileSystem, calculateDigest(Common::SslImpl::Digest::sha256, "path"))
         .WillOnce(Return("sha256string"));
     EXPECT_CALL(*mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(false));
-    std::string response = uploadFileAction.run(action.dump());
-    nlohmann::json responseJson = nlohmann::json::parse(response);
-    EXPECT_EQ(responseJson["result"], 2);
-    EXPECT_EQ(responseJson["httpStatus"], 500);
-    EXPECT_EQ(responseJson["errorMessage"], "Timeout Uploading file: path");
+    nlohmann::json response = uploadFileAction.run(action.dump());
+
+    EXPECT_EQ(response["result"], 2);
+    EXPECT_EQ(response["httpStatus"], 500);
+    EXPECT_EQ(response["errorMessage"], "Timeout Uploading file: path");
 }
 
 TEST_F(UploadFileTests, FailureDueToNetworkError)
@@ -364,12 +364,12 @@ TEST_F(UploadFileTests, FailureDueToNetworkError)
         .WillOnce(Return("sha256string"));
     EXPECT_CALL(*mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(false));
 
-    std::string response = uploadFileAction.run(action.dump());
-    nlohmann::json responseJson = nlohmann::json::parse(response);
-    EXPECT_EQ(responseJson["result"], 1);
-    EXPECT_EQ(responseJson["httpStatus"], 500);
-    EXPECT_EQ(responseJson["errorMessage"], "Failed to upload file: path with error: failure");
-    EXPECT_EQ(responseJson["errorType"], "network_error");
+    nlohmann::json response = uploadFileAction.run(action.dump());
+
+    EXPECT_EQ(response["result"], 1);
+    EXPECT_EQ(response["httpStatus"], 500);
+    EXPECT_EQ(response["errorMessage"], "Failed to upload file: path with error: failure");
+    EXPECT_EQ(response["errorType"], "network_error");
 }
 
 TEST_F(UploadFileTests, FailureDueToServerError)
@@ -390,10 +390,10 @@ TEST_F(UploadFileTests, FailureDueToServerError)
         .WillOnce(Return("sha256string"));
     EXPECT_CALL(*mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(false));
 
-    std::string response = uploadFileAction.run(action.dump());
-    nlohmann::json responseJson = nlohmann::json::parse(response);
-    EXPECT_EQ(responseJson["result"], 1);
-    EXPECT_EQ(responseJson["httpStatus"], 500);
-    EXPECT_EQ(responseJson["errorMessage"], "Failed to upload file: path with http error code 500");
-    EXPECT_EQ(responseJson["errorType"], "network_error");
+    nlohmann::json response = uploadFileAction.run(action.dump());
+
+    EXPECT_EQ(response["result"], 1);
+    EXPECT_EQ(response["httpStatus"], 500);
+    EXPECT_EQ(response["errorMessage"], "Failed to upload file: path with http error code 500");
+    EXPECT_EQ(response["errorType"], "network_error");
 }

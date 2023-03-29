@@ -5,10 +5,10 @@
 #include "Logger.h"
 #include "RunUtils.h"
 #include "config.h"
-
-#include "ResponseActions/RACommon/ResponseActionsCommon.h"
+#include "json.hpp"
 
 #include "Common/Logging/PluginLoggingSetup.h"
+#include "ResponseActions/RACommon/ResponseActionsCommon.h"
 
 #include <iostream>
 namespace ActionRunner
@@ -30,15 +30,17 @@ namespace ActionRunner
         if (type == ResponseActions::RACommon::UPLOAD_FILE_REQUEST_TYPE)
         {
             LOGINFO("Running upload action: " << correlationId);
-            std::string response = RunUtils::doUpload(action);
-            ResponseActions::RACommon::sendResponse(correlationId, response);
+            nlohmann::json response = RunUtils::doUpload(action);
+            returnCode = response["result"];
+            ResponseActions::RACommon::sendResponse(correlationId, response.dump());
             LOGINFO("Sent upload response for ID " << correlationId << " to Central");
         }
         else if (type == ResponseActions::RACommon::UPLOAD_FOLDER_REQUEST_TYPE)
         {
             LOGINFO("Running upload folder action: " << correlationId);
-            std::string response = RunUtils::doUploadFolder(action);
-            ResponseActions::RACommon::sendResponse(correlationId, response);
+            nlohmann::json response = RunUtils::doUploadFolder(action);
+            returnCode = response["result"];
+            ResponseActions::RACommon::sendResponse(correlationId, response.dump());
             LOGINFO("Sent upload folder response for ID " << correlationId << " to Central");
         }
         else if (type == ResponseActions::RACommon::DOWNLOAD_FILE_REQUEST_TYPE)
@@ -52,8 +54,8 @@ namespace ActionRunner
         {
             LOGINFO("Performing run command action: " << correlationId);
             LOGDEBUG(action);
-            auto response = RunUtils::doRunCommand(action, correlationId);
-            ResponseActions::RACommon::sendResponse(correlationId, response);
+            nlohmann::json response = RunUtils::doRunCommand(action, correlationId);
+            ResponseActions::RACommon::sendResponse(correlationId, response.dump());
             LOGINFO("Sent run command response for ID " << correlationId << " to Central");
         }
         else

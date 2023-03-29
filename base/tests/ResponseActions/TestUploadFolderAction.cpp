@@ -82,10 +82,10 @@ TEST_F(UploadFolderTests, SuccessCaseWithPassword)
     EXPECT_CALL(*mockFileSystem, calculateDigest(Common::SslImpl::Digest::sha256, zipFile))
         .WillOnce(Return("sha256string"));
 
-    std::string response = uploadFolderAction.run(action.dump());
-    nlohmann::json responseJson = nlohmann::json::parse(response);
-    EXPECT_EQ(responseJson["result"], 0);
-    EXPECT_EQ(responseJson["httpStatus"], 200);
+    nlohmann::json response = uploadFolderAction.run(action.dump());
+    
+    EXPECT_EQ(response["result"], 0);
+    EXPECT_EQ(response["httpStatus"], 200);
 }
 
 TEST_F(UploadFolderTests, SuccessCase)
@@ -115,10 +115,10 @@ TEST_F(UploadFolderTests, SuccessCase)
     ON_CALL(mockzipUtil, zip(_, _, _)).WillByDefault(Return(0));
     Common::ZipUtilities::replaceZipUtils(std::move(mockZip));
 
-    std::string response = uploadFolderAction.run(action.dump());
-    nlohmann::json responseJson = nlohmann::json::parse(response);
-    EXPECT_EQ(responseJson["result"], 0);
-    EXPECT_EQ(responseJson["httpStatus"], 200);
+    nlohmann::json response = uploadFolderAction.run(action.dump());
+    
+    EXPECT_EQ(response["result"], 0);
+    EXPECT_EQ(response["httpStatus"], 200);
 }
 
 TEST_F(UploadFolderTests, SuccessCaseWithProxy)
@@ -153,10 +153,10 @@ TEST_F(UploadFolderTests, SuccessCaseWithProxy)
     ON_CALL(mockzipUtil, zip(_, _, _)).WillByDefault(Return(0));
     Common::ZipUtilities::replaceZipUtils(std::move(mockZip));
 
-    std::string response = uploadFolderAction.run(action.dump());
-    nlohmann::json responseJson = nlohmann::json::parse(response);
-    EXPECT_EQ(responseJson["result"], 0);
-    EXPECT_EQ(responseJson["httpStatus"], 200);
+    nlohmann::json response = uploadFolderAction.run(action.dump());
+    
+    EXPECT_EQ(response["result"], 0);
+    EXPECT_EQ(response["httpStatus"], 200);
 }
 
 TEST_F(UploadFolderTests, ProxyFallsBackToDirect)
@@ -194,10 +194,10 @@ TEST_F(UploadFolderTests, ProxyFallsBackToDirect)
     ON_CALL(mockzipUtil, zip(_, _, _)).WillByDefault(Return(0));
     Common::ZipUtilities::replaceZipUtils(std::move(mockZip));
 
-    std::string response = uploadFolderAction.run(action.dump());
-    nlohmann::json responseJson = nlohmann::json::parse(response);
-    EXPECT_EQ(responseJson["result"], 0);
-    EXPECT_EQ(responseJson["httpStatus"], 200);
+    nlohmann::json response = uploadFolderAction.run(action.dump());
+    
+    EXPECT_EQ(response["result"], 0);
+    EXPECT_EQ(response["httpStatus"], 200);
 }
 
 TEST_F(UploadFolderTests, cannotParseActions)
@@ -205,10 +205,10 @@ TEST_F(UploadFolderTests, cannotParseActions)
     auto httpRequester = std::make_shared<StrictMock<MockHTTPRequester>>();
     ResponseActionsImpl::UploadFolderAction uploadFolderAction(httpRequester);
 
-    std::string response = uploadFolderAction.run("");
-    nlohmann::json responseJson = nlohmann::json::parse(response);
-    EXPECT_EQ(responseJson["result"], 1);
-    EXPECT_EQ(responseJson["errorMessage"], "Error parsing command from Central");
+    nlohmann::json response = uploadFolderAction.run("");
+    
+    EXPECT_EQ(response["result"], 1);
+    EXPECT_EQ(response["errorMessage"], "Error parsing command from Central");
 }
 
 TEST_F(UploadFolderTests, actionExipired)
@@ -217,10 +217,10 @@ TEST_F(UploadFolderTests, actionExipired)
     ResponseActionsImpl::UploadFolderAction uploadFolderAction(httpRequester);
     nlohmann::json action = getDefaultUploadObject();
     action["expiration"] = 0;
-    std::string response = uploadFolderAction.run(action.dump());
-    nlohmann::json responseJson = nlohmann::json::parse(response);
-    EXPECT_EQ(responseJson["result"], 4);
-    EXPECT_EQ(responseJson["errorMessage"], "Action has expired");
+    nlohmann::json response = uploadFolderAction.run(action.dump());
+    
+    EXPECT_EQ(response["result"], 4);
+    EXPECT_EQ(response["errorMessage"], "Action has expired");
 }
 
 TEST_F(UploadFolderTests, FolderDoesNotExist)
@@ -233,11 +233,11 @@ TEST_F(UploadFolderTests, FolderDoesNotExist)
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>{ mockFileSystem });
     EXPECT_CALL(*mockFileSystem, isDirectory("/tmp/path")).WillOnce(Return(false));
 
-    std::string response = uploadFolderAction.run(action.dump());
-    nlohmann::json responseJson = nlohmann::json::parse(response);
-    EXPECT_EQ(responseJson["result"], 1);
-    EXPECT_EQ(responseJson["errorType"], "invalid_path");
-    EXPECT_EQ(responseJson["errorMessage"], "/tmp/path is not a directory");
+    nlohmann::json response = uploadFolderAction.run(action.dump());
+    
+    EXPECT_EQ(response["result"], 1);
+    EXPECT_EQ(response["errorType"], "invalid_path");
+    EXPECT_EQ(response["errorMessage"], "/tmp/path is not a directory");
 }
 
 TEST_F(UploadFolderTests, ZippedFolderOverSizeLimit)
@@ -258,12 +258,12 @@ TEST_F(UploadFolderTests, ZippedFolderOverSizeLimit)
     ON_CALL(mockzipUtil, zip(_, _, _)).WillByDefault(Return(0));
     Common::ZipUtilities::replaceZipUtils(std::move(mockZip));
 
-    std::string response = uploadFolderAction.run(action.dump());
-    nlohmann::json responseJson = nlohmann::json::parse(response);
-    EXPECT_EQ(responseJson["result"], 1);
-    EXPECT_EQ(responseJson["errorType"], "exceed_size_limit");
+    nlohmann::json response = uploadFolderAction.run(action.dump());
+    
+    EXPECT_EQ(response["result"], 1);
+    EXPECT_EQ(response["errorType"], "exceed_size_limit");
     EXPECT_EQ(
-        responseJson["errorMessage"],
+        response["errorMessage"],
         "Folder at path /tmp/path after being compressed is size 10000 bytes which is above the size limit 1000 bytes");
 }
 
@@ -284,10 +284,10 @@ TEST_F(UploadFolderTests, ZipFails)
     ON_CALL(mockzipUtil, zip(_, _, _)).WillByDefault(Return(1));
     Common::ZipUtilities::replaceZipUtils(std::move(mockZip));
 
-    std::string response = uploadFolderAction.run(action.dump());
-    nlohmann::json responseJson = nlohmann::json::parse(response);
-    EXPECT_EQ(responseJson["result"], 3);
-    EXPECT_EQ(responseJson["errorMessage"], "Error zipping /tmp/path");
+    nlohmann::json response = uploadFolderAction.run(action.dump());
+    
+    EXPECT_EQ(response["result"], 3);
+    EXPECT_EQ(response["errorMessage"], "Error zipping /tmp/path");
 }
 
 TEST_F(UploadFolderTests, ZipFailsDueToLargeFile)
@@ -307,10 +307,10 @@ TEST_F(UploadFolderTests, ZipFailsDueToLargeFile)
     ON_CALL(mockzipUtil, zip(_, _, _)).WillByDefault(Throw(std::runtime_error("")));
     Common::ZipUtilities::replaceZipUtils(std::move(mockZip));
 
-    std::string response = uploadFolderAction.run(action.dump());
-    nlohmann::json responseJson = nlohmann::json::parse(response);
-    EXPECT_EQ(responseJson["result"], 3);
-    EXPECT_EQ(responseJson["errorMessage"], "Error zipping /tmp/path");
+    nlohmann::json response = uploadFolderAction.run(action.dump());
+    
+    EXPECT_EQ(response["result"], 3);
+    EXPECT_EQ(response["errorMessage"], "Error zipping /tmp/path");
 }
 
 TEST_F(UploadFolderTests, FileBeingWrittenToAndOverSizeLimit)
@@ -333,11 +333,11 @@ TEST_F(UploadFolderTests, FileBeingWrittenToAndOverSizeLimit)
     ON_CALL(mockzipUtil, zip(_, _, _)).WillByDefault(Return(0));
     Common::ZipUtilities::replaceZipUtils(std::move(mockZip));
 
-    std::string response = uploadFolderAction.run(action.dump());
-    nlohmann::json responseJson = nlohmann::json::parse(response);
-    EXPECT_EQ(responseJson["result"], 1);
-    EXPECT_EQ(responseJson["errorType"], "access_denied");
-    EXPECT_EQ(responseJson["errorMessage"], "Zip file to be uploaded cannot be accessed");
+    nlohmann::json response = uploadFolderAction.run(action.dump());
+    
+    EXPECT_EQ(response["result"], 1);
+    EXPECT_EQ(response["errorType"], "access_denied");
+    EXPECT_EQ(response["errorMessage"], "Zip file to be uploaded cannot be accessed");
 }
 
 TEST_F(UploadFolderTests, FailureDueToTimeout)
@@ -366,11 +366,11 @@ TEST_F(UploadFolderTests, FailureDueToTimeout)
     ON_CALL(mockzipUtil, zip(_, _, _)).WillByDefault(Return(0));
     Common::ZipUtilities::replaceZipUtils(std::move(mockZip));
 
-    std::string response = uploadFolderAction.run(action.dump());
-    nlohmann::json responseJson = nlohmann::json::parse(response);
-    EXPECT_EQ(responseJson["result"], 2);
-    EXPECT_EQ(responseJson["httpStatus"], 500);
-    EXPECT_EQ(responseJson["errorMessage"], "Timeout uploading zip file: /opt/sophos-spl/plugins/responseactions/tmp/path.zip");
+    nlohmann::json response = uploadFolderAction.run(action.dump());
+    
+    EXPECT_EQ(response["result"], 2);
+    EXPECT_EQ(response["httpStatus"], 500);
+    EXPECT_EQ(response["errorMessage"], "Timeout uploading zip file: /opt/sophos-spl/plugins/responseactions/tmp/path.zip");
 }
 
 TEST_F(UploadFolderTests, FailureDueToNetworkError)
@@ -398,12 +398,12 @@ TEST_F(UploadFolderTests, FailureDueToNetworkError)
     ON_CALL(mockzipUtil, zip(_, _, _)).WillByDefault(Return(0));
     Common::ZipUtilities::replaceZipUtils(std::move(mockZip));
 
-    std::string response = uploadFolderAction.run(action.dump());
-    nlohmann::json responseJson = nlohmann::json::parse(response);
-    EXPECT_EQ(responseJson["result"], 1);
-    EXPECT_EQ(responseJson["httpStatus"], 500);
-    EXPECT_EQ(responseJson["errorMessage"], "Failed to upload zip file: /opt/sophos-spl/plugins/responseactions/tmp/path.zip with error code 7");
-    EXPECT_EQ(responseJson["errorType"], "network_error");
+    nlohmann::json response = uploadFolderAction.run(action.dump());
+    
+    EXPECT_EQ(response["result"], 1);
+    EXPECT_EQ(response["httpStatus"], 500);
+    EXPECT_EQ(response["errorMessage"], "Failed to upload zip file: /opt/sophos-spl/plugins/responseactions/tmp/path.zip with error code 7");
+    EXPECT_EQ(response["errorType"], "network_error");
 }
 
 TEST_F(UploadFolderTests, FailureDueToServerError)
@@ -431,10 +431,10 @@ TEST_F(UploadFolderTests, FailureDueToServerError)
     ON_CALL(mockzipUtil, zip(_, _, _)).WillByDefault(Return(0));
     Common::ZipUtilities::replaceZipUtils(std::move(mockZip));
 
-    std::string response = uploadFolderAction.run(action.dump());
-    nlohmann::json responseJson = nlohmann::json::parse(response);
-    EXPECT_EQ(responseJson["result"], 1);
-    EXPECT_EQ(responseJson["httpStatus"], 500);
-    EXPECT_EQ(responseJson["errorMessage"], "Failed to upload zip file: /opt/sophos-spl/plugins/responseactions/tmp/path.zip with http error code 500");
-    EXPECT_EQ(responseJson["errorType"], "network_error");
+    nlohmann::json response = uploadFolderAction.run(action.dump());
+    
+    EXPECT_EQ(response["result"], 1);
+    EXPECT_EQ(response["httpStatus"], 500);
+    EXPECT_EQ(response["errorMessage"], "Failed to upload zip file: /opt/sophos-spl/plugins/responseactions/tmp/path.zip with http error code 500");
+    EXPECT_EQ(response["errorType"], "network_error");
 }
