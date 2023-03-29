@@ -96,6 +96,10 @@
             <include artifact-path="sdds3-launchdarkly-999" dest-dir="sdds3/launchdarkly-999" />
 
         </build-asset>
+        <build-asset project="linuxep" repo="sspl-warehouse">
+            <development-version branch="test/release-supplements" />
+            <include artifact-path="sdds3-repo" dest-dir="sdds3/repo-release" />
+        </build-asset>
     </inputs>
 
     <publish>
