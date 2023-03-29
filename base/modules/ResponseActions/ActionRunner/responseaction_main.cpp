@@ -46,8 +46,9 @@ namespace ActionRunner
         else if (type == ResponseActions::RACommon::DOWNLOAD_FILE_REQUEST_TYPE)
         {
             LOGINFO("Running download file action: " << correlationId);
-            std::string response = RunUtils::doDownloadFile(action);
-            ResponseActions::RACommon::sendResponse(correlationId, response);
+            nlohmann::json response = RunUtils::doDownloadFile(action);
+            returnCode = response["result"];
+            ResponseActions::RACommon::sendResponse(correlationId, response.dump());
             LOGINFO("Sent download file response for ID " << correlationId << " to Central");
         }
         else if (type == ResponseActions::RACommon::RUN_COMMAND_REQUEST_TYPE)
@@ -55,6 +56,7 @@ namespace ActionRunner
             LOGINFO("Performing run command action: " << correlationId);
             LOGDEBUG(action);
             nlohmann::json response = RunUtils::doRunCommand(action, correlationId);
+            returnCode = response["result"];
             ResponseActions::RACommon::sendResponse(correlationId, response.dump());
             LOGINFO("Sent run command response for ID " << correlationId << " to Central");
         }

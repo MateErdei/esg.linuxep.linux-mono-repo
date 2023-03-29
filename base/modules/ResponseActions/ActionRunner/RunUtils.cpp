@@ -4,6 +4,7 @@
 
 #include "Logger.h"
 
+#include "ResponseActions/ResponseActionsImpl/DownloadFileAction.h"
 #include "ResponseActions/ResponseActionsImpl/RunCommandAction.h"
 #include "ResponseActions/ResponseActionsImpl/UploadFileAction.h"
 #include "ResponseActions/ResponseActionsImpl/UploadFolderAction.h"
@@ -33,6 +34,16 @@ namespace ActionRunner
             std::make_shared<Common::HttpRequestsImpl::HttpRequesterImpl>(curlWrapper);
         ResponseActionsImpl::UploadFolderAction uploadFolderAction(client);
         return uploadFolderAction.run(action);
+    }
+
+    nlohmann::json RunUtils::doDownloadFile(const std::string& action)
+    {
+        std::shared_ptr<Common::CurlWrapper::ICurlWrapper> curlWrapper =
+            std::make_shared<Common::CurlWrapper::CurlWrapper>();
+        std::shared_ptr<Common::HttpRequests::IHttpRequester> client =
+            std::make_shared<Common::HttpRequestsImpl::HttpRequesterImpl>(curlWrapper);
+        ResponseActionsImpl::DownloadFileAction downloadFileAction(client);
+        return downloadFileAction.run(action);
     }
 
     nlohmann::json RunUtils::doRunCommand(const std::string& action, const std::string& correlationId)

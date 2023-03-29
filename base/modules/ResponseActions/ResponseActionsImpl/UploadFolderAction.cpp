@@ -134,6 +134,7 @@ namespace ResponseActionsImpl
         }
 
         Common::HttpRequests::Headers requestHeaders{ { "Content-Type", "application/zip" } };
+        response["fileName"] = Common::FileSystem::basename(m_pathToUpload);
 
         Common::HttpRequests::RequestConfig request{
             .url = info.url, .headers = requestHeaders, .fileToUpload = m_pathToUpload, .timeout = info.timeout

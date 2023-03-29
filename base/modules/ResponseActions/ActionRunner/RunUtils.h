@@ -1,8 +1,7 @@
 // Copyright 2023 Sophos Limited. All rights reserved.
 #pragma once
-#include "json.hpp"
-
 #include <string>
+#include <json.hpp>
 namespace ActionRunner
 {
     class RunUtils
@@ -11,5 +10,6 @@ namespace ActionRunner
         static nlohmann::json doUpload(const std::string& action);
         static nlohmann::json doUploadFolder(const std::string& action);
         static nlohmann::json doRunCommand(const std::string& action, const std::string& correlationId);
+        static nlohmann::json doDownloadFile(const std::string& action);
     };
 } // namespace ActionRunner

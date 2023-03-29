@@ -19,7 +19,7 @@ namespace ResponseActionsImpl
     DownloadFileAction::DownloadFileAction(std::shared_ptr<Common::HttpRequests::IHttpRequester> client):
         m_client(std::move(client)){}
 
-    std::string DownloadFileAction::run(const std::string& actionJson)
+    nlohmann::json DownloadFileAction::run(const std::string& actionJson)
     {
         nlohmann::json response;
         response["type"] = "sophos.mgt.response.DownloadFile";
@@ -33,12 +33,12 @@ namespace ResponseActionsImpl
         {
             LOGWARN(exception.what());
             ActionsUtils::setErrorInfo(response, 1,  "Error parsing command from Central");
-            return response.dump();
+            return response;
         }
 
         if (!initialChecks(info, response))
         {
-            return response.dump();
+            return response;
         }
 
         Common::UtilityImpl::FormattedTime time;
@@ -62,7 +62,7 @@ namespace ResponseActionsImpl
 
         u_int64_t end = time.currentEpochTimeInSecondsAsInteger();
         response["duration"] = end - start;
-        return response.dump();
+        return response;
     }
 
     bool DownloadFileAction::initialChecks(const DownloadInfo& info, nlohmann::json& response)

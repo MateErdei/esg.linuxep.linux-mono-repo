@@ -6,6 +6,8 @@
 #include "InvalidCommandFormat.h"
 #include "Logger.h"
 
+#include "Logging/LoggerConfig.h"
+
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/FileSystem/IFileTooLargeException.h>
@@ -165,8 +167,15 @@ namespace ResponseActionsImpl
         Common::HttpRequests::RequestConfig request{
             .url = info.url, .headers = requestHeaders, .fileToUpload = m_pathToUpload, .timeout = info.timeout
         };
-        LOGINFO("Uploading file: " << m_pathToUpload);
-        LOGDEBUG("Uploading file: " << m_pathToUpload << " to url: " << info.url);
+        auto logLevel = getResponseActionsImplLogger().getChainedLogLevel();
+        if(logLevel <= Common::Logging::DEBUG)
+        {
+            LOGDEBUG("Uploading file: " << m_pathToUpload << " to url: " << info.url);
+        }
+        else
+        {
+            LOGINFO("Uploading file: " << m_pathToUpload);
+        }
         Common::HttpRequests::Response httpresponse;
 
         if (Common::ProxyUtils::updateHttpRequestWithProxyInfo(request))
