@@ -68,6 +68,23 @@ RA Plugin downloads a file successfully with decompression
     ...  5 secs
     ...  Check Cloud Server Log Contains    \"httpStatus\":200,\"result\":0
 
+RA Plugin fails a real url due to authorization not file to long
+    ${response_mark} =  mark_log_size  ${RESPONSE_ACTIONS_LOG_PATH}
+    ${action_mark} =  mark_log_size  ${ACTIONS_RUNNER_LOG_PATH}
+    Register Cleanup  Remove Directory    /tmp/folder/  recursive=${TRUE}
+
+    Send_Download_File_From_Fake_Cloud_RealURL
+
+    wait_for_log_contains_from_mark  ${response_mark}  Action correlation-id has succeeded   25
+    wait_for_log_contains_from_mark  ${action_mark}  Sent download file response for ID correlation-id to Central   15
+    wait_for_log_contains_from_mark  ${action_mark}   Failed to download, Error code: 403
+
+    File Should Not Exist    ${RESPONSE_ACTIONS_TMP_PATH}/download.zip
+
+    Wait Until Keyword Succeeds
+    ...  1 min
+    ...  5 secs
+    ...  Check Cloud Server Log Contains    \"errorType\":\"network_error\",\"httpStatus\":403,\"result\":1
 
 RA Plugin downloads a file successfully with password protected decompression
     [Tags]    TESTFAILURE
