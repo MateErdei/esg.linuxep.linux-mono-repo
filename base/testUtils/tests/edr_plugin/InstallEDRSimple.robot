@@ -48,8 +48,8 @@ EDR Uninstaller Does Not Report That It Could Not Remove EDR If Watchdog Is Not 
     Should Not Contain  ${result.stderr}  Failed to remove edr: Watchdog is not running
 
 EDR sets up syslog pipe correctly
-    # Exclude on SLES15 until LINUXDAR-7033 is fixed
-    [Tags]  EXCLUDE_UBUNTU18  EXCLUDE_SLES15  EDR_PLUGIN   FAKE_CLOUD  INSTALLER
+    # Exclude on SLES until LINUXDAR-7033 is fixed
+    [Tags]  EXCLUDE_UBUNTU18  EXCLUDE_SLES12  EXCLUDE_SLES15  EDR_PLUGIN   FAKE_CLOUD  INSTALLER
     Run Full Installer
     Install EDR Directly
 

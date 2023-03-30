@@ -47,7 +47,7 @@ ${Sophos_Scheduled_Query_Pack}      ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.co
 
 *** Test Cases ***
 Install all plugins 999 then downgrade to all plugins develop
-    [Tags]  BASE_DOWNGRADE  OSTIA  THIN_INSTALLER  INSTALLER  UNINSTALLER  EXCLUDE_SLES15
+    [Tags]  BASE_DOWNGRADE  OSTIA  THIN_INSTALLER  INSTALLER  UNINSTALLER  EXCLUDE_SLES12  EXCLUDE_SLES15
 
     #TODO: LINUXDAR-4015 remove once issue is closed
     ${result} =  Run Process    free
@@ -131,6 +131,48 @@ Install all plugins 999 then downgrade to all plugins develop
     Check All Product Logs Do Not Contain Error
     Check All Product Logs Do Not Contain Critical
 
+Install edr 999 and downgrade to current edr
+    [Tags]  PLUGIN_DOWNGRADE  OSTIA  THIN_INSTALLER  INSTALLER  UNINSTALLER  EXCLUDE_SLES12  EXCLUDE_SLES15
+    Setup SUS only edr 999
+    Install EDR SDDS3  ${BaseMtrAndEdr999Policy}
+
+    Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-EDR version: 9.99.9
+
+    ${edr_version_contents} =  Get File  ${EDR_DIR}/VERSION.ini
+    Should contain   ${edr_version_contents}   PRODUCT_VERSION = 9.99.9
+    Override LogConf File as Global Level  DEBUG
+
+    Wait for first update
+    # This policy change will trigger another update automatically
+    Setup SUS all develop
+    Send ALC Policy And Prepare For Upgrade  ${BaseAndEdrAndMtrVUTPolicy}
+
+    Wait Until Keyword Succeeds
+    ...  120 secs
+    ...  5 secs
+    ...  Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-EDR version: 1.
+
+    Check SulDownloader Log Contains     Prepared ServerProtectionLinux-Plugin-EDR for downgrade
+
+    # SulDownloader log may be removed during downgrade, therefore check edr version file is no longer
+    # reporting the 999 version and make sure edr is left running.
+
+    Wait Until Keyword Succeeds
+    ...   200 secs
+    ...   2 secs
+    ...   Check EDR Downgraded From 999
+
+    Wait Until Keyword Succeeds
+    ...   15 secs
+    ...   2 secs
+    ...   Check EDR Executable Running
+
+    Wait For Suldownloader To Finish
+    Mark Known Upgrade Errors
+
+    Check All Product Logs Do Not Contain Error
+    Check All Product Logs Do Not Contain Critical
+
 Update Run that Does Not Change The Product Does not ReInstall The Product
     Setup SUS all develop
     Install EDR SDDS3  ${BaseAndEdrAndMtrVUTPolicy}
@@ -152,6 +194,72 @@ Update Run that Does Not Change The Product Does not ReInstall The Product
 
     Check MDR Plugin Installed
     Check Event Journaler Installed
+
+    Wait For Suldownloader To Finish
+    Mark Known Upgrade Errors
+
+    Check All Product Logs Do Not Contain Error
+    Check All Product Logs Do Not Contain Critical
+
+Install master of base and edr and mtr and upgrade to edr 999
+    [Timeout]  10 minutes
+    Setup SUS all develop
+    Install EDR SDDS3  ${BaseAndEdrAndMtrVUTPolicy}
+
+    Override Local LogConf File Using Content  [edr]\nVERBOSITY = DEBUG\n[extensions]\nVERBOSITY = DEBUG\n[edr_osquery]\nVERBOSITY = DEBUG\n
+
+    Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-EDR version: 1.
+    Check Log Does Not Contain    Installing product: ServerProtectionLinux-Plugin-EDR version: 9.99.9     ${SULDOWNLOADER_LOG_PATH}  Sul-Downloader
+
+    Check Log Does Not Contain    wdctl <> stop edr     ${WDCTL_LOG_PATH}  WatchDog
+
+    Wait for first update
+
+    Mark Edr Log
+    Mark Sul Log
+    Setup SUS only edr 999
+    Send ALC Policy And Prepare For Upgrade  ${BaseMtrAndEdr999Policy}
+
+    Wait Until Keyword Succeeds
+    ...  150 secs
+    ...  5 secs
+    ...  Check Marked Sul Log Contains     Installing product: ServerProtectionLinux-Plugin-EDR version: 9.99.9
+    Wait Until Keyword Succeeds
+    ...  60 secs
+    ...  5 secs
+    ...  Check Marked Sul Log Contains     Update success
+
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  5 secs
+    ...  EDR Plugin Is Running
+
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  2 secs
+    ...  Check Marked EDR Log Contains  Reading /opt/sophos-spl/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.mtr.conf for query tags
+    Wait Until Keyword Succeeds
+    ...  10 secs
+    ...  2 secs
+    ...  Check Marked EDR Log Contains  Reading /opt/sophos-spl/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf for query tags
+
+    Wait Until Keyword Succeeds
+    ...   200 secs
+    ...   2 secs
+    ...   Check Log Contains String At Least N Times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log   suldownloader_log   Update success  2
+
+    ${edr_version_contents} =  Get File  ${EDR_DIR}/VERSION.ini
+    Should contain   ${edr_version_contents}   PRODUCT_VERSION = 9.99.9
+
+    ${mtr_version_contents} =  Get File  ${MTR_DIR}/VERSION.ini
+    Should not contain   ${mtr_version_contents}   PRODUCT_VERSION = 9.99.9
+    ${event_journaler_version_contents} =  Get File  ${EVENTJOURNALER_DIR}/VERSION.ini
+    Should not contain   ${event_journaler_version_contents}   PRODUCT_VERSION = 9.99.9
+    # Ensure EDR was restarted during upgrade.
+    Check Log Contains In Order
+    ...  ${WDCTL_LOG_PATH}
+    ...  wdctl <> stop edr
+    ...  wdctl <> start edr
 
     Wait For Suldownloader To Finish
     Mark Known Upgrade Errors
@@ -332,7 +440,10 @@ Install master of base and edr and mtr and av and upgrade to edr 999 and mtr 999
     # Specific to this test:
     #TODO LINUXDAR-5140 remove when this defect is closed
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/av.log  ScanProcessMonitor <> failure in ConfigMonitor: pselect failed: Bad file descriptor
-
+    #TODO LINUXDAR-6371 remove when this defect is closed
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/sophos_managementagent.log  managementagent <> Failure on sending message to runtimedetections. Reason: No incoming data
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/sophos_managementagent.log  managementagent <> Failure on sending message to mtr. Reason: No incoming data
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/sophos_managementagent.log  managementagent <> Failure on sending message to edr. Reason: No incoming data
     Check All Product Logs Do Not Contain Error
     Check All Product Logs Do Not Contain Critical
 

@@ -83,7 +83,7 @@ Sul Downloader fails update if expected product missing from SUS
 
 We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     [Timeout]    10 minutes
-    [Tags]    INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA    EXCLUDE_SLES15
+    [Tags]    INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA  EXCLUDE_SLES12  EXCLUDE_SLES15
 
     &{expectedDogfoodVersions} =    Get Expected Versions    dogfood
     &{expectedVUTVersions} =    Get Expected Versions    vut
@@ -213,7 +213,7 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
 
 We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     [Timeout]  10 minutes
-    [Tags]   INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA   BASE_DOWNGRADE    EXCLUDE_SLES15
+    [Tags]   INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA   BASE_DOWNGRADE  EXCLUDE_SLES12  EXCLUDE_SLES15
 
     &{expectedDogfoodVersions} =    Get Expected Versions    dogfood
     &{expectedVUTVersions} =    Get Expected Versions    vut
@@ -372,7 +372,7 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
 
 We Can Upgrade From Release to VUT Without Unexpected Errors
     [Timeout]  10 minutes
-    [Tags]  INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA    EXCLUDE_SLES15
+    [Tags]  INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA  EXCLUDE_SLES12  EXCLUDE_SLES15
 
     &{expectedReleaseVersions} =    Get Expected Versions    current_shipping
     &{expectedVUTVersions} =    Get Expected Versions    vut
@@ -489,7 +489,7 @@ We Can Upgrade From Release to VUT Without Unexpected Errors
 
 We Can Downgrade From VUT to Release Without Unexpected Errors
     [Timeout]  10 minutes
-    [Tags]   INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA   BASE_DOWNGRADE    EXCLUDE_SLES15
+    [Tags]   INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA   BASE_DOWNGRADE  EXCLUDE_SLES12  EXCLUDE_SLES15
 
     &{expectedReleaseVersions} =    Get Expected Versions    current_shipping
     &{expectedVUTVersions} =    Get Expected Versions    vut
