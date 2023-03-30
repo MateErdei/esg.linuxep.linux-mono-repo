@@ -345,7 +345,15 @@ combineResults()
   python3 ./reprocess.py ./allresults/*-output.xml
   # delete allresults?
 
-  for PLATFORM in amazonlinux2x64
+  #TODO LINUXDAR-6745 put back when ubuntu minimal is fixed - ubuntu1804minimal
+  for PLATFORM in amazonlinux2x64 amazonlinux2022x64 \
+        centos7x64 centosstreamx64 \
+        debian10x64 debian11x64 \
+        miraclelinuxx64 \
+        oracle7x64 oracle8x64 \
+        rhel78x64 rhel81x64 rhel9x64 \
+        sles15x64 \
+        ubuntu1804x64 ubuntu2004 ubuntu2204
   do
       python3 -m robot.rebot --merge -o ./results/${PLATFORM}-output.xml \
           -l ./results/${PLATFORM}-log.html -r ./results/${PLATFORM}-report.html \
@@ -353,70 +361,6 @@ combineResults()
       rm -rf ./results-combine-workspace/${PLATFORM}*
   done
 
-  python3 -m robot.rebot --merge -o ./results/amazonlinux2022x64-output.xml -l none -r none -N amazonlinux2022x64  ./results-combine-workspace/amazonlinux2022x64*
-  rm -rf ./results-combine-workspace/amazonlinux2022x64*
-  python3 -m robot.rebot -l ./results/amazonlinux2022x64-log.html -r ./results/amazonlinux2022x64-report.html -N amazonlinux2022x64 ./results/amazonlinux2022x64-output.xml
-
-  python3 -m robot.rebot --merge -o ./results/centos7x64-output.xml -l none -r none -N centos7x64  ./results-combine-workspace/centos7x64*
-  rm -rf ./results-combine-workspace/centos7x64*
-  python3 -m robot.rebot -l ./results/centos7x64-log.html -r ./results/centos7x64-report.html -N centos7x64 ./results/centos7x64-output.xml
-
-  python3 -m robot.rebot --merge -o ./results/centosstreamx64-output.xml -l none -r none -N centosstreamx64  ./results-combine-workspace/centosstreamx64*
-  rm -rf ./results-combine-workspace/centosstreamx64*
-  python3 -m robot.rebot -l ./results/centosstreamx64-log.html -r ./results/centosstreamx64-report.html -N centosstreamx64 ./results/centosstreamx64-output.xml
-
-  python3 -m robot.rebot --merge -o ./results/debian10x64-output.xml -l none -r none -N debian10x64  ./results-combine-workspace/debian10x64*
-  rm -rf ./results-combine-workspace/debian10x64*
-  python3 -m robot.rebot -l ./results/debian10x64-log.html -r ./results/debian10x64-report.html -N debian10x64 ./results/debian10x64-output.xml
-
-  python3 -m robot.rebot --merge -o ./results/debian11x64-output.xml -l none -r none -N debian11x64  ./results-combine-workspace/debian11x64*
-  rm -rf ./results-combine-workspace/debian11x64*
-  python3 -m robot.rebot -l ./results/debian11x64-log.html -r ./results/debian11x64-report.html -N debian11x64 ./results/debian11x64-output.xml
-
-  python3 -m robot.rebot --merge -o ./results/miraclelinuxx64-output.xml -l none -r none -N miraclelinuxx64  ./results-combine-workspace/miraclelinuxx64*
-  rm -rf ./results-combine-workspace/miraclelinuxx64*
-  python3 -m robot.rebot -l ./results/miraclelinuxx64-log.html -r ./results/miraclelinuxx64-report.html -N miraclelinuxx64 ./results/miraclelinuxx64-output.xml
-
-  python3 -m robot.rebot --merge -o ./results/oracle7x64-output.xml -l none -r none -N oracle7x64  ./results-combine-workspace/oracle7x64*
-  rm -rf ./results-combine-workspace/oracle7x64*
-  python3 -m robot.rebot -l ./results/oracle7x64-log.html -r ./results/oracle7x64-report.html -N oracle7x64 ./results/oracle7x64-output.xml
-
-  python3 -m robot.rebot --merge -o ./results/oracle8x64-output.xml -l none -r none -N oracle8x64  ./results-combine-workspace/oracle8x64*
-  rm -rf ./results-combine-workspace/oracle8x64*
-  python3 -m robot.rebot -l ./results/oracle8x64-log.html -r ./results/oracle8x64-report.html -N oracle8x64 ./results/oracle8x64-output.xml
-
-  python3 -m robot.rebot --merge -o ./results/rhel78x64-output.xml -l none -r none -N rhel78x64  ./results-combine-workspace/rhel78x64*
-  rm -rf ./results-combine-workspace/rhel78x64*
-  python3 -m robot.rebot -l ./results/rhel78x64-log.html -r ./results/rhel78x64-report.html -N rhel78x64 ./results/rhel78x64-output.xml
-
-  python3 -m robot.rebot --merge -o ./results/rhel81x64-output.xml -l none -r none -N rhel81x64  ./results-combine-workspace/rhel81x64*
-  rm -rf ./results-combine-workspace/rhel81x64*
-  python3 -m robot.rebot -l ./results/rhel81x64-log.html -r ./results/rhel81x64-report.html -N rhel81x64 ./results/rhel81x64-output.xml
-
-  python3 -m robot.rebot --merge -o ./results/rhel9x64-output.xml -l none -r none -N rhel9x64  ./results-combine-workspace/rhel9x64*
-  rm -rf ./results-combine-workspace/rhel9x64*
-  python3 -m robot.rebot -l ./results/rhel9x64-log.html -r ./results/rhel9x64-report.html -N rhel9x64 ./results/rhel9x64-output.xml
-
-  python3 -m robot.rebot --merge -o ./results/sles15x64-output.xml -l none -r none -N sles15x64  ./results-combine-workspace/sles15x64*
-  rm -rf ./results-combine-workspace/sles15x64*
-  python3 -m robot.rebot -l ./results/sles15x64-log.html -r ./results/sles15x64-report.html -N sles15x64 ./results/sles15x64-output.xml
-
-  python3 -m robot.rebot --merge -o ./results/ubuntu1804x64-output.xml -l none -r none -N ubuntu1804x64  ./results-combine-workspace/ubuntu1804x64*
-  rm -rf ./results-combine-workspace/ubuntu1804x64*
-  python3 -m robot.rebot -l ./results/ubuntu1804x64-log.html -r ./results/ubuntu1804x64-report.html -N ubuntu1804x64 ./results/ubuntu1804x64-output.xml
-
-  python3 -m robot.rebot --merge -o ./results/ubuntu2004-output.xml -l none -r none -N ubuntu2004  ./results-combine-workspace/ubuntu2004*
-  rm -rf ./results-combine-workspace/ubuntu2004*
-  python3 -m robot.rebot -l ./results/ubuntu2004-log.html -r ./results/ubuntu2004-report.html -N ubuntu2004 ./results/ubuntu2004-output.xml
-
-  python3 -m robot.rebot --merge -o ./results/ubuntu2204-output.xml -l none -r none -N ubuntu2204  ./results-combine-workspace/ubuntu2204*
-  rm -rf ./results-combine-workspace/ubuntu2204*
-  python3 -m robot.rebot -l ./results/ubuntu2204-log.html -r ./results/ubuntu2204-report.html -N ubuntu2204 ./results/ubuntu2204-output.xml
-
-  #TODO LINUXDAR-6745 put back when ubuntu minimal is fixed
-  #python3 -m robot.rebot --merge -o ./results/ubuntu1804minimal-output.xml -l none -r none -N ubuntu1804minimal  ./results-combine-workspace/ubuntu1804minimal*
-  #rm -rf ./results-combine-workspace/ubuntu1804minimal*
-  #python3 -m robot.rebot -l ./results/ubuntu1804minimal-log.html -r ./results/ubuntu1804minimal-report.html -N ubuntu1804minimal ./results/ubuntu1804minimal*output.xml
 }
 rm -rf report
 mkdir report
