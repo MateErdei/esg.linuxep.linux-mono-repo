@@ -274,6 +274,8 @@ def edr_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Pa
             # tap.Machine('centos9stream_x64_aws_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)),
             ("amazonlinux2",
              tap.Machine('amzlinux2_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)),
+            ("sles12",
+             tap.Machine('sles12_x64_sp5_aws_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)),
             ("sles15",
              tap.Machine('sles15_x64_sp4_aws_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)),
             # add other distros here
