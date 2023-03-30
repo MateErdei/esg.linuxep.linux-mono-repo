@@ -121,12 +121,17 @@ class TeardownTools(object):
         if os.path.isfile(filename):
             try:
                 with open(filename, "r") as f:
-                    logger.info("file: " + str(filename))
                     logger.info(''.join(f.readlines()))
-            except Exception as e:
-                logger.info("Failed to read file: {}".format(e))
+            except UnicodeDecodeError as ex:
+                logger.error("Failed to decode {} as UTF-8: {}".format(filename, ex))
+                with open(filename, "rb") as f:
+                    data = f.read()
+                    data = data.decode("LATIN-1")
+                    logger.info("Contents as Latin-1:" + data)
+            except Exception as ex:
+                logger.error("Failed to read file: {}".format(ex))
         else:
-            logger.info("File does not exist")
+            logger.info("File {} does not exist".format(filename))
 
     def analyse_Journalctl(self, print_always):
         if isinstance(print_always, bool):

@@ -14,10 +14,20 @@ try:
 except ImportError:
     import LogHandler
 
+
 def get_log_contents(path_to_log):
-    with open(path_to_log, "r") as log:
-        contents = log.read()
-    return contents
+    try:
+        with open(path_to_log, "r") as log:
+            contents = log.read()
+            return contents
+    except UnicodeDecodeError as ex:
+        logger.error("Failed to read {} in UTF-8: {}".format(path_to_log, ex))
+        with open(path_to_log, "rb") as log:
+            contents = log.read()
+            contents = contents.decode("LATIN-1")
+            logger.info("Contents of {} as Latin-1: {}".format(path_to_log, contents))
+            return contents
+
 
 def get_log_length(path_to_log):
     if not os.path.isfile(path_to_log):
@@ -186,10 +196,16 @@ class LogUtils(object):
                 with open(filename, "r") as f:
                     logger.info(f"file: {str(filename)}")
                     logger.info(''.join(f.readlines()))
+            except UnicodeDecodeError as ex:
+                logger.error("Failed to decode {} as UTF-8: {}".format(filename, ex))
+                with open(filename, "rb") as f:
+                    data = f.read()
+                    data = data.decode("LATIN-1")
+                    logger.info("Contents of {} as Latin-1: {}".format(filename, data))
             except Exception as e:
                 logger.info(f"Failed to read file: {e}")
         else:
-            logger.info("File does not exist")
+            logger.info(f"File {filename} does not exist")
 
     def dump_log_on_failure(self, filename):
         robot.libraries.BuiltIn.BuiltIn().run_keyword_if_test_failed("LogUtils.Dump Log", filename)
@@ -390,7 +406,13 @@ class LogUtils(object):
 
         list_of_logs_containing_string = []
         for filepath in flat_files:
-            num_occurrence = self.get_number_of_occurrences_of_substring_in_log(filepath, string_to_find)
+            try:
+                num_occurrence = self.get_number_of_occurrences_of_substring_in_log(filepath, string_to_find)
+            except Exception as ex:
+                logger.error("Failed to process {}: {}".format(filepath, ex))
+                robot.libraries.BuiltIn.BuiltIn().run_keyword("LogUtils.Dump Log", filepath)
+                raise
+
             if num_occurrence > 0:
                 self.log_string_if_found(string_to_find, filepath)
                 list_of_logs_containing_string.append(f"{filepath} - {num_occurrence} times")
