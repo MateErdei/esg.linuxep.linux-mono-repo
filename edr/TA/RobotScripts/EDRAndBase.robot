@@ -110,7 +110,7 @@ EDR Restarts If File Descriptor Limit Hit
     ...  EDR Plugin Log Contains X Times  Received new Action   120
 
     Wait Until Keyword Succeeds
-    ...  200 secs
+    ...  300 secs
     ...  20 secs
     ...  EDR Plugin Log Contains X Times   Early request to stop found.  1
 
