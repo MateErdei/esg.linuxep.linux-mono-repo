@@ -1,7 +1,8 @@
 // Copyright 2023 Sophos Limited. All rights reserved.
 #pragma once
-#include <string>
 #include <json.hpp>
+#include <string>
+
 namespace ActionRunner
 {
     class RunUtils
