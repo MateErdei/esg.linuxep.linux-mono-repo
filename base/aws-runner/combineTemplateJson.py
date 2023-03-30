@@ -79,6 +79,9 @@ def main():
     with open("sspl-system.template.with_args", "w") as outFile:
         outFile.write(json.dumps(main_template_json, indent=4))
 
+    with open("sspl-system.load_count", "w") as outFile:
+        outFile.write("%d\n" % n)
+
 
 if __name__ == '__main__':
     main()

@@ -345,9 +345,13 @@ combineResults()
   python3 ./reprocess.py ./allresults/*-output.xml
   # delete allresults?
 
-  python3 -m robot.rebot --merge -o ./results/amazonlinux2x64-output.xml -l none -r none -N amazonlinux2x64  ./results-combine-workspace/amazonlinux2x64*
-  rm -rf ./results-combine-workspace/amazonlinux2x64*
-  python3 -m robot.rebot -l ./results/amazonlinux2x64-log.html -r ./results/amazonlinux2x64-report.html -N amazonlinux2x64 ./results/amazonlinux2x64-output.xml
+  for PLATFORM in amazonlinux2x64
+  do
+      python3 -m robot.rebot --merge -o ./results/${PLATFORM}-output.xml \
+          -l ./results/${PLATFORM}-log.html -r ./results/${PLATFORM}-report.html \
+          -N ${PLATFORM}  ./results-combine-workspace/${PLATFORM}*
+      rm -rf ./results-combine-workspace/${PLATFORM}*
+  done
 
   python3 -m robot.rebot --merge -o ./results/amazonlinux2022x64-output.xml -l none -r none -N amazonlinux2022x64  ./results-combine-workspace/amazonlinux2022x64*
   rm -rf ./results-combine-workspace/amazonlinux2022x64*
