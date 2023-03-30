@@ -36,6 +36,11 @@ def ensure_owner_and_group_matches(filepath, username, groupname):
     if group != groupname:
         raise AssertionError("Filepath {} belongs to group {}. Expected {}", filepath, group, groupname)
 
+def get_process_owner(pid) -> str:
+    proc_stat_file = os.stat("/proc/{}".format(pid))
+    uid = proc_stat_file.st_uid
+    return pwd.getpwuid(uid)[0]
+
 def pids_of_file(file_path):
 
     if not os.path.exists(file_path):
