@@ -370,7 +370,7 @@ TEST_F(UploadFolderTests, FailureDueToTimeout)
     
     EXPECT_EQ(response["result"], 2);
     EXPECT_EQ(response["httpStatus"], 500);
-    EXPECT_EQ(response["errorMessage"], "Timeout uploading zip file: /opt/sophos-spl/plugins/responseactions/tmp/path.zip");
+    EXPECT_EQ(response["errorMessage"], "Timeout uploading zip file: " + defaultZipFile);
 }
 
 TEST_F(UploadFolderTests, FailureDueToNetworkError)
@@ -402,7 +402,7 @@ TEST_F(UploadFolderTests, FailureDueToNetworkError)
     
     EXPECT_EQ(response["result"], 1);
     EXPECT_EQ(response["httpStatus"], 500);
-    EXPECT_EQ(response["errorMessage"], "Failed to upload zip file: /opt/sophos-spl/plugins/responseactions/tmp/path.zip with error code 7");
+    EXPECT_EQ(response["errorMessage"], "Failed to upload zip file: " + defaultZipFile + " with error code 7");
     EXPECT_EQ(response["errorType"], "network_error");
 }
 
@@ -435,6 +435,6 @@ TEST_F(UploadFolderTests, FailureDueToServerError)
     
     EXPECT_EQ(response["result"], 1);
     EXPECT_EQ(response["httpStatus"], 500);
-    EXPECT_EQ(response["errorMessage"], "Failed to upload zip file: /opt/sophos-spl/plugins/responseactions/tmp/path.zip with http error code 500");
+    EXPECT_EQ(response["errorMessage"], "Failed to upload zip file: " + defaultZipFile + " with http error code 500");
     EXPECT_EQ(response["errorType"], "network_error");
 }
