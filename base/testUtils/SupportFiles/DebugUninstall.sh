@@ -190,7 +190,8 @@ function removeUser()
           echo "userdel -f output:"
           "$USER_DELETER" -f "$USERNAME"
           check_user_exists "$USERNAME"
-          [ $? -eq 0 ] && failure "Failed to delete user: $USERNAME"  ${FAILURE_REMOVE_USER}
+          ## Always fail so that we can debug what's gone wrong
+          failure "Failed to delete user: $USERNAME: delete -f=$?"  ${FAILURE_REMOVE_USER}
       fi
   else
       echo "Unable to delete user $USERNAME" >&2
