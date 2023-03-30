@@ -38,7 +38,7 @@ RA Plugin uploads a file successfully
 RA Plugin runs actions in order
     Create File         ${SOPHOS_INSTALL}/base/etc/logger.conf.local   [responseactions]\nVERBOSITY=DEBUG\n
     Restart Response Actions
-    generate_file  /tmp/largefile  500
+    generate_file  /tmp/largefile  ${500}
     Register Cleanup  Remove File  /tmp/largefile
     Simulate Upload Action Now
     Simulate Upload Action Now  id2

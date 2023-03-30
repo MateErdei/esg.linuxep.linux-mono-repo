@@ -40,7 +40,7 @@ Logger should rotate after a log file reachs 1Mb
 
     Remove File  ${watchdog_log}
 
-    generate_file  ${watchdog_log}  1024
+    generate_file  ${watchdog_log}  ${1024}
 
     Run Process   systemctl  start  sophos-spl
     Wait Until Keyword Succeeds
@@ -59,7 +59,7 @@ Logger should not rotate more than 10 times
 
     Remove File  ${watchdog_log}
 
-    generate_file  ${watchdog_log}  1024
+    generate_file  ${watchdog_log}  ${1024}
     Create file  ${watchdog_log}.1
     Create file  ${watchdog_log}.2
     Create file  ${watchdog_log}.3

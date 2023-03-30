@@ -467,10 +467,19 @@ def append_to_file_if_not_in_file(file_path, to_append):
         if to_append not in contents:
             f.write("\n{}".format(to_append))
 
-def generate_file(file_path, size_in_mb):
+
+def generate_file(file_path, size_in_kib):
+    size_in_kib = int(size_in_kib)
+    #       12345678901234567890123456789012
+    text = "GENERATED FILE CONTENTS01234567\n"
+    assert len(text) == 32
+    text = text * 32
+    text = text.encode("UTF-8")
+    assert len(text) == 1024
     with open(file_path, 'wb') as fout:
-        for i in range(1024):
-            fout.write(os.urandom(int(size_in_mb)))
+        for i in range(size_in_kib):
+            fout.write(text)
+
 
 def replace_service_with_sleep(service_name):
     dir_path = get_service_folder()
