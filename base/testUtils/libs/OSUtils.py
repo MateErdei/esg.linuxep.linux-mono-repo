@@ -41,6 +41,11 @@ def get_process_owner(pid) -> str:
     uid = proc_stat_file.st_uid
     return pwd.getpwuid(uid)[0]
 
+def get_process_group(pid) -> str:
+    proc_stat_file = os.stat("/proc/{}".format(pid))
+    gid = proc_stat_file.st_gid
+    return grp.getgrgid(gid).gr_name
+
 def pids_of_file(file_path):
 
     if not os.path.exists(file_path):

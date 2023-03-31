@@ -358,13 +358,13 @@ Fake Ldd Teardown
     Clean Up Fake Ldd Executable
 
 Check owner of process
-    [Arguments]  ${process_name}  ${user_name}  ${group_name}
+    [Arguments]  ${process_name}  ${expected_user_name}  ${expected_group_name}
     ${pid} =     Run Process    pgrep    -f      ${process_name}
     log   ${pid.stdout}
-    ${result} =     Run Process    ps    -o    user   -p   ${pid.stdout}
-    Should Contain  ${result.stdout}   ${user_name}
-    ${result} =     Run Process    ps    -o    group   -p   ${pid.stdout}
-    Should Contain  ${result.stdout}   ${group_name}
+    ${user_name} =  Get Process Owner  ${pid.stdout}
+    Should Contain  ${user_name}   ${expected_user_name}
+    ${group_name} =  Get Process Group  ${pid.stdout}
+    Should Contain  ${group_name}   ${expected_group_name}
 
 Create Fake Ldd Executable With Version As Argument And Add It To Path
     [Arguments]  ${version}
