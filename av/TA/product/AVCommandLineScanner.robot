@@ -571,8 +571,8 @@ CLS Cannot Open Permission Denied File
 
 CLS Long Threat Paths Are Not Truncated
     # CORE-4999 - threat paths are truncated on SLES
-    ${file_exists} =  Does File Exist  /etc/SuSE-release
-    Pass Execution If    ${file_exists}  There is a bug (CORE-4999) in SUSI which means threat paths get truncated on SLES
+    ${is_suse} =  Does File Contain Word  /etc/os-release    SUSE Linux Enterprise Server
+    Pass Execution If    ${is_suse}  There is a bug (CORE-4999) in SUSI which means threat paths get truncated on SLES
 
     ${ARCHIVE_DIR} =  Set Variable  ${NORMAL_DIRECTORY}/archive_dir
     Create Directory  ${ARCHIVE_DIR}
