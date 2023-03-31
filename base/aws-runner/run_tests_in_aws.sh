@@ -363,6 +363,8 @@ combineResults()
       rm -rf ./results-combine-workspace/${PLATFORM}*
   done
 
+  cat /proc/cpuinfo
+
   END=$(time +%s)
   DURATION=(( END - START ))
   echo "Processing results took ${DURATION} seconds"
