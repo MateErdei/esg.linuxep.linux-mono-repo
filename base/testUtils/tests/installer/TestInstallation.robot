@@ -135,6 +135,8 @@ Verify that uninstall works correctly
     Should Not Exist   ${SOPHOS_INSTALL}
 
 Verify Machine Id is created correctly
+    # Exclude on SLES12 until LINUXDAR-7094 is fixed
+    [Tags]    EXCLUDE_SLES12
     Ensure Uninstalled
     Require Fresh Install
     ${machineIdFromPython}  FullInstallerUtils.Get Machine Id Generate By Python
