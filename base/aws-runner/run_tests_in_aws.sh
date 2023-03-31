@@ -345,10 +345,10 @@ combineResults()
   python3 ./reprocess.py ./allresults/*-output.xml
   # delete allresults?
 
-  START=$(time +%s)
-
   [[ -n ${NPROC:-} ]] || { which nproc > /dev/null 2>&1 && NPROC=$((`nproc`)); } || NPROC=2
   (( $NPROC < 1 )) && NPROC=1
+  # Provide some slack for I/O time
+  (( NPROC ++ ))
 
   #TODO LINUXDAR-6745 put back when ubuntu minimal is fixed - ubuntu1804minimal
 #  for PLATFORM in amazonlinux2x64 amazonlinux2022x64 \
@@ -365,19 +365,16 @@ combineResults()
 #          -N ${PLATFORM}  ./results-combine-workspace/${PLATFORM}*
 #      rm -rf ./results-combine-workspace/${PLATFORM}*
 #  done
-  python3 parallel_merge.py amazonlinux2x64 amazonlinux2022x64 \
-                            centos7x64 centosstreamx64 \
-                            debian10x64 debian11x64 \
-                            miraclelinuxx64 \
-                            oracle7x64 oracle8x64 \
-                            rhel78x64 rhel81x64 rhel9x64 \
-                            sles15x64 \
-                            ubuntu1804x64 ubuntu2004 ubuntu2204
+  python3 parallel_merge.py -j${NPROC} \
+              amazonlinux2x64 amazonlinux2022x64 \
+              centos7x64 centosstreamx64 \
+              debian10x64 debian11x64 \
+              miraclelinuxx64 \
+              oracle7x64 oracle8x64 \
+              rhel78x64 rhel81x64 rhel9x64 \
+              sles15x64 \
+              ubuntu1804x64 ubuntu2004 ubuntu2204
 
-  cat /proc/cpuinfo
-
-  END=$(time +%s)
-  DURATION=$(( END - START ))
   echo "Processing results took ${DURATION} seconds"
 }
 rm -rf report
