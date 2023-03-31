@@ -360,8 +360,6 @@ combineResults()
               rhel78x64 rhel81x64 rhel9x64 \
               sles15x64 \
               ubuntu1804x64 ubuntu2004 ubuntu2204
-
-  echo "Processing results took ${DURATION} seconds"
 }
 rm -rf report
 mkdir report
