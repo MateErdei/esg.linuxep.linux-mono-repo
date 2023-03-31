@@ -9,5 +9,6 @@ git@github.com:sophos-internal/esg.linuxep.sspl-plugin-template.git
 git@github.com:sophos-internal/esg.linuxep.thininstaller.git
 git@github.com:sophos-internal/esg.linuxep.versig.git
 git@github.com:sophos-internal/esg.em.esg.git
+git@github.com:sophos-internal/esg.winep.liveterminal.git
 git@github.com:sophos-internal/esg.linuxep.sspl-warehouse.git
 git@github.com:sophos-internal/esg.linuxep.sspl-flags.git
