@@ -377,7 +377,7 @@ combineResults()
   cat /proc/cpuinfo
 
   END=$(time +%s)
-  DURATION=(( END - START ))
+  DURATION=$(( END - START ))
   echo "Processing results took ${DURATION} seconds"
 }
 rm -rf report
