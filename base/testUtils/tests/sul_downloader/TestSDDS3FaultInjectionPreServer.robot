@@ -23,7 +23,7 @@ Give invalid update config to Suldownloader running in sdds3 mode
 
 
 SUS Fault Injection Server Down
-    Suite Setup Without Ostia
+    Upgrade Resources Suite Setup
     Start Local Cloud Server    --initial-alc-policy  ${SUPPORT_FILES}/CentralXml/ALC_FixedVersionPolicySDDS3.xml
     Require Fresh Install
     Create File    ${MCS_DIR}/certs/ca_env_override_flag

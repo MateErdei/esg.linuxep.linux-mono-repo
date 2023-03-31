@@ -63,21 +63,14 @@ Upgrade Resources Test Teardown
     Require Uninstalled
 
 Upgrade Resources Suite Setup
-    Suite Setup Without Ostia
-    Setup Ostia Warehouse Environment
-
-Suite Setup Without Ostia
-    Check For Digest Sign
+    Set Suite Variable    ${GL_handle}       ${EMPTY}
+    Set Suite Variable    ${GL_UC_handle}    ${EMPTY}
     Generate Local Ssl Certs If They Dont Exist
     Install Local SSL Server Cert To System
     Regenerate Certificates
     Set Local CA Environment Variable
 
 Upgrade Resources Suite Teardown
-    Teardown Ostia Warehouse Environment
-    Suite Teardown Without Ostia
-
-Suite Teardown Without Ostia
     Run Process    make    clean    cwd=${SUPPORT_FILES}/https/
 
 Cleanup Local Warehouse And Thininstaller

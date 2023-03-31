@@ -122,10 +122,8 @@ Ostia Suite Setup
     Regenerate HTTPS Certificates
     Regenerate Certificates
     Set Local CA Environment Variable
-    Setup Ostia Warehouse Environment
 
 Ostia Suite Teardown
-    Teardown Ostia Warehouse Environment
     Run Process    make    clean    cwd=${SUPPORT_FILES}/https/
 
 Create Initial Installation
