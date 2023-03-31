@@ -99,28 +99,6 @@ Install Local SSL Server Cert To System
     Copy File   ${SUPPORT_FILES}/https/ca/root-ca.crt.pem    ${SUPPORT_FILES}/https/ca/root-ca.crt
     Install System Ca Cert  ${SUPPORT_FILES}/https/ca/root-ca.crt
 
-Install Ostia SSL Certs To System
-    Install System Ca Cert  ${SUPPORT_FILES}/sophos_certs/OstiaCA.crt
-
-Install Internal SSL Certs To System
-    Install System Ca Cert  ${SUPPORT_FILES}/sophos_certs/internal/InternalServerCA.cer
-    Install System Ca Cert  ${SUPPORT_FILES}/sophos_certs/internal/InternalServerCA1.crt
-    Install System Ca Cert  ${SUPPORT_FILES}/sophos_certs/internal/InternalServerCA2.crt
-    Install System Ca Cert  ${SUPPORT_FILES}/sophos_certs/internal/InternalServerCA3.crt
-    Install System Ca Cert  ${SUPPORT_FILES}/sophos_certs/internal/SophosInternalIntCA-A1.crt
-    Install System Ca Cert  ${SUPPORT_FILES}/sophos_certs/internal/SophosInternalIntCA-A2.crt
-    Install System Ca Cert  ${SUPPORT_FILES}/sophos_certs/internal/SophosInternalIntCA-B1.crt
-    Install System Ca Cert  ${SUPPORT_FILES}/sophos_certs/internal/SophosInternalIntCA-B2.crt
-    Install System Ca Cert  ${SUPPORT_FILES}/sophos_certs/internal/SophosInternalRootCA-A.crt
-    Install System Ca Cert  ${SUPPORT_FILES}/sophos_certs/internal/SophosInternalRootCA-B.crt
-
-Setup Ostia Warehouse Environment
-    Generate Local Ssl Certs If They Dont Exist
-    Install Local SSL Server Cert To System
-    Install Ostia SSL Certs To System
-    Install Internal SSL Certs To System
-    Setup Local Warehouses If Needed
-
 Wait For Initial Update To Fail
     #Only to be used when expecting the first update to fail after using the thininstaller
     Wait Until Keyword Succeeds

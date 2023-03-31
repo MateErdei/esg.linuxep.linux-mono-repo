@@ -653,39 +653,6 @@ class WarehouseUtils(object):
         template_config = self._get_template_config_from_dictionary_using_path(policy_path)
         return template_config.warehouse_domain
 
-    def modify_host_file_for_local_ostia_warehouses(self):
-        if os.environ.get("INTERNAL_HOST_REDIRECT"):
-            logger.info("using internal redirect")
-            self.update_server.modify_host_file_for_local_updating(new_hosts_file_content=INTERNAL_OSTIA_HOST_REDIRECT,
-                                                                   backup_filename=OSTIA_HOSTS_BACKUP_FILENAME)
-        else:
-            self.update_server.modify_host_file_for_local_updating(new_hosts_file_content=OSTIA_HOST_REDIRECT,
-                                                                   backup_filename=OSTIA_HOSTS_BACKUP_FILENAME)
-
-    def start_all_local_update_servers(self):
-        self.update_server.stop_update_server()
-
-        for address, port in list(OSTIA_ADDRESSES.items()):
-            branch_name = os.path.basename(address)
-            local_warehouse_branch = os.path.join(LOCAL_WAREHOUSES, branch_name)
-            list_of_files = os.listdir(local_warehouse_branch)
-            logger.info(list_of_files)
-            timestamp = list_of_files[0]
-            customer_directory = os.path.join(local_warehouse_branch, timestamp, "customer")
-
-            self.update_server.start_update_server(port, customer_directory)
-            logger.info(f"started local warehouse customer file server on localhost:{port} for {branch_name}")
-            self.update_server.can_curl_url(f"https://localhost:{port}")
-
-        self.update_server.start_update_server(WAREHOUSE_LOCAL_SERVER_PORT, LOCAL_WAREHOUSES_ROOT)
-        logger.info(f"started local warehouse catalogue server on localhost:{WAREHOUSE_LOCAL_SERVER_PORT}")
-        self.update_server.can_curl_url(f"https://localhost:{WAREHOUSE_LOCAL_SERVER_PORT}")
-
-    def setup_local_warehouses_if_needed(self):
-        if os.path.isdir(LOCAL_WAREHOUSES):
-            self.start_all_local_update_servers()
-            self.modify_host_file_for_local_ostia_warehouses()
-
     def generate_local_ssl_certs_if_they_dont_exist(self):
         server_https_cert = os.path.join(SUPPORT_FILE_PATH, "https", "ca", "root-ca.crt.pem")
         if not os.path.isfile(server_https_cert):
