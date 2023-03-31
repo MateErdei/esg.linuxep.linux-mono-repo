@@ -103,11 +103,11 @@ EDR Restarts If File Descriptor Limit Hit
 
     ${actionContent} =  Set Variable  '{"type": "sophos.mgt.action.RunLiveQuery", "name": "test_query", "query": "select * from users;"}'
 
-    Send Plugin Actions  edr  LiveQuery  corr123  ${actionContent}  ${120}
+    Send Plugin Actions  edr  LiveQuery  corr123  ${actionContent}  ${300}
     Wait Until Keyword Succeeds
     ...  30 secs
     ...  5 secs
-    ...  EDR Plugin Log Contains X Times  Received new Action   120
+    ...  EDR Plugin Log Contains X Times  Received new Action   300
 
     Wait Until Keyword Succeeds
     ...  300 secs
