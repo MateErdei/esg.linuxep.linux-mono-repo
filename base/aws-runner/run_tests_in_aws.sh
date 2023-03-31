@@ -338,33 +338,19 @@ combineResults()
 {
   ls -l ./results-combine-workspace
   ls -l ./allresults
-  rm -rf results
-  mkdir results
 
   # Process any results that didn't get completed before
   python3 ./reprocess.py ./allresults/*-output.xml
-  # delete allresults?
+  rm -rf allresults
 
   [[ -n ${NPROC:-} ]] || { which nproc > /dev/null 2>&1 && NPROC=$((`nproc`)); } || NPROC=2
   (( $NPROC < 1 )) && NPROC=1
   # Provide some slack for I/O time
   (( NPROC ++ ))
 
+  rm -rf results
+  mkdir results
   #TODO LINUXDAR-6745 put back when ubuntu minimal is fixed - ubuntu1804minimal
-#  for PLATFORM in amazonlinux2x64 amazonlinux2022x64 \
-#        centos7x64 centosstreamx64 \
-#        debian10x64 debian11x64 \
-#        miraclelinuxx64 \
-#        oracle7x64 oracle8x64 \
-#        rhel78x64 rhel81x64 rhel9x64 \
-#        sles15x64 \
-#        ubuntu1804x64 ubuntu2004 ubuntu2204
-#  do
-#      python3 -m robot.rebot --merge -o ./results/${PLATFORM}-output.xml \
-#          -l ./results/${PLATFORM}-log.html -r ./results/${PLATFORM}-report.html \
-#          -N ${PLATFORM}  ./results-combine-workspace/${PLATFORM}*
-#      rm -rf ./results-combine-workspace/${PLATFORM}*
-#  done
   python3 parallel_merge.py -j${NPROC} \
               amazonlinux2x64 amazonlinux2022x64 \
               centos7x64 centosstreamx64 \
