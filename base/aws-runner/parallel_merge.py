@@ -12,6 +12,8 @@ import threading
 
 RESULT = 0
 
+DELETE = os.environ.get("NO_DELETE", "0") != "1"
+
 
 def run_rebot(platform: str):
     """
@@ -44,8 +46,9 @@ def run_rebot(platform: str):
         print("robot.rebot failed!", result.returncode, file=sys.stderr)
         RESULT += 1
 
-    # for src in srcs:
-    #     os.unlink(src)
+    if DELETE:
+        for src in srcs:
+            os.unlink(src)
 
 
 def run_queue(q):
