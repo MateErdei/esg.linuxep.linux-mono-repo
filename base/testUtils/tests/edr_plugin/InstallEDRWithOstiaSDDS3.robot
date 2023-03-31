@@ -131,48 +131,6 @@ Install all plugins 999 then downgrade to all plugins develop
     Check All Product Logs Do Not Contain Error
     Check All Product Logs Do Not Contain Critical
 
-Install edr 999 and downgrade to current edr
-    [Tags]  PLUGIN_DOWNGRADE  OSTIA  THIN_INSTALLER  INSTALLER  UNINSTALLER  EXCLUDE_SLES12  EXCLUDE_SLES15
-    Setup SUS only edr 999
-    Install EDR SDDS3  ${BaseMtrAndEdr999Policy}
-
-    Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-EDR version: 9.99.9
-
-    ${edr_version_contents} =  Get File  ${EDR_DIR}/VERSION.ini
-    Should contain   ${edr_version_contents}   PRODUCT_VERSION = 9.99.9
-    Override LogConf File as Global Level  DEBUG
-
-    Wait for first update
-    # This policy change will trigger another update automatically
-    Setup SUS all develop
-    Send ALC Policy And Prepare For Upgrade  ${BaseAndEdrAndMtrVUTPolicy}
-
-    Wait Until Keyword Succeeds
-    ...  120 secs
-    ...  5 secs
-    ...  Check SulDownloader Log Contains     Installing product: ServerProtectionLinux-Plugin-EDR version: 1.
-
-    Check SulDownloader Log Contains     Prepared ServerProtectionLinux-Plugin-EDR for downgrade
-
-    # SulDownloader log may be removed during downgrade, therefore check edr version file is no longer
-    # reporting the 999 version and make sure edr is left running.
-
-    Wait Until Keyword Succeeds
-    ...   200 secs
-    ...   2 secs
-    ...   Check EDR Downgraded From 999
-
-    Wait Until Keyword Succeeds
-    ...   15 secs
-    ...   2 secs
-    ...   Check EDR Executable Running
-
-    Wait For Suldownloader To Finish
-    Mark Known Upgrade Errors
-
-    Check All Product Logs Do Not Contain Error
-    Check All Product Logs Do Not Contain Critical
-
 Update Run that Does Not Change The Product Does not ReInstall The Product
     Setup SUS all develop
     Install EDR SDDS3  ${BaseAndEdrAndMtrVUTPolicy}
