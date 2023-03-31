@@ -345,6 +345,8 @@ combineResults()
   python3 ./reprocess.py ./allresults/*-output.xml
   # delete allresults?
 
+  START=$(time +%s)
+
   #TODO LINUXDAR-6745 put back when ubuntu minimal is fixed - ubuntu1804minimal
   for PLATFORM in amazonlinux2x64 amazonlinux2022x64 \
         centos7x64 centosstreamx64 \
@@ -361,6 +363,9 @@ combineResults()
       rm -rf ./results-combine-workspace/${PLATFORM}*
   done
 
+  END=$(time +%s)
+  DURATION=(( END - START ))
+  echo "Processing results took ${DURATION} seconds"
 }
 rm -rf report
 mkdir report
