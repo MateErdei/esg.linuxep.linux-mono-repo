@@ -114,20 +114,12 @@ Install Internal SSL Certs To System
     Install System Ca Cert  ${SUPPORT_FILES}/sophos_certs/internal/SophosInternalRootCA-A.crt
     Install System Ca Cert  ${SUPPORT_FILES}/sophos_certs/internal/SophosInternalRootCA-B.crt
 
-Revert System CA Certs
-    Cleanup System Ca Certs
-
 Setup Ostia Warehouse Environment
     Generate Local Ssl Certs If They Dont Exist
     Install Local SSL Server Cert To System
     Install Ostia SSL Certs To System
     Install Internal SSL Certs To System
     Setup Local Warehouses If Needed
-
-Teardown Ostia Warehouse Environment
-    Restore Host File After Using Local Ostia Warehouses
-    Stop Local Ostia Servers
-    Revert System CA Certs
 
 Wait For Initial Update To Fail
     #Only to be used when expecting the first update to fail after using the thininstaller

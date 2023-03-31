@@ -653,13 +653,6 @@ class WarehouseUtils(object):
         template_config = self._get_template_config_from_dictionary_using_path(policy_path)
         return template_config.warehouse_domain
 
-    def stop_local_ostia_servers(self):
-        self.update_server.stop_update_server()
-
-    def restore_host_file_after_using_local_ostia_warehouses(self):
-        if os.path.isfile(os.path.join("/etc", OSTIA_HOSTS_BACKUP_FILENAME)):
-            self.update_server.restore_host_file(backup_filename=OSTIA_HOSTS_BACKUP_FILENAME)
-
     def modify_host_file_for_local_ostia_warehouses(self):
         if os.environ.get("INTERNAL_HOST_REDIRECT"):
             logger.info("using internal redirect")

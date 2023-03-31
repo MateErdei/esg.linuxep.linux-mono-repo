@@ -188,7 +188,7 @@ MDR Install And Upgrade Setup
 MDR Install And Upgrade Teardown
     Run Keyword and Ignore Error  Remove File  ${PreviousALC}
     Run Keyword and Ignore Error  Remove File  ${NextALC}
-    Revert System CA Certs
+    Cleanup System Ca Certs
     Clear etc hosts Of Entries To Connect To Internal Warehouse
 
 Test Setup MDR Install And Upgrade

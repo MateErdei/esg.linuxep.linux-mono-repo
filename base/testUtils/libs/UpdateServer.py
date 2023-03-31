@@ -100,12 +100,6 @@ class UpdateServer(object):
         with open(host_file, "a") as f:
             f.write(new_hosts_file_content)
 
-    def restore_host_file(self, backup_filename="hosts.bk"):
-        host_file_backup = os.path.join("/etc", backup_filename)
-        host_file = os.path.join("/etc", "hosts")
-        if os.path.exists(host_file_backup):
-            os.rename(host_file_backup, host_file)
-
     def start_simple_proxy_server(self, port):
         command = [sys.executable, os.path.join(self.server_path, "https_proxy.py"), port]
         self.proxy_processes[port] = subprocess.Popen(command, stdout=self.proxy_log, stderr=subprocess.STDOUT)
