@@ -232,23 +232,6 @@ class TeardownTools(object):
                 raise AssertionError("Core dump found")
         else:
             print("No tmp directory")
-        if os.path.exists("/var/crash"):
-            files_in_crash_dir = [f for f in os.listdir("/var/crash") if os.path.isfile(os.path.join("/var/crash", f))]
-            is_crash_dump = False
-            for file in files_in_crash_dir:
-                if file.startswith("_opt_sophos-spl_"):
-                    is_crash_dump = True
-                    file_path = os.path.join("/var/crash", file)
-                    try:
-                        self.copy_to_filer6_or_s3_pickup(file_path, testname, filer6)
-                    except Exception as ex:
-                        logger.info(f"failed to copy {file_path} to storage location: {ex}")
-                    finally:
-                        os.remove(file_path)
-            if is_crash_dump:
-                raise AssertionError("Crash dump found")
-        else:
-            print("No crash directory")
 
     def copy_to_filer6_or_s3_pickup(self, filepath, testname,filer6):
         if filer6:
