@@ -23,6 +23,8 @@
 using ::testing::Return;
 using ::testing::StrictMock;
 
+#define PRINT(x) std::cerr << x << '\n'
+
 struct TelemetryTestCase
 {
     TelemetryTestCase(  std::string iXml, std::string value):
@@ -38,9 +40,11 @@ struct TelemetryTestCase
 class BaseTelemetryReporterTests : public ::testing::Test
 {
 public:
-    void TearDown() override {}
-
     Common::Logging::ConsoleLoggingSetup m_loggingSetup;
+};
+
+class OutbreakTelemetryTests : public BaseTelemetryReporterTests
+{
 };
 
 TEST_F(BaseTelemetryReporterTests, extractCustomerIdOK) // NOLINT
@@ -353,6 +357,54 @@ TEST_F(BaseTelemetryReporterTests, getOutbreakModeHistoricWithMissingFile)
     EXPECT_EQ(Telemetry::BaseTelemetryReporter::getOutbreakModeHistoric(), "false");
 }
 
+namespace
+{
+    class TZReset
+    {
+        bool has_old_tz_ = false;
+        std::string old_tz_;
+    public:
+        explicit TZReset(const std::string& TZ)
+        {
+            auto* tz = getenv("TZ");
+            if (tz == nullptr)
+            {
+                has_old_tz_ = false;
+            }
+            else
+            {
+                has_old_tz_ = true;
+                old_tz_ = tz;
+            }
+            setenv("TZ", TZ.c_str(), 1);
+        }
+
+        ~TZReset()
+        {
+            if (has_old_tz_)
+            {
+                setenv("TZ", old_tz_.c_str(), 1);
+            }
+        }
+    };
+
+    using clock_t = Telemetry::BaseTelemetryReporter::clock_t;
+
+    std::string expectReadOutbreakStatusFile(MockFileSystem* mockFileSystem, std::chrono::time_point<clock_t> outbreakTime)
+    {
+        auto ts = Common::UtilityImpl::TimeUtils::MessageTimeStamp(outbreakTime);
+        EXPECT_CALL(
+            *mockFileSystem,
+            isFile(Common::ApplicationConfiguration::applicationPathManager().getOutbreakModeStatusFilePath()))
+            .WillOnce(Return(true));
+        EXPECT_CALL(
+            *mockFileSystem,
+            readFile(Common::ApplicationConfiguration::applicationPathManager().getOutbreakModeStatusFilePath()))
+            .WillOnce(Return(R"({ "timestamp" : ")" + ts + "\" }"));
+        return ts;
+    }
+}
+
 TEST_F(BaseTelemetryReporterTests, getOutbreakModeTodayWithLargeTimeDifference)
 {
     auto mockFileSystem = new StrictMock<MockFileSystem>();
@@ -362,55 +414,101 @@ TEST_F(BaseTelemetryReporterTests, getOutbreakModeTodayWithLargeTimeDifference)
     auto now = Telemetry::BaseTelemetryReporter::clock_t::now();
     auto yesterday = now - std::chrono::hours{25};
 
-    EXPECT_CALL(
-        *mockFileSystem,
-        isFile(Common::ApplicationConfiguration::applicationPathManager().getOutbreakModeStatusFilePath()))
-        .WillOnce(Return(true));
-    EXPECT_CALL(
-        *mockFileSystem,
-        readFile(Common::ApplicationConfiguration::applicationPathManager().getOutbreakModeStatusFilePath()))
-        .WillOnce(Return(R"({ "timestamp" : ")" + Common::UtilityImpl::TimeUtils::MessageTimeStamp(yesterday) + "\" }"));
+    expectReadOutbreakStatusFile(mockFileSystem, yesterday);
     EXPECT_EQ(Telemetry::BaseTelemetryReporter::getOutbreakModeToday(now), "false");
 }
 
 TEST_F(BaseTelemetryReporterTests, getOutbreakModeTodayWithSmallTimeDifference)
 {
-    auto mockFileSystem = new StrictMock<MockFileSystem>();
-    std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
-
     auto now = Telemetry::BaseTelemetryReporter::clock_t::now();
     auto earlier = now - std::chrono::hours{23};
 
-    EXPECT_CALL(
-        *mockFileSystem,
-        isFile(Common::ApplicationConfiguration::applicationPathManager().getOutbreakModeStatusFilePath()))
-        .WillOnce(Return(true));
-    EXPECT_CALL(
-        *mockFileSystem,
-        readFile(Common::ApplicationConfiguration::applicationPathManager().getOutbreakModeStatusFilePath()))
-        .WillOnce(Return(R"({ "timestamp" : ")" + Common::UtilityImpl::TimeUtils::MessageTimeStamp(earlier) + "\" }"));
+    auto mockFileSystem = new StrictMock<MockFileSystem>();
+    expectReadOutbreakStatusFile(mockFileSystem, earlier);
+    std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
+
     EXPECT_EQ(Telemetry::BaseTelemetryReporter::getOutbreakModeToday(now), "true");
 }
 
 TEST_F(BaseTelemetryReporterTests, getOutbreakModeTodayWithFutureTimeDifference)
 {
-    auto mockFileSystem = new StrictMock<MockFileSystem>();
-    std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
-
     auto now = Telemetry::BaseTelemetryReporter::clock_t::now();
     auto tomorrow = now + std::chrono::hours{25};
 
-    EXPECT_CALL(
-        *mockFileSystem,
-        isFile(Common::ApplicationConfiguration::applicationPathManager().getOutbreakModeStatusFilePath()))
-        .WillOnce(Return(true));
-    EXPECT_CALL(
-        *mockFileSystem,
-        readFile(Common::ApplicationConfiguration::applicationPathManager().getOutbreakModeStatusFilePath()))
-        .WillOnce(Return(R"({ "timestamp" : ")" + Common::UtilityImpl::TimeUtils::MessageTimeStamp(tomorrow) + "\" }"));
+    auto mockFileSystem = new StrictMock<MockFileSystem>();
+    expectReadOutbreakStatusFile(mockFileSystem, tomorrow);
+    std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
+
     EXPECT_EQ(Telemetry::BaseTelemetryReporter::getOutbreakModeToday(now), "false");
+}
+
+namespace
+{
+    void testOnSecondInPast()
+    {
+        auto now = Telemetry::BaseTelemetryReporter::clock_t::now();
+        auto outbreakTime = now - std::chrono::seconds{1};
+
+        auto mockFileSystem = new StrictMock<MockFileSystem>();
+        auto ts = expectReadOutbreakStatusFile(mockFileSystem, outbreakTime);
+//        PRINT("PAST:" << ts);
+        std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
+        Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
+
+        EXPECT_EQ(Telemetry::BaseTelemetryReporter::getOutbreakModeToday(now), "true");
+    }
+
+    void testOnSecondInFuture()
+    {
+        auto now = Telemetry::BaseTelemetryReporter::clock_t::now();
+        auto outbreakTime = now + std::chrono::seconds{1};
+
+        auto mockFileSystem = new StrictMock<MockFileSystem>();
+        auto ts = expectReadOutbreakStatusFile(mockFileSystem, outbreakTime);
+//        PRINT("FUTURE:" << ts);
+        std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
+        Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
+
+        EXPECT_EQ(Telemetry::BaseTelemetryReporter::getOutbreakModeToday(now), "false");
+    }
+}
+
+TEST_F(OutbreakTelemetryTests, OutbreakOnSecondInPastInLondon)
+{
+    TZReset timezoneResetter("Europe/London");
+    testOnSecondInPast();
+}
+
+TEST_F(OutbreakTelemetryTests, OutbreakOneSecondInFutureInLondon)
+{
+    TZReset timezoneResetter("Europe/London");
+    testOnSecondInFuture();
+}
+
+TEST_F(OutbreakTelemetryTests, OutbreakOnSecondInPastInTokyo)
+{
+    TZReset timezoneResetter("Asia/Tokyo");
+    testOnSecondInPast();
+}
+
+TEST_F(OutbreakTelemetryTests, OutbreakOneSecondInFutureInJapan)
+{
+    TZReset timezoneResetter("Asia/Tokyo");
+    testOnSecondInFuture();
+}
+
+TEST_F(OutbreakTelemetryTests, OutbreakOneSecondInPastInNewYork)
+{
+    TZReset timezoneResetter("America/New_York");
+    testOnSecondInPast();
+}
+
+TEST_F(OutbreakTelemetryTests, OutbreakOneSecondInFutureInNewYork)
+{
+    TZReset timezoneResetter("America/New_York");
+    testOnSecondInFuture();
 }
 
 TEST_F(BaseTelemetryReporterTests, getOutbreakModeTodayWithInvalidTime)

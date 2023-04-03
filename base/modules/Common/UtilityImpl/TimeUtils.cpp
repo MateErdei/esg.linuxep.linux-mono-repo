@@ -100,6 +100,19 @@ namespace Common
             return mktime(&timebuffer); // should be local time
         }
 
+        std::time_t TimeUtils::toUTCTime(const std::string& s, const char* format)
+        {
+            std::tm timebuffer{};
+            char* ret = strptime(s.c_str(), format, &timebuffer);
+            if (ret == nullptr)
+            {
+                return 0;
+            }
+            timebuffer.tm_isdst = 0;
+            // Using the GNU extension, maybe replace with C++ when switching to C++20?
+            return timegm(&timebuffer); // should be UTC time
+        }
+
         std::string TimeUtils::fromTime(std::time_t time_) { return fromTime(time_, "%Y%m%d %H%M%S"); }
 
         std::string TimeUtils::fromTime(std::tm time_tm) { return fromTime(time_tm, "%Y%m%d %H%M%S"); }

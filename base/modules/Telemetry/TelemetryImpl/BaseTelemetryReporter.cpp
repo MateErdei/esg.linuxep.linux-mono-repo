@@ -155,7 +155,7 @@ namespace Telemetry
             if (!recordedTime.empty())
             {
                 auto nowTime = clock_t::to_time_t(now);
-                auto recordedTimeAsTime = Common::UtilityImpl::TimeUtils::toTime(recordedTime, "%FT%T");
+                auto recordedTimeAsTime = Common::UtilityImpl::TimeUtils::toUTCTime(recordedTime, "%FT%T");
                 if (recordedTimeAsTime == 0)
                 {
                     LOGWARN("Unable to parse outbreak mode timestamp to time: " << recordedTime);
@@ -165,6 +165,17 @@ namespace Telemetry
                 if (timeDifference <= 86400 && timeDifference >= 0) // 1 day in seconds
                 {
                     return "true";
+                }
+                else if (timeDifference < 0)
+                {
+                    LOGERROR("System Clock has gone backwards: now="
+                             <<nowTime
+                             << " outbreakStartTime="<<recordedTimeAsTime
+                             << " difference="<<timeDifference);
+                }
+                else
+                {
+                    LOGINFO("Outbreak more than 1 day ago: difference=" << timeDifference);
                 }
                 return "false";
             }
