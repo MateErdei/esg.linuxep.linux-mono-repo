@@ -100,10 +100,12 @@ class TeardownTools(object):
             logger.info("Clear dmesg after segfault detected")
             output = str(stdout)
             CLOUD_SETUP_SEGFAULT_RE = re.compile(r"nm-cloud-setup\[\d+\]: segfault at [0-9a-f]+ ip [0-9a-f]+ sp [0-9a-f]+ error 4 in libglib-2.0.so.*\[[0-9a-f]+\+[0-9a-f]+\]")
-            if CLOUD_SETUP_SEGFAULT_RE.search(output) is None:
+            #TODO LINUXDAR-2972 remove when this defect is closed
+            RA_SEGFAULT_RE = re.compile(r"responseactions\[\d+\]: segfault at [0-9a-f]+ ip [0-9a-f]+ sp [0-9a-f]+ error 4 in libresponseplugin.so.0\[[0-9a-f]+\+[0-9a-f]+\]")
+            if CLOUD_SETUP_SEGFAULT_RE.search(output) is None and RA_SEGFAULT_RE.search(output) is None:
                 raise AssertionError("segfault found : " + output)
             else:
-                logger.error("Ignoring segfault from nm-cloud-setup: " + output)
+                logger.error("Ignoring segfault: " + output)
 
         return stdout
 
