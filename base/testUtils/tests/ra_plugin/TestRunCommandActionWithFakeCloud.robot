@@ -10,6 +10,7 @@ Library    ${LIBS_DIRECTORY}/CentralUtils.py
 Suite Setup     RA Run Command Suite Setup
 Suite Teardown  RA Suite Teardown
 
+Test Setup         RA Run Command With Fake Cloud Test Setup
 Test Teardown      RA Run Command Test Teardown
 
 Force Tags  LOAD5
@@ -20,8 +21,6 @@ ${RESPONSE_JSON}        ${MCS_DIR}/response/CORE_id1_response.json
 
 *** Test Cases ***
 Test Run Command Action End To End With Fake Cloud
-    Override LogConf File as Global Level  DEBUG
-
     ${response_mark} =  mark_log_size  ${RESPONSE_ACTIONS_LOG_PATH}
     ${action_mark} =  mark_log_size  ${ACTIONS_RUNNER_LOG_PATH}
 
@@ -43,8 +42,31 @@ Test Run Command Action End To End With Fake Cloud
     ${test_contents} =  Get File    /tmp/test.txt
     Should Be Equal As Strings  ${test_contents}    two
 
+Test Run Command Action With 400 response
+    ${response_mark} =  mark_log_size  ${RESPONSE_ACTIONS_LOG_PATH}
+    ${action_mark} =  mark_log_size  ${ACTIONS_RUNNER_LOG_PATH}
+    ${mcsrouter_mark} =  get_mark_for_mcsrouter_log
+    ${cloud_server_mark} =  mark_cloud_server_log
+
+    @{commands_list} =  Create List   echo -n one
+
+    send_run_command_action_from_fake_cloud  ${commands_list}  return400=${True}
+    wait_for_log_contains_from_mark  ${response_mark}  Action corrid has succeeded   ${25}
+    wait_for_log_contains_from_mark  ${action_mark}    Sent run command response for ID
+
+    wait_for_log_contains_from_mark  ${cloud_server_mark}  {"duration":0,"exitCode":0,"stdErr":"","stdOut":"one"}  ${10}
+    wait_for_log_contains_from_mark  ${cloud_server_mark}  sophos.mgt.response.RunCommands
+
+    Wait For Log Contains From Mark    ${mcsrouter_mark}    Failed to send response (CORE : corrid) : MCS HTTP Error: code=400
+    Wait For Log Contains From Mark    ${mcsrouter_mark}    Discarding response 'corrid' due to rejection with HTTP 400 error from Sophos Central
+
+    dump_from_mark  ${mcsrouter_mark}
+
 
 *** Keywords ***
+
+RA Run Command With Fake Cloud Test Setup
+    Override LogConf File as Global Level  DEBUG
 
 RA Run Command Test Teardown
     Start Response Actions
@@ -53,20 +75,3 @@ RA Run Command Test Teardown
     Remove File    /tmp/test.txt
     Run Keyword If Test Failed    Log File    ${RESPONSE_JSON}
     Remove File    ${RESPONSE_JSON}
-
-Simulate Run Command Action Now
-    [Arguments]  ${action_json_file}=${SUPPORT_FILES}/CentralXml/RunCommandAction.json    ${id_suffix}=id1
-    Copy File   ${action_json_file}  ${SOPHOS_INSTALL}/tmp/RunCommandAction.json
-    ${result} =  Run Process  chown sophos-spl-user:sophos-spl-group ${SOPHOS_INSTALL}/tmp/RunCommandAction.json   shell=True
-    Should Be Equal As Integers    ${result.rc}    0  Failed to replace permission to file. Reason: ${result.stderr}
-    Move File   ${SOPHOS_INSTALL}/tmp/RunCommandAction.json  ${SOPHOS_INSTALL}/base/mcs/action/CORE_${id_suffix}_request_2030-02-27T13:45:35.699544Z_144444000000004.json
-
-Stop MCSRouter
-    ${result} =  Run Process  ${SOPHOS_INSTALL}/bin/wdctl  stop  mcsrouter
-    Run Keyword If  ${result.rc} != 0  log  ${result.stdout}
-    Run Keyword If  ${result.rc} != 0  log  ${result.stderr}
-    Should Be Equal As Integers  ${result.rc}  0
-
-Check sleep Running
-    ${result} =    Run Process  pgrep    sleep
-    Should Be Equal As Integers    ${result.rc}    0

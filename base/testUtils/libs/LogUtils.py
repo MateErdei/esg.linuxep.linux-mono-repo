@@ -453,6 +453,9 @@ class LogUtils(object):
     def dump_cloud_server_log(self):
         self.dump_log(self.cloud_server_log)
 
+    def mark_cloud_server_log(self):
+        return self.mark_log_size(self.cloud_server_log)
+
     def cloud_server_log_should_contain(self, string_to_contain):
         self.check_log_contains(string_to_contain, self.cloud_server_log, "cloud server log")
 
@@ -659,6 +662,9 @@ class LogUtils(object):
 
     def dump_mcsrouter_log(self):
         self.dump_log(self.mcs_router_log)
+
+    def get_mark_for_mcsrouter_log(self):
+        return self.mark_log_size(self.mcs_router_log)
 
     def check_mcsrouter_log_contains(self, string_to_contain):
         self.check_log_contains(string_to_contain, self.mcs_router_log, "MCS Router")
@@ -1048,6 +1054,9 @@ class LogUtils(object):
             mark = self.__m_marked_log_position[log_path]
         handler = self.get_log_handler(log_path)
         handler.dump_marked_log(mark)
+
+    def dump_from_mark(self, mark: LogHandler.LogMark):
+        mark.dump_marked_log()
 
     def check_log_does_not_contain_after_mark(self, log_path, not_expected, mark: LogHandler.LogMark) -> None:
         assert isinstance(mark, LogHandler.LogMark), "mark is not an instance of LogMark in check_log_does_not_contain_after_mark"

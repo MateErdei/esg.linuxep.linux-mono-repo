@@ -431,13 +431,15 @@ def verify_run_command_response(response_json_path, result, command_results=None
 
 
 def send_run_command_action_from_fake_cloud(commands, ignore_error=True, timeout=60, expiration=2783256334,
-                                            command_id="corrid"):
+                                            command_id="corrid", return400=False):
     action_dict = {"type": "sophos.mgt.action.RunCommands",
                    "commands": commands,
                    "ignoreError": ignore_error,
                    "timeout": timeout,
                    "expiration": expiration, }
-    CloudAutomation.SendToFakeCloud.sendResponseActionToFakeCloud(json.dumps(action_dict), command_id=command_id)
+    CloudAutomation.SendToFakeCloud.sendResponseActionToFakeCloud(json.dumps(action_dict),
+                                                                  command_id=command_id,
+                                                                  return400=return400)
 
 
 def Set_Local_CA_Environment_Variable():

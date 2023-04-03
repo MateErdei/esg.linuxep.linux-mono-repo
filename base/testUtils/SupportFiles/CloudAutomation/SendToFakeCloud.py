@@ -1,8 +1,15 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
+# Copyright 2018-2023 Sophos Limited. All rights reserved.
+
 import http.client
 import ssl
 import sys
 
+
+def _create_https_connection():
+    # Open HTTPS connection to fake cloud at https://127.0.0.1:4443
+    return http.client.HTTPSConnection("localhost", 4443, context=ssl._create_unverified_context())
 
 
 # filename - XML file to set as policy in fake cloud
@@ -13,8 +20,7 @@ def setPolicyInFakeCloud(filename, policyType):
 
     headers = {"Content-type": "application/octet-stream", "Accept": "text/plain"}
 
-    # Open HTTPS connection to fake cloud at https://127.0.0.1:4443
-    conn = http.client.HTTPSConnection("127.0.0.1","4443", context=ssl._create_unverified_context())
+    conn = _create_https_connection()
     conn.request("PUT", "/controller/" + policyType + "/policy", data, headers)
     response = conn.getresponse()
     remote_file = response.read()
@@ -24,8 +30,7 @@ def setPolicyInFakeCloud(filename, policyType):
 def getPolicyInFakeCloud(filename, policyType):
     headers = {"Content-type": "application/octet-stream", "Accept": "text/plain"}
 
-    # Open HTTPS connection to fake cloud at https://127.0.0.1:4443
-    conn = http.client.HTTPSConnection("127.0.0.1","4443", context=ssl._create_unverified_context())
+    conn = _create_https_connection()
     conn.request("GET", "/controller/" + policyType + "/policy", "", headers)
     response = conn.getresponse()
     remote_file = response.read()
@@ -55,7 +60,7 @@ def setSavPolicyInFakeCloud(filename):
     return setPolicyInFakeCloud(filename, "sav")
 
 def sendCmdToFakeCloud(cmd, filename=None):
-    conn = http.client.HTTPSConnection("127.0.0.1","4443", context=ssl._create_unverified_context())
+    conn = _create_https_connection()
     conn.request("GET", "/"+cmd)
     response = conn.getresponse()
     remote_file = response.read()
@@ -68,8 +73,7 @@ def sendLiveQueryToFakeCloud(query, command_id):
                "Accept": "text/plain",
                "Command-ID": command_id}
 
-    # Open HTTPS connection to fake cloud at https://127.0.0.1:4443
-    conn = http.client.HTTPSConnection("127.0.0.1","4443", context=ssl._create_unverified_context())
+    conn = _create_https_connection()
     conn.request("PUT", "/controller/livequery/command", query, headers)
     response = conn.getresponse()
     remote_file = response.read()
@@ -77,14 +81,15 @@ def sendLiveQueryToFakeCloud(query, command_id):
     print("Set livequery response: {}".format(remote_file))
     return 0
 
-def sendResponseActionToFakeCloud(query, command_id):
 
-    # Open HTTPS connection to fake cloud at https://127.0.0.1:4443
+def sendResponseActionToFakeCloud(query, command_id, return400=False):
     headers = {"Content-type": "application/octet-stream",
                "Accept": "text/plain",
                "Command-ID": command_id}
+    if return400:
+        headers["X-Response-Code"] = "400"
 
-    conn = http.client.HTTPSConnection("127.0.0.1", "4443", context=ssl._create_unverified_context())
+    conn = _create_https_connection()
     conn.request("PUT", "/controller/core/command", query, headers)
 
     response = conn.getresponse()
@@ -92,6 +97,13 @@ def sendResponseActionToFakeCloud(query, command_id):
     conn.close()
     print("Set action response: {}".format(remote_file))
     return 0
+
+
+def error_for_next_action_response(errorCode):
+    conn = _create_https_connection()
+    conn.request("POST", "/controller/core/response", str(errorCode))
+
+
 
 def main(argv):
     cmd = argv[1]
@@ -113,6 +125,7 @@ def main(argv):
         return sendCmdToFakeCloud("controller/userAgent",filename)
     else:
         return sendCmdToFakeCloud(cmd, filename)
+
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

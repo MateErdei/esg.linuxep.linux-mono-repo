@@ -699,6 +699,7 @@ class Endpoint(object):
         self.__m_doc = None
         self.__m_health = 0
         self.__m_updatesource = None
+        self.__m_return_400_next_action_response = False
         self.updateStatus("AGENT", status)
 
         # Useful for specific test scenarios
@@ -809,6 +810,12 @@ class Endpoint(object):
         logger.info("{} response ({}) = {}".format(app_id, correlation_id, decompressed_body.decode()))
         with open(os.path.join(_get_log_dir(), "last_query_response.json"), 'w') as live_query_response_file:
             live_query_response_file.write(decompressed_body.decode())
+
+        if self.__m_return_400_next_action_response:
+            self.__m_return_400_next_action_response = False
+            return 400
+        return None
+
 
     def handle_datafeed_ep(self, datafeed_id, datafeed_body):
         try:
@@ -1103,8 +1110,10 @@ class Endpoint(object):
     def setQuery(self, query, command_id):
         self.__edr.setQuery(query, command_id)
 
-    def setCommand(self, command, command_id):
+    def setCommand(self, command, command_id, response_code):
         self.__core.setCommand(command, command_id)
+        if response_code == "400":
+            self.__m_return_400_next_action_response = True
 
     def setFlags(self,flags):
         self.__flags.updateFlags(flags)
@@ -1195,6 +1204,13 @@ class Endpoints(object):
             results.append(e.report())
         return results
 
+
+    def getDevicebyDeviceID(self, deviceId) -> Endpoint:
+        for e in self.__m_endpoints.values():
+            if e.device_id() == deviceId:
+                return e
+            return None
+
     def getEndpointByID(self, eid) -> Endpoint:
         for e in self.__m_endpoints.values():
             if e.id() == eid:
@@ -1264,11 +1280,11 @@ class Endpoints(object):
         for e in self.__m_endpoints.values():
             e.setQuery(query, command_id)
 
-    def setCoreAction(self, query, command_id):
+    def setCoreAction(self, query, command_id, response_code):
         logger.info("core command {}".format(query))
         assert query != ""
         for e in self.__m_endpoints.values():
-            e.setCommand(query, command_id)
+            e.setCommand(query, command_id, response_code)
 
     def setFlags(self,flags):
         for e in self.__m_endpoints.values():
@@ -1929,22 +1945,30 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
         return self.ret("")
 
     def edr_response(self):
-        match_object = re.match(r"^/mcs/responses/endpoint/([^/]*)/app_id/([^/]*)/correlation_id/([^/]*)$", self.path)
+        match_object = re.match(r"^/mcs/v2/responses/device/([^/]*)/app_id/([^/]*)/correlation_id/([^/]*)$", self.path)
         if not match_object:
             return self.ret("Bad response path", 400)
 
-        endpoint_id = match_object.group(1)
+        device_id = match_object.group(1)
         app_id = match_object.group(2)
         correlation_id = match_object.group(3)
-        endpoint = GL_ENDPOINTS.getEndpointByID(endpoint_id)
-        if endpoint is None:
+        device = GL_ENDPOINTS.getDevicebyDeviceID(device_id)
+        if device is None:
             ## Create endpoint?
-            return self.ret("Response for unknown endpoint", 400)
+            return self.ret("Response for unknown device", 400)
+        if SERVER_403:
+            return self.ret("JWT token error", 403)
+        if SERVER_413:
+            return self.ret("Message to large", 413)
         if SERVER_500:
             return self.ret("Internal Server Error", 500)
 
         response_body = self.getBody()
-        endpoint.handle_response(app_id, correlation_id, response_body)
+        result = device.handle_response(app_id, correlation_id, response_body)
+        if result is not None:
+            if result == 400:
+                return self.ret("Invalid Length", 400)
+
         return self.ret("")
 
     def datafeed(self):
@@ -1991,7 +2015,7 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
         MCSRequestHandler.m_userAgent = self.headers.get("User-Agent", "<unknown>")
         if self.path.startswith("/mcs/events/endpoint"):
             return self.mcs_event()
-        elif self.path.startswith("/mcs/responses/endpoint"):
+        elif self.path.startswith("/mcs/v2/responses/device"):
             return self.edr_response()
         elif self.path.startswith("/mcs/v2/data_feed/device"):
             return self.datafeed()
@@ -2074,7 +2098,7 @@ class MCSRequestHandler(http.server.BaseHTTPRequestHandler, object):
             GL_ENDPOINTS.setQuery("LiveQuery", self.getBody(), command_id)
         elif self.path.lower() == "/controller/core/command":
             command_id = self.headers.get("Command-ID")
-            GL_ENDPOINTS.setCoreAction(self.getBody(), command_id)
+            GL_ENDPOINTS.setCoreAction(self.getBody(), command_id, self.headers.get("X-Response-Code", 200))
         elif self.path.lower() == "/controller/flags":
             GL_ENDPOINTS.setFlags(self.getBody())
         else:
