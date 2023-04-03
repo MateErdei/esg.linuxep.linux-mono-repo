@@ -40,11 +40,9 @@ namespace OsquerySDK
              * @description
              * Json array containing the installed Sophos component versions
              * [
-             * {"Name": "SPL-Base-Component", "installed_version": "1.2.3.4"},
-             * {"Name": "SPL-Endpoint-Detection-and-Response-Plugin", "installed_version": "5.6.7.8"}
+             *     {"Name": "LiveQuery64", "installed_version": "1.2.3.4"},
+             *     {"Name": "Component2", "installed_version": "5.6.7.8"}
              * ]
-             * Base always comes first, and an empty Json array is returned for the whole result if we are unable to
-             * find its version
              */
             TABLE_PLUGIN_COLUMN(installed_versions, TEXT_TYPE, ColumnOptions::DEFAULT))
 
