@@ -19,3 +19,13 @@ instances:
           runtimedetections.latest.x64:
             supplements:
               - rdrules
+          edr.latest.x64:
+            supplements:
+              - scheduledquerypack
+              - scheduledquerypacknext
+          mdr.latest.x64:
+          av.latest.x64:
+            supplements:
+              - vdl
+              - dataseta
+              - mlmodel

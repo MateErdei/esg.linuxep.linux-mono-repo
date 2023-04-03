@@ -8,8 +8,4 @@ instances:
     views:
       - platforms:
           - LINUX_INTEL_LIBC6
-        component: av.latest.x64
-        supplements:
-        - vdl
-        - dataseta
-        - mlmodel
+        component: AVComponentSuite.latest
