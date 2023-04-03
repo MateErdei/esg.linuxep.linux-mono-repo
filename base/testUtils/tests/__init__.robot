@@ -30,6 +30,7 @@ Check For Digest Sign
 
 
 Global Setup Tasks
+    Set Environment Variable    SOPHOS_DEBUG_UNINSTALL    1
     # SOPHOS_INSTALL
     ${placeholder} =  Get Environment Variable  SOPHOS_INSTALL  default=/opt/sophos-spl
     Set Global Variable  ${SOPHOS_INSTALL}  ${placeholder}
