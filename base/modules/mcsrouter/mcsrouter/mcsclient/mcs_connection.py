@@ -1109,35 +1109,46 @@ class MCSConnection:
         clear_all_responses = False
 
         for response in responses:
+            # On certain failures just remove all pending responses
             if clear_all_responses:
                 response.remove_response_file()
-            else:
-                try:
-                    if response.m_json_body_size != 0:
-                        self.send_live_query_response_with_id(response)
-                    else:
-                        LOGGER.warning("Empty response (Correlation ID: {}). Not sending".format(response.m_correlation_id))
+                continue
+
+            # Refuse to send empty responses
+            if response.m_json_body_size == 0:
+                LOGGER.warning("Empty response (Correlation ID: {}). Not sending".format(response.m_correlation_id))
+                response.remove_response_file()
+                continue
+
+            try:
+                self.send_live_query_response_with_id(response)
+                response.remove_response_file() # Remove response if we managed to send it
+
+            except (MCSHttpServiceUnavailableException, MCSHttpInternalServerErrorException) as exception:
+                log_exception_error(response.m_app_id, response.m_correlation_id, exception)
+                LOGGER.debug("Discarding response '{}' due to rejection by central".format(response.m_correlation_id))
+                response.remove_response_file()
+
+            except (MCSHttpForbiddenException) as exception:
+                log_exception_error(response.m_app_id, response.m_correlation_id, exception)
+                LOGGER.warning("Discarding {} responses due to JWT token expired or missing feature code".format(len(responses)))
+                response.remove_response_file()
+                clear_all_responses = True
+
+            except (MCSHttpPayloadException) as exception:
+                log_exception_error(response.m_app_id, response.m_correlation_id, exception)
+                LOGGER.warning("Discarding response '{}' due to request size being over limit".format(response.m_correlation_id))
+                response.remove_response_file()
+
+            except MCSHttpException as exception:
+                log_exception_error(response.m_app_id, response.m_correlation_id, exception)
+                if exception.error_code() == 400:
+                    LOGGER.warning("Discarding response '{}' due to rejection with HTTP 400 error from Sophos Central".format(response.m_correlation_id))
+                    LOGGER.debug("Discarded response: {}".format(response.m_json_body))
                     response.remove_response_file()
 
-                except (MCSHttpServiceUnavailableException, MCSHttpInternalServerErrorException) as exception:
-                    log_exception_error(response.m_app_id, response.m_correlation_id, exception)
-                    LOGGER.debug("Discarding response '{}' due to rejection by central".format(response.m_correlation_id))
-                    response.remove_response_file()
-
-                except (MCSHttpForbiddenException) as exception:
-                    log_exception_error(response.m_app_id, response.m_correlation_id, exception)
-                    LOGGER.warning("Discarding {} responses due to JWT token expired or missing feature code".format(len(responses)))
-                    response.remove_response_file()
-                    clear_all_responses = True
-
-                except (MCSHttpPayloadException) as exception:
-                    log_exception_error(response.m_app_id, response.m_correlation_id, exception)
-                    LOGGER.warning("Discarding response '{}' due to request size being over limit".format(response.m_correlation_id))
-                    response.remove_response_file()
-
-                except Exception as exception:
-                    log_exception_error(response.m_app_id, response.m_correlation_id, exception)
-
+            except Exception as exception:
+                log_exception_error(response.m_app_id, response.m_correlation_id, exception)
 
     def send_datafeeds(self, datafeeds: datafeeds.Datafeeds) -> int:
         """

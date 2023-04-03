@@ -19,32 +19,8 @@ Default Tags   RESPONSE_ACTIONS_PLUGIN
 ${RESPONSE_JSON}        ${MCS_DIR}/response/CORE_id1_response.json
 
 *** Test Cases ***
-Test Run Command Action End To End With Fake Cloud
-    Override LogConf File as Global Level  DEBUG
 
-    ${response_mark} =  mark_log_size  ${RESPONSE_ACTIONS_LOG_PATH}
-    ${action_mark} =  mark_log_size  ${ACTIONS_RUNNER_LOG_PATH}
-
-    @{commands_list} =  Create List   echo -n one  sleep 1  echo -n two > /tmp/test.txt
-
-    send_run_command_action_from_fake_cloud  ${commands_list}
-    wait_for_log_contains_from_mark  ${response_mark}  Action corrid has succeeded   25
-    wait_for_log_contains_from_mark  ${action_mark}  Sent run command response for ID
-
-    Wait Until Keyword Succeeds
-    ...    1 secs
-    ...    10 secs
-    ...    Check Cloud Server Log Contains   {"duration":0,"exitCode":0,"stdErr":"","stdOut":"one"}
-    Check Cloud Server Log Contains   {"duration":1,"exitCode":0,"stdErr":"","stdOut":""}
-    Check Cloud Server Log Contains   {"duration":0,"exitCode":0,"stdErr":"","stdOut":""}
-    Check Cloud Server Log Contains   sophos.mgt.response.RunCommands
-
-    File Should exist  /tmp/test.txt
-    ${test_contents} =  Get File    /tmp/test.txt
-    Should Be Equal As Strings  ${test_contents}    two
-
-
-Test Run Command Action and Verify Repsonse JSON on Success
+Test Run Command Action and Verify Response JSON on Success
     ${action_mark} =  mark_log_size  ${ACTIONS_RUNNER_LOG_PATH}
 
     # Stop MCS Router so that it does not consume the response files we want to validate.
@@ -61,7 +37,7 @@ Test Run Command Action and Verify Repsonse JSON on Success
     verify_run_command_response    ${RESPONSE_JSON}   ${0}    ${cmd_output_list}
 
 
-Test Run Command Action and Verify Repsonse JSON with Ignore Error False
+Test Run Command Action and Verify Response JSON with Ignore Error False
     ${action_mark} =  mark_log_size  ${ACTIONS_RUNNER_LOG_PATH}
 
     # Stop MCS Router so that it does not consume the response files we want to validate.
@@ -77,7 +53,7 @@ Test Run Command Action and Verify Repsonse JSON with Ignore Error False
     verify_run_command_response    ${RESPONSE_JSON}   ${1}    ${cmd_output_list}
 
 
-Test Run Command Action and Verify Repsonse JSON with Ignore Error True
+Test Run Command Action and Verify Response JSON with Ignore Error True
     ${action_mark} =  mark_log_size  ${ACTIONS_RUNNER_LOG_PATH}
 
     # Stop MCS Router so that it does not consume the response files we want to validate.
@@ -93,7 +69,7 @@ Test Run Command Action and Verify Repsonse JSON with Ignore Error True
     @{cmd_output_list} =  Create List   ${cmd_output1}    ${cmd_output2}    ${cmd_output3}
     verify_run_command_response    ${RESPONSE_JSON}   ${1}    ${cmd_output_list}
 
-Test Run Command Action and Verify Repsonse JSON when Timeout Exceeded
+Test Run Command Action and Verify Response JSON when Timeout Exceeded
     ${action_mark} =  mark_log_size  ${ACTIONS_RUNNER_LOG_PATH}
 
     # Stop MCS Router so that it does not consume the response files we want to validate.

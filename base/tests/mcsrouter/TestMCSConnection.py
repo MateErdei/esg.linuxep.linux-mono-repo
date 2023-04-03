@@ -1,3 +1,5 @@
+#!/bin/env python3
+
 import datetime
 import unittest
 import os
@@ -30,6 +32,20 @@ def dummy_function(*args):
 
 def raise_exception(message):
     raise AssertionError(message)
+
+
+class FakeResponse(mcsrouter.mcsclient.responses.Response):
+    def __init__(self, body):
+        file_path = ""
+        app_id = "CORE"
+        correlation_id = "ABC123abc"
+        creation_time = 0
+        super().__init__(file_path, app_id, correlation_id, creation_time, body)
+        self.remove_count_ = 0
+
+    def remove_response_file(self):
+        self.remove_count_ += 1
+
 
 class FakeMCSConnection(mcsrouter.mcsclient.mcs_connection.MCSConnection):
     def __init__(self, command_xml):
@@ -119,6 +135,18 @@ class TestMCSConnection(unittest.TestCase):
         self.assertEqual(mcsrouter.mcsclient.mcs_connection.MCSConnection.send_live_query_response_with_id.call_count, 1)
         self.assertEqual(dummy_function.call_count, 2)
 
+    @mock.patch('mcsrouter.mcsclient.mcs_connection.MCSConnection.send_live_query_response_with_id', side_effect=mcsrouter.mcsclient.mcs_connection.MCSHttpException(400, "", ""))
+    def test_response_is_discarded_with_400_http_error(self, *mockargs):
+        mcs_connection = TestMCSResponse.dummyMCSConnection()
+        body = '{"body":True}'
+        response1 = FakeResponse(body=body)
+        responses = [response1]
+        with self.assertLogs(level="WARNING") as logs:
+            mcsrouter.mcsclient.mcs_connection.MCSConnection.send_responses(mcs_connection, responses)
+        assert_message_in_logs("Discarding response '{}' due to rejection with HTTP 400 error from Sophos Central".format(
+            response1.m_correlation_id), logs.output, log_level="WARNING")
+        self.assertEqual(mcsrouter.mcsclient.mcs_connection.MCSConnection.send_live_query_response_with_id.call_count, 1)
+        self.assertEqual(response1.remove_count_, 1)
 
     @mock.patch(__name__ + ".dummy_function")
     @mock.patch('mcsrouter.mcsclient.mcs_connection.MCSConnection.send_live_query_response_with_id', side_effect=mcsrouter.mcsclient.mcs_connection.MCSHttpPayloadException(413, "", ""))
