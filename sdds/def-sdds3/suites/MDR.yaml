@@ -8,4 +8,4 @@ instances:
     views:
       - platforms:
           - LINUX_INTEL_LIBC6
-        component: mdr.latest.x64
+        component: MDRComponentSuite.latest

@@ -538,7 +538,7 @@ def read_product_instance_data(nd,np):
         g_dscrptn_dict["DefaultHomeFolder"] = default_home_folder_vals [0]
     log(g_log_INFO+1,"Product description file","Default-home-folder = %s (source: '%s')"%(g_dscrptn_dict["DefaultHomeFolder"],npjoin(np,"DefaultHomeFolder")))
 
-    g_dscrptn_dict["Features"] = get_simple_list_value(nd,np,"Features","Feature",0)
+    g_dscrptn_dict["Features"] = get_simple_list_value(nd,np,"Features","Feature",-1)
     log(g_log_INFO+1,"Product description file","Found %d features (source: '%s')"%(len(g_dscrptn_dict["Features"]),npjoin(np,"Features")))
 
     g_dscrptn_dict["Platforms"] = get_simple_list_value(nd,np,"Platforms","Platform",0)

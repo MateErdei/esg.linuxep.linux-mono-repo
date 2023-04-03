@@ -1,6 +1,15 @@
 %YAML 1.2
 ---
 # This file defines the top-level suite packages.
-BaseComponentSuite.latest: &enc
+BaseComponentSuite.latest:
   fileset: ../linuxep_suites/suite_data/ServerProtectionLinux-Base/data
   line-id: ServerProtectionLinux-Base
+AVComponentSuite.latest:
+  fileset: ../linuxep_suites/suite_data/ServerProtectionLinux-Plugin-AV/data
+  line-id: ServerProtectionLinux-Plugin-AV
+EDRComponentSuite.latest:
+  fileset: ../linuxep_suites/suite_data/ServerProtectionLinux-Plugin-EDR/data
+  line-id: ServerProtectionLinux-Plugin-EDR
+MDRComponentSuite.latest:
+  fileset: ../linuxep_suites/suite_data/ServerProtectionLinux-Plugin-MDR/data
+  line-id: ServerProtectionLinux-Plugin-MDR

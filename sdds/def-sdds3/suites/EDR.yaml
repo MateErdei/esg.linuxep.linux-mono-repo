@@ -8,7 +8,4 @@ instances:
     views:
       - platforms:
           - LINUX_INTEL_LIBC6
-        component: edr.latest.x64
-        supplements:
-          - scheduledquerypack
-          - scheduledquerypacknext
+        component: EDRComponentSuite.latest
