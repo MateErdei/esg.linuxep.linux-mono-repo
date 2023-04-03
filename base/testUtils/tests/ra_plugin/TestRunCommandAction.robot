@@ -7,7 +7,8 @@ Resource  ../mcs_router/McsRouterResources.robot
 Library    ${LIBS_DIRECTORY}/MCSRouter.py
 Library    ${LIBS_DIRECTORY}/OnFail.py
 Library    ${LIBS_DIRECTORY}/CentralUtils.py
-Suite Setup     RA Run Command Suite Setup
+
+Suite Setup     RA Command Direct Suite setup
 Suite Teardown  RA Suite Teardown
 
 Test Setup         RA Run Command Test Setup
@@ -172,6 +173,10 @@ Test Run Command Action Does Not Block RA Plugin Stopping
     Should Be Equal As Strings   ${response_content}    {"result":3,"type":"sophos.mgt.response.RunCommands"}
 
 *** Keywords ***
+
+RA Command Direct Suite setup
+    Run Full Installer
+    Install Response Actions Directly
 
 RA Run Command Test Setup
     # Stop MCS Router so that it does not consume the response files we want to validate.
