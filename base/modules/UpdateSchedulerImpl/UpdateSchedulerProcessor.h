@@ -33,9 +33,9 @@ namespace UpdateSchedulerImpl
     std::vector<std::string> readInstalledFeatures();
 
     /*
-     * Returns true if suldownloader is running with the specified path
+     * Returns true if suldownloader is running (based on its lock file), false if not.
      */
-    bool isSuldownloaderRunning(const std::string& fullPathOfSulDownloader);
+    bool isSuldownloaderRunning();
 
     class DetectRequestToStop : public std::runtime_error
     {

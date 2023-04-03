@@ -2,6 +2,7 @@
 
 #include "UpdateUtilities/InstalledFeatures.h"
 
+#include "Common/FileSystem/IPidLockFileUtils.h"
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/FileSystem/IFileSystemException.h>
@@ -9,10 +10,8 @@
 #include <Common/OSUtilitiesImpl/SXLMachineID.h>
 #include <Common/PluginApi/ApiException.h>
 #include <Common/PluginApi/NoPolicyAvailableException.h>
-#include <Common/Process/IProcess.h>
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 #include <Common/UtilityImpl/StringUtils.h>
-#include <Common/ProcUtilImpl/ProcUtilities.h>
 #include <SulDownloader/suldownloaderdata/ConfigurationDataUtil.h>
 #include <SulDownloader/suldownloaderdata/UpdateSupplementDecider.h>
 #include <UpdateScheduler/SchedulerTaskQueue.h>
@@ -26,7 +25,6 @@
 #include <UpdateSchedulerImpl/stateMachinesModule/StateMachineProcessor.h>
 
 #include <chrono>
-#include <csignal>
 #include <iomanip>
 #include <json.hpp>
 #include <thread>
@@ -76,10 +74,25 @@ namespace UpdateSchedulerImpl
         return {};
     }
 
-    bool isSuldownloaderRunning(const std::string& fullPathOfSulDownloader)
+    bool isSuldownloaderRunning()
     {
-        auto procs = Proc::listProcessesByComm("SulDownloader", fullPathOfSulDownloader);
-        return !procs.empty();
+        auto sulLockFilePath = Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderLockFilePath();
+
+        if (!Common::FileSystem::fileSystem()->exists(sulLockFilePath))
+        {
+            return false;
+        }
+
+        try
+        {
+            Common::FileSystem::acquireLockFile(sulLockFilePath);
+            return false;
+        }
+        catch (const std::system_error& ex)
+        {
+            LOGDEBUG("Could not acquire suldownloader lock: " << ex.what());
+        }
+        return true;
     }
 
     using SettingsHolder = UpdateSchedulerImpl::configModule::SettingsHolder;
@@ -808,7 +821,7 @@ namespace UpdateSchedulerImpl
         int i = 0;
         while (true)
         {
-            if (!isSuldownloaderRunning(pathOfSulDownloader))
+            if (!isSuldownloaderRunning())
             {
                 UpdateSchedulerUtils::cleanUpMarkerFile();
                 break;

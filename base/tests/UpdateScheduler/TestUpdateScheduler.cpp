@@ -10,6 +10,7 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 #include <UpdateSchedulerImpl/UpdateSchedulerProcessor.cpp>
 #include <gmock/gmock-matchers.h>
 #include <gtest/gtest.h>
+#include <tests/Common/FileSystemImpl/MockPidLockFileUtils.h>
 #include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
 #include <tests/Common/Helpers/LogInitializedTests.h>
 #include <tests/Common/Helpers/MockFileSystem.h>
@@ -123,4 +124,53 @@ TEST_F(TestUpdateSchedulerProcessorHelperMethods, waitForTheFirstPolicyDoesNotRe
     EXPECT_TRUE(queueTask.pop(task, 1));
     EXPECT_EQ("5", task.content);
     EXPECT_FALSE(queueTask.pop(task, 1));
+}
+
+
+// isSuldownloaderRunning tests
+
+TEST_F(TestUpdateSchedulerProcessorHelperMethods, isSuldownloaderRunningReturnsFalseWhenLockFileDoesNotExist) // NOLINT
+{
+    auto lockPath = Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderLockFilePath();
+    auto filesystemMock = new NaggyMock<MockFileSystem>();
+    EXPECT_CALL(*filesystemMock, exists(lockPath)).WillOnce(Return(false));
+    Tests::ScopedReplaceFileSystem ScopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
+
+    bool running = UpdateSchedulerImpl::isSuldownloaderRunning();
+    EXPECT_FALSE(running);
+}
+
+TEST_F(TestUpdateSchedulerProcessorHelperMethods, isSuldownloaderRunningReturnsTrueWhenLockFileIsLocked) // NOLINT
+{
+    auto lockPath = Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderLockFilePath();
+    auto filesystemMock = new NaggyMock<MockFileSystem>();
+    EXPECT_CALL(*filesystemMock, exists(lockPath)).WillRepeatedly(Return(true));
+    Tests::ScopedReplaceFileSystem ScopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
+
+    auto* mockPidLockFileUtilsPtr = new NaggyMock<MockPidLockFileUtils>();
+    EXPECT_CALL(*mockPidLockFileUtilsPtr, flock(_)).WillRepeatedly(Return(-1)); // Cannot take lock
+    std::unique_ptr<MockPidLockFileUtils> mockPidLockFileUtils = std::unique_ptr<MockPidLockFileUtils>(mockPidLockFileUtilsPtr);
+    Common::FileSystemImpl::replacePidLockUtils(std::move(mockPidLockFileUtils));
+
+    bool running = UpdateSchedulerImpl::isSuldownloaderRunning();
+    EXPECT_TRUE(running);
+}
+
+TEST_F(TestUpdateSchedulerProcessorHelperMethods, isSuldownloaderRunningReturnsFalseWhenLockFileLockCanBeTaken) // NOLINT
+{
+    auto lockPath = Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderLockFilePath();
+
+    auto filesystemMock = new NaggyMock<MockFileSystem>();
+    EXPECT_CALL(*filesystemMock, exists(lockPath)).WillRepeatedly(Return(true));
+    Tests::ScopedReplaceFileSystem ScopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
+
+    auto* mockPidLockFileUtilsPtr = new NaggyMock<MockPidLockFileUtils>();
+    EXPECT_CALL(*mockPidLockFileUtilsPtr, flock(_)).WillRepeatedly(Return(0)); // Took lock.
+    EXPECT_CALL(*mockPidLockFileUtilsPtr, write(_,_,_)).WillRepeatedly(Return(1));
+    EXPECT_CALL(*mockPidLockFileUtilsPtr, unlink(_));
+    std::unique_ptr<MockPidLockFileUtils> mockPidLockFileUtils = std::unique_ptr<MockPidLockFileUtils>(mockPidLockFileUtilsPtr);
+    Common::FileSystemImpl::replacePidLockUtils(std::move(mockPidLockFileUtils));
+
+    bool running = UpdateSchedulerImpl::isSuldownloaderRunning();
+    EXPECT_FALSE(running);
 }
