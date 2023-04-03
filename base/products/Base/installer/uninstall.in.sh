@@ -177,7 +177,17 @@ function removeUser()
           USER_DELETE_TRIES=$((USER_DELETE_TRIES+1))
       done
       check_user_exists "$USERNAME"
-      [ $? -eq 0 ] && failure "Failed to delete user: $USERNAME"  ${FAILURE_REMOVE_USER}
+      if [[ $? -eq 0 ]]
+      then
+          if [[ $SOPHOS_DEBUG_UNINSTALL == 1 ]]
+          then
+              echo "Running processes as $USERNAME:"
+              ps -u "$USERNAME"
+              echo "userdel output:"
+              "$USER_DELETER" "$USERNAME"
+          fi
+          failure "Failed to delete user: $USERNAME"  ${FAILURE_REMOVE_USER}
+      fi
   else
       echo "Unable to delete user $USERNAME" >&2
   fi
