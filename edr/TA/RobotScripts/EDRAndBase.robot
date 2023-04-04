@@ -91,7 +91,7 @@ EDR plugin Configures OSQuery To Enable SysLog Event Collection
     ...   Check Rsyslog Started Without Error
 
 EDR Restarts If File Descriptor Limit Hit
-    # LINUXDAR-7096 - test broken on SLES12
+    # LINUXDAR-7106 - test broken on SLES12
     ${is_suse} =  Does File Contain Word  /etc/os-release  SUSE Linux Enterprise Server 12
     Pass Execution If  ${is_suse}  Skipping test on SLES12 until LINUXDAR-7096 is fixed
     Check EDR Plugin Installed With Base
@@ -105,14 +105,14 @@ EDR Restarts If File Descriptor Limit Hit
 
     ${actionContent} =  Set Variable  '{"type": "sophos.mgt.action.RunLiveQuery", "name": "test_query", "query": "select * from users;"}'
 
-    Send Plugin Actions  edr  LiveQuery  corr123  ${actionContent}  ${160}
+    Send Plugin Actions  edr  LiveQuery  corr123  ${actionContent}  ${120}
     Wait Until Keyword Succeeds
     ...  30 secs
     ...  5 secs
-    ...  EDR Plugin Log Contains X Times  Received new Action   160
+    ...  EDR Plugin Log Contains X Times  Received new Action   120
 
     Wait Until Keyword Succeeds
-    ...  240 secs
+    ...  200 secs
     ...  20 secs
     ...  EDR Plugin Log Contains X Times   Early request to stop found.  1
 
