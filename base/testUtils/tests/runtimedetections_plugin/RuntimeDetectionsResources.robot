@@ -42,7 +42,7 @@ Dogfood RuntimeDetections Plugin Is Not Running
 Install RuntimeDetections
     [Arguments]  ${policy}  ${args}=${None}
     Start Local Cloud Server  --initial-alc-policy  ${policy}
-    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${policy}  args=${args}
+    #Removed Configure And Run Thininstaller Using Real Warehouse Policy  0  ${policy}  args=${args}
 
     Send ALC Policy And Prepare For Upgrade  ${policy}
     Trigger Update Now

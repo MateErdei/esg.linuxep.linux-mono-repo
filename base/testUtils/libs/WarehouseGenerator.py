@@ -35,11 +35,6 @@ class ComponentConfig(object):
 # noinspection PyInterpreter
 class WarehouseGenerator(object):
     def __init__(self):
-        self.script = os.path.join(PathManager.get_support_file_path(), "warehouseGeneration/generateWarehouse.sh")
-        self.customer_file_script = os.path.join(PathManager.get_support_file_path(), "warehouseGeneration/generateCustomerFile.sh")
-        if not os.path.isfile(self.script):
-            raise AssertionError("Cannot find: {}".format(self.script))
-
         tmp_path = os.path.join(".", "tmp")
         if not os.path.exists(tmp_path):
             os.makedirs(tmp_path)

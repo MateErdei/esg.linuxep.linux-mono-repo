@@ -27,7 +27,7 @@ Test SSPL Will Updated To A Fixed Version When Paused Updating Is Activated And 
     [Teardown]  Test Teardown And Replace Policy
     Start Local Cloud Server  --initial-alc-policy  ${BaseOnlyVUTPolicy}  --initial-flags  ${SUPPORT_FILES}/CentralXml/FLAGS_sdds2.json
 
-    Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseOnlyVUTPolicy}
+    #Removed Configure And Run Thininstaller Using Real Warehouse Policy  0  ${BaseOnlyVUTPolicy}
 
     Override Local LogConf File for a component   DEBUG  global
 

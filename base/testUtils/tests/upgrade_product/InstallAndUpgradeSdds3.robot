@@ -93,7 +93,7 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     ${handle}=    Start Local Dogfood SDDS3 Server
     Set Suite Variable    ${GL_handle}    ${handle}
 
-    Configure And Run SDDS3 Thininstaller    0    https://localhost:8080    https://localhost:8080    force_sdds3_post_install=${True}
+    Configure And Run SDDS3 Thininstaller    0    https://localhost:8080    https://localhost:8080
     Override LogConf File as Global Level    DEBUG
 
     Wait Until Keyword Succeeds
@@ -225,7 +225,7 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     ${handle}=    Start Local SDDS3 Server
     Set Suite Variable    ${GL_handle}    ${handle}
 
-    Configure And Run SDDS3 Thininstaller    0    https://localhost:8080    https://localhost:8080    force_sdds3_post_install=${True}
+    Configure And Run SDDS3 Thininstaller    0    https://localhost:8080    https://localhost:8080
     Override LogConf File as Global Level    DEBUG
 
     Wait Until Keyword Succeeds
@@ -384,7 +384,7 @@ We Can Upgrade From Release to VUT Without Unexpected Errors
     ${handle}=    Start Local Release SDDS3 Server
     Set Suite Variable    ${GL_handle}    ${handle}
 
-    Configure And Run SDDS3 Thininstaller    0    https://localhost:8080    https://localhost:8080    force_sdds3_post_install=${True}
+    Configure And Run SDDS3 Thininstaller    0    https://localhost:8080    https://localhost:8080
     Override LogConf File as Global Level    DEBUG
 
     Wait Until Keyword Succeeds
@@ -511,7 +511,7 @@ We Can Downgrade From VUT to Release Without Unexpected Errors
     ${handle}=    Start Local SDDS3 Server
     Set Suite Variable    ${GL_handle}    ${handle}
 
-    Configure And Run SDDS3 Thininstaller    0    https://localhost:8080    https://localhost:8080    force_sdds3_post_install=${True}
+    Configure And Run SDDS3 Thininstaller    0    https://localhost:8080    https://localhost:8080
     Override LogConf File as Global Level    DEBUG
 
     Wait Until Keyword Succeeds
@@ -734,7 +734,7 @@ SDDS3 updating with changed unused feature codes do not change version
     ${handle}=  Start Local SDDS3 Server
     Set Suite Variable    ${GL_handle}    ${handle}
 
-    Configure And Run SDDS3 Thininstaller  0  https://localhost:8080   https://localhost:8080  force_sdds3_post_install=${True}
+    Configure And Run SDDS3 Thininstaller  0  https://localhost:8080   https://localhost:8080
 
     Wait Until Keyword Succeeds
     ...   150 secs
@@ -779,7 +779,7 @@ SDDS3 updating when warehouse files have not changed does not extract the zip fi
     ${handle}=  Start Local SDDS3 Server
     Set Suite Variable    ${GL_handle}    ${handle}
 
-    Configure And Run SDDS3 Thininstaller  0  https://localhost:8080   https://localhost:8080  force_sdds3_post_install=${True}
+    Configure And Run SDDS3 Thininstaller  0  https://localhost:8080   https://localhost:8080
 
     Wait Until Keyword Succeeds
     ...   150 secs
@@ -801,7 +801,7 @@ Consecutive SDDS3 Updates Without Changes Should Not Trigger Additional Installa
     ${handle}=  Start Local SDDS3 Server
     Set Suite Variable    ${GL_handle}    ${handle}
 
-    Configure And Run SDDS3 Thininstaller  0  https://localhost:8080   https://localhost:8080   force_sdds3_post_install=${True}
+    Configure And Run SDDS3 Thininstaller  0  https://localhost:8080   https://localhost:8080
 
     Wait Until Keyword Succeeds
     ...   150 secs

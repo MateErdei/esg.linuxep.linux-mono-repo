@@ -44,7 +44,7 @@ Upgrade Resources Test Setup
 
 Upgrade Resources SDDS3 Test Teardown
     Stop Local SDDS3 Server
-    Test Teardown
+    Upgrade Resources Test Teardown
 
 Upgrade Resources Test Teardown
     [Arguments]  ${UninstallAudit}=True
