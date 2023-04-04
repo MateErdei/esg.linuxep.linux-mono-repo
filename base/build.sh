@@ -39,6 +39,7 @@ RELEASE_BUILD_TYPE="RelWithDebInfo"
 DEBUG_BUILD_TYPE="Debug"
 PythonCoverage="OFF"
 STRACE_SUPPORT="OFF"
+DISABLE_SANITIZER="OFF"
 [[ -n "$CLEAN" ]] || CLEAN=0
 BULLSEYE=0
 BULLSEYE_UPLOAD=0
@@ -134,6 +135,9 @@ do
             ;;
         --strace|--strace-support)
             STRACE_SUPPORT="ON"
+            ;;
+        --disable-sanitizer|--no-sanitizer|--no-asan)
+            DISABLE_SANITIZER="ON"
             ;;
         --fetch|--setup)
             "$BASE/tap_fetch.sh"
@@ -295,6 +299,8 @@ function build()
           -DCMAKE_BUILD_TYPE="$CMAKE_BUILD_TYPE" \
           -DNO_GCOV="true" \
           -DPythonCoverage="${PythonCoverage}" \
+          -DSTRACE_SUPPORT="$STRACE_SUPPORT" \
+          -DDISABLE_SANITIZER="$DISABLE_SANITIZER" \
           "$BASE" \
           || exitFailure 14 "Failed to configure $PRODUCT"
 
