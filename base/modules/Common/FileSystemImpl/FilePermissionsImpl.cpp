@@ -301,7 +301,9 @@ namespace Common::FileSystem
             group* entry = getgrent();
             if (!entry)
             {
-                if (errno)
+                // For NSS backends in glibc ENOENT indicates the backend is not correctly configured.
+                // https://man7.org/linux/man-pages/man3/getgrent.3.html
+                if (errno && (errno != ENOENT || groups.empty()))
                 {
                     std::stringstream errorMessage;
                     errorMessage << "Error reading group database: " << std::strerror(errno);
@@ -327,7 +329,9 @@ namespace Common::FileSystem
             passwd* entry = getpwent();
             if (!entry)
             {
-                if (errno)
+                // For NSS backends in glibc ENOENT indicates the backend is not correctly configured.
+                // https://man7.org/linux/man-pages/man3/getgrent.3.html (getpwent manual is not up-to-date)
+                if (errno && (errno != ENOENT || users.empty()))
                 {
                     std::stringstream errorMessage;
                     errorMessage << "Error reading password database: " << std::strerror(errno);
