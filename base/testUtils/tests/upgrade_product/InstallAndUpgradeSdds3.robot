@@ -449,6 +449,13 @@ We Can Upgrade From Release to VUT Without Unexpected Errors
     #not an error should be a WARN instead, but it's happening on the EAP version so it's too late to change it now
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/sophos_threat_detector/sophos_threat_detector.log  ThreatScanner <> Failed to read customerID - using default value
 
+    #Required because release doesnt have libcrypto.so installed with the below plugins so they will encounter the error still
+    #TODO LINUXDAR-7114 remove once SPL 2023.2 is released
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/watchdog.log  ProcessMonitoringImpl <> /opt/sophos-spl/plugins/eventjournaler/bin/eventjournaler died with exit code 127
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/watchdog.log  ProcessMonitoringImpl <> /opt/sophos-spl/plugins/responseactions/bin/responseactions died with exit code 127
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/watchdog.log  ProcessMonitoringImpl <> /opt/sophos-spl/plugins/mtr/bin/mtr died with exit code 127
+
+
     # This is expected because we are restarting the avplugin to enable debug logs, we need to make sure it occurs only once though
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/av.log  ScanProcessMonitor <> Exiting sophos_threat_detector with code: 15
     #TODO LINUXDAR-5140 remove when this defect is closed
