@@ -135,6 +135,11 @@
             {"Condition" : "RunAll"},
             {"Fn::Equals" : [{"Ref" : "RunOne"}, "rhel9x64"]}
             ]},
+    "RunSles12x64" : {"Fn::Or": [
+            {"Condition" : "RunSles"},
+            {"Condition" : "RunAll"},
+            {"Fn::Equals" : [{"Ref" : "RunOne"}, "sles12x64"]}
+            ]},
     "RunSles15x64" : {"Fn::Or": [
             {"Condition" : "RunSles"},
             {"Condition" : "RunAll"},

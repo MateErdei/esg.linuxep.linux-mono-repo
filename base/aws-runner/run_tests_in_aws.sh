@@ -358,7 +358,7 @@ combineResults()
               miraclelinuxx64 \
               oracle7x64 oracle8x64 \
               rhel78x64 rhel81x64 rhel9x64 \
-              sles15x64 \
+              sles12x64 sles15x64 \
               ubuntu1804x64 ubuntu2004 ubuntu2204
 }
 rm -rf report
