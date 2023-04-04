@@ -1,12 +1,12 @@
 // Copyright 2018-2023 Sophos Limited. All rights reserved.
 
-#include "TestWarehouseHelper.h"
+#include "TestSdds3RepositoryHelper.h"
 
-#include <SulDownloader/suldownloaderdata/ProductMetadata.h>
-#include <gmock/gmock.h>
+#include "SulDownloader/suldownloaderdata/CatalogueInfo.h"
+#include "SulDownloader/suldownloaderdata/DownloadedProduct.h"
+#include "SulDownloader/suldownloaderdata/ProductMetadata.h"
+
 #include <gtest/gtest.h>
-#include <modules/SulDownloader/suldownloaderdata/CatalogueInfo.h>
-#include <modules/SulDownloader/suldownloaderdata/DownloadedProduct.h>
 
 using namespace SulDownloader;
 using namespace SulDownloader::suldownloaderdata;

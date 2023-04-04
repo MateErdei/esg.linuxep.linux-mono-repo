@@ -457,18 +457,7 @@ protected:
 
 TEST_F(SULDownloaderSdds3Test, configurationDataVerificationOfDefaultSettingsReturnsTrue) 
 {
-    auto* filesystemMock = new StrictMock<MockFileSystem>();
-    EXPECT_CALL(*filesystemMock, isDirectory("/opt/sophos-spl")).Times(1).WillRepeatedly(Return(true));
-    EXPECT_CALL(*filesystemMock, isDirectory("/opt/sophos-spl/base/update/cache/"))
-        .Times(1)
-        .WillRepeatedly(Return(true));
-
-    EXPECT_CALL(*filesystemMock, exists(_)).WillRepeatedly(Return(true));
-    EXPECT_CALL(*filesystemMock, currentWorkingDirectory()).WillRepeatedly(Return("/opt/sophos-spl/base/bin"));
-    EXPECT_CALL(*filesystemMock, isFile("/opt/sophos-spl/base/etc/savedproxy.config")).WillRepeatedly(Return(false));
-    setupExpectanceWriteProductUpdate(*filesystemMock);
-
-    m_replacer.replace(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
+    setupFileSystemAndGetMock(1, 0, 0);
     SulDownloader::suldownloaderdata::ConfigurationData confData = configData(defaultSettings());
     confData.verifySettingsAreValid();
     EXPECT_TRUE(confData.isVerified());
@@ -545,7 +534,6 @@ TEST_F(
     EXPECT_CALL(fileSystemMock, readFile("/dir/input.json")).WillOnce(Return(jsonSettings(defaultSettings())));
     EXPECT_CALL(fileSystemMock, isFile("/dir/previous_update_config.json")).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, isFile("/dir/supplement_only.marker")).WillOnce(Return(false));
-    EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/etc/savedproxy.config")).Times(2).WillRepeatedly(Return(false));
     EXPECT_CALL(fileSystemMock, isDirectory("/dir/output.json")).WillOnce(Return(false));
     EXPECT_CALL(fileSystemMock, isDirectory("/dir")).WillOnce(Return(true));
     EXPECT_CALL(fileSystemMock, listFiles("/dir")).WillOnce(Return(emptyFileList));

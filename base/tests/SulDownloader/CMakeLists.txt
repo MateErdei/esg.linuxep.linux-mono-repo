@@ -4,14 +4,13 @@ set(ENV{LD_LIBRARY_PATH} ${CMAKE_BINARY_DIR}/libs)
 include(GoogleTest)
 add_executable(SulDownloaderTests
         TestConfigurationData.cpp
-        TestWarehouseHelper.cpp
-        TestWarehouseHelper.h
         TestSdds3RepositoryHelper.h
         TestSdds3RepositoryHelper.cpp
         TestSDDS3Utils.cpp
         MockSdds3Repository.h
         MockSdds3Wrapper.h
         SulDownloaderSdds3Tests.cpp
+        TestDownloadReport.cpp
         TestConnectionSelector.cpp
         TestProductSelection.cpp
         MockVersig.h
