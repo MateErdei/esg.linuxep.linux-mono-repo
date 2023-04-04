@@ -242,7 +242,7 @@ namespace ResponseActionsImpl
             return false;
         }
         std::string fileName = Common::FileSystem::basename(info.targetPath);
-        LOGDEBUG("Downloaded file: " << fileName << " as " << m_tmpDownloadFile);
+        LOGDEBUG("Downloaded file: " << fileName << " as " << fileNameVec.front());
 
         //Check sha256
         std::string fileSha;
