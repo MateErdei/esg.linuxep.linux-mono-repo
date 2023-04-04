@@ -23,8 +23,6 @@
 using ::testing::Return;
 using ::testing::StrictMock;
 
-#define PRINT(x) std::cerr << x << '\n'
-
 struct TelemetryTestCase
 {
     TelemetryTestCase(  std::string iXml, std::string value):
@@ -453,7 +451,6 @@ namespace
 
         auto mockFileSystem = new StrictMock<MockFileSystem>();
         auto ts = expectReadOutbreakStatusFile(mockFileSystem, outbreakTime);
-//        PRINT("PAST:" << ts);
         std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
         Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
 
@@ -467,7 +464,6 @@ namespace
 
         auto mockFileSystem = new StrictMock<MockFileSystem>();
         auto ts = expectReadOutbreakStatusFile(mockFileSystem, outbreakTime);
-//        PRINT("FUTURE:" << ts);
         std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
         Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
 
