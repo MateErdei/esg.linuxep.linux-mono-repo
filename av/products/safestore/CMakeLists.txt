@@ -13,7 +13,7 @@ target_include_directories(${SAFESTORE_EXE_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/modu
 SET_TARGET_PROPERTIES(${SAFESTORE_EXE_NAME}
         PROPERTIES
         BUILD_RPATH "$ORIGIN:${CMAKE_BINARY_DIR}/libs"
-        INSTALL_RPATH "$ORIGIN/../lib64:$ORIGIN/../../../base/lib64"
+        INSTALL_RPATH "$ORIGIN/../lib64"
         )
 
 install(TARGETS ${SAFESTORE_EXE_NAME}

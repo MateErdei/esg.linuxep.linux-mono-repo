@@ -29,5 +29,5 @@ install(TARGETS mountinfoimpl
 
 SET_TARGET_PROPERTIES(mountinfoimpl
         PROPERTIES
-        INSTALL_RPATH "$ORIGIN:$ORIGIN/../../../base/lib64"
+        INSTALL_RPATH "$ORIGIN"
         BUILD_RPATH "$ORIGIN")

@@ -5,7 +5,7 @@ target_include_directories(${plugin_name} PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
 
 SET_TARGET_PROPERTIES( ${plugin_name}
        PROPERTIES
-        INSTALL_RPATH "$ORIGIN/../lib64:$ORIGIN/../../../base/lib64"
+        INSTALL_RPATH "$ORIGIN/../lib64"
         )
 
 install(TARGETS ${plugin_name}

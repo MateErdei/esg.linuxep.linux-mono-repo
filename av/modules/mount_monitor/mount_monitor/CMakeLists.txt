@@ -20,5 +20,5 @@ install(TARGETS mountmonitor
 
 SET_TARGET_PROPERTIES(mountmonitor
         PROPERTIES
-        INSTALL_RPATH "$ORIGIN:$ORIGIN/../../../base/lib64"
+        INSTALL_RPATH "$ORIGIN"
         BUILD_RPATH "$ORIGIN")

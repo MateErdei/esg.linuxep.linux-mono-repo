@@ -10,7 +10,7 @@ target_link_libraries(file_walker_experiment PRIVATE filewalker
 SET_TARGET_PROPERTIES( file_walker_experiment
         PROPERTIES
         BUILD_RPATH "$ORIGIN"
-        INSTALL_RPATH "$ORIGIN:$ORIGIN/../lib64:$ORIGIN/../../../base/lib64"
+        INSTALL_RPATH "$ORIGIN:$ORIGIN/../lib64"
         )
 
 add_executable(file_walker_stress_test
@@ -21,7 +21,7 @@ target_link_libraries(file_walker_stress_test PRIVATE filewalker pthread
 SET_TARGET_PROPERTIES(file_walker_stress_test
         PROPERTIES
         BUILD_RPATH "$ORIGIN"
-        INSTALL_RPATH "$ORIGIN:$ORIGIN/../lib64:$ORIGIN/../../../base/lib64"
+        INSTALL_RPATH "$ORIGIN:$ORIGIN/../lib64"
         )
 
 SophosAddTest(TestFileWalker

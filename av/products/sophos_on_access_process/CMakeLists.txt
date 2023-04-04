@@ -11,7 +11,7 @@ target_include_directories(${SOAPD_EXE_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/modules)
 
 SET_TARGET_PROPERTIES(${SOAPD_EXE_NAME}
         PROPERTIES
-        INSTALL_RPATH "$ORIGIN/../lib64:$ORIGIN/../../../base/lib64"
+        INSTALL_RPATH "$ORIGIN/../lib64"
         )
 
 install(TARGETS ${SOAPD_EXE_NAME}

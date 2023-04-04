@@ -26,4 +26,4 @@ install(TARGETS datatypes
 SET_TARGET_PROPERTIES(datatypes
         PROPERTIES
         INSTALL_RPATH "$ORIGIN"
-        BUILD_RPATH "$ORIGIN:$ORIGIN/../../../base/lib64")
+        BUILD_RPATH "$ORIGIN")

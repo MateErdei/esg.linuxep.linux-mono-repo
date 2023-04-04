@@ -46,7 +46,7 @@ target_link_libraries(scanmessages
 SET_TARGET_PROPERTIES(scanmessages
         PROPERTIES
         INSTALL_RPATH "$ORIGIN"
-        BUILD_RPATH "$ORIGIN:$ORIGIN/../../../base/lib64")
+        BUILD_RPATH "$ORIGIN")
 
 
 install(TARGETS scanmessages

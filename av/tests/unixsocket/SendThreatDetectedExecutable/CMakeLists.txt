@@ -8,7 +8,7 @@ target_link_libraries(SendThreatDetectedEvent ${zmqlib} ${pluginapilib} ${log4cp
 
 SET_TARGET_PROPERTIES(SendThreatDetectedEvent
         PROPERTIES BUILD_RPATH "/opt/sophos-spl/plugins/av/lib64:${CMAKE_BINARY_DIR}/libs"
-        INSTALL_RPATH "$ORIGIN:$ORIGIN/../../../base/lib64:/opt/sophos-spl/plugins/av/lib64:/opt/sophos-spl/base/lib64")
+        INSTALL_RPATH "$ORIGIN:/opt/sophos-spl/plugins/av/lib64:/opt/sophos-spl/base/lib64")
 
 install(TARGETS SendThreatDetectedEvent
         DESTINATION ${CMAKE_BINARY_DIR}/tap_test_output
@@ -26,7 +26,7 @@ target_link_libraries(SendDataToSocket ${zmqlib} ${pluginapilib} ${log4cpluslib}
 
 SET_TARGET_PROPERTIES(SendDataToSocket
         PROPERTIES BUILD_RPATH "/opt/sophos-spl/plugins/av/lib64:${CMAKE_BINARY_DIR}/libs"
-        INSTALL_RPATH "$ORIGIN:$ORIGIN/../../../base/lib64:/opt/sophos-spl/plugins/av/lib64:/opt/sophos-spl/base/lib64")
+        INSTALL_RPATH "$ORIGIN:/opt/sophos-spl/plugins/av/lib64:/opt/sophos-spl/base/lib64")
 
 install(TARGETS SendDataToSocket
         DESTINATION ${CMAKE_BINARY_DIR}/tap_test_output

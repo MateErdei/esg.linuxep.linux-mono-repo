@@ -23,5 +23,5 @@ install(TARGETS fanotifyhandler
 SET_TARGET_PROPERTIES(fanotifyhandler
         PROPERTIES
         BUILD_RPATH "$ORIGIN"
-        INSTALL_RPATH "$ORIGIN:$ORIGIN/../../../base/lib64:/opt/sophos-spl/plugins/av/lib64:/opt/sophos-spl/base/lib64"
+        INSTALL_RPATH "$ORIGIN:/opt/sophos-spl/plugins/av/lib64:/opt/sophos-spl/base/lib64"
         )
