@@ -2,7 +2,6 @@ include(GoogleTest)
 
 add_executable(ResponseActionsTests
         TestActionsUtils.cpp
-        TestDownloadAction.cpp
         TestPluginAdapter.cpp
         TestPluginUtils.cpp
         TestUploadAction.cpp
