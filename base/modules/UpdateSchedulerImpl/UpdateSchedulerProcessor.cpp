@@ -80,18 +80,40 @@ namespace UpdateSchedulerImpl
 
         if (!Common::FileSystem::fileSystem()->exists(sulLockFilePath))
         {
+            // TODO remove info logging from here.
+            LOGINFO("Lockfile " << sulLockFilePath << " does not exist, assuming suldownloader not running.");
+
             return false;
         }
 
+        // TODO REMOVE
+        LOGINFO("Lockfile " << sulLockFilePath << " does exist.");
+
         try
         {
+
+            // TODO REMOVE
+            LOGINFO("Trying to take lock " << sulLockFilePath);
+
             Common::FileSystem::acquireLockFile(sulLockFilePath);
+
+            // TODO REMOVE
+            LOGINFO("Took lock " << sulLockFilePath << ", assuming suldownloader not running.");
+
             return false;
         }
         catch (const std::system_error& ex)
         {
             LOGDEBUG("Could not acquire suldownloader lock: " << ex.what());
+
+            // TODO REMOVE
+            LOGINFO("Could not acquire suldownloader lock: " << ex.what());
+
         }
+
+        // TODO REMOVE
+        LOGINFO("Suldownloader is running");
+
         return true;
     }
 

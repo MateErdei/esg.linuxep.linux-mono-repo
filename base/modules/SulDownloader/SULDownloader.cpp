@@ -965,10 +965,11 @@ namespace SulDownloader
         {
             pidLock = Common::FileSystem::acquireLockFile(
                 Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderLockFilePath());
+            LOGINFO("Lockfile: " << pidLock->filePath());
         }
         catch (const std::system_error& ex)
         {
-            LOGERROR(ex.what());
+            LOGERROR("Could not acquire lock file: " << ex.what());
             return ex.code().value();
         }
 

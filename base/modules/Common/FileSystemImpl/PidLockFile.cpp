@@ -81,6 +81,11 @@ namespace Common
             }
         }
 
+        std::string PidLockFile::filePath() const
+        {
+            return m_pidfile;
+        }
+
         int PidLockFileUtils::open(const std::string& pathname, int flags, mode_t mode) const
         {
             return ::open(pathname.c_str(), flags, mode);

@@ -20,6 +20,7 @@ namespace Common
         {
         public:
             virtual ~ILockFileHolder() = default;
+            [[nodiscard]] virtual std::string filePath() const = 0;
         };
 
         class IPidLockFileUtils

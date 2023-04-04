@@ -44,6 +44,8 @@ namespace Common
              */
             virtual ~PidLockFile();
 
+            [[nodiscard]] std::string filePath() const override;
+
         private:
             int m_fileDescriptor;
             std::string m_pidfile;
