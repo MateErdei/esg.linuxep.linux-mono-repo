@@ -5,7 +5,7 @@ target_link_libraries(${plugin_name} PUBLIC pluginimpl eventqueuelib eventwriter
 
 SET_TARGET_PROPERTIES( ${plugin_name}
        PROPERTIES
-        INSTALL_RPATH "$ORIGIN/../lib64:$ORIGIN/../../../base/lib64"
+        INSTALL_RPATH "$ORIGIN/../lib64"
         )
 
 install(TARGETS ${plugin_name}
