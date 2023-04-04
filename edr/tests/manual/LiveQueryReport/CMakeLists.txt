@@ -31,7 +31,7 @@ target_include_directories(LiveQueryReport PUBLIC
 SET_TARGET_PROPERTIES( LiveQueryReport
         PROPERTIES
         BUILD_RPATH "$ORIGIN:${CMAKE_BINARY_DIR}/libs"
-        INSTALL_RPATH "$ORIGIN/../lib64:$ORIGIN/../../../base/lib64"
+        INSTALL_RPATH "$ORIGIN/../lib64"
         )
 
 install(TARGETS LiveQueryReport

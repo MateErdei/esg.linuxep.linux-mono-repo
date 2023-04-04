@@ -30,7 +30,7 @@ target_include_directories(DelayControlledTable PUBLIC
 SET_TARGET_PROPERTIES(DelayControlledTable
         PROPERTIES
         BUILD_RPATH "$ORIGIN:${CMAKE_BINARY_DIR}/libs"
-        INSTALL_RPATH "$ORIGIN/../lib64:$ORIGIN/../../../base/lib64"
+        INSTALL_RPATH "$ORIGIN/../lib64"
         )
 
 install(TARGETS DelayControlledTable
