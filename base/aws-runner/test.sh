@@ -92,7 +92,7 @@ then
     then
         PLATFORM_EXCLUDE_TAG="-e EXCLUDE_SLES15"
     else
-        PLATFORM_EXCLUDE_TAG="-e EXCLUDE_AMAZON_LINUX"
+        PLATFORM_EXCLUDE_TAG="-e EXCLUDE_SLES12"
     fi
 fi
 
