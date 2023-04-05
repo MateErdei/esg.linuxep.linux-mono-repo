@@ -1,6 +1,6 @@
 #!/usr/bin/env python
-
-
+# -*- coding: utf-8 -*-
+# Copyright 2019-2023 Sophos Limited. All rights reserved.
 
 import unittest
 from unittest import mock
@@ -17,7 +17,7 @@ import PathManager
 import mcsrouter.mcsclient.responses
 import mcsrouter.utils.timestamp as timestamp
 
-EXAMPLE_BODY = """{
+EXAMPLE_BODY = b"""{
     "type": "sophos.mgt.response.RunLiveQuery",
     "queryMetaData": {
         "durationMillis": 32,
@@ -35,14 +35,12 @@ EXAMPLE_BODY = """{
 """
 
 EXAMPLE_BODY_SIZE = len(EXAMPLE_BODY)
-EXAMPLE_BODY_COMPRESSED_SIZE = len(gzip.compress(bytes(EXAMPLE_BODY, "utf-8")))
+EXAMPLE_BODY_COMPRESSED_SIZE = len(gzip.compress(EXAMPLE_BODY))
 
 DUMMY_DEVICE_ID = "dummyDeviceID"
 DUMMY_PATH = "/fake/response/path/"
 
 DUMMY_TIMESTAMP = 1576600337.2105377  # '2019-12-17T16:32:17.210537Z'
-
-
 
 
 class TestResponse(unittest.TestCase):
@@ -54,6 +52,7 @@ class TestResponse(unittest.TestCase):
                                  expected_json_body=EXAMPLE_BODY,
                                  expected_json_body_size=EXAMPLE_BODY_SIZE,
                                  expected_gzip_body_size=EXAMPLE_BODY_COMPRESSED_SIZE):
+        expected_json_body = mcsrouter.mcsclient.responses.ensure_bytes(expected_json_body)
         self.assertEqual(response.m_file_path, DUMMY_PATH)
         self.assertEqual(response.m_app_id, expected_app_id)
         self.assertEqual(response.m_correlation_id, expected_corellation_id)
@@ -62,7 +61,7 @@ class TestResponse(unittest.TestCase):
         self.assertEqual(response.m_json_body_size, expected_json_body_size)
         self.assertEqual(type(response.m_gzip_body), bytes)
         self.assertEqual(response.m_gzip_body_size, expected_gzip_body_size)
-        self.assertEqual(gzip.decompress(response.m_gzip_body).decode("utf-8"), expected_json_body)
+        self.assertEqual(gzip.decompress(response.m_gzip_body), expected_json_body)
         expected_command_path = "/v2/responses/device/{}/app_id/{}/correlation_id/{}".format(
             DUMMY_DEVICE_ID,
             expected_app_id,
@@ -75,7 +74,7 @@ class TestResponse(unittest.TestCase):
 
     def test_create_empty_response(self, *mockargs):
         response = mcsrouter.mcsclient.responses.Response(DUMMY_PATH, "app_id", "correlation_id", "timestamp", "")
-        self.assertEqual(response.m_json_body, "")
+        self.assertEqual(response.m_json_body, b"")
         self.assertEqual(response.m_json_body_size, 0)
         self.assertEqual(type(response.m_gzip_body), bytes)
         self.assertEqual(response.m_gzip_body_size, 20)
@@ -83,12 +82,19 @@ class TestResponse(unittest.TestCase):
 
     def test_body_is_preserved(self, *mockargs):
         response = mcsrouter.mcsclient.responses.Response(DUMMY_PATH, "app_id", "correlation_id", "timestamp", EXAMPLE_BODY)
-        self.assertEqual(gzip.decompress(response.m_gzip_body).decode("utf-8"), EXAMPLE_BODY)
+        self.assertEqual(gzip.decompress(response.m_gzip_body), EXAMPLE_BODY)
 
     def test_get_command_path_produces_path_in_correct_format(self, *mockargs):
         response = mcsrouter.mcsclient.responses.Response(DUMMY_PATH, "app_id", "correlation_id", "timestamp", EXAMPLE_BODY)
         expected_command_path = "/v2/responses/device/dummyDeviceID/app_id/app_id/correlation_id/correlation_id"
         self.assertEqual(expected_command_path, response.get_command_path(DUMMY_DEVICE_ID))
+
+    def test_response_contains_bytes(self):
+        body = "下び娠記2県キヒ育安はだ少活ゅぐ覧報ッちい野教イシ日敵ハセ探質ずす"
+        body_bytes = body.encode("UTF-8")
+        response = mcsrouter.mcsclient.responses.Response(DUMMY_PATH, "app_id", "correlation_id", "timestamp", body)
+        self.assertTrue(isinstance(response.m_json_body, bytes))  # Should re-encode into bytes
+        self.assertEqual(response.m_json_body_size, len(body_bytes))  # Should be the body length in bytes
 
     def test_responses_can_be_added_and_retrieved_through_responses_object(self, *mockargs):
         responses = mcsrouter.mcsclient.responses.Responses()
@@ -97,7 +103,6 @@ class TestResponse(unittest.TestCase):
         self.assertEqual(len(array_of_responses), 1)
         response = array_of_responses[0]
         self.validate_response_object(response, "app_id", "correlation_id", "timestamp")
-
 
     def test_multiple_responses_can_be_added_and_retrieved_through_responses_object(self, *mockargs):
         responses = mcsrouter.mcsclient.responses.Responses()
@@ -165,6 +170,7 @@ class TestResponse(unittest.TestCase):
         self.assertEqual(0, len(responses.get_responses()))
         self.assertFalse(responses.has_responses())
         self.assertEqual(0, len(responses.get_responses()))
+
 
 
 if __name__ == '__main__':

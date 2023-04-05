@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-# Copyright 2019 Sophos Plc, Oxford, England.
+# -*- coding: utf-8 -*-
+# Copyright 2019-2023 Sophos Limited. All rights reserved.
 
 """
 responses Module
@@ -16,6 +17,12 @@ from mcsrouter.utils import timestamp
 LOGGER = logging.getLogger(__name__)
 
 
+def ensure_bytes(obj, encoding="UTF-8"):
+    if isinstance(obj, bytes):
+        return obj
+    return bytes(obj, encoding)
+
+
 class Response(object):
     """
     Response
@@ -26,7 +33,7 @@ class Response(object):
         self.m_app_id = app_id
         self.m_correlation_id = correlation_id
         self.m_creation_time = creation_time
-        self.m_json_body = body
+        self.m_json_body = ensure_bytes(body, 'utf-8')
         self.m_gzip_body = self._get_compressed_json()
         self.m_json_body_size = self._get_decompressed_body_size()
         self.m_gzip_body_size = self._get_compressed_body_size()
@@ -54,7 +61,9 @@ class Response(object):
         return len(self.m_json_body)
 
     def _get_compressed_json(self):
-        return gzip.compress(bytes(self.m_json_body, 'utf-8'))
+        assert isinstance(self.m_json_body, bytes)
+        return gzip.compress(self.m_json_body)
+
 
 class Responses(object):
     """

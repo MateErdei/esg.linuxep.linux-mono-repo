@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright 2019 Sophos Plc, Oxford, England.
+# Copyright 2019-2023 Sophos Limited. All rights reserved.
 
 """
 mcs_connection Module
@@ -1122,7 +1122,7 @@ class MCSConnection:
 
             try:
                 self.send_live_query_response_with_id(response)
-                response.remove_response_file() # Remove response if we managed to send it
+                response.remove_response_file()  # Remove response if we managed to send it
 
             except (MCSHttpServiceUnavailableException, MCSHttpInternalServerErrorException) as exception:
                 log_exception_error(response.m_app_id, response.m_correlation_id, exception)
