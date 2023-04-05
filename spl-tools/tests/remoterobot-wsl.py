@@ -152,6 +152,7 @@ if [[ ! -f "/tmp/ran_av_setup_vagrant_script" ]]
 then
     echo "Running AV vagrant setup script"
     pushd "{av_folder_vagrant}/TA"
+        chmod +x bin/setupVagrant.sh
         sudo bin/setupVagrant.sh
     popd
 fi
@@ -172,6 +173,7 @@ if [[ ! -f "/tmp/ran_edr_setup_vagrant_script" ]]
 then
     echo "Running EDR vagrant setup script"
     pushd "{edr_folder_vagrant}/TA"
+        chmod +x bin/setupVagrant.sh
         sudo bin/setupVagrant.sh
     popd
 fi
@@ -191,6 +193,7 @@ if [[ ! -f "/tmp/ran_event_journaler_setup_vagrant_script" ]]
 then
     echo "Running Event Journaler vagrant setup script"
     pushd "{journaler_folder_vagrant}/TA"
+        chmod +x bin/setupVagrant.sh
         sudo bin/setupVagrant.sh
     popd
 fi
