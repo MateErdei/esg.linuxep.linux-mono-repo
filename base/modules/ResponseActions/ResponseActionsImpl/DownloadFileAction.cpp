@@ -243,6 +243,7 @@ namespace ResponseActionsImpl
         }
         std::string fileName = Common::FileSystem::basename(info.targetPath);
         LOGDEBUG("Downloaded file: " << fileName << " as " << fileNameVec.front());
+        assert(fileNameVec.front() == m_tmpDownloadFile);
 
         //Check sha256
         std::string fileSha;
@@ -278,6 +279,7 @@ namespace ResponseActionsImpl
             ActionsUtils::setErrorInfo(response, 1, shaError.str(), "access_denied");
             return false;
         }
+        LOGDEBUG("Successfully matched sha256 to downloaded file");
         return true;
     }
 
