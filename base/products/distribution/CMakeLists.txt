@@ -39,9 +39,6 @@ add_third_party_library(log4cplus ${LOG4CPLUS_INPUT}/lib)
 install(FILES ${third_party_libs}
         DESTINATION ${BASE_DIST_PREFIX}/files/base/lib64)
 
-install(FILES ${LOG4CPLUS_LIBRARY} ${Protobuf_LIBRARY} ${EXPAT_LIBRARY} ${ZeroMQ_LIBRARY} ${libstdcpp_path} ${libgcc_s_path} ${libatomic_path}
-        DESTINATION ${RA_DIST_PREFIX}/files/plugins/${RA_PLUGIN_NAME}/lib64)
-
 install(IMPORTED_RUNTIME_ARTIFACTS
         bzip2
         curl_library
