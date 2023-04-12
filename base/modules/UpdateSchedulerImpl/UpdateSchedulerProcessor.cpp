@@ -78,16 +78,16 @@ namespace UpdateSchedulerImpl
     {
         auto sulLockFilePath = Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderLockFilePath();
 
-        if (!Common::FileSystem::fileSystem()->exists(sulLockFilePath))
-        {
-            // TODO remove info logging from here.
-            LOGINFO("Lockfile " << sulLockFilePath << " does not exist, assuming suldownloader not running.");
+//        if (!Common::FileSystem::fileSystem()->exists(sulLockFilePath))
+//        {
+//            // TODO remove info logging from here.
+//            LOGINFO("Lockfile " << sulLockFilePath << " does not exist, assuming suldownloader not running.");
+//
+//            return false;
+//        }
 
-            return false;
-        }
-
-        // TODO REMOVE
-        LOGINFO("Lockfile " << sulLockFilePath << " does exist.");
+//        // TODO REMOVE
+//        LOGINFO("Lockfile " << sulLockFilePath << " does exist.");
 
         try
         {
