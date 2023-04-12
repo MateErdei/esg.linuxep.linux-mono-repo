@@ -17,12 +17,13 @@ def get_user_and_group_ids_of_files(directory: str):
     ids_of_dir_entries = {}
     for file in pathlib.Path(directory).glob("**/*"):
         file = str(file)
-        user_id = get_file_owner_id(file)
-        group_id = get_file_group_id(file)
-        ids_of_dir_entries[file] = {
-            "user_id": user_id,
-            "group_id": group_id
-        }
+        if os.path.exists(file):
+            user_id = get_file_owner_id(file)
+            group_id = get_file_group_id(file)
+            ids_of_dir_entries[file] = {
+                "user_id": user_id,
+                "group_id": group_id
+            }
     return ids_of_dir_entries
 
 
