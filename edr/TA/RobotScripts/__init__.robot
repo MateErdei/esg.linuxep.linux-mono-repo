@@ -2,8 +2,6 @@
 Suite Setup     Global Setup Tasks
 Suite Teardown  Global Teardown Tasks
 
-Default Tags    TAP_TESTS
-
 Library         OperatingSystem
 Resource        ComponentSetup.robot
 

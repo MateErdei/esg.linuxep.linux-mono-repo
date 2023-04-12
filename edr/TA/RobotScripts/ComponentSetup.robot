@@ -3,8 +3,6 @@ Library         Process
 Library         OperatingSystem
 Library         ../Libs/FakeManagement.py
 
-Default Tags    TAP_TESTS
-
 *** Keywords ***
 
 Component Test Setup
