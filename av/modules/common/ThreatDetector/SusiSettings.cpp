@@ -48,6 +48,7 @@ namespace common::ThreatDetector
         std::scoped_lock scopedLock(m_accessMutex);
         return m_susiAllowListSha256 == other.m_susiAllowListSha256 &&
                m_susiSxlLookupEnabled == other.m_susiSxlLookupEnabled &&
+               m_puaDetectionEnabled == other.m_puaDetectionEnabled &&
                m_machineLearningEnabled == other.m_machineLearningEnabled;
     }
 
@@ -78,6 +79,7 @@ namespace common::ThreatDetector
 
             m_susiSxlLookupEnabled = getBooleanFromJson(parsedConfig, ENABLED_SXL_LOOKUP_KEY, "SXL Lookups", true);
             m_machineLearningEnabled = getBooleanFromJson(parsedConfig, MACHINE_LEARNING_KEY, "Machine Learning", true);
+            m_puaDetectionEnabled = getBooleanFromJson(parsedConfig, PUA_DETECTION_KEY, "PUA Detection", true);
 
             if (parsedConfig.contains(SHA_ALLOW_LIST_KEY))
             {
@@ -117,6 +119,7 @@ namespace common::ThreatDetector
         nlohmann::json settings;
         settings[MACHINE_LEARNING_KEY] = m_machineLearningEnabled;
         settings[ENABLED_SXL_LOOKUP_KEY] = m_susiSxlLookupEnabled;
+        settings[PUA_DETECTION_KEY] = m_puaDetectionEnabled;
         settings[SHA_ALLOW_LIST_KEY] = m_susiAllowListSha256;
         return settings.dump();
     }
@@ -168,5 +171,17 @@ namespace common::ThreatDetector
     {
         std::scoped_lock scopedLock(m_accessMutex);
         m_machineLearningEnabled = enabled;
+    }
+
+    bool SusiSettings::isPuaDetectionEnabled() const
+    {
+        std::scoped_lock scopedLock(m_accessMutex);
+        return m_puaDetectionEnabled;
+    }
+
+    void SusiSettings::setPuaDetectionEnabled(bool enabled)
+    {
+        std::scoped_lock scopedLock(m_accessMutex);
+        m_puaDetectionEnabled = enabled;
     }
 } // namespace common::ThreatDetector

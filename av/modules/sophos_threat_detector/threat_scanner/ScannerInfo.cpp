@@ -7,7 +7,7 @@
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 #include "Common/UtilityImpl/StringUtils.h"
 
-std::string threat_scanner::createScannerInfo(bool scanArchives, bool scanImages, bool machineLearning)
+std::string threat_scanner::createScannerInfo(bool scanArchives, bool scanImages, bool detectPUAs, bool machineLearning)
 {
     std::string scannerInfo = Common::UtilityImpl::StringUtils::orderedStringReplace(R"sophos("scanner": {
         "signatureBased": {
@@ -27,7 +27,7 @@ std::string threat_scanner::createScannerInfo(bool scanArchives, bool scanImages
             },
             "scanControl": {
                 "trueFileTypeDetection": false,
-                "puaDetection": false,
+                "puaDetection": @@DETECT_PUAS@@,
                 "archiveRecursionDepth": 16,
                 "stopOnArchiveBombs": true,
                 "submitToAnalysis": false
@@ -42,6 +42,7 @@ std::string threat_scanner::createScannerInfo(bool scanArchives, bool scanImages
                              {"@@SCAN_ARCHIVES@@", scanArchives?"true":"false"},
                              {"@@WEB_ARCHIVES@@",  scanArchives?"true":"false"},
                              {"@@DISC_IMAGE@@",  scanImages?"true":"false"},
+                             {"@@DETECT_PUAS@@",  detectPUAs?"true":"false"},
                              {"@@MACHINE_LEARNING@@",  machineLearning?"true":"false"},
                          });
 

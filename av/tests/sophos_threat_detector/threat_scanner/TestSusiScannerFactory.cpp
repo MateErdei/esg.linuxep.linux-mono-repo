@@ -89,7 +89,7 @@ TEST_F(TestSusiScannerFactory, testCreateScannerWithMockSusiWrapperArchivesAndIm
     auto wrapperFactory = std::make_shared<StrictMock<MockSusiWrapperFactory>>();
 
     // Rely on TestThreatScanner.cpp to test createScannerInfo
-    const auto expectedScannerConfig = "{" + createScannerInfo(false, false, true) + "}";
+    const auto expectedScannerConfig = "{" + createScannerInfo(false, false, true, true) + "}";
 
     auto susiWrapper = std::make_shared<StrictMock<MockSusiWrapper>>();
     EXPECT_CALL(*wrapperFactory, isMachineLearningEnabled).WillRepeatedly(Return(true));
@@ -107,7 +107,7 @@ TEST_F(TestSusiScannerFactory, testCreateScannerWithMockSusiWrapperArchivesTrue)
     auto wrapperFactory = std::make_shared<::testing::StrictMock<MockSusiWrapperFactory>>();
 
     // Rely on TestThreatScanner.cpp to test createScannerInfo
-    const auto scannerConfig = "{" + createScannerInfo(true, false, true) + "}";
+    const auto scannerConfig = "{" + createScannerInfo(true, false, true, true) + "}";
 
     auto susiWrapper = std::make_shared<::testing::StrictMock<MockSusiWrapper>>();
     EXPECT_CALL(*wrapperFactory, isMachineLearningEnabled).WillRepeatedly(testing::Return(true));
@@ -125,7 +125,7 @@ TEST_F(TestSusiScannerFactory, testCreateScannerWithMockSusiWrapperImagesTrue)
     auto wrapperFactory = std::make_shared<StrictMock<MockSusiWrapperFactory>>();
 
     // Rely on TestThreatScanner.cpp to test createScannerInfo
-    const auto scannerConfig = "{" + createScannerInfo(false, true, true) + "}";
+    const auto scannerConfig = "{" + createScannerInfo(false, true, true, true) + "}";
 
     auto susiWrapper = std::make_shared<StrictMock<MockSusiWrapper>>();
     EXPECT_CALL(*wrapperFactory, isMachineLearningEnabled).WillRepeatedly(Return(true));

@@ -54,10 +54,11 @@ AV Plugin Gets Sxl Lookup Setting From SAV Policy
     ${susiStartupSettingsChrootFile} =   Set Variable   ${AV_PLUGIN_PATH}/chroot${SUSI_STARTUP_SETTINGS_FILE}
     Remove Files   ${SUSI_STARTUP_SETTINGS_FILE}   ${susiStartupSettingsChrootFile}
 
+    ${av_mark} =  Get AV Log Mark
     ${policyContent} =   Get SAV Policy   sxlLookupEnabled=false
     ${av_mark} =  get av log mark
     send av policy  ${SAV_APPID}  ${policyContent}
-    Wait until scheduled scan updated After Mark  ${av_mark}
+    Wait Until Scheduled Scan Updated After Mark  ${av_mark}
 
     wait_for_log_contains_after_last_restart  ${AV_LOG_PATH}  SAV policy received for the first time.
     Wait Until Created   ${SUSI_STARTUP_SETTINGS_FILE}   timeout=5sec
@@ -77,10 +78,11 @@ AV Plugin Gets ML Lookup Setting From CORE Policy
     check_json_contains  ${json}  machineLearning  ${false}
 
 AV Plugin Can Receive Actions
+    ${av_mark} =  Get AV Log Mark
     ${actionContent} =  Set Variable  <?xml version="1.0"?><a:action xmlns:a="com.sophos/msys/action" type="Test" id="" subtype="TestAction" replyRequired="1"/>
     ${av_mark} =  get av log mark
     Send Plugin Action  av  ${SAV_APPID}  corr123  ${actionContent}
-    wait_for_av_log_contains_after_mark  Received new Action  mark=${av_mark}
+    Wait For AV Log Contains After Mark  Received new Action  ${av_mark}
 
 
 AV plugin Can Send Status
@@ -99,16 +101,17 @@ AV plugin Can Send Status
 
 
 AV Plugin Can Process Scan Now
+    ${av_mark} =  Get AV Log Mark
     ${exclusions} =  Configure Scan Exclusions Everything Else  /tmp_test/
     ${policyContent} =  Set Variable  <?xml version="1.0"?><config xmlns="http://www.sophos.com/EE/EESavConfiguration"><csc:Comp xmlns:csc="com.sophos\\msys\\csc" RevID="AVPluginCanProcessScanNow" policyType="2"/><onDemandScan><posixExclusions><filePathSet>${exclusions}</filePathSet></posixExclusions></onDemandScan></config>
     ${actionContent} =  Set Variable  <?xml version="1.0"?><a:action xmlns:a="com.sophos/msys/action" type="ScanNow" id="" subtype="ScanMyComputer" replyRequired="1"/>
     send av policy  ${SAV_APPID}  ${policyContent}
     ${av_mark} =  get av log mark
     Send Plugin Action  av  ${SAV_APPID}  corr123  ${actionContent}
-    wait_for_av_log_contains_after_mark  Completed scan Scan Now  mark=${av_mark}  timeout=180
-    check_av_log_contains_after_mark  Received new Action  mark=${av_mark}
-    check_av_log_contains_after_mark  Evaluating Scan Now  mark=${av_mark}
-    check_av_log_contains_after_mark  Starting scan Scan Now  mark=${av_mark}
+    Wait For AV Log Contains After Mark  Completed scan Scan Now  ${av_mark}  timeout=180
+    Check AV Log Contains After Mark  Received new Action  ${av_mark}
+    Check AV Log Contains After Mark  Evaluating Scan Now  ${av_mark}
+    Check AV Log Contains After Mark  Starting scan Scan Now  ${av_mark}
     Check ScanNow Log Exists
 
 Scan Now Configuration Is Correct
@@ -124,7 +127,7 @@ Scheduled Scan Configuration Is Correct
 
 
 Scan Now Excludes Files And Directories As Expected
-    Mark AV Log
+    ${av_mark} =  Get AV Log Mark
     Create Directory  /directory_excluded/
     Create Directory  /file_excluded/
 
@@ -135,18 +138,20 @@ Scan Now Excludes Files And Directories As Expected
     Register Cleanup  Remove Directory  /directory_excluded  recursive=True
     Register Cleanup  Remove Files  /eicar.com  /directory_excluded/eicar.com  /file_excluded/eicar.com
 
+    ${scan_now_mark} =  Get Scan Now Log Mark
     Run Scan Now Scan For Excluded Files Test
 
-    Wait Until AV Plugin Log Contains With Offset  Completed scan Scan Now  timeout=240  interval=5
+    Wait For AV Log Contains After Mark  Completed scan Scan Now  ${av_mark}  timeout=240
 
-    File Log Contains             ${SCANNOW_LOG_PATH}        Excluding file: /eicar.com
-    File Log Contains             ${SCANNOW_LOG_PATH}        "/file_excluded/eicar.com" is infected with EICAR-AV-Test
-    File Log Contains             ${SCANNOW_LOG_PATH}        Excluding directory: /directory_excluded/
-    File Log Should Not Contain   ${SCANNOW_LOG_PATH}        "/directory_excluded/eicar.com" is infected with EICAR-AV-Test
-    File Log Should Not Contain   ${SCANNOW_LOG_PATH}        Excluding file: /directory_excluded/eicar.com
+    Check Scan Now Log Contains After Mark  Excluding file: /eicar.com  ${scan_now_mark}
+    Check Scan Now Log Contains After Mark  "/file_excluded/eicar.com" is infected with EICAR-AV-Test  ${scan_now_mark}
+    Check Scan Now Log Contains After Mark  Excluding directory: /directory_excluded/  ${scan_now_mark}
+    Check Scan Now Log Does Not Contain After Mark  "/directory_excluded/eicar.com" is infected with EICAR-AV-Test  ${scan_now_mark}
+    Check Scan Now Log Does Not Contain After Mark  Excluding file: /directory_excluded/eicar.com  ${scan_now_mark}
 
 
 Scan Now Logs Should Be As Expected
+    ${av_mark} =  Get AV Log Mark
     Create Directory  /file_excluded/
 
     Create File  /file_excluded/eicar.com       ${EICAR_STRING}
@@ -155,16 +160,16 @@ Scan Now Logs Should Be As Expected
 
     Run Scan Now Scan For Excluded Files Test
 
-    AV Plugin Log Contains With Offset  Received new Action
-    Wait Until AV Plugin Log Contains With Offset  Evaluating Scan Now
-    Wait Until AV Plugin Log Contains With Offset  Starting scan Scan Now  timeout=10
+    Check AV Log Contains After Mark  Received new Action  ${av_mark}
+    Wait For AV Log Contains After Mark  Evaluating Scan Now  ${av_mark}
+    Wait For AV Log Contains After Mark  Starting scan Scan Now  ${av_mark}  timeout=10
 
-    Wait Until AV Plugin Log Contains With Offset  Completed scan Scan Now  timeout=240  interval=5
+    Wait For AV Log Contains After Mark  Completed scan Scan Now  ${av_mark}  timeout=240
 
     File Log Contains             ${SCANNOW_LOG_PATH}        End of Scan Summary:
     File Log Contains             ${SCANNOW_LOG_PATH}        1 file out of
     File Log Contains             ${SCANNOW_LOG_PATH}        1 EICAR-AV-Test infection discovered.
-    AV Plugin Log Should Not Contain With Offset             Notify trimmed output
+    Check AV Log Does Not Contain After Mark  Notify trimmed output  ${av_mark}
 
 
 
@@ -253,6 +258,7 @@ AV Plugin Can Exclude Filepaths From Scheduled Scans
     # Remove the scan log so later tests don't fail due to this step
     register late cleanup  Remove File  ${myscan_log}
 
+    ${av_mark} =  Get AV Log Mark
     ${currentTime} =  Get Current Date
     ${scanTime} =  Add Time To Date  ${currentTime}  60 seconds  result_format=%H:%M:%S
     ${schedule} =  Set Variable  <schedule><daySet><day>monday</day><day>tuesday</day><day>wednesday</day><day>thursday</day><day>friday</day><day>saturday</day><day>sunday</day></daySet><timeSet><time>${scanTime}</time></timeSet></schedule>
@@ -261,32 +267,35 @@ AV Plugin Can Exclude Filepaths From Scheduled Scans
     ${scanSet} =  Set Variable  <onDemandScan>${exclusions}<scanSet><scan><name>MyScan</name>${schedule}<settings><scanObjectSet><CDDVDDrives>false</CDDVDDrives><hardDrives>true</hardDrives><networkDrives>false</networkDrives><removableDrives>false</removableDrives></scanObjectSet></settings></scan></scanSet></onDemandScan>
     ${policyContent} =  Set Variable  <?xml version="1.0"?><config xmlns="http://www.sophos.com/EE/EESavConfiguration"><csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/>${scanSet}</config>
     send av policy  ${SAV_APPID}  ${policyContent}
-    Wait until scheduled scan updated With Offset
+    ${myscan_mark} =  Mark Log Size  ${myscan_log}
+    Wait until scheduled scan updated After Mark  ${av_mark}
 
-    Wait Until AV Plugin Log Contains  Completed scan MyScan  timeout=240  interval=5
+    Wait For AV Log Contains After Mark  Completed scan MyScan  ${av_mark}  timeout=240
     AV Plugin Log Contains  Starting scan MyScan
 
     # Thread Detector should still be running:
     Check Sophos Threat Detector Running
 
     File Should Exist  ${myscan_log}
-    File Log Should Not Contain  ${myscan_log}  "${eicar_path1}" is infected with EICAR-AV-Test
-    File Log Should Not Contain  ${myscan_log}  "${eicar_path2}" is infected with EICAR-AV-Test
-    File Log Should Not Contain  ${myscan_log}  "${eicar_path3}" is infected with EICAR-AV-Test
-    File Log Should Not Contain  ${myscan_log}  "${eicar_path4}" is infected with EICAR-AV-Test
-    File Log Contains            ${myscan_log}  "${eicar_path5}" is infected with EICAR-AV-Test (Scheduled)
+    Check Log Does Not Contain After Mark  ${myscan_log}  "${eicar_path1}" is infected with EICAR-AV-Test  ${myscan_mark}
+    Check Log Does Not Contain After Mark  ${myscan_log}  "${eicar_path2}" is infected with EICAR-AV-Test  ${myscan_mark}
+    Check Log Does Not Contain After Mark  ${myscan_log}  "${eicar_path3}" is infected with EICAR-AV-Test  ${myscan_mark}
+    Check Log Does Not Contain After Mark  ${myscan_log}  "${eicar_path4}" is infected with EICAR-AV-Test  ${myscan_mark}
+    Check Log Contains After Mark          ${myscan_log}  "${eicar_path5}" is infected with EICAR-AV-Test (Scheduled)  ${myscan_mark}
 
 
-AV Plugin Scan Now Does Not Detect PUA
+AV Plugin Scan Now Does Detect PUA
+    ${av_mark} =  Get AV Log Mark
+    ${scan_now_mark} =  Get Scan Now Log Mark
     Create File      /tmp_test/eicar_pua.com    ${EICAR_PUA_STRING}
 
     Run Scan Now Scan
 
-    Wait Until AV Plugin Log Contains With Offset  Completed scan Scan Now  timeout=240  interval=5
+    Wait For AV Log Contains After Mark  Completed scan Scan Now  ${av_mark}  timeout=240
 
-    AV Plugin Log Does Not Contain With Offset  /tmp_test/eicar_pua.com
+    Check AV Log Contains After Mark  /tmp_test/eicar_pua.com  ${av_mark}
 
-    File Log Should Not Contain With Offset  ${SCANNOW_LOG_PATH}  "/tmp_test/eicar_pua.com" is infected
+    Check Scan Now Log Contains After Mark  "/tmp_test/eicar_pua.com" is infected  ${scan_now_mark}
 
     Exclude Scan Now mount point does not exist
 
@@ -304,11 +313,11 @@ AV Plugin Scan Now with Bind Mount
 
     Should Exist      ${destination}/eicar.com
 
+    ${av_mark} =  Get AV Log Mark
     Run Scan Now Scan
-    Wait Until AV Plugin Log Contains With Offset   Completed scan Scan Now   timeout=240   interval=5
+    Wait For AV Log Contains After Mark   Completed scan Scan Now  ${av_mark}  timeout=240
 
-    ${count} =        Count Lines In Log With Offset   ${AV_LOG_PATH}  Found 'EICAR-AV-Test'  ${AV_LOG_MARK}
-    Should Be Equal As Integers  ${1}  ${count}
+    AV Log Contains Multiple Times After Mark  Found 'EICAR-AV-Test'  ${av_mark}  ${1}
 
 
 AV Plugin Scan Now with ISO mount
@@ -322,9 +331,10 @@ AV Plugin Scan Now with ISO mount
     Register Cleanup  Run Shell Process   umount ${destination}   OnError=Failed to release loopback mount
     Should Exist      ${destination}/DIR/subdir/eicar.com
 
+    ${av_mark} =  Get AV Log Mark
     Run Scan Now Scan
-    Wait Until AV Plugin Log Contains With Offset  Completed scan Scan Now   timeout=240   interval=5
-    AV Plugin Log Contains With Offset  Found 'EICAR-AV-Test' in '/tmp_test/iso_mount/DIR/subdir/eicar.com'
+    Wait For AV Log Contains After Mark  Completed scan Scan Now   ${av_mark}  timeout=240
+    Check AV Log Contains After Mark  Found 'EICAR-AV-Test' in '${destination}/DIR/subdir/eicar.com'   ${av_mark}
 
 AV Plugin Scan two mounts same inode numbers
     # Mount two copies of the same iso file. inode numbers on the mounts will be identical, but device numbers should
@@ -349,15 +359,20 @@ AV Plugin Scan two mounts same inode numbers
     Register Cleanup  Run Shell Process   umount ${destination2}   OnError=Failed to release loopback mount
     Should Exist      ${destination2}/DIR/subdir/eicar.com
 
+    ${av_mark} =  Get AV Log Mark
     Run Scan Now Scan
-    Wait Until AV Plugin Log Contains With Offset  Completed scan Scan Now   timeout=240   interval=5
-    AV Plugin Log Contains With Offset   Found 'EICAR-AV-Test' in '/tmp_test/iso_mount/DIR/subdir/eicar.com'
-    AV Plugin Log Contains With Offset  Found 'EICAR-AV-Test' in '/tmp_test/iso_mount2/DIR/subdir/eicar.com'
+    Wait For AV Log Contains After Mark  Completed scan Scan Now   ${av_mark}  timeout=240
+    Check AV Log Contains After Mark   Found 'EICAR-AV-Test' in '/tmp_test/iso_mount/DIR/subdir/eicar.com'  ${av_mark}
+    Check AV Log Contains After Mark   Found 'EICAR-AV-Test' in '/tmp_test/iso_mount2/DIR/subdir/eicar.com'  ${av_mark}
 
 
 AV Plugin Gets Customer ID
     ${customerIdFile1} =   Set Variable   ${AV_PLUGIN_PATH}/var/customer_id.txt
     ${customerIdFile2} =   Set Variable   ${AV_PLUGIN_PATH}/chroot${customerIdFile1}
+
+    #Wait for default policy to be processed first
+    Wait Until Created   ${customerIdFile1}   timeout=10sec
+    Wait Until Created   ${customerIdFile2}   timeout=5sec
     Remove Files   ${customerIdFile1}   ${customerIdFile2}
 
     ${policyContent} =   Get ALC Policy   userpassword=A  username=B
@@ -378,6 +393,10 @@ AV Plugin Gets Customer ID
 AV Plugin Gets Customer ID from Obfuscated Creds
     ${customerIdFile1} =   Set Variable   ${AV_PLUGIN_PATH}/var/customer_id.txt
     ${customerIdFile2} =   Set Variable   ${AV_PLUGIN_PATH}/chroot${customerIdFile1}
+
+    #Wait for default policy to be processed first
+    Wait Until Created   ${customerIdFile1}   timeout=10sec
+    Wait Until Created   ${customerIdFile2}   timeout=5sec
     Remove Files   ${customerIdFile1}   ${customerIdFile2}
 
     ${policyContent} =   Get ALC Policy
@@ -421,11 +440,13 @@ AV Plugin Scan Now Can Scan Special File That Cannot Be Read
     ${policyContent} =  Set Variable  <?xml version="1.0"?><config xmlns="http://www.sophos.com/EE/EESavConfiguration"><csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/><onDemandScan><posixExclusions><filePathSet>${exclusions}</filePathSet></posixExclusions></onDemandScan></config>
     ${actionContent} =  Set Variable  <?xml version="1.0"?><a:action xmlns:a="com.sophos/msys/action" type="ScanNow" id="" subtype="ScanMyComputer" replyRequired="1"/>
     send av policy  ${SAV_APPID}  ${policyContent}
+
+    ${av_mark} =  Get AV Log Mark
     Send Plugin Action  av  ${SAV_APPID}  corr123  ${actionContent}
-    Wait Until AV Plugin Log Contains With Offset  Completed scan Scan Now  timeout=180  interval=5
-    AV Plugin Log Contains With Offset  Received new Action
-    AV Plugin Log Contains With Offset  Evaluating Scan Now
-    AV Plugin Log Contains With Offset  Starting scan Scan Now
+    Wait For AV Log Contains After Mark  Completed scan Scan Now  ${av_mark}  timeout=180
+    Check AV Log Contains After Mark  Received new Action  ${av_mark}
+    Check AV Log Contains After Mark  Evaluating Scan Now  ${av_mark}
+    Check AV Log Contains After Mark  Starting scan Scan Now  ${av_mark}
     Check ScanNow Log Exists
     File Log Contains  ${SCANNOW_LOG_PATH}  Failed to scan /run/netns/avtest as it could not be read
 
@@ -467,6 +488,7 @@ AV Plugin Replaces Path With Request To Check Log If Path Contains Bad Unicode
 *** Keywords ***
 AVBasic Suite Setup
     Start Fake Management If Required
+    set_default_policy_from_file  ALC    ${RESOURCES_PATH}/alc_policy/template/base_and_av_VUT.xml
     Create File  ${COMPONENT_ROOT_PATH}/var/inhibit_system_file_change_restart_threat_detector
 
 AVBasic Suite Teardown
@@ -498,9 +520,6 @@ Product Test Setup
     Start AV
     Component Test Setup
     Delete Eicars From Tmp
-    mark av log
-    mark sophos threat detector log
-    mark susi debug log
     register on fail  Dump Log  ${COMPONENT_ROOT_PATH}/log/${COMPONENT_NAME}.log
     register on fail  Dump Log  ${FAKEMANAGEMENT_AGENT_LOG_PATH}
     register on fail  Dump Log  ${THREAT_DETECTOR_LOG_PATH}
@@ -532,6 +551,7 @@ Test Remote Share
     ${allButTmp} =  Configure Scan Exclusions Everything Else  /testmnt/
     ${exclusions} =  Set Variable  <posixExclusions><filePathSet>${allButTmp}</filePathSet></posixExclusions>
 
+    ${av_mark} =  Get AV Log Mark
     ${currentTime} =  Get Current Date
     ${scanTime} =  Add Time To Date  ${currentTime}  15 seconds  result_format=%H:%M:%S
     ${schedule} =  Set Variable  <schedule>${POLICY_7DAYS}<timeSet><time>${scanTime}</time></timeSet></schedule>
@@ -539,10 +559,10 @@ Test Remote Share
     ${scanSet} =  Set Variable  <onDemandScan>${exclusions}<scanSet><scan><name>${remoteFSscanningDisabled}</name>${schedule}<settings>${scanObjectSet}</settings></scan></scanSet></onDemandScan>
     ${policyContent} =  Set Variable  <?xml version="1.0"?><config xmlns="http://www.sophos.com/EE/EESavConfiguration"><csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/>${scanSet}</config>
     send av policy  ${SAV_APPID}  ${policyContent}
-    Wait until scheduled scan updated With Offset
-    Wait Until AV Plugin Log Contains With Offset  Starting scan ${remoteFSscanningDisabled}  timeout=120  interval=5
+    Wait Until Scheduled Scan Updated After Mark  ${av_mark}
+    Wait For AV Log Contains After Mark  Starting scan ${remoteFSscanningDisabled}  ${av_mark}  timeout=120
     Require Sophos Threat Detector Running
-    Wait Until AV Plugin Log Contains With Offset  Completed scan ${remoteFSscanningDisabled}  timeout=240  interval=5
+    Wait For AV Log Contains After Mark  Completed scan ${remoteFSscanningDisabled}  ${av_mark}  timeout=240
     File Should Exist  ${remoteFSscanningDisabled_log}
     File Log Should Not Contain  ${remoteFSscanningDisabled_log}  "${destination}/eicar.com" is infected with EICAR
 
@@ -555,8 +575,8 @@ Test Remote Share
     ${policyContent} =  Set Variable  <?xml version="1.0"?><config xmlns="http://www.sophos.com/EE/EESavConfiguration"><csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="" policyType="2"/>${scanSet}</config>
     send av policy  ${SAV_APPID}  ${policyContent}
 
-    Wait Until AV Plugin Log Contains With Offset  Starting scan ${remoteFSscanningEnabled}  timeout=120  interval=5
+    Wait For AV Log Contains After Mark  Starting scan ${remoteFSscanningEnabled}  ${av_mark}  timeout=120
     Require Sophos Threat Detector Running
-    Wait Until AV Plugin Log Contains With Offset  Completed scan ${remoteFSscanningEnabled}  timeout=240  interval=5
+    Wait For AV Log Contains After Mark  Completed scan ${remoteFSscanningEnabled}  ${av_mark}  timeout=240
     File Should Exist  ${remoteFSscanningEnabled_log}
     File Log Contains  ${remoteFSscanningEnabled_log}  "${destination}/eicar.com" is infected with EICAR

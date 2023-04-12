@@ -499,14 +499,14 @@ CLS Can Scan Infected And Clean File With The Same Name
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
 
 
-CLS Does Not Detect PUAs
+CLS Can Detect PUAs
     Create File     ${NORMAL_DIRECTORY}/naughty_eicar_folder/eicar_pua    ${EICAR_PUA_STRING}
 
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/naughty_eicar_folder/eicar_pua
 
     Log  return code is ${rc}
     Log  output is ${output}
-    Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
+    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
 
 
 CLS Will Not Scan Non-Existent File

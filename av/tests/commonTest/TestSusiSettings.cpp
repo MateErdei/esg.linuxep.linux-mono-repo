@@ -162,7 +162,7 @@ TEST_F(TestSusiSettings, saveSettings)
 
     susiSettings.saveSettings("path", 0);
 
-    std::string expectedContents = R"({"enableSxlLookup":false,"machineLearning":false,"shaAllowList":["42268ef08462e645678ce738bd26518bc170a0404a186062e8b1bec2dc578673"]})";
+    std::string expectedContents = R"({"enableSxlLookup":false,"machineLearning":false,"puaDetection":true,"shaAllowList":["42268ef08462e645678ce738bd26518bc170a0404a186062e8b1bec2dc578673"]})";
     EXPECT_EQ(contents, expectedContents);
 }
 
@@ -174,6 +174,7 @@ TEST_F(TestSusiSettings, roundTripSettings)
     susiSettings.setAllowList(std::move(allowlist));
     susiSettings.setMachineLearningEnabled(false);
     susiSettings.setSxlLookupEnabled(false);
+    susiSettings.setPuaDetectionEnabled(false);
 
     auto filesystemMock = std::make_unique<StrictMock<MockFileSystem>>();
 
@@ -195,4 +196,5 @@ TEST_F(TestSusiSettings, roundTripSettings)
     EXPECT_EQ(susiSettings.isMachineLearningEnabled(), susiSettingsLoaded.isMachineLearningEnabled());
     EXPECT_EQ(susiSettings.isSxlLookupEnabled(), susiSettingsLoaded.isSxlLookupEnabled());
     EXPECT_EQ(susiSettings.getAllowListSize(), susiSettingsLoaded.getAllowListSize());
+    EXPECT_EQ(susiSettings.isPuaDetectionEnabled(), susiSettingsLoaded.isPuaDetectionEnabled());
 }

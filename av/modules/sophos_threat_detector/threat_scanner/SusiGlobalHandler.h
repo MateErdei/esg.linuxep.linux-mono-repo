@@ -99,6 +99,8 @@ namespace threat_scanner
          */
         bool isAllowListed(const std::string& threatChecksum) final;
 
+        bool isPuaDetectionEnabled() override;
+
     private:
         std::atomic_bool m_susiInitialised = false;
         std::atomic_bool m_updatePending = false;

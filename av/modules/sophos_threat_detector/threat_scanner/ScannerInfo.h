@@ -8,6 +8,6 @@
 
 namespace threat_scanner
 {
-    std::string createScannerInfo(bool scanArchives, bool scanImages, bool machineLearning);
+    std::string createScannerInfo(bool scanArchives, bool scanImages, bool detectPUAs, bool machineLearning);
     sophos_filesystem::path pluginInstall();
 }

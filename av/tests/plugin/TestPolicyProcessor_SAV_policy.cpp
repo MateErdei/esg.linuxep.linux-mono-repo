@@ -46,11 +46,11 @@ namespace
         {
             if (sxlEnabled)
             {
-                expectWriteSusiConfigFromString(R"sophos({"enableSxlLookup":true,"machineLearning":true,"shaAllowList":[]})sophos");
+                expectWriteSusiConfigFromString(R"sophos({"enableSxlLookup":true,"machineLearning":true,"puaDetection":true,"shaAllowList":[]})sophos");
             }
             else
             {
-                expectWriteSusiConfigFromString(R"sophos({"enableSxlLookup":false,"machineLearning":true,"shaAllowList":[]})sophos");
+                expectWriteSusiConfigFromString(R"sophos({"enableSxlLookup":false,"machineLearning":true,"puaDetection":true,"shaAllowList":[]})sophos");
             }
         }
 

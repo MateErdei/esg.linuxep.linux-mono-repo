@@ -32,7 +32,7 @@ TEST(TestScannerInfo, test_SusiScannerConstruction)
             },
             "scanControl": {
                 "trueFileTypeDetection": false,
-                "puaDetection": false,
+                "puaDetection": true,
                 "archiveRecursionDepth": 16,
                 "stopOnArchiveBombs": true,
                 "submitToAnalysis": false
@@ -45,7 +45,7 @@ TEST(TestScannerInfo, test_SusiScannerConstruction)
         }
     })";
 
-    EXPECT_EQ(createScannerInfo(false, false, false), scannerInfo);
+    EXPECT_EQ(createScannerInfo(false, false, true, false), scannerInfo);
 }
 
 TEST(TestScannerInfo, test_SusiScannerConstructionWithScanArchives)
@@ -68,7 +68,7 @@ TEST(TestScannerInfo, test_SusiScannerConstructionWithScanArchives)
             },
             "scanControl": {
                 "trueFileTypeDetection": false,
-                "puaDetection": false,
+                "puaDetection": true,
                 "archiveRecursionDepth": 16,
                 "stopOnArchiveBombs": true,
                 "submitToAnalysis": false
@@ -81,7 +81,7 @@ TEST(TestScannerInfo, test_SusiScannerConstructionWithScanArchives)
         }
     })";
 
-    EXPECT_EQ(createScannerInfo(true, false, false), scannerInfo);
+    EXPECT_EQ(createScannerInfo(true, false, true, false), scannerInfo);
 }
 
 TEST(TestScannerInfo, test_SusiScannerConstructionWithScanImages)
@@ -104,7 +104,7 @@ TEST(TestScannerInfo, test_SusiScannerConstructionWithScanImages)
             },
             "scanControl": {
                 "trueFileTypeDetection": false,
-                "puaDetection": false,
+                "puaDetection": true,
                 "archiveRecursionDepth": 16,
                 "stopOnArchiveBombs": true,
                 "submitToAnalysis": false
@@ -117,12 +117,12 @@ TEST(TestScannerInfo, test_SusiScannerConstructionWithScanImages)
         }
     })";
 
-    EXPECT_EQ(createScannerInfo(false, true, false), scannerInfo);
+    EXPECT_EQ(createScannerInfo(false, true, true, false), scannerInfo);
 }
 
 TEST(TestScannerInfo, machineLearningTrue)
 {
-    const auto actual = createScannerInfo(false, true, true);
+    const auto actual = createScannerInfo(false, true, true, true);
 
     using namespace nlohmann;
     json parsed = json::parse("{" + actual + "}");
@@ -131,7 +131,7 @@ TEST(TestScannerInfo, machineLearningTrue)
 
 TEST(TestScannerInfo, machineLearningFalse)
 {
-    const auto actual = createScannerInfo(false, true, false);
+    const auto actual = createScannerInfo(false, true, true, false);
 
     using namespace nlohmann;
     json parsed = json::parse("{" + actual + "}");
