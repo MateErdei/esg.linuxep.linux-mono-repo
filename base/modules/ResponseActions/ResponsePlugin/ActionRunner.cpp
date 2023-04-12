@@ -5,9 +5,9 @@
 #include "Logger.h"
 #include "json.hpp"
 
-#include "Common/FileSystem/IFilePermissions.h"
-#include "Common/FileSystem/IFileSystem.h"
-#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include "FileSystem/IFilePermissions.h"
+#include "FileSystem/IFileSystem.h"
+#include "ApplicationConfiguration/IApplicationPathManager.h"
 
 namespace ResponsePlugin
 {

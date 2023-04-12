@@ -23,20 +23,15 @@ add_library(responseplugin SHARED
         Telemetry.h
         )
 
-include_directories(responseplugin BEFORE
-        ${CMAKE_CURRENT_BINARY_DIR}
-        ${LOG4CPLUS_INCLUDE_DIR}
-        ${NLOHMANN_JSON_INCLUDE_DIR}
-        ${CMAKE_BINARY_DIR}/products/PluginApi/pluginapi/include
-        )
+include_directories(responseplugin BEFORE ${CMAKE_CURRENT_BINARY_DIR} ${LOG4CPLUS_INCLUDE_DIR} ${NLOHMANN_JSON_INCLUDE_DIR})
 
 target_link_libraries(responseplugin PUBLIC
         logging
-        ${CMAKE_BINARY_DIR}/products/PluginApi/libpluginapi.so
-        ${Protobuf_LIBRARY}
-        ${EXPAT_LIBRARY}
-        ${ZeroMQ_LIBRARY}
-        )
+        processimpl
+        pluginapiimpl
+        applicationconfigurationimpl
+        telemetryhelperimpl
+        filesystemimplobject)
 
 SET_TARGET_PROPERTIES(responseplugin
         PROPERTIES
@@ -47,4 +42,4 @@ SET_TARGET_PROPERTIES(responseplugin
 install(TARGETS responseplugin
         LIBRARY DESTINATION ${RA_DIST_PREFIX}/files/plugins/${RA_PLUGIN_NAME}/lib64)
 
-add_dependencies(responseplugin pluginapi plugintar copy_libs)
+add_dependencies(responseplugin copy_libs)
