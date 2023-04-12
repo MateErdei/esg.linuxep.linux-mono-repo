@@ -144,6 +144,7 @@ def install_component(sophos_install):
         os.chmod(os.path.join(plugin_lib64_path, x), 0o755)
 
     create_library_symlinks_from_glob(os.path.join(plugin_lib64_path, "liblog4cplus-2.0.so.*"))
+    create_library_symlinks_from_glob(os.path.join(plugin_lib64_path, "libstdc++.so*"))
     create_library_symlinks_from_glob(os.path.join(plugin_lib64_path, "libprotobuf.so.*"))
     create_library_symlinks_from_glob(os.path.join(plugin_lib64_path, "libzmq.so*"))
     create_library_symlinks_from_glob(os.path.join(plugin_lib64_path, "libatomic.so.*"))
