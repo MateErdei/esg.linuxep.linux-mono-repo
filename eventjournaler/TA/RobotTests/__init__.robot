@@ -6,8 +6,6 @@ Library         OperatingSystem
 
 Test Timeout    5 minutes
 
-Default Tags    TAP_TESTS
-
 *** Keywords ***
 Global Setup Tasks
 
