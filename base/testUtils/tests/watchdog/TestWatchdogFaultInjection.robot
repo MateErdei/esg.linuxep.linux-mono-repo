@@ -40,7 +40,8 @@ Test wdctl and Watchdog Can Handle A Plugin That cannot Be Executed And Logs Err
     ...  Check Watchdog Detect Broken Plugins
 
 Test wdctl and Watchdog aborts a plugin that will not shutdown cleanly
-    [Tags]    WATCHDOG  WDCTL  FAULTINJECTION
+    # Exclude on SLES12 until LINUXDAR-7121 is fixed
+    [Tags]    WATCHDOG  WDCTL  FAULTINJECTION    EXCLUDE_SLES12
     [Teardown]  Clean Up Files
     Set Environment Variable  SOPHOS_CORE_DUMP_ON_PLUGIN_KILL  1
     Require Fresh Install
