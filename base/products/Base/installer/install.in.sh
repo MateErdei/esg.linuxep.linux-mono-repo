@@ -332,7 +332,7 @@ function generate_local_user_group_id_config()
 # Before modifying this file, please stop the product: 'systemctl stop sophos-spl'
 # To maintain the security of the endpoint, the following considerations should be made when requesting ID changes
 #  - User or group name should not be 'root'
-#  - User or group ID should not be 1
+#  - User or group ID should not be 0
 #  - User or group IDs should be unique to both existing users and groups on the machine and within this config file
 # Requested user and group IDs can be made using the following template:
 #{
