@@ -8,8 +8,6 @@ Library         ../Libs/XDRLibs.py
 
 Resource    ComponentSetup.robot
 
-Default Tags    TAP_TESTS
-
 *** Variables ***
 ${EDR_PLUGIN_PATH}  ${COMPONENT_ROOT_PATH}
 ${EDR_PLUGIN_BIN}   ${COMPONENT_BIN_PATH}
