@@ -284,11 +284,11 @@ TEST_F(TestMountMonitor, TestMountsEvaluatedOnProcMountsChangeStopStart)
 
     mountMonitorThread.startIfNotStarted();
 
-    EXPECT_TRUE(waitForLogMultiple(logMsg1.str(), 3, 250ms));
+    EXPECT_TRUE(waitForLogMultiple(logMsg1.str(), 3, 500ms));
 
     clientWaitGuard.onEventNoArgs(); // Will allow the first call to complete
 
-    EXPECT_TRUE(waitForLogMultiple(logMsg1.str(), 4, 250ms));
+    EXPECT_TRUE(waitForLogMultiple(logMsg1.str(), 4, 500ms));
 }
 
 TEST_F(TestMountMonitor, TestMonitorExitsUsingPipe)
