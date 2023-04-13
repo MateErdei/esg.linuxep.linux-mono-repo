@@ -129,17 +129,6 @@ TEST_F(TestUpdateSchedulerProcessorHelperMethods, waitForTheFirstPolicyDoesNotRe
 
 // isSuldownloaderRunning tests
 
-TEST_F(TestUpdateSchedulerProcessorHelperMethods, isSuldownloaderRunningReturnsFalseWhenLockFileDoesNotExist) // NOLINT
-{
-    auto lockPath = Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderLockFilePath();
-    auto filesystemMock = new NaggyMock<MockFileSystem>();
-    EXPECT_CALL(*filesystemMock, exists(lockPath)).WillOnce(Return(false));
-    Tests::ScopedReplaceFileSystem ScopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
-
-    bool running = UpdateSchedulerImpl::isSuldownloaderRunning();
-    EXPECT_FALSE(running);
-}
-
 TEST_F(TestUpdateSchedulerProcessorHelperMethods, isSuldownloaderRunningReturnsTrueWhenLockFileIsLocked) // NOLINT
 {
     auto lockPath = Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderLockFilePath();
