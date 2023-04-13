@@ -70,6 +70,7 @@ namespace
         void callHandleSocketRequest() { handleSocketRequest(); };
 
         void callWriteExecutableUserAndGroupToActualUserGroupIdConfig() { writeExecutableUserAndGroupToActualUserGroupIdConfig(); };
+        void callWriteRequestedUserAndGroupIDsToLocalConfig() { writeRequestedUserAndGroupIDsToLocalConfig(); };
 
         /**
          * Give access to the context so that we can share connections
@@ -309,6 +310,116 @@ TEST_F(TestWatchdog, writeExecutableUserAndGroupToWatchdogConfigHandlesMalformed
         .WillOnce(Throw(Common::FileSystem::IFileSystemException("TEST")));
 
     EXPECT_NO_THROW(watchdog.callWriteExecutableUserAndGroupToActualUserGroupIdConfig());
+}
+
+TEST_F(TestWatchdog, writeRequestedUserAndGroupIDsToLocalConfig)
+{
+    Common::ZMQWrapperApi::IContextSharedPtr context(Common::ZMQWrapperApi::createContext());
+    TestableWatchdog watchdog(context);
+
+    nlohmann::json expectedJson = {
+        {"groups", {{"sophos-spl-group", 105},{"sophos-spl-ipc", 106}}},
+        {"users", {{"sophos-spl-local", 100},{"sophos-spl-updatescheduler", 101},{"sophos-spl-user", 102},{"sophos-spl-av", 103},{"sophos-spl-threat-detector", 104}}}
+    };
+
+    std::vector<std::string> installOptions{
+        "--user-ids-to-configure=sophos-spl-local:100,sophos-spl-updatescheduler:101,sophos-spl-user:102,sophos-spl-av:103,sophos-spl-threat-detector:104",
+        "--group-ids-to-configure=sophos-spl-group:105,sophos-spl-ipc:106"
+    };
+
+    EXPECT_CALL(*m_mockFileSystemPtr, isFile(m_installOptionsPath)).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockFileSystemPtr, readLines(m_installOptionsPath)).WillOnce(Return(installOptions));
+
+    EXPECT_CALL(*m_mockFileSystemPtr, appendFile(m_requestedUserGroupIdConfigPath, expectedJson.dump(4))).Times(1);
+
+    EXPECT_NO_THROW(watchdog.callWriteRequestedUserAndGroupIDsToLocalConfig());
+}
+
+TEST_F(TestWatchdog, writeRequestedUserAndGroupIDsToLocalConfigIgnoresUnrelatedInstallOptions)
+{
+    Common::ZMQWrapperApi::IContextSharedPtr context(Common::ZMQWrapperApi::createContext());
+    TestableWatchdog watchdog(context);
+
+    nlohmann::json expectedJson = {
+        {"groups", {{"sophos-spl-group", 105},{"sophos-spl-ipc", 106}}},
+        {"users", {{"sophos-spl-local", 100},{"sophos-spl-updatescheduler", 101},{"sophos-spl-user", 102},{"sophos-spl-av", 103},{"sophos-spl-threat-detector", 104}}}
+    };
+
+    std::vector<std::string> installOptions{
+        "--user-ids-to-configure=sophos-spl-local:100,sophos-spl-updatescheduler:101,sophos-spl-user:102,sophos-spl-av:103,sophos-spl-threat-detector:104",
+        "--group-ids-to-configure=sophos-spl-group:105,sophos-spl-ipc:106",
+        "--group=<top-level group>\\<sub-group>\\<bottom-level-group>",
+        "--products=antivirus"
+    };
+
+    EXPECT_CALL(*m_mockFileSystemPtr, isFile(m_installOptionsPath)).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockFileSystemPtr, readLines(m_installOptionsPath)).WillOnce(Return(installOptions));
+
+    EXPECT_CALL(*m_mockFileSystemPtr, appendFile(m_requestedUserGroupIdConfigPath, expectedJson.dump(4))).Times(1);
+
+    EXPECT_NO_THROW(watchdog.callWriteRequestedUserAndGroupIDsToLocalConfig());
+}
+
+TEST_F(TestWatchdog, writeRequestedUserAndGroupIDsToLocalConfigDoesNotWriteToFileWhenArgsAreNotSpecified)
+{
+    Common::ZMQWrapperApi::IContextSharedPtr context(Common::ZMQWrapperApi::createContext());
+    TestableWatchdog watchdog(context);
+
+    std::vector<std::string> installOptions{
+        "--group=<top-level group>\\<sub-group>\\<bottom-level-group>",
+        "--products=antivirus"
+    };
+
+    EXPECT_CALL(*m_mockFileSystemPtr, isFile(m_installOptionsPath)).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockFileSystemPtr, readLines(m_installOptionsPath)).WillOnce(Return(installOptions));
+
+    EXPECT_NO_THROW(watchdog.callWriteRequestedUserAndGroupIDsToLocalConfig());
+}
+
+TEST_F(TestWatchdog, writeRequestedUserAndGroupIDsToLocalConfigHandlesWhitespaceInFile)
+{
+    Common::ZMQWrapperApi::IContextSharedPtr context(Common::ZMQWrapperApi::createContext());
+    TestableWatchdog watchdog(context);
+
+    nlohmann::json expectedJson = {
+        {"groups", {{"sophos-spl-group", 102},{"sophos-spl-ipc", 103}}},
+        {"users", {{"sophos-spl-local", 100},{"sophos-spl-updatescheduler", 101}}}
+    };
+
+    std::vector<std::string> installOptions{
+        "   --user-ids-to-configure=sophos-spl-local:100,sophos-spl-updatescheduler:101     ",
+        "       --group-ids-to-configure=sophos-spl-group:102,sophos-spl-ipc:103    "
+    };
+
+    EXPECT_CALL(*m_mockFileSystemPtr, isFile(m_installOptionsPath)).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockFileSystemPtr, readLines(m_installOptionsPath)).WillOnce(Return(installOptions));
+
+    EXPECT_CALL(*m_mockFileSystemPtr, appendFile(m_requestedUserGroupIdConfigPath, expectedJson.dump(4))).Times(1);
+
+    EXPECT_NO_THROW(watchdog.callWriteRequestedUserAndGroupIDsToLocalConfig());
+}
+
+TEST_F(TestWatchdog, writeRequestedUserAndGroupIDsToLocalConfigDoesNotThrowIfIdIsNotValidInteger)
+{
+    Common::ZMQWrapperApi::IContextSharedPtr context(Common::ZMQWrapperApi::createContext());
+    TestableWatchdog watchdog(context);
+
+    nlohmann::json expectedJson = {
+        {"groups", {{"sophos-spl-group", 105},{"sophos-spl-ipc", 106}}},
+        {"users", {{"sophos-spl-local", 100},{"sophos-spl-updatescheduler", 101},{"sophos-spl-user", 102},{"sophos-spl-av", 103}}}
+    };
+
+    std::vector<std::string> installOptions{
+        "--user-ids-to-configure=sophos-spl-local:100,sophos-spl-updatescheduler:101,sophos-spl-user:102,sophos-spl-av:103,sophos-spl-threat-detector:blah",
+        "--group-ids-to-configure=sophos-spl-group:105,sophos-spl-ipc:106",
+    };
+
+    EXPECT_CALL(*m_mockFileSystemPtr, isFile(m_installOptionsPath)).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockFileSystemPtr, readLines(m_installOptionsPath)).WillOnce(Return(installOptions));
+
+    EXPECT_CALL(*m_mockFileSystemPtr, appendFile(m_requestedUserGroupIdConfigPath, expectedJson.dump(4))).Times(1);
+
+    EXPECT_NO_THROW(watchdog.callWriteRequestedUserAndGroupIDsToLocalConfig());
 }
 
 class TestC
