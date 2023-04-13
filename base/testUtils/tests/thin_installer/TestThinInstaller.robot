@@ -264,6 +264,9 @@ Thin Installer Force Works
 Thin Installer Saves Group Names To Install Options
     Run Thin Installer And Check Argument Is Saved To Install Options File  --group=Group Name
 
+Thin Installer Saves Requested GID and UIDs To Install Options
+    Run Thin Installer And Check Argument Is Saved To Install Options File    --user-ids-to-configure=sophos-spl-local:100,sophos-spl-updatescheduler:101,sophos-spl-user:102,sophos-spl-av:103,sophos-spl-threat-detector:104 --group-ids-to-configure=sophos-spl-group:105,sophos-spl-ipc:106
+
 Thin Installer Succeeds When System Has Glibc Greater Than Build Machine
     ${HighGlibcVersion} =  Set Variable  999.999
     ${PATH} =  Create Fake Ldd Executable With Version As Argument And Add It To Path  ${HighGlibcVersion}

@@ -260,3 +260,59 @@ Thin Installer With Duplicate Product Args Args Fails
 Thin Installer With Trailing Comma In Product Args Fails
     Run Default Thininstaller With Args  27  --products=antivirus,
     Check Thininstaller Log Contains   Error: Products passed with trailing comma --- aborting install
+
+Thin Installer With Trailing Comma in Custom UID Arg Fails
+    Run Default Thininstaller With Args  28  --user-ids-to-configure=sophos-spl-local:100,sophos-spl-updatescheduler:101,
+    Check Thininstaller Log Contains  Error: Requested group/user ids to configure passed with trailing comma --- aborting install
+
+Thin Installer With Empty Custom UID Arg Fails
+    Run Default Thininstaller With Args  28  --user-ids-to-configure=
+    Check Thininstaller Log Contains  Error: Requested group/user ids to configure not passed with argument --- aborting install
+
+Thin Installer With Invalid Custom UID Arg Fails
+    Run Default Thininstaller With Args  28  --user-ids-to-configure=localuser:100
+    Check Thininstaller Log Contains  Error: Requested group/user id to configure is not valid: localuser:100 --- aborting install
+
+Thin Installer With Custom UID Arg That Is Not An Integer Fails
+    Run Default Thininstaller With Args  28  --user-ids-to-configure=sophos-spl-updatescheduler:uid
+    Check Thininstaller Log Contains  Error: Requested group/user id to configure is not valid: sophos-spl-updatescheduler:uid --- aborting install
+
+Thin Installer With Customer UID Arg That Does Not Match Expected Syntax Fails
+    Run Default Thininstaller With Args  28  --user-ids-to-configure=sophos-spl-user=101
+    Check Thininstaller Log Contains  Error: Requested group/user id to configure is not valid: sophos-spl-user=101 --- aborting install
+
+Thin Installer With Duplicate Username In Custom UID Args Fails
+    Run Default Thininstaller With Args  28  --user-ids-to-configure=sophos-spl-local:100,sophos-spl-local:101
+    Check Thininstaller Log Contains  Error: Duplicate user name given: sophos-spl-local:101 --- aborting install
+
+Thin Installer With Duplicate ID In Custom UID Args Fails
+    Run Default Thininstaller With Args  28  --user-ids-to-configure=sophos-spl-local:100,sophos-spl-updatescheduler:100
+    Check Thininstaller Log Contains  Error: Duplicate id given: sophos-spl-updatescheduler:100 --- aborting install
+
+Thin Installer With Trailing Comma in Custom GID Arg Fails
+    Run Default Thininstaller With Args  28  --group-ids-to-configure=sophos-spl-group:100,sophos-spl-ipc:101,
+    Check Thininstaller Log Contains  Error: Requested group/user ids to configure passed with trailing comma --- aborting install
+
+Thin Installer With Empty Custom GID Arg Fails
+    Run Default Thininstaller With Args  28  --group-ids-to-configure=
+    Check Thininstaller Log Contains  Error: Requested group/user ids to configure not passed with argument --- aborting install
+
+Thin Installer With Invalid Custom GID Arg Fails
+    Run Default Thininstaller With Args  28  --group-ids-to-configure=localgroup:100
+    Check Thininstaller Log Contains  Error: Requested group/user id to configure is not valid: localgroup:100 --- aborting install
+
+Thin Installer With Custom GID Arg That Is Not An Integer Fails
+    Run Default Thininstaller With Args  28  --group-ids-to-configure=sophos-spl-group:gid
+    Check Thininstaller Log Contains  Error: Requested group/user id to configure is not valid: sophos-spl-group:gid --- aborting install
+
+Thin Installer With Customer GID Arg That Does Not Match Expected Syntax Fails
+    Run Default Thininstaller With Args  28  --group-ids-to-configure=sophos-spl-group=100
+    Check Thininstaller Log Contains  Error: Requested group/user id to configure is not valid: sophos-spl-group=100 --- aborting install
+
+Thin Installer With Duplicate Group Name In Custom UID Args Fails
+    Run Default Thininstaller With Args  28  --group-ids-to-configure=sophos-spl-group:100,sophos-spl-group:101
+    Check Thininstaller Log Contains  Error: Duplicate user name given: sophos-spl-group:101 --- aborting install
+
+Thin Installer With Duplicate ID In Custom GID Args Fails
+    Run Default Thininstaller With Args  28  --group-ids-to-configure=sophos-spl-group:100,sophos-spl-ipc:100
+    Check Thininstaller Log Contains  Error: Duplicate id given: sophos-spl-ipc:100 --- aborting install
