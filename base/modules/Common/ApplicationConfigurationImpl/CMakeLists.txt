@@ -12,4 +12,7 @@ target_include_directories(applicationconfigurationimplobject PUBLIC ../Applicat
 add_library(applicationconfigurationimpl SHARED $<TARGET_OBJECTS:applicationconfigurationimplobject>)
 
 install(TARGETS applicationconfigurationimpl
-        LIBRARY DESTINATION ${BASE_DIST_PREFIX}/files/base/lib64)
+        LIBRARY DESTINATION ${BASE_DIST_PREFIX}/files/base/lib64
+        LIBRARY DESTINATION ${RA_DIST_PREFIX}/files/plugins/${RA_PLUGIN_NAME}/lib64)
+
+install(TARGETS applicationconfigurationimpl LIBRARY DESTINATION ${THININSTALLER_DEPS_DIR_LIB64})

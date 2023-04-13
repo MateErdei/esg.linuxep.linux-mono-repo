@@ -33,4 +33,7 @@ target_link_libraries(logging PUBLIC
         )
 
 install(TARGETS logging
-        LIBRARY DESTINATION ${BASE_DIST_PREFIX}/files/base/lib64)
+        LIBRARY DESTINATION ${BASE_DIST_PREFIX}/files/base/lib64
+        LIBRARY DESTINATION ${RA_DIST_PREFIX}/files/plugins/${RA_PLUGIN_NAME}/lib64)
+
+install(TARGETS logging LIBRARY DESTINATION ${THININSTALLER_DEPS_DIR_LIB64})
