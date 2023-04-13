@@ -405,7 +405,7 @@ TEST_F(TestScanningServerConnectionThreadWithSocketPair, send_fd) // NOLINT
 
     scan_messages::ScanRequest request = scan_messages::ScanRequest(requestReader);
     EXPECT_CALL(*scanner, scan(_, Eq(std::ref(request)))).WillOnce(Return(expected_response));
-    EXPECT_CALL(*scannerFactory, createScanner(false, false)).WillOnce(Return(ByMove(std::move(scanner))));
+    EXPECT_CALL(*scannerFactory, createScanner(false, false, false)).WillOnce(Return(ByMove(std::move(scanner))));
 
     ScanningServerConnectionThread connectionThread(m_serverFd, scannerFactory, m_sysCalls);
     connectionThread.start();

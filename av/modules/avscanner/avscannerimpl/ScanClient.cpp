@@ -20,11 +20,13 @@ ScanClient::ScanClient(unixsocket::IScanningClientSocket& socket,
                        std::shared_ptr<IScanCallbacks> callbacks,
                        bool scanInArchives,
                        bool scanInImages,
+                       bool detectPUAs,
                        E_SCAN_TYPE scanType)
         : m_socket(ClientSocketWrapper(socket))
         , m_callbacks(std::move(callbacks))
         , m_scanInArchives(scanInArchives)
         , m_scanInImages(scanInImages)
+        , m_detectPUAs(detectPUAs)
         , m_scanType(scanType)
 {
 }
@@ -73,6 +75,7 @@ scan_messages::ScanResponse ScanClient::scan(const sophos_filesystem::path& file
     request->setPath(fileToScanPath);
     request->setScanInsideArchives(m_scanInArchives);
     request->setScanInsideImages(m_scanInImages);
+    request->setDetectPUAs(m_detectPUAs);
     request->setScanType(m_scanType);
     request->setFd(file_fd);
     const char* user = std::getenv("USER");

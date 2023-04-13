@@ -30,5 +30,6 @@ namespace avscanner::avscannerimpl
         bool m_archiveScanning = false;
         bool m_imageScanning = false;
         bool m_followSymlinks = false;
+        bool m_detectPUAs = true;
     };
 }

@@ -65,7 +65,8 @@ ScheduledScan::ScheduledScan()
     m_scanLocalFixedDisks(false),
     m_scanLocalOpticalDisks(false),
     m_scanNetworkDrives(false),
-    m_scanRemovableDrives(false)
+    m_scanRemovableDrives(false),
+    m_detectPUAs(true)
 {
 }
 
@@ -81,7 +82,8 @@ ScheduledScan::ScheduledScan(std::string name)
     m_scanLocalFixedDisks(true),
     m_scanLocalOpticalDisks(true),
     m_scanNetworkDrives(false),
-    m_scanRemovableDrives(true)
+    m_scanRemovableDrives(true),
+    m_detectPUAs(true)
 {
 }
 
@@ -101,7 +103,8 @@ ScheduledScan::ScheduledScan(Common::XmlUtilities::AttributesMap& savPolicy, con
       m_scanLocalFixedDisks(collectBool(savPolicy, id+"/settings/scanObjectSet/hardDrives")),
       m_scanLocalOpticalDisks(collectBool(savPolicy, id+"/settings/scanObjectSet/CDDVDDrives")),
       m_scanNetworkDrives(collectBool(savPolicy, id+"/settings/scanObjectSet/networkDrives")),
-      m_scanRemovableDrives(collectBool(savPolicy, id+"/settings/scanObjectSet/removableDrives"))
+      m_scanRemovableDrives(collectBool(savPolicy, id+"/settings/scanObjectSet/removableDrives")),
+      m_detectPUAs(collectBool(savPolicy, id+"/settings/scanBehaviour/pua"))
 {
     if (m_days.size() == 0 || m_times.size() == 0 || !m_days.isValid() || !m_times.isValid())
     {

@@ -50,6 +50,7 @@ namespace avscanner::avscannerimpl
                 std::shared_ptr<IScanCallbacks> callbacks,
                 bool scanInArchives,
                 bool scanInImages,
+                bool detectPUAs,
                 E_SCAN_TYPE scanType);
 
         /**
@@ -86,6 +87,7 @@ namespace avscanner::avscannerimpl
         std::shared_ptr<IScanCallbacks> m_callbacks;
         bool m_scanInArchives;
         bool m_scanInImages;
+        bool m_detectPUAs;
         E_SCAN_TYPE m_scanType;
     };
 }

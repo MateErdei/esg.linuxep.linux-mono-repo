@@ -21,12 +21,12 @@ namespace
     class MockScannerFactory : public threat_scanner::IThreatScannerFactory
     {
     public:
-        MOCK_METHOD2(createScanner, threat_scanner::IThreatScannerPtr(bool scanArchives, bool scanImages));
+        MOCK_METHOD(threat_scanner::IThreatScannerPtr, createScanner, (bool scanArchives, bool scanImages, bool detectPUAs));
 
-        MOCK_METHOD0(update, bool());
-        MOCK_METHOD0(reload, bool());
-        MOCK_METHOD0(shutdown, void());
-        MOCK_METHOD0(susiIsInitialized, bool());
+        MOCK_METHOD(bool, update, ());
+        MOCK_METHOD(bool, reload, ());
+        MOCK_METHOD(void, shutdown, ());
+        MOCK_METHOD(bool, susiIsInitialized, ());
         MOCK_METHOD(bool, updateSusiConfig, ());
     };
 }

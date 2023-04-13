@@ -34,7 +34,7 @@ namespace
     };
     class FakeScannerFactory : public threat_scanner::IThreatScannerFactory
     {
-        threat_scanner::IThreatScannerPtr createScanner(bool, bool) override
+        threat_scanner::IThreatScannerPtr createScanner(bool, bool, bool) override
         {
             return std::make_unique<FakeScanner>();
         }

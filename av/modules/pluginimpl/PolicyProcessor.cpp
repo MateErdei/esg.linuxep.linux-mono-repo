@@ -316,10 +316,10 @@ namespace Plugin
         m_threatDetectorSettings.setSxlLookupEnabled(isLookupEnabled(policy));
 
         bool oldOaPuaDetectionEnabled = m_threatDetectorSettings.isOaPuaDetectionEnabled();
-        const auto oaPuaDetectionEnabled = boolFromElement(policy.lookup("policy/onAccessScan/scanBehaviour/pua"), true);
+        const auto oaPuaDetectionEnabled = boolFromElement(policy.lookup("config/onAccessScan/scanBehaviour/pua"), true);
         m_threatDetectorSettings.setOaPuaDetectionEnabled(oaPuaDetectionEnabled);
         bool oldOdPuaDetectionEnabled = m_threatDetectorSettings.isOdPuaDetectionEnabled();
-        const auto odPuaDetectionEnabled = boolFromElement(policy.lookup("policy/onDemandScan/scanBehaviour/pua"), true);
+        const auto odPuaDetectionEnabled = boolFromElement(policy.lookup("config/onDemandScan/scanSet/scan/scanBehaviour/pua"), true);
         m_threatDetectorSettings.setOdPuaDetectionEnabled(odPuaDetectionEnabled);
 
         if (m_gotFirstSavPolicy &&

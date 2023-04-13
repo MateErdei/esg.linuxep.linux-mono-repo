@@ -20,7 +20,7 @@ namespace
                 ON_CALL(*this, susiIsInitialized).WillByDefault(Return(false));
             };
 
-            MOCK_METHOD(threat_scanner::IThreatScannerPtr, createScanner, (bool scanArchives, bool scanimages), (override));
+            MOCK_METHOD(threat_scanner::IThreatScannerPtr, createScanner, (bool scanArchives, bool scanimages, bool detectPUAs), (override));
             MOCK_METHOD(bool, update, (), (override));
             MOCK_METHOD(bool, reload, (), (override));
             MOCK_METHOD(void, shutdown, (), (override));

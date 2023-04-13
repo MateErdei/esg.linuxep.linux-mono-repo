@@ -28,7 +28,7 @@ namespace threat_scanner
                            IScanNotificationSharedPtr shutdownTimer,
                            IUpdateCompleteCallbackPtr updateCompleteCallback);
 
-        IThreatScannerPtr createScanner(bool scanArchives, bool scanImages) override;
+        IThreatScannerPtr createScanner(bool scanArchives, bool scanImages, bool detectPUAs) override;
 
         bool update() override;
         bool reload() override;

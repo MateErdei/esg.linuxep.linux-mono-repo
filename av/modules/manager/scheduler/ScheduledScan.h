@@ -100,6 +100,15 @@ namespace manager::scheduler
             return m_scanRemovableDrives;
         }
 
+        /**
+         * Should this enable detection of potentially unwanted applications
+         * @return
+         */
+        [[nodiscard]] bool detectPUAs() const
+        {
+            return m_detectPUAs;
+        }
+
     private:
         std::string m_name;
         DaySet m_days;
@@ -117,6 +126,7 @@ namespace manager::scheduler
         bool m_scanLocalOpticalDisks;
         bool m_scanNetworkDrives;
         bool m_scanRemovableDrives;
+        bool m_detectPUAs;
     };
 }
 

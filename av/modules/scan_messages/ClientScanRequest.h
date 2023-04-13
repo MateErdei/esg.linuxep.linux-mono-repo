@@ -40,6 +40,8 @@ namespace scan_messages
 
         void setScanInsideImages(bool scanImage) { m_scanInsideImages = scanImage; }
 
+        void setDetectPUAs(bool detectPUAs) { m_detectPUAs = detectPUAs; }
+
         void setScanType(E_SCAN_TYPE scanType) { m_scanType = scanType; }
 
         void setUserID(const std::string& userID) { m_userID = userID; }
@@ -66,6 +68,7 @@ namespace scan_messages
 
         bool m_scanInsideArchives = false;
         bool m_scanInsideImages = false;
+        bool m_detectPUAs = true;
 
         std::string m_executablePath;
         std::int64_t m_pid = -1;

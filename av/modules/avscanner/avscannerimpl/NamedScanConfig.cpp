@@ -27,6 +27,7 @@ NamedScanConfig::NamedScanConfig(const Sophos::ssplav::NamedScan::Reader& namedS
     , m_scanOptical(namedScanConfig.getScanCDDVDDrives())
     , m_scanNetwork(namedScanConfig.getScanNetworkDrives())
     , m_scanRemovable(namedScanConfig.getScanRemovableDrives())
+    , m_detectPUAs(namedScanConfig.getDetectPUAs())
 {
     auto excludePaths = namedScanConfig.getExcludePaths();
     m_excludePaths.reserve(excludePaths.size());

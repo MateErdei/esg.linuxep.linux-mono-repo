@@ -32,6 +32,7 @@ void scan_messages::ScanRequest::setRequestFromMessage(Reader &requestMessage)
     setUserID(requestMessage.getUserID());
     setPid(requestMessage.getPid());
     setExecutablePath(requestMessage.getExecutablePath());
+    setDetectPUAs(requestMessage.getDetectPUAs());
 }
 
 void scan_messages::ScanRequest::close()
@@ -54,6 +55,11 @@ bool ScanRequest::scanInsideImages() const
     return m_scanInsideImages;
 }
 
+bool ScanRequest::detectPUAs() const
+{
+    return m_detectPUAs;
+}
+
 std::string ScanRequest::getExecutablePath() const
 {
     return m_executablePath;
@@ -72,6 +78,7 @@ bool ScanRequest::operator==(const ScanRequest& rhs) const
            m_scanType == rhs.m_scanType &&
            m_scanInsideArchives == rhs.m_scanInsideArchives &&
            m_scanInsideImages == rhs.m_scanInsideImages &&
+           m_detectPUAs == rhs.m_detectPUAs &&
            m_executablePath == rhs.m_executablePath &&
            m_pid == rhs.m_pid &&
            m_autoFd.get() == rhs.m_autoFd.get();

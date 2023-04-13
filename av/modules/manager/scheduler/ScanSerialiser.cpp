@@ -29,6 +29,7 @@ std::string ScanSerialiser::serialiseScan(const ScheduledScanConfiguration& conf
     requestBuilder.setScanCDDVDDrives(nextScan.CDDVDDrives());
     requestBuilder.setScanNetworkDrives(nextScan.networkDrives());
     requestBuilder.setScanRemovableDrives(nextScan.removableDrives());
+    requestBuilder.setDetectPUAs(nextScan.detectPUAs());
 
     {
         auto exclusionsInput = config.exclusions();

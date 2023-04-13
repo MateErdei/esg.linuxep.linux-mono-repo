@@ -49,7 +49,8 @@ class CapnpHelper:
                                 scan_hard_drives: bool = None,
                                 scan_cd_dvd_drives: bool = None,
                                 scan_network_drives: bool = None,
-                                scan_removable_drives: bool = None):
+                                scan_removable_drives: bool = None,
+                                detect_puas: bool = None):
 
         actual_named_scan = self._get_capnp_object(object_filename, CapnpSchemas.NamedScan)
 
@@ -63,7 +64,8 @@ class CapnpHelper:
                            "scanHardDrives": scan_hard_drives,
                            "scanCDDVDDrives": scan_cd_dvd_drives,
                            "scanNetworkDrives": scan_network_drives,
-                           "scanRemovableDrives": scan_removable_drives}
+                           "scanRemovableDrives": scan_removable_drives,
+                           "detectPUAs": detect_puas}
 
         self._assert_schema_equal(CapnpSchemas.NamedScan,
                                   actual_named_scan,

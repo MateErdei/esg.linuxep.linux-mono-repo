@@ -12,20 +12,14 @@
 
 namespace threat_scanner
 {
-    IThreatScannerPtr SusiScannerFactory::createScanner(bool scanArchives, bool scanImages)
+    IThreatScannerPtr SusiScannerFactory::createScanner(bool scanArchives, bool scanImages, bool detectPUAs)
     {
-        bool detectPUAs = true;
-        auto globalHandler = m_wrapperFactory->accessGlobalHandler();
-        if (globalHandler != nullptr)
-        {
-            detectPUAs = globalHandler->isOaPuaDetectionEnabled() || globalHandler->isOdPuaDetectionEnabled();
-        }
         std::string scannerConfig = "{" + createScannerInfo(scanArchives, scanImages, detectPUAs, m_wrapperFactory->isMachineLearningEnabled()) + "}";
         auto unitScanner = std::make_unique<UnitScanner>(m_wrapperFactory->createSusiWrapper(scannerConfig));
         return std::make_unique<SusiScanner>(std::move(unitScanner),
                                              m_reporter,
                                              m_shutdownTimer,
-                                             globalHandler);
+                                             m_wrapperFactory->accessGlobalHandler());
     }
 
     SusiScannerFactory::SusiScannerFactory(

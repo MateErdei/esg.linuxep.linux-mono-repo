@@ -26,6 +26,7 @@ namespace avscanner::avscannerimpl
         bool m_scanOptical;
         bool m_scanNetwork;
         bool m_scanRemovable;
+        bool m_detectPUAs;
     };
 
     NamedScanConfig configFromFile(const std::string&);

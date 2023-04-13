@@ -145,7 +145,7 @@ namespace avscanner::avscannerimpl
 
         m_scanCallbacks = std::make_shared<ScanCallbackImpl>();
         auto scanner =
-            std::make_shared<ScanClient>(*getSocket(), m_scanCallbacks, m_archiveScanning, m_imageScanning, E_SCAN_TYPE_ON_DEMAND);
+            std::make_shared<ScanClient>(*getSocket(), m_scanCallbacks, m_archiveScanning, m_imageScanning, m_detectPUAs, E_SCAN_TYPE_ON_DEMAND);
         CommandLineWalkerCallbackImpl commandLineWalkerCallbacks(scanner, excludedMountPoints, cmdExclusions);
         filewalker::FileWalker fw(commandLineWalkerCallbacks);
         fw.followSymlinks(m_followSymlinks);

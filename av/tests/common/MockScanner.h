@@ -17,7 +17,7 @@ public:
 class MockScannerFactory : public threat_scanner::IThreatScannerFactory
 {
 public:
-    MOCK_METHOD(threat_scanner::IThreatScannerPtr, createScanner, (bool scanArchives, bool scanImages));
+    MOCK_METHOD(threat_scanner::IThreatScannerPtr, createScanner, (bool scanArchives, bool scanImages, bool detectPUAs));
     MOCK_METHOD(bool, update, ());
     MOCK_METHOD(bool, reload, ());
     MOCK_METHOD(void, shutdown, ());

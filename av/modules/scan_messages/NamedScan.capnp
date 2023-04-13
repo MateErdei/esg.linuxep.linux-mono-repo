@@ -1,8 +1,8 @@
 #------------------------------------------------------------------------------
-# Copyright 2020-2021 Sophos Limited. All rights reserved.
+# Copyright 2020-2023 Sophos Limited. All rights reserved.
 #
 #------------------------------------------------------------------------------
-@0x913548128bca14cd;
+@0xe519b32c3dcdf821;
 
 using Cxx = import "capnp/c++.capnp";
 
@@ -22,4 +22,5 @@ struct NamedScan {
     scanNetworkDrives               @9  :Bool;
     scanRemovableDrives             @10 :Bool;
     scanImages                      @11 :Bool;
+    detectPUAs                      @12 :Bool;
 }

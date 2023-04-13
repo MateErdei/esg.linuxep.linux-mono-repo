@@ -46,6 +46,11 @@ namespace scan_messages
         [[nodiscard]] bool scanInsideImages() const;
 
         /**
+         * Should we detect Potentially Unwanted Applications
+         * */
+        [[nodiscard]] bool detectPUAs() const;
+
+        /**
          * The path to scan
          */
         [[nodiscard]] std::string path() const;

@@ -57,7 +57,7 @@ TEST(TestScanClient, TestConstruction)
         .Times(1)
         .WillOnce(Return(0));
 
-    ScanClient s(mock_socket, mock_callbacks, false, false, E_SCAN_TYPE_ON_DEMAND);
+    ScanClient s(mock_socket, mock_callbacks, false, false, true, E_SCAN_TYPE_ON_DEMAND);
 }
 
 TEST(TestScanClient, TestConstructionWithoutCallbacks)
@@ -69,7 +69,7 @@ TEST(TestScanClient, TestConstructionWithoutCallbacks)
         .Times(1)
         .WillOnce(Return(0));
 
-    ScanClient s(mock_socket, mock_callbacks, false, false, E_SCAN_TYPE_ON_DEMAND);
+    ScanClient s(mock_socket, mock_callbacks, false, false, true, E_SCAN_TYPE_ON_DEMAND);
 }
 
 TEST(TestScanClient, TestScanEtcPasswd)
@@ -99,7 +99,7 @@ TEST(TestScanClient, TestScanEtcPasswd)
     EXPECT_CALL(*mock_callbacks, cleanFile(Eq("/etc/passwd")))
         .Times(1);
 
-    ScanClient s(mock_socket, mock_callbacks, false, false, E_SCAN_TYPE_ON_DEMAND);
+    ScanClient s(mock_socket, mock_callbacks, false, false, true, E_SCAN_TYPE_ON_DEMAND);
     auto result = s.scan("/etc/passwd");
     EXPECT_TRUE(result.allClean());
 }
@@ -139,7 +139,7 @@ TEST(TestScanClient, TestScanArchive)
     EXPECT_CALL(*mock_callbacks, infectedFile(detections, _, _, false))
         .Times(1);
 
-    ScanClient s(mock_socket, mock_callbacks, true, false, E_SCAN_TYPE_ON_DEMAND);
+    ScanClient s(mock_socket, mock_callbacks, true, false, true, E_SCAN_TYPE_ON_DEMAND);
     // Note: we need to scan a file which exists on all build systems (but will pretend this is an archive for test purposes)
     auto result = s.scan("/etc/passwd");
     EXPECT_FALSE(result.allClean());
@@ -178,7 +178,7 @@ TEST(TestScanClient, TestScanImage)
     EXPECT_CALL(*mock_callbacks, infectedFile(detections, _, _, false))
             .Times(1);
 
-    ScanClient s(mock_socket, mock_callbacks, false, true, E_SCAN_TYPE_ON_DEMAND);
+    ScanClient s(mock_socket, mock_callbacks, false, true, true, E_SCAN_TYPE_ON_DEMAND);
     // Note: we need to scan a file which exists on all build systems (but will pretend this is an image for test purposes)
     auto result = s.scan("/etc/passwd");
     EXPECT_FALSE(result.allClean());
@@ -208,7 +208,7 @@ TEST(TestScanClient, TestScanInfectedNoCallback)
                 ));
 
     std::shared_ptr<avscanner::avscannerimpl::IScanCallbacks> mock_callbacks;
-    ScanClient s(mock_socket, mock_callbacks, false, false, E_SCAN_TYPE_ON_DEMAND);
+    ScanClient s(mock_socket, mock_callbacks, false, false, true, E_SCAN_TYPE_ON_DEMAND);
     auto result = s.scan("/etc/passwd");
     EXPECT_FALSE(result.getDetections().empty());
     EXPECT_EQ(result.getDetections()[0].name, THREAT);
@@ -246,7 +246,7 @@ TEST(TestScanClient, TestScanInfected)
     EXPECT_CALL(*mock_callbacks, infectedFile(Eq(detections), _, _, false))
             .Times(1);
 
-    ScanClient s(mock_socket, mock_callbacks, false, false, E_SCAN_TYPE_ON_DEMAND);
+    ScanClient s(mock_socket, mock_callbacks, false, false, true, E_SCAN_TYPE_ON_DEMAND);
     auto result = s.scan("/etc/passwd");
 
     EXPECT_FALSE(result.getDetections().empty());
@@ -280,7 +280,7 @@ TEST(TestScanClient, TestScanError)
       EXPECT_CALL(*mock_callbacks, scanError(Eq(errorMsg), _))
         .Times(1);
 
-    ScanClient s(mock_socket, mock_callbacks, false, false, E_SCAN_TYPE_ON_DEMAND);
+    ScanClient s(mock_socket, mock_callbacks, false, false, true, E_SCAN_TYPE_ON_DEMAND);
     auto result = s.scan("/etc/passwd");
 
     EXPECT_TRUE(result.getDetections().empty());
@@ -314,7 +314,7 @@ TEST(TestScanClient, TestScanErrorPasswordProtected)
     EXPECT_CALL(*mock_callbacks, scanError(Eq(errorMsg), _))
         .Times(1);
 
-    ScanClient s(mock_socket, mock_callbacks, false, false, E_SCAN_TYPE_ON_DEMAND);
+    ScanClient s(mock_socket, mock_callbacks, false, false, true, E_SCAN_TYPE_ON_DEMAND);
     auto result = s.scan("/etc/passwd");
 
     EXPECT_TRUE(result.getDetections().empty());
@@ -354,7 +354,7 @@ TEST(TestScanClient, TestScanErrorWithDetections)
     EXPECT_CALL(*mock_callbacks, scanError(Eq(errorMsg), _))
         .Times(1);
 
-    ScanClient s(mock_socket, mock_callbacks, false, false, E_SCAN_TYPE_ON_DEMAND);
+    ScanClient s(mock_socket, mock_callbacks, false, false, true, E_SCAN_TYPE_ON_DEMAND);
     auto result = s.scan("/etc/passwd");
 
     EXPECT_FALSE(result.getDetections().empty());
@@ -373,7 +373,7 @@ TEST(TestScanClient, TestScanCannotOpen)
         .Times(1)
         .WillOnce(Return(0));
 
-    ScanClient s(mock_socket, mock_callbacks, false, false, E_SCAN_TYPE_ON_DEMAND);
+    ScanClient s(mock_socket, mock_callbacks, false, false, true, E_SCAN_TYPE_ON_DEMAND);
 
     std::string errorMsg;
     std::error_code errorCode;

@@ -37,7 +37,7 @@ TEST_F(TestSusiScannerFactory, throwsDuringInitializeWithoutPLUGIN_INSTALL)
 
     try
     {
-        factory.createScanner(false, false);
+        factory.createScanner(false, false, false);
         FAIL() << "Able to construct scanner without PLUGIN_INSTALL!";
     }
     catch (const std::exception& ex)
@@ -68,7 +68,7 @@ TEST_F(TestSusiScannerFactory, throwsDuringInitialize) //NOLINT
 
     try
     {
-        factory.createScanner(false, false);
+        factory.createScanner(false, false, false);
         FAIL() << "Able to construct scanner!";
     }
     catch (const std::exception& ex)
@@ -97,7 +97,7 @@ TEST_F(TestSusiScannerFactory, testCreateScannerWithMockSusiWrapperArchivesAndIm
     EXPECT_CALL(*wrapperFactory, accessGlobalHandler()).WillOnce(Return(nullptr));
 
     SusiScannerFactory factory(wrapperFactory, nullptr, nullptr, nullptr);
-    EXPECT_NO_THROW(auto scanner = factory.createScanner(false, false));
+    EXPECT_NO_THROW(auto scanner = factory.createScanner(false, false, true));
 }
 
 
@@ -115,7 +115,7 @@ TEST_F(TestSusiScannerFactory, testCreateScannerWithMockSusiWrapperArchivesTrue)
     EXPECT_CALL(*wrapperFactory, accessGlobalHandler()).WillOnce(Return(nullptr));
 
     SusiScannerFactory factory(wrapperFactory, nullptr, nullptr, nullptr);
-    EXPECT_NO_THROW(auto scanner = factory.createScanner(true, false));
+    EXPECT_NO_THROW(auto scanner = factory.createScanner(true, false, true));
 }
 
 
@@ -133,7 +133,7 @@ TEST_F(TestSusiScannerFactory, testCreateScannerWithMockSusiWrapperImagesTrue)
     EXPECT_CALL(*wrapperFactory, accessGlobalHandler()).WillOnce(Return(nullptr));
 
     SusiScannerFactory factory(wrapperFactory, nullptr, nullptr, nullptr);
-    EXPECT_NO_THROW(auto scanner = factory.createScanner(false, true));
+    EXPECT_NO_THROW(auto scanner = factory.createScanner(false, true, true));
 }
 
 TEST_F(TestSusiScannerFactory, callbackAfterSuccessfulUpdate)

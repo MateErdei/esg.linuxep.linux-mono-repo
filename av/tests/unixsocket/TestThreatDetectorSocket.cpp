@@ -44,6 +44,7 @@ namespace
                 message.initRoot<Sophos::ssplav::FileScanRequest>();
             requestBuilder.setPathname(path);
             requestBuilder.setScanType(scan_messages::E_SCAN_TYPE_ON_DEMAND);
+            requestBuilder.setDetectPUAs(true);
             requestBuilder.setUserID("n/a");
 
             Sophos::ssplav::FileScanRequest::Reader requestReader = requestBuilder;
@@ -130,7 +131,7 @@ TEST_F(TestThreatDetectorSocket, test_scan_threat)
     scan_messages::ScanRequest request = makeScanRequestObject(THREAT_PATH);
     EXPECT_CALL(*scanner, scan(_, Eq(std::ref(request))))
         .WillOnce(Return(expected_response));
-    EXPECT_CALL(*scannerFactory, createScanner(false, false))
+    EXPECT_CALL(*scannerFactory, createScanner(false, false, true))
         .WillOnce(Return(ByMove(std::move(scanner))));
 
     unixsocket::ScanningServerSocket server(socketPath, 0666, scannerFactory);
@@ -170,7 +171,7 @@ TEST_F(TestThreatDetectorSocket, test_scan_clean)
     scan_messages::ScanRequest request = makeScanRequestObject(THREAT_PATH);
     EXPECT_CALL(*scanner, scan(_, Eq(std::ref(request))))
         .WillOnce(Return(expected_response));
-    EXPECT_CALL(*scannerFactory, createScanner(false, false))
+    EXPECT_CALL(*scannerFactory, createScanner(false, false, true))
         .WillOnce(Return(ByMove(std::move(scanner))));
 
     unixsocket::ScanningServerSocket server(socketPath, 0666, scannerFactory);
@@ -206,7 +207,7 @@ TEST_F(TestThreatDetectorSocket, test_scan_twice)
     scan_messages::ScanRequest request = makeScanRequestObject(THREAT_PATH);
     EXPECT_CALL(*scanner, scan(_, Eq(std::ref(request))))
         .WillRepeatedly(Return(expected_response));
-    EXPECT_CALL(*scannerFactory, createScanner(false, false))
+    EXPECT_CALL(*scannerFactory, createScanner(false, false, true))
         .WillOnce(Return(ByMove(std::move(scanner))));
 
     unixsocket::ScanningServerSocket server(socketPath, 0666, scannerFactory);
@@ -244,9 +245,9 @@ TEST_F(TestThreatDetectorSocket, test_scan_throws)
     scan_messages::ScanRequest request = makeScanRequestObject(THREAT_PATH);
     EXPECT_CALL(*scanner, scan(_, Eq(std::ref(request))))
         .WillRepeatedly(Throw(std::runtime_error("Intentional throw")));
-    EXPECT_CALL(*scannerFactory, createScanner(false, false))
+    EXPECT_CALL(*scannerFactory, createScanner(false, false, true))
         .WillOnce(Return(ByMove(std::move(scanner))))
-        .WillRepeatedly([](bool, bool)->threat_scanner::IThreatScannerPtr{ return nullptr; });
+        .WillRepeatedly([](bool, bool, bool)->threat_scanner::IThreatScannerPtr{ return nullptr; });
 
     unixsocket::ScanningServerSocket server(socketPath, 0600, scannerFactory);
     server.start();
@@ -275,9 +276,9 @@ TEST_F(TestThreatDetectorSocket, test_too_many_connections_are_refused)
     static const std::string THREAT_PATH = "/dev/null";
     std::string socketPath = "/tmp/scanning_socket";
     auto scannerFactory = std::make_shared<StrictMock<MockScannerFactory>>();
-    EXPECT_CALL(*scannerFactory, createScanner(false, false))
+    EXPECT_CALL(*scannerFactory, createScanner(false, false, false))
         .WillRepeatedly(
-            [](bool, bool) -> threat_scanner::IThreatScannerPtr
+            [](bool, bool, bool) -> threat_scanner::IThreatScannerPtr
             { return std::make_unique<StrictMock<MockScanner>>(); });
 
     unixsocket::ScanningServerSocket server(socketPath, 0600, scannerFactory);

@@ -277,7 +277,9 @@ void unixsocket::ScanningServerConnectionThread::inner_run()
                 if (!scanner)
                 {
                     scanner = m_scannerFactory->createScanner(
-                        requestReader->scanInsideArchives(), requestReader->scanInsideImages());
+                        requestReader->scanInsideArchives(),
+                        requestReader->scanInsideImages(),
+                        requestReader->detectPUAs());
                     if (!scanner)
                     {
                         throw std::runtime_error(m_threadName + " failed to create scanner");
