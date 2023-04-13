@@ -18,6 +18,7 @@ Default Tags   RESPONSE_ACTIONS_PLUGIN
 
 *** Variables ***
 #if these change, change in Send_Download_File_From_Fake_Cloud also
+${RESPONSE_ACTIONS_TMP_PATH}   ${SOPHOS_INSTALL}/plugins/responseactions/tmp/
 ${DOWNLOAD_TARGET_PATH}    /tmp/folder/
 ${DOWNLOAD_FILENAME_ZIP}    download.zip
 ${DOWNLOAD_FILENAME_TXT}    download.txt
@@ -37,7 +38,7 @@ RA Plugin downloads a file successfully
     Check Log Contains  Received HTTP GET Request  ${HTTPS_LOG_FILE_PATH}  https server log
     File Should Exist   ${DOWNLOAD_TARGET_PATH}${DOWNLOAD_FILENAME_ZIP}
 
-    File Should Not Exist    ${RESPONSE_ACTIONS_TMP_PATH}/${DOWNLOAD_FILENAME_ZIP}
+    File Should Not Exist    ${RESPONSE_ACTIONS_TMP_PATH}${DOWNLOAD_FILENAME_ZIP}
 
     Wait Until Keyword Succeeds
     ...  1 min
@@ -79,7 +80,7 @@ RA Plugin fails a real url due to authorization not file to long
     wait_for_log_contains_from_mark  ${action_mark}  Sent download file response for ID correlation-id to Central   15
     wait_for_log_contains_from_mark  ${action_mark}   Failed to download, Error code: 403
 
-    File Should Not Exist    ${RESPONSE_ACTIONS_TMP_PATH}/download.zip
+    File Should Not Exist    ${RESPONSE_ACTIONS_TMP_PATH}download.zip
 
     Wait Until Keyword Succeeds
     ...  1 min

@@ -46,7 +46,7 @@ public:
     const Path m_testExtractedFile = "download.txt";
     const Path m_destPath = "/path/to/download/to";
     const Path m_raTmpDir = "/opt/sophos-spl/plugins/responseactions/tmp";
-    const Path m_raTmpFile = "/opt/sophos-spl/plugins/responseactions/tmp/tmp_download";
+    const Path m_raTmpFile = "/opt/sophos-spl/plugins/responseactions/tmp/tmp_download.zip";
     const Path m_raExtractTmpDir = "/opt/sophos-spl/plugins/responseactions/tmp/extract";
     const std::string m_password = "password";
 
@@ -371,7 +371,7 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompress_WrongPassword)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    const std::string expectedErrMsg = "Error unzipping /opt/sophos-spl/plugins/responseactions/tmp/tmp_download due to bad password";
+    const std::string expectedErrMsg = "Error unzipping /opt/sophos-spl/plugins/responseactions/tmp/tmp_download.zip due to bad password";
 
     bool decompress = true;
     setupMockZipUtils(UNZ_BADPASSWORD, m_password);
@@ -403,7 +403,7 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompress_WrongPassword)
     EXPECT_EQ(responseJson["errorMessage"], expectedErrMsg);
 
     EXPECT_TRUE(appenderContains("Beginning download to /path/to/download/to/download.txt"));
-    EXPECT_TRUE(appenderContains("Downloaded file: download.txt as /opt/sophos-spl/plugins/responseactions/tmp/tmp_download"));
+    EXPECT_TRUE(appenderContains("Downloaded file: download.txt as /opt/sophos-spl/plugins/responseactions/tmp/tmp_download.zip"));
     EXPECT_TRUE(appenderContains(expectedErrMsg));
 }
 
@@ -411,7 +411,7 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompress_BadArchive)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    const std::string expectedErrMsg = "Error unzipping /opt/sophos-spl/plugins/responseactions/tmp/tmp_download due to bad archive";
+    const std::string expectedErrMsg = "Error unzipping /opt/sophos-spl/plugins/responseactions/tmp/tmp_download.zip due to bad archive";
 
     bool decompress = true;
     setupMockZipUtils(UNZ_BADZIPFILE);
@@ -443,7 +443,7 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompress_BadArchive)
     EXPECT_EQ(responseJson["errorMessage"], expectedErrMsg);
 
     EXPECT_TRUE(appenderContains("Beginning download to /path/to/download/to/download.txt"));
-    EXPECT_TRUE(appenderContains("Downloaded file: download.txt as /opt/sophos-spl/plugins/responseactions/tmp/tmp_download"));
+    EXPECT_TRUE(appenderContains("Downloaded file: download.txt as /opt/sophos-spl/plugins/responseactions/tmp/tmp_download.zip"));
     EXPECT_TRUE(appenderContains(expectedErrMsg));
 }
 
@@ -452,7 +452,7 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompress_ZipUtilsThrows)
     UsingMemoryAppender memoryAppenderHolder(*this);
 
     //more helpful logging is done in ziputil
-    const std::string expectedErrMsg = "Error unzipping /opt/sophos-spl/plugins/responseactions/tmp/tmp_download due to error no 1";
+    const std::string expectedErrMsg = "Error unzipping /opt/sophos-spl/plugins/responseactions/tmp/tmp_download.zip due to error no 1";
 
     bool decompress = true;
 
@@ -487,7 +487,7 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompress_ZipUtilsThrows)
     EXPECT_EQ(responseJson["errorMessage"], expectedErrMsg);
 
     EXPECT_TRUE(appenderContains("Beginning download to /path/to/download/to/download.txt"));
-    EXPECT_TRUE(appenderContains("Downloaded file: download.txt as /opt/sophos-spl/plugins/responseactions/tmp/tmp_download"));
+    EXPECT_TRUE(appenderContains("Downloaded file: download.txt as /opt/sophos-spl/plugins/responseactions/tmp/tmp_download.zip"));
     EXPECT_TRUE(appenderContains(expectedErrMsg));
 }
 
@@ -495,7 +495,7 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompress_OtherError)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    const std::string expectedErrMsg = "Error unzipping /opt/sophos-spl/plugins/responseactions/tmp/tmp_download due to error no -104";
+    const std::string expectedErrMsg = "Error unzipping /opt/sophos-spl/plugins/responseactions/tmp/tmp_download.zip due to error no -104";
 
     bool decompress = true;
     setupMockZipUtils(UNZ_INTERNALERROR);
@@ -527,7 +527,7 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompress_OtherError)
     EXPECT_EQ(responseJson["errorMessage"], expectedErrMsg);
 
     EXPECT_TRUE(appenderContains("Beginning download to /path/to/download/to/download.txt"));
-    EXPECT_TRUE(appenderContains("Downloaded file: download.txt as /opt/sophos-spl/plugins/responseactions/tmp/tmp_download"));
+    EXPECT_TRUE(appenderContains("Downloaded file: download.txt as /opt/sophos-spl/plugins/responseactions/tmp/tmp_download.zip"));
     EXPECT_TRUE(appenderContains(expectedErrMsg));
 }
 
@@ -1308,7 +1308,7 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompress_NoFilesUnzipped)
     EXPECT_EQ(responseJson["errorMessage"], expectedErrMsg);
 
     EXPECT_TRUE(appenderContains("Beginning download to /path/to/download/to/download.txt"));
-    EXPECT_TRUE(appenderContains("Downloaded file: download.txt as /opt/sophos-spl/plugins/responseactions/tmp/tmp_download"));
+    EXPECT_TRUE(appenderContains("Downloaded file: download.txt as /opt/sophos-spl/plugins/responseactions/tmp/tmp_download.zip"));
     EXPECT_TRUE(appenderContains(expectedErrMsg));
 }
 
@@ -1347,7 +1347,7 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompress_ToManyFilesUnzipp
     EXPECT_EQ(responseJson["errorMessage"], expectedErrMsg);
 
     EXPECT_TRUE(appenderContains("Beginning download to /path/to/download/to/download.txt"));
-    EXPECT_TRUE(appenderContains("Downloaded file: download.txt as /opt/sophos-spl/plugins/responseactions/tmp/tmp_download"));
+    EXPECT_TRUE(appenderContains("Downloaded file: download.txt as /opt/sophos-spl/plugins/responseactions/tmp/tmp_download.zip"));
     EXPECT_TRUE(appenderContains(expectedErrMsg));
 }
 
