@@ -159,7 +159,6 @@ Check Diagnose Output For System Command Files
     Should Contain  ${Files}    rpm-pkgs
     Should Contain  ${Files}    dpkg-pkgs
     Should Contain  ${Files}    yum-pkgs
-    Should Contain  ${Files}    zypper-pkgs
     Should Contain  ${Files}    apt-pkgs
     Should Contain  ${Files}    ldconfig
     Should Contain  ${Files}    systemctl-status-sophos-spl
