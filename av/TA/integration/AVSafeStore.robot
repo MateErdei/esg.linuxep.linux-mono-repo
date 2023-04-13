@@ -815,7 +815,7 @@ Safestore Quarantines On Access Execute Detection
     Send Policies to enable on-access  flags_policy/flags_safestore_onaccess_and_ml_enabled.json  ${oa_mark}
     On-access Scan On Execute   ${TRUE}     ${ss_mark}
 
-SafeStore Does Not Quarantine Pua Detection
+SafeStore Quarantines Pua Detection
     ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
     Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
     Wait For Log Contains From Mark  ${av_mark}  SafeStore flag set. Setting SafeStore to enabled.

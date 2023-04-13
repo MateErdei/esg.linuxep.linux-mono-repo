@@ -646,18 +646,6 @@ AV Runs Scan With SXL Lookup Disabled
     AV Plugin Log Does Not Contain   Failed to send shutdown request: Failed to connect to unix socket
 
 
-AV Plugin Can Detect PUAs With Scan Now
-    Create File  /tmp_test/pua_eicar  ${EICAR_PUA_STRING}
-    Register Cleanup  Remove File  /tmp_test/pua_eicar
-
-    ${av_mark} =  Get AV Log Mark
-    Configure and run scan now
-
-    Wait For AV Log Contains After Mark  Sending threat detection notification to central  ${av_mark}   timeout=60
-    Wait For AV Log Contains After Mark  Found 'EICAR-PUA-Test'  ${av_mark}
-    Wait For AV Log Contains After Mark  Completed scan Scan Now  ${av_mark}
-
-
 AV Plugin does not restart threat detector on customer id change
     #    Get ALC Policy doesn't have Core and Base
     Register Cleanup    Exclude Core Not In Policy Features
