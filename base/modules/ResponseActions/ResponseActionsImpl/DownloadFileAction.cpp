@@ -56,7 +56,7 @@ namespace ResponseActionsImpl
             {
                 decompressAndMoveFile(info, response);
             }
-            //removeTmpFiles();
+            removeTmpFiles();
         }
 
 
