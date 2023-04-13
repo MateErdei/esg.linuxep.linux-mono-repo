@@ -15,17 +15,24 @@ add_library(responseactionsimpl SHARED
         RunCommandAction.h
         )
 
-include_directories(responseactionsimpl BEFORE ${CMAKE_CURRENT_BINARY_DIR} ${LOG4CPLUS_INCLUDE_DIR} ${NLOHMANN_JSON_INCLUDE_DIR})
+include_directories(responseactionsimpl BEFORE
+        ${CMAKE_CURRENT_BINARY_DIR}
+        ${LOG4CPLUS_INCLUDE_DIR}
+        ${NLOHMANN_JSON_INCLUDE_DIR}
+        ${CMAKE_BINARY_DIR}/products/PluginApi/pluginapi/include
+        )
 
 target_link_libraries(responseactionsimpl PUBLIC
         logging
-        utilityimpl
         ProxyUtilsLib
         HttpRequestsImpl
         curlwrapper
-        filesystemimplobject
         ziputilities
-        processimpl)
+        ${CMAKE_BINARY_DIR}/products/PluginApi/libpluginapi.so
+        ${Protobuf_LIBRARY}
+        ${EXPAT_LIBRARY}
+        ${ZeroMQ_LIBRARY}
+        )
 
 SET_TARGET_PROPERTIES(responseactionsimpl
         PROPERTIES
@@ -36,4 +43,4 @@ SET_TARGET_PROPERTIES(responseactionsimpl
 install(TARGETS responseactionsimpl
         LIBRARY DESTINATION ${RA_DIST_PREFIX}/files/plugins/${RA_PLUGIN_NAME}/lib64)
 
-add_dependencies(responseactionsimpl copy_libs)
+add_dependencies(responseactionsimpl pluginapi plugintar copy_libs)

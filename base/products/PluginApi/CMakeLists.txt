@@ -165,3 +165,6 @@ add_custom_command(
         COMMAND rm -rf pluginapi
 )
 
+install(TARGETS pluginapi
+        LIBRARY DESTINATION ${RA_DIST_PREFIX}/files/plugins/${RA_PLUGIN_NAME}/lib64)
+
