@@ -312,9 +312,6 @@ def sspl_base(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
     if mode in [ANALYSIS_MODE]:
         return
 
-    # TODO REMOVE TEMP return
-    return
-
     test_inputs = get_inputs(context, base_build, mode)
     machines = (
         ("ubuntu1804",

@@ -11,7 +11,6 @@
 #include <Common/PluginApi/ApiException.h>
 #include <Common/PluginApi/NoPolicyAvailableException.h>
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
-#include <Common/UtilityImpl/StringUtils.h>
 #include <SulDownloader/suldownloaderdata/ConfigurationDataUtil.h>
 #include <SulDownloader/suldownloaderdata/UpdateSupplementDecider.h>
 #include <UpdateScheduler/SchedulerTaskQueue.h>
@@ -79,28 +78,15 @@ namespace UpdateSchedulerImpl
         auto sulLockFilePath = Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderLockFilePath();
         try
         {
-            // TODO REMOVE
-            LOGINFO("Trying to take lock " << sulLockFilePath);
-
+            LOGDEBUG("Trying to take suldownloader lock " << sulLockFilePath);
             Common::FileSystem::acquireLockFile(sulLockFilePath);
-
-            // TODO REMOVE
-            LOGINFO("Took lock " << sulLockFilePath << ", assuming suldownloader not running.");
-
+            LOGDEBUG("Took lock " << sulLockFilePath << ", assuming suldownloader not running");
             return false;
         }
         catch (const std::system_error& ex)
         {
-            LOGDEBUG("Could not acquire suldownloader lock: " << ex.what());
-
-            // TODO REMOVE
-            LOGINFO("Could not acquire suldownloader lock: " << ex.what());
-
+            LOGDEBUG("Could not acquire suldownloader lock, assuming suldownloader is running: " << ex.what());
         }
-
-        // TODO REMOVE
-        LOGINFO("Suldownloader is running");
-
         return true;
     }
 
