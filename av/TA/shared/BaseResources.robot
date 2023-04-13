@@ -31,6 +31,11 @@ Send Sav Policy With Imminent Scheduled Scan To Base
     Create Sav Policy With Scheduled Scan  ${TEMP_SAV_POLICY_FILENAME}  ${time}
     Send Sav Policy To Base  ${TEMP_SAV_POLICY_FILENAME}
 
+Send Sav Policy With Imminent Scheduled Scan To Base PUA Detections Disabled
+    ${time} =  Get Current Date  result_format=%y-%m-%d %H:%M:%S
+    Create Sav Policy With Scheduled Scan And Pua Detection Disabled  ${TEMP_SAV_POLICY_FILENAME}  ${time}
+    Send Sav Policy To Base  ${TEMP_SAV_POLICY_FILENAME}
+
 Send Sav Policy With Imminent Scheduled Scan To Base Exclusions Added
     ${time} =  Get Current Date  result_format=%y-%m-%d %H:%M:%S
     Create Sav Policy With Scheduled Scan  ${TEMP_SAV_POLICY_FILENAME}  ${time}

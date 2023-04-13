@@ -168,6 +168,29 @@ AV plugin runs scheduled scan
     Wait For AV Log Contains After Mark  Completed scan  ${av_mark}  timeout=180
 
 
+AV plugin can detect PUAs via scheduled scan
+    Create File  /tmp_test/eicar_pua.com   ${EICAR_PUA_STRING}
+    Register Cleanup  Remove Files  /tmp_test/eicar_pua.com
+
+    ${av_mark} =  Get AV Log Mark
+    Send Sav Policy With Imminent Scheduled Scan To Base
+    File Should Exist  ${MCS_PATH}/policy/SAV-2_policy.xml
+
+    Wait until scheduled scan updated After Mark  ${av_mark}
+    Wait For AV Log Contains After Mark  Starting scan Sophos Cloud Scheduled Scan  ${av_mark}  timeout=150
+    Wait For AV Log Contains After Mark  Completed scan  ${av_mark}  timeout=180
+    Wait For AV Log Contains After Mark  Found 'EICAR-PUA-Test'  ${av_mark}
+
+    ${av_mark2} =  Get AV Log Mark
+    Send Sav Policy With Imminent Scheduled Scan To Base PUA Detections Disabled
+    File Should Exist  ${MCS_PATH}/policy/SAV-2_policy.xml
+
+    Wait until scheduled scan updated After Mark  ${av_mark2}
+    Wait For AV Log Contains After Mark  Starting scan Sophos Cloud Scheduled Scan  ${av_mark2}  timeout=150
+    Wait For AV Log Contains After Mark  Completed scan  ${av_mark2}  timeout=180
+    Check AV Log Does Not Contain After Mark   Found 'EICAR-PUA-Test'  ${av_mark2}
+
+
 AV plugin runs multiple scheduled scans
     Register Cleanup    Exclude MCS Router is dead
     Register Cleanup    Exclude File Name Too Long For Cloud Scan

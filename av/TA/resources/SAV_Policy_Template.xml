@@ -101,7 +101,7 @@
                     <scanBehaviour>
                         <level>normal</level>
                         <archives>{{scheduledScanArchives}}</archives>
-                        <pua>true</pua>
+                        <pua>{{scheduledScanPUAdetection}}</pua>
                         <suspiciousFileDetection>false</suspiciousFileDetection>
                         <scanForMacViruses>false</scanForMacViruses>
                         <anti-rootkits>true</anti-rootkits>

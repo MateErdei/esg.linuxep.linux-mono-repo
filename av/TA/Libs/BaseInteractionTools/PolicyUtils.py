@@ -25,6 +25,7 @@ def create_sav_policy_with_scheduled_scan(filename, timestamp):
     sav_policy_builder.set_scheduled_scan_day(day)
     sav_policy_builder.set_scheduled_scan_time(parsed_timestamp)
     sav_policy_builder.set_posix_exclusions(["*/test_scripts/*", "*excluded*"])
+    sav_policy_builder.set_pua_detection("true")
     sav_policy_builder.send_sav_policy()
 
 
@@ -38,7 +39,22 @@ def create_sav_policy_with_scheduled_scan_and_on_access_enabled(filename, timest
     sav_policy_builder.set_scheduled_scan_day(day)
     sav_policy_builder.set_scheduled_scan_time(parsed_timestamp)
     sav_policy_builder.set_posix_exclusions(["*/test_scripts/*", "*excluded*"])
+    sav_policy_builder.set_pua_detection("true")
     sav_policy_builder.set_on_access_on()
+    sav_policy_builder.send_sav_policy()
+
+
+def create_sav_policy_with_scheduled_scan_and_pua_detection_disabled(filename, timestamp):
+    parsed_timestamp = datetime.strptime(timestamp, "%y-%m-%d %H:%M:%S")
+    scan_time = parsed_timestamp + timedelta(seconds=20)
+    day = calendar.day_name[scan_time.weekday()].lower()
+    parsed_timestamp = scan_time.strftime("%H:%M:%S")
+
+    sav_policy_builder = _SavPolicyBuilder(SAV_POLICY_PATH, filename)
+    sav_policy_builder.set_scheduled_scan_day(day)
+    sav_policy_builder.set_scheduled_scan_time(parsed_timestamp)
+    sav_policy_builder.set_posix_exclusions(["*/test_scripts/*", "*excluded*"])
+    sav_policy_builder.set_pua_detection("false")
     sav_policy_builder.send_sav_policy()
 
 
@@ -47,6 +63,7 @@ def create_sav_policy_with_on_access_enabled(filename):
     sav_policy_builder.set_scheduled_scan_day("sunday")
     sav_policy_builder.set_scheduled_scan_time("11:00:00")
     sav_policy_builder.set_posix_exclusions(["/mnt/", "/uk-filer5/", "*excluded*", "/opt/test/inputs/test_scripts/", ])
+    sav_policy_builder.set_pua_detection("true")
     sav_policy_builder.set_on_access_on()
     sav_policy_builder.send_sav_policy()
 
@@ -71,6 +88,7 @@ def create_sav_policy_with_multiple_scheduled_scans(filename, timestamp, no_of_s
     sav_policy_builder.set_scheduled_scan_day(day)
     sav_policy_builder.set_scheduled_scan_time(timestamp_builder)
     sav_policy_builder.set_posix_exclusions(["*/test_scripts/*", "*excluded*"])
+    sav_policy_builder.set_pua_detection("true")
     sav_policy_builder.send_sav_policy()
 
 
@@ -81,6 +99,7 @@ def create_complete_sav_policy(filename):
     sav_policy_builder.set_posix_exclusions(["*.glob", "globExample?.txt", "/stemexample/*"])
     sav_policy_builder.set_sophos_defined_extension_exclusions(["exclusion1", "exclusion2", "exclusion3"])
     sav_policy_builder.set_user_defined_extension_exclusions(["exclusion1", "exclusion2", "exclusion3", "exclusion4"])
+    sav_policy_builder.set_pua_detection("true")
     sav_policy_builder.send_sav_policy()
 
 
@@ -95,6 +114,7 @@ def get_complete_sav_policy(
     sav_policy_builder.set_posix_exclusions(exclusion_list)
     sav_policy_builder.set_sophos_defined_extension_exclusions(["exclusion1", "exclusion2", "exclusion3"])
     sav_policy_builder.set_user_defined_extension_exclusions(["exclusion1", "exclusion2", "exclusion3", "exclusion4"])
+    sav_policy_builder.set_pua_detection("true")
     return sav_policy_builder.get_sav_policy()
 
 
@@ -116,6 +136,7 @@ def create_fixed_sav_policy(filename):
     sav_policy_builder.set_posix_exclusions(["*.glob", "globExample?.txt", "/stemexample/*"])
     sav_policy_builder.set_sophos_defined_extension_exclusions(["exclusion1", "exclusion2", "exclusion3"])
     sav_policy_builder.set_user_defined_extension_exclusions(["exclusion1", "exclusion2", "exclusion3", "exclusion4"])
+    sav_policy_builder.set_pua_detection("true")
     sav_policy_builder.send_sav_policy()
 
 
@@ -186,4 +207,7 @@ class _SavPolicyBuilder:
 
     def set_on_access_on(self):
         self.replacement_map["{{onAccessEnabled}}"] = 'true'
+
+    def set_pua_detection(self, pua_detection_enabled):
+        self.replacement_map["{{scheduledScanPUAdetection}}"] = pua_detection_enabled
 
