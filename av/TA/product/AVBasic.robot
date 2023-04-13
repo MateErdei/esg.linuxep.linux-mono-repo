@@ -70,7 +70,7 @@ AV Plugin Gets PUA Detection Enabled Setting From SAV Policy
     Remove Files   ${SUSI_STARTUP_SETTINGS_FILE}   ${susiStartupSettingsChrootFile}
 
     ${av_mark} =  Get AV Log Mark
-    ${policyContent} =   Get SAV Policy   oaPuaDetectionsEnabled=false   odPuaDetectionsEnabled=false
+    ${policyContent} =   Get SAV Policy   oaPuaDetectionsEnabled=false
     ${av_mark} =  get av log mark
     send av policy  ${SAV_APPID}  ${policyContent}
     Wait Until Scheduled Scan Updated After Mark  ${av_mark}
@@ -79,7 +79,6 @@ AV Plugin Gets PUA Detection Enabled Setting From SAV Policy
     Wait Until Created   ${SUSI_STARTUP_SETTINGS_FILE}   timeout=5sec
     ${json} =   load_json_from_file  ${SUSI_STARTUP_SETTINGS_FILE}
     check_json_contains  ${json}  oaPuaDetection  ${false}
-    check_json_contains  ${json}  odPuaDetection  ${false}
 
 AV Plugin Gets ML Lookup Setting From CORE Policy
     ${susiStartupSettingsChrootFile} =   Set Variable   ${AV_PLUGIN_PATH}/chroot${SUSI_STARTUP_SETTINGS_FILE}

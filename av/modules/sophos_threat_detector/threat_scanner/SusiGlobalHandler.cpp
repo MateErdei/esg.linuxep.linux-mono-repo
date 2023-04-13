@@ -486,10 +486,4 @@ namespace threat_scanner
         return m_susiSettings->isOaPuaDetectionEnabled();
     }
 
-    bool SusiGlobalHandler::isOdPuaDetectionEnabled()
-    {
-        std::lock_guard<std::mutex> lock(m_susiSettingsMutex);
-        return m_susiSettings->isOdPuaDetectionEnabled();
-    }
-
 } // namespace threat_scanner

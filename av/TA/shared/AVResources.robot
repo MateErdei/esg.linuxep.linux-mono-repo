@@ -1130,7 +1130,7 @@ Get ALC Policy
     [Return]   ${policyContent}
 
 Get SAV Policy
-    [Arguments]  ${revid}=${EMPTY}  ${sxlLookupEnabled}=A    ${oaPuaDetectionsEnabled}=true    ${odPuaDetectionsEnabled}=true
+    [Arguments]  ${revid}=${EMPTY}  ${sxlLookupEnabled}=A    ${oaPuaDetectionsEnabled}=true
     ${policyContent} =  Catenate   SEPARATOR=${\n}
     ...   <?xml version="1.0"?>
     ...   <config>
@@ -1144,12 +1144,6 @@ Get SAV Policy
     ...           <pua>${oaPuaDetectionsEnabled}</pua>
     ...         </scanBehaviour>
     ...       </onAccessScan>
-    ...       <onDemandScan>
-    ...         <enabled>true</enabled>
-    ...         <scanBehaviour>
-    ...           <pua>${odPuaDetectionsEnabled}</pua>
-    ...         </scanBehaviour>
-    ...       </onDemandScan>
     ...   </config>
     ${policyContent} =   Replace Variables   ${policyContent}
     [Return]   ${policyContent}

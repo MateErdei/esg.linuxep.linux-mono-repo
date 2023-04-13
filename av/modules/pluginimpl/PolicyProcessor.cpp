@@ -318,14 +318,10 @@ namespace Plugin
         bool oldOaPuaDetectionEnabled = m_threatDetectorSettings.isOaPuaDetectionEnabled();
         const auto oaPuaDetectionEnabled = boolFromElement(policy.lookup("config/onAccessScan/scanBehaviour/pua"), true);
         m_threatDetectorSettings.setOaPuaDetectionEnabled(oaPuaDetectionEnabled);
-        bool oldOdPuaDetectionEnabled = m_threatDetectorSettings.isOdPuaDetectionEnabled();
-        const auto odPuaDetectionEnabled = boolFromElement(policy.lookup("config/onDemandScan/scanSet/scan/scanBehaviour/pua"), true);
-        m_threatDetectorSettings.setOdPuaDetectionEnabled(odPuaDetectionEnabled);
 
         if (m_gotFirstSavPolicy &&
             m_threatDetectorSettings.isSxlLookupEnabled() == oldLookupEnabled &&
-            m_threatDetectorSettings.isOaPuaDetectionEnabled() == oldOaPuaDetectionEnabled &&
-            m_threatDetectorSettings.isOdPuaDetectionEnabled() == oldOdPuaDetectionEnabled)
+            m_threatDetectorSettings.isOaPuaDetectionEnabled() == oldOaPuaDetectionEnabled)
         {
             // Don't restart Threat Detector if config has not changed, and it's not the first policy
             m_restartThreatDetector = false;
