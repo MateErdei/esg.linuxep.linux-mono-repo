@@ -553,8 +553,10 @@ AV Plugin Saves SafeStore and Detections Databases On Downgrade
 
     Install AV Directly from SDDS
     File should exist    ${SOPHOS_INSTALL}/plugins/av/var/persist-threatDatabase
-    ${Permissions} =     get_file_permissions    ${SOPHOS_INSTALL}/plugins/av/var/persist-threatDatabase
-
+    ${user} =     get_file_owner    ${SOPHOS_INSTALL}/plugins/av/var/persist-threatDatabase
+    ${group} =     get_file_group    ${SOPHOS_INSTALL}/plugins/av/var/persist-threatDatabase
+    Should be equal as Strings  sophos-spl-av    ${user}
+    Should be equal as Strings  sophos-spl-group    ${group}
 
 AV Plugin Reports The Right Error Code If Sophos Threat Detector Dies During Scan Now
     [Timeout]  15min

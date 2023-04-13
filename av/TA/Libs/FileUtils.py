@@ -131,9 +131,10 @@ def open_and_close_file(path):
         logger.info("Opened " + path)
     logger.info("Closed " + path)
 
-def get_file_permissions(filepath):
-    permissions = []
-    permissions.append(get_file_owner(filepath))
-    permissions.append(get_file_group(filepath))
-    permissions.append(get_file_permissions(filepath))
-    return permissions
+def get_file_owner(filepath):
+    owner = subprocess.check_output(['stat', '-c', '%U', filepath]).decode().strip()
+    return owner
+
+def get_file_group(filepath):
+    group = subprocess.check_output(['stat', '-c', '%G', filepath]).decode().strip()
+    return group

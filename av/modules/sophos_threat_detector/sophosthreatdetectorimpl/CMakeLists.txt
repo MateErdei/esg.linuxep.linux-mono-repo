@@ -27,8 +27,8 @@ target_link_libraries(sophosthreatdetectorimpl  PUBLIC
         threat_scanner
         unixsocket
         datatypes
-        ${ZLIB_LIBRARY}
         ${Boost_LIBRARIES}
+        zlibrary
         )
 
 target_include_directories(sophosthreatdetectorimpl PUBLIC ${pluginapiinclude} ${CMAKE_SOURCE_DIR}/modules ${BOOSTPATH}, ${ZLIB_INPUT})

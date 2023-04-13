@@ -27,7 +27,6 @@ set(third_party_libs
         ${log4cpluslib}
         ${protobuflib}
         ${expatlib}
-        ${ZLIB_LIBRARY}
         )
 
 function(FindLibraryFullPath FULLPATH LIBNAME LIBRARY_PATH)
@@ -89,6 +88,7 @@ install(FILES  ${third_party_libs}
 
 install(IMPORTED_RUNTIME_ARTIFACTS
         safestorelib
+        zlibrary
         openssl_crypto
         LIBRARY DESTINATION files/plugins/${PLUGIN_NAME}/lib64)
 
