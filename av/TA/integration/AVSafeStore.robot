@@ -826,11 +826,11 @@ SafeStore Does Not Quarantine Pua Detection
     ${safestore_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
     Run Process  ${CLI_SCANNER_PATH}  ${NORMAL_DIRECTORY}/PsExec.exe
 
-    Wait For Log Contains From Mark  ${av_mark}  ${NORMAL_DIRECTORY}/PsExec.exe was not quarantined due to being a PUA
+    Check Log Does Not Contain After Mark  ${AV_LOG_PATH}  ${NORMAL_DIRECTORY}/PsExec.exe was not quarantined due to being a PUA    ${av_mark}
 
     ${correlation_id} =  Wait Until Base Has Detection Event
     ...  user_id=n/a
-    ...  name=Generic Reputation PUA
+    ...  name=PsExec
     ...  threat_type=2
     ...  origin=3
     ...  remote=false
@@ -839,16 +839,16 @@ SafeStore Does Not Quarantine Pua Detection
 
     Wait Until Base Has Core Clean Event
     ...  alert_id=${correlation_id}
-    ...  succeeded=0
+    ...  succeeded=1
     ...  origin=3
-    ...  result=3
+    ...  result=0
     ...  path=${NORMAL_DIRECTORY}/PsExec.exe
 
-    File Should Exist  ${NORMAL_DIRECTORY}/PsExec.exe
+    File Should Not Exist  ${NORMAL_DIRECTORY}/PsExec.exe
 
     ${print_tool_result} =  Run Process  ${AV_TEST_TOOLS}/safestore_print_tool
     Log  ${print_tool_result.stdout}
-    Should Not Contain  ${print_tool_result.stdout}  PsExec.exe
+    Should Contain  ${print_tool_result.stdout}  PsExec.exe
 
 Threat Can Be Restored From Persisted SafeStore Database
     Check AV Plugin Running

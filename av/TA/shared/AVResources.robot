@@ -495,6 +495,7 @@ Base Has Core Clean Event
     FOR  ${file}  IN  @{files}
         ${xml} =  Get File  ${file}
         ${was_found} =  Run Keyword And Return Status  Check String Contains Clean Event XML  ${xml}  ${alert_id}  ${succeeded}  ${origin}  ${result}  ${path}
+        Log    ${xml}
         Return From Keyword If  ${was_found}
     END
     Fail  No matching CORE Clean event found

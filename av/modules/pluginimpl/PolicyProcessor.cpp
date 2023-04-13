@@ -315,7 +315,17 @@ namespace Plugin
         bool oldLookupEnabled = m_threatDetectorSettings.isSxlLookupEnabled();
         m_threatDetectorSettings.setSxlLookupEnabled(isLookupEnabled(policy));
 
-        if (m_gotFirstSavPolicy && m_threatDetectorSettings.isSxlLookupEnabled() == oldLookupEnabled)
+        bool oldOaPuaDetectionEnabled = m_threatDetectorSettings.isOaPuaDetectionEnabled();
+        const auto oaPuaDetectionEnabled = boolFromElement(policy.lookup("policy/onAccessScan/scanBehaviour/pua"), true);
+        m_threatDetectorSettings.setOaPuaDetectionEnabled(oaPuaDetectionEnabled);
+        bool oldOdPuaDetectionEnabled = m_threatDetectorSettings.isOdPuaDetectionEnabled();
+        const auto odPuaDetectionEnabled = boolFromElement(policy.lookup("policy/onDemandScan/scanBehaviour/pua"), true);
+        m_threatDetectorSettings.setOdPuaDetectionEnabled(odPuaDetectionEnabled);
+
+        if (m_gotFirstSavPolicy &&
+            m_threatDetectorSettings.isSxlLookupEnabled() == oldLookupEnabled &&
+            m_threatDetectorSettings.isOaPuaDetectionEnabled() == oldOaPuaDetectionEnabled &&
+            m_threatDetectorSettings.isOdPuaDetectionEnabled() == oldOdPuaDetectionEnabled)
         {
             // Don't restart Threat Detector if config has not changed, and it's not the first policy
             m_restartThreatDetector = false;
