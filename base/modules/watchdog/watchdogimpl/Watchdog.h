@@ -36,6 +36,7 @@ namespace watchdog::watchdogimpl
             void setupSocket();
             void handleSocketRequest();
             void writeExecutableUserAndGroupToActualUserGroupIdConfig();
+            static void writeRequestedUserAndGroupIDsToLocalConfig();
             std::string handleCommand(Common::ZeroMQWrapper::IReadable::data_t input);
             void reconfigureUserAndGroupIds();
 

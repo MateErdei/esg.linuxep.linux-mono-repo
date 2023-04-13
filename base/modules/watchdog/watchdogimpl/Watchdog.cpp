@@ -66,6 +66,7 @@ int Watchdog::initialiseAndRun()
 
         pluginConfigs.clear();
         writeExecutableUserAndGroupToActualUserGroupIdConfig();
+        writeRequestedUserAndGroupIDsToLocalConfig();
         reconfigureUserAndGroupIds();
 
         setupSocket();
@@ -338,6 +339,78 @@ void Watchdog::writeExecutableUserAndGroupToActualUserGroupIdConfig()
 
         LOGDEBUG("Updating actual user and group ID config: " << userGroupIdConfig.dump());
         fileSystem->writeFile(actualUserGroupIdConfigPath, userGroupIdConfig.dump(4));
+    }
+    catch (const Common::FileSystem::IFileSystemException& error)
+    {
+        LOGERROR(error.what());
+    }
+}
+
+void Watchdog::writeRequestedUserAndGroupIDsToLocalConfig()
+{
+    auto fileSystem = Common::FileSystem::fileSystem();
+    std::string installOptionsFile = Common::ApplicationConfiguration::applicationPathManager().getInstallOptionsPath();
+    std::string requestedConfigPath = Common::ApplicationConfiguration::applicationPathManager().getRequestedUserGroupIdConfigPath();
+
+    try
+    {
+        if (fileSystem->isFile(installOptionsFile))
+        {
+            auto content = fileSystem->readLines(installOptionsFile);
+            std::string customUserConfigArg = "--user-ids-to-configure=";
+            std::string customGroupConfigArg = "--group-ids-to-configure=";
+
+            nlohmann::json requestedConfig;
+            for (std::string line : content)
+            {
+                line = Common::UtilityImpl::StringUtils::trim(line);
+                if (Common::UtilityImpl::StringUtils::startswith(line,customUserConfigArg))
+                {
+                    auto users = Common::UtilityImpl::StringUtils::splitString(Common::UtilityImpl::StringUtils::replaceAll(line, customUserConfigArg, ""), ",");
+
+                    for (const std::string& userDetails: users)
+                    {
+                        // This syntax is verified by the ThinInstaller -> <user name>:<uid>
+                        auto splitUserDetails = Common::UtilityImpl::StringUtils::splitString(userDetails, ":");
+                        std::string userName = splitUserDetails[0];
+                        std::pair<int, std::string> uid = Common::UtilityImpl::StringUtils::stringToInt(splitUserDetails[1]);
+
+                        if (!uid.second.empty())
+                        {
+                            LOGWARN("Could not get UID in requested IDs config for " << userName << " due to: " << uid.second);
+                            continue;
+                        }
+                        requestedConfig["users"][userName] = Common::UtilityImpl::StringUtils::stringToInt(splitUserDetails[1]).first;
+                    }
+                }
+
+                if (Common::UtilityImpl::StringUtils::startswith(line,customGroupConfigArg))
+                {
+                    auto groups = Common::UtilityImpl::StringUtils::splitString(Common::UtilityImpl::StringUtils::replaceAll(line, customGroupConfigArg, ""), ",");
+
+                    for (const std::string& groupDetails: groups)
+                    {
+                        // This syntax is verified by the ThinInstaller -> <group name>:<gid>
+                        auto splitGroupDetails = Common::UtilityImpl::StringUtils::splitString(groupDetails, ":");
+                        std::string groupName = splitGroupDetails[0];
+                        std::pair<int, std::string> uid = Common::UtilityImpl::StringUtils::stringToInt(splitGroupDetails[1]);
+
+                        if (!uid.second.empty())
+                        {
+                            LOGWARN("Could not set GID in requested IdDs config for " << groupName << " due to: " << uid.second);
+                            continue;
+                        }
+                        requestedConfig["groups"][groupName] = Common::UtilityImpl::StringUtils::stringToInt(splitGroupDetails[1]).first;
+                    }
+                }
+            }
+
+            if (!requestedConfig.empty())
+            {
+                LOGDEBUG("Updating requested user and group ID config: " << requestedConfig.dump());
+                fileSystem->appendFile(requestedConfigPath, requestedConfig.dump(4));
+            }
+        }
     }
     catch (const Common::FileSystem::IFileSystemException& error)
     {
