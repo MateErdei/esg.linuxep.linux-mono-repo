@@ -18,7 +18,7 @@ namespace threat_scanner
         auto globalHandler = m_wrapperFactory->accessGlobalHandler();
         if (globalHandler != nullptr)
         {
-            detectPUAs = globalHandler->isPuaDetectionEnabled();
+            detectPUAs = globalHandler->isOaPuaDetectionEnabled() || globalHandler->isOdPuaDetectionEnabled();
         }
         std::string scannerConfig = "{" + createScannerInfo(scanArchives, scanImages, detectPUAs, m_wrapperFactory->isMachineLearningEnabled()) + "}";
         auto unitScanner = std::make_unique<UnitScanner>(m_wrapperFactory->createSusiWrapper(scannerConfig));

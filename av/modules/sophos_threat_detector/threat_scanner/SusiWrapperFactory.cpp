@@ -182,7 +182,8 @@ namespace threat_scanner
     std::shared_ptr<ISusiWrapper> SusiWrapperFactory::createSusiWrapper(const std::string& scannerConfig)
     {
         auto susiSettings = m_globalHandler->accessSusiSettings();
-        std::string scannerInfo = createScannerInfo(false, false, susiSettings->isPuaDetectionEnabled(), isMachineLearningEnabled());
+        bool detectPUAs = susiSettings->isOaPuaDetectionEnabled() || susiSettings->isOdPuaDetectionEnabled();
+        std::string scannerInfo = createScannerInfo(false, false, detectPUAs, isMachineLearningEnabled());
 
         std::string runtimeConfig = createRuntimeConfig(
             scannerInfo, getEndpointId(), getCustomerId(), susiSettings);
@@ -202,7 +203,8 @@ namespace threat_scanner
     bool SusiWrapperFactory::reload()
     {
         auto susiSettings = m_globalHandler->accessSusiSettings();
-        std::string scannerInfo = createScannerInfo(false, false, susiSettings->isPuaDetectionEnabled(), isMachineLearningEnabled());
+        bool detectPUAs = susiSettings->isOaPuaDetectionEnabled() || susiSettings->isOdPuaDetectionEnabled();
+        std::string scannerInfo = createScannerInfo(false, false, detectPUAs, isMachineLearningEnabled());
         std::string runtimeConfig = createRuntimeConfig(
             scannerInfo, getEndpointId(), getCustomerId(), susiSettings);
         return m_globalHandler->reload(runtimeConfig);

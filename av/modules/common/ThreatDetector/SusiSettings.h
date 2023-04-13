@@ -35,8 +35,10 @@ namespace common::ThreatDetector
         void setMachineLearningEnabled(bool enabled);
 
         // PUA Detections Enabled
-        bool isPuaDetectionEnabled() const;
-        void setPuaDetectionEnabled(bool enabled);
+        bool isOaPuaDetectionEnabled() const;
+        void setOaPuaDetectionEnabled(bool enabled);
+        bool isOdPuaDetectionEnabled() const;
+        void setOdPuaDetectionEnabled(bool enabled);
 
     private:
         // Susi can access the allow-list while we're changing it, so make sure it's thread safe.
@@ -44,13 +46,15 @@ namespace common::ThreatDetector
 
         AllowList m_susiAllowListSha256;
         bool m_susiSxlLookupEnabled = true;
-        bool m_puaDetectionEnabled = true;
+        bool m_oaPuaDetectionEnabled = true;
+        bool m_odPuaDetectionEnabled = true;
         bool m_machineLearningEnabled = true;
 
         [[nodiscard]] std::string serialise() const;
         static constexpr auto ENABLED_SXL_LOOKUP_KEY = "enableSxlLookup";
         static constexpr auto SHA_ALLOW_LIST_KEY = "shaAllowList";
-        static constexpr auto PUA_DETECTION_KEY = "puaDetection";
+        static constexpr auto OA_PUA_DETECTION_KEY = "oaPuaDetection";
+        static constexpr auto OD_PUA_DETECTION_KEY = "odPuaDetection";
         static constexpr auto MACHINE_LEARNING_KEY = "machineLearning";
     };
 } // namespace common::ThreatDetector
