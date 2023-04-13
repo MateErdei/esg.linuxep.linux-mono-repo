@@ -171,6 +171,28 @@ On Access Does Not Include Remote Files If Excluded In Policy
     wait for on access log contains after mark  mount points in on-access scanning  mark=${mark}
 
 
+On Access Does Not Detect PUAs If PUA Detecion Is Disabled In Policy
+    ${oamark} =  get_on_access_log_mark
+    ${testfile} =    Set Variable    /tmp_test/eicar_pua.com
+    Create File  ${testfile}   ${EICAR_PUA_STRING}
+    Register Cleanup  Remove Files  ${testfile}
+    Wait for on access log contains after mark  On-close event for ${testfile} from  mark=${oamark}
+    Wait for on access log contains after mark  detected "${testfile}" is infected with EICAR-PUA-Test  mark=${oamark}
+
+    ${oamark2} =  get_on_access_log_mark
+    ${threat_detector_mark} =  get_sophos_threat_detector_log_mark
+    send av policy from file  ${SAV_APPID}  ${RESOURCES_PATH}/SAV-2_policy_OA_enabled_PUA_detection_disabled.xml
+    send av policy from file  FLAGS  ${RESOURCES_PATH}/flags_policy/flags_onaccess_enabled.json
+    Wait For Sophos Threat Detector Log Contains After Mark    OA PUA Detection will be disabled    ${threat_detector_mark}
+    Wait For Sophos Threat Detector Log Contains After Mark    SUSI settings changed    ${threat_detector_mark}
+    Wait For Sophos Threat Detector Log Contains After Mark    Susi configuration reloaded    ${threat_detector_mark}
+
+    ${testfile2} =    Set Variable    /tmp_test/eicar_pua2.com
+    Create File  ${testfile2}   ${EICAR_PUA_STRING}
+    Wait for on access log contains after mark  On-close event for ${testfile2} from  mark=${oamark2}
+    Check on access log does not contain after mark  detected "${testfile2}" is infected with EICAR-PUA-Test  mark=${oamark2}
+
+
 On Access Applies Config Changes When The Mounts Change
     [Tags]  NFS
     ${mark} =  get_on_access_log_mark
