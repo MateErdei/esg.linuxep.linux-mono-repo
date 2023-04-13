@@ -107,7 +107,7 @@ def setup_release_warehouse(dest, release_type):
         raise AssertionError(f"Failed to gather {release_type} warehouse files. Error: {ex}")
 
     sdds3repo_path = os.path.join(output_dir, "repo")
-    vut_sdds3_repo_path = os.path.join(dest, "sdds3", "repo-release")
+    vut_sdds3_repo_path = os.path.join(dest, "sdds3", "repo")
 
     vut_sdds3_package_path = os.path.join(vut_sdds3_repo_path, "package")
     release_sdds3_package_path = os.path.join(sdds3repo_path, "package")

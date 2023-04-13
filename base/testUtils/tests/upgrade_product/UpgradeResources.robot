@@ -69,6 +69,7 @@ Suite Setup
     Setup Ostia Warehouse Environment
 
 Suite Setup Without Ostia
+    Check For Digest Sign
     Generate Local Ssl Certs If They Dont Exist
     Install Local SSL Server Cert To System
     Regenerate Certificates
@@ -393,3 +394,11 @@ Get Expected Versions
     ...    mtrVersion=${ExpectedMTRReleaseVersion}
     ...    rtdVersion=${ExpectedRTDReleaseVersion}
     [Return]    &{versions}
+
+
+Check For Digest Sign
+    ${result}=  Run Process  bash  -x  ${SUPPORT_FILES}/jenkins/hasDigestSign.sh
+    Return From Keyword If    ${result.rc} == 0
+    Log  ${result.stdout}
+    Log  ${result.stderr}
+    Fatal Error  "digest_sign not found PATH or venv - see ${SUPPORT_FILES}/jenkins/hasDigestSign.sh"

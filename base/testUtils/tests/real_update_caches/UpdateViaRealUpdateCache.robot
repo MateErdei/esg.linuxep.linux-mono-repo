@@ -4,7 +4,7 @@ Suite Setup       Set Suite Variable    ${regCommand}     /opt/sophos-spl/base/b
 Test Teardown   Run Keywords
 ...  MCSRouter Test Teardown  AND
 ...  Deregister From Central  AND
-...  Require Uninstalled
+...  Uninstall_SSPL    ${SOPHOS_INSTALL}
 
 Library     ${LIBS_DIRECTORY}/FullInstallerUtils.py
 Library     ${LIBS_DIRECTORY}/LogUtils.py

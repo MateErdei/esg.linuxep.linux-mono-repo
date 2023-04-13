@@ -20,15 +20,6 @@ Test Timeout    5 minutes
 Test Teardown   General Test Teardown
 
 *** Keywords ***
-
-Check For Digest Sign
-    ${result}=  Run Process  bash  -x  ${SUPPORT_FILES}/jenkins/hasDigestSign.sh
-    Return From Keyword If    ${result.rc} == 0
-    Log  ${result.stdout}
-    Log  ${result.stderr}
-    Fatal Error  "digest_sign not found PATH or venv - see ${SUPPORT_FILES}/jenkins/hasDigestSign.sh"
-
-
 Global Setup Tasks
     Set Environment Variable    SOPHOS_DEBUG_UNINSTALL    1
     # SOPHOS_INSTALL
@@ -99,8 +90,6 @@ Global Setup Tasks
     Set Global Variable   ${OPENSSL_LIB_PATH}   ${SYSTEM_PRODUCT_TEST_OUTPUT_PATH}
 
     Log To Console  \n${colored_message} \n
-
-    Check For Digest Sign
 
 
     Generate Real Warehouse Alc Files
