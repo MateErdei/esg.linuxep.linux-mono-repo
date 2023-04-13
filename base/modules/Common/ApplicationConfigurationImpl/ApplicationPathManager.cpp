@@ -268,7 +268,9 @@ namespace Common
 
         std::string ApplicationPathManager::getSulDownloaderLockFilePath() const
         {
-            return Common::FileSystem::join(sophosInstall(), "var/lock/suldownloader.pid");
+            // This lock is in "lock-sophosspl" instead of the root "lock" dir because it needs to be readable by
+            // UpdateScheduler which uses it to check if suldownloader is running.
+            return Common::FileSystem::join(sophosInstall(), "var/lock-sophosspl/suldownloader.pid");
         }
 
         std::string ApplicationPathManager::getSulDownloaderLatestProductUpdateMarkerPath() const

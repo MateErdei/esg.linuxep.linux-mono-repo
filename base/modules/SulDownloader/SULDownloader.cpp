@@ -973,6 +973,18 @@ namespace SulDownloader
             return ex.code().value();
         }
 
+        try
+        {
+            // Make sure Update Scheduler can access the lock file so that it can work out if suldownloader is running.
+            auto filePermissions = Common::FileSystem::filePermissions();
+            filePermissions->chown(pidLock->filePath(), "root", sophos::group());
+            filePermissions->chmod(pidLock->filePath(), S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
+        }
+        catch (const Common::FileSystem::IFileSystemException& exception)
+        {
+            LOGWARN("Could not change lock file permissions for Update Scheduler to access");
+        }
+
         // Process command line args
         if (argc < 3)
         {
