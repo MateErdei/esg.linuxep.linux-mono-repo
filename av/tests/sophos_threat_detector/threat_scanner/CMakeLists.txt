@@ -30,6 +30,6 @@ target_link_libraries(AllowListTester  PUBLIC sophosthreatdetectorimpl ${log4cpl
 target_include_directories(AllowListTester PUBLIC ${CMAKE_SOURCE_DIR}/modules)
 SET_TARGET_PROPERTIES( AllowListTester
         PROPERTIES
-        BUILD_RPATH "$ORIGIN:/opt/sophos-spl/plugins/av/chroot/lib64:/opt/sophos-spl/plugins/av/lib64:/opt/sophos-spl/base/lib64"
-        INSTALL_RPATH "$ORIGIN:/opt/sophos-spl/plugins/av/chroot/lib64:/opt/sophos-spl/plugins/av/lib64:/opt/sophos-spl/base/lib64"
+        BUILD_RPATH "$ORIGIN:/opt/sophos-spl/plugins/av/chroot/lib64:/opt/sophos-spl/plugins/av/lib64"
+        INSTALL_RPATH "$ORIGIN:/opt/sophos-spl/plugins/av/chroot/lib64:/opt/sophos-spl/plugins/av/lib64"
         )
