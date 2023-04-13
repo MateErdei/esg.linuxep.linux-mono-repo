@@ -65,7 +65,7 @@ int Watchdog::initialiseAndRun()
         }
 
         pluginConfigs.clear();
-        writeExecutableUserAndGroupToWatchdogConfig();
+        writeExecutableUserAndGroupToActualUserGroupIdConfig();
         reconfigureUserAndGroupIds();
 
         setupSocket();
@@ -175,7 +175,7 @@ std::string Watchdog::enablePlugin(const std::string& pluginName)
         // Not previously loaded, but now available
         assert(loadResult.second);
         addProcessToMonitor(std::make_unique<PluginProxy>(std::move(loadResult.first)));
-        writeExecutableUserAndGroupToWatchdogConfig();
+        writeExecutableUserAndGroupToActualUserGroupIdConfig();
     }
     else if (loadResult.second)
     {
@@ -185,7 +185,7 @@ std::string Watchdog::enablePlugin(const std::string& pluginName)
             auto* proxy = dynamic_cast<PluginProxy*>(&processProxy);
             if (proxy != nullptr)
             {
-                writeExecutableUserAndGroupToWatchdogConfig();
+                writeExecutableUserAndGroupToActualUserGroupIdConfig();
                 bool changed = proxy->updatePluginInfo(loadResult.first);
                 if (changed && proxy->isRunning())
                 {
@@ -208,7 +208,7 @@ std::string Watchdog::removePlugin(const std::string& pluginName)
     LOGINFO("Removing " << pluginName);
 
     bool found = ProcessMonitor::removePluginByName(pluginName);
-    writeExecutableUserAndGroupToWatchdogConfig();
+    writeExecutableUserAndGroupToActualUserGroupIdConfig();
 
     if (!found)
     {
@@ -277,11 +277,11 @@ std::string Watchdog::checkPluginIsRunning(const std::string& pluginName)
     }
 }
 
-void Watchdog::writeExecutableUserAndGroupToWatchdogConfig()
+void Watchdog::writeExecutableUserAndGroupToActualUserGroupIdConfig()
 {
     auto fileSystem = Common::FileSystem::fileSystem();
     auto filePermissions = Common::FileSystem::filePermissions();
-    std::string watchdogConfigPath = Common::ApplicationConfiguration::applicationPathManager().getActualUserGroupIdConfigPath();
+    std::string actualUserGroupIdConfigPath = Common::ApplicationConfiguration::applicationPathManager().getActualUserGroupIdConfigPath();
 
     std::set<std::string> groups{"sophos-spl-ipc"};
     std::set<std::string> users;
@@ -321,23 +321,23 @@ void Watchdog::writeExecutableUserAndGroupToWatchdogConfig()
 
     try
     {
-        nlohmann::json watchdogConfig;
-        if (fileSystem->isFile(watchdogConfigPath))
+        nlohmann::json userGroupIdConfig;
+        if (fileSystem->isFile(actualUserGroupIdConfigPath))
         {
-            LOGDEBUG("Overwriting existing watchdog config " << watchdogConfigPath);
+            LOGDEBUG("Overwriting existing user and group ID config " << actualUserGroupIdConfigPath);
         }
 
         for (const std::string& user: users)
         {
-            watchdogConfig["users"][user] = filePermissions->getUserId(user);
+            userGroupIdConfig["users"][user] = filePermissions->getUserId(user);
         }
         for (const std::string& group: groups)
         {
-            watchdogConfig["groups"][group] = filePermissions->getGroupId(group);
+            userGroupIdConfig["groups"][group] = filePermissions->getGroupId(group);
         }
 
-        LOGDEBUG("Updating watchdog config: " << watchdogConfig.dump());
-        fileSystem->writeFile(watchdogConfigPath, watchdogConfig.dump(4));
+        LOGDEBUG("Updating actual user and group ID config: " << userGroupIdConfig.dump());
+        fileSystem->writeFile(actualUserGroupIdConfigPath, userGroupIdConfig.dump(4));
     }
     catch (const Common::FileSystem::IFileSystemException& error)
     {
@@ -355,7 +355,7 @@ void Watchdog::reconfigureUserAndGroupIds()
         {
             LOGDEBUG("Request to reconfigure the following user and group IDs: " << changesNeeded.dump());
             applyUserIdConfig(changesNeeded);
-            writeExecutableUserAndGroupToWatchdogConfig();
+            writeExecutableUserAndGroupToActualUserGroupIdConfig();
         }
     }
     catch (const std::exception& exception)

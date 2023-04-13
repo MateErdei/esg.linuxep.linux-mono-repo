@@ -35,7 +35,7 @@ namespace watchdog::watchdogimpl
             std::string getIPCPath();
             void setupSocket();
             void handleSocketRequest();
-            void writeExecutableUserAndGroupToWatchdogConfig();
+            void writeExecutableUserAndGroupToActualUserGroupIdConfig();
             std::string handleCommand(Common::ZeroMQWrapper::IReadable::data_t input);
             void reconfigureUserAndGroupIds();
 

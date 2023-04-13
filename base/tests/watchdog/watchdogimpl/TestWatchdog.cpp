@@ -29,6 +29,9 @@ namespace
         MockFilePermissions* m_mockFilePermissionsPtr;
         MockFileSystem* m_mockFileSystemPtr;
         std::string m_actualUserGroupIdConfigPath;
+        std::string m_requestedUserGroupIdConfigPath;
+        std::string m_installOptionsPath;
+
     public:
         TestWatchdog()
         {
@@ -38,14 +41,13 @@ namespace
             m_filePermissionsReplacer.replace(std::unique_ptr<Common::FileSystem::IFilePermissions>(m_mockFilePermissionsPtr));
 
             m_actualUserGroupIdConfigPath = Common::ApplicationConfiguration::applicationPathManager().getActualUserGroupIdConfigPath();
+            m_requestedUserGroupIdConfigPath = Common::ApplicationConfiguration::applicationPathManager().getRequestedUserGroupIdConfigPath();
+            m_installOptionsPath = Common::ApplicationConfiguration::applicationPathManager().getInstallOptionsPath();
 
             EXPECT_CALL(*m_mockFileSystemPtr, isDirectory(HasSubstr("base/telemetry/cache"))).WillRepeatedly(Return(false));
             EXPECT_CALL(*m_mockFileSystemPtr, isFile(HasSubstr("base/telemetry/cache"))).WillRepeatedly(Return(false));
-            std::string pluginname =
-                    "plugins/" + watchdog::watchdogimpl::WatchdogServiceLine::WatchdogServiceLineName() + ".ipc";
-            Common::ApplicationConfiguration::applicationConfiguration().setData(pluginname,
-                    "inproc://watchdogservice.ipc");
-
+            std::string pluginname = "plugins/" + watchdog::watchdogimpl::WatchdogServiceLine::WatchdogServiceLineName() + ".ipc";
+            Common::ApplicationConfiguration::applicationConfiguration().setData(pluginname, "inproc://watchdogservice.ipc");
         }
         ~TestWatchdog()
         {
@@ -66,8 +68,8 @@ namespace
         void callSetupIpc() { setupSocket(); }
 
         void callHandleSocketRequest() { handleSocketRequest(); };
-        
-        void callWriteExecutableUserAndGroupToWatchdogConfig() { writeExecutableUserAndGroupToWatchdogConfig(); };
+
+        void callWriteExecutableUserAndGroupToActualUserGroupIdConfig() { writeExecutableUserAndGroupToActualUserGroupIdConfig(); };
 
         /**
          * Give access to the context so that we can share connections
@@ -104,20 +106,20 @@ std::string createPluginRegistryJson(const std::string& pluginName, const std::s
     return pluginJson.dump();
 }
 
-TEST_F(TestWatchdog, Construction) // NOLINT
+TEST_F(TestWatchdog, Construction)
 {
-    EXPECT_NO_THROW(watchdog::watchdogimpl::Watchdog watchdog); // NOLINT
-    EXPECT_NO_THROW(TestableWatchdog watchdog2);                // NOLINT
+    EXPECT_NO_THROW(watchdog::watchdogimpl::Watchdog watchdog);
+    EXPECT_NO_THROW(TestableWatchdog watchdog2);
 }
 
-TEST_F(TestWatchdog, ipcStartup) // NOLINT
+TEST_F(TestWatchdog, ipcStartup)
 {
     Common::ApplicationConfiguration::applicationConfiguration().setData("watchdog.ipc", "inproc://ipcStartup");
     TestableWatchdog watchdog;
-    EXPECT_NO_THROW(watchdog.callSetupIpc()); // NOLINT
+    EXPECT_NO_THROW(watchdog.callSetupIpc());
 }
 
-TEST_F(TestWatchdog, stopPluginViaIPC_missing_plugin) // NOLINT
+TEST_F(TestWatchdog, stopPluginViaIPC_missing_plugin)
 {
     const std::string IPC_ADDRESS = "inproc://stopPluginViaIPC";
     Common::ApplicationConfiguration::applicationConfiguration().setData("watchdog.ipc", IPC_ADDRESS);
@@ -134,7 +136,7 @@ TEST_F(TestWatchdog, stopPluginViaIPC_missing_plugin) // NOLINT
     EXPECT_EQ(result.at(0), "Error: Plugin not found");
 }
 
-TEST_F(TestWatchdog, stopPluginViaIPC_test_plugin) // NOLINT
+TEST_F(TestWatchdog, stopPluginViaIPC_test_plugin)
 {
     const std::string IPC_ADDRESS = "inproc://stopPluginViaIPC_test_plugin";
     Common::ApplicationConfiguration::applicationConfiguration().setData("watchdog.ipc", IPC_ADDRESS);
@@ -159,10 +161,10 @@ TEST_F(TestWatchdog, writeExecutableUserAndGroupToWatchdogConfigWritesConfigFile
     Common::ZMQWrapperApi::IContextSharedPtr context(Common::ZMQWrapperApi::createContext());
     TestableWatchdog watchdog(context);
 
-    std::vector<std::string> files{"/tmp/plugins/PluginName.json"};
+    std::vector<std::string> files{ "/tmp/plugins/PluginName.json" };
     EXPECT_CALL(*m_mockFileSystemPtr, listFiles(_)).WillOnce(Return(files));
-    EXPECT_CALL(*m_mockFileSystemPtr, readFile(files[0])).WillOnce(
-        Return(createPluginRegistryJson("PluginName", "user:group")));
+    EXPECT_CALL(*m_mockFileSystemPtr, readFile(files[0]))
+        .WillOnce(Return(createPluginRegistryJson("PluginName", "user:group")));
 
     EXPECT_CALL(*m_mockFileSystemPtr, isFile(m_actualUserGroupIdConfigPath)).WillOnce(Return(false));
 
@@ -171,11 +173,12 @@ TEST_F(TestWatchdog, writeExecutableUserAndGroupToWatchdogConfigWritesConfigFile
     EXPECT_CALL(*m_mockFilePermissionsPtr, getGroupId("sophos-spl-ipc")).WillOnce(Return(0));
 
     // Match indentation of the file being written by the product, we want it pretty printed because it's user facing
-    nlohmann::json expectedJson = nlohmann::json::parse(R"({"groups":{"group":2,"sophos-spl-ipc":0},"users":{"user":1}})");
+    nlohmann::json expectedJson =
+        nlohmann::json::parse(R"({"groups":{"group":2,"sophos-spl-ipc":0},"users":{"user":1}})");
     std::string expectedJsonString = expectedJson.dump(4);
-    EXPECT_CALL(*m_mockFileSystemPtr, writeFile(m_actualUserGroupIdConfigPath,expectedJsonString)).Times(1);
+    EXPECT_CALL(*m_mockFileSystemPtr, writeFile(m_actualUserGroupIdConfigPath, expectedJsonString)).Times(1);
 
-    EXPECT_NO_THROW(watchdog.callWriteExecutableUserAndGroupToWatchdogConfig());
+    EXPECT_NO_THROW(watchdog.callWriteExecutableUserAndGroupToActualUserGroupIdConfig());
 }
 
 TEST_F(TestWatchdog, writeExecutableUserAndGroupToWatchdogConfigHandlesDuplicateUsersAndGroups)
@@ -183,12 +186,12 @@ TEST_F(TestWatchdog, writeExecutableUserAndGroupToWatchdogConfigHandlesDuplicate
     Common::ZMQWrapperApi::IContextSharedPtr context(Common::ZMQWrapperApi::createContext());
     TestableWatchdog watchdog(context);
 
-    std::vector<std::string> files{"/tmp/plugins/PluginName1.json", "/tmp/plugins/PluginName2.json"};
+    std::vector<std::string> files{ "/tmp/plugins/PluginName1.json", "/tmp/plugins/PluginName2.json" };
     EXPECT_CALL(*m_mockFileSystemPtr, listFiles(_)).WillOnce(Return(files));
-    EXPECT_CALL(*m_mockFileSystemPtr, readFile(files[0])).WillOnce(
-        Return(createPluginRegistryJson("PluginName1", "user:group")));
-    EXPECT_CALL(*m_mockFileSystemPtr, readFile(files[1])).WillOnce(
-        Return(createPluginRegistryJson("PluginName2", "user:group")));
+    EXPECT_CALL(*m_mockFileSystemPtr, readFile(files[0]))
+        .WillOnce(Return(createPluginRegistryJson("PluginName1", "user:group")));
+    EXPECT_CALL(*m_mockFileSystemPtr, readFile(files[1]))
+        .WillOnce(Return(createPluginRegistryJson("PluginName2", "user:group")));
 
     EXPECT_CALL(*m_mockFileSystemPtr, isFile(m_actualUserGroupIdConfigPath)).WillOnce(Return(false));
 
@@ -197,10 +200,11 @@ TEST_F(TestWatchdog, writeExecutableUserAndGroupToWatchdogConfigHandlesDuplicate
     EXPECT_CALL(*m_mockFilePermissionsPtr, getGroupId("sophos-spl-ipc")).WillOnce(Return(0));
 
     // Match indentation of the file being written by the product, we want it pretty printed because it's user facing
-    nlohmann::json expectedJson = nlohmann::json::parse(R"({"groups":{"group":2,"sophos-spl-ipc":0},"users":{"user":1}})");
+    nlohmann::json expectedJson =
+        nlohmann::json::parse(R"({"groups":{"group":2,"sophos-spl-ipc":0},"users":{"user":1}})");
     std::string expectedJsonString = expectedJson.dump(4);
     EXPECT_CALL(*m_mockFileSystemPtr, writeFile(m_actualUserGroupIdConfigPath, expectedJsonString)).Times(1);
-    EXPECT_NO_THROW(watchdog.callWriteExecutableUserAndGroupToWatchdogConfig());
+    EXPECT_NO_THROW(watchdog.callWriteExecutableUserAndGroupToActualUserGroupIdConfig());
 }
 
 TEST_F(TestWatchdog, writeExecutableUserAndGroupToWatchdogConfigOverwritesExistingConfigFile)
@@ -208,10 +212,10 @@ TEST_F(TestWatchdog, writeExecutableUserAndGroupToWatchdogConfigOverwritesExisti
     Common::ZMQWrapperApi::IContextSharedPtr context(Common::ZMQWrapperApi::createContext());
     TestableWatchdog watchdog(context);
 
-    std::vector<std::string> files{"/tmp/plugins/PluginName.json"};
+    std::vector<std::string> files{ "/tmp/plugins/PluginName.json" };
     EXPECT_CALL(*m_mockFileSystemPtr, listFiles(_)).WillOnce(Return(files));
-    EXPECT_CALL(*m_mockFileSystemPtr, readFile(files[0])).WillOnce(
-        Return(createPluginRegistryJson("PluginName", "user:group")));
+    EXPECT_CALL(*m_mockFileSystemPtr, readFile(files[0]))
+        .WillOnce(Return(createPluginRegistryJson("PluginName", "user:group")));
 
     EXPECT_CALL(*m_mockFileSystemPtr, isFile(m_actualUserGroupIdConfigPath)).WillOnce(Return(true));
 
@@ -220,10 +224,11 @@ TEST_F(TestWatchdog, writeExecutableUserAndGroupToWatchdogConfigOverwritesExisti
     EXPECT_CALL(*m_mockFilePermissionsPtr, getGroupId("sophos-spl-ipc")).WillRepeatedly(Return(0));
 
     // Match indentation of the file being written by the product, we want it pretty printed because it's user facing
-    nlohmann::json expectedJson = nlohmann::json::parse(R"({"groups":{"group":966,"sophos-spl-ipc":0},"users":{"user":999}})");
+    nlohmann::json expectedJson =
+        nlohmann::json::parse(R"({"groups":{"group":966,"sophos-spl-ipc":0},"users":{"user":999}})");
     std::string expectedJsonString = expectedJson.dump(4);
-    EXPECT_CALL(*m_mockFileSystemPtr, writeFile(m_actualUserGroupIdConfigPath,expectedJsonString)).Times(1);
-    EXPECT_NO_THROW(watchdog.callWriteExecutableUserAndGroupToWatchdogConfig());
+    EXPECT_CALL(*m_mockFileSystemPtr, writeFile(m_actualUserGroupIdConfigPath, expectedJsonString)).Times(1);
+    EXPECT_NO_THROW(watchdog.callWriteExecutableUserAndGroupToActualUserGroupIdConfig());
 }
 
 TEST_F(TestWatchdog, writeExecutableUserAndGroupToWatchdogConfigHandlesMultipleGroupsAndUsers)
@@ -231,19 +236,19 @@ TEST_F(TestWatchdog, writeExecutableUserAndGroupToWatchdogConfigHandlesMultipleG
     Common::ZMQWrapperApi::IContextSharedPtr context(Common::ZMQWrapperApi::createContext());
     TestableWatchdog watchdog(context);
 
-    std::vector<std::string> files{"/tmp/plugins/PluginName1.json",
+    std::vector<std::string> files{ "/tmp/plugins/PluginName1.json",
                                     "/tmp/plugins/PluginName2.json",
                                     "/tmp/plugins/PluginName3.json",
-                                    "/tmp/plugins/PluginName4.json"};
+                                    "/tmp/plugins/PluginName4.json" };
     EXPECT_CALL(*m_mockFileSystemPtr, listFiles(_)).WillOnce(Return(files));
-    EXPECT_CALL(*m_mockFileSystemPtr, readFile(files[0])).WillOnce(Return(
-        createPluginRegistryJson("PluginName1", "user1:group1")));
-    EXPECT_CALL(*m_mockFileSystemPtr, readFile(files[1])).WillOnce(Return(
-        createPluginRegistryJson("PluginName2", "user2")));
-    EXPECT_CALL(*m_mockFileSystemPtr, readFile(files[2])).WillOnce(Return(
-        createPluginRegistryJson("PluginName3", "user3:group3")));
-    EXPECT_CALL(*m_mockFileSystemPtr, readFile(files[3])).WillOnce(Return(
-        createPluginRegistryJson("PluginName4", "user4")));
+    EXPECT_CALL(*m_mockFileSystemPtr, readFile(files[0]))
+        .WillOnce(Return(createPluginRegistryJson("PluginName1", "user1:group1")));
+    EXPECT_CALL(*m_mockFileSystemPtr, readFile(files[1]))
+        .WillOnce(Return(createPluginRegistryJson("PluginName2", "user2")));
+    EXPECT_CALL(*m_mockFileSystemPtr, readFile(files[2]))
+        .WillOnce(Return(createPluginRegistryJson("PluginName3", "user3:group3")));
+    EXPECT_CALL(*m_mockFileSystemPtr, readFile(files[3]))
+        .WillOnce(Return(createPluginRegistryJson("PluginName4", "user4")));
 
     EXPECT_CALL(*m_mockFileSystemPtr, isFile(m_actualUserGroupIdConfigPath)).WillOnce(Return(false));
 
@@ -256,10 +261,11 @@ TEST_F(TestWatchdog, writeExecutableUserAndGroupToWatchdogConfigHandlesMultipleG
     EXPECT_CALL(*m_mockFilePermissionsPtr, getGroupId("sophos-spl-ipc")).WillRepeatedly(Return(0));
 
     // Match indentation of the file being written by the product, we want it pretty printed because it's user facing
-    nlohmann::json expectedJson = nlohmann::json::parse(R"({"groups":{"group1":1,"group3":3,"sophos-spl-ipc":0},"users":{"user1":1,"user2":2,"user3":3,"user4":4}})");
+    nlohmann::json expectedJson = nlohmann::json::parse(
+        R"({"groups":{"group1":1,"group3":3,"sophos-spl-ipc":0},"users":{"user1":1,"user2":2,"user3":3,"user4":4}})");
     std::string expectedJsonString = expectedJson.dump(4);
-    EXPECT_CALL(*m_mockFileSystemPtr, writeFile(m_actualUserGroupIdConfigPath,expectedJsonString)).Times(1);
-    EXPECT_NO_THROW(watchdog.callWriteExecutableUserAndGroupToWatchdogConfig());
+    EXPECT_CALL(*m_mockFileSystemPtr, writeFile(m_actualUserGroupIdConfigPath, expectedJsonString)).Times(1);
+    EXPECT_NO_THROW(watchdog.callWriteExecutableUserAndGroupToActualUserGroupIdConfig());
 }
 
 TEST_F(TestWatchdog, writeExecutableUserAndGroupToWatchdogConfigIgnoresRootUser)
@@ -267,10 +273,10 @@ TEST_F(TestWatchdog, writeExecutableUserAndGroupToWatchdogConfigIgnoresRootUser)
     Common::ZMQWrapperApi::IContextSharedPtr context(Common::ZMQWrapperApi::createContext());
     TestableWatchdog watchdog(context);
 
-    std::vector<std::string> files{"/tmp/plugins/PluginName.json"};
+    std::vector<std::string> files{ "/tmp/plugins/PluginName.json" };
     EXPECT_CALL(*m_mockFileSystemPtr, listFiles(_)).WillOnce(Return(files));
-    EXPECT_CALL(*m_mockFileSystemPtr, readFile(files[0])).WillOnce(Return(
-        createPluginRegistryJson("PluginName", "root")));
+    EXPECT_CALL(*m_mockFileSystemPtr, readFile(files[0]))
+        .WillOnce(Return(createPluginRegistryJson("PluginName", "root")));
 
     EXPECT_CALL(*m_mockFileSystemPtr, isFile(m_actualUserGroupIdConfigPath)).WillOnce(Return(false));
 
@@ -278,7 +284,7 @@ TEST_F(TestWatchdog, writeExecutableUserAndGroupToWatchdogConfigIgnoresRootUser)
     nlohmann::json expectedJson = nlohmann::json::parse(R"({"groups":{"sophos-spl-ipc":0}})");
     std::string expectedJsonString = expectedJson.dump(4);
     EXPECT_CALL(*m_mockFileSystemPtr, writeFile(m_actualUserGroupIdConfigPath, expectedJsonString)).Times(1);
-    EXPECT_NO_THROW(watchdog.callWriteExecutableUserAndGroupToWatchdogConfig());
+    EXPECT_NO_THROW(watchdog.callWriteExecutableUserAndGroupToActualUserGroupIdConfig());
 }
 
 TEST_F(TestWatchdog, writeExecutableUserAndGroupToWatchdogConfigHandlesMalformedGroupsAndUsers)
@@ -286,22 +292,23 @@ TEST_F(TestWatchdog, writeExecutableUserAndGroupToWatchdogConfigHandlesMalformed
     Common::ZMQWrapperApi::IContextSharedPtr context(Common::ZMQWrapperApi::createContext());
     TestableWatchdog watchdog(context);
 
-    std::vector<std::string> files{"/tmp/plugins/PluginName1.json",
+    std::vector<std::string> files{ "/tmp/plugins/PluginName1.json",
                                     "/tmp/plugins/PluginName2.json",
-                                    "/tmp/plugins/PluginName3.json"};
+                                    "/tmp/plugins/PluginName3.json" };
     EXPECT_CALL(*m_mockFileSystemPtr, listFiles(_)).WillOnce(Return(files));
-    EXPECT_CALL(*m_mockFileSystemPtr, readFile(files[0])).WillOnce(Return(
-        createPluginRegistryJson("PluginName1", "user1group1")));
-    EXPECT_CALL(*m_mockFileSystemPtr, readFile(files[1])).WillOnce(Return(
-        createPluginRegistryJson("PluginName2", "user2:")));
-    EXPECT_CALL(*m_mockFileSystemPtr, readFile(files[2])).WillOnce(Return(
-        createPluginRegistryJson("PluginName3", "user3::")));
+    EXPECT_CALL(*m_mockFileSystemPtr, readFile(files[0]))
+        .WillOnce(Return(createPluginRegistryJson("PluginName1", "user1group1")));
+    EXPECT_CALL(*m_mockFileSystemPtr, readFile(files[1]))
+        .WillOnce(Return(createPluginRegistryJson("PluginName2", "user2:")));
+    EXPECT_CALL(*m_mockFileSystemPtr, readFile(files[2]))
+        .WillOnce(Return(createPluginRegistryJson("PluginName3", "user3::")));
 
     EXPECT_CALL(*m_mockFileSystemPtr, isFile(m_actualUserGroupIdConfigPath)).WillOnce(Return(false));
 
-    EXPECT_CALL(*m_mockFilePermissionsPtr, getUserId("user1group1")).WillOnce(Throw(Common::FileSystem::IFileSystemException("TEST")));
+    EXPECT_CALL(*m_mockFilePermissionsPtr, getUserId("user1group1"))
+        .WillOnce(Throw(Common::FileSystem::IFileSystemException("TEST")));
 
-    EXPECT_NO_THROW(watchdog.callWriteExecutableUserAndGroupToWatchdogConfig());
+    EXPECT_NO_THROW(watchdog.callWriteExecutableUserAndGroupToActualUserGroupIdConfig());
 }
 
 class TestC
@@ -336,7 +343,7 @@ public:
     int m_pos;
 };
 
-TEST(TestVectorEraseMoves, TestBoolCopiedCorrectly) // NOLINT
+TEST(TestVectorEraseMoves, TestBoolCopiedCorrectly)
 {
     std::vector<TestC> values;
     values.emplace_back(0);
@@ -355,7 +362,7 @@ TEST(TestVectorEraseMoves, TestBoolCopiedCorrectly) // NOLINT
     values.clear();
 }
 
-TEST(TestList, TestBoolCorrect) // NOLINT
+TEST(TestList, TestBoolCorrect)
 {
     std::list<TestC> values;
     values.emplace_back(0);
