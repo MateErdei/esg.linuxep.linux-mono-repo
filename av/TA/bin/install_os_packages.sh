@@ -67,6 +67,11 @@ then
 
 elif [[ -x $(which zypper) ]]
 then
+    if [[ -x $(which registercloudguest ) ]]
+    then
+      registercloudguest --force-new >>/tmp/cloudFormationInit.log
+    fi
+
     zypper refresh
     zypper --non-interactive install libcap-progs nfs-kernel-server zip unzip samba gdb util-linux netcat-openbsd
 else
