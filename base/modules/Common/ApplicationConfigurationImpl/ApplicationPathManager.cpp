@@ -61,6 +61,11 @@ namespace Common
             return Common::FileSystem::join(sophosInstall(), "base/etc/user-group-ids-requested.conf");
         }
 
+        std::string ApplicationPathManager::getInstallOptionsPath() const
+        {
+            return Common::FileSystem::join(sophosInstall(), "base/etc/install_options");
+        }
+
         std::string ApplicationPathManager::sophosInstall() const
         {
             return Common::ApplicationConfiguration::applicationConfiguration().getData(

@@ -16,6 +16,7 @@ public:
     MOCK_METHOD(std::string, getWatchdogSocketAddress, (), (const, override));
     MOCK_METHOD(std::string, getActualUserGroupIdConfigPath, (), (const, override));
     MOCK_METHOD(std::string, getRequestedUserGroupIdConfigPath, (), (const, override));
+    MOCK_METHOD(std::string, getInstallOptionsPath, (), (const, override));
     MOCK_METHOD(std::string, getEventSubscriberSocketAddress, (), (const, override));
     MOCK_METHOD(std::string, getEventSubscriberSocketFile, (), (const, override));
     MOCK_METHOD(std::string, getEventJournalsPath, (), (const, override));
