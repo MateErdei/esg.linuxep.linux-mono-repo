@@ -13,6 +13,22 @@ except ModuleNotFoundError as exception:
     from OSUtils import get_file_owner_id, get_file_group_id
 
 
+def verify_requested_config_without_help_text(expected_config):
+    path = "/opt/sophos-spl/base/etc/user-group-ids-requested.conf"
+    requested_config = ""
+
+    with open(path) as file_to_read:
+        for line in file_to_read.readlines():
+            line = line.strip()
+            if not line.startswith("#"):
+                requested_config += line
+
+    if not requested_config == expected_config:
+        raise AssertionError(f"Requested user group config does not match expected\n"
+                             f"Expected: {expected_config}\n"
+                             f"Actual: {requested_config}")
+
+
 def get_user_and_group_ids_of_files(directory: str):
     ids_of_dir_entries = {}
     for file in pathlib.Path(directory).glob("**/*"):

@@ -20,6 +20,8 @@ Test Teardown       Watchdog User Group Test Teardown
 
 *** Test Cases ***
 Test Watchdog Reconfigures User and Group IDs
+    Require Fresh Install
+    Install Plugins And Setup Local Cloud
     Verify Watchdog Actual User Group ID File
     ${ids_before} =    Get User IDs of Installed Files
 
@@ -31,8 +33,8 @@ Test Watchdog Reconfigures User and Group IDs
     ${sspl_update_uid_before} =             Get UID From Username    sophos-spl-updatescheduler
     ${sspl_user_uid_before} =               Get UID From Username    sophos-spl-user
     # Groups
-    ${sophos_spl_group_gid_before} =        get_gid_from_groupname    sophos-spl-group
-    ${sophos_spl_ipc_gid_before} =          get_gid_from_groupname    sophos-spl-ipc
+    ${sophos_spl_group_gid_before} =        Get GID From Groupname    sophos-spl-group
+    ${sophos_spl_ipc_gid_before} =          Get GID From Groupname    sophos-spl-ipc
 
     # IDs we will request to change to
     # Users
@@ -78,8 +80,8 @@ Test Watchdog Reconfigures User and Group IDs
     ${sspl_update_uid_after} =             Get UID From Username    sophos-spl-updatescheduler
     ${sspl_user_uid_after} =               Get UID From Username    sophos-spl-user
     # Groups after
-    ${sophos_spl_group_gid_after} =        get_gid_from_groupname    sophos-spl-group
-    ${sophos_spl_ipc_gid_after} =          get_gid_from_groupname    sophos-spl-ipc
+    ${sophos_spl_group_gid_after} =        Get GID From Groupname    sophos-spl-group
+    ${sophos_spl_ipc_gid_after} =          Get GID From Groupname    sophos-spl-ipc
 
     Should Be Equal As Strings    ${sspl_av_uid_after}                 ${sspl_av_uid_requested}
     Should Be Equal As Strings    ${sspl_local_uid_after}              ${sspl_local_uid_requested}
@@ -94,6 +96,8 @@ Test Watchdog Reconfigures User and Group IDs
 
 
 Test Watchdog Can Reconfigure a Singular User ID
+    Require Fresh Install
+    Install Plugins And Setup Local Cloud
     Verify Watchdog Actual User Group ID File
     ${ids_before} =    Get User IDs of Installed Files
 
@@ -105,8 +109,8 @@ Test Watchdog Can Reconfigure a Singular User ID
     ${sspl_update_uid_before} =             Get UID From Username    sophos-spl-updatescheduler
     ${sspl_user_uid_before} =               Get UID From Username    sophos-spl-user
     # Groups
-    ${sophos_spl_group_gid_before} =        get_gid_from_groupname    sophos-spl-group
-    ${sophos_spl_ipc_gid_before} =          get_gid_from_groupname    sophos-spl-ipc
+    ${sophos_spl_group_gid_before} =        Get GID From Groupname    sophos-spl-group
+    ${sophos_spl_ipc_gid_before} =          Get GID From Groupname    sophos-spl-ipc
 
     # User ID we will request to change to
     # sophos-spl-user 1996
@@ -139,6 +143,8 @@ Test Watchdog Can Reconfigure a Singular User ID
     Verify Product is Running Without Error After ID Change
 
 Test Watchdog Can Reconfigure a Singular Group ID
+    Require Fresh Install
+    Install Plugins And Setup Local Cloud
     Verify Watchdog Actual User Group ID File
     ${ids_before} =    Get User IDs of Installed Files
 
@@ -150,8 +156,8 @@ Test Watchdog Can Reconfigure a Singular Group ID
     ${sspl_update_uid_before} =             Get UID From Username    sophos-spl-updatescheduler
     ${sspl_user_uid_before} =               Get UID From Username    sophos-spl-user
     # Groups
-    ${sophos_spl_group_gid_before} =        get_gid_from_groupname    sophos-spl-group
-    ${sophos_spl_ipc_gid_before} =          get_gid_from_groupname    sophos-spl-ipc
+    ${sophos_spl_group_gid_before} =        Get GID From Groupname    sophos-spl-group
+    ${sophos_spl_ipc_gid_before} =          Get GID From Groupname    sophos-spl-ipc
 
     # Group ID we will request to change to
     # sophos-spl-group 1996
@@ -177,19 +183,67 @@ Test Watchdog Can Reconfigure a Singular Group ID
     check_changes_of_group_ids   ${ids_before}    ${ids_after}    ${sophos_spl_ipc_gid_before}         ${sophos_spl_ipc_gid_before}
 
     # Check product GID has updated
-    ${sophos_spl_group_gid_after} =        get_gid_from_groupname    sophos-spl-group
+    ${sophos_spl_group_gid_after} =        Get GID From Groupname    sophos-spl-group
     Should Be Equal As Strings    ${sophos_spl_group_gid_after}        ${sophos_spl_group_gid_requested}
 
     Verify Product is Running Without Error After ID Change
 
+Custom User And Group IDs Are Written To Requested Config From ThinInstaller Args
+    Copy File    ${SUPPORT_FILES}/watchdog/requested_user_group_ids_install_options    /tmp/InstallOptionsTestFile
+    Set Environment Variable  INSTALL_OPTIONS_FILE  /tmp/InstallOptionsTestFile
+
+    Run Full Installer Expecting Code  0
+
+    Wait Until Keyword Succeeds
+    ...    30 secs
+    ...    2 secs
+    ...    Log File    ${ETC_DIR}/install_options
+    Wait Until Keyword Succeeds
+    ...    60 secs
+    ...    5 secs
+    ...    Verify Requested Config Without Help Text    {"users":{"sophos-spl-local":1995,"sophos-spl-updatescheduler":1994,"sophos-spl-user":1996,"sophos-spl-av":1997,"sophos-spl-threat-detector":1998},"groups":{"sophos-spl-group":1996,"sophos-spl-ipc":1995}}
+    Remove File    /tmp/InstallOptionsTestFile
+
+Requested Config Created From ThinInstaller Args Is Used To Configure Users And Groups
+    Copy File    ${SUPPORT_FILES}/watchdog/requested_user_group_ids_install_options    /tmp/InstallOptionsTestFile
+    Set Environment Variable  INSTALL_OPTIONS_FILE  /tmp/InstallOptionsTestFile
+
+    Run Full Installer Expecting Code  0
+    Wait For Base Processes To Be Running
+
+    # Check product UIDs and GIDs
+    # Users
+    #TODO LINUXDAR-2972 Adapt when this ticket is implemented to ensure AV users are set on startup
+    ${sspl_local_uid} =              Get UID From Username    sophos-spl-local
+    ${sspl_update_uid} =             Get UID From Username    sophos-spl-updatescheduler
+    ${sspl_user_uid} =               Get UID From Username    sophos-spl-user
+    # Groups
+    ${sophos_spl_group_gid} =        Get GID From Groupname    sophos-spl-group
+    ${sophos_spl_ipc_gid} =          Get GID From Groupname    sophos-spl-ipc
+
+    Should Be Equal As Strings    ${sspl_local_uid}              1995
+    Should Be Equal As Strings    ${sspl_update_uid}             1994
+    Should Be Equal As Strings    ${sspl_user_uid}               1996
+
+    Should Be Equal As Strings    ${sophos_spl_group_gid}        1996
+    Should Be Equal As Strings    ${sophos_spl_ipc_gid}          1995
+    Remove File    /tmp/InstallOptionsTestFile
+
 *** Keywords ***
 Watchdog User Group Test Setup
-    Regenerate Certificates
-    Require Fresh Install
-    Set Local CA Environment Variable
+    Require Uninstalled
     Override LogConf File as Global Level  DEBUG
     Cleanup Local Cloud Server Logs
 
+Watchdog User Group Test Teardown
+    General Test Teardown
+    dump_cloud_server_log
+    Require Uninstalled
+    Stop Local Cloud Server
+
+Install Plugins And Setup Local Cloud
+    Regenerate Certificates
+    Set Local CA Environment Variable
     Start Local Cloud Server
     Copy File  ${SUPPORT_FILES}/CentralXml/FLAGS_xdr_enabled.json  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json
     ${result} =  Run Process  chown  root:sophos-spl-group  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json
@@ -201,12 +255,6 @@ Watchdog User Group Test Setup
     Register Cleanup   Cleanup Query Packs
     Install Event Journaler Directly
     Install AV Plugin Directly
-
-Watchdog User Group Test Teardown
-    General Test Teardown
-    dump_cloud_server_log
-    Require Uninstalled
-    Stop Local Cloud Server
 
 Wait for All Processes To Be Running
     Wait For Base Processes To Be Running
