@@ -13,3 +13,12 @@ install(TARGETS ${RA_PLUGIN_NAME}
         DESTINATION ${RA_DIST_PREFIX}/files/plugins/${RA_PLUGIN_NAME}/bin
         PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE  GROUP_READ GROUP_EXECUTE)
 
+install(TARGETS
+        applicationconfigurationimpl
+        filesystemimpl
+        logging
+        pluginapi
+        sslimpl
+        utilityimpl
+        LIBRARY DESTINATION ${RA_DIST_PREFIX}/files/plugins/${RA_PLUGIN_NAME}/lib64)
+

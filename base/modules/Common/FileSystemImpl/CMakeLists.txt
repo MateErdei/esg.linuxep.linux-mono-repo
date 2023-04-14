@@ -24,6 +24,4 @@ SET_TARGET_PROPERTIES(filesystemimpl
 
 install(TARGETS filesystemimpl
         LIBRARY DESTINATION ${BASE_DIST_PREFIX}/files/base/lib64)
-install(TARGETS filesystemimpl
-        LIBRARY DESTINATION ${RA_DIST_PREFIX}/files/plugins/${RA_PLUGIN_NAME}/lib64)
 
