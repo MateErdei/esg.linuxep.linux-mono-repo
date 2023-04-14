@@ -522,6 +522,8 @@ On Access Times Out When Unable To Connect To Threat Detector While Starting Up
     FakeWatchdog.Stop Sophos Threat Detector Under Fake Watchdog
     Start On Access
 
+    wait for on access log contains after mark  Fanotify successfully initialised  mark=${mark}
+
     ${filepath} =  Set Variable  /tmp_test/clean_file_writer/clean.txt
     Create File  ${filepath}  clean
     Register Cleanup  Remove File  ${filepath}
