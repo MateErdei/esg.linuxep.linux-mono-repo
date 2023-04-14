@@ -57,11 +57,9 @@ namespace ResponsePlugin
                 bool timedOut = false;
                 if (processStatus != Common::Process::ProcessStatus::FINISHED)
                 {
-                    this->m_process->kill();
-                    timedOut = true;
-                    LOGWARN(
-                        "Action process was stopped due to a timeout after "
-                        << timeout << " secs, correlation ID: " << correlationId);
+                    std::stringstream msg;
+                    msg << "reaching timeout of " << timeout << " secs, correlation ID: " << correlationId;
+                    timedOut = !kill(msg.str());
                 }
                 auto output = this->m_process->output();
                 if (!output.empty())
@@ -83,15 +81,33 @@ namespace ResponsePlugin
                 }
                 isRunning = false;
             });
+        //TODO Remove
+        m_fut.get();
     }
 
     void ActionRunner::killAction()
     {
-        m_process->kill();
+        kill("plugin received stop request");
     }
 
     bool ActionRunner::getIsRunning()
     {
         return isRunning;
     }
+
+    bool ActionRunner::kill(const std::string& msg)
+    {
+        //TODO Test this
+        if (this->m_process->kill())
+        {
+            LOGWARN("Action Runner had to be killed after " + msg);
+            return true;
+        }
+        else
+        {
+            LOGWARN("Action Runner was stopped after " + msg);
+            return false;
+        }
+    }
+
 } // namespace ResponsePlugin

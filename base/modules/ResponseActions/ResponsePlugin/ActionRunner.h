@@ -27,6 +27,8 @@ namespace ResponsePlugin
         bool getIsRunning() override;
 
     private:
+        [[maybe_unused]] bool kill(const std::string& msg);
+
         bool isRunning = false;
         Common::Process::IProcessPtr m_process;
         std::string m_executablePath;
