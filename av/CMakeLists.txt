@@ -228,11 +228,8 @@ set_target_properties(safestorelib PROPERTIES
         INTERFACE_INCLUDE_DIRECTORIES ${INPUT}/safestore_input/interface
         )
 
-add_library(zlibrary SHARED IMPORTED)
-set_target_properties(zlibrary PROPERTIES
-        IMPORTED_LOCATION ${REDIST}/zlib/libz.so.1
-        INTERFACE_INCLUDE_DIRECTORIES ${REDIST}/zlib
-        )
+set(ZLIB_INPUT ${REDIST}/zlib)
+set(ZLIB_LIBRARY ${ZLIB_INPUT}/libz.so.1)
 
 set(JSON_INPUT ${pluginapiinclude}/thirdparty/nlohmann-json)
 
