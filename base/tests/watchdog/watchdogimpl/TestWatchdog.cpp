@@ -42,7 +42,6 @@ namespace
 
             m_actualUserGroupIdConfigPath = Common::ApplicationConfiguration::applicationPathManager().getActualUserGroupIdConfigPath();
             m_requestedUserGroupIdConfigPath = Common::ApplicationConfiguration::applicationPathManager().getRequestedUserGroupIdConfigPath();
-            m_installOptionsPath = Common::ApplicationConfiguration::applicationPathManager().getInstallOptionsPath();
 
             EXPECT_CALL(*m_mockFileSystemPtr, isDirectory(HasSubstr("base/telemetry/cache"))).WillRepeatedly(Return(false));
             EXPECT_CALL(*m_mockFileSystemPtr, isFile(HasSubstr("base/telemetry/cache"))).WillRepeatedly(Return(false));
