@@ -258,6 +258,33 @@ TEST_F(TestUserGroupUtils, validateUserAndGroupIdsRemovesUsersAndGroupsNotInActu
     EXPECT_THAT(logMessage, ::testing::HasSubstr("Will not update the ID of user1 as it is not associated with SPL"));
 }
 
+// TODO LINUXDAR-2972 remove when this defect is closed
+TEST_F(TestUserGroupUtils, validateUserAndGroupIdsDoesNotLogWarningWhenSPLUserIsNotInActualConfig)
+{
+    testing::internal::CaptureStderr();
+
+    nlohmann::json configJson = {
+        {"users", {{"user1", 1},{"sophos-spl-av", 2},{"user3", 3},{"sophos-spl-threat-detector", 4}}},
+        {"groups", {{"group1", 1},{"group2", 2},{"group3", 3}}}
+    };
+
+    nlohmann::json validatedJson = {
+        {"users", {{"user3", 3}}},
+        {"groups", {{"group3", 3}}}
+    };
+
+    EXPECT_CALL(*m_mockFileSystemPtr, readFile(m_actualUserGroupIdConfigPath)).WillOnce(
+        Return(R"({"groups":{"group3":3},"users":{"user3":3}})"));
+    EXPECT_CALL(*m_mockFilePermissionsPtr, getAllGroupNamesAndIds()).WillOnce(Return(std::map<std::string, gid_t>{}));
+    EXPECT_CALL(*m_mockFilePermissionsPtr, getAllUserNamesAndIds()).WillOnce(Return(std::map<std::string, uid_t>{}));
+    EXPECT_EQ(validateUserAndGroupIds(configJson), validatedJson);
+
+    std::string logMessage = testing::internal::GetCapturedStderr();
+    EXPECT_THAT(logMessage, ::testing::HasSubstr("Will not update the ID of group2 as it is not associated with SPL"));
+    EXPECT_THAT(logMessage, ::testing::HasSubstr("Will not update the ID of group1 as it is not associated with SPL"));
+    EXPECT_THAT(logMessage, ::testing::HasSubstr("Will not update the ID of user1 as it is not associated with SPL"));
+}
+
 TEST_F(TestUserGroupUtils, validateUserAndGroupIdsRemovesRoot)
 {
     nlohmann::json configJson = {
