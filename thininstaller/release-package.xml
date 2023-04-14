@@ -6,8 +6,7 @@
     <inputs>
         <workingdir>.</workingdir>
         <build-asset project="linuxep" repo="everest-base">
-            <development-version branch="bugfix/LINUXDAR-7027_remove_use_of_pidof"/>
-<!--            <release-version branch="release/2023-13" build-id="20230327102256-80ee197f61863b4935e099fc513212cc19ca0c6c-tXu2TZ"/>-->
+            <release-version branch="release/2023-13" build-id="20230327102256-80ee197f61863b4935e099fc513212cc19ca0c6c-tXu2TZ"/>
             <include artifact-path="sspl-base/pluginapi" dest-dir="/build/input"/>
             <include artifact-path="sspl-base/cmcsrouterapi" dest-dir="/build/input"/>
         </build-asset>
