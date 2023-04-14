@@ -326,6 +326,33 @@ function generate_local_user_group_id_config()
   local configPath="${SOPHOS_INSTALL}/base/etc/user-group-ids-requested.conf"
   if [[ ! -f "${configPath}" ]]
   then
+    if [[ -f "${SOPHOS_INSTALL}/base/etc/install_options" ]]
+    then
+      jsonString="{"
+      while read -r line; do
+        if [[ "$line" =~ ^--user-ids-to-configure=?(.*)$ ]]
+          then
+            jsonString="${jsonString}\"users\":{"
+            IFS=',' read -ra UIDS_ARRAY <<< "${line/*=/}"
+            for uid in "${UIDS_ARRAY[@]}"; do
+              jsonString="${jsonString}"\"${uid%%:*}\"":${uid#*:},"
+            done
+            jsonString="${jsonString}},"
+        fi
+        if [[ "$line" =~ ^--group-ids-to-configure=?(.*)$ ]]
+          then
+            jsonString="${jsonString}\"groups\":{"
+            IFS=',' read -ra GIDS_ARRAY <<< "${line/*=/}"
+            for gid in "${GIDS_ARRAY[@]}"; do
+              jsonString="${jsonString}"\"${gid%%:*}\"":${gid#*:},"
+            done
+            jsonString="${jsonString}},"
+        fi
+      done <"${SOPHOS_INSTALL}/base/etc/install_options"
+      jsonString="${jsonString}}"
+      jsonString="${jsonString//\,\}/\}}"
+    fi
+
     cat > "${configPath}" << EOF
 # This file allows the user and group IDs of the SPL product to be specified
 # note - This file is used to request user and group ID changes whereas user-group-ids-actual.conf reflects the IDs currently in use by the product.
@@ -345,6 +372,7 @@ function generate_local_user_group_id_config()
 #        "groupname2": gid2
 #    },
 #}
+${jsonString}
 EOF
   fi
   chown root:root "${configPath}"
