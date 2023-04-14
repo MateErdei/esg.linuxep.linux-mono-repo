@@ -20,7 +20,7 @@ target_include_directories(ResponseActionsTests BEFORE PUBLIC
 target_link_libraries(ResponseActionsTests ${GTEST_LIBRARY} ${GTEST_MAIN_LIBRARY} -L"${CMAKE_BINARY_DIR}/libs"
         responseplugin
         responseactionsimpl
-        ${CMAKE_BINARY_DIR}/products/PluginApi/libsharedtesthelpers.so
+        sharedtesthelpers
         )
 
 gtest_discover_tests(ResponseActionsTests)
@@ -32,4 +32,3 @@ SET_TARGET_PROPERTIES(ResponseActionsTests
         )
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
-add_dependencies(ResponseActionsTests sharedtesthelpers)
