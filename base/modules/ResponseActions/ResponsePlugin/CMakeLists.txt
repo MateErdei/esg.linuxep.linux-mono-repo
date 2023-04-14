@@ -32,7 +32,7 @@ include_directories(responseplugin BEFORE
 
 target_link_libraries(responseplugin PUBLIC
         logging
-        ${CMAKE_BINARY_DIR}/products/PluginApi/libpluginapi.so
+        pluginapi
         ${Protobuf_LIBRARY}
         ${EXPAT_LIBRARY}
         ${ZeroMQ_LIBRARY}
@@ -47,4 +47,4 @@ SET_TARGET_PROPERTIES(responseplugin
 install(TARGETS responseplugin
         LIBRARY DESTINATION ${RA_DIST_PREFIX}/files/plugins/${RA_PLUGIN_NAME}/lib64)
 
-add_dependencies(responseplugin pluginapi plugintar copy_libs)
+add_dependencies(responseplugin copy_libs)
