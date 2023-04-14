@@ -982,7 +982,7 @@ namespace SulDownloader
         }
         catch (const Common::FileSystem::IFileSystemException& exception)
         {
-            LOGWARN("Could not change lock file permissions for Update Scheduler to access");
+            LOGWARN("Could not change lock file permissions for Update Scheduler to access: " << exception.what());
         }
 
         // Process command line args

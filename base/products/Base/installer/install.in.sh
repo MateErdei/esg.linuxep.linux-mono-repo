@@ -551,7 +551,7 @@ if [[ -f "${SOPHOS_INSTALL}/var/lock-sophosspl/mcsrouter.pid" ]]
 then
     chown "${LOCAL_USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/var/lock-sophosspl/mcsrouter.pid"*
 fi
-# Update scheduler needs to be able to access this lock to check if suldownlaoder is runnning.
+# Update scheduler needs to be able to access this lock to check if suldownloader is running.
 if [[ -f "${SOPHOS_INSTALL}/var/lock-sophosspl/suldownloader.pid" ]]
 then
     chown "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/var/lock-sophosspl/suldownloader.pid"
