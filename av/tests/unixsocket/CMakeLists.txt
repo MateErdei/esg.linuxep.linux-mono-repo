@@ -120,7 +120,7 @@ SET_TARGET_PROPERTIES( threatDetectorClientExecutable
         ProcessControlServerExecutable
         PROPERTIES
         BUILD_RPATH "$ORIGIN"
-        INSTALL_RPATH "$ORIGIN/../lib64:$ORIGIN/../../../../../base-sdds/files/base/lib64/"
+        INSTALL_RPATH "$ORIGIN"
         )
 install(TARGETS threatDetectorClientExecutable
         threatDetectorServerExecutable
