@@ -435,7 +435,7 @@ namespace SulDownloader
         protoReport.set_errordescription(report.getDescription());
         protoReport.set_sulerror(report.getSulError());
         protoReport.set_urlsource(report.getSourceURL());
-        protoReport.set_supplementonlyupdate(report.m_supplementOnly);
+        protoReport.set_supplementonlyupdate(report.isSupplementOnlyUpdate());
 
         for (const auto& product : report.getProducts())
         {
@@ -487,6 +487,8 @@ namespace SulDownloader
         report.m_description = protoReport.errordescription();
         report.m_sulError = protoReport.sulerror();
         report.m_urlSource = protoReport.urlsource();
+
+        report.m_supplementOnly = protoReport.supplementonlyupdate();
 
         for (auto& protoProduct : protoReport.products())
         {

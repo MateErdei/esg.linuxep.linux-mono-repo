@@ -13,5 +13,3 @@ SET_TARGET_PROPERTIES(procutilimpl
 
 install(TARGETS procutilimpl
         LIBRARY DESTINATION ${BASE_DIST_PREFIX}/files/base/lib64)
-
-install(TARGETS procutilimpl LIBRARY DESTINATION ${THININSTALLER_DEPS_DIR_LIB64})

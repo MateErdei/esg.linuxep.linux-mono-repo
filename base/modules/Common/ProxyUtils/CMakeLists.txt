@@ -1,9 +1,17 @@
-add_library(ProxyUtilsLib SHARED
+add_library(ProxyUtilsLibobject OBJECT
         ProxyUtils.h
         ProxyUtils.cpp
         Logger.cpp
         Logger.h
         )
+
+target_include_directories(ProxyUtilsLibobject PUBLIC BEFORE
+        ${LOG4CPLUS_INCLUDE_DIR}
+        ${NLOHMANN_JSON_INCLUDE_DIR}
+        ${PROJECT_SOURCE_DIR}/modules/Common
+        )
+
+add_library(ProxyUtilsLib SHARED $<TARGET_OBJECTS:ProxyUtilsLibobject>)
 
 target_link_libraries(ProxyUtilsLib PUBLIC filesystemimpl utilityimpl applicationconfigurationimpl logging obfuscationimpl)
 
@@ -14,5 +22,3 @@ SET_TARGET_PROPERTIES(ProxyUtilsLib
 
 install(TARGETS ProxyUtilsLib
         LIBRARY DESTINATION ${BASE_DIST_PREFIX}/files/base/lib64)
-
-install(TARGETS ProxyUtilsLib LIBRARY DESTINATION ${THININSTALLER_DEPS_DIR_LIB64})

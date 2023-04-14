@@ -457,10 +457,8 @@ namespace UpdateSchedulerImpl
             return;
         }
 
-        std::string configPath =
-            Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderConfigFilePath();
         auto* fileSystem = Common::FileSystem::fileSystem();
-        if (!fileSystem->isFile(configPath))
+        if (!fileSystem->isFile(m_configfilePath))
         {
             LOGWARN("No update_config.json file available. Requesting policy again");
             m_baseService->requestPolicies(UpdateSchedulerProcessor::ALC_API);
@@ -469,21 +467,34 @@ namespace UpdateSchedulerImpl
         }
 
         // Update config with latest JWT
-        std::pair<SulDownloader::suldownloaderdata::ConfigurationData,bool> pair = UpdateSchedulerUtils::getUpdateConfigWithLatestJWT();
-        if (pair.second)
+        auto [configurationData, configUpdated] = UpdateSchedulerUtils::getUpdateConfigWithLatestJWT();
+        if (configUpdated)
         {
-            writeConfigurationData(pair.first);
+            writeConfigurationData(configurationData);
         }
 
         // Check if we should do a supplement-only update or not
         std::string supplementOnlyMarkerFilePath =
-            Common::FileSystem::join(
-                Common::FileSystem::dirName(configPath),
-                "supplement_only.marker"
-            );
+            Common::FileSystem::join(Common::FileSystem::dirName(m_configfilePath), "supplement_only.marker");
         time_t lastProductUpdateCheck = configModule::DownloadReportsAnalyser::getLastProductUpdateCheck();
         SulDownloader::suldownloaderdata::UpdateSupplementDecider decider(m_scheduledUpdateConfig);
         bool updateProducts = decider.updateProducts(lastProductUpdateCheck);
+
+        if (!updateProducts)
+        {
+            // Force product update if a requested feature is not installed
+            for (const auto& feature : configurationData.getFeatures())
+            {
+                if (std::find(m_featuresCurrentlyInstalled.begin(), m_featuresCurrentlyInstalled.end(), feature) ==
+                    m_featuresCurrentlyInstalled.end())
+                {
+                    LOGINFO("Feature " << feature << " not yet installed, forcing product update");
+                    updateProducts = true;
+                    break;
+                }
+            }
+        }
+
         if (updateProducts)
         {
             LOGSUPPORT("Triggering product update check");

@@ -206,6 +206,8 @@ public:
             product.setDistributePath("/opt/sophos-spl/base/update/cache/sdds3primary");
             products.push_back(product);
         }
+        products[0].setDistributePath("/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Base-component");
+        products[1].setDistributePath("/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Plugin-EDR");
         return products;
     }
 
@@ -276,7 +278,9 @@ public:
     {
         if (m_mockptr == nullptr)
         {
-            m_mockptr = new StrictMock<MockSdds3Repository>();
+            m_mockptr = new MockSdds3Repository();
+            EXPECT_CALL(*m_mockptr, tryConnect).WillRepeatedly(Return(true));
+            EXPECT_CALL(*m_mockptr, synchronize).WillRepeatedly(Return(true));
             TestSdds3RepositoryHelper::replaceSdds3RepositoryCreator([this]() {
               return suldownloaderdata::ISDDS3RepositoryPtr(this->m_mockptr);
             });
@@ -286,7 +290,10 @@ public:
 
     MockFileSystem& setupFileSystemAndGetMock(int expectCallCount = 1, int expectCurrentProxy = 2, int expectedInstalledFeatures = 1, std::string installedFeatures = R"(["CORE"])")
     {
-        auto* filesystemMock = new StrictMock<MockFileSystem>();
+        auto* filesystemMock = new MockFileSystem();
+        EXPECT_CALL(*filesystemMock, isFile).Times(AnyNumber());
+        EXPECT_CALL(*filesystemMock, isDirectory).Times(AnyNumber());
+        EXPECT_CALL(*filesystemMock, removeFile(_, _)).Times(AnyNumber());
         EXPECT_CALL(*filesystemMock, isDirectory("/opt/sophos-spl")).Times(expectCallCount).WillRepeatedly(Return(true));
         EXPECT_CALL(*filesystemMock, isDirectory("/opt/sophos-spl/base/update/cache/"))
             .Times(expectCallCount)
@@ -921,6 +928,68 @@ TEST_F(
         reportContent,
         ::testing::HasSubstr(SulDownloader::suldownloaderdata::toString(
             SulDownloader::suldownloaderdata::RepositoryStatus::UNSPECIFIED)));
+}
+
+TEST_F(SULDownloaderSdds3Test, configAndRunDownloader_IfSuccessfulAndNotSupplementOnlyThenWritesToFeaturesFile)
+{
+    auto mockFilePermissions = std::make_unique<MockFilePermissions>();
+    Tests::ScopedReplaceFilePermissions scopedReplaceFilePermissions(std::move(mockFilePermissions));
+
+    // Expect that features are written
+    const int expectedInstalledFeatures = 1;
+    auto& fileSystemMock = setupFileSystemAndGetMock(1, 2, expectedInstalledFeatures);
+
+    ON_CALL(fileSystemMock, readFile("inputFilePath")).WillByDefault(Return(jsonSettings(defaultSettings())));
+
+    // Produce a successful report by mocking that products were already installed
+    setupFileVersionCalls(fileSystemMock, "PRODUCT_VERSION = 1.2", "PRODUCT_VERSION = 1.2");
+
+    auto products = defaultProducts();
+    TimeTracker timeTracker;
+    DownloadReport downloadReport =
+        DownloadReport::Report("", products, {}, {}, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
+    std::string previousJsonReport = DownloadReport::fromReport(downloadReport);
+    MockSdds3Repository& mock = repositoryMocked();
+    ON_CALL(mock, getProducts).WillByDefault(Return(products));
+
+    // Not supplement-only
+    bool supplementOnly = false;
+    const auto [exitCode, reportContent, baseDowngraded] = SulDownloader::configAndRunDownloader(
+        "inputFilePath", "previousInputFilePath", previousJsonReport, supplementOnly);
+
+    // Exit code should be 0
+    EXPECT_EQ(exitCode, 0);
+}
+
+TEST_F(SULDownloaderSdds3Test, configAndRunDownloader_IfSuccessfulAndSupplementOnlyThenDoesNotWriteToFeaturesFile)
+{
+    auto mockFilePermissions = std::make_unique<MockFilePermissions>();
+    Tests::ScopedReplaceFilePermissions scopedReplaceFilePermissions(std::move(mockFilePermissions));
+
+    // Expect features to never be written
+    const int expectedInstalledFeatures = 0;
+    auto& fileSystemMock = setupFileSystemAndGetMock(1, 2, expectedInstalledFeatures);
+
+    ON_CALL(fileSystemMock, readFile("inputFilePath")).WillByDefault(Return(jsonSettings(defaultSettings())));
+
+    // Produce a successful report by mocking that products were already installed
+    setupFileVersionCalls(fileSystemMock, "PRODUCT_VERSION = 1.2", "PRODUCT_VERSION = 1.2");
+
+    auto products = defaultProducts();
+    TimeTracker timeTracker;
+    DownloadReport downloadReport =
+        DownloadReport::Report("", products, {}, {}, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
+    std::string previousJsonReport = DownloadReport::fromReport(downloadReport);
+    MockSdds3Repository& mock = repositoryMocked();
+    ON_CALL(mock, getProducts).WillByDefault(Return(products));
+
+    // Supplement-only
+    bool supplementOnly = true;
+    const auto [exitCode, reportContent, baseDowngraded] = SulDownloader::configAndRunDownloader(
+        "inputFilePath", "previousInputFilePath", previousJsonReport, supplementOnly);
+
+    // Exit code must be 0 otherwise the features would not be written anyway
+    EXPECT_EQ(exitCode, 0);
 }
 
 // runSULDownloader
@@ -2788,6 +2857,108 @@ TEST_F(SULDownloaderSdds3Test,updateFailsIfOldVersion)
 
     std::string errStd = testing::internal::GetCapturedStderr();
     ASSERT_THAT(errStd, ::testing::HasSubstr("The requested fixed version is not available on SDDS3"));
+}
+
+TEST_F(SULDownloaderSdds3Test, runSULDownloader_NonSupplementOnlyClearsAwaitScheduledUpdateFlagAndTriesToInstall)
+{
+    auto& mockFileSystem = setupFileSystemAndGetMock(0, 2, 0);
+
+    // Expect an upgrade
+    setupFileVersionCalls(mockFileSystem, "PRODUCT_VERSION = 1.2", "PRODUCT_VERSION = 1.3");
+
+    auto settings = defaultSettings();
+    ConfigurationData configurationData = configData(settings);
+    ConfigurationData previousConfigurationData;
+    const auto products = defaultProducts();
+    TimeTracker timeTracker;
+    DownloadReport previousDownloadReport =
+        DownloadReport::Report("", products, {}, {}, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
+
+    MockSdds3Repository& mock = repositoryMocked();
+    ON_CALL(mock, getProducts).WillByDefault(Return(products));
+
+    EXPECT_CALL(
+        mockFileSystem, removeFile("/opt/sophos-spl/base/update/var/updatescheduler/await_scheduled_update", _));
+
+    // Expect both installers to run
+    int counter = 0;
+    Common::ProcessImpl::ProcessFactory::instance().replaceCreator(
+        [&counter]()
+        {
+            ++counter;
+            if (counter == 1)
+            {
+                auto mockProcess = std::make_unique<MockProcess>();
+                EXPECT_CALL(
+                    *mockProcess,
+                    exec(
+                        "/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Base-component/"
+                        "install.sh",
+                        _,
+                        _));
+                ON_CALL(*mockProcess, wait(_, _)).WillByDefault(Return(Common::Process::ProcessStatus::FINISHED));
+                return mockProcess;
+            }
+            else
+            {
+                auto mockProcess = std::make_unique<MockProcess>();
+                EXPECT_CALL(
+                    *mockProcess,
+                    exec(
+                        "/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Plugin-EDR/install.sh",
+                        _,
+                        _));
+                ON_CALL(*mockProcess, wait(_, _)).WillByDefault(Return(Common::Process::ProcessStatus::FINISHED));
+                return mockProcess;
+            }
+        });
+
+    SulDownloader::runSULDownloader(configurationData, previousConfigurationData, previousDownloadReport, false);
+}
+
+TEST_F(SULDownloaderSdds3Test, runSULDownloader_SupplementOnlyDoesNotClearAwaitScheduledUpdateFlagAndDoesNotInstall)
+{
+    testing::internal::CaptureStderr();
+
+    auto& mockFileSystem = setupFileSystemAndGetMock(0, 2, 0);
+
+    // Expect an upgrade
+    setupFileVersionCalls(mockFileSystem, "PRODUCT_VERSION = 1.2", "PRODUCT_VERSION = 1.3");
+
+    auto settings = defaultSettings();
+    ConfigurationData configurationData = configData(settings);
+    ConfigurationData previousConfigurationData;
+    const auto products = defaultProducts();
+    TimeTracker timeTracker;
+    DownloadReport previousDownloadReport =
+        DownloadReport::Report("", products, {}, {}, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
+
+    MockSdds3Repository& mock = repositoryMocked();
+    ON_CALL(mock, getProducts).WillByDefault(Return(products));
+
+    EXPECT_CALL(mockFileSystem, removeFile("/opt/sophos-spl/base/update/var/updatescheduler/await_scheduled_update", _))
+        .Times(0);
+
+    // Expect no install process to be run
+    int counter = 0;
+    Common::ProcessImpl::ProcessFactory::instance().replaceCreator(
+        [&counter]()
+        {
+            ++counter;
+            return std::make_unique<MockProcess>();
+        });
+
+    SulDownloader::runSULDownloader(configurationData, previousConfigurationData, previousDownloadReport, true);
+
+    EXPECT_EQ(counter, 0);
+
+    std::string errStd = testing::internal::GetCapturedStderr();
+    EXPECT_THAT(
+        errStd,
+        ::testing::HasSubstr("INFO Downloaded Product line: 'ServerProtectionLinux-Base-component' is up to date."));
+    EXPECT_THAT(
+        errStd,
+        ::testing::HasSubstr("INFO Downloaded Product line: 'ServerProtectionLinux-Plugin-EDR' is up to date."));
 }
 
 // Suldownloader WriteInstalledFeatures()

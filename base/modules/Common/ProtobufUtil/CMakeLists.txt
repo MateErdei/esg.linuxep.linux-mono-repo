@@ -15,5 +15,3 @@ SET_TARGET_PROPERTIES(protobufutil
 
 install(TARGETS protobufutil
         LIBRARY DESTINATION ${BASE_DIST_PREFIX}/files/base/lib64)
-
-install(TARGETS protobufutil LIBRARY DESTINATION ${THININSTALLER_DEPS_DIR_LIB64})

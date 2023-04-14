@@ -1,6 +1,7 @@
 // Copyright 2022-2023 Sophos Limited. All rights reserved.
 
 #include "MockSdds3Wrapper.h"
+#include "MockSusRequester.h"
 #include "Sdds3ReplaceAndRestore.h"
 
 #include "Common/Logging/ConsoleLoggingSetup.h"
@@ -11,6 +12,7 @@
 #include "sophlib/sdds3/PackageRef.h"
 #include "tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h"
 #include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
+#include "tests/Common/Helpers/MemoryAppender.h"
 #include "tests/Common/Helpers/MockFileSystem.h"
 
 #include <gmock/gmock.h>
@@ -19,57 +21,40 @@
 using namespace SulDownloader;
 using namespace SulDownloader::suldownloaderdata;
 
-class Sdds3RepositoryTest : public ::testing::Test
+class Sdds3RepositoryTest : public MemoryAppenderUsingTests
 {
 public:
-    MockedApplicationPathManager* m_mockAppManager = new NiceMock<MockedApplicationPathManager>();
-    void SetUp() override
-    {
-        Test::SetUp();
-        MockedApplicationPathManager& mock(*m_mockAppManager);
-        ON_CALL(mock, getUpdateCertificatesPath()).WillByDefault(Return("/etc/ssl/cert"));
-
-        Common::ApplicationConfiguration::replaceApplicationPathManager(
-            std::unique_ptr<Common::ApplicationConfiguration::IApplicationPathManager>(m_mockAppManager));
-    }
-    /**
-     * Remove the temporary directory.
-     */
-    void TearDown() override
-    {
-        Common::ApplicationConfiguration::restoreApplicationPathManager();
-        Tests::restoreSdds3Wrapper();
-        Test::TearDown();
-    }
     MockSdds3Wrapper& setupSdds3WrapperAndGetMock()
     {
         auto* sdds3WrapperMock = new StrictMock<MockSdds3Wrapper>();
 
         auto* pointer = sdds3WrapperMock;
-        m_replacer.replace(std::unique_ptr<SulDownloader::ISdds3Wrapper>(sdds3WrapperMock));
+        replacer_.replace(std::unique_ptr<SulDownloader::ISdds3Wrapper>(sdds3WrapperMock));
         return *pointer;
     }
     Common::Logging::ConsoleLoggingSetup m_loggingSetup;
 
 protected:
-    Tests::ScopedReplaceSdds3Wrapper m_replacer;
+    Sdds3RepositoryTest() : MemoryAppenderUsingTests("SulDownloaderSDDS3"), usingMemoryAppender_(*this) {}
+
+    Tests::ScopedReplaceSdds3Wrapper replacer_;
+    std::unique_ptr<MockFileSystem> mockFileSystem_ = std::make_unique<MockFileSystem>();
+    std::unique_ptr<MockSusRequester> mockSusRequester_ = std::make_unique<MockSusRequester>();
+    UsingMemoryAppender usingMemoryAppender_;
 };
 
-TEST_F(Sdds3RepositoryTest, testGenerateProductListFromSdds3PackageInfoReportsSomeProductsHaveChanged) // NOLINT
+TEST_F(Sdds3RepositoryTest, testGenerateProductListFromSdds3PackageInfoReportsSomeProductsHaveChanged)
 {
-    SDDS3Repository repository;
-    auto& sdds3Wrapper = setupSdds3WrapperAndGetMock();
-
-    auto filesystemMock = new StrictMock<MockFileSystem>();
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::unique_ptr<Common::FileSystem::IFileSystem>(
-        filesystemMock) };
-    ON_CALL(*m_mockAppManager, getFeaturesJsonPath()).WillByDefault(Return("InstalledFeatures.json"));
     EXPECT_CALL(
-        *filesystemMock, exists(Common::ApplicationConfiguration::applicationPathManager().getFeaturesJsonPath()))
+        *mockFileSystem_, exists(Common::ApplicationConfiguration::applicationPathManager().getFeaturesJsonPath()))
         .WillRepeatedly(Return(true));
     EXPECT_CALL(
-        *filesystemMock, readFile(Common::ApplicationConfiguration::applicationPathManager().getFeaturesJsonPath()))
+        *mockFileSystem_, readFile(Common::ApplicationConfiguration::applicationPathManager().getFeaturesJsonPath()))
         .WillOnce(Return(R"(["CORE"])"));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::move(mockFileSystem_) };
+
+    SDDS3Repository repository{ std::move(mockSusRequester_) };
+    auto& sdds3Wrapper = setupSdds3WrapperAndGetMock();
 
     sophlib::sdds3::PackageRef package1;
     package1.lineId_ = "line1";
@@ -84,7 +69,7 @@ TEST_F(Sdds3RepositoryTest, testGenerateProductListFromSdds3PackageInfoReportsSo
     EXPECT_CALL(sdds3Wrapper, getPackagesToInstall(_, _, _, _)).WillOnce(Return(packagesToInstall));
     EXPECT_CALL(sdds3Wrapper, getPackages(_, _, _)).WillOnce(Return(allPackages));
     EXPECT_CALL(sdds3Wrapper, saveConfig(_, _)).Times(1);
-    EXPECT_CALL(sdds3Wrapper, getSuites(_,_,_)).Times(1);
+    EXPECT_CALL(sdds3Wrapper, getSuites(_, _, _)).Times(1);
 
     repository.generateProductListFromSdds3PackageInfo("line1");
     auto products = repository.getProducts();
@@ -97,7 +82,7 @@ TEST_F(Sdds3RepositoryTest, testGenerateProductListFromSdds3PackageInfoReportsSo
 
 TEST_F(
     Sdds3RepositoryTest,
-    testGenerateProductListFromSdds3PackageInfoReportsNotInstalledProductsHaveChangedIfFeatureAdded) // NOLINT
+    testGenerateProductListFromSdds3PackageInfoReportsNotInstalledProductsHaveChangedIfFeatureAdded)
 {
     // Unit test to address https://sophos.atlassian.net/browse/LINUXDAR-5298
     // The problem is that SUS only tells us what to download, it doesn't know if we've installed it or not.
@@ -105,19 +90,15 @@ TEST_F(
     // contained in the base suite, that package will already be downloaded but not installed. So we need to install
     // packages that SUS tells us to download but also packages that are not installed but in the required
     // features list.
-    auto filesystemMock = new StrictMock<MockFileSystem>();
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::unique_ptr<Common::FileSystem::IFileSystem>(
-        filesystemMock) };
-
-    ON_CALL(*m_mockAppManager, getFeaturesJsonPath()).WillByDefault(Return("InstalledFeatures.json"));
     EXPECT_CALL(
-        *filesystemMock, exists(Common::ApplicationConfiguration::applicationPathManager().getFeaturesJsonPath()))
+        *mockFileSystem_, exists(Common::ApplicationConfiguration::applicationPathManager().getFeaturesJsonPath()))
         .WillRepeatedly(Return(true));
     EXPECT_CALL(
-        *filesystemMock, readFile(Common::ApplicationConfiguration::applicationPathManager().getFeaturesJsonPath()))
+        *mockFileSystem_, readFile(Common::ApplicationConfiguration::applicationPathManager().getFeaturesJsonPath()))
         .WillOnce(Return(R"(["CORE"])"));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::move(mockFileSystem_) };
 
-    SDDS3Repository repository;
+    SDDS3Repository repository{ std::move(mockSusRequester_) };
     auto& sdds3Wrapper = setupSdds3WrapperAndGetMock();
 
     sophlib::sdds3::PackageRef package1;
@@ -135,7 +116,7 @@ TEST_F(
     // First update would have happened with just "CORE" as the feature codes
     repository.setFeatures({ "CORE", "LIVETERMINAL" });
 
-    // Get SUS to tell us there are no new packages to install
+    // Get CDN to tell us there are no new packages to install
     std::vector<sophlib::sdds3::PackageRef> packagesToInstall = {};
     EXPECT_CALL(sdds3Wrapper, getPackagesToInstall(_, _, _, _)).WillOnce(Return(packagesToInstall));
 
@@ -144,7 +125,7 @@ TEST_F(
     EXPECT_CALL(sdds3Wrapper, getPackages(_, _, _)).WillOnce(Return(allPackages));
 
     EXPECT_CALL(sdds3Wrapper, saveConfig(_, _)).Times(1);
-    EXPECT_CALL(sdds3Wrapper, getSuites(_,_,_)).Times(1);
+    EXPECT_CALL(sdds3Wrapper, getSuites(_, _, _)).Times(1);
 
     repository.generateProductListFromSdds3PackageInfo("base");
     auto products = repository.getProducts();
@@ -161,9 +142,10 @@ TEST_F(
     EXPECT_TRUE(products[2].productHasChanged());
 }
 
-TEST_F(Sdds3RepositoryTest, testcheckForMissingPackagesEmptyConfig) // NOLINT
+TEST_F(Sdds3RepositoryTest, testcheckForMissingPackagesEmptyConfig)
 {
-    SDDS3Repository repository;
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::move(mockFileSystem_) };
+    SDDS3Repository repository{ std::move(mockSusRequester_) };
 
     std::vector<ProductSubscription> subscriptions;
     std::set<std::string> suites;
@@ -171,9 +153,10 @@ TEST_F(Sdds3RepositoryTest, testcheckForMissingPackagesEmptyConfig) // NOLINT
     EXPECT_EQ(repository.hasError(), false);
 }
 
-TEST_F(Sdds3RepositoryTest, testcheckForMissingPackageswithSuceedsWithPackages) // NOLINT
+TEST_F(Sdds3RepositoryTest, testcheckForMissingPackageswithSuceedsWithPackages)
 {
-    SDDS3Repository repository;
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::move(mockFileSystem_) };
+    SDDS3Repository repository{ std::move(mockSusRequester_) };
 
     ProductSubscription sub{ "Plugin1", "", "", "" };
     ProductSubscription sub2{ "Plugin2", "", "", "" };
@@ -186,9 +169,10 @@ TEST_F(Sdds3RepositoryTest, testcheckForMissingPackageswithSuceedsWithPackages) 
     EXPECT_EQ(repository.hasError(), false);
 }
 
-TEST_F(Sdds3RepositoryTest, testcheckForMissingPackagesReportsErrorWithMissingPackages) // NOLINT
+TEST_F(Sdds3RepositoryTest, testcheckForMissingPackagesReportsErrorWithMissingPackages)
 {
-    SDDS3Repository repository;
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::move(mockFileSystem_) };
+    SDDS3Repository repository{ std::move(mockSusRequester_) };
 
     ProductSubscription sub{ "Plugin1", "", "", "" };
     ProductSubscription sub2{ "Plugin2", "", "", "" };
@@ -202,9 +186,26 @@ TEST_F(Sdds3RepositoryTest, testcheckForMissingPackagesReportsErrorWithMissingPa
     EXPECT_EQ(repository.hasError(), true);
 }
 
-TEST_F(Sdds3RepositoryTest, testGenerateProductListFromSdds3PackageInfoReportsAllProductsHaveChanged) // NOLINT
+TEST_F(Sdds3RepositoryTest, checkForMissingPackagesFailsIfSuiteNameIsShorterThanSdds3Prefix)
 {
-    SDDS3Repository repository;
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::move(mockFileSystem_) };
+    SDDS3Repository repository{ std::move(mockSusRequester_) };
+
+    std::vector<ProductSubscription> subscriptions{ { "Base", "", "", "" } };
+
+    std::set<std::string> suites{ "sdds3.Base" };
+    repository.checkForMissingPackages(subscriptions, suites);
+    EXPECT_EQ(repository.hasError(), false);
+
+    std::set<std::string> suites2{ "Base" };
+    repository.checkForMissingPackages(subscriptions, suites2);
+    EXPECT_EQ(repository.hasError(), true);
+}
+
+TEST_F(Sdds3RepositoryTest, testGenerateProductListFromSdds3PackageInfoReportsAllProductsHaveChanged)
+{
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::move(mockFileSystem_) };
+    SDDS3Repository repository{ std::move(mockSusRequester_) };
     auto& sdds3Wrapper = setupSdds3WrapperAndGetMock();
 
     sophlib::sdds3::PackageRef package1;
@@ -220,8 +221,7 @@ TEST_F(Sdds3RepositoryTest, testGenerateProductListFromSdds3PackageInfoReportsAl
     EXPECT_CALL(sdds3Wrapper, getPackagesToInstall(_, _, _, _)).WillOnce(Return(packagesToInstall));
     EXPECT_CALL(sdds3Wrapper, getPackages(_, _, _)).WillOnce(Return(allPackages));
     EXPECT_CALL(sdds3Wrapper, saveConfig(_, _)).Times(1);
-    EXPECT_CALL(sdds3Wrapper, getSuites(_,_,_)).Times(1);
-
+    EXPECT_CALL(sdds3Wrapper, getSuites(_, _, _)).Times(1);
 
     repository.generateProductListFromSdds3PackageInfo("line1");
     auto products = repository.getProducts();
@@ -232,11 +232,10 @@ TEST_F(Sdds3RepositoryTest, testGenerateProductListFromSdds3PackageInfoReportsAl
     EXPECT_TRUE(products[1].productHasChanged());
 }
 
-TEST_F(
-    Sdds3RepositoryTest,
-    testGenerateProductListFromSdds3PackageInfoReportsOnlytheProductWithTheRightFeatureCode) // NOLINT
+TEST_F(Sdds3RepositoryTest, testGenerateProductListFromSdds3PackageInfoReportsOnlytheProductWithTheRightFeatureCode)
 {
-    SDDS3Repository repository;
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::move(mockFileSystem_) };
+    SDDS3Repository repository{ std::move(mockSusRequester_) };
     auto& sdds3Wrapper = setupSdds3WrapperAndGetMock();
 
     sophlib::sdds3::PackageRef package1;
@@ -251,7 +250,7 @@ TEST_F(
     std::vector<sophlib::sdds3::PackageRef> allPackages = { package1, package2 };
     EXPECT_CALL(sdds3Wrapper, getPackagesToInstall(_, _, _, _)).WillOnce(Return(packagesToInstall));
     EXPECT_CALL(sdds3Wrapper, getPackages(_, _, _)).WillOnce(Return(allPackages));
-    EXPECT_CALL(sdds3Wrapper, getSuites(_,_,_)).Times(1);
+    EXPECT_CALL(sdds3Wrapper, getSuites(_, _, _)).Times(1);
     EXPECT_CALL(sdds3Wrapper, saveConfig(_, _)).Times(1);
 
     repository.generateProductListFromSdds3PackageInfo("line1");
@@ -264,9 +263,10 @@ TEST_F(
 
 TEST_F(
     Sdds3RepositoryTest,
-    testGenerateProductListFromSdds3PackageInfoReportsAllProductsThatHaveAtLeastOneFeatureCodeFromTheConfigList) // NOLINT
+    testGenerateProductListFromSdds3PackageInfoReportsAllProductsThatHaveAtLeastOneFeatureCodeFromTheConfigList)
 {
-    SDDS3Repository repository;
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::move(mockFileSystem_) };
+    SDDS3Repository repository{ std::move(mockSusRequester_) };
     auto& sdds3Wrapper = setupSdds3WrapperAndGetMock();
 
     sophlib::sdds3::PackageRef package1;
@@ -281,7 +281,7 @@ TEST_F(
     std::vector<sophlib::sdds3::PackageRef> allPackages = { package1, package2 };
     EXPECT_CALL(sdds3Wrapper, getPackagesToInstall(_, _, _, _)).WillOnce(Return(packagesToInstall));
     EXPECT_CALL(sdds3Wrapper, getPackages(_, _, _)).WillOnce(Return(allPackages));
-    EXPECT_CALL(sdds3Wrapper, getSuites(_,_,_)).Times(1);
+    EXPECT_CALL(sdds3Wrapper, getSuites(_, _, _)).Times(1);
     EXPECT_CALL(sdds3Wrapper, saveConfig(_, _)).Times(1);
 
     repository.generateProductListFromSdds3PackageInfo("line1");
@@ -294,9 +294,10 @@ TEST_F(
     EXPECT_EQ(products.size(), 2);
 }
 
-TEST_F(Sdds3RepositoryTest, testGenerateProductListFromSdds3PackageInfoHandlesComponentsWithNoFeatureCode) // NOLINT
+TEST_F(Sdds3RepositoryTest, testGenerateProductListFromSdds3PackageInfoHandlesComponentsWithNoFeatureCode)
 {
-    SDDS3Repository repository;
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::move(mockFileSystem_) };
+    SDDS3Repository repository{ std::move(mockSusRequester_) };
     auto& sdds3Wrapper = setupSdds3WrapperAndGetMock();
 
     sophlib::sdds3::PackageRef package1;
@@ -309,7 +310,7 @@ TEST_F(Sdds3RepositoryTest, testGenerateProductListFromSdds3PackageInfoHandlesCo
     std::vector<sophlib::sdds3::PackageRef> allPackages = { package1, package2 };
     EXPECT_CALL(sdds3Wrapper, getPackagesToInstall(_, _, _, _)).WillOnce(Return(packagesToInstall));
     EXPECT_CALL(sdds3Wrapper, getPackages(_, _, _)).WillOnce(Return(allPackages));
-    EXPECT_CALL(sdds3Wrapper, getSuites(_,_,_)).Times(1);
+    EXPECT_CALL(sdds3Wrapper, getSuites(_, _, _)).Times(1);
     EXPECT_CALL(sdds3Wrapper, saveConfig(_, _)).Times(1);
 
     repository.generateProductListFromSdds3PackageInfo("line1");
@@ -317,9 +318,10 @@ TEST_F(Sdds3RepositoryTest, testGenerateProductListFromSdds3PackageInfoHandlesCo
 
     EXPECT_EQ(products.size(), 0);
 }
-TEST_F(Sdds3RepositoryTest, testGenerateProductListFromSdds3PackageInfoReportsPrimaryComponentFirst) // NOLINT
+TEST_F(Sdds3RepositoryTest, testGenerateProductListFromSdds3PackageInfoReportsPrimaryComponentFirst)
 {
-    SDDS3Repository repository;
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::move(mockFileSystem_) };
+    SDDS3Repository repository{ std::move(mockSusRequester_) };
     auto& sdds3Wrapper = setupSdds3WrapperAndGetMock();
 
     sophlib::sdds3::PackageRef package1;
@@ -333,7 +335,7 @@ TEST_F(Sdds3RepositoryTest, testGenerateProductListFromSdds3PackageInfoReportsPr
     std::vector<sophlib::sdds3::PackageRef> allPackages = { package1, package2 };
     EXPECT_CALL(sdds3Wrapper, getPackagesToInstall(_, _, _, _)).WillOnce(Return(packagesToInstall));
     EXPECT_CALL(sdds3Wrapper, getPackages(_, _, _)).WillOnce(Return(allPackages));
-    EXPECT_CALL(sdds3Wrapper, getSuites(_,_,_)).Times(1);
+    EXPECT_CALL(sdds3Wrapper, getSuites(_, _, _)).Times(1);
     EXPECT_CALL(sdds3Wrapper, saveConfig(_, _)).Times(1);
 
     // The rigid name passed in is used in a contains check, to ensure that works passing in the first part of the
@@ -347,21 +349,18 @@ TEST_F(Sdds3RepositoryTest, testGenerateProductListFromSdds3PackageInfoReportsPr
     EXPECT_TRUE(products[1].productHasChanged());
 }
 
-TEST_F(Sdds3RepositoryTest, testGenerateProductListFromSdds3PackageInfoReportsNoProductsHaveChanged) // NOLINT
+TEST_F(Sdds3RepositoryTest, testGenerateProductListFromSdds3PackageInfoReportsNoProductsHaveChanged)
 {
-    SDDS3Repository repository;
-    auto& sdds3Wrapper = setupSdds3WrapperAndGetMock();
-
-    auto filesystemMock = new StrictMock<MockFileSystem>();
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::unique_ptr<Common::FileSystem::IFileSystem>(
-        filesystemMock) };
-    ON_CALL(*m_mockAppManager, getFeaturesJsonPath()).WillByDefault(Return("InstalledFeatures.json"));
     EXPECT_CALL(
-        *filesystemMock, exists(Common::ApplicationConfiguration::applicationPathManager().getFeaturesJsonPath()))
+        *mockFileSystem_, exists(Common::ApplicationConfiguration::applicationPathManager().getFeaturesJsonPath()))
         .WillRepeatedly(Return(true));
     EXPECT_CALL(
-        *filesystemMock, readFile(Common::ApplicationConfiguration::applicationPathManager().getFeaturesJsonPath()))
+        *mockFileSystem_, readFile(Common::ApplicationConfiguration::applicationPathManager().getFeaturesJsonPath()))
         .WillOnce(Return(R"(["CORE"])"));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::move(mockFileSystem_) };
+
+    SDDS3Repository repository{ std::move(mockSusRequester_) };
+    auto& sdds3Wrapper = setupSdds3WrapperAndGetMock();
 
     sophlib::sdds3::PackageRef package1;
     package1.lineId_ = "line1";
@@ -376,8 +375,7 @@ TEST_F(Sdds3RepositoryTest, testGenerateProductListFromSdds3PackageInfoReportsNo
     EXPECT_CALL(sdds3Wrapper, getPackagesToInstall(_, _, _, _)).WillOnce(Return(packagesToInstall));
     EXPECT_CALL(sdds3Wrapper, getPackages(_, _, _)).WillOnce(Return(allPackages));
     EXPECT_CALL(sdds3Wrapper, saveConfig(_, _)).Times(1);
-    EXPECT_CALL(sdds3Wrapper, getSuites(_,_,_)).Times(1);
-
+    EXPECT_CALL(sdds3Wrapper, getSuites(_, _, _)).Times(1);
 
     repository.generateProductListFromSdds3PackageInfo("line1");
     auto products = repository.getProducts();
@@ -388,12 +386,27 @@ TEST_F(Sdds3RepositoryTest, testGenerateProductListFromSdds3PackageInfoReportsNo
     EXPECT_FALSE(products[1].productHasChanged());
 }
 
-TEST_F(
-    Sdds3RepositoryTest,
-    testGenerateProductListFromSdds3PackageInfoReportsSupplementOnlyProductsHaveChanged) // NOLINT
+TEST_F(Sdds3RepositoryTest, testGenerateProductListFromSdds3PackageInfoReportsSupplementOnlyProductsHaveChanged)
 {
-    SDDS3Repository repository;
+    EXPECT_CALL(
+        *mockFileSystem_,
+        exists(Common::ApplicationConfiguration::applicationPathManager().getSdds3PackageConfigPath()))
+        .WillRepeatedly(Return(true));
+    EXPECT_CALL(
+        *mockFileSystem_, exists(Common::ApplicationConfiguration::applicationPathManager().getFeaturesJsonPath()))
+        .WillRepeatedly(Return(true));
+    EXPECT_CALL(
+        *mockFileSystem_, readFile(Common::ApplicationConfiguration::applicationPathManager().getFeaturesJsonPath()))
+        .WillOnce(Return(R"(["CORE"])"));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::move(mockFileSystem_) };
+
+    SDDS3Repository repository{ std::move(mockSusRequester_) };
     auto& sdds3Wrapper = setupSdds3WrapperAndGetMock();
+
+    // This is required due to the tryConnect call
+    sophlib::sdds3::Config config;
+    config.sus_response.suites = { "Suite" };
+    EXPECT_CALL(sdds3Wrapper, loadConfig).WillOnce(Return(config));
 
     sophlib::sdds3::PackageRef package1;
     package1.lineId_ = "line1";
@@ -402,14 +415,14 @@ TEST_F(
     package2.lineId_ = "line2";
     package2.features_ = { "CORE" };
 
-    std::vector<sophlib::sdds3::PackageRef> packagesToInstall = { package1, package2 };
+    // If package2's supplement has changed, then SDDS3 will report package2 as 'to install'
+    // Since CORE is an already installed feature, only package2 should be reported as changed
+    std::vector<sophlib::sdds3::PackageRef> packagesToInstall = { package2 };
     std::vector<sophlib::sdds3::PackageRef> allPackages = { package1, package2 };
-    std::vector<sophlib::sdds3::PackageRef> packagesWithSupplements = { package2 };
     EXPECT_CALL(sdds3Wrapper, getPackagesToInstall(_, _, _, _)).WillOnce(Return(packagesToInstall));
     EXPECT_CALL(sdds3Wrapper, getPackages(_, _, _)).WillOnce(Return(allPackages));
-    EXPECT_CALL(sdds3Wrapper, getPackagesIncludingSupplements(_, _, _)).WillOnce(Return(packagesWithSupplements));
     EXPECT_CALL(sdds3Wrapper, saveConfig(_, _)).Times(1);
-    EXPECT_CALL(sdds3Wrapper, getSuites(_,_,_)).Times(1);
+    EXPECT_CALL(sdds3Wrapper, getSuites(_, _, _)).Times(1);
 
     // The following with set supplement only on repository.
     ConnectionSetup connectionSetup("hello");
@@ -431,4 +444,164 @@ TEST_F(
     EXPECT_FALSE(products[0].productHasChanged());
     EXPECT_EQ(products[1].getLine(), "line2");
     EXPECT_TRUE(products[1].productHasChanged());
+}
+
+TEST_F(Sdds3RepositoryTest, tryConnectConnectsToSusIfDoingProductUpdate)
+{
+    auto& sdds3Wrapper = setupSdds3WrapperAndGetMock();
+
+    // SDDS3 config exists and has a suite in it
+    EXPECT_CALL(
+        *mockFileSystem_,
+        exists(Common::ApplicationConfiguration::applicationPathManager().getSdds3PackageConfigPath()))
+        .WillRepeatedly(Return(true));
+    sophlib::sdds3::Config config;
+    config.sus_response.suites = { "sdds3.Base" };
+    EXPECT_CALL(sdds3Wrapper, loadConfig).WillOnce(Return(config));
+
+    SDDS3::SusResponse susResponse{ .data = { .suites = { "sdds3.Base", "sdds3.Suite2" }, .releaseGroups = {} },
+                                    .success = true,
+                                    .error = "" };
+    EXPECT_CALL(*mockSusRequester_, request).WillOnce(Return(susResponse));
+
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::move(mockFileSystem_) };
+    SDDS3Repository repository{ std::move(mockSusRequester_) };
+
+    ConnectionSetup connectionSetup("hello");
+    bool supplementOnly = false;
+    ConfigurationData configurationData;
+    ProductSubscription productSubscription("Base", "", "RECOMMENDED", "");
+    configurationData.setPrimarySubscription(productSubscription);
+    configurationData.setProductsSubscription({ productSubscription });
+
+    EXPECT_TRUE(repository.tryConnect(connectionSetup, supplementOnly, configurationData));
+    EXPECT_TRUE(appenderContains("DEBUG - Checking suites and release groups with SUS"));
+    EXPECT_TRUE(appenderContains("INFO - SUS Request was successful"));
+}
+
+TEST_F(Sdds3RepositoryTest, tryConnectConnectsToSusIfDoingSupplementUpdateWithoutCachedSuites)
+{
+    auto& sdds3Wrapper = setupSdds3WrapperAndGetMock();
+
+    // SDDS3 config exists and has no suites
+    EXPECT_CALL(
+        *mockFileSystem_,
+        exists(Common::ApplicationConfiguration::applicationPathManager().getSdds3PackageConfigPath()))
+        .WillRepeatedly(Return(true));
+    sophlib::sdds3::Config config;
+    EXPECT_CALL(sdds3Wrapper, loadConfig).WillOnce(Return(config));
+
+    SDDS3::SusResponse susResponse{ .data = { .suites = { "sdds3.Base", "sdds3.Suite2" }, .releaseGroups = {} },
+                                    .success = true,
+                                    .error = "" };
+    EXPECT_CALL(*mockSusRequester_, request).WillOnce(Return(susResponse));
+
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::move(mockFileSystem_) };
+    SDDS3Repository repository{ std::move(mockSusRequester_) };
+
+    ConnectionSetup connectionSetup("hello");
+    bool supplementOnly = true;
+    ConfigurationData configurationData;
+    ProductSubscription productSubscription("Base", "", "RECOMMENDED", "");
+    configurationData.setPrimarySubscription(productSubscription);
+    configurationData.setProductsSubscription({ productSubscription });
+
+    EXPECT_TRUE(repository.tryConnect(connectionSetup, supplementOnly, configurationData));
+    EXPECT_TRUE(appenderContains(
+        "ERROR - Supplement-only update requested but no cached SUS response present, doing product update"));
+    EXPECT_TRUE(appenderContains("DEBUG - Checking suites and release groups with SUS"));
+    EXPECT_TRUE(appenderContains("INFO - SUS Request was successful"));
+}
+
+TEST_F(Sdds3RepositoryTest, tryConnectDoesntConnectToSusIfDoingSupplementUpdateWithCachedSuite)
+{
+    auto& sdds3Wrapper = setupSdds3WrapperAndGetMock();
+
+    // SDDS3 config exists and has a suite in it
+    EXPECT_CALL(
+        *mockFileSystem_,
+        exists(Common::ApplicationConfiguration::applicationPathManager().getSdds3PackageConfigPath()))
+        .WillRepeatedly(Return(true));
+    sophlib::sdds3::Config config;
+    config.sus_response.suites = { "sdds3.Base" };
+    EXPECT_CALL(sdds3Wrapper, loadConfig).WillOnce(Return(config));
+
+    EXPECT_CALL(*mockSusRequester_, request).Times(0);
+
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::move(mockFileSystem_) };
+    SDDS3Repository repository{ std::move(mockSusRequester_) };
+
+    ConnectionSetup connectionSetup("hello");
+    bool supplementOnly = true;
+    ConfigurationData configurationData;
+    ProductSubscription productSubscription("Base", "", "RECOMMENDED", "");
+    configurationData.setPrimarySubscription(productSubscription);
+    configurationData.setProductsSubscription({ productSubscription });
+
+    EXPECT_TRUE(repository.tryConnect(connectionSetup, supplementOnly, configurationData));
+    EXPECT_TRUE(appenderContains("INFO - Using previously acquired suites and release groups"));
+}
+
+TEST_F(Sdds3RepositoryTest, tryConnectFailsIfSusRequestFails)
+{
+    setupSdds3WrapperAndGetMock();
+
+    SDDS3::SusResponse susResponse{ .data = {}, .success = false, .error = "error message" };
+    EXPECT_CALL(*mockSusRequester_, request).WillOnce(Return(susResponse));
+
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::move(mockFileSystem_) };
+    SDDS3Repository repository{ std::move(mockSusRequester_) };
+
+    ConnectionSetup connectionSetup("hello");
+    bool supplementOnly = false;
+    ConfigurationData configurationData;
+    ProductSubscription productSubscription("Base", "", "RECOMMENDED", "");
+    configurationData.setPrimarySubscription(productSubscription);
+    configurationData.setProductsSubscription({ productSubscription });
+
+    EXPECT_FALSE(repository.tryConnect(connectionSetup, supplementOnly, configurationData));
+    EXPECT_TRUE(appenderContains("DEBUG - Getting suites failed with: error message"));
+}
+
+TEST_F(Sdds3RepositoryTest, tryConnectFailsIfSusRequestReturnsNoSuites)
+{
+    setupSdds3WrapperAndGetMock();
+
+    SDDS3::SusResponse susResponse{ .data = { .suites = {}, .releaseGroups = { "Release group A" } },
+                                    .success = true,
+                                    .error = "" };
+    EXPECT_CALL(*mockSusRequester_, request).WillOnce(Return(susResponse));
+
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::move(mockFileSystem_) };
+    SDDS3Repository repository{ std::move(mockSusRequester_) };
+
+    ConnectionSetup connectionSetup("hello");
+    bool supplementOnly = false;
+    ConfigurationData configurationData;
+    ProductSubscription productSubscription("Base", "", "RECOMMENDED", "");
+    configurationData.setPrimarySubscription(productSubscription);
+    configurationData.setProductsSubscription({ productSubscription });
+
+    EXPECT_FALSE(repository.tryConnect(connectionSetup, supplementOnly, configurationData));
+    EXPECT_TRUE(appenderContains("DEBUG - Getting suites failed with: Product doesn't match any suite: Base"));
+}
+
+TEST_F(Sdds3RepositoryTest, tryConnectFailsIfSusRequestReturnsNoSuitesAndNoSubscriptionsWereSpecified)
+{
+    setupSdds3WrapperAndGetMock();
+
+    SDDS3::SusResponse susResponse{ .data = { .suites = {}, .releaseGroups = { "Release group A" } },
+                                    .success = true,
+                                    .error = "" };
+    EXPECT_CALL(*mockSusRequester_, request).WillOnce(Return(susResponse));
+
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::move(mockFileSystem_) };
+    SDDS3Repository repository{ std::move(mockSusRequester_) };
+
+    ConnectionSetup connectionSetup("hello");
+    bool supplementOnly = false;
+    ConfigurationData configurationData;
+
+    EXPECT_FALSE(repository.tryConnect(connectionSetup, supplementOnly, configurationData));
+    EXPECT_TRUE(appenderContains("DEBUG - Getting suites failed with: Product doesn't match any suite: "));
 }

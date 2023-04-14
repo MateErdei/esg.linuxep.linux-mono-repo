@@ -2,8 +2,8 @@
 
 #pragma once
 
+#include "ISusRequester.h"
 #include "Sdds3Wrapper.h"
-#include "SusRequester.h"
 
 #include "Common/HttpRequests/IHttpRequester.h"
 #include "SulDownloader/suldownloaderdata/CatalogueInfo.h"
@@ -19,9 +19,13 @@ namespace SulDownloader
     class SDDS3Repository : public virtual suldownloaderdata::ISdds3Repository
     {
     public:
-        SDDS3Repository(const std::string& repoDir, const std::string& certsDir);
+        SDDS3Repository(
+            std::unique_ptr<SDDS3::ISusRequester> susRequester,
+            const std::string& repoDir,
+            const std::string& certsDir);
+        explicit SDDS3Repository(std::unique_ptr<SDDS3::ISusRequester> susRequester);
 
-        ~SDDS3Repository();
+        ~SDDS3Repository() override;
 
         bool tryConnect(
             const suldownloaderdata::ConnectionSetup& connectionSetup,
@@ -36,7 +40,6 @@ namespace SulDownloader
         std::string getProductDistributionPath(const suldownloaderdata::DownloadedProduct&) const override;
         std::vector<suldownloaderdata::ProductInfo> listInstalledProducts() const override;
         void purge() const override;
-        SDDS3Repository();
         bool synchronize(
             const suldownloaderdata::ConfigurationData& configurationData,
             const suldownloaderdata::ConnectionSetup& connectionSetup,
@@ -57,7 +60,7 @@ namespace SulDownloader
 
     private:
         void setupSdds3LibLogger();
-        void populateOldConfigFromFile();
+        void populateConfigFromFile();
         SDDS3::SusData getDataToSync(
             const suldownloaderdata::ConnectionSetup& connectionSetup,
             const suldownloaderdata::ConfigurationData& configurationData);
@@ -72,9 +75,9 @@ namespace SulDownloader
         suldownloaderdata::CatalogueInfo m_catalogueInfo;
         std::vector<suldownloaderdata::SubscriptionInfo> m_selectedSubscriptions;
         bool m_supplementOnly;
-        SDDS3::SusData m_dataToSync;
         std::string m_sourceUrl;
         std::vector<std::string> m_configFeatures;
         bool m_willInstall = false;
+        std::unique_ptr<SDDS3::ISusRequester> susRequester_;
     };
 } // namespace SulDownloader

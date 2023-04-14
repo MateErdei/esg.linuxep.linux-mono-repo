@@ -2,15 +2,13 @@
 
 #include "SDDS3Repository.h"
 
+#include "Logger.h"
 #include "Sdds3Wrapper.h"
 #include "SusRequestParameters.h"
 
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
-#include "Common/CurlWrapper/CurlWrapper.h"
 #include "Common/UtilityImpl/StringUtils.h"
-#include "HttpRequestsImpl/HttpRequesterImpl.h"
 #include "SulDownloader/suldownloaderdata/CatalogueInfo.h"
-#include "SulDownloader/suldownloaderdata/Logger.h"
 #include "UpdateUtilities/InstalledFeatures.h"
 #include "sophlib/logging/Logging.h"
 #include "sophlib/sdds3/Config.h"
@@ -30,17 +28,22 @@ class applicationPathManager;
 
 namespace SulDownloader
 {
-    SDDS3Repository::SDDS3Repository(const std::string& repoDir, const std::string& certsDir)
-        : m_session(std::make_shared<sophlib::sdds3::Session>(std::vector<std::filesystem::path>{certsDir}))
-        , m_repo(repoDir)
-        , m_supplementOnly(false)
+    SDDS3Repository::SDDS3Repository(
+        std::unique_ptr<SDDS3::ISusRequester> susRequester,
+        const std::string& repoDir,
+        const std::string& certsDir) :
+        m_session(std::make_shared<sophlib::sdds3::Session>(std::vector<std::filesystem::path>{ certsDir })),
+        m_repo(repoDir),
+        m_supplementOnly(false),
+        susRequester_(std::move(susRequester))
     {
         setupSdds3LibLogger();
     }
-    SDDS3Repository::SDDS3Repository()
-        : m_session(std::make_shared<sophlib::sdds3::Session>(std::vector<std::filesystem::path>{}))
-        , m_repo("")
-        , m_supplementOnly(false)
+    SDDS3Repository::SDDS3Repository(std::unique_ptr<SDDS3::ISusRequester> susRequester) :
+        m_session(std::make_shared<sophlib::sdds3::Session>(std::vector<std::filesystem::path>{})),
+        m_repo(""),
+        m_supplementOnly(false),
+        susRequester_(std::move(susRequester))
     {
         setupSdds3LibLogger();
     }
@@ -54,16 +57,39 @@ namespace SulDownloader
         const suldownloaderdata::ConfigurationData& configurationData)
     {
         m_supplementOnly = supplementOnly;
-        populateOldConfigFromFile();
+        populateConfigFromFile();
         setFeatures(configurationData.getFeatures());
-        m_dataToSync = getDataToSync(connectionSetup, configurationData);
 
-        if (m_error.Description.empty())
+        // If we are performing a supplement-only update, we want to avoid fetching and installing new non-supplement
+        // packages. So, we should reuse the previous response from SUS if we have it.
+        if (m_supplementOnly && !m_config.sus_response.suites.empty())
         {
-            return true;
+            LOGINFO("Using previously acquired suites and release groups");
         }
-        LOGDEBUG("Getting suites failed with: " << m_error.Description);
-        return false;
+        else
+        {
+            // If we are doing a supplement-only update, but don't already have a response from SUS, then it is an error
+            // We should still carry on and do a product update (which includes supplements)
+            if (m_supplementOnly)
+            {
+                LOGERROR("Supplement-only update requested but no cached SUS response present, doing product update");
+            }
+
+            LOGDEBUG("Checking suites and release groups with SUS");
+
+            SDDS3::SusData susData = getDataToSync(connectionSetup, configurationData);
+
+            if (!m_error.Description.empty())
+            {
+                LOGDEBUG("Getting suites failed with: " << m_error.Description);
+                return false;
+            }
+
+            m_config.sus_response.suites = susData.suites;
+            m_config.sus_response.release_groups_filter = susData.releaseGroups;
+        }
+
+        return true;
     }
 
     bool SDDS3Repository::doesFeatureCodeMatchConfig(const std::vector<std::string>& keys)
@@ -171,11 +197,7 @@ namespace SulDownloader
             requestParameters.timeoutSeconds = DEFAULT_TIMEOUT_S;
             requestParameters.proxy = connectionSetup.getProxy();
 
-            std::shared_ptr<Common::CurlWrapper::ICurlWrapper> curl = std::make_shared<Common::CurlWrapper::CurlWrapper>();
-            std::shared_ptr<Common::HttpRequests::IHttpRequester> httpClient = std::make_shared<Common::HttpRequestsImpl::HttpRequesterImpl>(curl);
-            SDDS3::SusRequester susRequester(httpClient);
-
-            auto susResponse = susRequester.request(requestParameters);
+            auto susResponse = susRequester_->request(requestParameters);
             if (susResponse.success)
             {
                 LOGINFO("SUS Request was successful");
@@ -201,23 +223,29 @@ namespace SulDownloader
     void SDDS3Repository::checkForMissingPackages(const std::vector<ProductSubscription>& subscriptions,const std::set<std::string>& suites)
     {
         LOGDEBUG("Checking for missing packages");
-        size_t prefixSize = std::string("sdds3.").size();
+        const std::string prefix{ "sdds3." };
         for (const auto& sub: subscriptions)
         {
             const std::string& productID = sub.rigidName();
 
-            bool notFound = (std::find_if ( suites.begin(), suites.end(),
-                                          [productID,prefixSize](const std::string& suiteName)
-                                          {
-                                            std::string warehouseSuite = suiteName.substr(prefixSize, suiteName.size()-prefixSize);
-                                            return Common::UtilityImpl::StringUtils::startswith(warehouseSuite, productID);
-                                          }
-            )== suites.end());
+            bool notFound = std::find_if(
+                                suites.begin(),
+                                suites.end(),
+                                [productID, prefix](const std::string& suiteName)
+                                {
+                                    if (!Common::UtilityImpl::StringUtils::startswith(suiteName, prefix))
+                                    {
+                                        return false;
+                                    }
+                                    std::string warehouseSuite =
+                                        suiteName.substr(prefix.size(), suiteName.size() - prefix.size());
+                                    return Common::UtilityImpl::StringUtils::startswith(warehouseSuite, productID);
+                                }) == suites.end();
 
             if (notFound)
             {
                 std::stringstream errorMessage;
-                errorMessage << "Package : " << productID << " missing from warehouse";
+                errorMessage << "Product doesn't match any suite: " << productID;
                 m_error.Description = errorMessage.str();
                 m_error.status = RepositoryStatus::PACKAGESOURCEMISSING;
                 break;
@@ -237,17 +265,21 @@ namespace SulDownloader
     {
         m_error.reset(); // Clear error for retry
 
-        std::set<std::string>& suites = m_dataToSync.suites;
-        std::set<std::string>& releaseGroups = m_dataToSync.releaseGroups;
-
-        for (const auto& suite : suites)
+        for (const auto& suite : m_config.sus_response.suites)
         {
-            LOGINFO("Suite: '" << suite << "' is available to be downloaded." );
+            if (m_oldConfig.sus_response.suites.find(suite) == m_oldConfig.sus_response.suites.end())
+            {
+                LOGINFO("Suite: '" << suite << "' is available to be downloaded.");
+            }
         }
 
-        for (const auto& releaseGroup : releaseGroups)
+        for (const auto& releaseGroup : m_config.sus_response.release_groups_filter)
         {
-            LOGDEBUG("Release Group: '" << releaseGroup << "' is available to be downloaded." );
+            if (m_oldConfig.sus_response.release_groups_filter.find(releaseGroup) ==
+                m_oldConfig.sus_response.release_groups_filter.end())
+            {
+                LOGDEBUG("Release Group: '" << releaseGroup << "' is available to be downloaded.");
+            }
         }
 
         m_session = std::make_shared<sophlib::sdds3::Session>(std::vector<std::filesystem::path>{
@@ -295,9 +327,6 @@ namespace SulDownloader
 
         m_session->httpConfig.userAgent = generateUserAgentString(configurationData.getTenantId(), configurationData.getDeviceId());
 
-        m_config.sus_response.suites = suites;
-        m_config.sus_response.release_groups_filter = releaseGroups;
-
         try
         {
             LOGINFO("Performing Sync using " << srcUrl);
@@ -333,7 +362,7 @@ namespace SulDownloader
         return false;
     }
 
-    void SDDS3Repository::populateOldConfigFromFile()
+    void SDDS3Repository::populateConfigFromFile()
     {
         std::string configFilePathString =
             Common::ApplicationConfiguration::applicationPathManager().getSdds3PackageConfigPath();
@@ -341,8 +370,12 @@ namespace SulDownloader
         {
             if (Common::FileSystem::fileSystem()->exists(configFilePathString))
             {
-                m_oldConfig =
-                    SulDownloader::sdds3Wrapper()->loadConfig(configFilePathString);
+                m_oldConfig = SulDownloader::sdds3Wrapper()->loadConfig(configFilePathString);
+                // Config load code sets platform_filter to an empty string even if it was saved without a value
+                // Hence we need to unset it here
+                m_oldConfig.platform_filter = std::nullopt;
+                // Base the new config on the old config so that the suites are preserved from the last SUS request
+                m_config = m_oldConfig;
 
                 LOGINFO("Successfully loaded previous config file");
             }
@@ -359,13 +392,7 @@ namespace SulDownloader
 
     void SDDS3Repository::generateProductListFromSdds3PackageInfo(const std::string& primaryRigidName)
     {
-        std::vector<sophlib::sdds3::PackageRef> packagesWithSupplements;
-        if (m_supplementOnly)
-        {
-            packagesWithSupplements =
-                SulDownloader::sdds3Wrapper()->getPackagesIncludingSupplements(*m_session.get(), m_repo, m_config);
-        }
-        m_oldConfig.platform_filter = std::nullopt;
+        // This call updates m_config with the current package thumbprints
         std::vector<sophlib::sdds3::PackageRef> packagesToInstall =
             SulDownloader::sdds3Wrapper()->getPackagesToInstall(*m_session.get(), m_repo, m_config, m_oldConfig);
 
@@ -385,17 +412,6 @@ namespace SulDownloader
             SulDownloader::sdds3Wrapper()->getPackages(*m_session.get(), m_repo, m_config);
 
         m_selectedSubscriptions.clear();
-
-        std::vector<sophlib::sdds3::PackageRef> packagesOfInterest;
-
-        if (m_supplementOnly)
-        {
-            packagesOfInterest = packagesWithSupplements;
-        }
-        else
-        {
-            packagesOfInterest = allPackages;
-        }
 
         // Get the currently installed features. We need to make sure if the required feature list changes
         // and we have a downloaded component that is not yet installed but is added to the required list then
@@ -439,49 +455,32 @@ namespace SulDownloader
 
             product.setProductHasChanged(false);
 
+            // Don't install features we don't want
+            if (!doesFeatureCodeMatchConfig(productMetadata.getFeatures()))
+            {
+                LOGDEBUG("Product does not match any requested features, not installing: " << product.getLine());
+                continue;
+            }
+
+            // Install products that have changed
             for (auto& packageToInstall : packagesToInstall)
             {
                 if (packageToInstall.lineId_ == package.lineId_)
                 {
+                    LOGDEBUG("Product requires install due to new package or supplement: " << product.getLine());
                     product.setProductHasChanged(true);
                     m_willInstall = true;
                     break;
                 }
             }
 
-            if (Common::UpdateUtilities::shouldProductBeInstalledBasedOnFeatures(productMetadata.getFeatures(), installedFeatures, m_configFeatures))
+            // Install products that fulfill missing feature codes, but that haven't changed
+            if (!product.productHasChanged() && Common::UpdateUtilities::shouldProductBeInstalledBasedOnFeatures(
+                                                    productMetadata.getFeatures(), installedFeatures, m_configFeatures))
             {
                 LOGDEBUG("Already downloaded product requires install: " << product.getLine());
                 product.setProductHasChanged(true);
                 m_willInstall = true;
-            }
-
-            if (m_supplementOnly)
-            {
-                bool packageContainsSupplement = false;
-                for (auto& packageWithSupplement : packagesWithSupplements)
-                {
-                    if (packageWithSupplement.lineId_ == package.lineId_)
-                    {
-                        packageContainsSupplement = true;
-                        break;
-                    }
-                }
-                if (product.productHasChanged() && packageContainsSupplement)
-                {
-                    product.setProductHasChanged(true);
-                    m_willInstall = true;
-                }
-                else
-                {
-                    product.setProductHasChanged(false);
-                }
-            }
-
-            // Don't install features we don't want
-            if (!doesFeatureCodeMatchConfig(productMetadata.getFeatures()))
-            {
-                continue;
             }
 
             product.setDistributePath(

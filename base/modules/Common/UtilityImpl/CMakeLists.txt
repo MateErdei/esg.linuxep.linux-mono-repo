@@ -41,5 +41,3 @@ SET_TARGET_PROPERTIES(utilityimpl
 
 install(TARGETS utilityimpl
         LIBRARY DESTINATION ${BASE_DIST_PREFIX}/files/base/lib64)
-
-install(TARGETS utilityimpl LIBRARY DESTINATION ${THININSTALLER_DEPS_DIR_LIB64})

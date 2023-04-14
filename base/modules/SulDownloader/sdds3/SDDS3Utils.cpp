@@ -2,10 +2,11 @@
 
 #include "SDDS3Utils.h"
 
+#include "Logger.h"
+
 #include "Common/ApplicationConfigurationImpl/ApplicationPathManager.h"
 #include "Common/FileSystem/IFileSystem.h"
 #include "Common/FileSystem/IFileSystemException.h"
-#include "SulDownloader/Logger.h"
 #include "sophlib/sdds3/Config.h"
 
 #include <json.hpp>

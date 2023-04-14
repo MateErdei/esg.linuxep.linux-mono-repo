@@ -38,6 +38,18 @@ namespace SulDownloader
             std::string statusToString() const;
 
             std::string jsonString() const;
+
+            [[nodiscard]] bool operator==(const ProductReport& other) const
+            {
+                // clang-format off
+                return name == other.name &&
+                       rigidName == other.rigidName &&
+                       downloadedVersion == other.downloadedVersion &&
+                       errorDescription == other.errorDescription &&
+                       installedVersion == other.installedVersion &&
+                       productStatus == other.productStatus;
+                // clang-format on
+            }
         };
         bool operator< (ProductReport::ProductStatus lh, ProductReport::ProductStatus rh ); 
         /**
@@ -129,6 +141,25 @@ namespace SulDownloader
                 return m_baseDowngrade;
             }
             static std::string getInstalledVersion(const std::string& rigidName);
+
+            [[nodiscard]] bool operator==(const DownloadReport& other) const
+            {
+                // clang-format off
+                return m_status == other.m_status &&
+                       m_description == other.m_description &&
+                       m_sulError == other.m_sulError &&
+                       m_startTime == other.m_startTime &&
+                       m_finishedTime == other.m_finishedTime &&
+                       m_sync_time == other.m_sync_time &&
+                       m_urlSource == other.m_urlSource &&
+                       m_productReport == other.m_productReport &&
+                       m_repositoryComponents == other.m_repositoryComponents &&
+                       m_processedReport == other.m_processedReport &&
+                       m_supplementOnly == other.m_supplementOnly &&
+                       m_baseDowngrade == other.m_baseDowngrade;
+                // clang-format on
+            }
+
         private:
             void setError(const RepositoryError& error);
             void setTimings(const TimeTracker&);

@@ -1,9 +1,8 @@
 message("directory : " ${PROJECT_BINARY_DIR}/modules/SulDownloader)
 add_executable(SulDownloader main.cpp)
-add_dependencies(SulDownloader suldownloaderimpl)
 target_include_directories(SulDownloader  PUBLIC ${PROJECT_SOURCE_DIR}/modules/SulDownloader)
 
-target_link_libraries(SulDownloader  suldownloaderimpl)
+target_link_libraries(SulDownloader suldownloaderimpl_static)
 
 SET_TARGET_PROPERTIES( SulDownloader
         PROPERTIES

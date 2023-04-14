@@ -1,22 +1,16 @@
 
 add_library(cmcsrouterapi SHARED
-        $<TARGET_OBJECTS:HttpRequestsImpl>
-        $<TARGET_OBJECTS:applicationconfigurationimpl>
+        $<TARGET_OBJECTS:HttpRequestsImplobject>
         $<TARGET_OBJECTS:applicationconfigurationimplobject>
         $<TARGET_OBJECTS:centralregistrationimpl>
-        $<TARGET_OBJECTS:filesystemimpl>
         $<TARGET_OBJECTS:filesystemimplobject>
-        $<TARGET_OBJECTS:HttpRequestsImpl>
-        $<TARGET_OBJECTS:logging>
         $<TARGET_OBJECTS:loggingobject>
         $<TARGET_OBJECTS:mcsimpl>
-        $<TARGET_OBJECTS:obfuscationimpl>
+        $<TARGET_OBJECTS:obfuscationimplobject>
         $<TARGET_OBJECTS:osutilitiesimpl>
         $<TARGET_OBJECTS:sslimplobject>
         $<TARGET_OBJECTS:threadsobject>
-        $<TARGET_OBJECTS:utilityimpl>
         $<TARGET_OBJECTS:utilityimplobject>
-        $<TARGET_OBJECTS:xmlutilities>
         $<TARGET_OBJECTS:xmlutilitiesobject>
         )
 
@@ -57,7 +51,6 @@ add_custom_target(
         COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:bzip2> mcslibrary/lib64
         COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:lzma> mcslibrary/lib64
         COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:minizip> mcslibrary/lib64
-        COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:pugixml> mcslibrary/lib64
         COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:zlib> mcslibrary/lib64
 )
 

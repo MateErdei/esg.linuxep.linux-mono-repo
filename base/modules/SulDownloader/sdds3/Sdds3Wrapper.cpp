@@ -15,15 +15,6 @@ namespace SulDownloader
         return sophlib::sdds3::GetSuites(session, repo, config);
     }
 
-    std::vector<sophlib::sdds3::PackageRef> Sdds3Wrapper::getPackagesIncludingSupplements(
-        sophlib::sdds3::Session& session,
-        const sophlib::sdds3::Repo& repo,
-        const sophlib::sdds3::Config& config)
-    {
-        const auto filterSupplements =
-            sophlib::sdds3::FilterPackagesBy(sophlib::sdds3::PackageFilter::NotInstallable, sophlib::sdds3::PackageFilter::ReferencedFromSupplement);
-        return sophlib::sdds3::GetPackages(session, repo, config,filterSupplements);
-    }
     std::vector<sophlib::sdds3::PackageRef> Sdds3Wrapper::getPackagesToInstall(
         sophlib::sdds3::Session& session,
         const sophlib::sdds3::Repo& repo,

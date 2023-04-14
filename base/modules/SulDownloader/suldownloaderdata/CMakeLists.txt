@@ -1,6 +1,6 @@
 include(proto/CMakeLists.txt)
 
-add_library(suldownloaderdata SHARED
+add_library(suldownloaderdataobject OBJECT
         ConfigurationData.cpp
         ConfigurationData.h
         ConfigurationDataUtil.h
@@ -44,6 +44,13 @@ add_library(suldownloaderdata SHARED
         UpdateSupplementDecider.h
         ISdds3Repository.h
         )
+
+target_include_directories(suldownloaderdataobject PUBLIC
+        ${PROJECT_SOURCE_DIR}/modules/Common
+        ${LOG4CPLUS_INCLUDE_DIR}
+        )
+
+add_library(suldownloaderdata SHARED $<TARGET_OBJECTS:suldownloaderdataobject>)
 target_include_directories(suldownloaderdata PUBLIC  ${NLOHMANN_JSON_INCLUDE_DIR})
 
 target_link_libraries(suldownloaderdata PUBLIC
@@ -59,5 +66,3 @@ target_link_libraries(suldownloaderdata PUBLIC
 
 install(TARGETS suldownloaderdata
         LIBRARY DESTINATION ${BASE_DIST_PREFIX}/files/base/lib64)
-
-install(TARGETS suldownloaderdata LIBRARY DESTINATION ${THININSTALLER_DEPS_DIR_LIB64})

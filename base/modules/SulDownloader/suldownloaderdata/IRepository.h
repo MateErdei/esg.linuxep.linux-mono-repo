@@ -1,8 +1,5 @@
-/******************************************************************************************************
+// Copyright 2022-2023 Sophos Limited. All rights reserved.
 
-Copyright 2022, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
 #pragma once
 #include "ProductMetadata.h"
 #include <memory>
@@ -21,6 +18,16 @@ namespace SulDownloader
             std::string m_productName;
             std::string m_version;
             std::string m_installedVersion;
+
+            [[nodiscard]] bool operator==(const ProductInfo& other) const
+            {
+                // clang-format off
+                return m_rigidName == other.m_rigidName &&
+                       m_productName == other.m_productName &&
+                       m_version == other.m_version &&
+                       m_installedVersion == other.m_installedVersion;
+                // clang-format on
+            }
         };
 
         struct SubscriptionInfo

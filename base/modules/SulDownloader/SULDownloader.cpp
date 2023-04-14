@@ -137,14 +137,45 @@ namespace SulDownloader
         assert(repository != nullptr);
         assert(success);
 
+        // These products are marked as changed only if they changed since last update or if their supplement changed
+        // There is risk that we missed a product changing, and won't update/install it.
+        // Also, all the returned products should be installed (not necessarily upgraded), even if not they're marked as
+        // changed, as getProducts excludes products that don't match any features
         auto products = repository->getProducts();
         std::string sourceURL = repository->getSourceURL();
+
+        auto fileSystem = Common::FileSystem::fileSystem();
+
+        // TODO: to be removed once no customer is stuck on scheduled updates due to LINUXDAR-6907
+        // If this flag exists, that means we need to avoid doing supplement updates until the next scheduled update
+        // This is to avoid out-of-schedule product updates before the first scheduled update, e.g. due to supplement
+        // updates.
+        const auto awaitSupplementUpdateFlagPath = Common::FileSystem::join(
+            Common::ApplicationConfiguration::applicationPathManager().sophosInstall(),
+            "base/update/var/updatescheduler/await_scheduled_update");
+        if (supplementOnly)
+        {
+            if (fileSystem->isFile(awaitSupplementUpdateFlagPath))
+            {
+                LOGINFO("Waiting for next scheduled update.");
+                for (auto& product : products)
+                {
+                    product.setProductHasChanged(false);
+                }
+            }
+        }
+        else
+        {
+            fileSystem->removeFile(awaitSupplementUpdateFlagPath, true);
+        }
 
         for (auto& product : products)
         {
             std::string rigidName = product.getProductMetadata().getLine();
             std::string warehouseVersionIni = Common::FileSystem::join(product.distributePath(), "VERSION.ini");
             LOGDEBUG("Checking if " << rigidName << " needs to be downgraded");
+
+            bool isCachedVersionNewerThanInstalled = false;
 
             try
             {
@@ -155,6 +186,7 @@ namespace SulDownloader
                     // if local version.ini doesn't exist assume plugin is an older version than XDR EAP or not
                     // installed therefore no downgrade
                     LOGDEBUG("Plugin " << rigidName << " in warehouse is newer than version on disk");
+                    isCachedVersionNewerThanInstalled = true;
                 }
                 else
                 {
@@ -192,6 +224,11 @@ namespace SulDownloader
                             LOGDEBUG("Component " << rigidName << " is being updated");
                         }
                         product.setProductWillBeDowngraded(willBeDowngraded);
+
+                        if (StringUtils::isVersionOlder(newVersion, currentVersion))
+                        {
+                            isCachedVersionNewerThanInstalled = true;
+                        }
                     }
                 }
             }
@@ -199,11 +236,18 @@ namespace SulDownloader
             {
                 // run time error thrown if local version.ini file missing
                 LOGWARN(ex.what());
+                isCachedVersionNewerThanInstalled = true;
             }
             catch (std::invalid_argument& ex)
             {
                 // invalid argument thrown by isVersionOlder if Version string are not in the right format
                 LOGWARN("Failed to calculate version difference due to: " << ex.what());
+                isCachedVersionNewerThanInstalled = true;
+            }
+
+            if (!supplementOnly && isCachedVersionNewerThanInstalled)
+            {
+                product.setProductHasChanged(true);
             }
         }
         bool productChanging = false;
@@ -245,7 +289,6 @@ namespace SulDownloader
                 false);
         }
 
-        auto fileSystem = Common::FileSystem::fileSystem();
         if (productChanging)
         {
             std::string markerPath = Common::ApplicationConfiguration::applicationPathManager().getUpdateMarkerFile();
@@ -757,7 +800,9 @@ namespace SulDownloader
             report = runSULDownloader(configurationData, previousConfigurationData, previousDownloadReport, supplementOnly);
 
             // If the installation was successful then we can safely update the list of installed features
-            if (report.getExitCode() == 0)
+            // We don't want to write the features on a supplement only update, since it isn't guaranteed that all the
+            // requested features were installed (e.g. the cached SUS response doesn't have all the suites)
+            if (report.getExitCode() == 0 && !supplementOnly)
             {
                 writeInstalledFeatures(configurationData.getFeatures());
             }

@@ -29,5 +29,3 @@ SET_TARGET_PROPERTIES(osutilitiesimpl
 
 install(TARGETS osutilitiesimpl
         LIBRARY DESTINATION ${BASE_DIST_PREFIX}/files/base/lib64)
-
-install(TARGETS osutilitiesimpl LIBRARY DESTINATION ${THININSTALLER_DEPS_DIR_LIB64})

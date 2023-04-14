@@ -13,10 +13,6 @@ namespace SulDownloader
             sophlib::sdds3::Session& session,
             const sophlib::sdds3::Repo& repo,
             const sophlib::sdds3::Config& config) override;
-        std::vector<sophlib::sdds3::PackageRef> getPackagesIncludingSupplements(
-            sophlib::sdds3::Session& session,
-            const sophlib::sdds3::Repo& repo,
-            const sophlib::sdds3::Config& config) override;
         std::vector<sophlib::sdds3::PackageRef> getPackagesToInstall(
             sophlib::sdds3::Session& session,
             const sophlib::sdds3::Repo& repo,

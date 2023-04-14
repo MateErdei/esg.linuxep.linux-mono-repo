@@ -79,7 +79,7 @@ Sul Downloader fails update if expected product missing from SUS
     Wait Until Keyword Succeeds
     ...   20 secs
     ...   5 secs
-    ...   Check Suldownloader Log Contains   Failed to connect to repository: Package : ServerProtectionLinux-Plugin-Fake missing from warehouse
+    ...   Check Suldownloader Log Contains   Failed to connect to repository: Product doesn't match any suite: ServerProtectionLinux-Plugin-Fake
 
 We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     [Timeout]    10 minutes

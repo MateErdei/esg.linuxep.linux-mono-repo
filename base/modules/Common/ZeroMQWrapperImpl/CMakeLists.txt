@@ -36,5 +36,3 @@ SET_TARGET_PROPERTIES(zeromqwrapperimpl
 
 install(TARGETS zeromqwrapperimpl
         LIBRARY DESTINATION ${BASE_DIST_PREFIX}/files/base/lib64)
-
-install(TARGETS zeromqwrapperimpl LIBRARY DESTINATION ${THININSTALLER_DEPS_DIR_LIB64})

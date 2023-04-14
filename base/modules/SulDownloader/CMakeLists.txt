@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.8)
 
 add_subdirectory(suldownloaderdata)
 
-add_library(suldownloaderimpl SHARED
+add_library(suldownloaderimplobject OBJECT
         sdds3/SDDS3Repository.cpp
         sdds3/SDDS3Repository.h
         sdds3/Sdds3RepositoryFactory.cpp
@@ -10,6 +10,7 @@ add_library(suldownloaderimpl SHARED
         sdds3/SDDS3Utils.cpp
         sdds3/SDDS3Utils.h
         sdds3/ISdds3Wrapper.h
+        sdds3/ISusRequester.h
         sdds3/Sdds3Wrapper.h
         sdds3/Sdds3Wrapper.cpp
         sdds3/SusRequestParameters.h
@@ -27,8 +28,45 @@ add_library(suldownloaderimpl SHARED
         Logger.h
         )
 
+target_link_libraries(suldownloaderimplobject PUBLIC
+        sophlib_sdds3
+        )
 
-include_directories(suldownloaderimpl BEFORE ${GSL_INCLUDE})
+include_directories(suldownloaderimplobject
+        ${PROJECT_SOURCE_DIR}/modules/Common
+        ${NLOHMANN_JSON_INCLUDE_DIR}
+        ${GSL_INCLUDE}
+        ${LOG4CPLUS_INCLUDE_DIR}
+        ${CURL_INPUT}/include/curl
+        )
+
+add_library(suldownloaderimpl_static STATIC
+        $<TARGET_OBJECTS:suldownloaderimplobject>
+        $<TARGET_OBJECTS:suldownloaderdataobject>
+        $<TARGET_OBJECTS:HttpRequestsImplobject>
+        $<TARGET_OBJECTS:filesystemimplobject>
+        $<TARGET_OBJECTS:processimplobject>
+        $<TARGET_OBJECTS:threadsobject>
+        $<TARGET_OBJECTS:utilityimplobject>
+        $<TARGET_OBJECTS:applicationconfigurationimplobject>
+        $<TARGET_OBJECTS:loggingobject>
+        $<TARGET_OBJECTS:obfuscationimplobject>
+        $<TARGET_OBJECTS:protobufutilobject>
+        $<TARGET_OBJECTS:ProxyUtilsLibobject>
+        $<TARGET_OBJECTS:sslimplobject>
+        $<TARGET_OBJECTS:curlwrapperobject>
+        )
+
+target_link_libraries(suldownloaderimpl_static PRIVATE
+        ${LOG4CPLUS_LIBRARY}
+        ${Protobuf_LIBRARIES}
+        sophlib_sdds3
+        openssl_crypto_static
+        curl_library_static
+        cap
+        )
+
+add_library(suldownloaderimpl SHARED $<TARGET_OBJECTS:suldownloaderimplobject>)
 
 target_link_libraries(suldownloaderimpl PUBLIC
         logging
@@ -43,10 +81,5 @@ SET_TARGET_PROPERTIES( suldownloaderimpl
         INSTALL_RPATH "$ORIGIN"
         BUILD_RPATH "${CMAKE_BINARY_DIR}/libs"
         )
-
-install(TARGETS suldownloaderimpl
-        LIBRARY DESTINATION ${BASE_DIST_PREFIX}/files/base/lib64)
-
-install(TARGETS suldownloaderimpl LIBRARY DESTINATION ${THININSTALLER_DEPS_DIR_LIB64})
 
 add_dependencies(suldownloaderimpl copy_libs)

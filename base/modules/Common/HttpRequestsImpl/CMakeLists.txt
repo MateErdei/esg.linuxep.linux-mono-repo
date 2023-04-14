@@ -1,4 +1,4 @@
-add_library(HttpRequestsImpl SHARED
+add_library(HttpRequestsImplobject OBJECT
         ../HttpRequests/IHttpRequester.h
         HttpRequesterImpl.h
         HttpRequesterImpl.cpp
@@ -7,14 +7,16 @@ add_library(HttpRequestsImpl SHARED
         Logger.h
         Logger.cpp)
 
-include_directories(HttpRequestsImpl BEFORE ${LOG4CPLUS_INCLUDE_DIR} ../HttpRequests)
-
-target_link_libraries(HttpRequestsImpl PUBLIC
+include_directories(HttpRequestsImplobject BEFORE ${LOG4CPLUS_INCLUDE_DIR})
+target_link_libraries(HttpRequestsImplobject PUBLIC
         curlwrapper
         curl_library
         ${LOG4CPLUS_LIBRARY}
         logging
         )
+
+add_library(HttpRequestsImpl SHARED)
+target_link_libraries(HttpRequestsImpl PUBLIC HttpRequestsImplobject)
 
 SET_TARGET_PROPERTIES(HttpRequestsImpl
         PROPERTIES
@@ -24,8 +26,5 @@ SET_TARGET_PROPERTIES(HttpRequestsImpl
 
 install(TARGETS HttpRequestsImpl
         LIBRARY DESTINATION ${BASE_DIST_PREFIX}/files/base/lib64)
-
-# Suldownloader that is called from the thin installer uses this lib
-install(TARGETS HttpRequestsImpl LIBRARY DESTINATION ${THININSTALLER_DEPS_DIR_LIB64})
 
 add_dependencies(HttpRequestsImpl copy_libs)

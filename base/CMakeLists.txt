@@ -214,29 +214,38 @@ if(NOT DEFINED VERSIG_INPUT)
     set( VERSIG_INPUT ${INPUT}/versig)
 endif()
 
-function(add_imported_library name type location include_directory)
+function(add_imported_library name type no_soname location include_directory)
     add_library(${name} ${type} IMPORTED)
     set_target_properties(${name} PROPERTIES IMPORTED_LOCATION ${location})
-    if(${type} STREQUAL SHARED)
-        set_target_properties(${name} PROPERTIES IMPORTED_NO_SONAME TRUE)
-    endif()
+    set_target_properties(${name} PROPERTIES IMPORTED_NO_SONAME ${no_soname})
     target_include_directories(${name} INTERFACE ${include_directory})
 endfunction()
 
 function(add_sophlib_library name)
     # Linked statically to avoid name clashes with our libraries
-    add_imported_library(sophlib_${name} STATIC ${INPUT}/sophlib/lib64/${name}/lib${name}.pic.a ${INPUT}/sophlib/include)
+    add_imported_library(sophlib_${name} STATIC FALSE ${INPUT}/sophlib/lib64/${name}/lib${name}.pic.a ${INPUT}/sophlib/include)
 endfunction()
 
-add_imported_library(bzip2 SHARED ${INPUT}/bzip2/libbzip2.so ${INPUT}/bzip2)
-add_imported_library(lzma SHARED ${INPUT}/lzma/liblzma.so ${INPUT}/lzma/lib/liblzma/api/lzma)
-add_imported_library(minizip SHARED ${INPUT}/minizip/minizip/libminizip.so ${INPUT}/minizip)
-add_imported_library(pugixml SHARED ${INPUT}/pugixml/libpugixml.so ${INPUT}/pugixml)
-add_imported_library(zlib SHARED ${INPUT}/zlib/libzlib.so ${INPUT}/zlib)
-add_imported_library(curl_library SHARED ${CURL_INPUT}/libcurl.so ${CURL_INPUT}/include)
-target_include_directories(curl_library INTERFACE ${CURL_INPUT}/include/curl) # Extra search path to allow #include <curl.h>
-add_imported_library(openssl_ssl SHARED ${OPENSSL_INPUT}/lib64/libssl.so.3 ${OPENSSL_INPUT}/include)
-add_imported_library(openssl_crypto SHARED ${OPENSSL_INPUT}/lib64/libcrypto.so.3 ${OPENSSL_INPUT}/include)
+function(monorepo_library name location include_directory)
+    add_imported_library(${name} SHARED TRUE ${location}.so ${include_directory})
+    add_imported_library(${name}_static STATIC FALSE ${location}.pic.a ${include_directory})
+endfunction()
+
+monorepo_library(pugixml ${INPUT}/pugixml/libpugixml ${INPUT}/pugixml)
+monorepo_library(bzip2 ${INPUT}/bzip2/libbzip2 ${INPUT}/bzip2)
+monorepo_library(lzma ${INPUT}/lzma/liblzma ${INPUT}/lzma/lib/liblzma/api/lzma)
+monorepo_library(minizip ${INPUT}/minizip/minizip/libminizip ${INPUT}/minizip)
+monorepo_library(zlib ${INPUT}/zlib/libzlib ${INPUT}/zlib)
+monorepo_library(curl_library ${CURL_INPUT}/libcurl ${CURL_INPUT}/include)
+
+# Extra search path to allow #include <curl.h>
+target_include_directories(curl_library INTERFACE ${CURL_INPUT}/include/curl)
+target_include_directories(curl_library_static INTERFACE ${CURL_INPUT}/include/curl)
+
+add_imported_library(openssl_ssl SHARED FALSE ${OPENSSL_INPUT}/lib64/libssl.so.3 ${OPENSSL_INPUT}/include)
+add_imported_library(openssl_ssl_static STATIC FALSE ${OPENSSL_INPUT}/lib64/libssl.a ${OPENSSL_INPUT}/include)
+add_imported_library(openssl_crypto SHARED FALSE ${OPENSSL_INPUT}/lib64/libcrypto.so.3 ${OPENSSL_INPUT}/include)
+add_imported_library(openssl_crypto_static STATIC FALSE ${OPENSSL_INPUT}/lib64/libcrypto.a ${OPENSSL_INPUT}/include)
 
 add_sophlib_library(crypto)
 add_sophlib_library(file)
@@ -247,13 +256,14 @@ add_sophlib_library(sdds3)
 add_sophlib_library(string)
 add_sophlib_library(time)
 add_sophlib_library(zip)
-add_imported_library(sophlib_sdds3_delta STATIC ${INPUT}/sophlib/lib64/sdds3/delta/libdelta.pic.a ${INPUT}/sophlib/include)
+add_imported_library(sophlib_sdds3_delta STATIC FALSE ${INPUT}/sophlib/lib64/sdds3/delta/libdelta.pic.a ${INPUT}/sophlib/include)
 
 # Define dependencies between imported libraries (based on Bazel dependencies in monorepo)
 target_link_libraries(minizip INTERFACE bzip2 lzma openssl_crypto zlib)
+target_link_libraries(minizip_static INTERFACE bzip2_static lzma_static openssl_crypto_static zlib_static)
 target_link_libraries(sophlib_file INTERFACE sophlib_raii)
 target_link_libraries(sophlib_sdds3 INTERFACE
-        pugixml
+        pugixml_static
         sophlib_crypto
         sophlib_file
         sophlib_http
@@ -262,9 +272,13 @@ target_link_libraries(sophlib_sdds3 INTERFACE
         sophlib_time
         sophlib_zip
         )
-target_link_libraries(sophlib_zip INTERFACE minizip sophlib_logging)
+target_link_libraries(sophlib_zip INTERFACE minizip_static sophlib_logging)
 target_link_libraries(curl_library INTERFACE openssl_ssl zlib)
+target_link_libraries(curl_library_static INTERFACE openssl_ssl_static zlib_static)
 target_link_libraries(openssl_crypto INTERFACE dl pthread)
+target_link_libraries(openssl_crypto_static INTERFACE dl pthread)
+target_link_libraries(openssl_ssl INTERFACE openssl_crypto)
+target_link_libraries(openssl_ssl_static INTERFACE openssl_crypto_static)
 
 set(NLOHMANN_JSON_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/nlohmann-json)
 

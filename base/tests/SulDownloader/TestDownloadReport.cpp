@@ -91,7 +91,7 @@ public:
         EXPECT_STREQ(report.getProducts()[0].downloadedVersion.c_str(), metadata.getVersion().c_str());
     }
 
-    static void checkJsonOutput(DownloadReport& report, std::string& jsonString)
+    static void checkJsonOutput(const DownloadReport& report, const std::string& jsonString)
     {
         // example jsonString being passed
         //"{\n \"startTime\": \"20180621 142342\",\n \"finishTime\": \"20180621 142411\",\n \"syncTime\": \"20180621
@@ -119,6 +119,9 @@ public:
         valueToFind = "errorDescription\": \"" + report.getDescription();
         EXPECT_THAT(jsonString, ::testing::HasSubstr(valueToFind));
 
+        valueToFind = "urlSource\": \"" + report.getSourceURL();
+        EXPECT_THAT(jsonString, ::testing::HasSubstr(valueToFind));
+
         // double check to ensure we have something to loop through.
         EXPECT_NE(report.getProducts().size(), 0);
 
@@ -141,6 +144,9 @@ public:
             valueToFind = R"("productStatus": ")" + product.jsonString() + "\"";
             EXPECT_THAT(jsonString, ::testing::HasSubstr(valueToFind));
         }
+
+        valueToFind = "supplementOnlyUpdate\": " + std::string{ report.isSupplementOnlyUpdate() ? "true" : "false" };
+        EXPECT_THAT(jsonString, ::testing::HasSubstr(valueToFind));
     }
 
     static void checkJsonOutputWithNoProducts(DownloadReport& report, std::string& jsonString)
@@ -885,4 +891,98 @@ TEST_F(DownloadReportTest, shouldNotThrowOnValidReportWhenAnUnkownFieldIsPresent
 })sophos" };
     auto report = DownloadReport::toReport(serializedReportWithSubComponents);
     EXPECT_EQ(report.getProducts().size(), 1);
+}
+
+TEST_F(DownloadReportTest, FromReportToReportGivesBackExpectedResults)
+{
+    // Set up a DownloadReport, serialise it using fromReport, and deserialise using toReport
+
+    ProductMetadata base;
+    base.setDefaultHomePath("ServerProtectionLinux-Base-component");
+    base.setLine("ServerProtectionLinux-Base-component");
+    base.setName("ServerProtectionLinux-Base-component-Product");
+    base.setVersion("10.2.3");
+    base.setTags({ { "RECOMMENDED", "10", "Base-label" } });
+
+    ProductMetadata plugin;
+    plugin.setDefaultHomePath("ServerProtectionLinux-Plugin-EDR");
+    plugin.setLine("ServerProtectionLinux-Plugin-EDR");
+    plugin.setName("ServerProtectionLinux-Plugin-EDR-Product");
+    plugin.setVersion("10.3.5");
+    plugin.setTags({ { "RECOMMENDED", "10", "Plugin-label" } });
+    plugin.setBaseVersion("base version");
+    plugin.setFeatures({ "feature1", "feature2" });
+    plugin.setSubProduts({ { "line1", "version1" }, { "line2", "version2" } });
+
+    DownloadedProduct baseProduct{ base };
+    baseProduct.setDistributePath(
+        "/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Base-component");
+    baseProduct.setError({ "description1", "description2", RepositoryStatus::INSTALLFAILED });
+    baseProduct.setForceProductReinstall(true);
+    baseProduct.setProductHasChanged(true);
+    baseProduct.setProductIsBeingUninstalled(true);
+    baseProduct.setProductWillBeDowngraded(true);
+
+    DownloadedProduct edrProduct{ plugin };
+    edrProduct.setDistributePath("/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Plugin-EDR");
+    edrProduct.setError({ "description3", "description4", RepositoryStatus::UNSPECIFIED });
+    edrProduct.setForceProductReinstall(true);
+    edrProduct.setProductHasChanged(true);
+    edrProduct.setProductIsBeingUninstalled(true);
+    edrProduct.setProductWillBeDowngraded(true);
+
+    TimeTracker timeTracker;
+    timeTracker.setStartTime(std::time_t(1));
+    timeTracker.setFinishedTime(std::time_t(2));
+    timeTracker.setSyncTime();
+
+    std::vector<DownloadedProduct> downloadedProducts{ baseProduct, edrProduct };
+    std::vector<ProductInfo> components{ { "rigid name", "product name", "version", "installed version" } };
+    std::vector<SubscriptionInfo> subscriptionsToALCStatus{ { "subscription rigid name",
+                                                              "subscription version",
+                                                              { { "subscription line1", "subscription version1" },
+                                                                { "subscription line2", "subscription version2" } } } };
+
+    // baseDowngrade is not serialised/deserialised, and hence set to false
+    const auto downloadReport = DownloadReport::Report(
+        "source url",
+        downloadedProducts,
+        components,
+        subscriptionsToALCStatus,
+        &timeTracker,
+        DownloadReport::VerifyState::VerifyCorrect,
+        true,
+        false);
+
+    const auto serialised = DownloadReport::fromReport(downloadReport);
+
+    checkJsonOutput(downloadReport, serialised);
+
+    const auto deserialised = DownloadReport::toReport(serialised);
+    EXPECT_EQ(deserialised, downloadReport);
+}
+
+TEST_F(DownloadReportTest, ProcessedReportIsNotSerialised)
+{
+    TimeTracker timeTracker;
+    auto downloadReport =
+        DownloadReport::Report("source url", {}, {}, {}, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
+
+    EXPECT_TRUE(DownloadReport::toReport(DownloadReport::fromReport(downloadReport)) == downloadReport);
+
+    downloadReport.setProcessedReport(true);
+    EXPECT_FALSE(DownloadReport::toReport(DownloadReport::fromReport(downloadReport)) == downloadReport);
+}
+
+TEST_F(DownloadReportTest, BaseDowngradeIsNotSerialised)
+{
+    TimeTracker timeTracker;
+
+    const auto downloadReport = DownloadReport::Report(
+        "source url", {}, {}, {}, &timeTracker, DownloadReport::VerifyState::VerifyCorrect, false, false);
+    EXPECT_TRUE(DownloadReport::toReport(DownloadReport::fromReport(downloadReport)) == downloadReport);
+
+    const auto downloadReport2 = DownloadReport::Report(
+        "source url", {}, {}, {}, &timeTracker, DownloadReport::VerifyState::VerifyCorrect, false, true);
+    EXPECT_FALSE(DownloadReport::toReport(DownloadReport::fromReport(downloadReport)) == downloadReport2);
 }

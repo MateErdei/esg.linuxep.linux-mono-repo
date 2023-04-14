@@ -46,7 +46,6 @@ install(IMPORTED_RUNTIME_ARTIFACTS
         minizip
         openssl_ssl
         openssl_crypto
-        pugixml
         zlib
         LIBRARY DESTINATION ${BASE_DIST_PREFIX}/files/base/lib64)
 
