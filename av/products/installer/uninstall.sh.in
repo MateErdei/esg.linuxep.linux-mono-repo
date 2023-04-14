@@ -44,6 +44,13 @@ do
     shift
 done
 
+rm -f /usr/local/bin/avscanner
+
+"${BASEDIR}/bin/wdctl" removePluginRegistration "on_access_process"
+"${BASEDIR}/bin/wdctl" removePluginRegistration "safestore"
+"${BASEDIR}/bin/wdctl" removePluginRegistration "threat_detector"
+"${BASEDIR}/bin/wdctl" removePluginRegistration "${PLUGIN_NAME}"
+
 if (( DOWNGRADE == 1 ))
 then
     mkdir -p ${SAVE_DIR}
@@ -63,12 +70,6 @@ then
       cp -v ${UNINSTALLDIR}/var/persist-threatDatabase  ${SAFESTORE_SAVE_DIR}
     fi
 fi
-
-rm -f /usr/local/bin/avscanner
-
-#"${BASEDIR}/bin/wdctl" removePluginRegistration "on_access_process"
-"${BASEDIR}/bin/wdctl" removePluginRegistration "threat_detector"
-"${BASEDIR}/bin/wdctl" removePluginRegistration "${PLUGIN_NAME}"
 
 rm -rf "$UNINSTALLDIR"
 rm -f "$SYMLINK"

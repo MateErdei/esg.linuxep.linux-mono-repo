@@ -545,13 +545,15 @@ AV Plugin Saves SafeStore and Detections Databases On Downgrade
     Check AV Plugin Running
 
     Wait Until AV Plugin Log Contains    Initialised Threat Database
-    # Ensure persist-ThreatDatabase file exists by restarting AV
-    Restart AV Plugin
 
     Run plugin uninstaller with downgrade flag
     Check AV Plugin Not Installed
     Wait Until File exists  ${SAFESTORE_BACKUP_DIR}/persist-threatDatabase
     Verify SafeStore Database Backups Exist in Path    ${SAFESTORE_BACKUP_DIR}
+
+    Install AV Directly from SDDS
+    File should exist    ${SOPHOS_INSTALL}/plugins/av/var/persist-threatDatabase
+    ${Permissions} =     get_file_permissions    ${SOPHOS_INSTALL}/plugins/av/var/persist-threatDatabase
 
 
 AV Plugin Reports The Right Error Code If Sophos Threat Detector Dies During Scan Now

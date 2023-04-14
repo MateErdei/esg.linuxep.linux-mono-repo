@@ -130,3 +130,10 @@ def open_and_close_file(path):
     with open(path) as _:
         logger.info("Opened " + path)
     logger.info("Closed " + path)
+
+def get_file_permissions(filepath):
+    permissions = []
+    permissions.append(get_file_owner(filepath))
+    permissions.append(get_file_group(filepath))
+    permissions.append(get_file_permissions(filepath))
+    return permissions

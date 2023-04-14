@@ -251,6 +251,7 @@ function apply_permissions()
     if [[ -f "${VAR}/persist-threatDatabase" ]]
     then
         chmod 600 ${VAR}/persist-threatDatabase
+        chown ${USER_NAME}:${GROUP_NAME} ${VAR}/persist-threatDatabase
     fi
 
     mkdir -p "$SAFESTORE_DB_PATH"
