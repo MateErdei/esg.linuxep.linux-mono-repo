@@ -857,7 +857,6 @@ fi
 
 unset LD_LIBRARY_PATH
 cleanup_comms_component
-generate_local_user_group_id_config
 
 for F in "$DIST/installer/plugins"/*
 do
@@ -884,6 +883,7 @@ then
       chown "${USER_NAME}:${GROUP_NAME}" "$BASE_INSTALL_OPTIONS_FILE"
       chmod 440 "$BASE_INSTALL_OPTIONS_FILE"
     fi
+    generate_local_user_group_id_config
 
     if [[ -n "$MCS_CA" ]]
     then
