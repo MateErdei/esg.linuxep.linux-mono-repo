@@ -782,6 +782,28 @@ Failed Download Telemetry Test
     ${telemetryFileContents} =  Get File  ${TELEMETRY_JSON_FILE}
     Check Update Scheduler Telemetry Json Is Correct  ${telemetryFileContents}  0  sddsid=regruser  download_state=1
     Cleanup Telemetry Server
+
+
+Update Scheduler Waits Until Suldownloader Has Finished On Start
+    ${suldownloader_lock} =  Set Variable  ${SOPHOS_INSTALL}/var/lock-sophosspl/suldownloader.pid
+    Stop Update Scheduler
+    Remove File    ${suldownloader_lock}
+    Start Process	flock    ${suldownloader_lock}    sleep    20	alias=flock
+    Wait Until Keyword Succeeds    3 secs    1 secs    file should exist    ${suldownloader_lock}
+    Run process    chown    root:sophos-spl-group    ${suldownloader_lock}
+    Run process    chmod    0660    ${suldownloader_lock}
+    Start Update Scheduler
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  3 secs
+    ...  Check Log Contains In Order    ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log
+        ...    Waiting for SulDownloader to finish
+        ...    Could not acquire suldownloader lock, assuming suldownloader is running
+        ...    Took lock /opt/sophos-spl/var/lock-sophosspl/suldownloader.pid, assuming suldownloader not running
+        ...    No instance of SulDownloader running
+        ...    Running with update period to 60 minutes
+
+
 *** Keywords ***
 Teardown For Test
     Log SystemCtl Update Status
