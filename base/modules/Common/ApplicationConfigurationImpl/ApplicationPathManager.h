@@ -14,7 +14,6 @@ namespace Common::ApplicationConfigurationImpl
         std::string getWatchdogSocketAddress() const override;
         std::string getActualUserGroupIdConfigPath() const override;
         std::string getRequestedUserGroupIdConfigPath() const override;
-        std::string getInstallOptionsPath() const override;
         std::string getEventSubscriberSocketAddress() const override;
         std::string getEventSubscriberSocketFile() const override;
         std::string getEventJournalsPath() const override;

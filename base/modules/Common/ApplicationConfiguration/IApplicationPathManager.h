@@ -17,7 +17,6 @@ namespace Common::ApplicationConfiguration
         [[nodiscard]] virtual std::string getWatchdogSocketAddress() const = 0;
         [[nodiscard]] virtual std::string getActualUserGroupIdConfigPath() const = 0;
         [[nodiscard]] virtual std::string getRequestedUserGroupIdConfigPath() const = 0;
-        [[nodiscard]] virtual std::string getInstallOptionsPath() const = 0;
         [[nodiscard]] virtual std::string getEventSubscriberSocketAddress() const = 0;
         [[nodiscard]] virtual std::string getEventSubscriberSocketFile() const = 0;
         [[nodiscard]] virtual std::string getEventJournalsPath() const = 0;
