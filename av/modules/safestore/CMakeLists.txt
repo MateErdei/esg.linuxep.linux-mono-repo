@@ -33,5 +33,5 @@ install(TARGETS safestoreimpl
 SET_TARGET_PROPERTIES(safestoreimpl
         PROPERTIES
         BUILD_RPATH "$ORIGIN:${CMAKE_BINARY_DIR}/libs"
-        INSTALL_RPATH "$ORIGIN:/opt/sophos-spl/plugins/av/lib64"
+        INSTALL_RPATH "$ORIGIN"
         )
