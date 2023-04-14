@@ -64,7 +64,8 @@ namespace avscanner::avscannerimpl
         m_logger(options.logFile(), options.logLevel(), true),
         m_archiveScanning(options.archiveScanning()),
         m_imageScanning(options.imageScanning()),
-        m_followSymlinks(options.followSymlinks())
+        m_followSymlinks(options.followSymlinks()),
+        m_detectPUAs(options.detectPUAs())
     {
         static_cast<void>(m_logger);
     }
@@ -83,6 +84,9 @@ namespace avscanner::avscannerimpl
 
         std::string printImageScanning = m_imageScanning ? "yes" : "no";
         LOGINFO("Image scanning enabled: " << printImageScanning);
+
+        std::string printDetectPUAs = m_detectPUAs ? "yes" : "no";
+        LOGINFO("PUA detection enabled: " << printDetectPUAs);
 
         std::string printFollowSymlink = m_followSymlinks ? "yes" : "no";
         LOGINFO("Following symlinks: " << printFollowSymlink);

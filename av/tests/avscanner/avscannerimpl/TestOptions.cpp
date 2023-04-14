@@ -20,6 +20,7 @@ TEST(Options, TestNoArgs) // NOLINT
     EXPECT_EQ(o.config(), "");
     EXPECT_FALSE(o.archiveScanning());
     EXPECT_FALSE(o.imageScanning());
+    EXPECT_TRUE(o.detectPUAs());
     EXPECT_FALSE(o.followSymlinks());
     EXPECT_FALSE(o.help());
     auto exclusions = o.exclusions();
@@ -39,6 +40,7 @@ TEST(Options, TestPaths) // NOLINT
     EXPECT_EQ(o.config(), "");
     EXPECT_FALSE(o.archiveScanning());
     EXPECT_FALSE(o.imageScanning());
+    EXPECT_TRUE(o.detectPUAs());
     EXPECT_FALSE(o.followSymlinks());
     EXPECT_FALSE(o.help());
     auto exclusions = o.exclusions();
@@ -60,6 +62,7 @@ TEST(Options, TestMultiplePaths) // NOLINT
     EXPECT_EQ(o.config(), "");
     EXPECT_FALSE(o.archiveScanning());
     EXPECT_FALSE(o.imageScanning());
+    EXPECT_TRUE(o.detectPUAs());
     EXPECT_FALSE(o.followSymlinks());
     EXPECT_FALSE(o.help());
     auto exclusions = o.exclusions();
@@ -79,6 +82,7 @@ TEST(Options, TestConfig) // NOLINT
     EXPECT_EQ(o.config(), "/bar");
     EXPECT_FALSE(o.archiveScanning());
     EXPECT_FALSE(o.imageScanning());
+    EXPECT_TRUE(o.detectPUAs());
     EXPECT_FALSE(o.followSymlinks());
     EXPECT_FALSE(o.help());
     auto exclusions = o.exclusions();
@@ -97,6 +101,7 @@ TEST(Options, TestArchiveScanning) // NOLINT
     EXPECT_EQ(o.config(), "");
     EXPECT_TRUE(o.archiveScanning());
     EXPECT_FALSE(o.imageScanning());
+    EXPECT_TRUE(o.detectPUAs());
     EXPECT_FALSE(o.followSymlinks());
     EXPECT_FALSE(o.help());
     auto exclusions = o.exclusions();
@@ -116,6 +121,26 @@ TEST(Options, TestImageScanning) // NOLINT
     EXPECT_EQ(o.config(), "");
     EXPECT_FALSE(o.archiveScanning());
     EXPECT_TRUE(o.imageScanning());
+    EXPECT_TRUE(o.detectPUAs());
+    EXPECT_FALSE(o.followSymlinks());
+    EXPECT_FALSE(o.help());
+    auto exclusions = o.exclusions();
+    ASSERT_EQ(exclusions.size(), 0);
+}
+
+TEST(Options, TestDisablePUAdetections) // NOLINT
+{
+    const int argc = 2;
+    const char* argv[argc];
+    argv[0] = "/usr/bin/avscanner";
+    argv[1] = "--disable-pua-detection";
+    Options o(argc, const_cast<char**>(argv));
+    auto paths = o.paths();
+    ASSERT_EQ(paths.size(), 0);
+    EXPECT_EQ(o.config(), "");
+    EXPECT_FALSE(o.archiveScanning());
+    EXPECT_FALSE(o.imageScanning());
+    EXPECT_FALSE(o.detectPUAs());
     EXPECT_FALSE(o.followSymlinks());
     EXPECT_FALSE(o.help());
     auto exclusions = o.exclusions();
@@ -134,6 +159,7 @@ TEST(Options, TestFollowSymlinks) // NOLINT
     EXPECT_EQ(o.config(), "");
     EXPECT_FALSE(o.archiveScanning());
     EXPECT_FALSE(o.imageScanning());
+    EXPECT_TRUE(o.detectPUAs());
     EXPECT_TRUE(o.followSymlinks());
     EXPECT_FALSE(o.help());
     auto exclusions = o.exclusions();
@@ -152,6 +178,7 @@ TEST(Options, TestHelp) // NOLINT
     EXPECT_EQ(o.config(), "");
     EXPECT_FALSE(o.archiveScanning());
     EXPECT_FALSE(o.imageScanning());
+    EXPECT_TRUE(o.detectPUAs());
     EXPECT_FALSE(o.followSymlinks());
     EXPECT_TRUE(o.help());
     auto exclusions = o.exclusions();
@@ -171,6 +198,7 @@ TEST(Options, TestExclusions) // NOLINT
     EXPECT_EQ(o.config(), "");
     EXPECT_FALSE(o.archiveScanning());
     EXPECT_FALSE(o.imageScanning());
+    EXPECT_TRUE(o.detectPUAs());
     EXPECT_FALSE(o.followSymlinks());
     EXPECT_FALSE(o.help());
     auto exclusions = o.exclusions();
