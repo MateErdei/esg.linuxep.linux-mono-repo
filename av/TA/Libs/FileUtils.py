@@ -6,6 +6,7 @@ import re
 import shutil
 import stat
 import time
+import subprocess
 
 from robot.api import logger
 
