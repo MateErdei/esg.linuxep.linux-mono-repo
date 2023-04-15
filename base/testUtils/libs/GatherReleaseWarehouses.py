@@ -85,7 +85,10 @@ def gather_sdds3_warehouse_files(output_dir, release_type):
         branch_filter = f"release--{current_year - 1}{version_separator}"
         release_branches = get_warehouse_branches(branch_filter, warehouse_repo_url, release_type, version_separator)
 
-    release_branch = sorted(release_branches,
+    # Handle branch format 2023-16 and also 2023-16_comments_like_this
+    cleaned_branches = [branch.split("_")[0] for branch in release_branches]
+
+    release_branch = sorted(cleaned_branches,
                             key=lambda x: float(x[len(branch_filter):].split(version_separator)[0]),
                             reverse=True)[0]
     for build in ArtifactoryPath(os.path.join(warehouse_repo_url, release_branch)):
