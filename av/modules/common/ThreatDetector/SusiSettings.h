@@ -8,6 +8,7 @@
 namespace common::ThreatDetector
 {
     using AllowList = std::vector<std::string>;
+    using PuaApprovedList = std::vector<std::string>;
 
     class SusiSettings
     {
@@ -34,17 +35,29 @@ namespace common::ThreatDetector
         bool isMachineLearningEnabled() const;
         void setMachineLearningEnabled(bool enabled);
 
+        // PUA Detections Enabled
+        bool isOaPuaDetectionEnabled() const;
+        void setOaPuaDetectionEnabled(bool enabled);
+
+        // PUA Approved list
+        bool isPuaApproved(const std::string& puaName) const;
+        void setPuaApprovedList(PuaApprovedList&& approvedList) noexcept;
+        AllowList copyPuaApprovedList() const;
+
     private:
         // Susi can access the allow-list while we're changing it, so make sure it's thread safe.
         mutable std::mutex m_accessMutex;
 
         AllowList m_susiAllowListSha256;
         bool m_susiSxlLookupEnabled = true;
+        bool m_oaPuaDetectionEnabled = true;
         bool m_machineLearningEnabled = true;
+        PuaApprovedList m_susiPuaApprovedList;
 
         [[nodiscard]] std::string serialise() const;
         static constexpr auto ENABLED_SXL_LOOKUP_KEY = "enableSxlLookup";
         static constexpr auto SHA_ALLOW_LIST_KEY = "shaAllowList";
+        static constexpr auto OA_PUA_DETECTION_KEY = "oaPuaDetection";
         static constexpr auto MACHINE_LEARNING_KEY = "machineLearning";
     };
 } // namespace common::ThreatDetector

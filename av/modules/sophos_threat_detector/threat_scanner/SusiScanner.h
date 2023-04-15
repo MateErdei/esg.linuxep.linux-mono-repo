@@ -1,4 +1,4 @@
-// Copyright 2020-2022 Sophos Limited. All rights reserved.
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
@@ -20,22 +20,20 @@ namespace threat_scanner
             std::unique_ptr<IUnitScanner> unitScanner,
             IThreatReporterSharedPtr threatReporter,
             IScanNotificationSharedPtr shutdownTimer,
-            IAllowListSharedPtr allowList) :
+            ISusiGlobalHandlerSharedPtr globalHandler) :
             m_unitScanner(std::move(unitScanner)),
             m_threatReporter(std::move(threatReporter)),
             m_shutdownTimer(std::move(shutdownTimer)),
-            m_allowList(std::move(allowList))
+            m_globalHandler(std::move(globalHandler))
         {
         }
 
-        scan_messages::ScanResponse scan(
-            datatypes::AutoFd& fd,
-            const scan_messages::ScanRequest& info) override;
+        scan_messages::ScanResponse scan(datatypes::AutoFd& fd, const scan_messages::ScanRequest& info) override;
 
     private:
         std::unique_ptr<IUnitScanner> m_unitScanner;
         IThreatReporterSharedPtr m_threatReporter;
         IScanNotificationSharedPtr m_shutdownTimer;
-        IAllowListSharedPtr m_allowList;
+        ISusiGlobalHandlerSharedPtr m_globalHandler;
     };
 } // namespace threat_scanner

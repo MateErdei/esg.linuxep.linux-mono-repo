@@ -1,5 +1,4 @@
 add_library(threat_scanner SHARED
-        IAllowList.h
         IScanNotification.h
         ISusiGlobalHandler.h
         ISusiWrapper.h

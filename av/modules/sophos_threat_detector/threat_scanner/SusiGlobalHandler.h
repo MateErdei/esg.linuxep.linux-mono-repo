@@ -1,4 +1,4 @@
-// Copyright 2020-2022 Sophos Limited. All rights reserved.
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
@@ -98,6 +98,10 @@ namespace threat_scanner
          * @return
          */
         bool isAllowListed(const std::string& threatChecksum) final;
+
+        bool isPuaApproved(const std::string& puaName) final;
+
+        bool isOaPuaDetectionEnabled() final;
 
     private:
         std::atomic_bool m_susiInitialised = false;

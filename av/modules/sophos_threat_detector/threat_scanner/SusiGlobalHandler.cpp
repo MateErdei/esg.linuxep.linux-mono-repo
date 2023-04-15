@@ -480,4 +480,15 @@ namespace threat_scanner
         return m_susiSettings->isAllowListed(threatChecksum);
     }
 
+    bool SusiGlobalHandler::isOaPuaDetectionEnabled()
+    {
+        std::lock_guard<std::mutex> lock(m_susiSettingsMutex);
+        return m_susiSettings->isOaPuaDetectionEnabled();
+    }
+
+    bool SusiGlobalHandler::isPuaApproved(const std::string& puaName)
+    {
+        std::lock_guard<std::mutex> lock(m_susiSettingsMutex);
+        return m_susiSettings->isPuaApproved(puaName);
+    }
 } // namespace threat_scanner

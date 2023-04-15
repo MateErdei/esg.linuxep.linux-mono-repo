@@ -290,9 +290,6 @@ namespace Plugin
         json exclusions(exclusionList);
         config["exclusions"] = exclusions;
 
-        auto oaPuaDetectionEnabled = boolFromElement(policy.lookup("config/onAccessScan/scanBehaviour/pua"), true);
-        config["detectPUAs"] = oaPuaDetectionEnabled;
-
         if (originalConfig != config)
         {
             writeOnAccessConfig(config);
@@ -314,16 +311,43 @@ namespace Plugin
     void PolicyProcessor::processSavPolicy(const Common::XmlUtilities::AttributesMap& policy)
     {
         processOnAccessSettingsFromSAVpolicy(policy);
+        bool needToSave = false;
 
+        // Lookup enabled
         bool oldLookupEnabled = m_threatDetectorSettings.isSxlLookupEnabled();
-        m_threatDetectorSettings.setSxlLookupEnabled(isLookupEnabled(policy));
-
-        if (m_gotFirstSavPolicy &&
-            m_threatDetectorSettings.isSxlLookupEnabled() == oldLookupEnabled)
+        bool lookupEnabledInPolicy = isLookupEnabled(policy);
+        if (oldLookupEnabled != lookupEnabledInPolicy || !m_gotFirstSavPolicy)
         {
-            // Don't restart Threat Detector if config has not changed, and it's not the first policy
+            m_threatDetectorSettings.setSxlLookupEnabled(lookupEnabledInPolicy);
+            needToSave = true;
+        }
+
+        // PUA Enabled
+        bool oldOaPuaDetectionEnabled = m_threatDetectorSettings.isOaPuaDetectionEnabled();
+        const auto oaPuaDetectionEnabled =
+            boolFromElement(policy.lookup("config/onAccessScan/scanBehaviour/pua"), true);
+        if (oldOaPuaDetectionEnabled != oaPuaDetectionEnabled || !m_gotFirstSavPolicy)
+        {
+            m_threatDetectorSettings.setOaPuaDetectionEnabled(oaPuaDetectionEnabled);
+            needToSave = true;
+        }
+
+        // PUA Approved list
+        auto oldPuaApprovedList = m_threatDetectorSettings.copyPuaApprovedList();
+        auto puaApprovedListFromPolicy = extractListFromXML(policy, "config/approvedList/puaName");
+        if (oldPuaApprovedList != puaApprovedListFromPolicy || !m_gotFirstSavPolicy)
+        {
+            m_threatDetectorSettings.setPuaApprovedList(std::move(puaApprovedListFromPolicy));
+            needToSave = true;
+        }
+
+        if (needToSave)
+        {
+            saveSusiSettings("SAV");
+        }
+        else
+        {
             m_restartThreatDetector = false;
-            return;
         }
 
         if (!m_gotFirstSavPolicy)
@@ -331,8 +355,6 @@ namespace Plugin
             LOGINFO("SAV policy received for the first time.");
             m_gotFirstSavPolicy = true;
         }
-
-        saveSusiSettings("SAV");
     }
 
     bool PolicyProcessor::isLookupEnabled(const Common::XmlUtilities::AttributesMap& policy)
@@ -619,7 +641,6 @@ namespace Plugin
                 sha256AllowList.emplace_back(allowedItem.contents());
             }
         }
-
         if (oldAllowList != sha256AllowList || m_firstPolicy)
         {
             m_threatDetectorSettings.setAllowList(std::move(sha256AllowList));

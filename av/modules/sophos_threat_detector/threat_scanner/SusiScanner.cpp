@@ -1,4 +1,4 @@
-// Copyright 2020-2022 Sophos Limited. All rights reserved.
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #include "SusiScanner.h"
 
@@ -17,9 +17,7 @@ using namespace scan_messages;
 using namespace threat_scanner;
 using namespace common::CentralEnums;
 
-scan_messages::ScanResponse SusiScanner::scan(
-    datatypes::AutoFd& fd,
-    const scan_messages::ScanRequest& info)
+scan_messages::ScanResponse SusiScanner::scan(datatypes::AutoFd& fd, const scan_messages::ScanRequest& info)
 {
     m_shutdownTimer->reset();
 
@@ -48,15 +46,16 @@ scan_messages::ScanResponse SusiScanner::scan(
         auto threatDetected =
             buildThreatDetected(result.detections, info.getPath(), std::move(fd), info.getUserId(), e_ScanType);
 
-        assert(m_allowList);
-        if (m_allowList->isAllowListed(threatDetected.sha256))
+        assert(m_globalHandler);
+        if (m_globalHandler->isAllowListed(threatDetected.sha256))
         {
             LOGINFO("Allowing " << info.getPath() << " with " << threatDetected.sha256);
         }
-        else if (!info.detectPUAs() && threatDetected.threatType == common::CentralEnums::ThreatType::pua)
+        else if (
+            threatDetected.threatType == common::CentralEnums::ThreatType::pua &&
+            m_globalHandler->isPuaApproved(threatDetected.threatName))
         {
-            // CORE-3404: Until fixed some PUAs will still be detected by SUSI despite the setting being disabled
-            LOGINFO("Allowing " << info.getPath() << " as PUA detection is disabled");
+            LOGINFO("Allowing PUA " << info.getPath() << " by exclusion " << threatDetected.threatName);
         }
         else
         {
@@ -91,7 +90,6 @@ scan_messages::ScanResponse SusiScanner::scan(
                 m_threatReporter->sendThreatReport(threatDetected);
             }
         }
-
     }
 
     return response;
