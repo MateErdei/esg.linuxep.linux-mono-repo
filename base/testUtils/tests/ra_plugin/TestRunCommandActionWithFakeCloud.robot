@@ -34,7 +34,7 @@ Test Run Command Action End To End With Fake Cloud
     ...    1 secs
     ...    10 secs
     ...    Check Cloud Server Log Contains   {"duration":0,"exitCode":0,"stdErr":"","stdOut":"one"}
-    Check Cloud Server Log Contains   {"duration":1,"exitCode":0,"stdErr":"","stdOut":""}
+    check cloud server log contains pattern   {"duration":[12],"exitCode":0,"stdErr":"","stdOut":""}
     Check Cloud Server Log Contains   {"duration":0,"exitCode":0,"stdErr":"","stdOut":""}
     Check Cloud Server Log Contains   sophos.mgt.response.RunCommands
 

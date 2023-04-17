@@ -1,10 +1,12 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 from datetime import datetime
 import subprocess
 import sys
 import os
+import re
 import time
+import typing
 import http.client
 import ssl
 import shutil
@@ -502,14 +504,24 @@ class MCSRouter(object):
             return dict_actual['columnData']
         return None
 
-    def check_cloud_server_log_contains(self, expected, occurs=1, return_line_after=False, filter_line_start=""):
+    def check_cloud_server_log_contains(self,
+                                        expected: typing.Union[str, re.Pattern],
+                                        occurs=1,
+                                        return_line_after=False,
+                                        filter_line_start=""):
+
+        def matches(target):
+            if isinstance(expected, str):
+                return expected in target
+            return expected.match(target) is not None
+
         import codecs
         server_log = os.path.join(self.tmp_path, "cloudServer.log")
         occurs = int(occurs)
         with codecs.open(server_log, "r", 'utf-8') as f:
             lines = f.readlines()
             for idx, line in enumerate(lines):
-                if expected in line:
+                if matches(line):
                     occurs -= 1
                     if occurs == 0:
                         if return_line_after:
@@ -534,9 +546,10 @@ class MCSRouter(object):
         import re
         server_log = os.path.join(self.tmp_path, "cloudServer.log")
         occurs = int(occurs)
+        pattern = re.compile(expected)
         with codecs.open(server_log, "r", 'utf-8') as f:
             for line in f.readlines():
-                if re.match(expected, line):
+                if pattern.match(line):
                     occurs -= 1
                     if occurs == 0:
                         return
