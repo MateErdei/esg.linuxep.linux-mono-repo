@@ -151,6 +151,9 @@ TEST_F(TestSusiSettings, saveSettings)
     susiSettings.setAllowList(std::move(allowlist));
     susiSettings.setMachineLearningEnabled(false);
     susiSettings.setSxlLookupEnabled(false);
+    ThreatDetector::PuaApprovedList puaApprovedList;
+    puaApprovedList.emplace_back("PsExec");
+    susiSettings.setPuaApprovedList(std::move(puaApprovedList));
 
     auto filesystemMock = std::make_unique<StrictMock<MockFileSystem>>();
 
@@ -162,7 +165,7 @@ TEST_F(TestSusiSettings, saveSettings)
 
     susiSettings.saveSettings("path", 0);
 
-    std::string expectedContents = R"({"enableSxlLookup":false,"machineLearning":false,"shaAllowList":["42268ef08462e645678ce738bd26518bc170a0404a186062e8b1bec2dc578673"]})";
+    std::string expectedContents = R"({"enableSxlLookup":false,"machineLearning":false,"puaApprovedList":["PsExec"],"shaAllowList":["42268ef08462e645678ce738bd26518bc170a0404a186062e8b1bec2dc578673"]})";
     EXPECT_EQ(contents, expectedContents);
 }
 
