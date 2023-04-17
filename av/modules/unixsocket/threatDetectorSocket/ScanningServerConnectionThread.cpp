@@ -274,7 +274,7 @@ void unixsocket::ScanningServerConnectionThread::inner_run()
 
             try
             {
-                if (!scanner)
+                if (!scanner || m_scannerFactory->detectPUAsEnabled() != requestReader->detectPUAs())
                 {
                     scanner = m_scannerFactory->createScanner(
                         requestReader->scanInsideArchives(),

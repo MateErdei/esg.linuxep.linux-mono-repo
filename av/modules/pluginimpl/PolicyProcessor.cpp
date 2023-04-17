@@ -290,6 +290,9 @@ namespace Plugin
         json exclusions(exclusionList);
         config["exclusions"] = exclusions;
 
+        auto oaPuaDetectionEnabled = boolFromElement(policy.lookup("config/onAccessScan/scanBehaviour/pua"), true);
+        config["detectPUAs"] = oaPuaDetectionEnabled;
+
         if (originalConfig != config)
         {
             writeOnAccessConfig(config);
@@ -315,13 +318,8 @@ namespace Plugin
         bool oldLookupEnabled = m_threatDetectorSettings.isSxlLookupEnabled();
         m_threatDetectorSettings.setSxlLookupEnabled(isLookupEnabled(policy));
 
-        bool oldOaPuaDetectionEnabled = m_threatDetectorSettings.isOaPuaDetectionEnabled();
-        const auto oaPuaDetectionEnabled = boolFromElement(policy.lookup("config/onAccessScan/scanBehaviour/pua"), true);
-        m_threatDetectorSettings.setOaPuaDetectionEnabled(oaPuaDetectionEnabled);
-
         if (m_gotFirstSavPolicy &&
-            m_threatDetectorSettings.isSxlLookupEnabled() == oldLookupEnabled &&
-            m_threatDetectorSettings.isOaPuaDetectionEnabled() == oldOaPuaDetectionEnabled)
+            m_threatDetectorSettings.isSxlLookupEnabled() == oldLookupEnabled)
         {
             // Don't restart Threat Detector if config has not changed, and it's not the first policy
             m_restartThreatDetector = false;

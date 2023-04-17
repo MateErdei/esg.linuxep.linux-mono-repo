@@ -183,13 +183,15 @@ On Access Does Not Detect PUAs If PUA Detecion Is Disabled In Policy
     ${threat_detector_mark} =  get_sophos_threat_detector_log_mark
     send av policy from file  ${SAV_APPID}  ${RESOURCES_PATH}/SAV-2_policy_OA_enabled_PUA_detection_disabled.xml
     send av policy from file  FLAGS  ${RESOURCES_PATH}/flags_policy/flags_onaccess_enabled.json
-    Wait For Sophos Threat Detector Log Contains After Mark    OA PUA Detection will be disabled    ${threat_detector_mark}
-    Wait For Sophos Threat Detector Log Contains After Mark    SUSI settings changed    ${threat_detector_mark}
-    Wait For Sophos Threat Detector Log Contains After Mark    Susi configuration reloaded    ${threat_detector_mark}
+    Wait for on access log contains after mark    PUA detection enabled: false    ${oamark}
 
     ${testfile2} =    Set Variable    /tmp_test/eicar_pua2.com
+    ${testfile3} =    Set Variable    /tmp_test/eicar.com
     Create File  ${testfile2}   ${EICAR_PUA_STRING}
+    Create File  ${testfile3}   ${EICAR_STRING}
     Wait for on access log contains after mark  On-close event for ${testfile2} from  mark=${oamark2}
+    Wait for on access log contains after mark  On-close event for ${testfile3} from  mark=${oamark2}
+    Wait for on access log contains after mark  detected "${testfile3}" is infected with EICAR-AV-Test  mark=${oamark2}
     Check on access log does not contain after mark  detected "${testfile2}" is infected with EICAR-PUA-Test  mark=${oamark2}
 
 

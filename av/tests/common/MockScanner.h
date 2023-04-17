@@ -23,4 +23,5 @@ public:
     MOCK_METHOD(void, shutdown, ());
     MOCK_METHOD(bool, susiIsInitialized, ());
     MOCK_METHOD(bool, updateSusiConfig, ());
+    MOCK_METHOD(bool, detectPUAsEnabled, ());
 };

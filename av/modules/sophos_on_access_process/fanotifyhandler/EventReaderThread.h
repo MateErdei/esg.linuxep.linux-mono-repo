@@ -46,6 +46,7 @@ namespace sophos_on_access_process::fanotifyhandler
         void run() override;
 
         void setExclusions(const std::vector<common::Exclusion>& exclusions);
+        void setDetectPUAs(bool detectPUAs);
 
         void setCacheAllEvents(bool enable);
 
@@ -74,6 +75,7 @@ namespace sophos_on_access_process::fanotifyhandler
         pid_t m_pid;
         std::string m_processExclusionStem;
         std::vector<common::Exclusion> m_exclusions;
+        bool m_detectPUAs;
         mutable std::mutex m_exclusionsLock;
         uint m_EventsWhileQueueFull = 0;
         int m_readFailureCount = 0;

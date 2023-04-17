@@ -26,6 +26,7 @@ namespace
             MOCK_METHOD(void, shutdown, (), (override));
             MOCK_METHOD(bool, susiIsInitialized, (), (override));
             MOCK_METHOD(bool, updateSusiConfig, ());
+            MOCK_METHOD(bool, detectPUAsEnabled, ());
     };
 
 }

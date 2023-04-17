@@ -5,7 +5,8 @@ Copyright 2021-2022, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "sophos_threat_detector/sophosthreatdetectorimpl/Reloader.h"
-#include "../../common/LogInitializedTests.h"
+#include "common/LogInitializedTests.h"
+#include "common/MockScanner.h"
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
@@ -16,18 +17,6 @@ namespace
 {
     class TestReloader : public LogInitializedTests
     {
-    };
-
-    class MockScannerFactory : public threat_scanner::IThreatScannerFactory
-    {
-    public:
-        MOCK_METHOD(threat_scanner::IThreatScannerPtr, createScanner, (bool scanArchives, bool scanImages, bool detectPUAs));
-
-        MOCK_METHOD(bool, update, ());
-        MOCK_METHOD(bool, reload, ());
-        MOCK_METHOD(void, shutdown, ());
-        MOCK_METHOD(bool, susiIsInitialized, ());
-        MOCK_METHOD(bool, updateSusiConfig, ());
     };
 }
 

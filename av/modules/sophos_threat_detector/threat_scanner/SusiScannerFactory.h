@@ -35,11 +35,13 @@ namespace threat_scanner
         void shutdown() override;
         bool susiIsInitialized() override;
         bool updateSusiConfig() override;
+        bool detectPUAsEnabled() override;
 
     private:
         ISusiWrapperFactorySharedPtr m_wrapperFactory;
         IThreatReporterSharedPtr m_reporter;
         IScanNotificationSharedPtr m_shutdownTimer;
         IUpdateCompleteCallbackPtr m_updateCompleteCallback;
+        bool m_detectPUAs = true;
     };
 }

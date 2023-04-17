@@ -371,7 +371,7 @@ TEST_F(TestPolicyProcessor_CORE_policy, machineLearningDisabled)
 </coreFeatures>
 </policy>)sophos"};
 
-    std::string settingsJson = R"sophos({"enableSxlLookup":true,"machineLearning":false,"oaPuaDetection":true,"shaAllowList":[]})sophos";
+    std::string settingsJson = R"sophos({"enableSxlLookup":true,"machineLearning":false,"shaAllowList":[]})sophos";
     expectWriteSusiConfigFromString(settingsJson);
     expectConstructorCalls();
     Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
@@ -395,7 +395,7 @@ TEST_F(TestPolicyProcessor_CORE_policy, machineLearningEnabled)
 </coreFeatures>
 </policy>)sophos"};
 
-    std::string settingsJson = R"sophos({"enableSxlLookup":true,"machineLearning":true,"oaPuaDetection":true,"shaAllowList":[]})sophos";
+    std::string settingsJson = R"sophos({"enableSxlLookup":true,"machineLearning":true,"shaAllowList":[]})sophos";
     expectWriteSusiConfigFromString(settingsJson);
     expectConstructorCalls();
     Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));

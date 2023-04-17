@@ -59,6 +59,7 @@ namespace scan_messages
         [[nodiscard]] std::string getUserId() const { return m_userID; };
         [[nodiscard]] int getFd() const { return m_autoFd.fd(); }
         [[nodiscard]] E_SCAN_TYPE getScanType() const { return m_scanType; }
+        [[nodiscard]] bool getDetectPUAs() const { return m_detectPUAs; }
         [[nodiscard]] bool isOpenEvent() const { return m_scanType == E_SCAN_TYPE_ON_ACCESS_OPEN; }
 
     protected:

@@ -207,6 +207,7 @@ TEST_F(TestThreatDetectorSocket, test_scan_twice)
     scan_messages::ScanRequest request = makeScanRequestObject(THREAT_PATH);
     EXPECT_CALL(*scanner, scan(_, Eq(std::ref(request))))
         .WillRepeatedly(Return(expected_response));
+    EXPECT_CALL(*scannerFactory, detectPUAsEnabled()).WillOnce(Return(true));
     EXPECT_CALL(*scannerFactory, createScanner(false, false, true))
         .WillOnce(Return(ByMove(std::move(scanner))));
 

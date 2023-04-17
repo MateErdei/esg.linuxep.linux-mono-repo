@@ -196,6 +196,7 @@ bool EventReaderThread::handleFanotifyEvent()
         scanRequest->setUserID(uid);
         scanRequest->setPid(metadata->pid);
         scanRequest->setExecutablePath(executablePath);
+        scanRequest->setDetectPUAs(m_detectPUAs);
 
         // Cache if we are going to scan the file
         if (cacheIfAllowed(*scanRequest))
@@ -341,6 +342,20 @@ void EventReaderThread::setExclusions(const std::vector<common::Exclusion>& excl
             m_exclusions = exclusions;
         }
         // Clear cache after we have updated exclusions - so that nothing is cached which shouldn't be.
+        std::ignore = m_fanotify->clearCachedFiles();
+    }
+}
+
+void EventReaderThread::setDetectPUAs(bool detectPUAs)
+{
+    if (detectPUAs != m_detectPUAs)
+    {
+        LOGDEBUG("Updating detection of PUAs to: " << (detectPUAs ? "true" : "false"));
+        {
+            std::lock_guard<std::mutex> lock(m_exclusionsLock);
+            m_detectPUAs = detectPUAs;
+        }
+        // Clear cache after we have updated PUA setting - so that nothing is cached which shouldn't be.
         std::ignore = m_fanotify->clearCachedFiles();
     }
 }

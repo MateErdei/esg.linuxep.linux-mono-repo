@@ -14,6 +14,7 @@ namespace threat_scanner
 {
     IThreatScannerPtr SusiScannerFactory::createScanner(bool scanArchives, bool scanImages, bool detectPUAs)
     {
+        m_detectPUAs = detectPUAs;
         std::string scannerConfig = "{" + createScannerInfo(scanArchives, scanImages, detectPUAs, m_wrapperFactory->isMachineLearningEnabled()) + "}";
         auto unitScanner = std::make_unique<UnitScanner>(m_wrapperFactory->createSusiWrapper(scannerConfig));
         return std::make_unique<SusiScanner>(std::move(unitScanner),
@@ -83,5 +84,10 @@ namespace threat_scanner
     bool SusiScannerFactory::updateSusiConfig()
     {
         return m_wrapperFactory->updateSusiConfig();
+    }
+
+    bool SusiScannerFactory::detectPUAsEnabled()
+    {
+        return m_detectPUAs;
     }
 }

@@ -172,6 +172,7 @@ void OnAccessRunner::applyConfig(const OnAccessConfiguration& config)
 {
     m_mountMonitor->updateConfig(config);
     m_eventReader->setExclusions(config.exclusions);
+    m_eventReader->setDetectPUAs(config.detectPUAs);
 }
 
 

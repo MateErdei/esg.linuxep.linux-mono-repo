@@ -20,13 +20,15 @@ namespace sophos_on_access_process::OnAccessConfig
         std::vector<common::Exclusion> exclusions;
         bool enabled;
         bool excludeRemoteFiles;
+        bool detectPUAs;
     } __attribute__((aligned(32)));
 
     bool inline operator==(const OnAccessConfiguration& lhs, const OnAccessConfiguration& rhs)
     {
         return lhs.enabled == rhs.enabled
                && lhs.excludeRemoteFiles == rhs.excludeRemoteFiles
-               && lhs.exclusions == rhs.exclusions;
+               && lhs.exclusions == rhs.exclusions
+               && lhs.detectPUAs == rhs.detectPUAs;
     }
 
     bool inline operator!=(const OnAccessConfiguration& lhs, const OnAccessConfiguration& rhs)

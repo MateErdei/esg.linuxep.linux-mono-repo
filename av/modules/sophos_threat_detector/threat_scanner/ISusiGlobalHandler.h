@@ -8,8 +8,6 @@ namespace threat_scanner
 {
     class ISusiGlobalHandler : public IAllowList
     {
-    public:
-        virtual bool isOaPuaDetectionEnabled() = 0;
     };
     using ISusiGlobalHandlerSharedPtr = std::shared_ptr<ISusiGlobalHandler>;
 }

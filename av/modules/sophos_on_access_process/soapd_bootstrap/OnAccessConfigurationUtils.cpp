@@ -300,6 +300,9 @@ namespace sophos_on_access_process::OnAccessConfig
                 LOGDEBUG("On-access exclusions: " << parsedConfig["exclusions"]);
             }
 
+            configuration.detectPUAs = toBoolean(parsedConfig, "detectPUAs", true);
+            LOGDEBUG("PUA detection enabled: " << (configuration.detectPUAs ? "true" : "false")  << "");
+
             oaConfig = std::move(configuration);
             return true;
         }

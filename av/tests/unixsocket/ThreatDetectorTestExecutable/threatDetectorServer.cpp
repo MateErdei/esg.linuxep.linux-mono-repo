@@ -73,6 +73,11 @@ namespace
         {
             return false;
         }
+
+        bool detectPUAsEnabled() override
+        {
+            return true;
+        }
     };
 }
 

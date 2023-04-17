@@ -187,6 +187,7 @@ TEST_F(QuarantineManagerRescanTests, scanExtractedFiles)
         .WillOnce(Return(fd2_response))
         .WillOnce(Return(fd3_response))
         .WillOnce(Return(fd4_response));
+    EXPECT_CALL(*scannerFactory, detectPUAsEnabled()).WillRepeatedly(Return(true));
     EXPECT_CALL(*scannerFactory, createScanner(true, true, true)).WillOnce(Return(ByMove(std::move(scanner))));
 
     unixsocket::ScanningServerSocket server(Plugin::getScanningSocketPath(), 0600, scannerFactory);
@@ -255,6 +256,7 @@ TEST_F(QuarantineManagerRescanTests, scanExtractedFilesSkipsHandleFailure)
     EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectHandle("objectId1", _)).WillOnce(Return(false));
 
     EXPECT_CALL(*scanner, scan(_, _)).Times(2).WillOnce(Return(fd1_response)).WillOnce(Return(fd2_response));
+    EXPECT_CALL(*scannerFactory, detectPUAsEnabled()).WillOnce(Return(true));
     EXPECT_CALL(*scannerFactory, createScanner(true, true, true)).WillOnce(Return(ByMove(std::move(scanner))));
 
     void* rawHandle2 = reinterpret_cast<SafeStoreObjectHandle>(2222);

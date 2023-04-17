@@ -21,6 +21,7 @@ namespace threat_scanner
         virtual void shutdown() = 0;
         virtual bool susiIsInitialized() = 0;
         virtual bool updateSusiConfig() = 0;
+        virtual bool detectPUAsEnabled() = 0;
     };
     using IThreatScannerFactorySharedPtr = std::shared_ptr<IThreatScannerFactory>;
 }

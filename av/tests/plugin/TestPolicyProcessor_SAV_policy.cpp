@@ -46,11 +46,11 @@ namespace
         {
             if (sxlEnabled)
             {
-                expectWriteSusiConfigFromString(R"sophos({"enableSxlLookup":true,"machineLearning":true,"oaPuaDetection":true,"shaAllowList":[]})sophos");
+                expectWriteSusiConfigFromString(R"sophos({"enableSxlLookup":true,"machineLearning":true,"shaAllowList":[]})sophos");
             }
             else
             {
-                expectWriteSusiConfigFromString(R"sophos({"enableSxlLookup":false,"machineLearning":true,"oaPuaDetection":true,"shaAllowList":[]})sophos");
+                expectWriteSusiConfigFromString(R"sophos({"enableSxlLookup":false,"machineLearning":true,"shaAllowList":[]})sophos");
             }
         }
 
@@ -466,7 +466,7 @@ TEST_F(TestPolicyProcessor_SAV_policy, getOnAccessExclusions)
     expectConstructorCalls();
     expectWriteSusiConfigFromBool(true);
     EXPECT_CALL(*m_mockIFileSystemPtr, writeFileAtomically(m_soapConfigPath,
-                                                           R"sophos({"exclusions":["x","y"]})sophos",
+                                                           R"sophos({"detectPUAs":true,"exclusions":["x","y"]})sophos",
                                                            _,
                                                            0640));
 

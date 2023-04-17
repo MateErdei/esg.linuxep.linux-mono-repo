@@ -133,12 +133,13 @@ TEST_F(TestOnAccessConfigurationUtils, readConfigFileReadThrows)
 
 TEST_F(TestOnAccessConfigurationUtils, parseOnAccessPolicySettingsFromJson)
 {
-    std::string jsonString = R"({"enabled":"true","excludeRemoteFiles":"false","exclusions":["/mnt/","/uk-filer5/"]})";
+    std::string jsonString = R"({"enabled":"true","excludeRemoteFiles":"false","exclusions":["/mnt/","/uk-filer5/"],"detectPUAs":false})";
 
     OnAccessConfiguration expectedResult;
     expectedResult.enabled = true;
     expectedResult.excludeRemoteFiles = false;
     expectedResult.exclusions = m_defaultTestExclusions;
+    expectedResult.detectPUAs = false;
 
     ASSERT_EQ(parseOnAccessPolicySettingsFromJson(jsonString, m_testConfig), true);
     EXPECT_EQ(m_testConfig, expectedResult);
@@ -146,6 +147,7 @@ TEST_F(TestOnAccessConfigurationUtils, parseOnAccessPolicySettingsFromJson)
     expectedResult.enabled = false;
     expectedResult.excludeRemoteFiles = true;
     expectedResult.exclusions = m_defaultTestExclusions;
+    expectedResult.detectPUAs = true;
 
     ASSERT_EQ(parseOnAccessPolicySettingsFromJson(jsonString, m_testConfig), true);
     EXPECT_NE(m_testConfig, expectedResult);
@@ -172,13 +174,15 @@ TEST_F(TestOnAccessConfigurationUtils, parseOnAccessPolicySettingsFromJsonDuplic
         "enabled":"false",
         "excludeRemoteFiles":"true",
         "exclusions":["/tmp/","/uk-filer6/"],
-        "exclusions":["/mnt/","/uk-filer5/"]
+        "exclusions":["/mnt/","/uk-filer5/"],
+        "detectPUAs":"false"
         })";
 
     OnAccessConfiguration expectedResult;
     expectedResult.enabled = false;
     expectedResult.excludeRemoteFiles = true;
     expectedResult.exclusions = m_defaultTestExclusions;
+    expectedResult.detectPUAs = false;
 
     ASSERT_EQ(parseOnAccessPolicySettingsFromJson(jsonString, m_testConfig), true);
     EXPECT_EQ(m_testConfig, expectedResult);
@@ -211,12 +215,13 @@ TEST_F(TestOnAccessConfigurationUtils, parseOnAccessPolicySettingsManyExclusions
 
 TEST_F(TestOnAccessConfigurationUtils, parseOnAccessPolicySettingsFromJson_missingExcludeRemote)
 {
-    std::string jsonString = R"({"enabled":"true","exclusions":["/mnt/","/uk-filer5/"]})";
+    std::string jsonString = R"({"enabled":"true","exclusions":["/mnt/","/uk-filer5/"],"detectPUAs":"false"})";
 
     OnAccessConfiguration expectedResult;
     expectedResult.enabled = true;
     expectedResult.excludeRemoteFiles = false;
     expectedResult.exclusions = m_defaultTestExclusions;
+    expectedResult.detectPUAs = false;
 
     ASSERT_EQ(parseOnAccessPolicySettingsFromJson(jsonString, m_testConfig), true);
     EXPECT_EQ(m_testConfig, expectedResult);
@@ -224,12 +229,13 @@ TEST_F(TestOnAccessConfigurationUtils, parseOnAccessPolicySettingsFromJson_missi
 
 TEST_F(TestOnAccessConfigurationUtils, parseOnAccessPolicySettingsFromJson_missingEnabled)
 {
-    std::string jsonString = R"({"excludeRemoteFiles":"true","exclusions":["/mnt/","/uk-filer5/"]})";
+    std::string jsonString = R"({"excludeRemoteFiles":"true","exclusions":["/mnt/","/uk-filer5/"],"detectPUAs":"false"})";
 
     OnAccessConfiguration expectedResult;
     expectedResult.enabled = false;
     expectedResult.excludeRemoteFiles = true;
     expectedResult.exclusions = m_defaultTestExclusions;
+    expectedResult.detectPUAs = false;
 
     ASSERT_EQ(parseOnAccessPolicySettingsFromJson(jsonString, m_testConfig), true);
     EXPECT_EQ(m_testConfig, expectedResult);
@@ -237,11 +243,12 @@ TEST_F(TestOnAccessConfigurationUtils, parseOnAccessPolicySettingsFromJson_missi
 
 TEST_F(TestOnAccessConfigurationUtils, parseOnAccessPolicySettingsFromJson_missingExclusions)
 {
-    std::string jsonString = R"({"enabled":"true","excludeRemoteFiles":"true"})";
+    std::string jsonString = R"({"enabled":"true","excludeRemoteFiles":"true","detectPUAs":"false"})";
 
     OnAccessConfiguration expectedResult;
     expectedResult.enabled = true;
     expectedResult.excludeRemoteFiles = true;
+    expectedResult.detectPUAs = false;
 
     ASSERT_EQ(parseOnAccessPolicySettingsFromJson(jsonString, m_testConfig), true);
     EXPECT_EQ(m_testConfig, expectedResult);
@@ -256,6 +263,7 @@ TEST_F(TestOnAccessConfigurationUtils, enablesOnAccessWithNumberInField)
 
     OnAccessConfiguration expectedResult{};
     expectedResult.enabled = true; //is set to true if non-zero
+    expectedResult.detectPUAs = true;
 
     ASSERT_EQ(parseOnAccessPolicySettingsFromJson(jsonString, m_testConfig), true);
     EXPECT_EQ(m_testConfig, expectedResult);
@@ -272,6 +280,7 @@ TEST_F(TestOnAccessConfigurationUtils, excludesRemoteFilesWithNumberInField)
 
     OnAccessConfiguration expectedResult{};
     expectedResult.excludeRemoteFiles = true; //is set to true if non-zero
+    expectedResult.detectPUAs = true;
 
     ASSERT_EQ(parseOnAccessPolicySettingsFromJson(jsonString, m_testConfig), true);
     EXPECT_EQ(m_testConfig, expectedResult);
@@ -289,6 +298,7 @@ TEST_F(TestOnAccessConfigurationUtils, enabledFieldReadWithStringInField)
     OnAccessConfiguration expectedResult{};
     expectedResult.excludeRemoteFiles = true;
     expectedResult.enabled = false;
+    expectedResult.detectPUAs = true;
 
     ASSERT_EQ(parseOnAccessPolicySettingsFromJson(jsonString, m_testConfig), true);
     //ToBoolean interprets string as being equal to "true" or not
@@ -304,6 +314,7 @@ TEST_F(TestOnAccessConfigurationUtils, excludesRemoteFilesReadWithStringInField)
     OnAccessConfiguration expectedResult{};
     expectedResult.excludeRemoteFiles = true;
     expectedResult.enabled = false;
+    expectedResult.detectPUAs = true;
 
     ASSERT_EQ(parseOnAccessPolicySettingsFromJson(jsonString, m_testConfig), true);
     EXPECT_EQ(m_testConfig, expectedResult);
