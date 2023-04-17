@@ -361,16 +361,7 @@ function generate_local_user_group_id_config()
 #  - User or group ID should not be 0
 #  - User or group IDs should be unique to both existing users and groups on the machine and within this config file
 # Requested user and group IDs can be made using the following template:
-#{
-#    "users": {
-#        "username1": uid1,
-#        "username2": uid2
-#    },
-#    "groups": {
-#        "groupname1": gid1,
-#        "groupname2": gid2
-#    },
-#}
+#{"users":{"username1":uid1,"username2":uid2},"groups":{"groupname1":gid1,"groupname2":gid2}}
 ${jsonString}
 EOF
   fi
