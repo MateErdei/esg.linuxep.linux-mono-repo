@@ -53,6 +53,11 @@ scan_messages::ScanResponse SusiScanner::scan(
         {
             LOGINFO("Allowing " << info.getPath() << " with " << threatDetected.sha256);
         }
+        else if (!info.detectPUAs() && threatDetected.threatType == common::CentralEnums::ThreatType::pua)
+        {
+            // CORE-3404: Until fixed some PUAs will still be detected by SUSI despite the setting being disabled
+            LOGINFO("Allowing " << info.getPath() << " as PUA detection is disabled");
+        }
         else
         {
             const auto scanTypeStr = getScanTypeAsStr(e_ScanType);

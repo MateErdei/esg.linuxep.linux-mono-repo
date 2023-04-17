@@ -185,14 +185,15 @@ On Access Does Not Detect PUAs If PUA Detecion Is Disabled In Policy
     send av policy from file  FLAGS  ${RESOURCES_PATH}/flags_policy/flags_onaccess_enabled.json
     Wait for on access log contains after mark    PUA detection enabled: false    ${oamark}
 
-    ${testfile2} =    Set Variable    /tmp_test/eicar_pua2.com
-    ${testfile3} =    Set Variable    /tmp_test/eicar.com
-    Create File  ${testfile2}   ${EICAR_PUA_STRING}
-    Create File  ${testfile3}   ${EICAR_STRING}
+    ${testfile2} =    Set Variable    /tmp_test/eicar_notPua.com
+    Create File  ${testfile2}   ${EICAR_STRING}
     Wait for on access log contains after mark  On-close event for ${testfile2} from  mark=${oamark2}
+    Wait for on access log contains after mark  detected "${testfile2}" is infected with EICAR-AV-Test  mark=${oamark2}
+
+    ${testfile3} =    Set Variable    /tmp_test/eicar_pua2.com
+    Create File  ${testfile3}   ${EICAR_PUA_STRING}
     Wait for on access log contains after mark  On-close event for ${testfile3} from  mark=${oamark2}
-    Wait for on access log contains after mark  detected "${testfile3}" is infected with EICAR-AV-Test  mark=${oamark2}
-    Check on access log does not contain after mark  detected "${testfile2}" is infected with EICAR-PUA-Test  mark=${oamark2}
+    Check on access log does not contain after mark  detected "${testfile3}" is infected with EICAR-PUA-Test  mark=${oamark2}
 
 
 On Access Applies Config Changes When The Mounts Change
