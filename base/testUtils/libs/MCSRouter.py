@@ -505,7 +505,7 @@ class MCSRouter(object):
         return None
 
     def check_cloud_server_log_contains(self,
-                                        expected: typing.Union[str, re.Pattern],
+                                        expected,
                                         occurs=1,
                                         return_line_after=False,
                                         filter_line_start=""):
