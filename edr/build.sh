@@ -267,16 +267,13 @@ function build()
         fi
 
         untar_input boost
-        untar_input jsoncpp
-        ln -sfn libjsoncpp.so.24 $REDIST/jsoncpp/lib64/libjsoncpp.so
+
 
         untar_input JournalLib
         untar_input protobuf
         untar_input capnproto
 
         cp -r ${INPUT}/sdds3 "${REDIST}/sdds3" && chmod +x ${REDIST}/sdds3/*
-
-        cp -r ${INPUT}/osquery  "$REDIST"/osquery
 
         cp -r ${INPUT}/linux-x64-extension  "$REDIST"/linux-x64-extension
     fi

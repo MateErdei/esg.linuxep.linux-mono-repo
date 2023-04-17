@@ -202,7 +202,7 @@ target_link_libraries(osquerysdk_library INTERFACE thrift_library osquery_gen_li
 
 find_library(JSONCPP_LIBRARY
         NAMES jsoncpp
-        PATHS ${INPUT}/jsoncpp/lib64
+        PATHS ${INPUT}/jsoncpp
         NO_DEFAULT_PATH
         )
 

@@ -44,7 +44,7 @@ endforeach(LIB)
 
 add_third_party_library(glog ${INPUT}/glog)
 add_third_party_library(gflags ${INPUT}/gflags)
-add_third_party_library(jsoncpp ${INPUT}/jsoncpp/lib64)
+add_third_party_library(jsoncpp ${INPUT}/jsoncpp)
 
 set(STRIP_EXECUTABLES ${DISTRIBUTION_TOOL_DIR}/stripExecutables.py)
 set(ADD_SYMBOLS_SCRIPT ${DISTRIBUTION_TOOL_DIR}/addSymbols.sh)

@@ -47,7 +47,6 @@ o777, root, root, /opt/sophos-spl/plugins/edr/lib64/libgen-cpp-linux.so
 o777, root, root, /opt/sophos-spl/plugins/edr/lib64/libgflags.so
 o777, root, root, /opt/sophos-spl/plugins/edr/lib64/libglog.so
 o777, root, root, /opt/sophos-spl/plugins/edr/lib64/libjsoncpp.so
-o777, root, root, /opt/sophos-spl/plugins/edr/lib64/libjsoncpp.so.24
 o777, root, root, /opt/sophos-spl/plugins/edr/lib64/liblivemain.so
 o777, root, root, /opt/sophos-spl/plugins/edr/lib64/liblivequeryimpl.so
 o777, root, root, /opt/sophos-spl/plugins/edr/lib64/liblog4cplus-2.0.so
