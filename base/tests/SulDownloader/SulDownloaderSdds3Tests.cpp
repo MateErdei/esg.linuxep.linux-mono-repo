@@ -294,10 +294,20 @@ public:
         EXPECT_CALL(*filesystemMock, isFile).Times(AnyNumber());
         EXPECT_CALL(*filesystemMock, isDirectory).Times(AnyNumber());
         EXPECT_CALL(*filesystemMock, removeFile(_, _)).Times(AnyNumber());
-        EXPECT_CALL(*filesystemMock, isDirectory("/opt/sophos-spl")).Times(expectCallCount).WillRepeatedly(Return(true));
-        EXPECT_CALL(*filesystemMock, isDirectory("/opt/sophos-spl/base/update/cache/"))
-            .Times(expectCallCount)
-            .WillRepeatedly(Return(true));
+        if (expectCallCount > 0)
+        {
+            EXPECT_CALL(*filesystemMock, isDirectory("/opt/sophos-spl"))
+                .Times(expectCallCount)
+                .WillRepeatedly(Return(true));
+            EXPECT_CALL(*filesystemMock, isDirectory("/opt/sophos-spl/base/update/cache/"))
+                .Times(expectCallCount)
+                .WillRepeatedly(Return(true));
+        }
+        else
+        {
+            ON_CALL(*filesystemMock, isDirectory("/opt/sophos-spl")).WillByDefault(Return(true));
+            ON_CALL(*filesystemMock, isDirectory("/opt/sophos-spl/base/update/cache/")).WillByDefault(Return(true));
+        }
 
         EXPECT_CALL(*filesystemMock, exists(_)).WillRepeatedly(Return(true));
         EXPECT_CALL(*filesystemMock, currentWorkingDirectory()).WillRepeatedly(Return("/opt/sophos-spl/base/bin"));
@@ -321,7 +331,7 @@ public:
         setupPluginVersionFileCalls(fileSystemMock, currentVersion, newVersion);
     }
 
-    void setupBaseVersionFileCalls(MockFileSystem& fileSystemMock, const std::string& currentVersion, const std::string& newVersion)
+    static void setupBaseVersionFileCalls(MockFileSystem& fileSystemMock, const std::string& currentVersion, const std::string& newVersion)
     {
         std::vector<std::string> currentVersionContents{{ currentVersion }} ;
         std::vector<std::string> newVersionContents{{newVersion}} ;
@@ -2868,6 +2878,7 @@ TEST_F(SULDownloaderSdds3Test, runSULDownloader_NonSupplementOnlyClearsAwaitSche
 
     auto settings = defaultSettings();
     ConfigurationData configurationData = configData(settings);
+    configurationData.verifySettingsAreValid();
     ConfigurationData previousConfigurationData;
     const auto products = defaultProducts();
     TimeTracker timeTracker;
@@ -2927,6 +2938,7 @@ TEST_F(SULDownloaderSdds3Test, runSULDownloader_SupplementOnlyDoesNotClearAwaitS
 
     auto settings = defaultSettings();
     ConfigurationData configurationData = configData(settings);
+    configurationData.verifySettingsAreValid();
     ConfigurationData previousConfigurationData;
     const auto products = defaultProducts();
     TimeTracker timeTracker;
