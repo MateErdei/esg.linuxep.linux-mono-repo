@@ -59,5 +59,6 @@ namespace common::ThreatDetector
         static constexpr auto SHA_ALLOW_LIST_KEY = "shaAllowList";
         static constexpr auto OA_PUA_DETECTION_KEY = "oaPuaDetection";
         static constexpr auto MACHINE_LEARNING_KEY = "machineLearning";
+        static constexpr auto PUA_APPROVED_LIST_KEY = "puaApprovedList";
     };
 } // namespace common::ThreatDetector

@@ -68,6 +68,16 @@ def create_sav_policy_with_on_access_enabled(filename):
     sav_policy_builder.send_sav_policy()
 
 
+def create_sav_policy_with_on_access_enabled_and_pua_allowed(filename, allowed_pua):
+    sav_policy_builder = _SavPolicyBuilder(SAV_POLICY_PATH, filename)
+    sav_policy_builder.set_scheduled_scan_day("sunday")
+    sav_policy_builder.set_scheduled_scan_time("11:00:00")
+    sav_policy_builder.set_posix_exclusions(["/mnt/", "/uk-filer5/", "*excluded*", "/opt/test/inputs/test_scripts/", ])
+    sav_policy_builder.set_pua_detection("true")
+    sav_policy_builder.set_allowed_pua(allowed_pua)
+    sav_policy_builder.set_on_access_on()
+    sav_policy_builder.send_sav_policy()
+
 def create_sav_policy_with_multiple_scheduled_scans(filename, timestamp, no_of_scans=2):
     timestamp_builder = ""
     parsed_timestamp = datetime.strptime(timestamp, "%y-%m-%d %H:%M:%S")
@@ -211,3 +221,5 @@ class _SavPolicyBuilder:
     def set_pua_detection(self, pua_detection_enabled):
         self.replacement_map["{{scheduledScanPUAdetection}}"] = pua_detection_enabled
 
+    def set_allowed_pua(self, allowed_pua):
+        self.replacement_map["{{puaExclusions}}"] = allowed_pua

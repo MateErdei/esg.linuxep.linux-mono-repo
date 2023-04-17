@@ -6,6 +6,7 @@
 Documentation   Product tests for SOAP
 Force Tags      PRODUCT  SOAP  oa_alternative
 
+Library     ../Libs/FileSampleObfuscator.py
 Resource    ../shared/ErrorMarkers.robot
 Resource    ../shared/FakeManagementResources.robot
 Resource    ../shared/ComponentSetup.robot
@@ -197,6 +198,49 @@ On Access Does Not Detect PUAs If PUA Detecion Is Disabled In Policy
     Wait for on access log contains after mark  On-close event for ${testfile3} from  mark=${oamark2}
     Check on access log does not contain after mark  detected "${testfile3}" is infected with EICAR-PUA-Test  mark=${oamark2}
 
+
+On Access Does Not Detect PUAs In The Allow List
+    ${avmark} =  get_av_log_mark
+    ${threat_detector_mark} =  Get Sophos Threat Detector Log Mark
+    Create Sav Policy With On Access Enabled And PUA Allowed  ${TEMP_SAV_POLICY_FILENAME}  <puaName>PsExec</puaName>
+    send av policy from file  ${SAV_APPID}  ${RESOURCES_PATH}/${TEMP_SAV_POLICY_FILENAME}
+    Wait until scheduled scan updated After Mark  ${avmark}
+    Wait For AV Log Contains After Mark  Requesting scan monitor to reload susi  ${avmark}
+    Wait For Sophos Threat Detector Log Contains After Mark   Susi configuration reloaded   ${threat_detector_mark}
+    Wait For Sophos Threat Detector Log Contains After Mark   Number of approved PUA items: 1   ${threat_detector_mark}
+
+    ${oamark} =  get_on_access_log_mark
+    ${testfile1} =    Set Variable   /tmp_test/PsExec.exe
+    ${testfile2} =    Set Variable    /tmp_test/eicar_pua.com
+    DeObfuscate File  ${RESOURCES_PATH}/file_samples_obfuscated/PsExec.exe  ${testfile1}
+    Register Cleanup  Remove Files  ${testfile1}
+    Create File  ${testfile2}   ${EICAR_PUA_STRING}
+    Register Cleanup  Remove Files  ${testfile2}
+    Wait for on access log contains after mark  On-close event for ${testfile1} from  mark=${oamark}
+    Wait for on access log contains after mark  On-close event for ${testfile2} from  mark=${oamark}
+    Wait for on access log contains after mark  detected "${testfile2}" is infected with EICAR-PUA-Test  mark=${oamark}
+    Check on access log does not contain after mark  detected "${testfile1}" is infected with PsExec  mark=${oamark}
+
+    ${avmark2} =  get_av_log_mark
+    ${threat_detector_mark2} =  Get Sophos Threat Detector Log Mark
+    Create Sav Policy With On Access Enabled And PUA Allowed  ${TEMP_SAV_POLICY_FILENAME}  <puaName>EICAR-PUA-Test</puaName>
+    send av policy from file  ${SAV_APPID}  ${RESOURCES_PATH}/${TEMP_SAV_POLICY_FILENAME}
+    Wait until scheduled scan updated After Mark  ${avmark2}
+    Wait For AV Log Contains After Mark  Requesting scan monitor to reload susi  ${avmark2}
+    Wait For Sophos Threat Detector Log Contains After Mark   Susi configuration reloaded   ${threat_detector_mark2}
+    Wait For Sophos Threat Detector Log Contains After Mark   Number of approved PUA items: 1   ${threat_detector_mark2}
+
+    ${oamark2} =  get_on_access_log_mark
+    ${testfile3} =    Set Variable    /tmp_test/eicar_pua2.com
+    ${testfile4} =    Set Variable   /tmp_test/PsExec2.exe
+    Create File  ${testfile3}   ${EICAR_PUA_STRING}
+    Register Cleanup  Remove Files  ${testfile3}
+    DeObfuscate File  ${RESOURCES_PATH}/file_samples_obfuscated/PsExec.exe  ${testfile4}
+    Register Cleanup  Remove Files  ${testfile4}
+    Wait for on access log contains after mark  On-close event for ${testfile3} from  mark=${oamark2}
+    Wait for on access log contains after mark  On-close event for ${testfile4} from  mark=${oamark2}
+    Wait for on access log contains after mark  detected "${testfile4}" is infected with PsExec  mark=${oamark2}
+    Check on access log does not contain after mark  detected "${testfile3}" is infected with EICAR-PUA-Test  mark=${oamark2}
 
 On Access Applies Config Changes When The Mounts Change
     [Tags]  NFS
