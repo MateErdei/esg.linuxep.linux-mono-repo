@@ -3,6 +3,8 @@ o777, root, root, /opt/sophos-spl/plugins/liveresponse/bin/sophos-live-terminal
 o777, root, root, /opt/sophos-spl/plugins/liveresponse/bin/uninstall.sh
 o777, root, root, /opt/sophos-spl/plugins/liveresponse/lib64/libcrypto.so
 o777, root, root, /opt/sophos-spl/plugins/liveresponse/lib64/libcrypto.so.3
+o777, root, root, /opt/sophos-spl/plugins/liveresponse/lib64/libgcc_s.so
+o777, root, root, /opt/sophos-spl/plugins/liveresponse/lib64/libgcc_s.so.1
 o777, root, root, /opt/sophos-spl/plugins/liveresponse/lib64/liblog4cplus-2.0.so
 o777, root, root, /opt/sophos-spl/plugins/liveresponse/lib64/liblog4cplus-2.0.so.3
 o777, root, root, /opt/sophos-spl/plugins/liveresponse/lib64/liblog4cplus-2.0.so.3.4
@@ -16,5 +18,9 @@ o777, root, root, /opt/sophos-spl/plugins/liveresponse/lib64/libprotobuf.so.28.0
 o777, root, root, /opt/sophos-spl/plugins/liveresponse/lib64/libsessionrunnerimpl.so
 o777, root, root, /opt/sophos-spl/plugins/liveresponse/lib64/libssl.so
 o777, root, root, /opt/sophos-spl/plugins/liveresponse/lib64/libssl.so.3
+o777, root, root, /opt/sophos-spl/plugins/liveresponse/lib64/libstdc++.so
+o777, root, root, /opt/sophos-spl/plugins/liveresponse/lib64/libstdc++.so.6
+o777, root, root, /opt/sophos-spl/plugins/liveresponse/lib64/libstdc++.so.6.0
+o777, root, root, /opt/sophos-spl/plugins/liveresponse/lib64/libstdc++.so.6.0.29
 o777, root, root, /opt/sophos-spl/plugins/liveresponse/lib64/libzmq.so
 o777, root, root, /opt/sophos-spl/plugins/liveresponse/VERSION.ini

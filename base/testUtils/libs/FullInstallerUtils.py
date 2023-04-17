@@ -224,7 +224,7 @@ def get_sspl_mdr_plugin_060_sdds():
 
 def get_sspl_live_response_plugin_sdds():
     candidates = []
-    local_path_to_plugin = PathManager.find_local_component_dir_path("esg.linuxep.liveterminal")
+    local_path_to_plugin = PathManager.find_local_component_dir_path("esg.winep.liveterminal")
     if local_path_to_plugin:
         candidates.append(os.path.join(local_path_to_plugin, "build64/sdds"))
         candidates.append(os.path.join(local_path_to_plugin, "cmake-build-debug/sdds"))
