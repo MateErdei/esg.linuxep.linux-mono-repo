@@ -31,7 +31,6 @@ namespace
     class MockSusiGlobalHandler : public ISusiGlobalHandler
     {
     public:
-        MOCK_METHOD(bool, isOaPuaDetectionEnabled, (), (override));
         MOCK_METHOD(bool, isAllowListed, (const std::string &threatChecksum), (override));
         MOCK_METHOD(bool, isPuaApproved, (const std::string &puaName), (override));
     };
