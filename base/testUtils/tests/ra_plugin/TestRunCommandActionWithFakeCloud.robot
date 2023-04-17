@@ -16,9 +16,6 @@ Test Teardown      RA Run Command Test Teardown
 Force Tags  LOAD5
 Default Tags   RESPONSE_ACTIONS_PLUGIN
 
-*** Variables ***
-${RESPONSE_JSON}        ${MCS_DIR}/response/CORE_id1_response.json
-
 *** Test Cases ***
 Test Run Command Action End To End With Fake Cloud
     ${response_mark} =  mark_log_size  ${RESPONSE_ACTIONS_LOG_PATH}
@@ -26,16 +23,19 @@ Test Run Command Action End To End With Fake Cloud
 
     @{commands_list} =  Create List   echo -n one  sleep 1  echo -n two > /tmp/test.txt
 
+    ${server_log_path} =  cloud_server_log_path
+    ${server_mark} =  mark_log_size  ${server_log_path}
+
     send_run_command_action_from_fake_cloud  ${commands_list}
     wait_for_log_contains_from_mark  ${response_mark}  Action corrid has succeeded   25
     wait_for_log_contains_from_mark  ${action_mark}  Sent run command response for ID
 
-    Wait Until Keyword Succeeds
-    ...    1 secs
-    ...    10 secs
-    ...    Check Cloud Server Log Contains   {"duration":0,"exitCode":0,"stdErr":"","stdOut":"one"}
-    check cloud server log contains pattern   {"duration":[12],"exitCode":0,"stdErr":"","stdOut":""}
-    Check Cloud Server Log Contains   {"duration":0,"exitCode":0,"stdErr":"","stdOut":""}
+    wait for cloud server log contains pattern  .\*{"duration":[01],"exitCode":0,"stdErr":"","stdOut":"one"}
+    ...  mark=${server_mark}
+    ...  timeout=${10}
+
+    wait for cloud server log contains pattern   .\*{"duration":[12],"exitCode":0,"stdErr":"","stdOut":""}  mark=${server_mark}
+    wait for cloud server log contains pattern   .\*{"duration":[01],"exitCode":0,"stdErr":"","stdOut":""}  mark=${server_mark}
     Check Cloud Server Log Contains   sophos.mgt.response.RunCommands
 
     File Should exist  /tmp/test.txt
@@ -73,5 +73,3 @@ RA Run Command Test Teardown
     Run Keyword If Test Failed    Dump Cloud Server Log
     General Test Teardown
     Remove File    /tmp/test.txt
-    Run Keyword If Test Failed    Log File    ${RESPONSE_JSON}
-    Remove File    ${RESPONSE_JSON}

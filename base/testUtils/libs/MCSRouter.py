@@ -343,7 +343,7 @@ class MCSRouter(object):
 
             if cloud_std_err:
                 logger.info("StdError associated with cloud Server: {}".format(cloud_std_err))
-        server_log = os.path.join(self.tmp_path, "cloudServer.log")
+        server_log = self.cloud_server_log
         server_action_log = os.path.join(self.tmp_path, "cloudServer-action.log")
         for log in [server_log, server_action_log]:
             if os.path.exists(log):
@@ -516,7 +516,7 @@ class MCSRouter(object):
             return expected.match(target) is not None
 
         import codecs
-        server_log = os.path.join(self.tmp_path, "cloudServer.log")
+        server_log = self.cloud_server_log
         occurs = int(occurs)
         with codecs.open(server_log, "r", 'utf-8') as f:
             lines = f.readlines()
@@ -532,29 +532,54 @@ class MCSRouter(object):
             else:
                 raise AssertionError("Expected cloud server log to contain {}".format(expected))
 
+    def cloud_server_log_path(self):
+        return self.cloud_server_log
+
     def check_cloud_server_log_does_not_contain(self, not_expected):
         import codecs
-        server_log = os.path.join(self.tmp_path, "cloudServer.log")
+        server_log = self.cloud_server_log_path()
         with codecs.open(server_log, "r", 'utf-8') as f:
             lines = f.readlines()
             for idx, line in enumerate(lines):
                 if not_expected in line:
                     raise AssertionError("Expected cloud server log to not contain: {}".format(not_expected))
 
-    def check_cloud_server_log_contains_pattern(self, expected, occurs=1):
-        import codecs
-        import re
-        server_log = os.path.join(self.tmp_path, "cloudServer.log")
+    def check_cloud_server_log_contains_pattern(self, expected, occurs=1, mark=None):
         occurs = int(occurs)
         pattern = re.compile(expected)
-        with codecs.open(server_log, "r", 'utf-8') as f:
-            for line in f.readlines():
+
+        if mark is not None:
+            contents = mark.get_contents().decode("UTF-8")
+        else:
+            import codecs
+            server_log = self.cloud_server_log_path()
+            with codecs.open(server_log, "r", 'utf-8') as f:
+                contents = f.read()
+
+        for line in contents.splitlines():
+            if pattern.match(line):
+                occurs -= 1
+                if occurs == 0:
+                    return
+
+        raise AssertionError("Expected cloud server log to contain {}".format(expected))
+
+    def wait_for_cloud_server_log_contains_pattern(self, expected, mark, timeout=10):
+        timeout = float(timeout)
+        pattern = re.compile(expected)
+        start = time.time()
+
+        while start + timeout >= time.time():
+            contents = mark.get_contents().decode("UTF-8")
+            for line in contents.splitlines():
                 if pattern.match(line):
-                    occurs -= 1
-                    if occurs == 0:
-                        return
-            else:
-                raise AssertionError("Expected cloud server log to contain {}".format(expected))
+                    return True
+            time.sleep(1)
+
+        logger.error("Expected cloud server to contain {} but actually contains: {}".format(expected, contents))
+        raise AssertionError("Expected cloud server log to contain {} withing {} seconds".format(expected, timeout))
+
+
 
 
     def check_cloud_server_log_for_update_event(self, code):
@@ -575,7 +600,7 @@ class MCSRouter(object):
         self.check_cloud_server_log_contains("Received status with appID: MCS", occurs)
 
     def compare_default_command_poll_interval_with_log(self, expected_interval, tolerance, ignore_get_num=0):
-        server_log = os.path.join(self.tmp_path, "cloudServer.log")
+        server_log = self.cloud_server_log_path()
         expected_interval = float(expected_interval)
         tolerance = float(tolerance)
         ignore_get_num = int(ignore_get_num)
@@ -1205,7 +1230,6 @@ class MCSRouter(object):
             return open(p).read()
         except EnvironmentError:
             return None
-
 
     def _pid_of_mcs_router(self):
         pids = []
