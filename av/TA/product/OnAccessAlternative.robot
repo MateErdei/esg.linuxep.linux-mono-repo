@@ -129,7 +129,7 @@ On Access Log Rotates
     Verify on access log rotated
 
 On Access Process Parses Policy Config
-    wait for on access log contains after mark  New on-access configuration: {"enabled":true,"excludeRemoteFiles":false,"exclusions":${DEFAULT_EXCLUSIONS}}  mark=${ON_ACCESS_LOG_MARK_FROM_START_OF_TEST}
+    wait for on access log contains after mark  New on-access configuration: {"detectPUAs":true,"enabled":true,"excludeRemoteFiles":false,"exclusions":${DEFAULT_EXCLUSIONS}}  mark=${ON_ACCESS_LOG_MARK_FROM_START_OF_TEST}
     wait for on access log contains after mark  On-access enabled: true  mark=${ON_ACCESS_LOG_MARK_FROM_START_OF_TEST}
     wait for on access log contains after mark  On-access scan network: true  mark=${ON_ACCESS_LOG_MARK_FROM_START_OF_TEST}
     wait for on access log contains after mark  On-access exclusions: ${DEFAULT_EXCLUSIONS}  mark=${ON_ACCESS_LOG_MARK_FROM_START_OF_TEST}
@@ -162,7 +162,7 @@ On Access Does Not Include Remote Files If Excluded In Policy
     send av policy from file  CORE  ${RESOURCES_PATH}/core_policy/CORE-36_policy_excludeRemoteFiles.xml
     send av policy from file  FLAGS  ${RESOURCES_PATH}/flags_policy/flags_onaccess_enabled.json
 
-    wait for on access log contains after mark  New on-access configuration: {"enabled":true,"excludeRemoteFiles":true,"exclusions":${DEFAULT_EXCLUSIONS}}  mark=${mark}
+    wait for on access log contains after mark  New on-access configuration: {"detectPUAs":true,"enabled":true,"excludeRemoteFiles":true,"exclusions":${DEFAULT_EXCLUSIONS}}  mark=${mark}
     wait for on access log contains after mark  On-access enabled: true  mark=${mark}
     wait for on access log contains after mark  On-access scan network: false  mark=${mark}
     wait for on access log contains after mark  On-access exclusions: ${DEFAULT_EXCLUSIONS}  mark=${mark}
@@ -414,7 +414,7 @@ On Access Process Handles Consecutive Process Control Requests
     ${mark} =  get_on_access_log_mark
     send av policy from file  CORE   ${RESOURCES_PATH}/core_policy/CORE-36_oa_disabled.xml
     wait for on access log contains after mark  No policy override, following policy settings  mark=${mark}
-    wait for on access log contains after mark  New on-access configuration: {"enabled":false  mark=${mark}
+    wait for on access log contains after mark  New on-access configuration: {"detectPUAs":true,"enabled":false  mark=${mark}
 
     send av policy from file  FLAGS  ${RESOURCES_PATH}/flags_policy/flags.json
     wait for on access log contains after mark  Overriding policy, on-access will be disabled  mark=${mark}
@@ -444,7 +444,7 @@ On Access Process Handles Fast Process Control Requests Last Flag is OA Enabled
     ${mark} =  get_on_access_log_mark
     send av policy  FLAGS  ${enabledFlags}
     wait for on access log contains after mark  No policy override, following policy settings  mark=${mark}
-    wait for on access log contains after mark  New on-access configuration: {"enabled":true  mark=${mark}
+    wait for on access log contains after mark  New on-access configuration: {"detectPUAs":true,"enabled":true  mark=${mark}
     wait for on access log contains after mark  Finished ProcessPolicy  mark=${mark}
     wait for on access log contains after mark  On-access scanning enabled  mark=${mark}
 
@@ -677,6 +677,6 @@ On Access Handles Control Socket Exists At Startup
 
     ${mark} =  Get on access log mark
     send av policy from file  CORE  ${RESOURCES_PATH}/core_policy/CORE-36_oa_disabled.xml
-    wait for on access log contains after mark  New on-access configuration: {"enabled":false  mark=${mark}
+    wait for on access log contains after mark  New on-access configuration: {"detectPUAs":true,"enabled":false  mark=${mark}
 
     ${output} =   Terminate Process   handle=${netcat_handle}

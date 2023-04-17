@@ -329,6 +329,7 @@ void EventReaderThread::innerRun()
 
 void EventReaderThread::setExclusions(const std::vector<common::Exclusion>& exclusions)
 {
+    std::lock_guard<std::mutex> lock(m_exclusionsLock);
     if (exclusions != m_exclusions)
     {
         std::stringstream printableExclusions;
@@ -338,7 +339,6 @@ void EventReaderThread::setExclusions(const std::vector<common::Exclusion>& excl
         }
         LOGDEBUG("Updating on-access exclusions with: " << printableExclusions.str());
         {
-            std::lock_guard<std::mutex> lock(m_exclusionsLock);
             m_exclusions = exclusions;
         }
         // Clear cache after we have updated exclusions - so that nothing is cached which shouldn't be.
@@ -348,11 +348,11 @@ void EventReaderThread::setExclusions(const std::vector<common::Exclusion>& excl
 
 void EventReaderThread::setDetectPUAs(bool detectPUAs)
 {
+    std::lock_guard<std::mutex> lock(m_exclusionsLock);
     if (detectPUAs != m_detectPUAs)
     {
         LOGDEBUG("Updating detection of PUAs to: " << (detectPUAs ? "true" : "false"));
         {
-            std::lock_guard<std::mutex> lock(m_exclusionsLock);
             m_detectPUAs = detectPUAs;
         }
         // Clear cache after we have updated PUA setting - so that nothing is cached which shouldn't be.
