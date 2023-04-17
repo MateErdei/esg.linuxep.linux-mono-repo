@@ -37,6 +37,7 @@ ABS_SCRIPTDIR=$(cd $SCRIPTDIR && pwd)
 [[ -n "$SOPHOS_INSTALL" ]] || SOPHOS_INSTALL=/opt/sophos-spl
 [[ -n "$DIST" ]] || DIST=$ABS_SCRIPTDIR
 [[ -n "$LOCKFILE_TIMEOUT" ]] || LOCKFILE_TIMEOUT=60
+[[ -n "$BASE_INSTALL_OPTIONS_FILE" ]] || BASE_INSTALL_OPTIONS_FILE="$SOPHOS_INSTALL/base/etc/install_options"
 
 failure()
 {
@@ -381,17 +382,46 @@ function restore_safestore_databases()
   fi
 }
 
+function add_user()
+{
+  local username="$1"
+  local groupname="$2"
+  local args="$3"
+
+  USERADD="$(which useradd)"
+  [[ -x "${USERADD}" ]] || USERADD=/usr/sbin/useradd
+  [[ -x "${USERADD}" ]] || failure ${EXIT_FAIL_FIND_USERADD} "Failed to find useradd to add low-privilege user"
+
+  userAddCmd="${USERADD} ${username} --no-create-home --no-user-group --gid ${groupname} --system --shell=/bin/false --home-dir=${SOPHOS_INSTALL} ${args}"
+  if [[ -f "$BASE_INSTALL_OPTIONS_FILE" ]]
+  then
+    while read -r line; do
+      if [[ "$line" =~ ^--user-ids-to-configure=?(.*)$ ]]
+        then
+          IFS=',' read -ra UIDS_ARRAY <<< "${line/*=/}"
+          for uid in "${UIDS_ARRAY[@]}";
+          do
+            if [[ "${uid%%:*}" == "$username" ]]
+            then
+              userAddCmd="${userAddCmd} -u ${uid#*:}"
+              break
+            fi
+          done
+      fi
+    done <"$BASE_INSTALL_OPTIONS_FILE"
+  fi
+
+  "${GETENT}" passwd "${username}" 2>&1 > /dev/null || ${userAddCmd} || failure ${EXIT_FAIL_ADDUSER} "Failed to add user $username"
+}
+
 function install_product()
 {
     local GETENT=/usr/bin/getent
     [[ -x "${GETENT}" ]] || GETENT=$(which getent)
     [[ -x "${GETENT}" ]] || failure ${EXIT_FAIL_FIND_GETENT} "Failed to find getent"
 
-      USERADD="$(which useradd)"
-      [[ -x "${USERADD}" ]] || USERADD=/usr/sbin/useradd
-      [[ -x "${USERADD}" ]] || failure ${EXIT_FAIL_FIND_USERADD} "Failed to find useradd to add low-privilege user"
-    "${GETENT}" passwd "${USER_NAME}"            2>&1 >/dev/null || "${USERADD}" ${USER_NAME}            --no-create-home --no-user-group --gid ${GROUP_NAME} --groups sophos-spl-ipc --system --shell=/bin/false --home-dir=/opt/sophos-spl
-    "${GETENT}" passwd "${THREAT_DETECTOR_USER}" 2>&1 >/dev/null || "${USERADD}" ${THREAT_DETECTOR_USER} --no-create-home --no-user-group --gid ${GROUP_NAME} --system --shell=/bin/false --home-dir=/opt/sophos-spl
+    add_user ${USER_NAME} ${GROUP_NAME} --groups sophos-spl-ipc
+    add_user ${THREAT_DETECTOR_USER} ${GROUP_NAME}
 
     if av_already_installed
     then
