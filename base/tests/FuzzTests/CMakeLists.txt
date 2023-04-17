@@ -11,6 +11,7 @@ target_include_directories(loggerconfigtests PUBLIC ${LOG4CPLUS_INCLUDE_DIR} ${B
 target_link_libraries(loggerconfigtests PUBLIC
         ${LOG4CPLUS_LIBRARY}
         sslimplobject
+        cap
         )
 
 SET_TARGET_PROPERTIES( loggerconfigtests
