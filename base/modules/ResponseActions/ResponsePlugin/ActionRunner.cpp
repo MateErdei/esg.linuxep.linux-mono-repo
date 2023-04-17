@@ -67,17 +67,20 @@ namespace ResponsePlugin
                     LOGINFO("output: " << output);
                 }
                 auto code = this->m_process->exitCode();
-                if (code != 0)
+                if (code == 0)
                 {
-                    LOGWARN("Failed action " << correlationId << " with exit code " << code);
-
-                    auto result = timedOut ? ResponseActions::RACommon::ResponseResult::TIMEOUT
-                                           : ResponseActions::RACommon::ResponseResult::INTERNAL_ERROR;
-                    sendFailedResponse(result, type, correlationId);
+                    LOGINFO("Action " << correlationId << " has succeeded");
                 }
                 else
                 {
-                    LOGINFO("Action " << correlationId << " has succeeded");
+                    LOGWARN("Failed action " << correlationId << " with exit code " << code);
+
+                    if (code != 1 && code != 4)
+                    {
+                        auto result = timedOut ? ResponseActions::RACommon::ResponseResult::TIMEOUT
+                                               : ResponseActions::RACommon::ResponseResult::INTERNAL_ERROR;
+                        sendFailedResponse(result, type, correlationId);
+                    }
                 }
                 isRunning = false;
             });
