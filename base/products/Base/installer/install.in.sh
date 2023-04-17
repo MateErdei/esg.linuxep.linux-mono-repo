@@ -349,8 +349,7 @@ function generate_local_user_group_id_config()
             jsonString="${jsonString}},"
         fi
       done <"${SOPHOS_INSTALL}/base/etc/install_options"
-      jsonString="${jsonString}}"
-      jsonString="${jsonString//",}"/"}"}"
+      jsonString=$(sed 's/,}/}/g' <<< "${jsonString}}")
     fi
 
     cat > "${configPath}" << EOF
