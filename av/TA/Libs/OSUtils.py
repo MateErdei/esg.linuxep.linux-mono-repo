@@ -24,8 +24,8 @@ def install_system_ca_cert(certificate_path):
     # logger.info(out)
     # logger.info(err)
     if process.returncode != 0:
-        logger.info("stdout: {}\nstderr: {}".format(out, err))
-        raise OSError("Failed to install \"{}\" to system".format(certificate_path))
+        logger.info(f"stdout: {out}\nstderr: {err}")
+        raise OSError(f"Failed to install \"{certificate_path}\" to system")
 
 
 def get_cwd_then_change_directory(path):
@@ -52,9 +52,9 @@ def get_amount_written_to_disk(path):
     with open("/proc/diskstats", "r") as f:
         lines = f.readlines()
         for line in lines:
-            if split_disc[len(split_disc)-1] in line:
+            if split_disc[len(split_disc) - 1] in line:
                 split_line = line.split(" ")
-                return int(split_line[len(split_line)-1])
+                return int(split_line[len(split_line) - 1])
 
 
 def find_sdiskpart(path):
@@ -68,5 +68,10 @@ def find_sdiskpart(path):
             disc = pathlib.Path(entry.device).resolve()
             return disc
 
+
 def get_robot_pid():
     return os.getpid()
+
+
+def get_uid_from_username(username):
+    return pwd.getpwnam(username).pw_uid

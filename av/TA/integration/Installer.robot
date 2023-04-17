@@ -966,6 +966,21 @@ SSPLAV can load old VDL
 
     Wait For Sophos Threat Detector Log Contains After Mark  SUSI Loaded old data  ${threat_detector_mark}
 
+AV Installer Sets UID From Base Install Options File When Present
+    Run plugin uninstaller
+    Create File    ${SOPHOS_INSTALL}/base/etc/install_options    --user-ids-to-configure=sophos-spl-local:1995,sophos-spl-updatescheduler:1994,sophos-spl-user:1996,sophos-spl-av:1997,sophos-spl-threat-detector:1998
+
+    Install AV Directly from SDDS
+
+    User Should Exist  sophos-spl-av
+    User Should Exist  sophos-spl-threat-detector
+
+    ${av_uid} =    Get UID From Username    sophos-spl-av
+    ${td_uid} =    Get UID From Username    sophos-spl-threat-detector
+
+    Should Be Equal As Strings    ${av_uid}    997
+    Should Be Equal As Strings    ${td_uid}    1998
+    Remove File    ${SOPHOS_INSTALL}/base/etc/install_options
 
 *** Variables ***
 ${IDE_NAME}         peend.ide
