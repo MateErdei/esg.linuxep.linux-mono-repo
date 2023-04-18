@@ -183,7 +183,7 @@ namespace Common
 
         private:
             pt::ptree m_ptree;
-            static inline const std::string VERBOSITY{ "VERBOSITY" };
+            static inline constexpr const char* const VERBOSITY{ "VERBOSITY" };
         };
 
         LoggerSophosSettings::LoggerConfigTree::LoggerConfigTree(const std::string& confFilePath)
@@ -215,7 +215,7 @@ namespace Common
             boost::optional<std::string> value;
             if (session.empty())
             {
-                value = m_ptree.get_optional<std::string>("global." + VERBOSITY);
+                value = m_ptree.get_optional<std::string>(std::string{"global."} + VERBOSITY);
                 if (value)
                 {
                     return value.get();
