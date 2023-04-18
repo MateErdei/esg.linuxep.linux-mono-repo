@@ -386,11 +386,7 @@ function add_user()
 {
   local username="$1"
   local groupname="$2"
-  local args="$3"
-
-  USERADD="$(which useradd)"
-  [[ -x "${USERADD}" ]] || USERADD=/usr/sbin/useradd
-  [[ -x "${USERADD}" ]] || failure ${EXIT_FAIL_FIND_USERADD} "Failed to find useradd to add low-privilege user"
+  local args="${@:3}"
 
   userAddCmd="${USERADD} ${username} --no-create-home --no-user-group --gid ${groupname} --system --shell=/bin/false --home-dir=${SOPHOS_INSTALL} ${args}"
   if [[ -f "$BASE_INSTALL_OPTIONS_FILE" ]]
@@ -416,9 +412,13 @@ function add_user()
 
 function install_product()
 {
-    local GETENT=/usr/bin/getent
+    GETENT=/usr/bin/getent
     [[ -x "${GETENT}" ]] || GETENT=$(which getent)
     [[ -x "${GETENT}" ]] || failure ${EXIT_FAIL_FIND_GETENT} "Failed to find getent"
+
+    USERADD="$(which useradd)"
+    [[ -x "${USERADD}" ]] || USERADD=/usr/sbin/useradd
+    [[ -x "${USERADD}" ]] || failure ${EXIT_FAIL_FIND_USERADD} "Failed to find useradd to add low-privilege user"
 
     add_user ${USER_NAME} ${GROUP_NAME} --groups sophos-spl-ipc
     add_user ${THREAT_DETECTOR_USER} ${GROUP_NAME}
