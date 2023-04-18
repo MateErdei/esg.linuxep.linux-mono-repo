@@ -8,6 +8,7 @@ endfunction()
 
 addTest(TestNotifyPipe)
 addTest(TestAbstractThread)
+addTest(TestLockableData)
 
 SET_TARGET_PROPERTIES(TestNotifyPipe
         PROPERTIES

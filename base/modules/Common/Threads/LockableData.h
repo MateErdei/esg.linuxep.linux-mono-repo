@@ -10,7 +10,7 @@
 namespace Common::Threads
 {
     template<typename>
-    struct LockableData;
+    class LockableData;
 }
 
 namespace std
@@ -34,18 +34,39 @@ namespace Common::Threads
         auto operator->() const noexcept
         { return std::addressof(l->m_data); }
 
+        auto& operator*() noexcept
+        { return l->ref(); }
+
+        const auto& operator*() const noexcept
+        { return l->ref(); }
+
     private:
         std::unique_ptr<Lockable> l;
     };
 
     template<typename Data>
-    struct LockableData
+    class LockableData
     {
+    public:
+        LockableData() = default;
+        explicit LockableData(Data initialValue)
+            : m_data(std::move(initialValue))
+        {}
         LockedData<LockableData> lock() { return LockedData(this); }
 
     private:
         friend struct LockedData<LockableData>;
         friend struct std::default_delete<LockableData>;
+
+        const Data& ref() const noexcept
+        {
+            return m_data;
+        }
+
+        Data& ref() noexcept
+        {
+            return m_data;
+        }
 
         std::mutex m_mutex;
         Data m_data;
