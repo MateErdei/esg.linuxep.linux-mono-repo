@@ -31,7 +31,6 @@ include_directories(responseplugin BEFORE
         )
 
 target_link_libraries(responseplugin PUBLIC
-        logging
         pluginapi
         ${Protobuf_LIBRARY}
         ${EXPAT_LIBRARY}

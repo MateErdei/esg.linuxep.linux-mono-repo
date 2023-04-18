@@ -23,7 +23,6 @@ include_directories(responseactionsimpl BEFORE
         )
 
 target_link_libraries(responseactionsimpl PUBLIC
-        logging
         ProxyUtilsLib
         HttpRequestsImpl
         curlwrapper
