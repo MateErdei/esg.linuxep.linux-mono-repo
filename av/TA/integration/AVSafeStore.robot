@@ -831,7 +831,7 @@ SafeStore Quarantines Pua Detection
 
     ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
     ${safestore_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
-    Run Process  ${CLI_SCANNER_PATH}  ${NORMAL_DIRECTORY}/PsExec.exe
+    Run Process  ${CLI_SCANNER_PATH}  --detect-puas  ${NORMAL_DIRECTORY}/PsExec.exe
 
     Check Log Does Not Contain After Mark  ${AV_LOG_PATH}  ${NORMAL_DIRECTORY}/PsExec.exe was not quarantined due to being a PUA    ${av_mark}
 
