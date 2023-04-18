@@ -56,7 +56,7 @@ void Options::constructOptions()
             ("help,h", "Print this help message")
             ("scan-archives,a", "Scan inside archives")
             ("scan-images,i", "Scan inside disk images")
-            ("disable-pua-detection,p", "Disable detection of Potentially Unwanted Applications")
+            ("detect-puas,p", "Enable detection of Potentially Unwanted Applications")
             ("follow-symlinks,s", "Follow symlinks while scanning")
             ("exclude,x",po::value<std::vector<std::string>>()->value_name("EXCLUSION [EXCLUSION...]")->multitoken(),"Exclude these locations from being scanned")
             ("output,o", po::value<std::string>()->value_name("OUTPUT"), "Write to log file")
@@ -87,9 +87,9 @@ Options::Options(int argc, char** argv)
             m_imageScanning = true;
         }
 
-        if (variableMap.count("disable-pua-detection"))
+        if (variableMap.count("detect-puas"))
         {
-            m_disablePUAdetection = true;
+            m_detectPUAs = true;
         }
 
         if (variableMap.count("follow-symlinks"))
@@ -130,14 +130,14 @@ Options::Options(
     std::vector<std::string> exclusions,
     bool archiveScanning,
     bool imageScanning,
-    bool disablePUAdetection,
+    bool detectPUAs,
     bool followSymlinks)
     : m_printHelp(printHelp)
     , m_paths(std::move(paths))
     , m_exclusions(std::move(exclusions))
     , m_archiveScanning(archiveScanning)
     , m_imageScanning(imageScanning)
-    , m_disablePUAdetection(disablePUAdetection)
+    , m_detectPUAs(detectPUAs)
     , m_followSymlinks(followSymlinks)
 {
     constructOptions();
@@ -152,7 +152,7 @@ std::string Options::getHelp()
     helpText << "  -h, --help                              Print this help message" << std::endl;
     helpText << "  -a, --scan-archives                     Scan inside archives" << std::endl;
     helpText << "  -i, --scan-images                       Scan inside disk images" << std::endl;
-    helpText << "  -p, --disable-pua-detection             Disable detection of Potentially Unwanted Applications" << std::endl;
+    helpText << "  -p, --detect-puas                       Enable detection of Potentially Unwanted Applications" << std::endl;
     helpText << "  -s, --follow-symlinks                   Follow symlinks while scanning" << std::endl;
     helpText << "  -x, --exclude EXCLUSION [EXCLUSION...]  Exclude these locations from being scanned" << std::endl;
     helpText << "  -o, --output OUTPUT                     Write to log file" << std::endl;

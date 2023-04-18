@@ -26,7 +26,7 @@ namespace avscanner::avscannerimpl
             std::vector<std::string> exclusions,
             bool archiveScanning,
             bool imageScanning,
-            bool disablePUAdetection,
+            bool detectPUAs,
             bool followSymlinks);
 
         static log4cplus::LogLevel verifyLogLevel(const std::string& logLevel);
@@ -53,7 +53,7 @@ namespace avscanner::avscannerimpl
 
         [[nodiscard]] bool detectPUAs() const
         {
-            return !m_disablePUAdetection;
+            return m_detectPUAs;
         }
 
         [[nodiscard]] bool followSymlinks() const
@@ -93,7 +93,7 @@ namespace avscanner::avscannerimpl
         std::vector <std::string> m_exclusions;
         bool m_archiveScanning = false;
         bool m_imageScanning = false;
-        bool m_disablePUAdetection = false;
+        bool m_detectPUAs = false;
         bool m_followSymlinks = false;
 
         inline static std::unique_ptr<po::options_description> m_optionsDescription = nullptr;
