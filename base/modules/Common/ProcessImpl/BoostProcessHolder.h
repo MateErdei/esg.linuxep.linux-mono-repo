@@ -1,8 +1,11 @@
-// Copyright 2018-2022, Sophos Limited.  All rights reserved.
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
 #include "IProcessHolder.h"
+
+#include "Common/Threads/LockableData.h"
+
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 #pragma GCC diagnostic ignored "-Wunused-result"
@@ -105,6 +108,10 @@ namespace Common
 
             ProcessResult m_cached;
             bool m_enableBufferFlushOnNewLine;
+
+            Common::Threads::LockableData<bool> deliberatelyKilled_;
+            bool deliberatelyKilled();
+            void deliberatelyKilled(bool);
         };
     } // namespace ProcessImpl
 } // namespace Common

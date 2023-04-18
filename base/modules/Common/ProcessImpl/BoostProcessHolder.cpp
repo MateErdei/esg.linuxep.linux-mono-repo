@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2018-2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 #include "BoostProcessHolder.h"
 
 #include "IProcessException.h"
@@ -317,7 +313,14 @@ namespace Common
 
                 if (ec)
                 {
-                    LOGWARN("Process wait reported error: " << ec.message());
+                    if (deliberatelyKilled())
+                    {
+                        LOGINFO("Process wait reported error after deliberately being terminated: " << ec.message());
+                    }
+                    else
+                    {
+                        LOGWARN("Process wait reported error: " << ec.message());
+                    }
                 }
                 ioservice.get();
                 LOGDEBUG("Process main loop: Retrieve results");
@@ -587,6 +590,7 @@ namespace Common
             {
                 return;
             }
+            deliberatelyKilled(true);
             LOGINFO("Killing process with abort signal " << m_pid);
             ::kill(m_pid, SIGABRT);
         }
@@ -597,6 +601,7 @@ namespace Common
             {
                 return;
             }
+            deliberatelyKilled(true);
             LOGINFO("Killing process " << m_pid);
             m_child->terminate();
             cacheResult();
@@ -610,6 +615,18 @@ namespace Common
                        buffer.end();
             }
             return false;
+        }
+
+        void BoostProcessHolder::deliberatelyKilled(bool value)
+        {
+            auto locked = deliberatelyKilled_.lock();
+            *locked = value;
+        }
+
+        bool BoostProcessHolder::deliberatelyKilled()
+        {
+            const auto locked = deliberatelyKilled_.lock();
+            return *locked;
         }
 
     } // namespace ProcessImpl
