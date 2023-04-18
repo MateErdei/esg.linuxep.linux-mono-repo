@@ -978,7 +978,7 @@ AV Installer Sets UID From Base Install Options File When Present
     ${av_uid} =    Get UID From Username    sophos-spl-av
     ${td_uid} =    Get UID From Username    sophos-spl-threat-detector
 
-    Should Be Equal As Strings    ${av_uid}    997
+    Should Be Equal As Strings    ${av_uid}    1997
     Should Be Equal As Strings    ${td_uid}    1998
     Remove File    ${SOPHOS_INSTALL}/base/etc/install_options
 
