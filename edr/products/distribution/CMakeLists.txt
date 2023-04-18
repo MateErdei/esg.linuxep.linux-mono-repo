@@ -28,6 +28,7 @@ set(third_party_libs
         ${protobuflib}
         ${JSON_CPP_LIBRARY}
         ${LZMA_LIBRARY}
+        $<TARGET_FILE:openssl_crypto>
         )
 
 INCLUDE(FindLibraryFullPath)
