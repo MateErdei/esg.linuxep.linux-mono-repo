@@ -9,7 +9,7 @@ scheduledquerypacknext: { line-id: ScheduledQueryPack, tag: LATEST, decode-path:
 ssplflags: { line-id: SSPLFLAGS, tag: 2023-1, decode-path: sspl_flags/files/base/etc/sophosspl }
 
 #rtd
-rdrules: { line-id: RuntimeDetectionRules, tag: LATEST, decode-path: content_rules }
+rdrules: { line-id: RuntimeDetectionRules, tag: 2023-1, decode-path: content_rules }
 
 #av
 vdl: { line-id: LocalRepData, tag: LATEST_CLOUD_ENDPOINT, decode-path: files/plugins/av/chroot/susi/update_source/reputation }
