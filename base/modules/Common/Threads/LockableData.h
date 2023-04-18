@@ -1,4 +1,4 @@
-// Copyright 2022, Sophos Limited.  All rights reserved.
+// Copyright 2022-2023 Sophos Limited. All rights reserved.
 
 // from https://devblogs.microsoft.com/oldnewthing/20221005-00/?p=107248
 

@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2018-2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 #pragma once
 
 #include <log4cplus/logger.h>
@@ -126,7 +122,7 @@ namespace Common
 
         private:
             friend void applyGeneralConfig(const std::string&);
-            static bool InTestMode;
+            static inline bool InTestMode{false};
 
             class LoggerConfigTree;
             std::unique_ptr<LoggerConfigTree> m_configTree;

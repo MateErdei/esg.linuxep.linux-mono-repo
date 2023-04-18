@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2018, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 #pragma once
 
 #include <log4cplus/appender.h>
@@ -19,11 +15,13 @@ namespace Common
             /**
              * Log pattern for standard log files
              */
-            static const char* GL_DEFAULT_PATTERN;
+            static inline constexpr const char* const GL_DEFAULT_PATTERN \
+                 = "%-7r [%d{%Y-%m-%dT%H:%M:%S.%q}] %7p [%10.10t] %c <> %m%n";
             /**
              * Simplified pattern for release Console output.
              */
-            static const char* GL_CONSOLE_PATTERN;
+            static inline constexpr const char* const GL_CONSOLE_PATTERN \
+                = "[%d{%H:%M:%S}] %m%n";
 
             static void applyDefaultPattern(AppenderPtr& appender);
 

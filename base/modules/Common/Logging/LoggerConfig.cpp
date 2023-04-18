@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2018-2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #include "LoggerConfig.h"
 
@@ -159,8 +155,6 @@ namespace Common
 {
     namespace Logging
     {
-        bool LoggerSophosSettings::InTestMode{ false };
-
         namespace pt = boost::property_tree;
         class LoggerSophosSettings::LoggerConfigTree
         {
@@ -189,9 +183,8 @@ namespace Common
 
         private:
             pt::ptree m_ptree;
-            static const std::string VERBOSITY;
+            static inline const std::string VERBOSITY{ "VERBOSITY" };
         };
-        const std::string LoggerSophosSettings::LoggerConfigTree::VERBOSITY{ "VERBOSITY" };
 
         LoggerSophosSettings::LoggerConfigTree::LoggerConfigTree(const std::string& confFilePath)
         {
