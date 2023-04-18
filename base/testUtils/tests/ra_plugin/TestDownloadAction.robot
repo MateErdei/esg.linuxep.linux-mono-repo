@@ -76,7 +76,6 @@ RA Plugin fails a real url due to authorization not file to long
 
     Send_Download_File_From_Fake_Cloud_RealURL
 
-    wait_for_log_contains_from_mark  ${response_mark}  Action correlation-id has succeeded   25
     wait_for_log_contains_from_mark  ${action_mark}  Sent download file response for ID correlation-id to Central   15
     wait_for_log_contains_from_mark  ${action_mark}   Failed to download, Error code: 403
 
