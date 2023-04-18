@@ -229,6 +229,36 @@ Requested Config Created From ThinInstaller Args Is Used To Configure Users And 
     Should Be Equal As Strings    ${sophos_spl_ipc_gid}          1995
     Remove File    /tmp/InstallOptionsTestFile
 
+Custom User And Group IDs Are Used To Create SPL Users And Groups From ThinInstaller Args
+    Copy File    ${SUPPORT_FILES}/watchdog/requested_user_group_ids_install_options    /tmp/InstallOptionsTestFile
+    Set Environment Variable  INSTALL_OPTIONS_FILE  /tmp/InstallOptionsTestFile
+
+    Run Full Installer Expecting Code  0
+
+    Install Plugins And Setup Local Cloud
+    Wait for All Processes To Be Running
+    Stripped Requested User Group Config Matches Actual Config
+    
+    ${sspl_av_uid} =                 Get UID From Username    sophos-spl-av
+    ${sspl_local_uid} =              Get UID From Username    sophos-spl-local
+    ${sspl_threat_detector_uid} =    Get UID From Username    sophos-spl-threat-detector
+    ${sspl_update_uid} =             Get UID From Username    sophos-spl-updatescheduler
+    ${sspl_user_uid} =               Get UID From Username    sophos-spl-user
+    # Groups
+    ${sophos_spl_group_gid} =        Get GID From Groupname    sophos-spl-group
+    ${sophos_spl_ipc_gid} =          Get GID From Groupname    sophos-spl-ipc
+
+    Should Be Equal As Strings    ${sspl_av_uid}                 1997
+    Should Be Equal As Strings    ${sspl_local_uid}              1995
+    Should Be Equal As Strings    ${sspl_threat_detector_uid}    1998
+    Should Be Equal As Strings    ${sspl_update_uid}             1994
+    Should Be Equal As Strings    ${sspl_user_uid}               1996
+
+    Should Be Equal As Strings    ${sophos_spl_group_gid}        1996
+    Should Be Equal As Strings    ${sophos_spl_ipc_gid}          1995
+
+    Verify Product is Running Without Error After ID Change
+
 *** Keywords ***
 Watchdog User Group Test Setup
     Require Uninstalled
