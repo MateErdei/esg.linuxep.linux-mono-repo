@@ -294,8 +294,36 @@ function add_group()
 
   GROUPADD="$(which groupadd)"
   [[ -x "${GROUPADD}" ]] || GROUPADD=/usr/sbin/groupadd
-  [[ -x "${GROUPADD}" ]] || failure ${EXIT_FAIL_FIND_GROUPADD} "Failed to find groupadd to add low-privilege group"
-  "${GETENT}" group "${groupname}" 2>&1 > /dev/null || "${GROUPADD}" -r "${groupname}" || failure ${EXIT_FAIL_ADD_GROUP} "Failed to add group $groupname"
+  [[ -x "${GROUPADD}" ]] || failure 12 "Failed to find groupadd to add low-privilege group"
+
+  if [[ -f "$INSTALL_OPTIONS_FILE" ]]
+  then
+    while read -r line; do
+      if [[ "$line" =~ ^--group-ids-to-configure=?(.*)$ ]]
+        then
+          IFS=',' read -ra GIDS_ARRAY <<< "${line/*=/}"
+          for gid in "${GIDS_ARRAY[@]}";
+          do
+            if [[ "${gid%%:*}" == "$groupname" ]]
+            then
+              groupID="-g ${gid#*:}"
+              break
+            fi
+          done
+      fi
+    done <"$INSTALL_OPTIONS_FILE"
+  fi
+
+  addGroupCmd="${GROUPADD} -r ${groupname}"
+  if [[ -z "$("${GETENT}" group "${groupname}")" ]]
+  then
+    if [[ -z "$groupID" ]]
+      then
+         ${addGroupCmd} || failure 12 "Failed to add group ${groupname}"
+      else
+        ${addGroupCmd} "${groupID}" || ${addGroupCmd} || failure 12 "Failed to add group ${groupname}"
+      fi
+  fi
 }
 
 function add_user()
@@ -305,9 +333,36 @@ function add_user()
 
   USERADD="$(which useradd)"
   [[ -x "${USERADD}" ]] || USERADD=/usr/sbin/useradd
-  [[ -x "${USERADD}" ]] || failure ${EXIT_FAIL_FIND_USERADD} "Failed to find useradd to add low-privilege user"
-  "${GETENT}" passwd "${username}" 2>&1 > /dev/null || "${USERADD}" -d "${SOPHOS_INSTALL}" -g "${groupname}" -M -N -r -s /bin/false "${username}" \
-      || failure ${EXIT_FAIL_ADDUSER} "Failed to add user $username"
+  [[ -x "${USERADD}" ]] || failure 12 "Failed to find useradd to add low-privilege user"
+
+  if [[ -f "$INSTALL_OPTIONS_FILE" ]]
+  then
+    while read -r line; do
+      if [[ "$line" =~ ^--user-ids-to-configure=?(.*)$ ]]
+        then
+          IFS=',' read -ra UIDS_ARRAY <<< "${line/*=/}"
+          for uid in "${UIDS_ARRAY[@]}";
+          do
+            if [[ "${uid%%:*}" == "$username" ]]
+            then
+              userId="-u ${uid#*:}"
+              break
+            fi
+          done
+      fi
+    done <"$INSTALL_OPTIONS_FILE"
+  fi
+
+  addUserCmd="${USERADD} -d ${SOPHOS_INSTALL} -g ${groupname} -M -N -r -s /bin/false ${username}"
+  if [[ -z "$("${GETENT}" passwd "${username}")" ]]
+    then
+      if [[ -z "$groupID" ]]
+      then
+        ${addUserCmd} || failure 12 "Failed to add user ${username}"
+      else
+        ${addUserCmd} "${userId}" || ${addUserCmd} || failure 12 "Failed to add user ${username}"
+      fi
+  fi
 }
 
 function add_to_group()
@@ -326,7 +381,7 @@ function generate_local_user_group_id_config()
   local configPath="${SOPHOS_INSTALL}/base/etc/user-group-ids-requested.conf"
   if [[ ! -f "${configPath}" ]]
   then
-    if [[ -f "${SOPHOS_INSTALL}/base/etc/install_options" ]]
+    if [[ -f "${BASE_INSTALL_OPTIONS_FILE}" ]]
     then
       jsonString="{"
       while read -r line; do
@@ -348,7 +403,7 @@ function generate_local_user_group_id_config()
             done
             jsonString="${jsonString}},"
         fi
-      done <"${SOPHOS_INSTALL}/base/etc/install_options"
+      done <"${BASE_INSTALL_OPTIONS_FILE}"
       jsonString=$(sed 's/,}/}/g' <<< "${jsonString}}")
     fi
 
