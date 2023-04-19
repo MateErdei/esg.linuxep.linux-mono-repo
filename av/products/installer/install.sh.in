@@ -386,7 +386,7 @@ function add_user()
 {
   local username="$1"
   local groupname="$2"
-  local args="${@:3}"
+  local args=" ${@:3}"
 
   if [[ -f "$BASE_INSTALL_OPTIONS_FILE" ]]
   then
@@ -406,8 +406,8 @@ function add_user()
     done <"$BASE_INSTALL_OPTIONS_FILE"
   fi
 
-  userAddCmd="${USERADD} ${username} --no-create-home --no-user-group --gid ${groupname} --system --shell=/bin/false --home-dir=${SOPHOS_INSTALL} ${args}"
-  [[ -z "$("${GETENT}" passwd "${groupname}")" ]] && ${userAddCmd} "${userId}" || ${userAddCmd} || failure ${EXIT_FAIL_ADDUSER} "Failed to add user $username"
+  userAddCmd="${USERADD} ${username} --no-create-home --no-user-group --gid ${groupname} --system --shell=/bin/false --home-dir=${SOPHOS_INSTALL}${args}"
+  [[ -z "$("${GETENT}" passwd "${groupname}")" ]] && ${userAddCmd} "${userId}" || ${userAddCmd} || failure ${EXIT_FAIL_ADDUSER} "Failed to add user ${username}"
 }
 
 function install_product()
