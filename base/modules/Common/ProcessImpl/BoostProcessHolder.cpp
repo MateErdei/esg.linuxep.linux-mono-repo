@@ -313,7 +313,7 @@ namespace Common
 
                 if (ec)
                 {
-                    if (deliberatelyKilled())
+                    if (isDeliberatelyKilled())
                     {
                         LOGINFO("Process wait reported error after deliberately being terminated: " << ec.message());
                     }
@@ -590,7 +590,7 @@ namespace Common
             {
                 return;
             }
-            deliberatelyKilled(true);
+            setDeliberatelyKilled(true);
             LOGINFO("Killing process with abort signal " << m_pid);
             ::kill(m_pid, SIGABRT);
         }
@@ -601,7 +601,7 @@ namespace Common
             {
                 return;
             }
-            deliberatelyKilled(true);
+            setDeliberatelyKilled(true);
             LOGINFO("Killing process " << m_pid);
             m_child->terminate();
             cacheResult();
@@ -617,13 +617,13 @@ namespace Common
             return false;
         }
 
-        void BoostProcessHolder::deliberatelyKilled(bool value)
+        void BoostProcessHolder::setDeliberatelyKilled(bool value)
         {
             auto locked = deliberatelyKilled_.lock();
             *locked = value;
         }
 
-        bool BoostProcessHolder::deliberatelyKilled()
+        bool BoostProcessHolder::isDeliberatelyKilled()
         {
             const auto locked = deliberatelyKilled_.lock();
             return *locked;

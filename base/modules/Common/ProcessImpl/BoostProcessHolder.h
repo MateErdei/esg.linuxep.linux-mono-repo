@@ -110,8 +110,8 @@ namespace Common
             bool m_enableBufferFlushOnNewLine;
 
             Common::Threads::LockableData<bool> deliberatelyKilled_;
-            bool deliberatelyKilled();
-            void deliberatelyKilled(bool);
+            bool isDeliberatelyKilled();
+            void setDeliberatelyKilled(bool value);
         };
     } // namespace ProcessImpl
 } // namespace Common
