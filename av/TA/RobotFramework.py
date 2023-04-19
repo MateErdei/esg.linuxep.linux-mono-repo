@@ -14,7 +14,11 @@ def main():
     parser.add_argument('--exclude', nargs='+', help='keywords to exclude')
     args = parser.parse_args()
 
-    tags = {'include': args.include, 'exclude': args.exclude}
+    tags = {'include': [], 'exclude': []}
+    if args.include is not None:
+        tags['include'] = args.include
+    if args.exclude is not None:
+        tags['exclude'] = args.exclude
     log_files = ['log.html', 'output.xml', 'report.html']
 
     robot_args = {
@@ -39,12 +43,7 @@ def main():
 
     try:
         # Create the TAP Robot result listener.
-        if robot_args.get('test') != '*':
-            listener = tap_result_listener(robot_args['path'], robot_args['test'], robot_args['name'])
-        elif robot_args.get('suite') != '*':
-            listener = tap_result_listener(robot_args['path'], robot_args['suite'], robot_args['name'])
-        else:
-            listener = tap_result_listener(robot_args['path'], tags, robot_args['name'])
+        listener = tap_result_listener(robot_args['path'], tags, robot_args['name'])
     except json.decoder.JSONDecodeError:
         # When running locally you can not initialise the TAP Results Listener
         listener = None
