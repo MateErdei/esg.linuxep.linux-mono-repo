@@ -294,7 +294,7 @@ function add_group()
 
   GROUPADD="$(which groupadd)"
   [[ -x "${GROUPADD}" ]] || GROUPADD=/usr/sbin/groupadd
-  [[ -x "${GROUPADD}" ]] || failure 12 "Failed to find groupadd to add low-privilege group"
+  [[ -x "${GROUPADD}" ]] || failure ${EXIT_FAIL_FIND_GROUPADD} "Failed to find groupadd to add low-privilege group"
 
   if [[ -f "$INSTALL_OPTIONS_FILE" ]]
   then
@@ -319,9 +319,9 @@ function add_group()
   then
     if [[ -z "$groupID" ]]
       then
-         ${addGroupCmd} || failure 12 "Failed to add group ${groupname}"
+         ${addGroupCmd} || failure ${EXIT_FAIL_FIND_GROUPADD} "Failed to add group ${groupname}"
       else
-        ${addGroupCmd} "${groupID}" || ${addGroupCmd} || failure 12 "Failed to add group ${groupname}"
+        ${addGroupCmd} "${groupID}" || ${addGroupCmd} || failure ${EXIT_FAIL_FIND_GROUPADD} "Failed to add group ${groupname}"
       fi
   fi
 }
@@ -333,7 +333,7 @@ function add_user()
 
   USERADD="$(which useradd)"
   [[ -x "${USERADD}" ]] || USERADD=/usr/sbin/useradd
-  [[ -x "${USERADD}" ]] || failure 12 "Failed to find useradd to add low-privilege user"
+  [[ -x "${USERADD}" ]] || failure ${EXIT_FAIL_ADDUSER} "Failed to find useradd to add low-privilege user"
 
   if [[ -f "$INSTALL_OPTIONS_FILE" ]]
   then
@@ -358,9 +358,9 @@ function add_user()
     then
       if [[ -z "$groupID" ]]
       then
-        ${addUserCmd} || failure 12 "Failed to add user ${username}"
+        ${addUserCmd} || failure ${EXIT_FAIL_ADDUSER} "Failed to add user ${username}"
       else
-        ${addUserCmd} "${userId}" || ${addUserCmd} || failure 12 "Failed to add user ${username}"
+        ${addUserCmd} "${userId}" || ${addUserCmd} || failure ${EXIT_FAIL_ADDUSER} "Failed to add user ${username}"
       fi
   fi
 }
