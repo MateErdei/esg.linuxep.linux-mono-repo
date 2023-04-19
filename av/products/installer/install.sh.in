@@ -407,7 +407,7 @@ function add_user()
   fi
 
   userAddCmd="${USERADD} ${username} --no-create-home --no-user-group --gid ${groupname} --system --shell=/bin/false --home-dir=${SOPHOS_INSTALL}${args}"
-  [[ -z "$("${GETENT}" passwd "${groupname}")" ]] && ${userAddCmd} "${userId}" || ${userAddCmd} || failure ${EXIT_FAIL_ADDUSER} "Failed to add user ${username}"
+  [[ -z "$("${GETENT}" passwd "${username}")" ]] && ${userAddCmd} "${userId}" || ${userAddCmd} || failure ${EXIT_FAIL_ADDUSER} "Failed to add user ${username}"
 }
 
 function install_product()
