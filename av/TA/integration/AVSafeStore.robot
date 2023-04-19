@@ -22,6 +22,8 @@ Library         Collections
 Test Setup      SafeStore Test Setup
 Test Teardown   SafeStore Test TearDown
 
+Default Tags    TAP_TESTS
+
 *** Variables ***
 ${CLEAN_STRING}                      not an eicar
 ${NORMAL_DIRECTORY}                  /home/vagrant/this/is/a/directory/for/scanning

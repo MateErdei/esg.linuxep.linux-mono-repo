@@ -19,6 +19,8 @@ Suite Teardown  Uninstall All
 Test Setup      AV and Base Setup
 Test Teardown   AV And Base Teardown
 
+Default Tags    TAP_TESTS
+
 *** Keywords ***
 SafeStore Telemetry Suite Setup
     Install With Base SDDS

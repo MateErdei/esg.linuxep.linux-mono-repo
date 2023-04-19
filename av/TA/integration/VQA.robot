@@ -18,6 +18,8 @@ Suite Teardown  VQA Suite TearDown
 Test Setup      VQA Test Setup
 Test Teardown   VQA Test TearDown
 
+Default Tags    TAP_TESTS
+
 *** Test Cases ***
 
 SUSI config can scan android file

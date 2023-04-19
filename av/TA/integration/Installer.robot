@@ -28,6 +28,8 @@ Suite Teardown  Installer Suite TearDown
 Test Setup      Installer Test Setup
 Test Teardown   Installer Test TearDown
 
+Default Tags    TAP_TESTS
+
 *** Variables ***
 
 ${MOCKED_INSTALL_SET}    /tmp/mocked_install_set

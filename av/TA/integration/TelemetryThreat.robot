@@ -17,6 +17,8 @@ Suite Teardown  Telemetry Suite Teardown
 Test Setup      AV And Base Setup
 Test Teardown   AV And Base Teardown
 
+Default Tags    TAP_TESTS
+
 *** Keywords ***
 Telemetry Suite Setup
     Install With Base SDDS

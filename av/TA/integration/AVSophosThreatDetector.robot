@@ -19,6 +19,8 @@ Suite Teardown  AVSophosThreatDetector Suite TearDown
 Test Setup      AVSophosThreatDetector Test Setup
 Test Teardown   AVSophosThreatDetector Test TearDown
 
+Default Tags    TAP_TESTS
+
 *** Variables ***
 ${CLEAN_STRING}     not an eicar
 ${CUSTOMERID_FILE}  ${COMPONENT_ROOT_PATH}/chroot/${COMPONENT_ROOT_PATH}/var/customer_id.txt

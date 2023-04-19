@@ -21,6 +21,8 @@ Suite Teardown   Uninstall All
 Test Setup      Diagnose Test Setup
 Test Teardown   Diagnose Test TearDown
 
+Default Tags    TAP_TESTS
+
 *** Keywords ***
 
 Diagnose Test Setup
