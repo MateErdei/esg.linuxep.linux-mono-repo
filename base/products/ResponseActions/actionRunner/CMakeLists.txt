@@ -4,7 +4,7 @@ target_link_libraries(sophos_actions PUBLIC responseactionmain)
 
 SET_TARGET_PROPERTIES(sophos_actions
         PROPERTIES
-        INSTALL_RPATH "$ORIGIN/../lib64:$ORIGIN/../../../base/lib64"
+        INSTALL_RPATH "$ORIGIN/../lib64"
         )
 
 install(TARGETS sophos_actions
