@@ -10,184 +10,244 @@
 #include "Process/IProcess.h"
 #include "UtilityImpl/TimeUtils.h"
 
-namespace ResponseActionsImpl
+#include <sys/poll.h>
+
+using namespace ResponseActionsImpl;
+
+RunCommandAction::RunCommandAction(Common::ISignalHandlerSharedPtr sigHandler
+                                   , Common::SystemCallWrapper::ISystemCallWrapperFactorySharedPtr sysCallFactory) :
+    m_SignalHandler(std::move(sigHandler))
 {
-    void to_json(nlohmann::json& j, const SingleCommandResult& singleCommandResult)
+    m_SysCallWrapper = sysCallFactory->createSystemCallWrapper();
+}
+
+nlohmann::json RunCommandAction::run(const std::string& actionJson, const std::string& correlationId)
+{
+    nlohmann::json response;
+    try
     {
-        j = nlohmann::json{ { "duration", singleCommandResult.duration },
-                            { "exitCode", singleCommandResult.exitCode },
-                            { "stdErr", singleCommandResult.stdErr },
-                            { "stdOut", singleCommandResult.stdOut } };
+        ResponseActionsImpl::CommandRequest action = parseCommandAction(actionJson);
+        CommandResponse results = runCommands(action, correlationId);
+        // CommandResponse -> json
+        response = results;
+    }
+    catch (const InvalidCommandFormat& ex)
+    {
+        LOGWARN(ex.what());
+        ActionsUtils::setErrorInfo(
+            response,
+            static_cast<int>(ResponseActions::RACommon::ResponseResult::ERROR),
+            "Error parsing command from Central: " + correlationId);
+    }
+    return response;
+}
+
+CommandResponse RunCommandAction::runCommands(const CommandRequest& action, const std::string& correlationId)
+{
+    CommandResponse response;
+
+    // Check if command has expired
+    if (ActionsUtils::isExpired(action.expiration))
+    {
+        LOGWARN("Command " << correlationId << " has expired so will not be run.");
+        response.result = ResponseActions::RACommon::ResponseResult::EXPIRED;
+        return response;
     }
 
-    void to_json(nlohmann::json& j, const CommandResponse& cmdResponse)
+    // Record start time of commands, so we can work out overall duration
+    Common::UtilityImpl::FormattedTime time;
+    u_int64_t start = time.currentEpochTimeInSecondsAsInteger();
+    response.startedAt = start;
+
+    if (action.commands.size() > 1)
     {
-        j = nlohmann::json{ { "type", cmdResponse.type },
-                            { "result", cmdResponse.result },
-                            { "commandResults", cmdResponse.commandResults },
-                            { "duration", cmdResponse.duration },
-                            { "startedAt", cmdResponse.startedAt } };
+        LOGINFO("Running " << action.commands.size() << " commands");
+    }
+    else
+    {
+        LOGINFO("Running " << action.commands.size() << " command");
     }
 
-    namespace RunCommandAction
+    // Counter used for logging only
+    int cmdCounter = 1;
+
+    // Run the commands and save the result
+    for (const auto& command : action.commands)
     {
-        nlohmann::json run(const std::string& actionJson, const std::string& correlationId)
+        LOGINFO("Running command " << cmdCounter);
+        ResponseActionsImpl::SingleCommandResult cmdResult = runCommand(command);
+        response.commandResults.push_back(cmdResult);
+        LOGINFO("Command " << cmdCounter << " exit code: " << cmdResult.exitCode);
+        cmdCounter++;
+
+        if (m_terminate)
         {
-            nlohmann::json response;
-            try
-            {
-                ResponseActionsImpl::CommandRequest action = parseCommandAction(actionJson);
-                CommandResponse results = runCommands(action, correlationId);
-                // CommandResponse -> json
-                response = results;
-            }
-            catch (const InvalidCommandFormat& ex)
-            {
-                LOGWARN(ex.what());
-                ActionsUtils::setErrorInfo(
-                    response,
-                    static_cast<int>(ResponseActions::RACommon::ResponseResult::ERROR),
-                    "Error parsing command from Central: " + correlationId);
-            }
-            return response;
+            break;
         }
 
-        CommandResponse runCommands(const CommandRequest& action, const std::string& correlationId)
+        if (cmdResult.exitCode != 0 && !action.ignoreError)
         {
-            CommandResponse response;
-
-            // Check if command has expired
-            if (ActionsUtils::isExpired(action.expiration))
+            if (action.commands.size() > response.commandResults.size())
             {
-                LOGWARN("Command " << correlationId << " has expired so will not be run.");
-                response.result = ResponseActions::RACommon::ResponseResult::EXPIRED;
-                return response;
+                LOGINFO("Got nonzero exit code from command and ignore errors is set to off, so not running "
+                        "further commands for this action.");
             }
-
-            // Record start time of commands, so we can work out overall duration
-            Common::UtilityImpl::FormattedTime time;
-            u_int64_t start = time.currentEpochTimeInSecondsAsInteger();
-            response.startedAt = start;
-
-            if (action.commands.size() > 1)
-            {
-                LOGINFO("Running " << action.commands.size() << " commands");
-            }
-            else
-            {
-                LOGINFO("Running " << action.commands.size() << " command");
-            }
-
-            // Counter used for logging only
-            int cmdCounter = 1;
-
-            // Run the commands and save the result
-            for (const auto& command : action.commands)
-            {
-                LOGINFO("Running command " << cmdCounter);
-                ResponseActionsImpl::SingleCommandResult cmdResult = RunCommandAction::runCommand(command);
-                response.commandResults.push_back(cmdResult);
-                LOGINFO("Command " << cmdCounter << " exit code: " << cmdResult.exitCode);
-                cmdCounter++;
-                if (cmdResult.exitCode != 0 && !action.ignoreError)
-                {
-                    if (action.commands.size() > response.commandResults.size())
-                    {
-                        LOGINFO("Got nonzero exit code from command and ignore errors is set to off, so not running "
-                                "further commands for this action.");
-                    }
-                    break;
-                }
-            }
-
-            // Check if any commands did not exit with success (0 exitcode)
-            bool anyErrors =
-                std::find_if(
-                    response.commandResults.cbegin(),
-                    response.commandResults.cend(),
-                    [](const auto& result) { return result.exitCode != 0; }) != response.commandResults.cend();
-
-            response.result = anyErrors ? ResponseActions::RACommon::ResponseResult::ERROR
-                                        : ResponseActions::RACommon::ResponseResult::SUCCESS;
-            LOGINFO("Overall command result: " << static_cast<int>(response.result));
-
-            u_int64_t finish = time.currentEpochTimeInSecondsAsInteger();
-            response.duration = finish - start;
-            return response;
+            break;
         }
+    }
 
-        ResponseActionsImpl::SingleCommandResult runCommand(const std::string& command)
+    // Check if any commands did not exit with success (0 exitcode)
+    bool anyErrors =
+        std::find_if(
+            response.commandResults.cbegin(),
+            response.commandResults.cend(),
+            [](const auto& result) { return result.exitCode != 0; }) != response.commandResults.cend();
+
+    response.result = anyErrors ? ResponseActions::RACommon::ResponseResult::ERROR
+                                : ResponseActions::RACommon::ResponseResult::SUCCESS;
+    LOGINFO("Overall command result: " << static_cast<int>(response.result));
+
+    u_int64_t finish = time.currentEpochTimeInSecondsAsInteger();
+    response.duration = finish - start;
+    return response;
+}
+
+ResponseActionsImpl::SingleCommandResult RunCommandAction::runCommand(const std::string& command)
+{
+    Common::UtilityImpl::FormattedTime time;
+    u_int64_t start = time.currentEpochTimeInSecondsAsInteger();
+
+    ResponseActionsImpl::SingleCommandResult response;
+
+    m_SignalHandler->clearSubProcessExitPipe();
+    m_SignalHandler->clearTerminationPipe();
+    m_SignalHandler->clearUSR1Pipe();
+
+    auto process = ::Common::Process::createProcess();
+    std::vector<std::string> cmd = { "-c", command };
+    process->exec("/bin/bash", cmd);
+
+    assert(process != nullptr);
+
+    struct pollfd fds[]
+    {
+        { .fd = m_SignalHandler->terminationFileDescriptor(), .events = POLLIN, .revents = 0 },
+        { .fd = m_SignalHandler->subprocessExitFileDescriptor(), .events = POLLIN, .revents = 0 },
+        { .fd = m_SignalHandler->usr1FileDescriptor(), .events = POLLIN, .revents = 0 }
+    };
+
+    while(true)
+    {
+        auto ret = m_SysCallWrapper->ppoll(fds, std::size(fds), nullptr, nullptr);
+
+        //Shouldnt be timing out
+        assert(ret != 0);
+
+        if (ret < 0)
         {
-            Common::UtilityImpl::FormattedTime time;
-            u_int64_t start = time.currentEpochTimeInSecondsAsInteger();
-
-            ResponseActionsImpl::SingleCommandResult response;
-
-            auto process = ::Common::Process::createProcess();
-            std::vector<std::string> cmd = { "-c", command };
-            process->exec("/bin/bash", cmd);
-
-            // Currently RA Plugin will kill this process so we can just wait indefinitely
-            // TODO LINUXDAR-7020 add signal handler https://sophos.atlassian.net/browse/LINUXDAR-7020
-            process->waitUntilProcessEnds();
-
-            response.stdOut = process->standardOutput();
-            response.stdErr = process->errorOutput();
-            response.exitCode = process->exitCode();
-
-            u_int64_t finish = time.currentEpochTimeInSecondsAsInteger();
-            response.duration = finish - start;
-            return response;
+            int err = errno;
+            if (err == EINTR)
+            {
+                LOGDEBUG("Ignoring EINTR from ppoll");
+                continue;
+            }
+            LOGERROR("Error from ppoll while waiting for command to finish: " << std::strerror(err) << "(" << err << ")");
+            break;
         }
-
-        ResponseActionsImpl::CommandRequest parseCommandAction(const std::string& actionJson)
+        else
         {
-            ResponseActionsImpl::CommandRequest action;
-            nlohmann::json actionObject;
-            if (actionJson.empty())
+            if ((fds[0].revents & POLLIN) != 0)
             {
-                throw InvalidCommandFormat("Run command action JSON is empty");
+                LOGINFO("RunCommandAction has received termination command");
+                m_terminate = true;
+                break;
             }
-
-            try
+            if ((fds[1].revents & POLLIN) != 0)
             {
-                actionObject = nlohmann::json::parse(actionJson);
+                LOGDEBUG("Child Process has received termination command");
+                //There is a delay between the child getting the signal and boost reporting the process as finished
+                process->wait(Common::Process::Milliseconds{100}, 10);
+                break;
             }
-            catch (const nlohmann::json::exception& exception)
+            if ((fds[2].revents & POLLIN) != 0)
             {
-                throw InvalidCommandFormat(
-                    "Cannot parse run command action with JSON error: " + std::string(exception.what()));
+                LOGINFO("RunCommandAction has received termination command due to Timeout");
+                //There is a delay between the child getting the signal and boost reporting the process as finished
+                m_terminate = true;
+                break;
             }
-
-            // Check all required keys are present
-            std::vector<std::string> requiredKeys = { "type", "commands", "timeout", "ignoreError", "expiration" };
-            for (const auto& key : requiredKeys)
-            {
-                if (!actionObject.contains(key))
-                {
-                    throw InvalidCommandFormat("No '" + key + "' in run command action JSON");
-                }
-            }
-
-            try
-            {
-                action.commands = actionObject["commands"].get<std::vector<std::string>>();
-                action.timeout = actionObject.at("timeout");
-                action.ignoreError = actionObject.at("ignoreError");
-                action.expiration = actionObject.at("expiration");
-            }
-            catch (const std::exception& exception)
-            {
-                throw InvalidCommandFormat(
-                    "Failed to create Command Request object from run command JSON: " + std::string(exception.what()));
-            }
-
-            if (action.commands.empty())
-            {
-                throw InvalidCommandFormat("No commands to perform in run command JSON: " + actionJson);
-            }
-
-            return action;
         }
-    } // namespace RunCommandAction
-} // namespace ResponseActionsImpl
+    }
+
+    if (process->getStatus() != Common::Process::ProcessStatus::FINISHED)
+    {
+        LOGINFO("Child process is still running, killing process");
+        if (process->kill())
+        {
+            LOGINFO("Child process killed as it took longer than 2 seconds to stop");
+        }
+        else
+        {
+            LOGINFO("Child process exited cleanly");
+        }
+        process->waitUntilProcessEnds();
+    }
+
+    response.stdOut = process->standardOutput();
+    response.stdErr = process->errorOutput();
+    response.exitCode = process->exitCode();
+
+    u_int64_t finish = time.currentEpochTimeInSecondsAsInteger();
+    response.duration = finish - start;
+    return response;
+}
+
+ResponseActionsImpl::CommandRequest RunCommandAction::parseCommandAction(const std::string& actionJson)
+{
+    ResponseActionsImpl::CommandRequest action;
+    nlohmann::json actionObject;
+    if (actionJson.empty())
+    {
+        throw InvalidCommandFormat("Run command action JSON is empty");
+    }
+
+    try
+    {
+        actionObject = nlohmann::json::parse(actionJson);
+    }
+    catch (const nlohmann::json::exception& exception)
+    {
+        throw InvalidCommandFormat(
+            "Cannot parse run command action with JSON error: " + std::string(exception.what()));
+    }
+
+    // Check all required keys are present
+    std::vector<std::string> requiredKeys = { "type", "commands", "timeout", "ignoreError", "expiration" };
+    for (const auto& key : requiredKeys)
+    {
+        if (!actionObject.contains(key))
+        {
+            throw InvalidCommandFormat("No '" + key + "' in run command action JSON");
+        }
+    }
+
+    try
+    {
+        action.commands = actionObject["commands"].get<std::vector<std::string>>();
+        action.timeout = actionObject.at("timeout");
+        action.ignoreError = actionObject.at("ignoreError");
+        action.expiration = actionObject.at("expiration");
+    }
+    catch (const std::exception& exception)
+    {
+        throw InvalidCommandFormat(
+            "Failed to create Command Request object from run command JSON: " + std::string(exception.what()));
+    }
+
+    if (action.commands.empty())
+    {
+        throw InvalidCommandFormat("No commands to perform in run command JSON: " + actionJson);
+    }
+
+    return action;
+}
