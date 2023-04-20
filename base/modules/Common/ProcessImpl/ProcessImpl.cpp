@@ -70,6 +70,7 @@ namespace Common::ProcessImpl
 
         void sendTerminateSignal() override { }
         void sendAbortSignal() override { }
+        void sendUsr1Signal() override { };
 
         void kill() override { }
     };
@@ -105,6 +106,7 @@ namespace Common::ProcessImpl
 
         void sendTerminateSignal() override { }
         void sendAbortSignal() override { }
+        void sendUsr1Signal() override { };
 
         void kill() override { }
     };
@@ -242,6 +244,12 @@ namespace Common::ProcessImpl
             }
         }
         return requiredKill;
+    }
+
+    void ProcessImpl::sendSIGUSR1()
+    {
+        auto processOnBoost = safeAccess();
+        processOnBoost->sendUsr1Signal();
     }
 
     Process::ProcessStatus ProcessImpl::getStatus()

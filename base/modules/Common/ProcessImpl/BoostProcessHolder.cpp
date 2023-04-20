@@ -595,6 +595,16 @@ namespace Common
             ::kill(m_pid, SIGABRT);
         }
 
+        void BoostProcessHolder::sendUsr1Signal()
+        {
+            if (hasFinished())
+            {
+                return;
+            }
+            LOGINFO("Sending SIGUSR1 signal to process " << m_pid);
+            ::kill(m_pid, SIGUSR1);
+        }
+
         void BoostProcessHolder::kill()
         {
             if (hasFinished())

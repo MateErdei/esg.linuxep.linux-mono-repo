@@ -81,6 +81,13 @@ namespace Common
 
             /**
              *
+             * send SIGUSR1 to child process
+             *
+             */
+            virtual void sendSIGUSR1() = 0;
+
+            /**
+             *
              * exitCode of the child process, return only when child process has completed. If child process has not
              * finished call will be blocked.
              *

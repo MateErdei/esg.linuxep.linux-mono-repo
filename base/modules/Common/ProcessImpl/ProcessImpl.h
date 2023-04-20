@@ -47,6 +47,7 @@ namespace Common
             std::string standardOutput() override;
             bool kill() override;
             bool kill(int secondsBeforeSIGKILL) override;
+            void sendSIGUSR1() override;
 
             Process::ProcessStatus getStatus() override;
 

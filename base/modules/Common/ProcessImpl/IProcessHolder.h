@@ -40,6 +40,8 @@ namespace Common
 
             virtual void sendAbortSignal() = 0;
 
+            virtual void sendUsr1Signal() = 0;
+
             virtual void kill() = 0;
         };
     } // namespace ProcessImpl
