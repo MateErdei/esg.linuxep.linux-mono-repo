@@ -258,6 +258,7 @@ Custom User And Group IDs Are Used To Create SPL Users And Groups From ThinInsta
     Should Be Equal As Strings    ${sophos_spl_ipc_gid}          1995
 
     Verify Product is Running Without Error After ID Change
+    Remove File    /tmp/InstallOptionsTestFile
 
 *** Keywords ***
 Watchdog User Group Test Setup
