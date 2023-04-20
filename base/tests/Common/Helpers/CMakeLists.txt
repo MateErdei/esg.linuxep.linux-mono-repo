@@ -1,33 +1,37 @@
 include(GoogleTest)
 
 add_library(testhelpersobject OBJECT
+        FakeTimeUtils.cpp
+        FakeTimeUtils.h
+        FilePermissionsReplaceAndRestore.cpp
+        FilePermissionsReplaceAndRestore.h
+        FileSystemReplaceAndRestore.cpp
+        FileSystemReplaceAndRestore.h
+        LogInitializedTests.h
+        MemoryAppender.h
+        MockApiBaseServices.h
+        MockCurlWrapper.h
+        MockFilePermissions.h
+        MockFileSystem.h
+        MockHttpRequester.h
+        MockiNotifyWrapper.h
+        MockPlatformUtils.h
+        MockSignalHandler.h
+        MockSysCalls.h
+        MockSysCallsFactory.h
+        MockSystemUtils.h
+        MockZipUtils.h
+        MockZmqContext.h
+        OutputToLog.cpp
+        OutputToLog.h
         TempDir.cpp
         TempDir.h
         TestExecutionSynchronizer.cpp
         TestExecutionSynchronizer.h
         TestExecutionSynchronizer.h
-        FilePermissionsReplaceAndRestore.h
-        FilePermissionsReplaceAndRestore.cpp
-        FileSystemReplaceAndRestore.h
-        FileSystemReplaceAndRestore.cpp
-        MockApiBaseServices.h
-        MockFilePermissions.h
-        MockFileSystem.h
-        MockHttpRequester.h
-        MockCurlWrapper.h
-        MockFileSystem.h
-        MockZipUtils.h
-        MockZmqContext.h
-        FakeTimeUtils.cpp
-        FakeTimeUtils.h
-        MockiNotifyWrapper.h
-        LogInitializedTests.h
-        TestMacros.h
         TestMacros.cpp
-        OutputToLog.cpp
-        OutputToLog.h
-        MockPlatformUtils.h
-        MockSystemUtils.h
+        TestMacros.h
+        TestSpecificDirectory.h
         )
 
 target_include_directories(testhelpersobject SYSTEM BEFORE PUBLIC ${GMOCK_INCLUDE} ${GTEST_INCLUDE})
