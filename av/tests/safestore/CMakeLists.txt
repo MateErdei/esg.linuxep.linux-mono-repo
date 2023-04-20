@@ -32,8 +32,8 @@ target_link_libraries(SafeStoreTapTests
         PUBLIC
         ${GTEST_LIBRARY}
         ${GTEST_MAIN_LIBRARY}
+        ${libstdcpp_path}
         ${testhelperslib}
-        ${log4cpluslib}
         ${pluginapilib}
         safestoreimpl
         pthread
@@ -41,7 +41,7 @@ target_link_libraries(SafeStoreTapTests
 set_target_properties(SafeStoreTapTests PROPERTIES
         BUILD_RPATH "${CMAKE_BINARY_DIR}/libs"
         # Will rely on having AV installed to run this binary so we don't need to keep a list of needed libs up to date.
-        INSTALL_RPATH "$ORIGIN")
+        INSTALL_RPATH "$ORIGIN:/opt/sophos-spl/plugins/av/lib64/")
 
 install(TARGETS SafeStoreTapTests
         DESTINATION ${CMAKE_BINARY_DIR}/tap_test_output)

@@ -25,8 +25,8 @@ target_include_directories(SendDataToSocket PUBLIC .${CMAKE_SOURCE_DIR}/modules 
 target_link_libraries(SendDataToSocket ${zmqlib} ${pluginapilib} ${log4cpluslib} ${CAPNPROTO_LIBRARIES} scanmessages unixsocket)
 
 SET_TARGET_PROPERTIES(SendDataToSocket
-        PROPERTIES BUILD_RPATH "$ORIGIN"
-        INSTALL_RPATH "$ORIGIN")
+        PROPERTIES BUILD_RPATH "${CMAKE_BINARY_DIR}/libs"
+        INSTALL_RPATH "/opt/sophos-spl/plugins/av/lib64")
 
 install(TARGETS SendDataToSocket
         DESTINATION ${CMAKE_BINARY_DIR}/tap_test_output
