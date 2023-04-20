@@ -1,17 +1,13 @@
-/******************************************************************************************************
-
-Copyright 2018-2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 #include "SignalHandler.h"
 
 #include <csignal>
-#include <cstdlib>
 
 namespace
 {
     Common::Threads::NotifyPipe GL_CHILD_PROCESS_TERMINATED_PIPE;
     Common::Threads::NotifyPipe GL_TERM_PIPE;
+    Common::Threads::NotifyPipe GL_USR1_PIPE;
 
     void signal_handler(int signal)
     {
@@ -23,28 +19,34 @@ namespace
         {
             GL_TERM_PIPE.notify();
         }
+        else if (signal == SIGUSR1)
+        {
+            GL_USR1_PIPE.notify();
+        }
     }
 
     void setSignalHandler()
     {
-        struct sigaction signalBuf; // NOLINT
+        struct sigaction signalBuf;
         signalBuf.sa_handler = signal_handler;
         sigemptyset(&signalBuf.sa_mask);
-        signalBuf.sa_flags = SA_NOCLDSTOP | SA_RESTART; // NOLINT
+        signalBuf.sa_flags = SA_NOCLDSTOP | SA_RESTART;
         ::sigaction(SIGCHLD, &signalBuf, nullptr);
         ::sigaction(SIGINT, &signalBuf, nullptr);
         ::sigaction(SIGTERM, &signalBuf, nullptr);
+        ::sigaction(SIGUSR1, &signalBuf, nullptr);
     }
 
     void clearSignalHandler()
     {
-        struct sigaction signalBuf; // NOLINT
+        struct sigaction signalBuf;
         signalBuf.sa_handler = SIG_DFL;
         sigemptyset(&signalBuf.sa_mask);
-        signalBuf.sa_flags = SA_NOCLDSTOP | SA_RESTART | SA_NOCLDWAIT; // NOLINT
+        signalBuf.sa_flags = SA_NOCLDSTOP | SA_RESTART | SA_NOCLDWAIT;
         ::sigaction(SIGCHLD, &signalBuf, nullptr);
         ::sigaction(SIGINT, &signalBuf, nullptr);
         ::sigaction(SIGTERM, &signalBuf, nullptr);
+        ::sigaction(SIGUSR1, &signalBuf, nullptr);
     }
 
 } // namespace
@@ -77,8 +79,21 @@ namespace Common
             return ret;
         }
 
+        bool SignalHandler::clearUSR1Pipe()
+        {
+            bool ret = false;
+            while (GL_USR1_PIPE.notified())
+            {
+                ret = true;
+            }
+            return ret;
+        }
+
+
         int SignalHandler::subprocessExitFileDescriptor() { return GL_CHILD_PROCESS_TERMINATED_PIPE.readFd(); }
 
         int SignalHandler::terminationFileDescriptor() { return GL_TERM_PIPE.readFd(); }
+
+        int SignalHandler::usr1FileDescriptor() { return GL_USR1_PIPE.readFd(); }
     } // namespace ProcessMonitoringImpl
 } // namespace Common
