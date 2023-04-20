@@ -166,22 +166,10 @@ Log XDR Intermediary File
 
 
 Mark Known Upgrade Errors
-    #TODO LINUXDAR-3671 remove when this defect is closed
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/wdctl.log   Failed to remove runtimedetections: Timeout out connecting to watchdog: No incoming data
-    #TODO LINUXDAR-3503 remove when this defect is closed
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/edr/log/edr.log  edr <> Failed to start extension, extension.Start threw: Failed to register extension: Failed adding registry: Duplicate extension
-
     #TODO LINUXDAR-2972 remove when this defect is closed
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  root <> Atomic write failed with message: [Errno 13] Permission denied: '/opt/sophos-spl/tmp/policy/flags.json'
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  root <> Atomic write failed with message: [Errno 2] No such file or directory: '/opt/sophos-spl/tmp/policy/flags.json'
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  root <> utf8 write failed with message: [Errno 13] Permission denied: '/opt/sophos-spl/tmp/policy/flags.json'
-
-    # Deliberatly missing the last part of these lines so it will work on all plugin registry files.
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  mcsrouter.utils.plugin_registry <> Failed to load plugin file: /opt/sophos-spl/base/pluginRegistry
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  mcsrouter.utils.plugin_registry <> [Errno 13] Permission denied: '/opt/sophos-spl/base/pluginRegistry
-
-    #TODO LINUXDAR-3490 remove when this defect is fixed
-    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/watchdog.log    ProcessMonitoringImpl <> /opt/sophos-spl/plugins/runtimedetections/bin/runtimedetections died with 1
 
 Create Local SDDS3 Override
     [Arguments]  ${URLS}=https://localhost:8080  ${CDN_URL}=https://localhost:8080  ${USE_SDDS3_OVERRIDE}=true
