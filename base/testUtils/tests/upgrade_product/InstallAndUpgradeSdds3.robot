@@ -187,9 +187,6 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     Run Keyword And Expect Error  *
     ...     Check Log Contains String N  times ${SOPHOS_INSTALL}/plugins/av/log/av.log  av.log  Exiting sophos_threat_detector with code: 15  2
 
-    #TODO LINUXDAR-2972 remove when this defect is closed
-    Mark Expected Error In Log    ${SOPHOS_INSTALL}/logs/base/watchdog.log    ProcessMonitoringImpl <> /opt/sophos-spl/plugins/responseactions/bin/responseactions died with signal 11
-
     Check All Product Logs Do Not Contain Error
     Check All Product Logs Do Not Contain Critical
 
