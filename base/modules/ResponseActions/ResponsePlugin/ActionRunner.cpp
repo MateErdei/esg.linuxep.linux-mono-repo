@@ -9,30 +9,32 @@
 #include "Common/FileSystem/IFileSystem.h"
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 
+using namespace ResponseActions::RACommon;
+using namespace Common::Process;
+
 namespace ResponsePlugin
 {
-
     void sendFailedResponse(
-        ResponseActions::RACommon::ResponseResult result,
+        ResponseResult result,
         const std::string& requestType,
         const std::string& correlationId)
     {
         LOGINFO("Response Actions plugin sending failed response to Central on behalf of Action Runner process");
         nlohmann::json response;
-        if (requestType == ResponseActions::RACommon::RUN_COMMAND_REQUEST_TYPE)
+        if (requestType == RUN_COMMAND_REQUEST_TYPE)
         {
-            response["type"] = ResponseActions::RACommon::RUN_COMMAND_RESPONSE_TYPE;
+            response["type"] = RUN_COMMAND_RESPONSE_TYPE;
         }
-        else if (requestType == ResponseActions::RACommon::UPLOAD_FILE_REQUEST_TYPE)
+        else if (requestType == UPLOAD_FILE_REQUEST_TYPE)
         {
-            response["type"] = ResponseActions::RACommon::UPLOAD_FILE_RESPONSE_TYPE;
+            response["type"] = UPLOAD_FILE_RESPONSE_TYPE;
         }
-        else if (requestType == ResponseActions::RACommon::UPLOAD_FOLDER_REQUEST_TYPE)
+        else if (requestType == UPLOAD_FOLDER_REQUEST_TYPE)
         {
-            response["type"] = ResponseActions::RACommon::UPLOAD_FOLDER_RESPONSE_TYPE;
+            response["type"] = UPLOAD_FOLDER_RESPONSE_TYPE;
         }
         response["result"] = static_cast<int>(result);
-        ResponseActions::RACommon::sendResponse(correlationId, response.dump());
+        sendResponse(correlationId, response.dump());
     }
 
     void ActionRunner::runAction(
@@ -49,17 +51,28 @@ namespace ResponsePlugin
             {
                 std::string exePath =
                     Common::ApplicationConfiguration::applicationPathManager().getResponseActionRunnerPath();
-                this->m_process = Common::Process::createProcess();
+                this->m_process = createProcess();
                 LOGINFO("Trigger process at: " << exePath << " for action: " << correlationId);
                 std::vector<std::string> arguments = { correlationId, action, type };
                 this->m_process->exec(exePath, arguments, {});
-                Common::Process::ProcessStatus processStatus = this->m_process->wait(std::chrono::seconds(timeout), 1);
+                ProcessStatus processStatus = this->m_process->wait(std::chrono::seconds(timeout), 1);
                 bool timedOut = false;
-                if (processStatus != Common::Process::ProcessStatus::FINISHED)
+                if (processStatus != ProcessStatus::FINISHED)
                 {
                     std::stringstream msg;
                     msg << "reaching timeout of " << timeout << " secs, correlation ID: " << correlationId;
-                    timedOut = !kill(msg.str());
+                    this->m_process->sendSIGUSR1();
+                    //Wait for process to handle signal and exit which should be done within 3 seconds
+                    this->m_process->wait(std::chrono::seconds(3), 1);
+                    if (this->m_process->getStatus() != ProcessStatus::FINISHED)
+                    {
+                        timedOut = !kill(msg.str());
+                    }
+                    else
+                    {
+                        LOGWARN("Action Runner was stopped after " + msg.str());
+                        timedOut = true;
+                    }
                 }
                 auto output = this->m_process->output();
                 if (!output.empty())
@@ -84,8 +97,6 @@ namespace ResponsePlugin
                 }
                 isRunning = false;
             });
-        //TODO Remove
-        m_fut.get();
     }
 
     void ActionRunner::killAction()
@@ -100,7 +111,6 @@ namespace ResponsePlugin
 
     bool ActionRunner::kill(const std::string& msg)
     {
-        //TODO Test this
         if (this->m_process->kill())
         {
             LOGWARN("Action Runner had to be killed after " + msg);
