@@ -146,6 +146,7 @@ public:
         return true;
     }
     bool kill(int secondsBeforeSIGKILL) override { return kill(); }
+    void sendSIGUSR1() override { return; }
     int exitCode() override { return 0; };
     int nativeExitCode() override { return 0; };
     std::string output() override
