@@ -170,7 +170,10 @@ Test Run Command Action Does Not Block RA Plugin Stopping
 
     Wait Until Created    ${RESPONSE_JSON}
     ${response_content}=  Get File    ${RESPONSE_JSON}
-    Should Be Equal As Strings   ${response_content}    {"result":3,"type":"sophos.mgt.response.RunCommands"}
+
+    ${lines} =  Get Lines Containing String     ${response_content}  {"commandResults":[{"duration":0,"exitCode":15,"stdErr":"","stdOut":""}],"duration":0,"result":1
+    ${count} =  Get Line Count   ${lines}
+    Should Be Equal As Integers  ${count}  ${1}
 
 *** Keywords ***
 
