@@ -968,10 +968,9 @@ SSPLAV can load old VDL
 
 AV Installer Sets UID From Base Install Options File When Present
     Run plugin uninstaller
-    Create File    ${SOPHOS_INSTALL}/base/etc/install_options    --user-ids-to-configure=sophos-spl-local:1995,sophos-spl-updatescheduler:1994,sophos-spl-user:1996,sophos-spl-av:1997,sophos-spl-threat-detector:1998
+    Copy File    ${RESOURCES_PATH}/requested_user_group_ids_install_options    ${SOPHOS_INSTALL}/base/etc/install_options
 
     Install AV Directly from SDDS
-
     User Should Exist  sophos-spl-av
     User Should Exist  sophos-spl-threat-detector
 
