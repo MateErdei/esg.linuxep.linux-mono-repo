@@ -11,9 +11,9 @@
 #include "ResponseActions/RACommon/ResponseActionsCommon.h"
 
 #include <iostream>
+
 namespace ActionRunner
 {
-
     int responseaction_main::main(int argc, char* argv[])
     {
         if (argc != 4)
