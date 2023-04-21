@@ -429,6 +429,7 @@ SafeStore Purges The Oldest Detection In Its Database When It Exceeds Storage Ca
 
     ${filesInSafeStoreDb} =  Run Process  ${AV_TEST_TOOLS}/safestore_print_tool
     Log  ${filesInSafeStoreDb.stdout}
+    Log  ${filesInSafeStoreDb.stderr}
     Should Contain  ${filesInSafeStoreDb.stdout}  ${eicar1}
 
     ${av_mark} =  Get AV Log Mark
@@ -441,6 +442,7 @@ SafeStore Purges The Oldest Detection In Its Database When It Exceeds Storage Ca
 
     ${filesInSafeStoreDb} =  Run Process  ${AV_TEST_TOOLS}/safestore_print_tool
     Log  ${filesInSafeStoreDb.stdout}
+    Log  ${filesInSafeStoreDb.stderr}
     Should Contain  ${filesInSafeStoreDb.stdout}  ${eicar1}
     Should Contain  ${filesInSafeStoreDb.stdout}  ${eicar2}
 
@@ -454,6 +456,7 @@ SafeStore Purges The Oldest Detection In Its Database When It Exceeds Storage Ca
 
     ${filesInSafeStoreDb} =  Run Process  ${AV_TEST_TOOLS}/safestore_print_tool
     Log  ${filesInSafeStoreDb.stdout}
+    Log  ${filesInSafeStoreDb.stderr}
     Should Contain  ${filesInSafeStoreDb.stdout}  ${eicar2}
     Should Contain  ${filesInSafeStoreDb.stdout}  ${eicar3}
 
@@ -491,6 +494,7 @@ SafeStore Purges The Oldest Detection In Its Database When It Exceeds Detection 
 
     ${filesInSafeStoreDb} =  Run Process  ${AV_TEST_TOOLS}/safestore_print_tool
     Log  ${filesInSafeStoreDb.stdout}
+    Log  ${filesInSafeStoreDb.stderr}
     Should Contain  ${filesInSafeStoreDb.stdout}  ${eicar1}
 
     ${av_mark} =  Get AV Log Mark
@@ -503,6 +507,7 @@ SafeStore Purges The Oldest Detection In Its Database When It Exceeds Detection 
 
     ${filesInSafeStoreDb} =  Run Process  ${AV_TEST_TOOLS}/safestore_print_tool
     Log  ${filesInSafeStoreDb.stdout}
+    Log  ${filesInSafeStoreDb.stderr}
     Should Contain  ${filesInSafeStoreDb.stdout}  ${eicar1}
     Should Contain  ${filesInSafeStoreDb.stdout}  ${eicar2}
 
@@ -516,6 +521,7 @@ SafeStore Purges The Oldest Detection In Its Database When It Exceeds Detection 
 
     ${filesInSafeStoreDb} =  Run Process  ${AV_TEST_TOOLS}/safestore_print_tool
     Log  ${filesInSafeStoreDb.stdout}
+    Log  ${filesInSafeStoreDb.stderr}
     Should Contain  ${filesInSafeStoreDb.stdout}  ${eicar2}
     Should Contain  ${filesInSafeStoreDb.stdout}  ${eicar3}
 
@@ -621,6 +627,7 @@ SafeStore Rescan Does Not Restore Or Report Threats
 
     ${filesInSafeStoreDb} =  Run Process  ${AV_TEST_TOOLS}/safestore_print_tool
     Log  ${filesInSafeStoreDb.stdout}
+    Log  ${filesInSafeStoreDb.stderr}
     Should Contain  ${filesInSafeStoreDb.stdout}  ${eicar1}
     Should Contain  ${filesInSafeStoreDb.stdout}  ${eicar2}
 

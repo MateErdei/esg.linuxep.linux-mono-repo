@@ -15,8 +15,8 @@ add_dependencies(safestore_print_tool
 
 SET_TARGET_PROPERTIES(safestore_print_tool
         PROPERTIES
-        INSTALL_RPATH "${CMAKE_BINARY_DIR}/libs"
-        BUILD_RPATH "/opt/sophos-spl/plugins/av/lib64/"
+        BUILD_RPATH "${CMAKE_BINARY_DIR}/libs"
+        INSTALL_RPATH "/opt/sophos-spl/plugins/av/lib64/"
         )
 
 install(TARGETS safestore_print_tool
