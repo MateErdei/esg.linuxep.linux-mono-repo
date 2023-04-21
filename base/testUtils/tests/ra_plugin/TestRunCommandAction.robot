@@ -169,11 +169,11 @@ Test Run Command Action Does Not Block RA Plugin Stopping
     Should Be True    ${took_less_than_5_seconds}
 
     Wait Until Created    ${RESPONSE_JSON}
-    ${response_content}=  Get File    ${RESPONSE_JSON}
 
-    ${lines} =  Get Lines Containing String     ${response_content}  {"commandResults":[{"duration":0,"exitCode":15,"stdErr":"","stdOut":""}],"duration":0,"result":1
-    ${count} =  Get Line Count   ${lines}
-    Should Be Equal As Integers  ${count}  ${1}
+    &{cmd_output1} =	Create Dictionary	stdOut=    stdErr=    exitCode=${15}
+    @{cmd_output_list} =  Create List   ${cmd_output1}
+    verify_run_command_response    ${RESPONSE_JSON}   ${1}    ${cmd_output_list}
+
 
 *** Keywords ***
 
