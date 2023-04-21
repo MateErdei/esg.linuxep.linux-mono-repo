@@ -26,7 +26,7 @@ nlohmann::json RunCommandAction::run(const std::string& actionJson, const std::s
     nlohmann::json response;
     try
     {
-        ResponseActionsImpl::CommandRequest action = parseCommandAction(actionJson);
+        CommandRequest action = parseCommandAction(actionJson);
         CommandResponse results = runCommands(action, correlationId);
         // CommandResponse -> json
         response = results;
@@ -75,12 +75,12 @@ CommandResponse RunCommandAction::runCommands(const CommandRequest& action, cons
     for (const auto& command : action.commands)
     {
         LOGINFO("Running command " << cmdCounter);
-        ResponseActionsImpl::SingleCommandResult cmdResult = runCommand(command);
+        SingleCommandResult cmdResult = runCommand(command);
         response.commandResults.push_back(cmdResult);
         LOGINFO("Command " << cmdCounter << " exit code: " << cmdResult.exitCode);
         cmdCounter++;
 
-        if (m_terminate)
+        if (m_terminate || m_timeout)
         {
             break;
         }
@@ -96,15 +96,22 @@ CommandResponse RunCommandAction::runCommands(const CommandRequest& action, cons
         }
     }
 
-    // Check if any commands did not exit with success (0 exitcode)
-    bool anyErrors =
-        std::find_if(
-            response.commandResults.cbegin(),
-            response.commandResults.cend(),
-            [](const auto& result) { return result.exitCode != 0; }) != response.commandResults.cend();
+    if (m_timeout)
+    {
+        response.result = ResponseActions::RACommon::ResponseResult::TIMEOUT;
+    }
+    else
+    {
+        // Check if any commands did not exit with success (0 exitcode)
+        bool anyErrors =
+            std::find_if(
+                response.commandResults.cbegin(),
+                response.commandResults.cend(),
+                [](const auto& result) { return result.exitCode != 0; }) != response.commandResults.cend();
 
-    response.result = anyErrors ? ResponseActions::RACommon::ResponseResult::ERROR
-                                : ResponseActions::RACommon::ResponseResult::SUCCESS;
+        response.result = anyErrors ? ResponseActions::RACommon::ResponseResult::ERROR
+                                    : ResponseActions::RACommon::ResponseResult::SUCCESS;
+    }
     LOGINFO("Overall command result: " << static_cast<int>(response.result));
 
     u_int64_t finish = time.currentEpochTimeInSecondsAsInteger();
@@ -112,12 +119,12 @@ CommandResponse RunCommandAction::runCommands(const CommandRequest& action, cons
     return response;
 }
 
-ResponseActionsImpl::SingleCommandResult RunCommandAction::runCommand(const std::string& command)
+SingleCommandResult RunCommandAction::runCommand(const std::string& command)
 {
     Common::UtilityImpl::FormattedTime time;
     u_int64_t start = time.currentEpochTimeInSecondsAsInteger();
 
-    ResponseActionsImpl::SingleCommandResult response;
+    SingleCommandResult response;
 
     m_SignalHandler->clearSubProcessExitPipe();
     m_SignalHandler->clearTerminationPipe();
@@ -171,9 +178,8 @@ ResponseActionsImpl::SingleCommandResult RunCommandAction::runCommand(const std:
             }
             if ((fds[2].revents & POLLIN) != 0)
             {
-                LOGINFO("RunCommandAction has received termination command due to Timeout");
-                //There is a delay between the child getting the signal and boost reporting the process as finished
-                m_terminate = true;
+                LOGINFO("RunCommandAction has received termination command due to timeout");
+                m_timeout = true;
                 break;
             }
         }
@@ -202,9 +208,9 @@ ResponseActionsImpl::SingleCommandResult RunCommandAction::runCommand(const std:
     return response;
 }
 
-ResponseActionsImpl::CommandRequest RunCommandAction::parseCommandAction(const std::string& actionJson)
+CommandRequest RunCommandAction::parseCommandAction(const std::string& actionJson)
 {
-    ResponseActionsImpl::CommandRequest action;
+    CommandRequest action;
     nlohmann::json actionObject;
     if (actionJson.empty())
     {

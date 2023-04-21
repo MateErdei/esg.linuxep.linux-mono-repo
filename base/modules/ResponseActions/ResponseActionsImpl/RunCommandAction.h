@@ -44,5 +44,6 @@ namespace ResponseActionsImpl
             Common::SystemCallWrapper::ISystemCallWrapperSharedPtr m_SysCallWrapper;
 
             bool m_terminate = false;
+            bool m_timeout = false;
     };
 } // namespace ResponseActionsImpl
