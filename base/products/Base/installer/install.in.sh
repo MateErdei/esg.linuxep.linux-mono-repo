@@ -478,9 +478,17 @@ function cleanup_comms_component()
   if [[ -d "${SOPHOS_INSTALL}/var/sophos-spl-comms" ]]
   then
     for entry in lib usr/lib etc/hosts etc/resolv.conf usr/lib64 etc/ssl/certs etc/pki/tls/certs etc/pki/ca-trust/extracted base/mcs/certs base/remote-diagnose/output; do
-        umount --force "${SOPHOS_INSTALL}/var/sophos-spl-comms/${entry}"  > /dev/null 2>&1
+        local mountDir="${SOPHOS_INSTALL}/var/sophos-spl-comms/${entry}"
+        if [[ -e "${mountDir}" ]]
+        then
+          # Will retry until mount is removed
+          while mountpoint -q "${mountDir}"
+          do
+            umount --force "${mountDir}" > /dev/null 2>&1
+          done
+        fi
     done
-    rm -rf "${SOPHOS_INSTALL}/var/sophos-spl-comms"
+    rm -rf "${SOPHOS_INSTALL}/var/sophos-spl-comms" > /dev/null 2>&1
   fi
 
   [[ -d "${SOPHOS_INSTALL}/var/comms" ]] && rm -rf "${SOPHOS_INSTALL}/var/comms"
