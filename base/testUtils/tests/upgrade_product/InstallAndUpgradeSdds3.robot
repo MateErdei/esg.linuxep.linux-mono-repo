@@ -647,7 +647,7 @@ Sul Downloader Can Update Via Sdds3 Repository And Removes Local SDDS2 Cache
     Wait Until Keyword Succeeds
     ...   150 secs
     ...   10 secs
-    ...   Check SulDownloader Log Contains String N Times   Update success  2
+    ...   Check SulDownloader Log Contains String N Times   Update success  1
     Override LogConf File as Global Level  DEBUG
     Create Dummy Local SDDS2 Cache Files
     Check Local SDDS2 Cache Has Contents

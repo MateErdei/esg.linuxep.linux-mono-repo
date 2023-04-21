@@ -1,5 +1,5 @@
 *** Settings ***
-Test Teardown  Test Teardown
+Test Teardown  Upgrade Resources Test Teardown
 Library    Process
 Library    ${LIBS_DIRECTORY}/LogUtils.py
 

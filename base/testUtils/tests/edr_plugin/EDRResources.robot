@@ -263,11 +263,11 @@ EDR Test Teardown
     Run Keyword if Test Failed    Report On MCS_CA
     Run Keyword if Test Failed    Log File  ${UPDATE_CONFIG}
 
-    UpgradeResources.Test Teardown   UninstallAudit=False
+    Upgrade Resources Test Teardown   UninstallAudit=False
 
 EDR Uninstall Teardown
     Require Watchdog Running
-    Test Teardown
+    Upgrade Resources Test Teardown
 
 Uninstall EDR Plugin
     ${result} =  Run Process     ${EDR_PLUGIN_PATH}/bin/uninstall.sh
