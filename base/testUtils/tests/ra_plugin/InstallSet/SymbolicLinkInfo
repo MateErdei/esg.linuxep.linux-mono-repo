@@ -7,6 +7,8 @@ o777, root, root, /opt/sophos-spl/plugins/responseactions/lib64/libatomic.so.1
 o777, root, root, /opt/sophos-spl/plugins/responseactions/lib64/libatomic.so.1.2
 o777, root, root, /opt/sophos-spl/plugins/responseactions/lib64/libatomic.so.1.2.0
 o777, root, root, /opt/sophos-spl/plugins/responseactions/lib64/libbzip2.so
+o777, root, root, /opt/sophos-spl/plugins/responseactions/lib64/libcrypto.so
+o777, root, root, /opt/sophos-spl/plugins/responseactions/lib64/libcrypto.so.3
 o777, root, root, /opt/sophos-spl/plugins/responseactions/lib64/libcurl.so
 o777, root, root, /opt/sophos-spl/plugins/responseactions/lib64/libexpat.so
 o777, root, root, /opt/sophos-spl/plugins/responseactions/lib64/libfilesystemimpl.so
