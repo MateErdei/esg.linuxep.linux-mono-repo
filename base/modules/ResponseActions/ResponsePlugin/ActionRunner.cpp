@@ -56,24 +56,20 @@ namespace ResponsePlugin
                 std::vector<std::string> arguments = { correlationId, action, type };
                 this->m_process->exec(exePath, arguments, {});
                 ProcessStatus processStatus = this->m_process->wait(std::chrono::seconds(timeout), 1);
-                bool timedOut = false;
-                if (processStatus != ProcessStatus::FINISHED)
+                if (processStatus == ProcessStatus::TIMEOUT)
                 {
-                    std::stringstream msg;
-                    msg << "reaching timeout of " << timeout << " secs, correlation ID: " << correlationId;
+                    LOGWARN("Action runner reached time out of " << timeout << " secs, correlation ID: " << correlationId);
+
                     this->m_process->sendSIGUSR1();
                     //Wait for process to handle signal and exit which should be done within 3 seconds
                     this->m_process->wait(std::chrono::seconds(3), 1);
-                    if (this->m_process->getStatus() != ProcessStatus::FINISHED)
-                    {
-                        timedOut = !kill(msg.str());
-                    }
-                    else
-                    {
-                        LOGWARN("Action Runner was stopped after " + msg.str());
-                        timedOut = true;
-                    }
                 }
+
+                if (this->m_process->getStatus() != ProcessStatus::FINISHED)
+                {
+                    kill(" it carried on running unexpectedly");
+                }
+
                 auto output = this->m_process->output();
                 if (!output.empty())
                 {
@@ -90,8 +86,11 @@ namespace ResponsePlugin
 
                     if (code != 1 && code != 4)
                     {
-                        auto result = timedOut ? ResponseActions::RACommon::ResponseResult::TIMEOUT
-                                               : ResponseActions::RACommon::ResponseResult::INTERNAL_ERROR;
+                        auto result = ResponseResult::INTERNAL_ERROR;
+                        if (processStatus == ProcessStatus::TIMEOUT)
+                        {
+                            result = ResponseResult::TIMEOUT;
+                        }
                         sendFailedResponse(result, type, correlationId);
                     }
                 }
