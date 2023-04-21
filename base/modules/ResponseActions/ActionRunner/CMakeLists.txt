@@ -14,7 +14,6 @@ include_directories(responseactionmain BEFORE ${CMAKE_CURRENT_BINARY_DIR} ${LOG4
 target_link_libraries(responseactionmain PUBLIC logging
         HttpRequestsImpl
         curlwrapper
-        processmonitoringimpl
         responseactionsimpl)
 
 SET_TARGET_PROPERTIES(responseactionmain
