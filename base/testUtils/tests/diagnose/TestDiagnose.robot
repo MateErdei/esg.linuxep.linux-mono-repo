@@ -29,7 +29,7 @@ Diagnose Tool Gathers Logs When Run From Installation
     [Tags]  DIAGNOSE  TAP_TESTS  SMOKE
     Mimic Base Component Files  ${SOPHOS_INSTALL}
     Wait Until Created  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcs_envelope.log     20 seconds
-
+    create file    ${SOPHOS_INSTALL}/base/update/var/updatescheduler/installed_features.json
     Create Directory  ${TAR_FILE_DIRECTORY}
     ${retcode} =  Run Diagnose    ${SOPHOS_INSTALL}/bin/     ${TAR_FILE_DIRECTORY}
 
@@ -52,6 +52,7 @@ Diagnose Tool Gathers Logs When Run From Installation
     Should Be Equal As Strings   ${result.rc}  0
 
     Check Diagnose Base Output
+    File Should exist    ${UNPACK_DIRECTORY}/${DiagnoseOutput}/BaseFiles/installed_features.json
     Check Diagnose Output For System Command Files
     Check Diagnose Output For System Files
 

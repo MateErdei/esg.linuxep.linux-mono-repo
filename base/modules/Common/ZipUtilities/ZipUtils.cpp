@@ -6,6 +6,7 @@
 #include "UnzipFileWrapper.h"
 
 #include "Common/FileSystem/IFileSystem.h"
+#include "Common/UtilityImpl/StringUtils.h"
 
 #include <fstream>
 #include <memory>
@@ -276,6 +277,7 @@ namespace Common::ZipUtilities
         auto fs = Common::FileSystem::fileSystem();
         std::vector<Path> filesToZip;
         bool fileOnly = false;
+        int startOfRelativePath = 1;
         if (fs->isFile(srcPath))
         {
             fileOnly = true;
@@ -283,6 +285,11 @@ namespace Common::ZipUtilities
         }
         else if (fs->isDirectory(srcPath))
         {
+            //strip off trailing slash so we can calculate relative paths correctly later on
+            if (Common::UtilityImpl::StringUtils::endswith(srcPath,"/"))
+            {
+                startOfRelativePath = 0;
+            }
             filesToZip = fs->listAllFilesInDirectoryTree(srcPath);
         }
         else
@@ -324,7 +331,7 @@ namespace Common::ZipUtilities
             }
             else
             {
-                relativeFilePath = fullFilePath.substr(srcPath.size() + 1);
+                relativeFilePath = fullFilePath.substr(srcPath.size() + startOfRelativePath);
             }
 
             unsigned long crcFile = 0;
