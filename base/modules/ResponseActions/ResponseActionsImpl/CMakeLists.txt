@@ -13,7 +13,7 @@ add_library(responseactionsimpl SHARED
         UploadFolderAction.h
         RunCommandAction.cpp
         RunCommandAction.h
-        RunCommandAction.cpp)
+        )
 
 include_directories(responseactionsimpl BEFORE
         ${CMAKE_CURRENT_BINARY_DIR}
@@ -26,6 +26,7 @@ target_link_libraries(responseactionsimpl PUBLIC
         ProxyUtilsLib
         HttpRequestsImpl
         curlwrapper
+        systemcallwrapper
         ziputilities
         pluginapi
         ${Protobuf_LIBRARY}
