@@ -185,3 +185,4 @@ Enter Outbreak Mode
     # count events
     ${count} =  Count Files in Directory  ${SOPHOS_INSTALL}/base/mcs/event
     Should be equal as Integers  ${count}  101
+    Check Log Does Not Contain     managementagent <> Failed to write outbreak status to file: chown failed to set user or group owner on   ${BASE_LOGS_DIR}/sophosspl/sophos_managementagent.log    malog

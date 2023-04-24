@@ -635,6 +635,12 @@ then
   chmod 640 "${SOPHOS_INSTALL}/var/sophosspl/upgrade_marker_file"
 fi
 
+if [ -f "${SOPHOS_INSTALL}/var/sophosspl/outbreak_status.json" ]
+then
+  chown -h "${USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/var/sophosspl/outbreak_status.json"
+  chmod 640 "${SOPHOS_INSTALL}/var/sophosspl/outbreak_status.json"
+fi
+
 if [[ -f "${SOPHOS_INSTALL}/base/etc/sophosspl/flags-mcs.json" ]]
 then
     chown "${LOCAL_USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/etc/sophosspl/flags-mcs.json"
