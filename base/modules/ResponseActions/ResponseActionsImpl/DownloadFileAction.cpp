@@ -375,6 +375,7 @@ namespace ResponseActionsImpl
                             if (info.targetPath.back() != '/')
                             {
                                 std::string msg = "Ignoring filepath in targetPath field as the archive contains multiple files";
+                                LOGINFO("Ignoring filepath in targetPath field as the archive contains multiple files");
                                 ActionsUtils::setErrorInfo(response, 0, msg);
                             }
 
