@@ -756,7 +756,7 @@ def run_safestore_restoration_test():
 
     log_utils = LogUtils.LogUtils()
     td_mark = log_utils.get_sophos_threat_detector_log_mark()
-    log_utils.mark_safestore_log()
+    av_mark = log_utils.mark_av_log()
 
     return_code, restored_files, unrestored_files = 0, 0, 0
     corc_policy_path = "/opt/sophos-spl/base/mcs/policy/CORC_policy.xml"
@@ -795,13 +795,12 @@ def run_safestore_restoration_test():
 
         for threat in expected_malware:
             file_path = threat["filePath"]
-            log_utils.wait_for_safestore_log_contains_after_mark(f"Reporting successful restoration of {file_path}", 60)
+            log_utils.wait_for_av_log_contains_after_mark(f"Reporting successful restoration of {file_path}", av_mark, 60)
 
             if os.path.exists(file_path):
                 restored_files += 1
             else:
                 logging.warning(f"{file_path} was not restored by SafeStore")
-                logging.info(os.listdir(SAFESTORE_MALWARE_PATH))
                 unrestored_files += 1
 
         if unrestored_files == len(expected_malware):
