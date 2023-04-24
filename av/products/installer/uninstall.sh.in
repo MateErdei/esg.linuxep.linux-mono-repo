@@ -28,6 +28,7 @@ SYMLINK="$BASEDIR/base/update/var/installedproducts/${PRODUCT_LINE_ID}.sh"
 SYMLINKVERSION="$BASEDIR/base/update/var/installedproductversions/${PRODUCT_LINE_ID}.ini"
 SAVE_DIR="${BASEDIR}/tmp/${PLUGIN_NAME}_downgrade"
 SAFESTORE_SAVE_DIR="${BASEDIR}/tmp/safestore_downgrade"
+OLDMANIFESTDIR="$BASEDIR/base/update/${PRODUCT_LINE_ID}"
 
 FORCE=0
 DOWNGRADE=0
@@ -74,6 +75,7 @@ fi
 rm -rf "$UNINSTALLDIR"
 rm -f "$SYMLINK"
 rm -f "$SYMLINKVERSION"
+rm -r "$OLDMANIFESTDIR"
 rm -f ${BASEDIR}/var/ipc/plugins/${PLUGIN_NAME}.ipc
 
 if (( DOWNGRADE == 1 ))
