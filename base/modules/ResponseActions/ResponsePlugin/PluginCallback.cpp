@@ -71,6 +71,7 @@ namespace ResponsePlugin
             telemetry.set(ResponsePlugin::Telemetry::version, version.value());
         }
         telemetry.set(Telemetry::pluginHealthStatus, static_cast<u_long>(1));
+        telemetry.set(Telemetry::runCommand, TelemetryUtils::getRunCommandTelemetry());
         std::string telemetryJson = telemetry.serialiseAndReset();
         LOGDEBUG("Got telemetry JSON data: " << telemetryJson);
 

@@ -3,38 +3,37 @@
 #include "ActionRunner.h"
 
 #include "Logger.h"
+#include "Telemetry.h"
 #include "json.hpp"
 
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "Common/FileSystem/IFilePermissions.h"
 #include "Common/FileSystem/IFileSystem.h"
-#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
-
-using namespace ResponseActions::RACommon;
-using namespace Common::Process;
 
 namespace ResponsePlugin
 {
+
     void sendFailedResponse(
-        ResponseResult result,
+        ResponseActions::RACommon::ResponseResult result,
         const std::string& requestType,
         const std::string& correlationId)
     {
         LOGINFO("Response Actions plugin sending failed response to Central on behalf of Action Runner process");
         nlohmann::json response;
-        if (requestType == RUN_COMMAND_REQUEST_TYPE)
+        if (requestType == ResponseActions::RACommon::RUN_COMMAND_REQUEST_TYPE)
         {
-            response["type"] = RUN_COMMAND_RESPONSE_TYPE;
+            response["type"] = ResponseActions::RACommon::RUN_COMMAND_RESPONSE_TYPE;
         }
-        else if (requestType == UPLOAD_FILE_REQUEST_TYPE)
+        else if (requestType == ResponseActions::RACommon::UPLOAD_FILE_REQUEST_TYPE)
         {
-            response["type"] = UPLOAD_FILE_RESPONSE_TYPE;
+            response["type"] = ResponseActions::RACommon::UPLOAD_FILE_RESPONSE_TYPE;
         }
-        else if (requestType == UPLOAD_FOLDER_REQUEST_TYPE)
+        else if (requestType == ResponseActions::RACommon::UPLOAD_FOLDER_REQUEST_TYPE)
         {
-            response["type"] = UPLOAD_FOLDER_RESPONSE_TYPE;
+            response["type"] = ResponseActions::RACommon::UPLOAD_FOLDER_RESPONSE_TYPE;
         }
         response["result"] = static_cast<int>(result);
-        sendResponse(correlationId, response.dump());
+        ResponseActions::RACommon::sendResponse(correlationId, response.dump());
     }
 
     void ActionRunner::runAction(
@@ -44,6 +43,7 @@ namespace ResponsePlugin
         int timeout)
     {
         isRunning = true;
+        TelemetryUtils::incrementTotalActions(type);
 
         m_fut = std::async(
             std::launch::async,
@@ -51,25 +51,20 @@ namespace ResponsePlugin
             {
                 std::string exePath =
                     Common::ApplicationConfiguration::applicationPathManager().getResponseActionRunnerPath();
-                this->m_process = createProcess();
+                this->m_process = Common::Process::createProcess();
                 LOGINFO("Trigger process at: " << exePath << " for action: " << correlationId);
                 std::vector<std::string> arguments = { correlationId, action, type };
                 this->m_process->exec(exePath, arguments, {});
-                ProcessStatus processStatus = this->m_process->wait(std::chrono::seconds(timeout), 1);
-                if (processStatus == ProcessStatus::TIMEOUT)
+                Common::Process::ProcessStatus processStatus = this->m_process->wait(std::chrono::seconds(timeout), 1);
+                bool timedOut = false;
+                if (processStatus != Common::Process::ProcessStatus::FINISHED)
                 {
-                    LOGWARN("Action runner reached time out of " << timeout << " secs, correlation ID: " << correlationId);
-
-                    this->m_process->sendSIGUSR1();
-                    //Wait for process to handle signal and exit which should be done within 3 seconds
-                    this->m_process->wait(std::chrono::seconds(3), 1);
+                    this->m_process->kill();
+                    timedOut = true;
+                    LOGWARN(
+                        "Action process was stopped due to a timeout after "
+                        << timeout << " secs, correlation ID: " << correlationId);
                 }
-
-                if (this->m_process->getStatus() != ProcessStatus::FINISHED)
-                {
-                    kill(" it carried on running unexpectedly");
-                }
-
                 auto output = this->m_process->output();
                 if (!output.empty())
                 {
@@ -83,13 +78,24 @@ namespace ResponsePlugin
                 else
                 {
                     LOGWARN("Failed action " << correlationId << " with exit code " << code);
+                    TelemetryUtils::incrementFailedActions(type);
 
-                    if (code != 1 && code != 4)
+                    if (code != 1)
                     {
-                        auto result = ResponseResult::INTERNAL_ERROR;
-                        if (processStatus == ProcessStatus::TIMEOUT)
+                        ResponseActions::RACommon::ResponseResult result;
+                        if (timedOut)
                         {
-                            result = ResponseResult::TIMEOUT;
+                            result = ResponseActions::RACommon::ResponseResult::TIMEOUT;
+                            TelemetryUtils::incrementTimedOutActions(type);
+                        }
+                        else if (code == 4)
+                        {
+                            result = ResponseActions::RACommon::ResponseResult::EXPIRED;
+                            TelemetryUtils::incrementExpiredActions(type);
+                        }
+                        else
+                        {
+                            result = ResponseActions::RACommon::ResponseResult::INTERNAL_ERROR;
                         }
                         sendFailedResponse(result, type, correlationId);
                     }
@@ -100,26 +106,11 @@ namespace ResponsePlugin
 
     void ActionRunner::killAction()
     {
-        kill("plugin received stop request");
+        m_process->kill();
     }
 
     bool ActionRunner::getIsRunning()
     {
         return isRunning;
     }
-
-    bool ActionRunner::kill(const std::string& msg)
-    {
-        if (this->m_process->kill())
-        {
-            LOGWARN("Action Runner had to be killed after " + msg);
-            return true;
-        }
-        else
-        {
-            LOGWARN("Action Runner was stopped after " + msg);
-            return false;
-        }
-    }
-
 } // namespace ResponsePlugin

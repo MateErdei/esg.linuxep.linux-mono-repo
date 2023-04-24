@@ -6,5 +6,6 @@ namespace ResponsePlugin
     {
         const char *const version = "version";
         const char* const pluginHealthStatus = "health";
+        const char* const runCommand = "run-command-action";
     } // namespace Telemetry
 } // namespace ResponsePlugin

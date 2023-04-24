@@ -1,8 +1,10 @@
 // Copyright 2023 Sophos Limited. All rights reserved.
 
-#include "ApplicationPaths.h"
 #include "Telemetry.h"
+
+#include "ApplicationPaths.h"
 #include "Logger.h"
+#include "json.hpp"
 
 #include <Common/UtilityImpl/StringUtils.h>
 
@@ -13,6 +15,8 @@ namespace
 
 namespace ResponsePlugin
 {
+    actionTelemetry runCommands;
+
     std::optional<std::string> getVersion()
     {
         try
@@ -26,4 +30,46 @@ namespace ResponsePlugin
             return std::nullopt;
         }
     }
+
+    std::string TelemetryUtils::getRunCommandTelemetry()
+    {
+        nlohmann::json j = nlohmann::json{ { "total-actions", runCommands.total },
+                                           { "total-failures", runCommands.totalFailures },
+                                           { "timeout-failures", runCommands.timeoutFailures },
+                                           { "expiration-failures", runCommands.expiryFailures } };
+        return j.dump();
+    }
+
+    void TelemetryUtils::incrementTotalActions(const std::string& type)
+    {
+        if (type == "sophos.mgt.action.RunCommands")
+        {
+            runCommands.total += 1;
+        }
+    }
+
+    void TelemetryUtils::incrementFailedActions(const std::string& type)
+    {
+        if (type == "sophos.mgt.action.RunCommands")
+        {
+            runCommands.totalFailures += 1;
+        }
+    }
+
+    void TelemetryUtils::incrementTimedOutActions(const std::string& type)
+    {
+        if (type == "sophos.mgt.action.RunCommands")
+        {
+            runCommands.timeoutFailures += 1;
+        }
+    }
+
+    void TelemetryUtils::incrementExpiredActions(const std::string& type)
+    {
+        if (type == "sophos.mgt.action.RunCommands")
+        {
+            runCommands.expiryFailures += 1;
+        }
+    }
+
 } // namespace ResponsePlugin
