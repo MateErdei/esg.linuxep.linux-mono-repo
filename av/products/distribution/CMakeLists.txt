@@ -1,4 +1,4 @@
-
+cmake_minimum_required(VERSION 3.21)
 
 configure_file(PRODUCT_NAME.in PRODUCT_NAME @ONLY )
 configure_file(PLUGIN_NAME.in PLUGIN_NAME @ONLY )
@@ -92,10 +92,12 @@ install(IMPORTED_RUNTIME_ARTIFACTS
         openssl_crypto
         LIBRARY DESTINATION files/plugins/${PLUGIN_NAME}/lib64)
 
+get_target_property(openssl_crypto_location openssl_crypto LOCATION)
+
 add_custom_target(
         copy_libs
         COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/libs
-        COMMAND ${PYTHON} ${CMAKE_CURRENT_SOURCE_DIR}/copy_libs.py ${CMAKE_BINARY_DIR}/libs ${third_party_libs}
+        COMMAND ${PYTHON} ${CMAKE_CURRENT_SOURCE_DIR}/copy_libs.py ${CMAKE_BINARY_DIR}/libs ${third_party_libs} ${openssl_crypto_location}
 )
 if (DEFINED ENV{VERSION_OVERRIDE})
     set(PRODUCT_VERSION "$ENV{VERSION_OVERRIDE}")
