@@ -290,6 +290,9 @@ EDR Plugin Returns Query Error If Event Journal Contains Too Many Detections
     ...  Check Sophos Detections Journal Queries Return Maximum Exceeded Error
 
 EDR Plugin Can Run Event Journal Scheduled Queries And Create Jrl When Data Is Greater Than Maximum Entries
+    # Size of an AV Detection event multiplied by this number should not exceed the table memory threshold of 100Mb
+    ${expectedNumEvents} =  Set Variable  ${536}
+
     # Need to make sure test starts of fresh
     Reinstall With Base
     Check EDR Plugin Installed With Base
@@ -307,7 +310,7 @@ EDR Plugin Can Run Event Journal Scheduled Queries And Create Jrl When Data Is G
     Wait Until Keyword Succeeds
     ...  120 secs
     ...  5 secs
-    ...  Check Sophos Detections Journal Queries Work With Query Id And Time Greater Than  0  2500
+    ...  Check Sophos Detections Journal Queries Work With Query Id And Time Greater Than  0  ${expectedNumEvents}
 
     File Should Exist  ${SOPHOS_INSTALL}/plugins/edr/var/jrl/test_query1
     File Should Not Be Empty  ${SOPHOS_INSTALL}/plugins/edr/var/jrl/test_query1
@@ -320,7 +323,7 @@ EDR Plugin Can Run Event Journal Scheduled Queries And Create Jrl When Data Is G
     Wait Until Keyword Succeeds
     ...  120 secs
     ...  5 secs
-    ...  Check Sophos Detections Journal Queries Work With Query Id And Time Greater Than  0  2500
+    ...  Check Sophos Detections Journal Queries Work With Query Id And Time Greater Than  0  ${expectedNumEvents}
 
     File Should Exist  ${SOPHOS_INSTALL}/plugins/edr/var/jrl/test_query1
     File Should Not Be Empty  ${SOPHOS_INSTALL}/plugins/edr/var/jrl/test_query1
