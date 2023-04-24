@@ -191,7 +191,7 @@ namespace common::ThreatDetector
                m_susiPuaApprovedList.cend();
     }
 
-    AllowList SusiSettings::copyPuaApprovedList() const
+    PuaApprovedList SusiSettings::copyPuaApprovedList() const
     {
         std::scoped_lock scopedLock(m_accessMutex);
         return m_susiPuaApprovedList;

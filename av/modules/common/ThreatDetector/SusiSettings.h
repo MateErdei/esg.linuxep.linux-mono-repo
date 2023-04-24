@@ -42,7 +42,7 @@ namespace common::ThreatDetector
         // PUA Approved list
         bool isPuaApproved(const std::string& puaName) const;
         void setPuaApprovedList(PuaApprovedList&& approvedList) noexcept;
-        AllowList copyPuaApprovedList() const;
+        PuaApprovedList copyPuaApprovedList() const;
 
     private:
         // Susi can access the allow-list while we're changing it, so make sure it's thread safe.

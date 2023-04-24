@@ -1,11 +1,13 @@
 // Copyright 2020-2022 Sophos Limited. All rights reserved.
 
-#include <gtest/gtest.h>
-
 #include "common/ThreatDetector/SusiSettings.h"
+#include "tests/common/LogInitializedTests.h"
+
+#include "Common/FileSystem/IFileSystemException.h"
 #include "Common/Helpers/FileSystemReplaceAndRestore.h"
 #include "Common/Helpers/MockFileSystem.h"
-#include "tests/common/LogInitializedTests.h"
+
+#include <gtest/gtest.h>
 
 using namespace common;
 
@@ -143,6 +145,21 @@ TEST_F(TestSusiSettings, SusiSettingsHandleInvalidJson)
     ASSERT_TRUE(susiSettings.isSxlLookupEnabled());
 }
 
+TEST_F(TestSusiSettings, SusiSettingsReadsInApprovedPuaList)
+{
+    std::string jsonWithPuaApprovedList = R"({"enableSxlLookup":true,"puaApprovedList":["PUA1"]})";
+    auto* filesystemMock = new StrictMock<MockFileSystem>();
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock) };
+    EXPECT_CALL(*filesystemMock, isFile("settings.json")).WillOnce(Return(true));
+    EXPECT_CALL(*filesystemMock, readFile("settings.json")).WillOnce(Return(jsonWithPuaApprovedList));
+    ThreatDetector::SusiSettings susiSettings("settings.json");
+    common::ThreatDetector::PuaApprovedList expectedApprovedPuas = {"PUA1"};
+    auto actual = susiSettings.copyPuaApprovedList();
+    ASSERT_EQ(actual, expectedApprovedPuas);
+    ASSERT_FALSE(susiSettings.isPuaApproved("not approved PUA"));
+    ASSERT_TRUE(susiSettings.isPuaApproved("PUA1"));
+}
+
 TEST_F(TestSusiSettings, saveSettings)
 {
     ThreatDetector::SusiSettings susiSettings;
@@ -198,4 +215,15 @@ TEST_F(TestSusiSettings, roundTripSettings)
     EXPECT_EQ(susiSettings.isMachineLearningEnabled(), susiSettingsLoaded.isMachineLearningEnabled());
     EXPECT_EQ(susiSettings.isSxlLookupEnabled(), susiSettingsLoaded.isSxlLookupEnabled());
     EXPECT_EQ(susiSettings.getAllowListSize(), susiSettingsLoaded.getAllowListSize());
+}
+
+TEST_F(TestSusiSettings, saveSettingsDoesNotThrowOnFilesystemError)
+{
+    ThreatDetector::SusiSettings susiSettings;
+    auto filesystemMock = std::make_unique<StrictMock<MockFileSystem>>();
+    EXPECT_CALL(*filesystemMock, writeFileAtomically("path", _, _, 0)).WillOnce(Throw(
+        Common::FileSystem::IFileSystemException("Error")));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(filesystemMock) };
+
+    EXPECT_NO_THROW(susiSettings.saveSettings("path", 0));
 }
