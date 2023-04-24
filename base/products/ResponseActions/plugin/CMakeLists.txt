@@ -6,7 +6,7 @@ target_link_libraries(${RA_PLUGIN_NAME} PUBLIC responseplugin)
 
 SET_TARGET_PROPERTIES( ${RA_PLUGIN_NAME}
        PROPERTIES
-        INSTALL_RPATH "$ORIGIN/../lib64"
+        INSTALL_RPATH "$ORIGIN/../lib64:$ORIGIN/../../../base/lib64"
         )
 
 install(TARGETS ${RA_PLUGIN_NAME}
