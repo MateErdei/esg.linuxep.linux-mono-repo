@@ -41,14 +41,15 @@ namespace OsquerySDK
         std::vector<Common::EventJournalWrapper::Entry> entries;
         bool moreEntriesAvailable = false;
         bool clearJrl = false;
+        std::vector<Common::EventJournalWrapper::Subject> subjectFilter = { Common::EventJournalWrapper::Subject::Detections };
 
         if (!currentJrl.empty())
         {
-            entries = journalReader->getEntries({ Common::EventJournalWrapper::Subject::Detections }, currentJrl, MAX_EVENTS_PER_QUERY, moreEntriesAvailable);
+            entries = journalReader->getEntries(subjectFilter, currentJrl, MAX_MEMORY_THRESHOLD, moreEntriesAvailable);
         }
         else
         {
-            entries = journalReader->getEntries({ Common::EventJournalWrapper::Subject::Detections }, queryTimeConstraints.first, queryTimeConstraints.second, MAX_EVENTS_PER_QUERY, moreEntriesAvailable);
+            entries = journalReader->getEntries(subjectFilter, queryTimeConstraints.first, queryTimeConstraints.second, MAX_MEMORY_THRESHOLD, moreEntriesAvailable);
         }
 
         if (moreEntriesAvailable)

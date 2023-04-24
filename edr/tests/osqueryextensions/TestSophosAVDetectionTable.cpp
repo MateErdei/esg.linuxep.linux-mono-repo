@@ -256,7 +256,7 @@ public:
         return R"({"path":"/bin/bash","primary":true,"sha256":"","spid":"0ca01a43-6f53-4b09-bce0-1d9922262eaa-1467-5681","type":1})";
     }
 
-    static const uint32_t EXPECTED_MAX_EVENTS_PER_QUERY = 2500;
+    static const uint32_t EXPECTED_MAX_MEMORY_THRESHOLD = 100000000;
 };
 
 TEST_F(TestSophosAVDetectionTable, testTableGenerationCreatesDataCorrectlyWithNoEventJournalFilesWillReturnEmptyTableCorrectly)
@@ -474,7 +474,7 @@ TEST_F(TestSophosAVDetectionTable, testTableGenerationWithTooManyEntriesThrows)
     EXPECT_CALL(context, GetConstraints("time",_)).WillRepeatedly(Return(emptySet));
     EXPECT_CALL(context, GetConstraints("time",OsquerySDK::GREATER_THAN)).WillOnce(Return(greaterThanSet));
     EXPECT_CALL(context, GetConstraints("query_id",_)).WillOnce(Return(emptySet));
-    EXPECT_CALL(*MockReaderWrapper, getEntries(_,0,0,EXPECTED_MAX_EVENTS_PER_QUERY,_)).WillOnce(DoAll(SetArgReferee<4>(more),Return(entries)));
+    EXPECT_CALL(*MockReaderWrapper, getEntries(_,0,0,EXPECTED_MAX_MEMORY_THRESHOLD,_)).WillOnce(DoAll(SetArgReferee<4>(more),Return(entries)));
 
     OsquerySDK::SophosAVDetectionTableGenerator generator;
     EXPECT_THROW(generator.GenerateData(context, MockReaderWrapper), std::runtime_error);
@@ -526,7 +526,7 @@ TEST_F(TestSophosAVDetectionTable, testTableGenerationCreatesDataCorrectlyWithQu
     EXPECT_CALL(context, GetConstraints("time",OsquerySDK::GREATER_THAN)).WillOnce(Return(greaterThanSet));
     EXPECT_CALL(context, GetConstraints("query_id",_)).WillOnce(Return(contextSet));
     EXPECT_CALL(*MockReaderWrapper, getCurrentJRLForId(_)).WillOnce(Return(""));
-    EXPECT_CALL(*MockReaderWrapper, getEntries(_,0,0,EXPECTED_MAX_EVENTS_PER_QUERY,_)).WillOnce(DoAll(SetArgReferee<4>(more),Return(entries)));
+    EXPECT_CALL(*MockReaderWrapper, getEntries(_,0,0,EXPECTED_MAX_MEMORY_THRESHOLD,_)).WillOnce(DoAll(SetArgReferee<4>(more),Return(entries)));
     EXPECT_CALL(*MockReaderWrapper, decode(_)).WillRepeatedly(Return(detectionResult));
     EXPECT_CALL(*MockReaderWrapper, updateJrl("/opt/sophos-spl/plugins/edr/var/jrl/query_id_1", "jrl")).Times(1);
     EXPECT_CALL(*MockReaderWrapper, updateJRLAttempts("/opt/sophos-spl/plugins/edr/var/jrl_tracker/query_id_1", 1)).Times(1);
@@ -583,7 +583,7 @@ TEST_F(TestSophosAVDetectionTable, testTableGenerationClearsJRLWhenTenEventMaxsA
     EXPECT_CALL(context, GetConstraints("query_id", _)).WillOnce(Return(contextSet));
     EXPECT_CALL(*MockReaderWrapper, getCurrentJRLForId(_)).WillOnce(Return(""));
     EXPECT_CALL(*MockReaderWrapper, getCurrentJRLAttemptsForId(_)).WillOnce(Return(10));
-    EXPECT_CALL(*MockReaderWrapper, getEntries(_, 0, 0, EXPECTED_MAX_EVENTS_PER_QUERY, _))
+    EXPECT_CALL(*MockReaderWrapper, getEntries(_, 0, 0, EXPECTED_MAX_MEMORY_THRESHOLD, _))
         .WillOnce(DoAll(SetArgReferee<4>(more), Return(entries)));
     EXPECT_CALL(*MockReaderWrapper, decode(_)).WillRepeatedly(Return(detectionResult));
     EXPECT_CALL(*MockReaderWrapper, updateJrl("/opt/sophos-spl/plugins/edr/var/jrl/query_id_1", "jrl")).Times(0);

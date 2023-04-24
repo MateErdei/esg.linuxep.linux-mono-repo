@@ -18,6 +18,7 @@ namespace Sophos
     namespace Journal
     {
         class HelperInterface;
+        class ViewInterface;
     }
 } // namespace Sophos
 
@@ -36,13 +37,15 @@ namespace Common
             u_int32_t getCurrentJRLAttemptsForId(const std::string& trackerFilePath) override;
             void updateJRLAttempts(const std::string& trackerFilePath, const u_int32_t attempts) override;
             void clearJRLFile(const std::string& filePath) override;
-            std::vector<Entry> getEntries(std::vector<Subject> subjectFilter, uint64_t startTime, uint64_t endTime, uint32_t limit, bool& moreAvailable) override;
-            std::vector<Entry> getEntries(std::vector<Subject> subjectFilter, const std::string& jrl, uint32_t limit, bool& moreAvailable) override;
+            std::vector<Entry> getEntries(std::vector<Subject> subjectFilter, uint64_t startTime, uint64_t endTime, uint32_t maxMemoryThreshold, bool& moreAvailable) override;
+            std::vector<Entry> getEntries(std::vector<Subject> subjectFilter, const std::string& jrl, uint32_t maxMemoryThreshold, bool& moreAvailable) override;
 
             std::pair<bool, Detection> decode(const std::vector<uint8_t>& data) override;
 
         private:
-            std::vector<Entry> getEntries(std::vector<Subject> subjectFilter, const std::string& jrl,  uint64_t startTime, uint64_t endTime, uint32_t limit, bool& moreAvailable);
+            std::vector<Entry> getEntries(std::vector<Subject> subjectFilter, const std::string& jrl,  uint64_t startTime, uint64_t endTime, uint32_t maxMemoryThreshold, bool& moreAvailable);
+            std::shared_ptr<Sophos::Journal::ViewInterface> getJournalView(std::vector<Subject> subjectFilter, const std::string& jrl, uint64_t startTime, uint64_t endTime);
+            size_t getEntrySize(std::shared_ptr<Sophos::Journal::ViewInterface> journalView);
             std::string m_location;
             std::shared_ptr<Sophos::Journal::HelperInterface> m_helper;
         };

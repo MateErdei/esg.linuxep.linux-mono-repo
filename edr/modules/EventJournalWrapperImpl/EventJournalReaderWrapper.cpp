@@ -150,20 +150,9 @@ namespace Common
                 LOGWARN("Failed to remove file " << filePath << " with error: " << ex.what());
             }
         }
-        std::vector<Entry> Reader::getEntries(std::vector<Subject> subjectFilter, uint64_t startTime, uint64_t endTime, uint32_t limit, bool& moreAvailable)
-        {
-            return getEntries(subjectFilter, "", startTime, endTime, limit, moreAvailable);
-        }
 
-        std::vector<Entry> Reader::getEntries(std::vector<Subject> subjectFilter, const std::string& jrl, uint32_t limit, bool& moreAvailable)
+        std::shared_ptr <Sophos::Journal::ViewInterface> Reader::getJournalView(std::vector<Subject> subjectFilter, const std::string& jrl, uint64_t startTime, uint64_t endTime)
         {
-            return getEntries(subjectFilter, jrl, 0, 0, limit, moreAvailable);
-        }
-
-        std::vector<Entry> Reader::getEntries(std::vector<Subject> subjectFilter, const std::string& jrl,  uint64_t startTime, uint64_t endTime, uint32_t limit, bool& moreAvailable)
-        {
-            std::vector<Entry> entries;
-
             std::vector<std::string> subjects;
             for (auto s : subjectFilter)
             {
@@ -191,7 +180,7 @@ namespace Common
                         EventJournalWrapper::getFileTimeFromWindowsTime(
                             UtilityImpl::TimeUtils::EpochToWindowsFileTime(startTime)),
                         EventJournalWrapper::getFileTimeFromWindowsTime(
-                                UtilityImpl::TimeUtils::EpochToWindowsFileTime(endTime)));
+                            UtilityImpl::TimeUtils::EpochToWindowsFileTime(endTime)));
                 }
             }
 
@@ -199,6 +188,25 @@ namespace Common
             {
                 throw std::runtime_error("");
             }
+
+            return view;
+        }
+
+        std::vector<Entry> Reader::getEntries(std::vector<Subject> subjectFilter, uint64_t startTime, uint64_t endTime, uint32_t maxMemoryThreshold, bool& moreAvailable)
+        {
+            return getEntries(subjectFilter, "", startTime, endTime, maxMemoryThreshold, moreAvailable);
+        }
+
+        std::vector<Entry> Reader::getEntries(std::vector<Subject> subjectFilter, const std::string& jrl, uint32_t maxMemoryThreshold, bool& moreAvailable)
+        {
+            return getEntries(subjectFilter, jrl, 0, 0, maxMemoryThreshold, moreAvailable);
+        }
+
+        std::vector<Entry> Reader::getEntries(std::vector<Subject> subjectFilter, const std::string& jrl, uint64_t startTime, uint64_t endTime, uint32_t maxMemoryThreshold, bool& moreAvailable)
+        {
+            std::vector<Entry> entries;
+            auto view = getJournalView(subjectFilter, jrl, startTime, endTime);
+            uint32_t limit = maxMemoryThreshold / getEntrySize(view);
 
             uint32_t count = 0;
             bool more = false;
@@ -227,6 +235,12 @@ namespace Common
             }
             moreAvailable = more;
             return entries;
+        }
+
+        size_t Reader::getEntrySize(std::shared_ptr <Sophos::Journal::ViewInterface> journalView)
+        {
+            auto firstEntry = *(journalView->cbegin());
+            return firstEntry->GetDataSize();
         }
 
         std::pair<bool, Detection> Reader::decode(const std::vector<uint8_t>& data)
