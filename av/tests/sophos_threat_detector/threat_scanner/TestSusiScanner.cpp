@@ -529,3 +529,90 @@ TEST_F(TestSusiScanner, archiveNotInSUSIResultCanBeAllowListed)
 
     EXPECT_TRUE(appenderContains("Allowing /tmp/archive.zip with calculatedSha256"));
 }
+
+TEST_F(TestSusiScanner, puaApproved)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    const auto mockUnitScanner = new StrictMock<MockUnitScanner>();
+    SusiScanner susiScanner{makeScannerWithReporter(mockUnitScanner)};
+    EXPECT_CALL(*m_mockTimer, reset()).Times(1);
+    EXPECT_CALL(*m_mockSusiGlobalHandler, isPuaApproved(_)).WillRepeatedly(Return(true));
+    EXPECT_CALL(*m_mockSusiGlobalHandler, isAllowListed(_)).WillRepeatedly(Return(false));
+
+    ScanResult scanResult{ { { "/tmp/eicar.txt", "An approved PUA", "PUA", "sha256" } }, {} };
+    EXPECT_CALL(*mockUnitScanner, scan(_, "/tmp/eicar.txt")).Times(1).WillOnce(Return(scanResult));
+
+    datatypes::AutoFd autoFd;
+    auto scanInfo = makeScanRequestObject("/tmp/eicar.txt");
+    scanInfo.setDetectPUAs(true);
+    scan_messages::ScanResponse response = susiScanner.scan(autoFd, scanInfo);
+
+    EXPECT_TRUE(response.allClean());
+    ASSERT_EQ(response.getDetections().size(), 0);
+    EXPECT_EQ(response.getErrorMsg(), "");
+    EXPECT_TRUE(appenderContains("Allowing PUA /tmp/eicar.txt by exclusion 'An approved PUA'"));
+}
+
+TEST_F(TestSusiScanner, puaNotApproved)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    const auto mockUnitScanner = new StrictMock<MockUnitScanner>();
+    SusiScanner susiScanner{makeScannerWithReporter(mockUnitScanner)};
+    EXPECT_CALL(*m_mockTimer, reset()).Times(1);
+    EXPECT_CALL(*m_mockSusiGlobalHandler, isPuaApproved(_)).WillRepeatedly(Return(false));
+    EXPECT_CALL(*m_mockSusiGlobalHandler, isAllowListed(_)).WillRepeatedly(Return(false));
+
+    std::string puaClassName = "Not approved PUA";
+    ScanResult scanResult{ { { "/tmp/eicar.txt", puaClassName, "PUA", "sha256" } }, {} };
+    EXPECT_CALL(*mockUnitScanner, scan(_, "/tmp/eicar.txt")).Times(1).WillOnce(Return(scanResult));
+
+    WaitForEvent serverWaitGuard;
+    EXPECT_CALL(*m_mockThreatReporter, sendThreatReport(_))
+        .Times(1)
+        .WillOnce(Invoke(
+            [&](const scan_messages::ThreatDetected& threatDetected)
+            {
+                expectCorrectThreatDetected(threatDetected, "/tmp/eicar.txt", puaClassName, "PUA", "sha256");
+                EXPECT_EQ(threatDetected.pid,-1);
+                serverWaitGuard.onEventNoArgs();
+            }));
+
+    datatypes::AutoFd autoFd;
+    auto scanInfo = makeScanRequestObject("/tmp/eicar.txt");
+    scanInfo.setDetectPUAs(true);
+    scan_messages::ScanResponse response = susiScanner.scan(autoFd, scanInfo);
+
+    serverWaitGuard.wait();
+
+    EXPECT_FALSE(response.allClean());
+    ASSERT_EQ(response.getDetections().size(), 1);
+    EXPECT_EQ(response.getDetections().at(0).path, "/tmp/eicar.txt");
+    EXPECT_EQ(response.getDetections().at(0).name, puaClassName);
+    EXPECT_EQ(response.getDetections().at(0).sha256, "sha256");
+    EXPECT_EQ(response.getErrorMsg(), "");
+
+    EXPECT_TRUE(appenderContains("Detected \"Not approved PUA\" in /tmp/eicar.txt"));
+}
+
+TEST_F(TestSusiScanner, puaDetectionDisabled)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    const auto mockUnitScanner = new StrictMock<MockUnitScanner>();
+    SusiScanner susiScanner{makeScannerWithReporter(mockUnitScanner)};
+    EXPECT_CALL(*m_mockTimer, reset()).Times(1);
+    EXPECT_CALL(*m_mockSusiGlobalHandler, isPuaApproved(_)).WillRepeatedly(Return(true));
+    EXPECT_CALL(*m_mockSusiGlobalHandler, isAllowListed(_)).WillRepeatedly(Return(false));
+
+    ScanResult scanResult{ { { "/tmp/eicar.txt", "Some PUA", "PUA", "sha256" } }, {} };
+    EXPECT_CALL(*mockUnitScanner, scan(_, "/tmp/eicar.txt")).Times(1).WillOnce(Return(scanResult));
+
+    datatypes::AutoFd autoFd;
+    auto scanInfo = makeScanRequestObject("/tmp/eicar.txt");
+    scanInfo.setDetectPUAs(false);
+    scan_messages::ScanResponse response = susiScanner.scan(autoFd, scanInfo);
+
+    EXPECT_TRUE(response.allClean());
+    ASSERT_EQ(response.getDetections().size(), 0);
+    EXPECT_EQ(response.getErrorMsg(), "");
+    EXPECT_TRUE(appenderContains("Allowing /tmp/eicar.txt as PUA detection is disabled"));
+}
