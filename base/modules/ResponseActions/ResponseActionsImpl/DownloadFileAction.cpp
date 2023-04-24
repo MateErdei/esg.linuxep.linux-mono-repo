@@ -14,6 +14,8 @@
 //For return value interpretation
 #include <minizip/mz_compat.h>
 
+namespace FileSystem = Common::FileSystem;
+
 namespace ResponseActionsImpl
 {
     DownloadFileAction::DownloadFileAction(std::shared_ptr<Common::HttpRequests::IHttpRequester> client):
@@ -111,7 +113,7 @@ namespace ResponseActionsImpl
             tmpSpaceInfo = m_fileSystem->getDiskSpaceInfo(m_raTmpDir);
             destSpaceInfo = m_fileSystem->getDiskSpaceInfo(findBaseDir(info.targetPath));
         }
-        catch (const Common::FileSystem::IFileSystemException& e)
+        catch (const FileSystem::IFileSystemException& e)
         {
             std::stringstream exception;
             exception << "Cant determine disk space on filesystem: " <<  e.what();
@@ -241,8 +243,8 @@ namespace ResponseActionsImpl
             ActionsUtils::setErrorInfo(response, 1, error.str());
             return false;
         }
-        std::string fileName = Common::FileSystem::basename(info.targetPath);
-        LOGDEBUG("Downloaded file: " << fileName << " as " << fileNameVec.front());
+        std::string fileName = FileSystem::basename(info.targetPath);
+        LOGDEBUG("Downloaded file: " << fileNameVec.front());
         assert(fileNameVec.front() == m_tmpDownloadFile);
 
         //Check sha256
@@ -252,7 +254,7 @@ namespace ResponseActionsImpl
         {
             fileSha = m_fileSystem->calculateDigest(Common::SslImpl::Digest::sha256, m_tmpDownloadFile);
         }
-        catch (const Common::FileSystem::IFileSystemException&)
+        catch (const FileSystem::IFileSystemException&)
         {
             std::string error = fileName + " cannot be accessed";
             LOGWARN(error);
@@ -296,7 +298,7 @@ namespace ResponseActionsImpl
                 {
                     m_fileSystem->makedirs(m_tmpExtractPath);
                 }
-                catch (const Common::FileSystem::IFileSystemException& e)
+                catch (const FileSystem::IFileSystemException& e)
                 {
                     std::string error = "Unable to create path to extract file to: " + m_tmpExtractPath + ": " + e.what();
                     LOGWARN(error);
@@ -342,36 +344,45 @@ namespace ResponseActionsImpl
                 }
                 else
                 {
-                    auto destPath = info.targetPath;
-                    if (noFiles == 1)
+                    LOGINFO("Extracted " << noFiles << " files from archive");
+
+                    auto destDir = info.targetPath;
+                    bool pathContainsFileName = false;
+                    if (destDir.back() != '/')
                     {
-                        if (destPath.back() != '/')
+                        pathContainsFileName = true;
+                        destDir = (FileSystem::dirName(destDir) + "/");
+                    }
+
+                    if (makeDestDirectory(response, destDir))
+                    {
+                        if (noFiles == 1)
                         {
-                            //targetPath has filename specified, use that filename
-                            auto fileName = Common::FileSystem::basename(destPath);
-                            makeDirAndMoveFile(response, destPath, fileName, extractedFiles.front());
+                            Path fileName = "";
+                            if (pathContainsFileName)
+                            {
+                                fileName = FileSystem::basename(info.targetPath);
+                            }
+                            else
+                            {
+                                fileName = FileSystem::basename(extractedFiles.front());
+                            }
+                            moveFile(response, destDir, fileName, extractedFiles.front());
                         }
                         else
                         {
-                            //targetPath has no filename, use the extracted filename
-                            auto fileName = Common::FileSystem::basename(extractedFiles.front());
-                            destPath.append(fileName);
-                            makeDirAndMoveFile(response, destPath, fileName, extractedFiles.front());
-                        }
-                    }
-                    else
-                    {
-                        //Dont use filename for multiple files
-                        if (destPath.back() != '/')
-                        {
-                            destPath = Common::FileSystem::dirName(destPath);
-                            //send response message that we are ignoring the file
-                        }
-                        for (const auto& filePath : extractedFiles)
-                        {
-                            auto fileName = Common::FileSystem::basename(filePath);
-                            destPath.append(fileName);
-                            makeDirAndMoveFile(response, destPath, fileName, extractedFiles.front());
+                            //Dont use filename for multiple files
+                            if (info.targetPath.back() != '/')
+                            {
+                                std::string msg = "Ignoring filepath in targetPath field as the archive contains multiple files";
+                                ActionsUtils::setErrorInfo(response, 0, msg);
+                            }
+
+                            for (const auto& filePath : extractedFiles)
+                            {
+                                auto fileName = FileSystem::basename(filePath);
+                                moveFile(response, destDir, fileName, filePath);
+                            }
                         }
                     }
                 }
@@ -403,34 +414,63 @@ namespace ResponseActionsImpl
         }
         else
         {
-            auto destPath = info.targetPath;
-            if (destPath.back() == '/')
+            auto destDir = info.targetPath;
+            Path fileName = "";
+            if (destDir.back() != '/')
             {
-                destPath.append("download.zip");
+                destDir = FileSystem::dirName(destDir) + "/";
+                fileName = FileSystem::basename(info.targetPath);
             }
-            auto fileName = Common::FileSystem::basename(destPath);
-            makeDirAndMoveFile(response, destPath, fileName, m_tmpDownloadFile);
+            else
+            {
+                fileName = m_archiveFileName;
+            }
+
+            if (makeDestDirectory(response, destDir))
+            {
+                moveFile(response, destDir, fileName, m_tmpDownloadFile);
+            }
         }
     }
 
-    void DownloadFileAction::makeDirAndMoveFile(nlohmann::json& response, const Path& destPath, const std::string& fileName, const Path& filePathToMove)
+    bool DownloadFileAction::makeDestDirectory(nlohmann::json& response, const Path& destDir)
     {
-        auto dirName = Common::FileSystem::dirName(destPath);
-
-        if (dirName.empty())
+        try
         {
-            dirName = "/";
+            m_fileSystem->makedirs(destDir);
         }
+        catch (const FileSystem::IFileSystemException& e)
+        {
+            std::stringstream error;
+            error << "Unable to make directory " << destDir << " : " << e.what();
+            LOGWARN(error.str());
+            ActionsUtils::setErrorInfo(response, 1, error.str(), "access_denied");
+            return false;
+        }
+        catch (const std::exception& e)
+        {
+            std::stringstream error;
+            error << "Unknown error when making directory " << destDir << " : " << e.what();
+            LOGWARN(error.str());
+            ActionsUtils::setErrorInfo(response, 1, error.str());
+            return false;
+        }
+        return true;
+    }
+
+    void DownloadFileAction::moveFile(nlohmann::json& response, const Path& destDir, const Path& fileName, const Path& filePathToMove)
+    {
+        assert(destDir.back() == '/');
+        auto destPath = destDir + fileName;
 
         try
         {
-            m_fileSystem->makedirs(dirName);
             m_fileSystem->moveFileTryCopy(filePathToMove, destPath);
         }
-        catch (const Common::FileSystem::IFileSystemException& e)
+        catch (const FileSystem::IFileSystemException& e)
         {
             std::stringstream error;
-            error << "Unable to make directory " << destPath << " and move " << fileName << " to it: " << e.what();
+            error << "Unable to move " << filePathToMove << " to " << destPath << ": " << e.what();
             LOGWARN(error.str());
             ActionsUtils::setErrorInfo(response, 1, error.str(), "access_denied");
             return;
@@ -438,7 +478,7 @@ namespace ResponseActionsImpl
         catch (const std::exception& e)
         {
             std::stringstream error;
-            error << "Unknown error when making directory " << destPath << " or moving file " << fileName << ": " << e.what();
+            error << "Unknown error when moving file " << fileName << " to " << destPath << ": " << e.what();
             LOGWARN(error.str());
             ActionsUtils::setErrorInfo(response, 1, error.str());
             return;

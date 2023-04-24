@@ -27,8 +27,9 @@ namespace ResponseActionsImpl
         bool verifyFile(const DownloadInfo& info, nlohmann::json& response);
         void decompressAndMoveFile(const DownloadInfo& info, nlohmann::json& response);
 
-        //Expects destPath to be fully formed with filename
-        void makeDirAndMoveFile(nlohmann::json& response, const Path& destPath, const std::string& fileName, const Path& filePathToMove);
+
+        bool makeDestDirectory(nlohmann::json& response, const Path& destDir);
+        void moveFile(nlohmann::json& response, const Path& destDir, const Path& fileName, const Path& filePathToMove);
 
         Path findBaseDir(const Path& path); //To be made more robust for general use and moved to Filesystem
         void removeTmpFiles();
@@ -37,6 +38,7 @@ namespace ResponseActionsImpl
         const Path m_raTmpDir = Common::ApplicationConfiguration::applicationPathManager().getResponseActionTmpPath();
         const Path m_tmpDownloadFile = m_raTmpDir + "/tmp_download.zip";
         const Path m_tmpExtractPath = m_raTmpDir + "/extract";
+        const Path m_archiveFileName = "download.zip";
 
         std::shared_ptr<Common::HttpRequests::IHttpRequester> m_client;
         Common::FileSystem::IFileSystem* m_fileSystem = Common::FileSystem::fileSystem();
