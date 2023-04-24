@@ -27,8 +27,8 @@ namespace ResponseActionsImpl
         bool verifyFile(const DownloadInfo& info, nlohmann::json& response);
         void decompressAndMoveFile(const DownloadInfo& info, nlohmann::json& response);
 
-
         bool makeDestDirectory(nlohmann::json& response, const Path& destDir);
+        bool fileAlreadyExists(nlohmann::json& response, const Path& destPath);
         void moveFile(nlohmann::json& response, const Path& destDir, const Path& fileName, const Path& filePathToMove);
 
         Path findBaseDir(const Path& path); //To be made more robust for general use and moved to Filesystem
