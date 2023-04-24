@@ -3,8 +3,8 @@
 # Copyright (C) 2022 Sophos Ltd
 # All rights reserved.
 
+import os
 import re
-
 import six
 import time
 
@@ -72,3 +72,15 @@ class OnAccessUtils:
             time.sleep(0.5)
 
         raise AssertionError(u"On-Access did not use enough scanners within %d seconds: Logs: %s" % (timeout, u"\n".join(log_contents)))
+
+    @staticmethod
+    def wait_for_on_access_enabled_by_status_file(timeout=15):
+        start = time.time()
+        var_dir = BuiltIn().get_variable_value("${COMPONENT_VAR_DIR}")
+        status_file = os.path.join(var_dir, "on_access_status")
+        while time.time() < start + timeout:
+            with open(status_file) as f:
+                value = f.read(1)
+                if value == "e":
+                    return True
+        raise AssertionError("On-Access status file didn't report enabled within timeout")

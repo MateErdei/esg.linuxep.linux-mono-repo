@@ -12,6 +12,8 @@ Resource    ../shared/ComponentSetup.robot
 Resource    ../shared/AVResources.robot
 Resource    ../shared/OnAccessResources.robot
 
+Library         ../Libs/OnAccessUtils.py
+
 Suite Setup     On Access Alternative Suite Setup
 Suite Teardown  On Access Suite Teardown
 
@@ -527,6 +529,8 @@ On Access Process Reconnects To Threat Detector
 
 On Access Scan Times Out When Unable To Connect To Threat Detector On Access Running
     Configure on access log to trace level
+
+    wait_for_on_access_enabled_by_status_file
 
     ${mark} =  get_on_access_log_mark
 
