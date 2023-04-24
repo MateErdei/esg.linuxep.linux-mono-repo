@@ -54,6 +54,16 @@ namespace
             }
         }
 
+        void expectWriteSusiConfig(bool sxlEnabled, const std::vector<std::string>& puaApprovedList)
+        {
+            nlohmann::json settings;
+            settings["enableSxlLookup"] = sxlEnabled;
+            settings["machineLearning"] = true;
+            settings["puaApprovedList"] = puaApprovedList;
+            settings["shaAllowList"] = nlohmann::json::array();
+            expectWriteSusiConfigFromString(settings.dump());
+        }
+
         std::string m_soapConfigPath;
     };
 }
@@ -494,3 +504,74 @@ TEST_F(TestPolicyProcessor_SAV_policy, getOnAccessExclusions)
 }
 
 #endif
+
+
+TEST_F(TestPolicyProcessor_SAV_policy, processSavPolicyWithPuas)
+{
+    expectWriteSoapdConfig();
+    expectReadSoapdConfig();
+    expectConstructorCalls();
+    expectWriteSusiConfig(false, {"PUA1","PUA2"});
+    Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
+    PolicyProcessorUnitTestClass proc;
+    std::string policyXml = R"sophos(<?xml version="1.0"?>
+<config>
+    <detectionFeedback>
+        <sendData>false</sendData>
+    </detectionFeedback>
+    <approvedList>
+        <puaName>PUA1</puaName>
+        <puaName>PUA2</puaName>
+    </approvedList>
+</config>
+)sophos";
+
+    auto attributeMap = Common::XmlUtilities::parseXml(policyXml);
+    proc.processSavPolicy(attributeMap);
+    EXPECT_TRUE(proc.restartThreatDetector());
+}
+
+TEST_F(TestPolicyProcessor_SAV_policy, processSavPolicyWithNewPuasNeedsThreatdetectorRestart)
+{
+    expectWriteSoapdConfig();
+    expectReadSoapdConfig();
+    expectConstructorCalls();
+    expectWriteSusiConfig(false, {"PUA1","PUA2"});
+    expectWriteSusiConfig(false, {"PUA1"});
+    Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
+    PolicyProcessorUnitTestClass proc;
+    std::string policyXml1 = R"sophos(<?xml version="1.0"?>
+<config>
+    <detectionFeedback>
+        <sendData>false</sendData>
+    </detectionFeedback>
+    <approvedList>
+        <puaName>PUA1</puaName>
+        <puaName>PUA2</puaName>
+    </approvedList>
+</config>
+)sophos";
+
+    std::string policyXml2 = R"sophos(<?xml version="1.0"?>
+<config>
+    <detectionFeedback>
+        <sendData>false</sendData>
+    </detectionFeedback>
+    <approvedList>
+        <puaName>PUA1</puaName>
+    </approvedList>
+</config>
+)sophos";
+
+    auto policyMap1 = Common::XmlUtilities::parseXml(policyXml1);
+    auto policyMap2 = Common::XmlUtilities::parseXml(policyXml2);
+
+    proc.processSavPolicy(policyMap1);
+    EXPECT_TRUE(proc.restartThreatDetector());
+
+    proc.processSavPolicy(policyMap2);
+    EXPECT_TRUE(proc.restartThreatDetector());
+
+    proc.processSavPolicy(policyMap2);
+    EXPECT_FALSE(proc.restartThreatDetector());
+}
