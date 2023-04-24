@@ -147,17 +147,18 @@ TEST_F(TestSusiSettings, SusiSettingsHandleInvalidJson)
 
 TEST_F(TestSusiSettings, SusiSettingsReadsInApprovedPuaList)
 {
-    std::string jsonWithPuaApprovedList = R"({"enableSxlLookup":true,"puaApprovedList":["PUA1"]})";
+    std::string jsonWithPuaApprovedList = R"({"enableSxlLookup":true,"puaApprovedList":["PUA1", "PUA2"]})";
     auto* filesystemMock = new StrictMock<MockFileSystem>();
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock) };
     EXPECT_CALL(*filesystemMock, isFile("settings.json")).WillOnce(Return(true));
     EXPECT_CALL(*filesystemMock, readFile("settings.json")).WillOnce(Return(jsonWithPuaApprovedList));
     ThreatDetector::SusiSettings susiSettings("settings.json");
-    common::ThreatDetector::PuaApprovedList expectedApprovedPuas = {"PUA1"};
+    common::ThreatDetector::PuaApprovedList expectedApprovedPuas = {"PUA1","PUA2"};
     auto actual = susiSettings.copyPuaApprovedList();
     ASSERT_EQ(actual, expectedApprovedPuas);
     ASSERT_FALSE(susiSettings.isPuaApproved("not approved PUA"));
     ASSERT_TRUE(susiSettings.isPuaApproved("PUA1"));
+    ASSERT_TRUE(susiSettings.isPuaApproved("PUA2"));
 }
 
 TEST_F(TestSusiSettings, saveSettings)
