@@ -1,9 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2020-2022 Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
-
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 #include "ApplicationPaths.h"
 #include "LiveQueryPolicyParser.h"
 #include "Logger.h"
@@ -455,4 +450,55 @@ namespace Plugin
         return eventsMaxValue;
     }
 
+    std::string PluginUtils::getWatchdogFlagFromConfig(const std::string& flag,int defaultValue)
+    {
+        try
+        {
+            std::string flagValue = Common::UtilityImpl::StringUtils::extractValueFromConfigFile(Plugin::edrConfigFilePath(), flag);
+
+            if (!flagValue.empty())
+            {
+                if (PluginUtils::isInteger(flagValue))
+                {
+                    LOGINFO("Setting " << flag << " to " << flagValue << " as per value in " << Plugin::edrConfigFilePath());
+                    std::stringstream value;
+                    value << "--" << flag << "=" << Common::UtilityImpl::StringUtils::stringToULong(flagValue);
+                    return value.str();
+                }
+                else
+                {
+                    LOGWARN(flag << " value in '" << Plugin::edrConfigFilePath() << "' not an integer");
+                }
+            }
+            else
+            {
+                LOGDEBUG("No " << flag << " value specified in " << Plugin::edrConfigFilePath() << " so using default of " << defaultValue);
+            }
+
+        }
+        catch (const std::exception& exception)
+        {
+            LOGWARN("Failed to retrieve " << flag << " value from " << Plugin::edrConfigFilePath() << " with exception: " << exception.what());
+        }
+        std::stringstream value;
+        value << "--" << flag << "=" << defaultValue;
+        return value.str();;
+    }
+
+    std::vector<std::string> PluginUtils::getWatchdogFlagsFromConfig()
+    {
+        std::vector<std::string> list = {};
+        std::vector<std::pair<std::string,int>> flags = {
+            {"watchdog_memory_limit",DEFAULT_WATCHDOG_MEMORY_LIMIT_MB}
+            ,{"watchdog_utilization_limit",DEFAULT_WATCHDOG_CPU_PERCENTAGE}
+            ,{"watchdog_latency_limit",DEFAULT_WATCHDOG_LATENCY_SECONDS},
+            {"watchdog_delay",DEFAULT_WATCHDOG_DELAY_SECONDS}};
+
+        for (auto const& flag :flags)
+        {
+            list.emplace_back(getWatchdogFlagFromConfig(flag.first,flag.second));
+        }
+
+        return list;
+    }
 }

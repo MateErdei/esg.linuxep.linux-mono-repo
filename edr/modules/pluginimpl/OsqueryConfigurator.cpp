@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2020 Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 #include "OsqueryConfigurator.h"
 
 #include "ApplicationPaths.h"
@@ -112,9 +108,6 @@ namespace Plugin
                                          "--logger_min_status=1",
                                          "--disable_watchdog=false",
                                          "--watchdog_level=0",
-                                         "--watchdog_memory_limit=250",
-                                         "--watchdog_utilization_limit=30",
-                                         "--watchdog_delay=60",
                                          "--enable_extensions_watchdog=true",
                                          "--disable_extensions=false",
                                          "--audit_persist=true",
@@ -138,6 +131,12 @@ namespace Plugin
         auto& telemetry = Common::Telemetry::TelemetryHelper::getInstance();
         telemetry.set(plugin::telemetryEventsMax, eventsMaxValue);
         flags.push_back("--events_max=" + eventsMaxValue);
+
+        std::vector<std::string> flagsFromConfig = PluginUtils::getWatchdogFlagsFromConfig();
+        for (auto const& flag :flagsFromConfig)
+        {
+            flags.emplace_back(flag);
+        }
 
         if (xdrEnabled)
         {

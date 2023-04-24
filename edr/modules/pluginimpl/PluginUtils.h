@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2020 Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 #pragma once
 
 #include <Common/FileSystem/IFileSystem.h>
@@ -105,6 +101,8 @@ namespace Plugin
 
         static unsigned int getEventsMaxFromConfig();
 
+        static std::vector<std::string>  getWatchdogFlagsFromConfig();
+
         inline static const std::string MODE_IDENTIFIER = "running_mode";
         inline static const std::string NETWORK_TABLES_AVAILABLE = "network_tables";
         inline static const std::string QUERY_PACK_NEXT_SETTING = "scheduled_queries_next";
@@ -112,6 +110,12 @@ namespace Plugin
         inline static const std::string QUERY_PACK_NEXT = "scheduled_queries.next";
         inline static const std::string NETWORK_TABLES_FLAG = "livequery.network-tables.available";
         inline static const unsigned long MAXIMUM_EVENTED_RECORDS_ALLOWED = 100000;
+        inline static const unsigned long DEFAULT_WATCHDOG_MEMORY_LIMIT_MB = 250;
+        inline static const unsigned long DEFAULT_WATCHDOG_CPU_PERCENTAGE = 30;
+        inline static const unsigned long DEFAULT_WATCHDOG_DELAY_SECONDS = 60;
+        inline static const unsigned long DEFAULT_WATCHDOG_LATENCY_SECONDS = 0;
+    private:
+        static std::string getWatchdogFlagFromConfig(const std::string& flag, int defaultValue);
    };
 }
 
