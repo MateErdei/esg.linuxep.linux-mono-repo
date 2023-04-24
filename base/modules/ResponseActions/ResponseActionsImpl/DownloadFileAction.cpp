@@ -332,25 +332,49 @@ namespace ResponseActionsImpl
 
             if (ret == UNZ_OK)
             {
-                auto extractedFile = m_fileSystem->listAllFilesInDirectoryTree(m_tmpExtractPath);
-
-                if (extractedFile.empty())
+                auto extractedFiles = m_fileSystem->listAllFilesInDirectoryTree(m_tmpExtractPath);
+                int noFiles = extractedFiles.size();
+                if (noFiles == 0)
                 {
                     std::string error = "Unzip successful but no file found in " + m_tmpExtractPath;
                     LOGWARN(error);
                     ActionsUtils::setErrorInfo(response, 1, error);
                 }
-                else if (extractedFile.size() > 1)
-                {
-                    std::string error = "Unzip successful but more than one file found in " + m_tmpExtractPath;
-                    LOGWARN(error);
-                    ActionsUtils::setErrorInfo(response, 1, error);
-                }
                 else
                 {
-                    makeDirAndMoveFile(response, info.targetPath, extractedFile.front());
+                    auto destPath = info.targetPath;
+                    if (noFiles == 1)
+                    {
+                        if (destPath.back() != '/')
+                        {
+                            //targetPath has filename specified, use that filename
+                            auto fileName = Common::FileSystem::basename(destPath);
+                            makeDirAndMoveFile(response, destPath, fileName, extractedFiles.front());
+                        }
+                        else
+                        {
+                            //targetPath has no filename, use the extracted filename
+                            auto fileName = Common::FileSystem::basename(extractedFiles.front());
+                            destPath.append(fileName);
+                            makeDirAndMoveFile(response, destPath, fileName, extractedFiles.front());
+                        }
+                    }
+                    else
+                    {
+                        //Dont use filename for multiple files
+                        if (destPath.back() != '/')
+                        {
+                            destPath = Common::FileSystem::dirName(destPath);
+                            //send response message that we are ignoring the file
+                        }
+                        for (const auto& filePath : extractedFiles)
+                        {
+                            auto fileName = Common::FileSystem::basename(filePath);
+                            destPath.append(fileName);
+                            makeDirAndMoveFile(response, destPath, fileName, extractedFiles.front());
+                        }
+                    }
                 }
-
             }
             else
             {
@@ -379,13 +403,18 @@ namespace ResponseActionsImpl
         }
         else
         {
-            makeDirAndMoveFile(response, info.targetPath, m_tmpDownloadFile);
+            auto destPath = info.targetPath;
+            if (destPath.back() == '/')
+            {
+                destPath.append("download.zip");
+            }
+            auto fileName = Common::FileSystem::basename(destPath);
+            makeDirAndMoveFile(response, destPath, fileName, m_tmpDownloadFile);
         }
     }
 
-    void DownloadFileAction::makeDirAndMoveFile(nlohmann::json& response, Path destPath, const Path& filePathToMove)
+    void DownloadFileAction::makeDirAndMoveFile(nlohmann::json& response, const Path& destPath, const std::string& fileName, const Path& filePathToMove)
     {
-        auto fileName = Common::FileSystem::basename(destPath);
         auto dirName = Common::FileSystem::dirName(destPath);
 
         if (dirName.empty())
