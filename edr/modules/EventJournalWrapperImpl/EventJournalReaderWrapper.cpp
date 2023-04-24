@@ -206,7 +206,14 @@ namespace Common
         {
             std::vector<Entry> entries;
             auto view = getJournalView(subjectFilter, jrl, startTime, endTime);
-            uint32_t limit = maxMemoryThreshold / getEntrySize(view);
+            size_t entrySize = getEntrySize(view);
+            if (entrySize == 0)
+            {
+                LOGDEBUG("No entries found");
+                return entries;
+            }
+            uint32_t limit = maxMemoryThreshold / entrySize;
+            LOGDEBUG("Limit set to " << limit << " entries of " << entrySize << " bytes each");
 
             uint32_t count = 0;
             bool more = false;
@@ -219,6 +226,7 @@ namespace Common
                 }
                 if (limit && (count >= limit))
                 {
+                    LOGDEBUG("Reached limit of " << limit << " entries");
                     more = true;
                     break;
                 }
@@ -231,7 +239,7 @@ namespace Common
                 memcpy(e.data.data(), entry->GetData(), entry->GetDataSize());
                 entries.push_back(e);
 
-                count++;
+                count += entrySize;
             }
             moreAvailable = more;
             return entries;
@@ -239,8 +247,13 @@ namespace Common
 
         size_t Reader::getEntrySize(std::shared_ptr <Sophos::Journal::ViewInterface> journalView)
         {
+            size_t size = 0;
             auto firstEntry = *(journalView->cbegin());
-            return firstEntry->GetDataSize();
+            if (firstEntry)
+            {
+                size = firstEntry->GetDataSize();
+            }
+            return size;
         }
 
         std::pair<bool, Detection> Reader::decode(const std::vector<uint8_t>& data)
