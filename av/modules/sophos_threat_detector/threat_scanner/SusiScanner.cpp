@@ -51,9 +51,7 @@ scan_messages::ScanResponse SusiScanner::scan(datatypes::AutoFd& fd, const scan_
         {
             LOGINFO("Allowing " << common::escapePathForLogging(info.getPath()) << " with " << threatDetected.sha256);
         }
-        else if (
-            threatDetected.threatType == common::CentralEnums::ThreatType::pua &&
-            !info.detectPUAs())
+        else if (threatDetected.threatType == common::CentralEnums::ThreatType::pua && !info.detectPUAs())
         {
             // CORE-3404: Until fixed some PUAs will still be detected by SUSI despite the setting being disabled
             LOGINFO("Allowing " << common::escapePathForLogging(info.getPath()) << " as PUA detection is disabled");
@@ -62,7 +60,9 @@ scan_messages::ScanResponse SusiScanner::scan(datatypes::AutoFd& fd, const scan_
             threatDetected.threatType == common::CentralEnums::ThreatType::pua &&
             m_globalHandler->isPuaApproved(threatDetected.threatName))
         {
-            LOGINFO("Allowing PUA " << common::escapePathForLogging(info.getPath()) << " by exclusion '" << threatDetected.threatName << "'");
+            LOGINFO(
+                "Allowing PUA " << common::escapePathForLogging(info.getPath()) << " by exclusion '"
+                                << threatDetected.threatName << "'");
         }
         else
         {
