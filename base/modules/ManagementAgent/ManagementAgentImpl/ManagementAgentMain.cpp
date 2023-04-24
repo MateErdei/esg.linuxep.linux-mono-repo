@@ -304,10 +304,10 @@ namespace ManagementAgent
             Common::ZeroMQWrapper::IHasFDPtr shutdownPipePtr;
             Common::ZeroMQWrapper::IPollerPtr poller = Common::ZeroMQWrapper::createPoller();
 
-            GL_signalPipe = std::unique_ptr<Common::Threads::NotifyPipe>(new Common::Threads::NotifyPipe());
-            struct sigaction action; // NOLINT
+            GL_signalPipe = std::make_unique<Common::Threads::NotifyPipe>();
+            struct sigaction action{};
             action.sa_handler = s_signal_handler;
-            action.sa_flags = 0;
+            action.sa_flags = SA_RESTART;
             sigemptyset(&action.sa_mask);
             sigaction(SIGINT, &action, nullptr);
             sigaction(SIGTERM, &action, nullptr);

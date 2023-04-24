@@ -75,13 +75,13 @@ namespace Common
                 else
                 {
                     // add the onShutdown listener
-                    GL_signalPipe = std::unique_ptr<Common::Threads::NotifyPipe>(new Common::Threads::NotifyPipe());
-                    struct sigaction action;
+                    GL_signalPipe = std::make_unique<Common::Threads::NotifyPipe>();
+                    struct sigaction action{};
                     action.sa_handler = s_signal_handler;
-                    action.sa_flags = 0;
+                    action.sa_flags = SA_RESTART;
                     sigemptyset(&action.sa_mask);
-                    sigaction(SIGINT, &action, NULL);
-                    sigaction(SIGTERM, &action, NULL);
+                    sigaction(SIGINT, &action, nullptr);
+                    sigaction(SIGTERM, &action, nullptr);
 
                     shutdownPipePtr = poller->addEntry(GL_signalPipe->readFd(), Common::ZeroMQWrapper::IPoller::POLLIN);
                     monitorForSignalsForShutdown = true;
@@ -132,12 +132,12 @@ namespace Common
             if (monitorForSignalsForShutdown)
             {
                 // Reset signal handlers if we set them before
-                struct sigaction action;
+                struct sigaction action{};
                 action.sa_handler = SIG_DFL;
-                action.sa_flags = 0;
+                action.sa_flags = SA_RESTART;
                 sigemptyset(&action.sa_mask);
-                sigaction(SIGINT, &action, NULL);
-                sigaction(SIGTERM, &action, NULL);
+                sigaction(SIGINT, &action, nullptr);
+                sigaction(SIGTERM, &action, nullptr);
 
                 GL_signalPipe.reset();
             }
