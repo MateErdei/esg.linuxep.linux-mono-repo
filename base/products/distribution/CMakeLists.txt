@@ -64,6 +64,7 @@ install(IMPORTED_RUNTIME_ARTIFACTS
         curl_library
         lzma
         minizip
+        openssl_ssl
         openssl_crypto
         zlib
         DESTINATION ${RA_DIST_PREFIX}/files/plugins/${RA_PLUGIN_NAME}/lib64)
