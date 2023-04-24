@@ -50,7 +50,7 @@
 
         <!-- SUSI imports -->
         <build-asset project="core" repo="engine">
-            <release-version branch="release/3.86.1" build-id="20220901161552-8505ebffd3ae66bf2c01fcb27a95f36a1bb5b928-WELKtg"/>
+            <release-version branch="release--3.88.0" build-id="20230320160722-a481e941b0f624d1ea4bc8fb93388a8c4af7497f-6vFbb2"/>
             <include artifact-path="libsavi_linux64_release_gcc4-9-4glibc2-3-2" dest-dir="input/susi_input/libsavi"/>
             <include artifact-path="sophtainer_linux64_release_gcc4-9-4glibc2-3-4" dest-dir="input/susi_input/libsophtainer"/>
         </build-asset>
