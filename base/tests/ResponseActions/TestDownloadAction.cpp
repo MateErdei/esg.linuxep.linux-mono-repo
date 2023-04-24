@@ -44,7 +44,7 @@ public:
 
     const Path m_testZipFile = "download.zip";
     const Path m_testExtractedFile = "download.txt";
-    const Path m_destPath = "/path/to/download/to";
+    const Path m_destPath = "/path/to/download/to/";
     const Path m_raTmpDir = "/opt/sophos-spl/plugins/responseactions/tmp";
     const Path m_raTmpFile = "/opt/sophos-spl/plugins/responseactions/tmp/tmp_download.zip";
     const Path m_raExtractTmpDir = "/opt/sophos-spl/plugins/responseactions/tmp/extract";
@@ -64,7 +64,7 @@ public:
 
         nlohmann::json action;
         action["url"] = "https://s3.com/download.zip";
-        action["targetPath"] = m_destPath + "/" + file;
+        action["targetPath"] = m_destPath + file;
         action["sha256"] = "shastring";
         action["sizeBytes"] = bytes;
         action["decompress"] = decompress;
@@ -140,14 +140,14 @@ public:
             filename = m_testExtractedFile;
             EXPECT_CALL(*m_mockFileSystem, exists(m_raExtractTmpDir)).Times(2).WillRepeatedly(Return(false));
             EXPECT_CALL(*m_mockFileSystem, makedirs(m_raExtractTmpDir)).Times(1);
-            EXPECT_CALL(*m_mockFileSystem, exists(m_destPath + "/" + filename)).WillOnce(Return(false));
-            EXPECT_CALL(*m_mockFileSystem, makedirs(m_destPath + "/")).Times(1);
+            EXPECT_CALL(*m_mockFileSystem, exists(m_destPath + filename)).WillOnce(Return(false));
+            EXPECT_CALL(*m_mockFileSystem, makedirs(m_destPath)).Times(1);
         }
         else
         {
             EXPECT_CALL(*m_mockFileSystem, exists(m_raExtractTmpDir)).Times(1).WillOnce(Return(false));
-            EXPECT_CALL(*m_mockFileSystem, exists(m_destPath + "/" + filename)).WillOnce(Return(false));
-            EXPECT_CALL(*m_mockFileSystem, makedirs(m_destPath + "/")).Times(1);
+            EXPECT_CALL(*m_mockFileSystem, exists(m_destPath + filename)).WillOnce(Return(false));
+            EXPECT_CALL(*m_mockFileSystem, makedirs(m_destPath)).Times(1);
         }
         EXPECT_CALL(*m_mockFileSystem, exists(m_raTmpFile)).WillOnce(Return(false));
     }
@@ -179,7 +179,7 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_NotDecompressed)
     addExistAndMakeExpectsToMockFileSystem();
 
     EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(false));
-    EXPECT_CALL(*m_mockFileSystem, moveFileTryCopy(m_raTmpFile, m_destPath + "/" + m_testZipFile)).Times(1);
+    EXPECT_CALL(*m_mockFileSystem, moveFileTryCopy(m_raTmpFile, m_destPath + m_testZipFile)).Times(1);
     EXPECT_CALL(*m_mockFileSystem, calculateDigest(Common::SslImpl::Digest::sha256, m_raTmpFile))
         .WillOnce(Return("shastring"));
     Tests::replaceFileSystem(std::move(m_mockFileSystem));
@@ -212,10 +212,10 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_NotDecompressed_TmpFileExist
     addDiskSpaceExpectsToMockFileSystem();
     addListFilesExpectsToMockFileSystem();
     EXPECT_CALL(*m_mockFileSystem, exists(m_raExtractTmpDir)).Times(1).WillOnce(Return(false));
-    EXPECT_CALL(*m_mockFileSystem, exists(m_destPath + "/" + m_testZipFile)).WillOnce(Return(false));
-    EXPECT_CALL(*m_mockFileSystem, makedirs(m_destPath + "/")).Times(1);
+    EXPECT_CALL(*m_mockFileSystem, exists(m_destPath + m_testZipFile)).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFileSystem, makedirs(m_destPath)).Times(1);
     EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(false));
-    EXPECT_CALL(*m_mockFileSystem, moveFileTryCopy(m_raTmpFile, m_destPath + "/" + m_testZipFile)).Times(1);
+    EXPECT_CALL(*m_mockFileSystem, moveFileTryCopy(m_raTmpFile, m_destPath + m_testZipFile)).Times(1);
     EXPECT_CALL(*m_mockFileSystem, exists(m_raTmpFile)).WillOnce(Return(true));
     EXPECT_CALL(*m_mockFileSystem, removeFile(m_raTmpFile)).Times(1);
     EXPECT_CALL(*m_mockFileSystem, calculateDigest(Common::SslImpl::Digest::sha256, m_raTmpFile))
@@ -244,7 +244,7 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompressed)
     addExistAndMakeExpectsToMockFileSystem(true);
 
     EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(false));
-    EXPECT_CALL(*m_mockFileSystem, moveFileTryCopy(m_raExtractTmpDir + "/" + m_testExtractedFile, m_destPath + "/" + m_testExtractedFile)).Times(1);
+    EXPECT_CALL(*m_mockFileSystem, moveFileTryCopy(m_raExtractTmpDir + "/" + m_testExtractedFile, m_destPath + m_testExtractedFile)).Times(1);
     EXPECT_CALL(*m_mockFileSystem, calculateDigest(Common::SslImpl::Digest::sha256, m_raTmpFile))
         .WillOnce(Return("shastring"));
     Tests::replaceFileSystem(std::move(m_mockFileSystem));
@@ -279,10 +279,10 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompressed_TmpFilesLeft)
     addListFilesExpectsToMockFileSystem(decompress);
     EXPECT_CALL(*m_mockFileSystem, exists(m_raExtractTmpDir)).WillOnce(Return(false)).WillOnce(Return(true));
     EXPECT_CALL(*m_mockFileSystem, makedirs(m_raExtractTmpDir)).Times(1);
-    EXPECT_CALL(*m_mockFileSystem, exists(m_destPath + "/" + m_testExtractedFile)).WillOnce(Return(false));
-    EXPECT_CALL(*m_mockFileSystem, makedirs(m_destPath + "/")).Times(1);
+    EXPECT_CALL(*m_mockFileSystem, exists(m_destPath + m_testExtractedFile)).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFileSystem, makedirs(m_destPath)).Times(1);
     EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(false));
-    EXPECT_CALL(*m_mockFileSystem, moveFileTryCopy(m_raExtractTmpDir + "/" + m_testExtractedFile, m_destPath + "/" + m_testExtractedFile)).Times(1);
+    EXPECT_CALL(*m_mockFileSystem, moveFileTryCopy(m_raExtractTmpDir + "/" + m_testExtractedFile, m_destPath + m_testExtractedFile)).Times(1);
 
     EXPECT_CALL(*m_mockFileSystem, exists(m_raTmpFile)).WillOnce(Return(true));
     EXPECT_CALL(*m_mockFileSystem, removeFile(m_raTmpFile)).Times(1);
@@ -360,7 +360,7 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompressed_Password)
     addExistAndMakeExpectsToMockFileSystem(true);
 
     EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(false));
-    EXPECT_CALL(*m_mockFileSystem, moveFileTryCopy(m_raExtractTmpDir + "/" + m_testExtractedFile, m_destPath + "/" + m_testExtractedFile)).Times(1);
+    EXPECT_CALL(*m_mockFileSystem, moveFileTryCopy(m_raExtractTmpDir + "/" + m_testExtractedFile, m_destPath + m_testExtractedFile)).Times(1);
     EXPECT_CALL(*m_mockFileSystem, calculateDigest(Common::SslImpl::Digest::sha256, m_raTmpFile))
         .WillOnce(Return("shastring"));
     Tests::replaceFileSystem(std::move(m_mockFileSystem));
@@ -397,7 +397,7 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompress_WrongPassword)
     addListFilesExpectsToMockFileSystem(); //We dont expect the decompress to be successful so dont pass decompress bool
 
     EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(false));
-    EXPECT_CALL(*m_mockFileSystem, exists(m_destPath + "/" + m_testExtractedFile)).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFileSystem, exists(m_destPath + m_testExtractedFile)).WillOnce(Return(false));
     EXPECT_CALL(*m_mockFileSystem, exists(m_raExtractTmpDir)).Times(2).WillRepeatedly(Return(false));
     EXPECT_CALL(*m_mockFileSystem, exists(m_raTmpFile)).WillOnce(Return(false));
     EXPECT_CALL(*m_mockFileSystem, makedirs(m_raExtractTmpDir)).Times(1);
@@ -437,7 +437,7 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompress_BadArchive)
     addListFilesExpectsToMockFileSystem(); //We dont expect the decompress to be successful so dont pass decompress bool
 
     EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(false));
-    EXPECT_CALL(*m_mockFileSystem, exists(m_destPath + "/" + m_testExtractedFile)).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFileSystem, exists(m_destPath + m_testExtractedFile)).WillOnce(Return(false));
     EXPECT_CALL(*m_mockFileSystem, exists(m_raExtractTmpDir)).Times(2).WillRepeatedly(Return(false));
     EXPECT_CALL(*m_mockFileSystem, makedirs(m_raExtractTmpDir)).Times(1);
     EXPECT_CALL(*m_mockFileSystem, exists(m_raTmpFile)).WillOnce(Return(false));
@@ -481,7 +481,7 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompress_ZipUtilsThrows)
     addListFilesExpectsToMockFileSystem(); //We dont expect the decompress to be successful so dont pass decompress bool
 
     EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(false));
-    EXPECT_CALL(*m_mockFileSystem, exists(m_destPath + "/" + m_testExtractedFile)).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFileSystem, exists(m_destPath + m_testExtractedFile)).WillOnce(Return(false));
     EXPECT_CALL(*m_mockFileSystem, exists(m_raExtractTmpDir)).Times(2).WillRepeatedly(Return(false));
     EXPECT_CALL(*m_mockFileSystem, makedirs(m_raExtractTmpDir)).Times(1);
     EXPECT_CALL(*m_mockFileSystem, exists(m_raTmpFile)).WillOnce(Return(false));
@@ -521,7 +521,7 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompress_OtherError)
     addListFilesExpectsToMockFileSystem(); //We dont expect the decompress to be successful so dont pass decompress bool
 
     EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(false));
-    EXPECT_CALL(*m_mockFileSystem, exists(m_destPath + "/" + m_testExtractedFile)).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFileSystem, exists(m_destPath + m_testExtractedFile)).WillOnce(Return(false));
     EXPECT_CALL(*m_mockFileSystem, exists(m_raExtractTmpDir)).Times(2).WillRepeatedly(Return(false));
     EXPECT_CALL(*m_mockFileSystem, makedirs(m_raExtractTmpDir)).Times(1);
     EXPECT_CALL(*m_mockFileSystem, exists(m_raTmpFile)).WillOnce(Return(false));
@@ -561,11 +561,11 @@ TEST_F(DownloadFileTests, SuccessfulDownload_WithProxy_NotDecompressed)
 
     EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(true));
     EXPECT_CALL(*m_mockFileSystem, readFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(content));
-    EXPECT_CALL(*m_mockFileSystem, exists(m_destPath + "/" + m_testZipFile)).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFileSystem, exists(m_destPath + m_testZipFile)).WillOnce(Return(false));
     EXPECT_CALL(*m_mockFileSystem, exists(m_raExtractTmpDir)).WillOnce(Return(false));
     EXPECT_CALL(*m_mockFileSystem, exists(m_raTmpFile)).WillOnce(Return(false));
-    EXPECT_CALL(*m_mockFileSystem, makedirs(m_destPath + "/")).Times(1);
-    EXPECT_CALL(*m_mockFileSystem, moveFileTryCopy(m_raTmpFile, m_destPath + "/" + m_testZipFile)).Times(1);
+    EXPECT_CALL(*m_mockFileSystem, makedirs(m_destPath)).Times(1);
+    EXPECT_CALL(*m_mockFileSystem, moveFileTryCopy(m_raTmpFile, m_destPath + m_testZipFile)).Times(1);
     EXPECT_CALL(*m_mockFileSystem, calculateDigest(Common::SslImpl::Digest::sha256, m_raTmpFile))
         .WillOnce(Return("shastring"));
     Tests::replaceFileSystem(std::move(m_mockFileSystem));
@@ -605,7 +605,7 @@ TEST_F(DownloadFileTests, SuccessfulDownload_WithProxy_Decompressed)
 
     EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(true));
     EXPECT_CALL(*m_mockFileSystem, readFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(content));
-    EXPECT_CALL(*m_mockFileSystem, moveFileTryCopy(m_raExtractTmpDir + "/" + m_testExtractedFile, m_destPath + "/" + m_testExtractedFile)).Times(1);
+    EXPECT_CALL(*m_mockFileSystem, moveFileTryCopy(m_raExtractTmpDir + "/" + m_testExtractedFile, m_destPath + m_testExtractedFile)).Times(1);
     EXPECT_CALL(*m_mockFileSystem, calculateDigest(Common::SslImpl::Digest::sha256, m_raTmpFile))
         .WillOnce(Return("shastring"));
     Tests::replaceFileSystem(std::move(m_mockFileSystem));
@@ -648,7 +648,7 @@ TEST_F(DownloadFileTests, ProxyFailureFallsbackDirect_NotDecompressed)
 
     EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(true));
     EXPECT_CALL(*m_mockFileSystem, readFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(content));
-    EXPECT_CALL(*m_mockFileSystem, moveFileTryCopy(m_raTmpFile, m_destPath + "/" + m_testZipFile)).Times(1);
+    EXPECT_CALL(*m_mockFileSystem, moveFileTryCopy(m_raTmpFile, m_destPath + m_testZipFile)).Times(1);
     EXPECT_CALL(*m_mockFileSystem, calculateDigest(Common::SslImpl::Digest::sha256, m_raTmpFile))
         .WillOnce(Return("shastring"));
     Tests::replaceFileSystem(std::move(m_mockFileSystem));
@@ -695,7 +695,7 @@ TEST_F(DownloadFileTests, ProxyFailureFallsbackDirect_Decompressed)
 
     EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(true));
     EXPECT_CALL(*m_mockFileSystem, readFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(content));
-    EXPECT_CALL(*m_mockFileSystem, moveFileTryCopy(m_raExtractTmpDir + "/" + m_testExtractedFile, m_destPath + "/" + m_testExtractedFile)).Times(1);
+    EXPECT_CALL(*m_mockFileSystem, moveFileTryCopy(m_raExtractTmpDir + "/" + m_testExtractedFile, m_destPath + m_testExtractedFile)).Times(1);
     EXPECT_CALL(*m_mockFileSystem, calculateDigest(Common::SslImpl::Digest::sha256, m_raTmpFile))
         .WillOnce(Return("shastring"));
     Tests::replaceFileSystem(std::move(m_mockFileSystem));
@@ -746,7 +746,7 @@ TEST_F(DownloadFileTests, TargetPathAlreadyExists)
     std::string expectedErrMsg = "Path /path/to/download/to/download.zip already exists";
 
     //MockFileSystem
-    EXPECT_CALL(*m_mockFileSystem, exists(m_destPath + "/" + m_testZipFile)).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockFileSystem, exists(m_destPath + m_testZipFile)).WillOnce(Return(true));
     Tests::replaceFileSystem(std::move(m_mockFileSystem));
 
     ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
@@ -826,7 +826,7 @@ TEST_F(DownloadFileTests, FileSha256CantBeCalculatedDueToAccess)
     addListFilesExpectsToMockFileSystem();
     addExistChecksForRemovingFilesToFileSystem();
     EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(false));
-    EXPECT_CALL(*m_mockFileSystem, exists(m_destPath + "/" + m_testZipFile)).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFileSystem, exists(m_destPath + m_testZipFile)).WillOnce(Return(false));
     EXPECT_CALL(*m_mockFileSystem, calculateDigest(Common::SslImpl::Digest::sha256, m_raTmpFile))
         .WillOnce(Throw(Common::FileSystem::IFileSystemException("")));
     Tests::replaceFileSystem(std::move(m_mockFileSystem));
@@ -857,7 +857,7 @@ TEST_F(DownloadFileTests, FileSha256CantBeCalculatedDueToOtherReason)
     addListFilesExpectsToMockFileSystem();
     addExistChecksForRemovingFilesToFileSystem();
     EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(false));
-    EXPECT_CALL(*m_mockFileSystem, exists(m_destPath + "/" + m_testZipFile)).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFileSystem, exists(m_destPath + m_testZipFile)).WillOnce(Return(false));
     EXPECT_CALL(*m_mockFileSystem, calculateDigest(Common::SslImpl::Digest::sha256, m_raTmpFile))
         .WillOnce(Throw(std::exception()));
     Tests::replaceFileSystem(std::move(m_mockFileSystem));
@@ -886,7 +886,7 @@ TEST_F(DownloadFileTests, FailureDueToTimeout)
     //MockFileSystem
     addDiskSpaceExpectsToMockFileSystem();
     EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(false));
-    EXPECT_CALL(*m_mockFileSystem, exists(m_destPath + "/" + m_testZipFile)).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFileSystem, exists(m_destPath + m_testZipFile)).WillOnce(Return(false));
     Tests::replaceFileSystem(std::move(m_mockFileSystem));
 
     ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
@@ -913,7 +913,7 @@ TEST_F(DownloadFileTests, FailureDueToNetworkError)
     //MockFileSystem
     addDiskSpaceExpectsToMockFileSystem();
     EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(false));
-    EXPECT_CALL(*m_mockFileSystem, exists(m_destPath + "/" + m_testZipFile)).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFileSystem, exists(m_destPath + m_testZipFile)).WillOnce(Return(false));
     Tests::replaceFileSystem(std::move(m_mockFileSystem));
 
     ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
@@ -940,7 +940,7 @@ TEST_F(DownloadFileTests, FailureDueToServerError)
     //MockFileSystem
     addDiskSpaceExpectsToMockFileSystem();
     EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(false));
-    EXPECT_CALL(*m_mockFileSystem, exists(m_destPath + "/" + m_testZipFile)).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFileSystem, exists(m_destPath + m_testZipFile)).WillOnce(Return(false));
     Tests::replaceFileSystem(std::move(m_mockFileSystem));
 
     ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
@@ -967,7 +967,7 @@ TEST_F(DownloadFileTests, FailureDueToFileAlreadyExisting)
     //MockFileSystem
     addDiskSpaceExpectsToMockFileSystem();
     EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(false));
-    EXPECT_CALL(*m_mockFileSystem, exists(m_destPath + "/" + m_testZipFile)).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFileSystem, exists(m_destPath + m_testZipFile)).WillOnce(Return(false));
     Tests::replaceFileSystem(std::move(m_mockFileSystem));
 
     ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
@@ -991,7 +991,7 @@ TEST_F(DownloadFileTests, NotEnoughSpaceOnRATmpDisk)
 
     //MockFileSystem
     addDiskSpaceExpectsToMockFileSystem(1);
-    EXPECT_CALL(*m_mockFileSystem, exists(m_destPath + "/" + m_testZipFile)).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFileSystem, exists(m_destPath + m_testZipFile)).WillOnce(Return(false));
     Tests::replaceFileSystem(std::move(m_mockFileSystem));
 
     ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
@@ -1015,7 +1015,7 @@ TEST_F(DownloadFileTests, NotEnoughSpaceOnDestDisk)
 
     //MockFileSystem
     addDiskSpaceExpectsToMockFileSystem(1024 * 1024, 1);
-    EXPECT_CALL(*m_mockFileSystem, exists(m_destPath + "/" + m_testZipFile)).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFileSystem, exists(m_destPath + m_testZipFile)).WillOnce(Return(false));
     Tests::replaceFileSystem(std::move(m_mockFileSystem));
 
     ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
@@ -1040,7 +1040,7 @@ TEST_F(DownloadFileTests, HandlesWhenCantAssessDiskSpace_FileSystemException)
     //MockFileSystem
     EXPECT_CALL(*m_mockFileSystem, getDiskSpaceInfo("/opt/sophos-spl/plugins/responseactions/tmp"))
         .WillOnce(Throw(Common::FileSystem::IFileSystemException("exception")));
-    EXPECT_CALL(*m_mockFileSystem, exists(m_destPath + "/" + m_testZipFile)).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFileSystem, exists(m_destPath + m_testZipFile)).WillOnce(Return(false));
     Tests::replaceFileSystem(std::move(m_mockFileSystem));
 
     ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
@@ -1065,7 +1065,7 @@ TEST_F(DownloadFileTests, HandlesWhenCantAssessDiskSpace_Exception)
     //MockFileSystem
     EXPECT_CALL(*m_mockFileSystem, getDiskSpaceInfo("/opt/sophos-spl/plugins/responseactions/tmp"))
         .WillOnce(Throw(std::exception()));
-    EXPECT_CALL(*m_mockFileSystem, exists(m_destPath + "/" + m_testZipFile)).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFileSystem, exists(m_destPath + m_testZipFile)).WillOnce(Return(false));
     Tests::replaceFileSystem(std::move(m_mockFileSystem));
 
     ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
@@ -1096,7 +1096,7 @@ TEST_F(DownloadFileTests, HandlesWhenCantCreatePathToExtractTo_FileSystemExcepti
     addDiskSpaceExpectsToMockFileSystem();
     addListFilesExpectsToMockFileSystem();
     addExistChecksForRemovingFilesToFileSystem(decompress);
-    EXPECT_CALL(*m_mockFileSystem, exists(m_destPath + "/" + m_testExtractedFile)).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFileSystem, exists(m_destPath + m_testExtractedFile)).WillOnce(Return(false));
     EXPECT_CALL(*m_mockFileSystem, makedirs(m_raExtractTmpDir))
         .WillOnce(Throw(Common::FileSystem::IFileSystemException("exception")));
     EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(false));
@@ -1132,7 +1132,7 @@ TEST_F(DownloadFileTests, HandlesWhenCantCreatePathToExtractTo_Exception)
     addDiskSpaceExpectsToMockFileSystem();
     addListFilesExpectsToMockFileSystem();
     addExistChecksForRemovingFilesToFileSystem(decompress);
-    EXPECT_CALL(*m_mockFileSystem, exists(m_destPath + "/" + m_testExtractedFile)).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFileSystem, exists(m_destPath + m_testExtractedFile)).WillOnce(Return(false));
     EXPECT_CALL(*m_mockFileSystem, makedirs(m_raExtractTmpDir))
         .WillOnce(Throw(std::exception()));
     EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(false));
@@ -1158,7 +1158,7 @@ TEST_F(DownloadFileTests, HandlesWhenCantCreateOrCopyFileToFinalDestination_File
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    const std::string expectedErrStr = "Unable to make directory " + m_destPath + "/ : exception";
+    const std::string expectedErrStr = "Unable to make directory " + m_destPath + " : exception";
 
     addResponseToMockRequester(HTTP_STATUS_OK, ResponseErrorCode::OK);
 
@@ -1166,8 +1166,8 @@ TEST_F(DownloadFileTests, HandlesWhenCantCreateOrCopyFileToFinalDestination_File
     addDiskSpaceExpectsToMockFileSystem();
     addListFilesExpectsToMockFileSystem();
     addExistChecksForRemovingFilesToFileSystem();
-    EXPECT_CALL(*m_mockFileSystem, exists(m_destPath + "/" + m_testZipFile)).WillOnce(Return(false));
-    EXPECT_CALL(*m_mockFileSystem, makedirs(m_destPath + "/"))
+    EXPECT_CALL(*m_mockFileSystem, exists(m_destPath + m_testZipFile)).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFileSystem, makedirs(m_destPath))
         .WillOnce(Throw(Common::FileSystem::IFileSystemException("exception")));
     EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(false));
     EXPECT_CALL(*m_mockFileSystem, calculateDigest(Common::SslImpl::Digest::sha256, m_raTmpFile))
@@ -1192,7 +1192,7 @@ TEST_F(DownloadFileTests, HandlesWhenCantCreateOrCopyFileToFinalDestination_Exce
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    const std::string expectedErrStr = "Unknown error when making directory " + m_destPath + "/ : std::exception";
+    const std::string expectedErrStr = "Unknown error when making directory " + m_destPath + " : std::exception";
 
     addResponseToMockRequester(HTTP_STATUS_OK, ResponseErrorCode::OK);
 
@@ -1200,8 +1200,8 @@ TEST_F(DownloadFileTests, HandlesWhenCantCreateOrCopyFileToFinalDestination_Exce
     addDiskSpaceExpectsToMockFileSystem();
     addListFilesExpectsToMockFileSystem();
     addExistChecksForRemovingFilesToFileSystem();
-    EXPECT_CALL(*m_mockFileSystem, exists(m_destPath + "/" + m_testZipFile)).WillOnce(Return(false));
-    EXPECT_CALL(*m_mockFileSystem, makedirs(m_destPath + "/"))
+    EXPECT_CALL(*m_mockFileSystem, exists(m_destPath + m_testZipFile)).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFileSystem, makedirs(m_destPath))
         .WillOnce(Throw(std::exception()));
     EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(false));
     EXPECT_CALL(*m_mockFileSystem, calculateDigest(Common::SslImpl::Digest::sha256, m_raTmpFile))
@@ -1234,7 +1234,7 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompress_NoFilesInDownload
     //MockFileSystem
     addDiskSpaceExpectsToMockFileSystem();
     addExistChecksForRemovingFilesToFileSystem();
-    EXPECT_CALL(*m_mockFileSystem, exists(m_destPath + "/" + m_testExtractedFile)).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFileSystem, exists(m_destPath + m_testExtractedFile)).WillOnce(Return(false));
     EXPECT_CALL(*m_mockFileSystem, listFiles(m_raTmpDir)).WillOnce(Return(std::vector<std::string> {}));
     EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(false));
     Tests::replaceFileSystem(std::move(m_mockFileSystem));
@@ -1266,7 +1266,7 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompress_ToManyFilesInDown
     //MockFileSystem
     addDiskSpaceExpectsToMockFileSystem();
     addExistChecksForRemovingFilesToFileSystem();
-    EXPECT_CALL(*m_mockFileSystem, exists(m_destPath + "/" + m_testExtractedFile)).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFileSystem, exists(m_destPath + m_testExtractedFile)).WillOnce(Return(false));
     EXPECT_CALL(*m_mockFileSystem, listFiles(m_raTmpDir)).WillOnce(Return(std::vector<std::string> {"one", "two"}));
     EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(false));
 
@@ -1304,7 +1304,7 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompress_NoFilesUnzipped)
     addExistChecksForRemovingFilesToFileSystem(decompress);
     EXPECT_CALL(*m_mockFileSystem, listAllFilesInDirectoryTree(m_raExtractTmpDir)).WillOnce(Return(std::vector<std::string> {}));
     EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(false));
-    EXPECT_CALL(*m_mockFileSystem, exists(m_destPath + "/" + m_testExtractedFile)).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFileSystem, exists(m_destPath + m_testExtractedFile)).WillOnce(Return(false));
     EXPECT_CALL(*m_mockFileSystem, makedirs(m_raExtractTmpDir)).Times(1);
     EXPECT_CALL(*m_mockFileSystem, calculateDigest(Common::SslImpl::Digest::sha256, m_raTmpFile))
         .WillOnce(Return("shastring"));
@@ -1340,9 +1340,9 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompress_ManyFilesTargetPa
     addListFilesExpectsToMockFileSystem(decompress, true);
     addExistChecksForRemovingFilesToFileSystem(decompress);
     EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(false));
-    EXPECT_CALL(*m_mockFileSystem, exists(m_destPath + "/")).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFileSystem, exists(m_destPath)).WillOnce(Return(false));
     EXPECT_CALL(*m_mockFileSystem, makedirs(m_raExtractTmpDir)).Times(1);
-    EXPECT_CALL(*m_mockFileSystem, makedirs(m_destPath + "/")).Times(1);
+    EXPECT_CALL(*m_mockFileSystem, makedirs(m_destPath)).Times(1);
     EXPECT_CALL(*m_mockFileSystem, moveFileTryCopy(_, _)).Times(4);
     EXPECT_CALL(*m_mockFileSystem, calculateDigest(Common::SslImpl::Digest::sha256, m_raTmpFile))
         .WillOnce(Return("shastring"));
@@ -1378,9 +1378,9 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompress_ManyFilesTargetPa
     addListFilesExpectsToMockFileSystem(true, true); //We want a error with second call so dont pass decompress bool
     addExistChecksForRemovingFilesToFileSystem(decompress);
     EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(false));
-    EXPECT_CALL(*m_mockFileSystem, exists(m_destPath + "/" + "download.txt")).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFileSystem, exists(m_destPath + "download.txt")).WillOnce(Return(false));
     EXPECT_CALL(*m_mockFileSystem, makedirs(m_raExtractTmpDir)).Times(1);
-    EXPECT_CALL(*m_mockFileSystem, makedirs(m_destPath + "/")).Times(1);
+    EXPECT_CALL(*m_mockFileSystem, makedirs(m_destPath)).Times(1);
     EXPECT_CALL(*m_mockFileSystem, moveFileTryCopy(_, _)).Times(4);
     EXPECT_CALL(*m_mockFileSystem, calculateDigest(Common::SslImpl::Digest::sha256, m_raTmpFile))
         .WillOnce(Return("shastring"));
@@ -1415,7 +1415,7 @@ TEST_F(DownloadFileTests, Sha256IsWrong)
     addListFilesExpectsToMockFileSystem();
     addExistChecksForRemovingFilesToFileSystem();
     EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(false));
-    EXPECT_CALL(*m_mockFileSystem, exists(m_destPath + "/" + m_testZipFile)).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFileSystem, exists(m_destPath + m_testZipFile)).WillOnce(Return(false));
     EXPECT_CALL(*m_mockFileSystem, calculateDigest(Common::SslImpl::Digest::sha256, m_raTmpFile))
         .WillOnce(Return("adifferentshastring"));
     Tests::replaceFileSystem(std::move(m_mockFileSystem));
