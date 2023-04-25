@@ -4,19 +4,22 @@
 
 #include "EventUtils.h"
 
-#include "ApplicationConfigurationImpl/ApplicationPathManager.h"
+#include "Common/ApplicationConfigurationImpl/ApplicationPathManager.h"
+#include "Common/FileSystem/IFileNotFoundException.h"
+#include "Common/FileSystem/IFilePermissions.h"
 #include "Common/UtilityImpl/StringUtils.h"
 #include "Common/UtilityImpl/TimeUtils.h"
 #include "Common/UtilityImpl/Uuid.h"
-#include "FileSystem/IFileNotFoundException.h"
+#include "Common/UtilityImpl/ProjectNames.h"
+#include "Common/XmlUtilities/AttributesMap.h"
 #include "ManagementAgent/LoggerImpl/Logger.h"
-#include "UtilityImpl/ProjectNames.h"
-#include "XmlUtilities/AttributesMap.h"
 
-#include <Common/FileSystem/IFilePermissions.h>
-
-#include <ctime>
+// 3rd party
 #include <json.hpp>
+// Std C++
+#include <ctime>
+// Std C
+#include <unistd.h>
 
 ManagementAgent::EventReceiverImpl::OutbreakModeController::OutbreakModeController()
 {
@@ -135,6 +138,12 @@ void ManagementAgent::EventReceiverImpl::OutbreakModeController::save(const std:
     try
     {
         filesystem->writeFileAtomically(path, contents, paths.getTempPath(), 0640);
+
+        if (::getuid() == 0)
+        {
+            // Set the owner to root:sophos-spl-group so that Telemetry can read the file.
+            Common::FileSystem::filePermissions()->chown(path, "root", sophos::group());
+        }
     }
     catch (const Common::FileSystem::IFileSystemException& ex)
     {
