@@ -756,7 +756,7 @@ def run_safestore_restoration_test():
 
     log_utils = LogUtils.LogUtils()
     td_mark = log_utils.get_sophos_threat_detector_log_mark()
-    av_mark = log_utils.mark_av_log()
+    av_mark = log_utils.get_av_log_mark()
 
     return_code, restored_files, unrestored_files = 0, 0, 0
     corc_policy_path = "/opt/sophos-spl/base/mcs/policy/CORC_policy.xml"
