@@ -45,7 +45,7 @@ namespace ResponsePlugin
         int timeout)
     {
         isRunning = true;
-        TelemetryUtils::incrementTotalActions(type);
+        incrementTotalActions(type);
 
         m_fut = std::async(
             std::launch::async,
@@ -85,7 +85,7 @@ namespace ResponsePlugin
                 else
                 {
                     LOGWARN("Failed action " << correlationId << " with exit code " << code);
-                    TelemetryUtils::incrementFailedActions(type);
+                    incrementFailedActions(type);
 
                     if (code != 1 && code != 4)
                     {
@@ -93,9 +93,13 @@ namespace ResponsePlugin
                         if (processStatus == ProcessStatus::TIMEOUT)
                         {
                             result = ResponseResult::TIMEOUT;
-                            TelemetryUtils::incrementTimedOutActions(type);
+                            incrementTimedOutActions(type);
                         }
                         sendFailedResponse(result, type, correlationId);
+                    }
+                    if (code == 4)
+                    {
+                        incrementExpiredActions(type);
                     }
                 }
                 isRunning = false;

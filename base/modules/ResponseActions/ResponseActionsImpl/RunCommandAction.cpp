@@ -52,8 +52,6 @@ CommandResponse RunCommandAction::runCommands(const CommandRequest& action, cons
     {
         LOGWARN("Command " << correlationId << " has expired so will not be run.");
         response.result = ResponseActions::RACommon::ResponseResult::EXPIRED;
-        std::string type = "sophos.mgt.action.RunCommands";
-        ResponsePlugin::TelemetryUtils::incrementExpiredActions(type);
         return response;
     }
 

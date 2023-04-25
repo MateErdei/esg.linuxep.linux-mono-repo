@@ -146,10 +146,10 @@ class TelemetryUtils:
 
         telemetry = {
             "health": 1,
-            "run-command-action-timeouts": int(rc_timeout_fails),
+            "run-command-timeout-actions": int(rc_timeout_fails),
             "run-command-actions": int(rc_total_actions),
             "run-command-expired-actions": int(rc_expiry_fails),
-            "run-command-fails": int(rc_total_fails),
+            "run-command-failed": int(rc_total_fails),
             "version": version
         }
 

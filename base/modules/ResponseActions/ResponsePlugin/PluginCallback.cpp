@@ -65,19 +65,18 @@ namespace ResponsePlugin
         LOGDEBUG("Received get telemetry request");
         auto& telemetry = Common::Telemetry::TelemetryHelper::getInstance();
 
+        Common::Telemetry::TelemetryHelper::getInstance().increment("run-command-actions", 0UL);
+        Common::Telemetry::TelemetryHelper::getInstance().increment("run-command-failed", 0UL);
+        Common::Telemetry::TelemetryHelper::getInstance().increment("run-command-expired-actions", 0UL);
+        Common::Telemetry::TelemetryHelper::getInstance().increment("run-command-timeout-actions", 0UL);
+
         std::optional<std::string> version = ResponsePlugin::getVersion();
-        TelemetryUtils::actionTelemetry runCommandTelemetry = TelemetryUtils::getRunCommandTelemetry();
 
         if (version)
         {
             telemetry.set(ResponsePlugin::Telemetry::version, version.value());
         }
         telemetry.set(Telemetry::pluginHealthStatus, static_cast<u_long>(1));
-        telemetry.set(Telemetry::runCommandTotal, runCommandTelemetry.total);
-        telemetry.set(Telemetry::runCommandFails, runCommandTelemetry.totalFailures);
-        telemetry.set(Telemetry::runCommandT0Fails, runCommandTelemetry.timeoutFailures);
-        telemetry.set(Telemetry::runCommandEFails, runCommandTelemetry.expiryFailures);
-//        telemetry.set(Telemetry::runCommand, TelemetryUtils::getRunCommandTelemetry());
         std::string telemetryJson = telemetry.serialiseAndReset();
         LOGDEBUG("Got telemetry JSON data: " << telemetryJson);
 

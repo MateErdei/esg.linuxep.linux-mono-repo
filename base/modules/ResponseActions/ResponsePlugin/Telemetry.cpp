@@ -5,6 +5,8 @@
 #include "ApplicationPaths.h"
 #include "Logger.h"
 
+#include "Common/TelemetryHelperImpl/TelemetryHelper.h"
+
 #include <Common/UtilityImpl/StringUtils.h>
 
 namespace
@@ -14,8 +16,6 @@ namespace
 
 namespace ResponsePlugin
 {
-    TelemetryUtils::actionTelemetry runCommands;
-
     std::optional<std::string> getVersion()
     {
         try
@@ -30,40 +30,35 @@ namespace ResponsePlugin
         }
     }
 
-    TelemetryUtils::actionTelemetry TelemetryUtils::getRunCommandTelemetry()
-    {
-        return runCommands;
-    }
-
-    void TelemetryUtils::incrementTotalActions(const std::string& type)
+    void incrementTotalActions(const std::string& type)
     {
         if (type == "sophos.mgt.action.RunCommands")
         {
-            runCommands.total += 1;
+            Common::Telemetry::TelemetryHelper::getInstance().increment("run-command-actions", 1UL);
         }
     }
 
-    void TelemetryUtils::incrementFailedActions(const std::string& type)
+    void incrementFailedActions(const std::string& type)
     {
         if (type == "sophos.mgt.action.RunCommands")
         {
-            runCommands.totalFailures += 1;
+            Common::Telemetry::TelemetryHelper::getInstance().increment("run-command-failed", 1UL);
         }
     }
 
-    void TelemetryUtils::incrementTimedOutActions(const std::string& type)
+    void incrementTimedOutActions(const std::string& type)
     {
         if (type == "sophos.mgt.action.RunCommands")
         {
-            runCommands.timeoutFailures += 1;
+            Common::Telemetry::TelemetryHelper::getInstance().increment("run-command-timeout-actions", 1UL);
         }
     }
 
-    void ResponsePlugin::TelemetryUtils::incrementExpiredActions(const std::string& type)
+    void incrementExpiredActions(const std::string& type)
     {
         if (type == "sophos.mgt.action.RunCommands")
         {
-            runCommands.expiryFailures += 1;
+            Common::Telemetry::TelemetryHelper::getInstance().increment("run-command-expired-actions", 1UL);
         }
     }
 

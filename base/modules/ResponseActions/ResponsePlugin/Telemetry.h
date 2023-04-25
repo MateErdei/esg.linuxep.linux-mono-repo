@@ -11,24 +11,9 @@ namespace ResponsePlugin
 {
     std::optional<std::string> getVersion();
 
-    class TelemetryUtils
-    {
-
-    public:
-
-        struct actionTelemetry
-        {
-            long int total = 0;
-            long int totalFailures = 0;
-            long int timeoutFailures = 0;
-            long int expiryFailures = 0;
-        };
-
-        static void incrementTotalActions(const std::string& type);
-        static void incrementFailedActions(const std::string& type);
-        static void incrementTimedOutActions(const std::string& type);
-        static void incrementExpiredActions(const std::string& type);
-        static TelemetryUtils::actionTelemetry getRunCommandTelemetry();
-    };
+    void incrementTotalActions(const std::string& type);
+    void incrementFailedActions(const std::string& type);
+    void incrementTimedOutActions(const std::string& type);
+    void incrementExpiredActions(const std::string& type);
 
 } // namespace ResponsePlugin
