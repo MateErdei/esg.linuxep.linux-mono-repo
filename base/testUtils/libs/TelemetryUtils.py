@@ -141,22 +141,16 @@ class TelemetryUtils:
         return telemetry
 
     def generate_ra_telemetry_dict(self, rc_total_actions, rc_total_fails, rc_timeout_fails, rc_expiry_fails):
-        version = get_plugin_version("responseactions")
 
-        # run_command_telemetry = {
-        #     "total-actions", rc_total_actions,
-        #     "total-failures", rc_total_fails,
-        #     "timeout-failures", rc_timeout_fails,
-        #     "expiration-failures", rc_expiry_fails
-        # }
+        version = get_plugin_version("responseactions")
 
         telemetry = {
             "health": 1,
-            "version": version,
-            "run-command-actions": rc_total_actions,
-            "run-command-fails": rc_total_fails,
-            "run-command-action-timeouts": rc_timeout_fails,
-            "run-command-expired-actions": rc_expiry_fails
+            "run-command-action-timeouts": int(rc_timeout_fails),
+            "run-command-actions": int(rc_total_actions),
+            "run-command-expired-actions": int(rc_expiry_fails),
+            "run-command-fails": int(rc_total_fails),
+            "version": version
         }
 
         return telemetry

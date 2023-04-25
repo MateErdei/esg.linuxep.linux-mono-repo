@@ -4,7 +4,6 @@
 
 #include "ApplicationPaths.h"
 #include "Logger.h"
-#include "json.hpp"
 
 #include <Common/UtilityImpl/StringUtils.h>
 
@@ -33,11 +32,6 @@ namespace ResponsePlugin
 
     TelemetryUtils::actionTelemetry TelemetryUtils::getRunCommandTelemetry()
     {
-//        std::map<std::string, int> rcMap = { { "total-actions", runCommands.total },
-//                                             { "total-failures", runCommands.totalFailures },
-//                                             { "timeout-failures", runCommands.timeoutFailures },
-//                                             { "expiration-failures", runCommands.expiryFailures } };
-
         return runCommands;
     }
 
@@ -65,7 +59,7 @@ namespace ResponsePlugin
         }
     }
 
-    void TelemetryUtils::incrementExpiredActions(const std::string& type)
+    void ResponsePlugin::TelemetryUtils::incrementExpiredActions(const std::string& type)
     {
         if (type == "sophos.mgt.action.RunCommands")
         {

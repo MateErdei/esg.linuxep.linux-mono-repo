@@ -373,7 +373,7 @@ TEST_F(RunCommandTests, runMethodReturnsTimeOut)
 
 // runCommands
 
-TEST_F(RunCommandTests, runCommandsSingleCommandWithNoErrors) //ADD TELEMETERY ASSERT HERE
+TEST_F(RunCommandTests, runCommandsSingleCommandWithNoErrors)
 {
     Common::ProcessImpl::ProcessFactory::instance().replaceCreator(
         []()
@@ -386,10 +386,6 @@ TEST_F(RunCommandTests, runCommandsSingleCommandWithNoErrors) //ADD TELEMETERY A
             EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
             EXPECT_CALL(*mockProcess, wait(_,_)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
             EXPECT_CALL(*mockProcess, getStatus()).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
-
-//            std::string actualTelemetry = ResponsePlugin::PluginCallback::getTelemetry();
-//            std::string expectedTelemetry = "no clue";
-//            ASSERT_EQ(actualTelemetry, expectedTelemetry);
 
             return std::unique_ptr<Common::Process::IProcess>(mockProcess);
         });
@@ -412,7 +408,7 @@ TEST_F(RunCommandTests, runCommandsSingleCommandWithNoErrors) //ADD TELEMETERY A
     EXPECT_GE(response.commandResults[0].duration, 0);
 }
 
-TEST_F(RunCommandTests, runCommandsMultipleCommandsWithNoErrors) //ADD TELEMETRY ASSERT HERE
+TEST_F(RunCommandTests, runCommandsMultipleCommandsWithNoErrors)
 {
     Common::ProcessImpl::ProcessFactory::instance().replaceCreator(
         []()
@@ -530,7 +526,7 @@ TEST_F(RunCommandTests, runCommandsMultiplCommandsWithErrorsAndIgnoreErrorsFalse
     EXPECT_GE(response.commandResults[0].duration, 0);
 }
 
-TEST_F(RunCommandTests, runCommandsExpired) //ADD TELEMETRY ASSERT HERE
+TEST_F(RunCommandTests, runCommandsExpired)
 {
     std::string correlationId = "correlationID";
     CommandRequest cmd{

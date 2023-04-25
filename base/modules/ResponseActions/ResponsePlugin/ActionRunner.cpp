@@ -9,7 +9,6 @@
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "Common/FileSystem/IFilePermissions.h"
 #include "Common/FileSystem/IFileSystem.h"
-#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 
 using namespace ResponseActions::RACommon;
 using namespace Common::Process;
@@ -97,10 +96,6 @@ namespace ResponsePlugin
                             TelemetryUtils::incrementTimedOutActions(type);
                         }
                         sendFailedResponse(result, type, correlationId);
-                    }
-                    if (code == 4)
-                    {
-                        TelemetryUtils::incrementExpiredActions(type);
                     }
                 }
                 isRunning = false;

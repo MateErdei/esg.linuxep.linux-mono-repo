@@ -64,6 +64,7 @@ Test Run Command Action and Verify Response JSON with Ignore Error True
 
 Test Run Command Action and Verify Response JSON when Timeout Exceeded
     ${action_mark} =  mark_log_size  ${ACTIONS_RUNNER_LOG_PATH}
+    Prepare To Run Telemetry Executable
 
     Simulate Run Command Action Now    ${SUPPORT_FILES}/CentralXml/RunCommandAction4.json
     wait_for_log_contains_from_mark  ${action_mark}  Performing run command action:
@@ -71,6 +72,11 @@ Test Run Command Action and Verify Response JSON when Timeout Exceeded
 
     # 2 is timeout
     verify_run_command_response    ${RESPONSE_JSON}   ${2}    expect_timeout=${True}
+
+    Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
+    ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
+    Log  ${telemetryFileContents}
+    Check RA Telemetry Json Is Correct  ${telemetryFileContents}    1    1    1    0
 
 Test Run Command Action and Verify Commands Ran In Correct Order
     ${action_mark} =  mark_log_size  ${ACTIONS_RUNNER_LOG_PATH}
@@ -119,9 +125,15 @@ Test Run Command Action Handles Large Stdout
 Test Run Command Action Handles Malformed Json Request
     ${action_mark} =  mark_log_size  ${ACTIONS_RUNNER_LOG_PATH}
     ${response_mark} =  mark_log_size  ${RESPONSE_ACTIONS_LOG_PATH}
+    Prepare To Run Telemetry Executable
 
     Simulate Run Command Action Now    ${SUPPORT_FILES}/CentralXml/RunCommandAction_malformed.json
     wait_for_log_contains_from_mark    ${response_mark}    Cannot parse action with error
+
+    Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
+    ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
+    Log  ${telemetryFileContents}
+    Check RA Telemetry Json Is Correct  ${telemetryFileContents}    1    1    0    0
 
 Test Run Command Action Handles Missing Binary
     ${action_mark} =  mark_log_size  ${ACTIONS_RUNNER_LOG_PATH}
@@ -145,12 +157,19 @@ Test Run Command Action Handles Missing Binary
 
 Test Run Command Action Handles Expired Action
     ${action_mark} =  mark_log_size  ${ACTIONS_RUNNER_LOG_PATH}
+    Prepare To Run Telemetry Executable
+
     Simulate Run Command Action Now    ${SUPPORT_FILES}/CentralXml/RunCommandAction_expired.json
     wait_for_log_contains_from_mark  ${action_mark}  Performing run command action:
     wait_for_log_contains_from_mark  ${action_mark}  Command id1 has expired so will not be run
     Wait Until Created    ${RESPONSE_JSON}
     ${response_content}=  Get File    ${RESPONSE_JSON}
     Should Be Equal As Strings   ${response_content}    {"commandResults":[],"duration":0,"result":4,"startedAt":0,"type":"sophos.mgt.response.RunCommands"}
+
+    Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
+    ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
+    Log  ${telemetryFileContents}
+    Check RA Telemetry Json Is Correct  ${telemetryFileContents}    1    1    0    1
 
 
 Test Run Command Action Does Not Block RA Plugin Stopping
@@ -180,6 +199,8 @@ Test Run Command Action Does Not Block RA Plugin Stopping
 RA Command Direct Suite setup
     Run Full Installer
     Install Response Actions Directly
+    Copy Telemetry Config File in To Place
+    Create File    ${SOPHOS_INSTALL}/base/etc/logger.conf.local   [telemetry]\nVERBOSITY=DEBUG\n
 
 RA Run Command Test Setup
     # Stop MCS Router so that it does not consume the response files we want to validate.
@@ -193,6 +214,10 @@ RA Run Command Test Teardown
     Remove File    /tmp/test.txt
     Run Keyword If Test Failed    Log File    ${RESPONSE_JSON}
     Remove File    ${RESPONSE_JSON}
+    Remove file  ${TELEMETRY_OUTPUT_JSON}
+    Run Keyword If Test Failed  LogUtils.Dump Log  ${HTTPS_LOG_FILE_PATH}
+    Cleanup Telemetry Server
+    Remove File  ${EXE_CONFIG_FILE}
 
 Simulate Run Command Action Now
     [Arguments]  ${action_json_file}=${SUPPORT_FILES}/CentralXml/RunCommandAction.json    ${id_suffix}=id1
