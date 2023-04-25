@@ -386,27 +386,7 @@ namespace ResponseActionsImpl
             }
             else
             {
-                std::stringstream error;
-                error << "Error unzipping " << m_tmpDownloadFile << " due to ";
-
-                if (ret == UNZ_BADPASSWORD)
-                {
-                    error << "bad password";
-                    LOGWARN(error.str());
-                    ActionsUtils::setErrorInfo(response, 1, error.str(), "invalid_password");
-                }
-                else if (ret == UNZ_BADZIPFILE)
-                {
-                    error << "bad archive";
-                    LOGWARN(error.str());
-                    ActionsUtils::setErrorInfo(response, 1, error.str(), "invalid_archive");
-                }
-                else
-                {
-                    error << "error no " << ret;
-                    LOGWARN(error.str());
-                    ActionsUtils::setErrorInfo(response, 3, error.str());
-                }
+                handleUnZipFailure(response, ret);
             }
         }
         else
@@ -456,6 +436,33 @@ namespace ResponseActionsImpl
             }
         }
         return true;
+    }
+
+    void DownloadFileAction::handleUnZipFailure(nlohmann::json& response, const int& unzipReturn)
+    {
+        assert(unzipReturn != 0);
+
+        std::stringstream error;
+        error << "Error unzipping " << m_tmpDownloadFile << " due to ";
+
+        if (unzipReturn == UNZ_BADPASSWORD)
+        {
+            error << "bad password";
+            LOGWARN(error.str());
+            ActionsUtils::setErrorInfo(response, 1, error.str(), "invalid_password");
+        }
+        else if (unzipReturn == UNZ_BADZIPFILE)
+        {
+            error << "bad archive";
+            LOGWARN(error.str());
+            ActionsUtils::setErrorInfo(response, 1, error.str(), "invalid_archive");
+        }
+        else
+        {
+            error << "error no " << unzipReturn;
+            LOGWARN(error.str());
+            ActionsUtils::setErrorInfo(response, 3, error.str());
+        }
     }
 
     bool DownloadFileAction::fileAlreadyExists(nlohmann::json& response, const Path& destPath)

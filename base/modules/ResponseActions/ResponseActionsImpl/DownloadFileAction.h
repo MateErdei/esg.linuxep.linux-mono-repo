@@ -35,6 +35,7 @@ namespace ResponseActionsImpl
         void removeTmpFiles();
 
         bool createExtractionDirectory(nlohmann::json& response);
+        void handleUnZipFailure(nlohmann::json& response, const int& unzipReturn);
 
         const Path m_raTmpDir = Common::ApplicationConfiguration::applicationPathManager().getResponseActionTmpPath();
         const Path m_tmpDownloadFile = m_raTmpDir + "/tmp_download.zip";
