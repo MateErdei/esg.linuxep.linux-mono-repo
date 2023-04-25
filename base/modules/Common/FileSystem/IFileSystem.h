@@ -155,6 +155,13 @@ namespace Common
             virtual std::vector<std::string> readLines(const Path& path, unsigned long maxSize) const = 0;
 
             /**
+             * opens a stream to read the file from,
+             * @param path, location of the file to read.
+             * @return the file stream
+             */
+            virtual std::ifstream openFileForRead(const Path& path) const = 0;
+
+            /**
              * Writes the given string content into a new file.
              * @param path, location of the file to create
              * @param content, the string value to write into the given file.

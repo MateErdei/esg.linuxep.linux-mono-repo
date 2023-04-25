@@ -381,6 +381,25 @@ namespace Common
             }
         }
 
+        std::ifstream FileSystemImpl::openFileForRead(const Path& path) const
+        {
+            if (isFile(path))
+            {
+                std::ifstream infile(path.c_str());
+                if (infile.is_open() && infile.good())
+                {
+                    return infile;
+                }
+                throw IFileSystemException("Failed to open " + path);
+            }
+            if (isDirectory(path))
+            {
+                throw IFileSystemException(path + " is a directory");
+            }
+            throw IFileSystemException(path + " is not a file");
+
+        }
+
         void FileSystemImpl::appendFile(const Path& path, const std::string& content) const
         {
             std::ofstream outFileStream(path.c_str(), std::ios::app);
