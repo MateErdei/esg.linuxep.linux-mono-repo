@@ -7,6 +7,8 @@
 #include "common/FDUtils.h"
 #include "common/SaferStrerror.h"
 
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
+
 #include <cerrno>
 #include <cstring>
 #include <fstream>
@@ -26,6 +28,7 @@ namespace plugin::manager::scanprocessmonitor
         constexpr size_t EVENT_SIZE = sizeof (struct inotify_event);
         constexpr size_t EVENT_BUF_LEN = 1024 * ( EVENT_SIZE + 16 );
         constexpr int MAX_SYMLINK_DEPTH = 10;
+        constexpr const char* SOPHOS_PROXY_PATH = "SOPHOS_PROXY_PATH";
 
         const std::vector<std::string>& interestingFiles()
         {
@@ -50,11 +53,27 @@ namespace plugin::manager::scanprocessmonitor
     ConfigMonitor::ConfigMonitor(
         Common::Threads::NotifyPipe& pipe,
         datatypes::ISystemCallWrapperSharedPtr systemCallWrapper,
-        std::string base) :
+        std::string base,
+        std::string proxyConfigFile) :
         m_configChangedPipe(pipe),
         m_base(std::move(base)),
+        proxyConfigFile_(std::move(proxyConfigFile)),
         m_sysCalls(std::move(systemCallWrapper))
     {
+    }
+
+    std::string ConfigMonitor::getContentsFromPath(const fs::path& filepath)
+    {
+        if (filepath.empty())
+        {
+            return ""; // Threat empty path as empty file
+        }
+        std::ifstream in(filepath, std::ios::in | std::ios::binary);
+        if (!in.is_open())
+        {
+            return ""; // Treat missing as empty
+        }
+        return { (std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>() };
     }
 
     /**
@@ -65,12 +84,11 @@ namespace plugin::manager::scanprocessmonitor
     std::string ConfigMonitor::getContents(const std::string& basename)
     {
         std::string filepath = m_base / basename;
-        std::ifstream in(filepath, std::ios::in | std::ios::binary);
-        if (!in.is_open())
+        if (basename == SOPHOS_PROXY_PATH)
         {
-            return ""; // Treat missing as empty
+            filepath = proxyConfigFile_;
         }
-        return { (std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>() };
+        return getContentsFromPath(filepath);
     }
 
     ConfigMonitor::contentMap_t ConfigMonitor::getContentsMap()
@@ -81,6 +99,7 @@ namespace plugin::manager::scanprocessmonitor
         {
             result[basename] = getContents(basename);
         }
+        result[SOPHOS_PROXY_PATH] = getContents(SOPHOS_PROXY_PATH);
         return result;
     }
 
@@ -123,10 +142,16 @@ namespace plugin::manager::scanprocessmonitor
 
     void ConfigMonitor::run()
     {
+        if (proxyConfigFile_ == "DEFAULT")
+        {
+            proxyConfigFile_ = Common::ApplicationConfiguration::applicationPathManager().getMcsCurrentProxyFilePath();
+        }
+
         m_currentContents = getContentsMap();
 
         // Add a watch for changes to the directory base ("/etc")
         InotifyFD_t inotifyFD(m_base);
+        InotifyFD_t proxyWatcher(proxyConfigFile_);
 
         bool success = resolveSymlinksForInterestingFiles();
 
@@ -147,7 +172,7 @@ namespace plugin::manager::scanprocessmonitor
         LOGDEBUG("Config Monitor entering main loop");
         while (true)
         {
-            bool running = inner_run(inotifyFD);
+            bool running = inner_run(inotifyFD, proxyWatcher);
             if (!running)
             {
                 // can exit for good reasons as well as errors.
@@ -174,8 +199,12 @@ namespace plugin::manager::scanprocessmonitor
         }
     }
 
-    bool ConfigMonitor::inner_run(InotifyFD_t& inotifyFD)
+    bool ConfigMonitor::inner_run(InotifyFD_t& inotifyFD, InotifyFD_t& proxyWatcher)
     {
+        // Per https://man7.org/linux/man-pages/man7/inotify.7.html
+        // This buffer should be aligned for struct inotify_event
+        char buffer[EVENT_BUF_LEN] __attribute__ ((aligned(__alignof__(struct inotify_event))));
+
         assert(inotifyFD.getFD() >= 0);
 
         fd_set readFds;
@@ -183,6 +212,10 @@ namespace plugin::manager::scanprocessmonitor
         int max_fd = -1;
         max_fd = common::FDUtils::addFD(&readFds, m_notifyPipe.readFd(), max_fd);
         max_fd = common::FDUtils::addFD(&readFds, inotifyFD.getFD(), max_fd);
+        if (proxyWatcher.valid())
+        {
+            max_fd = common::FDUtils::addFD(&readFds, proxyWatcher.getFD(), max_fd);
+        }
         for (const auto& iter : m_interestingDirs)
         {
             max_fd = common::FDUtils::addFD(&readFds, iter.second->getFD(), max_fd);
@@ -209,9 +242,6 @@ namespace plugin::manager::scanprocessmonitor
             if (common::FDUtils::fd_isset(inotifyFD.getFD(), &temp_readFds))
             {
                 // Something changed under m_base (/etc)
-                // Per https://man7.org/linux/man-pages/man7/inotify.7.html
-                // This buffer should be aligned for struct inotify_event
-                char buffer[EVENT_BUF_LEN] __attribute__ ((aligned(__alignof__(struct inotify_event))));
 
                 ssize_t length = ::read(inotifyFD.getFD(), buffer, EVENT_BUF_LEN);
 
@@ -236,14 +266,20 @@ namespace plugin::manager::scanprocessmonitor
                     i += EVENT_SIZE + event->len;
                 }
             }
+            if (proxyWatcher.valid() && common::FDUtils::fd_isset(proxyWatcher.getFD(), &temp_readFds))
+            {
+                // flush the buffer
+                ::read(proxyWatcher.getFD(), buffer, EVENT_BUF_LEN);
 
+                LOGDEBUG("Proxy configuration changed");
+                interestingDirTouched = true;
+            }
             for (const auto& iter : m_interestingDirs)
             {
                 int fd = iter.second->getFD();
                 if (common::FDUtils::fd_isset(fd, &temp_readFds))
                 {
                     // flush the buffer
-                    char buffer[EVENT_BUF_LEN];
                     ::read(fd, buffer, EVENT_BUF_LEN);
 
                     LOGDEBUG("Inotified in directory: " << iter.first);
@@ -286,6 +322,8 @@ namespace plugin::manager::scanprocessmonitor
             // Don't short-circuit - we want to update all contents in case of simultaneous updates
             configChanged = check_file_for_changes(filepath, false) || configChanged;
         }
+        configChanged = check_file_for_changes(SOPHOS_PROXY_PATH, false) || configChanged;
+
         return configChanged;
     }
 }

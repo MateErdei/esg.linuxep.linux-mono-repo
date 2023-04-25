@@ -17,17 +17,25 @@ Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 #include <map>
 
-namespace fs = sophos_filesystem;
-
 namespace plugin::manager::scanprocessmonitor
 {
+    namespace fs = sophos_filesystem;
     class ConfigMonitor : public common::AbstractThreadPluginInterface
     {
     public:
+
         using InotifyFD_t = InotifyFD;
+        /**
+         *
+         * @param pipe
+         * @param systemCallWrapper
+         * @param base Optional base of the config files to monitor
+         * @param proxyConfigFile Optional path to the proxy config file to monitor - defaults to $SOPHOS_INSTALL/
+         */
         explicit ConfigMonitor(Common::Threads::NotifyPipe& pipe,
                                datatypes::ISystemCallWrapperSharedPtr systemCallWrapper,
-                               std::string base="/etc");
+                               std::string base="/etc",
+                               std::string proxyConfigFile="DEFAULT");
 
     private:
         using contentMap_t = std::map<std::string, std::string>;
@@ -42,7 +50,7 @@ namespace plugin::manager::scanprocessmonitor
          *
          * @return True if we should continue running
          */
-        bool inner_run(InotifyFD_t& inotifyFD);
+        bool inner_run(InotifyFD_t& inotifyFD, InotifyFD_t& proxyWatcher);
 
         /**
          *
@@ -58,10 +66,12 @@ namespace plugin::manager::scanprocessmonitor
         bool check_all_files();
 
         std::string getContents(const std::string& basename);
+        static std::string getContentsFromPath(const fs::path& path);
         contentMap_t getContentsMap();
 
         Common::Threads::NotifyPipe& m_configChangedPipe;
         fs::path m_base;
+        fs::path proxyConfigFile_;
 
         std::map<fs::path, std::shared_ptr<InotifyFD_t>> m_interestingDirs;
         datatypes::ISystemCallWrapperSharedPtr m_sysCalls;
