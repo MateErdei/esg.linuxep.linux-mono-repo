@@ -1,2 +1,3 @@
 system-product-test-release-package.xml.orig.xml
 /libs/tmp/
+/SupportFiles/PluginCommunicationTools/common/PluginAPIMessage_pb2.py
