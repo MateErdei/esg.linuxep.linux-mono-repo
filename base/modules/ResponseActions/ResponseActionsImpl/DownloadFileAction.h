@@ -21,24 +21,24 @@ namespace ResponseActionsImpl
         [[nodiscard]] nlohmann::json run(const std::string& actionJson);
 
     private:
-        bool initialChecks(const DownloadInfo& info, nlohmann::json& response);
-        void download(const DownloadInfo& info, nlohmann::json& response);
-        void handleHttpResponse(const Common::HttpRequests::Response& httpresponse, nlohmann::json& response);
-        bool verifyFile(const DownloadInfo& info, nlohmann::json& response);
-        void decompressAndMoveFile(const DownloadInfo& info, nlohmann::json& response);
+        bool initialChecks(const DownloadInfo& info);
+        void download(const DownloadInfo& info);
+        void handleHttpResponse(const Common::HttpRequests::Response& httpresponse);
+        bool verifyFile(const DownloadInfo& info);
+        void decompressAndMoveFile(const DownloadInfo& info);
 
-        bool makeDestDirectory(nlohmann::json& response, const Path& destDir);
-        bool fileAlreadyExists(nlohmann::json& response, const Path& destPath);
-        void moveFile(nlohmann::json& response, const Path& destDir, const Path& fileName, const Path& filePathToMove);
+        bool makeDestDirectory(const Path& destDir);
+        bool fileAlreadyExists(const Path& destPath);
+        void moveFile(const Path& destDir, const Path& fileName, const Path& filePathToMove);
 
         Path findBaseDir(const Path& path); //To be made more robust for general use and moved to Filesystem
         void removeTmpFiles();
 
-        bool createExtractionDirectory(nlohmann::json& response);
-        void handleUnZipFailure(nlohmann::json& response, const int& unzipReturn);
-        void handleMovingArchive(nlohmann::json& response, const Path& targetPath);
-        void handleMovingSingleExtractedFile(nlohmann::json& response, const Path& destDir, const Path& targetPath, const Path& extractedFile);
-        void handleMovingMultipleExtractedFile(nlohmann::json& response, const Path& destDir, const Path& targetPath, const std::vector<std::string>& extractedFiles);
+        bool createExtractionDirectory();
+        void handleUnZipFailure(const int& unzipReturn);
+        void handleMovingArchive(const Path& targetPath);
+        void handleMovingSingleExtractedFile(const Path& destDir, const Path& targetPath, const Path& extractedFile);
+        void handleMovingMultipleExtractedFile(const Path& destDir, const Path& targetPath, const std::vector<std::string>& extractedFiles);
 
         const Path m_raTmpDir = Common::ApplicationConfiguration::applicationPathManager().getResponseActionTmpPath();
         const Path m_tmpDownloadFile = m_raTmpDir + "/tmp_download.zip";
@@ -47,6 +47,7 @@ namespace ResponseActionsImpl
 
         std::shared_ptr<Common::HttpRequests::IHttpRequester> m_client;
         Common::FileSystem::IFileSystem* m_fileSystem = Common::FileSystem::fileSystem();
+        nlohmann::json m_response;
     };
 
 }

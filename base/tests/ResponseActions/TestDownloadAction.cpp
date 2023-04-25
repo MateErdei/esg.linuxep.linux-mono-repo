@@ -296,6 +296,7 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompressed_WithFileNameInT
     EXPECT_FALSE(response.contains("errorType"));
     EXPECT_FALSE(response.contains("errorMessage"));
 
+    EXPECT_TRUE(appenderContains("Extracted 1 file from archive"));
     EXPECT_TRUE(appenderContains("Beginning download to /path/to/download/to/download.txt"));
     EXPECT_TRUE(appenderContains("Downloading directly"));
     EXPECT_TRUE(appenderContains("/path/to/download/to/download.txt downloaded successfully"));

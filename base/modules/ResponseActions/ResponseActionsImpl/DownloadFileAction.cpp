@@ -23,8 +23,8 @@ namespace ResponseActionsImpl
 
     nlohmann::json DownloadFileAction::run(const std::string& actionJson)
     {
-        nlohmann::json response;
-        response["type"] = "sophos.mgt.response.DownloadFile";
+        m_response.clear();
+        m_response["type"] = "sophos.mgt.response.DownloadFile";
         DownloadInfo info;
 
         try
@@ -34,46 +34,46 @@ namespace ResponseActionsImpl
         catch (const InvalidCommandFormat& exception)
         {
             LOGWARN(exception.what());
-            ActionsUtils::setErrorInfo(response, 1,  "Error parsing command from Central");
-            return response;
+            ActionsUtils::setErrorInfo(m_response, 1,  "Error parsing command from Central");
+            return m_response;
         }
 
-        if (!initialChecks(info, response))
+        if (!initialChecks(info))
         {
-            return response;
+            return m_response;
         }
 
         Common::UtilityImpl::FormattedTime time;
         u_int64_t start = time.currentEpochTimeInSecondsAsInteger();
-        response["startedAt"] = start;
+        m_response["startedAt"] = start;
 
-        download(info, response);
+        download(info);
 
-        if (response["httpStatus"] == Common::HttpRequests::HTTP_STATUS_OK)
+        if (m_response["httpStatus"] == Common::HttpRequests::HTTP_STATUS_OK)
         {
-            assert(!response.contains("errorType"));
-            assert(!response.contains("errorMessage"));
+            assert(!m_response.contains("errorType"));
+            assert(!m_response.contains("errorMessage"));
 
-            if (verifyFile(info, response))
+            if (verifyFile(info))
             {
-                decompressAndMoveFile(info, response);
+                decompressAndMoveFile(info);
             }
             removeTmpFiles();
         }
 
 
         u_int64_t end = time.currentEpochTimeInSecondsAsInteger();
-        response["duration"] = end - start;
-        return response;
+        m_response["duration"] = end - start;
+        return m_response;
     }
 
-    bool DownloadFileAction::initialChecks(const DownloadInfo& info, nlohmann::json& response)
+    bool DownloadFileAction::initialChecks(const DownloadInfo& info)
     {
         if (ActionsUtils::isExpired(info.expiration))
         {
             std::string error = "Download file action has expired";
             LOGWARN(error);
-            ActionsUtils::setErrorInfo(response,4,error);
+            ActionsUtils::setErrorInfo(m_response,4,error);
             return false;
         }
 
@@ -84,7 +84,7 @@ namespace ResponseActionsImpl
             std::stringstream sizeError;
             sizeError << "Downloading file to " << info.targetPath << " failed due to size: " << info.sizeBytes << " is too large";
             LOGWARN(sizeError.str());
-            ActionsUtils::setErrorInfo(response, 1, sizeError.str());
+            ActionsUtils::setErrorInfo(m_response, 1, sizeError.str());
             return false;
         }
 
@@ -92,7 +92,7 @@ namespace ResponseActionsImpl
         {
             std::string error = info.targetPath + " is not a valid absolute path";
             LOGWARN(error);
-            ActionsUtils::setErrorInfo(response, 1, error, "invalid_path");
+            ActionsUtils::setErrorInfo(m_response, 1, error, "invalid_path");
             return false;
         }
 
@@ -109,7 +109,7 @@ namespace ResponseActionsImpl
             std::stringstream exception;
             exception << "Cant determine disk space on filesystem: " <<  e.what();
             LOGERROR(exception.str());
-            ActionsUtils::setErrorInfo(response, 1, exception.str());
+            ActionsUtils::setErrorInfo(m_response, 1, exception.str());
             return false;
         }
         catch (const std::exception& e)
@@ -117,7 +117,7 @@ namespace ResponseActionsImpl
             std::stringstream error;
             error << "Unknown exception when calculating disk space on filesystem: " << e.what();
             LOGWARN(error.str());
-            ActionsUtils::setErrorInfo(response, 1, error.str());
+            ActionsUtils::setErrorInfo(m_response, 1, error.str());
             return false;
         }
 
@@ -130,14 +130,14 @@ namespace ResponseActionsImpl
             spaceError << "Not enough space to complete download action: Sophos install disk has "  << tmpSpaceInfo.available <<
                 ", destination disk has " << destSpaceInfo.available;
             LOGWARN(spaceError.str());
-            ActionsUtils::setErrorInfo(response, 1, spaceError.str(), "not_enough_space");
+            ActionsUtils::setErrorInfo(m_response, 1, spaceError.str(), "not_enough_space");
             return false;
         }
         return true;
     }
 
 
-    void DownloadFileAction::download(const DownloadInfo& info, nlohmann::json& response)
+    void DownloadFileAction::download(const DownloadInfo& info)
     {
         Common::HttpRequests::RequestConfig request{
             .url = info.url, .fileDownloadLocation = m_tmpDownloadFile, .timeout = info.timeout
@@ -150,31 +150,30 @@ namespace ResponseActionsImpl
         {
             LOGINFO("Downloading via proxy: " << request.proxy.value());
             httpresponse = m_client->get(request);
-            handleHttpResponse(httpresponse, response);
+            handleHttpResponse(httpresponse);
 
-            if (response["result"] != 0)
+            if (m_response["result"] != 0)
             {
                 LOGWARN("Connection with proxy failed, going direct");
                 request.proxy = "";
                 request.proxyPassword = "";
                 request.proxyUsername = "";
-                ActionsUtils::resetErrorInfo(response);
+                ActionsUtils::resetErrorInfo(m_response);
                 httpresponse = m_client->get(request);
-                handleHttpResponse(httpresponse, response);
+                handleHttpResponse(httpresponse);
             }
         }
         else
         {
             LOGINFO("Downloading directly");
             httpresponse = m_client->get(request);
-            handleHttpResponse(httpresponse, response);
+            handleHttpResponse(httpresponse);
         }
-        response["httpStatus"] = httpresponse.status;
+        m_response["httpStatus"] = httpresponse.status;
     }
 
     void DownloadFileAction::handleHttpResponse(
-        const Common::HttpRequests::Response& httpresponse,
-        nlohmann::json& response)
+        const Common::HttpRequests::Response& httpresponse)
     {
 
         if (httpresponse.errorCode == Common::HttpRequests::ResponseErrorCode::TIMEOUT)
@@ -182,20 +181,20 @@ namespace ResponseActionsImpl
             std::stringstream error;
             error << "Download timed out";
             LOGWARN(error.str());
-            ActionsUtils::setErrorInfo(response, 2, error.str(), "network_error");
+            ActionsUtils::setErrorInfo(m_response, 2, error.str(), "network_error");
         }
         else if (httpresponse.errorCode == Common::HttpRequests::ResponseErrorCode::DOWNLOAD_TARGET_ALREADY_EXISTS)
         {
             std::stringstream error;
             error << "Download failed as target exists already: " + httpresponse.error;
             LOGWARN(error.str());
-            ActionsUtils::setErrorInfo(response, 1, error.str());
+            ActionsUtils::setErrorInfo(m_response, 1, error.str());
         }
         else if (httpresponse.errorCode == Common::HttpRequests::ResponseErrorCode::OK)
         {
             if (httpresponse.status == Common::HttpRequests::HTTP_STATUS_OK)
             {
-                response["result"] = 0;
+                m_response["result"] = 0;
                 //Log success when we have filename
             }
             else
@@ -203,7 +202,7 @@ namespace ResponseActionsImpl
                 std::stringstream error;
                 error << "Failed to download, Error code: " << httpresponse.status;
                 LOGWARN(error.str());
-                ActionsUtils::setErrorInfo(response, 1, error.str(), "network_error");
+                ActionsUtils::setErrorInfo(m_response, 1, error.str(), "network_error");
             }
         }
         else
@@ -211,11 +210,11 @@ namespace ResponseActionsImpl
             std::stringstream error;
             error << "Failed to download, Error: " << httpresponse.error;
             LOGWARN(error.str());
-            ActionsUtils::setErrorInfo(response, 1, error.str(), "network_error");
+            ActionsUtils::setErrorInfo(m_response, 1, error.str(), "network_error");
         }
     }
 
-    bool DownloadFileAction::verifyFile(const DownloadInfo& info, nlohmann::json& response)
+    bool DownloadFileAction::verifyFile(const DownloadInfo& info)
     {
         //We are only downloading a single file and response actions should not run in parallel
         auto fileNameVec = m_fileSystem->listFiles(m_raTmpDir);
@@ -223,7 +222,7 @@ namespace ResponseActionsImpl
         {
             std::string error = "Expected one file in " + m_raTmpDir + " but there are none";
             LOGERROR(error);
-            ActionsUtils::setErrorInfo(response, 1, error);
+            ActionsUtils::setErrorInfo(m_response, 1, error);
             return false;
         }
         if (fileNameVec.size() > 1)
@@ -231,7 +230,7 @@ namespace ResponseActionsImpl
             std::stringstream error;
             error << "Expected one file in " << m_raTmpDir << " but there are " << fileNameVec.size();
             LOGERROR(error.str());
-            ActionsUtils::setErrorInfo(response, 1, error.str());
+            ActionsUtils::setErrorInfo(m_response, 1, error.str());
             return false;
         }
         std::string fileName = FileSystem::basename(info.targetPath);
@@ -249,7 +248,7 @@ namespace ResponseActionsImpl
         {
             std::string error = fileName + " cannot be accessed";
             LOGWARN(error);
-            ActionsUtils::setErrorInfo(response, 1, error, "access_denied");
+            ActionsUtils::setErrorInfo(m_response, 1, error, "access_denied");
             return false;
         }
         catch (const std::exception& exception)
@@ -257,7 +256,7 @@ namespace ResponseActionsImpl
             std::stringstream error;
             error << "Unknown error when calculating digest of " << fileName << ": " << exception.what();
             LOGWARN(error.str());
-            ActionsUtils::setErrorInfo(response, 1, error.str());
+            ActionsUtils::setErrorInfo(m_response, 1, error.str());
             return false;
         }
 
@@ -269,7 +268,7 @@ namespace ResponseActionsImpl
             std::stringstream shaError;
             shaError << "Calculated Sha256 (" << fileSha << ") doesnt match that of file downloaded (" << info.sha256 << ")";
             LOGWARN(shaError.str());
-            ActionsUtils::setErrorInfo(response, 1, shaError.str(), "access_denied");
+            ActionsUtils::setErrorInfo(m_response, 1, shaError.str(), "access_denied");
             return false;
         }
         LOGDEBUG("Successfully matched sha256 to downloaded file");
@@ -277,13 +276,13 @@ namespace ResponseActionsImpl
     }
 
 
-    void DownloadFileAction::decompressAndMoveFile(const DownloadInfo& info, nlohmann::json& response)
+    void DownloadFileAction::decompressAndMoveFile(const DownloadInfo& info)
     {
         if (info.decompress)
         {
             int ret;
 
-            if (!createExtractionDirectory(response))
+            if (!createExtractionDirectory())
             {
                 return;
             }
@@ -313,11 +312,12 @@ namespace ResponseActionsImpl
                 {
                     std::string error = "Unzip successful but no file found in " + m_tmpExtractPath;
                     LOGWARN(error);
-                    ActionsUtils::setErrorInfo(response, 1, error);
+                    ActionsUtils::setErrorInfo(m_response, 1, error);
                 }
                 else
                 {
-                    LOGINFO("Extracted " << noFiles << " files from archive");
+                    std::string files = noFiles > 1 ? "files" : "file";
+                    LOGINFO("Extracted " << noFiles << " " << files << " from archive");
 
                     auto destDir = info.targetPath;
                     if (destDir.back() != '/')
@@ -325,31 +325,31 @@ namespace ResponseActionsImpl
                         destDir = (FileSystem::dirName(destDir) + "/");
                     }
 
-                    if (makeDestDirectory(response, destDir))
+                    if (makeDestDirectory(destDir))
                     {
                         if (noFiles == 1)
                         {
-                            handleMovingSingleExtractedFile(response, destDir, info.targetPath, extractedFiles.front());
+                            handleMovingSingleExtractedFile(destDir, info.targetPath, extractedFiles.front());
                         }
                         else
                         {
-                            handleMovingMultipleExtractedFile(response, destDir, info.targetPath, extractedFiles);
+                            handleMovingMultipleExtractedFile(destDir, info.targetPath, extractedFiles);
                         }
                     }
                 }
             }
             else
             {
-                handleUnZipFailure(response, ret);
+                handleUnZipFailure(ret);
             }
         }
         else
         {
-            handleMovingArchive(response, info.targetPath);
+            handleMovingArchive(info.targetPath);
         }
     }
 
-    bool DownloadFileAction::createExtractionDirectory(nlohmann::json& response)
+    bool DownloadFileAction::createExtractionDirectory()
     {
         if (!m_fileSystem->exists(m_tmpExtractPath))
         {
@@ -361,7 +361,7 @@ namespace ResponseActionsImpl
             {
                 std::string error = "Unable to create path to extract file to: " + m_tmpExtractPath + ": " + e.what();
                 LOGWARN(error);
-                ActionsUtils::setErrorInfo(response, 1, error, "access_denied");
+                ActionsUtils::setErrorInfo(m_response, 1, error, "access_denied");
                 return false;
             }
             catch (const std::exception& e)
@@ -369,17 +369,17 @@ namespace ResponseActionsImpl
                 std::stringstream error;
                 error << "Unknown error creating path to extract file to: " + m_tmpExtractPath + ": " + e.what();
                 LOGWARN(error.str());
-                ActionsUtils::setErrorInfo(response, 1, error.str());
+                ActionsUtils::setErrorInfo(m_response, 1, error.str());
                 return false;
             }
         }
         return true;
     }
 
-    void DownloadFileAction::handleMovingArchive(nlohmann::json& response, const Path& targetPath)
+    void DownloadFileAction::handleMovingArchive(const Path& targetPath)
     {
         auto destDir = targetPath;
-        Path fileName = "";
+        Path fileName;
         if (destDir.back() != '/')
         {
             destDir = FileSystem::dirName(destDir) + "/";
@@ -390,16 +390,16 @@ namespace ResponseActionsImpl
             fileName = m_archiveFileName;
         }
 
-        if (makeDestDirectory(response, destDir) &&
-            !fileAlreadyExists(response, destDir + fileName))
+        if (makeDestDirectory(destDir) &&
+            !fileAlreadyExists(destDir + fileName))
         {
-            moveFile(response, destDir, fileName, m_tmpDownloadFile);
+            moveFile(destDir, fileName, m_tmpDownloadFile);
         }
     }
 
-    void DownloadFileAction::handleMovingSingleExtractedFile(nlohmann::json& response, const Path& destDir, const Path& targetPath, const Path& extractedFile)
+    void DownloadFileAction::handleMovingSingleExtractedFile(const Path& destDir, const Path& targetPath, const Path& extractedFile)
     {
-        Path fileName = "";
+        Path fileName;
         if (destDir.back() != '/')
         {
             fileName = FileSystem::basename(targetPath);
@@ -408,20 +408,20 @@ namespace ResponseActionsImpl
         {
             fileName = FileSystem::basename(extractedFile);
         }
-        if (!fileAlreadyExists(response, destDir + fileName))
+        if (!fileAlreadyExists(destDir + fileName))
         {
-            moveFile(response, destDir, fileName, extractedFile);
+            moveFile(destDir, fileName, extractedFile);
         }
     }
 
-    void DownloadFileAction::handleMovingMultipleExtractedFile(nlohmann::json& response, const Path& destDir, const Path& targetPath, const std::vector<std::string>& extractedFiles)
+    void DownloadFileAction::handleMovingMultipleExtractedFile(const Path& destDir, const Path& targetPath, const std::vector<std::string>& extractedFiles)
     {
         //Dont use filename for multiple files
         if (targetPath.back() != '/')
         {
             std::string msg = "Ignoring filepath in targetPath field as the archive contains multiple files";
             LOGINFO("Ignoring filepath in targetPath field as the archive contains multiple files");
-            ActionsUtils::setErrorInfo(response, 0, msg);
+            ActionsUtils::setErrorInfo(m_response, 0, msg);
         }
 
         bool anyFileExists = false;
@@ -429,15 +429,12 @@ namespace ResponseActionsImpl
         for (const auto& filePath : extractedFiles)
         {
             auto fileName = FileSystem::basename(filePath);
-            if (fileAlreadyExists(response, destDir + fileName))
+            if (fileAlreadyExists(destDir + fileName))
             {
                 anyFileExists = true;
-                if (anyFileExists)
-                {
-                    //A warning in the response is added in fileAlreadyExists
-                    LOGWARN("A file in the extracted archive already existed on destination path, aborting");
-                    break;
-                }
+                //A warning in the response is added in fileAlreadyExists
+                LOGWARN("A file in the extracted archive already existed on destination path, aborting");
+                break;
             }
         }
 
@@ -446,12 +443,12 @@ namespace ResponseActionsImpl
             for (const auto& filePath : extractedFiles)
             {
                 auto fileName = FileSystem::basename(filePath);
-                moveFile(response, destDir, fileName, filePath);
+                moveFile(destDir, fileName, filePath);
             }
         }
     }
 
-    void DownloadFileAction::handleUnZipFailure(nlohmann::json& response, const int& unzipReturn)
+    void DownloadFileAction::handleUnZipFailure(const int& unzipReturn)
     {
         assert(unzipReturn != 0);
 
@@ -462,36 +459,36 @@ namespace ResponseActionsImpl
         {
             error << "bad password";
             LOGWARN(error.str());
-            ActionsUtils::setErrorInfo(response, 1, error.str(), "invalid_password");
+            ActionsUtils::setErrorInfo(m_response, 1, error.str(), "invalid_password");
         }
         else if (unzipReturn == UNZ_BADZIPFILE)
         {
             error << "bad archive";
             LOGWARN(error.str());
-            ActionsUtils::setErrorInfo(response, 1, error.str(), "invalid_archive");
+            ActionsUtils::setErrorInfo(m_response, 1, error.str(), "invalid_archive");
         }
         else
         {
             error << "error no " << unzipReturn;
             LOGWARN(error.str());
-            ActionsUtils::setErrorInfo(response, 3, error.str());
+            ActionsUtils::setErrorInfo(m_response, 3, error.str());
         }
     }
 
-    bool DownloadFileAction::fileAlreadyExists(nlohmann::json& response, const Path& destPath)
+    bool DownloadFileAction::fileAlreadyExists(const Path& destPath)
     {
         if (m_fileSystem->exists(destPath))
         {
             std::stringstream existsError;
             existsError << "Path " << destPath << " already exists";
             LOGWARN(existsError.str());
-            ActionsUtils::setErrorInfo(response, 1, existsError.str(), "path_exists");
+            ActionsUtils::setErrorInfo(m_response, 1, existsError.str(), "path_exists");
             return true;
         }
         return false;
     }
 
-    bool DownloadFileAction::makeDestDirectory(nlohmann::json& response, const Path& destDir)
+    bool DownloadFileAction::makeDestDirectory(const Path& destDir)
     {
         if (m_fileSystem->exists(destDir))
         {
@@ -507,7 +504,7 @@ namespace ResponseActionsImpl
             std::stringstream error;
             error << "Unable to make directory " << destDir << " : " << e.what();
             LOGWARN(error.str());
-            ActionsUtils::setErrorInfo(response, 1, error.str(), "access_denied");
+            ActionsUtils::setErrorInfo(m_response, 1, error.str(), "access_denied");
             return false;
         }
         catch (const std::exception& e)
@@ -515,13 +512,13 @@ namespace ResponseActionsImpl
             std::stringstream error;
             error << "Unknown error when making directory " << destDir << " : " << e.what();
             LOGWARN(error.str());
-            ActionsUtils::setErrorInfo(response, 1, error.str());
+            ActionsUtils::setErrorInfo(m_response, 1, error.str());
             return false;
         }
         return true;
     }
 
-    void DownloadFileAction::moveFile(nlohmann::json& response, const Path& destDir, const Path& fileName, const Path& filePathToMove)
+    void DownloadFileAction::moveFile(const Path& destDir, const Path& fileName, const Path& filePathToMove)
     {
         assert(destDir.back() == '/');
         auto destPath = destDir + fileName;
@@ -535,7 +532,7 @@ namespace ResponseActionsImpl
             std::stringstream error;
             error << "Unable to move " << filePathToMove << " to " << destPath << ": " << e.what();
             LOGWARN(error.str());
-            ActionsUtils::setErrorInfo(response, 1, error.str(), "access_denied");
+            ActionsUtils::setErrorInfo(m_response, 1, error.str(), "access_denied");
             return;
         }
         catch (const std::exception& e)
@@ -543,7 +540,7 @@ namespace ResponseActionsImpl
             std::stringstream error;
             error << "Unknown error when moving file " << filePathToMove << " to " << destPath << ": " << e.what();
             LOGWARN(error.str());
-            ActionsUtils::setErrorInfo(response, 1, error.str());
+            ActionsUtils::setErrorInfo(m_response, 1, error.str());
             return;
         }
 
