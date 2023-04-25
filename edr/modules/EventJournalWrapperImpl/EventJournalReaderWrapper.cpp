@@ -151,14 +151,14 @@ namespace Common
             }
         }
 
-        std::shared_ptr <Sophos::Journal::ViewInterface> Reader::getJournalView(std::vector<Subject> subjectFilter, const std::string& jrl, uint64_t startTime, uint64_t endTime)
+        std::shared_ptr<Sophos::Journal::ViewInterface> Reader::getJournalView(std::vector<Subject> subjectFilter, const std::string& jrl, uint64_t startTime, uint64_t endTime)
         {
             std::vector<std::string> subjects;
             for (auto s : subjectFilter)
             {
                 subjects.push_back(getSubjectName(s));
             }
-            std::shared_ptr <Sophos::Journal::ViewInterface> view;
+            std::shared_ptr<Sophos::Journal::ViewInterface> view;
 
             if (!jrl.empty())
             {
@@ -245,7 +245,7 @@ namespace Common
             return entries;
         }
 
-        size_t Reader::getEntrySize(std::shared_ptr <Sophos::Journal::ViewInterface> journalView)
+        size_t Reader::getEntrySize(std::shared_ptr<Sophos::Journal::ViewInterface> journalView)
         {
             size_t size = 0;
             auto firstEntry = *(journalView->cbegin());
