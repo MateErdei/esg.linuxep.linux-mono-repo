@@ -464,6 +464,8 @@ function install_product()
     find "$DIST/files/plugins" -type f -not -path "$DIST/files/plugins/av/chroot/susi/*" -print0 \
         | xargs -0 "$SOPHOS_INSTALL/base/bin/versionedcopy" || failure ${EXIT_FAIL_VERSIONEDCOPY} "Failed to copy files to installation"
 
+    generate_manifest_diff "${DIST}" "${PRODUCT_LINE_ID}"
+
     if [[ -e "$SOPHOS_INSTALL/plugins/av/chroot/susi" ]]
     then
         delete_removed_libraries
