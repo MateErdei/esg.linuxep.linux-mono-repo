@@ -283,27 +283,9 @@ namespace ResponseActionsImpl
         {
             int ret;
 
-            if (!m_fileSystem->exists(m_tmpExtractPath))
+            if (!createExtractionDirectory(response))
             {
-                try
-                {
-                    m_fileSystem->makedirs(m_tmpExtractPath);
-                }
-                catch (const FileSystem::IFileSystemException& e)
-                {
-                    std::string error = "Unable to create path to extract file to: " + m_tmpExtractPath + ": " + e.what();
-                    LOGWARN(error);
-                    ActionsUtils::setErrorInfo(response, 1, error, "access_denied");
-                    return;
-                }
-                catch (const std::exception& e)
-                {
-                    std::stringstream error;
-                    error << "Unknown error creating path to extract file to: " + m_tmpExtractPath + ": " + e.what();
-                    LOGWARN(error.str());
-                    ActionsUtils::setErrorInfo(response, 1, error.str());
-                    return;
-                }
+                return;
             }
 
             try
@@ -447,6 +429,33 @@ namespace ResponseActionsImpl
                 moveFile(response, destDir, fileName, m_tmpDownloadFile);
             }
         }
+    }
+
+    bool DownloadFileAction::createExtractionDirectory(nlohmann::json& response)
+    {
+        if (!m_fileSystem->exists(m_tmpExtractPath))
+        {
+            try
+            {
+                m_fileSystem->makedirs(m_tmpExtractPath);
+            }
+            catch (const FileSystem::IFileSystemException& e)
+            {
+                std::string error = "Unable to create path to extract file to: " + m_tmpExtractPath + ": " + e.what();
+                LOGWARN(error);
+                ActionsUtils::setErrorInfo(response, 1, error, "access_denied");
+                return false;
+            }
+            catch (const std::exception& e)
+            {
+                std::stringstream error;
+                error << "Unknown error creating path to extract file to: " + m_tmpExtractPath + ": " + e.what();
+                LOGWARN(error.str());
+                ActionsUtils::setErrorInfo(response, 1, error.str());
+                return false;
+            }
+        }
+        return true;
     }
 
     bool DownloadFileAction::fileAlreadyExists(nlohmann::json& response, const Path& destPath)

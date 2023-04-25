@@ -34,6 +34,7 @@ namespace ResponseActionsImpl
         Path findBaseDir(const Path& path); //To be made more robust for general use and moved to Filesystem
         void removeTmpFiles();
 
+        bool createExtractionDirectory(nlohmann::json& response);
 
         const Path m_raTmpDir = Common::ApplicationConfiguration::applicationPathManager().getResponseActionTmpPath();
         const Path m_tmpDownloadFile = m_raTmpDir + "/tmp_download.zip";
