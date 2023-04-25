@@ -177,7 +177,6 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_NotDecompressed)
 
     addResponseToMockRequester(HTTP_STATUS_OK, ResponseErrorCode::OK);
 
-    //MockFileSystem
     addDiskSpaceExpectsToMockFileSystem();
     addListFilesExpectsToMockFileSystem();
     addDownloadAndExtractExpectsToMockFileSystem(m_destPath + m_testZipFile);
@@ -193,7 +192,6 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_NotDecompressed)
 
     nlohmann::json action = getDownloadObject();
     nlohmann::json response = downloadFileAction.run(action.dump());
-    
 
     EXPECT_EQ(response["type"], "sophos.mgt.response.DownloadFile");
     EXPECT_EQ(response["result"], 0);
@@ -213,7 +211,6 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_NotDecompressed_NoFileNameIn
 
     addResponseToMockRequester(HTTP_STATUS_OK, ResponseErrorCode::OK);
 
-    //MockFileSystem
     addDiskSpaceExpectsToMockFileSystem();
     addListFilesExpectsToMockFileSystem();
     addDownloadAndExtractExpectsToMockFileSystem(m_destPath + m_defaultZipName);
@@ -248,7 +245,6 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_NotDecompressed_RATmpAndExtr
 
     addResponseToMockRequester(HTTP_STATUS_OK, ResponseErrorCode::OK);
 
-    //MockFileSystem
     addDiskSpaceExpectsToMockFileSystem();
     addListFilesExpectsToMockFileSystem();
     addDownloadAndExtractExpectsToMockFileSystem(m_destPath + m_testZipFile);
@@ -279,7 +275,6 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompressed_WithFileNameInT
 
     addResponseToMockRequester(HTTP_STATUS_OK, ResponseErrorCode::OK);
 
-    //MockFileSystem
     addDiskSpaceExpectsToMockFileSystem();
     addListFilesExpectsToMockFileSystem(decompress);
     addDownloadAndExtractExpectsToMockFileSystem(m_destPath + m_testExtractedFile, decompress);
@@ -295,7 +290,6 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompressed_WithFileNameInT
 
     nlohmann::json action = getDownloadObject(decompress);
     nlohmann::json response = downloadFileAction.run(action.dump());
-    
 
     EXPECT_EQ(response["result"], 0);
     EXPECT_EQ(response["httpStatus"], HTTP_STATUS_OK);
@@ -317,7 +311,6 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompressed_NoFileNameInTar
 
     addResponseToMockRequester(HTTP_STATUS_OK, ResponseErrorCode::OK);
 
-    //MockFileSystem
     addDiskSpaceExpectsToMockFileSystem();
     addListFilesExpectsToMockFileSystem(); //We want to specify the name of the unzipped file
     addDownloadAndExtractExpectsToMockFileSystem(m_destPath + fileName, decompress);
@@ -336,7 +329,6 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompressed_NoFileNameInTar
 
     nlohmann::json action = getDownloadObject(decompress, "", 1024, false);
     nlohmann::json response = downloadFileAction.run(action.dump());
-
 
     EXPECT_EQ(response["result"], 0);
     EXPECT_EQ(response["httpStatus"], HTTP_STATUS_OK);
@@ -357,7 +349,6 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompressed_RATmpAndExtract
     bool decompress = true;
     addResponseToMockRequester(HTTP_STATUS_OK, ResponseErrorCode::OK);
 
-    //MockFileSystem
     addDiskSpaceExpectsToMockFileSystem();
     addListFilesExpectsToMockFileSystem(decompress);
     //Test makes sure that remove expects set in below function are called
@@ -389,7 +380,6 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompressed_DownloadToRoot)
     setupMockZipUtils();
     addResponseToMockRequester(HTTP_STATUS_OK, ResponseErrorCode::OK);
 
-     //MockFileSystem
     addListFilesExpectsToMockFileSystem(decompress);
 
     //Download and extraction calls
@@ -412,7 +402,6 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompressed_DownloadToRoot)
     nlohmann::json action = getDownloadObject(decompress);
     action["targetPath"] = destPath;
     nlohmann::json response = downloadFileAction.run(action.dump());
-    
 
     EXPECT_EQ(response["result"], 0);
     EXPECT_EQ(response["httpStatus"], HTTP_STATUS_OK);
@@ -437,7 +426,6 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompress_BadArchive)
 
     addResponseToMockRequester(HTTP_STATUS_OK, ResponseErrorCode::OK);
 
-    //MockFileSystem
     addDiskSpaceExpectsToMockFileSystem();
     addListFilesExpectsToMockFileSystem();
 
@@ -454,7 +442,6 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompress_BadArchive)
 
     nlohmann::json action = getDownloadObject(decompress);
     nlohmann::json response = downloadFileAction.run(action.dump());
-
 
     EXPECT_EQ(response["result"], 1);
     EXPECT_EQ(response["httpStatus"], HTTP_STATUS_OK);
@@ -481,7 +468,6 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompress_ZipUtilsThrows)
 
     addResponseToMockRequester(HTTP_STATUS_OK, ResponseErrorCode::OK);
 
-    //MockFileSystem
     addDiskSpaceExpectsToMockFileSystem();
     addListFilesExpectsToMockFileSystem();
 
@@ -498,7 +484,6 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompress_ZipUtilsThrows)
 
     nlohmann::json action = getDownloadObject(decompress);
     nlohmann::json response = downloadFileAction.run(action.dump());
-
 
     EXPECT_EQ(response["result"], 3);
     EXPECT_EQ(response["httpStatus"], HTTP_STATUS_OK);
@@ -521,7 +506,6 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompress_OtherError)
 
     addResponseToMockRequester(HTTP_STATUS_OK, ResponseErrorCode::OK);
 
-    //MockFileSystem
     addDiskSpaceExpectsToMockFileSystem();
     addListFilesExpectsToMockFileSystem();
 
@@ -561,7 +545,6 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompress_ManyFilesTargetPa
     setupMockZipUtils();
     addResponseToMockRequester(HTTP_STATUS_OK, ResponseErrorCode::OK);
 
-    //MockFileSystem
     addDiskSpaceExpectsToMockFileSystem();
     addListFilesExpectsToMockFileSystem(decompress, true);
     EXPECT_CALL(*m_mockFileSystem, exists(m_raExtractTmpDir)).WillOnce(Return(false));
@@ -573,7 +556,6 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompress_ManyFilesTargetPa
     EXPECT_CALL(*m_mockFileSystem, exists(m_destPath + m_testExtractedFile + "3")).WillOnce(Return(false));
     EXPECT_CALL(*m_mockFileSystem, makedirs(m_destPath)).Times(1);
     addCleanupChecksToMockFileSystem();
-
 
     EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(false));
     EXPECT_CALL(*m_mockFileSystem, moveFileTryCopy(_, _)).Times(4);
@@ -610,7 +592,6 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompress_ManyFilesTargetPa
     setupMockZipUtils();
     addResponseToMockRequester(HTTP_STATUS_OK, ResponseErrorCode::OK);
 
-    //MockFileSystem
     addDiskSpaceExpectsToMockFileSystem();
     addListFilesExpectsToMockFileSystem(decompress, true);
     EXPECT_CALL(*m_mockFileSystem, exists(m_raExtractTmpDir)).WillOnce(Return(false));
@@ -660,7 +641,6 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompress_AbortCopyingIfOne
     setupMockZipUtils();
     addResponseToMockRequester(HTTP_STATUS_OK, ResponseErrorCode::OK);
 
-    //MockFileSystem
     addDiskSpaceExpectsToMockFileSystem();
     addListFilesExpectsToMockFileSystem(decompress, true);
     EXPECT_CALL(*m_mockFileSystem, exists(m_raExtractTmpDir)).WillOnce(Return(false));
@@ -709,7 +689,6 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompressed_Password)
 
     addResponseToMockRequester(HTTP_STATUS_OK, ResponseErrorCode::OK);
 
-    //MockFileSystem
     addDiskSpaceExpectsToMockFileSystem();
     addListFilesExpectsToMockFileSystem(decompress);
     addDownloadAndExtractExpectsToMockFileSystem(m_destPath + m_testExtractedFile, true);
@@ -746,7 +725,6 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompress_WrongPassword)
 
     addResponseToMockRequester(HTTP_STATUS_OK, ResponseErrorCode::OK);
 
-    //MockFileSystem
     addDiskSpaceExpectsToMockFileSystem();
     addListFilesExpectsToMockFileSystem();
 
@@ -786,7 +764,6 @@ TEST_F(DownloadFileTests, SuccessfulDownload_WithProxy_NotDecompressed)
     std::string obfuscatedCreds = "CCD4E57ZjW+t5XPiMSJH1TurG3MfWCN3DpjJRINMwqNaWl+3zzlVIdyVmifCHUwcmaX6+YTSyyBM8SslIIGV5rUw";
     std::string content = R"({"proxy":"localhost","credentials":")" + obfuscatedCreds + R"("})";
 
-    //MockFileSystem
     addDiskSpaceExpectsToMockFileSystem();
     addListFilesExpectsToMockFileSystem();
     addDownloadAndExtractExpectsToMockFileSystem(m_destPath + m_testZipFile);
@@ -827,7 +804,6 @@ TEST_F(DownloadFileTests, SuccessfulDownload_WithProxy_Decompressed)
 
     addResponseToMockRequester(HTTP_STATUS_OK, ResponseErrorCode::OK);
 
-    //MockFileSystem
     addDiskSpaceExpectsToMockFileSystem();
     addListFilesExpectsToMockFileSystem(decompress);
     addDownloadAndExtractExpectsToMockFileSystem(m_destPath + m_testExtractedFile, decompress);
@@ -844,7 +820,6 @@ TEST_F(DownloadFileTests, SuccessfulDownload_WithProxy_Decompressed)
 
     nlohmann::json action = getDownloadObject(decompress);
     nlohmann::json response = downloadFileAction.run(action.dump());
-    
 
     EXPECT_EQ(response["result"], 0);
     EXPECT_EQ(response["httpStatus"], HTTP_STATUS_OK);
@@ -871,7 +846,6 @@ TEST_F(DownloadFileTests, ProxyFailureFallsbackDirect_NotDecompressed)
     std::string obfuscatedCreds = "CCD4E57ZjW+t5XPiMSJH1TurG3MfWCN3DpjJRINMwqNaWl+3zzlVIdyVmifCHUwcmaX6+YTSyyBM8SslIIGV5rUw";
     std::string content = R"({"proxy":"localhost","credentials":")" + obfuscatedCreds + R"("})";
 
-    //MockFileSystem
     addDiskSpaceExpectsToMockFileSystem();
     addListFilesExpectsToMockFileSystem();
     addDownloadAndExtractExpectsToMockFileSystem(m_destPath + m_testZipFile);
@@ -888,7 +862,6 @@ TEST_F(DownloadFileTests, ProxyFailureFallsbackDirect_NotDecompressed)
 
     nlohmann::json action = getDownloadObject();
     nlohmann::json response = downloadFileAction.run(action.dump());
-    
 
     EXPECT_EQ(response["result"], 0);
     EXPECT_EQ(response["httpStatus"], HTTP_STATUS_OK);
@@ -919,7 +892,6 @@ TEST_F(DownloadFileTests, ProxyFailureFallsbackDirect_Decompressed)
     std::string obfuscatedCreds = "CCD4E57ZjW+t5XPiMSJH1TurG3MfWCN3DpjJRINMwqNaWl+3zzlVIdyVmifCHUwcmaX6+YTSyyBM8SslIIGV5rUw";
     std::string content = R"({"proxy":"localhost","credentials":")" + obfuscatedCreds + R"("})";
 
-    //MockFileSystem
     addDiskSpaceExpectsToMockFileSystem();
     addListFilesExpectsToMockFileSystem(decompress);
     addDownloadAndExtractExpectsToMockFileSystem(m_destPath + m_testExtractedFile, decompress);
@@ -936,7 +908,6 @@ TEST_F(DownloadFileTests, ProxyFailureFallsbackDirect_Decompressed)
 
     nlohmann::json action = getDownloadObject(decompress);
     nlohmann::json response = downloadFileAction.run(action.dump());
-    
 
     EXPECT_EQ(response["result"], 0);
     EXPECT_EQ(response["httpStatus"], HTTP_STATUS_OK);
@@ -961,7 +932,6 @@ TEST_F(DownloadFileTests, FileToDownloadIsAboveMaxAllowedFileSize)
 
     nlohmann::json action = getDownloadObject(false, "", 1024UL * 1024 * 1024 * 3);
     nlohmann::json response = downloadFileAction.run(action.dump());
-    
 
     EXPECT_EQ(response["result"], 1);
     EXPECT_FALSE(response.contains("errorType"));
@@ -983,7 +953,6 @@ TEST_F(DownloadFileTests, InvalidAbsolutePath)
     action["targetPath"] = "notapath";
     nlohmann::json response = downloadFileAction.run(action.dump());
 
-
     EXPECT_EQ(response["result"], 1);
     EXPECT_EQ(response["errorMessage"], expectedErrMsg);
     EXPECT_EQ(response["errorType"], "invalid_path");
@@ -998,7 +967,6 @@ TEST_F(DownloadFileTests, NotEnoughSpaceOnRATmpDisk)
 
     const std::string expectedErrStr = "Not enough space to complete download action: Sophos install disk has 1, destination disk has 1048576";
 
-    //MockFileSystem
     addDiskSpaceExpectsToMockFileSystem(1);
     Tests::replaceFileSystem(std::move(m_mockFileSystem));
 
@@ -1021,7 +989,6 @@ TEST_F(DownloadFileTests, NotEnoughSpaceOnDestDisk)
 
     const std::string expectedErrStr = "Not enough space to complete download action: Sophos install disk has 1048576, destination disk has 1";
 
-    //MockFileSystem
     addDiskSpaceExpectsToMockFileSystem(1024 * 1024, 1);
     Tests::replaceFileSystem(std::move(m_mockFileSystem));
 
@@ -1044,7 +1011,6 @@ TEST_F(DownloadFileTests, HandlesWhenCantAssessDiskSpace_FileSystemException)
 
     const std::string expectedErrStr = "Cant determine disk space on filesystem: exception";
 
-    //MockFileSystem
     EXPECT_CALL(*m_mockFileSystem, getDiskSpaceInfo("/opt/sophos-spl/plugins/responseactions/tmp"))
         .WillOnce(Throw(Common::FileSystem::IFileSystemException("exception")));
     Tests::replaceFileSystem(std::move(m_mockFileSystem));
@@ -1068,7 +1034,6 @@ TEST_F(DownloadFileTests, HandlesWhenCantAssessDiskSpace_Exception)
 
     const std::string expectedErrStr = "Unknown exception when calculating disk space on filesystem: std::exception";
 
-    //MockFileSystem
     EXPECT_CALL(*m_mockFileSystem, getDiskSpaceInfo("/opt/sophos-spl/plugins/responseactions/tmp"))
         .WillOnce(Throw(std::exception()));
     Tests::replaceFileSystem(std::move(m_mockFileSystem));
@@ -1128,7 +1093,6 @@ TEST_F(DownloadFileTests, TargetPathAlreadyExists_NotDecompressed)
 
     addResponseToMockRequester(HTTP_STATUS_OK, ResponseErrorCode::OK);
 
-    //MockFileSystem
     addDiskSpaceExpectsToMockFileSystem();
     addListFilesExpectsToMockFileSystem();
     EXPECT_CALL(*m_mockFileSystem, makedirs(m_destPath)).Times(1);
@@ -1162,7 +1126,6 @@ TEST_F(DownloadFileTests, TargetPathAlreadyExists_DecompressedSingleFile)
     addResponseToMockRequester(HTTP_STATUS_OK, ResponseErrorCode::OK);
     setupMockZipUtils();
 
-    //MockFileSystem
     addDiskSpaceExpectsToMockFileSystem();
     addListFilesExpectsToMockFileSystem(true);
     EXPECT_CALL(*m_mockFileSystem, makedirs(m_destPath)).Times(1);
@@ -1198,7 +1161,6 @@ TEST_F(DownloadFileTests, TargetPathAlreadyExists_NotDecompressedAlreadyExists)
 
     addResponseToMockRequester(HTTP_STATUS_OK, ResponseErrorCode::OK);
 
-    //MockFileSystem
     addDiskSpaceExpectsToMockFileSystem();
     addListFilesExpectsToMockFileSystem();
     EXPECT_CALL(*m_mockFileSystem, makedirs(m_destPath)).Times(1);
@@ -1234,7 +1196,6 @@ TEST_F(DownloadFileTests, FileSha256CantBeCalculatedDueToAccess)
 
     addResponseToMockRequester(HTTP_STATUS_OK, ResponseErrorCode::OK);
 
-     //MockFileSystem
     addDiskSpaceExpectsToMockFileSystem();
     addListFilesExpectsToMockFileSystem();
     addCleanupChecksToMockFileSystem();
@@ -1264,7 +1225,6 @@ TEST_F(DownloadFileTests, FileSha256CantBeCalculatedDueToOtherReason)
 
     addResponseToMockRequester(HTTP_STATUS_OK, ResponseErrorCode::OK);
 
-    // MockFileSystem
     addDiskSpaceExpectsToMockFileSystem();
     addListFilesExpectsToMockFileSystem();
     addCleanupChecksToMockFileSystem();
@@ -1295,7 +1255,6 @@ TEST_F(DownloadFileTests, Sha256IsWrong)
 
     addResponseToMockRequester(HTTP_STATUS_OK, ResponseErrorCode::OK);
 
-    //MockFileSystem
     addDiskSpaceExpectsToMockFileSystem();
     addListFilesExpectsToMockFileSystem();
     addCleanupChecksToMockFileSystem();
@@ -1327,7 +1286,6 @@ TEST_F(DownloadFileTests, FailureDueToTimeout)
 
     addResponseToMockRequester(500, ResponseErrorCode::TIMEOUT);
 
-    //MockFileSystem
     addDiskSpaceExpectsToMockFileSystem();
     EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(false));
     Tests::replaceFileSystem(std::move(m_mockFileSystem));
@@ -1353,7 +1311,6 @@ TEST_F(DownloadFileTests, FailureDueToNetworkError)
 
     addResponseToMockRequester(500, ResponseErrorCode::FAILED, "I failed");
 
-    //MockFileSystem
     addDiskSpaceExpectsToMockFileSystem();
     EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(false));
     Tests::replaceFileSystem(std::move(m_mockFileSystem));
@@ -1379,7 +1336,6 @@ TEST_F(DownloadFileTests, FailureDueToServerError)
 
     addResponseToMockRequester(500, ResponseErrorCode::OK);
 
-    //MockFileSystem
     addDiskSpaceExpectsToMockFileSystem();
     EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(false));
     Tests::replaceFileSystem(std::move(m_mockFileSystem));
@@ -1409,7 +1365,6 @@ TEST_F(DownloadFileTests, HandlesWhenCantCreatePathToExtractTo_FileSystemExcepti
 
     addResponseToMockRequester(HTTP_STATUS_OK, ResponseErrorCode::OK);
 
-    //MockFileSystem
     addDiskSpaceExpectsToMockFileSystem();
     addListFilesExpectsToMockFileSystem();
     EXPECT_CALL(*m_mockFileSystem, exists(m_raExtractTmpDir)).WillOnce(Return(false));
@@ -1446,7 +1401,6 @@ TEST_F(DownloadFileTests, HandlesWhenCantCreatePathToExtractTo_Exception)
 
     addResponseToMockRequester(HTTP_STATUS_OK, ResponseErrorCode::OK);
 
-    //MockFileSystem
     addDiskSpaceExpectsToMockFileSystem();
     addListFilesExpectsToMockFileSystem();
     EXPECT_CALL(*m_mockFileSystem, exists(m_raExtractTmpDir)).WillOnce(Return(false));
@@ -1473,7 +1427,7 @@ TEST_F(DownloadFileTests, HandlesWhenCantCreatePathToExtractTo_Exception)
     EXPECT_TRUE(appenderContains(expectedErrStr));
 }
 
-TEST_F(DownloadFileTests, HandlesWhenCantCreateOrCopyFileToFinalDestination_FileSystemException)
+TEST_F(DownloadFileTests, HandlesWhenCantCreateDestinationDirectory_FileSystemException)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
@@ -1481,7 +1435,6 @@ TEST_F(DownloadFileTests, HandlesWhenCantCreateOrCopyFileToFinalDestination_File
 
     addResponseToMockRequester(HTTP_STATUS_OK, ResponseErrorCode::OK);
 
-    //MockFileSystem
     addDiskSpaceExpectsToMockFileSystem();
     addListFilesExpectsToMockFileSystem();
     addCleanupChecksToMockFileSystem();
@@ -1508,7 +1461,7 @@ TEST_F(DownloadFileTests, HandlesWhenCantCreateOrCopyFileToFinalDestination_File
     EXPECT_TRUE(appenderContains(expectedErrStr));
 }
 
-TEST_F(DownloadFileTests, HandlesWhenCantCreateOrCopyFileToFinalDestination_Exception)
+TEST_F(DownloadFileTests, HandlesWhenCantCreateDestinationDirectory_Exception)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
@@ -1516,7 +1469,6 @@ TEST_F(DownloadFileTests, HandlesWhenCantCreateOrCopyFileToFinalDestination_Exce
 
     addResponseToMockRequester(HTTP_STATUS_OK, ResponseErrorCode::OK);
 
-    //MockFileSystem
     addDiskSpaceExpectsToMockFileSystem();
     addListFilesExpectsToMockFileSystem();
     addCleanupChecksToMockFileSystem();
@@ -1543,6 +1495,72 @@ TEST_F(DownloadFileTests, HandlesWhenCantCreateOrCopyFileToFinalDestination_Exce
     EXPECT_TRUE(appenderContains(expectedErrStr));
 }
 
+TEST_F(DownloadFileTests, HandlesWhenCantCopyFileToFinalDestination_FileSystemException)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    const std::string expectedErrStr = "Unable to move " + m_raTmpFile + " to " + m_destPath + m_testZipFile + ": exception";
+
+    addResponseToMockRequester(HTTP_STATUS_OK, ResponseErrorCode::OK);
+
+    addDiskSpaceExpectsToMockFileSystem();
+    addListFilesExpectsToMockFileSystem();
+    addDownloadAndExtractExpectsToMockFileSystem(m_destPath + m_testZipFile);
+    addCleanupChecksToMockFileSystem();
+
+    EXPECT_CALL(*m_mockFileSystem, moveFileTryCopy(_, _)).WillOnce(Throw(Common::FileSystem::IFileSystemException("exception")));
+    EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFileSystem, calculateDigest(Common::SslImpl::Digest::sha256, m_raTmpFile))
+        .WillOnce(Return("shastring"));
+    Tests::replaceFileSystem(std::move(m_mockFileSystem));
+
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
+
+    nlohmann::json action = getDownloadObject();
+    nlohmann::json response = downloadFileAction.run(action.dump());
+
+
+    EXPECT_EQ(response["result"], 1);
+    EXPECT_EQ(response["errorMessage"], expectedErrStr);
+    EXPECT_EQ(response["errorType"], "access_denied");
+    EXPECT_EQ(response["httpStatus"], HTTP_STATUS_OK);
+
+    EXPECT_TRUE(appenderContains(expectedErrStr));
+}
+
+TEST_F(DownloadFileTests, HandlesWhenCantCopyFileToFinalDestination_Exception)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    const std::string expectedErrStr = "Unknown error when moving file " + m_raTmpFile + " to " + m_destPath + m_testZipFile + ": std::exception";
+
+    addResponseToMockRequester(HTTP_STATUS_OK, ResponseErrorCode::OK);
+
+    addDiskSpaceExpectsToMockFileSystem();
+    addListFilesExpectsToMockFileSystem();
+    addDownloadAndExtractExpectsToMockFileSystem(m_destPath + m_testZipFile);
+    addCleanupChecksToMockFileSystem();
+
+    EXPECT_CALL(*m_mockFileSystem, moveFileTryCopy(_,_)).WillOnce(Throw(std::exception()));
+    EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFileSystem, calculateDigest(Common::SslImpl::Digest::sha256, m_raTmpFile))
+        .WillOnce(Return("shastring"));
+    Tests::replaceFileSystem(std::move(m_mockFileSystem));
+
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
+
+    nlohmann::json action = getDownloadObject();
+    nlohmann::json response = downloadFileAction.run(action.dump());
+
+
+    EXPECT_EQ(response["result"], 1);
+    EXPECT_EQ(response["errorMessage"], expectedErrStr);
+    EXPECT_FALSE(response.contains("errorType"));
+    EXPECT_EQ(response["httpStatus"], HTTP_STATUS_OK);
+
+    EXPECT_TRUE(appenderContains(expectedErrStr));
+}
+
 //Unexpected downloads
 
 TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompress_NoFilesInDownloadFolder)
@@ -1554,7 +1572,7 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompress_NoFilesInDownload
 
     addResponseToMockRequester(HTTP_STATUS_OK, ResponseErrorCode::OK);
 
-    //MockFileSystem
+
     addDiskSpaceExpectsToMockFileSystem();
     addCleanupChecksToMockFileSystem();
 
@@ -1586,7 +1604,7 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompress_ToManyFilesInDown
 
     addResponseToMockRequester(HTTP_STATUS_OK, ResponseErrorCode::OK);
 
-    //MockFileSystem
+
     addDiskSpaceExpectsToMockFileSystem();
     addCleanupChecksToMockFileSystem();
 

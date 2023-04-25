@@ -512,7 +512,7 @@ namespace ResponseActionsImpl
         catch (const std::exception& e)
         {
             std::stringstream error;
-            error << "Unknown error when moving file " << fileName << " to " << destPath << ": " << e.what();
+            error << "Unknown error when moving file " << filePathToMove << " to " << destPath << ": " << e.what();
             LOGWARN(error.str());
             ActionsUtils::setErrorInfo(response, 1, error.str());
             return;
