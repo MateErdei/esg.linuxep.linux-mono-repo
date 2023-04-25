@@ -26,6 +26,8 @@ Global Setup Tasks
     ${placeholder} =  Get Environment Variable  SOPHOS_INSTALL  default=/opt/sophos-spl
     Set Global Variable  ${SOPHOS_INSTALL}  ${placeholder}
 
+    Uninstall_SSPL  ${SOPHOS_INSTALL}  ${True}
+
     ${CLOUD_IP} =  Get Central Ip
     Set Suite Variable    ${CLOUD_IP}     ${CLOUD_IP}   children=true
 
