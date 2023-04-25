@@ -182,7 +182,7 @@ namespace ResponseActionsImpl
             std::stringstream error;
             error << "Download timed out";
             LOGWARN(error.str());
-            ActionsUtils::setErrorInfo(response, 2, error.str());
+            ActionsUtils::setErrorInfo(response, 2, error.str(), "network_error");
         }
         else if (httpresponse.errorCode == Common::HttpRequests::ResponseErrorCode::DOWNLOAD_TARGET_ALREADY_EXISTS)
         {

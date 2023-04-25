@@ -1297,6 +1297,31 @@ TEST_F(DownloadFileTests, FailureDueToTimeout)
     
     EXPECT_EQ(response["result"],2);
     EXPECT_EQ(response["httpStatus"], 500);
+    EXPECT_EQ(response["errorType"], "network_error");
+    EXPECT_EQ(response["errorMessage"], expectedErrStr);
+
+    EXPECT_TRUE(appenderContains(expectedErrStr));
+}
+
+TEST_F(DownloadFileTests, FailureDueToTargetAlreadyExisting)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    const std::string expectedErrStr = "Download failed as target exists already: somethings here already";
+
+    addResponseToMockRequester(500, ResponseErrorCode::DOWNLOAD_TARGET_ALREADY_EXISTS, "somethings here already");
+
+    addDiskSpaceExpectsToMockFileSystem();
+    EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(false));
+    Tests::replaceFileSystem(std::move(m_mockFileSystem));
+
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
+    nlohmann::json action = getDownloadObject();
+
+    nlohmann::json response = downloadFileAction.run(action.dump());
+
+    EXPECT_EQ(response["result"],1);
+    EXPECT_EQ(response["httpStatus"], 500);
     EXPECT_FALSE(response.contains("errorType"));
     EXPECT_EQ(response["errorMessage"], expectedErrStr);
 
