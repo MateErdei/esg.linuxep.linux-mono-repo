@@ -1036,6 +1036,11 @@ namespace Common
         {
             return std::filesystem::space(path);
         }
+
+        std::filesystem::space_info FileSystemImpl::getDiskSpaceInfo(const Path& path, std::error_code& ec) const
+        {
+            return std::filesystem::space(path, ec);
+        }
     } // namespace FileSystem
 } // namespace Common
 

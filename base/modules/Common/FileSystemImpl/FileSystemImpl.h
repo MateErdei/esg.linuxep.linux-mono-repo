@@ -111,6 +111,8 @@ namespace Common
 
             [[nodiscard]] std::filesystem::space_info getDiskSpaceInfo(const Path& path) const override;
 
+            [[nodiscard]] std::filesystem::space_info getDiskSpaceInfo(const Path& path, std::error_code& ec) const override;
+
         protected:
             virtual int moveFileImpl(const Path& sourcePath, const Path& destPath) const;
 

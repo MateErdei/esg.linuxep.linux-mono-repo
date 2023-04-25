@@ -431,6 +431,7 @@ namespace Common
              * @return std::filesystem::space_info struct which contains capacity, free and available space in bytes
              */
             [[nodiscard]] virtual std::filesystem::space_info getDiskSpaceInfo(const Path& path) const = 0;
+            [[nodiscard]] virtual std::filesystem::space_info getDiskSpaceInfo(const Path& path, std::error_code& ec) const = 0;
         };
 
         /**
