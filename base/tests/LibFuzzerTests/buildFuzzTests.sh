@@ -67,8 +67,9 @@ if [[ ! -d libprotobuf-mutator ]]; then
     git clone https://github.com/google/libprotobuf-mutator.git
 fi
 pushd libprotobuf-mutator
-  # at this point in time their project has not release. Hence, just update
-  git pull
+  #Todo remove git checkout and uncomment git pull when https://sophos.atlassian.net/browse/LINUXDAR-6728 is completed
+  #git pull
+  git checkout tags/v1.1
   cp ${FUZZ_TEST_DIR}/setup_protobuf.patch .
   git checkout CMakeLists.txt
   git apply setup_protobuf.patch
