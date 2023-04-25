@@ -11,7 +11,7 @@ add_library(responseactionmain SHARED
 configure_file(config.h.in config.h)
 include_directories(responseactionmain BEFORE ${CMAKE_CURRENT_BINARY_DIR} ${LOG4CPLUS_INCLUDE_DIR} ${NLOHMANN_JSON_INCLUDE_DIR})
 
-target_link_libraries(responseactionmain PUBLIC logging
+target_link_libraries(responseactionmain PUBLIC
         HttpRequestsImpl
         curlwrapper
         responseactionsimpl)
