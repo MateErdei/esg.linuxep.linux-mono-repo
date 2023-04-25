@@ -37,6 +37,8 @@ namespace ResponseActionsImpl
         bool createExtractionDirectory(nlohmann::json& response);
         void handleUnZipFailure(nlohmann::json& response, const int& unzipReturn);
         void handleMovingArchive(nlohmann::json& response, const Path& targetPath);
+        void handleMovingSingleExtractedFile(nlohmann::json& response, const Path& destDir, const Path& targetPath, const Path& extractedFile);
+        void handleMovingMultipleExtractedFile(nlohmann::json& response, const Path& destDir, const Path& targetPath, const std::vector<std::string>& extractedFiles);
 
         const Path m_raTmpDir = Common::ApplicationConfiguration::applicationPathManager().getResponseActionTmpPath();
         const Path m_tmpDownloadFile = m_raTmpDir + "/tmp_download.zip";

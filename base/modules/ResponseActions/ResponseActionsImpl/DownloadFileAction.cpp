@@ -320,10 +320,8 @@ namespace ResponseActionsImpl
                     LOGINFO("Extracted " << noFiles << " files from archive");
 
                     auto destDir = info.targetPath;
-                    bool pathContainsFileName = false;
                     if (destDir.back() != '/')
                     {
-                        pathContainsFileName = true;
                         destDir = (FileSystem::dirName(destDir) + "/");
                     }
 
@@ -331,55 +329,11 @@ namespace ResponseActionsImpl
                     {
                         if (noFiles == 1)
                         {
-                            Path fileName = "";
-                            if (pathContainsFileName)
-                            {
-                                fileName = FileSystem::basename(info.targetPath);
-                            }
-                            else
-                            {
-                                fileName = FileSystem::basename(extractedFiles.front());
-                            }
-                            if (!fileAlreadyExists(response, destDir + fileName))
-                            {
-                                moveFile(response, destDir, fileName, extractedFiles.front());
-                            }
+                            handleMovingSingleExtractedFile(response, destDir, info.targetPath, extractedFiles.front());
                         }
                         else
                         {
-                            //Dont use filename for multiple files
-                            if (info.targetPath.back() != '/')
-                            {
-                                std::string msg = "Ignoring filepath in targetPath field as the archive contains multiple files";
-                                LOGINFO("Ignoring filepath in targetPath field as the archive contains multiple files");
-                                ActionsUtils::setErrorInfo(response, 0, msg);
-                            }
-
-                            bool anyFileExists = false;
-                            //We need to fail entirely if any one file already exists
-                            for (const auto& filePath : extractedFiles)
-                            {
-                                auto fileName = FileSystem::basename(filePath);
-                                if (fileAlreadyExists(response, destDir + fileName))
-                                {
-                                    anyFileExists = true;
-                                    if (anyFileExists)
-                                    {
-                                        //A warning in the response is added in fileAlreadyExists
-                                        LOGWARN("A file in the extracted archive already existed on destination path, aborting");
-                                        break;
-                                    }
-                                }
-                            }
-
-                            if (!anyFileExists)
-                            {
-                                for (const auto& filePath : extractedFiles)
-                                {
-                                    auto fileName = FileSystem::basename(filePath);
-                                    moveFile(response, destDir, fileName, filePath);
-                                }
-                            }
+                            handleMovingMultipleExtractedFile(response, destDir, info.targetPath, extractedFiles);
                         }
                     }
                 }
@@ -440,6 +394,60 @@ namespace ResponseActionsImpl
             !fileAlreadyExists(response, destDir + fileName))
         {
             moveFile(response, destDir, fileName, m_tmpDownloadFile);
+        }
+    }
+
+    void DownloadFileAction::handleMovingSingleExtractedFile(nlohmann::json& response, const Path& destDir, const Path& targetPath, const Path& extractedFile)
+    {
+        Path fileName = "";
+        if (destDir.back() != '/')
+        {
+            fileName = FileSystem::basename(targetPath);
+        }
+        else
+        {
+            fileName = FileSystem::basename(extractedFile);
+        }
+        if (!fileAlreadyExists(response, destDir + fileName))
+        {
+            moveFile(response, destDir, fileName, extractedFile);
+        }
+    }
+
+    void DownloadFileAction::handleMovingMultipleExtractedFile(nlohmann::json& response, const Path& destDir, const Path& targetPath, const std::vector<std::string>& extractedFiles)
+    {
+        //Dont use filename for multiple files
+        if (targetPath.back() != '/')
+        {
+            std::string msg = "Ignoring filepath in targetPath field as the archive contains multiple files";
+            LOGINFO("Ignoring filepath in targetPath field as the archive contains multiple files");
+            ActionsUtils::setErrorInfo(response, 0, msg);
+        }
+
+        bool anyFileExists = false;
+        //We need to fail entirely if any one file already exists
+        for (const auto& filePath : extractedFiles)
+        {
+            auto fileName = FileSystem::basename(filePath);
+            if (fileAlreadyExists(response, destDir + fileName))
+            {
+                anyFileExists = true;
+                if (anyFileExists)
+                {
+                    //A warning in the response is added in fileAlreadyExists
+                    LOGWARN("A file in the extracted archive already existed on destination path, aborting");
+                    break;
+                }
+            }
+        }
+
+        if (!anyFileExists)
+        {
+            for (const auto& filePath : extractedFiles)
+            {
+                auto fileName = FileSystem::basename(filePath);
+                moveFile(response, destDir, fileName, filePath);
+            }
         }
     }
 
