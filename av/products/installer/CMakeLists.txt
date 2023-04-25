@@ -15,6 +15,11 @@ install(FILES ${PROJECT_BINARY_DIR}/install.sh
         PERMISSIONS OWNER_READ OWNER_EXECUTE
         )
 
+install(FILES ${DISTRIBUTION_TOOL_DIR}/cleanupinstall.sh
+        DESTINATION .
+        PERMISSIONS OWNER_READ OWNER_EXECUTE
+        )
+
 install(FILES ${PROJECT_BINARY_DIR}/uninstall.sh
         DESTINATION files/plugins/${PLUGIN_NAME}/sbin/
         PERMISSIONS OWNER_READ OWNER_EXECUTE)
