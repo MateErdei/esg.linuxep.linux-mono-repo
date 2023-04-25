@@ -42,8 +42,9 @@ public:
     std::shared_ptr<MockHTTPRequester> m_mockHttpRequester;
     std::unique_ptr<MockFileSystem> m_mockFileSystem;
 
-    const Path m_testZipFile = "download.zip";
+    const Path m_testZipFile = "testdownload.zip";
     const Path m_testExtractedFile = "download.txt";
+    const Path m_defaultZipName = "download.zip";
     const Path m_destPath = "/path/to/download/to/";
     const Path m_raTmpDir = "/opt/sophos-spl/plugins/responseactions/tmp";
     const Path m_raTmpFile = "/opt/sophos-spl/plugins/responseactions/tmp/tmp_download.zip";
@@ -196,7 +197,42 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_NotDecompressed)
     EXPECT_FALSE(response.contains("errorMessage"));
     EXPECT_TRUE(response.contains("duration"));
 
-    EXPECT_TRUE(appenderContains("Beginning download to /path/to/download/to/download.zip"));
+    EXPECT_TRUE(appenderContains("Beginning download to /path/to/download/to/testdownload.zip"));
+    EXPECT_TRUE(appenderContains("Downloading directly"));
+    EXPECT_TRUE(appenderContains("/path/to/download/to/testdownload.zip downloaded successfully"));
+}
+
+TEST_F(DownloadFileTests, SuccessfulDownload_Direct_NotDecompressed_NoFileNameInTargetPath)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    addResponseToMockRequester(HTTP_STATUS_OK, ResponseErrorCode::OK);
+
+    //MockFileSystem
+    addDiskSpaceExpectsToMockFileSystem();
+    addListFilesExpectsToMockFileSystem();
+    addDownloadAndExtractExpectsToMockFileSystem(m_destPath + m_defaultZipName);
+    addCleanupChecksToMockFileSystem();
+
+    EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFileSystem, moveFileTryCopy(m_raTmpFile, m_destPath + m_defaultZipName)).Times(1);
+    EXPECT_CALL(*m_mockFileSystem, calculateDigest(Common::SslImpl::Digest::sha256, m_raTmpFile))
+        .WillOnce(Return("shastring"));
+    Tests::replaceFileSystem(std::move(m_mockFileSystem));
+
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
+
+    nlohmann::json action = getDownloadObject(false, "", 1024, false);
+    nlohmann::json response = downloadFileAction.run(action.dump());
+
+    EXPECT_EQ(response["type"], "sophos.mgt.response.DownloadFile");
+    EXPECT_EQ(response["result"], 0);
+    EXPECT_EQ(response["httpStatus"], HTTP_STATUS_OK);
+    EXPECT_FALSE(response.contains("errorType"));
+    EXPECT_FALSE(response.contains("errorMessage"));
+    EXPECT_TRUE(response.contains("duration"));
+
+    EXPECT_TRUE(appenderContains("Beginning download to /path/to/download/to/"));
     EXPECT_TRUE(appenderContains("Downloading directly"));
     EXPECT_TRUE(appenderContains("/path/to/download/to/download.zip downloaded successfully"));
 }
@@ -762,9 +798,9 @@ TEST_F(DownloadFileTests, SuccessfulDownload_WithProxy_NotDecompressed)
     EXPECT_FALSE(response.contains("errorType"));
     EXPECT_FALSE(response.contains("errorMessage"));
 
-    EXPECT_TRUE(appenderContains("Beginning download to /path/to/download/to/download.zip"));
+    EXPECT_TRUE(appenderContains("Beginning download to /path/to/download/to/testdownload.zip"));
     EXPECT_TRUE(appenderContains("Downloading via proxy: localhost"));
-    EXPECT_TRUE(appenderContains("/path/to/download/to/download.zip downloaded successfully"));
+    EXPECT_TRUE(appenderContains("/path/to/download/to/testdownload.zip downloaded successfully"));
 }
 
 TEST_F(DownloadFileTests, SuccessfulDownload_WithProxy_Decompressed)
@@ -850,7 +886,7 @@ TEST_F(DownloadFileTests, ProxyFailureFallsbackDirect_NotDecompressed)
     EXPECT_TRUE(appenderContains("Downloading via proxy: localhost"));
     EXPECT_TRUE(appenderContains("Failed to download, Error code: 400"));
     EXPECT_TRUE(appenderContains("Connection with proxy failed, going direct"));
-    EXPECT_TRUE(appenderContains("/path/to/download/to/download.zip downloaded successfully"));
+    EXPECT_TRUE(appenderContains("/path/to/download/to/testdownload.zip downloaded successfully"));
 }
 
 TEST_F(DownloadFileTests, ProxyFailureFallsbackDirect_Decompressed)
@@ -906,7 +942,7 @@ TEST_F(DownloadFileTests, FileToDownloadIsAboveMaxAllowedFileSize)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    std::string expectedErrMsg = "Downloading file to /path/to/download/to/download.zip failed due to size: 3221225472 is too large";
+    std::string expectedErrMsg = "Downloading file to /path/to/download/to/testdownload.zip failed due to size: 3221225472 is too large";
 
     ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
 
@@ -927,7 +963,7 @@ TEST_F(DownloadFileTests, TargetPathAlreadyExists_NotDecompressed)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    std::string expectedErrMsg = "Path /path/to/download/to/download.zip already exists";
+    std::string expectedErrMsg = "Path /path/to/download/to/testdownload.zip already exists";
 
     addResponseToMockRequester(HTTP_STATUS_OK, ResponseErrorCode::OK);
 
@@ -997,7 +1033,7 @@ TEST_F(DownloadFileTests, TargetPathAlreadyExists_NotDecompressedAlreadyExists)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    std::string expectedErrMsg = "Path /path/to/download/to/download.zip already exists";
+    std::string expectedErrMsg = "Path /path/to/download/to/testdownload.zip already exists";
 
     addResponseToMockRequester(HTTP_STATUS_OK, ResponseErrorCode::OK);
 
@@ -1082,7 +1118,7 @@ TEST_F(DownloadFileTests, FileSha256CantBeCalculatedDueToAccess)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    const std::string expectedErrStr = "download.zip cannot be accessed";
+    const std::string expectedErrStr = "testdownload.zip cannot be accessed";
 
     addResponseToMockRequester(HTTP_STATUS_OK, ResponseErrorCode::OK);
 
@@ -1112,7 +1148,7 @@ TEST_F(DownloadFileTests, FileSha256CantBeCalculatedDueToOtherReason)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    const std::string expectedErrStr = "Unknown error when calculating digest of download.zip: std::exception";
+    const std::string expectedErrStr = "Unknown error when calculating digest of testdownload.zip: std::exception";
 
     addResponseToMockRequester(HTTP_STATUS_OK, ResponseErrorCode::OK);
 
