@@ -171,9 +171,9 @@ function perform_cleanup()
     do
         for FILE_TO_DELETE in $(cat ${FILES_TO_REMOVE_DATA_FILE} | xargs -ri expr {} : '[^/]*/\(.*\)' | xargs -ri echo ${SOPHOS_INSTALL}/{})
         do
-            if [[ $(can_delete ${FILE_TO_DELETE} ${WORKING_DIST}) == 1 ]]
+            if [[ $(can_delete "${FILE_TO_DELETE}" "${WORKING_DIST}") == 1 ]]
             then
-                if [[ ! -L "$file" ]]
+                if [[ ! -L "${FILE_TO_DELETE}" ]]
                 then
                   FILES_OR_DIRECTORIES_DELETED+=", ${FILE_TO_DELETE}"
                   rm -f ${FILE_TO_DELETE}.*
@@ -188,7 +188,7 @@ function perform_cleanup()
     # this can include files which we want to force regeneration after upgrade.
 
     # Note files my no longer exist, so sending output to dev null.
-    # if entry contains a path seporator and the path is to a directory the directory will be removed.
+    # if entry contains a path separator and the path is to a directory the directory will be removed.
 
     if [[ -f ${WORKING_DIST}/filestodelete.dat ]]
     then
