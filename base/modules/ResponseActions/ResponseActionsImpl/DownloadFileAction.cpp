@@ -381,15 +381,16 @@ namespace ResponseActionsImpl
                                 if (fileAlreadyExists(response, destDir + fileName))
                                 {
                                     anyFileExists = true;
+                                    if (anyFileExists)
+                                    {
+                                        //A warning in the response is added in fileAlreadyExists
+                                        LOGWARN("A file in the extracted archive already existed on destination path, aborting");
+                                        break;
+                                    }
                                 }
                             }
 
-                            if (anyFileExists)
-                            {
-                                //A warning in the response is added in fileAlreadyExists
-                                LOGWARN("A file in the extracted archive already existed on destination path, aborting");
-                            }
-                            else
+                            if (!anyFileExists)
                             {
                                 for (const auto& filePath : extractedFiles)
                                 {
@@ -441,7 +442,7 @@ namespace ResponseActionsImpl
             }
 
             if (makeDestDirectory(response, destDir) &&
-                fileAlreadyExists(response, destDir + fileName))
+                !fileAlreadyExists(response, destDir + fileName))
             {
                 moveFile(response, destDir, fileName, m_tmpDownloadFile);
             }
