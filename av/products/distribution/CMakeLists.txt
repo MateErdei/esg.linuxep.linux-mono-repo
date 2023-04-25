@@ -51,7 +51,6 @@ foreach (LIB boost_locale boost_system boost_program_options boost_filesystem bo
 endforeach(LIB)
 
 set(PYTHON python3)
-set(DISTRIBUTION_TOOL_DIR ${PLUGINAPIPATH}/distribution)
 set(LOCAL_TOOL_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 set(STRIP_EXECUTABLES ${DISTRIBUTION_TOOL_DIR}/stripExecutables.py)
 set(ADD_SYMBOLS_SCRIPT ${DISTRIBUTION_TOOL_DIR}/addSymbols.sh)
