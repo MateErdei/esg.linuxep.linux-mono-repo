@@ -19,7 +19,7 @@ RA Plugin Reports Telemetry Correctly
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
     Log  ${telemetryFileContents}
-    Check RA Telemetry Json Is Correct  ${telemetryFileContents}
+    Check RA Telemetry Json Is Correct  ${telemetryFileContents}    0    0    0    0
 
 *** Keywords ***
 RA Telemetry Suite Setup

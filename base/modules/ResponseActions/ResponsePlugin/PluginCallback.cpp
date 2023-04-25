@@ -66,12 +66,18 @@ namespace ResponsePlugin
         auto& telemetry = Common::Telemetry::TelemetryHelper::getInstance();
 
         std::optional<std::string> version = ResponsePlugin::getVersion();
+        TelemetryUtils::actionTelemetry runCommandTelemetry = TelemetryUtils::getRunCommandTelemetry();
+
         if (version)
         {
             telemetry.set(ResponsePlugin::Telemetry::version, version.value());
         }
         telemetry.set(Telemetry::pluginHealthStatus, static_cast<u_long>(1));
-        telemetry.set(Telemetry::runCommand, TelemetryUtils::getRunCommandTelemetry());
+        telemetry.set(Telemetry::runCommandTotal, runCommandTelemetry.total);
+        telemetry.set(Telemetry::runCommandFails, runCommandTelemetry.totalFailures);
+        telemetry.set(Telemetry::runCommandT0Fails, runCommandTelemetry.timeoutFailures);
+        telemetry.set(Telemetry::runCommandEFails, runCommandTelemetry.expiryFailures);
+//        telemetry.set(Telemetry::runCommand, TelemetryUtils::getRunCommandTelemetry());
         std::string telemetryJson = telemetry.serialiseAndReset();
         LOGDEBUG("Got telemetry JSON data: " << telemetryJson);
 

@@ -3,14 +3,14 @@
 #include "ProcessImpl/ProcessImpl.h"
 #include "ResponseActions/ResponseActionsImpl/InvalidCommandFormat.h"
 #include "ResponseActions/ResponseActionsImpl/RunCommandAction.h"
+#include "ResponseActions/ResponsePlugin/PluginCallback.h"
 #include "modules/Common/SystemCallWrapper/SystemCallWrapperFactory.h"
 #include "modules/Common/ZipUtilities/ZipUtils.h"
-
 #include "tests/Common/Helpers/MemoryAppender.h"
 #include "tests/Common/Helpers/MockProcess.h"
 #include "tests/Common/Helpers/MockSignalHandler.h"
-#include "tests/Common/Helpers/MockSysCallsFactory.h"
 #include "tests/Common/Helpers/MockSysCalls.h"
+#include "tests/Common/Helpers/MockSysCallsFactory.h"
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
@@ -373,7 +373,7 @@ TEST_F(RunCommandTests, runMethodReturnsTimeOut)
 
 // runCommands
 
-TEST_F(RunCommandTests, runCommandsSingleCommandWithNoErrors)
+TEST_F(RunCommandTests, runCommandsSingleCommandWithNoErrors) //ADD TELEMETERY ASSERT HERE
 {
     Common::ProcessImpl::ProcessFactory::instance().replaceCreator(
         []()
@@ -386,6 +386,11 @@ TEST_F(RunCommandTests, runCommandsSingleCommandWithNoErrors)
             EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
             EXPECT_CALL(*mockProcess, wait(_,_)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
             EXPECT_CALL(*mockProcess, getStatus()).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
+
+//            std::string actualTelemetry = ResponsePlugin::PluginCallback::getTelemetry();
+//            std::string expectedTelemetry = "no clue";
+//            ASSERT_EQ(actualTelemetry, expectedTelemetry);
+
             return std::unique_ptr<Common::Process::IProcess>(mockProcess);
         });
 
@@ -407,7 +412,7 @@ TEST_F(RunCommandTests, runCommandsSingleCommandWithNoErrors)
     EXPECT_GE(response.commandResults[0].duration, 0);
 }
 
-TEST_F(RunCommandTests, runCommandsMultipleCommandsWithNoErrors)
+TEST_F(RunCommandTests, runCommandsMultipleCommandsWithNoErrors) //ADD TELEMETRY ASSERT HERE
 {
     Common::ProcessImpl::ProcessFactory::instance().replaceCreator(
         []()
@@ -525,7 +530,7 @@ TEST_F(RunCommandTests, runCommandsMultiplCommandsWithErrorsAndIgnoreErrorsFalse
     EXPECT_GE(response.commandResults[0].duration, 0);
 }
 
-TEST_F(RunCommandTests, runCommandsExpired)
+TEST_F(RunCommandTests, runCommandsExpired) //ADD TELEMETRY ASSERT HERE
 {
     std::string correlationId = "correlationID";
     CommandRequest cmd{
@@ -786,4 +791,9 @@ TEST_F(RunCommandTests, runCommandPpollSIGUSR1timesout)
 
     EXPECT_TRUE(appenderContains("RunCommandAction has received termination command due to timeout"));
     EXPECT_TRUE(appenderContains("Child process killed as it took longer than 2 seconds to stop"));
+}
+
+TEST_F(RunCommandTests, totalActionsTelemetryIncrements)
+{
+
 }

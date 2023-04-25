@@ -15,7 +15,7 @@ namespace
 
 namespace ResponsePlugin
 {
-    actionTelemetry runCommands;
+    TelemetryUtils::actionTelemetry runCommands;
 
     std::optional<std::string> getVersion()
     {
@@ -31,13 +31,14 @@ namespace ResponsePlugin
         }
     }
 
-    std::string TelemetryUtils::getRunCommandTelemetry()
+    TelemetryUtils::actionTelemetry TelemetryUtils::getRunCommandTelemetry()
     {
-        nlohmann::json j = nlohmann::json{ { "total-actions", runCommands.total },
-                                           { "total-failures", runCommands.totalFailures },
-                                           { "timeout-failures", runCommands.timeoutFailures },
-                                           { "expiration-failures", runCommands.expiryFailures } };
-        return j.dump();
+//        std::map<std::string, int> rcMap = { { "total-actions", runCommands.total },
+//                                             { "total-failures", runCommands.totalFailures },
+//                                             { "timeout-failures", runCommands.timeoutFailures },
+//                                             { "expiration-failures", runCommands.expiryFailures } };
+
+        return runCommands;
     }
 
     void TelemetryUtils::incrementTotalActions(const std::string& type)

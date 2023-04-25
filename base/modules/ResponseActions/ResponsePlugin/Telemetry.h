@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <map>
 #include <optional>
 #include <string>
 
@@ -12,19 +13,22 @@ namespace ResponsePlugin
 
     class TelemetryUtils
     {
+
     public:
+
+        struct actionTelemetry
+        {
+            long int total = 0;
+            long int totalFailures = 0;
+            long int timeoutFailures = 0;
+            long int expiryFailures = 0;
+        };
+
         static void incrementTotalActions(const std::string& type);
         static void incrementFailedActions(const std::string& type);
         static void incrementTimedOutActions(const std::string& type);
         static void incrementExpiredActions(const std::string& type);
-        static std::string getRunCommandTelemetry();
+        static TelemetryUtils::actionTelemetry getRunCommandTelemetry();
     };
 
-    struct actionTelemetry
-    {
-        int total = 0;
-        int totalFailures = 0;
-        int timeoutFailures = 0;
-        int expiryFailures = 0;
-    };
 } // namespace ResponsePlugin

@@ -140,11 +140,23 @@ class TelemetryUtils:
 
         return telemetry
 
-    def generate_ra_telemetry_dict(self):
+    def generate_ra_telemetry_dict(self, rc_total_actions, rc_total_fails, rc_timeout_fails, rc_expiry_fails):
         version = get_plugin_version("responseactions")
+
+        # run_command_telemetry = {
+        #     "total-actions", rc_total_actions,
+        #     "total-failures", rc_total_fails,
+        #     "timeout-failures", rc_timeout_fails,
+        #     "expiration-failures", rc_expiry_fails
+        # }
+
         telemetry = {
             "health": 1,
-            "version": version
+            "version": version,
+            "run-command-actions": rc_total_actions,
+            "run-command-fails": rc_total_fails,
+            "run-command-action-timeouts": rc_timeout_fails,
+            "run-command-expired-actions": rc_expiry_fails
         }
 
         return telemetry
@@ -423,8 +435,8 @@ class TelemetryUtils:
             raise AssertionError(
                 f"MTR telemetry doesn't match telemetry expected by test. expected: {expected_mtr_telemetry_dict}, actual: {actual_mtr_telemetry_dict}")
 
-    def check_ra_telemetry_json_is_correct(self, json_string):
-        expected_ra_telemetry_dict = self.generate_ra_telemetry_dict()
+    def check_ra_telemetry_json_is_correct(self, json_string, rc_total_actions, rc_total_fails, rc_timeout_fails, rc_expiry_fails):
+        expected_ra_telemetry_dict = self.generate_ra_telemetry_dict(rc_total_actions, rc_total_fails, rc_timeout_fails, rc_expiry_fails)
         actual_ra_telemetry_dict = json.loads(json_string)["responseactions"]
 
         if actual_ra_telemetry_dict != expected_ra_telemetry_dict:
