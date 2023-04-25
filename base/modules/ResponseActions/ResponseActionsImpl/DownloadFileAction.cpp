@@ -391,23 +391,7 @@ namespace ResponseActionsImpl
         }
         else
         {
-            auto destDir = info.targetPath;
-            Path fileName = "";
-            if (destDir.back() != '/')
-            {
-                destDir = FileSystem::dirName(destDir) + "/";
-                fileName = FileSystem::basename(info.targetPath);
-            }
-            else
-            {
-                fileName = m_archiveFileName;
-            }
-
-            if (makeDestDirectory(response, destDir) &&
-                !fileAlreadyExists(response, destDir + fileName))
-            {
-                moveFile(response, destDir, fileName, m_tmpDownloadFile);
-            }
+            handleMovingArchive(response, info.targetPath);
         }
     }
 
@@ -436,6 +420,27 @@ namespace ResponseActionsImpl
             }
         }
         return true;
+    }
+
+    void DownloadFileAction::handleMovingArchive(nlohmann::json& response, const Path& targetPath)
+    {
+        auto destDir = targetPath;
+        Path fileName = "";
+        if (destDir.back() != '/')
+        {
+            destDir = FileSystem::dirName(destDir) + "/";
+            fileName = FileSystem::basename(targetPath);
+        }
+        else
+        {
+            fileName = m_archiveFileName;
+        }
+
+        if (makeDestDirectory(response, destDir) &&
+            !fileAlreadyExists(response, destDir + fileName))
+        {
+            moveFile(response, destDir, fileName, m_tmpDownloadFile);
+        }
     }
 
     void DownloadFileAction::handleUnZipFailure(nlohmann::json& response, const int& unzipReturn)
