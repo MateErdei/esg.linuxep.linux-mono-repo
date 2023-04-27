@@ -765,8 +765,7 @@ TEST_F(RunCommandTests, runCommandPpollSIGUSR1timesout)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, _, _, _))
-        .WillOnce(pollReturnsWithRevents(2, POLLIN));
+    EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, _, _, _)).WillOnce(pollReturnsWithRevents(2, POLLIN));
 
     Common::ProcessImpl::ProcessFactory::instance().replaceCreator(
         []()
@@ -787,9 +786,4 @@ TEST_F(RunCommandTests, runCommandPpollSIGUSR1timesout)
 
     EXPECT_TRUE(appenderContains("RunCommandAction has received termination command due to timeout"));
     EXPECT_TRUE(appenderContains("Child process killed as it took longer than 2 seconds to stop"));
-}
-
-TEST_F(RunCommandTests, totalActionsTelemetryIncrements)
-{
-
 }
