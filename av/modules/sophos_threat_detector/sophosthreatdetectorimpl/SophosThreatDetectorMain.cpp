@@ -235,11 +235,11 @@ namespace sspl::sophosthreatdetectorimpl
         {
             if (error == EAI_SYSTEM)
             {
-                LOGERROR("Failed DNS query of 4.sophosxl.net: system error in getaddrinfo: " << common::safer_strerror(errno));
+                LOGINFO("Failed DNS query of 4.sophosxl.net: system error in getaddrinfo: " << common::safer_strerror(errno));
             }
             else
             {
-                LOGERROR("Failed DNS query of 4.sophosxl.net: error in getaddrinfo: " << gai_strerror(error));
+                LOGINFO("Failed DNS query of 4.sophosxl.net: error in getaddrinfo: " << gai_strerror(error));
             }
         }
         else
