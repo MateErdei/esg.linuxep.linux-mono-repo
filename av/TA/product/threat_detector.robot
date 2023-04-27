@@ -262,3 +262,14 @@ Threat Detector can have Machine Learning Turned off
 
     Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
     Should Not Contain  ${output}  Detected "${NORMAL_DIRECTORY}/MLengHighScore.exe"
+
+Threat Detector loads proxy from config file
+    # Create proxy file
+    Create File  ${SOPHOS_INSTALL}/base/etc/sophosspl/current_proxy  http://localhost:8080/
+
+    ${td_mark} =  LogUtils.Get Sophos Threat Detector Log Mark
+    Register On Fail  dump marked log  ${THREAT_DETECTOR_LOG_PATH}  ${td_mark}
+
+    Start AV
+    wait for log contains from mark  ${td_mark}  LiveProtection will use http://localhost:8080/ for SXL4 connections
+
