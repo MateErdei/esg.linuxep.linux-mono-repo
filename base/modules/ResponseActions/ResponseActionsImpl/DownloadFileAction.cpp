@@ -23,6 +23,9 @@ namespace ResponseActionsImpl
 
     nlohmann::json DownloadFileAction::run(const std::string& actionJson)
     {
+
+        removeTmpFiles();
+
         m_response.clear();
         m_response["type"] = "sophos.mgt.response.DownloadFile";
         DownloadInfo info;
@@ -58,9 +61,9 @@ namespace ResponseActionsImpl
             {
                 decompressAndMoveFile(info);
             }
-            removeTmpFiles();
         }
 
+        removeTmpFiles();
 
         u_int64_t end = time.currentEpochTimeInSecondsAsInteger();
         m_response["duration"] = end - start;
