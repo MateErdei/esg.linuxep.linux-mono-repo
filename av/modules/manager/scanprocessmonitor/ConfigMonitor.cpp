@@ -60,6 +60,11 @@ namespace plugin::manager::scanprocessmonitor
         proxyConfigFile_(std::move(proxyConfigFile)),
         m_sysCalls(std::move(systemCallWrapper))
     {
+        if (inotifyFd_.getFD() < 0)
+        {
+            LOGERROR("Failed to initialise inotify: Unable to monitor DNS config files");
+            throw std::runtime_error("Unable to initialise inotify");
+        }
     }
 
     std::string ConfigMonitor::getContentsFromPath(const fs::path& filepath)
@@ -103,9 +108,17 @@ namespace plugin::manager::scanprocessmonitor
         return result;
     }
 
+    static constexpr auto INOTIFY_MASK = IN_CLOSE_WRITE | IN_MOVED_TO | IN_CREATE;
+
     bool ConfigMonitor::resolveSymlinksForInterestingFiles()
     {
         auto* fs = Common::FileSystem::fileSystem();
+
+        // Remove existing watches
+        for (auto const& [path, wd] : m_interestingDirs)
+        {
+            inotifyFd_.unwatch(wd);
+        }
 
         const auto& INTERESTING_FILES = interestingFiles();
         for (const auto& filename : INTERESTING_FILES)
@@ -124,15 +137,14 @@ namespace plugin::manager::scanprocessmonitor
                 fs::path parentDir = filepath.parent_path();
                 if (m_interestingDirs.find(parentDir) == m_interestingDirs.end())
                 {
-                    // record directory if it has not already been recorded
-                    auto symlinkTargetDirFD = std::make_shared<InotifyFD_t>(parentDir);
-                    if (symlinkTargetDirFD->getFD() < 0)
+                    int wd = inotifyFd_.watch(parentDir, INOTIFY_MASK);
+                    if (wd < 0)
                     {
                         LOGERROR("Failed to initialise inotify: Unable to monitor DNS config files: "
                                  << common::safer_strerror(errno));
                         return false;
                     }
-                    m_interestingDirs.insert_or_assign(parentDir, symlinkTargetDirFD);
+                    m_interestingDirs.insert_or_assign(parentDir, wd);
                     LOGDEBUG("Monitoring "<<parentDir<<" for config changes");
                 }
             }
@@ -149,30 +161,46 @@ namespace plugin::manager::scanprocessmonitor
 
         m_currentContents = getContentsMap();
 
+        bool success = true;
+
         // Add a watch for changes to the directory base ("/etc")
-        InotifyFD_t inotifyFD(m_base);
-        InotifyFD_t proxyWatcher(proxyConfigFile_);
+        etcWatch_ = inotifyFd_.watch(m_base, INOTIFY_MASK);
+        if (etcWatch_ < 0)
+        {
+            LOGERROR("Failed to watch directory: "
+                     << m_base << " - Unable to monitor DNS config files: " << common::safer_strerror(errno));
+            LOGERROR("Failed to initialise inotify: Unable to monitor DNS config files");
+            success = false;
+        }
+        if (!proxyConfigFile_.empty())
+        {
+            proxyConfigWatch_ = inotifyFd_.watch(proxyConfigFile_, INOTIFY_MASK);
+            if (proxyConfigWatch_ < 0)
+            {
+                LOGERROR("Failed to watch proxy configuration file");
+            }
+        }
 
-        bool success = resolveSymlinksForInterestingFiles();
+        if (!resolveSymlinksForInterestingFiles())
+        {
+            LOGERROR("Failed to initialise inotify: Unable to monitor DNS symlink locations");
+            success = false;
+        }
 
-        // Must announce before we start failing
+        // Must get the original contents before we announce the thread has started
+        // And mark our watches
         announceThreadStarted();
 
-        if (inotifyFD.getFD() < 0)
-        {
-            LOGERROR("Failed to initialise inotify: Unable to monitor DNS config files");
-            return;
-        }
         if (!success)
         {
-            LOGERROR("Failed to setup inotify watches for symlink directories");
+            LOGERROR("Failed to setup inotify watches for system and proxy files");
             return;
         }
 
         LOGDEBUG("Config Monitor entering main loop");
         while (true)
         {
-            bool running = inner_run(inotifyFD, proxyWatcher);
+            bool running = inner_run();
             if (!running)
             {
                 // can exit for good reasons as well as errors.
@@ -199,27 +227,19 @@ namespace plugin::manager::scanprocessmonitor
         }
     }
 
-    bool ConfigMonitor::inner_run(InotifyFD_t& inotifyFD, InotifyFD_t& proxyWatcher)
+    bool ConfigMonitor::inner_run()
     {
         // Per https://man7.org/linux/man-pages/man7/inotify.7.html
         // This buffer should be aligned for struct inotify_event
         char buffer[EVENT_BUF_LEN] __attribute__ ((aligned(__alignof__(struct inotify_event))));
 
-        assert(inotifyFD.getFD() >= 0);
+        assert(inotifyFd_.getFD() >= 0);
 
         fd_set readFds;
         FD_ZERO(&readFds);
         int max_fd = -1;
         max_fd = common::FDUtils::addFD(&readFds, m_notifyPipe.readFd(), max_fd);
-        max_fd = common::FDUtils::addFD(&readFds, inotifyFD.getFD(), max_fd);
-        if (proxyWatcher.valid())
-        {
-            max_fd = common::FDUtils::addFD(&readFds, proxyWatcher.getFD(), max_fd);
-        }
-        for (const auto& iter : m_interestingDirs)
-        {
-            max_fd = common::FDUtils::addFD(&readFds, iter.second->getFD(), max_fd);
-        }
+        max_fd = common::FDUtils::addFD(&readFds, inotifyFd_.getFD(), max_fd);
 
         while (true)
         {
@@ -239,11 +259,11 @@ namespace plugin::manager::scanprocessmonitor
             }
 
             bool interestingDirTouched = false;
-            if (common::FDUtils::fd_isset(inotifyFD.getFD(), &temp_readFds))
+            if (common::FDUtils::fd_isset(inotifyFd_.getFD(), &temp_readFds))
             {
-                // Something changed under m_base (/etc)
+                // Something changed under our watches
 
-                ssize_t length = ::read(inotifyFD.getFD(), buffer, EVENT_BUF_LEN);
+                ssize_t length = ::read(inotifyFd_.getFD(), buffer, EVENT_BUF_LEN);
 
                 if (length < 0)
                 {
@@ -257,33 +277,27 @@ namespace plugin::manager::scanprocessmonitor
                     auto* event = reinterpret_cast<struct inotify_event*>(&buffer[i]);
                     if (event->len)
                     {
-                        // Don't care if it's close-after-write or rename/move
-                        if (isInteresting(event->name))
+                        if (event->wd == etcWatch_)
                         {
+                            // For etc actually check the filename, since we know the list
+                            // Don't care if it's close-after-write or rename/move
+                            if (isInteresting(event->name))
+                            {
+                                interestingDirTouched = true;
+                                break;
+                            }
+                        }
+                        else
+                        {
+                            if (event->wd == proxyConfigWatch_)
+                            {
+                                LOGDEBUG("Proxy configuration changed");
+                            }
                             interestingDirTouched = true;
+                            break;
                         }
                     }
                     i += EVENT_SIZE + event->len;
-                }
-            }
-            if (proxyWatcher.valid() && common::FDUtils::fd_isset(proxyWatcher.getFD(), &temp_readFds))
-            {
-                // flush the buffer
-                ::read(proxyWatcher.getFD(), buffer, EVENT_BUF_LEN);
-
-                LOGDEBUG("Proxy configuration changed");
-                interestingDirTouched = true;
-            }
-            for (const auto& iter : m_interestingDirs)
-            {
-                int fd = iter.second->getFD();
-                if (common::FDUtils::fd_isset(fd, &temp_readFds))
-                {
-                    // flush the buffer
-                    ::read(fd, buffer, EVENT_BUF_LEN);
-
-                    LOGDEBUG("Inotified in directory: " << iter.first);
-                    interestingDirTouched = true;
                 }
             }
 

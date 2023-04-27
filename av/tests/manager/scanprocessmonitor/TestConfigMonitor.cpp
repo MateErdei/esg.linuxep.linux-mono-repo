@@ -4,6 +4,7 @@
 
 #include "common/ThreadRunner.h"
 #include "common/NotifyPipeSleeper.h"
+#include "datatypes/sophos_filesystem.h"
 #include "datatypes/SystemCallWrapper.h"
 #include "manager/scanprocessmonitor/ConfigMonitor.h"
 
@@ -15,6 +16,8 @@
 #include <gtest/gtest.h>
 
 using namespace ::testing;
+
+namespace fs = sophos_filesystem;
 
 namespace
 {
@@ -94,7 +97,7 @@ TEST_F(TestConfigMonitor, ConfigMonitorIsNotifiedOfWrite)
     ofs.close();
 
     NotifyPipe configPipe;
-    ConfigMonitor a(configPipe, m_systemCallWrapper, m_testDir);
+    ConfigMonitor a(configPipe, m_systemCallWrapper, m_testDir, "");
     a.start();
 
     ofs.open("hosts");

@@ -6,9 +6,8 @@ Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include "InotifyFD.h"
-
 #include "common/AbstractThreadPluginInterface.h"
+#include "common/MultiInotifyFD.h"
 #include "datatypes/sophos_filesystem.h"
 #include "datatypes/ISystemCallWrapper.h"
 
@@ -24,7 +23,7 @@ namespace plugin::manager::scanprocessmonitor
     {
     public:
 
-        using InotifyFD_t = InotifyFD;
+        using InotifyFD_t = common::MultiInotifyFD;
         /**
          *
          * @param pipe
@@ -50,7 +49,7 @@ namespace plugin::manager::scanprocessmonitor
          *
          * @return True if we should continue running
          */
-        bool inner_run(InotifyFD_t& inotifyFD, InotifyFD_t& proxyWatcher);
+        bool inner_run();
 
         /**
          *
@@ -72,10 +71,17 @@ namespace plugin::manager::scanprocessmonitor
         Common::Threads::NotifyPipe& m_configChangedPipe;
         fs::path m_base;
         fs::path proxyConfigFile_;
-
-        std::map<fs::path, std::shared_ptr<InotifyFD_t>> m_interestingDirs;
         datatypes::ISystemCallWrapperSharedPtr m_sysCalls;
+
+        /**
+         * Map of watched paths to watchFD on inotifyFd_
+         */
+        std::map<fs::path, int> m_interestingDirs;
         contentMap_t m_currentContents;
+
+        common::MultiInotifyFD inotifyFd_;
+        int etcWatch_ = -1;
+        int proxyConfigWatch_ = -1;
 
     };
 }

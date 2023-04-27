@@ -16,6 +16,8 @@ add_library(common SHARED
         LockableData.h
         Logger.cpp
         Logger.h
+        MultiInotifyFD.cpp
+        MultiInotifyFD.h
         NotifyPipeSleeper.cpp
         NotifyPipeSleeper.h
         PathUtils.cpp
@@ -53,7 +55,7 @@ add_library(common SHARED
         signals/SigUSR1Monitor.h
         ThreatDetector/SusiSettings.cpp
         ThreatDetector/SusiSettings.h
-)
+        )
 
 target_link_libraries(common  PUBLIC
         datatypes
