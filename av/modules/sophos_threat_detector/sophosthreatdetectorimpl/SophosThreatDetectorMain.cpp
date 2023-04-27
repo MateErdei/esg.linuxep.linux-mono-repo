@@ -1,27 +1,31 @@
 // Copyright 2020-2023 Sophos Limited. All rights reserved.
 
+// Class
 #include "SophosThreatDetectorMain.h"
-
+// Package
 #include "Logger.h"
 #include "ProcessForceExitTimer.h"
 #include "ThreatDetectorControlCallback.h"
 #include "ThreatDetectorResources.h"
-
+// AV Plugin
 #include "common/ApplicationPaths.h"
 #include "common/Define.h"
 #include "common/SaferStrerror.h"
 #include "common/ThreadRunner.h"
 #include "common/ThreatDetector/SusiSettings.h"
 #include "common/signals/SigUSR1Monitor.h"
+#include "datatypes/sophos_filesystem.h"
 
 #ifdef USE_SUSI
 #else
 #include <sophos_threat_detector/threat_scanner/FakeSusiScannerFactory.h>
 #endif
 
-#include "datatypes/sophos_filesystem.h"
-
-#include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
+// SPL Base
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
+#include "Common/FileSystem/IFileSystem.h"
+#include "Common/FileSystem/IFileNotFoundException.h"
 
 #define BOOST_LOCALE_HIDE_AUTO_PTR
 #include <boost/locale.hpp>
@@ -36,6 +40,33 @@
 #include <zlib.h>
 
 using namespace std::chrono_literals;
+
+namespace
+{
+    void setProxyFromConfigFile()
+    {
+        auto path = Common::ApplicationConfiguration::applicationPathManager().getMcsCurrentProxyFilePath();
+        auto* fs = Common::FileSystem::fileSystem();
+        try
+        {
+            auto contents = fs->readFile(path, 1024);
+            if (!contents.empty())
+            {
+                setenv("https_proxy", contents.c_str(), 1);
+                setenv("http_proxy", contents.c_str(), 1);
+                LOGINFO("LiveProtection will use " << contents << " for SXL4 connections");
+            }
+            else
+            {
+                LOGINFO("LiveProtection will use direct SXL4 connections");
+            }
+        }
+        catch (const Common::FileSystem::IFileNotFoundException& ex)
+        {
+            LOGINFO(path << " not found: LiveProtection will use direct SXL4 connections");
+        }
+    }
+}
 
 namespace sspl::sophosthreatdetectorimpl
 {
@@ -146,7 +177,6 @@ namespace sspl::sophosthreatdetectorimpl
         {
             const std::vector<fs::path> fileVector {
                 "base/etc/machine_id.txt",
-                "base/etc/sophosspl/current_proxy",
                 "plugins/av/VERSION.ini",
             };
 
@@ -348,6 +378,11 @@ namespace sspl::sophosthreatdetectorimpl
         auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
         fs::path pluginInstall = appConfig.getData("PLUGIN_INSTALL");
         fs::path chrootPath = pluginInstall / "chroot";
+
+
+        // Load proxy settings
+        setProxyFromConfigFile();
+
 
         LOGDEBUG("Preparing to enter chroot at: " << chrootPath);
 #ifdef USE_CHROOT

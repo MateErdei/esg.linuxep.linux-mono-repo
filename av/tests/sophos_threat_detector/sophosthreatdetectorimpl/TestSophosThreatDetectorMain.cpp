@@ -1,37 +1,37 @@
 // Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #define TEST_PUBLIC public
-
+// class under test
 #include "sophos_threat_detector/sophosthreatdetectorimpl/SophosThreatDetectorMain.h"
-
+// SPL
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include "Common/FileSystem/IFileNotFoundException.h"
+// Test
 #include "MockReloader.h"
 #include "MockSafeStoreRescanWorker.h"
 #include "MockThreatDetectorResources.h"
 
-#include "common/MemoryAppender.h"
-
+#include "common/TestSpecificDirectory.h"
+// SPL Test
+#include "Common/Helpers/FileSystemReplaceAndRestore.h"
+#include "Common/Helpers/MockFileSystem.h"
+// 3rd party
 #include <gtest/gtest.h>
 
 using namespace sspl::sophosthreatdetectorimpl;
 using namespace ::testing;
 
 namespace {
-    class TestSophosThreatDetectorMain : public MemoryAppenderUsingTests
+    class TestSophosThreatDetectorMain : public TestSpecificDirectory
     {
     public:
-        TestSophosThreatDetectorMain() :  MemoryAppenderUsingTests("SophosThreatDetectorImpl")
+        TestSophosThreatDetectorMain() :  TestSpecificDirectory("SophosThreatDetectorImpl")
         {}
 
         void SetUp() override
         {
             m_appConfig.setData("PLUGIN_INSTALL", m_pluginInstall);
-
-            const ::testing::TestInfo* const test_info = ::testing::UnitTest::GetInstance()->current_test_info();
-            m_testDir = fs::temp_directory_path();
-            m_testDir /= test_info->test_case_name();
-            m_testDir /= test_info->name();
-            fs::remove_all(m_testDir);
-            fs::create_directories(m_testDir);
+            m_testDir = createTestSpecificDirectory();
             fs::current_path(m_testDir);
 
             m_mockSystemCallWrapper = std::make_shared<NiceMock<MockSystemCallWrapper>>();
@@ -40,8 +40,7 @@ namespace {
 
         void TearDown() override
         {
-            fs::current_path(fs::temp_directory_path());
-            fs::remove_all(m_testDir);
+            removeTestSpecificDirectory(m_testDir);
         }
 
         const std::string m_pluginInstall = "/tmp/TestSophosThreatDetectorMain";
@@ -50,7 +49,7 @@ namespace {
         std::shared_ptr<NiceMock<MockThreatDetectorResources>> m_mockThreatDetectorResources;
         std::shared_ptr<NiceMock<MockSystemCallWrapper>> m_mockSystemCallWrapper;
 
-        void setResourcesThreatDetectorCallback(std::shared_ptr<ThreatDetectorControlCallback> callback)
+        void setResourcesThreatDetectorCallback(const std::shared_ptr<ThreatDetectorControlCallback>& callback)
         {
             assert(callback);
             m_mockThreatDetectorResources->setThreatDetectorCallback(callback);
@@ -80,6 +79,87 @@ TEST_F(TestSophosThreatDetectorMain, throwsIfChrootFails)
     {
         EXPECT_STREQ(ex.what(), "Failed to chroot to /tmp/TestSophosThreatDetectorMain/chroot: 2 (No such file or directory)");
     }
+}
+
+TEST_F(TestSophosThreatDetectorMain, setsProxyBeforeChroot)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    EXPECT_CALL(*m_mockSystemCallWrapper, chroot(_)).WillOnce(Return(-1)); // to escape running
+
+    auto* filesystemMock = new NaggyMock<MockFileSystem>();
+
+    auto path = Common::ApplicationConfiguration::applicationPathManager().getMcsCurrentProxyFilePath();
+    EXPECT_CALL(*filesystemMock, readFile(path, _)).WillOnce(Return("http://this.is.a.proxy:8080"));
+
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock) };
+
+    try
+    {
+        auto treatDetectorMain = createSophosThreatDetector();
+        treatDetectorMain->inner_main(m_mockThreatDetectorResources);
+        FAIL() << "Threat detector main::chroot didnt throw";
+    }
+    catch (std::exception& ex)
+    {
+    }
+    EXPECT_TRUE(appenderContains("LiveProtection will use http://this.is.a.proxy:8080 for SXL4 connections"));
+    const char* proxy = ::getenv("https_proxy");
+    ASSERT_NE(proxy, nullptr);
+    EXPECT_STREQ(proxy, "http://this.is.a.proxy:8080");
+}
+
+TEST_F(TestSophosThreatDetectorMain, emptyProxyBeforeChroot)
+{
+    ::unsetenv("https_proxy"); // Ensure environment from before testing doesn't pollute this test
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    EXPECT_CALL(*m_mockSystemCallWrapper, chroot(_)).WillOnce(Return(-1)); // to escape running
+
+    auto* filesystemMock = new NaggyMock<MockFileSystem>();
+
+    auto path = Common::ApplicationConfiguration::applicationPathManager().getMcsCurrentProxyFilePath();
+    EXPECT_CALL(*filesystemMock, readFile(path, _)).WillOnce(Return(""));
+
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock) };
+
+    try
+    {
+        auto treatDetectorMain = createSophosThreatDetector();
+        treatDetectorMain->inner_main(m_mockThreatDetectorResources);
+        FAIL() << "Threat detector main::chroot didnt throw";
+    }
+    catch (std::exception& ex)
+    {
+    }
+    EXPECT_TRUE(appenderContains("LiveProtection will use direct SXL4 connections"));
+    const char* proxy = ::getenv("https_proxy");
+    EXPECT_EQ(proxy, nullptr);
+}
+
+TEST_F(TestSophosThreatDetectorMain, missingProxyBeforeChroot)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    EXPECT_CALL(*m_mockSystemCallWrapper, chroot(_)).WillOnce(Return(-1)); // to escape running
+
+    auto* filesystemMock = new NaggyMock<MockFileSystem>();
+
+    auto path = Common::ApplicationConfiguration::applicationPathManager().getMcsCurrentProxyFilePath();
+    EXPECT_CALL(*filesystemMock, readFile(path, _)).WillOnce(Throw(Common::FileSystem::IFileNotFoundException("Hmmm")));
+
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock) };
+
+    try
+    {
+        auto treatDetectorMain = createSophosThreatDetector();
+        treatDetectorMain->inner_main(m_mockThreatDetectorResources);
+        FAIL() << "Threat detector main::chroot didnt throw";
+    }
+    catch (std::exception& ex)
+    {
+    }
+    EXPECT_TRUE(appenderContains(path + " not found: LiveProtection will use direct SXL4 connections"));
 }
 
 TEST_F(TestSophosThreatDetectorMain, throwsIfNoCaphandle)

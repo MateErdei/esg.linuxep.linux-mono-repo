@@ -38,7 +38,8 @@ SophosAddTest(TestSophosThreatDetectorMain
         INC_DIRS
         ${CMAKE_SOURCE_DIR}/modules
         ${CMAKE_SOURCE_DIR}/tests
-        LIBS ${log4cpluslib} pthread
+        ${testhelpersinclude}
+        LIBS ${log4cpluslib} pthread ${testhelperslib}
         )
 SET_TARGET_PROPERTIES(TestSophosThreatDetectorMain
         PROPERTIES
