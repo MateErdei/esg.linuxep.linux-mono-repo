@@ -1,8 +1,6 @@
 sophos_add_library(scanprocessmonitor SHARED
         ConfigMonitor.cpp
         ConfigMonitor.h
-        InotifyFD.cpp
-        InotifyFD.h
         ScanProcessMonitor.cpp
         ScanProcessMonitor.h
         Logger.cpp
