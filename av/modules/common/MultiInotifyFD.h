@@ -26,8 +26,6 @@ namespace common
         /**
          * Watch a path, with the specified mask.
          *
-         * We can add an unwatch if required
-         *
          * @param path
          * @param mask
          * @return watchFD
