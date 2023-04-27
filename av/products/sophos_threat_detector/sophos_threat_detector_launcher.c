@@ -15,6 +15,9 @@ static int pass_on_chroot_capability()
     return pass_on_capability(CAP_SYS_CHROOT);
 }
 
+#define SOPHOS_INSTALL "/opt/sophos-spl"
+static const char* SOPHOS_THREAT_DETECTOR= SOPHOS_INSTALL "/plugins/av/sbin/sophos_threat_detector";
+
 int main(int argc, char* argv[])
 {
     (void)argc;
@@ -29,12 +32,12 @@ int main(int argc, char* argv[])
     // set LOCALDOMAIN to prevent getaddrinfo() from using nscd.
     char *envp[] =
             {
-                    "LD_LIBRARY_PATH=/opt/sophos-spl/plugins/av/chroot/susi/distribution_version:/opt/sophos-spl/plugins/av/lib64",
+                    "LD_LIBRARY_PATH=" SOPHOS_INSTALL "/plugins/av/chroot/susi/distribution_version:" SOPHOS_INSTALL "/plugins/av/lib64",
                     "LOCALDOMAIN=",
                     0
             };
 
-    argv[0] = "sophos_threat_detector";
-    execve("/opt/sophos-spl/plugins/av/sbin/sophos_threat_detector", argv, envp);
+    argv[0] = SOPHOS_THREAT_DETECTOR;
+    execve(SOPHOS_THREAT_DETECTOR, argv, envp);
     return 70; // If the exec fails
 }
