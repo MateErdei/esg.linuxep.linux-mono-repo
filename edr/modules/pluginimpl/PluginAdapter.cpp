@@ -117,7 +117,7 @@ namespace Plugin
             if (!m_isXDR && m_extensionAndStateMap.find("LoggerExtension") != m_extensionAndStateMap.end())
             {
                 LOGDEBUG("Removing LoggerExtension from list of extensions");
-                m_extensionAndStateMap["LoggerExtension"].first->Stop();
+                m_extensionAndStateMap["LoggerExtension"].first->Stop(SVC_EXT_STOP_TIMEOUT);
                 m_extensionAndStateMap.erase("LoggerExtension");
             }
         }
@@ -449,7 +449,7 @@ namespace Plugin
         // block here till osquery new instance is started.
         for(auto extensionAndState : m_extensionAndStateMap)
         {
-            extensionAndState.second.first->Stop();
+            extensionAndState.second.first->Stop(SVC_EXT_STOP_TIMEOUT);
         }
         osqueryStarted.wait_started();
 
@@ -498,9 +498,10 @@ namespace Plugin
         try
         {
             // Call stop on all extensions, this is ok to call whether running or not.
-            for (const auto& extension : m_extensionAndStateMap)
+            std::vector<std::thread> shutdownThreads;
+            for (auto& extension : m_extensionAndStateMap)
             {
-                extension.second.first->Stop();
+                shutdownThreads.emplace_back(&IServiceExtension::Stop, extension.second.first, SVC_EXT_STOP_TIMEOUT);
             }
             while (m_osqueryProcess && m_monitor.valid())
             {
@@ -514,6 +515,13 @@ namespace Plugin
                     continue;
                 }
                 m_monitor.get(); // ensure that IOsqueryProcess::keepOsqueryRunning has finished.
+            }
+            for (auto& shutdownThread : shutdownThreads)
+            {
+                if (shutdownThread.joinable())
+                {
+                    shutdownThread.join();
+                }
             }
         }
         catch (std::exception& ex)

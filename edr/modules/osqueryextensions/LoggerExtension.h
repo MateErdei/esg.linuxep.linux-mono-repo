@@ -10,7 +10,7 @@ Copyright 2020-2021, Sophos Limited.  All rights reserved.
 #include "ResultsSender.h"
 #include "BatchTimer.h"
 #include <OsquerySDK/OsquerySDK.h>
-#include <thread>
+#include <boost/thread.hpp>
 
 class LoggerExtension : public IServiceExtension
 {
@@ -30,7 +30,7 @@ public:
     ~LoggerExtension();
     void Start(const std::string& socket, bool verbose, std::shared_ptr<std::atomic_bool> extensionFinished) override;
     // cppcheck-suppress virtualCallInConstructor
-    void Stop() override;
+    void Stop(long timeoutSeconds = SVC_EXT_STOP_TIMEOUT) override;
     void setDataLimit(unsigned long long int limitBytes);
     void setDataPeriod(unsigned int periodSeconds);
     bool checkDataPeriodHasElapsed();
@@ -49,7 +49,7 @@ private:
     BatchTimer m_batchTimer;
     bool m_stopped = { true };
     bool m_stopping = { false };
-    std::unique_ptr<std::thread> m_runnerThread;
+    std::unique_ptr<boost::thread> m_runnerThread;
     OsquerySDK::Flags m_flags;
     std::unique_ptr<OsquerySDK::ExtensionInterface> m_extension;
     uintmax_t m_maxBatchBytes = 10000000;

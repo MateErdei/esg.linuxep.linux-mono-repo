@@ -65,12 +65,12 @@ void LoggerExtension::Start(
         LOGDEBUG("Logger Plugin Added");
         m_extension->Start();
         m_stopped = false;
-        m_runnerThread = std::make_unique<std::thread>(std::thread([this, extensionFinished] { Run(extensionFinished); }));
+        m_runnerThread = std::make_unique<boost::thread>(boost::thread([this, extensionFinished] { Run(extensionFinished); }));
         LOGDEBUG("Logger Plugin running in thread");
     }
 }
 
-void LoggerExtension::Stop()
+void LoggerExtension::Stop(long timeoutSeconds)
 {
     if (!m_stopped && !m_stopping)
     {
@@ -80,7 +80,7 @@ void LoggerExtension::Stop()
         m_extension->Stop();
         if (m_runnerThread && m_runnerThread->joinable())
         {
-            m_runnerThread->join();
+            m_runnerThread->timed_join(boost::posix_time::seconds(timeoutSeconds));
             m_runnerThread.reset();
         }
         m_stopped = true;

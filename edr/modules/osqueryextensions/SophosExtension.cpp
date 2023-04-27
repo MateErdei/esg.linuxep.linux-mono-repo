@@ -47,12 +47,12 @@ void SophosExtension::Start(const std::string& socket, bool verbose, std::shared
 
 
         m_stopped = false;
-        m_runnerThread = std::make_unique<std::thread>(std::thread([this, extensionFinished] { Run(extensionFinished); }));
+        m_runnerThread = std::make_unique<boost::thread>(boost::thread([this, extensionFinished] { Run(extensionFinished); }));
         LOGDEBUG("Sophos Extension running in thread");
     }
 }
 
-void SophosExtension::Stop()
+void SophosExtension::Stop(long timeoutSeconds)
 {
     if (!m_stopped)
     {
@@ -61,7 +61,7 @@ void SophosExtension::Stop()
         m_extension->Stop();
         if (m_runnerThread && m_runnerThread->joinable())
         {
-            m_runnerThread->join();
+            m_runnerThread->timed_join(boost::posix_time::seconds(timeoutSeconds));
             m_runnerThread.reset();
         }
         LOGINFO("SophosExtension::Stopped");
