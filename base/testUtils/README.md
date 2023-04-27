@@ -5,30 +5,40 @@ Product and System tests are created using the Python-based Robot Framework: htt
 
 ### Running Tests
 
-The tests require the Robot Framework, Pip, and Python to be installed on the system:
-
+The robot tests require that your dev machine has been set up (https://sophos.atlassian.net/wiki/spaces/LD/pages/39042169567/How+To+Build+Base+and+setup+a+dev+machine) and that the esg.linuxep.sspl-tools/setup_vagrant_wsl.sh script has been run. For this readme we'll change directory into the testUtils dir.
 ```sh
-$ sudo apt-get install python-pip
-$ pip install robotframework
+$ cd testUtils
+```
+```sh
+$ ./robot -t <Test Name> .
+```
+For example:
+```sh
+$ ./robot -t "Verify that the full installer works correctly" .
 ```
 
-Once the Robot Framework is installed, change into the root directory and run the following:
+This will generate a log file on your WSL machine in the current dir. You can view the log by either running Explorer.exe from WSL and the log will open in your default browser, or you can navigate there by hand from Windows explorer (click linux on the left or use this path \\wsl.localhost\Ubuntu\home).
+```sh
+$ Explorer.exe log.html
+```
+
+You can also run suites or pass in any other robot arguments to the ./robot wrapper:
 
 ```sh
 # Run all tests
-$ robot .
+$ ./robot .
 
 # Run a directory of suites
-$ robot --suite mcs_router .
+$ ./robot --suite mcs_router .
 
 # Run a single suite within a directory
-$ robot --suite TestCommandPoll .
+$ ./robot --suite TestCommandPoll .
 
-# Run a single tests
-$ robot --test CommandPollSent .
+# Run a single test
+$ ./robot --test CommandPollSent .
 
-# Exclude tests by tag by running the following:
-$ robot --exclude manual .
+# Exclude tests by tag by running the following
+$ ./robot --exclude manual .
 ```
 
 It is also possible to run the tests in tap. 
