@@ -65,6 +65,11 @@ namespace plugin::manager::scanprocessmonitor
             LOGERROR("Failed to initialise inotify: Unable to monitor DNS config files");
             throw std::runtime_error("Unable to initialise inotify");
         }
+
+        if (proxyConfigFile_ == "DEFAULT")
+        {
+            proxyConfigFile_ = Common::ApplicationConfiguration::applicationPathManager().getMcsCurrentProxyFilePath();
+        }
     }
 
     std::string ConfigMonitor::getContentsFromPath(const fs::path& filepath)
@@ -154,11 +159,6 @@ namespace plugin::manager::scanprocessmonitor
 
     void ConfigMonitor::run()
     {
-        if (proxyConfigFile_ == "DEFAULT")
-        {
-            proxyConfigFile_ = Common::ApplicationConfiguration::applicationPathManager().getMcsCurrentProxyFilePath();
-        }
-
         m_currentContents = getContentsMap();
 
         bool success = true;

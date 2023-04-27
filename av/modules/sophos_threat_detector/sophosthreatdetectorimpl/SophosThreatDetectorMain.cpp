@@ -146,7 +146,8 @@ namespace sspl::sophosthreatdetectorimpl
         {
             const std::vector<fs::path> fileVector {
                 "base/etc/machine_id.txt",
-                "plugins/av/VERSION.ini"
+                "base/etc/sophosspl/current_proxy",
+                "plugins/av/VERSION.ini",
             };
 
             for (const fs::path& file : fileVector)
