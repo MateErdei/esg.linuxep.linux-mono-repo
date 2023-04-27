@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright 2019 Sophos Limited.  All rights reserved.
+# Copyright 2019-2023 Sophos Limited.  All rights reserved.
 
 [[ -n "$SOPHOS_INSTALL" ]] || SOPHOS_INSTALL=/opt/sophos-spl
 
@@ -148,6 +148,17 @@ function can_delete()
    echo $(( ${INCLUDED_PATH} + ${EXCLUDED_PATH} ))
 }
 
+# Delete a file and any symlinks in the same directory that point to that file.
+function delete_file_and_links()
+{
+  local to_delete=$1
+  local target_dir
+  target_dir=$(dirname /tmp/thing.so)
+  for file_to_remove in $(find -L "$target_dir" -samefile "$to_delete")
+  do
+    rm -f "$file_to_remove"
+  done
+}
 
 function perform_cleanup()
 {
@@ -176,7 +187,7 @@ function perform_cleanup()
                 if [[ ! -L "${FILE_TO_DELETE}" ]]
                 then
                   FILES_OR_DIRECTORIES_DELETED+=", ${FILE_TO_DELETE}"
-                  rm -f ${FILE_TO_DELETE}.*
+                  delete_file_and_links "${FILE_TO_DELETE}"
                 fi
             fi
         done
