@@ -235,34 +235,36 @@ namespace plugin::manager::scanprocessmonitor
 
         assert(inotifyFd_.getFD() >= 0);
 
-        fd_set readFds;
-        FD_ZERO(&readFds);
-        int max_fd = -1;
-        max_fd = common::FDUtils::addFD(&readFds, m_notifyPipe.readFd(), max_fd);
-        max_fd = common::FDUtils::addFD(&readFds, inotifyFd_.getFD(), max_fd);
+        constexpr int num_fds = 2;
+        struct pollfd fds[num_fds];
+
+        fds[0].fd = m_notifyPipe.readFd();
+        fds[0].events = POLLIN;
+        fds[0].revents = 0;
+
+        fds[1].fd = inotifyFd_.getFD();
+        fds[1].events = POLLIN;
+        fds[1].revents = 0;
 
         while (true)
         {
-            fd_set temp_readFds = readFds;
-            //AVOID using pselect in any other place, ppoll should be used instead in any new code.
-            int active = m_sysCalls->pselect(max_fd + 1, &temp_readFds, nullptr, nullptr, nullptr, nullptr);
+            int activity = m_sysCalls->ppoll(fds, num_fds, nullptr, nullptr);
 
-            if (stopRequested())
+            if (stopRequested() || (fds[0].revents & POLLIN) != 0)
             {
                 return false;
             }
 
-            if (active < 0 and errno != EINTR)
+            if (activity < 0 and errno != EINTR)
             {
-                LOGERROR("failure in ConfigMonitor: pselect failed: " << common::safer_strerror(errno));
+                LOGERROR("failure in ConfigMonitor: ppoll failed: " << common::safer_strerror(errno));
                 return false;
             }
 
             bool interestingDirTouched = false;
-            if (common::FDUtils::fd_isset(inotifyFd_.getFD(), &temp_readFds))
+            if ((fds[1].revents & POLLIN) != 0)
             {
                 // Something changed under our watches
-
                 ssize_t length = ::read(inotifyFd_.getFD(), buffer, EVENT_BUF_LEN);
 
                 if (length < 0)

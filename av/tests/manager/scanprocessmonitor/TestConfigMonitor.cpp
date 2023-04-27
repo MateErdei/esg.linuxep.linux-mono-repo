@@ -88,7 +88,7 @@ static bool waitForPipe(NotifyPipe& expected, steady_clock::duration wait_time)
     return false;
 }
 
-constexpr auto MONITOR_LATENCY = 500ms;
+constexpr auto MONITOR_LATENCY = 495ms;
 
 TEST_F(TestConfigMonitor, ConfigMonitorIsNotifiedOfWrite)
 {
@@ -110,29 +110,30 @@ TEST_F(TestConfigMonitor, ConfigMonitorIsNotifiedOfWrite)
     a.join();
 }
 
-TEST_F(TestConfigMonitor, ConfigMonitorFail)
+TEST_F(TestConfigMonitor, ConfigMonitorLogsErrorWhenPpollFails)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
     NotifyPipe configPipe;
-    EXPECT_CALL(*m_mockSystemCallWrapper, pselect(_, _, _, _, _, _)).WillOnce(Return(-1));
+    EXPECT_CALL(*m_mockSystemCallWrapper, ppoll(_, _, _, _)).WillOnce(
+        SetErrnoAndReturn(EINVAL,-1));
     ConfigMonitor a(configPipe, m_mockSystemCallWrapper, m_testDir);
     a.start();
-    ASSERT_TRUE(waitForLog("failure in ConfigMonitor: pselect failed: "));
+    ASSERT_TRUE(waitForLog("failure in ConfigMonitor: ppoll failed: "));
     a.requestStop();
     a.join();
 }
 
-TEST_F(TestConfigMonitor, ConfigMonitorLogsErrorWhenPselectFails)
+TEST_F(TestConfigMonitor, ExitWhenRequested)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
     NotifyPipe configPipe;
     ConfigMonitor a(configPipe, m_mockSystemCallWrapper, m_testDir);
-    EXPECT_CALL(*m_mockSystemCallWrapper, pselect(_, _, _, _, _, _))
+    EXPECT_CALL(*m_mockSystemCallWrapper, ppoll(_, _, _, _))
         .WillOnce(DoAll(InvokeWithoutArgs(&a, &Common::Threads::AbstractThread::requestStop), Return(-1)));
     a.start();
-    EXPECT_FALSE(appenderContains("failure in ConfigMonitor: pselect failed: "));
+    EXPECT_FALSE(appenderContains("failure in ConfigMonitor: ppoll failed: "));
     a.join();
 }
 
@@ -321,7 +322,7 @@ TEST_F(TestConfigMonitor, ConfigMonitorIsNotifiedOfAnotherWriteToSymlinkTarget)
     fs::create_symlink(symlinkTarget, "hosts");
 
     NotifyPipe configPipe;
-    ConfigMonitor a(configPipe, m_systemCallWrapper, m_testDir);
+    ConfigMonitor a(configPipe, m_systemCallWrapper, m_testDir, "");
     a.start();
 
     ofs.open(symlinkTarget);
