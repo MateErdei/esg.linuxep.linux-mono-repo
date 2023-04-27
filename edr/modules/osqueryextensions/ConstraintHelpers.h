@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2021 Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2021-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
@@ -15,16 +11,19 @@ namespace OsquerySDK
         OsquerySDK::ConstraintOperator constraintType;
     };
 
-    class TimeConstraintHelpers
+    class ConstraintHelpers
     {
     public:
-        TimeConstraintHelpers();
-        ~TimeConstraintHelpers() = default;
+        ConstraintHelpers();
+        ~ConstraintHelpers() = default;
         std::pair<uint64_t, uint64_t >  GetTimeConstraints(QueryContextInterface& queryContext);
+
+        std::string BuildQueryLogMessage(OsquerySDK::QueryContextInterface& context, const std::string& tableName);
 
     private:
         const uint32_t DEFAULT_START_TIME_OFFSET_MINUTES = 15;
-
+        std::string GetOperatorSymbol(const unsigned char osqueryOperator);
+        std::string BuildQueryString(OsquerySDK::QueryContextInterface& context, const std::string& tableName);
         void extractAndStoreTimeConstraint(
             QueryContextInterface& queryContext,
             OsquerySDK::ConstraintOperator constraintOperator);

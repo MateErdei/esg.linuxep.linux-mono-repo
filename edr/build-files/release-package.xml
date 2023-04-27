@@ -12,11 +12,6 @@
             <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="/build/input/base-sdds"/>
         </build-asset>
 
-        <build-asset project="winep" repo="dbos">
-            <release-version branch="release/2022-33-linux" build-id="20220808155426-e2c6cc6ded74ea177ffee3faf6acb550fb085bfc-arqapF"/>
-            <development-version branch="develop"/>
-            <include artifact-path="linux-x64-extension" dest-dir="/build/input/linux-x64-extension"/>
-        </build-asset>
         <build-asset project="winep" repo="sed">
             <release-version branch="release/SED_2023.10_libs" build-id="20230305223649-68df9ee1156ee5ef42224c3b94dea49d93c63db6-AmtbMb"/>
             <development-version branch="develop"/>

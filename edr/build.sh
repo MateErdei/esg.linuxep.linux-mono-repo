@@ -275,7 +275,6 @@ function build()
 
         cp -r ${INPUT}/sdds3 "${REDIST}/sdds3" && chmod +x ${REDIST}/sdds3/*
 
-        cp -r ${INPUT}/linux-x64-extension  "$REDIST"/linux-x64-extension
     fi
 
     PATH=$REDIST/cmake/bin:$PATH

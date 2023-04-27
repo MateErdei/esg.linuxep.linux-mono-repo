@@ -8,6 +8,8 @@ Copyright 2020-2021, Sophos Limited.  All rights reserved.
 #include "Logger.h"
 #include "SophosServerTable.h"
 #include "SophosAVDetectionTable.h"
+#include "GrepTable.h"
+#include "HexToIntTable.h"
 
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 
@@ -36,6 +38,10 @@ void SophosExtension::Start(const std::string& socket, bool verbose, std::shared
         m_extension->AddTablePlugin(std::make_unique<OsquerySDK::SophosServerTable>());
         LOGDEBUG("Adding Sophos Detections Table");
         m_extension->AddTablePlugin(std::make_unique<OsquerySDK::SophosAVDetectionTable>());
+        LOGDEBUG("Adding Grep Table");
+        m_extension->AddTablePlugin(std::make_unique<OsquerySDK::GrepTable>());
+        LOGDEBUG("Adding HexToInt Table");
+        m_extension->AddTablePlugin(std::make_unique<OsquerySDK::HexToIntTable>());
         LOGDEBUG("Extension Added");
         m_extension->Start();
 

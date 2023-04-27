@@ -31,32 +31,6 @@ TEST_F(OsqueryTelemetryTests, memoryUtilExceedLimitTriggersTelemetryIncrement) /
     EXPECT_EQ(telemetry.serialiseAndReset(), "{\"osquery-restarts-memory\":1}");
 }
 
-TEST_F(OsqueryTelemetryTests, memoryUtilExceedLimitTriggersMTRTelemetryIncrement) // NOLINT
-{
-    auto& telemetry = Common::Telemetry::TelemetryHelper::getInstance();
-    std::string line = "osquery extension /opt/sophos-spl/plugins/edr/extensions/SophosMTR.ext (2297) stopping: Memory limits exceeded: 265804000\n";
-    OsqueryLogIngest ingester;
-    ingester(line);
-    EXPECT_EQ(telemetry.serialiseAndReset(), "{\"mtr-extension-restarts-memory\":1}");
-}
-
-TEST_F(OsqueryTelemetryTests, cpuUtilExceedLimitTriggersMTRTelemetryIncrement) // NOLINT
-{
-    auto& telemetry = Common::Telemetry::TelemetryHelper::getInstance();
-    std::string line = "osquery extension /opt/sophos-spl/plugins/edr/extensions/SophosMTR.ext (2297) stopping: Maximum sustainable CPU utilization limit exceeded:\n";
-    OsqueryLogIngest ingester;
-    ingester(line);
-    EXPECT_EQ(telemetry.serialiseAndReset(), "{\"mtr-extension-restarts-cpu\":1}");
-}
-
-TEST_F(OsqueryTelemetryTests, mtrExtensionCrashingTriggersMTRTelemetryIncrement) // NOLINT
-{
-    auto& telemetry = Common::Telemetry::TelemetryHelper::getInstance();
-    std::string line = "osquery extension /opt/sophos-spl/plugins/edr/extensions/SophosMTR.ext (30991) stopping: Cannot find process\n";
-    OsqueryLogIngest ingester;
-    ingester(line);
-    EXPECT_EQ(telemetry.serialiseAndReset(), "{\"mtr-extension-restarts\":1}");
-}
 TEST_F(OsqueryTelemetryTests, cpuAndMemoryLogLineTriggerTelemetryIncrement) // NOLINT
 {
     auto& telemetry = Common::Telemetry::TelemetryHelper::getInstance();

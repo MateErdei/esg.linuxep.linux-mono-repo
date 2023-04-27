@@ -9,6 +9,10 @@ sophos_add_library(OsqueryExtensions SHARED
         ResultsSender.cpp
         BatchTimer.h
         BatchTimer.cpp
+        GrepTable.cpp
+        GrepTable.h
+        HexToIntTable.cpp
+        HexToIntTable.h
         SophosServerTable.h
         SophosAVDetectionTableGenerator.h
         SophosAVDetectionTableGenerator.cpp
@@ -17,8 +21,8 @@ sophos_add_library(OsqueryExtensions SHARED
         SophosAVDetectionTable.cpp
         SophosExtension.h
         SophosExtension.cpp
-        TimeConstraintHelpers.h
-        TimeConstraintHelpers.cpp
+        ConstraintHelpers.h
+        ConstraintHelpers.cpp
         EXTRA_PROJECTS
             eventjournalwrapperimpl
 
@@ -40,6 +44,8 @@ sophos_add_library(OsqueryExtensions SHARED
 set(TABLE_PLUGIN_HDRS
     ${CMAKE_CURRENT_SOURCE_DIR}/SophosServerTable.h
     ${CMAKE_CURRENT_SOURCE_DIR}/SophosAVDetectionTable.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/GrepTable.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/HexToIntTable.h
 )
 
 add_custom_target(schema DEPENDS ${CMAKE_BINARY_DIR}/schema/schema.json)

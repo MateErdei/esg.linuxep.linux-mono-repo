@@ -4,7 +4,9 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 #include "MockQueryContext.h"
-#include <modules/osqueryextensions/TimeConstraintHelpers.h>
+
+#include <modules/osqueryextensions/ConstraintHelpers.h>
+
 #include <gtest/gtest.h>
 using namespace ::testing;
 
@@ -21,7 +23,7 @@ protected:
 
 TEST_F(TestTimeConstraintHelpers, GetTimeConstraints_ReturnsStartAndEndTimeCorrectlyWithNoConstraint)
 {
-    OsquerySDK::TimeConstraintHelpers helper;
+    OsquerySDK::ConstraintHelpers helper;
     StrictMock<MockQueryContext> context;
 
     std::set<std::string> emptySet = {};
@@ -43,7 +45,7 @@ TEST_F(TestTimeConstraintHelpers, GetTimeConstraints_ReturnsStartAndEndTimeCorre
 
 TEST_F(TestTimeConstraintHelpers, GetTimeConstraints_ReturnsStartAndEndTimeCorrectlyWithEqualsConstraint)
 {
-    OsquerySDK::TimeConstraintHelpers helper;
+    OsquerySDK::ConstraintHelpers helper;
     StrictMock<MockQueryContext> context;
 
     std::set<std::string> equalsSet = {"1234"};
@@ -63,7 +65,7 @@ TEST_F(TestTimeConstraintHelpers, GetTimeConstraints_ReturnsStartAndEndTimeCorre
 
 TEST_F(TestTimeConstraintHelpers, GetTimeConstraints_ReturnsStartAndEndTimeCorrectlyWithMultipleEqualsConstraint)
 {
-    OsquerySDK::TimeConstraintHelpers helper;
+    OsquerySDK::ConstraintHelpers helper;
     StrictMock<MockQueryContext> context;
 
     std::set<std::string> equalsSet = {"34567", "99999", "1234"};
@@ -84,7 +86,7 @@ TEST_F(TestTimeConstraintHelpers, GetTimeConstraints_ReturnsStartAndEndTimeCorre
 
 TEST_F(TestTimeConstraintHelpers, GetTimeConstraints_ReturnsStartAndEndTimeCorrectlyWithLessThanConstraint)
 {
-    OsquerySDK::TimeConstraintHelpers helper;
+    OsquerySDK::ConstraintHelpers helper;
     StrictMock<MockQueryContext> context;
 
     std::set<std::string> lessThanSet = {"13589"};
@@ -104,7 +106,7 @@ TEST_F(TestTimeConstraintHelpers, GetTimeConstraints_ReturnsStartAndEndTimeCorre
 
 TEST_F(TestTimeConstraintHelpers, GetTimeConstraints_ReturnsStartAndEndTimeCorrectlyWithLessThanOrEqualsConstraint)
 {
-    OsquerySDK::TimeConstraintHelpers helper;
+    OsquerySDK::ConstraintHelpers helper;
     StrictMock<MockQueryContext> context;
 
     std::set<std::string> lessThanOrEqualsSet = {"13589"};
@@ -124,7 +126,7 @@ TEST_F(TestTimeConstraintHelpers, GetTimeConstraints_ReturnsStartAndEndTimeCorre
 
 TEST_F(TestTimeConstraintHelpers, GetTimeConstraints_ReturnsStartAndEndTimeCorrectlyWithGreaterThanConstraint)
 {
-    OsquerySDK::TimeConstraintHelpers helper;
+    OsquerySDK::ConstraintHelpers helper;
     StrictMock<MockQueryContext> context;
 
     std::set<std::string> greaterThanSet = {"3486"};
@@ -144,7 +146,7 @@ TEST_F(TestTimeConstraintHelpers, GetTimeConstraints_ReturnsStartAndEndTimeCorre
 
 TEST_F(TestTimeConstraintHelpers, GetTimeConstraints_ReturnsStartAndEndTimeCorrectlyWithGreaterThanOrEqualsConstraint)
 {
-    OsquerySDK::TimeConstraintHelpers helper;
+    OsquerySDK::ConstraintHelpers helper;
     StrictMock<MockQueryContext> context;
 
     std::set<std::string> greaterThanOrEqualsSet = {"3486"};
@@ -164,7 +166,7 @@ TEST_F(TestTimeConstraintHelpers, GetTimeConstraints_ReturnsStartAndEndTimeCorre
 
 TEST_F(TestTimeConstraintHelpers, GetTimeConstraints_ReturnsStartAndEndTimeCorrectlyWithLessThanAndGreaterThanConstraints)
 {
-    OsquerySDK::TimeConstraintHelpers helper;
+    OsquerySDK::ConstraintHelpers helper;
     StrictMock<MockQueryContext> context;
 
     std::set<std::string> lessThanSet = {"56482"};
@@ -185,7 +187,7 @@ TEST_F(TestTimeConstraintHelpers, GetTimeConstraints_ReturnsStartAndEndTimeCorre
 
 TEST_F(TestTimeConstraintHelpers, GetTimeConstraints_ReturnsStartAndEndTimeCorrectlyWithEqualsAndBoundaryConstraints)
 {
-    OsquerySDK::TimeConstraintHelpers helper;
+    OsquerySDK::ConstraintHelpers helper;
     StrictMock<MockQueryContext> context;
 
     std::set<std::string> equalsSet = {"1234"};
@@ -207,7 +209,7 @@ TEST_F(TestTimeConstraintHelpers, GetTimeConstraints_ReturnsStartAndEndTimeCorre
 
 TEST_F(TestTimeConstraintHelpers, GetTimeConstraints_ReturnsStartAndEndTimeCorrectlyWithMultipleConstraints)
 {
-    OsquerySDK::TimeConstraintHelpers helper;
+    OsquerySDK::ConstraintHelpers helper;
     StrictMock<MockQueryContext> context;
 
     std::set<std::string> equalsSet = {"1234", "9999"};
@@ -231,7 +233,7 @@ TEST_F(TestTimeConstraintHelpers, GetTimeConstraints_ReturnsStartAndEndTimeCorre
 
 TEST_F(TestTimeConstraintHelpers, GetTimeConstraints_ReturnsStartAndEndTimeCorrectlyWhenConstraintIsText)
 {
-    OsquerySDK::TimeConstraintHelpers helper;
+    OsquerySDK::ConstraintHelpers helper;
     StrictMock<MockQueryContext> context;
 
     // All context processing goes through the the same code to convert the string to an uint64.

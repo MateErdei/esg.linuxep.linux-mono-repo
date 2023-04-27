@@ -6,9 +6,9 @@ Copyright 2021 Sophos Limited.  All rights reserved.
 
 #include "SophosAVDetectionTableGenerator.h"
 
+#include "ConstraintHelpers.h"
 #include "Logger.h"
 #include "ThreatTypes.h"
-#include "TimeConstraintHelpers.h"
 
 #include "OsquerySDK/OsquerySDK.h"
 
@@ -26,7 +26,7 @@ namespace OsquerySDK
         std::string currentJrl("");
         std::string queryId = getQueryId(queryContext);
 
-        TimeConstraintHelpers timeConstraintHelpers;
+        ConstraintHelpers timeConstraintHelpers;
         std::pair<uint64_t , uint64_t> queryTimeConstraints = timeConstraintHelpers.GetTimeConstraints(queryContext);
 
         std::string installPath = Common::ApplicationConfiguration::applicationPathManager().sophosInstall();
