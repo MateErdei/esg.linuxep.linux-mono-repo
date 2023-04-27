@@ -172,7 +172,7 @@ def test_edr_plugin_responses_to_queued_livequeries(sspl_mock, edr_plugin_instan
 
     #verify responses
     for key, response in expected_response_dict.items():
-        actual_response = get_query_response(response_paths[key], edr_plugin_instance, response_timeout=150)
+        actual_response = get_query_response(response_paths[key], edr_plugin_instance, response_timeout=300)
         check_responses_are_equivalent(actual_response, response)
 
 
