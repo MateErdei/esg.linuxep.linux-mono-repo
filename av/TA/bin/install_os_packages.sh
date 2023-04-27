@@ -69,7 +69,7 @@ elif [[ -x $(which zypper) ]]
 then
     if [[ -x $(which registercloudguest ) ]]
     then
-      registercloudguest --force-new >>/tmp/cloudFormationInit.log
+      registercloudguest --force-new || true
     fi
 
     zypper refresh
