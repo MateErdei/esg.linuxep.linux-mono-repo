@@ -13,7 +13,7 @@
             <include artifact-path="sspl-base/fake-management" dest-dir="/build/input/fake-management"/>
         </build-asset>
         <build-asset project="winep" repo="sed">
-            <release-version branch="release--SED_3.1.3" build-id="20230420171339-595b4ddcc0051a9e9f3b17dc5bb3684610d36f65-vjQ0Hw"/>
+            <release-version branch="release/SED_3.1.3" build-id="20230420171339-595b4ddcc0051a9e9f3b17dc5bb3684610d36f65-vjQ0Hw"/>
             <development-version branch="develop"/>
             <include artifact-path="sed-libs-linux/JournalLib-x64" dest-dir="/build/input"/>
             <include artifact-path="sed-libs-linux/JournalReader-x64" dest-dir="/build/input"/>
