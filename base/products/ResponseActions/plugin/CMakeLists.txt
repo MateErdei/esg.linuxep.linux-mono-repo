@@ -21,5 +21,9 @@ install(TARGETS
         pluginapi
         sslimpl
         ziputilities
+        utilityimpl
+        filesystemimpl
+        logging
+        applicationconfigurationimpl
         LIBRARY DESTINATION ${RA_DIST_PREFIX}/files/plugins/${RA_PLUGIN_NAME}/lib64)
 
