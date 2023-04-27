@@ -326,6 +326,7 @@ namespace Plugin
                     std::string revID = attributeMap.lookup("config/csc:Comp").value("RevID", "unknown");
                     m_callback->sendStatus(revID);
                     policyWaiter->gotPolicy("SAV");
+                    m_threatDetector->setSXL4LookupsEnabled(m_policyProcessor.getSXL4LookupsEnabled());
                 }
             }
             else if (policyType == PolicyType::CORC)

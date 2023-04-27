@@ -130,6 +130,10 @@ namespace plugin::manager::scanprocessmonitor
                 {
                     LOGWARN("Not restarting sophos_threat_detector: System configuration change detected, but restart inhibited");
                 }
+                else if (!getSXL4LookupsEnabled())
+                {
+                    LOGINFO("Not restarting sophos_threat_detector: Live Protection is disabled");
+                }
                 else
                 {
                     LOGINFO("Restarting sophos_threat_detector as the system configuration has changed");
@@ -144,5 +148,17 @@ namespace plugin::manager::scanprocessmonitor
     {
         LOGDEBUG("External notification of policy configuration changed");
         m_policy_changed.notify();
+    }
+
+    bool ScanProcessMonitor::getSXL4LookupsEnabled()
+    {
+        auto locked = sxl4enabled_.lock();
+        return *locked;
+    }
+
+    void ScanProcessMonitor::setSXL4LookupsEnabled(bool isEnabled)
+    {
+        auto locked = sxl4enabled_.lock();
+        *locked = isEnabled;
     }
 }

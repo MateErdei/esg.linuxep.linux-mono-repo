@@ -4,6 +4,7 @@
 
 #include "ConfigMonitor.h"
 
+#include "common/LockableData.h"
 #include "datatypes/ISystemCallWrapper.h"
 #include "datatypes/sophos_filesystem.h"
 #include "modules/common/NotifyPipeSleeper.h"
@@ -24,13 +25,17 @@ namespace plugin::manager::scanprocessmonitor
          */
         void policy_configuration_changed();
 
+        void setSXL4LookupsEnabled(bool isEnabled);
+
     private:
         void sendRequestToThreatDetector(scan_messages::E_COMMAND_TYPE requestType);
+        bool getSXL4LookupsEnabled();
         Common::Threads::NotifyPipe m_config_changed;
         Common::Threads::NotifyPipe m_policy_changed;
         datatypes::ISystemCallWrapperSharedPtr m_sysCallWrapper;
         std::string m_processControllerSocketPath;
         std::shared_ptr<common::NotifyPipeSleeper> m_sleeper;
+        common::LockableData<bool> sxl4enabled_;
     };
 }
 

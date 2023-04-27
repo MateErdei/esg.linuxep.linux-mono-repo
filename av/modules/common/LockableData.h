@@ -37,6 +37,9 @@ namespace common
         auto& operator*() noexcept
         { return l->ref(); }
 
+        const auto& operator*() const noexcept
+        { return l->ref(); }
+
     private:
         std::unique_ptr<Lockable> l;
     };
@@ -50,6 +53,11 @@ namespace common
             return m_data;
         }
     private:
+        Data& ref() noexcept
+        {
+            return m_data;
+        }
+
         friend struct LockedData<LockableData>;
         friend struct std::default_delete<LockableData>;
 
