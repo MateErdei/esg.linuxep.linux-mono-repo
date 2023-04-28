@@ -349,13 +349,25 @@ def Send_Upload_Folder_From_Fake_Cloud(folderpath="/tmp/folder", compress=False,
     CloudAutomation.SendToFakeCloud.sendResponseActionToFakeCloud(json.dumps(action_dict), command_id=command_id)
 
 
-def Send_Download_File_From_Fake_Cloud(decompress=False, targetPath="/tmp/folder/download.zip", password="",
-                                       corrid="correlation-id"):
-    with open("/tmp/download.txt", 'w') as f:
-        f.write("content")
-    zipfile.ZipFile('/tmp/download.zip', mode='w').write("/tmp/download.txt")
+def Send_Download_File_From_Fake_Cloud(decompress=False, targetPath="/tmp/folder/download.zip", password="", multipleFiles=False):
 
-    with open("/tmp/download.zip", 'rb') as zf:
+    listOfFiles = ["/tmp/download.txt"]
+
+    if multipleFiles:
+        for fileNo in range(10):
+            listOfFiles.append("/tmp/download.txt" + str(fileNo))
+
+
+    with zipfile.ZipFile('/tmp/testdownload.zip', mode='w') as zipF:
+        for file in listOfFiles:
+            with open(file, 'w') as f:
+                f.write("content")
+                f.close()
+
+            zipF.write(file)
+
+
+    with open("/tmp/testdownload.zip", 'rb') as zf:
         contents = zf.read()
         readable_hash = hashlib.sha256(contents).hexdigest()
 
@@ -370,7 +382,7 @@ def Send_Download_File_From_Fake_Cloud(decompress=False, targetPath="/tmp/folder
            "expiration": 144444000000004,
            "timeout": 60,
            }
-    CloudAutomation.SendToFakeCloud.sendResponseActionToFakeCloud(json.dumps(action_dict), corrid)
+    CloudAutomation.SendToFakeCloud.sendResponseActionToFakeCloud(json.dumps(action_dict), "correlation-id")
 
 
 def Send_Download_File_From_Fake_Cloud_RealURL():
