@@ -90,7 +90,7 @@ TEST_F(TestSophosThreatDetectorMain, setsProxyBeforeChroot)
     auto* filesystemMock = new NaggyMock<MockFileSystem>();
 
     auto path = Common::ApplicationConfiguration::applicationPathManager().getMcsCurrentProxyFilePath();
-    EXPECT_CALL(*filesystemMock, readFile(path, _)).WillOnce(Return("{\"proxy\":\"this.is.a.proxy:8080\"}"));
+    EXPECT_CALL(*filesystemMock, readFile(path, _)).WillOnce(Return(R"({"proxy":"this.is.a.proxy:8080"})"));
 
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock) };
 
