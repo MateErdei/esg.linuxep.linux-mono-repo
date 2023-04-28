@@ -165,16 +165,20 @@ def mark_tar_as_processed(tar_path):
 
 
 def extract_part(extracted_tar_path, filename, tag, delim, position):
-    with open(os.path.join(extracted_tar_path, "SystemFiles", filename), 'r') as file:
-        for line in file:
-            if "timed out" in line.lower():
-                return None
-            if tag in line or tag == "":
-                x = line.split(delim)
-                if len(x) > 1:
-                    hostname = x[position].strip()
-                    if hostname is not "":
-                        return hostname
+    file_path = os.path.join(extracted_tar_path, "SystemFiles", filename)
+    try:
+        with open(file_path, 'r') as file:
+            for line in file:
+                if "timed out" in line.lower():
+                    return None
+                if tag in line or tag == "":
+                    x = line.split(delim)
+                    if len(x) > 1:
+                        hostname = x[position].strip()
+                        if hostname is not "":
+                            return hostname
+    except Exception as exception:
+        print(f"Failed to extract_part '{tag}' on '{file_path}', exception: {exception}")
     return None
 
 
