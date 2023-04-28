@@ -17,6 +17,7 @@ import shutil
 import tarfile
 import psutil
 import platform
+import re
 
 import PathManager
 
@@ -656,3 +657,21 @@ def check_libs_for_consistent_gcc_version(directory):
     logger.info(f"All versions detected: {gcc_versions}")
     if len(gcc_versions) != 1:
         raise AssertionError("Multiple GCC versions found across product libs")
+
+
+def does_file_exist(path) -> bool:
+    return bool(os.path.exists(path))
+
+
+def does_file_not_exist(path) -> bool:
+    return not does_file_exist(path)
+
+
+def does_file_contain_word(path, word) -> bool:
+    with open(path) as f:
+        pattern = re.compile(r'\b({0})\b'.format(word), flags=re.IGNORECASE)
+        return bool(pattern.search(f.read()))
+
+
+def does_file_not_contain(path, word) -> bool:
+    return not does_file_contain_word(path, word)

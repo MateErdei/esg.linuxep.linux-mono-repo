@@ -10,6 +10,7 @@ Resource  ../GeneralTeardownResource.robot
 *** Variables ***
 ${RESPONSE_ACTIONS_LOG_PATH}   ${SOPHOS_INSTALL}/plugins/responseactions/log/responseactions.log
 ${ACTIONS_RUNNER_LOG_PATH}   ${SOPHOS_INSTALL}/plugins/responseactions/log/actionrunner.log
+${TESTDIR}     /home/vagrant/testdir
 
 *** Keywords ***
 Install Response Actions Directly
@@ -71,7 +72,7 @@ RA Suite Setup
     Regenerate Certificates
     Set Local CA Environment Variable
     Run Full Installer
-    Create File  /opt/sophos-spl/base/mcs/certs/ca_env_override_flag
+    Create File  ${MCS_DIR}/certs/ca_env_override_flag
 
 RA Action With Register Suite Setup
     RA Suite Setup
@@ -83,6 +84,7 @@ RA Test Setup
     install_system_ca_cert  /tmp/cert.crt
     install_system_ca_cert  /tmp/ca.crt
     Install Response Actions Directly
+    Create File    ${MCS_DIR}/certs/ca_env_override_flag
 
 RA Test Teardown
     General Test Teardown
@@ -95,3 +97,68 @@ RA Test Teardown
     Remove File  ${EXE_CONFIG_FILE}
     Run Keyword If Test Failed    Dump Cloud Server Log
     Remove File   /tmp/upload.zip
+
+# Run Command tests keywords
+RA Run Command Suite Setup
+    Start Local Cloud Server
+    Regenerate Certificates
+    Set Local CA Environment Variable
+    Run Full Installer
+    Install Response Actions Directly
+    Create File  ${MCS_DIR}/certs/ca_env_override_flag
+    Register With Local Cloud Server
+
+
+Require Filesystem
+    [Arguments]   ${fs_type}
+    ${file_does_not_exist} =  Does File Not Exist  /proc/filesystems
+    Pass Execution If    ${file_does_not_exist}  /proc/filesystems does not exist - cannot determine supported filesystems
+    ${file_does_not_contain} =  Does File Not Contain  /proc/filesystems  ${fs_type}
+    Pass Execution If    ${file_does_not_contain}  ${fs_type} is not a supported filesystem with this kernel - skipping test
+
+Copy And Extract Image
+    [Arguments]  ${imagename}
+    ${imagetarfile} =  Set Variable  ${SUPPORT_FILES}/FileSystemTypeImages/${imagename}.img.tgz
+
+    ${UNPACK_DIRECTORY} =  Set Variable  ${TESTDIR}/${imagename}.IMG
+    Create Directory  ${UNPACK_DIRECTORY}
+    ${result} =  Run Process  tar  xvzf  ${imagetarfile}  -C  ${UNPACK_DIRECTORY}
+    Log  ${result.stdout}
+    Log  ${result.stderr}
+    Should Be Equal As Integers  ${result.rc}  ${0}
+    [Return]  ${UNPACK_DIRECTORY}/${imagename}.img
+
+Mount Image Read Only
+    [Arguments]  ${where}  ${image}  ${type}  ${opts}=loop
+    Create Directory  ${where}
+    ${result} =  Run Process  mount  -t  ${type}  -ro  ${opts}  ${image}  ${where}
+    Log  ${result.stdout}
+    Log  ${result.stderr}
+    Should Be Equal As Integers  ${result.rc}  ${0}
+
+Mount Image
+    [Arguments]  ${where}  ${image}  ${type}  ${opts}=loop
+    Create Directory  ${where}
+    ${result} =  Run Process  mount  -t  ${type}  -o  ${opts}  ${image}  ${where}
+    Log  ${result.stdout}
+    Log  ${result.stderr}
+    Should Be Equal As Integers  ${result.rc}  ${0}
+
+Unmount Image Internal
+    [Arguments]  ${where}
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  2 secs
+    ...  Run Shell Process   umount ${where}   OnError=Failed to unmount local NFS share
+
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  2 secs
+    ...  Remove Directory    ${where}  recursive=True
+
+
+Run Shell Process
+    [Arguments]  ${Command}   ${OnError}   ${timeout}=20s
+    ${result} =   Run Process  ${Command}   shell=True   timeout=${timeout}
+    Should Be Equal As Integers  ${result.rc}  ${0}   ${OnError}.\n${SPACE}stdout: \n${result.stdout} \n${SPACE}stderr: \n${result.stderr}
+    [Return]  ${result}
