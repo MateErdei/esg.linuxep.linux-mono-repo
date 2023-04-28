@@ -99,13 +99,33 @@ namespace ResponseActionsImpl
             return false;
         }
 
+        return assessSpaceInfo(info);
+    }
+
+    bool DownloadFileAction::assessSpaceInfo(const DownloadInfo& info)
+    {
         std::filesystem::space_info tmpSpaceInfo;
         std::filesystem::space_info destSpaceInfo;
 
         try
         {
-            tmpSpaceInfo = m_fileSystem->getDiskSpaceInfo(m_raTmpDir);
-            destSpaceInfo = m_fileSystem->getDiskSpaceInfo(findBaseDir(info.targetPath));
+            std::error_code errCode;
+            LOGINFO("Getting space info for " << m_raTmpDir);
+            tmpSpaceInfo = m_fileSystem->getDiskSpaceInfo(findBaseDir(m_raTmpDir), errCode);
+            if (errCode)
+            {
+                LOGERROR("Error calculating disk space for " << m_raTmpDir << ": " << errCode.value() << " message:" << errCode.message());
+                return false;
+            }
+
+            errCode.clear();
+            LOGINFO("Getting space info for " << info.targetPath);
+            destSpaceInfo = m_fileSystem->getDiskSpaceInfo(findBaseDir(info.targetPath), errCode);
+            if (errCode)
+            {
+                LOGERROR("Error calculating disk space for " << m_raTmpDir << ": " << errCode.value() << " message:" << errCode.message());
+                return false;
+            }
         }
         catch (const FileSystem::IFileSystemException& e)
         {
@@ -138,7 +158,6 @@ namespace ResponseActionsImpl
         }
         return true;
     }
-
 
     void DownloadFileAction::download(const DownloadInfo& info)
     {

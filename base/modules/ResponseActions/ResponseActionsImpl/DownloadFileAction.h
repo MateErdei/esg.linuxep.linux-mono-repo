@@ -22,6 +22,7 @@ namespace ResponseActionsImpl
 
     private:
         bool initialChecks(const DownloadInfo& info);
+        bool assessSpaceInfo(const DownloadInfo& info);
         void download(const DownloadInfo& info);
         void handleHttpResponse(const Common::HttpRequests::Response& httpresponse);
         bool verifyFile(const DownloadInfo& info);
