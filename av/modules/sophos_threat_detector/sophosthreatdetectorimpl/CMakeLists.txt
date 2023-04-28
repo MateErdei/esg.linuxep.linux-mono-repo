@@ -21,7 +21,7 @@ add_library(sophosthreatdetectorimpl SHARED
         ShutdownTimer.cpp
         ShutdownTimer.h
         ThreatReporter.cpp
-        ThreatReporter.h)
+        ThreatReporter.h ProxySettings.cpp ProxySettings.h)
 
 target_link_libraries(sophosthreatdetectorimpl  PUBLIC
         threat_scanner
