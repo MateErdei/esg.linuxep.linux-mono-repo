@@ -115,6 +115,7 @@ namespace ResponseActionsImpl
             if (errCode)
             {
                 LOGERROR("Error calculating disk space for " << m_raTmpDir << ": " << errCode.value() << " message:" << errCode.message());
+                ActionsUtils::setErrorInfo(m_response, 1, errCode.message());
                 return false;
             }
 
@@ -123,7 +124,8 @@ namespace ResponseActionsImpl
             destSpaceInfo = m_fileSystem->getDiskSpaceInfo(findBaseDir(info.targetPath), errCode);
             if (errCode)
             {
-                LOGERROR("Error calculating disk space for " << m_raTmpDir << ": " << errCode.value() << " message:" << errCode.message());
+                LOGERROR("Error calculating disk space for " << info.targetPath << ": " << errCode.value() << " message:" << errCode.message());
+                ActionsUtils::setErrorInfo(m_response, 1, errCode.message());
                 return false;
             }
         }

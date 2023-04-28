@@ -1408,4 +1408,14 @@ namespace
         EXPECT_GE(diskSpaceInfo.free, diskSpaceInfo.available);
         EXPECT_GT(diskSpaceInfo.available, 0);
     }
+
+    TEST_F(FileSystemImplTest, getDiskSpaceInfoErrCode)
+    {
+        std::error_code ec;
+        auto diskSpaceInfo = m_fileSystem->getDiskSpaceInfo("/opt", ec);
+        EXPECT_EQ(ec.value(), 0);
+        EXPECT_GE(diskSpaceInfo.capacity, diskSpaceInfo.free);
+        EXPECT_GE(diskSpaceInfo.free, diskSpaceInfo.available);
+        EXPECT_GT(diskSpaceInfo.available, 0);
+    }
 } // namespace

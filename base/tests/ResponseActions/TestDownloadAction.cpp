@@ -1,5 +1,7 @@
 // Copyright 2023 Sophos Limited. All rights reserved.
 
+#define TEST_PUBLIC public
+
 #include "modules/ResponseActions/ResponseActionsImpl/DownloadFileAction.h"
 
 #include "modules/Common/FileSystem/IFileTooLargeException.h"
@@ -84,7 +86,7 @@ public:
         EXPECT_CALL(*m_mockHttpRequester, get(_)).WillOnce(Return(httpresponse));
     }
 
-    void addDiskSpaceExpectsToMockFileSystem(const std::uintmax_t& raAvailable = 1024 * 1024, const std::uintmax_t& tmpAvailable = 1024 * 1024)
+    void addDiskSpaceExpectsToMockFileSystem([[maybe_unused]] const std::uintmax_t& raAvailable = 1024 * 1024, [[maybe_unused]]  const std::uintmax_t& tmpAvailable = 1024 * 1024)
     {
         std::filesystem::space_info raSpaceInfo;
         raSpaceInfo.available = raAvailable;
@@ -92,8 +94,8 @@ public:
         std::filesystem::space_info tmpSpaceInfo;
         tmpSpaceInfo.available = tmpAvailable;
 
-        EXPECT_CALL(*m_mockFileSystem, getDiskSpaceInfo("/path")).WillOnce(Return(tmpSpaceInfo));
-        EXPECT_CALL(*m_mockFileSystem, getDiskSpaceInfo(m_raTmpDir)).WillOnce(Return(raSpaceInfo));
+        EXPECT_CALL(*m_mockFileSystem, getDiskSpaceInfo("/path", _)).WillOnce(Return(tmpSpaceInfo));
+        EXPECT_CALL(*m_mockFileSystem, getDiskSpaceInfo("/opt", _)).WillOnce(Return(raSpaceInfo));
     }
 
     void setupMockZipUtils(const int& returnVal = 0, const std::string& password = "")
@@ -145,7 +147,7 @@ public:
                 .Times(1)
                 .RetiresOnSaturation();
         }
-        
+
         EXPECT_CALL(*m_mockFileSystem, exists(m_destPath)).WillOnce(Return(false));
         EXPECT_CALL(*m_mockFileSystem, exists(targetPath)).WillOnce(Return(false));
         EXPECT_CALL(*m_mockFileSystem, makedirs(m_destPath)).Times(1);
@@ -424,8 +426,8 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompressed_DownloadToRoot)
     EXPECT_CALL(*m_mockFileSystem, exists("/")).WillOnce(Return(true));
     addCleanupChecksToMockFileSystem();
 
-    EXPECT_CALL(*m_mockFileSystem, getDiskSpaceInfo(destPath)).WillOnce(Return(tmpSpaceInfo));
-    EXPECT_CALL(*m_mockFileSystem, getDiskSpaceInfo(m_raTmpDir)).WillOnce(Return(tmpSpaceInfo));
+    EXPECT_CALL(*m_mockFileSystem, getDiskSpaceInfo(destPath, _)).WillOnce(Return(tmpSpaceInfo));
+    EXPECT_CALL(*m_mockFileSystem, getDiskSpaceInfo("/opt", _)).WillOnce(Return(tmpSpaceInfo));
     EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(false));
     EXPECT_CALL(*m_mockFileSystem, moveFileTryCopy(m_raExtractTmpDir + "/" + m_testExtractedFile, destPath)).Times(1);
     EXPECT_CALL(*m_mockFileSystem, calculateDigest(Common::SslImpl::Digest::sha256, m_raTmpFile))
@@ -728,7 +730,7 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompress_WrongPassword)
 
     nlohmann::json action = getDownloadObject(true, m_password);
     nlohmann::json response = downloadFileAction.run(action.dump());
-    
+
 
     EXPECT_EQ(response["result"], 1);
     EXPECT_EQ(response["httpStatus"], HTTP_STATUS_OK);
@@ -1001,7 +1003,7 @@ TEST_F(DownloadFileTests, HandlesWhenCantAssessDiskSpace_FileSystemException)
     const std::string expectedErrStr = "Cant determine disk space on filesystem: exception";
 
     addSingleCleanupChecksToMockFileSystem();
-    EXPECT_CALL(*m_mockFileSystem, getDiskSpaceInfo("/opt/sophos-spl/plugins/responseactions/tmp"))
+    EXPECT_CALL(*m_mockFileSystem, getDiskSpaceInfo(_, _))
         .WillOnce(Throw(Common::FileSystem::IFileSystemException("exception")));
     Tests::replaceFileSystem(std::move(m_mockFileSystem));
 
@@ -1025,7 +1027,7 @@ TEST_F(DownloadFileTests, HandlesWhenCantAssessDiskSpace_Exception)
     const std::string expectedErrStr = "Unknown exception when calculating disk space on filesystem: std::exception";
 
     addSingleCleanupChecksToMockFileSystem();
-    EXPECT_CALL(*m_mockFileSystem, getDiskSpaceInfo("/opt/sophos-spl/plugins/responseactions/tmp"))
+    EXPECT_CALL(*m_mockFileSystem, getDiskSpaceInfo(_, _))
         .WillOnce(Throw(std::exception()));
     Tests::replaceFileSystem(std::move(m_mockFileSystem));
 
@@ -1619,7 +1621,7 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompress_NoFilesInDownload
 
     nlohmann::json action = getDownloadObject(decompress);
     nlohmann::json response = downloadFileAction.run(action.dump());
-    
+
 
     EXPECT_EQ(response["result"], 1);
     EXPECT_EQ(response["httpStatus"], HTTP_STATUS_OK);
@@ -1701,4 +1703,54 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompress_NoFilesUnzipped)
     EXPECT_TRUE(appenderContains("Beginning download to /path/to/download/to/download.txt"));
     EXPECT_TRUE(appenderContains("Downloaded file: /opt/sophos-spl/plugins/responseactions/tmp/tmp_download.zip"));
     EXPECT_TRUE(appenderContains(expectedErrMsg));
+}
+
+
+//assessSpaceInfo
+TEST_F(DownloadFileTests, DiskSpaceCheckReturningErrorCodeReturnsFalseOnRATmpDir)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    const std::string expectedErrStr = "Cant determine disk space on filesystem: exception";
+
+    std::filesystem::space_info spaceInfo;
+    spaceInfo.available = 1024 * 1024;
+    std::error_code errCode = std::make_error_code(std::errc(ENODEV));
+
+    EXPECT_CALL(*m_mockFileSystem, getDiskSpaceInfo(_, _))
+        .WillOnce(testing::DoAll(testing::SetArgReferee<1>(errCode),Return(spaceInfo)));
+    Tests::replaceFileSystem(std::move(m_mockFileSystem));
+
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
+
+    ResponseActionsImpl::DownloadInfo info;
+    EXPECT_EQ(downloadFileAction.assessSpaceInfo(info), false);
+
+    EXPECT_TRUE(appenderContains("Getting space info for " + m_raTmpDir));
+    EXPECT_TRUE(appenderContains("Error calculating disk space for /opt/sophos-spl/plugins/responseactions/tmp: 19 message:No such device"));
+}
+
+TEST_F(DownloadFileTests, DiskSpaceCheckReturningErrorCodeReturnsFalseOnDestDir)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    const std::string expectedErrStr = "Cant determine disk space on filesystem: exception";
+
+    std::filesystem::space_info spaceInfo;
+    spaceInfo.available = 1024 * 1024;
+    std::error_code errCode = std::make_error_code(std::errc(EBUSY));
+
+    EXPECT_CALL(*m_mockFileSystem, getDiskSpaceInfo(_, _))
+        .WillOnce(Return(spaceInfo))
+        .WillOnce(testing::DoAll(testing::SetArgReferee<1>(errCode),Return(spaceInfo)));
+    Tests::replaceFileSystem(std::move(m_mockFileSystem));
+
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
+
+    ResponseActionsImpl::DownloadInfo info;
+    info.targetPath = "/das/destination";
+    EXPECT_EQ(downloadFileAction.assessSpaceInfo(info), false);
+
+    EXPECT_TRUE(appenderContains("Getting space info for " + m_raTmpDir));
+    EXPECT_TRUE(appenderContains("Error calculating disk space for /das/destination: 16 message:Device or resource busy"));
 }

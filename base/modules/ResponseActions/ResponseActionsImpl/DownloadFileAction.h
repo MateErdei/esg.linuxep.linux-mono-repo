@@ -12,6 +12,10 @@
 #include <json.hpp>
 #include <string>
 
+#ifndef TEST_PUBLIC
+# define TEST_PUBLIC private
+#endif
+
 namespace ResponseActionsImpl
 {
     class DownloadFileAction
@@ -20,9 +24,11 @@ namespace ResponseActionsImpl
         DownloadFileAction(std::shared_ptr<Common::HttpRequests::IHttpRequester> requester);
         [[nodiscard]] nlohmann::json run(const std::string& actionJson);
 
+    TEST_PUBLIC:
+        bool assessSpaceInfo(const DownloadInfo& info);
+
     private:
         bool initialChecks(const DownloadInfo& info);
-        bool assessSpaceInfo(const DownloadInfo& info);
         void download(const DownloadInfo& info);
         void handleHttpResponse(const Common::HttpRequests::Response& httpresponse);
         bool verifyFile(const DownloadInfo& info);
