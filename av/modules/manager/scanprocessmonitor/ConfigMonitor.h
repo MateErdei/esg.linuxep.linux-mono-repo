@@ -21,16 +21,17 @@ namespace plugin::manager::scanprocessmonitor
 
         using InotifyFD_t = common::MultiInotifyFD;
         /**
+         * Thread that monitors for DNS config changes and proxy config changes
          *
          * @param pipe
          * @param systemCallWrapper
          * @param base Optional base of the config files to monitor
-         * @param proxyConfigFile Optional path to the proxy config file to monitor - defaults to $SOPHOS_INSTALL/
+         * @param proxyConfigDirectory Optional path to the proxy config file's parent directory to monitor - defaults to $SOPHOS_INSTALL/base/etc/sophosspl
          */
         explicit ConfigMonitor(Common::Threads::NotifyPipe& pipe,
                                datatypes::ISystemCallWrapperSharedPtr systemCallWrapper,
                                std::string base="/etc",
-                               std::string proxyConfigFile="DEFAULT");
+                               std::string proxyConfigDirectory="DEFAULT");
 
     private:
         using contentMap_t = std::map<std::string, std::string>;
@@ -66,7 +67,8 @@ namespace plugin::manager::scanprocessmonitor
 
         Common::Threads::NotifyPipe& m_configChangedPipe;
         fs::path m_base;
-        fs::path proxyConfigFile_;
+        fs::path proxyConfigParentDirectory_;
+        std::string proxyConfigFileName_;
         datatypes::ISystemCallWrapperSharedPtr m_sysCalls;
 
         /**

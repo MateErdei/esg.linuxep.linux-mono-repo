@@ -54,10 +54,10 @@ namespace plugin::manager::scanprocessmonitor
         Common::Threads::NotifyPipe& pipe,
         datatypes::ISystemCallWrapperSharedPtr systemCallWrapper,
         std::string base,
-        std::string proxyConfigFile) :
+        std::string proxyConfigDirectory) :
         m_configChangedPipe(pipe),
         m_base(std::move(base)),
-        proxyConfigFile_(std::move(proxyConfigFile)),
+        proxyConfigParentDirectory_(std::move(proxyConfigDirectory)),
         m_sysCalls(std::move(systemCallWrapper))
     {
         if (inotifyFd_.getFD() < 0)
@@ -66,10 +66,11 @@ namespace plugin::manager::scanprocessmonitor
             throw std::runtime_error("Unable to initialise inotify");
         }
 
-        if (proxyConfigFile_ == "DEFAULT")
+        if (proxyConfigParentDirectory_ == "DEFAULT")
         {
-            proxyConfigFile_ = Common::ApplicationConfiguration::applicationPathManager().getMcsCurrentProxyFilePath();
+            proxyConfigParentDirectory_ = Common::ApplicationConfiguration::applicationPathManager().getMcsConfigFolderPath();
         }
+        proxyConfigFileName_ = Common::ApplicationConfiguration::applicationPathManager().getMcsCurrentProxyFileName();
     }
 
     std::string ConfigMonitor::getContentsFromPath(const fs::path& filepath)
@@ -96,7 +97,7 @@ namespace plugin::manager::scanprocessmonitor
         std::string filepath = m_base / basename;
         if (basename == SOPHOS_PROXY_PATH)
         {
-            filepath = proxyConfigFile_;
+            filepath = Common::FileSystem::join(proxyConfigParentDirectory_, proxyConfigFileName_);
         }
         return getContentsFromPath(filepath);
     }
@@ -114,6 +115,7 @@ namespace plugin::manager::scanprocessmonitor
     }
 
     static constexpr auto INOTIFY_MASK = IN_CLOSE_WRITE | IN_MOVED_TO | IN_CREATE;
+    static constexpr auto PROXY_CONFIG_MASK = IN_CLOSE_WRITE | IN_DELETE; // mcsrouter either writes the file or deletes it
 
     bool ConfigMonitor::resolveSymlinksForInterestingFiles()
     {
@@ -172,12 +174,14 @@ namespace plugin::manager::scanprocessmonitor
             LOGERROR("Failed to initialise inotify: Unable to monitor DNS config files");
             success = false;
         }
-        if (!proxyConfigFile_.empty())
+        // May
+        if (!proxyConfigParentDirectory_.empty())
         {
-            proxyConfigWatch_ = inotifyFd_.watch(proxyConfigFile_, INOTIFY_MASK);
+            proxyConfigWatch_ = inotifyFd_.watch(proxyConfigParentDirectory_, PROXY_CONFIG_MASK);
             if (proxyConfigWatch_ < 0)
             {
-                LOGERROR("Failed to watch proxy configuration file");
+                // proxy Config file may not exist yet
+                LOGWARN("Failed to watch proxy configuration file");
             }
         }
 
@@ -223,6 +227,13 @@ namespace plugin::manager::scanprocessmonitor
             else
             {
                 LOGDEBUG("System configuration not changed");
+            }
+
+            // Check if the proxy file has appeared
+            if (!proxyConfigParentDirectory_.empty() && proxyConfigWatch_ < 0)
+            {
+                proxyConfigWatch_ = inotifyFd_.watch(proxyConfigParentDirectory_, PROXY_CONFIG_MASK);
+                // Don't log again on failure
             }
         }
     }
@@ -289,12 +300,21 @@ namespace plugin::manager::scanprocessmonitor
                                 break;
                             }
                         }
+                        if (event->wd == proxyConfigWatch_)
+                        {
+                            LOGDEBUG("Proxy configuration changed");
+                            auto* name = event->name;
+                            if (proxyConfigFileName_ == name) // we are only interested in the proxy configuration
+                            {
+                                // We don't care if it's a file close or delete operation
+                                interestingDirTouched = true;
+                                break;
+                            }
+                        }
                         else
                         {
-                            if (event->wd == proxyConfigWatch_)
-                            {
-                                LOGDEBUG("Proxy configuration changed");
-                            }
+                            // For symlink dirs we watch everything, rather than having to track precisely what the symlinks
+                            // are pointing to.
                             interestingDirTouched = true;
                             break;
                         }
