@@ -92,9 +92,11 @@ def get_test_inputs_from_base():
     tar.extractall(SCRIPT_DIR)
     tar.close()
 
-    cloud_automation_inputs = os.path.join(SCRIPT_DIR, "SystemProductTestOutput", "testUtils", "SupportFiles","CloudAutomation")
+    cloud_automation_inputs = os.path.join(SCRIPT_DIR, "SystemProductTestOutput", "testUtils", "SupportFiles",
+                                           "CloudAutomation")
     shutil.move(os.path.join(cloud_automation_inputs, "cloudClient.py"), os.path.join(SCRIPT_DIR, "cloudClient.py"))
-    shutil.move(os.path.join(cloud_automation_inputs, "SophosHTTPSClient.py"), os.path.join(SCRIPT_DIR, "SophosHTTPSClient.py"))
+    shutil.move(os.path.join(cloud_automation_inputs, "SophosHTTPSClient.py"),
+                os.path.join(SCRIPT_DIR, "SophosHTTPSClient.py"))
 
     if not os.path.exists(os.path.join(SCRIPT_DIR, "cloudClient.py")):
         logging.error(f"cloudClient.py does not exist: {os.listdir(SCRIPT_DIR)}")
@@ -247,7 +249,8 @@ def detect_eicar():
     f = open("/tmp/eicar.com", "w")
     f.write("X5O!P%@AP[4\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*")
     f.close()
-    log_utils.wait_for_on_access_log_contains_after_mark("OnAccessImpl <> Detected \"/tmp/eicar.com\" is infected with EICAR-AV-Test", mark)
+    log_utils.wait_for_on_access_log_contains_after_mark(
+        "OnAccessImpl <> Detected \"/tmp/eicar.com\" is infected with EICAR-AV-Test", mark)
 
 
 def run_clean_file_test(test_name, stop_on_queue_full, max_count, oa_enabled=False):
@@ -263,17 +266,18 @@ def run_clean_file_test(test_name, stop_on_queue_full, max_count, oa_enabled=Fal
     file_count = 0
     while file_count < max_count:
         file_count += 1
-        filepath = os.path.join(dirpath, "{}.txt".format(file_count))
+        filepath = os.path.join(dirpath, f"{file_count}.txt")
         with open(filepath, "w") as f:
-            f.write("clean file {}".format(file_count))
+            f.write(f"clean file file_count{}")
         if stop_on_queue_full:
             try:
-                log_utils.check_on_access_log_does_not_contain_after_mark("Failed to add scan request to queue, on-access scanning queue is full.", mark)
+                log_utils.check_on_access_log_does_not_contain_after_mark(
+                    "Failed to add scan request to queue, on-access scanning queue is full.", mark)
             except AssertionError as ex:
-                logging.info("At file count {}: {}".format(file_count, str(ex)))
+                logging.info(f"At file count {file_count}: {str(ex)}")
                 break
     end_time = get_current_unix_epoch_in_seconds()
-    logging.info("Created {} files in {} seconds".format(file_count, end_time - start_time))
+    logging.info(f"Created {file_count} files in {end_time - start_time} seconds")
 
     custom_data = {"file_count": file_count}
     if oa_enabled:
@@ -314,7 +318,8 @@ def run_onaccess_test(max_file_count):
     log_utils.check_on_access_log_does_not_contain_after_mark("FATAL", oa_mark)
     log_utils.check_sophos_threat_detector_log_does_not_contain_after_mark("FATAL", td_mark)
     log_utils.check_wdctl_log_does_not_contain_after_mark("died with", wd_mark)
-    log_utils.wait_for_on_access_log_contains_after_mark("soapd_bootstrap <> No policy override, following policy settings", oa_mark2)
+    log_utils.wait_for_on_access_log_contains_after_mark(
+        "soapd_bootstrap <> No policy override, following policy settings", oa_mark2)
 
     # Check that the product still works
     detect_eicar()
@@ -333,17 +338,17 @@ def run_slow_scan_test(test_name, stop_on_queue_full, max_count, oa_enabled=Fals
     file_count = 0
     while file_count < max_count:
         file_count += 1
-        destpath = os.path.join(dirpath, "rt{}.jar".format(file_count))
+        destpath = os.path.join(dirpath, f"rt{file_count}.jar")
         shutil.copyfile("rt.jar", destpath)
         if stop_on_queue_full:
             try:
                 log_utils.check_on_access_log_does_not_contain_after_mark(
                     "Failed to add scan request to queue, on-access scanning queue is full.", mark)
             except AssertionError as ex:
-                logging.info("At file count {}: {}".format(file_count, str(ex)))
+                logging.info(f"At file count {file_count}: {str(ex)}")
                 break
     end_time = get_current_unix_epoch_in_seconds()
-    logging.info("Created {} files in {} seconds".format(file_count, end_time - start_time))
+    logging.info(f"Created {file_count} files in {end_time - start_time} seconds")
 
     shutil.rmtree(dirpath)
     custom_data = {"file_count": file_count}
@@ -396,14 +401,14 @@ def get_product_results():
 
     perf_dump_file_list = glob.glob(dump_glob)
 
-    logging.info("Found dump: {}".format(perf_dump_file_list))
+    logging.info(f"Found dump: {perf_dump_file_list}")
 
     average_scan_time_list = []
     average_waiting_time_list = []
     average_queue_size_list = []
     total_scans = 0
     for dump in perf_dump_file_list:
-        logging.info("Processing {}".format(dump))
+        logging.info(f"Processing {dump}")
 
         scan_duration_results = []
         in_product_duration_results = []
@@ -426,10 +431,10 @@ def get_product_results():
             average_waiting_time = round(statistics.mean(in_product_duration_results) / 100, 3)
             average_queue_size = round(statistics.mean(queue_size_at_point_of_insertion))
             total_scans = total_scans + len(scan_duration_results)
-            logging.info("Scans for thread {}: {}".format(thread_id, len(scan_duration_results)))
-            logging.info("Average scan time for thread {} is {}s".format(thread_id, average_scan_time))
-            logging.info("Average waiting time in product for thread {} is {}s".format(thread_id, average_waiting_time))
-            logging.info("Average queue size in product for thread {} is {}".format(thread_id, average_queue_size))
+            logging.info(f"Scans for thread {thread_id}: {len(scan_duration_results)}")
+            logging.info(f"Average scan time for thread {thread_id} is {average_scan_time}s")
+            logging.info(f"Average waiting time in product for thread {thread_id} is {average_waiting_time}s")
+            logging.info(f"Average queue size in product for thread {thread_id} is {average_queue_size}")
 
         average_scan_time_list.append(average_scan_time)
         average_waiting_time_list.append(average_waiting_time)
@@ -447,10 +452,10 @@ def get_product_results():
         "avereage_queue_size": average_queue_size
     }
 
-    logging.info("Total scans during testing: {}".format(total_scans))
-    logging.info("Total average scan time: {}s".format(average_scan_times))
-    logging.info("Total average waiting time in queue: {}s".format(average_time_in_product))
-    logging.info("Total average queue size: {}".format(average_queue_size))
+    logging.info(f"Total scans during testing: {total_scans}")
+    logging.info(f"Total average scan time: {average_scan_times}s")
+    logging.info(f"Total average waiting time in queue: {average_time_in_product}s")
+    logging.info(f"Total average queue size: {average_queue_size}")
 
     return result_json
 
@@ -718,7 +723,8 @@ def run_safestore_database_content_test():
     unquarantined_files = 0
     twenty_four_hours = 24 * 60 * 60
 
-    safestore_db_content = [item for item in get_safestore_db_content_as_dict() if item["Location"] == SAFESTORE_MALWARE_PATH]
+    safestore_db_content = [item for item in get_safestore_db_content_as_dict() if
+                            item["Location"] == SAFESTORE_MALWARE_PATH]
     with open(os.path.join(SCRIPT_DIR, "expected_malware.json"), "r") as f:
         expected_malware = json.loads(f.read())
 
@@ -727,7 +733,8 @@ def run_safestore_database_content_test():
             if threat_info["Name"] == expected_threat["fileName"]:
                 stored_time = threat_info["Store time"]
                 unix_stored_time = stored_time[stored_time.find("(") + 1:stored_time.find(")")]
-                if int(unix_stored_time) < int(start_time - twenty_four_hours) or threat_info["Status"] != "quarantined":
+                if int(unix_stored_time) < int(start_time - twenty_four_hours) or threat_info[
+                    "Status"] != "quarantined":
                     logging.warning(f"Threat was not quarantined by last scheduled scan: {threat_info}")
                     unquarantined_files += 1
                     break
@@ -747,7 +754,8 @@ def run_safestore_database_content_test():
     custom_data = {"quarantined_files": quarantined_files, "unquarantined_files": unquarantined_files}
 
     end_time = get_current_unix_epoch_in_seconds()
-    record_result("safestore_verify_detections", get_current_date_time_string(), start_time, end_time, custom_data=custom_data)
+    record_result("safestore_verify_detections", get_current_date_time_string(), start_time, end_time,
+                  custom_data=custom_data)
     exit(return_code)
 
 
@@ -795,7 +803,8 @@ def run_safestore_restoration_test():
 
         for threat in expected_malware:
             file_path = threat["filePath"]
-            log_utils.wait_for_av_log_contains_after_mark(f"Reporting successful restoration of {file_path}", av_mark, 60)
+            log_utils.wait_for_av_log_contains_after_mark(f"Reporting successful restoration of {file_path}", av_mark,
+                                                          60)
 
             if os.path.exists(file_path):
                 restored_files += 1
@@ -823,8 +832,21 @@ def run_safestore_restoration_test():
     custom_data = {"restored_files": restored_files, "unrestored_files": unrestored_files}
 
     end_time = get_current_unix_epoch_in_seconds()
-    record_result("safestore_database_restoration", get_current_date_time_string(), start_time, end_time, custom_data=custom_data)
+    record_result("safestore_database_restoration", get_current_date_time_string(), start_time, end_time,
+                  custom_data=custom_data)
     exit(return_code)
+
+
+def run_response_actions_download_files_test(client_id, email, password, region):
+    pass
+
+
+def run_response_actions_upload_files_test(client_id, email, password, region):
+    pass
+
+
+def run_response_actions_list_files_test(client_id, email, password, region):
+    pass
 
 
 def add_options():
@@ -841,7 +863,10 @@ def add_options():
                                  'av-onaccess-slow',
                                  'av-onaccess',
                                  'safestore-confirm-detections',
-                                 'safestore-restore-database'],
+                                 'safestore-restore-database',
+                                 'ra-file-download',
+                                 'ra-file-upload',
+                                 'ra-list-files'],
                         help="Select which performance test suite to run")
 
     parser.add_argument('-i', '--client-id', action='store',
@@ -900,7 +925,12 @@ def main():
         run_safestore_database_content_test()
     elif args.suite == 'safestore-restore-database':
         run_safestore_restoration_test()
-
+    elif args.suite == 'ra-file-download':
+        run_response_actions_download_files_test(args.client_id, args.email, args.password, args.region)
+    elif args.suite == 'ra-file-upload':
+        run_response_actions_upload_files_test(args.client_id, args.email, args.password, args.region)
+    elif args.suite == 'ra-list-files':
+        run_response_actions_list_files_test(args.client_id, args.email, args.password, args.region)
     logging.info("Finished")
 
 
