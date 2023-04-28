@@ -34,6 +34,7 @@ SophosAddTest(TestSophosThreatDetectorMain
         MockThreatReporter.h
         MockUpdateCompleteServerSocket.h
         TestSophosThreatDetectorMain.cpp
+        TestProxySettings.cpp
         PROJECTS sophosthreatdetectorimpl common
         INC_DIRS
         ${CMAKE_SOURCE_DIR}/modules
