@@ -18,21 +18,22 @@ In order to run these tests in TAP do:
     tap run av_plugin.coverage for coverage tests
 
 In order to run them in Vagrant box:
-    vagrant up
-    vagrant ssh
-    cd /vagrant/sspl-plugin-anti-virus/TA/
-    ./bin/setupVagrant.sh
+The robot tests require that your dev machine has been set up
+(https://sophos.atlassian.net/wiki/spaces/LD/pages/39042169567/How+To+Build+Base+and+setup+a+dev+machine)
+and that the esg.linuxep.sspl-tools/setup_vagrant_wsl.sh script has been run.
 
-    sudo python3.7 -m robot .
+./robot -t "AV plugin Can Start sophos_threat_detector" TA/
+or cd into TA dir and run:
+./robot -t "AV plugin Can Start sophos_threat_detector" .
 
 To run a single test:
-    sudo python3.7 -m robot --test "<name>" --removekeywords WUKS  .
+    ./robot --test "<name>" --removekeywords WUKS  .
 
 To run specific suites:
-    sudo python3.7 -m robot -s TA.Product.AVCommandLineScanner .
-    sudo python3.7 -m robot -s TA.Product.AvBasic .
-    sudo python3.7 -m robot -s TA.Integration.AvAndBase .
+    ./robot -s TA.Product.AVCommandLineScanner .
+    ./robot -s TA.Product.AvBasic .
+    ./robot -s TA.Integration.AvAndBase .
 
 To run a full set of tests similar to TAP:
-    python3.7 -m robot --include "INTEGRATION OR PRODUCT" --exclude "OSTIA OR MANUAL OR DISABLED OR STRESS" --removekeywords WUKS  .
+    ./robot --include "INTEGRATION OR PRODUCT" --exclude "OSTIA OR MANUAL OR DISABLED OR STRESS" --removekeywords WUKS  .
 
