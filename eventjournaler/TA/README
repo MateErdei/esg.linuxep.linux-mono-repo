@@ -5,22 +5,11 @@ https://wiki.sophos.net/pages/viewpage.action?pageId=317105394
 In order to run these tests in tap do:
  1) activate the tap environment:
     source tap/bin/activate
- 2) tap run template_plugin.integration --debug-loop
+ 2) tap run event_journaler.integration --debug-loop
 
 In order to run them in vagrant box:
-    vagrant up
-    vagrant ssh
-    sudo mkdir -p /opt/test/inputs
-    sudo mkdir -p /opt/test/inputs/template_plugin/
-    sudo ln -s /vagrant/sspl-plugin-template/output/SDDS-COMPONENT /opt/test/inputs/template_plugin_sdds
-    sudo  rm /opt/test/inputs/test_scripts
-    sudo ln -s /vagrant/sspl-plugin-template/TA  /opt/test/inputs/test_scripts
-    sudo cp -r /vagrant/everest-base/output/SDDS-COMPONENT /opt/test/inputs/base_sdds
-    sudo apt-get -y install python3.7 python3-pip
-    sudo -H python3 -m pip install pyzmq protobuf pytest-html robotframework
-    cd /vagrant/sspl-plugin-template/TA
-    sudo python3 -m robot RobotTests/
+The robot tests require that your dev machine has been
+set up (https://sophos.atlassian.net/wiki/spaces/LD/pages/39042169567/How+To+Build+Base+and+setup+a+dev+machine)
+and that the esg.linuxep.sspl-tools/setup_vagrant_wsl.sh script has been run.
 
-
-
-
+./robot -t "Event Journaler Can Receive Events" TA/
