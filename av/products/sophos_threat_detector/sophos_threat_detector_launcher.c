@@ -33,7 +33,7 @@ int main(int argc, char* argv[])
                     0
             };
 
-    argv[0] = SOPHOS_THREAT_DETECTOR;
+    argv[0] = (char*)SOPHOS_THREAT_DETECTOR;
     execve(SOPHOS_THREAT_DETECTOR, argv, envp);
     return 70; // If the exec fails
 }
