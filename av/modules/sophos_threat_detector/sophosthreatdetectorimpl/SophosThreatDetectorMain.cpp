@@ -30,6 +30,8 @@
 #define BOOST_LOCALE_HIDE_AUTO_PTR
 #include <boost/locale.hpp>
 
+#include <thirdparty/nlohmann-json/json.hpp>
+
 #include <csignal>
 #include <fstream>
 #include <string>
@@ -43,28 +45,43 @@ using namespace std::chrono_literals;
 
 namespace
 {
+    void clearProxy()
+    {
+        ::unsetenv("https_proxy");
+        ::unsetenv("http_proxy");
+    }
+
     void setProxyFromConfigFile()
     {
         auto path = Common::ApplicationConfiguration::applicationPathManager().getMcsCurrentProxyFilePath();
         auto* fs = Common::FileSystem::fileSystem();
         try
         {
-            auto contents = fs->readFile(path, 1024);
-            if (!contents.empty())
-            {
-                setenv("https_proxy", contents.c_str(), 1);
-                setenv("http_proxy", contents.c_str(), 1);
-                LOGINFO("LiveProtection will use " << contents << " for SXL4 connections");
-            }
-            else
+            auto contents = fs->readFile(path, 2048);
+            if (contents.empty())
             {
                 LOGINFO("LiveProtection will use direct SXL4 connections");
+                clearProxy();
+                return;
             }
+            const auto proxyConfig = nlohmann::json::parse(contents);
+
+            std::string proxy = std::string{"http://"} + proxyConfig["proxy"].get<std::string>();
+
+            setenv("https_proxy", proxy.c_str(), 1);
+            setenv("http_proxy", proxy.c_str(), 1);
+            LOGINFO("LiveProtection will use " << proxy << " for SXL4 connections");
+            return;
         }
         catch (const Common::FileSystem::IFileNotFoundException& ex)
         {
-            LOGINFO(path << " not found: LiveProtection will use direct SXL4 connections");
+            LOGINFO("LiveProtection will use direct SXL4 connections");
         }
+        catch (const nlohmann::json::parse_error& exception)
+        {
+            LOGWARN("Failed to parse " << path << ": " << exception.what());
+        }
+        clearProxy();
     }
 }
 
