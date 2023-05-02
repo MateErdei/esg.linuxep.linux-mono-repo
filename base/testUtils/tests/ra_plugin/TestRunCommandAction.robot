@@ -64,10 +64,11 @@ Test Run Command Action and Verify Response JSON with Ignore Error True
 
 Test Run Command Action and Verify Response JSON when Timeout Exceeded
     #Run telemetry to clear from previous tests
+    Prepare To Run Telemetry Executable
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
 
     ${action_mark} =  mark_log_size  ${ACTIONS_RUNNER_LOG_PATH}
-    Prepare To Run Telemetry Executable
+
 
     Simulate Run Command Action Now    ${SUPPORT_FILES}/CentralXml/RunCommandAction4.json
     wait_for_log_contains_from_mark  ${action_mark}  Performing run command action:
@@ -127,11 +128,11 @@ Test Run Command Action Handles Large Stdout
 
 Test Run Command Action Handles Malformed Json Request
     #Run telemetry to clear from previous tests
+    Prepare To Run Telemetry Executable
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
 
     ${action_mark} =  mark_log_size  ${ACTIONS_RUNNER_LOG_PATH}
     ${response_mark} =  mark_log_size  ${RESPONSE_ACTIONS_LOG_PATH}
-    Prepare To Run Telemetry Executable
 
     Simulate Run Command Action Now    ${SUPPORT_FILES}/CentralXml/RunCommandAction_malformed.json
     wait_for_log_contains_from_mark    ${response_mark}    Cannot parse action with error
@@ -163,10 +164,10 @@ Test Run Command Action Handles Missing Binary
 
 Test Run Command Action Handles Expired Action
     #Run telemetry to clear from previous tests
+    Prepare To Run Telemetry Executable
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
 
     ${action_mark} =  mark_log_size  ${ACTIONS_RUNNER_LOG_PATH}
-    Prepare To Run Telemetry Executable
 
     Simulate Run Command Action Now    ${SUPPORT_FILES}/CentralXml/RunCommandAction_expired.json
     wait_for_log_contains_from_mark  ${action_mark}  Performing run command action:
