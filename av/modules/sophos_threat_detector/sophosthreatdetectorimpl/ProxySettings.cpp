@@ -21,17 +21,24 @@ namespace
     {
         auto path = Common::ApplicationConfiguration::applicationPathManager().getMcsCurrentProxyFilePath();
         auto* fs = Common::FileSystem::fileSystem();
+        std::string contents;
         try
         {
-            auto contents = fs->readFile(path, 2048);
+            contents = fs->readFile(path, 2048);
             if (contents.empty())
             {
                 return {};
             }
             const auto proxyConfig = nlohmann::json::parse(contents);
+            if (!proxyConfig.contains("proxy"))
+            {
+                // Proxy config doesn't contain proxy
+                LOGWARN("Proxy config "<< path << " does not contain proxy");
+                return {};
+            }
 
-            std::string proxy = std::string{"http://"} + proxyConfig["proxy"].get<std::string>();
-            return proxy;
+            const auto& proxyObj = proxyConfig["proxy"];
+            return std::string{"http://"} + proxyObj.get<std::string>();
         }
         catch (const Common::FileSystem::IFileNotFoundException& ex)
         {
@@ -40,6 +47,10 @@ namespace
         catch (const nlohmann::json::parse_error& exception)
         {
             LOGWARN("Failed to parse " << path << ": " << exception.what());
+        }
+        catch (const nlohmann::json::type_error& exception)
+        {
+            LOGWARN("Proxy value was not a string '" << contents << "': " << exception.what());
         }
         return {};
     }
