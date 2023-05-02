@@ -14,7 +14,7 @@ Test Setup  RA Test Setup
 Test Teardown  RA Test Teardown
 
 Force Tags  LOAD5
-Default Tags   RESPONSE_ACTIONS_PLUGIN    TAP_TESTS
+Default Tags   RESPONSE_ACTIONS_PLUGIN
 
 *** Variables ***
 #if these change, change in Send_Download_File_From_Fake_Cloud also
