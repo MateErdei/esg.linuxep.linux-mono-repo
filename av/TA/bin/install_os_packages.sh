@@ -69,18 +69,17 @@ elif [[ -x $(which zypper) ]]
 then
     if [[ -x $(which registercloudguest ) ]]
     then
-        # Retry 10 times before timeout
-        for (( i=0; i<10; i++ ))
-        do
-            if registercloudguest --force-new
-            then
-                break
-            else
-                echo "Failed to registercloudguest; sleeping for 10"
-                ps -ef | grep zyppe[r]
-                sleep 10
-            fi
-        done
+      # Retry 10 times before timeout
+      for (( i=0; i<10; i++ ))
+      do
+          if registercloudguest --force-new
+          then
+              break
+          else
+              echo "Failed to registercloudguest; sleeping for 10"
+              ps -ef | grep zyppe[r]
+              sleep 10
+          fi
     fi
 
     zypper refresh
