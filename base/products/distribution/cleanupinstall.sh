@@ -153,7 +153,7 @@ function delete_file_and_links()
 {
   local to_delete=$1
   local target_dir
-  target_dir=$(dirname /tmp/thing.so)
+  target_dir=$(dirname "$to_delete")
   for file_to_remove in $(find -L "$target_dir" -samefile "$to_delete")
   do
     rm -f "$file_to_remove"
