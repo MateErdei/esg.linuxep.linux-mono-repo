@@ -86,7 +86,7 @@ public:
         EXPECT_CALL(*m_mockHttpRequester, get(_)).WillOnce(Return(httpresponse));
     }
 
-    void addDiskSpaceExpectsToMockFileSystem([[maybe_unused]] const std::uintmax_t& raAvailable = 1024 * 1024, [[maybe_unused]]  const std::uintmax_t& tmpAvailable = 1024 * 1024)
+    void addDiskSpaceExpectsToMockFileSystem(const std::uintmax_t& raAvailable = 1024 * 1024, const std::uintmax_t& tmpAvailable = 1024 * 1024)
     {
         std::filesystem::space_info raSpaceInfo;
         raSpaceInfo.available = raAvailable;
