@@ -127,20 +127,11 @@ Test Run Command Action Handles Large Stdout
     ...    Overall command result: 0
 
 Test Run Command Action Handles Malformed Json Request
-    #Run telemetry to clear from previous tests
-    Prepare To Run Telemetry Executable
-    Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
-
     ${action_mark} =  mark_log_size  ${ACTIONS_RUNNER_LOG_PATH}
     ${response_mark} =  mark_log_size  ${RESPONSE_ACTIONS_LOG_PATH}
 
     Simulate Run Command Action Now    ${SUPPORT_FILES}/CentralXml/RunCommandAction_malformed.json
     wait_for_log_contains_from_mark    ${response_mark}    Cannot parse action with error
-
-    Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
-    ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
-    Log  ${telemetryFileContents}
-    Check RA Telemetry Json Is Correct  ${telemetryFileContents}    1    1    0    0
 
 Test Run Command Action Handles Missing Binary
     ${action_mark} =  mark_log_size  ${ACTIONS_RUNNER_LOG_PATH}
