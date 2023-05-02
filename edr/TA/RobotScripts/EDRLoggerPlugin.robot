@@ -228,9 +228,10 @@ EDR Plugin Runs All Scheduled Queries
 
 EDR Plugin Logs Broken JSON In Scheduled Query Pack
     ${query_pack_conf} =  Set Variable  ${SOPHOS_INSTALL}/plugins/edr/etc/query_packs/sophos-scheduled-query-pack.conf
+    ${osquery_conf} =  Set Variable  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf
     Run Keyword And Ignore Error  Remove File  ${query_pack_conf}
     Should Not Exist  ${query_pack_conf}
-    Create File  ${query_pack_conf}  {"schedule": {"extracomma": {"query": ,"interval": 1},}}
+    Create File  ${osquery_conf}  {"schedule": {"extracomma": {"query": ,"interval": 1},}}
 
     Stop EDR
     Start EDR
@@ -239,10 +240,10 @@ EDR Plugin Logs Broken JSON In Scheduled Query Pack
     Wait Until Keyword Succeeds
     ...  15 secs
     ...  1 secs
-    ...  EDR Plugin Log Contains  Failed to parse ${query_pack_conf}
+    ...  EDR Plugin Log Contains  Failed to parse ${osquery_conf}
 
     Stop EDR
-    Remove File    ${query_pack_conf}
+    Remove File    ${osquery_conf}
     Start EDR
     Wait Until Keyword Succeeds
     ...  30 secs
