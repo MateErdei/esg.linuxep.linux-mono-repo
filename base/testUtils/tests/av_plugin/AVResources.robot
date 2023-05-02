@@ -19,6 +19,7 @@ ${CLS_PATH}                         ${AV_PLUGIN_PATH}/bin/avscanner
 ${PLUGIN_BINARY}                    ${AV_PLUGIN_PATH}/sbin/av
 ${SULDownloaderLog}                 ${SOPHOS_INSTALL}/logs/base/suldownloader.log
 ${QUERY_PACKS_PATH}                 ${SOPHOS_INSTALL}/plugins/edr/etc/query_packs
+${OSQUERY_CONF_PATH}                ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d
 
 ${VIRUS_DETECTED_RESULT}            ${24}
 ${CLEAN_STRING}                     I am not a virus
@@ -123,13 +124,19 @@ Enable On Access Via Policy
 
 Create Query Packs
     ${pack_content} =  Set Variable   {"query": "select * from uptime;","interval": 100, "denylist": false}
-    Create File   ${QUERY_PACKS_PATH}/sophos-scheduled-query-pack.conf   {"schedule": {"latest_xdr_query": ${pack_content}}}
-    Create File   ${QUERY_PACKS_PATH}/sophos-scheduled-query-pack.mtr.conf   {"schedule": {"latest_mtr_query": ${pack_content}}}
-    Create File   ${QUERY_PACKS_PATH}/sophos-scheduled-query-pack-next.conf    {"schedule": {"next_xdr_query": ${pack_content}}}
-    Create File   ${QUERY_PACKS_PATH}/sophos-scheduled-query-pack-next.mtr.conf    {"schedule": {"next_mtr_query": ${pack_content}}}
+    @{QUERY_PACK_DIRS} =    Create List    ${QUERY_PACKS_PATH}    ${OSQUERY_CONF_PATH}
+    FOR    ${dir}    IN    @{QUERY_PACK_DIRS}
+        Create File   ${dir}/sophos-scheduled-query-pack.conf   {"schedule": {"latest_xdr_query": ${pack_content}}}
+        Create File   ${dir}/sophos-scheduled-query-pack.mtr.conf   {"schedule": {"latest_mtr_query": ${pack_content}}}
+        Create File   ${dir}/sophos-scheduled-query-pack-next.conf    {"schedule": {"next_xdr_query": ${pack_content}}}
+        Create File   ${dir}/sophos-scheduled-query-pack-next.mtr.conf    {"schedule": {"next_mtr_query": ${pack_content}}}
+    END
 
 Cleanup Query Packs
-    Remove File   ${QUERY_PACKS_PATH}/sophos-scheduled-query-pack.conf
-    Remove File   ${QUERY_PACKS_PATH}/sophos-scheduled-query-pack.mtr.conf
-    Remove File   ${QUERY_PACKS_PATH}/sophos-scheduled-query-pack-next.conf
-    Remove File   ${QUERY_PACKS_PATH}/sophos-scheduled-query-pack-next.mtr.conf
+    @{QUERY_PACK_DIRS} =    Create List    ${QUERY_PACKS_PATH}    ${OSQUERY_CONF_PATH}
+    FOR    ${dir}    IN    @{QUERY_PACK_DIRS}
+        Remove File   ${dir}/sophos-scheduled-query-pack.conf
+        Remove File   ${dir}/sophos-scheduled-query-pack.mtr.conf
+        Remove File   ${dir}/sophos-scheduled-query-pack-next.conf
+        Remove File   ${dir}/sophos-scheduled-query-pack-next.mtr.conf
+    END
