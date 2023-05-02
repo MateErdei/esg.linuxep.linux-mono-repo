@@ -1,7 +1,4 @@
-#------------------------------------------------------------------------------
 # Copyright 2019-2023 Sophos Limited. All rights reserved.
-#
-#------------------------------------------------------------------------------
 @0xb0f44990900fd806;
 
 using Cxx = import "capnp/c++.capnp";
@@ -18,4 +15,5 @@ struct FileScanRequest {
     pid                     @5 :Int64 = -1;
     executablePath          @6 :Text;
     detectPUAs              @7 :Bool;
+    excludePUAs             @8 :List(Text);
 }
