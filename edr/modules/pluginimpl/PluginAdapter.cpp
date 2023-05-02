@@ -196,79 +196,8 @@ namespace Plugin
 
         while (true)
         {
-            //Check extensions are still running and restart osquery if any have stopped unexpectedly
-            bool anyStoppedExtensions = false;
-            for (auto& runningStatus : m_extensionAndStateMap)
-            {
-                if (runningStatus.second.second->load())
-                {
-                    anyStoppedExtensions = true;
-                    break;
-                }
-            }
-
-            if (anyStoppedExtensions)
-            {
-                LOGINFO("Restarting OSQuery after unexpected extension exit");
-                stopOsquery();
-            }
-            // Check if we're running in XDR mode and if we are and the data limit period has elapsed then
-            // make sure that the query pack is either still enabled or becomes enabled.
-            // enableQueryPack is safe to call even when the query pack is already enabled.
-            if (m_isXDR)
-            {
-                if ( m_loggerExtensionPtr->checkDataPeriodHasElapsed())
-                {
-                    if (Plugin::PluginUtils::handleDisablingAndEnablingScheduledQueryPacks(m_queryPacksInPolicy, m_loggerExtensionPtr->getDataLimitReached()))
-                    {
-                        m_callback->setOsqueryShouldBeRunning(false);
-                        m_queueTask->pushOsqueryRestart("Restarting osquery to apply changes after re-enabling query packs following a data limit rollover");
-                    }
-                    sendLiveQueryStatus();
-                }
-
-                time_t now = Common::UtilityImpl::TimeUtils::getCurrTime();
-                if (hasScheduleEpochEnded(now))
-                {
-                    LOGINFO("Previous schedule_epoch: " << m_scheduleEpoch.getValue() << ", has ended. Starting new schedule_epoch: " << now);
-                    m_scheduleEpoch.setValueAndForceStore(now);
-                    // osquery will automatically be restarted but set this to make sure there is no delay.
-                    m_callback->setOsqueryShouldBeRunning(false);
-                    m_queueTask->pushOsqueryRestart("Restarting osquery due schedule_epoch updating");
-                    m_expectedOsqueryRestart = true;
-                }
-            }
-
-            if (!osqueryDataRetentionCheckState->running)
-            {
-                osqueryDataManager.asyncCheckAndReconfigureDataRetention(osqueryDataRetentionCheckState);
-                if (osqueryDataRetentionCheckState->numberOfRetries == 0)
-                {
-                    LOGINFO("Failed to reconfigure osquery.");
-                    osqueryDataRetentionCheckState->numberOfRetries = 5;
-                    stopOsquery();
-                    osqueryDataManager.purgeDatabase();
-                    m_restartNoDelay = true;
-                }
-            }
-
-            auto timeNow = std::chrono::steady_clock::now();
             Task task;
-
-            if (timeNow > (lastMemoryCheckTime + memoryCheckPeriod))
-            {
-                lastMemoryCheckTime = timeNow;
-                if (pluginMemoryAboveThreshold())
-                {
-                    LOGINFO("Plugin stopping, memory usage exceeded: " << MAX_PLUGIN_MEM_BYTES / 1000 << "kB");
-                    Common::Telemetry::TelemetryHelper::getInstance().increment(
-                        plugin::telemetryEdrRestartsMemory, 1UL);
-                    // Push stop task onto the task queue, to ensure shutdown cleanly, and ensures a
-                    // constant flow of tasks being put onto the queue does not prevent shutdown.
-                    m_queueTask->pushStop();
-                }
-            }
-
+            auto timeNow = std::chrono::steady_clock::now();
             if (!m_queueTask->pop(task, QUEUE_TIMEOUT))
             {
 
@@ -363,6 +292,76 @@ namespace Plugin
                 }
             }
 
+            //Check extensions are still running and restart osquery if any have stopped unexpectedly
+            bool anyStoppedExtensions = false;
+            for (auto& runningStatus : m_extensionAndStateMap)
+            {
+                if (runningStatus.second.second->load())
+                {
+                    anyStoppedExtensions = true;
+                    break;
+                }
+            }
+
+            if (anyStoppedExtensions)
+            {
+                LOGINFO("Restarting OSQuery after unexpected extension exit");
+                stopOsquery();
+            }
+            // Check if we're running in XDR mode and if we are and the data limit period has elapsed then
+            // make sure that the query pack is either still enabled or becomes enabled.
+            // enableQueryPack is safe to call even when the query pack is already enabled.
+            if (m_isXDR)
+            {
+                if ( m_loggerExtensionPtr->checkDataPeriodHasElapsed())
+                {
+                    if (Plugin::PluginUtils::handleDisablingAndEnablingScheduledQueryPacks(m_queryPacksInPolicy, m_loggerExtensionPtr->getDataLimitReached()))
+                    {
+                        m_callback->setOsqueryShouldBeRunning(false);
+                        m_queueTask->pushOsqueryRestart("Restarting osquery to apply changes after re-enabling query packs following a data limit rollover");
+                    }
+                    sendLiveQueryStatus();
+                }
+
+                time_t now = Common::UtilityImpl::TimeUtils::getCurrTime();
+                if (hasScheduleEpochEnded(now))
+                {
+                    LOGINFO("Previous schedule_epoch: " << m_scheduleEpoch.getValue() << ", has ended. Starting new schedule_epoch: " << now);
+                    m_scheduleEpoch.setValueAndForceStore(now);
+                    // osquery will automatically be restarted but set this to make sure there is no delay.
+                    m_callback->setOsqueryShouldBeRunning(false);
+                    m_queueTask->pushOsqueryRestart("Restarting osquery due schedule_epoch updating");
+                    m_expectedOsqueryRestart = true;
+                }
+            }
+
+            if (!osqueryDataRetentionCheckState->running)
+            {
+                osqueryDataManager.asyncCheckAndReconfigureDataRetention(osqueryDataRetentionCheckState);
+                if (osqueryDataRetentionCheckState->numberOfRetries == 0)
+                {
+                    LOGINFO("Failed to reconfigure osquery.");
+                    osqueryDataRetentionCheckState->numberOfRetries = 5;
+                    stopOsquery();
+                    osqueryDataManager.purgeDatabase();
+                    m_restartNoDelay = true;
+                }
+            }
+
+            if (timeNow > (lastMemoryCheckTime + memoryCheckPeriod))
+            {
+                lastMemoryCheckTime = timeNow;
+                if (pluginMemoryAboveThreshold())
+                {
+                    LOGINFO("Plugin stopping, memory usage exceeded: " << MAX_PLUGIN_MEM_BYTES / 1000 << "kB");
+                    Common::Telemetry::TelemetryHelper::getInstance().increment(
+                        plugin::telemetryEdrRestartsMemory, 1UL);
+                    // Push stop task onto the task queue, to ensure shutdown cleanly, and ensures a
+                    // constant flow of tasks being put onto the queue does not prevent shutdown.
+                    m_queueTask->pushStop();
+                }
+            }
+
             int fdCount = Proc::getNumberOfOwnFileDescriptors();
             LOGDEBUG("Number of File Descriptors EDR has: " << fdCount);
             if (fdCount > 500)
@@ -370,7 +369,6 @@ namespace Plugin
                 LOGWARN("Restarting due to having too many file descriptors");
                 throw DetectRequestToStop("");
             }
-
         }
     }
 
