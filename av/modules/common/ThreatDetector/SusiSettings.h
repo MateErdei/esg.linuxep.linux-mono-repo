@@ -23,9 +23,12 @@ namespace common::ThreatDetector
 
         // Allow listing
         bool isAllowListed(const std::string& threatChecksum) const;
-        void setAllowList(AllowList&& allowList) noexcept;
-        size_t getAllowListSize() const noexcept;
-        AllowList copyAllowList() const;
+        void setAllowListSha256(AllowList&& allowListBySha) noexcept;
+        void setAllowListPath(AllowList&& allowListByPath) noexcept;
+        size_t getAllowListSizeSha256() const noexcept;
+        size_t getAllowListSizePath() const noexcept;
+        AllowList copyAllowListSha256() const;
+        AllowList copyAllowListPath() const;
 
         // SXL lookups
         bool isSxlLookupEnabled() const noexcept;
@@ -34,10 +37,6 @@ namespace common::ThreatDetector
         // Machine Learning Enabled
         bool isMachineLearningEnabled() const;
         void setMachineLearningEnabled(bool enabled);
-
-        // PUA Detections Enabled
-        bool isOaPuaDetectionEnabled() const;
-        void setOaPuaDetectionEnabled(bool enabled);
 
         // PUA Approved list
         bool isPuaApproved(const std::string& puaName) const;
@@ -49,15 +48,15 @@ namespace common::ThreatDetector
         mutable std::mutex m_accessMutex;
 
         AllowList m_susiAllowListSha256;
+        AllowList m_susiAllowListPath;
         bool m_susiSxlLookupEnabled = true;
-        bool m_oaPuaDetectionEnabled = true;
         bool m_machineLearningEnabled = true;
         PuaApprovedList m_susiPuaApprovedList;
 
         [[nodiscard]] std::string serialise() const;
         static constexpr auto ENABLED_SXL_LOOKUP_KEY = "enableSxlLookup";
         static constexpr auto SHA_ALLOW_LIST_KEY = "shaAllowList";
-        static constexpr auto OA_PUA_DETECTION_KEY = "oaPuaDetection";
+        static constexpr auto PATH_ALLOW_LIST_KEY = "pathAllowList";
         static constexpr auto MACHINE_LEARNING_KEY = "machineLearning";
         static constexpr auto PUA_APPROVED_LIST_KEY = "puaApprovedList";
     };

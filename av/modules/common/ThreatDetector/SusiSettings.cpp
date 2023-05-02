@@ -47,6 +47,7 @@ namespace common::ThreatDetector
     {
         std::scoped_lock scopedLock(m_accessMutex);
         return m_susiAllowListSha256 == other.m_susiAllowListSha256 &&
+               m_susiAllowListPath == other.m_susiAllowListPath &&
                m_susiSxlLookupEnabled == other.m_susiSxlLookupEnabled &&
                m_susiPuaApprovedList == other.m_susiPuaApprovedList &&
                m_machineLearningEnabled == other.m_machineLearningEnabled;
@@ -84,6 +85,12 @@ namespace common::ThreatDetector
             {
                 m_susiAllowListSha256 = parsedConfig[SHA_ALLOW_LIST_KEY].get<std::vector<std::string>>();
                 LOGDEBUG("Number of SHA256 allow-listed items: " << m_susiAllowListSha256.size());
+            }
+
+            if (parsedConfig.contains(PATH_ALLOW_LIST_KEY))
+            {
+                m_susiAllowListPath = parsedConfig[PATH_ALLOW_LIST_KEY].get<std::vector<std::string>>();
+                LOGDEBUG("Number of Path allow-listed items: " << m_susiAllowListPath.size());
             }
 
             if (parsedConfig.contains(PUA_APPROVED_LIST_KEY))
@@ -124,6 +131,7 @@ namespace common::ThreatDetector
         nlohmann::json settings;
         settings[MACHINE_LEARNING_KEY] = m_machineLearningEnabled;
         settings[ENABLED_SXL_LOOKUP_KEY] = m_susiSxlLookupEnabled;
+        settings[PATH_ALLOW_LIST_KEY] = m_susiAllowListPath;
         settings[SHA_ALLOW_LIST_KEY] = m_susiAllowListSha256;
         settings[PUA_APPROVED_LIST_KEY] = m_susiPuaApprovedList;
         return settings.dump();
@@ -136,10 +144,16 @@ namespace common::ThreatDetector
                m_susiAllowListSha256.cend();
     }
 
-    void SusiSettings::setAllowList(AllowList&& allowList) noexcept
+    void SusiSettings::setAllowListSha256(AllowList&& allowListBySha) noexcept
     {
         std::scoped_lock scopedLock(m_accessMutex);
-        m_susiAllowListSha256 = std::move(allowList);
+        m_susiAllowListSha256 = std::move(allowListBySha);
+    }
+
+    void SusiSettings::setAllowListPath(AllowList&& allowListByPath) noexcept
+    {
+        std::scoped_lock scopedLock(m_accessMutex);
+        m_susiAllowListPath = std::move(allowListByPath);
     }
 
     bool SusiSettings::isSxlLookupEnabled() const noexcept
@@ -154,16 +168,28 @@ namespace common::ThreatDetector
         m_susiSxlLookupEnabled = enabled;
     }
 
-    size_t SusiSettings::getAllowListSize() const noexcept
+    size_t SusiSettings::getAllowListSizeSha256() const noexcept
     {
         std::scoped_lock scopedLock(m_accessMutex);
         return m_susiAllowListSha256.size();
     }
 
-    AllowList SusiSettings::copyAllowList() const
+    size_t SusiSettings::getAllowListSizePath() const noexcept
+    {
+        std::scoped_lock scopedLock(m_accessMutex);
+        return m_susiAllowListPath.size();
+    }
+
+    AllowList SusiSettings::copyAllowListSha256() const
     {
         std::scoped_lock scopedLock(m_accessMutex);
         return m_susiAllowListSha256;
+    }
+
+    AllowList SusiSettings::copyAllowListPath() const
+    {
+        std::scoped_lock scopedLock(m_accessMutex);
+        return m_susiAllowListPath;
     }
 
     bool SusiSettings::isMachineLearningEnabled() const
