@@ -184,7 +184,7 @@ function perform_cleanup()
         do
             if [[ $(can_delete "${FILE_TO_DELETE}" "${WORKING_DIST}") == 1 ]]
             then
-                FILE_TO_DELETE=$(readlink -f "${FILE_TO_DELETE}")
+                FILE_TO_DELETE=$(readlink -fn "${FILE_TO_DELETE}")
                 if [[ ! -L "${FILE_TO_DELETE}" ]]
                 then
                   FILES_OR_DIRECTORIES_DELETED+=", ${FILE_TO_DELETE}"
