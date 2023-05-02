@@ -265,11 +265,11 @@ Threat Detector can have Machine Learning Turned off
 
 Threat Detector loads proxy from config file
     # Create proxy file
-    Create File  ${SOPHOS_INSTALL}/base/etc/sophosspl/current_proxy  http://localhost:8080/
+    Create File  ${SOPHOS_INSTALL}/base/etc/sophosspl/current_proxy  {"proxy":"localhost:8080"}
 
     ${td_mark} =  LogUtils.Get Sophos Threat Detector Log Mark
     Register On Fail  dump marked log  ${THREAT_DETECTOR_LOG_PATH}  ${td_mark}
 
     Start AV
-    wait for log contains from mark  ${td_mark}  LiveProtection will use http://localhost:8080/ for SXL4 connections
+    wait for log contains from mark  ${td_mark}  LiveProtection will use http://localhost:8080 for SXL4 connections
 
