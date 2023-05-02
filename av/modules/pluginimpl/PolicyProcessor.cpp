@@ -622,7 +622,8 @@ namespace Plugin
 
     void PolicyProcessor::processCorcPolicy(const Common::XmlUtilities::AttributesMap& policy)
     {
-        auto oldAllowList = m_threatDetectorSettings.copyAllowList();
+        auto oldSha256AllowList = m_threatDetectorSettings.copyAllowListSha256();
+        auto oldPathAllowList = m_threatDetectorSettings.copyAllowListPath();
         bool m_firstPolicy = !m_gotFirstCorcPolicy;
 
         if (!m_gotFirstCorcPolicy)
@@ -633,6 +634,8 @@ namespace Plugin
 
         auto allowListFromPolicy = policy.lookupMultiple("policy/whitelist/item");
         std::vector<std::string> sha256AllowList;
+        std::vector<std::string> pathAllowList;
+
         for (const auto& allowedItem : allowListFromPolicy)
         {
             if (allowedItem.value("type") == "sha256" && !allowedItem.contents().empty())
@@ -640,10 +643,18 @@ namespace Plugin
                 LOGDEBUG("Added SHA256 to allow list: " << allowedItem.contents());
                 sha256AllowList.emplace_back(allowedItem.contents());
             }
+            if (allowedItem.value("type") == "path" && !allowedItem.contents().empty())
+            {
+                LOGDEBUG("Added path to allow list: " << allowedItem.contents());
+                pathAllowList.emplace_back(allowedItem.contents());
+            }
         }
-        if (oldAllowList != sha256AllowList || m_firstPolicy)
+        if (oldSha256AllowList != sha256AllowList ||
+            oldPathAllowList != pathAllowList ||
+            m_firstPolicy)
         {
-            m_threatDetectorSettings.setAllowList(std::move(sha256AllowList));
+            m_threatDetectorSettings.setAllowListSha256(std::move(sha256AllowList));
+            m_threatDetectorSettings.setAllowListPath(std::move(pathAllowList));
             saveSusiSettings("CORC");
         }
         else

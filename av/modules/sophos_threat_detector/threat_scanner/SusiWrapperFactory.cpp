@@ -230,7 +230,8 @@ namespace threat_scanner
             LOGDEBUG(
                 "SUSI SXL lookups enabled: " << std::boolalpha << newSettings->isSxlLookupEnabled()
                                              << std::noboolalpha);
-            LOGDEBUG("SUSI allow-listed items: " << newSettings->getAllowListSize());
+            LOGDEBUG("SUSI allow-listed items by Sha256: " << newSettings->getAllowListSizeSha256());
+            LOGDEBUG("SUSI allow-listed items by Path: " << newSettings->getAllowListSizePath());
             m_globalHandler->setSusiSettings(std::move(newSettings));
         }
         return changed;
