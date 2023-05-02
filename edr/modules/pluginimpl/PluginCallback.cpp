@@ -60,7 +60,7 @@ namespace Plugin
         LOGSUPPORT("Shutdown signal received");
         m_task->pushStop();
         int timeoutCounter = 0;
-        int shutdownTimeout = 30;
+        int shutdownTimeout = 20;
         while(isRunning() && timeoutCounter < shutdownTimeout)
         {
             LOGSUPPORT("Shutdown waiting for all processes to complete");

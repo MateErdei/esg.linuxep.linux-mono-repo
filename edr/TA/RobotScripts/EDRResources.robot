@@ -132,7 +132,7 @@ Install With Base SDDS Inner
     Run Keyword If  ${preInstallALCPolicy}  Install ALC Policy   ALCContent
 
 Uninstall EDR
-    ${result} =   Run Process  bash ${SOPHOS_INSTALL}/plugins/edr/bin/uninstall.sh --force   shell=True   timeout=20s
+    ${result} =   Run Process  bash -x ${SOPHOS_INSTALL}/plugins/edr/bin/uninstall.sh --force   shell=True   timeout=20s
     Should Be Equal As Integers  ${result.rc}  0   "Failed to uninstall EDR.\nstdout: \n${result.stdout}\n. stderr: \n${result.stderr}"
     [Return]  ${result.stdout}  ${result.stderr}
 
@@ -292,7 +292,12 @@ EDR And Base Teardown
     ...  Check EDR Executable Not Running
     Common Teardown
     Remove File    ${EDR_LOG_PATH}
+    ${mark} =  Mark File  ${EDR_LOG_PATH}
     Start EDR
+    Wait Until Keyword Succeeds
+        ...  30 secs
+        ...  1 secs
+        ...  Marked File Contains  ${EDR_LOG_PATH}  Plugin preparation complete  ${mark}
 
 Create Install Options File With Content
     [Arguments]  ${installFlags}
