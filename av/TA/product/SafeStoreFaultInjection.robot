@@ -50,6 +50,7 @@ Send An valid capnproto message that is not tdo To Safestore
     ${result} =  Run Shell Process  ${SEND_DATA_TO_SOCKET_TOOL} --socketpath /opt/sophos-spl/plugins/av/var/safestore_socket --sendclientscan    OnError=Failed to run SendDataToSocket binary   timeout=10
     wait_for_safestore_log_contains_after_mark  Aborting SafeStoreServerConnectionThread: failed to parse detection   mark=${SAFESTORE_LOG_MARK_FROM_START_OF_TEST}
     mark_expected_error_in_log  ${SAFESTORE_LOG_PATH}  Aborting SafeStoreServerConnectionThread: failed to parse detection
+    mark_expected_error_in_log  ${SAFESTORE_LOG_PATH}  Missing file path while parsing report
 
 Send Only Message To Safestore
     Create File  /tmp/testfile

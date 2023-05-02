@@ -1,4 +1,4 @@
-// Copyright 2022, Sophos Limited. All rights reserved.
+// Copyright 2022-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
@@ -138,4 +138,34 @@ namespace common::CentralEnums
     static_assert(Origin::behavioral == getOriginOf(ReportSource::behavioral, ThreatType::virus));
     static_assert(Origin::mtdDetection == getOriginOf(ReportSource::web, ThreatType::virus));
     static_assert(Origin::hmpaDetection == getOriginOf(ReportSource::hmpa, ThreatType::virus));
+
+    class ThreatTypeConversionException : public std::runtime_error
+    {
+    public:
+        explicit ThreatTypeConversionException(const std::string& msg) : std::runtime_error(msg)
+        {
+        }
+    };
+
+    inline ThreatType ConvertThreatTypeStringToEnum(std::string_view typeString)
+    {
+        if (typeString == "virus" || typeString == "trojan" || typeString == "worm" || typeString == "genotype" ||
+            typeString == "nextgen")
+        {
+            return ThreatType::virus;
+        }
+        else if (typeString == "PUA")
+        {
+            return ThreatType::pua;
+        }
+        else if (typeString == "unknown")
+        {
+            return ThreatType::unknown;
+        }
+        else
+        {
+            throw ThreatTypeConversionException(
+                std::string{ "Threat type '" } + std::string{ typeString } + "' is unsupported");
+        }
+    }
 } // namespace common::CentralEnums

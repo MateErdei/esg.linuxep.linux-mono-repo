@@ -3,6 +3,7 @@ add_subdirectory(pluginutils)
 
 SophosAddTest(TestCommon
         ../common/LogInitializedTests.cpp
+        TestCentralEnums.cpp
         TestExclusion.cpp
         TestNotifyPipeSleeper.cpp
         TestPathUtils.cpp

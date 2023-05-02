@@ -26,7 +26,7 @@ namespace scan_messages
 
         std::string userID;
         std::int64_t detectionTime;
-        common::CentralEnums::ThreatType threatType;
+        std::string threatType;
         std::string threatName;
         E_SCAN_TYPE scanType;
         common::CentralEnums::QuarantineResult quarantineResult;

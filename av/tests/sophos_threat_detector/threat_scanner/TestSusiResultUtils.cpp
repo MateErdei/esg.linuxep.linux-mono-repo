@@ -1,4 +1,4 @@
-// Copyright 2020-2022, Sophos Limited. All rights reserved.
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #include "sophos_threat_detector/threat_scanner/SusiResultUtils.h"
 
@@ -90,27 +90,6 @@ TEST_P(SusiResultErrorToReadableErrorParameterized, susiResultErrorToReadableErr
     auto loglevel = log4cplus::DEBUG_LOG_LEVEL;
     EXPECT_EQ(susiResultErrorToReadableError("test.file", std::get<0>(GetParam()), loglevel), std::get<1>(GetParam()));
     EXPECT_EQ(loglevel, std::get<2>(GetParam()));
-}
-
-TEST_F(TestSusiResultUtils, convertSusiThreatTypeExpectedInputs)
-{
-    EXPECT_EQ(convertSusiThreatType("virus"), ThreatType::virus);
-    EXPECT_EQ(convertSusiThreatType("trojan"), ThreatType::virus);
-    EXPECT_EQ(convertSusiThreatType("worm"), ThreatType::virus);
-    EXPECT_EQ(convertSusiThreatType("genotype"), ThreatType::virus);
-    EXPECT_EQ(convertSusiThreatType("nextgen"), ThreatType::virus);
-    EXPECT_EQ(convertSusiThreatType("PUA"), ThreatType::pua);
-    EXPECT_EQ(convertSusiThreatType("controlled app"), ThreatType::unknown);
-    EXPECT_EQ(convertSusiThreatType("undefined"), ThreatType::unknown);
-    EXPECT_EQ(convertSusiThreatType("unknown"), ThreatType::unknown);
-}
-
-TEST_F(TestSusiResultUtils, convertSusiThreatTypeUnexpectedInputs)
-{
-    EXPECT_EQ(convertSusiThreatType("Virus"), ThreatType::unknown);
-    EXPECT_EQ(convertSusiThreatType("pua"), ThreatType::unknown);
-    EXPECT_EQ(convertSusiThreatType("foo"), ThreatType::unknown);
-    EXPECT_EQ(convertSusiThreatType("?"), ThreatType::unknown);
 }
 
 TEST_F(TestSusiResultUtils, getReportSource)

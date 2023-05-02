@@ -192,6 +192,17 @@ TEST_F(TestStringUtils, TestEmptyThreatNameJSON)
     EXPECT_EQ(result, expectedJSON);
 }
 
+TEST_F(TestStringUtils, TestEmptyThreatTypeJSON)
+{
+    std::string result = generateThreatDetectedJson(createThreatDetected({ .threatType = "" }));
+
+    const std::string expectedJSON =
+        R"sophos({"avScanType":203,"details":{"filePath":"/path/to/eicar.txt","sha256FileHash":"131f95c51cc819465fa1797f6ccacf9d494aaaff46fa3eac73ae63ffbdfd8267"},"detectionName":{"short":"EICAR-AV-Test"},"items":{"1":{"path":"/path/to/eicar.txt","primary":true,"sha256":"131f95c51cc819465fa1797f6ccacf9d494aaaff46fa3eac73ae63ffbdfd8267","type":1}},"quarantineSuccess":false,"threatSource":1,"threatType":0,"time":123})sophos";
+
+    EXPECT_EQ(result, expectedJSON);
+}
+
+
 TEST_F(TestStringUtils, TestGenerateOnAcessConfig)
 {
     std::vector<std::string> exclusionList = { "x", "y", "z" };

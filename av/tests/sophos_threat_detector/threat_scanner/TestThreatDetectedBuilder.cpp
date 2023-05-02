@@ -106,7 +106,7 @@ TEST_F(TestThreatDetectedBuilder, buildThreatDetectedBuildsCorrectObject)
         scan_messages::E_SCAN_TYPE_ON_DEMAND);
 
     EXPECT_EQ(threatDetected.userID, "username");
-    EXPECT_EQ(threatDetected.threatType, ThreatType::virus);
+    EXPECT_EQ(threatDetected.threatType, "virus");
     EXPECT_EQ(threatDetected.threatName, "EICAR-AV-Test");
     EXPECT_EQ(threatDetected.scanType, scan_messages::E_SCAN_TYPE_ON_DEMAND);
     EXPECT_EQ(threatDetected.filePath, "/tmp/eicar.txt");

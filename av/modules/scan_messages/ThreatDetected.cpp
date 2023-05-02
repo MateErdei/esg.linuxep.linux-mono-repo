@@ -18,7 +18,7 @@ ThreatDetected ThreatDetected::deserialise(Sophos::ssplav::ThreatDetected::Reade
 {
     ThreatDetected threatDetected{ reader.getUserID(),
                                    reader.getDetectionTime(),
-                                   static_cast<ThreatType>(reader.getThreatType()),
+                                   reader.getThreatType(),
                                    reader.getThreatName(),
                                    static_cast<E_SCAN_TYPE>(reader.getScanType()),
                                    static_cast<QuarantineResult>(reader.getQuarantineResult()),
@@ -48,7 +48,7 @@ std::string ThreatDetected::serialise(bool validateData) const
 
     threatDetectedBuilder.setUserID(userID);
     threatDetectedBuilder.setDetectionTime(detectionTime);
-    threatDetectedBuilder.setThreatType(static_cast<int>(threatType));
+    threatDetectedBuilder.setThreatType(threatType);
     threatDetectedBuilder.setThreatName(threatName);
     threatDetectedBuilder.setScanType(scanType);
     threatDetectedBuilder.setQuarantineResult(static_cast<int>(quarantineResult));

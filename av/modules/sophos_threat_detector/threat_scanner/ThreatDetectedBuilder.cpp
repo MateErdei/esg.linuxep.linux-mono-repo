@@ -75,7 +75,7 @@ namespace threat_scanner
 
         return { userId,
                  std::time(nullptr),
-                 convertSusiThreatType(detection.type),
+                 detection.type,
                  detection.name,
                  scanType,
                  common::CentralEnums::QuarantineResult::WHITELISTED, // used as placeholder

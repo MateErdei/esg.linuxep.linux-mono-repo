@@ -10,7 +10,7 @@ struct SampleThreatDetectedSettings
 {
     std::string userID = "username";
     std::int64_t detectionTime = 123;
-    common::CentralEnums::ThreatType threatType = common::CentralEnums::ThreatType::virus;
+    std::string threatType = "virus";
     std::string threatName = "EICAR-AV-Test";
     scan_messages::E_SCAN_TYPE scanType = scan_messages::E_SCAN_TYPE::E_SCAN_TYPE_ON_DEMAND;
     common::CentralEnums::QuarantineResult quarantineResult =

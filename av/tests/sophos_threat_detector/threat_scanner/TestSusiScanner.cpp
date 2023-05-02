@@ -80,7 +80,7 @@ namespace
             const scan_messages::E_SCAN_TYPE  scanType = scan_messages::E_SCAN_TYPE_ON_DEMAND)
         {
             EXPECT_EQ(threatDetected.userID, "root");
-            EXPECT_EQ(threatDetected.threatType, threat_scanner::convertSusiThreatType(threatType));
+            EXPECT_EQ(threatDetected.threatType, threatType);
             EXPECT_EQ(threatDetected.threatName, threatName);
             EXPECT_EQ(threatDetected.scanType, scanType);
             EXPECT_EQ(threatDetected.filePath, path);
@@ -381,7 +381,7 @@ TEST_F(TestSusiScanner, scan_ArchiveWithDetectionsIncludingItself_SendsReportFor
             [&](const scan_messages::ThreatDetected& threatDetected)
             {
                 expectCorrectThreatDetected(
-                    threatDetected, "/tmp/archive.zip", "threatName_archive", "threatName_archive", "sha256_archive");
+                    threatDetected, "/tmp/archive.zip", "threatName_archive", "threatType_archive", "sha256_archive");
                 serverWaitGuard.onEventNoArgs();
             }));
 
@@ -445,7 +445,7 @@ TEST_F(TestSusiScanner, scan_ArchiveWithDetectionsNotIncludingItself_SendsReport
             [&](const scan_messages::ThreatDetected& threatDetected)
             {
                 expectCorrectThreatDetected(
-                    threatDetected, "/tmp/archive.zip", "threatName_1", "threatName_1", "calculatedSha256");
+                    threatDetected, "/tmp/archive.zip", "threatName_1", "threatType_1", "calculatedSha256");
             }));
 
     datatypes::AutoFd autoFd;

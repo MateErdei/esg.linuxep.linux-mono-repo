@@ -1,4 +1,4 @@
-// Copyright 2020-2022 Sophos Limited. All rights reserved.
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #include "StringUtils.h"
 
@@ -22,6 +22,22 @@
 
 using json = nlohmann::json;
 namespace fs = sophos_filesystem;
+
+namespace
+{
+    common::CentralEnums::ThreatType ConvertThreatTypeString(std::string_view type)
+    {
+        try
+        {
+            return common::CentralEnums::ConvertThreatTypeStringToEnum(type);
+        }
+        catch (const common::CentralEnums::ThreatTypeConversionException& e)
+        {
+            LOGWARN("Unknown detection type, " << e.what());
+            return common::CentralEnums::ThreatType::unknown;
+        }
+    }
+}
 
 // XML defined at https://sophos.atlassian.net/wiki/spaces/SophosCloud/pages/42233512399/EMP+event-core-detection
 std::string pluginimpl::generateThreatDetectedXml(const scan_messages::ThreatDetected& detection)
@@ -72,6 +88,8 @@ std::string pluginimpl::populateThreatReportXml(
     const std::string& utf8Path,
     const std::string& timestamp)
 {
+    const auto threatType = ConvertThreatTypeString(detection.threatType);
+
     std::string result = Common::UtilityImpl::StringUtils::orderedStringReplace(
         R"sophos(<?xml version="1.0" encoding="utf-8"?>
 <event type="sophos.core.detection" ts="@@TS@@">
@@ -85,8 +103,8 @@ std::string pluginimpl::populateThreatReportXml(
           { "@@USER_ID@@", detection.userID },
           { "@@ID@@", detection.correlationId },
           { "@@NAME@@", detection.threatName },
-          { "@@THREAT_TYPE@@", std::to_string(static_cast<int>(detection.threatType)) },
-          { "@@ORIGIN@@", std::to_string(static_cast<int>(getOriginOf(detection.reportSource, detection.threatType))) },
+          { "@@THREAT_TYPE@@", std::to_string(static_cast<int>(threatType)) },
+          { "@@ORIGIN@@", std::to_string(static_cast<int>(getOriginOf(detection.reportSource, threatType))) },
           { "@@REMOTE@@", detection.isRemote ? "true" : "false" },
           { "@@SHA256@@", detection.sha256 },
           { "@@PATH@@", utf8Path } });
@@ -125,7 +143,7 @@ std::string pluginimpl::generateThreatDetectedJson(const scan_messages::ThreatDe
 
     threatEvent["detectionName"]["short"] = detection.threatName;
     threatEvent["threatSource"] = 1; // SAV
-    threatEvent["threatType"] = detection.threatType;
+    threatEvent["threatType"] = ConvertThreatTypeString(detection.threatType);
     threatEvent["time"] = detection.detectionTime;
 
     threatEvent["details"] = details;
@@ -195,6 +213,8 @@ std::string pluginimpl::populateCleanEventXml(
     const std::string& timestamp,
     bool overallSuccess)
 {
+    const auto threatType = ConvertThreatTypeString(detection.threatType);
+
     std::string result = Common::UtilityImpl::StringUtils::orderedStringReplace(
         R"sophos(<?xml version="1.0" encoding="utf-8"?>
 <event type="sophos.core.clean" ts="@@TS@@">
@@ -209,7 +229,7 @@ std::string pluginimpl::populateCleanEventXml(
         { { "@@TS@@", timestamp },
           { "@@CORRELATION_ID@@", detection.correlationId },
           { "@@SUCCESS_OVERALL@@", std::to_string(overallSuccess) },
-          { "@@ORIGIN@@", std::to_string(static_cast<int>(getOriginOf(detection.reportSource, detection.threatType))) },
+          { "@@ORIGIN@@", std::to_string(static_cast<int>(getOriginOf(detection.reportSource, threatType))) },
           { "@@TOTAL_ITEMS@@",
             std::to_string(1) }, // hard coded until we deal with multiple threats per ThreatDetected object
           { "@@SUCCESS_DETAILED@@", std::to_string(static_cast<int>(detection.quarantineResult)) },

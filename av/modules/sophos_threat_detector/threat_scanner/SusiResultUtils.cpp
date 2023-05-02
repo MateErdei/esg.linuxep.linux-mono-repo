@@ -1,4 +1,4 @@
-// Copyright 2020-2022, Sophos Limited. All rights reserved.
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #include "SusiResultUtils.h"
 
@@ -138,36 +138,6 @@ namespace threat_scanner
         }
 
         return errorMsg.str();
-    }
-
-    ThreatType convertSusiThreatType(const std::string& typeString)
-    {
-        ThreatType threatType{ ThreatType::unknown };
-
-        if (typeString == "virus" || typeString == "trojan" || typeString == "worm" || typeString == "genotype" ||
-            typeString == "nextgen")
-        {
-            threatType = ThreatType::virus;
-        }
-        else if (typeString == "PUA")
-        {
-            threatType = ThreatType::pua;
-        }
-        else if (typeString == "controlled app")
-        {
-            // Can't handle controlled apps currently
-            LOGWARN("Received 'controlled app' as threat type from SUSI, which is unsupported; handling as 'unknown'");
-        }
-        else if (typeString == "undefined")
-        {
-            LOGWARN("Received 'undefined' as threat type from SUSI; handling as 'unknown'");
-        }
-        else if (typeString != "unknown")
-        {
-            LOGWARN("Received unknown threat type '" << typeString << "' from SUSI; handling as 'unknown'");
-        }
-
-        return threatType;
     }
 
     ReportSource getReportSource(const std::string& threatName)
