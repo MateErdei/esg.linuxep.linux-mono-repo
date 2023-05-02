@@ -235,6 +235,10 @@ EDR Plugin Logs Broken JSON In Scheduled Query Pack
 
     Stop EDR
     Start EDR
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  1 secs
+    ...  EDR Plugin Log Contains   Plugin preparation complete
 
     Enable XDR
     Wait Until Keyword Succeeds
@@ -243,6 +247,10 @@ EDR Plugin Logs Broken JSON In Scheduled Query Pack
     ...  EDR Plugin Log Contains  Failed to parse ${osquery_conf}
 
     Stop EDR
+    Wait Until Keyword Succeeds
+    ...  15 secs
+    ...  1 secs
+    ...  EDR Plugin Log Contains      edr <> Plugin Finished
     Remove File    ${osquery_conf}
     Start EDR
     Wait Until Keyword Succeeds
@@ -281,6 +289,10 @@ EDR Plugin Sends LiveQuery Status On Period Rollover
 
     # Force EDR limit to roll over by setting the target rollover time to be very far into the past and restarting EDR
     Stop EDR
+    Wait Until Keyword Succeeds
+    ...  15 secs
+    ...  1 secs
+    ...  EDR Plugin Log Contains      edr <> Plugin Finished
     Create File  ${SOPHOS_INSTALL}/plugins/edr/var/persist-xdrPeriodTimestamp  10
     Start EDR
 
@@ -322,8 +334,16 @@ EDR Plugin Rolls ScheduleEpoch Over When The Previous One Has Elapsed
     Enable XDR
     ${oldScheduleEpochTimestamp} =  Set Variable  1600000000
     Stop EDR
+    Wait Until Keyword Succeeds
+    ...  15 secs
+    ...  1 secs
+    ...  EDR Plugin Log Contains      edr <> Plugin Finished
     Create File  ${SOPHOS_INSTALL}/plugins/edr/var/persist-xdrScheduleEpoch  ${oldScheduleEpochTimestamp}
     Start EDR
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  1 secs
+    ...  EDR Plugin Log Contains   Plugin preparation complete
 
     Wait Until Keyword Succeeds
     ...  60 secs
@@ -351,8 +371,16 @@ EDR Plugin Does Not Roll ScheduleEpoch Over When The Previous One Has Not Elapse
     Enable XDR
 
     Stop EDR
+    Wait Until Keyword Succeeds
+    ...  15 secs
+    ...  1 secs
+    ...  EDR Plugin Log Contains      edr <> Plugin Finished
     Create File  ${SOPHOS_INSTALL}/plugins/edr/var/persist-xdrScheduleEpoch  ${currentEpochTimeMinus3Days.__str__()}
     Start EDR
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  1 secs
+    ...  EDR Plugin Log Contains   Plugin preparation complete
 
     Wait Until Keyword Succeeds
     ...  60 secs
@@ -371,6 +399,10 @@ EDR Plugin Recovers When ScheduleEpoch Is In The Future
     Stop EDR
     Create File  ${SOPHOS_INSTALL}/plugins/edr/var/persist-xdrScheduleEpoch  ${oldScheduleEpochTimestamp}
     Start EDR
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  1 secs
+    ...  EDR Plugin Log Contains   Plugin preparation complete
 
     Wait Until Keyword Succeeds
     ...  60 secs
@@ -402,6 +434,10 @@ Check XDR Results Contain Correct ScheduleEpoch Timestamp
     Stop EDR
     Create File  ${SOPHOS_INSTALL}/plugins/edr/var/persist-xdrScheduleEpoch  ${currentEpochTimeMinus3Days.__str__()}
     Start EDR
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  1 secs
+    ...  EDR Plugin Log Contains   Plugin preparation complete
 
     Wait Until Keyword Succeeds
     ...  15 secs
