@@ -25,6 +25,10 @@ EDR Installer Directories And Files
     [Teardown]    EDR Tests Teardown With Installed File Replacement
     Install With Base SDDS
     Check EDR Plugin Installed With Base
+    Wait Until Keyword Succeeds
+        ...  30 secs
+        ...  1 secs
+        ...  EDR Plugin Log Contains      Creating osquery options config file
 
     ${DirectoryInfo}  ${FileInfo}  ${SymbolicLinkInfo} =  Get File Info For Installation
     Set Test Variable  ${FileInfo}

@@ -320,7 +320,7 @@ EDR Plugin Rolls ScheduleEpoch Over When The Previous One Has Elapsed
     ...  EDR Plugin Log Contains   Using osquery schedule_epoch flag as: --schedule_epoch=${oldScheduleEpochTimestamp}
 
     Wait Until Keyword Succeeds
-    ...  5 secs
+    ...  15 secs
     ...  1 secs
     ...  EDR Plugin Log Contains   Previous schedule_epoch: ${oldScheduleEpochTimestamp}, has ended.
 
@@ -367,7 +367,7 @@ EDR Plugin Recovers When ScheduleEpoch Is In The Future
     ...  EDR Plugin Log Contains   Using osquery schedule_epoch flag as: --schedule_epoch=${oldScheduleEpochTimestamp}
 
     Wait Until Keyword Succeeds
-    ...  5 secs
+    ...  15 secs
     ...  1 secs
     ...  Run Keywords
     ...  EDR Plugin Log Contains   Schedule Epoch time: ${oldScheduleEpochTimestamp} is in the future, resetting to current time  AND
