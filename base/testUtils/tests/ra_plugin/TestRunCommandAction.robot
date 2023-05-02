@@ -63,6 +63,9 @@ Test Run Command Action and Verify Response JSON with Ignore Error True
     verify_run_command_response    ${RESPONSE_JSON}   ${1}    ${cmd_output_list}
 
 Test Run Command Action and Verify Response JSON when Timeout Exceeded
+    #Run telemetry to clear from previous tests
+    Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
+
     ${action_mark} =  mark_log_size  ${ACTIONS_RUNNER_LOG_PATH}
     Prepare To Run Telemetry Executable
 
@@ -123,6 +126,9 @@ Test Run Command Action Handles Large Stdout
     ...    Overall command result: 0
 
 Test Run Command Action Handles Malformed Json Request
+    #Run telemetry to clear from previous tests
+    Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
+
     ${action_mark} =  mark_log_size  ${ACTIONS_RUNNER_LOG_PATH}
     ${response_mark} =  mark_log_size  ${RESPONSE_ACTIONS_LOG_PATH}
     Prepare To Run Telemetry Executable
@@ -156,6 +162,9 @@ Test Run Command Action Handles Missing Binary
     ...    Overall command result: 1
 
 Test Run Command Action Handles Expired Action
+    #Run telemetry to clear from previous tests
+    Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
+
     ${action_mark} =  mark_log_size  ${ACTIONS_RUNNER_LOG_PATH}
     Prepare To Run Telemetry Executable
 
