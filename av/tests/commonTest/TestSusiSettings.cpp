@@ -268,3 +268,64 @@ TEST_F(TestSusiSettings, saveSettingsDoesNotThrowOnFilesystemError)
 
     EXPECT_NO_THROW(susiSettings.saveSettings("path", 0));
 }
+
+TEST_F(TestSusiSettings, SusiSettingsSetAllowListPathOverridesPreviousSettings)
+{
+    std::string jsonWithAllowList = R"({"enableSxlLookup":true,"pathAllowList":["/path/to/nowhere"]})";
+    std::vector<std::string> updatedList {"/path/to/somewhere"};
+    auto* filesystemMock = new StrictMock<MockFileSystem>();
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock) };
+    EXPECT_CALL(*filesystemMock, isFile("settings.json")).WillOnce(Return(true));
+    EXPECT_CALL(*filesystemMock, readFile("settings.json")).WillOnce(Return(jsonWithAllowList));
+    ThreatDetector::SusiSettings susiSettings("settings.json");
+
+    EXPECT_EQ(susiSettings.getAllowListSizePath(), 1);
+    EXPECT_TRUE(susiSettings.isAllowListed("not allow listed", "/path/to/nowhere"));
+
+    susiSettings.setAllowListPath(std::move(updatedList));
+    EXPECT_EQ(susiSettings.getAllowListSizePath(), 1);
+    EXPECT_FALSE(susiSettings.isAllowListed("not allow listed", "/path/to/nowhere"));
+    EXPECT_TRUE(susiSettings.isAllowListed("not allow listed", "/path/to/somewhere"));
+}
+
+TEST_F(TestSusiSettings, SusiSettingsChangeAllowListPathDoesntChangeAllowListSha)
+{
+    std::string jsonWithAllowList = R"({"enableSxlLookup":true,"pathAllowList":["/path/to/nowhere"],"shaAllowList":["42268ef08462e645678ce738bd26518bc170a0404a186062e8b1bec2dc578673"]})";
+    std::vector<std::string> updatedList {};
+    auto* filesystemMock = new StrictMock<MockFileSystem>();
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock) };
+    EXPECT_CALL(*filesystemMock, isFile("settings.json")).WillOnce(Return(true));
+    EXPECT_CALL(*filesystemMock, readFile("settings.json")).WillOnce(Return(jsonWithAllowList));
+    ThreatDetector::SusiSettings susiSettings("settings.json");
+
+    EXPECT_EQ(susiSettings.getAllowListSizeSha256(), 1);
+    EXPECT_EQ(susiSettings.getAllowListSizePath(), 1);
+    EXPECT_TRUE(susiSettings.isAllowListed("42268ef08462e645678ce738bd26518bc170a0404a186062e8b1bec2dc578673", "/path/to/nowhere"));
+
+    susiSettings.setAllowListPath(std::move(updatedList));
+    EXPECT_EQ(susiSettings.getAllowListSizeSha256(), 1);
+    EXPECT_EQ(susiSettings.getAllowListSizePath(), 0);
+    EXPECT_TRUE(susiSettings.isAllowListed("42268ef08462e645678ce738bd26518bc170a0404a186062e8b1bec2dc578673", "a/path"));
+    EXPECT_FALSE(susiSettings.isAllowListed("something", "/path/to/nowhere"));
+}
+
+TEST_F(TestSusiSettings, SusiSettingsChangeAllowListShaDoesntChangeAllowListPath)
+{
+    std::string jsonWithAllowList = R"({"enableSxlLookup":true,"pathAllowList":["/path/to/nowhere"],"shaAllowList":["42268ef08462e645678ce738bd26518bc170a0404a186062e8b1bec2dc578673"]})";
+    std::vector<std::string> updatedList {};
+    auto* filesystemMock = new StrictMock<MockFileSystem>();
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock) };
+    EXPECT_CALL(*filesystemMock, isFile("settings.json")).WillOnce(Return(true));
+    EXPECT_CALL(*filesystemMock, readFile("settings.json")).WillOnce(Return(jsonWithAllowList));
+    ThreatDetector::SusiSettings susiSettings("settings.json");
+
+    EXPECT_EQ(susiSettings.getAllowListSizeSha256(), 1);
+    EXPECT_EQ(susiSettings.getAllowListSizePath(), 1);
+    EXPECT_TRUE(susiSettings.isAllowListed("something", "/path/to/nowhere"));
+
+    susiSettings.setAllowListSha256(std::move(updatedList));
+    EXPECT_EQ(susiSettings.getAllowListSizeSha256(), 0);
+    EXPECT_EQ(susiSettings.getAllowListSizePath(), 1);
+    EXPECT_FALSE(susiSettings.isAllowListed("42268ef08462e645678ce738bd26518bc170a0404a186062e8b1bec2dc578673", "a/path"));
+    EXPECT_TRUE(susiSettings.isAllowListed("42268ef08462e645678ce738bd26518bc170a0404a186062e8b1bec2dc578673", "/path/to/nowhere"));
+}
