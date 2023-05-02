@@ -357,20 +357,16 @@ def Send_Download_File_From_Fake_Cloud(decompress=False, targetPath="/tmp/folder
         for fileNo in range(10):
             listOfFiles.append("/tmp/download.txt" + str(fileNo))
 
-
-    with zipfile.ZipFile('/tmp/testdownload.zip', mode='w') as zipF:
+    with zipfile.ZipFile('/tmp/testdownload.zip', mode='w') as zipf:
         for file in listOfFiles:
             with open(file, 'w') as f:
                 f.write("content")
                 f.close()
-
-            zipF.write(file)
-
+            zipf.write(file)
 
     with open("/tmp/testdownload.zip", 'rb') as zf:
         contents = zf.read()
         readable_hash = hashlib.sha256(contents).hexdigest()
-
 
     action_dict = {"type": "sophos.mgt.action.DownloadFile",
            "url": "https://localhost:443/download",
@@ -393,7 +389,6 @@ def Send_Download_File_From_Fake_Cloud_RealURL():
     with open("/tmp/download.zip", 'rb') as zf:
         contents = zf.read()
         readable_hash = hashlib.sha256(contents).hexdigest()
-
 
     action_dict = {"type": "sophos.mgt.action.DownloadFile",
                    #This URL will always fail due to a access issue. We want to make sure we get to this stage
