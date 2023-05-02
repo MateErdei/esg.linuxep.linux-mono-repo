@@ -292,12 +292,11 @@ EDR And Base Teardown
     ...  Check EDR Executable Not Running
     Common Teardown
     Remove File    ${EDR_LOG_PATH}
-    ${mark} =  Mark File  ${EDR_LOG_PATH}
     Start EDR
     Wait Until Keyword Succeeds
-        ...  30 secs
-        ...  1 secs
-        ...  Marked File Contains  ${EDR_LOG_PATH}  Plugin preparation complete  ${mark}
+    ...  30 secs
+    ...  1 secs
+    ...  EDR Plugin Log Contains   Plugin preparation complete
 
 Create Install Options File With Content
     [Arguments]  ${installFlags}
