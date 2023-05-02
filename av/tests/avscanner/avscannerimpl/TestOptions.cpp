@@ -11,7 +11,7 @@ Copyright 2020-2021, Sophos Limited.  All rights reserved.
 
 using namespace avscanner::avscannerimpl;
 
-TEST(Options, TestNoArgs) // NOLINT
+TEST(Options, TestNoArgs)
 {
     int argc = 0;
     char* argv[0];
@@ -27,7 +27,7 @@ TEST(Options, TestNoArgs) // NOLINT
     ASSERT_EQ(exclusions.size(), 0);
 }
 
-TEST(Options, TestPaths) // NOLINT
+TEST(Options, TestPaths)
 {
     int argc = 2;
     const char* argv[2];
@@ -47,7 +47,7 @@ TEST(Options, TestPaths) // NOLINT
     ASSERT_EQ(exclusions.size(), 0);
 }
 
-TEST(Options, TestMultiplePaths) // NOLINT
+TEST(Options, TestMultiplePaths)
 {
     const int argc = 3;
     const char* argv[argc];
@@ -69,7 +69,7 @@ TEST(Options, TestMultiplePaths) // NOLINT
     ASSERT_EQ(exclusions.size(), 0);
 }
 
-TEST(Options, TestConfig) // NOLINT
+TEST(Options, TestConfig)
 {
     const int argc = 3;
     const char* argv[argc];
@@ -89,7 +89,7 @@ TEST(Options, TestConfig) // NOLINT
     ASSERT_EQ(exclusions.size(), 0);
 }
 
-TEST(Options, TestArchiveScanning) // NOLINT
+TEST(Options, TestArchiveScanning)
 {
     const int argc = 2;
     const char* argv[argc];
@@ -109,7 +109,7 @@ TEST(Options, TestArchiveScanning) // NOLINT
 }
 
 
-TEST(Options, TestImageScanning) // NOLINT
+TEST(Options, TestImageScanning)
 {
     const int argc = 2;
     const char* argv[argc];
@@ -128,7 +128,7 @@ TEST(Options, TestImageScanning) // NOLINT
     ASSERT_EQ(exclusions.size(), 0);
 }
 
-TEST(Options, TestEnablePUAdetections) // NOLINT
+TEST(Options, TestEnablePUAdetections)
 {
     const int argc = 2;
     const char* argv[argc];
@@ -147,7 +147,7 @@ TEST(Options, TestEnablePUAdetections) // NOLINT
     ASSERT_EQ(exclusions.size(), 0);
 }
 
-TEST(Options, TestFollowSymlinks) // NOLINT
+TEST(Options, TestFollowSymlinks)
 {
     const int argc = 2;
     const char* argv[argc];
@@ -166,7 +166,7 @@ TEST(Options, TestFollowSymlinks) // NOLINT
     ASSERT_EQ(exclusions.size(), 0);
 }
 
-TEST(Options, TestHelp) // NOLINT
+TEST(Options, TestHelp)
 {
     const int argc = 2;
     const char* argv[argc];
@@ -185,7 +185,7 @@ TEST(Options, TestHelp) // NOLINT
     ASSERT_EQ(exclusions.size(), 0);
 }
 
-TEST(Options, TestExclusions) // NOLINT
+TEST(Options, TestExclusions)
 {
     const int argc = 3;
     const char* argv[argc];
@@ -206,7 +206,7 @@ TEST(Options, TestExclusions) // NOLINT
     EXPECT_EQ(exclusions.at(0), "file.txt");
 }
 
-TEST(Options, TestOutput) // NOLINT
+TEST(Options, TestOutput)
 {
     std::string expectedLogFile = "scan.log";
     const int argc = 3;
@@ -218,7 +218,7 @@ TEST(Options, TestOutput) // NOLINT
     EXPECT_EQ(o.logFile(), expectedLogFile);
 }
 
-TEST(Options, TestLogLevel) // NOLINT
+TEST(Options, TestLogLevel)
 {
     std::string logLevel = "INFO";
     const int argc = 3;
@@ -230,7 +230,7 @@ TEST(Options, TestLogLevel) // NOLINT
     EXPECT_EQ(o.logLevel(), log4cplus::INFO_LOG_LEVEL);
 }
 
-TEST(Options, TestShortArguments) // NOLINT
+TEST(Options, TestShortArguments)
 {
     std::string logFile = "scan.log";
     const int argc = 17;
@@ -269,7 +269,7 @@ TEST(Options, TestShortArguments) // NOLINT
     EXPECT_EQ(o.logLevel(), log4cplus::DEBUG_LOG_LEVEL);
 }
 
-TEST(Options, TestGetHelp) // NOLINT
+TEST(Options, TestGetHelp)
 {
     const int argc = 2;
     const char* argv[argc];
@@ -279,7 +279,7 @@ TEST(Options, TestGetHelp) // NOLINT
     EXPECT_NE(Options::getHelp(), "");
 }
 
-TEST(Options, TestVerifyLogLevelUppercase) // NOLINT
+TEST(Options, TestVerifyLogLevelUppercase)
 {
     EXPECT_EQ(Options::verifyLogLevel("OFF"), log4cplus::OFF_LOG_LEVEL);
     EXPECT_EQ(Options::verifyLogLevel("DEBUG"), log4cplus::DEBUG_LOG_LEVEL);
@@ -289,7 +289,7 @@ TEST(Options, TestVerifyLogLevelUppercase) // NOLINT
     EXPECT_EQ(Options::verifyLogLevel("ERROR"), log4cplus::ERROR_LOG_LEVEL);
 }
 
-TEST(Options, TestVerifyLogLevelLowercase) // NOLINT
+TEST(Options, TestVerifyLogLevelLowercase)
 {
     EXPECT_EQ(Options::verifyLogLevel("off"), log4cplus::OFF_LOG_LEVEL);
     EXPECT_EQ(Options::verifyLogLevel("debug"), log4cplus::DEBUG_LOG_LEVEL);
@@ -299,7 +299,7 @@ TEST(Options, TestVerifyLogLevelLowercase) // NOLINT
     EXPECT_EQ(Options::verifyLogLevel("error"), log4cplus::ERROR_LOG_LEVEL);
 }
 
-TEST(Options, TestVerifyLogLevelCapitalised) // NOLINT
+TEST(Options, TestVerifyLogLevelCapitalised)
 {
     EXPECT_EQ(Options::verifyLogLevel("Off"), log4cplus::OFF_LOG_LEVEL);
     EXPECT_EQ(Options::verifyLogLevel("Debug"), log4cplus::DEBUG_LOG_LEVEL);
@@ -309,10 +309,21 @@ TEST(Options, TestVerifyLogLevelCapitalised) // NOLINT
     EXPECT_EQ(Options::verifyLogLevel("Error"), log4cplus::ERROR_LOG_LEVEL);
 }
 
-TEST(Options, TestVerifyLogLevelThrowsException) // NOLINT
+TEST(Options, TestVerifyLogLevelThrowsException)
 {
     EXPECT_THROW(Options::verifyLogLevel("this is going to throw"), po::error);
 }
 
-
+TEST(Options, testPUAExclusions)
+{
+    constexpr int argc = 3;
+    const char* argv[argc];
+    argv[0] = "/usr/bin/avscanner";
+    argv[1] = "--exclude-puas";
+    argv[2] = "FOO-PUA";
+    Options o(argc, const_cast<char**>(argv));
+    auto exclusions = o.puaExclusions();
+    ASSERT_EQ(exclusions.size(), 1);
+    EXPECT_EQ(exclusions.at(0), "FOO-PUA");
+}
 

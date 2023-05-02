@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2020-2021, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
@@ -66,6 +62,11 @@ namespace avscanner::avscannerimpl
             return m_exclusions;
         }
 
+        [[nodiscard]] std::vector<std::string> puaExclusions() const
+        {
+            return pua_exclusions_;
+        }
+
         [[nodiscard]] bool help() const
         {
             return m_printHelp;
@@ -91,6 +92,7 @@ namespace avscanner::avscannerimpl
         bool m_printHelp = false;
         std::vector <std::string> m_paths;
         std::vector <std::string> m_exclusions;
+        std::vector <std::string> pua_exclusions_;
         bool m_archiveScanning = false;
         bool m_imageScanning = false;
         bool m_detectPUAs = false;

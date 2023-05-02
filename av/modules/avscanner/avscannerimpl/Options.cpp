@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2020-2021, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #include <stdexcept>
 #include "Options.h"
@@ -59,6 +55,7 @@ void Options::constructOptions()
             ("detect-puas,p", "Enable detection of Potentially Unwanted Applications")
             ("follow-symlinks,s", "Follow symlinks while scanning")
             ("exclude,x",po::value<std::vector<std::string>>()->value_name("EXCLUSION [EXCLUSION...]")->multitoken(),"Exclude these locations from being scanned")
+            ("exclude-puas",po::value<std::vector<std::string>>()->value_name("EXCLUSION [EXCLUSION...]")->multitoken(),"Exclude these PUA detections from being reported")
             ("output,o", po::value<std::string>()->value_name("OUTPUT"), "Write to log file")
             ("log-level,l", po::value<std::string>()->value_name("LOGLEVEL"), "Log level for Command Line Scanner")
             ("files,f", po::value<std::vector<std::string>>()->value_name("file [file...]")->multitoken(), "Files to scan")
@@ -100,6 +97,11 @@ Options::Options(int argc, char** argv)
         if (variableMap.count("exclude"))
         {
             m_exclusions = variableMap["exclude"].as<std::vector<std::string>>();
+        }
+
+        if (variableMap.count("exclude-puas"))
+        {
+            pua_exclusions_ = variableMap["exclude-puas"].as<std::vector<std::string>>();
         }
 
         if (variableMap.count("config"))
