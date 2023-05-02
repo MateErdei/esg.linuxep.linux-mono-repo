@@ -58,50 +58,14 @@ void OsqueryLogIngest::processOsqueryLogLineForTelemetry(std::string& logLine)
     if (Common::UtilityImpl::StringUtils::isSubstring(
         logLine, "stopping: Maximum sustainable CPU utilization limit exceeded:"))
     {
-        if (Common::UtilityImpl::StringUtils::isSubstring(logLine, "osquery extension"))
-        {
-            LOGDEBUG("Increment telemetry: " << plugin::telemetryMTRExtensionRestartsCPU);
-            telemetry.increment(plugin::telemetryMTRExtensionRestartsCPU, 1L);
-        }
-        else
-        {
-            LOGDEBUG("Increment telemetry: " << plugin::telemetryOSQueryRestartsCPU);
-            telemetry.increment(plugin::telemetryOSQueryRestartsCPU, 1L);
-        }
-
+        LOGDEBUG("Increment telemetry: " << plugin::telemetryOSQueryRestartsCPU);
+        telemetry.increment(plugin::telemetryOSQueryRestartsCPU, 1L);
     }
     else if (Common::UtilityImpl::StringUtils::isSubstring(logLine, "stopping: Memory limits exceeded:"))
     {
-        if (Common::UtilityImpl::StringUtils::isSubstring(logLine, "osquery extension")
-               && Common::UtilityImpl::StringUtils::isSubstring(logLine, "SophosMTR.ext"))
-        {
-            LOGDEBUG("Increment telemetry: " << plugin::telemetryMTRExtensionRestartsMemory);
-            telemetry.increment(plugin::telemetryMTRExtensionRestartsMemory, 1L);
-        }
-        else
-        {
-            LOGDEBUG("Increment telemetry: " << plugin::telemetryOSQueryRestartsMemory);
-            telemetry.increment(plugin::telemetryOSQueryRestartsMemory, 1L);
-        }
+        LOGDEBUG("Increment telemetry: " << plugin::telemetryOSQueryRestartsMemory);
+        telemetry.increment(plugin::telemetryOSQueryRestartsMemory, 1L);
     }
-    else if (Common::UtilityImpl::StringUtils::isSubstring(logLine, "stopping: Cannot find process"))
-    {
-        if (Common::UtilityImpl::StringUtils::isSubstring(logLine, "osquery extension")
-            && Common::UtilityImpl::StringUtils::isSubstring(logLine, "SophosMTR.ext"))
-        {
-            LOGDEBUG("Increment telemetry: " << plugin::telemetryMTRExtensionRestarts);
-            telemetry.increment(plugin::telemetryMTRExtensionRestarts, 1L);
-        }
-    }
-    else if (Common::UtilityImpl::StringUtils::isSubstring(logLine, "Created and monitoring extension child"))
-    {
-        if (Common::UtilityImpl::StringUtils::isSubstring(logLine, "SophosMTR.ext"))
-        {
-            LOGDEBUG("Increment telemetry: " << plugin::telemetryMTRExtensionRestarts);
-            telemetry.increment(plugin::telemetryMTRExtensionRestarts, 1L);
-        }
-    }
-
 }
 
 bool OsqueryLogIngest::processOsqueryLogLineForEventsMaxTelemetry(std::string& logLine)
