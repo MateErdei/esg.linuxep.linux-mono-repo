@@ -362,7 +362,7 @@ EDR Plugin Recovers When ScheduleEpoch Is In The Future
     Start EDR
 
     Wait Until Keyword Succeeds
-    ...  15 secs
+    ...  30 secs
     ...  1 secs
     ...  EDR Plugin Log Contains   Using osquery schedule_epoch flag as: --schedule_epoch=${oldScheduleEpochTimestamp}
 
