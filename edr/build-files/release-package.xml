@@ -13,7 +13,7 @@
         </build-asset>
 
         <build-asset project="winep" repo="sed">
-            <release-version branch="release/SED_2023.10_libs" build-id="20230305223649-68df9ee1156ee5ef42224c3b94dea49d93c63db6-AmtbMb"/>
+            <release-version branch="release--SED_3.1.3_libs" build-id="20230407201312-244216522f4f402e98d0eed06ac24f0ba48f1c56-66RGnJ"/>
             <development-version branch="develop"/>
             <include artifact-path="sed-libs-linux/JournalLib-x64" dest-dir="/build/input"/>
         </build-asset>
