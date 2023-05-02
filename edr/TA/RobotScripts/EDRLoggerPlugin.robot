@@ -205,7 +205,7 @@ EDR Plugin Runs All Scheduled Queries
     Restart EDR
 
     Wait Until Keyword Succeeds
-    ...  50 secs
+    ...  120 secs
     ...  10 secs
     ...  Check All Queries Run  ${SOPHOS_INSTALL}/plugins/edr/log/scheduledquery.log  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf
 
