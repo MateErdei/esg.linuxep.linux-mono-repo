@@ -80,7 +80,7 @@ then
               ps -ef | grep zyppe[r]
               sleep 10
           fi
-    fi
+      done
 
     zypper refresh
     zypper --non-interactive install libcap-progs nfs-kernel-server zip unzip samba gdb util-linux netcat-openbsd
