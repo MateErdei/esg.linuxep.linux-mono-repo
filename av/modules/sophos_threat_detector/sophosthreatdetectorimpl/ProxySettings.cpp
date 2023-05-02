@@ -16,11 +16,8 @@ namespace
         ::unsetenv("https_proxy");
         ::unsetenv("http_proxy");
     }
-}
 
-namespace sspl::sophosthreatdetectorimpl
-{
-    void setProxyFromConfigFile()
+    std::string getProxy()
     {
         auto path = Common::ApplicationConfiguration::applicationPathManager().getMcsCurrentProxyFilePath();
         auto* fs = Common::FileSystem::fileSystem();
@@ -29,27 +26,40 @@ namespace sspl::sophosthreatdetectorimpl
             auto contents = fs->readFile(path, 2048);
             if (contents.empty())
             {
-                LOGINFO("LiveProtection will use direct SXL4 connections");
-                clearProxy();
-                return;
+                return {};
             }
             const auto proxyConfig = nlohmann::json::parse(contents);
 
             std::string proxy = std::string{"http://"} + proxyConfig["proxy"].get<std::string>();
-
-            setenv("https_proxy", proxy.c_str(), 1);
-            setenv("http_proxy", proxy.c_str(), 1);
-            LOGINFO("LiveProtection will use " << proxy << " for SXL4 connections");
-            return;
+            return proxy;
         }
         catch (const Common::FileSystem::IFileNotFoundException& ex)
         {
-            LOGINFO("LiveProtection will use direct SXL4 connections");
+            // mcsrouter deletes the file when using direct connections
         }
         catch (const nlohmann::json::parse_error& exception)
         {
             LOGWARN("Failed to parse " << path << ": " << exception.what());
         }
-        clearProxy();
+        return {};
+    }
+}
+
+namespace sspl::sophosthreatdetectorimpl
+{
+    void setProxyFromConfigFile()
+    {
+        auto proxy = getProxy();
+        if (proxy.empty())
+        {
+            LOGINFO("LiveProtection will use direct SXL4 connections");
+            clearProxy();
+        }
+        else
+        {
+            setenv("https_proxy", proxy.c_str(), 1);
+            setenv("http_proxy", proxy.c_str(), 1);
+            LOGINFO("LiveProtection will use " << proxy << " for SXL4 connections");
+        }
     }
 }
