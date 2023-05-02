@@ -1,6 +1,9 @@
 // Copyright 2022, Sophos Limited.  All rights reserved.
 
 #pragma once
+
+#include "common/Exclusion.h"
+
 #include <mutex>
 #include <string>
 #include <vector>
@@ -8,6 +11,7 @@
 namespace common::ThreatDetector
 {
     using AllowList = std::vector<std::string>;
+    using AllowListPath = std::vector<Exclusion>;
     using PuaApprovedList = std::vector<std::string>;
 
     class SusiSettings
@@ -22,7 +26,7 @@ namespace common::ThreatDetector
         void saveSettings(const std::string& path, mode_t permissions) const;
 
         // Allow listing
-        bool isAllowListed(const std::string& threatChecksum) const;
+        bool isAllowListed(const std::string& threatChecksum, const std::string& threatPath) const;
         void setAllowListSha256(AllowList&& allowListBySha) noexcept;
         void setAllowListPath(AllowList&& allowListByPath) noexcept;
         size_t getAllowListSizeSha256() const noexcept;
@@ -44,11 +48,14 @@ namespace common::ThreatDetector
         PuaApprovedList copyPuaApprovedList() const;
 
     private:
+        void processRawPathAllowList();
+
         // Susi can access the allow-list while we're changing it, so make sure it's thread safe.
         mutable std::mutex m_accessMutex;
 
         AllowList m_susiAllowListSha256;
-        AllowList m_susiAllowListPath;
+        AllowList m_susiAllowListPathRaw; //For checking against updated policy & json operations
+        AllowListPath m_susiAllowListPath; //For checking against detections
         bool m_susiSxlLookupEnabled = true;
         bool m_machineLearningEnabled = true;
         PuaApprovedList m_susiPuaApprovedList;
