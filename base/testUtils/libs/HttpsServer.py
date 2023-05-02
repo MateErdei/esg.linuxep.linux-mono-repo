@@ -43,9 +43,11 @@ class HttpsHandler(http.server.SimpleHTTPRequestHandler):
         self.end_headers()
 
     def handle_get_request(self):
+        targetpath = "/tmp/testdownload.zip"
+
         if self.path == "/download":
             self.log_message("Download action received")
-            with open("/tmp/testdownload.zip", "rb") as file:
+            with open(targetpath, "rb") as file:
                 contents = file.read()
 
             self.log_message("%s", contents)
@@ -53,12 +55,11 @@ class HttpsHandler(http.server.SimpleHTTPRequestHandler):
             self.send_response(200)
             self.send_header('Content-type', "application/zip")
             self.send_header('Content-length', len(contents))
-            self.send_header("Content-Disposition", "attachment; filename=/opt/sophos-spl/plugins/responseactions/tmp/testdownload.zip")
+            self.send_header("Content-Disposition", f"attachment; filename=/opt/sophos-spl/plugins/responseactions{targetpath}")
             self.end_headers()
             self.wfile.write(contents)
 
-            os.remove("/tmp/download.txt")
-            os.remove("/tmp/testdownload.zip")
+            os.remove(targetpath)
         else:
             self.send_response(200)
             self.send_header('Content-type', 'text/html')
