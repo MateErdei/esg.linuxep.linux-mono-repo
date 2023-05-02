@@ -45,6 +45,7 @@ namespace plugin::manager::scanprocessmonitor
         m_processControllerSocketPath(std::move(processControllerSocket)),
         m_sleeper(std::make_shared<common::NotifyPipeSleeper>(m_notifyPipe))
     {
+        setSXL4LookupsEnabled(true); // SXL4 defaults to on in SusiSettings.h
     }
 
     void ScanProcessMonitor::sendRequestToThreatDetector(

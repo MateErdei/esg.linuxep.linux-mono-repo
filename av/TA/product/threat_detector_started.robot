@@ -107,6 +107,7 @@ Threat Detector Restarts If System File Contents Change
 
     wait_for_av_log_contains_after_mark  System configuration updated for ${TESTSYSFILE}  ${av_mark}
     check_av_log_does_not_contain_after_mark  System configuration not changed for ${TESTSYSFILE}  ${av_mark}
+    check_av_log_does_not_contain_after_mark  Not restarting sophos_threat_detector: Live Protection is disabled  ${av_mark}
 
     Wait until threat detector running after mark  ${td_mark}
 
