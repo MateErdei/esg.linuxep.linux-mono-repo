@@ -93,6 +93,20 @@ TEST_F(TestSusiSettings, SusiSettingsHandlesLoadingEmptyButValidJsonFile)
     EXPECT_TRUE(susiSettings.isMachineLearningEnabled());
 }
 
+TEST_F(TestSusiSettings, SusiSettingsHandleInvalidJson)
+{
+    auto* filesystemMock = new StrictMock<MockFileSystem>();
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock) };
+    EXPECT_CALL(*filesystemMock, isFile("settings.json")).WillOnce(Return(true));
+    EXPECT_CALL(*filesystemMock, readFile("settings.json")).WillOnce(Return("this is not valid json"));
+    ThreatDetector::SusiSettings susiSettings("settings.json");
+    ASSERT_EQ(susiSettings.getAllowListSizePath(), 0);
+    ASSERT_EQ(susiSettings.getAllowListSizeSha256(), 0);
+    EXPECT_FALSE(susiSettings.isAllowListedSha256("something"));
+    EXPECT_FALSE(susiSettings.isAllowListedPath("/a/path"));
+    ASSERT_TRUE(susiSettings.isSxlLookupEnabled());
+}
+
 TEST_F(TestSusiSettings, SusiSettingsHandlesMissingFile)
 {
     auto* filesystemMock = new StrictMock<MockFileSystem>();
@@ -173,20 +187,6 @@ TEST_F(TestSusiSettings, SusiSettingsReadsInSxlLookupDisabled)
     EXPECT_CALL(*filesystemMock, readFile("settings.json")).WillOnce(Return(jsonWithAllowList));
     ThreatDetector::SusiSettings susiSettings("settings.json");
     ASSERT_FALSE(susiSettings.isSxlLookupEnabled());
-}
-
-TEST_F(TestSusiSettings, SusiSettingsHandleInvalidJson)
-{
-    auto* filesystemMock = new StrictMock<MockFileSystem>();
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock) };
-    EXPECT_CALL(*filesystemMock, isFile("settings.json")).WillOnce(Return(true));
-    EXPECT_CALL(*filesystemMock, readFile("settings.json")).WillOnce(Return("this is not valid json"));
-    ThreatDetector::SusiSettings susiSettings("settings.json");
-    ASSERT_EQ(susiSettings.getAllowListSizePath(), 0);
-    ASSERT_EQ(susiSettings.getAllowListSizeSha256(), 0);
-    EXPECT_FALSE(susiSettings.isAllowListedSha256("something"));
-    EXPECT_FALSE(susiSettings.isAllowListedPath("/a/path"));
-    ASSERT_TRUE(susiSettings.isSxlLookupEnabled());
 }
 
 TEST_F(TestSusiSettings, SusiSettingsReadsInApprovedPuaList)
