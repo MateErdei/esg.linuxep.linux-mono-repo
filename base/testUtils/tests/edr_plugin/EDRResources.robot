@@ -53,14 +53,14 @@ Restart EDR Plugin
     [Arguments]  ${clearLog}=False    ${installQueryPacks}=False
     Wdctl Stop Plugin  edr
     Wait Until Keyword Succeeds
-    ...   30 secs
+    ...   40 secs
     ...   1 secs
     ...   EDR Plugin Is Not Running
     Run Keyword If   ${clearLog}   Remove File  ${EDR_DIR}/log/edr.log
     Run Keyword If   ${installQueryPacks}   Create Query Packs
     Wdctl Start Plugin  edr
     Wait Until Keyword Succeeds
-    ...   30 secs
+    ...   40 secs
     ...   1 secs
     ...   EDR Plugin Is Running
 

@@ -41,8 +41,8 @@ Test Components Shutdown Cleanly
     #WARNING installing edr should be the last plugin installed to avoid watchdog going down due to the defect LINUXDAR-3732
     Install EDR Directly
     Create Query Packs
-    Restart EDR Plugin    clearLog=True    installQueryPacks=True
     Wait For EDR to be Installed
+    Restart EDR Plugin    clearLog=True    installQueryPacks=True
 
     Run Process   systemctl  stop  sophos-spl
 
