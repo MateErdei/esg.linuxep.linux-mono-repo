@@ -174,7 +174,6 @@ namespace plugin::manager::scanprocessmonitor
             LOGERROR("Failed to initialise inotify: Unable to monitor DNS config files");
             success = false;
         }
-        // May
         if (!proxyConfigParentDirectory_.empty())
         {
             proxyConfigWatch_ = inotifyFd_.watch(proxyConfigParentDirectory_, PROXY_CONFIG_MASK);
