@@ -25,13 +25,16 @@
 // SPL Base
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 
+// C++ 3rd Party
 #define BOOST_LOCALE_HIDE_AUTO_PTR
 #include <boost/locale.hpp>
 
+// C++ standard
 #include <csignal>
 #include <fstream>
 #include <string>
 
+// C system/standard/3rd party
 #include <netdb.h>
 #include <sys/capability.h>
 #include <sys/prctl.h>
