@@ -71,6 +71,7 @@ TEST_F(TestSusiSettings, SusiSettingsHandlesLoadingEmptyJsonFile)
 
     ThreatDetector::SusiSettings susiSettings("settings.json");
     EXPECT_EQ(susiSettings.getAllowListSizeSha256(), 0);
+    EXPECT_EQ(susiSettings.getAllowListSizePath(), 0);
     EXPECT_FALSE(susiSettings.isAllowListedSha256("something"));
     EXPECT_FALSE(susiSettings.isAllowListedPath("/a/path"));
     EXPECT_TRUE(susiSettings.isSxlLookupEnabled());
@@ -85,6 +86,7 @@ TEST_F(TestSusiSettings, SusiSettingsHandlesLoadingEmptyButValidJsonFile)
     EXPECT_CALL(*filesystemMock, readFile("settings.json")).WillOnce(Return("{}"));
     ThreatDetector::SusiSettings susiSettings("settings.json");
     EXPECT_EQ(susiSettings.getAllowListSizeSha256(), 0);
+    EXPECT_EQ(susiSettings.getAllowListSizePath(), 0);
     EXPECT_FALSE(susiSettings.isAllowListedSha256("something"));
     EXPECT_FALSE(susiSettings.isAllowListedPath("/a/path"));
     EXPECT_TRUE(susiSettings.isSxlLookupEnabled());
@@ -99,6 +101,7 @@ TEST_F(TestSusiSettings, SusiSettingsHandlesMissingFile)
     EXPECT_CALL(*filesystemMock, readFile("settings.json")).Times(0);
     ThreatDetector::SusiSettings susiSettings("settings.json");
     EXPECT_EQ(susiSettings.getAllowListSizeSha256(), 0);
+    EXPECT_EQ(susiSettings.getAllowListSizePath(), 0);
     EXPECT_FALSE(susiSettings.isAllowListedSha256("something"));
     EXPECT_FALSE(susiSettings.isAllowListedPath("/a/path"));
     EXPECT_TRUE(susiSettings.isSxlLookupEnabled());

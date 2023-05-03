@@ -735,6 +735,7 @@ Sophos Threat Detector Does Not Detect Allow Listed File By Sha256
 Sophos Threat Detector Does Not Detect Allow Listed File By Path
     # Start from known place with a CORC policy with an empty allow list
     ${directory_under_test} =    Set Variable    /tmp_test/a/path/
+    ${allow_listed_threat_file} =    Set variable    ${directory_under_test}MLengHighScore.exe
 
     Stop sophos_threat_detector
     Register Cleanup   Remove File  ${MCS_PATH}/policy/CORC_policy.xml
@@ -744,24 +745,23 @@ Sophos Threat Detector Does Not Detect Allow Listed File By Path
     ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
     ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
 
-    Send CORC Policy To Base  corc_policy.xml
+    Send CORC Policy To Base  corc_policy_no_ml_detect_by_sha.xml
     wait_for_log_contains_from_mark  ${av_mark}  Added path to allow list: ${directory_under_test}
     wait_for_log_contains_from_mark  ${td_mark}  Number of Path allow-listed items: 4
 
     # Create threat to scan
-    ${allow_listed_threat_file} =  Set Variable  ${directory_under_test}MLengHighScore.exe
     Create Directory  ${directory_under_test}
     DeObfuscate File  ${RESOURCES_PATH}/file_samples_obfuscated/MLengHighScore.exe  ${allow_listed_threat_file}
     Register Cleanup  Remove File  ${allow_listed_threat_file}
     Should Exist  ${allow_listed_threat_file}
 
     # Scan threat
-    ${rc}   ${output} =    Run And Return Rc And Output   ${AVSCANNER} ${directory_under_test}MLengHighScore.exe
+    ${rc}   ${output} =    Run And Return Rc And Output   ${AVSCANNER} ${allow_listed_threat_file}
     Log  ${output}
     Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
 
     # File is allowed and not treated as a threat
-    wait_for_log_contains_from_mark  ${td_mark}  Allowed by SHA256: c88e20178a82af37a51b030cb3797ed144126cad09193a6c8c7e95957cf9c3f9
+    wait_for_log_contains_from_mark  ${td_mark}  Allowing ${allow_listed_threat_file} as path is in allow list
 
     # File allowed so should still exist
     Should Exist  ${allow_listed_threat_file}
