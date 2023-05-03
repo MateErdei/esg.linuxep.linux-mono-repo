@@ -60,9 +60,9 @@ Restart EDR Plugin
     Run Keyword If   ${installQueryPacks}   Create Query Packs
     Wdctl Start Plugin  edr
     Wait Until Keyword Succeeds
-    ...   40 secs
-    ...   1 secs
-    ...   EDR Plugin Is Running
+    ...  30 secs
+    ...  1 secs
+    ...  EDR Plugin Log Contains   Plugin preparation complete
 
 Cloud Server Is Running
     ${result} =  Run Process  curl -k https://localhost:4443/mcs   shell=True
