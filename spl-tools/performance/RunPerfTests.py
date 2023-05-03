@@ -845,6 +845,7 @@ def run_response_actions_list_files_test(region, env, tenant_id):
     start_time = get_current_unix_epoch_in_seconds()
     for i in range(10):
         res = send_execute_command(region=region, env=env, tenant_id=tenant_id, endpoint_id=get_endpoint_id(), cmd="ls /home/pair")
+        logging.debug(res)
 
         if res["id"] is not None:
             action_id = res["id"]
