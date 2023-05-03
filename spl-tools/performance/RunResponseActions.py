@@ -33,6 +33,7 @@ def get_response_action_status(region, env, tenant_id, action_id):
 
     res = requests.get(url, auth=get_ra_request_auth(), proxies=get_proxy_details(), headers=request_headers)
 
+    logging.info(f"HERE: {res.json()}")
     if res.ok:
         return res.json()
     logging.error(f"Failed to get response action status: {res.text}")
@@ -55,7 +56,6 @@ def send_execute_command(region, env, tenant_id, endpoint_id, cmd):
                         headers=request_headers,
                         json=request_body)
 
-    logging.info(f"HERE: {res.json()}")
     if res.ok:
         return res.json()
     logging.error(f"Failed to send execute command response action: {res.text}")
