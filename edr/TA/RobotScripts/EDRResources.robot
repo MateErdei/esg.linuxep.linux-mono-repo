@@ -390,18 +390,20 @@ Is XDR Enabled in Plugin Conf
     Should Contain  ${EDR_CONFIG_CONTENT}   running_mode=1
 
 Stop EDR
+    ${mark} =  Mark File  ${EDR_LOG_PATH}
     Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl stop edr   OnError=failed to stop edr  timeout=35s
     Wait Until Keyword Succeeds
     ...  15 secs
     ...  1 secs
-    ...  EDR Plugin Log Contains      edr <> Plugin Finished
+    ...  Marked File Contains  ${EDR_LOG_PATH}  ${mark}  edr <> Plugin Finished
 
 Start EDR
+    ${mark} =  Mark File  ${EDR_LOG_PATH}
     Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl start edr   OnError=failed to start edr
     Wait Until Keyword Succeeds
     ...  30 secs
     ...  1 secs
-    ...  EDR Plugin Log Contains   Plugin preparation complete
+    ...  Marked File Contains  ${EDR_LOG_PATH}  ${mark}  Plugin preparation complete
 
 Apply Live Query Policy And Wait For Query Pack Changes
     [Arguments]  ${policy}
