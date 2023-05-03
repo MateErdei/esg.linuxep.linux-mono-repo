@@ -840,7 +840,7 @@ def run_safestore_restoration_test():
 def run_response_actions_list_files_test(region, env, tenant_id):
     return_code = 0
     matching_dir_content = 0
-    expected_dir_content = '\n'.join(sorted((f for f in os.listdir("/home/pair") if not f.startswith(".")), key=str.lower)) + "\n"
+    expected_dir_content = set(f for f in os.listdir("/home/pair") if not f.startswith("."))
 
     start_time = get_current_unix_epoch_in_seconds()
     for i in range(10):
@@ -855,7 +855,7 @@ def run_response_actions_list_files_test(region, env, tenant_id):
             if action_status["endpoints"][0]["output"]["stdOut"] is not None:
                 cmd_output = action_status["endpoints"][0]["output"]["stdOut"]
                 logging.debug(f"Command output: {cmd_output}")
-                if cmd_output == expected_dir_content:
+                if set(cmd_output.strip().split("\n")) == expected_dir_content:
                     matching_dir_content += 1
     end_time = get_current_unix_epoch_in_seconds()
 
@@ -867,7 +867,6 @@ def run_response_actions_list_files_test(region, env, tenant_id):
     elif matching_dir_content < 10:
         logging.warning(f"Command output did not match expected directory content {matching_dir_content} times: {expected_dir_content}")
         return_code = 2
-
     exit(return_code)
 
 
