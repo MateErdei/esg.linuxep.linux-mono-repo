@@ -59,7 +59,7 @@ namespace Common::FileSystem
          *
          *
          * @param groupString, the group which we want information on
-         * @return returns either the groupid or -1 if there is none
+         * @return returns either the groupid or throws if no matching group is found
          */
         virtual gid_t getGroupId(const std::string& groupString) const = 0;
 
