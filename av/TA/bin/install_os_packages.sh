@@ -76,8 +76,11 @@ then
             then
                 break
             else
-                echo "Failed to registercloudguest; sleeping for 10"
-                ps -ef | grep zyppe[r]
+                echo "$i: Failed to registercloudguest; sleeping for 10"
+                if ! ps -ef | grep zyppe[r]
+                then
+                    cat /var/log/cloudregister
+                fi
                 sleep 10
             fi
         done
