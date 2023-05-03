@@ -10,7 +10,7 @@
 #include <capnp/message.h>
 #include <capnp/serialize.h>
 
-TEST(TestScanMessages, CreateScanRequestSerialisation)
+TEST(TestScanRequest, CreateScanRequestSerialisation)
 {
     ::capnp::MallocMessageBuilder message;
     Sophos::ssplav::FileScanRequest::Builder requestBuilder =
@@ -45,7 +45,7 @@ TEST(TestScanMessages, CreateScanRequestSerialisation)
     EXPECT_TRUE(requestReader.getScanInsideArchives());
 }
 
-TEST(TestScanMessages, CreateScanRequestSerialisationOnDemandHasCorrectDefaultValues)
+TEST(TestScanRequest, CreateScanRequestSerialisationOnDemandHasCorrectDefaultValues)
 {
     ::capnp::MallocMessageBuilder message;
     Sophos::ssplav::FileScanRequest::Builder requestBuilder =
@@ -79,7 +79,7 @@ TEST(TestScanMessages, CreateScanRequestSerialisationOnDemandHasCorrectDefaultVa
     EXPECT_TRUE(requestReader.getScanInsideArchives());
 }
 
-TEST(TestScanMessages, CreateScanRequestSerialisationSetsMinusvalueCorrectlyForPid)
+TEST(TestScanRequest, CreateScanRequestSerialisationSetsMinusvalueCorrectlyForPid)
 {
     ::capnp::MallocMessageBuilder message;
     Sophos::ssplav::FileScanRequest::Builder requestBuilder =
@@ -112,7 +112,7 @@ TEST(TestScanMessages, CreateScanRequestSerialisationSetsMinusvalueCorrectlyForP
     EXPECT_EQ(requestReader.getExecutablePath(), "");
     EXPECT_TRUE(requestReader.getScanInsideArchives());
 }
-TEST(TestScanMessages, CreateScanRequestObject)
+TEST(TestScanRequest, CreateScanRequestObject)
 {
     ::capnp::MallocMessageBuilder message;
     Sophos::ssplav::FileScanRequest::Builder requestBuilder =
@@ -131,7 +131,7 @@ TEST(TestScanMessages, CreateScanRequestObject)
     EXPECT_FALSE(scanRequest->scanInsideArchives());
 }
 
-TEST(TestScanMessages, ScanRequestReturnsScanTypeStrCorrectly)
+TEST(TestScanRequest, ScanRequestReturnsScanTypeStrCorrectly)
 {
     scan_messages::ClientScanRequest clientScanRequest;
     EXPECT_EQ("Unknown", scan_messages::getScanTypeAsStr(clientScanRequest.getScanType()));
@@ -150,7 +150,7 @@ TEST(TestScanMessages, ScanRequestReturnsScanTypeStrCorrectly)
 }
 
 
-TEST(TestScanMessages, ReuseScanRequestObject)
+TEST(TestScanRequest, ReuseScanRequestObject)
 {
     auto scanRequest = std::make_unique<scan_messages::ScanRequest>();
 
