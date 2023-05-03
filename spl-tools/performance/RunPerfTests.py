@@ -847,7 +847,7 @@ def run_response_actions_list_files_test(region, env, tenant_id):
         res = send_execute_command(region=region, env=env, tenant_id=tenant_id, endpoint_id=get_endpoint_id(), cmd="ls /home/pair")
 
         if res["id"] is not None:
-            action_id = res.json()["id"]
+            action_id = res["id"]
             action_status = get_response_action_status(region=region, env=env, tenant_id=tenant_id, action_id=action_id)
 
             if action_status["endpoints"][0]["output"]["stdOut"] is not None:
@@ -901,7 +901,7 @@ def add_options():
     parser.add_argument('-p', '--password', action='store',
                         help="Central account API client secret or password to use to run live queries")
 
-    parser.add_argument('-c', '--central-env', action='store', help="Central environment (q, d, p)")
+    parser.add_argument('-c', '--central-env', action='store', help="Central environment")
 
     parser.add_argument('-r', '--central-region', action='store', help="Central region")
 
