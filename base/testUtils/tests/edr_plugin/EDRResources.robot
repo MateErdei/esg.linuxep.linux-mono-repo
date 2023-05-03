@@ -50,13 +50,14 @@ MTR Extension is running
     Should Be Equal As Integers    ${result.rc}    0
 
 Restart EDR Plugin
-    [Arguments]  ${clearLog}=False
+    [Arguments]  ${clearLog}=False    ${installQueryPacks}=False
     Wdctl Stop Plugin  edr
-    Run Keyword If   ${clearLog}   Remove File  ${EDR_DIR}/log/edr.log
     Wait Until Keyword Succeeds
     ...   10 secs
     ...   1 secs
     ...   EDR Plugin Is Not Running
+    Run Keyword If   ${clearLog}   Remove File  ${EDR_DIR}/log/edr.log
+    Run Keyword If   ${installQueryPacks}   Create Query Packs
     Wdctl Start Plugin  edr
     Wait Until Keyword Succeeds
     ...   10 secs
@@ -315,3 +316,22 @@ Log Status Of Auditd
     ${result} =  Run Process  systemctl  status  auditd
     Log  ${result.stdout}
     Log  ${result.stderr}
+
+Create Query Packs
+    ${pack_content} =  Set Variable   {"query": "select * from uptime;","interval": 100, "denylist": false}
+    @{QUERY_PACK_DIRS} =    Create List    ${QUERY_PACKS_PATH}    ${OSQUERY_CONF_PATH}
+    FOR    ${dir}    IN    @{QUERY_PACK_DIRS}
+        Create File   ${dir}/sophos-scheduled-query-pack.conf   {"schedule": {"latest_xdr_query": ${pack_content}}}
+        Create File   ${dir}/sophos-scheduled-query-pack.mtr.conf   {"schedule": {"latest_mtr_query": ${pack_content}}}
+        Create File   ${dir}/sophos-scheduled-query-pack-next.conf    {"schedule": {"next_xdr_query": ${pack_content}}}
+        Create File   ${dir}/sophos-scheduled-query-pack-next.mtr.conf    {"schedule": {"next_mtr_query": ${pack_content}}}
+    END
+
+Cleanup Query Packs
+    @{QUERY_PACK_DIRS} =    Create List    ${QUERY_PACKS_PATH}    ${OSQUERY_CONF_PATH}
+    FOR    ${dir}    IN    @{QUERY_PACK_DIRS}
+        Remove File   ${dir}/sophos-scheduled-query-pack.conf
+        Remove File   ${dir}/sophos-scheduled-query-pack.mtr.conf
+        Remove File   ${dir}/sophos-scheduled-query-pack-next.conf
+        Remove File   ${dir}/sophos-scheduled-query-pack-next.mtr.conf
+    END

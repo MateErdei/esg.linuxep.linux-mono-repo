@@ -3,7 +3,6 @@ Documentation    Test base uninstaller clean up all components
 
 Library    ${LIBS_DIRECTORY}/FullInstallerUtils.py
 
-Resource  ../av_plugin/AVResources.robot
 Resource  ../event_journaler/EventJournalerResources.robot
 Resource  ../ra_plugin/ResponseActionsResources.robot
 Resource  ../edr_plugin/EDRResources.robot
@@ -42,6 +41,7 @@ Test Components Shutdown Cleanly
     #WARNING installing edr should be the last plugin installed to avoid watchdog going down due to the defect LINUXDAR-3732
     Install EDR Directly
     Create Query Packs
+    Restart EDR Plugin    clearLog=True    installQueryPacks=True
     Wait For EDR to be Installed
 
     Run Process   systemctl  stop  sophos-spl

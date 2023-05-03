@@ -121,22 +121,3 @@ Enable On Access Via Policy
     ${mark} =  get_on_access_log_mark
     send_policy_file  core  ${SUPPORT_FILES}/CentralXml/CORE-36_oa_enabled.xml
     wait for on access log contains after mark   On-access scanning enabled  mark=${mark}
-
-Create Query Packs
-    ${pack_content} =  Set Variable   {"query": "select * from uptime;","interval": 100, "denylist": false}
-    @{QUERY_PACK_DIRS} =    Create List    ${QUERY_PACKS_PATH}    ${OSQUERY_CONF_PATH}
-    FOR    ${dir}    IN    @{QUERY_PACK_DIRS}
-        Create File   ${dir}/sophos-scheduled-query-pack.conf   {"schedule": {"latest_xdr_query": ${pack_content}}}
-        Create File   ${dir}/sophos-scheduled-query-pack.mtr.conf   {"schedule": {"latest_mtr_query": ${pack_content}}}
-        Create File   ${dir}/sophos-scheduled-query-pack-next.conf    {"schedule": {"next_xdr_query": ${pack_content}}}
-        Create File   ${dir}/sophos-scheduled-query-pack-next.mtr.conf    {"schedule": {"next_mtr_query": ${pack_content}}}
-    END
-
-Cleanup Query Packs
-    @{QUERY_PACK_DIRS} =    Create List    ${QUERY_PACKS_PATH}    ${OSQUERY_CONF_PATH}
-    FOR    ${dir}    IN    @{QUERY_PACK_DIRS}
-        Remove File   ${dir}/sophos-scheduled-query-pack.conf
-        Remove File   ${dir}/sophos-scheduled-query-pack.mtr.conf
-        Remove File   ${dir}/sophos-scheduled-query-pack-next.conf
-        Remove File   ${dir}/sophos-scheduled-query-pack-next.mtr.conf
-    END
