@@ -293,10 +293,6 @@ EDR And Base Teardown
     Common Teardown
     Remove File    ${EDR_LOG_PATH}
     Start EDR
-    Wait Until Keyword Succeeds
-    ...  30 secs
-    ...  1 secs
-    ...  EDR Plugin Log Contains   Plugin preparation complete
 
 Create Install Options File With Content
     [Arguments]  ${installFlags}
@@ -395,9 +391,17 @@ Is XDR Enabled in Plugin Conf
 
 Stop EDR
     Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl stop edr   OnError=failed to stop edr  timeout=35s
+    Wait Until Keyword Succeeds
+    ...  15 secs
+    ...  1 secs
+    ...  EDR Plugin Log Contains      edr <> Plugin Finished
 
 Start EDR
     Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl start edr   OnError=failed to start edr
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  1 secs
+    ...  EDR Plugin Log Contains   Plugin preparation complete
 
 Apply Live Query Policy And Wait For Query Pack Changes
     [Arguments]  ${policy}
