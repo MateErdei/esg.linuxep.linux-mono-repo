@@ -645,8 +645,15 @@ namespace Plugin
             }
             if (allowedItem.value("type") == "path" && !allowedItem.contents().empty())
             {
-                LOGDEBUG("Added path to allow list: " << allowedItem.contents());
-                pathAllowList.emplace_back(allowedItem.contents());
+                if (allowedItem.contents().front() == '*' || allowedItem.contents().front() == '/')
+                {
+                    LOGDEBUG("Added path to allow list: " << allowedItem.contents());
+                    pathAllowList.emplace_back(allowedItem.contents());
+                }
+                else
+                {
+                    LOGWARN("Ignoring invalid allow list path item: " << allowedItem.contents() << ", as it doesnt start with * or /");
+                }
             }
         }
         if (oldSha256AllowList != sha256AllowList ||
