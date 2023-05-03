@@ -7,6 +7,8 @@ import grp
 import datetime
 import os
 import pwd
+import six
+import tempfile
 import time
 
 import zmq
@@ -76,8 +78,17 @@ class ManagementAgentPluginRequester(object):
             raise Exception("Failed to determine policy type")
 
         sophos_install = os.environ['SOPHOS_INSTALL']
-        with open(os.path.join(sophos_install, "base/mcs/policy/"+filename), "w") as f:
-            f.write(policy_xml)
+
+        policy_xml = six.ensure_binary(policy_xml, "utf-8")
+
+        mcs_dir = os.path.join(sophos_install, "base", "mcs")
+        with tempfile.NamedTemporaryFile(dir=mcs_dir, delete=False) as temp_file:
+            temp_file.write(policy_xml)
+            temp_path = os.path.join(mcs_dir, temp_file.name)
+
+        dest_path = os.path.join(mcs_dir, "policy", filename)
+        os.replace(temp_path, dest_path)  # https://docs.python.org/3/library/os.html#os.replace
+
         message = self.build_message(Messages.APPLY_POLICY, app_id, [filename])
         self.send_message(message)
 
