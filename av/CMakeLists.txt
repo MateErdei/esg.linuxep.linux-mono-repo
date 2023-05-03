@@ -10,7 +10,7 @@ set(UNSAFE_FUNCS "strerror" "strcpy" "wcscpy" "stpcpy" "wcpcpy" "scanf" "sscanf"
         "gets(" "puts(" "strcat" "wcscat" "wcrtomb" "wctob" "sprintf" "vsprintf" "vfprintf" "asprintf" "vasprintf"
         "wcsncpy" "strtok" "wcstok" "mbrlen" "mbsrtowcs" "mbrtowc" "wcrtomb" "wcsrtombs" "asctime" "localtime"
         "longjmp" "siglongjmp" "setjmp" "sigsetjmp" "mallopt" "mktemp" "tmpnam" "tempnam" "getwd" "getlogin" "getpass"
-        "cuserid" "rexec" "rexec_af" "rand" "srand" "setlocale" "localeconv")
+        "cuserid" "rexec" "rexec_af" "rand" "srand" "setlocale" "localeconv" "pselect")
 foreach(FUNC ${UNSAFE_FUNCS})
     message(STATUS "Checking source code for un-safe standard library function: ${FUNC}")
 

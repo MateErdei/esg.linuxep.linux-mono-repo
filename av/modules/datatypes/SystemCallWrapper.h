@@ -56,16 +56,6 @@ namespace datatypes
             return std::pair(res, upTime);
         }
 
-        int pselect(int nfds,
-                    fd_set *__restrict readfds,
-                    fd_set *__restrict writefds,
-                    fd_set *__restrict exceptfds,
-                    const struct timespec *__restrict timeout,
-                    const sigset_t *__restrict sigmask) override
-        {
-            return ::pselect(nfds, readfds, writefds, exceptfds, timeout, sigmask);
-        }
-
         int ppoll(struct pollfd* fd,
                   nfds_t num_fds,
                   const struct timespec* timeout,
