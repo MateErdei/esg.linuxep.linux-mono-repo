@@ -397,3 +397,16 @@ TEST_F(TestSusiSettings, SusiSettingsPathNotAllowedByIncompletePath)
 
     EXPECT_FALSE(susiSettings.isAllowListedPath("/path/to/somewhere/file.txt"));
 }
+
+TEST_F(TestSusiSettings, SusiSettingsWorksWithInvalidAllowListItem)
+{
+    std::string jsonWithAllowList = R"({"enableSxlLookup":true,"pathAllowList":["/a35qy9359qihtdiotqe"]})";
+    auto* filesystemMock = new StrictMock<MockFileSystem>();
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::unique_ptr<Common::FileSystem::IFileSystem>(
+        filesystemMock) };
+    EXPECT_CALL(*filesystemMock, isFile("settings.json")).WillOnce(Return(true));
+    EXPECT_CALL(*filesystemMock, readFile("settings.json")).WillOnce(Return(jsonWithAllowList));
+    ThreatDetector::SusiSettings susiSettings("settings.json");
+
+    EXPECT_FALSE(susiSettings.isAllowListedPath("/path/to/somewhere/file.txt"));
+}
