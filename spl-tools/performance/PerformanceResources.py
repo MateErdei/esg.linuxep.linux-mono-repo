@@ -137,3 +137,10 @@ def get_safestore_db_content_as_dict():
         threats[threat_idx][line_content[0]] = ':'.join(line_content[1:]).strip()
 
     return threats
+
+
+def get_endpoint_id():
+    with open(os.path.join(SOPHOS_INSTALL, "base", "etc", "sophosspl", "mcs_policy.config")) as f:
+        for line in f.readlines():
+            if line.startswith("policy_device_id"):
+                return line.split("=")[-1].strip()
