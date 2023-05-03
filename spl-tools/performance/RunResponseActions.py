@@ -33,7 +33,10 @@ def get_response_action_status(region, env, tenant_id, action_id):
 
     res = requests.get(url, auth=get_ra_request_auth(), proxies=get_proxy_details(), headers=request_headers)
 
-    logging.info(f"HERE: {res.json()}")
+    logging.info(f"HERE: {res.headers}")
+    logging.info(f"HERE: {res.url}")
+    logging.info(f"HERE: {res.content}")
+    logging.info(f"HERE: {res.text}")
     if res.ok:
         return res.json()
     logging.error(f"Failed to get response action status: {res.text}")
