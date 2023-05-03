@@ -593,13 +593,16 @@ On Access Scan Times Out When Unable To Connect To Threat Detector On Access Run
     wait for on access log contains after mark  Failed to scan file:  timeout=${75}   mark=${mark}
 
 On Access Times Out When Unable To Connect To Threat Detector While Starting Up
-    ${mark} =  get_on_access_log_mark
     Terminate On Access
     FakeWatchdog.Stop Sophos Threat Detector Under Fake Watchdog
+
+    ${mark} =  get_on_access_log_mark
     Start On Access
-
     wait for on access log contains after mark  Fanotify successfully initialised  mark=${mark}
+    wait for on access log contains after mark  On-access scanning enabled  mark=${mark}
+    wait_for_on_access_enabled_by_status_file
 
+    ${mark} =  get_on_access_log_mark
     ${filepath} =  Set Variable  /tmp_test/clean_file_writer/clean.txt
     Create File  ${filepath}  clean
     Register Cleanup  Remove File  ${filepath}
