@@ -556,7 +556,7 @@ On Access Does not Use Policy Settings If Flags Have Overriden Policy
 
 
 On Access Process Reconnects To Threat Detector
-    ${mark} =  get_on_access_log_mark
+    ${oa_mark} =  get_on_access_log_mark
     ${filepath} =  Set Variable  /tmp_test/clean_file_writer/clean.txt
     ${script} =  Set Variable  ${BASH_SCRIPTS_PATH}/cleanFileWriter.sh
     ${HANDLE} =  Start Process  bash  ${script}  stderr=STDOUT
@@ -564,15 +564,16 @@ On Access Process Reconnects To Threat Detector
     Register Cleanup  Remove Directory  /tmp_test/clean_file_writer/  recursive=True
     Register Cleanup  Terminate Process  ${HANDLE}
 
-    wait for on access log contains after mark  On-close event for ${filepath}  mark=${mark}
+    wait for on access log contains after mark  On-close event for ${filepath}  mark=${oa_mark}
     FakeWatchdog.Stop Sophos Threat Detector Under Fake Watchdog
-    ${mark} =  get_on_access_log_mark
-    FakeWatchdog.Start Sophos Threat Detector Under Fake Watchdog
-    wait for on access log contains after mark  On-close event for ${filepath}  mark=${mark}
     #Depending on whether a scan is being processed or it is being requested one of these 2 errors should appear
-    File Log Contains One of   ${ON_ACCESS_LOG_PATH}  0  Failed to receive scan response  Failed to send scan request
+    ${expected} =  Create List  Failed to receive scan response  Failed to send scan request
+    Wait For Log Contains One Of After Mark   ${ON_ACCESS_LOG_PATH}   ${expected}   ${oa_mark}
 
-    check_on_access_log_does_not_contain_after_mark  Failed to scan ${filepath}  mark=${mark}
+    ${oa_mark2} =  get_on_access_log_mark
+    FakeWatchdog.Start Sophos Threat Detector Under Fake Watchdog
+    wait for on access log contains after mark  On-close event for ${filepath}  mark=${oa_mark2}
+    check_on_access_log_does_not_contain_after_mark  Failed to scan ${filepath}  mark=${oa_mark2}
 
 On Access Scan Times Out When Unable To Connect To Threat Detector On Access Running
     Configure on access log to trace level
@@ -593,16 +594,13 @@ On Access Scan Times Out When Unable To Connect To Threat Detector On Access Run
     wait for on access log contains after mark  Failed to scan file:  timeout=${75}   mark=${mark}
 
 On Access Times Out When Unable To Connect To Threat Detector While Starting Up
+    ${mark} =  get_on_access_log_mark
     Terminate On Access
     FakeWatchdog.Stop Sophos Threat Detector Under Fake Watchdog
-
-    ${mark} =  get_on_access_log_mark
     Start On Access
-    wait for on access log contains after mark  Fanotify successfully initialised  mark=${mark}
-    wait for on access log contains after mark  On-access scanning enabled  mark=${mark}
-    wait_for_on_access_enabled_by_status_file
 
-    ${mark} =  get_on_access_log_mark
+    wait for on access log contains after mark  Starting scanHandler  mark=${mark}
+
     ${filepath} =  Set Variable  /tmp_test/clean_file_writer/clean.txt
     Create File  ${filepath}  clean
     Register Cleanup  Remove File  ${filepath}
@@ -634,7 +632,6 @@ On Access logs if the kernel queue overflows
     wait for on access log contains after mark  On-access scanning enabled  mark=${mark}
     Sleep  1s
 
-    Mark On Access Log
     # suspend soapd, so that we stop reading from the kernel queue
     ${soapd_pid} =  Record Soapd Plugin PID
     Evaluate  os.kill(${soapd_pid}, signal.SIGSTOP)  modules=os, signal
