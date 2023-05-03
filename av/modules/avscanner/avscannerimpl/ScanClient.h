@@ -1,14 +1,15 @@
-// Copyright 2020-2022, Sophos Limited.  All rights reserved.
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
-#include "IScanClient.h"
 #include "ClientSocketWrapper.h"
+#include "IScanClient.h"
 #include "NamedScanConfig.h"
+#include "PuaExclusions.h"
 
-#include "unixsocket/threatDetectorSocket/IScanningClientSocket.h"
 #include "datatypes/sophos_filesystem.h"
 #include "scan_messages/ThreatDetected.h"
+#include "unixsocket/threatDetectorSocket/IScanningClientSocket.h"
 
 using namespace scan_messages;
 namespace avscanner::avscannerimpl
@@ -53,6 +54,11 @@ namespace avscanner::avscannerimpl
                 bool detectPUAs,
                 E_SCAN_TYPE scanType);
 
+        void setPuaExclusions(pua_exclusion_t exclusions)
+        {
+            puaExclusions_ = std::move(exclusions);
+        }
+
         /**
          *
          * Calls IScanCallbacks if provided
@@ -83,6 +89,7 @@ namespace avscanner::avscannerimpl
         static std::string failedToOpen(int error);
 
     private:
+        pua_exclusion_t puaExclusions_;
         ClientSocketWrapper m_socket;
         std::shared_ptr<IScanCallbacks> m_callbacks;
         bool m_scanInArchives;

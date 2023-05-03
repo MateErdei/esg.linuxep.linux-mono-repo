@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2020-2021, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
@@ -23,6 +19,7 @@ namespace avscanner::avscannerimpl
         int run() override;
 
     private:
+        const Options& options_;
         std::vector<std::string> m_paths;
         std::vector<std::string> m_exclusions;
         Logger m_logger;

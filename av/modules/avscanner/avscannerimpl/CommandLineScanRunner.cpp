@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2020-2022, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #include "CommandLineScanRunner.h"
 
@@ -59,6 +55,7 @@ namespace avscanner::avscannerimpl
     }
 
     CommandLineScanRunner::CommandLineScanRunner(const Options& options) :
+        options_(options),
         m_paths(options.paths()),
         m_exclusions(options.exclusions()),
         m_logger(options.logFile(), options.logLevel(), true),
@@ -87,6 +84,23 @@ namespace avscanner::avscannerimpl
 
         std::string printDetectPUAs = m_detectPUAs ? "yes" : "no";
         LOGINFO("PUA detection enabled: " << printDetectPUAs);
+
+        const auto puaExclusions = options_.puaExclusions();
+        if (!puaExclusions.empty())
+        {
+            std::ostringstream ost;
+            bool first = true;
+            for (const auto& exclusion : puaExclusions)
+            {
+                if (!first)
+                {
+                    ost << ", ";
+                }
+                first = false;
+                ost << exclusion;
+            }
+            LOGINFO("PUA exclusions: " << ost.str());
+        }
 
         std::string printFollowSymlink = m_followSymlinks ? "yes" : "no";
         LOGINFO("Following symlinks: " << printFollowSymlink);
@@ -148,8 +162,11 @@ namespace avscanner::avscannerimpl
         }
 
         m_scanCallbacks = std::make_shared<ScanCallbackImpl>();
+
         auto scanner =
             std::make_shared<ScanClient>(*getSocket(), m_scanCallbacks, m_archiveScanning, m_imageScanning, m_detectPUAs, E_SCAN_TYPE_ON_DEMAND);
+        scanner->setPuaExclusions(options_.puaExclusions());
+
         CommandLineWalkerCallbackImpl commandLineWalkerCallbacks(scanner, excludedMountPoints, cmdExclusions);
         filewalker::FileWalker fw(commandLineWalkerCallbacks);
         fw.followSymlinks(m_followSymlinks);

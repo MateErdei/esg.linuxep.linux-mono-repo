@@ -14,6 +14,7 @@ add_library(avscannerimpl SHARED
         NamedScanRunner.h
         Options.cpp
         Options.h
+        PuaExclusions.h
         ScanCallbackImpl.cpp
         ScanCallbackImpl.h
         ScanClient.cpp

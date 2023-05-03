@@ -2,8 +2,7 @@
 
 #pragma once
 
-#include <string>
-#include <vector>
+#include "PuaExclusions.h"
 
 #include <boost/program_options.hpp>
 #include <log4cplus/loglevel.h>
@@ -62,7 +61,7 @@ namespace avscanner::avscannerimpl
             return m_exclusions;
         }
 
-        [[nodiscard]] std::vector<std::string> puaExclusions() const
+        [[nodiscard]] pua_exclusion_t puaExclusions() const
         {
             return pua_exclusions_;
         }
@@ -92,7 +91,7 @@ namespace avscanner::avscannerimpl
         bool m_printHelp = false;
         std::vector <std::string> m_paths;
         std::vector <std::string> m_exclusions;
-        std::vector <std::string> pua_exclusions_;
+        pua_exclusion_t pua_exclusions_;
         bool m_archiveScanning = false;
         bool m_imageScanning = false;
         bool m_detectPUAs = false;

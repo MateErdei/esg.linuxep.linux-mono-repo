@@ -78,6 +78,7 @@ scan_messages::ScanResponse ScanClient::scan(const sophos_filesystem::path& file
     request->setDetectPUAs(m_detectPUAs);
     request->setScanType(m_scanType);
     request->setFd(file_fd);
+    request->setPuaExclusions(puaExclusions_);
     const char* user = std::getenv("USER");
     request->setUserID(user ? user : "root");
 
