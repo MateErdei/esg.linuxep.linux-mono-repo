@@ -34,6 +34,8 @@ def get_response_action_status(region, env, tenant_id, action_id):
     res = requests.get(url, auth=get_ra_request_auth(), proxies=get_proxy_details(), headers=request_headers)
 
     if res.ok:
+        if res.json()["endpoints"][0]["status"] == "pending":
+            get_response_action_status(region, env, tenant_id, action_id)
         return res.json()
     logging.error(f"Failed to get response action status: {res.text}")
 
