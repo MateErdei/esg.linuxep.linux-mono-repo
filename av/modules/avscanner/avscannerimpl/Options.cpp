@@ -55,7 +55,7 @@ void Options::constructOptions()
             ("detect-puas,p", "Enable detection of Potentially Unwanted Applications")
             ("follow-symlinks,s", "Follow symlinks while scanning")
             ("exclude,x",po::value<std::vector<std::string>>()->value_name("EXCLUSION [EXCLUSION...]")->multitoken(),"Exclude these locations from being scanned")
-            ("exclude-puas",po::value<std::vector<std::string>>()->value_name("EXCLUSION [EXCLUSION...]")->multitoken(),"Exclude these PUA detections from being reported")
+            ("exclude-puas",po::value<std::vector<std::string>>()->value_name("EXCLUSION [EXCLUSION...]")->multitoken(),"")
             ("output,o", po::value<std::string>()->value_name("OUTPUT"), "Write to log file")
             ("log-level,l", po::value<std::string>()->value_name("LOGLEVEL"), "Log level for Command Line Scanner")
             ("files,f", po::value<std::vector<std::string>>()->value_name("file [file...]")->multitoken(), "Files to scan")
@@ -151,14 +151,15 @@ std::string Options::getHelp()
     helpText << "Usage: avscanner PATH... [OPTION]..." << std::endl;
     helpText << "Perform an on-demand scan of PATH" << std::endl << std::endl;
     helpText << "Allowed options:" << std::endl;
-    helpText << "  -h, --help                              Print this help message" << std::endl;
-    helpText << "  -a, --scan-archives                     Scan inside archives" << std::endl;
-    helpText << "  -i, --scan-images                       Scan inside disk images" << std::endl;
-    helpText << "  -p, --detect-puas                       Enable detection of Potentially Unwanted Applications" << std::endl;
-    helpText << "  -s, --follow-symlinks                   Follow symlinks while scanning" << std::endl;
-    helpText << "  -x, --exclude EXCLUSION [EXCLUSION...]  Exclude these locations from being scanned" << std::endl;
-    helpText << "  -o, --output OUTPUT                     Write to log file" << std::endl;
-    helpText << "  -l, --log-level LOGLEVEL                Set the logging level" << std::endl << std::endl;
+    helpText << "  -h, --help                            Print this help message" << std::endl;
+    helpText << "  -a, --scan-archives                   Scan inside archives" << std::endl;
+    helpText << "  -i, --scan-images                     Scan inside disk images" << std::endl;
+    helpText << "  -p, --detect-puas                     Enable detection of Potentially Unwanted Applications\n"
+             << "      --exclude-puas THREAT [THREAT...] Exclude these PUA detections from being reported\n"
+             << "  -s, --follow-symlinks                 Follow symlinks while scanning" << std::endl;
+    helpText << "  -x, --exclude PATH [PATH...]          Exclude these locations from being scanned" << std::endl;
+    helpText << "  -o, --output OUTPUT                   Write to log file" << std::endl;
+    helpText << "  -l, --log-level LOGLEVEL              Set the logging level" << std::endl << std::endl;
 
     helpText << "Examples:" << std::endl;
     helpText << "  avscanner / --scan-archives            Scan the Root Directory (recursively including dot files/directories) including the contents of any archive files found" << std::endl;
