@@ -150,6 +150,21 @@ TEST_F(TestSusiSettings, SusiSettingsReadsInAllowListPath)
     EXPECT_TRUE(susiSettings.isAllowListedPath("/path/to/nowhere"));
 }
 
+TEST_F(TestSusiSettings, SusiSettingsHandlesReadingInvalidEntriesInAllowListPath)
+{
+    std::string jsonWithAllowList = R"({"enableSxlLookup":true,"pathAllowList":["/path/to/nowhere","blah","/path/to/somewhere""/path/to/somewhere/else"]})";
+    auto* filesystemMock = new StrictMock<MockFileSystem>();
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock) };
+    EXPECT_CALL(*filesystemMock, isFile("settings.json")).WillOnce(Return(true));
+    EXPECT_CALL(*filesystemMock, readFile("settings.json")).WillOnce(Return(jsonWithAllowList));
+    ThreatDetector::SusiSettings susiSettings("settings.json");
+    EXPECT_EQ(susiSettings.getAllowListSizeSha256(), 0);
+    EXPECT_EQ(susiSettings.getAllowListSizePath(), 1);
+    EXPECT_FALSE(susiSettings.isAllowListedSha256("not allow listed"));
+    EXPECT_TRUE(susiSettings.isAllowListedPath("/path/to/nowhere"));
+    EXPECT_FALSE(susiSettings.isAllowListedPath("/blah"));
+}
+
 TEST_F(TestSusiSettings, SusiSettingsReadsInAllowListPathAndSha256)
 {
     std::string jsonWithAllowList = R"({"enableSxlLookup":true,"pathAllowList":["/path/to/nowhere"],"shaAllowList":["42268ef08462e645678ce738bd26518bc170a0404a186062e8b1bec2dc578673"]})";
@@ -240,7 +255,7 @@ TEST_F(TestSusiSettings, roundTripSettings)
     ThreatDetector::AllowList allowlistSha256;
     ThreatDetector::AllowList allowlistPath;
     allowlistSha256.emplace_back("42268ef08462e645678ce738bd26518bc170a0404a186062e8b1bec2dc578673");
-    allowlistPath.emplace_back("this/is/the/way");
+    allowlistPath.emplace_back("/this/is/the/way");
     susiSettings.setAllowListSha256(std::move(allowlistSha256));
     susiSettings.setAllowListPath(std::move(allowlistPath));
     susiSettings.setMachineLearningEnabled(false);

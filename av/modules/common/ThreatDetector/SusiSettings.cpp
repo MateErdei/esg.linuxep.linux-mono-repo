@@ -91,6 +91,9 @@ namespace common::ThreatDetector
             if (parsedConfig.contains(PATH_ALLOW_LIST_KEY))
             {
                 m_susiAllowListPathRaw = parsedConfig[PATH_ALLOW_LIST_KEY].get<std::vector<std::string>>();
+                m_susiAllowListPathRaw.erase
+                    (std::remove_if(m_susiAllowListPathRaw.begin(), m_susiAllowListPathRaw.end(), [](auto item) {return item.front() != '/' && item.front() != '*';})
+                                                 , m_susiAllowListPathRaw.end());
                 processRawPathAllowList();
                 LOGDEBUG("Number of Path allow-listed items: " << m_susiAllowListPath.size());
             }
