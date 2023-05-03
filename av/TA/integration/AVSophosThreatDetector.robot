@@ -686,18 +686,20 @@ Sophos Threat Detector Triggers SafeStore Rescan When SUSI Config Changes
     Start sophos_threat_detector
     wait_for_log_contains_from_mark  ${td_mark}  SXL Lookups will be enabled
     wait_for_log_contains_from_mark  ${td_mark}  Number of SHA256 allow-listed items: 0
+    wait_for_log_contains_from_mark  ${td_mark}  Number of Path allow-listed items: 0
 
     # Send CORC policy with populated allow list to product, to trigger SafeStore rescan
     ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
     ${safestore_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
     Send CORC Policy To Base  corc_policy.xml
     wait_for_log_contains_from_mark  ${td_mark}  Number of SHA256 allow-listed items: 3
+    wait_for_log_contains_from_mark  ${td_mark}  Number of Path allow-listed items: 4
     wait_for_log_contains_from_mark  ${td_mark}  SUSI settings changed
     wait_for_log_contains_from_mark  ${td_mark}  Triggering rescan of SafeStore database
     wait_for_log_contains_from_mark  ${safestore_mark}  SafeStore Database Rescan request received
 
 
-Sophos Threat Detector Does Not Detect Allow Listed File
+Sophos Threat Detector Does Not Detect Allow Listed File By Sha256
     # Start from known place with a CORC policy with an empty allow list
     Stop sophos_threat_detector
     Register Cleanup   Remove File  ${MCS_PATH}/policy/CORC_policy.xml
@@ -728,6 +730,42 @@ Sophos Threat Detector Does Not Detect Allow Listed File
 
     # File allowed so should still exist
     Should Exist  ${allow_listed_threat_file}
+
+
+Sophos Threat Detector Does Not Detect Allow Listed File By Path
+    # Start from known place with a CORC policy with an empty allow list
+    ${directory_under_test} =    Set Variable    /tmp_test/a/path/
+
+    Stop sophos_threat_detector
+    Register Cleanup   Remove File  ${MCS_PATH}/policy/CORC_policy.xml
+    Send CORC Policy To Base  corc_policy_empty_allowlist.xml
+    Start sophos_threat_detector
+
+    ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
+    ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
+
+    Send CORC Policy To Base  corc_policy.xml
+    wait_for_log_contains_from_mark  ${av_mark}  Added path to allow list: ${directory_under_test}
+    wait_for_log_contains_from_mark  ${td_mark}  Number of Path allow-listed items: 4
+
+    # Create threat to scan
+    ${allow_listed_threat_file} =  Set Variable  ${directory_under_test}MLengHighScore.exe
+    Create Directory  ${directory_under_test}
+    DeObfuscate File  ${RESOURCES_PATH}/file_samples_obfuscated/MLengHighScore.exe  ${allow_listed_threat_file}
+    Register Cleanup  Remove File  ${allow_listed_threat_file}
+    Should Exist  ${allow_listed_threat_file}
+
+    # Scan threat
+    ${rc}   ${output} =    Run And Return Rc And Output   ${AVSCANNER} ${directory_under_test}MLengHighScore.exe
+    Log  ${output}
+    Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
+
+    # File is allowed and not treated as a threat
+    wait_for_log_contains_from_mark  ${td_mark}  Allowed by SHA256: c88e20178a82af37a51b030cb3797ed144126cad09193a6c8c7e95957cf9c3f9
+
+    # File allowed so should still exist
+    Should Exist  ${allow_listed_threat_file}
+
 
 
 Threat Detector Pid Lock Permissions Are Correct
