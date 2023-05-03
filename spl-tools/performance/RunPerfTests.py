@@ -837,6 +837,39 @@ def run_safestore_restoration_test():
     exit(return_code)
 
 
+def run_response_actions_upload_files_test(region, env, tenant_id):
+    return_code = 0
+    failed_file_uploads = 0
+
+    start_time = get_current_unix_epoch_in_seconds()
+    for i in range(10):
+        # TODO: create files to upload
+        filepath = ""
+
+        res = upload_response_actions_file(region=region, env=env, tenant_id=tenant_id, endpoint_id=get_endpoint_id(),
+                                           file_path=filepath)
+        logging.debug(res)
+
+        if res["id"] is not None:
+            action_status = get_response_action_status(region=region, env=env, tenant_id=tenant_id, action_id=res["id"])
+            logging.debug(action_status)
+
+            if action_status["endpoints"][0]["result"] != "succeeded":
+                logging.warning(f"Failed to upload response actions file {filepath}")
+                failed_file_uploads += 1
+    end_time = get_current_unix_epoch_in_seconds()
+
+    record_result("Response Actions Upload Files", get_current_date_time_string(), start_time, end_time)
+
+    if failed_file_uploads == 10:
+        logging.error(f"Failed to upload all response actions files")
+        return_code = 1
+    elif 0 < failed_file_uploads:
+        logging.warning(f"Failed to upload response actions files {failed_file_uploads} times")
+        return_code = 2
+    exit(return_code)
+
+
 def run_response_actions_list_files_test(region, env, tenant_id):
     return_code = 0
     matching_dir_content = 0
@@ -844,7 +877,8 @@ def run_response_actions_list_files_test(region, env, tenant_id):
 
     start_time = get_current_unix_epoch_in_seconds()
     for i in range(10):
-        res = send_execute_command(region=region, env=env, tenant_id=tenant_id, endpoint_id=get_endpoint_id(), cmd="ls /home/pair")
+        res = send_execute_command(region=region, env=env, tenant_id=tenant_id, endpoint_id=get_endpoint_id(),
+                                   cmd="ls /home/pair")
         logging.debug(res)
 
         if res["id"] is not None:
@@ -865,7 +899,8 @@ def run_response_actions_list_files_test(region, env, tenant_id):
         logging.error(f"Command output did not match expected directory content: {expected_dir_content}")
         return_code = 1
     elif matching_dir_content < 10:
-        logging.warning(f"Command output did not match expected directory content {matching_dir_content} times: {expected_dir_content}")
+        logging.warning(
+            f"Command output did not match expected directory content {matching_dir_content} times: {expected_dir_content}")
         return_code = 2
     exit(return_code)
 
@@ -951,6 +986,8 @@ def main():
         run_safestore_database_content_test()
     elif args.suite == 'safestore-restore-database':
         run_safestore_restoration_test()
+    elif args.suite == 'ra-file-upload':
+        run_response_actions_upload_files_test(args.central_region, args.central_env, args.tenant_id)
     elif args.suite == 'ra-list-files':
         run_response_actions_list_files_test(args.central_region, args.central_env, args.tenant_id)
     logging.info("Finished")

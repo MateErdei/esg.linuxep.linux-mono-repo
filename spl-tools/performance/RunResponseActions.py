@@ -49,8 +49,33 @@ def send_execute_command(region, env, tenant_id, endpoint_id, cmd):
         "params": {"command": cmd}
     }
 
-    res = requests.post(url, auth=get_ra_request_auth(), proxies=get_proxy_details(), headers=request_headers, json=request_body)
+    res = requests.post(url,
+                        auth=get_ra_request_auth(),
+                        proxies=get_proxy_details(),
+                        headers=request_headers,
+                        json=request_body)
 
     if res.ok:
         return res.json()
     logging.error(f"Failed to send execute command response action: {res.text}")
+
+
+def upload_response_actions_file(region, env, tenant_id, endpoint_id, file_path):
+    url = get_base_ra_request_url(region=region, env=env)
+    request_headers = get_ra_request_headers(tenant_id)
+    request_body = {
+        "type": "uploadFileFromEndpoint",
+        "expires": "PT30M",
+        "executionTimeout": "PT30M",
+        "endpointIds": [endpoint_id],
+        "params": {
+            "targetPath": file_path
+        }
+    }
+
+    res = requests.post(url, auth=get_ra_request_auth(), proxies=get_proxy_details(), headers=request_headers,
+                        json=request_body)
+
+    if res.ok:
+        return res.json()
+    logging.error(f"Failed to send upload response action file: {res.text}")
