@@ -20,7 +20,7 @@ ${EDR_PLUGIN_PATH}    ${SOPHOS_INSTALL}/plugins/edr
 Wait For EDR to be Installed
     Wait Until Keyword Succeeds
     ...   40 secs
-    ...   10 secs
+    ...   1 secs
     ...   File Should exist    ${SOPHOS_INSTALL}/plugins/edr/bin/edr
 
     Wait Until Keyword Succeeds
@@ -34,8 +34,12 @@ Wait For EDR to be Installed
     ...   Check EDR Osquery Executable Running
     Wait Until Keyword Succeeds
     ...   40 secs
-    ...   5 secs
+    ...   1 secs
     ...   File Should exist  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/options.conf
+    Wait Until Keyword Succeeds
+    ...   40 secs
+    ...   1 secs
+    ...   Check EDR Log Contains   Plugin preparation complete
 
 EDR Plugin Is Running
     ${result} =    Run Process  pgrep  edr
@@ -62,7 +66,7 @@ Restart EDR Plugin
     Wait Until Keyword Succeeds
     ...  30 secs
     ...  1 secs
-    ...  EDR Plugin Log Contains   Plugin preparation complete
+    ...  Check EDR Log Contains   Plugin preparation complete
 
 Cloud Server Is Running
     ${result} =  Run Process  curl -k https://localhost:4443/mcs   shell=True
