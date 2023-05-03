@@ -840,11 +840,11 @@ def run_safestore_restoration_test():
 def run_response_actions_list_files_test(region, env, tenant_id):
     return_code = 0
     matching_dir_content = 0
-    expected_dir_content = '\n'.join(sorted((f for f in os.listdir("/home/admin") if not f.startswith(".")), key=str.lower)) + "\n"
+    expected_dir_content = '\n'.join(sorted((f for f in os.listdir("/home/pair") if not f.startswith(".")), key=str.lower)) + "\n"
 
     start_time = get_current_unix_epoch_in_seconds()
     for i in range(10):
-        res = send_execute_command(region=region, env=env, tenant_id=tenant_id, endpoint_id=get_endpoint_id(), cmd="ls /home/admin")
+        res = send_execute_command(region=region, env=env, tenant_id=tenant_id, endpoint_id=get_endpoint_id(), cmd="ls /home/pair")
 
         if res["id"] is not None:
             action_id = res.json()["id"]
