@@ -1,4 +1,4 @@
-// Copyright 2019-2022 Sophos Limited. All rights reserved.
+// Copyright 2019-2023 Sophos Limited. All rights reserved.
 
 #include "ScanRequest.capnp.h"
 
@@ -187,4 +187,25 @@ TEST(TestScanRequest, ReuseScanRequestObject)
     EXPECT_EQ(scanRequest->getScanType(), scan_messages::E_SCAN_TYPE::E_SCAN_TYPE_UNKNOWN);
     EXPECT_FALSE(scanRequest->scanInsideArchives());
     EXPECT_FALSE(scanRequest->scanInsideImages());
+}
+
+TEST(TestScanRequest, excludePUAs)
+{
+    scan_messages::ClientScanRequest clientScanRequest;
+    clientScanRequest.setPuaExclusions({"FOO"});
+
+    auto serialised = clientScanRequest.serialise();
+
+    const kj::ArrayPtr<const capnp::word> view(
+        reinterpret_cast<const capnp::word*>(&(*std::begin(serialised))),
+        reinterpret_cast<const capnp::word*>(&(*std::end(serialised))));
+
+    capnp::FlatArrayMessageReader messageInput(view);
+    Sophos::ssplav::FileScanRequest::Reader requestReader = messageInput.getRoot<Sophos::ssplav::FileScanRequest>();
+
+    scan_messages::ScanRequest received{requestReader};
+
+    auto puaExclusions = received.getPuaExclusions();
+    ASSERT_EQ(puaExclusions.size(), 1);
+    EXPECT_EQ(puaExclusions[0], "FOO");
 }

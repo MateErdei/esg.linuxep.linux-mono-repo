@@ -1,4 +1,4 @@
-// Copyright 2020-2022 Sophos Limited. All rights reserved.
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #include "ScanRequest.h"
 
@@ -33,6 +33,13 @@ void scan_messages::ScanRequest::setRequestFromMessage(Reader &requestMessage)
     setPid(requestMessage.getPid());
     setExecutablePath(requestMessage.getExecutablePath());
     setDetectPUAs(requestMessage.getDetectPUAs());
+
+    auto puaExclusions = requestMessage.getExcludePUAs();
+    excludedPUAs_.reserve(puaExclusions.size());
+    for (const auto& item : puaExclusions)
+    {
+        excludedPUAs_.emplace_back(item);
+    }
 }
 
 void scan_messages::ScanRequest::close()

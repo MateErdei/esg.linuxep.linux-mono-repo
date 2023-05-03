@@ -1,4 +1,4 @@
-// Copyright 2020-2022 Sophos Limited. All rights reserved.
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
@@ -10,6 +10,8 @@
 #include <memory>
 #include <optional>
 #include <string>
+#include <utility>
+#include <vector>
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -27,6 +29,7 @@ namespace scan_messages
     class ClientScanRequest
     {
     public:
+        using pua_exclusions_t = std::vector<std::string>;
 
         ClientScanRequest() = default;
         ClientScanRequest(datatypes::ISystemCallWrapperSharedPtr sysCalls, datatypes::AutoFd& fd);
@@ -49,6 +52,8 @@ namespace scan_messages
         void setPid(const std::int64_t pid) { m_pid = pid; }
         void setExecutablePath(const std::string& path) { m_executablePath = path; }
 
+        void setPuaExclusions(pua_exclusions_t value) { excludedPUAs_ = std::move(value); }
+
         /*
          * fd is donated in this call
          */
@@ -60,6 +65,7 @@ namespace scan_messages
         [[nodiscard]] int getFd() const { return m_autoFd.fd(); }
         [[nodiscard]] E_SCAN_TYPE getScanType() const { return m_scanType; }
         [[nodiscard]] bool getDetectPUAs() const { return m_detectPUAs; }
+        [[nodiscard]] pua_exclusions_t getPuaExclusions() const { return excludedPUAs_; }
         [[nodiscard]] bool isOpenEvent() const { return m_scanType == E_SCAN_TYPE_ON_ACCESS_OPEN; }
 
     protected:
@@ -73,6 +79,7 @@ namespace scan_messages
 
         std::string m_executablePath;
         std::int64_t m_pid = -1;
+        pua_exclusions_t excludedPUAs_;
 
         //Not serialised
        datatypes::AutoFd m_autoFd;

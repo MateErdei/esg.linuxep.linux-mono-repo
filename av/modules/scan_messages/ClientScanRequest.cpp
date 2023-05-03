@@ -1,4 +1,4 @@
-// Copyright 2020-2022 Sophos Limited. All rights reserved.
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #include "ClientScanRequest.h"
 
@@ -31,6 +31,14 @@ std::string ClientScanRequest::serialise() const
     requestBuilder.setUserID(m_userID);
     requestBuilder.setExecutablePath(m_executablePath);
     requestBuilder.setPid(m_pid);
+
+    {
+        auto exclusions = requestBuilder.initExcludePUAs(excludedPUAs_.size());
+        for (unsigned i = 0; i < excludedPUAs_.size(); i++)
+        {
+            exclusions.set(i, excludedPUAs_[i]);
+        }
+    }
 
     kj::Array<capnp::word> dataArray = capnp::messageToFlatArray(message);
     kj::ArrayPtr<kj::byte> bytes = dataArray.asBytes();
