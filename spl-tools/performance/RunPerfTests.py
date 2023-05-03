@@ -268,7 +268,7 @@ def run_clean_file_test(test_name, stop_on_queue_full, max_count, oa_enabled=Fal
         file_count += 1
         filepath = os.path.join(dirpath, f"{file_count}.txt")
         with open(filepath, "w") as f:
-            f.write(f"clean file file_count{}")
+            f.write(f"clean file file_count{file_count}")
         if stop_on_queue_full:
             try:
                 log_utils.check_on_access_log_does_not_contain_after_mark(

@@ -17,7 +17,7 @@ def get_ra_request_auth():
     return requests.auth.HTTPBasicAuth(username, password)
 
 
-def get_ra_request_headers(tenant_id="c5af50b4-cb0f-4749-a332-5c0441bf46bc"):
+def get_ra_request_headers(tenant_id):
     return {
         "X-Tenant-ID": tenant_id,
         "Content-Type": "application/json"
