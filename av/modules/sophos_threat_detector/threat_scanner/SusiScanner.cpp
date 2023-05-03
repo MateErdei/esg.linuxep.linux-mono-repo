@@ -46,30 +46,52 @@ scan_messages::ScanResponse SusiScanner::scan(datatypes::AutoFd& fd, const scan_
         auto threatDetected =
             buildThreatDetected(result.detections, info.getPath(), std::move(fd), info.getUserId(), e_ScanType);
 
+        bool reportDetections = true;
         assert(m_globalHandler);
         if (m_globalHandler->isAllowListedSha256(threatDetected.sha256))
         {
             LOGINFO("Allowing " << common::escapePathForLogging(info.getPath()) << " with " << threatDetected.sha256);
+            reportDetections = false;
         }
         //todo remove with LINUXDAR-6861
         else if (m_globalHandler->isAllowListedPath(info.path()))
         {
             LOGINFO("Allowing " << common::escapePathForLogging(info.getPath()) << " as path is in allow list");
         }
-        else if (threatDetected.threatType == "PUA" && !info.detectPUAs())
+        else if (threatDetected.threatType == "PUA")
         {
-            // CORE-3404: Until fixed some PUAs will still be detected by SUSI despite the setting being disabled
-            LOGINFO("Allowing " << common::escapePathForLogging(info.getPath()) << " as PUA detection is disabled");
+            // PUAs have special exclusions
+
+            // 1st check if PUAs are enabled at all:
+            if (!info.detectPUAs())
+            {
+                // CORE-3404: Until fixed some PUAs will still be detected by SUSI despite the setting being disabled
+                LOGINFO("Allowing " << common::escapePathForLogging(info.getPath()) << " as PUA detection is disabled");
+                reportDetections = false;
+            }
+            // Then check policy allow-list:
+            else if (m_globalHandler->isPuaApproved(threatDetected.threatName))
+            {
+                LOGINFO(
+                    "Allowing PUA " << common::escapePathForLogging(info.getPath()) << " by exclusion '"
+                                    << threatDetected.threatName << "'");
+                reportDetections = false;
+            }
+            else
+            {
+                // Then check exclusions from request (command-line)
+                auto puaExclusions = info.getPuaExclusions();
+                if (std::find(puaExclusions.begin(), puaExclusions.end(), threatDetected.threatName) != puaExclusions.end())
+                {
+                    LOGINFO(
+                        "Allowing PUA " << common::escapePathForLogging(info.getPath()) << " by request exclusion '"
+                                        << threatDetected.threatName << "'");
+                    reportDetections = false;
+                }
+            }
         }
-        else if (
-            threatDetected.threatType == "PUA" &&
-            m_globalHandler->isPuaApproved(threatDetected.threatName))
-        {
-            LOGINFO(
-                "Allowing PUA " << common::escapePathForLogging(info.getPath()) << " by exclusion '"
-                                << threatDetected.threatName << "'");
-        }
-        else
+
+        if (reportDetections)
         {
             const auto scanTypeStr = getScanTypeAsStr(e_ScanType);
 
