@@ -79,15 +79,12 @@ EDR plugin Configures OSQuery To Enable SysLog Event Collection
 
     # check rsyslog does not report error connecting to named pipe
 
-    # LINUXDAR-7033 - Remove the below condition once this test is fixed on SLES
-    ${is_suse} =    Does File Exist    /etc/SUSE-brand
-
     ${result} =  Run Process  which  unminimize
     # unminimize is a command that should only exist on ubuntu minimal, if this command does not exist
     # Then the check for rsyslog running without issue can be made.
     # for some reason ubuntu minimum does not have rsyslog installed as a service.
     # but is installed on all other platforms we support.
-    Run Keyword If   ${result.rc}==1 and '${is_suse}'=='False'
+    Run Keyword If   ${result.rc}==1
     ...   Check Rsyslog Started Without Error
 
 EDR Restarts If File Descriptor Limit Hit
