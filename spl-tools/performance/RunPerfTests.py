@@ -850,6 +850,7 @@ def run_response_actions_list_files_test(region, env, tenant_id):
         if res["id"] is not None:
             action_id = res["id"]
             action_status = get_response_action_status(region=region, env=env, tenant_id=tenant_id, action_id=action_id)
+            logging.debug(action_status)
 
             if action_status["endpoints"][0]["output"]["stdOut"] is not None:
                 cmd_output = action_status["endpoints"][0]["output"]["stdOut"]
