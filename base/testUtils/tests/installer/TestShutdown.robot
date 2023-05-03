@@ -16,6 +16,7 @@ Default Tags  INSTALLER  EDR_PLUGIN  LIVERESPONSE_PLUGIN  MDR_PLUGIN  UPDATE_SCH
 *** Test Cases ***
 Test Components Shutdown Cleanly
     Require Fresh Install
+    Override LogConf File as Global Level  DEBUG
     Wait For Base Processes To Be Running
 
     Create File    ${SOPHOS_INSTALL}/base/etc/logger.conf.local   [mtr]\nVERBOSITY=DEBUG\n[watchdog]\nVERBOSITY=DEBUG\n
