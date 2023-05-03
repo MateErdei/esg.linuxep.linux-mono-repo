@@ -1,7 +1,7 @@
 
 SophosAddTest(TestScanMessages
         TestRestoreReport.cpp
-        TestScanMessages.cpp
+        TestScanRequest.cpp
         TestThreatDetectedMessages.cpp
         TestScanResponseMessages.cpp
         PROJECTS scanmessages
