@@ -97,7 +97,14 @@ namespace threat_scanner
          * @param threatChecksum
          * @return
          */
-        bool isAllowListed(const std::string& threatChecksum) final;
+        bool isAllowListedSha256(const std::string& threatCheckSum) final;
+
+        /**
+         * Check path if allowed
+         * @param threatPath
+         * @return
+         */
+        bool isAllowListedPath(const std::string& threatPath) final;
 
         bool isPuaApproved(const std::string& puaName) final;
 

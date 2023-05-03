@@ -12,7 +12,8 @@ namespace threat_scanner
         virtual ~ISusiGlobalHandler() = default;
         virtual bool isOaPuaDetectionEnabled() = 0;
         virtual bool isPuaApproved(const std::string& puaName) = 0;
-        virtual bool isAllowListed(const std::string& threatChecksum) = 0;
+        virtual bool isAllowListedSha256(const std::string& threatCheckSum) = 0;
+        virtual bool isAllowListedPath(const std::string& path) = 0;
     };
     using ISusiGlobalHandlerSharedPtr = std::shared_ptr<ISusiGlobalHandler>;
 } // namespace threat_scanner

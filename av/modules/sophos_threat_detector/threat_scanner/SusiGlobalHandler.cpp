@@ -66,7 +66,7 @@ namespace threat_scanner
                     [&stream](const auto& byte) { stream << std::setw(2) << int(byte); });
 
                 auto susiHandler = static_cast<SusiGlobalHandler*>(token);
-                if (susiHandler->accessSusiSettings()->isAllowListed(stream.str()))
+                if (susiHandler->accessSusiSettings()->isAllowListedSha256(stream.str()))
                 {
                     LOGDEBUG("Allowed by SHA256: " << stream.str());
                     return true;
@@ -474,10 +474,17 @@ namespace threat_scanner
         return setting;
     }
 
-    bool SusiGlobalHandler::isAllowListed(const std::string& threatChecksum)
+    bool SusiGlobalHandler::isAllowListedSha256(const std::string& threatChecksum)
     {
         std::lock_guard<std::mutex> lock(m_susiSettingsMutex);
-        return m_susiSettings->isAllowListed(threatChecksum);
+        return m_susiSettings->isAllowListedSha256(threatChecksum);
+    }
+
+
+    bool SusiGlobalHandler::isAllowListedPath(const std::string& threatPath)
+    {
+        std::lock_guard<std::mutex> lock(m_susiSettingsMutex);
+        return m_susiSettings->isAllowListedPath(threatPath);
     }
 
     bool SusiGlobalHandler::isOaPuaDetectionEnabled()

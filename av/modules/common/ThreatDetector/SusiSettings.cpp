@@ -139,19 +139,19 @@ namespace common::ThreatDetector
         return settings.dump();
     }
 
-    bool SusiSettings::isAllowListed(const std::string& threatChecksum, const std::string& threatPath) const
+    bool SusiSettings::isAllowListedSha256(const std::string& threatChecksum) const
     {
         std::scoped_lock scopedLock(m_accessMutex);
-        auto allowBySha = std::find(m_susiAllowListSha256.cbegin(), m_susiAllowListSha256.cend(), threatChecksum) !=
-               m_susiAllowListSha256.cend();
+        return std::find(m_susiAllowListSha256.cbegin(), m_susiAllowListSha256.cend(), threatChecksum) !=
+                          m_susiAllowListSha256.cend();
+    }
 
-        if (!allowBySha)
-        {
-            return std::find_if(m_susiAllowListPath.cbegin(), m_susiAllowListPath.cend(), [&](Exclusion pathAllowed){
-                      return pathAllowed.appliesToPath(threatPath);
-            }) != m_susiAllowListPath.cend();
-        }
-        return true;
+    bool SusiSettings::isAllowListedPath(const std::string& threatFile) const
+    {
+        std::scoped_lock scopedLock(m_accessMutex);
+        return std::find_if(m_susiAllowListPath.cbegin(), m_susiAllowListPath.cend(), [&](Exclusion pathAllowed){
+                                return pathAllowed.appliesToPath(threatFile);
+                            }) != m_susiAllowListPath.cend();
     }
 
     void SusiSettings::setAllowListSha256(AllowList&& allowListBySha) noexcept

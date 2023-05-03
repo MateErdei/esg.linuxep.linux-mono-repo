@@ -26,7 +26,8 @@ namespace common::ThreatDetector
         void saveSettings(const std::string& path, mode_t permissions) const;
 
         // Allow listing
-        bool isAllowListed(const std::string& threatChecksum, const std::string& threatPath) const;
+        bool isAllowListedSha256(const std::string& threatChecksum) const;
+        bool isAllowListedPath(const std::string& threatPath) const;
         void setAllowListSha256(AllowList&& allowListBySha) noexcept;
         void setAllowListPath(AllowList&& allowListByPath) noexcept;
         size_t getAllowListSizeSha256() const noexcept;
