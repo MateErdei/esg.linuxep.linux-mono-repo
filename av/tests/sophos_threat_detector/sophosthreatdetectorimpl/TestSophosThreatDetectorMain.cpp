@@ -109,7 +109,7 @@ TEST_F(TestSophosThreatDetectorMain, setsProxyBeforeChroot)
     EXPECT_STREQ(proxy, "http://this.is.a.proxy:8080");
 }
 
-TEST_F(TestSophosThreatDetectorMain, emptyProxyBeforeChroot)
+TEST_F(TestSophosThreatDetectorMain, proxyConfigFileIsEmpty)
 {
     ::unsetenv("https_proxy"); // Ensure environment from before testing doesn't pollute this test
     UsingMemoryAppender memoryAppenderHolder(*this);
@@ -137,7 +137,7 @@ TEST_F(TestSophosThreatDetectorMain, emptyProxyBeforeChroot)
     EXPECT_EQ(proxy, nullptr);
 }
 
-TEST_F(TestSophosThreatDetectorMain, missingProxyBeforeChroot)
+TEST_F(TestSophosThreatDetectorMain, proxyConfigFileIsNotPresent)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
