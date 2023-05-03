@@ -46,11 +46,11 @@ namespace
         {
             if (sxlEnabled)
             {
-                expectWriteSusiConfigFromString(R"sophos({"enableSxlLookup":true,"machineLearning":true,"puaApprovedList":[],"shaAllowList":[]})sophos");
+                expectWriteSusiConfigFromString(R"sophos({"enableSxlLookup":true,"machineLearning":true,"pathAllowList":[],"puaApprovedList":[],"shaAllowList":[]})sophos");
             }
             else
             {
-                expectWriteSusiConfigFromString(R"sophos({"enableSxlLookup":false,"machineLearning":true,"puaApprovedList":[],"shaAllowList":[]})sophos");
+                expectWriteSusiConfigFromString(R"sophos({"enableSxlLookup":false,"machineLearning":true,"pathAllowList":[],"puaApprovedList":[],"shaAllowList":[]})sophos");
             }
         }
 
@@ -60,6 +60,7 @@ namespace
             settings["enableSxlLookup"] = sxlEnabled;
             settings["machineLearning"] = true;
             settings["puaApprovedList"] = puaApprovedList;
+            settings["pathAllowList"] = nlohmann::json::array();
             settings["shaAllowList"] = nlohmann::json::array();
             expectWriteSusiConfigFromString(settings.dump());
         }
