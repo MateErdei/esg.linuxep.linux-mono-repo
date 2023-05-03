@@ -334,13 +334,13 @@ def main():
         remote_dir = f"{edr_dir_on_vagrant}/TA"
         temp_file_content = generate_edr_test_script(remote_dir, edr_dir_on_vagrant, env_variables, quoted_args)
     elif current_repo == EVENT_JOURNALER_REPO_DIR_NAME:
-        journaler_dir_on_vagrant = f"/vagrant/{EDR_REPO_DIR_NAME}"
-        # EDR also needs to run tests from TA dir so hard code the remote_dir
+        journaler_dir_on_vagrant = f"/vagrant/{EVENT_JOURNALER_REPO_DIR_NAME}"
+        # Event Journaler also needs to run tests from TA dir so hard code the remote_dir
         # remap test location arg, assuming last arg is the dir of the tests we want to run
         test_dir_absolute = os.path.join(remote_dir, quoted_args[-1])
         quoted_args[-1] = add_quote(test_dir_absolute)
         remote_dir = f"{journaler_dir_on_vagrant}/TA"
-        temp_file_content = generate_edr_test_script(remote_dir, journaler_dir_on_vagrant, env_variables, quoted_args)
+        temp_file_content = generate_event_journaler_test_script(remote_dir, journaler_dir_on_vagrant, env_variables, quoted_args)
 
     tmp_file_on_host = os.path.join(vagrant_root, 'tmpscript.sh')
     tmp_file_on_guest = os.path.join('/vagrant/', SSPL_TOOLS_REPO_DIR_NAME, 'tmpscript.sh')
