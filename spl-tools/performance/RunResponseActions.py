@@ -55,6 +55,7 @@ def send_execute_command(region, env, tenant_id, endpoint_id, cmd):
                         headers=request_headers,
                         json=request_body)
 
+    logging.info(f"HERE: {res.json()}")
     if res.ok:
         return res.json()
     logging.error(f"Failed to send execute command response action: {res.text}")
