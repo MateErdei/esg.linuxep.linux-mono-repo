@@ -973,16 +973,30 @@ namespace SulDownloader
             return ex.code().value();
         }
 
+        auto filePermissions = Common::FileSystem::filePermissions();
+        bool groupExists = false;
         try
         {
-            // Make sure Update Scheduler can access the lock file so that it can work out if suldownloader is running.
-            auto filePermissions = Common::FileSystem::filePermissions();
-            filePermissions->chown(pidLock->filePath(), "root", sophos::group());
-            filePermissions->chmod(pidLock->filePath(), S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
+            filePermissions->getGroupId(sophos::group());
+            groupExists = true;
         }
-        catch (const Common::FileSystem::IFileSystemException& exception)
+        catch(const Common::FileSystem::IFileSystemException& exception)
         {
-            LOGWARN("Could not change lock file permissions for Update Scheduler to access: " << exception.what());
+            LOGDEBUG("The group " << sophos::group() << " does not exist, indicating running via Thin Installer");
+        }
+
+        if (groupExists)
+        {
+            try
+            {
+                // Make sure Update Scheduler can access the lock file so that it can work out if suldownloader is running.
+                filePermissions->chown(pidLock->filePath(), "root", sophos::group());
+                filePermissions->chmod(pidLock->filePath(), S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
+            }
+            catch (const Common::FileSystem::IFileSystemException& exception)
+            {
+                LOGWARN("Could not change lock file permissions for Update Scheduler to access: " << exception.what());
+            }
         }
 
         // Process command line args

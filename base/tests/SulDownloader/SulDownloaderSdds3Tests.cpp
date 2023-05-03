@@ -391,6 +391,7 @@ public:
         EXPECT_CALL(*mockFilePermissions, chown(Common::ApplicationConfiguration::applicationPathManager().getFeaturesJsonPath(), sophos::updateSchedulerUser(), sophos::group())).Times(installedFeaturesWritesExpected);
         EXPECT_CALL(*mockFilePermissions, chmod(Common::ApplicationConfiguration::applicationPathManager().getFeaturesJsonPath(), S_IRUSR | S_IWUSR | S_IRGRP)).Times(installedFeaturesWritesExpected);
 
+        EXPECT_CALL(*mockFilePermissions, getGroupId(sophos::group())).WillRepeatedly(Return(123));
         EXPECT_CALL(*mockFilePermissions, chown(Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderLockFilePath(), "root", sophos::group())).WillRepeatedly(Return());
         EXPECT_CALL(*mockFilePermissions, chmod(Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderLockFilePath(), S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP)).WillRepeatedly(Return());
 
