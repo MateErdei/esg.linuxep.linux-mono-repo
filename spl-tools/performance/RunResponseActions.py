@@ -1,5 +1,4 @@
 import logging
-import urllib.parse
 
 import requests
 
@@ -29,7 +28,7 @@ def get_ra_request_headers(tenant_id):
 
 
 def get_response_action_status(region, env, tenant_id, action_id):
-    url = urllib.parse.urljoin(get_base_ra_request_url(region=region, env=env), action_id)
+    url = f"{get_base_ra_request_url(region=region, env=env)}/{action_id}"
     request_headers = get_ra_request_headers(tenant_id)
 
     res = requests.get(url, auth=get_ra_request_auth(), proxies=get_proxy_details(), headers=request_headers)
