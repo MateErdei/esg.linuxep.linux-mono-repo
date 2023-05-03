@@ -13,10 +13,10 @@ import tarfile
 import xml.etree.ElementTree
 import zipfile
 
-import requests
 from artifactory import ArtifactoryPath
 
 from PerformanceResources import *
+from RunResponseActions import *
 
 SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
 SAFESTORE_MALWARE_PATH = "/root/performance/malware_for_safestore_tests"
@@ -837,16 +837,36 @@ def run_safestore_restoration_test():
     exit(return_code)
 
 
-def run_response_actions_download_files_test(client_id, email, password, region):
-    pass
+def run_response_actions_list_files_test(region, env, tenant_id):
+    return_code = 0
+    matching_dir_content = 0
+    expected_dir_content = '\n'.join(sorted((f for f in os.listdir("/home/admin") if not f.startswith(".")), key=str.lower)) + "\n"
 
+    start_time = get_current_unix_epoch_in_seconds()
+    for i in range(10):
+        res = send_execute_command(region=region, env=env, tenant_id=tenant_id, endpoint_id=get_endpoint_id(), cmd="ls /home/admin")
 
-def run_response_actions_upload_files_test(client_id, email, password, region):
-    pass
+        if res["id"] is not None:
+            action_id = res.json()["id"]
+            action_status = get_response_action_status(region=region, env=env, tenant_id=tenant_id, action_id=action_id)
 
+            if action_status["endpoints"][0]["output"]["stdOut"] is not None:
+                cmd_output = action_status["endpoints"][0]["output"]["stdOut"]
+                logging.debug(f"Command output: {cmd_output}")
+                if cmd_output == expected_dir_content:
+                    matching_dir_content += 1
+    end_time = get_current_unix_epoch_in_seconds()
 
-def run_response_actions_list_files_test(client_id, email, password, region):
-    pass
+    record_result("Response Actions List Files", get_current_date_time_string(), start_time, end_time)
+
+    if matching_dir_content == 0:
+        logging.error(f"Command output did not match expected directory content: {expected_dir_content}")
+        return_code = 1
+    elif matching_dir_content < 10:
+        logging.warning(f"Command output did not match expected directory content {matching_dir_content} times: {expected_dir_content}")
+        return_code = 2
+
+    exit(return_code)
 
 
 def add_options():
@@ -872,13 +892,18 @@ def add_options():
     parser.add_argument('-i', '--client-id', action='store',
                         help="Central account API client ID to use to run live queries")
 
+    parser.add_argument('-t', '--tenant-id', action='store',
+                        help="Central account API tenant ID to use for response actions")
+
     parser.add_argument('-e', '--email', default='darwinperformance@sophos.xmas.testqa.com', action='store',
                         help="Central account email address to use to run live queries")
 
     parser.add_argument('-p', '--password', action='store',
                         help="Central account API client secret or password to use to run live queries")
 
-    parser.add_argument('-r', '--region', action='store', help="Central region (q, d, p)")
+    parser.add_argument('-c', '--central-env', action='store', help="Central environment (q, d, p)")
+
+    parser.add_argument('-r', '--central-region', action='store', help="Central region")
 
     parser.add_argument('-d', '--dry_run', action='store_true', default=False,
                         help="Run tests locally without storing results")
@@ -909,7 +934,7 @@ def main():
     elif args.suite == 'local-livequery-detections':
         run_local_live_query_detections_perf_test()
     elif args.suite == 'central-livequery':
-        run_central_live_query_perf_test(args.client_id, args.email, args.password, args.region)
+        run_central_live_query_perf_test(args.client_id, args.email, args.password, args.central_env)
     elif args.suite == 'local-liveresponse_x1':
         run_local_live_response_test(1, 0)
         run_local_live_response_test(1, 300)
@@ -925,12 +950,8 @@ def main():
         run_safestore_database_content_test()
     elif args.suite == 'safestore-restore-database':
         run_safestore_restoration_test()
-    elif args.suite == 'ra-file-download':
-        run_response_actions_download_files_test(args.client_id, args.email, args.password, args.region)
-    elif args.suite == 'ra-file-upload':
-        run_response_actions_upload_files_test(args.client_id, args.email, args.password, args.region)
     elif args.suite == 'ra-list-files':
-        run_response_actions_list_files_test(args.client_id, args.email, args.password, args.region)
+        run_response_actions_list_files_test(args.central_region, args.central_env, args.tenant_id)
     logging.info("Finished")
 
 
