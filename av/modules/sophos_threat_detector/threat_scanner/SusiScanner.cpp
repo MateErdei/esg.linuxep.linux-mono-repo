@@ -47,9 +47,14 @@ scan_messages::ScanResponse SusiScanner::scan(datatypes::AutoFd& fd, const scan_
             buildThreatDetected(result.detections, info.getPath(), std::move(fd), info.getUserId(), e_ScanType);
 
         assert(m_globalHandler);
-        if (m_globalHandler->isAllowListed(threatDetected.sha256))
+        if (m_globalHandler->isAllowListedSha256(threatDetected.sha256))
         {
             LOGINFO("Allowing " << common::escapePathForLogging(info.getPath()) << " with " << threatDetected.sha256);
+        }
+        //todo remove with LINUXDAR-6861
+        else if (m_globalHandler->isAllowListedPath(info.path()))
+        {
+            LOGINFO("Allowing " << common::escapePathForLogging(info.getPath()) << " as path is in allow list");
         }
         else if (threatDetected.threatType == "PUA" && !info.detectPUAs())
         {
