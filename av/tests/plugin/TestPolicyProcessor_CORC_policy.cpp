@@ -111,7 +111,7 @@ static const std::string GL_CORC_POLICY = R"sophos(<?xml version="1.0"?>
 
 TEST_F(TestPolicyProcessor_CORC_policy, processCorcPolicyWithAllowList)
 {
-    const std::string settingsJson = R"sophos({"enableSxlLookup":true,"machineLearning":true,"puaApprovedList":[],"shaAllowList":["a651a4b1cda12a3bccde8e5c8fb83b3cff1f40977dfe562883808000ffe3f798","42268ef08462e645678ce738bd26518bc170a0404a186062e8b1bec2dc578673"]})sophos";
+    const std::string settingsJson = R"sophos({"enableSxlLookup":true,"machineLearning":true,"pathAllowList":["/tmp/a/path"],"puaApprovedList":[],"shaAllowList":["a651a4b1cda12a3bccde8e5c8fb83b3cff1f40977dfe562883808000ffe3f798","42268ef08462e645678ce738bd26518bc170a0404a186062e8b1bec2dc578673"]})sophos";
     expectConstructorCalls();
     expectWriteSusiConfigFromString(settingsJson);
 
@@ -129,7 +129,7 @@ TEST_F(TestPolicyProcessor_CORC_policy, processCorcPolicyWithEmptyAllowList)
           </whitelist>
         </policy>)";
 
-    std::string settingsJson = R"sophos({"enableSxlLookup":true,"machineLearning":true,"puaApprovedList":[],"shaAllowList":[]})sophos";
+    std::string settingsJson = R"sophos({"enableSxlLookup":true,"machineLearning":true,"pathAllowList":[],"puaApprovedList":[],"shaAllowList":[]})sophos";
     expectConstructorCalls();
     expectWriteSusiConfigFromString(settingsJson);
 
@@ -145,7 +145,7 @@ TEST_F(TestPolicyProcessor_CORC_policy, processCorcPolicyWithMissingAllowList)
         <policy RevID="revisionid" policyType="37">
         </policy>)";
 
-    std::string settingsJson = R"sophos({"enableSxlLookup":true,"machineLearning":true,"puaApprovedList":[],"shaAllowList":[]})sophos";
+    std::string settingsJson = R"sophos({"enableSxlLookup":true,"machineLearning":true,"pathAllowList":[],"puaApprovedList":[],"shaAllowList":[]})sophos";
     expectConstructorCalls();
     expectWriteSusiConfigFromString(settingsJson);
 
@@ -165,7 +165,72 @@ TEST_F(TestPolicyProcessor_CORC_policy, processCorcPolicyWithNonShaTypeAllowList
         </whitelist>
         </policy>)";
 
-    std::string settingsJson = R"sophos({"enableSxlLookup":true,"machineLearning":true,"puaApprovedList":[],"shaAllowList":[]})sophos";
+    std::string settingsJson = R"sophos({"enableSxlLookup":true,"machineLearning":true,"pathAllowList":["/tmp/a/path"],"puaApprovedList":[],"shaAllowList":[]})sophos";
+    expectConstructorCalls();
+    expectWriteSusiConfigFromString(settingsJson);
+
+    Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
+    auto attributeMap = Common::XmlUtilities::parseXml(policy);
+    PolicyProcessorUnitTestClass proc;
+    ASSERT_NO_THROW(proc.processCorcPolicy(attributeMap));
+}
+
+TEST_F(TestPolicyProcessor_CORC_policy, processCorcPolicyWithNoPathTypeAllowListItems)
+{
+    std::string policy = R"(<?xml version="1.0"?>
+        <policy RevID="revisionid" policyType="37">
+        <whitelist>
+            <item type="sha256">42268ef08462e645678ce738bd26518bc170a0404a186062e8b1bec2dc578673</item>
+            <item type="cert-signer">SignerName</item>
+        </whitelist>
+        </policy>)";
+
+    std::string settingsJson = R"sophos({"enableSxlLookup":true,"machineLearning":true,"pathAllowList":[],"puaApprovedList":[],"shaAllowList":["42268ef08462e645678ce738bd26518bc170a0404a186062e8b1bec2dc578673"]})sophos";
+    expectConstructorCalls();
+    expectWriteSusiConfigFromString(settingsJson);
+
+    Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
+    auto attributeMap = Common::XmlUtilities::parseXml(policy);
+    PolicyProcessorUnitTestClass proc;
+    ASSERT_NO_THROW(proc.processCorcPolicy(attributeMap));
+}
+
+TEST_F(TestPolicyProcessor_CORC_policy, processCorcPolicyWithOneEmptyPathTypeAllowListItem)
+{
+    std::string policy = R"(<?xml version="1.0"?>
+        <policy RevID="revisionid" policyType="37">
+        <whitelist>
+            <item type="path">/tmp/a/path</item>
+            <item type="path"></item>
+            <item type="sha256">42268ef08462e645678ce738bd26518bc170a0404a186062e8b1bec2dc578673</item>
+            <item type="cert-signer">SignerName</item>
+        </whitelist>
+        </policy>)";
+
+    std::string settingsJson = R"sophos({"enableSxlLookup":true,"machineLearning":true,"pathAllowList":["/tmp/a/path"],"puaApprovedList":[],"shaAllowList":["42268ef08462e645678ce738bd26518bc170a0404a186062e8b1bec2dc578673"]})sophos";
+    expectConstructorCalls();
+    expectWriteSusiConfigFromString(settingsJson);
+
+    Tests::ScopedReplaceFileSystem replacer(std::move(m_mockIFileSystemPtr));
+    auto attributeMap = Common::XmlUtilities::parseXml(policy);
+    PolicyProcessorUnitTestClass proc;
+    ASSERT_NO_THROW(proc.processCorcPolicy(attributeMap));
+}
+
+TEST_F(TestPolicyProcessor_CORC_policy, processCorcPolicyWithOneInvalidPathTypeAllowListItem)
+{
+    std::string policy = R"(<?xml version="1.0"?>
+        <policy RevID="revisionid" policyType="37">
+        <whitelist>
+            <item type="path">/tmp/a/path</item>
+            <item type="path">not/a/absolute/path</item>
+            <item type="path">*/not/a/absolute/path/but/am/glob</item>
+            <item type="sha256">42268ef08462e645678ce738bd26518bc170a0404a186062e8b1bec2dc578673</item>
+            <item type="cert-signer">SignerName</item>
+        </whitelist>
+        </policy>)";
+
+    std::string settingsJson = R"sophos({"enableSxlLookup":true,"machineLearning":true,"pathAllowList":["/tmp/a/path","*/not/a/absolute/path/but/am/glob"],"puaApprovedList":[],"shaAllowList":["42268ef08462e645678ce738bd26518bc170a0404a186062e8b1bec2dc578673"]})sophos";
     expectConstructorCalls();
     expectWriteSusiConfigFromString(settingsJson);
 
@@ -187,7 +252,7 @@ TEST_F(TestPolicyProcessor_CORC_policy, processCorcPolicyWithOneEmptyShaTypeAllo
         </whitelist>
         </policy>)";
 
-    std::string settingsJson = R"sophos({"enableSxlLookup":true,"machineLearning":true,"puaApprovedList":[],"shaAllowList":["42268ef08462e645678ce738bd26518bc170a0404a186062e8b1bec2dc578673"]})sophos";
+    std::string settingsJson = R"sophos({"enableSxlLookup":true,"machineLearning":true,"pathAllowList":["/tmp/a/path"],"puaApprovedList":[],"shaAllowList":["42268ef08462e645678ce738bd26518bc170a0404a186062e8b1bec2dc578673"]})sophos";
     expectConstructorCalls();
     expectWriteSusiConfigFromString(settingsJson);
 
@@ -209,7 +274,7 @@ TEST_F(TestPolicyProcessor_CORC_policy, processCorcPolicyWithShaAndCommentInAllo
         </whitelist>
         </policy>)";
 
-    std::string settingsJson = R"sophos({"enableSxlLookup":true,"machineLearning":true,"puaApprovedList":[],"shaAllowList":["42268ef08462e645678ce738bd26518bc170a0404a186062e8b1bec2dc578673"]})sophos";
+    std::string settingsJson = R"sophos({"enableSxlLookup":true,"machineLearning":true,"pathAllowList":["/tmp/a/path"],"puaApprovedList":[],"shaAllowList":["42268ef08462e645678ce738bd26518bc170a0404a186062e8b1bec2dc578673"]})sophos";
     expectConstructorCalls();
     expectWriteSusiConfigFromString(settingsJson);
 
