@@ -297,8 +297,8 @@ EDR Plugin Returns Query Error If Event Journal Contains Too Many Detections
     ...  Check Sophos Detections Journal Queries Return Maximum Exceeded Error
 
 EDR Plugin Can Run Event Journal Scheduled Queries And Create Jrl When Data Is Greater Than Maximum Entries
-    # Size of an AV Detection event multiplied by this number should not exceed the table memory threshold of 100Mb
-    ${expectedNumEvents} =  Set Variable  ${536}
+    # Size of an AV Detection event multiplied by this number should not exceed the table memory threshold of 10Mb
+    ${expectedNumEvents} =  Set Variable  ${54}
 
     # Need to make sure test starts of fresh
     Reinstall With Base
