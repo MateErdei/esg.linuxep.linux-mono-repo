@@ -846,9 +846,7 @@ def run_response_actions_download_files_test(region, env, tenant_id):
     log_utils = LogUtils.LogUtils()
     log_utils.mark_ra_action_runner_log()
 
-    file_to_download = os.path.join(os.path.dirname(os.path.realpath(__file__)), f"file_to_download")
-    with open(file_to_download, "wb") as f:
-        f.truncate(1024 * 1024 * 512)  # 0.5GB
+    file_to_download = "/root/performance/ra_test_file"
     size = os.path.getsize(file_to_download)
     sha256 = hashlib.sha256(open(file_to_download, 'rb').read()).hexdigest()
 
@@ -896,19 +894,17 @@ def run_response_actions_upload_files_test(region, env, tenant_id):
 
     start_time = get_current_unix_epoch_in_seconds()
     for i in range(10):
-        filepath = os.path.join(SCRIPT_DIR, f"test_file_{i}")
-        with open(filepath, "wb") as f:
-            f.truncate(1024 * 1024 * 512)  # 0.5GB
+        file_to_upload = "/root/performance/ra_test_file"
 
         res = upload_response_actions_file(region=region, env=env, tenant_id=tenant_id, endpoint_id=get_endpoint_id(),
-                                           file_path=filepath)
+                                           file_path=file_to_upload)
         logging.debug(res)
 
         action_status = get_response_action_status(region=region, env=env, tenant_id=tenant_id, action_id=res["id"])
         logging.debug(action_status)
 
         if action_status["endpoints"][0]["result"] != "succeeded":
-            logging.warning(f"Failed to upload response actions file {filepath}")
+            logging.warning(f"Failed to upload response actions file {file_to_upload}")
             failed_file_uploads += 1
     end_time = get_current_unix_epoch_in_seconds()
 
