@@ -842,22 +842,23 @@ def run_response_actions_download_files_test(region, env, tenant_id):
     failed_file_downloads = 0
 
     start_time = get_current_unix_epoch_in_seconds()
+    log_utils = LogUtils.LogUtils()
+    log_utils.mark_ra_action_runner_log()
     for i in range(10):
         filepath = os.path.join(SCRIPT_DIR, f"test_file_{i}")
-        size = 1024 * 1024 * 512  # 0.5GB
-        sha256 = "9acca8e8c22201155389f65abbf6bc9723edc7384ead80503839f49dcc56d767"
+        size = 521962
+        sha256 = "fa0c0c2bb36cebbbf88722d08b590206ae2dcee66a9557e18ab8d7a58a9fd999"
 
         res = download_response_actions_file(region=region, env=env, tenant_id=tenant_id, endpoint_id=get_endpoint_id(),
                                            file_path=filepath, size=size, sha256=sha256)
         logging.debug(res)
 
-        if res["id"] is not None:
-            action_status = get_response_action_status(region=region, env=env, tenant_id=tenant_id, action_id=res["id"])
-            logging.debug(action_status)
+        log_utils.wait_for_ra_action_runner_log_contains_after_mark(f"Beginning download to {filepath}", 60)
+        log_utils.wait_for_ra_action_runner_log_contains_after_mark(f"{filepath} downloaded successfully", 120)
 
-            if action_status["endpoints"][0]["result"] != "succeeded" or os.path.exists(filepath):
-                logging.warning(f"Failed to download response actions file {filepath}")
-                failed_file_downloads += 1
+        if not os.path.exists(filepath):
+            logging.warning(f"Failed to download response actions file {filepath}")
+            failed_file_downloads += 1
     end_time = get_current_unix_epoch_in_seconds()
 
     record_result("Response Actions Download Files", get_current_date_time_string(), start_time, end_time)

@@ -109,6 +109,7 @@ class LogUtils(object):
         self.oa_log = os.path.join(self.av_plugin_logs_dir, "soapd.log")
         self.cloud_server_log = os.path.join(self.tmp_path, "cloudServer.log")
         self.wdctl_log = os.path.join(self.base_logs_dir, "wdctl.log")
+        self.ra_action_runner_log = os.path.join(self.install_path, "plugins", "responseactions", "log", "actionrunner.log")
         self.marked_mcsrouter_logs = 0
         self.marked_mcs_envelope_logs = 0
         self.marked_watchdog_log = 0
@@ -116,6 +117,7 @@ class LogUtils(object):
         self.marked_av_log = 0
         self.marked_sophos_threat_detector_log = 0
         self.marked_safestore_log = 0
+        self.marked_ra_action_runner_log = 0
         self.__m_marked_log_position = {}
 
         self.__m_pending_mark_expected_errors = {}
@@ -1070,7 +1072,7 @@ File Log Contains
         return self.dump_marked_log(self.wdctl_log, mark)
 
 #####################################################################
-# Sophos Threat Detector Log
+# SafeStore Log
 
     def mark_safestore_log(self):
         contents = _get_log_contents(self.safestore_log)
@@ -1106,6 +1108,44 @@ File Log Contains
             time.sleep(0.5)
 
         logger.error(f"Failed to find {expected} in {safestore_log} after {self.marked_safestore_log}")
+
+#####################################################################
+# Response Actions Log
+
+    def mark_ra_action_runner_log(self):
+        contents = _get_log_contents(self.ra_action_runner_log)
+        self.marked_ra_action_runner_log = len(contents)
+
+    def check_marked_ra_action_runner_log_contains(self, string_to_contain):
+        ra_action_runner_log = self.ra_action_runner_log
+        contents = _get_log_contents(ra_action_runner_log)
+        contents = contents[self.marked_ra_action_runner_log:]
+
+        if string_to_contain not in contents:
+            self.dump_log(contents)
+            logger.error(f"Marked Response Action Runner log did not contain: {string_to_contain}")
+            return False
+        return True
+
+    def wait_for_ra_action_runner_log_contains_after_mark(self, expected, timeout=10) -> None:
+        ra_action_runner_log = self.ra_action_runner_log
+        start = time.time()
+        old_contents = ""
+        while time.time() < start + timeout:
+            contents = _get_log_contents(ra_action_runner_log)
+            contents = contents[self.marked_ra_action_runner_log:]
+            if contents is not None:
+                if len(contents) > len(old_contents):
+                    logger.debug(contents[:len(old_contents)])
+
+                if expected in contents:
+                    return
+
+                old_contents = contents
+
+            time.sleep(0.5)
+
+        logger.error(f"Failed to find {expected} in {ra_action_runner_log} after {self.marked_ra_action_runner_log}")
 
 def __main(argv):
     # write your tests here
