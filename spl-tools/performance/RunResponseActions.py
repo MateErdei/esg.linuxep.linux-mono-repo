@@ -35,7 +35,7 @@ def get_response_action_status(region, env, tenant_id, action_id):
 
     while True:
         res = requests.get(url, auth=get_ra_request_auth(), proxies=get_proxy_details(), headers=request_headers)
-        if res.json()["endpoints"][0]["status"] != "pending":
+        if res.json()["endpoints"][0]["status"] != ("pending" and "waitingForInput"):
             break
 
     if res.ok:
