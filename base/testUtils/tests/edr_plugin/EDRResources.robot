@@ -60,6 +60,7 @@ Restart EDR Plugin
     ...   40 secs
     ...   1 secs
     ...   Check EDR Log Contains   Plugin Finished
+    Log    ${EDR_DIR}/log/edr.log
     Run Keyword If   ${clearLog}   Remove File  ${EDR_DIR}/log/edr.log
     Run Keyword If   ${installQueryPacks}   Create Query Packs
     Wdctl Start Plugin  edr
