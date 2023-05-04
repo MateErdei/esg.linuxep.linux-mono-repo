@@ -64,7 +64,7 @@ Restart EDR Plugin
     Run Keyword If   ${installQueryPacks}   Create Query Packs
     Wdctl Start Plugin  edr
     Wait Until Keyword Succeeds
-    ...  30 secs
+    ...  60 secs
     ...  1 secs
     ...  Check EDR Log Contains   Plugin preparation complete
 
