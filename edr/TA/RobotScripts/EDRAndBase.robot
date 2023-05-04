@@ -98,6 +98,8 @@ EDR plugin Configures OSQuery To Enable SysLog Event Collection
     Restore Rsyslog Apparmor Rule
 
 EDR Restarts If File Descriptor Limit Hit
+    [Tags]  TESTFAILURE
+    [Teardown]  EDR And Base Teardown No Stop
     # LINUXDAR-7106 - test broken on SLES12
     ${is_suse} =  Does File Contain Word  /etc/os-release  SUSE Linux Enterprise Server 12
     Pass Execution If  ${is_suse}  Skipping test on SLES12 until LINUXDAR-7096 is fixed
@@ -112,16 +114,22 @@ EDR Restarts If File Descriptor Limit Hit
 
     ${actionContent} =  Set Variable  '{"type": "sophos.mgt.action.RunLiveQuery", "name": "test_query", "query": "select * from users;"}'
 
-    Send Plugin Actions  edr  LiveQuery  corr123  ${actionContent}  ${120}
+    Send Plugin Actions  edr  LiveQuery  corr123  ${actionContent}  ${80}
     Wait Until Keyword Succeeds
     ...  30 secs
     ...  5 secs
-    ...  EDR Plugin Log Contains X Times  Received new Action   120
+    ...  EDR Plugin Log Contains X Times  Received new Action   80
 
     Wait Until Keyword Succeeds
     ...  200 secs
     ...  20 secs
     ...  EDR Plugin Log Contains X Times   Early request to stop found.  1
+
+    Wait Until Keyword Succeeds
+    ...  300 secs
+    ...  20 secs
+    ...  Check EDR Executable Not Running
+
 
 EDR Plugin Can Have Logging Level Changed Individually
     Check EDR Plugin Installed With Base
@@ -423,6 +431,8 @@ EDR Plugin Can Run Queries For Event Journal Detection Table With End Time And C
 
 
 EDR Plugin Stops Without Errors
+    [Teardown]  EDR And Base Teardown No Stop
+
     Check EDR Plugin Installed With Base
     Wait Until Keyword Succeeds
     ...  30 secs

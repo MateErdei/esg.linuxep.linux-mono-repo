@@ -300,6 +300,16 @@ EDR And Base Teardown
     Remove File    ${EDR_LOG_PATH}
     Start EDR
 
+
+EDR And Base Teardown No Stop
+    Wait Until Keyword Succeeds
+    ...  15 secs
+    ...  1 secs
+    ...  Check EDR Executable Not Running
+    Common Teardown
+    Remove File    ${EDR_LOG_PATH}
+    Start EDR
+
 Create Install Options File With Content
     [Arguments]  ${installFlags}
     Create File  ${SOPHOS_INSTALL}/base/etc/install_options  ${installFlags}
