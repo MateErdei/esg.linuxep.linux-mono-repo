@@ -115,3 +115,8 @@ def upload_file_to_client_bucket(url, file_to_download):
 
     if not res.ok:
         logging.error(f"Failed to upload file to client bucket: {res.text}")
+
+
+def create_file_for_ra(filepath):
+    with open(filepath, "wb") as f:
+        f.truncate(1024 * 1024 * 10)  # 10MB
