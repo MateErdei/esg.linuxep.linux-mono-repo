@@ -624,6 +624,7 @@ TEST_F(TestSusiScanner, scan_AllowedByPath)
 
     EXPECT_CALL(*m_mockTimer, reset()).Times(1);
     EXPECT_CALL(*m_mockSusiGlobalHandler, isAllowListedPath("/tmp/eicar.txt")).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockSusiGlobalHandler, isAllowListedSha256(_)).WillRepeatedly(Return(false));
 
     ScanResult scanResult{ { { "/tmp/eicar.txt", "threatName", "threatType", "sha256" } }, {} };
     EXPECT_CALL(*mockUnitScanner, scan(_, "/tmp/eicar.txt")).Times(1).WillOnce(Return(scanResult));
@@ -644,7 +645,8 @@ TEST_F(TestSusiScanner, puaAllowedInScanRequest)
     SusiScanner susiScanner{makeScannerWithReporter(mockUnitScanner)};
     EXPECT_CALL(*m_mockTimer, reset()).Times(1);
     EXPECT_CALL(*m_mockSusiGlobalHandler, isPuaApproved(_)).WillRepeatedly(Return(false));
-    EXPECT_CALL(*m_mockSusiGlobalHandler, isAllowListed(_)).WillRepeatedly(Return(false));
+    EXPECT_CALL(*m_mockSusiGlobalHandler, isAllowListedPath(_)).WillRepeatedly(Return(false));
+    EXPECT_CALL(*m_mockSusiGlobalHandler, isAllowListedSha256(_)).WillRepeatedly(Return(false));
 
     ScanResult scanResult{ { { "/tmp/eicar.txt", "An approved PUA", "PUA", "sha256" } }, {} };
     EXPECT_CALL(*mockUnitScanner, scan(_, "/tmp/eicar.txt")).Times(1).WillOnce(Return(scanResult));
@@ -670,7 +672,8 @@ TEST_F(TestSusiScanner, puaNotAllowedInScanRequest)
     SusiScanner susiScanner{makeScannerWithReporter(mockUnitScanner)};
     EXPECT_CALL(*m_mockTimer, reset()).Times(1);
     EXPECT_CALL(*m_mockSusiGlobalHandler, isPuaApproved(_)).WillRepeatedly(Return(false));
-    EXPECT_CALL(*m_mockSusiGlobalHandler, isAllowListed(_)).WillRepeatedly(Return(false));
+    EXPECT_CALL(*m_mockSusiGlobalHandler, isAllowListedPath(_)).WillRepeatedly(Return(false));
+    EXPECT_CALL(*m_mockSusiGlobalHandler, isAllowListedSha256(_)).WillRepeatedly(Return(false));
 
     ScanResult scanResult{ { { "/tmp/eicar.txt", puaClassName, "PUA", "sha256" } }, {} };
     EXPECT_CALL(*mockUnitScanner, scan(_, "/tmp/eicar.txt")).Times(1).WillOnce(Return(scanResult));

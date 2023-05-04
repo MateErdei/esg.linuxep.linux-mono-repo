@@ -57,6 +57,7 @@ scan_messages::ScanResponse SusiScanner::scan(datatypes::AutoFd& fd, const scan_
         else if (m_globalHandler->isAllowListedPath(info.path()))
         {
             LOGINFO("Allowing " << common::escapePathForLogging(info.getPath()) << " as path is in allow list");
+            reportDetections = false;
         }
         else if (threatDetected.threatType == "PUA")
         {
