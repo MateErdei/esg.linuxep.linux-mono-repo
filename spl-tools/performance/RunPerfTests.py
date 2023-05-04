@@ -853,9 +853,8 @@ def run_response_actions_download_files_test(region, env, tenant_id):
                                              file_path=filepath, size=size, sha256=sha256)
         logging.debug(res)
 
-        if res.json()["url"] is not None:
-            upload_url = res.json()["url"]
-            upload_file_to_client_bucket(upload_url)
+        if res["url"] is not None:
+            upload_file_to_client_bucket(res["url"])
 
         if res["id"] is not None:
             action_status = get_response_action_status(region=region, env=env, tenant_id=tenant_id, action_id=res["id"])
