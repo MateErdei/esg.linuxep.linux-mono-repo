@@ -1,6 +1,7 @@
 import argparse
 import csv
 import glob
+import hashlib
 import io
 import json
 import os.path
@@ -844,17 +845,22 @@ def run_response_actions_download_files_test(region, env, tenant_id):
     start_time = get_current_unix_epoch_in_seconds()
     log_utils = LogUtils.LogUtils()
     log_utils.mark_ra_action_runner_log()
+
+    file_to_download = os.path.join(os.path.dirname(os.path.realpath(__file__)), f"file_to_download")
+    with open(file_to_download, "wb") as f:
+        f.truncate(1024 * 1024 * 512)  # 0.5GB
+    size = os.path.getsize(file_to_download)
+    sha256 = hashlib.sha256(open(file_to_download, 'rb').read()).hexdigest()
+
     for i in range(10):
         filepath = os.path.join(SCRIPT_DIR, f"test_file_{i}")
-        size = 536870912
-        sha256 = "9acca8e8c22201155389f65abbf6bc9723edc7384ead80503839f49dcc56d767"
 
         res = download_response_actions_file(region=region, env=env, tenant_id=tenant_id, endpoint_id=get_endpoint_id(),
                                              file_path=filepath, size=size, sha256=sha256)
         logging.debug(res)
 
         if res["url"] is not None:
-            upload_file_to_client_bucket(res["url"])
+            upload_file_to_client_bucket(res["url"], file_to_download)
 
         if res["id"] is not None:
             action_status = get_response_action_status(region=region, env=env, tenant_id=tenant_id, action_id=res["id"])

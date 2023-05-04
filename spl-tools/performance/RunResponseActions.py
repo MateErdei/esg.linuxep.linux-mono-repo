@@ -109,12 +109,7 @@ def download_response_actions_file(region, env, tenant_id, endpoint_id, file_pat
     logging.error(f"Failed to send download response action file: {res.text}")
 
 
-def upload_file_to_client_bucket(url):
-    file_to_download = os.path.join(os.path.dirname(os.path.realpath(__file__)), f"test_file")
-
-    with open(file_to_download, "wb") as f:
-        f.truncate(1024 * 1024 * 512)  # 0.5GB
-
+def upload_file_to_client_bucket(url, file_to_download):
     res = requests.put(url, proxies=get_proxy_details(), data=file_to_download)
 
     if not res.ok:
