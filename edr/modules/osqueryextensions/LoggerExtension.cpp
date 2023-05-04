@@ -98,6 +98,10 @@ void LoggerExtension::reloadTags()
     {
         LOGWARN("Failed to load scheduled query tags on start up of Logger extension. Error: " << e.what());
     }
+    catch (const std::runtime_error& e)
+    {
+        LOGWARN("Failed to load scheduled query tags on start up of Logger extension. Error: " <<  e.what());
+    }
 }
 
 void LoggerExtension::Run(std::shared_ptr<std::atomic_bool> extensionFinished)
