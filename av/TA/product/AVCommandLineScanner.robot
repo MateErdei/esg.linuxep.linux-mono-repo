@@ -514,6 +514,15 @@ CLS Can Detect PUAs
     Log  output is ${output}
     Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
 
+CLS exclude PUA
+    Create File     ${NORMAL_DIRECTORY}/naughty_eicar_folder/eicar_pua    ${EICAR_PUA_STRING}
+
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} --detect-puas ${NORMAL_DIRECTORY}/naughty_eicar_folder/eicar_pua --exclude-puas EICAR-PUA-Test
+
+    Log  return code is ${rc}
+    Log  output is ${output}
+    Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
+
 
 CLS Will Not Scan Non-Existent File
     ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} ${NORMAL_DIRECTORY}/i_do_not_exist
