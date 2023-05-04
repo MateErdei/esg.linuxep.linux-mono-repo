@@ -34,6 +34,10 @@ namespace ResponsePlugin
         {
             response["type"] = UPLOAD_FOLDER_RESPONSE_TYPE;
         }
+        else if (requestType == DOWNLOAD_FILE_REQUEST_TYPE)
+        {
+            response["type"] = DOWNLOAD_FILE_RESPONSE_TYPE;
+        }
         response["result"] = static_cast<int>(result);
         sendResponse(correlationId, response.dump());
     }
