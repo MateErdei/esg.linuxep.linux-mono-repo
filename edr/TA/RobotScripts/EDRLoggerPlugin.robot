@@ -72,6 +72,7 @@ EDR Plugin Restarts Osquery When Custom Queries Have Changed
     ...  Check All Queries Run  ${SOPHOS_INSTALL}/plugins/edr/log/scheduledquery.log  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.custom.conf
 
 EDR Plugin Tags All Queries Correctly
+    [Timeout]  10 minutes
     [Setup]  Install EDR Directly from SDDS With mocked scheduled queries
     Directory Should Be Empty  ${SOPHOS_INSTALL}/base/mcs/datafeed
 
