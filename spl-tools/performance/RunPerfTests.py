@@ -847,7 +847,7 @@ def run_response_actions_download_files_test(region, env, tenant_id):
     log_utils.mark_ra_action_runner_log()
 
     file_to_download = "/root/performance/ra_test_file"
-    size = 145
+    size = os.path.getsize(file_to_download)
     sha256 = hashlib.sha256(open(file_to_download, 'rb').read()).hexdigest()
 
     for i in range(10):
