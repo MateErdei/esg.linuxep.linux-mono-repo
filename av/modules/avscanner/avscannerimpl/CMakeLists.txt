@@ -14,6 +14,7 @@ add_library(avscannerimpl SHARED
         NamedScanRunner.h
         Options.cpp
         Options.h
+        PuaExclusions.cpp
         PuaExclusions.h
         ScanCallbackImpl.cpp
         ScanCallbackImpl.h
@@ -23,7 +24,8 @@ add_library(avscannerimpl SHARED
         TimeDuration.h
         ClientSocketWrapper.cpp
         ClientSocketWrapper.h
-        IClientSocketWrapper.h)
+        IClientSocketWrapper.h
+        )
 
 target_include_directories(avscannerimpl PUBLIC
         ${CMAKE_SOURCE_DIR}/modules

@@ -76,6 +76,13 @@ namespace avscanner::avscannerimpl
             return common::E_GENERIC_FAILURE;
         }
 
+        // Check PUA Exclusions are all valid
+        const auto puaExclusions = options_.puaExclusions();
+        if (badPuaExclusion(puaExclusions))
+        {
+            return common::E_BAD_OPTION;
+        }
+
         std::string printArchiveScanning = m_archiveScanning ? "yes" : "no";
         LOGINFO("Archive scanning enabled: " << printArchiveScanning);
 
@@ -85,7 +92,6 @@ namespace avscanner::avscannerimpl
         std::string printDetectPUAs = m_detectPUAs ? "yes" : "no";
         LOGINFO("PUA detection enabled: " << printDetectPUAs);
 
-        const auto puaExclusions = options_.puaExclusions();
         if (!puaExclusions.empty())
         {
             std::ostringstream ost;

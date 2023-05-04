@@ -1,9 +1,12 @@
 // Copyright 2020-2023 Sophos Limited. All rights reserved.
 
-#include <stdexcept>
 #include "Options.h"
 #include "Logger.h"
+
 #include <boost/algorithm/string.hpp>
+
+#include <stdexcept>
+
 using namespace avscanner::avscannerimpl;
 namespace po = boost::program_options;
 

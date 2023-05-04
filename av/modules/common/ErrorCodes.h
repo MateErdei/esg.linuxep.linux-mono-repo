@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 #pragma once
 
 #include "ErrorCodesC.h"
@@ -12,6 +8,7 @@ namespace common
     enum E_ERROR_CODES: int
     {
         E_CLEAN_SUCCESS = 0,
+        E_BAD_OPTION = 3,
         E_GENERIC_FAILURE = 8,
         E_SIGTERM = 15,
         E_PASSWORD_PROTECTED = 16,

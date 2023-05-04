@@ -1,15 +1,12 @@
-/******************************************************************************************************
-
-Copyright 2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #include "avscanner/avscannerimpl/Options.h"
 
-#include <avscanner/avscannerimpl/CommandLineScanRunner.h>
-#include <avscanner/avscannerimpl/NamedScanRunner.h>
-#include <datatypes/Print.h>
-#include <datatypes/sophos_filesystem.h>
+#include "avscanner/avscannerimpl/CommandLineScanRunner.h"
+#include "avscanner/avscannerimpl/NamedScanRunner.h"
+#include "common/ErrorCodes.h"
+#include "datatypes/Print.h"
+#include "datatypes/sophos_filesystem.h"
 
 #include <memory>
 
@@ -21,10 +18,10 @@ int main(int argc, char* argv[])
 {
     enum E_ERROR_CODES: int
     {
-        E_CLEAN_EXIT,
-        E_GENERAL_ERROR,
-        E_UNKNOWN_OPTION,
-        E_BAD_OPTION
+        E_CLEAN_EXIT = common::E_ERROR_CODES::E_CLEAN_SUCCESS,
+        E_GENERAL_ERROR = 1,
+        E_UNKNOWN_OPTION = 2,
+        E_BAD_OPTION = common::E_ERROR_CODES::E_BAD_OPTION
     };
 
     try
