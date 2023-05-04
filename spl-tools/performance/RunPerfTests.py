@@ -859,18 +859,16 @@ def run_response_actions_download_files_test(region, env, tenant_id):
                                              file_path=filepath, size=size, sha256=sha256)
         logging.debug(res)
 
-        if res["url"] is not None:
-            upload_file_to_client_bucket(res["url"], file_to_download)
+        upload_file_to_client_bucket(res["url"], file_to_download)
 
-        if res["id"] is not None:
-            action_status = get_response_action_status(region=region, env=env, tenant_id=tenant_id, action_id=res["id"])
-            logging.debug(action_status)
+        action_status = get_response_action_status(region=region, env=env, tenant_id=tenant_id, action_id=res["id"])
+        logging.debug(action_status)
 
-            if action_status["endpoints"][0]["result"] != "succeeded":
-                logging.warning(f"Failed to download response actions file {filepath}, "
-                                f"due to: {action_status['endpoints'][0]['error']['errorMessage']}")
-                failed_file_downloads += 1
-                continue
+        if action_status["endpoints"][0]["result"] != "succeeded":
+            logging.warning(f"Failed to download response actions file {filepath}, "
+                            f"due to: {action_status['endpoints'][0]['error']['errorMessage']}")
+            failed_file_downloads += 1
+            continue
 
         log_utils.wait_for_ra_action_runner_log_contains_after_mark(f"Beginning download to {filepath}", 60)
         log_utils.wait_for_ra_action_runner_log_contains_after_mark(f"{filepath} downloaded successfully", 120)
@@ -880,7 +878,8 @@ def run_response_actions_download_files_test(region, env, tenant_id):
             failed_file_downloads += 1
     end_time = get_current_unix_epoch_in_seconds()
 
-    record_result("Response Actions Download Files", get_current_date_time_string(), start_time, end_time)
+    record_result("Response Actions Download Files", get_current_date_time_string(), start_time, end_time,
+                  custom_data={"failed_file_downloads": failed_file_downloads})
 
     if failed_file_downloads == 10:
         logging.error(f"Failed to download all response actions files")
@@ -905,16 +904,16 @@ def run_response_actions_upload_files_test(region, env, tenant_id):
                                            file_path=filepath)
         logging.debug(res)
 
-        if res["id"] is not None:
-            action_status = get_response_action_status(region=region, env=env, tenant_id=tenant_id, action_id=res["id"])
-            logging.debug(action_status)
+        action_status = get_response_action_status(region=region, env=env, tenant_id=tenant_id, action_id=res["id"])
+        logging.debug(action_status)
 
-            if action_status["endpoints"][0]["result"] != "succeeded":
-                logging.warning(f"Failed to upload response actions file {filepath}")
-                failed_file_uploads += 1
+        if action_status["endpoints"][0]["result"] != "succeeded":
+            logging.warning(f"Failed to upload response actions file {filepath}")
+            failed_file_uploads += 1
     end_time = get_current_unix_epoch_in_seconds()
 
-    record_result("Response Actions Upload Files", get_current_date_time_string(), start_time, end_time)
+    record_result("Response Actions Upload Files", get_current_date_time_string(), start_time, end_time,
+                  custom_data={"failed_file_uploads": failed_file_uploads})
 
     if failed_file_uploads == 10:
         logging.error(f"Failed to upload all response actions files")
@@ -936,16 +935,15 @@ def run_response_actions_list_files_test(region, env, tenant_id):
                                    cmd="ls /home/pair")
         logging.debug(res)
 
-        if res["id"] is not None:
-            action_id = res["id"]
-            action_status = get_response_action_status(region=region, env=env, tenant_id=tenant_id, action_id=action_id)
-            logging.debug(action_status)
+        action_id = res["id"]
+        action_status = get_response_action_status(region=region, env=env, tenant_id=tenant_id, action_id=action_id)
+        logging.debug(action_status)
 
-            if action_status["endpoints"][0]["output"]["stdOut"] is not None:
-                cmd_output = action_status["endpoints"][0]["output"]["stdOut"]
-                logging.debug(f"Command output: {cmd_output}")
-                if set(cmd_output.strip().split("\n")) == expected_dir_content:
-                    matching_dir_content += 1
+        if action_status["endpoints"][0]["output"]["stdOut"]:
+            cmd_output = action_status["endpoints"][0]["output"]["stdOut"]
+            logging.debug(f"Command output: {cmd_output}")
+            if set(cmd_output.strip().split("\n")) == expected_dir_content:
+                matching_dir_content += 1
     end_time = get_current_unix_epoch_in_seconds()
 
     record_result("Response Actions List Files", get_current_date_time_string(), start_time, end_time)
