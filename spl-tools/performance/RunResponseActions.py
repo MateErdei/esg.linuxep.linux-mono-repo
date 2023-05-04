@@ -83,3 +83,26 @@ def upload_response_actions_file(region, env, tenant_id, endpoint_id, file_path)
     if res.ok:
         return res.json()
     logging.error(f"Failed to send upload response action file: {res.text}")
+
+
+def download_response_actions_file(region, env, tenant_id, endpoint_id, file_path, size, sha256):
+    url = get_base_ra_request_url(region=region, env=env)
+    request_headers = get_ra_request_headers(tenant_id)
+    request_body = {
+        "type": "downloadToEndpoint",
+        "expires": "PT40M",
+        "executionTimeout": "PT60S",
+        "endpointIds": [endpoint_id],
+        "params": {
+            "targetPath": file_path,
+            "sha256": sha256,
+            "size": size
+        }
+    }
+
+    res = requests.post(url, auth=get_ra_request_auth(), proxies=get_proxy_details(), headers=request_headers,
+                        json=request_body)
+
+    if res.ok:
+        return res.json()
+    logging.error(f"Failed to send download response action file: {res.text}")

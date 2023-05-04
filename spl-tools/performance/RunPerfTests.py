@@ -837,6 +837,40 @@ def run_safestore_restoration_test():
     exit(return_code)
 
 
+def run_response_actions_download_files_test(region, env, tenant_id):
+    return_code = 0
+    failed_file_downloads = 0
+
+    start_time = get_current_unix_epoch_in_seconds()
+    for i in range(10):
+        filepath = os.path.join(SCRIPT_DIR, f"test_file_{i}")
+        size = 1024 * 1024 * 512  # 0.5GB
+        sha256 = "9acca8e8c22201155389f65abbf6bc9723edc7384ead80503839f49dcc56d767"
+
+        res = download_response_actions_file(region=region, env=env, tenant_id=tenant_id, endpoint_id=get_endpoint_id(),
+                                           file_path=filepath, size=size, sha256=sha256)
+        logging.debug(res)
+
+        if res["id"] is not None:
+            action_status = get_response_action_status(region=region, env=env, tenant_id=tenant_id, action_id=res["id"])
+            logging.debug(action_status)
+
+            if action_status["endpoints"][0]["result"] != "succeeded" or os.path.exists(filepath):
+                logging.warning(f"Failed to download response actions file {filepath}")
+                failed_file_downloads += 1
+    end_time = get_current_unix_epoch_in_seconds()
+
+    record_result("Response Actions Download Files", get_current_date_time_string(), start_time, end_time)
+
+    if failed_file_downloads == 10:
+        logging.error(f"Failed to download all response actions files")
+        return_code = 1
+    elif 0 < failed_file_downloads:
+        logging.warning(f"Failed to download response actions files {failed_file_downloads} times")
+        return_code = 2
+    exit(return_code)
+
+
 def run_response_actions_upload_files_test(region, env, tenant_id):
     return_code = 0
     failed_file_uploads = 0
@@ -987,6 +1021,8 @@ def main():
         run_safestore_database_content_test()
     elif args.suite == 'safestore-restore-database':
         run_safestore_restoration_test()
+    elif args.suite == 'ra-file-download':
+        run_response_actions_download_files_test(args.central_region, args.central_env, args.tenant_id)
     elif args.suite == 'ra-file-upload':
         run_response_actions_upload_files_test(args.central_region, args.central_env, args.tenant_id)
     elif args.suite == 'ra-list-files':
