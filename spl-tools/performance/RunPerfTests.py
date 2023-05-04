@@ -843,8 +843,9 @@ def run_response_actions_upload_files_test(region, env, tenant_id):
 
     start_time = get_current_unix_epoch_in_seconds()
     for i in range(10):
-        # TODO: create files to upload
-        filepath = ""
+        filepath = f"test_file_{i}"
+        with open(filepath, "wb") as f:
+            f.truncate(1024 * 1024 * 512)  # 0.5GB
 
         res = upload_response_actions_file(region=region, env=env, tenant_id=tenant_id, endpoint_id=get_endpoint_id(),
                                            file_path=filepath)
