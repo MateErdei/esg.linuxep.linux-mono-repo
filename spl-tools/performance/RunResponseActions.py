@@ -115,6 +115,8 @@ def upload_file_to_client_bucket(url):
     with open(file_to_download, "wb") as f:
         f.truncate(1024 * 1024 * 512)  # 0.5GB
 
+    logging.info(f"HERE: {os.path.getsize(file_to_download)}")
+
     res = requests.put(url, proxies=get_proxy_details(), data=file_to_download)
 
     if not res.ok:
