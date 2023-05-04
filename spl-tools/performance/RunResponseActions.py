@@ -1,4 +1,5 @@
 import logging
+import os
 import time
 
 import requests
@@ -34,7 +35,7 @@ def get_response_action_status(region, env, tenant_id, action_id):
 
     while True:
         res = requests.get(url, auth=get_ra_request_auth(), proxies=get_proxy_details(), headers=request_headers)
-        if res.json()["endpoints"][0]["status"] != "pending":
+        if res.json()["endpoints"][0]["status"] == "finished":
             break
 
     if res.ok:
@@ -106,3 +107,15 @@ def download_response_actions_file(region, env, tenant_id, endpoint_id, file_pat
     if res.ok:
         return res.json()
     logging.error(f"Failed to send download response action file: {res.text}")
+
+
+def upload_file_to_client_bucket(url):
+    file_to_download = os.path.join(os.path.dirname(os.path.realpath(__file__)), f"test_file")
+
+    with open(file_to_download, "wb") as f:
+        f.truncate(1024 * 1024 * 512)  # 0.5GB
+
+    res = requests.put(url, proxies=get_proxy_details(), data=file_to_download)
+
+    if not res.ok:
+        logging.error(f"Failed to upload file to client bucket: {res.text}")

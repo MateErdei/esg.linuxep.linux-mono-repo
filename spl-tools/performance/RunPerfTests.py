@@ -846,12 +846,24 @@ def run_response_actions_download_files_test(region, env, tenant_id):
     log_utils.mark_ra_action_runner_log()
     for i in range(10):
         filepath = os.path.join(SCRIPT_DIR, f"test_file_{i}")
-        size = 521962
-        sha256 = "fa0c0c2bb36cebbbf88722d08b590206ae2dcee66a9557e18ab8d7a58a9fd999"
+        size = 536870912
+        sha256 = "9acca8e8c22201155389f65abbf6bc9723edc7384ead80503839f49dcc56d767"
 
         res = download_response_actions_file(region=region, env=env, tenant_id=tenant_id, endpoint_id=get_endpoint_id(),
-                                           file_path=filepath, size=size, sha256=sha256)
+                                             file_path=filepath, size=size, sha256=sha256)
         logging.debug(res)
+
+        if res.json()["url"] is not None:
+            upload_url = res.json()["url"]
+            upload_file_to_client_bucket(upload_url)
+
+        if res["id"] is not None:
+            action_status = get_response_action_status(region=region, env=env, tenant_id=tenant_id, action_id=res["id"])
+            logging.debug(action_status)
+
+            if action_status["endpoints"][0]["result"] != "succeeded":
+                logging.warning(f"Failed to download response actions file {filepath}, "
+                                f"due to: {action_status['endpoints'][0]['error']['errorMessage']}")
 
         log_utils.wait_for_ra_action_runner_log_contains_after_mark(f"Beginning download to {filepath}", 60)
         log_utils.wait_for_ra_action_runner_log_contains_after_mark(f"{filepath} downloaded successfully", 120)
