@@ -196,18 +196,6 @@ namespace Plugin
 
         while (true)
         {
-            // Check if we should be shutting down first so that we stop quickly
-            Task task;
-            auto timeNow = std::chrono::steady_clock::now();
-            bool gotTask = m_queueTask->pop(task, QUEUE_TIMEOUT);
-            if (task.m_taskType == Task::TaskType::STOP)
-            {
-                LOGDEBUG("Process task STOP");
-                osqueryDataRetentionCheckState->enabled = false;
-                stopOsquery();
-                return;
-            }
-
             //Check extensions are still running and restart osquery if any have stopped unexpectedly
             bool anyStoppedExtensions = false;
             for (auto& runningStatus : m_extensionAndStateMap)
@@ -265,6 +253,9 @@ namespace Plugin
                 }
             }
 
+            auto timeNow = std::chrono::steady_clock::now();
+            Task task;
+
             if (timeNow > (lastMemoryCheckTime + memoryCheckPeriod))
             {
                 lastMemoryCheckTime = timeNow;
@@ -279,7 +270,18 @@ namespace Plugin
                 }
             }
 
-            if (gotTask)
+            if (!m_queueTask->pop(task, QUEUE_TIMEOUT))
+            {
+
+                // only attempt cleanup after the 10 minute period has elapsed
+                if (timeNow > (lastCleanUpTime + cleanupPeriod))
+                {
+                    lastCleanUpTime = timeNow;
+                    LOGDEBUG("Cleanup time elapsed , checking files");
+                    cleanUpOldOsqueryFiles();
+                }
+            }
+            else
             {
                 switch (task.m_taskType)
                 {
@@ -359,16 +361,6 @@ namespace Plugin
                         m_delayedRestart.reset( // NOLINT
                             new WaitUpTo(
                                 std::chrono::seconds(delay), [this]() { this->m_queueTask->pushStartOsquery(); }));
-                }
-            }
-            else
-            {
-                // only attempt cleanup after the 10 minute period has elapsed
-                if (timeNow > (lastCleanUpTime + cleanupPeriod))
-                {
-                    lastCleanUpTime = timeNow;
-                    LOGDEBUG("Cleanup time elapsed , checking files");
-                    cleanUpOldOsqueryFiles();
                 }
             }
 
