@@ -863,6 +863,8 @@ def run_response_actions_download_files_test(region, env, tenant_id):
             if action_status["endpoints"][0]["result"] != "succeeded":
                 logging.warning(f"Failed to download response actions file {filepath}, "
                                 f"due to: {action_status['endpoints'][0]['error']['errorMessage']}")
+                failed_file_downloads += 1
+                continue
 
         log_utils.wait_for_ra_action_runner_log_contains_after_mark(f"Beginning download to {filepath}", 60)
         log_utils.wait_for_ra_action_runner_log_contains_after_mark(f"{filepath} downloaded successfully", 120)
