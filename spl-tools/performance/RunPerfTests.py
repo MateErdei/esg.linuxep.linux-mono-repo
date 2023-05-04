@@ -843,7 +843,7 @@ def run_response_actions_upload_files_test(region, env, tenant_id):
 
     start_time = get_current_unix_epoch_in_seconds()
     for i in range(10):
-        filepath = f"test_file_{i}"
+        filepath = os.path.join(SCRIPT_DIR, f"test_file_{i}")
         with open(filepath, "wb") as f:
             f.truncate(1024 * 1024 * 512)  # 0.5GB
 
