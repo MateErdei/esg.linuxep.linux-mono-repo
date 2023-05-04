@@ -8,7 +8,6 @@
 
 #include "Common/ProxyUtils/ProxyUtils.h"
 #include "Process/IProcess.h"
-#include "ResponseActions/ResponsePlugin/Telemetry.h"
 #include "UtilityImpl/TimeUtils.h"
 
 #include <sys/poll.h>

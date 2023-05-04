@@ -11,6 +11,7 @@
 #include <chrono>
 #include <thread>
 
+using namespace Common::Telemetry;
 using namespace std::chrono_literals;
 
 namespace ResponsePlugin
@@ -63,12 +64,12 @@ namespace ResponsePlugin
     std::string PluginCallback::getTelemetry()
     {
         LOGDEBUG("Received get telemetry request");
-        auto& telemetry = Common::Telemetry::TelemetryHelper::getInstance();
+        auto& telemetry = TelemetryHelper::getInstance();
 
-        Common::Telemetry::TelemetryHelper::getInstance().increment("run-command-actions", 0UL);
-        Common::Telemetry::TelemetryHelper::getInstance().increment("run-command-failed", 0UL);
-        Common::Telemetry::TelemetryHelper::getInstance().increment("run-command-expired-actions", 0UL);
-        Common::Telemetry::TelemetryHelper::getInstance().increment("run-command-timeout-actions", 0UL);
+        for (const auto& field : Telemetry::TELEMETRY_FIELDS)
+        {
+            telemetry.increment(field, 0UL);
+        }
 
         std::optional<std::string> version = ResponsePlugin::getVersion();
 
