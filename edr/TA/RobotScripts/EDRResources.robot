@@ -6,6 +6,7 @@ Library         DateTime
 
 Library         ../Libs/OSLibs.py
 Library         ../Libs/XDRLibs.py
+Library         ../Libs/FileSystemLibs.py
 
 Resource    ComponentSetup.robot
 
@@ -31,9 +32,14 @@ Check EDR Plugin Running
 
 Mark File
     [Arguments]  ${path}
-    ${content} =  Get File   ${path}
-    Log  ${content}
-    [Return]  ${content.split("\n").__len__()}
+    ${fileexists} =    does_file_exist    ${path}
+    ${mark} =   Set Variable    0
+    IF  ${fileexists}
+        ${content} =  Get File   ${path}
+        Log  ${content}
+        ${mark} =  Set Variable     ${content.split("\n").__len__()}
+    END
+    [Return]    ${mark}
 
 Marked File Contains
     [Arguments]  ${path}  ${input}  ${mark}
@@ -395,7 +401,7 @@ Stop EDR
     Wait Until Keyword Succeeds
     ...  15 secs
     ...  1 secs
-    ...  Marked File Contains  ${EDR_LOG_PATH}  ${mark}  edr <> Plugin Finished
+    ...  Marked File Contains    ${EDR_LOG_PATH}  edr <> Plugin Finished    ${mark}
 
 Start EDR
     ${mark} =  Mark File  ${EDR_LOG_PATH}
@@ -403,7 +409,7 @@ Start EDR
     Wait Until Keyword Succeeds
     ...  30 secs
     ...  1 secs
-    ...  Marked File Contains  ${EDR_LOG_PATH}  ${mark}  Plugin preparation complete
+    ...  Marked File Contains   ${EDR_LOG_PATH}  Plugin preparation complete  ${mark}
 
 Apply Live Query Policy And Wait For Query Pack Changes
     [Arguments]  ${policy}
