@@ -12,6 +12,8 @@ ${RESPONSE_ACTIONS_LOG_PATH}   ${SOPHOS_INSTALL}/plugins/responseactions/log/res
 ${ACTIONS_RUNNER_LOG_PATH}   ${SOPHOS_INSTALL}/plugins/responseactions/log/actionrunner.log
 ${TESTDIR}     /home/vagrant/testdir
 
+${RESPONSE_JSON}        ${MCS_DIR}/response/CORE_id1_response.json
+
 *** Keywords ***
 Install Response Actions Directly
     ${mark} =  mark_log_size  ${RESPONSE_ACTIONS_LOG_PATH}
@@ -107,6 +109,29 @@ RA Run Command Suite Setup
     Install Response Actions Directly
     Create File  ${MCS_DIR}/certs/ca_env_override_flag
     Register With Local Cloud Server
+
+Simulate Run Command Action Now
+    [Arguments]  ${action_json_file}=${SUPPORT_FILES}/CentralXml/RunCommandAction.json    ${id_suffix}=id1
+    Copy File   ${action_json_file}  ${SOPHOS_INSTALL}/tmp/RunCommandAction.json
+    ${result} =  Run Process  chown sophos-spl-user:sophos-spl-group ${SOPHOS_INSTALL}/tmp/RunCommandAction.json   shell=True
+    Should Be Equal As Integers    ${result.rc}    0  Failed to replace permission to file. Reason: ${result.stderr}
+    Move File   ${SOPHOS_INSTALL}/tmp/RunCommandAction.json  ${SOPHOS_INSTALL}/base/mcs/action/CORE_${id_suffix}_request_2030-02-27T13:45:35.699544Z_144444000000004.json
+
+Simulate Download Action Now
+    [Arguments]  ${action_json_file}
+    Copy File   ${action_json_file}  ${SOPHOS_INSTALL}/tmp/RunDownloadAction.json
+    ${result} =  Run Process  chown sophos-spl-user:sophos-spl-group ${SOPHOS_INSTALL}/tmp/RunDownloadAction.json   shell=True
+    Should Be Equal As Integers    ${result.rc}    0  Failed to replace permission to file. Reason: ${result.stderr}
+    Move File   ${SOPHOS_INSTALL}/tmp/RunDownloadAction.json  ${SOPHOS_INSTALL}/base/mcs/action/CORE_id1_request_2030-02-27T13:45:35.699544Z_144444000000004.json
+
+Simulate Upload Action Now
+    [Arguments]  ${action_json_file}=${SUPPORT_FILES}/CentralXml/UploadAction.json     ${id_suffix}=id1
+    Copy File   ${action_json_file}  ${SOPHOS_INSTALL}/tmp/UploadAction.json
+    ${result} =  Run Process  chown sophos-spl-user:sophos-spl-group ${SOPHOS_INSTALL}/tmp/UploadAction.json    shell=True
+    Should Be Equal As Integers    ${result.rc}    0  Failed to replace permission to file. Reason: ${result.stderr}
+    Move File   ${SOPHOS_INSTALL}/tmp/UploadAction.json  ${SOPHOS_INSTALL}/base/mcs/action/CORE_${id_suffix}_request_2030-02-27T13:45:35.699544Z_144444000000004.json
+
+
 
 
 Require Filesystem

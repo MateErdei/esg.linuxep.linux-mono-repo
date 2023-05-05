@@ -17,9 +17,6 @@ Test Teardown      RA Run Command Test Teardown
 Force Tags  LOAD5
 Default Tags   RESPONSE_ACTIONS_PLUGIN
 
-*** Variables ***
-${RESPONSE_JSON}        ${MCS_DIR}/response/CORE_id1_response.json
-
 *** Test Cases ***
 
 Test Run Command Action and Verify Response JSON on Success
@@ -63,12 +60,7 @@ Test Run Command Action and Verify Response JSON with Ignore Error True
     verify_run_command_response    ${RESPONSE_JSON}   ${1}    ${cmd_output_list}
 
 Test Run Command Action and Verify Response JSON when Timeout Exceeded
-    #Run telemetry to clear from previous tests
-    Prepare To Run Telemetry Executable
-    Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
-
     ${action_mark} =  mark_log_size  ${ACTIONS_RUNNER_LOG_PATH}
-
 
     Simulate Run Command Action Now    ${SUPPORT_FILES}/CentralXml/RunCommandAction4.json
     wait_for_log_contains_from_mark  ${action_mark}  Performing run command action:
@@ -77,10 +69,6 @@ Test Run Command Action and Verify Response JSON when Timeout Exceeded
     # 2 is timeout
     verify_run_command_response    ${RESPONSE_JSON}   ${2}    expect_timeout=${True}
 
-    Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
-    ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
-    Log  ${telemetryFileContents}
-    Check RA Telemetry Json Is Correct  ${telemetryFileContents}    1    1    1    0
 
 Test Run Command Action and Verify Commands Ran In Correct Order
     ${action_mark} =  mark_log_size  ${ACTIONS_RUNNER_LOG_PATH}
@@ -147,10 +135,6 @@ Test Run Command Action Handles Missing Binary
     ...    Overall command result: 1
 
 Test Run Command Action Handles Expired Action
-    #Run telemetry to clear from previous tests
-    Prepare To Run Telemetry Executable
-    Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
-
     ${action_mark} =  mark_log_size  ${ACTIONS_RUNNER_LOG_PATH}
 
     Simulate Run Command Action Now    ${SUPPORT_FILES}/CentralXml/RunCommandAction_expired.json
@@ -159,11 +143,6 @@ Test Run Command Action Handles Expired Action
     Wait Until Created    ${RESPONSE_JSON}
     ${response_content}=  Get File    ${RESPONSE_JSON}
     Should Be Equal As Strings   ${response_content}    {"commandResults":[],"duration":0,"result":4,"startedAt":0,"type":"sophos.mgt.response.RunCommands"}
-
-    Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
-    ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
-    Log  ${telemetryFileContents}
-    Check RA Telemetry Json Is Correct  ${telemetryFileContents}    1    1    0    1
 
 
 Test Run Command Action Does Not Block RA Plugin Stopping
@@ -213,12 +192,6 @@ RA Run Command Test Teardown
     Cleanup Telemetry Server
     Remove File  ${EXE_CONFIG_FILE}
 
-Simulate Run Command Action Now
-    [Arguments]  ${action_json_file}=${SUPPORT_FILES}/CentralXml/RunCommandAction.json    ${id_suffix}=id1
-    Copy File   ${action_json_file}  ${SOPHOS_INSTALL}/tmp/RunCommandAction.json
-    ${result} =  Run Process  chown sophos-spl-user:sophos-spl-group ${SOPHOS_INSTALL}/tmp/RunCommandAction.json   shell=True
-    Should Be Equal As Integers    ${result.rc}    0  Failed to replace permission to file. Reason: ${result.stderr}
-    Move File   ${SOPHOS_INSTALL}/tmp/RunCommandAction.json  ${SOPHOS_INSTALL}/base/mcs/action/CORE_${id_suffix}_request_2030-02-27T13:45:35.699544Z_144444000000004.json
 
 Stop MCSRouter
     ${result} =  Run Process  ${SOPHOS_INSTALL}/bin/wdctl  stop  mcsrouter

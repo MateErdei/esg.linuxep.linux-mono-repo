@@ -92,12 +92,3 @@ RA Plugin uploads a folder successfully with compression
     Should Be Equal As Integers    ${result.rc}    0   "zip utility failed: Reason ${result.stderr}"
     File Should exist  /tmp/unpackzip/file.txt
     File Should Contain  /tmp/unpackzip/file.txt     tempfilecontent
-
-
-*** Keywords ***
-Simulate Upload Action Now
-    [Arguments]  ${id_suffix}=id1
-    Copy File   ${SUPPORT_FILES}/CentralXml/UploadAction.json  ${SOPHOS_INSTALL}/tmp
-    ${result} =  Run Process  chown sophos-spl-user:sophos-spl-group ${SOPHOS_INSTALL}/tmp/UploadAction.json    shell=True
-    Should Be Equal As Integers    ${result.rc}    0  Failed to replace permission to file. Reason: ${result.stderr}
-    Move File   ${SOPHOS_INSTALL}/tmp/UploadAction.json  ${SOPHOS_INSTALL}/base/mcs/action/CORE_${id_suffix}_request_2030-02-27T13:45:35.699544Z_144444000000004.json
