@@ -140,18 +140,34 @@ class TelemetryUtils:
 
         return telemetry
 
-    def generate_ra_telemetry_dict(self, rc_total_actions, rc_total_fails, rc_timeout_fails, rc_expiry_fails):
+
+    def generate_ra_telemetry_dict(self, non_zero_telemetry_list) -> dict:
 
         version = get_plugin_version("responseactions")
 
         telemetry = {
+            "download-file-count": 0,
+            "download-file-expiry-failures": 0,
+            "download-file-overall-failures": 0,
+            "download-file-timeout-failures": 0,
             "health": 1,
-            "run-command-timeout-actions": int(rc_timeout_fails),
-            "run-command-actions": int(rc_total_actions),
-            "run-command-expired-actions": int(rc_expiry_fails),
-            "run-command-failed": int(rc_total_fails),
+            "run-command-actions": 0,
+            "run-command-expired-actions": 0,
+            "run-command-failed": 0,
+            "run-command-timeout-actions": 0,
+            "upload-file-count": 0,
+            "upload-file-expiry-failures": 0,
+            "upload-file-overall-failures": 0,
+            "upload-file-timeout-failures": 0,
+            "upload-folder-count": 0,
+            "upload-folder-expiry-failures": 0,
+            "upload-folder-overall-failures": 0,
+            "upload-folder-timeout-failures": 0,
             "version": version
         }
+
+        for item in non_zero_telemetry_list:
+                telemetry[item] = 1
 
         return telemetry
 
@@ -429,13 +445,13 @@ class TelemetryUtils:
             raise AssertionError(
                 f"MTR telemetry doesn't match telemetry expected by test. expected: {expected_mtr_telemetry_dict}, actual: {actual_mtr_telemetry_dict}")
 
-    def check_ra_telemetry_json_is_correct(self, json_string, rc_total_actions, rc_total_fails, rc_timeout_fails, rc_expiry_fails):
-        expected_ra_telemetry_dict = self.generate_ra_telemetry_dict(rc_total_actions, rc_total_fails, rc_timeout_fails, rc_expiry_fails)
+    def check_ra_telemetry_json_is_correct(self, json_string, non_zero_telemetry_list={}):
+        expected_ra_telemetry_dict = self.generate_ra_telemetry_dict(non_zero_telemetry_list)
         actual_ra_telemetry_dict = json.loads(json_string)["responseactions"]
 
         if actual_ra_telemetry_dict != expected_ra_telemetry_dict:
             raise AssertionError(
-                f"MTR telemetry doesn't match telemetry expected by test. expected: {expected_ra_telemetry_dict}, actual: {actual_ra_telemetry_dict}")
+                f"RA telemetry doesn't match telemetry expected by test.\n expected: {expected_ra_telemetry_dict},\n actual: {actual_ra_telemetry_dict}")
 
     def check_edr_telemetry_json_is_correct(self, json_string,
                                             num_osquery_restarts=0,
