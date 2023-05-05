@@ -6,6 +6,7 @@
 
 namespace Plugin
 {
+    std::string getMetadataRescanSocketPath();
     std::string getOnAccessUnhealthyFlagPath();
     std::string getPersistThreatDatabaseFilePath();
     std::string getPluginChrootDirPath();

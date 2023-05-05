@@ -103,12 +103,13 @@ TEST_F(TestSafeStoreSocket, TestSendThreatDetected)
         WaitForEvent serverWaitGuard;
 
         auto quarantineManager = std::make_shared<MockIQuarantineManager>();
-        EXPECT_CALL(*quarantineManager, quarantineFile(_, _, _, _, _, _))
+        EXPECT_CALL(*quarantineManager, quarantineFile(_, _, _, _, _, _, _))
             .Times(1)
             .WillOnce(Invoke(
                 [&serverWaitGuard](
                     const std::string& /*filePath*/,
                     const std::string& /*threatId*/,
+                    const std::string& /*threatType*/,
                     const std::string& /*threatName*/,
                     const std::string& /*sha256*/,
                     const std::string& /*correlationId*/,
@@ -154,7 +155,7 @@ TEST_F(TestSafeStoreSocket, TestSendTwoThreatDetecteds)
     WaitForEvent serverWaitGuard2;
 
     auto quarantineManager = std::make_shared<MockIQuarantineManager>();
-    EXPECT_CALL(*quarantineManager, quarantineFile(_, _, _, _, _, _))
+    EXPECT_CALL(*quarantineManager, quarantineFile(_, _, _, _, _, _, _))
         .Times(2)
         .WillOnce(InvokeWithoutArgs(
             [&serverWaitGuard]()
@@ -198,7 +199,7 @@ TEST_F(TestSafeStoreSocket, SafeStoreTelemetryReturnsExpectedDataAfterSuccessful
     addCommonSafeStoreTelemetrySetup();
     json initialTelemetry = json::parse(safeStoreCallback.getTelemetry());
 
-    EXPECT_CALL(*quarantineManager, quarantineFile(_, _, _, _, _, _))
+    EXPECT_CALL(*quarantineManager, quarantineFile(_, _, _, _, _, _, _))
         .WillOnce(InvokeWithoutArgs(
             [&serverWaitGuard]()
             {
@@ -222,7 +223,7 @@ TEST_F(TestSafeStoreSocket, SafeStoreTelemetryReturnsExpectedDataAfterFailedQuar
     addCommonSafeStoreTelemetrySetup();
     json initialTelemetry = json::parse(safeStoreCallback.getTelemetry());
 
-    EXPECT_CALL(*quarantineManager, quarantineFile(_, _, _, _, _, _))
+    EXPECT_CALL(*quarantineManager, quarantineFile(_, _, _, _, _, _, _))
         .WillOnce(InvokeWithoutArgs(
             [&serverWaitGuard]()
             {
@@ -246,7 +247,7 @@ TEST_F(TestSafeStoreSocket, SafeStoreTelemetryReturnsExpectedDataAfterUnlinkFail
     addCommonSafeStoreTelemetrySetup();
     json initialTelemetry = json::parse(safeStoreCallback.getTelemetry());
 
-    EXPECT_CALL(*quarantineManager, quarantineFile(_, _, _, _, _, _))
+    EXPECT_CALL(*quarantineManager, quarantineFile(_, _, _, _, _, _, _))
         .WillOnce(InvokeWithoutArgs(
             [&serverWaitGuard]()
             {
@@ -283,7 +284,7 @@ TEST_F(TestSafeStoreSocket, TestSendThreatDetectedReceiveResponse)
     setupFakeSophosThreatDetectorConfig();
 
     auto quarantineManager = std::make_shared<MockIQuarantineManager>();
-    EXPECT_CALL(*quarantineManager, quarantineFile(_, _, _, _, _, _))
+    EXPECT_CALL(*quarantineManager, quarantineFile(_, _, _, _, _, _, _))
         .WillOnce(Return(common::CentralEnums::QuarantineResult::NOT_FOUND));
 
     SafeStoreServerSocket server(m_socketPath, quarantineManager);

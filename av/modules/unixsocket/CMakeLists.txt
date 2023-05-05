@@ -56,6 +56,13 @@ add_library(unixsocket SHARED
         updateCompleteSocket/UpdateCompleteClientSocketThread.h
         updateCompleteSocket/UpdateCompleteServerSocket.cpp
         updateCompleteSocket/UpdateCompleteServerSocket.h
+        metadataRescanSocket/IMetadataRescanClientSocket.h
+        metadataRescanSocket/MetadataRescanClientSocket.cpp
+        metadataRescanSocket/MetadataRescanClientSocket.h
+        metadataRescanSocket/MetadataRescanServerConnectionThread.cpp
+        metadataRescanSocket/MetadataRescanServerConnectionThread.h
+        metadataRescanSocket/MetadataRescanServerSocket.cpp
+        metadataRescanSocket/MetadataRescanServerSocket.h
         )
 
 target_link_libraries(unixsocket  PUBLIC

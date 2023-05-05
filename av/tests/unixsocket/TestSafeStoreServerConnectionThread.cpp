@@ -5,6 +5,7 @@
 
 #include "datatypes/SystemCallWrapper.h"
 #include "datatypes/sophos_filesystem.h"
+#include "safestore/MockSafeStoreResources.h"
 #include "safestore/QuarantineManager/QuarantineManagerImpl.h"
 #include "safestore/SafeStoreWrapper/SafeStoreWrapperImpl.h"
 #include "tests/common/MemoryAppender.h"
@@ -55,8 +56,8 @@ namespace
             m_sysCalls = std::make_shared<datatypes::SystemCallWrapper>();
             m_mockSysCalls = std::make_shared<StrictMock<MockSystemCallWrapper>>();
             auto safeStoreWrapper = std::make_unique<SafeStoreWrapper::SafeStoreWrapperImpl>();
-            m_quarantineManager =
-                std::make_shared<QuarantineManager::QuarantineManagerImpl>(std::move(safeStoreWrapper), m_mockSysCalls);
+            m_quarantineManager = std::make_shared<QuarantineManager::QuarantineManagerImpl>(
+                std::move(safeStoreWrapper), m_mockSysCalls, mockSafeStoreResources_);
         }
 
         void TearDown() override
@@ -70,6 +71,7 @@ namespace
         std::shared_ptr<datatypes::SystemCallWrapper> m_sysCalls;
         std::shared_ptr<StrictMock<MockSystemCallWrapper>> m_mockSysCalls;
         std::shared_ptr<QuarantineManager::IQuarantineManager> m_quarantineManager;
+        MockSafeStoreResources mockSafeStoreResources_;
     };
 } // namespace
 

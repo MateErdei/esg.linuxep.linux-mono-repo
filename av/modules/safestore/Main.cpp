@@ -3,6 +3,7 @@
 #include "Main.h"
 
 #include "Logger.h"
+#include "SafeStoreResources.h"
 #include "SafeStoreServiceCallback.h"
 
 #include "common/ApplicationPaths.h"
@@ -54,11 +55,14 @@ namespace safestore
         // Take safestore lock file
         common::PidLockFile lock(Plugin::getSafeStorePidPath(), true);
 
+        SafeStoreResources resources;
+
         std::unique_ptr<SafeStoreWrapper::ISafeStoreWrapper> safeStoreWrapper =
             std::make_unique<SafeStoreWrapper::SafeStoreWrapperImpl>();
+
         std::shared_ptr<QuarantineManager::IQuarantineManager> quarantineManager =
             std::make_shared<QuarantineManager::QuarantineManagerImpl>(
-                std::move(safeStoreWrapper), std::make_shared<datatypes::SystemCallWrapper>());
+                std::move(safeStoreWrapper), std::make_shared<datatypes::SystemCallWrapper>(), resources);
         quarantineManager->initialise();
 
         auto qmStateMonitor = std::make_shared<QuarantineManager::StateMonitor>(quarantineManager);

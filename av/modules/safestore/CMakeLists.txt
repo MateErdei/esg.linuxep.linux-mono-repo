@@ -1,7 +1,6 @@
 
 add_library(safestoreimpl SHARED
-        SafeStoreWrapper/ISafeStoreWrapper.h
-        QuarantineManager/IQuarantineManager.h
+        ISafeStoreResources.h
         Logger.cpp
         Logger.h
         Main.cpp
@@ -11,6 +10,8 @@ add_library(safestoreimpl SHARED
         QuarantineManager/QuarantineManagerImpl.h
         QuarantineManager/StateMonitor.cpp
         QuarantineManager/StateMonitor.h
+        SafeStoreResources.cpp
+        SafeStoreResources.h
         SafeStoreServiceCallback.cpp
         SafeStoreServiceCallback.h
         SafeStoreTelemetryConsts.h

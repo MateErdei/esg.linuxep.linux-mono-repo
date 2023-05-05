@@ -27,6 +27,7 @@ static void printUsageAndExit(const std::string& name)
         << "--socketpath <socket path>"<< std::endl
         << "--filepath <file path of threat>" << std::endl
         << "--sha <sha of threat>" << std::endl
+        << "--threattype <type of threat>" << std::endl
         << "--threatname <name of threat>" << std::endl
         << "--threatid <threatid>" << std::endl
         << "--filedescriptor <filedescriptor>" << std::endl;
@@ -43,6 +44,7 @@ static int inner_main(int argc, char* argv[])
     std::string socketPath = "event.sock";
     std::string sha;
     std::string filePath;
+    std::string threatType;
     std::string threatName;
     std::string threatID = "00010203-0405-0607-0809-0a0b0c0d0e0f";
     /**
@@ -51,9 +53,10 @@ static int inner_main(int argc, char* argv[])
     int fd = 0;
     bool sendFD = true;
     bool sendMessage = true;
-    const char* const short_opts = "p:t:s:f:i:d:mn";
+    const char* const short_opts = "p:u:t:s:f:i:d:mn";
     const option long_opts[] = {
         {"socketpath", required_argument, nullptr, 'p'},
+        {"threattype", required_argument, nullptr, 'u'},
         {"threatname", required_argument, nullptr, 't'},
         {"threatid", required_argument, nullptr, 'i'},
         {"sha", required_argument, nullptr, 's'},
@@ -73,6 +76,10 @@ static int inner_main(int argc, char* argv[])
             case 'p':
                 socketPath = optarg;
                 std::cout << socketPath << std::endl;
+                break;
+            case 'u':
+                threatType = optarg;
+                std::cout << threatType << std::endl;
                 break;
             case 't':
                 threatName = optarg;
@@ -121,6 +128,7 @@ static int inner_main(int argc, char* argv[])
             scan_messages::ThreatDetected threatDetected;
             threatDetected.filePath = filePath;
             threatDetected.sha256 = sha;
+            threatDetected.threatType = threatType;
             threatDetected.threatName = threatName;
             threatDetected.threatId = threatID;
             threatDetected.correlationId = threatID;

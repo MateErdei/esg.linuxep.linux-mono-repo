@@ -1,6 +1,7 @@
 CAPN_GENERATE_CPP(CapNGeneratedFilesSrcs CapNGeneratedFilesHeaders
         ScanRequest.capnp
         ScanResponse.capnp
+        MetadataRescan.capnp
         NamedScan.capnp
         ProcessControl.capnp
         QuarantineResponse.capnp
@@ -13,6 +14,8 @@ add_library(scanmessages SHARED
         ${CapNGeneratedFilesSrcs}
         Logger.cpp
         Logger.h
+        MetadataRescan.cpp
+        MetadataRescan.h
         RestoreReport.h
         ScanRequest.cpp
         ScanRequest.h

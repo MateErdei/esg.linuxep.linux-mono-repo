@@ -1,4 +1,4 @@
-//Copyright 2020-2022, Sophos Limited.  All rights reserved.
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #include "ScanRunnerMemoryAppenderUsingTests.h"
 
@@ -109,9 +109,9 @@ TEST_F(TestClientSocketWrapper, Scan)
     }
 
     auto gotResponse = csw.scan(request);
-    EXPECT_TRUE(response.allClean());
+    EXPECT_TRUE(gotResponse.allClean());
 
-    auto detections = response.getDetections();
+    auto detections = gotResponse.getDetections();
     ASSERT_EQ(detections.size(), 0);
 }
 
@@ -146,7 +146,7 @@ TEST_F(TestClientSocketWrapper, ScanRetriesSend)
     }
 
     auto gotResponse = csw.scan(request);
-    EXPECT_TRUE(response.allClean());
+    EXPECT_TRUE(gotResponse.allClean());
 }
 
 TEST_F(TestClientSocketWrapper, ScanRetryLimit)
@@ -248,9 +248,9 @@ TEST_F(TestClientSocketWrapper, ScanRetriesReceive)
     }
 
     auto gotResponse = csw.scan(request);
-    EXPECT_TRUE(response.allClean());
+    EXPECT_TRUE(gotResponse.allClean());
 
-    auto detections = response.getDetections();
+    auto detections = gotResponse.getDetections();
     ASSERT_EQ(detections.size(), 0);
 }
 

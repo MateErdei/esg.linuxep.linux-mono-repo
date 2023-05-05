@@ -3,6 +3,7 @@
 #define AUTO_FD_IMPLICIT_INT
 
 #include "MockISafeStoreWrapper.h"
+#include "MockSafeStoreResources.h"
 #include "SafeStoreMemoryAppenderUsingTests.h"
 
 #include "common/ApplicationPaths.h"
@@ -42,14 +43,22 @@ protected:
         EXPECT_CALL(filesystemMock, writeFile("/tmp/av/var/persist-safeStoreDbErrorThreshold", "10"));
     }
 
+    std::unique_ptr<QuarantineManagerImpl> createQuarantineManager()
+    {
+        return std::make_unique<QuarantineManagerImpl>(
+            std::move(m_mockSafeStoreWrapper), std::move(m_mockSysCallWrapper), mockSafeStoreResources_);
+    }
+
     std::unique_ptr<StrictMock<MockISafeStoreWrapper>> m_mockSafeStoreWrapper;
     std::shared_ptr<StrictMock<MockSystemCallWrapper>> m_mockSysCallWrapper =
         std::make_shared<StrictMock<MockSystemCallWrapper>>();
+    MockSafeStoreResources mockSafeStoreResources_;
 
     // Common test constants
     inline static const std::string m_dir = "/dir/";
     inline static const std::string m_file = "file";
     inline static const std::string m_threatID = "01234567-89ab-cdef-0123-456789abcdef";
+    inline static const std::string m_threatType = "threatType";
     inline static const std::string m_threatName = "threatName";
     inline static const std::string m_SHA256 = "SHA256abcdef";
     inline static const std::string m_correlationId = "fedcba98-7654-3210-fedc-ba9876543210";
@@ -73,8 +82,7 @@ TEST_F(QuarantineManagerTests, initDbWithExistingPassword)
         *m_mockSafeStoreWrapper,
         initialise(Plugin::getSafeStoreDbDirPath(), Plugin::getSafeStoreDbFileName(), "a password"))
         .WillOnce(Return(InitReturnCode::OK));
-    std::shared_ptr<IQuarantineManager> quarantineManager =
-        std::make_shared<QuarantineManagerImpl>(std::move(m_mockSafeStoreWrapper), std::move(m_mockSysCallWrapper));
+    auto quarantineManager = createQuarantineManager();
 
     EXPECT_NO_THROW(quarantineManager->initialise());
 }
@@ -95,8 +103,7 @@ TEST_F(QuarantineManagerTests, initDbAndGeneratePassword)
     EXPECT_CALL(
         *m_mockSafeStoreWrapper, initialise(Plugin::getSafeStoreDbDirPath(), Plugin::getSafeStoreDbFileName(), _))
         .WillOnce(Return(InitReturnCode::OK));
-    std::shared_ptr<IQuarantineManager> quarantineManager =
-        std::make_shared<QuarantineManagerImpl>(std::move(m_mockSafeStoreWrapper), std::move(m_mockSysCallWrapper));
+    auto quarantineManager = createQuarantineManager();
 
     EXPECT_NO_THROW(quarantineManager->initialise());
 }
@@ -116,8 +123,7 @@ TEST_F(QuarantineManagerTests, uninitialisedDbIsInitialisedAfterSuccessfulInitCa
         *m_mockSafeStoreWrapper,
         initialise(Plugin::getSafeStoreDbDirPath(), Plugin::getSafeStoreDbFileName(), "a password"))
         .WillOnce(Return(InitReturnCode::OK));
-    std::shared_ptr<IQuarantineManager> quarantineManager =
-        std::make_shared<QuarantineManagerImpl>(std::move(m_mockSafeStoreWrapper), std::move(m_mockSysCallWrapper));
+    auto quarantineManager = createQuarantineManager();
 
     ASSERT_EQ(quarantineManager->getState(), QuarantineManagerState::STARTUP);
     EXPECT_NO_THROW(quarantineManager->initialise());
@@ -140,8 +146,7 @@ TEST_F(QuarantineManagerTests, uninitialisedDbStateIsStillUnitialisedAfterFailed
         *m_mockSafeStoreWrapper,
         initialise(Plugin::getSafeStoreDbDirPath(), Plugin::getSafeStoreDbFileName(), "a password"))
         .WillOnce(Return(InitReturnCode::DB_OPEN_FAILED));
-    std::shared_ptr<IQuarantineManager> quarantineManager =
-        std::make_shared<QuarantineManagerImpl>(std::move(m_mockSafeStoreWrapper), std::move(m_mockSysCallWrapper));
+    auto quarantineManager = createQuarantineManager();
 
     ASSERT_EQ(quarantineManager->getState(), QuarantineManagerState::STARTUP);
     EXPECT_NO_THROW(quarantineManager->initialise());
@@ -161,8 +166,7 @@ TEST_F(QuarantineManagerTests, initFailsOnDBErrorAndDbIsMarkedCorrupt)
         *m_mockSafeStoreWrapper,
         initialise(Plugin::getSafeStoreDbDirPath(), Plugin::getSafeStoreDbFileName(), "a password"))
         .WillRepeatedly(Return(InitReturnCode::DB_ERROR));
-    std::shared_ptr<IQuarantineManager> quarantineManager =
-        std::make_shared<QuarantineManagerImpl>(std::move(m_mockSafeStoreWrapper), std::move(m_mockSysCallWrapper));
+    auto quarantineManager = createQuarantineManager();
 
     EXPECT_CALL(
         *filesystemMock,
@@ -198,8 +202,7 @@ TEST_F(QuarantineManagerTests, initFailsOnDBOpenFailureAndDbIsMarkedCorrupt)
         *m_mockSafeStoreWrapper,
         initialise(Plugin::getSafeStoreDbDirPath(), Plugin::getSafeStoreDbFileName(), "a password"))
         .WillRepeatedly(Return(InitReturnCode::DB_OPEN_FAILED));
-    std::shared_ptr<IQuarantineManager> quarantineManager =
-        std::make_shared<QuarantineManagerImpl>(std::move(m_mockSafeStoreWrapper), std::move(m_mockSysCallWrapper));
+    auto quarantineManager = createQuarantineManager();
 
     ASSERT_EQ(quarantineManager->getState(), QuarantineManagerState::STARTUP);
 
@@ -252,6 +255,8 @@ TEST_F(QuarantineManagerTests, quarantineFile)
         .WillOnce(Return(SaveFileReturnCode::OK));
     EXPECT_CALL(*m_mockSafeStoreWrapper, setObjectCustomDataString(handleAsArg1, "SHA256", m_SHA256))
         .WillOnce(Return(true));
+    EXPECT_CALL(*m_mockSafeStoreWrapper, setObjectCustomDataString(handleAsArg1, "threatType", m_threatType))
+        .WillOnce(Return(true));
     EXPECT_CALL(*m_mockSafeStoreWrapper, setObjectCustomDataString(handleAsArg1, "correlationId", m_correlationId))
         .WillOnce(Return(true));
     EXPECT_CALL(*m_mockSafeStoreWrapper, finaliseObject(handleAsArg1)).WillOnce(Return(true));
@@ -263,8 +268,7 @@ TEST_F(QuarantineManagerTests, quarantineFile)
 
     EXPECT_CALL(*filesystemMock, readlink).Times(1).WillOnce(Return(m_path));
 
-    std::shared_ptr<IQuarantineManager> quarantineManager =
-        std::make_shared<QuarantineManagerImpl>(std::move(m_mockSafeStoreWrapper), std::move(m_mockSysCallWrapper));
+    auto quarantineManager = createQuarantineManager();
 
     EXPECT_NO_THROW(quarantineManager->initialise());
     ASSERT_EQ(quarantineManager->getState(), QuarantineManagerState::INITIALISED);
@@ -272,7 +276,7 @@ TEST_F(QuarantineManagerTests, quarantineFile)
     EXPECT_EQ(
         common::CentralEnums::QuarantineResult::SUCCESS,
         quarantineManager->quarantineFile(
-            m_dir + m_file, m_threatID, m_threatName, m_SHA256, m_correlationId, std::move(fdHolder)));
+            m_dir + m_file, m_threatID, m_threatType, m_threatName, m_SHA256, m_correlationId, std::move(fdHolder)));
 }
 
 TEST_F(QuarantineManagerTests, quarantineFileLogsWhenSaveFileFails)
@@ -308,8 +312,7 @@ TEST_F(QuarantineManagerTests, quarantineFileLogsWhenSaveFileFails)
     EXPECT_CALL(*filesystemMock, readlink).Times(1).WillOnce(Return(m_path));
     EXPECT_CALL(*filesystemMock, getFileInfoDescriptor(_)).WillOnce(Return(100));
 
-    std::shared_ptr<IQuarantineManager> quarantineManager =
-        std::make_shared<QuarantineManagerImpl>(std::move(m_mockSafeStoreWrapper), std::move(m_mockSysCallWrapper));
+    auto quarantineManager = createQuarantineManager();
 
     EXPECT_NO_THROW(quarantineManager->initialise());
     ASSERT_EQ(quarantineManager->getState(), QuarantineManagerState::INITIALISED);
@@ -317,10 +320,11 @@ TEST_F(QuarantineManagerTests, quarantineFileLogsWhenSaveFileFails)
     EXPECT_EQ(
         common::CentralEnums::QuarantineResult::FAILED_TO_DELETE_FILE,
         quarantineManager->quarantineFile(
-            m_dir + m_file, m_threatID, m_threatName, m_SHA256, m_correlationId, std::move(fdHolder)));
+            m_dir + m_file, m_threatID, m_threatType, m_threatName, m_SHA256, m_correlationId, std::move(fdHolder)));
 
     EXPECT_TRUE(appenderContains(
-        "Failed to quarantine file due to: " + GL_SAVE_FILE_RETURN_CODES.at(SaveFileReturnCode::INVALID_ARG)));
+        "Failed to quarantine " + m_dir + m_file +
+        " due to: " + GL_SAVE_FILE_RETURN_CODES.at(SaveFileReturnCode::INVALID_ARG)));
 }
 
 TEST_F(QuarantineManagerTests, quarantineFileFailsWhenFileDescriptorsDoNotMatch)
@@ -353,8 +357,7 @@ TEST_F(QuarantineManagerTests, quarantineFileFailsWhenFileDescriptorsDoNotMatch)
 
     EXPECT_CALL(*filesystemMock, readlink).Times(1).WillOnce(Return(m_path));
 
-    std::shared_ptr<IQuarantineManager> quarantineManager =
-        std::make_shared<QuarantineManagerImpl>(std::move(m_mockSafeStoreWrapper), std::move(m_mockSysCallWrapper));
+    auto quarantineManager = createQuarantineManager();
 
     EXPECT_NO_THROW(quarantineManager->initialise());
     ASSERT_EQ(quarantineManager->getState(), QuarantineManagerState::INITIALISED);
@@ -362,7 +365,7 @@ TEST_F(QuarantineManagerTests, quarantineFileFailsWhenFileDescriptorsDoNotMatch)
     EXPECT_EQ(
         common::CentralEnums::QuarantineResult::FAILED_TO_DELETE_FILE,
         quarantineManager->quarantineFile(
-            m_dir + m_file, m_threatID, m_threatName, m_SHA256, m_correlationId, std::move(fdHolder)));
+            m_dir + m_file, m_threatID, m_threatType, m_threatName, m_SHA256, m_correlationId, std::move(fdHolder)));
 }
 
 TEST_F(QuarantineManagerTests, quarantineFileFailsWhenUnlinkFails)
@@ -395,8 +398,7 @@ TEST_F(QuarantineManagerTests, quarantineFileFailsWhenUnlinkFails)
 
     EXPECT_CALL(*filesystemMock, readlink).Times(1).WillOnce(Return(m_path));
 
-    std::shared_ptr<IQuarantineManager> quarantineManager =
-        std::make_shared<QuarantineManagerImpl>(std::move(m_mockSafeStoreWrapper), std::move(m_mockSysCallWrapper));
+    auto quarantineManager = createQuarantineManager();
 
     EXPECT_NO_THROW(quarantineManager->initialise());
     ASSERT_EQ(quarantineManager->getState(), QuarantineManagerState::INITIALISED);
@@ -404,7 +406,7 @@ TEST_F(QuarantineManagerTests, quarantineFileFailsWhenUnlinkFails)
     EXPECT_EQ(
         common::CentralEnums::QuarantineResult::FAILED_TO_DELETE_FILE,
         quarantineManager->quarantineFile(
-            m_dir + m_file, m_threatID, m_threatName, m_SHA256, m_correlationId, std::move(fdHolder)));
+            m_dir + m_file, m_threatID, m_threatType, m_threatName, m_SHA256, m_correlationId, std::move(fdHolder)));
 }
 
 TEST_F(QuarantineManagerTests, quarantineFileFailsWhenThreatDirectoryDoesNotExist)
@@ -425,8 +427,7 @@ TEST_F(QuarantineManagerTests, quarantineFileFailsWhenThreatDirectoryDoesNotExis
         initialise(Plugin::getSafeStoreDbDirPath(), Plugin::getSafeStoreDbFileName(), "a password"))
         .WillOnce(Return(InitReturnCode::OK));
 
-    std::shared_ptr<IQuarantineManager> quarantineManager =
-        std::make_shared<QuarantineManagerImpl>(std::move(m_mockSafeStoreWrapper), std::move(m_mockSysCallWrapper));
+    auto quarantineManager = createQuarantineManager();
 
     EXPECT_NO_THROW(quarantineManager->initialise());
     ASSERT_EQ(quarantineManager->getState(), QuarantineManagerState::INITIALISED);
@@ -434,7 +435,7 @@ TEST_F(QuarantineManagerTests, quarantineFileFailsWhenThreatDirectoryDoesNotExis
     EXPECT_EQ(
         common::CentralEnums::QuarantineResult::NOT_FOUND,
         quarantineManager->quarantineFile(
-            m_dir + m_file, m_threatID, m_threatName, m_SHA256, m_correlationId, std::move(fdHolder)));
+            m_dir + m_file, m_threatID, m_threatType, m_threatName, m_SHA256, m_correlationId, std::move(fdHolder)));
 }
 
 TEST_F(QuarantineManagerTests, quarantineFileFailsWhenthreatDoesNotExist)
@@ -466,8 +467,7 @@ TEST_F(QuarantineManagerTests, quarantineFileFailsWhenthreatDoesNotExist)
 
     EXPECT_CALL(*filesystemMock, readlink).Times(1).WillOnce(Return(m_path));
 
-    std::shared_ptr<IQuarantineManager> quarantineManager =
-        std::make_shared<QuarantineManagerImpl>(std::move(m_mockSafeStoreWrapper), std::move(m_mockSysCallWrapper));
+    auto quarantineManager = createQuarantineManager();
 
     EXPECT_NO_THROW(quarantineManager->initialise());
     ASSERT_EQ(quarantineManager->getState(), QuarantineManagerState::INITIALISED);
@@ -475,7 +475,7 @@ TEST_F(QuarantineManagerTests, quarantineFileFailsWhenthreatDoesNotExist)
     EXPECT_EQ(
         common::CentralEnums::QuarantineResult::NOT_FOUND,
         quarantineManager->quarantineFile(
-            m_dir + m_file, m_threatID, m_threatName, m_SHA256, m_correlationId, std::move(fdHolder)));
+            m_dir + m_file, m_threatID, m_threatType, m_threatName, m_SHA256, m_correlationId, std::move(fdHolder)));
 }
 
 TEST_F(QuarantineManagerTests, quarantineFileFailsAndDbIsMarkedCorrupt)
@@ -521,8 +521,7 @@ TEST_F(QuarantineManagerTests, quarantineFileFailsAndDbIsMarkedCorrupt)
     EXPECT_CALL(*filesystemMock, readlink).Times(1).WillOnce(Return(m_path));
     EXPECT_CALL(*filesystemMock, getFileInfoDescriptor(_)).WillOnce(Return(100));
 
-    std::shared_ptr<IQuarantineManager> quarantineManager =
-        std::make_shared<QuarantineManagerImpl>(std::move(m_mockSafeStoreWrapper), std::move(m_mockSysCallWrapper));
+    auto quarantineManager = createQuarantineManager();
 
     EXPECT_NO_THROW(quarantineManager->initialise());
     ASSERT_EQ(quarantineManager->getState(), QuarantineManagerState::INITIALISED);
@@ -530,7 +529,7 @@ TEST_F(QuarantineManagerTests, quarantineFileFailsAndDbIsMarkedCorrupt)
     EXPECT_EQ(
         common::CentralEnums::QuarantineResult::FAILED_TO_DELETE_FILE,
         quarantineManager->quarantineFile(
-            m_dir + m_file, m_threatID, m_threatName, m_SHA256, m_correlationId, std::move(fdHolder)));
+            m_dir + m_file, m_threatID, m_threatType, m_threatName, m_SHA256, m_correlationId, std::move(fdHolder)));
 
     EXPECT_EQ(quarantineManager->getState(), QuarantineManagerState::CORRUPT);
 }
@@ -566,6 +565,8 @@ TEST_F(QuarantineManagerTests, quarantineFileFailsToFinaliseFile)
     EXPECT_CALL(*m_mockSafeStoreWrapper, saveFile(m_dir, m_file, m_threatID, m_threatName, _))
         .WillOnce(Return(SaveFileReturnCode::OK));
     EXPECT_CALL(*m_mockSafeStoreWrapper, setObjectCustomDataString(_, "SHA256", m_SHA256)).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockSafeStoreWrapper, setObjectCustomDataString(_, "threatType", m_threatType))
+        .WillOnce(Return(true));
     EXPECT_CALL(*m_mockSafeStoreWrapper, setObjectCustomDataString(_, "correlationId", m_correlationId))
         .WillOnce(Return(true));
     EXPECT_CALL(*m_mockSafeStoreWrapper, finaliseObject(_)).WillOnce(Return(false));
@@ -575,8 +576,7 @@ TEST_F(QuarantineManagerTests, quarantineFileFailsToFinaliseFile)
 
     EXPECT_CALL(*filesystemMock, readlink).Times(1).WillOnce(Return(m_path));
 
-    std::shared_ptr<IQuarantineManager> quarantineManager =
-        std::make_shared<QuarantineManagerImpl>(std::move(m_mockSafeStoreWrapper), std::move(m_mockSysCallWrapper));
+    auto quarantineManager = createQuarantineManager();
 
     EXPECT_NO_THROW(quarantineManager->initialise());
     ASSERT_EQ(quarantineManager->getState(), QuarantineManagerState::INITIALISED);
@@ -584,7 +584,7 @@ TEST_F(QuarantineManagerTests, quarantineFileFailsToFinaliseFile)
     EXPECT_EQ(
         common::CentralEnums::QuarantineResult::SUCCESS,
         quarantineManager->quarantineFile(
-            m_dir + m_file, m_threatID, m_threatName, m_SHA256, m_correlationId, std::move(fdHolder)));
+            m_dir + m_file, m_threatID, m_threatType, m_threatName, m_SHA256, m_correlationId, std::move(fdHolder)));
 }
 
 TEST_F(QuarantineManagerTests, fileQuarantinesAndRemovesPreviouslySavedObjectsWithSameThreatId)
@@ -645,6 +645,8 @@ TEST_F(QuarantineManagerTests, fileQuarantinesAndRemovesPreviouslySavedObjectsWi
         .WillOnce(Return(SaveFileReturnCode::OK));
     EXPECT_CALL(*m_mockSafeStoreWrapper, setObjectCustomDataString(object1_1_handleArg, "SHA256", m_SHA256))
         .WillOnce(Return(true));
+    EXPECT_CALL(*m_mockSafeStoreWrapper, setObjectCustomDataString(object1_1_handleArg, "threatType", m_threatType))
+        .WillOnce(Return(true));
     EXPECT_CALL(
         *m_mockSafeStoreWrapper, setObjectCustomDataString(object1_1_handleArg, "correlationId", m_correlationId))
         .WillOnce(Return(true));
@@ -669,8 +671,7 @@ TEST_F(QuarantineManagerTests, fileQuarantinesAndRemovesPreviouslySavedObjectsWi
 
     EXPECT_CALL(*filesystemMock, readlink).Times(1).WillOnce(Return(m_path));
 
-    std::shared_ptr<IQuarantineManager> quarantineManager =
-        std::make_shared<QuarantineManagerImpl>(std::move(m_mockSafeStoreWrapper), std::move(m_mockSysCallWrapper));
+    auto quarantineManager = createQuarantineManager();
 
     EXPECT_NO_THROW(quarantineManager->initialise());
     ASSERT_EQ(quarantineManager->getState(), QuarantineManagerState::INITIALISED);
@@ -678,7 +679,7 @@ TEST_F(QuarantineManagerTests, fileQuarantinesAndRemovesPreviouslySavedObjectsWi
     EXPECT_EQ(
         common::CentralEnums::QuarantineResult::SUCCESS,
         quarantineManager->quarantineFile(
-            m_dir + m_file, m_threatID, m_threatName, m_SHA256, m_correlationId, std::move(fdHolder)));
+            m_dir + m_file, m_threatID, m_threatType, m_threatName, m_SHA256, m_correlationId, std::move(fdHolder)));
 }
 
 TEST_F(QuarantineManagerTests, fileQuarantinesButFailsToRemovePreviouslySavedObjectWithSameThreatId)
@@ -739,6 +740,8 @@ TEST_F(QuarantineManagerTests, fileQuarantinesButFailsToRemovePreviouslySavedObj
         .WillOnce(Return(SaveFileReturnCode::OK));
     EXPECT_CALL(*m_mockSafeStoreWrapper, setObjectCustomDataString(object1_1_handleArg, "SHA256", m_SHA256))
         .WillOnce(Return(true));
+    EXPECT_CALL(*m_mockSafeStoreWrapper, setObjectCustomDataString(object1_1_handleArg, "threatType", m_threatType))
+        .WillOnce(Return(true));
     EXPECT_CALL(
         *m_mockSafeStoreWrapper, setObjectCustomDataString(object1_1_handleArg, "correlationId", m_correlationId))
         .WillOnce(Return(true));
@@ -764,8 +767,7 @@ TEST_F(QuarantineManagerTests, fileQuarantinesButFailsToRemovePreviouslySavedObj
 
     EXPECT_CALL(*filesystemMock, readlink).Times(1).WillOnce(Return(m_path));
 
-    std::shared_ptr<IQuarantineManager> quarantineManager =
-        std::make_shared<QuarantineManagerImpl>(std::move(m_mockSafeStoreWrapper), std::move(m_mockSysCallWrapper));
+    auto quarantineManager = createQuarantineManager();
 
     EXPECT_NO_THROW(quarantineManager->initialise());
     ASSERT_EQ(quarantineManager->getState(), QuarantineManagerState::INITIALISED);
@@ -773,7 +775,7 @@ TEST_F(QuarantineManagerTests, fileQuarantinesButFailsToRemovePreviouslySavedObj
     EXPECT_EQ(
         common::CentralEnums::QuarantineResult::SUCCESS,
         quarantineManager->quarantineFile(
-            m_dir + m_file, m_threatID, m_threatName, m_SHA256, m_correlationId, std::move(fdHolder)));
+            m_dir + m_file, m_threatID, m_threatType, m_threatName, m_SHA256, m_correlationId, std::move(fdHolder)));
 }
 
 TEST_F(QuarantineManagerTests, tryToQuarantineFileWhenThreatIdIsIncorrectSize)
@@ -794,30 +796,28 @@ TEST_F(QuarantineManagerTests, tryToQuarantineFileWhenThreatIdIsIncorrectSize)
         initialise(Plugin::getSafeStoreDbDirPath(), Plugin::getSafeStoreDbFileName(), "a password"))
         .WillOnce(Return(InitReturnCode::OK));
 
-    std::shared_ptr<IQuarantineManager> quarantineManager =
-        std::make_shared<QuarantineManagerImpl>(std::move(m_mockSafeStoreWrapper), std::move(m_mockSysCallWrapper));
+    auto quarantineManager = createQuarantineManager();
     EXPECT_NO_THROW(quarantineManager->initialise());
     ASSERT_EQ(quarantineManager->getState(), QuarantineManagerState::INITIALISED);
     datatypes::AutoFd fdHolder;
     EXPECT_EQ(
         common::CentralEnums::QuarantineResult::FAILED_TO_DELETE_FILE,
         quarantineManager->quarantineFile(
-            m_dir + m_file, threatId, m_threatName, m_SHA256, m_correlationId, std::move(fdHolder)));
+            m_dir + m_file, threatId, m_threatType, m_threatName, m_SHA256, m_correlationId, std::move(fdHolder)));
 }
 
 TEST_F(QuarantineManagerTests, tryToQuarantineFileWhenUninitialised)
 {
     EXPECT_CALL(*m_mockSafeStoreWrapper, saveFile(m_dir, m_file, m_threatID, m_threatName, _)).Times(0);
 
-    std::shared_ptr<IQuarantineManager> quarantineManager =
-        std::make_shared<QuarantineManagerImpl>(std::move(m_mockSafeStoreWrapper), std::move(m_mockSysCallWrapper));
+    auto quarantineManager = createQuarantineManager();
 
     ASSERT_EQ(quarantineManager->getState(), QuarantineManagerState::STARTUP);
     datatypes::AutoFd fdHolder;
     common::CentralEnums::QuarantineResult result;
     EXPECT_NO_THROW(
         result = quarantineManager->quarantineFile(
-            m_dir + m_file, m_threatID, m_threatName, m_SHA256, m_correlationId, std::move(fdHolder)));
+            m_dir + m_file, m_threatID, m_threatType, m_threatName, m_SHA256, m_correlationId, std::move(fdHolder)));
     EXPECT_EQ(result, common::CentralEnums::QuarantineResult::FAILED_TO_DELETE_FILE);
 }
 
@@ -852,8 +852,7 @@ TEST_F(QuarantineManagerTests, deleteDatabaseCalledOnInitialisedDb)
     EXPECT_CALL(
         *m_mockSafeStoreWrapper, initialise(Plugin::getSafeStoreDbDirPath(), Plugin::getSafeStoreDbFileName(), _))
         .WillOnce(Return(InitReturnCode::OK));
-    std::shared_ptr<IQuarantineManager> quarantineManager =
-        std::make_shared<QuarantineManagerImpl>(std::move(m_mockSafeStoreWrapper), std::move(m_mockSysCallWrapper));
+    auto quarantineManager = createQuarantineManager();
 
     EXPECT_NO_THROW(quarantineManager->initialise());
     ASSERT_EQ(quarantineManager->getState(), QuarantineManagerState::INITIALISED);
@@ -868,8 +867,7 @@ TEST_F(QuarantineManagerTests, deleteDatabaseCalledOnUninitialisedDbThatDoesNotE
     addCommonPersistValueExpects(*filesystemMock);
     EXPECT_CALL(*filesystemMock, exists(Plugin::getSafeStoreDbDirPath())).WillOnce(Return(false));
 
-    std::shared_ptr<IQuarantineManager> quarantineManager =
-        std::make_shared<QuarantineManagerImpl>(std::move(m_mockSafeStoreWrapper), std::move(m_mockSysCallWrapper));
+    auto quarantineManager = createQuarantineManager();
 
     ASSERT_EQ(quarantineManager->getState(), QuarantineManagerState::STARTUP);
     EXPECT_NO_THROW(quarantineManager->deleteDatabase());
@@ -897,8 +895,7 @@ TEST_F(QuarantineManagerTests, deleteDatabaseCalledOnUninitialisedDbThatDoesExis
     EXPECT_CALL(*filePermissionsMock, chmod(Plugin::getSafeStoreDbDirPath(), S_IRUSR | S_IWUSR | S_IXUSR))
         .WillOnce(Return());
 
-    std::shared_ptr<IQuarantineManager> quarantineManager =
-        std::make_shared<QuarantineManagerImpl>(std::move(m_mockSafeStoreWrapper), std::move(m_mockSysCallWrapper));
+    auto quarantineManager = createQuarantineManager();
 
     ASSERT_EQ(quarantineManager->getState(), QuarantineManagerState::STARTUP);
     EXPECT_NO_THROW(quarantineManager->deleteDatabase());
@@ -914,8 +911,7 @@ TEST_F(QuarantineManagerTests, deleteDatabaseDoesNotThrowOnFailure)
     EXPECT_CALL(*filesystemMock, removeFileOrDirectory(Plugin::getSafeStoreDbDirPath()))
         .WillOnce(Throw(Common::FileSystem::IFileSystemException("File does not exist.")));
 
-    std::shared_ptr<IQuarantineManager> quarantineManager =
-        std::make_shared<QuarantineManagerImpl>(std::move(m_mockSafeStoreWrapper), std::move(m_mockSysCallWrapper));
+    auto quarantineManager = createQuarantineManager();
 
     bool result = true;
     EXPECT_NO_THROW(result = quarantineManager->deleteDatabase());
@@ -955,8 +951,7 @@ TEST_F(QuarantineManagerTests, extractQuarantinedFiles)
 
     EXPECT_CALL(*m_mockSysCallWrapper, _open(_, _, _)).WillOnce(Return(100));
 
-    std::shared_ptr<IQuarantineManager> quarantineManager =
-        std::make_shared<QuarantineManagerImpl>(std::move(m_mockSafeStoreWrapper), std::move(m_mockSysCallWrapper));
+    auto quarantineManager = createQuarantineManager();
 
     std::vector<ObjectHandleHolder> searchResults;
     ObjectHandleHolder holder = safestore::SafeStoreWrapper::ObjectHandleHolder(mockGetIdMethods, mockReleaseMethods);
@@ -1002,8 +997,7 @@ TEST_F(QuarantineManagerTests, extractQuarantinedFilesHandlesFailedToRemoveFileF
 
     EXPECT_CALL(*m_mockSysCallWrapper, _open(_, _, _)).WillOnce(Return(100));
 
-    std::shared_ptr<IQuarantineManager> quarantineManager =
-        std::make_shared<QuarantineManagerImpl>(std::move(m_mockSafeStoreWrapper), std::move(m_mockSysCallWrapper));
+    auto quarantineManager = createQuarantineManager();
 
     std::vector<ObjectHandleHolder> searchResults;
     ObjectHandleHolder holder = safestore::SafeStoreWrapper::ObjectHandleHolder(mockGetIdMethods, mockReleaseMethods);
@@ -1050,8 +1044,7 @@ TEST_F(QuarantineManagerTests, extractQuarantinedFilesHandlesAFailToRemoveUnpack
 
     EXPECT_CALL(*m_mockSysCallWrapper, _open(_, _, _)).WillOnce(Return(100));
 
-    std::shared_ptr<IQuarantineManager> quarantineManager =
-        std::make_shared<QuarantineManagerImpl>(std::move(m_mockSafeStoreWrapper), std::move(m_mockSysCallWrapper));
+    auto quarantineManager = createQuarantineManager();
 
     std::vector<ObjectHandleHolder> searchResults;
     ObjectHandleHolder holder = safestore::SafeStoreWrapper::ObjectHandleHolder(mockGetIdMethods, mockReleaseMethods);
@@ -1088,8 +1081,7 @@ TEST_F(QuarantineManagerTests, extractQuarantinedFilesAbortsWhenThereIsMoreThanO
     EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectId(_)).Times(1);
     EXPECT_CALL(*m_mockSafeStoreWrapper, restoreObjectByIdToLocation(_, _)).Times(1).WillRepeatedly(Return(true));
 
-    std::shared_ptr<IQuarantineManager> quarantineManager =
-        std::make_shared<QuarantineManagerImpl>(std::move(m_mockSafeStoreWrapper), std::move(m_mockSysCallWrapper));
+    auto quarantineManager = createQuarantineManager();
 
     std::vector<ObjectHandleHolder> searchResults;
     ObjectHandleHolder holder = safestore::SafeStoreWrapper::ObjectHandleHolder(mockGetIdMethods, mockReleaseMethods);
@@ -1126,8 +1118,7 @@ TEST_F(QuarantineManagerTests, extractQuarantinedFilesHandlesFailedRestore)
     EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectId(_)).Times(1);
     EXPECT_CALL(*m_mockSafeStoreWrapper, restoreObjectByIdToLocation(_, _)).Times(1).WillRepeatedly(Return(false));
 
-    std::shared_ptr<IQuarantineManager> quarantineManager =
-        std::make_shared<QuarantineManagerImpl>(std::move(m_mockSafeStoreWrapper), std::move(m_mockSysCallWrapper));
+    auto quarantineManager = createQuarantineManager();
 
     std::vector<ObjectHandleHolder> searchResults;
     ObjectHandleHolder holder = safestore::SafeStoreWrapper::ObjectHandleHolder(mockGetIdMethods, mockReleaseMethods);
@@ -1167,8 +1158,7 @@ TEST_F(QuarantineManagerTests, extractQuarantinedFilesAbortWhenFailingToChmodFil
     EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectId(_)).Times(1);
     EXPECT_CALL(*m_mockSafeStoreWrapper, restoreObjectByIdToLocation(_, _)).Times(1).WillRepeatedly(Return(true));
 
-    std::shared_ptr<IQuarantineManager> quarantineManager =
-        std::make_shared<QuarantineManagerImpl>(std::move(m_mockSafeStoreWrapper), std::move(m_mockSysCallWrapper));
+    auto quarantineManager = createQuarantineManager();
 
     std::vector<ObjectHandleHolder> searchResults;
     ObjectHandleHolder holder = safestore::SafeStoreWrapper::ObjectHandleHolder(mockGetIdMethods, mockReleaseMethods);
@@ -1222,8 +1212,7 @@ TEST_F(QuarantineManagerTests, extractQuarantinedFilesWithMultipleThreatsInDatab
     EXPECT_CALL(*m_mockSysCallWrapper, _open(StrEq("file2"), _, _)).WillOnce(Return(200));
     EXPECT_CALL(*m_mockSysCallWrapper, _open(StrEq("file3"), _, _)).WillOnce(Return(300));
 
-    std::shared_ptr<IQuarantineManager> quarantineManager =
-        std::make_shared<QuarantineManagerImpl>(std::move(m_mockSafeStoreWrapper), std::move(m_mockSysCallWrapper));
+    auto quarantineManager = createQuarantineManager();
 
     std::vector<ObjectHandleHolder> searchResults;
     ObjectHandleHolder holder1 = safestore::SafeStoreWrapper::ObjectHandleHolder(mockGetIdMethods, mockReleaseMethods);
@@ -1248,8 +1237,7 @@ TEST_F(QuarantineManagerTests, extractQuarantinedFilesWhenDatabaseEmpty)
     addCommonPersistValueExpects(*filesystemMock);
 
     std::vector<ObjectHandleHolder> searchResults;
-    std::shared_ptr<IQuarantineManager> quarantineManager =
-        std::make_shared<QuarantineManagerImpl>(std::move(m_mockSafeStoreWrapper), std::move(m_mockSysCallWrapper));
+    auto quarantineManager = createQuarantineManager();
 
     auto actualFiles = quarantineManager->extractQuarantinedFiles(std::move(searchResults));
     EXPECT_EQ(0, actualFiles.size());
@@ -1278,8 +1266,7 @@ TEST_F(QuarantineManagerTests, configParsingCanParseValidConfig)
     EXPECT_CALL(*m_mockSafeStoreWrapper, setConfigIntValue(ConfigOption::MAX_STORED_OBJECT_COUNT, 100))
         .WillOnce(Return(true));
 
-    std::shared_ptr<IQuarantineManager> quarantineManager =
-        std::make_shared<QuarantineManagerImpl>(std::move(m_mockSafeStoreWrapper), std::move(m_mockSysCallWrapper));
+    auto quarantineManager = createQuarantineManager();
     EXPECT_NO_THROW(quarantineManager->parseConfig());
 }
 
@@ -1296,8 +1283,7 @@ TEST_F(QuarantineManagerTests, configParsingIgnoresInvalidConfigValues)
     EXPECT_CALL(*filesystemMock, isFile(Plugin::getSafeStoreConfigPath())).WillOnce(Return(true));
     EXPECT_CALL(*filesystemMock, readFile(Plugin::getSafeStoreConfigPath())).WillOnce(Return(jsonContents));
 
-    std::shared_ptr<IQuarantineManager> quarantineManager =
-        std::make_shared<QuarantineManagerImpl>(std::move(m_mockSafeStoreWrapper), std::move(m_mockSysCallWrapper));
+    auto quarantineManager = createQuarantineManager();
     EXPECT_NO_THROW(quarantineManager->parseConfig());
 }
 
@@ -1314,8 +1300,7 @@ TEST_F(QuarantineManagerTests, configParsingHandlesMalformedJson)
     EXPECT_CALL(*filesystemMock, isFile(Plugin::getSafeStoreConfigPath())).WillOnce(Return(true));
     EXPECT_CALL(*filesystemMock, readFile(Plugin::getSafeStoreConfigPath())).WillOnce(Return(jsonContents));
 
-    std::shared_ptr<IQuarantineManager> quarantineManager =
-        std::make_shared<QuarantineManagerImpl>(std::move(m_mockSafeStoreWrapper), std::move(m_mockSysCallWrapper));
+    auto quarantineManager = createQuarantineManager();
     EXPECT_NO_THROW(quarantineManager->parseConfig());
     EXPECT_TRUE(appenderContains("Failed to parse SafeStore config json: "));
 }
@@ -1332,37 +1317,40 @@ TEST_F(QuarantineManagerTests, configParsingHandlesBadFileRead)
     EXPECT_CALL(*filesystemMock, readFile(Plugin::getSafeStoreConfigPath()))
         .WillOnce(Throw(IFileSystemException("test error")));
 
-    std::shared_ptr<IQuarantineManager> quarantineManager =
-        std::make_shared<QuarantineManagerImpl>(std::move(m_mockSafeStoreWrapper), std::move(m_mockSysCallWrapper));
+    auto quarantineManager = createQuarantineManager();
     EXPECT_NO_THROW(quarantineManager->parseConfig());
     EXPECT_TRUE(appenderContains("Failed to read SafeStore config json: test error"));
 }
 
-class TestQuarantineManagerCorrelationId : public SafeStoreMemoryAppenderUsingTests
+class TestQuarantineManagerDefaultMock : public SafeStoreMemoryAppenderUsingTests
 {
 protected:
-    TestQuarantineManagerCorrelationId()
+    TestQuarantineManagerDefaultMock()
     {
         auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
         appConfig.setData("SOPHOS_INSTALL", "/tmp");
         appConfig.setData("PLUGIN_INSTALL", "/tmp/av");
 
-        ON_CALL(*m_mockFileSystem, compareFileDescriptors).WillByDefault(Return(true));
+        ON_CALL(*m_mockFileSystem, getFileInfoDescriptor(m_dir)).WillByDefault(Return(100));
+        ON_CALL(*m_mockFileSystem, getFileInfoDescriptorFromDirectoryFD(100, m_file)).WillByDefault(Return(200));
+        ON_CALL(*m_mockFileSystem, readlink("/proc/self/fd/200")).WillByDefault(Return(m_path));
+        ON_CALL(*m_mockFileSystem, compareFileDescriptors(200, 200)).WillByDefault(Return(true));
 
         ON_CALL(*m_mockSafeStoreWrapper, initialise).WillByDefault(Return(InitReturnCode::OK));
         ON_CALL(*m_mockSafeStoreWrapper, createObjectHandleHolder)
             .WillByDefault(InvokeWithoutArgs(
                 [&]() { return std::make_unique<ObjectHandleHolder>(m_mockGetIdMethods, m_mockReleaseMethods); }));
-        ON_CALL(*m_mockSafeStoreWrapper, getObjectHandle)
-            .WillByDefault(Invoke(
-                [&](const ObjectId& /* objectId */, std::shared_ptr<ObjectHandleHolder> objectHandle)
-                {
-                    objectHandle = std::make_shared<ObjectHandleHolder>(m_mockGetIdMethods, m_mockReleaseMethods);
-                    return true;
-                }));
+        ON_CALL(*m_mockSafeStoreWrapper, getObjectHandle).WillByDefault(Return(true));
         ON_CALL(*m_mockSafeStoreWrapper, finaliseObject).WillByDefault(Return(true));
         ON_CALL(*m_mockSafeStoreWrapper, getObjectName).WillByDefault(Return(m_file));
         ON_CALL(*m_mockSafeStoreWrapper, getObjectLocation).WillByDefault(Return(m_dir));
+
+        EXPECT_CALL(*m_mockSafeStoreWrapper, setObjectCustomDataString).Times(AnyNumber()).WillRepeatedly(Return(true));
+    }
+
+    QuarantineManagerImpl createQuarantineManager()
+    {
+        return { std::move(m_mockSafeStoreWrapper), std::move(m_mockSysCallWrapper), mockSafeStoreResources_ };
     }
 
     std::unique_ptr<MockISafeStoreWrapper> m_mockSafeStoreWrapper = std::make_unique<MockISafeStoreWrapper>();
@@ -1371,79 +1359,74 @@ protected:
     std::shared_ptr<MockISafeStoreReleaseMethods> m_mockReleaseMethods =
         std::make_shared<MockISafeStoreReleaseMethods>();
     std::shared_ptr<MockSystemCallWrapper> m_mockSysCallWrapper = std::make_shared<MockSystemCallWrapper>();
+    MockSafeStoreResources mockSafeStoreResources_;
 
     // Common test constants
     const std::string m_dir = "/dir/";
     const std::string m_file = "file";
     const std::string m_path = "/dir/file";
     const std::string m_threatID = "01234567-89ab-cdef-0123-456789abcdef";
+    const std::string m_threatType = "threatType";
     const std::string m_threatName = "threatName";
     const std::string m_SHA256 = "SHA256abcdef";
     const std::string m_correlationId = "fedcba98-7654-3210-fedc-ba9876543210";
     datatypes::AutoFd autoFd{ 200 };
 };
 
-TEST_F(TestQuarantineManagerCorrelationId, QuarantineFileFailsWhenSettingCorrelationIdCustomStringFails)
+TEST_F(TestQuarantineManagerDefaultMock, QuarantineFileFailsWhenSettingCorrelationIdCustomStringFails)
 {
-    EXPECT_CALL(*m_mockFileSystem, getFileInfoDescriptor(m_dir)).WillOnce(Return(100));
-    EXPECT_CALL(*m_mockFileSystem, getFileInfoDescriptorFromDirectoryFD(100, m_file)).WillOnce(Return(200));
-    EXPECT_CALL(*m_mockFileSystem, readlink).Times(1).WillOnce(Return(m_path));
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::move(m_mockFileSystem) };
 
-    EXPECT_CALL(*m_mockSafeStoreWrapper, setObjectCustomDataString(_, "SHA256", _)).WillOnce(Return(true));
     EXPECT_CALL(*m_mockSafeStoreWrapper, setObjectCustomDataString(_, "correlationId", _))
         .Times(1)
         .WillOnce(Return(false));
 
     UsingMemoryAppender memoryAppenderHolder{ *this };
 
-    QuarantineManagerImpl quarantineManager{ std::move(m_mockSafeStoreWrapper), std::move(m_mockSysCallWrapper) };
+    auto quarantineManager = createQuarantineManager();
     quarantineManager.initialise();
-    quarantineManager.quarantineFile(m_path, m_threatID, m_threatName, m_SHA256, m_correlationId, std::move(autoFd));
+    const auto result = quarantineManager.quarantineFile(
+        m_path, m_threatID, m_threatType, m_threatName, m_SHA256, m_correlationId, std::move(autoFd));
+    EXPECT_EQ(result, common::CentralEnums::QuarantineResult::FAILED_TO_DELETE_FILE);
 
     EXPECT_TRUE(appenderContains("Failed to store correlation ID"));
 }
 
-TEST_F(TestQuarantineManagerCorrelationId, QuarantineFileFailsWhenSettingCorrelationIdCustomStringThrows)
+TEST_F(TestQuarantineManagerDefaultMock, QuarantineFileFailsWhenSettingCorrelationIdCustomStringThrows)
 {
-    EXPECT_CALL(*m_mockFileSystem, getFileInfoDescriptor(m_dir)).WillOnce(Return(100));
-    EXPECT_CALL(*m_mockFileSystem, getFileInfoDescriptorFromDirectoryFD(100, m_file)).WillOnce(Return(200));
-    EXPECT_CALL(*m_mockFileSystem, readlink).Times(1).WillOnce(Return(m_path));
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::move(m_mockFileSystem) };
 
-    EXPECT_CALL(*m_mockSafeStoreWrapper, setObjectCustomDataString(_, "SHA256", _)).WillOnce(Return(true));
     EXPECT_CALL(*m_mockSafeStoreWrapper, setObjectCustomDataString(_, "correlationId", _))
         .Times(1)
         .WillOnce(Throw(std::runtime_error("failure")));
 
     UsingMemoryAppender memoryAppenderHolder{ *this };
 
-    QuarantineManagerImpl quarantineManager{ std::move(m_mockSafeStoreWrapper), std::move(m_mockSysCallWrapper) };
+    auto quarantineManager = createQuarantineManager();
     quarantineManager.initialise();
-    quarantineManager.quarantineFile(m_path, m_threatID, m_threatName, m_SHA256, m_correlationId, std::move(autoFd));
+    const auto result = quarantineManager.quarantineFile(
+        m_path, m_threatID, m_threatType, m_threatName, m_SHA256, m_correlationId, std::move(autoFd));
+    EXPECT_EQ(result, common::CentralEnums::QuarantineResult::FAILED_TO_DELETE_FILE);
 
     EXPECT_TRUE(appenderContains("Failed to store correlation ID"));
 }
 
-TEST_F(TestQuarantineManagerCorrelationId, QuarantineFileFailsWhenPassedInvalidCorrelationId)
+TEST_F(TestQuarantineManagerDefaultMock, QuarantineFileFailsWhenPassedInvalidCorrelationId)
 {
-    EXPECT_CALL(*m_mockFileSystem, getFileInfoDescriptor(m_dir)).WillOnce(Return(100));
-    EXPECT_CALL(*m_mockFileSystem, getFileInfoDescriptorFromDirectoryFD(100, m_file)).WillOnce(Return(200));
-    EXPECT_CALL(*m_mockFileSystem, readlink).Times(1).WillOnce(Return(m_path));
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::move(m_mockFileSystem) };
-
-    ON_CALL(*m_mockSafeStoreWrapper, setObjectCustomDataString).WillByDefault(Return(true));
 
     UsingMemoryAppender memoryAppenderHolder{ *this };
 
-    QuarantineManagerImpl quarantineManager{ std::move(m_mockSafeStoreWrapper), std::move(m_mockSysCallWrapper) };
+    auto quarantineManager = createQuarantineManager();
     quarantineManager.initialise();
-    quarantineManager.quarantineFile(m_path, m_threatID, m_threatName, m_SHA256, "invalid uuid", std::move(autoFd));
+    const auto result = quarantineManager.quarantineFile(
+        m_path, m_threatID, m_threatType, m_threatName, m_SHA256, "invalid uuid", std::move(autoFd));
+    EXPECT_EQ(result, common::CentralEnums::QuarantineResult::FAILED_TO_DELETE_FILE);
 
     EXPECT_TRUE(appenderContains("Invalid correlation ID"));
 }
 
-TEST_F(TestQuarantineManagerCorrelationId, RestoreFailsWhenGettingCorrelationIdReturnsEmpty)
+TEST_F(TestQuarantineManagerDefaultMock, RestoreFailsWhenGettingCorrelationIdReturnsEmpty)
 {
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::move(m_mockFileSystem) };
 
@@ -1451,14 +1434,15 @@ TEST_F(TestQuarantineManagerCorrelationId, RestoreFailsWhenGettingCorrelationIdR
 
     UsingMemoryAppender memoryAppenderHolder{ *this };
 
-    QuarantineManagerImpl quarantineManager{ std::move(m_mockSafeStoreWrapper), std::move(m_mockSysCallWrapper) };
+    auto quarantineManager = createQuarantineManager();
     quarantineManager.initialise();
-    quarantineManager.restoreFile("00000000-0000-0000-0000-000000000000");
+    const auto result = quarantineManager.restoreFile("00000000-0000-0000-0000-000000000000");
+    EXPECT_FALSE(result.has_value());
 
     EXPECT_TRUE(appenderContains("couldn't get correlation ID"));
 }
 
-TEST_F(TestQuarantineManagerCorrelationId, RestoreFailsWhenGettingCorrelationIdReturnsInvalidUuid)
+TEST_F(TestQuarantineManagerDefaultMock, RestoreFailsWhenGettingCorrelationIdReturnsInvalidUuid)
 {
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::move(m_mockFileSystem) };
 
@@ -1467,14 +1451,15 @@ TEST_F(TestQuarantineManagerCorrelationId, RestoreFailsWhenGettingCorrelationIdR
 
     UsingMemoryAppender memoryAppenderHolder{ *this };
 
-    QuarantineManagerImpl quarantineManager{ std::move(m_mockSafeStoreWrapper), std::move(m_mockSysCallWrapper) };
+    auto quarantineManager = createQuarantineManager();
     quarantineManager.initialise();
-    quarantineManager.restoreFile("00000000-0000-0000-0000-000000000000");
+    const auto result = quarantineManager.restoreFile("00000000-0000-0000-0000-000000000000");
+    EXPECT_FALSE(result.has_value());
 
     EXPECT_TRUE(appenderContains("couldn't get correlation ID"));
 }
 
-TEST_F(TestQuarantineManagerCorrelationId, RestoreFailsWhenGettingCorrelationIdThrows)
+TEST_F(TestQuarantineManagerDefaultMock, RestoreFailsWhenGettingCorrelationIdThrows)
 {
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::move(m_mockFileSystem) };
 
@@ -1483,33 +1468,58 @@ TEST_F(TestQuarantineManagerCorrelationId, RestoreFailsWhenGettingCorrelationIdT
 
     UsingMemoryAppender memoryAppenderHolder{ *this };
 
-    QuarantineManagerImpl quarantineManager{ std::move(m_mockSafeStoreWrapper), std::move(m_mockSysCallWrapper) };
+    auto quarantineManager = createQuarantineManager();
     quarantineManager.initialise();
-    quarantineManager.restoreFile("00000000-0000-0000-0000-000000000000");
+    const auto result = quarantineManager.restoreFile("00000000-0000-0000-0000-000000000000");
+    EXPECT_FALSE(result.has_value());
 
     EXPECT_TRUE(appenderContains("couldn't get correlation ID"));
 }
 
-TEST_F(TestQuarantineManagerCorrelationId, RestoreSucceedsOnRootFile)
+TEST_F(TestQuarantineManagerDefaultMock, RestoreSucceedsOnRootFile)
 {
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::move(m_mockFileSystem) };
 
     EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectCustomDataString(_, "correlationId"))
         .WillOnce(Return(m_correlationId));
-    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectLocation(_))
-        .WillOnce(Return("/"));
-    EXPECT_CALL(*m_mockSafeStoreWrapper, restoreObjectById(_))
-        .WillOnce(Return(true));
-    EXPECT_CALL(*m_mockSafeStoreWrapper, deleteObjectById(_))
-        .WillOnce(Return(true));
+    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectLocation(_)).WillOnce(Return("/"));
+    EXPECT_CALL(*m_mockSafeStoreWrapper, restoreObjectById(_)).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockSafeStoreWrapper, deleteObjectById(_)).WillOnce(Return(true));
 
     UsingMemoryAppender memoryAppenderHolder{ *this };
 
-    QuarantineManagerImpl quarantineManager{ std::move(m_mockSafeStoreWrapper), std::move(m_mockSysCallWrapper) };
+    auto quarantineManager = createQuarantineManager();
     quarantineManager.initialise();
-    quarantineManager.restoreFile("00000000-0000-0000-0000-000000000000");
+    const auto result = quarantineManager.restoreFile("00000000-0000-0000-0000-000000000000");
+    EXPECT_TRUE(result.has_value());
 
     EXPECT_TRUE(appenderContains("Restored file to disk: /file"));
+}
+
+TEST_F(TestQuarantineManagerDefaultMock, quarantineFileSetsThreatType)
+{
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::move(m_mockFileSystem) };
+
+    EXPECT_CALL(*m_mockSafeStoreWrapper, setObjectCustomDataString(_, "threatType", _)).Times(1).WillOnce(Return(true));
+    auto quarantineManager = createQuarantineManager();
+
+    quarantineManager.initialise();
+    const auto result = quarantineManager.quarantineFile(
+        m_path, m_threatID, m_threatType, m_threatName, m_SHA256, m_correlationId, std::move(autoFd));
+    EXPECT_EQ(result, common::CentralEnums::QuarantineResult::SUCCESS);
+}
+
+TEST_F(TestQuarantineManagerDefaultMock, quarantineFileSettingThreatTypeFails)
+{
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::move(m_mockFileSystem) };
+
+    EXPECT_CALL(*m_mockSafeStoreWrapper, setObjectCustomDataString(_, "threatType", _)).WillRepeatedly(Return(false));
+    auto quarantineManager = createQuarantineManager();
+
+    quarantineManager.initialise();
+    const auto result = quarantineManager.quarantineFile(
+        m_path, m_threatID, m_threatType, m_threatName, m_SHA256, m_correlationId, std::move(autoFd));
+    EXPECT_EQ(result, common::CentralEnums::QuarantineResult::FAILED_TO_DELETE_FILE);
 }
 
 TEST_F(QuarantineManagerTests, QuarantineFileFailsIfReadlinkFails)
@@ -1532,8 +1542,7 @@ TEST_F(QuarantineManagerTests, QuarantineFileFailsIfReadlinkFails)
 
     EXPECT_CALL(*filesystemMock, readlink).Times(1).WillOnce(Return(std::nullopt));
 
-    std::shared_ptr<IQuarantineManager> quarantineManager =
-        std::make_shared<QuarantineManagerImpl>(std::move(m_mockSafeStoreWrapper), std::move(m_mockSysCallWrapper));
+    auto quarantineManager = createQuarantineManager();
 
     EXPECT_NO_THROW(quarantineManager->initialise());
     ASSERT_EQ(quarantineManager->getState(), QuarantineManagerState::INITIALISED);
@@ -1541,7 +1550,7 @@ TEST_F(QuarantineManagerTests, QuarantineFileFailsIfReadlinkFails)
     EXPECT_EQ(
         common::CentralEnums::QuarantineResult::FAILED_TO_DELETE_FILE,
         quarantineManager->quarantineFile(
-            m_path, m_threatID, m_threatName, m_SHA256, m_correlationId, std::move(fdHolder)));
+            m_path, m_threatID, m_threatType, m_threatName, m_SHA256, m_correlationId, std::move(fdHolder)));
 }
 
 TEST_F(QuarantineManagerTests, QuarantineSucceedsIfFileDeleted)
@@ -1565,8 +1574,7 @@ TEST_F(QuarantineManagerTests, QuarantineSucceedsIfFileDeleted)
     EXPECT_CALL(*filesystemMock, readlink).Times(1).WillOnce(Return(m_path + " (deleted)"));
     EXPECT_CALL(*filesystemMock, getFileInfoDescriptorFromDirectoryFD(_, m_file + " (deleted)")).WillOnce(Return(-1));
 
-    std::shared_ptr<IQuarantineManager> quarantineManager =
-        std::make_shared<QuarantineManagerImpl>(std::move(m_mockSafeStoreWrapper), std::move(m_mockSysCallWrapper));
+    auto quarantineManager = createQuarantineManager();
 
     EXPECT_NO_THROW(quarantineManager->initialise());
     ASSERT_EQ(quarantineManager->getState(), QuarantineManagerState::INITIALISED);
@@ -1574,7 +1582,7 @@ TEST_F(QuarantineManagerTests, QuarantineSucceedsIfFileDeleted)
     EXPECT_EQ(
         common::CentralEnums::QuarantineResult::SUCCESS,
         quarantineManager->quarantineFile(
-            m_path, m_threatID, m_threatName, m_SHA256, m_correlationId, std::move(fdHolder)));
+            m_path, m_threatID, m_threatType, m_threatName, m_SHA256, m_correlationId, std::move(fdHolder)));
 }
 
 TEST_F(QuarantineManagerTests, QuarantineFailsIfFileRenamedToHaveDeletedAtEnd)
@@ -1599,8 +1607,7 @@ TEST_F(QuarantineManagerTests, QuarantineFailsIfFileRenamedToHaveDeletedAtEnd)
     EXPECT_CALL(*filesystemMock, getFileInfoDescriptorFromDirectoryFD(_, m_file + " (deleted)")).WillOnce(Return(101));
     EXPECT_CALL(*filesystemMock, compareFileDescriptors(101, 100)).WillOnce(Return(true));
 
-    std::shared_ptr<IQuarantineManager> quarantineManager =
-        std::make_shared<QuarantineManagerImpl>(std::move(m_mockSafeStoreWrapper), std::move(m_mockSysCallWrapper));
+    auto quarantineManager = createQuarantineManager();
 
     EXPECT_NO_THROW(quarantineManager->initialise());
     ASSERT_EQ(quarantineManager->getState(), QuarantineManagerState::INITIALISED);
@@ -1608,7 +1615,7 @@ TEST_F(QuarantineManagerTests, QuarantineFailsIfFileRenamedToHaveDeletedAtEnd)
     EXPECT_EQ(
         common::CentralEnums::QuarantineResult::NOT_FOUND,
         quarantineManager->quarantineFile(
-            m_path, m_threatID, m_threatName, m_SHA256, m_correlationId, std::move(fdHolder)));
+            m_path, m_threatID, m_threatType, m_threatName, m_SHA256, m_correlationId, std::move(fdHolder)));
 }
 
 TEST_F(QuarantineManagerTests, QuarantineFailsIfFileMoved)
@@ -1631,8 +1638,7 @@ TEST_F(QuarantineManagerTests, QuarantineFailsIfFileMoved)
 
     EXPECT_CALL(*filesystemMock, readlink).Times(1).WillOnce(Return(m_path + "_some_other_path"));
 
-    std::shared_ptr<IQuarantineManager> quarantineManager =
-        std::make_shared<QuarantineManagerImpl>(std::move(m_mockSafeStoreWrapper), std::move(m_mockSysCallWrapper));
+    auto quarantineManager = createQuarantineManager();
 
     EXPECT_NO_THROW(quarantineManager->initialise());
     ASSERT_EQ(quarantineManager->getState(), QuarantineManagerState::INITIALISED);
@@ -1640,7 +1646,7 @@ TEST_F(QuarantineManagerTests, QuarantineFailsIfFileMoved)
     EXPECT_EQ(
         common::CentralEnums::QuarantineResult::NOT_FOUND,
         quarantineManager->quarantineFile(
-            m_path, m_threatID, m_threatName, m_SHA256, m_correlationId, std::move(fdHolder)));
+            m_path, m_threatID, m_threatType, m_threatName, m_SHA256, m_correlationId, std::move(fdHolder)));
 }
 
 TEST_F(QuarantineManagerTests, waitForFilesystemLockReturnsWhenLockDoesNotExist)
@@ -1650,8 +1656,7 @@ TEST_F(QuarantineManagerTests, waitForFilesystemLockReturnsWhenLockDoesNotExist)
         filesystemMock) };
 
     addCommonPersistValueExpects(*filesystemMock);
-    std::shared_ptr<IQuarantineManager> quarantineManager =
-        std::make_shared<QuarantineManagerImpl>(std::move(m_mockSafeStoreWrapper), std::move(m_mockSysCallWrapper));
+    auto quarantineManager = createQuarantineManager();
     EXPECT_CALL(*filesystemMock, exists(Plugin::getSafeStoreDbLockDirPath())).WillOnce(Return(false));
     EXPECT_TRUE(quarantineManager->waitForFilesystemLock(1));
 }
@@ -1663,8 +1668,7 @@ TEST_F(QuarantineManagerTests, waitForFilesystemLockWaitsWhenLockDoesExist)
         filesystemMock) };
 
     addCommonPersistValueExpects(*filesystemMock);
-    std::shared_ptr<IQuarantineManager> quarantineManager =
-        std::make_shared<QuarantineManagerImpl>(std::move(m_mockSafeStoreWrapper), std::move(m_mockSysCallWrapper));
+    auto quarantineManager = createQuarantineManager();
 
     EXPECT_CALL(*filesystemMock, exists(Plugin::getSafeStoreDbLockDirPath()))
         .WillOnce(Return(true)) // cause a wait to happen
@@ -1679,8 +1683,7 @@ TEST_F(QuarantineManagerTests, removeFilesystemLockRemovesDir)
         filesystemMock) };
 
     addCommonPersistValueExpects(*filesystemMock);
-    std::shared_ptr<IQuarantineManager> quarantineManager =
-        std::make_shared<QuarantineManagerImpl>(std::move(m_mockSafeStoreWrapper), std::move(m_mockSysCallWrapper));
+    auto quarantineManager = createQuarantineManager();
 
     EXPECT_CALL(*filesystemMock, removeFileOrDirectory(Plugin::getSafeStoreDbLockDirPath()));
     quarantineManager->removeFilesystemLock();
@@ -1693,9 +1696,9 @@ TEST_F(QuarantineManagerTests, removeFilesystemLockHandlesFilesystemException)
         filesystemMock) };
 
     addCommonPersistValueExpects(*filesystemMock);
-    std::shared_ptr<IQuarantineManager> quarantineManager =
-        std::make_shared<QuarantineManagerImpl>(std::move(m_mockSafeStoreWrapper), std::move(m_mockSysCallWrapper));
+    auto quarantineManager = createQuarantineManager();
 
-    EXPECT_CALL(*filesystemMock, removeFileOrDirectory(Plugin::getSafeStoreDbLockDirPath())).WillOnce(Throw(Common::FileSystem::IFileSystemException("Test exception")));
+    EXPECT_CALL(*filesystemMock, removeFileOrDirectory(Plugin::getSafeStoreDbLockDirPath()))
+        .WillOnce(Throw(Common::FileSystem::IFileSystemException("Test exception")));
     EXPECT_NO_THROW(quarantineManager->removeFilesystemLock());
 }

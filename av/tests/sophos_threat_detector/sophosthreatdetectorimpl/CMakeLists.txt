@@ -25,6 +25,7 @@ SophosAddTest(TestProcessForceExitTimer
 
 SophosAddTest(TestSophosThreatDetectorMain
         ../../common/LogInitializedTests.cpp
+        MockMetadataRescanServerSocket.h
         MockReloader.h
         MockSafeStoreRescanWorker.h
         MockScanningServerSocket.h

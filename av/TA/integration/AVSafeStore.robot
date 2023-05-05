@@ -644,6 +644,9 @@ SafeStore Rescan Does Not Restore Or Report Threats
     Wait For Log Contains From Mark  ${td_mark}  Triggering rescan of SafeStore database
 
     Wait For SafeStore Log Contains After Mark  SafeStore Database Rescan request received.  ${ss_mark}   timeout=10
+    # Metadata rescan currently always gives ok
+    Wait For SafeStore Log Contains After Mark  Metadata rescan for '${NORMAL_DIRECTORY}/${eicar1}' found it to no longer have the saved detection  ${ss_mark}  timeout=5
+    Wait For SafeStore Log Contains After Mark  Metadata rescan for '${NORMAL_DIRECTORY}/${eicar2}' found it to no longer have the saved detection  ${ss_mark}  timeout=5
     Wait For SafeStore Log Contains After Mark  Rescan found quarantined file still a threat: ${NORMAL_DIRECTORY}/${eicar1}  ${ss_mark}  timeout=5
     Wait For SafeStore Log Contains After Mark  Rescan found quarantined file still a threat: ${NORMAL_DIRECTORY}/${eicar2}  ${ss_mark}  timeout=5
     Check Log Does Not Contain After Mark  ${AV_LOG_PATH}   Found 'EICAR-AV-Test'   ${av_mark}
@@ -977,6 +980,7 @@ Threat Is Re-detected By On-access After Being Cached If Removed From Allow-list
     ${ss_mark} =  Get SafeStore Log Mark
     Send CORC Policy To Base   corc_policy.xml
     Wait For Log Contains From Mark  ${ss_mark}  SafeStore Database Rescan request received
+    Wait For Log Contains From Mark  ${ss_mark}  Metadata rescan for '${allow_listed_threat_file}' found it to no longer have the saved detection
     Wait For Log Contains From Mark  ${ss_mark}  Rescan found quarantined file no longer a threat: ${allow_listed_threat_file}
     Wait For Log Contains From Mark  ${ss_mark}  RestoreReportingClient reports successful restoration of ${allow_listed_threat_file}
     File Should Exist  ${allow_listed_threat_file}

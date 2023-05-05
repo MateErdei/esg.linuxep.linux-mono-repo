@@ -9,6 +9,11 @@
 
 namespace Plugin
 {
+    std::string getMetadataRescanSocketPath()
+    {
+        return getPluginChrootVarDirPath() + "/metadata_rescan_socket";
+    }
+
     std::string getPluginInstall()
     {
         auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();

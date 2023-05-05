@@ -9,6 +9,7 @@
 #include "safestore/SafeStoreTelemetryConsts.h"
 #include "safestore/SafeStoreWrapper/SafeStoreWrapperImpl.h"
 #include "scan_messages/ClientScanRequest.h"
+#include "scan_messages/MetadataRescan.h"
 #include "unixsocket/restoreReportingSocket/RestoreReportingClient.h"
 #include "unixsocket/threatDetectorSocket/ScanningClientSocket.h"
 
@@ -43,6 +44,76 @@ namespace
                 return "STARTUP";
         }
         return "UNKNOWN";
+    }
+
+    class SafeStoreObjectException : public std::runtime_error
+    {
+    public:
+        explicit SafeStoreObjectException(const std::string& msg) : std::runtime_error{ msg }
+        {
+        }
+    };
+
+    /**
+     * Returns the path of the quarantined object
+     * @param safeStoreWrapper
+     * @param objectHandle
+     * @throw SafeStoreObjectException if either location or path failed to be found
+     * @return The absolute path of the object
+     */
+    [[nodiscard]] std::string GetObjectPath(
+        safestore::SafeStoreWrapper::ISafeStoreWrapper& safeStoreWrapper,
+        safestore::SafeStoreWrapper::ObjectHandleHolder& objectHandle)
+    {
+        auto objectName = safeStoreWrapper.getObjectName(objectHandle);
+        if (objectName.empty())
+        {
+            throw SafeStoreObjectException("Couldn't get object name");
+        }
+
+        auto objectLocation = safeStoreWrapper.getObjectLocation(objectHandle);
+        if (objectLocation.empty())
+        {
+            throw SafeStoreObjectException("Couldn't get object location");
+        }
+        else if (objectLocation.back() != '/')
+        {
+            objectLocation += '/';
+        }
+
+        return objectLocation + objectName;
+    }
+
+    [[nodiscard]] scan_messages::MetadataRescan CreateMetadataRescanObject(
+        safestore::SafeStoreWrapper::ISafeStoreWrapper& safeStoreWrapper,
+        safestore::SafeStoreWrapper::ObjectHandleHolder& objectHandle)
+    {
+        scan_messages::MetadataRescan metadataRescan;
+
+        metadataRescan.threatType = safeStoreWrapper.getObjectCustomDataString(objectHandle, "threatType");
+        if (metadataRescan.threatType.empty())
+        {
+            // TODO: This is only needed because there exist customers with quarantined threats that don't have the type
+            // stored. Remove once that is no longer the case.
+            LOGWARN("Failed to get object threat type. Using 'virus' as default.");
+            metadataRescan.threatType = "virus";
+        }
+
+        metadataRescan.threatName = safeStoreWrapper.getObjectThreatName(objectHandle);
+        if (metadataRescan.threatName.empty())
+        {
+            throw SafeStoreObjectException("Failed to get object threat name");
+        }
+
+        metadataRescan.filePath = GetObjectPath(safeStoreWrapper, objectHandle);
+
+        metadataRescan.sha256 = safeStoreWrapper.getObjectCustomDataString(objectHandle, "SHA256");
+        if (metadataRescan.sha256.empty())
+        {
+            throw SafeStoreObjectException("Failed to get object SHA256");
+        }
+
+        return metadataRescan;
     }
 } // namespace
 
@@ -115,11 +186,13 @@ namespace safestore::QuarantineManager
 
     QuarantineManagerImpl::QuarantineManagerImpl(
         std::unique_ptr<SafeStoreWrapper::ISafeStoreWrapper> safeStoreWrapper,
-        std::shared_ptr<datatypes::ISystemCallWrapper> sysCallWrapper) :
+        std::shared_ptr<datatypes::ISystemCallWrapper> sysCallWrapper,
+        ISafeStoreResources& safeStoreResources) :
         m_state(QuarantineManagerState::STARTUP),
         m_safeStore(std::move(safeStoreWrapper)),
         m_dbErrorCountThreshold(Plugin::getPluginVarDirPath(), "safeStoreDbErrorThreshold", 10),
-        m_sysCallWrapper{ std::move(sysCallWrapper) }
+        m_sysCallWrapper{ std::move(sysCallWrapper) },
+        safeStoreResources_{ safeStoreResources }
     {
     }
 
@@ -208,9 +281,9 @@ namespace safestore::QuarantineManager
             // These return codes won't be resolved by deleting the SafeStore database, so don't count them as database
             // errors
             if (!(initResult == SafeStoreWrapper::InitReturnCode::INVALID_ARG ||
-                initResult == SafeStoreWrapper::InitReturnCode::UNSUPPORTED_OS ||
-                initResult == SafeStoreWrapper::InitReturnCode::UNSUPPORTED_VERSION ||
-                initResult == SafeStoreWrapper::InitReturnCode::OUT_OF_MEMORY))
+                  initResult == SafeStoreWrapper::InitReturnCode::UNSUPPORTED_OS ||
+                  initResult == SafeStoreWrapper::InitReturnCode::UNSUPPORTED_VERSION ||
+                  initResult == SafeStoreWrapper::InitReturnCode::OUT_OF_MEMORY))
             {
                 callOnDbError();
             }
@@ -220,6 +293,7 @@ namespace safestore::QuarantineManager
     common::CentralEnums::QuarantineResult QuarantineManagerImpl::quarantineFile(
         const std::string& filePath,
         const std::string& threatId,
+        const std::string& threatType,
         const std::string& threatName,
         const std::string& sha256,
         const std::string& correlationId,
@@ -326,6 +400,13 @@ namespace safestore::QuarantineManager
             m_safeStore->setObjectCustomDataString(*objectHandle, "SHA256", sha256);
             LOGDEBUG("File SHA256: " << sha256);
 
+            if (!m_safeStore->setObjectCustomDataString(*objectHandle, "threatType", threatType))
+            {
+                LOGERROR("Failed to store threat type '" << threatType << "' in SafeStore object");
+                return common::CentralEnums::QuarantineResult::FAILED_TO_DELETE_FILE;
+            }
+            LOGDEBUG("Threat type: " << threatType);
+
             try
             {
                 storeCorrelationId(*objectHandle, correlationId);
@@ -379,7 +460,8 @@ namespace safestore::QuarantineManager
         else
         {
             LOGERROR(
-                "Failed to quarantine " << escapedPath << " due to: " << SafeStoreWrapper::GL_SAVE_FILE_RETURN_CODES.at(saveResult));
+                "Failed to quarantine " << escapedPath
+                                        << " due to: " << SafeStoreWrapper::GL_SAVE_FILE_RETURN_CODES.at(saveResult));
 
             // Only call db error func if the return code is not one of these, which are unrelated to a DB error.
             if (!(saveResult == SafeStoreWrapper::SaveFileReturnCode::INVALID_ARG ||
@@ -587,17 +669,17 @@ namespace safestore::QuarantineManager
                 LOGWARN("Couldn't get object name for: " << objectId << ".");
             }
 
-            auto objectLocation = m_safeStore->getObjectLocation(*objectHandle);
-            if (objectLocation.empty())
+            std::string path{ "<unknown path>" };
+            try
             {
-                LOGWARN("Couldn't get object location for: " << objectId << ".");
+                path = GetObjectPath(*m_safeStore, *objectHandle);
             }
-            else if (objectLocation.back() != '/')
+            catch (const SafeStoreObjectException& e)
             {
-                objectLocation += '/';
+                LOGWARN("Couldn't get path for: " << objectId << ": " << e.what());
             }
 
-            const std::string escapedPath = common::escapePathForLogging(objectLocation + objectName);
+            const std::string escapedPath = common::escapePathForLogging(path);
 
             if (response.allClean())
             {
@@ -623,25 +705,17 @@ namespace safestore::QuarantineManager
             return {};
         }
 
-        auto objectName = m_safeStore->getObjectName(*objectHandle);
-        if (objectName.empty())
+        std::string path;
+        try
         {
-            LOGERROR("Couldn't get object name for: " << objectId << ". Failed to restore.");
+            path = GetObjectPath(*m_safeStore, *objectHandle);
+        }
+        catch (const SafeStoreObjectException& e)
+        {
+            LOGERROR("Unable to restore " << objectId << ", reason: " << e.what());
             return {};
         }
 
-        auto objectLocation = m_safeStore->getObjectLocation(*objectHandle);
-        if (objectLocation.empty())
-        {
-            LOGERROR("Couldn't get object location for: " << objectId << ". Failed to restore.");
-            return {};
-        }
-        else if (objectLocation.back() != '/')
-        {
-            objectLocation += '/';
-        }
-
-        const std::string path = objectLocation + objectName;
         const std::string escapedPath = common::escapePathForLogging(path);
 
         std::string correlationId;
@@ -679,15 +753,22 @@ namespace safestore::QuarantineManager
 
     void QuarantineManagerImpl::rescanDatabase()
     {
-        LOGDEBUG("SafeStore Database Rescan request received."); // Log at debug level, since find() will also log at debug level
-        SafeStoreWrapper::SafeStoreFilter filter; // we want to rescan everything in database
+        LOGDEBUG("SafeStore Database Rescan request received."); // Log at debug level, since find() will also log at
+                                                                 // debug level
+        SafeStoreWrapper::SafeStoreFilter filter;                // we want to rescan everything in database
         std::vector<SafeStoreWrapper::ObjectHandleHolder> threatObjects = m_safeStore->find(filter);
         if (threatObjects.empty())
         {
             LOGDEBUG("No threats to rescan");
             return;
         }
-        LOGINFO("SafeStore Database Rescan request received. Number of quarantined files to Rescan: " << threatObjects.size());
+        LOGINFO(
+            "SafeStore Database Rescan request received. Number of quarantined files to Rescan: "
+            << threatObjects.size());
+
+        // We don't have NotifyPipe to initialise the StoppableSleeper to pass here
+        auto metadataRescanClient = safeStoreResources_.CreateMetadataRescanClientSocket(
+            Plugin::getMetadataRescanSocketPath(), unixsocket::BaseClient::DEFAULT_SLEEP_TIME, {});
 
         // Batch size is currently 1 but this can be increased, if needed, in the future.
         constexpr int batchSize = 1;
@@ -704,6 +785,46 @@ namespace safestore::QuarantineManager
                 done = true;
             }
             batchEnd = std::min(threatObjects.end(), batchStart + batchSize);
+
+            for (auto& objectHandle : batch)
+            {
+                scan_messages::MetadataRescan metadataRescan;
+                try
+                {
+                    metadataRescan = CreateMetadataRescanObject(*m_safeStore, objectHandle);
+                }
+                catch (const SafeStoreObjectException& e)
+                {
+                    LOGERROR("Failed to create metadata rescan request: " << e.what());
+                    continue;
+                }
+
+                const auto escapedPath = common::escapePathForLogging(metadataRescan.filePath);
+                const auto objectId = m_safeStore->getObjectId(objectHandle);
+                LOGINFO(
+                    "Requesting metadata rescan of quarantined file with original path '"
+                    << escapedPath << "' and object ID '" << objectId << "'");
+
+                const auto result = metadataRescanClient->rescan(metadataRescan);
+                switch (result)
+                {
+                    case scan_messages::MetadataRescanResponse::ok:
+                        LOGDEBUG(
+                            "Metadata rescan for '" << escapedPath
+                                                    << "' found it to no longer have the saved detection");
+                        break;
+                    case scan_messages::MetadataRescanResponse::threatPresent:
+                        LOGDEBUG("Metadata rescan for '" << escapedPath << "' found it to still be a threat");
+                        break;
+                    case scan_messages::MetadataRescanResponse::needsFullScan:
+                        LOGDEBUG("Metadata rescan for '" << escapedPath << "' found it needs to be fully scanned");
+                        break;
+                    case scan_messages::MetadataRescanResponse::failed:
+                        LOGDEBUG("Metadata rescan for '" << escapedPath << "' failed");
+                        break;
+                }
+            }
+
             auto filesToBeScanned = extractQuarantinedFiles(std::move(batch));
             auto objectIdsToRestore = scanExtractedFilesForRestoreList(std::move(filesToBeScanned));
             if (!objectIdsToRestore.empty())
@@ -858,9 +979,8 @@ namespace safestore::QuarantineManager
         auto dbLockPath = Plugin::getSafeStoreDbLockDirPath();
         auto fs = Common::FileSystem::fileSystem();
         double checkInterval = 0.2;
-        auto lockDoesNotExist = Common::UtilityImpl::waitFor(timeoutSeconds, checkInterval,[&dbLockPath, &fs]() {
-                                         return !fs->exists(dbLockPath);
-                                     });
+        auto lockDoesNotExist = Common::UtilityImpl::waitFor(
+            timeoutSeconds, checkInterval, [&dbLockPath, &fs]() { return !fs->exists(dbLockPath); });
         return lockDoesNotExist;
     }
 

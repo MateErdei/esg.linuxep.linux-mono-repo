@@ -1,6 +1,7 @@
 // Copyright 2022-2023 Sophos Limited. All rights reserved.
 
 #include "MockISafeStoreWrapper.h"
+#include "MockSafeStoreResources.h"
 
 #include "../common/MemoryAppender.h"
 #include "common/ApplicationPaths.h"
@@ -32,9 +33,9 @@ namespace
     class QuarantineManagerRescanTests : public MemoryAppenderUsingTests
     {
     public:
-        QuarantineManagerRescanTests() :  MemoryAppenderUsingTests("safestore")
-        {}
-
+        QuarantineManagerRescanTests() : MemoryAppenderUsingTests("safestore")
+        {
+        }
 
         void SetUp() override
         {
@@ -65,11 +66,9 @@ namespace
                 writeFile(Plugin::getPluginVarDirPath() + "/persist-safeStoreDbErrorThreshold", "10"));
         }
 
-        QuarantineManagerImpl makeQuarantineManager()
+        QuarantineManagerImpl createQuarantineManager()
         {
-            return QuarantineManagerImpl{std::move(m_mockSafeStoreWrapperPtr),
-                                         m_mockSysCallWrapper
-            };
+            return { std::move(m_mockSafeStoreWrapperPtr), m_mockSysCallWrapper, mockSafeStoreResources_ };
         }
 
         MockISafeStoreWrapper* m_mockSafeStoreWrapper = nullptr; // BORROWED pointer
@@ -77,16 +76,16 @@ namespace
         MockFileSystem* m_mockFileSystem = nullptr; // BORROWED pointer
         std::shared_ptr<MockSystemCallWrapper> m_mockSysCallWrapper =
             std::make_shared<StrictMock<MockSystemCallWrapper>>();
+        MockSafeStoreResources mockSafeStoreResources_;
     };
 
     using safestore::SafeStoreWrapper::ISafeStoreWrapper;
-}
-
+} // namespace
 
 TEST_F(QuarantineManagerRescanTests, scanExtractedFilesForRestoreListDoesNothingWithEmptyArgs)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
-    auto quarantineManager = makeQuarantineManager();
+    auto quarantineManager = createQuarantineManager();
 
     std::vector<FdsObjectIdsPair> testFiles;
 
@@ -97,7 +96,7 @@ TEST_F(QuarantineManagerRescanTests, scanExtractedFilesForRestoreListDoesNothing
 
 TEST_F(QuarantineManagerRescanTests, scanExtractedFiles)
 {
-    auto quarantineManager = makeQuarantineManager();
+    auto quarantineManager = createQuarantineManager();
     auto scannerFactory = std::make_shared<StrictMock<MockScannerFactory>>();
     auto scanner = std::make_unique<StrictMock<MockScanner>>();
 
@@ -142,7 +141,7 @@ TEST_F(QuarantineManagerRescanTests, scanExtractedFiles)
 
     EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectHandle("objectId1", _)).WillOnce(Return(true));
     EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectLocation(handleAsArg1)).WillOnce(Return(threatPath));
-    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectName(handleAsArg1)).WillOnce(Return(threatName1));
+    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectName(handleAsArg1)).WillRepeatedly(Return(threatName1));
 
     void* rawHandle2 = reinterpret_cast<SafeStoreObjectHandle>(2222);
     auto objectHandle2 = std::make_unique<ObjectHandleHolder>(mockGetIdMethods, mockReleaseMethods);
@@ -152,7 +151,7 @@ TEST_F(QuarantineManagerRescanTests, scanExtractedFiles)
 
     EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectHandle("objectId2", _)).WillOnce(Return(true));
     EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectLocation(handleAsArg2)).WillOnce(Return(threatPath));
-    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectName(handleAsArg2)).WillOnce(Return(threatName2));
+    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectName(handleAsArg2)).WillRepeatedly(Return(threatName2));
 
     void* rawHandle3 = reinterpret_cast<SafeStoreObjectHandle>(3333);
     auto objectHandle3 = std::make_unique<ObjectHandleHolder>(mockGetIdMethods, mockReleaseMethods);
@@ -162,7 +161,7 @@ TEST_F(QuarantineManagerRescanTests, scanExtractedFiles)
 
     EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectHandle("objectId3", _)).WillOnce(Return(true));
     EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectLocation(handleAsArg3)).WillOnce(Return(threatPath));
-    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectName(handleAsArg3)).WillOnce(Return(threatName3));
+    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectName(handleAsArg3)).WillRepeatedly(Return(threatName3));
 
     void* rawHandle4 = reinterpret_cast<SafeStoreObjectHandle>(4444);
     auto objectHandle4 = std::make_unique<ObjectHandleHolder>(mockGetIdMethods, mockReleaseMethods);
@@ -172,7 +171,7 @@ TEST_F(QuarantineManagerRescanTests, scanExtractedFiles)
 
     EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectHandle("objectId4", _)).WillOnce(Return(true));
     EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectLocation(handleAsArg4)).WillOnce(Return(threatPath));
-    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectName(handleAsArg4)).WillOnce(Return(threatName4));
+    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectName(handleAsArg4)).WillRepeatedly(Return(threatName4));
 
     EXPECT_CALL(*m_mockSafeStoreWrapper, createObjectHandleHolder())
         .Times(4)
@@ -205,7 +204,7 @@ TEST_F(QuarantineManagerRescanTests, scanExtractedFilesSocketFailure)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
     m_memoryAppender->setLayout(std::make_unique<log4cplus::PatternLayout>("[%p] %m%n"));
-    auto quarantineManager = makeQuarantineManager();
+    auto quarantineManager = createQuarantineManager();
 
     TestFile cleanFile1("cleanFile1");
     datatypes::AutoFd fd1{ cleanFile1.open() };
@@ -217,7 +216,6 @@ TEST_F(QuarantineManagerRescanTests, scanExtractedFilesSocketFailure)
     auto result = quarantineManager.scanExtractedFilesForRestoreList(std::move(testFiles));
     EXPECT_EQ(expectedResult, result);
 
-
     EXPECT_TRUE(appenderContains("[ERROR] Error on rescan request: "));
 }
 
@@ -226,7 +224,7 @@ TEST_F(QuarantineManagerRescanTests, scanExtractedFilesSkipsHandleFailure)
     UsingMemoryAppender memoryAppenderHolder(*this);
     m_memoryAppender->setLayout(std::make_unique<log4cplus::PatternLayout>("[%p] %m%n"));
 
-    auto quarantineManager = makeQuarantineManager();
+    auto quarantineManager = createQuarantineManager();
     auto scannerFactory = std::make_shared<StrictMock<MockScannerFactory>>();
     auto scanner = std::make_unique<StrictMock<MockScanner>>();
 
@@ -267,7 +265,7 @@ TEST_F(QuarantineManagerRescanTests, scanExtractedFilesSkipsHandleFailure)
 
     EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectHandle("objectId2", _)).WillOnce(Return(true));
     EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectLocation(handleAsArg2)).WillOnce(Return(threatPath));
-    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectName(handleAsArg2)).WillOnce(Return(threatName2));
+    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectName(handleAsArg2)).WillRepeatedly(Return(threatName2));
 
     EXPECT_CALL(*m_mockSafeStoreWrapper, createObjectHandleHolder())
         .Times(2)
@@ -293,7 +291,7 @@ TEST_F(QuarantineManagerRescanTests, scanExtractedFilesHandlesNameAndLocationFai
     UsingMemoryAppender memoryAppenderHolder(*this);
     m_memoryAppender->setLayout(std::make_unique<log4cplus::PatternLayout>("[%p] %m%n"));
 
-    auto quarantineManager = makeQuarantineManager();
+    auto quarantineManager = createQuarantineManager();
     auto scannerFactory = std::make_shared<StrictMock<MockScannerFactory>>();
     auto scanner = std::make_unique<StrictMock<MockScanner>>();
 
@@ -315,8 +313,8 @@ TEST_F(QuarantineManagerRescanTests, scanExtractedFilesHandlesNameAndLocationFai
     EXPECT_CALL(*mockReleaseMethods, releaseObjectHandle(rawHandle));
 
     EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectHandle("objectId1", _)).WillOnce(Return(true));
-    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectName(handleAsArg)).WillOnce(Return(""));
-    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectLocation(handleAsArg)).WillOnce(Return(""));
+    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectName(handleAsArg)).WillRepeatedly(Return(""));
+    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectLocation(handleAsArg)).WillRepeatedly(Return(""));
     EXPECT_CALL(*m_mockSafeStoreWrapper, createObjectHandleHolder()).WillOnce(Return(ByMove(std::move(objectHandle))));
 
     EXPECT_CALL(*scanner, scan(_, _)).WillOnce(Return(fd1_response));
@@ -332,9 +330,8 @@ TEST_F(QuarantineManagerRescanTests, scanExtractedFilesHandlesNameAndLocationFai
     server.tryStop();
     server.join();
 
-
     EXPECT_TRUE(appenderContains("[WARN] Couldn't get object name for: objectId1."));
-    EXPECT_TRUE(appenderContains("[WARN] Couldn't get object location for: objectId1."));
+    EXPECT_TRUE(appenderContains("[WARN] Couldn't get path for: objectId1: Couldn't get object name"));
 }
 
 TEST_F(QuarantineManagerRescanTests, restoreFileDoesNothingIfCannotGetObjectHandle)
@@ -342,7 +339,7 @@ TEST_F(QuarantineManagerRescanTests, restoreFileDoesNothingIfCannotGetObjectHand
     UsingMemoryAppender memoryAppenderHolder(*this);
     m_memoryAppender->setLayout(std::make_unique<log4cplus::PatternLayout>("[%p] %m%n"));
 
-    auto quarantineManager = makeQuarantineManager();
+    auto quarantineManager = createQuarantineManager();
 
     std::string objectId = "objectId";
 
@@ -357,7 +354,6 @@ TEST_F(QuarantineManagerRescanTests, restoreFileDoesNothingIfCannotGetObjectHand
 
     EXPECT_FALSE(quarantineManager.restoreFile(objectId).has_value());
 
-
     EXPECT_TRUE(appenderContains("[ERROR] Couldn't get object handle for: objectId"));
 }
 
@@ -366,7 +362,7 @@ TEST_F(QuarantineManagerRescanTests, restoreFileReturnsEarlyOnMissingNameAndLoca
     UsingMemoryAppender memoryAppenderHolder(*this);
     m_memoryAppender->setLayout(std::make_unique<log4cplus::PatternLayout>("[%p] %m%n"));
 
-    auto quarantineManager = makeQuarantineManager();
+    auto quarantineManager = createQuarantineManager();
 
     std::string objectId = "objectId";
     std::string threatId = "threatId";
@@ -386,8 +382,7 @@ TEST_F(QuarantineManagerRescanTests, restoreFileReturnsEarlyOnMissingNameAndLoca
 
     EXPECT_FALSE(quarantineManager.restoreFile(objectId).has_value());
 
-
-    EXPECT_TRUE(appenderContains("[ERROR] Couldn't get object name for: objectId"));
+    EXPECT_TRUE(appenderContains("[ERROR] Unable to restore objectId, reason: Couldn't get object name"));
 }
 
 TEST_F(QuarantineManagerRescanTests, restoreFileReturnsEarlyOnMissingLocation)
@@ -395,7 +390,7 @@ TEST_F(QuarantineManagerRescanTests, restoreFileReturnsEarlyOnMissingLocation)
     UsingMemoryAppender memoryAppenderHolder(*this);
     m_memoryAppender->setLayout(std::make_unique<log4cplus::PatternLayout>("[%p] %m%n"));
 
-    auto quarantineManager = makeQuarantineManager();
+    auto quarantineManager = createQuarantineManager();
 
     std::string objectId = "objectId";
     std::string threatId = "threatId";
@@ -416,8 +411,7 @@ TEST_F(QuarantineManagerRescanTests, restoreFileReturnsEarlyOnMissingLocation)
 
     EXPECT_FALSE(quarantineManager.restoreFile(objectId).has_value());
 
-
-    EXPECT_TRUE(appenderContains("[ERROR] Couldn't get object location for: objectId"));
+    EXPECT_TRUE(appenderContains("[ERROR] Unable to restore objectId, reason: Couldn't get object location"));
 }
 
 TEST_F(QuarantineManagerRescanTests, restoreFileDoesNothingIfCannotGetCorrelationId)
@@ -425,7 +419,7 @@ TEST_F(QuarantineManagerRescanTests, restoreFileDoesNothingIfCannotGetCorrelatio
     UsingMemoryAppender memoryAppenderHolder(*this);
     m_memoryAppender->setLayout(std::make_unique<log4cplus::PatternLayout>("[%p] %m%n"));
 
-    auto quarantineManager = makeQuarantineManager();
+    auto quarantineManager = createQuarantineManager();
 
     std::string objectId = "objectId";
     std::string objectName = "testName";
@@ -448,7 +442,8 @@ TEST_F(QuarantineManagerRescanTests, restoreFileDoesNothingIfCannotGetCorrelatio
 
     EXPECT_FALSE(quarantineManager.restoreFile(objectId).has_value());
 
-    EXPECT_TRUE(appenderContains("[ERROR] Unable to restore /path/to/location/testName, couldn't get correlation ID: Failed to get SafeStore object custom string 'correlationId'"));
+    EXPECT_TRUE(appenderContains(
+        "[ERROR] Unable to restore /path/to/location/testName, couldn't get correlation ID: Failed to get SafeStore object custom string 'correlationId'"));
 }
 
 TEST_F(QuarantineManagerRescanTests, restoreFileReturnsEarlyIfRestoreFails)
@@ -456,7 +451,7 @@ TEST_F(QuarantineManagerRescanTests, restoreFileReturnsEarlyIfRestoreFails)
     UsingMemoryAppender memoryAppenderHolder(*this);
     m_memoryAppender->setLayout(std::make_unique<log4cplus::PatternLayout>("[%p] %m%n"));
 
-    auto quarantineManager = makeQuarantineManager();
+    auto quarantineManager = createQuarantineManager();
 
     std::string objectId = "objectId";
     std::string objectName = "testName";
@@ -490,7 +485,7 @@ TEST_F(QuarantineManagerRescanTests, restoreFileReturnsEarlyIfDeleteFails)
     UsingMemoryAppender memoryAppenderHolder(*this);
     m_memoryAppender->setLayout(std::make_unique<log4cplus::PatternLayout>("[%p] %m%n"));
 
-    auto quarantineManager = makeQuarantineManager();
+    auto quarantineManager = createQuarantineManager();
 
     std::string objectId = "objectId";
     std::string objectName = "testName";
@@ -518,7 +513,8 @@ TEST_F(QuarantineManagerRescanTests, restoreFileReturnsEarlyIfDeleteFails)
     EXPECT_FALSE(quarantineManager.restoreFile(objectId).value().wasSuccessful);
 
     EXPECT_TRUE(appenderContains("[INFO] Restored file to disk: /path/to/location/testName"));
-    EXPECT_TRUE(appenderContains("[WARN] File was restored to disk, but unable to remove it from SafeStore database: /path/to/location/testName"));
+    EXPECT_TRUE(appenderContains(
+        "[WARN] File was restored to disk, but unable to remove it from SafeStore database: /path/to/location/testName"));
 }
 
 TEST_F(QuarantineManagerRescanTests, restoreFileReturnsReportOnSuccess)
@@ -526,7 +522,7 @@ TEST_F(QuarantineManagerRescanTests, restoreFileReturnsReportOnSuccess)
     UsingMemoryAppender memoryAppenderHolder(*this);
     m_memoryAppender->setLayout(std::make_unique<log4cplus::PatternLayout>("[%p] %m%n"));
 
-    auto quarantineManager = makeQuarantineManager();
+    auto quarantineManager = createQuarantineManager();
 
     std::string objectId = "objectId";
     std::string objectName = "testName";
@@ -558,4 +554,313 @@ TEST_F(QuarantineManagerRescanTests, restoreFileReturnsReportOnSuccess)
 
     EXPECT_TRUE(appenderContains("[INFO] Restored file to disk: /path/to/location/testName"));
     EXPECT_TRUE(appenderContains("[DEBUG] ObjectId successfully deleted from database: objectId"));
+}
+
+namespace
+{
+    class QuarantineManagerRescanDefaultMockTests : public MemoryAppenderUsingTests
+    {
+    protected:
+        QuarantineManagerRescanDefaultMockTests() :
+            MemoryAppenderUsingTests("safestore"), memoryAppenderHolder_{ *this }
+        {
+            auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
+            appConfig.setData("SOPHOS_INSTALL", "/tmp");
+            appConfig.setData("PLUGIN_INSTALL", "/tmp/av");
+        }
+
+        QuarantineManagerImpl createQuarantineManager()
+        {
+            return { std::move(mockSafeStoreWrapper_), mockSysCallWrapper_, mockSafeStoreResources_ };
+        }
+
+        void defineObjectAccessors(
+            int id,
+            const std::string& threatType,
+            const std::string& threatName,
+            const std::string& name,
+            const std::string& location,
+            const std::string& sha256,
+            const std::string& objectId)
+        {
+            void* rawHandle = reinterpret_cast<SafeStoreObjectHandle>(id);
+            auto property = Property(&ObjectHandleHolder::getRawHandle, rawHandle);
+
+            ON_CALL(*mockSafeStoreWrapper_, getObjectCustomDataString(property, "threatType"))
+                .WillByDefault(Return(threatType));
+            ON_CALL(*mockSafeStoreWrapper_, getObjectThreatName(property)).WillByDefault(Return(threatName));
+            ON_CALL(*mockSafeStoreWrapper_, getObjectName(property)).WillByDefault(Return(name));
+            ON_CALL(*mockSafeStoreWrapper_, getObjectLocation(property)).WillByDefault(Return(location));
+            ON_CALL(*mockSafeStoreWrapper_, getObjectCustomDataString(property, "SHA256"))
+                .WillByDefault(Return(sha256));
+            ON_CALL(*mockSafeStoreWrapper_, getObjectId(property)).WillByDefault(Return(objectId));
+        }
+
+        ObjectHandleHolder createObjectHandle(int id)
+        {
+            ObjectHandleHolder objectHandle{ mockGetIdMethods_, mockReleaseMethods_ };
+            *objectHandle.getRawHandlePtr() = reinterpret_cast<SafeStoreObjectHandle>(id);
+            return objectHandle;
+        }
+
+        UsingMemoryAppender memoryAppenderHolder_;
+        std::unique_ptr<MockISafeStoreWrapper> mockSafeStoreWrapper_ = std::make_unique<MockISafeStoreWrapper>();
+        std::unique_ptr<MockFileSystem> mockFileSystem_ = std::make_unique<MockFileSystem>();
+        std::shared_ptr<MockISafeStoreGetIdMethods> mockGetIdMethods_ = std::make_shared<MockISafeStoreGetIdMethods>();
+        std::shared_ptr<MockISafeStoreReleaseMethods> mockReleaseMethods_ =
+            std::make_shared<MockISafeStoreReleaseMethods>();
+        std::shared_ptr<MockSystemCallWrapper> mockSysCallWrapper_ = std::make_shared<MockSystemCallWrapper>();
+        MockSafeStoreResources mockSafeStoreResources_;
+    };
+} // namespace
+
+TEST_F(QuarantineManagerRescanDefaultMockTests, MetadataRescanReceivesClean)
+{
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::move(mockFileSystem_) };
+
+    ON_CALL(*mockSafeStoreWrapper_, find)
+        .WillByDefault(InvokeWithoutArgs(
+            [this]()
+            {
+                std::vector<ObjectHandleHolder> searchResults;
+                searchResults.push_back(createObjectHandle(1111));
+                return searchResults;
+            }));
+    defineObjectAccessors(1111, "threatType", "threatName", "name", "/location", "SHA256", "objectId");
+
+    EXPECT_CALL(mockSafeStoreResources_, CreateMetadataRescanClientSocket)
+        .WillRepeatedly(InvokeWithoutArgs(
+            []()
+            {
+                auto wrapper = std::make_unique<unixsocket::MockMetadataRescanClientSocket>();
+                EXPECT_CALL(*wrapper, rescan).WillRepeatedly(Return(scan_messages::MetadataRescanResponse::ok));
+                return wrapper;
+            }));
+
+    auto quarantineManager = createQuarantineManager();
+
+    quarantineManager.rescanDatabase();
+    EXPECT_TRUE(appenderContains(
+        "INFO - Requesting metadata rescan of quarantined file with original path '/location/name' and object ID 'objectId'"));
+    EXPECT_TRUE(appenderContains(
+        "DEBUG - Metadata rescan for '/location/name' found it to no longer have the saved detection"));
+}
+
+TEST_F(QuarantineManagerRescanDefaultMockTests, MetadataRescanReceivesThreat)
+{
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::move(mockFileSystem_) };
+
+    ON_CALL(*mockSafeStoreWrapper_, find)
+        .WillByDefault(InvokeWithoutArgs(
+            [this]()
+            {
+                std::vector<ObjectHandleHolder> searchResults;
+                searchResults.push_back(createObjectHandle(1111));
+                return searchResults;
+            }));
+    defineObjectAccessors(1111, "threatType", "threatName", "name", "/location", "SHA256", "objectId");
+
+    EXPECT_CALL(mockSafeStoreResources_, CreateMetadataRescanClientSocket)
+        .WillRepeatedly(InvokeWithoutArgs(
+            []()
+            {
+                auto wrapper = std::make_unique<unixsocket::MockMetadataRescanClientSocket>();
+                EXPECT_CALL(*wrapper, rescan)
+                    .WillRepeatedly(Return(scan_messages::MetadataRescanResponse::threatPresent));
+                return wrapper;
+            }));
+
+    auto quarantineManager = createQuarantineManager();
+
+    quarantineManager.rescanDatabase();
+    EXPECT_TRUE(appenderContains(
+        "INFO - Requesting metadata rescan of quarantined file with original path '/location/name' and object ID 'objectId'"));
+    EXPECT_TRUE(appenderContains("DEBUG - Metadata rescan for '/location/name' found it to still be a threat"));
+}
+
+TEST_F(QuarantineManagerRescanDefaultMockTests, MetadataRescanReceivesMultipleResults)
+{
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::move(mockFileSystem_) };
+
+    ON_CALL(*mockSafeStoreWrapper_, find)
+        .WillByDefault(InvokeWithoutArgs(
+            [this]()
+            {
+                std::vector<ObjectHandleHolder> searchResults;
+                searchResults.push_back(createObjectHandle(1111));
+                searchResults.push_back(createObjectHandle(2222));
+                return searchResults;
+            }));
+    defineObjectAccessors(1111, "threatType_1", "threatName_1", "name_1", "/location_1", "SHA256_1", "objectId_1");
+    defineObjectAccessors(2222, "threatType_2", "threatName_2", "name_2", "/location_2", "SHA256_2", "objectId_2");
+
+    EXPECT_CALL(mockSafeStoreResources_, CreateMetadataRescanClientSocket)
+        .WillRepeatedly(InvokeWithoutArgs(
+            []()
+            {
+                auto wrapper = std::make_unique<unixsocket::MockMetadataRescanClientSocket>();
+                EXPECT_CALL(*wrapper, rescan)
+                    .WillOnce(Return(scan_messages::MetadataRescanResponse::threatPresent))
+                    .WillOnce(Return(scan_messages::MetadataRescanResponse::ok));
+                return wrapper;
+            }));
+
+    auto quarantineManager = createQuarantineManager();
+
+    quarantineManager.rescanDatabase();
+    EXPECT_TRUE(appenderContains(
+        "INFO - Requesting metadata rescan of quarantined file with original path '/location_1/name_1' and object ID 'objectId_1'"));
+    EXPECT_TRUE(appenderContains("DEBUG - Metadata rescan for '/location_1/name_1' found it to still be a threat"));
+    EXPECT_TRUE(appenderContains(
+        "INFO - Requesting metadata rescan of quarantined file with original path '/location_2/name_2' and object ID 'objectId_2'"));
+    EXPECT_TRUE(appenderContains(
+        "DEBUG - Metadata rescan for '/location_2/name_2' found it to no longer have the saved detection"));
+}
+
+TEST_F(QuarantineManagerRescanDefaultMockTests, MetadataRescanFailsIfThreatNameIsMissing)
+{
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::move(mockFileSystem_) };
+
+    ON_CALL(*mockSafeStoreWrapper_, find)
+        .WillByDefault(InvokeWithoutArgs(
+            [this]()
+            {
+                std::vector<ObjectHandleHolder> searchResults;
+                searchResults.push_back(createObjectHandle(1111));
+                return searchResults;
+            }));
+    defineObjectAccessors(1111, "threatType", "", "name", "/location", "SHA256", "objectId");
+
+    auto quarantineManager = createQuarantineManager();
+
+    quarantineManager.rescanDatabase();
+    EXPECT_TRUE(appenderContains("Failed to create metadata rescan request: Failed to get object threat name"));
+}
+
+TEST_F(QuarantineManagerRescanDefaultMockTests, MetadataRescanFailsIfNameIsMissing)
+{
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::move(mockFileSystem_) };
+
+    ON_CALL(*mockSafeStoreWrapper_, find)
+        .WillByDefault(InvokeWithoutArgs(
+            [this]()
+            {
+                std::vector<ObjectHandleHolder> searchResults;
+                searchResults.push_back(createObjectHandle(1111));
+                return searchResults;
+            }));
+    defineObjectAccessors(1111, "threatType", "threatName", "", "/location", "SHA256", "objectId");
+
+    auto quarantineManager = createQuarantineManager();
+
+    quarantineManager.rescanDatabase();
+    EXPECT_TRUE(appenderContains("Failed to create metadata rescan request: Couldn't get object name"));
+}
+
+TEST_F(QuarantineManagerRescanDefaultMockTests, MetadataRescanFailsIfLocationIsMissing)
+{
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::move(mockFileSystem_) };
+
+    ON_CALL(*mockSafeStoreWrapper_, find)
+        .WillByDefault(InvokeWithoutArgs(
+            [this]()
+            {
+                std::vector<ObjectHandleHolder> searchResults;
+                searchResults.push_back(createObjectHandle(1111));
+                return searchResults;
+            }));
+    defineObjectAccessors(1111, "threatType", "threatName", "name", "", "SHA256", "objectId");
+
+    auto quarantineManager = createQuarantineManager();
+
+    quarantineManager.rescanDatabase();
+    EXPECT_TRUE(appenderContains("Failed to create metadata rescan request: Couldn't get object location"));
+}
+
+TEST_F(QuarantineManagerRescanDefaultMockTests, MetadataRescanFailsIfSha256IsMissing)
+{
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::move(mockFileSystem_) };
+
+    ON_CALL(*mockSafeStoreWrapper_, find)
+        .WillByDefault(InvokeWithoutArgs(
+            [this]()
+            {
+                std::vector<ObjectHandleHolder> searchResults;
+                searchResults.push_back(createObjectHandle(1111));
+                return searchResults;
+            }));
+    defineObjectAccessors(1111, "threatType", "threatName", "name", "/location", "", "objectId");
+
+    auto quarantineManager = createQuarantineManager();
+
+    quarantineManager.rescanDatabase();
+    EXPECT_TRUE(appenderContains("Failed to create metadata rescan request: Failed to get object SHA256"));
+}
+
+TEST_F(QuarantineManagerRescanDefaultMockTests, MetadataRescanSucceedsIfThreatTypeIsMissing)
+{
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::move(mockFileSystem_) };
+
+    ON_CALL(*mockSafeStoreWrapper_, find)
+        .WillByDefault(InvokeWithoutArgs(
+            [this]()
+            {
+                std::vector<ObjectHandleHolder> searchResults;
+                searchResults.push_back(createObjectHandle(1111));
+                return searchResults;
+            }));
+    defineObjectAccessors(1111, "", "threatName", "name", "/location", "SHA256", "objectId");
+
+    EXPECT_CALL(mockSafeStoreResources_, CreateMetadataRescanClientSocket)
+        .WillRepeatedly(InvokeWithoutArgs(
+            []()
+            {
+                auto wrapper = std::make_unique<unixsocket::MockMetadataRescanClientSocket>();
+                EXPECT_CALL(*wrapper, rescan(Field(&scan_messages::MetadataRescan::threatType, "virus")))
+                    .WillRepeatedly(Return(scan_messages::MetadataRescanResponse::ok));
+                return wrapper;
+            }));
+
+    auto quarantineManager = createQuarantineManager();
+
+    quarantineManager.rescanDatabase();
+    EXPECT_TRUE(appenderContains(
+        "INFO - Requesting metadata rescan of quarantined file with original path '/location/name' and object ID 'objectId'"));
+    EXPECT_TRUE(appenderContains(
+        "DEBUG - Metadata rescan for '/location/name' found it to no longer have the saved detection"));
+}
+
+TEST_F(QuarantineManagerRescanDefaultMockTests, MetadataRescanContinuesIfOneFails)
+{
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::move(mockFileSystem_) };
+
+    ON_CALL(*mockSafeStoreWrapper_, find)
+        .WillByDefault(InvokeWithoutArgs(
+            [this]()
+            {
+                std::vector<ObjectHandleHolder> searchResults;
+                searchResults.push_back(createObjectHandle(1111));
+                searchResults.push_back(createObjectHandle(2222));
+                return searchResults;
+            }));
+    defineObjectAccessors(1111, "", "", "", "", "", "");
+    defineObjectAccessors(2222, "threatType_2", "threatName_2", "name_2", "/location_2", "SHA256_2", "objectId_2");
+
+    EXPECT_CALL(mockSafeStoreResources_, CreateMetadataRescanClientSocket)
+        .WillRepeatedly(InvokeWithoutArgs(
+            []()
+            {
+                auto wrapper = std::make_unique<unixsocket::MockMetadataRescanClientSocket>();
+                EXPECT_CALL(*wrapper, rescan).WillRepeatedly(Return(scan_messages::MetadataRescanResponse::ok));
+                return wrapper;
+            }));
+
+    auto quarantineManager = createQuarantineManager();
+
+    quarantineManager.rescanDatabase();
+    EXPECT_TRUE(appenderContains("Failed to create metadata rescan request:"));
+    EXPECT_TRUE(appenderContains(
+        "INFO - Requesting metadata rescan of quarantined file with original path '/location_2/name_2' and object ID 'objectId_2'"));
+    EXPECT_TRUE(appenderContains(
+        "DEBUG - Metadata rescan for '/location_2/name_2' found it to no longer have the saved detection"));
 }

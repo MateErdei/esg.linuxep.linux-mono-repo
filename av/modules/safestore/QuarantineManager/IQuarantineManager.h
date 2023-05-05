@@ -76,6 +76,7 @@ namespace safestore::QuarantineManager
         virtual common::CentralEnums::QuarantineResult quarantineFile(
             const std::string& filePath,
             const std::string& threatId,
+            const std::string& threatType,
             const std::string& threatName,
             const std::string& sha256,
             datatypes::AutoFd autoFd) = 0;

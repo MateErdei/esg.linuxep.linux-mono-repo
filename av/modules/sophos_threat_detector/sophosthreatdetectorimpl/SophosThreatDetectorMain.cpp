@@ -13,7 +13,6 @@
 #include "common/Define.h"
 #include "common/SaferStrerror.h"
 #include "common/ThreadRunner.h"
-#include "common/ThreatDetector/SusiSettings.h"
 #include "common/signals/SigUSR1Monitor.h"
 #include "datatypes/sophos_filesystem.h"
 
@@ -472,6 +471,10 @@ namespace sspl::sophosthreatdetectorimpl
 
         m_safeStoreRescanWorker = resources->createSafeStoreRescanWorker(Plugin::getSafeStoreRescanSocketPath());
         common::ThreadRunner safeStoreRescanWorkerThread (m_safeStoreRescanWorker, "safestoreRescanWorker", true);
+
+        auto metadataRescanServer =
+            resources->createMetadataRescanServerSocket(Plugin::getMetadataRescanSocketPath(), 0600, m_scannerFactory);
+        common::ThreadRunner metadataRescanServerSocketThread(metadataRescanServer, "metadataRescanServerSocket", true);
 
         fs::path processControllerSocketPath = "/var/process_control_socket";
 

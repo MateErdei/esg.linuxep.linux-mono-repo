@@ -46,5 +46,10 @@ namespace sspl::sophosthreatdetectorimpl
             unixsocket::IProcessControlMessageCallbackPtr createThreatDetectorCallBacks(
                 ISophosThreatDetectorMain& threatDetectorMain
                 ) override;
+
+            std::shared_ptr<unixsocket::MetadataRescanServerSocket> createMetadataRescanServerSocket(
+                const std::string& path,
+                mode_t mode,
+                threat_scanner::IThreatScannerFactorySharedPtr scannerFactory) override;
     };
 }

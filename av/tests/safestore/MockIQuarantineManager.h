@@ -21,11 +21,17 @@ public:
     MOCK_METHOD(
         common::CentralEnums::QuarantineResult,
         quarantineFile,
-        (const std::string&, const std::string&, const std::string&, const std::string&, datatypes::AutoFd));
+        (const std::string& filePath,
+         const std::string& threatId,
+         const std::string& threatType,
+         const std::string& threatName,
+         const std::string& sha256,
+         const std::string& correlationId,
+         datatypes::AutoFd autoFd));
     MOCK_METHOD(
         std::vector<FdsObjectIdsPair>,
         extractQuarantinedFiles,
-        (datatypes::ISystemCallWrapper & sysCallWrapper, std::vector<safestore::SafeStoreWrapper::ObjectHandleHolder>));
+        (std::vector<safestore::SafeStoreWrapper::ObjectHandleHolder>));
     MOCK_METHOD(void, rescanDatabase, ());
     MOCK_METHOD(void, parseConfig, ());
     MOCK_METHOD(

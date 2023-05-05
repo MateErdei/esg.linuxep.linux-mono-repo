@@ -1,4 +1,4 @@
-// Copyright 2020-2022 Sophos Limited. All rights reserved.
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #define PLUGIN_INTERNAL public
 
@@ -102,7 +102,7 @@ TEST_F(TestSafeStoreSocket, AttemptsQuarantineButFailsToReceiveResponse)
     }
 
     // Needed so SafeStore server connection doesn't send back response
-    ON_CALL(*m_mockQuarantineManager, quarantineFile(_, _, _, _, _, _))
+    ON_CALL(*m_mockQuarantineManager, quarantineFile(_, _, _, _, _, _, _))
         .WillByDefault(Throw(std::runtime_error{ "fail so no response is sent" }));
 
     SafeStoreWorker worker{ m_mockDetectionHandler, m_detectionQueue, m_socketPath };
@@ -135,7 +135,7 @@ TEST_F(TestSafeStoreSocket, AttemptsQuarantineAndReceivesSuccessFromSafeStore)
     }
 
     // Needed so SafeStore client socket returns success
-    ON_CALL(*m_mockQuarantineManager, quarantineFile(_, _, _, _, _, _))
+    ON_CALL(*m_mockQuarantineManager, quarantineFile(_, _, _, _, _, _, _))
         .WillByDefault(Return(common::CentralEnums::QuarantineResult::SUCCESS));
 
     SafeStoreWorker worker{ m_mockDetectionHandler, m_detectionQueue, m_socketPath };
@@ -168,7 +168,7 @@ TEST_F(TestSafeStoreSocket, AttemptsQuarantineAndReceivesFailureFromSafeStore)
     }
 
     // Needed so SafeStore client socket returns failure
-    ON_CALL(*m_mockQuarantineManager, quarantineFile(_, _, _, _, _, _))
+    ON_CALL(*m_mockQuarantineManager, quarantineFile(_, _, _, _, _, _, _))
         .WillByDefault(Return(common::CentralEnums::QuarantineResult::FAILED_TO_DELETE_FILE));
 
     SafeStoreWorker worker{ m_mockDetectionHandler, m_detectionQueue, m_socketPath };

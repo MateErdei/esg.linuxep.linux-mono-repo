@@ -238,6 +238,7 @@ void SafeStoreServerConnectionThread::inner_run()
             common::CentralEnums::QuarantineResult quarantineResult = m_quarantineManager->quarantineFile(
                 threatDetected.filePath,
                 threatDetected.threatId,
+                threatDetected.threatType,
                 threatDetected.threatName,
                 threatDetected.sha256,
                 threatDetected.correlationId,

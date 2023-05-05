@@ -95,3 +95,12 @@ unixsocket::IProcessControlMessageCallbackPtr ThreatDetectorResources::createThr
 {
     return std::make_shared<ThreatDetectorControlCallback>(threatDetectorMain);
 }
+
+std::shared_ptr<unixsocket::MetadataRescanServerSocket> ThreatDetectorResources::createMetadataRescanServerSocket(
+    const std::string& path,
+    mode_t mode,
+    threat_scanner::IThreatScannerFactorySharedPtr scannerFactory)
+{
+    auto metadataRescanServer = std::make_shared<unixsocket::MetadataRescanServerSocket>(path, mode, scannerFactory);
+    return metadataRescanServer;
+}

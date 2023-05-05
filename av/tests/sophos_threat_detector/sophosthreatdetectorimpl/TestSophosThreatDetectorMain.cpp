@@ -728,3 +728,17 @@ TEST_F(TestSophosThreatDetectorMain, sophosThreatDetectorResetsSusiSettingsNotCh
     EXPECT_TRUE(appenderContains("Skipping susi reload because susi is not initialised"));
     EXPECT_TRUE(appenderContains("Not triggering SafeStore rescan because SUSI settings have not changed"));
 }
+
+TEST_F(TestSophosThreatDetectorMain, CreatesMetadataRescanServerSocket)
+{
+    auto mockSusiScannerFactory = std::make_shared<NiceMock<MockSusiScannerFactory>>();
+    ON_CALL(*mockSusiScannerFactory, susiIsInitialized()).WillByDefault(Return(true));
+    ON_CALL(*m_mockThreatDetectorResources, createSusiScannerFactory).WillByDefault(Return(mockSusiScannerFactory));
+
+    auto mockMetadataRescanServerSocket = std::make_shared<MockMetadataRescanServerSocket>(fs::path(m_testDir / "metadata_rescan_socket"), 0777, mockSusiScannerFactory);
+    EXPECT_CALL(*mockMetadataRescanServerSocket, run);
+    ON_CALL(*m_mockThreatDetectorResources, createMetadataRescanServerSocket).WillByDefault(Return(mockMetadataRescanServerSocket));
+
+    auto threatDetectorMain = SophosThreatDetectorMain();
+    threatDetectorMain.inner_main(m_mockThreatDetectorResources);
+}

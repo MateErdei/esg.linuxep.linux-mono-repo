@@ -4,6 +4,7 @@
 
 #define TEST_PUBLIC public
 
+#include "MockMetadataRescanServerSocket.h"
 #include "MockScanningServerSocket.h"
 #include "MockShutdownTimer.h"
 #include "MockThreatDetectorControlCallbacks.h"
@@ -41,6 +42,7 @@ namespace
             m_mockScanningServerSocket = std::make_shared<NiceMock<MockScanningServerSocket>>(fs::path(testDirectory / "scanning_server_socket"), 0777, m_mockSusiScannerFactory);
             m_reloader = std::make_shared<NiceMock<MockReloader>>();
             m_safeStoreRescanWorker = std::make_shared<NiceMock<MockSafeStoreRescanWorker>>();
+            m_mockMetadataRescanServerSocket = std::make_shared<NiceMock<MockMetadataRescanServerSocket>>(fs::path(testDirectory / "metadata_rescan_socket"), 0777, m_mockSusiScannerFactory);
 
             auto mockThreatDetectorControlCallbacks = std::make_shared<NiceMock<MockThreatDetectorControlCallbacks>>();
             m_processControlServerSocket = std::make_shared<unixsocket::ProcessControllerServerSocket>(fs::path(testDirectory / "process_control_socket"), 0777, mockThreatDetectorControlCallbacks);
@@ -57,6 +59,7 @@ namespace
             ON_CALL(*this, createReloader).WillByDefault(Return(m_reloader));
             ON_CALL(*this, createProcessControllerServerSocket).WillByDefault(Return(m_processControlServerSocket));
             ON_CALL(*this, createSafeStoreRescanWorker).WillByDefault(Return(m_safeStoreRescanWorker));
+            ON_CALL(*this, createMetadataRescanServerSocket).WillByDefault(Return(m_mockMetadataRescanServerSocket));
         }
 
         MOCK_METHOD(datatypes::ISystemCallWrapperSharedPtr, createSystemCallWrapper, (), (override));
@@ -89,7 +92,11 @@ namespace
         MOCK_METHOD(unixsocket::IProcessControlMessageCallbackPtr, createThreatDetectorCallBacks,
                     (ISophosThreatDetectorMain& threatDetectorMain),
                     (override));
-
+        MOCK_METHOD(
+            std::shared_ptr<unixsocket::MetadataRescanServerSocket>,
+            createMetadataRescanServerSocket,
+            (const std::string& path, mode_t mode, threat_scanner::IThreatScannerFactorySharedPtr scannerFactory),
+            (override));
 
         void setThreatDetectorCallback(std::shared_ptr<ThreatDetectorControlCallback> callback)
         {
@@ -114,6 +121,7 @@ namespace
         std::shared_ptr<MockScanningServerSocket> m_mockScanningServerSocket;
         std::shared_ptr<MockReloader> m_reloader;
         std::shared_ptr<MockSafeStoreRescanWorker> m_safeStoreRescanWorker;
+        std::shared_ptr<MockMetadataRescanServerSocket> m_mockMetadataRescanServerSocket;
 
         //Not Mocked
         std::shared_ptr<ThreatDetectorControlCallback> m_callbacks;

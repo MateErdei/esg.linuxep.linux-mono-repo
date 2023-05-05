@@ -31,8 +31,8 @@ Dump and Reset Logs
     Remove File  ${SAFESTORE_LOG_PATH}*
 
 send TDO To socket
-    [Arguments]  ${socketpath}=/opt/sophos-spl/plugins/av/var/safestore_socket  ${filepath}=/tmp/testfile  ${threatname}=threatName  ${sha}=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  ${fd}=0  ${threatid}=00010203-0405-0607-0809-0a0b0c0d0e0f
-    ${result} =  Run Shell Process  ${SEND_THREAT_DETECTED_TOOL} --socketpath ${socketpath} --filepath ${filepath} --threatname ${threatname} --sha ${sha} --filedescriptor ${fd} --threatid ${threatid}  OnError=Failed to run SendThreatDetectedEvent binary   timeout=10
+    [Arguments]  ${socketpath}=/opt/sophos-spl/plugins/av/var/safestore_socket  ${filepath}=/tmp/testfile  ${threat_type}=threatType  ${threatname}=threatName  ${sha}=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  ${fd}=0  ${threatid}=00010203-0405-0607-0809-0a0b0c0d0e0f
+    ${result} =  Run Shell Process  ${SEND_THREAT_DETECTED_TOOL} --socketpath ${socketpath} --filepath ${filepath} --threattype ${threat_type} --threatname ${threatname} --sha ${sha} --filedescriptor ${fd} --threatid ${threatid}  OnError=Failed to run SendThreatDetectedEvent binary   timeout=10
     [Return]  ${result}
 
 *** Test Cases ***
@@ -62,6 +62,35 @@ Send Only FD To Safestore
     Create File  /tmp/testfile
     ${result} =  Run Shell Process  ${SEND_THREAT_DETECTED_TOOL} --socketpath /opt/sophos-spl/plugins/av/var/safestore_socket --filepath /tmp/testfile --nosendmessage    OnError=Failed to run SendThreatDetectedEvent binary   timeout=10
     wait_for_safestore_log_contains_after_mark   SafeStoreServerConnectionThread ignoring length of zero / No new messages       mark=${SAFESTORE_LOG_MARK_FROM_START_OF_TEST}
+
+Send Empty ThreatType To Safestore
+    Create File  /tmp/testfile
+    ${result} =  send TDO To socket  threat_type=""
+    wait_for_safestore_log_contains_after_mark  Failed to store threat type '' in SafeStore object   mark=${SAFESTORE_LOG_MARK_FROM_START_OF_TEST}
+    Mark expected error in log    ${SAFESTORE_LOG_PATH}    Got DATA_TAG_NOT_SET while setting custom data, name: threatType
+    Mark expected error in log    ${SAFESTORE_LOG_PATH}    Failed to store threat type '' in SafeStore object
+
+Send ThreatType with foreign chars To Safestore
+    Create File  /tmp/testfile
+    ${result} =  send TDO To socket  threat_type=threatTypeこんにちは
+    wait_for_safestore_log_contains_after_mark  Quarantined /tmp/testfile successfully   mark=${SAFESTORE_LOG_MARK_FROM_START_OF_TEST}
+
+Send ThreatType with xml To Safestore
+    Create File  /tmp/testfile
+    ${result} =  send TDO To socket  threat_type="<tag></tag>"
+    wait_for_safestore_log_contains_after_mark  Quarantined /tmp/testfile successfully   mark=${SAFESTORE_LOG_MARK_FROM_START_OF_TEST}
+
+Send ThreatType with json To Safestore
+    Create File  /tmp/testfile
+    ${result} =  send TDO To socket  threat_type="{\"blob\":1000}"
+    wait_for_safestore_log_contains_after_mark  Quarantined /tmp/testfile successfully   mark=${SAFESTORE_LOG_MARK_FROM_START_OF_TEST}
+
+Send very long ThreatType To Safestore
+    Create File  /tmp/testfile
+    ${long_string}=  Run Process  tr -dc A-Za-z0-9 </dev/urandom | head -c 50000  shell=True
+    ${result} =  send TDO To socket  threat_type=${long_string.stdout}
+    Wait for SafeStore log contains after mark    Failed to store threat type    mark=${SAFESTORE_LOG_MARK_FROM_START_OF_TEST}
+    Mark expected error in log    ${SAFESTORE_LOG_PATH}    Failed to store threat type
 
 Send Empty ThreatName To Safestore
     Create File  /tmp/testfile

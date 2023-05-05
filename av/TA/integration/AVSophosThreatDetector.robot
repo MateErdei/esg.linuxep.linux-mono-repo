@@ -12,6 +12,7 @@ Library         ../Libs/OnFail.py
 Library         ../Libs/LogUtils.py
 Library         ../Libs/ProcessUtils.py
 Library         ../Libs/FileSampleObfuscator.py
+Library         ../Libs/FileUtils.py
 
 Suite Setup     AVSophosThreatDetector Suite Setup
 Suite Teardown  AVSophosThreatDetector Suite TearDown
@@ -771,6 +772,13 @@ Sophos Threat Detector Does Not Detect Allow Listed File By Path
 Threat Detector Pid Lock Permissions Are Correct
     ${rc}   ${output} =    Run And Return Rc And Output  stat -c '%a' ${COMPONENT_ROOT_PATH}/chroot/var/threat_detector.pid
     Should Be Equal As Integers   ${output}  ${640}
+
+
+Threat Detector Creates Metadata Rescan Socket With Correct Permissions
+    ${owner} =    Get File Owner    ${METADATA_RESCAN_SOCKET}
+    ${group} =    Get File Group    ${METADATA_RESCAN_SOCKET}
+    Should Be Equal    ${owner}    sophos-spl-threat-detector
+    Should Be Equal    ${group}    sophos-spl-group
 
 
 *** Keywords ***
