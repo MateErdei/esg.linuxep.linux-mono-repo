@@ -848,7 +848,10 @@ def run_response_actions_download_files_test(region, env, tenant_id):
 
     file_to_download = os.path.join(SCRIPT_DIR, f"file_to_download")
     create_file_for_ra(file_to_download)
-    size = 108
+
+    print(f"HERE: {os.path.getsize(file_to_download)}")
+    print(f"HERE: {hashlib.sha256(open(file_to_download, 'rb').read()).hexdigest()}")
+    size = os.path.getsize(file_to_download)
     sha256 = hashlib.sha256(open(file_to_download, 'rb').read()).hexdigest()
 
     for i in range(10):
@@ -897,6 +900,8 @@ def run_response_actions_upload_files_test(region, env, tenant_id):
     for i in range(10):
         filepath = os.path.join(SCRIPT_DIR, f"test_file_{i}")
         create_file_for_ra(filepath)
+        print(f"HERE: {os.path.getsize(filepath)}")
+        print(f"HERE: {hashlib.sha256(open(filepath, 'rb').read()).hexdigest()}")
 
         res = upload_response_actions_file(region=region, env=env, tenant_id=tenant_id, endpoint_id=get_endpoint_id(),
                                            file_path=filepath)
