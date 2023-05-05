@@ -192,7 +192,7 @@ TEST(TestScanRequest, ReuseScanRequestObject)
 TEST(TestScanRequest, excludePUAs)
 {
     scan_messages::ClientScanRequest clientScanRequest;
-    clientScanRequest.setPuaExclusions({"FOO"});
+    clientScanRequest.setPuaExclusions({"FOO", "BAR"});
 
     auto serialised = clientScanRequest.serialise();
 
@@ -206,6 +206,7 @@ TEST(TestScanRequest, excludePUAs)
     scan_messages::ScanRequest received{requestReader};
 
     auto puaExclusions = received.getPuaExclusions();
-    ASSERT_EQ(puaExclusions.size(), 1);
+    ASSERT_EQ(puaExclusions.size(), 2);
     EXPECT_EQ(puaExclusions[0], "FOO");
+    EXPECT_EQ(puaExclusions[1], "BAR");
 }
