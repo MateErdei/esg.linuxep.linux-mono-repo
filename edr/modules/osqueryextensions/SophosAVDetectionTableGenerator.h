@@ -21,8 +21,8 @@ namespace OsquerySDK
             QueryContextInterface& queryContext,
             std::shared_ptr<Common::EventJournalWrapper::IEventJournalReaderWrapper> journalReader);
     private:
-        // Read from event journal in chunks no greater than 10Mb
-        static const uint32_t MAX_MEMORY_THRESHOLD = 10000000;
+        // Read from event journal in chunks no greater than 100Mb
+        static const uint32_t MAX_MEMORY_THRESHOLD = 100000000;
 
         std::string getQueryId(QueryContextInterface& queryContext);
     };
