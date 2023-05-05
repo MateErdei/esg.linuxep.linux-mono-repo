@@ -848,8 +848,8 @@ def run_response_actions_download_files_test(region, env, tenant_id):
 
     file_to_download = os.path.join(SCRIPT_DIR, f"file_to_download")
     create_file_for_ra(file_to_download)
-    size = 10485760
-    sha256 = "e5b844cc57f57094ea4585e235f36c78c1cd222262bb89d53c94dcb4d6b3e55d"
+    size = os.path.getsize(file_to_download)
+    sha256 = hashlib.sha256(open(file_to_download, 'rb').read()).hexdigest()
 
     for i in range(10):
         filepath = os.path.join(SCRIPT_DIR, f"downloaded_test_file_{i}")
