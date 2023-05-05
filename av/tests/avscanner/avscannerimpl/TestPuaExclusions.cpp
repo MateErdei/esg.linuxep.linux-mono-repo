@@ -45,6 +45,12 @@ TEST_F(PuaExclusions, allow_slash)
     EXPECT_FALSE(badPuaExclusion(exclusions));
 }
 
+TEST_F(PuaExclusions, allow_multiple)
+{
+    pua_exclusion_t exclusions{"abc", "123"};
+    EXPECT_FALSE(badPuaExclusion(exclusions));
+}
+
 TEST_F(PuaExclusions, deny_space)
 {
     pua_exclusion_t exclusions{" "};
@@ -54,5 +60,17 @@ TEST_F(PuaExclusions, deny_space)
 TEST_F(PuaExclusions, deny_dollar)
 {
     pua_exclusion_t exclusions{"$"};
+    EXPECT_TRUE(badPuaExclusion(exclusions));
+}
+
+TEST_F(PuaExclusions, deny_percent)
+{
+    pua_exclusion_t exclusions{"%"};
+    EXPECT_TRUE(badPuaExclusion(exclusions));
+}
+
+TEST_F(PuaExclusions, bad_overrides_good)
+{
+    pua_exclusion_t exclusions{"abc", "$"};
     EXPECT_TRUE(badPuaExclusion(exclusions));
 }
