@@ -75,8 +75,7 @@ def upload_response_actions_file(region, env, tenant_id, endpoint_id, file_path)
         "executionTimeout": "PT30M",
         "endpointIds": [endpoint_id],
         "params": {
-            "targetPath": file_path,
-            "compress": False
+            "targetPath": file_path
         }
     }
 
