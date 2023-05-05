@@ -29,7 +29,7 @@ namespace ResponsePlugin
     private:
         [[maybe_unused]] bool kill(const std::string& msg);
 
-        bool isRunning = false;
+        bool m_isRunning = false;
         Common::Process::IProcessPtr m_process;
         std::string m_executablePath;
         std::future<void> m_fut;

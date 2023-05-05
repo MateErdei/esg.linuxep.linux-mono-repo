@@ -48,7 +48,7 @@ namespace ResponsePlugin
         const std::string& type,
         int timeout)
     {
-        isRunning = true;
+        m_isRunning = true;
         incrementTotalActions(type);
 
         m_fut = std::async(
@@ -58,7 +58,7 @@ namespace ResponsePlugin
                 std::string exePath =
                     Common::ApplicationConfiguration::applicationPathManager().getResponseActionRunnerPath();
                 this->m_process = createProcess();
-                LOGINFO("Trigger process at: " << exePath << " for action: " << correlationId);
+                LOGINFO("Trigger process at: " << exePath << " for action: " << correlationId << " with timeout: " << timeout);
                 std::vector<std::string> arguments = { correlationId, action, type };
                 this->m_process->exec(exePath, arguments, {});
                 ProcessStatus processStatus = this->m_process->wait(std::chrono::seconds(timeout), 1);
@@ -73,7 +73,7 @@ namespace ResponsePlugin
 
                 if (this->m_process->getStatus() != ProcessStatus::FINISHED)
                 {
-                    kill(" it carried on running unexpectedly");
+                    kill("it carried on running unexpectedly");
                 }
 
                 auto output = this->m_process->output();
@@ -106,7 +106,7 @@ namespace ResponsePlugin
                         incrementExpiredActions(type);
                     }
                 }
-                isRunning = false;
+                m_isRunning = false;
             });
     }
 
@@ -117,7 +117,7 @@ namespace ResponsePlugin
 
     bool ActionRunner::getIsRunning()
     {
-        return isRunning;
+        return m_isRunning;
     }
 
     bool ActionRunner::kill(const std::string& msg)
