@@ -97,7 +97,6 @@ def download_response_actions_file(region, env, tenant_id, endpoint_id, file_pat
         "endpointIds": [endpoint_id],
         "params": {
             "targetPath": file_path,
-            "compress": False,
             "sha256": sha256,
             "size": size
         }
