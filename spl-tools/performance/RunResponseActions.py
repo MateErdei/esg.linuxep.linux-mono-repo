@@ -109,7 +109,7 @@ def download_response_actions_file(region, env, tenant_id, endpoint_id, file_pat
 
 
 def upload_file_to_client_bucket(url, file_to_download):
-    res = requests.put(url, proxies=get_proxy_details(), data=file_to_download)
+    res = requests.put(url, proxies=get_proxy_details(), data=open(file_to_download, "rb"))
 
     if not res.ok:
         logging.error(f"Failed to upload file to client bucket: {res.text}")
