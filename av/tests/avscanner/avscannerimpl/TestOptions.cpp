@@ -323,3 +323,26 @@ TEST(Options, testPUAExclusions)
     EXPECT_EQ(exclusions.at(0), "FOO-PUA");
 }
 
+TEST(Options, testMultiplePUAExclusions)
+{
+    constexpr int argc = 4;
+    const char* argv[argc];
+    argv[0] = "/usr/bin/avscanner";
+    argv[1] = "--exclude-puas";
+    argv[2] = "FOO-PUA";
+    argv[3] = "another123";
+    Options o(argc, const_cast<char**>(argv));
+    auto exclusions = o.puaExclusions();
+    ASSERT_EQ(exclusions.size(), 2);
+    EXPECT_EQ(exclusions.at(0), "FOO-PUA");
+    EXPECT_EQ(exclusions.at(1), "another123");
+}
+
+TEST(Options, testPUAExclusionsWithoutExclusion)
+{
+    constexpr int argc = 2;
+    const char* argv[argc];
+    argv[0] = "/usr/bin/avscanner";
+    argv[1] = "--exclude-puas";
+    EXPECT_THROW(Options(argc, const_cast<char**>(argv)), boost::program_options::error);
+}
