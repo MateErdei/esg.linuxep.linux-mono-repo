@@ -31,6 +31,9 @@ namespace threat_scanner
         scan_messages::ScanResponse scan(datatypes::AutoFd& fd, const scan_messages::ScanRequest& info) override;
 
     private:
+
+        void handleDetections(const scan_messages::ScanRequest& info, const std::vector<Detection>& detections, datatypes::AutoFd& fd, scan_messages::ScanResponse& response);
+
         std::unique_ptr<IUnitScanner> m_unitScanner;
         IThreatReporterSharedPtr m_threatReporter;
         IScanNotificationSharedPtr m_shutdownTimer;

@@ -180,6 +180,9 @@ TEST_F(TestSusiScanner, scan_DetectionWithoutErrors_SendsReport)
     SusiScanner susiScanner{makeScannerWithReporter(mockUnitScanner)};
 
     EXPECT_CALL(*m_mockTimer, reset()).Times(1);
+    EXPECT_CALL(*m_mockSusiGlobalHandler, isPuaApproved(_)).WillRepeatedly(Return(false));
+    EXPECT_CALL(*m_mockSusiGlobalHandler, isAllowListedPath(_)).WillRepeatedly(Return(false));
+    EXPECT_CALL(*m_mockSusiGlobalHandler, isAllowListedSha256(_)).WillRepeatedly(Return(false));
 
     ScanResult scanResult{ { { "/tmp/eicar.txt", "threatName", "threatType", "sha256" } }, {} };
     EXPECT_CALL(*mockUnitScanner, scan(_, "/tmp/eicar.txt")).Times(1).WillOnce(Return(scanResult));
@@ -256,7 +259,9 @@ TEST_F(TestSusiScanner, scan_DetectionWithErrors_SendsReport)
     SusiScanner susiScanner{makeScannerWithReporter(mockUnitScanner)};
 
     EXPECT_CALL(*m_mockTimer, reset()).Times(1);
-
+    EXPECT_CALL(*m_mockSusiGlobalHandler, isPuaApproved(_)).WillRepeatedly(Return(false));
+    EXPECT_CALL(*m_mockSusiGlobalHandler, isAllowListedPath(_)).WillRepeatedly(Return(false));
+    EXPECT_CALL(*m_mockSusiGlobalHandler, isAllowListedSha256(_)).WillRepeatedly(Return(false));
 
     ScanResult scanResult{ { { "/tmp/eicar.txt", "threatName", "threatType", "sha256" } },
                            { { "info message", log4cplus::INFO_LOG_LEVEL },
@@ -373,6 +378,9 @@ TEST_F(TestSusiScanner, scan_ArchiveWithDetectionsIncludingItself_SendsReportFor
 
     auto* mockUnitScanner = new StrictMock<MockUnitScanner>();
     EXPECT_CALL(*m_mockTimer, reset()).Times(1);
+    EXPECT_CALL(*m_mockSusiGlobalHandler, isPuaApproved(_)).WillRepeatedly(Return(false));
+    EXPECT_CALL(*m_mockSusiGlobalHandler, isAllowListedPath(_)).WillRepeatedly(Return(false));
+    EXPECT_CALL(*m_mockSusiGlobalHandler, isAllowListedSha256(_)).WillRepeatedly(Return(false));
 
     WaitForEvent serverWaitGuard;
     EXPECT_CALL(*m_mockThreatReporter, sendThreatReport(_))
@@ -474,6 +482,9 @@ TEST_F(TestSusiScanner, scan_SafeStoreRescanDoesNotSendThreatDetectedReport)
     auto* mockUnitScanner = new StrictMock<MockUnitScanner>();
 
     EXPECT_CALL(*m_mockTimer, reset()).Times(1);
+    EXPECT_CALL(*m_mockSusiGlobalHandler, isPuaApproved(_)).WillRepeatedly(Return(false));
+    EXPECT_CALL(*m_mockSusiGlobalHandler, isAllowListedPath(_)).WillRepeatedly(Return(false));
+    EXPECT_CALL(*m_mockSusiGlobalHandler, isAllowListedSha256(_)).WillRepeatedly(Return(false));
 
     ScanResult scanResult{ { { "/tmp/eicar.txt", "threatName", "threatType", "sha256" } },
                            {} };
@@ -505,6 +516,9 @@ TEST_F(TestSusiScanner, archiveNotInSUSIResultCanBeAllowListed)
 
     EXPECT_CALL(*m_mockTimer, reset()).Times(1);
     EXPECT_CALL(*m_mockSusiGlobalHandler, isAllowListedSha256("calculatedSha256")).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockSusiGlobalHandler, isAllowListedSha256("sha256_1")).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockSusiGlobalHandler, isAllowListedSha256("sha256_2")).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockSusiGlobalHandler, isAllowListedPath(_)).WillRepeatedly(Return(false));
 
     ScanResult scanResult{ { { "/tmp/archive.zip/eicar1.txt", "threatName_1", "threatType_1", "sha256_1" },
                              { "/tmp/archive.zip/eicar2.txt", "threatName_2", "threatType_2", "sha256_2" } },
@@ -536,7 +550,8 @@ TEST_F(TestSusiScanner, puaApproved)
     SusiScanner susiScanner{makeScannerWithReporter(mockUnitScanner)};
     EXPECT_CALL(*m_mockTimer, reset()).Times(1);
     EXPECT_CALL(*m_mockSusiGlobalHandler, isPuaApproved(_)).WillRepeatedly(Return(true));
-
+    EXPECT_CALL(*m_mockSusiGlobalHandler, isAllowListedPath(_)).WillRepeatedly(Return(false));
+    EXPECT_CALL(*m_mockSusiGlobalHandler, isAllowListedSha256(_)).WillRepeatedly(Return(false));
 
     ScanResult scanResult{ { { "/tmp/eicar.txt", "An approved PUA", "PUA", "sha256" } }, {} };
     EXPECT_CALL(*mockUnitScanner, scan(_, "/tmp/eicar.txt")).Times(1).WillOnce(Return(scanResult));
@@ -559,6 +574,8 @@ TEST_F(TestSusiScanner, puaNotApproved)
     SusiScanner susiScanner{makeScannerWithReporter(mockUnitScanner)};
     EXPECT_CALL(*m_mockTimer, reset()).Times(1);
     EXPECT_CALL(*m_mockSusiGlobalHandler, isPuaApproved(_)).WillRepeatedly(Return(false));
+    EXPECT_CALL(*m_mockSusiGlobalHandler, isAllowListedPath(_)).WillRepeatedly(Return(false));
+    EXPECT_CALL(*m_mockSusiGlobalHandler, isAllowListedSha256(_)).WillRepeatedly(Return(false));
 
     const std::string puaClassName = "Not approved PUA";
     ScanResult scanResult{ { { "/tmp/eicar.txt", puaClassName, "PUA", "sha256" } }, {} };
@@ -598,7 +615,9 @@ TEST_F(TestSusiScanner, puaDetectionDisabled)
     const auto mockUnitScanner = new StrictMock<MockUnitScanner>();
     SusiScanner susiScanner{makeScannerWithReporter(mockUnitScanner)};
     EXPECT_CALL(*m_mockTimer, reset()).Times(1);
-    EXPECT_CALL(*m_mockSusiGlobalHandler, isPuaApproved(_)).WillRepeatedly(Return(true));
+    EXPECT_CALL(*m_mockSusiGlobalHandler, isPuaApproved(_)).WillRepeatedly(Return(false));
+    EXPECT_CALL(*m_mockSusiGlobalHandler, isAllowListedPath(_)).WillRepeatedly(Return(false));
+    EXPECT_CALL(*m_mockSusiGlobalHandler, isAllowListedSha256(_)).WillRepeatedly(Return(false));
 
     ScanResult scanResult{ { { "/tmp/eicar.txt", "Some PUA", "PUA", "sha256" } }, {} };
     EXPECT_CALL(*mockUnitScanner, scan(_, "/tmp/eicar.txt")).Times(1).WillOnce(Return(scanResult));
@@ -691,4 +710,60 @@ TEST_F(TestSusiScanner, puaNotAllowedInScanRequest)
     EXPECT_EQ(response.getDetections().at(0).sha256, "sha256");
     EXPECT_EQ(response.getErrorMsg(), "");
     EXPECT_FALSE(appenderContains("Allowing PUA /tmp/eicar.txt by request exclusion 'An approved PUA'"));
+}
+
+TEST_F(TestSusiScanner, multiDetectionShouldIgnorePUA_1st)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    const auto mockUnitScanner = new StrictMock<MockUnitScanner>();
+    SusiScanner susiScanner{makeScannerWithReporter(mockUnitScanner)};
+    EXPECT_CALL(*m_mockTimer, reset()).Times(1);
+    EXPECT_CALL(*m_mockSusiGlobalHandler, isPuaApproved(_)).WillRepeatedly(Return(false));
+    EXPECT_CALL(*m_mockSusiGlobalHandler, isAllowListedPath(_)).WillRepeatedly(Return(false));
+    EXPECT_CALL(*m_mockSusiGlobalHandler, isAllowListedSha256(_)).WillRepeatedly(Return(false));
+
+    ScanResult scanResult{ {
+                               { "/tmp/eicar.txt", "EICAR-PUA", "PUA", "sha256" },
+                               { "/tmp/eicar.txt", "EICAR-Virus", "virus", "sha256" },
+                           }, {} };
+    EXPECT_CALL(*mockUnitScanner, scan(_, "/tmp/eicar.txt")).Times(1).WillOnce(Return(scanResult));
+
+    datatypes::AutoFd autoFd;
+    auto scanInfo = makeScanRequestObject("/tmp/eicar.txt");
+    scanInfo.setDetectPUAs(false);
+    scan_messages::ScanResponse response = susiScanner.scan(autoFd, scanInfo);
+
+    EXPECT_FALSE(response.allClean());
+    ASSERT_EQ(response.getDetections().size(), 1);
+    auto detection = response.getDetections()[0];
+    EXPECT_EQ(detection.name, "EICAR-Virus");
+    EXPECT_EQ(response.getErrorMsg(), "");
+}
+
+TEST_F(TestSusiScanner, multiDetectionShouldIgnorePUA_2nd)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    const auto mockUnitScanner = new StrictMock<MockUnitScanner>();
+    SusiScanner susiScanner{makeScannerWithReporter(mockUnitScanner)};
+    EXPECT_CALL(*m_mockTimer, reset()).Times(1);
+    EXPECT_CALL(*m_mockSusiGlobalHandler, isPuaApproved(_)).WillRepeatedly(Return(false));
+    EXPECT_CALL(*m_mockSusiGlobalHandler, isAllowListedPath(_)).WillRepeatedly(Return(false));
+    EXPECT_CALL(*m_mockSusiGlobalHandler, isAllowListedSha256(_)).WillRepeatedly(Return(false));
+
+    ScanResult scanResult{ {
+                               { "/tmp/eicar.txt", "EICAR-Virus", "virus", "sha256" },
+                               { "/tmp/eicar.txt", "EICAR-PUA", "PUA", "sha256" },
+                           }, {} };
+    EXPECT_CALL(*mockUnitScanner, scan(_, "/tmp/eicar.txt")).Times(1).WillOnce(Return(scanResult));
+
+    datatypes::AutoFd autoFd;
+    auto scanInfo = makeScanRequestObject("/tmp/eicar.txt");
+    scanInfo.setDetectPUAs(false);
+    scan_messages::ScanResponse response = susiScanner.scan(autoFd, scanInfo);
+
+    EXPECT_FALSE(response.allClean());
+    ASSERT_EQ(response.getDetections().size(), 1);
+    auto detection = response.getDetections()[0];
+    EXPECT_EQ(detection.name, "EICAR-Virus");
+    EXPECT_EQ(response.getErrorMsg(), "");
 }
