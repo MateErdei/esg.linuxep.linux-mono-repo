@@ -2,6 +2,7 @@
 Documentation   Suite description
 
 Library         Collections
+Library         OperatingSystem
 
 Resource        EventJournalerResources.robot
 Library         ../Libs/InstallerUtils.py
@@ -41,6 +42,8 @@ Check Health Telemetry Is Written
     Should Be True  ${threadHealthDict["Writer"]}
 
 Check Socket Missing Is True When Socket Deleted
+    Wait Until Created  ${SOPHOS_INSTALL}/var/ipc/events.ipc
+
     ${EJr_telemetry} =  Get Plugin Telemetry  eventjournaler
     Log  ${EJr_telemetry}
     ${telemetry_dict} =  Evaluate  json.loads('''${EJr_telemetry}''')  json
