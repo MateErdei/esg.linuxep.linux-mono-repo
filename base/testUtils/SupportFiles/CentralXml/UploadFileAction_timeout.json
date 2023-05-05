@@ -1,0 +1,10 @@
+{
+  "type": "sophos.mgt.action.UploadFile",
+  "url": "https://localhost:443/randompath",
+  "targetFile": "/tmp/largefile",
+  "compress": false,
+  "password": "",
+  "timeout": 0,
+  "maxUploadSizeBytes": 1000000,
+  "expiration": 144444000000004
+}

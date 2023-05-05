@@ -1,0 +1,11 @@
+{
+  "type": "sophos.mgt.action.DownloadFile",
+  "url": "https://localhost:443/randompath",
+  "targetPath": "/tmp/file/",
+  "decompress": false,
+  "password": "",
+  "timeout": 60,
+  "sha256": "asha",
+  "sizeBytes": 3221225472,
+  "expiration": 144444000000004
+}

@@ -1,0 +1,10 @@
+{
+  "type": "sophos.mgt.action.UploadFolder",
+  "url": "https://localhost:443/randompath",
+  "targetFolder": "/notafolder/",
+  "compress": false,
+  "password": "",
+  "timeout": 60,
+  "maxUploadSizeBytes": 1000000,
+  "expiration": 144444000000004
+}
