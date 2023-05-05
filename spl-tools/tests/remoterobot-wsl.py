@@ -134,7 +134,7 @@ export BASE_DIST={base_folder_vagrant}
 # Env vars
 {env_variables}
 # Set python path
-export PYTHONPATH=/vagrant/{BASE_REPO_DIR_NAME}/testUtils/libs/:/vagrant/{BASE_REPO_DIR_NAME}/testUtils/SupportFiles/:$PYTHONPATH
+export PYTHONPATH=/vagrant/{BASE_REPO_DIR_NAME}/testUtils/libs:/vagrant/{BASE_REPO_DIR_NAME}/testUtils/SupportFiles:$PYTHONPATH
 # Run robot
 sudo -E /usr/bin/python3 -m robot {' '.join(quoted_args)}
 """
@@ -341,6 +341,8 @@ def main():
         quoted_args[-1] = add_quote(test_dir_absolute)
         remote_dir = f"{journaler_dir_on_vagrant}/TA"
         temp_file_content = generate_event_journaler_test_script(remote_dir, journaler_dir_on_vagrant, env_variables, quoted_args)
+    else:
+        raise AssertionError("Unknown Repo")
 
     tmp_file_on_host = os.path.join(vagrant_root, 'tmpscript.sh')
     tmp_file_on_guest = os.path.join('/vagrant/', SSPL_TOOLS_REPO_DIR_NAME, 'tmpscript.sh')
