@@ -666,6 +666,7 @@ TEST_F(TestSusiScanner, puaAllowedInScanRequest)
     EXPECT_CALL(*m_mockSusiGlobalHandler, isPuaApproved(_)).WillRepeatedly(Return(false));
     EXPECT_CALL(*m_mockSusiGlobalHandler, isAllowListedPath(_)).WillRepeatedly(Return(false));
     EXPECT_CALL(*m_mockSusiGlobalHandler, isAllowListedSha256(_)).WillRepeatedly(Return(false));
+    EXPECT_CALL(*m_mockThreatReporter, sendThreatReport(_)).Times(0);
 
     ScanResult scanResult{ { { "/tmp/eicar.txt", "An approved PUA", "PUA", "sha256" } }, {} };
     EXPECT_CALL(*mockUnitScanner, scan(_, "/tmp/eicar.txt")).Times(1).WillOnce(Return(scanResult));
@@ -680,6 +681,8 @@ TEST_F(TestSusiScanner, puaAllowedInScanRequest)
     EXPECT_EQ(response.getDetections().size(), 0);
     EXPECT_EQ(response.getErrorMsg(), "");
     EXPECT_TRUE(appenderContains("Allowing PUA /tmp/eicar.txt by request exclusion 'An approved PUA'"));
+    EXPECT_FALSE(appenderContains("Trying to get the main detection when no detections were provided"));
+    EXPECT_FALSE(appenderContains("Sending report for detection"));
 }
 
 TEST_F(TestSusiScanner, puaNotAllowedInScanRequest)
@@ -693,6 +696,7 @@ TEST_F(TestSusiScanner, puaNotAllowedInScanRequest)
     EXPECT_CALL(*m_mockSusiGlobalHandler, isPuaApproved(_)).WillRepeatedly(Return(false));
     EXPECT_CALL(*m_mockSusiGlobalHandler, isAllowListedPath(_)).WillRepeatedly(Return(false));
     EXPECT_CALL(*m_mockSusiGlobalHandler, isAllowListedSha256(_)).WillRepeatedly(Return(false));
+    EXPECT_CALL(*m_mockThreatReporter, sendThreatReport(_)).Times(1);
 
     ScanResult scanResult{ { { "/tmp/eicar.txt", puaClassName, "PUA", "sha256" } }, {} };
     EXPECT_CALL(*mockUnitScanner, scan(_, "/tmp/eicar.txt")).Times(1).WillOnce(Return(scanResult));
@@ -721,6 +725,7 @@ TEST_F(TestSusiScanner, multiDetectionShouldIgnorePUA_1st)
     EXPECT_CALL(*m_mockSusiGlobalHandler, isPuaApproved(_)).WillRepeatedly(Return(false));
     EXPECT_CALL(*m_mockSusiGlobalHandler, isAllowListedPath(_)).WillRepeatedly(Return(false));
     EXPECT_CALL(*m_mockSusiGlobalHandler, isAllowListedSha256(_)).WillRepeatedly(Return(false));
+    EXPECT_CALL(*m_mockThreatReporter, sendThreatReport(_)).Times(1);
 
     ScanResult scanResult{ {
                                { "/tmp/eicar.txt", "EICAR-PUA", "PUA", "sha256" },
