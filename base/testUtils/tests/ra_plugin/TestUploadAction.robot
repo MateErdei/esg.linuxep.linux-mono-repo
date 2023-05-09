@@ -41,7 +41,7 @@ RA Plugin runs actions in order
     generate_file  /tmp/largefile  ${500}
     Register Cleanup  Remove File  /tmp/largefile
     Simulate Upload Action Now
-    Simulate Upload Action Now  id2
+    Simulate Upload Action Now  id_suffix=id2
 
     Wait Until Keyword Succeeds
     ...  80 secs
