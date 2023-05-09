@@ -1,13 +1,13 @@
 // Copyright 2023 Sophos Limited. All rights reserved.
 
-#include "Telemetry.h"
-#include "ResponseActions/RACommon/ResponseActionsCommon.h"
 #include "ApplicationPaths.h"
 #include "Logger.h"
+#include "Telemetry.h"
+
+#include "ResponseActions/RACommon/ResponseActionsCommon.h"
 
 #include "Common/TelemetryHelperImpl/TelemetryHelper.h"
-
-#include <Common/UtilityImpl/StringUtils.h>
+#include "Common/UtilityImpl/StringUtils.h"
 
 using namespace ResponseActions::RACommon;
 using namespace Common::Telemetry;
