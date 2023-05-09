@@ -213,7 +213,7 @@ namespace TelemetrySchedulerImpl
     {
         // Always re-read values from the telemetry configuration (supplementary) and status files in case they've been
         // externally updated.
-
+        bool newInstall = !(Common::FileSystem::fileSystem()->isFile(m_pathManager.getTelemetrySchedulerStatusFilePath()));
         auto const& [schedulerStatus, statusFileValid] = getStatusFromFile();
         auto const& [telemetryConfig, configFileValid] = getConfigFromFile();
         auto previousScheduledTime = schedulerStatus.getTelemetryScheduledTime();
@@ -238,6 +238,15 @@ namespace TelemetrySchedulerImpl
         if (statusFileValid && (previousScheduledTime > system_clock::now() || runScheduledInPastNow))
         {
             scheduledTime = previousScheduledTime;
+        }
+        else if (newInstall)
+        {
+            LOGINFO("This is first time tscheduler is running");
+            Common::UtilityImpl::FormattedTime time;
+            // run telemetry in ten minutes when first update should have finished
+            auto currentTime = std::chrono::seconds{time.currentEpochTimeInSecondsAsInteger() + 600};
+            scheduledTime = std::chrono::system_clock::time_point(currentTime);
+            updateStatusFile(scheduledTime);
         }
         else
         {

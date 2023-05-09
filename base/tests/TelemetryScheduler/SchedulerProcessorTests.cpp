@@ -189,7 +189,7 @@ TEST_F(SchedulerProcessorTests, waitToRunTelemetry_InitWithValidStatusFileWithSc
         .WillRepeatedly(Return(m_telemetryStatusFilePath));
     EXPECT_CALL(m_mockPathManager, getTelemetrySupplementaryFilePath())
         .WillRepeatedly(Return(m_telemetryConfigFilePath));
-    EXPECT_CALL(*m_mockFileSystem, isFile(m_telemetryStatusFilePath)).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockFileSystem, isFile(m_telemetryStatusFilePath)).Times(2).WillRepeatedly(Return(true));
     EXPECT_CALL(*m_mockFileSystem, isFile(m_telemetryConfigFilePath)).WillOnce(Return(true));
     EXPECT_CALL(
         *m_mockFileSystem,
@@ -219,7 +219,7 @@ TEST_F(SchedulerProcessorTests, waitToRunTelemetry_TelemetryDisabledViaConfig) /
         .WillRepeatedly(Return(m_telemetryStatusFilePath));
     EXPECT_CALL(m_mockPathManager, getTelemetrySupplementaryFilePath())
         .WillRepeatedly(Return(m_telemetryConfigFilePath));
-    EXPECT_CALL(*m_mockFileSystem, isFile(m_telemetryStatusFilePath)).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockFileSystem, isFile(m_telemetryStatusFilePath)).Times(2).WillRepeatedly(Return(true));
     EXPECT_CALL(*m_mockFileSystem, isFile(m_telemetryConfigFilePath)).WillOnce(Return(true));
     EXPECT_CALL(
         *m_mockFileSystem,
@@ -246,7 +246,7 @@ TEST_F(SchedulerProcessorTests, waitToRunTelemetry_TelemetryDisabledViaStatus) /
         .WillRepeatedly(Return(m_telemetryStatusFilePath));
     EXPECT_CALL(m_mockPathManager, getTelemetrySupplementaryFilePath())
         .WillRepeatedly(Return(m_telemetryConfigFilePath));
-    EXPECT_CALL(*m_mockFileSystem, isFile(m_telemetryStatusFilePath)).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockFileSystem, isFile(m_telemetryStatusFilePath)).Times(2).WillRepeatedly(Return(true));
     EXPECT_CALL(*m_mockFileSystem, isFile(m_telemetryConfigFilePath)).WillOnce(Return(true));
     EXPECT_CALL(
         *m_mockFileSystem,
@@ -273,7 +273,7 @@ TEST_F(SchedulerProcessorTests, waitToRunTelemetry_RescheduleWithValidStatusFile
         .WillRepeatedly(Return(m_telemetryStatusFilePath));
     EXPECT_CALL(m_mockPathManager, getTelemetrySupplementaryFilePath())
         .WillRepeatedly(Return(m_telemetryConfigFilePath));
-    EXPECT_CALL(*m_mockFileSystem, isFile(m_telemetryStatusFilePath)).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockFileSystem, isFile(m_telemetryStatusFilePath)).Times(2).WillRepeatedly(Return(true));
     EXPECT_CALL(*m_mockFileSystem, isFile(m_telemetryConfigFilePath)).WillOnce(Return(true));
     EXPECT_CALL(
         *m_mockFileSystem,
@@ -310,7 +310,7 @@ TEST_F(SchedulerProcessorTests, waitToRunTelemetry_InitWithValidStatusFileWithSc
         .WillRepeatedly(Return(m_telemetryStatusFilePath));
     EXPECT_CALL(m_mockPathManager, getTelemetrySupplementaryFilePath())
         .WillRepeatedly(Return(m_telemetryConfigFilePath));
-    EXPECT_CALL(*m_mockFileSystem, isFile(m_telemetryStatusFilePath)).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockFileSystem, isFile(m_telemetryStatusFilePath)).Times(2).WillRepeatedly(Return(true));
     EXPECT_CALL(*m_mockFileSystem, isFile(m_telemetryConfigFilePath)).WillOnce(Return(true));
     EXPECT_CALL(
         *m_mockFileSystem,
@@ -337,7 +337,7 @@ TEST_F(SchedulerProcessorTests, waitToRunTelemetry_InvalidStatusFile) // NOLINT
         .WillRepeatedly(Return(m_telemetryStatusFilePath));
     EXPECT_CALL(m_mockPathManager, getTelemetrySupplementaryFilePath())
         .WillRepeatedly(Return(m_telemetryConfigFilePath));
-    EXPECT_CALL(*m_mockFileSystem, isFile(m_telemetryStatusFilePath)).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockFileSystem, isFile(m_telemetryStatusFilePath)).Times(2).WillRepeatedly(Return(true));
     EXPECT_CALL(*m_mockFileSystem, isFile(m_telemetryConfigFilePath)).WillOnce(Return(true));
     EXPECT_CALL(
         *m_mockFileSystem, readFile(m_telemetryStatusFilePath, Common::TelemetryConfigImpl::DEFAULT_MAX_JSON_SIZE))
@@ -363,7 +363,7 @@ TEST_F(SchedulerProcessorTests, waitToRunTelemetry_MissingStatusFile) // NOLINT
         .WillRepeatedly(Return(m_telemetryStatusFilePath));
     EXPECT_CALL(m_mockPathManager, getTelemetrySupplementaryFilePath())
         .WillRepeatedly(Return(m_telemetryConfigFilePath));
-    EXPECT_CALL(*m_mockFileSystem, isFile(m_telemetryStatusFilePath)).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFileSystem, isFile(m_telemetryStatusFilePath)).Times(2).WillRepeatedly(Return(false));
     EXPECT_CALL(*m_mockFileSystem, isFile(m_telemetryConfigFilePath)).WillOnce(Return(true));
     EXPECT_CALL(
         *m_mockFileSystem, readFile(m_telemetryConfigFilePath, Common::TelemetryConfigImpl::DEFAULT_MAX_JSON_SIZE))
@@ -385,7 +385,7 @@ TEST_F(SchedulerProcessorTests, waitToRunTelemetry_ErrorReadingStatusFile) // NO
         .WillRepeatedly(Return(m_telemetryStatusFilePath));
     EXPECT_CALL(m_mockPathManager, getTelemetrySupplementaryFilePath())
         .WillRepeatedly(Return(m_telemetryConfigFilePath));
-    EXPECT_CALL(*m_mockFileSystem, isFile(m_telemetryStatusFilePath)).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockFileSystem, isFile(m_telemetryStatusFilePath)).Times(2).WillRepeatedly(Return(true));
     EXPECT_CALL(*m_mockFileSystem, isFile(m_telemetryConfigFilePath)).WillOnce(Return(true));
     EXPECT_CALL(
         *m_mockFileSystem, readFile(m_telemetryStatusFilePath, Common::TelemetryConfigImpl::DEFAULT_MAX_JSON_SIZE))
@@ -410,7 +410,7 @@ TEST_F(SchedulerProcessorTests, waitToRunTelemetry_MissingStatusFileCannotRewrit
         .WillRepeatedly(Return(m_telemetryStatusFilePath));
     EXPECT_CALL(m_mockPathManager, getTelemetrySupplementaryFilePath())
         .WillRepeatedly(Return(m_telemetryConfigFilePath));
-    EXPECT_CALL(*m_mockFileSystem, isFile(m_telemetryStatusFilePath)).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFileSystem, isFile(m_telemetryStatusFilePath)).Times(2).WillRepeatedly(Return(false));
     EXPECT_CALL(*m_mockFileSystem, isFile(m_telemetryConfigFilePath)).WillOnce(Return(true));
     EXPECT_CALL(
         *m_mockFileSystem, readFile(m_telemetryConfigFilePath, Common::TelemetryConfigImpl::DEFAULT_MAX_JSON_SIZE))
@@ -433,7 +433,7 @@ TEST_F(SchedulerProcessorTests, waitToRunTelemetry_MissingStatusFileAndMissingCo
         .WillRepeatedly(Return(m_telemetryStatusFilePath));
     EXPECT_CALL(m_mockPathManager, getTelemetrySupplementaryFilePath())
         .WillRepeatedly(Return(m_telemetryConfigFilePath));
-    EXPECT_CALL(*m_mockFileSystem, isFile(m_telemetryStatusFilePath)).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFileSystem, isFile(m_telemetryStatusFilePath)).Times(2).WillRepeatedly(Return(false));
     EXPECT_CALL(*m_mockFileSystem, isFile(m_telemetryConfigFilePath)).WillOnce(Return(false));
 
     auto queue = std::make_shared<TaskQueue>();
@@ -451,7 +451,7 @@ TEST_F(SchedulerProcessorTests, waitToRunTelemetry_MissingStatusFileCannotReadCo
         .WillRepeatedly(Return(m_telemetryStatusFilePath));
     EXPECT_CALL(m_mockPathManager, getTelemetrySupplementaryFilePath())
         .WillRepeatedly(Return(m_telemetryConfigFilePath));
-    EXPECT_CALL(*m_mockFileSystem, isFile(m_telemetryStatusFilePath)).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFileSystem, isFile(m_telemetryStatusFilePath)).Times(2).WillRepeatedly(Return(false));
     EXPECT_CALL(*m_mockFileSystem, isFile(m_telemetryConfigFilePath)).WillOnce(Return(true));
     EXPECT_CALL(
         *m_mockFileSystem, readFile(m_telemetryConfigFilePath, Common::TelemetryConfigImpl::DEFAULT_MAX_JSON_SIZE))
@@ -472,7 +472,7 @@ TEST_F(SchedulerProcessorTests, waitToRunTelemetry_MissingStatusFileAndConfigFil
         .WillRepeatedly(Return(m_telemetryStatusFilePath));
     EXPECT_CALL(m_mockPathManager, getTelemetrySupplementaryFilePath())
         .WillRepeatedly(Return(m_telemetryConfigFilePath));
-    EXPECT_CALL(*m_mockFileSystem, isFile(m_telemetryStatusFilePath)).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFileSystem, isFile(m_telemetryStatusFilePath)).Times(2).WillRepeatedly(Return(false));
     EXPECT_CALL(*m_mockFileSystem, isFile(m_telemetryConfigFilePath)).WillOnce(Return(true));
     EXPECT_CALL(
         *m_mockFileSystem, readFile(m_telemetryConfigFilePath, Common::TelemetryConfigImpl::DEFAULT_MAX_JSON_SIZE))
@@ -493,7 +493,7 @@ TEST_F(SchedulerProcessorTests, waitToRunTelemetry_MissingStatusFileAndInvalidCo
             .WillRepeatedly(Return(m_telemetryStatusFilePath));
     EXPECT_CALL(m_mockPathManager, getTelemetrySupplementaryFilePath())
             .WillRepeatedly(Return(m_telemetryConfigFilePath));
-    EXPECT_CALL(*m_mockFileSystem, isFile(m_telemetryStatusFilePath)).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFileSystem, isFile(m_telemetryStatusFilePath)).Times(2).WillRepeatedly(Return(false));
     EXPECT_CALL(*m_mockFileSystem, isFile(m_telemetryConfigFilePath)).WillOnce(Return(true));
     EXPECT_CALL(
             *m_mockFileSystem, readFile(m_telemetryConfigFilePath, Common::TelemetryConfigImpl::DEFAULT_MAX_JSON_SIZE))
@@ -514,7 +514,7 @@ TEST_F(SchedulerProcessorTests, waitToRunTelemetry_MissingStatusFileAndInvalidCo
             .WillRepeatedly(Return(m_telemetryStatusFilePath));
     EXPECT_CALL(m_mockPathManager, getTelemetrySupplementaryFilePath())
             .WillRepeatedly(Return(m_telemetryConfigFilePath));
-    EXPECT_CALL(*m_mockFileSystem, isFile(m_telemetryStatusFilePath)).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFileSystem, isFile(m_telemetryStatusFilePath)).Times(2).WillRepeatedly(Return(false));
     EXPECT_CALL(*m_mockFileSystem, isFile(m_telemetryConfigFilePath)).WillOnce(Return(true));
     EXPECT_CALL(
             *m_mockFileSystem, readFile(m_telemetryConfigFilePath, Common::TelemetryConfigImpl::DEFAULT_MAX_JSON_SIZE))
@@ -536,7 +536,7 @@ TEST_F(SchedulerProcessorTests, waitToRunTelemetry_MissingStatusFileAndInvalidCo
             .WillRepeatedly(Return(m_telemetryStatusFilePath));
     EXPECT_CALL(m_mockPathManager, getTelemetrySupplementaryFilePath())
             .WillRepeatedly(Return(m_telemetryConfigFilePath));
-    EXPECT_CALL(*m_mockFileSystem, isFile(m_telemetryStatusFilePath)).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFileSystem, isFile(m_telemetryStatusFilePath)).Times(2).WillRepeatedly(Return(false));
     EXPECT_CALL(*m_mockFileSystem, isFile(m_telemetryConfigFilePath)).WillOnce(Return(true));
     EXPECT_CALL(
             *m_mockFileSystem, readFile(m_telemetryConfigFilePath, Common::TelemetryConfigImpl::DEFAULT_MAX_JSON_SIZE))
@@ -557,7 +557,7 @@ TEST_F(SchedulerProcessorTests, waitToRunTelemetry_InvalidStatusFileCannotRemove
         .WillRepeatedly(Return(m_telemetryStatusFilePath));
     EXPECT_CALL(m_mockPathManager, getTelemetrySupplementaryFilePath())
         .WillRepeatedly(Return(m_telemetryConfigFilePath));
-    EXPECT_CALL(*m_mockFileSystem, isFile(m_telemetryStatusFilePath)).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockFileSystem, isFile(m_telemetryStatusFilePath)).Times(2).WillRepeatedly(Return(true));
     EXPECT_CALL(*m_mockFileSystem, isFile(m_telemetryConfigFilePath)).WillOnce(Return(true));
     EXPECT_CALL(
         *m_mockFileSystem, readFile(m_telemetryStatusFilePath, Common::TelemetryConfigImpl::DEFAULT_MAX_JSON_SIZE))
@@ -584,7 +584,7 @@ TEST_F(SchedulerProcessorTests, waitToRunTelemetry_InvalidStatusFileBigNumber) /
             .WillRepeatedly(Return(m_telemetryStatusFilePath));
     EXPECT_CALL(m_mockPathManager, getTelemetrySupplementaryFilePath())
             .WillRepeatedly(Return(m_telemetryConfigFilePath));
-    EXPECT_CALL(*m_mockFileSystem, isFile(m_telemetryStatusFilePath)).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockFileSystem, isFile(m_telemetryStatusFilePath)).Times(2).WillRepeatedly(Return(true));
     EXPECT_CALL(*m_mockFileSystem, isFile(m_telemetryConfigFilePath)).WillOnce(Return(true));
     EXPECT_CALL(
             *m_mockFileSystem, readFile(m_telemetryStatusFilePath, Common::TelemetryConfigImpl::DEFAULT_MAX_JSON_SIZE))
@@ -611,7 +611,7 @@ TEST_F(SchedulerProcessorTests, waitToRunTelemetry_InvalidStatusFileNegativeNumb
             .WillRepeatedly(Return(m_telemetryStatusFilePath));
     EXPECT_CALL(m_mockPathManager, getTelemetrySupplementaryFilePath())
             .WillRepeatedly(Return(m_telemetryConfigFilePath));
-    EXPECT_CALL(*m_mockFileSystem, isFile(m_telemetryStatusFilePath)).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockFileSystem, isFile(m_telemetryStatusFilePath)).Times(2).WillRepeatedly(Return(true));
     EXPECT_CALL(*m_mockFileSystem, isFile(m_telemetryConfigFilePath)).WillOnce(Return(true));
     EXPECT_CALL(
             *m_mockFileSystem, readFile(m_telemetryStatusFilePath, Common::TelemetryConfigImpl::DEFAULT_MAX_JSON_SIZE))

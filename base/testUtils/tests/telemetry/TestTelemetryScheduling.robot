@@ -30,17 +30,22 @@ Telemetry Scheduler Plugin Test Setup
     Run Process  mv  ${TELEMETRY_EXECUTABLE}  ${TELEMETRY_EXECUTABLE}.orig
     Create Fake Telemetry Executable
     Set Interval In Configuration File  ${TEST_INTERVAL}
+    ${ts_log}=    mark_log_size    ${TELEMETRY_SCHEDULER_LOG}
     Remove File  ${STATUS_FILE}
+    Create File  ${STATUS_FILE}
     Restart Telemetry Scheduler
-    Wait Until Keyword Succeeds  20 seconds  1 seconds   File Should Exist  ${STATUS_FILE}
+    wait_for_log_contains_from_mark    ${ts_log}    Telemetry reporting is scheduled to run at
 
 Telemetry Scheduler Plugin Test Setup with error telemetry executable
     Run Process  mv  ${TELEMETRY_EXECUTABLE}  ${TELEMETRY_EXECUTABLE}.orig
     Create Fake Telemetry Executable that exits with error
     Set Interval In Configuration File  ${TEST_INTERVAL}
+    ${ts_log}=    mark_log_size    ${TELEMETRY_SCHEDULER_LOG}
     Remove File  ${STATUS_FILE}
+    Create File  ${STATUS_FILE}
+    ${result} =  Run Process  chown sophos-spl-user:sophos-spl-group ${STATUS_FILE}    shell=True
     Restart Telemetry Scheduler
-    Wait Until Keyword Succeeds  20 seconds  1 seconds   File Should Exist  ${STATUS_FILE}
+    wait_for_log_contains_from_mark    ${ts_log}    Telemetry reporting is scheduled to run at
 
 Telemetry Scheduler Plugin Test Teardown
     General Test Teardown
@@ -100,6 +105,14 @@ Telemetry Scheduler Schedules Telemetry Executable
 
     Wait For Telemetry Executable To Have Run
     Check Telemetry Scheduler Is Running
+
+Telemetry Scheduler Schedules Telemetry Executable for ten minutues on a fresh install
+    [Documentation]  Telemetry is scheduled and launches telemetry executable in ten minutes on a fresh install where the status file is not present
+    Remove File  ${STATUS_FILE}
+    Restart Telemetry Scheduler
+
+    ${time} =  Get Current Time
+    Check Scheduled Time For Fresh installs    ${time}
 
 Telemetry Scheduler recives error output from telemetry executable when it fails
     [Setup]  Telemetry Scheduler Plugin Test Setup with error telemetry executable
@@ -195,10 +208,11 @@ Telemetry Scheduler Recovers From Failure To Launch Telemetry Executable
     [Documentation]  Telemetry will recover from a failure to launch telemetry executable
 
     Remove File  ${STATUS_FILE}
+    Create File  ${STATUS_FILE}     {"scheduled-time":1682199662}
+    ${result} =  Run Process  chown sophos-spl-user:sophos-spl-group ${STATUS_FILE}    shell=True
     Remove File  ${TELEMETRY_OUTPUT_JSON}
-
+    ${ts_log}=    mark_log_size    ${TELEMETRY_SCHEDULER_LOG}
     Move File From Expected Path  ${TELEMETRY_EXECUTABLE}
-    File Should Not Exist  ${STATUS_FILE}
     File Should Not Exist  ${TELEMETRY_OUTPUT_JSON}
 
     Sleep  ${TEST_INTERVAL} seconds  # wait until telemetry executable run time
@@ -207,9 +221,12 @@ Telemetry Scheduler Recovers From Failure To Launch Telemetry Executable
     Restore Moved Files
 
     Sleep  ${TELEMETRY_EXE_CHECK_DELAY} seconds  # wait for telemetry scheduler to check executable
-    Wait Until Keyword Succeeds  ${TIMING_TOLERANCE} seconds  1 seconds   File Should Exist  ${STATUS_FILE}
+    wait_for_log_contains_from_mark    ${ts_log}    Failure to start process: execve failed: No such file or directory    15
     ${time} =  Get Current Time
-    Check Scheduled Time Against Telemetry Config Interval  ${time}  ${TEST_INTERVAL}
+    Wait Until Keyword Succeeds
+    ...     ${TIMING_TOLERANCE} seconds
+    ...     1 seconds
+    ...     Check Scheduled Time Against Telemetry Config Interval  ${time}  ${TEST_INTERVAL}
 
     Wait For Telemetry Executable To Have Run
     Check Telemetry Scheduler Is Running

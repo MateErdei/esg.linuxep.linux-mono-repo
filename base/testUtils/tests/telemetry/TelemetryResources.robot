@@ -169,6 +169,16 @@ Check Scheduled Time Against Telemetry Config Interval
     Should Be True  ${is_within_range}  msg="Actual scheduled time ${scheduled_time} is expected to be within +/- ${tolerance} seconds of ${expected_scheduled_time}"
 
 
+Check Scheduled Time For Fresh installs
+    [Arguments]  ${start_time}  ${tolerance}=30
+
+    ${scheduled_time} =  Check Status File Is Generated And Return Scheduled Time
+    ${expected_scheduled_time} =  Expected Scheduled Time  ${start_time}  600
+
+    ${is_within_range} =  Verify Scheduled Time Is Expected  ${scheduled_time}  ${expected_scheduled_time}  ${tolerance}
+    Should Be True  ${is_within_range}  msg="Actual scheduled time ${scheduled_time} is expected to be within +/- ${tolerance} seconds of ${expected_scheduled_time}"
+
+
 Cleanup Telemetry Server
     Stop Https Server
     Dump Teardown Log  ${HTTPS_LOG_FILE_PATH}
