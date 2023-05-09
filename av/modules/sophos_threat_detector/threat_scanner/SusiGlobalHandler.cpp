@@ -51,6 +51,7 @@ namespace threat_scanner
          * @param algorithm - the hashing type used for the checksum, we currently only support SHA256.
          * @param fileChecksum - bytes (unsigned char) that need to be converted to a hex string
          *  for example, if first byte in fileChecksum is 142 then that is converted to the two characters "8e".
+         * @param size - size of filechecksum
          * @return bool - returns true if the file checksum is on the allow list.
          */
         bool isAllowlistedFile(void* token, SusiHashAlg algorithm, const char* fileChecksum, size_t size)
@@ -84,6 +85,33 @@ namespace threat_scanner
             return false;
         }
 
+        /*
+         * Called by SUSI when a threat is detected. Does not get called on eicars.
+         * @param token - user data pointer which is currently set to be the current SusiGlobalHandler instance.
+         * @param filePath - char* representing the file path
+         * @return bool - returns true if the file checksum is on the allow list.
+         */
+        bool IsAllowlistedPath(void* token, const char* filePath)
+        {
+            if (filePath == nullptr)
+            {
+                LOGERROR("Allow list by path not possible, filePath provided is nullptr");
+            }
+
+            auto susiHandler = static_cast<SusiGlobalHandler*>(token);
+            if (susiHandler->accessSusiSettings()->isAllowListedPath(filePath))
+            {
+                LOGDEBUG("Allowed by path: " << filePath);
+                return true;
+            }
+            else
+            {
+                LOGTRACE("Denied allow list for: " << filePath); // Will be hit frequently
+            }
+
+            return false;
+        }
+
         bool IsBlocklistedFile(void *token, SusiHashAlg algorithm, const char *fileChecksum, size_t size)
         {
             (void)token;
@@ -98,6 +126,7 @@ namespace threat_scanner
             .version = SUSI_CALLBACK_TABLE_VERSION,
             .token = nullptr, //NOLINT
             .IsAllowlistedFile = isAllowlistedFile,
+            .IsAllowlistedPath = IsAllowlistedPath,
             .IsBlocklistedFile = IsBlocklistedFile,
             .IsTrustedCert = isTrustedCert,
             .IsAllowlistedCert = isAllowlistedCert
