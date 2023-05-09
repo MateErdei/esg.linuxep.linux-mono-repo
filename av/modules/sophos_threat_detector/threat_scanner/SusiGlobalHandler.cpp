@@ -95,7 +95,7 @@ namespace threat_scanner
         {
             if (filePath == nullptr)
             {
-                LOGERROR("Allow list by path not possible, filePath provided is nullptr");
+                LOGERROR("Allow list by path not possible, filePath provided by SUSI is nullptr");
                 return false;
             }
 
