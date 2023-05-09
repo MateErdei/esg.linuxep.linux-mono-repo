@@ -69,9 +69,12 @@ def get_suffix():
     return "-" + BRANCH_NAME
 
 
-def robot_task_with_env(machine: tap.Machine, include_tag: str, robot_args: str, environment=None, machine_name=None):
+def robot_task_with_env(machine: tap.Machine, include_tag: str, robot_args: str = None, environment=None, machine_name=None):
     if machine_name is None:
         machine_name = machine.template
+
+    assert include_tag or robot_args
+
     try:
         # Exclude OSTIA on TAP, since we are testing builds immediately, before they are put in warehouses
         # Exclude MANUAL on TAP
