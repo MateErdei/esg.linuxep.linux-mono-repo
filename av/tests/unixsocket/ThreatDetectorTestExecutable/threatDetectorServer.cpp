@@ -1,27 +1,24 @@
-/******************************************************************************************************
-
-Copyright 2020-2022, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #include "datatypes/Print.h"
-#include "datatypes/sophos_filesystem.h"
 #include "datatypes/SystemCallWrapper.h"
+#include "datatypes/sophos_filesystem.h"
+#include "unixsocket/SocketUtilsImpl.h"
 #include "unixsocket/threatDetectorSocket/ScanningClientSocket.h"
 #include "unixsocket/threatDetectorSocket/ScanningServerSocket.h"
 
 #include "Common/Logging/ConsoleLoggingSetup.h"
-
-#include <unixsocket/SocketUtils.h>
-
-#include <fstream>
-#include <string>
 
 #include <fcntl.h>
 #include <sys/socket.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
+
+#include <unixsocket/SocketUtils.h>
+
+#include <fstream>
+#include <string>
 
 #define handle_error(msg) do { perror(msg); exit(EXIT_FAILURE); } while(0)
 
@@ -124,7 +121,7 @@ static int DoSomethingWithData(const uint8_t *Data, size_t Size)
         if ((fds[0].revents & POLLIN) != 0)
         {
             // receive the response
-            int length = unixsocket::readLength(clientFd);
+            auto length = unixsocket::readLength(clientFd);
             if (length > 0)
             {
                 std::vector<char> buffer(length);
@@ -153,9 +150,8 @@ static void initializeLogging()
     Common::Logging::ConsoleLoggingSetup::consoleSetupLogging();
 }
 
-static int writeSampleFile(std::string filename)
+static int writeSampleFile(const std::string& filename)
 {
-
     scan_messages::ClientScanRequest request;
     request.setPath("/dir/file");
     request.setScanInsideArchives(false);
@@ -163,20 +159,24 @@ static int writeSampleFile(std::string filename)
     request.setUserID("root");
     request.setExecutablePath("/tmp/random/Path");
     request.setPid(1000);
-
-    std::ofstream outfile(filename, std::ios::binary);
+    request.setPuaExclusions({"FOO", "BAR"});
+    request.setDetectPUAs(true);
+    request.setScanInsideImages(true);
 
     std::string request_str = request.serialise();
 
-    char size = request_str.size();
-    outfile.write(&size, sizeof(size));
+    auto size = request_str.size();
+    auto bytes = unixsocket::splitInto7Bits(size);
+    auto lengthBytes = unixsocket::addTopBitAndPutInBuffer(bytes);
 
+    std::ofstream outfile(filename, std::ios::binary);
+    outfile.write(reinterpret_cast<const char*>(lengthBytes.get()), bytes.size());
     outfile.write(request_str.data(), request_str.size());
     outfile.close();
     return EXIT_SUCCESS;
 }
 
-static int processFile(std::string filename)
+static int processFile(const std::string& filename)
 {
     std::ifstream file(filename, std::ios::binary | std::ios::ate);
     std::streamsize size = file.tellg();

@@ -1,4 +1,4 @@
-// Copyright 2020-2022, Sophos Limited.  All rights reserved.
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #include "FakeServerSocket.h"
 
@@ -109,8 +109,6 @@ static int writeSampleFile(const std::string& path)
 
     scanResponse.addDetection("/home/vagrant/eicar1", "EICAR-AV-Test","");
 
-    std::ofstream outfile(path, std::ios::binary);
-
     std::string responseString = scanResponse.serialise();
 
     auto size = responseString.size();
@@ -118,8 +116,8 @@ static int writeSampleFile(const std::string& path)
     auto bytes = unixsocket::splitInto7Bits(size);
     auto lengthBytes = unixsocket::addTopBitAndPutInBuffer(bytes);
 
+    std::ofstream outfile(path, std::ios::binary);
     outfile.write(reinterpret_cast<const char*>(lengthBytes.get()), bytes.size());
-
     outfile.write(responseString.data(), responseString.size());
     outfile.close();
 
