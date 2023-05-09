@@ -195,6 +195,64 @@ TEST_F(TestActionRunner, ProcessRunning_RequiresSIGKILL)
     EXPECT_TRUE(waitForLog("Response Actions plugin sending failed response to Central on behalf of Action Runner process"));
 }
 
+class TestActionRunnerParameterized
+    : public ::testing::TestWithParam<std::pair<std::string, std::string>>
+{
+protected:
+    void SetUp() override
+    {
+        m_loggingSetup = Common::Logging::LOGOFFFORTEST();
+    }
+    Common::Logging::ConsoleLoggingSetup m_loggingSetup;
+};
+
+
+INSTANTIATE_TEST_SUITE_P(
+    TestActionRunner,
+    TestActionRunnerParameterized,
+    ::testing::Values(
+        std::make_pair(RUN_COMMAND_REQUEST_TYPE, RUN_COMMAND_RESPONSE_TYPE),
+        std::make_pair(UPLOAD_FILE_REQUEST_TYPE, UPLOAD_FILE_RESPONSE_TYPE),
+        std::make_pair(UPLOAD_FOLDER_REQUEST_TYPE, UPLOAD_FOLDER_RESPONSE_TYPE),
+        std::make_pair(DOWNLOAD_FILE_REQUEST_TYPE, DOWNLOAD_FILE_RESPONSE_TYPE)
+            ));
+
+TEST_P(TestActionRunnerParameterized, SendFailedResponseAssignsCorrectTypes)
+{
+    auto [ requestType, responseType ] = GetParam();
+
+    auto mockIFilePermissions = std::make_unique<MockFilePermissions>();
+    EXPECT_CALL(*mockIFilePermissions, chown(_,"sophos-spl-user","sophos-spl-group")).Times(1);
+    EXPECT_CALL(*mockIFilePermissions, chmod(_,_)).Times(1);
+    Tests::replaceFilePermissions(std::move(mockIFilePermissions));
+
+    Common::ProcessImpl::ProcessFactory::instance().replaceCreator(
+        [&]()
+        {
+            auto mockProcess = new StrictMock<MockProcess>();
+            EXPECT_CALL(*mockProcess, exec(_, _, _)).Times(1);
+            EXPECT_CALL(*mockProcess, wait(_,_)).WillOnce(Return(ProcessStatus::FINISHED));
+            EXPECT_CALL(*mockProcess, getStatus()).WillOnce(Return(ProcessStatus::FINISHED));
+            EXPECT_CALL(*mockProcess, output()).WillOnce(Return("some output"));
+            EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(2));
+            return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+
+        });
+    ActionRunner actionRunner;
+
+    std::stringstream expected;
+    expected << R"({"result":3,"type":")" << responseType << R"("})";
+    //We want to see the response type in the second argument of write file
+    auto* filesystemMock = new MockFileSystem();
+    EXPECT_CALL(*filesystemMock, writeFile(_,expected.str())).Times(1);
+    EXPECT_CALL(*filesystemMock, moveFile(_,_)).Times(1);
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
+
+    actionRunner.runAction("action", "correlationid", requestType, 1);
+    while (actionRunner.getIsRunning()) {}
+}
+
+
 //Telemetry Tests
 
 class TestTelemetryParameterized
@@ -329,6 +387,53 @@ TEST_P(TestTimeoutTelemetry, Timeout_Telemetry_Increments_Action)
             EXPECT_CALL(*mockProcess, getStatus()).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
             EXPECT_CALL(*mockProcess, output()).WillOnce(Return("some output"));
             EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(2));
+            return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+        });
+
+    ActionRunner actionRunner;
+
+    actionRunner.runAction("action", "correlationid", requestType, 1);
+    while (actionRunner.getIsRunning()) {}
+    auto out = Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
+    std::stringstream expected;
+    expected << "{";
+    for ( const auto& field : requestCountFieldName)
+    {
+        expected << R"(")" << field << R"(":1,)";
+    }
+    expected.seekp(-1, std::ios_base::end);
+    expected << "}";
+
+    EXPECT_EQ(out, expected.str());
+}
+
+TEST_P(TestTimeoutTelemetry, Hang_Telemetry_Increments_Action)
+{
+    auto [ requestType, requestCountFieldName ] = GetParam();
+
+    auto mockIFilePermissions = std::make_unique<MockFilePermissions>();
+    EXPECT_CALL(*mockIFilePermissions, chown(_,"sophos-spl-user","sophos-spl-group")).Times(1);
+    EXPECT_CALL(*mockIFilePermissions, chmod(_,_)).Times(1);
+    Tests::replaceFilePermissions(std::move(mockIFilePermissions));
+
+    auto* filesystemMock = new MockFileSystem();
+    EXPECT_CALL(*filesystemMock, writeFile(_,_)).Times(1);
+    EXPECT_CALL(*filesystemMock, moveFile(_,_)).Times(1);
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
+
+    Common::ProcessImpl::ProcessFactory::instance().replaceCreator(
+        []()
+        {
+            auto mockProcess = new StrictMock<MockProcess>();
+            EXPECT_CALL(*mockProcess, exec(_, _, _)).Times(1);
+            EXPECT_CALL(*mockProcess, wait(_,_))
+                .WillOnce(Return(Common::Process::ProcessStatus::TIMEOUT))
+                .WillOnce(Return(Common::Process::ProcessStatus::TIMEOUT));
+            EXPECT_CALL(*mockProcess, sendSIGUSR1()).Times(1);
+            EXPECT_CALL(*mockProcess, getStatus()).WillOnce(Return(Common::Process::ProcessStatus::RUNNING));
+            EXPECT_CALL(*mockProcess, kill()).Times(1);
+            EXPECT_CALL(*mockProcess, output()).WillOnce(Return("some output"));
+            EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(9));
             return std::unique_ptr<Common::Process::IProcess>(mockProcess);
         });
 
