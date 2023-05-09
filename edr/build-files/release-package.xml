@@ -6,8 +6,8 @@
     <inputs>
         <workingdir>.</workingdir>
         <build-asset project="linuxep" repo="everest-base">
-            <release-version branch="release/2023-19" build-id="20230510095000-0656d59dd9a3338f1ae24b029f857de7f4474614-nfV3qy"/>
-            <development-version branch="develop"/>
+            <release-version branch="release/2023-13" build-id="20230327102256-80ee197f61863b4935e099fc513212cc19ca0c6c-tXu2TZ"/>
+            <development-version branch="feature/LINUXDAR-6728_migrate_and_update_protobuf"/>
             <include artifact-path="sspl-base/pluginapi" dest-dir="/build/input"/>
             <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="/build/input/base-sdds"/>
         </build-asset>
@@ -19,7 +19,7 @@
         </build-asset>
 
         <build-asset project="em" repo="esg">
-            <release-version branch="release/SPRINT-2023.19" build-id="20230505162223-6aa5715432cf60b858215a18280933fd7a890989-XeJDfq"/>
+            <release-version branch="release/WIN-2023.1" build-id="20230324135436-2be86f5d08f35518a20f832ea8cb1163f414647f-GIRTge"/>
             <development-version branch="develop"/>
             <include artifact-path="sophlib/sdds3-tools-x64-linux" dest-dir="/build/input/sdds3"/>
             <include artifact-path="livequery/linux_x86-64" dest-dir="/build/redist/livequery"/>
@@ -64,11 +64,11 @@
 
         <!-- For local tests -->
         <!-- qp=em.esg/develop/build/scheduled-query-pack-sdds -->
-        <!-- lp=em.esg/develop/build/endpoint-query-pack -->
+        <!-- lp_tar=em.esg/develop/build/query-pack -->
         <build-asset project="em" repo="esg">
             <release-version branch="release/2023.04/sprint" build-id="20230120201925-31a0379094fc1654506d3d459661d326949dee47-bh0Sgz"/>
             <development-version branch="develop"/>
-            <include artifact-path="endpoint-query-pack" dest-dir="local_test_input/lp"/>
+            <include artifact-path="query-pack" dest-dir="local_test_input/lp_tar"/>
             <include artifact-path="scheduled-query-pack-sdds" dest-dir="local_test_input/qp"/>
         </build-asset>
 
