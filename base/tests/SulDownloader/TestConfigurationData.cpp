@@ -119,11 +119,19 @@ public:
             return ::testing::AssertionFailure() << s.str() << "features differs";
         }
 
+        if (expected.getDoForcedUpdate() != resulted.getDoForcedUpdate())
+        {
+            return ::testing::AssertionFailure() << s.str() << "forceUpdate differs";
+        }
+        if (expected.getDoPausedForcedUpdate() != resulted.getDoPausedForcedUpdate())
+        {
+            return ::testing::AssertionFailure() << s.str() << "forcePausedUpdate differs";
+        }
         return ::testing::AssertionSuccess();
     }
 };
 
-TEST_F(ConfigurationDataTest, fromJsonSettingsInvalidJsonStringThrows) // NOLINT
+TEST_F(ConfigurationDataTest, fromJsonSettingsInvalidJsonStringThrows)
 {
     try
     {
@@ -135,7 +143,7 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsInvalidJsonStringThrows) // NOLINT
     }
 }
 
-TEST_F(ConfigurationDataTest, fromJsonSettingsValidButEmptyJsonStringShouldThrow) // NOLINT
+TEST_F(ConfigurationDataTest, fromJsonSettingsValidButEmptyJsonStringShouldThrow)
 {
     try
     {
@@ -147,7 +155,7 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidButEmptyJsonStringShouldThrow
     }
 }
 
-TEST_F(ConfigurationDataTest, fromJsonSettingsValidAndCompleteJsonStringShouldReturnValidDataObject) // NOLINT
+TEST_F(ConfigurationDataTest, fromJsonSettingsValidAndCompleteJsonStringShouldReturnValidDataObject)
 {
     setupFileSystemAndGetMock();
     ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString("", ""));
@@ -156,7 +164,7 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidAndCompleteJsonStringShouldRe
     EXPECT_TRUE(configurationData.isVerified());
 }
 
-TEST_F( // NOLINT
+TEST_F(
     ConfigurationDataTest,
     fromJsonSettingsValidAndCompleteJsonStringShouldReturnValidDataObjectThatContainsExpectedData)
 {
@@ -180,7 +188,25 @@ TEST_F( // NOLINT
     EXPECT_PRED_FORMAT2(configurationDataIsEquivalent, configurationData, afterDeserialization);
 }
 
-TEST_F(ConfigurationDataTest, fromJsonSettingsValidStringWithNoUpdateCacheShouldReturnValidDataObject) // NOLINT
+TEST_F(
+    ConfigurationDataTest,
+    fromJsonSettingsValidAndCompleteJsonStringShouldReturnValidDataObjectThatContainsExpectedDataForForcedUpdateFields)
+{
+
+    ConfigurationData expectedConfiguration(
+        { "https://sophosupdate.sophos.com/latest/warehouse" },
+        Credentials{ "administrator", "password" },
+        { "https://cache.sophos.com/latest/warehouse" },
+        Proxy("noproxy:"));
+    expectedConfiguration.setDoForcedPausedUpdate(true);
+    expectedConfiguration.setDoForcedUpdate(true);
+
+    std::string serialized = ConfigurationData::toJsonSettings(expectedConfiguration);
+    std::cout << serialized << std::endl;
+    ConfigurationData afterDeserialization = ConfigurationData::fromJsonSettings(serialized);
+    EXPECT_PRED_FORMAT2(configurationDataIsEquivalent, expectedConfiguration, afterDeserialization);
+}
+TEST_F(ConfigurationDataTest, fromJsonSettingsValidStringWithNoUpdateCacheShouldReturnValidDataObject)
 {
     setupFileSystemAndGetMock();
     ConfigurationData configurationData =
@@ -191,7 +217,7 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidStringWithNoUpdateCacheShould
     EXPECT_TRUE(configurationData.isVerified());
 }
 
-TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithEmptyUpdateCacheValueShouldFailValidation) // NOLINT
+TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithEmptyUpdateCacheValueShouldFailValidation)
 {
     setupFileSystemAndGetMock();
     ConfigurationData configurationData =
@@ -202,7 +228,7 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithEmptyUpdateCach
     EXPECT_FALSE(configurationData.isVerified());
 }
 
-TEST_F(ConfigurationDataTest, fromJsonSettingsValidStringWithNoSophosURLsShouldThrow) // NOLINT
+TEST_F(ConfigurationDataTest, fromJsonSettingsValidStringWithNoSophosURLsShouldThrow)
 {
     setupFileSystemAndGetMock();
     try
@@ -219,7 +245,7 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidStringWithNoSophosURLsShouldT
     }
 }
 
-TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithEmptySophosUrlValueShouldFailValidation) // NOLINT
+TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithEmptySophosUrlValueShouldFailValidation)
 {
     setupFileSystemAndGetMock();
     ConfigurationData configurationData =
@@ -230,7 +256,7 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithEmptySophosUrlV
     EXPECT_FALSE(configurationData.isVerified());
 }
 
-TEST_F(ConfigurationDataTest, fromJsonSettingsValidEmptyCredentialsShouldFailValidation) // NOLINT
+TEST_F(ConfigurationDataTest, fromJsonSettingsValidEmptyCredentialsShouldFailValidation)
 {
     setupFileSystemAndGetMock();
     std::string oldString = R"("credential": {
@@ -250,7 +276,7 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidEmptyCredentialsShouldFailVal
     EXPECT_FALSE(configurationData.isVerified());
 }
 
-TEST_F(ConfigurationDataTest, fromJsonSettingsValidMissingCredentialDetailsShouldFailValidation) // NOLINT
+TEST_F(ConfigurationDataTest, fromJsonSettingsValidMissingCredentialDetailsShouldFailValidation)
 {
     setupFileSystemAndGetMock();
     std::string oldString = R"("credential": {
@@ -268,7 +294,7 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidMissingCredentialDetailsShoul
     EXPECT_FALSE(configurationData.isVerified());
 }
 
-TEST_F(ConfigurationDataTest, fromJsonSettingsValidMissingCredentialsShouldFailValidation) // NOLINT
+TEST_F(ConfigurationDataTest, fromJsonSettingsValidMissingCredentialsShouldFailValidation)
 {
     setupFileSystemAndGetMock();
     std::string oldString = R"("credential": {
@@ -285,7 +311,7 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidMissingCredentialsShouldFailV
     EXPECT_FALSE(configurationData.isVerified());
 }
 
-TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithMissingProxyShouldReturnValidDataObject) // NOLINT
+TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithMissingProxyShouldReturnValidDataObject)
 {
     setupFileSystemAndGetMock();
     std::string oldString = R"("proxy": {
@@ -306,7 +332,7 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithMissingProxySho
     EXPECT_TRUE(configurationData.isVerified());
 }
 
-TEST_F( // NOLINT
+TEST_F(
     ConfigurationDataTest,
     fromJsonSettingsValidJsonStringWithConfiguredPolicyProxyShouldReturnValidDataObject)
 {
@@ -339,7 +365,7 @@ TEST_F( // NOLINT
     EXPECT_TRUE(configurationData.isVerified());
 }
 
-TEST_F( // NOLINT
+TEST_F(
     ConfigurationDataTest,
     shouldRejectInvalidProxy)
 {
@@ -378,7 +404,7 @@ TEST_F( // NOLINT
     EXPECT_TRUE(configurationData.verifySettingsAreValid());
 }
 
-TEST_F( // NOLINT
+TEST_F(
     ConfigurationDataTest,
     fromJsonSettingsValidJsonStringWithConfiguredPolicyProxyAndEnvironmentProxyShouldReturnValidObject)
 {
@@ -416,7 +442,7 @@ TEST_F( // NOLINT
     unsetenv("HTTPS_PROXY");
 }
 
-TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithOnlySavedProxyShouldReturnValidObject) // NOLINT
+TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithOnlySavedProxyShouldReturnValidObject)
 {
     auto& fileSystem = setupFileSystemAndGetMock();
 
@@ -439,7 +465,7 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithOnlySavedProxyS
     EXPECT_TRUE(configurationData.isVerified());
 }
 
-TEST_F(ConfigurationDataTest, fromJsonSettingsUnauthenticatedProxyInSavedProxyShouldReturnValidObject) // NOLINT
+TEST_F(ConfigurationDataTest, fromJsonSettingsUnauthenticatedProxyInSavedProxyShouldReturnValidObject)
 {
     auto& fileSystem = setupFileSystemAndGetMock();
     std::string savedProxyFilePath =
@@ -462,7 +488,7 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsUnauthenticatedProxyInSavedProxySh
     EXPECT_TRUE(configurationData.isVerified());
 }
 
-TEST_F(ConfigurationDataTest, fromJsonSettingsInvalidProxyInSavedProxyShouldBeLoggedAndNotReturnValidObject) // NOLINT
+TEST_F(ConfigurationDataTest, fromJsonSettingsInvalidProxyInSavedProxyShouldBeLoggedAndNotReturnValidObject)
 {
     Common::Logging::ConsoleLoggingSetup consoleLogger;
     testing::internal::CaptureStderr();
@@ -490,7 +516,7 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsInvalidProxyInSavedProxyShouldBeLo
     EXPECT_TRUE(configurationData.isVerified());
 }
 
-TEST_F(ConfigurationDataTest, proxyFromSavedProxyUrlShouldBeLoggedAndReturnNullOpt) // NOLINT
+TEST_F(ConfigurationDataTest, proxyFromSavedProxyUrlShouldBeLoggedAndReturnNullOpt)
 {
     Common::Logging::ConsoleLoggingSetup consoleLogger;
     testing::internal::CaptureStderr();
@@ -509,7 +535,7 @@ TEST_F(ConfigurationDataTest, proxyFromSavedProxyUrlShouldBeLoggedAndReturnNullO
 
 TEST_F(
     ConfigurationDataTest,
-    fromJsonSettingsValidJsonStringWithMissingPrimarySubscriptionShouldFailValidation) // NOLINT
+    fromJsonSettingsValidJsonStringWithMissingPrimarySubscriptionShouldFailValidation)
 {
     setupFileSystemAndGetMock();
     std::string oldString = R"(                               "primarySubscription": {
@@ -527,7 +553,7 @@ TEST_F(
     EXPECT_FALSE(configurationData.isVerified());
 }
 
-TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringProductsWithMissingRigidNameShouldFailValidation) // NOLINT
+TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringProductsWithMissingRigidNameShouldFailValidation)
 {
     setupFileSystemAndGetMock();
     std::string oldString = R"("rigidName" : "PrefixOfProduct-SimulateProductA")";
@@ -542,7 +568,7 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringProductsWithMissing
 
 TEST_F(
     ConfigurationDataTest,
-    fromJsonSettingsValidJsonStringProductsWithMissingTagAndFixedVersionShouldFailValidation) // NOLINT
+    fromJsonSettingsValidJsonStringProductsWithMissingTagAndFixedVersionShouldFailValidation)
 {
     setupFileSystemAndGetMock();
     std::string oldString = R"({
@@ -565,7 +591,7 @@ TEST_F(
     EXPECT_FALSE(configurationData.isVerified());
 }
 
-TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithEmptyInstallArgumentsShouldFailValidation) // NOLINT
+TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithEmptyInstallArgumentsShouldFailValidation)
 {
     setupFileSystemAndGetMock();
 
@@ -581,7 +607,7 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithEmptyInstallArg
     EXPECT_TRUE(configurationData.isVerified());
 }
 
-TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithMissingInstallArgumentsShouldFailValidation) // NOLINT
+TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithMissingInstallArgumentsShouldFailValidation)
 {
     setupFileSystemAndGetMock();
     std::string oldString = R"("installArguments": [
@@ -598,7 +624,7 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithMissingInstallA
     EXPECT_TRUE(configurationData.isVerified());
 }
 
-TEST_F( // NOLINT
+TEST_F(
     ConfigurationDataTest,
     fromJsonSettingsValidJsonStringWithEmptyValueInInstallArgumentsShouldFailValidation)
 {
@@ -613,7 +639,7 @@ TEST_F( // NOLINT
     EXPECT_FALSE(configurationData.isVerified());
 }
 
-TEST_F(ConfigurationDataTest, serializeDeserialize) // NOLINT
+TEST_F(ConfigurationDataTest, serializeDeserialize)
 {
     std::string originalString = createJsonString("", "");
     ConfigurationData configurationData = ConfigurationData::fromJsonSettings(originalString);
@@ -623,7 +649,7 @@ TEST_F(ConfigurationDataTest, serializeDeserialize) // NOLINT
     EXPECT_PRED_FORMAT2(configurationDataIsEquivalent, configurationData, afterSerializer);
 }
 
-TEST_F( // NOLINT
+TEST_F(
     ConfigurationDataTest,
     settingsAreValidForV2)
 {
@@ -757,7 +783,7 @@ createJsonString("", "");
     EXPECT_EQ(features, expected_features);
 }
 
-TEST_F(ConfigurationDataTest, currentMcsProxyReturnsNulloptIfCurrentProxyFileMissing) // NOLINT
+TEST_F(ConfigurationDataTest, currentMcsProxyReturnsNulloptIfCurrentProxyFileMissing)
 {
     auto& fileSystem = setupFileSystemAndGetMock();
 
@@ -770,7 +796,7 @@ TEST_F(ConfigurationDataTest, currentMcsProxyReturnsNulloptIfCurrentProxyFileMis
     EXPECT_EQ(actualProxy, std::nullopt);
 }
 
-TEST_F(ConfigurationDataTest, currentMcsProxyReturnsNulloptIfCurrentProxyFileEmpty) // NOLINT
+TEST_F(ConfigurationDataTest, currentMcsProxyReturnsNulloptIfCurrentProxyFileEmpty)
 {
     auto& fileSystem = setupFileSystemAndGetMock();
 
@@ -786,7 +812,7 @@ TEST_F(ConfigurationDataTest, currentMcsProxyReturnsNulloptIfCurrentProxyFileEmp
     EXPECT_EQ(actualProxy, expectedProxy);
 }
 
-TEST_F(ConfigurationDataTest, proxyIsExtractedFromCurrentProxyFileAndLogsAddress) // NOLINT
+TEST_F(ConfigurationDataTest, proxyIsExtractedFromCurrentProxyFileAndLogsAddress)
 {
     Common::Logging::ConsoleLoggingSetup consoleLogger;
     testing::internal::CaptureStderr();

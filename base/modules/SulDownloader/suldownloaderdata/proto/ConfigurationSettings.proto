@@ -63,4 +63,6 @@ message ConfigurationSettings
     optional bool useSDDS3 = 18 [default=false];
 
     optional string updateCacheCertPath = 19;
+    optional bool forceUpdate = 20 [default=false];
+    optional bool forcePausedUpdate = 21 [default=false];
 }

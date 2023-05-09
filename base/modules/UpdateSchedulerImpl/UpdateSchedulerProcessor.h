@@ -93,7 +93,8 @@ namespace UpdateSchedulerImpl
         bool m_policyReceived;
         bool m_pendingUpdate;
         bool m_flagsPolicyProcessed;
-        bool m_sdds3Enabled;
+        bool m_forceUpdate;
+        bool m_forcePausedUpdate;
         SulDownloader::suldownloaderdata::WeekDayAndTimeForDelay m_scheduledUpdateConfig;
         std::vector<std::string> m_featuresInPolicy;
         std::vector<std::string> m_featuresCurrentlyInstalled;

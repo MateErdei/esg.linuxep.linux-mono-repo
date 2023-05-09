@@ -102,7 +102,8 @@ namespace UpdateSchedulerImpl
         m_policyReceived(false),
         m_pendingUpdate(false),
         m_flagsPolicyProcessed(false),
-        m_sdds3Enabled(false),
+        m_forceUpdate(false),
+        m_forcePausedUpdate(false),
         m_featuresInPolicy(),
         m_featuresCurrentlyInstalled(readInstalledFeatures())
     {
@@ -269,6 +270,8 @@ namespace UpdateSchedulerImpl
             settingsHolder.configurationData.setJWToken(token);
             settingsHolder.configurationData.setDeviceId(UpdateSchedulerUtils::getDeviceId());
             settingsHolder.configurationData.setTenantId(UpdateSchedulerUtils::getTenantId());
+            settingsHolder.configurationData.setDoForcedPausedUpdate(m_forcePausedUpdate);
+            settingsHolder.configurationData.setDoForcedUpdate(m_forceUpdate);
             writeConfigurationData(settingsHolder.configurationData);
             m_scheduledUpdateConfig = settingsHolder.weeklySchedule;
             m_featuresInPolicy = settingsHolder.configurationData.getFeatures();
@@ -375,6 +378,7 @@ namespace UpdateSchedulerImpl
     void UpdateSchedulerProcessor::processFlags(const std::string& flagsContent)
     {
         m_flagsPolicyProcessed = true;
+        bool changed = false;
         LOGINFO("Processing Flags");
         LOGDEBUG("Flags: " << flagsContent);
         if (flagsContent.empty())
@@ -382,20 +386,38 @@ namespace UpdateSchedulerImpl
             return;
         }
 
-        bool currentFlag = m_sdds3Enabled;
-        m_sdds3Enabled = Common::FlagUtils::isFlagSet(UpdateSchedulerUtils::SDDS3_ENABLED_FLAG, flagsContent);
-        LOGDEBUG("Received " << UpdateSchedulerUtils::SDDS3_ENABLED_FLAG << " flag value: " << m_sdds3Enabled);
+        bool currentFlag = m_forceUpdate;
+        m_forceUpdate = Common::FlagUtils::isFlagSet(UpdateSchedulerUtils::FORCE_UPDATE_ENABLED_FLAG, flagsContent);
+        LOGDEBUG("Received " << UpdateSchedulerUtils::FORCE_UPDATE_ENABLED_FLAG << " flag value: " << m_forceUpdate);
 
-        if (currentFlag == m_sdds3Enabled)
+        if (currentFlag == m_forceUpdate)
         {
-            LOGDEBUG(UpdateSchedulerUtils::SDDS3_ENABLED_FLAG << " flag value still: " << m_sdds3Enabled);
-            return;
+            LOGDEBUG(UpdateSchedulerUtils::FORCE_UPDATE_ENABLED_FLAG << " flag value still: " << m_forceUpdate);
+        }
+        else
+        {
+            changed = true;
+        }
+        currentFlag = m_forcePausedUpdate;
+        m_forcePausedUpdate = Common::FlagUtils::isFlagSet(UpdateSchedulerUtils::FORCE_PAUSED_UPDATE_ENABLED_FLAG, flagsContent);
+        LOGDEBUG("Received " << UpdateSchedulerUtils::FORCE_PAUSED_UPDATE_ENABLED_FLAG << " flag value: " << m_forcePausedUpdate);
+
+        if (currentFlag == m_forcePausedUpdate)
+        {
+            LOGDEBUG(UpdateSchedulerUtils::FORCE_PAUSED_UPDATE_ENABLED_FLAG << " flag value still: " << m_forcePausedUpdate);
+        }
+        else
+        {
+            changed = true;
         }
 
         auto config = UpdateSchedulerUtils::getCurrentConfigurationData();
-        if (config.has_value())
+        if (config.has_value() && changed)
         {
+            LOGINFO("Writing new flag into to config");
             SulDownloader::suldownloaderdata::ConfigurationData currentConfigData = config.value();
+            currentConfigData.setDoForcedUpdate(m_forceUpdate);
+            currentConfigData.setDoForcedPausedUpdate(m_forcePausedUpdate);
             writeConfigurationData(currentConfigData);
         }
     }
@@ -654,7 +676,7 @@ namespace UpdateSchedulerImpl
             Common::Telemetry::TelemetryHelper::getInstance().set("latest-update-succeeded", true);
             Common::Telemetry::TelemetryHelper::getInstance().set(
                 "successful-update-time", duration_cast<seconds>(system_clock::now().time_since_epoch()).count());
-            Common::Telemetry::TelemetryHelper::getInstance().set("sdds-mechanism", UpdateSchedulerUtils::getSDDSMechanism(m_sdds3Enabled));
+            Common::Telemetry::TelemetryHelper::getInstance().set("sdds-mechanism", UpdateSchedulerUtils::getSDDSMechanism(true));
 
             // on successful update copy the current update configuration to previous update configuration
             // the previous configuration file will be used on the next policy change and by suldownloader

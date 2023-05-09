@@ -90,6 +90,8 @@ namespace Common::ApplicationConfigurationImpl
 
         std::string getVersionIniFileForComponent(const std::string& component) const override;
         std::string getFeaturesJsonPath() const override;
+        std::string getForcedAnUpdateMarkerPath() const override;
+        std::string getForcedAPausedUpdateMarkerPath() const override;
 
         std::string getRemoteDiagnosePath() const override;
         std::string getDiagnoseOutputPath() const override;

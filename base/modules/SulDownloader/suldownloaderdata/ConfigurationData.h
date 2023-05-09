@@ -325,6 +325,30 @@ namespace SulDownloader::suldownloaderdata
         [[nodiscard]] bool getUseSlowSupplements() const;
 
         /**
+         * Set whether to use force an reinstall on non paused customers
+         * @param doForcedUpdate
+         */
+        void setDoForcedUpdate(bool doForcedUpdate);
+
+        /**
+         * Get whether to use force an reinstall on non paused customers
+         * @return
+         */
+        [[nodiscard]] bool getDoForcedUpdate() const;
+
+        /**
+         * Set whether to use force an reinstall on paused customers
+         * @param doForcedPausedUpdate
+         */
+        void setDoForcedPausedUpdate(bool doForcedPausedUpdate);
+
+        /**
+         * Get whether to use force an reinstall on paused customers
+         * @return
+         */
+        [[nodiscard]] bool getDoPausedForcedUpdate() const;
+
+        /**
          * Used to verify all required settings stored in the ConfigurationData object
          * @test sophosUpdateUrls list is not empty
          * @test productSelection list is not empty
@@ -398,6 +422,8 @@ namespace SulDownloader::suldownloaderdata
         std::vector<std::string> m_manifestNames;
         std::vector<std::string> m_optionalManifestNames;
         bool m_useSlowSupplements = false;
+        bool m_doForcedUpdate = false;
+        bool m_doForcedPausedUpdate = false;
         WeekDayAndTimeForDelay m_scheduledUpdate;
     };
 } // namespace SulDownloader::suldownloaderdata

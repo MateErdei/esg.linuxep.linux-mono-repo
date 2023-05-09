@@ -23,7 +23,7 @@ namespace SulDownloader
                                                                          suldownloaderdata::TimeTracker& timeTracker,
                                                                          const suldownloaderdata::ConfigurationData& configurationData,
                                                                          const suldownloaderdata::DownloadReport& previousDownloadReport,
-                                                                         const bool forceReinstallAllProducts,
+                                                                         bool forceReinstallAllProducts,
                                                                          const bool supplementOnly);
 
     /**

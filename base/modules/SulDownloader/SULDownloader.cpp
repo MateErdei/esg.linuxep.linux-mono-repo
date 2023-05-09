@@ -7,6 +7,7 @@
 #include "Logger.h"
 #include "ProductUninstaller.h"
 #include "SulDownloader.h"
+#include "SulDownloaderUtils.h"
 #include "sdds3/SDDS3Utils.h"
 #include "sdds3/Sdds3RepositoryFactory.h"
 #include "suldownloaderdata/ConfigurationData.h"
@@ -112,7 +113,7 @@ namespace SulDownloader
                                                                          TimeTracker& timeTracker,
                                                                          const ConfigurationData& configurationData,
                                                                          const DownloadReport& previousDownloadReport,
-                                                                         const bool forceReinstallAllProducts,
+                                                                         bool forceReinstallAllProducts,
                                                                          const bool supplementOnly)
     {
         if (!success)
@@ -153,6 +154,10 @@ namespace SulDownloader
         const auto awaitSupplementUpdateFlagPath = Common::FileSystem::join(
             Common::ApplicationConfiguration::applicationPathManager().sophosInstall(),
             "base/update/var/updatescheduler/await_scheduled_update");
+
+        // for writing marker files if we do a forced update trigger by flag
+        bool writeForceMarkerFile = false;
+        std::string forcedUpdateMarkerFilePath;
         if (supplementOnly)
         {
             if (fileSystem->isFile(awaitSupplementUpdateFlagPath))
@@ -167,6 +172,21 @@ namespace SulDownloader
         else
         {
             fileSystem->removeFile(awaitSupplementUpdateFlagPath, true);
+            if (SulDownloaderUtils::checkIfWeShouldForceUpdates(configurationData))
+            {
+                LOGINFO("Triggering a force reinstall");
+                forceReinstallAllProducts = true;
+                writeForceMarkerFile = true;
+                if (SulDownloaderUtils::isEndpointPaused(configurationData))
+                {
+                    forcedUpdateMarkerFilePath = Common::ApplicationConfiguration::applicationPathManager().getForcedAPausedUpdateMarkerPath();
+                }
+                else
+                {
+                    forcedUpdateMarkerFilePath = Common::ApplicationConfiguration::applicationPathManager().getForcedAnUpdateMarkerPath();
+                }
+
+            }
         }
 
         for (auto& product : products)
@@ -257,7 +277,7 @@ namespace SulDownloader
 
             if (forceReinstallAllProducts || forceReinstallThisProduct)
             {
-                LOGSUPPORT(
+                LOGDEBUG(
                     "Mark product to be reinstalled. Reason: AllProducts: "
                         << forceReinstallAllProducts << ", This Product: " << forceReinstallThisProduct
                         << ". Product = " << product.getLine());
@@ -265,7 +285,7 @@ namespace SulDownloader
                 productChanging = true;
             }
         }
-        LOGSUPPORT("Checking signature.");
+        LOGDEBUG("Checking signature.");
         // Only need to verify the products which the install.sh will be called on.
         for (auto& product : products)
         {
@@ -402,7 +422,17 @@ namespace SulDownloader
                 LOGWARN("Failed to remove marker file with error: " << ex.what());
             }
         }
-
+        if (writeForceMarkerFile)
+        {
+            try
+            {
+                fileSystem->writeFile(forcedUpdateMarkerFilePath,"");
+            }
+            catch (Common::FileSystem::IFileSystemException& ex)
+            {
+                LOGWARN("Failed to write reinstall marker file with error: " << ex.what());
+            }
+        }
         // if any error happened during installation, it reports correctly.
         // the report also contains the successful ones.
 
@@ -641,7 +671,7 @@ namespace SulDownloader
             }
         }
         repository->distribute();
-        if(repository->hasError())
+        if (repository->hasError())
         {
             LOGERROR("Failed to distribute repository: " << repository->getError().Description);
             return std::make_pair(false, std::move(repository));

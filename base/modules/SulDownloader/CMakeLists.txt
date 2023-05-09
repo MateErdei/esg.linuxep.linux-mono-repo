@@ -26,7 +26,7 @@ add_library(suldownloaderimplobject OBJECT
         ../Common/UpdateUtilities/InstalledFeatures.cpp
         Logger.cpp
         Logger.h
-        )
+        SulDownloaderUtils.cpp SulDownloaderUtils.h)
 
 target_link_libraries(suldownloaderimplobject PUBLIC
         sophlib_sdds3

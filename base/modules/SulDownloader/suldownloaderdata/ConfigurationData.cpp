@@ -195,6 +195,25 @@ std::string ConfigurationData::getLocalDistributionRepository() const
     return Common::ApplicationConfiguration::applicationPathManager().getLocalDistributionRepository();
 }
 
+void ConfigurationData::setDoForcedUpdate(bool doForcedUpdate)
+{
+    m_doForcedUpdate = doForcedUpdate;
+}
+
+bool ConfigurationData::getDoForcedUpdate() const
+{
+    return m_doForcedUpdate;
+}
+
+void ConfigurationData::setDoForcedPausedUpdate(bool doForcedPausedUpdate)
+{
+    m_doForcedPausedUpdate = doForcedPausedUpdate;
+}
+
+bool ConfigurationData::getDoPausedForcedUpdate() const
+{
+    return m_doForcedPausedUpdate;
+}
 bool ConfigurationData::verifySettingsAreValid()
 {
     using namespace Common::FileSystem;
@@ -388,6 +407,8 @@ ConfigurationData ConfigurationData::fromJsonSettings(const std::string& setting
     configurationData.setUpdateCacheCertPath(settings.updatecachecertpath());
     configurationData.setTenantId(settings.tenantid());
     configurationData.setDeviceId(settings.deviceid());
+    configurationData.setDoForcedUpdate(settings.forceupdate());
+    configurationData.setDoForcedPausedUpdate(settings.forcepausedupdate());
 
     std::vector<std::string> installArgs(
         std::begin(settings.installarguments()), std::end(settings.installarguments()));
@@ -534,6 +555,8 @@ std::string ConfigurationData::toJsonSettings(const ConfigurationData& configura
     settings.mutable_updatecachecertpath()->assign(configurationData.getUpdateCacheCertPath());
     settings.mutable_tenantid()->assign(configurationData.getTenantId());
     settings.mutable_deviceid()->assign(configurationData.getDeviceId());
+    settings.set_forceupdate(configurationData.getDoForcedUpdate());
+    settings.set_forcepausedupdate(configurationData.getDoPausedForcedUpdate());
     const auto& primarySubscription = configurationData.getPrimarySubscription();
     setProtobufEntries(primarySubscription, settings.mutable_primarysubscription());
     for (const auto& product : configurationData.getProductsSubscription())

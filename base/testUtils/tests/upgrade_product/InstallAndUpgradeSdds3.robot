@@ -855,51 +855,6 @@ Schedule Query Pack Next Exists in SDDS3 and is Equal to Schedule Query Pack
     Should Be Equal As Strings            ${scheduled_query_pack_mtr}    ${scheduled_query_pack_next_mtr}
 
 
-SDDS3 Mechanism Is Updated in UpdateScheduler Telemetry After Successful Update To SDDS3
-    Cleanup Telemetry Server
-    Start Local Cloud Server  --initial-alc-policy  ${BaseEdrAndMtrAndAVVUTPolicy}  --initial-flags  ${SUPPORT_FILES}/CentralXml/FLAGS_sdds2.json
-    ${handle}=  Start Local SDDS3 Server
-    Set Suite Variable    ${GL_handle}    ${handle}
-    Configure And Run SDDS3 Thininstaller  0  https://localhost:8080   https://localhost:8080
-
-    Wait Until Keyword Succeeds
-    ...   150 secs
-    ...   10 secs
-    ...   Check SulDownloader Log Contains String N Times   Update success  2
-    Set Log Level For Component And Reset and Return Previous Log  updatescheduler   DEBUG
-
-    Wait Until Keyword Succeeds
-    ...    30 secs
-    ...    5 secs
-    ...    Check UpdateScheduler Log Contains String N Times    Sending status to Central    2
-
-    Prepare To Run Telemetry Executable With HTTPS Protocol    port=6443
-    Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
-    ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
-    Log File   ${TELEMETRY_OUTPUT_JSON}
-    Check Update Scheduler Telemetry Json Is Correct  ${telemetryFileContents}  0   sddsid=av_user_vut  set_edr=True  set_av=True  most_recent_update_successful=True  sdds_mechanism=SDDS2
-
-    Overwrite MCS Flags File    {"sdds3.enabled": true}
-
-    Trigger Update Now
-    Wait Until Keyword Succeeds
-    ...    200 secs
-    ...    10 secs
-    ...    Check Suldownloader Log Contains In Order    Update success    Running SDDS3 update   Generating the report file
-    Wait Until Keyword Succeeds
-    ...    30 secs
-    ...    5 secs
-    ...    Check UpdateScheduler Log Contains String N Times    Sending status to Central    3
-
-    Cleanup Telemetry Server
-    Prepare To Run Telemetry Executable With HTTPS Protocol    port=6443
-    Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
-    ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
-    Log File   ${TELEMETRY_OUTPUT_JSON}
-    Check Update Scheduler Telemetry Json Is Correct  ${telemetryFileContents}  0   sddsid=av_user_vut  set_edr=True  set_av=True  most_recent_update_successful=True  sdds_mechanism=SDDS3
-    Cleanup Telemetry Server
-
-
 *** Keywords ***
 Test Setup With Ostia
     Test Setup

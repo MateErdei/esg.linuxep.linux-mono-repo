@@ -95,6 +95,8 @@ public:
     MOCK_METHOD(std::string, getSulDownloaderPreviousConfigFilePath, (), (const, override));
     MOCK_METHOD(std::string, getVersionIniFileForComponent, (const std::string& component), (const, override));
     MOCK_METHOD(std::string, getFeaturesJsonPath, (), (const, override));
+    MOCK_METHOD(std::string, getForcedAnUpdateMarkerPath, (), (const, override));
+    MOCK_METHOD(std::string, getForcedAPausedUpdateMarkerPath, (), (const, override));
     MOCK_METHOD(std::string, getStateMachineRawDataPath, (), (const, override));
 
     MOCK_METHOD(std::string, getRemoteDiagnosePath, (), (const, override));

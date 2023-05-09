@@ -386,6 +386,15 @@ namespace Common
             return Common::FileSystem::join(sophosInstall(), "base/update/var/updatescheduler/installed_features.json");
         }
 
+        std::string ApplicationPathManager::getForcedAnUpdateMarkerPath() const
+        {
+            return Common::FileSystem::join(sophosInstall(), "base/update/var/updatescheduler/update_forced_marker");
+        }
+        std::string ApplicationPathManager::getForcedAPausedUpdateMarkerPath() const
+        {
+            return Common::FileSystem::join(sophosInstall(), "base/update/var/updatescheduler/paused_update_forced_marker");
+        }
+
         std::string ApplicationPathManager::getRemoteDiagnosePath() const
         {
             return Common::FileSystem::join(sophosInstall(), "base/remote-diagnose");

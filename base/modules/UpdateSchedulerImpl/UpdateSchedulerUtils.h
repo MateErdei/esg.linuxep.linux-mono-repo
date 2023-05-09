@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2021-2022 Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2021-2023 Sophos Limited. All rights reserved.
 
 #include <SulDownloader/suldownloaderdata/ConfigurationData.h>
 #include <UpdateSchedulerImpl/stateMachinesModule/StateMachineData.h>
@@ -26,7 +22,9 @@ namespace UpdateSchedulerImpl
         static std::pair<SulDownloader::suldownloaderdata::ConfigurationData,bool> getUpdateConfigWithLatestJWT();
         static std::optional<SulDownloader::suldownloaderdata::ConfigurationData> getConfigurationDataFromJsonFile(const std::string& filePath);
 
-        inline static const std::string SDDS3_ENABLED_FLAG = "sdds3.enabled";
+
+        inline static const std::string FORCE_UPDATE_ENABLED_FLAG = "sdds3.force-update";
+        inline static const std::string FORCE_PAUSED_UPDATE_ENABLED_FLAG = "sdds3.force-paused-update";
 
     private:
         static std::string getValueFromMCSConfig(const std::string& key);
