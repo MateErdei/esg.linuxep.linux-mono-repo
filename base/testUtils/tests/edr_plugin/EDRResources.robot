@@ -39,7 +39,7 @@ Wait For EDR to be Installed
     Wait Until Keyword Succeeds
     ...   40 secs
     ...   1 secs
-    ...   Check EDR Log Contains   Completed initialisation of EDR
+    ...   Check Marked EDR Log Contains   Completed initialisation of EDR
 
 EDR Plugin Is Running
     ${result} =    Run Process  pgrep  edr
@@ -55,19 +55,21 @@ MTR Extension is running
 
 Restart EDR Plugin
     [Arguments]  ${clearLog}=False    ${installQueryPacks}=False
+    Mark EDR Log
     Wdctl Stop Plugin  edr
     Wait Until Keyword Succeeds
     ...   40 secs
     ...   1 secs
-    ...   Check EDR Log Contains   Plugin Finished
+    ...   Check Marked EDR Log Contains   Plugin Finished
     Log File  ${EDR_DIR}/log/edr.log
     Run Keyword If   ${clearLog}   Remove File  ${EDR_DIR}/log/edr.log
     Run Keyword If   ${installQueryPacks}   Create Query Packs
+    Mark EDR Log
     Wdctl Start Plugin  edr
     Wait Until Keyword Succeeds
     ...  60 secs
     ...  1 secs
-    ...  Check EDR Log Contains   Plugin preparation complete
+    ...  Check Marked EDR Log Contains   Plugin preparation complete
 
 Cloud Server Is Running
     ${result} =  Run Process  curl -k https://localhost:4443/mcs   shell=True

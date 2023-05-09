@@ -40,6 +40,7 @@ Test Components Shutdown Cleanly
     Wait for MDR Executable To Be Running
 
     #WARNING installing edr should be the last plugin installed to avoid watchdog going down due to the defect LINUXDAR-3732
+    Mark Edr Log
     Install EDR Directly
     Wait For EDR to be Installed
     Restart EDR Plugin    clearLog=True    installQueryPacks=True
