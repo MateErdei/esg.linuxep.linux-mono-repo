@@ -112,6 +112,7 @@ void SusiScanner::handleDetections(
     if (valid_detections.empty())
     {
         // No remaining detections to report - everything has been excluded or allowed
+        return;
     }
 
     const auto e_ScanType = static_cast<E_SCAN_TYPE>(info.getScanType());
