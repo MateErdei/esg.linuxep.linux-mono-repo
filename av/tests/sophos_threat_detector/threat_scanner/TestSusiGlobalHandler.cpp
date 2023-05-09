@@ -173,6 +173,9 @@ TEST_F(TestSusiGlobalHandler, readMachineLearningFromOverride)
 
 TEST_F(TestSusiGlobalHandler, isBlockListedReturnsFalse)
 {
+    auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
+    appConfig.setData("PLUGIN_INSTALL", "/plugin");
+
     auto mockSusiApi = std::make_shared<NiceMock<MockSusiApi>>();
     auto globalHandler = SusiGlobalHandler(mockSusiApi);
 
@@ -181,6 +184,9 @@ TEST_F(TestSusiGlobalHandler, isBlockListedReturnsFalse)
 
 TEST_F(TestSusiGlobalHandler, isAllowListedFile_ReturnsFalse_IfAlgorithmIsNotSHA256)
 {
+    auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
+    appConfig.setData("PLUGIN_INSTALL", "/plugin");
+
     UsingMemoryAppender memoryAppenderHolder(*this);
 
     auto mockSusiApi = std::make_shared<NiceMock<MockSusiApi>>();
@@ -188,4 +194,40 @@ TEST_F(TestSusiGlobalHandler, isAllowListedFile_ReturnsFalse_IfAlgorithmIsNotSHA
 
     EXPECT_FALSE(globalHandler.isAllowlistedFile(&globalHandler, SUSI_SHA1_ALG, "checksum", 8));
     EXPECT_TRUE(appenderContains("isAllowlistFile called with unsupported algorithm: 2"));
+}
+
+TEST_F(TestSusiGlobalHandler, isAllowListedFile_ReturnsTrue_IfSusiSettingsAllowLists)
+{
+    auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
+    appConfig.setData("PLUGIN_INSTALL", "/plugin");
+
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    auto susiSettings = std::make_shared<common::ThreatDetector::SusiSettings>();
+    susiSettings->setAllowListSha256(std::vector<std::string>{"616c6c6f77656453"});
+
+    auto mockSusiApi = std::make_shared<NiceMock<MockSusiApi>>();
+    auto globalHandler = SusiGlobalHandler(mockSusiApi);
+    globalHandler.setSusiSettings(std::move(susiSettings));
+
+    EXPECT_TRUE(globalHandler.isAllowlistedFile(&globalHandler, SUSI_SHA256_ALG, "allowedSha", 8));
+    EXPECT_TRUE(appenderContains("Allowed by SHA256: 616c6c6f77656453"));
+}
+
+TEST_F(TestSusiGlobalHandler, isAllowListedFile_ReturnsFalse_IfSusiSettingsNotAllowLists)
+{
+    auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
+    appConfig.setData("PLUGIN_INSTALL", "/plugin");
+
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    getLogger().setLogLevel(log4cplus::TRACE_LOG_LEVEL);
+    auto susiSettings = std::make_shared<common::ThreatDetector::SusiSettings>();
+    susiSettings->setAllowListSha256(std::vector<std::string>{"NotAllowed"});
+
+    auto mockSusiApi = std::make_shared<NiceMock<MockSusiApi>>();
+    auto globalHandler = SusiGlobalHandler(mockSusiApi);
+    globalHandler.setSusiSettings(std::move(susiSettings));
+
+    EXPECT_FALSE(globalHandler.isAllowlistedFile(&globalHandler, SUSI_SHA256_ALG, "allowedSha", 8));
+    EXPECT_TRUE(appenderContains("Denied allow list for: 616c6c6f77656453"));
 }
