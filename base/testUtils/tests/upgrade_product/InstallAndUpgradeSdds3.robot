@@ -409,6 +409,7 @@ We Can Upgrade From Release to VUT Without Unexpected Errors
     Stop Local SDDS3 Server
     ${handle}=    Start Local SDDS3 Server
     Set Suite Variable    ${GL_handle}    ${handle}
+    Start Process  tail -f ${SOPHOS_INSTALL}/logs/base/suldownloader.log > /tmp/preserve-sul-downgrade  shell=true
     Send ALC Policy And Prepare For Upgrade  ${BaseEdrAndMtrAndAVVUTPolicy}
     Wait Until Keyword Succeeds
     ...  30 secs
@@ -421,7 +422,6 @@ We Can Upgrade From Release to VUT Without Unexpected Errors
     ...  5 secs
     ...  SHS Status File Contains  ${HealthyShsStatusXmlContents}
 
-    Start Process  tail -f ${SOPHOS_INSTALL}/logs/base/suldownloader.log > /tmp/preserve-sul-downgrade  shell=true
     Trigger Update Now
 
     Wait Until Keyword Succeeds
