@@ -39,7 +39,7 @@ Wait For EDR to be Installed
     Wait Until Keyword Succeeds
     ...   40 secs
     ...   1 secs
-    ...   Check EDR Log Contains   Plugin preparation complete
+    ...   Check EDR Log Contains   Entering the main loop
 
 EDR Plugin Is Running
     ${result} =    Run Process  pgrep  edr
