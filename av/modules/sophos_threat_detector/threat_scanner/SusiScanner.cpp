@@ -55,7 +55,6 @@ void SusiScanner::handleDetections(
 
     assert(m_globalHandler);
 
-    //todo remove with LINUXDAR-6861
     if (m_globalHandler->isAllowListedPath(info.path()))
     {
         LOGINFO("Allowing " << common::escapePathForLogging(info.getPath()) << " as path is in allow list");
