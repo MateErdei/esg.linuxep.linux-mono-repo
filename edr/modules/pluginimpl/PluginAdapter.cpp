@@ -194,6 +194,7 @@ namespace Plugin
         std::shared_ptr<OsqueryDataRetentionCheckState> osqueryDataRetentionCheckState =
             std::make_shared<OsqueryDataRetentionCheckState>();
 
+        LOGINFO("Completed initialisation of EDR");
         while (true)
         {
             //Check extensions are still running and restart osquery if any have stopped unexpectedly
