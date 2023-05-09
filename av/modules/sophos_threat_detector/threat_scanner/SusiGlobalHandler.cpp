@@ -3,8 +3,6 @@
 #include "SusiGlobalHandler.h"
 
 #include "Logger.h"
-#include "SusiCertificateFunctions.h"
-#include "SusiLogger.h"
 #include "ThrowIfNotOk.h"
 
 
@@ -42,112 +40,6 @@ namespace
 
 namespace threat_scanner
 {
-    namespace
-    {
-
-        /*
-         * Called by SUSI when a threat is detected. Does not get called on eicars.
-         * @param token - user data pointer which is currently set to be the current SusiGlobalHandler instance.
-         * @param algorithm - the hashing type used for the checksum, we currently only support SHA256.
-         * @param fileChecksum - bytes (unsigned char) that need to be converted to a hex string
-         *  for example, if first byte in fileChecksum is 142 then that is converted to the two characters "8e".
-         * @param size - size of filechecksum
-         * @return bool - returns true if the file checksum is on the allow list.
-         */
-        bool isAllowlistedFile(void* token, SusiHashAlg algorithm, const char* fileChecksum, size_t size)
-        {
-            if (algorithm == SUSI_SHA256_ALG)
-            {
-                std::vector<unsigned char> checksumBytes2(fileChecksum, fileChecksum + size);
-                std::ostringstream stream;
-                stream << std::hex << std::setfill('0') << std::nouppercase;
-                std::for_each(
-                    checksumBytes2.cbegin(),
-                    checksumBytes2.cend(),
-                    [&stream](const auto& byte) { stream << std::setw(2) << int(byte); });
-
-                auto susiHandler = static_cast<SusiGlobalHandler*>(token);
-                if (susiHandler->accessSusiSettings()->isAllowListedSha256(stream.str()))
-                {
-                    LOGDEBUG("Allowed by SHA256: " << stream.str());
-                    return true;
-                }
-                else
-                {
-                    LOGTRACE("Denied allow list for: " << stream.str()); // Will be hit frequently
-                }
-            }
-            else
-            {
-                LOGWARN("isAllowlistFile called with unsupported algorithm: " << algorithm);
-            }
-
-            return false;
-        }
-
-        /*
-         * Called by SUSI when a threat is detected. Does not get called on eicars.
-         * @param token - user data pointer which is currently set to be the current SusiGlobalHandler instance.
-         * @param filePath - char* representing the file path
-         * @return bool - returns true if the file checksum is on the allow list.
-         */
-        bool IsAllowlistedPath(void* token, const char* filePath)
-        {
-            if (filePath == nullptr)
-            {
-                LOGERROR("Allow list by path not possible, filePath provided by SUSI is nullptr");
-                return false;
-            }
-
-            auto susiHandler = static_cast<SusiGlobalHandler*>(token);
-            if (susiHandler->accessSusiSettings()->isAllowListedPath(filePath))
-            {
-                LOGDEBUG("Allowed by path: " << filePath);
-                return true;
-            }
-            else
-            {
-                LOGTRACE("Denied allow list for: " << filePath); // Will be hit frequently
-            }
-
-            return false;
-        }
-
-        bool IsBlocklistedFile(void *token, SusiHashAlg algorithm, const char *fileChecksum, size_t size)
-        {
-            (void)token;
-            (void)algorithm;
-            (void)fileChecksum;
-            (void)size;
-
-            return false;
-        }
-
-        SusiCallbackTable my_susi_callbacks{
-            .version = SUSI_CALLBACK_TABLE_VERSION,
-            .token = nullptr, //NOLINT
-            .IsAllowlistedFile = isAllowlistedFile,
-            .IsAllowlistedPath = IsAllowlistedPath,
-            .IsBlocklistedFile = IsBlocklistedFile,
-            .IsTrustedCert = isTrustedCert,
-            .IsAllowlistedCert = isAllowlistedCert
-        };
-
-        SusiLogCallback GL_log_callback {
-            .version = SUSI_LOG_CALLBACK_VERSION,
-            .token = nullptr,
-            .log = threat_scanner::susiLogCallback,
-            .minLogLevel = SUSI_LOG_LEVEL_DETAIL
-        };
-
-        const SusiLogCallback GL_fallback_log_callback {
-            .version = SUSI_LOG_CALLBACK_VERSION,
-            .token = nullptr,
-            .log = threat_scanner::fallbackSusiLogCallback,
-            .minLogLevel = SUSI_LOG_LEVEL_INFO
-        };
-    }
-
     SusiGlobalHandler::SusiGlobalHandler(std::shared_ptr<ISusiApiWrapper> susiWrapper) :
         m_susiWrapper(std::move(susiWrapper))
     {
@@ -528,4 +420,83 @@ namespace threat_scanner
         std::lock_guard<std::mutex> lock(m_susiSettingsMutex);
         return m_susiSettings->isPuaApproved(puaName);
     }
+
+    /*
+         * Called by SUSI when a threat is detected. Does not get called on eicars.
+         * @param token - user data pointer which is currently set to be the current SusiGlobalHandler instance.
+         * @param algorithm - the hashing type used for the checksum, we currently only support SHA256.
+         * @param fileChecksum - bytes (unsigned char) that need to be converted to a hex string
+         *  for example, if first byte in fileChecksum is 142 then that is converted to the two characters "8e".
+         * @param size - size of filechecksum
+         * @return bool - returns true if the file checksum is on the allow list.
+     */
+    bool SusiGlobalHandler::isAllowlistedFile(void* token, SusiHashAlg algorithm, const char* fileChecksum, size_t size)
+    {
+        if (algorithm == SUSI_SHA256_ALG)
+        {
+            std::vector<unsigned char> checksumBytes2(fileChecksum, fileChecksum + size);
+            std::ostringstream stream;
+            stream << std::hex << std::setfill('0') << std::nouppercase;
+            std::for_each(
+                checksumBytes2.cbegin(),
+                checksumBytes2.cend(),
+                [&stream](const auto& byte) { stream << std::setw(2) << int(byte); });
+
+            auto susiHandler = static_cast<SusiGlobalHandler*>(token);
+            if (susiHandler->accessSusiSettings()->isAllowListedSha256(stream.str()))
+            {
+                LOGDEBUG("Allowed by SHA256: " << stream.str());
+                return true;
+            }
+            else
+            {
+                LOGTRACE("Denied allow list for: " << stream.str()); // Will be hit frequently
+            }
+        }
+        else
+        {
+            LOGWARN("isAllowlistFile called with unsupported algorithm: " << algorithm);
+        }
+
+        return false;
+    }
+
+    /*
+         * Called by SUSI when a threat is detected. Does not get called on eicars.
+         * @param token - user data pointer which is currently set to be the current SusiGlobalHandler instance.
+         * @param filePath - char* representing the file path
+         * @return bool - returns true if the file checksum is on the allow list.
+     */
+    bool SusiGlobalHandler::IsAllowlistedPath(void* token, const char* filePath)
+    {
+        if (filePath == nullptr)
+        {
+            LOGERROR("Allow list by path not possible, filePath provided by SUSI is invalid");
+            return false;
+        }
+
+        auto susiHandler = static_cast<SusiGlobalHandler*>(token);
+        if (susiHandler->accessSusiSettings()->isAllowListedPath(filePath))
+        {
+            LOGDEBUG("Allowed by path: " << filePath);
+            return true;
+        }
+        else
+        {
+            LOGTRACE("Denied allow list for: " << filePath); // Will be hit frequently
+        }
+
+        return false;
+    }
+
+    bool SusiGlobalHandler::IsBlocklistedFile(void *token, SusiHashAlg algorithm, const char *fileChecksum, size_t size)
+    {
+        (void)token;
+        (void)algorithm;
+        (void)fileChecksum;
+        (void)size;
+
+        return false;
+    }
+
 } // namespace threat_scanner

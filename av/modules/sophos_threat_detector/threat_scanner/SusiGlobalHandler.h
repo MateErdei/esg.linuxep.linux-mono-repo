@@ -1,10 +1,12 @@
-// Copyright 2020-2023 Sophos Limited. All rights reserved.
+// Copyright 2020-2022 Sophos Limited. All rights reserved.
 
 #pragma once
 
 #include "ISusiGlobalHandler.h"
 
 #include "SusiApiWrapper.h"
+#include "SusiCertificateFunctions.h"
+#include "SusiLogger.h"
 
 #include "datatypes/AutoFd.h"
 
@@ -14,6 +16,10 @@
 #include <memory>
 #include <mutex>
 #include <string>
+
+#ifndef TEST_PUBLIC
+# define TEST_PUBLIC private
+#endif
 
 namespace threat_scanner
 {
@@ -108,7 +114,10 @@ namespace threat_scanner
 
         bool isPuaApproved(const std::string& puaName) final;
 
-        bool isOaPuaDetectionEnabled() final;
+    TEST_PUBLIC:
+        static bool isAllowlistedFile(void* token, SusiHashAlg algorithm, const char* fileChecksum, size_t size);
+        static bool IsAllowlistedPath(void* token, const char* filePath);
+        static bool IsBlocklistedFile(void *token, SusiHashAlg algorithm, const char *fileChecksum, size_t size);
 
     private:
         std::atomic_bool m_susiInitialised = false;
@@ -138,6 +147,30 @@ namespace threat_scanner
         static bool releaseLock(datatypes::AutoFd& fd);
 
         void logSusiVersion();
+
+        SusiCallbackTable my_susi_callbacks{
+            .version = SUSI_CALLBACK_TABLE_VERSION,
+            .token = nullptr,
+            .IsAllowlistedFile = isAllowlistedFile,
+            .IsAllowlistedPath = IsAllowlistedPath,
+            .IsBlocklistedFile = IsBlocklistedFile,
+            .IsTrustedCert = isTrustedCert,
+            .IsAllowlistedCert = isAllowlistedCert
+        };
+
+        SusiLogCallback GL_log_callback {
+            .version = SUSI_LOG_CALLBACK_VERSION,
+            .token = nullptr,
+            .log = threat_scanner::susiLogCallback,
+            .minLogLevel = SUSI_LOG_LEVEL_DETAIL
+        };
+
+        const SusiLogCallback GL_fallback_log_callback {
+            .version = SUSI_LOG_CALLBACK_VERSION,
+            .token = nullptr,
+            .log = threat_scanner::fallbackSusiLogCallback,
+            .minLogLevel = SUSI_LOG_LEVEL_INFO
+        };
     };
     using SusiGlobalHandlerSharedPtr = std::shared_ptr<SusiGlobalHandler>;
 }
