@@ -96,6 +96,7 @@ namespace threat_scanner
             if (filePath == nullptr)
             {
                 LOGERROR("Allow list by path not possible, filePath provided is nullptr");
+                return false;
             }
 
             auto susiHandler = static_cast<SusiGlobalHandler*>(token);
