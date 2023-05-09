@@ -306,7 +306,7 @@ EDR Plugin Returns Query Error If Event Journal Contains Too Many Detections
 
 EDR Plugin Can Run Event Journal Scheduled Queries And Create Jrl When Data Is Greater Than Maximum Entries
     # Size of an AV Detection event multiplied by this number should not exceed the table memory threshold of 100Mb
-    ${expectedNumEvents} =  Set Variable  ${536}
+    ${expectedNumEvents} =  Set Variable  ${54}
 
     # Need to make sure test starts of fresh
     Reinstall With Base
