@@ -6,7 +6,7 @@ scheduledquerypack: { line-id: ScheduledQueryPack, tag: LATEST, decode-path: sch
 scheduledquerypacknext: { line-id: ScheduledQueryPack, tag: LATEST, decode-path: scheduled_query_pack_next }
 
 #base
-ssplflags: { line-id: SSPLFLAGS, tag: 2023-1, decode-path: sspl_flags/files/base/etc/sophosspl }
+ssplflags: { line-id: SSPLFLAGS, tag: 2023-2, decode-path: sspl_flags/files/base/etc/sophosspl }
 
 #rtd
 rdrules: { line-id: RuntimeDetectionRules, tag: 2023-1, decode-path: content_rules }
