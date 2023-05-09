@@ -915,7 +915,7 @@ restart sophos_threat_detector
 
 
 check sophos_threat_dector log for successful global rep lookup
-    Susi Debug Log Contains  =GR= Connection \#0 to host 4.sophosxl.net left intact
+    Susi Debug Log Contains  [GR] Connection \#0 to host 4.sophosxl.net left intact
 
 AVSophosThreatDetector Suite Setup
     Log  AVSophosThreatDetector Suite Setup
