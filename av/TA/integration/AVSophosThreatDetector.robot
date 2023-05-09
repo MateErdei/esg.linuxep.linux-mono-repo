@@ -762,11 +762,50 @@ Sophos Threat Detector Does Not Detect Allow Listed File By Path
     Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
 
     # File is allowed and not treated as a threat
-    wait_for_log_contains_from_mark  ${td_mark}  Allowing ${allow_listed_threat_file} as path is in allow list
-
-    # File allowed so should still exist
+    wait_for_log_contains_from_mark  ${td_mark}  Allowed by path: ${allow_listed_threat_file}
     Should Exist  ${allow_listed_threat_file}
 
+
+Sophos Threat Detector Does Not Detect Allow Listed Archive
+    # Start from known place with a CORC policy with an empty allow list
+    ${directory_under_test} =    Set Variable    /tmp_test/a/path/
+    ${allow_listed_threat_file} =    Set variable    ${directory_under_test}zipfile.zip
+    ${directory_for_zipfile} =    Set Variable      /zip_test/
+    ${zip_contents_file} =    Set Variable    ${directory_for_zipfile}MLengHighScore.exe
+
+    Stop sophos_threat_detector
+    #Policy
+    Send CORC Policy To Base  corc_policy_empty_allowlist.xml
+    Register Cleanup   Remove File  ${MCS_PATH}/policy/CORC_policy.xml
+
+    #Create zip file containing ML
+    Create Directory  ${directory_under_test}
+    Create Directory  ${directory_for_zipfile}
+    DeObfuscate File  ${RESOURCES_PATH}/file_samples_obfuscated/MLengHighScore.exe  ${zip_contents_file}
+    zip_file   ${allow_listed_threat_file}   ${zip_contents_file}
+    File Should Exist    ${allow_listed_threat_file}
+    Register Cleanup  Remove Directory    ${directory_under_test}     recursive=True
+    Remove Directory   ${directory_for_zipfile}    recursive=True
+    Start sophos_threat_detector
+
+    ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
+    ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
+
+    Send CORC Policy To Base  corc_policy_allow_list_zipfile.xml
+    wait_for_log_contains_from_mark  ${av_mark}  Added path to allow list: ${allow_listed_threat_file}
+    wait_for_log_contains_from_mark  ${td_mark}  Number of Path allow-listed items: 1
+
+    # Scan threat
+    ${rc}   ${output} =    Run And Return Rc And Output   ${AVSCANNER} ${allow_listed_threat_file}
+    Log  ${output}
+    Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
+
+    # File is allowed and not treated as a threat
+    wait_for_log_contains_from_mark  ${td_mark}  Allowed by path: ${allow_listed_threat_file}
+    # A detection occurred for the ML but we are allowing the zip file still
+    wait_for_log_contains_from_mark  ${td_mark}  Allowing ${allow_listed_threat_file} as path is in allow list
+
+    Should Exist  ${allow_listed_threat_file}
 
 
 Threat Detector Pid Lock Permissions Are Correct

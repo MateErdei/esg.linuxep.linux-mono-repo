@@ -7,6 +7,7 @@ import shutil
 import stat
 import time
 import subprocess
+import zipfile
 
 from robot.api import logger
 
@@ -91,12 +92,6 @@ def set_old_timestamps(directory):
             os.utime(os.path.join(d, f), times=(atime, mtime))
 
 
-def copy_file_no_temp_directory(src, destdir):
-    if not os.path.exists(destdir):
-        os.makedirs(destdir)
-    shutil.copy2(src, destdir)
-
-
 def basic_copy_file(src, dest):
     if os.path.isdir(dest):
         dest = os.path.join(dest, os.path.basename(src))
@@ -139,3 +134,8 @@ def get_file_owner(filepath):
 def get_file_group(filepath):
     group = subprocess.check_output(['stat', '-c', '%G', filepath]).decode().strip()
     return group
+
+
+def zip_file(zippath, filetozip):
+    with zipfile.ZipFile(zippath, mode='w') as zipf:
+        zipf.write(filetozip)
