@@ -734,7 +734,6 @@ Sophos Threat Detector Does Not Detect Allow Listed File By Sha256
 
 
 Sophos Threat Detector Does Not Detect Allow Listed File By Path
-    # Start from known place with a CORC policy with an empty allow list
     ${directory_under_test} =    Set Variable    /tmp_test/a/path/
     ${allow_listed_threat_file} =    Set variable    ${directory_under_test}MLengHighScore.exe
 
@@ -746,7 +745,7 @@ Sophos Threat Detector Does Not Detect Allow Listed File By Path
     ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
     ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
 
-    Send CORC Policy To Base  corc_policy_no_ml_detect_by_sha.xml
+    Send CORC Policy To Base  corc_policy_allow_list_no_ml_detect_by_sha.xml
     wait_for_log_contains_from_mark  ${av_mark}  Added path to allow list: ${directory_under_test}
     wait_for_log_contains_from_mark  ${td_mark}  Number of Path allow-listed items: 4
 
@@ -767,7 +766,6 @@ Sophos Threat Detector Does Not Detect Allow Listed File By Path
 
 
 Sophos Threat Detector Does Not Detect Allow Listed Archive
-    # Start from known place with a CORC policy with an empty allow list
     ${directory_under_test} =    Set Variable    /tmp_test/a/path/
     ${allow_listed_threat_file} =    Set variable    ${directory_under_test}zipfile.zip
     ${directory_for_zipfile} =    Set Variable      /zip_test/
@@ -805,6 +803,76 @@ Sophos Threat Detector Does Not Detect Allow Listed Archive
     # A detection occurred for the ML but we are allowing the zip file still
     wait_for_log_contains_from_mark  ${td_mark}  Allowing ${allow_listed_threat_file} as path is in allow list
 
+    Should Exist  ${allow_listed_threat_file}
+
+
+Sophos Threat Detector Does Not Detect Long Allow List Entry
+    ${directory_under_test} =    Set Variable    /tmp_test/a_path_that_has_one_hundred_characters_yeaha_thats_right_one_hundred_wholesome_characters/
+    ${allow_listed_threat_file} =    Set variable    ${directory_under_test}MLengHighScore.exe
+
+    Stop sophos_threat_detector
+    Register Cleanup   Remove File  ${MCS_PATH}/policy/CORC_policy.xml
+    Send CORC Policy To Base  corc_policy_empty_allowlist.xml
+    Start sophos_threat_detector
+
+    ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
+    ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
+
+    Send CORC Policy To Base  corc_policy_allow_list_long_path.xml
+    wait_for_log_contains_from_mark  ${av_mark}  Added path to allow list: ${directory_under_test}
+    wait_for_log_contains_from_mark  ${td_mark}  Number of Path allow-listed items: 1
+
+    # Create threat to scan
+    Create Directory  ${directory_under_test}
+    DeObfuscate File  ${RESOURCES_PATH}/file_samples_obfuscated/MLengHighScore.exe  ${allow_listed_threat_file}
+    Register Cleanup  Remove File  ${allow_listed_threat_file}
+    Should Exist  ${allow_listed_threat_file}
+
+    # Scan threat
+    ${rc}   ${output} =    Run And Return Rc And Output   ${AVSCANNER} ${allow_listed_threat_file}
+    Log  ${output}
+    Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
+
+    # File is allowed and not treated as a threat
+    wait_for_log_contains_from_mark  ${td_mark}  Allowed by path: ${allow_listed_threat_file}
+    Should Exist  ${allow_listed_threat_file}
+
+
+Sophos Threat Detector Does Not Detect Mounted Allow List Entry
+    ${basedir_under_test} =    Set Variable    /tmp_test/a/path/
+    ${directory_under_test} =    Set Variable    ${basedir_under_test}mount/
+    ${allow_listed_threat_file} =    Set variable    ${directory_under_test}MLengHighScore.exe
+
+    Require Filesystem    ext4
+    ${image} =    Copy And Extract Image     ext4FileSystem
+    Register Cleanup  Remove Directory  ${basedir_under_test}  recursive=True
+    Mount Image     ${directory_under_test}      ${image}      ext4
+
+    Stop sophos_threat_detector
+    Register Cleanup   Remove File  ${MCS_PATH}/policy/CORC_policy.xml
+    Send CORC Policy To Base  corc_policy_empty_allowlist.xml
+    Start sophos_threat_detector
+
+    ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
+    ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
+
+    Send CORC Policy To Base  corc_policy_allow_list_mount.xml
+    wait_for_log_contains_from_mark  ${av_mark}  Added path to allow list: ${directory_under_test}
+    wait_for_log_contains_from_mark  ${td_mark}  Number of Path allow-listed items: 1
+
+    # Create threat to scan
+    Create Directory  ${directory_under_test}
+    DeObfuscate File  ${RESOURCES_PATH}/file_samples_obfuscated/MLengHighScore.exe  ${allow_listed_threat_file}
+    Register Cleanup  Remove File  ${allow_listed_threat_file}
+    Should Exist  ${allow_listed_threat_file}
+
+    # Scan threat
+    ${rc}   ${output} =    Run And Return Rc And Output   ${AVSCANNER} ${allow_listed_threat_file}
+    Log  ${output}
+    Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
+
+    # File is allowed and not treated as a threat
+    wait_for_log_contains_from_mark  ${td_mark}  Allowed by path: ${allow_listed_threat_file}
     Should Exist  ${allow_listed_threat_file}
 
 
