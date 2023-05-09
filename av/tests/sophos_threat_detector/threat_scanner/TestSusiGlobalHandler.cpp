@@ -1,5 +1,7 @@
 // Copyright 2020-2022, Sophos Limited.  All rights reserved.
 
+#define TEST_PUBLIC public
+
 #include "MockSusiApi.h"
 
 #include "../../common/LogInitializedTests.h"
@@ -167,4 +169,23 @@ TEST_F(TestSusiGlobalHandler, readMachineLearningFromOverride)
     auto globalHandler = SusiGlobalHandler(mockSusiApi);
 
     EXPECT_TRUE(globalHandler.isMachineLearningEnabled());
+}
+
+TEST_F(TestSusiGlobalHandler, isBlockListedReturnsFalse)
+{
+    auto mockSusiApi = std::make_shared<NiceMock<MockSusiApi>>();
+    auto globalHandler = SusiGlobalHandler(mockSusiApi);
+
+    EXPECT_FALSE(globalHandler.IsBlocklistedFile(&globalHandler, SUSI_SHA256_ALG, "checksum", 8));
+}
+
+TEST_F(TestSusiGlobalHandler, isAllowListedFile_ReturnsFalse_IfAlgorithmIsNotSHA256)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    auto mockSusiApi = std::make_shared<NiceMock<MockSusiApi>>();
+    auto globalHandler = SusiGlobalHandler(mockSusiApi);
+
+    EXPECT_FALSE(globalHandler.isAllowlistedFile(&globalHandler, SUSI_SHA1_ALG, "checksum", 8));
+    EXPECT_TRUE(appenderContains("isAllowlistFile called with unsupported algorithm: 2"));
 }
