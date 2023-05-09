@@ -644,11 +644,8 @@ SafeStore Rescan Does Not Restore Or Report Threats
     Wait For Log Contains From Mark  ${td_mark}  Triggering rescan of SafeStore database
 
     Wait For SafeStore Log Contains After Mark  SafeStore Database Rescan request received.  ${ss_mark}   timeout=10
-    # Metadata rescan currently always gives ok
-    Wait For SafeStore Log Contains After Mark  Metadata rescan for '${NORMAL_DIRECTORY}/${eicar1}' found it to no longer have the saved detection  ${ss_mark}  timeout=5
-    Wait For SafeStore Log Contains After Mark  Metadata rescan for '${NORMAL_DIRECTORY}/${eicar2}' found it to no longer have the saved detection  ${ss_mark}  timeout=5
-    Wait For SafeStore Log Contains After Mark  Rescan found quarantined file still a threat: ${NORMAL_DIRECTORY}/${eicar1}  ${ss_mark}  timeout=5
-    Wait For SafeStore Log Contains After Mark  Rescan found quarantined file still a threat: ${NORMAL_DIRECTORY}/${eicar2}  ${ss_mark}  timeout=5
+    Wait For SafeStore Log Contains After Mark  Metadata rescan for '${NORMAL_DIRECTORY}/${eicar1}' found it to still be a threat  ${ss_mark}  timeout=5
+    Wait For SafeStore Log Contains After Mark  Metadata rescan for '${NORMAL_DIRECTORY}/${eicar2}' found it to still be a threat  ${ss_mark}  timeout=5
     Check Log Does Not Contain After Mark  ${AV_LOG_PATH}   Found 'EICAR-AV-Test'   ${av_mark}
 
 
@@ -980,7 +977,6 @@ Threat Is Re-detected By On-access After Being Cached If Removed From Allow-list
     ${ss_mark} =  Get SafeStore Log Mark
     Send CORC Policy To Base   corc_policy.xml
     Wait For Log Contains From Mark  ${ss_mark}  SafeStore Database Rescan request received
-    Wait For Log Contains From Mark  ${ss_mark}  Metadata rescan for '${allow_listed_threat_file}' found it to no longer have the saved detection
     Wait For Log Contains From Mark  ${ss_mark}  Rescan found quarantined file no longer a threat: ${allow_listed_threat_file}
     Wait For Log Contains From Mark  ${ss_mark}  RestoreReportingClient reports successful restoration of ${allow_listed_threat_file}
     File Should Exist  ${allow_listed_threat_file}
@@ -1001,6 +997,71 @@ Threat Is Re-detected By On-access After Being Cached If Removed From Allow-list
     Open And Close File  ${allow_listed_threat_file}
     Wait For Log Contains From Mark  ${ss_mark}  Quarantined ${allow_listed_threat_file} successfully
     File Should Not Exist  ${allow_listed_threat_file}
+
+
+SafeStore Does Not Fully Rescan Archive If Metadata Rescan Reports Threats
+    ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
+    Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
+    Wait For Log Contains From Mark  ${av_mark}  SafeStore flag set. Setting SafeStore to enabled.
+
+    ${ARCHIVE_DIR} =  Set Variable  ${NORMAL_DIRECTORY}/archive_dir
+    Create Directory  ${ARCHIVE_DIR}
+    # Create an EICAR with extra content to have a different SHA than in the corc_policy.xml allowlist
+    Create File  ${ARCHIVE_DIR}/eicar  ${EICAR_STRING}_1
+    Run Process  tar  --mtime\=UTC 2022-01-01  -C  ${ARCHIVE_DIR}  -cf  ${NORMAL_DIRECTORY}/test.tar  eicar
+    ${archive_sha} =  Get SHA256  ${NORMAL_DIRECTORY}/test.tar
+    Remove Directory  ${ARCHIVE_DIR}  recursive=True
+
+    ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
+    ${safestore_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
+    Run Process  ${CLI_SCANNER_PATH}  ${NORMAL_DIRECTORY}/test.tar  --scan-archives
+
+    Wait For Log Contains From Mark  ${av_mark}  Threat cleaned up at path:
+    File Should Not Exist   ${SCAN_DIRECTORY}/test.tar
+
+    ${ss_mark} =  Get SafeStore Log Mark
+    ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
+    ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
+    Send CORC Policy To Base  corc_policy.xml
+
+    Wait For Log Contains From Mark    ${ss_mark}    SafeStore Database Rescan request received.
+    Wait For Log Contains From Mark    ${ss_mark}    Requesting metadata rescan of quarantined file (original path '${SCAN_DIRECTORY}/test.tar'
+    Wait For Log Contains From Mark    ${ss_mark}    Received metadata rescan response: 'threat present'
+    Wait For Log Contains From Mark    ${ss_mark}    Metadata rescan for '${SCAN_DIRECTORY}/test.tar' found it to still be a threat
+    Check Log Does Not Contain After Mark    ${SAFESTORE_LOG_PATH}    full rescan    ${ss_mark}
+
+
+SafeStore Restores Archive Once Inner Detection Is Allowlisted
+    ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
+    Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
+    Wait For Log Contains From Mark  ${av_mark}  SafeStore flag set. Setting SafeStore to enabled.
+
+    ${ARCHIVE_DIR} =  Set Variable  ${NORMAL_DIRECTORY}/archive_dir
+    Create Directory  ${ARCHIVE_DIR}
+    Create File  ${ARCHIVE_DIR}/eicar  ${EICAR_STRING}
+    Run Process  tar  --mtime\=UTC 2022-01-01  -C  ${ARCHIVE_DIR}  -cf  ${NORMAL_DIRECTORY}/test.tar  eicar
+    ${archive_sha} =  Get SHA256  ${NORMAL_DIRECTORY}/test.tar
+    Remove Directory  ${ARCHIVE_DIR}  recursive=True
+
+    ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
+    ${safestore_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
+    Run Process  ${CLI_SCANNER_PATH}  ${NORMAL_DIRECTORY}/test.tar  --scan-archives
+
+    Wait For Log Contains From Mark  ${av_mark}  Threat cleaned up at path:
+    File Should Not Exist   ${SCAN_DIRECTORY}/test.tar
+
+    ${ss_mark} =  Get SafeStore Log Mark
+    ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
+    ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
+    Send CORC Policy To Base  corc_policy.xml
+    Wait For Log Contains From Mark  ${av_mark}  Added SHA256 to allow list: 275a021bbfb6489e54d471899f7db9d1663fc695ec2fe2a2c4538aabf651fd0f
+
+    Wait For Log Contains From Mark    ${ss_mark}    SafeStore Database Rescan request received.
+    Wait For Log Contains From Mark    ${ss_mark}    Requesting metadata rescan of quarantined file (original path '${SCAN_DIRECTORY}/test.tar'
+    Wait For Log Contains From Mark    ${td_mark}    Allowed by SHA256: 275a021bbfb6489e54d471899f7db9d1663fc695ec2fe2a2c4538aabf651fd0f
+    Wait For Log Contains From Mark    ${ss_mark}    Received metadata rescan response: 'needs full scan'
+    Wait For Log Contains From Mark    ${ss_mark}    Performing full rescan of quarantined file (original path '${SCAN_DIRECTORY}/test.tar'
+    Wait For Log Contains From Mark    ${ss_mark}    RestoreReportingClient reports successful restoration of ${SCAN_DIRECTORY}/test.tar
 
 
 *** Keywords ***

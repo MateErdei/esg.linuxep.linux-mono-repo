@@ -1,4 +1,4 @@
-// Copyright 2022, Sophos Limited. All rights reserved.
+// Copyright 2022-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
@@ -16,6 +16,11 @@ namespace threat_scanner
         explicit UnitScanner(std::shared_ptr<ISusiWrapper> susi) : susi_(std::move(susi)){};
 
         ScanResult scan(datatypes::AutoFd& fd, const std::string& path) override;
+        scan_messages::MetadataRescanResponse metadataRescan(
+            std::string_view threatType,
+            std::string_view threatName,
+            std::string_view path,
+            std::string_view sha256) override;
 
     private:
         std::shared_ptr<ISusiWrapper> susi_;

@@ -36,7 +36,6 @@ using scan_messages::MetadataRescan, scan_messages::MetadataRescanResponse;
 
 namespace
 {
-
     class TestMetadataRescanServerConnectionThread : public UnixSocketMemoryAppenderUsingTests
     {
     protected:
@@ -70,10 +69,13 @@ namespace
 
         UsingMemoryAppender memoryAppenderHolder_;
         scan_messages::ClientScanRequest request;
-        scan_messages::MetadataRescan request_{ .threatType = "threatType",
-                                                .threatName = "threatName",
-                                                .filePath = "filePath",
-                                                .sha256 = "sha256" };
+        scan_messages::MetadataRescan request_{ .filePath = "filePath",
+                                                .sha256 = "sha256",
+                                                .threat = {
+                                                    .type = "threatType",
+                                                    .name = "threatName",
+                                                    .sha256 = "threatSha256",
+                                                } };
         fs::path m_testDir;
         datatypes::AutoFd m_serverFd;
         datatypes::AutoFd m_clientFd;
@@ -81,23 +83,25 @@ namespace
             std::make_shared<datatypes::SystemCallWrapper>()
         };
         std::shared_ptr<MockSystemCallWrapper> m_mockSysCallWrapper{ std::make_shared<MockSystemCallWrapper>() };
+        std::shared_ptr<MockScannerFactory> mockScannerFactory_ = std::make_shared<MockScannerFactory>();
+        std::unique_ptr<MockScanner> mockScanner_ = std::make_unique<MockScanner>();
     };
 } // namespace
 
 TEST_F(TestMetadataRescanServerConnectionThread, SuccessfulConstruction)
 {
-    auto scannerFactory = std::make_shared<MockScannerFactory>();
     datatypes::AutoFd fdHolder(::open("/dev/null", O_RDONLY));
     EXPECT_GE(fdHolder.get(), 0);
-    EXPECT_NO_THROW(MetadataRescanServerConnectionThread connectionThread(fdHolder, scannerFactory, m_sysCallWrapper));
+    EXPECT_NO_THROW(
+        MetadataRescanServerConnectionThread connectionThread(fdHolder, mockScannerFactory_, m_sysCallWrapper));
 }
 
 TEST_F(TestMetadataRescanServerConnectionThread, FailConstructionWithBadFd)
 {
-    auto scannerFactory = std::make_shared<MockScannerFactory>();
     datatypes::AutoFd fdHolder;
     EXPECT_EQ(fdHolder.get(), -1);
-    EXPECT_THROW(MetadataRescanServerConnectionThread(fdHolder, scannerFactory, m_sysCallWrapper), std::runtime_error);
+    EXPECT_THROW(
+        MetadataRescanServerConnectionThread(fdHolder, mockScannerFactory_, m_sysCallWrapper), std::runtime_error);
 }
 
 TEST_F(TestMetadataRescanServerConnectionThread, FailConstructionWithNullFactory)
@@ -109,10 +113,9 @@ TEST_F(TestMetadataRescanServerConnectionThread, FailConstructionWithNullFactory
 
 TEST_F(TestMetadataRescanServerConnectionThread, StopWhileRunning)
 {
-    auto scannerFactory = std::make_shared<MockScannerFactory>();
     datatypes::AutoFd fdHolder(::open("/dev/zero", O_RDONLY));
     ASSERT_GE(fdHolder.get(), 0);
-    MetadataRescanServerConnectionThread connectionThread(fdHolder, scannerFactory, m_sysCallWrapper);
+    MetadataRescanServerConnectionThread connectionThread(fdHolder, mockScannerFactory_, m_sysCallWrapper);
     EXPECT_FALSE(connectionThread.isRunning());
     connectionThread.start();
     EXPECT_TRUE(connectionThread.isRunning());
@@ -124,10 +127,9 @@ TEST_F(TestMetadataRescanServerConnectionThread, StopWhileRunning)
 
 TEST_F(TestMetadataRescanServerConnectionThread, EofWhileRunning)
 {
-    auto scannerFactory = std::make_shared<MockScannerFactory>();
     datatypes::AutoFd fdHolder(::open("/dev/null", O_RDONLY));
     ASSERT_GE(fdHolder.get(), 0);
-    MetadataRescanServerConnectionThread connectionThread(fdHolder, scannerFactory, m_sysCallWrapper);
+    MetadataRescanServerConnectionThread connectionThread(fdHolder, mockScannerFactory_, m_sysCallWrapper);
     connectionThread.start();
     EXPECT_TRUE(waitForLog("MetadataRescanServerConnectionThread closed: EOF"));
     connectionThread.requestStop();
@@ -136,10 +138,9 @@ TEST_F(TestMetadataRescanServerConnectionThread, EofWhileRunning)
 
 TEST_F(TestMetadataRescanServerConnectionThread, SendZeroLength)
 {
-    auto scannerFactory = std::make_shared<MockScannerFactory>();
     datatypes::AutoFd fdHolder(::open("/dev/zero", O_RDONLY));
     ASSERT_GE(fdHolder.get(), 0);
-    MetadataRescanServerConnectionThread connectionThread(fdHolder, scannerFactory, m_sysCallWrapper);
+    MetadataRescanServerConnectionThread connectionThread(fdHolder, mockScannerFactory_, m_sysCallWrapper);
     connectionThread.start();
     EXPECT_TRUE(waitForLog("MetadataRescanServerConnectionThread ignoring length of zero / No new messages"));
     connectionThread.requestStop();
@@ -148,7 +149,6 @@ TEST_F(TestMetadataRescanServerConnectionThread, SendZeroLength)
 
 TEST_F(TestMetadataRescanServerConnectionThread, BadNotifyPipeFd)
 {
-    auto scannerFactory = std::make_shared<StrictMock<MockScannerFactory>>();
     datatypes::AutoFd fdHolder(::open("/dev/zero", O_RDONLY));
     ASSERT_GE(fdHolder.get(), 0);
     int fd = fdHolder.get();
@@ -157,7 +157,7 @@ TEST_F(TestMetadataRescanServerConnectionThread, BadNotifyPipeFd)
     EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))
         .WillOnce(DoAll(SetArrayArgument<0>(fds, fds + 2), Return(1)));
 
-    MetadataRescanServerConnectionThread connectionThread(fdHolder, scannerFactory, m_mockSysCallWrapper);
+    MetadataRescanServerConnectionThread connectionThread(fdHolder, mockScannerFactory_, m_mockSysCallWrapper);
     ::close(fd); // fd in connection Thread now broken
     connectionThread.start();
     EXPECT_TRUE(waitForLog("Closing MetadataRescanServerConnectionThread, error from notify pipe"));
@@ -167,7 +167,6 @@ TEST_F(TestMetadataRescanServerConnectionThread, BadNotifyPipeFd)
 
 TEST_F(TestMetadataRescanServerConnectionThread, BadSocketFd)
 {
-    auto scannerFactory = std::make_shared<StrictMock<MockScannerFactory>>();
     datatypes::AutoFd fdHolder(::open("/dev/zero", O_RDONLY));
     ASSERT_GE(fdHolder.get(), 0);
     int fd = fdHolder.get();
@@ -176,7 +175,7 @@ TEST_F(TestMetadataRescanServerConnectionThread, BadSocketFd)
     EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))
         .WillOnce(DoAll(SetArrayArgument<0>(fds, fds + 2), Return(1)));
 
-    MetadataRescanServerConnectionThread connectionThread(fdHolder, scannerFactory, m_mockSysCallWrapper);
+    MetadataRescanServerConnectionThread connectionThread(fdHolder, mockScannerFactory_, m_mockSysCallWrapper);
     ::close(fd); // fd in connection Thread now broken
     connectionThread.start();
     EXPECT_TRUE(waitForLog("Closing MetadataRescanServerConnectionThread, error from socket"));
@@ -188,8 +187,7 @@ TEST_F(TestMetadataRescanServerConnectionThread, CorruptRequest)
 {
     const std::string request = { 0x01, 0x00 };
 
-    auto scannerFactory = std::make_shared<MockScannerFactory>();
-    MetadataRescanServerConnectionThread connectionThread(m_serverFd, scannerFactory, m_sysCallWrapper);
+    MetadataRescanServerConnectionThread connectionThread(m_serverFd, mockScannerFactory_, m_sysCallWrapper);
     connectionThread.start();
     EXPECT_TRUE(connectionThread.isRunning());
 
@@ -201,47 +199,52 @@ TEST_F(TestMetadataRescanServerConnectionThread, CorruptRequest)
 
 TEST_F(TestMetadataRescanServerConnectionThread, SendRequest)
 {
-    auto scannerFactory = std::make_shared<MockScannerFactory>();
+    EXPECT_CALL(*mockScanner_, metadataRescan)
+        .WillOnce(Return(MetadataRescanResponse::undetected));
+    EXPECT_CALL(*mockScannerFactory_, createScanner).WillOnce(Return(ByMove(std::move(mockScanner_))));
 
     auto serialised = request_.Serialise();
 
-    MetadataRescanServerConnectionThread connectionThread(m_serverFd, scannerFactory, m_sysCallWrapper);
+    MetadataRescanServerConnectionThread connectionThread(m_serverFd, mockScannerFactory_, m_sysCallWrapper);
     connectionThread.start();
     EXPECT_TRUE(connectionThread.isRunning());
     writeLengthAndBuffer(m_clientFd, serialised);
 
     MetadataRescanResponse response;
     ::read(m_clientFd, &response, sizeof(MetadataRescanResponse));
-    EXPECT_EQ(response, MetadataRescanResponse::ok);
+    EXPECT_EQ(response, MetadataRescanResponse::undetected);
 
     connectionThread.requestStop();
     connectionThread.join();
 
     EXPECT_TRUE(appenderContains(
-        "DEBUG - MetadataRescanServerConnectionThread received a metadata rescan request of filePath=filePath, threatType=threatType, threatName=threatName, SHA256=sha256"));
+        "DEBUG - MetadataRescanServerConnectionThread received a metadata rescan request of filePath=filePath, threatType=threatType, threatName=threatName, threatSHA256=threatSha256, SHA256=sha256"));
 }
 
 TEST_F(TestMetadataRescanServerConnectionThread, SendTwoRequests)
 {
-    auto scannerFactory = std::make_shared<MockScannerFactory>();
+    EXPECT_CALL(*mockScanner_, metadataRescan)
+        .WillOnce(Return(MetadataRescanResponse::threatPresent))
+        .WillOnce(Return(MetadataRescanResponse::undetected));
+    EXPECT_CALL(*mockScannerFactory_, createScanner).WillOnce(Return(ByMove(std::move(mockScanner_))));
 
     auto serialised = request_.Serialise();
 
-    MetadataRescanServerConnectionThread connectionThread(m_serverFd, scannerFactory, m_sysCallWrapper);
+    MetadataRescanServerConnectionThread connectionThread(m_serverFd, mockScannerFactory_, m_sysCallWrapper);
     connectionThread.start();
 
     {
         writeLengthAndBuffer(m_clientFd, serialised);
         MetadataRescanResponse response;
         ::read(m_clientFd, &response, sizeof(MetadataRescanResponse));
-        EXPECT_EQ(response, MetadataRescanResponse::ok);
+        EXPECT_EQ(response, MetadataRescanResponse::threatPresent);
     }
 
     {
         writeLengthAndBuffer(m_clientFd, serialised);
         MetadataRescanResponse response;
         ::read(m_clientFd, &response, sizeof(MetadataRescanResponse));
-        EXPECT_EQ(response, MetadataRescanResponse::ok);
+        EXPECT_EQ(response, MetadataRescanResponse::undetected);
     }
 
     connectionThread.requestStop();
@@ -272,23 +275,26 @@ namespace
         UsingMemoryAppender memoryAppenderHolder_;
         fs::path m_testDir;
         std::string socketPath_{ "metadata_rescan_socket" };
-        scan_messages::MetadataRescan request_{ .threatType = "threatType",
-                                                .threatName = "threatName",
-                                                .filePath = "filePath",
-                                                .sha256 = "sha256" };
+        scan_messages::MetadataRescan request_{ .filePath = "filePath",
+                                                .sha256 = "sha256",
+                                                .threat = {
+                                                    .type = "threatType",
+                                                    .name = "threatName",
+                                                    .sha256 = "threatSha256",
+                                                } };
+        std::shared_ptr<MockScannerFactory> mockScannerFactory_ = std::make_shared<MockScannerFactory>();
+        std::unique_ptr<MockScanner> mockScanner_ = std::make_unique<MockScanner>();
     };
 } // namespace
 
 TEST_F(TestMetadataRescanServerSocket, Construction)
 {
-    auto scannerFactory = std::make_shared<MockScannerFactory>();
-    EXPECT_NO_THROW(MetadataRescanServerSocket server(socketPath_, 0666, scannerFactory));
+    EXPECT_NO_THROW(MetadataRescanServerSocket server(socketPath_, 0666, mockScannerFactory_));
 }
 
 TEST_F(TestMetadataRescanServerSocket, Running)
 {
-    auto scannerFactory = std::make_shared<MockScannerFactory>();
-    MetadataRescanServerSocket server(socketPath_, 0666, scannerFactory);
+    MetadataRescanServerSocket server(socketPath_, 0666, mockScannerFactory_);
     server.start();
     server.requestStop();
     server.join();
@@ -299,9 +305,10 @@ TEST_F(TestMetadataRescanServerSocket, Running)
 
 TEST_F(TestMetadataRescanServerSocket, SuccessfulConnection)
 {
-    auto scannerFactory = std::make_shared<MockScannerFactory>();
+    EXPECT_CALL(*mockScanner_, metadataRescan).WillOnce(Return(MetadataRescanResponse::threatPresent));
+    EXPECT_CALL(*mockScannerFactory_, createScanner).WillOnce(Return(ByMove(std::move(mockScanner_))));
 
-    MetadataRescanServerSocket server(socketPath_, 0666, scannerFactory);
+    MetadataRescanServerSocket server(socketPath_, 0666, mockScannerFactory_);
     server.start();
 
     {
@@ -311,7 +318,7 @@ TEST_F(TestMetadataRescanServerSocket, SuccessfulConnection)
         MetadataRescanResponse response;
         auto result = client_socket.receiveResponse(response);
         EXPECT_TRUE(result);
-        EXPECT_EQ(response, scan_messages::MetadataRescanResponse::ok);
+        EXPECT_EQ(response, scan_messages::MetadataRescanResponse::threatPresent);
     }
 
     server.requestStop();

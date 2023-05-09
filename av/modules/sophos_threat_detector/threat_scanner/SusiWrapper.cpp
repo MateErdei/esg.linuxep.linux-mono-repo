@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2020-2022, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #include "SusiWrapper.h"
 
@@ -48,6 +44,19 @@ namespace threat_scanner
         }
 
         SusiResult ret = SUSI_ScanHandle(m_handle, metaData, filename, fd.get(), scanResult);
+        return ret;
+    }
+
+    SusiResult SusiWrapper::metadataRescan(
+        const char* metaData,
+        SusiScanResult** scanResult)
+    {
+        if (m_globalHandler->isShuttingDown())
+        {
+            throw ShuttingDownException();
+        }
+
+        SusiResult ret = SUSI_Rescan(m_handle, metaData, scanResult);
         return ret;
     }
 

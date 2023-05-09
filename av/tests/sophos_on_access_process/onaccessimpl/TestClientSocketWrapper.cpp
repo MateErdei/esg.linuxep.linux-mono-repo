@@ -1,10 +1,11 @@
-// Copyright 2022 Sophos Limited. All rights reserved.
+// Copyright 2022-2023 Sophos Limited. All rights reserved.
 
 #include "common/RecordingMockSocket.h"
 #include "../SoapMemoryAppenderUsingTests.h"
 
 #include "sophos_on_access_process/onaccessimpl/ClientSocketWrapper.h"
 #include "sophos_on_access_process/onaccessimpl/ReconnectSettings.h"
+#include "tests/unixsocket/MockIScanningClientSocket.h"
 
 #include <gtest/gtest.h>
 
@@ -27,27 +28,6 @@ namespace
         {
             return std::make_shared<ScanRequest_t>();
         }
-    };
-
-    class MockIScanningClientSocket : public unixsocket::IScanningClientSocket
-    {
-    public:
-        MockIScanningClientSocket()
-        {
-            m_socketFd.reset(::open("/dev/zero", O_RDONLY));
-            ON_CALL(*this, connect).WillByDefault(Return(0));
-            ON_CALL(*this, sendRequest).WillByDefault(Return(true));
-            ON_CALL(*this, receiveResponse).WillByDefault(Return(true));
-            ON_CALL(*this, socketFd).WillByDefault([this]() {return this->m_socketFd.fd();});
-        }
-
-        MOCK_METHOD(int, connect, ());
-        MOCK_METHOD(bool, sendRequest, (scan_messages::ClientScanRequestPtr request));
-        MOCK_METHOD(bool, receiveResponse, (scan_messages::ScanResponse& response));
-        MOCK_METHOD(int, socketFd, ());
-
-    private:
-        datatypes::AutoFd m_socketFd;
     };
 
     const struct timespec& oneMillisecond = { 0, 1000000 }; // 1ms

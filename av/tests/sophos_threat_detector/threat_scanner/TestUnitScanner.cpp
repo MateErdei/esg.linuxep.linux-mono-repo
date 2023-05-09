@@ -1,13 +1,15 @@
-// Copyright 2022, Sophos Limited. All rights reserved.
+// Copyright 2022-2023 Sophos Limited. All rights reserved.
 
 #include "MockSusiWrapper.h"
+#include "json.hpp"
 
+#include "common/MemoryAppender.h"
 #include "sophos_threat_detector/threat_scanner/SusiLogger.h"
 #include "sophos_threat_detector/threat_scanner/UnitScanner.h"
 
 #include <Common/Helpers/FileSystemReplaceAndRestore.h>
-#include <Common/Helpers/LogInitializedTests.h>
 #include <Common/Helpers/MockFileSystem.h>
+
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
@@ -378,4 +380,102 @@ TEST_F(TestUnitScanner, NoDetection_SusiReturnCodeError_SusiLoggedError__NoExtra
     ASSERT_EQ(result.detections.size(), 0);
     ASSERT_EQ(result.errors.size(), 1);
     EXPECT_EQ(result.errors.at(0).message, "Failed to scan /tmp/clean_file.txt due to a susi out of memory error");
+}
+
+namespace
+{
+    class TestUnitScannerMetadataRescan : public MemoryAppenderUsingTests
+    {
+    protected:
+        TestUnitScannerMetadataRescan() : MemoryAppenderUsingTests("ThreatScanner"), usingMemoryAppender_{ *this }
+        {
+        }
+
+        UsingMemoryAppender usingMemoryAppender_;
+        std::shared_ptr<MockSusiWrapper> susiWrapper_ = std::make_shared<MockSusiWrapper>();
+        const std::string threatType_ = "threatType";
+        const std::string threatName_ = "threatName";
+        const std::string path_ = "path";
+        const std::string sha256_ = "sha256";
+    };
+} // namespace
+
+TEST_F(TestUnitScannerMetadataRescan, MetadataRescanPassesCorrectMetadataToSusi)
+{
+    SusiScanResult susiResult{};
+
+    std::string metadata;
+
+    EXPECT_CALL(*susiWrapper_, metadataRescan)
+        .WillOnce(Invoke(
+            [&metadata, &susiResult](const char* metaData, SusiScanResult** scanResult)
+            {
+                metadata = std::string{ metaData };
+                *scanResult = &susiResult;
+                return SUSI_S_OK;
+            }));
+
+    UnitScanner unitScanner{ susiWrapper_ };
+    unitScanner.metadataRescan(threatType_, threatName_, path_, sha256_);
+
+    const auto parsedMetadata = nlohmann::json::parse(metadata);
+    ASSERT_TRUE(parsedMetadata.contains("rescan"));
+    ASSERT_TRUE(parsedMetadata["rescan"].contains("sha256"));
+    ASSERT_TRUE(parsedMetadata["rescan"].contains("threatName"));
+    ASSERT_TRUE(parsedMetadata["rescan"].contains("threatType"));
+    ASSERT_TRUE(parsedMetadata["rescan"].contains("path"));
+    EXPECT_EQ(parsedMetadata["rescan"]["sha256"], sha256_);
+    EXPECT_EQ(parsedMetadata["rescan"]["threatName"], threatName_);
+    EXPECT_EQ(parsedMetadata["rescan"]["threatType"], threatType_);
+    EXPECT_EQ(parsedMetadata["rescan"]["path"], path_);
+}
+
+TEST_F(TestUnitScannerMetadataRescan, MetadataRescanFreesTheResult)
+{
+    SusiScanResult susiResult{};
+
+    {
+        InSequence seq;
+        EXPECT_CALL(*susiWrapper_, metadataRescan)
+            .WillOnce(Invoke(
+                [&susiResult](const char*, SusiScanResult** scanResult)
+                {
+                    *scanResult = &susiResult;
+                    return SUSI_S_OK;
+                }));
+        EXPECT_CALL(*susiWrapper_, freeResult(&susiResult));
+    }
+
+    UnitScanner unitScanner{ susiWrapper_ };
+    unitScanner.metadataRescan(threatType_, threatName_, path_, sha256_);
+}
+
+TEST_F(TestUnitScannerMetadataRescan, MetadataRescanReturnsCorrectResponse)
+{
+    EXPECT_CALL(*susiWrapper_, metadataRescan)
+        .WillOnce(Return(SUSI_S_OK))
+        .WillOnce(Return(SUSI_I_THREATPRESENT))
+        .WillOnce(Return(SUSI_I_NEEDSFULLSCAN))
+        .WillOnce(Return(SUSI_I_UPDATED));
+
+    UnitScanner unitScanner{ susiWrapper_ };
+    const auto result1 = unitScanner.metadataRescan(threatType_, threatName_, path_, sha256_);
+    const auto result2 = unitScanner.metadataRescan(threatType_, threatName_, path_, sha256_);
+    const auto result3 = unitScanner.metadataRescan(threatType_, threatName_, path_, sha256_);
+    const auto result4 = unitScanner.metadataRescan(threatType_, threatName_, path_, sha256_);
+
+    EXPECT_EQ(result1, scan_messages::MetadataRescanResponse::undetected);
+    EXPECT_EQ(result2, scan_messages::MetadataRescanResponse::threatPresent);
+    EXPECT_EQ(result3, scan_messages::MetadataRescanResponse::needsFullScan);
+    EXPECT_EQ(result4, scan_messages::MetadataRescanResponse::failed);
+}
+
+TEST_F(TestUnitScannerMetadataRescan, MetadataRescanReturnsFailureOnUnknownReturnCode)
+{
+    EXPECT_CALL(*susiWrapper_, metadataRescan).WillOnce(Return(SUSI_I_UPDATED));
+
+    UnitScanner unitScanner{ susiWrapper_ };
+    const auto result = unitScanner.metadataRescan(threatType_, threatName_, path_, sha256_);
+    EXPECT_EQ(result, scan_messages::MetadataRescanResponse::failed);
+    EXPECT_TRUE(appenderContains("Unknown metadata rescan result: "));
 }

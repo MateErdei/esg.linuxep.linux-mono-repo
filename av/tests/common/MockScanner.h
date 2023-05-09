@@ -1,4 +1,4 @@
-// Copyright 2020-2022 Sophos Limited. All rights reserved.
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
@@ -11,6 +11,11 @@ class MockScanner : public threat_scanner::IThreatScanner
 {
 public:
     MOCK_METHOD(scan_messages::ScanResponse, scan, (datatypes::AutoFd&, const scan_messages::ScanRequest& info));
+    MOCK_METHOD(
+        scan_messages::MetadataRescanResponse,
+        metadataRescan,
+        (const scan_messages::MetadataRescan&),
+        (override));
 
     MOCK_METHOD(std::string, susiErrorToReadableError, (const std::string& filePath, const std::string& susiError));
 };

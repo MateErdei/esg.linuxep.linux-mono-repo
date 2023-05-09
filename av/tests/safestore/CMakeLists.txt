@@ -1,6 +1,7 @@
 
 SophosAddTest(TestSafeStore
         ../common/LogInitializedTests.cpp # include here as it's not part of a lib
+        ../unixsocket/MockIScanningClientSocket.h
         ../unixsocket/MockMetadataRescanClientSocket.h
         MockIQuarantineManager.h
         MockISafeStoreWrapper.h

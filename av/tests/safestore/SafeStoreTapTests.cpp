@@ -1,4 +1,4 @@
-// Copyright 2022, Sophos Limited. All rights reserved.
+// Copyright 2022-2023 Sophos Limited. All rights reserved.
 
 // These tests cover the SafeStore wrapper and call into the real safestore library (no mocks) so these
 // test are run in TAP in our robotframework suite. The tests interact heavily with the filesystem so shouldn't be
@@ -12,8 +12,8 @@
 
 #include "Common/FileSystem/IFilePermissions.h"
 #include "Common/FileSystem/IFileSystem.h"
-
 #include <Common/UtilityImpl/Uuid.h>
+
 #include <common/ApplicationPaths.h>
 #include <gtest/gtest.h>
 
@@ -243,7 +243,7 @@ TEST_F(SafeStoreWrapperTapTests, quarantineThreatAndAddCustomData)
     fileSystem->writeFile(fakeVirusFilePath, "a temp test file1");
     m_filesToDeleteOnTeardown.insert(fakeVirusFilePath);
     std::string threatName = "threat name1";
-    std::vector<uint8_t> someBytes { 1, 2 };
+    std::vector<uint8_t> someBytes{ 1, 2 };
     auto objectHandle1 = m_safeStoreWrapper->createObjectHandleHolder();
     ASSERT_EQ(
         m_safeStoreWrapper->saveFile(
@@ -276,6 +276,31 @@ TEST_F(SafeStoreWrapperTapTests, quarantineThreatAndAddCustomData)
         ASSERT_EQ(m_safeStoreWrapper->getObjectStatus(result), ObjectStatus::STORED);
     }
     ASSERT_EQ(resultsFound, 1);
+}
+
+TEST_F(SafeStoreWrapperTapTests, CustomDataLongerThan64BytesIsRetrievedCorrectly)
+{
+    auto fileSystem = Common::FileSystem::fileSystem();
+
+    // Add fake threat
+    std::string fakeVirusFilePath = "/tmp/fakevirus1";
+    fileSystem->writeFile(fakeVirusFilePath, "a temp test file1");
+    m_filesToDeleteOnTeardown.insert(fakeVirusFilePath);
+    std::string threatName = "threat name1";
+    auto objectHandle1 = m_safeStoreWrapper->createObjectHandleHolder();
+    ASSERT_EQ(
+        m_safeStoreWrapper->saveFile(
+            Common::FileSystem::dirName(fakeVirusFilePath),
+            Common::FileSystem::basename(fakeVirusFilePath),
+            "00000000-0000-0000-0000-000000000000",
+            threatName,
+            *objectHandle1),
+        SaveFileReturnCode::OK);
+
+    std::string data(65, 'a');
+
+    ASSERT_TRUE(m_safeStoreWrapper->setObjectCustomDataString(*objectHandle1, "bytes", data));
+    EXPECT_EQ(m_safeStoreWrapper->getObjectCustomDataString(*objectHandle1, "bytes"), data);
 }
 
 TEST_F(SafeStoreWrapperTapTests, quarantineAndFinaliseThreatAndStatusChangesToQuarantined)

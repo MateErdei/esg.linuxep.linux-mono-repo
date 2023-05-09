@@ -24,6 +24,7 @@ ThreatDetected ThreatDetected::deserialise(Sophos::ssplav::ThreatDetected::Reade
                                    static_cast<QuarantineResult>(reader.getQuarantineResult()),
                                    reader.getFilePath(),
                                    reader.getSha256(),
+                                   reader.getThreatSha256(),
                                    reader.getThreatId(),
                                    reader.getIsRemote(),
                                    static_cast<ReportSource>(reader.getReportSource()),
@@ -54,6 +55,7 @@ std::string ThreatDetected::serialise(bool validateData) const
     threatDetectedBuilder.setQuarantineResult(static_cast<int>(quarantineResult));
     threatDetectedBuilder.setFilePath(filePath);
     threatDetectedBuilder.setSha256(sha256);
+    threatDetectedBuilder.setThreatSha256(threatSha256);
     threatDetectedBuilder.setThreatId(threatId);
     threatDetectedBuilder.setIsRemote(isRemote);
     threatDetectedBuilder.setReportSource(static_cast<int>(reportSource));
@@ -99,6 +101,7 @@ bool ThreatDetected::operator==(const ThreatDetected& other) const
            quarantineResult == other.quarantineResult &&
            filePath == other.filePath &&
            sha256 == other.sha256 &&
+           threatSha256 == other.threatSha256 &&
            threatId == other.threatId &&
            isRemote == other.isRemote &&
            reportSource == other.reportSource &&

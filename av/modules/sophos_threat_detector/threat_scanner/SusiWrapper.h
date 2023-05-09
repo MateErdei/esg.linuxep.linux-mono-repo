@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2020-2022, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
@@ -26,10 +22,12 @@ namespace threat_scanner
             datatypes::AutoFd& fd,
             SusiScanResult** scanResult) override;
 
+        SusiResult metadataRescan(const char* metaData, SusiScanResult** scanResult) override;
+
         void freeResult(SusiScanResult* scanResult) override;
 
     private:
         SusiGlobalHandlerSharedPtr m_globalHandler;
         SusiScannerHandle m_handle;
     };
-}
+} // namespace threat_scanner

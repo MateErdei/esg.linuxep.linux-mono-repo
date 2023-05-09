@@ -66,9 +66,7 @@ Send Only FD To Safestore
 Send Empty ThreatType To Safestore
     Create File  /tmp/testfile
     ${result} =  send TDO To socket  threat_type=""
-    wait_for_safestore_log_contains_after_mark  Failed to store threat type '' in SafeStore object   mark=${SAFESTORE_LOG_MARK_FROM_START_OF_TEST}
-    Mark expected error in log    ${SAFESTORE_LOG_PATH}    Got DATA_TAG_NOT_SET while setting custom data, name: threatType
-    Mark expected error in log    ${SAFESTORE_LOG_PATH}    Failed to store threat type '' in SafeStore object
+    wait_for_safestore_log_contains_after_mark  Quarantined /tmp/testfile successfully   mark=${SAFESTORE_LOG_MARK_FROM_START_OF_TEST}
 
 Send ThreatType with foreign chars To Safestore
     Create File  /tmp/testfile
@@ -89,7 +87,7 @@ Send very long ThreatType To Safestore
     Create File  /tmp/testfile
     ${long_string}=  Run Process  tr -dc A-Za-z0-9 </dev/urandom | head -c 50000  shell=True
     ${result} =  send TDO To socket  threat_type=${long_string.stdout}
-    Wait for SafeStore log contains after mark    Failed to store threat type    mark=${SAFESTORE_LOG_MARK_FROM_START_OF_TEST}
+    Wait for SafeStore log contains after mark    Failed to store threats: Couldn't set object custom data 'threats' to    mark=${SAFESTORE_LOG_MARK_FROM_START_OF_TEST}
     Mark expected error in log    ${SAFESTORE_LOG_PATH}    Failed to store threat type
 
 Send Empty ThreatName To Safestore

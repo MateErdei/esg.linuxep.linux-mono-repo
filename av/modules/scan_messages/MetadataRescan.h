@@ -2,6 +2,8 @@
 
 #pragma once
 
+#include "Threat.h"
+
 #include <capnp/common.h>
 
 #include <memory>
@@ -16,10 +18,9 @@ namespace scan_messages
         [[nodiscard]] std::string Serialise() const;
         [[nodiscard]] static MetadataRescan Deserialise(const kj::ArrayPtr<const capnp::word> protoBuffer);
 
-        std::string threatType;
-        std::string threatName;
         std::string filePath;
         std::string sha256;
+        Threat threat;
     };
 
     // This is the response sent back for metadata rescans
@@ -27,9 +28,28 @@ namespace scan_messages
     // The response does not have any other data sent down the socket
     enum class MetadataRescanResponse : uint8_t
     {
-        ok,
+        undetected,
+        clean,
         threatPresent,
         needsFullScan,
         failed
     };
+
+    inline constexpr const char* MetadataRescanResponseToString(MetadataRescanResponse response)
+    {
+        switch (response)
+        {
+            case MetadataRescanResponse::undetected:
+                return "undetected";
+            case MetadataRescanResponse::clean:
+                return "clean";
+            case MetadataRescanResponse::threatPresent:
+                return "threat present";
+            case MetadataRescanResponse::needsFullScan:
+                return "needs full scan";
+            case MetadataRescanResponse::failed:
+                return "failed";
+        }
+        return "unknown";
+    }
 } // namespace scan_messages

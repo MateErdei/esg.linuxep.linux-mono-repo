@@ -100,6 +100,7 @@ namespace unixsocket
         datatypes::AutoFd& socket_fd,
         const scan_messages::MetadataRescanResponse& response)
     {
+        LOGDEBUG("Sending response to metadata rescan request");
         const auto bytesWritten =
             ::send(socket_fd, &response, sizeof(scan_messages::MetadataRescanResponse), MSG_NOSIGNAL);
         if (bytesWritten != sizeof(scan_messages::MetadataRescanResponse))
@@ -194,7 +195,6 @@ namespace unixsocket
                 }
 
                 // read capn proto
-                scan_messages::MetadataRescanResponse result{ scan_messages::MetadataRescanResponse::ok };
                 ssize_t bytes_read;
                 std::string errMsg;
                 if (!readCapnProtoMsg(
@@ -207,8 +207,7 @@ namespace unixsocket
                         loggedLengthOfZero,
                         errMsg))
                 {
-                    result = scan_messages::MetadataRescanResponse::failed;
-                    sendResponse(socket_fd, result);
+                    sendResponse(socket_fd, scan_messages::MetadataRescanResponse::failed);
                     LOGERROR(m_threadName << ": " << errMsg);
                     break;
                 }
@@ -220,8 +219,21 @@ namespace unixsocket
                 LOGDEBUG(
                     m_threadName << " received a metadata rescan request of filePath="
                                  << common::escapePathForLogging(request.filePath)
-                                 << ", threatType=" << request.threatType << ", threatName=" << request.threatName
-                                 << ", SHA256=" << request.sha256);
+                                 << ", threatType=" << request.threat.type << ", threatName=" << request.threat.name
+                                 << ", threatSHA256=" << request.threat.sha256 << ", SHA256=" << request.sha256);
+
+                if (!scanner)
+                {
+                    // All settings set to true to maximise detections for rescans, but likely they don't have an effect
+                    // on metadata rescans
+                    scanner = m_scannerFactory->createScanner(true, true, true);
+                }
+                if (!scanner)
+                {
+                    throw std::runtime_error(m_threadName + " failed to create scanner");
+                }
+
+                const auto result = scanner->metadataRescan(request);
 
                 if (!sendResponse(socket_fd, result))
                 {

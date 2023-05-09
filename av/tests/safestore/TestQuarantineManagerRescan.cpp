@@ -5,15 +5,13 @@
 
 #include "../common/MemoryAppender.h"
 #include "common/ApplicationPaths.h"
-#include "common/Common.h"
-#include "common/MockScanner.h"
 #include "common/TestFile.h"
 #include "datatypes/MockSysCalls.h"
 #include "safestore/QuarantineManager/IQuarantineManager.h"
 #include "safestore/QuarantineManager/QuarantineManagerImpl.h"
 #include "safestore/SafeStoreWrapper/ISafeStoreWrapper.h"
 #include "scan_messages/QuarantineResponse.h"
-#include "unixsocket/threatDetectorSocket/ScanningServerSocket.h"
+#include "tests/unixsocket/MockIScanningClientSocket.h"
 
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 #include "Common/Helpers/FileSystemReplaceAndRestore.h"
@@ -26,65 +24,183 @@
 using namespace testing;
 using namespace safestore::QuarantineManager;
 using namespace safestore;
-namespace fs = sophos_filesystem;
+
+MATCHER_P(IsRescanAndHasFd, fd, "")
+{
+    return arg->getFd() == fd && arg->getPath() == "" &&
+           arg->getScanType() == scan_messages::E_SCAN_TYPE_SAFESTORE_RESCAN && arg->getDetectPUAs() == true;
+}
+
+MATCHER_P(HasRawPointer, id, "")
+{
+    return arg.getRawHandle() == reinterpret_cast<SafeStoreObjectHandle>(id);
+}
 
 namespace
 {
     class QuarantineManagerRescanTests : public MemoryAppenderUsingTests
     {
     public:
-        QuarantineManagerRescanTests() : MemoryAppenderUsingTests("safestore")
+        QuarantineManagerRescanTests() : MemoryAppenderUsingTests("safestore"), usingMemoryAppender_{ *this }
         {
-        }
+            auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
+            appConfig.setData("SOPHOS_INSTALL", "/tmp");
+            appConfig.setData("PLUGIN_INSTALL", "/tmp/av");
+            unpackLocation_ = Common::FileSystem::join(Plugin::getPluginVarDirPath(), "tempUnpack");
 
-        void SetUp() override
-        {
-            auto mockFileSystem = std::make_unique<StrictMock<MockFileSystem>>();
-            m_mockFileSystem = mockFileSystem.get(); // keep as a borrowed pointer
-            Tests::replaceFileSystem(std::move(mockFileSystem));
-
-            setupFakeSophosThreatDetectorConfig();
-            setupFakeSafeStoreConfig();
-            addCommonPersistValueExpects();
-
-            m_mockSafeStoreWrapperPtr = std::make_unique<StrictMock<MockISafeStoreWrapper>>();
-            m_mockSafeStoreWrapper = m_mockSafeStoreWrapperPtr.get(); // BORROWED pointer
-        }
-
-        void TearDown() override
-        {
-            fs::remove_all(tmpdir());
-            Tests::restoreFileSystem();
-        }
-
-        void addCommonPersistValueExpects() const
-        {
-            EXPECT_CALL(*m_mockFileSystem, exists(Plugin::getPluginVarDirPath() + "/persist-safeStoreDbErrorThreshold"))
-                .WillOnce(Return(false));
-            EXPECT_CALL(
-                *m_mockFileSystem,
-                writeFile(Plugin::getPluginVarDirPath() + "/persist-safeStoreDbErrorThreshold", "10"));
+            ON_CALL(*mockSafeStoreWrapper_, createObjectHandleHolder)
+                .WillByDefault(Invoke(
+                    [this]() { return std::make_unique<ObjectHandleHolder>(mockGetIdMethods_, mockReleaseMethods_); }));
         }
 
         QuarantineManagerImpl createQuarantineManager()
         {
-            return { std::move(m_mockSafeStoreWrapperPtr), m_mockSysCallWrapper, mockSafeStoreResources_ };
+            return { std::move(mockSafeStoreWrapper_), mockSysCallWrapper_, mockSafeStoreResources_ };
         }
 
-        MockISafeStoreWrapper* m_mockSafeStoreWrapper = nullptr; // BORROWED pointer
-        std::unique_ptr<MockISafeStoreWrapper> m_mockSafeStoreWrapperPtr;
-        MockFileSystem* m_mockFileSystem = nullptr; // BORROWED pointer
-        std::shared_ptr<MockSystemCallWrapper> m_mockSysCallWrapper =
-            std::make_shared<StrictMock<MockSystemCallWrapper>>();
-        MockSafeStoreResources mockSafeStoreResources_;
-    };
+        struct SafeStoreObjectMetadata
+        {
+            std::string threatName{ "threatName" };
+            std::string name{ "name" };
+            std::string location{ "/location" };
+            std::string sha256{ "SHA256" };
+            std::string threats{ R"([{"type":"threatType","name":"threatName","sha256":"threatSHA256"}])" };
+            std::string correlationId{ "fedcba98-7654-3210-fedc-ba9876543210" };
+        };
 
-    using safestore::SafeStoreWrapper::ISafeStoreWrapper;
+        struct SafeStoreObjectDefinition
+        {
+            int rawPointer;
+            std::string objectId;
+            SafeStoreObjectMetadata metadata;
+        };
+
+        void defineSafeStoreObject(int id, const std::string& objectId, SafeStoreObjectMetadata metadata) const
+        {
+            auto matcher = HasRawPointer(id);
+
+            EXPECT_CALL(*mockSafeStoreWrapper_, getObjectCustomDataString(matcher, "SHA256"))
+                .Times(AnyNumber())
+                .WillRepeatedly(Return(metadata.sha256));
+            EXPECT_CALL(*mockSafeStoreWrapper_, getObjectCustomDataString(matcher, "correlationId"))
+                .Times(AnyNumber())
+                .WillRepeatedly(Return(metadata.correlationId));
+            EXPECT_CALL(*mockSafeStoreWrapper_, getObjectCustomDataString(matcher, "threats"))
+                .Times(AnyNumber())
+                .WillRepeatedly(Return(metadata.threats));
+            EXPECT_CALL(*mockSafeStoreWrapper_, getObjectThreatName(matcher))
+                .Times(AnyNumber())
+                .WillRepeatedly(Return(metadata.threatName));
+            EXPECT_CALL(*mockSafeStoreWrapper_, getObjectName(matcher))
+                .Times(AnyNumber())
+                .WillRepeatedly(Return(metadata.name));
+            EXPECT_CALL(*mockSafeStoreWrapper_, getObjectLocation(matcher))
+                .Times(AnyNumber())
+                .WillRepeatedly(Return(metadata.location));
+            EXPECT_CALL(*mockSafeStoreWrapper_, getObjectId(matcher))
+                .Times(AnyNumber())
+                .WillRepeatedly(Return(objectId));
+            EXPECT_CALL(*mockSafeStoreWrapper_, setObjectCustomDataString(matcher, "SHA256", _))
+                .Times(AnyNumber())
+                .WillRepeatedly(Return(true));
+            EXPECT_CALL(*mockSafeStoreWrapper_, setObjectCustomDataString(matcher, "threats", _))
+                .Times(AnyNumber())
+                .WillRepeatedly(Return(true));
+            EXPECT_CALL(*mockSafeStoreWrapper_, restoreObjectById(objectId))
+                .Times(AnyNumber())
+                .WillRepeatedly(Return(true));
+            EXPECT_CALL(*mockSafeStoreWrapper_, deleteObjectById(objectId))
+                .Times(AnyNumber())
+                .WillRepeatedly(Return(true));
+            EXPECT_CALL(*mockSafeStoreWrapper_, restoreObjectByIdToLocation(objectId, unpackLocation_))
+                .Times(AnyNumber())
+                .WillOnce(Return(true));
+
+            EXPECT_CALL(*mockSafeStoreWrapper_, getObjectHandle(objectId, _))
+                .Times(AnyNumber())
+                .WillRepeatedly(Invoke(
+                    [id](const ObjectId&, const std::shared_ptr<ObjectHandleHolder>& objectHandle)
+                    {
+                        *objectHandle->getRawHandlePtr() = reinterpret_cast<SafeStoreObjectHandle>(id);
+                        return true;
+                    }));
+        }
+
+        void defineSafeStoreObjects(const std::vector<SafeStoreObjectDefinition>& definitions)
+        {
+            for (const auto& definition : definitions)
+            {
+                defineSafeStoreObject(definition.rawPointer, definition.objectId, definition.metadata);
+            }
+
+            ON_CALL(*mockSafeStoreWrapper_, find)
+                .WillByDefault(InvokeWithoutArgs(
+                    [this, definitions]()
+                    {
+                        std::vector<ObjectHandleHolder> searchResults;
+                        for (const auto& definition : definitions)
+                        {
+                            searchResults.push_back(createObjectHandle(definition.rawPointer));
+                        }
+                        return searchResults;
+                    }));
+        }
+
+        ObjectHandleHolder createObjectHandle(int id)
+        {
+            ObjectHandleHolder objectHandle{ mockGetIdMethods_, mockReleaseMethods_ };
+            *objectHandle.getRawHandlePtr() = reinterpret_cast<SafeStoreObjectHandle>(id);
+            return objectHandle;
+        }
+
+        // To be used when a real fd is needed, as AutoFd can't be mocked
+        static int createRealFd()
+        {
+            return ::open("/dev/null", O_RDONLY);
+        }
+
+        void MoveFileSystemMocks()
+        {
+            scopedReplaceFileSystem_.replace(std::move(mockFileSystem_));
+            scopedReplaceFilePermissions_.replace(std::move(mockFilePermissions_));
+        }
+
+        UsingMemoryAppender usingMemoryAppender_;
+        std::unique_ptr<MockISafeStoreWrapper> mockSafeStoreWrapper_{ std::make_unique<MockISafeStoreWrapper>() };
+        std::unique_ptr<MockFileSystem> mockFileSystem_{ std::make_unique<MockFileSystem>() };
+        std::unique_ptr<MockFilePermissions> mockFilePermissions_{ std::make_unique<MockFilePermissions>() };
+        Tests::ScopedReplaceFileSystem scopedReplaceFileSystem_;
+        Tests::ScopedReplaceFilePermissions scopedReplaceFilePermissions_;
+        std::shared_ptr<MockSystemCallWrapper> mockSysCallWrapper_ = std::make_shared<MockSystemCallWrapper>();
+        MockSafeStoreResources mockSafeStoreResources_;
+        std::unique_ptr<unixsocket::MockMetadataRescanClientSocket> mockMetadataRescanClientSocket_{
+            std::make_unique<unixsocket::MockMetadataRescanClientSocket>()
+        };
+        std::unique_ptr<MockIScanningClientSocket> mockScanningClientSocket_{
+            std::make_unique<MockIScanningClientSocket>()
+        };
+        std::shared_ptr<MockISafeStoreGetIdMethods> mockGetIdMethods_{ std::make_shared<MockISafeStoreGetIdMethods>() };
+        std::shared_ptr<MockISafeStoreReleaseMethods> mockReleaseMethods_{
+            std::make_shared<MockISafeStoreReleaseMethods>()
+        };
+        std::string unpackLocation_;
+
+        const std::string threatType_{ "threatType" };
+        const std::string threatName_{ "threatName" };
+        const std::string name_{ "name" };
+        const std::string location_{ "/location" };
+        const std::string sha256_{ "SHA256" };
+        const std::string threatSha256_{ "threatSHA256" };
+        const std::string correlationId_{ "fedcba98-7654-3210-fedc-ba9876543210" };
+    };
 } // namespace
 
 TEST_F(QuarantineManagerRescanTests, scanExtractedFilesForRestoreListDoesNothingWithEmptyArgs)
 {
-    UsingMemoryAppender memoryAppenderHolder(*this);
+    // No objects should be extracted
+    EXPECT_CALL(*mockSafeStoreWrapper_, restoreObjectById).Times(0);
+    EXPECT_CALL(*mockSafeStoreWrapper_, restoreObjectByIdToLocation).Times(0);
+
     auto quarantineManager = createQuarantineManager();
 
     std::vector<FdsObjectIdsPair> testFiles;
@@ -96,121 +212,81 @@ TEST_F(QuarantineManagerRescanTests, scanExtractedFilesForRestoreListDoesNothing
 
 TEST_F(QuarantineManagerRescanTests, scanExtractedFiles)
 {
-    auto quarantineManager = createQuarantineManager();
-    auto scannerFactory = std::make_shared<StrictMock<MockScannerFactory>>();
-    auto scanner = std::make_unique<StrictMock<MockScanner>>();
+    // Define SafeStore objects
+    defineSafeStoreObject(1111, "objectId1", {});
+    defineSafeStoreObject(2222, "objectId2", {});
+    defineSafeStoreObject(3333, "objectId3", {});
+    defineSafeStoreObject(4444, "objectId4", {});
 
-    const std::string threatPath = "/threat/path";
-
-    TestFile cleanFile1("cleanFile1");
-    datatypes::AutoFd fd1{ cleanFile1.open() };
-    auto fd1_response = scan_messages::ScanResponse();
-    const std::string threatName1 = "one";
-
-    TestFile dirtyFile1("dirtyFile1");
-    datatypes::AutoFd fd2{ dirtyFile1.open() };
-    auto fd2_response = scan_messages::ScanResponse();
-    fd2_response.addDetection("two", "THREAT", "sha256");
-    const std::string threatName2 = "two";
-
-    TestFile cleanFile2("cleanFile2");
-    datatypes::AutoFd fd3{ cleanFile2.open() };
-    auto fd3_response = scan_messages::ScanResponse();
-    const std::string threatName3 = "three";
-
-    TestFile dirtyFile2("dirtyFile2");
-    datatypes::AutoFd fd4{ dirtyFile2.open() };
-    auto fd4_response = scan_messages::ScanResponse();
-    fd4_response.addDetection("four", "THREAT", "sha256");
-    const std::string threatName4 = "four";
+    // Create distinct fds, used later to verify all files are scanned
+    auto fd1{ createRealFd() };
+    auto fd2{ createRealFd() };
+    auto fd3{ createRealFd() };
+    auto fd4{ createRealFd() };
 
     std::vector<FdsObjectIdsPair> testFiles;
-    testFiles.emplace_back(std::move(fd1), "objectId1");
-    testFiles.emplace_back(std::move(fd2), "objectId2");
-    testFiles.emplace_back(std::move(fd3), "objectId3");
-    testFiles.emplace_back(std::move(fd4), "objectId4");
+    testFiles.emplace_back(datatypes::AutoFd{ fd1 }, "objectId1");
+    testFiles.emplace_back(datatypes::AutoFd{ fd2 }, "objectId2");
+    testFiles.emplace_back(datatypes::AutoFd{ fd3 }, "objectId3");
+    testFiles.emplace_back(datatypes::AutoFd{ fd4 }, "objectId4");
 
-    auto mockGetIdMethods = std::make_shared<StrictMock<MockISafeStoreGetIdMethods>>();
-    auto mockReleaseMethods = std::make_shared<StrictMock<MockISafeStoreReleaseMethods>>();
+    // Mock responses from the scanning server
+    // 1 and 3 are clean, 2 and 4 have threats
+    {
+        InSequence seq;
+        EXPECT_CALL(*mockScanningClientSocket_, sendRequest(IsRescanAndHasFd(fd1))).WillOnce(Return(true));
+        EXPECT_CALL(*mockScanningClientSocket_, receiveResponse).WillOnce(Return(true));
 
-    void* rawHandle1 = reinterpret_cast<SafeStoreObjectHandle>(1111);
-    auto objectHandle1 = std::make_unique<ObjectHandleHolder>(mockGetIdMethods, mockReleaseMethods);
-    *objectHandle1->getRawHandlePtr() = rawHandle1;
-    auto handleAsArg1 = Property(&ObjectHandleHolder::getRawHandle, rawHandle1); // Matches argument with raw handle
-    EXPECT_CALL(*mockReleaseMethods, releaseObjectHandle(rawHandle1));
+        EXPECT_CALL(*mockScanningClientSocket_, sendRequest(IsRescanAndHasFd(fd2))).WillOnce(Return(true));
+        EXPECT_CALL(*mockScanningClientSocket_, receiveResponse)
+            .WillOnce(Invoke(
+                [](scan_messages::ScanResponse& response)
+                {
+                    response.addDetection("two", "virus", "THREAT", "sha256");
+                    return true;
+                }));
 
-    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectHandle("objectId1", _)).WillOnce(Return(true));
-    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectLocation(handleAsArg1)).WillOnce(Return(threatPath));
-    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectName(handleAsArg1)).WillRepeatedly(Return(threatName1));
+        EXPECT_CALL(*mockScanningClientSocket_, sendRequest(IsRescanAndHasFd(fd3))).WillOnce(Return(true));
+        EXPECT_CALL(*mockScanningClientSocket_, receiveResponse).WillOnce(Return(true));
 
-    void* rawHandle2 = reinterpret_cast<SafeStoreObjectHandle>(2222);
-    auto objectHandle2 = std::make_unique<ObjectHandleHolder>(mockGetIdMethods, mockReleaseMethods);
-    *objectHandle2->getRawHandlePtr() = rawHandle2;
-    auto handleAsArg2 = Property(&ObjectHandleHolder::getRawHandle, rawHandle2); // Matches argument with raw handle
-    EXPECT_CALL(*mockReleaseMethods, releaseObjectHandle(rawHandle2));
+        EXPECT_CALL(*mockScanningClientSocket_, sendRequest(IsRescanAndHasFd(fd4))).WillOnce(Return(true));
+        EXPECT_CALL(*mockScanningClientSocket_, receiveResponse)
+            .WillOnce(Invoke(
+                [](scan_messages::ScanResponse& response)
+                {
+                    response.addDetection("four", "virus", "THREAT", "sha256");
+                    return true;
+                }));
+    }
 
-    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectHandle("objectId2", _)).WillOnce(Return(true));
-    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectLocation(handleAsArg2)).WillOnce(Return(threatPath));
-    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectName(handleAsArg2)).WillRepeatedly(Return(threatName2));
+    EXPECT_CALL(mockSafeStoreResources_, CreateScanningClientSocket)
+        .WillOnce(Return(ByMove(std::move(mockScanningClientSocket_))));
 
-    void* rawHandle3 = reinterpret_cast<SafeStoreObjectHandle>(3333);
-    auto objectHandle3 = std::make_unique<ObjectHandleHolder>(mockGetIdMethods, mockReleaseMethods);
-    *objectHandle3->getRawHandlePtr() = rawHandle3;
-    auto handleAsArg3 = Property(&ObjectHandleHolder::getRawHandle, rawHandle3); // Matches argument with raw handle
-    EXPECT_CALL(*mockReleaseMethods, releaseObjectHandle(rawHandle3));
-
-    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectHandle("objectId3", _)).WillOnce(Return(true));
-    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectLocation(handleAsArg3)).WillOnce(Return(threatPath));
-    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectName(handleAsArg3)).WillRepeatedly(Return(threatName3));
-
-    void* rawHandle4 = reinterpret_cast<SafeStoreObjectHandle>(4444);
-    auto objectHandle4 = std::make_unique<ObjectHandleHolder>(mockGetIdMethods, mockReleaseMethods);
-    *objectHandle4->getRawHandlePtr() = rawHandle4;
-    auto handleAsArg4 = Property(&ObjectHandleHolder::getRawHandle, rawHandle4); // Matches argument with raw handle
-    EXPECT_CALL(*mockReleaseMethods, releaseObjectHandle(rawHandle4));
-
-    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectHandle("objectId4", _)).WillOnce(Return(true));
-    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectLocation(handleAsArg4)).WillOnce(Return(threatPath));
-    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectName(handleAsArg4)).WillRepeatedly(Return(threatName4));
-
-    EXPECT_CALL(*m_mockSafeStoreWrapper, createObjectHandleHolder())
-        .Times(4)
-        .WillOnce(Return(ByMove(std::move(objectHandle1))))
-        .WillOnce(Return(ByMove(std::move(objectHandle2))))
-        .WillOnce(Return(ByMove(std::move(objectHandle3))))
-        .WillOnce(Return(ByMove(std::move(objectHandle4))));
-
-    EXPECT_CALL(*scanner, scan(_, _))
-        .Times(4)
-        .WillOnce(Return(fd1_response))
-        .WillOnce(Return(fd2_response))
-        .WillOnce(Return(fd3_response))
-        .WillOnce(Return(fd4_response));
-    EXPECT_CALL(*scannerFactory, detectPUAsEnabled()).WillRepeatedly(Return(true));
-    EXPECT_CALL(*scannerFactory, createScanner(true, true, true)).WillOnce(Return(ByMove(std::move(scanner))));
-
-    unixsocket::ScanningServerSocket server(Plugin::getScanningSocketPath(), 0600, scannerFactory);
-    server.start();
+    MoveFileSystemMocks();
+    auto quarantineManager = createQuarantineManager();
 
     std::vector<std::string> expectedResult{ "objectId1", "objectId3" };
     auto result = quarantineManager.scanExtractedFilesForRestoreList(std::move(testFiles));
     EXPECT_EQ(expectedResult, result);
-
-    server.requestStop();
-    server.join();
 }
 
 TEST_F(QuarantineManagerRescanTests, scanExtractedFilesSocketFailure)
 {
-    UsingMemoryAppender memoryAppenderHolder(*this);
     m_memoryAppender->setLayout(std::make_unique<log4cplus::PatternLayout>("[%p] %m%n"));
-    auto quarantineManager = createQuarantineManager();
-
-    TestFile cleanFile1("cleanFile1");
-    datatypes::AutoFd fd1{ cleanFile1.open() };
 
     std::vector<FdsObjectIdsPair> testFiles;
-    testFiles.emplace_back(std::move(fd1), "objectId1");
+    testFiles.emplace_back(datatypes::AutoFd{}, "objectId1");
+
+    EXPECT_CALL(*mockScanningClientSocket_, sendRequest).WillOnce(Return(false));
+    EXPECT_CALL(mockSafeStoreResources_, CreateScanningClientSocket)
+        .WillOnce(Return(ByMove(std::move(mockScanningClientSocket_))));
+
+    // No objects should be extracted
+    EXPECT_CALL(*mockSafeStoreWrapper_, restoreObjectById).Times(0);
+    EXPECT_CALL(*mockSafeStoreWrapper_, restoreObjectByIdToLocation).Times(0);
+
+    MoveFileSystemMocks();
+    auto quarantineManager = createQuarantineManager();
 
     std::vector<std::string> expectedResult{};
     auto result = quarantineManager.scanExtractedFilesForRestoreList(std::move(testFiles));
@@ -221,646 +297,430 @@ TEST_F(QuarantineManagerRescanTests, scanExtractedFilesSocketFailure)
 
 TEST_F(QuarantineManagerRescanTests, scanExtractedFilesSkipsHandleFailure)
 {
-    UsingMemoryAppender memoryAppenderHolder(*this);
     m_memoryAppender->setLayout(std::make_unique<log4cplus::PatternLayout>("[%p] %m%n"));
 
-    auto quarantineManager = createQuarantineManager();
-    auto scannerFactory = std::make_shared<StrictMock<MockScannerFactory>>();
-    auto scanner = std::make_unique<StrictMock<MockScanner>>();
+    defineSafeStoreObject(1111, "objectId1", { .name = "one" });
+    defineSafeStoreObject(2222, "objectId2", { .name = "two" });
+    EXPECT_CALL(*mockSafeStoreWrapper_, getObjectHandle("objectId1", _)).WillRepeatedly(Return(false));
 
-    const std::string threatPath = "/threat/path";
-
-    TestFile cleanFile1("cleanFile1");
-    datatypes::AutoFd fd1{ cleanFile1.open() };
-    auto fd1_response = scan_messages::ScanResponse();
-    const std::string threatPath1 = "one";
-
-    TestFile dirtyFile1("dirtyFile1");
-    datatypes::AutoFd fd2{ dirtyFile1.open() };
-    auto fd2_response = scan_messages::ScanResponse();
-    fd2_response.addDetection("two", "THREAT", "sha256");
-    const std::string threatName2 = "two";
-
-    auto mockGetIdMethods = std::make_shared<StrictMock<MockISafeStoreGetIdMethods>>();
-    auto mockReleaseMethods = std::make_shared<StrictMock<MockISafeStoreReleaseMethods>>();
+    auto fd1{ createRealFd() };
+    auto fd2{ createRealFd() };
 
     std::vector<FdsObjectIdsPair> testFiles;
-    testFiles.emplace_back(std::move(fd1), "objectId1");
-    testFiles.emplace_back(std::move(fd2), "objectId2");
+    testFiles.emplace_back(datatypes::AutoFd{ fd1 }, "objectId1");
+    testFiles.emplace_back(datatypes::AutoFd{ fd2 }, "objectId2");
 
-    auto objectHandle = std::make_unique<ObjectHandleHolder>(mockGetIdMethods, mockReleaseMethods);
-    EXPECT_CALL(*mockReleaseMethods, releaseObjectHandle(_));
+    // Mock responses from the scanning server
+    {
+        InSequence seq;
+        EXPECT_CALL(*mockScanningClientSocket_, sendRequest(IsRescanAndHasFd(fd1))).WillOnce(Return(true));
+        EXPECT_CALL(*mockScanningClientSocket_, receiveResponse).WillOnce(Return(true));
 
-    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectHandle("objectId1", _)).WillOnce(Return(false));
+        EXPECT_CALL(*mockScanningClientSocket_, sendRequest(IsRescanAndHasFd(fd2))).WillOnce(Return(true));
+        EXPECT_CALL(*mockScanningClientSocket_, receiveResponse)
+            .WillOnce(Invoke(
+                [](scan_messages::ScanResponse& response)
+                {
+                    response.addDetection("two", "virus", "THREAT", "sha256");
+                    return true;
+                }));
+    }
 
-    EXPECT_CALL(*scanner, scan(_, _)).Times(2).WillOnce(Return(fd1_response)).WillOnce(Return(fd2_response));
-    EXPECT_CALL(*scannerFactory, detectPUAsEnabled()).WillOnce(Return(true));
-    EXPECT_CALL(*scannerFactory, createScanner(true, true, true)).WillOnce(Return(ByMove(std::move(scanner))));
+    EXPECT_CALL(mockSafeStoreResources_, CreateScanningClientSocket)
+        .WillOnce(Return(ByMove(std::move(mockScanningClientSocket_))));
 
-    void* rawHandle2 = reinterpret_cast<SafeStoreObjectHandle>(2222);
-    auto objectHandle2 = std::make_unique<ObjectHandleHolder>(mockGetIdMethods, mockReleaseMethods);
-    *objectHandle2->getRawHandlePtr() = rawHandle2;
-    auto handleAsArg2 = Property(&ObjectHandleHolder::getRawHandle, rawHandle2); // Matches argument with raw handle
-    EXPECT_CALL(*mockReleaseMethods, releaseObjectHandle(rawHandle2));
+    // Object 1 should not be extracted
+    EXPECT_CALL(*mockSafeStoreWrapper_, restoreObjectById("objectId1")).Times(0);
+    EXPECT_CALL(*mockSafeStoreWrapper_, restoreObjectByIdToLocation("objectId1", _)).Times(0);
 
-    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectHandle("objectId2", _)).WillOnce(Return(true));
-    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectLocation(handleAsArg2)).WillOnce(Return(threatPath));
-    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectName(handleAsArg2)).WillRepeatedly(Return(threatName2));
-
-    EXPECT_CALL(*m_mockSafeStoreWrapper, createObjectHandleHolder())
-        .Times(2)
-        .WillOnce(Return(ByMove(std::move(objectHandle))))
-        .WillOnce(Return(ByMove(std::move(objectHandle2))));
-
-    unixsocket::ScanningServerSocket server(Plugin::getScanningSocketPath(), 0600, scannerFactory);
-    server.start();
+    MoveFileSystemMocks();
+    auto quarantineManager = createQuarantineManager();
 
     std::vector<std::string> expectedResult{};
     auto result = quarantineManager.scanExtractedFilesForRestoreList(std::move(testFiles));
     EXPECT_EQ(expectedResult, result);
 
-    server.requestStop();
-    server.join();
-
     EXPECT_TRUE(appenderContains("[ERROR] Couldn't get object handle for: objectId1, continuing..."));
-    EXPECT_TRUE(appenderContains("Rescan found quarantined file still a threat: /threat/path/two"));
+    EXPECT_TRUE(appenderContains("Rescan found quarantined file still a threat: /location/two"));
 }
 
 TEST_F(QuarantineManagerRescanTests, scanExtractedFilesHandlesNameAndLocationFailure)
 {
-    UsingMemoryAppender memoryAppenderHolder(*this);
     m_memoryAppender->setLayout(std::make_unique<log4cplus::PatternLayout>("[%p] %m%n"));
 
-    auto quarantineManager = createQuarantineManager();
-    auto scannerFactory = std::make_shared<StrictMock<MockScannerFactory>>();
-    auto scanner = std::make_unique<StrictMock<MockScanner>>();
+    defineSafeStoreObject(1111, "objectId1", {});
+    EXPECT_CALL(*mockSafeStoreWrapper_, getObjectName(HasRawPointer(1111))).WillRepeatedly(Return(""));
+    EXPECT_CALL(*mockSafeStoreWrapper_, getObjectLocation(HasRawPointer(1111))).WillRepeatedly(Return(""));
 
-    TestFile cleanFile1("cleanFile1");
-    datatypes::AutoFd fd1{ cleanFile1.open() };
-    auto fd1_response = scan_messages::ScanResponse();
-    const std::string threatPath1 = "one";
-
-    auto mockGetIdMethods = std::make_shared<StrictMock<MockISafeStoreGetIdMethods>>();
-    auto mockReleaseMethods = std::make_shared<StrictMock<MockISafeStoreReleaseMethods>>();
+    auto fd1{ createRealFd() };
 
     std::vector<FdsObjectIdsPair> testFiles;
-    testFiles.emplace_back(std::move(fd1), "objectId1");
+    testFiles.emplace_back(datatypes::AutoFd{ fd1 }, "objectId1");
 
-    void* rawHandle = reinterpret_cast<SafeStoreObjectHandle>(1111);
-    auto objectHandle = std::make_unique<ObjectHandleHolder>(mockGetIdMethods, mockReleaseMethods);
-    *objectHandle->getRawHandlePtr() = rawHandle;
-    auto handleAsArg = Property(&ObjectHandleHolder::getRawHandle, rawHandle); // Matches argument with raw handle
-    EXPECT_CALL(*mockReleaseMethods, releaseObjectHandle(rawHandle));
+    {
+        InSequence seq;
+        EXPECT_CALL(*mockScanningClientSocket_, sendRequest(IsRescanAndHasFd(fd1))).WillOnce(Return(true));
+        EXPECT_CALL(*mockScanningClientSocket_, receiveResponse).WillOnce(Return(true));
+    }
 
-    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectHandle("objectId1", _)).WillOnce(Return(true));
-    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectName(handleAsArg)).WillRepeatedly(Return(""));
-    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectLocation(handleAsArg)).WillRepeatedly(Return(""));
-    EXPECT_CALL(*m_mockSafeStoreWrapper, createObjectHandleHolder()).WillOnce(Return(ByMove(std::move(objectHandle))));
+    EXPECT_CALL(mockSafeStoreResources_, CreateScanningClientSocket)
+        .WillOnce(Return(ByMove(std::move(mockScanningClientSocket_))));
 
-    EXPECT_CALL(*scanner, scan(_, _)).WillOnce(Return(fd1_response));
-    EXPECT_CALL(*scannerFactory, createScanner(true, true, true)).WillOnce(Return(ByMove(std::move(scanner))));
-
-    unixsocket::ScanningServerSocket server(Plugin::getScanningSocketPath(), 0600, scannerFactory);
-    server.start();
+    MoveFileSystemMocks();
+    auto quarantineManager = createQuarantineManager();
 
     std::vector<std::string> expectedResult{ "objectId1" };
     auto result = quarantineManager.scanExtractedFilesForRestoreList(std::move(testFiles));
     EXPECT_EQ(expectedResult, result);
 
-    server.tryStop();
-    server.join();
-
-    EXPECT_TRUE(appenderContains("[WARN] Couldn't get object name for: objectId1."));
-    EXPECT_TRUE(appenderContains("[WARN] Couldn't get path for: objectId1: Couldn't get object name"));
+    EXPECT_TRUE(appenderContains("[WARN] Couldn't get path for 'objectId1': Couldn't get object name"));
+    EXPECT_TRUE(appenderContains("[DEBUG] Rescan found quarantined file no longer a threat: <unknown path>"));
 }
 
 TEST_F(QuarantineManagerRescanTests, restoreFileDoesNothingIfCannotGetObjectHandle)
 {
-    UsingMemoryAppender memoryAppenderHolder(*this);
     m_memoryAppender->setLayout(std::make_unique<log4cplus::PatternLayout>("[%p] %m%n"));
 
+    EXPECT_CALL(*mockSafeStoreWrapper_, getObjectHandle("objectId", _)).WillOnce(Return(false));
+
+    // No objects should be restored
+    EXPECT_CALL(*mockSafeStoreWrapper_, restoreObjectById).Times(0);
+    EXPECT_CALL(*mockSafeStoreWrapper_, restoreObjectByIdToLocation).Times(0);
+
+    MoveFileSystemMocks();
     auto quarantineManager = createQuarantineManager();
 
-    std::string objectId = "objectId";
-
-    auto mockGetIdMethods = std::make_shared<StrictMock<MockISafeStoreGetIdMethods>>();
-    auto mockReleaseMethods = std::make_shared<StrictMock<MockISafeStoreReleaseMethods>>();
-
-    auto objectHandle = std::make_unique<ObjectHandleHolder>(mockGetIdMethods, mockReleaseMethods);
-    EXPECT_CALL(*m_mockSafeStoreWrapper, createObjectHandleHolder()).WillOnce(Return(ByMove(std::move(objectHandle))));
-    EXPECT_CALL(*mockReleaseMethods, releaseObjectHandle(_));
-
-    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectHandle("objectId", _)).WillOnce(Return(false));
-
-    EXPECT_FALSE(quarantineManager.restoreFile(objectId).has_value());
-
+    EXPECT_FALSE(quarantineManager.restoreFile("objectId").has_value());
     EXPECT_TRUE(appenderContains("[ERROR] Couldn't get object handle for: objectId"));
 }
 
 TEST_F(QuarantineManagerRescanTests, restoreFileReturnsEarlyOnMissingNameAndLocation)
 {
-    UsingMemoryAppender memoryAppenderHolder(*this);
     m_memoryAppender->setLayout(std::make_unique<log4cplus::PatternLayout>("[%p] %m%n"));
 
+    defineSafeStoreObject(1111, "objectId", {});
+    EXPECT_CALL(*mockSafeStoreWrapper_, getObjectName(HasRawPointer(1111))).WillRepeatedly(Return(""));
+    EXPECT_CALL(*mockSafeStoreWrapper_, getObjectLocation(HasRawPointer(1111))).WillRepeatedly(Return(""));
+
+    // No objects should be restored
+    EXPECT_CALL(*mockSafeStoreWrapper_, restoreObjectById).Times(0);
+    EXPECT_CALL(*mockSafeStoreWrapper_, restoreObjectByIdToLocation).Times(0);
+
+    MoveFileSystemMocks();
     auto quarantineManager = createQuarantineManager();
 
-    std::string objectId = "objectId";
-    std::string threatId = "threatId";
-
-    auto mockGetIdMethods = std::make_shared<StrictMock<MockISafeStoreGetIdMethods>>();
-    auto mockReleaseMethods = std::make_shared<StrictMock<MockISafeStoreReleaseMethods>>();
-
-    void* rawHandle = reinterpret_cast<SafeStoreObjectHandle>(1111);
-    auto objectHandle = std::make_unique<ObjectHandleHolder>(mockGetIdMethods, mockReleaseMethods);
-    *objectHandle->getRawHandlePtr() = rawHandle;
-    auto handleAsArg = Property(&ObjectHandleHolder::getRawHandle, rawHandle); // Matches argument with raw handle
-    EXPECT_CALL(*mockReleaseMethods, releaseObjectHandle(rawHandle));
-
-    EXPECT_CALL(*m_mockSafeStoreWrapper, createObjectHandleHolder()).WillOnce(Return(ByMove(std::move(objectHandle))));
-    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectHandle("objectId", _)).WillOnce(Return(true));
-    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectName(handleAsArg)).WillOnce(Return(""));
-
-    EXPECT_FALSE(quarantineManager.restoreFile(objectId).has_value());
+    EXPECT_FALSE(quarantineManager.restoreFile("objectId").has_value());
 
     EXPECT_TRUE(appenderContains("[ERROR] Unable to restore objectId, reason: Couldn't get object name"));
 }
 
 TEST_F(QuarantineManagerRescanTests, restoreFileReturnsEarlyOnMissingLocation)
 {
-    UsingMemoryAppender memoryAppenderHolder(*this);
     m_memoryAppender->setLayout(std::make_unique<log4cplus::PatternLayout>("[%p] %m%n"));
 
+    defineSafeStoreObject(1111, "objectId", {});
+    EXPECT_CALL(*mockSafeStoreWrapper_, getObjectLocation(HasRawPointer(1111))).WillOnce(Return(""));
+
+    // No objects should be restored
+    EXPECT_CALL(*mockSafeStoreWrapper_, restoreObjectById).Times(0);
+    EXPECT_CALL(*mockSafeStoreWrapper_, restoreObjectByIdToLocation).Times(0);
+
+    MoveFileSystemMocks();
     auto quarantineManager = createQuarantineManager();
 
-    std::string objectId = "objectId";
-    std::string threatId = "threatId";
-
-    auto mockGetIdMethods = std::make_shared<StrictMock<MockISafeStoreGetIdMethods>>();
-    auto mockReleaseMethods = std::make_shared<StrictMock<MockISafeStoreReleaseMethods>>();
-
-    void* rawHandle = reinterpret_cast<SafeStoreObjectHandle>(1111);
-    auto objectHandle = std::make_unique<ObjectHandleHolder>(mockGetIdMethods, mockReleaseMethods);
-    *objectHandle->getRawHandlePtr() = rawHandle;
-    auto handleAsArg = Property(&ObjectHandleHolder::getRawHandle, rawHandle); // Matches argument with raw handle
-    EXPECT_CALL(*mockReleaseMethods, releaseObjectHandle(rawHandle));
-
-    EXPECT_CALL(*m_mockSafeStoreWrapper, createObjectHandleHolder()).WillOnce(Return(ByMove(std::move(objectHandle))));
-    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectHandle("objectId", _)).WillOnce(Return(true));
-    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectName(handleAsArg)).WillOnce(Return("onbjectName"));
-    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectLocation(handleAsArg)).WillOnce(Return(""));
-
-    EXPECT_FALSE(quarantineManager.restoreFile(objectId).has_value());
+    EXPECT_FALSE(quarantineManager.restoreFile("objectId").has_value());
 
     EXPECT_TRUE(appenderContains("[ERROR] Unable to restore objectId, reason: Couldn't get object location"));
 }
 
 TEST_F(QuarantineManagerRescanTests, restoreFileDoesNothingIfCannotGetCorrelationId)
 {
-    UsingMemoryAppender memoryAppenderHolder(*this);
     m_memoryAppender->setLayout(std::make_unique<log4cplus::PatternLayout>("[%p] %m%n"));
 
+    defineSafeStoreObject(1111, "objectId", {});
+    EXPECT_CALL(*mockSafeStoreWrapper_, getObjectCustomDataString(HasRawPointer(1111), "correlationId"))
+        .WillOnce(Return(""));
+
+    // No objects should be restored
+    EXPECT_CALL(*mockSafeStoreWrapper_, restoreObjectById).Times(0);
+    EXPECT_CALL(*mockSafeStoreWrapper_, restoreObjectByIdToLocation).Times(0);
+
+    MoveFileSystemMocks();
     auto quarantineManager = createQuarantineManager();
 
-    std::string objectId = "objectId";
-    std::string objectName = "testName";
-    std::string objectLocation = "/path/to/location";
-
-    auto mockGetIdMethods = std::make_shared<StrictMock<MockISafeStoreGetIdMethods>>();
-    auto mockReleaseMethods = std::make_shared<StrictMock<MockISafeStoreReleaseMethods>>();
-
-    void* rawHandle = reinterpret_cast<SafeStoreObjectHandle>(1111);
-    auto objectHandle = std::make_unique<ObjectHandleHolder>(mockGetIdMethods, mockReleaseMethods);
-    *objectHandle->getRawHandlePtr() = rawHandle;
-    auto handleAsArg = Property(&ObjectHandleHolder::getRawHandle, rawHandle); // Matches argument with raw handle
-    EXPECT_CALL(*mockReleaseMethods, releaseObjectHandle(rawHandle));
-
-    EXPECT_CALL(*m_mockSafeStoreWrapper, createObjectHandleHolder()).WillOnce(Return(ByMove(std::move(objectHandle))));
-    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectHandle(objectId, _)).WillOnce(Return(true));
-    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectName(handleAsArg)).WillOnce(Return(objectName));
-    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectLocation(handleAsArg)).WillOnce(Return(objectLocation));
-    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectCustomDataString(handleAsArg, "correlationId")).WillOnce(Return(""));
-
-    EXPECT_FALSE(quarantineManager.restoreFile(objectId).has_value());
+    EXPECT_FALSE(quarantineManager.restoreFile("objectId").has_value());
 
     EXPECT_TRUE(appenderContains(
-        "[ERROR] Unable to restore /path/to/location/testName, couldn't get correlation ID: Failed to get SafeStore object custom string 'correlationId'"));
+        "[ERROR] Unable to restore /location/name, couldn't get correlation ID: Failed to get SafeStore object custom string 'correlationId'"));
 }
 
 TEST_F(QuarantineManagerRescanTests, restoreFileReturnsEarlyIfRestoreFails)
 {
-    UsingMemoryAppender memoryAppenderHolder(*this);
     m_memoryAppender->setLayout(std::make_unique<log4cplus::PatternLayout>("[%p] %m%n"));
 
+    defineSafeStoreObject(1111, "objectId", {});
+    EXPECT_CALL(*mockSafeStoreWrapper_, restoreObjectById("objectId")).WillOnce(Return(false));
+
+    MoveFileSystemMocks();
     auto quarantineManager = createQuarantineManager();
 
-    std::string objectId = "objectId";
-    std::string objectName = "testName";
-    std::string objectLocation = "/path/to/location";
-    std::string correlationId = "01234567-89ab-cdef-0123-456789abcdef";
+    EXPECT_FALSE(quarantineManager.restoreFile("objectId").value().wasSuccessful);
 
-    auto mockGetIdMethods = std::make_shared<StrictMock<MockISafeStoreGetIdMethods>>();
-    auto mockReleaseMethods = std::make_shared<StrictMock<MockISafeStoreReleaseMethods>>();
-
-    void* rawHandle = reinterpret_cast<SafeStoreObjectHandle>(1111);
-    auto objectHandle = std::make_unique<ObjectHandleHolder>(mockGetIdMethods, mockReleaseMethods);
-    *objectHandle->getRawHandlePtr() = rawHandle;
-    auto handleAsArg = Property(&ObjectHandleHolder::getRawHandle, rawHandle); // Matches argument with raw handle
-    EXPECT_CALL(*mockReleaseMethods, releaseObjectHandle(rawHandle));
-
-    EXPECT_CALL(*m_mockSafeStoreWrapper, createObjectHandleHolder()).WillOnce(Return(ByMove(std::move(objectHandle))));
-    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectHandle("objectId", _)).WillOnce(Return(true));
-    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectName(handleAsArg)).WillOnce(Return(objectName));
-    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectLocation(handleAsArg)).WillOnce(Return(objectLocation));
-    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectCustomDataString(handleAsArg, "correlationId"))
-        .WillOnce(Return(correlationId));
-    EXPECT_CALL(*m_mockSafeStoreWrapper, restoreObjectById(objectId)).WillOnce(Return(false));
-
-    EXPECT_FALSE(quarantineManager.restoreFile(objectId).value().wasSuccessful);
-
-    EXPECT_TRUE(appenderContains("[ERROR] Unable to restore clean file: /path/to/location/testName"));
+    EXPECT_TRUE(appenderContains("[ERROR] Unable to restore clean file: /location/name"));
 }
 
 TEST_F(QuarantineManagerRescanTests, restoreFileReturnsEarlyIfDeleteFails)
 {
-    UsingMemoryAppender memoryAppenderHolder(*this);
     m_memoryAppender->setLayout(std::make_unique<log4cplus::PatternLayout>("[%p] %m%n"));
 
+    defineSafeStoreObject(1111, "objectId", {});
+    EXPECT_CALL(*mockSafeStoreWrapper_, deleteObjectById("objectId")).WillOnce(Return(false));
+
+    MoveFileSystemMocks();
     auto quarantineManager = createQuarantineManager();
 
-    std::string objectId = "objectId";
-    std::string objectName = "testName";
-    std::string objectLocation = "/path/to/location";
-    std::string correlationId = "01234567-89ab-cdef-0123-456789abcdef";
+    EXPECT_FALSE(quarantineManager.restoreFile("objectId").value().wasSuccessful);
 
-    auto mockGetIdMethods = std::make_shared<StrictMock<MockISafeStoreGetIdMethods>>();
-    auto mockReleaseMethods = std::make_shared<StrictMock<MockISafeStoreReleaseMethods>>();
-
-    void* rawHandle = reinterpret_cast<SafeStoreObjectHandle>(1111);
-    auto objectHandle = std::make_unique<ObjectHandleHolder>(mockGetIdMethods, mockReleaseMethods);
-    *objectHandle->getRawHandlePtr() = rawHandle;
-    auto handleAsArg = Property(&ObjectHandleHolder::getRawHandle, rawHandle); // Matches argument with raw handle
-    EXPECT_CALL(*mockReleaseMethods, releaseObjectHandle(rawHandle));
-
-    EXPECT_CALL(*m_mockSafeStoreWrapper, createObjectHandleHolder()).WillOnce(Return(ByMove(std::move(objectHandle))));
-    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectHandle("objectId", _)).WillOnce(Return(true));
-    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectName(handleAsArg)).WillOnce(Return(objectName));
-    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectLocation(handleAsArg)).WillOnce(Return(objectLocation));
-    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectCustomDataString(handleAsArg, "correlationId"))
-        .WillOnce(Return(correlationId));
-    EXPECT_CALL(*m_mockSafeStoreWrapper, restoreObjectById(objectId)).WillOnce(Return(true));
-    EXPECT_CALL(*m_mockSafeStoreWrapper, deleteObjectById(objectId)).WillOnce(Return(false));
-
-    EXPECT_FALSE(quarantineManager.restoreFile(objectId).value().wasSuccessful);
-
-    EXPECT_TRUE(appenderContains("[INFO] Restored file to disk: /path/to/location/testName"));
+    EXPECT_TRUE(appenderContains("[INFO] Restored file to disk: /location/name"));
     EXPECT_TRUE(appenderContains(
-        "[WARN] File was restored to disk, but unable to remove it from SafeStore database: /path/to/location/testName"));
+        "[WARN] File was restored to disk, but unable to remove it from SafeStore database: /location/name"));
 }
 
 TEST_F(QuarantineManagerRescanTests, restoreFileReturnsReportOnSuccess)
 {
-    UsingMemoryAppender memoryAppenderHolder(*this);
     m_memoryAppender->setLayout(std::make_unique<log4cplus::PatternLayout>("[%p] %m%n"));
 
+    defineSafeStoreObjects({ { 1111, "objectId", {} } });
+
+    MoveFileSystemMocks();
     auto quarantineManager = createQuarantineManager();
 
-    std::string objectId = "objectId";
-    std::string objectName = "testName";
-    std::string objectLocation = "/path/to/location";
-    std::string correlationId = "01234567-89ab-cdef-0123-456789abcdef";
-
-    auto mockGetIdMethods = std::make_shared<StrictMock<MockISafeStoreGetIdMethods>>();
-    auto mockReleaseMethods = std::make_shared<StrictMock<MockISafeStoreReleaseMethods>>();
-
-    void* rawHandle = reinterpret_cast<SafeStoreObjectHandle>(1111);
-    auto objectHandle = std::make_unique<ObjectHandleHolder>(mockGetIdMethods, mockReleaseMethods);
-    *objectHandle->getRawHandlePtr() = rawHandle;
-    auto handleAsArg = Property(&ObjectHandleHolder::getRawHandle, rawHandle); // Matches argument with raw handle
-    EXPECT_CALL(*mockReleaseMethods, releaseObjectHandle(rawHandle));
-
-    EXPECT_CALL(*m_mockSafeStoreWrapper, createObjectHandleHolder()).WillOnce(Return(ByMove(std::move(objectHandle))));
-    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectHandle("objectId", _)).WillOnce(Return(true));
-    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectName(handleAsArg)).WillOnce(Return(objectName));
-    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectLocation(handleAsArg)).WillOnce(Return(objectLocation));
-    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectCustomDataString(handleAsArg, "correlationId"))
-        .WillOnce(Return(correlationId));
-    EXPECT_CALL(*m_mockSafeStoreWrapper, restoreObjectById(objectId)).WillOnce(Return(true));
-    EXPECT_CALL(*m_mockSafeStoreWrapper, deleteObjectById(objectId)).WillOnce(Return(true));
-
-    auto result = quarantineManager.restoreFile(objectId);
+    auto result = quarantineManager.restoreFile("objectId");
+    ASSERT_TRUE(result);
     EXPECT_TRUE(result.value().wasSuccessful);
-    EXPECT_EQ(result.value().path, "/path/to/location/testName");
-    EXPECT_EQ(result.value().correlationId, correlationId);
+    EXPECT_EQ(result.value().path, "/location/name");
+    EXPECT_EQ(result.value().correlationId, correlationId_);
 
-    EXPECT_TRUE(appenderContains("[INFO] Restored file to disk: /path/to/location/testName"));
+    EXPECT_TRUE(appenderContains("[INFO] Restored file to disk: /location/name"));
     EXPECT_TRUE(appenderContains("[DEBUG] ObjectId successfully deleted from database: objectId"));
 }
 
-namespace
+TEST_F(QuarantineManagerRescanTests, RescanDoesMetadataRescanAndReceivesUndetectedSoDoesFullRescan)
 {
-    class QuarantineManagerRescanDefaultMockTests : public MemoryAppenderUsingTests
+    defineSafeStoreObjects({ { 1111, "objectId", {} } });
+
     {
-    protected:
-        QuarantineManagerRescanDefaultMockTests() :
-            MemoryAppenderUsingTests("safestore"), memoryAppenderHolder_{ *this }
-        {
-            auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
-            appConfig.setData("SOPHOS_INSTALL", "/tmp");
-            appConfig.setData("PLUGIN_INSTALL", "/tmp/av");
-        }
+        InSequence seq;
 
-        QuarantineManagerImpl createQuarantineManager()
-        {
-            return { std::move(mockSafeStoreWrapper_), mockSysCallWrapper_, mockSafeStoreResources_ };
-        }
+        EXPECT_CALL(*mockMetadataRescanClientSocket_, rescan)
+            .WillOnce(Return(scan_messages::MetadataRescanResponse::undetected));
 
-        void defineObjectAccessors(
-            int id,
-            const std::string& threatType,
-            const std::string& threatName,
-            const std::string& name,
-            const std::string& location,
-            const std::string& sha256,
-            const std::string& objectId)
-        {
-            void* rawHandle = reinterpret_cast<SafeStoreObjectHandle>(id);
-            auto property = Property(&ObjectHandleHolder::getRawHandle, rawHandle);
+        // Does full rescan
+        EXPECT_CALL(*mockSafeStoreWrapper_, restoreObjectByIdToLocation("objectId", unpackLocation_))
+            .WillOnce(Return(true));
+        ON_CALL(*mockFileSystem_, listAllFilesInDirectoryTree(unpackLocation_))
+            .WillByDefault(Return(std::vector<std::string>{ "file" }));
 
-            ON_CALL(*mockSafeStoreWrapper_, getObjectCustomDataString(property, "threatType"))
-                .WillByDefault(Return(threatType));
-            ON_CALL(*mockSafeStoreWrapper_, getObjectThreatName(property)).WillByDefault(Return(threatName));
-            ON_CALL(*mockSafeStoreWrapper_, getObjectName(property)).WillByDefault(Return(name));
-            ON_CALL(*mockSafeStoreWrapper_, getObjectLocation(property)).WillByDefault(Return(location));
-            ON_CALL(*mockSafeStoreWrapper_, getObjectCustomDataString(property, "SHA256"))
-                .WillByDefault(Return(sha256));
-            ON_CALL(*mockSafeStoreWrapper_, getObjectId(property)).WillByDefault(Return(objectId));
-        }
-
-        ObjectHandleHolder createObjectHandle(int id)
-        {
-            ObjectHandleHolder objectHandle{ mockGetIdMethods_, mockReleaseMethods_ };
-            *objectHandle.getRawHandlePtr() = reinterpret_cast<SafeStoreObjectHandle>(id);
-            return objectHandle;
-        }
-
-        UsingMemoryAppender memoryAppenderHolder_;
-        std::unique_ptr<MockISafeStoreWrapper> mockSafeStoreWrapper_ = std::make_unique<MockISafeStoreWrapper>();
-        std::unique_ptr<MockFileSystem> mockFileSystem_ = std::make_unique<MockFileSystem>();
-        std::shared_ptr<MockISafeStoreGetIdMethods> mockGetIdMethods_ = std::make_shared<MockISafeStoreGetIdMethods>();
-        std::shared_ptr<MockISafeStoreReleaseMethods> mockReleaseMethods_ =
-            std::make_shared<MockISafeStoreReleaseMethods>();
-        std::shared_ptr<MockSystemCallWrapper> mockSysCallWrapper_ = std::make_shared<MockSystemCallWrapper>();
-        MockSafeStoreResources mockSafeStoreResources_;
-    };
-} // namespace
-
-TEST_F(QuarantineManagerRescanDefaultMockTests, MetadataRescanReceivesClean)
-{
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::move(mockFileSystem_) };
-
-    ON_CALL(*mockSafeStoreWrapper_, find)
-        .WillByDefault(InvokeWithoutArgs(
-            [this]()
-            {
-                std::vector<ObjectHandleHolder> searchResults;
-                searchResults.push_back(createObjectHandle(1111));
-                return searchResults;
-            }));
-    defineObjectAccessors(1111, "threatType", "threatName", "name", "/location", "SHA256", "objectId");
+        EXPECT_CALL(*mockScanningClientSocket_, sendRequest).WillOnce(Return(true));
+        EXPECT_CALL(*mockScanningClientSocket_, receiveResponse).WillOnce(Return(true));
+    }
 
     EXPECT_CALL(mockSafeStoreResources_, CreateMetadataRescanClientSocket)
-        .WillRepeatedly(InvokeWithoutArgs(
-            []()
-            {
-                auto wrapper = std::make_unique<unixsocket::MockMetadataRescanClientSocket>();
-                EXPECT_CALL(*wrapper, rescan).WillRepeatedly(Return(scan_messages::MetadataRescanResponse::ok));
-                return wrapper;
-            }));
+        .WillOnce(Return(ByMove(std::move(mockMetadataRescanClientSocket_))));
+    EXPECT_CALL(mockSafeStoreResources_, CreateScanningClientSocket)
+        .WillOnce(Return(ByMove(std::move(mockScanningClientSocket_))));
 
+    MoveFileSystemMocks();
     auto quarantineManager = createQuarantineManager();
 
     quarantineManager.rescanDatabase();
+    EXPECT_TRUE(appenderContains("DEBUG - Received metadata rescan response: 'undetected'"));
     EXPECT_TRUE(appenderContains(
-        "INFO - Requesting metadata rescan of quarantined file with original path '/location/name' and object ID 'objectId'"));
-    EXPECT_TRUE(appenderContains(
-        "DEBUG - Metadata rescan for '/location/name' found it to no longer have the saved detection"));
+        "INFO - Performing full rescan of quarantined file (original path '/location/name', object ID 'objectId')"));
 }
 
-TEST_F(QuarantineManagerRescanDefaultMockTests, MetadataRescanReceivesThreat)
+TEST_F(
+    QuarantineManagerRescanTests,
+    RescanDoesMetadataRescanWithCorrectParametersAndReceivesUndetectedSoDoesFullRescanWhichReportsNoDetectionsSoRestoresFile)
 {
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::move(mockFileSystem_) };
+    defineSafeStoreObjects({ { 1111, "objectId", {} } });
 
-    ON_CALL(*mockSafeStoreWrapper_, find)
-        .WillByDefault(InvokeWithoutArgs(
-            [this]()
-            {
-                std::vector<ObjectHandleHolder> searchResults;
-                searchResults.push_back(createObjectHandle(1111));
-                return searchResults;
-            }));
-    defineObjectAccessors(1111, "threatType", "threatName", "name", "/location", "SHA256", "objectId");
+    {
+        InSequence seq;
+
+        // Metadata rescan attempted with expected parameters
+        EXPECT_CALL(*mockMetadataRescanClientSocket_, rescan)
+            .WillOnce(Invoke(
+                [](const scan_messages::MetadataRescan& metadataRescan)
+                {
+                    EXPECT_EQ(metadataRescan.threat.type, "threatType");
+                    EXPECT_EQ(metadataRescan.threat.name, "threatName");
+                    EXPECT_EQ(metadataRescan.threat.sha256, "threatSHA256");
+                    EXPECT_EQ(metadataRescan.filePath, "/location/name");
+                    EXPECT_EQ(metadataRescan.sha256, "SHA256");
+                    return scan_messages::MetadataRescanResponse::undetected;
+                }));
+
+        // Does full rescan
+        EXPECT_CALL(*mockSafeStoreWrapper_, restoreObjectByIdToLocation("objectId", unpackLocation_))
+            .WillOnce(Return(true));
+        ON_CALL(*mockFileSystem_, listAllFilesInDirectoryTree(unpackLocation_))
+            .WillByDefault(Return(std::vector<std::string>{ "file" }));
+
+        EXPECT_CALL(*mockScanningClientSocket_, sendRequest).WillOnce(Return(true));
+        EXPECT_CALL(*mockScanningClientSocket_, receiveResponse).WillOnce(Return(true));
+
+        // Tries to restore the file
+        EXPECT_CALL(*mockSafeStoreWrapper_, restoreObjectById("objectId")).WillOnce(Return(true));
+    }
 
     EXPECT_CALL(mockSafeStoreResources_, CreateMetadataRescanClientSocket)
-        .WillRepeatedly(InvokeWithoutArgs(
-            []()
-            {
-                auto wrapper = std::make_unique<unixsocket::MockMetadataRescanClientSocket>();
-                EXPECT_CALL(*wrapper, rescan)
-                    .WillRepeatedly(Return(scan_messages::MetadataRescanResponse::threatPresent));
-                return wrapper;
-            }));
+        .WillOnce(Return(ByMove(std::move(mockMetadataRescanClientSocket_))));
+    EXPECT_CALL(mockSafeStoreResources_, CreateScanningClientSocket)
+        .WillOnce(Return(ByMove(std::move(mockScanningClientSocket_))));
 
+    MoveFileSystemMocks();
     auto quarantineManager = createQuarantineManager();
 
     quarantineManager.rescanDatabase();
     EXPECT_TRUE(appenderContains(
-        "INFO - Requesting metadata rescan of quarantined file with original path '/location/name' and object ID 'objectId'"));
-    EXPECT_TRUE(appenderContains("DEBUG - Metadata rescan for '/location/name' found it to still be a threat"));
+        "INFO - Requesting metadata rescan of quarantined file (original path '/location/name', object ID 'objectId')"));
+    EXPECT_TRUE(appenderContains("DEBUG - Received metadata rescan response: 'undetected'"));
+    EXPECT_TRUE(appenderContains(
+        "INFO - Performing full rescan of quarantined file (original path '/location/name', object ID 'objectId')"));
 }
 
-TEST_F(QuarantineManagerRescanDefaultMockTests, MetadataRescanReceivesMultipleResults)
+TEST_F(QuarantineManagerRescanTests, RescanMetadataRescanFailsIfThreatsIsMissingSoDoesFullRescan)
 {
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::move(mockFileSystem_) };
+    defineSafeStoreObjects({ { 1111, "objectId", {} } });
 
-    ON_CALL(*mockSafeStoreWrapper_, find)
-        .WillByDefault(InvokeWithoutArgs(
-            [this]()
-            {
-                std::vector<ObjectHandleHolder> searchResults;
-                searchResults.push_back(createObjectHandle(1111));
-                searchResults.push_back(createObjectHandle(2222));
-                return searchResults;
-            }));
-    defineObjectAccessors(1111, "threatType_1", "threatName_1", "name_1", "/location_1", "SHA256_1", "objectId_1");
-    defineObjectAccessors(2222, "threatType_2", "threatName_2", "name_2", "/location_2", "SHA256_2", "objectId_2");
+    {
+        InSequence seq;
 
+        EXPECT_CALL(*mockSafeStoreWrapper_, getObjectCustomDataString(HasRawPointer(1111), "threats"))
+            .WillRepeatedly(Return(""));
+
+        ON_CALL(*mockFileSystem_, listAllFilesInDirectoryTree(unpackLocation_))
+            .WillByDefault(Return(std::vector<std::string>{ "file" }));
+
+        EXPECT_CALL(*mockScanningClientSocket_, sendRequest).WillOnce(Return(true));
+        EXPECT_CALL(*mockScanningClientSocket_, receiveResponse).WillOnce(Return(true));
+    }
+
+    EXPECT_CALL(mockSafeStoreResources_, CreateScanningClientSocket)
+        .WillOnce(Return(ByMove(std::move(mockScanningClientSocket_))));
+
+    MoveFileSystemMocks();
+    auto quarantineManager = createQuarantineManager();
+
+    quarantineManager.rescanDatabase();
+    EXPECT_TRUE(appenderContains(
+        "Failed to perform metadata rescan: Couldn't get object custom data 'threats', continuing with full rescan"));
+}
+
+TEST_F(QuarantineManagerRescanTests, RescanMetadataRescanFailsIfNameIsMissingSoDoesFullRescan)
+{
+    defineSafeStoreObjects({ { 1111, "objectId", {} } });
+
+    {
+        InSequence seq;
+
+        EXPECT_CALL(*mockSafeStoreWrapper_, getObjectName(HasRawPointer(1111))).WillRepeatedly(Return(""));
+
+        ON_CALL(*mockFileSystem_, listAllFilesInDirectoryTree(unpackLocation_))
+            .WillByDefault(Return(std::vector<std::string>{ "file" }));
+
+        EXPECT_CALL(*mockScanningClientSocket_, sendRequest).WillOnce(Return(true));
+        EXPECT_CALL(*mockScanningClientSocket_, receiveResponse).WillOnce(Return(true));
+    }
+
+    EXPECT_CALL(mockSafeStoreResources_, CreateScanningClientSocket)
+        .WillOnce(Return(ByMove(std::move(mockScanningClientSocket_))));
+
+    MoveFileSystemMocks();
+    auto quarantineManager = createQuarantineManager();
+
+    quarantineManager.rescanDatabase();
+    EXPECT_TRUE(
+        appenderContains("Failed to perform metadata rescan: Couldn't get object name, continuing with full rescan"));
+}
+
+TEST_F(QuarantineManagerRescanTests, RescanMetadataRescanFailsIfLocationIsMissingSoDoesFullRescan)
+{
+    defineSafeStoreObjects({ { 1111, "objectId", {} } });
+
+    {
+        InSequence seq;
+
+        EXPECT_CALL(*mockSafeStoreWrapper_, getObjectLocation(HasRawPointer(1111))).WillRepeatedly(Return(""));
+
+        ON_CALL(*mockFileSystem_, listAllFilesInDirectoryTree(unpackLocation_))
+            .WillByDefault(Return(std::vector<std::string>{ "file" }));
+
+        EXPECT_CALL(*mockScanningClientSocket_, sendRequest).WillOnce(Return(true));
+        EXPECT_CALL(*mockScanningClientSocket_, receiveResponse).WillOnce(Return(true));
+    }
+
+    EXPECT_CALL(mockSafeStoreResources_, CreateScanningClientSocket)
+        .WillOnce(Return(ByMove(std::move(mockScanningClientSocket_))));
+
+    MoveFileSystemMocks();
+    auto quarantineManager = createQuarantineManager();
+
+    quarantineManager.rescanDatabase();
+    EXPECT_TRUE(appenderContains(
+        "Failed to perform metadata rescan: Couldn't get object location, continuing with full rescan"));
+}
+
+TEST_F(QuarantineManagerRescanTests, RescanMetadataRescanFailsIfSha256IsMissingSoDoesFullRescan)
+{
+    defineSafeStoreObjects({ { 1111, "objectId", {} } });
+
+    {
+        InSequence seq;
+
+        EXPECT_CALL(*mockSafeStoreWrapper_, getObjectCustomDataString(HasRawPointer(1111), "SHA256"))
+            .WillRepeatedly(Return(""));
+
+        ON_CALL(*mockFileSystem_, listAllFilesInDirectoryTree(unpackLocation_))
+            .WillByDefault(Return(std::vector<std::string>{ "file" }));
+
+        EXPECT_CALL(*mockScanningClientSocket_, sendRequest).WillOnce(Return(true));
+        EXPECT_CALL(*mockScanningClientSocket_, receiveResponse).WillOnce(Return(true));
+    }
+
+    EXPECT_CALL(mockSafeStoreResources_, CreateScanningClientSocket)
+        .WillOnce(Return(ByMove(std::move(mockScanningClientSocket_))));
+
+    MoveFileSystemMocks();
+    auto quarantineManager = createQuarantineManager();
+
+    quarantineManager.rescanDatabase();
+    EXPECT_TRUE(appenderContains(
+        "Failed to perform metadata rescan: Couldn't get object custom data 'SHA256', continuing with full rescan"));
+}
+
+TEST_F(QuarantineManagerRescanTests, MetadataRescanContinuesIfOneFails)
+{
+    defineSafeStoreObjects({ { 1111, "objectId_1", {} },
+                             { 2222,
+                               "objectId_2",
+                               {
+                                   .name = "name_2",
+                                   .location = "/location_2",
+                               } } });
+    EXPECT_CALL(*mockSafeStoreWrapper_, getObjectLocation(HasRawPointer(1111))).WillRepeatedly(Return(""));
+
+    EXPECT_CALL(*mockMetadataRescanClientSocket_, rescan)
+        .WillOnce(Return(scan_messages::MetadataRescanResponse::undetected));
     EXPECT_CALL(mockSafeStoreResources_, CreateMetadataRescanClientSocket)
-        .WillRepeatedly(InvokeWithoutArgs(
-            []()
-            {
-                auto wrapper = std::make_unique<unixsocket::MockMetadataRescanClientSocket>();
-                EXPECT_CALL(*wrapper, rescan)
-                    .WillOnce(Return(scan_messages::MetadataRescanResponse::threatPresent))
-                    .WillOnce(Return(scan_messages::MetadataRescanResponse::ok));
-                return wrapper;
-            }));
+        .WillOnce(Return(ByMove(std::move(mockMetadataRescanClientSocket_))));
 
+    MoveFileSystemMocks();
     auto quarantineManager = createQuarantineManager();
 
     quarantineManager.rescanDatabase();
+    EXPECT_TRUE(appenderContains("WARN - Couldn't get path for 'objectId_1': Couldn't get object location"));
     EXPECT_TRUE(appenderContains(
-        "INFO - Requesting metadata rescan of quarantined file with original path '/location_1/name_1' and object ID 'objectId_1'"));
-    EXPECT_TRUE(appenderContains("DEBUG - Metadata rescan for '/location_1/name_1' found it to still be a threat"));
-    EXPECT_TRUE(appenderContains(
-        "INFO - Requesting metadata rescan of quarantined file with original path '/location_2/name_2' and object ID 'objectId_2'"));
-    EXPECT_TRUE(appenderContains(
-        "DEBUG - Metadata rescan for '/location_2/name_2' found it to no longer have the saved detection"));
-}
-
-TEST_F(QuarantineManagerRescanDefaultMockTests, MetadataRescanFailsIfThreatNameIsMissing)
-{
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::move(mockFileSystem_) };
-
-    ON_CALL(*mockSafeStoreWrapper_, find)
-        .WillByDefault(InvokeWithoutArgs(
-            [this]()
-            {
-                std::vector<ObjectHandleHolder> searchResults;
-                searchResults.push_back(createObjectHandle(1111));
-                return searchResults;
-            }));
-    defineObjectAccessors(1111, "threatType", "", "name", "/location", "SHA256", "objectId");
-
-    auto quarantineManager = createQuarantineManager();
-
-    quarantineManager.rescanDatabase();
-    EXPECT_TRUE(appenderContains("Failed to create metadata rescan request: Failed to get object threat name"));
-}
-
-TEST_F(QuarantineManagerRescanDefaultMockTests, MetadataRescanFailsIfNameIsMissing)
-{
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::move(mockFileSystem_) };
-
-    ON_CALL(*mockSafeStoreWrapper_, find)
-        .WillByDefault(InvokeWithoutArgs(
-            [this]()
-            {
-                std::vector<ObjectHandleHolder> searchResults;
-                searchResults.push_back(createObjectHandle(1111));
-                return searchResults;
-            }));
-    defineObjectAccessors(1111, "threatType", "threatName", "", "/location", "SHA256", "objectId");
-
-    auto quarantineManager = createQuarantineManager();
-
-    quarantineManager.rescanDatabase();
-    EXPECT_TRUE(appenderContains("Failed to create metadata rescan request: Couldn't get object name"));
-}
-
-TEST_F(QuarantineManagerRescanDefaultMockTests, MetadataRescanFailsIfLocationIsMissing)
-{
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::move(mockFileSystem_) };
-
-    ON_CALL(*mockSafeStoreWrapper_, find)
-        .WillByDefault(InvokeWithoutArgs(
-            [this]()
-            {
-                std::vector<ObjectHandleHolder> searchResults;
-                searchResults.push_back(createObjectHandle(1111));
-                return searchResults;
-            }));
-    defineObjectAccessors(1111, "threatType", "threatName", "name", "", "SHA256", "objectId");
-
-    auto quarantineManager = createQuarantineManager();
-
-    quarantineManager.rescanDatabase();
-    EXPECT_TRUE(appenderContains("Failed to create metadata rescan request: Couldn't get object location"));
-}
-
-TEST_F(QuarantineManagerRescanDefaultMockTests, MetadataRescanFailsIfSha256IsMissing)
-{
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::move(mockFileSystem_) };
-
-    ON_CALL(*mockSafeStoreWrapper_, find)
-        .WillByDefault(InvokeWithoutArgs(
-            [this]()
-            {
-                std::vector<ObjectHandleHolder> searchResults;
-                searchResults.push_back(createObjectHandle(1111));
-                return searchResults;
-            }));
-    defineObjectAccessors(1111, "threatType", "threatName", "name", "/location", "", "objectId");
-
-    auto quarantineManager = createQuarantineManager();
-
-    quarantineManager.rescanDatabase();
-    EXPECT_TRUE(appenderContains("Failed to create metadata rescan request: Failed to get object SHA256"));
-}
-
-TEST_F(QuarantineManagerRescanDefaultMockTests, MetadataRescanSucceedsIfThreatTypeIsMissing)
-{
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::move(mockFileSystem_) };
-
-    ON_CALL(*mockSafeStoreWrapper_, find)
-        .WillByDefault(InvokeWithoutArgs(
-            [this]()
-            {
-                std::vector<ObjectHandleHolder> searchResults;
-                searchResults.push_back(createObjectHandle(1111));
-                return searchResults;
-            }));
-    defineObjectAccessors(1111, "", "threatName", "name", "/location", "SHA256", "objectId");
-
-    EXPECT_CALL(mockSafeStoreResources_, CreateMetadataRescanClientSocket)
-        .WillRepeatedly(InvokeWithoutArgs(
-            []()
-            {
-                auto wrapper = std::make_unique<unixsocket::MockMetadataRescanClientSocket>();
-                EXPECT_CALL(*wrapper, rescan(Field(&scan_messages::MetadataRescan::threatType, "virus")))
-                    .WillRepeatedly(Return(scan_messages::MetadataRescanResponse::ok));
-                return wrapper;
-            }));
-
-    auto quarantineManager = createQuarantineManager();
-
-    quarantineManager.rescanDatabase();
-    EXPECT_TRUE(appenderContains(
-        "INFO - Requesting metadata rescan of quarantined file with original path '/location/name' and object ID 'objectId'"));
-    EXPECT_TRUE(appenderContains(
-        "DEBUG - Metadata rescan for '/location/name' found it to no longer have the saved detection"));
-}
-
-TEST_F(QuarantineManagerRescanDefaultMockTests, MetadataRescanContinuesIfOneFails)
-{
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::move(mockFileSystem_) };
-
-    ON_CALL(*mockSafeStoreWrapper_, find)
-        .WillByDefault(InvokeWithoutArgs(
-            [this]()
-            {
-                std::vector<ObjectHandleHolder> searchResults;
-                searchResults.push_back(createObjectHandle(1111));
-                searchResults.push_back(createObjectHandle(2222));
-                return searchResults;
-            }));
-    defineObjectAccessors(1111, "", "", "", "", "", "");
-    defineObjectAccessors(2222, "threatType_2", "threatName_2", "name_2", "/location_2", "SHA256_2", "objectId_2");
-
-    EXPECT_CALL(mockSafeStoreResources_, CreateMetadataRescanClientSocket)
-        .WillRepeatedly(InvokeWithoutArgs(
-            []()
-            {
-                auto wrapper = std::make_unique<unixsocket::MockMetadataRescanClientSocket>();
-                EXPECT_CALL(*wrapper, rescan).WillRepeatedly(Return(scan_messages::MetadataRescanResponse::ok));
-                return wrapper;
-            }));
-
-    auto quarantineManager = createQuarantineManager();
-
-    quarantineManager.rescanDatabase();
-    EXPECT_TRUE(appenderContains("Failed to create metadata rescan request:"));
-    EXPECT_TRUE(appenderContains(
-        "INFO - Requesting metadata rescan of quarantined file with original path '/location_2/name_2' and object ID 'objectId_2'"));
-    EXPECT_TRUE(appenderContains(
-        "DEBUG - Metadata rescan for '/location_2/name_2' found it to no longer have the saved detection"));
+        "INFO - Requesting metadata rescan of quarantined file (original path '/location_2/name_2', object ID 'objectId_2')"));
 }

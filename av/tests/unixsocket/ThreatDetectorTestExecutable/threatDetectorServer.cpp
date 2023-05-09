@@ -35,10 +35,14 @@ namespace
             fullResult << "fd=" << fd << ", scanType=" << info.getScanType()
                        << ", pid=" << info.getPid() << ", exePath="
                        << info.getExecutablePath() << "usserid=" << info.getUserId();
-            response.addDetection(info.getPath(), "fuzz-test","");
+            response.addDetection(info.getPath(), "virus", "fuzz-test", "");
             return response;
         }
 
+        scan_messages::MetadataRescanResponse metadataRescan(const scan_messages::MetadataRescan&) override
+        {
+            return scan_messages::MetadataRescanResponse::clean;
+        }
     };
     class FakeScannerFactory : public threat_scanner::IThreatScannerFactory
     {

@@ -1,4 +1,4 @@
-// Copyright 2022 Sophos Limited. All rights reserved.
+// Copyright 2022-2023 Sophos Limited. All rights reserved.
 
 #include "common/MemoryAppender.h"
 #include "sophos_threat_detector/threat_scanner/ThreatDetectedBuilder.h"
@@ -13,91 +13,19 @@ namespace
 {
     class TestThreatDetectedBuilder : public MemoryAppenderUsingTests
     {
-    public:
-        TestThreatDetectedBuilder() : MemoryAppenderUsingTests("ThreatScanner") {}
+    protected:
+        TestThreatDetectedBuilder() : MemoryAppenderUsingTests("ThreatScanner"), usingMemoryAppender_{ *this }
+        {
+        }
+
+        std::unique_ptr<MockFileSystem> mockFileSystem_ = std::make_unique<MockFileSystem>();
+        UsingMemoryAppender usingMemoryAppender_;
     };
 } // namespace
 
-TEST_F(TestThreatDetectedBuilder, getMainDetectionOneDetectionPathMatches_ReturnsExistingDetection)
+TEST_F(TestThreatDetectedBuilder, BuildsCorrectObject)
 {
-    const Detection detection1{ "/tmp/eicar.txt", "name", "type", "sha256" };
-    Detection result = getMainDetection({ detection1 }, "/tmp/eicar.txt", -1);
-    EXPECT_EQ(result, detection1);
-}
-
-TEST_F(TestThreatDetectedBuilder, getMainDetectionMultipleDetectionsOnePathMatches_ReturnsMatchingDetection)
-{
-    const Detection detection1{ "path1", "name1", "type1", "sha256_1" };
-    const Detection detection2{ "path2", "name2", "type2", "sha256_2" };
-    const Detection detection3{ "path3", "name3", "type3", "sha256_3" };
-    Detection result = getMainDetection({ detection1, detection2, detection3 }, "path2", -1);
-    EXPECT_EQ(result, detection2);
-}
-
-TEST_F(TestThreatDetectedBuilder, getMainDetectionOneDetectionButPathIsShorter_ReturnsNewDetectionWithOriginalPath)
-{
-    UsingMemoryAppender memoryAppenderHolder(*this);
-
-    const Detection detection1{ "/tmp/eicar", "name", "type", "sha256" };
-    const int fd = -1;
-    auto mockFileSystem = new StrictMock<MockFileSystem>{};
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem = std::unique_ptr<IFileSystem>(mockFileSystem);
-    EXPECT_CALL(*mockFileSystem, calculateDigest(_, fd)).Times(1).WillOnce(Return("calculatedSha256"));
-    Detection result = getMainDetection({ detection1 }, "/tmp/eicar.txt", fd);
-    EXPECT_EQ(result, (Detection{ "/tmp/eicar.txt", "name", "type", "calculatedSha256" }));
-
-    EXPECT_TRUE(appenderContains("Calculated the SHA256 of /tmp/eicar.txt: calculatedSha256"));
-    EXPECT_FALSE(appenderContains("Failed to calculate the SHA256"));
-}
-
-TEST_F(TestThreatDetectedBuilder, getMainDetectionOneDetectionButPathIsLonger_ReturnsNewDetectionWithOriginalPath)
-{
-    UsingMemoryAppender memoryAppenderHolder(*this);
-
-    const Detection detection1{ "/tmp/eicar.txt/foo", "name", "type", "sha256" };
-    const int fd = -1;
-    auto mockFileSystem = new StrictMock<MockFileSystem>{};
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem = std::unique_ptr<IFileSystem>(mockFileSystem);
-    EXPECT_CALL(*mockFileSystem, calculateDigest(_, fd)).Times(1).WillOnce(Return("calculatedSha256"));
-    Detection result = getMainDetection({ detection1 }, "/tmp/eicar.txt", fd);
-    EXPECT_EQ(result, (Detection{ "/tmp/eicar.txt", "name", "type", "calculatedSha256" }));
-
-    EXPECT_TRUE(appenderContains("Calculated the SHA256 of /tmp/eicar.txt: calculatedSha256"));
-    EXPECT_FALSE(appenderContains("Failed to calculate the SHA256"));
-}
-
-TEST_F(
-    TestThreatDetectedBuilder,
-    getMainDetectionOneDetectionButPathDiffersAndSha256Fails_ReturnsNewDetectionWithUnknownSha256)
-{
-    UsingMemoryAppender memoryAppenderHolder(*this);
-
-    const Detection detection1{ "/tmp/eicar.txt/foo", "name", "type", "sha256" };
-    const int fd = -1;
-    auto mockFileSystem = new StrictMock<MockFileSystem>{};
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem = std::unique_ptr<IFileSystem>(mockFileSystem);
-    EXPECT_CALL(*mockFileSystem, calculateDigest(_, fd)).Times(1).WillOnce(Throw(std::runtime_error("message")));
-    Detection result = getMainDetection({ detection1 }, "/tmp/eicar.txt", fd);
-    EXPECT_EQ(result, (Detection{ "/tmp/eicar.txt", "name", "type", "unknown" }));
-
-    EXPECT_FALSE(appenderContains("Calculated the SHA256 of /tmp/eicar.txt: "));
-    EXPECT_TRUE(appenderContains("Failed to calculate the SHA256 of /tmp/eicar.txt: message"));
-}
-
-TEST_F(TestThreatDetectedBuilder, getMainDetectionNoDetections_ReturnsDummyData)
-{
-    UsingMemoryAppender memoryAppenderHolder(*this);
-
-    Detection result = getMainDetection({}, "/tmp/eicar.txt", -1);
-    EXPECT_EQ(result, (Detection{ "/tmp/eicar.txt", "unknown", "unknown", "unknown" }));
-
-    EXPECT_TRUE(appenderContains("Trying to get the main detection when no detections were provided"));
-    EXPECT_FALSE(appenderContains("Calculated the SHA256 of "));
-    EXPECT_FALSE(appenderContains("Failed to calculate the SHA256"));
-}
-
-TEST_F(TestThreatDetectedBuilder, buildThreatDetectedBuildsCorrectObject)
-{
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::move(mockFileSystem_) };
     auto threatDetected = buildThreatDetected(
         { { "/tmp/eicar.txt", "EICAR-AV-Test", "virus", "sha256" } },
         "/tmp/eicar.txt",
@@ -111,7 +39,80 @@ TEST_F(TestThreatDetectedBuilder, buildThreatDetectedBuildsCorrectObject)
     EXPECT_EQ(threatDetected.scanType, scan_messages::E_SCAN_TYPE_ON_DEMAND);
     EXPECT_EQ(threatDetected.filePath, "/tmp/eicar.txt");
     EXPECT_EQ(threatDetected.sha256, "sha256");
-    EXPECT_EQ(threatDetected.threatId, "1a209c63-54e9-5080-8078-e283df4a0809");
+    EXPECT_EQ(threatDetected.threatSha256, "sha256");
+    EXPECT_EQ(threatDetected.threatId, generateThreatId("/tmp/eicar.txt", "sha256"));
     EXPECT_EQ(threatDetected.isRemote, false);
     EXPECT_EQ(threatDetected.reportSource, ReportSource::vdl);
+}
+
+TEST_F(TestThreatDetectedBuilder, MultipleDetectionsOnePathMatchesReturnsMatchingDetection)
+{
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::move(mockFileSystem_) };
+    const std::vector<Detection> detections{ { "path1", "name1", "type1", "sha256_1" },
+                                             { "path2", "name2", "type2", "sha256_2" },
+                                             { "path3", "name3", "type3", "sha256_3" } };
+
+    const auto threatDetected =
+        buildThreatDetected(detections, "path2", datatypes::AutoFd{}, "userId", scan_messages::E_SCAN_TYPE_ON_DEMAND);
+
+    EXPECT_EQ(threatDetected.threatType, "type2");
+    EXPECT_EQ(threatDetected.threatName, "name2");
+    EXPECT_EQ(threatDetected.filePath, "path2");
+    EXPECT_EQ(threatDetected.sha256, "sha256_2");
+    EXPECT_EQ(threatDetected.threatSha256, "sha256_2");
+    EXPECT_EQ(threatDetected.threatId, generateThreatId("path2", "sha256_2"));
+}
+
+TEST_F(TestThreatDetectedBuilder, PathIsShorterReturnsOriginalPathWithCalculatedSha256)
+{
+    EXPECT_CALL(*mockFileSystem_, calculateDigest(_, -1)).WillOnce(Return("calculatedSha256"));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::move(mockFileSystem_) };
+
+    const std::vector<Detection> detections{ { "/tmp/eicar", "name", "type", "sha256" } };
+    const auto threatDetected = buildThreatDetected(
+        detections, "/tmp/eicar.txt", datatypes::AutoFd{}, "userId", scan_messages::E_SCAN_TYPE_ON_DEMAND);
+
+    EXPECT_EQ(threatDetected.filePath, "/tmp/eicar.txt");
+    EXPECT_EQ(threatDetected.sha256, "calculatedSha256");
+    EXPECT_EQ(threatDetected.threatSha256, "sha256");
+    EXPECT_EQ(threatDetected.threatId, generateThreatId("/tmp/eicar.txt", "calculatedSha256"));
+
+    EXPECT_TRUE(appenderContains("Calculated the SHA256 of /tmp/eicar.txt: calculatedSha256"));
+    EXPECT_FALSE(appenderContains("Failed to calculate the SHA256"));
+}
+
+TEST_F(TestThreatDetectedBuilder, PathIsLongerReturnsOriginalPathWithCalculatedSha256)
+{
+    EXPECT_CALL(*mockFileSystem_, calculateDigest(_, -1)).WillOnce(Return("calculatedSha256"));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::move(mockFileSystem_) };
+
+    const std::vector<Detection> detections{ { "/tmp/eicar.txt/foo", "name", "type", "sha256" } };
+    const auto threatDetected = buildThreatDetected(
+        detections, "/tmp/eicar.txt", datatypes::AutoFd{}, "userId", scan_messages::E_SCAN_TYPE_ON_DEMAND);
+
+    EXPECT_EQ(threatDetected.filePath, "/tmp/eicar.txt");
+    EXPECT_EQ(threatDetected.sha256, "calculatedSha256");
+    EXPECT_EQ(threatDetected.threatSha256, "sha256");
+    EXPECT_EQ(threatDetected.threatId, generateThreatId("/tmp/eicar.txt", "calculatedSha256"));
+
+    EXPECT_TRUE(appenderContains("Calculated the SHA256 of /tmp/eicar.txt: calculatedSha256"));
+    EXPECT_FALSE(appenderContains("Failed to calculate the SHA256"));
+}
+
+TEST_F(TestThreatDetectedBuilder, PathDiffersAndSha256FailsReturnsUnknownSha256)
+{
+    EXPECT_CALL(*mockFileSystem_, calculateDigest(_, -1)).WillOnce(Throw(std::runtime_error("message")));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::move(mockFileSystem_) };
+
+    const std::vector<Detection> detections{ { "/tmp/eicar.txt/foo", "name", "type", "sha256" } };
+    const auto threatDetected = buildThreatDetected(
+        detections, "/tmp/eicar.txt", datatypes::AutoFd{}, "userId", scan_messages::E_SCAN_TYPE_ON_DEMAND);
+
+    EXPECT_EQ(threatDetected.filePath, "/tmp/eicar.txt");
+    EXPECT_EQ(threatDetected.sha256, "unknown");
+    EXPECT_EQ(threatDetected.threatSha256, "sha256");
+    EXPECT_EQ(threatDetected.threatId, generateThreatId("/tmp/eicar.txt", "unknown"));
+
+    EXPECT_FALSE(appenderContains("Calculated the SHA256 of /tmp/eicar.txt: "));
+    EXPECT_TRUE(appenderContains("Failed to calculate the SHA256 of /tmp/eicar.txt: message"));
 }

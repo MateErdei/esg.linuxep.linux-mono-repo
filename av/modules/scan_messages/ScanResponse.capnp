@@ -1,22 +1,18 @@
-#------------------------------------------------------------------------------
-# Copyright 2019-2021 Sophos Limited. All rights reserved.
-#
-#------------------------------------------------------------------------------
-@0x8e23a365676e56cf;
+# Copyright 2019-2023 Sophos Limited. All rights reserved.
+@0xe07ab885c495921e;
 
 using Cxx = import "capnp/c++.capnp";
 
 $Cxx.namespace("Sophos::ssplav");
 
-## A FileScanRequest also has a file descriptor send as aux data
 struct FileScanResponse {
     struct Detection {
         filePath        @0 :Text;
-        threatName      @1 :Text;
-        sha256          @2 :Text;
+        threatType      @1 :Text;
+        threatName      @2 :Text;
+        sha256          @3 :Text;
     }
 
     detections      @0 :List(Detection);
-    fullScanResult  @1 :Text; ## Left in to avoid breaking older messages
-    errorMsg        @2 :Text;
+    errorMsg        @1 :Text;
 }

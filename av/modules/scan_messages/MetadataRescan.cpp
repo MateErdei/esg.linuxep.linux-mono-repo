@@ -16,8 +16,9 @@ namespace scan_messages
         Sophos::ssplav::MetadataRescan::Builder metadataRescanBuilder =
             messageBuilder.initRoot<Sophos::ssplav::MetadataRescan>();
 
-        metadataRescanBuilder.setThreatType(threatType);
-        metadataRescanBuilder.setThreatName(threatName);
+        metadataRescanBuilder.setThreatType(threat.type);
+        metadataRescanBuilder.setThreatName(threat.name);
+        metadataRescanBuilder.setThreatSha256(threat.sha256);
         metadataRescanBuilder.setFilePath(filePath);
         metadataRescanBuilder.setSha256(sha256);
 
@@ -28,7 +29,6 @@ namespace scan_messages
         return dataAsString;
     }
 
-
     MetadataRescan MetadataRescan::Deserialise(const kj::ArrayPtr<const capnp::word> protoBuffer)
     {
         capnp::FlatArrayMessageReader messageReader(protoBuffer);
@@ -36,20 +36,18 @@ namespace scan_messages
             messageReader.getRoot<Sophos::ssplav::MetadataRescan>();
 
         return MetadataRescan{
-            .threatType = metadataRescanReader.getThreatType(),
-            .threatName = metadataRescanReader.getThreatName(),
             .filePath = metadataRescanReader.getFilePath(),
             .sha256 = metadataRescanReader.getSha256(),
+            .threat = {
+                .type = metadataRescanReader.getThreatType(),
+                .name = metadataRescanReader.getThreatName(),
+                .sha256 = metadataRescanReader.getThreatSha256(),
+            },
         };
     }
 
     bool MetadataRescan::operator==(const MetadataRescan& other) const
     {
-        // clang-format off
-        return threatType == other.threatType &&
-               threatName == other.threatName &&
-               filePath == other.filePath &&
-               sha256 == other.sha256;
-        // clang-format on
+        return threat == other.threat && filePath == other.filePath && sha256 == other.sha256;
     }
 } // namespace scan_messages

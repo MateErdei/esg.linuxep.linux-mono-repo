@@ -1,4 +1,4 @@
-//Copyright 2020-2022, Sophos Limited.  All rights reserved.
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
@@ -48,7 +48,7 @@ namespace
         {
             if (m_withDetections)
             {
-                response.addDetection(m_paths.back(), "threatName","sha256");
+                response.addDetection(m_paths.back(), "threatType", "threatName", "sha256");
             }
             if (m_withErrors)
             {

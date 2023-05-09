@@ -1,10 +1,9 @@
-// Copyright 2022, Sophos Limited. All rights reserved.
+// Copyright 2022-2023 Sophos Limited. All rights reserved.
 
 #include "SafeStoreWrapperImpl.h"
 
-#include "safestore/Logger.h"
-
 #include "common/ApplicationPaths.h"
+#include "safestore/Logger.h"
 
 #include <Common/UtilityImpl/Uuid.h>
 
@@ -22,7 +21,7 @@ namespace
     {
     public:
         explicit SearchHandleHolder(safestore::SafeStoreWrapper::ISafeStoreHolder& safeStoreHolder) :
-            safeStoreHolder_ { safeStoreHolder }
+            safeStoreHolder_{ safeStoreHolder }
         {
         }
 
@@ -67,7 +66,7 @@ namespace safestore::SafeStoreWrapper
             return {};
         }
 
-        SafeStore_Id_t id {};
+        SafeStore_Id_t id{};
 
         // UUID format for reference:
         // xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
@@ -381,7 +380,6 @@ namespace safestore::SafeStoreWrapper
 
     bool SafeStoreWrapperImpl::setConfigIntValue(ConfigOption option, uint64_t value)
     {
-
         auto returnCode =
             SafeStore_SetConfigIntValue(m_safeStoreHolder->getHandle(), convertToSafeStoreConfigId(option), value);
         if (returnCode == SR_OK)
@@ -409,14 +407,14 @@ namespace safestore::SafeStoreWrapper
 
         std::vector<ObjectHandleHolder> results;
 
-        SearchHandleHolder searchHandle { *m_safeStoreHolder };
+        SearchHandleHolder searchHandle{ *m_safeStoreHolder };
 
         LOGDEBUG("Starting SafeStore search");
 
         int i = 0;
         while (true)
         {
-            ObjectHandleHolder objectHandle { m_getIdMethods, m_releaseMethods };
+            ObjectHandleHolder objectHandle{ m_getIdMethods, m_releaseMethods };
 
             SafeStore_Result_t returnCode;
             if (i == 0)
@@ -444,9 +442,7 @@ namespace safestore::SafeStoreWrapper
             }
             else if (returnCode != SR_OK)
             {
-                LOGWARN(
-                    "Got " << safeStoreReturnCodeToString(returnCode)
-                           << " when searching the SafeStore database");
+                LOGWARN("Got " << safeStoreReturnCodeToString(returnCode) << " when searching the SafeStore database");
                 break;
             }
             else if (searchHandle.get() == nullptr || objectHandle.getRawHandle() == nullptr)
@@ -646,7 +642,34 @@ namespace safestore::SafeStoreWrapper
         uint8_t buf[MAX_CUSTOM_DATA_SIZE];
 
         size_t bytesRead = 0;
+
+        // We need to get the size of the stored data, which is then passed as the buffer size rather than the true
+        // buffer size. This is needed because if the size of the data is larger than 64 bytes, it will report bytesRead
+        // to be 'size', rather than the actual size of the stored data.
+        // This looks to be a SafeStore defect, but it hasn't been yet confirmed by Core.
+        size_t actualSize = 0;
         auto returnCode = SafeStore_GetObjectCustomData(
+            m_safeStoreHolder->getHandle(), objectHandle.getRawHandle(), dataName.c_str(), nullptr, &actualSize, nullptr);
+        if (returnCode == SR_OK)
+        {
+            if (actualSize <= size)
+            {
+                size = actualSize;
+            }
+            else
+            {
+                LOGERROR("Size of data returned from getting object custom data is larger than buffer, returning empty data");
+                return {};
+            }
+        }
+        else
+        {
+            LOGERROR(
+                "Got " << safeStoreReturnCodeToString(returnCode) << " when getting custom data, name: " << dataName);
+            return {};
+        }
+
+        returnCode = SafeStore_GetObjectCustomData(
             m_safeStoreHolder->getHandle(), objectHandle.getRawHandle(), dataName.c_str(), buf, &size, &bytesRead);
         std::vector<uint8_t> dataToReturn;
 

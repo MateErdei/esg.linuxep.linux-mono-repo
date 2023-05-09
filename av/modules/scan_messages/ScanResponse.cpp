@@ -1,11 +1,8 @@
-/******************************************************************************************************
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
-Copyright 2020-2021, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+#include "ScanResponse.h"
 
 #include "Logger.h"
-#include "ScanResponse.h"
 
 #include <capnp/message.h>
 #include <capnp/serialize.h>
@@ -21,6 +18,7 @@ ScanResponse::ScanResponse(Sophos::ssplav::FileScanResponse::Reader reader)
     for (Sophos::ssplav::FileScanResponse::Detection::Reader detection : reader.getDetections())
     {
         Detection detectionContainer;
+        detectionContainer.type = detection.getThreatType();
         detectionContainer.name = detection.getThreatName();
         detectionContainer.path = detection.getFilePath();
         detectionContainer.sha256 = detection.getSha256();
@@ -32,13 +30,14 @@ ScanResponse::ScanResponse(Sophos::ssplav::FileScanResponse::Reader reader)
 std::string ScanResponse::serialise() const
 {
     ::capnp::MallocMessageBuilder message;
-    Sophos::ssplav::FileScanResponse::Builder responseBuilder =
-            message.initRoot<Sophos::ssplav::FileScanResponse>();
+    Sophos::ssplav::FileScanResponse::Builder responseBuilder = message.initRoot<Sophos::ssplav::FileScanResponse>();
 
-    ::capnp::List<Sophos::ssplav::FileScanResponse::Detection>::Builder detections = responseBuilder.initDetections(m_detections.size());
-    for (unsigned int i=0; i < m_detections.size(); i++)
+    ::capnp::List<Sophos::ssplav::FileScanResponse::Detection>::Builder detections =
+        responseBuilder.initDetections(m_detections.size());
+    for (unsigned int i = 0; i < m_detections.size(); i++)
     {
         detections[i].setFilePath(m_detections[i].path);
+        detections[i].setThreatType(m_detections[i].type);
         detections[i].setThreatName(m_detections[i].name);
         detections[i].setSha256(m_detections[i].sha256);
     }
@@ -50,10 +49,15 @@ std::string ScanResponse::serialise() const
     return dataAsString;
 }
 
-void ScanResponse::addDetection(const std::string& filePath, const std::string& threatName, const std::string& sha256)
+void ScanResponse::addDetection(
+    const std::string& filePath,
+    const std::string& threatType,
+    const std::string& threatName,
+    const std::string& sha256)
 {
     Detection detection;
     detection.path = filePath;
+    detection.type = threatType;
     detection.name = threatName;
     detection.sha256 = sha256;
     m_detections.emplace_back(detection);
@@ -77,7 +81,7 @@ std::string ScanResponse::getErrorMsg()
 bool ScanResponse::allClean()
 {
     bool allClean = true;
-    for (const auto& detection: m_detections)
+    for (const auto& detection : m_detections)
     {
         if (!detection.name.empty())
         {

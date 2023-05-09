@@ -2,17 +2,20 @@
 
 #include "SafeStoreServerConnectionThread.h"
 
+#include "Logger.h"
 #include "ThreatDetected.capnp.h"
 
+#include "common/SaferStrerror.h"
+#include "common/StringUtils.h"
 #include "safestore/SafeStoreTelemetryConsts.h"
 #include "scan_messages/QuarantineResponse.h"
 #include "scan_messages/ThreatDetected.h"
-#include "Logger.h"
 #include "unixsocket/SocketUtils.h"
 
 #include "Common/TelemetryHelperImpl/TelemetryHelper.h"
-#include "common/SaferStrerror.h"
-#include "common/StringUtils.h"
+
+#include <poll.h>
+#include <unistd.h>
 
 #include <capnp/serialize.h>
 
@@ -21,9 +24,6 @@
 #include <stdexcept>
 #include <utility>
 
-#include <poll.h>
-#include <unistd.h>
-
 using namespace unixsocket;
 
 SafeStoreServerConnectionThread::SafeStoreServerConnectionThread(
@@ -31,7 +31,9 @@ SafeStoreServerConnectionThread::SafeStoreServerConnectionThread(
     std::shared_ptr<safestore::QuarantineManager::IQuarantineManager> quarantineManager,
     datatypes::ISystemCallWrapperSharedPtr sysCalls) :
     BaseServerConnectionThread("SafeStoreServerConnectionThread"),
-    m_fd(std::move(fd)), m_quarantineManager(std::move(quarantineManager)), m_sysCalls(sysCalls)
+    m_fd(std::move(fd)),
+    m_quarantineManager(std::move(quarantineManager)),
+    m_sysCalls(sysCalls)
 {
     if (m_fd < 0)
     {
@@ -86,14 +88,12 @@ void SafeStoreServerConnectionThread::run()
         {
             // Fatal since this means we have a coding error that calls something unimplemented in kj.
             LOGFATAL(
-                "Terminated " << m_threadName << " with serialisation unimplemented exception: "
-                << ex.getDescription().cStr());
+                "Terminated " << m_threadName
+                              << " with serialisation unimplemented exception: " << ex.getDescription().cStr());
         }
         else
         {
-            LOGERROR(
-                "Terminated " << m_threadName << " with serialisation exception: "
-                << ex.getDescription().cStr());
+            LOGERROR("Terminated " << m_threadName << " with serialisation exception: " << ex.getDescription().cStr());
         }
     }
     catch (const std::exception& ex)
@@ -232,7 +232,8 @@ void SafeStoreServerConnectionThread::inner_run()
             LOGDEBUG(
                 "Received Threat:\n  File path: "
                 << escapedPath << "\n  Threat ID: " << threatDetected.threatId
-                << "\n  Threat name: " << threatDetected.threatName << "\n  SHA256: " << threatDetected.sha256
+                << "\n  Threat type: " << threatDetected.threatType << "\n  Threat name: " << threatDetected.threatName
+                << "\n  Threat SHA256: " << threatDetected.threatSha256 << "\n  SHA256: " << threatDetected.sha256
                 << "\n  File descriptor: " << threatDetected.autoFd.get());
 
             common::CentralEnums::QuarantineResult quarantineResult = m_quarantineManager->quarantineFile(
@@ -240,6 +241,7 @@ void SafeStoreServerConnectionThread::inner_run()
                 threatDetected.threatId,
                 threatDetected.threatType,
                 threatDetected.threatName,
+                threatDetected.threatSha256,
                 threatDetected.sha256,
                 threatDetected.correlationId,
                 std::move(threatDetected.autoFd));

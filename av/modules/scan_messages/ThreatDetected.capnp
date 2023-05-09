@@ -23,6 +23,7 @@ struct ThreatDetected {
     pid                             @11 :Int64 = -1;
     executablePath                  @12 :Text;
     correlationId                   @13 :Text;
+    threatSha256                    @14 :Text;
 }
 
 

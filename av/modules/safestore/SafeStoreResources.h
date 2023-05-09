@@ -13,5 +13,13 @@ namespace safestore
             std::string socket_path,
             const unixsocket::BaseClient::duration_t& sleepTime,
             unixsocket::BaseClient::IStoppableSleeperSharedPtr sleeper) override;
+
+        std::unique_ptr<unixsocket::IScanningClientSocket> CreateScanningClientSocket(
+            std::string socket_path,
+            const unixsocket::BaseClient::duration_t& sleepTime,
+            unixsocket::BaseClient::IStoppableSleeperSharedPtr sleeper) override;
+
+        std::unique_ptr<unixsocket::IRestoreReportingClient> CreateRestoreReportingClient(
+            unixsocket::BaseClient::IStoppableSleeperSharedPtr sleeper) override;
     };
 } // namespace safestore

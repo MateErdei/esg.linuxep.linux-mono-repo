@@ -55,6 +55,7 @@ void SusiScanner::handleDetections(
 
     assert(m_globalHandler);
 
+    // todo remove with LINUXDAR-6861
     if (m_globalHandler->isAllowListedPath(info.path()))
     {
         LOGINFO("Allowing " << common::escapePathForLogging(info.getPath()) << " as path is in allow list");
@@ -74,8 +75,7 @@ void SusiScanner::handleDetections(
             if (!info.detectPUAs())
             {
                 // CORE-3404: Until fixed some PUAs will still be detected by SUSI despite the setting being disabled
-                LOGINFO(
-                    "Allowing " << common::escapePathForLogging(detection.path) << " as PUA detection is disabled");
+                LOGINFO("Allowing " << common::escapePathForLogging(detection.path) << " as PUA detection is disabled");
                 continue;
             }
             // Then check policy allow-list:
@@ -132,11 +132,11 @@ void SusiScanner::handleDetections(
         if (e_ScanType != E_SCAN_TYPE_SAFESTORE_RESCAN)
         {
             LOGWARN(
-                "Detected \"" << detection.name << "\" in " << common::escapePathForLogging(detection.path)
-                              << " (" << scanTypeStr << ")");
+                "Detected \"" << detection.name << "\" in " << common::escapePathForLogging(detection.path) << " ("
+                              << scanTypeStr << ")");
         }
 
-        response.addDetection(detection.path, detection.name, detection.sha256);
+        response.addDetection(detection.path, detection.type, detection.name, detection.sha256);
     }
 
     if (e_ScanType == E_SCAN_TYPE_ON_ACCESS || e_ScanType == E_SCAN_TYPE_ON_ACCESS_CLOSE ||
@@ -155,4 +155,77 @@ void SusiScanner::handleDetections(
         assert(m_threatReporter);
         m_threatReporter->sendThreatReport(threatDetected);
     }
+}
+
+scan_messages::MetadataRescanResponse SusiScanner::metadataRescan(const scan_messages::MetadataRescan& request)
+{
+    std::string escapedPath{ common::escapePathForLogging(request.filePath) };
+
+    auto result = metadataRescanInner(request, escapedPath);
+
+    LOGDEBUG(
+        "Metadata rescan of quarantined file (original path '"
+        << escapedPath << "') has result: " << MetadataRescanResponseToString(result));
+
+    return result;
+}
+
+scan_messages::MetadataRescanResponse SusiScanner::metadataRescanInner(
+    const scan_messages::MetadataRescan& request,
+    std::string_view escapedPath)
+{
+    m_shutdownTimer->reset();
+
+    LOGDEBUG("Starting metadata rescan of quarantined file (original path '" << escapedPath << "')");
+
+    // First rescan the threat
+    LOGDEBUG("Performing metadata rescan on the main threat");
+    auto resultForDetection = m_unitScanner->metadataRescan(
+        request.threat.type, request.threat.name, request.filePath, request.threat.sha256);
+    LOGDEBUG("Main threat has rescan result: " << MetadataRescanResponseToString(resultForDetection));
+
+    scan_messages::MetadataRescanResponse resultForWholeFile;
+
+    // If the hash of the file is different from that of the threat, rescan the whole file's SHA256 as well.
+    // In that case we don't have the threatType or threatName available so use 'unknown' for both
+    // This is necessary to determine if an archive has been allowlisted or suppressed as a whole
+    if (request.sha256 != request.threat.sha256)
+    {
+        LOGDEBUG("Performing metadata rescan on the file's SHA256");
+        resultForWholeFile = m_unitScanner->metadataRescan("unknown", "unknown", request.filePath, request.sha256);
+        LOGDEBUG("File's SHA256 has rescan result: " << MetadataRescanResponseToString(resultForWholeFile));
+    }
+    else
+    {
+        LOGDEBUG("Threat SHA256 matches file SHA256, reusing threat rescan result for whole file");
+        resultForWholeFile = resultForDetection;
+    }
+
+    switch (resultForWholeFile)
+    {
+        case scan_messages::MetadataRescanResponse::clean:
+        case scan_messages::MetadataRescanResponse::threatPresent:
+        case scan_messages::MetadataRescanResponse::needsFullScan:
+        case scan_messages::MetadataRescanResponse::failed:
+            return resultForWholeFile;
+        case scan_messages::MetadataRescanResponse::undetected:
+            break;
+    }
+
+    switch (resultForDetection)
+    {
+        case scan_messages::MetadataRescanResponse::clean:
+        case scan_messages::MetadataRescanResponse::undetected:
+            // These two mean that the provided detection is no longer there.
+            // Since the rescan request MetadataRescan doesn't have all detections, we don't know if there are any other
+            // detections present, so we must request a full rescan.
+            resultForDetection = scan_messages::MetadataRescanResponse::needsFullScan;
+            break;
+        case scan_messages::MetadataRescanResponse::needsFullScan:
+        case scan_messages::MetadataRescanResponse::threatPresent:
+        case scan_messages::MetadataRescanResponse::failed:
+            break;
+    }
+
+    return resultForDetection;
 }

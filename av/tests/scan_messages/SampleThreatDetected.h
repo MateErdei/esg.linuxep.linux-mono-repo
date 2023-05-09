@@ -1,4 +1,4 @@
-// Copyright 2022 Sophos Limited. All rights reserved.
+// Copyright 2022-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
@@ -17,6 +17,7 @@ struct SampleThreatDetectedSettings
         common::CentralEnums::QuarantineResult::FAILED_TO_DELETE_FILE;
     std::string filePath = "/path/to/eicar.txt";
     std::string sha256 = "131f95c51cc819465fa1797f6ccacf9d494aaaff46fa3eac73ae63ffbdfd8267";
+    std::string threatSha256 = "131f95c51cc819465fa1797f6ccacf9d494aaaff46fa3eac73ae63ffbdfd8267";
     std::string threatId = "01234567-89ab-cdef-0123-456789abcdef";
     bool isRemote = true;
     common::CentralEnums::ReportSource reportSource = common::CentralEnums::ReportSource::vdl;
@@ -30,10 +31,10 @@ struct SampleThreatDetectedSettings
 
 inline scan_messages::ThreatDetected createThreatDetected(SampleThreatDetectedSettings settings)
 {
-    return { settings.userID,         settings.detectionTime,    settings.threatType,       settings.threatName,
-             settings.scanType,       settings.quarantineResult, settings.filePath,         settings.sha256,
-             settings.threatId,       settings.isRemote,         settings.reportSource,     settings.pid,
-             settings.executablePath, settings.correlationId,    std::move(settings.autoFd) };
+    return { settings.userID,       settings.detectionTime,    settings.threatType,    settings.threatName,
+             settings.scanType,     settings.quarantineResult, settings.filePath,      settings.sha256,
+             settings.threatSha256, settings.threatId,         settings.isRemote,      settings.reportSource,
+             settings.pid,          settings.executablePath,   settings.correlationId, std::move(settings.autoFd) };
 }
 
 inline scan_messages::ThreatDetected createOnAccessThreatDetected(SampleThreatDetectedSettings settings)

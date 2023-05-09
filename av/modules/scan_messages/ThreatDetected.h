@@ -32,6 +32,7 @@ namespace scan_messages
         common::CentralEnums::QuarantineResult quarantineResult;
         std::string filePath;
         std::string sha256;
+        std::string threatSha256;
         std::string threatId;
         bool isRemote;
         common::CentralEnums::ReportSource reportSource;

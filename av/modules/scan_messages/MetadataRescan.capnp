@@ -8,8 +8,9 @@ $Cxx.namespace("Sophos::ssplav");
 struct MetadataRescan {
     threatType @0 :Text;
     threatName @1 :Text;
-    filePath @2 :Text;
-    sha256 @3 :Text;
+    threatSha256 @2 :Text;
+    filePath @3 :Text;
+    sha256 @4 :Text;
 }
 
 

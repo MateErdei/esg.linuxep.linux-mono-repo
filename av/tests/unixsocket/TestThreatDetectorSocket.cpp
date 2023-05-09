@@ -127,7 +127,7 @@ TEST_F(TestThreatDetectorSocket, test_scan_threat)
     auto scanner = std::make_unique<StrictMock<MockScanner>>();
 
     auto expected_response = scan_messages::ScanResponse();
-    expected_response.addDetection("/tmp/eicar.com", "THREAT","");
+    expected_response.addDetection("/tmp/eicar.com", "virus", "THREAT", "");
     scan_messages::ScanRequest request = makeScanRequestObject(THREAT_PATH);
     EXPECT_CALL(*scanner, scan(_, Eq(std::ref(request))))
         .WillOnce(Return(expected_response));
@@ -201,8 +201,7 @@ TEST_F(TestThreatDetectorSocket, test_scan_twice)
     auto scanner = std::make_unique<StrictMock<MockScanner>>();
 
     auto expected_response = scan_messages::ScanResponse();
-    expected_response.addDetection("/bin/bash", "","");
-
+    expected_response.addDetection("/bin/bash", "", "", "");
 
     scan_messages::ScanRequest request = makeScanRequestObject(THREAT_PATH);
     EXPECT_CALL(*scanner, scan(_, Eq(std::ref(request))))

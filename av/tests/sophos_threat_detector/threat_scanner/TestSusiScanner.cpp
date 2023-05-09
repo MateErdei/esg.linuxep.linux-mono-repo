@@ -26,6 +26,11 @@ namespace
     {
     public:
         MOCK_METHOD(ScanResult, scan, (datatypes::AutoFd & fd, const std::string& path), (override));
+        MOCK_METHOD(
+            scan_messages::MetadataRescanResponse,
+            metadataRescan,
+            (std::string_view threatType, std::string_view threatName, std::string_view path, std::string_view sha256),
+            (override));
     };
 
     class MockSusiGlobalHandler : public ISusiGlobalHandler
@@ -81,6 +86,7 @@ namespace
             const std::string& threatName,
             const std::string& threatType,
             const std::string& sha256,
+            const std::string& threatSha256,
             const scan_messages::E_SCAN_TYPE  scanType = scan_messages::E_SCAN_TYPE_ON_DEMAND)
         {
             EXPECT_EQ(threatDetected.userID, "root");
@@ -89,6 +95,7 @@ namespace
             EXPECT_EQ(threatDetected.scanType, scanType);
             EXPECT_EQ(threatDetected.filePath, path);
             EXPECT_EQ(threatDetected.sha256, sha256);
+            EXPECT_EQ(threatDetected.threatSha256, threatSha256);
             EXPECT_EQ(threatDetected.threatId, generateThreatId(path, sha256));
             EXPECT_EQ(threatDetected.isRemote, false);
             EXPECT_EQ(threatDetected.reportSource, threat_scanner::getReportSource(threatName));
@@ -193,7 +200,7 @@ TEST_F(TestSusiScanner, scan_DetectionWithoutErrors_SendsReport)
         .WillOnce(Invoke(
             [&](const scan_messages::ThreatDetected& threatDetected)
             {
-                expectCorrectThreatDetected(threatDetected, "/tmp/eicar.txt", "threatName", "threatType", "sha256");
+                expectCorrectThreatDetected(threatDetected, "/tmp/eicar.txt", "threatName", "threatType", "sha256", "sha256");
                 EXPECT_EQ(threatDetected.pid,-1);
                 serverWaitGuard.onEventNoArgs();
             }));
@@ -235,7 +242,7 @@ TEST_F(TestSusiScanner, scan_DetectionOnaccessSetPid)
         .WillOnce(Invoke(
             [&](const scan_messages::ThreatDetected& threatDetected)
             {
-                expectCorrectThreatDetected(threatDetected, "/tmp/eicar.txt", "threatName", "threatType", "sha256", scan_messages::E_SCAN_TYPE_ON_ACCESS);
+                expectCorrectThreatDetected(threatDetected, "/tmp/eicar.txt", "threatName", "threatType", "sha256", "sha256", scan_messages::E_SCAN_TYPE_ON_ACCESS);
                 EXPECT_EQ(threatDetected.pid,100);
                 EXPECT_EQ(threatDetected.executablePath , "/random/path/of/parent");
                 serverWaitGuard.onEventNoArgs();
@@ -275,7 +282,7 @@ TEST_F(TestSusiScanner, scan_DetectionWithErrors_SendsReport)
         .WillOnce(Invoke(
             [&](const scan_messages::ThreatDetected& threatDetected)
             {
-                expectCorrectThreatDetected(threatDetected, "/tmp/eicar.txt", "threatName", "threatType", "sha256");
+                expectCorrectThreatDetected(threatDetected, "/tmp/eicar.txt", "threatName", "threatType", "sha256", "sha256");
                 serverWaitGuard.onEventNoArgs();
             }));
 
@@ -348,7 +355,7 @@ TEST_F(TestSusiScanner, scan_ShorterPathInDetection_ReportSentWithOriginalPath)
             [&](const scan_messages::ThreatDetected& threatDetected)
             {
                 expectCorrectThreatDetected(
-                    threatDetected, "/tmp/eicar.txt", "threatName", "threatType", "calculatedSha256");
+                    threatDetected, "/tmp/eicar.txt", "threatName", "threatType", "calculatedSha256", "sha256");
                 serverWaitGuard.onEventNoArgs();
             }));
 
@@ -389,7 +396,7 @@ TEST_F(TestSusiScanner, scan_ArchiveWithDetectionsIncludingItself_SendsReportFor
             [&](const scan_messages::ThreatDetected& threatDetected)
             {
                 expectCorrectThreatDetected(
-                    threatDetected, "/tmp/archive.zip", "threatName_archive", "threatType_archive", "sha256_archive");
+                    threatDetected, "/tmp/archive.zip", "threatName_archive", "threatType_archive", "sha256_archive", "sha256_archive");
                 serverWaitGuard.onEventNoArgs();
             }));
 
@@ -453,7 +460,7 @@ TEST_F(TestSusiScanner, scan_ArchiveWithDetectionsNotIncludingItself_SendsReport
             [&](const scan_messages::ThreatDetected& threatDetected)
             {
                 expectCorrectThreatDetected(
-                    threatDetected, "/tmp/archive.zip", "threatName_1", "threatType_1", "calculatedSha256");
+                    threatDetected, "/tmp/archive.zip", "threatName_1", "threatType_1", "calculatedSha256", "sha256_1");
             }));
 
     datatypes::AutoFd autoFd;
@@ -587,7 +594,7 @@ TEST_F(TestSusiScanner, puaNotApproved)
         .WillOnce(Invoke(
             [&](const scan_messages::ThreatDetected& threatDetected)
             {
-                expectCorrectThreatDetected(threatDetected, "/tmp/eicar.txt", puaClassName, "PUA", "sha256");
+                expectCorrectThreatDetected(threatDetected, "/tmp/eicar.txt", puaClassName, "PUA", "sha256", "sha256");
                 EXPECT_EQ(threatDetected.pid,-1);
                 serverWaitGuard.onEventNoArgs();
             }));

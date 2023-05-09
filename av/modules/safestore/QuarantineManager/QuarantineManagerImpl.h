@@ -8,7 +8,8 @@
 #include "scan_messages/MetadataRescan.h"
 #include "scan_messages/QuarantineResponse.h"
 #include "scan_messages/ScanResponse.h"
-#include "unixsocket/threatDetectorSocket/ScanningClientSocket.h"
+#include "unixsocket/metadataRescanSocket/IMetadataRescanClientSocket.h"
+#include "unixsocket/threatDetectorSocket/IScanningClientSocket.h"
 
 #include "Common/PersistentValue/PersistentValue.h"
 
@@ -35,6 +36,7 @@ namespace safestore::QuarantineManager
             const std::string& threatId,
             const std::string& threatType,
             const std::string& threatName,
+            const std::string& threatSha256,
             const std::string& sha256,
             const std::string& correlationId,
             datatypes::AutoFd autoFd) override;
@@ -56,6 +58,33 @@ namespace safestore::QuarantineManager
         void storeCorrelationId(SafeStoreWrapper::ObjectHandleHolder& objectHandle, const std::string& correlationId);
         [[nodiscard]] std::string getCorrelationId(SafeStoreWrapper::ObjectHandleHolder& objectHandle);
 
+        /**
+         * Stores the threats in object data. Does not throw on failure.
+         */
+        void StoreThreats(
+            SafeStoreWrapper::ObjectHandleHolder& objectHandle,
+            const std::vector<scan_messages::Threat>& threats);
+        [[nodiscard]] std::vector<scan_messages::Threat> GetThreats(SafeStoreWrapper::ObjectHandleHolder& objectHandle);
+
+        /**
+         * @returns true if the file can be restored
+         */
+        [[nodiscard]] bool DoFullRescan(
+            safestore::SafeStoreWrapper::ObjectHandleHolder& objectHandle,
+            const SafeStoreWrapper::ObjectId& objectId,
+            std::string_view filePathForLogging);
+        /**
+         * Determines if an object should be fully rescanned.
+         * By itself can't determine if the file can be restored, which was a design decision.
+         * Technically, in certain cases it should be possible make a decision to restore a file just on the metadata
+         * rescan result, however, we have decided not to do that and always fully rescan restoration candidates.
+         * @returns true if a full rescan should be done on the object
+         */
+        [[nodiscard]] bool DoMetadataRescan(
+            unixsocket::IMetadataRescanClientSocket& metadataRescanClientSocket,
+            safestore::SafeStoreWrapper::ObjectHandleHolder& objectHandle,
+            const SafeStoreWrapper::ObjectId& objectId);
+
         QuarantineManagerState m_state;
         std::unique_ptr<safestore::SafeStoreWrapper::ISafeStoreWrapper> m_safeStore;
         std::mutex m_interfaceMutex;
@@ -67,7 +96,7 @@ namespace safestore::QuarantineManager
         // the count only includes continuous DB errors by resetting states and error counts.
         int m_databaseErrorCount = 0;
         Common::PersistentValue<int> m_dbErrorCountThreshold;
-        static scan_messages::ScanResponse scan(unixsocket::ScanningClientSocket& socket, int fd);
+        static scan_messages::ScanResponse scan(unixsocket::IScanningClientSocket& socket, int fd);
         std::shared_ptr<datatypes::ISystemCallWrapper> m_sysCallWrapper;
         ISafeStoreResources& safeStoreResources_;
     };

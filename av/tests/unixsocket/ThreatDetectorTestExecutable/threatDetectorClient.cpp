@@ -107,7 +107,11 @@ static int writeSampleFile(const std::string& path)
     ::capnp::MallocMessageBuilder message;
     scan_messages::ScanResponse scanResponse;
 
-    scanResponse.addDetection("/home/vagrant/eicar1", "EICAR-AV-Test","");
+    scanResponse.addDetection(
+        "/home/vagrant/eicar1",
+        "virus",
+        "EICAR-AV-Test",
+        "2677b3f1607845d18d5a405a8ef592e79b8a6de355a9b7490b6bb439c2116def");
 
     std::string responseString = scanResponse.serialise();
 

@@ -5,6 +5,7 @@
 #include "avscanner/avscannerimpl/ClientSocketWrapper.h"
 #include "avscanner/avscannerimpl/ReconnectSettings.h"
 #include "tests/common/RecordingMockSocket.h"
+#include "tests/unixsocket/MockIScanningClientSocket.h"
 
 #include <gtest/gtest.h>
 
@@ -19,27 +20,6 @@ namespace
         void SetUp() override {}
 
         void TearDown() override {}
-    };
-
-    class MockIScanningClientSocket : public unixsocket::IScanningClientSocket
-    {
-    public:
-        MockIScanningClientSocket()
-        {
-            m_socketFd.reset(::open("/dev/zero", O_RDONLY));
-            ON_CALL(*this, connect).WillByDefault(Return(0));
-            ON_CALL(*this, sendRequest).WillByDefault(Return(true));
-            ON_CALL(*this, receiveResponse).WillByDefault(Return(true));
-            ON_CALL(*this, socketFd).WillByDefault([this]() {return this->m_socketFd.fd();});
-        }
-
-        MOCK_METHOD(int, connect, ());
-        MOCK_METHOD(bool, sendRequest, (scan_messages::ClientScanRequestPtr request));
-        MOCK_METHOD(bool, receiveResponse, (scan_messages::ScanResponse& response));
-        MOCK_METHOD(int, socketFd, ());
-
-    private:
-        datatypes::AutoFd m_socketFd;
     };
 
     constexpr ClientSocketWrapper::duration_t oneMillisecond = std::chrono::milliseconds{1}; // 1ms

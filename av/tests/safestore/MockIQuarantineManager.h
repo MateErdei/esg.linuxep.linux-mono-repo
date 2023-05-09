@@ -25,6 +25,7 @@ public:
          const std::string& threatId,
          const std::string& threatType,
          const std::string& threatName,
+         const std::string& threatSha256,
          const std::string& sha256,
          const std::string& correlationId,
          datatypes::AutoFd autoFd));

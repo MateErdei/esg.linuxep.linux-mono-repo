@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
@@ -22,6 +18,8 @@ namespace threat_scanner
             const char* filename,
             datatypes::AutoFd& fd,
             SusiScanResult** scanResult) = 0;
+
+        virtual SusiResult metadataRescan(const char* metaData, SusiScanResult** scanResult) = 0;
 
         virtual void freeResult(SusiScanResult* scanResult) = 0;
 

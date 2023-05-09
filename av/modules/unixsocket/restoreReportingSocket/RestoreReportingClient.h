@@ -2,18 +2,17 @@
 
 #pragma once
 
-#include "scan_messages/RestoreReport.h"
-#include "unixsocket/BaseClient.h"
+#include "IRestoreReportingClient.h"
 
-#include <string>
+#include "unixsocket/BaseClient.h"
 
 namespace unixsocket
 {
-    class RestoreReportingClient : public BaseClient
+    class RestoreReportingClient : public BaseClient, public IRestoreReportingClient
     {
     public:
         explicit RestoreReportingClient(std::shared_ptr<common::StoppableSleeper> sleeper);
 
-        void sendRestoreReport(const scan_messages::RestoreReport& restoreReport);
+        void sendRestoreReport(const scan_messages::RestoreReport& restoreReport) override;
     };
 } // namespace unixsocket

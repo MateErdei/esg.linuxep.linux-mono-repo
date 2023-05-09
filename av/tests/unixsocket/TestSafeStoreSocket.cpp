@@ -103,7 +103,7 @@ TEST_F(TestSafeStoreSocket, TestSendThreatDetected)
         WaitForEvent serverWaitGuard;
 
         auto quarantineManager = std::make_shared<MockIQuarantineManager>();
-        EXPECT_CALL(*quarantineManager, quarantineFile(_, _, _, _, _, _, _))
+        EXPECT_CALL(*quarantineManager, quarantineFile)
             .Times(1)
             .WillOnce(Invoke(
                 [&serverWaitGuard](
@@ -111,6 +111,7 @@ TEST_F(TestSafeStoreSocket, TestSendThreatDetected)
                     const std::string& /*threatId*/,
                     const std::string& /*threatType*/,
                     const std::string& /*threatName*/,
+                    const std::string& /*threatSha256*/,
                     const std::string& /*sha256*/,
                     const std::string& /*correlationId*/,
                     datatypes::AutoFd autoFd)
@@ -136,14 +137,17 @@ TEST_F(TestSafeStoreSocket, TestSendThreatDetected)
     }
 
     EXPECT_TRUE(appenderContains("SafeStoreClient connected"));
-    EXPECT_TRUE(appenderContains("SafeStoreClient sending quarantine request to SafeStore for file: /path/to/eicar.txt"));
+    EXPECT_TRUE(
+        appenderContains("SafeStoreClient sending quarantine request to SafeStore for file: /path/to/eicar.txt"));
     EXPECT_TRUE(appenderContains("SafeStoreServerConnectionThread got connection"));
     EXPECT_TRUE(appenderContains("SafeStoreServerConnectionThread read capn of"));
     EXPECT_TRUE(appenderContains("SafeStoreServerConnectionThread managed to get file descriptor:"));
     EXPECT_TRUE(appenderContains("Received Threat:"));
     EXPECT_TRUE(appenderContains("File path: /path/to/eicar.txt"));
     EXPECT_TRUE(appenderContains("Threat ID: 01234567-89ab-cdef-0123-456789abcdef"));
+    EXPECT_TRUE(appenderContains("Threat type: virus"));
     EXPECT_TRUE(appenderContains("Threat name: EICAR-AV-Test"));
+    EXPECT_TRUE(appenderContains("Threat SHA256: 131f95c51cc819465fa1797f6ccacf9d494aaaff46fa3eac73ae63ffbdfd8267"));
     EXPECT_TRUE(appenderContains("SHA256: 131f95c51cc819465fa1797f6ccacf9d494aaaff46fa3eac73ae63ffbdfd8267"));
     EXPECT_TRUE(appenderContains("File descriptor:"));
 }
@@ -155,7 +159,7 @@ TEST_F(TestSafeStoreSocket, TestSendTwoThreatDetecteds)
     WaitForEvent serverWaitGuard2;
 
     auto quarantineManager = std::make_shared<MockIQuarantineManager>();
-    EXPECT_CALL(*quarantineManager, quarantineFile(_, _, _, _, _, _, _))
+    EXPECT_CALL(*quarantineManager, quarantineFile)
         .Times(2)
         .WillOnce(InvokeWithoutArgs(
             [&serverWaitGuard]()
@@ -199,7 +203,7 @@ TEST_F(TestSafeStoreSocket, SafeStoreTelemetryReturnsExpectedDataAfterSuccessful
     addCommonSafeStoreTelemetrySetup();
     json initialTelemetry = json::parse(safeStoreCallback.getTelemetry());
 
-    EXPECT_CALL(*quarantineManager, quarantineFile(_, _, _, _, _, _, _))
+    EXPECT_CALL(*quarantineManager, quarantineFile)
         .WillOnce(InvokeWithoutArgs(
             [&serverWaitGuard]()
             {
@@ -223,7 +227,7 @@ TEST_F(TestSafeStoreSocket, SafeStoreTelemetryReturnsExpectedDataAfterFailedQuar
     addCommonSafeStoreTelemetrySetup();
     json initialTelemetry = json::parse(safeStoreCallback.getTelemetry());
 
-    EXPECT_CALL(*quarantineManager, quarantineFile(_, _, _, _, _, _, _))
+    EXPECT_CALL(*quarantineManager, quarantineFile)
         .WillOnce(InvokeWithoutArgs(
             [&serverWaitGuard]()
             {
@@ -247,7 +251,7 @@ TEST_F(TestSafeStoreSocket, SafeStoreTelemetryReturnsExpectedDataAfterUnlinkFail
     addCommonSafeStoreTelemetrySetup();
     json initialTelemetry = json::parse(safeStoreCallback.getTelemetry());
 
-    EXPECT_CALL(*quarantineManager, quarantineFile(_, _, _, _, _, _, _))
+    EXPECT_CALL(*quarantineManager, quarantineFile)
         .WillOnce(InvokeWithoutArgs(
             [&serverWaitGuard]()
             {
@@ -284,8 +288,7 @@ TEST_F(TestSafeStoreSocket, TestSendThreatDetectedReceiveResponse)
     setupFakeSophosThreatDetectorConfig();
 
     auto quarantineManager = std::make_shared<MockIQuarantineManager>();
-    EXPECT_CALL(*quarantineManager, quarantineFile(_, _, _, _, _, _, _))
-        .WillOnce(Return(common::CentralEnums::QuarantineResult::NOT_FOUND));
+    EXPECT_CALL(*quarantineManager, quarantineFile).WillOnce(Return(common::CentralEnums::QuarantineResult::NOT_FOUND));
 
     SafeStoreServerSocket server(m_socketPath, quarantineManager);
     server.start();
@@ -297,7 +300,8 @@ TEST_F(TestSafeStoreSocket, TestSendThreatDetectedReceiveResponse)
 
     EXPECT_EQ(client.waitForResponse(), common::CentralEnums::QuarantineResult::NOT_FOUND);
 
-    EXPECT_TRUE(appenderContains("SafeStoreClient sending quarantine request to SafeStore for file: /path/to/eicar.txt"));
+    EXPECT_TRUE(
+        appenderContains("SafeStoreClient sending quarantine request to SafeStore for file: /path/to/eicar.txt"));
     EXPECT_TRUE(appenderContains("SafeStoreClient sent quarantine request to SafeStore"));
     EXPECT_TRUE(appenderContains("SafeStoreClient received quarantine result from SafeStore: failure"));
 }
@@ -308,7 +312,8 @@ TEST_F(TestSafeStoreClientSocket, testClientSocketTriesToReconnect)
     SafeStoreClient client(m_socketPath, m_notifyPipe, std::chrono::seconds{ 0 });
     EXPECT_FALSE(client.isConnected());
 
-    EXPECT_TRUE(appenderContains("SafeStoreClient failed to connect to " + m_socketPath + " - retrying upto 10 times with a sleep of 0s", 1));
+    EXPECT_TRUE(appenderContains(
+        "SafeStoreClient failed to connect to " + m_socketPath + " - retrying upto 10 times with a sleep of 0s", 1));
     EXPECT_TRUE(appenderContains("SafeStoreClient reached the maximum number of connection attempts"));
 }
 
@@ -319,9 +324,13 @@ TEST_F(TestSafeStoreClientSocket, TestClientSocketTimeOutInterrupted)
     Common::Threads::NotifyPipe notifyPipe;
     auto notifyPipeSleeper = std::make_unique<common::NotifyPipeSleeper>(notifyPipe);
 
-    std::thread t1([&]() { SafeStoreClient client{m_socketPath, notifyPipe, std::chrono::seconds{ 1 }, std::move(notifyPipeSleeper) }; });
+    std::thread t1(
+        [&]() {
+            SafeStoreClient client{ m_socketPath, notifyPipe, std::chrono::seconds{ 1 }, std::move(notifyPipeSleeper) };
+        });
 
-    EXPECT_TRUE(waitForLog("SafeStoreClient failed to connect to " + m_socketPath + " - retrying upto 10 times with a sleep of 1s", 2s));
+    EXPECT_TRUE(waitForLog(
+        "SafeStoreClient failed to connect to " + m_socketPath + " - retrying upto 10 times with a sleep of 1s", 2s));
     notifyPipe.notify();
 
     t1.join();

@@ -1,14 +1,13 @@
-// Copyright 2020-2022, Sophos Limited.  All rights reserved.
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #include "avscanner/avscannerimpl/ScanClient.h"
 
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 #include "common/ErrorCodes.h"
+#include "tests/unixsocket/MockIScanningClientSocket.h"
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
-
-#include <fcntl.h>
 
 using namespace avscanner::avscannerimpl;
 using namespace testing;
@@ -17,24 +16,6 @@ namespace fs = sophos_filesystem;
 
 namespace
 {
-    class MockIScanningClientSocket : public unixsocket::IScanningClientSocket
-    {
-    public:
-        MockIScanningClientSocket()
-        {
-            m_socketFd.reset(::open("/dev/zero", O_RDONLY));
-            ON_CALL(*this, socketFd).WillByDefault([this]() {return this->m_socketFd.fd();});
-        }
-
-        MOCK_METHOD(int, connect, ());
-        MOCK_METHOD(bool, sendRequest, (scan_messages::ClientScanRequestPtr request));
-        MOCK_METHOD(bool, receiveResponse, (scan_messages::ScanResponse& response));
-        MOCK_METHOD(int, socketFd, ());
-
-    private:
-        datatypes::AutoFd m_socketFd;
-    };
-
     class MockIScanCallbacks : public avscanner::avscannerimpl::IScanCallbacks
     {
     public:
@@ -112,8 +93,8 @@ TEST(TestScanClient, TestScanArchive)
 
     StrictMock<MockIScanningClientSocket> mock_socket;
     scan_messages::ScanResponse response;
-    response.addDetection(infectedFile1, threatName,"");
-    response.addDetection(infectedFile2, threatName,"");
+    response.addDetection(infectedFile1, "virus", threatName, "");
+    response.addDetection(infectedFile2, "virus", threatName, "");
     std::map<path, std::string> detections;
     detections.emplace(infectedFile1, threatName);
     detections.emplace(infectedFile2, threatName);
@@ -153,7 +134,7 @@ TEST(TestScanClient, TestScanImage)
 
     StrictMock<MockIScanningClientSocket> mock_socket;
     scan_messages::ScanResponse response;
-    response.addDetection(infectedFile1, threatName,"");
+    response.addDetection(infectedFile1, "virus", threatName, "");
     std::map<path, std::string> detections;
     detections.emplace(infectedFile1, threatName);
 
@@ -191,7 +172,7 @@ TEST(TestScanClient, TestScanInfectedNoCallback)
 
     StrictMock<MockIScanningClientSocket> mock_socket;
     scan_messages::ScanResponse response;
-    response.addDetection("/tmp/eicar.com", THREAT,"");
+    response.addDetection("/tmp/eicar.com", "virus", THREAT, "");
 
     EXPECT_CALL(mock_socket, connect)
         .Times(1)
@@ -221,7 +202,7 @@ TEST(TestScanClient, TestScanInfected)
 
     StrictMock<MockIScanningClientSocket> mock_socket;
     scan_messages::ScanResponse response;
-    response.addDetection("/etc/passwd", THREAT,"");
+    response.addDetection("/etc/passwd", "virus", THREAT, "");
     std::map<path, std::string> detections;
     detections.emplace("/etc/passwd", THREAT);
 
@@ -328,7 +309,7 @@ TEST(TestScanClient, TestScanErrorWithDetections)
 
     StrictMock<MockIScanningClientSocket> mock_socket;
     scan_messages::ScanResponse response;
-    response.addDetection("/etc/passwd", THREAT,"");
+    response.addDetection("/etc/passwd", "virus", THREAT, "");
     response.setErrorMsg(errorMsg);
     std::map<path, std::string> detections;
     detections.emplace("/etc/passwd", THREAT);

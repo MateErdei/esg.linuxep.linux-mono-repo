@@ -1,12 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2020-2022, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
-
-//
-// Created by Douglas Leeder on 19/12/2019.
-//
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #include "datatypes/Print.h"
 #include "sophos_threat_detector/threat_scanner/IThreatScannerFactory.h"
@@ -25,11 +17,9 @@ namespace
 {
     class FakeScanner : public threat_scanner::IThreatScanner
     {
-        scan_messages::ScanResponse scan(
-            datatypes::AutoFd& fd,
-            const scan_messages::ScanRequest& info ) override
+        scan_messages::ScanResponse scan(datatypes::AutoFd& fd, const scan_messages::ScanRequest& info) override
         {
-            for (int i=0; i<1000; i++)
+            for (int i = 0; i < 1000; i++)
             {
                 unsigned oldflags = ::fcntl(fd.get(), F_GETFL, 0);
                 if ((oldflags & O_DIRECT) > 0)
@@ -46,10 +36,14 @@ namespace
             fd.close();
 
             scan_messages::ScanResponse response;
-            response.addDetection("/bin/bash", "","");
+            response.addDetection("/bin/bash", "", "", "");
             return response;
         }
 
+        scan_messages::MetadataRescanResponse metadataRescan(const scan_messages::MetadataRescan&) override
+        {
+            return scan_messages::MetadataRescanResponse::clean;
+        }
     };
     class FakeScannerFactory : public threat_scanner::IThreatScannerFactory
     {
