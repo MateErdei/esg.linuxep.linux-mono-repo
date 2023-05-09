@@ -132,7 +132,9 @@ SingleCommandResult RunCommandAction::runCommand(const std::string& command)
 
     auto process = ::Common::Process::createProcess();
     std::vector<std::string> cmd = { "-c", command };
-    process->exec("/bin/bash", cmd);
+    Common::Process::EnvPairVector env;
+    env.emplace_back(std::make_pair<std::string, std::string>("LANG","C"));
+    process->exec("/bin/bash", cmd, env);
 
     assert(process != nullptr);
 

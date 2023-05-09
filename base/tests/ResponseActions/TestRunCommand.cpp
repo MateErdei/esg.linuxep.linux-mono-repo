@@ -286,7 +286,7 @@ TEST_F(RunCommandTests, runMethodProducesValidOutForSinglecommand)
         {
             auto mockProcess = new StrictMock<MockProcess>();
             std::vector<std::string> args = { "-c", "echo -n one" };
-            EXPECT_CALL(*mockProcess, exec("/bin/bash", args)).Times(1);
+            EXPECT_CALL(*mockProcess, exec("/bin/bash", args, _)).Times(1);
             EXPECT_CALL(*mockProcess, standardOutput()).WillOnce(Return("output message"));
             EXPECT_CALL(*mockProcess, errorOutput()).WillOnce(Return(""));
             EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
@@ -320,7 +320,7 @@ TEST_F(RunCommandTests, runMethodHandlesInvalidJson)
         {
             auto mockProcess = new StrictMock<MockProcess>();
             std::vector<std::string> args = { "-c", "echo -n one" };
-            EXPECT_CALL(*mockProcess, exec("/bin/bash", args)).Times(1);
+            EXPECT_CALL(*mockProcess, exec("/bin/bash", args, _)).Times(1);
             EXPECT_CALL(*mockProcess, standardOutput()).WillOnce(Return("output message"));
             EXPECT_CALL(*mockProcess, errorOutput()).WillOnce(Return(""));
             EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
@@ -343,7 +343,7 @@ TEST_F(RunCommandTests, runMethodReturnsTimeOut)
         {
             auto mockProcess = new StrictMock<MockProcess>();
             std::vector<std::string> args = { "-c", "echo -n one" };
-            EXPECT_CALL(*mockProcess, exec("/bin/bash", args)).Times(1);
+            EXPECT_CALL(*mockProcess, exec("/bin/bash", args, _)).Times(1);
             EXPECT_CALL(*mockProcess, standardOutput()).WillOnce(Return("output message"));
             EXPECT_CALL(*mockProcess, errorOutput()).WillOnce(Return(""));
             EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(15));
@@ -380,7 +380,7 @@ TEST_F(RunCommandTests, runCommandsSingleCommandWithNoErrors)
         {
             auto mockProcess = new StrictMock<MockProcess>();
             std::vector<std::string> args = { "-c", "echo -n one" };
-            EXPECT_CALL(*mockProcess, exec("/bin/bash", args)).Times(1);
+            EXPECT_CALL(*mockProcess, exec("/bin/bash", args, _)).Times(1);
             EXPECT_CALL(*mockProcess, standardOutput()).WillOnce(Return("output message"));
             EXPECT_CALL(*mockProcess, errorOutput()).WillOnce(Return(""));
             EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
@@ -417,7 +417,7 @@ TEST_F(RunCommandTests, runCommandsMultipleCommandsWithNoErrors)
             auto mockProcess = new StrictMock<MockProcess>();
             std::vector<std::string> args;
             args = { "-c", "echo -n " + std::to_string(runCount++) };
-            EXPECT_CALL(*mockProcess, exec("/bin/bash", args)).Times(1);
+            EXPECT_CALL(*mockProcess, exec("/bin/bash", args, _)).Times(1);
             EXPECT_CALL(*mockProcess, standardOutput()).WillOnce(Return("output message"));
             EXPECT_CALL(*mockProcess, errorOutput()).WillOnce(Return(""));
             EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
@@ -458,7 +458,7 @@ TEST_F(RunCommandTests, runCommandsMultiplCommandsWithErrorsAndIgnoreErrorsTrue)
             auto mockProcess = new StrictMock<MockProcess>();
             std::vector<std::string> args;
             args = { "-c", "echo -n " + std::to_string(runCount++) };
-            EXPECT_CALL(*mockProcess, exec("/bin/bash", args)).Times(1);
+            EXPECT_CALL(*mockProcess, exec("/bin/bash", args, _)).Times(1);
             EXPECT_CALL(*mockProcess, standardOutput()).WillOnce(Return("output message"));
             EXPECT_CALL(*mockProcess, errorOutput()).WillOnce(Return(""));
             EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(1));
@@ -499,7 +499,7 @@ TEST_F(RunCommandTests, runCommandsMultiplCommandsWithErrorsAndIgnoreErrorsFalse
             auto mockProcess = new StrictMock<MockProcess>();
             std::vector<std::string> args;
             args = { "-c", "echo -n " + std::to_string(runCount++) };
-            EXPECT_CALL(*mockProcess, exec("/bin/bash", args)).Times(1);
+            EXPECT_CALL(*mockProcess, exec("/bin/bash", args, _)).Times(1);
             EXPECT_CALL(*mockProcess, standardOutput()).WillOnce(Return("output message"));
             EXPECT_CALL(*mockProcess, errorOutput()).WillOnce(Return(""));
             EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(1));
@@ -554,7 +554,7 @@ TEST_F(RunCommandTests, runCommandsMultipleExitsWhenTerminatedBeforeComplete)
             auto mockProcess = new StrictMock<MockProcess>();
             std::vector<std::string> args;
             args = { "-c", "echo -n " + std::to_string(runCount++) };
-            EXPECT_CALL(*mockProcess, exec("/bin/bash", args)).Times(1);
+            EXPECT_CALL(*mockProcess, exec("/bin/bash", args, _)).Times(1);
             EXPECT_CALL(*mockProcess, standardOutput()).WillOnce(Return("output message"));
             EXPECT_CALL(*mockProcess, errorOutput()).WillOnce(Return(""));
             EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
@@ -584,7 +584,7 @@ TEST_F(RunCommandTests, runCommandWithNoErrors)
         {
             auto mockProcess = new StrictMock<MockProcess>();
             std::vector<std::string> args = { "-c", "echo -n one" };
-            EXPECT_CALL(*mockProcess, exec("/bin/bash", args)).Times(1);
+            EXPECT_CALL(*mockProcess, exec("/bin/bash", args, _)).Times(1);
             EXPECT_CALL(*mockProcess, standardOutput()).WillOnce(Return("output message"));
             EXPECT_CALL(*mockProcess, errorOutput()).WillOnce(Return(""));
             EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
@@ -609,7 +609,7 @@ TEST_F(RunCommandTests, runCommandWithErrors)
         {
             auto mockProcess = new StrictMock<MockProcess>();
             std::vector<std::string> args = { "-c", "echo -n one" };
-            EXPECT_CALL(*mockProcess, exec("/bin/bash", args)).Times(1);
+            EXPECT_CALL(*mockProcess, exec("/bin/bash", args, _)).Times(1);
             EXPECT_CALL(*mockProcess, standardOutput()).WillOnce(Return("output message"));
             EXPECT_CALL(*mockProcess, errorOutput()).WillOnce(Return(""));
             EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(5));
@@ -633,7 +633,7 @@ TEST_F(RunCommandTests, runCommandWithErrorsAndStdErr)
         {
             auto mockProcess = new StrictMock<MockProcess>();
             std::vector<std::string> args = { "-c", "echo -n one" };
-            EXPECT_CALL(*mockProcess, exec("/bin/bash", args)).Times(1);
+            EXPECT_CALL(*mockProcess, exec("/bin/bash", args, _)).Times(1);
             EXPECT_CALL(*mockProcess, standardOutput()).WillOnce(Return("output message"));
             EXPECT_CALL(*mockProcess, errorOutput()).WillOnce(Return("error message"));
             EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(5));
@@ -666,7 +666,7 @@ TEST_F(RunCommandTests, runCommandWithParentTerminatedChildRunning)
         {
             auto mockProcess = new StrictMock<MockProcess>();
             std::vector<std::string> args = { "-c", "echo -n one" };
-            EXPECT_CALL(*mockProcess, exec("/bin/bash", args)).Times(1);
+            EXPECT_CALL(*mockProcess, exec("/bin/bash", args, _)).Times(1);
             EXPECT_CALL(*mockProcess, standardOutput()).Times(1);
             EXPECT_CALL(*mockProcess, errorOutput()).Times(1);
             EXPECT_CALL(*mockProcess, exitCode()).Times(1);
@@ -691,7 +691,7 @@ TEST_F(RunCommandTests, runCommandWithChildTerminated)
         {
             auto mockProcess = new StrictMock<MockProcess>();
             std::vector<std::string> args = { "-c", "echo -n one" };
-            EXPECT_CALL(*mockProcess, exec("/bin/bash", args)).Times(1);
+            EXPECT_CALL(*mockProcess, exec("/bin/bash", args, _)).Times(1);
             EXPECT_CALL(*mockProcess, standardOutput()).Times(1);
             EXPECT_CALL(*mockProcess, errorOutput()).Times(1);
             EXPECT_CALL(*mockProcess, exitCode()).Times(1);
@@ -717,7 +717,7 @@ TEST_F(RunCommandTests, runCommandPpollErrorExitAndKillWhenNotEINTR)
         {
             auto mockProcess = new StrictMock<MockProcess>();
             std::vector<std::string> args = { "-c", "echo -n one" };
-            EXPECT_CALL(*mockProcess, exec("/bin/bash", args)).Times(1);
+            EXPECT_CALL(*mockProcess, exec("/bin/bash", args, _)).Times(1);
             EXPECT_CALL(*mockProcess, standardOutput()).Times(1);
             EXPECT_CALL(*mockProcess, errorOutput()).Times(1);
             EXPECT_CALL(*mockProcess, exitCode()).Times(1);
@@ -746,7 +746,7 @@ TEST_F(RunCommandTests, runCommandPpollErrorContinueWhenEINTR)
         {
             auto mockProcess = new StrictMock<MockProcess>();
             std::vector<std::string> args = { "-c", "echo -n one" };
-            EXPECT_CALL(*mockProcess, exec("/bin/bash", args)).Times(1);
+            EXPECT_CALL(*mockProcess, exec("/bin/bash", args, _)).Times(1);
             EXPECT_CALL(*mockProcess, standardOutput()).Times(1);
             EXPECT_CALL(*mockProcess, errorOutput()).Times(1);
             EXPECT_CALL(*mockProcess, exitCode()).Times(1);
@@ -772,7 +772,7 @@ TEST_F(RunCommandTests, runCommandPpollSIGUSR1timesout)
         {
             auto mockProcess = new StrictMock<MockProcess>();
             std::vector<std::string> args = { "-c", "echo -n one" };
-            EXPECT_CALL(*mockProcess, exec("/bin/bash", args)).Times(1);
+            EXPECT_CALL(*mockProcess, exec("/bin/bash", args, _)).Times(1);
             EXPECT_CALL(*mockProcess, standardOutput()).Times(1);
             EXPECT_CALL(*mockProcess, errorOutput()).Times(1);
             EXPECT_CALL(*mockProcess, exitCode()).Times(1);
