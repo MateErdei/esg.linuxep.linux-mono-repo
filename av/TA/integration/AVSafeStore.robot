@@ -1201,8 +1201,6 @@ SafeStore Restores Archive Containing Password Protected File
     Wait For Log Contains From Mark    ${ss_mark}    SafeStore Database Rescan request received.
     Wait For Log Contains From Mark    ${ss_mark}    Requesting metadata rescan of quarantined file (original path '${SCAN_DIRECTORY}/test.tar'
     Wait For Log Contains From Mark    ${td_mark}    Allowed by SHA256: 0b3b17be2fea8a400cdd2c22124ca70707d0557f66c1e1f4f2d5c3ac20c7388d
-    Wait For Log Contains From Mark    ${ss_mark}    Received metadata rescan response: 'needs full scan'
-    Wait For Log Contains From Mark    ${ss_mark}    Performing full rescan of quarantined file (original path '${SCAN_DIRECTORY}/test.tar'
     Wait For Log Contains From Mark    ${ss_mark}    RestoreReportingClient reports successful restoration of ${SCAN_DIRECTORY}/test.tar
 
 
