@@ -21,7 +21,6 @@ fi
 mkdir -p /opt/test/inputs/edr/
 ln -snf "$EDR_PATH/output/SDDS-COMPONENT" /opt/test/inputs/edr_sdds
 ln -snf "$EDR_PATH/TA"  /opt/test/inputs/test_scripts
-ln -snf "$EDR_PATH/local_test_input/lp_tar"  /opt/test/inputs/lp_tar
 ln -snf "$EDR_PATH/local_test_input/qp"  /opt/test/inputs/qp
 ln -snf "$BASE_PATH/output/SDDS-COMPONENT" /opt/test/inputs/base_sdds
 apt-get -y install python3 python3-pip python3-pkgconfig

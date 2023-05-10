@@ -64,11 +64,11 @@
 
         <!-- For local tests -->
         <!-- qp=em.esg/develop/build/scheduled-query-pack-sdds -->
-        <!-- lp_tar=em.esg/develop/build/query-pack -->
+        <!-- lp=em.esg/develop/build/endpoint-query-pack -->
         <build-asset project="em" repo="esg">
             <release-version branch="release/2023.04/sprint" build-id="20230120201925-31a0379094fc1654506d3d459661d326949dee47-bh0Sgz"/>
             <development-version branch="develop"/>
-            <include artifact-path="endpoint-query-pack" dest-dir="local_test_input/lp_tar"/>
+            <include artifact-path="endpoint-query-pack" dest-dir="local_test_input/lp"/>
             <include artifact-path="scheduled-query-pack-sdds" dest-dir="local_test_input/qp"/>
         </build-asset>
 
