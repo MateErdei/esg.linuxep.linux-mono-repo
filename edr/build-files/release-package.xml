@@ -68,7 +68,7 @@
         <build-asset project="em" repo="esg">
             <release-version branch="release/2023.04/sprint" build-id="20230120201925-31a0379094fc1654506d3d459661d326949dee47-bh0Sgz"/>
             <development-version branch="develop"/>
-            <include artifact-path="query-pack" dest-dir="local_test_input/lp_tar"/>
+            <include artifact-path="endpoint-query-pack" dest-dir="local_test_input/lp_tar"/>
             <include artifact-path="scheduled-query-pack-sdds" dest-dir="local_test_input/qp"/>
         </build-asset>
 
