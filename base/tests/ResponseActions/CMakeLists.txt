@@ -6,6 +6,7 @@ add_executable(ResponseActionsTests
         TestDownloadAction.cpp
         TestPluginAdapter.cpp
         TestPluginUtils.cpp
+        TestTelemetry.cpp
         TestUploadAction.cpp
         TestUploadFolderAction.cpp
         TestRunCommand.cpp)
