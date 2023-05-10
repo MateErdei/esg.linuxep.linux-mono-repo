@@ -51,7 +51,7 @@ TEST_F(TestActionRunner, Success)
 
     ActionRunner actionRunner;
 
-    actionRunner.runAction("action", "correlationid", "type", 34);
+    actionRunner.runAction("action", "correlationid", RUN_COMMAND_REQUEST_TYPE, 34);
     EXPECT_TRUE(waitForLog("Trigger process at: /opt/sophos-spl/plugins/responseactions/bin/sophos_actions for action: correlationid with timeout: 34"));
     EXPECT_TRUE(waitForLog("output: some output"));
     EXPECT_TRUE(waitForLog("Action correlationid has succeeded"));
@@ -88,7 +88,7 @@ TEST_F(TestActionRunner, Timeout_ProcessExitsCleanly)
 
     ActionRunner actionRunner;
 
-    actionRunner.runAction("action", "correlationid", "type", 100);
+    actionRunner.runAction("action", "correlationid", UPLOAD_FOLDER_REQUEST_TYPE, 100);
     EXPECT_TRUE(waitForLog("output: some output"));
     EXPECT_TRUE(waitForLog("Failed action correlationid with exit code 2"));
     EXPECT_TRUE(waitForLog("Action runner reached time out of 100 secs, correlation ID: correlationid"));
@@ -126,7 +126,7 @@ TEST_F(TestActionRunner, Timeout_ProcessExitsHanging)
 
     ActionRunner actionRunner;
 
-    actionRunner.runAction("action", "correlationid", "type", 100);
+    actionRunner.runAction("action", "correlationid", UPLOAD_FILE_REQUEST_TYPE, 100);
     EXPECT_TRUE(waitForLog("output: some output"));
     EXPECT_TRUE(waitForLog("Failed action correlationid with exit code 2"));
     EXPECT_TRUE(waitForLog("Action Runner had to be killed after it carried on running unexpectedly"));
@@ -153,7 +153,7 @@ TEST_F(TestActionRunner, ProcessRunning_RespondsToSIGTERM)
 
     ActionRunner actionRunner;
 
-    actionRunner.runAction("action", "correlationid", "type", 100);
+    actionRunner.runAction("action", "correlationid", DOWNLOAD_FILE_REQUEST_TYPE, 100);
     EXPECT_TRUE(waitForLog("output: some output"));
     EXPECT_TRUE(waitForLog("Action correlationid has succeeded"));
     EXPECT_TRUE(waitForLog("Action Runner was stopped after it carried on running unexpectedly"));
@@ -188,7 +188,7 @@ TEST_F(TestActionRunner, ProcessRunning_RequiresSIGKILL)
 
     ActionRunner actionRunner;
 
-    actionRunner.runAction("action", "correlationid", "type", 100);
+    actionRunner.runAction("action", "correlationid", RUN_COMMAND_REQUEST_TYPE, 100);
     EXPECT_TRUE(waitForLog("output: some output"));
     EXPECT_TRUE(waitForLog("Failed action correlationid with exit code 9"));
     EXPECT_TRUE(waitForLog("Action Runner had to be killed after it carried on running unexpectedly"));
@@ -252,6 +252,20 @@ TEST_P(TestActionRunnerParameterized, SendFailedResponseAssignsCorrectTypes)
     while (actionRunner.getIsRunning()) {}
 }
 
+TEST_F(TestActionRunner, SendFailedResponseThrowsWithInvalidType)
+{
+    ResponseResult res{};
+
+    try
+    {
+        ResponsePlugin::sendFailedResponse(res, "notatype", "correlationId");
+        FAIL() << "Invalid type ignored";
+    }
+    catch (const std::logic_error& e)
+    {
+        EXPECT_STREQ(e.what(), "Unknown action type provided to sendFailedResponse: notatype");
+    }
+}
 
 //Telemetry Tests
 
@@ -261,6 +275,8 @@ class TestTelemetryParameterized
 protected:
     void SetUp() override
     {
+        //Clear telemetry before a test
+        std::ignore = Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
         m_loggingSetup = Common::Logging::LOGOFFFORTEST();
     }
     Common::Logging::ConsoleLoggingSetup m_loggingSetup;
