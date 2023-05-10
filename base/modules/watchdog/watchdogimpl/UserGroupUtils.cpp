@@ -404,13 +404,13 @@ namespace watchdog::watchdogimpl
                 {
                     auto currentUserId = filePermissions->getUserId(userName);
 
-                    LOGDEBUG("Changing " << userName << "user ID from " << currentUserId << " to " << newUserId);
+                    LOGDEBUG("Changing " << userName << " user ID from " << currentUserId << " to " << newUserId);
                     changeUserId(userName, newUserId);
                     remapUserIdOfFiles(installRoot, currentUserId, newUserId);
                 }
                 catch (const std::exception& exception)
                 {
-                    LOGERROR("Failed to reconfigure " << userName << "user ID to " << newUserId << ": " << exception.what());
+                    LOGERROR("Failed to reconfigure " << userName << " user ID to " << newUserId << ": " << exception.what());
                 }
             }
         }
@@ -424,13 +424,13 @@ namespace watchdog::watchdogimpl
                 {
                     auto currentGroupId = filePermissions->getGroupId(groupName);
 
-                    LOGDEBUG("Changing " << groupName << "group ID from " << currentGroupId << " to " << newGroupId);
+                    LOGDEBUG("Changing " << groupName << " group ID from " << currentGroupId << " to " << newGroupId);
                     changeGroupId(groupName, newGroupId);
                     remapGroupIdOfFiles(installRoot, currentGroupId, newGroupId);
                 }
                 catch (const std::exception& exception)
                 {
-                    LOGERROR("Failed to reconfigure " << groupName << "group ID to " << newGroupId << ": " << exception.what());
+                    LOGERROR("Failed to reconfigure " << groupName << " group ID to " << newGroupId << ": " << exception.what());
                 }
             }
         }
