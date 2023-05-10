@@ -1171,6 +1171,40 @@ SafeStore Restores Archive Once Inner Detection Is Allowlisted
     Wait For Log Contains From Mark    ${ss_mark}    Performing full rescan of quarantined file (original path '${SCAN_DIRECTORY}/test.tar'
     Wait For Log Contains From Mark    ${ss_mark}    RestoreReportingClient reports successful restoration of ${SCAN_DIRECTORY}/test.tar
 
+SafeStore Restores Archive Containing Password Protected File
+    ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
+    Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
+    Wait For Log Contains From Mark  ${av_mark}  SafeStore flag set. Setting SafeStore to enabled.
+
+    ${ARCHIVE_DIR} =  Set Variable  ${NORMAL_DIRECTORY}/archive_dir
+    Create Directory  ${ARCHIVE_DIR}
+    Create File  ${ARCHIVE_DIR}/1_eicar  ${EICAR_STRING}
+    Run Process   zip    -P    password    ${ARCHIVE_DIR}/encrypted.zip    1_eicar
+    Run Process  tar  --mtime\=UTC 2022-01-01  -C  ${ARCHIVE_DIR}  -cf  ${NORMAL_DIRECTORY}/test.tar  encrypted.zip  1_eicar
+    ${archive_sha} =  Get SHA256  ${NORMAL_DIRECTORY}/test.tar
+    Remove Directory  ${ARCHIVE_DIR}  recursive=True
+    should be equal    ${archive_sha}    0b3b17be2fea8a400cdd2c22124ca70707d0557f66c1e1f4f2d5c3ac20c7388d
+
+    ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
+    ${safestore_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
+    Run Process  ${CLI_SCANNER_PATH}  ${NORMAL_DIRECTORY}/test.tar  --scan-archives
+
+    Wait For Log Contains From Mark  ${safestore_mark}  Received Threat:
+    Wait For Log Contains From Mark  ${av_mark}  Threat cleaned up at path:
+    File Should Not Exist   ${SCAN_DIRECTORY}/test.tar
+
+    ${ss_mark} =  Get SafeStore Log Mark
+    ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
+    ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
+    Send CORC Policy To Base  corc_policy_allow_list_zipfile_with_password_protected_file.xml
+
+    Wait For Log Contains From Mark    ${ss_mark}    SafeStore Database Rescan request received.
+    Wait For Log Contains From Mark    ${ss_mark}    Requesting metadata rescan of quarantined file (original path '${SCAN_DIRECTORY}/test.tar'
+    Wait For Log Contains From Mark    ${td_mark}    Allowed by SHA256: 0b3b17be2fea8a400cdd2c22124ca70707d0557f66c1e1f4f2d5c3ac20c7388d
+    Wait For Log Contains From Mark    ${ss_mark}    Received metadata rescan response: 'needs full scan'
+    Wait For Log Contains From Mark    ${ss_mark}    Performing full rescan of quarantined file (original path '${SCAN_DIRECTORY}/test.tar'
+    Wait For Log Contains From Mark    ${ss_mark}    RestoreReportingClient reports successful restoration of ${SCAN_DIRECTORY}/test.tar
+
 
 *** Keywords ***
 SafeStore Test Setup

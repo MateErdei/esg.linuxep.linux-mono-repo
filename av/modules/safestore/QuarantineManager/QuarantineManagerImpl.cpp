@@ -649,7 +649,7 @@ namespace safestore::QuarantineManager
         {
             auto response = scan(*scanningClient, fd.get(), originalFilePath);
 
-            if (!response.getErrorMsg().empty())
+            if (!response.getErrorMsg().empty() && !common::contains(response.getErrorMsg(), "as it is password protected") && !common::contains(response.getErrorMsg(), "not a supported file type"))
             {
                 LOGERROR("Error on rescan request: " << response.getErrorMsg());
                 continue;
