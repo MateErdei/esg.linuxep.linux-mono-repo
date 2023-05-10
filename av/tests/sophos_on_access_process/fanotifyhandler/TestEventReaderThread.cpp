@@ -96,11 +96,12 @@ protected:
     }
 
     static constexpr int32_t EVENT_FD = 345;
+    static constexpr pid_t DEFAULT_PID = 1999999999;
 
     static fanotify_event_metadata getMetaData(
         uint64_t _mask = FAN_CLOSE_WRITE,
         int32_t _fd = EVENT_FD,
-        int32_t _pid = 1999999999,
+        int32_t _pid = DEFAULT_PID,
         uint8_t _ver = FANOTIFY_METADATA_VERSION // Very unlikely to want to override this
         )
     {
@@ -145,6 +146,24 @@ protected:
             .WillRepeatedly(DoAll(SetArgPointee<1>(m_statbuf), Return(0)));
     }
 
+    void expectStatProcPid()
+    {
+#ifdef USERNAME_UID_USED
+        constexpr const char* path = "/proc/1999999999";
+        EXPECT_CALL(*m_mockSysCallWrapper, _stat(StrEq(path), _)).WillOnce(DoAll(SetArgPointee<1>(m_statbuf), Return(0)));
+#endif
+    }
+
+    void expectStatProcPid(int times)
+    {
+#ifdef USERNAME_UID_USED
+        constexpr const char* path = "/proc/1999999999";
+        EXPECT_CALL(*m_mockSysCallWrapper, _stat(StrEq(path), _))..Times(times).WillRepeatedly(DoAll(SetArgPointee<1>(m_statbuf), Return(0)));
+#else
+        std::ignore = times;
+#endif
+    }
+
     void setupExpectationsForOneEvent(const char* filePath);
 
     std::shared_ptr<EventReaderThread> makeDefaultEventReaderThread()
@@ -186,7 +205,7 @@ void TestEventReaderThread::setupExpectationsForOneEvent(const char* filePath)
         .WillOnce(pollReturnsWithRevents(0, POLLIN));
     EXPECT_CALL(*m_mockSysCallWrapper, read(FANOTIFY_FD, _, _)).WillOnce(readReturnsStruct(metadata));
     expectReadlinkReturnsPath(filePath);
-    EXPECT_CALL(*m_mockSysCallWrapper, _stat(_, _)).WillOnce(DoAll(SetArgPointee<1>(m_statbuf), Return(0)));
+    expectStatProcPid();
     defaultFstat();
 }
 
@@ -290,15 +309,17 @@ TEST_F(TestEventReaderThread, TestReaderCanReceiveEventAfterNoEvent)
         .WillOnce(Return(0))
         .WillOnce(readReturnsStruct(metadata));
     expectReadlinkReturnsPath(filePath);
-    EXPECT_CALL(*m_mockSysCallWrapper, _stat(_, _))
-        .WillOnce(DoAll(SetArgPointee<1>(m_statbuf), Return(0)));
+    expectStatProcPid();
     defaultFstat();
 
     auto eventReader = makeDefaultEventReaderThread();
     common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
 
     std::stringstream logMsg;
-    logMsg << "On-close event for " << filePath << " from Process (PID=" << metadata.pid << ") and UID " << m_statbuf.st_uid;
+    logMsg << "On-close event for " << filePath << " from Process (PID=" << metadata.pid << ")";
+#ifdef USERNAME_UID_USED
+    logMsg << " and UID " << m_statbuf.st_uid;
+#endif
     EXPECT_TRUE(waitForLog(logMsg.str(), 500ms));
     EXPECT_TRUE(waitForLog("Stopping the reading of Fanotify events"));
     ASSERT_EQ(m_scanRequestQueue->size(), 1);
@@ -321,15 +342,17 @@ TEST_F(TestEventReaderThread, TestReaderReadsOnCloseFanotifyEvent)
     expectReadReturnsStruct(metadata);
 
     expectReadlinkReturnsPath(filePath);
-    EXPECT_CALL(*m_mockSysCallWrapper, _stat(_, _))
-        .WillOnce(DoAll(SetArgPointee<1>(m_statbuf), Return(0)));
+    expectStatProcPid();
     defaultFstat();
 
     auto eventReader = makeDefaultEventReaderThread();
     common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
 
     std::stringstream logMsg;
-    logMsg << "On-close event for " << filePath << " from Process (PID=" << metadata.pid << ") and UID " << m_statbuf.st_uid;
+    logMsg << "On-close event for " << filePath << " from Process (PID=" << metadata.pid << ")";
+#ifdef USERNAME_UID_USED
+    logMsg << " and UID " << m_statbuf.st_uid;
+#endif
     EXPECT_TRUE(waitForLog(logMsg.str(), 500ms));
     EXPECT_TRUE(waitForLog("Stopping the reading of Fanotify events"));
     EXPECT_EQ(m_scanRequestQueue->size(), 1);
@@ -347,19 +370,24 @@ TEST_F(TestEventReaderThread, TestReaderReadsCombinedFanotifyEventAndEventTypeSe
     expectReadReturnsStruct(metadata);
 
     expectReadlinkReturnsPath(filePath);
-    EXPECT_CALL(*m_mockSysCallWrapper, _stat(_, _))
-        .WillOnce(DoAll(SetArgPointee<1>(m_statbuf), Return(0)));
+    expectStatProcPid();
     defaultFstat();
 
     auto eventReader = makeDefaultEventReaderThread();
     common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
 
     std::stringstream closeLogMsg;
-    closeLogMsg << "On-close event for " << filePath << " from Process (PID=" << metadata.pid << ") and UID " << m_statbuf.st_uid;
+    closeLogMsg << "On-close event for " << filePath << " from Process (PID=" << metadata.pid << ")";
+#ifdef USERNAME_UID_USED
+    closeLogMsg << " and UID " << m_statbuf.st_uid;
+#endif
     EXPECT_TRUE(waitForLog(closeLogMsg.str(), 500ms));
 
     std::stringstream openLogMsg;
-    openLogMsg << "On-open event for " << filePath << " from Process (PID=" << metadata.pid << ") and UID " << m_statbuf.st_uid;
+    openLogMsg << "On-open event for " << filePath << " from Process (PID=" << metadata.pid << ")";
+#ifdef USERNAME_UID_USED
+    openLogMsg << " and UID " << m_statbuf.st_uid;
+#endif
     EXPECT_TRUE(waitForLog(openLogMsg.str()));
 
     EXPECT_TRUE(waitForLog("Stopping the reading of Fanotify events"));
@@ -382,15 +410,17 @@ TEST_F(TestEventReaderThread, TestReaderReadsOnOpenFanotifyEvent)
     expectReadReturnsStruct(metadata);
 
     EXPECT_CALL(*m_mockSysCallWrapper, readlink(_, _, _)).WillOnce(readlinkReturnPath(filePath));
-
-    EXPECT_CALL(*m_mockSysCallWrapper, _stat(_, _)).WillOnce(DoAll(SetArgPointee<1>(m_statbuf), Return(0)));
+    expectStatProcPid();
     defaultFstat();
 
     auto eventReader = makeDefaultEventReaderThread();
     common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
 
     std::stringstream logMsg;
-    logMsg << "On-open event for " << filePath << " from Process (PID=" << metadata.pid << ") and UID " << m_statbuf.st_uid;
+    logMsg << "On-open event for " << filePath << " from Process (PID=" << metadata.pid << ")";
+#ifdef USERNAME_UID_USED
+    logMsg << " and UID " << m_statbuf.st_uid;
+#endif
     EXPECT_TRUE(waitForLog(logMsg.str(), 500ms));
     EXPECT_TRUE(waitForLog("Stopping the reading of Fanotify events"));
     EXPECT_EQ(m_scanRequestQueue->size(), 1);
@@ -418,8 +448,7 @@ TEST_F(TestEventReaderThread, TestReaderReadsOnOpenFanotifyEventAfterRestart)
     EXPECT_CALL(*m_mockSysCallWrapper, readlink(_, _, _))
         .WillOnce(readlinkReturnPath(filePath1))
         .WillOnce(readlinkReturnPath(filePath2));
-    EXPECT_CALL(*m_mockSysCallWrapper, _stat(_, _)).Times(2)
-        .WillRepeatedly(DoAll(SetArgPointee<1>(m_statbuf), Return(0)));
+    expectStatProcPid(2);
 
     EXPECT_CALL(*m_mockSysCallWrapper, fstat(8000, _))
         .WillOnce(fstatReturnsInode(1));
@@ -430,7 +459,10 @@ TEST_F(TestEventReaderThread, TestReaderReadsOnOpenFanotifyEventAfterRestart)
     common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
 
     std::stringstream logMsg1;
-    logMsg1 << "On-open event for " << filePath1 << " from Process (PID=" << metadata1.pid << ") and UID " << m_statbuf.st_uid;
+    logMsg1 << "On-open event for " << filePath1 << " from Process (PID=" << metadata1.pid << ")";
+#ifdef USERNAME_UID_USED
+    logMsg1 << " and UID " << m_statbuf.st_uid;
+#endif
     EXPECT_TRUE(waitForLog(logMsg1.str(), 500ms));
     EXPECT_TRUE(waitForLog("Stopping the reading of Fanotify events"));
     EXPECT_EQ(m_scanRequestQueue->size(), 1);
@@ -441,7 +473,10 @@ TEST_F(TestEventReaderThread, TestReaderReadsOnOpenFanotifyEventAfterRestart)
     eventReaderThread.startIfNotStarted();
 
     std::stringstream logMsg2;
-    logMsg2 << "On-open event for " << filePath2 << " from Process (PID=" << metadata2.pid << ") and UID " << m_statbuf.st_uid;
+    logMsg2 << "On-open event for " << filePath2 << " from Process (PID=" << metadata2.pid << ")";
+#ifdef USERNAME_UID_USED
+    logMsg2 << " and UID " << m_statbuf.st_uid;
+#endif
     EXPECT_TRUE(waitForLog(logMsg2.str()));
     EXPECT_TRUE(waitForLog("Stopping the reading of Fanotify events"));
     EXPECT_EQ(m_scanRequestQueue->size(), 2);
@@ -458,7 +493,7 @@ TEST_F(TestEventReaderThread, TestReaderLogsUnexpectedFanotifyEventType)
     EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))
         .WillOnce(pollReturnsWithRevents(1, POLLIN))
         .WillOnce(pollReturnsWithRevents(0, POLLIN));
-    EXPECT_CALL(*m_mockSysCallWrapper, _stat(_, _)).WillOnce(DoAll(SetArgPointee<1>(m_statbuf), Return(0)));
+    expectStatProcPid();
     EXPECT_CALL(*m_mockSysCallWrapper, read(fanotifyFD, _, _)).WillOnce(readReturnsStruct(metadata));
 
     EXPECT_CALL(*m_mockSysCallWrapper, readlink(_, _, _)).WillOnce(readlinkReturnPath(filePath));
@@ -486,14 +521,17 @@ TEST_F(TestEventReaderThread, TestReaderSetUnknownPathIfReadLinkFails)
 
     EXPECT_CALL(*m_mockSysCallWrapper, read(fanotifyFD, _, _)).WillOnce(readReturnsStruct(metadata));
     EXPECT_CALL(*m_mockSysCallWrapper, readlink(_, _, _)).WillOnce(Return(-1));
-    EXPECT_CALL(*m_mockSysCallWrapper, _stat(_, _)).WillOnce(DoAll(SetArgPointee<1>(m_statbuf), Return(0)));
+    expectStatProcPid();
     defaultFstat();
 
     auto eventReader = makeDefaultEventReaderThread();
     common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
 
     std::stringstream logMsg;
-    logMsg << "On-close event for unknown from Process (PID=" << metadata.pid << ") and UID " << m_statbuf.st_uid;
+    logMsg << "On-close event for unknown from Process (PID=" << metadata.pid << ")";
+#ifdef USERNAME_UID_USED
+    logMsg << " and UID " << m_statbuf.st_uid;
+#endif
     EXPECT_TRUE(waitForLog(logMsg.str(), 500ms));
     EXPECT_TRUE(waitForLog("Stopping the reading of Fanotify events"));
     ASSERT_EQ(m_scanRequestQueue->size(), 1); // 0 will cause pop() to hang forever
@@ -503,6 +541,7 @@ TEST_F(TestEventReaderThread, TestReaderSetUnknownPathIfReadLinkFails)
     EXPECT_EQ(event->getPath(), "unknown");
 }
 
+#ifdef USERNAME_UID_USED
 TEST_F(TestEventReaderThread, TestReaderSetInvalidUidIfStatFails)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
@@ -524,11 +563,13 @@ TEST_F(TestEventReaderThread, TestReaderSetInvalidUidIfStatFails)
     common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
 
     std::stringstream logMsg;
-    logMsg << "On-close event for " << filePath << " from Process (PID=" << metadata.pid << ") and UID unknown";
+    logMsg << "On-close event for " << filePath << " from Process (PID=" << metadata.pid << ")";
+    logMsg << " and UID unknown";
     EXPECT_TRUE(waitForLog(logMsg.str(), 500ms));
     EXPECT_TRUE(waitForLog("Stopping the reading of Fanotify events"));
     EXPECT_EQ(m_scanRequestQueue->size(), 1);
 }
+#endif
 
 TEST_F(TestEventReaderThread, TestReaderExitsIfFanotifyProtocolVersionIsTooOld)
 {
@@ -626,7 +667,7 @@ TEST_F(TestEventReaderThread, TestReaderDoesntSkipEventsInSimilarDirToPluginLogD
     EXPECT_CALL(*m_mockSysCallWrapper, read(fanotifyFD, _, _)).WillOnce(readReturnsStruct(metadata));
 
     EXPECT_CALL(*m_mockSysCallWrapper, readlink(_, _, _)).WillOnce(readlinkReturnPath(filePath));
-    EXPECT_CALL(*m_mockSysCallWrapper, _stat(_, _)).WillOnce(DoAll(SetArgPointee<1>(m_statbuf), Return(0)));
+    expectStatProcPid();
     defaultFstat();
 
     auto eventReader = makeDefaultEventReaderThread();
@@ -672,7 +713,7 @@ TEST_F(TestEventReaderThread, TestReaderDoesntInvalidateFd)
         .WillOnce(pollReturnsWithRevents(0, POLLIN));
     EXPECT_CALL(*m_mockSysCallWrapper, read(fanotifyFD, _, _)).WillOnce(readReturnsStruct(metadata));
     EXPECT_CALL(*m_mockSysCallWrapper, readlink(_, _, _)).WillOnce(readlinkReturnPath(filePath));
-    EXPECT_CALL(*m_mockSysCallWrapper, _stat(_, _)).WillOnce(DoAll(SetArgPointee<1>(m_statbuf), Return(0)));
+    expectStatProcPid();
     defaultFstat();
 
 
@@ -688,9 +729,6 @@ TEST_F(TestEventReaderThread, TestReaderDoesntInvalidateFd)
     EXPECT_NE(popItem->getFd(), -1);
     EXPECT_EQ(m_scanRequestQueue->size(), 0);
 }
-
-
-
 
 TEST_F(TestEventReaderThread, TestReaderLogsFanotifyQueueOverflow)
 {
@@ -1049,13 +1087,13 @@ TEST_F(TestEventReaderThread, TestReaderDoesntLogWhenQueueSizeHasntLoweredToLogT
 
     queueFull.waitDefault();
     EXPECT_TRUE(waitForLog("Failed to add scan request to queue, on-access scanning queue is full."));
-    EXPECT_TRUE(waitForLogMultiple("On-close event for /tmp/test from Process (PID=1999999999) and UID 321", 5, 100ms));
+    EXPECT_TRUE(waitForLogMultiple("On-close event for /tmp/test from Process (PID=1999999999)", 5, 100ms));
     m_smallScanRequestQueue->pop();
     EXPECT_EQ(m_smallScanRequestQueue->size(), 2);
 
     clearMemoryAppender();
     queueNotFull.onEventNoArgs();
-    EXPECT_TRUE(waitForLogMultiple("On-close event for /tmp/test from Process (PID=1999999999) and UID 321", 2, 100ms));
+    EXPECT_TRUE(waitForLogMultiple("On-close event for /tmp/test from Process (PID=1999999999)", 2, 100ms));
     EXPECT_EQ(m_smallScanRequestQueue->size(), 3);
     EXPECT_FALSE(waitForLog("Failed to add scan request to queue, on-access scanning queue is full."));
     EXPECT_FALSE(appenderContains("Queue is no longer full. Number of events dropped: 2"));
@@ -1099,7 +1137,7 @@ TEST_F(TestEventReaderThread, TestReaderLogsWhenQueueSizeHasLoweredToLogThreshol
     common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
 
     queueFull.waitDefault();
-    EXPECT_TRUE(waitForLogMultiple("On-close event for /tmp/test from Process (PID=1999999999) and UID 321", 4, 100ms));
+    EXPECT_TRUE(waitForLogMultiple("On-close event for /tmp/test from Process (PID=1999999999)", 4, 100ms));
     EXPECT_TRUE(waitForLog("Failed to add scan request to queue, on-access scanning queue is full."));
     ASSERT_EQ(m_smallScanRequestQueue->size(), 3);
 
@@ -1248,15 +1286,17 @@ TEST_F(TestEventReaderThread, TestReaderContinuesQuietyWhenPpollReturnsEINTR)
 
     expectReadReturnsStruct(metadata);
     expectReadlinkReturnsPath(filePath);
-    EXPECT_CALL(*m_mockSysCallWrapper, _stat(_, _))
-        .WillOnce(DoAll(SetArgPointee<1>(m_statbuf), Return(0)));
+    expectStatProcPid();
     incrementingFstat();
 
     auto eventReader = makeSmallEventReaderThread();
     common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
 
     std::stringstream logMsg;
-    logMsg << "On-close event for " << filePath << " from Process (PID=" << metadata.pid << ") and UID " << m_statbuf.st_uid;
+    logMsg << "On-close event for " << filePath << " from Process (PID=" << metadata.pid << ")";
+#ifdef USERNAME_UID_USED
+    logMsg << " and UID " << m_statbuf.st_uid;
+#endif
     EXPECT_TRUE(waitForLog(logMsg.str(), 500ms));
     EXPECT_FALSE(appenderContains("Error from poll"));
 }
@@ -1290,15 +1330,17 @@ TEST_P(TestWithType1Errno, readEventAfterReadErrno)
         .WillOnce(SetErrnoAndReturn(errnoValue, -1))
         .WillOnce(readReturnsStruct(metadata));
     expectReadlinkReturnsPath(filePath);
-    EXPECT_CALL(*m_mockSysCallWrapper, _stat(_, _))
-        .WillOnce(DoAll(SetArgPointee<1>(m_statbuf), Return(0)));
+    expectStatProcPid();
     incrementingFstat();
 
     auto eventReader = makeDefaultEventReaderThread();
     common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
 
     std::stringstream logMsg;
-    logMsg << "On-close event for " << filePath << " from Process (PID=" << metadata.pid << ") and UID " << m_statbuf.st_uid;
+    logMsg << "On-close event for " << filePath << " from Process (PID=" << metadata.pid << ")";
+#ifdef USERNAME_UID_USED
+    logMsg << " and UID " << m_statbuf.st_uid;
+#endif
     EXPECT_TRUE(waitForLog(logMsg.str(), 500ms));
 
     EXPECT_TRUE(waitForLog("Stopping the reading of Fanotify events"));
@@ -1333,15 +1375,17 @@ TEST_P(TestWithType2Errno, readEventAfterReadErrno)
         .WillOnce(SetErrnoAndReturn(errnoValue, -1))
         .WillOnce(readReturnsStruct(metadata));
     expectReadlinkReturnsPath(filePath);
-    EXPECT_CALL(*m_mockSysCallWrapper, _stat(_, _))
-        .WillOnce(DoAll(SetArgPointee<1>(m_statbuf), Return(0)));
+    expectStatProcPid();
     incrementingFstat();
 
     auto eventReader = makeDefaultEventReaderThread();
     common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
 
     std::stringstream logMsg;
-    logMsg << "On-close event for " << filePath << " from Process (PID=" << metadata.pid << ") and UID " << m_statbuf.st_uid;
+    logMsg << "On-close event for " << filePath << " from Process (PID=" << metadata.pid << ")";
+#ifdef USERNAME_UID_USED
+    logMsg << " and UID " << m_statbuf.st_uid;
+#endif
     EXPECT_TRUE(waitForLog(logMsg.str(), 500ms));
 
     EXPECT_TRUE(waitForLog("Stopping the reading of Fanotify events"));
@@ -1511,5 +1555,5 @@ TEST_F(TestEventReaderThread, CacheEvent)
     auto event = m_scanRequestQueue->pop();
     ASSERT_TRUE(event);
     EXPECT_TRUE(event->isCached());
-    EXPECT_TRUE(waitForLog("Cached /tmp/test from Process (PID=1999999999) and UID 321"));
+    EXPECT_TRUE(waitForLog("Cached /tmp/test from Process (PID=1999999999)"));
 }

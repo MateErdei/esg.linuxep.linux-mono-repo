@@ -39,6 +39,7 @@ add_library(common SHARED
         StringUtils.h
         ThreadRunner.cpp
         ThreadRunner.h
+        UsernameSetting.h
         signals/IReloadable.h
         signals/SigHupMonitor.cpp
         signals/SigHupMonitor.h

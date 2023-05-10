@@ -159,7 +159,18 @@ bool EventReaderThread::handleFanotifyEvent()
             continue;
         }
 
-        auto uid = getUidFromPid(metadata->pid);
+
+#ifdef USERNAME_UID_USED
+        const auto uid = getUidFromPid(metadata->pid);
+        std::ostringstream uid_debug_message_buffer;
+        uid_debug_message_buffer << " and UID " << uid;
+        const auto uid_debug_message = uid_debug_message_buffer.str();
+
+#else
+        const auto uid = "unknown"; // UID is never used
+        constexpr const auto* uid_debug_message = "";
+#endif
+
         std::string escapedPath;
         if (getFaNotifyHandlerLogger().isEnabledFor(log4cplus::DEBUG_LOG_LEVEL))
         {
@@ -170,18 +181,18 @@ bool EventReaderThread::handleFanotifyEvent()
         //Some events have both bits set, we prioritise FAN_CLOSE_WRITE as the event tag. A copy event can cause this.
         if ((metadata->mask & FAN_CLOSE_WRITE) && (metadata->mask & FAN_OPEN))
         {
-            LOGDEBUG("On-open event for " << escapedPath << " from Process " << executablePath << "(PID=" << metadata->pid << ") " << "and UID " << uid);
-            LOGDEBUG("On-close event for " << escapedPath << " from Process " << executablePath << "(PID=" << metadata->pid << ") " << "and UID " << uid);
+            LOGDEBUG("On-open event for " << escapedPath << " from Process " << executablePath << "(PID=" << metadata->pid << ")" << uid_debug_message);
+            LOGDEBUG("On-close event for " << escapedPath << " from Process " << executablePath << "(PID=" << metadata->pid << ")" << uid_debug_message);
             eventType = E_SCAN_TYPE_ON_ACCESS_CLOSE;
         }
         else if (metadata->mask & FAN_CLOSE_WRITE)
         {
-            LOGDEBUG("On-close event for " << escapedPath << " from Process " << executablePath << "(PID=" << metadata->pid << ") " << "and UID " << uid);
+            LOGDEBUG("On-close event for " << escapedPath << " from Process " << executablePath << "(PID=" << metadata->pid << ")" << uid_debug_message);
             eventType = E_SCAN_TYPE_ON_ACCESS_CLOSE;
         }
         else if (metadata->mask & FAN_OPEN)
         {
-            LOGDEBUG("On-open event for " << escapedPath << " from Process " << executablePath << "(PID=" << metadata->pid << ") " << "and UID " << uid);
+            LOGDEBUG("On-open event for " << escapedPath << " from Process " << executablePath << "(PID=" << metadata->pid << ")" << uid_debug_message);
             eventType = E_SCAN_TYPE_ON_ACCESS_OPEN;
         }
         else
@@ -201,7 +212,7 @@ bool EventReaderThread::handleFanotifyEvent()
         // Cache if we are going to scan the file
         if (cacheIfAllowed(*scanRequest))
         {
-            LOGTRACE("Cached " << escapedPath << " from Process " << executablePath << "(PID=" << metadata->pid << ") " << "and UID " << uid);
+            LOGTRACE("Cached " << escapedPath << " from Process " << executablePath << "(PID=" << metadata->pid << ")" << uid_debug_message);
             scanRequest->setIsCached(true);
         }
 
@@ -252,6 +263,7 @@ std::string EventReaderThread::getFilePathFromFd(int fd)
     return buffer;
 }
 
+#ifdef USERNAME_UID_USED
 std::string EventReaderThread::getUidFromPid(pid_t pid)
 {
     std::stringstream procPidPath;
@@ -265,6 +277,7 @@ std::string EventReaderThread::getUidFromPid(pid_t pid)
     }
     return "unknown";
 }
+#endif
 
 void EventReaderThread::run()
 {

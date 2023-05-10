@@ -13,6 +13,7 @@
 
 #include "common/AbstractThreadPluginInterface.h"
 #include "common/Exclusion.h"
+#include "common/UsernameSetting.h"
 #include "datatypes/ISystemCallWrapper.h"
 #include "datatypes/sophos_filesystem.h"
 #include "mount_monitor/mountinfo/IDeviceUtil.h"
@@ -61,7 +62,9 @@ namespace sophos_on_access_process::fanotifyhandler
         bool skipScanningOfEvent(
             struct fanotify_event_metadata* eventMetadata, std::string& filePath, std::string& exePath, int eventFd);
         std::string getFilePathFromFd(int fd);
+#ifdef USERNAME_UID_USED
         std::string getUidFromPid(pid_t pid);
+#endif
         void throwIfErrorNotRecoverable();
 
         bool cacheIfAllowed(const scan_request_t& request);

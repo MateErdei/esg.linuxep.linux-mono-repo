@@ -287,7 +287,11 @@ void unixsocket::ScanningServerConnectionThread::inner_run()
                 }
 
                 // The User ID could be spoofed by an untrusted client. Until this is made secure, hardcode it to "n/a"
+#ifdef USERNAME_UID_USED
+# error "Passing UID from untrusted client not supported"
+#else
                 requestReader->setUserID("n/a");
+#endif
                 result = scanner->scan(
                     file_fd, *requestReader);
             }
