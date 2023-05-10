@@ -222,6 +222,35 @@ TEST_F(TestSusiScanner, scan_DetectionWithoutErrors_SendsReport)
     EXPECT_TRUE(appenderContains("Sending report for detection 'threatName' in /tmp/eicar.txt"));
 }
 
+TEST_F(TestSusiScanner, scan_DetectionIsAllowedByShaAndReturnsEarly)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    const auto mockUnitScanner = new StrictMock<MockUnitScanner>();
+
+    SusiScanner susiScanner{makeScannerWithReporter(mockUnitScanner)};
+
+    EXPECT_CALL(*m_mockTimer, reset()).Times(1);
+    EXPECT_CALL(*m_mockSusiGlobalHandler, isPuaApproved(_)).WillRepeatedly(Return(false));
+    EXPECT_CALL(*m_mockSusiGlobalHandler, isAllowListedPath(_)).WillRepeatedly(Return(false));
+
+    //These expects are important for the test
+    EXPECT_CALL(*m_mockSusiGlobalHandler, isAllowListedSha256(_)).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockThreatReporter, sendThreatReport(_)).Times(0);
+
+    ScanResult scanResult{ { { "/tmp/eicar.txt", "threatName", "threatType", "sha256" } }, {} };
+    EXPECT_CALL(*mockUnitScanner, scan(_, "/tmp/eicar.txt")).Times(1).WillOnce(Return(scanResult));
+
+    datatypes::AutoFd autoFd;
+    scan_messages::ScanResponse response = susiScanner.scan(autoFd, makeScanRequestObject("/tmp/eicar.txt"));
+
+    EXPECT_TRUE(response.allClean());
+    EXPECT_EQ(response.getDetections().size(), 0);
+
+    EXPECT_TRUE(appenderContains("Allowing /tmp/eicar.txt with sha256"));
+}
+
+
 TEST_F(TestSusiScanner, scan_DetectionOnaccessSetPid)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
