@@ -11,6 +11,8 @@
 #include <Common/PluginApi/ApiException.h>
 #include <Common/PluginApi/NoPolicyAvailableException.h>
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
+// StringUtils is required for debug builds!
+#include "Common/UtilityImpl/StringUtils.h"
 #include <SulDownloader/suldownloaderdata/ConfigurationDataUtil.h>
 #include <SulDownloader/suldownloaderdata/UpdateSupplementDecider.h>
 #include <UpdateScheduler/SchedulerTaskQueue.h>
