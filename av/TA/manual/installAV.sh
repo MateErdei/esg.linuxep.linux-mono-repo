@@ -2,6 +2,14 @@
 
 set -ex
 
+function failure()
+{
+    local EXIT=$1
+    shift
+    echo "$@" >&1
+    exit "$EXIT"
+}
+
 while getopts t:u:bfadc: flag
 do
     case "${flag}" in
@@ -12,8 +20,7 @@ do
         f) FLAGS=true;;
         a) ALC=true;;
         d) CONFIGURE_DEBUG=true;;
-        ?) echo "Error: Invalid option was specified -$OPTARG use -t for token -u for url and -b for breaking updating"
-          failure 1;;
+        ?) failure 1 "Error: Invalid option was specified -$OPTARG use -t for token -u for url and -b for breaking updating";;
     esac
 done
 shift $((OPTIND -1))
@@ -27,14 +34,6 @@ fi
 STARTINGDIR=$(pwd)
 cd ${0%/*}
 BASE=$(pwd)
-
-function failure()
-{
-    local EXIT=$1
-    shift
-    echo "$@" >&1
-    exit "$EXIT"
-}
 
 echo BASE=$BASE
 INPUTS_ROOT=$BASE/../..
