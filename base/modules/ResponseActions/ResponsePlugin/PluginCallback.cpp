@@ -71,7 +71,7 @@ namespace ResponsePlugin
             telemetry.increment(field, 0UL);
         }
 
-        std::optional<std::string> version = ResponsePlugin::getVersion();
+        std::optional<std::string> version = ResponsePlugin::Telemetry::getVersion();
 
         if (version)
         {

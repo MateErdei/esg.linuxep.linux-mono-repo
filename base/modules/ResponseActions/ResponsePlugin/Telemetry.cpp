@@ -4,6 +4,7 @@
 #include "Logger.h"
 #include "Telemetry.h"
 
+#include "ResponseActions/ResponsePlugin/TelemetryConsts.h"
 #include "ResponseActions/RACommon/ResponseActionsCommon.h"
 
 #include "Common/TelemetryHelperImpl/TelemetryHelper.h"
@@ -17,7 +18,7 @@ namespace
     const std::string PRODUCT_VERSION_STR = "PRODUCT_VERSION";
 } // namespace
 
-namespace ResponsePlugin
+namespace ResponsePlugin::Telemetry
 {
     std::optional<std::string> getVersion()
     {
@@ -33,84 +34,100 @@ namespace ResponsePlugin
         }
     }
 
+
     void incrementTotalActions(const std::string& type)
     {
         if (type == RUN_COMMAND_REQUEST_TYPE)
         {
-            TelemetryHelper::getInstance().increment("run-command-actions", 1UL);
+            TelemetryHelper::getInstance().increment(RUN_COMMAND_COUNT, 1UL);
         }
         else if (type == UPLOAD_FILE_REQUEST_TYPE)
         {
-            TelemetryHelper::getInstance().increment("upload-file-count", 1UL);
+            TelemetryHelper::getInstance().increment(UPLOAD_FILE_COUNT, 1UL);
         }
         else if (type == UPLOAD_FOLDER_REQUEST_TYPE)
         {
-            TelemetryHelper::getInstance().increment("upload-folder-count", 1UL);
+            TelemetryHelper::getInstance().increment(UPLOAD_FOLDER_COUNT, 1UL);
         }
         else if (type == DOWNLOAD_FILE_REQUEST_TYPE)
         {
-            TelemetryHelper::getInstance().increment("download-file-count", 1UL);
+            TelemetryHelper::getInstance().increment(DOWNLOAD_FILE_COUNT, 1UL);
+        }
+        else
+        {
+            throw std::logic_error("Unknown action type provided to incrementTotalActions: " + type);
         }
     }
 
     void incrementFailedActions(const std::string& type)
     {
-        if (type == "sophos.mgt.action.RunCommands")
+        if (type == RUN_COMMAND_REQUEST_TYPE)
         {
-            TelemetryHelper::getInstance().increment("run-command-failed", 1UL);
+            TelemetryHelper::getInstance().increment(RUN_COMMAND_FAILED_COUNT, 1UL);
         }
         else if (type == UPLOAD_FILE_REQUEST_TYPE)
         {
-            TelemetryHelper::getInstance().increment("upload-file-overall-failures", 1UL);
+            TelemetryHelper::getInstance().increment(UPLOAD_FILE_FAILED_COUNT, 1UL);
         }
         else if (type == UPLOAD_FOLDER_REQUEST_TYPE)
         {
-            TelemetryHelper::getInstance().increment("upload-folder-overall-failures", 1UL);
+            TelemetryHelper::getInstance().increment(UPLOAD_FOLDER_FAILED_COUNT, 1UL);
         }
         else if (type == DOWNLOAD_FILE_REQUEST_TYPE)
         {
-            TelemetryHelper::getInstance().increment("download-file-overall-failures", 1UL);
+            TelemetryHelper::getInstance().increment(DOWNLOAD_FILE_FAILED_COUNT, 1UL);
+        }
+        else
+        {
+            throw std::logic_error("Unknown action type provided to incrementFailedActions: " + type);
         }
     }
 
     void incrementTimedOutActions(const std::string& type)
     {
-        if (type == "sophos.mgt.action.RunCommands")
+        if (type == RUN_COMMAND_REQUEST_TYPE)
         {
-            TelemetryHelper::getInstance().increment("run-command-timeout-actions", 1UL);
+            TelemetryHelper::getInstance().increment(RUN_COMMAND_TIMEOUT_COUNT, 1UL);
         }
         else if (type == UPLOAD_FILE_REQUEST_TYPE)
         {
-            TelemetryHelper::getInstance().increment("upload-file-timeout-failures", 1UL);
+            TelemetryHelper::getInstance().increment(UPLOAD_FILE_TIMEOUT_COUNT, 1UL);
         }
         else if (type == UPLOAD_FOLDER_REQUEST_TYPE)
         {
-            TelemetryHelper::getInstance().increment("upload-folder-timeout-failures", 1UL);
+            TelemetryHelper::getInstance().increment(UPLOAD_FOLDER_TIMEOUT_COUNT, 1UL);
         }
         else if (type == DOWNLOAD_FILE_REQUEST_TYPE)
         {
-            TelemetryHelper::getInstance().increment("download-file-timeout-failures", 1UL);
+            TelemetryHelper::getInstance().increment(DOWNLOAD_FILE_TIMEOUT_COUNT, 1UL);
+        }
+        else
+        {
+            throw std::logic_error("Unknown action type provided to incrementTimedOutActions: " + type);
         }
     }
 
     void incrementExpiredActions(const std::string& type)
     {
-        if (type == "sophos.mgt.action.RunCommands")
+        if (type == RUN_COMMAND_REQUEST_TYPE)
         {
-            TelemetryHelper::getInstance().increment("run-command-expired-actions", 1UL);
+            TelemetryHelper::getInstance().increment(RUN_COMMAND_EXPIRED_COUNT, 1UL);
         }
         else if (type == UPLOAD_FILE_REQUEST_TYPE)
         {
-            TelemetryHelper::getInstance().increment("upload-file-expiry-failures", 1UL);
+            TelemetryHelper::getInstance().increment(UPLOAD_FILE_EXPIRED_COUNT, 1UL);
         }
         else if (type == UPLOAD_FOLDER_REQUEST_TYPE)
         {
-            TelemetryHelper::getInstance().increment("upload-folder-expiry-failures", 1UL);
+            TelemetryHelper::getInstance().increment(UPLOAD_FOLDER_EXPIRED_COUNT, 1UL);
         }
         else if (type == DOWNLOAD_FILE_REQUEST_TYPE)
         {
-            TelemetryHelper::getInstance().increment("download-file-expiry-failures", 1UL);
+            TelemetryHelper::getInstance().increment(DOWNLOAD_FILE_EXPIRED_COUNT, 1UL);
+        }
+        else
+        {
+            throw std::logic_error("Unknown action type provided to incrementExpiredActions: " + type);
         }
     }
-
-} // namespace ResponsePlugin
+}

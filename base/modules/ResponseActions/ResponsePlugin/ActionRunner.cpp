@@ -11,6 +11,7 @@
 #include "Common/FileSystem/IFileSystem.h"
 
 using namespace ResponseActions::RACommon;
+using namespace ResponsePlugin::Telemetry;
 using namespace Common::Process;
 
 namespace ResponsePlugin
@@ -37,6 +38,10 @@ namespace ResponsePlugin
         else if (requestType == DOWNLOAD_FILE_REQUEST_TYPE)
         {
             response["type"] = DOWNLOAD_FILE_RESPONSE_TYPE;
+        }
+        else
+        {
+            throw std::logic_error("Unknown action type provided to sendFailedResponse: " + requestType);
         }
         response["result"] = static_cast<int>(result);
         sendResponse(correlationId, response.dump());
