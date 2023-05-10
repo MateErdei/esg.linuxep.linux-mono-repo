@@ -229,5 +229,57 @@ TEST_F(TestSusiGlobalHandler, isAllowListedFile_ReturnsFalse_IfSusiSettingsNotAl
     globalHandler.setSusiSettings(std::move(susiSettings));
 
     EXPECT_FALSE(globalHandler.isAllowlistedFile(&globalHandler, SUSI_SHA256_ALG, "allowedSha", 8));
-    EXPECT_TRUE(appenderContains("Denied allow list for: 616c6c6f77656453"));
+    EXPECT_TRUE(appenderContains("Denied allow list by SHA256 for: 616c6c6f77656453"));
+}
+
+TEST_F(TestSusiGlobalHandler, isAllowListedPath_ReturnsFalse_IfFilePathIsNullptr)
+{
+    auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
+    appConfig.setData("PLUGIN_INSTALL", "/plugin");
+
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    auto mockSusiApi = std::make_shared<NiceMock<MockSusiApi>>();
+    auto globalHandler = SusiGlobalHandler(mockSusiApi);
+
+    EXPECT_FALSE(globalHandler.IsAllowlistedPath(&globalHandler, nullptr));
+    EXPECT_TRUE(appenderContains("Allow list by path not possible, filePath provided by SUSI is invalid"));
+}
+
+TEST_F(TestSusiGlobalHandler, isAllowListedPath_ReturnsTrue_IfSusiSettingsAllowLists)
+{
+    auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
+    appConfig.setData("PLUGIN_INSTALL", "/plugin");
+    const std::string allowedPath = "/AllowedPath";
+
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    auto susiSettings = std::make_shared<common::ThreatDetector::SusiSettings>();
+    susiSettings->setAllowListPath(std::vector<std::string>{allowedPath});
+
+    auto mockSusiApi = std::make_shared<NiceMock<MockSusiApi>>();
+    auto globalHandler = SusiGlobalHandler(mockSusiApi);
+    globalHandler.setSusiSettings(std::move(susiSettings));
+
+    EXPECT_TRUE(globalHandler.IsAllowlistedPath(&globalHandler, allowedPath.c_str()));
+    EXPECT_TRUE(appenderContains("Allowed by path: " + allowedPath));
+}
+
+
+TEST_F(TestSusiGlobalHandler, isAllowListedPath_ReturnsFalse_IfSusiSettingsAllowLists)
+{
+    auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
+    appConfig.setData("PLUGIN_INSTALL", "/plugin");
+    const std::string allowedPath = "/AllowedPath";
+
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    getLogger().setLogLevel(log4cplus::TRACE_LOG_LEVEL);
+    auto susiSettings = std::make_shared<common::ThreatDetector::SusiSettings>();
+    susiSettings->setAllowListPath(std::vector<std::string>{"NotAllowed"});
+
+    auto mockSusiApi = std::make_shared<NiceMock<MockSusiApi>>();
+    auto globalHandler = SusiGlobalHandler(mockSusiApi);
+    globalHandler.setSusiSettings(std::move(susiSettings));
+
+    EXPECT_FALSE(globalHandler.IsAllowlistedPath(&globalHandler, allowedPath.c_str()));
+    EXPECT_TRUE(appenderContains("Denied allow list by path for: " + allowedPath));
 }
