@@ -1,5 +1,7 @@
 // Copyright 2023 Sophos Limited. All rights reserved.
 
+#include <vector>
+
 namespace ResponsePlugin
 {
     namespace Telemetry
