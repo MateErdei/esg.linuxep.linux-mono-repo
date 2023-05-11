@@ -27,7 +27,7 @@ using namespace safestore;
 
 MATCHER_P(IsRescanAndHasFd, fd, "")
 {
-    return arg->getFd() == fd && arg->getPath() == "" &&
+    return arg->getFd() == fd && arg->getPath() == "orgpath" &&
            arg->getScanType() == scan_messages::E_SCAN_TYPE_SAFESTORE_RESCAN && arg->getDetectPUAs() == true;
 }
 
@@ -205,7 +205,7 @@ TEST_F(QuarantineManagerRescanTests, scanExtractedFilesForRestoreListDoesNothing
 
     std::vector<FdsObjectIdsPair> testFiles;
 
-    quarantineManager.scanExtractedFilesForRestoreList(std::move(testFiles));
+    quarantineManager.scanExtractedFilesForRestoreList(std::move(testFiles), "");
 
     EXPECT_TRUE(appenderContains("No files to Rescan"));
 }
@@ -266,7 +266,7 @@ TEST_F(QuarantineManagerRescanTests, scanExtractedFiles)
     auto quarantineManager = createQuarantineManager();
 
     std::vector<std::string> expectedResult{ "objectId1", "objectId3" };
-    auto result = quarantineManager.scanExtractedFilesForRestoreList(std::move(testFiles));
+    auto result = quarantineManager.scanExtractedFilesForRestoreList(std::move(testFiles), "orgpath");
     EXPECT_EQ(expectedResult, result);
 }
 
@@ -289,7 +289,7 @@ TEST_F(QuarantineManagerRescanTests, scanExtractedFilesSocketFailure)
     auto quarantineManager = createQuarantineManager();
 
     std::vector<std::string> expectedResult{};
-    auto result = quarantineManager.scanExtractedFilesForRestoreList(std::move(testFiles));
+    auto result = quarantineManager.scanExtractedFilesForRestoreList(std::move(testFiles), "orgpath");
     EXPECT_EQ(expectedResult, result);
 
     EXPECT_TRUE(appenderContains("[ERROR] Error on rescan request: "));
@@ -337,7 +337,7 @@ TEST_F(QuarantineManagerRescanTests, scanExtractedFilesSkipsHandleFailure)
     auto quarantineManager = createQuarantineManager();
 
     std::vector<std::string> expectedResult{};
-    auto result = quarantineManager.scanExtractedFilesForRestoreList(std::move(testFiles));
+    auto result = quarantineManager.scanExtractedFilesForRestoreList(std::move(testFiles), "orgpath");
     EXPECT_EQ(expectedResult, result);
 
     EXPECT_TRUE(appenderContains("[ERROR] Couldn't get object handle for: objectId1, continuing..."));
@@ -370,7 +370,7 @@ TEST_F(QuarantineManagerRescanTests, scanExtractedFilesHandlesNameAndLocationFai
     auto quarantineManager = createQuarantineManager();
 
     std::vector<std::string> expectedResult{ "objectId1" };
-    auto result = quarantineManager.scanExtractedFilesForRestoreList(std::move(testFiles));
+    auto result = quarantineManager.scanExtractedFilesForRestoreList(std::move(testFiles), "orgpath");
     EXPECT_EQ(expectedResult, result);
 
     EXPECT_TRUE(appenderContains("[WARN] Couldn't get path for 'objectId1': Couldn't get object name"));
