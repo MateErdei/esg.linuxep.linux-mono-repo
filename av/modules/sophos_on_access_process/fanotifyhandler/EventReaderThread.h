@@ -6,24 +6,25 @@
 # define TEST_PUBLIC private
 #endif
 
-#include "IFanotifyHandler.h"
-
+#include "ExclusionCache.h"
 #include "ExecutablePathCache.h"
-
-#include "sophos_on_access_process/onaccessimpl/ScanRequestQueue.h"
-#include "sophos_on_access_process/onaccessimpl/IOnAccessTelemetryUtility.h"
+#include "IFanotifyHandler.h"
 
 #include "common/AbstractThreadPluginInterface.h"
 #include "common/Exclusion.h"
+#include "common/LockableData.h"
 #include "common/UsernameSetting.h"
 #include "datatypes/ISystemCallWrapper.h"
 #include "datatypes/sophos_filesystem.h"
 #include "mount_monitor/mountinfo/IDeviceUtil.h"
+#include "sophos_on_access_process/onaccessimpl/IOnAccessTelemetryUtility.h"
+#include "sophos_on_access_process/onaccessimpl/ScanRequestQueue.h"
 
 #include "Common/Threads/NotifyPipe.h"
 
-#include <mutex>
 #include <sys/fanotify.h>
+
+#include <mutex>
 
 namespace fs = sophos_filesystem;
 namespace onaccessimpl = sophos_on_access_process::onaccessimpl;
@@ -80,9 +81,8 @@ namespace sophos_on_access_process::fanotifyhandler
         mount_monitor::mountinfo::IDeviceUtilSharedPtr m_deviceUtil;
         pid_t m_pid;
         std::string m_processExclusionStem;
-        std::vector<common::Exclusion> m_exclusions;
-        bool m_detectPUAs = true;
-        mutable std::mutex m_exclusionsLock;
+        ExclusionCache exclusionCache_;
+        common::LockableData<bool> m_detectPUAs{true};
         uint m_EventsWhileQueueFull = 0;
         int m_readFailureCount = 0;
         bool m_cacheAllEvents = false;

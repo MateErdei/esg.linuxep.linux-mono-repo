@@ -85,9 +85,9 @@ bool EventReaderThread::skipScanningOfEvent(
         return true;
     }
 
-    std::lock_guard<std::mutex> lock(m_exclusionsLock);
+    std::lock_guard<std::mutex> lock(exclusionCache_.m_exclusionsLock);
     auto fsFilePath = fs::path(filePath);
-    for (const auto& exclusion: m_exclusions)
+    for (const auto& exclusion: exclusionCache_.m_exclusions)
     {
         if (exclusion.appliesToPath(fsFilePath))
         {
@@ -203,7 +203,11 @@ bool EventReaderThread::handleFanotifyEvent()
         scanRequest->setUserID(uid);
         scanRequest->setPid(metadata->pid);
         scanRequest->setExecutablePath(executablePath);
-        scanRequest->setDetectPUAs(m_detectPUAs);
+
+        {
+            auto locked = m_detectPUAs.lock();
+            scanRequest->setDetectPUAs(*locked);
+        }
 
         // Cache if we are going to scan the file
         if (cacheIfAllowed(*scanRequest))
@@ -338,10 +342,10 @@ void EventReaderThread::innerRun()
 
 void EventReaderThread::setExclusions(const std::vector<common::Exclusion>& exclusions)
 {
-    std::lock_guard<std::mutex> lock(m_exclusionsLock);
-    if (exclusions != m_exclusions)
+    std::lock_guard<std::mutex> lock(exclusionCache_.m_exclusionsLock);
+    if (exclusions != exclusionCache_.m_exclusions)
     {
-        m_exclusions = exclusions;
+        exclusionCache_.m_exclusions = exclusions;
         std::stringstream printableExclusions;
         for(const auto &exclusion: exclusions)
         {
@@ -355,11 +359,11 @@ void EventReaderThread::setExclusions(const std::vector<common::Exclusion>& excl
 
 void EventReaderThread::setDetectPUAs(bool detectPUAs)
 {
-    std::lock_guard<std::mutex> lock(m_exclusionsLock);
-    if (detectPUAs != m_detectPUAs)
+    auto locked = m_detectPUAs.lock();
+    if (detectPUAs != *locked)
     {
         LOGDEBUG("Updating detection of PUAs to: " << (detectPUAs ? "true" : "false"));
-        m_detectPUAs = detectPUAs;
+        *locked = detectPUAs;
         // Clear cache after we have updated PUA setting - so that nothing is cached which shouldn't be.
         std::ignore = m_fanotify->clearCachedFiles();
     }

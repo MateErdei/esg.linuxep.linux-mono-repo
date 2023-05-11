@@ -47,6 +47,12 @@ namespace common
     template<typename Data>
     struct LockableData
     {
+        LockableData() = default;
+        explicit LockableData(Data val)
+            : m_data(std::move(val))
+        {
+        }
+
         LockedData<LockableData> lock() { return LockedData(this); }
         const Data& ref() const noexcept
         {
