@@ -21,3 +21,20 @@ bool ExclusionCache::setExclusions(const std::vector<common::Exclusion>& exclusi
     }
     return false;
 }
+
+bool ExclusionCache::checkExclusions(const std::string& filePath) const
+{
+    std::lock_guard<std::mutex> lock(m_exclusionsLock);
+    auto fsFilePath = fs::path(filePath);
+    for (const auto& exclusion: m_exclusions)
+    {
+        if (exclusion.appliesToPath(fsFilePath))
+        {
+            LOGTRACE("File access on " << filePath << " will not be scanned due to exclusion: "  << exclusion.displayPath());
+            // Can't cache user-created exclusions, since
+            // files can be created under the exclusion then moved elsewhere.
+            return true;
+        }
+    }
+    return false;
+}

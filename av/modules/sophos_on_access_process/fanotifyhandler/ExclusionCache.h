@@ -15,5 +15,6 @@ namespace sophos_on_access_process::fanotifyhandler
         mutable std::mutex m_exclusionsLock;
 
         bool setExclusions(const std::vector<common::Exclusion>& exclusions);
+        bool checkExclusions(const std::string& filePath) const;
     };
 }
