@@ -659,7 +659,7 @@ Threat Detector Rescan Socket Does Not Block Shutdown
     wait_for_log_contains_from_mark  ${td_mark}  SafeStoreRescanClient received stop request while connecting
 
 
-Allow Listed Files Are Removed From Quarantine
+Allow Listed Files Are Removed From Quarantine Allow By SHA256
     Wait Until threat detector running
     Wait Until SafeStore running
 
