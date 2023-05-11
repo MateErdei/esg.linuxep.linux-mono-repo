@@ -116,10 +116,21 @@ protected:
         return getMetaData(FAN_OPEN, _fd);
     }
 
-    void expectReadReturnsStruct(fanotify_event_metadata metadata)
+    void expectReadReturnsStruct(const fanotify_event_metadata& metadata)
     {
         EXPECT_CALL(*m_mockSysCallWrapper, read(FANOTIFY_FD, _, _))
-            .WillOnce(readReturnsStruct(metadata));
+            .WillOnce(readReturnsStruct(metadata))
+            .WillRepeatedly(SetErrnoAndReturn(EAGAIN, -1));
+    }
+
+    void expectReadSameMetaDataTwice(const fanotify_event_metadata& metadata)
+    {
+        EXPECT_CALL(*m_mockSysCallWrapper, read(FANOTIFY_FD, _, _))
+            .WillRepeatedly(SetErrnoAndReturn(EAGAIN, -1));
+        EXPECT_CALL(*m_mockSysCallWrapper, read(FANOTIFY_FD, _, _))
+            .Times(2)
+            .WillRepeatedly(readReturnsStruct(metadata))
+            .RetiresOnSaturation();
     }
 
     void expectReadlinkReturnsPath(const char* filePath)
@@ -203,7 +214,7 @@ void TestEventReaderThread::setupExpectationsForOneEvent(const char* filePath)
     EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))
         .WillOnce(pollReturnsWithRevents(1, POLLIN))
         .WillOnce(pollReturnsWithRevents(0, POLLIN));
-    EXPECT_CALL(*m_mockSysCallWrapper, read(FANOTIFY_FD, _, _)).WillOnce(readReturnsStruct(metadata));
+    expectReadReturnsStruct(metadata);
     expectReadlinkReturnsPath(filePath);
     expectStatProcPid();
     defaultFstat();
@@ -307,7 +318,8 @@ TEST_F(TestEventReaderThread, TestReaderCanReceiveEventAfterNoEvent)
         .WillOnce(pollReturnsWithRevents(0, POLLIN));
     EXPECT_CALL(*m_mockSysCallWrapper, read(FANOTIFY_FD, _, _))
         .WillOnce(Return(0))
-        .WillOnce(readReturnsStruct(metadata));
+        .WillOnce(readReturnsStruct(metadata))
+        .WillRepeatedly(SetErrnoAndReturn(EAGAIN, -1));
     expectReadlinkReturnsPath(filePath);
     expectStatProcPid();
     defaultFstat();
@@ -430,7 +442,6 @@ TEST_F(TestEventReaderThread, TestReaderReadsOnOpenFanotifyEventAfterRestart)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    int fanotifyFD = FANOTIFY_FD;
     auto metadata1 = getMetaData(FAN_OPEN, 8000, 99999992);
     auto metadata2 = getMetaData(FAN_OPEN, 8001, 99999991);
     const char* filePath1 = "/tmp/test";
@@ -442,7 +453,7 @@ TEST_F(TestEventReaderThread, TestReaderReadsOnOpenFanotifyEventAfterRestart)
         .WillOnce(pollReturnsWithRevents(1, POLLIN))
         .WillOnce(pollReturnsWithRevents(0, POLLIN));
 
-    EXPECT_CALL(*m_mockSysCallWrapper, read(fanotifyFD, _, _)).Times(2)
+    EXPECT_CALL(*m_mockSysCallWrapper, read(FANOTIFY_FD, _, _)).Times(2)
         .WillOnce(readReturnsStruct(metadata1))
         .WillOnce(readReturnsStruct(metadata2));
     EXPECT_CALL(*m_mockSysCallWrapper, readlink(_, _, _))
@@ -486,7 +497,6 @@ TEST_F(TestEventReaderThread, TestReaderLogsUnexpectedFanotifyEventType)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    int fanotifyFD = FANOTIFY_FD;
     auto metadata = getMetaData(FAN_ONDIR);
     const char* filePath = "/tmp/test";
 
@@ -494,8 +504,7 @@ TEST_F(TestEventReaderThread, TestReaderLogsUnexpectedFanotifyEventType)
         .WillOnce(pollReturnsWithRevents(1, POLLIN))
         .WillOnce(pollReturnsWithRevents(0, POLLIN));
     expectStatProcPid();
-    EXPECT_CALL(*m_mockSysCallWrapper, read(fanotifyFD, _, _)).WillOnce(readReturnsStruct(metadata));
-
+    expectReadReturnsStruct(metadata);
     EXPECT_CALL(*m_mockSysCallWrapper, readlink(_, _, _)).WillOnce(readlinkReturnPath(filePath));
 
     auto eventReader = makeDefaultEventReaderThread();
@@ -512,14 +521,13 @@ TEST_F(TestEventReaderThread, TestReaderSetUnknownPathIfReadLinkFails)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    int fanotifyFD = FANOTIFY_FD;
     auto metadata = getMetaData();
 
     EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))
         .WillOnce(pollReturnsWithRevents(1, POLLIN))
         .WillOnce(pollReturnsWithRevents(0, POLLIN));
 
-    EXPECT_CALL(*m_mockSysCallWrapper, read(fanotifyFD, _, _)).WillOnce(readReturnsStruct(metadata));
+    expectReadReturnsStruct(metadata);
     EXPECT_CALL(*m_mockSysCallWrapper, readlink(_, _, _)).WillOnce(Return(-1));
     expectStatProcPid();
     defaultFstat();
@@ -546,14 +554,13 @@ TEST_F(TestEventReaderThread, TestReaderSetInvalidUidIfStatFails)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    int fanotifyFD = FANOTIFY_FD;
     auto metadata = getMetaData();
     const char* filePath = "/tmp/test";
 
     EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))
         .WillOnce(pollReturnsWithRevents(1, POLLIN))
         .WillOnce(pollReturnsWithRevents(0, POLLIN));
-    EXPECT_CALL(*m_mockSysCallWrapper, read(fanotifyFD, _, _)).WillOnce(readReturnsStruct(metadata));
+    expectReadReturnsStruct(metadata);
 
     EXPECT_CALL(*m_mockSysCallWrapper, readlink(_, _, _)).WillOnce(readlinkReturnPath(filePath));
     EXPECT_CALL(*m_mockSysCallWrapper, _stat(_, _)).WillOnce(Return(-1));
@@ -574,14 +581,13 @@ TEST_F(TestEventReaderThread, TestReaderSetInvalidUidIfStatFails)
 TEST_F(TestEventReaderThread, TestReaderExitsIfFanotifyProtocolVersionIsTooOld)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
-    int fanotifyFD = FANOTIFY_FD;
     int version = 2;
 
     auto metadata = getMetaData(FAN_CLOSE, 10, 10, version);
 
     EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))
         .WillOnce(pollReturnsWithRevents(1, POLLIN));
-    EXPECT_CALL(*m_mockSysCallWrapper, read(fanotifyFD, _, _)).WillOnce(readReturnsStruct(metadata));
+    expectReadReturnsStruct(metadata);
 
     auto eventReader = makeDefaultEventReaderThread();
     common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
@@ -596,13 +602,12 @@ TEST_F(TestEventReaderThread, TestReaderSkipsEventsWithoutFD)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    int fanotifyFD = FANOTIFY_FD;
     auto metadata = getMetaData(FAN_CLOSE, -1);
 
     EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))
         .WillOnce(pollReturnsWithRevents(1, POLLIN))
         .WillOnce(pollReturnsWithRevents(0, POLLIN));
-    EXPECT_CALL(*m_mockSysCallWrapper, read(fanotifyFD, _, _)).WillOnce(readReturnsStruct(metadata));
+    expectReadReturnsStruct(metadata);
 
     auto eventReader = makeDefaultEventReaderThread();
     common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
@@ -616,13 +621,12 @@ TEST_F(TestEventReaderThread, TestReaderSkipsEventsWithSoapdPid)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    int fanotifyFD = FANOTIFY_FD;
     auto metadata = getMetaData(FAN_CLOSE,  EVENT_FD, getpid());
 
     EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))
         .WillOnce(pollReturnsWithRevents(1, POLLIN))
         .WillOnce(pollReturnsWithRevents(0, POLLIN));
-    EXPECT_CALL(*m_mockSysCallWrapper, read(fanotifyFD, _, _)).WillOnce(readReturnsStruct(metadata));
+    expectReadReturnsStruct(metadata);
 
     auto eventReader = makeDefaultEventReaderThread();
     common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
@@ -635,14 +639,13 @@ TEST_F(TestEventReaderThread, TestReaderSkipsEventsInPluginLogDir)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    int fanotifyFD = FANOTIFY_FD;
     auto metadata = getMetaData();
     const char* filePath = "/opt/sophos-spl/plugins/av/log/soapd.log";
 
     EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))
         .WillOnce(pollReturnsWithRevents(1, POLLIN))
         .WillOnce(pollReturnsWithRevents(0, POLLIN));
-    EXPECT_CALL(*m_mockSysCallWrapper, read(fanotifyFD, _, _)).WillOnce(readReturnsStruct(metadata));
+    expectReadReturnsStruct(metadata);
 
     EXPECT_CALL(*m_mockSysCallWrapper, readlink(_, _, _)).WillOnce(readlinkReturnPath(filePath));
 
@@ -657,14 +660,13 @@ TEST_F(TestEventReaderThread, TestReaderDoesntSkipEventsInSimilarDirToPluginLogD
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    int fanotifyFD = FANOTIFY_FD;
     auto metadata = getMetaData();
     const char* filePath = "/opt/sophos-spl/plugins/av/logz/soapd.log";
 
     EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))
         .WillOnce(pollReturnsWithRevents(1, POLLIN))
         .WillOnce(pollReturnsWithRevents(0, POLLIN));
-    EXPECT_CALL(*m_mockSysCallWrapper, read(fanotifyFD, _, _)).WillOnce(readReturnsStruct(metadata));
+    expectReadReturnsStruct(metadata);
 
     EXPECT_CALL(*m_mockSysCallWrapper, readlink(_, _, _)).WillOnce(readlinkReturnPath(filePath));
     expectStatProcPid();
@@ -687,7 +689,7 @@ TEST_F(TestEventReaderThread, TestReaderSkipsExcludedPaths)
     EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))
         .WillOnce(pollReturnsWithRevents(1, POLLIN))
         .WillOnce(pollReturnsWithRevents(0, POLLIN));
-    EXPECT_CALL(*m_mockSysCallWrapper, read(FANOTIFY_FD, _, _)).WillOnce(readReturnsStruct(metadata));
+    expectReadReturnsStruct(metadata);
     const char* filePath = "/excluded/eicar.com";
     EXPECT_CALL(*m_mockSysCallWrapper, readlink(_, _, _)).WillOnce(readlinkReturnPath(filePath));
 
@@ -703,14 +705,13 @@ TEST_F(TestEventReaderThread, TestReaderDoesntInvalidateFd)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    int fanotifyFD = FANOTIFY_FD;
     auto metadata = getMetaData();
     const char* filePath = "/tmp/test";
 
     EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))
         .WillOnce(pollReturnsWithRevents(1, POLLIN))
         .WillOnce(pollReturnsWithRevents(0, POLLIN));
-    EXPECT_CALL(*m_mockSysCallWrapper, read(fanotifyFD, _, _)).WillOnce(readReturnsStruct(metadata));
+    expectReadReturnsStruct(metadata);
     EXPECT_CALL(*m_mockSysCallWrapper, readlink(_, _, _)).WillOnce(readlinkReturnPath(filePath));
     expectStatProcPid();
     defaultFstat();
@@ -732,14 +733,12 @@ TEST_F(TestEventReaderThread, TestReaderDoesntInvalidateFd)
 TEST_F(TestEventReaderThread, TestReaderLogsFanotifyQueueOverflow)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
-    int fanotifyFD = FANOTIFY_FD;
     auto metadata = getMetaData(FAN_Q_OVERFLOW, FAN_NOFD);
 
     EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))
         .WillOnce(pollReturnsWithRevents(1, POLLIN))
         .WillOnce(pollReturnsWithRevents(0, POLLIN));
-    EXPECT_CALL(*m_mockSysCallWrapper, read(fanotifyFD, _, _))
-        .WillOnce(readReturnsStruct(metadata));
+    expectReadReturnsStruct(metadata);
 
     auto eventReader = makeDefaultEventReaderThread();
     common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
@@ -759,10 +758,7 @@ TEST_F(TestEventReaderThread, EventsWithSameInodeAndDeviceAreSkipped)
         .WillOnce(pollReturnsWithRevents(0, POLLIN));
 
     auto metadata = getOpenMetaData(8000);
-    EXPECT_CALL(*m_mockSysCallWrapper, read(FANOTIFY_FD, _, _))
-        .Times(2)
-        .WillRepeatedly(readReturnsStruct(metadata));
-
+    expectReadSameMetaDataTwice(metadata);
     defaultStat();
 
     EXPECT_CALL(*m_mockSysCallWrapper, fstat(8000, _))
@@ -792,7 +788,8 @@ TEST_F(TestEventReaderThread, EventsWithSameInodeAndDeviceButDifferentPathAreSki
     auto metadata2 = getOpenMetaData(8001);
     EXPECT_CALL(*m_mockSysCallWrapper, read(FANOTIFY_FD, _, _))
         .WillOnce(readReturnsStruct(metadata1))
-        .WillOnce(readReturnsStruct(metadata2));
+        .WillOnce(readReturnsStruct(metadata2))
+        .WillRepeatedly(SetErrnoAndReturn(EAGAIN, -1));
 
     defaultStat();
 
@@ -823,9 +820,7 @@ TEST_F(TestEventReaderThread, EventsWithDifferentDeviceAreNotSkipped)
         .WillOnce(pollReturnsWithRevents(0, POLLIN));
 
     auto metadata = getOpenMetaData(8000);
-    EXPECT_CALL(*m_mockSysCallWrapper, read(FANOTIFY_FD, _, _))
-        .Times(2)
-        .WillRepeatedly(readReturnsStruct(metadata));
+    expectReadSameMetaDataTwice(metadata);
 
     defaultStat();
 
@@ -854,8 +849,11 @@ TEST_F(TestEventReaderThread, EventsWithHighBitDifferentDeviceAreNotSkipped)
 
     auto metadata = getOpenMetaData(8000);
     EXPECT_CALL(*m_mockSysCallWrapper, read(FANOTIFY_FD, _, _))
+        .WillRepeatedly(SetErrnoAndReturn(EAGAIN, -1));
+    EXPECT_CALL(*m_mockSysCallWrapper, read(FANOTIFY_FD, _, _))
         .Times(2)
-        .WillRepeatedly(readReturnsStruct(metadata));
+        .WillRepeatedly(readReturnsStruct(metadata))
+        .RetiresOnSaturation();
 
     defaultStat();
 
@@ -883,10 +881,7 @@ TEST_F(TestEventReaderThread, EventsWithDifferentInodeAreNotSkipped)
         .WillOnce(pollReturnsWithRevents(0, POLLIN));
 
     auto metadata = getOpenMetaData(8000);
-    EXPECT_CALL(*m_mockSysCallWrapper, read(FANOTIFY_FD, _, _))
-        .Times(2)
-        .WillRepeatedly(readReturnsStruct(metadata));
-
+    expectReadSameMetaDataTwice(metadata);
     defaultStat();
 
     EXPECT_CALL(*m_mockSysCallWrapper, fstat(8000, _))
@@ -913,10 +908,7 @@ TEST_F(TestEventReaderThread, EventsWithHighBitDifferentInodeAreNotSkipped)
         .WillOnce(pollReturnsWithRevents(0, POLLIN));
 
     auto metadata = getOpenMetaData(8000);
-    EXPECT_CALL(*m_mockSysCallWrapper, read(FANOTIFY_FD, _, _))
-        .Times(2)
-        .WillRepeatedly(readReturnsStruct(metadata));
-
+    expectReadSameMetaDataTwice(metadata);
     defaultStat();
 
     EXPECT_CALL(*m_mockSysCallWrapper, fstat(8000, _))
@@ -941,7 +933,6 @@ TEST_F(TestEventReaderThread, TestReaderLogsQueueIsFull)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    int fanotifyFD = FANOTIFY_FD;
     auto metadata = getMetaData();
     const char* filePath = "/tmp/test";
 
@@ -952,7 +943,7 @@ TEST_F(TestEventReaderThread, TestReaderLogsQueueIsFull)
         .WillOnce(pollReturnsWithRevents(1, POLLIN))
         .WillOnce(pollReturnsWithRevents(0, POLLIN));
 
-    EXPECT_CALL(*m_mockSysCallWrapper, read(fanotifyFD, _, _))
+    EXPECT_CALL(*m_mockSysCallWrapper, read(FANOTIFY_FD, _, _))
         .WillRepeatedly(readReturnsStruct(metadata));
 
     EXPECT_CALL(*m_mockSysCallWrapper, readlink(_, _, _))
@@ -974,7 +965,6 @@ TEST_F(TestEventReaderThread, TestReaderDoesntLogQueueIsFullWhenIsAlreadyFull)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    int fanotifyFD = FANOTIFY_FD;
     auto metadata = getMetaData();
     const char* filePath = "/tmp/test";
 
@@ -986,7 +976,7 @@ TEST_F(TestEventReaderThread, TestReaderDoesntLogQueueIsFullWhenIsAlreadyFull)
         .WillOnce(pollReturnsWithRevents(1, POLLIN))
         .WillOnce(pollReturnsWithRevents(0, POLLIN));
 
-    EXPECT_CALL(*m_mockSysCallWrapper, read(fanotifyFD, _, _))
+    EXPECT_CALL(*m_mockSysCallWrapper, read(FANOTIFY_FD, _, _))
         .WillRepeatedly(readReturnsStruct(metadata));
 
     EXPECT_CALL(*m_mockSysCallWrapper, readlink(_, _, _))
@@ -1009,9 +999,8 @@ TEST_F(TestEventReaderThread, TestReaderLogsQueueIsFullWhenItFillsSecondTime)
     UsingMemoryAppender memoryAppenderHolder(*this);
     WaitForEvent eventReaderGuard;
 
-    int fanotifyFD = FANOTIFY_FD;
     auto metadata = getMetaData();
-    const char* filePath = "/tmp/test";
+    constexpr const char* filePath = "/tmp/test";
 
     EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))
         .WillOnce(pollReturnsWithRevents(1, POLLIN))
@@ -1026,7 +1015,7 @@ TEST_F(TestEventReaderThread, TestReaderLogsQueueIsFullWhenItFillsSecondTime)
         .WillOnce(pollReturnsWithRevents(1, POLLIN))
         .WillOnce(pollReturnsWithRevents(0, POLLIN));
 
-    EXPECT_CALL(*m_mockSysCallWrapper, read(fanotifyFD, _, _))
+    EXPECT_CALL(*m_mockSysCallWrapper, read(FANOTIFY_FD, _, _))
         .WillRepeatedly(readReturnsStruct(metadata));
 
     EXPECT_CALL(*m_mockSysCallWrapper, readlink(_, _, _))
@@ -1054,7 +1043,6 @@ TEST_F(TestEventReaderThread, TestReaderDoesntLogWhenQueueSizeHasntLoweredToLogT
     UsingMemoryAppender memoryAppenderHolder(*this);
     WaitForEvent queueFull, queueNotFull;
 
-    int fanotifyFD = FANOTIFY_FD;
     auto metadata = getMetaData();
     const char* filePath = "/tmp/test";
 
@@ -1071,7 +1059,7 @@ TEST_F(TestEventReaderThread, TestReaderDoesntLogWhenQueueSizeHasntLoweredToLogT
         .WillOnce(pollReturnsWithRevents(1, POLLIN))
         .WillOnce(pollReturnsWithRevents(0, POLLIN));
 
-    EXPECT_CALL(*m_mockSysCallWrapper, read(fanotifyFD, _, _))
+    EXPECT_CALL(*m_mockSysCallWrapper, read(FANOTIFY_FD, _, _))
         .WillRepeatedly(readReturnsStruct(metadata));
 
     EXPECT_CALL(*m_mockSysCallWrapper, readlink(_, _, _))
@@ -1104,7 +1092,6 @@ TEST_F(TestEventReaderThread, TestReaderLogsWhenQueueSizeHasLoweredToLogThreshol
     UsingMemoryAppender memoryAppenderHolder(*this);
     WaitForEvent queueFull, queueNotFull;
 
-    int fanotifyFD = FANOTIFY_FD;
     auto metadata = getMetaData();
     const char* filePath = "/tmp/test";
 
@@ -1122,7 +1109,7 @@ TEST_F(TestEventReaderThread, TestReaderLogsWhenQueueSizeHasLoweredToLogThreshol
         .WillOnce(pollReturnsWithRevents(1, POLLIN))
         .WillOnce(pollReturnsWithRevents(0, POLLIN));
 
-    EXPECT_CALL(*m_mockSysCallWrapper, read(fanotifyFD, _, _))
+    EXPECT_CALL(*m_mockSysCallWrapper, read(FANOTIFY_FD, _, _))
         .WillRepeatedly(readReturnsStruct(metadata));
 
     EXPECT_CALL(*m_mockSysCallWrapper, readlink(_, _, _))
@@ -1155,7 +1142,6 @@ TEST_F(TestEventReaderThread, TestReaderLogsManyEventsMissed)
     UsingMemoryAppender memoryAppenderHolder(*this);
     WaitForEvent queueFull, queueEmpty;
 
-    int fanotifyFD = FANOTIFY_FD;
     auto metadata = getMetaData();
     const char* filePath = "/tmp/test";
 
@@ -1171,7 +1157,7 @@ TEST_F(TestEventReaderThread, TestReaderLogsManyEventsMissed)
             pollReturnsWithRevents(1, POLLIN)))
         .WillOnce(pollReturnsWithRevents(0, POLLIN));
 
-    EXPECT_CALL(*m_mockSysCallWrapper, read(fanotifyFD, _, _))
+    EXPECT_CALL(*m_mockSysCallWrapper, read(FANOTIFY_FD, _, _))
         .WillRepeatedly(readReturnsStruct(metadata));
 
     EXPECT_CALL(*m_mockSysCallWrapper, readlink(_, _, _))
@@ -1197,7 +1183,6 @@ TEST_F(TestEventReaderThread, TestReaderResetsMissedEventCountAfterStopStart)
     UsingMemoryAppender memoryAppenderHolder(*this);
     WaitForEvent eventReaderGuard;
 
-    int fanotifyFD = FANOTIFY_FD;
     auto metadata = getMetaData();
     const char* filePath = "/tmp/test";
 
@@ -1217,7 +1202,7 @@ TEST_F(TestEventReaderThread, TestReaderResetsMissedEventCountAfterStopStart)
             InvokeWithoutArgs(&eventReaderGuard, &WaitForEvent::waitDefault),
             pollReturnsWithRevents(0, POLLIN)));
 
-    EXPECT_CALL(*m_mockSysCallWrapper, read(fanotifyFD, _, _))
+    EXPECT_CALL(*m_mockSysCallWrapper, read(FANOTIFY_FD, _, _))
         .WillRepeatedly(readReturnsStruct(metadata));
 
     EXPECT_CALL(*m_mockSysCallWrapper, readlink(_, _, _))

@@ -29,7 +29,7 @@ FanotifyHandler::~FanotifyHandler()
 
 void FanotifyHandler::init()
 {
-    constexpr unsigned int flags = FAN_CLOEXEC | FAN_CLASS_CONTENT | FAN_UNLIMITED_MARKS;
+    constexpr unsigned int flags = FAN_CLOEXEC | FAN_CLASS_CONTENT | FAN_UNLIMITED_MARKS | FAN_NONBLOCK;
     constexpr unsigned int event_f_flags = O_RDONLY | O_CLOEXEC | O_LARGEFILE;
     int fanotifyFd = m_systemCallWrapper->fanotify_init(flags, event_f_flags);
     if (fanotifyFd == -1)

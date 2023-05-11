@@ -92,135 +92,147 @@ bool EventReaderThread::handleFanotifyEvent()
 {
     char buf[FAN_BUFFER_SIZE];
 
-    errno = 0;
-    ssize_t len = m_sysCalls->read(m_fanotify->getFd(), buf, sizeof(buf));
-
-    // Error only if < 0 https://man7.org/linux/man-pages/man2/read.2.html
-    if (len < 0)
+    for (int i=0; i<1; i++)
     {
-        throwIfErrorNotRecoverable();
-    }
-    else
-    {
-        // Got a successful read
-        m_readFailureCount = 0;
-    }
+        errno = 0;
+        ssize_t len = m_sysCalls->read(m_fanotify->getFd(), buf, sizeof(buf));
 
-    if (len == 0)
-    {
-        LOGTRACE("Skipping empty fanotify event");
-        return true;
-    }
-
-    auto* metadata = reinterpret_cast<struct fanotify_event_metadata*>(buf);
-
-    for (; FAN_EVENT_OK(metadata, len); metadata = FAN_EVENT_NEXT(metadata, len))
-    {
-        if (metadata->vers != FANOTIFY_METADATA_VERSION)
+        // Error only if < 0 https://man7.org/linux/man-pages/man2/read.2.html
+        if (len < 0)
         {
-            LOGERROR("Fanotify wrong protocol version " << (unsigned int) metadata->vers);
-            return false;
+            throwIfErrorNotRecoverable();
+            return true; // Otherwise we got EAGAIN, so go back to poll loop
+        }
+        else
+        {
+            // Got a successful read
+            m_readFailureCount = 0;
         }
 
-        if (metadata->mask & FAN_Q_OVERFLOW)
+        if (len == 0)
         {
-            // The in kernel event queue exceeded the limit of 16384 entries.
-            LOGWARN("Fanotify queue overflowed, some files will not be scanned.");
-            continue;
+            LOGTRACE("Skipping empty fanotify event");
+            return true;
         }
 
-        datatypes::AutoFd eventFd { metadata->fd };
-        if (eventFd.get() < 0)
-        {
-            LOGERROR("Got fanotify metadata event without fd");
-            continue;
-        }
+        auto* metadata = reinterpret_cast<struct fanotify_event_metadata*>(buf);
 
-        std::string filePath;
-        std::string executablePath;
-        if (skipScanningOfEvent(metadata, filePath, executablePath, eventFd.get()))
+        for (; FAN_EVENT_OK(metadata, len); metadata = FAN_EVENT_NEXT(metadata, len))
         {
-            continue;
-        }
+            if (metadata->vers != FANOTIFY_METADATA_VERSION)
+            {
+                LOGERROR("Fanotify wrong protocol version " << (unsigned int)metadata->vers);
+                return false;
+            }
 
+            if (metadata->mask & FAN_Q_OVERFLOW)
+            {
+                // The in kernel event queue exceeded the limit of 16384 entries.
+                LOGWARN("Fanotify queue overflowed, some files will not be scanned.");
+                continue;
+            }
+
+            datatypes::AutoFd eventFd{ metadata->fd };
+            if (eventFd.get() < 0)
+            {
+                LOGERROR("Got fanotify metadata event without fd");
+                continue;
+            }
+
+            std::string filePath;
+            std::string executablePath;
+            if (skipScanningOfEvent(metadata, filePath, executablePath, eventFd.get()))
+            {
+                continue;
+            }
 
 #ifdef USERNAME_UID_USED
-        const auto uid = getUidFromPid(metadata->pid);
-        std::ostringstream uid_debug_message_buffer;
-        uid_debug_message_buffer << " and UID " << uid;
-        const auto uid_debug_message = uid_debug_message_buffer.str();
+            const auto uid = getUidFromPid(metadata->pid);
+            std::ostringstream uid_debug_message_buffer;
+            uid_debug_message_buffer << " and UID " << uid;
+            const auto uid_debug_message = uid_debug_message_buffer.str();
 
 #else
-        const auto uid = "unknown"; // UID is never used
-        constexpr const auto* uid_debug_message = "";
+            const auto uid = "unknown"; // UID is never used
+            constexpr const auto* uid_debug_message = "";
 #endif
 
-        std::string escapedPath;
-        if (getFaNotifyHandlerLogger().isEnabledFor(log4cplus::DEBUG_LOG_LEVEL))
-        {
-            escapedPath = common::escapePathForLogging(filePath);
-        }
-        auto eventType = E_SCAN_TYPE_UNKNOWN;
-
-        //Some events have both bits set, we prioritise FAN_CLOSE_WRITE as the event tag. A copy event can cause this.
-        if ((metadata->mask & FAN_CLOSE_WRITE) && (metadata->mask & FAN_OPEN))
-        {
-            LOGDEBUG("On-open event for " << escapedPath << " from Process " << executablePath << "(PID=" << metadata->pid << ")" << uid_debug_message);
-            LOGDEBUG("On-close event for " << escapedPath << " from Process " << executablePath << "(PID=" << metadata->pid << ")" << uid_debug_message);
-            eventType = E_SCAN_TYPE_ON_ACCESS_CLOSE;
-        }
-        else if (metadata->mask & FAN_CLOSE_WRITE)
-        {
-            LOGDEBUG("On-close event for " << escapedPath << " from Process " << executablePath << "(PID=" << metadata->pid << ")" << uid_debug_message);
-            eventType = E_SCAN_TYPE_ON_ACCESS_CLOSE;
-        }
-        else if (metadata->mask & FAN_OPEN)
-        {
-            LOGDEBUG("On-open event for " << escapedPath << " from Process " << executablePath << "(PID=" << metadata->pid << ")" << uid_debug_message);
-            eventType = E_SCAN_TYPE_ON_ACCESS_OPEN;
-        }
-        else
-        {
-            LOGERROR("unknown operation mask: " << std::hex << metadata->mask << std::dec);
-            continue;
-        }
-
-        auto scanRequest = std::make_shared<scan_request_t>(m_sysCalls, eventFd); // DONATED
-        scanRequest->setPath(filePath);
-        scanRequest->setScanType(eventType);
-        scanRequest->setUserID(uid);
-        scanRequest->setPid(metadata->pid);
-        scanRequest->setExecutablePath(executablePath);
-
-        {
-            auto locked = m_detectPUAs.lock();
-            scanRequest->setDetectPUAs(*locked);
-        }
-
-        // Cache if we are going to scan the file
-        if (cacheIfAllowed(*scanRequest))
-        {
-            LOGTRACE("Cached " << escapedPath << " from Process " << executablePath << "(PID=" << metadata->pid << ")" << uid_debug_message);
-            scanRequest->setIsCached(true);
-        }
-
-        if (!m_scanRequestQueue->emplace(std::move(scanRequest)))
-        {
-            m_telemetryUtility->incrementEventReceived(true);
-            if (m_EventsWhileQueueFull == 0)
+            std::string escapedPath;
+            if (getFaNotifyHandlerLogger().isEnabledFor(log4cplus::DEBUG_LOG_LEVEL))
             {
-                LOGERROR("Failed to add scan request to queue, on-access scanning queue is full.");
+                escapedPath = common::escapePathForLogging(filePath);
             }
-            m_EventsWhileQueueFull++;
-        }
-        else
-        {
-            m_telemetryUtility->incrementEventReceived(false);
-            if (m_EventsWhileQueueFull > 0 &&
-                m_scanRequestQueue->sizeIsLessThan(m_logNotFullThreshold))
+            auto eventType = E_SCAN_TYPE_UNKNOWN;
+
+            // Some events have both bits set, we prioritise FAN_CLOSE_WRITE as the event tag. A copy event can cause this.
+            if ((metadata->mask & FAN_CLOSE_WRITE) && (metadata->mask & FAN_OPEN))
             {
-                LOGINFO("Queue is no longer full. Number of events dropped: " << m_EventsWhileQueueFull);
-                m_EventsWhileQueueFull = 0;
+                LOGDEBUG(
+                    "On-open event for " << escapedPath << " from Process " << executablePath
+                                         << "(PID=" << metadata->pid << ")" << uid_debug_message);
+                LOGDEBUG(
+                    "On-close event for " << escapedPath << " from Process " << executablePath
+                                          << "(PID=" << metadata->pid << ")" << uid_debug_message);
+                eventType = E_SCAN_TYPE_ON_ACCESS_CLOSE;
+            }
+            else if (metadata->mask & FAN_CLOSE_WRITE)
+            {
+                LOGDEBUG(
+                    "On-close event for " << escapedPath << " from Process " << executablePath
+                                          << "(PID=" << metadata->pid << ")" << uid_debug_message);
+                eventType = E_SCAN_TYPE_ON_ACCESS_CLOSE;
+            }
+            else if (metadata->mask & FAN_OPEN)
+            {
+                LOGDEBUG(
+                    "On-open event for " << escapedPath << " from Process " << executablePath
+                                         << "(PID=" << metadata->pid << ")" << uid_debug_message);
+                eventType = E_SCAN_TYPE_ON_ACCESS_OPEN;
+            }
+            else
+            {
+                LOGERROR("unknown operation mask: " << std::hex << metadata->mask << std::dec);
+                continue;
+            }
+
+            auto scanRequest = std::make_shared<scan_request_t>(m_sysCalls, eventFd); // DONATED
+            scanRequest->setPath(filePath);
+            scanRequest->setScanType(eventType);
+            scanRequest->setUserID(uid);
+            scanRequest->setPid(metadata->pid);
+            scanRequest->setExecutablePath(executablePath);
+
+            {
+                auto locked = m_detectPUAs.lock();
+                scanRequest->setDetectPUAs(*locked);
+            }
+
+            // Cache if we are going to scan the file
+            if (cacheIfAllowed(*scanRequest))
+            {
+                LOGTRACE(
+                    "Cached " << escapedPath << " from Process " << executablePath << "(PID=" << metadata->pid << ")"
+                              << uid_debug_message);
+                scanRequest->setIsCached(true);
+            }
+
+            if (!m_scanRequestQueue->emplace(std::move(scanRequest)))
+            {
+                m_telemetryUtility->incrementEventReceived(true);
+                if (m_EventsWhileQueueFull == 0)
+                {
+                    LOGERROR("Failed to add scan request to queue, on-access scanning queue is full.");
+                }
+                m_EventsWhileQueueFull++;
+            }
+            else
+            {
+                m_telemetryUtility->incrementEventReceived(false);
+                if (m_EventsWhileQueueFull > 0 && m_scanRequestQueue->sizeIsLessThan(m_logNotFullThreshold))
+                {
+                    LOGINFO("Queue is no longer full. Number of events dropped: " << m_EventsWhileQueueFull);
+                    m_EventsWhileQueueFull = 0;
+                }
             }
         }
     }
