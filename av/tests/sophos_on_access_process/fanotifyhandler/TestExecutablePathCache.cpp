@@ -44,3 +44,25 @@ TEST_F(TestExecutablePathCache, get_executable_path_from_pid_empty_from_bad_pid)
     auto exe = test_get_executable_path_from_pid(0);
     EXPECT_EQ(exe, "");
 }
+
+namespace
+{
+    class CountingCache : public ExecutablePathCache
+    {
+    public:
+        int count_ = 0;
+        std::string get_executable_path_from_pid_uncached(pid_t pid) override
+        {
+            count_++;
+            return ExecutablePathCache::get_executable_path_from_pid_uncached(pid);
+        }
+    };
+}
+
+TEST_F(TestExecutablePathCache, count_first_lookup)
+{
+    CountingCache cache;
+    auto exe = cache.get_executable_path_from_pid(getpid());
+    EXPECT_NE(exe, "");
+    EXPECT_EQ(cache.count_, 1);
+}
