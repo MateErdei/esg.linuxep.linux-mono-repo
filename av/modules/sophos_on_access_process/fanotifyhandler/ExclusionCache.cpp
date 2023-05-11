@@ -27,6 +27,11 @@ bool ExclusionCache::checkExclusions(const std::string& filePath) const
 {
     std::lock_guard<std::mutex> lock(m_exclusionsLock);
 
+    if (m_exclusions.empty())
+    {
+        return false; // no point caching if we have no exclusions
+    }
+
     auto now = clock_t::now();
     auto age = now - cache_time_;
     if (age > cache_lifetime_)
