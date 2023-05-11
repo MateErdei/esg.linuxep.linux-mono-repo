@@ -13,5 +13,7 @@ namespace sophos_on_access_process::fanotifyhandler
     public:
         std::vector<common::Exclusion> m_exclusions;
         mutable std::mutex m_exclusionsLock;
+
+        bool setExclusions(const std::vector<common::Exclusion>& exclusions);
     };
 }

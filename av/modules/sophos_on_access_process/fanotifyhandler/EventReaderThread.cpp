@@ -342,16 +342,8 @@ void EventReaderThread::innerRun()
 
 void EventReaderThread::setExclusions(const std::vector<common::Exclusion>& exclusions)
 {
-    std::lock_guard<std::mutex> lock(exclusionCache_.m_exclusionsLock);
-    if (exclusions != exclusionCache_.m_exclusions)
+    if (exclusionCache_.setExclusions(exclusions))
     {
-        exclusionCache_.m_exclusions = exclusions;
-        std::stringstream printableExclusions;
-        for(const auto &exclusion: exclusions)
-        {
-            printableExclusions << "[\"" << exclusion.displayPath() << "\"] ";
-        }
-        LOGDEBUG("Updating on-access exclusions with: " << printableExclusions.str());
         // Clear cache after we have updated exclusions - so that nothing is cached which shouldn't be.
         std::ignore = m_fanotify->clearCachedFiles();
     }

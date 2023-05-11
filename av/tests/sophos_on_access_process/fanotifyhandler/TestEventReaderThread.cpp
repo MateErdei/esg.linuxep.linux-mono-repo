@@ -682,13 +682,12 @@ TEST_F(TestEventReaderThread, TestReaderSkipsExcludedPaths)
     UsingMemoryAppender memoryAppenderHolder(*this);
     std::vector<common::Exclusion> exclusions;
     exclusions.emplace_back("/excluded/");
-    int fanotifyFD = FANOTIFY_FD;
     auto metadata = getMetaData();
 
     EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, 2, _, nullptr))
         .WillOnce(pollReturnsWithRevents(1, POLLIN))
         .WillOnce(pollReturnsWithRevents(0, POLLIN));
-    EXPECT_CALL(*m_mockSysCallWrapper, read(fanotifyFD, _, _)).WillOnce(readReturnsStruct(metadata));
+    EXPECT_CALL(*m_mockSysCallWrapper, read(FANOTIFY_FD, _, _)).WillOnce(readReturnsStruct(metadata));
     const char* filePath = "/excluded/eicar.com";
     EXPECT_CALL(*m_mockSysCallWrapper, readlink(_, _, _)).WillOnce(readlinkReturnPath(filePath));
 
