@@ -136,6 +136,12 @@ Send CORC Policy To Base
     Run Process  chmod  666  ${SOPHOS_INSTALL}/CORC_policy.xml.TEMP
     Move File  ${SOPHOS_INSTALL}/CORC_policy.xml.TEMP  ${MCS_PATH}/policy/CORC_policy.xml
 
+Send CORC Policy To Base From Content
+    [Arguments]  ${policyContent}
+    Create File    ${SOPHOS_INSTALL}/CORC_policy.xml.TEMP    ${policyContent}
+    Run Process  chmod  666  ${SOPHOS_INSTALL}/CORC_policy.xml.TEMP
+    Move File  ${SOPHOS_INSTALL}/CORC_policy.xml.TEMP  ${MCS_PATH}/policy/CORC_policy.xml
+
 Prepare To Run Telemetry Executable
     Prepare To Run Telemetry Executable With HTTPS Protocol
 

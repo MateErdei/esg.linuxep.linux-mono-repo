@@ -1,3 +1,5 @@
+# Copyright 2020-2023 Sophos Limited. All rights reserved.
+
 from datetime import datetime
 from datetime import timedelta
 import calendar
@@ -13,6 +15,7 @@ SAV_POLICY_FILENAME = "SAV_Policy_Template.xml"
 SAV_POLICY_PATH = os.path.join(RESOURCES_DIR, SAV_POLICY_FILENAME)
 FIXED_SAV_POLICY_PATH = os.path.join(RESOURCES_DIR, "sav_policy", "SAV_Policy_Fixed_Exclusions.xml")
 CORE_POLICY_TEMPLATE_PATH = os.path.join(RESOURCES_DIR, "core_policy", "CORE-36_template.xml")
+CORC_POLICY_TEMPLATE_PATH = os.path.join(RESOURCES_DIR, "corc_policy", "corc_policy_template.xml")
 
 
 def create_sav_policy_with_scheduled_scan(filename, timestamp):
@@ -223,3 +226,13 @@ class _SavPolicyBuilder:
 
     def set_allowed_pua(self, allowed_pua):
         self.replacement_map["{{puaExclusions}}"] = allowed_pua
+
+
+def create_corc_policy(whitelist_sha256s=[]):
+    with open(CORC_POLICY_TEMPLATE_PATH) as f:
+        policy = f.read()
+        whitelist_items = []
+        for sha256 in whitelist_sha256s:
+            whitelist_items.append(f'<item type="sha256">{sha256}</item>')
+        policy = policy.replace("{{whitelistItems}}", "\n".join(whitelist_items))
+        return policy
