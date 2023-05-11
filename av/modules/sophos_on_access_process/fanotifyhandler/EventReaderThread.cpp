@@ -239,9 +239,8 @@ std::string EventReaderThread::getFilePathFromFd(int fd)
         return "unknown";
     }
 
-    std::stringstream procFdPath;
-    procFdPath << "/proc/self/fd/" << fd;
-    if ((len = m_sysCalls->readlink(procFdPath.str().c_str(), buffer, PATH_MAX - 1)) < 0)
+    snprintf(buffer, sizeof(buffer), "/proc/self/fd/%d", fd);
+    if ((len = m_sysCalls->readlink(buffer, buffer, PATH_MAX - 1)) < 0)
     {
         LOGWARN("Failed to get path from fd: " << common::safer_strerror(errno));
         return "unknown";
