@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
@@ -12,6 +8,47 @@ namespace fs = sophos_filesystem;
 
 namespace common
 {
+    class CachedPath
+    {
+    public:
+        explicit CachedPath(const std::string& filePath)
+            :
+            path_(filePath),
+            string_(filePath)
+        {
+        }
+
+        explicit CachedPath(const fs::path& filePath)
+            :
+            path_(filePath),
+            string_(filePath.string())
+        {
+        }
+
+        CachedPath(const CachedPath&) = default;
+        CachedPath& operator=(const CachedPath&) = default;
+        CachedPath& operator=(const std::string& s)
+        {
+            string_ = s;
+            path_ = fs::path{s};
+            return *this;
+        }
+
+        fs::path path_;
+        std::string string_;
+
+        bool operator==(const CachedPath& rhs) const
+        {
+            return path_ == rhs.path_;
+        }
+
+        [[nodiscard]] const char* c_str() const noexcept
+        {
+            return string_.c_str();
+        }
+
+    };
+
     class PathUtils
     {
     public:
@@ -31,15 +68,36 @@ namespace common
             return p.string().rfind(value.string(), 0) == 0;
         }
 
+        static bool startswith(const CachedPath& p, const CachedPath& value)
+        {
+            return p.string_.rfind(value.string_, 0) == 0;
+        }
+
         static bool contains(const fs::path& p, const fs::path& value)
         {
             return p.string().find(value.string(), 0) != std::string::npos;
+        }
+
+        static bool contains(const CachedPath& p, const CachedPath& value)
+        {
+            return p.string_.find(value.string_, 0) != std::string::npos;
         }
 
         static bool endswith(const fs::path& p, const fs::path& value)
         {
             if (p.string().length() >= value.string().length()) {
                 return (0 == p.string().compare(p.string().length() - value.string().length(), value.string().length(), value));
+            } else {
+                return false;
+            }
+        }
+
+        static bool endswith(const CachedPath& p, const CachedPath& value)
+        {
+            const auto p_length = p.string_.length();
+            const auto value_length = value.string_.length();
+            if (p_length >= value_length) {
+                return (0 == p.string_.compare(p_length - value_length, value_length, value.string_));
             } else {
                 return false;
             }

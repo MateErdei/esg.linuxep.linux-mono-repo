@@ -2,6 +2,8 @@
 
 #pragma once
 
+#include "PathUtils.h"
+
 #include "datatypes/sophos_filesystem.h"
 
 #include <string>
@@ -19,6 +21,7 @@ enum ExclusionType
     FILENAME,
     RELATIVE_PATH,
     RELATIVE_STEM,
+    SUFFIX,
     GLOB,
     RELATIVE_GLOB,
     INVALID
@@ -32,6 +35,7 @@ namespace common
         explicit Exclusion(const std::string& path);
 
         [[nodiscard]] bool appliesToPath(const fs::path&, bool isDirectory, bool isFile) const;
+        [[nodiscard]] bool appliesToPath(const CachedPath&, bool isDirectory, bool isFile) const;
         [[nodiscard]] bool appliesToPath(const fs::path&, bool isDirectory=false) const;
         [[nodiscard]] std::string path() const;
         [[nodiscard]] std::string displayPath() const;
@@ -41,10 +45,10 @@ namespace common
         bool operator<(const Exclusion& rhs) const;
 
     private:
-        static std::regex convertGlobToRegex(const std::string& glob);
+        static std::regex convertGlobToRegex(const CachedPath& glob);
         static void escapeRegexMetaCharacters(std::string& text);
 
-        fs::path m_exclusionPath;
+        CachedPath m_exclusionPath;
         std::string m_exclusionDisplayPath;
         std::regex m_pathRegex;
         ExclusionType m_type;

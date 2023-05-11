@@ -10,6 +10,7 @@ using namespace common;
 
 
 Exclusion::Exclusion(const std::string& path):
+    m_exclusionPath(path),
     m_exclusionDisplayPath(path)
 {
     std::string exclusionPath(path);
@@ -43,12 +44,12 @@ Exclusion::Exclusion(const std::string& path):
         if (exclusionPath.at(0) == '/' || exclusionPath.at(0) == '*')
         {
             m_type = GLOB;
-            m_exclusionPath = exclusionPath;
+            m_exclusionPath = CachedPath{exclusionPath};
         }
         else
         {
             m_type = RELATIVE_GLOB;
-            m_exclusionPath = "*/" + exclusionPath;
+            m_exclusionPath = CachedPath{"*/" + exclusionPath};
         }
         m_pathRegex = convertGlobToRegex(m_exclusionPath);
     }
@@ -84,7 +85,7 @@ Exclusion::Exclusion(const std::string& path):
     }
 }
 
-auto Exclusion::appliesToPath(const fs::path& path, bool isDirectory, bool isFile) const -> bool
+auto Exclusion::appliesToPath(const CachedPath& path, bool isDirectory, bool isFile) const -> bool
 {
     switch(m_type)
     {
@@ -96,7 +97,7 @@ auto Exclusion::appliesToPath(const fs::path& path, bool isDirectory, bool isFil
             }
             //We also want stem exclusions to apply to directories
             //If we are passed a directory path we exclude it if it resolves to the same place as the exclusion.
-            if (isDirectory && path.lexically_relative(m_exclusionPath) == ".")
+            if (isDirectory && path.path_.lexically_relative(m_exclusionPath.path_) == ".")
             {
                 return true;
             }
@@ -152,6 +153,12 @@ auto Exclusion::appliesToPath(const fs::path& path, bool isDirectory, bool isFil
     return false;
 }
 
+auto Exclusion::appliesToPath(const fs::path& path, bool isDirectory, bool isFile) const -> bool
+{
+    CachedPath p{path};
+    return appliesToPath(p, isDirectory, isFile);
+}
+
 // isDirectory defaults to false
 bool Exclusion::appliesToPath(const fs::path& path, bool isDirectory) const
 {
@@ -164,7 +171,7 @@ bool Exclusion::appliesToPath(const fs::path& path, bool isDirectory) const
 
 std::string Exclusion::path() const
 {
-    return m_exclusionPath;
+    return m_exclusionPath.string_;
 }
 
 std::string Exclusion::displayPath() const
@@ -199,9 +206,9 @@ void Exclusion::escapeRegexMetaCharacters(std::string& text)
     text.swap(buffer);
 }
 
-std::regex Exclusion::convertGlobToRegex(const std::string& glob)
+std::regex Exclusion::convertGlobToRegex(const CachedPath& glob)
 {
-    std::string regexStr = glob;
+    std::string regexStr = glob.string_;
     escapeRegexMetaCharacters(regexStr);
 
     std::size_t found = regexStr.find_first_of('?');

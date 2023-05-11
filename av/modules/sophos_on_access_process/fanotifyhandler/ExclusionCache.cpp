@@ -1,4 +1,4 @@
-// Copyright 2023 Sophos All rights reserved.
+// Copyright 2023 Sophos Limited. All rights reserved.
 #include "ExclusionCache.h"
 
 #include "Logger.h"
@@ -56,10 +56,10 @@ bool ExclusionCache::checkExclusions(const std::string& filePath) const
 
 bool ExclusionCache::checkExclusionsUncached(const std::string& filePath) const
 {
-    auto fsFilePath = fs::path(filePath);
+    common::CachedPath path{filePath};
     for (const auto& exclusion: m_exclusions)
     {
-        if (exclusion.appliesToPath(fsFilePath))
+        if (exclusion.appliesToPath(path, false, true))
         {
             LOGTRACE("File access on " << filePath << " will not be scanned due to exclusion: "  << exclusion.displayPath());
             // Can't cache user-created exclusions, since
