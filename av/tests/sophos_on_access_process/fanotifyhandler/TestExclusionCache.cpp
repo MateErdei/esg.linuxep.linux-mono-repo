@@ -43,3 +43,48 @@ TEST_F(TestExclusionCache, canMatchExclusions)
     EXPECT_TRUE(cache.checkExclusions("/excluded/foo"));
     EXPECT_FALSE(cache.checkExclusions("/included/foo"));
 }
+
+namespace
+{
+    class CountingExclusionCache : public sophos_on_access_process::fanotifyhandler::ExclusionCache
+    {
+    public:
+        explicit CountingExclusionCache(const std::string& exclusion)
+        {
+            std::vector<common::Exclusion> exclusions;
+            exclusions.emplace_back(exclusion);
+            setExclusions(exclusions);
+        }
+        bool checkExclusionsUncached(const std::string& filePath) const override;
+        mutable int count_{0};
+
+        void setCacheLifetime(std::chrono::milliseconds lifetime)
+        {
+            cache_lifetime_ = lifetime;
+        }
+    };
+
+    bool CountingExclusionCache::checkExclusionsUncached(const std::string& filePath) const
+    {
+        count_++;
+        return ExclusionCache::checkExclusionsUncached(filePath);
+    }
+}
+
+TEST_F(TestExclusionCache, cacheExclusions)
+{
+    CountingExclusionCache cache{"/excluded/"};
+    EXPECT_TRUE(cache.checkExclusions("/excluded/foo"));
+    EXPECT_TRUE(cache.checkExclusions("/excluded/foo"));
+    EXPECT_EQ(cache.count_, 1);
+}
+
+TEST_F(TestExclusionCache, cacheExpires)
+{
+    CountingExclusionCache cache{"/excluded/"};
+    cache.setCacheLifetime(std::chrono::milliseconds{1});
+    EXPECT_TRUE(cache.checkExclusions("/excluded/foo"));
+    std::this_thread::sleep_for(std::chrono::milliseconds{2});
+    EXPECT_TRUE(cache.checkExclusions("/excluded/foo"));
+    EXPECT_EQ(cache.count_, 2);
+}

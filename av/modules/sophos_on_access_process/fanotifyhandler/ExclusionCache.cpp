@@ -17,6 +17,7 @@ bool ExclusionCache::setExclusions(const std::vector<common::Exclusion>& exclusi
             printableExclusions << "[\"" << exclusion.displayPath() << "\"] ";
         }
         LOGDEBUG("Updating on-access exclusions with: " << printableExclusions.str());
+        cache_.clear(); // Need to clear any cached answers
         return true;
     }
     return false;
@@ -25,6 +26,31 @@ bool ExclusionCache::setExclusions(const std::vector<common::Exclusion>& exclusi
 bool ExclusionCache::checkExclusions(const std::string& filePath) const
 {
     std::lock_guard<std::mutex> lock(m_exclusionsLock);
+
+    auto now = clock_t::now();
+    auto age = now - cache_time_;
+    if (age > cache_lifetime_)
+    {
+        cache_.clear();
+        cache_time_ = now;
+    }
+    else
+    {
+        auto cached = cache_.find(filePath);
+
+        if (cached != cache_.end())
+        {
+            return cached->second;
+        }
+    }
+
+    auto result = checkExclusionsUncached(filePath);
+    cache_[filePath] = result;
+    return result;
+}
+
+bool ExclusionCache::checkExclusionsUncached(const std::string& filePath) const
+{
     auto fsFilePath = fs::path(filePath);
     for (const auto& exclusion: m_exclusions)
     {
