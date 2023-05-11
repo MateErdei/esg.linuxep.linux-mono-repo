@@ -1179,7 +1179,7 @@ SafeStore Restores Archive Containing Password Protected File
     ${ARCHIVE_DIR} =  Set Variable  ${NORMAL_DIRECTORY}/archive_dir
     Create Directory  ${ARCHIVE_DIR}
     Create File  ${ARCHIVE_DIR}/1_eicar  ${EICAR_STRING}
-    Run Process   zip    -P    password    ${ARCHIVE_DIR}/encrypted.zip    1_eicar
+    Run Process   zip  --mtime\=UTC 2022-01-01  -P    password    ${ARCHIVE_DIR}/encrypted.zip    1_eicar
     Run Process  tar  --mtime\=UTC 2022-01-01  -C  ${ARCHIVE_DIR}  -cf  ${NORMAL_DIRECTORY}/test.tar  encrypted.zip  1_eicar
     ${archive_sha} =  Get SHA256  ${NORMAL_DIRECTORY}/test.tar
     Remove Directory  ${ARCHIVE_DIR}  recursive=True
