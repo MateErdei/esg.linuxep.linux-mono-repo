@@ -1,13 +1,16 @@
 
 add_library(fanotifyhandler SHARED
+        EventReaderThread.cpp
+        EventReaderThread.h
+        ExecutablePathCache.cpp
+        ExecutablePathCache.h
         FanotifyHandler.cpp
         FanotifyHandler.h
         IFanotifyHandler.h
         Logger.cpp
         Logger.h
         ProcUtils.cpp
-        ProcUtils.h
-        IFanotifyHandler.h)
+        ProcUtils.h)
 
 target_include_directories(fanotifyhandler PUBLIC
         ${CMAKE_SOURCE_DIR}/modules

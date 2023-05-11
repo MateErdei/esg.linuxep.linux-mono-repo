@@ -8,6 +8,8 @@
 
 #include "IFanotifyHandler.h"
 
+#include "ExecutablePathCache.h"
+
 #include "sophos_on_access_process/onaccessimpl/ScanRequestQueue.h"
 #include "sophos_on_access_process/onaccessimpl/IOnAccessTelemetryUtility.h"
 
@@ -69,6 +71,7 @@ namespace sophos_on_access_process::fanotifyhandler
 
         bool cacheIfAllowed(const scan_request_t& request);
 
+        ExecutablePathCache executablePathCache_;
         IFanotifyHandlerSharedPtr m_fanotify;
         datatypes::ISystemCallWrapperSharedPtr m_sysCalls;
         fs::path m_pluginLogDir;

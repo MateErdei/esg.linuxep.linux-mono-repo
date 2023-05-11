@@ -47,9 +47,7 @@ EventReaderThread::EventReaderThread(
     , m_logNotFullThreshold(logNotFullThreshold)
 {
     assert(m_fanotify);
-    auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
-    fs::path PLUGIN_INSTALL = appConfig.getData("PLUGIN_INSTALL");
-    m_processExclusionStem = PLUGIN_INSTALL.string() + "/";
+    m_processExclusionStem = pluginInstall.string() + "/";
 }
 
 bool EventReaderThread::skipScanningOfEvent(
@@ -82,7 +80,7 @@ bool EventReaderThread::skipScanningOfEvent(
         return true;
     }
 
-    exePath = get_executable_path_from_pid(eventMetadata->pid);
+    exePath = executablePathCache_.get_executable_path_from_pid(eventMetadata->pid);
     if (!m_processExclusionStem.empty() && startswith(exePath, m_processExclusionStem))
     {
         //LOGDEBUG("Excluding SPL-AV process: " << executablePath << " scan type: " << eventStr << " for path: " << path);
