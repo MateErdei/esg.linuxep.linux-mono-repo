@@ -29,8 +29,7 @@
         <onDemandEnable>true</onDemandEnable>
     </detectionFeedback>
     <whitelist>
-        <item type="path">/tmp_test/a/path/zipfile.zip</item>
-        <item type="path">/home/vagrant/this/is/a/directory/for/scanning/zipfile.zip</item>
+        <item type="path">/home/vagrant/this/is/a/directory/for/scanning/</item>
         <item type="cert-signer">SignerName</item>
     </whitelist>
 

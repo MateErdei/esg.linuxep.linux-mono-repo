@@ -11,6 +11,7 @@ Resource    ../shared/OnAccessResources.robot
 
 Library         ../Libs/CoreDumps.py
 Library         ../Libs/FileSampleObfuscator.py
+Library         ../Libs/FileUtils.py
 Library         ../Libs/LogUtils.py
 Library         ../Libs/OnFail.py
 Library         ../Libs/ProcessUtils.py
@@ -676,7 +677,7 @@ Allow Listed Files Are Removed From Quarantine
     Should Exist  ${allow_listed_threat_file}
 
     # Scan threat
-    ${rc}   ${output} =    Run And Return Rc And Output   ${AVSCANNER} ${NORMAL_DIRECTORY}/MLengHighScore.exe
+    ${rc}   ${output} =    Run And Return Rc And Output   ${AVSCANNER} ${allow_listed_threat_file}
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
 
     Wait For Log Contains From Mark  ${ss_mark}  Quarantined ${allow_listed_threat_file} successfully
@@ -700,7 +701,7 @@ Allow Listed Files Are Removed From Quarantine
     ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
 
     # Scan threat
-    ${rc}   ${output} =    Run And Return Rc And Output   ${AVSCANNER} ${NORMAL_DIRECTORY}/MLengHighScore.exe
+    ${rc}   ${output} =    Run And Return Rc And Output   ${AVSCANNER} ${allow_listed_threat_file}
     Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
 
     # File is allowed and not treated as a threat
@@ -708,6 +709,113 @@ Allow Listed Files Are Removed From Quarantine
 
     # File allowed so should still exist
     Should Exist  ${allow_listed_threat_file}
+
+
+Allow Listed Files Are Removed From Quarantine Allow List Path
+    Wait Until threat detector running
+    Wait Until SafeStore running
+
+    ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
+    ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
+    ${ss_mark} =  Get SafeStore Log Mark
+
+    Send Flags Policy To Base  flags_policy/flags_safestore_quarantine_ml_enabled.json
+    Wait For Log Contains From Mark   ${av_mark}   SafeStore flag set. Setting SafeStore to enabled.   timeout=60
+
+    # Create threat to scan
+    ${allow_listed_threat_file} =  Set Variable  ${NORMAL_DIRECTORY}/MLengHighScore.exe
+    DeObfuscate File  ${RESOURCES_PATH}/file_samples_obfuscated/MLengHighScore.exe  ${allow_listed_threat_file}
+    Register Cleanup  Remove File  ${allow_listed_threat_file}
+    Should Exist  ${allow_listed_threat_file}
+
+    # Scan threat
+    ${rc}   ${output} =    Run And Return Rc And Output   ${AVSCANNER} ${allow_listed_threat_file}
+    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+
+    Wait For Log Contains From Mark  ${ss_mark}  Quarantined ${allow_listed_threat_file} successfully
+    Should Not Exist  ${allow_listed_threat_file}
+
+    ${ss_mark} =  Get SafeStore Log Mark
+
+    # Allow-list the file
+    Send CORC Policy To Base  corc_policy_allow_path_normal_directory.xml
+
+    wait_for_log_contains_from_mark  ${av_mark}  Added path to allow list: ${NORMAL_DIRECTORY}
+    wait_for_log_contains_from_mark  ${td_mark}  Triggering rescan of SafeStore database
+    Wait For Log Contains From Mark  ${ss_mark}  SafeStore Database Rescan request received
+
+    wait_for_log_contains_from_mark  ${td_mark}  Allowed by path: ${allow_listed_threat_file}
+    Wait For Log Contains From Mark  ${ss_mark}  Restored file to disk: ${allow_listed_threat_file}
+
+    # File allowed so should still exist
+    Should Exist  ${allow_listed_threat_file}
+
+    ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
+
+    # Scan threat
+    ${rc}   ${output} =    Run And Return Rc And Output   ${AVSCANNER} ${allow_listed_threat_file}
+    Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
+
+    # File is allowed and not treated as a threat
+    wait_for_log_contains_from_mark  ${td_mark}  Allowed by path: ${allow_listed_threat_file}
+
+    # File allowed so should still exist
+    Should Exist  ${allow_listed_threat_file}
+
+
+Allow Listed Files Are Removed From Quarantine Allow List Path Archived Threat
+    Wait Until threat detector running
+    Wait Until SafeStore running
+
+    ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
+    ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
+    ${ss_mark} =  Get SafeStore Log Mark
+
+    Send Flags Policy To Base  flags_policy/flags_safestore_quarantine_ml_enabled.json
+    Wait For Log Contains From Mark   ${av_mark}   SafeStore flag set. Setting SafeStore to enabled.   timeout=60
+
+    # Create threat to scan
+    ${allow_listed_threat_archive} =  Set Variable  ${NORMAL_DIRECTORY}/zipfile.zip
+    ${threat_file} =  Set Variable  ${NORMAL_DIRECTORY}/MLengHighScore.exe
+    DeObfuscate File  ${RESOURCES_PATH}/file_samples_obfuscated/MLengHighScore.exe  ${threat_file}
+    zip_file     ${allow_listed_threat_archive}    ${threat_file}
+    Remove File    ${threat_file}
+    Register Cleanup    Remove File    ${allow_listed_threat_archive}
+    Should Exist    ${allow_listed_threat_archive}
+
+    # Scan threat
+    ${rc}   ${output} =    Run And Return Rc And Output   ${AVSCANNER} ${allow_listed_threat_archive}
+    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+
+    Wait For Log Contains From Mark  ${ss_mark}  Quarantined ${allow_listed_threat_archive} successfully
+    Should Not Exist  ${allow_listed_threat_archive}
+
+    ${ss_mark} =  Get SafeStore Log Mark
+
+    # Allow-list the file
+    Send CORC Policy To Base  corc_policy_allow_list_zipfile.xml
+
+    wait_for_log_contains_from_mark  ${av_mark}  Added path to allow list: ${allow_listed_threat_archive}
+    wait_for_log_contains_from_mark  ${td_mark}  Triggering rescan of SafeStore database
+    Wait For Log Contains From Mark  ${ss_mark}  SafeStore Database Rescan request received
+
+    wait_for_log_contains_from_mark  ${td_mark}  Allowed by path: ${allow_listed_threat_archive}
+    Wait For Log Contains From Mark  ${ss_mark}  Restored file to disk: ${allow_listed_threat_archive}
+
+    # File allowed so should still exist
+    Should Exist  ${allow_listed_threat_archive}
+
+    ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
+
+    # Scan threat
+    ${rc}   ${output} =    Run And Return Rc And Output   ${AVSCANNER} ${allow_listed_threat_archive}
+    Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
+
+    # File is allowed and not treated as a threat
+    wait_for_log_contains_from_mark  ${td_mark}  Allowed by path: ${allow_listed_threat_archive}
+
+    # File allowed so should still exist
+    Should Exist    ${allow_listed_threat_archive}
 
 
 AV Plugin Does Not Quarantine File When SafeStore Is Disabled
