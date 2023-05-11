@@ -4,11 +4,24 @@ set -ex
 
 if [[ -x $(which apt) ]]
 then
-    apt-get update
+    PACKAGES="nfs-kernel-server zip unzip samba gdb util-linux bfs ntfs-3g libguestfs-reiserfs netcat"
+    export DEBIAN_FRONTEND=noninteractive
+    VERSION=$(sed -ne's/VERSION_ID="\(.*\)"/\1/p' /etc/os-release)
+    case VERSION in
+      18.04)
+          TIMEOUT_UPDATE=
+          TIMEOUT_INSTALL=
+          ;;
+      *)
+          TIMEOUT_UPDATE="-o DPkg::Lock::Timeout=300"
+          TIMEOUT_INSTALL="-o DPkg::Lock::Timeout=30"
+          ;;
+    esac
+    apt $TIMEOUT_UPDATE update
     # Retry 10 times before timeout
     for (( i=0; i<10; i++ ))
     do
-       if DEBIAN_FRONTEND=noninteractive apt-get install -y nfs-kernel-server zip unzip samba gdb util-linux bfs ntfs-3g libguestfs-reiserfs netcat
+       if apt $TIMEOUT_INSTALL install -y $PACKAGES
        then
           echo "Installation succeeded"
           break
@@ -20,7 +33,8 @@ then
 
 elif [[ -x $(which yum) ]]
 then
-    if [[ -f /etc/os-release ]]; then
+    if [[ -f /etc/os-release ]]
+    then
       . /etc/os-release
       OS=$NAME
     fi
