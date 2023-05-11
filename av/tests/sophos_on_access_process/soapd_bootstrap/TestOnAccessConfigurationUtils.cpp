@@ -379,6 +379,17 @@ TEST_F(TestOnAccessConfigurationUtils, parseOnAccessSettingsFromJsonInvalidJsonS
     EXPECT_TRUE(appenderContains("Failed to parse json configuration, keeping existing settings"));
 }
 
+TEST_F(TestOnAccessConfigurationUtils, parseOnAccessPolicySettingsFromJsonSortsExclusions)
+{
+    std::string jsonString = R"({"enabled":"true","excludeRemoteFiles":"false","exclusions":["/mnt*foo/","/uk-filer5/"],"detectPUAs":false})";
+
+    ASSERT_EQ(parseOnAccessPolicySettingsFromJson(jsonString, m_testConfig), true);
+    ASSERT_EQ(m_testConfig.exclusions.size(), 2);
+    EXPECT_LT(m_testConfig.exclusions[0], m_testConfig.exclusions[1]);
+    EXPECT_EQ(m_testConfig.exclusions[0].type(), ExclusionType::STEM);
+    EXPECT_EQ(m_testConfig.exclusions[0].displayPath(), "/uk-filer5/");
+}
+
 // Flags config ===============================================================
 
 TEST_F(TestOnAccessConfigurationUtils, parseFlagConfiguration)

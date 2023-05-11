@@ -297,6 +297,7 @@ namespace sophos_on_access_process::OnAccessConfig
                 {
                     configuration.exclusions.emplace_back(exclusion);
                 }
+                std::sort(configuration.exclusions.begin(), configuration.exclusions.end());
                 LOGDEBUG("On-access exclusions: " << parsedConfig["exclusions"]);
             }
 

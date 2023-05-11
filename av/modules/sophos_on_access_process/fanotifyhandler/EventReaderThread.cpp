@@ -8,8 +8,6 @@
 #include "common/StringUtils.h"
 // Package
 #include "ProcUtils.h"
-// Product
-#include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 // Standard C++
 #include <memory>
 #include <utility>
@@ -343,13 +341,13 @@ void EventReaderThread::setExclusions(const std::vector<common::Exclusion>& excl
     std::lock_guard<std::mutex> lock(m_exclusionsLock);
     if (exclusions != m_exclusions)
     {
+        m_exclusions = exclusions;
         std::stringstream printableExclusions;
         for(const auto &exclusion: exclusions)
         {
-            printableExclusions << "[\"" << exclusion.path().c_str() << "\"] ";
+            printableExclusions << "[\"" << exclusion.displayPath() << "\"] ";
         }
         LOGDEBUG("Updating on-access exclusions with: " << printableExclusions.str());
-        m_exclusions = exclusions;
         // Clear cache after we have updated exclusions - so that nothing is cached which shouldn't be.
         std::ignore = m_fanotify->clearCachedFiles();
     }
