@@ -1,4 +1,4 @@
-// Copyright 2023 Sophos All rights reserved.
+// Copyright 2023 Sophos Limited. All rights reserved.
 #pragma once
 
 #ifndef TEST_PUBLIC
@@ -24,9 +24,8 @@ namespace sophos_on_access_process::fanotifyhandler
         using cache_t = std::unordered_map<std::string, bool>;
         using clock_t = std::chrono::steady_clock;
         virtual bool checkExclusionsUncached(const std::string& filePath) const;
-        std::chrono::milliseconds cache_lifetime_ = std::chrono::seconds(1);
-
-
+        std::chrono::milliseconds cache_lifetime_ = std::chrono::seconds(5);
+        
     TEST_PUBLIC:
         std::vector<common::Exclusion> m_exclusions;
     private:
