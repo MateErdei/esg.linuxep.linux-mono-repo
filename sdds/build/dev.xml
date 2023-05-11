@@ -90,7 +90,7 @@
         <!-- sdds3 only-->
         <build-asset project="em" repo="esg">
             <!-- Import a specific release version of SDDS3 tools, because we don't want the sdds3 repo rebuilding for each SAU build. -->
-            <release-version branch="release/WIN-SPRINT-2023.10" build-id="20230303190457-b2493e357e0f270450a8bc1154c4644841785404-Yo7Ilu"/>
+            <release-version branch="release/SPRINT-2023.19" build-id="20230505162223-6aa5715432cf60b858215a18280933fd7a890989-XeJDfq"/>
             <!-- Temp change to test new versions -->
 <!--            <development-version branch="develop"/>-->
             <include artifact-path="bazel-tools" dest-dir="." />
