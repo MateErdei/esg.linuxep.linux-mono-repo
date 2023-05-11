@@ -6,9 +6,10 @@
 
 #include "pluginimpl/PluginCallback.h"
 #include "pluginimpl/TaskQueue.h"
+#include "sophos_on_access_process/fanotifyhandler/FanotifyHandler.h"
 
 #include "common/ApplicationPaths.h"
-#include "sophos_on_access_process/fanotifyhandler/FanotifyHandler.h"
+#include "common/ExpectedFanotifyInitFlags.h"
 
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <Common/FileSystem/IFileSystemException.h>
@@ -958,7 +959,7 @@ TEST_F(TestPluginCallback, calculateSoapHealthStatusDetectsExistenceOfTheUnhealt
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
     int fanotifyFd = -1;
-    EXPECT_CALL(*m_mockSysCalls, fanotify_init(FAN_CLOEXEC | FAN_CLASS_CONTENT | FAN_UNLIMITED_MARKS,
+    EXPECT_CALL(*m_mockSysCalls, fanotify_init(EXPECTED_FANOTIFY_FLAGS,
                                                O_RDONLY | O_CLOEXEC | O_LARGEFILE)).WillOnce(Return(fanotifyFd));
 
     sophos_on_access_process::fanotifyhandler::FanotifyHandler handler(m_mockSysCalls);

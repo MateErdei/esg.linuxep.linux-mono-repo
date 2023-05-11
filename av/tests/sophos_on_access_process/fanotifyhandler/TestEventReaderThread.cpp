@@ -187,15 +187,18 @@ protected:
                                                    m_mockDeviceUtil);
     }
 
-    std::shared_ptr<EventReaderThread> makeSmallEventReaderThread(int logNotFull = 1)
+    std::shared_ptr<EventReaderThread> makeSmallEventReaderThread(int logNotFull = 1, int readRepeatCount = 5)
     {
-        return std::make_shared<EventReaderThread>(m_fakeFanotify,
+        auto ret =  std::make_shared<EventReaderThread>(m_fakeFanotify,
                                                    m_mockSysCallWrapper,
                                                    m_pluginInstall,
                                                    m_smallScanRequestQueue,
                                                    m_telemetryUtility,
                                                    m_mockDeviceUtil,
                                                    logNotFull);
+
+        ret->readRepeatCount_ = readRepeatCount;
+        return ret;
     }
 
     std::shared_ptr<MockSystemCallWrapper> m_mockSysCallWrapper;
@@ -453,9 +456,11 @@ TEST_F(TestEventReaderThread, TestReaderReadsOnOpenFanotifyEventAfterRestart)
         .WillOnce(pollReturnsWithRevents(1, POLLIN))
         .WillOnce(pollReturnsWithRevents(0, POLLIN));
 
-    EXPECT_CALL(*m_mockSysCallWrapper, read(FANOTIFY_FD, _, _)).Times(2)
+    EXPECT_CALL(*m_mockSysCallWrapper, read(FANOTIFY_FD, _, _))
         .WillOnce(readReturnsStruct(metadata1))
-        .WillOnce(readReturnsStruct(metadata2));
+        .WillOnce(readReturnsStruct(metadata2))
+        .WillRepeatedly(SetErrnoAndReturn(EAGAIN, -1));
+
     EXPECT_CALL(*m_mockSysCallWrapper, readlink(_, _, _))
         .WillOnce(readlinkReturnPath(filePath1))
         .WillOnce(readlinkReturnPath(filePath2));
@@ -467,6 +472,7 @@ TEST_F(TestEventReaderThread, TestReaderReadsOnOpenFanotifyEventAfterRestart)
         .WillOnce(fstatReturnsInode(2));
 
     auto eventReader = makeDefaultEventReaderThread();
+    eventReader->readRepeatCount_ = 1;
     common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
 
     std::stringstream logMsg1;
@@ -1025,8 +1031,7 @@ TEST_F(TestEventReaderThread, TestReaderLogsQueueIsFullWhenItFillsSecondTime)
         .WillRepeatedly(DoAll(SetArgPointee<1>(m_statbuf), Return(0)));
     incrementingFstat();
 
-    auto eventReader = makeSmallEventReaderThread();
-
+    auto eventReader = makeSmallEventReaderThread(1, 1);
     common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
 
     EXPECT_TRUE(waitForLog("Failed to add scan request to queue, on-access scanning queue is full.", 500ms));
@@ -1069,7 +1074,7 @@ TEST_F(TestEventReaderThread, TestReaderDoesntLogWhenQueueSizeHasntLoweredToLogT
         .WillRepeatedly(DoAll(SetArgPointee<1>(m_statbuf), Return(0)));
     incrementingFstat();
 
-    auto eventReader = makeSmallEventReaderThread(2);
+    auto eventReader = makeSmallEventReaderThread(2, 1);
     common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
 
     queueFull.waitDefault();
@@ -1119,7 +1124,7 @@ TEST_F(TestEventReaderThread, TestReaderLogsWhenQueueSizeHasLoweredToLogThreshol
         .WillRepeatedly(DoAll(SetArgPointee<1>(m_statbuf), Return(0)));
     incrementingFstat();
 
-    auto eventReader = makeSmallEventReaderThread(2);
+    auto eventReader = makeSmallEventReaderThread(2, 1);
     common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
 
     queueFull.waitDefault();
@@ -1312,7 +1317,8 @@ TEST_P(TestWithType1Errno, readEventAfterReadErrno)
         .WillOnce(pollReturnsWithRevents(0, POLLIN));
     EXPECT_CALL(*m_mockSysCallWrapper, read(FANOTIFY_FD, _, _))
         .WillOnce(SetErrnoAndReturn(errnoValue, -1))
-        .WillOnce(readReturnsStruct(metadata));
+        .WillOnce(readReturnsStruct(metadata))
+        .WillRepeatedly(SetErrnoAndReturn(EAGAIN, -1));
     expectReadlinkReturnsPath(filePath);
     expectStatProcPid();
     incrementingFstat();
@@ -1357,7 +1363,8 @@ TEST_P(TestWithType2Errno, readEventAfterReadErrno)
         .WillOnce(pollReturnsWithRevents(0, POLLIN));
     EXPECT_CALL(*m_mockSysCallWrapper, read(FANOTIFY_FD, _, _))
         .WillOnce(SetErrnoAndReturn(errnoValue, -1))
-        .WillOnce(readReturnsStruct(metadata));
+        .WillOnce(readReturnsStruct(metadata))
+        .WillRepeatedly(SetErrnoAndReturn(EAGAIN, -1));
     expectReadlinkReturnsPath(filePath);
     expectStatProcPid();
     incrementingFstat();
@@ -1503,6 +1510,7 @@ TEST_F(TestEventReaderThread, TestReaderIncrementsTelemetryOnEventDropped)
     incrementingFstat();
 
     auto eventReader = makeSmallEventReaderThread();
+    eventReader->readRepeatCount_ = 1;
     common::ThreadRunner eventReaderThread(eventReader, "eventReader", true);
 
     EXPECT_TRUE(waitForLog("Failed to add scan request to queue, on-access scanning queue is full.", 500ms));

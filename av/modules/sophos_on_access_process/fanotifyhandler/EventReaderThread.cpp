@@ -92,7 +92,7 @@ bool EventReaderThread::handleFanotifyEvent()
 {
     char buf[FAN_BUFFER_SIZE];
 
-    for (int i=0; i<1; i++)
+    for (int i=0; i<readRepeatCount_; i++)
     {
         errno = 0;
         ssize_t len = m_sysCalls->read(m_fanotify->getFd(), buf, sizeof(buf));

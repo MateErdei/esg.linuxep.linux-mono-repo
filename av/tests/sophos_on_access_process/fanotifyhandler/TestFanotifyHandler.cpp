@@ -3,6 +3,7 @@
 #include "FanotifyHandlerMemoryAppenderUsingTests.h"
 
 #include "common/ApplicationPaths.h"
+#include "common/ExpectedFanotifyInitFlags.h"
 #include "datatypes/MockSysCalls.h"
 #include "datatypes/sophos_filesystem.h"
 #include "sophos_on_access_process/fanotifyhandler/FanotifyHandler.h"
@@ -19,7 +20,6 @@ namespace fs = sophos_filesystem;
 
 namespace
 {
-    constexpr unsigned int EXPECTED_FANOTIFY_FLAGS = FAN_CLOEXEC | FAN_CLASS_CONTENT | FAN_UNLIMITED_MARKS | FAN_NONBLOCK;
     constexpr unsigned int EXPECTED_FILE_EVENT_FLAGS = O_RDONLY | O_CLOEXEC | O_LARGEFILE;
 
     class TestFanotifyHandler : public FanotifyHandlerMemoryAppenderUsingTests

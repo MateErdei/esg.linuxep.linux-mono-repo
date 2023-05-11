@@ -58,6 +58,7 @@ namespace sophos_on_access_process::fanotifyhandler
         void innerRun();
         std::chrono::milliseconds m_out_of_file_descriptor_delay = std::chrono::milliseconds{100};
         static constexpr int RESTART_SOAP_ERROR_COUNT = 20;
+        int readRepeatCount_ = 1;
 
 
     private:
