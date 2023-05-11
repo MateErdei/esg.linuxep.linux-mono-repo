@@ -1,5 +1,7 @@
 // Copyright 2023 Sophos All rights reserved.
 
+#define TEST_PUBLIC public
+
 #include "sophos_on_access_process/fanotifyhandler/ExclusionCache.h"
 
 #include "FanotifyHandlerMemoryAppenderUsingTests.h"
@@ -30,4 +32,14 @@ TEST_F(TestExclusionCache, canSetExclusions)
     EXPECT_NO_THROW(cache.setExclusions(exclusions));
     ASSERT_EQ(cache.m_exclusions.size(), 1);
     EXPECT_EQ(cache.m_exclusions[0].displayPath(), "/excluded/");
+}
+
+TEST_F(TestExclusionCache, canMatchExclusions)
+{
+    sophos_on_access_process::fanotifyhandler::ExclusionCache cache;
+    std::vector<common::Exclusion> exclusions;
+    exclusions.emplace_back("/excluded/");
+    EXPECT_NO_THROW(cache.setExclusions(exclusions));
+    EXPECT_TRUE(cache.checkExclusions("/excluded/foo"));
+    EXPECT_FALSE(cache.checkExclusions("/included/foo"));
 }
