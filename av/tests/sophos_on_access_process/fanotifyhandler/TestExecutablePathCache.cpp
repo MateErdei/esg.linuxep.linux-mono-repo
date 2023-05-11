@@ -56,6 +56,11 @@ namespace
             count_++;
             return ExecutablePathCache::get_executable_path_from_pid_uncached(pid);
         }
+
+        void setCacheLifetime(std::chrono::milliseconds lifetime)
+        {
+            cache_lifetime_ = lifetime;
+        }
     };
 }
 
@@ -65,4 +70,42 @@ TEST_F(TestExecutablePathCache, count_first_lookup)
     auto exe = cache.get_executable_path_from_pid(getpid());
     EXPECT_NE(exe, "");
     EXPECT_EQ(cache.count_, 1);
+}
+
+TEST_F(TestExecutablePathCache, caches_second_lookup)
+{
+    CountingCache cache;
+    auto exe1 = cache.get_executable_path_from_pid(getpid());
+    auto exe2 = cache.get_executable_path_from_pid(getpid());
+    EXPECT_NE(exe1, "");
+    EXPECT_EQ(exe1, exe2);
+    EXPECT_EQ(cache.count_, 1);
+}
+
+TEST_F(TestExecutablePathCache, cache_expires)
+{
+    CountingCache cache;
+    // Set the cache lifetime to 1ms so that the test doesn't take too long
+    cache.setCacheLifetime(std::chrono::milliseconds(1));
+    auto exe1 = cache.get_executable_path_from_pid(getpid());
+    std::this_thread::sleep_for(std::chrono::milliseconds(3));
+    auto exe2 = cache.get_executable_path_from_pid(getpid());
+    EXPECT_NE(exe1, "");
+    EXPECT_EQ(exe1, exe2);
+    EXPECT_EQ(cache.count_, 2);
+}
+
+TEST_F(TestExecutablePathCache, caches_after_expire)
+{
+    CountingCache cache;
+    // Set the cache lifetime to 1ms so that the test doesn't take too long
+    cache.setCacheLifetime(std::chrono::milliseconds(1));
+    auto exe1 = cache.get_executable_path_from_pid(getpid());
+    std::this_thread::sleep_for(std::chrono::milliseconds(2));
+    auto exe2 = cache.get_executable_path_from_pid(getpid());
+    auto exe3 = cache.get_executable_path_from_pid(getpid());
+    EXPECT_NE(exe1, "");
+    EXPECT_EQ(exe1, exe2);
+    EXPECT_EQ(exe1, exe3);
+    EXPECT_EQ(cache.count_, 2);
 }
