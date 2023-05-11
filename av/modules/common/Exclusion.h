@@ -13,14 +13,17 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 namespace fs = sophos_filesystem;
 
+/**
+ * Types - ordered by cost
+ */
 enum ExclusionType
 {
-    STEM,
     FULLPATH,
-    GLOB,
+    STEM,
     FILENAME,
     RELATIVE_PATH,
     RELATIVE_STEM,
+    GLOB,
     RELATIVE_GLOB,
     INVALID
 };
@@ -39,6 +42,7 @@ namespace common
         [[nodiscard]] ExclusionType type() const;
 
         bool operator==(const Exclusion& rhs) const;
+        bool operator<(const Exclusion& rhs) const;
 
     private:
         static std::regex convertGlobToRegex(const std::string& glob);

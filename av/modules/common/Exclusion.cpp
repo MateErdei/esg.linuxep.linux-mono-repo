@@ -227,3 +227,20 @@ bool Exclusion::operator==(const Exclusion& rhs) const
            m_exclusionDisplayPath == rhs.m_exclusionDisplayPath &&
            m_type == rhs.m_type;
 }
+
+bool Exclusion::operator<(const Exclusion& rhs) const
+{
+    if (m_type != rhs.m_type)
+    {
+        return m_type < rhs.m_type;
+    }
+    const auto size = m_exclusionDisplayPath.size();
+    const auto rhsSize = rhs.m_exclusionDisplayPath.size();
+    if (size != rhsSize)
+    {
+        // Shorter exclusions first
+        return size < rhsSize;
+    }
+
+    return m_exclusionDisplayPath < rhs.m_exclusionDisplayPath;
+}

@@ -325,3 +325,26 @@ TEST(Exclusion, TestInvalidTypes)
     EXPECT_EQ(invalidExcl.type(), INVALID);
     EXPECT_FALSE(invalidExcl.appliesToPath("/tmp/foo.txt"));
 }
+
+TEST(Exclusion, comparison)
+{
+    Exclusion filenameExcl("foo.txt");
+    EXPECT_EQ(filenameExcl.type(), FILENAME);
+    Exclusion dir2Excl("foo/bar/");
+    EXPECT_EQ(dir2Excl.type(), RELATIVE_STEM);
+    Exclusion dirMatchOneExcl("b?r/");
+    EXPECT_EQ(dirMatchOneExcl.type(), RELATIVE_GLOB);
+    Exclusion glob("/lib/libz.*/");
+    EXPECT_EQ(glob.type(), GLOB);
+    Exclusion glob2("/foo/lib/libz.*/");
+    Exclusion glob3("/zoo/lib/libz.*/");
+    Exclusion longFilename("abcdefghijklmnopqrstuvwxzyzfoo.txt");
+
+    EXPECT_LT(filenameExcl, glob);
+    EXPECT_LT(dir2Excl, glob);
+    EXPECT_LT(filenameExcl, dirMatchOneExcl);
+    EXPECT_LT(dir2Excl, dirMatchOneExcl);
+    EXPECT_LT(glob, glob2);
+    EXPECT_LT(longFilename, glob2);
+    EXPECT_LT(glob2, glob3);
+}
