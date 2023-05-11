@@ -48,7 +48,7 @@ namespace safestore::QuarantineManager
         bool waitForFilesystemLock(double timeoutSeconds) override;
         void removeFilesystemLock() override;
         std::vector<SafeStoreWrapper::ObjectId> scanExtractedFilesForRestoreList(
-            std::vector<FdsObjectIdsPair> files) override;
+            std::vector<FdsObjectIdsPair> files, const std::string& originalFilePath) override;
         std::optional<scan_messages::RestoreReport> restoreFile(const std::string& objectId) override;
 
     private:
@@ -72,7 +72,7 @@ namespace safestore::QuarantineManager
         [[nodiscard]] bool DoFullRescan(
             safestore::SafeStoreWrapper::ObjectHandleHolder& objectHandle,
             const SafeStoreWrapper::ObjectId& objectId,
-            std::string_view filePathForLogging);
+            const std::string& originalFilePath);
         /**
          * Determines if an object should be fully rescanned.
          * By itself can't determine if the file can be restored, which was a design decision.
@@ -96,7 +96,7 @@ namespace safestore::QuarantineManager
         // the count only includes continuous DB errors by resetting states and error counts.
         int m_databaseErrorCount = 0;
         Common::PersistentValue<int> m_dbErrorCountThreshold;
-        static scan_messages::ScanResponse scan(unixsocket::IScanningClientSocket& socket, int fd);
+        static scan_messages::ScanResponse scan(unixsocket::IScanningClientSocket& socket, int fd, const std::string& originalFilePath);
         std::shared_ptr<datatypes::ISystemCallWrapper> m_sysCallWrapper;
         ISafeStoreResources& safeStoreResources_;
     };

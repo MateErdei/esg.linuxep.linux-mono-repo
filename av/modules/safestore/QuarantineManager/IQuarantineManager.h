@@ -93,7 +93,7 @@ namespace safestore::QuarantineManager
          * Run the avscanner on unpacked detections and return vector of objectsIds that are clean.
          */
         virtual std::vector<SafeStoreWrapper::ObjectId> scanExtractedFilesForRestoreList(
-            std::vector<FdsObjectIdsPair> files) = 0;
+            std::vector<FdsObjectIdsPair> files, const std::string& originalFilePath) = 0;
 
         /**
          * Performs metadata rescan (+ full rescan if clean) of each quarantined file, restoring clean files

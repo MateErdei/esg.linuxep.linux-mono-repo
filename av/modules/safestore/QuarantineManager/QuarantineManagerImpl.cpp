@@ -634,7 +634,7 @@ namespace safestore::QuarantineManager
     }
 
     std::vector<SafeStoreWrapper::ObjectId> QuarantineManagerImpl::scanExtractedFilesForRestoreList(
-        std::vector<FdsObjectIdsPair> files)
+        std::vector<FdsObjectIdsPair> files, const std::string& originalFilePath)
     {
         std::vector<SafeStoreWrapper::ObjectId> cleanFiles;
         if (files.empty())
@@ -647,7 +647,7 @@ namespace safestore::QuarantineManager
 
         for (auto& [fd, objectId] : files)
         {
-            auto response = scan(*scanningClient, fd.get());
+            auto response = scan(*scanningClient, fd.get(), originalFilePath);
 
             if (!response.getErrorMsg().empty())
             {
@@ -853,7 +853,7 @@ namespace safestore::QuarantineManager
         }
     }
 
-    scan_messages::ScanResponse QuarantineManagerImpl::scan(unixsocket::IScanningClientSocket& socket, int fd)
+    scan_messages::ScanResponse QuarantineManagerImpl::scan(unixsocket::IScanningClientSocket& socket, int fd, const std::string& originalFilePath)
     {
         scan_messages::ScanResponse response;
 
@@ -868,6 +868,7 @@ namespace safestore::QuarantineManager
         }
 
         auto request = std::make_shared<scan_messages::ClientScanRequest>();
+        request->setPath(originalFilePath);
         request->setFd(fd);
         request->setScanType(scan_messages::E_SCAN_TYPE_SAFESTORE_RESCAN);
         request->setScanInsideArchives(true);
@@ -1013,10 +1014,10 @@ namespace safestore::QuarantineManager
     bool QuarantineManagerImpl::DoFullRescan(
         safestore::SafeStoreWrapper::ObjectHandleHolder& objectHandle,
         const SafeStoreWrapper::ObjectId& objectId,
-        std::string_view filePathForLogging)
+        const std::string& originalFilePath)
     {
         LOGINFO(
-            "Performing full rescan of quarantined file (original path '" << filePathForLogging << "', object ID '"
+            "Performing full rescan of quarantined file (original path '" << originalFilePath << "', object ID '"
                                                                           << objectId << "')");
 
         std::vector<SafeStoreWrapper::ObjectHandleHolder> batch;
@@ -1024,7 +1025,7 @@ namespace safestore::QuarantineManager
         assert(batch.size() == 1);
         auto filesToBeScanned = extractQuarantinedFiles(std::move(batch));
         assert(filesToBeScanned.size() <= 1);
-        auto cleanFiles = scanExtractedFilesForRestoreList(std::move(filesToBeScanned));
+        auto cleanFiles = scanExtractedFilesForRestoreList(std::move(filesToBeScanned), originalFilePath);
         assert(cleanFiles.size() <= 1);
         return cleanFiles.size() == 1;
     }

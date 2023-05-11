@@ -38,6 +38,6 @@ public:
     MOCK_METHOD(
         std::vector<safestore::SafeStoreWrapper::ObjectId>,
         scanExtractedFilesForRestoreList,
-        (std::vector<FdsObjectIdsPair> files));
+        (std::vector<FdsObjectIdsPair> files,const std::string& originalFilePath));
     MOCK_METHOD(std::optional<scan_messages::RestoreReport>, restoreFile, (const std::string& objectId));
 };
