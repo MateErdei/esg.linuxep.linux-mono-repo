@@ -9,6 +9,7 @@ Resource    ../shared/ErrorMarkers.robot
 Resource    ../shared/SafeStoreResources.robot
 Resource    ../shared/OnAccessResources.robot
 
+Library         ../Libs/BaseInteractionTools/PolicyUtils.py
 Library         ../Libs/CoreDumps.py
 Library         ../Libs/FileSampleObfuscator.py
 Library         ../Libs/FileUtils.py
@@ -1183,7 +1184,6 @@ SafeStore Restores Archive Containing Password Protected File
     Run Process  tar  --mtime\=UTC 2022-01-01  -C  ${ARCHIVE_DIR}  -cf  ${NORMAL_DIRECTORY}/test.tar  encrypted.zip  1_eicar
     ${archive_sha} =  Get SHA256  ${NORMAL_DIRECTORY}/test.tar
     Remove Directory  ${ARCHIVE_DIR}  recursive=True
-    should be equal    ${archive_sha}    0b3b17be2fea8a400cdd2c22124ca70707d0557f66c1e1f4f2d5c3ac20c7388d
 
     ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
     ${safestore_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
@@ -1196,7 +1196,10 @@ SafeStore Restores Archive Containing Password Protected File
     ${ss_mark} =  Get SafeStore Log Mark
     ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
     ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
-    Send CORC Policy To Base  corc_policy_allow_list_zipfile_with_password_protected_file.xml
+
+    @{sha_list} =  Create List   ${archive_sha}
+    ${content} =    Create Corc Policy    ${sha_list}
+    Send CORC Policy To Base From Content    ${content}
 
     Wait For Log Contains From Mark    ${ss_mark}    SafeStore Database Rescan request received.
     Wait For Log Contains From Mark    ${ss_mark}    Requesting metadata rescan of quarantined file (original path '${SCAN_DIRECTORY}/test.tar'
