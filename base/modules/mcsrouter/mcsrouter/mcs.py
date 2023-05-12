@@ -483,17 +483,33 @@ class MCS:
         return last_time_checked
 
     def should_generate_new_jwt_token(self):
-        # If the flag is not set
-        if self.__m_comms:
-            # If we already have a JWT token...
-            if self.__m_comms.m_jwt_token and self.__m_comms.m_device_id and self.__m_comms.m_tenant_id:
-                # ...and the device ID from policy still matches the one in the JWT token...
-                if self.__m_config.get_default("policy_device_id", "") == self.__m_comms.m_device_id:
-                    # ...and the current JWT has more than 10 minutes before expiration, then we don't want a new one
-                    if time.time() < self.__m_comms.m_jwt_expiration_timestamp - 600:
-                        return False
-        LOGGER.info("New JWT should be requested")
-        return True
+        if self.__m_comms is None:
+            LOGGER.info("New JWT should be requested because MCS comms is not set")
+            return True
+
+        if self.__m_comms.m_jwt_token is None:
+            LOGGER.info("New JWT should be requested because MCS does not have a token")
+            return True
+
+        if self.__m_comms.m_device_id is None:
+            LOGGER.info("New JWT should be requested because MCS does not have a device ID")
+            return True
+
+        if self.__m_comms.m_tenant_id is None:
+            LOGGER.info("New JWT should be requested because MCS does not have a tenant ID")
+            return True
+
+        # Get a new JWT if device ID from policy does not match the one in the current config.
+        if self.__m_config.get_default("policy_device_id", "") != self.__m_comms.m_device_id:
+            LOGGER.info(f"New JWT should be requested because device ID in policy is different to the current device ID, policy: {self.__m_config.get_default('policy_device_id', '')}, config: {self.__m_comms.m_device_id} ")
+            return True
+
+        # We want to request a new one when there is less than 10 mins left until the current one expires
+        if time.time() > (self.__m_comms.m_jwt_expiration_timestamp - 600):
+            LOGGER.info("New JWT should be requested because token will expire within the next 10 mins")
+            return True
+
+        return False
 
     def token_and_url_are_set(self):
         if os.path.isfile(path_manager.root_config()):
