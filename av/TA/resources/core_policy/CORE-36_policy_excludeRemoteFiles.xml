@@ -56,9 +56,10 @@
             <excludeRemoteFiles>true</excludeRemoteFiles>
             <filePathSet>
                 <filePath>/mnt/</filePath>
+                <filePath>/vagrant/</filePath>
                 <filePath>/uk-filer5/</filePath>
-                <filePath>*excluded*</filePath>
                 <filePath>/opt/test/inputs/test_scripts/</filePath>
+                <filePath>*excluded*</filePath>
             </filePathSet>
             <processPathSet>
                 <processPath>{{processPath1}}</processPath>

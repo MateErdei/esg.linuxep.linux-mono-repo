@@ -36,16 +36,16 @@
         <filePath>/bin/</filePath>
         <filePath>/etc/</filePath>
         <filePath>/lib/</filePath>
-        <filePath>/lib64/</filePath>
         <filePath>/mnt/</filePath>
         <filePath>/opt/</filePath>
         <filePath>/run/</filePath>
-        <filePath>/sbin/</filePath>
         <filePath>/tmp/</filePath>
-        <filePath>/uk-filer5/</filePath>
         <filePath>/usr/</filePath>
-        <filePath>/vagrant/</filePath>
         <filePath>/var/</filePath>
+        <filePath>/sbin/</filePath>
+        <filePath>/lib64/</filePath>
+        <filePath>/vagrant/</filePath>
+        <filePath>/uk-filer5/</filePath>
         <filePath>*excluded*</filePath>
       </filePathSet>
       <excludeRemoteFiles>false</excludeRemoteFiles>
