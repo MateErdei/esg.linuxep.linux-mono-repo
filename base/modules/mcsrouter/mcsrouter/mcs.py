@@ -744,8 +744,8 @@ class MCS:
 
                     if should_we_migrate():
                         if self.attempt_migration(comms, config, self.__m_root_config, push_client):
-                            comms = None
-                            continue
+                            running = False
+                            break
 
                     if reregister:
                         LOGGER.info("Re-registering with MCS")

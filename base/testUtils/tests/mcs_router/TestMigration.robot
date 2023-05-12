@@ -280,6 +280,89 @@ Register With Cloud And Fail To Migrate To Another Cloud Server
     ...  Check MCSRouter Log Contains   Push client successfully connected to ${push_server_address} directly
 
 
+Migrate From Account With Message Relay To One Without
+    Start Simple Proxy Server    3333
+    Start Local Cloud Server  --initial-mcs-policy  ${SUPPORT_FILES}/CentralXml/MCS_policy_with_proxy.xml
+    Start MCS Push Server
+
+    Wait For MCS Router To Be Running
+    Mark Mcsrouter Log
+    Register With Local Cloud Server
+    Check Correct MCS Password And ID For Local Cloud Saved
+    Check Cloud Server Log Does Not Contain  Processing deployment api call
+    Check Cloud Server Log Contains  Register with ::ThisIsARegToken
+
+    Wait Until Keyword Succeeds    20s    1s    File Should Exist  ${MCS_CONFIG}
+    Wait Until Keyword Succeeds    20s    1s    File Should Exist  ${MCS_POLICY_CONFIG}
+    Wait Until Keyword Succeeds    5s     1s    Mcs Config Has Key  MCSID
+    ${original_mcsid}  get_value_from_ini_file  MCSID  ${MCS_CONFIG}
+
+    Wait Until Keyword Succeeds    5s    1s    Mcs Config Has Key  jwt_token
+    ${original_jwt_token}  get_value_from_ini_file  jwt_token  ${MCS_CONFIG}
+
+    Log File  ${MCS_POLICY_CONFIG}
+    Log File  ${MCS_CONFIG}
+    Log File  ${SOPHOS_INSTALL}/base/etc/mcs.config
+    Log File  ${SOPHOS_INSTALL}/base/etc/sophosspl/current_proxy
+
+    Wait Until Keyword Succeeds    60s    5s    File Should Exist    ${SHS_STATUS_FILE}
+
+    Trigger Migration Now
+    Mark Mcsrouter Log
+
+    # Long wait due to Push Server triggering reduced polling
+    Wait Until Keyword Succeeds
+    ...  30s
+    ...  1s
+    ...  Check Marked Mcsrouter Log Contains  Attempting Central migration
+
+    Wait Until Keyword Succeeds
+    ...  30s
+    ...  1s
+    ...  Check Marked Mcsrouter Log Contains  Successfully migrated Sophos Central account
+
+    # Instruct fake central to send us an MCS policy with no MRs in.
+    Send Policy File  mcs  ${SUPPORT_FILES}/CentralXml/MCS_Push_Policy_PushFallbackPoll.xml
+
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  5 secs
+    ...  Check Marked Mcsrouter Log Contains      Checking for updates to mcs flags
+
+    Wait Until Keyword Succeeds    20s    1s    File Should Exist  ${MCS_CONFIG}
+    Wait Until Keyword Succeeds    20s    1s    File Should Exist  ${MCS_POLICY_CONFIG}
+
+    Log File  ${MCS_POLICY_CONFIG}
+    Log File  ${MCS_CONFIG}
+    Log File  ${SOPHOS_INSTALL}/base/etc/mcs.config
+    Log File  ${SOPHOS_INSTALL}/base/etc/sophosspl/current_proxy
+
+    ${new_mcsid}  get_value_from_ini_file  MCSID  ${MCS_CONFIG}
+    Should Not Be Equal As Strings  ${original_mcsid}  ${new_mcsid}
+
+    Wait Until Keyword Succeeds    10s    1s    JWT token has changed  ${original_jwt_token}
+
+    Wait Until Keyword Succeeds    60s    5s    Check Envelope Log Contains  /statuses/endpoint/${new_mcsid}
+    Check Log Contains In Order
+    ...  ${BASE_LOGS_DIR}/sophosspl/mcs_envelope.log
+    ...  /statuses/endpoint/${new_mcsid}
+    ...  <status><appId>MCS</appId>
+    ...  <status><appId>ALC</appId>
+    ...  <status><appId>SDU</appId>
+    ...  <status><appId>SHS</appId>
+    ...  <status><appId>APPSPROXY</appId>
+    ...  <status><appId>AGENT</appId>
+
+    ${push_server_address} =  Set Variable  localhost:4443
+    Wait Until Keyword Succeeds
+    ...  30 secs
+    ...  1 secs
+    ...  Check Marked Mcsrouter Log Contains      Push client successfully connected to ${push_server_address} directly
+
+    # Make sure that the current_proxy file is empty now that we have switched to a different account with no MRs
+    ${current_proxy} =  Get File  ${SOPHOS_INSTALL}/base/etc/sophosspl/current_proxy
+    Should Be Equal As Strings    ${current_proxy}    {}
+
 *** Keywords ***
 JWT token has changed
     [Arguments]  ${old_token}

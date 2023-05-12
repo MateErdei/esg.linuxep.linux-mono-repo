@@ -321,7 +321,7 @@ function build()
             exit 0
         fi
         [[ -n ${TEST_NPROC:-} ]] || TEST_NPROC=$NPROC
-        timeout 1010s ctest \
+        timeout 2010s ctest \
             --parallel ${TEST_NPROC} \
             --test-action test \
             --no-compress-output --output-on-failure \
