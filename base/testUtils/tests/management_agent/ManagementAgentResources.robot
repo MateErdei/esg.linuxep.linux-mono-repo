@@ -11,12 +11,14 @@ Resource  ../watchdog/LogControlResources.robot
 *** Keywords ***
 Start Management Agent
     Set Log Level For Component And Reset and Return Previous Log  sophos_managementagent  DEBUG
+    ${mark} =  Mark Managementagent Log
     ${MngtHandle} =   Start Process    ${SOPHOS_INSTALL}/base/bin/sophos_managementagent   shell=yes    stdout=${tmpdir}/management.log  stderr=${tmpdir}/management.log  env:SOPHOS_PUB_SUB_ROUTER_LOGGING=1
     Set Suite Variable    ${GL_MngtHandle}    ${MngtHandle}
     Wait Until Keyword Succeeds
     ...  20 secs
     ...  5 secs
     ...  Check Management Agent Running And Ready
+    [Return]  ${mark}
 
 Stop Management Agent
     Terminate Process       ${GL_MngtHandle}

@@ -21,12 +21,12 @@ Verify Management Agent Can Check Good Plugin Health Status
     Remove Status Xml Files
 
     Setup Plugin Registry
-    ${ma_mark} =  Mark Log Size    ${MANAGEMENT_AGENT_LOG}
+    # Clears the management agent log, so can't use marks
     Start Management Agent
 
     Start Plugin
 
-    Wait For Log Contains From Mark    ${ma_mark}    Management Agent running.  timeout=${15}
+    wait_for_log_contains_after_last_restart  ${MANAGEMENT_AGENT_LOG}   Management Agent running.  timeout=${15}
 
     File Should Exist   ${SHS_POLICY_FILE}
     File Should Not Exist   ${SHS_STATUS_FILE}
