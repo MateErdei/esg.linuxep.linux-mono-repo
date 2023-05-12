@@ -3,6 +3,7 @@ import glob
 import os
 import shutil
 import subprocess
+import time
 import typing
 
 import dateutil.parser
@@ -716,8 +717,9 @@ class LogUtils(object):
     def dump_managementagent_log(self):
         self.dump_log(self.managementagent_log)
 
-    def mark_managementagent_log(self):
+    def mark_managementagent_log(self) -> LogHandler.LogMark:
         self.marked_managementagent_log = get_log_length(self.managementagent_log)
+        return LogHandler.LogMark(self.managementagent_log)
 
     def check_management_agent_log_contains(self, string_to_contain):
         log = self.managementagent_log
@@ -998,7 +1000,7 @@ class LogUtils(object):
             self.__m_log_handlers[logpath] = handler
         return handler
 
-    def mark_log_size(self, logpath) -> LogHandler.LogMark:
+    def mark_log_size(self, logpath: str) -> LogHandler.LogMark:
         handler = self.get_log_handler(logpath)
         mark = handler.get_mark()
         self.__m_marked_log_position[logpath] = mark  # Save the most recent marked position
@@ -1074,6 +1076,19 @@ class LogUtils(object):
         mark.assert_paths_match(log_path)
         time.sleep(timeout)
         return self.check_log_does_not_contain_after_mark(log_path, not_expected, mark)
+
+    def wait_for_log_contains_after_last_restart(self, log_path, expected, timeout: int = 10, mark=None):
+        """
+        Wait for a log line, but only in the log lines after the most recent restart of the process.
+
+        :param log_path:
+        :param expected:
+        :param timeout:
+        :param mark: Also restrict log lines after the mark
+        :return:
+        """
+        handler = self.get_log_handler(log_path)
+        return handler.Wait_For_Log_contains_after_last_restart(expected, timeout, mark)
 
     def save_log_marks_at_start_of_test(self):
         robot.libraries.BuiltIn.BuiltIn().set_test_variable("${ON_ACCESS_LOG_MARK_FROM_START_OF_TEST}",

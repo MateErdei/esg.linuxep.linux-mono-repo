@@ -12,23 +12,22 @@ Library     ${LIBS_DIRECTORY}/FakePluginWrapper.py
 Resource  ../mcs_router/McsRouterResources.robot
 Resource    ManagementAgentResources.robot
 
-Default Tags    MANAGEMENT_AGENT
+Force Tags     MANAGEMENT_AGENT  TEST_PLUGIN_HEALTH_STATUS
 
 *** Test Cases ***
 Verify Management Agent Can Check Good Plugin Health Status
-    [Tags]  SMOKE  MANAGEMENT_AGENT  TAP_TESTS
+    [Tags]  SMOKE  TAP_TESTS
     # make sure no previous status xml file exists.
     Remove Status Xml Files
 
     Setup Plugin Registry
+    ${ma_mark} =  Mark Log Size    ${MANAGEMENT_AGENT_LOG}
     Start Management Agent
 
     Start Plugin
 
-    Wait Until Keyword Succeeds
-    ...  15
-    ...  5
-    ...  Check Management Agent Log Contains   Management Agent running.
+    Wait For Log Contains From Mark    ${ma_mark}    Management Agent running.  timeout=${15}
+
     File Should Exist   ${SHS_POLICY_FILE}
     File Should Not Exist   ${SHS_STATUS_FILE}
     #check overallHealth is good before health status is calculated
@@ -52,53 +51,52 @@ Verify Management Agent Can Check Good Plugin Health Status
 
 
 Verify Management Agent Can Receive Service Health Information
-    [Tags]  MANAGEMENT_AGENT  TAP_TESTS
-        # make sure no previous status xml file exists.
-        Remove Status Xml Files
+    [Tags]  TAP_TESTS
+    # make sure no previous status xml file exists.
+    Remove Status Xml Files
 
-        Setup Plugin Registry
-        Start Management Agent
+    Setup Plugin Registry
 
-        Start Plugin
-        Set Fake Plugin App Id    HBT
-        Set Service Health    0    True    fake-utm-id-007
+    # Clears the management agent log:
+    Start Management Agent
 
-        Wait Until Keyword Succeeds
-        ...  40
-        ...  5
-        ...  Check Management Agent Log Contains   Starting service health checks
+    Start Plugin
+    Set Fake Plugin App Id    HBT
+    Set Service Health    0    True    fake-utm-id-007
 
-        Wait Until Keyword Succeeds
-        ...  180
-        ...  5
-        ...  File Should Exist   ${SHS_STATUS_FILE}
+    wait_for_log_contains_after_last_restart  ${MANAGEMENT_AGENT_LOG}  Starting service health checks  timeout=${120}
 
-        ${EXPECTEDPOLICY_CONTENT}=  Set Variable  {"health":1,"service":1,"threat":1,"threatService":1}
+    Wait Until Keyword Succeeds
+    ...  180
+    ...  5
+    ...  File Should Exist   ${SHS_STATUS_FILE}
 
-        Wait Until Keyword Succeeds
-        ...  180
-        ...  5
-        ...  File Should Contain   ${SHS_POLICY_FILE}  ${EXPECTEDPOLICY_CONTENT}
+    ${EXPECTEDPOLICY_CONTENT}=  Set Variable  {"health":1,"service":1,"threat":1,"threatService":1}
 
-        Wait Until Keyword Succeeds
-        ...  40
-        ...  5
-        ...  File Should Exist   ${SHS_STATUS_FILE}
+    Wait Until Keyword Succeeds
+    ...  180
+    ...  5
+    ...  File Should Contain   ${SHS_POLICY_FILE}  ${EXPECTEDPOLICY_CONTENT}
 
-        ${EXPECTED_CONTENT}=  Set Variable  <?xml version="1.0" encoding="utf-8" ?><health version="3.0.0" activeHeartbeat="true" activeHeartbeatUtmId="fake-utm-id-007"><item name="health" value="1" /><item name="service" value="1" ><detail name="FakePlugin" value="0" /><detail name="Sophos MCS Client" value="0" /></item><item name="threatService" value="1" ><detail name="FakePlugin" value="0" /><detail name="Sophos MCS Client" value="0" /></item><item name="threat" value="1" /></health>
+    Wait Until Keyword Succeeds
+    ...  40
+    ...  5
+    ...  File Should Exist   ${SHS_STATUS_FILE}
 
-        Wait Until Keyword Succeeds
-        ...  40
-        ...  5
-        ...  File Should Contain   ${SHS_STATUS_FILE}  ${EXPECTED_CONTENT}
+    ${EXPECTED_CONTENT}=  Set Variable  <?xml version="1.0" encoding="utf-8" ?><health version="3.0.0" activeHeartbeat="true" activeHeartbeatUtmId="fake-utm-id-007"><item name="health" value="1" /><item name="service" value="1" ><detail name="FakePlugin" value="0" /><detail name="Sophos MCS Client" value="0" /></item><item name="threatService" value="1" ><detail name="FakePlugin" value="0" /><detail name="Sophos MCS Client" value="0" /></item><item name="threat" value="1" /></health>
 
-        # clean up
-        Stop Plugin
-        Stop Management Agent
+    Wait Until Keyword Succeeds
+    ...  40
+    ...  5
+    ...  File Should Contain   ${SHS_STATUS_FILE}  ${EXPECTED_CONTENT}
+
+    # clean up
+    Stop Plugin
+    Stop Management Agent
 
 
 Verify Management Agent Can Check Bad Plugin Health Status
-    [Tags]  SMOKE  MANAGEMENT_AGENT  TAP_TESTS
+    [Tags]  SMOKE  TAP_TESTS
     # make sure no previous status xml file exists.
     Remove Status Xml Files
 
@@ -129,7 +127,6 @@ Verify Management Agent Can Check Bad Plugin Health Status
 
 
 Verify Management Agent does not check health when suldownloader is running
-    [Tags]  MANAGEMENT_AGENT
     # make sure no previous status xml file exists.
     Remove Status Xml Files
 
@@ -137,10 +134,9 @@ Verify Management Agent does not check health when suldownloader is running
     Setup Plugin Registry
     Start Management Agent
 
-    Wait Until Keyword Succeeds
-    ...  40
-    ...  5
-    ...  check_management_agent_log_contains   Starting service health checks
+    # Management agent won't ever start monitoring health until the upgrading marker goes away
+    Sleep  ${10}
+
     File Should Not Exist   ${SHS_STATUS_FILE}
 
     Remove File  ${UPGRADING_MARKER_FILE}
@@ -155,73 +151,66 @@ Verify Management Agent does not check health when suldownloader is running
 
 
 Verify Management Agent Does Not Report Health Of Removed Plugins
-    [Tags]  MANAGEMENT_AGENT  TAP_TESTS
-        # make sure no previous status xml file exists.
-        Remove Status Xml Files
+    [Tags]  TAP_TESTS
+    # make sure no previous status xml file exists.
+    Remove Status Xml Files
 
-        Setup Plugin Registry
-        Start Management Agent
+    Setup Plugin Registry
+    Start Management Agent
 
-        Start Plugin
-        Set Fake Plugin App Id    HBT
-        Set Service Health    0    True    fake-utm-id-007
+    Start Plugin
+    Set Fake Plugin App Id    HBT
+    Set Service Health    0    True    fake-utm-id-007
 
-        Wait Until Keyword Succeeds
-        ...  40
-        ...  5
-        ...  Check Management Agent Log Contains   Starting service health checks
+    wait_for_log_contains_after_last_restart  ${MANAGEMENT_AGENT_LOG}  Starting service health checks  timeout=${120}
 
-        Wait Until Keyword Succeeds
-        ...  180
-        ...  5
-        ...  File Should Exist   ${SHS_STATUS_FILE}
+    Wait Until Keyword Succeeds
+    ...  180
+    ...  5
+    ...  File Should Exist   ${SHS_STATUS_FILE}
 
-        ${EXPECTEDPOLICY_CONTENT}=  Set Variable  {"health":1,"service":1,"threat":1,"threatService":1}
+    ${EXPECTEDPOLICY_CONTENT}=  Set Variable  {"health":1,"service":1,"threat":1,"threatService":1}
 
-        Wait Until Keyword Succeeds
-        ...  180
-        ...  5
-        ...  File Should Contain   ${SHS_POLICY_FILE}  ${EXPECTEDPOLICY_CONTENT}
+    Wait Until Keyword Succeeds
+    ...  180
+    ...  5
+    ...  File Should Contain   ${SHS_POLICY_FILE}  ${EXPECTEDPOLICY_CONTENT}
 
-        Wait Until Keyword Succeeds
-        ...  40
-        ...  5
-        ...  File Should Exist   ${SHS_STATUS_FILE}
+    Wait Until Keyword Succeeds
+    ...  40
+    ...  5
+    ...  File Should Exist   ${SHS_STATUS_FILE}
 
-        ${EXPECTED_CONTENT}=  Set Variable  <?xml version="1.0" encoding="utf-8" ?><health version="3.0.0" activeHeartbeat="true" activeHeartbeatUtmId="fake-utm-id-007"><item name="health" value="1" /><item name="service" value="1" ><detail name="FakePlugin" value="0" /><detail name="Sophos MCS Client" value="0" /></item><item name="threatService" value="1" ><detail name="FakePlugin" value="0" /><detail name="Sophos MCS Client" value="0" /></item><item name="threat" value="1" /></health>
+    ${EXPECTED_CONTENT}=  Set Variable  <?xml version="1.0" encoding="utf-8" ?><health version="3.0.0" activeHeartbeat="true" activeHeartbeatUtmId="fake-utm-id-007"><item name="health" value="1" /><item name="service" value="1" ><detail name="FakePlugin" value="0" /><detail name="Sophos MCS Client" value="0" /></item><item name="threatService" value="1" ><detail name="FakePlugin" value="0" /><detail name="Sophos MCS Client" value="0" /></item><item name="threat" value="1" /></health>
 
-        Wait Until Keyword Succeeds
-        ...  40
-        ...  5
-        ...  File Should Contain   ${SHS_STATUS_FILE}  ${EXPECTED_CONTENT}
+    Wait Until Keyword Succeeds
+    ...  40
+    ...  5
+    ...  File Should Contain   ${SHS_STATUS_FILE}  ${EXPECTED_CONTENT}
 
-        # Get rid of plugin
-        Stop Plugin
-        Remove Fake Plugin From Registry
-        Mark Management Agent Log
+    # Get rid of plugin
+    Stop Plugin
+    ${ma_mark} =  Mark Log Size    ${MANAGEMENT_AGENT_LOG}
+    Remove Fake Plugin From Registry
 
-        Wait Until Keyword Succeeds
-        ...  180
-        ...  5
-        ...  Check Management Agent Log Contains   FakePlugin has been uninstalled.
+    Wait For Log Contains From Mark    ${ma_mark}    FakePlugin has been uninstalled.  timeout=${180}
 
-        Wait Until Keyword Succeeds
-        ...  180
-        ...  5
-        ...  File Should Contain   ${SHS_POLICY_FILE}  ${EXPECTEDPOLICY_CONTENT}
+    Wait Until Keyword Succeeds
+    ...  180
+    ...  5
+    ...  File Should Contain   ${SHS_POLICY_FILE}  ${EXPECTEDPOLICY_CONTENT}
 
-        ${EXPECTED_CONTENT}=  Set Variable  <?xml version="1.0" encoding="utf-8" ?><health version="3.0.0" activeHeartbeat="false" activeHeartbeatUtmId=""><item name="health" value="1" /><item name="service" value="1" ><detail name="Sophos MCS Client" value="0" /></item><item name="threatService" value="1" ><detail name="Sophos MCS Client" value="0" /></item><item name="threat" value="1" /></health>
+    ${EXPECTED_CONTENT}=  Set Variable  <?xml version="1.0" encoding="utf-8" ?><health version="3.0.0" activeHeartbeat="false" activeHeartbeatUtmId=""><item name="health" value="1" /><item name="service" value="1" ><detail name="Sophos MCS Client" value="0" /></item><item name="threatService" value="1" ><detail name="Sophos MCS Client" value="0" /></item><item name="threat" value="1" /></health>
 
-        Wait Until Keyword Succeeds
-        ...  40
-        ...  5
-        ...  File Should Contain   ${SHS_STATUS_FILE}  ${EXPECTED_CONTENT}
+    Wait Until Keyword Succeeds
+    ...  40
+    ...  5
+    ...  File Should Contain   ${SHS_STATUS_FILE}  ${EXPECTED_CONTENT}
 
-        Stop Management Agent
+    Stop Management Agent
 
 
 Verify Log Behaviour When Plugin Health Retrieval Fails
-    [Tags]    MANAGEMENT_AGENT
     # make sure no previous status xml file exists.
     Remove Status Xml Files
 
@@ -229,21 +218,16 @@ Verify Log Behaviour When Plugin Health Retrieval Fails
     Start Management Agent
     Start Plugin
 
-    Wait Until Keyword Succeeds
-    ...  40
-    ...  5
-    ...  Check Management Agent Log Contains   Starting service health checks
+    wait_for_log_contains_after_last_restart  ${MANAGEMENT_AGENT_LOG}  Starting service health checks  timeout=${120}
 
     Stop Plugin
     Sleep  60s
 
     Check Management Agent Log Contains String N Times  Could not get health for service FakePlugin  1
 
+    ${ma_mark} =  Mark Log Size    ${MANAGEMENT_AGENT_LOG}
     Start Plugin
-    Wait Until Keyword Succeeds
-    ...  40
-    ...  5
-    ...  Check Management Agent Log Contains   Health restored for service FakePlugin
+    Wait For Log Contains From Mark    ${ma_mark}    Health restored for service FakePlugin  timeout=${40}
 
     Mark Management Agent Log
     Stop Plugin
@@ -251,16 +235,17 @@ Verify Log Behaviour When Plugin Health Retrieval Fails
 
     Check Marked Management Agent Log Contains String N Times  Could not get health for service FakePlugin  1
 
+    ${ma_mark} =  Mark Log Size    ${MANAGEMENT_AGENT_LOG}
     Start Plugin
-    Wait Until Keyword Succeeds
-    ...  40
-    ...  5
-    ...  Check Management Agent Log Contains   Health restored for service FakePlugin
+    Wait For Log Contains From Mark    ${ma_mark}    Health restored for service FakePlugin  timeout=${40}
 
     # clean up
     Stop Plugin
     Stop Management Agent
 
+
+*** Variables ***
+${MANAGEMENT_AGENT_LOG}         ${SOPHOS_INSTALL}/logs/base/sophosspl/sophos_managementagent.log
 
 *** Keywords ***
 Service Sleep Teardown

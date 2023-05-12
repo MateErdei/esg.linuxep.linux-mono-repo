@@ -29,7 +29,7 @@ def ensure_unicode(s, encoding="UTF-8"):
 
 
 class LogMark:
-    def __init__(self, log_path):
+    def __init__(self, log_path: str):
         self.__m_log_path = log_path
         try:
             self.__m_stat = os.stat(self.__m_log_path)
@@ -257,3 +257,27 @@ class LogHandler:
                         logger.info(line.decode("UTF-8", errors="replace"))
 
         return results
+
+    def Wait_For_Log_contains_after_last_restart(self, expected, timeout: int, mark=None) -> None:
+        """
+        Need to look for the restart in the log, and check the log after that.
+        A restart means the first digit resetting to 0
+        :param mark: Optional Mark - only check log after mark
+        :param expected: String expected in log
+        :param timeout: Amount of time to wait for expected to appear
+        :return: None
+        """
+        expected = ensure_binary(expected, "UTF-8")
+        start = time.time()
+        content_lines = []
+        while time.time() < start + timeout:
+            content_lines = self.get_content_since_last_start(mark)
+            for line in content_lines:
+                if expected in line:
+                    return
+
+            time.sleep(1)
+
+        content_lines = [line.decode("UTF-8", errors="backslashreplace") for line in content_lines]
+        logger.info("%s since last restart:" % self.__m_log_path + u"".join(content_lines))
+        raise AssertionError("'%s' not found in %s after %d seconds" % (expected, self.__m_log_path, timeout))

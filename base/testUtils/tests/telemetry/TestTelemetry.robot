@@ -29,6 +29,9 @@ Test Teardown    Telemetry Test Teardown
 Default Tags  TELEMETRY
 
 
+*** Variables ***
+${MANAGEMENT_AGENT_LOG}         ${SOPHOS_INSTALL}/logs/base/sophosspl/sophos_managementagent.log
+
 *** Keywords ***
 ### Suite Setup
 Setup Telemetry Tests
@@ -106,11 +109,7 @@ Telemetry Executable Generates System Base and Watchdog Telemetry
     [Tags]  SMOKE  TELEMETRY  TAP_TESTS
     [Documentation]    Telemetry Executable Generates Telemetry
 
-    Mark Management Agent Log
-    Wait Until Keyword Succeeds
-    ...  60 secs
-    ...  10 secs
-    ...  Check Marked Managementagent Log Contains     Starting service health checks
+    wait_for_log_contains_after_last_restart  ${MANAGEMENT_AGENT_LOG}  Starting service health checks  timeout=${120}
 
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
@@ -398,13 +397,13 @@ Test Outbreak Mode Telemetry
     Remove Event Xml Files
 
     Setup Plugin Registry
+    ${mark} =  mark_log_size   ${BASE_LOGS_DIR}/sophosspl/sophos_managementagent.log
     Start Management Agent
 
     Start Plugin
     set_fake_plugin_app_id  CORE
 
-    ${mark} =  mark_log_size   ${BASE_LOGS_DIR}/sophosspl/sophos_managementagent.log
-    wait for log contains from mark   ${mark}     Starting service health checks     60
+    wait for log contains from mark   ${mark}     Starting service health checks     ${120}
 
     # Pre-outbreak mode
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
