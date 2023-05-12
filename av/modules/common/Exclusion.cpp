@@ -97,7 +97,7 @@ auto Exclusion::appliesToPath(const CachedPath& path, bool isDirectory, bool isF
             }
             //We also want stem exclusions to apply to directories
             //If we are passed a directory path we exclude it if it resolves to the same place as the exclusion.
-            if (isDirectory && path.path_.lexically_relative(m_exclusionPath.path_) == ".")
+            if (isDirectory && path.path().lexically_relative(m_exclusionPath.path()) == ".")
             {
                 return true;
             }

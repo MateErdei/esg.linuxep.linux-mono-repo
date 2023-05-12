@@ -2,6 +2,8 @@
 
 #pragma once
 
+#include <utility>
+
 #include "datatypes/sophos_filesystem.h"
 
 namespace fs = sophos_filesystem;
@@ -10,17 +12,22 @@ namespace common
 {
     class CachedPath
     {
+    private:
+        mutable fs::path path_;
+        mutable bool pathValid_;
+
     public:
-        explicit CachedPath(const std::string& filePath)
+        explicit CachedPath(std::string filePath)
             :
-            path_(filePath),
-            string_(filePath)
+            pathValid_(false),
+            string_(std::move(filePath))
         {
         }
 
         explicit CachedPath(const fs::path& filePath)
             :
             path_(filePath),
+            pathValid_(true),
             string_(filePath.string())
         {
         }
@@ -34,7 +41,6 @@ namespace common
             return *this;
         }
 
-        fs::path path_;
         std::string string_;
 
         bool operator==(const CachedPath& rhs) const
@@ -45,6 +51,16 @@ namespace common
         [[nodiscard]] const char* c_str() const noexcept
         {
             return string_.c_str();
+        }
+
+        [[nodiscard]] fs::path path() const
+        {
+            if (!pathValid_)
+            {
+                path_ = string_;
+                pathValid_ = true;
+            }
+            return path_;
         }
 
     };
