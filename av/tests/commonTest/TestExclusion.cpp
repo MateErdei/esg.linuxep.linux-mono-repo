@@ -339,12 +339,42 @@ TEST(Exclusion, comparison)
     Exclusion glob2("/foo/lib/libz.*/");
     Exclusion glob3("/zoo/lib/libz.*/");
     Exclusion longFilename("abcdefghijklmnopqrstuvwxzyzfoo.txt");
+    Exclusion ext{ "*.bat" };
+    EXPECT_EQ(ext.type(), SUFFIX);
 
     EXPECT_LT(filenameExcl, glob);
     EXPECT_LT(dir2Excl, glob);
+    EXPECT_LT(ext, glob);
     EXPECT_LT(filenameExcl, dirMatchOneExcl);
     EXPECT_LT(dir2Excl, dirMatchOneExcl);
     EXPECT_LT(glob, glob2);
     EXPECT_LT(longFilename, glob2);
     EXPECT_LT(glob2, glob3);
+}
+
+TEST(Exclusion, extension)
+{
+    {
+        Exclusion ext{ "*.bat" };
+        EXPECT_EQ(ext.type(), SUFFIX);
+        EXPECT_TRUE(ext.appliesToPath("/tmp/bar/foo.bat"));
+        EXPECT_FALSE(ext.appliesToPath("/tmp/bar/foo.com"));
+    }
+}
+
+TEST(Exclusion, dir_suffix)
+{
+    {
+        Exclusion dir1{ "*/bar/foo.bat" };
+        EXPECT_EQ(dir1.type(), RELATIVE_PATH); // Gets handled by code that takes off */ and puts / back on...
+        EXPECT_TRUE(dir1.appliesToPath("/tmp/bar/foo.bat"));
+        EXPECT_FALSE(dir1.appliesToPath("/tmp/bat/foo.bat"));
+    }
+
+    {
+        Exclusion dir2{ "*bar/foo.bat" };
+        EXPECT_EQ(dir2.type(), SUFFIX);
+        EXPECT_TRUE(dir2.appliesToPath("/tmp/bar/foo.bat"));
+        EXPECT_FALSE(dir2.appliesToPath("/tmp/bat/foo.bat"));
+    }
 }

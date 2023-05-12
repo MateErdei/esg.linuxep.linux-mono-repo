@@ -36,22 +36,35 @@ Exclusion::Exclusion(const std::string& path):
 
     if (exclusionPath.find('?') != std::string::npos || exclusionPath.find('*') != std::string::npos)
     {
+        // Put back the * after /* that we just removed - needed for glob matches
         if (exclusionPath.at(exclusionPath.size()-1) == '/')
         {
             exclusionPath = exclusionPath + "*";
         }
 
-        if (exclusionPath.at(0) == '/' || exclusionPath.at(0) == '*')
+        bool startsWithStar = exclusionPath.at(0) == '*';
+
+        if (startsWithStar && exclusionPath.find('?', 1) == std::string::npos && exclusionPath.find('*', 1) == std::string::npos)
         {
+            // No other glob chars after first char
+            // so can be done as suffix instead
+            m_type = SUFFIX;
+            m_exclusionPath = CachedPath{exclusionPath.substr(1)};
+        }
+        else if (exclusionPath.at(0) == '/' || startsWithStar)
+        {
+            // Globs that start with * or / are absolute globs
             m_type = GLOB;
             m_exclusionPath = CachedPath{exclusionPath};
+            m_pathRegex = convertGlobToRegex(m_exclusionPath);
         }
         else
         {
+            // Relative globs need to have */ added to the front to match inside paths
             m_type = RELATIVE_GLOB;
             m_exclusionPath = CachedPath{"*/" + exclusionPath};
+            m_pathRegex = convertGlobToRegex(m_exclusionPath);
         }
-        m_pathRegex = convertGlobToRegex(m_exclusionPath);
     }
     else if (exclusionPath.at(0) == '/')
     {
@@ -105,11 +118,11 @@ auto Exclusion::appliesToPath(const CachedPath& path, bool isDirectory, bool isF
         }
         case RELATIVE_STEM:
         {
-            if (common::PathUtils::contains(path, m_exclusionPath))
-            {
-                return true;
-            }
-            break;
+            return common::PathUtils::contains(path, m_exclusionPath);
+        }
+        case SUFFIX:
+        {
+            return common::PathUtils::endswith(path, m_exclusionPath);
         }
         case FILENAME:
         {
@@ -122,11 +135,7 @@ auto Exclusion::appliesToPath(const CachedPath& path, bool isDirectory, bool isF
         }
         case RELATIVE_PATH:
         {
-            if (common::PathUtils::endswith(path, m_exclusionPath))
-            {
-                return true;
-            }
-            break;
+            return common::PathUtils::endswith(path, m_exclusionPath);
         }
         case FULLPATH:
         {
