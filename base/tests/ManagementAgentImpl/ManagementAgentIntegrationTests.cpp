@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2018-2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <Common/FileSystemImpl/FilePermissionsImpl.h>
@@ -100,7 +96,8 @@ namespace
 
         bool updateOngoingWithGracePeriod(unsigned int gracePeriodSeconds)
         {
-            return ManagementAgentMain::updateOngoingWithGracePeriod(gracePeriodSeconds);
+            auto now = clock_t::now();
+            return ManagementAgentMain::updateOngoingWithGracePeriod(gracePeriodSeconds, now);
         }
     };
 

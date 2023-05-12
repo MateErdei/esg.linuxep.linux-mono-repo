@@ -254,18 +254,18 @@ namespace ManagementAgent
             return false;
         }
 
-        bool ManagementAgentMain::updateOngoingWithGracePeriod(unsigned int gracePeriodSeconds)
+        bool ManagementAgentMain::updateOngoingWithGracePeriod(unsigned int gracePeriodSeconds, timepoint_t now)
         {
-            static std::chrono::system_clock::time_point lastTimeWeSawUpdateMarker{};
+            static timepoint_t lastTimeWeSawUpdateMarker{};
             if (updateOngoing())
             {
-                lastTimeWeSawUpdateMarker = std::chrono::system_clock::now();
+                lastTimeWeSawUpdateMarker = now;
                 return true;
             }
 
             // If it's been gracePeriodSeconds seconds since we last saw the update marker and it's not there anymore,
             // then we make sure to give the specified grace period for updates to finish.
-            return (std::chrono::system_clock::now() - lastTimeWeSawUpdateMarker) < std::chrono::seconds(gracePeriodSeconds);
+            return (now - lastTimeWeSawUpdateMarker) < std::chrono::seconds(gracePeriodSeconds);
         }
         void ManagementAgentMain::ensureOverallHealthFileExists()
         {
@@ -317,36 +317,39 @@ namespace ManagementAgent
             LOGINFO("Management Agent running.");
 
             bool running = true;
-            auto startTime = std::chrono::system_clock::now();
+            auto startTime = clock_t::now();
             auto lastHealthCheck = startTime;
-            const int waitPeriod = 15; // Should not exceed health refresh period of 15 seconds.
+            const auto waitPeriod = std::chrono::seconds{15}; // Should not exceed health refresh period of 15 seconds.
             bool servicesShouldHaveStarted = false;
             while (running)
             {
-                auto currentTime = std::chrono::system_clock::now();
-                if (!servicesShouldHaveStarted)
+                auto currentTime = clock_t::now();
+                bool checkHealth = true;
+                if (updateOngoingWithGracePeriod(120, currentTime))
                 {
-                    if ((currentTime - startTime) >= std::chrono::seconds(30))
+                    // Ignore everything during grace period
+                    // Need to do this first since it stores whether we are in an update
+                    checkHealth = false;
+                }
+                else if (!servicesShouldHaveStarted)
+                {
+                    // always wait 60 seconds after starting for services to start, even if not during update.
+                    if ((currentTime - startTime) >= std::chrono::seconds(60))
                     {
-                        servicesShouldHaveStarted = true;
+                        servicesShouldHaveStarted = true; // So that we only log once
+                        checkHealth = true;
                         LOGINFO("Starting service health checks");
                     }
                 }
-                if (servicesShouldHaveStarted)
+
+                if (checkHealth && (currentTime - lastHealthCheck) >= waitPeriod)
                 {
-                    if ((currentTime - lastHealthCheck) >= std::chrono::seconds(waitPeriod))
-                    {
-                        if (!updateOngoingWithGracePeriod(120))
-                        {
-                            lastHealthCheck = currentTime;
-                            std::unique_ptr<Common::TaskQueue::ITask> task(
-                                new HealthStatusImpl::HealthTask(*m_pluginManager));
-                            m_taskQueue->queueTask(std::move(task));
-                        }
-                    }
+                    lastHealthCheck = currentTime;
+                    auto task = std::make_unique<HealthStatusImpl::HealthTask>(*m_pluginManager);
+                    m_taskQueue->queueTask(std::move(task));
                 }
 
-                poller->poll(std::chrono::seconds(waitPeriod));
+                poller->poll(waitPeriod);
                 if (GL_signalPipe->notified())
                 {
                     LOGDEBUG("Management Agent stopping");
