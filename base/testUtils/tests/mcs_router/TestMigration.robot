@@ -304,8 +304,8 @@ Migrate From Account With Message Relay To One Without
     Log File  ${SOPHOS_INSTALL}/base/etc/mcs.config
     Log File  ${SOPHOS_INSTALL}/base/etc/sophosspl/current_proxy
 
-    Trigger Migration Now
     ${mcs_router_mark} =  mark_log_size  ${MCS_ROUTER_LOG}
+    Trigger Migration Now
     wait_for_log_contains_from_mark  ${mcs_router_mark}  Attempting Central migration   40
     wait_for_log_contains_from_mark  ${mcs_router_mark}  Successfully migrated Sophos Central account   20
 
