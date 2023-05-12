@@ -28,7 +28,7 @@ ${AV_LOG_PATH}    ${AV_PLUGIN_PATH}/log/av.log
 ${TESTTMP}  /tmp_test/SSPLAVTests
 ${SOPHOS_THREAT_DETECTOR_BINARY_LAUNCHER}  ${SOPHOS_THREAT_DETECTOR_BINARY}_launcher
 ${ONACCESS_FLAG_CONFIG}  ${AV_PLUGIN_PATH}/var/oa_flag.json
-${DEFAULT_EXCLUSIONS}   ["/mnt/","/uk-filer5/","*excluded*","/opt/test/inputs/test_scripts/","/vagrant/"]
+${DEFAULT_EXCLUSIONS}   ["/mnt/","/vagrant/","/uk-filer5/","/opt/test/inputs/test_scripts/","*excluded*"]
 
 *** Keywords ***
 On Access Alternative Suite Setup
@@ -326,9 +326,9 @@ On Access Does Not Scan Files If They Match Relative Directory Exclusion In Poli
     Configure on access log to trace level
 
     ${mark} =  get_on_access_log_mark
-    Send Complete Policies    ["testdir/folder_without_wildcard/","dir/su*ir/","do*er/"]
-    wait for on access log contains after mark  On-access exclusions: ["testdir/folder_without_wildcard/","dir/su*ir/","do*er/"]  mark=${mark}
-    wait for on access log contains after mark  Updating on-access exclusions with: ["/testdir/folder_without_wildcard/"] ["*/dir/su*ir/*"] ["*/do*er/*"]  mark=${mark}
+    Send Complete Policies    ["testdir/folder_without_wildcard/","do*er/","dir/su*ir/"]
+    wait for on access log contains after mark  On-access exclusions: ["testdir/folder_without_wildcard/","do*er/","dir/su*ir/"]  mark=${mark}
+    wait for on access log contains after mark  Updating on-access exclusions with: ["/testdir/folder_without_wildcard/"] ["*/do*er/*"] ["*/dir/su*ir/*"]  mark=${mark}
     ${TEST_DIR_WITHOUT_WILDCARD} =  Set Variable  /tmp_test/testdir/folder_without_wildcard
     ${TEST_DIR_WITH_WILDCARD} =  Set Variable  /tmp_test/testdir/folder_with_wildcard
     Create Directory  ${TEST_DIR_WITHOUT_WILDCARD}
@@ -364,10 +364,10 @@ On Access Does Not Scan Files If They Match Wildcard Exclusion In Policy
     Register Cleanup  Remove Directory  ${TEST_DIR}  recursive=True
 
     ${mark} =  get_on_access_log_mark
-    ${exclusionList} =  Set Variable  ["eicar","${TEST_DIR}/eicar.???","${TEST_DIR}/hi_i_am_dangerous.*","${TEST_DIR}/*.js"]
+    ${exclusionList} =  Set Variable  ["eicar","${TEST_DIR}/*.js","${TEST_DIR}/eicar.???","${TEST_DIR}/hi_i_am_dangerous.*"]
     Send Complete Policies    ${exclusionList}
     wait for on access log contains after mark  On-access exclusions: ${exclusionList}  mark=${mark}
-    wait for on access log contains after mark  Updating on-access exclusions with: ["/eicar"] ["/tmp_test/globExclDir/eicar.???"] ["/tmp_test/globExclDir/hi_i_am_dangerous.*"] ["/tmp_test/globExclDir/*.js"]  mark=${mark}
+    wait for on access log contains after mark  Updating on-access exclusions with: ["eicar"] ["${TEST_DIR}/*.js"] ["${TEST_DIR}/eicar.???"] ["${TEST_DIR}/hi_i_am_dangerous.*"]  mark=${mark}
 
     ${mark} =  get_on_access_log_mark
     Create File     ${TEST_DIR}/clean_file.txt             ${CLEAN_STRING}

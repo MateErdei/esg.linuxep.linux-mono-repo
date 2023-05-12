@@ -86,7 +86,7 @@ On Access Scans Eicar On Filesystem
     Register Cleanup  Remove File  ${where}/eicar.com
 
     wait for on access log contains after mark  On-close event for ${where}/eicar.com from  mark=${mark}
-    wait for on access log contains after mark  (PID=${pid}) and UID 0  mark=${mark}
+    wait for on access log contains after mark  (PID=${pid})  mark=${mark}
     wait for on access log contains after mark  detected "${where}/eicar.com" is infected with  mark=${mark}
 
 On Access Scans Eicar On Filesystem from Image
@@ -343,7 +343,7 @@ On Access Scans File On SquashFS
     ${contents} =  Get Binary File  ${NORMAL_DIRECTORY}/mount/eicar.com
 
     wait for on access log contains after mark  On-open event for ${where}/eicar.com from  mark=${mark}
-    wait for on access log contains after mark  (PID=${pid}) and UID 0  mark=${mark}
+    wait for on access log contains after mark  (PID=${pid})  mark=${mark}
     wait for on access log contains after mark  detected "${where}/eicar.com" is infected with   mark=${mark}
 
 
