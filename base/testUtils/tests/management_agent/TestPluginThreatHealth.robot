@@ -26,10 +26,7 @@ Management Agent Can Receive Plugin Threat Health And It Updates
     ...  5 secs
     ...  Check Management Agent Log Contains  Running threat health task
 
-    Wait Until Keyword Succeeds
-    ...  30
-    ...  1
-    ...  Should Exist  ${SHS_STATUS_FILE}
+    Wait Until Created  ${SHS_STATUS_FILE}  timeout=2 minutes
 
     Wait Until Keyword Succeeds
     ...  60 secs

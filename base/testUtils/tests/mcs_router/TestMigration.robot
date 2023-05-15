@@ -37,15 +37,8 @@ Successful Register With Cloud And Migrate To Another Cloud Server
     Check Cloud Server Log Does Not Contain  Processing deployment api call
     Check Cloud Server Log Contains  Register with ::ThisIsARegToken
 
-    Wait Until Keyword Succeeds
-    ...  20s
-    ...  1s
-    ...  File Should Exist  ${MCS_CONFIG}
-
-    Wait Until Keyword Succeeds
-    ...  20s
-    ...  1s
-    ...  File Should Exist  ${MCS_POLICY_CONFIG}
+    Wait Until Created  ${MCS_CONFIG}  timeout=20 seconds
+    Wait Until Created  ${MCS_POLICY_CONFIG}  timeout=20 seconds
 
     Wait Until Keyword Succeeds
     ...  5s
@@ -85,10 +78,7 @@ Successful Register With Cloud And Migrate To Another Cloud Server
 
     Create File  ${MCS_DIR}/datafeed/garbage_result  Please recycle
     ${result} =  Run Process  chown  sophos-spl-local:sophos-spl-group  ${MCS_DIR}/datafeed/garbage_result
-    Wait Until Keyword Succeeds
-    ...  60s
-    ...  5s
-    ...  File Should Exist  ${SHS_STATUS_FILE}
+    Wait Until Created  ${SHS_STATUS_FILE}  timeout=2 minutes
     Trigger Migration Now
 
     # Long wait due to Push Server triggering reduced polling
@@ -102,15 +92,8 @@ Successful Register With Cloud And Migrate To Another Cloud Server
     ...  5s
     ...  Check MCS Router Log Contains  Successfully migrated Sophos Central account
 
-    Wait Until Keyword Succeeds
-    ...  20s
-    ...  1s
-    ...  File Should Exist  ${MCS_CONFIG}
-
-    Wait Until Keyword Succeeds
-    ...  30s
-    ...  1s
-    ...  File Should Exist  ${MCS_POLICY_CONFIG}
+    Wait Until Created  ${MCS_CONFIG}  timeout=20 seconds
+    Wait Until Created  ${MCS_POLICY_CONFIG}  timeout=30 seconds
 
     Log File  ${MCS_POLICY_CONFIG}
     ${mcs_policy_config_ts_new}    Get Modified Time   ${MCS_POLICY_CONFIG}
@@ -175,15 +158,8 @@ Register With Cloud And Fail To Migrate To Another Cloud Server
     Check Cloud Server Log Does Not Contain  Processing deployment api call
     Check Cloud Server Log Contains  Register with ::ThisIsARegToken
 
-    Wait Until Keyword Succeeds
-    ...  20s
-    ...  1s
-    ...  File Should Exist  ${MCS_CONFIG}
-
-    Wait Until Keyword Succeeds
-    ...  20s
-    ...  1s
-    ...  File Should Exist  ${MCS_POLICY_CONFIG}
+    Wait Until Created  ${MCS_CONFIG}  timeout=20 seconds
+    Wait Until Created  ${MCS_POLICY_CONFIG}  timeout=20 seconds
 
     Wait Until Keyword Succeeds
     ...  5s
@@ -231,15 +207,8 @@ Register With Cloud And Fail To Migrate To Another Cloud Server
     ...  5s
     ...  Check MCS Router Log Contains  Migration request failed:
 
-    Wait Until Keyword Succeeds
-    ...  20s
-    ...  1s
-    ...  File Should Exist  ${MCS_CONFIG}
-
-    Wait Until Keyword Succeeds
-    ...  20s
-    ...  1s
-    ...  File Should Exist  ${MCS_POLICY_CONFIG}
+    Wait Until Created  ${MCS_CONFIG}  timeout=20 seconds
+    Wait Until Created  ${MCS_POLICY_CONFIG}  timeout=20 seconds
 
     Log File  ${MCS_POLICY_CONFIG}
     ${mcs_policy_config_ts_new}    Get Modified Time   ${MCS_POLICY_CONFIG}

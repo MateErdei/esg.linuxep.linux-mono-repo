@@ -33,10 +33,7 @@ Verify Management Agent Can Check Good Plugin Health Status
     #check overallHealth is good before health status is calculated
     ${EXPECTEDPOLICY_CONTENT}=  Set Variable  {"health":1,"service":1,"threat":1,"threatService":1}
     File Should Contain   ${SHS_POLICY_FILE}  ${EXPECTEDPOLICY_CONTENT}
-    Wait Until Keyword Succeeds
-    ...  40
-    ...  5
-    ...  File Should Exist   ${SHS_STATUS_FILE}
+    Wait Until Created  ${SHS_STATUS_FILE}  timeout=2 minutes
 
     ${EXPECTED_CONTENT}=  Set Variable  <?xml version="1.0" encoding="utf-8" ?><health version="3.0.0" activeHeartbeat="false" activeHeartbeatUtmId=""><item name="health" value="1" /><item name="service" value="1" ><detail name="FakePlugin" value="0" /><detail name="Sophos MCS Client" value="0" /></item><item name="threatService" value="1" ><detail name="FakePlugin" value="0" /><detail name="Sophos MCS Client" value="0" /></item><item name="threat" value="1" /></health>
 
@@ -66,10 +63,7 @@ Verify Management Agent Can Receive Service Health Information
 
     wait_for_log_contains_after_last_restart  ${MANAGEMENT_AGENT_LOG}  Starting service health checks  timeout=${120}
 
-    Wait Until Keyword Succeeds
-    ...  180
-    ...  5
-    ...  File Should Exist   ${SHS_STATUS_FILE}
+    Wait Until Created  ${SHS_STATUS_FILE}  timeout=2 minutes
 
     ${EXPECTEDPOLICY_CONTENT}=  Set Variable  {"health":1,"service":1,"threat":1,"threatService":1}
 
@@ -78,10 +72,7 @@ Verify Management Agent Can Receive Service Health Information
     ...  5
     ...  File Should Contain   ${SHS_POLICY_FILE}  ${EXPECTEDPOLICY_CONTENT}
 
-    Wait Until Keyword Succeeds
-    ...  40
-    ...  5
-    ...  File Should Exist   ${SHS_STATUS_FILE}
+    Wait Until Created  ${SHS_STATUS_FILE}  timeout=2 minutes
 
     ${EXPECTED_CONTENT}=  Set Variable  <?xml version="1.0" encoding="utf-8" ?><health version="3.0.0" activeHeartbeat="true" activeHeartbeatUtmId="fake-utm-id-007"><item name="health" value="1" /><item name="service" value="1" ><detail name="FakePlugin" value="0" /><detail name="Sophos MCS Client" value="0" /></item><item name="threatService" value="1" ><detail name="FakePlugin" value="0" /><detail name="Sophos MCS Client" value="0" /></item><item name="threat" value="1" /></health>
 
@@ -103,10 +94,7 @@ Verify Management Agent Can Check Bad Plugin Health Status
     Setup Plugin Registry
     Start Management Agent
 
-    Wait Until Keyword Succeeds
-    ...  40
-    ...  5
-    ...  File Should Exist   ${SHS_STATUS_FILE}
+    Wait Until Created  ${SHS_STATUS_FILE}  timeout=2 minutes
 
     ${EXPECTED_CONTENT}=  Set Variable  <?xml version="1.0" encoding="utf-8" ?><health version="3.0.0" activeHeartbeat="false" activeHeartbeatUtmId=""><item name="health" value="3" /><item name="service" value="3" ><detail name="FakePlugin" value="2" /><detail name="Sophos MCS Client" value="0" /></item><item name="threatService" value="3" ><detail name="FakePlugin" value="2" /><detail name="Sophos MCS Client" value="0" /></item><item name="threat" value="1" /></health>
 
@@ -141,10 +129,7 @@ Verify Management Agent does not check health when suldownloader is running
 
     Remove File  ${UPGRADING_MARKER_FILE}
 
-    Wait Until Keyword Succeeds
-    ...  180
-    ...  5
-    ...  File Should Exist   ${SHS_STATUS_FILE}
+    Wait Until Created  ${SHS_STATUS_FILE}  timeout=2 minutes
 
     # clean up
     Stop Management Agent
@@ -164,10 +149,7 @@ Verify Management Agent Does Not Report Health Of Removed Plugins
 
     wait_for_log_contains_after_last_restart  ${MANAGEMENT_AGENT_LOG}  Starting service health checks  timeout=${120}
 
-    Wait Until Keyword Succeeds
-    ...  180
-    ...  5
-    ...  File Should Exist   ${SHS_STATUS_FILE}
+    Wait Until Created  ${SHS_STATUS_FILE}  timeout=2 minutes
 
     ${EXPECTEDPOLICY_CONTENT}=  Set Variable  {"health":1,"service":1,"threat":1,"threatService":1}
 
@@ -176,10 +158,7 @@ Verify Management Agent Does Not Report Health Of Removed Plugins
     ...  5
     ...  File Should Contain   ${SHS_POLICY_FILE}  ${EXPECTEDPOLICY_CONTENT}
 
-    Wait Until Keyword Succeeds
-    ...  40
-    ...  5
-    ...  File Should Exist   ${SHS_STATUS_FILE}
+    Wait Until Created  ${SHS_STATUS_FILE}  timeout=2 minutes
 
     ${EXPECTED_CONTENT}=  Set Variable  <?xml version="1.0" encoding="utf-8" ?><health version="3.0.0" activeHeartbeat="true" activeHeartbeatUtmId="fake-utm-id-007"><item name="health" value="1" /><item name="service" value="1" ><detail name="FakePlugin" value="0" /><detail name="Sophos MCS Client" value="0" /></item><item name="threatService" value="1" ><detail name="FakePlugin" value="0" /><detail name="Sophos MCS Client" value="0" /></item><item name="threat" value="1" /></health>
 
