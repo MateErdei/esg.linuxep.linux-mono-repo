@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2021, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2021-2023 Sophos Limited. All rights reserved.
 
 #include "StateMachineDataBase.h"
 
@@ -30,8 +26,6 @@ using namespace UpdateSchedulerImpl::StateData;
 class StateMachineProcessorTest : public StateMachineDataBase
 {
 public:
-    ~StateMachineProcessorTest() { }
-
     MockFileSystem& setupFileSystemAndGetMock()
     {
         return setupFileSystemAndGetMock(true);
@@ -56,7 +50,7 @@ public:
     Tests::ScopedReplaceFileSystem m_replacer;
 
 
-    ::testing::AssertionResult stateMachineDataIsEquivalent(
+    static ::testing::AssertionResult stateMachineDataIsEquivalent(
         const char* m_expr,
         const char* n_expr,
         const StateMachineData& expected,
@@ -85,9 +79,9 @@ public:
             return ::testing::AssertionFailure() << s.str() << "event state last error differ" << expected.getEventStateLastError() << ":" << resulted.getEventStateLastError();
         }
 
-        if (expected.getEventStateLastTime()!= resulted.getEventStateLastTime())
+        if (expected.getEventStateLastTime() != resulted.getEventStateLastTime())
         {
-            return ::testing::AssertionFailure() << s.str() << "event state last time differ" << expected.getEventStateLastTime() << ":" << resulted.getEventStateLastTime();
+            return ::testing::AssertionFailure() << s.str() << "event state last time differ " << expected.getEventStateLastTime() << ":" << resulted.getEventStateLastTime();
         }
 
         if (expected.getInstallFailedSinceTime() != resulted.getInstallFailedSinceTime())
@@ -122,7 +116,7 @@ class StateMachineProcessorTestWithException : public StateMachineProcessorTest,
 {
 };
 
-TEST_F(StateMachineProcessorTest, StateMachinesCorrectlyUpdatedWhenUpdateResultIsSuccess) // NOLINT
+TEST_F(StateMachineProcessorTest, StateMachinesCorrectlyUpdatedWhenUpdateResultIsSuccess)
 {
     std::string rawJsonStateMachineData = createJsonString("", "");
 
@@ -146,7 +140,7 @@ TEST_F(StateMachineProcessorTest, StateMachinesCorrectlyUpdatedWhenUpdateResultI
     ASSERT_EQ(pluginCallback.getHealth(),expectedHealth.dump());
 }
 
-TEST_F(StateMachineProcessorTest, StateMachinesCorrectlyUpdatedWhenUpdateResultIsInstallFailed) // NOLINT
+TEST_F(StateMachineProcessorTest, StateMachinesCorrectlyUpdatedWhenUpdateResultIsInstallFailed)
 {
     std::string rawJsonStateMachineData = createJsonString( R"("InstallStateCredit": "3")", R"("InstallStateCredit": "1")");
 
@@ -178,7 +172,7 @@ TEST_F(StateMachineProcessorTest, StateMachinesCorrectlyUpdatedWhenUpdateResultI
     ASSERT_EQ(pluginCallback.getHealth(),expectedHealth.dump());
 }
 
-TEST_F(StateMachineProcessorTest, StateMachinesCorrectlyUpdatedWhenFirstUpdateResultIsInstallFailed) // NOLINT
+TEST_F(StateMachineProcessorTest, StateMachinesCorrectlyUpdatedWhenFirstUpdateResultIsInstallFailed)
 {
     std::string rawJsonStateMachineData = createJsonString( "", "");
 
@@ -198,7 +192,7 @@ TEST_F(StateMachineProcessorTest, StateMachinesCorrectlyUpdatedWhenFirstUpdateRe
 }
 
 
-TEST_F(StateMachineProcessorTest, StateMachinesCorrectlyUpdatedWhenUpdateResultIsInstallFailedThenSucceeded) // NOLINT
+TEST_F(StateMachineProcessorTest, StateMachinesCorrectlyUpdatedWhenUpdateResultIsInstallFailedThenSucceeded)
 {
     // Test when next update fails
     std::string rawJsonStateMachineData = createJsonString(R"("InstallStateCredit": "3")", R"("InstallStateCredit": "1")");
@@ -247,7 +241,7 @@ TEST_F(StateMachineProcessorTest, StateMachinesCorrectlyUpdatedWhenUpdateResultI
 
 
 
-TEST_F(StateMachineProcessorTest, StateMachinesCorrectlyUpdatedWhenUpdateResultIsUpdateSourceMissing) // NOLINT
+TEST_F(StateMachineProcessorTest, StateMachinesCorrectlyUpdatedWhenUpdateResultIsUpdateSourceMissing)
 {
     std::string rawJsonStateMachineData = createJsonString(R"("InstallStateCredit": "3")", R"("InstallStateCredit": "1")");
     rawJsonStateMachineData = updateJsonString(rawJsonStateMachineData, R"("DownloadStateCredit": "72")", R"("DownloadStateCredit": "18")");
@@ -278,7 +272,7 @@ TEST_F(StateMachineProcessorTest, StateMachinesCorrectlyUpdatedWhenUpdateResultI
     EXPECT_PRED_FORMAT2(stateMachineDataIsEquivalent, expectedStateMachineData, stateMachineProcessor.getStateMachineData());
 }
 
-TEST_F(StateMachineProcessorTest, StateMachinesCorrectlyUpdatedWhenUpdateResultIstSinglePackageMissing) // NOLINT
+TEST_F(StateMachineProcessorTest, StateMachinesCorrectlyUpdatedWhenUpdateResultIstSinglePackageMissing)
 {
     std::string rawJsonStateMachineData = createJsonString(R"("InstallStateCredit": "3")", R"("InstallStateCredit": "1")");
     rawJsonStateMachineData = updateJsonString(rawJsonStateMachineData, R"("DownloadStateCredit": "72")", R"("DownloadStateCredit": "18")");
@@ -308,7 +302,7 @@ TEST_F(StateMachineProcessorTest, StateMachinesCorrectlyUpdatedWhenUpdateResultI
 
 }
 
-TEST_F(StateMachineProcessorTest, StateMachinesCorrectlyUpdatedWhenUpdateIsMultiplePackageMissing) // NOLINT
+TEST_F(StateMachineProcessorTest, StateMachinesCorrectlyUpdatedWhenUpdateIsMultiplePackageMissing)
 {
     std::string rawJsonStateMachineData = createJsonString(R"("InstallStateCredit": "3")", R"("InstallStateCredit": "1")");
     rawJsonStateMachineData = updateJsonString(rawJsonStateMachineData, R"("DownloadStateCredit": "72")", R"("DownloadStateCredit": "18")");
@@ -338,7 +332,7 @@ TEST_F(StateMachineProcessorTest, StateMachinesCorrectlyUpdatedWhenUpdateIsMulti
 
 }
 
-TEST_F(StateMachineProcessorTest, StateMachinesCorrectlyUpdatedWhenUpdateResultIsDownloadFailed) // NOLINT
+TEST_F(StateMachineProcessorTest, StateMachinesCorrectlyUpdatedWhenUpdateResultIsDownloadFailed)
 {
     std::string rawJsonStateMachineData = createJsonString(R"("InstallStateCredit": "3")", R"("InstallStateCredit": "1")");
     rawJsonStateMachineData = updateJsonString(rawJsonStateMachineData, R"("DownloadStateCredit": "72")", R"("DownloadStateCredit": "18")");
@@ -368,7 +362,7 @@ TEST_F(StateMachineProcessorTest, StateMachinesCorrectlyUpdatedWhenUpdateResultI
 
 }
 
-TEST_F(StateMachineProcessorTest, StateMachinesCorrectlyUpdatedWhenFirstUpdateResultIsDownloadFailed) // NOLINT
+TEST_F(StateMachineProcessorTest, StateMachinesCorrectlyUpdatedWhenFirstUpdateResultIsDownloadFailed)
 {
     std::string rawJsonStateMachineData = createJsonString("", "");
 
@@ -390,7 +384,7 @@ TEST_F(StateMachineProcessorTest, StateMachinesCorrectlyUpdatedWhenFirstUpdateRe
 
 }
 
-TEST_F(StateMachineProcessorTest, StateMachinesCorrectlyUpdatedWhenUpdateResultIsDownloadFailedThenSuccess) // NOLINT
+TEST_F(StateMachineProcessorTest, StateMachinesCorrectlyUpdatedWhenUpdateResultIsDownloadFailedThenSuccess)
 {
     std::string rawJsonStateMachineData = createJsonString(R"("InstallStateCredit": "3")", R"("InstallStateCredit": "1")");
     rawJsonStateMachineData = updateJsonString(rawJsonStateMachineData, R"("DownloadStateCredit": "72")", R"("DownloadStateCredit": "18")");
@@ -435,18 +429,21 @@ TEST_F(StateMachineProcessorTest, StateMachinesCorrectlyUpdatedWhenUpdateResultI
     expectedStateMachineData.setDownloadFailedSinceTime("0");
     expectedStateMachineData.setDownloadStateCredit("72");
     expectedStateMachineData.setDownloadState("0");
+    expectedStateMachineData.setInstallStateCredit("3");
+    expectedStateMachineData.setEventStateLastError(std::to_string(configModule::EventMessageNumber::SUCCESS));
+
 
     // update expected time stamps to match actual for the times that are expected to change.
     expectedStateMachineData.setInstallFailedSinceTime(
         stateMachineProcessor2.getStateMachineData().getInstallFailedSinceTime());
-    expectedStateMachineData.setInstallStateCredit("3");
-    expectedStateMachineData.setEventStateLastError(std::to_string(configModule::EventMessageNumber::SUCCESS));
+    expectedStateMachineData.setEventStateLastTime(
+        stateMachineProcessor2.getStateMachineData().getEventStateLastTime());
 
     EXPECT_PRED_FORMAT2(
         stateMachineDataIsEquivalent, expectedStateMachineData, stateMachineProcessor2.getStateMachineData());
 }
 
-TEST_F(StateMachineProcessorTest, StateMachinesCorrectlyUpdatedWhenUpdateResultIsConnectionError) // NOLINT
+TEST_F(StateMachineProcessorTest, StateMachinesCorrectlyUpdatedWhenUpdateResultIsConnectionError)
 {
     std::string rawJsonStateMachineData = createJsonString(R"("InstallStateCredit": "3")", R"("InstallStateCredit": "1")");
     rawJsonStateMachineData = updateJsonString(rawJsonStateMachineData, R"("DownloadStateCredit": "72")", R"("DownloadStateCredit": "1")");
@@ -476,7 +473,7 @@ TEST_F(StateMachineProcessorTest, StateMachinesCorrectlyUpdatedWhenUpdateResultI
 
 }
 
-TEST_F(StateMachineProcessorTest, StateMachinesCorrectlyUpdatedWhenUpdateResultIsConnectionErrorThenSuccess) // NOLINT
+TEST_F(StateMachineProcessorTest, StateMachinesCorrectlyUpdatedWhenUpdateResultIsConnectionErrorThenSuccess)
 {
     std::string rawJsonStateMachineData = createJsonString(R"("InstallStateCredit": "3")", R"("InstallStateCredit": "1")");
     rawJsonStateMachineData = updateJsonString(rawJsonStateMachineData, R"("DownloadStateCredit": "72")", R"("DownloadStateCredit": "1")");
@@ -524,7 +521,7 @@ TEST_F(StateMachineProcessorTest, StateMachinesCorrectlyUpdatedWhenUpdateResultI
 
 }
 
-TEST_F(StateMachineProcessorTest, StateMachinesCorrectlyUpdatedWhenUpdateResultIsInstallFailedAndThenFailsAgain) // NOLINT
+TEST_F(StateMachineProcessorTest, StateMachinesCorrectlyUpdatedWhenUpdateResultIsInstallFailedAndThenFailsAgain)
 {
     std::string rawJsonStateMachineData = createJsonString( R"("InstallStateCredit": "3")", R"("InstallStateCredit": "1")");
 
@@ -565,7 +562,7 @@ TEST_F(StateMachineProcessorTest, StateMachinesCorrectlyUpdatedWhenUpdateResultI
     ASSERT_EQ(pluginCallback.getHealth(),expectedHealth.dump());
 }
 
-TEST_P(StateMachineProcessorTestWithCredit, StateMachinesCorrectlyUpdatedWhenCreditIsLargeOrNegative) // NOLINT
+TEST_P(StateMachineProcessorTestWithCredit, StateMachinesCorrectlyUpdatedWhenCreditIsLargeOrNegative)
 {
     std::string credit = std::get<0>(GetParam());
     long defaultValue = std::get<1>(GetParam());
@@ -612,7 +609,7 @@ INSTANTIATE_TEST_CASE_P(StateMachineProcessorCreditTest, StateMachineProcessorTe
             std::make_tuple("DownloadStateCredit", 72, -1, configModule::EventMessageNumber::DOWNLOADFAILED),
             std::make_tuple("DownloadStateCredit", 72, 0x7fffffff, configModule::EventMessageNumber::DOWNLOADFAILED)));
 
-TEST_P(StateMachineProcessorTestWithException, StateMachinesReadNotANumberShouldNotThrow) // NOLINT
+TEST_P(StateMachineProcessorTestWithException, StateMachinesReadNotANumberShouldNotThrow)
 {
     std::ostringstream rawJsonStateMachineData;
     rawJsonStateMachineData << "{\"" << std::get<0>(GetParam()) << "\":\"not a number\"}";
@@ -642,7 +639,7 @@ INSTANTIATE_TEST_CASE_P(StateMachineProcessorExceptionTest, StateMachineProcesso
             std::make_tuple("InstallFailedSinceTime", "stol"),
             std::make_tuple("LastGoodInstallTime", "stol")));
 
-TEST_F(StateMachineProcessorTest, StateMachinesReadCatchesFileSystemException) // NOLINT
+TEST_F(StateMachineProcessorTest, StateMachinesReadCatchesFileSystemException)
 {
     auto& fileSystemMock = setupFileSystemAndGetMock();
     EXPECT_CALL(fileSystemMock, readFile(_)).WillOnce(Throw(IFileSystemException("permission denied")));
@@ -650,7 +647,7 @@ TEST_F(StateMachineProcessorTest, StateMachinesReadCatchesFileSystemException) /
     EXPECT_NO_THROW(stateMachinesModule::StateMachineProcessor stateMachineProcessor("1610465945"));
 }
 
-TEST_F(StateMachineProcessorTest, StateMachinesReadCatchesFileTooLargeException) // NOLINT
+TEST_F(StateMachineProcessorTest, StateMachinesReadCatchesFileTooLargeException)
 {
     auto& fileSystemMock = setupFileSystemAndGetMock();
     EXPECT_CALL(fileSystemMock, readFile(_)).WillOnce(Throw(IFileTooLargeException("file too large")));
@@ -658,7 +655,7 @@ TEST_F(StateMachineProcessorTest, StateMachinesReadCatchesFileTooLargeException)
     EXPECT_NO_THROW(stateMachinesModule::StateMachineProcessor stateMachineProcessor("1610465945"));
 }
 
-TEST_F(StateMachineProcessorTest, StateMachinesWriteCatchesFileSystemException) // NOLINT
+TEST_F(StateMachineProcessorTest, StateMachinesWriteCatchesFileSystemException)
 {
     std::string rawJsonStateMachineData = createJsonString("", "");
 
@@ -671,7 +668,7 @@ TEST_F(StateMachineProcessorTest, StateMachinesWriteCatchesFileSystemException) 
     EXPECT_NO_THROW(stateMachineProcessor.updateStateMachines(configModule::EventMessageNumber::SUCCESS));
 }
 
-TEST_F(StateMachineProcessorTest, EventStateMachineCorrectlyCanSendEventWhenResultIsDownloadFailed) // NOLINT
+TEST_F(StateMachineProcessorTest, EventStateMachineCorrectlyCanSendEventWhenResultIsDownloadFailed)
 {
     std::string rawJsonStateMachineData = createJsonString("", "");
 
@@ -686,7 +683,7 @@ TEST_F(StateMachineProcessorTest, EventStateMachineCorrectlyCanSendEventWhenResu
 }
 
 
-TEST_F(StateMachineProcessorTest, EventStateMachineCorrectlyCanSendEventWhenSuccess) // NOLINT
+TEST_F(StateMachineProcessorTest, EventStateMachineCorrectlyCanSendEventWhenSuccess)
 {
     std::string rawJsonStateMachineData = createJsonString("", "");
 
@@ -700,7 +697,7 @@ TEST_F(StateMachineProcessorTest, EventStateMachineCorrectlyCanSendEventWhenSucc
     EXPECT_EQ( expectedCanSendEvent, stateMachineProcessor.getStateMachineData().canSendEvent());
 }
 
-TEST_F(StateMachineProcessorTest, EventStateMachineCorrectlyCanSendEventWhenPermanentFailure) // NOLINT
+TEST_F(StateMachineProcessorTest, EventStateMachineCorrectlyCanSendEventWhenPermanentFailure)
 {
     std::string rawJsonStateMachineData = createJsonString("", "");
 
@@ -720,7 +717,7 @@ TEST_F(StateMachineProcessorTest, EventStateMachineCorrectlyCanSendEventWhenPerm
     EXPECT_EQ( expectedCanSendEvent3, stateMachineProcessor.getStateMachineData().canSendEvent());
 }
 
-TEST_F(StateMachineProcessorTest, EventStateMachineCorrectlyCanSendEventWhenPermanentFailureAndSuccess) // NOLINT
+TEST_F(StateMachineProcessorTest, EventStateMachineCorrectlyCanSendEventWhenPermanentFailureAndSuccess)
 {
     std::string rawJsonStateMachineData = createJsonString("", "");
 
@@ -743,7 +740,7 @@ TEST_F(StateMachineProcessorTest, EventStateMachineCorrectlyCanSendEventWhenPerm
     EXPECT_EQ( expectedCanSendEvent4, stateMachineProcessor.getStateMachineData().canSendEvent());
 }
 
-TEST_F(StateMachineProcessorTest, EventStateMachineCorrectlyThrottlesPermanentSuccessWhenNoFilesInstalled) // NOLINT
+TEST_F(StateMachineProcessorTest, EventStateMachineCorrectlyThrottlesPermanentSuccessWhenNoFilesInstalled)
 {
     std::string rawJsonStateMachineData = createJsonString("", "");
 
@@ -763,7 +760,7 @@ TEST_F(StateMachineProcessorTest, EventStateMachineCorrectlyThrottlesPermanentSu
     EXPECT_EQ( expectedCanSendEvent3, stateMachineProcessor.getStateMachineData().canSendEvent());
 }
 
-TEST_F(StateMachineProcessorTest, EventStateMachineCorrectlyThrottlesPermanentSuccessWhenFilesHaveBeenInstalled) // NOLINT
+TEST_F(StateMachineProcessorTest, EventStateMachineCorrectlyThrottlesPermanentSuccessWhenFilesHaveBeenInstalled)
 {
     // When Last good install time is updated, and the update status continues to report success, no event should be sent.
 
@@ -799,7 +796,7 @@ TEST_F(StateMachineProcessorTest, EventStateMachineCorrectlyThrottlesPermanentSu
 }
 
 
-TEST_F(StateMachineProcessorTest, EventStateMachineCanSendEventIsFalseWhenPermanentSuccessWithin24Hours) // NOLINT
+TEST_F(StateMachineProcessorTest, EventStateMachineCanSendEventIsFalseWhenPermanentSuccessWithin24Hours)
 {
     auto currentTime = std::chrono::system_clock::now();
     int secondsInDay = 86400;
@@ -824,7 +821,7 @@ TEST_F(StateMachineProcessorTest, EventStateMachineCanSendEventIsFalseWhenPerman
     EXPECT_EQ( expectedCanSendEvent, stateMachineProcessor.getStateMachineData().canSendEvent());
 }
 
-TEST_F(StateMachineProcessorTest, EventStateMachineCanSendEventIsTrueWhenPermanentSuccessAfter24Hours) // NOLINT
+TEST_F(StateMachineProcessorTest, EventStateMachineCanSendEventIsTrueWhenPermanentSuccessAfter24Hours)
 {
     auto currentTime = std::chrono::system_clock::now();
     int secondsInDay = 86400;
@@ -850,7 +847,7 @@ TEST_F(StateMachineProcessorTest, EventStateMachineCanSendEventIsTrueWhenPermane
     EXPECT_EQ( expectedCanSendEvent, stateMachineProcessor.getStateMachineData().canSendEvent());
 }
 
-TEST_F(StateMachineProcessorTest, EventStateMachineCanSendEventIsFalseWhenPermanentFailureWithin24Hours) // NOLINT
+TEST_F(StateMachineProcessorTest, EventStateMachineCanSendEventIsFalseWhenPermanentFailureWithin24Hours)
 {
     auto currentTime = std::chrono::system_clock::now();
     int secondsInDay = 86400;
@@ -882,7 +879,7 @@ TEST_F(StateMachineProcessorTest, EventStateMachineCanSendEventIsFalseWhenPerman
 
 }
 
-TEST_F(StateMachineProcessorTest, EventStateMachineCanSendEventIsTrueWhenPermanentFailureAfter24Hours) // NOLINT
+TEST_F(StateMachineProcessorTest, EventStateMachineCanSendEventIsTrueWhenPermanentFailureAfter24Hours)
 {
     auto currentTime = std::chrono::system_clock::now();
     int secondsInDay = 86400;
@@ -914,7 +911,7 @@ TEST_F(StateMachineProcessorTest, EventStateMachineCanSendEventIsTrueWhenPermane
     EXPECT_EQ( expectedCanSendEvent, stateMachineProcessor.getStateMachineData().canSendEvent());
 }
 
-TEST_F(StateMachineProcessorTest, EventStateMachineCanSendEventIsFalseWhenPermanentConnectionErrorLess72Hours) // NOLINT
+TEST_F(StateMachineProcessorTest, EventStateMachineCanSendEventIsFalseWhenPermanentConnectionErrorLess72Hours)
 {
     // Connection error reduce Download credit by 1.
     // Download credit starts at 72.  Assumption updates 1 every hour.
@@ -948,7 +945,7 @@ TEST_F(StateMachineProcessorTest, EventStateMachineCanSendEventIsFalseWhenPerman
     EXPECT_EQ( expectedCanSendEvent, stateMachineProcessor.getStateMachineData().canSendEvent());
 }
 
-TEST_F(StateMachineProcessorTest, EventStateMachineCanSendEventIsTrueWhenPermanentConnectionErrorOver72Hours) // NOLINT
+TEST_F(StateMachineProcessorTest, EventStateMachineCanSendEventIsTrueWhenPermanentConnectionErrorOver72Hours)
 {
     // Connection error reduce Download credit by 1.
     // Download credit starts at 72.  Assumption updates 1 every hour.
@@ -982,7 +979,7 @@ TEST_F(StateMachineProcessorTest, EventStateMachineCanSendEventIsTrueWhenPermane
     EXPECT_EQ( expectedCanSendEvent, stateMachineProcessor.getStateMachineData().canSendEvent());
 }
 
-TEST_F(StateMachineProcessorTest, EventStateMachinesCorrectlyUpdatedWhenFirstInstallUpdateResultIsSuccess) // NOLINT
+TEST_F(StateMachineProcessorTest, EventStateMachinesCorrectlyUpdatedWhenFirstInstallUpdateResultIsSuccess)
 {
     auto& fileSystemMock = setupFileSystemAndGetMock(false);
     EXPECT_CALL(fileSystemMock, readFile(_)).Times(0);
@@ -1000,7 +997,7 @@ TEST_F(StateMachineProcessorTest, EventStateMachinesCorrectlyUpdatedWhenFirstIns
 
 }
 
-TEST_F(StateMachineProcessorTest, EventStateMachinesCorrectlyUpdatedWhenFirstInstallUpdateResultInFailure) // NOLINT
+TEST_F(StateMachineProcessorTest, EventStateMachinesCorrectlyUpdatedWhenFirstInstallUpdateResultInFailure)
 {
     auto& fileSystemMock = setupFileSystemAndGetMock(false);
     EXPECT_CALL(fileSystemMock, readFile(_)).Times(0);
@@ -1020,7 +1017,7 @@ TEST_F(StateMachineProcessorTest, EventStateMachinesCorrectlyUpdatedWhenFirstIns
     EXPECT_PRED_FORMAT2(stateMachineDataIsEquivalent, expectedStateMachineData, stateMachineProcessor.getStateMachineData());
 }
 
-TEST_F(StateMachineProcessorTest, EventStateMachinesCorrectlyUpdatedWhenFirstInstallUpdateResultInConnectionFailure) // NOLINT
+TEST_F(StateMachineProcessorTest, EventStateMachinesCorrectlyUpdatedWhenFirstInstallUpdateResultInConnectionFailure)
 {
     auto& fileSystemMock = setupFileSystemAndGetMock(false);
     EXPECT_CALL(fileSystemMock, readFile(_)).Times(0);
