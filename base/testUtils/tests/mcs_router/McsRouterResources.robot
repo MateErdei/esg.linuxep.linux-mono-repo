@@ -1,6 +1,8 @@
 *** Settings ***
 Documentation    Shared keywords for MCS Router tests
 
+Library     OperatingSystem
+
 Library     ${LIBS_DIRECTORY}/MCSRouter.py
 Library     ${LIBS_DIRECTORY}/LogUtils.py
 Library     ${LIBS_DIRECTORY}/OSUtils.py
@@ -10,6 +12,9 @@ Library     ${LIBS_DIRECTORY}/CentralUtils.py
 Resource  ../installer/InstallerResources.robot
 Resource  ../watchdog/WatchdogResources.robot
 Resource  ../GeneralTeardownResource.robot
+
+*** Variables ***
+${MCS_ROUTER_LOG}           ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log
 
 *** Keywords ***
 Setup MCS Tests
@@ -80,9 +85,10 @@ Restart MCSRouter And Clear Logs
     ...  Check MCS Router Not Running
     Remove File  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log
     Remove File  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcs_envelope.log
+    ${mcsrouter_mark} =  Mark Log Size    ${MCS_ROUTER_LOG}
     Start MCSRouter
     Wait For MCS Router To Be Running
-
+    [Return]  ${mcsrouter_mark}
 
 Regenerate Certificates
     ${result} =  Run Process    make    cleanCerts    cwd=${SUPPORT_FILES}/CloudAutomation  stderr=STDOUT  env:OPENSSL_CONF=../https/openssl.cnf  env:RANDFILE=.rnd
@@ -107,10 +113,8 @@ Generate Local Fake Cloud Certificates
 
 Check MCS Router Running
     ${pid} =  Check MCS Router Process Running  require_running=True
-    Wait Until Keyword Succeeds
-    ...  5 secs
-    ...  1 secs
-    ...  File Should Exist  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log
+
+    Wait Until Created   ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  timeout=5 secs
     [return]  ${pid}
 
 Check MCS Router Not Running

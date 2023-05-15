@@ -9,7 +9,8 @@ Resource    ../mcs_router/McsRouterResources.robot
 Resource    ../installer/InstallerResources.robot
 
 *** Variables ***
-${SophosManagementLog}         ${SOPHOS_INSTALL}/logs/base/sophosspl/sophos_managementagent.log
+${SophosManagementLog}      ${SOPHOS_INSTALL}/logs/base/sophosspl/sophos_managementagent.log
+${MCS_ROUTER_LOG}           ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log
 
 *** Test Case ***
 Verify Status Sent To Management Agent Will Be Passed To MCS And Received In Fake Cloud
@@ -46,6 +47,7 @@ Verify Health Status Sent To Cloud Only If Changed
     Check Correct MCS Password And ID For Local Cloud Saved
 
     Create File  ${SOPHOS_INSTALL}/base/etc/logger.conf.local  [mcs_router]\nVERBOSITY=DEBUG\n
+    ${mcsrouter_mark} =  Mark Log Size    ${MCS_ROUTER_LOG}
     Start MCSRouter
 
     Remove Status Xml Files
@@ -55,19 +57,13 @@ Verify Health Status Sent To Cloud Only If Changed
 
     Start Plugin
 
-    Wait Until Keyword Succeeds
-    ...  1 min
-    ...  5 secs
-    ...  Check MCS Router Log Contains  Adapter SHS changed status
+    Wait For Log Contains From Mark  ${mcsrouter_mark}  Adapter SHS changed status  timeout=${120}
 
     Wait Until Keyword Succeeds
     ...  1 min
     ...  5 secs
     ...  Check Cloud Server Log Contains  Endpoint health status set to
 
-    Restart MCSRouter And Clear Logs
+    ${mcsrouter_mark}=  Restart MCSRouter And Clear Logs
 
-    Wait Until Keyword Succeeds
-    ...  1 min
-    ...  5 secs
-    ...  Check MCS Router Log Contains  Adapter SHS hasn't changed status
+    Wait For Log Contains From Mark  ${mcsrouter_mark}  Adapter SHS hasn't changed status  timeout=${120}
