@@ -77,10 +77,7 @@ Verify Management Agent Handles CORE Health Reset Action When Received
     Start Management Agent
     Start Plugin
 
-    Wait Until Keyword Succeeds
-    ...   60 secs
-    ...   5 secs
-    ...   File Should Exist  ${SHS_STATUS_FILE}
+    Wait Until Created  ${SHS_STATUS_FILE}  timeout=2 minutes
     ${healthStatusXml} =    Get File    ${SHS_STATUS_FILE}
 
     ${content}    Evaluate    str('{"ThreatHealth": 2}')
