@@ -364,8 +364,10 @@ def inner_main(argv):
         group_id=get_gid("sophos-spl-group")
     )
 
-    # grep proxy from environment
+    # Get proxy from environment
     proxy = os.environ.get("https_proxy", None)
+    if proxy is None:
+        proxy = os.environ.get("HTTPS_PROXY", None)
     if not proxy:
         proxy = os.environ.get("http_proxy", None)
 

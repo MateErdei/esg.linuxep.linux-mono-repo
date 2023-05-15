@@ -916,6 +916,9 @@ chmod 640 "${SOPHOS_INSTALL}/base/VERSION.ini"
 if [[ -n ${https_proxy} ]]
 then
     echo -n "${https_proxy}" > "${SOPHOS_INSTALL}/base/etc/savedproxy.config"
+elif [[ -n ${HTTPS_PROXY} ]]
+then
+    echo -n "${HTTPS_PROXY}" > "${SOPHOS_INSTALL}/base/etc/savedproxy.config"
 elif [[ -n ${http_proxy} ]]
 then
     echo -n "${http_proxy}" > "${SOPHOS_INSTALL}/base/etc/savedproxy.config"

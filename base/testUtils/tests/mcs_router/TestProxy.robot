@@ -15,6 +15,7 @@ Test Teardown    Run Keywords
 ...              Stop Proxy Servers  AND
 ...              Stop Proxy If Running  AND
 ...              Remove Environment Variable    https_proxy  AND
+...              Remove Environment Variable    HTTPS_PROXY  AND
 ...              Remove Environment Variable    http_proxy
 
 Default Tags  MCS  FAKE_CLOUD  MCS_ROUTER
@@ -46,10 +47,18 @@ Disable direct option stops direct connection
     Check MCSRouter Log Contains   with Central - useDirect is False
     Check MCSRouter Log Contains   Failed to connect to Central
 
-Register in cloud with localhost proxy
+Register With Environment Proxy Lowercase
     [Documentation]  Derived from  CLOUD.PROXY.003_localhost_proxy.sh
     Start Simple Proxy Server    3333
     Set Environment Variable  https_proxy   http://localhost:3333
+    Register With Local Cloud Server
+    Start MCSRouter
+    Check MCS Router log contains proxy success  localhost:3333
+
+Register With Environment Proxy Uppercase
+    [Documentation]  Derived from  CLOUD.PROXY.003_localhost_proxy.sh
+    Start Simple Proxy Server    3333
+    Set Environment Variable  HTTPS_PROXY   http://localhost:3333
     Register With Local Cloud Server
     Start MCSRouter
     Check MCS Router log contains proxy success  localhost:3333

@@ -155,7 +155,10 @@ namespace CentralRegistration
         }
 
         std::string proxy = systemUtils->getEnvironmentVariable("https_proxy");
-
+        if (proxy.empty())
+        {
+            proxy = systemUtils->getEnvironmentVariable("HTTPS_PROXY");
+        }
         if (proxy.empty())
         {
             proxy = systemUtils->getEnvironmentVariable("http_proxy");

@@ -414,6 +414,8 @@ class MCSConnection:
 
             # Current environment
             env_proxy = os.environ.get("https_proxy", None)
+            if env_proxy is None:
+                env_proxy = os.environ.get("HTTPS_PROXY", None)
             add_proxy(env_proxy)
 
         use_direct = self.__get_use_direct()

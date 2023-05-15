@@ -59,6 +59,8 @@ def get_proxy(proxy=None):
     """
     if not proxy:
         proxy = os.environ.get("https_proxy", None)
+    if proxy is None:
+        proxy = os.environ.get("HTTPS_PROXY", None)
     if proxy == "noproxy:":
         proxy_host = None
         proxy_port = None
