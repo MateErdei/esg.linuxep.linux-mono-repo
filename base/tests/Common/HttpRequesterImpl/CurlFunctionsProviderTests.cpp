@@ -189,7 +189,7 @@ TEST_F(CurlFunctionsProviderTests, curlWriteDebugFuncDataIn)
     char* dataPtr = someDebugData;
     auto rc =  CurlFunctionsProvider::curlWriteDebugFunc(fakeCurlHandle, curl_infotype::CURLINFO_DATA_IN, dataPtr, strlen(dataPtr), fakeUserPtr);
     std::string logMessages = testing::internal::GetCapturedStderr();
-    std::string expected = "cURL <= Recv data: " + std::string (someDebugData);
+    std::string expected = "cURL <= Recv data.";
     EXPECT_THAT(logMessages, ::testing::HasSubstr(expected));
     ASSERT_EQ(rc, 0);
 }

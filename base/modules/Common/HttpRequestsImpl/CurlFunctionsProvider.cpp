@@ -131,16 +131,16 @@ int CurlFunctionsProvider::curlWriteDebugFunc(
     [[maybe_unused]] void* userp)
 {
     std::string debugLine = "cURL ";
-    bool should_log = false;
+    bool shouldLog = false;
     switch (type)
     {
         case CURLINFO_TEXT:
             debugLine += "Info: ";
-            should_log = true;
+            shouldLog = true;
             break;
         case CURLINFO_HEADER_OUT:
             debugLine += "=> Send header: ";
-            should_log = true;
+            shouldLog = true;
             break;
         case CURLINFO_DATA_OUT:
             // This can be encrypted, so not logging it
@@ -152,11 +152,10 @@ int CurlFunctionsProvider::curlWriteDebugFunc(
             break;
         case CURLINFO_HEADER_IN:
             debugLine += "<= Recv header: ";
-            should_log = true;
+            shouldLog = true;
             break;
         case CURLINFO_DATA_IN:
-            debugLine += "<= Recv data: ";
-            should_log = true;
+            debugLine += "<= Recv data.";
             break;
         case CURLINFO_SSL_DATA_IN:
             // This can be quite noisy, so not logging it
@@ -166,7 +165,7 @@ int CurlFunctionsProvider::curlWriteDebugFunc(
             LOGDEBUG("Unsupported cURL debug info type");
             return 0;
     }
-    if (should_log)
+    if (shouldLog)
     {
         debugLine.append(data, size);
     }
