@@ -791,7 +791,7 @@ Sophos Threat Detector Does Not Detect Allow Listed Archive
 
     Send CORC Policy To Base  corc_policy_allow_list_zipfile.xml
     wait_for_log_contains_from_mark  ${av_mark}  Added path to allow list: ${allow_listed_threat_file}
-    wait_for_log_contains_from_mark  ${td_mark}  Number of Path allow-listed items: 1
+    wait_for_log_contains_from_mark  ${td_mark}  Number of Path allow-listed items: 2
 
     # Scan threat
     ${rc}   ${output} =    Run And Return Rc And Output   ${AVSCANNER} ${allow_listed_threat_file}
