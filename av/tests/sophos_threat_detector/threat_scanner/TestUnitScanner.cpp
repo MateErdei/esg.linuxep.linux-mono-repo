@@ -18,8 +18,14 @@ using namespace threat_scanner;
 
 namespace
 {
-    class TestUnitScanner : public LogOffInitializedTests
+    class TestUnitScanner : public MemoryAppenderUsingTests
     {
+    protected:
+        TestUnitScanner() : MemoryAppenderUsingTests("ThreatScanner"), usingMemoryAppender_{ *this }
+        {
+        }
+
+        UsingMemoryAppender usingMemoryAppender_;
     };
 } // namespace
 
@@ -316,7 +322,7 @@ TEST_F(TestUnitScanner, NoDetection_SusiReturnCodeOk_SusiLogsWarning__NoExtraErr
     ASSERT_EQ(result.errors.size(), 0);
 }
 
-TEST_F(TestUnitScanner, NoDetection_SusiReturnCodeOk_SusiLogsError__AddsErrorBecauseOfSusiLog)
+TEST_F(TestUnitScanner, NoDetection_SusiReturnCodeOk_SusiLogsError_UnitScannerLogsErrorButDoesNotReturnError)
 {
     const std::string path = "/tmp/clean_file.txt";
 
@@ -335,7 +341,7 @@ TEST_F(TestUnitScanner, NoDetection_SusiReturnCodeOk_SusiLogsError__AddsErrorBec
                 SusiScanResult** scanResult)
             {
                 *scanResult = &susiResult;
-                HighestLevelRecorder::record(SUSI_LOG_LEVEL_ERROR);
+                threat_scanner::susiLogCallback(nullptr, SUSI_LOG_LEVEL_ERROR, "Error message");
                 return SUSI_S_OK;
             }));
     EXPECT_CALL(*susiWrapper, freeResult(&susiResult));
@@ -344,9 +350,10 @@ TEST_F(TestUnitScanner, NoDetection_SusiReturnCodeOk_SusiLogsError__AddsErrorBec
     datatypes::AutoFd fd;
     ScanResult result = unitScanner.scan(fd, path);
 
-    ASSERT_EQ(result.detections.size(), 0);
-    ASSERT_EQ(result.errors.size(), 1);
-    EXPECT_EQ(result.errors.at(0).message, "Error logged from SUSI while scanning /tmp/clean_file.txt");
+    EXPECT_EQ(result.detections.size(), 0);
+    EXPECT_EQ(result.errors.size(), 0);
+    EXPECT_TRUE(appenderContains("ERROR - Error message"));
+    EXPECT_TRUE(appenderContains("ERROR - Error logged from SUSI while scanning /tmp/clean_file.txt"));
 }
 
 TEST_F(TestUnitScanner, NoDetection_SusiReturnCodeError_SusiLoggedError__NoExtraErrorBecauseOfSusiLog)

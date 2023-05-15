@@ -91,8 +91,7 @@ namespace threat_scanner
         // Report if there are no scan errors but SUSI logged an error
         if (result.errors.empty() && HighestLevelRecorder::getHighest() >= SUSI_LOG_LEVEL_ERROR)
         {
-            result.errors.push_back(
-                { "Error logged from SUSI while scanning " + escapedPath, log4cplus::ERROR_LOG_LEVEL });
+            LOGERROR("Error logged from SUSI while scanning " << escapedPath);
         }
 
         return result;
