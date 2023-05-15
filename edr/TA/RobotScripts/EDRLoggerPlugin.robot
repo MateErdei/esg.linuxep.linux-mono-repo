@@ -74,6 +74,11 @@ EDR Plugin Restarts Osquery When Custom Queries Have Changed
 EDR Plugin Tags All Queries Correctly
     [Timeout]  10 minutes
     [Setup]  Install EDR Directly from SDDS With mocked scheduled queries
+    Check EDR Plugin Installed With Base
+    Wait Until Keyword Succeeds
+    ...   20 secs
+    ...   2 secs
+    ...   Check Osquery Running
     Directory Should Be Empty  ${SOPHOS_INSTALL}/base/mcs/datafeed
 
     # This will restart osquery and EDR will already be in debug mode, so shouldn't need to restart EDR.
