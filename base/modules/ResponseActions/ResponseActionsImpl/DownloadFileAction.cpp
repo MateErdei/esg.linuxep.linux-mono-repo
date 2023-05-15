@@ -54,8 +54,11 @@ namespace ResponseActionsImpl
 
         if (m_response["httpStatus"] == Common::HttpRequests::HTTP_STATUS_OK)
         {
-            assert(!m_response.contains("errorType"));
-            assert(!m_response.contains("errorMessage"));
+            if (m_response.contains("errorType") || m_response.contains("errorMessage"))
+            {
+                LOGERROR("Download failed");
+                abort();
+            }
 
             if (verifyFile(info))
             {

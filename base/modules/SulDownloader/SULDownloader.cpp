@@ -632,19 +632,9 @@ namespace SulDownloader
         // if there is a duplicate in the list for the last candidate
         for (auto it = cdnCandidates.begin(); it != cdnCandidates.end(); ++it)
         {
-            if (std::next(it) == cdnCandidates.end()) // last element
+            if (repository->synchronize(configurationData, *it, false))
             {
-                if (repository->synchronize(configurationData, *it, true))
-                {
-                    break;
-                }
-            }
-            else
-            {
-                if (repository->synchronize(configurationData, *it, false))
-                {
-                    break;
-                }
+                break;
             }
         }
 
