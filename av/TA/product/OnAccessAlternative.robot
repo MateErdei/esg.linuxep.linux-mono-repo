@@ -367,7 +367,7 @@ On Access Does Not Scan Files If They Match Wildcard Exclusion In Policy
     ${exclusionList} =  Set Variable  ["eicar","${TEST_DIR}/*.js","${TEST_DIR}/eicar.???","${TEST_DIR}/hi_i_am_dangerous.*"]
     Send Complete Policies    ${exclusionList}
     wait for on access log contains after mark  On-access exclusions: ${exclusionList}  mark=${mark}
-    wait for on access log contains after mark  Updating on-access exclusions with: ["eicar"] ["${TEST_DIR}/*.js"] ["${TEST_DIR}/eicar.???"] ["${TEST_DIR}/hi_i_am_dangerous.*"]  mark=${mark}
+    wait for on access log contains after mark  Updating on-access exclusions with: ["/eicar"] ["${TEST_DIR}/*.js"] ["${TEST_DIR}/eicar.???"] ["${TEST_DIR}/hi_i_am_dangerous.*"]  mark=${mark}
 
     ${mark} =  get_on_access_log_mark
     Create File     ${TEST_DIR}/clean_file.txt             ${CLEAN_STRING}
