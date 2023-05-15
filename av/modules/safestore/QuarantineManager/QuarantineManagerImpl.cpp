@@ -648,6 +648,7 @@ namespace safestore::QuarantineManager
         for (auto& [fd, objectId] : files)
         {
             auto response = scan(*scanningClient, fd.get(), originalFilePath);
+            fd.close(); // Release the file descriptor as soon as we are done with it
 
             if (!response.getErrorMsg().empty() && !common::contains(response.getErrorMsg(), "as it is password protected") && !common::contains(response.getErrorMsg(), "not a supported file type"))
             {
@@ -690,20 +691,6 @@ namespace safestore::QuarantineManager
                     threats.push_back({ .type = detection.type, .name = detection.name, .sha256 = detection.sha256 });
                 }
                 StoreThreats(*objectHandle, threats);
-
-                try
-                {
-                    LOGDEBUG("Recalculating the SHA256 of quarantined file " << escapedPath);
-                    const auto sha256 =
-                        Common::FileSystem::fileSystem()->calculateDigest(Common::SslImpl::Digest::sha256, fd.get());
-                    SetObjectCustomDataString(*m_safeStore, *objectHandle, "SHA256", sha256, false);
-                }
-                catch (const std::exception& e)
-                {
-                    LOGWARN("Failed to calculate the SHA256 of " << escapedPath << ": " << e.what());
-                }
-
-                fd.close(); // Release the file descriptor as soon as we are done with it
             }
         }
         return cleanFiles;
@@ -811,6 +798,11 @@ namespace safestore::QuarantineManager
                 }
             }
             catch (const SafeStoreObjectException& e)
+            {
+                // In case of failure, we want to carry on to a full rescan
+                LOGWARN("Failed to perform metadata rescan: " << e.what() << ", continuing with full rescan");
+            }
+            catch (const nlohmann::json::exception& e)
             {
                 // In case of failure, we want to carry on to a full rescan
                 LOGWARN("Failed to perform metadata rescan: " << e.what() << ", continuing with full rescan");

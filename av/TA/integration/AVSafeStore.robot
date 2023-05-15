@@ -229,13 +229,8 @@ SafeStore Quarantines Archive
     Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
     Wait For Log Contains From Mark  ${av_mark}  SafeStore flag set. Setting SafeStore to enabled.
 
-    ${ARCHIVE_DIR} =  Set Variable  ${NORMAL_DIRECTORY}/archive_dir
-    Create Directory  ${ARCHIVE_DIR}
-    Create File  ${ARCHIVE_DIR}/1_dsa    ${DSA_BY_NAME_STRING}
-    Create File  ${ARCHIVE_DIR}/2_eicar  ${EICAR_STRING}
-    Run Process  tar  --mtime\=UTC 2022-01-01  -C  ${ARCHIVE_DIR}  -cf  ${NORMAL_DIRECTORY}/test.tar  1_dsa  2_eicar
+    Create Archive With Dsa And Eicar    ${NORMAL_DIRECTORY}/test.tar
     ${archive_sha} =  Get SHA256  ${NORMAL_DIRECTORY}/test.tar
-    Remove Directory  ${ARCHIVE_DIR}  recursive=True
 
     ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
     ${safestore_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
@@ -941,7 +936,6 @@ SafeStore Quarantines Pua Detection
     DeObfuscate File  ${RESOURCES_PATH}/file_samples_obfuscated/PsExec.exe  ${NORMAL_DIRECTORY}/PsExec.exe
 
     ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
-    ${safestore_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
     Run Process  ${CLI_SCANNER_PATH}  --detect-puas  ${NORMAL_DIRECTORY}/PsExec.exe
 
     Check Log Does Not Contain After Mark  ${AV_LOG_PATH}  ${NORMAL_DIRECTORY}/PsExec.exe was not quarantined due to being a PUA    ${av_mark}
@@ -1113,28 +1107,43 @@ SafeStore Does Not Fully Rescan Archive If Metadata Rescan Reports Threats
     Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
     Wait For Log Contains From Mark  ${av_mark}  SafeStore flag set. Setting SafeStore to enabled.
 
-    ${ARCHIVE_DIR} =  Set Variable  ${NORMAL_DIRECTORY}/archive_dir
-    Create Directory  ${ARCHIVE_DIR}
-    # Create an EICAR with extra content to have a different SHA than in the corc_policy.xml allowlist
-    Create File  ${ARCHIVE_DIR}/eicar  ${EICAR_STRING}_1
-    Run Process  tar  --mtime\=UTC 2022-01-01  -C  ${ARCHIVE_DIR}  -cf  ${NORMAL_DIRECTORY}/test.tar  eicar
+    Create Archive With Eicar    ${NORMAL_DIRECTORY}/test.tar
     ${archive_sha} =  Get SHA256  ${NORMAL_DIRECTORY}/test.tar
-    Remove Directory  ${ARCHIVE_DIR}  recursive=True
+    ${eicar_sha} =    Get SHA256 Of String    ${EICAR_STRING}
 
-    ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
-    ${safestore_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
+    # Scan archive to quarantine it
+    ${ss_mark} =    Mark Log Size    ${SAFESTORE_LOG_PATH}
     Run Process  ${CLI_SCANNER_PATH}  ${NORMAL_DIRECTORY}/test.tar  --scan-archives
 
-    Wait For Log Contains From Mark  ${av_mark}  Threat cleaned up at path:
-    File Should Not Exist   ${SCAN_DIRECTORY}/test.tar
+    # Check SafeStore receives expected metadata from Threat Detector
+    Wait For Log Contains From Mark    ${ss_mark}    File path: ${NORMAL_DIRECTORY}/test.tar
+    Wait For Log Contains From Mark    ${ss_mark}    Threat type: virus
+    Wait For Log Contains From Mark    ${ss_mark}    Threat name: EICAR-AV-Test
+    Wait For Log Contains From Mark    ${ss_mark}    Threat SHA256: ${eicar_sha}
+    Wait For Log Contains From Mark    ${ss_mark}    SHA256: ${archive_sha}
 
+    Wait For Log Contains From Mark    ${ss_mark}    Quarantined ${NORMAL_DIRECTORY}/test.tar successfully
+    File Should Not Exist    ${NORMAL_DIRECTORY}/test.tar
+
+    # Send a policy to force a rescan. This policy does not allowlist the archive or inner file.
     ${ss_mark} =  Get SafeStore Log Mark
     ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
     ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
-    Send CORC Policy To Base  corc_policy.xml
+    ${allowlisted_sha256s} =    Create List    SHA256 that is not used by anything
+    ${corc_policy} =    Create CORC Policy    whitelist_sha256s=${allowlisted_sha256s}
+    Send CORC Policy To Base From Content    ${corc_policy}
 
     Wait For Log Contains From Mark    ${ss_mark}    SafeStore Database Rescan request received.
-    Wait For Log Contains From Mark    ${ss_mark}    Requesting metadata rescan of quarantined file (original path '${SCAN_DIRECTORY}/test.tar'
+    Wait For Log Contains From Mark    ${ss_mark}    Requesting metadata rescan of quarantined file (original path '${NORMAL_DIRECTORY}/test.tar'
+    # Check threat detector is asked to rescan with the same metadata as it reported on detection
+    ${expected_log} =    Catenate
+    ...    MetadataRescanServerConnectionThread received a metadata rescan request of
+    ...    filePath=/home/vagrant/this/is/a/directory/for/scanning/test.tar,
+    ...    threatType=virus,
+    ...    threatName=EICAR-AV-Test,
+    ...    threatSHA256=${eicar_sha},
+    ...    SHA256=${archive_sha}
+    Wait For Log Contains From Mark    ${td_mark}    ${expected_log}
     Wait For Log Contains From Mark    ${ss_mark}    Received metadata rescan response: 'threat present'
     Wait For Log Contains From Mark    ${ss_mark}    Metadata rescan for '${SCAN_DIRECTORY}/test.tar' found it to still be a threat
     Check Log Does Not Contain After Mark    ${SAFESTORE_LOG_PATH}    full rescan    ${ss_mark}
@@ -1145,29 +1154,27 @@ SafeStore Restores Archive Once Inner Detection Is Allowlisted
     Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
     Wait For Log Contains From Mark  ${av_mark}  SafeStore flag set. Setting SafeStore to enabled.
 
-    ${ARCHIVE_DIR} =  Set Variable  ${NORMAL_DIRECTORY}/archive_dir
-    Create Directory  ${ARCHIVE_DIR}
-    Create File  ${ARCHIVE_DIR}/eicar  ${EICAR_STRING}
-    Run Process  tar  --mtime\=UTC 2022-01-01  -C  ${ARCHIVE_DIR}  -cf  ${NORMAL_DIRECTORY}/test.tar  eicar
+    Create Archive With Eicar    ${NORMAL_DIRECTORY}/test.tar
     ${archive_sha} =  Get SHA256  ${NORMAL_DIRECTORY}/test.tar
-    Remove Directory  ${ARCHIVE_DIR}  recursive=True
+    ${eicar_sha} =    Get SHA256 Of String    ${EICAR_STRING}
 
-    ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
-    ${safestore_mark} =  mark_log_size  ${SAFESTORE_LOG_PATH}
+    ${ss_mark} =    Mark Log Size    ${SAFESTORE_LOG_PATH}
     Run Process  ${CLI_SCANNER_PATH}  ${NORMAL_DIRECTORY}/test.tar  --scan-archives
+    Wait For Log Contains From Mark    ${ss_mark}    Quarantined ${NORMAL_DIRECTORY}/test.tar successfully
+    File Should Not Exist    ${NORMAL_DIRECTORY}/test.tar
 
-    Wait For Log Contains From Mark  ${av_mark}  Threat cleaned up at path:
-    File Should Not Exist   ${SCAN_DIRECTORY}/test.tar
-
+    # Send a policy to force a rescan. This policy allowlists the inner file (eicar).
     ${ss_mark} =  Get SafeStore Log Mark
     ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
     ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
-    Send CORC Policy To Base  corc_policy.xml
+    ${allowlisted_sha256s} =    Create List    ${eicar_sha}
+    ${corc_policy} =    Create CORC Policy    whitelist_sha256s=${allowlisted_sha256s}
+    Send CORC Policy To Base From Content    ${corc_policy}
     Wait For Log Contains From Mark  ${av_mark}  Added SHA256 to allow list: 275a021bbfb6489e54d471899f7db9d1663fc695ec2fe2a2c4538aabf651fd0f
 
     Wait For Log Contains From Mark    ${ss_mark}    SafeStore Database Rescan request received.
     Wait For Log Contains From Mark    ${ss_mark}    Requesting metadata rescan of quarantined file (original path '${SCAN_DIRECTORY}/test.tar'
-    Wait For Log Contains From Mark    ${td_mark}    Allowed by SHA256: 275a021bbfb6489e54d471899f7db9d1663fc695ec2fe2a2c4538aabf651fd0f
+    Wait For Log Contains From Mark    ${td_mark}    Allowed by SHA256: ${eicar_sha}
     Wait For Log Contains From Mark    ${ss_mark}    Received metadata rescan response: 'needs full scan'
     Wait For Log Contains From Mark    ${ss_mark}    Performing full rescan of quarantined file (original path '${SCAN_DIRECTORY}/test.tar'
     Wait For Log Contains From Mark    ${ss_mark}    RestoreReportingClient reports successful restoration of ${SCAN_DIRECTORY}/test.tar
@@ -1205,6 +1212,130 @@ SafeStore Restores Archive Containing Password Protected File
     Wait For Log Contains From Mark    ${ss_mark}    Requesting metadata rescan of quarantined file (original path '${SCAN_DIRECTORY}/test.tar'
     Wait For Log Contains From Mark    ${td_mark}    Allowed by SHA256: ${archive_sha}
     Wait For Log Contains From Mark    ${ss_mark}    RestoreReportingClient reports successful restoration of ${SCAN_DIRECTORY}/test.tar
+
+
+Quarantine Archive With Two Threats And Allowlisting The First Threat Triggers Full Rescan But Does Not Restore
+    ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
+    Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
+    Wait For Log Contains From Mark  ${av_mark}  SafeStore flag set. Setting SafeStore to enabled.
+
+    Create Archive With Dsa And Eicar    ${NORMAL_DIRECTORY}/test.tar
+    ${dsa_sha} =    Get SHA256 Of String    ${DSA_BY_NAME_STRING}
+
+    ${ss_mark} =    Mark Log Size    ${SAFESTORE_LOG_PATH}
+    Run Process  ${CLI_SCANNER_PATH}  ${NORMAL_DIRECTORY}/test.tar  --scan-archives
+    Wait For Log Contains From Mark    ${ss_mark}    Quarantined ${NORMAL_DIRECTORY}/test.tar successfully
+    File Should Not Exist    ${NORMAL_DIRECTORY}/test.tar
+
+    # Send a policy to force a rescan. This policy allowlists the inner file.
+    ${ss_mark} =  Get SafeStore Log Mark
+    ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
+    ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
+    # Send CORC policy with the DSA allowlisted
+    ${allowlisted_sha256s} =    Create List    ${dsa_sha}
+    ${corc_policy} =    Create CORC Policy    whitelist_sha256s=${allowlisted_sha256s}
+    Send CORC Policy To Base From Content    ${corc_policy}
+    Wait For Log Contains From Mark  ${av_mark}  Added SHA256 to allow list: ${dsa_sha}
+
+    Wait For Log Contains From Mark    ${ss_mark}    SafeStore Database Rescan request received.
+    Wait For Log Contains From Mark    ${ss_mark}    Requesting metadata rescan of quarantined file (original path '${SCAN_DIRECTORY}/test.tar'
+    Wait For Log Contains From Mark    ${td_mark}    Allowed by SHA256: ${dsa_sha}
+    Wait For Log Contains From Mark    ${ss_mark}    Received metadata rescan response: 'needs full scan'
+    Wait For Log Contains From Mark    ${ss_mark}    Performing full rescan of quarantined file (original path '${SCAN_DIRECTORY}/test.tar'
+    Wait For Log Contains From Mark    ${ss_mark}    Rescan found quarantined file still a threat: ${SCAN_DIRECTORY}/test.tar
+
+    Sleep    1s    To confirm that the file does not get restored
+    File Should Not Exist   ${SCAN_DIRECTORY}/test.tar
+
+
+Quarantine Archive With Three Threats And Rescan Stores Remaining Detections In SafeStore
+    ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
+    Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
+    Wait For Log Contains From Mark  ${av_mark}  SafeStore flag set. Setting SafeStore to enabled.
+
+    Create File    ${NORMAL_DIRECTORY}/1_eicar    ${EICAR_STRING}_1
+    Create File    ${NORMAL_DIRECTORY}/2_eicar    ${EICAR_STRING}_2
+    Create File    ${NORMAL_DIRECTORY}/3_eicar    ${EICAR_STRING}_3
+    ${eicar_1_sha} =    Get SHA256    ${NORMAL_DIRECTORY}/1_eicar
+    ${eicar_2_sha} =    Get SHA256    ${NORMAL_DIRECTORY}/2_eicar
+    ${eicar_3_sha} =    Get SHA256    ${NORMAL_DIRECTORY}/3_eicar
+    Create Archive From Files
+    ...    ${NORMAL_DIRECTORY}/test.tar
+    ...    ${NORMAL_DIRECTORY}/1_eicar
+    ...    ${NORMAL_DIRECTORY}/2_eicar
+    ...    ${NORMAL_DIRECTORY}/3_eicar
+
+    ${ss_mark} =    Mark Log Size    ${SAFESTORE_LOG_PATH}
+    Run Process  ${CLI_SCANNER_PATH}  ${NORMAL_DIRECTORY}/test.tar  --scan-archives
+    Wait For Log Contains From Mark    ${ss_mark}    Quarantined ${NORMAL_DIRECTORY}/test.tar successfully
+    File Should Not Exist    ${NORMAL_DIRECTORY}/test.tar
+
+    # Send a policy to force a rescan. This policy allowlists the inner file.
+    ${ss_mark} =  Get SafeStore Log Mark
+    ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
+    ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
+    # Send CORC policy with the DSA allowlisted
+    ${allowlisted_sha256s} =    Create List    ${eicar_1_sha}
+    ${corc_policy} =    Create CORC Policy    whitelist_sha256s=${allowlisted_sha256s}
+    Send CORC Policy To Base From Content    ${corc_policy}
+
+    Wait For Log Contains From Mark    ${ss_mark}    Performing full rescan of quarantined file (original path '${SCAN_DIRECTORY}/test.tar'
+    Wait For Log Contains From Mark    ${ss_mark}    {"name":"EICAR-AV-Test","sha256":"${eicar_2_sha}","type":"virus"}
+    Wait For Log Contains From Mark    ${ss_mark}    {"name":"EICAR-AV-Test","sha256":"${eicar_3_sha}","type":"virus"}
+
+
+Archive With A Lot Of Detections Results In More Than 5000 Characters Being Stored As Threats
+    ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
+    Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
+    Wait For Log Contains From Mark  ${av_mark}  SafeStore flag set. Setting SafeStore to enabled.
+
+    ${files} =    Create List
+    FOR    ${index}    IN RANGE    50
+        Create File    ${NORMAL_DIRECTORY}/${index}_eicar_1    ${EICAR_STRING}_1
+        Create File    ${NORMAL_DIRECTORY}/${index}_eicar_2    ${EICAR_STRING}_2
+        Append To List    ${files}    ${NORMAL_DIRECTORY}/${index}_eicar_1    ${NORMAL_DIRECTORY}/${index}_eicar_2
+    END
+
+    ${eicar_sha_1} =    Get SHA256 Of String    ${EICAR_STRING}_1
+    ${eicar_sha_2} =    Get SHA256 Of String    ${EICAR_STRING}_2
+    Create Archive From Files    ${NORMAL_DIRECTORY}/test.tar    @{files}
+
+    ${ss_mark} =    Mark Log Size    ${SAFESTORE_LOG_PATH}
+    Run Process  ${CLI_SCANNER_PATH}  ${NORMAL_DIRECTORY}/test.tar  --scan-archives
+    Wait For Log Contains From Mark    ${ss_mark}    Quarantined ${NORMAL_DIRECTORY}/test.tar successfully
+    File Should Not Exist    ${NORMAL_DIRECTORY}/test.tar
+
+    # Send a policy to force a rescan. This policy allowlists the inner file.
+    ${ss_mark} =  Get SafeStore Log Mark
+    ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
+    ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
+
+    # Send CORC policy with the first eicar allowlisted
+    ${allowlisted_sha256s} =    Create List    ${eicar_sha_1}
+    ${corc_policy} =    Create CORC Policy    whitelist_sha256s=${allowlisted_sha256s}
+    Send CORC Policy To Base From Content    ${corc_policy}
+
+    Wait For Log Contains From Mark    ${ss_mark}    SafeStoreRescanServerConnectionThread closed: EOF
+
+    # Send CORC policy with the second eicar allowlisted
+    ${allowlisted_sha256s} =    Create List    ${eicar_sha_1}
+    ${corc_policy} =    Create CORC Policy    whitelist_sha256s=${allowlisted_sha256s}
+    Send CORC Policy To Base From Content    ${corc_policy}
+
+    # At this point we should have allowlisted the main threat once, so SafeStore should try full rescan,
+    # and try to store the remaining threats as custom data
+    Wait For Log Contains From Mark    ${ss_mark}    Failed to set custom data against SafeStore object, max size: 5000bytes
+
+    # Now we will try to restore the file despite the previous failure
+    ${ss_mark} =  Get SafeStore Log Mark
+
+    # Send CORC policy with the all eicars allowlisted
+    ${allowlisted_sha256s} =    Create List    ${eicar_sha_1}    ${eicar_sha_2}
+    ${corc_policy} =    Create CORC Policy    whitelist_sha256s=${allowlisted_sha256s}
+    Send CORC Policy To Base From Content    ${corc_policy}
+
+    Wait For Log Contains From Mark    ${ss_mark}    RestoreReportingClient reports successful restoration of ${SCAN_DIRECTORY}/test.tar
+    File Should Exist    ${NORMAL_DIRECTORY}/test.tar
 
 
 *** Keywords ***
@@ -1314,3 +1445,28 @@ Start On Access And SafeStore
 
     wait_for_log_contains_from_mark  ${av_mark}  SafeStore flag set. Setting SafeStore to enabled.    timeout=60
     wait_for_log_contains_from_mark  ${av_mark}  On-access is enabled in the FLAGS policy, assuming on-access policy settings
+
+Create Archive From Files
+    [Arguments]    ${output}    @{files}
+    ${archive_dir} =    Set Variable    ${NORMAL_DIRECTORY}/archive_dir
+    Create Directory    ${archive_dir}
+    Move Files    @{files}    ${archive_dir}
+    ${file_names} =    Create List
+    FOR    ${path}    IN    @{files}
+        ${parts} =    Split Path    ${path}
+        Append To List    ${file_names}    ${parts}[1]
+    END
+    # Passing file names explicitly to make sure they have the intended order
+    Run Process    tar    --mtime\=UTC 2022-01-01    -C    ${archive_dir}    -cf    ${NORMAL_DIRECTORY}/test.tar    @{file_names}
+    Remove Directory    ${archive_dir}    recursive=True
+
+Create Archive With Eicar
+    [Arguments]    ${output}
+    Create File    ${NORMAL_DIRECTORY}/eicar    ${EICAR_STRING}
+    Create Archive From Files    ${output}    ${NORMAL_DIRECTORY}/eicar
+
+Create Archive With Dsa And Eicar
+    [Arguments]    ${output}
+    Create File    ${NORMAL_DIRECTORY}/1_dsa    ${DSA_BY_NAME_STRING}
+    Create File    ${NORMAL_DIRECTORY}/2_eicar    ${EICAR_STRING}
+    Create Archive From Files    ${output}    ${NORMAL_DIRECTORY}/1_dsa    ${NORMAL_DIRECTORY}/2_eicar

@@ -17,7 +17,7 @@ struct SampleThreatDetectedSettings
         common::CentralEnums::QuarantineResult::FAILED_TO_DELETE_FILE;
     std::string filePath = "/path/to/eicar.txt";
     std::string sha256 = "131f95c51cc819465fa1797f6ccacf9d494aaaff46fa3eac73ae63ffbdfd8267";
-    std::string threatSha256 = "131f95c51cc819465fa1797f6ccacf9d494aaaff46fa3eac73ae63ffbdfd8267";
+    std::string threatSha256 = "494aaaff46fa3eac73ae63ffbdfd8267131f95c51cc819465fa1797f6ccacf9d";
     std::string threatId = "01234567-89ab-cdef-0123-456789abcdef";
     bool isRemote = true;
     common::CentralEnums::ReportSource reportSource = common::CentralEnums::ReportSource::vdl;

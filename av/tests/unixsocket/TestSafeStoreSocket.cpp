@@ -147,7 +147,7 @@ TEST_F(TestSafeStoreSocket, TestSendThreatDetected)
     EXPECT_TRUE(appenderContains("Threat ID: 01234567-89ab-cdef-0123-456789abcdef"));
     EXPECT_TRUE(appenderContains("Threat type: virus"));
     EXPECT_TRUE(appenderContains("Threat name: EICAR-AV-Test"));
-    EXPECT_TRUE(appenderContains("Threat SHA256: 131f95c51cc819465fa1797f6ccacf9d494aaaff46fa3eac73ae63ffbdfd8267"));
+    EXPECT_TRUE(appenderContains("Threat SHA256: 494aaaff46fa3eac73ae63ffbdfd8267131f95c51cc819465fa1797f6ccacf9d"));
     EXPECT_TRUE(appenderContains("SHA256: 131f95c51cc819465fa1797f6ccacf9d494aaaff46fa3eac73ae63ffbdfd8267"));
     EXPECT_TRUE(appenderContains("File descriptor:"));
 }

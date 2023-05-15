@@ -1407,6 +1407,13 @@ Get SHA256
     @{parts} =  Split String  ${result.stdout}
     [Return]  ${parts}[0]
 
+Get SHA256 Of String
+    [Arguments]  ${string}
+    ${result} =  Run Process    echo -n '${string}' | sha256sum    shell=True
+    Log  ${result.stdout}
+    @{parts} =  Split String  ${result.stdout}
+    [Return]  ${parts}[0]
+
 Create Bad Unicode Eicars
    register cleanup  Remove Directory  /tmp_test/  true
    ${result} =  Run Process  bash  ${BASH_SCRIPTS_PATH}/badUnicodeEicarMaker.sh  /tmp_test/  stderr=STDOUT

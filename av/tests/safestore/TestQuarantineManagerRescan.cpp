@@ -24,6 +24,7 @@
 using namespace testing;
 using namespace safestore::QuarantineManager;
 using namespace safestore;
+using scan_messages::MetadataRescan;
 
 MATCHER_P(IsRescanAndHasFd, fd, "")
 {
@@ -75,7 +76,7 @@ namespace
             SafeStoreObjectMetadata metadata;
         };
 
-        void defineSafeStoreObject(int id, const std::string& objectId, SafeStoreObjectMetadata metadata) const
+        void defineSafeStoreObject(int id, const std::string& objectId, const SafeStoreObjectMetadata& metadata) const
         {
             auto matcher = HasRawPointer(id);
 
@@ -146,7 +147,7 @@ namespace
                     }));
         }
 
-        ObjectHandleHolder createObjectHandle(int id)
+        ObjectHandleHolder createObjectHandle(int id) const
         {
             ObjectHandleHolder objectHandle{ mockGetIdMethods_, mockReleaseMethods_ };
             *objectHandle.getRawHandlePtr() = reinterpret_cast<SafeStoreObjectHandle>(id);
@@ -273,6 +274,8 @@ TEST_F(QuarantineManagerRescanTests, scanExtractedFiles)
 TEST_F(QuarantineManagerRescanTests, scanExtractedFilesSocketFailure)
 {
     m_memoryAppender->setLayout(std::make_unique<log4cplus::PatternLayout>("[%p] %m%n"));
+
+    defineSafeStoreObjects({ { 1111, "objectId1", {} } });
 
     std::vector<FdsObjectIdsPair> testFiles;
     testFiles.emplace_back(datatypes::AutoFd{}, "objectId1");
@@ -505,43 +508,26 @@ TEST_F(QuarantineManagerRescanTests, restoreFileReturnsReportOnSuccess)
     EXPECT_TRUE(appenderContains("[DEBUG] ObjectId successfully deleted from database: objectId"));
 }
 
-TEST_F(QuarantineManagerRescanTests, RescanDoesMetadataRescanAndReceivesUndetectedSoDoesFullRescan)
+namespace
 {
-    defineSafeStoreObjects({ { 1111, "objectId", {} } });
-
+    class QuarantineManagerRescanResponseTests : public QuarantineManagerRescanTests,
+                                                 public WithParamInterface<scan_messages::MetadataRescanResponse>
     {
-        InSequence seq;
+    };
 
-        EXPECT_CALL(*mockMetadataRescanClientSocket_, rescan)
-            .WillOnce(Return(scan_messages::MetadataRescanResponse::undetected));
+    INSTANTIATE_TEST_SUITE_P(
+        UncertainResponses,
+        QuarantineManagerRescanResponseTests,
+        Values(
+            scan_messages::MetadataRescanResponse::clean,
+            scan_messages::MetadataRescanResponse::undetected,
+            scan_messages::MetadataRescanResponse::needsFullScan,
+            scan_messages::MetadataRescanResponse::failed));
+} // namespace
 
-        // Does full rescan
-        EXPECT_CALL(*mockSafeStoreWrapper_, restoreObjectByIdToLocation("objectId", unpackLocation_))
-            .WillOnce(Return(true));
-        ON_CALL(*mockFileSystem_, listAllFilesInDirectoryTree(unpackLocation_))
-            .WillByDefault(Return(std::vector<std::string>{ "file" }));
-
-        EXPECT_CALL(*mockScanningClientSocket_, sendRequest).WillOnce(Return(true));
-        EXPECT_CALL(*mockScanningClientSocket_, receiveResponse).WillOnce(Return(true));
-    }
-
-    EXPECT_CALL(mockSafeStoreResources_, CreateMetadataRescanClientSocket)
-        .WillOnce(Return(ByMove(std::move(mockMetadataRescanClientSocket_))));
-    EXPECT_CALL(mockSafeStoreResources_, CreateScanningClientSocket)
-        .WillOnce(Return(ByMove(std::move(mockScanningClientSocket_))));
-
-    MoveFileSystemMocks();
-    auto quarantineManager = createQuarantineManager();
-
-    quarantineManager.rescanDatabase();
-    EXPECT_TRUE(appenderContains("DEBUG - Received metadata rescan response: 'undetected'"));
-    EXPECT_TRUE(appenderContains(
-        "INFO - Performing full rescan of quarantined file (original path '/location/name', object ID 'objectId')"));
-}
-
-TEST_F(
-    QuarantineManagerRescanTests,
-    RescanDoesMetadataRescanWithCorrectParametersAndReceivesUndetectedSoDoesFullRescanWhichReportsNoDetectionsSoRestoresFile)
+TEST_P(
+    QuarantineManagerRescanResponseTests,
+    RescanDoesMetadataRescanWithCorrectParametersAndReceivesUncertainResponseSoDoesFullRescanWhichReportsNoDetectionsSoRestoresFile)
 {
     defineSafeStoreObjects({ { 1111, "objectId", {} } });
 
@@ -558,7 +544,7 @@ TEST_F(
                     EXPECT_EQ(metadataRescan.threat.sha256, "threatSHA256");
                     EXPECT_EQ(metadataRescan.filePath, "/location/name");
                     EXPECT_EQ(metadataRescan.sha256, "SHA256");
-                    return scan_messages::MetadataRescanResponse::undetected;
+                    return GetParam();
                 }));
 
         // Does full rescan
@@ -585,9 +571,111 @@ TEST_F(
     quarantineManager.rescanDatabase();
     EXPECT_TRUE(appenderContains(
         "INFO - Requesting metadata rescan of quarantined file (original path '/location/name', object ID 'objectId')"));
-    EXPECT_TRUE(appenderContains("DEBUG - Received metadata rescan response: 'undetected'"));
     EXPECT_TRUE(appenderContains(
         "INFO - Performing full rescan of quarantined file (original path '/location/name', object ID 'objectId')"));
+}
+
+TEST_F(
+    QuarantineManagerRescanTests,
+    RescanDoesFullRescanWhichReturnsDetectionsSoFileIsNotRestoredThreatsAreUpdated)
+{
+    defineSafeStoreObjects({ { 1111, "objectId", {} } });
+
+    {
+        InSequence seq;
+
+        EXPECT_CALL(*mockMetadataRescanClientSocket_, rescan)
+            .WillOnce(Return(scan_messages::MetadataRescanResponse::undetected));
+
+        // Does full rescan
+        EXPECT_CALL(*mockSafeStoreWrapper_, restoreObjectByIdToLocation("objectId", unpackLocation_))
+            .WillOnce(Return(true));
+        ON_CALL(*mockFileSystem_, listAllFilesInDirectoryTree(unpackLocation_))
+            .WillByDefault(Return(std::vector<std::string>{ "file" }));
+
+        // Receives threat is still present
+        EXPECT_CALL(*mockScanningClientSocket_, sendRequest).WillOnce(Return(true));
+        EXPECT_CALL(*mockScanningClientSocket_, receiveResponse)
+            .WillOnce(Invoke(
+                [](scan_messages::ScanResponse& response)
+                {
+                    response.addDetection("extractedFilePath", "newThreatType", "newThreatName", "newThreatSHA256");
+                    return true;
+                }));
+
+        // Does not restore the file
+        EXPECT_CALL(*mockSafeStoreWrapper_, restoreObjectById("objectId")).Times(0);
+
+        EXPECT_CALL(
+            *mockSafeStoreWrapper_,
+            setObjectCustomDataString(
+                HasRawPointer(1111),
+                "threats",
+                R"([{"name":"newThreatName","sha256":"newThreatSHA256","type":"newThreatType"}])"))
+            .WillOnce(Return(true));
+    }
+
+    EXPECT_CALL(mockSafeStoreResources_, CreateMetadataRescanClientSocket)
+        .WillOnce(Return(ByMove(std::move(mockMetadataRescanClientSocket_))));
+    EXPECT_CALL(mockSafeStoreResources_, CreateScanningClientSocket)
+        .WillOnce(Return(ByMove(std::move(mockScanningClientSocket_))));
+
+    MoveFileSystemMocks();
+    auto quarantineManager = createQuarantineManager();
+
+    quarantineManager.rescanDatabase();
+    EXPECT_TRUE(appenderContains(
+        "INFO - Requesting metadata rescan of quarantined file (original path '/location/name', object ID 'objectId')"));
+    EXPECT_TRUE(appenderContains(
+        "INFO - Performing full rescan of quarantined file (original path '/location/name', object ID 'objectId')"));
+    EXPECT_TRUE(appenderContains("DEBUG - Rescan found quarantined file still a threat: /location/name"));
+}
+
+TEST_F(
+    QuarantineManagerRescanTests,
+    RescanDoesFullRescanWhichReturnsDetectionsSoThreatsAreUpdatedButFailsToBeStoredDoesNotPreventNextFileFromBeingRescanned)
+{
+    defineSafeStoreObjects(
+        { { 1111, "objectId_1", { .name = "name_1" } }, { 2222, "objectId_2", { .name = "name_2" } } });
+
+    {
+        InSequence seq;
+
+        EXPECT_CALL(*mockMetadataRescanClientSocket_, rescan(Field(&MetadataRescan::filePath, "/location/name_1")))
+            .WillOnce(Return(scan_messages::MetadataRescanResponse::undetected));
+
+        // Does full rescan
+        EXPECT_CALL(*mockSafeStoreWrapper_, restoreObjectByIdToLocation("objectId_1", unpackLocation_))
+            .WillOnce(Return(true));
+        ON_CALL(*mockFileSystem_, listAllFilesInDirectoryTree(unpackLocation_))
+            .WillByDefault(Return(std::vector<std::string>{ "file" }));
+
+        // Receives threat is still present
+        EXPECT_CALL(*mockScanningClientSocket_, sendRequest).WillOnce(Return(true));
+        EXPECT_CALL(*mockScanningClientSocket_, receiveResponse)
+            .WillOnce(Invoke(
+                [](scan_messages::ScanResponse& response)
+                {
+                    response.addDetection("extractedFilePath", "newThreatType", "newThreatName", "newThreatSHA256");
+                    return true;
+                }));
+
+        EXPECT_CALL(*mockSafeStoreWrapper_, setObjectCustomDataString(HasRawPointer(1111), "threats", _))
+            .WillOnce(Return(false));
+
+        EXPECT_CALL(*mockMetadataRescanClientSocket_, rescan(Field(&MetadataRescan::filePath, "/location/name_2")))
+            .WillOnce(Return(scan_messages::MetadataRescanResponse::threatPresent));
+    }
+
+    EXPECT_CALL(mockSafeStoreResources_, CreateMetadataRescanClientSocket)
+        .WillOnce(Return(ByMove(std::move(mockMetadataRescanClientSocket_))));
+    EXPECT_CALL(mockSafeStoreResources_, CreateScanningClientSocket)
+        .WillOnce(Return(ByMove(std::move(mockScanningClientSocket_))));
+
+    MoveFileSystemMocks();
+    auto quarantineManager = createQuarantineManager();
+
+    quarantineManager.rescanDatabase();
 }
 
 TEST_F(QuarantineManagerRescanTests, RescanMetadataRescanFailsIfThreatsIsMissingSoDoesFullRescan)
@@ -723,4 +811,136 @@ TEST_F(QuarantineManagerRescanTests, MetadataRescanContinuesIfOneFails)
     EXPECT_TRUE(appenderContains("WARN - Couldn't get path for 'objectId_1': Couldn't get object location"));
     EXPECT_TRUE(appenderContains(
         "INFO - Requesting metadata rescan of quarantined file (original path '/location_2/name_2', object ID 'objectId_2')"));
+}
+
+TEST_F(QuarantineManagerRescanTests, RescanDoesMetadataRescanWhichFindsThreatSoDoesntDoFullRescan)
+{
+    defineSafeStoreObjects({ { 1111, "objectId", {} } });
+
+    {
+        InSequence seq;
+
+        EXPECT_CALL(*mockMetadataRescanClientSocket_, rescan)
+            .WillOnce(Return(scan_messages::MetadataRescanResponse::threatPresent));
+    }
+
+    EXPECT_CALL(mockSafeStoreResources_, CreateMetadataRescanClientSocket)
+        .WillOnce(Return(ByMove(std::move(mockMetadataRescanClientSocket_))));
+
+    // Full res
+    EXPECT_CALL(mockSafeStoreResources_, CreateScanningClientSocket).Times(0);
+
+    MoveFileSystemMocks();
+    auto quarantineManager = createQuarantineManager();
+
+    quarantineManager.rescanDatabase();
+    EXPECT_TRUE(appenderContains("INFO - Metadata rescan for '/location/name' found it to still be a threat"));
+}
+
+TEST_F(QuarantineManagerRescanTests, RescanMetadataRescanFailsIfThreatsIsInvalidJsonSoDoesFullRescan)
+{
+    defineSafeStoreObjects({ { 1111, "objectId", {} } });
+
+    {
+        InSequence seq;
+
+        EXPECT_CALL(*mockSafeStoreWrapper_, getObjectCustomDataString(HasRawPointer(1111), "threats"))
+            .WillRepeatedly(Return("["));
+
+        ON_CALL(*mockFileSystem_, listAllFilesInDirectoryTree(unpackLocation_))
+            .WillByDefault(Return(std::vector<std::string>{ "file" }));
+
+        EXPECT_CALL(*mockScanningClientSocket_, sendRequest);
+    }
+
+    EXPECT_CALL(mockSafeStoreResources_, CreateScanningClientSocket)
+        .WillOnce(Return(ByMove(std::move(mockScanningClientSocket_))));
+
+    MoveFileSystemMocks();
+    auto quarantineManager = createQuarantineManager();
+
+    quarantineManager.rescanDatabase();
+    EXPECT_TRUE(appenderContains("Failed to perform metadata rescan:"));
+    EXPECT_TRUE(appenderContains("continuing with full rescan"));
+}
+
+TEST_F(QuarantineManagerRescanTests, RescanMetadataRescanFailsIfThreatsIsMissingSha256SoDoesFullRescan)
+{
+    defineSafeStoreObjects({ { 1111, "objectId", {} } });
+
+    {
+        InSequence seq;
+
+        EXPECT_CALL(*mockSafeStoreWrapper_, getObjectCustomDataString(HasRawPointer(1111), "threats"))
+            .WillRepeatedly(Return(R"([{"type": "virus", "name": "eicar"}])"));
+
+        ON_CALL(*mockFileSystem_, listAllFilesInDirectoryTree(unpackLocation_))
+            .WillByDefault(Return(std::vector<std::string>{ "file" }));
+
+        EXPECT_CALL(*mockScanningClientSocket_, sendRequest);
+    }
+
+    EXPECT_CALL(mockSafeStoreResources_, CreateScanningClientSocket)
+        .WillOnce(Return(ByMove(std::move(mockScanningClientSocket_))));
+
+    MoveFileSystemMocks();
+    auto quarantineManager = createQuarantineManager();
+
+    quarantineManager.rescanDatabase();
+    EXPECT_TRUE(appenderContains("Failed to perform metadata rescan:"));
+    EXPECT_TRUE(appenderContains("continuing with full rescan"));
+}
+
+TEST_F(QuarantineManagerRescanTests, RescanMetadataRescanFailsIfThreatsSha256IsJsonObjectSoDoesFullRescan)
+{
+    defineSafeStoreObjects({ { 1111, "objectId", {} } });
+
+    {
+        InSequence seq;
+
+        EXPECT_CALL(*mockSafeStoreWrapper_, getObjectCustomDataString(HasRawPointer(1111), "threats"))
+            .WillRepeatedly(Return(R"([{"type": "virus", "name": "eicar", "sha256": {"a": "b"}}])"));
+
+        ON_CALL(*mockFileSystem_, listAllFilesInDirectoryTree(unpackLocation_))
+            .WillByDefault(Return(std::vector<std::string>{ "file" }));
+
+        EXPECT_CALL(*mockScanningClientSocket_, sendRequest);
+    }
+
+    EXPECT_CALL(mockSafeStoreResources_, CreateScanningClientSocket)
+        .WillOnce(Return(ByMove(std::move(mockScanningClientSocket_))));
+
+    MoveFileSystemMocks();
+    auto quarantineManager = createQuarantineManager();
+
+    quarantineManager.rescanDatabase();
+    EXPECT_TRUE(appenderContains("Failed to perform metadata rescan:"));
+    EXPECT_TRUE(appenderContains("continuing with full rescan"));
+}
+
+TEST_F(QuarantineManagerRescanTests, RescanMetadataRescanGetsThreatsWhereSha256IsJsonString)
+{
+    defineSafeStoreObjects({ { 1111, "objectId", {} } });
+
+    {
+        InSequence seq;
+
+        EXPECT_CALL(*mockSafeStoreWrapper_, getObjectCustomDataString(HasRawPointer(1111), "threats"))
+            .WillRepeatedly(Return(R"([{"type": "virus", "name": "eicar", "sha256": "{\"a\": \"b\"}"}])"));
+
+        EXPECT_CALL(
+            *mockMetadataRescanClientSocket_,
+            rescan(Field(
+                &MetadataRescan::threat,
+                scan_messages::Threat{ .type = "virus", .name = "eicar", .sha256 = R"({"a": "b"})" })))
+            .WillOnce(Return(scan_messages::MetadataRescanResponse::undetected));
+    }
+
+    EXPECT_CALL(mockSafeStoreResources_, CreateMetadataRescanClientSocket)
+        .WillOnce(Return(ByMove(std::move(mockMetadataRescanClientSocket_))));
+
+    MoveFileSystemMocks();
+    auto quarantineManager = createQuarantineManager();
+
+    quarantineManager.rescanDatabase();
 }

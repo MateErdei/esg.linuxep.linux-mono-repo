@@ -456,18 +456,21 @@ TEST_F(TestUnitScannerMetadataRescan, MetadataRescanReturnsCorrectResponse)
         .WillOnce(Return(SUSI_S_OK))
         .WillOnce(Return(SUSI_I_THREATPRESENT))
         .WillOnce(Return(SUSI_I_NEEDSFULLSCAN))
-        .WillOnce(Return(SUSI_I_UPDATED));
+        .WillOnce(Return(SUSI_I_UPDATED))
+        .WillOnce(Return(SUSI_I_CLEAN));
 
     UnitScanner unitScanner{ susiWrapper_ };
     const auto result1 = unitScanner.metadataRescan(threatType_, threatName_, path_, sha256_);
     const auto result2 = unitScanner.metadataRescan(threatType_, threatName_, path_, sha256_);
     const auto result3 = unitScanner.metadataRescan(threatType_, threatName_, path_, sha256_);
     const auto result4 = unitScanner.metadataRescan(threatType_, threatName_, path_, sha256_);
+    const auto result5 = unitScanner.metadataRescan(threatType_, threatName_, path_, sha256_);
 
     EXPECT_EQ(result1, scan_messages::MetadataRescanResponse::undetected);
     EXPECT_EQ(result2, scan_messages::MetadataRescanResponse::threatPresent);
     EXPECT_EQ(result3, scan_messages::MetadataRescanResponse::needsFullScan);
     EXPECT_EQ(result4, scan_messages::MetadataRescanResponse::failed);
+    EXPECT_EQ(result5, scan_messages::MetadataRescanResponse::clean);
 }
 
 TEST_F(TestUnitScannerMetadataRescan, MetadataRescanReturnsFailureOnUnknownReturnCode)

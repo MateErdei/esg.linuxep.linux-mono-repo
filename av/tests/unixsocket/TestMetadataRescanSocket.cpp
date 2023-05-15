@@ -199,8 +199,7 @@ TEST_F(TestMetadataRescanServerConnectionThread, CorruptRequest)
 
 TEST_F(TestMetadataRescanServerConnectionThread, SendRequest)
 {
-    EXPECT_CALL(*mockScanner_, metadataRescan)
-        .WillOnce(Return(MetadataRescanResponse::undetected));
+    EXPECT_CALL(*mockScanner_, metadataRescan).WillOnce(Return(MetadataRescanResponse::undetected));
     EXPECT_CALL(*mockScannerFactory_, createScanner).WillOnce(Return(ByMove(std::move(mockScanner_))));
 
     auto serialised = request_.Serialise();
@@ -319,6 +318,36 @@ TEST_F(TestMetadataRescanServerSocket, SuccessfulConnection)
         auto result = client_socket.receiveResponse(response);
         EXPECT_TRUE(result);
         EXPECT_EQ(response, scan_messages::MetadataRescanResponse::threatPresent);
+    }
+
+    server.requestStop();
+    server.join();
+}
+
+TEST_F(TestMetadataRescanServerSocket, ClientReceivesInvalidEnum)
+{
+    EXPECT_CALL(*mockScanner_, metadataRescan)
+        .WillOnce(Return(static_cast<MetadataRescanResponse>(100)))
+        .WillOnce(Return(static_cast<MetadataRescanResponse>(5)));
+    EXPECT_CALL(*mockScannerFactory_, createScanner).WillOnce(Return(ByMove(std::move(mockScanner_))));
+
+    MetadataRescanServerSocket server(socketPath_, 0666, mockScannerFactory_);
+    server.start();
+
+    {
+        MetadataRescanClientSocket client_socket(socketPath_);
+        client_socket.connect();
+
+        client_socket.sendRequest(request_);
+        MetadataRescanResponse response;
+        auto result = client_socket.receiveResponse(response);
+        EXPECT_FALSE(result);
+
+        client_socket.sendRequest(request_);
+        result = client_socket.receiveResponse(response);
+        EXPECT_FALSE(result);
+
+        EXPECT_TRUE(appenderContains("Invalid response"));
     }
 
     server.requestStop();

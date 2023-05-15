@@ -60,12 +60,20 @@ namespace unixsocket
             return false;
         }
 
-        auto bytesRead = ::read(m_socket_fd.get(), &response, sizeof(scan_messages::MetadataRescanResponse));
+        uint8_t responseByte;
+        auto bytesRead = ::read(m_socket_fd.get(), &responseByte, sizeof(scan_messages::MetadataRescanResponse));
         if (bytesRead != sizeof(scan_messages::MetadataRescanResponse))
         {
             return false;
         }
 
+        if (responseByte > 4)
+        {
+            LOGWARN("Invalid response");
+            return false;
+        }
+
+        response = static_cast<scan_messages::MetadataRescanResponse>(responseByte);
         return true;
     }
 

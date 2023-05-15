@@ -1582,16 +1582,39 @@ TEST_F(TestQuarantineManagerDefaultMock, RestoreSucceedsOnRootFile)
     EXPECT_TRUE(appenderContains("Restored file to disk: /file"));
 }
 
-TEST_F(TestQuarantineManagerDefaultMock, quarantineFileSetsThreats)
+TEST_F(TestQuarantineManagerDefaultMock, QuarantineFileSetsThreatsInSafeStoreObjectFromArguments)
 {
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::move(m_mockFileSystem) };
 
-    EXPECT_CALL(*m_mockSafeStoreWrapper, setObjectCustomDataString(_, "threats", _)).Times(1).WillOnce(Return(true));
+    EXPECT_CALL(
+        *m_mockSafeStoreWrapper,
+        setObjectCustomDataString(
+            _, "threats", R"([{"name":"threatName","sha256":"threatSHA256","type":"threatType"}])"))
+        .Times(1)
+        .WillOnce(Return(true));
     auto quarantineManager = createQuarantineManager();
 
     quarantineManager.initialise();
     const auto result = quarantineManager.quarantineFile(
-        m_path, m_threatID, m_threatType, m_threatName, threatSha256_, m_SHA256, m_correlationId, std::move(autoFd));
+        m_path, m_threatID, "threatType", "threatName", "threatSHA256", m_SHA256, m_correlationId, std::move(autoFd));
+    EXPECT_EQ(result, common::CentralEnums::QuarantineResult::SUCCESS);
+}
+
+TEST_F(TestQuarantineManagerDefaultMock, QuarantineFileSetsThreatsWhenThreatNameIsAValidJson)
+{
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::move(m_mockFileSystem) };
+
+    EXPECT_CALL(
+        *m_mockSafeStoreWrapper,
+        setObjectCustomDataString(
+            _, "threats", R"([{"name":"{\"a\": \"b\"}","sha256":"threatSHA256","type":"threatType"}])"))
+        .Times(1)
+        .WillOnce(Return(true));
+    auto quarantineManager = createQuarantineManager();
+
+    quarantineManager.initialise();
+    const auto result = quarantineManager.quarantineFile(
+        m_path, m_threatID, "threatType", R"({"a": "b"})", "threatSHA256", m_SHA256, m_correlationId, std::move(autoFd));
     EXPECT_EQ(result, common::CentralEnums::QuarantineResult::SUCCESS);
 }
 
@@ -1600,6 +1623,34 @@ TEST_F(TestQuarantineManagerDefaultMock, quarantineFileSettingThreatsFailsDoesnt
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::move(m_mockFileSystem) };
 
     EXPECT_CALL(*m_mockSafeStoreWrapper, setObjectCustomDataString(_, "threats", _))
+        .Times(AtLeast(1))
+        .WillRepeatedly(Return(false));
+    auto quarantineManager = createQuarantineManager();
+
+    quarantineManager.initialise();
+    const auto result = quarantineManager.quarantineFile(
+        m_path, m_threatID, m_threatType, m_threatName, threatSha256_, m_SHA256, m_correlationId, std::move(autoFd));
+    EXPECT_EQ(result, common::CentralEnums::QuarantineResult::SUCCESS);
+}
+
+TEST_F(TestQuarantineManagerDefaultMock, QuarantineFileSetsSha256InSafeStoreObject)
+{
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::move(m_mockFileSystem) };
+
+    EXPECT_CALL(*m_mockSafeStoreWrapper, setObjectCustomDataString(_, "SHA256", "SHA256")).WillOnce(Return(true));
+    auto quarantineManager = createQuarantineManager();
+
+    quarantineManager.initialise();
+    const auto result = quarantineManager.quarantineFile(
+        m_path, m_threatID, m_threatType, m_threatName, threatSha256_, "SHA256", m_correlationId, std::move(autoFd));
+    EXPECT_EQ(result, common::CentralEnums::QuarantineResult::SUCCESS);
+}
+
+TEST_F(TestQuarantineManagerDefaultMock, QuarantineFileSettingSha256FailsDoesntCauseQuarantineFailure)
+{
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::move(m_mockFileSystem) };
+
+    EXPECT_CALL(*m_mockSafeStoreWrapper, setObjectCustomDataString(_, "SHA256", _))
         .Times(AtLeast(1))
         .WillRepeatedly(Return(false));
     auto quarantineManager = createQuarantineManager();

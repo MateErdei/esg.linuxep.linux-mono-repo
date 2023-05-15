@@ -1,15 +1,13 @@
 // Copyright 2022-2023 Sophos Limited. All rights reserved.
 
 #include "SafeStoreSocketMemoryAppenderUsingTests.h"
-#include "UnixSocketMemoryAppenderUsingTests.h"
 
 #include "datatypes/SystemCallWrapper.h"
 #include "datatypes/sophos_filesystem.h"
-#include "safestore/MockSafeStoreResources.h"
-#include "safestore/QuarantineManager/QuarantineManagerImpl.h"
-#include "safestore/SafeStoreWrapper/SafeStoreWrapperImpl.h"
+#include "scan_messages/SampleThreatDetected.h"
 #include "tests/common/MemoryAppender.h"
 #include "tests/datatypes/MockSysCalls.h"
+#include "tests/safestore/MockIQuarantineManager.h"
 #include "unixsocket/SocketUtils.h"
 #include "unixsocket/safeStoreSocket/SafeStoreServerConnectionThread.h"
 
@@ -55,9 +53,6 @@ namespace
 
             m_sysCalls = std::make_shared<datatypes::SystemCallWrapper>();
             m_mockSysCalls = std::make_shared<StrictMock<MockSystemCallWrapper>>();
-            auto safeStoreWrapper = std::make_unique<SafeStoreWrapper::SafeStoreWrapperImpl>();
-            m_quarantineManager = std::make_shared<QuarantineManager::QuarantineManagerImpl>(
-                std::move(safeStoreWrapper), m_mockSysCalls, mockSafeStoreResources_);
         }
 
         void TearDown() override
@@ -70,8 +65,7 @@ namespace
         fs::path m_testDir;
         std::shared_ptr<datatypes::SystemCallWrapper> m_sysCalls;
         std::shared_ptr<StrictMock<MockSystemCallWrapper>> m_mockSysCalls;
-        std::shared_ptr<QuarantineManager::IQuarantineManager> m_quarantineManager;
-        MockSafeStoreResources mockSafeStoreResources_;
+        std::shared_ptr<MockIQuarantineManager> mockQuarantineManager_ = std::make_shared<MockIQuarantineManager>();
     };
 } // namespace
 
@@ -80,14 +74,14 @@ TEST_F(TestSafeStoreServerConnectionThread, successful_construction)
     datatypes::AutoFd fdHolder(::open("/dev/null", O_RDONLY));
     ASSERT_GE(fdHolder.get(), 0);
     EXPECT_NO_THROW(
-        unixsocket::SafeStoreServerConnectionThread connectionThread(fdHolder, m_quarantineManager, m_sysCalls));
+        unixsocket::SafeStoreServerConnectionThread connectionThread(fdHolder, mockQuarantineManager_, m_sysCalls));
 }
 
 TEST_F(TestSafeStoreServerConnectionThread, isRunning_false_after_construction)
 {
     datatypes::AutoFd fdHolder(::open("/dev/null", O_RDONLY));
     ASSERT_GE(fdHolder.get(), 0);
-    unixsocket::SafeStoreServerConnectionThread connectionThread(fdHolder, m_quarantineManager, m_sysCalls);
+    unixsocket::SafeStoreServerConnectionThread connectionThread(fdHolder, mockQuarantineManager_, m_sysCalls);
     EXPECT_FALSE(connectionThread.isRunning());
 }
 
@@ -96,7 +90,7 @@ TEST_F(TestSafeStoreServerConnectionThread, fail_construction_with_bad_fd)
     datatypes::AutoFd fdHolder;
     ASSERT_EQ(fdHolder.get(), -1);
     EXPECT_THROW(
-        unixsocket::SafeStoreServerConnectionThread connectionThread(fdHolder, m_quarantineManager, m_sysCalls),
+        unixsocket::SafeStoreServerConnectionThread connectionThread(fdHolder, mockQuarantineManager_, m_sysCalls),
         std::runtime_error);
 }
 
@@ -107,7 +101,7 @@ TEST_F(TestSafeStoreServerConnectionThread, stop_while_running)
 
     datatypes::AutoFd fdHolder(::open("/dev/zero", O_RDONLY));
     ASSERT_GE(fdHolder.get(), 0);
-    SafeStoreServerConnectionThread connectionThread(fdHolder, m_quarantineManager, m_sysCalls);
+    SafeStoreServerConnectionThread connectionThread(fdHolder, mockQuarantineManager_, m_sysCalls);
     EXPECT_FALSE(connectionThread.isRunning());
     connectionThread.start();
     EXPECT_TRUE(connectionThread.isRunning());
@@ -127,7 +121,7 @@ TEST_F(TestSafeStoreServerConnectionThread, eof_while_running)
 
     datatypes::AutoFd fdHolder(::open("/dev/null", O_RDONLY));
     ASSERT_GE(fdHolder.get(), 0);
-    SafeStoreServerConnectionThread connectionThread(fdHolder, m_quarantineManager, m_sysCalls);
+    SafeStoreServerConnectionThread connectionThread(fdHolder, mockQuarantineManager_, m_sysCalls);
     connectionThread.start();
     EXPECT_TRUE(waitForLog(expected));
     connectionThread.requestStop();
@@ -144,7 +138,7 @@ TEST_F(TestSafeStoreServerConnectionThread, send_zero_length)
 
     datatypes::AutoFd fdHolder(::open("/dev/zero", O_RDONLY));
     ASSERT_GE(fdHolder.get(), 0);
-    SafeStoreServerConnectionThread connectionThread(fdHolder, m_quarantineManager, m_sysCalls);
+    SafeStoreServerConnectionThread connectionThread(fdHolder, mockQuarantineManager_, m_sysCalls);
     connectionThread.start();
     EXPECT_TRUE(waitForLog(expected));
     connectionThread.requestStop();
@@ -166,7 +160,7 @@ TEST_F(TestSafeStoreServerConnectionThread, bad_notify_pipe_fd)
     fds[1].revents = POLLERR;
     EXPECT_CALL(*m_mockSysCalls, ppoll(_, 2, _, nullptr)).WillOnce(DoAll(SetArrayArgument<0>(fds, fds + 2), Return(1)));
 
-    SafeStoreServerConnectionThread connectionThread(fdHolder, m_quarantineManager, m_mockSysCalls);
+    SafeStoreServerConnectionThread connectionThread(fdHolder, mockQuarantineManager_, m_mockSysCalls);
     ::close(fd); // fd in connection Thread now broken
     connectionThread.start();
     EXPECT_TRUE(waitForLog(expected));
@@ -189,7 +183,7 @@ TEST_F(TestSafeStoreServerConnectionThread, bad_socket_fd)
     fds[0].revents = POLLERR;
     EXPECT_CALL(*m_mockSysCalls, ppoll(_, 2, _, nullptr)).WillOnce(DoAll(SetArrayArgument<0>(fds, fds + 2), Return(1)));
 
-    SafeStoreServerConnectionThread connectionThread(fdHolder, m_quarantineManager, m_mockSysCalls);
+    SafeStoreServerConnectionThread connectionThread(fdHolder, mockQuarantineManager_, m_mockSysCalls);
     ::close(fd); // fd in connection Thread now broken
     connectionThread.start();
     EXPECT_TRUE(waitForLog(expected));
@@ -211,7 +205,7 @@ TEST_F(TestSafeStoreServerConnectionThread, over_max_length)
     datatypes::AutoFd clientFd(socket_fds[1]);
     ASSERT_GE(serverFd.get(), 0);
     ASSERT_GE(clientFd.get(), 0);
-    SafeStoreServerConnectionThread connectionThread(serverFd, m_quarantineManager, m_sysCalls);
+    SafeStoreServerConnectionThread connectionThread(serverFd, mockQuarantineManager_, m_sysCalls);
     connectionThread.start();
     EXPECT_TRUE(connectionThread.isRunning());
     unixsocket::writeLength(clientFd.get(), 0x1000080);
@@ -234,7 +228,7 @@ TEST_F(TestSafeStoreServerConnectionThread, max_length)
     datatypes::AutoFd clientFd(socket_fds[1]);
     ASSERT_GE(serverFd.get(), 0);
     ASSERT_GE(clientFd.get(), 0);
-    SafeStoreServerConnectionThread connectionThread(serverFd, m_quarantineManager, m_sysCalls);
+    SafeStoreServerConnectionThread connectionThread(serverFd, mockQuarantineManager_, m_sysCalls);
     connectionThread.start();
     EXPECT_TRUE(connectionThread.isRunning());
     // length is limited to ~16MB
@@ -261,7 +255,7 @@ TEST_F(TestSafeStoreServerConnectionThread, corrupt_request)
     datatypes::AutoFd clientFd(socket_fds[1]);
     ASSERT_GE(serverFd.get(), 0);
     ASSERT_GE(clientFd.get(), 0);
-    SafeStoreServerConnectionThread connectionThread(serverFd, m_quarantineManager, m_sysCalls);
+    SafeStoreServerConnectionThread connectionThread(serverFd, mockQuarantineManager_, m_sysCalls);
     connectionThread.start();
     EXPECT_TRUE(connectionThread.isRunning());
     unixsocket::writeLengthAndBuffer(clientFd.get(), request);
@@ -271,4 +265,48 @@ TEST_F(TestSafeStoreServerConnectionThread, corrupt_request)
 
     EXPECT_GT(m_memoryAppender->size(), 0);
     EXPECT_TRUE(appenderContains(expected));
+}
+
+TEST_F(TestSafeStoreServerConnectionThread, ReceivesRequestAndCallsQuarantineManager)
+{
+    // Create socket pair
+    int socket_fds[2];
+    int ret = socketpair(AF_UNIX, SOCK_STREAM, 0, socket_fds);
+    ASSERT_EQ(ret, 0);
+    datatypes::AutoFd serverFd(socket_fds[0]);
+    datatypes::AutoFd clientFd(socket_fds[1]);
+    ASSERT_GE(serverFd.get(), 0);
+    ASSERT_GE(clientFd.get(), 0);
+
+    const std::string filePath = "/path/to/eicar.txt";
+    const std::string threatId = "01234567-89ab-cdef-0123-456789abcdef";
+    const std::string threatType = "virus";
+    const std::string threatName = "EICAR-AV-Test";
+    const std::string threatSha256 = "494aaaff46fa3eac73ae63ffbdfd8267131f95c51cc819465fa1797f6ccacf9d";
+    const std::string sha256 = "131f95c51cc819465fa1797f6ccacf9d494aaaff46fa3eac73ae63ffbdfd8267";
+    const std::string correlationId = "fedcba98-7654-3210-fedc-ba9876543210";
+
+    auto detection = createThreatDetectedWithRealFd({ .threatType = threatType,
+                                                      .threatName = threatName,
+                                                      .filePath = filePath,
+                                                      .sha256 = sha256,
+                                                      .threatSha256 = threatSha256,
+                                                      .threatId = threatId,
+                                                      .correlationId = correlationId });
+
+    EXPECT_CALL(
+        *mockQuarantineManager_,
+        quarantineFile(filePath, threatId, threatType, threatName, threatSha256, sha256, correlationId, _));
+
+    SafeStoreServerConnectionThread connectionThread(serverFd, mockQuarantineManager_, m_sysCalls);
+    connectionThread.start();
+
+    // Send detection
+    writeLengthAndBuffer(clientFd.get(), detection.serialise());
+    send_fd(clientFd.get(), detection.autoFd.get());
+
+    EXPECT_TRUE(waitForLog("Received Threat:"));
+
+    connectionThread.requestStop();
+    connectionThread.join();
 }
