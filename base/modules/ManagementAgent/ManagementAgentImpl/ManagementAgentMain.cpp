@@ -340,6 +340,11 @@ namespace ManagementAgent
                         checkHealth = true;
                         LOGINFO("Starting service health checks");
                     }
+                    else
+                    {
+                        // During startup we give a grace period for other processes to start up
+                        checkHealth = false;
+                    }
                 }
 
                 if (checkHealth && (currentTime - lastHealthCheck) >= waitPeriod)
