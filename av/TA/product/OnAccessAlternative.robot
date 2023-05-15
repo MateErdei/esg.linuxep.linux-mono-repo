@@ -591,6 +591,11 @@ On Access Scan Times Out When Unable To Connect To Threat Detector On Access Run
 
     FakeWatchdog.Stop Sophos Threat Detector Under Fake Watchdog
 
+    # Create another file after stopping TD so that we have something else to fail to scan
+    ${filepath2} =  Set Variable  /tmp_test/clean_file_writer/clean2.txt
+    Create File  ${filepath2}  clean
+    Register Cleanup  Remove File  ${filepath2}
+
     wait for on access log contains after mark  Failed to scan file:  timeout=${75}   mark=${mark}
 
 On Access Times Out When Unable To Connect To Threat Detector While Starting Up
