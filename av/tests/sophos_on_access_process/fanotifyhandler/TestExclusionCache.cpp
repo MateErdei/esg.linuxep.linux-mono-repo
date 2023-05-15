@@ -44,6 +44,16 @@ TEST_F(TestExclusionCache, canMatchExclusions)
     EXPECT_FALSE(cache.checkExclusions("/included/foo"));
 }
 
+TEST_F(TestExclusionCache, logsRelativeGlobs)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    sophos_on_access_process::fanotifyhandler::ExclusionCache cache;
+    std::vector<common::Exclusion> exclusions;
+    exclusions.emplace_back("do*er/");
+    EXPECT_NO_THROW(cache.setExclusions(exclusions));
+    EXPECT_TRUE(appenderContains("Updating on-access exclusions with: [\"*/do*er/*\"]"));
+}
+
 namespace
 {
     class CountingExclusionCache : public sophos_on_access_process::fanotifyhandler::ExclusionCache

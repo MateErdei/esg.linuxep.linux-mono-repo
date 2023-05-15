@@ -14,7 +14,8 @@ bool ExclusionCache::setExclusions(const std::vector<common::Exclusion>& exclusi
         std::stringstream printableExclusions;
         for(const auto &exclusion: exclusions)
         {
-            printableExclusions << "[\"" << exclusion.displayPath() << "\"] ";
+            // We want to print the actual globs we are using, not the original form here.
+            printableExclusions << "[\"" << exclusion.path() << "\"] ";
         }
         LOGDEBUG("Updating on-access exclusions with: " << printableExclusions.str());
         cache_.clear(); // Need to clear any cached answers
