@@ -1,6 +1,7 @@
 *** Settings ***
 Force Tags      INTEGRATION  AV_HEALTH
 Library         Collections
+Library         ../Libs/LogUtils.py
 Library         ../Libs/SystemFileWatcher.py
 
 Resource        ../shared/AVAndBaseResources.robot
@@ -54,7 +55,6 @@ AV Health Test Setup
 AV Health Test Teardown
     Remove File    /tmp_test/naughty_eicar
     AV And Base Teardown
-    Uninstall All
 
 Wait until SHS Status File created
     Wait until created  ${SHS_STATUS_FILE}  timeout=${MANAGEMENT_AGENT_HEALTH_STARTUP_DELAY} secs
@@ -100,6 +100,19 @@ Check Threat Health is Reporting Correctly
     ...  SHS Status File Contains   <item name="threat" value="${threatStatus}" />
 
 *** Test Cases ***
+
+# Must be first test case to get clean install result
+Test av health is green right after install
+    wait_for_log_contains_after_last_restart  ${MANAGEMENT_AGENT_LOG_PATH}  Starting service health checks   timeout=120
+
+    Wait until AV Plugin running
+    Wait until threat detector running
+    AV Plugin Log Does Not Contain       Health found previous Sophos Threat Detector process no longer running:
+
+    SHS Status File Contains    <detail name="Sophos Linux AntiVirus" value="0" />
+
+
+
 AV Not Running Triggers Bad Status Health
     # Stopping threat_detector when OA is enabled can lead to some file scans being aborted
     Register Cleanup  Exclude Aborted Scan Errors
@@ -321,17 +334,6 @@ Clean Scheduled Scan Result Does Not Resets Threat Health
     Wait For AV Log Contains After Mark  Completed scan  ${av_mark2}  timeout=210
 
     Check Threat Health is Reporting Correctly    SUSPICIOUS
-
-Test av health is green right after install
-    Install With Base SDDS
-    Wait Until Management Log Contains   Starting service health checks   timeout=45
-
-    Wait until AV Plugin running
-    Wait until threat detector running
-    AV Plugin Log Does Not Contain       Health found previous Sophos Threat Detector process no longer running:
-
-    SHS Status File Contains    <detail name="Sophos Linux AntiVirus" value="0" />
-
 
 AV health is unaffected by scanning the threat_detector pidfile
     Check Status Health is Reporting Correctly    GOOD
