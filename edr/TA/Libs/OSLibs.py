@@ -1,4 +1,6 @@
 # Useful operating system utilities
+import os
+import shutil
 import subprocess
 import time
 
@@ -76,3 +78,9 @@ def remove_package(pkg_name):
             print(f"Command output: {ret.stdout}")
             time.sleep(3)
     raise AssertionError(f"Could not remove package: {pkg_name}")
+
+def copy_file_if_destination_missing(source, destination):
+    if os.path.isfile(destination):
+        return False
+    shutil.copy2(source, destination)
+    return True
