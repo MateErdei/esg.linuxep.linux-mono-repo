@@ -100,8 +100,22 @@ then
         done
     fi
 
-    zypper refresh
-    zypper --non-interactive install libcap-progs nfs-kernel-server zip unzip samba gdb util-linux netcat-openbsd
+    for (( i=0; i<10; i++ ))
+    do
+        if zypper --non-interactive refresh </dev/null
+        then
+            break
+        fi
+        sleep 5
+    done
+    for (( i=0; i<10; i++ ))
+    do
+        if zypper --non-interactive install libcap-progs nfs-kernel-server zip unzip samba gdb util-linux netcat-openbsd </dev/null
+        then
+            break
+        fi
+        sleep 5
+    done
 else
     echo "Can't find package management system"
     exit 1
