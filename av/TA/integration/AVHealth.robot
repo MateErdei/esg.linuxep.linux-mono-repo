@@ -31,6 +31,9 @@ Default Tags    TAP_TESTS
 ...   Good=${1}  Suspicious=${2}   Bad=${3}
 ...   good=${1}  suspicious=${2}   bad=${3}
 
+${MANAGEMENT_AGENT_HEALTH_STARTUP_DELAY} =  120
+${SHS_STATUS_FILE} =  ${MCS_DIR}/status/SHS_status.xml
+
 *** Keywords ***
 AV Health Suite Setup
     Install With Base SDDS
@@ -53,9 +56,12 @@ AV Health Test Teardown
     AV And Base Teardown
     Uninstall All
 
+Wait until SHS Status File created
+    Wait until created  ${SHS_STATUS_FILE}  timeout=${MANAGEMENT_AGENT_HEALTH_STARTUP_DELAY} secs
+
 SHS Status File Contains
     [Arguments]  ${content_to_contain}
-    ${shsStatus} =  Get File   ${MCS_DIR}/status/SHS_status.xml
+    ${shsStatus} =  Get File   ${SHS_STATUS_FILE}
     Log  ${shsStatus}
     Should Contain  ${shsStatus}  ${content_to_contain}
     
@@ -69,8 +75,10 @@ Check Status Health is Reporting Correctly
     ...  5 secs
     ...  Check AV Telemetry    health    ${healthStatus}
 
+    Wait until SHS Status File created
+
     Wait Until Keyword Succeeds
-    ...  40 secs
+    ...  ${MANAGEMENT_AGENT_HEALTH_STARTUP_DELAY} secs
     ...  5 secs
     ...  SHS Status File Contains   <detail name="Sophos Linux AntiVirus" value="${healthStatus}" />
 
@@ -84,8 +92,10 @@ Check Threat Health is Reporting Correctly
     ...  5 secs
     ...  Check AV Telemetry    threatHealth    ${threatStatus}
 
+    Wait until SHS Status File created
+
     Wait Until Keyword Succeeds
-    ...  40 secs
+    ...  ${MANAGEMENT_AGENT_HEALTH_STARTUP_DELAY} secs
     ...  5 secs
     ...  SHS Status File Contains   <item name="threat" value="${threatStatus}" />
 
@@ -96,8 +106,10 @@ AV Not Running Triggers Bad Status Health
     Check Status Health is Reporting Correctly    GOOD
 
     Stop AV Plugin
+    Wait until SHS Status File created
+
     Wait Until Keyword Succeeds
-    ...  40 secs
+    ...  ${MANAGEMENT_AGENT_HEALTH_STARTUP_DELAY} secs
     ...  5 secs
     ...  SHS Status File Contains   <detail name="Sophos Linux AntiVirus" value="2" />
 
