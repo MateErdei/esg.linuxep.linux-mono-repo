@@ -8,6 +8,7 @@
 #include "common/Exclusion.h"
 
 #include <mutex>
+#include <unordered_map>
 #include <vector>
 
 namespace sophos_on_access_process::fanotifyhandler
