@@ -117,7 +117,6 @@ Sul Downloader Installs does not Force reinstall when there is a marker file for
     Check Sul Downloader log does not contain  Triggering a force reinstall
 
 Sul Downloader Installs does not Force reinstall when there is a scheduled update for paused
-    [Tags]    TESTFAILURE
     Start Local Cloud Server  --initial-alc-policy  ${SUPPORT_FILES}/CentralXml/ALC_FixedVersionPolicySDDS3BaseOnly.xml    --initial-flags  ${SUPPORT_FILES}/CentralXml/FLAGS_forceUpdateFlags.json
     Generate Warehouse From Local Base Input  {"sdds3.force-paused-update":"true"}
     ${handle}=  Start Local SDDS3 server with fake files
@@ -146,7 +145,7 @@ Sul Downloader Installs does not Force reinstall when there is a scheduled updat
       ...  File Should contain  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-mcs.json    true
     ${BasicPolicyXml} =  Get File  ${SUPPORT_FILES}/CentralXml/ALC_policy_scheduled_update_Fixed_version.xml
     ${Date} =  Get Current Date
-    ${ScheduledDate} =  Add Time To Date  ${Date}  60 seconds
+    ${ScheduledDate} =  Add Time To Date  ${Date}  120 seconds
     ${ScheduledDay} =  Convert Date  ${ScheduledDate}  result_format=%A
     ${ScheduledTime} =  Convert Date  ${ScheduledDate}  result_format=%H:%M:00
     ${NewPolicyXml} =  Replace String  ${BasicPolicyXml}  REPLACE_DAY  ${ScheduledDay}
@@ -165,7 +164,7 @@ Sul Downloader Installs does not Force reinstall when there is a scheduled updat
     ...    Check SulDownloader Log Contains String N Times   Update success  2
     Check Sul Downloader log does not contain  Triggering a force reinstall
 
-    sleep    60
+    sleep    120
     Trigger Update Now
     Wait Until Keyword Succeeds
     ...    60s
@@ -174,7 +173,6 @@ Sul Downloader Installs does not Force reinstall when there is a scheduled updat
     Check SulDownloader Log Contains  Triggering a force reinstall
 
 Sul Downloader Installs does not Force reinstall when there is a scheduled update for non paused
-    [Tags]    TESTFAILURE
     Start Local Cloud Server  --initial-alc-policy  ${SUPPORT_FILES}/CentralXml/ALC_policy_direct_just_base.xml    --initial-flags  ${SUPPORT_FILES}/CentralXml/FLAGS_forceUpdateFlags.json
     Generate Warehouse From Local Base Input  {"sdds3.force-update":"true"}
     ${handle}=  Start Local SDDS3 server with fake files
@@ -203,7 +201,7 @@ Sul Downloader Installs does not Force reinstall when there is a scheduled updat
       ...  File Should contain  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-mcs.json    true
     ${BasicPolicyXml} =  Get File  ${SUPPORT_FILES}/CentralXml/ALC_policy_scheduled_update.xml
     ${Date} =  Get Current Date
-    ${ScheduledDate} =  Add Time To Date  ${Date}  60 seconds
+    ${ScheduledDate} =  Add Time To Date  ${Date}  120 seconds
     ${ScheduledDay} =  Convert Date  ${ScheduledDate}  result_format=%A
     ${ScheduledTime} =  Convert Date  ${ScheduledDate}  result_format=%H:%M:00
     ${NewPolicyXml} =  Replace String  ${BasicPolicyXml}  REPLACE_DAY  ${ScheduledDay}
@@ -223,7 +221,7 @@ Sul Downloader Installs does not Force reinstall when there is a scheduled updat
     ...    Check SulDownloader Log Contains String N Times   Update success  2
     Check Sul Downloader log does not contain  Triggering a force reinstall
 
-    sleep    60
+    sleep    120
     Trigger Update Now
     Wait Until Keyword Succeeds
     ...    60s
