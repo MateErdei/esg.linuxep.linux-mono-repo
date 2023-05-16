@@ -1,5 +1,6 @@
 *** Settings ***
 Library    ${LIBS_DIRECTORY}/FullInstallerUtils.py
+Library    ${LIBS_DIRECTORY}/OSUtils.py
 Resource  ../upgrade_product/UpgradeResources.robot
 
 
@@ -14,6 +15,7 @@ ${EXTENSION_CRASH} =  SELECT * FROM memorycrashtable;
 ${SIMPLE_QUERY_2_ROW} =  SELECT * from users limit 2;
 ${SIMPLE_QUERY_4_ROW} =  SELECT * from users limit 4;
 ${EDR_PLUGIN_PATH}    ${SOPHOS_INSTALL}/plugins/edr
+${WATCHDOG_LOG}       ${SOPHOS_INSTALL}/logs/base/watchdog.log
 
 *** Keywords ***
 
@@ -65,7 +67,11 @@ Restart EDR Plugin
     Run Keyword If   ${clearLog}   Remove File  ${EDR_DIR}/log/edr.log
     Run Keyword If   ${installQueryPacks}   Create Query Packs
     Mark EDR Log
+    ${wd_mark} =  Mark Log Size    ${WATCHDOG_LOG}
     Wdctl Start Plugin  edr
+    # On RHEL-based distros, rsyslog will restart causing sophos-spl to restart
+    ${isRhelBased} =    Is RHEL Based Distro
+    Run Keyword If    ${isRhelBased}    Wait For Sophos-spl Restart    ${wd_mark}
     Wait Until Keyword Succeeds
     ...  60 secs
     ...  1 secs
@@ -342,3 +348,8 @@ Cleanup Query Packs
         Remove File   ${dir}/sophos-scheduled-query-pack-next.conf
         Remove File   ${dir}/sophos-scheduled-query-pack-next.mtr.conf
     END
+
+Wait For Sophos-spl Restart
+    [Arguments]   ${mark}
+    Wait For Log Contains From Mark    ${mark}    Logger watchdog configured for level:  timeout=${120}
+    Wait For Base Processes To Be Running
