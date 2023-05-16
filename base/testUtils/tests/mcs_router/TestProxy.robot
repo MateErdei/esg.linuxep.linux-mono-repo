@@ -56,7 +56,6 @@ Register With Environment Proxy Lowercase
     Check MCS Router log contains proxy success  localhost:3333
 
 Register With Environment Proxy Uppercase
-    [Documentation]  Derived from  CLOUD.PROXY.003_localhost_proxy.sh
     Start Simple Proxy Server    3333
     Set Environment Variable  HTTPS_PROXY   http://localhost:3333
     Register With Local Cloud Server
