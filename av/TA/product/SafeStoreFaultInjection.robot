@@ -212,9 +212,10 @@ Send SHA with foreign char Safestore
 
 Send very long SHA To Safestore
     Create File  /tmp/testfile
-    ${long_string}=  Run Process  tr -dc A-Za-z0-9 </dev/urandom | head -c 50000  shell=True
-    ${result} =  send TDO To socket  sha=${long_string.stdout}
+    ${long_string}=  Evaluate  "a" * 50000
+    ${result} =  send TDO To socket  sha=${long_string}
     wait_for_safestore_log_contains_after_mark  Quarantined /tmp/testfile successfully   mark=${SAFESTORE_LOG_MARK_FROM_START_OF_TEST}
+
 Send empty threatid To Safestore
     Create File  /tmp/testfile
     ${result} =  send TDO To socket  threatid=""
