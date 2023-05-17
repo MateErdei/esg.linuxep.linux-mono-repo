@@ -17,12 +17,12 @@
 namespace EventWriterLib
 {
     EventWriterWorker::EventWriterWorker::EventWriterWorker(
-            std::unique_ptr<IEventQueuePopper> eventQueuePopper,
+            std::unique_ptr<EventQueueLib::IEventQueuePopper> eventQueuePopper,
             std::unique_ptr<EventJournal::IEventJournalWriter> eventJournalWriter,
             std::shared_ptr<Heartbeat::HeartbeatPinger> heartbeatPinger) :
             m_eventQueuePopper(std::move(eventQueuePopper)),
             m_eventJournalWriter(std::move(eventJournalWriter)),
-            m_heartbeatPinger(heartbeatPinger)
+            m_heartbeatPinger(std::move(heartbeatPinger))
     {
         m_heartbeatPinger->setDroppedEventsMax(Plugin::PluginCallback::ACCEPTABLE_DAILY_DROPPED_EVENTS+1);
     }
