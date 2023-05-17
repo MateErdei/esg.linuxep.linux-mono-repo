@@ -353,6 +353,8 @@ namespace Common::FileSystem
             throw FileSystem::IFileSystemException("getUserIdOfDirEntry: File does not exist");
         }
         struct stat statbuf;
+        // Using lstat as we want the UID of the file but do not want to follow the symlink incase this has already been
+        // changed during the UID reconfigure
         int ret = lstat(path.c_str(), &statbuf);
         if (ret != 0)
         {
@@ -370,6 +372,8 @@ namespace Common::FileSystem
             throw FileSystem::IFileSystemException("getGroupIdOfDirEntry: File does not exist");
         }
         struct stat statbuf;
+        // Using lstat as we want the GID of the file but do not want to follow the symlink incase this has already been
+        // changed during the GID reconfigure
         int ret = lstat(path.c_str(), &statbuf);
         if (ret != 0)
         {

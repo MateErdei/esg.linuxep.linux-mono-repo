@@ -90,7 +90,7 @@ namespace Common::FileSystem
         virtual uid_t getUserId(const std::string& userString) const = 0;
 
         /**
-         * Get the user ID of a file or directory
+         * Get the user ID of a file or directory (does not follow symlinks)
          * @param path
          * @return the user Id of a file or directory
          * @throw IFileSystemException
@@ -98,7 +98,7 @@ namespace Common::FileSystem
         virtual uid_t getUserIdOfDirEntry(const Path& path) const = 0;
 
         /**
-         * Get the group ID of a file or directory
+         * Get the group ID of a file or directory (does not follow symlinks)
          *
          * @param path
          * @return the group Id of a file or directory
