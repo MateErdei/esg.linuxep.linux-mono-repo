@@ -15,10 +15,7 @@ Resource        ComponentSetup.robot
 Suite Setup     Install With Base SDDS Debug
 Suite Teardown  Uninstall ALL
 
-Test Setup      Run Keywords
-...  Install EDR Directly from SDDS  AND
-...  Check EDR Plugin Installed With Base
-
+Test Setup      Test Setup
 Test Teardown   Test Teardown
 
 Default Tags    TAP_TESTS
@@ -942,6 +939,14 @@ Add Uptime Query to Scheduled Queries
     # TODO: When LINUXDAR-3943 is implemented remove denylist option from the query config, and change test accordingly if required.
     Create File  ${SOPHOS_INSTALL}/plugins/edr/etc/query_packs/sophos-scheduled-query-pack.conf  {"schedule": {"uptime": {"query": "select * from uptime;","interval": ${interval}, "tag": "stream", "denylist": false}}}
     Create File  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf.DISABLED  {"schedule": {"uptime": {"query": "select * from uptime;","interval": ${interval}, "tag": "stream", "denylist": false}}}
+
+Test Setup
+    Install EDR Directly from SDDS
+    Check EDR Plugin Installed With Base
+    Wait Until Keyword Succeeds
+    ...   20 secs
+    ...   2 secs
+    ...   Check Osquery Running
 
 Test Teardown
     EDR And Base Teardown
