@@ -17,7 +17,7 @@ namespace EventWriterLib
     {
     public:
         explicit EventWriterWorker(
-            std::unique_ptr<EventQueueLib::IEventQueuePopper> eventQueuePopper,
+            std::shared_ptr<EventQueueLib::IEventQueuePopper> eventQueuePopper,
             std::unique_ptr<EventJournal::IEventJournalWriter> eventJournalWriter,
             std::shared_ptr<Heartbeat::HeartbeatPinger> heartbeatPinger
             );
@@ -30,7 +30,7 @@ namespace EventWriterLib
         void checkAndPruneTruncatedEvents(const std::string& path) override;
 
     private:
-        std::unique_ptr<EventQueueLib::IEventQueuePopper> m_eventQueuePopper;
+        std::shared_ptr<EventQueueLib::IEventQueuePopper> m_eventQueuePopper;
         std::unique_ptr<EventJournal::IEventJournalWriter> m_eventJournalWriter;
         std::atomic<bool> m_shouldBeRunning = false;
         std::atomic<bool> m_isRunning = false;

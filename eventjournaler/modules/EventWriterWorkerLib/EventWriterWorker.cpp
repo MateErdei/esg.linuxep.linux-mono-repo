@@ -17,7 +17,7 @@
 namespace EventWriterLib
 {
     EventWriterWorker::EventWriterWorker::EventWriterWorker(
-            std::unique_ptr<EventQueueLib::IEventQueuePopper> eventQueuePopper,
+            std::shared_ptr<EventQueueLib::IEventQueuePopper> eventQueuePopper,
             std::unique_ptr<EventJournal::IEventJournalWriter> eventJournalWriter,
             std::shared_ptr<Heartbeat::HeartbeatPinger> heartbeatPinger) :
             m_eventQueuePopper(std::move(eventQueuePopper)),
