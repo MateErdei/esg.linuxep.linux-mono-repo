@@ -55,6 +55,7 @@ do
             export ENABLE_STRIP=0
             CMAKE_BUILD_TYPE=Debug
             NO_UNPACK=1
+            CLEAN=0
             ;;
         --build-type)
             shift
