@@ -3,14 +3,14 @@
 #pragma once
 
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
-#include "modules/EventWriterWorkerLib/IEventQueuePopper.h"
+#include "modules/EventQueueLib//IEventQueuePopper.h"
 
 #include <gmock/gmock.h>
 
 using namespace ::testing;
 using namespace EventWriterLib;
 
-class MockEventQueuePopper : public EventWriterLib::IEventQueuePopper
+class MockEventQueuePopper : public EventQueueLib::IEventQueuePopper
 {
 public:
     MockEventQueuePopper() = default;

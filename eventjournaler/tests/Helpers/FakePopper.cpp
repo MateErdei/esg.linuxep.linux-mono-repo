@@ -4,11 +4,11 @@
 #include <optional>
 #include <mutex>
 #include <thread>
-#include "modules/EventWriterWorkerLib/IEventQueuePopper.h"
+#include "modules/EventQueueLib//IEventQueuePopper.h"
 
-using namespace EventWriterLib;
+using namespace EventQueueLib;
 
-FakePopper::FakePopper(JournalerCommon::Event fakeData, int amountOfData)
+FakePopper::FakePopper(const JournalerCommon::Event& fakeData, int amountOfData)
 {
     fake_eventQueue.reserve(amountOfData);
     for (int i = 0; i < amountOfData; i++)
