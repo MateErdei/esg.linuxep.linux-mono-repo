@@ -2,7 +2,6 @@
 
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/Helpers/LogInitializedTests.h>
-#include <modules/EventWriterWorkerLib/EventQueuePopper.h>
 #include "tests/Helpers/MockEventQueue.h"
 
 #include <gtest/gtest.h>

@@ -5,7 +5,6 @@
 #include <Common/Helpers/LogInitializedTests.h>
 
 #include <modules/SubscriberLib/EventQueuePusher.h>
-#include <modules/EventWriterWorkerLib/EventQueuePopper.h>
 #include <modules/JournalerCommon/Event.h>
 
 #include <future>

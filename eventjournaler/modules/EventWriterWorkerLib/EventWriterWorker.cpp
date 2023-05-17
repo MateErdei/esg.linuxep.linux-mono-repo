@@ -2,7 +2,6 @@
 
 #include "EventWriterWorker.h"
 
-#include "EventQueuePopper.h"
 #include "Logger.h"
 
 #include <Common/FileSystem/IFileSystem.h>

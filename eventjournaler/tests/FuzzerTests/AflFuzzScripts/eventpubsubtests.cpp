@@ -1,11 +1,6 @@
-/***********************************************************************************************
-
-Copyright 2021-2021 Sophos Limited. All rights reserved.
-
-***********************************************************************************************/
+// Copyright 2021-2023 Sophos Limited. All rights reserved.
 
 #include <modules/SubscriberLib/EventQueuePusher.h>
-#include <modules/EventWriterWorkerLib/EventQueuePopper.h>
 #include <modules/EventWriterWorkerLib/EventWriterWorker.h>
 #include <modules/EventJournal/EventJournalWriter.h>
 #include <modules/Heartbeat/Heartbeat.h>

@@ -9,7 +9,6 @@
 #include <Common/PluginApi/IBaseServiceApi.h>
 #include <Common/PluginApi/IPluginResourceManagement.h>
 #include <EventJournal/EventJournalWriter.h>
-#include <EventWriterWorkerLib/EventQueuePopper.h>
 #include <EventWriterWorkerLib/EventWriterWorker.h>
 #include <modules/SubscriberLib/EventQueuePusher.h>
 #include <modules/SubscriberLib/Subscriber.h>
