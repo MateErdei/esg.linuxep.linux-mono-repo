@@ -675,6 +675,3 @@ def does_file_contain_word(path, word) -> bool:
 
 def does_file_not_contain(path, word) -> bool:
     return not does_file_contain_word(path, word)
-
-def is_rhel_based_distro():
-    return os.path.exists('/usr/bin/yum')
