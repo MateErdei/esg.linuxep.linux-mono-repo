@@ -677,7 +677,7 @@ def does_file_not_contain(path, word) -> bool:
     return not does_file_contain_word(path, word)
 
 def journalctl_contains(text) -> bool:
-    out = sp.check_output(['journalctl', '--no-pager', '--since', '5 minutes ago'],
+    out = subprocess.check_output(['journalctl', '--no-pager', '--since', '5 minutes ago'],
                           stdin=open('/dev/null', 'wb'))
     output = out.decode('utf-8')
     return text in output
