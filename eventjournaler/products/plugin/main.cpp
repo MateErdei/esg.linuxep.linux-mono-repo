@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2018 Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #include "config.h"
 
@@ -23,6 +19,9 @@ Copyright 2018 Sophos Limited.  All rights reserved.
 #include <modules/Heartbeat/Heartbeat.h>
 #include <modules/Heartbeat/ThreadIdConsts.h>
 
+// Auto version headers
+#include "products/distribution/include/AutoVersioningHeaders/AutoVersion.h"
+
 const char* PluginName = PLUGIN_NAME;
 const int MAX_QUEUE_SIZE = 100;
 
@@ -31,6 +30,7 @@ int main()
     using namespace Plugin;
     int ret = 0;
     Common::Logging::PluginLoggingSetup loggerSetup(PluginName);
+    LOGINFO("Event Journaler " << _AUTOVER_COMPONENTAUTOVERSION_STR_ << " started");
 
     std::unique_ptr<Common::PluginApi::IPluginResourceManagement> resourceManagement =
         Common::PluginApi::createPluginResourceManagement();
