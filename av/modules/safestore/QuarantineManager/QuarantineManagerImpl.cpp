@@ -522,24 +522,25 @@ namespace safestore::QuarantineManager
         catch (Common::FileSystem::IFileSystemException& ex)
         {
             LOGWARN("Failed to setup directory for rescan of threats with error: " << ex.what());
+            cleanupUnpackDir(false, dirPath, fs);
             return nullptr;
         }
-
-        bool failedToCleanUp = false;
 
         auto objectId = m_safeStore->getObjectId(threatToExtract);
         bool success = m_safeStore->restoreObjectByIdToLocation(objectId, dirPath);
         auto unpackedFiles = fs->listAllFilesInDirectoryTree(dirPath);
 
-        if (unpackedFiles.size() > 1)
+        if (unpackedFiles.size() != 1)
         {
-            LOGERROR("Failed to clean up previous unpacked file");
-            failedToCleanUp = true;
-            return nullptr;
-        }
-        if (unpackedFiles.empty())
-        {
-            LOGWARN("Failed to unpack threat for rescan");
+            if (unpackedFiles.size() > 1)
+            {
+                LOGERROR("Failed to clean up previous unpacked file");
+            }
+            if (unpackedFiles.empty())
+            {
+                LOGWARN("Failed to unpack threat for rescan");
+            }
+            cleanupUnpackDir(true, dirPath, fs);
             return nullptr;
         }
         if (!success)
@@ -548,13 +549,14 @@ namespace safestore::QuarantineManager
             try
             {
                 fs->removeFile(unpackedFiles[0]);
+                cleanupUnpackDir(false, dirPath, fs);
             }
             catch (Common::FileSystem::IFileSystemException& ex)
             {
                 LOGERROR("Failed to clean up threat with error: " << ex.what());
-                failedToCleanUp = true;
-                return nullptr;
+                cleanupUnpackDir(true, dirPath, fs);
             }
+            return nullptr;
         }
         std::string filepath = unpackedFiles[0];
 
@@ -567,7 +569,7 @@ namespace safestore::QuarantineManager
         {
             // horrible state here we want to clean up and drop all filedescriptors asap
             LOGERROR("Failed to set correct permissions " << ex.what() << " aborting rescan");
-            fs->removeFileOrDirectory(dirPath);
+            cleanupUnpackDir(false, dirPath, fs);
             return nullptr;
         }
 
@@ -578,13 +580,19 @@ namespace safestore::QuarantineManager
         {
             // remove file as soon as we have fd for it to minimise time on disk
             fs->removeFile(filepath);
+            cleanupUnpackDir(false, dirPath, fs);
         }
         catch (Common::FileSystem::IFileSystemException& ex)
         {
             LOGERROR("Failed to clean up threat with error: " << ex.what());
-            failedToCleanUp = true;
+            cleanupUnpackDir(true, dirPath, fs);
         }
 
+        return file;
+    }
+
+    void QuarantineManagerImpl::cleanupUnpackDir(bool failedToCleanUp, const std::string& dirPath, Common::FileSystem::IFileSystem* fs)
+    {
         try
         {
             fs->removeFileOrDirectory(dirPath);
@@ -601,8 +609,6 @@ namespace safestore::QuarantineManager
                 LOGWARN("Failed to clean up staging location for rescan with error: " << ex.what());
             }
         }
-
-        return file;
     }
 
     // These are private functions, so they are protected by the mutexes on the public interface functions.
@@ -645,7 +651,7 @@ namespace safestore::QuarantineManager
             m_safeStore->createObjectHandleHolder();
         if (!m_safeStore->getObjectHandle(objectId, objectHandle))
         {
-            LOGERROR("Couldn't get object handle for: " << objectId << ", continuing...");
+            LOGERROR("Couldn't get object handle for: " << objectId);
             return false;
         }
 

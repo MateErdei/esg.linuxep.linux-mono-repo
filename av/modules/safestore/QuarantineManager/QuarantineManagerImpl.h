@@ -12,6 +12,7 @@
 #include "unixsocket/threatDetectorSocket/IScanningClientSocket.h"
 
 #include "Common/PersistentValue/PersistentValue.h"
+#include "Common/FileSystem/IFileSystem.h"
 
 #include <thirdparty/nlohmann-json/json.hpp>
 
@@ -50,6 +51,7 @@ namespace safestore::QuarantineManager
         bool scanExtractedFileForThreat(std::shared_ptr<FdsObjectIdsPair> file, const std::string& originalFilePath);
         std::shared_ptr<FdsObjectIdsPair> extractQuarantinedFile(SafeStoreWrapper::ObjectHandleHolder threatToExtract);
     private:
+        void cleanupUnpackDir(bool failedToCleanUp, const std::string& dirPath, Common::FileSystem::IFileSystem* fs);
         void callOnDbError();
         void callOnDbSuccess();
         void setConfigWrapper(nlohmann::json json, const safestore::SafeStoreWrapper::ConfigOption& option);
