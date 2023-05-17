@@ -455,7 +455,7 @@ Run Live Query and Return Result
     [Return]  ${contents}
 
 Replace Rsyslog Apparmor Rule
-    ${apparmor_profile} =    Set Variable    /etc/apparmor.d/usr.sbin.rsyslogd
+    ${apparmor_profile} =    Set Variable    /etc/apparmor.d/usr.sbin.rsyslogd_sophos-spl
     Copy File If Destination Missing  ${apparmor_profile}  ${apparmor_profile}_bkp
     Create File    ${apparmor_profile}   /usr/sbin/rsyslogd {\n /opt/sophos-spl/shared/syslog_pipe rw,\n}\n
     ${result} =   Run Process    apparmor_parser  -r  ${apparmor_profile}
@@ -463,7 +463,7 @@ Replace Rsyslog Apparmor Rule
     Log  ${result.stderr}
 
 Restore Rsyslog Apparmor Rule
-    ${apparmor_profile} =    Set Variable    /etc/apparmor.d/usr.sbin.rsyslogd
+    ${apparmor_profile} =    Set Variable    /etc/apparmor.d/usr.sbin.rsyslogd_sophos-spl
     Run Keyword And Ignore Error  Move File  ${apparmor_profile}_bkp  ${apparmor_profile}
     ${result} =   Run Process    apparmor_parser  -r  ${apparmor_profile}
     Log  ${result.stdout}

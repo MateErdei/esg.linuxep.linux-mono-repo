@@ -67,7 +67,8 @@ Test EDR Serialize Response Handles Non-UTF8 Characters in Osquery Response
     ...  Run Non-UTF8 Query
 
 EDR plugin Configures OSQuery To Enable SysLog Event Collection
-    Replace Rsyslog Apparmor Rule
+    ${apparmor_installed} =    Does File Exist      /usr/sbin/apparmor_parser
+    Run Keyword If    ${apparmor_installed}    Replace Rsyslog Apparmor Rule
     Check EDR Plugin Installed With Base
     Wait Until Keyword Succeeds
     ...  15 secs
@@ -95,7 +96,7 @@ EDR plugin Configures OSQuery To Enable SysLog Event Collection
     # but is installed on all other platforms we support.
     Run Keyword If   ${result.rc}==1
     ...   Check Rsyslog Started Without Error
-    Restore Rsyslog Apparmor Rule
+    Run Keyword If    ${apparmor_installed}    Restore Rsyslog Apparmor Rule
 
 EDR Restarts If File Descriptor Limit Hit
     [Tags]  TESTFAILURE
