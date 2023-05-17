@@ -67,7 +67,7 @@ Restart EDR Plugin
     Run Keyword If   ${installQueryPacks}   Create Query Packs
     # If rsyslog restart causes sophos-spl restart, wait for it to start
     ${spl_restarting} =    Journalctl Contains    sophos-spl.service: Killing process
-    Run Keyword If   ${spl_restarting}   Wait Until EDR OSQuery Running
+    Run Keyword If   ${spl_restarting}   Wait Until EDR OSQuery Running    WaitInSecs=180
     Mark EDR Log
     Wdctl Start Plugin  edr
     Wait Until Keyword Succeeds
