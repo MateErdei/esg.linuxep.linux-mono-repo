@@ -1032,15 +1032,16 @@ TEST_F(QuarantineManagerTests, extractQuarantinedFile)
     EXPECT_CALL(*mockReleaseMethods, releaseObjectHandle(_)).Times(1);
 
     EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectId(_)).Times(1);
-    EXPECT_CALL(*m_mockSafeStoreWrapper, restoreObjectByIdToLocation(_, _)).Times(1).WillRepeatedly(Return(true));
+    EXPECT_CALL(*m_mockSafeStoreWrapper, restoreObjectByIdToLocation(_, _)).WillOnce(Return(true));
 
     EXPECT_CALL(*m_mockSysCallWrapper, _open(_, _, _)).WillOnce(Return(100));
 
     auto quarantineManager = createQuarantineManager();
 
     ObjectHandleHolder holder = safestore::SafeStoreWrapper::ObjectHandleHolder(mockGetIdMethods, mockReleaseMethods);
-    auto actualFiles = quarantineManager->extractQuarantinedFile(std::move(holder));
-    EXPECT_EQ(100, actualFiles->first);
+    auto actualFile = quarantineManager->extractQuarantinedFile(std::move(holder));
+    ASSERT_NE(actualFile, nullptr);
+    EXPECT_EQ(100, actualFile->first);
 }
 
 TEST_F(QuarantineManagerTests, extractQuarantinedFileHandlesFailedToRemoveFileFollowedByAFailToRemoveUnpackDir)
@@ -1075,7 +1076,7 @@ TEST_F(QuarantineManagerTests, extractQuarantinedFileHandlesFailedToRemoveFileFo
     EXPECT_CALL(*mockReleaseMethods, releaseObjectHandle(_)).Times(1);
 
     EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectId(_)).Times(1);
-    EXPECT_CALL(*m_mockSafeStoreWrapper, restoreObjectByIdToLocation(_, _)).Times(1).WillRepeatedly(Return(true));
+    EXPECT_CALL(*m_mockSafeStoreWrapper, restoreObjectByIdToLocation(_, _)).WillOnce(Return(true));
 
     EXPECT_CALL(*m_mockSysCallWrapper, _open(_, _, _)).WillOnce(Return(100));
 
@@ -1083,6 +1084,7 @@ TEST_F(QuarantineManagerTests, extractQuarantinedFileHandlesFailedToRemoveFileFo
     
     ObjectHandleHolder holder = safestore::SafeStoreWrapper::ObjectHandleHolder(mockGetIdMethods, mockReleaseMethods);
     auto actualFile = quarantineManager->extractQuarantinedFile(std::move(holder));
+    ASSERT_NE(actualFile, nullptr);
     EXPECT_TRUE(appenderContains("Failed to clean up threat with error: exception"));
     EXPECT_TRUE(appenderContains("Failed to clean up staging location for rescan with error:"));
     EXPECT_EQ(100, actualFile->first);
@@ -1119,19 +1121,22 @@ TEST_F(QuarantineManagerTests, extractQuarantinedFileHandlesAFailToRemoveUnpackD
     EXPECT_CALL(*mockReleaseMethods, releaseObjectHandle(_)).Times(1);
 
     EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectId(_)).Times(1);
-    EXPECT_CALL(*m_mockSafeStoreWrapper, restoreObjectByIdToLocation(_, _)).Times(1).WillRepeatedly(Return(true));
+    EXPECT_CALL(*m_mockSafeStoreWrapper, restoreObjectByIdToLocation(_, _)).WillOnce(Return(true));
 
     EXPECT_CALL(*m_mockSysCallWrapper, _open(_, _, _)).WillOnce(Return(100));
 
     auto quarantineManager = createQuarantineManager();
 
     ObjectHandleHolder holder = safestore::SafeStoreWrapper::ObjectHandleHolder(mockGetIdMethods, mockReleaseMethods);
-    auto actualFiles = quarantineManager->extractQuarantinedFile(std::move(holder));
+    auto actualFile = quarantineManager->extractQuarantinedFile(std::move(holder));
+    ASSERT_NE(actualFile, nullptr);
     EXPECT_TRUE(appenderContains("Failed to clean up staging location for rescan with error:"));
-    EXPECT_EQ(100, actualFiles->first);
+    EXPECT_EQ(100, actualFile->first);
 }
+
 TEST_F(QuarantineManagerTests, extractQuarantinedFileAbortsWhenThereIsMoreThanOneFileInUnpackDir)
 {
+    UsingMemoryAppender memoryAppenderHolder(*this);
     auto* filesystemMock = new StrictMock<MockFileSystem>();
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::unique_ptr<Common::FileSystem::IFileSystem>(
         filesystemMock) };
@@ -1142,10 +1147,10 @@ TEST_F(QuarantineManagerTests, extractQuarantinedFileAbortsWhenThereIsMoreThanOn
 
     addCommonPersistValueExpects(*filesystemMock);
 
-    EXPECT_CALL(*filePermissionsMock, chmod("/tmp/av/var/tempUnpack", _)).WillOnce(Return());
-    EXPECT_CALL(*filePermissionsMock, chown("/tmp/av/var/tempUnpack", "root", "root")).WillOnce(Return());
-    EXPECT_CALL(*filesystemMock, removeFileOrDirectory("/tmp/av/var/tempUnpack")).WillOnce(Return());
-    EXPECT_CALL(*filesystemMock, makedirs("/tmp/av/var/tempUnpack")).WillOnce(Return());
+    EXPECT_CALL(*filePermissionsMock, chmod("/tmp/av/var/tempUnpack", _)).Times(1);
+    EXPECT_CALL(*filePermissionsMock, chown("/tmp/av/var/tempUnpack", "root", "root")).Times(1);
+    EXPECT_CALL(*filesystemMock, removeFileOrDirectory("/tmp/av/var/tempUnpack")).Times(1);
+    EXPECT_CALL(*filesystemMock, makedirs("/tmp/av/var/tempUnpack")).Times(1);
 
     std::vector<std::string> unpackedFiles = { "file", "file2" };
     EXPECT_CALL(*filesystemMock, listAllFilesInDirectoryTree("/tmp/av/var/tempUnpack")).WillOnce(Return(unpackedFiles));
@@ -1155,18 +1160,19 @@ TEST_F(QuarantineManagerTests, extractQuarantinedFileAbortsWhenThereIsMoreThanOn
     EXPECT_CALL(*mockReleaseMethods, releaseObjectHandle(_)).Times(1);
 
     EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectId(_)).Times(1);
-    EXPECT_CALL(*m_mockSafeStoreWrapper, restoreObjectByIdToLocation(_, _)).Times(1).WillRepeatedly(Return(true));
+    EXPECT_CALL(*m_mockSafeStoreWrapper, restoreObjectByIdToLocation(_, _)).WillOnce(Return(true));
 
     auto quarantineManager = createQuarantineManager();
 
     ObjectHandleHolder holder = safestore::SafeStoreWrapper::ObjectHandleHolder(mockGetIdMethods, mockReleaseMethods);
-    auto actualFiles = quarantineManager->extractQuarantinedFile(std::move(holder));
-    //TODO - test needs new verification
-    //EXPECT_EQ(0, actualFiles.size());
+    EXPECT_EQ(quarantineManager->extractQuarantinedFile(std::move(holder)), nullptr);
+    EXPECT_TRUE(appenderContains("Failed to clean up previous unpacked file"));
 }
 
 TEST_F(QuarantineManagerTests, extractQuarantinedFileHandlesFailedRestore)
 {
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
     auto* filesystemMock = new StrictMock<MockFileSystem>();
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::unique_ptr<Common::FileSystem::IFileSystem>(
         filesystemMock) };
@@ -1177,32 +1183,33 @@ TEST_F(QuarantineManagerTests, extractQuarantinedFileHandlesFailedRestore)
 
     addCommonPersistValueExpects(*filesystemMock);
 
-    EXPECT_CALL(*filePermissionsMock, chmod("/tmp/av/var/tempUnpack", _)).WillOnce(Return());
-    EXPECT_CALL(*filePermissionsMock, chown("/tmp/av/var/tempUnpack", "root", "root")).WillOnce(Return());
-    EXPECT_CALL(*filesystemMock, removeFileOrDirectory("/tmp/av/var/tempUnpack")).WillOnce(Return());
-    EXPECT_CALL(*filesystemMock, makedirs("/tmp/av/var/tempUnpack")).WillOnce(Return());
+    EXPECT_CALL(*filePermissionsMock, chmod("/tmp/av/var/tempUnpack", _)).Times(1);
+    EXPECT_CALL(*filePermissionsMock, chown("/tmp/av/var/tempUnpack", "root", "root")).Times(1);
+    EXPECT_CALL(*filesystemMock, removeFileOrDirectory("/tmp/av/var/tempUnpack")).Times(1);
+    EXPECT_CALL(*filesystemMock, makedirs("/tmp/av/var/tempUnpack")).Times(1);
 
     std::vector<std::string> unpackedFiles = { "file" };
     EXPECT_CALL(*filesystemMock, listAllFilesInDirectoryTree("/tmp/av/var/tempUnpack")).WillOnce(Return(unpackedFiles));
 
-    EXPECT_CALL(*filesystemMock, removeFile("file")).WillOnce(Return());
+    EXPECT_CALL(*filesystemMock, removeFile("file")).Times(1);
     auto mockGetIdMethods = std::make_shared<StrictMock<MockISafeStoreGetIdMethods>>();
     auto mockReleaseMethods = std::make_shared<StrictMock<MockISafeStoreReleaseMethods>>();
     EXPECT_CALL(*mockReleaseMethods, releaseObjectHandle(_)).Times(1);
 
     EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectId(_)).Times(1);
-    EXPECT_CALL(*m_mockSafeStoreWrapper, restoreObjectByIdToLocation(_, _)).Times(1).WillRepeatedly(Return(false));
+    EXPECT_CALL(*m_mockSafeStoreWrapper, restoreObjectByIdToLocation(_, _)).WillOnce(Return(false));
 
     auto quarantineManager = createQuarantineManager();
 
     ObjectHandleHolder holder = safestore::SafeStoreWrapper::ObjectHandleHolder(mockGetIdMethods, mockReleaseMethods);
-    auto actualFiles = quarantineManager->extractQuarantinedFile(std::move(holder));
-    //TODO - test needs new verification
-    //EXPECT_EQ(0, actualFiles.size());
+    EXPECT_EQ(quarantineManager->extractQuarantinedFile(std::move(holder)), nullptr);
+    EXPECT_TRUE(appenderContains("Failed to restore threat for rescan"));
 }
 
 TEST_F(QuarantineManagerTests, extractQuarantinedFileAbortWhenFailingToChmodFile)
 {
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
     auto* filesystemMock = new StrictMock<MockFileSystem>();
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::unique_ptr<Common::FileSystem::IFileSystem>(
         filesystemMock) };
@@ -1213,34 +1220,33 @@ TEST_F(QuarantineManagerTests, extractQuarantinedFileAbortWhenFailingToChmodFile
 
     addCommonPersistValueExpects(*filesystemMock);
 
-    EXPECT_CALL(*filePermissionsMock, chmod("/tmp/av/var/tempUnpack", _)).WillOnce(Return());
-    EXPECT_CALL(*filePermissionsMock, chown("/tmp/av/var/tempUnpack", "root", "root")).WillOnce(Return());
-    EXPECT_CALL(*filesystemMock, removeFileOrDirectory("/tmp/av/var/tempUnpack")).WillOnce(Return());
-    EXPECT_CALL(*filesystemMock, makedirs("/tmp/av/var/tempUnpack")).WillOnce(Return());
+    EXPECT_CALL(*filePermissionsMock, chmod("/tmp/av/var/tempUnpack", _)).Times(1);
+    EXPECT_CALL(*filePermissionsMock, chown("/tmp/av/var/tempUnpack", "root", "root")).Times(1);
+    EXPECT_CALL(*filesystemMock, removeFileOrDirectory("/tmp/av/var/tempUnpack")).Times(1);
+    EXPECT_CALL(*filesystemMock, makedirs("/tmp/av/var/tempUnpack")).Times(1);
 
     std::vector<std::string> unpackedFiles = { "file" };
     EXPECT_CALL(*filesystemMock, listAllFilesInDirectoryTree("/tmp/av/var/tempUnpack")).WillOnce(Return(unpackedFiles));
 
     EXPECT_CALL(*filePermissionsMock, chmod("file", _))
         .WillOnce(Throw(Common::FileSystem::IFileSystemException("exception")));
-    EXPECT_CALL(*filePermissionsMock, chown("file", "root", "root")).WillOnce(Return());
+    EXPECT_CALL(*filePermissionsMock, chown("file", "root", "root")).Times(1);
 
     auto mockGetIdMethods = std::make_shared<StrictMock<MockISafeStoreGetIdMethods>>();
     auto mockReleaseMethods = std::make_shared<StrictMock<MockISafeStoreReleaseMethods>>();
     EXPECT_CALL(*mockReleaseMethods, releaseObjectHandle(_)).Times(1);
 
     EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectId(_)).Times(1);
-    EXPECT_CALL(*m_mockSafeStoreWrapper, restoreObjectByIdToLocation(_, _)).Times(1).WillRepeatedly(Return(true));
+    EXPECT_CALL(*m_mockSafeStoreWrapper, restoreObjectByIdToLocation(_, _)).WillOnce(Return(true));
 
     auto quarantineManager = createQuarantineManager();
 
     ObjectHandleHolder holder = safestore::SafeStoreWrapper::ObjectHandleHolder(mockGetIdMethods, mockReleaseMethods);
-    auto actualFiles = quarantineManager->extractQuarantinedFile(std::move(holder));
-    //TODO - test needs new verification
-    //EXPECT_EQ(0, actualFiles.size());
+    EXPECT_EQ(quarantineManager->extractQuarantinedFile(std::move(holder)), nullptr);
+    EXPECT_TRUE(appenderContains("Failed to set correct permissions exception aborting rescan"));
 }
 
-TEST_F(QuarantineManagerTests, extractQuarantinedFileWithMultipleThreatsInDatabase)
+/*TEST_F(QuarantineManagerTests, extractQuarantinedFileWithMultipleThreatsInDatabase)
 {
     auto* filesystemMock = new StrictMock<MockFileSystem>();
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::unique_ptr<Common::FileSystem::IFileSystem>(
@@ -1252,27 +1258,20 @@ TEST_F(QuarantineManagerTests, extractQuarantinedFileWithMultipleThreatsInDataba
 
     addCommonPersistValueExpects(*filesystemMock);
 
-    EXPECT_CALL(*filePermissionsMock, chmod("/tmp/av/var/tempUnpack", _)).WillOnce(Return());
-    EXPECT_CALL(*filePermissionsMock, chown("/tmp/av/var/tempUnpack", "root", "root")).WillOnce(Return());
-    EXPECT_CALL(*filesystemMock, removeFileOrDirectory("/tmp/av/var/tempUnpack")).WillOnce(Return());
-    EXPECT_CALL(*filesystemMock, makedirs("/tmp/av/var/tempUnpack")).WillOnce(Return());
+    EXPECT_CALL(*filePermissionsMock, chmod("/tmp/av/var/tempUnpack", _)).Times(1);
+    EXPECT_CALL(*filePermissionsMock, chown("/tmp/av/var/tempUnpack", "root", "root")).Times(1);
+    EXPECT_CALL(*filesystemMock, removeFileOrDirectory("/tmp/av/var/tempUnpack")).Times(1);
+    EXPECT_CALL(*filesystemMock, makedirs("/tmp/av/var/tempUnpack")).Times(1);
 
     EXPECT_CALL(*filesystemMock, listAllFilesInDirectoryTree("/tmp/av/var/tempUnpack"))
         .WillOnce(Return(std::vector<std::string>({ "file1" })))
         .WillOnce(Return(std::vector<std::string>({ "file2" })))
         .WillOnce(Return(std::vector<std::string>({ "file3" })));
 
-    EXPECT_CALL(*filePermissionsMock, chmod("file1", _)).WillOnce(Return());
-    EXPECT_CALL(*filePermissionsMock, chown("file1", "root", "root")).WillOnce(Return());
+    EXPECT_CALL(*filePermissionsMock, chmod("file1", _)).Times(1);
+    EXPECT_CALL(*filePermissionsMock, chown("file1", "root", "root")).Times(1);
     EXPECT_CALL(*filesystemMock, removeFile("file1")).WillOnce(Return());
 
-    EXPECT_CALL(*filePermissionsMock, chmod("file2", _)).WillOnce(Return());
-    EXPECT_CALL(*filePermissionsMock, chown("file2", "root", "root")).WillOnce(Return());
-    EXPECT_CALL(*filesystemMock, removeFile("file2")).WillOnce(Return());
-
-    EXPECT_CALL(*filePermissionsMock, chmod("file3", _)).WillOnce(Return());
-    EXPECT_CALL(*filePermissionsMock, chown("file3", "root", "root")).WillOnce(Return());
-    EXPECT_CALL(*filesystemMock, removeFile("file3")).WillOnce(Return());
 
     auto mockGetIdMethods = std::make_shared<StrictMock<MockISafeStoreGetIdMethods>>();
     auto mockReleaseMethods = std::make_shared<StrictMock<MockISafeStoreReleaseMethods>>();
@@ -1296,28 +1295,14 @@ TEST_F(QuarantineManagerTests, extractQuarantinedFileWithMultipleThreatsInDataba
     searchResults.emplace_back(std::move(holder3));
 
     //TODO - test needs rework
-    //EXPECT_EQ(0, actualFiles.size());
-/*    auto actualFiles = quarantineManager->extractQuarantinedFile(std::move(searchResults));
-    EXPECT_EQ(3, actualFiles.size());
-    EXPECT_EQ(100, actualFiles[0].first);
-    EXPECT_EQ(200, actualFiles[1].first);
-    EXPECT_EQ(300, actualFiles[2].first);*/
-}
-//Todo remove test?
-/*
-TEST_F(QuarantineManagerTests, extractQuarantinedFileWhenDatabaseEmpty)
-{
-    auto* filesystemMock = new StrictMock<MockFileSystem>();
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::unique_ptr<Common::FileSystem::IFileSystem>(
-        filesystemMock) };
-    addCommonPersistValueExpects(*filesystemMock);
-
-    std::vector<ObjectHandleHolder> searchResults;
-    auto quarantineManager = createQuarantineManager();
-
-    auto actualFiles = quarantineManager->extractQuarantinedFile(std::move(searchResults));
-    EXPECT_EQ(0, actualFiles.size());
+    //EXPECT_EQ(0, actualFile.size());
+*//*    auto actualFile = quarantineManager->extractQuarantinedFile(std::move(searchResults));
+    EXPECT_EQ(3, actualFile.size());
+    EXPECT_EQ(100, actualFile[0].first);
+    EXPECT_EQ(200, actualFile[1].first);
+    EXPECT_EQ(300, actualFile[2].first);*//*
 }*/
+
 
 TEST_F(QuarantineManagerTests, configParsingCanParseValidConfig)
 {
