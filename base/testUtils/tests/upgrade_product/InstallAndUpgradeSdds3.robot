@@ -199,7 +199,10 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     Check AV Plugin Permissions
     Check Update Reports Have Been Processed
 
-    SHS Status File Contains  ${GoodThreatHealthXmlContents}
+    Wait Until Keyword Succeeds
+    ...  60 secs
+    ...  1 secs
+    ...  SHS Status File Contains  ${GoodThreatHealthXmlContents}
     Check AV Plugin Can Scan Files
     Enable On Access Via Policy
     Check On Access Detects Threats
@@ -363,7 +366,10 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     File Should Exist  ${SOPHOS_INSTALL}/plugins/av/log/downgrade-backup/soapd.log
     File Should Exist  ${SOPHOS_INSTALL}/plugins/av/log/downgrade-backup/sophos_threat_detector.log
 
-    SHS Status File Contains  ${HealthyShsStatusXmlContents}
+    Wait Until Keyword Succeeds
+    ...  60 secs
+    ...  1 secs
+    ...  SHS Status File Contains  ${HealthyShsStatusXmlContents}
     # Threat health returns to good after threat is cleaned up
     Wait Until Keyword Succeeds
     ...  60 secs
@@ -474,7 +480,10 @@ We Can Upgrade From Release to VUT Without Unexpected Errors
     Wait For RuntimeDetections to be Installed
     Check AV Plugin Permissions
 
-    SHS Status File Contains  ${GoodThreatHealthXmlContents}
+    Wait Until Keyword Succeeds
+    ...  60 secs
+    ...  1 secs
+    ...  SHS Status File Contains  ${GoodThreatHealthXmlContents}
     Check AV Plugin Can Scan Files
     Enable On Access Via Policy
     Check On Access Detects Threats
@@ -618,8 +627,10 @@ We Can Downgrade From VUT to Release Without Unexpected Errors
     File Should Exist  ${SOPHOS_INSTALL}/plugins/av/log/downgrade-backup/soapd.log
     File Should Exist  ${SOPHOS_INSTALL}/plugins/av/log/downgrade-backup/sophos_threat_detector.log
 
-    # TODO: Uncomment below once On-access has been released
-    #SHS Status File Contains  ${BadThreatHealthXmlContents}
+    Wait Until Keyword Succeeds
+    ...  60 secs
+    ...  1 secs
+    ...  SHS Status File Contains  ${BadThreatHealthXmlContents}
     Wait Until Keyword Succeeds
     ...  15 secs
     ...  5 secs
