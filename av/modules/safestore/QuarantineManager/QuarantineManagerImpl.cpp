@@ -636,7 +636,7 @@ namespace safestore::QuarantineManager
 
         if (!response.getErrorMsg().empty()
             && !common::contains(response.getErrorMsg(), "as it is password protected")
-            && !common::contains(response.getErrorMsg(), "not a supported file type")))
+            && !common::contains(response.getErrorMsg(), "not a supported file type"))
         {
             LOGERROR("Error on rescan request: " << response.getErrorMsg());
             return false;

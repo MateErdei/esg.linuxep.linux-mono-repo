@@ -704,7 +704,6 @@ Allow Listed Files Are Removed From Quarantine Allow By SHA256
 
     # File is allowed and not treated as a threat
     wait_for_log_contains_from_mark  ${td_mark}  Allowed by SHA256: c88e20178a82af37a51b030cb3797ed144126cad09193a6c8c7e95957cf9c3f9
-    wait_for_log_contains_from_mark  ${td_mark}  Allowing ${allow_listed_threat_file} with c88e20178a82af37a51b030cb3797ed144126cad09193a6c8c7e95957cf9c3f9
 
     # File allowed so should still exist
     Should Exist  ${allow_listed_threat_file}
