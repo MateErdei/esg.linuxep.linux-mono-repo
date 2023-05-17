@@ -35,6 +35,6 @@ runtimedetections.latest.x64:
   line-id: ServerProtectionLinux-Plugin-RuntimeDetections
   mountpoint: ServerProtectionLinux-Plugin-RuntimeDetections
 responseactions.latest.x64:
-  prod-artifact: esg-releasable-candidate/linuxep.everest-base/release--2023-19/20230510095000-0656d59dd9a3338f1ae24b029f857de7f4474614-nfV3qy/sspl-base/RA-SDDS3-PACKAGE/
+  prod-artifact: esg-releasable-candidate/linuxep.everest-base/release--2023-19.2/20230516120622-85d2303339f0488f08afc0929d97d53636ac6f86-fNfBsT/sspl-base/RA-SDDS3-PACKAGE/
   line-id: ServerProtectionLinux-Plugin-responseactions
   mountpoint: ServerProtectionLinux-Plugin-responseactions
