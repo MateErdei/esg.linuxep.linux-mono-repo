@@ -1246,64 +1246,6 @@ TEST_F(QuarantineManagerTests, extractQuarantinedFileAbortWhenFailingToChmodFile
     EXPECT_TRUE(appenderContains("Failed to set correct permissions exception aborting rescan"));
 }
 
-/*TEST_F(QuarantineManagerTests, extractQuarantinedFileWithMultipleThreatsInDatabase)
-{
-    auto* filesystemMock = new StrictMock<MockFileSystem>();
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::unique_ptr<Common::FileSystem::IFileSystem>(
-        filesystemMock) };
-    auto* filePermissionsMock = new StrictMock<MockFilePermissions>();
-    Tests::ScopedReplaceFilePermissions scopedReplaceFilePermissions{
-        std::unique_ptr<Common::FileSystem::IFilePermissions>(filePermissionsMock)
-    };
-
-    addCommonPersistValueExpects(*filesystemMock);
-
-    EXPECT_CALL(*filePermissionsMock, chmod("/tmp/av/var/tempUnpack", _)).Times(1);
-    EXPECT_CALL(*filePermissionsMock, chown("/tmp/av/var/tempUnpack", "root", "root")).Times(1);
-    EXPECT_CALL(*filesystemMock, removeFileOrDirectory("/tmp/av/var/tempUnpack")).Times(1);
-    EXPECT_CALL(*filesystemMock, makedirs("/tmp/av/var/tempUnpack")).Times(1);
-
-    EXPECT_CALL(*filesystemMock, listAllFilesInDirectoryTree("/tmp/av/var/tempUnpack"))
-        .WillOnce(Return(std::vector<std::string>({ "file1" })))
-        .WillOnce(Return(std::vector<std::string>({ "file2" })))
-        .WillOnce(Return(std::vector<std::string>({ "file3" })));
-
-    EXPECT_CALL(*filePermissionsMock, chmod("file1", _)).Times(1);
-    EXPECT_CALL(*filePermissionsMock, chown("file1", "root", "root")).Times(1);
-    EXPECT_CALL(*filesystemMock, removeFile("file1")).WillOnce(Return());
-
-
-    auto mockGetIdMethods = std::make_shared<StrictMock<MockISafeStoreGetIdMethods>>();
-    auto mockReleaseMethods = std::make_shared<StrictMock<MockISafeStoreReleaseMethods>>();
-    EXPECT_CALL(*mockReleaseMethods, releaseObjectHandle(_)).Times(3);
-
-    EXPECT_CALL(*m_mockSafeStoreWrapper, getObjectId(_)).Times(3);
-    EXPECT_CALL(*m_mockSafeStoreWrapper, restoreObjectByIdToLocation(_, _)).Times(3).WillRepeatedly(Return(true));
-
-    EXPECT_CALL(*m_mockSysCallWrapper, _open(StrEq("file1"), _, _)).WillOnce(Return(100));
-    EXPECT_CALL(*m_mockSysCallWrapper, _open(StrEq("file2"), _, _)).WillOnce(Return(200));
-    EXPECT_CALL(*m_mockSysCallWrapper, _open(StrEq("file3"), _, _)).WillOnce(Return(300));
-
-    auto quarantineManager = createQuarantineManager();
-
-    std::vector<ObjectHandleHolder> searchResults;
-    ObjectHandleHolder holder1 = safestore::SafeStoreWrapper::ObjectHandleHolder(mockGetIdMethods, mockReleaseMethods);
-    ObjectHandleHolder holder2 = safestore::SafeStoreWrapper::ObjectHandleHolder(mockGetIdMethods, mockReleaseMethods);
-    ObjectHandleHolder holder3 = safestore::SafeStoreWrapper::ObjectHandleHolder(mockGetIdMethods, mockReleaseMethods);
-    searchResults.emplace_back(std::move(holder1));
-    searchResults.emplace_back(std::move(holder2));
-    searchResults.emplace_back(std::move(holder3));
-
-    //TODO - test needs rework
-    //EXPECT_EQ(0, actualFile.size());
-*//*    auto actualFile = quarantineManager->extractQuarantinedFile(std::move(searchResults));
-    EXPECT_EQ(3, actualFile.size());
-    EXPECT_EQ(100, actualFile[0].first);
-    EXPECT_EQ(200, actualFile[1].first);
-    EXPECT_EQ(300, actualFile[2].first);*//*
-}*/
-
-
 TEST_F(QuarantineManagerTests, configParsingCanParseValidConfig)
 {
     auto* filesystemMock = new StrictMock<MockFileSystem>();
