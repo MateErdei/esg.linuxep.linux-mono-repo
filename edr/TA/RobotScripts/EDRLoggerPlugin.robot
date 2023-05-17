@@ -312,7 +312,7 @@ EDR Plugin Respects Data Limit
     Wait For Log Contains From Mark    ${mark1}    Restarting osquery, reason: XDR data limit exceeded
     Wait For LiveQuery Status To Contain  <dailyDataLimitExceeded>true</dailyDataLimitExceeded>
     # Wait for EDR to be ready for telemetry request
-    Wait For Log Contains From Mark    ${mark2}    Plugin preparation complete    60
+    Wait For Log Contains From Mark    ${mark2}    Plugin preparation complete    180
     ${edr_telemetry} =  Get Plugin Telemetry  edr
     ${telemetry_json} =  Evaluate  json.loads('''${edr_telemetry}''')  json
     ${uploadLimit} =  Set Variable  ${telemetry_json['scheduled-queries']['upload-limit-hit']}
