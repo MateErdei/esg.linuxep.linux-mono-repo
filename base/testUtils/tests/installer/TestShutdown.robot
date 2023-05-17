@@ -84,6 +84,6 @@ Test Components Shutdown Cleanly
 Write Rsyslog Config
     ${EDR_SDDS_DIR} =  Get SSPL EDR Plugin SDDS
     Copy File    ${EDR_SDDS_DIR}/files/plugins/edr/etc/syslog_configs/rsyslog_sophos-spl.conf    /etc/rsyslog.d/
-    ${result} =  Run Process    systemctl  status  rsyslog
+    ${result} =  Run Process    systemctl  restart  rsyslog
     Log  ${result.stdout}
     Log  ${result.stderr}
