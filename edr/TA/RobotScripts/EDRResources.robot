@@ -464,7 +464,7 @@ Replace Rsyslog Apparmor Rule
 
 Restore Rsyslog Apparmor Rule
     ${apparmor_profile} =    Set Variable    /etc/apparmor.d/usr.sbin.rsyslogd
-    Move File  ${apparmor_profile}_bkp  ${apparmor_profile}
+    Run Keyword And Ignore Error  Move File  ${apparmor_profile}_bkp  ${apparmor_profile}
     ${result} =   Run Process    apparmor_parser  -r  ${apparmor_profile}
     Log  ${result.stdout}
     Log  ${result.stderr}

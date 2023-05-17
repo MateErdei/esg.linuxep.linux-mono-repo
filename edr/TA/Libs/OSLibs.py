@@ -80,6 +80,8 @@ def remove_package(pkg_name):
     raise AssertionError(f"Could not remove package: {pkg_name}")
 
 def copy_file_if_destination_missing(source, destination):
+    if not os.path.isfile(source):
+        return False
     if os.path.isfile(destination):
         return False
     shutil.copy2(source, destination)
