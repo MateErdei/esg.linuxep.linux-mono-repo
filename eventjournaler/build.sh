@@ -47,6 +47,7 @@ COV_HTML_BASE=sspl-plugin-${PRODUCT}-unittest
 VALGRIND=0
 TAP=${TAP:-tap}
 NO_BUILD=0
+BUILD_SDDS3=1
 
 while [[ $# -ge 1 ]]
 do
@@ -56,6 +57,13 @@ do
             CMAKE_BUILD_TYPE=Debug
             NO_UNPACK=1
             CLEAN=0
+            BUILD_SDDS3=0
+            ;;
+        --no-sdds3)
+            BUILD_SDDS3=0
+            ;;
+        --sdds3)
+            BUILD_SDDS3=1
             ;;
         --build-type)
             shift
@@ -383,7 +391,11 @@ function build()
         }
     fi
     make install CXX=$CXX CC=$CC || exitFailure 17 "Failed to install $PRODUCT"
-    make dist CXX=$CXX CC=$CC ||  exitFailure $FAILURE_DIST_FAILED "Failed to create dist $PRODUCT"
+    make dist_sdds CXX=$CXX CC=$CC ||  exitFailure $FAILURE_DIST_FAILED "Failed to create dist $PRODUCT"
+    if (( BUILD_SDDS3 == 1 ))
+    then
+        make dist_sdds3 CXX=$CXX CC=$CC ||  exitFailure $FAILURE_DIST_FAILED "Failed to create dist $PRODUCT"
+    fi
     cd ..
 
     rm -rf output
