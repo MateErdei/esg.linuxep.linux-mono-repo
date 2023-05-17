@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2021 Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2021-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
@@ -21,7 +17,10 @@ namespace EventQueueLib
     class EventQueue : public IEventQueue
     {
     public:
-        EventQueue(int maxSize);
+        explicit EventQueue(int maxSize);
+        EventQueue(const EventQueue&) = delete;
+        EventQueue(EventQueue&&) = delete;
+
         bool push(JournalerCommon::Event event) override;
         std::optional<JournalerCommon::Event> pop(int timeoutInMilliseconds) override;
 

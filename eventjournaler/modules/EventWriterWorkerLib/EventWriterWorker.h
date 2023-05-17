@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2021 Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2021-2023 Sophos Limited. All rights reserved.
 
 #include "IEventQueuePopper.h"
 #include "IEventWriterWorker.h"
@@ -27,7 +23,7 @@ namespace EventWriterLib
             std::unique_ptr<EventJournal::IEventJournalWriter> eventJournalWriter,
             std::shared_ptr<Heartbeat::HeartbeatPinger> heartbeatPinger
             );
-        ~EventWriterWorker();
+        ~EventWriterWorker() override;
         void stop() override;
         void start() override;
         void restart() override;
