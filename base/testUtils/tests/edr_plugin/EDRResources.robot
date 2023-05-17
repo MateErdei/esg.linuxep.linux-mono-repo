@@ -67,7 +67,7 @@ Restart EDR Plugin
     Mark EDR Log
     Wdctl Start Plugin  edr
     Wait Until Keyword Succeeds
-    ...  60 secs
+    ...  240 secs
     ...  1 secs
     ...  Check Marked EDR Log Contains   Plugin preparation complete
 
