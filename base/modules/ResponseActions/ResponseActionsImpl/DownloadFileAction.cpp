@@ -54,11 +54,8 @@ namespace ResponseActionsImpl
 
         if (m_response["httpStatus"] == Common::HttpRequests::HTTP_STATUS_OK)
         {
-            if (m_response.contains("errorType") || m_response.contains("errorMessage"))
-            {
-                LOGWARN("Action runner terminated, download failed with error: " << m_response["errorMessage"]);
-                abort();
-            }
+            assert(!m_response.contains("errorType"));
+            assert(!m_response.contains("errorMessage"));
 
             if (verifyFile(info))
             {
