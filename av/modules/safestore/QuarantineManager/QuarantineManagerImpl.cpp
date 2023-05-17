@@ -633,9 +633,10 @@ namespace safestore::QuarantineManager
         auto scanningClient = safeStoreResources_.CreateScanningClientSocket(Plugin::getScanningSocketPath());
 
         auto response = scan(*scanningClient, fd.get(), originalFilePath);
-        fd.close();
 
-        if (!response.getErrorMsg().empty())
+        if (!response.getErrorMsg().empty()
+            && !common::contains(response.getErrorMsg(), "as it is password protected")
+            && !common::contains(response.getErrorMsg(), "not a supported file type")))
         {
             LOGERROR("Error on rescan request: " << response.getErrorMsg());
             return false;
