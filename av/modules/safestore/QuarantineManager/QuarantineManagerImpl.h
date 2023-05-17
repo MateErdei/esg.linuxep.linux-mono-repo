@@ -41,14 +41,14 @@ namespace safestore::QuarantineManager
             const std::string& correlationId,
             datatypes::AutoFd autoFd) override;
         std::vector<FdsObjectIdsPair> extractQuarantinedFiles(
-            std::vector<SafeStoreWrapper::ObjectHandleHolder> threatsToExtract) override;
+            std::vector<SafeStoreWrapper::ObjectHandleHolder> threatsToExtract);
         void setState(const safestore::QuarantineManager::QuarantineManagerState& newState) override;
         void rescanDatabase() override;
         void parseConfig() override;
         bool waitForFilesystemLock(double timeoutSeconds) override;
         void removeFilesystemLock() override;
         std::vector<SafeStoreWrapper::ObjectId> scanExtractedFilesForRestoreList(
-            std::vector<FdsObjectIdsPair> files, const std::string& originalFilePath) override;
+            std::vector<FdsObjectIdsPair> files, const std::string& originalFilePath);
         std::optional<scan_messages::RestoreReport> restoreFile(const std::string& objectId) override;
 
     private:

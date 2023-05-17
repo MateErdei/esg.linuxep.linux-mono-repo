@@ -29,15 +29,7 @@ public:
          const std::string& sha256,
          const std::string& correlationId,
          datatypes::AutoFd autoFd));
-    MOCK_METHOD(
-        std::vector<FdsObjectIdsPair>,
-        extractQuarantinedFiles,
-        (std::vector<safestore::SafeStoreWrapper::ObjectHandleHolder>));
     MOCK_METHOD(void, rescanDatabase, ());
     MOCK_METHOD(void, parseConfig, ());
-    MOCK_METHOD(
-        std::vector<safestore::SafeStoreWrapper::ObjectId>,
-        scanExtractedFilesForRestoreList,
-        (std::vector<FdsObjectIdsPair> files,const std::string& originalFilePath));
     MOCK_METHOD(std::optional<scan_messages::RestoreReport>, restoreFile, (const std::string& objectId));
 };

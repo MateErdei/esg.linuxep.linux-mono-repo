@@ -83,17 +83,6 @@ namespace safestore::QuarantineManager
             const std::string& correlationId,
             datatypes::AutoFd autoFd) = 0;
 
-        /**
-         * Unpack detections.
-         */
-        virtual std::vector<FdsObjectIdsPair> extractQuarantinedFiles(
-            std::vector<SafeStoreWrapper::ObjectHandleHolder> threatsToExtract) = 0;
-
-        /**
-         * Run the avscanner on unpacked detections and return vector of objectsIds that are clean.
-         */
-        virtual std::vector<SafeStoreWrapper::ObjectId> scanExtractedFilesForRestoreList(
-            std::vector<FdsObjectIdsPair> files, const std::string& originalFilePath) = 0;
 
         /**
          * Performs metadata rescan (+ full rescan if clean) of each quarantined file, restoring clean files
