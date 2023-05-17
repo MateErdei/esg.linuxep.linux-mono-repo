@@ -506,14 +506,9 @@ namespace safestore::QuarantineManager
         }
     }
 
-    std::vector<FdsObjectIdsPair> QuarantineManagerImpl::extractQuarantinedFiles(
-        std::vector<SafeStoreWrapper::ObjectHandleHolder> threatsToExtract)
+    std::shared_ptr<FdsObjectIdsPair> QuarantineManagerImpl::extractQuarantinedFile(
+        SafeStoreWrapper::ObjectHandleHolder threatToExtract)
     {
-        if (threatsToExtract.empty())
-        {
-            return {};
-        }
-        std::vector<FdsObjectIdsPair> files;
         auto fs = Common::FileSystem::fileSystem();
         auto fp = Common::FileSystem::filePermissions();
 
@@ -527,71 +522,67 @@ namespace safestore::QuarantineManager
         catch (Common::FileSystem::IFileSystemException& ex)
         {
             LOGWARN("Failed to setup directory for rescan of threats with error: " << ex.what());
-            return files;
+            return nullptr;
         }
 
         bool failedToCleanUp = false;
-        for (const auto& item : threatsToExtract)
+
+        auto objectId = m_safeStore->getObjectId(threatToExtract);
+        bool success = m_safeStore->restoreObjectByIdToLocation(objectId, dirPath);
+        auto unpackedFiles = fs->listAllFilesInDirectoryTree(dirPath);
+
+        if (unpackedFiles.size() > 1)
         {
-            SafeStoreWrapper::ObjectId objectId = m_safeStore->getObjectId(item);
-            bool success = m_safeStore->restoreObjectByIdToLocation(objectId, dirPath);
-            std::vector<std::string> unpackedFiles = fs->listAllFilesInDirectoryTree(dirPath);
-
-            if (unpackedFiles.size() > 1)
-            {
-                LOGERROR("Failed to clean up previous unpacked file");
-                failedToCleanUp = true;
-                break;
-            }
-            if (unpackedFiles.empty())
-            {
-                LOGWARN("Failed to unpack threat for rescan");
-                continue;
-            }
-            if (!success)
-            {
-                LOGWARN("Failed to restore threat for rescan");
-                try
-                {
-                    fs->removeFile(unpackedFiles[0]);
-                }
-                catch (Common::FileSystem::IFileSystemException& ex)
-                {
-                    LOGERROR("Failed to clean up threat with error: " << ex.what());
-                    failedToCleanUp = true;
-                    break;
-                }
-                continue;
-            }
-            std::string filepath = unpackedFiles[0];
-
+            LOGERROR("Failed to clean up previous unpacked file");
+            failedToCleanUp = true;
+            return nullptr;
+        }
+        if (unpackedFiles.empty())
+        {
+            LOGWARN("Failed to unpack threat for rescan");
+            return nullptr;
+        }
+        if (!success)
+        {
+            LOGWARN("Failed to restore threat for rescan");
             try
             {
-                fp->chown(filepath, "root", "root");
-                fp->chmod(filepath, S_IRUSR);
-            }
-            catch (Common::FileSystem::IFileSystemException& ex)
-            {
-                // horrible state here we want to clean up and drop all filedescriptors asap
-                LOGERROR("Failed to set correct permissions " << ex.what() << " aborting rescan");
-                fs->removeFileOrDirectory(dirPath);
-                return {};
-            }
-
-            int fd = m_sysCallWrapper->_open(filepath.c_str(), O_RDONLY, 0);
-            files.emplace_back(datatypes::AutoFd{ fd }, objectId);
-
-            try
-            {
-                // remove file as soon as we have fd for it to minimise time on disk
-                fs->removeFile(filepath);
+                fs->removeFile(unpackedFiles[0]);
             }
             catch (Common::FileSystem::IFileSystemException& ex)
             {
                 LOGERROR("Failed to clean up threat with error: " << ex.what());
                 failedToCleanUp = true;
-                break;
+                return nullptr;
             }
+        }
+        std::string filepath = unpackedFiles[0];
+
+        try
+        {
+            fp->chown(filepath, "root", "root");
+            fp->chmod(filepath, S_IRUSR);
+        }
+        catch (Common::FileSystem::IFileSystemException& ex)
+        {
+            // horrible state here we want to clean up and drop all filedescriptors asap
+            LOGERROR("Failed to set correct permissions " << ex.what() << " aborting rescan");
+            fs->removeFileOrDirectory(dirPath);
+            return nullptr;
+        }
+
+        int fd = m_sysCallWrapper->_open(filepath.c_str(), O_RDONLY, 0);
+        auto file = std::make_shared<FdsObjectIdsPair>(datatypes::AutoFd{ fd }, objectId);
+
+        try
+        {
+            // remove file as soon as we have fd for it to minimise time on disk
+            fs->removeFile(filepath);
+        }
+        catch (Common::FileSystem::IFileSystemException& ex)
+        {
+            LOGERROR("Failed to clean up threat with error: " << ex.what());
+            failedToCleanUp = true;
         }
 
         try
@@ -611,7 +602,7 @@ namespace safestore::QuarantineManager
             }
         }
 
-        return files;
+        return file;
     }
 
     // These are private functions, so they are protected by the mutexes on the public interface functions.
@@ -633,67 +624,60 @@ namespace safestore::QuarantineManager
         setState(QuarantineManagerState::INITIALISED);
     }
 
-    std::vector<SafeStoreWrapper::ObjectId> QuarantineManagerImpl::scanExtractedFilesForRestoreList(
-        std::vector<FdsObjectIdsPair> files, const std::string& originalFilePath)
+    bool QuarantineManagerImpl::scanExtractedFileForThreat(
+        std::shared_ptr<FdsObjectIdsPair> file, const std::string& originalFilePath)
     {
-        std::vector<SafeStoreWrapper::ObjectId> cleanFiles;
-        if (files.empty())
-        {
-            LOGINFO("No files to Rescan");
-            return cleanFiles;
-        }
+        auto fd = std::move(file->first);
+        auto objectId = file->second;
 
         auto scanningClient = safeStoreResources_.CreateScanningClientSocket(Plugin::getScanningSocketPath());
 
-        for (auto& [fd, objectId] : files)
+        auto response = scan(*scanningClient, fd.get(), originalFilePath);
+        fd.close();
+
+        if (!response.getErrorMsg().empty())
         {
-            auto response = scan(*scanningClient, fd.get(), originalFilePath);
-            fd.close(); // Release the file descriptor as soon as we are done with it
-
-            if (!response.getErrorMsg().empty() && !common::contains(response.getErrorMsg(), "as it is password protected") && !common::contains(response.getErrorMsg(), "not a supported file type"))
-            {
-                LOGERROR("Error on rescan request: " << response.getErrorMsg());
-                continue;
-            }
-
-            std::shared_ptr<SafeStoreWrapper::ObjectHandleHolder> objectHandle =
-                m_safeStore->createObjectHandleHolder();
-            if (!m_safeStore->getObjectHandle(objectId, objectHandle))
-            {
-                LOGERROR("Couldn't get object handle for: " << objectId << ", continuing...");
-                continue;
-            }
-
-            std::string path{ "<unknown path>" };
-            try
-            {
-                path = GetObjectPath(*m_safeStore, *objectHandle);
-            }
-            catch (const SafeStoreObjectException& e)
-            {
-                LOGWARN("Couldn't get path for '" << objectId << "': " << e.what());
-            }
-
-            const std::string escapedPath = common::escapePathForLogging(path);
-
-            if (response.allClean())
-            {
-                LOGDEBUG("Rescan found quarantined file no longer a threat: " << escapedPath);
-                cleanFiles.emplace_back(objectId);
-            }
-            else
-            {
-                LOGDEBUG("Rescan found quarantined file still a threat: " << escapedPath);
-
-                std::vector<scan_messages::Threat> threats;
-                for (const auto& detection : response.getDetections())
-                {
-                    threats.push_back({ .type = detection.type, .name = detection.name, .sha256 = detection.sha256 });
-                }
-                StoreThreats(*objectHandle, threats);
-            }
+            LOGERROR("Error on rescan request: " << response.getErrorMsg());
+            return false;
         }
-        return cleanFiles;
+
+        std::shared_ptr<SafeStoreWrapper::ObjectHandleHolder> objectHandle =
+            m_safeStore->createObjectHandleHolder();
+        if (!m_safeStore->getObjectHandle(objectId, objectHandle))
+        {
+            LOGERROR("Couldn't get object handle for: " << objectId << ", continuing...");
+            return false;
+        }
+
+        std::string path{ "<unknown path>" };
+        try
+        {
+            path = GetObjectPath(*m_safeStore, *objectHandle);
+        }
+        catch (const SafeStoreObjectException& e)
+        {
+            LOGWARN("Couldn't get path for '" << objectId << "': " << e.what());
+        }
+
+        const std::string escapedPath = common::escapePathForLogging(path);
+
+        if (response.allClean())
+        {
+            LOGDEBUG("Rescan found quarantined file no longer a threat: " << escapedPath);
+            return true;
+        }
+        else
+        {
+            LOGDEBUG("Rescan found quarantined file still a threat: " << escapedPath);
+            std::vector<scan_messages::Threat> threats;
+            for (const auto& detection : response.getDetections())
+            {
+                threats.push_back({ .type = detection.type, .name = detection.name, .sha256 = detection.sha256 });
+            }
+            StoreThreats(*objectHandle, threats);
+        }
+
+        return false;
     }
 
     std::optional<scan_messages::RestoreReport> QuarantineManagerImpl::restoreFile(const std::string& objectId)
@@ -1004,7 +988,7 @@ namespace safestore::QuarantineManager
     }
 
     bool QuarantineManagerImpl::DoFullRescan(
-        safestore::SafeStoreWrapper::ObjectHandleHolder& objectHandle,
+        SafeStoreWrapper::ObjectHandleHolder& objectHandle,
         const SafeStoreWrapper::ObjectId& objectId,
         const std::string& originalFilePath)
     {
@@ -1012,14 +996,12 @@ namespace safestore::QuarantineManager
             "Performing full rescan of quarantined file (original path '" << originalFilePath << "', object ID '"
                                                                           << objectId << "')");
 
-        std::vector<SafeStoreWrapper::ObjectHandleHolder> batch;
-        batch.push_back(std::move(objectHandle));
-        assert(batch.size() == 1);
-        auto filesToBeScanned = extractQuarantinedFiles(std::move(batch));
-        assert(filesToBeScanned.size() <= 1);
-        auto cleanFiles = scanExtractedFilesForRestoreList(std::move(filesToBeScanned), originalFilePath);
-        assert(cleanFiles.size() <= 1);
-        return cleanFiles.size() == 1;
+        auto fileToBeScanned = extractQuarantinedFile(std::move(objectHandle));
+        if (fileToBeScanned == nullptr)
+        {
+            return false;
+        }
+        return scanExtractedFileForThreat(fileToBeScanned, originalFilePath);
     }
 
     bool QuarantineManagerImpl::DoMetadataRescan(
