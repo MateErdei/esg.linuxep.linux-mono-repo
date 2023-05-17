@@ -57,7 +57,7 @@ struct TestableEventQueue : public EventQueue
     }
 };
 
-TEST_F(TestEventQueue, testEventQueueIsFullReturnsTrueWhenQueueIsFull) // NOLINT
+TEST_F(TestEventQueue, testEventQueueIsFullReturnsTrueWhenQueueIsFull)
 {
     TestableEventQueue eventQueueWithMaxSize1(1);
     auto queueWithNoItems =  createQueueOfSize(0);
@@ -81,7 +81,7 @@ TEST_F(TestEventQueue, testEventQueueIsFullReturnsTrueWhenQueueIsFull) // NOLINT
     EXPECT_FALSE(eventQueueWithMaxSize5.isQueueFull());
 }
 
-TEST_F(TestEventQueue, testEventQueueIsEmptyReturnsTrueWhenQueueIsEmpty) // NOLINT
+TEST_F(TestEventQueue, testEventQueueIsEmptyReturnsTrueWhenQueueIsEmpty)
 {
     TestableEventQueue eventQueueWithMaxSize5(5);
     auto queueWith0Items =  createQueueOfSize(0);
@@ -100,7 +100,7 @@ TEST_F(TestEventQueue, testEventQueueIsEmptyReturnsTrueWhenQueueIsEmpty) // NOLI
 }
 
 
-TEST_F(TestEventQueue, testEventQueuePushReturnsTrueWhenPushingToQueueThatIsNotFull) // NOLINT
+TEST_F(TestEventQueue, testEventQueuePushReturnsTrueWhenPushingToQueueThatIsNotFull)
 {
     TestableEventQueue eventQueueWithMaxSize5(5);
     JournalerCommon::Event data {JournalerCommon::EventType::THREAT_EVENT, "fake data"};
@@ -110,7 +110,7 @@ TEST_F(TestEventQueue, testEventQueuePushReturnsTrueWhenPushingToQueueThatIsNotF
     EXPECT_EQ(queue.front().data, data.data);
 }
 
-TEST_F(TestEventQueue, testEventQueuePushReturnsFalseWhenPushingToQueueThatIsFull) // NOLINT
+TEST_F(TestEventQueue, testEventQueuePushReturnsFalseWhenPushingToQueueThatIsFull)
 {
     TestableEventQueue eventQueueWithMaxSize2(2);
     auto mockedQueue = std::queue<JournalerCommon::Event>();
@@ -128,7 +128,7 @@ TEST_F(TestEventQueue, testEventQueuePushReturnsFalseWhenPushingToQueueThatIsFul
     EXPECT_EQ(queue.back().data, data2.data);
 }
 
-TEST_F(TestEventQueue, testEventQueuePopBlocksForTimeoutBeforeReturningEmptyOptionalWhenNoDataToPop) // NOLINT
+TEST_F(TestEventQueue, testEventQueuePopBlocksForTimeoutBeforeReturningEmptyOptionalWhenNoDataToPop)
 {
     TestableEventQueue eventQueueWithMaxSize2(2);
     int timeout = 100;
@@ -143,7 +143,7 @@ TEST_F(TestEventQueue, testEventQueuePopBlocksForTimeoutBeforeReturningEmptyOpti
     EXPECT_NEAR(duration, timeout, 10);
 }
 
-TEST_F(TestEventQueue, testEventQueuePopReturnsValueImmediatelyWhenThereIsDataToPop) // NOLINT
+TEST_F(TestEventQueue, testEventQueuePopReturnsValueImmediatelyWhenThereIsDataToPop)
 {
     TestableEventQueue eventQueueWithMaxSize2(2);
     auto mockedQueue = std::queue<JournalerCommon::Event>();
@@ -168,7 +168,7 @@ TEST_F(TestEventQueue, testEventQueuePopReturnsValueImmediatelyWhenThereIsDataTo
     EXPECT_NEAR(after2.count() - before2.count(), 0, 10);
 }
 
-TEST_F(TestEventQueue, testEventQueuePopBlocksDuringTimeoutBeforeUnblockingAndReturningValueWhenDataIsPushed) // NOLINT
+TEST_F(TestEventQueue, testEventQueuePopBlocksDuringTimeoutBeforeUnblockingAndReturningValueWhenDataIsPushed)
 {
     TestableEventQueue eventQueueWithMaxSize2(2);
     JournalerCommon::Event expectedData {JournalerCommon::EventType::THREAT_EVENT, "fake data"};
