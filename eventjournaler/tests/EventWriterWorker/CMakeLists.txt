@@ -1,7 +1,6 @@
 include(GoogleTest)
 
 SophosAddTest(TestWriterLib
-        TestEventQueuePopper.cpp
         TestWriter.cpp
         PROJECTS eventwriterlib eventqueuelib helpers
         LIBS ${expatlib} ${log4cpluslib} ${pluginapilib} ${testhelperslib} ${protobuflib} heartbeat pthread

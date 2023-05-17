@@ -4,8 +4,6 @@ sophos_add_library(eventwriterlib SHARED
         IEventWriterWorker.h
         EventWriterWorker.h
         EventWriterWorker.cpp
-        EventQueuePopper.h
-        EventQueuePopper.cpp
         EXTRA_PROJECTS eventjournal
         EXTRA_INCLUDES ${CMAKE_CURRENT_BINARY_DIR}
         EXTRA_LIBS ${zmqlib} ${log4cpluslib} ${protobuflib}
