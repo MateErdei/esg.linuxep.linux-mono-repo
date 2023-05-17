@@ -452,3 +452,73 @@ TEST(TestStringUtils, toLowerMakesAllCharsLowerCase) // NOLINT
     ASSERT_EQ(StringUtils::toLower(testStringLower), testStringLower);
     ASSERT_EQ(StringUtils::toLower(testStringNotLetters), testStringNotLetters);
 }
+
+TEST(TestStringUtils, TestToUtf8) // NOLINT
+{
+    std::string threatPath = "abc  \1 \2 \3 \4 \5 \6 \\ efg \a \b \t \n \v \f \r hik";
+    std::string utf8Path = StringUtils::toUtf8(threatPath);
+    EXPECT_EQ(utf8Path, threatPath);
+}
+
+TEST(TestStringUtils, TestToUtf8WeirdCharacters) // NOLINT
+{
+    std::string threatPath = "ありったけの夢をかき集め \1 \2 \3 \4 \5 \6 \\ Ἄνδρα μοι ἔννεπε \a \b \t \n \v \f \r Ä Ö Ü ß";
+    std::string utf8Path = StringUtils::toUtf8(threatPath);
+    EXPECT_EQ(utf8Path, threatPath);
+}
+
+TEST(TestStringUtils, TestToUtf8FromEucJP) // NOLINT
+{
+    // echo -n "ありったけの夢をかき集め" | iconv -f utf-8 -t euc-jp | hexdump -C
+    std::vector<unsigned char> threatPathBytes { 0xa4, 0xa2, 0xa4, 0xea, 0xa4, 0xc3, 0xa4, 0xbf, 0xa4, 0xb1, 0xa4, 0xce,
+                                                0xcc, 0xb4, 0xa4, 0xf2, 0xa4, 0xab, 0xa4, 0xad, 0xbd, 0xb8, 0xa4, 0xe1 };
+    std::string threatPath(threatPathBytes.begin(), threatPathBytes.end());
+
+    std::string threatPathUtf8 = "ありったけの夢をかき集め";
+    std::string utf8Path = StringUtils::toUtf8(threatPath, false);
+    EXPECT_EQ(utf8Path, threatPathUtf8);
+
+    threatPathUtf8 += " (EUC-JP)";
+    utf8Path = StringUtils::toUtf8(threatPath, true);
+    EXPECT_EQ(utf8Path, threatPathUtf8);
+
+    utf8Path = StringUtils::toUtf8(threatPath);
+    EXPECT_EQ(utf8Path, threatPathUtf8);
+}
+
+TEST(TestStringUtils, TestToUtf8FromSJIS) // NOLINT
+{
+    // echo -n "ありったけの夢をかき集め" | iconv -f utf-8 -t sjis | hexdump -C
+    std::vector<unsigned char> threatPathBytes { 0x82, 0xa0, 0x82, 0xe8, 0x82, 0xc1, 0x82, 0xbd, 0x82, 0xaf, 0x82, 0xcc,
+                                                0x96, 0xb2, 0x82, 0xf0, 0x82, 0xa9, 0x82, 0xab, 0x8f, 0x57, 0x82, 0xdf };
+    std::string threatPath(threatPathBytes.begin(), threatPathBytes.end());
+
+    std::string threatPathUtf8 = "ありったけの夢をかき集め";
+    std::string utf8Path = StringUtils::toUtf8(threatPath, false);
+    EXPECT_EQ(utf8Path, threatPathUtf8);
+
+    threatPathUtf8 += " (Shift-JIS)";
+    utf8Path = StringUtils::toUtf8(threatPath, true);
+    EXPECT_EQ(utf8Path, threatPathUtf8);
+
+    utf8Path = StringUtils::toUtf8(threatPath);
+    EXPECT_EQ(utf8Path, threatPathUtf8);
+}
+
+TEST(TestStringUtils, TestToUtf8FromLatin1) // NOLINT
+{
+    // echo -n "Ä ö ü ß" | iconv -f utf-8 -t latin1 | hexdump -C
+    std::vector<unsigned char> threatPathBytes { 0xc4, 0x20, 0xf6, 0x20, 0xfc, 0x20, 0xdf };
+    std::string threatPath(threatPathBytes.begin(), threatPathBytes.end());
+
+    std::string threatPathUtf8 = "Ä ö ü ß";
+    std::string utf8Path = StringUtils::toUtf8(threatPath, false);
+    EXPECT_EQ(utf8Path, threatPathUtf8);
+
+    threatPathUtf8 += " (Latin1)";
+    utf8Path = StringUtils::toUtf8(threatPath, true);
+    EXPECT_EQ(utf8Path, threatPathUtf8);
+
+    utf8Path = StringUtils::toUtf8(threatPath);
+    EXPECT_EQ(utf8Path, threatPathUtf8);
+}

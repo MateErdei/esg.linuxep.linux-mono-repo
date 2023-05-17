@@ -4,6 +4,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 #include "StringUtils.h"
+#include <boost/locale.hpp>
 
 namespace
 {
@@ -108,6 +109,55 @@ namespace Common
             {
                 throw std::invalid_argument{ "Not a valid utf-a string" };
             }
+        }
+        std::string StringUtils::toUtf8(const std::string& str, bool appendConversion, bool throws)
+        {
+            try
+            {
+                return boost::locale::conv::to_utf<char>(str, "UTF-8", boost::locale::conv::stop);
+            }
+            catch(const boost::locale::conv::conversion_error& e)
+            {
+                LOGDEBUG("Could not convert from: " << "UTF-8");
+            }
+
+            std::vector<std::string> encodings{"EUC-JP", "Shift-JIS", "SJIS", "Latin1"};
+            for (const auto& encoding : encodings)
+            {
+                try
+                {
+                    if (appendConversion)
+                    {
+                        std::string encoding_info = " (" + encoding + ")";
+                        return boost::locale::conv::to_utf<char>(str,
+                                                                 encoding,
+                                                                 boost::locale::conv::stop).append(encoding_info);
+                    }
+                    else
+                    {
+                        return boost::locale::conv::to_utf<char>(str, encoding, boost::locale::conv::stop);
+                    }
+
+                }
+                catch(const boost::locale::conv::conversion_error& e)
+                {
+                    LOGDEBUG("Could not convert from: " << encoding);
+                    continue;
+                }
+                catch(const boost::locale::conv::invalid_charset_error& e)
+                {
+                    //                    LOGDEBUG(e.what());
+                    continue;
+                }
+            }
+
+            if(throws)
+            {
+                throw std::runtime_error(std::string("Failed to convert string to utf8: ") + str);
+            }
+
+            LOGDEBUG("Failed to convert string: " << str << "to utf8 returning original");
+            return str;
         }
     } // namespace UtilityImpl
 } // namespace Common
