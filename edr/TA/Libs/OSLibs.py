@@ -50,7 +50,22 @@ def get_pkg_manager():
     return package_manager
 
 
+def register_cloud_guest():
+    cmd = ["registercloudguest", "--force-new"]
+    print(f"Running command: {cmd}")
+    for _ in range(10):
+        ret = subprocess.run(cmd, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        if ret.returncode == 0:
+            return
+        else:
+            print(f"Command output: {ret.stdout}")
+            time.sleep(3)
+    raise AssertionError(f"Could not registercloudguest --force-new")
+
+
 def install_package(pkg_name):
+    if os_uses_zypper():
+        register_cloud_guest()
     cmd = get_pkg_manager()
     cmd += ["install", pkg_name]
     print(f"Running command: {cmd}")
