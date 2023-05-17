@@ -45,10 +45,17 @@ BULLSEYE_UPLOAD=0
 COVFILE="/tmp/root/sspl-plugin-${PRODUCT}-unit.cov"
 COV_HTML_BASE=sspl-plugin-${PRODUCT}-unittest
 VALGRIND=0
+TAP=${TAP:-tap}
+NO_BUILD=0
 
 while [[ $# -ge 1 ]]
 do
     case $1 in
+        --dev)
+            export ENABLE_STRIP=0
+            CMAKE_BUILD_TYPE=Debug
+            NO_UNPACK=1
+            ;;
         --build-type)
             shift
             CMAKE_BUILD_TYPE="$1"
@@ -138,6 +145,13 @@ do
             ;;
         --060)
             export VERSION_OVERRIDE=0.6.0.999
+            ;;
+        --setup)
+            rm -rf input "${REDIST}"
+            [[ -d ${BASE}/tapvenv ]] && source $BASE/tapvenv/bin/activate
+            export TAP_PARAMETER_MODE=release
+            $TAP fetch event_journaler.build.release
+            NO_BUILD=1
             ;;
         *)
             exitFailure ${FAILURE_BAD_ARGUMENT} "unknown argument $1"
@@ -276,6 +290,8 @@ function build()
         fi
         untar_input JournalLib
         untar_input capnproto
+    else
+        (( LOCAL_GCC == 0 )) && set_gcc_make
     fi
 
     PATH=$REDIST/cmake/bin:$PATH
