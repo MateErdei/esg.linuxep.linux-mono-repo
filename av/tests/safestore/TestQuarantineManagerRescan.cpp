@@ -209,17 +209,13 @@ TEST_F(QuarantineManagerRescanTests, scanExtractedFileForThreatDoesNothingWithEm
     EXPECT_TRUE(appenderContains("Couldn't get object handle for:"));
 }
 
-//Todo Rework
-/*TEST_F(QuarantineManagerRescanTests, scanExtractedFileClean)
+TEST_F(QuarantineManagerRescanTests, scanExtractedFileClean)
 {
-    // Define SafeStore objects
     defineSafeStoreObject(1111, "objectId1", {});
-
-    // Create distinct fds, used later to verify all files are scanned
     auto fd1{ createRealFd() };
 
     std::vector<FdsObjectIdsPair> testFiles;
-    auto testFile = std::make_shared(datatypes::AutoFd{ fd1 }, "objectId1");
+    auto testFile = std::make_shared<FdsObjectIdsPair>(datatypes::AutoFd{ fd1 }, "objectId1");
 
     EXPECT_CALL(*mockScanningClientSocket_, sendRequest(IsRescanAndHasFd(fd1))).WillOnce(Return(true));
     EXPECT_CALL(*mockScanningClientSocket_, receiveResponse).WillOnce(Return(true));
@@ -230,18 +226,39 @@ TEST_F(QuarantineManagerRescanTests, scanExtractedFileForThreatDoesNothingWithEm
     MoveFileSystemMocks();
     auto quarantineManager = createQuarantineManager();
 
-    std::vector<std::string> expectedResult{ "objectId1", "objectId3" };
-    auto result = quarantineManager.scanExtractedFileForThreat(testFile, "orgpath");
-    EXPECT_EQ(expectedResult, result);
-}*/
+    EXPECT_TRUE(quarantineManager.scanExtractedFileForThreat(testFile, "orgpath"));
+}
+
+TEST_F(QuarantineManagerRescanTests, scanExtractedFileThreat)
+{
+    defineSafeStoreObject(1111, "objectId1", {});
+    auto fd1{ createRealFd() };
+
+    std::vector<FdsObjectIdsPair> testFiles;
+    auto testFile = std::make_shared<FdsObjectIdsPair>(datatypes::AutoFd{ fd1 }, "objectId1");
+
+    EXPECT_CALL(*mockScanningClientSocket_, sendRequest(IsRescanAndHasFd(fd1))).WillOnce(Return(true));
+    EXPECT_CALL(*mockScanningClientSocket_, receiveResponse).WillOnce(Invoke(
+        [](scan_messages::ScanResponse& response)
+        {
+            response.addDetection("one", "virus", "THREAT", "sha256");
+            return true;
+        }));
+
+    EXPECT_CALL(mockSafeStoreResources_, CreateScanningClientSocket)
+        .WillOnce(Return(ByMove(std::move(mockScanningClientSocket_))));
+
+    MoveFileSystemMocks();
+    auto quarantineManager = createQuarantineManager();
+
+    EXPECT_FALSE(quarantineManager.scanExtractedFileForThreat(testFile, "orgpath"));
+}
 
 TEST_F(QuarantineManagerRescanTests, scanExtractedFilesSocketFailure)
 {
     m_memoryAppender->setLayout(std::make_unique<log4cplus::PatternLayout>("[%p] %m%n"));
-
     defineSafeStoreObjects({ { 1111, "objectId1", {} } });
-
-    auto testFile = std::make_shared<FdsObjectIdsPair>(std::make_pair(datatypes::AutoFd{}, "objectId1"));
+    auto testFile = std::make_shared<FdsObjectIdsPair>(datatypes::AutoFd{}, "objectId1");
 
     EXPECT_CALL(*mockScanningClientSocket_, sendRequest).WillOnce(Return(false));
     EXPECT_CALL(mockSafeStoreResources_, CreateScanningClientSocket)
@@ -266,7 +283,7 @@ TEST_F(QuarantineManagerRescanTests, scanExtractedFilesSkipsHandleFailure)
     EXPECT_CALL(*mockSafeStoreWrapper_, getObjectHandle("objectId1", _)).WillRepeatedly(Return(false));
 
     auto fd1{ createRealFd() };
-    auto testFile = std::make_shared<FdsObjectIdsPair>(std::make_pair(datatypes::AutoFd{ fd1 }, "objectId1"));
+    auto testFile = std::make_shared<FdsObjectIdsPair>(datatypes::AutoFd{ fd1 }, "objectId1");
 
     // Mock responses from the scanning server
     EXPECT_CALL(*mockScanningClientSocket_, sendRequest(IsRescanAndHasFd(fd1))).WillOnce(Return(true));
@@ -295,7 +312,7 @@ TEST_F(QuarantineManagerRescanTests, scanExtractedFilesHandlesNameAndLocationFai
     EXPECT_CALL(*mockSafeStoreWrapper_, getObjectLocation(HasRawPointer(1111))).WillRepeatedly(Return(""));
 
     auto fd1{ createRealFd() };
-    auto testFile = std::make_shared<FdsObjectIdsPair>(std::make_pair(datatypes::AutoFd{ fd1 }, "objectId1"));
+    auto testFile = std::make_shared<FdsObjectIdsPair>(datatypes::AutoFd{ fd1 }, "objectId1");
 
     {
         InSequence seq;
