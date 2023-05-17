@@ -353,7 +353,7 @@ namespace Common::FileSystem
             throw FileSystem::IFileSystemException("getUserIdOfDirEntry: File does not exist");
         }
         struct stat statbuf;
-        int ret = stat(path.c_str(), &statbuf);
+        int ret = lstat(path.c_str(), &statbuf);
         if (ret != 0)
         {
             std::stringstream errorMessage;
@@ -370,7 +370,7 @@ namespace Common::FileSystem
             throw FileSystem::IFileSystemException("getGroupIdOfDirEntry: File does not exist");
         }
         struct stat statbuf;
-        int ret = stat(path.c_str(), &statbuf);
+        int ret = lstat(path.c_str(), &statbuf);
         if (ret != 0)
         {
             std::stringstream errorMessage;
