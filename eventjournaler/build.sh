@@ -357,7 +357,7 @@ function build()
     [[ $CLEAN == 1 ]] && rm -rf build64
     mkdir -p build64
     cd build64
-    [[ -n ${NPROC:-} ]] || NPROC=2
+    [[ -n ${NPROC:-} ]] || NPROC=$(nproc || echo 2)
     cmake -DREDIST="${REDIST}" \
              -DINPUT="${REDIST}" \
             -DPLUGIN_NAME="${PLUGIN_NAME}" \
@@ -383,7 +383,10 @@ function build()
         }
     elif (( ${UNITTEST} == 1 ))
     then
-        make -j${NPROC} CTEST_OUTPUT_ON_FAILURE=1  test || {
+        ctest \
+          --parallel ${NPROC} \
+          --timeout 15 \
+          --output-on-failure \ || {
             local EXITCODE=$?
             echo "Unit tests failed with $EXITCODE"
             cat Testing/Temporary/LastTest.log || true
