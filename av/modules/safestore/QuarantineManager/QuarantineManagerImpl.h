@@ -48,10 +48,10 @@ namespace safestore::QuarantineManager
         void removeFilesystemLock() override;
         std::optional<scan_messages::RestoreReport> restoreFile(const std::string& objectId) override;
 
-        bool scanExtractedFileForThreat(std::shared_ptr<FdsObjectIdsPair> file, const std::string& originalFilePath);
-        std::shared_ptr<FdsObjectIdsPair> extractQuarantinedFile(SafeStoreWrapper::ObjectHandleHolder threatToExtract);
+        bool scanExtractedFileForThreat(FdsObjectIdsPair& file, const std::string& originalFilePath);
+        std::optional<FdsObjectIdsPair> extractQuarantinedFile(SafeStoreWrapper::ObjectHandleHolder threatToExtract);
     private:
-        void cleanupUnpackDir(bool failedToCleanUp, const std::string& dirPath, Common::FileSystem::IFileSystem* fs);
+        void cleanupUnpackDir(bool failedToCleanUp, const std::string& dirPath);
         void callOnDbError();
         void callOnDbSuccess();
         void setConfigWrapper(nlohmann::json json, const safestore::SafeStoreWrapper::ConfigOption& option);
@@ -99,5 +99,6 @@ namespace safestore::QuarantineManager
         static scan_messages::ScanResponse scan(unixsocket::IScanningClientSocket& socket, int fd, const std::string& originalFilePath);
         std::shared_ptr<datatypes::ISystemCallWrapper> m_sysCallWrapper;
         ISafeStoreResources& safeStoreResources_;
+        Common::FileSystem::IFileSystem* m_fileSystem = Common::FileSystem::fileSystem();
     };
 } // namespace safestore::QuarantineManager

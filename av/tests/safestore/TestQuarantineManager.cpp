@@ -1040,8 +1040,8 @@ TEST_F(QuarantineManagerTests, extractQuarantinedFile)
 
     ObjectHandleHolder holder = safestore::SafeStoreWrapper::ObjectHandleHolder(mockGetIdMethods, mockReleaseMethods);
     auto actualFile = quarantineManager->extractQuarantinedFile(std::move(holder));
-    ASSERT_NE(actualFile, nullptr);
-    EXPECT_EQ(100, actualFile->first);
+    EXPECT_TRUE(actualFile.has_value());
+    EXPECT_EQ(100, actualFile.value().first);
 }
 
 TEST_F(QuarantineManagerTests, extractQuarantinedFileHandlesFailedToRemoveFileFollowedByAFailToRemoveUnpackDir)
@@ -1084,10 +1084,10 @@ TEST_F(QuarantineManagerTests, extractQuarantinedFileHandlesFailedToRemoveFileFo
     
     ObjectHandleHolder holder = safestore::SafeStoreWrapper::ObjectHandleHolder(mockGetIdMethods, mockReleaseMethods);
     auto actualFile = quarantineManager->extractQuarantinedFile(std::move(holder));
-    ASSERT_NE(actualFile, nullptr);
+    EXPECT_TRUE(actualFile.has_value());
     EXPECT_TRUE(appenderContains("Failed to clean up threat with error: exception"));
     EXPECT_TRUE(appenderContains("Failed to clean up staging location for rescan with error:"));
-    EXPECT_EQ(100, actualFile->first);
+    EXPECT_EQ(100, actualFile.value().first);
 }
 
 TEST_F(QuarantineManagerTests, extractQuarantinedFileHandlesAFailToRemoveUnpackDir)
@@ -1129,9 +1129,9 @@ TEST_F(QuarantineManagerTests, extractQuarantinedFileHandlesAFailToRemoveUnpackD
 
     ObjectHandleHolder holder = safestore::SafeStoreWrapper::ObjectHandleHolder(mockGetIdMethods, mockReleaseMethods);
     auto actualFile = quarantineManager->extractQuarantinedFile(std::move(holder));
-    ASSERT_NE(actualFile, nullptr);
+    EXPECT_TRUE(actualFile.has_value());
     EXPECT_TRUE(appenderContains("Failed to clean up staging location for rescan with error:"));
-    EXPECT_EQ(100, actualFile->first);
+    EXPECT_EQ(100, actualFile.value().first);
 }
 
 TEST_F(QuarantineManagerTests, extractQuarantinedFileAbortsWhenThereIsMoreThanOneFileInUnpackDir)
@@ -1165,7 +1165,8 @@ TEST_F(QuarantineManagerTests, extractQuarantinedFileAbortsWhenThereIsMoreThanOn
     auto quarantineManager = createQuarantineManager();
 
     ObjectHandleHolder holder = safestore::SafeStoreWrapper::ObjectHandleHolder(mockGetIdMethods, mockReleaseMethods);
-    EXPECT_EQ(quarantineManager->extractQuarantinedFile(std::move(holder)), nullptr);
+    auto actualFile = quarantineManager->extractQuarantinedFile(std::move(holder));
+    EXPECT_FALSE(actualFile.has_value());
     EXPECT_TRUE(appenderContains("Failed to clean up previous unpacked file"));
 }
 
@@ -1202,7 +1203,8 @@ TEST_F(QuarantineManagerTests, extractQuarantinedFileHandlesFailedRestore)
     auto quarantineManager = createQuarantineManager();
 
     ObjectHandleHolder holder = safestore::SafeStoreWrapper::ObjectHandleHolder(mockGetIdMethods, mockReleaseMethods);
-    EXPECT_EQ(quarantineManager->extractQuarantinedFile(std::move(holder)), nullptr);
+    auto actualFile = quarantineManager->extractQuarantinedFile(std::move(holder));
+    EXPECT_FALSE(actualFile.has_value());
     EXPECT_TRUE(appenderContains("Failed to restore threat for rescan"));
 }
 
@@ -1242,7 +1244,8 @@ TEST_F(QuarantineManagerTests, extractQuarantinedFileAbortWhenFailingToChmodFile
     auto quarantineManager = createQuarantineManager();
 
     ObjectHandleHolder holder = safestore::SafeStoreWrapper::ObjectHandleHolder(mockGetIdMethods, mockReleaseMethods);
-    EXPECT_EQ(quarantineManager->extractQuarantinedFile(std::move(holder)), nullptr);
+    auto actualFile = quarantineManager->extractQuarantinedFile(std::move(holder));
+    EXPECT_FALSE(actualFile.has_value());
     EXPECT_TRUE(appenderContains("Failed to set correct permissions exception aborting rescan"));
 }
 

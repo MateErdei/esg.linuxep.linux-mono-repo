@@ -204,8 +204,8 @@ TEST_F(QuarantineManagerRescanTests, scanExtractedFileForThreatDoesNothingWithEm
 
     auto quarantineManager = createQuarantineManager();
 
-    auto testFile = std::make_shared<FdsObjectIdsPair>();
-    EXPECT_FALSE(quarantineManager.scanExtractedFileForThreat(std::move(testFile), "/path"));
+    auto testFile = FdsObjectIdsPair(datatypes::AutoFd{}, "");
+    EXPECT_FALSE(quarantineManager.scanExtractedFileForThreat(testFile, "/path"));
     EXPECT_TRUE(appenderContains("Couldn't get object handle for:"));
 }
 
@@ -214,8 +214,7 @@ TEST_F(QuarantineManagerRescanTests, scanExtractedFileClean)
     defineSafeStoreObject(1111, "objectId1", {});
     auto fd1{ createRealFd() };
 
-    std::vector<FdsObjectIdsPair> testFiles;
-    auto testFile = std::make_shared<FdsObjectIdsPair>(datatypes::AutoFd{ fd1 }, "objectId1");
+    auto testFile = FdsObjectIdsPair(datatypes::AutoFd{ fd1 }, "objectId1");
 
     EXPECT_CALL(*mockScanningClientSocket_, sendRequest(IsRescanAndHasFd(fd1))).WillOnce(Return(true));
     EXPECT_CALL(*mockScanningClientSocket_, receiveResponse).WillOnce(Return(true));
@@ -234,8 +233,7 @@ TEST_F(QuarantineManagerRescanTests, scanExtractedFileThreat)
     defineSafeStoreObject(1111, "objectId1", {});
     auto fd1{ createRealFd() };
 
-    std::vector<FdsObjectIdsPair> testFiles;
-    auto testFile = std::make_shared<FdsObjectIdsPair>(datatypes::AutoFd{ fd1 }, "objectId1");
+    auto testFile = FdsObjectIdsPair(datatypes::AutoFd{ fd1 }, "objectId1");
 
     EXPECT_CALL(*mockScanningClientSocket_, sendRequest(IsRescanAndHasFd(fd1))).WillOnce(Return(true));
     EXPECT_CALL(*mockScanningClientSocket_, receiveResponse).WillOnce(Invoke(
@@ -258,7 +256,7 @@ TEST_F(QuarantineManagerRescanTests, scanExtractedFilesSocketFailure)
 {
     m_memoryAppender->setLayout(std::make_unique<log4cplus::PatternLayout>("[%p] %m%n"));
     defineSafeStoreObjects({ { 1111, "objectId1", {} } });
-    auto testFile = std::make_shared<FdsObjectIdsPair>(datatypes::AutoFd{}, "objectId1");
+    auto testFile = FdsObjectIdsPair(datatypes::AutoFd{}, "objectId1");
 
     EXPECT_CALL(*mockScanningClientSocket_, sendRequest).WillOnce(Return(false));
     EXPECT_CALL(mockSafeStoreResources_, CreateScanningClientSocket)
@@ -283,7 +281,7 @@ TEST_F(QuarantineManagerRescanTests, scanExtractedFilesSkipsHandleFailure)
     EXPECT_CALL(*mockSafeStoreWrapper_, getObjectHandle("objectId1", _)).WillRepeatedly(Return(false));
 
     auto fd1{ createRealFd() };
-    auto testFile = std::make_shared<FdsObjectIdsPair>(datatypes::AutoFd{ fd1 }, "objectId1");
+    auto testFile = FdsObjectIdsPair(datatypes::AutoFd{ fd1 }, "objectId1");
 
     // Mock responses from the scanning server
     EXPECT_CALL(*mockScanningClientSocket_, sendRequest(IsRescanAndHasFd(fd1))).WillOnce(Return(true));
@@ -299,7 +297,7 @@ TEST_F(QuarantineManagerRescanTests, scanExtractedFilesSkipsHandleFailure)
     MoveFileSystemMocks();
     auto quarantineManager = createQuarantineManager();
 
-    EXPECT_FALSE(quarantineManager.scanExtractedFileForThreat(std::move(testFile), "orgpath"));
+    EXPECT_FALSE(quarantineManager.scanExtractedFileForThreat(testFile, "orgpath"));
     EXPECT_TRUE(appenderContains("[ERROR] Couldn't get object handle for: objectId1"));
 }
 
@@ -312,7 +310,7 @@ TEST_F(QuarantineManagerRescanTests, scanExtractedFilesHandlesNameAndLocationFai
     EXPECT_CALL(*mockSafeStoreWrapper_, getObjectLocation(HasRawPointer(1111))).WillRepeatedly(Return(""));
 
     auto fd1{ createRealFd() };
-    auto testFile = std::make_shared<FdsObjectIdsPair>(datatypes::AutoFd{ fd1 }, "objectId1");
+    auto testFile = FdsObjectIdsPair(datatypes::AutoFd{ fd1 }, "objectId1");
 
     {
         InSequence seq;
@@ -325,7 +323,7 @@ TEST_F(QuarantineManagerRescanTests, scanExtractedFilesHandlesNameAndLocationFai
 
     MoveFileSystemMocks();
     auto quarantineManager = createQuarantineManager();
-    EXPECT_TRUE(quarantineManager.scanExtractedFileForThreat(std::move(testFile), "orgpath"));
+    EXPECT_TRUE(quarantineManager.scanExtractedFileForThreat(testFile, "orgpath"));
 
     EXPECT_TRUE(appenderContains("[WARN] Couldn't get path for 'objectId1': Couldn't get object name"));
     EXPECT_TRUE(appenderContains("[DEBUG] Rescan found quarantined file no longer a threat: <unknown path>"));

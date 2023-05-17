@@ -14,7 +14,6 @@
 
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "Common/FileSystem/IFilePermissions.h"
-#include "Common/FileSystem/IFileSystem.h"
 #include "Common/FileSystem/IFileSystemException.h"
 #include "Common/TelemetryHelperImpl/TelemetryHelper.h"
 #include "Common/UtilityImpl/Uuid.h"
@@ -210,19 +209,18 @@ namespace safestore::QuarantineManager
             m_state = newState;
             try
             {
-                auto fileSystem = Common::FileSystem::fileSystem();
                 std::string dormantFlag = Plugin::getSafeStoreDormantFlagPath();
                 auto tempDir = Common::ApplicationConfiguration::applicationPathManager().getTempPath();
                 switch (m_state)
                 {
                     case QuarantineManagerState::INITIALISED:
-                        fileSystem->removeFile(dormantFlag, true);
+                        m_fileSystem->removeFile(dormantFlag, true);
                         break;
                     case QuarantineManagerState::UNINITIALISED:
-                        fileSystem->writeFileAtomically(dormantFlag, "SafeStore database uninitialised", tempDir);
+                        m_fileSystem->writeFileAtomically(dormantFlag, "SafeStore database uninitialised", tempDir);
                         break;
                     case QuarantineManagerState::CORRUPT:
-                        fileSystem->writeFileAtomically(dormantFlag, "SafeStore database corrupt", tempDir);
+                        m_fileSystem->writeFileAtomically(dormantFlag, "SafeStore database corrupt", tempDir);
                         break;
                     case QuarantineManagerState::STARTUP:
                         break;
@@ -327,9 +325,7 @@ namespace safestore::QuarantineManager
 
         const std::string escapedDirectory = common::escapePathForLogging(directory);
 
-        auto fs = Common::FileSystem::fileSystem();
-
-        datatypes::AutoFd directoryFd(fs->getFileInfoDescriptor(directory));
+        datatypes::AutoFd directoryFd(m_fileSystem->getFileInfoDescriptor(directory));
         if (!directoryFd.valid())
         {
             LOGERROR(
@@ -339,7 +335,7 @@ namespace safestore::QuarantineManager
 
         const int fd = autoFd.get();
         LOGDEBUG("File Descriptor: " << fd);
-        auto pathFromFd = fs->readlink("/proc/self/fd/" + std::to_string(fd));
+        auto pathFromFd = m_fileSystem->readlink("/proc/self/fd/" + std::to_string(fd));
 
         if (!pathFromFd.has_value())
         {
@@ -349,8 +345,8 @@ namespace safestore::QuarantineManager
         if (pathFromFd.value() == filePath + " (deleted)")
         {
             datatypes::AutoFd fdFromDir(
-                fs->getFileInfoDescriptorFromDirectoryFD(directoryFd.get(), filename + " (deleted)"));
-            if (fdFromDir.valid() && fs->compareFileDescriptors(fdFromDir.get(), autoFd.get()))
+                m_fileSystem->getFileInfoDescriptorFromDirectoryFD(directoryFd.get(), filename + " (deleted)"));
+            if (fdFromDir.valid() && m_fileSystem->compareFileDescriptors(fdFromDir.get(), autoFd.get()))
             {
                 LOGERROR("Cannot quarantine " << escapedPath << " as it was moved");
                 return common::CentralEnums::QuarantineResult::NOT_FOUND;
@@ -373,17 +369,17 @@ namespace safestore::QuarantineManager
         {
             callOnDbSuccess();
 
-            datatypes::AutoFd fd2(fs->getFileInfoDescriptorFromDirectoryFD(directoryFd.get(), filename));
+            datatypes::AutoFd fd2(m_fileSystem->getFileInfoDescriptorFromDirectoryFD(directoryFd.get(), filename));
             if (!fd2.valid())
             {
                 LOGWARN("Cannot quarantine " << escapedPath << " as it does not exist");
                 return common::CentralEnums::QuarantineResult::NOT_FOUND;
             }
-            if (fs->compareFileDescriptors(autoFd.get(), fd2.get()))
+            if (m_fileSystem->compareFileDescriptors(autoFd.get(), fd2.get()))
             {
                 try
                 {
-                    fs->unlinkFileUsingDirectoryFD(directoryFd.get(), filename);
+                    m_fileSystem->unlinkFileUsingDirectoryFD(directoryFd.get(), filename);
                 }
                 catch (const Common::FileSystem::IFileSystemException& ex)
                 {
@@ -482,13 +478,12 @@ namespace safestore::QuarantineManager
         std::lock_guard<std::mutex> lock(m_interfaceMutex);
         LOGWARN("Deleting Quarantine database");
         std::string safeStoreDbDir = Plugin::getSafeStoreDbDirPath();
-        auto fileSystem = Common::FileSystem::fileSystem();
         try
         {
-            if (fileSystem->exists(safeStoreDbDir))
+            if (m_fileSystem->exists(safeStoreDbDir))
             {
-                fileSystem->removeFileOrDirectory(safeStoreDbDir);
-                fileSystem->makedirs(safeStoreDbDir);
+                m_fileSystem->removeFileOrDirectory(safeStoreDbDir);
+                m_fileSystem->makedirs(safeStoreDbDir);
                 auto fp = Common::FileSystem::filePermissions();
                 fp->chown(safeStoreDbDir, "root", "root");
                 fp->chmod(safeStoreDbDir, S_IRUSR | S_IWUSR | S_IXUSR); // 0700
@@ -506,29 +501,28 @@ namespace safestore::QuarantineManager
         }
     }
 
-    std::shared_ptr<FdsObjectIdsPair> QuarantineManagerImpl::extractQuarantinedFile(
+    std::optional<FdsObjectIdsPair> QuarantineManagerImpl::extractQuarantinedFile(
         SafeStoreWrapper::ObjectHandleHolder threatToExtract)
     {
-        auto fs = Common::FileSystem::fileSystem();
         auto fp = Common::FileSystem::filePermissions();
 
         std::string dirPath = Common::FileSystem::join(Plugin::getPluginVarDirPath(), "tempUnpack");
         try
         {
-            fs->makedirs(dirPath);
+            m_fileSystem->makedirs(dirPath);
             fp->chown(dirPath, "root", "root");
             fp->chmod(dirPath, S_IRUSR | S_IWUSR);
         }
         catch (Common::FileSystem::IFileSystemException& ex)
         {
             LOGWARN("Failed to setup directory for rescan of threats with error: " << ex.what());
-            cleanupUnpackDir(false, dirPath, fs);
-            return nullptr;
+            cleanupUnpackDir(false, dirPath);
+            return std::nullopt;
         }
 
         auto objectId = m_safeStore->getObjectId(threatToExtract);
         bool success = m_safeStore->restoreObjectByIdToLocation(objectId, dirPath);
-        auto unpackedFiles = fs->listAllFilesInDirectoryTree(dirPath);
+        auto unpackedFiles = m_fileSystem->listAllFilesInDirectoryTree(dirPath);
 
         if (unpackedFiles.size() != 1)
         {
@@ -540,23 +534,23 @@ namespace safestore::QuarantineManager
             {
                 LOGWARN("Failed to unpack threat for rescan");
             }
-            cleanupUnpackDir(true, dirPath, fs);
-            return nullptr;
+            cleanupUnpackDir(true, dirPath);
+            return std::nullopt;
         }
         if (!success)
         {
             LOGWARN("Failed to restore threat for rescan");
             try
             {
-                fs->removeFile(unpackedFiles[0]);
-                cleanupUnpackDir(false, dirPath, fs);
+                m_fileSystem->removeFile(unpackedFiles[0]);
+                cleanupUnpackDir(false, dirPath);
             }
             catch (Common::FileSystem::IFileSystemException& ex)
             {
                 LOGERROR("Failed to clean up threat with error: " << ex.what());
-                cleanupUnpackDir(true, dirPath, fs);
+                cleanupUnpackDir(true, dirPath);
             }
-            return nullptr;
+            return std::nullopt;
         }
         std::string filepath = unpackedFiles[0];
 
@@ -569,33 +563,33 @@ namespace safestore::QuarantineManager
         {
             // horrible state here we want to clean up and drop all filedescriptors asap
             LOGERROR("Failed to set correct permissions " << ex.what() << " aborting rescan");
-            cleanupUnpackDir(false, dirPath, fs);
-            return nullptr;
+            cleanupUnpackDir(false, dirPath);
+            return std::nullopt;
         }
 
         int fd = m_sysCallWrapper->_open(filepath.c_str(), O_RDONLY, 0);
-        auto file = std::make_shared<FdsObjectIdsPair>(datatypes::AutoFd{ fd }, objectId);
+        auto file = FdsObjectIdsPair(datatypes::AutoFd{ fd }, objectId);
 
         try
         {
             // remove file as soon as we have fd for it to minimise time on disk
-            fs->removeFile(filepath);
-            cleanupUnpackDir(false, dirPath, fs);
+            m_fileSystem->removeFile(filepath);
+            cleanupUnpackDir(false, dirPath);
         }
         catch (Common::FileSystem::IFileSystemException& ex)
         {
             LOGERROR("Failed to clean up threat with error: " << ex.what());
-            cleanupUnpackDir(true, dirPath, fs);
+            cleanupUnpackDir(true, dirPath);
         }
 
         return file;
     }
 
-    void QuarantineManagerImpl::cleanupUnpackDir(bool failedToCleanUp, const std::string& dirPath, Common::FileSystem::IFileSystem* fs)
+    void QuarantineManagerImpl::cleanupUnpackDir(bool failedToCleanUp, const std::string& dirPath)
     {
         try
         {
-            fs->removeFileOrDirectory(dirPath);
+            m_fileSystem->removeFileOrDirectory(dirPath);
         }
         catch (Common::FileSystem::IFileSystemException& ex)
         {
@@ -631,10 +625,10 @@ namespace safestore::QuarantineManager
     }
 
     bool QuarantineManagerImpl::scanExtractedFileForThreat(
-        std::shared_ptr<FdsObjectIdsPair> file, const std::string& originalFilePath)
+        FdsObjectIdsPair& file, const std::string& originalFilePath)
     {
-        auto fd = std::move(file->first);
-        auto objectId = file->second;
+        auto fd = std::move(file.first);
+        auto objectId = file.second;
 
         auto scanningClient = safeStoreResources_.CreateScanningClientSocket(Plugin::getScanningSocketPath());
 
@@ -876,13 +870,12 @@ namespace safestore::QuarantineManager
 
     void QuarantineManagerImpl::parseConfig()
     {
-        auto fileSystem = Common::FileSystem::fileSystem();
-        if (fileSystem->isFile(Plugin::getSafeStoreConfigPath()))
+        if (m_fileSystem->isFile(Plugin::getSafeStoreConfigPath()))
         {
             LOGINFO("Config file found, parsing optional arguments.");
             try
             {
-                auto configContents = fileSystem->readFile(Plugin::getSafeStoreConfigPath());
+                auto configContents = m_fileSystem->readFile(Plugin::getSafeStoreConfigPath());
                 nlohmann::json j = nlohmann::json::parse(configContents);
 
                 // Due to library limitations, config options must be set in this order to avoid undesired behaviour
@@ -1003,11 +996,11 @@ namespace safestore::QuarantineManager
                                                                           << objectId << "')");
 
         auto fileToBeScanned = extractQuarantinedFile(std::move(objectHandle));
-        if (fileToBeScanned == nullptr)
+        if (!fileToBeScanned.has_value())
         {
             return false;
         }
-        return scanExtractedFileForThreat(fileToBeScanned, originalFilePath);
+        return scanExtractedFileForThreat(fileToBeScanned.value(), originalFilePath);
     }
 
     bool QuarantineManagerImpl::DoMetadataRescan(
