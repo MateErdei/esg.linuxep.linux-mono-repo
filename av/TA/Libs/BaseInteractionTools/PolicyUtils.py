@@ -228,11 +228,13 @@ class _SavPolicyBuilder:
         self.replacement_map["{{puaExclusions}}"] = allowed_pua
 
 
-def create_corc_policy(whitelist_sha256s=[]):
+def create_corc_policy(whitelist_sha256s=[], whitelist_paths=[]):
     with open(CORC_POLICY_TEMPLATE_PATH) as f:
         policy = f.read()
         whitelist_items = []
         for sha256 in whitelist_sha256s:
             whitelist_items.append(f'<item type="sha256">{sha256}</item>')
+        for path in whitelist_paths:
+            whitelist_items.append(f'<item type="path">{path}</item>')
         policy = policy.replace("{{whitelistItems}}", "\n".join(whitelist_items))
         return policy

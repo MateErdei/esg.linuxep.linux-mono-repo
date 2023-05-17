@@ -735,6 +735,7 @@ Sophos Threat Detector Does Not Detect Allow Listed File By Sha256
 
 Sophos Threat Detector Does Not Detect Allow Listed File By Path
     ${directory_under_test} =    Set Variable    /tmp_test/a/path/
+    ${directory_allow_glob} =    Set Variable    /tmp_test/*/path/
     ${allow_listed_threat_file} =    Set variable    ${directory_under_test}MLengHighScore.exe
 
     Stop sophos_threat_detector
@@ -745,9 +746,13 @@ Sophos Threat Detector Does Not Detect Allow Listed File By Path
     ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
     ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
 
-    Send CORC Policy To Base  corc_policy_allow_list_no_ml_detect_by_sha.xml
+    # Allow-list the file
+    ${allowlisted_paths} =    Create List     ${directory_allow_glob}
+    ${corc_policy} =    Create CORC Policy    whitelist_paths=${allowlisted_paths}
+    Send CORC Policy To Base From Content    ${corc_policy}
+
     wait_for_log_contains_from_mark  ${av_mark}  Added path to allow list: ${directory_under_test}
-    wait_for_log_contains_from_mark  ${td_mark}  Number of Path allow-listed items: 4
+    wait_for_log_contains_from_mark  ${td_mark}  Number of Path allow-listed items: 1
 
     # Create threat to scan
     Create Directory  ${directory_under_test}
@@ -789,6 +794,11 @@ Sophos Threat Detector Does Not Detect Allow Listed Archive
     ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
     ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
 
+    # Allow-list the file
+    ${allowlisted_paths} =    Create List     ${allow_listed_threat_file}
+    ${corc_policy} =    Create CORC Policy    whitelist_paths=${allowlisted_paths}
+    Send CORC Policy To Base From Content    ${corc_policy}
+
     Send CORC Policy To Base  corc_policy_allow_list_zipfile.xml
     wait_for_log_contains_from_mark  ${av_mark}  Added path to allow list: ${allow_listed_threat_file}
     wait_for_log_contains_from_mark  ${td_mark}  Number of Path allow-listed items: 2
@@ -818,7 +828,11 @@ Sophos Threat Detector Does Not Detect Long Allow List Entry
     ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
     ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
 
-    Send CORC Policy To Base  corc_policy_allow_list_long_path.xml
+    # Allow-list the file
+    ${allowlisted_paths} =    Create List     ${directory_under_test}
+    ${corc_policy} =    Create CORC Policy    whitelist_paths=${allowlisted_paths}
+    Send CORC Policy To Base From Content    ${corc_policy}
+
     wait_for_log_contains_from_mark  ${av_mark}  Added path to allow list: ${directory_under_test}
     wait_for_log_contains_from_mark  ${td_mark}  Number of Path allow-listed items: 1
 
@@ -856,7 +870,11 @@ Sophos Threat Detector Does Not Detect Mounted Allow List Entry
     ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
     ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
 
-    Send CORC Policy To Base  corc_policy_allow_list_mount.xml
+    # Allow-list the file
+    ${allowlisted_paths} =    Create List     ${directory_under_test}
+    ${corc_policy} =    Create CORC Policy    whitelist_paths=${allowlisted_paths}
+    Send CORC Policy To Base From Content    ${corc_policy}
+
     wait_for_log_contains_from_mark  ${av_mark}  Added path to allow list: ${directory_under_test}
     wait_for_log_contains_from_mark  ${td_mark}  Number of Path allow-listed items: 1
 

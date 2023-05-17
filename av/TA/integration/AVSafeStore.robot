@@ -33,7 +33,7 @@ ${CUSTOMERID_FILE}                   ${COMPONENT_ROOT_PATH}/chroot/${COMPONENT_R
 ${MACHINEID_CHROOT_FILE}             ${COMPONENT_ROOT_PATH}/chroot${SOPHOS_INSTALL}/base/etc/machine_id.txt
 ${MACHINEID_FILE}                    ${SOPHOS_INSTALL}/base/etc/machine_id.txt
 ${SAFESTORE_DORMANT_FLAG}            ${SOPHOS_INSTALL}/plugins/av/var/safestore_dormant_flag
-
+${TEST_PATH}
 
 *** Test Cases ***
 
@@ -704,6 +704,7 @@ Allow Listed Files Are Removed From Quarantine Allow By SHA256
 
     # File is allowed and not treated as a threat
     wait_for_log_contains_from_mark  ${td_mark}  Allowed by SHA256: c88e20178a82af37a51b030cb3797ed144126cad09193a6c8c7e95957cf9c3f9
+    wait_for_log_contains_from_mark  ${td_mark}  Allowing ${allow_listed_threat_file} with c88e20178a82af37a51b030cb3797ed144126cad09193a6c8c7e95957cf9c3f9
 
     # File allowed so should still exist
     Should Exist  ${allow_listed_threat_file}
@@ -738,7 +739,9 @@ File Is Removed From Quarantine Allow List By Path
     ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
 
     # Allow-list the file
-    Send CORC Policy To Base  corc_policy_allow_path_normal_directory.xml
+    ${allowlisted_paths} =    Create List     ${NORMAL_DIRECTORY}/
+    ${corc_policy} =    Create CORC Policy    whitelist_paths=${allowlisted_paths}
+    Send CORC Policy To Base From Content    ${corc_policy}
 
     wait_for_log_contains_from_mark  ${av_mark}  Added path to allow list: ${NORMAL_DIRECTORY}
     wait_for_log_contains_from_mark  ${td_mark}  Triggering rescan of SafeStore database
@@ -795,7 +798,9 @@ Archive Is Removed From Quarantine When Threat Is Allow Listed Archive
     ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
 
     # Allow-list the file
-    Send CORC Policy To Base  corc_policy_allow_list_zipfile.xml
+    ${allowlisted_paths} =    Create List     ${allow_listed_threat_archive}
+    ${corc_policy} =    Create CORC Policy    whitelist_paths=${allowlisted_paths}
+    Send CORC Policy To Base From Content    ${corc_policy}
 
     wait_for_log_contains_from_mark  ${av_mark}  Added path to allow list: ${allow_listed_threat_archive}
     wait_for_log_contains_from_mark  ${td_mark}  Triggering rescan of SafeStore database
