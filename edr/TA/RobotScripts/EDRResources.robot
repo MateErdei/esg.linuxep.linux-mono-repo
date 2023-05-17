@@ -290,6 +290,7 @@ Common Teardown
     Run Keyword If Test Failed  Log File  ${SOPHOS_INSTALL}/plugins/edr/extensions/extensions.load
     Run Keyword If Test Failed  Get all sophos processes
     Run Keyword If Test Failed  Log File  ${EDR_LOG_PATH}
+    Run Keyword If Test Failed  Run Keyword And Ignore Error  Log File  ${EDR_LOG_PATH}.1
     Run Keyword If Test Failed  Run Keyword And Ignore Error  Log File  ${SOPHOS_INSTALL}/plugins/edr/log/edr_osquery.log
     Run Keyword If Test Failed  Run Keyword And Ignore Error  Log File  ${SOPHOS_INSTALL}/plugins/edr/log/edr_osquery.log.1
     Run Keyword If Test Failed  Run Keyword And Ignore Error  Log File   ${LIVEQUERY_LOG_PATH}
