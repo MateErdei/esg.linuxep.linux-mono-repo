@@ -67,8 +67,8 @@ Test EDR Serialize Response Handles Non-UTF8 Characters in Osquery Response
     ...  Run Non-UTF8 Query
 
 EDR plugin Configures OSQuery To Enable SysLog Event Collection
-    ${apparmor_installed} =    Does File Exist      /usr/sbin/apparmor_parser
-    Run Keyword If    ${apparmor_installed}    Replace Rsyslog Apparmor Rule
+    ${is_suse} =    Does File Exist    /etc/SUSE-brand
+    Run Keyword If    ${is_suse}    Replace Rsyslog Apparmor Rule
     Check EDR Plugin Installed With Base
     Wait Until Keyword Succeeds
     ...  15 secs
@@ -76,15 +76,6 @@ EDR plugin Configures OSQuery To Enable SysLog Event Collection
     ...  Check Osquery Running
 
     Should Exist  ${SOPHOS_INSTALL}/shared/syslog_pipe
-    ${result} =  Run Process  systemctl  restart  rsyslog
-    Log  ${result.stdout}
-    Log  ${result.stderr}
-    ${result} =  Run Process  systemctl  status  rsyslog
-    Log  ${result.stdout}
-    Log  ${result.stderr}
-    ${result} =  Run Process  journalctl  -u  rsyslog
-    Log  ${result.stdout}
-    Log  ${result.stderr}
     File Should Exist  /etc/rsyslog.d/rsyslog_sophos-spl.conf
 
     # check rsyslog does not report error connecting to named pipe
@@ -96,7 +87,7 @@ EDR plugin Configures OSQuery To Enable SysLog Event Collection
     # but is installed on all other platforms we support.
     Run Keyword If   ${result.rc}==1
     ...   Check Rsyslog Started Without Error
-    Run Keyword If    ${apparmor_installed}    Restore Rsyslog Apparmor Rule
+    Run Keyword If    ${is_suse}    Restore Rsyslog Apparmor Rule
 
 EDR Restarts If File Descriptor Limit Hit
     [Tags]  TESTFAILURE
