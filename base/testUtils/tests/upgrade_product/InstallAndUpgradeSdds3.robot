@@ -709,7 +709,7 @@ SDDS3 updating respects ALC feature codes
     Wait Until Keyword Succeeds
     ...   120 secs
     ...   10 secs
-    ...   Check SulDownloader Log Contains String N Times   Update success  4
+    ...   Check Log Contains String At Least N times    ${SOPHOS_INSTALL}/logs/base/suldownloader.log    SulDownloader Log    Update success    4
     Check SulDownloader Log Contains String N Times   Generating the report file  4
     Directory Should Exist   ${SOPHOS_INSTALL}/plugins/av
     Directory Should Exist   ${SOPHOS_INSTALL}/plugins/edr
