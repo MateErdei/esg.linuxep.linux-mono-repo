@@ -46,6 +46,9 @@ chmod 700 "$AV/base-sdds/install.sh"
 rm -rf "$AV/test-resources"
 mv "$OUTPUT/test-resources"  "$AV/"
 
+mkdir -p "$INPUTS/tap_test_output_from_build"
+rsync -va --copy-unsafe-links "$OUTPUT/tap_test_output.tar.gz"    "$INPUTS/tap_test_output_from_build/tap_test_output.tar.gz"
+
 if [[ -n $SYMBOLS ]]
 then
     rm -rf "$INPUTS/symbols"
