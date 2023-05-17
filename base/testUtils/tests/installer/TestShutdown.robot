@@ -2,6 +2,7 @@
 Documentation    Test base uninstaller clean up all components
 
 Library    ${LIBS_DIRECTORY}/FullInstallerUtils.py
+Library    ${LIBS_DIRECTORY}/OSUtils.py
 
 Resource  ../event_journaler/EventJournalerResources.robot
 Resource  ../ra_plugin/ResponseActionsResources.robot
@@ -15,6 +16,9 @@ Default Tags  INSTALLER  EDR_PLUGIN  LIVERESPONSE_PLUGIN  MDR_PLUGIN  UPDATE_SCH
 
 *** Test Cases ***
 Test Components Shutdown Cleanly
+    # Write rsyslog config now before installing the product so that we don't need to handle the rsyslog restart later
+    ${rsyslog_conf_dir_exists} =    Does File Exist    /etc/rsyslog.d
+    Run Keyword If    ${rsyslog_conf_dir_exists}    Write Rsyslog Config
     Require Fresh Install
     Override LogConf File as Global Level  DEBUG
     Wait For Base Processes To Be Running
@@ -75,5 +79,11 @@ Test Components Shutdown Cleanly
     ...  1 secs
     ...  Check Log Contains   Update Scheduler Finished   ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log   UpdateSchedulerLog
 
+*** Keywords ***
 
-
+Write Rsyslog Config
+    ${EDR_SDDS_DIR} =  Get SSPL EDR Plugin SDDS
+    Copy File    ${EDR_SDDS_DIR}/files/plugins/edr/etc/syslog_configs/rsyslog_sophos-spl.conf    /etc/rsyslog.d/
+    ${result} =  Run Process    systemctl  status  rsyslog
+    Log  ${result.stdout}
+    Log  ${result.stderr}
