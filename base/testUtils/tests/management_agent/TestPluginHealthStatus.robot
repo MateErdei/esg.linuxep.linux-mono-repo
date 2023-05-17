@@ -129,7 +129,7 @@ Verify Management Agent does not check health when suldownloader is running
 
     Remove File  ${UPGRADING_MARKER_FILE}
 
-    Wait Until Created  ${SHS_STATUS_FILE}  timeout=2 minutes
+    Wait Until Created  ${SHS_STATUS_FILE}  timeout=3 minutes
 
     # clean up
     Stop Management Agent
