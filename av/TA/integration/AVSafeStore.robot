@@ -709,7 +709,7 @@ Allow Listed Files Are Removed From Quarantine Allow By SHA256
     Should Exist  ${allow_listed_threat_file}
 
 
-Allow Listed Files Are Removed From Quarantine Allow List Path
+File Is Removed From Quarantine Allow List By Path
     Wait Until threat detector running
     Wait Until SafeStore running
 
@@ -763,7 +763,7 @@ Allow Listed Files Are Removed From Quarantine Allow List Path
     Should Exist  ${allow_listed_threat_file}
 
 
-File Is Removed From Quarantine When Threat Is Allow Listed Archive
+Archive Is Removed From Quarantine When Threat Is Allow Listed Archive
     Wait Until threat detector running
     Wait Until SafeStore running
 
