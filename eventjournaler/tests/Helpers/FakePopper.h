@@ -2,17 +2,17 @@
 
 #pragma once
 
-#include <optional>
-#include <mutex>
-#include <condition_variable>
 #include "modules/EventWriterWorkerLib/IEventQueuePopper.h"
+
+#include <vector>
+
 
 using namespace EventWriterLib;
 
 class FakePopper : public EventWriterLib::IEventQueuePopper
 {
 public:
-    FakePopper(JournalerCommon::Event fakeData, int amountOfData = 1);
+    explicit FakePopper(JournalerCommon::Event fakeData, int amountOfData = 1);
     std::optional<JournalerCommon::Event> pop(int timeoutInMilliseconds) override;
 
 private:

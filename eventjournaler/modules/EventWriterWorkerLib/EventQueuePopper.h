@@ -4,6 +4,8 @@
 
 #include "modules/EventQueueLib/IEventQueuePopper.h"
 
+#include <memory>
+
 namespace EventWriterLib
 {
     class EventQueuePopper : public IEventQueuePopper
