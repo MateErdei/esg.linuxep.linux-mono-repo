@@ -18,8 +18,6 @@ namespace EventQueueLib
     {
     public:
         explicit EventQueue(int maxSize);
-        EventQueue(const EventQueue&) = delete;
-        EventQueue(EventQueue&&) = delete;
 
         bool push(JournalerCommon::Event event) override;
         std::optional<JournalerCommon::Event> pop(int timeoutInMilliseconds) override;

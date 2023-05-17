@@ -7,11 +7,11 @@
 #include "modules/EventJournal/IEventJournalWriter.h"
 #include "modules/EventQueueLib/IEventQueue.h"
 #include "modules/EventWriterWorkerLib/IEventQueuePopper.h"
+#include <modules/Heartbeat/IHeartbeat.h>
 
 #include <atomic>
 #include <optional>
 #include <thread>
-#include <modules/Heartbeat/IHeartbeat.h>
 
 namespace EventWriterLib
 {
