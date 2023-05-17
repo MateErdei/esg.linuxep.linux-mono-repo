@@ -62,16 +62,13 @@ int main()
                     std::move(eventQueuePusher),
                     heartbeat->getPingHandleForId(Heartbeat::getSubscriberThreadId())));
 
-    std::unique_ptr<EventWriterLib::IEventQueuePopper> eventQueuePopper(
-            new EventWriterLib::EventQueuePopper(eventQueue));
-
     std::unique_ptr<EventJournal::IEventJournalWriter> eventJournalWriter (new EventJournal::Writer());
 
     std::shared_ptr<EventWriterLib::IEventWriterWorker> eventWriter(
             new EventWriterLib::EventWriterWorker(
-                    std::move(eventQueuePopper),
-                    std::move(eventJournalWriter),
-                    heartbeat->getPingHandleForId(Heartbeat::getWriterThreadId())));
+        eventQueue,
+        std::move(eventJournalWriter),
+        heartbeat->getPingHandleForId(Heartbeat::getWriterThreadId())));
 
     PluginAdapter pluginAdapter(
             queueTask,
