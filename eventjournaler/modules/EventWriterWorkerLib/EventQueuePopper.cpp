@@ -1,14 +1,10 @@
-/******************************************************************************************************
-
-Copyright 2021 Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2021-2023 Sophos Limited. All rights reserved.
 
 #include "EventQueuePopper.h"
 
 namespace EventWriterLib
 {
-    EventWriterLib::EventQueuePopper::EventQueuePopper(const std::shared_ptr<EventQueueLib::IEventQueue>& eventQueue) :
+    EventWriterLib::EventQueuePopper::EventQueuePopper(const std::shared_ptr<EventQueueLib::IEventQueuePopper>& eventQueue) :
         m_eventQueue(eventQueue)
     {
     }
