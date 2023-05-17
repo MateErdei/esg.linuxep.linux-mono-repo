@@ -69,10 +69,6 @@ Restart EDR Plugin
     # If rsyslog restart causes sophos-spl restart, wait for it to start
     ${spl_restarting} =    Journalctl Contains    sophos-spl.service: Killing process
     Run Keyword If   ${spl_restarting}   Wdctl Stop Plugin  edr
-    Run Keyword If   ${spl_restarting}   Wait Until Keyword Succeeds
-        ...   40 secs
-        ...   1 secs
-        ...   Check Marked EDR Log Contains   Plugin Finished
     Wdctl Start Plugin  edr
     Wait Until Keyword Succeeds
     ...  240 secs
