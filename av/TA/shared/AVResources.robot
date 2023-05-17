@@ -764,6 +764,11 @@ AV And Base Teardown
     Register On Fail  dump log  ${AV_INSTALL_LOG}
     Register On Fail  dump log  ${SAFESTORE_LOG_PATH}
 
+    Register On Fail    dump_dmesg
+    Register On Fail    dump_log     /var/log/syslog
+    Register On Fail    dump_log     /var/log/messages
+    Register On Fail    analyse Journalctl    print_always=True
+
     Run Cleanup Functions
 
     Run Keyword And Ignore Error   Empty Directory   ${SCAN_DIRECTORY}
