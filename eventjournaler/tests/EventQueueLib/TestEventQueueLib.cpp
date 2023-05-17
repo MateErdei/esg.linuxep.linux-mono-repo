@@ -195,12 +195,11 @@ TEST_F(TestEventQueue, testEventQueuePopBlocksDuringTimeoutBeforeUnblockingAndRe
     EXPECT_NEAR(duration, 100, 10);
 }
 
-TEST_F(TestEventQueue, testPushedDataIsCorrectlyQueuedAndReturnedWhenPopped) // NOLINT
+TEST_F(TestEventQueue, testPushedDataIsCorrectlyQueuedAndReturnedWhenPopped)
 {
-    EventQueueLib::IEventQueue* eventQueue = new EventQueueLib::EventQueue(3);
-    std::shared_ptr<EventQueueLib::IEventQueue> eventQueuePtr(eventQueue);
-    SubscriberLib::IEventHandler* pusher = new SubscriberLib::EventQueuePusher(eventQueuePtr);
-    EventWriterLib::IEventQueuePopper* popper = new EventWriterLib::EventQueuePopper(eventQueuePtr);
+    auto eventQueuePtr = std::make_shared<EventQueueLib::EventQueue>(3);
+    auto pusher = std::make_unique<SubscriberLib::EventQueuePusher>(eventQueuePtr);
+    auto popper = std::make_unique<EventWriterLib::EventQueuePopper>(eventQueuePtr);
 
     JournalerCommon::Event data1 {JournalerCommon::EventType::THREAT_EVENT, "fake data one"};
     JournalerCommon::Event data2 {JournalerCommon::EventType::THREAT_EVENT, "fake data two"};
