@@ -630,7 +630,7 @@ On Access Doesnt Cache Close Events With Detections
 
 
 On Access Doesn't cache remote files
-    [Tags]  NFS
+    [Tags]  NFS  ON_ACCESS_REMOTE_FILES
     # LINUXDAR-7029 - test broken on SLES
 #    ${is_suse} =  Does File Contain Word  /etc/os-release    SUSE Linux Enterprise Server
 #    Pass Execution If    ${is_suse}  Skipping test on SLES until LINUXDAR-7029 is fixed
