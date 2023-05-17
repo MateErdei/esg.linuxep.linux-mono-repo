@@ -56,7 +56,7 @@ namespace ResponseActionsImpl
         {
             if (m_response.contains("errorType") || m_response.contains("errorMessage"))
             {
-                LOGERROR("Download failed");
+                LOGERROR("Download unsuccessful, action runner terminated");
                 abort();
             }
 
