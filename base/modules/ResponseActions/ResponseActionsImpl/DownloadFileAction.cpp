@@ -56,7 +56,7 @@ namespace ResponseActionsImpl
         {
             if (m_response.contains("errorType") || m_response.contains("errorMessage"))
             {
-                LOGERROR("Action runner terminated, download failed with error: " << m_response["errorType"] << ". " << m_response["errorMessage"]);
+                LOGWARN("Action runner terminated, download failed with error: " << m_response["errorMessage"]);
                 abort();
             }
 

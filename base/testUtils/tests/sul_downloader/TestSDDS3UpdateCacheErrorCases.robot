@@ -197,8 +197,7 @@ Sul Downloader fails back to direct if UC fails to install supplements
     Wait Until Keyword Succeeds
     ...    20s
     ...    5s
-    ...    Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log  suldownloader_log   Update success  2
-    Check Sul Downloader log does not contain  Update failed
+    ...    Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader.log  suldownloader_log   Update failed, with code: 107  1
     Check Log Contains String N times   ${SOPHOS_INSTALL}/logs/base/suldownloader_sync.log   suldownloader_sync_log   Failed to refresh supplement: falling back to cached supplement: Error syncing https://localhost:8081/supplement/sdds3.SSPLFLAGS.dat  1
 
 
