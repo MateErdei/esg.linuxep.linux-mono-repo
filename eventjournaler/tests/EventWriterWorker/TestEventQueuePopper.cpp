@@ -26,5 +26,5 @@ TEST_F(TestEventQueuePopper, testGetEventCorrectlyCallsPopWithGivenArguements)
     EventWriterLib::EventQueuePopper eventQueuePopper(mockQueuePtr);
 
     EXPECT_CALL(*mockQueue, pop(testTimeOut)).Times(1);
-    eventQueuePopper.getEvent(testTimeOut);
+    eventQueuePopper.pop(testTimeOut);
 }

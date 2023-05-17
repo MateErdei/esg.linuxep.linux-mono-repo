@@ -9,7 +9,7 @@ namespace EventWriterLib
     {
     }
 
-    std::optional<JournalerCommon::Event> EventWriterLib::EventQueuePopper::getEvent(int timeoutInMilliseconds)
+    std::optional<JournalerCommon::Event> EventWriterLib::EventQueuePopper::pop(int timeoutInMilliseconds)
     {
         return m_eventQueue->pop(timeoutInMilliseconds);
     }

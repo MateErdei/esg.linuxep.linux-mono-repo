@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2021 Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2021-2023 Sophos Limited. All rights reserved.
 
 #include "EventWriterWorker.h"
 
@@ -107,7 +103,7 @@ namespace EventWriterLib
             {
                 m_heartbeatPinger->ping();
                 // Inner while loop to ensure we drain the queue once m_shouldBeRunning is set to false.
-                while (std::optional<JournalerCommon::Event> event = m_eventQueuePopper->getEvent(100))
+                while (std::optional<JournalerCommon::Event> event = m_eventQueuePopper->pop(100))
                 {
                     switch (event.value().type)
                     {

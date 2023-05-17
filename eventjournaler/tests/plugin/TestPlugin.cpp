@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2021, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2021-2023 Sophos Limited. All rights reserved.
 
 #include "MockEventWriterWorker.h"
 #include "MockSubscriberLib.h"
@@ -18,7 +14,9 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 #include <pluginimpl/PluginAdapter.h>
 #include <pluginimpl/QueueTask.h>
 
+#include <atomic>
 #include <future>
+#include <utility>
 #include <modules/Heartbeat/Heartbeat.h>
 #include <modules/Heartbeat/MockHeartbeatPinger.h>
 
@@ -28,11 +26,11 @@ class TestablePluginAdapter : public Plugin::PluginAdapter
 {
 public:
     TestablePluginAdapter(
-        std::shared_ptr<Plugin::QueueTask> queueTask,
+        const std::shared_ptr<Plugin::QueueTask>& queueTask,
         std::unique_ptr<SubscriberLib::ISubscriber> subscriber,
         std::unique_ptr<EventWriterLib::IEventWriterWorker> eventWriter,
         std::shared_ptr<Heartbeat::HeartbeatPinger> heartbeatPinger,
-        std::shared_ptr<Heartbeat::IHeartbeat> heartbeat
+        const std::shared_ptr<Heartbeat::IHeartbeat>& heartbeat
         ) :
         Plugin::PluginAdapter(
             queueTask,
@@ -40,7 +38,7 @@ public:
             std::make_shared<Plugin::PluginCallback>(queueTask, heartbeat),
             std::move(subscriber),
             std::move(eventWriter),
-            heartbeatPinger)
+            std::move(heartbeatPinger))
     {
     }
 };
@@ -51,14 +49,14 @@ class PluginAdapterTests : public LogOffInitializedTests
 
 TEST_F(PluginAdapterTests, PluginAdapterRestartsSubscriberOrWriterIfTheyStop)
 {
-    int subscriberRunningStatusCall = 0;
+    std::atomic_int subscriberRunningStatusCall = 0;
     auto countSubscriberStatusCalls = [&]()
     {
         subscriberRunningStatusCall++;
         return false;
     };
 
-    int writerRunningStatusCall = 0;
+    std::atomic_int writerRunningStatusCall = 0;
     auto countWriterStatusCalls = [&]()
     {
       writerRunningStatusCall++;

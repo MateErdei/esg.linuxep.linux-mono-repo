@@ -205,7 +205,7 @@ TEST_F(TestEventQueue, testPushedDataIsCorrectlyQueuedAndReturnedWhenPopped)
     pusher->handleEvent(data2);
     pusher->handleEvent(data3);
 
-    ASSERT_EQ(data1.data, popper->getEvent(10)->data);
-    ASSERT_EQ(data2.data, popper->getEvent(10)->data);
-    ASSERT_EQ(data3.data, popper->getEvent(10)->data);
+    ASSERT_EQ(data1.data, popper->pop(10)->data);
+    ASSERT_EQ(data2.data, popper->pop(10)->data);
+    ASSERT_EQ(data3.data, popper->pop(10)->data);
 }

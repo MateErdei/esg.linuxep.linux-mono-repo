@@ -20,6 +20,6 @@ namespace EventWriterLib
          * @param timeout to wait for queue to be populated in milliseconds
          * @return data if queue has any, nullptr otherwise
          */
-        virtual std::optional<JournalerCommon::Event> getEvent(int timeoutInMilliseconds) = 0;
+        virtual std::optional<JournalerCommon::Event> pop(int timeoutInMilliseconds) = 0;
     };
 } // namespace EventWriterLib

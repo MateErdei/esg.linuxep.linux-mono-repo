@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2021, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2021-2023 Sophos Limited. All rights reserved.
 
 #include "FakePopper.h"
 #include <optional>
@@ -21,7 +17,7 @@ FakePopper::FakePopper(JournalerCommon::Event fakeData, int amountOfData)
     }
 }
 
-std::optional<JournalerCommon::Event> FakePopper::getEvent(int timeoutInMilliseconds)
+std::optional<JournalerCommon::Event> FakePopper::pop(int timeoutInMilliseconds)
 {
     (void)timeoutInMilliseconds;
     std::this_thread::sleep_for(std::chrono::milliseconds(500));

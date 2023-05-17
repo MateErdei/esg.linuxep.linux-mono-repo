@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2021, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2021-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
@@ -18,5 +14,5 @@ class MockEventQueuePopper : public EventWriterLib::IEventQueuePopper
 {
 public:
     MockEventQueuePopper() = default;
-    MOCK_METHOD1(getEvent, std::optional<JournalerCommon::Event>(int));
+    MOCK_METHOD1(pop, std::optional<JournalerCommon::Event>(int));
 };

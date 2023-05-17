@@ -10,7 +10,7 @@ namespace EventWriterLib
     {
     public:
         explicit EventQueuePopper(const std::shared_ptr<EventQueueLib::IEventQueuePopper>& eventQueue);
-        std::optional<JournalerCommon::Event> getEvent(int timeoutInMilliseconds) override;
+        std::optional<JournalerCommon::Event> pop(int timeoutInMilliseconds) override;
 
     private:
         std::shared_ptr<EventQueueLib::IEventQueuePopper> m_eventQueue;
