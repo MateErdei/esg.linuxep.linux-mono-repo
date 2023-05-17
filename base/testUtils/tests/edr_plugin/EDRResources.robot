@@ -1,5 +1,6 @@
 *** Settings ***
 Library    ${LIBS_DIRECTORY}/FullInstallerUtils.py
+Library    ${LIBS_DIRECTORY}/OSUtils.py
 Resource  ../upgrade_product/UpgradeResources.robot
 
 
@@ -64,6 +65,9 @@ Restart EDR Plugin
     Log File  ${EDR_DIR}/log/edr.log
     Run Keyword If   ${clearLog}   Remove File  ${EDR_DIR}/log/edr.log
     Run Keyword If   ${installQueryPacks}   Create Query Packs
+    # If rsyslog restart causes sophos-spl restart, wait for it to start
+    ${spl_restarting} =    Journalctl Contains    sophos-spl.service: Killing process
+    Run Keyword If   ${spl_restarting}   Wait Until EDR OSQuery Running
     Mark EDR Log
     Wdctl Start Plugin  edr
     Wait Until Keyword Succeeds
