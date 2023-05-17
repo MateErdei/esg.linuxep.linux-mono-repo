@@ -1,14 +1,12 @@
 // Copyright 2021-2023 Sophos Limited. All rights reserved.
 
-#include "IEventQueuePopper.h"
-
 #include "modules/EventQueueLib/IEventQueuePopper.h"
 
 #include <memory>
 
 namespace EventWriterLib
 {
-    class EventQueuePopper : public IEventQueuePopper
+    class EventQueuePopper : public EventQueueLib::IEventQueuePopper
     {
     public:
         explicit EventQueuePopper(const std::shared_ptr<EventQueueLib::IEventQueuePopper>& eventQueue);
