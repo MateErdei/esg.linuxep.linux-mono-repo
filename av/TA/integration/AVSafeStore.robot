@@ -680,6 +680,8 @@ Allow Listed Files Are Removed From Quarantine Allow By SHA256
     Should Not Exist  ${allow_listed_threat_file}
 
     ${ss_mark} =  Get SafeStore Log Mark
+    ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
+    ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
 
     # Allow-list the file
     Send CORC Policy To Base  corc_policy.xml
@@ -732,6 +734,8 @@ Allow Listed Files Are Removed From Quarantine Allow List Path
     Should Not Exist  ${allow_listed_threat_file}
 
     ${ss_mark} =  Get SafeStore Log Mark
+    ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
+    ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
 
     # Allow-list the file
     Send CORC Policy To Base  corc_policy_allow_path_normal_directory.xml
@@ -759,7 +763,7 @@ Allow Listed Files Are Removed From Quarantine Allow List Path
     Should Exist  ${allow_listed_threat_file}
 
 
-Allow Listed Files Are Removed From Quarantine Allow List Path Archived Threat
+File Is Removed From Quarantine When Threat Is Allow Listed Archive
     Wait Until threat detector running
     Wait Until SafeStore running
 
@@ -787,6 +791,8 @@ Allow Listed Files Are Removed From Quarantine Allow List Path Archived Threat
     Should Not Exist  ${allow_listed_threat_archive}
 
     ${ss_mark} =  Get SafeStore Log Mark
+    ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
+    ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
 
     # Allow-list the file
     Send CORC Policy To Base  corc_policy_allow_list_zipfile.xml
