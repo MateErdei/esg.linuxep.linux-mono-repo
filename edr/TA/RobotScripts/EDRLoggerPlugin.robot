@@ -301,17 +301,15 @@ EDR Plugin Sends LiveQuery Status On Period Rollover
 EDR Plugin Respects Data Limit
     [Setup]  No Operation
     Move File Atomically  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_10000_limit.xml  /opt/sophos-spl/base/mcs/policy/LiveQuery_policy.xml
-    ${mark1} =    Mark Log Size    ${EDR_LOG_PATH}
+    ${mark} =    Mark Log Size    ${EDR_LOG_PATH}
     Install EDR Directly from SDDS
-    Wait For Log Contains From Mark    ${mark1}    Plugin preparation complete
-    Wait For Log Contains From Mark    ${mark1}    First LiveQuery policy received
+    Wait For Log Contains From Mark    ${mark}    Plugin preparation complete
+    Wait For Log Contains From Mark    ${mark}    First LiveQuery policy received
     Expect New Datalimit  10000
 
-    Wait For Log Contains From Mark    ${mark1}    XDR data limit for this period exceeded
-    Wait For Log Contains From Mark    ${mark1}    Restarting osquery, reason: XDR data limit exceeded
+    Wait For Log Contains From Mark    ${mark}    XDR data limit for this period exceeded
+    Wait For Log Contains From Mark    ${mark}    Restarting osquery, reason: XDR data limit exceeded
     Wait For LiveQuery Status To Contain  <dailyDataLimitExceeded>true</dailyDataLimitExceeded>
-    # Wait for EDR to be ready for telemetry request
-    Wait For Log Contains From Mark    ${mark1}    Plugin preparation complete    180
     ${edr_telemetry} =  Get Plugin Telemetry  edr
     ${telemetry_json} =  Evaluate  json.loads('''${edr_telemetry}''')  json
     ${uploadLimit} =  Set Variable  ${telemetry_json['scheduled-queries']['upload-limit-hit']}

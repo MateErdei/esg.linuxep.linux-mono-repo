@@ -150,6 +150,11 @@ Install Base For Component Tests
     File Should Exist     ${BASE_SDDS}/install.sh
     Run Shell Process   bash -x ${BASE_SDDS}/install.sh 2> /tmp/installer.log   OnError=Failed to Install Base   timeout=60s
     Run Keyword and Ignore Error   Run Shell Process    /opt/sophos-spl/bin/wdctl stop mcsrouter  OnError=Failed to stop mcsrouter
+    # Force telemetry to be rescheduled to 24 hours in the future so that it doesn't interfere with this test run
+    Create File    ${SOPHOS_INSTALL}/base/telemetry/var/tscheduler-status.json
+    Log    ${SOPHOS_INSTALL}/base/telemetry/var/tscheduler-status.json
+    Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl stop tscheduler   OnError=failed to stop tscheduler
+    Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl start tscheduler   OnError=failed to start tscheduler
 
 Install EDR Directly from SDDS
     [Arguments]  ${interval}=5
