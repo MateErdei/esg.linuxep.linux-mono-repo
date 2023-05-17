@@ -4,7 +4,6 @@ sophos_add_library(eventwriterlib SHARED
         IEventWriterWorker.h
         EventWriterWorker.h
         EventWriterWorker.cpp
-        IEventQueuePopper.h
         EventQueuePopper.h
         EventQueuePopper.cpp
         EXTRA_PROJECTS eventjournal
