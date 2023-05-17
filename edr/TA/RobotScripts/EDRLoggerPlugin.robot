@@ -4,6 +4,7 @@ Documentation    Testing the Logger Plugin for XDR Behaviour
 Library         Process
 Library         OperatingSystem
 Library         Collections
+Library         ../Libs/LogUtils.py
 Library         ../Libs/XDRLibs.py
 Library         ../Libs/InstallerUtils.py
 Library         ../Libs/FakeManagement.py
@@ -300,22 +301,18 @@ EDR Plugin Sends LiveQuery Status On Period Rollover
 EDR Plugin Respects Data Limit
     [Setup]  No Operation
     Move File Atomically  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_10000_limit.xml  /opt/sophos-spl/base/mcs/policy/LiveQuery_policy.xml
+    ${mark1} =    Mark Log Size    ${EDR_LOG_PATH}
     Install EDR Directly from SDDS
-    Wait Until Keyword Succeeds
-    ...  5 secs
-    ...  1 secs
-    ...  EDR Plugin Log Contains  First LiveQuery policy received
+    Wait For Log Contains From Mark    ${mark1}    Plugin preparation complete
+    ${mark2} =    Mark Log Size    ${EDR_LOG_PATH}
+    Wait For Log Contains From Mark    ${mark1}    First LiveQuery policy received
     Expect New Datalimit  10000
 
-    Wait Until Keyword Succeeds
-    ...  20 secs
-    ...  10 secs
-    ...  EDR Plugin Log Contains   XDR data limit for this period exceeded
-    Wait Until Keyword Succeeds
-    ...  10 secs
-    ...  2 secs
-    ...  EDR Plugin Log Contains  Restarting osquery, reason: XDR data limit exceeded
+    Wait For Log Contains From Mark    ${mark1}    XDR data limit for this period exceeded
+    Wait For Log Contains From Mark    ${mark1}    Restarting osquery, reason: XDR data limit exceeded
     Wait For LiveQuery Status To Contain  <dailyDataLimitExceeded>true</dailyDataLimitExceeded>
+    # Wait for EDR to be ready for telemetry request
+    Wait For Log Contains From Mark    ${mark2}    Plugin preparation complete
     ${edr_telemetry} =  Get Plugin Telemetry  edr
     ${telemetry_json} =  Evaluate  json.loads('''${edr_telemetry}''')  json
     ${uploadLimit} =  Set Variable  ${telemetry_json['scheduled-queries']['upload-limit-hit']}
