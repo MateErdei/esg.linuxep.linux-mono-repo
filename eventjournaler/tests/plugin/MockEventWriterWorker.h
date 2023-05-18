@@ -1,6 +1,4 @@
-/******************************************************************************************************
-Copyright 2021, Sophos Limited.  All rights reserved.
-******************************************************************************************************/
+// Copyright 2021-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
@@ -15,9 +13,10 @@ using namespace Common;
 class MockEventWriterWorker : public EventWriterLib::IEventWriterWorker
 {
 public:
-    MOCK_METHOD0(stop, void(void));
-    MOCK_METHOD0(start, void(void));
-    MOCK_METHOD0(restart, void(void));
-    MOCK_METHOD0(getRunningStatus, bool(void));
-    MOCK_METHOD1(checkAndPruneTruncatedEvents, void(const std::string&));
+    MOCK_METHOD(void, stop, (), (override));
+    MOCK_METHOD(void, beginStop, (), (override));
+    MOCK_METHOD(void, start, (), (override));
+    MOCK_METHOD(void, restart, (), (override));
+    MOCK_METHOD(bool, getRunningStatus, (), (override));
+    MOCK_METHOD(void, checkAndPruneTruncatedEvents, (const std::string&), (override));
 };

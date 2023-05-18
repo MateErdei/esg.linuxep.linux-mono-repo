@@ -78,6 +78,7 @@ TEST_F(PluginAdapterTests, PluginAdapterRestartsSubscriberOrWriterIfTheyStop)
     // Mock EventWriterWorker
     auto mockEventWriterWorkerPtr = std::make_unique<StrictMock<MockEventWriterWorker>>();
     EXPECT_CALL(*mockEventWriterWorkerPtr, start).Times(1); // Plugin starting up Event Writer Worker
+    EXPECT_CALL(*mockEventWriterWorkerPtr, beginStop).Times(1);  // Plugin stopping Event Writer Worker on stop task
     EXPECT_CALL(*mockEventWriterWorkerPtr, stop).Times(1);  // Plugin stopping Event Writer Worker on stop task
     EXPECT_CALL(*mockEventWriterWorkerPtr, getRunningStatus).WillRepeatedly(Invoke(countWriterStatusCalls));
     EXPECT_CALL(*mockEventWriterWorkerPtr, restart).Times(1);

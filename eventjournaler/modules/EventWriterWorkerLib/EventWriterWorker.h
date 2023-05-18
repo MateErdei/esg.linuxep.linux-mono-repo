@@ -26,6 +26,7 @@ namespace EventWriterLib
             );
         ~EventWriterWorker() override;
         void stop() final;
+        void beginStop() final;
         void start() override;
         void restart() override;
         bool getRunningStatus() override;

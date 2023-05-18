@@ -68,6 +68,7 @@ namespace Plugin
                 switch (task.taskType)
                 {
                     case Task::TaskType::Stop:
+                        m_eventWriterWorker->beginStop();
                         m_subscriber->stop();
                         m_eventWriterWorker->stop();
                         return;

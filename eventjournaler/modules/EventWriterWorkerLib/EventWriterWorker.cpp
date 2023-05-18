@@ -33,11 +33,16 @@ namespace EventWriterLib
         stop();
     }
 
+    void EventWriterWorker::beginStop()
+    {
+        setShouldBeRunning(false);
+        m_eventQueuePopper->stop(); // forces thread to wake up
+    }
+
     void EventWriterWorker::stop()
     {
         LOGINFO("Stopping Event Writer");
-        setShouldBeRunning(false);
-        m_eventQueuePopper->stop(); // forces thread to wake up
+        beginStop();
         if (m_runnerThread && m_runnerThread->joinable())
         {
             m_runnerThread->join();
