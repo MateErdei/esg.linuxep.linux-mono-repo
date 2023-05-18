@@ -69,20 +69,18 @@ TEST_F(PluginAdapterTests, PluginAdapterRestartsSubscriberOrWriterIfTheyStop)
     };
 
     // Mock Subscriber
-    MockSubscriberLib* mockSubscriber = new StrictMock<MockSubscriberLib>();
-    EXPECT_CALL(*mockSubscriber, start).Times(1); // Plugin starting up subscriber
-    EXPECT_CALL(*mockSubscriber, stop).Times(1);  // Plugin stopping subscriber on stop task
-    EXPECT_CALL(*mockSubscriber, getRunningStatus).WillRepeatedly(Invoke(countSubscriberStatusCalls));
-    EXPECT_CALL(*mockSubscriber, restart).Times(1);
-    std::unique_ptr<SubscriberLib::ISubscriber> mockSubscriberPtr(mockSubscriber);
+    auto mockSubscriberPtr = std::make_unique<StrictMock<MockSubscriberLib>>();
+    EXPECT_CALL(*mockSubscriberPtr, start).Times(1); // Plugin starting up subscriber
+    EXPECT_CALL(*mockSubscriberPtr, stop).Times(1);  // Plugin stopping subscriber on stop task
+    EXPECT_CALL(*mockSubscriberPtr, getRunningStatus).WillRepeatedly(Invoke(countSubscriberStatusCalls));
+    EXPECT_CALL(*mockSubscriberPtr, restart).Times(1);
 
     // Mock EventWriterWorker
-    MockEventWriterWorker* mockEventWriterWorker = new StrictMock<MockEventWriterWorker>();
-    EXPECT_CALL(*mockEventWriterWorker, start).Times(1); // Plugin starting up Event Writer Worker
-    EXPECT_CALL(*mockEventWriterWorker, stop).Times(1);  // Plugin stopping Event Writer Worker on stop task
-    EXPECT_CALL(*mockEventWriterWorker, getRunningStatus).WillRepeatedly(Invoke(countWriterStatusCalls));
-    EXPECT_CALL(*mockEventWriterWorker, restart).Times(1);
-    std::unique_ptr<EventWriterLib::IEventWriterWorker> mockEventWriterWorkerPtr(mockEventWriterWorker);
+    auto mockEventWriterWorkerPtr = std::make_unique<StrictMock<MockEventWriterWorker>>();
+    EXPECT_CALL(*mockEventWriterWorkerPtr, start).Times(1); // Plugin starting up Event Writer Worker
+    EXPECT_CALL(*mockEventWriterWorkerPtr, stop).Times(1);  // Plugin stopping Event Writer Worker on stop task
+    EXPECT_CALL(*mockEventWriterWorkerPtr, getRunningStatus).WillRepeatedly(Invoke(countWriterStatusCalls));
+    EXPECT_CALL(*mockEventWriterWorkerPtr, restart).Times(1);
 
     // Queue
     auto queueTask = std::make_shared<Plugin::TaskQueue>();
@@ -96,14 +94,16 @@ TEST_F(PluginAdapterTests, PluginAdapterRestartsSubscriberOrWriterIfTheyStop)
             heartbeat->getPingHandleForId("PluginAdapterThread"),
             heartbeat);
 
+    pluginAdapter.setQueueTimeout(std::chrono::milliseconds{30});
+
     auto mainLoopFuture = std::async(std::launch::async, &TestablePluginAdapter::mainLoop, &pluginAdapter);
     while (subscriberRunningStatusCall == 0)
     {
-        usleep(100);
+        std::this_thread::sleep_for(std::chrono::milliseconds{1});
     }
     while (writerRunningStatusCall == 0)
     {
-        usleep(100);
+        std::this_thread::sleep_for(std::chrono::milliseconds{1});
     }
     queueTask->pushStop();
     mainLoopFuture.get();
