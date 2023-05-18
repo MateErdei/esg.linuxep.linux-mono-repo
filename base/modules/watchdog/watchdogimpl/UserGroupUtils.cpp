@@ -173,6 +173,15 @@ namespace watchdog::watchdogimpl
             return {};
         }
 
+        if (verifiedUsersAndGroups.contains(GROUPS_KEY) && verifiedUsersAndGroups[GROUPS_KEY].empty())
+        {
+            verifiedUsersAndGroups.erase(GROUPS_KEY);
+        }
+        if (verifiedUsersAndGroups.contains(USERS_KEY) && verifiedUsersAndGroups[USERS_KEY].empty())
+        {
+            verifiedUsersAndGroups.erase(USERS_KEY);
+        }
+
         return verifiedUsersAndGroups;
     }
 

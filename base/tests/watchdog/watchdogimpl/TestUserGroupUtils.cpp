@@ -231,6 +231,21 @@ TEST_F(TestUserGroupUtils, validateUserAndGroupIdsReturnsEmptyWhenActualConfigIs
     EXPECT_TRUE(validateUserAndGroupIds(configJson).empty());
 }
 
+TEST_F(TestUserGroupUtils, validateUserAndGroupIdsReturnsEmptyWhenAllRequestedUsersAndGroupChangesAreInvalid)
+{
+    nlohmann::json configJson = {
+        {"users", {{"user1", 1},{"user2", 2}}},
+        {"groups", {{"group1", 1},{"group2", 2}}}
+    };
+
+    EXPECT_CALL(*m_mockFileSystemPtr, readFile(m_actualUserGroupIdConfigPath)).WillOnce(
+        Return(R"({"groups":{"group1":1,"group2":2},"users":{"user1":1,"user2":2}})"));
+    EXPECT_CALL(*m_mockFilePermissionsPtr, getAllGroupNamesAndIds()).WillOnce(Return(std::map<std::string, gid_t>{{"group1", 1},{"group2", 2}}));
+    EXPECT_CALL(*m_mockFilePermissionsPtr, getAllUserNamesAndIds()).WillOnce(Return(std::map<std::string, uid_t>{{"user1", 1},{"user2", 2}}));
+
+    EXPECT_TRUE(validateUserAndGroupIds(configJson).empty());
+}
+
 TEST_F(TestUserGroupUtils, validateUserAndGroupIdsRemovesUsersAndGroupsNotInActualConfig)
 {
     testing::internal::CaptureStderr();
