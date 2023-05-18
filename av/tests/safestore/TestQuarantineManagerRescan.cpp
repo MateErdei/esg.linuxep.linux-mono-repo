@@ -196,7 +196,7 @@ namespace
     };
 } // namespace
 
-TEST_F(QuarantineManagerRescanTests, scanExtractedFileForThreatDoesNothingWithEmptyArgs)
+TEST_F(QuarantineManagerRescanTests, scanExtractedFileForThreatHandlesEmptyArguments)
 {
     // No objects should be extracted
     EXPECT_CALL(*mockSafeStoreWrapper_, restoreObjectById).Times(0);
