@@ -55,7 +55,7 @@ namespace
     };
 }
 
-TEST_F(TestSubscriber, SubscriberCanCallStopWithoutThrowingOnASubscriberThatHasntStarted) // NOLINT
+TEST_F(TestSubscriber, SubscriberCanCallStopWithoutThrowingOnASubscriberThatHasntStarted)
 {
     MockZmqContext*  context = new StrictMock<MockZmqContext>();
     std::string fakeSocketPath = "FakeSocketPath";
@@ -79,7 +79,7 @@ TEST_F(TestSubscriber, SubscriberCanCallStopWithoutThrowingOnASubscriberThatHasn
     EXPECT_FALSE(subscriber.getRunningStatus());
 }
 
-TEST_F(TestSubscriber, SubscriberStartAndStop) // NOLINT
+TEST_F(TestSubscriber, SubscriberStartAndStop)
 {
     std::atomic<bool> readHasBeenCalled = false;
 
@@ -129,7 +129,7 @@ TEST_F(TestSubscriber, SubscriberStartAndStop) // NOLINT
     EXPECT_FALSE(subscriber.getRunningStatus());
 }
 
-TEST_F(TestSubscriberWithLog, SubscriberHandlesfailedChmod) // NOLINT
+TEST_F(TestSubscriberWithLog, SubscriberHandlesfailedChmod)
 {
     MockZmqContext*  context = new StrictMock<MockZmqContext>();
     std::string fakeSocketPath = "/a/b/FakeSocketPath";
@@ -175,13 +175,6 @@ TEST_F(TestSubscriberWithLog, SubscriberHandlesfailedChmod) // NOLINT
 
 TEST_F(TestSubscriber, SubscriberCanRestart)
 {
-    auto appenders = log4cplus::Logger::getRoot().getAllAppenders();
-    for (const auto& appender : appenders)
-    {
-        std::unique_ptr<log4cplus::Layout> layout(new log4cplus::PatternLayout("[%d{%S.%q}] %5p %m%n")); // NOLINT
-        appender->setLayout(std::move(layout));
-    }
-
     auto context = std::make_shared<StrictMock<MockZmqContext>>();
     std::string fakeSocketPath = "/fake/dir/for/socketPath";
     auto mockPusherPtr = std::make_unique<NiceMock<MockEventQueuePusher>>();
@@ -240,7 +233,7 @@ TEST_F(TestSubscriber, SubscriberCanRestart)
     EXPECT_FALSE(subscriber.getRunningStatus());
 }
 
-TEST_F(TestSubscriber, SubscriberStartThrowsIfSocketDirDoesNotExist) // NOLINT
+TEST_F(TestSubscriber, SubscriberStartThrowsIfSocketDirDoesNotExist)
 {
     MockZmqContext*  context = new StrictMock<MockZmqContext>();
     std::string fakeSocketPath = "/fake/dir/for/socketPath";
@@ -269,7 +262,7 @@ TEST_F(TestSubscriber, SubscriberStartThrowsIfSocketDirDoesNotExist) // NOLINT
     EXPECT_THAT(errorMsg, ::testing::HasSubstr("The events pub/sub socket directory does not exist:"));
 }
 
-TEST_F(TestSubscriber, SubscriberSendsDataToQueueWheneverItReceivesItFromTheSocket) // NOLINT
+TEST_F(TestSubscriber, SubscriberSendsDataToQueueWheneverItReceivesItFromTheSocket)
 {
     MockZmqContext*  context = new StrictMock<MockZmqContext>();
     std::string fakeSocketPath = "/fake/dir/for/socketPath";
