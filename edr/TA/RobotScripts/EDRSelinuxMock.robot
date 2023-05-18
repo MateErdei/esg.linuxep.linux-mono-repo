@@ -29,7 +29,7 @@ EDR Installer Calls Semanage on Shared Log When Selinux And Semanage Are Install
     Wait Until Keyword Succeeds
         ...  30 secs
         ...  1 secs
-        ...  Does File Exist  /tmp/mockedExecutable
+        ...  File Should Exist  /tmp/mockedExecutable
     ${logFile} =  Get File  /tmp/mockedExecutable
 
     Should Contain  ${logFile}  semanage fcontext -a -t var_log_t ${SOPHOS_INSTALL}/shared/syslog_pipe
@@ -60,7 +60,7 @@ EDR Installer Logs Warning When Semanage Fails
     Wait Until Keyword Succeeds
         ...  30 secs
         ...  1 secs
-        ...  Does File Exist  /tmp/mockedExecutable
+        ...  File Should Exist  /tmp/mockedExecutable
     ${logFile} =  Get File  /tmp/mockedExecutable
 
     Should Contain  ${installer_output}  WARNING: Failed to setup syslog pipe, osquery will not able to receive syslog events
