@@ -9,6 +9,7 @@
 
 #include <future>
 #include <thread>
+#include <utility>
 
 
 class TestEventQueue : public LogOffInitializedTests{};
@@ -35,19 +36,19 @@ struct TestableEventQueue : public EventQueue
         : EventQueue::EventQueue(maxSize)
     {}
 
-    bool isQueueFull()
+    bool isQueueFull() // NOLINT
     {
         return EventQueue::isQueueFull();
     }
 
-    bool isQueueEmpty()
+    bool isQueueEmpty() // NOLINT
     {
         return EventQueue::isQueueEmpty();
     }
 
     void setQueue(std::queue<JournalerCommon::Event> newQueue)
     {
-        m_queue = newQueue;
+        m_queue = std::move(newQueue);
     }
 
     std::queue<JournalerCommon::Event> getQueue()
@@ -137,7 +138,7 @@ TEST_F(TestEventQueue, testEventQueuePopBlocksForTimeoutBeforeReturningEmptyOpti
     std::chrono::milliseconds after = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
 
     EXPECT_FALSE(emptyOptionalData.has_value());
-    int duration = after.count() - before.count();
+    auto duration = after.count() - before.count();
     EXPECT_GE(duration, timeout);
     EXPECT_NEAR(duration, timeout, 10);
 }
@@ -185,7 +186,7 @@ TEST_F(TestEventQueue, testEventQueuePopBlocksDuringTimeoutBeforeUnblockingAndRe
 
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
     eventQueueWithMaxSize2.push(expectedData);
-    int duration = blockWhileWaitingForData.get();
+    auto duration = blockWhileWaitingForData.get();
     EXPECT_GE(duration, 100);
     EXPECT_NEAR(duration, 100, 10);
 }
