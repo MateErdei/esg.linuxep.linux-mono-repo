@@ -415,7 +415,6 @@ TEST_F(TestUserGroupUtils, validateUserAndGroupIdsHandlesEmptyUserField)
     };
 
     nlohmann::json expectedValidatedJson = {
-        {"users", {}},
         {"groups", {{"group1", 1}, {"group2", 2}}}
     };
 
@@ -434,8 +433,7 @@ TEST_F(TestUserGroupUtils, validateUserAndGroupIdsHandlesEmptyGroupField)
     };
 
     nlohmann::json expectedValidatedJson = {
-        {"users", {{"user1", 1}, {"user2", 2}}},
-        {"groups", {}}
+        {"users", {{"user1", 1}, {"user2", 2}}}
     };
 
     EXPECT_CALL(*m_mockFileSystemPtr, readFile(m_actualUserGroupIdConfigPath)).WillOnce(
