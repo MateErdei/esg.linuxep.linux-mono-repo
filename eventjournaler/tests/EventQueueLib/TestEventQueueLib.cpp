@@ -209,3 +209,30 @@ TEST_F(TestEventQueue, testPushedDataIsCorrectlyQueuedAndReturnedWhenPopped)
     ASSERT_EQ(data2.data, popper->pop(10)->data);
     ASSERT_EQ(data3.data, popper->pop(10)->data);
 }
+
+TEST_F(TestEventQueue, stopPreventsPop)
+{
+    auto eventQueue = std::make_shared<EventQueueLib::EventQueue>(3);
+    JournalerCommon::Event data1 {JournalerCommon::EventType::THREAT_EVENT, "fake data one"};
+    eventQueue->push(data1);
+    eventQueue->stop();
+    auto event = eventQueue->pop(100);
+    EXPECT_FALSE(event.has_value());
+}
+
+TEST_F(TestEventQueue,restartAllowsPop)
+{
+    auto eventQueue = std::make_shared<EventQueueLib::EventQueue>(3);
+    JournalerCommon::Event data1 {JournalerCommon::EventType::THREAT_EVENT, "fake data one"};
+    eventQueue->push(data1);
+    eventQueue->stop();
+    {
+        auto event = eventQueue->pop(100);
+        EXPECT_FALSE(event.has_value());
+    }
+    eventQueue->restart();
+    {
+        auto event = eventQueue->pop(100);
+        EXPECT_TRUE(event.has_value());
+    }
+}
