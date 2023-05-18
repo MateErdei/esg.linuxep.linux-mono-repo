@@ -24,8 +24,20 @@ EDR Installer Calls Semanage on Shared Log When Selinux And Semanage Are Install
     Create Fake System Executable  getenforce
     Create Fake System Executable  semanage
     Create Fake System Executable  restorecon
+    ${env_var}=    Get Environment Variable    PATH
+    Log  ${env_var}
+    ${result} =   Run Process    which    getenforce
+    Log  ${result.stdout}
+    Log  ${result.stderr}
+    ${result} =   Run Process    which    semanage
+    Log  ${result.stdout}
+    Log  ${result.stderr}
+    ${result} =   Run Process    which    restorecon
+    Log  ${result.stdout}
+    Log  ${result.stderr}
 
     ${installer_output} =  Install EDR Directly from SDDS
+    Log    ${installer_output}
     Wait Until Keyword Succeeds
         ...  30 secs
         ...  1 secs
