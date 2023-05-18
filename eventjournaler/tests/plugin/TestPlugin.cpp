@@ -41,6 +41,11 @@ public:
             std::move(heartbeatPinger))
     {
     }
+
+    void setQueueTimeout(std::chrono::milliseconds timeout)
+    {
+        QUEUE_TIMEOUT = timeout;
+    }
 };
 
 class PluginAdapterTests : public LogOffInitializedTests
@@ -133,19 +138,21 @@ TEST_F(PluginAdapterTests, PluginAdapterMainLoopThrowsIfSocketDirDoesNotExist)
 TEST_F(PluginAdapterTests, testMainloopPingsHeartbeatRepeatedly)
 {
     // Mock Subscriber
-    MockSubscriberLib* mockSubscriber = new NiceMock<MockSubscriberLib>();
-    std::unique_ptr<SubscriberLib::ISubscriber> mockSubscriberPtr(mockSubscriber);
+    auto mockSubscriberPtr = std::make_unique<NiceMock<MockSubscriberLib>>();
 
     // Mock EventWriterWorker
-    MockEventWriterWorker* mockEventWriterWorker = new NiceMock<MockEventWriterWorker>();
-    std::unique_ptr<EventWriterLib::IEventWriterWorker> mockEventWriterWorkerPtr(mockEventWriterWorker);
+    auto mockEventWriterWorkerPtr = std::make_unique<NiceMock<MockEventWriterWorker>>();
 
     // Queue
     auto queueTask = std::make_shared<Plugin::TaskQueue>();
 
     auto heartbeat = std::make_shared<Heartbeat::Heartbeat>();
     auto mockHeartbeatPinger = std::make_shared<StrictMock<Heartbeat::MockHeartbeatPinger>>();
-    EXPECT_CALL(*mockHeartbeatPinger, ping).Times(AtLeast(2));
+    int callCounter = 0;
+    EXPECT_CALL(*mockHeartbeatPinger, ping).Times(AtLeast(2)).WillRepeatedly(
+            InvokeWithoutArgs([&callCounter](){
+                              callCounter++;
+        }));
     TestablePluginAdapter pluginAdapter(
             queueTask,
             std::move(mockSubscriberPtr),
@@ -153,9 +160,14 @@ TEST_F(PluginAdapterTests, testMainloopPingsHeartbeatRepeatedly)
             mockHeartbeatPinger,
             heartbeat);
 
+    //Mainloop blocks for 5s waiting for tasks each time by default, but we want this test to be quicker
+    pluginAdapter.setQueueTimeout(std::chrono::milliseconds(10));
+
     auto mainLoopFuture = std::async(std::launch::async, &TestablePluginAdapter::mainLoop, &pluginAdapter);
-    //Mainloop blocks for 5s waiting for tasks each time.
-    sleep(6);
+    while (callCounter < 2)
+    {
+        std::this_thread::sleep_for(std::chrono::milliseconds(5));
+    }
     queueTask->pushStop();
     mainLoopFuture.get();
 }

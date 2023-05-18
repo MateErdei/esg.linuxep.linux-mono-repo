@@ -1,11 +1,8 @@
-/******************************************************************************************************
-
-Copyright 2021 Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2021-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
+#include <chrono>
 #include <condition_variable>
 #include <list>
 #include <mutex>
@@ -17,14 +14,11 @@ namespace Plugin
     {
         enum class TaskType
         {
-            POLICY,
-            EXAMPLETASK,
-            STOP
+            Policy,
+            Stop
         };
-        TaskType m_taskType;
-        std::string m_content;
-        std::string m_appId="";
-        std::string m_correlationId="";
+        TaskType taskType;
+        std::string Content;
     };
 
     class TaskQueue
@@ -34,11 +28,10 @@ namespace Plugin
         std::list<Task> m_list;
 
     public:
-        void push(const Task&);
-        Task pop();
-        void pushStop();
+        void push(Task);
         bool pop(Task&, int timeout);
-        void pushPolicy(const std::string& appId, const std::string& policyXMl);
+        bool pop(Task&, std::chrono::milliseconds timeout);
+        void pushStop();
     };
 
 } // namespace Plugin

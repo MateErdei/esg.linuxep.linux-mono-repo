@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2021 Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2021-2023 Sophos Limited. All rights reserved.
 
 #include "TaskQueue.h"
 namespace Plugin
@@ -16,9 +12,14 @@ namespace Plugin
 
     bool TaskQueue::pop(Task& task, int timeout)
     {
+        return pop(task, std::chrono::seconds(timeout));
+    }
+
+    bool TaskQueue::pop(Task& task, std::chrono::milliseconds timeout)
+    {
         std::unique_lock<std::mutex> lock(m_mutex);
 
-        m_cond.wait_for(lock, std::chrono::seconds(timeout),[this] { return !m_list.empty(); });
+        m_cond.wait_for(lock, timeout,[this] { return !m_list.empty(); });
 
         if (m_list.empty())
         {
