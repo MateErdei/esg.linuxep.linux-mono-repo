@@ -1,6 +1,4 @@
-/******************************************************************************************************
-Copyright 2021 Sophos Limited.  All rights reserved.
-******************************************************************************************************/
+// Copyright 2021-2023 Sophos Limited. All rights reserved.
 
 #include "PluginAdapter.h"
 
@@ -11,6 +9,8 @@ Copyright 2021 Sophos Limited.  All rights reserved.
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/UtilityImpl/TimeUtils.h>
 #include <SubscriberLib/Subscriber.h>
+
+#include <utility>
 
 namespace Plugin
 {
@@ -25,8 +25,8 @@ namespace Plugin
         m_baseService(std::move(baseService)),
         m_callback(std::move(callback)),
         m_subscriber(std::move(subscriber)),
-        m_eventWriterWorker(eventWriter),
-        m_heartbeatPinger(heartbeatPinger)
+        m_eventWriterWorker(std::move(eventWriter)),
+        m_heartbeatPinger(std::move(heartbeatPinger))
     {
     }
 
