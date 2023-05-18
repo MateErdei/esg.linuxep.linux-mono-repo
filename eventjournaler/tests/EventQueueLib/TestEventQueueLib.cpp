@@ -219,7 +219,7 @@ TEST_F(TestEventQueue, stopPreventsPop)
     JournalerCommon::Event data1 {JournalerCommon::EventType::THREAT_EVENT, "fake data one"};
     eventQueue->push(data1);
     eventQueue->stop();
-    auto event = eventQueue->pop(100);
+    auto event = eventQueue->pop(10);
     EXPECT_FALSE(event.has_value());
 }
 

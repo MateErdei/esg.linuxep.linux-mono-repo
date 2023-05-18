@@ -18,10 +18,12 @@ namespace EventWriterLib
     EventWriterWorker::EventWriterWorker::EventWriterWorker(
             std::shared_ptr<EventQueueLib::IEventQueuePopper> eventQueuePopper,
             std::unique_ptr<EventJournal::IEventJournalWriter> eventJournalWriter,
-            std::shared_ptr<Heartbeat::HeartbeatPinger> heartbeatPinger) :
+            std::shared_ptr<Heartbeat::HeartbeatPinger> heartbeatPinger,
+            int queueSleepIntervalMs) :
             m_eventQueuePopper(std::move(eventQueuePopper)),
             m_eventJournalWriter(std::move(eventJournalWriter)),
-            m_heartbeatPinger(std::move(heartbeatPinger))
+            m_heartbeatPinger(std::move(heartbeatPinger)),
+            queueSleepIntervalMs_(queueSleepIntervalMs)
     {
         m_heartbeatPinger->setDroppedEventsMax(Plugin::PluginCallback::ACCEPTABLE_DAILY_DROPPED_EVENTS+1);
     }
@@ -108,7 +110,7 @@ namespace EventWriterLib
             {
                 m_heartbeatPinger->ping();
                 // Inner while loop to ensure we drain the queue once m_shouldBeRunning is set to false.
-                while (std::optional<JournalerCommon::Event> event = m_eventQueuePopper->pop(100))
+                while (std::optional<JournalerCommon::Event> event = m_eventQueuePopper->pop(queueSleepIntervalMs_))
                 {
                     switch (event.value().type)
                     {

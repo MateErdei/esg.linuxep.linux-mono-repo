@@ -17,10 +17,12 @@ namespace EventWriterLib
     class  EventWriterWorker final : public IEventWriterWorker
     {
     public:
+        static constexpr const int DEFAULT_QUEUE_SLEEP_INTERVAL_MS = 1000;
         explicit EventWriterWorker(
             std::shared_ptr<EventQueueLib::IEventQueuePopper> eventQueuePopper,
             std::unique_ptr<EventJournal::IEventJournalWriter> eventJournalWriter,
-            std::shared_ptr<Heartbeat::HeartbeatPinger> heartbeatPinger
+            std::shared_ptr<Heartbeat::HeartbeatPinger> heartbeatPinger,
+            int queueSleepIntervalMs=DEFAULT_QUEUE_SLEEP_INTERVAL_MS
             );
         ~EventWriterWorker() override;
         void stop() final;
@@ -34,6 +36,8 @@ namespace EventWriterLib
         bool shouldBeRunning();
         void setIsRunning(bool);
         void setShouldBeRunning(bool);
+        void writeEvent(const JournalerCommon::Event& event);
+        void run();
 
         std::shared_ptr<EventQueueLib::IEventQueuePopper> m_eventQueuePopper;
         std::unique_ptr<EventJournal::IEventJournalWriter> m_eventJournalWriter;
@@ -41,9 +45,7 @@ namespace EventWriterLib
         Common::Threads::LockableData<bool> m_isRunning{false};
         std::unique_ptr<std::thread> m_runnerThread;
         std::shared_ptr<Heartbeat::HeartbeatPinger> m_heartbeatPinger;
-
-        void writeEvent(const JournalerCommon::Event& event);
-        void run();
+        int queueSleepIntervalMs_;
 
     };
 } // namespace EventWriterLib

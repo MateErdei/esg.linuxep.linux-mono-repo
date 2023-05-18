@@ -9,20 +9,14 @@
 class FakePopper : public EventQueueLib::IEventQueuePopper
 {
 public:
-    explicit FakePopper(const JournalerCommon::Event& fakeData, int amountOfData=1, int perEventDelayMs=500);
+    explicit FakePopper(const JournalerCommon::Event& fakeData, int amountOfData = 1, int perEventDelayMs = 500);
     std::optional<JournalerCommon::Event> pop(int timeoutInMilliseconds) override;
 
-    void stop() override
-    {
-        active_ = false;
-    }
+    void stop() override { active_ = false; }
 
-    void restart() override
-    {
-        active_ = true;
-    }
+    void restart() override { active_ = true; }
 
-    bool active_{true};
+    bool active_{ true };
     int perEventDelay_;
 
 private:
