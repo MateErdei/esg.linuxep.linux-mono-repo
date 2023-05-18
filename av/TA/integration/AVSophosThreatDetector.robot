@@ -751,7 +751,7 @@ Sophos Threat Detector Does Not Detect Allow Listed File By Path
     ${corc_policy} =    Create CORC Policy    whitelist_paths=${allowlisted_paths}
     Send CORC Policy To Base From Content    ${corc_policy}
 
-    wait_for_log_contains_from_mark  ${av_mark}  Added path to allow list: ${directory_under_test}
+    wait_for_log_contains_from_mark  ${av_mark}  Added path to allow list: ${directory_allow_glob}
     wait_for_log_contains_from_mark  ${td_mark}  Number of Path allow-listed items: 1
 
     # Create threat to scan
