@@ -130,12 +130,12 @@ TEST_F(TestEventQueue, testEventQueuePushReturnsFalseWhenPushingToQueueThatIsFul
 
 TEST_F(TestEventQueue, testEventQueuePopBlocksForTimeoutBeforeReturningEmptyOptionalWhenNoDataToPop)
 {
-    TestableEventQueue eventQueueWithMaxSize2(2);
-    int timeout = 100;
+    TestableEventQueue eventQueue(2);
+    constexpr auto timeout = 50;
 
-    std::chrono::milliseconds before = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
-    std::optional<JournalerCommon::Event> emptyOptionalData = eventQueueWithMaxSize2.pop(timeout);
-    std::chrono::milliseconds after = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
+    auto before = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
+    auto emptyOptionalData = eventQueue.pop(timeout);
+    auto after = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
 
     EXPECT_FALSE(emptyOptionalData.has_value());
     auto duration = after.count() - before.count();
@@ -153,19 +153,20 @@ TEST_F(TestEventQueue, testEventQueuePopReturnsValueImmediatelyWhenThereIsDataTo
     mockedQueue.push(expectedData2);
     eventQueueWithMaxSize2.setQueue(mockedQueue);
 
+    constexpr auto delay = 50;
 
     std::chrono::milliseconds before1 = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
-    std::optional<JournalerCommon::Event> data1 = eventQueueWithMaxSize2.pop(1000);
+    std::optional<JournalerCommon::Event> data1 = eventQueueWithMaxSize2.pop(delay*10);
     std::chrono::milliseconds after1 = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
 
     std::chrono::milliseconds before2 = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
-    std::optional<JournalerCommon::Event> data2 = eventQueueWithMaxSize2.pop(1000);
+    std::optional<JournalerCommon::Event> data2 = eventQueueWithMaxSize2.pop(delay*10);
     std::chrono::milliseconds after2 = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
 
     EXPECT_EQ(data1->data, expectedData1.data);
     EXPECT_EQ(data2->data, expectedData2.data);
-    EXPECT_NEAR(after1.count() - before1.count(), 0, 10);
-    EXPECT_NEAR(after2.count() - before2.count(), 0, 10);
+    EXPECT_LE(after1.count() - before1.count(), 10);
+    EXPECT_LE(after2.count() - before2.count(), 10);
 }
 
 TEST_F(TestEventQueue, testEventQueuePopBlocksDuringTimeoutBeforeUnblockingAndReturningValueWhenDataIsPushed)
@@ -220,6 +221,28 @@ TEST_F(TestEventQueue, stopPreventsPop)
     eventQueue->stop();
     auto event = eventQueue->pop(100);
     EXPECT_FALSE(event.has_value());
+}
+
+TEST_F(TestEventQueue, stopWakesUpLongPop)
+{
+    auto eventQueue = std::make_shared<EventQueueLib::EventQueue>(3);
+    constexpr auto delay = 5;
+
+    auto blockWhileWaitingForData = std::async(std::launch::async,
+       [&eventQueue]
+       {
+           std::chrono::milliseconds before = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
+           std::optional<JournalerCommon::Event> data = eventQueue->pop(delay*10);
+           std::chrono::milliseconds after = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
+           EXPECT_FALSE(data.has_value());
+           return after.count() - before.count();
+       });
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(delay));
+    eventQueue->stop();
+    auto duration = blockWhileWaitingForData.get();
+    EXPECT_GE(duration, delay);
+    EXPECT_LE(duration, delay*2);
 }
 
 TEST_F(TestEventQueue,restartAllowsPop)
