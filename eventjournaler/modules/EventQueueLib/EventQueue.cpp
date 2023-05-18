@@ -27,12 +27,12 @@ namespace EventQueueLib
 
     bool EventQueueLib::EventQueue::push(JournalerCommon::Event event)
     {
-        std::lock_guard<std::mutex> lock(m_pushMutex);
+        std::lock_guard<std::mutex> lock(queueMutex_);
         if (isQueueFull())
         {
             return false;
         }
-        m_queue.push(event);
+        m_queue.push(std::move(event));
         m_cond.notify_one();
         LOGDEBUG("Queue size after push: " << m_queue.size());
 
@@ -41,7 +41,7 @@ namespace EventQueueLib
 
     std::optional<JournalerCommon::Event> EventQueueLib::EventQueue::pop(int timeoutInMilliseconds)
     {
-        std::unique_lock<std::mutex> lock(m_popMutex);
+        std::unique_lock<std::mutex> lock(queueMutex_);
         bool queueEmpty = !m_cond.wait_for(lock, std::chrono::milliseconds(timeoutInMilliseconds), [this] { return !isQueueEmpty(); });
 
         if (queueEmpty)

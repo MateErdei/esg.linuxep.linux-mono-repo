@@ -30,8 +30,7 @@ namespace EventQueueLib
 
     private:
         uint m_maxQueueLength;
-        std::mutex m_pushMutex;
-        std::mutex m_popMutex;
+        std::mutex queueMutex_;
         std::condition_variable m_cond;
     };
 }
