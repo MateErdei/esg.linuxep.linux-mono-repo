@@ -764,7 +764,7 @@ File Is Removed From Quarantine Allow List By Path
     Should Exist  ${allow_listed_threat_file}
 
 
-Archive Is Removed From Quarantine When Threat Is Allow Listed Archive
+Archive Is Removed From Quarantine When Archive Is Allow Listed
     Wait Until threat detector running
     Wait Until SafeStore running
 
