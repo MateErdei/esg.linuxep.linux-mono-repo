@@ -29,7 +29,7 @@ namespace Plugin
         void mainLoop();
 
     private:
-        std::shared_ptr<TaskQueue> m_queueTask;
+        std::shared_ptr<TaskQueue> m_taskQueue;
         std::unique_ptr<Common::PluginApi::IBaseServiceApi> m_baseService;
         std::shared_ptr<PluginCallback> m_callback;
         std::unique_ptr<SubscriberLib::ISubscriber> m_subscriber;

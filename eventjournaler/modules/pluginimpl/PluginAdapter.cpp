@@ -21,7 +21,7 @@ namespace Plugin
             std::unique_ptr<SubscriberLib::ISubscriber> subscriber,
             std::shared_ptr<EventWriterLib::IEventWriterWorker> eventWriter,
             std::shared_ptr<Heartbeat::HeartbeatPinger> heartbeatPinger) :
-        m_queueTask(std::move(queueTask)),
+        m_taskQueue(std::move(queueTask)),
         m_baseService(std::move(baseService)),
         m_callback(std::move(callback)),
         m_subscriber(std::move(subscriber)),
@@ -43,7 +43,7 @@ namespace Plugin
         {
             m_heartbeatPinger->ping();
             Task task;
-            if (!m_queueTask->pop(task, QUEUE_TIMEOUT))
+            if (!m_taskQueue->pop(task, QUEUE_TIMEOUT))
             {
                 if (!m_subscriber->getRunningStatus())
                 {
