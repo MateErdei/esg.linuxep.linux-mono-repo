@@ -20,12 +20,13 @@ namespace SubscriberLib
     class Subscriber final : public ISubscriber
     {
     public:
+        static constexpr const int DEFAULT_READ_LOOP_TIMEOUT_MS = 50000;
         Subscriber(
             std::string socketAddress,
             Common::ZMQWrapperApi::IContextSharedPtr context,
             std::unique_ptr<SubscriberLib::IEventHandler> eventQueuePusher,
             std::shared_ptr<Heartbeat::HeartbeatPinger> heartbeatPinger,
-            int readLoopTimeoutMilliSeconds = 5000);
+            int readLoopTimeoutMilliSeconds = DEFAULT_READ_LOOP_TIMEOUT_MS);
         ~Subscriber() override;
         void stop() noexcept final;
         void start() override;
