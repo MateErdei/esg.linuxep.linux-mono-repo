@@ -34,10 +34,8 @@ namespace EventWriterLib
     void EventWriterWorker::stop()
     {
         LOGINFO("Stopping Event Writer");
-        {
-            auto lock = m_shouldBeRunning.lock();
-            *lock = false;
-        }
+        setShouldBeRunning(false);
+        m_eventQueuePopper->stop(); // forces thread to wake up
         if (m_runnerThread && m_runnerThread->joinable())
         {
             m_runnerThread->join();
@@ -55,10 +53,8 @@ namespace EventWriterLib
             return;
         }
         LOGINFO("Starting Event Writer");
-        {
-            auto lock = m_shouldBeRunning.lock();
-            *lock = true;
-        }
+        setShouldBeRunning(true);
+        m_eventQueuePopper->restart(); // allows queue to pop
         m_runnerThread = std::make_unique<std::thread>(std::thread([this] { run(); }));
         LOGINFO("Event Writer started");
     }
@@ -162,6 +158,12 @@ namespace EventWriterLib
     void EventWriterWorker::setIsRunning(bool value)
     {
         auto lock = m_isRunning.lock();
+        *lock = value;
+    }
+
+    void EventWriterWorker::setShouldBeRunning(bool value)
+    {
+        auto lock = m_shouldBeRunning.lock();
         *lock = value;
     }
 

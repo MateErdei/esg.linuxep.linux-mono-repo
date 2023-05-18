@@ -33,6 +33,7 @@ namespace EventWriterLib
     private:
         bool shouldBeRunning();
         void setIsRunning(bool);
+        void setShouldBeRunning(bool);
 
         std::shared_ptr<EventQueueLib::IEventQueuePopper> m_eventQueuePopper;
         std::unique_ptr<EventJournal::IEventJournalWriter> m_eventJournalWriter;
