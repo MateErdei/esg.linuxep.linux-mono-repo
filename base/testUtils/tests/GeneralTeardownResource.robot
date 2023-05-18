@@ -95,6 +95,7 @@ Dump All Logs
 
     Dump Teardown Log    ${WD_ACTUAL_USER_GROUP_IDS}
     Dump Teardown Log    ${WD_REQUESTED_USER_GROUP_IDS}
+    Dump Teardown Log    ${SYSTEM_PRODUCT_TEST_OUTPUT_PATH}/http_test_server.log
 
 Dump All Sophos Processes
     ${result}=  Run Process    ps -elf | grep sophos    shell=True
