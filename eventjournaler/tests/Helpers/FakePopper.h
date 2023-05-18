@@ -9,7 +9,7 @@
 class FakePopper : public EventQueueLib::IEventQueuePopper
 {
 public:
-    explicit FakePopper(const JournalerCommon::Event& fakeData, int amountOfData = 1);
+    explicit FakePopper(const JournalerCommon::Event& fakeData, int amountOfData=1, int perEventDelayMs=500);
     std::optional<JournalerCommon::Event> pop(int timeoutInMilliseconds) override;
 
     void stop() override
@@ -23,6 +23,7 @@ public:
     }
 
     bool active_{true};
+    int perEventDelay_;
 
 private:
     std::vector<JournalerCommon::Event> fake_eventQueue;

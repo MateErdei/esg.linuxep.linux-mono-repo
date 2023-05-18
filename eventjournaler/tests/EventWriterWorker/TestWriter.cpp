@@ -81,7 +81,7 @@ TEST_F(TestWriter, testWriterFinishesWritingQueueContentsAfterReceivingStop)
             EventJournal::Detection{
                     JournalerCommon::EventTypeToJournalJsonSubtypeMap.at(JournalerCommon::EventType::THREAT_EVENT),
                     fakeData.data});
-    std::unique_ptr<EventQueueLib::IEventQueuePopper> fakePopperPtr(new FakePopper(fakeData, 10));
+    auto fakePopperPtr = std::make_unique<FakePopper>(fakeData, 10, 50);
 
     auto mockJournalWriter = std::make_unique<StrictMock<MockJournalWriter>>();
     EXPECT_CALL(*mockJournalWriter, insert(EventJournal::Subject::Detections, encodedFakeData)).Times(10);
@@ -90,11 +90,10 @@ TEST_F(TestWriter, testWriterFinishesWritingQueueContentsAfterReceivingStop)
 
     EventWriterLib::EventWriterWorker writer(std::move(fakePopperPtr), std::move(mockJournalWriter), std::move(heartbeatPinger));
 
-
     writer.start();
     while(!writer.getRunningStatus())
     {
-        usleep(1);
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
     writer.stop();
 
@@ -359,7 +358,7 @@ TEST_F(TestWriter, testWriterPingsHeartbeatRepeatedlyInWriterThread) // NOLINT
     usleep(100000);
 }
 
-TEST_F(TestWriter, testWriterPushesDroppedEventOnFailedWrite) // NOLINT
+TEST_F(TestWriter, testWriterPushesDroppedEventOnFailedWrite)
 {
     JournalerCommon::Event fakeData = {JournalerCommon::EventType::THREAT_EVENT, "test data"};
 
@@ -367,7 +366,7 @@ TEST_F(TestWriter, testWriterPushesDroppedEventOnFailedWrite) // NOLINT
             EventJournal::Detection{
                     JournalerCommon::EventTypeToJournalJsonSubtypeMap.at(JournalerCommon::EventType::THREAT_EVENT),
                     fakeData.data});
-    std::unique_ptr<EventQueueLib::IEventQueuePopper> fakePopperPtr(new FakePopper(fakeData, 2));
+    auto fakePopperPtr = std::make_unique<FakePopper>(fakeData, 2, 50);
 
     MockJournalWriter *mockJournalWriter = new StrictMock<MockJournalWriter>();
     EXPECT_CALL(*mockJournalWriter, insert(EventJournal::Subject::Detections, encodedFakeData)).WillRepeatedly(Throw(std::exception()));

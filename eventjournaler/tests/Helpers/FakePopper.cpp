@@ -8,7 +8,8 @@
 
 using namespace EventQueueLib;
 
-FakePopper::FakePopper(const JournalerCommon::Event& fakeData, int amountOfData)
+FakePopper::FakePopper(const JournalerCommon::Event& fakeData, int amountOfData, int perEventDelayMs)
+    : perEventDelay_(perEventDelayMs)
 {
     fake_eventQueue.reserve(amountOfData);
     for (int i = 0; i < amountOfData; i++)
@@ -20,7 +21,7 @@ FakePopper::FakePopper(const JournalerCommon::Event& fakeData, int amountOfData)
 std::optional<JournalerCommon::Event> FakePopper::pop(int timeoutInMilliseconds)
 {
     (void)timeoutInMilliseconds;
-    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    std::this_thread::sleep_for(std::chrono::milliseconds(perEventDelay_));
 
     if (fake_eventQueue.empty())
     {

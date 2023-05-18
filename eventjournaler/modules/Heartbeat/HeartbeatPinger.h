@@ -14,6 +14,8 @@ namespace Heartbeat
     {
     public:
         explicit HeartbeatPinger();
+        virtual ~HeartbeatPinger() = default;
+
         virtual void ping();
         bool isAlive();
         virtual void pushDroppedEvent();
