@@ -17,7 +17,7 @@ namespace EventWriterLib
     class  EventWriterWorker final : public IEventWriterWorker
     {
     public:
-        static constexpr const int DEFAULT_QUEUE_SLEEP_INTERVAL_MS = 1000;
+        static constexpr const int DEFAULT_QUEUE_SLEEP_INTERVAL_MS = 10000;
         explicit EventWriterWorker(
             std::shared_ptr<EventQueueLib::IEventQueuePopper> eventQueuePopper,
             std::unique_ptr<EventJournal::IEventJournalWriter> eventJournalWriter,

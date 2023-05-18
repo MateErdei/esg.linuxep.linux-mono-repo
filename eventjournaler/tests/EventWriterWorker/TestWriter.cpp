@@ -110,7 +110,7 @@ TEST_F(TestWriter, testWriterFinishesWritingQueueContentsAfterReceivingStop)
 
 }
 
-TEST_F(TestWriter, WriterStartStopStart)
+TEST_F(TestWriter, StartStopStart)
 {
     JournalerCommon::Event fakeData = {JournalerCommon::EventType::THREAT_EVENT, "test data"};
 
@@ -119,22 +119,23 @@ TEST_F(TestWriter, WriterStartStopStart)
             JournalerCommon::EventTypeToJournalJsonSubtypeMap.at(JournalerCommon::EventType::THREAT_EVENT),
             fakeData.data});
 
-    MockJournalWriter *mockJournalWriter = new StrictMock<MockJournalWriter>();
-    std::unique_ptr<IEventJournalWriter> mockJournalWriterPtr(mockJournalWriter);
+    auto mockJournalWriterPtr = std::make_unique<StrictMock<MockJournalWriter>>();
+    std::atomic<bool> popHasBeenCalled = false;
+    auto setpopHasBeenCalledAndReturnVoid = [&popHasBeenCalled](Subject, const std::vector<uint8_t>&){
+        popHasBeenCalled = true;
+    };
+    EXPECT_CALL(*mockJournalWriterPtr, insert(EventJournal::Subject::Detections, encodedFakeData))
+        .WillRepeatedly(Invoke(setpopHasBeenCalledAndReturnVoid));
+
     MockEventQueuePopper* mockPopper = new NiceMock<MockEventQueuePopper>();
     std::unique_ptr<IEventQueuePopper> mockPopperPtr(mockPopper);
 
     auto heartbeatPinger = std::make_shared<Heartbeat::HeartbeatPinger>();
     EventWriterLib::EventWriterWorker writer(std::move(mockPopperPtr), std::move(mockJournalWriterPtr), heartbeatPinger);
 
-    std::atomic<bool> popHasBeenCalled = false;
-    auto setpopHasBeenCalledAndReturnVoid = [&popHasBeenCalled](Subject, const std::vector<uint8_t>&){
-      popHasBeenCalled = true;
-    };
-
-    auto getNullEvent = [](int timeout){
-      usleep(timeout * 1000);
-      return std::optional<JournalerCommon::Event>();
+    auto getNullEvent = [](int){
+        std::this_thread::sleep_for(std::chrono::milliseconds{10});
+        return std::optional<JournalerCommon::Event>();
     };
 
     EXPECT_CALL(*mockPopper, pop(DEFAULT_QUEUE_SLEEP_INTERVAL_MS))
@@ -143,15 +144,12 @@ TEST_F(TestWriter, WriterStartStopStart)
         .WillOnce(Return(fakeData))
         .WillOnce(Invoke(getNullEvent));
 
-    EXPECT_CALL(*mockJournalWriter, insert(EventJournal::Subject::Detections, encodedFakeData))
-        .WillRepeatedly(Invoke(setpopHasBeenCalledAndReturnVoid));
-
     EXPECT_FALSE(writer.getRunningStatus());
     writer.start();
     // Make sure we have really started, start launches a thread.
     while (!popHasBeenCalled)
     {
-        usleep(1);
+        std::this_thread::sleep_for(std::chrono::milliseconds{2});
     }
     EXPECT_TRUE(writer.getRunningStatus());
     writer.stop();
@@ -161,7 +159,7 @@ TEST_F(TestWriter, WriterStartStopStart)
     // Make sure we have really started, start launches a thread.
     while (!popHasBeenCalled)
     {
-        usleep(1);
+        std::this_thread::sleep_for(std::chrono::milliseconds{2});
     }
     EXPECT_TRUE(writer.getRunningStatus());
 }
@@ -244,8 +242,9 @@ TEST_F(TestWriter, WriterRestart)
     };
 
     auto getNullEvent = [](int timeout){
-      usleep(timeout * 1000);
-      return std::optional<JournalerCommon::Event>();
+        std::ignore = timeout;
+        std::this_thread::sleep_for(std::chrono::milliseconds{10});
+        return std::optional<JournalerCommon::Event>();
     };
 
     EXPECT_CALL(*mockPopper, pop(DEFAULT_QUEUE_SLEEP_INTERVAL_MS))
@@ -262,7 +261,7 @@ TEST_F(TestWriter, WriterRestart)
     // Make sure we have really started, start launches a thread.
     while (!popHasBeenCalled)
     {
-        usleep(1);
+        std::this_thread::sleep_for(std::chrono::milliseconds{2});
     }
     EXPECT_TRUE(writer.getRunningStatus());
     popHasBeenCalled = false;
@@ -270,7 +269,7 @@ TEST_F(TestWriter, WriterRestart)
     // Make sure we have really started, start launches a thread.
     while (!popHasBeenCalled)
     {
-        usleep(1);
+        std::this_thread::sleep_for(std::chrono::milliseconds{2});
     }
     EXPECT_TRUE(writer.getRunningStatus());
 }
