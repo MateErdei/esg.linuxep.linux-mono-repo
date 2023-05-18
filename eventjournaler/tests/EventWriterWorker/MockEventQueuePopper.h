@@ -2,7 +2,6 @@
 
 #pragma once
 
-#include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 #include "modules/EventQueueLib//IEventQueuePopper.h"
 
 #include <gmock/gmock.h>
@@ -13,6 +12,7 @@ using namespace EventWriterLib;
 class MockEventQueuePopper : public EventQueueLib::IEventQueuePopper
 {
 public:
-    MockEventQueuePopper() = default;
-    MOCK_METHOD1(pop, std::optional<JournalerCommon::Event>(int));
+    MOCK_METHOD(std::optional<JournalerCommon::Event>, pop, (int), (override));
+    MOCK_METHOD(void, stop, (), (override));
+    MOCK_METHOD(void, restart, (), (override));
 };

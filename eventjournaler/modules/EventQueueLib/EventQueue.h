@@ -22,6 +22,9 @@ namespace EventQueueLib
         bool push(JournalerCommon::Event event) override;
         std::optional<JournalerCommon::Event> pop(int timeoutInMilliseconds) override;
 
+        void stop() override;
+        void restart() override;
+
     protected:
         bool isQueueFull();
         bool isQueueEmpty();
@@ -32,5 +35,6 @@ namespace EventQueueLib
         uint m_maxQueueLength;
         std::mutex queueMutex_;
         std::condition_variable m_cond;
+        bool active_{true};
     };
 }

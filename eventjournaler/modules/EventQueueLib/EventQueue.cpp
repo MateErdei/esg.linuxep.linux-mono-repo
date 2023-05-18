@@ -42,15 +42,31 @@ namespace EventQueueLib
     std::optional<JournalerCommon::Event> EventQueueLib::EventQueue::pop(int timeoutInMilliseconds)
     {
         std::unique_lock<std::mutex> lock(queueMutex_);
-        bool queueEmpty = !m_cond.wait_for(lock, std::chrono::milliseconds(timeoutInMilliseconds), [this] { return !isQueueEmpty(); });
+        bool timeout = !m_cond.wait_for(lock,
+                                           std::chrono::milliseconds(timeoutInMilliseconds),
+                                           [this] { return !active_ || !isQueueEmpty(); });
 
-        if (queueEmpty)
+        if (!active_ || timeout)
         {
             return std::nullopt;
         }
+        assert(!isQueueEmpty());
         auto value = m_queue.front();
         m_queue.pop();
         return value;
+    }
+
+    void EventQueue::stop()
+    {
+        std::lock_guard<std::mutex> lock(queueMutex_);
+        active_ = false;
+        m_cond.notify_all();
+    }
+
+    void EventQueue::restart()
+    {
+        std::lock_guard<std::mutex> lock(queueMutex_);
+        active_ = true;
     }
 
 }

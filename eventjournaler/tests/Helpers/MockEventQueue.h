@@ -14,8 +14,9 @@ namespace
     class MockEventQueue : public EventQueueLib::IEventQueue
     {
     public:
-        MockEventQueue() = default;
-        MOCK_METHOD1(push, bool(JournalerCommon::Event));
-        MOCK_METHOD1(pop, std::optional<JournalerCommon::Event>(int));
+        MOCK_METHOD(bool, push, (JournalerCommon::Event), (override));
+        MOCK_METHOD(std::optional<JournalerCommon::Event>, pop, (int), (override));
+        MOCK_METHOD(void, stop, (), (override));
+        MOCK_METHOD(void, restart, (), (override));
     };
 }
