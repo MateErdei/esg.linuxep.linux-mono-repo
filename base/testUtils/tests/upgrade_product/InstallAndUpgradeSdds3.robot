@@ -630,7 +630,7 @@ We Can Downgrade From VUT to Release Without Unexpected Errors
     Wait Until Keyword Succeeds
     ...  180 secs
     ...  1 secs
-    ...  SHS Status File Contains  ${BadThreatHealthXmlContents}
+    ...  SHS Status File Contains  ${GoodThreatHealthXmlContents}
     Wait Until Keyword Succeeds
     ...  15 secs
     ...  5 secs
