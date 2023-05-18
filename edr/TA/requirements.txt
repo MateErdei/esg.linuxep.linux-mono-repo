@@ -1,4 +1,4 @@
-pyzmq==19.0.1
+pyzmq
 protobuf
 pytest-html
 datetime
