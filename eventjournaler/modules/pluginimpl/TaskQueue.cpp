@@ -10,16 +10,15 @@ namespace Plugin
     void TaskQueue::push(Task task)
     {
         std::lock_guard<std::mutex> lck(m_mutex);
-        m_list.push_back(task);
+        m_list.push_back(std::move(task));
         m_cond.notify_one();
     }
 
     bool TaskQueue::pop(Task& task, int timeout)
     {
         std::unique_lock<std::mutex> lock(m_mutex);
-        std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
 
-        m_cond.wait_until(lock, now + std::chrono::seconds(timeout),[this] { return !m_list.empty(); });
+        m_cond.wait_for(lock, std::chrono::seconds(timeout),[this] { return !m_list.empty(); });
 
         if (m_list.empty())
         {
