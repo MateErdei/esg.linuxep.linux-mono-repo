@@ -1,3 +1,4 @@
+pubtap
 pyzmq
 protobuf
 pytest-html
