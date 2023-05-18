@@ -6,6 +6,7 @@
 #include "modules/Heartbeat/IHeartbeat.h"
 
 #include "Common/Threads/LockableData.h"
+#include "Common/Threads/NotifyPipe.h"
 #include "Common/ZMQWrapperApi/IContext.h"
 
 #include <atomic>
@@ -47,5 +48,6 @@ namespace SubscriberLib
         Common::ZeroMQWrapper::ISocketSubscriberPtr m_socket;
         std::unique_ptr<SubscriberLib::IEventHandler> m_eventHandler;
         std::shared_ptr<Heartbeat::HeartbeatPinger> m_heartbeatPinger;
+        Common::Threads::NotifyPipe stopPipe_;
     };
 } // namespace SubscriberLib

@@ -4,21 +4,22 @@
 
 #include "Logger.h"
 
-#include <Common/FileSystem/IFilePermissions.h>
-#include <Common/FileSystem/IFileSystem.h>
-#include <Common/FileSystem/IFileSystemException.h>
-#include <Common/UtilityImpl/ProjectNames.h>
-#include <Common/UtilityImpl/WaitForUtils.h>
-#include <Common/ZeroMQWrapper/IIPCException.h>
-#include <Common/ZeroMQWrapper/ISocketPublisher.h>
-#include <Common/ZeroMQWrapper/ISocketSubscriber.h>
-#include <sys/stat.h>
+#include "modules/Heartbeat/Heartbeat.h"
+
+#include "Common/FileSystem/IFilePermissions.h"
+#include "Common/FileSystem/IFileSystem.h"
+#include "Common/FileSystem/IFileSystemException.h"
+#include "Common/UtilityImpl/ProjectNames.h"
+#include "Common/UtilityImpl/WaitForUtils.h"
+#include "Common/ZeroMQWrapper/IIPCException.h"
+#include "Common/ZeroMQWrapper/ISocketPublisher.h"
+#include "Common/ZeroMQWrapper/ISocketSubscriber.h"
+#include "Common/ZeroMQWrapper/IPoller.h"
 
 #include <iostream>
 #include <utility>
-#include <modules/Heartbeat/Heartbeat.h>
-#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
-#include <modules/pluginimpl/TelemetryConsts.h>
+
+#include <sys/stat.h>
 
 namespace SubscriberLib
 {
@@ -69,29 +70,40 @@ namespace SubscriberLib
 
         auto fs = Common::FileSystem::fileSystem();
 
+        auto poller = Common::ZeroMQWrapper::createPoller();
+        auto stopPipeHandler = poller->addEntry(stopPipe_.readFd(), Common::ZeroMQWrapper::IPoller::POLLIN);
+        poller->addEntry(*m_socket, Common::ZeroMQWrapper::IPoller::POLLIN);
+
         while (shouldBeRunning())
         {
             try
             {
                 m_heartbeatPinger->ping();
-                if (fs->exists(m_socketPath))
-                {
-                    auto data = m_socket->read();
-                    std::optional<JournalerCommon::Event> event = convertZmqDataToEvent(data);
-                    if (event)
-                    {
-                        m_eventHandler->handleEvent(event.value());
-                    }
-                    else
-                    {
-                        LOGERROR("ZMQ data arriving from pub sub could not be converted to Event");
-                    }
-                }
-                else
+                if (!fs->exists(m_socketPath))
                 {
                     LOGERROR("The subscriber socket has been unexpectedly removed.");
                     setIsRunning(false);
                     return;
+                }
+
+                auto activeFds = poller->poll(std::chrono::milliseconds{m_readLoopTimeoutMilliSeconds});
+                for (const auto& r : activeFds)
+                {
+                    // We only need to worry about the socket here
+                    // If the stop pipe is notified, then shouldBeRunning() will be false, so we will break in the while loop
+                    if (r == m_socket.get())
+                    {
+                        auto data = m_socket->read();
+                        std::optional<JournalerCommon::Event> event = convertZmqDataToEvent(data);
+                        if (event)
+                        {
+                            m_eventHandler->handleEvent(event.value());
+                        }
+                        else
+                        {
+                            LOGERROR("ZMQ data arriving from pub sub could not be converted to Event");
+                        }
+                    }
                 }
             }
             catch (const Common::ZeroMQWrapper::IIPCException& exception)
@@ -124,6 +136,11 @@ namespace SubscriberLib
             return;
         }
         LOGINFO("Starting Subscriber");
+
+        // Clear the stop pipe
+        while (stopPipe_.notified())
+        {}
+
         setShouldBeRunning(true);
         auto fs = Common::FileSystem::fileSystem();
         std::string socketDir = Common::FileSystem::dirName(m_socketPath);
@@ -165,6 +182,7 @@ namespace SubscriberLib
         setShouldBeRunning(false);
         if (m_runnerThread && m_runnerThread->joinable())
         {
+            stopPipe_.notify();
             m_runnerThread->join();
             m_runnerThread.reset();
         }

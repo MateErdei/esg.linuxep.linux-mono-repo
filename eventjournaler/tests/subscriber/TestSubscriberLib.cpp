@@ -81,48 +81,50 @@ TEST_F(TestSubscriber, SubscriberCanCallStopWithoutThrowingOnASubscriberThatHasn
 
 TEST_F(TestSubscriber, SubscriberStartAndStop)
 {
-    std::atomic<bool> readHasBeenCalled = false;
+    std::atomic_bool readHasBeenCalled = false;
 
     auto countReadsAndReturnSimpleEvent = [&readHasBeenCalled](){
       readHasBeenCalled = true;
       return std::vector<std::string>{"threatEvents", "data"};
     };
 
-    MockZmqContext*  context = new StrictMock<MockZmqContext>();
     std::string fakeSocketPath = "/a/b/FakeSocketPath";
-    MockSocketSubscriber*  socketSubscriber = new StrictMock<MockSocketSubscriber>();
+
+    Common::Threads::NotifyPipe eventPipe;
+    eventPipe.notify();
+
+    auto socketSubscriber = std::make_unique<StrictMock<MockSocketSubscriber>>();
     EXPECT_CALL(*socketSubscriber, setTimeout(123)).Times(1);
     EXPECT_CALL(*socketSubscriber, listen("ipc://" + fakeSocketPath)).Times(1);
     EXPECT_CALL(*socketSubscriber, subscribeTo("threatEvents")).Times(1);
+    EXPECT_CALL(*socketSubscriber, fd()).WillRepeatedly(Return(eventPipe.readFd()));
     EXPECT_CALL(*socketSubscriber, read()).WillRepeatedly(Invoke(countReadsAndReturnSimpleEvent));
+
+    auto context = std::make_shared<StrictMock<MockZmqContext>>();
     context->m_subscriber = Common::ZeroMQWrapper::ISocketSubscriberPtr(std::move(socketSubscriber));
     std::shared_ptr<ZMQWrapperApi::IContext>  mockContextPtr(context);
 
-    MockEventQueuePusher* mockPusher = new NiceMock<MockEventQueuePusher>();
-    std::unique_ptr<IEventHandler> mockPusherPtr(mockPusher);
+    auto mockPusherPtr = std::make_unique<NiceMock<MockEventQueuePusher>>();
     auto heartbeatPinger = std::make_shared<Heartbeat::HeartbeatPinger>();
     SubscriberLib::Subscriber subscriber(fakeSocketPath, mockContextPtr, std::move(mockPusherPtr), heartbeatPinger, 123);
 
-    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
-    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
+    auto mockFileSystem = std::make_unique<StrictMock<MockFileSystem>>();
     EXPECT_CALL(*mockFileSystem, isDirectory(Common::FileSystem::dirName(fakeSocketPath)))
         .WillOnce(Return(true));
-
     EXPECT_CALL(*mockFileSystem, exists(fakeSocketPath)).WillRepeatedly(Return(true));
     EXPECT_CALL(*mockFileSystem, removeFile(fakeSocketPath)).WillRepeatedly(Return());
+    Tests::replaceFileSystem(std::move(mockFileSystem));
 
-    auto mockFilePermissions = new StrictMock<MockFilePermissions>();
-    std::unique_ptr<MockFilePermissions> mockIFilePermissionsPtr =
-        std::unique_ptr<MockFilePermissions>(mockFilePermissions);
+    auto mockIFilePermissionsPtr = std::make_unique<StrictMock<MockFilePermissions>>();
+    EXPECT_CALL(*mockIFilePermissionsPtr, chmod(fakeSocketPath, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP)).Times(1);
     Tests::replaceFilePermissions(std::move(mockIFilePermissionsPtr));
-    EXPECT_CALL(*mockFilePermissions, chmod(fakeSocketPath, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP)).Times(1);
 
     EXPECT_FALSE(subscriber.getRunningStatus());
     subscriber.start();
     // Make sure we have really started, start launches a thread.
     while (!readHasBeenCalled)
     {
-        usleep(1);
+        std::this_thread::sleep_for(std::chrono::milliseconds{2});
     }
     EXPECT_TRUE(subscriber.getRunningStatus());
     EXPECT_NO_THROW(subscriber.stop());
@@ -175,13 +177,16 @@ TEST_F(TestSubscriberWithLog, SubscriberHandlesfailedChmod)
 
 TEST_F(TestSubscriber, SubscriberCanRestart)
 {
-    auto context = std::make_shared<StrictMock<MockZmqContext>>();
     std::string fakeSocketPath = "/fake/dir/for/socketPath";
     auto mockPusherPtr = std::make_unique<NiceMock<MockEventQueuePusher>>();
+
+    Common::Threads::NotifyPipe eventPipe;
+    eventPipe.notify();
 
     auto socketSubscriber = std::make_unique<StrictMock<MockSocketSubscriber>>();
     EXPECT_CALL(*socketSubscriber, setTimeout(1000)).Times(2);
     EXPECT_CALL(*socketSubscriber, listen("ipc://" + fakeSocketPath)).Times(2);
+    EXPECT_CALL(*socketSubscriber, fd()).WillRepeatedly(Return(eventPipe.readFd()));
     EXPECT_CALL(*socketSubscriber, subscribeTo("threatEvents")).Times(2);
     std::atomic_bool readHasBeenCalled = false;
     auto sleepAndReturnEmptyData = [&readHasBeenCalled](){
@@ -191,6 +196,7 @@ TEST_F(TestSubscriber, SubscriberCanRestart)
     };
     EXPECT_CALL(*socketSubscriber, read()).WillRepeatedly(Invoke(sleepAndReturnEmptyData));
 
+    auto context = std::make_shared<StrictMock<MockZmqContext>>();
     context->m_subscriber = std::move(socketSubscriber);
     std::shared_ptr<ZMQWrapperApi::IContext>  mockContextPtr(std::move(context));
 
@@ -264,14 +270,22 @@ TEST_F(TestSubscriber, SubscriberStartThrowsIfSocketDirDoesNotExist)
 
 TEST_F(TestSubscriber, SubscriberSendsDataToQueueWheneverItReceivesItFromTheSocket)
 {
-    MockZmqContext*  context = new StrictMock<MockZmqContext>();
     std::string fakeSocketPath = "/fake/dir/for/socketPath";
-    MockSocketSubscriber*  socketSubscriber = new StrictMock<MockSocketSubscriber>();
-    MockEventQueuePusher* mockPusher = new StrictMock<MockEventQueuePusher>();
-    std::unique_ptr<IEventHandler> mockPusherPtr(mockPusher);
+
+    auto mockPusherPtr = std::make_unique<StrictMock<MockEventQueuePusher>>();
+    EXPECT_CALL(*mockPusherPtr, handleEvent(JournalerCommon::Event{JournalerCommon::EventType::THREAT_EVENT, "data1"})).Times(1);
+    EXPECT_CALL(*mockPusherPtr, handleEvent(JournalerCommon::Event{JournalerCommon::EventType::THREAT_EVENT, "data2"})).Times(1);
+    EXPECT_CALL(*mockPusherPtr, handleEvent(JournalerCommon::Event{JournalerCommon::EventType::THREAT_EVENT, "data3"})).Times(1);
+    EXPECT_CALL(*mockPusherPtr, handleEvent(JournalerCommon::Event{JournalerCommon::EventType::THREAT_EVENT, "data4"})).Times(1);
+
+    Common::Threads::NotifyPipe eventPipe;
+    eventPipe.notify();
+
+    auto socketSubscriber = std::make_unique<StrictMock<MockSocketSubscriber>>();
     EXPECT_CALL(*socketSubscriber, setTimeout(123)).Times(1);
     EXPECT_CALL(*socketSubscriber, listen("ipc://" + fakeSocketPath)).Times(1);
     EXPECT_CALL(*socketSubscriber, subscribeTo("threatEvents")).Times(1);
+    EXPECT_CALL(*socketSubscriber, fd()).WillRepeatedly(Return(eventPipe.readFd()));
 
     std::vector<std::vector<std::string>> mockSocketValues = {
         {"threatEvents", "data1"},
@@ -285,40 +299,37 @@ TEST_F(TestSubscriber, SubscriberSendsDataToQueueWheneverItReceivesItFromTheSock
         return fakeEventData;
     };
     EXPECT_CALL(*socketSubscriber, read()).WillRepeatedly(Invoke(getNextEvent));
+
+    auto context = std::make_unique<StrictMock<MockZmqContext>>();
     context->m_subscriber = Common::ZeroMQWrapper::ISocketSubscriberPtr(std::move(socketSubscriber));
-    std::shared_ptr<ZMQWrapperApi::IContext>  mockContextPtr(context);
+    std::shared_ptr<ZMQWrapperApi::IContext>  mockContextPtr(std::move(context));
+
     auto heartbeatPinger = std::make_shared<Heartbeat::HeartbeatPinger>();
+
     SubscriberLib::Subscriber subscriber(fakeSocketPath, mockContextPtr, std::move(mockPusherPtr), heartbeatPinger, 123);
 
-    auto mockFileSystem = new ::testing::NiceMock<MockFileSystem>();
-    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
+    auto mockFileSystem = std::make_unique<NiceMock<MockFileSystem>>();
     EXPECT_CALL(*mockFileSystem, isDirectory(Common::FileSystem::dirName(fakeSocketPath))).WillOnce(Return(true));
-
-    auto mockFilePermissions = new StrictMock<MockFilePermissions>();
-    std::unique_ptr<MockFilePermissions> mockIFilePermissionsPtr =
-        std::unique_ptr<MockFilePermissions>(mockFilePermissions);
-    Tests::replaceFilePermissions(std::move(mockIFilePermissionsPtr));
-    EXPECT_CALL(*mockFilePermissions, chmod(fakeSocketPath, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP)).Times(1);
-
     EXPECT_CALL(*mockFileSystem, exists(fakeSocketPath))
-            .WillOnce(Return(false)) // initial check in start(), called by test
-            .WillOnce(Return(true)) // The check before read, the first one we allow a read
-            .WillOnce(Return(true)) // Second read read
-            .WillOnce(Return(true)) // Third read
-            .WillOnce(Return(true)) // Fourth read
-            .WillOnce(Return(false)) // Next time around the read loop we fake the socket being missing here
-            .WillOnce(Return(false)); // stop() call in destructor
+        .WillOnce(Return(false)) // initial check in start(), called by test
+        .WillOnce(Return(true)) // The check before read, the first one we allow a read
+        .WillOnce(Return(true)) // Second read read
+        .WillOnce(Return(true)) // Third read
+        .WillOnce(Return(true)) // Fourth read
+        .WillOnce(Return(false)) // Next time around the read loop we fake the socket being missing here
+        .WillOnce(Return(false)); // stop() call in destructor
 
-    EXPECT_CALL(*mockPusher, handleEvent(JournalerCommon::Event{JournalerCommon::EventType::THREAT_EVENT, "data1"})).Times(1);
-    EXPECT_CALL(*mockPusher, handleEvent(JournalerCommon::Event{JournalerCommon::EventType::THREAT_EVENT, "data2"})).Times(1);
-    EXPECT_CALL(*mockPusher, handleEvent(JournalerCommon::Event{JournalerCommon::EventType::THREAT_EVENT, "data3"})).Times(1);
-    EXPECT_CALL(*mockPusher, handleEvent(JournalerCommon::Event{JournalerCommon::EventType::THREAT_EVENT, "data4"})).Times(1);
+    Tests::replaceFileSystem(std::move(mockFileSystem ));
+
+    auto mockFilePermissions = std::make_unique<StrictMock<MockFilePermissions>>();
+    EXPECT_CALL(*mockFilePermissions, chmod(fakeSocketPath, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP)).Times(1);
+    Tests::replaceFilePermissions(std::move(mockFilePermissions));
 
     EXPECT_FALSE(subscriber.getRunningStatus());
     subscriber.start();
     do
     {
-        usleep(10);
+        std::this_thread::sleep_for(std::chrono::milliseconds{10});
     } while (subscriber.getRunningStatus());
     EXPECT_FALSE(subscriber.getRunningStatus());
 }
@@ -329,7 +340,11 @@ TEST_F(TestSubscriberWithLog, TestSubscriberPingsHeartbeatRepeatedly)
 
     std::string fakeSocketPath = "/fake/dir/for/socketPath";
 
+
+    Common::Threads::NotifyPipe eventPipe;
+
     auto socketSubscriber = std::make_unique<NiceMock<MockSocketSubscriber>>();
+    EXPECT_CALL(*socketSubscriber, fd()).WillRepeatedly(Return(eventPipe.readFd()));
 
     auto context = std::make_shared<StrictMock<MockZmqContext>>();
     context->m_subscriber = Common::ZeroMQWrapper::ISocketSubscriberPtr(std::move(socketSubscriber));
@@ -338,7 +353,11 @@ TEST_F(TestSubscriberWithLog, TestSubscriberPingsHeartbeatRepeatedly)
     auto mockPusherPtr = std::make_unique<NiceMock<MockEventQueuePusher>>();
     auto mockHeartbeatPinger = std::make_shared<StrictMock<Heartbeat::MockHeartbeatPinger>>();
 
-    SubscriberLib::Subscriber subscriber(fakeSocketPath, mockContextPtr, std::move(mockPusherPtr), mockHeartbeatPinger, 123);
+    SubscriberLib::Subscriber subscriber(fakeSocketPath,
+                                         mockContextPtr,
+                                         std::move(mockPusherPtr),
+                                         mockHeartbeatPinger,
+                                         10);
 
     auto mockFileSystem = std::make_unique<NiceMock<MockFileSystem>>();
     EXPECT_CALL(*mockFileSystem, isDirectory(Common::FileSystem::dirName(fakeSocketPath))).WillOnce(Return(true));
