@@ -6,21 +6,21 @@ Copyright 2021 Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include "QueueTask.h"
+#include "TaskQueue.h"
 
 #include <Common/PluginApi/IPluginCallbackApi.h>
+#include <modules/Heartbeat/IHeartbeat.h>
 
 #include <atomic>
-#include <modules/Heartbeat/IHeartbeat.h>
 
 namespace Plugin
 {
     class PluginCallback : public virtual Common::PluginApi::IPluginCallbackApi
     {
-        std::shared_ptr<QueueTask> m_task;
+        std::shared_ptr<TaskQueue> m_task;
 
     public:
-        PluginCallback(std::shared_ptr<QueueTask> task, std::shared_ptr<Heartbeat::IHeartbeat> heartbeat);
+        PluginCallback(std::shared_ptr<TaskQueue> task, std::shared_ptr<Heartbeat::IHeartbeat> heartbeat);
 
         void applyNewPolicy(const std::string& policyXml) override;
 

@@ -34,7 +34,7 @@ int main()
     std::unique_ptr<Common::PluginApi::IPluginResourceManagement> resourceManagement =
         Common::PluginApi::createPluginResourceManagement();
 
-    auto queueTask = std::make_shared<QueueTask>();
+    auto queueTask = std::make_shared<TaskQueue>();
     auto heartbeat = std::make_shared<Heartbeat::Heartbeat>();
     auto sharedPluginCallBack = std::make_shared<PluginCallback>(queueTask, heartbeat);
 

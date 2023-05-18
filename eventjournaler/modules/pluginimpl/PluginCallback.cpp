@@ -16,7 +16,7 @@ Copyright 2018-2021 Sophos Limited.  All rights reserved.
 
 namespace Plugin
 {
-    PluginCallback::PluginCallback(std::shared_ptr<QueueTask> task, std::shared_ptr<Heartbeat::IHeartbeat> heartbeat) :
+    PluginCallback::PluginCallback(std::shared_ptr<TaskQueue> task, std::shared_ptr<Heartbeat::IHeartbeat> heartbeat) :
     m_task(std::move(task)),
     m_heartbeat(heartbeat)
     {

@@ -10,15 +10,15 @@
 #include <Common/Logging/ConsoleLoggingSetup.h>
 #include <SubscriberLib/Subscriber.h>
 #include <gtest/gtest.h>
+#include <modules/Heartbeat/Heartbeat.h>
+#include <modules/Heartbeat/MockHeartbeatPinger.h>
 #include <modules/pluginimpl/Logger.h>
 #include <pluginimpl/PluginAdapter.h>
-#include <pluginimpl/QueueTask.h>
+#include <pluginimpl/TaskQueue.h>
 
 #include <atomic>
 #include <future>
 #include <utility>
-#include <modules/Heartbeat/Heartbeat.h>
-#include <modules/Heartbeat/MockHeartbeatPinger.h>
 
 using namespace Common::FileSystem;
 
@@ -26,7 +26,7 @@ class TestablePluginAdapter : public Plugin::PluginAdapter
 {
 public:
     TestablePluginAdapter(
-        const std::shared_ptr<Plugin::QueueTask>& queueTask,
+        const std::shared_ptr<Plugin::TaskQueue>& queueTask,
         std::unique_ptr<SubscriberLib::ISubscriber> subscriber,
         std::unique_ptr<EventWriterLib::IEventWriterWorker> eventWriter,
         std::shared_ptr<Heartbeat::HeartbeatPinger> heartbeatPinger,
@@ -80,7 +80,7 @@ TEST_F(PluginAdapterTests, PluginAdapterRestartsSubscriberOrWriterIfTheyStop)
     std::unique_ptr<EventWriterLib::IEventWriterWorker> mockEventWriterWorkerPtr(mockEventWriterWorker);
 
     // Queue
-    auto queueTask = std::make_shared<Plugin::QueueTask>();
+    auto queueTask = std::make_shared<Plugin::TaskQueue>();
 
     auto heartbeat = std::make_shared<Heartbeat::Heartbeat>();
 
@@ -115,7 +115,7 @@ TEST_F(PluginAdapterTests, PluginAdapterMainLoopThrowsIfSocketDirDoesNotExist)
     EXPECT_CALL(*mockEventWriterWorker, start).Times(1); // Plugin starting up subscriber
     std::unique_ptr<EventWriterLib::IEventWriterWorker> mockEventWriterWorkerPtr(mockEventWriterWorker);
 
-    auto queueTask = std::make_shared<Plugin::QueueTask>();
+    auto queueTask = std::make_shared<Plugin::TaskQueue>();
     auto heartbeat = std::make_shared<Heartbeat::Heartbeat>();
     TestablePluginAdapter pluginAdapter(
             queueTask,
@@ -141,7 +141,7 @@ TEST_F(PluginAdapterTests, testMainloopPingsHeartbeatRepeatedly)
     std::unique_ptr<EventWriterLib::IEventWriterWorker> mockEventWriterWorkerPtr(mockEventWriterWorker);
 
     // Queue
-    auto queueTask = std::make_shared<Plugin::QueueTask>();
+    auto queueTask = std::make_shared<Plugin::TaskQueue>();
 
     auto heartbeat = std::make_shared<Heartbeat::Heartbeat>();
     auto mockHeartbeatPinger = std::make_shared<StrictMock<Heartbeat::MockHeartbeatPinger>>();

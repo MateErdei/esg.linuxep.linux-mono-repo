@@ -4,17 +4,17 @@ Copyright 2021 Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "QueueTask.h"
+#include "TaskQueue.h"
 namespace Plugin
 {
-    void QueueTask::push(Task task)
+    void TaskQueue::push(Task task)
     {
         std::lock_guard<std::mutex> lck(m_mutex);
         m_list.push_back(task);
         m_cond.notify_one();
     }
 
-    bool QueueTask::pop(Task& task, int timeout)
+    bool TaskQueue::pop(Task& task, int timeout)
     {
         std::unique_lock<std::mutex> lock(m_mutex);
         std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
@@ -32,7 +32,7 @@ namespace Plugin
         return true;
     }
 
-    void QueueTask::pushStop()
+    void TaskQueue::pushStop()
     {
         Task stopTask{ .taskType = Task::TaskType::Stop, .Content = "" };
         push(stopTask);

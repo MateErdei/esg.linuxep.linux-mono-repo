@@ -4,19 +4,17 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include <modules/pluginimpl/PluginCallback.h>
-#include <modules/pluginimpl/QueueTask.h>
+#include <Common/Helpers/FileSystemReplaceAndRestore.h>
+#include <Common/Helpers/LogInitializedTests.h>
+#include <Common/Helpers/MockFileSystem.h>
+#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
+#include <gtest/gtest.h>
+#include <modules/Heartbeat/Heartbeat.h>
+#include <modules/Heartbeat/MockHeartbeat.h>
 #include <modules/Heartbeat/ThreadIdConsts.h>
 #include <modules/pluginimpl/ApplicationPaths.h>
-
-#include <gtest/gtest.h>
-#include <Common/Helpers/LogInitializedTests.h>
-#include <modules/Heartbeat/Heartbeat.h>
-#include <Common/Helpers/MockFileSystem.h>
-#include <Common/Helpers/FileSystemReplaceAndRestore.h>
-#include <modules/Heartbeat/MockHeartbeat.h>
-#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
-
+#include <modules/pluginimpl/PluginCallback.h>
+#include <modules/pluginimpl/TaskQueue.h>
 
 class PluginCallbackTests : public LogOffInitializedTests
 {
@@ -29,7 +27,7 @@ class PluginCallbackTests : public LogOffInitializedTests
 
 TEST_F(PluginCallbackTests, testPluginAdapterRegistersExpectedIDs)
 {
-    auto queueTask = std::make_shared<Plugin::QueueTask>();
+    auto queueTask = std::make_shared<Plugin::TaskQueue>();
     auto heartbeat = std::make_shared<Heartbeat::Heartbeat>();
     auto sharedPluginCallBack = std::make_shared<Plugin::PluginCallback>(queueTask, heartbeat);
 
@@ -42,7 +40,7 @@ TEST_F(PluginCallbackTests, testPluginAdapterRegistersExpectedIDs)
 
 TEST_F(PluginCallbackTests, testGetHealthReturns0WhenAllFactorsHealthy)
 {
-    auto queueTask = std::make_shared<Plugin::QueueTask>();
+    auto queueTask = std::make_shared<Plugin::TaskQueue>();
     auto mockHeartbeat = std::make_shared<StrictMock<Heartbeat::MockHeartbeat>>();
     EXPECT_CALL(*mockHeartbeat, registerIds(std::vector<std::string>{ "Writer", "Subscriber", "PluginAdapter" }));
     auto sharedPluginCallBack = Plugin::PluginCallback(queueTask, mockHeartbeat);
@@ -66,7 +64,7 @@ TEST_F(PluginCallbackTests, testGetHealthReturns0WhenAllFactorsHealthy)
 
 TEST_F(PluginCallbackTests, testGetHealthReturns1WhenExceedingMaxAcceptableDroppedEvents)
 {
-    auto queueTask = std::make_shared<Plugin::QueueTask>();
+    auto queueTask = std::make_shared<Plugin::TaskQueue>();
     auto mockHeartbeat = std::make_shared<StrictMock<Heartbeat::MockHeartbeat>>();
     EXPECT_CALL(*mockHeartbeat, registerIds(std::vector<std::string>{ "Writer", "Subscriber", "PluginAdapter" }));
     auto sharedPluginCallBack = Plugin::PluginCallback(queueTask, mockHeartbeat);
@@ -91,7 +89,7 @@ TEST_F(PluginCallbackTests, testGetHealthReturns1WhenExceedingMaxAcceptableDropp
 
 TEST_F(PluginCallbackTests, testGetHealthReturns1WhenSocketMissing)
 {
-    auto queueTask = std::make_shared<Plugin::QueueTask>();
+    auto queueTask = std::make_shared<Plugin::TaskQueue>();
     auto mockHeartbeat = std::make_shared<StrictMock<Heartbeat::MockHeartbeat>>();
     EXPECT_CALL(*mockHeartbeat, registerIds(std::vector<std::string>{ "Writer", "Subscriber", "PluginAdapter" }));
     auto sharedPluginCallBack = Plugin::PluginCallback(queueTask, mockHeartbeat);
@@ -116,7 +114,7 @@ TEST_F(PluginCallbackTests, testGetHealthReturns1WhenSocketMissing)
 
 TEST_F(PluginCallbackTests, testGetHealthReturns1WhenThreadsDead)
 {
-    auto queueTask = std::make_shared<Plugin::QueueTask>();
+    auto queueTask = std::make_shared<Plugin::TaskQueue>();
     auto mockHeartbeat = std::make_shared<StrictMock<Heartbeat::MockHeartbeat>>();
     EXPECT_CALL(*mockHeartbeat, registerIds(std::vector<std::string>{ "Writer", "Subscriber", "PluginAdapter" }));
     auto sharedPluginCallBack = Plugin::PluginCallback(queueTask, mockHeartbeat);
@@ -143,7 +141,7 @@ class PluginCallbackWithMockedHealthInner : public  Plugin::PluginCallback {
 public:
     MOCK_METHOD0(getHealthInner, uint());
 
-    PluginCallbackWithMockedHealthInner(std::shared_ptr<Plugin::QueueTask> task,
+    PluginCallbackWithMockedHealthInner(std::shared_ptr<Plugin::TaskQueue> task,
                                         std::shared_ptr<StrictMock<Heartbeat::MockHeartbeat>> heartbeat)
             : Plugin::PluginCallback(task, heartbeat)
             {};
@@ -151,7 +149,7 @@ public:
 
 TEST_F(PluginCallbackTests, testGetTelemetryCallsGetHealthInner)
 {
-    auto queueTask = std::make_shared<Plugin::QueueTask>();
+    auto queueTask = std::make_shared<Plugin::TaskQueue>();
     auto mockHeartbeat = std::make_shared<StrictMock<Heartbeat::MockHeartbeat>>();
     EXPECT_CALL(*mockHeartbeat, registerIds(std::vector<std::string>{ "Writer", "Subscriber", "PluginAdapter" }));
     auto sharedPluginCallBack = PluginCallbackWithMockedHealthInner(queueTask, mockHeartbeat);
