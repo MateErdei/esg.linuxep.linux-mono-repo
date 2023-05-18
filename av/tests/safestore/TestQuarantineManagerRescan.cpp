@@ -215,10 +215,12 @@ TEST_F(QuarantineManagerRescanTests, scanExtractedFileClean)
     auto fd1{ createRealFd() };
 
     auto testFile = FdsObjectIdsPair(datatypes::AutoFd{ fd1 }, "objectId1");
-
-    EXPECT_CALL(*mockScanningClientSocket_, sendRequest(IsRescanAndHasFd(fd1))).WillOnce(Return(true));
-    EXPECT_CALL(*mockScanningClientSocket_, receiveResponse).WillOnce(Return(true));
-
+    {
+        InSequence seq; // Verify we call sendRequest before receiveResponse!
+        EXPECT_CALL(*mockScanningClientSocket_, sendRequest(IsRescanAndHasFd(fd1))).WillOnce(Return(true));
+        EXPECT_CALL(*mockScanningClientSocket_, receiveResponse).WillOnce(Return(true));
+    }
+    // Have to do this after setting up the other expectations!
     EXPECT_CALL(mockSafeStoreResources_, CreateScanningClientSocket)
         .WillOnce(Return(ByMove(std::move(mockScanningClientSocket_))));
 
