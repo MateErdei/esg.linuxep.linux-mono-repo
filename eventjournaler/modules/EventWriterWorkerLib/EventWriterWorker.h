@@ -2,10 +2,11 @@
 
 #include "IEventWriterWorker.h"
 
-#include "Common/ZeroMQWrapper/IReadable.h"
 #include "modules/EventJournal/IEventJournalWriter.h"
 #include "modules/EventQueueLib/IEventQueuePopper.h"
-#include <modules/Heartbeat/IHeartbeat.h>
+#include "modules/Heartbeat/IHeartbeat.h"
+
+#include "Common/Threads/LockableData.h"
 
 #include <atomic>
 #include <optional>
@@ -30,14 +31,17 @@ namespace EventWriterLib
         void checkAndPruneTruncatedEvents(const std::string& path) override;
 
     private:
+        bool shouldBeRunning();
+        void setIsRunning(bool);
+
         std::shared_ptr<EventQueueLib::IEventQueuePopper> m_eventQueuePopper;
         std::unique_ptr<EventJournal::IEventJournalWriter> m_eventJournalWriter;
-        std::atomic<bool> m_shouldBeRunning = false;
-        std::atomic<bool> m_isRunning = false;
+        Common::Threads::LockableData<bool> m_shouldBeRunning{false};
+        Common::Threads::LockableData<bool> m_isRunning{false};
         std::unique_ptr<std::thread> m_runnerThread;
         std::shared_ptr<Heartbeat::HeartbeatPinger> m_heartbeatPinger;
 
-        void writeEvent(JournalerCommon::Event event);
+        void writeEvent(const JournalerCommon::Event& event);
         void run();
 
     };

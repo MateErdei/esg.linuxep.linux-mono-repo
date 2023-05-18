@@ -34,14 +34,17 @@ namespace EventWriterLib
     void EventWriterWorker::stop()
     {
         LOGINFO("Stopping Event Writer");
-        m_shouldBeRunning = false;
+        {
+            auto lock = m_shouldBeRunning.lock();
+            *lock = false;
+        }
         if (m_runnerThread && m_runnerThread->joinable())
         {
             m_runnerThread->join();
             m_runnerThread.reset();
         }
         LOGINFO("Event Writer stopped");
-        m_isRunning = false;
+        setIsRunning(false);
     }
 
     void EventWriterWorker::start()
@@ -52,7 +55,10 @@ namespace EventWriterLib
             return;
         }
         LOGINFO("Starting Event Writer");
-        m_shouldBeRunning = true;
+        {
+            auto lock = m_shouldBeRunning.lock();
+            *lock = true;
+        }
         m_runnerThread = std::make_unique<std::thread>(std::thread([this] { run(); }));
         LOGINFO("Event Writer started");
     }
@@ -64,7 +70,11 @@ namespace EventWriterLib
         start();
     }
 
-    bool EventWriterWorker::getRunningStatus() { return m_isRunning; }
+    bool EventWriterWorker::getRunningStatus()
+    {
+        auto lock = m_isRunning.lock();
+        return *lock;
+    }
 
     void EventWriterWorker::checkAndPruneTruncatedEvents(const std::string& path)
     {
@@ -94,11 +104,11 @@ namespace EventWriterLib
 
     void EventWriterWorker::run()
     {
-        m_isRunning = true;
+        setIsRunning(true);
         LOGINFO("Event Writer running");
         try
         {
-            while (m_shouldBeRunning)
+            while (shouldBeRunning())
             {
                 m_heartbeatPinger->ping();
                 // Inner while loop to ensure we drain the queue once m_shouldBeRunning is set to false.
@@ -120,17 +130,15 @@ namespace EventWriterLib
         catch (const std::exception& exception)
         {
             LOGERROR("Unexpected exception thrown from Event Writer: " << exception.what());
-            m_isRunning = false;
-            return;
         }
-
+        setIsRunning(false);
     }
 
-    void EventWriterWorker::writeEvent(JournalerCommon::Event event)
+    void EventWriterWorker::writeEvent(const JournalerCommon::Event& event)
     {
         auto& telemetry = Common::Telemetry::TelemetryHelper::getInstance();
         telemetry.increment(Plugin::Telemetry::telemetryAttemptedJournalWrites, 1L);
-        std::string journalSubType = JournalerCommon::EventTypeToJournalJsonSubtypeMap.at(event.type);
+        const std::string& journalSubType = JournalerCommon::EventTypeToJournalJsonSubtypeMap.at(event.type);
         EventJournal::Detection detection{ journalSubType, event.data };
         auto encodedDetection = EventJournal::encode(detection);
         try
@@ -143,6 +151,18 @@ namespace EventWriterLib
             m_heartbeatPinger->pushDroppedEvent();
             telemetry.increment(Plugin::Telemetry::telemetryFailedEventWrites, 1L);
         }
+    }
+
+    bool EventWriterWorker::shouldBeRunning()
+    {
+        auto lock = m_shouldBeRunning.lock();
+        return *lock;
+    }
+
+    void EventWriterWorker::setIsRunning(bool value)
+    {
+        auto lock = m_isRunning.lock();
+        *lock = value;
     }
 
 }
