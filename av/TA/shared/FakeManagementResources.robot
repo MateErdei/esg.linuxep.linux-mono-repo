@@ -67,6 +67,14 @@ Run Scan Now Scan With No Exclusions
 
     Send Plugin Action  av  ${SAV_APPID}  corr123  ${ACTION_CONTENT}
 
+Run Scan Now Scan With Default Exclusions
+    ${mark} =  get_av_log_mark
+    ${policy_contents} =  Get Sav Policy With Default Exclusions  ${RESOURCES_PATH}/${SAV_POLICY_FOR_SCAN_NOW_TEST}
+    send av policy  ${SAV_APPID}  ${policy_contents}
+    Wait until scheduled scan updated After Mark  ${mark}
+
+    Send Plugin Action  av  ${SAV_APPID}  corr123  ${ACTION_CONTENT}
+
 # list of exclusions: https://wiki.sophos.net/display/SAVLU/Exclusions
 Run Scan Now Scan With All Types of Exclusions
     ${mark} =  get_av_log_mark

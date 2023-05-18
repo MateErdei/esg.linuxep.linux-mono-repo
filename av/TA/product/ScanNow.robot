@@ -193,7 +193,7 @@ Scan Now Aborts Scan If Sophos Threat Detector Is Killed And Does Not Recover
     # Start scan now - abort or timeout...
     ${av_mark} =  get_av_log_mark
     ${scan_now_mark} =  mark_log_size  ${SCANNOW_LOG_PATH}
-    Run Scan Now Scan With No Exclusions
+    Run Scan Now Scan With Default Exclusions
     wait_for_av_log_contains_after_mark  Received new Action  mark=${av_mark}
     wait_for_av_log_contains_after_mark  Evaluating Scan Now  mark=${av_mark}
     wait_for_av_log_contains_after_mark  Starting scan Scan Now  timeout=10  mark=${av_mark}

@@ -92,5 +92,14 @@ def Replace_Exclusions_For_Exclusion_Test(sourceFile):
     ]
     return replace_exclusions_in_policy_return_string(sourceFile, exclusions)
 
+
 def Get_Sav_Policy_With_No_Exclusions(sourceFile):
     return replace_exclusions_in_policy_return_string(sourceFile, [])
+
+
+def get_sav_policy_with_default_exclusions(source_file):
+    return replace_exclusions_in_policy_return_string(source_file, [
+        "/mnt/",
+        "/run/docker/netns/",
+        "/run/snapd/ns/"
+    ])
