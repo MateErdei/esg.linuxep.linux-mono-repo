@@ -173,22 +173,24 @@ TEST_F(TestEventQueue, testEventQueuePopBlocksDuringTimeoutBeforeUnblockingAndRe
     TestableEventQueue eventQueueWithMaxSize2(2);
     JournalerCommon::Event expectedData {JournalerCommon::EventType::THREAT_EVENT, "fake data"};
 
+    constexpr auto delay = 50;
+
     auto blockWhileWaitingForData = std::async(std::launch::async,
             [&eventQueueWithMaxSize2, &expectedData]
         {
             std::chrono::milliseconds before = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
-            std::optional<JournalerCommon::Event> data = eventQueueWithMaxSize2.pop(1000);
+            std::optional<JournalerCommon::Event> data = eventQueueWithMaxSize2.pop(delay*10);
             std::chrono::milliseconds after = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
             EXPECT_TRUE(data.has_value());
             EXPECT_EQ(data->data, expectedData.data);
             return after.count() - before.count();
         });
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    std::this_thread::sleep_for(std::chrono::milliseconds(delay));
     eventQueueWithMaxSize2.push(expectedData);
     auto duration = blockWhileWaitingForData.get();
-    EXPECT_GE(duration, 100);
-    EXPECT_NEAR(duration, 100, 10);
+    EXPECT_GE(duration, delay);
+    EXPECT_NEAR(duration, delay, 10);
 }
 
 TEST_F(TestEventQueue, testPushedDataIsCorrectlyQueuedAndReturnedWhenPopped)
