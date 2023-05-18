@@ -90,7 +90,6 @@ EDR plugin Configures OSQuery To Enable SysLog Event Collection
     Run Keyword If    ${is_suse}    Remove Rsyslog Apparmor Rule
 
 EDR Restarts If File Descriptor Limit Hit
-    [Tags]  TESTFAILURE
     [Teardown]  EDR And Base Teardown No Stop
     # LINUXDAR-7106 - test broken on SLES12
     ${is_suse} =  Does File Contain Word  /etc/os-release  SUSE Linux Enterprise Server 12
