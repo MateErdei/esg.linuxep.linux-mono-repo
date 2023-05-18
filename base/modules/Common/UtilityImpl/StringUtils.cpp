@@ -118,7 +118,7 @@ namespace Common
             }
             catch(const boost::locale::conv::conversion_error& e)
             {
-                LOGDEBUG("Could not convert from: " << "UTF-8");
+                //?
             }
 
             std::vector<std::string> encodings{"EUC-JP", "Shift-JIS", "SJIS", "Latin1"};
@@ -141,22 +141,13 @@ namespace Common
                 }
                 catch(const boost::locale::conv::conversion_error& e)
                 {
-                    LOGDEBUG("Could not convert from: " << encoding);
-                    continue;
+                    throw std::runtime_error(std::string("Failed to convert string ") += str + std::string(" to utf8 from ") += encoding);
                 }
                 catch(const boost::locale::conv::invalid_charset_error& e)
                 {
-                    //                    LOGDEBUG(e.what());
-                    continue;
+                    throw std::runtime_error(std::string("Failed to convert string ") += str + std::string(" with error: ") += e.what());
                 }
             }
-
-            if(throws)
-            {
-                throw std::runtime_error(std::string("Failed to convert string to utf8: ") + str);
-            }
-
-            LOGDEBUG("Failed to convert string: " << str << "to utf8 returning original");
             return str;
         }
     } // namespace UtilityImpl
