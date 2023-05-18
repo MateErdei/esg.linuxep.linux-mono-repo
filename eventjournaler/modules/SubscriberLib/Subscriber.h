@@ -1,14 +1,12 @@
-/******************************************************************************************************
-
-Copyright 2021 Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2021-2023 Sophos Limited. All rights reserved.
 
 #include "ISubscriber.h"
 
-#include <Common/ZMQWrapperApi/IContext.h>
-#include <modules/SubscriberLib/IEventHandler.h>
-#include <modules/Heartbeat/IHeartbeat.h>
+#include "modules/SubscriberLib/IEventHandler.h"
+#include "modules/Heartbeat/IHeartbeat.h"
+
+#include "Common/Threads/LockableData.h"
+#include "Common/ZMQWrapperApi/IContext.h"
 
 #include <atomic>
 #include <functional>
@@ -18,27 +16,31 @@ Copyright 2021 Sophos Limited.  All rights reserved.
 
 namespace SubscriberLib
 {
-    class Subscriber : public ISubscriber
+    class Subscriber final : public ISubscriber
     {
     public:
         Subscriber(
-            const std::string& socketAddress,
+            std::string socketAddress,
             Common::ZMQWrapperApi::IContextSharedPtr context,
             std::unique_ptr<SubscriberLib::IEventHandler> eventQueuePusher,
             std::shared_ptr<Heartbeat::HeartbeatPinger> heartbeatPinger,
             int readLoopTimeoutMilliSeconds = 5000);
         ~Subscriber() override;
-        void stop() override;
+        void stop() noexcept final;
         void start() override;
         void restart() override;
         bool getRunningStatus() override;
 
     private:
+        bool shouldBeRunning();
+        void setIsRunning(bool);
+        void setShouldBeRunning(bool);
+
         void subscribeToEvents();
-        std::optional<JournalerCommon::Event> convertZmqDataToEvent(Common::ZeroMQWrapper::data_t data);
+        static std::optional<JournalerCommon::Event> convertZmqDataToEvent(Common::ZeroMQWrapper::data_t data);
         std::string m_socketPath;
-        std::atomic<bool> m_shouldBeRunning = false;
-        std::atomic<bool> m_isRunning = false;
+        Common::Threads::LockableData<bool> m_shouldBeRunning{false};
+        Common::Threads::LockableData<bool> m_isRunning{false};
         int m_readLoopTimeoutMilliSeconds;
         std::unique_ptr<std::thread> m_runnerThread;
         Common::ZMQWrapperApi::IContextSharedPtr m_context;

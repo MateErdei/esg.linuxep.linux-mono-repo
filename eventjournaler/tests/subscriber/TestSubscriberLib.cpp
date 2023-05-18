@@ -1,40 +1,59 @@
-/******************************************************************************************************
-Copyright 2021, Sophos Limited.  All rights reserved.
-******************************************************************************************************/
+// Copyright 2021-2023 Sophos Limited. All rights reserved.
+
+// Class under test
+#include "modules/SubscriberLib/Subscriber.h"
+
+#include "modules/SubscriberLib/Logger.h"
+#include "modules/Heartbeat/MockHeartbeatPinger.h"
+
+#include "Common/FileSystem/IFileSystem.h"
+#include "Common/FileSystem/IFileSystemException.h"
+#include "Common/UtilityImpl/WaitForUtils.h"
+
+#include "Common/Helpers/FileSystemReplaceAndRestore.h"
+#include "Common/Helpers/LogInitializedTests.h"
+#include "Common/Helpers/MockFilePermissions.h"
+#include "Common/Helpers/MockFileSystem.h"
+#include "Common/Helpers/MockZmqContext.h"
 
 #include "MockEventQueuePusher.h"
 
-#include <Common/FileSystem/IFileSystem.h>
-#include <Common/FileSystem/IFileSystemException.h>
-#include <Common/Helpers/FileSystemReplaceAndRestore.h>
-#include <Common/Helpers/LogInitializedTests.h>
-#include <Common/Helpers/MockFilePermissions.h>
-#include <Common/Helpers/MockFileSystem.h>
-#include <Common/Helpers/MockZmqContext.h>
-#include <Common/UtilityImpl/WaitForUtils.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
-#include <modules/SubscriberLib/Subscriber.h>
 
 #include <queue>
-#include <modules/Heartbeat/MockHeartbeatPinger.h>
 
-class TestSubscriber : public LogOffInitializedTests
+namespace
 {
-    void TearDown() override
+    class TestSubscriber : public LogOffInitializedTests
     {
-        Tests::restoreFileSystem();
-        Tests::restoreFilePermissions();
-    }
-};
-class TestSubscriberWithLog : public LogInitializedTests
-{
-    void TearDown() override
+        void TearDown() override
+        {
+            Tests::restoreFileSystem();
+            Tests::restoreFilePermissions();
+        }
+    };
+    class TestSubscriberWithLog : public LogInitializedTests
     {
-        Tests::restoreFileSystem();
-        Tests::restoreFilePermissions();
-    }
-};
+    public:
+        void TearDown() override
+        {
+            Tests::restoreFileSystem();
+            Tests::restoreFilePermissions();
+        }
+
+        void setAppenderToLogWithTimestamps()
+        {
+            auto appenders = log4cplus::Logger::getRoot().getAllAppenders();
+            for (const auto& appender : appenders)
+            {
+                std::unique_ptr<log4cplus::Layout> layout(
+                    new log4cplus::PatternLayout("[%d{%S.%q}] %5p %m%n")); // NOLINT
+                appender->setLayout(std::move(layout));
+            }
+        }
+    };
+}
 
 TEST_F(TestSubscriber, SubscriberCanCallStopWithoutThrowingOnASubscriberThatHasntStarted) // NOLINT
 {
@@ -154,46 +173,57 @@ TEST_F(TestSubscriberWithLog, SubscriberHandlesfailedChmod) // NOLINT
     EXPECT_FALSE(subscriber.getRunningStatus());
 }
 
-TEST_F(TestSubscriber, SubscriberCanRestart) // NOLINT
+TEST_F(TestSubscriber, SubscriberCanRestart)
 {
-    MockZmqContext*  context = new StrictMock<MockZmqContext>();
-    std::string fakeSocketPath = "/fake/dir/for/socketPath";
-    MockEventQueuePusher* mockPusher = new NiceMock<MockEventQueuePusher>();
-    std::unique_ptr<IEventHandler> mockPusherPtr(mockPusher);
+    auto appenders = log4cplus::Logger::getRoot().getAllAppenders();
+    for (const auto& appender : appenders)
+    {
+        std::unique_ptr<log4cplus::Layout> layout(new log4cplus::PatternLayout("[%d{%S.%q}] %5p %m%n")); // NOLINT
+        appender->setLayout(std::move(layout));
+    }
 
-    MockSocketSubscriber*  socketSubscriber = new StrictMock<MockSocketSubscriber>();
+    auto context = std::make_shared<StrictMock<MockZmqContext>>();
+    std::string fakeSocketPath = "/fake/dir/for/socketPath";
+    auto mockPusherPtr = std::make_unique<NiceMock<MockEventQueuePusher>>();
+
+    auto socketSubscriber = std::make_unique<StrictMock<MockSocketSubscriber>>();
     EXPECT_CALL(*socketSubscriber, setTimeout(1000)).Times(2);
     EXPECT_CALL(*socketSubscriber, listen("ipc://" + fakeSocketPath)).Times(2);
     EXPECT_CALL(*socketSubscriber, subscribeTo("threatEvents")).Times(2);
-    std::atomic<bool> readHasBeenCalled = false;
+    std::atomic_bool readHasBeenCalled = false;
     auto sleepAndReturnEmptyData = [&readHasBeenCalled](){
-        sleep(1);
+        std::this_thread::sleep_for(std::chrono::milliseconds{50});
         readHasBeenCalled = true;
         return std::vector<std::string>{"threatEvents", "data"};
     };
     EXPECT_CALL(*socketSubscriber, read()).WillRepeatedly(Invoke(sleepAndReturnEmptyData));
-    context->m_subscriber = Common::ZeroMQWrapper::ISocketSubscriberPtr(std::move(socketSubscriber));
-    std::shared_ptr<ZMQWrapperApi::IContext>  mockContextPtr(context);
-    auto heartbeatPinger = std::make_shared<Heartbeat::HeartbeatPinger>();
-    SubscriberLib::Subscriber subscriber(fakeSocketPath, mockContextPtr, std::move(mockPusherPtr), heartbeatPinger, 1000);
-    auto mockFileSystem = new ::testing::NiceMock<MockFileSystem>();
-    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
 
+    context->m_subscriber = std::move(socketSubscriber);
+    std::shared_ptr<ZMQWrapperApi::IContext>  mockContextPtr(std::move(context));
+
+    auto heartbeatPinger = std::make_shared<Heartbeat::HeartbeatPinger>();
+
+    auto mockFileSystem = std::make_unique<NiceMock<MockFileSystem>>();
     EXPECT_CALL(*mockFileSystem, isDirectory(Common::FileSystem::dirName(fakeSocketPath)))
         .WillRepeatedly(Return(true));
 
-    EXPECT_CALL(*mockFileSystem, exists(fakeSocketPath)).WillRepeatedly(Return(true));
-    auto mockFilePermissions = new StrictMock<MockFilePermissions>();
-    std::unique_ptr<MockFilePermissions> mockIFilePermissionsPtr =
-        std::unique_ptr<MockFilePermissions>(mockFilePermissions);
-    Tests::replaceFilePermissions(std::move(mockIFilePermissionsPtr));
-    EXPECT_CALL(*mockFilePermissions, chmod(fakeSocketPath, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP)).Times(2);
+    std::atomic_bool socketExists = true;
+    auto checkSocketExists = [&socketExists](){
+        return static_cast<bool>(socketExists);
+    };
+    EXPECT_CALL(*mockFileSystem, exists(fakeSocketPath)).WillRepeatedly(Invoke(checkSocketExists));
+    Tests::replaceFileSystem(std::move(mockFileSystem));
 
+    auto mockFilePermissions = std::make_unique<StrictMock<MockFilePermissions>>();
+    EXPECT_CALL(*mockFilePermissions, chmod(fakeSocketPath, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP)).Times(2);
+    Tests::replaceFilePermissions(std::move(mockFilePermissions));
+
+    SubscriberLib::Subscriber subscriber(fakeSocketPath, mockContextPtr, std::move(mockPusherPtr), heartbeatPinger, 1000);
     subscriber.start();
 
     while (!readHasBeenCalled)
     {
-        usleep(1);
+        std::this_thread::sleep_for(std::chrono::milliseconds{2});
     }
     readHasBeenCalled = false;
     EXPECT_TRUE(subscriber.getRunningStatus());
@@ -202,9 +232,10 @@ TEST_F(TestSubscriber, SubscriberCanRestart) // NOLINT
     readHasBeenCalled = false;
     while (!readHasBeenCalled)
     {
-        usleep(1);
+        std::this_thread::sleep_for(std::chrono::milliseconds{2});
     }
     EXPECT_TRUE(subscriber.getRunningStatus());
+    socketExists = false;
     EXPECT_NO_THROW(subscriber.stop());
     EXPECT_FALSE(subscriber.getRunningStatus());
 }
@@ -298,34 +329,35 @@ TEST_F(TestSubscriber, SubscriberSendsDataToQueueWheneverItReceivesItFromTheSock
     } while (subscriber.getRunningStatus());
     EXPECT_FALSE(subscriber.getRunningStatus());
 }
-TEST_F(TestSubscriber, TestSubscriberPingsHeartbeatRepeatedly) // NOLINT
-{
-    MockZmqContext*  context = new StrictMock<MockZmqContext>();
-    std::string fakeSocketPath = "/fake/dir/for/socketPath";
-    MockSocketSubscriber*  socketSubscriber = new NiceMock<MockSocketSubscriber>();
-    MockEventQueuePusher* mockPusher = new NiceMock<MockEventQueuePusher>();
-    std::unique_ptr<IEventHandler> mockPusherPtr(mockPusher);
 
+TEST_F(TestSubscriberWithLog, TestSubscriberPingsHeartbeatRepeatedly)
+{
+    setAppenderToLogWithTimestamps();
+
+    std::string fakeSocketPath = "/fake/dir/for/socketPath";
+
+    auto socketSubscriber = std::make_unique<NiceMock<MockSocketSubscriber>>();
+
+    auto context = std::make_shared<StrictMock<MockZmqContext>>();
     context->m_subscriber = Common::ZeroMQWrapper::ISocketSubscriberPtr(std::move(socketSubscriber));
     std::shared_ptr<ZMQWrapperApi::IContext>  mockContextPtr(context);
 
+    auto mockPusherPtr = std::make_unique<NiceMock<MockEventQueuePusher>>();
     auto mockHeartbeatPinger = std::make_shared<StrictMock<Heartbeat::MockHeartbeatPinger>>();
+
     SubscriberLib::Subscriber subscriber(fakeSocketPath, mockContextPtr, std::move(mockPusherPtr), mockHeartbeatPinger, 123);
 
-    auto mockFileSystem = new ::testing::NiceMock<MockFileSystem>();
-    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
+    auto mockFileSystem = std::make_unique<NiceMock<MockFileSystem>>();
     EXPECT_CALL(*mockFileSystem, isDirectory(Common::FileSystem::dirName(fakeSocketPath))).WillOnce(Return(true));
     EXPECT_CALL(*mockFileSystem, exists(fakeSocketPath)).WillRepeatedly(Return(true));
+    Tests::replaceFileSystem(std::move(mockFileSystem));
 
-    auto mockFilePermissions = new StrictMock<MockFilePermissions>();
-    std::unique_ptr<MockFilePermissions> mockIFilePermissionsPtr =
-            std::unique_ptr<MockFilePermissions>(mockFilePermissions);
-    Tests::replaceFilePermissions(std::move(mockIFilePermissionsPtr));
+    auto mockFilePermissions = std::make_unique<StrictMock<MockFilePermissions>>();
     EXPECT_CALL(*mockFilePermissions, chmod(fakeSocketPath, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP)).Times(1);
-
+    Tests::replaceFilePermissions(std::move(mockFilePermissions));
 
     EXPECT_FALSE(subscriber.getRunningStatus());
     EXPECT_CALL(*mockHeartbeatPinger, ping).Times(AtLeast(2));
     subscriber.start();
-    sleep(1);
+    std::this_thread::sleep_for(std::chrono::milliseconds{100});
 }

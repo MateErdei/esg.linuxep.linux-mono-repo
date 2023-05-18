@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2021 Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2021-2023 Sophos Limited. All rights reserved.
 
 #include "Subscriber.h"
 
@@ -19,6 +15,7 @@ Copyright 2021 Sophos Limited.  All rights reserved.
 #include <sys/stat.h>
 
 #include <iostream>
+#include <utility>
 #include <modules/Heartbeat/Heartbeat.h>
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 #include <modules/pluginimpl/TelemetryConsts.h>
@@ -26,16 +23,16 @@ Copyright 2021 Sophos Limited.  All rights reserved.
 namespace SubscriberLib
 {
     Subscriber::Subscriber(
-        const std::string& socketAddress,
+        std::string socketAddress,
         Common::ZMQWrapperApi::IContextSharedPtr context,
         std::unique_ptr<SubscriberLib::IEventHandler> eventQueuePusher,
         std::shared_ptr<Heartbeat::HeartbeatPinger> heartbeatPinger,
         int readLoopTimeoutMilliSeconds) :
-        m_socketPath(socketAddress),
+        m_socketPath(std::move(socketAddress)),
         m_readLoopTimeoutMilliSeconds(readLoopTimeoutMilliSeconds),
-        m_context(context),
+        m_context(std::move(context)),
         m_eventHandler(std::move(eventQueuePusher)),
-        m_heartbeatPinger(heartbeatPinger)
+        m_heartbeatPinger(std::move(heartbeatPinger))
     {
         LOGINFO("Creating subscriber listening on socket address: " << m_socketPath);
     }
@@ -47,7 +44,7 @@ namespace SubscriberLib
 
     void Subscriber::subscribeToEvents()
     {
-        m_isRunning = true;
+        setIsRunning(true);
         if (!m_socket)
         {
             LOGDEBUG("Getting subscriber");
@@ -64,7 +61,7 @@ namespace SubscriberLib
         catch (const Common::FileSystem::IFileSystemException& exception)
         {
             LOGERROR("Failed to set socket permissions: " << m_socketPath << " Exception: " << exception.what());
-            m_isRunning = false;
+            setIsRunning(false);
             return;
         }
 
@@ -72,7 +69,7 @@ namespace SubscriberLib
 
         auto fs = Common::FileSystem::fileSystem();
 
-        while (m_shouldBeRunning)
+        while (shouldBeRunning())
         {
             try
             {
@@ -93,7 +90,7 @@ namespace SubscriberLib
                 else
                 {
                     LOGERROR("The subscriber socket has been unexpectedly removed.");
-                    m_isRunning = false;
+                    setIsRunning(false);
                     return;
                 }
             }
@@ -104,17 +101,19 @@ namespace SubscriberLib
                 if (errnoFromSocketRead != EAGAIN)
                 {
                     LOGERROR("Unexpected exception from socket read: " << exception.what());
-                    m_isRunning = false;
+                    setIsRunning(false);
+                    break;
                 }
             }
             catch (const std::exception& exception)
             {
                 LOGERROR("Stopping subscriber. Exception thrown during subscriber read loop: " << exception.what());
-                m_isRunning = false;
+                setIsRunning(false);
+                break;
             }
         }
         fs->removeFile(m_socketPath);
-        m_isRunning = false;
+        setIsRunning(false);
     }
 
     void Subscriber::start()
@@ -125,7 +124,7 @@ namespace SubscriberLib
             return;
         }
         LOGINFO("Starting Subscriber");
-        m_shouldBeRunning = true;
+        setShouldBeRunning(true);
         auto fs = Common::FileSystem::fileSystem();
         std::string socketDir = Common::FileSystem::dirName(m_socketPath);
         if (fs->isDirectory(socketDir))
@@ -160,10 +159,10 @@ namespace SubscriberLib
         LOGINFO("Subscriber started");
     }
 
-    void Subscriber::stop()
+    void Subscriber::stop() noexcept
     {
         LOGINFO("Stopping Subscriber");
-        m_shouldBeRunning = false;
+        setShouldBeRunning(false);
         if (m_runnerThread && m_runnerThread->joinable())
         {
             m_runnerThread->join();
@@ -184,7 +183,7 @@ namespace SubscriberLib
                 {
                     fs->removeFile(m_socketPath);
                 }
-                catch(const std::exception& exception)
+                catch (const std::exception& exception)
                 {
                     LOGERROR("Subscriber socket removeFile failed");
                 }
@@ -200,7 +199,7 @@ namespace SubscriberLib
 
         }
         LOGINFO("Subscriber stopped");
-        m_isRunning = false;
+        setIsRunning(false);
     }
 
     void Subscriber::restart()
@@ -218,7 +217,26 @@ namespace SubscriberLib
 
     bool Subscriber::getRunningStatus()
     {
-        return m_isRunning;
+        auto lock = m_isRunning.lock();
+        return *lock;
+    }
+
+    bool Subscriber::shouldBeRunning()
+    {
+        auto lock = m_shouldBeRunning.lock();
+        return *lock;
+    }
+
+    void Subscriber::setIsRunning(bool value)
+    {
+        auto lock = m_isRunning.lock();
+        *lock = value;
+    }
+
+    void Subscriber::setShouldBeRunning(bool value)
+    {
+        auto lock = m_shouldBeRunning.lock();
+        *lock = value;
     }
 
     std::optional<JournalerCommon::Event> Subscriber::convertZmqDataToEvent(Common::ZeroMQWrapper::data_t data)
