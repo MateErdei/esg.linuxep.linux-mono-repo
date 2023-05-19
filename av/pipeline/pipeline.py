@@ -83,8 +83,8 @@ def robot_task_with_env(machine: tap.Machine, include_tag: str, robot_args: str 
         robot_exclusion_tags = ['OSTIA', 'MANUAL', 'DISABLED', 'STRESS']
         machine.run('bash', machine.inputs.test_scripts / "bin/install_os_packages.sh")
         machine.run('mkdir', '-p', '/opt/test/coredumps')
-        machine.run(python(machine), "-V")
         machine.run("which", python(machine))
+        machine.run(python(machine), "-V")
 
         try:
             machine.run("which", "python")
