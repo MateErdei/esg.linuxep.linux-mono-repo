@@ -708,6 +708,150 @@ Allow Listed Files Are Removed From Quarantine Allow By SHA256
     Should Exist  ${allow_listed_threat_file}
 
 
+
+Path Is Logged Appropriately By SophosThreatDetector During Rescan Of Archive Containing Errors
+    Exclude As Corrupted
+    Wait Until threat detector running
+    Wait Until SafeStore running
+
+    ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
+    ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
+    ${ss_mark} =  Get SafeStore Log Mark
+
+    Send Flags Policy To Base  flags_policy/flags_safestore_quarantine_ml_enabled.json
+    Wait For Log Contains From Mark   ${av_mark}   SafeStore flag set. Setting SafeStore to enabled.   timeout=60
+
+    # Create threats to scan
+    ${corrupted__file} =  Set Variable  ${NORMAL_DIRECTORY}/corrupted.xls
+    ${threat_file} =  Set Variable  ${NORMAL_DIRECTORY}/eicar.txt
+    ${allow_listed_archive} =  Set Variable  ${NORMAL_DIRECTORY}/test.tar
+    Copy File  ${RESOURCES_PATH}/file_samples/corrupted.xls  ${NORMAL_DIRECTORY}
+    Create File    ${threat_file}    ${EICAR_STRING}
+    Create Archive From Files     ${allow_listed_archive}     ${corrupted__file}     ${threat_file}
+    Register Cleanup  Remove File  ${allow_listed_archive}
+    Remove File    ${corrupted__file}
+    Remove File    ${threat_file}
+    Should Exist  ${allow_listed_archive}
+    ${archive_sha} =  Get SHA256  ${allow_listed_archive}
+
+    # Scan threat
+    ${rc}   ${output} =    Run And Return Rc And Output   ${AVSCANNER} ${allow_listed_archive} --scan-archives
+    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+
+    Wait For Log Contains From Mark  ${ss_mark}  Quarantined ${allow_listed_archive} successfully
+    Should Not Exist  ${allow_listed_archive}
+
+    ${ss_mark} =  Get SafeStore Log Mark
+    ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
+    ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
+
+    # Allow-list the sha for the ML detection
+    ${allowlisted_shas} =    Create List     ${archive_sha}
+    ${corc_policy} =    Create CORC Policy    whitelist_sha256s=${allowlisted_shas}
+    Send CORC Policy To Base From Content    ${corc_policy}
+
+    wait_for_log_contains_from_mark  ${td_mark}  Metadata rescan of quarantined file (original path '${allow_listed_archive}') has result: clean
+    wait_for_log_contains_from_mark  ${td_mark}  SAVI HRESULT 0x8004021a is suppressed in ${allow_listed_archive}/corrupted.xls
+
+    #Look for relevant parts of what is a long scan result detail message
+    wait_for_log_contains_from_mark  ${td_mark}  [{"threatName":"EICAR-AV-Test","threatType":"virus"}],"path":"${allow_listed_archive}/eicar.txt"
+    wait_for_log_contains_from_mark  ${td_mark}  "error":"corrupt","path":"${allow_listed_archive}/corrupted.xls"
+
+    wait_for_log_contains_from_mark  ${td_mark}  Allowing ${allow_listed_archive} with ${archive_sha}
+
+
+Path Is Logged Appropriately By SophosThreatDetector During Rescan Of Archive
+    Exclude As Corrupted
+    Wait Until threat detector running
+    Wait Until SafeStore running
+
+    ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
+    ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
+    ${ss_mark} =  Get SafeStore Log Mark
+
+    Send Flags Policy To Base  flags_policy/flags_safestore_quarantine_ml_enabled.json
+    Wait For Log Contains From Mark   ${av_mark}   SafeStore flag set. Setting SafeStore to enabled.   timeout=60
+
+    # Create threats to scan
+    ${allow_listed_archive} =  Set Variable  ${NORMAL_DIRECTORY}/test.tar
+    Create Archive With Dsa And Eicar    ${allow_listed_archive}
+    Register Cleanup  Remove File  ${allow_listed_archive}
+    Should Exist  ${allow_listed_archive}
+    ${archive_sha} =  Get SHA256  ${allow_listed_archive}
+
+    # Scan threat
+    ${rc}   ${output} =    Run And Return Rc And Output   ${AVSCANNER} ${allow_listed_archive} --scan-archives
+    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+
+    Wait For Log Contains From Mark  ${ss_mark}  Quarantined ${allow_listed_archive} successfully
+    Should Not Exist  ${allow_listed_archive}
+
+    ${ss_mark} =  Get SafeStore Log Mark
+    ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
+    ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
+
+    # Allow-list the sha for the ML detection
+    ${allowlisted_shas} =    Create List     ${archive_sha}
+    ${corc_policy} =    Create CORC Policy    whitelist_sha256s=${allowlisted_shas}
+    Send CORC Policy To Base From Content    ${corc_policy}
+
+    wait_for_log_contains_from_mark  ${td_mark}  Metadata rescan of quarantined file (original path '${allow_listed_archive}') has result: clean
+
+    #Look for relevant parts of what is a long scan result detail message
+    wait_for_log_contains_from_mark  ${td_mark}  [{"threatName":"Troj/TestSFS-G","threatType":"trojan"}],"path":"${allow_listed_archive}/1_dsa"
+    wait_for_log_contains_from_mark  ${td_mark}  [{"threatName":"EICAR-AV-Test","threatType":"virus"}],"path":"${allow_listed_archive}/2_eicar"
+
+    wait_for_log_contains_from_mark  ${td_mark}  Allowing ${allow_listed_archive} with ${archive_sha}
+
+
+Path Is Logged Appropriately By SophosThreatDetector During Rescan Of Files
+    Wait Until threat detector running
+    Wait Until SafeStore running
+
+    ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
+    ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
+    ${ss_mark} =  Get SafeStore Log Mark
+
+    Send Flags Policy To Base  flags_policy/flags_safestore_quarantine_ml_enabled.json
+    Wait For Log Contains From Mark   ${av_mark}   SafeStore flag set. Setting SafeStore to enabled.   timeout=60
+
+    # Create threats to scan
+    ${allow_listed_threat_file} =  Set Variable  ${NORMAL_DIRECTORY}/MLengHighScore.exe
+    ${not_allow_listed_threat_file} =  Set Variable  ${NORMAL_DIRECTORY}/eicar.txt
+    DeObfuscate File  ${RESOURCES_PATH}/file_samples_obfuscated/MLengHighScore.exe  ${allow_listed_threat_file}
+    Create File    ${NORMAL_DIRECTORY}/eicar.txt    ${EICAR_STRING}
+    Should Exist  ${allow_listed_threat_file}
+    Should Exist  ${not_allow_listed_threat_file}
+    Register Cleanup  Remove File  ${allow_listed_threat_file}
+    Register Cleanup  Remove File  ${not_allow_listed_threat_file}
+
+    # Scan threat
+    ${rc}   ${output} =    Run And Return Rc And Output   ${AVSCANNER} ${NORMAL_DIRECTORY}
+    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+
+    Wait For Log Contains From Mark  ${ss_mark}  Quarantined ${allow_listed_threat_file} successfully
+    Should Not Exist  ${allow_listed_threat_file}
+
+    ${ss_mark} =  Get SafeStore Log Mark
+    ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
+    ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
+
+    # Allow-list the sha for the ML detection
+    ${allowlisted_shas} =    Create List     c88e20178a82af37a51b030cb3797ed144126cad09193a6c8c7e95957cf9c3f9
+    ${corc_policy} =    Create CORC Policy    whitelist_sha256s=${allowlisted_shas}
+    Send CORC Policy To Base From Content    ${corc_policy}
+
+    wait_for_log_contains_from_mark  ${av_mark}  Added SHA256 to allow list: c88e20178a82af37a51b030cb3797ed144126cad09193a6c8c7e95957cf9c3f9
+
+    #Ensure the path is logged
+    wait_for_log_contains_from_mark  ${td_mark}  MetadataRescanServerConnectionThread received a metadata rescan request of filePath=${allow_listed_threat_file}
+    wait_for_log_contains_from_mark  ${td_mark}  MetadataRescanServerConnectionThread received a metadata rescan request of filePath=${not_allow_listed_threat_file}
+    wait_for_log_contains_from_mark  ${td_mark}  Metadata rescan of quarantined file (original path '${allow_listed_threat_file}') has result: clean
+    wait_for_log_contains_from_mark  ${td_mark}  Metadata rescan of quarantined file (original path '${not_allow_listed_threat_file}') has result: threat present
+    wait_for_log_contains_from_mark  ${td_mark}  ScanningServerConnectionThread scan requested of ${allow_listed_threat_file}
+
+
+
 File Is Removed From Quarantine Allow List By Path
     Wait Until threat detector running
     Wait Until SafeStore running
@@ -1454,28 +1598,3 @@ Start On Access And SafeStore
 
     wait_for_log_contains_from_mark  ${av_mark}  SafeStore flag set. Setting SafeStore to enabled.    timeout=60
     wait_for_log_contains_from_mark  ${av_mark}  On-access is enabled in the FLAGS policy, assuming on-access policy settings
-
-Create Archive From Files
-    [Arguments]    ${output}    @{files}
-    ${archive_dir} =    Set Variable    ${NORMAL_DIRECTORY}/archive_dir
-    Create Directory    ${archive_dir}
-    Move Files    @{files}    ${archive_dir}
-    ${file_names} =    Create List
-    FOR    ${path}    IN    @{files}
-        ${parts} =    Split Path    ${path}
-        Append To List    ${file_names}    ${parts}[1]
-    END
-    # Passing file names explicitly to make sure they have the intended order
-    Run Process    tar    --mtime\=UTC 2022-01-01    -C    ${archive_dir}    -cf    ${NORMAL_DIRECTORY}/test.tar    @{file_names}
-    Remove Directory    ${archive_dir}    recursive=True
-
-Create Archive With Eicar
-    [Arguments]    ${output}
-    Create File    ${NORMAL_DIRECTORY}/eicar    ${EICAR_STRING}
-    Create Archive From Files    ${output}    ${NORMAL_DIRECTORY}/eicar
-
-Create Archive With Dsa And Eicar
-    [Arguments]    ${output}
-    Create File    ${NORMAL_DIRECTORY}/1_dsa    ${DSA_BY_NAME_STRING}
-    Create File    ${NORMAL_DIRECTORY}/2_eicar    ${EICAR_STRING}
-    Create Archive From Files    ${output}    ${NORMAL_DIRECTORY}/1_dsa    ${NORMAL_DIRECTORY}/2_eicar

@@ -733,6 +733,52 @@ Sophos Threat Detector Does Not Detect Allow Listed File By Sha256
     Should Exist  ${allow_listed_threat_file}
 
 
+Sophos Threat Detector Does Not Detect Archive Allow Listed By Sha256
+    ${directory_under_test} =    Set Variable    /tmp_test/a/path/
+    ${allow_listed_threat_file} =    Set variable    ${directory_under_test}zipfile.zip
+    ${directory_for_zipfile} =    Set Variable      /zip_test/
+    ${zip_contents_file} =    Set Variable    ${directory_for_zipfile}MLengHighScore.exe
+
+    Stop sophos_threat_detector
+    #Policy
+    Send CORC Policy To Base  corc_policy_empty_allowlist.xml
+    Register Cleanup   Remove File  ${MCS_PATH}/policy/CORC_policy.xml
+
+    #Create zip file containing ML
+    Create Directory  ${directory_under_test}
+    Create Directory  ${directory_for_zipfile}
+    DeObfuscate File  ${RESOURCES_PATH}/file_samples_obfuscated/MLengHighScore.exe  ${zip_contents_file}
+    zip_file   ${allow_listed_threat_file}   ${zip_contents_file}
+    File Should Exist    ${allow_listed_threat_file}
+    Register Cleanup  Remove Directory    ${directory_under_test}     recursive=True
+    Remove Directory   ${directory_for_zipfile}    recursive=True
+    Start sophos_threat_detector
+
+    ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
+    ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
+
+    # Allow-list the file
+    ${archive_sha} =  Get SHA256  ${allow_listed_threat_file}
+    ${allowlisted_sha} =    Create List     ${archive_sha}
+    ${corc_policy} =    Create CORC Policy    whitelist_sha256s=${allowlisted_sha}
+    Send CORC Policy To Base From Content    ${corc_policy}
+
+    wait_for_log_contains_from_mark  ${av_mark}  Added SHA256 to allow list: ${archive_sha}
+    wait_for_log_contains_from_mark  ${td_mark}    Number of SHA256 allow-listed items: 1
+
+    # Scan threat
+    ${rc}   ${output} =    Run And Return Rc And Output   ${AVSCANNER} ${allow_listed_threat_file}
+    Log  ${output}
+    Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
+
+    # File is allowed and not treated as a threat
+    wait_for_log_contains_from_mark  ${td_mark}  Calculated the SHA256 of ${allow_listed_threat_file}: ${archive_sha}
+    # A detection occurred for the ML but we are allowing the zip file still
+    wait_for_log_contains_from_mark  ${td_mark}  Allowing ${allow_listed_threat_file} with ${archive_sha}
+
+    Should Exist  ${allow_listed_threat_file}
+
+
 Sophos Threat Detector Does Not Detect Allow Listed File By Path
     ${directory_under_test} =    Set Variable    /tmp_test/a/path/
     ${directory_allow_glob} =    Set Variable    /tmp_test/*/path/
@@ -770,7 +816,7 @@ Sophos Threat Detector Does Not Detect Allow Listed File By Path
     Should Exist  ${allow_listed_threat_file}
 
 
-Sophos Threat Detector Does Not Detect Allow Listed Archive
+Sophos Threat Detector Does Not Detect Archive Allow Listed By Path
     ${directory_under_test} =    Set Variable    /tmp_test/a/path/
     ${allow_listed_threat_file} =    Set variable    ${directory_under_test}zipfile.zip
     ${directory_for_zipfile} =    Set Variable      /zip_test/

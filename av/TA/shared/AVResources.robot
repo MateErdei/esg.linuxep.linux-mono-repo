@@ -1,4 +1,5 @@
 *** Settings ***
+Library         Collections
 Library         Process
 Library         OperatingSystem
 Library         String
@@ -1404,6 +1405,7 @@ Get SHA256
     [Arguments]  ${path}
     ${result} =  Run Process  sha256sum  -b  ${path}
     Log  ${result.stdout}
+    Log  ${result.stderr}
     @{parts} =  Split String  ${result.stdout}
     [Return]  ${parts}[0]
 
@@ -1428,3 +1430,28 @@ Create Large PE File Of Size
     Log  ${result.stdout}
     Log  ${result.stderr}
     Should Be Equal As Integers   ${result.rc}  ${0}
+
+Create Archive With Dsa And Eicar
+    [Arguments]    ${output}
+    Create File    ${NORMAL_DIRECTORY}/1_dsa    ${DSA_BY_NAME_STRING}
+    Create File    ${NORMAL_DIRECTORY}/2_eicar    ${EICAR_STRING}
+    Create Archive From Files    ${output}    ${NORMAL_DIRECTORY}/1_dsa    ${NORMAL_DIRECTORY}/2_eicar
+
+Create Archive From Files
+    [Arguments]    ${output}    @{files}
+    ${archive_dir} =    Set Variable    ${NORMAL_DIRECTORY}/archive_dir
+    Create Directory    ${archive_dir}
+    Move Files    @{files}    ${archive_dir}
+    ${file_names} =    Create List
+    FOR    ${path}    IN    @{files}
+        ${parts} =    Split Path    ${path}
+        Append To List    ${file_names}    ${parts}[1]
+    END
+    # Passing file names explicitly to make sure they have the intended order
+    Run Process    tar    --mtime\=UTC 2022-01-01    -C    ${archive_dir}    -cf    ${output}    @{file_names}
+    Remove Directory    ${archive_dir}    recursive=True
+
+Create Archive With Eicar
+    [Arguments]    ${output}
+    Create File    ${NORMAL_DIRECTORY}/eicar    ${EICAR_STRING}
+    Create Archive From Files    ${output}    ${NORMAL_DIRECTORY}/eicar
