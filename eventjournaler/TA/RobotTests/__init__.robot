@@ -4,11 +4,12 @@ Suite Teardown  Global Teardown Tasks
 
 Library         OperatingSystem
 
+Library         ../Libs/InstallerUtils.py
+
 Test Timeout    5 minutes
 
 *** Keywords ***
 Global Setup Tasks
-
     ${placeholder} =  Get Environment Variable      SOPHOS_INSTALL  default=/opt/sophos-spl
     Set Global Variable  ${SOPHOS_INSTALL}          ${placeholder}
     Set Environment Variable  SOPHOS_INSTALL        ${SOPHOS_INSTALL}
@@ -23,6 +24,8 @@ Global Setup Tasks
     Set Global Variable  ${EVENT_JOURNAL_DIR}       ${COMPONENT_ROOT_PATH}/data/eventjournals
 
     Directory Should Exist  ${ROBOT_SCRIPTS_PATH}
+
+    initial cleanup
 
 Global Teardown Tasks
     Remove Directory  ${SOPHOS_INSTALL}  recursive=True

@@ -2,6 +2,7 @@ import grp
 import os
 import pwd
 import stat
+import subprocess
 
 import robot.libraries.BuiltIn
 from robot.libraries.BuiltIn import BuiltIn
@@ -158,3 +159,9 @@ def get_systemd_file_info():
     results.sort(key=key)
 
     return "\n".join(results)
+
+
+def initial_cleanup():
+    subprocess.call(["userdel", "sophos-spl-av"])
+    subprocess.call(["userdel", "sophos-spl-threat-detector"])
+    subprocess.call(["groupdel", "sophos-spl-group"])
