@@ -19,6 +19,7 @@ except ImportError:
     import logging
     logger = logging.getLogger("BaseUtils")
 
+
 def get_variable(varName, defaultValue=None):
     try:
         return BuiltIn().get_variable_value("${}".format(varName))
@@ -26,21 +27,28 @@ def get_variable(varName, defaultValue=None):
         return os.environ.get(varName, defaultValue)
 
 
+def delete_users_and_groups():
+    subprocess.run(['userdel', 'sophos-spl-av'])
+    subprocess.run(['userdel', 'sophos-spl-threat-detector'])
+    subprocess.run(['groupdel', 'sophos-spl-group'])
+
+
 def uninstall_sspl_if_installed():
     """
     Calls /opt/sophos-spl/bin/uninstall.sh if present
-
 
     Fail if the uninstall returns an error.
     """
     SOPHOS_INSTALL = get_variable("SOPHOS_INSTALL", "/opt/sophos-spl")
     if not os.path.isdir(SOPHOS_INSTALL):
+        delete_users_and_groups()
         return 0
 
     uninstaller = os.path.join(SOPHOS_INSTALL, "bin", "uninstall.sh")
     if not os.path.isfile(uninstaller):
         logger.info("{} exists but uninstaller doesn't - removing directory".format(SOPHOS_INSTALL))
         shutil.rmtree(SOPHOS_INSTALL)
+        delete_users_and_groups()
         return 0
 
     dot_sophos = os.path.join(SOPHOS_INSTALL, ".sophos")
@@ -52,6 +60,9 @@ def uninstall_sspl_if_installed():
     if p.returncode != 0:
         logger.warning(p.stdout)
         raise Exception("Failed to uninstall")
+
+    delete_users_and_groups()
+
 
 def create_test_telemetry_config_file(telemetry_config_file_path, certificate_path, username="sophos-spl-user",
                                       requestType="PUT", port=443):
