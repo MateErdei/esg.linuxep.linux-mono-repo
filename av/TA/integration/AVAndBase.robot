@@ -1014,5 +1014,5 @@ AV Plugin Doesnt Read Response Action
     ${av_mark} =  Get AV Log Mark
     Send RA Action To Base
 
-    Wait For AV Log Contains After Mark  Ignoring policy not in XML format   ${av_mark}
+    Wait For AV Log Contains After Mark  Ignoring action not in XML format   ${av_mark}
     check_log_does_not_contain_after_mark  ${AV_LOG_PATH}   av <> Exception encountered while parsing Action XML:  ${av_mark}

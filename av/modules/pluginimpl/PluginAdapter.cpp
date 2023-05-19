@@ -366,7 +366,7 @@ namespace Plugin
 
         if (actionXml.front() != '<')
         {
-            LOGDEBUG("Ignoring policy not in XML format");
+            LOGDEBUG("Ignoring action not in XML format");
             return;
         }
 

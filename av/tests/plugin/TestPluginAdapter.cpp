@@ -689,7 +689,7 @@ TEST_F(TestPluginAdapter, testProcessActionDoesntProcessJson)
     expectedLog.append(actionXml);
 
     EXPECT_TRUE(waitForLog(expectedLog));
-    EXPECT_TRUE(waitForLog("Ignoring policy not in XML format"));
+    EXPECT_TRUE(waitForLog("Ignoring action not in XML format"));
 
     m_taskQueue->pushStop();
 
