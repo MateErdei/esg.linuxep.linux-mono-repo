@@ -354,7 +354,6 @@ def bullseye_coverage_combine_task(machine: tap.Machine, include_tag: str):
 def get_test_machines(test_inputs, parameters: tap.Parameters):
     test_environments = {'ubuntu1804': 'ubuntu1804_x64_server_en_us',
                          'ubuntu2004': 'ubuntu2004_x64_server_en_us',
-                         'ubuntu2204': 'ubuntu2204_x64_aws_server_en_us',
                          'centos79': 'centos79_x64_server_en_us',
                          'centos84': 'centos84_x64_server_en_us',
                          'centos8stream': 'centos8stream_x64_aws_server_en_us',
@@ -365,6 +364,9 @@ def get_test_machines(test_inputs, parameters: tap.Parameters):
     if parameters.run_sles != 'false':
         test_environments['sles12'] = 'sles12_x64_sp5_aws_server_en_us'
         test_environments['sles15'] = 'sles15_x64_sp4_aws_server_en_us'
+
+    if parameters.run_ubuntu_22_04 != 'false':
+        test_environments['ubuntu2204'] = 'ubuntu2204_x64_aws_server_en_us'
 
     ret = []
     for name, image in test_environments.items():
