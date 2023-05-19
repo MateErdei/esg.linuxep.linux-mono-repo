@@ -364,6 +364,12 @@ namespace Plugin
     {
         LOGDEBUG("Process action: " << actionXml);
 
+        if (actionXml.front() != '<')
+        {
+            LOGDEBUG("Ignoring policy not in XML format");
+            return;
+        }
+
         try
         {
             auto attributeMap = Common::XmlUtilities::parseXml(actionXml);

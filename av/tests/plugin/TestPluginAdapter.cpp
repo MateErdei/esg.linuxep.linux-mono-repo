@@ -663,6 +663,41 @@ TEST_F(TestPluginAdapter, testBadProcessActionXMLThrows)
     scanLogger.removeAppender(m_sharedAppender);
 }
 
+TEST_F(TestPluginAdapter, testProcessActionDoesntProcessJson)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    log4cplus::Logger scanLogger = Common::Logging::getInstance("ScanScheduler");
+    scanLogger.addAppender(m_sharedAppender);
+
+    auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
+    expectedDefaultPolicyRequests(*mockBaseService);
+    EXPECT_CALL(*mockBaseService, sendThreatHealth("{\"ThreatHealth\":1}")).Times(1);
+    EXPECT_CALL(*mockBaseService, sendStatus(_, _, _)).WillRepeatedly(Return());
+
+    auto pluginAdapter = std::make_shared<PluginAdapter>(
+        m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
+    auto pluginThread = std::thread(&PluginAdapter::mainLoop, pluginAdapter);
+
+    EXPECT_TRUE(waitForLog("Starting the main program loop"));
+
+    std::string actionXml =
+        R"({someJson})";
+    Task actionTask = { Task::TaskType::Action, actionXml };
+    m_taskQueue->push(actionTask);
+
+    std::string expectedLog = "Process action: ";
+    expectedLog.append(actionXml);
+
+    EXPECT_TRUE(waitForLog(expectedLog));
+    EXPECT_TRUE(waitForLog("Ignoring policy not in XML format"));
+
+    m_taskQueue->pushStop();
+
+    pluginThread.join();
+
+    scanLogger.removeAppender(m_sharedAppender);
+}
+
 TEST_F(TestPluginAdapter, testProcessScanComplete)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
