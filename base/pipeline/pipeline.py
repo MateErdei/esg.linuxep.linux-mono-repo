@@ -320,8 +320,9 @@ def sspl_base(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
         ("ubuntu2004",
          tap.Machine('ubuntu2004_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)),
 
-        ("ubuntu2204",
-         tap.Machine('ubuntu2204_x64_aws_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)),
+        #TODO: LINUXDAR-7306 Uncomment once python3.10 issues are resolved
+        #("ubuntu2204",
+        # tap.Machine('ubuntu2204_x64_aws_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)),
 
         ("centos79",
          tap.Machine('centos79_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)),
