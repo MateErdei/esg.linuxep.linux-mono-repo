@@ -84,8 +84,13 @@ def robot_task_with_env(machine: tap.Machine, include_tag: str, robot_args: str 
         machine.run('bash', machine.inputs.test_scripts / "bin/install_os_packages.sh")
         machine.run('mkdir', '-p', '/opt/test/coredumps')
         machine.run(python(machine), "-V")
-        machine.run("python", "-V")
-        machine.run("which",python(machine))
+        machine.run("which", python(machine))
+
+        try:
+            machine.run("which", "python")
+            machine.run("python", "-V")
+        except Exception:
+            pass
 
         if include_tag:
             include, *exclude = include_tag.split("NOT")
@@ -100,7 +105,7 @@ def robot_task_with_env(machine: tap.Machine, include_tag: str, robot_args: str 
         elif robot_args:
             machine.run(robot_args, 'python3', machine.inputs.test_scripts / 'RobotFramework.py',
                         '--exclude', *robot_exclusion_tags,
-                        environment=environment,timeout=5400)
+                        environment=environment, timeout=5400)
 
     finally:
         machine.run(python(machine), machine.inputs.test_scripts / 'move_robot_results.py')
