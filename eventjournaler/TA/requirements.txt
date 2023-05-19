@@ -2,3 +2,4 @@ pyzmq
 protobuf
 datetime
 robotframework
+pubtap
