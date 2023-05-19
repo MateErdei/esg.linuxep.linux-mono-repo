@@ -357,12 +357,12 @@ def sspl_base(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
         robot_args_list.append("SUITE=" + parameters.suite)
     robot_args = " ".join(robot_args_list)
 
-    # with stage.parallel('integration'):
-    #     if mode == COVERAGE_MODE:
-    #         stage.task(task_name="centos77", func=coverage_task,
-    #                    machine=tap.Machine('centos77_x64_server_en_us', inputs=test_inputs,
-    #                                        platform=tap.Platform.Linux), branch=context.branch,
-    #                    robot_args=robot_args)
-    #     else:
-    #         for template_name, machine in machines:
-    #             stage.task(task_name=template_name, func=robot_task, machine=machine, robot_args=robot_args)
+    with stage.parallel('integration'):
+        if mode == COVERAGE_MODE:
+            stage.task(task_name="centos77", func=coverage_task,
+                       machine=tap.Machine('centos77_x64_server_en_us', inputs=test_inputs,
+                                           platform=tap.Platform.Linux), branch=context.branch,
+                       robot_args=robot_args)
+        else:
+            for template_name, machine in machines:
+                stage.task(task_name=template_name, func=robot_task, machine=machine, robot_args=robot_args)
