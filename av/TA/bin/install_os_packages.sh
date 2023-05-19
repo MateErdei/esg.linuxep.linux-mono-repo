@@ -116,6 +116,10 @@ then
         fi
         sleep 5
     done
+    [[ -x $(which setcap) ]] || {
+      echo "Failed to install setcap - AV can't run"
+      exit 1
+    }
 else
     echo "Can't find package management system"
     exit 1
