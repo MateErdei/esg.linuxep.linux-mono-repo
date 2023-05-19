@@ -81,24 +81,18 @@ then
 
 elif [[ -x $(which zypper) ]]
 then
-    if [[ -x $(which registercloudguest ) ]]
-    then
-        # Retry 10 times before timeout
-        for (( i=0; i<10; i++ ))
-        do
-            if registercloudguest --force-new
-            then
-                break
-            else
-                echo "$i: Failed to registercloudguest; sleeping for 10"
-                if ! ps -ef | grep zyppe[r]
-                then
-                    cat /var/log/cloudregister
-                fi
-                sleep 10
-            fi
-        done
-    fi
+    # Retry 10 times before timeout
+    for (( i=0; i<10; i++ ))
+    do
+        systemctl status cloud-init 2>&1 | tee /tmp/cloud-init.status
+        if grep "active (exited)" /tmp/cloud-init.status
+        then
+            break
+        else
+            echo "sleeping for 4"
+            sleep 4
+        fi
+    done
 
     for (( i=0; i<10; i++ ))
     do
@@ -106,16 +100,18 @@ then
         then
             break
         fi
-        sleep 5
+        sleep 4
     done
+
     for (( i=0; i<10; i++ ))
     do
         if zypper --non-interactive install libcap-progs nfs-kernel-server zip unzip samba gdb util-linux netcat-openbsd </dev/null
         then
             break
         fi
-        sleep 5
+        sleep 4
     done
+
     [[ -x $(which setcap) ]] || {
       echo "Failed to install setcap - AV can't run"
       exit 1
