@@ -360,9 +360,11 @@ def get_test_machines(test_inputs, parameters: tap.Parameters):
                          'centos8stream': 'centos8stream_x64_aws_server_en_us',
                          'centos9stream': 'centos9stream_x64_aws_server_en_us',
                          'amazonlinux2': 'amzlinux2_x64_server_en_us',
-                         'sles12': 'sles12_x64_sp5_aws_server_en_us',
-                         'sles15': 'sles15_x64_sp4_aws_server_en_us',
                          }
+
+    if parameters.run_sles != 'false':
+        test_environments['sles12'] = 'sles12_x64_sp5_aws_server_en_us'
+        test_environments['sles15'] = 'sles15_x64_sp4_aws_server_en_us'
 
     ret = []
     for name, image in test_environments.items():
