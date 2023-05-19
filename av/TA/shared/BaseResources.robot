@@ -95,8 +95,6 @@ Send Policy To Base
     [Arguments]  ${policyFile}  ${destName}
     Copy File  ${RESOURCES_PATH}/${policyFile}  ${MCS_PATH}/policy/${destName}
 
-
-
 Send Sav Policy To Base
     [Arguments]  ${policyFile}
     Send Policy To Base  ${policyFile}  SAV-2_policy.xml
@@ -141,6 +139,11 @@ Send CORC Policy To Base From Content
     Create File    ${SOPHOS_INSTALL}/CORC_policy.xml.TEMP    ${policyContent}
     Run Process  chmod  666  ${SOPHOS_INSTALL}/CORC_policy.xml.TEMP
     Move File  ${SOPHOS_INSTALL}/CORC_policy.xml.TEMP  ${MCS_PATH}/policy/CORC_policy.xml
+
+Send RA Action To Base
+    Register Cleanup If Unique  Empty Directory  ${MCS_PATH}/action/
+    ${savActionFilename} =  Generate Random String
+    Copy File  ${RESOURCES_PATH}/ResponseAction.json  ${MCS_PATH}/action/CORE_id1_request_2030-02-27T13:45:35.699544Z_144444000000004.json
 
 Prepare To Run Telemetry Executable
     Prepare To Run Telemetry Executable With HTTPS Protocol

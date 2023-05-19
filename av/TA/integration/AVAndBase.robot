@@ -993,6 +993,7 @@ Scheduled Scan Can Work Despite Specified Log File Being Read-Only
     check_log_does_not_contain_after_mark  ${CLOUDSCAN_LOG_PATH}  Detected "${NORMAL_DIRECTORY}/${file_name}" is infected with EICAR-AV-Test  ${scheduledscanmark}
     Wait Until AV Plugin Log Contains Detection Name And Path After Mark  ${avmark}  EICAR-AV-Test  /tmp_test/${file_name}
 
+
 AV Does Not Fall Over When OA Config Is Read Only
     [Tags]  FAULT INJECTION
 
@@ -1006,3 +1007,11 @@ AV Does Not Fall Over When OA Config Is Read Only
     Log  New permissions: ${result.stdout}
 
     Send Policies to enable on-access
+
+
+AV Plugin Doesnt Read Response Action
+    ${av_mark} =  Get AV Log Mark
+    Send RA Action To Base
+
+    check_log_does_not_contain_after_mark  ${AV_LOG_PATH}   av <> Exception encountered while parsing Action XML:  ${av_mark}
+    Wait For AV Log Contains After Mark  Ignoring policy not in XML format   ${av_mark}
