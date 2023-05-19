@@ -74,6 +74,8 @@ Telemetry Reported For Run Command Action Timeout Exceeded
 
 
 Telemetry Reported For Run Command Action Failure Not Timeout Or Expiry
+    # Exclude on SLES until LINUXDAR-7306 is fixed
+    [Tags]  EXCLUDE_SLES12
     Simulate Run Command Action Now    ${SUPPORT_FILES}/CentralXml/RunCommandAction_failure.json
     Wait Until Created    ${RESPONSE_JSON}
 
@@ -87,6 +89,8 @@ Telemetry Reported For Run Command Action Failure Not Timeout Or Expiry
 
 #Upload File Action
 Telemetry Reported For Upload File Action Expired
+    # Exclude on SLES until LINUXDAR-7306 is fixed
+    [Tags]  EXCLUDE_SLES12
     Simulate Run Command Action Now    ${SUPPORT_FILES}/CentralXml/UploadFileAction_expired.json
     Wait Until Created    ${RESPONSE_JSON}
 

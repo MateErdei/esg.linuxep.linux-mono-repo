@@ -13,3 +13,4 @@ robotframework
 watchdog
 proxy.py
 artifactory
+pubtap
