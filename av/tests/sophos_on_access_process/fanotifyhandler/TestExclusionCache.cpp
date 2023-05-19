@@ -34,7 +34,7 @@ TEST_F(TestExclusionCache, canSetExclusions)
     EXPECT_EQ(cache.m_exclusions[0].displayPath(), "/excluded/");
 }
 
-TEST_F(TestExclusionCache, canMatchExclusions)
+TEST_F(TestExclusionCache, matchesStemExclusions)
 {
     sophos_on_access_process::fanotifyhandler::ExclusionCache cache;
     std::vector<common::Exclusion> exclusions;
@@ -42,6 +42,38 @@ TEST_F(TestExclusionCache, canMatchExclusions)
     EXPECT_NO_THROW(cache.setExclusions(exclusions));
     EXPECT_TRUE(cache.checkExclusions("/excluded/foo"));
     EXPECT_FALSE(cache.checkExclusions("/included/foo"));
+}
+
+TEST_F(TestExclusionCache, matchesFullPath)
+{
+    sophos_on_access_process::fanotifyhandler::ExclusionCache cache;
+    std::vector<common::Exclusion> exclusions;
+    exclusions.emplace_back("/tmp/eicar1");
+    EXPECT_NO_THROW(cache.setExclusions(exclusions));
+    EXPECT_TRUE(cache.checkExclusions("/tmp/eicar1"));
+    EXPECT_FALSE(cache.checkExclusions("/tmp/eicar2"));
+}
+
+TEST_F(TestExclusionCache, matchesGlob)
+{
+    sophos_on_access_process::fanotifyhandler::ExclusionCache cache;
+    std::vector<common::Exclusion> exclusions;
+    exclusions.emplace_back("/tmp/e*car*");
+    EXPECT_NO_THROW(cache.setExclusions(exclusions));
+    EXPECT_TRUE(cache.checkExclusions("/tmp/eicar1"));
+    EXPECT_TRUE(cache.checkExclusions("/tmp/eicar2"));
+    EXPECT_FALSE(cache.checkExclusions("/tmp/somethingelse"));
+}
+
+TEST_F(TestExclusionCache, matchesSuffix)
+{
+    sophos_on_access_process::fanotifyhandler::ExclusionCache cache;
+    std::vector<common::Exclusion> exclusions;
+    exclusions.emplace_back("*/eicar1");
+    EXPECT_NO_THROW(cache.setExclusions(exclusions));
+    EXPECT_TRUE(cache.checkExclusions("/tmp/eicar1"));
+    EXPECT_FALSE(cache.checkExclusions("/tmp/eicar2"));
+    EXPECT_FALSE(cache.checkExclusions("/tmp/somethingelse"));
 }
 
 TEST_F(TestExclusionCache, logsRelativeGlobs)
