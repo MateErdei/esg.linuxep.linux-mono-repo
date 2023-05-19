@@ -348,9 +348,12 @@ namespace Common::FileSystem
 
     uid_t FilePermissionsImpl::getUserIdOfDirEntry(const std::string& path) const
     {
+        std::stringstream errorMessage;
+        errorMessage << "getUserIdOfDirEntry: ";
         if (!FileSystem::fileSystem()->exists(path))
         {
-            throw FileSystem::IFileSystemException("getUserIdOfDirEntry: File does not exist");
+            errorMessage << path << " does not exist";
+            throw FileSystem::IFileSystemException(errorMessage.str());
         }
         struct stat statbuf;
         // Using lstat as we want the UID of the file but do not want to follow the symlink incase this has already been
@@ -358,8 +361,7 @@ namespace Common::FileSystem
         int ret = lstat(path.c_str(), &statbuf);
         if (ret != 0)
         {
-            std::stringstream errorMessage;
-            errorMessage << "getUserIdOfDirEntry: Calling stat on " << path << " caused this error: " << std::strerror(errno);
+            errorMessage << "Calling stat on " << path << " caused this error: " << std::strerror(errno);
             throw FileSystem::IFileSystemException(errorMessage.str());
         }
         return statbuf.st_uid;
@@ -367,9 +369,12 @@ namespace Common::FileSystem
 
     gid_t FilePermissionsImpl::getGroupIdOfDirEntry(const std::string& path) const
     {
+        std::stringstream errorMessage;
+        errorMessage << "getGroupIdOfDirEntry: ";
         if (!FileSystem::fileSystem()->exists(path))
         {
-            throw FileSystem::IFileSystemException("getGroupIdOfDirEntry: File does not exist");
+            errorMessage << path << " does not exist";
+            throw FileSystem::IFileSystemException(errorMessage.str());
         }
         struct stat statbuf;
         // Using lstat as we want the GID of the file but do not want to follow the symlink incase this has already been
@@ -377,8 +382,7 @@ namespace Common::FileSystem
         int ret = lstat(path.c_str(), &statbuf);
         if (ret != 0)
         {
-            std::stringstream errorMessage;
-            errorMessage << "getGroupIdOfDirEntry: Calling stat on " << path << " caused this error: " << std::strerror(errno);
+            errorMessage << "Calling stat on " << path << " caused this error: " << std::strerror(errno);
             throw FileSystem::IFileSystemException(errorMessage.str());
         }
         return statbuf.st_gid;
