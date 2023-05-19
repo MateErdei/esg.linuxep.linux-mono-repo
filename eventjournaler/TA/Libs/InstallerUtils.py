@@ -162,6 +162,7 @@ def get_systemd_file_info():
 
 
 def initial_cleanup():
-    subprocess.call(["userdel", "sophos-spl-av"])
-    subprocess.call(["userdel", "sophos-spl-threat-detector"])
-    subprocess.call(["groupdel", "sophos-spl-group"])
+    dev_null = open("/dev/null", "wb")
+    subprocess.call(["userdel", "sophos-spl-av"], stderr=dev_null)
+    subprocess.call(["userdel", "sophos-spl-threat-detector"], stderr=dev_null)
+    subprocess.call(["groupdel", "sophos-spl-group"], stderr=dev_null)

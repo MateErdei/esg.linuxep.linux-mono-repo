@@ -29,10 +29,7 @@ Event Journal Files Are Not Deleted When Downgrading
     Should Be Equal As Integers  1  ${files.__len__()}
 
 Event Journaler Can Receive Events
-    Wait Until Keyword Succeeds
-    ...  20 secs
-    ...  1 secs
-    ...  Should Exist   ${EVENT_JOURNALER_LOG_PATH}
+    Wait Until Created    ${EVENT_JOURNALER_LOG_PATH}  timeout=20 seconds
     ${mark} =  Mark File  ${EVENT_JOURNALER_LOG_PATH}
 
     Publish Threat Event
@@ -42,37 +39,6 @@ Event Journaler Can Receive Events
     ...  5 secs
     ...  Check Journal Contains Detection Event With Content   {"threatName":"EICAR-AV-Test","threatPath":"/home/admin/eicar.com"}
     Check Journal Contains Detection Event With Content  LinuxThreat
-
-Event Journaler Restarts Subscriber After Socket Removed
-    Wait Until Keyword Succeeds
-    ...  20 secs
-    ...  1 secs
-    ...  Should Exist   ${EVENT_JOURNALER_LOG_PATH}
-    ${mark} =  Mark File  ${EVENT_JOURNALER_LOG_PATH}
-
-    Wait Until Keyword Succeeds
-    ...  20 secs
-    ...  1 secs
-    ...  Should Exist  ${SOPHOS_INSTALL}/var/ipc/events.ipc
-
-    # Delete socket file, subscriber should exit and Journaler should restart it.
-    Remove Subscriber Socket
-
-    Wait Until Keyword Succeeds
-    ...  20 secs
-    ...  1 secs
-    ...  Check Marked Event Journaler Log Contains  The subscriber socket has been unexpectedly removed   ${mark}
-
-    Wait Until Keyword Succeeds
-    ...  20 secs
-    ...  1 secs
-    ...  Check Marked Event Journaler Log Contains  Subscriber not running, restarting it   ${mark}
-
-    Wait Until Keyword Succeeds
-    ...  20 secs
-    ...  1 secs
-    ...  Check Marked Event Journaler Log Contains  Subscriber restart called   ${mark}
-
 
 Event Journaler Can Receive Events From Multiple Publishers
     [Teardown]  Custom Teardown For Tests With Publishers Running In Background
@@ -152,10 +118,7 @@ Event Journaler Can compress Files
     ${filePath} =  set Variable  ${EVENT_JOURNALER_DATA_STORE}/producer/threatEvents/threatEvents-00001-00002-12092029-10202002
     Create Journal Test File  ${filePath}
     Restart Event Journaler
-    Wait Until Keyword Succeeds
-    ...  20 secs
-    ...  1 secs
-    ...  File Should exist  ${filePath}.xz
+    Wait Until Created    ${filePath}.xz    timeout=20 seconds
     File Should not exist  ${filePath}.bin
     File Exists With Permissions  ${filepath}.xz  sophos-spl-user  sophos-spl-group  -rw-r-----
 
@@ -164,10 +127,7 @@ Event Journaler Can Remove Empty Files
     Create Binary File   ${filePath}.bin  ${EMPTY}
     Run Process  chown  sophos-spl-user:sophos-spl-group  -R  ${EVENT_JOURNALER_DATA_STORE}/
     Restart Event Journaler
-    Wait Until Keyword Succeeds
-    ...  20 secs
-    ...  1 secs
-    ...  File Should Not Exist  ${filePath}.bin
+    Wait Until Removed  ${filePath}.bin  timeout=20 seconds
     File Should Not Exist  ${filePath}.xz
 
 Event Journaler Can Fix Truncated Files
@@ -191,6 +151,31 @@ Event Journaler Can Fix Truncated Files
     ...  30 secs
     ...  5 secs
     ...  Check Journal Contains X Detection Events  2
+
+Event Journaler Restarts Subscriber After Socket Removed
+    Wait Until Created  ${EVENT_JOURNALER_LOG_PATH}  timeout=20 seconds
+    ${mark} =  Mark File  ${EVENT_JOURNALER_LOG_PATH}
+
+    Wait Until Created    ${SOPHOS_INSTALL}/var/ipc/events.ipc  timeout=20 seconds
+
+    # Delete socket file, subscriber should exit and Journaler should restart it.
+    Remove Subscriber Socket
+
+    Wait Until Keyword Succeeds
+    ...  60 secs
+    ...  5 secs
+    ...  Check Marked Event Journaler Log Contains  The subscriber socket has been unexpectedly removed   ${mark}
+
+    Wait Until Keyword Succeeds
+    ...  20 secs
+    ...  2 secs
+    ...  Check Marked Event Journaler Log Contains  Subscriber not running, restarting it   ${mark}
+
+    Wait Until Keyword Succeeds
+    ...  20 secs
+    ...  2 secs
+    ...  Check Marked Event Journaler Log Contains  Subscriber restart called   ${mark}
+
 
 *** Keywords ***
 
