@@ -1,3 +1,4 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
 import grp
 import os
 import pwd

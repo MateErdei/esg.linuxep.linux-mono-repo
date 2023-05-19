@@ -1,3 +1,4 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
 import sys
 import tap.v1 as tap
 import xml.etree.ElementTree as ET
