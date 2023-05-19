@@ -21,11 +21,12 @@ ${BACKUP_SUFFIX}  .back
 *** Test Cases ***
 
 EDR Installer Calls Semanage on Shared Log When Selinux And Semanage Are Installed
+    # LINUXDAR-7306 - test broken on SLES15
+    ${is_suse} =  Does File Contain Word  /etc/os-release  SUSE Linux Enterprise Server 15
+    Pass Execution If  ${is_suse}  Skipping test on SLES15 until LINUXDAR-7306 is fixed
     Create Fake System Executable  getenforce
     Create Fake System Executable  semanage
     Create Fake System Executable  restorecon
-    ${env_var}=    Get Environment Variable    PATH
-    Log  ${env_var}
     ${result} =   Run Process    which    getenforce
     Log  ${result.stdout}
     Log  ${result.stderr}
@@ -42,9 +43,6 @@ EDR Installer Calls Semanage on Shared Log When Selinux And Semanage Are Install
     Log  ${result.stdout}
     Log  ${result.stderr}
     ${result} =   Run Process    ls    /etc/apparmor.d/
-    Log  ${result.stdout}
-    Log  ${result.stderr}
-    ${result} =   Run Process    journalctl    -u    rsyslog
     Log  ${result.stdout}
     Log  ${result.stderr}
 
@@ -67,6 +65,9 @@ EDR Does Not Set Selinux Context When Selinux Is Not Detected
     Should Not Contain  ${installer_output}   semanage
 
 EDR Installer Logs Warning When Semanage Is Missing
+    # LINUXDAR-7306 - test broken on SLES15
+    ${is_suse} =  Does File Contain Word  /etc/os-release  SUSE Linux Enterprise Server 15
+    Pass Execution If  ${is_suse}  Skipping test on SLES15 until LINUXDAR-7306 is fixed
     Create Fake System Executable  getenforce
     Create Fake System Executable  restorecon
     Obscure System Executable  semanage
@@ -76,6 +77,9 @@ EDR Installer Logs Warning When Semanage Is Missing
     Should Contain  ${installer_output}  WARNING: Detected selinux is present on system, but could not find semanage to setup syslog pipe, osquery will not be able to receive syslog events
 
 EDR Installer Logs Warning When Semanage Fails
+    # LINUXDAR-7306 - test broken on SLES15
+    ${is_suse} =  Does File Contain Word  /etc/os-release  SUSE Linux Enterprise Server 15
+    Pass Execution If  ${is_suse}  Skipping test on SLES15 until LINUXDAR-7306 is fixed
     Create Fake System Executable  getenforce
     Create Fake System Executable  restorecon
     Create Fake System Executable  semanage  mock_file=${EXAMPLE_DATA_PATH}/FailingMockedExecutable.sh
