@@ -378,3 +378,15 @@ TEST(Exclusion, dir_suffix)
         EXPECT_FALSE(dir2.appliesToPath("/tmp/bat/foo.bat"));
     }
 }
+
+TEST(Exclusion, eicar1path)
+{
+    Exclusion ex{"/tmp/eicar1"};
+    ASSERT_EQ(ex.type(), FULLPATH);
+    CachedPath p{std::string{"/tmp/eicar1"}};
+    EXPECT_TRUE(ex.appliesToPath(p, false, true));
+    EXPECT_TRUE(ex.appliesToPath("/tmp/eicar1", false, true));
+
+    EXPECT_TRUE(ex.appliesToPath("/tmp/eicar1"));
+    EXPECT_FALSE(ex.appliesToPath("/tmp/eicar2"));
+}

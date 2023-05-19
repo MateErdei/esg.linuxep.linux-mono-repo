@@ -45,7 +45,12 @@ namespace common
 
         bool operator==(const CachedPath& rhs) const
         {
-            return path_ == rhs.path_;
+            if (string_ == rhs.string_)
+            {
+                return true;
+            }
+            // Calculate the paths if required
+            return path() == rhs.path();
         }
 
         [[nodiscard]] const char* c_str() const noexcept
