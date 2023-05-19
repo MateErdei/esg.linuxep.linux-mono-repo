@@ -3,4 +3,3 @@ pyzmq
 protobuf
 pytest-html
 datetime
-robotframework

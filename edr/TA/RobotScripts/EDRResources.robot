@@ -168,7 +168,7 @@ Install EDR Directly from SDDS
     Change All Scheduled Queries Interval  ${EDR_SDDS}/scheduled_query_pack/sophos-scheduled-query-pack.mtr.conf        ${interval}
     Remove Discovery Query From Pack  ${EDR_SDDS}/scheduled_query_pack/sophos-scheduled-query-pack.mtr.conf
     Remove Discovery Query From Pack  ${EDR_SDDS}/scheduled_query_pack_next/sophos-scheduled-query-pack.mtr.conf
-    ${result} =   Run Process  bash -x ${EDR_SDDS}/install.sh   shell=True   timeout=120s
+    ${result} =   Run Process  bash ${EDR_SDDS}/install.sh   shell=True   timeout=120s
     Should Be Equal As Integers  ${result.rc}  0   "Failed to install edr.\nstdout: \n${result.stdout}\n. stderr: \n${result.stderr}"
     [Return]  ${result.stdout}
 
