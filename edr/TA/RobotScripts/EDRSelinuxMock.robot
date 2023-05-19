@@ -35,13 +35,16 @@ EDR Installer Calls Semanage on Shared Log When Selinux And Semanage Are Install
     ${result} =   Run Process    which    restorecon
     Log  ${result.stdout}
     Log  ${result.stderr}
-    ${result} =   Run Process    systemctl  list-unit-files
+    ${result} =   Run Process    systemctl  status  rsyslog
     Log  ${result.stdout}
     Log  ${result.stderr}
     ${result} =   Run Process    systemctl  is-active  rsyslog
     Log  ${result.stdout}
     Log  ${result.stderr}
-    ${result} =   Run Process    ls  /etc/rsyslog.d/
+    ${result} =   Run Process    ls    /etc/apparmor.d/
+    Log  ${result.stdout}
+    Log  ${result.stderr}
+    ${result} =   Run Process    journalctl    -u    rsyslog
     Log  ${result.stdout}
     Log  ${result.stderr}
 
