@@ -1010,6 +1010,7 @@ AV Does Not Fall Over When OA Config Is Read Only
 
 
 AV Plugin Doesnt Read Response Action
+    [Tags]  FAULT INJECTION
     ${av_mark} =  Get AV Log Mark
     Send RA Action To Base
 
