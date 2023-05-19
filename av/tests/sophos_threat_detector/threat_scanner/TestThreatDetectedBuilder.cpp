@@ -3,8 +3,9 @@
 #include "common/MemoryAppender.h"
 #include "sophos_threat_detector/threat_scanner/ThreatDetectedBuilder.h"
 
-#include <Common/Helpers/FileSystemReplaceAndRestore.h>
-#include <Common/Helpers/MockFileSystem.h>
+#include "Common/FileSystem/IFileSystemException.h"
+#include "Common/Helpers/FileSystemReplaceAndRestore.h"
+#include "Common/Helpers/MockFileSystem.h"
 
 using namespace threat_scanner;
 using namespace common::CentralEnums;
@@ -43,6 +44,40 @@ TEST_F(TestThreatDetectedBuilder, BuildsCorrectObject)
     EXPECT_EQ(threatDetected.threatId, generateThreatId("/tmp/eicar.txt", "sha256"));
     EXPECT_EQ(threatDetected.isRemote, false);
     EXPECT_EQ(threatDetected.reportSource, ReportSource::vdl);
+}
+
+TEST_F(TestThreatDetectedBuilder, weFixShaIfSusiDidNotCalculateIt)
+{
+    EXPECT_CALL(*mockFileSystem_, calculateDigest(_, -1)).WillOnce(Return("calculatedSha256"));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::move(mockFileSystem_) };
+    auto threatDetected = buildThreatDetected(
+        { { "/tmp/eicar.txt", "EICAR-AV-Test", "virus", "000000000000000000000000000000000000000000000" } },
+        "/tmp/eicar.txt",
+        datatypes::AutoFd{},
+        "username",
+        scan_messages::E_SCAN_TYPE_ON_DEMAND);
+
+    EXPECT_EQ(threatDetected.sha256, "calculatedSha256");
+    EXPECT_EQ(threatDetected.threatSha256, "calculatedSha256");
+    EXPECT_EQ(threatDetected.threatId, generateThreatId("/tmp/eicar.txt", "calculatedSha256"));
+
+}
+
+TEST_F(TestThreatDetectedBuilder, weHandleFailureToCalculateMissingSha)
+{
+    EXPECT_CALL(*mockFileSystem_, calculateDigest(_, -1)).WillOnce(Throw(std::runtime_error("")));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{ std::move(mockFileSystem_) };
+    auto threatDetected = buildThreatDetected(
+        { { "/tmp/eicar.txt", "EICAR-AV-Test", "virus", "000000000000000000000000000000000000000000000" } },
+        "/tmp/eicar.txt",
+        datatypes::AutoFd{},
+        "username",
+        scan_messages::E_SCAN_TYPE_ON_DEMAND);
+
+    EXPECT_EQ(threatDetected.sha256, "000000000000000000000000000000000000000000000");
+    EXPECT_EQ(threatDetected.threatSha256, "000000000000000000000000000000000000000000000");
+    EXPECT_EQ(threatDetected.threatId, generateThreatId("/tmp/eicar.txt", "000000000000000000000000000000000000000000000"));
+
 }
 
 TEST_F(TestThreatDetectedBuilder, MultipleDetectionsOnePathMatchesReturnsMatchingDetection)

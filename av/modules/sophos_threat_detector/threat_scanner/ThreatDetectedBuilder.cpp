@@ -8,6 +8,7 @@
 #include "common/StringUtils.h"
 
 #include "Common/FileSystem/IFileSystem.h"
+#include "Common/FileSystem/IFileSystemException.h"
 #include "Common/UtilityImpl/Uuid.h"
 
 namespace threat_scanner
@@ -37,10 +38,32 @@ namespace threat_scanner
             {
                 LOGDEBUG("Found detection from SUSI that matches scanned path so using it: " << detection.sha256);
                 mainDetection = detection;
-                sha256 = detection.sha256;
+                // mitigates bug CORE-5155
+                if (detection.sha256 =="000000000000000000000000000000000000000000000")
+                {
+                    std::string escapedPath = common::escapePathForLogging(path);
+                    try
+                    {
+                        sha256 =
+                            Common::FileSystem::fileSystem()->calculateDigest(Common::SslImpl::Digest::sha256, autoFd.get());
+                        LOGDEBUG("Calculated the SHA256 of " << escapedPath << ": " << sha256);
+                    }
+                    catch (const std::exception& e)
+                    {
+                        LOGWARN("Failed to calculate the SHA256 of " << escapedPath << ": " << e.what());
+                        sha256 = detection.sha256;
+                    }
+                }
+                else
+                {
+                    sha256 = detection.sha256;
+                }
+
+                mainDetection.sha256 = sha256;
                 foundMainDetection = true;
                 break;
             }
+
         }
 
         if (!foundMainDetection)

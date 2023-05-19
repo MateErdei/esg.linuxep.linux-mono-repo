@@ -74,7 +74,7 @@ export TEST_UTILS=$SCRIPT_DIR
 
 bash $SCRIPT_DIR/bin/install_os_packages.sh
 bash $SCRIPT_DIR/bin/install_pip_prerequisites.sh
-python3 -m pip install -r $SCRIPT_DIR/requirements.txt
+python3 -m pip install -r $SCRIPT_DIR/awsrequirements.txt
 
 rm -f output.xml log.html report.html output1.xml output2.xml
 
