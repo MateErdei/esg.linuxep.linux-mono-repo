@@ -4,8 +4,9 @@
 
 #include "TaskQueue.h"
 
-#include <Common/PluginApi/IPluginCallbackApi.h>
-#include <modules/Heartbeat/IHeartbeat.h>
+#include "modules/Heartbeat/IHeartbeat.h"
+
+#include "Common/PluginApi/IPluginCallbackApi.h"
 
 #include <atomic>
 
