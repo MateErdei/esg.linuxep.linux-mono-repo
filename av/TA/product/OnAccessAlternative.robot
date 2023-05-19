@@ -364,14 +364,16 @@ On Access Does Not Scan Files If They Match Wildcard Exclusion In Policy
     Register Cleanup  Remove Directory  ${TEST_DIR}  recursive=True
 
     ${mark} =  get_on_access_log_mark
-    ${exclusionList} =  Set Variable  ["eicar","${TEST_DIR}/*.js","${TEST_DIR}/eicar.???","${TEST_DIR}/hi_i_am_dangerous.*"]
+    ${exclusionList} =  Set Variable  ["eicar","${TEST_DIR}/fullpath.com","${TEST_DIR}/*.js","${TEST_DIR}/eicar.???","${TEST_DIR}/hi_i_am_dangerous.*"]
     Send Complete Policies    ${exclusionList}
     wait for on access log contains after mark  On-access exclusions: ${exclusionList}  mark=${mark}
-    wait for on access log contains after mark  Updating on-access exclusions with: ["/eicar"] ["${TEST_DIR}/*.js"] ["${TEST_DIR}/eicar.???"] ["${TEST_DIR}/hi_i_am_dangerous.*"]  mark=${mark}
+    wait for on access log contains after mark  Updating on-access exclusions with: ["${TEST_DIR}/fullpath.com"] ["/eicar"] ["${TEST_DIR}/*.js"] ["${TEST_DIR}/eicar.???"] ["${TEST_DIR}/hi_i_am_dangerous.*"]  mark=${mark}
 
     ${mark} =  get_on_access_log_mark
     Create File     ${TEST_DIR}/clean_file.txt             ${CLEAN_STRING}
     Create File     ${TEST_DIR}/eicar                      ${EICAR_STRING}
+    # Full path
+    Create File     ${TEST_DIR}/fullpath.com               ${EICAR_STRING}
     #Absolute path with character suffix
     Create File     ${TEST_DIR}/eicar.com                  ${EICAR_STRING}
     Create File     ${TEST_DIR}/eicar.comm                 ${CLEAN_STRING}
@@ -386,6 +388,7 @@ On Access Does Not Scan Files If They Match Wildcard Exclusion In Policy
     Create File     ${TEST_DIR}/clean_file.jss             ${CLEAN_STRING}
     wait for on access log contains after mark  On-close event for ${TEST_DIR}/clean_file.txt  mark=${mark}
     wait for on access log contains after mark  File access on ${TEST_DIR}/eicar will not be scanned due to exclusion: eicar  mark=${mark}
+    wait for on access log contains after mark  File access on ${TEST_DIR}/fullpath.com will not be scanned due to exclusion: ${TEST_DIR}/fullpath.com  mark=${mark}
     wait for on access log contains after mark  File access on ${TEST_DIR}/eicar.com will not be scanned due to exclusion: ${TEST_DIR}/eicar.???  mark=${mark}
     wait for on access log contains after mark  On-close event for ${TEST_DIR}/eicar.comm  mark=${mark}
     wait for on access log contains after mark  On-close event for ${TEST_DIR}/eicar.co  mark=${mark}
