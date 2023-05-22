@@ -10,6 +10,8 @@ Copyright 2018-2020, Sophos Limited.  All rights reserved.
 #include "Logger.h"
 #include "QueryRunnerImpl.h"
 
+#define SECONDS_UNTIL_SIGKILL 3
+
 namespace
 {
     const char * QueryName = "name"; 
@@ -40,7 +42,7 @@ namespace queryrunner{
                 Common::Process::ProcessStatus processStatus = this->m_process->wait(std::chrono::minutes (QUERY_TIMEOUT_MINS), 1);
                 if (processStatus != Common::Process::ProcessStatus::FINISHED)
                 {
-                    this->m_process->kill();
+                    this->m_process->kill(SECONDS_UNTIL_SIGKILL);
                     LOGWARN("Live query process was stopped due to a timeout after "
                              << QUERY_TIMEOUT_MINS << " mins, correlation ID: " << correlationid);
                 }
@@ -150,7 +152,7 @@ namespace queryrunner{
 
     void QueryRunnerImpl::requestAbort()
     {
-        m_process->kill(); 
+        m_process->kill(SECONDS_UNTIL_SIGKILL);
     };
 
     std::unique_ptr<IQueryRunner> QueryRunnerImpl::clone()

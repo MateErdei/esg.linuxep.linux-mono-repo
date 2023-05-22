@@ -51,8 +51,11 @@ namespace Plugin
 
     void PluginCallback::queueActionWithCorrelation(const std::string& queryJson, const std::string& correlationId)
     {
-        LOGSUPPORT("Receive new query");
-        m_task->push(Task { Task::TaskType::QUERY, queryJson, correlationId });
+        if (m_running && m_osqueryShouldBeRunning)
+        {
+            LOGSUPPORT("Receive new query");
+            m_task->push(Task { Task::TaskType::QUERY, queryJson, correlationId });
+        }
     }
 
     void PluginCallback::onShutdown()

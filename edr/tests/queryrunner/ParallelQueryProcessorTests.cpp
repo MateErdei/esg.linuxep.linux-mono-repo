@@ -85,7 +85,7 @@ TEST_F(ParallelQueryProcessorTests, addJob) // NOLINT
     }
     // whenever parallel is destroyed, all the jobs will have been finished.
     int value = *counter;
-    EXPECT_EQ(value, 2);
+    EXPECT_EQ(value, 0);
 }
 
 TEST_F(ParallelQueryProcessorTests, jobsAreClearedAsPossible) // NOLINT

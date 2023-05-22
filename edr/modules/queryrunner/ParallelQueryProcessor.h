@@ -21,7 +21,8 @@ namespace queryrunner
         ParallelQueryProcessor(std::unique_ptr<queryrunner::IQueryRunner> );
         ~ParallelQueryProcessor();
         void addJob( const std::string& queryJson, const std::string & correlationId);
-        void newJobDone(std::string id); 
+        void newJobDone(std::string id);
+        void abortQueries();
 
     private:
         void cleanupListOfJobs(); 
@@ -29,7 +30,8 @@ namespace queryrunner
         queryrunner::Telemetry m_telemetry; 
         std::list<std::unique_ptr<queryrunner::IQueryRunner>> m_processingQueries;
         std::list<std::unique_ptr<queryrunner::IQueryRunner>> m_processedQueries;
-        std::mutex m_mutex; 
+        std::mutex m_mutex;
+        bool m_shuttingDown = false;
     };
 
 } // namespace queryrunner
