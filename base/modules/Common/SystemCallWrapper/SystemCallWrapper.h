@@ -178,5 +178,10 @@ namespace Common::SystemCallWrapper
         {
             return ::setpriority(which, who, prio);
         }
+
+        int lstat(const char* path, struct stat* buf) override
+        {
+            return ::lstat(path, buf);
+        }
     };
 }

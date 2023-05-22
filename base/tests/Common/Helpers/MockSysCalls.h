@@ -68,6 +68,7 @@ namespace
         MOCK_METHOD(unsigned int, hardware_concurrency, ());
         MOCK_METHOD(void, _exit, (int __status));
         MOCK_METHOD(int, setpriority, (int, int,int), (override));
+        MOCK_METHOD(int, lstat, (const char *__file, struct ::stat *__buf));
     };
 }
 
@@ -84,4 +85,6 @@ ACTION_P(fstatReturnsDeviceAndInode, device, inode) {
     arg1->st_ino = inode;
     return 0;
 }
+ACTION_P(lstatReturnsGid, gid) {arg1->st_gid = gid; return 0;}
+ACTION_P(lstatReturnsUid, uid) {arg1->st_uid = uid; return 0;}
 ACTION(fstatInodeEqualsFd) { arg1->st_ino = arg0; return 0; }
