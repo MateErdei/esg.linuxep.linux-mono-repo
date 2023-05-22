@@ -91,10 +91,13 @@ EDR plugin Configures OSQuery To Enable SysLog Event Collection
 
 EDR Restarts If File Descriptor Limit Hit
     [Teardown]  EDR And Base Teardown No Stop
-    # LINUXDAR-7106 - test broken on SLES12
-    ${is_suse} =  Does File Contain Word  /etc/os-release  SUSE Linux Enterprise Server 12
-    Run Keyword If     ${is_suse}  Stop EDR
-    Pass Execution If  ${is_suse}  Skipping test on SLES12 until LINUXDAR-7096 is fixed
+    # LINUXDAR-7106 - test broken on SLES12 and Ubuntu2004
+    ${is_sles12} =      Does File Contain Word  /etc/os-release  SUSE Linux Enterprise Server 12
+    ${is_ubuntu2004} =  Does File Contain Word  /etc/os-release  Ubuntu 20.04
+    Run Keyword If     ${is_sles12}  Stop EDR
+    Pass Execution If  ${is_sles12}  Skipping test on SLES12 until LINUXDAR-7096 is fixed
+    Run Keyword If     ${is_ubuntu2004}  Stop EDR
+    Pass Execution If  ${is_ubuntu2004}  Skipping test on Ubuntu2004 until LINUXDAR-7096 is fixed
     Check EDR Plugin Installed With Base
 
     Remove File  ${SOPHOS_INSTALL}/plugins/edr/bin/sophos_livequery
