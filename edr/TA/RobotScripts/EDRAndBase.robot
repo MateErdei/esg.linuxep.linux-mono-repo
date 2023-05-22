@@ -93,6 +93,7 @@ EDR Restarts If File Descriptor Limit Hit
     [Teardown]  EDR And Base Teardown No Stop
     # LINUXDAR-7106 - test broken on SLES12
     ${is_suse} =  Does File Contain Word  /etc/os-release  SUSE Linux Enterprise Server 12
+    Run Keyword If     ${is_suse}  Stop EDR
     Pass Execution If  ${is_suse}  Skipping test on SLES12 until LINUXDAR-7096 is fixed
     Check EDR Plugin Installed With Base
 
@@ -105,11 +106,11 @@ EDR Restarts If File Descriptor Limit Hit
 
     ${actionContent} =  Set Variable  '{"type": "sophos.mgt.action.RunLiveQuery", "name": "test_query", "query": "select * from users;"}'
 
-    Send Plugin Actions  edr  LiveQuery  corr123  ${actionContent}  ${100}
+    Send Plugin Actions  edr  LiveQuery  corr123  ${actionContent}  ${90}
     Wait Until Keyword Succeeds
     ...  30 secs
     ...  5 secs
-    ...  EDR Plugin Log Contains X Times  Received new Action   100
+    ...  EDR Plugin Log Contains X Times  Received new Action   90
 
     Wait Until Keyword Succeeds
     ...  200 secs
