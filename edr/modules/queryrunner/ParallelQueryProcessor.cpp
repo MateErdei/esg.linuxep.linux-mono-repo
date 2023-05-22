@@ -125,7 +125,7 @@ namespace queryrunner{
                 std::lock_guard<std::mutex> l{m_mutex};
                 if (!m_processingQueries.empty())
                 {
-                    LOGERROR("Should not have any further queries to process.");
+                    LOGDEBUG("Should not have any further queries to process.");
                 }
                 m_processedQueries.clear();
             }
