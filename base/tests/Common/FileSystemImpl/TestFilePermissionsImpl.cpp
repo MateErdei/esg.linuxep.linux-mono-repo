@@ -1,10 +1,15 @@
 // Copyright 2018-2023 Sophos Limited. All rights reserved.
 
+#include "Common/FileSystemImpl/FilePermissionsImpl.h"
 #include <Common/FileSystem/IFilePermissions.h>
 #include <Common/FileSystem/IFileSystemException.h>
 
+#include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
+#include "tests/Common/Helpers/MockFileSystem.h"
+#include "tests/Common/Helpers/MockSysCalls.h"
+#include "tests/Common/Helpers/TempDir.h"
+
 #include <gtest/gtest.h>
-#include <tests/Common/Helpers/TempDir.h>
 
 #include <grp.h>
 #include <pwd.h>
@@ -191,4 +196,66 @@ namespace
         }
     }
 
+    TEST(FilePermissionsImpl, getUserIdOfDirEntry_pathDoesntExist)
+    {
+        const std::string path = "/testpath/";
+        const std::string expectedMsg = "getUserIdOfDirEntry: " + path + " does not exist";
+        auto mockFileSystem =  std::make_unique<StrictMock<MockFileSystem>>();
+        auto filePermissions = Common::FileSystem::filePermissions();
+
+        EXPECT_CALL(*mockFileSystem, exists(_)).WillOnce(Return(false));
+        Tests::replaceFileSystem(std::move(mockFileSystem));
+
+        try
+        {
+            filePermissions->getUserIdOfDirEntry(path);
+            FAIL() << "Expected exception if path doesnt exist";
+        }
+        catch (const IFileSystemException& ex)
+        {
+            EXPECT_STREQ(ex.what(), expectedMsg.c_str());
+        }
+    }
+
+
+    TEST(FilePermissionsImpl, getUserIdOfDirEntry_lstatFails)
+    {
+        const std::string path = "/testpath/";
+        const std::string expectedMsg = "getUserIdOfDirEntry: Calling stat on " + path + " caused this error: No such file or directory" ;
+        auto mockFileSystem =  std::make_unique<StrictMock<MockFileSystem>>();
+        auto mockSysCalls = std::make_shared<StrictMock<MockSystemCallWrapper>>();
+
+        EXPECT_CALL(*mockSysCalls, lstat(_,_)).WillOnce(Return(ENOENT));
+        EXPECT_CALL(*mockFileSystem, exists(_)).WillOnce(Return(true));
+        Tests::replaceFileSystem(std::move(mockFileSystem));
+
+        auto filePermissions = Common::FileSystem::FilePermissionsImpl(mockSysCalls);
+
+        try
+        {
+            filePermissions.getUserIdOfDirEntry(path);
+            FAIL() << "Expected exception if lstat returns error doesnt exist";
+        }
+        catch (const IFileSystemException& ex)
+        {
+            EXPECT_STREQ(ex.what(), expectedMsg.c_str());
+        }
+    }
+
+    TEST(FilePermissionsImpl, getUserIdOfDirEntry_Returns_Uid)
+    {
+        const std::string path = "/testpath/";
+        const int expectedUid = 101;
+        auto mockFileSystem =  std::make_unique<StrictMock<MockFileSystem>>();
+        auto mockSysCalls = std::make_shared<StrictMock<MockSystemCallWrapper>>();
+
+        EXPECT_CALL(*mockSysCalls, lstat(_,_)).WillOnce(lstatReturnsUid(expectedUid));
+        EXPECT_CALL(*mockFileSystem, exists(_)).WillOnce(Return(true));
+        Tests::replaceFileSystem(std::move(mockFileSystem));
+
+        auto filePermissions = Common::FileSystem::FilePermissionsImpl(mockSysCalls);
+
+        uid_t uid = filePermissions.getUserIdOfDirEntry(path);
+        EXPECT_EQ(uid, expectedUid);
+    }
 } // namespace
