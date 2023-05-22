@@ -68,7 +68,6 @@ namespace queryrunner{
     {
         if (!m_shuttingDown)
         {
-            LOGINFO(">>> !m_shuttingDown");
             try
             {
                 auto newproc = m_queryProcessor->clone();
@@ -80,10 +79,6 @@ namespace queryrunner{
             {
                 LOGERROR("Failed to configure a new query: " << ex.what());
             }
-        }
-        else
-        {
-            LOGINFO(">>> m_shuttingDown");
         }
     }
 

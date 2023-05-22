@@ -167,7 +167,7 @@ namespace Plugin
             m_parallelQueryProcessor.abortQueries();
             m_callback->setRunning(false);
             m_callback->setOsqueryShouldBeRunning(false);
-            clearQueue();
+            m_queueTask->clearQueue();
         }
     }
 
@@ -498,11 +498,6 @@ namespace Plugin
         }
     }
 
-    void PluginAdapter::clearQueue()
-    {
-        m_queueTask->clearQueue();
-    }
-
     void PluginAdapter::stopOsquery()
     {
         try
@@ -554,7 +549,7 @@ namespace Plugin
             std::cerr << "Plugin adapter exception: " << ex.what() << std::endl;
         }
         // safe to clean up.
-        clearQueue();
+        m_queueTask->clearQueue();
         Common::Telemetry::TelemetryHelper::getInstance().unregisterResetCallback(TELEMETRY_CALLBACK_COOKIE);
     }
 
