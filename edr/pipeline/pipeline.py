@@ -279,6 +279,8 @@ def edr_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Pa
              tap.Machine('sles12_x64_sp5_aws_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)),
             ("sles15",
              tap.Machine('sles15_x64_sp4_aws_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)),
+            ("oracle8",
+             tap.Machine('oracle87_x64_aws_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)),
             # add other distros here
         )
 
