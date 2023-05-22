@@ -109,17 +109,17 @@ EDR Restarts If File Descriptor Limit Hit
     Send Plugin Actions  edr  LiveQuery  corr123  ${actionContent}  ${100}
     Wait Until Keyword Succeeds
     ...  60 secs
-    ...  1 secs
+    ...  5 secs
     ...  EDR Plugin Log Contains X Times   Early request to stop found.  1
 
     Wait Until Keyword Succeeds
     ...  240 secs
-    ...  1 secs
+    ...  20 secs
     ...  Check EDR Executable Not Running
 
     Wait Until Keyword Succeeds
     ...  30 secs
-    ...  1 secs
+    ...  2 secs
     ...  EDR Plugin Log Contains X Times  Received new Action   100
 
 
