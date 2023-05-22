@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><package name="sspl-plugin-anti-virus" version="1.1.0">
+<?xml version="1.0" encoding="utf-8"?><package name="sspl-plugin-anti-virus" version="1.1.1">
     <versioning>
         <workingdir>./products/distribution/include/AutoVersioningHeaders</workingdir>
     </versioning>
