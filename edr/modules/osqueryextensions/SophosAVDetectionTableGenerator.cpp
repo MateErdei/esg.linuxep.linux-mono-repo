@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2021 Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2021-2023 Sophos Limited. All rights reserved.
 
 #include "SophosAVDetectionTableGenerator.h"
 
@@ -27,8 +23,9 @@ namespace OsquerySDK
         std::string queryId = getQueryId(queryContext);
 
         ConstraintHelpers timeConstraintHelpers;
-        std::pair<uint64_t , uint64_t> queryTimeConstraints = timeConstraintHelpers.GetTimeConstraints(queryContext);
-
+        auto [start, end] =  timeConstraintHelpers.GetTimeConstraints(queryContext);
+        LOGDEBUG("Constraint - start: " << start);
+        LOGDEBUG("Constraint - end: " << end);
         std::string installPath = Common::ApplicationConfiguration::applicationPathManager().sophosInstall();
         std::string jrlFilePath = Common::FileSystem::join(installPath, "plugins/edr/var/jrl", queryId);
         std::string jrlAttemptFilePath = Common::FileSystem::join(installPath, "plugins/edr/var/jrl_tracker", queryId);
@@ -49,7 +46,7 @@ namespace OsquerySDK
         }
         else
         {
-            entries = journalReader->getEntries(subjectFilter, queryTimeConstraints.first, queryTimeConstraints.second, MAX_MEMORY_THRESHOLD, moreEntriesAvailable);
+            entries = journalReader->getEntries(subjectFilter, start, end, MAX_MEMORY_THRESHOLD, moreEntriesAvailable);
         }
 
         if (moreEntriesAvailable)
@@ -70,7 +67,7 @@ namespace OsquerySDK
             }
             else
             {
-                journalReader->updateJRLAttempts(jrlAttemptFilePath,attempts);
+                journalReader->updateJRLAttempts(jrlAttemptFilePath, attempts);
             }
         }
         else if (!queryId.empty())

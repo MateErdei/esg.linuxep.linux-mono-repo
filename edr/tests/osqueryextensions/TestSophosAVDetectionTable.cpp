@@ -6,6 +6,8 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 #include "MockJournalReaderWrapper.h"
 #include "MockQueryContext.h"
 
+#include "osqueryextensions/SophosAVDetectionTable.h"
+
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <Common/Helpers/LogInitializedTests.h>
 #include <Common/Helpers/TempDir.h>
@@ -256,7 +258,7 @@ public:
         return R"({"path":"/bin/bash","primary":true,"sha256":"","spid":"0ca01a43-6f53-4b09-bce0-1d9922262eaa-1467-5681","type":1})";
     }
 
-    static const uint32_t EXPECTED_MAX_MEMORY_THRESHOLD = 10000000;
+    static const uint32_t EXPECTED_MAX_MEMORY_THRESHOLD = 50000000;
 };
 
 TEST_F(TestSophosAVDetectionTable, testTableGenerationCreatesDataCorrectlyWithNoEventJournalFilesWillReturnEmptyTableCorrectly)

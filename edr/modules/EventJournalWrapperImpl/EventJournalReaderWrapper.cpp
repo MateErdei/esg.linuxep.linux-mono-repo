@@ -1,8 +1,5 @@
-/***********************************************************************************************
+// Copyright 2021-2023 Sophos Limited. All rights reserved.
 
-Copyright 2021 Sophos Limited. All rights reserved.
-
-***********************************************************************************************/
 #include "EventJournalReaderWrapper.h"
 #include "EventJournalTimeUtils.h"
 #include "Logger.h"
@@ -212,10 +209,8 @@ namespace Common
                 LOGDEBUG("No entries found");
                 return entries;
             }
-            uint32_t limit = maxMemoryThreshold / entrySize;
-            LOGDEBUG("Limit set to " << limit << " entries of " << entrySize << " bytes each");
-
-            uint32_t count = 0;
+            uint64_t sizeRead = 0;
+            uint64_t count = 0;
             bool more = false;
             for (auto it = view->cbegin(); it != view->cend(); ++it)
             {
@@ -224,9 +219,11 @@ namespace Common
                 {
                     continue;
                 }
-                if (limit && (count >= limit))
+
+                sizeRead += entry->GetDataSize();
+                if (sizeRead > maxMemoryThreshold)
                 {
-                    LOGDEBUG("Reached limit of " << limit << " entries");
+                    LOGDEBUG("Reached journal read limit of " << maxMemoryThreshold/1000 << "kB after " << count << " records");
                     more = true;
                     break;
                 }
@@ -239,7 +236,7 @@ namespace Common
                 memcpy(e.data.data(), entry->GetData(), entry->GetDataSize());
                 entries.push_back(e);
 
-                count += entrySize;
+                count++;
             }
             moreAvailable = more;
             return entries;

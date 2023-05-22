@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2021, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2021-2023 Sophos Limited. All rights reserved.
 
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/FileSystem/IFileSystemException.h>
@@ -370,4 +366,154 @@ TEST_F(TestEventJournalReaderWrapper, ClearJRLFileLogsWarnOnFileSystemException)
 
     std::string logMessage = testing::internal::GetCapturedStderr();
     EXPECT_THAT(logMessage, ::testing::HasSubstr("Failed to remove file not_a_filepath with error: Test exception"));
+}
+
+TEST_F(TestEventJournalReaderWrapper, getEntriesCanReadMultipleLongRecords)
+{
+    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
+    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>{ mockFileSystem });
+    Common::Logging::ConsoleLoggingSetup consoleLogger;
+    testing::internal::CaptureStderr();
+
+    const int size = 9000;
+    std::shared_ptr<MockJournalHelperInterface> mockJournalHelperPtr  = std::make_shared<MockJournalHelperInterface>();
+    std::shared_ptr<MockJournalViewInterface> mockJournalViewPtr = std::make_shared<MockJournalViewInterface>();
+    testing::Mock::AllowLeak(&(*mockJournalHelperPtr));
+    EXPECT_CALL(*mockJournalHelperPtr, GetJournalView(_,_,_)).WillOnce(Return(mockJournalViewPtr));
+
+    std::shared_ptr<MockJournalEntryInterface> mockJournalEntryInterface = std::make_shared<MockJournalEntryInterface>();
+    std::vector<std::byte> bytes(size, std::byte{0x33});
+    EXPECT_CALL(*mockJournalEntryInterface, GetDataSize()).WillRepeatedly(Return(size));
+    EXPECT_CALL(*mockJournalEntryInterface, GetData()).WillRepeatedly(Return(bytes.data()));
+
+    std::shared_ptr<MockImplementationInterface> beginImplInterface = std::make_shared<MockImplementationInterface>();
+    testing::Mock::AllowLeak(&(*beginImplInterface));
+    std::shared_ptr<MockImplementationInterface> endInterface = std::make_shared<MockImplementationInterface>();
+    testing::Mock::AllowLeak(&(*endInterface));
+
+    EXPECT_CALL(*beginImplInterface, Equals())
+        .WillOnce(Return(false))
+        .WillOnce(Return(false))
+        .WillOnce(Return(false))
+        .WillOnce(Return(false))
+        .WillOnce(Return(false))
+        .WillRepeatedly(Return(true));
+
+    EXPECT_CALL(*endInterface, Equals())
+        .WillOnce(Return(false))
+        .WillOnce(Return(false))
+        .WillOnce(Return(false))
+        .WillOnce(Return(false))
+        .WillOnce(Return(false))
+        .WillRepeatedly(Return(true));
+
+    EXPECT_CALL(*beginImplInterface, Copy()).WillRepeatedly(Return(beginImplInterface));
+    EXPECT_CALL(*endInterface, Copy()).WillRepeatedly(Return(endInterface));
+
+    std::shared_ptr<Sophos::Journal::ViewInterface::EntryInterface> sharedPtrToEntryInterfaceMock = mockJournalEntryInterface;
+    EXPECT_CALL(*beginImplInterface, Dereference()).WillRepeatedly(ReturnRef(sharedPtrToEntryInterfaceMock));
+    MockJournalViewInterface::ConstIterator journalIterator(beginImplInterface);
+
+    EXPECT_CALL(*beginImplInterface, PrefixIncrement())
+        .WillOnce(ReturnRef(*beginImplInterface))
+        .WillOnce(ReturnRef(*beginImplInterface))
+        .WillOnce(ReturnRef(*beginImplInterface))
+        .WillOnce(ReturnRef(*beginImplInterface))
+        .WillOnce(ReturnRef(*endInterface));
+
+    EXPECT_CALL(*mockJournalViewPtr, cbegin()).WillRepeatedly(Return(journalIterator));
+    EXPECT_CALL(*mockJournalViewPtr, cend()).WillRepeatedly(Return(journalIterator));
+
+    FILETIME ftime{};
+    EXPECT_CALL(*mockJournalEntryInterface, GetProducerUniqueId()).WillRepeatedly(Return(1111));
+    EXPECT_CALL(*mockJournalEntryInterface, GetTimestamp()).WillRepeatedly(Return(ftime));
+    EXPECT_CALL(*beginImplInterface, GetJournalResourceLocator()).WillRepeatedly(Return("jrl"));
+
+    Sophos::Journal::Subjects sub;
+    Sophos::Journal::JRL jrl;
+    auto testReader = new Common::EventJournalWrapper::Reader(mockJournalHelperPtr);
+
+    std::vector<Common::EventJournalWrapper::Subject> subjectFilter = {Common::EventJournalWrapper::Subject::Detections};
+    uint64_t startTime = 0;
+    uint64_t endTime = 10000;
+    uint32_t maxMemoryThreshold = 10000000;
+    bool moreAvailable = false;
+    auto results = testReader->getEntries(subjectFilter, startTime, endTime, maxMemoryThreshold, moreAvailable);
+    ASSERT_EQ(results.size(), 5);
+    ASSERT_FALSE(moreAvailable);
+}
+
+TEST_F(TestEventJournalReaderWrapper, getEntriesStopsReadingAfterHittingMemoryLimit)
+{
+    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
+    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>{ mockFileSystem });
+    Common::Logging::ConsoleLoggingSetup consoleLogger;
+    testing::internal::CaptureStderr();
+
+    const int size = 9000;
+    std::shared_ptr<MockJournalHelperInterface> mockJournalHelperPtr  = std::make_shared<MockJournalHelperInterface>();
+    std::shared_ptr<MockJournalViewInterface> mockJournalViewPtr = std::make_shared<MockJournalViewInterface>();
+    testing::Mock::AllowLeak(&(*mockJournalHelperPtr));
+    EXPECT_CALL(*mockJournalHelperPtr, GetJournalView(_,_,_)).WillOnce(Return(mockJournalViewPtr));
+
+    std::shared_ptr<MockJournalEntryInterface> mockJournalEntryInterface = std::make_shared<MockJournalEntryInterface>();
+    std::vector<std::byte> bytes(size, std::byte{0x33});
+    EXPECT_CALL(*mockJournalEntryInterface, GetDataSize()).WillRepeatedly(Return(size));
+    EXPECT_CALL(*mockJournalEntryInterface, GetData()).WillRepeatedly(Return(bytes.data()));
+
+    std::shared_ptr<MockImplementationInterface> beginImplInterface = std::make_shared<MockImplementationInterface>();
+    testing::Mock::AllowLeak(&(*beginImplInterface));
+    std::shared_ptr<MockImplementationInterface> endInterface = std::make_shared<MockImplementationInterface>();
+    testing::Mock::AllowLeak(&(*endInterface));
+
+    EXPECT_CALL(*beginImplInterface, Equals())
+        .WillOnce(Return(false))
+        .WillOnce(Return(false))
+        .WillOnce(Return(false))
+        .WillOnce(Return(false))
+        .WillOnce(Return(false))
+        .WillRepeatedly(Return(true));
+
+    EXPECT_CALL(*endInterface, Equals())
+        .WillOnce(Return(false))
+        .WillOnce(Return(false))
+        .WillOnce(Return(false))
+        .WillOnce(Return(false))
+        .WillOnce(Return(false))
+        .WillRepeatedly(Return(true));
+
+    EXPECT_CALL(*beginImplInterface, Copy()).WillRepeatedly(Return(beginImplInterface));
+    EXPECT_CALL(*endInterface, Copy()).WillRepeatedly(Return(endInterface));
+
+    std::shared_ptr<Sophos::Journal::ViewInterface::EntryInterface> sharedPtrToEntryInterfaceMock = mockJournalEntryInterface;
+    EXPECT_CALL(*beginImplInterface, Dereference()).WillRepeatedly(ReturnRef(sharedPtrToEntryInterfaceMock));
+    MockJournalViewInterface::ConstIterator journalIterator(beginImplInterface);
+
+    EXPECT_CALL(*beginImplInterface, PrefixIncrement())
+        .WillOnce(ReturnRef(*beginImplInterface))
+        .WillOnce(ReturnRef(*beginImplInterface))
+        .WillOnce(ReturnRef(*beginImplInterface))
+        .WillOnce(ReturnRef(*beginImplInterface))
+        .WillOnce(ReturnRef(*endInterface));
+
+    EXPECT_CALL(*mockJournalViewPtr, cbegin()).WillRepeatedly(Return(journalIterator));
+    EXPECT_CALL(*mockJournalViewPtr, cend()).WillRepeatedly(Return(journalIterator));
+
+    FILETIME ftime{};
+    EXPECT_CALL(*mockJournalEntryInterface, GetProducerUniqueId()).WillRepeatedly(Return(1111));
+    EXPECT_CALL(*mockJournalEntryInterface, GetTimestamp()).WillRepeatedly(Return(ftime));
+    EXPECT_CALL(*beginImplInterface, GetJournalResourceLocator()).WillRepeatedly(Return("jrl"));
+
+    Sophos::Journal::Subjects sub;
+    Sophos::Journal::JRL jrl;
+    auto testReader = new Common::EventJournalWrapper::Reader(mockJournalHelperPtr);
+
+    std::vector<Common::EventJournalWrapper::Subject> subjectFilter = {Common::EventJournalWrapper::Subject::Detections};
+    uint64_t startTime = 0;
+    uint64_t endTime = 10000;
+    uint32_t maxMemoryThreshold = size * 2;
+    bool moreAvailable = false;
+    auto results = testReader->getEntries(subjectFilter, startTime, endTime, maxMemoryThreshold, moreAvailable);
+    ASSERT_EQ(results.size(), 2);
+    ASSERT_TRUE(moreAvailable);
 }
