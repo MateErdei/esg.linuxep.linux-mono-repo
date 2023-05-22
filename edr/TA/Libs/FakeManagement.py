@@ -44,7 +44,11 @@ class ManagementAgentPluginRequester(object):
         message.correlationId = correlation
         self.send_message(message)
 
-        raw_response = self.__m_socket.recv()
+        try:
+            raw_response = self.__m_socket.recv()
+        except zmq.error.Again as e:
+            self.logger.error(str(e))
+            return ""
         response = deserialise_message(raw_response)
         if response.acknowledge:
             return Messages.ACK.value
