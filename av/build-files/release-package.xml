@@ -15,7 +15,7 @@
             <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="input/base-sdds"/>
         </build-asset>
         <build-asset project="core" repo="safestore">
-            <release-version branch="release/2023.w16" build-id="20230424153302-6b0702e543d78fa36f74c1a2abde608b42a75bac-7qBBWo"/>
+            <release-version branch="release/2.2" build-id="20230517150224-b8f6ceae5bd9fa1b35d6ada337b6ac0361d51602-eA6afi"/>
             <development-version branch="develop"/>
             <include artifact-path="release/linux-x64/safestore" dest-dir="input/safestore_input"/>
         </build-asset>
@@ -52,6 +52,11 @@
         <build-asset project="core" repo="engine">
             <release-version branch="release--3.88.0" build-id="20230320160722-a481e941b0f624d1ea4bc8fb93388a8c4af7497f-6vFbb2"/>
             <include artifact-path="libsavi_linux64_release_gcc4-9-4glibc2-3-2" dest-dir="input/susi_input/libsavi"/>
+        </build-asset>
+
+        <!-- Once a new engine build is released, this block should be merged with the above -->
+        <build-asset project="core" repo="engine">
+            <release-version branch="release/sophtainer-1.6.1" build-id="20230516124421-ef8a1e891d8b0f0d14a66f5bb6edbeeffd7213d9-uJpaAr"/>
             <include artifact-path="sophtainer_linux64_release_gcc4-9-4glibc2-3-4" dest-dir="input/susi_input/libsophtainer"/>
         </build-asset>
 
@@ -61,7 +66,7 @@
         </build-asset>
 
         <build-asset project="core" repo="susi">
-            <release-version branch="release/2023.w19" build-id="20230508141443-9f15708a54bd6f771df9045b9cc615f1b70915e7-5dn40H"/>
+            <release-version branch="release/2.3" build-id="20230516162702-8c64c09abddf3fceedcc1d384902f20d4f762bec-5kNL5w"/>
             <include artifact-path="release/linux/libsusi" dest-dir="input/susi_input/susi/lib"/>
             <include artifact-path="release/linux/interface" dest-dir="input/susi_input/susi/include"/>
             <include artifact-path="release/linux/updater" dest-dir="input/susi_input/susi/lib"/>
@@ -69,7 +74,7 @@
         </build-asset>
 
         <build-asset project="core" repo="httpsrequester">
-            <release-version branch="release/1.3" build-id="20230330091640-2458611e3e99080c919415653586a6428aad506a-bF3U6a"/>
+            <release-version branch="release/1.4" build-id="20230512110311-c42758a591d19a829372de5e81aa5c22f7346a2c-5vbuQ6"/>
             <include artifact-path="release/linux/libglobalrep" dest-dir="input/susi_input/gr/lib"/>
         </build-asset>
 
@@ -94,9 +99,9 @@
             <include artifact-path="linux-x64/lib" dest-dir="input/susi_input/boost"/>
         </build-asset>
 
-        <build-asset project="thirdparty" repo="openssl">
-            <release-version branch="release--sophos--susi--1.1.1n" build-id="20220405102536-9699d5a9fc0e21e05bb42046076af371eb94a7ef-jw9CRv"/>
-            <include artifact-path="openssl-linux-x64" dest-dir="input/susi_input/openssl/lib"/>
+        <build-asset project="thirdparty" repo="all">
+            <release-version branch="release--2023.13" build-id="20230310172501-e459dfc33a663c014e4f901561e1e8190740fae8-kP30VN"/>
+            <include artifact-path="openssl_3/openssl_linux64_gcc4-9-4glibc2-3-4" dest-dir="input/susi_input/openssl/lib" />
         </build-asset>
 
         <trusted-asset artifact-path="org.cmake/cmake-3.26.0/cmake-3.26.0" dest-dir="input/cmake"/>
