@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><package name="sspl-event-journaler-plugin" version="1.0.4">
+<?xml version="1.0" encoding="utf-8"?><package name="sspl-event-journaler-plugin" version="1.0.5">
     <versioning>
         <workingdir>./products/distribution/include/AutoVersioningHeaders</workingdir>
     </versioning>
