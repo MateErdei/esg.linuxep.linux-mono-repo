@@ -6,23 +6,37 @@
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/FileSystem/IFileSystemException.h>
 #include <Common/FileSystem/IPermissionDeniedException.h>
+#include <Common/SystemCallWrapper/SystemCallWrapper.h>
 #include <Common/UtilityImpl/ProjectNames.h>
 #include <Common/UtilityImpl/StrError.h>
 #include <Common/UtilityImpl/UniformIntDistribution.h>
 #include <sys/stat.h>
 
+#include <cassert>
 #include <cstdlib>
 #include <cstring>
 #include <grp.h>
 #include <iostream>
 #include <pwd.h>
-#include <sstream>
 #include <unistd.h>
 
 #define LOGSUPPORT(x) std::cout << x << "\n"; // NOLINT
 
 namespace Common::FileSystem
 {
+    FilePermissionsImpl::FilePermissionsImpl(Common::SystemCallWrapper::ISystemCallWrapperSharedPtr sysCallWrapper)
+    {
+        if (sysCallWrapper == nullptr)
+        {
+            m_sysCallWrapper = std::make_shared<Common::SystemCallWrapper::SystemCallWrapper>();
+        }
+        else
+        {
+            m_sysCallWrapper = std::move(sysCallWrapper);
+        }
+        assert(m_sysCallWrapper);
+    }
+
     using namespace Common::UtilityImpl;
     void FilePermissionsImpl::chown(const Path& path, const std::string& user, const std::string& group) const
     {
@@ -358,7 +372,7 @@ namespace Common::FileSystem
         struct stat statbuf;
         // Using lstat as we want the UID of the file but do not want to follow the symlink incase this has already been
         // changed during the UID reconfigure
-        int ret = lstat(path.c_str(), &statbuf);
+        int ret = m_sysCallWrapper->lstat(path.c_str(), &statbuf);
         if (ret != 0)
         {
             errorMessage << "Calling stat on " << path << " caused this error: " << std::strerror(errno);

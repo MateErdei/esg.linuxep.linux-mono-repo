@@ -3,6 +3,7 @@
 #pragma once
 
 #include "Common/FileSystem/IFilePermissions.h"
+#include "Common/SystemCallWrapper/ISystemCallWrapper.h"
 #include <sys/capability.h>
 
 namespace Common::FileSystem
@@ -10,7 +11,7 @@ namespace Common::FileSystem
     class FilePermissionsImpl : public IFilePermissions
     {
     public:
-        FilePermissionsImpl() = default;
+        explicit FilePermissionsImpl(Common::SystemCallWrapper::ISystemCallWrapperSharedPtr sysCallWrapper = nullptr);
 
         void chmod(const Path& path, __mode_t mode) const override;
 
@@ -47,6 +48,9 @@ namespace Common::FileSystem
         cap_t getFileCapabilities(const Path& path) const override;
 
         void setFileCapabilities(const Path& path, const cap_t& capabilities) const override;
+
+    private:
+        Common::SystemCallWrapper::ISystemCallWrapperSharedPtr m_sysCallWrapper = nullptr;
     };
     std::unique_ptr<IFilePermissions>& filePermissionsStaticPointer();
 } // namespace Common::FileSystem
