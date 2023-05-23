@@ -393,10 +393,10 @@ namespace Common::FileSystem
         struct stat statbuf;
         // Using lstat as we want the GID of the file but do not want to follow the symlink incase this has already been
         // changed during the GID reconfigure
-        int ret = lstat(path.c_str(), &statbuf);
+        int ret = m_sysCallWrapper->lstat(path.c_str(), &statbuf);
         if (ret != 0)
         {
-            errorMessage << "Calling stat on " << path << " caused this error: " << std::strerror(errno);
+            errorMessage << "Calling lstat on " << path << " caused this error: " << std::strerror(errno);
             throw FileSystem::IFileSystemException(errorMessage.str());
         }
         return statbuf.st_gid;

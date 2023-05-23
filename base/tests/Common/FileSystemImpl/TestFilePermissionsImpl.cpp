@@ -272,7 +272,7 @@ namespace
         try
         {
             filePermissions->getGroupIdOfDirEntry(path);
-            FAIL() << "Expected exception if path doesnt exist in getUserIdOfDirEntry";
+            FAIL() << "Expected exception if path doesnt exist in getGroupIdOfDirEntry";
         }
         catch (const IFileSystemException& ex)
         {
@@ -296,7 +296,7 @@ namespace
         try
         {
             filePermissions.getGroupIdOfDirEntry(path);
-            FAIL() << "Expected exception if lstat returns error doesnt exist in getUserIdOfDirEntry";
+            FAIL() << "Expected exception if lstat returns error doesnt exist in getGroupIdOfDirEntry";
         }
         catch (const IFileSystemException& ex)
         {
