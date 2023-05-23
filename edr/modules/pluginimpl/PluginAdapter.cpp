@@ -165,7 +165,6 @@ namespace Plugin
         {
             LOGINFO("Early request to stop found.");
             m_parallelQueryProcessor.abortQueries();
-            m_callback->setRunning(false);
             m_callback->setOsqueryShouldBeRunning(false);
             m_queueTask->clearQueue();
         }
