@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Copyright 2018-2022 Sophos Limited.  All rights reserved.
+# Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 PLUGIN_NAME=@PLUGIN_NAME@
 PRODUCT_LINE_ID="@PRODUCT_LINE_ID@"
@@ -24,6 +24,7 @@ EXIT_FAIL_MISSING_VERSIG=27
 EXIT_FAIL_SUPPLEMENT_VERIFY_FAIL=28
 EXIT_FAIL_RESTORE_THREAT_DB=29
 EXIT_FAIL_RESTORE_SAFESTORE_DB=30
+EXIT_FAIL_SET_CAPABILITIES=31
 
 STARTINGDIR=$(pwd)
 SCRIPTDIR=${0%/*}
@@ -508,14 +509,8 @@ function install_product()
     ## LINUXDAR-3138 If sophos_threat_detector.log symlink exists following upgrade, delete it
     [ -L "${PLUGIN_INSTALL}/log/sophos_threat_detector.log" ] && rm "${PLUGIN_INSTALL}/log/sophos_threat_detector.log"
 
-    pushd "${PLUGIN_INSTALL}/sbin" || failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to find sbin directory"
-    THREAT_DETECTOR="sophos_threat_detector_launcher"
-    [[ -h "$THREAT_DETECTOR" ]] && THREAT_DETECTOR=$(readlink "$THREAT_DETECTOR")
-    [[ -f "$THREAT_DETECTOR" ]] && "${SETCAP}" cap_sys_chroot=eip "$THREAT_DETECTOR"
-    SCHEDULED_FILE_WALKER="scheduled_file_walker_launcher"
-    [[ -h "$SCHEDULED_FILE_WALKER" ]] && SCHEDULED_FILE_WALKER=$(readlink "$SCHEDULED_FILE_WALKER")
-    [[ -f "$SCHEDULED_FILE_WALKER" ]] && "${SETCAP}" cap_dac_read_search=eip "$SCHEDULED_FILE_WALKER"
-    popd || failure ${EXIT_FAIL_CREATE_DIRECTORY} "Failed to return from sbin directory"
+    chmod 0100 "$DIST/setCapabilities.sh"
+    "$DIST/setCapabilities.sh" || failure ${EXIT_FAIL_SET_CAPABILITIES} "Failed to set capabilities"
 
     ln -snf "${PLUGIN_INSTALL}/bin/avscanner" /usr/local/bin/avscanner
 

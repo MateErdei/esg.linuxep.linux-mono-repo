@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+
+# Copyright 2018-2023 Sophos Limited. All rights reserved.
+
+PLUGIN_NAME=@PLUGIN_NAME@
+
+[[ -n "$SOPHOS_INSTALL" ]] || SOPHOS_INSTALL=/opt/sophos-spl
+
+SETCAP="$(which setcap)"
+[[ -x "${SETCAP}" ]] || SETCAP=/sbin/setcap
+[[ -x "${SETCAP}" ]] || SETCAP=/usr/sbin/setcap
+[[ -x "${SETCAP}" ]] || exit 1
+
+PLUGIN_INSTALL="${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}"
+
+pushd "${PLUGIN_INSTALL}/sbin" || exit 1
+THREAT_DETECTOR="sophos_threat_detector_launcher"
+[[ -h "$THREAT_DETECTOR" ]] && THREAT_DETECTOR=$(readlink "$THREAT_DETECTOR")
+[[ -f "$THREAT_DETECTOR" ]] && "${SETCAP}" cap_sys_chroot=eip "$THREAT_DETECTOR"
+SCHEDULED_FILE_WALKER="scheduled_file_walker_launcher"
+[[ -h "$SCHEDULED_FILE_WALKER" ]] && SCHEDULED_FILE_WALKER=$(readlink "$SCHEDULED_FILE_WALKER")
+[[ -f "$SCHEDULED_FILE_WALKER" ]] && "${SETCAP}" cap_dac_read_search=eip "$SCHEDULED_FILE_WALKER"
+popd || exit 1
