@@ -14,20 +14,21 @@ class MockJournalHelperInterface : public Sophos::Journal::HelperInterface
 {
 public:
     MockJournalHelperInterface() = default;
-    MOCK_CONST_METHOD2(
+    MOCK_METHOD(
+        std::shared_ptr<Sophos::Journal::ViewInterface>,
         GetJournalView,
-        std::shared_ptr<Sophos::Journal::ViewInterface>(const Sophos::Journal::Subjects&, const Sophos::Journal::JRL&));
-    MOCK_CONST_METHOD2(
+        (const Sophos::Journal::Subjects&, const Sophos::Journal::JRL&),
+        (const, override));
+    MOCK_METHOD(
+        std::shared_ptr<Sophos::Journal::ViewInterface>,
         GetJournalView,
-        std::shared_ptr<Sophos::Journal::ViewInterface>(
-            const Sophos::Journal::Subjects&,
-            Sophos::Journal::JournalTime));
-    MOCK_CONST_METHOD3(
+        (const Sophos::Journal::Subjects&, Sophos::Journal::JournalTime),
+        (const, override));
+    MOCK_METHOD(
+        std::shared_ptr<Sophos::Journal::ViewInterface>,
         GetJournalView,
-        std::shared_ptr<Sophos::Journal::ViewInterface>(
-            const Sophos::Journal::Subjects&,
-            Sophos::Journal::JournalTime,
-            Sophos::Journal::JournalTime));
+        (const Sophos::Journal::Subjects&, Sophos::Journal::JournalTime, Sophos::Journal::JournalTime),
+        (const, override));
 };
 
 class MockImplementationInterface : public Sophos::Journal::ViewInterface::ConstIterator::ImplementationInterface

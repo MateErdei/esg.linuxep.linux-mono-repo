@@ -373,12 +373,10 @@ TEST_F(TestEventJournalReaderWrapper, getEntriesCanReadMultipleLongRecords)
     auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>{ mockFileSystem });
     Common::Logging::ConsoleLoggingSetup consoleLogger;
-    testing::internal::CaptureStderr();
 
     const int size = 9000;
     std::shared_ptr<MockJournalHelperInterface> mockJournalHelperPtr  = std::make_shared<MockJournalHelperInterface>();
     std::shared_ptr<MockJournalViewInterface> mockJournalViewPtr = std::make_shared<MockJournalViewInterface>();
-    testing::Mock::AllowLeak(&(*mockJournalHelperPtr));
     EXPECT_CALL(*mockJournalHelperPtr, GetJournalView(_,_,_)).WillOnce(Return(mockJournalViewPtr));
 
     std::shared_ptr<MockJournalEntryInterface> mockJournalEntryInterface = std::make_shared<MockJournalEntryInterface>();
@@ -387,9 +385,9 @@ TEST_F(TestEventJournalReaderWrapper, getEntriesCanReadMultipleLongRecords)
     EXPECT_CALL(*mockJournalEntryInterface, GetData()).WillRepeatedly(Return(bytes.data()));
 
     std::shared_ptr<MockImplementationInterface> beginImplInterface = std::make_shared<MockImplementationInterface>();
-    testing::Mock::AllowLeak(&(*beginImplInterface));
+    testing::Mock::AllowLeak(beginImplInterface.get());
     std::shared_ptr<MockImplementationInterface> endInterface = std::make_shared<MockImplementationInterface>();
-    testing::Mock::AllowLeak(&(*endInterface));
+    testing::Mock::AllowLeak(endInterface.get());
 
     EXPECT_CALL(*beginImplInterface, Equals())
         .WillOnce(Return(false))
@@ -431,7 +429,7 @@ TEST_F(TestEventJournalReaderWrapper, getEntriesCanReadMultipleLongRecords)
 
     Sophos::Journal::Subjects sub;
     Sophos::Journal::JRL jrl;
-    auto testReader = new Common::EventJournalWrapper::Reader(mockJournalHelperPtr);
+    auto testReader = std::make_unique<Common::EventJournalWrapper::Reader>(mockJournalHelperPtr);
 
     std::vector<Common::EventJournalWrapper::Subject> subjectFilter = {Common::EventJournalWrapper::Subject::Detections};
     uint64_t startTime = 0;
@@ -448,12 +446,10 @@ TEST_F(TestEventJournalReaderWrapper, getEntriesStopsReadingAfterHittingMemoryLi
     auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
     Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>{ mockFileSystem });
     Common::Logging::ConsoleLoggingSetup consoleLogger;
-    testing::internal::CaptureStderr();
 
     const int size = 9000;
     std::shared_ptr<MockJournalHelperInterface> mockJournalHelperPtr  = std::make_shared<MockJournalHelperInterface>();
     std::shared_ptr<MockJournalViewInterface> mockJournalViewPtr = std::make_shared<MockJournalViewInterface>();
-    testing::Mock::AllowLeak(&(*mockJournalHelperPtr));
     EXPECT_CALL(*mockJournalHelperPtr, GetJournalView(_,_,_)).WillOnce(Return(mockJournalViewPtr));
 
     std::shared_ptr<MockJournalEntryInterface> mockJournalEntryInterface = std::make_shared<MockJournalEntryInterface>();
@@ -462,9 +458,9 @@ TEST_F(TestEventJournalReaderWrapper, getEntriesStopsReadingAfterHittingMemoryLi
     EXPECT_CALL(*mockJournalEntryInterface, GetData()).WillRepeatedly(Return(bytes.data()));
 
     std::shared_ptr<MockImplementationInterface> beginImplInterface = std::make_shared<MockImplementationInterface>();
-    testing::Mock::AllowLeak(&(*beginImplInterface));
+    testing::Mock::AllowLeak(beginImplInterface.get());
     std::shared_ptr<MockImplementationInterface> endInterface = std::make_shared<MockImplementationInterface>();
-    testing::Mock::AllowLeak(&(*endInterface));
+    testing::Mock::AllowLeak(endInterface.get());
 
     EXPECT_CALL(*beginImplInterface, Equals())
         .WillOnce(Return(false))
@@ -506,7 +502,7 @@ TEST_F(TestEventJournalReaderWrapper, getEntriesStopsReadingAfterHittingMemoryLi
 
     Sophos::Journal::Subjects sub;
     Sophos::Journal::JRL jrl;
-    auto testReader = new Common::EventJournalWrapper::Reader(mockJournalHelperPtr);
+    auto testReader = std::make_unique<Common::EventJournalWrapper::Reader>(mockJournalHelperPtr);
 
     std::vector<Common::EventJournalWrapper::Subject> subjectFilter = {Common::EventJournalWrapper::Subject::Detections};
     uint64_t startTime = 0;
