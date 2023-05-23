@@ -66,13 +66,11 @@
         <!-- qp=em.esg/develop/build/scheduled-query-pack-sdds -->
         <!-- lp=em.esg/develop/build/endpoint-query-pack -->
         <build-asset project="em" repo="esg">
-            <release-version branch="release/2023.04/sprint" build-id="20230120201925-31a0379094fc1654506d3d459661d326949dee47-bh0Sgz"/>
+            <release-version branch="release--endpoint_query_pack" build-id="20230523003027-d3e9df61fbe371f11ec3bbf89204870a1de0d2f9-hmZQo4"/>
             <development-version branch="develop"/>
             <include artifact-path="endpoint-query-pack" dest-dir="local_test_input/lp"/>
             <include artifact-path="scheduled-query-pack-sdds" dest-dir="local_test_input/qp"/>
         </build-asset>
-
-
 
     </inputs>
     <buildcommands>
