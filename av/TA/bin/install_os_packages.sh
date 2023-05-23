@@ -102,7 +102,7 @@ then
         then
             break
         fi
-        sleep (( i * 2 ))
+        sleep $(( i * 2 ))
     done
 
     for (( i=0; i<10; i++ ))
@@ -111,7 +111,7 @@ then
         then
             break
         fi
-        sleep (( i * 2 ))
+        sleep $(( i * 2 ))
     done
 
     [[ -x $(which setcap) ]] || {
