@@ -69,3 +69,8 @@ Verify Watchdog Conf Has Changed
     ${latest}    Get Modified Time   ${WD_ACTUAL_USER_GROUP_IDS}
     Should Not Be Equal    ${originalTime}    ${latest}
 
+Verify Watchdog Actual User Group ID File
+    Wait Until Keyword Succeeds
+    ...  5 secs
+    ...  1 secs
+    ...  verify_watchdog_config    expect_all_users=${True}

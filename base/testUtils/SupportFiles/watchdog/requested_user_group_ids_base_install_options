@@ -1,0 +1,2 @@
+--user-ids-to-configure=sophos-spl-local:1995,sophos-spl-updatescheduler:1994,sophos-spl-user:1996
+--group-ids-to-configure=sophos-spl-group:1996,sophos-spl-ipc:1995

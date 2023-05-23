@@ -97,4 +97,9 @@ namespace watchdog::watchdogimpl
      */
     void applyUserIdConfig(const WatchdogUserGroupIDs& ids);
 
+    /**
+     * Apply capabilities on files that components require to function
+     */
+     void applyCapabilities();
+
 } // namespace watchdog::watchdogimpl

@@ -3,6 +3,7 @@
 #include "UserGroupUtils.h"
 
 #include "IProcess.h"
+#include "IProcessException.h"
 
 #include "ApplicationConfigurationImpl/ApplicationPathManager.h"
 #include "FileSystem/IFilePermissions.h"
@@ -11,14 +12,15 @@
 #include "UtilityImpl/StringUtils.h"
 
 #include <sys/stat.h>
+
 #include <utility>
 
 namespace watchdog::watchdogimpl
 {
-    
+
     constexpr auto GROUPS_KEY = "groups";
     constexpr auto USERS_KEY = "users";
-    
+
     std::string stripCommentsFromRequestedUserGroupIdFile(const std::vector<std::string>& fileContents)
     {
         std::string userGroupContents;
@@ -224,17 +226,10 @@ namespace watchdog::watchdogimpl
     void setUserIdOfFile(const std::string& filePath, uid_t newUserId)
     {
         auto filePermissions = Common::FileSystem::filePermissions();
-        auto fileSystem = Common::FileSystem::fileSystem();
         try
         {
             auto currentGroupId = filePermissions->getGroupIdOfDirEntry(filePath);
-            auto fileCapabilities = filePermissions->getFileCapabilities(filePath);
             filePermissions->lchown(filePath, newUserId, currentGroupId);
-
-            if (fileCapabilities != nullptr && fileSystem->isFile(filePath) && !fileSystem->isSymlink(filePath))
-            {
-                filePermissions->setFileCapabilities(filePath, fileCapabilities);
-            }
             LOGDEBUG("Updated user ID of " << filePath << " to " << newUserId);
         }
         catch (const Common::FileSystem::IFileSystemException& exception)
@@ -246,17 +241,10 @@ namespace watchdog::watchdogimpl
     void setGroupIdOfFile(const std::string& filePath, gid_t newGroupId)
     {
         auto filePermissions = Common::FileSystem::filePermissions();
-        auto fileSystem = Common::FileSystem::fileSystem();
         try
         {
             auto currentUserId = filePermissions->getUserIdOfDirEntry(filePath);
-            auto fileCapabilities = filePermissions->getFileCapabilities(filePath);
             filePermissions->lchown(filePath, currentUserId, newGroupId);
-
-            if (fileCapabilities != nullptr && fileSystem->isFile(filePath) && !fileSystem->isSymlink(filePath))
-            {
-                filePermissions->setFileCapabilities(filePath, fileCapabilities);
-            }
             LOGDEBUG("Updated group ID of " << filePath << " to " << newGroupId);
         }
         catch (const Common::FileSystem::IFileSystemException& exception)
@@ -423,7 +411,7 @@ namespace watchdog::watchdogimpl
                 }
             }
         }
-       
+
         if (changesNeeded.contains(GROUPS_KEY))
         {
             auto groups = changesNeeded[GROUPS_KEY];
@@ -440,6 +428,63 @@ namespace watchdog::watchdogimpl
                 catch (const std::exception& exception)
                 {
                     LOGERROR("Failed to reconfigure " << groupName << " group ID to " << newGroupId << ": " << exception.what());
+                }
+            }
+        }
+
+        applyCapabilities();
+    }
+
+    void applyCapabilities()
+    {
+        LOGDEBUG("Setting capabilities on components that require them");
+
+        const auto& fs = *Common::FileSystem::fileSystem();
+
+        const auto directories = fs.listDirectories(
+            Common::ApplicationConfiguration::applicationPathManager().getLocalSdds3DistributionRepository());
+        for (const auto& componentPath : directories)
+        {
+            const auto setCapabilitiesPath = Common::FileSystem::join(componentPath, "setCapabilities.sh");
+            if (fs.isFile(setCapabilitiesPath))
+            {
+                auto process = Common::Process::createProcess();
+                int exitCode;
+
+                try
+                {
+                    fs.makeExecutable(setCapabilitiesPath);
+
+                    process->exec(setCapabilitiesPath, {});
+
+                    auto state = process->wait(Common::Process::milli(100), 100);
+                    if (state != Common::Process::ProcessStatus::FINISHED)
+                    {
+                        LOGERROR(setCapabilitiesPath << " failed to exit after 10s");
+                        process->kill();
+                    }
+                    exitCode = process->exitCode();
+                }
+                catch (Common::Process::IProcessException& e)
+                {
+                    LOGERROR(setCapabilitiesPath << " failed: " << e.what());
+                    exitCode = -1;
+                }
+                catch (Common::FileSystem::IFileSystemException& e)
+                {
+                    LOGERROR(e.what());
+                    exitCode = -1;
+                }
+
+                const auto componentName = Common::FileSystem::subdirNameFromPath(componentPath);
+
+                if (exitCode == 0)
+                {
+                    LOGDEBUG("Set capabilities successfully for " << componentName);
+                }
+                else
+                {
+                    LOGERROR("Failed to set capabilities for " << componentName);
                 }
             }
         }
