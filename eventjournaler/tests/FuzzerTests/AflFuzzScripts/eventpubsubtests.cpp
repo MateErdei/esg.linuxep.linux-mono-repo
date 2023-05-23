@@ -65,10 +65,9 @@ int main()
 
         std::shared_ptr<EventQueueLib::EventQueue> eventQueue(new EventQueueLib::EventQueue(MAX_QUEUE_SIZE));
         std::unique_ptr<SubscriberLib::IEventHandler> eventQueuePusher(new SubscriberLib::EventQueuePusher(eventQueue));
-        std::unique_ptr<EventWriterLib::IEventQueuePopper> eventQueuePopper(new EventWriterLib::EventQueuePopper(eventQueue));
         std::unique_ptr<EventJournal::IEventJournalWriter> eventJournalWriter(new EventJournal::Writer(journal_path, journal_producer));
         std::shared_ptr<EventWriterLib::IEventWriterWorker> eventWriter(new EventWriterLib::EventWriterWorker(
-            std::move(eventQueuePopper),
+            std::move(eventQueue),
             std::move(eventJournalWriter),
             heartbeat->getPingHandleForId(Heartbeat::getWriterThreadId())));
 
