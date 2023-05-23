@@ -6,7 +6,10 @@ def params = [
     choice(name: 'MODE', choices: ['release', 'coverage','analysis'], defaultValue: 'release', description: 'Build mode'),
     string(name: 'robot_test', defaultValue: '', description: 'Optional specific Robot test to run'),
     string(name: 'robot_suite', defaultValue: '', description: 'Optional specific Robot suite to run'),
+    booleanParam(name: 'run_sles', defaultValue: true, description: 'Run Test Automation on SLES 12/15'),
+    booleanParam(name: 'run_ubuntu_22_04', defaultValue: true, description: 'Run TAP on Ubuntu 22.04'),
 ]
 
-CIPipeline { pipelineScriptPath = './pipeline/pipeline.py'; pipelineEntryPoint = 'edr_plugin'; buildParameters = params }
-
+CIPipeline { pipelineScriptPath = './pipeline/pipeline.py'; pipelineEntryPoint = 'edr_plugin'; buildParameters = params;
+             failureWebhook = 'https://sophosapps.webhook.office.com/webhookb2/b9db2dd8-a82c-4acc-92a5-3eda2c9fbf01@358a41ff-46d9-49d3-a297-370d894eae6a/IncomingWebhook/63e68ba7145144cdbaa693c46db7b3e2/d44ac291-19eb-4e6a-aa6a-e45d9e574bb4';
+             failureWebhookBranchRegex = '^develop$' }

@@ -205,6 +205,33 @@ def build_999(stage: tap.Root, component: tap.Component):
         mode=NINE_NINE_NINE_MODE, release_package=RELEASE_PACKAGE)
 
 
+def get_test_machines(test_inputs, parameters: tap.Parameters):
+    test_environments = {'ubuntu1804': 'ubuntu1804_x64_server_en_us',
+                         'ubuntu2004': 'ubuntu2004_x64_server_en_us',
+                         #TODO: Fix broken yum repo to point at abn-engrepo.eng.sophos instead of abn-centosrepo
+                         #'centos79': 'centos79_x64_server_en_us',
+                         'centos84': 'centos84_x64_server_en_us',
+                         'centos8stream': 'centos8stream_x64_aws_server_en_us',
+                         #TODO: Fix SELinux rules to allow access to /opt/sophos-spl/shared/syslog_pipe
+                         #'centos9stream': 'centos9stream_x64_aws_server_en_us',
+                         'amazonlinux2': 'amzlinux2_x64_server_en_us',
+                         'oracle8': 'oracle87_x64_aws_server_en_us',
+                         }
+    if parameters.run_sles != 'false':
+        test_environments['sles12'] = 'sles12_x64_sp5_aws_server_en_us'
+        test_environments['sles15'] = 'sles15_x64_sp4_aws_server_en_us'
+
+    if parameters.run_ubuntu_22_04 != 'false':
+        test_environments['ubuntu2204'] = 'ubuntu2204_x64_aws_server_en_us'
+
+    ret = []
+    for name, image in test_environments.items():
+        ret.append((
+            name,
+            tap.Machine(image, inputs=test_inputs, platform=tap.Platform.Linux)
+        ))
+    return ret
+
 @tap.pipeline(version=1, component='sspl-plugin-edr-component')
 def edr_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Parameters):
 
@@ -255,48 +282,19 @@ def edr_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Pa
 
     with stage.parallel('test'):
         test_inputs = get_inputs(context, edr_build, mode)
-        machines = (
-            ("ubuntu1804",
-             tap.Machine('ubuntu1804_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)),
-            ("ubuntu2004",
-             tap.Machine('ubuntu2004_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)),
-            #TODO: LINUXDAR-7306 Uncomment once python3.10 issues are resolved
-            #("ubuntu2204",
-            # tap.Machine('ubuntu2204_x64_aws_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)),
-            #TODO: Fix broken yum repo to point at abn-engrepo.eng.sophos instead of abn-centosrepo
-            #("centos79",
-            # tap.Machine('centos79_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)),
-            ("centos84",
-             tap.Machine('centos84_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)),
-            ("centos8stream",
-             tap.Machine('centos8stream_x64_aws_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)),
-            #TODO: Fix SELinux rules to allow access to /opt/sophos-spl/shared/syslog_pipe
-            #("centos9stream",
-            # tap.Machine('centos9stream_x64_aws_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)),
-            ("amazonlinux2",
-             tap.Machine('amzlinux2_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)),
-            ("sles12",
-             tap.Machine('sles12_x64_sp5_aws_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)),
-            ("sles15",
-             tap.Machine('sles15_x64_sp4_aws_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)),
-            ("oracle8",
-             tap.Machine('oracle87_x64_aws_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)),
-            # add other distros here
-        )
-
-        coverage_machines = (
-            ("centos77", tap.Machine('centos77_x64_server_en_us', inputs=get_inputs(context, edr_build, mode), platform=tap.Platform.Linux)),
-        )
 
         if mode == 'coverage':
             with stage.parallel('combined'):
+                coverage_machines = (
+                    ("centos77", tap.Machine('centos77_x64_server_en_us', inputs=get_inputs(context, edr_build, mode), platform=tap.Platform.Linux)),
+                )
                 for template_name, machine in coverage_machines:
                     stage.task(task_name=template_name, func=coverage_task, machine=machine, branch=context.branch, robot_args=robot_args)
         else:
             with stage.parallel('integration'):
-                for template_name, machine in machines:
+                for template_name, machine in get_test_machines(test_inputs, parameters):
                     stage.task(task_name=template_name, func=robot_task, machine=machine, robot_args=robot_args)
 
             with stage.parallel('component'):
-                for template_name, machine in machines:
+                for template_name, machine in get_test_machines(test_inputs, parameters):
                     stage.task(task_name=template_name, func=pytest_task, machine=machine)
