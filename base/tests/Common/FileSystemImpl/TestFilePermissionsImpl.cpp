@@ -221,7 +221,7 @@ namespace
     TEST(FilePermissionsImpl, getUserIdOfDirEntry_lstatFails)
     {
         const std::string path = "/testpath/";
-        const std::string expectedMsg = "getUserIdOfDirEntry: Calling stat on " + path + " caused this error: No such file or directory" ;
+        const std::string expectedMsg = "getUserIdOfDirEntry: Calling lstat on " + path + " caused this error: No such file or directory" ;
         auto mockFileSystem =  std::make_unique<StrictMock<MockFileSystem>>();
         auto mockSysCalls = std::make_shared<StrictMock<MockSystemCallWrapper>>();
 

@@ -375,7 +375,7 @@ namespace Common::FileSystem
         int ret = m_sysCallWrapper->lstat(path.c_str(), &statbuf);
         if (ret != 0)
         {
-            errorMessage << "Calling stat on " << path << " caused this error: " << std::strerror(errno);
+            errorMessage << "Calling lstat on " << path << " caused this error: " << std::strerror(errno);
             throw FileSystem::IFileSystemException(errorMessage.str());
         }
         return statbuf.st_uid;
