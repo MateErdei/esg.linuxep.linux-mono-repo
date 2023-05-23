@@ -742,6 +742,37 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompress_WrongPassword)
     EXPECT_TRUE(appenderContains(expectedErrMsg));
 }
 
+TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompress_EmptyPassword)
+{
+    //Empty password should just mean we dont try to unzip using the password
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    const std::string expectedErrMsg = "Error unzipping /opt/sophos-spl/plugins/responseactions/tmp/tmp_download.zip due to bad password";
+
+    auto mockZip = std::make_unique<NiceMock<MockZipUtils>>();
+    EXPECT_CALL(*mockZip, unzip(_, _)).WillOnce(Return(UNZ_OK));
+    EXPECT_CALL(*mockZip, unzip(_, _, _, _)).Times(0); //The password unzip call
+    Common::ZipUtilities::replaceZipUtils(std::move(mockZip));
+
+    addResponseToMockRequester(HTTP_STATUS_OK, ResponseErrorCode::OK);
+
+    addDiskSpaceExpectsToMockFileSystem();
+    addListFilesExpectsToMockFileSystem(true);
+    addDownloadAndExtractExpectsToMockFileSystem(m_destPath + m_testExtractedFile, true);
+    addCleanupChecksToMockFileSystem(true);
+
+    EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFileSystem, moveFileTryCopy(m_raExtractTmpDir + "/" + m_testExtractedFile, m_destPath + m_testExtractedFile)).Times(1);
+    EXPECT_CALL(*m_mockFileSystem, calculateDigest(Common::SslImpl::Digest::sha256, m_raTmpFile))
+        .WillOnce(Return("shastring"));
+    Tests::replaceFileSystem(std::move(m_mockFileSystem));
+
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
+
+    nlohmann::json action = getDownloadObject(true, "");
+    EXPECT_NO_THROW(downloadFileAction.run(action.dump()));
+}
+
 //Proxy
 
 TEST_F(DownloadFileTests, SuccessfulDownload_WithProxy_NotDecompressed)
