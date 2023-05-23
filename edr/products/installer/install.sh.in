@@ -221,7 +221,7 @@ function confirmProcessRunning()
 
 function waitForProcess()
 {
-    for (( deadline = $SECONDS + 30; $SECONDS < $deadline; ))
+    for (( deadline = $SECONDS + 120; $SECONDS < $deadline; ))
     do
         confirmProcessRunning "$@" && return 0
         sleep 1
