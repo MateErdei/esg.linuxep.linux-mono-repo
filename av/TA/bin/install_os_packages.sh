@@ -81,6 +81,8 @@ then
 
 elif [[ -x $(which zypper) ]]
 then
+    # Wait up to 10 minutes to get lock
+    export ZYPP_LOCK_TIMEOUT=600
     # Retry 10 times before timeout
     for (( i=0; i<10; i++ ))
     do
@@ -100,7 +102,7 @@ then
         then
             break
         fi
-        sleep 4
+        sleep (( i * 2 ))
     done
 
     for (( i=0; i<10; i++ ))
@@ -109,7 +111,7 @@ then
         then
             break
         fi
-        sleep 4
+        sleep (( i * 2 ))
     done
 
     [[ -x $(which setcap) ]] || {
