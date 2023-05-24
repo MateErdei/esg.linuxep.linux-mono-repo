@@ -69,9 +69,12 @@
             <release-version branch="release--endpoint_query_pack" build-id="20230523003027-d3e9df61fbe371f11ec3bbf89204870a1de0d2f9-hmZQo4"/>
             <development-version branch="develop"/>
             <include artifact-path="endpoint-query-pack" dest-dir="local_test_input/lp"/>
+        </build-asset>
+        <build-asset project="em" repo="esg">
+            <release-version branch="release/SPRINT-2023.19" build-id="20230505162223-6aa5715432cf60b858215a18280933fd7a890989-XeJDfq"/>
+            <development-version branch="develop"/>
             <include artifact-path="scheduled-query-pack-sdds" dest-dir="local_test_input/qp"/>
         </build-asset>
-
     </inputs>
     <buildcommands>
         <!--<command buildtype="prod">-->
