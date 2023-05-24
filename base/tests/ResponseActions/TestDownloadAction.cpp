@@ -771,6 +771,36 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompress_EmptyPassword)
 
     nlohmann::json action = getDownloadObject(true, "");
     EXPECT_NO_THROW(downloadFileAction.run(action.dump()));
+    EXPECT_TRUE(appenderContains("/path/to/download/to/download.txt downloaded successfully"));
+}
+
+TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompress_LargePassword)
+{
+    const std::string largePassword(10000, 'a');
+
+    setupMockZipUtils(UNZ_OK, largePassword);
+
+    addResponseToMockRequester(HTTP_STATUS_OK, ResponseErrorCode::OK);
+
+    addDiskSpaceExpectsToMockFileSystem();
+    addListFilesExpectsToMockFileSystem(true);
+    addDownloadAndExtractExpectsToMockFileSystem(m_destPath + m_testExtractedFile, true);
+    addCleanupChecksToMockFileSystem(true);
+
+    EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(false));
+    EXPECT_CALL(
+        *m_mockFileSystem,
+        moveFileTryCopy(m_raExtractTmpDir + "/" + m_testExtractedFile, m_destPath + m_testExtractedFile))
+        .Times(1);
+    EXPECT_CALL(*m_mockFileSystem, calculateDigest(Common::SslImpl::Digest::sha256, m_raTmpFile))
+        .WillOnce(Return("shastring"));
+    Tests::replaceFileSystem(std::move(m_mockFileSystem));
+
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
+
+    nlohmann::json action = getDownloadObject(true, largePassword);
+    EXPECT_NO_THROW(downloadFileAction.run(action.dump()));
+    EXPECT_TRUE(appenderContains("/path/to/download/to/download.txt downloaded successfully"));
 }
 
 //Proxy
