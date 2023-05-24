@@ -19,11 +19,32 @@ def os_uses_zypper() -> bool:
     return command_available_on_system("zypper")
 
 
+def one_time_zypper_setup():
+
+    pass
+
+
+ONE_TIME_PACKAGE_MANAGER_SETUP_DONE = False
+
+
+def one_time_package_manager_setup():
+    global ONE_TIME_PACKAGE_MANAGER_SETUP_DONE
+    if ONE_TIME_PACKAGE_MANAGER_SETUP_DONE:
+        return
+
+    if os_uses_zypper():
+        one_time_zypper_setup()
+
+    ONE_TIME_PACKAGE_MANAGER_SETUP_DONE = True
+    return
+
+
 def is_package_installed(package_name: str) -> bool:
+    one_time_package_manager_setup()
     logger.info(f"Checking if package is installed: {package_name}")
     if os_uses_apt():
         output = subprocess.run(["apt", "list", "--installed", package_name],
-                                text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT).stdout.split("\n")
+                                text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT).stdout.split(b"\n")
         # Prints output similar to the below where we can see nano is installed.
         # nano/bionic,now 2.9.3-2 amd64 [installed]
         for line in output:
@@ -51,6 +72,7 @@ def get_pkg_manager():
 
 
 def install_package(pkg_name):
+    one_time_package_manager_setup()
     cmd = get_pkg_manager()
     cmd += ["install", pkg_name]
     logger.info(f"Running command: {cmd}")
@@ -65,6 +87,7 @@ def install_package(pkg_name):
 
 
 def remove_package(pkg_name):
+    one_time_package_manager_setup()
     cmd = get_pkg_manager()
     cmd += ["remove", pkg_name]
     logger.info(f"Running command: {cmd}")
