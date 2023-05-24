@@ -7,7 +7,7 @@
 #
 # Changes to this file only affect the latest platforms (see suites.yaml)
 edr.latest.x64:
-  prod-artifact: esg-releasable-candidate/linuxep.sspl-plugin-edr-component/release--2023-19/20230511094658-29822cfd7ad8a882ce49b588adaab089506f5f9c-GcasJ7/edr/SDDS3-PACKAGE/
+  prod-artifact: esg-releasable-candidate/linuxep.sspl-plugin-edr-component/release--2023.2-DTP1/20230524122536-deaaab308a154650670d3a5368668ce2c7396920-VEenp6/edr/SDDS3-PACKAGE/
   line-id: ServerProtectionLinux-Plugin-EDR
   mountpoint: ServerProtectionLinux-Plugin-EDR
 av.latest.x64:
