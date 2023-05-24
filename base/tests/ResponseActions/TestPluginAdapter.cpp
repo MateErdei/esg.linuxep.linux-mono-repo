@@ -85,6 +85,8 @@ TEST_F(PluginAdapterTests, ActionWithMissingTimeoutIsThrownAway)
 
 TEST_F(PluginAdapterTests, UploadFileActionTriggersRun)
 {
+    UsingMemoryAppender recorder(*this);
+
     auto mockBaseService = std::make_unique<::testing::StrictMock<MockApiBaseServices>>();
 
     auto runner = std::make_unique<TestableActionRunner>();
@@ -93,7 +95,6 @@ TEST_F(PluginAdapterTests, UploadFileActionTriggersRun)
     m_taskQueue->push(ResponsePlugin::Task{ ResponsePlugin::Task::TaskType::ACTION,
                                             R"({"type":"sophos.mgt.action.UploadFile","timeout":1000})" });
     m_taskQueue->pushStop();
-    UsingMemoryAppender recorder(*this);
 
     pluginAdapter.mainLoop();
 
@@ -103,8 +104,7 @@ TEST_F(PluginAdapterTests, UploadFileActionTriggersRun)
 TEST_F(PluginAdapterTests, TestActionsRunInOrder)
 {
     auto mockBaseService = std::make_unique<::testing::StrictMock<MockApiBaseServices>>();
-    MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
-    ASSERT_NE(mockBaseServicePtr, nullptr);
+    ASSERT_NE(mockBaseService.get(), nullptr);
 
     auto runner = std::make_unique<TestableActionRunner>();
     ResponsePlugin::PluginAdapter pluginAdapter(m_taskQueue, std::move(mockBaseService), std::move(runner), m_callback);
@@ -116,7 +116,6 @@ TEST_F(PluginAdapterTests, TestActionsRunInOrder)
     m_taskQueue->push(ResponsePlugin::Task{
         ResponsePlugin::Task::TaskType::ACTION, R"({"type":"a","timeout":1})", "CORE", "id3" });
     m_taskQueue->pushStop();
-    testing::internal::CaptureStderr();
 
     pluginAdapter.mainLoop();
     std::string logMessage = internal::GetCapturedStderr();
@@ -132,6 +131,8 @@ TEST_F(PluginAdapterTests, TestActionsRunInOrder)
 
 TEST_F(PluginAdapterTests, UploadFileActionDoesNotTriggersRunWhenActionIsRunning)
 {
+    UsingMemoryAppender recorder(*this);
+
     auto mockBaseService = std::make_unique<::testing::StrictMock<MockApiBaseServices>>();
     MockApiBaseServices* mockBaseServicePtr = mockBaseService.get();
     ASSERT_NE(mockBaseServicePtr, nullptr);
@@ -143,9 +144,26 @@ TEST_F(PluginAdapterTests, UploadFileActionDoesNotTriggersRunWhenActionIsRunning
     m_taskQueue->push(ResponsePlugin::Task{ ResponsePlugin::Task::TaskType::ACTION,
                                             R"({"type":"sophos.mgt.action.UploadFile","timeout":1000})" });
     m_taskQueue->pushStop();
-    UsingMemoryAppender recorder(*this);
 
     pluginAdapter.mainLoop();
-
     EXPECT_FALSE(appenderContains("Running action: "));
+}
+
+TEST_F(PluginAdapterTests, ActionIsNotRunWhenTimeOutIsNegative)
+{
+    UsingMemoryAppender recorder(*this);
+    std::string action = R"({"type":"sophos.mgt.action.UploadFile","timeout":-1000})";
+    std::string expectedMsg = "Action does not have a valid timeout set discarding it: " + action;
+
+    auto mockBaseService = std::make_unique<::testing::StrictMock<MockApiBaseServices>>();
+    ASSERT_NE(mockBaseService.get(), nullptr);
+
+    auto runner = std::make_unique<TestableActionRunner>();
+    ResponsePlugin::PluginAdapter pluginAdapter(m_taskQueue, std::move(mockBaseService), std::move(runner), m_callback);
+
+    m_taskQueue->push(ResponsePlugin::Task{ ResponsePlugin::Task::TaskType::ACTION,
+                                            action});
+    m_taskQueue->pushStop();
+    pluginAdapter.mainLoop();
+    EXPECT_TRUE(appenderContains(expectedMsg));
 }
