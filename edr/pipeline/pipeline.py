@@ -270,6 +270,11 @@ def edr_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Pa
             build_999(stage, component)
 
     if mode == ANALYSIS_MODE:
+        # Don't run any tests
+        return
+
+    if parameters.run_tap_tests == 'false':
+        # Don't run any tests
         return
 
     # Add args to pass env vars to RobotFramework.py call in test runs
