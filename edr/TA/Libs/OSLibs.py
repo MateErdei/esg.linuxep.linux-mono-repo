@@ -5,8 +5,9 @@ import subprocess
 import time
 from robot.api import logger
 
+
 def command_available_on_system(command: str) -> bool:
-    return subprocess.run(["which", command], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT).returncode == 0
+    return subprocess.run([b"which", command], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT).returncode == 0
 
 
 def os_uses_yum() -> bool:
@@ -60,18 +61,19 @@ def one_time_package_manager_setup():
         one_time_zypper_setup()
 
     ONE_TIME_PACKAGE_MANAGER_SETUP_DONE = True
-    return
 
 
 def is_package_installed(package_name: str) -> bool:
     one_time_package_manager_setup()
     logger.info(f"Checking if package is installed: {package_name}")
     if os_uses_apt():
-        output = subprocess.run(["apt", "list", "--installed", package_name],
-                                text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT).stdout.split(b"\n")
+        result = subprocess.run(["apt", "list", "--installed", package_name],
+                                text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        stdout = result.stdout
+        lines = stdout.split(u"\n")
         # Prints output similar to the below where we can see nano is installed.
         # nano/bionic,now 2.9.3-2 amd64 [installed]
-        for line in output:
+        for line in lines:
             if line.startswith(f"{package_name}/"):
                 return True
         return False
@@ -123,3 +125,7 @@ def remove_package(pkg_name):
             logger.info(f"Command output: {ret.stdout}")
             time.sleep(3)
     raise AssertionError(f"Could not remove package: {pkg_name}")
+
+
+if __name__ == "__main__":
+    print(is_package_installed("auditd"))
