@@ -1,4 +1,6 @@
 # Useful operating system utilities
+
+import os
 import subprocess
 import time
 from robot.api import logger
@@ -19,9 +21,31 @@ def os_uses_zypper() -> bool:
     return command_available_on_system("zypper")
 
 
-def one_time_zypper_setup():
+def zypper_env():
+    env = os.environ.copy()
+    env['ZYPP_LOCK_TIMEOUT'] = "600"
+    return env
 
-    pass
+
+def one_time_zypper_setup():
+    start = time.time()
+    while start + 60 > time.time():
+        result = subprocess.run(['systemctl', 'status', 'cloud-init'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        if b"active (exited)" in result.stdout:
+            break
+        else:
+            logger.debug("cloud-init not finished: " + result.stdout.decode("UTF-8", errors="replace"))
+        time.sleep(4)
+
+    start = time.time()
+    while start + 60 > time.time():
+        result = subprocess.run(['zypper', '--no-interactive', 'refresh'], env=zypper_env(),
+                                stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        if result.returncode == 0:
+            break
+        else:
+            logger.error("Failed to refresh zypper: " + result.stdout.decode("UTF-8", errors="replace"))
+        time.sleep(4)
 
 
 ONE_TIME_PACKAGE_MANAGER_SETUP_DONE = False
@@ -54,7 +78,7 @@ def is_package_installed(package_name: str) -> bool:
     elif os_uses_yum():
         return subprocess.call(["yum", "--cacheonly", "list", "--installed", package_name]) == 0
     elif os_uses_zypper():
-        return subprocess.call(["zypper", "search", "-s", package_name]) == 0
+        return subprocess.call(["zypper", "search", "-s", package_name], env=zypper_env()) == 0
     else:
         logger.error("Could not determine whether machine uses apt, yum or zypper")
 
@@ -77,7 +101,7 @@ def install_package(pkg_name):
     cmd += ["install", pkg_name]
     logger.info(f"Running command: {cmd}")
     for _ in range(60):
-        ret = subprocess.run(cmd, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        ret = subprocess.run(cmd, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, env=zypper_env())
         if ret.returncode == 0:
             return
         else:
@@ -92,7 +116,7 @@ def remove_package(pkg_name):
     cmd += ["remove", pkg_name]
     logger.info(f"Running command: {cmd}")
     for _ in range(60):
-        ret = subprocess.run(cmd, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        ret = subprocess.run(cmd, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, env=zypper_env())
         if ret.returncode == 0:
             return
         else:
