@@ -175,6 +175,9 @@ Mark Known Upgrade Errors
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  mcsrouter.utils.plugin_registry <> Failed to load plugin file: /opt/sophos-spl/base/pluginRegistry
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  mcsrouter.utils.plugin_registry <> [Errno 13] Permission denied: '/opt/sophos-spl/base/pluginRegistry
 
+    #TODO LINUXDAR-4015 remove when this defect is closed
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/runtimedetections/log/runtimedetections.log  runtimedetections <> Could not enter supervised child process
+
 Create Local SDDS3 Override
     [Arguments]  ${URLS}=https://localhost:8080  ${CDN_URL}=https://localhost:8080  ${USE_SDDS3_OVERRIDE}=true
     ${override_file_contents} =  Catenate    SEPARATOR=\n
