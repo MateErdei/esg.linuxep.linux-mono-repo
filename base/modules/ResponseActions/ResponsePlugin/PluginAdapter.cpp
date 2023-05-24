@@ -8,11 +8,11 @@
 namespace ResponsePlugin
 {
     PluginAdapter::PluginAdapter(
-        std::shared_ptr<TaskQueue> queueTask,
+        std::shared_ptr<TaskQueue> taskQueue,
         std::unique_ptr<Common::PluginApi::IBaseServiceApi> baseService,
         std::unique_ptr<IActionRunner> runner,
         std::shared_ptr<PluginCallback> callback) :
-        m_queueTask(std::move(queueTask)),
+        m_taskQueue(std::move(taskQueue)),
         m_runner(std::move(runner)),
         m_baseService(std::move(baseService)),
         m_callback(std::move(callback))
@@ -27,7 +27,7 @@ namespace ResponsePlugin
         while (true)
         {
             Task task;
-            if (!m_queueTask->pop(task, 60))
+            if (!m_taskQueue->pop(task, 60))
             {
                 if (!m_runner->getIsRunning() && !m_actionQueue.empty())
                 {
@@ -74,7 +74,7 @@ namespace ResponsePlugin
         LOGINFO("Running action: " << correlationId);
         LOGDEBUG("Process action: " << action);
         auto [actionType, timeout] = PluginUtils::getType(action);
-        if (timeout == -1)
+        if (timeout < 0)
         {
             LOGWARN("Action does not have a valid timeout set discarding it: " << action);
             return;
