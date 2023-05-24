@@ -137,9 +137,11 @@ TEST_F(TestMountMonitor, TestSetExclusions)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    const char* excludedMount = "/test/";
+    constexpr const char* excludedMount{"/test"};
+    constexpr const char* exclusion{"/test/"};
+
     std::vector<common::Exclusion> exclusions;
-    exclusions.emplace_back(excludedMount);
+    exclusions.emplace_back(exclusion);
 
     std::shared_ptr<NiceMock<MockMountPoint>> localFixedDevice = std::make_shared<NiceMock<MockMountPoint>>();
     EXPECT_CALL(*localFixedDevice, isHardDisc()).WillRepeatedly(Return(true));

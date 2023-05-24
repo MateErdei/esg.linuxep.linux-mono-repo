@@ -480,3 +480,10 @@ TEST(Exclusion, eicar1path)
     EXPECT_FALSE(ex.appliesToPath("/tmp/eicar2"));
     EXPECT_FALSE(appliesToCpFile(ex, "/tmp/eicar2"));
 }
+
+TEST(Exclusion, home1)
+{
+    Exclusion ex{"/home1/"};
+    fs::path mp{"/home1"};
+    EXPECT_TRUE(ex.appliesToPath(mp, true, false));
+}
