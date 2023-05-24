@@ -770,13 +770,19 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompress_EmptyPassword)
     ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
 
     nlohmann::json action = getDownloadObject(true, "");
-    EXPECT_NO_THROW(downloadFileAction.run(action.dump()));
+    nlohmann::json response = downloadFileAction.run(action.dump());
+
+    EXPECT_EQ(response["result"], 0);
+    EXPECT_EQ(response["httpStatus"], HTTP_STATUS_OK);
+    EXPECT_FALSE(response.contains("errorType"));
+    EXPECT_FALSE(response.contains("errorMessage"));
     EXPECT_TRUE(appenderContains("/path/to/download/to/download.txt downloaded successfully"));
 }
 
 TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompress_LargePassword)
 {
-    const std::string largePassword(10000, 'a');
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    const std::string largePassword(30000, 'a');
 
     setupMockZipUtils(UNZ_OK, largePassword);
 
@@ -799,7 +805,12 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompress_LargePassword)
     ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
 
     nlohmann::json action = getDownloadObject(true, largePassword);
-    EXPECT_NO_THROW(downloadFileAction.run(action.dump()));
+    nlohmann::json response = downloadFileAction.run(action.dump());
+
+    EXPECT_EQ(response["result"], 0);
+    EXPECT_EQ(response["httpStatus"], HTTP_STATUS_OK);
+    EXPECT_FALSE(response.contains("errorType"));
+    EXPECT_FALSE(response.contains("errorMessage"));
     EXPECT_TRUE(appenderContains("/path/to/download/to/download.txt downloaded successfully"));
 }
 
@@ -1345,6 +1356,40 @@ TEST_F(DownloadFileTests, Sha256IsWrong)
     EXPECT_TRUE(appenderContains(expectedErrStr));
 }
 
+TEST_F(DownloadFileTests, Sha256IsHuge)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    const std::string largeSha (30000, 'a');
+
+    addResponseToMockRequester(HTTP_STATUS_OK, ResponseErrorCode::OK);
+
+    addDiskSpaceExpectsToMockFileSystem();
+    addDownloadAndExtractExpectsToMockFileSystem(m_destPath + m_testZipFile);
+    addListFilesExpectsToMockFileSystem();
+    addCleanupChecksToMockFileSystem();
+    EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFileSystem, moveFileTryCopy(m_raTmpFile, m_destPath + m_testZipFile)).Times(1);
+    EXPECT_CALL(*m_mockFileSystem, calculateDigest(Common::SslImpl::Digest::sha256, m_raTmpFile))
+        .WillOnce(Return(largeSha));
+    Tests::replaceFileSystem(std::move(m_mockFileSystem));
+
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
+
+    nlohmann::json action = getDownloadObject();
+    action["sha256"] = largeSha;
+    nlohmann::json response = downloadFileAction.run(action.dump());
+
+    EXPECT_EQ(response["result"], 0);
+    EXPECT_EQ(response["httpStatus"], HTTP_STATUS_OK);
+    EXPECT_FALSE(response.contains("errorType"));
+    EXPECT_FALSE(response.contains("errorMessage"));
+
+    EXPECT_TRUE(appenderContains("Successfully matched sha256 to downloaded file"));
+    EXPECT_TRUE(appenderContains("/path/to/download/to/testdownload.zip downloaded successfully"));
+}
+
+
 //Download errors
 
 TEST_F(DownloadFileTests, FailureDueToTimeout)
@@ -1372,6 +1417,7 @@ TEST_F(DownloadFileTests, FailureDueToTimeout)
 
     EXPECT_TRUE(appenderContains(expectedErrStr));
 }
+
 
 TEST_F(DownloadFileTests, FailureDueToTargetAlreadyExisting)
 {
