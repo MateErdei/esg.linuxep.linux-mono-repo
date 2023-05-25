@@ -72,7 +72,7 @@ def robot_task(machine: tap.Machine, robot_args: str):
         machine.output_artifact('/opt/test/results', 'results')
 
 
-def coverage_task(machine: tap.Machine, branch: str, robot_args=None):
+def coverage_task(machine: tap.Machine, branch: str, robot_args: str):
     try:
         install_requirements(machine)
         tests_dir = str(machine.inputs.test_scripts)
