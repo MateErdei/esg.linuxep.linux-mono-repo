@@ -77,8 +77,9 @@ then
     current_release=$(cat /etc/os-release | grep PRETTY_NAME)
     release_patternAL2="PRETTY_NAME=\"Amazon Linux 2\""
     release_patternAL2022="PRETTY_NAME=\"Amazon Linux 2022\""
-    release_patternSLES12="PRETTY_NAME=\"SUSE Linux Enterprise Server 12\""
-    release_patternSLES15="PRETTY_NAME=\"SUSE Linux Enterprise Server 15\""
+    # Glob required due to some SLES platforms having SPs, e.g. SUSE Linux Enterprise Server 15 SP4
+    release_patternSLES12="PRETTY_NAME=\"SUSE Linux Enterprise Server 12.*\""
+    release_patternSLES15="PRETTY_NAME=\"SUSE Linux Enterprise Server 15.*\""
     if [[ ${current_release} =~ ${release_patternAL2} ]]
     then
         PLATFORM_EXCLUDE_TAG="-e EXCLUDE_AMAZON_LINUX2"
@@ -91,8 +92,6 @@ then
     elif [[ ${current_release} =~ ${release_patternSLES15} ]]
     then
         PLATFORM_EXCLUDE_TAG="-e EXCLUDE_SLES15"
-    else
-        PLATFORM_EXCLUDE_TAG="-e EXCLUDE_SLES12"
     fi
 fi
 

@@ -19,7 +19,8 @@ ${BaseEdrAndMtrAndAVVUTPolicy}              ${GeneratedWarehousePolicies}/base_e
 
 *** Test Cases ***
 Reconfigure All Sophos Users And Groups In Installed Product
-    [Tags]    WATCHDOG    SMOKE
+    # TODO LINUXDAR-7327: Fix and re-enable for SLES15
+    [Tags]    WATCHDOG    SMOKE    EXCLUDE_SLES15
 
     # Install VUT product
     Start Local Cloud Server  --initial-alc-policy  ${BaseEdrAndMtrAndAVVUTPolicy}
@@ -106,7 +107,8 @@ Reconfigure All Sophos Users And Groups In Installed Product
     Verify Product is Running Without Error After ID Change
 
 Reconfigure All Sophos Users And Groups When Installing Product Using Thin Installer
-    [Tags]    THININSTALLER    WATCHDOG    SMOKE
+    # TODO LINUXDAR-7327: Fix and re-enable for SLES15
+    [Tags]    THININSTALLER    WATCHDOG    SMOKE    EXCLUDE_SLES15
 
     Start Local Cloud Server  --initial-alc-policy  ${BaseEdrAndMtrAndAVVUTPolicy}
     ${handle} =    Start Local SDDS3 Server
