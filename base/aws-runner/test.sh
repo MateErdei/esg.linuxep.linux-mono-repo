@@ -21,8 +21,8 @@ then
 elif [[ -f /etc/oracle-release ]]
 then
     current_release=$(cat /etc/oracle-release)
-    release_patternOracle7="PRETTY_NAME=\"Oracle Linux Server release 7*"
-    release_patternOracle8="PRETTY_NAME=\"Oracle Linux Server release 8*"
+    release_patternOracle7="PRETTY_NAME=\"Oracle Linux Server release 7.*"
+    release_patternOracle8="PRETTY_NAME=\"Oracle Linux Server release 8.*"
     if [[ ${current_release} =~ ${release_patternOracle7} ]]
     then
         PLATFORM_EXCLUDE_TAG="-e EXCLUDE_ORACLE7"
@@ -52,8 +52,8 @@ then
     release_patternUbuntu22="PRETTY_NAME=\"Ubuntu 22.*"
     release_patternUbuntu20="PRETTY_NAME=\"Ubuntu 20.*"
     release_patternUbuntu18="PRETTY_NAME=\"Ubuntu 18.*"
-    release_patternDebian10="PRETTY_NAME=\"Debian GNU/Linux 10*"
-    release_patternDebian11="PRETTY_NAME=\"Debian GNU/Linux 11*"
+    release_patternDebian10="PRETTY_NAME=\"Debian GNU/Linux 10.*"
+    release_patternDebian11="PRETTY_NAME=\"Debian GNU/Linux 11.*"
     if [[ ${current_release} =~ ${release_patternUbuntu22} ]]
     then
         PLATFORM_EXCLUDE_TAG="-e EXCLUDE_UBUNTU22"
