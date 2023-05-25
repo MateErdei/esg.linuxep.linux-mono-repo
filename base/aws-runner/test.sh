@@ -33,10 +33,15 @@ then
 elif [[ -f /etc/redhat-release ]]
 then
     current_release=$(cat /etc/redhat-release)
-    release_patternRhel8="Red Hat.*8.*"
-    release_patternRhel9="Red Hat.*9.*"
+    # Space added in front of major version to prevent it matching minor version
+    release_patternRhel7="Red Hat.* 7.*"
+    release_patternRhel8="Red Hat.* 8.*"
+    release_patternRhel9="Red Hat.* 9.*"
 
-    if [[ ${current_release} =~ ${release_patternRhel8} ]]
+    if [[ ${current_release} =~ ${release_patternRhel7} ]]
+    then
+        PLATFORM_EXCLUDE_TAG="-e EXCLUDE_RHEL7"
+    elif [[ ${current_release} =~ ${release_patternRhel8} ]]
     then
         PLATFORM_EXCLUDE_TAG="-e EXCLUDE_RHEL8"
     elif [[ ${current_release} =~ ${release_patternRhel9} ]]
