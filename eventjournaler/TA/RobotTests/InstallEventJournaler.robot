@@ -3,6 +3,7 @@ Documentation   Suite description
 
 Resource        EventJournalerResources.robot
 Library         ../Libs/InstallerUtils.py
+Library         Collections
 
 Suite Setup     Setup
 Suite Teardown  Uninstall Base
@@ -26,6 +27,7 @@ Verify that the event journaler installer works correctly
 ## -----------------------------------------------------------------------------------------------------
     [Teardown]  Event Journaler Tests Teardown With Installed File Replacement
     Install Event Journaler Directly from SDDS
+    Wait Until Created    ${EVENT_JOURNALER_LOG_PATH}
 
     ${DirectoryInfo}  ${FileInfo}  ${SymbolicLinkInfo} =   Get File Info For Installation
     Set Test Variable  ${FileInfo}
@@ -44,6 +46,27 @@ Verify that the event journaler installer works correctly
     ## Check Symbolic Links
     ${ExpectedSymbolicLinkInfo} =  Get File  ${ROBOT_SCRIPTS_PATH}/InstallSet/SymbolicLinkInfo
     Should Be Equal As Strings  ${ExpectedSymbolicLinkInfo}  ${SymbolicLinkInfo}
+
+Check For Insecure Permissions
+    Install Event Journaler Directly from SDDS
+    # find all executables that are writable by sophos-spl-user or sophos-spl-group
+    ${rc}   ${output} =    Run And Return Rc And Output
+    ...     find ${SOPHOS_INSTALL} -type f -perm -0100 -\\( -\\( -user sophos-spl-user -perm -0200 -\\) -o -\\( -group sophos-spl-group -perm -0020 -\\) -o -perm -0002 -\\) -ls
+    Should Be Equal As Integers  ${rc}  ${0}
+    ${output} =   Replace String   ${output}   ${COMPONENT_ROOT_PATH}/   ${EMPTY}
+    @{items} =    Split To Lines   ${output}
+    Sort List   ${items}
+    Log List   ${items}
+    Should Be Empty   ${items}
+    # find all executables in directories that are writable by sophos-spl-user or sophos-spl-group
+    ${rc}   ${output} =    Run And Return Rc And Output
+    ...     find ${SOPHOS_INSTALL} -type d -\\( -\\( -user sophos-spl-user -perm -0200 -\\) -o -\\( -group sophos-spl-group -perm -0020 -\\) -o -perm -0002 -\\) -exec find {} -maxdepth 1 -type f -\\( -perm -0100 -o -name '*.so*' -! -name '*.so.cache' -\\) \\;
+    Should Be Equal As Integers  ${rc}  ${0}
+    ${output} =   Replace String   ${output}   ${COMPONENT_ROOT_PATH}/   ${EMPTY}
+    @{items} =    Split To Lines   ${output}
+    Sort List   ${items}
+    Log List   ${items}
+    Should Be Empty   ${items}
 
 *** Keywords ***
 Event Journaler Tests Teardown With Installed File Replacement
