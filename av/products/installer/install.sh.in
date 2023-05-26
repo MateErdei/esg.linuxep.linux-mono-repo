@@ -170,24 +170,16 @@ function generate_susi_package_manifest()
 
 function set_permissions_on_susi_update_source()
 {
-    chown -R ${THREAT_DETECTOR_USER}:${GROUP_NAME} "${SUSI_UPDATE_SRC}"
-    chmod 710 "${SUSI_UPDATE_SRC}"
-    chmod -R g-w,o= "${SUSI_UPDATE_SRC}"
-    chmod -R u=rwx,g=,o= \
+    chown -R root:${GROUP_NAME} "${SUSI_UPDATE_SRC}"
+    chmod 750 "${SUSI_UPDATE_SRC}"
+    chmod -R u=rwX,g=rX,o= "${SUSI_UPDATE_SRC}"
+    chmod -R u=rwx,g=rX,o= \
         "${SUSI_UPDATE_SRC}/susicore" \
         "${SUSI_UPDATE_SRC}/libglobalrep" \
         "${SUSI_UPDATE_SRC}/libsophtainer" \
         "${SUSI_UPDATE_SRC}/lrlib" \
         "${SUSI_UPDATE_SRC}/libsavi" \
         "${SUSI_UPDATE_SRC}/libupdater"
-
-    chmod -R u=rwX,g=,o= \
-        "${SUSI_UPDATE_SRC}/rules"
-
-    # AV Plugin needs to be able to read files in the following directories for telemetry
-    chmod -R g=rX,o= "${SUSI_UPDATE_SRC}/vdl/"
-    chmod -R g=rX,o= "${SUSI_UPDATE_SRC}/reputation/"
-    chmod -R g=rX,o= "${SUSI_UPDATE_SRC}/model/"
 }
 
 function already_installed()
@@ -307,8 +299,8 @@ function apply_permissions()
     chown -R ${THREAT_DETECTOR_USER}:${GROUP_NAME} "${CHROOT}/log"
     chown root:${GROUP_NAME} "${CHROOT}/log"
 
-    chmod 0770 ${CHROOT}/susi
-    chown root:${GROUP_NAME} "${CHROOT}/susi"
+    chmod 0710 ${CHROOT}/susi
+    chown ${THREAT_DETECTOR_USER}:${GROUP_NAME} "${CHROOT}/susi"
 
     set_permissions_on_susi_update_source
 
