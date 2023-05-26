@@ -154,11 +154,17 @@ namespace SulDownloader
         const auto awaitSupplementUpdateFlagPath = Common::FileSystem::join(
             Common::ApplicationConfiguration::applicationPathManager().sophosInstall(),
             "base/update/var/updatescheduler/await_scheduled_update");
+        // Only do the above behaviour if installed base version is older than 1.2.3, otherwise the issue isn't there
+        const auto baseVersionIniPath =
+            Common::ApplicationConfiguration::applicationPathManager().getVersionFilePath();
+        const auto baseVersion =
+            StringUtils::extractValueFromIniFile(baseVersionIniPath, "PRODUCT_VERSION");
+        const auto isVersionOlderThan123 = StringUtils::isVersionOlder("1.2.3", baseVersion);
 
         // for writing marker files if we do a forced update trigger by flag
         bool writeForceMarkerFile = false;
         std::string forcedUpdateMarkerFilePath;
-        if (supplementOnly)
+        if (supplementOnly && isVersionOlderThan123)
         {
             if (fileSystem->isFile(awaitSupplementUpdateFlagPath))
             {
