@@ -55,41 +55,36 @@ TEST_F(PluginUtilsTests, getFinishedStatusDoesNotThrowWhenThereIsNoVersioniniFil
 TEST_F(PluginUtilsTests, getFinishedStatusWillExtractVersionCorrectlyAndIsRunning) // NOLINT
 {
     std::vector<std::string> contents ={"PRODUCT_NAME = SPL-Base-Component","PRODUCT_VERSION = 1.0.0","BUILD_DATE = 2021-06-11"};
-    auto filesystemMock = new NiceMock<MockFileSystem>();
-    std::unique_ptr<Tests::ScopedReplaceFileSystem> scopedReplaceFileSystem = std::make_unique<Tests::ScopedReplaceFileSystem>(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
+    auto filesystemMock = std::make_unique<NiceMock<MockFileSystem>>();
     EXPECT_CALL(*filesystemMock, isFile(_)).WillOnce(Return(true));
-
     EXPECT_CALL(*filesystemMock, readLines(_)).WillOnce(Return(contents));
+    Tests::replaceFileSystem(std::move(filesystemMock));
 
     std::string expectedStatus {
         R"sophos(<?xml version="1.0" encoding="utf-8" ?><status version="1.0.0" is_running="1" />)sophos" };
     std::string status = RemoteDiagnoseImpl::PluginUtils::getStatus(1);
     EXPECT_EQ(expectedStatus,status);
-    scopedReplaceFileSystem.reset();
 }
 TEST_F(PluginUtilsTests, getFinishedStatusWillExtractVersionCorrectlyAndIsNotRunning) // NOLINT
 {
     std::vector<std::string> contents ={"PRODUCT_NAME = SPL-Base-Component","PRODUCT_VERSION = 1.0.0","BUILD_DATE = 2021-06-11"};
-    auto filesystemMock = new NiceMock<MockFileSystem>();
-    std::unique_ptr<Tests::ScopedReplaceFileSystem> scopedReplaceFileSystem = std::make_unique<Tests::ScopedReplaceFileSystem>(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
+    auto filesystemMock = std::make_unique<NiceMock<MockFileSystem>>();
     EXPECT_CALL(*filesystemMock, isFile(_)).WillOnce(Return(true));
-
     EXPECT_CALL(*filesystemMock, readLines(_)).WillOnce(Return(contents));
+    Tests::replaceFileSystem(std::move(filesystemMock));
 
     std::string expectedStatus {
         R"sophos(<?xml version="1.0" encoding="utf-8" ?><status version="1.0.0" is_running="0" />)sophos" };
     std::string status = RemoteDiagnoseImpl::PluginUtils::getStatus(0);
     EXPECT_EQ(expectedStatus,status);
-    scopedReplaceFileSystem.reset();
 }
 TEST_F(PluginUtilsTests, getFinishedStatusWillNotThrowOnInvalidProductVersion) // NOLINT
 {
     std::vector<std::string> contents ={"PRODUCT_VERSION = NOTAVERSION"};
-    auto filesystemMock = new NiceMock<MockFileSystem>();
-    std::unique_ptr<Tests::ScopedReplaceFileSystem> scopedReplaceFileSystem = std::make_unique<Tests::ScopedReplaceFileSystem>(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
+    auto filesystemMock = std::make_unique<NiceMock<MockFileSystem>>();
     EXPECT_CALL(*filesystemMock, isFile(_)).WillOnce(Return(true));
     EXPECT_CALL(*filesystemMock, readLines(_)).WillOnce(Return(contents));
+    Tests::replaceFileSystem(std::move(filesystemMock));
 
     EXPECT_NO_THROW(RemoteDiagnoseImpl::PluginUtils::getStatus(0));
-    scopedReplaceFileSystem.reset();
 }

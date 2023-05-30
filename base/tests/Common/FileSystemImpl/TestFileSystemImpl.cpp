@@ -47,7 +47,10 @@ namespace
     public:
         ~FileSystemImplTest() {}
         std::unique_ptr<IFileSystem> m_fileSystem;
-        void SetUp() override { m_fileSystem.reset(new FileSystemImpl()); }
+        void SetUp() override
+        {
+           m_fileSystem = std::make_unique<FileSystemImpl>();
+        }
 
         void copyFileAndExpectThrow(const Path& src, const Path& dest, const std::string& message)
         {
@@ -613,11 +616,10 @@ namespace
         Tests::TempDir tempdir("", "FileSystemImplTest_copyFile");
         Path A = tempdir.absPath("A");
         Path B = tempdir.absPath("B");
-        auto mockFileSystem = new StrictMock<MockFileSystem>();
+        auto mockFileSystem = std::make_unique<StrictMock<MockFileSystem>>();
         // With wrong permissions file will exist but not open
         EXPECT_CALL(*mockFileSystem, exists(A)).WillOnce(Return(true));
-        std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
-        Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
+        Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockFileSystem));
         copyFileAndExpectThrow(A, B, "Failed to copy file: '" + A + "' to '" + B + "', reading file failed.");
         EXPECT_FALSE(m_fileSystem->exists(B));
     }
@@ -639,14 +641,13 @@ namespace
         Path dest = tempdir.absPath("B");
         tempdir.createFile("A", "FOOBAR");
 
-        auto mockFileSystem = new StrictMock<MockFileSystem>();
+        auto mockFileSystem = std::make_unique<StrictMock<MockFileSystem>>();
         EXPECT_CALL(*mockFileSystem, exists(src)).WillOnce(Return(true));
         EXPECT_CALL(*mockFileSystem, exists(dest)).WillOnce(Return(true));
         EXPECT_CALL(*mockFileSystem, fileSize(src)).WillOnce(Return(1));
         EXPECT_CALL(*mockFileSystem, fileSize(dest)).WillOnce(Return(0));
         EXPECT_CALL(*mockFileSystem, removeFile(dest)).WillOnce(Return());
-        std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
-        Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
+        Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockFileSystem));
         copyFileAndExpectThrow(
             src,
             dest,

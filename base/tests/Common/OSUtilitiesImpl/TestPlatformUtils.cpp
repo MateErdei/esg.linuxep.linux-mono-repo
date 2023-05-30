@@ -23,13 +23,13 @@ TEST(TestPlatformUtils, PopulateVendorDetailsForUbuntu) // NOLINT
                                                     "DISTRIB_CODENAME=bionic",
                                                     "DISTRIB_DESCRIPTION=\"Ubuntu 18.04.6 LTS\"" };
 
-    auto* filesystemMock = new StrictMock<MockFileSystem>();
-    std::unique_ptr<Tests::ScopedReplaceFileSystem> scopedReplaceFileSystem =
-        std::make_unique<Tests::ScopedReplaceFileSystem>(
-            std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
-
+    auto filesystemMock = std::make_unique<StrictMock<MockFileSystem>>();
     EXPECT_CALL(*filesystemMock, isFile("/etc/lsb-release")).WillRepeatedly(Return(true));
     EXPECT_CALL(*filesystemMock, readLines("/etc/lsb-release")).WillRepeatedly(Return(lsbReleaseContents));
+
+    std::unique_ptr<Tests::ScopedReplaceFileSystem> scopedReplaceFileSystem =
+        std::make_unique<Tests::ScopedReplaceFileSystem>(
+            std::unique_ptr<Common::FileSystem::IFileSystem>(std::move(filesystemMock)));
 
     PlatformUtils platformUtils;
     ASSERT_EQ(platformUtils.getVendor(), "ubuntu");
@@ -42,11 +42,8 @@ TEST(TestPlatformUtils, PopulateVendorDetailsForUbuntu) // NOLINT
 
 TEST(TestPlatformUtils, PopulateVendorDetailsForRedhat) // NOLINT
 {
-    auto* filesystemMock = new StrictMock<MockFileSystem>();
+    auto filesystemMock = std::make_unique<StrictMock<MockFileSystem>>();
     std::vector<std::string> redhatReleaseContents = { "Red Hat Enterprise Linux release" };
-    std::unique_ptr<Tests::ScopedReplaceFileSystem> scopedReplaceFileSystem =
-        std::make_unique<Tests::ScopedReplaceFileSystem>(
-            std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
 
     EXPECT_CALL(*filesystemMock, isFile("/etc/lsb-release")).WillOnce(Return(false));
     EXPECT_CALL(*filesystemMock, isFile("/etc/issue")).WillOnce(Return(false));
@@ -54,6 +51,10 @@ TEST(TestPlatformUtils, PopulateVendorDetailsForRedhat) // NOLINT
     EXPECT_CALL(*filesystemMock, isFile("/etc/oracle-release")).WillOnce(Return(false));
     EXPECT_CALL(*filesystemMock, isFile("/etc/redhat-release")).WillRepeatedly(Return(true));
     EXPECT_CALL(*filesystemMock, readLines("/etc/redhat-release")).WillRepeatedly(Return(redhatReleaseContents));
+
+    std::unique_ptr<Tests::ScopedReplaceFileSystem> scopedReplaceFileSystem =
+        std::make_unique<Tests::ScopedReplaceFileSystem>(
+            std::unique_ptr<Common::FileSystem::IFileSystem>(std::move(filesystemMock)));
 
     PlatformUtils platformUtils;
     ASSERT_EQ(platformUtils.getVendor(), "redhat");
@@ -63,16 +64,17 @@ TEST(TestPlatformUtils, PopulateVendorDetailsForRedhat) // NOLINT
 
 TEST(TestPlatformUtils, PopulateVendorDetailsForCentos) // NOLINT
 {
-    auto* filesystemMock = new StrictMock<MockFileSystem>();
+    auto filesystemMock = std::make_unique<StrictMock<MockFileSystem>>();
     std::vector<std::string> centosReleaseContents = { "CentOS release" };
-    std::unique_ptr<Tests::ScopedReplaceFileSystem> scopedReplaceFileSystem =
-        std::make_unique<Tests::ScopedReplaceFileSystem>(
-            std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
 
     EXPECT_CALL(*filesystemMock, isFile("/etc/lsb-release")).WillOnce(Return(false));
     EXPECT_CALL(*filesystemMock, isFile("/etc/issue")).WillOnce(Return(false));
     EXPECT_CALL(*filesystemMock, isFile("/etc/centos-release")).WillRepeatedly(Return(true));
     EXPECT_CALL(*filesystemMock, readLines("/etc/centos-release")).WillRepeatedly(Return(centosReleaseContents));
+
+    std::unique_ptr<Tests::ScopedReplaceFileSystem> scopedReplaceFileSystem =
+        std::make_unique<Tests::ScopedReplaceFileSystem>(
+            std::unique_ptr<Common::FileSystem::IFileSystem>(std::move(filesystemMock)));
 
     PlatformUtils platformUtils;
     ASSERT_EQ(platformUtils.getVendor(), "centos");
@@ -82,11 +84,8 @@ TEST(TestPlatformUtils, PopulateVendorDetailsForCentos) // NOLINT
 
 TEST(TestPlatformUtils, PopulateVendorDetailsForAmazonLinux) // NOLINT
 {
-    auto* filesystemMock = new StrictMock<MockFileSystem>();
+    auto filesystemMock = std::make_unique<StrictMock<MockFileSystem>>();
     std::vector<std::string> systemReleaseContents = { "Amazon Linux release" };
-    std::unique_ptr<Tests::ScopedReplaceFileSystem> scopedReplaceFileSystem =
-        std::make_unique<Tests::ScopedReplaceFileSystem>(
-            std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
 
     EXPECT_CALL(*filesystemMock, isFile("/etc/lsb-release")).WillOnce(Return(false));
     EXPECT_CALL(*filesystemMock, isFile("/etc/issue")).WillOnce(Return(false));
@@ -96,6 +95,10 @@ TEST(TestPlatformUtils, PopulateVendorDetailsForAmazonLinux) // NOLINT
     EXPECT_CALL(*filesystemMock, isFile("/etc/system-release")).WillRepeatedly(Return(true));
     EXPECT_CALL(*filesystemMock, readLines("/etc/system-release")).WillRepeatedly(Return(systemReleaseContents));
 
+    std::unique_ptr<Tests::ScopedReplaceFileSystem> scopedReplaceFileSystem =
+        std::make_unique<Tests::ScopedReplaceFileSystem>(
+            std::unique_ptr<Common::FileSystem::IFileSystem>(std::move(filesystemMock)));
+
     PlatformUtils platformUtils;
     ASSERT_EQ(platformUtils.getVendor(), "amazon");
 
@@ -104,17 +107,18 @@ TEST(TestPlatformUtils, PopulateVendorDetailsForAmazonLinux) // NOLINT
 
 TEST(TestPlatformUtils, PopulateVendorDetailsForOracle) // NOLINT
 {
-    auto* filesystemMock = new StrictMock<MockFileSystem>();
+    auto filesystemMock = std::make_unique<StrictMock<MockFileSystem>>();
     std::vector<std::string> oracleReleaseContents = { "Oracle Linux Server release" };
-    std::unique_ptr<Tests::ScopedReplaceFileSystem> scopedReplaceFileSystem =
-        std::make_unique<Tests::ScopedReplaceFileSystem>(
-            std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
 
     EXPECT_CALL(*filesystemMock, isFile("/etc/lsb-release")).WillOnce(Return(false));
     EXPECT_CALL(*filesystemMock, isFile("/etc/issue")).WillOnce(Return(false));
     EXPECT_CALL(*filesystemMock, isFile("/etc/centos-release")).WillOnce(Return(false));
     EXPECT_CALL(*filesystemMock, isFile("/etc/oracle-release")).WillRepeatedly(Return(true));
     EXPECT_CALL(*filesystemMock, readLines("/etc/oracle-release")).WillRepeatedly(Return(oracleReleaseContents));
+
+    std::unique_ptr<Tests::ScopedReplaceFileSystem> scopedReplaceFileSystem =
+        std::make_unique<Tests::ScopedReplaceFileSystem>(
+            std::unique_ptr<Common::FileSystem::IFileSystem>(std::move(filesystemMock)));
 
     PlatformUtils platformUtils;
     ASSERT_EQ(platformUtils.getVendor(), "oracle");
@@ -124,11 +128,8 @@ TEST(TestPlatformUtils, PopulateVendorDetailsForOracle) // NOLINT
 
 TEST(TestPlatformUtils, PopulateVendorDetailsForMiracleLinux) // NOLINT
 {
-    auto* filesystemMock = new StrictMock<MockFileSystem>();
+    auto filesystemMock = std::make_unique<StrictMock<MockFileSystem>>();
     std::vector<std::string> miracleLinuxReleaseContents = { "MIRACLE LINUX release" };
-    std::unique_ptr<Tests::ScopedReplaceFileSystem> scopedReplaceFileSystem =
-        std::make_unique<Tests::ScopedReplaceFileSystem>(
-            std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
 
     EXPECT_CALL(*filesystemMock, isFile("/etc/lsb-release")).WillOnce(Return(false));
     EXPECT_CALL(*filesystemMock, isFile("/etc/issue")).WillOnce(Return(false));
@@ -139,6 +140,10 @@ TEST(TestPlatformUtils, PopulateVendorDetailsForMiracleLinux) // NOLINT
     EXPECT_CALL(*filesystemMock, isFile("/etc/miraclelinux-release")).WillRepeatedly(Return(true));
     EXPECT_CALL(*filesystemMock, readLines("/etc/miraclelinux-release"))
         .WillRepeatedly(Return(miracleLinuxReleaseContents));
+
+    std::unique_ptr<Tests::ScopedReplaceFileSystem> scopedReplaceFileSystem =
+        std::make_unique<Tests::ScopedReplaceFileSystem>(
+            std::unique_ptr<Common::FileSystem::IFileSystem>(std::move(filesystemMock)));
 
     PlatformUtils platformUtils;
     ASSERT_EQ(platformUtils.getVendor(), "miracle");
@@ -151,11 +156,7 @@ TEST(TestPlatformUtils, PopulateVendorDetailsForSLES12) // NOLINT
     std::vector<std::string> suseReleaseContents = { "SLE",
                                                      "VERSION = 15" };
 
-    auto* filesystemMock = new StrictMock<MockFileSystem>();
-    std::unique_ptr<Tests::ScopedReplaceFileSystem> scopedReplaceFileSystem =
-        std::make_unique<Tests::ScopedReplaceFileSystem>(
-            std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
-
+    auto filesystemMock = std::make_unique<StrictMock<MockFileSystem>>();
     EXPECT_CALL(*filesystemMock, isFile("/etc/lsb-release")).WillOnce(Return(false));
     EXPECT_CALL(*filesystemMock, isFile("/etc/issue")).WillOnce(Return(false));
     EXPECT_CALL(*filesystemMock, isFile("/etc/centos-release")).WillOnce(Return(false));
@@ -165,6 +166,10 @@ TEST(TestPlatformUtils, PopulateVendorDetailsForSLES12) // NOLINT
     EXPECT_CALL(*filesystemMock, isFile("/etc/miraclelinux-release")).WillRepeatedly(Return(false));
     EXPECT_CALL(*filesystemMock, isFile("/etc/SUSE-brand")).WillRepeatedly(Return(true));
     EXPECT_CALL(*filesystemMock, readLines("/etc/SUSE-brand")).WillRepeatedly(Return(suseReleaseContents));
+
+    std::unique_ptr<Tests::ScopedReplaceFileSystem> scopedReplaceFileSystem =
+        std::make_unique<Tests::ScopedReplaceFileSystem>(
+            std::unique_ptr<Common::FileSystem::IFileSystem>(std::move(filesystemMock)));
 
     PlatformUtils platformUtils;
     ASSERT_EQ(platformUtils.getVendor(), "suse");

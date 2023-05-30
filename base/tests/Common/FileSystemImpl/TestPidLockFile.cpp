@@ -19,7 +19,7 @@ class TestPidLockFile : public ::testing::Test
 public:
     TestPidLockFile()
     {
-        std::unique_ptr<MockPidLockFileUtils> mockPidLockFileUtils(new StrictMock<MockPidLockFileUtils>());
+        auto mockPidLockFileUtils = std::make_unique<StrictMock<MockPidLockFileUtils>>();
         m_mockPidLockFileUtilsPtr = mockPidLockFileUtils.get();
         Common::FileSystemImpl::replacePidLockUtils(std::move(mockPidLockFileUtils));
     }

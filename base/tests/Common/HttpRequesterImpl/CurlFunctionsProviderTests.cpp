@@ -45,8 +45,7 @@ TEST_F(CurlFunctionsProviderTests, curlWriteFuncZeroSize)
 
 TEST_F(CurlFunctionsProviderTests, curlWriteFileFuncWithNamedFile)
 {
-    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
-    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
+    auto mockFileSystem = std::make_unique<StrictMock<MockFileSystem>>();
 
     const char* dataChunk1 = "This is some ";
     const char* dataChunk2 = "data to deal with";
@@ -59,6 +58,7 @@ TEST_F(CurlFunctionsProviderTests, curlWriteFileFuncWithNamedFile)
 
     EXPECT_CALL(*mockFileSystem, appendFile(buffer.downloadFilePath, std::string(dataChunk1)));
     EXPECT_CALL(*mockFileSystem, appendFile(buffer.downloadFilePath, std::string(dataChunk2)));
+    Tests::replaceFileSystem(std::move(mockFileSystem));
 
     size_t bytesDealtWith = 0;
     bytesDealtWith += CurlFunctionsProvider::curlWriteFileFunc((void*)dataChunk1, 1, length1, &buffer);
@@ -69,8 +69,7 @@ TEST_F(CurlFunctionsProviderTests, curlWriteFileFuncWithNamedFile)
 
 TEST_F(CurlFunctionsProviderTests, curlWriteFileFuncWithNamedDirectory)
 {
-    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
-    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
+    auto mockFileSystem = std::make_unique<StrictMock<MockFileSystem>>();
 
     const char* dataChunk1 = "This is some ";
     const char* dataChunk2 = "data to deal with";
@@ -84,6 +83,7 @@ TEST_F(CurlFunctionsProviderTests, curlWriteFileFuncWithNamedDirectory)
 
     EXPECT_CALL(*mockFileSystem, appendFile(expectedDownloadLocation, std::string(dataChunk1)));
     EXPECT_CALL(*mockFileSystem, appendFile(expectedDownloadLocation, std::string(dataChunk2)));
+    Tests::replaceFileSystem(std::move(mockFileSystem));
 
     size_t bytesDealtWith = 0;
     bytesDealtWith += CurlFunctionsProvider::curlWriteFileFunc((void*)dataChunk1, 1, length1, &buffer);
@@ -94,8 +94,7 @@ TEST_F(CurlFunctionsProviderTests, curlWriteFileFuncWithNamedDirectory)
 
 TEST_F(CurlFunctionsProviderTests, curlWriteFileFuncWithNamedDirectoryAndSlash)
 {
-    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
-    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
+    auto mockFileSystem = std::make_unique<StrictMock<MockFileSystem>>();
 
     const char* dataChunk1 = "This is some ";
     const char* dataChunk2 = "data to deal with";
@@ -109,6 +108,7 @@ TEST_F(CurlFunctionsProviderTests, curlWriteFileFuncWithNamedDirectoryAndSlash)
 
     EXPECT_CALL(*mockFileSystem, appendFile(expectedDownloadLocation, std::string(dataChunk1)));
     EXPECT_CALL(*mockFileSystem, appendFile(expectedDownloadLocation, std::string(dataChunk2)));
+    Tests::replaceFileSystem(std::move(mockFileSystem));
 
     size_t bytesDealtWith = 0;
     bytesDealtWith += CurlFunctionsProvider::curlWriteFileFunc((void*)dataChunk1, 1, length1, &buffer);
@@ -119,8 +119,7 @@ TEST_F(CurlFunctionsProviderTests, curlWriteFileFuncWithNamedDirectoryAndSlash)
 
 TEST_F(CurlFunctionsProviderTests, curlWriteFileFuncWithNoTargetFileOrDirShouldReturnZero)
 {
-    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
-    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
+    auto mockFileSystem = std::make_unique<StrictMock<MockFileSystem>>();
 
     const char* dataChunk1 = "This is some ";
     const char* dataChunk2 = "data to deal with";
@@ -133,14 +132,14 @@ TEST_F(CurlFunctionsProviderTests, curlWriteFileFuncWithNoTargetFileOrDirShouldR
     size_t bytesDealtWith = 0;
     bytesDealtWith += CurlFunctionsProvider::curlWriteFileFunc((void*)dataChunk1, 1, length1, &buffer);
     bytesDealtWith += CurlFunctionsProvider::curlWriteFileFunc((void*)dataChunk2, 1, length2, &buffer);
+    Tests::replaceFileSystem(std::move(mockFileSystem));
 
     ASSERT_EQ(bytesDealtWith, 0);
 }
 
 TEST_F(CurlFunctionsProviderTests, curlWriteFileFuncWithDirAndContentDispositionHeader)
 {
-    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
-    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
+    auto mockFileSystem = std::make_unique<StrictMock<MockFileSystem>>();
 
     const char* dataChunk1 = "This is some ";
     const char* dataChunk2 = "data to deal with";
@@ -155,6 +154,7 @@ TEST_F(CurlFunctionsProviderTests, curlWriteFileFuncWithDirAndContentDisposition
 
     EXPECT_CALL(*mockFileSystem, appendFile(expectedDownloadLocation, std::string(dataChunk1)));
     EXPECT_CALL(*mockFileSystem, appendFile(expectedDownloadLocation, std::string(dataChunk2)));
+    Tests::replaceFileSystem(std::move(mockFileSystem));
 
     size_t bytesDealtWith = 0;
     bytesDealtWith += CurlFunctionsProvider::curlWriteFileFunc((void*)dataChunk1, 1, length1, &buffer);
