@@ -412,17 +412,36 @@ On Access Does Not Monitor a directory mount If It Matches An Exclusion In Polic
 
     ${source} =       Set Variable  /etc
     ${destination} =  Set Variable  /tmp_test
+    ${exclusion} =    Set Variable  ${destination}/
     Register Cleanup  Remove Directory   ${destination}   recursive=true
     Remove Directory  ${destination}   recursive=true
     Create Directory  ${destination}
 
-    Run Shell Process   mount --rbind ${source} ${destination}     OnError=Failed to create bind mount
+    Run Shell Process   mount --bind ${source} ${destination}     OnError=Failed to create bind mount
     Register Cleanup  Unmount Test Mount  ${destination}
 
-    Send Complete Policies    ["/tmp_test/"]
-    wait for on access log contains after mark  On-access exclusions: ["/tmp_test/"]  mark=${mark}
+    Send Complete Policies    ["${exclusion}"]
+    wait for on access log contains after mark  On-access exclusions: ["${exclusion}"]  mark=${mark}
     wait for on access log contains after mark  Updating on-access exclusions  mark=${mark}
     wait for on access log contains after mark  Mount point /tmp_test matches an exclusion in the policy and will be excluded from scanning  mark=${mark}
+
+On Access Monitors a Bind-mounted File Even If It Matches An Directory Exclusion In Policy
+    ${mark} =  get_on_access_log_mark
+
+    ${source} =       Set Variable  /etc/hosts
+    ${destination} =  Set Variable  /tmp_testfile
+    ${exclusion} =    Set Variable  ${destination}/
+    Register Cleanup  Remove File   ${destination}
+    Remove File  ${destination}
+    Create File  ${destination}
+
+    Run Shell Process   mount --bind ${source} ${destination}     OnError=Failed to create bind mount
+    Register Cleanup  Unmount Test Mount  ${destination}
+
+    Send Complete Policies    ["${exclusion}"]
+    wait for on access log contains after mark  On-access exclusions: ["${exclusion}"]  mark=${mark}
+    wait for on access log contains after mark  Updating on-access exclusions  mark=${mark}
+    wait for on access log contains after mark  Including mount point: ${destination}  mark=${mark}  timeout=${5}
 
 On Access Does Not Monitor A Bind-mounted File If It Matches A File Exclusion In Policy
     ${source} =       Set Variable  /tmp_test/src_file
