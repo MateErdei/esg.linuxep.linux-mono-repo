@@ -265,6 +265,44 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_HugeURL)
     EXPECT_TRUE(appenderContains(expectedMsg));
 }
 
+TEST_F(DownloadFileTests, SuccessfulDownload_Direct_HugePath)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    const std::string largeStr(30000, 'a');
+    const std::string largeTargetPath(m_destPath + largeStr);
+  //  const std::string expectedMsg("Download URL is" + largeURL);
+
+    addResponseToMockRequester(HTTP_STATUS_OK, ResponseErrorCode::OK);
+
+    addDiskSpaceExpectsToMockFileSystem();
+    addListFilesExpectsToMockFileSystem();
+    addDownloadAndExtractExpectsToMockFileSystem(largeTargetPath);
+    addCleanupChecksToMockFileSystem();
+
+    EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFileSystem, moveFileTryCopy(m_raTmpFile, largeTargetPath)).Times(1);
+    EXPECT_CALL(*m_mockFileSystem, calculateDigest(Common::SslImpl::Digest::sha256, m_raTmpFile))
+        .WillOnce(Return("shastring"));
+    Tests::replaceFileSystem(std::move(m_mockFileSystem));
+
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
+
+    nlohmann::json action = getDownloadObject();
+    action["targetPath"] = largeTargetPath;
+    nlohmann::json response = downloadFileAction.run(action.dump());
+
+    EXPECT_EQ(response["type"], "sophos.mgt.response.DownloadFile");
+    EXPECT_EQ(response["result"], 0);
+    EXPECT_EQ(response["httpStatus"], HTTP_STATUS_OK);
+    EXPECT_FALSE(response.contains("errorType"));
+    EXPECT_FALSE(response.contains("errorMessage"));
+    EXPECT_TRUE(response.contains("duration"));
+
+   // EXPECT_TRUE(appenderContains(expectedMsg));
+}
+
+
+
 TEST_F(DownloadFileTests, SuccessfulDownload_Direct_NotDecompressed_NoFileNameInTargetPath)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);

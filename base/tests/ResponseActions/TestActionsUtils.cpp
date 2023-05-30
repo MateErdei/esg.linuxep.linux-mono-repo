@@ -309,12 +309,31 @@ TEST_F(ActionsUtilsTests, downloadActionTestSuccessfulParsing)
     EXPECT_EQ(output.password, action.at("password"));
 }
 
-TEST_F(ActionsUtilsTests, downloadActionTestHugeurl)
+TEST_F(ActionsUtilsTests, downloadActionHugeurl)
 {
     nlohmann::json action = getDefaultDownloadAction();
     const std::string largeStr(30000, 'a');
     const std::string largeURL("https://s3.com/download" + largeStr + ".zip");
     action["url"] = largeURL;
+
+    auto output = ActionsUtils::readDownloadAction(action.dump());
+
+    EXPECT_EQ(output.decompress, action.at("decompress"));
+    EXPECT_EQ(output.sizeBytes, action.at("sizeBytes"));
+    EXPECT_EQ(output.expiration, action.at("expiration"));
+    EXPECT_EQ(output.timeout, action.at("timeout"));
+    EXPECT_EQ(output.sha256, action.at("sha256"));
+    EXPECT_EQ(output.url, action.at("url"));
+    EXPECT_EQ(output.targetPath, action.at("targetPath"));
+    EXPECT_EQ(output.password, action.at("password"));
+}
+
+TEST_F(ActionsUtilsTests, downloadActionLargeTargetPath)
+{
+    nlohmann::json action = getDefaultDownloadAction();
+    const std::string largeStr(30000, 'a');
+    const std::string largeTargetPath("/tmp/folder/" + largeStr);
+    action["targetPath"] = largeTargetPath;
 
     auto output = ActionsUtils::readDownloadAction(action.dump());
 
