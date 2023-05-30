@@ -35,7 +35,6 @@ namespace ResponseActionsImpl
             RunCommandAction() = delete;
 
             nlohmann::json run(const std::string& actionJson, const std::string& correlationId);
-            CommandRequest parseCommandAction(const std::string& actionJson);
             CommandResponse runCommands(const CommandRequest& action, const std::string& correlationId);
             SingleCommandResult runCommand(const std::string& command);
 

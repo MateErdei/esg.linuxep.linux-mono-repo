@@ -14,6 +14,7 @@ namespace ResponseActionsImpl
     public:
         [[nodiscard]] static UploadInfo readUploadAction(const std::string& actionJson, UploadType type);
         [[nodiscard]] static DownloadInfo readDownloadAction(const std::string& actionJson);
+        [[nodiscard]] static CommandRequest readCommandAction(const std::string& actionJson);
         [[nodiscard]] static bool isExpired(u_int64_t expiry);
         static void setErrorInfo(
             nlohmann::json& response,

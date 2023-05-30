@@ -183,6 +183,56 @@ namespace ResponseActionsImpl
         return info;
     }
 
+    CommandRequest ActionsUtils::readCommandAction(const std::string& actionJson)
+    {
+        CommandRequest action;
+        nlohmann::json actionObject;
+        if (actionJson.empty())
+        {
+            throw InvalidCommandFormat("Run command action JSON is empty");
+        }
+
+        try
+        {
+            actionObject = nlohmann::json::parse(actionJson);
+        }
+        catch (const nlohmann::json::exception& exception)
+        {
+            throw InvalidCommandFormat(
+                "Cannot parse run command action with JSON error: " + std::string(exception.what()));
+        }
+
+        // Check all required keys are present
+        std::vector<std::string> requiredKeys = { "type", "commands", "timeout", "ignoreError", "expiration" };
+        for (const auto& key : requiredKeys)
+        {
+            if (!actionObject.contains(key))
+            {
+                throw InvalidCommandFormat("No '" + key + "' in run command action JSON");
+            }
+        }
+
+        try
+        {
+            action.commands = actionObject["commands"].get<std::vector<std::string>>();
+            action.timeout = actionObject.at("timeout");
+            action.ignoreError = actionObject.at("ignoreError");
+            action.expiration = actionObject.at("expiration");
+        }
+        catch (const std::exception& exception)
+        {
+            throw InvalidCommandFormat(
+                "Failed to create Command Request object from run command JSON: " + std::string(exception.what()));
+        }
+
+        if (action.commands.empty())
+        {
+            throw InvalidCommandFormat("No commands to perform in run command JSON: " + actionJson);
+        }
+
+        return action;
+    }
+
     bool ActionsUtils::isExpired(u_int64_t expiry)
     {
         Common::UtilityImpl::FormattedTime time;
