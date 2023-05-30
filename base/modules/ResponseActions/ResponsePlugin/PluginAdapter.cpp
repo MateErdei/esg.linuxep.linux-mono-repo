@@ -71,7 +71,6 @@ namespace ResponsePlugin
 
     void PluginAdapter::processAction(const std::string& action,const std::string& correlationId)
     {
-        LOGINFO("Running action: " << correlationId);
         LOGDEBUG("Process action: " << action);
         auto [actionType, timeout] = PluginUtils::getType(action);
         if (timeout < 0)
@@ -84,6 +83,7 @@ namespace ResponsePlugin
             LOGWARN("Throwing away unknown action: " << action);
             return;
         }
+        LOGINFO("Running action: " << correlationId);
         m_runner->runAction(action, correlationId, actionType, timeout);
     }
 

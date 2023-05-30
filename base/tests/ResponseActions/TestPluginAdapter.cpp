@@ -117,6 +117,7 @@ TEST_F(PluginAdapterTests, TestActionsRunInOrder)
         ResponsePlugin::Task::TaskType::ACTION, R"({"type":"a","timeout":1})", "CORE", "id3" });
     m_taskQueue->pushStop();
 
+    testing::internal::CaptureStderr();
     pluginAdapter.mainLoop();
     std::string logMessage = internal::GetCapturedStderr();
     size_t pos1 = logMessage.find("Running action: id1");
@@ -166,4 +167,48 @@ TEST_F(PluginAdapterTests, ActionIsNotRunWhenTimeOutIsNegative)
     m_taskQueue->pushStop();
     pluginAdapter.mainLoop();
     EXPECT_TRUE(appenderContains(expectedMsg));
+}
+
+TEST_F(PluginAdapterTests, ActionIsNotRunWhenTimeOutIsInvalid)
+{
+    UsingMemoryAppender recorder(*this);
+    std::string action_timeout_str = R"({"type":"sophos.mgt.action.UploadFile","timeout":"1000"})";
+    std::string action_timeout_bool = R"({"type":"sophos.mgt.action.UploadFile","timeout":true})";
+    std::string expectedMsg_str = "Action does not have a valid timeout set discarding it: " + action_timeout_str;
+    std::string expectedMsg_bool = "Action does not have a valid timeout set discarding it: " + action_timeout_bool;
+
+    auto mockBaseService = std::make_unique<::testing::StrictMock<MockApiBaseServices>>();
+    ASSERT_NE(mockBaseService.get(), nullptr);
+
+    auto runner = std::make_unique<TestableActionRunner>();
+    ResponsePlugin::PluginAdapter pluginAdapter(m_taskQueue, std::move(mockBaseService), std::move(runner), m_callback);
+
+    m_taskQueue->push(ResponsePlugin::Task{ ResponsePlugin::Task::TaskType::ACTION, action_timeout_str});
+    m_taskQueue->push(ResponsePlugin::Task{ ResponsePlugin::Task::TaskType::ACTION, action_timeout_bool});
+    m_taskQueue->pushStop();
+
+    pluginAdapter.mainLoop();
+
+    EXPECT_TRUE(appenderContains(expectedMsg_str));
+    EXPECT_TRUE(appenderContains(expectedMsg_bool));
+}
+
+TEST_F(PluginAdapterTests, ActionIsRunWhenTimeOutIsFloat)
+{
+    UsingMemoryAppender recorder(*this);
+    std::string action = R"({"type":"sophos.mgt.action.UploadFile","timeout":1000.56})";
+    std::string expectedMsg_str = "Running action: ";
+
+    auto mockBaseService = std::make_unique<::testing::StrictMock<MockApiBaseServices>>();
+    ASSERT_NE(mockBaseService.get(), nullptr);
+
+    auto runner = std::make_unique<TestableActionRunner>();
+    ResponsePlugin::PluginAdapter pluginAdapter(m_taskQueue, std::move(mockBaseService), std::move(runner), m_callback);
+
+    m_taskQueue->push(ResponsePlugin::Task{ ResponsePlugin::Task::TaskType::ACTION, action});
+    m_taskQueue->pushStop();
+
+    pluginAdapter.mainLoop();
+
+    EXPECT_TRUE(appenderContains(expectedMsg_str));
 }
