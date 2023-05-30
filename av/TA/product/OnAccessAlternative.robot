@@ -407,6 +407,22 @@ On Access Does Not Monitor A Mount Point If It Matches An Exclusion In Policy
     wait for on access log contains after mark  Updating on-access exclusions  mark=${mark}
     wait for on access log contains after mark  Mount point / matches an exclusion in the policy and will be excluded from scanning  mark=${mark}
 
+On Access Does Not Monitor a directory mount If It Matches An Exclusion In Policy
+    ${mark} =  get_on_access_log_mark
+
+    ${source} =       Set Variable  /etc
+    ${destination} =  Set Variable  /tmp_test
+    Register Cleanup  Remove Directory   ${destination}   recursive=true
+    Remove Directory  ${destination}   recursive=true
+    Create Directory  ${destination}
+
+    Run Shell Process   mount --rbind ${source} ${destination}     OnError=Failed to create bind mount
+    Register Cleanup  Unmount Test Mount  ${destination}
+
+    Send Complete Policies    ["/tmp_test/"]
+    wait for on access log contains after mark  On-access exclusions: ["/tmp_test/"]  mark=${mark}
+    wait for on access log contains after mark  Updating on-access exclusions  mark=${mark}
+    wait for on access log contains after mark  Mount point /tmp_test matches an exclusion in the policy and will be excluded from scanning  mark=${mark}
 
 On Access Does Not Monitor A Bind-mounted File If It Matches A File Exclusion In Policy
     ${source} =       Set Variable  /tmp_test/src_file
