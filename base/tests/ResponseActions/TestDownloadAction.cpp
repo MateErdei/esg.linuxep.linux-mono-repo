@@ -1129,7 +1129,7 @@ TEST_F(DownloadFileTests, ErrorParsingJson)
     EXPECT_EQ(response["result"], 1);
     EXPECT_EQ(response["errorMessage"], "Error parsing command from Central");
 
-    EXPECT_TRUE(appenderContains("json.exception.parse_error.101"));
+    EXPECT_TRUE(appenderContains("Invalid command format. Download action JSON is empty"));
 }
 
 TEST_F(DownloadFileTests, actionExpired)
