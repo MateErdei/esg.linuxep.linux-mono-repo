@@ -60,12 +60,17 @@ namespace mount_monitor::mount_monitor
         {
             auto fsMountPoint = fs::path(mp->mountPoint());
             bool isDir = mp->isDirectory();
+            LOGDEBUG("Mount point isDir=" << isDir);
             for (const auto& exclusion: m_config.exclusions)
             {
                 if (exclusion.appliesToPath(fsMountPoint, isDir, !isDir))
                 {
                     LOGDEBUG("Mount point " << fsMountPoint.c_str() << " matches an exclusion in the policy and will be excluded from scanning");
                     return false;
+                }
+                else
+                {
+                    LOGDEBUG("Exclusion " << exclusion.displayPath() << " does not match " << fsMountPoint.c_str());
                 }
             }
         }
