@@ -507,7 +507,6 @@ function install_product()
     ln -snf "${PLUGIN_INSTALL}/bin/avscanner" /usr/local/bin/avscanner
 
     generate_susi_package_manifest
-    set_permissions_on_susi_update_source
 
     #Create plugin registration files
     create_registration_file "${PLUGIN_NAME}"
