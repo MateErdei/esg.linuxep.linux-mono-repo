@@ -52,20 +52,6 @@ class RunCommandTests : public MemoryAppenderUsingTests
 
 namespace
 {
-    std::string getDefaultCommandJsonString()
-    {
-        return R"({
-            "type": "sophos.mgt.action.RunCommands",
-            "commands": [
-                "echo one",
-                "echo two > /tmp/test.txt"
-            ],
-            "ignoreError": true,
-            "timeout": 60,
-            "expiration": 144444000000004
-        })";
-    }
-
     std::string getSingleCommandJsonString()
     {
         return R"({
@@ -78,21 +64,6 @@ namespace
             "expiration": 144444000000004
         })";
     }
-
-    std::string getCommandJsonStringWithWrongValueType()
-    {
-        return R"({
-            "type": "sophos.mgt.action.RunCommands",
-            "commands": [
-                "echo one",
-                "echo two > /tmp/test.txt"
-            ],
-            "ignoreError": true,
-            "timeout": "60",
-            "expiration": 144444000000004
-        })";
-    }
-
 } // namespace
 
 // to_json tests
@@ -125,156 +96,6 @@ TEST_F(RunCommandTests, CommandResponseToJson)
     std::string  expected = R"({"commandResults":[{"duration":100,"exitCode":123,"stdErr":"stderr","stdOut":"stdout"}],"duration":100000000,"result":0,"startedAt":123123,"type":"type"})";
     nlohmann::json response = commandResponse;
     EXPECT_EQ(response.dump(), expected);
-}
-
-
-// parseCommandAction tests
-
-TEST_F(RunCommandTests, testParseCommandActionSuccess)
-{
-    std::string commandJson = getDefaultCommandJsonString();
-    auto command = m_runCommandAction->parseCommandAction(commandJson);
-    std::vector<std::string> expectedCommands = { { "echo one" }, { R"(echo two > /tmp/test.txt)" } };
-
-    EXPECT_EQ(command.ignoreError, true);
-    EXPECT_EQ(command.timeout, 60);
-    EXPECT_EQ(command.expiration, 144444000000004);
-    EXPECT_EQ(command.commands, expectedCommands);
-}
-
-TEST_F(RunCommandTests, testParseCommandHandlesEscapedCharsInCmd)
-{
-    std::string commandJson = R"({
-            "type": "sophos.mgt.action.RunCommands",
-            "commands": [
-                "echo {\"number\":13, \"string\":\"a string and a quote \" }"
-            ],
-            "ignoreError": true,
-            "timeout": 60,
-            "expiration": 144444000000004
-            })";
-    auto command = m_runCommandAction->parseCommandAction(commandJson);
-    std::vector<std::string> expectedCommands = {  { R"(echo {"number":13, "string":"a string and a quote " })" } };
-    EXPECT_EQ(command.ignoreError, true);
-    EXPECT_EQ(command.timeout, 60);
-    EXPECT_EQ(command.expiration, 144444000000004);
-    EXPECT_EQ(command.commands, expectedCommands);
-}
-
-TEST_F(RunCommandTests, testParseCommandFailsDueToMissingTypeRequiredField)
-{
-    std::string commandJson = R"({
-        "commands": [
-            "echo one",
-            "echo two > /tmp/test.txt"
-        ],
-        "ignoreError": true,
-        "timeout": 60,
-        "expiration": 144444000000004
-        })";
-    EXPECT_THAT([&]() { m_runCommandAction->parseCommandAction(commandJson); },
-                ThrowsMessage<InvalidCommandFormat>(HasSubstr("Invalid command format. No 'type' in run command action JSON")));
-}
-
-TEST_F(RunCommandTests, testParseCommandFailsDueToMissingCommandsRequiredField)
-{
-    std::string commandJson = R"({
-        "type": "sophos.mgt.action.RunCommands",
-        "ignoreError": true,
-        "timeout": 60,
-        "expiration": 144444000000004
-        })";
-    EXPECT_THAT([&]() { m_runCommandAction->parseCommandAction(commandJson); },
-                ThrowsMessage<InvalidCommandFormat>(HasSubstr("Invalid command format. No 'commands' in run command action JSON")));
-}
-
-TEST_F(RunCommandTests, testParseCommandFailsDueToMissingIgnoreErrorRequiredField)
-{
-    std::string commandJson = R"({
-        "type": "sophos.mgt.action.RunCommands",
-        "commands": [
-            "echo one",
-            "echo two > /tmp/test.txt"
-        ],
-        "timeout": 60,
-        "expiration": 144444000000004
-        })";
-    EXPECT_THAT([&]() { m_runCommandAction->parseCommandAction(commandJson); },
-                ThrowsMessage<InvalidCommandFormat>(HasSubstr("Invalid command format. No 'ignoreError' in run command action JSON")));
-}
-
-TEST_F(RunCommandTests, testParseCommandFailsDueToMissingTimeoutRequiredField)
-{
-    std::string commandJson = R"({
-        "type": "sophos.mgt.action.RunCommands",
-        "commands": [
-            "echo one",
-            "echo two > /tmp/test.txt"
-        ],
-        "ignoreError": true,
-        "expiration": 144444000000004
-        })";
-    EXPECT_THAT([&]() { m_runCommandAction->parseCommandAction(commandJson); },
-                ThrowsMessage<InvalidCommandFormat>(HasSubstr("Invalid command format. No 'timeout' in run command action JSON")));
-}
-
-TEST_F(RunCommandTests, testParseCommandFailsDueToMissingExpirationRequiredField)
-{
-    std::string commandJson = R"({
-        "type": "sophos.mgt.action.RunCommands",
-        "commands": [
-            "echo one",
-            "echo two > /tmp/test.txt"
-        ],
-        "ignoreError": true,
-        "timeout": 60
-        })";
-    EXPECT_THAT([&]() { m_runCommandAction->parseCommandAction(commandJson); },
-                ThrowsMessage<InvalidCommandFormat>(HasSubstr("Invalid command format. No 'expiration' in run command action JSON")));
-}
-
-
-
-TEST_F(RunCommandTests, testParseCommandFailsDueToTypeError)
-{
-    std::string commandJson = getCommandJsonStringWithWrongValueType();
-    EXPECT_THAT([&]() { m_runCommandAction->parseCommandAction(commandJson); },
-                ThrowsMessage<InvalidCommandFormat>(HasSubstr("Failed to create Command Request object from run command JSON")));
-}
-
-TEST_F(RunCommandTests, testParseCommandFailsDueToMalformedJson)
-{
-    std::string commandJson = "this is not json";
-    EXPECT_THAT([&]() { m_runCommandAction->parseCommandAction(commandJson); },
-                ThrowsMessage<InvalidCommandFormat>(HasSubstr("syntax error")));
-}
-
-TEST_F(RunCommandTests, testParseCommandFailsDueToEmptyJsonString)
-{
-    std::string commandJson = "";
-    EXPECT_THAT([&]() { m_runCommandAction->parseCommandAction(commandJson); },
-                    ThrowsMessage<InvalidCommandFormat>(HasSubstr("Run command action JSON is empty")));
-}
-
-TEST_F(RunCommandTests, testParseCommandFailsDueToMissingCommands)
-{
-    std::string commandJson = R"({
-        "type": "sophos.mgt.action.RunCommands",
-        "commands": [
-        ],
-        "ignoreError": true,
-        "timeout": 60,
-        "expiration": 144444000000004
-        })";
-    EXPECT_THAT([&]() { m_runCommandAction->parseCommandAction(commandJson); },
-                ThrowsMessage<InvalidCommandFormat>(HasSubstr("Invalid command format. No commands to perform in run command JSON: ")));
-}
-
-TEST_F(RunCommandTests, testParseCommandFailsDueToEmptyJsonObject)
-{
-    std::string commandJson = "{}";
-    EXPECT_THAT([&]() { m_runCommandAction->parseCommandAction(commandJson); },
-                    ThrowsMessage<InvalidCommandFormat>(HasSubstr("Invalid command format. No 'type' in run command action JSON")));
 }
 
 // run

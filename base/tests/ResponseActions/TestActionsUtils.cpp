@@ -13,27 +13,29 @@
 
 #include <json.hpp>
 
+using namespace ResponseActionsImpl;
+
 class ActionsUtilsTests : public MemoryAppenderUsingTests
 {
 public:
     ActionsUtilsTests()
         : MemoryAppenderUsingTests("ResponseActionsImpl")
     {}
-    nlohmann::json getDefaultUploadObject(ResponseActionsImpl::ActionType type)
+    nlohmann::json getDefaultUploadObject(ActionType type)
     {
         nlohmann::json action;
 
         std::string targetKey;
         switch (type)
         {
-            case ResponseActionsImpl::ActionType::UPLOADFILE:
+            case ActionType::UPLOADFILE:
                 targetKey = "targetFile";
                 break;
-            case ResponseActionsImpl::ActionType::UPLOADFOLDER:
+            case ActionType::UPLOADFOLDER:
                 targetKey = "targetFolder";
                 break;
             default:
-                throw ResponseActionsImpl::InvalidCommandFormat("invalid type");
+                throw InvalidCommandFormat("invalid type");
         }
         action[targetKey] = "path";
         action["url"] = "https://s3.com/somewhere";
@@ -63,19 +65,19 @@ public:
 
 TEST_F(ActionsUtilsTests, testExpiry)
 {
-    EXPECT_TRUE(ResponseActionsImpl::ActionsUtils::isExpired(1000));
+    EXPECT_TRUE(ActionsUtils::isExpired(1000));
     // time is set here to Tue 8 Feb 17:12:46 GMT 2033
-    EXPECT_FALSE(ResponseActionsImpl::ActionsUtils::isExpired(1991495566));
+    EXPECT_FALSE(ActionsUtils::isExpired(1991495566));
     Common::UtilityImpl::FormattedTime time;
     u_int64_t currentTime = time.currentEpochTimeInSecondsAsInteger();
-    EXPECT_TRUE(ResponseActionsImpl::ActionsUtils::isExpired(currentTime-10));
-    EXPECT_FALSE(ResponseActionsImpl::ActionsUtils::isExpired(currentTime+10));
+    EXPECT_TRUE(ActionsUtils::isExpired(currentTime-10));
+    EXPECT_FALSE(ActionsUtils::isExpired(currentTime+10));
 }
 
 TEST_F(ActionsUtilsTests, testSucessfulParseUploadFile)
 {
-    nlohmann::json action = getDefaultUploadObject(ResponseActionsImpl::ActionType::UPLOADFILE);
-    ResponseActionsImpl::UploadInfo info = ResponseActionsImpl::ActionsUtils::readUploadAction(action.dump(),ResponseActionsImpl::ActionType::UPLOADFILE);
+    nlohmann::json action = getDefaultUploadObject(ActionType::UPLOADFILE);
+    UploadInfo info = ActionsUtils::readUploadAction(action.dump(),ActionType::UPLOADFILE);
     EXPECT_EQ(info.targetPath,"path");
     EXPECT_EQ(info.maxSize,10000000);
     EXPECT_EQ(info.compress,false);
@@ -86,8 +88,8 @@ TEST_F(ActionsUtilsTests, testSucessfulParseUploadFile)
 
 TEST_F(ActionsUtilsTests, testSucessfulParseUploadFolder)
 {
-    nlohmann::json action = getDefaultUploadObject(ResponseActionsImpl::ActionType::UPLOADFOLDER);
-    ResponseActionsImpl::UploadInfo info = ResponseActionsImpl::ActionsUtils::readUploadAction(action.dump(),ResponseActionsImpl::ActionType::UPLOADFOLDER);
+    nlohmann::json action = getDefaultUploadObject(ActionType::UPLOADFOLDER);
+    UploadInfo info = ActionsUtils::readUploadAction(action.dump(),ActionType::UPLOADFOLDER);
     EXPECT_EQ(info.targetPath,"path");
     EXPECT_EQ(info.maxSize,10000000);
     EXPECT_EQ(info.compress,false);
@@ -96,36 +98,36 @@ TEST_F(ActionsUtilsTests, testSucessfulParseUploadFolder)
     EXPECT_EQ(info.timeout,10);
 }
 
-TEST_F(ActionsUtilsTests, testParseFailsWhenActionIsInvalidJson)
+TEST_F(ActionsUtilsTests, testReadFailsWhenActionIsInvalidJson)
 {
     EXPECT_THROW(
-        std::ignore = ResponseActionsImpl::ActionsUtils::readUploadAction("", ResponseActionsImpl::ActionType::UPLOADFILE),
-        ResponseActionsImpl::InvalidCommandFormat);
+        std::ignore = ActionsUtils::readUploadAction("", ActionType::UPLOADFILE),
+        InvalidCommandFormat);
 }
 
-TEST_F(ActionsUtilsTests, testParseFailsWhenActionISUploadFileWhenExpectingFolder)
+TEST_F(ActionsUtilsTests, testReadFailsWhenActionISUploadFileWhenExpectingFolder)
 {
-    nlohmann::json action = getDefaultUploadObject(ResponseActionsImpl::ActionType::UPLOADFILE);
+    nlohmann::json action = getDefaultUploadObject(ActionType::UPLOADFILE);
     EXPECT_THROW(
-        std::ignore = ResponseActionsImpl::ActionsUtils::readUploadAction(action.dump(), ResponseActionsImpl::ActionType::UPLOADFOLDER),
-        ResponseActionsImpl::InvalidCommandFormat);
+        std::ignore = ActionsUtils::readUploadAction(action.dump(), ActionType::UPLOADFOLDER),
+        InvalidCommandFormat);
 }
 
-TEST_F(ActionsUtilsTests, testParseFailsWhenActionISUploadFolderWhenExpectingFile)
+TEST_F(ActionsUtilsTests, testReadFailsWhenActionISUploadFolderWhenExpectingFile)
 {
-    nlohmann::json action = getDefaultUploadObject(ResponseActionsImpl::ActionType::UPLOADFOLDER);
+    nlohmann::json action = getDefaultUploadObject(ActionType::UPLOADFOLDER);
     EXPECT_THROW(
-        std::ignore = ResponseActionsImpl::ActionsUtils::readUploadAction(action.dump(), ResponseActionsImpl::ActionType::UPLOADFILE),
-        ResponseActionsImpl::InvalidCommandFormat);
+        std::ignore = ActionsUtils::readUploadAction(action.dump(), ActionType::UPLOADFILE),
+        InvalidCommandFormat);
 }
 
 TEST_F(ActionsUtilsTests, testSucessfulParseCompressionEnabled)
 {
-    nlohmann::json action = getDefaultUploadObject(ResponseActionsImpl::ActionType::UPLOADFILE);
+    nlohmann::json action = getDefaultUploadObject(ActionType::UPLOADFILE);
     action["compress"] = true;
     action["password"] = "password";
-    ResponseActionsImpl::UploadInfo info =
-        ResponseActionsImpl::ActionsUtils::readUploadAction(action.dump(), ResponseActionsImpl::ActionType::UPLOADFILE);
+    UploadInfo info =
+        ActionsUtils::readUploadAction(action.dump(), ActionType::UPLOADFILE);
 
     EXPECT_EQ(info.compress, true);
     EXPECT_EQ(info.password, "password");
@@ -133,44 +135,44 @@ TEST_F(ActionsUtilsTests, testSucessfulParseCompressionEnabled)
 
 TEST_F(ActionsUtilsTests, testFailedParseInvalidValue)
 {
-    nlohmann::json action = getDefaultUploadObject(ResponseActionsImpl::ActionType::UPLOADFILE);
+    nlohmann::json action = getDefaultUploadObject(ActionType::UPLOADFILE);
     action["url"] = 1000;
-    EXPECT_THROW(std::ignore = ResponseActionsImpl::ActionsUtils::readUploadAction(action.dump(),ResponseActionsImpl::ActionType::UPLOADFILE),ResponseActionsImpl::InvalidCommandFormat);
+    EXPECT_THROW(std::ignore = ActionsUtils::readUploadAction(action.dump(),ActionType::UPLOADFILE),InvalidCommandFormat);
 }
 
 TEST_F(ActionsUtilsTests, testFailedParseMissingUrl)
 {
-    nlohmann::json action = getDefaultUploadObject(ResponseActionsImpl::ActionType::UPLOADFILE);
+    nlohmann::json action = getDefaultUploadObject(ActionType::UPLOADFILE);
     action.erase("url");
-    EXPECT_THROW(std::ignore = ResponseActionsImpl::ActionsUtils::readUploadAction(action.dump(),ResponseActionsImpl::ActionType::UPLOADFILE),ResponseActionsImpl::InvalidCommandFormat);
+    EXPECT_THROW(std::ignore = ActionsUtils::readUploadAction(action.dump(),ActionType::UPLOADFILE),InvalidCommandFormat);
 }
 
 TEST_F(ActionsUtilsTests, testFailedParseMissingExpiration)
 {
-    nlohmann::json action = getDefaultUploadObject(ResponseActionsImpl::ActionType::UPLOADFILE);
+    nlohmann::json action = getDefaultUploadObject(ActionType::UPLOADFILE);
     action.erase("expiration");
-    EXPECT_THROW(std::ignore = ResponseActionsImpl::ActionsUtils::readUploadAction(action.dump(),ResponseActionsImpl::ActionType::UPLOADFILE),ResponseActionsImpl::InvalidCommandFormat);
+    EXPECT_THROW(std::ignore = ActionsUtils::readUploadAction(action.dump(),ActionType::UPLOADFILE),InvalidCommandFormat);
 }
 
 TEST_F(ActionsUtilsTests, testFailedParseMissingTimeout)
 {
-    nlohmann::json action = getDefaultUploadObject(ResponseActionsImpl::ActionType::UPLOADFILE);
+    nlohmann::json action = getDefaultUploadObject(ActionType::UPLOADFILE);
     action.erase("timeout");
-    EXPECT_THROW(std::ignore = ResponseActionsImpl::ActionsUtils::readUploadAction(action.dump(),ResponseActionsImpl::ActionType::UPLOADFILE),ResponseActionsImpl::InvalidCommandFormat);
+    EXPECT_THROW(std::ignore = ActionsUtils::readUploadAction(action.dump(),ActionType::UPLOADFILE),InvalidCommandFormat);
 }
 
 TEST_F(ActionsUtilsTests, testFailedParseMissingMaxUploadSizeBytes)
 {
-    nlohmann::json action = getDefaultUploadObject(ResponseActionsImpl::ActionType::UPLOADFILE);
+    nlohmann::json action = getDefaultUploadObject(ActionType::UPLOADFILE);
     action.erase("maxUploadSizeBytes");
-    EXPECT_THROW(std::ignore = ResponseActionsImpl::ActionsUtils::readUploadAction(action.dump(),ResponseActionsImpl::ActionType::UPLOADFILE),ResponseActionsImpl::InvalidCommandFormat);
+    EXPECT_THROW(std::ignore = ActionsUtils::readUploadAction(action.dump(),ActionType::UPLOADFILE),InvalidCommandFormat);
 }
 
 TEST_F(ActionsUtilsTests, testFailedParseMissingTargetFile)
 {
-    nlohmann::json action = getDefaultUploadObject(ResponseActionsImpl::ActionType::UPLOADFILE);
+    nlohmann::json action = getDefaultUploadObject(ActionType::UPLOADFILE);
     action.erase("targetFile");
-    EXPECT_THROW(std::ignore = ResponseActionsImpl::ActionsUtils::readUploadAction(action.dump(),ResponseActionsImpl::ActionType::UPLOADFILE),ResponseActionsImpl::InvalidCommandFormat);
+    EXPECT_THROW(std::ignore = ActionsUtils::readUploadAction(action.dump(),ActionType::UPLOADFILE),InvalidCommandFormat);
 }
 
 TEST_F(ActionsUtilsTests, testSendResponse)
@@ -194,10 +196,10 @@ TEST_F(ActionsUtilsTests, testMissingUrl)
     action.erase("url");
     try
     {
-        auto output = ResponseActionsImpl::ActionsUtils::readDownloadAction(action.dump());
+        auto output = ActionsUtils::readDownloadAction(action.dump());
         FAIL() << "Didnt throw due to missing essential action";
     }
-    catch (const ResponseActionsImpl::InvalidCommandFormat& except)
+    catch (const InvalidCommandFormat& except)
     {
         EXPECT_STREQ(except.what(), "Invalid command format. No 'url' in Download action JSON");
     }
@@ -209,10 +211,10 @@ TEST_F(ActionsUtilsTests, testMissingtargetPath)
     action.erase("targetPath");
     try
     {
-        auto output = ResponseActionsImpl::ActionsUtils::readDownloadAction(action.dump());
+        auto output = ActionsUtils::readDownloadAction(action.dump());
         FAIL() << "Didnt throw due to missing essential action";
     }
-    catch (const ResponseActionsImpl::InvalidCommandFormat& except)
+    catch (const InvalidCommandFormat& except)
     {
         EXPECT_STREQ(except.what(), "Invalid command format. No 'targetPath' in Download action JSON");
     }
@@ -224,10 +226,10 @@ TEST_F(ActionsUtilsTests, testMissingsha256)
     action.erase("sha256");
     try
     {
-        auto output = ResponseActionsImpl::ActionsUtils::readDownloadAction(action.dump());
+        auto output = ActionsUtils::readDownloadAction(action.dump());
         FAIL() << "Didnt throw due to missing essential action";
     }
-    catch (const ResponseActionsImpl::InvalidCommandFormat& except)
+    catch (const InvalidCommandFormat& except)
     {
         EXPECT_STREQ(except.what(), "Invalid command format. No 'sha256' in Download action JSON");
     }
@@ -239,10 +241,10 @@ TEST_F(ActionsUtilsTests, testMissingtimeout)
     action.erase("timeout");
     try
     {
-        auto output = ResponseActionsImpl::ActionsUtils::readDownloadAction(action.dump());
+        auto output = ActionsUtils::readDownloadAction(action.dump());
         FAIL() << "Didnt throw due to missing essential action";
     }
-    catch (const ResponseActionsImpl::InvalidCommandFormat& except)
+    catch (const InvalidCommandFormat& except)
     {
         EXPECT_STREQ(except.what(), "Invalid command format. No 'timeout' in Download action JSON");
     }
@@ -254,10 +256,10 @@ TEST_F(ActionsUtilsTests, testMissingsizeBytes)
     action.erase("sizeBytes");
     try
     {
-        auto output = ResponseActionsImpl::ActionsUtils::readDownloadAction(action.dump());
+        auto output = ActionsUtils::readDownloadAction(action.dump());
         FAIL() << "Didnt throw due to missing essential action";
     }
-    catch (const ResponseActionsImpl::InvalidCommandFormat& except)
+    catch (const InvalidCommandFormat& except)
     {
         EXPECT_STREQ(except.what(), "Invalid command format. No 'sizeBytes' in Download action JSON");
     }
@@ -269,10 +271,10 @@ TEST_F(ActionsUtilsTests, testMissingexpiration)
     action.erase("expiration");
     try
     {
-        auto output = ResponseActionsImpl::ActionsUtils::readDownloadAction(action.dump());
+        auto output = ActionsUtils::readDownloadAction(action.dump());
         FAIL() << "Didnt throw due to missing essential action";
     }
-    catch (const ResponseActionsImpl::InvalidCommandFormat& except)
+    catch (const InvalidCommandFormat& except)
     {
         EXPECT_STREQ(except.what(), "Invalid command format. No 'expiration' in Download action JSON");
     }
@@ -282,20 +284,20 @@ TEST_F(ActionsUtilsTests, testMissingpassword)
 {
     nlohmann::json action = getDefaultDownloadAction();
     action.erase("password");
-    EXPECT_NO_THROW(std::ignore = ResponseActionsImpl::ActionsUtils::readDownloadAction(action.dump()));
+    EXPECT_NO_THROW(std::ignore = ActionsUtils::readDownloadAction(action.dump()));
 }
 
 TEST_F(ActionsUtilsTests, testMissingdecompress)
 {
     nlohmann::json action = getDefaultDownloadAction();
     action.erase("decompress");
-    EXPECT_NO_THROW(std::ignore = ResponseActionsImpl::ActionsUtils::readDownloadAction(action.dump()));
+    EXPECT_NO_THROW(std::ignore = ActionsUtils::readDownloadAction(action.dump()));
 }
 
 TEST_F(ActionsUtilsTests, testSuccessfulParsing)
 {
     nlohmann::json action = getDefaultDownloadAction();
-    auto output = ResponseActionsImpl::ActionsUtils::readDownloadAction(action.dump());
+    auto output = ActionsUtils::readDownloadAction(action.dump());
 
     EXPECT_EQ(output.decompress, action.at("decompress"));
     EXPECT_EQ(output.sizeBytes, action.at("sizeBytes"));
@@ -313,10 +315,10 @@ TEST_F(ActionsUtilsTests, testWrongTypeDecompress)
     action["decompress"] = "sickness";
     try
     {
-        auto output = ResponseActionsImpl::ActionsUtils::readDownloadAction(action.dump());
+        auto output = ActionsUtils::readDownloadAction(action.dump());
         FAIL() << "Didnt throw due to missing essential action";
     }
-    catch (const ResponseActionsImpl::InvalidCommandFormat& except)
+    catch (const InvalidCommandFormat& except)
     {
         EXPECT_STREQ(except.what(), "Invalid command format. Failed to parse download command json, json value in unexpected type: [json.exception.type_error.302] type must be boolean, but is string");
     }
@@ -328,10 +330,10 @@ TEST_F(ActionsUtilsTests, testWrongTypeSizeBytes)
     action["sizeBytes"] = "sizebytes";
     try
     {
-        auto output = ResponseActionsImpl::ActionsUtils::readDownloadAction(action.dump());
+        auto output = ActionsUtils::readDownloadAction(action.dump());
         FAIL() << "Didnt throw due to missing essential action";
     }
-    catch (const ResponseActionsImpl::InvalidCommandFormat& except)
+    catch (const InvalidCommandFormat& except)
     {
         EXPECT_STREQ(except.what(), "Invalid command format. Failed to parse download command json, json value in unexpected type: [json.exception.type_error.302] type must be number, but is string");
     }
@@ -343,10 +345,10 @@ TEST_F(ActionsUtilsTests, testWrongTypeExpiration)
     action["expiration"] = "expiration";
     try
     {
-        auto output = ResponseActionsImpl::ActionsUtils::readDownloadAction(action.dump());
+        auto output = ActionsUtils::readDownloadAction(action.dump());
         FAIL() << "Didnt throw due to missing essential action";
     }
-    catch (const ResponseActionsImpl::InvalidCommandFormat& except)
+    catch (const InvalidCommandFormat& except)
     {
         EXPECT_STREQ(except.what(), "Invalid command format. Failed to parse download command json, json value in unexpected type: [json.exception.type_error.302] type must be number, but is string");
     }
@@ -358,10 +360,10 @@ TEST_F(ActionsUtilsTests, testWrongTypeTimeout)
     action["timeout"] = "timeout";
     try
     {
-        auto output = ResponseActionsImpl::ActionsUtils::readDownloadAction(action.dump());
+        auto output = ActionsUtils::readDownloadAction(action.dump());
         FAIL() << "Didnt throw due to missing essential action";
     }
-    catch (const ResponseActionsImpl::InvalidCommandFormat& except)
+    catch (const InvalidCommandFormat& except)
     {
         EXPECT_STREQ(except.what(), "Invalid command format. Failed to parse download command json, json value in unexpected type: [json.exception.type_error.302] type must be number, but is string");
     }
@@ -373,10 +375,10 @@ TEST_F(ActionsUtilsTests, testWrongTypeSHA256)
     action["sha256"] = 256;
     try
     {
-        auto output = ResponseActionsImpl::ActionsUtils::readDownloadAction(action.dump());
+        auto output = ActionsUtils::readDownloadAction(action.dump());
         FAIL() << "Didnt throw due to missing essential action";
     }
-    catch (const ResponseActionsImpl::InvalidCommandFormat& except)
+    catch (const InvalidCommandFormat& except)
     {
         EXPECT_STREQ(except.what(), "Invalid command format. Failed to parse download command json, json value in unexpected type: [json.exception.type_error.302] type must be string, but is number");
     }
@@ -388,10 +390,10 @@ TEST_F(ActionsUtilsTests, testWrongTypeURL)
     action["url"] = 123;
     try
     {
-        auto output = ResponseActionsImpl::ActionsUtils::readDownloadAction(action.dump());
+        auto output = ActionsUtils::readDownloadAction(action.dump());
         FAIL() << "Didnt throw due to missing essential action";
     }
-    catch (const ResponseActionsImpl::InvalidCommandFormat& except)
+    catch (const InvalidCommandFormat& except)
     {
         EXPECT_STREQ(except.what(), "Invalid command format. Failed to parse download command json, json value in unexpected type: [json.exception.type_error.302] type must be string, but is number");
     }
@@ -403,10 +405,10 @@ TEST_F(ActionsUtilsTests, testWrongTypeTargetPath)
     action["targetPath"] = 930752758;
     try
     {
-        auto output = ResponseActionsImpl::ActionsUtils::readDownloadAction(action.dump());
+        auto output = ActionsUtils::readDownloadAction(action.dump());
         FAIL() << "Didnt throw due to missing essential action";
     }
-    catch (const ResponseActionsImpl::InvalidCommandFormat& except)
+    catch (const InvalidCommandFormat& except)
     {
         EXPECT_STREQ(except.what(), "Invalid command format. Failed to parse download command json, json value in unexpected type: [json.exception.type_error.302] type must be string, but is number");
     }
@@ -418,10 +420,10 @@ TEST_F(ActionsUtilsTests, testEmptyTargetPath)
     action["targetPath"] = "";
     try
     {
-        auto output = ResponseActionsImpl::ActionsUtils::readDownloadAction(action.dump());
+        auto output = ActionsUtils::readDownloadAction(action.dump());
         FAIL() << "Didnt throw due to empty target path field";
     }
-    catch (const ResponseActionsImpl::InvalidCommandFormat& except)
+    catch (const InvalidCommandFormat& except)
     {
         EXPECT_STREQ(except.what(), "Invalid command format. Target Path field is empty");
     }
@@ -433,10 +435,10 @@ TEST_F(ActionsUtilsTests, testEmptysha256)
     action["sha256"] = "";
     try
     {
-        auto output = ResponseActionsImpl::ActionsUtils::readDownloadAction(action.dump());
+        auto output = ActionsUtils::readDownloadAction(action.dump());
         FAIL() << "Didnt throw due to empty sha256 field";
     }
-    catch (const ResponseActionsImpl::InvalidCommandFormat& except)
+    catch (const InvalidCommandFormat& except)
     {
         EXPECT_STREQ(except.what(), "Invalid command format. sha256 field is empty");
     }
@@ -448,10 +450,10 @@ TEST_F(ActionsUtilsTests, testEmptyurl)
     action["url"] = "";
     try
     {
-        auto output = ResponseActionsImpl::ActionsUtils::readDownloadAction(action.dump());
+        auto output = ActionsUtils::readDownloadAction(action.dump());
         FAIL() << "Didnt throw due to empty url field";
     }
-    catch (const ResponseActionsImpl::InvalidCommandFormat& except)
+    catch (const InvalidCommandFormat& except)
     {
         EXPECT_STREQ(except.what(), "Invalid command format. url field is empty");
     }
@@ -463,11 +465,188 @@ TEST_F(ActionsUtilsTests, testWrongTypePassword)
     action["password"] = 999;
     try
     {
-        auto output = ResponseActionsImpl::ActionsUtils::readDownloadAction(action.dump());
+        auto output = ActionsUtils::readDownloadAction(action.dump());
         FAIL() << "Didnt throw due to missing essential action";
     }
-    catch (const ResponseActionsImpl::InvalidCommandFormat& except)
+    catch (const InvalidCommandFormat& except)
     {
         EXPECT_STREQ(except.what(), "Invalid command format. Failed to parse download command json, json value in unexpected type: [json.exception.type_error.302] type must be string, but is number");
     }
+}
+
+//**********************RUN COMMAND ACTION***************************
+namespace {
+    std::string getDefaultCommandJsonString()
+    {
+        return R"({
+            "type": "sophos.mgt.action.RunCommands",
+            "commands": [
+                "echo one",
+                "echo two > /tmp/test.txt"
+            ],
+            "ignoreError": true,
+            "timeout": 60,
+            "expiration": 144444000000004
+        })";
+    }
+
+    std::string getCommandJsonStringWithWrongValueType()
+    {
+        return R"({
+            "type": "sophos.mgt.action.RunCommands",
+            "commands": [
+                "echo one",
+                "echo two > /tmp/test.txt"
+            ],
+            "ignoreError": true,
+            "timeout": "60",
+            "expiration": 144444000000004
+        })";
+    }
+}
+TEST_F(ActionsUtilsTests, testReadCommandActionSuccess)
+{
+    std::string commandJson = getDefaultCommandJsonString();
+    auto command = ActionsUtils::readCommandAction(commandJson);
+    std::vector<std::string> expectedCommands = { { "echo one" }, { R"(echo two > /tmp/test.txt)" } };
+
+    EXPECT_EQ(command.ignoreError, true);
+    EXPECT_EQ(command.timeout, 60);
+    EXPECT_EQ(command.expiration, 144444000000004);
+    EXPECT_EQ(command.commands, expectedCommands);
+}
+
+TEST_F(ActionsUtilsTests, testReadCommandHandlesEscapedCharsInCmd)
+{
+    std::string commandJson = R"({
+            "type": "sophos.mgt.action.RunCommands",
+            "commands": [
+                "echo {\"number\":13, \"string\":\"a string and a quote \" }"
+            ],
+            "ignoreError": true,
+            "timeout": 60,
+            "expiration": 144444000000004
+            })";
+    auto command = ActionsUtils::readCommandAction(commandJson);
+    std::vector<std::string> expectedCommands = {  { R"(echo {"number":13, "string":"a string and a quote " })" } };
+    EXPECT_EQ(command.ignoreError, true);
+    EXPECT_EQ(command.timeout, 60);
+    EXPECT_EQ(command.expiration, 144444000000004);
+    EXPECT_EQ(command.commands, expectedCommands);
+}
+
+TEST_F(ActionsUtilsTests, testReadCommandFailsDueToMissingTypeRequiredField)
+{
+    std::string commandJson = R"({
+        "commands": [
+            "echo one",
+            "echo two > /tmp/test.txt"
+        ],
+        "ignoreError": true,
+        "timeout": 60,
+        "expiration": 144444000000004
+        })";
+    EXPECT_THAT([&]() { std::ignore = ActionsUtils::readCommandAction(commandJson); },
+                ThrowsMessage<InvalidCommandFormat>(HasSubstr("Invalid command format. No 'type' in Run Command action JSON")));
+}
+
+TEST_F(ActionsUtilsTests, testReadCommandFailsDueToMissingCommandsRequiredField)
+{
+    std::string commandJson = R"({
+        "type": "sophos.mgt.action.RunCommands",
+        "ignoreError": true,
+        "timeout": 60,
+        "expiration": 144444000000004
+        })";
+    EXPECT_THAT([&]() { std::ignore = ActionsUtils::readCommandAction(commandJson); },
+                ThrowsMessage<InvalidCommandFormat>(HasSubstr("Invalid command format. No 'commands' in Run Command action JSON")));
+}
+
+TEST_F(ActionsUtilsTests, testReadCommandFailsDueToMissingIgnoreErrorRequiredField)
+{
+    std::string commandJson = R"({
+        "type": "sophos.mgt.action.RunCommands",
+        "commands": [
+            "echo one",
+            "echo two > /tmp/test.txt"
+        ],
+        "timeout": 60,
+        "expiration": 144444000000004
+        })";
+    EXPECT_THAT([&]() { std::ignore = ActionsUtils::readCommandAction(commandJson); },
+                ThrowsMessage<InvalidCommandFormat>(HasSubstr("Invalid command format. No 'ignoreError' in Run Command action JSON")));
+}
+
+TEST_F(ActionsUtilsTests, testReadCommandFailsDueToMissingTimeoutRequiredField)
+{
+    std::string commandJson = R"({
+        "type": "sophos.mgt.action.RunCommands",
+        "commands": [
+            "echo one",
+            "echo two > /tmp/test.txt"
+        ],
+        "ignoreError": true,
+        "expiration": 144444000000004
+        })";
+    EXPECT_THAT([&]() { std::ignore = ActionsUtils::readCommandAction(commandJson); },
+                ThrowsMessage<InvalidCommandFormat>(HasSubstr("Invalid command format. No 'timeout' in Run Command action JSON")));
+}
+
+TEST_F(ActionsUtilsTests, testReadCommandFailsDueToMissingExpirationRequiredField)
+{
+    std::string commandJson = R"({
+        "type": "sophos.mgt.action.RunCommands",
+        "commands": [
+            "echo one",
+            "echo two > /tmp/test.txt"
+        ],
+        "ignoreError": true,
+        "timeout": 60
+        })";
+    EXPECT_THAT([&]() { std::ignore = ActionsUtils::readCommandAction(commandJson); },
+                ThrowsMessage<InvalidCommandFormat>(HasSubstr("Invalid command format. No 'expiration' in Run Command action JSON")));
+}
+
+
+
+TEST_F(ActionsUtilsTests, testReadCommandFailsDueToTypeError)
+{
+    std::string commandJson = getCommandJsonStringWithWrongValueType();
+    EXPECT_THAT([&]() { std::ignore = ActionsUtils::readCommandAction(commandJson); },
+                ThrowsMessage<InvalidCommandFormat>(HasSubstr("Failed to create Command Request object from run command JSON")));
+}
+
+TEST_F(ActionsUtilsTests, testReadCommandFailsDueToMalformedJson)
+{
+    std::string commandJson = "this is not json";
+    EXPECT_THAT([&]() { std::ignore = ActionsUtils::readCommandAction(commandJson); },
+                ThrowsMessage<InvalidCommandFormat>(HasSubstr("syntax error")));
+}
+
+TEST_F(ActionsUtilsTests, testReadCommandFailsDueToEmptyJsonString)
+{
+    std::string commandJson = "";
+    EXPECT_THAT([&]() { std::ignore = ActionsUtils::readCommandAction(commandJson); },
+                    ThrowsMessage<InvalidCommandFormat>(HasSubstr("Run Command action JSON is empty")));
+}
+
+TEST_F(ActionsUtilsTests, testReadCommandFailsDueToMissingCommands)
+{
+    std::string commandJson = R"({
+        "type": "sophos.mgt.action.RunCommands",
+        "commands": [
+        ],
+        "ignoreError": true,
+        "timeout": 60,
+        "expiration": 144444000000004
+        })";
+    EXPECT_THAT([&]() { std::ignore = ActionsUtils::readCommandAction(commandJson); },
+                ThrowsMessage<InvalidCommandFormat>(HasSubstr("Invalid command format. No commands to perform in run command JSON: ")));
+}
+
+TEST_F(ActionsUtilsTests, testReadCommandFailsDueToEmptyJsonObject)
+{
+    std::string commandJson = "{}";
+    EXPECT_THAT([&]() { std::ignore = ActionsUtils::readCommandAction(commandJson); },
+                    ThrowsMessage<InvalidCommandFormat>(HasSubstr("Invalid command format. No 'type' in Run Command action JSON")));
 }
