@@ -30,7 +30,7 @@ namespace ResponseActionsImpl
 
         try
         {
-            info = ActionsUtils::readUploadAction(actionJson, UploadType::FILE);
+            info = ActionsUtils::readUploadAction(actionJson, ActionType::UPLOADFILE);
         }
         catch (const InvalidCommandFormat& exception)
         {
