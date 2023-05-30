@@ -190,7 +190,7 @@ TEST_F(ActionsUtilsTests, testSendResponse)
 }
 
 //**********************DOWNLOAD ACTION***************************
-TEST_F(ActionsUtilsTests, testMissingUrl)
+TEST_F(ActionsUtilsTests, downloadActionTestMissingUrl)
 {
     nlohmann::json action = getDefaultDownloadAction();
     action.erase("url");
@@ -205,7 +205,7 @@ TEST_F(ActionsUtilsTests, testMissingUrl)
     }
 }
 
-TEST_F(ActionsUtilsTests, testMissingtargetPath)
+TEST_F(ActionsUtilsTests, downloadActionTestMissingtargetPath)
 {
     nlohmann::json action = getDefaultDownloadAction();
     action.erase("targetPath");
@@ -220,7 +220,7 @@ TEST_F(ActionsUtilsTests, testMissingtargetPath)
     }
 }
 
-TEST_F(ActionsUtilsTests, testMissingsha256)
+TEST_F(ActionsUtilsTests, downloadActionTestMissingsha256)
 {
     nlohmann::json action = getDefaultDownloadAction();
     action.erase("sha256");
@@ -235,7 +235,7 @@ TEST_F(ActionsUtilsTests, testMissingsha256)
     }
 }
 
-TEST_F(ActionsUtilsTests, testMissingtimeout)
+TEST_F(ActionsUtilsTests, downloadActionTestMissingtimeout)
 {
     nlohmann::json action = getDefaultDownloadAction();
     action.erase("timeout");
@@ -250,7 +250,7 @@ TEST_F(ActionsUtilsTests, testMissingtimeout)
     }
 }
 
-TEST_F(ActionsUtilsTests, testMissingsizeBytes)
+TEST_F(ActionsUtilsTests, downloadActionTestMissingsizeBytes)
 {
     nlohmann::json action = getDefaultDownloadAction();
     action.erase("sizeBytes");
@@ -265,7 +265,7 @@ TEST_F(ActionsUtilsTests, testMissingsizeBytes)
     }
 }
 
-TEST_F(ActionsUtilsTests, testMissingexpiration)
+TEST_F(ActionsUtilsTests, downloadActionTestMissingexpiration)
 {
     nlohmann::json action = getDefaultDownloadAction();
     action.erase("expiration");
@@ -280,21 +280,21 @@ TEST_F(ActionsUtilsTests, testMissingexpiration)
     }
 }
 
-TEST_F(ActionsUtilsTests, testMissingpassword)
+TEST_F(ActionsUtilsTests, downloadActionTestMissingpassword)
 {
     nlohmann::json action = getDefaultDownloadAction();
     action.erase("password");
     EXPECT_NO_THROW(std::ignore = ActionsUtils::readDownloadAction(action.dump()));
 }
 
-TEST_F(ActionsUtilsTests, testMissingdecompress)
+TEST_F(ActionsUtilsTests, downloadActionTestMissingdecompress)
 {
     nlohmann::json action = getDefaultDownloadAction();
     action.erase("decompress");
     EXPECT_NO_THROW(std::ignore = ActionsUtils::readDownloadAction(action.dump()));
 }
 
-TEST_F(ActionsUtilsTests, testSuccessfulParsing)
+TEST_F(ActionsUtilsTests, downloadActionTestSuccessfulParsing)
 {
     nlohmann::json action = getDefaultDownloadAction();
     auto output = ActionsUtils::readDownloadAction(action.dump());
@@ -309,7 +309,26 @@ TEST_F(ActionsUtilsTests, testSuccessfulParsing)
     EXPECT_EQ(output.password, action.at("password"));
 }
 
-TEST_F(ActionsUtilsTests, testWrongTypeDecompress)
+TEST_F(ActionsUtilsTests, downloadActionTestHugeurl)
+{
+    nlohmann::json action = getDefaultDownloadAction();
+    const std::string largeStr(30000, 'a');
+    const std::string largeURL("https://s3.com/download" + largeStr + ".zip");
+    action["url"] = largeURL;
+
+    auto output = ActionsUtils::readDownloadAction(action.dump());
+
+    EXPECT_EQ(output.decompress, action.at("decompress"));
+    EXPECT_EQ(output.sizeBytes, action.at("sizeBytes"));
+    EXPECT_EQ(output.expiration, action.at("expiration"));
+    EXPECT_EQ(output.timeout, action.at("timeout"));
+    EXPECT_EQ(output.sha256, action.at("sha256"));
+    EXPECT_EQ(output.url, action.at("url"));
+    EXPECT_EQ(output.targetPath, action.at("targetPath"));
+    EXPECT_EQ(output.password, action.at("password"));
+}
+
+TEST_F(ActionsUtilsTests, downloadActionTestWrongTypeDecompress)
 {
     nlohmann::json action = getDefaultDownloadAction();
     action["decompress"] = "sickness";
@@ -324,7 +343,7 @@ TEST_F(ActionsUtilsTests, testWrongTypeDecompress)
     }
 }
 
-TEST_F(ActionsUtilsTests, testWrongTypeSizeBytes)
+TEST_F(ActionsUtilsTests, downloadActionTestWrongTypeSizeBytes)
 {
     nlohmann::json action = getDefaultDownloadAction();
     action["sizeBytes"] = "sizebytes";
@@ -339,7 +358,7 @@ TEST_F(ActionsUtilsTests, testWrongTypeSizeBytes)
     }
 }
 
-TEST_F(ActionsUtilsTests, testWrongTypeExpiration)
+TEST_F(ActionsUtilsTests, downloadActionTestWrongTypeExpiration)
 {
     nlohmann::json action = getDefaultDownloadAction();
     action["expiration"] = "expiration";
@@ -354,7 +373,7 @@ TEST_F(ActionsUtilsTests, testWrongTypeExpiration)
     }
 }
 
-TEST_F(ActionsUtilsTests, testWrongTypeTimeout)
+TEST_F(ActionsUtilsTests, downloadActionTestWrongTypeTimeout)
 {
     nlohmann::json action = getDefaultDownloadAction();
     action["timeout"] = "timeout";
@@ -369,7 +388,7 @@ TEST_F(ActionsUtilsTests, testWrongTypeTimeout)
     }
 }
 
-TEST_F(ActionsUtilsTests, testWrongTypeSHA256)
+TEST_F(ActionsUtilsTests, downloadActionTestWrongTypeSHA256)
 {
     nlohmann::json action = getDefaultDownloadAction();
     action["sha256"] = 256;
@@ -384,7 +403,7 @@ TEST_F(ActionsUtilsTests, testWrongTypeSHA256)
     }
 }
 
-TEST_F(ActionsUtilsTests, testWrongTypeURL)
+TEST_F(ActionsUtilsTests, downloadActionTestWrongTypeURL)
 {
     nlohmann::json action = getDefaultDownloadAction();
     action["url"] = 123;
@@ -399,7 +418,7 @@ TEST_F(ActionsUtilsTests, testWrongTypeURL)
     }
 }
 
-TEST_F(ActionsUtilsTests, testWrongTypeTargetPath)
+TEST_F(ActionsUtilsTests, downloadActionTestWrongTypeTargetPath)
 {
     nlohmann::json action = getDefaultDownloadAction();
     action["targetPath"] = 930752758;
@@ -414,7 +433,7 @@ TEST_F(ActionsUtilsTests, testWrongTypeTargetPath)
     }
 }
 
-TEST_F(ActionsUtilsTests, testEmptyTargetPath)
+TEST_F(ActionsUtilsTests, downloadActionTestEmptyTargetPath)
 {
     nlohmann::json action = getDefaultDownloadAction();
     action["targetPath"] = "";
@@ -429,7 +448,7 @@ TEST_F(ActionsUtilsTests, testEmptyTargetPath)
     }
 }
 
-TEST_F(ActionsUtilsTests, testEmptysha256)
+TEST_F(ActionsUtilsTests, downloadActionTestEmptysha256)
 {
     nlohmann::json action = getDefaultDownloadAction();
     action["sha256"] = "";
@@ -444,7 +463,7 @@ TEST_F(ActionsUtilsTests, testEmptysha256)
     }
 }
 
-TEST_F(ActionsUtilsTests, testEmptyurl)
+TEST_F(ActionsUtilsTests, downloadActionTestEmptyurl)
 {
     nlohmann::json action = getDefaultDownloadAction();
     action["url"] = "";
@@ -459,7 +478,8 @@ TEST_F(ActionsUtilsTests, testEmptyurl)
     }
 }
 
-TEST_F(ActionsUtilsTests, testWrongTypePassword)
+
+TEST_F(ActionsUtilsTests, downloadActionTestWrongTypePassword)
 {
     nlohmann::json action = getDefaultDownloadAction();
     action["password"] = 999;
