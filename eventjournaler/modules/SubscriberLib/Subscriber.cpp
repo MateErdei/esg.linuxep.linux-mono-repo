@@ -60,7 +60,8 @@ namespace SubscriberLib
     {
         setIsRunning(true);
         // Avoid needing to explicitly remember to call subscriberFinished() in all exit cases
-        AtScopeExit scopeGuard([&]() { subscriberFinished(); });
+        auto finishedLambda = [&]() { subscriberFinished(); }; // Needs to be separate so that it is destroyed after being called
+        AtScopeExit scopeGuard(finishedLambda);
 
         if (!m_socket)
         {
