@@ -300,3 +300,11 @@ TEST_F(TestMounts, getMountFromPath_doesNotIncorrectlyMatchToplevelFoldersWithMo
     EXPECT_NE(rootMount->mountPoint(), "/proc");
     EXPECT_FALSE(rootMount->isSpecial());
 }
+
+TEST_F(TestMounts, root_directory_is_a_directory)
+{
+    auto systemPaths = std::make_shared<mount_monitor::mountinfoimpl::SystemPaths>();
+    auto mountInfo = std::make_shared<Mounts>(systemPaths);
+    auto rootMount = mountInfo->getMountFromPath("/");
+    EXPECT_TRUE(rootMount->isDirectory());
+}

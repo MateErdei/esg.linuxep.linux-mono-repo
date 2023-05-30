@@ -113,7 +113,7 @@ void Mounts::parseProcMounts()
         // LOGDEBUG("dev " << device << " on " << mountPoint << " type " << type);
         try
         {
-            bool isDir = std::filesystem::is_directory(device);
+            bool isDir = std::filesystem::is_directory(mountPoint);
             bool readOnly = isReadOnly(mountPoint);
             m_devices.push_back(std::make_shared<Drive>(device, mountPoint, type, isDir, readOnly));
         }
@@ -147,7 +147,7 @@ void Mounts::parseProcMounts()
             std::string devicePath = fixDeviceWithMount(mountpoint->fs_spec);
             try
             {
-                bool isDir = std::filesystem::is_directory(devicePath);
+                bool isDir = std::filesystem::is_directory( mountpoint->fs_file);
                 m_devices.push_back(
                     std::make_shared<Drive>(devicePath, mountpoint->fs_file, mountpoint->fs_type, isDir));
             }
