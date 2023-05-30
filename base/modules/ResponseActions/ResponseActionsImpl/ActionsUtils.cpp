@@ -1,5 +1,6 @@
 // Copyright 2023 Sophos Limited. All rights reserved.
 
+#include "ActionRequiredFields.h"
 #include "ActionsUtils.h"
 
 #include "InvalidCommandFormat.h"
@@ -10,51 +11,22 @@
 
 namespace ResponseActionsImpl
 {
-    UploadInfo ActionsUtils::readUploadAction(const std::string& actionJson, UploadType type)
+    UploadInfo ActionsUtils::readUploadAction(const std::string& actionJson, ActionType type)
     {
         UploadInfo info;
-        nlohmann::json actionObject;
-        try
-        {
-            actionObject = nlohmann::json::parse(actionJson);
-        }
-        catch (const nlohmann::json::exception& exception)
-        {
-            LOGWARN("Cannot parse action with error: " << exception.what());
-        }
+        auto actionObject = checkActionRequest(actionJson, type);
 
         std::string targetKey;
         switch (type)
         {
-            case UploadType::FILE:
+            case ActionType::UPLOADFILE:
                 targetKey = "targetFile";
                 break;
-            case UploadType::FOLDER:
+            case ActionType::UPLOADFOLDER:
                 targetKey = "targetFolder";
                 break;
             default:
                 assert(false);
-        }
-
-        if (!actionObject.contains(targetKey))
-        {
-            throw InvalidCommandFormat("No " + targetKey + ".");
-        }
-        if (!actionObject.contains("timeout"))
-        {
-            throw InvalidCommandFormat("Missing timeout.");
-        }
-        if (!actionObject.contains("maxUploadSizeBytes"))
-        {
-            throw InvalidCommandFormat("Missing maxUploadSizeBytes.");
-        }
-        if (!actionObject.contains("expiration"))
-        {
-            throw InvalidCommandFormat("Missing expiration.");
-        }
-        if (!actionObject.contains("url"))
-        {
-            throw InvalidCommandFormat("No url.");
         }
 
         try
@@ -91,43 +63,7 @@ namespace ResponseActionsImpl
     DownloadInfo ActionsUtils::readDownloadAction(const std::string& actionJson)
     {
         DownloadInfo info;
-        nlohmann::json actionObject;
-        try
-        {
-            actionObject = nlohmann::json::parse(actionJson);
-        }
-        catch (const nlohmann::json::exception& exception)
-        {
-            std::stringstream exceptMsg;
-            exceptMsg << "Error parsing command from Central: " << exception.what();
-            throw InvalidCommandFormat(exceptMsg.str());
-        }
-
-        std::string errorPrefix = "Download command from Central missing required parameter: ";
-        if (!actionObject.contains("url"))
-        {
-            throw InvalidCommandFormat(errorPrefix + "url");
-        }
-        if (!actionObject.contains("targetPath"))
-        {
-            throw InvalidCommandFormat(errorPrefix + "targetPath");
-        }
-        if (!actionObject.contains("sha256"))
-        {
-            throw InvalidCommandFormat(errorPrefix + "sha256");
-        }
-        if (!actionObject.contains("timeout"))
-        {
-            throw InvalidCommandFormat(errorPrefix + "timeout");
-        }
-        if (!actionObject.contains("sizeBytes"))
-        {
-            throw InvalidCommandFormat(errorPrefix + "sizeBytes");
-        }
-        if (!actionObject.contains("expiration"))
-        {
-            throw InvalidCommandFormat(errorPrefix + "expiration");
-        }
+        auto actionObject = checkActionRequest(actionJson, ActionType::DOWNLOAD);
 
         try
         {
@@ -186,31 +122,7 @@ namespace ResponseActionsImpl
     CommandRequest ActionsUtils::readCommandAction(const std::string& actionJson)
     {
         CommandRequest action;
-        nlohmann::json actionObject;
-        if (actionJson.empty())
-        {
-            throw InvalidCommandFormat("Run command action JSON is empty");
-        }
-
-        try
-        {
-            actionObject = nlohmann::json::parse(actionJson);
-        }
-        catch (const nlohmann::json::exception& exception)
-        {
-            throw InvalidCommandFormat(
-                "Cannot parse run command action with JSON error: " + std::string(exception.what()));
-        }
-
-        // Check all required keys are present
-        std::vector<std::string> requiredKeys = { "type", "commands", "timeout", "ignoreError", "expiration" };
-        for (const auto& key : requiredKeys)
-        {
-            if (!actionObject.contains(key))
-            {
-                throw InvalidCommandFormat("No '" + key + "' in run command action JSON");
-            }
-        }
+        auto actionObject = checkActionRequest(actionJson, ActionType::COMMAND);
 
         try
         {
@@ -266,5 +178,55 @@ namespace ResponseActionsImpl
         {
             response.erase(field);
         }
+    }
+
+    nlohmann::json ActionsUtils::checkActionRequest(const std::string& actionJson, const ActionType& type)
+    {
+        const std::string actionStr = actionTypeStrMap.at(type);
+        nlohmann::json actionObject;
+
+        if (actionJson.empty())
+        {
+            throw InvalidCommandFormat(actionStr + " action JSON is empty");
+        }
+
+        try
+        {
+            actionObject = nlohmann::json::parse(actionJson);
+        }
+        catch (const nlohmann::json::exception& exception)
+        {
+            throw InvalidCommandFormat(
+                "Cannot parse " + actionStr + " action with JSON error: " + std::string(exception.what()));
+        }
+
+        std::vector<std::string> requiredKeys;
+
+        switch(type)
+        {
+            case ActionType::UPLOADFILE:
+                requiredKeys = uploadFileRequiredFields;
+                break;
+            case ActionType::UPLOADFOLDER:
+                requiredKeys = uploadFolderRequiredFields;
+                break;
+            case ActionType::COMMAND:
+                requiredKeys = runCommandRequiredFields;
+                break;
+            case ActionType::DOWNLOAD:
+                requiredKeys = downloadRequiredFields;
+                break;
+            default:
+                throw InvalidCommandFormat("Action not recognised");
+        }
+
+        for (const auto& key : requiredKeys)
+        {
+            if (!actionObject.contains(key))
+            {
+                throw InvalidCommandFormat("No '" + key + "' in " + actionStr + " action JSON");
+            }
+        }
+        return actionObject;
     }
 } // namespace ResponseActionsImpl
