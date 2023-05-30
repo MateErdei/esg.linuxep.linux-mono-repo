@@ -15,6 +15,10 @@
 #include <string>
 #include <thread>
 
+#ifndef TEST_PUBLIC
+#define TEST_PUBLIC private
+#endif
+
 namespace SubscriberLib
 {
     class Subscriber final : public ISubscriber
@@ -33,16 +37,26 @@ namespace SubscriberLib
         void restart() override;
         bool getRunningStatus() override;
 
+    TEST_PUBLIC:
+        bool getSubscriberFinished();
+
     private:
         bool shouldBeRunning();
-        void setIsRunning(bool);
+        void setIsRunning(bool) noexcept;
         void setShouldBeRunning(bool);
+        void setSubscriberFinished(bool) noexcept;
+
+        /**
+         * Set subscriberFinished_ to true and m_isRunning to false
+         */
+        void subscriberFinished() noexcept;
 
         void subscribeToEvents();
         static std::optional<JournalerCommon::Event> convertZmqDataToEvent(Common::ZeroMQWrapper::data_t data);
         std::string m_socketPath;
         Common::Threads::LockableData<bool> m_shouldBeRunning{false};
         Common::Threads::LockableData<bool> m_isRunning{false};
+        Common::Threads::LockableData<bool> subscriberFinished_{false};
         int m_readLoopTimeoutMilliSeconds;
         std::unique_ptr<std::thread> m_runnerThread;
         Common::ZMQWrapperApi::IContextSharedPtr m_context;

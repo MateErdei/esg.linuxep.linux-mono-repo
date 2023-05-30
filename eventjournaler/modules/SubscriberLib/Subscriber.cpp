@@ -21,6 +21,19 @@
 
 #include <sys/stat.h>
 
+namespace
+{
+    template <class Lambda>
+    class AtScopeExit final
+    {
+        const Lambda& m_lambda;
+    public:
+        explicit AtScopeExit(const Lambda& action) : m_lambda(action) {}
+        AtScopeExit(const AtScopeExit&) = delete;
+        ~AtScopeExit() noexcept { m_lambda(); }
+    };
+}
+
 namespace SubscriberLib
 {
     Subscriber::Subscriber(
@@ -46,6 +59,9 @@ namespace SubscriberLib
     void Subscriber::subscribeToEvents()
     {
         setIsRunning(true);
+        // Avoid needing to explicitly remember to call subscriberFinished() in all exit cases
+        AtScopeExit scopeGuard([&]() { subscriberFinished(); });
+
         if (!m_socket)
         {
             LOGDEBUG("Getting subscriber");
@@ -53,16 +69,15 @@ namespace SubscriberLib
         }
         m_socket->setTimeout(m_readLoopTimeoutMilliSeconds);
         m_socket->listen("ipc://" + m_socketPath);
-        auto permissionUtils = Common::FileSystem::filePermissions();
 
         try
         {
+            auto* permissionUtils = Common::FileSystem::filePermissions();
             permissionUtils->chmod(m_socketPath, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
         }
         catch (const Common::FileSystem::IFileSystemException& exception)
         {
             LOGERROR("Failed to set socket permissions: " << m_socketPath << " Exception: " << exception.what());
-            setIsRunning(false);
             return;
         }
 
@@ -82,7 +97,6 @@ namespace SubscriberLib
                 if (!fs->exists(m_socketPath))
                 {
                     LOGERROR("The subscriber socket has been unexpectedly removed.");
-                    setIsRunning(false);
                     return;
                 }
 
@@ -113,19 +127,16 @@ namespace SubscriberLib
                 if (errnoFromSocketRead != EAGAIN)
                 {
                     LOGERROR("Unexpected exception from socket read: " << exception.what());
-                    setIsRunning(false);
                     break;
                 }
             }
             catch (const std::exception& exception)
             {
                 LOGERROR("Stopping subscriber. Exception thrown during subscriber read loop: " << exception.what());
-                setIsRunning(false);
                 break;
             }
         }
         fs->removeFile(m_socketPath);
-        setIsRunning(false);
     }
 
     void Subscriber::start()
@@ -141,6 +152,7 @@ namespace SubscriberLib
         while (stopPipe_.notified())
         {}
 
+        setSubscriberFinished(false);
         setShouldBeRunning(true);
         auto fs = Common::FileSystem::fileSystem();
         std::string socketDir = Common::FileSystem::dirName(m_socketPath);
@@ -245,7 +257,7 @@ namespace SubscriberLib
         return *lock;
     }
 
-    void Subscriber::setIsRunning(bool value)
+    void Subscriber::setIsRunning(bool value) noexcept
     {
         auto lock = m_isRunning.lock();
         *lock = value;
@@ -255,6 +267,24 @@ namespace SubscriberLib
     {
         auto lock = m_shouldBeRunning.lock();
         *lock = value;
+    }
+
+    void Subscriber::subscriberFinished() noexcept
+    {
+        setIsRunning(false);
+        setSubscriberFinished(true);
+    }
+
+    void Subscriber::setSubscriberFinished(bool value) noexcept
+    {
+        auto lock = subscriberFinished_.lock();
+        *lock = value;
+    }
+
+    bool Subscriber::getSubscriberFinished()
+    {
+        auto lock = subscriberFinished_.lock();
+        return *lock;
     }
 
     std::optional<JournalerCommon::Event> Subscriber::convertZmqDataToEvent(Common::ZeroMQWrapper::data_t data)

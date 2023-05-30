@@ -1,6 +1,7 @@
 // Copyright 2021-2023 Sophos Limited. All rights reserved.
 
 // Class under test
+#define TEST_PUBLIC public
 #include "modules/SubscriberLib/Subscriber.h"
 
 #include "modules/SubscriberLib/Logger.h"
@@ -8,7 +9,6 @@
 
 #include "Common/FileSystem/IFileSystem.h"
 #include "Common/FileSystem/IFileSystemException.h"
-#include "Common/UtilityImpl/WaitForUtils.h"
 
 #include "Common/Helpers/FileSystemReplaceAndRestore.h"
 #include "Common/Helpers/LogInitializedTests.h"
@@ -135,7 +135,6 @@ TEST_F(TestSubscriberWithLog, SubscriberHandlesfailedChmod)
 {
     std::string fakeSocketPath = "/a/b/FakeSocketPath";
 
-    testing::internal::CaptureStderr();
     auto socketSubscriber = std::make_unique<StrictMock<MockSocketSubscriber>>();
     EXPECT_CALL(*socketSubscriber, setTimeout(123)).Times(1);
     EXPECT_CALL(*socketSubscriber, listen("ipc://" + fakeSocketPath)).Times(1);
@@ -164,16 +163,16 @@ TEST_F(TestSubscriberWithLog, SubscriberHandlesfailedChmod)
     Tests::replaceFilePermissions(std::move(mockFilePermissions));
 
     EXPECT_FALSE(subscriber.getRunningStatus());
+    testing::internal::CaptureStderr();
     EXPECT_NO_THROW(subscriber.start());
-    // There is a race condition here - getRunningStatus() will go to true then false
-    std::this_thread::sleep_for(std::chrono::milliseconds{10});
     do
     {
-        std::this_thread::sleep_for(std::chrono::milliseconds{2});
-    } while (subscriber.getRunningStatus());
+        std::this_thread::sleep_for(std::chrono::microseconds{100});
+    }
+    while (!subscriber.getSubscriberFinished());
+
     std::string errorMsg = testing::internal::GetCapturedStderr();
     EXPECT_THAT(errorMsg, ::testing::HasSubstr("Failed to set socket permissions: "));
-    // If there is a race above then we can get here with status == true
     EXPECT_FALSE(subscriber.getRunningStatus());
 }
 
