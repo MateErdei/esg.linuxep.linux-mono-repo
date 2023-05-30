@@ -3,6 +3,8 @@
 #include "PluginUtils.h"
 #include "Logger.h"
 
+#include <limits.h>
+
 namespace ResponsePlugin
 {
     std::pair<std::string, int> PluginUtils::getType(const std::string& actionJson)
@@ -25,25 +27,45 @@ namespace ResponsePlugin
         }
 
         std::string type;
-        try
+        if (obj["type"].is_string())
         {
             type = obj["type"];
         }
-        catch (const nlohmann::json::type_error& exception)
+        else
         {
-            LOGWARN("Type value: " << obj["type"] << " is not a string : " << exception.what());
+            LOGWARN("Action Type: " << obj["type"] << " is not a string");
             return { "", -1 };
         }
+
         int timeout;
-        try
+        std::stringstream msgPrefix;
+        msgPrefix << "Timeout value: " << obj["timeout"];
+        if (obj["timeout"].is_number())
         {
-            timeout = obj["timeout"];
+            if (obj["timeout"] > INT_MAX)
+            {
+                LOGWARN(msgPrefix.str() << " is larger than maximum allowed value: " << INT_MAX);
+                return { "", -1 };
+            }
+            if (obj["timeout"] < 0)
+            {
+                LOGWARN(msgPrefix.str() << " is negative and not allowed");
+                return { "", -1 };
+            }
+            if (obj["timeout"].is_number_integer())
+            {
+                timeout = obj["timeout"];
+            }
+            else if (obj["timeout"].is_number_float())
+            {
+                timeout = obj["timeout"];
+                LOGINFO(msgPrefix.str() << " is type float, truncated to " << timeout);
+            }
         }
-        catch (const nlohmann::json::type_error& exception)
+        else
         {
-            LOGWARN("Type value: " << obj["timeout"] << " is not a string : " << exception.what());
+            LOGWARN(msgPrefix.str() << ", is not a number");
             return { "", -1 };
-            ;
         }
 
         return { type, timeout };
