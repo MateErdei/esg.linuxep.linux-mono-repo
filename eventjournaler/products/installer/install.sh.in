@@ -81,6 +81,7 @@ chmod -R 0600 "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/log/"*
 
 # Blanket plugin directory recursive chown
 chown -R root:${GROUP_NAME} "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}"
+chown -R ${USER_NAME}:${GROUP_NAME} "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/data"
 chown -R ${USER_NAME}:${GROUP_NAME} "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/log"
 chown -R ${USER_NAME}:${GROUP_NAME} "${SOPHOS_INSTALL}/plugins/${PLUGIN_NAME}/var"
 
