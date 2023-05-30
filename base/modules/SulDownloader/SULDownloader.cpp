@@ -164,9 +164,9 @@ namespace SulDownloader
         // for writing marker files if we do a forced update trigger by flag
         bool writeForceMarkerFile = false;
         std::string forcedUpdateMarkerFilePath;
-        if (supplementOnly && isVersionOlderThan123)
+        if (supplementOnly)
         {
-            if (fileSystem->isFile(awaitSupplementUpdateFlagPath))
+            if (fileSystem->isFile(awaitSupplementUpdateFlagPath) && isVersionOlderThan123)
             {
                 LOGINFO("Waiting for next scheduled update.");
                 for (auto& product : products)

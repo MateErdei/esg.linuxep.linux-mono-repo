@@ -2979,7 +2979,7 @@ TEST_F(SULDownloaderSdds3Test, runSULDownloader_SupplementOnlyBelowVersion123Doe
 
 TEST_F(
     SULDownloaderSdds3Test,
-    runSULDownloader_SupplementOnlyButVersion123ClearsAwaitScheduledUpdateFlagAndTriesToInstall)
+    runSULDownloader_SupplementOnlyButVersion123DoesNotClearAwaitScheduledUpdateFlagAndTriesToInstall)
 {
     testing::internal::CaptureStderr();
 
@@ -3001,7 +3001,7 @@ TEST_F(
     ON_CALL(mock, getProducts).WillByDefault(Return(products));
 
     EXPECT_CALL(
-        mockFileSystem, removeFile("/opt/sophos-spl/base/update/var/updatescheduler/await_scheduled_update", _));
+        mockFileSystem, removeFile("/opt/sophos-spl/base/update/var/updatescheduler/await_scheduled_update", _)).Times(0);
 
     // Expect both installers to run
     int counter = 0;
