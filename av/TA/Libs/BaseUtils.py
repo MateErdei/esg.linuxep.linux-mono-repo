@@ -3,6 +3,7 @@
 # Copyright (C) 2020 Sophos Plc, Oxford, England.
 # All rights reserved.
 
+import grp
 import json
 import os
 import pwd
@@ -27,10 +28,29 @@ def get_variable(varName, defaultValue=None):
         return os.environ.get(varName, defaultValue)
 
 
+def user_exists(username: str):
+    try:
+        pwd.getpwnam(username)
+        return True
+    except KeyError:
+        return False
+
+
+def group_exists(groupname: str):
+    try:
+        grp.getgrnam(groupname)
+        return True
+    except KeyError:
+        return False
+
+
 def delete_users_and_groups():
-    subprocess.run(['userdel', 'sophos-spl-av'])
-    subprocess.run(['userdel', 'sophos-spl-threat-detector'])
-    subprocess.run(['groupdel', 'sophos-spl-group'])
+    if user_exists('sophos-spl-av'):
+        subprocess.run(['userdel', 'sophos-spl-av'])
+    if user_exists('sophos-spl-threat-detector'):
+        subprocess.run(['userdel', 'sophos-spl-threat-detector'])
+    if group_exists('sophos-spl-group'):
+        subprocess.run(['groupdel', 'sophos-spl-group'])
 
 
 def uninstall_sspl_if_installed():

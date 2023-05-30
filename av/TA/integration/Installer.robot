@@ -744,7 +744,8 @@ AV Plugin Can Send Telemetry After Upgrade
     ...   UnixSocket <> ProcessControlServer starting listening on socket: /var/process_control_socket
     ...   ${threat_detector_mark}
     ...   timeout=60
-    Run  chmod go-rwx ${AV_PLUGIN_PATH}/chroot/susi/update_source/*
+
+    # Can no longer change permissions on the update_source, since TD requires group access to read update_source
 
     Modify manifest
     Install AV Directly from SDDS
