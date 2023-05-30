@@ -363,6 +363,40 @@ TEST_F(TestOutbreakModeController, loads_unreadable)
     EXPECT_FALSE(controller->outbreakMode()); // Can't read the file
 }
 
+TEST_F(TestOutbreakModeController, loads_too_large)
+{
+    UsingMemoryAppender recorder(*this);
+    auto path = expectedStatusFile_;
+    const int SIZE = 1025; // file size
+    std::ostringstream large_string_stream;
+    large_string_stream << "{\"outbreak-mode\":";
+    for (int i = 0; i < SIZE / 10; ++i)
+    {
+        large_string_stream << "0123456789";
+    }
+    large_string_stream << "}";
+    std::string contents = large_string_stream.str();
+    auto* filesystem = Common::FileSystem::fileSystem();
+    filesystem->writeFileAtomically(expectedStatusFile_, contents, testDir_, 0640);
+    auto controller = std::make_shared<OutbreakModeController>();
+    EXPECT_FALSE(controller->outbreakMode()); // Can't read the file
+    EXPECT_TRUE(appenderContains("file too large"));
+}
+
+TEST_F(TestOutbreakModeController, timestamp_in_future)
+{
+    auto tmrw = OutbreakModeController::clock_t::now() + std::chrono::hours(24);
+    auto timestamp = Common::UtilityImpl::TimeUtils::MessageTimeStamp(tmrw);
+    auto* filesystemMock = new MockFileSystem();
+    std::stringstream contents;
+    contents << "{\"outbreak-mode\":true,\"" << timestamp << "\":\".*\",\"uuid\":\"5df69683-a5a2-5d96-897d-06f9c4c8c7bf\"}";
+    EXPECT_CALL(*filesystemMock, readFile(expectedStatusFile_, _)).WillOnce(Return(contents.str()));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem{std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock)};
+
+    auto controller = std::make_shared<OutbreakModeController>();
+    EXPECT_TRUE(controller->outbreakMode());
+}
+
 TEST_F(TestOutbreakModeController, loads_not_json)
 {
     auto mockFileSystem =  std::make_unique<StrictMock<MockFileSystem>>();
