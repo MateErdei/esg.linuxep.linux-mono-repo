@@ -234,7 +234,7 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_HugeURL)
     UsingMemoryAppender memoryAppenderHolder(*this);
     const std::string largeStr(30000, 'a');
     const std::string largeURL("https://s3.com/download" + largeStr + ".zip");
-    const std::string expectedMsg("Download URL is" + largeURL);
+    const std::string expectedMsg("Download URL is " + largeURL);
 
     addResponseToMockRequester(HTTP_STATUS_OK, ResponseErrorCode::OK);
 

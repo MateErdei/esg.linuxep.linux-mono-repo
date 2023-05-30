@@ -358,7 +358,7 @@ TEST_F(ActionsUtilsTests, downloadActionTestWrongTypeDecompress)
     }
     catch (const InvalidCommandFormat& except)
     {
-        EXPECT_STREQ(except.what(), "Invalid command format. Failed to parse download command json, json value in unexpected type: [json.exception.type_error.302] type must be boolean, but is string");
+        EXPECT_STREQ(except.what(), "Invalid command format. Failed to process DownloadInfo from action JSON: [json.exception.type_error.302] type must be boolean, but is string");
     }
 }
 
@@ -373,7 +373,7 @@ TEST_F(ActionsUtilsTests, downloadActionTestWrongTypeSizeBytes)
     }
     catch (const InvalidCommandFormat& except)
     {
-        EXPECT_STREQ(except.what(), "Invalid command format. Failed to parse download command json, json value in unexpected type: [json.exception.type_error.302] type must be number, but is string");
+        EXPECT_STREQ(except.what(), "Invalid command format. Failed to process DownloadInfo from action JSON: [json.exception.type_error.302] type must be number, but is string");
     }
 }
 
@@ -388,7 +388,7 @@ TEST_F(ActionsUtilsTests, downloadActionTestWrongTypeExpiration)
     }
     catch (const InvalidCommandFormat& except)
     {
-        EXPECT_STREQ(except.what(), "Invalid command format. Failed to parse download command json, json value in unexpected type: [json.exception.type_error.302] type must be number, but is string");
+        EXPECT_STREQ(except.what(), "Invalid command format. Failed to process DownloadInfo from action JSON: [json.exception.type_error.302] type must be number, but is string");
     }
 }
 
@@ -403,7 +403,7 @@ TEST_F(ActionsUtilsTests, downloadActionTestWrongTypeTimeout)
     }
     catch (const InvalidCommandFormat& except)
     {
-        EXPECT_STREQ(except.what(), "Invalid command format. Failed to parse download command json, json value in unexpected type: [json.exception.type_error.302] type must be number, but is string");
+        EXPECT_STREQ(except.what(), "Invalid command format. Failed to process DownloadInfo from action JSON: [json.exception.type_error.302] type must be number, but is string");
     }
 }
 
@@ -418,7 +418,7 @@ TEST_F(ActionsUtilsTests, downloadActionTestWrongTypeSHA256)
     }
     catch (const InvalidCommandFormat& except)
     {
-        EXPECT_STREQ(except.what(), "Invalid command format. Failed to parse download command json, json value in unexpected type: [json.exception.type_error.302] type must be string, but is number");
+        EXPECT_STREQ(except.what(), "Invalid command format. Failed to process DownloadInfo from action JSON: [json.exception.type_error.302] type must be string, but is number");
     }
 }
 
@@ -433,7 +433,7 @@ TEST_F(ActionsUtilsTests, downloadActionTestWrongTypeURL)
     }
     catch (const InvalidCommandFormat& except)
     {
-        EXPECT_STREQ(except.what(), "Invalid command format. Failed to parse download command json, json value in unexpected type: [json.exception.type_error.302] type must be string, but is number");
+        EXPECT_STREQ(except.what(), "Invalid command format. Failed to process DownloadInfo from action JSON: [json.exception.type_error.302] type must be string, but is number");
     }
 }
 
@@ -448,7 +448,7 @@ TEST_F(ActionsUtilsTests, downloadActionTestWrongTypeTargetPath)
     }
     catch (const InvalidCommandFormat& except)
     {
-        EXPECT_STREQ(except.what(), "Invalid command format. Failed to parse download command json, json value in unexpected type: [json.exception.type_error.302] type must be string, but is number");
+        EXPECT_STREQ(except.what(), "Invalid command format. Failed to process DownloadInfo from action JSON: [json.exception.type_error.302] type must be string, but is number");
     }
 }
 
@@ -509,7 +509,7 @@ TEST_F(ActionsUtilsTests, downloadActionTestWrongTypePassword)
     }
     catch (const InvalidCommandFormat& except)
     {
-        EXPECT_STREQ(except.what(), "Invalid command format. Failed to parse download command json, json value in unexpected type: [json.exception.type_error.302] type must be string, but is number");
+        EXPECT_STREQ(except.what(), "Invalid command format. Failed to process DownloadInfo from action JSON: [json.exception.type_error.302] type must be string, but is number");
     }
 }
 
@@ -652,7 +652,7 @@ TEST_F(ActionsUtilsTests, testReadCommandFailsDueToTypeError)
 {
     std::string commandJson = getCommandJsonStringWithWrongValueType();
     EXPECT_THAT([&]() { std::ignore = ActionsUtils::readCommandAction(commandJson); },
-                ThrowsMessage<InvalidCommandFormat>(HasSubstr("Failed to create Command Request object from run command JSON")));
+                ThrowsMessage<InvalidCommandFormat>(HasSubstr("Failed to process CommandRequest from action JSON")));
 }
 
 TEST_F(ActionsUtilsTests, testReadCommandFailsDueToMalformedJson)

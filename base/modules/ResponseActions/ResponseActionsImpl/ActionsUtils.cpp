@@ -53,7 +53,7 @@ namespace ResponseActionsImpl
         catch (const nlohmann::json::type_error& exception)
         {
             std::stringstream errorMsg;
-            errorMsg << "Failed to parse json, json value in unexpected type : " << exception.what();
+            errorMsg << "Failed to process UploadInfo from action JSON: " << exception.what();
             throw InvalidCommandFormat(errorMsg.str());
         }
 
@@ -93,13 +93,7 @@ namespace ResponseActionsImpl
         catch (const nlohmann::json::type_error& exception)
         {
             std::stringstream errorMsg;
-            errorMsg << "Failed to parse download command json, json value in unexpected type: " << exception.what();
-            throw InvalidCommandFormat(errorMsg.str());
-        }
-        catch (const std::exception& exception)
-        {
-            std::stringstream errorMsg;
-            errorMsg << "Failed to parse download command json: " << exception.what();
+            errorMsg << "Failed to process DownloadInfo from action JSON: " << exception.what();
             throw InvalidCommandFormat(errorMsg.str());
         }
 
@@ -131,10 +125,10 @@ namespace ResponseActionsImpl
             action.ignoreError = actionObject.at("ignoreError");
             action.expiration = actionObject.at("expiration");
         }
-        catch (const std::exception& exception)
+        catch (const nlohmann::json::type_error& exception)
         {
             throw InvalidCommandFormat(
-                "Failed to create Command Request object from run command JSON: " + std::string(exception.what()));
+                "Failed to process CommandRequest from action JSON: " + std::string(exception.what()));
         }
 
         if (action.commands.empty())
