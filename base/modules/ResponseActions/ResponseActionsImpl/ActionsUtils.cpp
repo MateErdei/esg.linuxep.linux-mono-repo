@@ -9,6 +9,8 @@
 #include <Common/UtilityImpl/StringUtils.h>
 #include <Common/UtilityImpl/TimeUtils.h>
 
+#include <limits.h>
+
 namespace ResponseActionsImpl
 {
     UploadInfo ActionsUtils::readUploadAction(const std::string& actionJson, ActionType type)
@@ -64,6 +66,7 @@ namespace ResponseActionsImpl
     {
         DownloadInfo info;
         auto actionObject = checkActionRequest(actionJson, ActionType::DOWNLOAD);
+        const std::string fieldErrorStr("Failed to process DownloadInfo from action JSON: ");
 
         try
         {
@@ -71,9 +74,10 @@ namespace ResponseActionsImpl
             info.url = actionObject.at("url");
             info.targetPath = actionObject.at("targetPath");
             info.sha256 = actionObject.at("sha256");
-            info.sizeBytes = actionObject.at("sizeBytes");
-            info.expiration = actionObject.at("expiration");
             info.timeout = actionObject.at("timeout");
+
+            info.sizeBytes = checkJsonValue(actionObject, "sizeBytes", fieldErrorStr);
+            info.expiration = checkJsonValue(actionObject, "expiration", fieldErrorStr);
 
             //Optional Fields
             if (actionObject.contains("decompress"))
@@ -92,9 +96,7 @@ namespace ResponseActionsImpl
         }
         catch (const nlohmann::json::type_error& exception)
         {
-            std::stringstream errorMsg;
-            errorMsg << "Failed to process DownloadInfo from action JSON: " << exception.what();
-            throw InvalidCommandFormat(errorMsg.str());
+            throw InvalidCommandFormat(fieldErrorStr + exception.what());
         }
 
         if (info.targetPath == "")
@@ -174,9 +176,44 @@ namespace ResponseActionsImpl
         }
     }
 
+    unsigned long ActionsUtils::checkJsonValue(const nlohmann::json& actionObject, const std::string& field, const std::string& errorPrefix)
+    {
+        [[maybe_unused]] double val = actionObject.at(field);
+        if (actionObject[field].is_number())
+        {
+            if (actionObject[field] >= 0)
+            {
+                if (actionObject[field] > ULONG_MAX)
+                {
+                    std::stringstream errorMessage;
+                    errorMessage << errorPrefix << "limit is " << ULONG_MAX << " value is " << actionObject[field];
+                    throw InvalidCommandFormat(errorMessage.str());
+                }
+            }
+            else
+            {
+                throw InvalidCommandFormat(errorPrefix + field + " is a negative value");
+            }
+        }
+        else
+        {
+            throw InvalidCommandFormat(errorPrefix + field + " is not a number");
+        }
+        return actionObject.at(field);
+    }
+
     nlohmann::json ActionsUtils::checkActionRequest(const std::string& actionJson, const ActionType& type)
     {
-        const std::string actionStr = actionTypeStrMap.at(type);
+        std::string actionStr;
+        try
+        {
+            actionStr = actionTypeStrMap.at(type);
+        }
+        catch(const std::out_of_range& exception)
+        {
+            LOGERROR("Action is not present in map");
+        }
+
         nlohmann::json actionObject;
 
         if (actionJson.empty())
