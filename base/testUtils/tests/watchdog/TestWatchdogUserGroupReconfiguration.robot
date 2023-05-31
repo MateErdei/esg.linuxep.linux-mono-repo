@@ -3,10 +3,10 @@ Documentation   Tests that check WD will reconfigure the products user and group
 
 Library    Process
 Library    OperatingSystem
-Library    ${LIBS_DIRECTORY}/FullInstallerUtils.py
-Library    ${LIBS_DIRECTORY}/MCSRouter.py
-Library    ${LIBS_DIRECTORY}/UserAndGroupReconfigurationUtils.py
-Library    ${LIBS_DIRECTORY}/Watchdog.py
+Library    ../../libs/FullInstallerUtils.py
+Library    ../../libs/MCSRouter.py
+Library    ../../libs/UserAndGroupReconfigurationUtils.py
+Library    ../../libs/Watchdog.py
 
 Resource  ../av_plugin/AVResources.robot
 Resource  ../edr_plugin/EDRResources.robot
@@ -14,6 +14,8 @@ Resource  ../event_journaler/EventJournalerResources.robot
 Resource  ../installer/InstallerResources.robot
 Resource  ../mcs_router/McsRouterResources.robot
 Resource  WatchdogResources.robot
+
+Suite Setup    Suite Setup
 
 Test Setup       Watchdog User Group Test Setup
 Test Teardown       Watchdog User Group Test Teardown
@@ -26,7 +28,11 @@ Watchdog Actual User And Group Config Has Correct Ids After Installation
     Verify Watchdog Config
 
 Test Watchdog Reconfigures User and Group IDs
-    Require Fresh Install
+    Run Full Installer
+    ...    --mcs-url    https://localhost:4443/mcs
+    ...    --mcs-token    ThisIsARegToken
+    ...    --allow-override-mcs-ca
+
     Create Directory    ${SOPHOS_INSTALL}/base/update/cache/sdds3primary    # Needed by watchdog to search for plugins
     ${ids_before} =    Get User IDs of Installed Files
 
@@ -85,9 +91,14 @@ Test Watchdog Reconfigures User and Group IDs
     Should Be Equal As Strings    ${sophos_spl_group_gid_after}        ${sophos_spl_group_gid_requested}
     Should Be Equal As Strings    ${sophos_spl_ipc_gid_after}          ${sophos_spl_ipc_gid_requested}
 
+    Verify Product is Running Without Error After ID Change
 
 Test Watchdog Can Reconfigure a Singular User ID
-    Require Fresh Install
+    Run Full Installer
+    ...    --mcs-url    https://localhost:4443/mcs
+    ...    --mcs-token    ThisIsARegToken
+    ...    --allow-override-mcs-ca
+
     Create Directory    ${SOPHOS_INSTALL}/base/update/cache/sdds3primary    # Needed by watchdog to search for plugins
     ${ids_before} =    Get User IDs of Installed Files
 
@@ -129,7 +140,11 @@ Test Watchdog Can Reconfigure a Singular User ID
     Verify Product is Running Without Error After ID Change
 
 Test Watchdog Can Reconfigure a Singular Group ID
-    Require Fresh Install
+    Run Full Installer
+    ...    --mcs-url    https://localhost:4443/mcs
+    ...    --mcs-token    ThisIsARegToken
+    ...    --allow-override-mcs-ca
+
     Create Directory    ${SOPHOS_INSTALL}/base/update/cache/sdds3primary    # Needed by watchdog to search for plugins
     ${ids_before} =    Get User IDs of Installed Files
 
@@ -235,10 +250,15 @@ Custom User And Group IDs Are Used To Create SPL Users And Groups From ThinInsta
     Remove File    /tmp/InstallOptionsTestFile
 
 *** Keywords ***
+Suite Setup
+    Regenerate Certificates
+
 Watchdog User Group Test Setup
     Require Uninstalled
+    Set Local CA Environment Variable
     Override LogConf File as Global Level  DEBUG
     Cleanup Local Cloud Server Logs
+    Start Local Cloud Server
 
 Watchdog User Group Test Teardown
     General Test Teardown
@@ -251,10 +271,8 @@ Get User IDs of Installed Files
     [Return]    ${ids}
 
 Verify Product is Running Without Error After ID Change
-    Mark Expected Error In Log       ${SOPHOS_INSTALL}/logs/base/watchdog.log    ProcessMonitoringImpl <> /opt/sophos-spl/base/bin/mcsrouter died with exit code 1
-    Mark Expected Error In Log       ${SOPHOS_INSTALL}/logs/base/sophosspl/sophos_managementagent.log    Failure on sending message to updatescheduler. Reason: No incoming data
-    Mark Expected Error In Log       ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log    mcsrouter already running
-    Mark Expected Critical In Log    ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log    Not registered: MCSID is not present
+    # SulDownloader will try to connect to https://sus.sophosupd.com and fail to authenticate
+    Mark Expected Error In Log    ${SOPHOS_INSTALL}/logs/base/suldownloader.log    Failed to connect to repository: SUS request received HTTP response code: 403 but was expecting: 200
     Mark Expected Error In Log       ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log   Update Service (sophos-spl-update.service) failed.
 
     Check All Product Logs Do Not Contain Error
