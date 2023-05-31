@@ -28,6 +28,8 @@ namespace ResponseActionsImpl
         //Checks that the actionjson is not empty, parses it and checks for required fields depending on type
         //Throws InvalidCommandFormat on any failure
         static nlohmann::json checkActionRequest(const std::string& actionJson, const ActionType& type);
+
+        //Throws InvalidCommandFormat on any failure
         static unsigned long checkUlongJsonValue(const nlohmann::json& actionObject, const std::string& field, const std::string& errorPrefix);
     };
 } // namespace ResponseActionsImpl
