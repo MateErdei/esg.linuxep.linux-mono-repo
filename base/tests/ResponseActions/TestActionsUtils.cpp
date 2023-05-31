@@ -291,7 +291,7 @@ TEST_F(ActionsUtilsTests, downloadActionNegativeExpiration)
     }
     catch (const InvalidCommandFormat& except)
     {
-        EXPECT_STREQ(except.what(), "Invalid command format. Failed to process DownloadInfo from action JSON: expiration is a negative value");
+        EXPECT_STREQ(except.what(), "Invalid command format. Failed to process DownloadInfo from action JSON: expiration is a negative value: -123456487");
     }
 }
 
@@ -306,22 +306,44 @@ TEST_F(ActionsUtilsTests, downloadActionNegativeSizeBytes)
     }
     catch (const InvalidCommandFormat& except)
     {
-        EXPECT_STREQ(except.what(), "Invalid command format. Failed to process DownloadInfo from action JSON: sizeBytes is a negative value");
+        EXPECT_STREQ(except.what(), "Invalid command format. Failed to process DownloadInfo from action JSON: sizeBytes is a negative value: -123456487");
+    }
+}
+
+TEST_F(ActionsUtilsTests, downloadActionLargeSizeBytes)
+{
+    std::string action (
+        R"({"type": "sophos.mgt.action.DownloadFile"
+        ,"timeout": 1000
+        ,"sizeBytes": 18446744073709551616
+        ,"url": "https://s3.com/download.zip"
+        ,"targetPath": "path"
+        ,"sha256": "sha"
+        ,"expiration": 1000})");
+
+    try
+    {
+        auto output = ActionsUtils::readDownloadAction(action);
+        FAIL() << "Didnt throw due to negative value";
+    }
+    catch (const InvalidCommandFormat& except)
+    {
+        EXPECT_STREQ(except.what(), "Invalid command format. sizeBytes field has been evaluated to 0. Very large values can also cause this.");
     }
 }
 
 TEST_F(ActionsUtilsTests, downloadActionLargeExpiration)
 {
-    nlohmann::json action = getDefaultDownloadAction();
-    action.at("expiration") = ULONG_MAX;
-    EXPECT_NO_THROW(std::ignore = ActionsUtils::readDownloadAction(action.dump()));
-}
-
-TEST_F(ActionsUtilsTests, downloadActionLargeSizeBytes)
-{
-    nlohmann::json action = getDefaultDownloadAction();
-    action.at("sizeBytes") =  ULONG_MAX;
-    EXPECT_NO_THROW(std::ignore = ActionsUtils::readDownloadAction(action.dump()));
+    std::string action (
+        R"({"type": "sophos.mgt.action.DownloadFile"
+        ,"timeout": 1000
+        ,"sizeBytes": 1000
+        ,"url": "https://s3.com/download.zip"
+        ,"targetPath": "path"
+        ,"sha256": "sha"
+        ,"expiration": 18446744073709551616})");
+    auto res = ActionsUtils::readDownloadAction(action);
+    res.expiration = 0;
 }
 
 TEST_F(ActionsUtilsTests, downloadActionMissingPassword)
@@ -417,7 +439,7 @@ TEST_F(ActionsUtilsTests, downloadActionWrongTypeSizeBytes)
     }
     catch (const InvalidCommandFormat& except)
     {
-        EXPECT_STREQ(except.what(), "Invalid command format. Failed to process DownloadInfo from action JSON: sizeBytes is not a number");
+        EXPECT_STREQ(except.what(), R"(Invalid command format. Failed to process DownloadInfo from action JSON: sizeBytes is not a number: "sizebytes")");
     }
 }
 
@@ -432,7 +454,7 @@ TEST_F(ActionsUtilsTests, downloadActionWrongTypeExpiration)
     }
     catch (const InvalidCommandFormat& except)
     {
-        EXPECT_STREQ(except.what(), "Invalid command format. Failed to process DownloadInfo from action JSON: expiration is not a number");
+        EXPECT_STREQ(except.what(), R"(Invalid command format. Failed to process DownloadInfo from action JSON: expiration is not a number: "expiration")");
     }
 }
 

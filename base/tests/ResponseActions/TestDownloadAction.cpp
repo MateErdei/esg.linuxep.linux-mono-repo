@@ -1054,34 +1054,48 @@ TEST_F(DownloadFileTests, ProxyFailureFallsbackDirect_Decompressed)
 }
 
 //Initialchecks failures
-
-TEST_F(DownloadFileTests, DirectNegativeExpiration)
+TEST_F(DownloadFileTests, DirectLargeExpiration)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
-
+    const std::string expectedMsg = "Download file action has expired";
     ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
 
-    nlohmann::json action = getDownloadObject();
-    action["expiration"] = -123456;
-    nlohmann::json response = downloadFileAction.run(action.dump());
+    std::string action (
+        R"({"type": "sophos.mgt.action.DownloadFile"
+        ,"timeout": 1000
+        ,"sizeBytes": 1000
+        ,"url": "https://s3.com/download.zip"
+        ,"targetPath": "path"
+        ,"sha256": "sha"
+        ,"expiration": 18446744073709551616})");
+
+    nlohmann::json response = downloadFileAction.run(action);
 
     EXPECT_EQ(response["type"], "sophos.mgt.response.DownloadFile");
-    EXPECT_EQ(response["result"], 1);
-    EXPECT_EQ(response["errorMessage"], "Error parsing command from Central");
+    EXPECT_EQ(response["result"], 4);
+    EXPECT_EQ(response["errorMessage"], expectedMsg);
     EXPECT_FALSE(response.contains("errorType"));
     EXPECT_FALSE(response.contains("httpStatus"));
     EXPECT_FALSE(response.contains("duration"));
+
+    EXPECT_TRUE(appenderContains(expectedMsg));
 }
 
-TEST_F(DownloadFileTests, DirectNegativeSizeBytes)
+TEST_F(DownloadFileTests, DirectLargeSizeBytes)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
-
     ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
 
-    nlohmann::json action = getDownloadObject();
-    action["sizeBytes"] = -123456;
-    nlohmann::json response = downloadFileAction.run(action.dump());
+    std::string action (
+        R"({"type" : "sophos.mgt.action.DownloadFile"
+        ,"timeout" : 1000
+        ,"sizeBytes" : 18446744073709551616
+        ,"url" : "https://s3.com/download.zip"
+        ,"targetPath" : "/path/to/download/to/"
+        ,"sha256" : "sha"
+        ,"expiration" : 144444000000004})");
+
+    nlohmann::json response = downloadFileAction.run(action);
 
     EXPECT_EQ(response["type"], "sophos.mgt.response.DownloadFile");
     EXPECT_EQ(response["result"], 1);
@@ -1089,6 +1103,8 @@ TEST_F(DownloadFileTests, DirectNegativeSizeBytes)
     EXPECT_FALSE(response.contains("errorType"));
     EXPECT_FALSE(response.contains("httpStatus"));
     EXPECT_FALSE(response.contains("duration"));
+
+    EXPECT_TRUE(appenderContains("Invalid command format. sizeBytes field has been evaluated to 0. Very large values can also cause this."));
 }
 
 TEST_F(DownloadFileTests, DirectNegativeExpiration)
