@@ -20,6 +20,14 @@ from MDRUtils import get_mtr_version
 from PluginUtils import get_plugin_version
 
 
+def _remove_one_excess_tmpfs_filesystem(disks, compared_to):
+    """
+    Removes up to one tmpfs element off the end of disks, to make its length closer to that of compared_to
+    """
+    if len(disks) > 1 and len(disks) > len(compared_to) and disks[-1]["fstype"] == "tmpfs":
+        _ = disks.pop()
+
+
 class TelemetryUtils:
     def __init__(self):
         self._broken_commands = list()
@@ -281,10 +289,23 @@ class TelemetryUtils:
         expected_system_telemetry_dict = self.generate_system_telemetry_dict(MCSProxy)
         actual_system_telemetry_dict = json.loads(json_string)["system-telemetry"]
 
-        # an extra tmpfs block can appear in the actual, pop it and compare the rest
-        if len(actual_system_telemetry_dict.get("disks", list())) > len(
-                expected_system_telemetry_dict.get("disks", list())):
-            _ = actual_system_telemetry_dict["disks"].pop()
+        # A Docker container can create and remove mounts such as:
+        # /var/lib/docker/containers/43e355b5a3c2ef0c189e4f1cb224bcd815e2aec4d34fcfc2f0f6b4c4b25671e5/mounts/shm
+        # /var/lib/docker/containers/43e355b5a3c2ef0c189e4f1cb224bcd815e2aec4d34fcfc2f0f6b4c4b25671e5/mounts/secrets
+        # Since we don't have mount paths to work with, we assume that up to 2 tmpfs disks at the end of the list could
+        # be these.
+        # Hence, we will try to remove up to two disks from either list if they are tmpfs to make their lengths match
+
+        expected_disks = expected_system_telemetry_dict.get("disks", list())
+        actual_disks = actual_system_telemetry_dict.get("disks", list())
+
+        # Remove up to 2 tmpfs disk off the end of actual_disks
+        _remove_one_excess_tmpfs_filesystem(actual_disks, compared_to=expected_disks)
+        _remove_one_excess_tmpfs_filesystem(actual_disks, compared_to=expected_disks)
+        # Remove up to 2 tmpfs disk off the end of expected_disks
+        _remove_one_excess_tmpfs_filesystem(expected_disks, compared_to=actual_disks)
+        _remove_one_excess_tmpfs_filesystem(expected_disks, compared_to=actual_disks)
+
         # ignore cloud platform details
         actual_system_telemetry_dict.pop("cloud-platform", None)
         self.check_system_telemetry_is_correct(actual_system_telemetry_dict, expected_system_telemetry_dict,
