@@ -86,8 +86,8 @@ then
     # Retry 10 times before timeout
     for (( i=0; i<10; i++ ))
     do
-        systemctl status cloud-init 2>&1 | tee /tmp/cloud-init.status
-        if grep "active (exited)" /tmp/cloud-init.status
+        systemctl status cloud-final 2>&1 | tee /tmp/cloud-final.status
+        if grep "active (exited)" /tmp/cloud-final.status
         then
             break
         else
