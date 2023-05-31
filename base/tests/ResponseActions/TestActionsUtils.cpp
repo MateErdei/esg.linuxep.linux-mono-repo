@@ -295,6 +295,21 @@ TEST_F(ActionsUtilsTests, downloadActionNegativeExpiration)
     }
 }
 
+TEST_F(ActionsUtilsTests, downloadActionNegativeExpirationFloat)
+{
+    nlohmann::json action = getDefaultDownloadAction();
+    action.at("expiration") = -123456.487;
+    try
+    {
+        auto output = ActionsUtils::readDownloadAction(action.dump());
+        FAIL() << "Didnt throw due to negative value";
+    }
+    catch (const InvalidCommandFormat& except)
+    {
+        EXPECT_STREQ(except.what(), "Invalid command format. Failed to process DownloadInfo from action JSON: expiration is a negative value: -123456.487");
+    }
+}
+
 TEST_F(ActionsUtilsTests, downloadActionNegativeSizeBytes)
 {
     nlohmann::json action = getDefaultDownloadAction();
@@ -307,6 +322,21 @@ TEST_F(ActionsUtilsTests, downloadActionNegativeSizeBytes)
     catch (const InvalidCommandFormat& except)
     {
         EXPECT_STREQ(except.what(), "Invalid command format. Failed to process DownloadInfo from action JSON: sizeBytes is a negative value: -123456487");
+    }
+}
+
+TEST_F(ActionsUtilsTests, downloadActionNegativeSizeBytesFloat)
+{
+    nlohmann::json action = getDefaultDownloadAction();
+    action.at("sizeBytes") = -123456.487;
+    try
+    {
+        auto output = ActionsUtils::readDownloadAction(action.dump());
+        FAIL() << "Didnt throw due to negative value";
+    }
+    catch (const InvalidCommandFormat& except)
+    {
+        EXPECT_STREQ(except.what(), "Invalid command format. Failed to process DownloadInfo from action JSON: sizeBytes is a negative value: -123456.487");
     }
 }
 
@@ -393,6 +423,41 @@ TEST_F(ActionsUtilsTests, downloadActionHugeurl)
     EXPECT_EQ(output.targetPath, action.at("targetPath"));
     EXPECT_EQ(output.password, action.at("password"));
 }
+
+TEST_F(ActionsUtilsTests, downloadActionFloatExpiration)
+{
+    nlohmann::json action = getDefaultDownloadAction();
+    action["expiration"] = 12345.789;
+
+    auto output = ActionsUtils::readDownloadAction(action.dump());
+
+    EXPECT_EQ(output.decompress, action.at("decompress"));
+    EXPECT_EQ(output.sizeBytes, action.at("sizeBytes"));
+    EXPECT_EQ(output.expiration, 12345);
+    EXPECT_EQ(output.timeout, action.at("timeout"));
+    EXPECT_EQ(output.sha256, action.at("sha256"));
+    EXPECT_EQ(output.url, action.at("url"));
+    EXPECT_EQ(output.targetPath, action.at("targetPath"));
+    EXPECT_EQ(output.password, action.at("password"));
+}
+
+TEST_F(ActionsUtilsTests, downloadActionFloatSizeBytes)
+{
+    nlohmann::json action = getDefaultDownloadAction();
+    action["sizeBytes"] = 12345.789;
+
+    auto output = ActionsUtils::readDownloadAction(action.dump());
+
+    EXPECT_EQ(output.decompress, action.at("decompress"));
+    EXPECT_EQ(output.sizeBytes, 12345);
+    EXPECT_EQ(output.expiration, action.at("expiration"));
+    EXPECT_EQ(output.timeout, action.at("timeout"));
+    EXPECT_EQ(output.sha256, action.at("sha256"));
+    EXPECT_EQ(output.url, action.at("url"));
+    EXPECT_EQ(output.targetPath, action.at("targetPath"));
+    EXPECT_EQ(output.password, action.at("password"));
+}
+
 
 TEST_F(ActionsUtilsTests, downloadActionLargeTargetPath)
 {
