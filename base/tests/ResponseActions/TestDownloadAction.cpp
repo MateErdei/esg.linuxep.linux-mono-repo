@@ -270,7 +270,7 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_HugePath)
     UsingMemoryAppender memoryAppenderHolder(*this);
     const std::string largeStr(30000, 'a');
     const std::string largeTargetPath(m_destPath + largeStr);
-  //  const std::string expectedMsg("Download URL is" + largeURL);
+    const std::string expectedMsg(largeTargetPath + " downloaded successfully");
 
     addResponseToMockRequester(HTTP_STATUS_OK, ResponseErrorCode::OK);
 
@@ -298,10 +298,8 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_HugePath)
     EXPECT_FALSE(response.contains("errorMessage"));
     EXPECT_TRUE(response.contains("duration"));
 
-   // EXPECT_TRUE(appenderContains(expectedMsg));
+    EXPECT_TRUE(appenderContains(expectedMsg));
 }
-
-
 
 TEST_F(DownloadFileTests, SuccessfulDownload_Direct_NotDecompressed_NoFileNameInTargetPath)
 {
@@ -1056,6 +1054,78 @@ TEST_F(DownloadFileTests, ProxyFailureFallsbackDirect_Decompressed)
 }
 
 //Initialchecks failures
+
+TEST_F(DownloadFileTests, DirectNegativeExpiration)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
+
+    nlohmann::json action = getDownloadObject();
+    action["expiration"] = -123456;
+    nlohmann::json response = downloadFileAction.run(action.dump());
+
+    EXPECT_EQ(response["type"], "sophos.mgt.response.DownloadFile");
+    EXPECT_EQ(response["result"], 1);
+    EXPECT_EQ(response["errorMessage"], "Error parsing command from Central");
+    EXPECT_FALSE(response.contains("errorType"));
+    EXPECT_FALSE(response.contains("httpStatus"));
+    EXPECT_FALSE(response.contains("duration"));
+}
+
+TEST_F(DownloadFileTests, DirectNegativeSizeBytes)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
+
+    nlohmann::json action = getDownloadObject();
+    action["sizeBytes"] = -123456;
+    nlohmann::json response = downloadFileAction.run(action.dump());
+
+    EXPECT_EQ(response["type"], "sophos.mgt.response.DownloadFile");
+    EXPECT_EQ(response["result"], 1);
+    EXPECT_EQ(response["errorMessage"], "Error parsing command from Central");
+    EXPECT_FALSE(response.contains("errorType"));
+    EXPECT_FALSE(response.contains("httpStatus"));
+    EXPECT_FALSE(response.contains("duration"));
+}
+
+TEST_F(DownloadFileTests, DirectNegativeExpiration)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
+
+    nlohmann::json action = getDownloadObject();
+    action["expiration"] = -123456;
+    nlohmann::json response = downloadFileAction.run(action.dump());
+
+    EXPECT_EQ(response["type"], "sophos.mgt.response.DownloadFile");
+    EXPECT_EQ(response["result"], 1);
+    EXPECT_EQ(response["errorMessage"], "Error parsing command from Central");
+    EXPECT_FALSE(response.contains("errorType"));
+    EXPECT_FALSE(response.contains("httpStatus"));
+    EXPECT_FALSE(response.contains("duration"));
+}
+
+TEST_F(DownloadFileTests, DirectNegativeSizeBytes)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
+
+    nlohmann::json action = getDownloadObject();
+    action["sizeBytes"] = -123456;
+    nlohmann::json response = downloadFileAction.run(action.dump());
+
+    EXPECT_EQ(response["type"], "sophos.mgt.response.DownloadFile");
+    EXPECT_EQ(response["result"], 1);
+    EXPECT_EQ(response["errorMessage"], "Error parsing command from Central");
+    EXPECT_FALSE(response.contains("errorType"));
+    EXPECT_FALSE(response.contains("httpStatus"));
+    EXPECT_FALSE(response.contains("duration"));
+}
 
 TEST_F(DownloadFileTests, FileToDownloadIsAboveMaxAllowedFileSize)
 {
