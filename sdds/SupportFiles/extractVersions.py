@@ -38,6 +38,9 @@ def get_version(repository_path):
 
 
 def main(argv):
+    if len(argv) != 2:
+        print("Usage: python3 SupportFiles/extractVersions.py def-sdds3/components/suite_packages.yaml")
+        return 1
     data = open(argv[1]).read()
     data = yaml.load(data, Loader)
     # print(json.dumps(data, indent=2))
@@ -46,6 +49,7 @@ def main(argv):
         component = key.split(".")[0]
         build_id = value['prod-artifact'].split("/")[3]
         print(component, version, build_id)
+    return 0
 
 
 sys.exit(main(sys.argv))
