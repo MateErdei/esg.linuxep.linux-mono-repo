@@ -76,8 +76,12 @@ namespace ResponseActionsImpl
             info.sha256 = actionObject.at("sha256");
             info.timeout = actionObject.at("timeout");
 
-            info.sizeBytes = checkJsonValue(actionObject, "sizeBytes", fieldErrorStr);
-            info.expiration = checkJsonValue(actionObject, "expiration", fieldErrorStr);
+            info.sizeBytes = checkUlongJsonValue(actionObject, "sizeBytes", fieldErrorStr);
+            if (info.sizeBytes == 0)
+            {
+                throw InvalidCommandFormat("sizeBytes field has been evaluated to 0. Very large values can also cause this.");
+            }
+            info.expiration = checkUlongJsonValue(actionObject, "expiration", fieldErrorStr);
 
             //Optional Fields
             if (actionObject.contains("decompress"))
@@ -176,30 +180,24 @@ namespace ResponseActionsImpl
         }
     }
 
-    unsigned long ActionsUtils::checkJsonValue(const nlohmann::json& actionObject, const std::string& field, const std::string& errorPrefix)
+    unsigned long ActionsUtils::checkUlongJsonValue(const nlohmann::json& actionObject, const std::string& field, const std::string& errorPrefix)
     {
-        [[maybe_unused]] double val = actionObject.at(field);
         if (actionObject[field].is_number())
         {
-            if (actionObject[field] >= 0)
+            if (!actionObject[field].is_number_unsigned() && actionObject[field] < 0.0)
             {
-                if (actionObject[field] > ULONG_MAX)
-                {
-                    std::stringstream errorMessage;
-                    errorMessage << errorPrefix << "limit is " << ULONG_MAX << " value is " << actionObject[field];
-                    throw InvalidCommandFormat(errorMessage.str());
-                }
-            }
-            else
-            {
-                throw InvalidCommandFormat(errorPrefix + field + " is a negative value");
+                std::stringstream err;
+                err << errorPrefix << field << " is a negative value: " << actionObject.at(field);
+                throw InvalidCommandFormat(err.str());
             }
         }
         else
         {
-            throw InvalidCommandFormat(errorPrefix + field + " is not a number");
+            std::stringstream err;
+            err << errorPrefix << field << " is not a number: " << actionObject.at(field);
+            throw InvalidCommandFormat(err.str());
         }
-        return actionObject.at(field);
+        return actionObject.at(field).get<unsigned long>();
     }
 
     nlohmann::json ActionsUtils::checkActionRequest(const std::string& actionJson, const ActionType& type)
