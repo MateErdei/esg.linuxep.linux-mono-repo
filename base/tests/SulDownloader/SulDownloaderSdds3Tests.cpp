@@ -3041,6 +3041,110 @@ TEST_F(
         configurationData, previousConfigurationData, previousDownloadReport, supplementOnly);
 }
 
+TEST_F(SULDownloaderSdds3Test, RunSULDownloaderProductUpdateButBaseVersionIniDoesNotExistStillTriesToInstall)
+{
+    testing::internal::CaptureStderr();
+
+    auto& mockFileSystem = setupFileSystemAndGetMock(0, 2, 0);
+
+    EXPECT_CALL(mockFileSystem, isFile("/opt/sophos-spl/base/VERSION.ini")).WillRepeatedly(Return(false));
+
+    // Expect a plugin upgrade
+    setupPluginVersionFileCalls(mockFileSystem, "PRODUCT_VERSION = 1.2.2.999", "PRODUCT_VERSION = 1.2.3.0");
+
+    auto settings = defaultSettings();
+    ConfigurationData configurationData = configData(settings);
+    configurationData.verifySettingsAreValid();
+    ConfigurationData previousConfigurationData;
+    const auto products = defaultProducts();
+    TimeTracker timeTracker;
+    DownloadReport previousDownloadReport =
+        DownloadReport::Report("", products, {}, {}, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
+
+    MockSdds3Repository& mock = repositoryMocked();
+    ON_CALL(mock, getProducts).WillByDefault(Return(products));
+
+    EXPECT_CALL(mockFileSystem, removeFile("/opt/sophos-spl/base/update/var/updatescheduler/await_scheduled_update", _))
+        .Times(1);
+
+    // Expect both installers to run
+    int counter = 0;
+    Common::ProcessImpl::ProcessFactory::instance().replaceCreator(
+        [&counter]()
+        {
+            ++counter;
+            if (counter == 1)
+            {
+                auto mockProcess = std::make_unique<MockProcess>();
+                EXPECT_CALL(
+                    *mockProcess,
+                    exec(
+                        "/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Base-component/"
+                        "install.sh",
+                        _,
+                        _));
+                ON_CALL(*mockProcess, wait(_, _)).WillByDefault(Return(Common::Process::ProcessStatus::FINISHED));
+                return mockProcess;
+            }
+            else
+            {
+                auto mockProcess = std::make_unique<MockProcess>();
+                EXPECT_CALL(
+                    *mockProcess,
+                    exec(
+                        "/opt/sophos-spl/base/update/cache/sdds3primary/ServerProtectionLinux-Plugin-EDR/install.sh",
+                        _,
+                        _));
+                ON_CALL(*mockProcess, wait(_, _)).WillByDefault(Return(Common::Process::ProcessStatus::FINISHED));
+                return mockProcess;
+            }
+        });
+
+    const auto supplementOnly = false;
+    SulDownloader::runSULDownloader(
+        configurationData, previousConfigurationData, previousDownloadReport, supplementOnly);
+}
+
+TEST_F(SULDownloaderSdds3Test, RunSULDownloaderSupplementOnlyButBaseVersionIniDoesNotExistDoesNotInstallAnything)
+{
+    testing::internal::CaptureStderr();
+
+    auto& mockFileSystem = setupFileSystemAndGetMock(0, 2, 0);
+
+     EXPECT_CALL(mockFileSystem, isFile("/opt/sophos-spl/base/VERSION.ini")).WillRepeatedly(Return(false));
+
+    // Expect a plugin upgrade
+    setupPluginVersionFileCalls(mockFileSystem, "PRODUCT_VERSION = 1.2.2.999", "PRODUCT_VERSION = 1.2.3.0");
+
+    auto settings = defaultSettings();
+    ConfigurationData configurationData = configData(settings);
+    configurationData.verifySettingsAreValid();
+    ConfigurationData previousConfigurationData;
+    const auto products = defaultProducts();
+    TimeTracker timeTracker;
+    DownloadReport previousDownloadReport =
+        DownloadReport::Report("", products, {}, {}, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
+
+    MockSdds3Repository& mock = repositoryMocked();
+    ON_CALL(mock, getProducts).WillByDefault(Return(products));
+
+    EXPECT_CALL(mockFileSystem, removeFile("/opt/sophos-spl/base/update/var/updatescheduler/await_scheduled_update", _))
+        .Times(0);
+
+    // Expect no install process to be run
+    int counter = 0;
+    Common::ProcessImpl::ProcessFactory::instance().replaceCreator(
+        [&counter]()
+        {
+            ++counter;
+            return std::make_unique<MockProcess>();
+        });
+
+    SulDownloader::runSULDownloader(configurationData, previousConfigurationData, previousDownloadReport, true);
+
+    EXPECT_EQ(counter, 0);
+}
+
 // Suldownloader WriteInstalledFeatures()
 class TestSuldownloaderWriteInstalledFeaturesFunction: public LogOffInitializedTests{};
 
