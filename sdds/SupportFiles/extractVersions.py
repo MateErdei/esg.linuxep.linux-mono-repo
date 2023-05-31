@@ -13,7 +13,7 @@ except ImportError:
     from yaml import Loader, Dumper
 
 
-def get_version(repository_path: str):
+def get_version(repository_path):
     """
     Convert
     esg-releasable-candidate/linuxep.sspl-plugin-anti-virus/release--2023.2-DTP1/20230531081647-0913f58259eed5aa7ad386a9508739b0d9f8fc16-DAmXzD/sspl-plugin-anti-virus/SDDS3-PACKAGE/
@@ -22,9 +22,6 @@ def get_version(repository_path: str):
     :param repository_path:
     :return:
     """
-    if not repository_path.endswith("/"):
-        repository_path = repository_path + "/"
-
     url = "https://artifactory.sophos-ops.com/artifactory/" + repository_path + "SDDS-Import.xml"
     response = urllib.request.urlopen(url)
     xml_data = response.read()
@@ -41,16 +38,7 @@ def get_version(repository_path: str):
 
 
 def main(argv):
-    if len(argv) != 2:
-        print("Usage: python3 SupportFiles/extractVersions.py def-sdds3/components/pkgs_latest.yaml")
-        return 1
-
-    path = argv[1]
-    if not os.path.exists(path):
-        print(f"{path} does not exist")
-        return 1
-
-    data = open(path).read()
+    data = open(argv[1]).read()
     data = yaml.load(data, Loader)
     # print(json.dumps(data, indent=2))
     for key, value in data.items():
@@ -58,7 +46,6 @@ def main(argv):
         component = key.split(".")[0]
         build_id = value['prod-artifact'].split("/")[3]
         print(component, version, build_id)
-    return 0
 
 
 sys.exit(main(sys.argv))
