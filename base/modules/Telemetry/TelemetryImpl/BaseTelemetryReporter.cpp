@@ -149,7 +149,8 @@ namespace Telemetry
     {
         std::optional<nlohmann::json> outbreakStatusContents = parseOutbreakStatusFile();
         std::string recordedTime;
-        if (outbreakStatusContents.has_value())
+        if (outbreakStatusContents.has_value() && outbreakStatusContents->contains("timestamp") &&
+            outbreakStatusContents->at("timestamp").is_string())
         {
             recordedTime = outbreakStatusContents.value().value("timestamp", "");
             if (!recordedTime.empty())
