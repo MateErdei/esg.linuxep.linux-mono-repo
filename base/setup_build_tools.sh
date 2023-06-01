@@ -252,6 +252,10 @@ install_package gdb
 # We are temporarily using chrpath until we properly fix RPATH for pluginanpi and thirdparties.
 install_package chrpath
 
+# We use "proxy" in tests/Common/HttpRequesterImpl/HttpTestServer.py which is used by
+# tests/Common/HttpRequesterImpl/HttpRequesterLiveNetworkTests.cpp
+install_package libproxy-tools
+
 # We depend on the TAP script ./tap_venv/bin/sb_manifest_sign
 # To make this easy to find we add a symlink that will be found on the default PATH.
 if [[ -f "$TAP_VENV/bin/sb_manifest_sign" ]]
