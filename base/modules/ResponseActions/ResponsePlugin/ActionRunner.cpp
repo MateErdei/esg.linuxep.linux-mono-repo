@@ -96,7 +96,7 @@ namespace ResponsePlugin
                     LOGWARN("Failed action " << correlationId << " with exit code " << code);
                     incrementFailedActions(type);
 
-                    if (code != 1 && code != 4)
+                    if (code != static_cast<int>(ResponseActions::RACommon::ResponseResult::ERROR) && code != static_cast<int>(ResponseActions::RACommon::ResponseResult::EXPIRED))
                     {
                         auto result = ResponseResult::INTERNAL_ERROR;
                         if (processStatus == ProcessStatus::TIMEOUT)
@@ -106,7 +106,7 @@ namespace ResponsePlugin
                         }
                         sendFailedResponse(result, type, correlationId);
                     }
-                    if (code == 4)
+                    if (code == static_cast<int>(ResponseActions::RACommon::ResponseResult::EXPIRED))
                     {
                         incrementExpiredActions(type);
                     }
