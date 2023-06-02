@@ -16,7 +16,7 @@ namespace ResponseActionsImpl
         std::string url;
         bool compress = false;
         std::string password;
-        u_int64_t expiration = 0;
+        unsigned long expiration = 0;
         int timeout = 0;
         int maxSize = 0;
     };
@@ -56,7 +56,7 @@ namespace ResponseActionsImpl
         std::vector<std::string> commands;
         long timeout;
         bool ignoreError;
-        u_int64_t expiration = 0;
+        unsigned long expiration = 0;
     };
 
     struct SingleCommandResult
