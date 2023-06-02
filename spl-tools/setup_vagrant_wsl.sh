@@ -5,12 +5,15 @@ THIS_DIR=$(dirname "$THIS_FILE_FULL_PATH")
 
 # Run this from within WSL instance
 set -e
-VAGRANT_VERSION="2.3.4"
+VAGRANT_VERSION="2.3.6"
 rm -rf /tmp/hashicorp-archive-keyring.gpg
 wget -O- https://apt.releases.hashicorp.com/gpg | gpg --dearmor --output /tmp/hashicorp-archive-keyring.gpg
 sudo cp  /tmp/hashicorp-archive-keyring.gpg /usr/share/keyrings/hashicorp-archive-keyring.gpg
 echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
-sudo apt update && sudo apt install vagrant=$VAGRANT_VERSION
+
+# For some reason it looks like the version number on linux has changed format to "0:<version>-1" this might change again in the future.
+sudo apt update && sudo apt install vagrant="0:${VAGRANT_VERSION}-1"
+
 vagrant --version
 vagrant plugin install virtualbox_WSL2
 vagrant plugin install vagrant-vbguest
@@ -42,10 +45,11 @@ else
   WINDOWS_VAGRANT_VERSION=""
 fi
 
-echo $WINDOWS_VAGRANT_VERSION
+echo "Windows vagrant version: $WINDOWS_VAGRANT_VERSION"
 if [ "$WINDOWS_VAGRANT_VERSION" != "Vagrant $VAGRANT_VERSION" ]
 then
   echo "Please make sure to install Vagrant to your Windows machine, you can get version $VAGRANT_VERSION from: https://releases.hashicorp.com/vagrant/${VAGRANT_VERSION}/vagrant_${VAGRANT_VERSION}_windows_amd64.msi"
+  echo "Then re-run this script."
   exit 1
 else
   echo "Windows and WSL Vagrant versions match, both $VAGRANT_VERSION"
@@ -62,3 +66,4 @@ echo "examples:"
 echo "./vagrant status"
 echo "./vagrant up ubuntu"
 echo "./vagrant ssh"
+echo "./vagrant rsync"
