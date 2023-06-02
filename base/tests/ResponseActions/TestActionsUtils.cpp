@@ -63,7 +63,7 @@ public:
     }
 };
 
-TEST_F(ActionsUtilsTests, testExpiry)
+TEST_F(ActionsUtilsTests, expiry)
 {
     EXPECT_TRUE(ActionsUtils::isExpired(1000));
     // time is set here to Tue 8 Feb 17:12:46 GMT 2033
@@ -74,7 +74,7 @@ TEST_F(ActionsUtilsTests, testExpiry)
     EXPECT_FALSE(ActionsUtils::isExpired(currentTime+10));
 }
 
-TEST_F(ActionsUtilsTests, testSucessfulParseUploadFile)
+TEST_F(ActionsUtilsTests, successfulParseUploadFile)
 {
     nlohmann::json action = getDefaultUploadObject(ActionType::UPLOADFILE);
     UploadInfo info = ActionsUtils::readUploadAction(action.dump(),ActionType::UPLOADFILE);
@@ -86,7 +86,7 @@ TEST_F(ActionsUtilsTests, testSucessfulParseUploadFile)
     EXPECT_EQ(info.timeout,10);
 }
 
-TEST_F(ActionsUtilsTests, testSucessfulParseUploadFolder)
+TEST_F(ActionsUtilsTests, successfulParseUploadFolder)
 {
     nlohmann::json action = getDefaultUploadObject(ActionType::UPLOADFOLDER);
     UploadInfo info = ActionsUtils::readUploadAction(action.dump(),ActionType::UPLOADFOLDER);
@@ -98,14 +98,14 @@ TEST_F(ActionsUtilsTests, testSucessfulParseUploadFolder)
     EXPECT_EQ(info.timeout,10);
 }
 
-TEST_F(ActionsUtilsTests, testReadFailsWhenActionIsInvalidJson)
+TEST_F(ActionsUtilsTests, readFailsWhenActionIsInvalidJson)
 {
     EXPECT_THROW(
         std::ignore = ActionsUtils::readUploadAction("", ActionType::UPLOADFILE),
         InvalidCommandFormat);
 }
 
-TEST_F(ActionsUtilsTests, testReadFailsWhenActionISUploadFileWhenExpectingFolder)
+TEST_F(ActionsUtilsTests, readFailsWhenActionISUploadFileWhenExpectingFolder)
 {
     nlohmann::json action = getDefaultUploadObject(ActionType::UPLOADFILE);
     EXPECT_THROW(
@@ -113,7 +113,7 @@ TEST_F(ActionsUtilsTests, testReadFailsWhenActionISUploadFileWhenExpectingFolder
         InvalidCommandFormat);
 }
 
-TEST_F(ActionsUtilsTests, testReadFailsWhenActionISUploadFolderWhenExpectingFile)
+TEST_F(ActionsUtilsTests, readFailsWhenActionISUploadFolderWhenExpectingFile)
 {
     nlohmann::json action = getDefaultUploadObject(ActionType::UPLOADFOLDER);
     EXPECT_THROW(
@@ -121,7 +121,7 @@ TEST_F(ActionsUtilsTests, testReadFailsWhenActionISUploadFolderWhenExpectingFile
         InvalidCommandFormat);
 }
 
-TEST_F(ActionsUtilsTests, testSucessfulParseCompressionEnabled)
+TEST_F(ActionsUtilsTests, successfulParseCompressionEnabled)
 {
     nlohmann::json action = getDefaultUploadObject(ActionType::UPLOADFILE);
     action["compress"] = true;
@@ -133,21 +133,21 @@ TEST_F(ActionsUtilsTests, testSucessfulParseCompressionEnabled)
     EXPECT_EQ(info.password, "password");
 }
 
-TEST_F(ActionsUtilsTests, testFailedParseInvalidValue)
+TEST_F(ActionsUtilsTests, failedParseInvalidValue)
 {
     nlohmann::json action = getDefaultUploadObject(ActionType::UPLOADFILE);
     action["url"] = 1000;
     EXPECT_THROW(std::ignore = ActionsUtils::readUploadAction(action.dump(),ActionType::UPLOADFILE),InvalidCommandFormat);
 }
 
-TEST_F(ActionsUtilsTests, testFailedParseMissingUrl)
+TEST_F(ActionsUtilsTests, failedParseMissingUrl)
 {
     nlohmann::json action = getDefaultUploadObject(ActionType::UPLOADFILE);
     action.erase("url");
     EXPECT_THROW(std::ignore = ActionsUtils::readUploadAction(action.dump(),ActionType::UPLOADFILE),InvalidCommandFormat);
 }
 
-TEST_F(ActionsUtilsTests, testFailedParseMissingExpiration)
+TEST_F(ActionsUtilsTests, failedParseMissingExpiration)
 {
     nlohmann::json action = getDefaultUploadObject(ActionType::UPLOADFILE);
     action.erase("expiration");
@@ -161,21 +161,21 @@ TEST_F(ActionsUtilsTests, testFailedParseMissingTimeout)
     EXPECT_THROW(std::ignore = ActionsUtils::readUploadAction(action.dump(),ActionType::UPLOADFILE),InvalidCommandFormat);
 }
 
-TEST_F(ActionsUtilsTests, testFailedParseMissingMaxUploadSizeBytes)
+TEST_F(ActionsUtilsTests, failedParseMissingMaxUploadSizeBytes)
 {
     nlohmann::json action = getDefaultUploadObject(ActionType::UPLOADFILE);
     action.erase("maxUploadSizeBytes");
     EXPECT_THROW(std::ignore = ActionsUtils::readUploadAction(action.dump(),ActionType::UPLOADFILE),InvalidCommandFormat);
 }
 
-TEST_F(ActionsUtilsTests, testFailedParseMissingTargetFile)
+TEST_F(ActionsUtilsTests, failedParseMissingTargetFile)
 {
     nlohmann::json action = getDefaultUploadObject(ActionType::UPLOADFILE);
     action.erase("targetFile");
     EXPECT_THROW(std::ignore = ActionsUtils::readUploadAction(action.dump(),ActionType::UPLOADFILE),InvalidCommandFormat);
 }
 
-TEST_F(ActionsUtilsTests, testSendResponse)
+TEST_F(ActionsUtilsTests, sendResponse)
 {
     auto mockFileSystem = new NaggyMock<MockFileSystem>();
     auto mockFilePermissions = new NaggyMock<MockFilePermissions>();
@@ -190,7 +190,7 @@ TEST_F(ActionsUtilsTests, testSendResponse)
 }
 
 //**********************DOWNLOAD ACTION***************************
-TEST_F(ActionsUtilsTests, downloadActionMissingUrl)
+TEST_F(ActionsUtilsTests, downloadMissingUrl)
 {
     nlohmann::json action = getDefaultDownloadAction();
     action.erase("url");
@@ -205,7 +205,7 @@ TEST_F(ActionsUtilsTests, downloadActionMissingUrl)
     }
 }
 
-TEST_F(ActionsUtilsTests, downloadActionMissingtargetPath)
+TEST_F(ActionsUtilsTests, downloadMissingtargetPath)
 {
     nlohmann::json action = getDefaultDownloadAction();
     action.erase("targetPath");
@@ -220,7 +220,7 @@ TEST_F(ActionsUtilsTests, downloadActionMissingtargetPath)
     }
 }
 
-TEST_F(ActionsUtilsTests, downloadActionMissingsha256)
+TEST_F(ActionsUtilsTests, downloadMissingsha256)
 {
     nlohmann::json action = getDefaultDownloadAction();
     action.erase("sha256");
@@ -235,7 +235,7 @@ TEST_F(ActionsUtilsTests, downloadActionMissingsha256)
     }
 }
 
-TEST_F(ActionsUtilsTests, downloadActionMissingtimeout)
+TEST_F(ActionsUtilsTests, downloadMissingtimeout)
 {
     nlohmann::json action = getDefaultDownloadAction();
     action.erase("timeout");
@@ -250,7 +250,7 @@ TEST_F(ActionsUtilsTests, downloadActionMissingtimeout)
     }
 }
 
-TEST_F(ActionsUtilsTests, downloadActionMissingsizeBytes)
+TEST_F(ActionsUtilsTests, downloadMissingsizeBytes)
 {
     nlohmann::json action = getDefaultDownloadAction();
     action.erase("sizeBytes");
@@ -265,7 +265,7 @@ TEST_F(ActionsUtilsTests, downloadActionMissingsizeBytes)
     }
 }
 
-TEST_F(ActionsUtilsTests, downloadActionMissingExpiration)
+TEST_F(ActionsUtilsTests, downloadMissingExpiration)
 {
     nlohmann::json action = getDefaultDownloadAction();
     action.erase("expiration");
@@ -280,7 +280,7 @@ TEST_F(ActionsUtilsTests, downloadActionMissingExpiration)
     }
 }
 
-TEST_F(ActionsUtilsTests, downloadActionNegativeExpiration)
+TEST_F(ActionsUtilsTests, downloadNegativeExpiration)
 {
     nlohmann::json action = getDefaultDownloadAction();
     action.at("expiration") = -123456487;
@@ -295,7 +295,7 @@ TEST_F(ActionsUtilsTests, downloadActionNegativeExpiration)
     }
 }
 
-TEST_F(ActionsUtilsTests, downloadActionNegativeExpirationFloat)
+TEST_F(ActionsUtilsTests, downloadNegativeExpirationFloat)
 {
     nlohmann::json action = getDefaultDownloadAction();
     action.at("expiration") = -123456.487;
@@ -310,7 +310,7 @@ TEST_F(ActionsUtilsTests, downloadActionNegativeExpirationFloat)
     }
 }
 
-TEST_F(ActionsUtilsTests, downloadActionNegativeSizeBytes)
+TEST_F(ActionsUtilsTests, downloadNegativeSizeBytes)
 {
     nlohmann::json action = getDefaultDownloadAction();
     action.at("sizeBytes") = -123456487;
@@ -325,7 +325,7 @@ TEST_F(ActionsUtilsTests, downloadActionNegativeSizeBytes)
     }
 }
 
-TEST_F(ActionsUtilsTests, downloadActionNegativeSizeBytesFloat)
+TEST_F(ActionsUtilsTests, downloadNegativeSizeBytesFloat)
 {
     nlohmann::json action = getDefaultDownloadAction();
     action.at("sizeBytes") = -123456.487;
@@ -340,7 +340,7 @@ TEST_F(ActionsUtilsTests, downloadActionNegativeSizeBytesFloat)
     }
 }
 
-TEST_F(ActionsUtilsTests, downloadActionLargeSizeBytes)
+TEST_F(ActionsUtilsTests, downloadLargeSizeBytes)
 {
     std::string action (
         R"({"type": "sophos.mgt.action.DownloadFile"
@@ -362,7 +362,7 @@ TEST_F(ActionsUtilsTests, downloadActionLargeSizeBytes)
     }
 }
 
-TEST_F(ActionsUtilsTests, downloadActionLargeExpiration)
+TEST_F(ActionsUtilsTests, downloadLargeExpiration)
 {
     std::string action (
         R"({"type": "sophos.mgt.action.DownloadFile"
@@ -376,21 +376,21 @@ TEST_F(ActionsUtilsTests, downloadActionLargeExpiration)
     res.expiration = 0;
 }
 
-TEST_F(ActionsUtilsTests, downloadActionMissingPassword)
+TEST_F(ActionsUtilsTests, downloadMissingPassword)
 {
     nlohmann::json action = getDefaultDownloadAction();
     action.erase("password");
     EXPECT_NO_THROW(std::ignore = ActionsUtils::readDownloadAction(action.dump()));
 }
 
-TEST_F(ActionsUtilsTests, downloadActionMissingdecompress)
+TEST_F(ActionsUtilsTests, downloadMissingdecompress)
 {
     nlohmann::json action = getDefaultDownloadAction();
     action.erase("decompress");
     EXPECT_NO_THROW(std::ignore = ActionsUtils::readDownloadAction(action.dump()));
 }
 
-TEST_F(ActionsUtilsTests, downloadActionSuccessfulParsing)
+TEST_F(ActionsUtilsTests, downloadSuccessfulParsing)
 {
     nlohmann::json action = getDefaultDownloadAction();
     auto output = ActionsUtils::readDownloadAction(action.dump());
@@ -405,7 +405,7 @@ TEST_F(ActionsUtilsTests, downloadActionSuccessfulParsing)
     EXPECT_EQ(output.password, action.at("password"));
 }
 
-TEST_F(ActionsUtilsTests, downloadActionHugeurl)
+TEST_F(ActionsUtilsTests, downloadHugeurl)
 {
     nlohmann::json action = getDefaultDownloadAction();
     const std::string largeStr(30000, 'a');
@@ -424,7 +424,7 @@ TEST_F(ActionsUtilsTests, downloadActionHugeurl)
     EXPECT_EQ(output.password, action.at("password"));
 }
 
-TEST_F(ActionsUtilsTests, downloadActionFloatExpiration)
+TEST_F(ActionsUtilsTests, downloadFloatExpiration)
 {
     nlohmann::json action = getDefaultDownloadAction();
     action["expiration"] = 12345.789;
@@ -441,7 +441,7 @@ TEST_F(ActionsUtilsTests, downloadActionFloatExpiration)
     EXPECT_EQ(output.password, action.at("password"));
 }
 
-TEST_F(ActionsUtilsTests, downloadActionFloatSizeBytes)
+TEST_F(ActionsUtilsTests, downloadFloatSizeBytes)
 {
     nlohmann::json action = getDefaultDownloadAction();
     action["sizeBytes"] = 12345.789;
@@ -459,7 +459,7 @@ TEST_F(ActionsUtilsTests, downloadActionFloatSizeBytes)
 }
 
 
-TEST_F(ActionsUtilsTests, downloadActionLargeTargetPath)
+TEST_F(ActionsUtilsTests, downloadLargeTargetPath)
 {
     nlohmann::json action = getDefaultDownloadAction();
     const std::string largeStr(30000, 'a');
@@ -478,7 +478,7 @@ TEST_F(ActionsUtilsTests, downloadActionLargeTargetPath)
     EXPECT_EQ(output.password, action.at("password"));
 }
 
-TEST_F(ActionsUtilsTests, downloadActionWrongTypeDecompress)
+TEST_F(ActionsUtilsTests, downloadWrongTypeDecompress)
 {
     nlohmann::json action = getDefaultDownloadAction();
     action["decompress"] = "sickness";
@@ -493,7 +493,7 @@ TEST_F(ActionsUtilsTests, downloadActionWrongTypeDecompress)
     }
 }
 
-TEST_F(ActionsUtilsTests, downloadActionWrongTypeSizeBytes)
+TEST_F(ActionsUtilsTests, downloadWrongTypeSizeBytes)
 {
     nlohmann::json action = getDefaultDownloadAction();
     action["sizeBytes"] = "sizebytes";
@@ -508,7 +508,7 @@ TEST_F(ActionsUtilsTests, downloadActionWrongTypeSizeBytes)
     }
 }
 
-TEST_F(ActionsUtilsTests, downloadActionWrongTypeExpiration)
+TEST_F(ActionsUtilsTests, downloadWrongTypeExpiration)
 {
     nlohmann::json action = getDefaultDownloadAction();
     action["expiration"] = "expiration";
@@ -523,7 +523,7 @@ TEST_F(ActionsUtilsTests, downloadActionWrongTypeExpiration)
     }
 }
 
-TEST_F(ActionsUtilsTests, downloadActionWrongTypeTimeout)
+TEST_F(ActionsUtilsTests, downloadWrongTypeTimeout)
 {
     nlohmann::json action = getDefaultDownloadAction();
     action["timeout"] = "timeout";
@@ -538,7 +538,7 @@ TEST_F(ActionsUtilsTests, downloadActionWrongTypeTimeout)
     }
 }
 
-TEST_F(ActionsUtilsTests, downloadActionWrongTypeSHA256)
+TEST_F(ActionsUtilsTests, downloadWrongTypeSHA256)
 {
     nlohmann::json action = getDefaultDownloadAction();
     action["sha256"] = 256;
@@ -553,7 +553,7 @@ TEST_F(ActionsUtilsTests, downloadActionWrongTypeSHA256)
     }
 }
 
-TEST_F(ActionsUtilsTests, downloadActionWrongTypeURL)
+TEST_F(ActionsUtilsTests, downloadWrongTypeURL)
 {
     nlohmann::json action = getDefaultDownloadAction();
     action["url"] = 123;
@@ -568,7 +568,7 @@ TEST_F(ActionsUtilsTests, downloadActionWrongTypeURL)
     }
 }
 
-TEST_F(ActionsUtilsTests, downloadActionWrongTypeTargetPath)
+TEST_F(ActionsUtilsTests, downloadWrongTypeTargetPath)
 {
     nlohmann::json action = getDefaultDownloadAction();
     action["targetPath"] = 930752758;
@@ -583,7 +583,7 @@ TEST_F(ActionsUtilsTests, downloadActionWrongTypeTargetPath)
     }
 }
 
-TEST_F(ActionsUtilsTests, downloadActionEmptyTargetPath)
+TEST_F(ActionsUtilsTests, downloadEmptyTargetPath)
 {
     nlohmann::json action = getDefaultDownloadAction();
     action["targetPath"] = "";
@@ -598,7 +598,7 @@ TEST_F(ActionsUtilsTests, downloadActionEmptyTargetPath)
     }
 }
 
-TEST_F(ActionsUtilsTests, downloadActionEmptysha256)
+TEST_F(ActionsUtilsTests, downloadEmptysha256)
 {
     nlohmann::json action = getDefaultDownloadAction();
     action["sha256"] = "";
@@ -613,7 +613,7 @@ TEST_F(ActionsUtilsTests, downloadActionEmptysha256)
     }
 }
 
-TEST_F(ActionsUtilsTests, downloadActionEmptyurl)
+TEST_F(ActionsUtilsTests, downloadEmptyurl)
 {
     nlohmann::json action = getDefaultDownloadAction();
     action["url"] = "";
@@ -629,7 +629,7 @@ TEST_F(ActionsUtilsTests, downloadActionEmptyurl)
 }
 
 
-TEST_F(ActionsUtilsTests, downloadActionWrongTypePassword)
+TEST_F(ActionsUtilsTests, downloadWrongTypePassword)
 {
     nlohmann::json action = getDefaultDownloadAction();
     action["password"] = 999;
@@ -674,7 +674,7 @@ namespace {
         })";
     }
 }
-TEST_F(ActionsUtilsTests, testReadCommandActionSuccess)
+TEST_F(ActionsUtilsTests, readCommandActionSuccess)
 {
     std::string commandJson = getDefaultCommandJsonString();
     auto command = ActionsUtils::readCommandAction(commandJson);
@@ -686,7 +686,7 @@ TEST_F(ActionsUtilsTests, testReadCommandActionSuccess)
     EXPECT_EQ(command.commands, expectedCommands);
 }
 
-TEST_F(ActionsUtilsTests, testReadCommandHandlesEscapedCharsInCmd)
+TEST_F(ActionsUtilsTests, readCommandHandlesEscapedCharsInCmd)
 {
     std::string commandJson = R"({
             "type": "sophos.mgt.action.RunCommands",
@@ -705,7 +705,7 @@ TEST_F(ActionsUtilsTests, testReadCommandHandlesEscapedCharsInCmd)
     EXPECT_EQ(command.commands, expectedCommands);
 }
 
-TEST_F(ActionsUtilsTests, testReadCommandFailsDueToMissingTypeRequiredField)
+TEST_F(ActionsUtilsTests, readCommandFailsDueToMissingTypeRequiredField)
 {
     std::string commandJson = R"({
         "commands": [
@@ -720,7 +720,7 @@ TEST_F(ActionsUtilsTests, testReadCommandFailsDueToMissingTypeRequiredField)
                 ThrowsMessage<InvalidCommandFormat>(HasSubstr("Invalid command format. No 'type' in Run Command action JSON")));
 }
 
-TEST_F(ActionsUtilsTests, testReadCommandFailsDueToMissingCommandsRequiredField)
+TEST_F(ActionsUtilsTests, readCommandFailsDueToMissingCommandsRequiredField)
 {
     std::string commandJson = R"({
         "type": "sophos.mgt.action.RunCommands",
@@ -732,7 +732,7 @@ TEST_F(ActionsUtilsTests, testReadCommandFailsDueToMissingCommandsRequiredField)
                 ThrowsMessage<InvalidCommandFormat>(HasSubstr("Invalid command format. No 'commands' in Run Command action JSON")));
 }
 
-TEST_F(ActionsUtilsTests, testReadCommandFailsDueToMissingIgnoreErrorRequiredField)
+TEST_F(ActionsUtilsTests, readCommandFailsDueToMissingIgnoreErrorRequiredField)
 {
     std::string commandJson = R"({
         "type": "sophos.mgt.action.RunCommands",
@@ -747,7 +747,7 @@ TEST_F(ActionsUtilsTests, testReadCommandFailsDueToMissingIgnoreErrorRequiredFie
                 ThrowsMessage<InvalidCommandFormat>(HasSubstr("Invalid command format. No 'ignoreError' in Run Command action JSON")));
 }
 
-TEST_F(ActionsUtilsTests, testReadCommandFailsDueToMissingTimeoutRequiredField)
+TEST_F(ActionsUtilsTests, readCommandFailsDueToMissingTimeoutRequiredField)
 {
     std::string commandJson = R"({
         "type": "sophos.mgt.action.RunCommands",
@@ -762,7 +762,7 @@ TEST_F(ActionsUtilsTests, testReadCommandFailsDueToMissingTimeoutRequiredField)
                 ThrowsMessage<InvalidCommandFormat>(HasSubstr("Invalid command format. No 'timeout' in Run Command action JSON")));
 }
 
-TEST_F(ActionsUtilsTests, testReadCommandFailsDueToMissingExpirationRequiredField)
+TEST_F(ActionsUtilsTests, readCommandFailsDueToMissingExpirationRequiredField)
 {
     std::string commandJson = R"({
         "type": "sophos.mgt.action.RunCommands",
@@ -779,28 +779,28 @@ TEST_F(ActionsUtilsTests, testReadCommandFailsDueToMissingExpirationRequiredFiel
 
 
 
-TEST_F(ActionsUtilsTests, testReadCommandFailsDueToTypeError)
+TEST_F(ActionsUtilsTests, readCommandFailsDueToTypeError)
 {
     std::string commandJson = getCommandJsonStringWithWrongValueType();
     EXPECT_THAT([&]() { std::ignore = ActionsUtils::readCommandAction(commandJson); },
                 ThrowsMessage<InvalidCommandFormat>(HasSubstr("Failed to process CommandRequest from action JSON")));
 }
 
-TEST_F(ActionsUtilsTests, testReadCommandFailsDueToMalformedJson)
+TEST_F(ActionsUtilsTests, readCommandFailsDueToMalformedJson)
 {
     std::string commandJson = "this is not json";
     EXPECT_THAT([&]() { std::ignore = ActionsUtils::readCommandAction(commandJson); },
                 ThrowsMessage<InvalidCommandFormat>(HasSubstr("syntax error")));
 }
 
-TEST_F(ActionsUtilsTests, testReadCommandFailsDueToEmptyJsonString)
+TEST_F(ActionsUtilsTests, readCommandFailsDueToEmptyJsonString)
 {
     std::string commandJson = "";
     EXPECT_THAT([&]() { std::ignore = ActionsUtils::readCommandAction(commandJson); },
                     ThrowsMessage<InvalidCommandFormat>(HasSubstr("Run Command action JSON is empty")));
 }
 
-TEST_F(ActionsUtilsTests, testReadCommandFailsDueToMissingCommands)
+TEST_F(ActionsUtilsTests, readCommandFailsDueToMissingCommands)
 {
     std::string commandJson = R"({
         "type": "sophos.mgt.action.RunCommands",
@@ -814,7 +814,7 @@ TEST_F(ActionsUtilsTests, testReadCommandFailsDueToMissingCommands)
                 ThrowsMessage<InvalidCommandFormat>(HasSubstr("Invalid command format. No commands to perform in run command JSON: ")));
 }
 
-TEST_F(ActionsUtilsTests, testReadCommandFailsDueToEmptyJsonObject)
+TEST_F(ActionsUtilsTests, readCommandFailsDueToEmptyJsonObject)
 {
     std::string commandJson = "{}";
     EXPECT_THAT([&]() { std::ignore = ActionsUtils::readCommandAction(commandJson); },
