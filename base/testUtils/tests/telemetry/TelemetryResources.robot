@@ -184,6 +184,10 @@ Cleanup Telemetry Server
     Dump Teardown Log  ${HTTPS_LOG_FILE_PATH}
     Remove File  ${HTTPS_LOG_FILE_PATH}
 
+Cleanup Telemetry Server And Remove Telemetry Output
+    Cleanup Telemetry Server
+    Remove File  ${TELEMETRY_OUTPUT_JSON}
+
 Copy Telemetry Config File in To Place
     Copy File  ${TELEMETRY_CONFIG_FILE_SOURCE}  ${TELEMETRY_CONFIG_FILE}
 
