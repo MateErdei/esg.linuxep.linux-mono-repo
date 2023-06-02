@@ -165,13 +165,14 @@ On Access Does Not Include Remote Files If Excluded In Policy
     send av policy from file  CORE  ${RESOURCES_PATH}/core_policy/CORE-36_policy_excludeRemoteFiles.xml
     send av policy from file  FLAGS  ${RESOURCES_PATH}/flags_policy/flags_onaccess_enabled.json
 
-    wait for on access log contains after mark  New on-access configuration: {"detectPUAs":true,"enabled":true,"excludeRemoteFiles":true,"exclusions":${DEFAULT_EXCLUSIONS}}  mark=${mark}
+    ${mark} =  wait for on access log contains after mark  New on-access configuration: {"detectPUAs":true,"enabled":true,"excludeRemoteFiles":true,"exclusions":${DEFAULT_EXCLUSIONS}}  mark=${mark}
     wait for on access log contains after mark  On-access enabled: true  mark=${mark}
     wait for on access log contains after mark  On-access scan network: false  mark=${mark}
-    wait for on access log contains after mark  On-access exclusions: ${DEFAULT_EXCLUSIONS}  mark=${mark}
-    wait for on access log contains after mark  OA config changed, re-enumerating mount points  mark=${mark}
-    check_on_access_log_does_not_contain_after_mark  Including mount point: /testmnt/nfsshare  mark=${mark}
+    ${mark} =  wait for on access log contains after mark  On-access exclusions: ${DEFAULT_EXCLUSIONS}  mark=${mark}
+    ${mark} =  wait for on access log contains after mark  OA config changed, re-enumerating mount points  mark=${mark}
+
     wait for on access log contains after mark  mount points in on-access scanning  mark=${mark}
+    check_on_access_log_does_not_contain_after_mark  Including mount point: /testmnt/nfsshare  mark=${mark}
 
 
 On Access Does Not Detect PUAs If PUA Detecion Is Disabled In Policy

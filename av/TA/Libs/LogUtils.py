@@ -952,7 +952,7 @@ File Log Contains
     def wait_for_log_contains_from_mark(self,
                                         mark: LogHandler.LogMark,
                                         expected: typing.Union[list, str, bytes],
-                                        timeout=10) -> None:
+                                        timeout=10) -> LogHandler.LogMark:
         assert mark is not None
         assert expected is not None
         assert isinstance(mark, LogHandler.LogMark), "mark is not an instance of LogMark in wait_for_log_contains_from_mark"
@@ -962,7 +962,7 @@ File Log Contains
                                          logpath: typing.Union[str, bytes],
                                          expected: typing.Union[list, str, bytes],
                                          mark: LogHandler.LogMark,
-                                         timeout=10) -> None:
+                                         timeout=10) -> LogHandler.LogMark:
         if mark is None:
             logger.error("No mark passed for wait_for_log_contains_after_mark")
             raise AssertionError("No mark set to find %s in %s" % (expected, logpath))
@@ -1033,7 +1033,6 @@ File Log Contains
                 raise AssertionError("Remainder of {} log doesn't contain {}".format(log_path, string))
 
         return
-
 
     def get_log_after_mark(self, log_path, mark):
         assert mark is not None

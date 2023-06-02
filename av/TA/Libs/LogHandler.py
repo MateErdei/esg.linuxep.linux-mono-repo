@@ -139,7 +139,22 @@ class LogMark:
         else:
             return expected in contents
 
-    def wait_for_log_contains_from_mark(self, expected, timeout) -> None:
+    def __find_str_in_contents(self, expected, contents):
+        """
+        :param expected: str or list to search for: returns position of first entry in list found
+        :param contents:
+        :return: -1 if expected not in contents
+        """
+        if isinstance(expected, list):
+            for s in expected:
+                pos = self.__find_str_in_contents(s, contents)
+                if pos >= 0:
+                    return pos
+            return -1
+        else:
+            return contents.find(expected)
+
+    def wait_for_log_contains_from_mark(self, expected, timeout: float) -> 'LogMark':
         expected = ensure_binary(expected, "UTF-8")
         start = time.time()
         old_contents = ""
@@ -149,8 +164,13 @@ class LogMark:
                 if len(contents) > len(old_contents):
                     logger.debug(contents[:len(old_contents)])
 
-                if self.__check_for_str_in_contents(expected, contents):
-                    return
+                pos = self.__find_str_in_contents(expected, contents)
+                if pos >= 0:
+                    absolute_pos = pos + self.get_size()
+                    stat = os.stat(self.__m_log_path)
+                    if stat.st_size < absolute_pos:
+                        absolute_pos = stat.st_size
+                    return LogMark(self.__m_log_path, absolute_pos)
 
                 old_contents = contents
 
