@@ -85,6 +85,7 @@ namespace ResponsePlugin
         }
         LOGINFO("Running action: " << correlationId);
         m_runner->runAction(action, correlationId, actionType, timeout);
+        LOGINFO("Finished action: " << correlationId);
     }
 
 } // namespace ResponsePlugin
