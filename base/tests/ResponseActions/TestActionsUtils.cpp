@@ -63,6 +63,7 @@ public:
     }
 };
 
+//**********************GENERIC***************************
 TEST_F(ActionsUtilsTests, expiry)
 {
     EXPECT_TRUE(ActionsUtils::isExpired(1000));
@@ -74,6 +75,71 @@ TEST_F(ActionsUtilsTests, expiry)
     EXPECT_FALSE(ActionsUtils::isExpired(currentTime+10));
 }
 
+TEST_F(ActionsUtilsTests, setResultErrorTypeAndErrorMessage)
+{
+    nlohmann::json json;
+    const std::string errorType = "ErrorType";
+    const std::string errorMessage = "ErrorMessage";
+    const int result = static_cast<int>(ResponseActions::RACommon::ResponseResult::ERROR);
+
+    ActionsUtils::setErrorInfo(json, result, errorMessage, errorType);
+
+    EXPECT_EQ(json.at("result"), result);
+    EXPECT_EQ(json.at("errorMessage"), errorMessage);
+    EXPECT_EQ(json.at("errorType"), errorType);
+}
+
+TEST_F(ActionsUtilsTests, setResultAndErrorType)
+{
+    nlohmann::json json;
+    const std::string errorType = "ErrorType";
+    const std::string errorMessage = "";
+    const int result = static_cast<int>(ResponseActions::RACommon::ResponseResult::ERROR);
+
+    ActionsUtils::setErrorInfo(json, result, errorMessage, errorType);
+
+    EXPECT_EQ(json.at("result"), result);
+    EXPECT_EQ(json.at("errorType"), errorType);
+    EXPECT_FALSE(json.contains("errorMessage"));
+}
+
+TEST_F(ActionsUtilsTests, setResultAndErrorMessage)
+{
+    nlohmann::json json;
+    const std::string errorType = "";
+    const std::string errorMessage = "ErrorMessage";
+    const int result = static_cast<int>(ResponseActions::RACommon::ResponseResult::ERROR);
+
+    ActionsUtils::setErrorInfo(json, result, errorMessage, errorType);
+
+    EXPECT_EQ(json.at("result"), result);
+    EXPECT_EQ(json.at("errorMessage"), errorMessage);
+    EXPECT_FALSE(json.contains("errorType"));
+}
+
+TEST_F(ActionsUtilsTests, resetJsonError)
+{
+    nlohmann::json json;
+    const int duration = 123;
+    const std::string type = ResponseActions::RACommon::UPLOAD_FILE_RESPONSE_TYPE;
+
+    json["result"] = static_cast<int>(ResponseActions::RACommon::ResponseResult::ERROR;
+    json["errorMessage"] = "ErrorMessage";
+    json["errorType"] = "ErrorType";
+    json["duration"] = duration;
+    json["type"] = type;
+
+    ActionsUtils::resetErrorInfo(json);
+
+    EXPECT_FALSE(json.contains("errorType"));
+    EXPECT_FALSE(json.contains("errorMessage"));
+    EXPECT_FALSE(json.contains("result"));
+
+    EXPECT_EQ(json.at("duration"), duration);
+    EXPECT_EQ(json.at("type"), type);
+}
+
+//**********************UPLOAD ACTION***************************
 TEST_F(ActionsUtilsTests, successfulParseUploadFile)
 {
     nlohmann::json action = getDefaultUploadObject(ActionType::UPLOADFILE);
@@ -154,7 +220,7 @@ TEST_F(ActionsUtilsTests, failedParseMissingExpiration)
     EXPECT_THROW(std::ignore = ActionsUtils::readUploadAction(action.dump(),ActionType::UPLOADFILE),InvalidCommandFormat);
 }
 
-TEST_F(ActionsUtilsTests, testFailedParseMissingTimeout)
+TEST_F(ActionsUtilsTests, failedParseMissingTimeout)
 {
     nlohmann::json action = getDefaultUploadObject(ActionType::UPLOADFILE);
     action.erase("timeout");
