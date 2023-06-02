@@ -123,7 +123,7 @@ TEST_F(ActionsUtilsTests, resetJsonError)
     const int duration = 123;
     const std::string type = ResponseActions::RACommon::UPLOAD_FILE_RESPONSE_TYPE;
 
-    json["result"] = static_cast<int>(ResponseActions::RACommon::ResponseResult::ERROR;
+    json["result"] = static_cast<int>(ResponseActions::RACommon::ResponseResult::ERROR);
     json["errorMessage"] = "ErrorMessage";
     json["errorType"] = "ErrorType";
     json["duration"] = duration;
@@ -164,53 +164,134 @@ TEST_F(ActionsUtilsTests, successfulParseUploadFolder)
     EXPECT_EQ(info.timeout,10);
 }
 
-TEST_F(ActionsUtilsTests, readFailsWhenActionIsInvalidJson)
+TEST_F(ActionsUtilsTests, uploadFailsWhenActionIsInvalidJson)
 {
-    EXPECT_THROW(
-        std::ignore = ActionsUtils::readUploadAction("", ActionType::UPLOADFILE),
-        InvalidCommandFormat);
+    try
+    {
+        auto output = ActionsUtils::readUploadAction("", ActionType::UPLOADFILE);
+        FAIL() << "Didnt throw due to missing action type";
+    }
+    catch (const InvalidCommandFormat& except)
+    {
+        EXPECT_STREQ(except.what(), "Invalid command format. UploadFile action JSON is empty");
+    }
 }
 
-TEST_F(ActionsUtilsTests, readFailsWhenActionISUploadFileWhenExpectingFolder)
+TEST_F(ActionsUtilsTests, readFailsWhenActionIsUploadFileWhenExpectingFolder)
 {
     nlohmann::json action = getDefaultUploadObject(ActionType::UPLOADFILE);
-    EXPECT_THROW(
-        std::ignore = ActionsUtils::readUploadAction(action.dump(), ActionType::UPLOADFOLDER),
-        InvalidCommandFormat);
+
+    try
+    {
+        auto output = ActionsUtils::readUploadAction(action.dump(), ActionType::UPLOADFOLDER);
+        FAIL() << "Didnt throw due to missing action type";
+    }
+    catch (const InvalidCommandFormat& except)
+    {
+        EXPECT_STREQ(except.what(), "Invalid command format. No 'targetFolder' in UploadFolder action JSON");
+    }
 }
 
-TEST_F(ActionsUtilsTests, readFailsWhenActionISUploadFolderWhenExpectingFile)
+TEST_F(ActionsUtilsTests, readFailsWhenActionIsUploadFolderWhenExpectingFile)
 {
     nlohmann::json action = getDefaultUploadObject(ActionType::UPLOADFOLDER);
-    EXPECT_THROW(
-        std::ignore = ActionsUtils::readUploadAction(action.dump(), ActionType::UPLOADFILE),
-        InvalidCommandFormat);
+
+    try
+    {
+        auto output = ActionsUtils::readUploadAction(action.dump(), ActionType::UPLOADFILE);
+        FAIL() << "Didnt throw due to missing action type";
+    }
+    catch (const InvalidCommandFormat& except)
+    {
+        EXPECT_STREQ(except.what(), "Invalid command format. No 'targetFile' in UploadFile action JSON");
+    }
 }
 
-TEST_F(ActionsUtilsTests, successfulParseCompressionEnabled)
+TEST_F(ActionsUtilsTests, uploadSuccessCompressionEnabled)
 {
     nlohmann::json action = getDefaultUploadObject(ActionType::UPLOADFILE);
     action["compress"] = true;
     action["password"] = "password";
-    UploadInfo info =
-        ActionsUtils::readUploadAction(action.dump(), ActionType::UPLOADFILE);
+    auto info = ActionsUtils::readUploadAction(action.dump(), ActionType::UPLOADFILE);
 
     EXPECT_EQ(info.compress, true);
     EXPECT_EQ(info.password, "password");
 }
 
-TEST_F(ActionsUtilsTests, failedParseInvalidValue)
+TEST_F(ActionsUtilsTests, uploadHugeurl)
+{
+    auto actionType = ActionType::UPLOADFILE;
+    nlohmann::json action = getDefaultUploadObject(actionType);
+    const std::string largeStr(30000, 'a');
+    const std::string largeURL("https://s3.com/download" + largeStr + ".zip");
+    action["url"] = largeURL;
+
+    auto output = ActionsUtils::readUploadAction(action.dump(), actionType);
+
+    EXPECT_EQ(output.compress, action.at("compress"));
+    EXPECT_EQ(output.password, action.at("password"));
+    EXPECT_EQ(output.expiration, action.at("expiration"));
+    EXPECT_EQ(output.timeout, action.at("timeout"));
+    EXPECT_EQ(output.maxSize, action.at("maxUploadSizeBytes"));
+    EXPECT_EQ(output.url, action.at("url"));
+    EXPECT_EQ(output.targetPath, action.at("targetFile"));
+    EXPECT_EQ(output.password, action.at("password"));
+}
+
+TEST_F(ActionsUtilsTests, uploadFailInvalidUrL)
 {
     nlohmann::json action = getDefaultUploadObject(ActionType::UPLOADFILE);
     action["url"] = 1000;
-    EXPECT_THROW(std::ignore = ActionsUtils::readUploadAction(action.dump(),ActionType::UPLOADFILE),InvalidCommandFormat);
+    try
+    {
+        auto output = ActionsUtils::readUploadAction(action.dump(),ActionType::UPLOADFILE);
+        FAIL() << "Didnt throw due to missing essential action";
+    }
+    catch (const InvalidCommandFormat& except)
+    {
+        EXPECT_STREQ(except.what(), "Invalid command format. Failed to process UploadInfo from action JSON: [json.exception.type_error.302] type must be string, but is number");
+    }
+
+    action["url"] = false;
+    try
+    {
+        auto output = ActionsUtils::readUploadAction(action.dump(),ActionType::UPLOADFILE);
+        FAIL() << "Didnt throw due to missing essential action";
+    }
+    catch (const InvalidCommandFormat& except)
+    {
+        EXPECT_STREQ(except.what(), "Invalid command format. Failed to process UploadInfo from action JSON: [json.exception.type_error.302] type must be string, but is number");
+    }
 }
 
-TEST_F(ActionsUtilsTests, failedParseMissingUrl)
+TEST_F(ActionsUtilsTests, uploadFailMissingUrl)
 {
     nlohmann::json action = getDefaultUploadObject(ActionType::UPLOADFILE);
     action.erase("url");
-    EXPECT_THROW(std::ignore = ActionsUtils::readUploadAction(action.dump(),ActionType::UPLOADFILE),InvalidCommandFormat);
+    try
+    {
+        auto output = ActionsUtils::readUploadAction(action.dump(),ActionType::UPLOADFILE);
+        FAIL() << "Didnt throw due to missing essential field";
+    }
+    catch (const InvalidCommandFormat& except)
+    {
+        EXPECT_STREQ(except.what(), "Invalid command format. No 'url' in UploadFile action JSON");
+    }
+}
+
+TEST_F(ActionsUtilsTests, uploadFailEmptyUrl)
+{
+    nlohmann::json action = getDefaultUploadObject(ActionType::UPLOADFILE);
+    action["url"] = "";
+    try
+    {
+        auto output = ActionsUtils::readUploadAction(action.dump(),ActionType::UPLOADFILE);
+        FAIL() << "Didnt throw due to empty url field";
+    }
+    catch (const InvalidCommandFormat& except)
+    {
+        EXPECT_STREQ(except.what(), "Invalid command format. Failed to process UploadInfo from action JSON: url field is empty");
+    }
 }
 
 TEST_F(ActionsUtilsTests, failedParseMissingExpiration)
