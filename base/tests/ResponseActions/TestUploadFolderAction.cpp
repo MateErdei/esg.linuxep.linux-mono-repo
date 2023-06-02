@@ -23,6 +23,13 @@ class UploadFolderTests : public MemoryAppenderUsingTests
 {
 public:
     UploadFolderTests() : MemoryAppenderUsingTests("ResponseActionsImpl") {}
+    
+    void SetUp()
+    {
+        m_mockFileSystem = std::make_unique<StrictMock<MockFileSystem>>();
+        m_mockHttpRequester = std::make_shared<StrictMock<MockHTTPRequester>>();
+    }
+    
     virtual void TearDown()
     {
         Tests::restoreFileSystem();
@@ -40,6 +47,26 @@ public:
         action["maxUploadSizeBytes"] = 1000;
         return action;
     }
+
+    void addResponseToMockRequester(const long& status, const ResponseErrorCode& errorCode, const std::string& errormsg = "")
+    {
+        Common::HttpRequests::Response httpresponse;
+        httpresponse.status = status;
+        httpresponse.errorCode = errorCode;
+        httpresponse.error = errormsg;
+        EXPECT_CALL(*m_mockHttpRequester, put(_)).WillOnce(Return(httpresponse));
+    }
+
+    void setupMockZipUtils(const int& returnVal = 0)
+    {
+        auto mockZip = std::make_unique<NiceMock<MockZipUtils>>();
+        EXPECT_CALL(*mockZip, zip(_, _, _)).WillOnce(Return(returnVal));
+        Common::ZipUtilities::replaceZipUtils(std::move(mockZip));
+    }
+
+    std::shared_ptr<MockHTTPRequester> m_mockHttpRequester;
+    std::unique_ptr<MockFileSystem> m_mockFileSystem;
+
     const std::string m_targetFolder = "/tmp/path";
     const std::string m_defaultZipFile = "/opt/sophos-spl/plugins/responseactions/tmp/path.zip";
 };
@@ -47,44 +74,35 @@ public:
 TEST_F(UploadFolderTests, SuccessCaseWithPassword)
 {
     // TOUCHES FILE SYSTEM
-    auto httpRequester = std::make_shared<StrictMock<MockHTTPRequester>>();
-    Common::HttpRequests::Response httpresponse;
-    httpresponse.status = Common::HttpRequests::HTTP_STATUS_OK;
-    httpresponse.errorCode = Common::HttpRequests::ResponseErrorCode::OK;
-    EXPECT_CALL(*httpRequester, put(_)).WillOnce(Return(httpresponse));
+    addResponseToMockRequester(HTTP_STATUS_OK, ResponseErrorCode::OK);
 
     Tests::TempDir tempDir;
     tempDir.makeDirs("test");
     std::string folderPath = tempDir.absPath("test/");
     std::string zipFile = tempDir.absPath("test.zip");
 
-    ResponseActionsImpl::UploadFolderAction uploadFolderAction(httpRequester);
+    ResponseActionsImpl::UploadFolderAction uploadFolderAction(m_mockHttpRequester);
     nlohmann::json action = getDefaultUploadObject();
     action["password"] = "password";
     action["targetFolder"] = folderPath;
 
-    MockedApplicationPathManager* mockAppManager = new NiceMock<MockedApplicationPathManager>();
-    MockedApplicationPathManager& mock(*mockAppManager);
-    ON_CALL(mock, getResponseActionTmpPath()).WillByDefault(Return(tempDir.absPath("")));
-    Common::ApplicationConfiguration::replaceApplicationPathManager(
-        std::unique_ptr<Common::ApplicationConfiguration::IApplicationPathManager>(mockAppManager));
+    auto mockAppManager = std::make_unique<NiceMock<MockedApplicationPathManager>>();
+    ON_CALL(*mockAppManager, getResponseActionTmpPath()).WillByDefault(Return(tempDir.absPath("")));
+    replaceApplicationPathManager(std::move(mockAppManager));
 
     auto mockZip = std::make_unique<NiceMock<MockZipUtils>>();
-    MockZipUtils& mockzipUtil(*mockZip);
-    ON_CALL(mockzipUtil, zip(_, _, _, _, _)).WillByDefault(Return(0));
+    EXPECT_CALL(*mockZip, zip(_, _, _, _, _)).WillOnce(Return(0));
     Common::ZipUtilities::replaceZipUtils(std::move(mockZip));
 
-    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
-    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>{ mockFileSystem });
-
-    EXPECT_CALL(*mockFileSystem, isDirectory(folderPath)).Times(1).WillOnce(Return(true));
-    EXPECT_CALL(*mockFileSystem, removeFile(zipFile)).Times(1).WillOnce(Return());
-    EXPECT_CALL(*mockFileSystem, isFile(zipFile)).Times(1).WillOnce(Return(true));
-    EXPECT_CALL(*mockFileSystem, isFile("")).WillOnce(Return(false));
-    EXPECT_CALL(*mockFileSystem, fileSize(zipFile)).WillOnce(Return(8));
-    EXPECT_CALL(*mockFileSystem, calculateDigest(Common::SslImpl::Digest::sha256, zipFile))
+    EXPECT_CALL(*m_mockFileSystem, isDirectory(folderPath)).Times(1).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockFileSystem, removeFile(zipFile)).Times(1).WillOnce(Return());
+    EXPECT_CALL(*m_mockFileSystem, isFile(zipFile)).Times(1).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockFileSystem, isFile("")).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFileSystem, fileSize(zipFile)).WillOnce(Return(8));
+    EXPECT_CALL(*m_mockFileSystem, calculateDigest(Common::SslImpl::Digest::sha256, zipFile))
         .WillOnce(Return("sha256string"));
-
+    Tests::replaceFileSystem(std::move(m_mockFileSystem));
+    
     nlohmann::json response = uploadFolderAction.run(action.dump());
     
     EXPECT_EQ(response["result"], 0);
@@ -93,30 +111,20 @@ TEST_F(UploadFolderTests, SuccessCaseWithPassword)
 
 TEST_F(UploadFolderTests, SuccessCase)
 {
-    auto httpRequester = std::make_shared<StrictMock<MockHTTPRequester>>();
-    Common::HttpRequests::Response httpresponse;
-    httpresponse.status = Common::HttpRequests::HTTP_STATUS_OK;
-    httpresponse.errorCode = Common::HttpRequests::ResponseErrorCode::OK;
-    EXPECT_CALL(*httpRequester, put(_)).WillOnce(Return(httpresponse));
+    addResponseToMockRequester(HTTP_STATUS_OK, ResponseErrorCode::OK);
+    setupMockZipUtils();
 
-    ResponseActionsImpl::UploadFolderAction uploadFolderAction(httpRequester);
-
+    ResponseActionsImpl::UploadFolderAction uploadFolderAction(m_mockHttpRequester);
     nlohmann::json action = getDefaultUploadObject();
 
-    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
-    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>{ mockFileSystem });
-    EXPECT_CALL(*mockFileSystem, isDirectory("/tmp/path")).WillOnce(Return(true));
-    EXPECT_CALL(*mockFileSystem, fileSize(m_defaultZipFile)).WillOnce(Return(100));
-    EXPECT_CALL(*mockFileSystem, isFile(m_defaultZipFile)).Times(1).WillOnce(Return(true));
-    EXPECT_CALL(*mockFileSystem, removeFile(m_defaultZipFile)).WillOnce(Return());
-    EXPECT_CALL(*mockFileSystem, calculateDigest(Common::SslImpl::Digest::sha256, m_defaultZipFile))
+    EXPECT_CALL(*m_mockFileSystem, isDirectory("/tmp/path")).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockFileSystem, fileSize(m_defaultZipFile)).WillOnce(Return(100));
+    EXPECT_CALL(*m_mockFileSystem, isFile(m_defaultZipFile)).Times(1).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockFileSystem, removeFile(m_defaultZipFile)).WillOnce(Return());
+    EXPECT_CALL(*m_mockFileSystem, calculateDigest(Common::SslImpl::Digest::sha256, m_defaultZipFile))
         .WillOnce(Return("sha256string"));
-    EXPECT_CALL(*mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(false));
-
-    auto mockZip = std::make_unique<NiceMock<MockZipUtils>>();
-    MockZipUtils& mockzipUtil(*mockZip);
-    ON_CALL(mockzipUtil, zip(_, _, _)).WillByDefault(Return(0));
-    Common::ZipUtilities::replaceZipUtils(std::move(mockZip));
+    EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(false));
+    Tests::replaceFileSystem(std::move(m_mockFileSystem));
 
     nlohmann::json response = uploadFolderAction.run(action.dump());
     
@@ -124,7 +132,7 @@ TEST_F(UploadFolderTests, SuccessCase)
     EXPECT_EQ(response["httpStatus"], 200);
 }
 
-TEST_F(UploadFolderTests, Success_HugeURL)
+TEST_F(UploadFolderTests, success_HugeURL)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
     
@@ -132,29 +140,20 @@ TEST_F(UploadFolderTests, Success_HugeURL)
     const std::string largeURL("https://s3.com/download" + largeStr + ".zip");
     const std::string expectedMsg("Uploading folder: " + m_targetFolder
                                   + " as zip file: " + m_defaultZipFile + " to url: " + largeURL);
-    PRINT(expectedMsg);
-    auto httpRequester = std::make_shared<StrictMock<MockHTTPRequester>>();
-    Common::HttpRequests::Response httpresponse;
-    httpresponse.status = Common::HttpRequests::HTTP_STATUS_OK;
-    httpresponse.errorCode = Common::HttpRequests::ResponseErrorCode::OK;
-    EXPECT_CALL(*httpRequester, put(_)).WillOnce(Return(httpresponse));
 
-    ResponseActionsImpl::UploadFolderAction uploadFolderAction(httpRequester);
+    addResponseToMockRequester(HTTP_STATUS_OK, ResponseErrorCode::OK);
+    setupMockZipUtils();
 
-    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
-    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>{ mockFileSystem });
-    EXPECT_CALL(*mockFileSystem, isDirectory("/tmp/path")).WillOnce(Return(true));
-    EXPECT_CALL(*mockFileSystem, fileSize(m_defaultZipFile)).WillOnce(Return(100));
-    EXPECT_CALL(*mockFileSystem, isFile(m_defaultZipFile)).Times(1).WillOnce(Return(true));
-    EXPECT_CALL(*mockFileSystem, removeFile(m_defaultZipFile)).WillOnce(Return());
-    EXPECT_CALL(*mockFileSystem, calculateDigest(Common::SslImpl::Digest::sha256, m_defaultZipFile))
+    ResponseActionsImpl::UploadFolderAction uploadFolderAction(m_mockHttpRequester);
+
+    EXPECT_CALL(*m_mockFileSystem, isDirectory("/tmp/path")).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockFileSystem, fileSize(m_defaultZipFile)).WillOnce(Return(100));
+    EXPECT_CALL(*m_mockFileSystem, isFile(m_defaultZipFile)).Times(1).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockFileSystem, removeFile(m_defaultZipFile)).WillOnce(Return());
+    EXPECT_CALL(*m_mockFileSystem, calculateDigest(Common::SslImpl::Digest::sha256, m_defaultZipFile))
         .WillOnce(Return("sha256string"));
-    EXPECT_CALL(*mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(false));
-
-    auto mockZip = std::make_unique<NiceMock<MockZipUtils>>();
-    MockZipUtils& mockzipUtil(*mockZip);
-    ON_CALL(mockzipUtil, zip(_, _, _)).WillByDefault(Return(0));
-    Common::ZipUtilities::replaceZipUtils(std::move(mockZip));
+    EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(false));
+    Tests::replaceFileSystem(std::move(m_mockFileSystem));
 
     nlohmann::json action = getDefaultUploadObject();
     action["url"] = largeURL;
@@ -175,35 +174,25 @@ TEST_F(UploadFolderTests, Success_HugeURL)
 
 TEST_F(UploadFolderTests, SuccessCaseWithProxy)
 {
-    auto httpRequester = std::make_shared<StrictMock<MockHTTPRequester>>();
-    Common::HttpRequests::Response httpresponse;
-    httpresponse.status = Common::HttpRequests::HTTP_STATUS_OK;
-    httpresponse.errorCode = Common::HttpRequests::ResponseErrorCode::OK;
-    EXPECT_CALL(*httpRequester, put(_)).WillOnce(Return(httpresponse));
+    addResponseToMockRequester(HTTP_STATUS_OK, ResponseErrorCode::OK);
+    setupMockZipUtils();
 
-    ResponseActionsImpl::UploadFolderAction uploadFolderAction(httpRequester);
-
+    ResponseActionsImpl::UploadFolderAction uploadFolderAction(m_mockHttpRequester);
     nlohmann::json action = getDefaultUploadObject();
 
-    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
-    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>{ mockFileSystem });
-    EXPECT_CALL(*mockFileSystem, isDirectory("/tmp/path")).WillOnce(Return(true));
-    EXPECT_CALL(*mockFileSystem, fileSize(m_defaultZipFile)).WillOnce(Return(100));
-    EXPECT_CALL(*mockFileSystem, isFile(m_defaultZipFile)).Times(1).WillOnce(Return(true));
-    EXPECT_CALL(*mockFileSystem, removeFile(m_defaultZipFile)).WillOnce(Return());
-    EXPECT_CALL(*mockFileSystem, calculateDigest(Common::SslImpl::Digest::sha256, m_defaultZipFile))
+    EXPECT_CALL(*m_mockFileSystem, isDirectory("/tmp/path")).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockFileSystem, fileSize(m_defaultZipFile)).WillOnce(Return(100));
+    EXPECT_CALL(*m_mockFileSystem, isFile(m_defaultZipFile)).Times(1).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockFileSystem, removeFile(m_defaultZipFile)).WillOnce(Return());
+    EXPECT_CALL(*m_mockFileSystem, calculateDigest(Common::SslImpl::Digest::sha256, m_defaultZipFile))
         .WillOnce(Return("sha256string"));
-    EXPECT_CALL(*mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(true));
     std::string obfuscatedCreds =
         "CCD4E57ZjW+t5XPiMSJH1TurG3MfWCN3DpjJRINMwqNaWl+3zzlVIdyVmifCHUwcmaX6+YTSyyBM8SslIIGV5rUw";
     std::string content = R"({"proxy":"localhost","credentials":")" + obfuscatedCreds + R"("})";
-    EXPECT_CALL(*mockFileSystem, readFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy"))
+    EXPECT_CALL(*m_mockFileSystem, readFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy"))
         .WillOnce(Return(content));
-
-    auto mockZip = std::make_unique<NiceMock<MockZipUtils>>();
-    MockZipUtils& mockzipUtil(*mockZip);
-    ON_CALL(mockzipUtil, zip(_, _, _)).WillByDefault(Return(0));
-    Common::ZipUtilities::replaceZipUtils(std::move(mockZip));
+    Tests::replaceFileSystem(std::move(m_mockFileSystem));
 
     nlohmann::json response = uploadFolderAction.run(action.dump());
     
@@ -213,38 +202,31 @@ TEST_F(UploadFolderTests, SuccessCaseWithProxy)
 
 TEST_F(UploadFolderTests, ProxyFallsBackToDirect)
 {
-    auto httpRequester = std::make_shared<StrictMock<MockHTTPRequester>>();
     Common::HttpRequests::Response failhttpresponse;
     Common::HttpRequests::Response httpresponse;
     httpresponse.status = Common::HttpRequests::HTTP_STATUS_OK;
     httpresponse.errorCode = Common::HttpRequests::ResponseErrorCode::OK;
     failhttpresponse.status = 400;
     failhttpresponse.errorCode = Common::HttpRequests::ResponseErrorCode::OK;
-    EXPECT_CALL(*httpRequester, put(_)).Times(2).WillOnce(Return(failhttpresponse)).WillOnce(Return(httpresponse));
+    EXPECT_CALL(*m_mockHttpRequester, put(_)).Times(2).WillOnce(Return(failhttpresponse)).WillOnce(Return(httpresponse));
+    setupMockZipUtils();
 
-    ResponseActionsImpl::UploadFolderAction uploadFolderAction(httpRequester);
-
+    ResponseActionsImpl::UploadFolderAction uploadFolderAction(m_mockHttpRequester);
     nlohmann::json action = getDefaultUploadObject();
 
-    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
-    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>{ mockFileSystem });
-    EXPECT_CALL(*mockFileSystem, isDirectory("/tmp/path")).WillOnce(Return(true));
-    EXPECT_CALL(*mockFileSystem, fileSize(m_defaultZipFile)).WillOnce(Return(100));
-    EXPECT_CALL(*mockFileSystem, isFile(m_defaultZipFile)).Times(1).WillOnce(Return(true));
-    EXPECT_CALL(*mockFileSystem, removeFile(m_defaultZipFile)).WillOnce(Return());
-    EXPECT_CALL(*mockFileSystem, calculateDigest(Common::SslImpl::Digest::sha256, m_defaultZipFile))
+    EXPECT_CALL(*m_mockFileSystem, isDirectory("/tmp/path")).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockFileSystem, fileSize(m_defaultZipFile)).WillOnce(Return(100));
+    EXPECT_CALL(*m_mockFileSystem, isFile(m_defaultZipFile)).Times(1).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockFileSystem, removeFile(m_defaultZipFile)).WillOnce(Return());
+    EXPECT_CALL(*m_mockFileSystem, calculateDigest(Common::SslImpl::Digest::sha256, m_defaultZipFile))
         .WillOnce(Return("sha256string"));
-    EXPECT_CALL(*mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(true));
     std::string obfuscatedCreds =
         "CCD4E57ZjW+t5XPiMSJH1TurG3MfWCN3DpjJRINMwqNaWl+3zzlVIdyVmifCHUwcmaX6+YTSyyBM8SslIIGV5rUw";
     std::string content = R"({"proxy":"localhost","credentials":")" + obfuscatedCreds + R"("})";
-    EXPECT_CALL(*mockFileSystem, readFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy"))
+    EXPECT_CALL(*m_mockFileSystem, readFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy"))
         .WillOnce(Return(content));
-
-    auto mockZip = std::make_unique<NiceMock<MockZipUtils>>();
-    MockZipUtils& mockzipUtil(*mockZip);
-    ON_CALL(mockzipUtil, zip(_, _, _)).WillByDefault(Return(0));
-    Common::ZipUtilities::replaceZipUtils(std::move(mockZip));
+    Tests::replaceFileSystem(std::move(m_mockFileSystem));
 
     nlohmann::json response = uploadFolderAction.run(action.dump());
     
@@ -254,8 +236,7 @@ TEST_F(UploadFolderTests, ProxyFallsBackToDirect)
 
 TEST_F(UploadFolderTests, cannotParseActions)
 {
-    auto httpRequester = std::make_shared<StrictMock<MockHTTPRequester>>();
-    ResponseActionsImpl::UploadFolderAction uploadFolderAction(httpRequester);
+    ResponseActionsImpl::UploadFolderAction uploadFolderAction(m_mockHttpRequester);
 
     nlohmann::json response = uploadFolderAction.run("");
     
@@ -265,8 +246,7 @@ TEST_F(UploadFolderTests, cannotParseActions)
 
 TEST_F(UploadFolderTests, actionExipired)
 {
-    auto httpRequester = std::make_shared<StrictMock<MockHTTPRequester>>();
-    ResponseActionsImpl::UploadFolderAction uploadFolderAction(httpRequester);
+    ResponseActionsImpl::UploadFolderAction uploadFolderAction(m_mockHttpRequester);
     nlohmann::json action = getDefaultUploadObject();
     action["expiration"] = 0;
     nlohmann::json response = uploadFolderAction.run(action.dump());
@@ -277,13 +257,11 @@ TEST_F(UploadFolderTests, actionExipired)
 
 TEST_F(UploadFolderTests, FolderDoesNotExist)
 {
-    auto httpRequester = std::make_shared<StrictMock<MockHTTPRequester>>();
-    ResponseActionsImpl::UploadFolderAction uploadFolderAction(httpRequester);
+    ResponseActionsImpl::UploadFolderAction uploadFolderAction(m_mockHttpRequester);
     nlohmann::json action = getDefaultUploadObject();
 
-    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
-    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>{ mockFileSystem });
-    EXPECT_CALL(*mockFileSystem, isDirectory("/tmp/path")).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFileSystem, isDirectory("/tmp/path")).WillOnce(Return(false));
+    Tests::replaceFileSystem(std::move(m_mockFileSystem));
 
     nlohmann::json response = uploadFolderAction.run(action.dump());
     
@@ -294,21 +272,16 @@ TEST_F(UploadFolderTests, FolderDoesNotExist)
 
 TEST_F(UploadFolderTests, ZippedFolderOverSizeLimit)
 {
-    auto httpRequester = std::make_shared<StrictMock<MockHTTPRequester>>();
-    ResponseActionsImpl::UploadFolderAction uploadFolderAction(httpRequester);
+    setupMockZipUtils();
+
+    ResponseActionsImpl::UploadFolderAction uploadFolderAction(m_mockHttpRequester);
     nlohmann::json action = getDefaultUploadObject();
 
-    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
-    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>{ mockFileSystem });
-    EXPECT_CALL(*mockFileSystem, isDirectory("/tmp/path")).WillOnce(Return(true));
-    EXPECT_CALL(*mockFileSystem, fileSize(m_defaultZipFile)).WillOnce(Return(10000));
-    EXPECT_CALL(*mockFileSystem, isFile(m_defaultZipFile)).Times(1).WillOnce(Return(true));
-    EXPECT_CALL(*mockFileSystem, removeFile(m_defaultZipFile)).WillOnce(Return());
-
-    auto mockZip = std::make_unique<NiceMock<MockZipUtils>>();
-    MockZipUtils& mockzipUtil(*mockZip);
-    ON_CALL(mockzipUtil, zip(_, _, _)).WillByDefault(Return(0));
-    Common::ZipUtilities::replaceZipUtils(std::move(mockZip));
+    EXPECT_CALL(*m_mockFileSystem, isDirectory("/tmp/path")).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockFileSystem, fileSize(m_defaultZipFile)).WillOnce(Return(10000));
+    EXPECT_CALL(*m_mockFileSystem, isFile(m_defaultZipFile)).Times(1).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockFileSystem, removeFile(m_defaultZipFile)).WillOnce(Return());
+    Tests::replaceFileSystem(std::move(m_mockFileSystem));
 
     nlohmann::json response = uploadFolderAction.run(action.dump());
     
@@ -321,20 +294,15 @@ TEST_F(UploadFolderTests, ZippedFolderOverSizeLimit)
 
 TEST_F(UploadFolderTests, ZipFails)
 {
-    auto httpRequester = std::make_shared<StrictMock<MockHTTPRequester>>();
-    ResponseActionsImpl::UploadFolderAction uploadFolderAction(httpRequester);
+    setupMockZipUtils(1);
+
+    ResponseActionsImpl::UploadFolderAction uploadFolderAction(m_mockHttpRequester);
     nlohmann::json action = getDefaultUploadObject();
 
-    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
-    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>{ mockFileSystem });
-    EXPECT_CALL(*mockFileSystem, isDirectory("/tmp/path")).WillOnce(Return(true));
-    EXPECT_CALL(*mockFileSystem, isFile(m_defaultZipFile)).WillOnce(Return(true));
-    EXPECT_CALL(*mockFileSystem, removeFile(m_defaultZipFile)).WillOnce(Return());
-
-    auto mockZip = std::make_unique<NiceMock<MockZipUtils>>();
-    MockZipUtils& mockzipUtil(*mockZip);
-    ON_CALL(mockzipUtil, zip(_, _, _)).WillByDefault(Return(1));
-    Common::ZipUtilities::replaceZipUtils(std::move(mockZip));
+    EXPECT_CALL(*m_mockFileSystem, isDirectory("/tmp/path")).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockFileSystem, isFile(m_defaultZipFile)).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockFileSystem, removeFile(m_defaultZipFile)).WillOnce(Return());
+    Tests::replaceFileSystem(std::move(m_mockFileSystem));
 
     nlohmann::json response = uploadFolderAction.run(action.dump());
     
@@ -344,19 +312,16 @@ TEST_F(UploadFolderTests, ZipFails)
 
 TEST_F(UploadFolderTests, ZipFailsDueToLargeFile)
 {
-    auto httpRequester = std::make_shared<StrictMock<MockHTTPRequester>>();
-    ResponseActionsImpl::UploadFolderAction uploadFolderAction(httpRequester);
+    ResponseActionsImpl::UploadFolderAction uploadFolderAction(m_mockHttpRequester);
     nlohmann::json action = getDefaultUploadObject();
 
-    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
-    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>{ mockFileSystem });
-    EXPECT_CALL(*mockFileSystem, isDirectory("/tmp/path")).WillOnce(Return(true));
-    EXPECT_CALL(*mockFileSystem, isFile(m_defaultZipFile)).WillOnce(Return(true));
-    EXPECT_CALL(*mockFileSystem, removeFile(m_defaultZipFile)).WillOnce(Return());
+    EXPECT_CALL(*m_mockFileSystem, isDirectory("/tmp/path")).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockFileSystem, isFile(m_defaultZipFile)).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockFileSystem, removeFile(m_defaultZipFile)).WillOnce(Return());
+    Tests::replaceFileSystem(std::move(m_mockFileSystem));
 
     auto mockZip = std::make_unique<NiceMock<MockZipUtils>>();
-    MockZipUtils& mockzipUtil(*mockZip);
-    ON_CALL(mockzipUtil, zip(_, _, _)).WillByDefault(Throw(std::runtime_error("")));
+    ON_CALL(*mockZip, zip(_, _, _)).WillByDefault(Throw(std::runtime_error("")));
     Common::ZipUtilities::replaceZipUtils(std::move(mockZip));
 
     nlohmann::json response = uploadFolderAction.run(action.dump());
@@ -367,23 +332,18 @@ TEST_F(UploadFolderTests, ZipFailsDueToLargeFile)
 
 TEST_F(UploadFolderTests, FileBeingWrittenToAndOverSizeLimit)
 {
-    auto httpRequester = std::make_shared<StrictMock<MockHTTPRequester>>();
-    ResponseActionsImpl::UploadFolderAction uploadFolderAction(httpRequester);
+    setupMockZipUtils();
+
+    ResponseActionsImpl::UploadFolderAction uploadFolderAction(m_mockHttpRequester);
     nlohmann::json action = getDefaultUploadObject();
 
-    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
-    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>{ mockFileSystem });
-    EXPECT_CALL(*mockFileSystem, isDirectory("/tmp/path")).WillOnce(Return(true));
-    EXPECT_CALL(*mockFileSystem, fileSize(m_defaultZipFile)).WillOnce(Return(100));
-    EXPECT_CALL(*mockFileSystem, isFile(m_defaultZipFile)).Times(1).WillOnce(Return(true));
-    EXPECT_CALL(*mockFileSystem, removeFile(m_defaultZipFile)).WillOnce(Return());
-    EXPECT_CALL(*mockFileSystem, calculateDigest(Common::SslImpl::Digest::sha256, m_defaultZipFile))
+    EXPECT_CALL(*m_mockFileSystem, isDirectory("/tmp/path")).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockFileSystem, fileSize(m_defaultZipFile)).WillOnce(Return(100));
+    EXPECT_CALL(*m_mockFileSystem, isFile(m_defaultZipFile)).Times(1).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockFileSystem, removeFile(m_defaultZipFile)).WillOnce(Return());
+    EXPECT_CALL(*m_mockFileSystem, calculateDigest(Common::SslImpl::Digest::sha256, m_defaultZipFile))
         .WillOnce(Throw(Common::FileSystem::IFileSystemException("")));
-
-    auto mockZip = std::make_unique<NiceMock<MockZipUtils>>();
-    MockZipUtils& mockzipUtil(*mockZip);
-    ON_CALL(mockzipUtil, zip(_, _, _)).WillByDefault(Return(0));
-    Common::ZipUtilities::replaceZipUtils(std::move(mockZip));
+    Tests::replaceFileSystem(std::move(m_mockFileSystem));
 
     nlohmann::json response = uploadFolderAction.run(action.dump());
     
@@ -394,29 +354,20 @@ TEST_F(UploadFolderTests, FileBeingWrittenToAndOverSizeLimit)
 
 TEST_F(UploadFolderTests, FailureDueToTimeout)
 {
-    auto httpRequester = std::make_shared<StrictMock<MockHTTPRequester>>();
-    Common::HttpRequests::Response httpresponse;
-    httpresponse.status = 500;
-    httpresponse.errorCode = Common::HttpRequests::ResponseErrorCode::TIMEOUT;
-    EXPECT_CALL(*httpRequester, put(_)).WillOnce(Return(httpresponse));
-    ResponseActionsImpl::UploadFolderAction uploadFolderAction(httpRequester);
+    addResponseToMockRequester(500, ResponseErrorCode::TIMEOUT);
+    setupMockZipUtils();
+    ResponseActionsImpl::UploadFolderAction uploadFolderAction(m_mockHttpRequester);
 
     nlohmann::json action = getDefaultUploadObject();
 
-    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
-    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>{ mockFileSystem });
-    EXPECT_CALL(*mockFileSystem, isDirectory("/tmp/path")).WillOnce(Return(true));
-    EXPECT_CALL(*mockFileSystem, fileSize(m_defaultZipFile)).WillOnce(Return(100));
-    EXPECT_CALL(*mockFileSystem, isFile(m_defaultZipFile)).Times(1).WillOnce(Return(true));
-    EXPECT_CALL(*mockFileSystem, removeFile(m_defaultZipFile)).WillOnce(Return());
-    EXPECT_CALL(*mockFileSystem, calculateDigest(Common::SslImpl::Digest::sha256, m_defaultZipFile))
+    EXPECT_CALL(*m_mockFileSystem, isDirectory("/tmp/path")).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockFileSystem, fileSize(m_defaultZipFile)).WillOnce(Return(100));
+    EXPECT_CALL(*m_mockFileSystem, isFile(m_defaultZipFile)).Times(1).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockFileSystem, removeFile(m_defaultZipFile)).WillOnce(Return());
+    EXPECT_CALL(*m_mockFileSystem, calculateDigest(Common::SslImpl::Digest::sha256, m_defaultZipFile))
         .WillOnce(Return("sha256string"));
-    EXPECT_CALL(*mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(false));
-
-    auto mockZip = std::make_unique<NiceMock<MockZipUtils>>();
-    MockZipUtils& mockzipUtil(*mockZip);
-    ON_CALL(mockzipUtil, zip(_, _, _)).WillByDefault(Return(0));
-    Common::ZipUtilities::replaceZipUtils(std::move(mockZip));
+    EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(false));
+    Tests::replaceFileSystem(std::move(m_mockFileSystem));
 
     nlohmann::json response = uploadFolderAction.run(action.dump());
     
@@ -427,28 +378,20 @@ TEST_F(UploadFolderTests, FailureDueToTimeout)
 
 TEST_F(UploadFolderTests, FailureDueToNetworkError)
 {
-    auto httpRequester = std::make_shared<StrictMock<MockHTTPRequester>>();
-    Common::HttpRequests::Response httpresponse;
-    httpresponse.status = 500;
-    httpresponse.errorCode = Common::HttpRequests::ResponseErrorCode::FAILED;
-    EXPECT_CALL(*httpRequester, put(_)).WillOnce(Return(httpresponse));
-    ResponseActionsImpl::UploadFolderAction uploadFolderAction(httpRequester);
+    addResponseToMockRequester(500, ResponseErrorCode::FAILED);
+    setupMockZipUtils();
+    ResponseActionsImpl::UploadFolderAction uploadFolderAction(m_mockHttpRequester);
+
     nlohmann::json action = getDefaultUploadObject();
 
-    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
-    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>{ mockFileSystem });
-    EXPECT_CALL(*mockFileSystem, isDirectory("/tmp/path")).WillOnce(Return(true));
-    EXPECT_CALL(*mockFileSystem, isFile(m_defaultZipFile)).Times(1).WillOnce(Return(true));
-    EXPECT_CALL(*mockFileSystem, removeFile(m_defaultZipFile)).WillOnce(Return());
-    EXPECT_CALL(*mockFileSystem, fileSize(m_defaultZipFile)).WillOnce(Return(100));
-    EXPECT_CALL(*mockFileSystem, calculateDigest(Common::SslImpl::Digest::sha256, m_defaultZipFile))
+    EXPECT_CALL(*m_mockFileSystem, isDirectory("/tmp/path")).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockFileSystem, isFile(m_defaultZipFile)).Times(1).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockFileSystem, removeFile(m_defaultZipFile)).WillOnce(Return());
+    EXPECT_CALL(*m_mockFileSystem, fileSize(m_defaultZipFile)).WillOnce(Return(100));
+    EXPECT_CALL(*m_mockFileSystem, calculateDigest(Common::SslImpl::Digest::sha256, m_defaultZipFile))
         .WillOnce(Return("sha256string"));
-    EXPECT_CALL(*mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(false));
-
-    auto mockZip = std::make_unique<NiceMock<MockZipUtils>>();
-    MockZipUtils& mockzipUtil(*mockZip);
-    ON_CALL(mockzipUtil, zip(_, _, _)).WillByDefault(Return(0));
-    Common::ZipUtilities::replaceZipUtils(std::move(mockZip));
+    EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(false));
+    Tests::replaceFileSystem(std::move(m_mockFileSystem));
 
     nlohmann::json response = uploadFolderAction.run(action.dump());
     
@@ -460,28 +403,20 @@ TEST_F(UploadFolderTests, FailureDueToNetworkError)
 
 TEST_F(UploadFolderTests, FailureDueToServerError)
 {
-    auto httpRequester = std::make_shared<StrictMock<MockHTTPRequester>>();
-    Common::HttpRequests::Response httpresponse;
-    httpresponse.status = 500;
-    httpresponse.errorCode = Common::HttpRequests::ResponseErrorCode::OK;
-    EXPECT_CALL(*httpRequester, put(_)).WillOnce(Return(httpresponse));
-    ResponseActionsImpl::UploadFolderAction uploadFolderAction(httpRequester);
+    addResponseToMockRequester(500, ResponseErrorCode::OK);
+    setupMockZipUtils();
+    ResponseActionsImpl::UploadFolderAction uploadFolderAction(m_mockHttpRequester);
+
     nlohmann::json action = getDefaultUploadObject();
 
-    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
-    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>{ mockFileSystem });
-    EXPECT_CALL(*mockFileSystem, isDirectory("/tmp/path")).WillOnce(Return(true));
-    EXPECT_CALL(*mockFileSystem, fileSize(m_defaultZipFile)).WillOnce(Return(100));
-    EXPECT_CALL(*mockFileSystem, isFile(m_defaultZipFile)).Times(1).WillOnce(Return(true));
-    EXPECT_CALL(*mockFileSystem, removeFile(m_defaultZipFile)).WillOnce(Return());
-    EXPECT_CALL(*mockFileSystem, calculateDigest(Common::SslImpl::Digest::sha256, m_defaultZipFile))
+    EXPECT_CALL(*m_mockFileSystem, isDirectory("/tmp/path")).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockFileSystem, fileSize(m_defaultZipFile)).WillOnce(Return(100));
+    EXPECT_CALL(*m_mockFileSystem, isFile(m_defaultZipFile)).Times(1).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockFileSystem, removeFile(m_defaultZipFile)).WillOnce(Return());
+    EXPECT_CALL(*m_mockFileSystem, calculateDigest(Common::SslImpl::Digest::sha256, m_defaultZipFile))
         .WillOnce(Return("sha256string"));
-    EXPECT_CALL(*mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(false));
-
-    auto mockZip = std::make_unique<NiceMock<MockZipUtils>>();
-    MockZipUtils& mockzipUtil(*mockZip);
-    ON_CALL(mockzipUtil, zip(_, _, _)).WillByDefault(Return(0));
-    Common::ZipUtilities::replaceZipUtils(std::move(mockZip));
+    EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(false));
+    Tests::replaceFileSystem(std::move(m_mockFileSystem));
 
     nlohmann::json response = uploadFolderAction.run(action.dump());
     
