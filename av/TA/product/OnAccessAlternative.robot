@@ -496,6 +496,7 @@ On Access Process Handles Consecutive Process Control Requests
     send av policy from file  CORE   ${RESOURCES_PATH}/core_policy/CORE-36_oa_enabled.xml
 
     wait_for_log_contains_from_mark  ${av_mark}  Processing On Access Scanning settings from CORE policy  timeout=${5}
+    Wait for OA Scanning enabled in status file
     Sleep  ${1}
 
     dump_av_log_after_mark  ${av_mark}
@@ -504,13 +505,17 @@ On Access Process Handles Consecutive Process Control Requests
     send av policy from file  CORE   ${RESOURCES_PATH}/core_policy/CORE-36_oa_disabled.xml
     wait for on access log contains after mark  No policy override, following policy settings  mark=${mark}
     wait for on access log contains after mark  New on-access configuration: {"detectPUAs":true,"enabled":false  mark=${mark}
+    ${mark} =  wait for on access log contains after mark  On-access scanning disabled  mark=${mark}
+    Check OA disabled in status file
 
     send av policy from file  FLAGS  ${RESOURCES_PATH}/flags_policy/flags.json
     wait for on access log contains after mark  Overriding policy, on-access will be disabled  mark=${mark}
     wait for log to not contain after mark  ${ON_ACCESS_LOG_PATH}  mount points in on-access scanning  mark=${mark}  timeout=${3}
+    Check OA disabled in status file
 
     send av policy from file  FLAGS  ${RESOURCES_PATH}/flags_policy/flags_onaccess_enabled.json
     wait for on access log contains after mark  No policy override, following policy settings  mark=${mark}
+    Check OA disabled in status file
 
     On-access No Eicar Scan
 

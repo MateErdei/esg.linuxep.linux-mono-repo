@@ -100,6 +100,9 @@ Terminate On Access And AV
 Configure On-access Off With Core Policy With Fake Management
     send av policy from file  CORE   ${RESOURCES_PATH}/core_policy/CORE-36_oa_disabled.xml
 
+Check OA disabled in status file
+    wait_for_file_to_contain  ${ONACCESS_STATUS_FILE}  disabled  timeout=${1}
+
 Disable OA Scanning
     [Arguments]  ${mark}=${None}
     IF   $mark is None
@@ -115,6 +118,8 @@ Disable OA Scanning
     wait for on access log contains after mark  On-access scanning disabled   mark=${mark}
     wait_for_file_to_contain  ${ONACCESS_STATUS_FILE}  disabled
 
+Wait for OA Scanning enabled in status file
+    wait_for_file_to_contain  ${ONACCESS_STATUS_FILE}  enabled
 
 Enable OA Scanning
     [Arguments]  ${mark}=${None}
@@ -133,7 +138,7 @@ Enable OA Scanning
     #Ensure that all threads start in order
     ${list}=  create list  Fanotify successfully initialised  Starting eventReader  Starting mountMonitor  mount points in on-access scanning  Starting scanHandler 0  On-access scanning enabled
     check_on_access_log_contains_in_order  ${list}  mark=${mark}
-    wait_for_file_to_contain  ${ONACCESS_STATUS_FILE}  enabled
+    Wait for OA Scanning enabled in status file
 
 
 On-access Scan Clean File
