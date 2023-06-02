@@ -11,8 +11,7 @@ Suite Teardown  Require Uninstalled
 Test Setup  RA Telemetry Test Setup
 Test Teardown  RA Telemetry Test Teardown
 
-Force Tags  LOAD7
-Default Tags   RESPONSE_ACTIONS_PLUGIN  TAP_TESTS
+Force Tags  LOAD7  RESPONSE_ACTIONS_PLUGIN  TAP_TESTS
 
 *** Variables ***
 #Telemetry Fields
@@ -45,8 +44,14 @@ RA Plugin Reports Telemetry Correctly
 
 #Run Command Action
 Telemetry Reported For Run Command Action Expired
-    Simulate Run Command Action Now    ${SUPPORT_FILES}/CentralXml/RunCommandAction_expired.json
+    ${id} =  Set Variable  id1
+    ${response_mark} =  mark_log_size  ${RESPONSE_ACTIONS_LOG_PATH}
+
+    Simulate Response Action    ${SUPPORT_FILES}/CentralXml/RunCommandAction_expired.json    ${id}
     Wait Until Created    ${RESPONSE_JSON}
+
+    wait_for_log_contains_from_mark  ${response_mark}  Failed action ${id} with exit code 4
+    wait_for_log_contains_from_mark  ${response_mark}  Finished action: ${id}
 
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
@@ -57,13 +62,14 @@ Telemetry Reported For Run Command Action Expired
 
 
 Telemetry Reported For Run Command Action Timeout Exceeded
+    ${id} =  Set Variable  id2
     ${response_mark} =  mark_log_size  ${RESPONSE_ACTIONS_LOG_PATH}
 
-    Simulate Run Command Action Now    ${SUPPORT_FILES}/CentralXml/RunCommandAction4.json
+    Simulate Response Action    ${SUPPORT_FILES}/CentralXml/RunCommandAction4.json    ${id}
     Wait Until Created    ${RESPONSE_JSON}
 
     wait_for_log_contains_from_mark  ${response_mark}  Response Actions plugin sending failed response to Central on behalf of Action Runner process
-
+    wait_for_log_contains_from_mark  ${response_mark}  Finished action: ${id}
 
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
@@ -76,8 +82,13 @@ Telemetry Reported For Run Command Action Timeout Exceeded
 Telemetry Reported For Run Command Action Failure Not Timeout Or Expiry
     # Exclude on SLES until LINUXDAR-7306 is fixed
     [Tags]  EXCLUDE_SLES12
-    Simulate Run Command Action Now    ${SUPPORT_FILES}/CentralXml/RunCommandAction_failure.json
+    ${id} =  Set Variable  id3
+    ${response_mark} =  mark_log_size  ${RESPONSE_ACTIONS_LOG_PATH}
+
+    Simulate Response Action    ${SUPPORT_FILES}/CentralXml/RunCommandAction_failure.json    ${id}
     Wait Until Created    ${RESPONSE_JSON}
+
+    wait_for_log_contains_from_mark  ${response_mark}  Finished action: ${id}
 
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
@@ -91,8 +102,14 @@ Telemetry Reported For Run Command Action Failure Not Timeout Or Expiry
 Telemetry Reported For Upload File Action Expired
     # Exclude on SLES until LINUXDAR-7306 is fixed
     [Tags]  EXCLUDE_SLES12
-    Simulate Run Command Action Now    ${SUPPORT_FILES}/CentralXml/UploadFileAction_expired.json
+    ${id} =  Set Variable  id4
+    ${response_mark} =  mark_log_size  ${RESPONSE_ACTIONS_LOG_PATH}
+
+    Simulate Response Action    ${SUPPORT_FILES}/CentralXml/UploadFileAction_expired.json    ${id}
     Wait Until Created    ${RESPONSE_JSON}
+
+    wait_for_log_contains_from_mark  ${response_mark}  Failed action ${id} with exit code 4
+    wait_for_log_contains_from_mark  ${response_mark}  Finished action: ${id}
 
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
@@ -103,8 +120,14 @@ Telemetry Reported For Upload File Action Expired
 
 
 Telemetry Reported For Upload File Action Timeout Exceeded
-    Simulate Run Command Action Now    ${SUPPORT_FILES}/CentralXml/UploadFileAction_timeout.json
+    ${id} =  Set Variable  id5
+    ${response_mark} =  mark_log_size  ${RESPONSE_ACTIONS_LOG_PATH}
+
+    Simulate Response Action    ${SUPPORT_FILES}/CentralXml/UploadFileAction_timeout.json    ${id}
     Wait Until Created    ${RESPONSE_JSON}
+
+    wait_for_log_contains_from_mark  ${response_mark}  Response Actions plugin sending failed response to Central on behalf of Action Runner process
+    wait_for_log_contains_from_mark  ${response_mark}  Finished action: ${id}
 
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
@@ -115,8 +138,13 @@ Telemetry Reported For Upload File Action Timeout Exceeded
 
 
 Telemetry Reported For Upload File Action Failure Not Timeout Or Expiry
-    Simulate Run Command Action Now    ${SUPPORT_FILES}/CentralXml/UploadFileAction_failure.json
+    ${id} =  Set Variable  id6
+    ${response_mark} =  mark_log_size  ${RESPONSE_ACTIONS_LOG_PATH}
+
+    Simulate Response Action   ${SUPPORT_FILES}/CentralXml/UploadFileAction_failure.json    ${id}
     Wait Until Created    ${RESPONSE_JSON}
+
+    wait_for_log_contains_from_mark  ${response_mark}  Finished action: ${id}
 
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
@@ -128,11 +156,17 @@ Telemetry Reported For Upload File Action Failure Not Timeout Or Expiry
 
 #Upload Folder Action
 Telemetry Reported For Upload Folder Action Expired
+    ${id} =  Set Variable  id7
     Create Directory    /tmp/test_folder
     Register Cleanup    Remove Directory    /tmp/test_folder
 
-    Simulate Run Command Action Now    ${SUPPORT_FILES}/CentralXml/UploadFolderAction_expired.json
+    ${response_mark} =  mark_log_size  ${RESPONSE_ACTIONS_LOG_PATH}
+
+    Simulate Response Action   ${SUPPORT_FILES}/CentralXml/UploadFolderAction_expired.json    ${id}
     Wait Until Created    ${RESPONSE_JSON}
+
+    wait_for_log_contains_from_mark  ${response_mark}  Failed action ${id} with exit code 4
+    wait_for_log_contains_from_mark  ${response_mark}  Finished action: ${id}
 
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
@@ -143,11 +177,18 @@ Telemetry Reported For Upload Folder Action Expired
 
 
 Telemetry Reported For Upload Folder Action Timeout Exceeded
+    ${id} =  Set Variable  id8
+
     Create Directory    /tmp/test_folder
     Register Cleanup    Remove Directory    /tmp/test_folder
 
-    Simulate Run Command Action Now    ${SUPPORT_FILES}/CentralXml/UploadFolderAction_timeout.json
+    ${response_mark} =  mark_log_size  ${RESPONSE_ACTIONS_LOG_PATH}
+
+    Simulate Response Action    ${SUPPORT_FILES}/CentralXml/UploadFolderAction_timeout.json    ${id}
     Wait Until Created    ${RESPONSE_JSON}
+
+    wait_for_log_contains_from_mark  ${response_mark}  Response Actions plugin sending failed response to Central on behalf of Action Runner process
+    wait_for_log_contains_from_mark  ${response_mark}  Finished action: ${id}
 
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
@@ -158,8 +199,13 @@ Telemetry Reported For Upload Folder Action Timeout Exceeded
 
 
 Telemetry Reported For Upload Folder Action Failure Not Timeout Or Expiry
-    Simulate Run Command Action Now    ${SUPPORT_FILES}/CentralXml/UploadFolderAction_failure.json
+    ${id} =  Set Variable  id9
+    ${response_mark} =  mark_log_size  ${RESPONSE_ACTIONS_LOG_PATH}
+
+    Simulate Response Action    ${SUPPORT_FILES}/CentralXml/UploadFolderAction_failure.json    ${id}
     Wait Until Created    ${RESPONSE_JSON}
+
+    wait_for_log_contains_from_mark  ${response_mark}  Finished action: ${id}
 
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
@@ -171,8 +217,14 @@ Telemetry Reported For Upload Folder Action Failure Not Timeout Or Expiry
 
 #Download File Action
 Telemetry Reported For Download File Action Expired
-    Simulate Download Action Now    ${SUPPORT_FILES}/CentralXml/DownloadFileAction_expired.json
+    ${id} =  Set Variable  id10
+    ${response_mark} =  mark_log_size  ${RESPONSE_ACTIONS_LOG_PATH}
+
+    Simulate Response Action    ${SUPPORT_FILES}/CentralXml/DownloadFileAction_expired.json    ${id}
     Wait Until Created    ${RESPONSE_JSON}
+
+    wait_for_log_contains_from_mark  ${response_mark}  Failed action ${id} with exit code 4
+    wait_for_log_contains_from_mark  ${response_mark}  Finished action: ${id}
 
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
@@ -183,8 +235,14 @@ Telemetry Reported For Download File Action Expired
 
 
 Telemetry Reported For Download File Action Timeout Exceeded
-    Simulate Run Command Action Now    ${SUPPORT_FILES}/CentralXml/DownloadFileAction_timeout.json
+    ${id} =  Set Variable  id11
+    ${response_mark} =  mark_log_size  ${RESPONSE_ACTIONS_LOG_PATH}
+
+    Simulate Response Action    ${SUPPORT_FILES}/CentralXml/DownloadFileAction_timeout.json    ${id}
     Wait Until Created    ${RESPONSE_JSON}
+
+    wait_for_log_contains_from_mark  ${response_mark}  Response Actions plugin sending failed response to Central on behalf of Action Runner process
+    wait_for_log_contains_from_mark  ${response_mark}  Finished action: ${id}
 
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
@@ -195,8 +253,13 @@ Telemetry Reported For Download File Action Timeout Exceeded
 
 
 Telemetry Reported For Download File Action Failure Not Timeout Or Expiry
-    Simulate Run Command Action Now    ${SUPPORT_FILES}/CentralXml/DownloadFileAction_failure.json
+    ${id} =  Set Variable  id12
+    ${response_mark} =  mark_log_size  ${RESPONSE_ACTIONS_LOG_PATH}
+
+    Simulate Response Action    ${SUPPORT_FILES}/CentralXml/DownloadFileAction_failure.json    ${id}
     Wait Until Created    ${RESPONSE_JSON}
+
+    wait_for_log_contains_from_mark  ${response_mark}  Finished action: ${id}
 
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
@@ -209,11 +272,9 @@ Telemetry Reported For Download File Action Failure Not Timeout Or Expiry
 *** Keywords ***
 RA Telemetry Suite Setup
     Require Fresh Install
-
     Override LogConf File as Global Level  DEBUG
     Copy Telemetry Config File in To Place
     Create File    ${SOPHOS_INSTALL}/base/etc/logger.conf.local   [telemetry]\nVERBOSITY=DEBUG\n
-
 
 RA Telemetry Test Setup
     Install Response Actions Directly
@@ -222,7 +283,6 @@ RA Telemetry Test Setup
 RA Telemetry Test Teardown
     General Test Teardown
     Uninstall Response Actions
-    Remove file  ${TELEMETRY_OUTPUT_JSON}
     Run Keyword If Test Failed  LogUtils.Dump Log  ${HTTPS_LOG_FILE_PATH}
-    Cleanup Telemetry Server
+    Cleanup Telemetry Server And Remove Telemetry Output
     Remove File  ${EXE_CONFIG_FILE}
