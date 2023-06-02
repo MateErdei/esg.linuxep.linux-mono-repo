@@ -23,7 +23,7 @@ using namespace ResponseActions::RACommon;
 class UploadFileTests : public MemoryAppenderUsingTests
 {
 public:
-    UploadFileTests() : MemoryAppenderUsingTests("responseactions") {}
+    UploadFileTests() : MemoryAppenderUsingTests("ResponseActionsImpl") {}
 
     void SetUp()
     {
@@ -40,7 +40,7 @@ public:
     nlohmann::json getDefaultUploadObject()
     {
         nlohmann::json action;
-        action["targetFile"] = "path";
+        action["targetFile"] = m_testPath;
         action["url"] = "https://s3.com/somewhere";
         action["compress"] = false;
         action["password"] = "";
@@ -66,6 +66,8 @@ public:
         Common::ZipUtilities::replaceZipUtils(std::move(mockZip));
     }
 
+    const std::string m_testPath = "/path";
+    
     std::shared_ptr<MockHTTPRequester> m_mockHttpRequester;
     std::unique_ptr<MockFileSystem> m_mockFileSystem;
 };
@@ -78,9 +80,9 @@ TEST_F(UploadFileTests, SuccessCase)
     nlohmann::json action = getDefaultUploadObject();
 
     EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(false));
-    EXPECT_CALL(*m_mockFileSystem, isFile("path")).WillOnce(Return(true));
-    EXPECT_CALL(*m_mockFileSystem, fileSize("path")).WillOnce(Return(100));
-    EXPECT_CALL(*m_mockFileSystem, calculateDigest(Common::SslImpl::Digest::sha256, "path"))
+    EXPECT_CALL(*m_mockFileSystem, isFile(m_testPath)).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockFileSystem, fileSize(m_testPath)).WillOnce(Return(100));
+    EXPECT_CALL(*m_mockFileSystem, calculateDigest(Common::SslImpl::Digest::sha256, m_testPath))
         .WillOnce(Return("sha256string"));
     Tests::replaceFileSystem(std::move(m_mockFileSystem));
 
@@ -88,6 +90,42 @@ TEST_F(UploadFileTests, SuccessCase)
 
     EXPECT_EQ(response["result"], 0);
     EXPECT_EQ(response["httpStatus"], 200);
+}
+
+TEST_F(UploadFileTests, successHugeURL)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    
+    const std::string largeStr(30000, 'a');
+    const std::string largeURL("https://s3.com/download" + largeStr + ".zip");
+    const std::string expectedMsg("Uploading file: " + m_testPath + " to url: " + largeURL);
+    PRINT(expectedMsg);
+    addResponseToMockRequester(HTTP_STATUS_OK, ResponseErrorCode::OK);
+
+    ResponseActionsImpl::UploadFileAction uploadFileAction(m_mockHttpRequester);
+
+    EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFileSystem, isFile(m_testPath)).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockFileSystem, fileSize(m_testPath)).WillOnce(Return(100));
+    EXPECT_CALL(*m_mockFileSystem, calculateDigest(Common::SslImpl::Digest::sha256, m_testPath))
+        .WillOnce(Return("sha256string"));
+    Tests::replaceFileSystem(std::move(m_mockFileSystem));
+
+    nlohmann::json action = getDefaultUploadObject();
+    action["url"] = largeURL;
+    nlohmann::json response = uploadFileAction.run(action.dump());
+
+    EXPECT_EQ(response["result"], 0);
+    EXPECT_EQ(response["httpStatus"], 200);
+
+    EXPECT_EQ(response["type"], UPLOAD_FILE_RESPONSE_TYPE);
+    EXPECT_EQ(response["result"], 0);
+    EXPECT_EQ(response["httpStatus"], HTTP_STATUS_OK);
+    EXPECT_FALSE(response.contains("errorType"));
+    EXPECT_FALSE(response.contains("errorMessage"));
+    EXPECT_TRUE(response.contains("duration"));
+
+    EXPECT_TRUE(appenderContains(expectedMsg));
 }
 
 TEST_F(UploadFileTests, SuccessCaseWithProxy)
@@ -103,9 +141,9 @@ TEST_F(UploadFileTests, SuccessCaseWithProxy)
     std::string content = R"({"proxy":"localhost","credentials":")" + obfuscatedCreds + R"("})";
     EXPECT_CALL(*m_mockFileSystem, readFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy"))
         .WillOnce(Return(content));
-    EXPECT_CALL(*m_mockFileSystem, isFile("path")).WillOnce(Return(true));
-    EXPECT_CALL(*m_mockFileSystem, fileSize("path")).WillOnce(Return(100));
-    EXPECT_CALL(*m_mockFileSystem, calculateDigest(Common::SslImpl::Digest::sha256, "path"))
+    EXPECT_CALL(*m_mockFileSystem, isFile(m_testPath)).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockFileSystem, fileSize(m_testPath)).WillOnce(Return(100));
+    EXPECT_CALL(*m_mockFileSystem, calculateDigest(Common::SslImpl::Digest::sha256, m_testPath))
         .WillOnce(Return("sha256string"));
     Tests::replaceFileSystem(std::move(m_mockFileSystem));
 
@@ -134,9 +172,9 @@ TEST_F(UploadFileTests, ProxyFailureFallsbackDirect)
     std::string content = R"({"proxy":"localhost","credentials":")" + obfuscatedCreds + R"("})";
     EXPECT_CALL(*m_mockFileSystem, readFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy"))
         .WillOnce(Return(content));
-    EXPECT_CALL(*m_mockFileSystem, isFile("path")).WillOnce(Return(true));
-    EXPECT_CALL(*m_mockFileSystem, fileSize("path")).WillOnce(Return(100));
-    EXPECT_CALL(*m_mockFileSystem, calculateDigest(Common::SslImpl::Digest::sha256, "path"))
+    EXPECT_CALL(*m_mockFileSystem, isFile(m_testPath)).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockFileSystem, fileSize(m_testPath)).WillOnce(Return(100));
+    EXPECT_CALL(*m_mockFileSystem, calculateDigest(Common::SslImpl::Digest::sha256, m_testPath))
         .WillOnce(Return("sha256string"));
     Tests::replaceFileSystem(std::move(m_mockFileSystem));
 
@@ -204,7 +242,7 @@ TEST_F(UploadFileTests, ZipFails)
     action["compress"] = true;
     std::string zipFile = "/opt/sophos-spl/plugins/responseactions/tmp/path.zip";
 
-    EXPECT_CALL(*m_mockFileSystem, isFile("path")).Times(1).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockFileSystem, isFile(m_testPath)).Times(1).WillOnce(Return(true));
     EXPECT_CALL(*m_mockFileSystem, isFile(zipFile)).Times(1).WillOnce(Return(true));
     EXPECT_CALL(*m_mockFileSystem, removeFile(zipFile)).Times(1).WillOnce(Return());
     Tests::replaceFileSystem(std::move(m_mockFileSystem));
@@ -225,7 +263,7 @@ TEST_F(UploadFileTests, ZipFailsDueToLargeFile)
     action["compress"] = true;
     std::string zipFile = "/opt/sophos-spl/plugins/responseactions/tmp/path.zip";
 
-    EXPECT_CALL(*m_mockFileSystem, isFile("path")).Times(1).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockFileSystem, isFile(m_testPath)).Times(1).WillOnce(Return(true));
     EXPECT_CALL(*m_mockFileSystem, isFile(zipFile)).Times(1).WillOnce(Return(true));
     EXPECT_CALL(*m_mockFileSystem, removeFile(zipFile)).Times(1).WillOnce(Return());
     Tests::replaceFileSystem(std::move(m_mockFileSystem));
@@ -266,7 +304,7 @@ TEST_F(UploadFileTests, FileDoesNotExist)
     ResponseActionsImpl::UploadFileAction uploadFileAction(m_mockHttpRequester);
     nlohmann::json action = getDefaultUploadObject();
 
-    EXPECT_CALL(*m_mockFileSystem, isFile("path")).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFileSystem, isFile(m_testPath)).WillOnce(Return(false));
     Tests::replaceFileSystem(std::move(m_mockFileSystem));
 
     nlohmann::json response = uploadFileAction.run(action.dump());
@@ -281,8 +319,8 @@ TEST_F(UploadFileTests, FileOverSizeLimit)
     ResponseActionsImpl::UploadFileAction uploadFileAction(m_mockHttpRequester);
     nlohmann::json action = getDefaultUploadObject();
 
-    EXPECT_CALL(*m_mockFileSystem, isFile("path")).WillOnce(Return(true));
-    EXPECT_CALL(*m_mockFileSystem, fileSize("path")).WillOnce(Return(10000));
+    EXPECT_CALL(*m_mockFileSystem, isFile(m_testPath)).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockFileSystem, fileSize(m_testPath)).WillOnce(Return(10000));
     Tests::replaceFileSystem(std::move(m_mockFileSystem));
 
     nlohmann::json response = uploadFileAction.run(action.dump());
@@ -297,9 +335,9 @@ TEST_F(UploadFileTests, FileBeingWrittenToAndOverSizeLimit)
     ResponseActionsImpl::UploadFileAction uploadFileAction(m_mockHttpRequester);
     nlohmann::json action = getDefaultUploadObject();
 
-    EXPECT_CALL(*m_mockFileSystem, isFile("path")).WillOnce(Return(true));
-    EXPECT_CALL(*m_mockFileSystem, fileSize("path")).WillOnce(Return(100));
-    EXPECT_CALL(*m_mockFileSystem, calculateDigest(Common::SslImpl::Digest::sha256,"path")).WillOnce(Throw(Common::FileSystem::IFileSystemException("")));
+    EXPECT_CALL(*m_mockFileSystem, isFile(m_testPath)).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockFileSystem, fileSize(m_testPath)).WillOnce(Return(100));
+    EXPECT_CALL(*m_mockFileSystem, calculateDigest(Common::SslImpl::Digest::sha256,m_testPath)).WillOnce(Throw(Common::FileSystem::IFileSystemException("")));
     Tests::replaceFileSystem(std::move(m_mockFileSystem));
 
     nlohmann::json response = uploadFileAction.run(action.dump());
@@ -316,9 +354,9 @@ TEST_F(UploadFileTests, FailureDueToTimeout)
 
     nlohmann::json action = getDefaultUploadObject();
 
-    EXPECT_CALL(*m_mockFileSystem, isFile("path")).WillOnce(Return(true));
-    EXPECT_CALL(*m_mockFileSystem, fileSize("path")).WillOnce(Return(100));
-    EXPECT_CALL(*m_mockFileSystem, calculateDigest(Common::SslImpl::Digest::sha256, "path"))
+    EXPECT_CALL(*m_mockFileSystem, isFile(m_testPath)).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockFileSystem, fileSize(m_testPath)).WillOnce(Return(100));
+    EXPECT_CALL(*m_mockFileSystem, calculateDigest(Common::SslImpl::Digest::sha256, m_testPath))
         .WillOnce(Return("sha256string"));
     EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(false));
     Tests::replaceFileSystem(std::move(m_mockFileSystem));
@@ -332,18 +370,14 @@ TEST_F(UploadFileTests, FailureDueToTimeout)
 
 TEST_F(UploadFileTests, FailureDueToNetworkError)
 {
-    Common::HttpRequests::Response httpresponse;
-    httpresponse.status = 500;
-    httpresponse.errorCode = Common::HttpRequests::ResponseErrorCode::FAILED;
-    httpresponse.error = "failure";
-    EXPECT_CALL(*m_mockHttpRequester, put(_)).WillOnce(Return(httpresponse));
+    addResponseToMockRequester(500, ResponseErrorCode::FAILED, "failure");
     ResponseActionsImpl::UploadFileAction uploadFileAction(m_mockHttpRequester);
 
     nlohmann::json action = getDefaultUploadObject();
 
-    EXPECT_CALL(*m_mockFileSystem, isFile("path")).WillOnce(Return(true));
-    EXPECT_CALL(*m_mockFileSystem, fileSize("path")).WillOnce(Return(100));
-    EXPECT_CALL(*m_mockFileSystem, calculateDigest(Common::SslImpl::Digest::sha256, "path"))
+    EXPECT_CALL(*m_mockFileSystem, isFile(m_testPath)).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockFileSystem, fileSize(m_testPath)).WillOnce(Return(100));
+    EXPECT_CALL(*m_mockFileSystem, calculateDigest(Common::SslImpl::Digest::sha256, m_testPath))
         .WillOnce(Return("sha256string"));
     EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(false));
     Tests::replaceFileSystem(std::move(m_mockFileSystem));
@@ -363,9 +397,9 @@ TEST_F(UploadFileTests, FailureDueToServerError)
 
     nlohmann::json action = getDefaultUploadObject();
 
-    EXPECT_CALL(*m_mockFileSystem, isFile("path")).WillOnce(Return(true));
-    EXPECT_CALL(*m_mockFileSystem, fileSize("path")).WillOnce(Return(100));
-    EXPECT_CALL(*m_mockFileSystem, calculateDigest(Common::SslImpl::Digest::sha256, "path"))
+    EXPECT_CALL(*m_mockFileSystem, isFile(m_testPath)).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockFileSystem, fileSize(m_testPath)).WillOnce(Return(100));
+    EXPECT_CALL(*m_mockFileSystem, calculateDigest(Common::SslImpl::Digest::sha256, m_testPath))
         .WillOnce(Return("sha256string"));
     EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(false));
     Tests::replaceFileSystem(std::move(m_mockFileSystem));
