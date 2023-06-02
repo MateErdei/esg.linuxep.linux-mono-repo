@@ -40,8 +40,8 @@ RA Plugin runs actions in order
     Restart Response Actions
     generate_file  /tmp/largefile  ${500}
     Register Cleanup  Remove File  /tmp/largefile
-    Simulate Upload Action Now
-    Simulate Upload Action Now  id_suffix=id2
+    Simulate Response Action  ${SUPPORT_FILES}/CentralXml/UploadAction.json
+    Simulate Response Action  ${SUPPORT_FILES}/CentralXml/UploadAction.json    id2
 
     Wait Until Keyword Succeeds
     ...  80 secs

@@ -22,7 +22,7 @@ Default Tags   RESPONSE_ACTIONS_PLUGIN
 Test Run Command Action and Verify Response JSON on Success
     ${action_mark} =  mark_log_size  ${ACTIONS_RUNNER_LOG_PATH}
 
-    Simulate Run Command Action Now    ${SUPPORT_FILES}/CentralXml/RunCommandAction.json
+    Simulate Response Action    ${SUPPORT_FILES}/CentralXml/RunCommandAction.json
     wait_for_log_contains_from_mark  ${action_mark}  Performing run command action:
     Wait Until Created  /tmp/test.txt
     Wait Until Created    ${RESPONSE_JSON}
@@ -36,7 +36,7 @@ Test Run Command Action and Verify Response JSON on Success
 Test Run Command Action and Verify Response JSON with Ignore Error False
     ${action_mark} =  mark_log_size  ${ACTIONS_RUNNER_LOG_PATH}
 
-    Simulate Run Command Action Now    ${SUPPORT_FILES}/CentralXml/RunCommandAction2.json
+    Simulate Response Action    ${SUPPORT_FILES}/CentralXml/RunCommandAction2.json
     wait_for_log_contains_from_mark  ${action_mark}  Performing run command action:
     Wait Until Created    ${RESPONSE_JSON}
 
@@ -49,7 +49,7 @@ Test Run Command Action and Verify Response JSON with Ignore Error False
 Test Run Command Action and Verify Response JSON with Ignore Error True
     ${action_mark} =  mark_log_size  ${ACTIONS_RUNNER_LOG_PATH}
 
-    Simulate Run Command Action Now    ${SUPPORT_FILES}/CentralXml/RunCommandAction3.json
+    Simulate Response Action    ${SUPPORT_FILES}/CentralXml/RunCommandAction3.json
     wait_for_log_contains_from_mark  ${action_mark}  Performing run command action:
     Wait Until Created    ${RESPONSE_JSON}
 
@@ -62,7 +62,7 @@ Test Run Command Action and Verify Response JSON with Ignore Error True
 Test Run Command Action and Verify Response JSON when Timeout Exceeded
     ${action_mark} =  mark_log_size  ${ACTIONS_RUNNER_LOG_PATH}
 
-    Simulate Run Command Action Now    ${SUPPORT_FILES}/CentralXml/RunCommandAction4.json
+    Simulate Response Action    ${SUPPORT_FILES}/CentralXml/RunCommandAction4.json
     wait_for_log_contains_from_mark  ${action_mark}  Performing run command action:
     Wait Until Created    ${RESPONSE_JSON}
 
@@ -73,7 +73,7 @@ Test Run Command Action and Verify Response JSON when Timeout Exceeded
 Test Run Command Action and Verify Commands Ran In Correct Order
     ${action_mark} =  mark_log_size  ${ACTIONS_RUNNER_LOG_PATH}
 
-    Simulate Run Command Action Now    ${SUPPORT_FILES}/CentralXml/RunCommandAction5.json
+    Simulate Response Action    ${SUPPORT_FILES}/CentralXml/RunCommandAction5.json
     wait_for_log_contains_from_mark  ${action_mark}  Performing run command action:
     Wait Until Created    ${RESPONSE_JSON}
 
@@ -99,7 +99,7 @@ Test Run Command Action and Verify Commands Ran In Correct Order
 Test Run Command Action Handles Large Stdout
     ${action_mark} =  mark_log_size  ${ACTIONS_RUNNER_LOG_PATH}
 
-    Simulate Run Command Action Now    ${SUPPORT_FILES}/CentralXml/RunCommandAction6.json
+    Simulate Response Action    ${SUPPORT_FILES}/CentralXml/RunCommandAction6.json
     wait_for_log_contains_from_mark  ${action_mark}  Performing run command action:
     Wait Until Created    ${RESPONSE_JSON}
 
@@ -117,7 +117,7 @@ Test Run Command Action Handles Large Stdout
 Test Run Command Action Handles Missing Binary
     ${action_mark} =  mark_log_size  ${ACTIONS_RUNNER_LOG_PATH}
 
-    Simulate Run Command Action Now    ${SUPPORT_FILES}/CentralXml/RunCommandAction7.json
+    Simulate Response Action    ${SUPPORT_FILES}/CentralXml/RunCommandAction7.json
     wait_for_log_contains_from_mark  ${action_mark}  Performing run command action:
     Wait Until Created    ${RESPONSE_JSON}
 
@@ -137,7 +137,7 @@ Test Run Command Action Handles Missing Binary
 Test Run Command Action Handles Expired Action
     ${action_mark} =  mark_log_size  ${ACTIONS_RUNNER_LOG_PATH}
 
-    Simulate Run Command Action Now    ${SUPPORT_FILES}/CentralXml/RunCommandAction_expired.json
+    Simulate Response Action    ${SUPPORT_FILES}/CentralXml/RunCommandAction_expired.json
     wait_for_log_contains_from_mark  ${action_mark}  Performing run command action:
     wait_for_log_contains_from_mark  ${action_mark}  Command id1 has expired so will not be run
     Wait Until Created    ${RESPONSE_JSON}
@@ -147,7 +147,7 @@ Test Run Command Action Handles Expired Action
 
 Test Run Command Action Does Not Block RA Plugin Stopping
     ${action_mark} =  mark_log_size  ${ACTIONS_RUNNER_LOG_PATH}
-    Simulate Run Command Action Now    ${SUPPORT_FILES}/CentralXml/RunCommandAction_sleep.json
+    Simulate Response Action    ${SUPPORT_FILES}/CentralXml/RunCommandAction_sleep.json
     wait_for_log_contains_from_mark  ${action_mark}  Performing run command action:
     Wait Until Keyword Succeeds
     ...  3s
