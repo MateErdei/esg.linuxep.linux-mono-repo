@@ -18,6 +18,8 @@ namespace ResponseActionsImpl
         UploadInfo info;
         auto actionObject = checkActionRequest(actionJson, type);
 
+        const std::string fieldErrorStr("Failed to process UploadInfo from action JSON: ");
+
         std::string targetKey;
         switch (type)
         {
@@ -37,7 +39,9 @@ namespace ResponseActionsImpl
             info.targetPath = actionObject.at(targetKey);
             info.timeout = actionObject.at("timeout");
             info.maxSize = actionObject.at("maxUploadSizeBytes");
-            info.expiration = actionObject.at("expiration");
+
+            info.expiration = checkUlongJsonValue(actionObject, "expiration", fieldErrorStr);
+
             if (actionObject.contains("compress"))
             {
                 info.compress = actionObject.at("compress");
@@ -54,9 +58,7 @@ namespace ResponseActionsImpl
         }
         catch (const nlohmann::json::type_error& exception)
         {
-            std::stringstream errorMsg;
-            errorMsg << "Failed to process UploadInfo from action JSON: " << exception.what();
-            throw InvalidCommandFormat(errorMsg.str());
+            throw InvalidCommandFormat(fieldErrorStr + exception.what());
         }
 
         return info;
@@ -105,15 +107,15 @@ namespace ResponseActionsImpl
 
         if (info.targetPath == "")
         {
-            throw InvalidCommandFormat("Target Path field is empty");
+            throw InvalidCommandFormat(fieldErrorStr + "Target Path field is empty");
         }
         if (info.sha256 == "")
         {
-            throw InvalidCommandFormat("sha256 field is empty");
+            throw InvalidCommandFormat(fieldErrorStr + "sha256 field is empty");
         }
         if (info.url == "")
         {
-            throw InvalidCommandFormat("url field is empty");
+            throw InvalidCommandFormat(fieldErrorStr + "url field is empty");
         }
 
         return info;

@@ -594,7 +594,7 @@ TEST_F(ActionsUtilsTests, downloadEmptyTargetPath)
     }
     catch (const InvalidCommandFormat& except)
     {
-        EXPECT_STREQ(except.what(), "Invalid command format. Target Path field is empty");
+        EXPECT_STREQ(except.what(), "Invalid command format. Failed to process DownloadInfo from action JSON: Target Path field is empty");
     }
 }
 
@@ -609,7 +609,7 @@ TEST_F(ActionsUtilsTests, downloadEmptysha256)
     }
     catch (const InvalidCommandFormat& except)
     {
-        EXPECT_STREQ(except.what(), "Invalid command format. sha256 field is empty");
+        EXPECT_STREQ(except.what(), "Invalid command format. Failed to process DownloadInfo from action JSON: sha256 field is empty");
     }
 }
 
@@ -624,7 +624,7 @@ TEST_F(ActionsUtilsTests, downloadEmptyurl)
     }
     catch (const InvalidCommandFormat& except)
     {
-        EXPECT_STREQ(except.what(), "Invalid command format. url field is empty");
+        EXPECT_STREQ(except.what(), "Invalid command format. Failed to process DownloadInfo from action JSON: url field is empty");
     }
 }
 
