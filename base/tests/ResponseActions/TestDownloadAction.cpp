@@ -2,6 +2,7 @@
 
 #define TEST_PUBLIC public
 
+#include "modules/ResponseActions/RACommon/ResponseActionsCommon.h"
 #include "modules/ResponseActions/ResponseActionsImpl/DownloadFileAction.h"
 
 #include "modules/Common/FileSystem/IFileTooLargeException.h"
@@ -22,6 +23,7 @@
 #include <filesystem>
 
 using namespace Common::HttpRequests;
+using namespace ResponseActions::RACommon;
 
 class DownloadFileTests : public MemoryAppenderUsingTests
 {
@@ -217,7 +219,7 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_NotDecompressed)
     nlohmann::json action = getDownloadObject();
     nlohmann::json response = downloadFileAction.run(action.dump());
 
-    EXPECT_EQ(response["type"], "sophos.mgt.response.DownloadFile");
+    EXPECT_EQ(response["type"], DOWNLOAD_FILE_RESPONSE_TYPE);
     EXPECT_EQ(response["result"], 0);
     EXPECT_EQ(response["httpStatus"], HTTP_STATUS_OK);
     EXPECT_FALSE(response.contains("errorType"));
@@ -255,7 +257,7 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_HugeURL)
     action["url"] = largeURL;
     nlohmann::json response = downloadFileAction.run(action.dump());
 
-    EXPECT_EQ(response["type"], "sophos.mgt.response.DownloadFile");
+    EXPECT_EQ(response["type"], DOWNLOAD_FILE_RESPONSE_TYPE);
     EXPECT_EQ(response["result"], 0);
     EXPECT_EQ(response["httpStatus"], HTTP_STATUS_OK);
     EXPECT_FALSE(response.contains("errorType"));
@@ -291,7 +293,7 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_HugePath)
     action["targetPath"] = largeTargetPath;
     nlohmann::json response = downloadFileAction.run(action.dump());
 
-    EXPECT_EQ(response["type"], "sophos.mgt.response.DownloadFile");
+    EXPECT_EQ(response["type"], DOWNLOAD_FILE_RESPONSE_TYPE);
     EXPECT_EQ(response["result"], 0);
     EXPECT_EQ(response["httpStatus"], HTTP_STATUS_OK);
     EXPECT_FALSE(response.contains("errorType"));
@@ -323,7 +325,7 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_NotDecompressed_NoFileNameIn
     nlohmann::json action = getDownloadObject(false, "", 1024, false);
     nlohmann::json response = downloadFileAction.run(action.dump());
 
-    EXPECT_EQ(response["type"], "sophos.mgt.response.DownloadFile");
+    EXPECT_EQ(response["type"], DOWNLOAD_FILE_RESPONSE_TYPE);
     EXPECT_EQ(response["result"], 0);
     EXPECT_EQ(response["httpStatus"], HTTP_STATUS_OK);
     EXPECT_FALSE(response.contains("errorType"));
@@ -1071,7 +1073,7 @@ TEST_F(DownloadFileTests, DirectLargeExpiration)
 
     nlohmann::json response = downloadFileAction.run(action);
 
-    EXPECT_EQ(response["type"], "sophos.mgt.response.DownloadFile");
+    EXPECT_EQ(response["type"], DOWNLOAD_FILE_RESPONSE_TYPE);
     EXPECT_EQ(response["result"], 4);
     EXPECT_EQ(response["errorMessage"], expectedMsg);
     EXPECT_FALSE(response.contains("errorType"));
@@ -1097,7 +1099,7 @@ TEST_F(DownloadFileTests, DirectLargeSizeBytes)
 
     nlohmann::json response = downloadFileAction.run(action);
 
-    EXPECT_EQ(response["type"], "sophos.mgt.response.DownloadFile");
+    EXPECT_EQ(response["type"], DOWNLOAD_FILE_RESPONSE_TYPE);
     EXPECT_EQ(response["result"], 1);
     EXPECT_EQ(response["errorMessage"], "Error parsing command from Central");
     EXPECT_FALSE(response.contains("errorType"));
@@ -1117,7 +1119,7 @@ TEST_F(DownloadFileTests, DirectNegativeExpiration)
     action["expiration"] = -123456;
     nlohmann::json response = downloadFileAction.run(action.dump());
 
-    EXPECT_EQ(response["type"], "sophos.mgt.response.DownloadFile");
+    EXPECT_EQ(response["type"], DOWNLOAD_FILE_RESPONSE_TYPE);
     EXPECT_EQ(response["result"], 1);
     EXPECT_EQ(response["errorMessage"], "Error parsing command from Central");
     EXPECT_FALSE(response.contains("errorType"));
@@ -1135,7 +1137,7 @@ TEST_F(DownloadFileTests, DirectNegativeSizeBytes)
     action["sizeBytes"] = -123456;
     nlohmann::json response = downloadFileAction.run(action.dump());
 
-    EXPECT_EQ(response["type"], "sophos.mgt.response.DownloadFile");
+    EXPECT_EQ(response["type"], DOWNLOAD_FILE_RESPONSE_TYPE);
     EXPECT_EQ(response["result"], 1);
     EXPECT_EQ(response["errorMessage"], "Error parsing command from Central");
     EXPECT_FALSE(response.contains("errorType"));
