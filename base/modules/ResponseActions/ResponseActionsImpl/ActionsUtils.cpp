@@ -61,6 +61,11 @@ namespace ResponseActionsImpl
             throw InvalidCommandFormat(fieldErrorStr + exception.what());
         }
 
+        if (info.url == "")
+        {
+            throw InvalidCommandFormat(fieldErrorStr + "url field is empty");
+        }
+
         return info;
     }
 
