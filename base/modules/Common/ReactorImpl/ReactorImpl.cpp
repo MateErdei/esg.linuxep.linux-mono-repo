@@ -5,7 +5,8 @@
 #include "IPoller.h"
 #include "Logger.h"
 
-#include <Common/ZeroMQWrapperImpl/ZeroMQWrapperException.h>
+#include "Common/ZeroMQWrapperImpl/ZeroMQWrapperException.h"
+#include "Common/ZeroMQWrapperImpl/PollerFactory.h"
 
 #include <cassert>
 #include <csignal>
@@ -56,7 +57,7 @@ namespace Common
             // LOGERROR("Running Thread Impl");
             bool monitorForSignalsForShutdown = false;
 
-            Common::ZeroMQWrapper::IPollerPtr poller = Common::ZeroMQWrapper::createPoller();
+            Common::ZeroMQWrapper::IPollerPtr poller = Common::ZeroMQWrapper::pollerFactory().create();
 
             for (auto& readList : m_callbackListeners)
             {

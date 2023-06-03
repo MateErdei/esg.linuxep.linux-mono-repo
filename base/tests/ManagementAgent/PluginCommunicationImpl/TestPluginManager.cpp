@@ -51,7 +51,8 @@ namespace
             ON_CALL(*mockApplicationPathManager, getMcsPolicyFilePath()).WillByDefault(Return("/tmp/"));
             ON_CALL(*mockApplicationPathManager, getMcsActionFilePath()).WillByDefault(Return("/tmp/"));
 
-            m_pluginManagerPtr.reset(new ManagementAgent::PluginCommunicationImpl::PluginManager());
+            m_pluginManagerPtr.reset(
+                new ManagementAgent::PluginCommunicationImpl::PluginManager(Common::ZMQWrapperApi::createContext()));
 
             m_mockedPluginApiCallback = std::make_shared<StrictMock<MockedPluginApiCallback>>();
             m_mgmtCommon.reset(

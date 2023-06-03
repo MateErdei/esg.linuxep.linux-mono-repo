@@ -2,12 +2,14 @@
 
 #include "FileSystemImpl.h"
 
-#include <Common/FileSystem/IFilePermissions.h>
-#include <Common/FileSystem/IFileNotFoundException.h>
-#include <Common/FileSystem/IFileSystemException.h>
-#include <Common/FileSystem/IFileTooLargeException.h>
-#include <Common/SslImpl/Digest.h>
-#include <Common/UtilityImpl/StrError.h>
+#include "Common/FileSystem/IFileNotFoundException.h"
+#include "Common/FileSystem/IFilePermissions.h"
+#include "Common/FileSystem/IFileSystemException.h"
+#include "Common/FileSystem/IFileTooLargeException.h"
+#include "Common/FileSystem/IPermissionDeniedException.h"
+#include "Common/SslImpl/Digest.h"
+#include "Common/UtilityImpl/StrError.h"
+
 #include <ext/stdio_filebuf.h>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -19,7 +21,6 @@
 #include <fstream>
 #include <grp.h>
 #include <iostream>
-#include <sstream>
 #include <unistd.h>
 
 #define LOGSUPPORT(x) std::cout << x << "\n"; // NOLINT
@@ -279,7 +280,18 @@ namespace Common
 
             if (!inFileStream.good())
             {
-                throw IFileNotFoundException("Error, Failed to read file: '" + path + "', file does not exist");
+                if (errno == ENOENT)
+                {
+                    throw IFileNotFoundException("Error, Failed to read file: '" + path + "', file does not exist");
+                }
+                else if (errno == EACCES)
+                {
+                    throw IPermissionDeniedException("Error, Failed to read file: '" + path + "', permission denied");
+                }
+                else
+                {
+                    throw IFileSystemException("Error, Failed to read file: '" + path + "', " + StrError(errno));
+                }
             }
 
             try

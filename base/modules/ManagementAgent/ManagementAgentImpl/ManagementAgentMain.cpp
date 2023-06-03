@@ -2,6 +2,8 @@
 
 #include "ManagementAgentMain.h"
 
+#include "ZMQWrapperApi/IContext.h"
+
 #include <Common/ApplicationConfigurationImpl/ApplicationPathManager.h>
 #include <Common/DirectoryWatcherImpl/DirectoryWatcherImpl.h>
 #include <Common/FileSystem/IFileSystem.h>
@@ -16,11 +18,10 @@
 #include <Common/UtilityImpl/SystemExecutableUtils.h>
 #include <Common/ZeroMQWrapper/IHasFD.h>
 #include <Common/ZeroMQWrapper/IPoller.h>
-#include <Common/ZeroMQWrapper/IProxy.h>
 #include <ManagementAgent/EventReceiverImpl/EventReceiverImpl.h>
+#include <ManagementAgent/HealthStatusImpl/HealthTask.h>
 #include <ManagementAgent/LoggerImpl/Logger.h>
 #include <ManagementAgent/McsRouterPluginCommunicationImpl/ActionTask.h>
-#include <ManagementAgent/HealthStatusImpl/HealthTask.h>
 #include <ManagementAgent/McsRouterPluginCommunicationImpl/PolicyTask.h>
 #include <ManagementAgent/PluginCommunicationImpl/PluginManager.h>
 #include <ManagementAgent/StatusCacheImpl/StatusCache.h>
@@ -28,7 +29,6 @@
 #include <ManagementAgent/ThreatHealthReceiverImpl/ThreatHealthReceiverImpl.h>
 #include <sys/stat.h>
 
-#include <IProcess.h>
 #include <csignal>
 
 using namespace Common;
@@ -64,16 +64,17 @@ namespace ManagementAgent
                 LOGERROR("Error, invalid command line arguments. Usage: Management Agent");
                 return -1;
             }
-            return mainForValidArguments(); 
+            return mainForValidArguments();
         }
-        
+
         int ManagementAgentMain::mainForValidArguments(bool withPersistentTelemetry)
         {
             try
             {
                 std::unique_ptr<ManagementAgent::PluginCommunication::IPluginManager> pluginManager =
                     std::unique_ptr<ManagementAgent::PluginCommunication::IPluginManager>(
-                        new ManagementAgent::PluginCommunicationImpl::PluginManager());
+                        new ManagementAgent::PluginCommunicationImpl::PluginManager(
+                            Common::ZMQWrapperApi::createContext()));
 
                 ManagementAgentMain managementAgent;
                 managementAgent.initialise(*pluginManager);

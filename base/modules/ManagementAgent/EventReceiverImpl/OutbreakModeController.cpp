@@ -7,10 +7,10 @@
 #include "Common/ApplicationConfigurationImpl/ApplicationPathManager.h"
 #include "Common/FileSystem/IFileNotFoundException.h"
 #include "Common/FileSystem/IFilePermissions.h"
+#include "Common/UtilityImpl/ProjectNames.h"
 #include "Common/UtilityImpl/StringUtils.h"
 #include "Common/UtilityImpl/TimeUtils.h"
 #include "Common/UtilityImpl/Uuid.h"
-#include "Common/UtilityImpl/ProjectNames.h"
 #include "Common/XmlUtilities/AttributesMap.h"
 #include "ManagementAgent/LoggerImpl/Logger.h"
 
@@ -209,6 +209,7 @@ void ManagementAgent::EventReceiverImpl::OutbreakModeController::processAction(c
 {
     if (actionXml.empty())
     {
+        LOGDEBUG("Ignoring action as it is an empty XML");
         return;
     }
     if (!outbreakMode_)

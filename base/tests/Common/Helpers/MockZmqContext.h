@@ -1,20 +1,22 @@
-/******************************************************************************************************
-Copyright 2021, Sophos Limited.  All rights reserved.
-******************************************************************************************************/
+// Copyright 2021-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
-#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
-#include "Common/ZeroMQWrapper/ISocketRequester.h"
-#include "Common/ZeroMQWrapper/ISocketSubscriber.h"
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include "Common/ZMQWrapperApi/IContext.h"
 #include "Common/ZeroMQWrapper/ISocketPublisher.h"
+#include "Common/ZeroMQWrapper/ISocketPublisherPtr.h"
 #include "Common/ZeroMQWrapper/ISocketReplier.h"
+#include "Common/ZeroMQWrapper/ISocketRequester.h"
+#include "Common/ZeroMQWrapper/ISocketRequesterPtr.h"
+#include "Common/ZeroMQWrapper/ISocketSubscriber.h"
+#include "Common/ZeroMQWrapper/ISocketSubscriberPtr.h"
+
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
 using namespace ::testing;
 using namespace Common;
-
 
 class MockSocketRequester : public Common::ZeroMQWrapper::ISocketRequester
 {
@@ -67,34 +69,12 @@ public:
     MOCK_METHOD1(listen, void(const std::string&));
 };
 
-
 class MockZmqContext : public ZMQWrapperApi::IContext
 {
 public:
-
-    ZeroMQWrapper::ISocketSubscriberPtr m_subscriber;
-    ZeroMQWrapper::ISocketPublisherPtr m_publisher;
-    ZeroMQWrapper::ISocketRequesterPtr m_requester;
-    ZeroMQWrapper::ISocketReplierPtr m_replier;
-    virtual ZeroMQWrapper::ISocketSubscriberPtr getSubscriber()
-    {
-        return std::move(m_subscriber);
-
-    }
-    virtual ZeroMQWrapper::ISocketPublisherPtr getPublisher()
-    {
-
-        return std::move(m_publisher);
-    }
-    virtual ZeroMQWrapper::ISocketRequesterPtr getRequester()
-    {
-        return std::move(m_requester);
-    }
-    virtual ZeroMQWrapper::ISocketReplierPtr getReplier()
-    {
-        return std::move(m_replier);
-    }
-
-    MOCK_METHOD2(getProxy, ZeroMQWrapper::IProxyPtr(const std::string&, const std::string&));
-
+    MOCK_METHOD(ZeroMQWrapper::ISocketSubscriberPtr, getSubscriber, (), (override));
+    MOCK_METHOD(ZeroMQWrapper::ISocketPublisherPtr, getPublisher, (), (override));
+    MOCK_METHOD(ZeroMQWrapper::ISocketRequesterPtr, getRequester, (), (override));
+    MOCK_METHOD(ZeroMQWrapper::ISocketReplierPtr, getReplier, (), (override));
+    MOCK_METHOD(ZeroMQWrapper::IProxyPtr, getProxy, (const std::string&, const std::string&), (override));
 };

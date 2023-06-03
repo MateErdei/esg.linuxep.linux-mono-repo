@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2018-2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #include "MockPluginServerCallback.h"
 
@@ -49,7 +45,7 @@ public:
         replier->listen("inproc:///tmp/management.ipc");
         m_requester->connect("inproc:///tmp/management.ipc");
         m_PluginManagerPtr = std::unique_ptr<ManagementAgent::PluginCommunicationImpl::PluginManager>(
-            new ManagementAgent::PluginCommunicationImpl::PluginManager());
+            new ManagementAgent::PluginCommunicationImpl::PluginManager(Common::ZMQWrapperApi::createContext()));
         m_PluginManagerPtr->setServerCallback(m_mockServerCallback, std::move(replier));
     }
 

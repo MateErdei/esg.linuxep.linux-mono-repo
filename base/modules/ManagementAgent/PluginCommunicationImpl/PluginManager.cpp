@@ -46,8 +46,8 @@ namespace ManagementAgent
 {
     namespace PluginCommunicationImpl
     {
-        PluginManager::PluginManager() :
-            m_context(Common::ZMQWrapperApi::createContext()),
+        PluginManager::PluginManager(Common::ZMQWrapperApi::IContextSharedPtr context) :
+            m_context(std::move(context)),
             m_healthStatus(std::make_shared<ManagementAgent::HealthStatusImpl::HealthStatus>()),
             m_serverCallbackHandler(),
             m_defaultTimeout(5000),
@@ -333,7 +333,7 @@ namespace ManagementAgent
             }
         }
 
-        void PluginManager::setEventReceiver(PluginCommunication::IEventReceiverPtr& receiver)
+        void PluginManager::setEventReceiver(PluginCommunication::IEventReceiverPtr receiver)
         {
             eventReceiver_ = receiver;
             assert(m_healthStatus);

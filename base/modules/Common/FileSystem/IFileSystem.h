@@ -125,6 +125,10 @@ namespace Common
              *
              * @param path, location of the file to read.
              * @return the content of the read file.
+             * @throws IFileTooLargeException if the file is larger than 10 MiB
+             * @throws IFileNotFoundException if the file is missing
+             * @throws IPermissionDeniedException if we lack permission to open the file for reading
+             * @throws IFileSystemException for other exceptions
              */
             virtual std::string readFile(const Path& path) const = 0;
 
@@ -133,6 +137,10 @@ namespace Common
              * @param path, location of the file to read.
              * @param maxSize The maximum file size to read, throws exception if the file is larger than that
              * @return the content of the read file.
+             * @throws IFileTooLargeException if the file is larger than maxSize
+             * @throws IFileNotFoundException if the file is missing
+             * @throws IPermissionDeniedException if we lack permission to open the file for reading
+             * @throws IFileSystemException for other exceptions
              */
             virtual std::string readFile(const Path& path, unsigned long maxSize) const = 0;
 

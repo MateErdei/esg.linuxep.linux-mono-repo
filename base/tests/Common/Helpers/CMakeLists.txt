@@ -14,14 +14,16 @@ add_library(testhelpersobject OBJECT
         MockFilePermissions.h
         MockFileSystem.h
         MockHttpRequester.h
-        MockiNotifyWrapper.h
         MockPlatformUtils.h
+        MockPoller.h
+        MockPollerFactory.h
         MockSignalHandler.h
         MockSysCalls.h
         MockSysCallsFactory.h
         MockSystemUtils.h
         MockZipUtils.h
         MockZmqContext.h
+        MockiNotifyWrapper.h
         OutputToLog.cpp
         OutputToLog.h
         TempDir.cpp

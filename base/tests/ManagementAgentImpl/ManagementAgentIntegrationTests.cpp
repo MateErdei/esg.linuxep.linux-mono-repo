@@ -1,5 +1,7 @@
 // Copyright 2018-2023 Sophos Limited. All rights reserved.
 
+#include "Common/ZMQWrapperApi/IContext.h"
+
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <Common/FileSystemImpl/FilePermissionsImpl.h>
 #include <Common/FileSystemImpl/FileSystemImpl.h>
@@ -79,11 +81,10 @@ namespace
 
         int runWrapper(Tests::TestExecutionSynchronizer& synchronizer, std::chrono::milliseconds duration)
         {
-            ;
-
             std::unique_ptr<ManagementAgent::PluginCommunication::IPluginManager> pluginManager =
                 std::unique_ptr<ManagementAgent::PluginCommunication::IPluginManager>(
-                    new ManagementAgent::PluginCommunicationImpl::PluginManager());
+                    new ManagementAgent::PluginCommunicationImpl::PluginManager(
+                        Common::ZMQWrapperApi::createContext()));
 
             initialise(*pluginManager);
             auto futureRunner = std::async(std::launch::async, [this]() { return run(false); });

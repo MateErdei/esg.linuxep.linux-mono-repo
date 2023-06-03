@@ -1,5 +1,6 @@
 add_library(zeromqwrapperimplobject OBJECT
         ContextHolder.cpp ContextHolder.h
+        PollerFactory.cpp PollerFactory.h
         PollerImpl.cpp PollerImpl.h
         ProxyImpl.cpp ProxyImpl.h
         SocketHolder.cpp SocketHolder.h
@@ -9,22 +10,23 @@ add_library(zeromqwrapperimplobject OBJECT
         SocketRequesterImpl.cpp SocketRequesterImpl.h
         SocketSubscriberImpl.cpp SocketSubscriberImpl.h
         SocketUtil.cpp SocketUtil.h
-        ZeroMQWrapperException.h
         ZeroMQTimeoutException.h
+        ZeroMQWrapperException.h
         ../Exceptions/IException.h
         ../Exceptions/Print.h
         ../ZeroMQWrapper/IHasFD.h
-        ../ZeroMQWrapper/IReadable.h
+        ../ZeroMQWrapper/IIPCException.h
+        ../ZeroMQWrapper/IIPCTimeoutException.h
+        ../ZeroMQWrapper/IPoller.h
+        ../ZeroMQWrapper/IPollerFactory.h
+        ../ZeroMQWrapper/IProxy.h
         ../ZeroMQWrapper/IReadWrite.h
+        ../ZeroMQWrapper/IReadable.h
         ../ZeroMQWrapper/ISocketPublisher.h
         ../ZeroMQWrapper/ISocketReplier.h
         ../ZeroMQWrapper/ISocketRequester.h
         ../ZeroMQWrapper/ISocketSetup.h
         ../ZeroMQWrapper/ISocketSubscriber.h
-        ../ZeroMQWrapper/IIPCException.h
-        ../ZeroMQWrapper/IIPCTimeoutException.h
-        ../ZeroMQWrapper/IPoller.h
-        ../ZeroMQWrapper/IProxy.h
         ../ZeroMQWrapper/IWritable.h
         )
 target_include_directories(zeromqwrapperimplobject PUBLIC ${ZeroMQ_INCLUDE_DIR})

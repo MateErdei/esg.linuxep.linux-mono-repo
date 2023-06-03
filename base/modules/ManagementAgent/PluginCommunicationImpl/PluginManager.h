@@ -27,7 +27,7 @@ namespace ManagementAgent
             using ServerCallback_t = PluginCommunicationImpl::PluginServerCallbackHandler::ServerCallback_t;
             using ServerCallbackPtr = std::shared_ptr<ServerCallback_t>;
 
-            PluginManager();
+            explicit PluginManager(Common::ZMQWrapperApi::IContextSharedPtr context);
             ~PluginManager() override;
 
             int applyNewPolicy(const std::string& appId, const std::string& policyXml) override;
@@ -55,7 +55,7 @@ namespace ManagementAgent
 
             void setStatusReceiver(std::shared_ptr<PluginCommunication::IStatusReceiver>& statusReceiver) override;
 
-            void setEventReceiver(PluginCommunication::IEventReceiverPtr& receiver) override;
+            void setEventReceiver(PluginCommunication::IEventReceiverPtr receiver) override;
 
             void setPolicyReceiver(std::shared_ptr<PluginCommunication::IPolicyReceiver>& receiver) override;
             void setThreatHealthReceiver(std::shared_ptr<PluginCommunication::IThreatHealthReceiver>& receiver) override;

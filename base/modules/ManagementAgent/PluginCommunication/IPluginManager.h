@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2018-2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
@@ -165,7 +161,7 @@ namespace ManagementAgent
              *
              * @param receiver
              */
-            virtual void setEventReceiver(std::shared_ptr<IEventReceiver>& receiver) = 0;
+            virtual void setEventReceiver(std::shared_ptr<IEventReceiver> receiver) = 0;
 
             /**
              * Set the policy receiver for polices requests from plugins, if using default callback handler

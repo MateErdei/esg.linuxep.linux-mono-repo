@@ -1,12 +1,15 @@
 // Copyright 2018-2023, Sophos Limited. All rights reserved.
 
-#include <Common/FileSystem/IFilePermissions.h>
-#include <Common/FileSystem/IFileSystemException.h>
-#include <Common/FileSystemImpl/FileSystemImpl.h>
-#include <Common/SslImpl/Digest.h>
-#include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
-#include <tests/Common/Helpers/MockFileSystem.h>
-#include <tests/Common/Helpers/TempDir.h>
+#include "Common/FileSystem/IFileNotFoundException.h"
+#include "Common/FileSystem/IFilePermissions.h"
+#include "Common/FileSystem/IFileSystemException.h"
+#include "Common/FileSystem/IFileTooLargeException.h"
+#include "Common/FileSystem/IPermissionDeniedException.h"
+#include "Common/FileSystemImpl/FileSystemImpl.h"
+#include "Common/SslImpl/Digest.h"
+#include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
+#include "tests/Common/Helpers/MockFileSystem.h"
+#include "tests/Common/Helpers/TempDir.h"
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
@@ -317,7 +320,7 @@ namespace
 
         m_fileSystem->writeFile(filePath, testContent);
 
-        EXPECT_THROW(m_fileSystem->readFile(filePath, 2), IFileSystemException);
+        EXPECT_THROW(m_fileSystem->readFile(filePath, 2), IFileTooLargeException);
 
         removeFile(filePath);
     }
@@ -339,7 +342,7 @@ namespace
     TEST_F(FileSystemImplTest, readFileThatDoesNotExistsShouldThrow)
     {
         std::string filePath = Common::FileSystem::join(m_fileSystem->currentWorkingDirectory(), "ReadFileTest.txt");
-        EXPECT_THROW(m_fileSystem->readFile(filePath), IFileSystemException);
+        EXPECT_THROW(m_fileSystem->readFile(filePath), IFileNotFoundException);
     }
 
     TEST_F(FileSystemImplTest, readFileUsingDirectoryPathShouldThrow)
@@ -351,6 +354,20 @@ namespace
         EXPECT_THROW(m_fileSystem->readFile(directoryPath), IFileSystemException);
 
         ::rmdir(directoryPath.c_str());
+    }
+
+    TEST_F(FileSystemImplTest, readFileWhenFileDoesNotHaveReadPermissionsThrows)
+    {
+        std::string filePath =
+            Common::FileSystem::join(m_fileSystem->currentWorkingDirectory(), "ReadWriteFileTest.txt");
+
+        std::string testContent("HelloWorld");
+
+        m_fileSystem->writeFile(filePath, testContent);
+        ::chmod(filePath.c_str(), 0200);
+
+        EXPECT_THROW(m_fileSystem->readFile(filePath), IPermissionDeniedException);
+        removeFile(filePath);
     }
 
     TEST_F(FileSystemImplTest, readLinesGetsExpectedContentFromFile)
