@@ -14,6 +14,8 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
+#include <minizip/mz_compat.h>
+
 #include <filesystem>
 
 using namespace Common::ApplicationConfiguration;
@@ -59,7 +61,7 @@ public:
         EXPECT_CALL(*m_mockHttpRequester, put(_)).WillOnce(Return(httpresponse));
     }
     
-    void setupMockZipUtils(const int& returnVal = 0)
+    void setupMockZipUtils(const int& returnVal = UNZ_OK)
     {
         auto mockZip = std::make_unique<NiceMock<MockZipUtils>>();
         EXPECT_CALL(*mockZip, zip(_, _, _)).WillOnce(Return(returnVal));
@@ -240,7 +242,7 @@ TEST_F(UploadFileTests, emptyPassword)
     addResponseToMockRequester(HTTP_STATUS_OK, ResponseErrorCode::OK);
 
     auto mockZip = std::make_unique<NiceMock<MockZipUtils>>();
-    EXPECT_CALL(*mockZip, zip(_, _, _)).WillOnce(Return(0));
+    EXPECT_CALL(*mockZip, zip(_, _, _)).WillOnce(Return(UNZ_OK));
     EXPECT_CALL(*mockZip, zip(_, _, _, _, _)).Times(0);
     Common::ZipUtilities::replaceZipUtils(std::move(mockZip));
 
@@ -279,7 +281,7 @@ TEST_F(UploadFileTests, hugePassword)
 
     auto mockZip = std::make_unique<NiceMock<MockZipUtils>>();
     EXPECT_CALL(*mockZip, zip(_, _, _)).Times(0);
-    EXPECT_CALL(*mockZip, zip(_, _, _, _, _)).WillOnce(Return(0));
+    EXPECT_CALL(*mockZip, zip(_, _, _, _, _)).WillOnce(Return(UNZ_OK));
     Common::ZipUtilities::replaceZipUtils(std::move(mockZip));
 
     ResponseActionsImpl::UploadFileAction uploadFileAction(m_mockHttpRequester);
@@ -320,7 +322,7 @@ TEST_F(UploadFileTests, ZipFails)
     EXPECT_CALL(*m_mockFileSystem, removeFile(zipFile)).Times(1).WillOnce(Return());
     Tests::replaceFileSystem(std::move(m_mockFileSystem));
 
-    setupMockZipUtils(1);
+    setupMockZipUtils(UNZ_BADZIPFILE);
 
     nlohmann::json response = uploadFileAction.run(action.dump());
 
