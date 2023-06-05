@@ -90,7 +90,7 @@ TEST_F(UploadFileTests, SuccessCase)
     nlohmann::json response = uploadFileAction.run(action.dump());
 
     EXPECT_EQ(response["result"], 0);
-    EXPECT_EQ(response["httpStatus"], 200);
+    EXPECT_EQ(response["httpStatus"], HTTP_STATUS_OK);
 }
 
 TEST_F(UploadFileTests, successHugeURL)
@@ -117,7 +117,7 @@ TEST_F(UploadFileTests, successHugeURL)
     nlohmann::json response = uploadFileAction.run(action.dump());
 
     EXPECT_EQ(response["result"], 0);
-    EXPECT_EQ(response["httpStatus"], 200);
+    EXPECT_EQ(response["httpStatus"], HTTP_STATUS_OK);
 
     EXPECT_EQ(response["type"], UPLOAD_FILE_RESPONSE_TYPE);
     EXPECT_EQ(response["result"], 0);
@@ -151,7 +151,7 @@ TEST_F(UploadFileTests, SuccessCaseWithProxy)
     nlohmann::json response = uploadFileAction.run(action.dump());
 
     EXPECT_EQ(response["result"], 0);
-    EXPECT_EQ(response["httpStatus"], 200);
+    EXPECT_EQ(response["httpStatus"], HTTP_STATUS_OK);
 }
 
 TEST_F(UploadFileTests, ProxyFailureFallsbackDirect)
@@ -182,7 +182,7 @@ TEST_F(UploadFileTests, ProxyFailureFallsbackDirect)
     nlohmann::json response = uploadFileAction.run(action.dump());
 
     EXPECT_EQ(response["result"], 0);
-    EXPECT_EQ(response["httpStatus"], 200);
+    EXPECT_EQ(response["httpStatus"], HTTP_STATUS_OK);
 }
 
 TEST_F(UploadFileTests, SuccessCaseCompressionWithPassword)
@@ -221,7 +221,7 @@ TEST_F(UploadFileTests, SuccessCaseCompressionWithPassword)
     nlohmann::json response = uploadFileAction.run(action.dump());
 
     EXPECT_EQ(response["result"], 0);
-    EXPECT_EQ(response["httpStatus"], 200);
+    EXPECT_EQ(response["httpStatus"], HTTP_STATUS_OK);
     EXPECT_TRUE(std::filesystem::is_regular_file(zipFile));
     std::string unpack = tempDir.absPath("file.txt");
     int ret = Common::ZipUtilities::zipUtils().unzip(zipFile, tempDir.absPath(""), true, "password");
@@ -262,7 +262,7 @@ TEST_F(UploadFileTests, emptyPassword)
     nlohmann::json response = uploadFileAction.run(action.dump());
 
     EXPECT_EQ(response["result"], 0);
-    EXPECT_EQ(response["httpStatus"], 200);
+    EXPECT_EQ(response["httpStatus"], HTTP_STATUS_OK);
     EXPECT_FALSE(response.contains("errorType"));
     EXPECT_FALSE(response.contains("errorMessage"));
 
@@ -300,7 +300,7 @@ TEST_F(UploadFileTests, hugePassword)
     nlohmann::json response = uploadFileAction.run(action.dump());
 
     EXPECT_EQ(response["result"], 0);
-    EXPECT_EQ(response["httpStatus"], 200);
+    EXPECT_EQ(response["httpStatus"], HTTP_STATUS_OK);
     EXPECT_FALSE(response.contains("errorType"));
     EXPECT_FALSE(response.contains("errorMessage"));
 
