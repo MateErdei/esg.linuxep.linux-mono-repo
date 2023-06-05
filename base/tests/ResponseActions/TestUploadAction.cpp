@@ -236,7 +236,7 @@ TEST_F(UploadFileTests, SuccessCaseCompressionWithPassword)
     EXPECT_EQ("stuff", ss.str());
 }
 
-TEST_F(UploadFileTests, emptyPassword)
+TEST_F(UploadFileTests, successEmptyPassword)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
     addResponseToMockRequester(HTTP_STATUS_OK, ResponseErrorCode::OK);
@@ -271,7 +271,7 @@ TEST_F(UploadFileTests, emptyPassword)
     EXPECT_TRUE(appenderContains("Upload for /opt/sophos-spl/plugins/responseactions/tmp/path.zip succeeded"));
 }
 
-TEST_F(UploadFileTests, hugePassword)
+TEST_F(UploadFileTests, successHugePassword)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
