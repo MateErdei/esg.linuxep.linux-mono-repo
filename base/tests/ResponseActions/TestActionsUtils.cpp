@@ -139,6 +139,20 @@ TEST_F(ActionsUtilsTests, resetJsonError)
     EXPECT_EQ(json.at("type"), type);
 }
 
+TEST_F(ActionsUtilsTests, sendResponse)
+{
+    auto mockFileSystem = new NaggyMock<MockFileSystem>();
+    auto mockFilePermissions = new NaggyMock<MockFilePermissions>();
+    EXPECT_CALL(*mockFileSystem, writeFile(_, "content"));
+    EXPECT_CALL(*mockFilePermissions, chown(_, "sophos-spl-user", "sophos-spl-group"));
+    EXPECT_CALL(*mockFilePermissions, chmod(_, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP));
+    EXPECT_CALL(*mockFileSystem, moveFile(_, "/opt/sophos-spl/base/mcs/response/CORE_correlation_id_response.json"));
+    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>{ mockFileSystem });
+    Tests::replaceFilePermissions(std::unique_ptr<Common::FileSystem::IFilePermissions>{mockFilePermissions});
+
+    ResponseActions::RACommon::sendResponse("correlation_id", "content");
+}
+
 //**********************UPLOAD ACTION***************************
 TEST_F(ActionsUtilsTests, successfulParseUploadFile)
 {
@@ -294,47 +308,71 @@ TEST_F(ActionsUtilsTests, uploadFailEmptyUrl)
     }
 }
 
-TEST_F(ActionsUtilsTests, failedParseMissingExpiration)
+TEST_F(ActionsUtilsTests, uploadFailMissingExpiration)
 {
     nlohmann::json action = getDefaultUploadObject(ActionType::UPLOADFILE);
     action.erase("expiration");
-    EXPECT_THROW(std::ignore = ActionsUtils::readUploadAction(action.dump(),ActionType::UPLOADFILE),InvalidCommandFormat);
+    try
+    {
+        auto output = ActionsUtils::readUploadAction(action.dump(),ActionType::UPLOADFILE);
+        FAIL() << "Didnt throw due to empty url field";
+    }
+    catch (const InvalidCommandFormat& except)
+    {
+        EXPECT_STREQ(except.what(), "Invalid command format. Failed to process UploadInfo from action JSON: url field is empty");
+    }
 }
 
-TEST_F(ActionsUtilsTests, failedParseMissingTimeout)
+TEST_F(ActionsUtilsTests, uploadFailMissingTimeout)
 {
     nlohmann::json action = getDefaultUploadObject(ActionType::UPLOADFILE);
     action.erase("timeout");
     EXPECT_THROW(std::ignore = ActionsUtils::readUploadAction(action.dump(),ActionType::UPLOADFILE),InvalidCommandFormat);
 }
 
-TEST_F(ActionsUtilsTests, failedParseMissingMaxUploadSizeBytes)
+TEST_F(ActionsUtilsTests, uploadFailMissingMaxUploadSizeBytes)
 {
     nlohmann::json action = getDefaultUploadObject(ActionType::UPLOADFILE);
     action.erase("maxUploadSizeBytes");
     EXPECT_THROW(std::ignore = ActionsUtils::readUploadAction(action.dump(),ActionType::UPLOADFILE),InvalidCommandFormat);
 }
 
-TEST_F(ActionsUtilsTests, failedParseMissingTargetFile)
+TEST_F(ActionsUtilsTests, uploadFailMissingTargetFile)
 {
     nlohmann::json action = getDefaultUploadObject(ActionType::UPLOADFILE);
     action.erase("targetFile");
     EXPECT_THROW(std::ignore = ActionsUtils::readUploadAction(action.dump(),ActionType::UPLOADFILE),InvalidCommandFormat);
 }
 
-TEST_F(ActionsUtilsTests, sendResponse)
+TEST_F(ActionsUtilsTests, uploadWrongTypePassword)
 {
-    auto mockFileSystem = new NaggyMock<MockFileSystem>();
-    auto mockFilePermissions = new NaggyMock<MockFilePermissions>();
-    EXPECT_CALL(*mockFileSystem, writeFile(_, "content"));
-    EXPECT_CALL(*mockFilePermissions, chown(_, "sophos-spl-user", "sophos-spl-group"));
-    EXPECT_CALL(*mockFilePermissions, chmod(_, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP));
-    EXPECT_CALL(*mockFileSystem, moveFile(_, "/opt/sophos-spl/base/mcs/response/CORE_correlation_id_response.json"));
-    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>{ mockFileSystem });
-    Tests::replaceFilePermissions(std::unique_ptr<Common::FileSystem::IFilePermissions>{mockFilePermissions});
+    nlohmann::json fileAction = getDefaultUploadObject(ActionType::UPLOADFILE);
+    fileAction["password"] = 999;
+    try
+    {
+        auto output = ActionsUtils::readUploadAction(fileAction.dump(), ActionType::UPLOADFILE);
+        FAIL() << "Didnt throw due to missing essential action";
+    }
+    catch (const InvalidCommandFormat& except)
+    {
+        EXPECT_STREQ(except.what(), "Invalid command format. Failed to process UploadInfo from action JSON: [json.exception.type_error.302] type must be string, but is number");
+    }
 
-    ResponseActions::RACommon::sendResponse("correlation_id", "content");
+    nlohmann::json folderAction = getDefaultUploadObject(ActionType::UPLOADFOLDER);
+    folderAction["password"] = 999;
+
+    try
+    {
+        auto output = ActionsUtils::readUploadAction(folderAction.dump(), ActionType::UPLOADFOLDER);
+        FAIL() << "Didnt throw due to missing essential action";
+    }
+    catch (const InvalidCommandFormat& except)
+    {
+        EXPECT_STREQ(except.what(), "Invalid command format. Failed to process UploadInfo from action JSON: [json.exception.type_error.302] type must be string, but is number");
+    }
 }
+
+
 
 //**********************DOWNLOAD ACTION***************************
 TEST_F(ActionsUtilsTests, downloadMissingUrl)
