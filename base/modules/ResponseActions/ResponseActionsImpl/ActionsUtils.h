@@ -31,5 +31,6 @@ namespace ResponseActionsImpl
 
         //Throws InvalidCommandFormat on any failure
         static unsigned long checkUlongJsonValue(const nlohmann::json& actionObject, const std::string& field, const std::string& errorPrefix);
+        static int checkIntJsonValue(const nlohmann::json& actionObject, const std::string& field, const std::string& errorPrefix);
     };
 } // namespace ResponseActionsImpl

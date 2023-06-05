@@ -38,8 +38,7 @@ namespace ResponseActionsImpl
             info.url = actionObject.at("url");
             info.targetPath = actionObject.at(targetKey);
             info.timeout = actionObject.at("timeout");
-            info.maxSize = actionObject.at("maxUploadSizeBytes");
-
+            info.maxSize = checkIntJsonValue(actionObject, "maxUploadSizeBytes", fieldErrorStr);
             info.expiration = checkUlongJsonValue(actionObject, "expiration", fieldErrorStr);
 
             if (actionObject.contains("compress"))
@@ -195,6 +194,32 @@ namespace ResponseActionsImpl
     {
         if (actionObject[field].is_number())
         {
+            if (!actionObject[field].is_number_unsigned() && actionObject[field] < 0.0)
+            {
+                std::stringstream err;
+                err << errorPrefix << field << " is a negative value: " << actionObject.at(field);
+                throw InvalidCommandFormat(err.str());
+            }
+        }
+        else
+        {
+            std::stringstream err;
+            err << errorPrefix << field << " is not a number: " << actionObject.at(field);
+            throw InvalidCommandFormat(err.str());
+        }
+        return actionObject.at(field).get<unsigned long>();
+    }
+
+    int ActionsUtils::checkIntJsonValue(const nlohmann::json& actionObject, const std::string& field, const std::string& errorPrefix)
+    {
+        if (actionObject[field].is_number())
+        {
+            if (actionObject[field] > INT_MAX)
+            {
+                std::stringstream err;
+                err << errorPrefix << field << " is to large: " << actionObject.at(field);
+                throw InvalidCommandFormat(err.str());
+            }
             if (!actionObject[field].is_number_unsigned() && actionObject[field] < 0.0)
             {
                 std::stringstream err;

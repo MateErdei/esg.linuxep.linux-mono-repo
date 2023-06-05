@@ -548,7 +548,7 @@ TEST_F(ActionsUtilsTests, uploadWrongTypeMaxSize)
     }
     catch (const InvalidCommandFormat& except)
     {
-        EXPECT_STREQ(except.what(), "Invalid command format. Failed to process UploadInfo from action JSON: [json.exception.type_error.302] type must be number, but is string");
+        EXPECT_STREQ(except.what(), R"(Invalid command format. Failed to process UploadInfo from action JSON: maxUploadSizeBytes is not a number: "string")");
     }
 
     nlohmann::json folderAction = getDefaultUploadObject(ActionType::UPLOADFOLDER);
@@ -561,9 +561,66 @@ TEST_F(ActionsUtilsTests, uploadWrongTypeMaxSize)
     }
     catch (const InvalidCommandFormat& except)
     {
-        EXPECT_STREQ(except.what(), "Invalid command format. Failed to process UploadInfo from action JSON: [json.exception.type_error.302] type must be number, but is string");
+        EXPECT_STREQ(except.what(), R"(Invalid command format. Failed to process UploadInfo from action JSON: maxUploadSizeBytes is not a number: "string")");
     }
 }
+
+TEST_F(ActionsUtilsTests, uploadMaxSizeToLarge)
+{
+    nlohmann::json fileAction = getDefaultUploadObject(ActionType::UPLOADFILE);
+    fileAction["maxUploadSizeBytes"] = 214748364734;
+    try
+    {
+        auto output = ActionsUtils::readUploadAction(fileAction.dump(), ActionType::UPLOADFILE);
+        FAIL() << "Didnt throw due to large value";
+    }
+    catch (const InvalidCommandFormat& except)
+    {
+        EXPECT_STREQ(except.what(), "Invalid command format. Failed to process UploadInfo from action JSON: maxUploadSizeBytes is to large: 214748364734");
+    }
+
+    nlohmann::json folderAction = getDefaultUploadObject(ActionType::UPLOADFOLDER);
+    folderAction["maxUploadSizeBytes"] = 214748364734;
+
+    try
+    {
+        auto output = ActionsUtils::readUploadAction(folderAction.dump(), ActionType::UPLOADFOLDER);
+        FAIL() << "Didnt throw due to large value";
+    }
+    catch (const InvalidCommandFormat& except)
+    {
+        EXPECT_STREQ(except.what(), "Invalid command format. Failed to process UploadInfo from action JSON: maxUploadSizeBytes is to large: 214748364734");
+    }
+}
+
+TEST_F(ActionsUtilsTests, uploadMaxSizeNegative)
+{
+    nlohmann::json fileAction = getDefaultUploadObject(ActionType::UPLOADFILE);
+    fileAction["maxUploadSizeBytes"] = -1;
+    try
+    {
+        auto output = ActionsUtils::readUploadAction(fileAction.dump(), ActionType::UPLOADFILE);
+        FAIL() << "Didnt throw due to wrong type";
+    }
+    catch (const InvalidCommandFormat& except)
+    {
+        EXPECT_STREQ(except.what(), "Invalid command format. Failed to process UploadInfo from action JSON: maxUploadSizeBytes is a negative value: -1");
+    }
+
+    nlohmann::json folderAction = getDefaultUploadObject(ActionType::UPLOADFOLDER);
+    folderAction["maxUploadSizeBytes"] = -1;
+
+    try
+    {
+        auto output = ActionsUtils::readUploadAction(folderAction.dump(), ActionType::UPLOADFOLDER);
+        FAIL() << "Didnt throw due to wrong type";
+    }
+    catch (const InvalidCommandFormat& except)
+    {
+        EXPECT_STREQ(except.what(), "Invalid command format. Failed to process UploadInfo from action JSON: maxUploadSizeBytes is a negative value: -1");
+    }
+}
+
 
 TEST_F(ActionsUtilsTests, uploadWrongTypeCompress)
 {
