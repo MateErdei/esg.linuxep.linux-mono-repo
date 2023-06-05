@@ -373,6 +373,29 @@ TEST_F(UploadFolderTests, ZippedFolderOverSizeLimit)
         "Folder at path /tmp/path after being compressed is size 10000 bytes which is above the size limit 1000 bytes");
 }
 
+TEST_F(UploadFolderTests, ZippedFolderOverSizeLimitNotSet)
+{
+    setupMockZipUtils();
+
+    ResponseActionsImpl::UploadFolderAction uploadFolderAction(m_mockHttpRequester);
+    nlohmann::json action = getDefaultUploadObject();
+    action.at("maxUploadSizeBytes") = 0;
+
+    EXPECT_CALL(*m_mockFileSystem, isDirectory("/tmp/path")).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockFileSystem, fileSize(m_defaultZipFile)).WillOnce(Return(1));
+    EXPECT_CALL(*m_mockFileSystem, isFile(m_defaultZipFile)).Times(1).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockFileSystem, removeFile(m_defaultZipFile)).WillOnce(Return());
+    Tests::replaceFileSystem(std::move(m_mockFileSystem));
+
+    nlohmann::json response = uploadFolderAction.run(action.dump());
+
+    EXPECT_EQ(response["result"], 1);
+    EXPECT_EQ(response["errorType"], "exceed_size_limit");
+    EXPECT_EQ(
+        response["errorMessage"],
+        "Folder at path /tmp/path after being compressed is size 1 bytes which is above the size limit 0 bytes");
+}
+
 TEST_F(UploadFolderTests, ZipFails)
 {
     setupMockZipUtils(UNZ_BADZIPFILE);

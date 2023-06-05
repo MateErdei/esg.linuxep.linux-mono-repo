@@ -389,6 +389,23 @@ TEST_F(UploadFileTests, FileDoesNotExist)
     EXPECT_EQ(response["errorMessage"],"path is not a file");
 }
 
+TEST_F(UploadFileTests, SizeLimitSetToZero)
+{
+    ResponseActionsImpl::UploadFileAction uploadFileAction(m_mockHttpRequester);
+    nlohmann::json action = getDefaultUploadObject();
+    action.at("maxUploadSizeBytes") = 0;
+
+    EXPECT_CALL(*m_mockFileSystem, isFile(m_testPath)).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockFileSystem, fileSize(m_testPath)).WillOnce(Return(1));
+    Tests::replaceFileSystem(std::move(m_mockFileSystem));
+
+    nlohmann::json response = uploadFileAction.run(action.dump());
+
+    EXPECT_EQ(response["result"],1);
+    EXPECT_EQ(response["errorType"],"exceed_size_limit");
+    EXPECT_EQ(response["errorMessage"],"File at path /path is size 1 bytes which is above the size limit 0 bytes");
+}
+
 TEST_F(UploadFileTests, FileOverSizeLimit)
 {
     ResponseActionsImpl::UploadFileAction uploadFileAction(m_mockHttpRequester);
@@ -402,7 +419,7 @@ TEST_F(UploadFileTests, FileOverSizeLimit)
 
     EXPECT_EQ(response["result"],1);
     EXPECT_EQ(response["errorType"],"exceed_size_limit");
-    EXPECT_EQ(response["errorMessage"],"File at path path is size 10000 bytes which is above the size limit 1000 bytes");
+    EXPECT_EQ(response["errorMessage"],"File at path /path is size 10000 bytes which is above the size limit 1000 bytes");
 }
 
 TEST_F(UploadFileTests, FileBeingWrittenToAndOverSizeLimit)
