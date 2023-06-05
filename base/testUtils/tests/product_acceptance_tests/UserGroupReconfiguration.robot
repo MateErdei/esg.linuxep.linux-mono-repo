@@ -180,7 +180,7 @@ Test Teardown With Ostia
     Test Teardown
 
 Verify Product is Running Without Error After ID Change
-    #TODO LINUXDAR-4015 remove when this defect is closed
+    #LINUXDAR-4015 There won't be a fix for this error, please check the ticket for more info
     Mark Expected Error In Log       ${SOPHOS_INSTALL}/plugins/runtimedetections/log/runtimedetections.log    runtimedetections <> Could not enter supervised child process
 
     Check All Product Logs Do Not Contain Error
