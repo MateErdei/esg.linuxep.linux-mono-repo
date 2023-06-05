@@ -432,7 +432,7 @@ TEST_F(ActionsUtilsTests, uploadWrongTypePassword)
     try
     {
         auto output = ActionsUtils::readUploadAction(fileAction.dump(), ActionType::UPLOADFILE);
-        FAIL() << "Didnt throw due to missing essential action";
+        FAIL() << "Didnt throw due to wrong type";
     }
     catch (const InvalidCommandFormat& except)
     {
@@ -445,11 +445,151 @@ TEST_F(ActionsUtilsTests, uploadWrongTypePassword)
     try
     {
         auto output = ActionsUtils::readUploadAction(folderAction.dump(), ActionType::UPLOADFOLDER);
-        FAIL() << "Didnt throw due to missing essential action";
+        FAIL() << "Didnt throw due to wrong type";
     }
     catch (const InvalidCommandFormat& except)
     {
         EXPECT_STREQ(except.what(), "Invalid command format. Failed to process UploadInfo from action JSON: [json.exception.type_error.302] type must be string, but is number");
+    }
+}
+
+TEST_F(ActionsUtilsTests, uploadWrongTypeURL)
+{
+    nlohmann::json fileAction = getDefaultUploadObject(ActionType::UPLOADFILE);
+    fileAction["url"] = 999;
+    try
+    {
+        auto output = ActionsUtils::readUploadAction(fileAction.dump(), ActionType::UPLOADFILE);
+        FAIL() << "Didnt throw due to wrong type";
+    }
+    catch (const InvalidCommandFormat& except)
+    {
+        EXPECT_STREQ(except.what(), "Invalid command format. Failed to process UploadInfo from action JSON: [json.exception.type_error.302] type must be string, but is number");
+    }
+
+    nlohmann::json folderAction = getDefaultUploadObject(ActionType::UPLOADFOLDER);
+    folderAction["url"] = 999;
+
+    try
+    {
+        auto output = ActionsUtils::readUploadAction(folderAction.dump(), ActionType::UPLOADFOLDER);
+        FAIL() << "Didnt throw due to wrong type";
+    }
+    catch (const InvalidCommandFormat& except)
+    {
+        EXPECT_STREQ(except.what(), "Invalid command format. Failed to process UploadInfo from action JSON: [json.exception.type_error.302] type must be string, but is number");
+    }
+}
+
+TEST_F(ActionsUtilsTests, uploadWrongTypePath)
+{
+    nlohmann::json fileAction = getDefaultUploadObject(ActionType::UPLOADFILE);
+    fileAction["targetFile"] = 999;
+    try
+    {
+        auto output = ActionsUtils::readUploadAction(fileAction.dump(), ActionType::UPLOADFILE);
+        FAIL() << "Didnt throw due to wrong type";
+    }
+    catch (const InvalidCommandFormat& except)
+    {
+        EXPECT_STREQ(except.what(), "Invalid command format. Failed to process UploadInfo from action JSON: [json.exception.type_error.302] type must be string, but is number");
+    }
+
+    nlohmann::json folderAction = getDefaultUploadObject(ActionType::UPLOADFOLDER);
+    folderAction["targetFolder"] = 999;
+
+    try
+    {
+        auto output = ActionsUtils::readUploadAction(folderAction.dump(), ActionType::UPLOADFOLDER);
+        FAIL() << "Didnt throw due to wrong type";
+    }
+    catch (const InvalidCommandFormat& except)
+    {
+        EXPECT_STREQ(except.what(), "Invalid command format. Failed to process UploadInfo from action JSON: [json.exception.type_error.302] type must be string, but is number");
+    }
+}
+
+TEST_F(ActionsUtilsTests, uploadWrongTypeExpiration)
+{
+    nlohmann::json fileAction = getDefaultUploadObject(ActionType::UPLOADFILE);
+    fileAction["expiration"] = "string";
+    try
+    {
+        auto output = ActionsUtils::readUploadAction(fileAction.dump(), ActionType::UPLOADFILE);
+        FAIL() << "Didnt throw due to wrong type";
+    }
+    catch (const InvalidCommandFormat& except)
+    {
+        EXPECT_STREQ(except.what(), R"(Invalid command format. Failed to process UploadInfo from action JSON: expiration is not a number: "string")");
+    }
+
+    nlohmann::json folderAction = getDefaultUploadObject(ActionType::UPLOADFOLDER);
+    folderAction["expiration"] = "string";
+
+    try
+    {
+        auto output = ActionsUtils::readUploadAction(folderAction.dump(), ActionType::UPLOADFOLDER);
+        FAIL() << "Didnt throw due to wrong type";
+    }
+    catch (const InvalidCommandFormat& except)
+    {
+        EXPECT_STREQ(except.what(), R"(Invalid command format. Failed to process UploadInfo from action JSON: expiration is not a number: "string")");
+    }
+}
+
+TEST_F(ActionsUtilsTests, uploadWrongTypeMaxSize)
+{
+    nlohmann::json fileAction = getDefaultUploadObject(ActionType::UPLOADFILE);
+    fileAction["maxUploadSizeBytes"] = "string";
+    try
+    {
+        auto output = ActionsUtils::readUploadAction(fileAction.dump(), ActionType::UPLOADFILE);
+        FAIL() << "Didnt throw due to wrong type";
+    }
+    catch (const InvalidCommandFormat& except)
+    {
+        EXPECT_STREQ(except.what(), "Invalid command format. Failed to process UploadInfo from action JSON: [json.exception.type_error.302] type must be number, but is string");
+    }
+
+    nlohmann::json folderAction = getDefaultUploadObject(ActionType::UPLOADFOLDER);
+    folderAction["maxUploadSizeBytes"] = "string";
+
+    try
+    {
+        auto output = ActionsUtils::readUploadAction(folderAction.dump(), ActionType::UPLOADFOLDER);
+        FAIL() << "Didnt throw due to wrong type";
+    }
+    catch (const InvalidCommandFormat& except)
+    {
+        EXPECT_STREQ(except.what(), "Invalid command format. Failed to process UploadInfo from action JSON: [json.exception.type_error.302] type must be number, but is string");
+    }
+}
+
+TEST_F(ActionsUtilsTests, uploadWrongTypeCompress)
+{
+    nlohmann::json fileAction = getDefaultUploadObject(ActionType::UPLOADFILE);
+    fileAction["compress"] = "string";
+    try
+    {
+        auto output = ActionsUtils::readUploadAction(fileAction.dump(), ActionType::UPLOADFILE);
+        FAIL() << "Didnt throw due to wrong type";
+    }
+    catch (const InvalidCommandFormat& except)
+    {
+        EXPECT_STREQ(except.what(), "Invalid command format. Failed to process UploadInfo from action JSON: [json.exception.type_error.302] type must be boolean, but is string");
+    }
+
+    nlohmann::json folderAction = getDefaultUploadObject(ActionType::UPLOADFOLDER);
+    folderAction["compress"] = "string";
+
+    try
+    {
+        auto output = ActionsUtils::readUploadAction(folderAction.dump(), ActionType::UPLOADFOLDER);
+        FAIL() << "Didnt throw due to wrong type";
+    }
+    catch (const InvalidCommandFormat& except)
+    {
+        EXPECT_STREQ(except.what(), "Invalid command format. Failed to process UploadInfo from action JSON: [json.exception.type_error.302] type must be boolean, but is string");
     }
 }
 
