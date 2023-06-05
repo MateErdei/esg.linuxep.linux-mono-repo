@@ -67,6 +67,7 @@ public:
     }
 
     const std::string m_testPath = "/path";
+    const std::string m_zipPath = "/opt/sophos-spl/plugins/responseactions/tmp/path.zip";
     
     std::shared_ptr<MockHTTPRequester> m_mockHttpRequester;
     std::unique_ptr<MockFileSystem> m_mockFileSystem;
@@ -205,7 +206,6 @@ TEST_F(UploadFileTests, SuccessCaseCompressionWithPassword)
     ON_CALL(*mockAppManager, getResponseActionTmpPath()).WillByDefault(Return(tempDir.absPath("")));
     ON_CALL(*mockAppManager, getMcsCurrentProxyFilePath())
         .WillByDefault(Return("/opt/sophos-spl/base/etc/sophosspl/current_proxy"));
-
     replaceApplicationPathManager(std::move(mockAppManager));
 
     EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(false));
@@ -232,6 +232,79 @@ TEST_F(UploadFileTests, SuccessCaseCompressionWithPassword)
     std::ifstream file(unpack);
     ss << file.rdbuf();
     EXPECT_EQ("stuff", ss.str());
+}
+
+TEST_F(UploadFileTests, emptyPassword)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    addResponseToMockRequester(HTTP_STATUS_OK, ResponseErrorCode::OK);
+
+    auto mockZip = std::make_unique<NiceMock<MockZipUtils>>();
+    EXPECT_CALL(*mockZip, zip(_, _, _)).WillOnce(Return(0));
+    EXPECT_CALL(*mockZip, zip(_, _, _, _, _)).Times(0);
+    Common::ZipUtilities::replaceZipUtils(std::move(mockZip));
+
+    ResponseActionsImpl::UploadFileAction uploadFileAction(m_mockHttpRequester);
+
+    nlohmann::json action = getDefaultUploadObject();
+    action["compress"] = true;
+    action["password"] = "";
+
+    EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFileSystem, isFile(m_testPath)).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockFileSystem, isFile(m_zipPath)).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockFileSystem, fileSize(m_zipPath)).WillOnce(Return(100));
+    EXPECT_CALL(*m_mockFileSystem, removeFile(m_zipPath)).Times(1);
+    EXPECT_CALL(*m_mockFileSystem, calculateDigest(Common::SslImpl::Digest::sha256, m_zipPath))
+        .WillOnce(Return("sha256string"));
+    Tests::replaceFileSystem(std::move(m_mockFileSystem));
+
+    nlohmann::json response = uploadFileAction.run(action.dump());
+
+    EXPECT_EQ(response["result"], 0);
+    EXPECT_EQ(response["httpStatus"], 200);
+    EXPECT_FALSE(response.contains("errorType"));
+    EXPECT_FALSE(response.contains("errorMessage"));
+
+    EXPECT_TRUE(appenderContains("Upload for /opt/sophos-spl/plugins/responseactions/tmp/path.zip succeeded"));
+}
+
+TEST_F(UploadFileTests, hugePassword)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    const std::string largePassword(30000, 'a');
+
+    addResponseToMockRequester(HTTP_STATUS_OK, ResponseErrorCode::OK);
+
+    auto mockZip = std::make_unique<NiceMock<MockZipUtils>>();
+    EXPECT_CALL(*mockZip, zip(_, _, _)).Times(0);
+    EXPECT_CALL(*mockZip, zip(_, _, _, _, _)).WillOnce(Return(0));
+    Common::ZipUtilities::replaceZipUtils(std::move(mockZip));
+
+    ResponseActionsImpl::UploadFileAction uploadFileAction(m_mockHttpRequester);
+
+    nlohmann::json action = getDefaultUploadObject();
+    action["compress"] = true;
+    action["password"] = largePassword;
+
+    EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFileSystem, isFile(m_testPath)).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockFileSystem, isFile(m_zipPath)).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockFileSystem, fileSize(m_zipPath)).WillOnce(Return(100));
+    EXPECT_CALL(*m_mockFileSystem, removeFile(m_zipPath)).Times(1);
+    EXPECT_CALL(*m_mockFileSystem, calculateDigest(Common::SslImpl::Digest::sha256, m_zipPath))
+        .WillOnce(Return("sha256string"));
+    Tests::replaceFileSystem(std::move(m_mockFileSystem));
+
+    nlohmann::json response = uploadFileAction.run(action.dump());
+
+    EXPECT_EQ(response["result"], 0);
+    EXPECT_EQ(response["httpStatus"], 200);
+    EXPECT_FALSE(response.contains("errorType"));
+    EXPECT_FALSE(response.contains("errorMessage"));
+
+    EXPECT_TRUE(appenderContains("Upload for /opt/sophos-spl/plugins/responseactions/tmp/path.zip succeeded"));
 }
 
 TEST_F(UploadFileTests, ZipFails)
