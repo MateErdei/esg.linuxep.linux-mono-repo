@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2018, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #include "PollerImpl.h"
 
@@ -16,11 +12,6 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include <zmq.h>
 
 using Common::ZeroMQWrapperImpl::PollerImpl;
-
-Common::ZeroMQWrapper::IPollerPtr Common::ZeroMQWrapper::createPoller()
-{
-    return Common::ZeroMQWrapper::IPollerPtr(new PollerImpl());
-}
 
 std::vector<Common::ZeroMQWrapper::IHasFD*> Common::ZeroMQWrapperImpl::PollerImpl::poll(long timeoutMs)
 {

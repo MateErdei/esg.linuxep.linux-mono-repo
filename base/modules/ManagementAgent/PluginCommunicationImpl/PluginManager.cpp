@@ -335,13 +335,13 @@ namespace ManagementAgent
 
         void PluginManager::setEventReceiver(PluginCommunication::IEventReceiverPtr receiver)
         {
-            eventReceiver_ = receiver;
+            eventReceiver_ = std::move(receiver);
             assert(m_healthStatus);
             m_healthStatus->setOutbreakMode(eventReceiver_->outbreakMode());
 
             if (m_serverCallbackHandler != nullptr)
             {
-                m_serverCallbackHandler->setEventReceiver(receiver);
+                m_serverCallbackHandler->setEventReceiver(eventReceiver_);
             }
         }
 

@@ -9,6 +9,6 @@ namespace Common::ZeroMQWrapperImpl
     class PollerFactory : public Common::ZeroMQWrapper::IPollerFactory
     {
     public:
-        Common::ZeroMQWrapper::IPollerPtr create() const override;
+        [[nodiscard]] Common::ZeroMQWrapper::IPollerPtr create() const override;
     };
 } // namespace Common::ZeroMQWrapperImpl

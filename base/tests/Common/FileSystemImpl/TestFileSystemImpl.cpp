@@ -1,4 +1,4 @@
-// Copyright 2018-2023, Sophos Limited. All rights reserved.
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #include "Common/FileSystem/IFileNotFoundException.h"
 #include "Common/FileSystem/IFilePermissions.h"
@@ -356,9 +356,14 @@ namespace
         ::rmdir(directoryPath.c_str());
     }
 
-    // Disabled because this test fails in CI (probably is being run as root)
-    TEST_F(FileSystemImplTest, DISABLED_readFileWhenFileDoesNotHaveReadPermissionsThrows)
+    TEST_F(FileSystemImplTest, readFileWhenFileDoesNotHaveReadPermissionsThrows)
     {
+        if (::getuid() == 0)
+        {
+            // Disabled because this test fails in CI (probably is being run as root)
+            return;
+        }
+
         std::string filePath =
             Common::FileSystem::join(m_fileSystem->currentWorkingDirectory(), "ReadWriteFileTest.txt");
 

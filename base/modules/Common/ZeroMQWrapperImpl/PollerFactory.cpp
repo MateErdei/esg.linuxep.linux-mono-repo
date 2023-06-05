@@ -35,3 +35,8 @@ namespace Common::ZeroMQWrapper
         globalPollerFactory = std::make_unique<Common::ZeroMQWrapperImpl::PollerFactory>();
     }
 } // namespace Common::ZeroMQWrapper
+
+Common::ZeroMQWrapper::IPollerPtr Common::ZeroMQWrapper::createPoller()
+{
+    return Common::ZeroMQWrapper::pollerFactory().create();
+}
