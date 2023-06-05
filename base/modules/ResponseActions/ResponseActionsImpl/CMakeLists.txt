@@ -1,6 +1,7 @@
 add_library(responseactionsimpl SHARED
         ActionsUtils.cpp
         ActionsUtils.h
+        ActionRequiredFields.h
         ActionStructs.h
         DownloadFileAction.cpp
         DownloadFileAction.h

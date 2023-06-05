@@ -65,6 +65,10 @@ namespace ResponseActionsImpl
         {
             throw InvalidCommandFormat(fieldErrorStr + "url field is empty");
         }
+        if (info.targetPath == "")
+        {
+            throw InvalidCommandFormat(fieldErrorStr + targetKey + " field is empty");
+        }
 
         return info;
     }
@@ -112,7 +116,7 @@ namespace ResponseActionsImpl
 
         if (info.targetPath == "")
         {
-            throw InvalidCommandFormat(fieldErrorStr + "Target Path field is empty");
+            throw InvalidCommandFormat(fieldErrorStr + "targetPath field is empty");
         }
         if (info.sha256 == "")
         {

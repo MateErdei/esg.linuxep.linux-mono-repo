@@ -1,6 +1,7 @@
 // Copyright 2023 Sophos Limited. All rights reserved.
 
 #include "modules/Common/UtilityImpl/TimeUtils.h"
+#include "modules/ResponseActions/ResponseActionsImpl/ActionRequiredFields.h"
 #include "modules/ResponseActions/ResponseActionsImpl/ActionsUtils.h"
 #include "modules/ResponseActions/ResponseActionsImpl/InvalidCommandFormat.h"
 #include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
@@ -11,8 +12,6 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
-#include <json.hpp>
-
 using namespace ResponseActionsImpl;
 
 class ActionsUtilsTests : public MemoryAppenderUsingTests
@@ -21,47 +20,59 @@ public:
     ActionsUtilsTests()
         : MemoryAppenderUsingTests("ResponseActionsImpl")
     {}
-    nlohmann::json getDefaultUploadObject(ActionType type)
-    {
-        nlohmann::json action;
-
-        std::string targetKey;
-        switch (type)
-        {
-            case ActionType::UPLOADFILE:
-                targetKey = "targetFile";
-                break;
-            case ActionType::UPLOADFOLDER:
-                targetKey = "targetFolder";
-                break;
-            default:
-                throw InvalidCommandFormat("invalid type");
-        }
-        action[targetKey] = "path";
-        action["url"] = "https://s3.com/somewhere";
-        action["compress"] = false;
-        action["password"] = "";
-        action["expiration"] = 1444444;
-        action["timeout"] = 10;
-        action["maxUploadSizeBytes"] = 10000000;
-        return action;
-    }
-
-    nlohmann::json getDefaultDownloadAction()
-    {
-        nlohmann::json action;
-        action["url"] = "https://s3.com/download.zip";
-        action["targetPath"] = "/targetpath";
-        action["sha256"] = "shastring";
-        action["sizeBytes"] = 1024;
-        action["expiration"] = 144444000000004;
-        action["timeout"] = 10;
-        //optional
-        action["decompress"] = false;
-        action["password"] = "";
-        return action;
-    }
 };
+
+class ResponseActionActionUtilsParameterized
+    : public ::testing::TestWithParam<std::string>
+{
+protected:
+    void SetUp() override
+    {
+        m_loggingSetup = Common::Logging::LOGOFFFORTEST();
+    }
+    Common::Logging::ConsoleLoggingSetup m_loggingSetup;
+};
+
+nlohmann::json getDefaultUploadObject(ActionType type)
+{
+    nlohmann::json action;
+
+    std::string targetKey;
+    switch (type)
+    {
+        case ActionType::UPLOADFILE:
+            targetKey = "targetFile";
+            break;
+        case ActionType::UPLOADFOLDER:
+            targetKey = "targetFolder";
+            break;
+        default:
+            throw InvalidCommandFormat("invalid type");
+    }
+    action[targetKey] = "path";
+    action["url"] = "https://s3.com/somewhere";
+    action["compress"] = false;
+    action["password"] = "";
+    action["expiration"] = 1444444;
+    action["timeout"] = 10;
+    action["maxUploadSizeBytes"] = 10000000;
+    return action;
+}
+
+nlohmann::json getDefaultDownloadAction()
+{
+    nlohmann::json action;
+    action["url"] = "https://s3.com/download.zip";
+    action["targetPath"] = "/targetpath";
+    action["sha256"] = "shastring";
+    action["sizeBytes"] = 1024;
+    action["expiration"] = 144444000000004;
+    action["timeout"] = 10;
+    //optional
+    action["decompress"] = false;
+    action["password"] = "";
+    return action;
+}
 
 //**********************GENERIC***************************
 TEST_F(ActionsUtilsTests, expiry)
@@ -274,74 +285,144 @@ TEST_F(ActionsUtilsTests, uploadFailInvalidUrL)
     }
     catch (const InvalidCommandFormat& except)
     {
-        EXPECT_STREQ(except.what(), "Invalid command format. Failed to process UploadInfo from action JSON: [json.exception.type_error.302] type must be string, but is number");
+        EXPECT_STREQ(except.what(), "Invalid command format. Failed to process UploadInfo from action JSON: [json.exception.type_error.302] type must be string, but is boolean");
     }
 }
 
-TEST_F(ActionsUtilsTests, uploadFailMissingUrl)
+class UploadFolderActionUtilsParameterized : public ResponseActionActionUtilsParameterized {};
+
+INSTANTIATE_TEST_SUITE_P(
+    ActionsUtilsTests,
+    UploadFolderActionUtilsParameterized,
+    ::testing::ValuesIn(uploadFolderRequiredFields));
+
+TEST_P(UploadFolderActionUtilsParameterized, UploadFolderMissingEssentialFields)
 {
-    nlohmann::json action = getDefaultUploadObject(ActionType::UPLOADFILE);
-    action.erase("url");
+    auto field = GetParam();
+
+    nlohmann::json action = getDefaultUploadObject(ActionType::UPLOADFOLDER);
+    action.erase(field);
+    const std::string expectedMsg = "Invalid command format. No '" + field + "' in UploadFolder action JSON";
     try
     {
-        auto output = ActionsUtils::readUploadAction(action.dump(),ActionType::UPLOADFILE);
-        FAIL() << "Didnt throw due to missing essential field";
+        auto output = ActionsUtils::readUploadAction(action.dump(),ActionType::UPLOADFOLDER);
+        FAIL() << "Didnt throw due to missing essential field: " << field;
     }
     catch (const InvalidCommandFormat& except)
     {
-        EXPECT_STREQ(except.what(), "Invalid command format. No 'url' in UploadFile action JSON");
+        EXPECT_STREQ(except.what(), expectedMsg.c_str());
     }
 }
 
-TEST_F(ActionsUtilsTests, uploadFailEmptyUrl)
+TEST_P(UploadFolderActionUtilsParameterized, UploadFolderUnsetEssentialFields)
 {
+    auto field = GetParam();
+
+    nlohmann::json action = getDefaultUploadObject(ActionType::UPLOADFOLDER);
+    if (!action[field].is_string())
+    {
+        action[field] = 0;
+        UploadInfo output;
+        EXPECT_NO_THROW(output = ActionsUtils::readUploadAction(action.dump(),ActionType::UPLOADFOLDER));
+        if (field == "maxUploadSizeBytes")
+        {
+            EXPECT_EQ(output.maxSize, 0);
+        }
+        else if (field == "timeout")
+        {
+            EXPECT_EQ(output.timeout, 0);
+        }
+        else if (field == "expiration")
+        {
+            EXPECT_EQ(output.expiration, 0);
+        }
+        else
+        {
+            FAIL() << "Field " << field << " is not handled by test";
+        }
+    }
+    else
+    {
+        action[field] = "";
+        const std::string expectedMsg = "Invalid command format. Failed to process UploadInfo from action JSON: " + field + " field is empty";
+        try
+        {
+            auto output = ActionsUtils::readUploadAction(action.dump(),ActionType::UPLOADFOLDER);
+            FAIL() << "Didnt throw due to empty essential field: " << field;
+        }
+        catch (const InvalidCommandFormat& except)
+        {
+            EXPECT_STREQ(except.what(), expectedMsg.c_str());
+        }
+    }
+}
+
+class UploadFileActionUtilsParameterized : public ResponseActionActionUtilsParameterized {};
+
+INSTANTIATE_TEST_SUITE_P(
+    ActionsUtilsTests,
+    UploadFileActionUtilsParameterized,
+    ::testing::ValuesIn(uploadFileRequiredFields));
+
+TEST_P(UploadFileActionUtilsParameterized, UploadFileMissingEssentialFields)
+{
+    auto field = GetParam();
+
     nlohmann::json action = getDefaultUploadObject(ActionType::UPLOADFILE);
-    action["url"] = "";
+    action.erase(field);
+    const std::string expectedMsg = "Invalid command format. No '" + field + "' in UploadFile action JSON";
     try
     {
         auto output = ActionsUtils::readUploadAction(action.dump(),ActionType::UPLOADFILE);
-        FAIL() << "Didnt throw due to empty url field";
+        FAIL() << "Didnt throw due to missing essential field: " << field;
     }
     catch (const InvalidCommandFormat& except)
     {
-        EXPECT_STREQ(except.what(), "Invalid command format. Failed to process UploadInfo from action JSON: url field is empty");
+        EXPECT_STREQ(except.what(), expectedMsg.c_str());
     }
 }
 
-TEST_F(ActionsUtilsTests, uploadFailMissingExpiration)
+TEST_P(UploadFileActionUtilsParameterized, UploadFileUnsetEssentialFields)
 {
+    auto field = GetParam();
+
     nlohmann::json action = getDefaultUploadObject(ActionType::UPLOADFILE);
-    action.erase("expiration");
-    try
+    if (!action[field].is_string())
     {
-        auto output = ActionsUtils::readUploadAction(action.dump(),ActionType::UPLOADFILE);
-        FAIL() << "Didnt throw due to empty url field";
+        action[field] = 0;
+        UploadInfo output;
+        EXPECT_NO_THROW(output = ActionsUtils::readUploadAction(action.dump(),ActionType::UPLOADFILE));
+        if (field == "maxUploadSizeBytes")
+        {
+            EXPECT_EQ(output.maxSize, 0);
+        }
+        else if (field == "timeout")
+        {
+            EXPECT_EQ(output.timeout, 0);
+        }
+        else if (field == "expiration")
+        {
+            EXPECT_EQ(output.expiration, 0);
+        }
+        else
+        {
+            FAIL() << "Field " << field << " is not handled by test";
+        }
     }
-    catch (const InvalidCommandFormat& except)
+    else
     {
-        EXPECT_STREQ(except.what(), "Invalid command format. Failed to process UploadInfo from action JSON: url field is empty");
+        action[field] = "";
+        const std::string expectedMsg = "Invalid command format. Failed to process UploadInfo from action JSON: " + field + " field is empty";
+        try
+        {
+            auto output = ActionsUtils::readUploadAction(action.dump(),ActionType::UPLOADFILE);
+            FAIL() << "Didnt throw due to empty essential field: " << field;
+        }
+        catch (const InvalidCommandFormat& except)
+        {
+            EXPECT_STREQ(except.what(), expectedMsg.c_str());
+        }
     }
-}
-
-TEST_F(ActionsUtilsTests, uploadFailMissingTimeout)
-{
-    nlohmann::json action = getDefaultUploadObject(ActionType::UPLOADFILE);
-    action.erase("timeout");
-    EXPECT_THROW(std::ignore = ActionsUtils::readUploadAction(action.dump(),ActionType::UPLOADFILE),InvalidCommandFormat);
-}
-
-TEST_F(ActionsUtilsTests, uploadFailMissingMaxUploadSizeBytes)
-{
-    nlohmann::json action = getDefaultUploadObject(ActionType::UPLOADFILE);
-    action.erase("maxUploadSizeBytes");
-    EXPECT_THROW(std::ignore = ActionsUtils::readUploadAction(action.dump(),ActionType::UPLOADFILE),InvalidCommandFormat);
-}
-
-TEST_F(ActionsUtilsTests, uploadFailMissingTargetFile)
-{
-    nlohmann::json action = getDefaultUploadObject(ActionType::UPLOADFILE);
-    action.erase("targetFile");
-    EXPECT_THROW(std::ignore = ActionsUtils::readUploadAction(action.dump(),ActionType::UPLOADFILE),InvalidCommandFormat);
 }
 
 TEST_F(ActionsUtilsTests, uploadWrongTypePassword)
@@ -372,96 +453,84 @@ TEST_F(ActionsUtilsTests, uploadWrongTypePassword)
     }
 }
 
-
-
 //**********************DOWNLOAD ACTION***************************
-TEST_F(ActionsUtilsTests, downloadMissingUrl)
+class DownloadActionUtilsParameterized : public ResponseActionActionUtilsParameterized {};
+
+INSTANTIATE_TEST_SUITE_P(
+    ActionsUtilsTests,
+    DownloadActionUtilsParameterized,
+    ::testing::ValuesIn(downloadRequiredFields));
+
+TEST_P(DownloadActionUtilsParameterized, DownloadMissingEssentialFields)
 {
+    auto field = GetParam();
+
     nlohmann::json action = getDefaultDownloadAction();
-    action.erase("url");
+    action.erase(field);
+    const std::string expectedMsg = "Invalid command format. No '" + field + "' in Download action JSON";
     try
     {
         auto output = ActionsUtils::readDownloadAction(action.dump());
-        FAIL() << "Didnt throw due to missing essential action";
+        FAIL() << "Didnt throw due to missing essential field: " << field;
     }
     catch (const InvalidCommandFormat& except)
     {
-        EXPECT_STREQ(except.what(), "Invalid command format. No 'url' in Download action JSON");
+        EXPECT_STREQ(except.what(), expectedMsg.c_str());
     }
 }
 
-TEST_F(ActionsUtilsTests, downloadMissingtargetPath)
+TEST_P(DownloadActionUtilsParameterized, DownloadUnsetEssentialFields)
 {
-    nlohmann::json action = getDefaultDownloadAction();
-    action.erase("targetPath");
-    try
-    {
-        auto output = ActionsUtils::readDownloadAction(action.dump());
-        FAIL() << "Didnt throw due to missing essential action";
-    }
-    catch (const InvalidCommandFormat& except)
-    {
-        EXPECT_STREQ(except.what(), "Invalid command format. No 'targetPath' in Download action JSON");
-    }
-}
+    auto field = GetParam();
 
-TEST_F(ActionsUtilsTests, downloadMissingsha256)
-{
     nlohmann::json action = getDefaultDownloadAction();
-    action.erase("sha256");
-    try
+    if (!action[field].is_string())
     {
-        auto output = ActionsUtils::readDownloadAction(action.dump());
-        FAIL() << "Didnt throw due to missing essential action";
+        action[field] = 0;
+        DownloadInfo output;
+        if (field == "sizeBytes")
+        {
+            try
+            {
+                output = ActionsUtils::readDownloadAction(action.dump());
+                FAIL() << "Didnt throw due to 0 sizeByte field: " << field;
+            }
+            catch (const InvalidCommandFormat& except)
+            {
+                EXPECT_STREQ(except.what()
+                                 , "Invalid command format. sizeBytes field has been evaluated to 0. Very large values can also cause this.");
+            }
+        }
+        else
+        {
+            EXPECT_NO_THROW(output = ActionsUtils::readDownloadAction(action.dump()));
+            if (field == "timeout")
+            {
+                EXPECT_EQ(output.timeout, 0);
+            }
+            else if (field == "expiration")
+            {
+                EXPECT_EQ(output.expiration, 0);
+            }
+            else
+            {
+                FAIL() << "Field " << field << " is not handled by test";
+            }
+        }
     }
-    catch (const InvalidCommandFormat& except)
+    else
     {
-        EXPECT_STREQ(except.what(), "Invalid command format. No 'sha256' in Download action JSON");
-    }
-}
-
-TEST_F(ActionsUtilsTests, downloadMissingtimeout)
-{
-    nlohmann::json action = getDefaultDownloadAction();
-    action.erase("timeout");
-    try
-    {
-        auto output = ActionsUtils::readDownloadAction(action.dump());
-        FAIL() << "Didnt throw due to missing essential action";
-    }
-    catch (const InvalidCommandFormat& except)
-    {
-        EXPECT_STREQ(except.what(), "Invalid command format. No 'timeout' in Download action JSON");
-    }
-}
-
-TEST_F(ActionsUtilsTests, downloadMissingsizeBytes)
-{
-    nlohmann::json action = getDefaultDownloadAction();
-    action.erase("sizeBytes");
-    try
-    {
-        auto output = ActionsUtils::readDownloadAction(action.dump());
-        FAIL() << "Didnt throw due to missing essential action";
-    }
-    catch (const InvalidCommandFormat& except)
-    {
-        EXPECT_STREQ(except.what(), "Invalid command format. No 'sizeBytes' in Download action JSON");
-    }
-}
-
-TEST_F(ActionsUtilsTests, downloadMissingExpiration)
-{
-    nlohmann::json action = getDefaultDownloadAction();
-    action.erase("expiration");
-    try
-    {
-        auto output = ActionsUtils::readDownloadAction(action.dump());
-        FAIL() << "Didnt throw due to missing essential action";
-    }
-    catch (const InvalidCommandFormat& except)
-    {
-        EXPECT_STREQ(except.what(), "Invalid command format. No 'expiration' in Download action JSON");
+        action[field] = "";
+        const std::string expectedMsg = "Invalid command format. Failed to process DownloadInfo from action JSON: " + field + " field is empty";
+        try
+        {
+            auto output = ActionsUtils::readDownloadAction(action.dump());
+            FAIL() << "Didnt throw due to empty essential field: " << field;
+        }
+        catch (const InvalidCommandFormat& except)
+        {
+            EXPECT_STREQ(except.what(), expectedMsg.c_str());
+        }
     }
 }
 
@@ -767,52 +836,6 @@ TEST_F(ActionsUtilsTests, downloadWrongTypeTargetPath)
         EXPECT_STREQ(except.what(), "Invalid command format. Failed to process DownloadInfo from action JSON: [json.exception.type_error.302] type must be string, but is number");
     }
 }
-
-TEST_F(ActionsUtilsTests, downloadEmptyTargetPath)
-{
-    nlohmann::json action = getDefaultDownloadAction();
-    action["targetPath"] = "";
-    try
-    {
-        auto output = ActionsUtils::readDownloadAction(action.dump());
-        FAIL() << "Didnt throw due to empty target path field";
-    }
-    catch (const InvalidCommandFormat& except)
-    {
-        EXPECT_STREQ(except.what(), "Invalid command format. Failed to process DownloadInfo from action JSON: Target Path field is empty");
-    }
-}
-
-TEST_F(ActionsUtilsTests, downloadEmptysha256)
-{
-    nlohmann::json action = getDefaultDownloadAction();
-    action["sha256"] = "";
-    try
-    {
-        auto output = ActionsUtils::readDownloadAction(action.dump());
-        FAIL() << "Didnt throw due to empty sha256 field";
-    }
-    catch (const InvalidCommandFormat& except)
-    {
-        EXPECT_STREQ(except.what(), "Invalid command format. Failed to process DownloadInfo from action JSON: sha256 field is empty");
-    }
-}
-
-TEST_F(ActionsUtilsTests, downloadEmptyurl)
-{
-    nlohmann::json action = getDefaultDownloadAction();
-    action["url"] = "";
-    try
-    {
-        auto output = ActionsUtils::readDownloadAction(action.dump());
-        FAIL() << "Didnt throw due to empty url field";
-    }
-    catch (const InvalidCommandFormat& except)
-    {
-        EXPECT_STREQ(except.what(), "Invalid command format. Failed to process DownloadInfo from action JSON: url field is empty");
-    }
-}
-
 
 TEST_F(ActionsUtilsTests, downloadWrongTypePassword)
 {
