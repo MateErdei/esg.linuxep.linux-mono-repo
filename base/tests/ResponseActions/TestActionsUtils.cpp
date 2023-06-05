@@ -22,7 +22,7 @@ public:
     {}
 };
 
-class ResponseActionActionUtilsParameterized
+class ResponseActionFieldsParameterized
     : public ::testing::TestWithParam<std::string>
 {
 protected:
@@ -289,14 +289,14 @@ TEST_F(ActionsUtilsTests, uploadFailInvalidUrL)
     }
 }
 
-class UploadFolderActionUtilsParameterized : public ResponseActionActionUtilsParameterized {};
+class UploadFolderRequiredFieldsParameterized : public ResponseActionFieldsParameterized {};
 
 INSTANTIATE_TEST_SUITE_P(
     ActionsUtilsTests,
-    UploadFolderActionUtilsParameterized,
+    UploadFolderRequiredFieldsParameterized,
     ::testing::ValuesIn(uploadFolderRequiredFields));
 
-TEST_P(UploadFolderActionUtilsParameterized, UploadFolderMissingEssentialFields)
+TEST_P(UploadFolderRequiredFieldsParameterized, UploadFolderMissingEssentialFields)
 {
     auto field = GetParam();
 
@@ -314,7 +314,7 @@ TEST_P(UploadFolderActionUtilsParameterized, UploadFolderMissingEssentialFields)
     }
 }
 
-TEST_P(UploadFolderActionUtilsParameterized, UploadFolderUnsetEssentialFields)
+TEST_P(UploadFolderRequiredFieldsParameterized, UploadFolderUnsetEssentialFields)
 {
     auto field = GetParam();
 
@@ -357,14 +357,14 @@ TEST_P(UploadFolderActionUtilsParameterized, UploadFolderUnsetEssentialFields)
     }
 }
 
-class UploadFileActionUtilsParameterized : public ResponseActionActionUtilsParameterized {};
+class UploadFileRequiredFieldsParameterized : public ResponseActionFieldsParameterized {};
 
 INSTANTIATE_TEST_SUITE_P(
     ActionsUtilsTests,
-    UploadFileActionUtilsParameterized,
+    UploadFileRequiredFieldsParameterized,
     ::testing::ValuesIn(uploadFileRequiredFields));
 
-TEST_P(UploadFileActionUtilsParameterized, UploadFileMissingEssentialFields)
+TEST_P(UploadFileRequiredFieldsParameterized, UploadFileMissingEssentialFields)
 {
     auto field = GetParam();
 
@@ -382,7 +382,7 @@ TEST_P(UploadFileActionUtilsParameterized, UploadFileMissingEssentialFields)
     }
 }
 
-TEST_P(UploadFileActionUtilsParameterized, UploadFileUnsetEssentialFields)
+TEST_P(UploadFileRequiredFieldsParameterized, UploadFileUnsetEssentialFields)
 {
     auto field = GetParam();
 
@@ -454,7 +454,7 @@ TEST_F(ActionsUtilsTests, uploadWrongTypePassword)
 }
 
 //**********************DOWNLOAD ACTION***************************
-class DownloadActionUtilsParameterized : public ResponseActionActionUtilsParameterized {};
+class DownloadActionUtilsParameterized : public ResponseActionFieldsParameterized {};
 
 INSTANTIATE_TEST_SUITE_P(
     ActionsUtilsTests,
