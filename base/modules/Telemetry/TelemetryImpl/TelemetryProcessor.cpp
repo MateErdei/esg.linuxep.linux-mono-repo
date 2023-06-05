@@ -65,7 +65,7 @@ void TelemetryProcessor::gatherTelemetry()
 {
     LOGINFO("Gathering telemetry");
 
-    for (const auto& provider : m_telemetryProviders)
+    for (auto& provider : m_telemetryProviders)
     {
         std::string name = provider->getName();
 
@@ -80,7 +80,9 @@ void TelemetryProcessor::gatherTelemetry()
         {
             LOGWARN("Could not get telemetry for " << name << ". Exception: " << ex.what());
         }
+        provider.reset();
     }
+    m_telemetryProviders.clear();
 }
 
 void TelemetryProcessor::sendTelemetry(const std::string& telemetryJson)
