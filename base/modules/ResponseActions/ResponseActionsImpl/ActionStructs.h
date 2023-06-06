@@ -33,7 +33,7 @@ namespace ResponseActionsImpl
         {ActionType::UPLOADFILE, "UploadFile"},
         {ActionType::UPLOADFOLDER, "UploadFolder"},
         {ActionType::DOWNLOAD, "Download"},
-        {ActionType::COMMAND, "Run Command"}
+        {ActionType::COMMAND, "RunCommand"}
     };
 
     //Download Action
@@ -54,7 +54,7 @@ namespace ResponseActionsImpl
     struct CommandRequest
     {
         std::vector<std::string> commands;
-        long timeout;
+        int timeout;
         bool ignoreError;
         unsigned long expiration = 0;
     };

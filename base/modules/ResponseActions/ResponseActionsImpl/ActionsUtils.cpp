@@ -60,11 +60,11 @@ namespace ResponseActionsImpl
             throw InvalidCommandFormat(fieldErrorStr + exception.what());
         }
 
-        if (info.url == "")
+        if (info.url.empty())
         {
             throw InvalidCommandFormat(fieldErrorStr + "url field is empty");
         }
-        if (info.targetPath == "")
+        if (info.targetPath.empty())
         {
             throw InvalidCommandFormat(fieldErrorStr + targetKey + " field is empty");
         }
@@ -113,15 +113,15 @@ namespace ResponseActionsImpl
             throw InvalidCommandFormat(fieldErrorStr + exception.what());
         }
 
-        if (info.targetPath == "")
+        if (info.targetPath.empty())
         {
             throw InvalidCommandFormat(fieldErrorStr + "targetPath field is empty");
         }
-        if (info.sha256 == "")
+        if (info.sha256.empty())
         {
             throw InvalidCommandFormat(fieldErrorStr + "sha256 field is empty");
         }
-        if (info.url == "")
+        if (info.url.empty())
         {
             throw InvalidCommandFormat(fieldErrorStr + "url field is empty");
         }
@@ -133,23 +133,23 @@ namespace ResponseActionsImpl
     {
         CommandRequest action;
         auto actionObject = checkActionRequest(actionJson, ActionType::COMMAND);
+        const std::string fieldErrorStr("Failed to process CommandRequest from action JSON: ");
 
         try
         {
             action.commands = actionObject["commands"].get<std::vector<std::string>>();
             action.timeout = actionObject.at("timeout");
             action.ignoreError = actionObject.at("ignoreError");
-            action.expiration = actionObject.at("expiration");
+            action.expiration = checkUlongJsonValue(actionObject, "expiration", fieldErrorStr);
         }
         catch (const nlohmann::json::type_error& exception)
         {
-            throw InvalidCommandFormat(
-                "Failed to process CommandRequest from action JSON: " + std::string(exception.what()));
+            throw InvalidCommandFormat(fieldErrorStr + exception.what());
         }
 
         if (action.commands.empty())
         {
-            throw InvalidCommandFormat("No commands to perform in run command JSON: " + actionJson);
+            throw InvalidCommandFormat(fieldErrorStr + "commands field is empty");
         }
 
         return action;

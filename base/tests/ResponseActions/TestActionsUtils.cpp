@@ -74,6 +74,44 @@ nlohmann::json getDefaultDownloadAction()
     return action;
 }
 
+nlohmann::json getDefaultRunCommandAction()
+{
+    nlohmann::json action;
+    action["commands"] = {"echo one"};
+    action["ignoreError"] = true;
+    action["expiration"] = 144444000000004;
+    action["timeout"] = 10;
+    return action;
+}
+
+std::string getDefaultCommandJsonString()
+{
+    return R"({
+            "type": "sophos.mgt.action.RunCommands",
+            "commands": [
+                "echo one",
+                "echo two > /tmp/test.txt"
+            ],
+            "ignoreError": true,
+            "timeout": 60,
+            "expiration": 144444000000004
+        })";
+}
+
+std::string getCommandJsonStringWithWrongValueType()
+{
+    return R"({
+            "type": "sophos.mgt.action.RunCommands",
+            "commands": [
+                "echo one",
+                "echo two > /tmp/test.txt"
+            ],
+            "ignoreError": true,
+            "timeout": "60",
+            "expiration": 144444000000004
+        })";
+}
+
 //**********************GENERIC***************************
 TEST_F(ActionsUtilsTests, expiry)
 {
@@ -702,14 +740,14 @@ TEST_F(ActionsUtilsTests, uploadWrongTypeCompress)
 }
 
 //**********************DOWNLOAD ACTION***************************
-class DownloadActionUtilsParameterized : public ResponseActionFieldsParameterized {};
+class DownloadRequiredFieldsParameterized : public ResponseActionFieldsParameterized {};
 
 INSTANTIATE_TEST_SUITE_P(
     ActionsUtilsTests,
-    DownloadActionUtilsParameterized,
+    DownloadRequiredFieldsParameterized,
     ::testing::ValuesIn(downloadRequiredFields));
 
-TEST_P(DownloadActionUtilsParameterized, DownloadMissingEssentialFields)
+TEST_P(DownloadRequiredFieldsParameterized, DownloadMissingEssentialFields)
 {
     auto field = GetParam();
 
@@ -727,7 +765,7 @@ TEST_P(DownloadActionUtilsParameterized, DownloadMissingEssentialFields)
     }
 }
 
-TEST_P(DownloadActionUtilsParameterized, DownloadUnsetEssentialFields)
+TEST_P(DownloadRequiredFieldsParameterized, DownloadUnsetEssentialFields)
 {
     auto field = GetParam();
 
@@ -1101,35 +1139,6 @@ TEST_F(ActionsUtilsTests, downloadWrongTypePassword)
 }
 
 //**********************RUN COMMAND ACTION***************************
-namespace {
-    std::string getDefaultCommandJsonString()
-    {
-        return R"({
-            "type": "sophos.mgt.action.RunCommands",
-            "commands": [
-                "echo one",
-                "echo two > /tmp/test.txt"
-            ],
-            "ignoreError": true,
-            "timeout": 60,
-            "expiration": 144444000000004
-        })";
-    }
-
-    std::string getCommandJsonStringWithWrongValueType()
-    {
-        return R"({
-            "type": "sophos.mgt.action.RunCommands",
-            "commands": [
-                "echo one",
-                "echo two > /tmp/test.txt"
-            ],
-            "ignoreError": true,
-            "timeout": "60",
-            "expiration": 144444000000004
-        })";
-    }
-}
 TEST_F(ActionsUtilsTests, readCommandActionSuccess)
 {
     std::string commandJson = getDefaultCommandJsonString();
@@ -1161,79 +1170,79 @@ TEST_F(ActionsUtilsTests, readCommandHandlesEscapedCharsInCmd)
     EXPECT_EQ(command.commands, expectedCommands);
 }
 
-TEST_F(ActionsUtilsTests, readCommandFailsDueToMissingTypeRequiredField)
+class RunCommandRequiredFieldsParameterized : public ResponseActionFieldsParameterized {};
+
+INSTANTIATE_TEST_SUITE_P(
+    ActionsUtilsTests,
+    RunCommandRequiredFieldsParameterized,
+    ::testing::ValuesIn(runCommandRequiredFields));
+
+TEST_P(RunCommandRequiredFieldsParameterized, RunCommandMissingEssentialFields)
 {
-    std::string commandJson = R"({
-        "commands": [
-            "echo one",
-            "echo two > /tmp/test.txt"
-        ],
-        "ignoreError": true,
-        "timeout": 60,
-        "expiration": 144444000000004
-        })";
-    EXPECT_THAT([&]() { std::ignore = ActionsUtils::readCommandAction(commandJson); },
-                ThrowsMessage<InvalidCommandFormat>(HasSubstr("Invalid command format. No 'type' in Run Command action JSON")));
+    auto field = GetParam();
+    nlohmann::json action = getDefaultRunCommandAction();
+    action.erase(field);
+    const std::string expectedMsg = "Invalid command format. No '" + field + "' in RunCommand action JSON";
+    try
+    {
+        auto output = ActionsUtils::readCommandAction(action.dump());
+        FAIL() << "Didnt throw due to missing essential field: " << field;
+    }
+    catch (const InvalidCommandFormat& except)
+    {
+        EXPECT_STREQ(except.what(), expectedMsg.c_str());
+    }
 }
 
-TEST_F(ActionsUtilsTests, readCommandFailsDueToMissingCommandsRequiredField)
+TEST_P(RunCommandRequiredFieldsParameterized, RunCommandUnsetEssentialFields)
 {
-    std::string commandJson = R"({
-        "type": "sophos.mgt.action.RunCommands",
-        "ignoreError": true,
-        "timeout": 60,
-        "expiration": 144444000000004
-        })";
-    EXPECT_THAT([&]() { std::ignore = ActionsUtils::readCommandAction(commandJson); },
-                ThrowsMessage<InvalidCommandFormat>(HasSubstr("Invalid command format. No 'commands' in Run Command action JSON")));
+    auto field = GetParam();
+
+    nlohmann::json action = getDefaultRunCommandAction();
+    if (!action[field].is_array())
+    {
+        if (field == "ignoreError")
+        {
+            action[field].clear();
+            CommandRequest output;
+            EXPECT_NO_THROW(output = ActionsUtils::readCommandAction(action.dump()));
+            EXPECT_EQ(output.ignoreError, false);
+        }
+        else
+        {
+            assert(action[field].is_number());
+            action[field] = 0;
+            CommandRequest output;
+            EXPECT_NO_THROW(output = ActionsUtils::readCommandAction(action.dump()));
+            if (field == "timeout")
+            {
+                EXPECT_EQ(output.timeout, 0);
+            }
+            else if (field == "expiration")
+            {
+                EXPECT_EQ(output.expiration, 0);
+            }
+            else
+            {
+                FAIL() << "Field " << field << " is not handled by test";
+            }
+        }
+    }
+    else
+    {
+        action[field] = {};
+        const std::string expectedMsg = "Invalid command format. Failed to process CommandRequest from action JSON: [json.exception.type_error.302] type must be array, but is null";
+        try
+        {
+            auto output = ActionsUtils::readCommandAction(action.dump());
+            FAIL() << "Didnt throw due to empty essential field: " << field;
+        }
+        catch (const InvalidCommandFormat& except)
+        {
+            EXPECT_STREQ(except.what(), expectedMsg.c_str());
+        }
+    }
 }
-
-TEST_F(ActionsUtilsTests, readCommandFailsDueToMissingIgnoreErrorRequiredField)
-{
-    std::string commandJson = R"({
-        "type": "sophos.mgt.action.RunCommands",
-        "commands": [
-            "echo one",
-            "echo two > /tmp/test.txt"
-        ],
-        "timeout": 60,
-        "expiration": 144444000000004
-        })";
-    EXPECT_THAT([&]() { std::ignore = ActionsUtils::readCommandAction(commandJson); },
-                ThrowsMessage<InvalidCommandFormat>(HasSubstr("Invalid command format. No 'ignoreError' in Run Command action JSON")));
-}
-
-TEST_F(ActionsUtilsTests, readCommandFailsDueToMissingTimeoutRequiredField)
-{
-    std::string commandJson = R"({
-        "type": "sophos.mgt.action.RunCommands",
-        "commands": [
-            "echo one",
-            "echo two > /tmp/test.txt"
-        ],
-        "ignoreError": true,
-        "expiration": 144444000000004
-        })";
-    EXPECT_THAT([&]() { std::ignore = ActionsUtils::readCommandAction(commandJson); },
-                ThrowsMessage<InvalidCommandFormat>(HasSubstr("Invalid command format. No 'timeout' in Run Command action JSON")));
-}
-
-TEST_F(ActionsUtilsTests, readCommandFailsDueToMissingExpirationRequiredField)
-{
-    std::string commandJson = R"({
-        "type": "sophos.mgt.action.RunCommands",
-        "commands": [
-            "echo one",
-            "echo two > /tmp/test.txt"
-        ],
-        "ignoreError": true,
-        "timeout": 60
-        })";
-    EXPECT_THAT([&]() { std::ignore = ActionsUtils::readCommandAction(commandJson); },
-                ThrowsMessage<InvalidCommandFormat>(HasSubstr("Invalid command format. No 'expiration' in Run Command action JSON")));
-}
-
-
 
 TEST_F(ActionsUtilsTests, readCommandFailsDueToTypeError)
 {
