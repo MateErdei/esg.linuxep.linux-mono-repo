@@ -351,6 +351,40 @@ TEST_F(UploadFolderTests, FolderDoesNotExist)
     EXPECT_EQ(response["errorMessage"], "/tmp/path is not a directory");
 }
 
+TEST_F(UploadFolderTests, NegativeSizeLimit)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    ResponseActionsImpl::UploadFolderAction uploadFolderAction(m_mockHttpRequester);
+    nlohmann::json action = getDefaultUploadObject();
+    action.at("maxUploadSizeBytes") = -123545;
+
+    nlohmann::json response = uploadFolderAction.run(action.dump());
+
+    EXPECT_EQ(response["result"],1);
+    EXPECT_EQ(response["result"], 1);
+    EXPECT_EQ(response["errorMessage"], "Error parsing command from Central");
+
+    EXPECT_TRUE(appenderContains("Invalid command format. Failed to process UploadInfo from action JSON: maxUploadSizeBytes is a negative value: -123545"));
+}
+
+TEST_F(UploadFolderTests, LargeSizeLimit)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    ResponseActionsImpl::UploadFolderAction uploadFolderAction(m_mockHttpRequester);
+    nlohmann::json action = getDefaultUploadObject();
+    action.at("maxUploadSizeBytes") = 214748364734;
+
+    nlohmann::json response = uploadFolderAction.run(action.dump());
+
+    EXPECT_EQ(response["result"],1);
+    EXPECT_EQ(response["result"], 1);
+    EXPECT_EQ(response["errorMessage"], "Error parsing command from Central");
+
+    EXPECT_TRUE(appenderContains("Invalid command format. Failed to process UploadInfo from action JSON: maxUploadSizeBytes is to large: 214748364734"));
+}
+
 TEST_F(UploadFolderTests, ZippedFolderOverSizeLimit)
 {
     setupMockZipUtils();
