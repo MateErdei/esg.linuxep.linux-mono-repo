@@ -537,6 +537,57 @@ TEST_F(ActionsUtilsTests, uploadWrongTypeExpiration)
     }
 }
 
+TEST_F(ActionsUtilsTests, uploadNegativeExpiration)
+{
+    nlohmann::json fileAction = getDefaultUploadObject(ActionType::UPLOADFILE);
+    fileAction["expiration"] = -123456487;
+    try
+    {
+        auto output = ActionsUtils::readUploadAction(fileAction.dump(), ActionType::UPLOADFILE);
+        FAIL() << "Didnt throw due to wrong type";
+    }
+    catch (const InvalidCommandFormat& except)
+    {
+        EXPECT_STREQ(except.what(), "Invalid command format. Failed to process UploadInfo from action JSON: expiration is a negative value: -123456487");
+    }
+
+    nlohmann::json folderAction = getDefaultUploadObject(ActionType::UPLOADFOLDER);
+    folderAction["expiration"] = -123456487;
+
+    try
+    {
+        auto output = ActionsUtils::readUploadAction(folderAction.dump(), ActionType::UPLOADFOLDER);
+        FAIL() << "Didnt throw due to wrong type";
+    }
+    catch (const InvalidCommandFormat& except)
+    {
+        EXPECT_STREQ(except.what(), "Invalid command format. Failed to process UploadInfo from action JSON: expiration is a negative value: -123456487");
+    }
+}
+
+TEST_F(ActionsUtilsTests, uploadLargeExpiration)
+{
+    std::string actionFile (
+        R"({"type": "sophos.mgt.action.UploadFile"
+        ,"timeout": 1000
+        ,"maxUploadSizeBytes": 1000
+        ,"url": "https://s3.com/download.zip"
+        ,"targetFile": "path"
+        ,"expiration": 18446744073709551616})");
+    auto resFile = ActionsUtils::readUploadAction(actionFile, ActionType::UPLOADFILE);
+    resFile.expiration = 0;
+
+    std::string actionFolder (
+        R"({"type": "sophos.mgt.action.UploadFolder"
+        ,"timeout": 1000
+        ,"maxUploadSizeBytes": 1000
+        ,"url": "https://s3.com/download.zip"
+        ,"targetFolder": "path"
+        ,"expiration": 18446744073709551616})");
+    auto resFolder = ActionsUtils::readUploadAction(actionFolder, ActionType::UPLOADFOLDER);
+    resFolder.expiration = 0;
+}
+
 TEST_F(ActionsUtilsTests, uploadWrongTypeMaxSize)
 {
     nlohmann::json fileAction = getDefaultUploadObject(ActionType::UPLOADFILE);
