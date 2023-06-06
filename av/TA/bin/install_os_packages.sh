@@ -116,6 +116,11 @@ then
 
     [[ -x $(which setcap) ]] || {
       echo "Failed to install setcap - AV can't run"
+      SUSEConnect --status-text
+      echo cat /var/log/cloud-init.log
+      cat /var/log/cloud-init.log
+      echo cat /var/log/zypper.log
+      cat /var/log/zypper.log
       exit 1
     }
 else
