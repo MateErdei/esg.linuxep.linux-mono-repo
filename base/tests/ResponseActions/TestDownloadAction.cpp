@@ -1111,8 +1111,6 @@ TEST_F(DownloadFileTests, DirectLargeSizeBytes)
 
 TEST_F(DownloadFileTests, DirectNegativeExpiration)
 {
-    UsingMemoryAppender memoryAppenderHolder(*this);
-
     ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
 
     nlohmann::json action = getDownloadObject();
@@ -1143,6 +1141,8 @@ TEST_F(DownloadFileTests, DirectNegativeSizeBytes)
     EXPECT_FALSE(response.contains("errorType"));
     EXPECT_FALSE(response.contains("httpStatus"));
     EXPECT_FALSE(response.contains("duration"));
+
+    EXPECT_TRUE(appenderContains("Invalid command format. Failed to process DownloadInfo from action JSON: sizeBytes is a negative value: -123456"));
 }
 
 TEST_F(DownloadFileTests, FileToDownloadIsAboveMaxAllowedFileSize)
