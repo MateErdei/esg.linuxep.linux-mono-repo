@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2018-2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 #include "UpdateSchedulerBootstrap.h"
 
 #include "Logger.h"
@@ -11,6 +7,9 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 #include "cronModule/CronSchedulerThread.h"
 #include "runnerModule/AsyncSulDownloaderRunner.h"
+
+// Auto version headers
+#include "AutoVersioningHeaders/AutoVersion.h"
 
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/Logging/FileLoggingSetup.h>
@@ -29,12 +28,11 @@ namespace UpdateSchedulerImpl
     {
         umask(S_IRWXG | S_IRWXO); // Read and write for the owner
         Common::Logging::FileLoggingSetup logging("updatescheduler", true);
+        LOGINFO("Update Scheduler " << _AUTOVER_COMPONENTAUTOVERSION_STR_ << " started");
 
-        std::unique_ptr<Common::PluginApi::IPluginResourceManagement> resourceManagement =
-            Common::PluginApi::createPluginResourceManagement();
-
-        std::shared_ptr<SchedulerTaskQueue> queueTask = std::make_shared<SchedulerTaskQueue>();
-        auto sharedPluginCallBack = std::make_shared<SchedulerPluginCallback>(queueTask);
+        auto resourceManagement = Common::PluginApi::createPluginResourceManagement();
+        auto taskQueue = std::make_shared<SchedulerTaskQueue>();
+        auto sharedPluginCallBack = std::make_shared<SchedulerPluginCallback>(taskQueue);
         std::unique_ptr<Common::PluginApi::IBaseServiceApi> baseService;
         try
         {
@@ -49,17 +47,17 @@ namespace UpdateSchedulerImpl
         // on start up UpdateScheduler must perform an upgrade between 5 and 10 minutes (300 seconds, 600 seconds)
         Common::UtilityImpl::UniformIntDistribution distribution(300, 600);
 
-        auto cronThread =
-            std::unique_ptr<ICronSchedulerThread>(new cronModule::CronSchedulerThread(
-                queueTask, std::chrono::seconds(distribution.next()), std::chrono::minutes(60)));
+        auto cronThread = std::make_unique<cronModule::CronSchedulerThread>(
+                taskQueue, std::chrono::seconds(distribution.next()), std::chrono::minutes(60));
         std::string dirPath = Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderReportPath();
-        std::unique_ptr<IAsyncSulDownloaderRunner> runner =
-            std::unique_ptr<IAsyncSulDownloaderRunner>(new runnerModule::AsyncSulDownloaderRunner(queueTask, dirPath));
+        auto runner = std::make_unique<runnerModule::AsyncSulDownloaderRunner>(taskQueue, dirPath);
 
-        UpdateSchedulerProcessor updateScheduler(
-            queueTask, std::move(baseService), sharedPluginCallBack, std::move(cronThread), std::move(runner));
-        updateScheduler.mainLoop();
-        sharedPluginCallBack->setRunning(false);
+        {
+            UpdateSchedulerProcessor updateScheduler(
+                taskQueue, std::move(baseService), sharedPluginCallBack, std::move(cronThread), std::move(runner));
+            updateScheduler.mainLoop();
+            sharedPluginCallBack->setRunning(false); // Needs to be set to false before UpdateSchedulerProcessor is deleted
+        }
         LOGINFO("Update Scheduler Finished.");
         return 0;
     }

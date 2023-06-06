@@ -1,7 +1,6 @@
 #!/bin/env python3
 # -*- coding: utf-8 -*-
-# Copyright (C) 2022 Sophos Ltd
-# All rights reserved.
+# Copyright 2022-2023 Sophos Limited. All rights reserved.
 
 import os
 import re
@@ -9,7 +8,11 @@ import six
 import time
 from typing import Optional
 
-from robot.api import logger
+try:
+    from robot.api import logger
+except ImportError:
+    import logging
+    logger = logging.getLogger("LogHandler")
 
 
 def ensure_binary(s, encoding="UTF-8"):
@@ -103,6 +106,12 @@ class LogMark:
         except OSError:
             logger.error("Ran out of log files getting content for " + self.__m_log_path)
             return contents
+
+    def get_contents_unicode(self) -> Optional[str]:
+        contents = self.get_contents()
+        if contents is None:
+            return contents
+        return ensure_unicode(contents)
 
     def generate_reversed_lines(self):
         contents = self.get_contents()

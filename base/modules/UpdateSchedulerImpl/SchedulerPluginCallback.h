@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2018-2022 Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 #include <UpdateSchedulerImpl/stateMachinesModule/StateMachineData.h>
@@ -10,6 +6,8 @@ Copyright 2018-2022 Sophos Limited.  All rights reserved.
 #include <UpdateScheduler/SchedulerTaskQueue.h>
 
 #include <atomic>
+#include <condition_variable>
+#include <mutex>
 
 namespace UpdateSchedulerImpl
 {
@@ -39,7 +37,10 @@ namespace UpdateSchedulerImpl
         bool isRunning();
 
     private:
-        std::atomic_bool m_running = false;
+        bool isRunningLocked(std::unique_lock<std::mutex>& lock);
+        std::mutex runningMutex_;
+        std::condition_variable runningConditionVariable_;
+        bool m_running = false;
         StateData::StateMachineData m_stateMachineData;
     };
 } // namespace UpdateSchedulerImpl

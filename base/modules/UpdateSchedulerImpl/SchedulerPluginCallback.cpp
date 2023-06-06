@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2018-2022, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #include "Logger.h"
 #include "UpdateSchedulerProcessor.h"
@@ -60,18 +56,18 @@ namespace UpdateSchedulerImpl
     void SchedulerPluginCallback::onShutdown()
     {
         LOGDEBUG("Shutdown signal received");
+        std::unique_lock lock{runningMutex_};
         m_shutdownReceived = true;
         m_task->push(SchedulerTask{ SchedulerTask::TaskType::ShutdownReceived, "" });
 
         int timeoutCounter = 0;
         int shutdownTimeout = 30;
-        while(isRunning() && timeoutCounter < shutdownTimeout)
+        while(isRunningLocked(lock) && timeoutCounter < shutdownTimeout)
         {
             LOGDEBUG("Shutdown waiting for all processes to complete");
-            sleep(1);
+            runningConditionVariable_.wait_for(lock, std::chrono::seconds{1});
             timeoutCounter++;
         }
-
     }
 
     Common::PluginApi::StatusInfo SchedulerPluginCallback::getStatus(const std::string& /*appId*/)
@@ -130,10 +126,18 @@ namespace UpdateSchedulerImpl
 
     void SchedulerPluginCallback::setRunning(bool running)
     {
+        std::lock_guard guard{runningMutex_};
         m_running = running;
+        runningConditionVariable_.notify_all();
     }
 
     bool SchedulerPluginCallback::isRunning()
+    {
+        std::unique_lock lock{runningMutex_};
+        return isRunningLocked(lock);
+    }
+
+    bool SchedulerPluginCallback::isRunningLocked(std::unique_lock<std::mutex>&)
     {
         return m_running;
     }

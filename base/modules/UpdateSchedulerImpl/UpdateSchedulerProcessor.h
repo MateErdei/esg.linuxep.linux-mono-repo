@@ -65,7 +65,6 @@ namespace UpdateSchedulerImpl
 
     private:
         void waitForSulDownloaderToFinish(int numberOfSecondsToWait);
-        void waitForJWTokenToArrive(int numberOfSeconds2Wait);
         void processALCPolicy(const std::string& policyXml);
         void processFlags(const std::string& flagsContent);
 

@@ -65,7 +65,10 @@ add_library(updateschedulerimpl SHARED
         ../Common/UpdateUtilities/InstalledFeatures.cpp
         )
 
-target_include_directories(updateschedulerimpl SYSTEM PUBLIC ${LOG4CPLUS_INCLUDE_DIR} ${BOOST_INCLUDE_DIR})
+target_include_directories(updateschedulerimpl SYSTEM PUBLIC
+        ${LOG4CPLUS_INCLUDE_DIR} ${BOOST_INCLUDE_DIR}
+        ${AUTOVERSION_INCLUDE}
+        )
 
 target_link_libraries(updateschedulerimpl PUBLIC
         filesystemimpl

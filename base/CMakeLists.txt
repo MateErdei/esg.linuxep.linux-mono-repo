@@ -398,6 +398,8 @@ set(TELEMETRY_CONFIG_FILE ${INPUT}/telemetry/telemetry-config.json)
 configure_file(${TELEMETRY_CONFIG_SOURCE} ${TELEMETRY_CONFIG_FILE} COPYONLY)
 message("Telemetry config: ${TELEMETRY_CONFIG_SOURCE} -> ${TELEMETRY_CONFIG_FILE}")
 
+set(AUTOVERSION_INCLUDE ${CMAKE_SOURCE_DIR}/products/distribution/include)
+
 include_directories(modules)
 
 set(REL_DIST distribution)
