@@ -96,6 +96,8 @@ then
         fi
     done
 
+    zypper refs </dev/null
+
     for (( i=0; i<10; i++ ))
     do
         if zypper --non-interactive refresh </dev/null
