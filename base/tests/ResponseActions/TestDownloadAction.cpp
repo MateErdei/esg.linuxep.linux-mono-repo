@@ -1674,6 +1674,31 @@ TEST_F(DownloadFileTests, FailureDueToServerError)
     EXPECT_TRUE(appenderContains(expectedErrStr));
 }
 
+TEST_F(DownloadFileTests, FailureDueToServerCertError)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    const std::string expectedErrStr = "Failed to download, Error: SSL issues";
+
+    addResponseToMockRequester(500, ResponseErrorCode::CERTIFICATE_ERROR, "SSL issues");
+
+    addCleanupChecksToMockFileSystem();
+    addDiskSpaceExpectsToMockFileSystem();
+    EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(false));
+    Tests::replaceFileSystem(std::move(m_mockFileSystem));
+
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
+    nlohmann::json action = getDownloadObject();
+
+    nlohmann::json response = downloadFileAction.run(action.dump());
+
+    EXPECT_EQ(response["result"],1);
+    EXPECT_EQ(response["httpStatus"], 500);
+    EXPECT_EQ(response["errorType"], "network_error");
+    EXPECT_EQ(response["errorMessage"], expectedErrStr);
+
+    EXPECT_TRUE(appenderContains(expectedErrStr));
+}
 //FileSystem errors
 
 TEST_F(DownloadFileTests, HandlesWhenCantCreatePathToExtractTo_FileSystemException)

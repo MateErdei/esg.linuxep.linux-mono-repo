@@ -197,7 +197,7 @@ namespace ResponseActionsImpl
         else
         {
             std::stringstream error;
-            error << "Failed to upload zip file: " << m_pathToUpload << " with error code " << httpresponse.errorCode;
+            error << "Failed to upload zip file: " << m_pathToUpload << " with error: " << httpresponse.error;
             LOGWARN(error.str());
             ActionsUtils::setErrorInfo(response, 1, error.str(), "network_error");
         }
