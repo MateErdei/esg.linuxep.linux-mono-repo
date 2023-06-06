@@ -398,22 +398,16 @@ TEST_F(UploadFileTests, FailureDueToServerError)
 
 TEST_F(UploadFileTests, FailureDueToServerCertError)
 {
-    auto httpRequester = std::make_shared<StrictMock<MockHTTPRequester>>();
-    Common::HttpRequests::Response httpresponse;
-    httpresponse.status = 100;
-    httpresponse.errorCode = Common::HttpRequests::ResponseErrorCode::CERTIFICATE_ERROR;
-    httpresponse.error = "SSL issues";
-    EXPECT_CALL(*httpRequester, put(_)).WillOnce(Return(httpresponse));
-    ResponseActionsImpl::UploadFileAction uploadFileAction(httpRequester);
+    addResponseToMockRequester(100, ResponseErrorCode::CERTIFICATE_ERROR, "SSL issues");
+    ResponseActionsImpl::UploadFileAction uploadFileAction(m_mockHttpRequester);
     nlohmann::json action = getDefaultUploadObject();
 
-    auto mockFileSystem = std::make_unique<StrictMock<MockFileSystem>>();
-    EXPECT_CALL(*mockFileSystem, isFile("path")).WillOnce(Return(true));
-    EXPECT_CALL(*mockFileSystem, fileSize("path")).WillOnce(Return(100));
-    EXPECT_CALL(*mockFileSystem, calculateDigest(Common::SslImpl::Digest::sha256, "path"))
+    EXPECT_CALL(*m_mockFileSystem, isFile(m_testPath)).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockFileSystem, fileSize(m_testPath)).WillOnce(Return(100));
+    EXPECT_CALL(*m_mockFileSystem, calculateDigest(Common::SslImpl::Digest::sha256, m_testPath))
         .WillOnce(Return("sha256string"));
-    EXPECT_CALL(*mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(false));
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockFileSystem));
+    EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(false));
+    Tests::replaceFileSystem(std::move(m_mockFileSystem));
 
     nlohmann::json response = uploadFileAction.run(action.dump());
 
