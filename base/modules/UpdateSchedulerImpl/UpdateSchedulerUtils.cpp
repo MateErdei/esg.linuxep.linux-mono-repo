@@ -1,20 +1,32 @@
-/******************************************************************************************************
+// Copyright 2021-2023 Sophos Limited. All rights reserved.
 
-Copyright 2021-2022 Sophos Limited.  All rights reserved.
+#include "UpdateSchedulerUtils.h"
 
-******************************************************************************************************/
+#include "Logger.h"
 
-#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
-#include <Common/FileSystem/IFileSystem.h>
-#include <Common/FileSystem/IFileSystemException.h>
-#include <Common/UtilityImpl/StringUtils.h>
-#include <SulDownloader/suldownloaderdata/SulDownloaderException.h>
-#include <UpdateSchedulerImpl/Logger.h>
-#include <UpdateSchedulerImpl/UpdateSchedulerUtils.h>
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include "Common/FileSystem/IFileSystem.h"
+#include "Common/FileSystem/IFileSystemException.h"
+#include "Common/UtilityImpl/StringUtils.h"
+#include "SulDownloader/suldownloaderdata/SulDownloaderException.h"
 
 #include <json.hpp>
+
 namespace UpdateSchedulerImpl
 {
+    void log_exception(const std::exception& e, int level) // NOLINT(misc-no-recursion)
+    {
+        LOGERROR(std::string(level, ' ') << "exception: " << e.what());
+        try
+        {
+            std::rethrow_if_nested(e);
+        }
+        catch(const std::exception& nestedException)
+        {
+            log_exception(nestedException, level+1);
+        }
+        catch(...) {}
+    }
 
     std::string UpdateSchedulerUtils::calculateHealth(StateData::StateMachineData stateMachineData)
     {

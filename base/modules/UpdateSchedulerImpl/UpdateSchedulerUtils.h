@@ -6,6 +6,14 @@
 #include <string>
 namespace UpdateSchedulerImpl
 {
+    /**
+     * LOGERRORs the explanatory string of an exception. If the exception is nested,
+     * recurses to print the explanatory of the exception it holds
+     * @param e
+     * @param level
+     */
+    void log_exception(const std::exception& e, int level=0);
+
     class UpdateSchedulerUtils
     {
     public:

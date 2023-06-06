@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2018, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #include "SocketUtil.h"
 
@@ -166,7 +162,7 @@ void Common::ZeroMQWrapperImpl::SocketUtil::checkIncomingData(
             return;
         if (rc == 0)
         {
-            throw Common::ZeroMQWrapper::IIPCTimeoutException("No incoming data");
+            throw Common::ZeroMQWrapper::IIPCTimeoutException("No incoming data on ZMQ socket");
         }
 
         if (rc < 0)

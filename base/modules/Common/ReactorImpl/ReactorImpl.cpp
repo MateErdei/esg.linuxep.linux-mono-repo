@@ -111,7 +111,16 @@ namespace Common
                         // LOGDEBUG("check callbacklisteners: " << ireader.reader->fd());
                         if (hasFd->fd() == ireader.reader->fd())
                         {
-                            Common::ZeroMQWrapper::IReadable::data_t request = ireader.reader->read();
+                            Common::ZeroMQWrapper::IReadable::data_t request;
+                            try
+                            {
+                                request = ireader.reader->read();
+                            }
+                            catch (std::exception& ex)
+                            {
+                                LOGERROR("Reactor: failed to read message from callback listener: " << ex.what());
+                                throw;
+                            }
                             try
                             {
                                 ireader.listener->messageHandler(request);

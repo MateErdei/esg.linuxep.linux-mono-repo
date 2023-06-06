@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2018-2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #include "PluginProxy.h"
 
@@ -129,9 +125,11 @@ namespace Common
                 m_socket->write(protocol.serialize(request));
                 reply = protocol.deserialize(m_socket->read());
             }
-            catch (std::exception& ex)
+            catch (const std::exception& ex)
             {
-                throw PluginCommunication::IPluginCommunicationException(ex.what());
+                std::ostringstream err;
+                err << ex.what() << " from getReply in PluginProxy";
+                std::throw_with_nested(PluginCommunication::IPluginCommunicationException(err.str()));
             }
 
             if (reply.m_command != request.m_command)

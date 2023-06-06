@@ -4,6 +4,7 @@
 #include "Logger.h"
 #include "SchedulerPluginCallback.h"
 #include "UpdateSchedulerProcessor.h"
+#include "UpdateSchedulerUtils.h"
 
 #include "cronModule/CronSchedulerThread.h"
 #include "runnerModule/AsyncSulDownloaderRunner.h"
@@ -40,7 +41,8 @@ namespace UpdateSchedulerImpl
         }
         catch (const Common::PluginApi::ApiException& apiException)
         {
-            LOGERROR(apiException.what());
+            LOGERROR("ApiException creating Plugin API");
+            log_exception(apiException);
             return 1;
         }
 

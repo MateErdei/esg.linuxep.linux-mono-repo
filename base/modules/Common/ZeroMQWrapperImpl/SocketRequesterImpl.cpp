@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2018, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #include "SocketRequesterImpl.h"
 
@@ -28,7 +24,7 @@ std::vector<std::string> Common::ZeroMQWrapperImpl::SocketRequesterImpl::read()
         }
         return SocketUtil::read(m_socket);
     }
-    catch (std::exception&)
+    catch (const std::exception& ex)
     {
         // it is necessary to refresh the socket on read exception otherwise the socket will not be able to perform any
         // other request.

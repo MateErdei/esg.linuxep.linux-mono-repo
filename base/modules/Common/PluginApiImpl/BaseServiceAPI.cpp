@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2018-2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #include "BaseServiceAPI.h"
 
@@ -116,25 +112,33 @@ Common::PluginProtocol::DataMessage Common::PluginApiImpl::BaseServiceAPI::getRe
     Common::PluginProtocol::Protocol protocol;
     Common::PluginProtocol::DataMessage reply;
 
+    int attempts = 0;
     int tries = 5;
     int waitTimeMillis = 200;
+    int totalWaitMs = 0;
     while (tries > 0)
     {
-        tries--;
         try
         {
+            attempts++;
             m_socket->write(protocol.serialize(request));
             reply = protocol.deserialize(m_socket->read());
             break;
         }
-        catch (std::exception& ex)
+        catch (const std::exception& ex)
         {
+            tries--;
             if (tries == 0)
             {
-                throw Common::PluginApi::ApiException(ex.what());
+                std::ostringstream err;
+                err << ex.what() << " from getReply in BaseServiceAPI after " << attempts << " attempts and "
+                    << totalWaitMs << "ms sleep";
+                LOGERROR("Timed out: " << err.str());
+                std::throw_with_nested(Common::PluginApi::ApiException(err.str()));
             }
             LOGDEBUG("BaseServiceAPI call failed, retrying in " << waitTimeMillis << "ms");
             std::this_thread::sleep_for(std::chrono::milliseconds(waitTimeMillis));
+            totalWaitMs += waitTimeMillis;
         }
     }
 
