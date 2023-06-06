@@ -333,7 +333,49 @@ TEST_F(UploadFolderTests, actionExpired)
     nlohmann::json response = uploadFolderAction.run(action.dump());
     
     EXPECT_EQ(response["result"], 4);
-    EXPECT_EQ(response["errorMessage"], "Action has expired");
+    EXPECT_EQ(response["errorMessage"], "Upload folder action has expired");
+}
+
+TEST_F(UploadFolderTests, actionExpiryLarge)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    const std::string expectedMsg = "Upload folder action has expired";
+    ResponseActionsImpl::UploadFolderAction uploadFolderAction(m_mockHttpRequester);
+
+    std::string action (
+        R"({"type": "sophos.mgt.action.UploadFolder"
+        ,"timeout": 1000
+        ,"maxUploadSizeBytes": 1000
+        ,"url": "https://s3.com/download.zip"
+        ,"targetFolder": "path"
+        ,"expiration": 18446744073709551616})");
+
+    nlohmann::json response = uploadFolderAction.run(action);
+
+    EXPECT_EQ(response["type"], UPLOAD_FOLDER_RESPONSE_TYPE);
+    EXPECT_EQ(response["result"], 4);
+    EXPECT_EQ(response["errorMessage"], expectedMsg);
+    EXPECT_FALSE(response.contains("errorType"));
+    EXPECT_FALSE(response.contains("httpStatus"));
+    EXPECT_FALSE(response.contains("duration"));
+
+    EXPECT_TRUE(appenderContains(expectedMsg));
+}
+
+TEST_F(UploadFolderTests, actionExpiryNegative)
+{
+    ResponseActionsImpl::UploadFolderAction uploadFolderAction(m_mockHttpRequester);
+
+    nlohmann::json action = getDefaultUploadObject();
+    action["expiration"] = -123456;
+    nlohmann::json response = uploadFolderAction.run(action.dump());
+
+    EXPECT_EQ(response["type"], UPLOAD_FOLDER_RESPONSE_TYPE);
+    EXPECT_EQ(response["result"], 1);
+    EXPECT_EQ(response["errorMessage"], "Error parsing command from Central");
+    EXPECT_FALSE(response.contains("errorType"));
+    EXPECT_FALSE(response.contains("httpStatus"));
+    EXPECT_FALSE(response.contains("duration"));
 }
 
 TEST_F(UploadFolderTests, FolderDoesNotExist)
