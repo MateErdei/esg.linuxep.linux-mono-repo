@@ -18,8 +18,10 @@ import LogHandler
 
 SOPHOS_INSTALL = os.environ.get("SOPHOS_INSTALL", "/opt/sophos-spl")
 os.environ['SOPHOS_INSTALL'] = SOPHOS_INSTALL
-LOG_PATH = os.path.join(SOPHOS_INSTALL, "logs", "base", "sophosspl", "updatescheduler.log")
 MANAGEMENT_AGENT_LOG = os.path.join(SOPHOS_INSTALL, "logs", "base", "sophosspl", "sophos_managementagent.log")
+
+# Configure the plugin you want to monitor
+LOG_PATH = os.path.join(SOPHOS_INSTALL, "logs", "base", "sophosspl", "updatescheduler.log")
 EXECUTABLE = "UpdateScheduler"
 EXECUTABLE_PATH = os.path.join(SOPHOS_INSTALL, "base", "bin", EXECUTABLE)
 PLUGIN = "updatescheduler"
@@ -33,7 +35,7 @@ COUNTS = {
 TOTAL = 0
 
 
-def inner_loop():
+def inner_loop(argv):
     global TOTAL, COUNTS
     iteration = 1
     print(f"Starting {EXECUTABLE} %d" % iteration)
@@ -41,7 +43,10 @@ def inner_loop():
 
     while True:
         logmark = LogHandler.LogMark(LOG_PATH)
-        ma_mark = LogHandler.LogMark(MANAGEMENT_AGENT_LOG)
+        if LOG_PATH != MANAGEMENT_AGENT_LOG:
+            ma_mark = LogHandler.LogMark(MANAGEMENT_AGENT_LOG)
+        else:
+            ma_mark = None
         proc = subprocess.Popen([EXECUTABLE_PATH])
         try:
             retcode = proc.wait(INITIAL_WAIT)
@@ -58,12 +63,13 @@ def inner_loop():
             print(f"***** ERROR: {EXECUTABLE} exited with {retcode} after {duration} seconds, iteration {iteration} at {fmt_end}")
             log = logmark.get_contents_unicode()
             print("Log contents: " + log)
-            log = ma_mark.get_contents_unicode()
-            print(f"MA log contents: {log}")
+            if ma_mark:
+                log = ma_mark.get_contents_unicode()
+                print(f"MA log contents: {log}")
             COUNTS["more_than_2_seconds"] += 1
         elif duration > 0.5:
             fmt_end = time.strftime("%Y-%m-%dT%H:%M:%S.", time.gmtime(end)) + str(int((end % 1) * 1000))
-            print(f"{EXECUTABLE} exited with {retcode} after {duration} seconds, iteration {iteration} at {fmt_end}")
+            print(f"{EXECUTABLE} exited with {retcode} after {duration:.4f} seconds, iteration {iteration} at {fmt_end}")
             log = logmark.get_contents_unicode()
             print(f"{EXECUTABLE} log contents: {log}")
             COUNTS["more_than_0.5_seconds"] += 1
@@ -73,7 +79,7 @@ def inner_loop():
             print("Log contents: " + log)
             COUNTS["error"] += 1
         else:
-            print(f"{EXECUTABLE} exited after {duration:.3f} seconds, iteration {iteration} at {fmt_end}")
+            print(f"{EXECUTABLE} exited after {duration:.4f} seconds, iteration {iteration} at {fmt_end}")
             COUNTS["quick_good"] += 1
 
         TOTAL += 1
@@ -84,7 +90,7 @@ def main(argv):
     subprocess.run([SOPHOS_INSTALL + "/bin/wdctl", "stop", PLUGIN], check=True)
 
     try:
-        inner_loop()
+        inner_loop(argv)
     except KeyboardInterrupt:
         pass
 

@@ -49,15 +49,21 @@ namespace UpdateSchedulerImpl
 
         auto cronThread = std::make_unique<cronModule::CronSchedulerThread>(
                 taskQueue, std::chrono::seconds(distribution.next()), std::chrono::minutes(60));
-        std::string dirPath = Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderReportPath();
+        auto dirPath = Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderReportPath();
         auto runner = std::make_unique<runnerModule::AsyncSulDownloaderRunner>(taskQueue, dirPath);
 
         {
             UpdateSchedulerProcessor updateScheduler(
-                taskQueue, std::move(baseService), sharedPluginCallBack, std::move(cronThread), std::move(runner));
+                std::move(taskQueue),
+                std::move(baseService),
+                sharedPluginCallBack,
+                std::move(cronThread),
+                std::move(runner));
             updateScheduler.mainLoop();
             sharedPluginCallBack->setRunning(false); // Needs to be set to false before UpdateSchedulerProcessor is deleted
         }
+        sharedPluginCallBack.reset();
+        resourceManagement.reset();
         LOGINFO("Update Scheduler Finished.");
         return 0;
     }
