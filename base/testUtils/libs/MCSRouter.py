@@ -643,7 +643,8 @@ class MCSRouter(object):
         policy_contents = f.read()
         self.send_policy(policy_type, policy_contents)
         if wait_for_policy:
-            for i in range(20):
+            timeout = 20
+            for i in range(timeout):
                 try:
                     self.check_policy_written("ALC-1_policy.xml", policy_contents)
                     return
@@ -651,7 +652,7 @@ class MCSRouter(object):
                     pass
                 time.sleep(1)
             else:
-                raise AssertionError(f"Policy {policy_path} not written to policy dir within 10 seconds")
+                raise AssertionError(f"Policy {policy_path} not written to policy dir within {timeout} seconds")
 
     def send_flags(self, data):
         headers = {"Content-type": "application/octet-stream", "Accept": "text/plain"}

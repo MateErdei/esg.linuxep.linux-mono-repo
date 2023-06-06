@@ -565,8 +565,10 @@ We Can Downgrade From VUT to Release Without Unexpected Errors
     ...   10 secs
     ...   Check Log Contains String At Least N times    /tmp/preserve-sul-downgrade    Downgrade Log    Update success    1
     Run Keyword If  ${ExpectBaseDowngrade}    Check Log Contains    Preparing ServerProtectionLinux-Base-component for downgrade    ${SULDownloaderLogDowngrade}  backedup suldownloader log
+    ${ma_mark} =  mark_log_size  ${SOPHOS_INSTALL}/logs/base/sophosspl/sophos_managementagent.log
 
     Trigger Update Now
+    wait_for_log_contains_from_mark  ${ma_mark}  Action ALC_action_FakeTime.xml sent to     15
     # Wait for successful update (all up to date) after downgrading
     Wait Until Keyword Succeeds
     ...  200 secs
