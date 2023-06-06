@@ -210,22 +210,19 @@ TEST_F(BaseTelemetryReporterTests, extractOverallHealthFindsOverallHealthXml) //
 
 TEST_F(BaseTelemetryReporterTests, parseOutbreakStatusWhenFileDoesNotExist)
 {
-    auto mockFileSystem = new StrictMock<MockFileSystem>();
-    std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
+auto mockFileSystem =  std::make_unique<StrictMock<MockFileSystem>>();
     EXPECT_CALL(
         *mockFileSystem,
         isFile(Common::ApplicationConfiguration::applicationPathManager().getOutbreakModeStatusFilePath()))
         .WillOnce(Return(false));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockFileSystem));
     EXPECT_EQ(Telemetry::parseOutbreakStatusFile(), std::nullopt);
 }
 
 TEST_F(BaseTelemetryReporterTests, parseOutbreakStatusCatchesFileSystemException)
 {
     testing::internal::CaptureStderr();
-    auto mockFileSystem = new StrictMock<MockFileSystem>();
-    std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
+auto mockFileSystem =  std::make_unique<StrictMock<MockFileSystem>>();
     EXPECT_CALL(
         *mockFileSystem,
         isFile(Common::ApplicationConfiguration::applicationPathManager().getOutbreakModeStatusFilePath()))
@@ -234,6 +231,7 @@ TEST_F(BaseTelemetryReporterTests, parseOutbreakStatusCatchesFileSystemException
         *mockFileSystem,
         readFile(Common::ApplicationConfiguration::applicationPathManager().getOutbreakModeStatusFilePath()))
         .WillOnce(Throw(Common::FileSystem::IFileSystemException("TEST")));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockFileSystem));
     EXPECT_EQ(Telemetry::parseOutbreakStatusFile(), std::nullopt);
 
     std::string logMessage = testing::internal::GetCapturedStderr();
@@ -243,9 +241,7 @@ TEST_F(BaseTelemetryReporterTests, parseOutbreakStatusCatchesFileSystemException
 TEST_F(BaseTelemetryReporterTests, parseOutbreakStatusCatchesParseError)
 {
     testing::internal::CaptureStderr();
-    auto mockFileSystem = new StrictMock<MockFileSystem>();
-    std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
+auto mockFileSystem =  std::make_unique<StrictMock<MockFileSystem>>();
     EXPECT_CALL(
         *mockFileSystem,
         isFile(Common::ApplicationConfiguration::applicationPathManager().getOutbreakModeStatusFilePath()))
@@ -254,6 +250,7 @@ TEST_F(BaseTelemetryReporterTests, parseOutbreakStatusCatchesParseError)
         *mockFileSystem,
         readFile(Common::ApplicationConfiguration::applicationPathManager().getOutbreakModeStatusFilePath()))
         .WillOnce(Return("not a json"));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockFileSystem));
     EXPECT_EQ(Telemetry::parseOutbreakStatusFile(), std::nullopt);
 
     std::string logMessage = testing::internal::GetCapturedStderr();
@@ -262,9 +259,8 @@ TEST_F(BaseTelemetryReporterTests, parseOutbreakStatusCatchesParseError)
 
 TEST_F(BaseTelemetryReporterTests, getOutbreakModeCurrentInOutbreakMode)
 {
-    auto mockFileSystem = new StrictMock<MockFileSystem>();
-    std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
+auto mockFileSystem =  std::make_unique<StrictMock<MockFileSystem>>();
+
 
     EXPECT_CALL(
         *mockFileSystem,
@@ -274,14 +270,13 @@ TEST_F(BaseTelemetryReporterTests, getOutbreakModeCurrentInOutbreakMode)
         *mockFileSystem,
         readFile(Common::ApplicationConfiguration::applicationPathManager().getOutbreakModeStatusFilePath()))
         .WillOnce(Return(R"({ "outbreak-mode" : true })"));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockFileSystem));
     EXPECT_EQ(Telemetry::BaseTelemetryReporter::getOutbreakModeCurrent(), "true");
 }
 
 TEST_F(BaseTelemetryReporterTests, getOutbreakModeCurrentNotInOutbreakMode)
 {
-    auto mockFileSystem = new StrictMock<MockFileSystem>();
-    std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
+auto mockFileSystem =  std::make_unique<StrictMock<MockFileSystem>>();
 
     EXPECT_CALL(
         *mockFileSystem,
@@ -291,15 +286,14 @@ TEST_F(BaseTelemetryReporterTests, getOutbreakModeCurrentNotInOutbreakMode)
         *mockFileSystem,
         readFile(Common::ApplicationConfiguration::applicationPathManager().getOutbreakModeStatusFilePath()))
         .WillOnce(Return(R"({ "outbreak-mode" : false })"));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockFileSystem));
     EXPECT_EQ(Telemetry::BaseTelemetryReporter::getOutbreakModeCurrent(), "false");
 }
 
 TEST_F(BaseTelemetryReporterTests, getOutbreakModeCurrentWithInvalidJson)
 {
     testing::internal::CaptureStderr();
-    auto mockFileSystem = new StrictMock<MockFileSystem>();
-    std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
+auto mockFileSystem =  std::make_unique<StrictMock<MockFileSystem>>();
 
     EXPECT_CALL(
         *mockFileSystem,
@@ -309,6 +303,7 @@ TEST_F(BaseTelemetryReporterTests, getOutbreakModeCurrentWithInvalidJson)
         *mockFileSystem,
         readFile(Common::ApplicationConfiguration::applicationPathManager().getOutbreakModeStatusFilePath()))
         .WillOnce(Return(R"({ .,';" })"));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockFileSystem));
     EXPECT_EQ(Telemetry::BaseTelemetryReporter::getOutbreakModeCurrent(), std::nullopt);
 
     std::string logMessage = testing::internal::GetCapturedStderr();
@@ -318,9 +313,7 @@ TEST_F(BaseTelemetryReporterTests, getOutbreakModeCurrentWithInvalidJson)
 TEST_F(BaseTelemetryReporterTests, getOutbreakModeCurrentWithTypeError)
 {
     testing::internal::CaptureStderr();
-    auto mockFileSystem = new StrictMock<MockFileSystem>();
-    std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
+    auto mockFileSystem =  std::make_unique<StrictMock<MockFileSystem>>();
 
     EXPECT_CALL(
         *mockFileSystem,
@@ -330,15 +323,15 @@ TEST_F(BaseTelemetryReporterTests, getOutbreakModeCurrentWithTypeError)
         *mockFileSystem,
         readFile(Common::ApplicationConfiguration::applicationPathManager().getOutbreakModeStatusFilePath()))
         .WillOnce(Return(R"( { "outbreak-mode" : "not boolean" } )"));
+
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockFileSystem));
     EXPECT_EQ(Telemetry::BaseTelemetryReporter::getOutbreakModeCurrent(), std::nullopt);
 }
 
 TEST_F(BaseTelemetryReporterTests, getOutbreakModeCurrentWithEmptyJson)
 {
     testing::internal::CaptureStderr();
-    auto mockFileSystem = new StrictMock<MockFileSystem>();
-    std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
+    auto mockFileSystem =  std::make_unique<StrictMock<MockFileSystem>>();
 
     EXPECT_CALL(
         *mockFileSystem,
@@ -348,6 +341,8 @@ TEST_F(BaseTelemetryReporterTests, getOutbreakModeCurrentWithEmptyJson)
         *mockFileSystem,
         readFile(Common::ApplicationConfiguration::applicationPathManager().getOutbreakModeStatusFilePath()))
         .WillOnce(Return(""));
+
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockFileSystem));
     EXPECT_EQ(Telemetry::BaseTelemetryReporter::getOutbreakModeCurrent(), std::nullopt);
 
     std::string logMessage = testing::internal::GetCapturedStderr();
@@ -357,14 +352,13 @@ TEST_F(BaseTelemetryReporterTests, getOutbreakModeCurrentWithEmptyJson)
 TEST_F(BaseTelemetryReporterTests, getOutbreakModeCurrentWithMissingFile)
 {
     testing::internal::CaptureStderr();
-    auto mockFileSystem = new StrictMock<MockFileSystem>();
-    std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
+auto mockFileSystem =  std::make_unique<StrictMock<MockFileSystem>>();
 
     EXPECT_CALL(
         *mockFileSystem,
         isFile(Common::ApplicationConfiguration::applicationPathManager().getOutbreakModeStatusFilePath()))
         .WillOnce(Return(false));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockFileSystem));
     EXPECT_EQ(Telemetry::BaseTelemetryReporter::getOutbreakModeCurrent(), std::nullopt);
 
     std::string logMessage = testing::internal::GetCapturedStderr();
@@ -373,27 +367,25 @@ TEST_F(BaseTelemetryReporterTests, getOutbreakModeCurrentWithMissingFile)
 
 TEST_F(BaseTelemetryReporterTests, getOutbreakModeHistoricWithFile)
 {
-    auto mockFileSystem = new StrictMock<MockFileSystem>();
-    std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
+auto mockFileSystem =  std::make_unique<StrictMock<MockFileSystem>>();
 
     EXPECT_CALL(
         *mockFileSystem,
         isFile(Common::ApplicationConfiguration::applicationPathManager().getOutbreakModeStatusFilePath()))
         .WillOnce(Return(true));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockFileSystem));
     EXPECT_EQ(Telemetry::BaseTelemetryReporter::getOutbreakModeHistoric(), "true");
 }
 
 TEST_F(BaseTelemetryReporterTests, getOutbreakModeHistoricWithMissingFile)
 {
-    auto mockFileSystem = new StrictMock<MockFileSystem>();
-    std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
+auto mockFileSystem =  std::make_unique<StrictMock<MockFileSystem>>();
 
     EXPECT_CALL(
         *mockFileSystem,
         isFile(Common::ApplicationConfiguration::applicationPathManager().getOutbreakModeStatusFilePath()))
         .WillOnce(Return(false));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockFileSystem));
     EXPECT_EQ(Telemetry::BaseTelemetryReporter::getOutbreakModeHistoric(), "false");
 }
 
@@ -553,9 +545,7 @@ TEST_F(BaseTelemetryReporterTests, getOutbreakModeTodayWithInvalidTime)
 {
     testing::internal::CaptureStderr();
 
-    auto mockFileSystem = new StrictMock<MockFileSystem>();
-    std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
+auto mockFileSystem =  std::make_unique<StrictMock<MockFileSystem>>();
 
     auto now = Telemetry::BaseTelemetryReporter::clock_t::now();
 
@@ -567,6 +557,7 @@ TEST_F(BaseTelemetryReporterTests, getOutbreakModeTodayWithInvalidTime)
         *mockFileSystem,
         readFile(Common::ApplicationConfiguration::applicationPathManager().getOutbreakModeStatusFilePath()))
         .WillOnce(Return(R"( { "timestamp" : "tomorrow, at some point" } )"));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockFileSystem));
     EXPECT_EQ(Telemetry::BaseTelemetryReporter::getOutbreakModeToday(now), std::nullopt);
 
     std::string logMessage = testing::internal::GetCapturedStderr();
@@ -577,9 +568,7 @@ TEST_F(BaseTelemetryReporterTests, getOutbreakModeTodayWithInvalidJson)
 {
     testing::internal::CaptureStderr();
 
-    auto mockFileSystem = new StrictMock<MockFileSystem>();
-    std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
+auto mockFileSystem =  std::make_unique<StrictMock<MockFileSystem>>();
 
     auto now = Telemetry::BaseTelemetryReporter::clock_t::now();
 
@@ -591,6 +580,7 @@ TEST_F(BaseTelemetryReporterTests, getOutbreakModeTodayWithInvalidJson)
         *mockFileSystem,
         readFile(Common::ApplicationConfiguration::applicationPathManager().getOutbreakModeStatusFilePath()))
         .WillOnce(Return(R"( { :D "timestamp" : "tomorrow, at some point" } )"));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockFileSystem));
     EXPECT_EQ(Telemetry::BaseTelemetryReporter::getOutbreakModeToday(now), std::nullopt);
 
     std::string logMessage = testing::internal::GetCapturedStderr();
@@ -601,9 +591,7 @@ TEST_F(BaseTelemetryReporterTests, getOutbreakModeTodayWithEmptyJson)
 {
     testing::internal::CaptureStderr();
 
-    auto mockFileSystem = new StrictMock<MockFileSystem>();
-    std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
+auto mockFileSystem =  std::make_unique<StrictMock<MockFileSystem>>();
 
     auto now = Telemetry::BaseTelemetryReporter::clock_t::now();
 
@@ -615,6 +603,7 @@ TEST_F(BaseTelemetryReporterTests, getOutbreakModeTodayWithEmptyJson)
         *mockFileSystem,
         readFile(Common::ApplicationConfiguration::applicationPathManager().getOutbreakModeStatusFilePath()))
         .WillOnce(Return(""));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockFileSystem));
     EXPECT_EQ(Telemetry::BaseTelemetryReporter::getOutbreakModeToday(now), std::nullopt);
 
     std::string logMessage = testing::internal::GetCapturedStderr();
@@ -625,9 +614,7 @@ TEST_F(BaseTelemetryReporterTests, OutbreakStatusFileTooLarge)
 {
     testing::internal::CaptureStderr();
 
-    auto mockFileSystem = new StrictMock<MockFileSystem>();
-    std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
+auto mockFileSystem =  std::make_unique<StrictMock<MockFileSystem>>();
 
     auto now = Telemetry::BaseTelemetryReporter::clock_t::now();
 
@@ -639,6 +626,7 @@ TEST_F(BaseTelemetryReporterTests, OutbreakStatusFileTooLarge)
         *mockFileSystem,
         readFile(Common::ApplicationConfiguration::applicationPathManager().getOutbreakModeStatusFilePath()))
         .WillOnce(Throw(Common::FileSystem::IFileTooLargeException("TEST")));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockFileSystem));
     EXPECT_EQ(Telemetry::BaseTelemetryReporter::getOutbreakModeToday(now), std::nullopt);
 
     std::string logMessage = testing::internal::GetCapturedStderr();
@@ -647,9 +635,7 @@ TEST_F(BaseTelemetryReporterTests, OutbreakStatusFileTooLarge)
 
 TEST_F(BaseTelemetryReporterTests, getOutbreakModeTodayWithTypeError)
 {
-    auto mockFileSystem = new StrictMock<MockFileSystem>();
-    std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
+auto mockFileSystem =  std::make_unique<StrictMock<MockFileSystem>>();
 
     auto now = Telemetry::BaseTelemetryReporter::clock_t::now();
 
@@ -661,14 +647,13 @@ TEST_F(BaseTelemetryReporterTests, getOutbreakModeTodayWithTypeError)
         *mockFileSystem,
         readFile(Common::ApplicationConfiguration::applicationPathManager().getOutbreakModeStatusFilePath()))
         .WillOnce(Return(R"( {"timestamp" : false } )"));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockFileSystem));
     EXPECT_EQ(Telemetry::BaseTelemetryReporter::getOutbreakModeToday(now), std::nullopt);
 }
 
 TEST_F(BaseTelemetryReporterTests, getOutbreakModeTodayWithFileMissing)
 {
-    auto mockFileSystem = new StrictMock<MockFileSystem>();
-    std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
+auto mockFileSystem =  std::make_unique<StrictMock<MockFileSystem>>();
 
     auto now = Telemetry::BaseTelemetryReporter::clock_t::now();
 
@@ -676,5 +661,6 @@ TEST_F(BaseTelemetryReporterTests, getOutbreakModeTodayWithFileMissing)
         *mockFileSystem,
         isFile(Common::ApplicationConfiguration::applicationPathManager().getOutbreakModeStatusFilePath()))
         .WillOnce(Return(false));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockFileSystem));
     EXPECT_EQ(Telemetry::BaseTelemetryReporter::getOutbreakModeToday(now), std::nullopt);
 }
