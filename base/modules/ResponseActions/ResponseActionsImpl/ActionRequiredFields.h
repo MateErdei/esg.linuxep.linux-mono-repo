@@ -7,6 +7,7 @@
 
 namespace ResponseActionsImpl
 {
+    //Note this is minus the 'type' field as this is handled by RA plugin adaptor at a high level
     const std::vector<std::string> uploadFileRequiredFields
         {"targetFile","timeout","maxUploadSizeBytes","expiration","url"};
 
@@ -17,7 +18,7 @@ namespace ResponseActionsImpl
         {"targetPath","timeout","sha256","sizeBytes","expiration","url"};
 
     const std::vector<std::string> runCommandRequiredFields
-        { "type", "commands", "timeout", "ignoreError", "expiration" };
+        { "commands", "timeout", "ignoreError", "expiration" };
 }
 
 
