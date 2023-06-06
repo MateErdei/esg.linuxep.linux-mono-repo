@@ -44,7 +44,7 @@ namespace ResponseActionsImpl
 
         if (ActionsUtils::isExpired(info.expiration))
         {
-            std::string error = "Action has expired";
+            std::string error = "Upload file action has expired";
             LOGWARN(error);
             ActionsUtils::setErrorInfo(
                 response, static_cast<int>(ResponseActions::RACommon::ResponseResult::EXPIRED), error);
