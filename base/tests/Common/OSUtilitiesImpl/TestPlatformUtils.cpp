@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2022, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2022-2023 Sophos Limited. All rights reserved.
 
 #include <Common/OSUtilitiesImpl/CloudMetadataConverters.h>
 #include <Common/OSUtilitiesImpl/PlatformUtils.h>
@@ -26,10 +22,7 @@ TEST(TestPlatformUtils, PopulateVendorDetailsForUbuntu) // NOLINT
     auto filesystemMock = std::make_unique<StrictMock<MockFileSystem>>();
     EXPECT_CALL(*filesystemMock, isFile("/etc/lsb-release")).WillRepeatedly(Return(true));
     EXPECT_CALL(*filesystemMock, readLines("/etc/lsb-release")).WillRepeatedly(Return(lsbReleaseContents));
-
-    std::unique_ptr<Tests::ScopedReplaceFileSystem> scopedReplaceFileSystem =
-        std::make_unique<Tests::ScopedReplaceFileSystem>(
-            std::unique_ptr<Common::FileSystem::IFileSystem>(std::move(filesystemMock)));
+    auto scopedReplaceFileSystem = std::make_unique<Tests::ScopedReplaceFileSystem>(std::move(filesystemMock));
 
     PlatformUtils platformUtils;
     ASSERT_EQ(platformUtils.getVendor(), "ubuntu");
@@ -51,10 +44,7 @@ TEST(TestPlatformUtils, PopulateVendorDetailsForRedhat) // NOLINT
     EXPECT_CALL(*filesystemMock, isFile("/etc/oracle-release")).WillOnce(Return(false));
     EXPECT_CALL(*filesystemMock, isFile("/etc/redhat-release")).WillRepeatedly(Return(true));
     EXPECT_CALL(*filesystemMock, readLines("/etc/redhat-release")).WillRepeatedly(Return(redhatReleaseContents));
-
-    std::unique_ptr<Tests::ScopedReplaceFileSystem> scopedReplaceFileSystem =
-        std::make_unique<Tests::ScopedReplaceFileSystem>(
-            std::unique_ptr<Common::FileSystem::IFileSystem>(std::move(filesystemMock)));
+    auto scopedReplaceFileSystem = std::make_unique<Tests::ScopedReplaceFileSystem>(std::move(filesystemMock));
 
     PlatformUtils platformUtils;
     ASSERT_EQ(platformUtils.getVendor(), "redhat");
@@ -71,10 +61,7 @@ TEST(TestPlatformUtils, PopulateVendorDetailsForCentos) // NOLINT
     EXPECT_CALL(*filesystemMock, isFile("/etc/issue")).WillOnce(Return(false));
     EXPECT_CALL(*filesystemMock, isFile("/etc/centos-release")).WillRepeatedly(Return(true));
     EXPECT_CALL(*filesystemMock, readLines("/etc/centos-release")).WillRepeatedly(Return(centosReleaseContents));
-
-    std::unique_ptr<Tests::ScopedReplaceFileSystem> scopedReplaceFileSystem =
-        std::make_unique<Tests::ScopedReplaceFileSystem>(
-            std::unique_ptr<Common::FileSystem::IFileSystem>(std::move(filesystemMock)));
+    auto scopedReplaceFileSystem = std::make_unique<Tests::ScopedReplaceFileSystem>(std::move(filesystemMock));
 
     PlatformUtils platformUtils;
     ASSERT_EQ(platformUtils.getVendor(), "centos");
@@ -94,10 +81,7 @@ TEST(TestPlatformUtils, PopulateVendorDetailsForAmazonLinux) // NOLINT
     EXPECT_CALL(*filesystemMock, isFile("/etc/redhat-release")).WillOnce(Return(false));
     EXPECT_CALL(*filesystemMock, isFile("/etc/system-release")).WillRepeatedly(Return(true));
     EXPECT_CALL(*filesystemMock, readLines("/etc/system-release")).WillRepeatedly(Return(systemReleaseContents));
-
-    std::unique_ptr<Tests::ScopedReplaceFileSystem> scopedReplaceFileSystem =
-        std::make_unique<Tests::ScopedReplaceFileSystem>(
-            std::unique_ptr<Common::FileSystem::IFileSystem>(std::move(filesystemMock)));
+    auto scopedReplaceFileSystem = std::make_unique<Tests::ScopedReplaceFileSystem>(std::move(filesystemMock));
 
     PlatformUtils platformUtils;
     ASSERT_EQ(platformUtils.getVendor(), "amazon");
@@ -115,10 +99,7 @@ TEST(TestPlatformUtils, PopulateVendorDetailsForOracle) // NOLINT
     EXPECT_CALL(*filesystemMock, isFile("/etc/centos-release")).WillOnce(Return(false));
     EXPECT_CALL(*filesystemMock, isFile("/etc/oracle-release")).WillRepeatedly(Return(true));
     EXPECT_CALL(*filesystemMock, readLines("/etc/oracle-release")).WillRepeatedly(Return(oracleReleaseContents));
-
-    std::unique_ptr<Tests::ScopedReplaceFileSystem> scopedReplaceFileSystem =
-        std::make_unique<Tests::ScopedReplaceFileSystem>(
-            std::unique_ptr<Common::FileSystem::IFileSystem>(std::move(filesystemMock)));
+    auto scopedReplaceFileSystem = std::make_unique<Tests::ScopedReplaceFileSystem>(std::move(filesystemMock));
 
     PlatformUtils platformUtils;
     ASSERT_EQ(platformUtils.getVendor(), "oracle");
@@ -140,10 +121,7 @@ TEST(TestPlatformUtils, PopulateVendorDetailsForMiracleLinux) // NOLINT
     EXPECT_CALL(*filesystemMock, isFile("/etc/miraclelinux-release")).WillRepeatedly(Return(true));
     EXPECT_CALL(*filesystemMock, readLines("/etc/miraclelinux-release"))
         .WillRepeatedly(Return(miracleLinuxReleaseContents));
-
-    std::unique_ptr<Tests::ScopedReplaceFileSystem> scopedReplaceFileSystem =
-        std::make_unique<Tests::ScopedReplaceFileSystem>(
-            std::unique_ptr<Common::FileSystem::IFileSystem>(std::move(filesystemMock)));
+    auto scopedReplaceFileSystem = std::make_unique<Tests::ScopedReplaceFileSystem>(std::move(filesystemMock));
 
     PlatformUtils platformUtils;
     ASSERT_EQ(platformUtils.getVendor(), "miracle");
@@ -166,10 +144,7 @@ TEST(TestPlatformUtils, PopulateVendorDetailsForSLES12) // NOLINT
     EXPECT_CALL(*filesystemMock, isFile("/etc/miraclelinux-release")).WillRepeatedly(Return(false));
     EXPECT_CALL(*filesystemMock, isFile("/etc/SUSE-brand")).WillRepeatedly(Return(true));
     EXPECT_CALL(*filesystemMock, readLines("/etc/SUSE-brand")).WillRepeatedly(Return(suseReleaseContents));
-
-    std::unique_ptr<Tests::ScopedReplaceFileSystem> scopedReplaceFileSystem =
-        std::make_unique<Tests::ScopedReplaceFileSystem>(
-            std::unique_ptr<Common::FileSystem::IFileSystem>(std::move(filesystemMock)));
+    auto scopedReplaceFileSystem = std::make_unique<Tests::ScopedReplaceFileSystem>(std::move(filesystemMock));
 
     PlatformUtils platformUtils;
     ASSERT_EQ(platformUtils.getVendor(), "suse");

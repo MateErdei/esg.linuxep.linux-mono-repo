@@ -1,3 +1,4 @@
+// Copyright 2022-2023 Sophos Limited. All rights reserved.
 
 #include "../Helpers/LogInitializedTests.h"
 #include "FileSystem/IFileSystem.h"
@@ -119,8 +120,6 @@ TEST_F(CurlFunctionsProviderTests, curlWriteFileFuncWithNamedDirectoryAndSlash)
 
 TEST_F(CurlFunctionsProviderTests, curlWriteFileFuncWithNoTargetFileOrDirShouldReturnZero)
 {
-    auto mockFileSystem = std::make_unique<StrictMock<MockFileSystem>>();
-
     const char* dataChunk1 = "This is some ";
     const char* dataChunk2 = "data to deal with";
     size_t length1 = strlen(dataChunk1);
@@ -132,7 +131,6 @@ TEST_F(CurlFunctionsProviderTests, curlWriteFileFuncWithNoTargetFileOrDirShouldR
     size_t bytesDealtWith = 0;
     bytesDealtWith += CurlFunctionsProvider::curlWriteFileFunc((void*)dataChunk1, 1, length1, &buffer);
     bytesDealtWith += CurlFunctionsProvider::curlWriteFileFunc((void*)dataChunk2, 1, length2, &buffer);
-    Tests::replaceFileSystem(std::move(mockFileSystem));
 
     ASSERT_EQ(bytesDealtWith, 0);
 }
