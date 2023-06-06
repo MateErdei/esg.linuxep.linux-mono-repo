@@ -1164,6 +1164,22 @@ TEST_F(DownloadFileTests, FileToDownloadIsAboveMaxAllowedFileSize)
     EXPECT_TRUE(appenderContains(expectedErrMsg));
 }
 
+TEST_F(DownloadFileTests, EmptyPath)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    const std::string expectedMsg = "Invalid command format. Failed to process DownloadInfo from action JSON: targetPath field is empty";
+
+    ResponseActionsImpl::DownloadFileAction downloadFileAction(m_mockHttpRequester);
+    nlohmann::json action = getDownloadObject();
+    action["targetPath"] = "";
+    nlohmann::json response = downloadFileAction.run(action.dump());
+
+    EXPECT_EQ(response["result"], 1);
+    EXPECT_EQ(response["errorMessage"], "Error parsing command from Central");
+    EXPECT_FALSE(response.contains("errorType"));
+
+    EXPECT_TRUE(appenderContains(expectedMsg));
+}
 
 TEST_F(DownloadFileTests, InvalidAbsolutePath)
 {
@@ -1182,7 +1198,6 @@ TEST_F(DownloadFileTests, InvalidAbsolutePath)
 
     EXPECT_TRUE(appenderContains(expectedErrMsg));
 }
-
 
 TEST_F(DownloadFileTests, NotEnoughSpaceOnRATmpDisk)
 {

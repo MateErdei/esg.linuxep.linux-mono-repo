@@ -43,7 +43,7 @@ public:
     {
         nlohmann::json action;
         action["targetFile"] = m_testPath;
-        action["url"] = "https://s3.com/somewhere";
+        action["url"] = m_testURL;
         action["compress"] = false;
         action["password"] = "";
         action["expiration"] = 144444000000004;
@@ -70,7 +70,8 @@ public:
 
     const std::string m_testPath = "/path";
     const std::string m_zipPath = "/opt/sophos-spl/plugins/responseactions/tmp/path.zip";
-    
+    const std::string m_testURL = "https://s3.com/somewhere";
+
     std::shared_ptr<MockHTTPRequester> m_mockHttpRequester;
     std::unique_ptr<MockFileSystem> m_mockFileSystem;
 };
@@ -102,7 +103,7 @@ TEST_F(UploadFileTests, successHugeURL)
     const std::string largeStr(30000, 'a');
     const std::string largeURL("https://s3.com/download" + largeStr + ".zip");
     const std::string expectedMsg("Uploading file: " + m_testPath + " to url: " + largeURL);
-    PRINT(expectedMsg);
+
     addResponseToMockRequester(HTTP_STATUS_OK, ResponseErrorCode::OK);
 
     ResponseActionsImpl::UploadFileAction uploadFileAction(m_mockHttpRequester);
@@ -120,6 +121,39 @@ TEST_F(UploadFileTests, successHugeURL)
 
     EXPECT_EQ(response["result"], 0);
     EXPECT_EQ(response["httpStatus"], HTTP_STATUS_OK);
+
+    EXPECT_EQ(response["type"], UPLOAD_FILE_RESPONSE_TYPE);
+    EXPECT_EQ(response["result"], 0);
+    EXPECT_EQ(response["httpStatus"], HTTP_STATUS_OK);
+    EXPECT_FALSE(response.contains("errorType"));
+    EXPECT_FALSE(response.contains("errorMessage"));
+    EXPECT_TRUE(response.contains("duration"));
+
+    EXPECT_TRUE(appenderContains(expectedMsg));
+}
+
+TEST_F(UploadFileTests, successHugePath)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    const std::string largeStr(30000, 'a');
+    const std::string largeTargetPath(m_testPath + largeStr);
+    const std::string expectedMsg("Uploading file: " + largeTargetPath + " to url: " + m_testURL);
+
+    addResponseToMockRequester(HTTP_STATUS_OK, ResponseErrorCode::OK);
+
+    ResponseActionsImpl::UploadFileAction uploadFileAction(m_mockHttpRequester);
+
+    EXPECT_CALL(*m_mockFileSystem, isFile("/opt/sophos-spl/base/etc/sophosspl/current_proxy")).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFileSystem, isFile(largeTargetPath)).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockFileSystem, fileSize(largeTargetPath)).WillOnce(Return(100));
+    EXPECT_CALL(*m_mockFileSystem, calculateDigest(Common::SslImpl::Digest::sha256, largeTargetPath))
+        .WillOnce(Return("sha256string"));
+    Tests::replaceFileSystem(std::move(m_mockFileSystem));
+
+    nlohmann::json action = getDefaultUploadObject();
+    action["targetFile"] = largeTargetPath;
+    nlohmann::json response = uploadFileAction.run(action.dump());
 
     EXPECT_EQ(response["type"], UPLOAD_FILE_RESPONSE_TYPE);
     EXPECT_EQ(response["result"], 0);
@@ -429,6 +463,24 @@ TEST_F(UploadFileTests, FileDoesNotExist)
     EXPECT_EQ(response["result"],1);
     EXPECT_EQ(response["errorType"],"invalid_path");
     EXPECT_EQ(response["errorMessage"],"/path is not a file");
+}
+
+TEST_F(UploadFileTests, emptyPath)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    const std::string expectedMsg = "Invalid command format. Failed to process UploadInfo from action JSON: targetFile field is empty";
+
+    ResponseActionsImpl::UploadFileAction uploadFileAction(m_mockHttpRequester);
+    nlohmann::json action = getDefaultUploadObject();
+    action["targetFile"] = "";
+
+    nlohmann::json response = uploadFileAction.run(action.dump());
+
+    EXPECT_EQ(response["result"], 1);
+    EXPECT_EQ(response["errorMessage"], "Error parsing command from Central");
+    EXPECT_FALSE(response.contains("errorType"));
+
+    EXPECT_TRUE(appenderContains(expectedMsg));
 }
 
 TEST_F(UploadFileTests, SizeLimitSetToZero)
