@@ -65,19 +65,17 @@ def get_sophos_install():
     return sophos_install
 
 
-def newer_file(file_one: str, file_two: str) -> str:
-    if os.path.isfile(file_one) and os.path.isfile(file_two):
-        newest_timestamp_one = os.path.getctime(file_one)
-        newest_timestamp_two = os.path.getctime(file_two)
-        if newest_timestamp_one >= newest_timestamp_two:
-            return file_one
-        else:
-            return file_two
-    elif os.path.isfile(file_one):
-        return file_one
-    elif os.path.isfile(file_two):
-        return file_two
-    return ""
+def newer_file(*files: str) -> str:
+    files = [ f for f in files if os.path.isfile(f) ]
+    if len(files) == 0:
+        return ""
+    if len(files) == 1:
+        return files[0]
+
+    files = [ (os.path.getctime(f), f) for f in files ]
+    files.sort(reverse=True)
+    return files[0][1]
+
 
 def get_full_installer():
     OUTPUT = os.environ.get("OUTPUT")
@@ -93,6 +91,8 @@ def get_full_installer():
             logger.debug("Using installer from BASE_DIST: {}".format(installer))
             return installer
         paths_tried.append(installer)
+    else:
+        paths_tried.append("BASE_DIST not set")
 
     if OUTPUT is not None:
         installer = os.path.join(OUTPUT, "SDDS-COMPONENT", "install.sh")
@@ -100,12 +100,16 @@ def get_full_installer():
             logger.debug("Using installer from OUTPUT: {}".format(installer))
             return installer
         paths_tried.append(installer)
+    else:
+        paths_tried.append("OUTPUT not set")
 
     installer_release = os.path.join(f"/vagrant/{BASE_REPO_NAME}/cmake-build-release/distribution/base/install.sh")
     installer_debug = os.path.join(f"/vagrant/{BASE_REPO_NAME}/cmake-build-debug/distribution/base/install.sh")
+    output = os.path.join(f"/vagrant/{BASE_REPO_NAME}/output/SDDS-COMPONENT/install.sh")
     paths_tried.append(installer_release)
     paths_tried.append(installer_debug)
-    installer = newer_file(installer_release, installer_debug)
+    paths_tried.append(output)
+    installer = newer_file(installer_release, installer_debug, output)
 
     if os.path.isfile(installer):
         logger.debug(f"Using installer {installer}")
