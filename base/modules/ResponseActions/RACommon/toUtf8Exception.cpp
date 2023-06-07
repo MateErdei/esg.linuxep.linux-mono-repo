@@ -1,6 +1,4 @@
-//
-// Created by clara on 6/7/23.
-//
+// Copyright 2023 Sophos Limited. All rights reserved.
 
 #include "toUtf8Exception.h"
 

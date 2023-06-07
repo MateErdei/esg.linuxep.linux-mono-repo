@@ -9,8 +9,8 @@
 
 #define BOOST_LOCALE_HIDE_AUTO_PTR
 #include <boost/locale.hpp>
-#include <string>
 #include <optional>
+#include <string>
 
 namespace ResponseActions::RACommon
 {

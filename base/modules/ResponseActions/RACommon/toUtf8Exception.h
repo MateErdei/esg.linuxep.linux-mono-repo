@@ -1,4 +1,4 @@
-// Created by clara on 6/7/23.
+// Copyright 2023 Sophos Limited. All rights reserved.
 
 #ifndef EVEREST_BASE_TOUTF8EXCEPTION_H
 #define EVEREST_BASE_TOUTF8EXCEPTION_H
