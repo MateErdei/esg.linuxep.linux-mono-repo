@@ -32,7 +32,7 @@ namespace Common
             {
                 if (file_)
                 {
-                    return what() + std::string(file_) + ':' + std::to_string(line_);
+                    return what() + ' ' + std::string(file_) + ':' + std::to_string(line_);
                 }
                 else
                 {
