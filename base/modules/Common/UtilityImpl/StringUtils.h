@@ -140,8 +140,6 @@ namespace Common
 
             static void enforceUTF8(const std::string& input);
 
-//            static std::string toUtf8(const std::string& str, bool appendConversion = true, bool throws = true);
-
             static std::string extractValueFromIniFile(const std::string& filePath, const std::string& key)
             {
                 auto fs = Common::FileSystem::fileSystem();
