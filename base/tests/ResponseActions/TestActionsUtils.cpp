@@ -98,20 +98,6 @@ std::string getDefaultCommandJsonString()
         })";
 }
 
-std::string getCommandJsonStringWithWrongValueType()
-{
-    return R"({
-            "type": "sophos.mgt.action.RunCommands",
-            "commands": [
-                "echo one",
-                "echo two > /tmp/test.txt"
-            ],
-            "ignoreError": true,
-            "timeout": "60",
-            "expiration": 144444000000004
-        })";
-}
-
 //**********************GENERIC***************************
 TEST_F(ActionsUtilsTests, expiry)
 {
@@ -582,7 +568,7 @@ TEST_F(ActionsUtilsTests, uploadNegativeExpiration)
     try
     {
         auto output = ActionsUtils::readUploadAction(fileAction.dump(), ActionType::UPLOADFILE);
-        FAIL() << "Didnt throw due to wrong type";
+        FAIL() << "Didnt throw due to negative value";
     }
     catch (const InvalidCommandFormat& except)
     {
@@ -595,7 +581,7 @@ TEST_F(ActionsUtilsTests, uploadNegativeExpiration)
     try
     {
         auto output = ActionsUtils::readUploadAction(folderAction.dump(), ActionType::UPLOADFOLDER);
-        FAIL() << "Didnt throw due to wrong type";
+        FAIL() << "Didnt throw due to negative value";
     }
     catch (const InvalidCommandFormat& except)
     {
@@ -1302,6 +1288,38 @@ TEST_F(ActionsUtilsTests, runCommandWrongTypeExpiration)
     {
         EXPECT_STREQ(except.what(), R"(Invalid command format. Failed to process CommandRequest from action JSON: expiration is not a number: "expiration")");
     }
+}
+
+TEST_F(ActionsUtilsTests, runCommandNegativeExpiration)
+{
+    nlohmann::json fileAction = getDefaultRunCommandAction();
+    fileAction["expiration"] = -123456487;
+    try
+    {
+        auto output = ActionsUtils::readCommandAction(fileAction.dump());
+        FAIL() << "Didnt throw due to negative value";
+    }
+    catch (const InvalidCommandFormat& except)
+    {
+        EXPECT_STREQ(except.what(), "Invalid command format. Failed to process CommandRequest from action JSON: expiration is a negative value: -123456487");
+    }
+}
+
+TEST_F(ActionsUtilsTests, runCommandLargeExpiration)
+{
+    std::string actionFile (
+        R"({"type": "sophos.mgt.action.RunCommands",
+            "commands": [
+                "echo one",
+                "echo two > /tmp/test.txt"
+            ],
+            "ignoreError": true,
+            "timeout": 60,
+            "expiration": 18446744073709551616
+        })");
+
+    auto resFile = ActionsUtils::readCommandAction(actionFile);
+    resFile.expiration = 0;
 }
 
 TEST_F(ActionsUtilsTests, readCommandFailsDueToMalformedJson)
