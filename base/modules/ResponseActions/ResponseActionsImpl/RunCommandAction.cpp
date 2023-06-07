@@ -24,10 +24,22 @@ RunCommandAction::RunCommandAction(Common::ISignalHandlerSharedPtr sigHandler
 nlohmann::json RunCommandAction::run(const std::string& actionJson, const std::string& correlationId)
 {
     nlohmann::json response;
+    response["type"] = ResponseActions::RACommon::RUN_COMMAND_RESPONSE_TYPE;
     try
     {
         CommandRequest action = ActionsUtils::readCommandAction(actionJson);
-        CommandResponse results = runCommands(action, correlationId);
+
+        // Check if command has expired
+        if (ActionsUtils::isExpired(action.expiration))
+        {
+            std::string error = "Command " + correlationId + " has expired so will not be run.";
+            LOGWARN(error);
+            ActionsUtils::setErrorInfo(
+                response, static_cast<int>(ResponseActions::RACommon::ResponseResult::EXPIRED), error);
+            return response;
+        }
+
+        CommandResponse results = runCommands(action);
         // CommandResponse -> json
         response = results;
     }
@@ -42,17 +54,9 @@ nlohmann::json RunCommandAction::run(const std::string& actionJson, const std::s
     return response;
 }
 
-CommandResponse RunCommandAction::runCommands(const CommandRequest& action, const std::string& correlationId)
+CommandResponse RunCommandAction::runCommands(const CommandRequest& action)
 {
     CommandResponse response;
-
-    // Check if command has expired
-    if (ActionsUtils::isExpired(action.expiration))
-    {
-        LOGWARN("Command " << correlationId << " has expired so will not be run.");
-        response.result = ResponseActions::RACommon::ResponseResult::EXPIRED;
-        return response;
-    }
 
     // Record start time of commands, so we can work out overall duration
     Common::UtilityImpl::FormattedTime time;
