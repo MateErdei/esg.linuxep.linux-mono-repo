@@ -82,8 +82,8 @@ Sul Downloader fails update if expected product missing from SUS
     ...   Check Suldownloader Log Contains   Failed to connect to repository: Product doesn't match any suite: ServerProtectionLinux-Plugin-Fake
 
 We Can Upgrade From Dogfood to VUT Without Unexpected Errors
-    [Timeout]    10 minutes
-    [Tags]    INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
+    [Timeout]    12 minutes
+    [Tags]    INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA  EXCLUDE_SLES12  EXCLUDE_SLES15
 
     &{expectedDogfoodVersions} =    Get Expected Versions    dogfood
     &{expectedVUTVersions} =    Get Expected Versions    vut
@@ -106,7 +106,7 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     ...   150 secs
     ...   10 secs
     ...   Check SulDownloader Log Contains String N Times   Update success  2
-    Check SulDownloader Log Contains    Running in SDDS3 updating mode
+    Check SulDownloader Log Contains   Running SDDS3 update
 
     # Update again to ensure we do not get a scheduled update later in the test run
     Trigger Update Now
@@ -151,7 +151,7 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     ...   300 secs
     ...   10 secs
     ...   Check Log Contains String At Least N times    /tmp/preserve-sul-downgrade    Downgrade Log    Update success    2
-    Check SulDownloader Log Contains    Running in SDDS3 updating mode
+    Check SulDownloader Log Contains   Running SDDS3 update
     SHS Status File Contains  ${HealthyShsStatusXmlContents}
     SHS Status File Contains  ${GoodThreatHealthXmlContents}
 
@@ -185,7 +185,7 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
     #TODO LINUXDAR-5140 remove when this defect is closed
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/av.log  ScanProcessMonitor <> failure in ConfigMonitor: pselect failed: Bad file descriptor
     Run Keyword And Expect Error  *
-    ...     Check Log Contains String N times  ${SOPHOS_INSTALL}/plugins/av/log/av.log  av.log  Exiting sophos_threat_detector with code: 15  2
+    ...     Check Log Contains String N  times ${SOPHOS_INSTALL}/plugins/av/log/av.log  av.log  Exiting sophos_threat_detector with code: 15  2
 
     Check All Product Logs Do Not Contain Error
     Check All Product Logs Do Not Contain Critical
@@ -216,7 +216,7 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
 
 We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     [Timeout]  10 minutes
-    [Tags]   INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA   BASE_DOWNGRADE
+    [Tags]   INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA   BASE_DOWNGRADE  EXCLUDE_SLES12  EXCLUDE_SLES15
 
     &{expectedDogfoodVersions} =    Get Expected Versions    dogfood
     &{expectedVUTVersions} =    Get Expected Versions    vut
@@ -293,7 +293,7 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
     ...  200 secs
     ...  10 secs
     ...  Check SulDownloader Log Contains String N Times    Update success    1
-    Check SulDownloader Log Contains    Running in SDDS3 updating mode
+    Check SulDownloader Log Contains   Running SDDS3 update
 
     Check for Management Agent Failing To Send Message To MTR And Check Recovery
 
@@ -378,7 +378,7 @@ We Can Downgrade From VUT to Dogfood Without Unexpected Errors
 
 We Can Upgrade From Release to VUT Without Unexpected Errors
     [Timeout]  10 minutes
-    [Tags]  INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA
+    [Tags]  INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA  EXCLUDE_SLES12  EXCLUDE_SLES15
 
     &{expectedReleaseVersions} =    Get Expected Versions    current_shipping
     &{expectedVUTVersions} =    Get Expected Versions    vut
@@ -455,6 +455,13 @@ We Can Upgrade From Release to VUT Without Unexpected Errors
     #not an error should be a WARN instead, but it's happening on the EAP version so it's too late to change it now
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/sophos_threat_detector/sophos_threat_detector.log  ThreatScanner <> Failed to read customerID - using default value
 
+    #Required because release doesnt have libcrypto.so installed with the below plugins so they will encounter the error still
+    #TODO LINUXDAR-7114 remove once SPL 2023.2 is released
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/watchdog.log  ProcessMonitoringImpl <> /opt/sophos-spl/plugins/eventjournaler/bin/eventjournaler died with exit code 127
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/watchdog.log  ProcessMonitoringImpl <> /opt/sophos-spl/plugins/responseactions/bin/responseactions died with exit code 127
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/watchdog.log  ProcessMonitoringImpl <> /opt/sophos-spl/plugins/mtr/bin/mtr died with exit code 127
+
+
     # This is expected because we are restarting the avplugin to enable debug logs, we need to make sure it occurs only once though
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/plugins/av/log/av.log  ScanProcessMonitor <> Exiting sophos_threat_detector with code: 15
     #TODO LINUXDAR-5140 remove when this defect is closed
@@ -498,7 +505,7 @@ We Can Upgrade From Release to VUT Without Unexpected Errors
 
 We Can Downgrade From VUT to Release Without Unexpected Errors
     [Timeout]  10 minutes
-    [Tags]   INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA   BASE_DOWNGRADE
+    [Tags]   INSTALLER  THIN_INSTALLER  UNINSTALL  UPDATE_SCHEDULER  SULDOWNLOADER  OSTIA   BASE_DOWNGRADE  EXCLUDE_SLES12  EXCLUDE_SLES15
 
     &{expectedReleaseVersions} =    Get Expected Versions    current_shipping
     &{expectedVUTVersions} =    Get Expected Versions    vut
