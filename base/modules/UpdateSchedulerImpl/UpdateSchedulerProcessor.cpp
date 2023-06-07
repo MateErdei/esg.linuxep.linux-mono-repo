@@ -132,7 +132,7 @@ namespace UpdateSchedulerImpl
         catch (Common::FileSystem::IFileSystemException& e)
         {
             m_machineID = sxlMachineID.generateMachineID();
-            LOGERROR(e.what());
+            LOGERROR("Failed to read SXL Machine ID: " << e.what());
         }
     }
 
@@ -230,9 +230,10 @@ namespace UpdateSchedulerImpl
                     }
                 }
             }
-            catch (std::exception& ex)
+            catch (const std::exception& ex)
             {
                 LOGERROR("Unexpected error: " << ex.what());
+                log_exception(ex);
             }
         }
     }

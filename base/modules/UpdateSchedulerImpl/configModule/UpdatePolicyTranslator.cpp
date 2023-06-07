@@ -1,4 +1,4 @@
-// Copyright 2018-2022, Sophos Limited. All rights reserved.
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #include "UpdatePolicyTranslator.h"
 
@@ -119,20 +119,20 @@ namespace UpdateSchedulerImpl
 
         SettingsHolder UpdatePolicyTranslator::translatePolicy(const std::string& policyXml)
         {
-            static std::string error{ "Failed to parse policy" };
+            static const std::string error{ "Failed to parse policy" };
             try
             {
                 return _translatePolicy(policyXml);
             }
             catch (SulDownloader::suldownloaderdata::SulDownloaderException& ex)
             {
-                LOGERROR(ex.what());
-                throw std::runtime_error(error);
+                LOGERROR("Failed to parse policy: " << ex.what());
+                std::throw_with_nested(std::runtime_error(error));
             }
             catch (std::invalid_argument& ex)
             {
-                LOGERROR(ex.what());
-                throw std::runtime_error(error);
+                LOGERROR("Failed to parse policy (invalid argument): " << ex.what());
+                std::throw_with_nested(std::runtime_error(error));
             }
         }
 

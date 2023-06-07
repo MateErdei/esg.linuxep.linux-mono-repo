@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2018-2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 #include "DownloadReportsAnalyser.h"
 
 #include "../Logger.h"
@@ -257,8 +253,7 @@ namespace UpdateSchedulerImpl
                 }
                 catch (const std::exception& ex)
                 {
-                    LOGERROR("Failed to process file: " << filepath);
-                    LOGERROR(ex.what());
+                    LOGERROR("Failed to process file: " << filepath << ": " << ex.what());
                 }
             }
             std::sort(

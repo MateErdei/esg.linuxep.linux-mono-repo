@@ -115,6 +115,7 @@ Common::PluginProtocol::DataMessage Common::PluginApiImpl::BaseServiceAPI::getRe
     int attempts = 0;
     int tries = 5;
     int waitTimeMillis = 200;
+    auto start = std::chrono::steady_clock::now();
     int totalWaitMs = 0;
     while (tries > 0)
     {
@@ -130,15 +131,22 @@ Common::PluginProtocol::DataMessage Common::PluginApiImpl::BaseServiceAPI::getRe
             tries--;
             if (tries == 0)
             {
+                auto end = std::chrono::steady_clock::now();
+                auto duration = end - start;
                 std::ostringstream err;
                 err << ex.what() << " from getReply in BaseServiceAPI after " << attempts << " attempts and "
-                    << totalWaitMs << "ms sleep";
+                    << totalWaitMs << "ms sleep over "
+                    << std::chrono::duration_cast<std::chrono::milliseconds>(duration).count()
+                    << "ms duration";
                 LOGERROR("Timed out: " << err.str());
                 std::throw_with_nested(Common::PluginApi::ApiException(err.str()));
             }
-            LOGDEBUG("BaseServiceAPI call failed, retrying in " << waitTimeMillis << "ms");
-            std::this_thread::sleep_for(std::chrono::milliseconds(waitTimeMillis));
-            totalWaitMs += waitTimeMillis;
+            else
+            {
+                LOGDEBUG("BaseServiceAPI call failed, retrying in " << waitTimeMillis << "ms");
+                std::this_thread::sleep_for(std::chrono::milliseconds(waitTimeMillis));
+                totalWaitMs += waitTimeMillis;
+            }
         }
     }
 
