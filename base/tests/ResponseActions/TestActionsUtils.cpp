@@ -1244,6 +1244,36 @@ TEST_P(RunCommandRequiredFieldsParameterized, RunCommandUnsetEssentialFields)
     }
 }
 
+TEST_F(ActionsUtilsTests, readCommandFailsDueToCommandTypeError_NotArray)
+{
+    nlohmann::json action = getDefaultRunCommandAction();
+    action["commands"] = "930752758";
+    try
+    {
+        auto output = ActionsUtils::readCommandAction(action.dump());
+        FAIL() << "Didnt throw due to missing essential action";
+    }
+    catch (const InvalidCommandFormat& except)
+    {
+        EXPECT_STREQ(except.what(), "Invalid command format. Failed to process CommandRequest from action JSON: [json.exception.type_error.302] type must be array, but is string");
+    }
+}
+
+TEST_F(ActionsUtilsTests, readCommandFailsDueToCommandTypeError_ArrayNumbers)
+{
+    nlohmann::json action = getDefaultRunCommandAction();
+    action["commands"] = {93075, 2758};
+    try
+    {
+        auto output = ActionsUtils::readCommandAction(action.dump());
+        FAIL() << "Didnt throw due to missing essential action";
+    }
+    catch (const InvalidCommandFormat& except)
+    {
+        EXPECT_STREQ(except.what(), "Invalid command format. Failed to process CommandRequest from action JSON: [json.exception.type_error.302] type must be string, but is number");
+    }
+}
+
 TEST_F(ActionsUtilsTests, readCommandFailsDueToTypeError)
 {
     std::string commandJson = getCommandJsonStringWithWrongValueType();
