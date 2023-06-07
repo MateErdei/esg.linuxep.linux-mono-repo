@@ -192,6 +192,63 @@ TEST_F(RunCommandTests, runMethodReturnsTimeOut)
     EXPECT_EQ(response.at("commandResults"), cmdResults);
 }
 
+
+TEST_F(RunCommandTests, runSingleCommandExpiryLarge)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    const std::string correlationId = "correlationID";
+    const std::string expectedMsg = "Command " + correlationId + " has expired so will not be run.";
+
+    std::string action (
+        R"({"type": "sophos.mgt.action.RunCommands",
+            "commands": [
+                "echo one",
+                "echo two > /tmp/test.txt"
+            ],
+            "ignoreError": true,
+            "timeout": 60,
+            "expiration": 18446744073709551616
+        })");
+
+    auto response = m_runCommandAction->run(action, correlationId);
+
+    EXPECT_EQ(response["type"], RUN_COMMAND_RESPONSE_TYPE);
+    EXPECT_EQ(response["result"], ResponseResult::EXPIRED);
+    EXPECT_EQ(response["errorMessage"], expectedMsg);
+    EXPECT_FALSE(response.contains("commandResults"));
+    EXPECT_FALSE(response.contains("duration"));
+    EXPECT_FALSE(response.contains("startedAt"));
+
+    EXPECT_TRUE(appenderContains(expectedMsg));
+}
+
+TEST_F(RunCommandTests, runSingleCommandExpiryNegative)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    const std::string correlationId = "correlationID";
+
+    std::string action (
+        R"({"type": "sophos.mgt.action.RunCommands",
+            "commands": [
+                "echo one",
+                "echo two > /tmp/test.txt"
+            ],
+            "ignoreError": true,
+            "timeout": 60,
+            "expiration": -1234
+        })");
+
+    auto response = m_runCommandAction->run(action, correlationId);
+    EXPECT_EQ(response["type"], RUN_COMMAND_RESPONSE_TYPE);
+    EXPECT_EQ(response["result"], ResponseResult::ERROR);
+    EXPECT_EQ(response["errorMessage"], "Error parsing command from Central: correlationID");
+    EXPECT_FALSE(response.contains("commandResults"));
+    EXPECT_FALSE(response.contains("duration"));
+    EXPECT_FALSE(response.contains("startedAt"));
+
+    EXPECT_TRUE(appenderContains("Invalid command format. Failed to process CommandRequest from action JSON: expiration is a negative value: -1234"));
+}
+
 // runCommands
 
 TEST_F(RunCommandTests, runCommandsSingleCommandWithNoErrors)
@@ -216,7 +273,7 @@ TEST_F(RunCommandTests, runCommandsSingleCommandWithNoErrors)
         .commands = { "echo -n one" }, .timeout = 10, .ignoreError = true, .expiration = 99999999999
     };
 
-    auto response = m_runCommandAction->runCommands(cmd, correlationId);
+    auto response = m_runCommandAction->runCommands(cmd);
     EXPECT_EQ(response.type, "sophos.mgt.response.RunCommands");
     EXPECT_EQ(response.result, ResponseResult::SUCCESS);
     EXPECT_GT(response.startedAt, 1679055498);
@@ -252,7 +309,7 @@ TEST_F(RunCommandTests, runCommandsMultipleCommandsWithNoErrors)
         .commands = { "echo -n 1", "echo -n 2" }, .timeout = 10, .ignoreError = true, .expiration = 99999999999
     };
 
-    auto response = m_runCommandAction->runCommands(cmd, correlationId);
+    auto response = m_runCommandAction->runCommands(cmd);
     EXPECT_EQ(response.type, "sophos.mgt.response.RunCommands");
     EXPECT_EQ(response.result, ResponseResult::SUCCESS);
     EXPECT_GT(response.startedAt, 1679055498);
@@ -293,7 +350,7 @@ TEST_F(RunCommandTests, runCommandsMultiplCommandsWithErrorsAndIgnoreErrorsTrue)
         .commands = { "echo -n 1", "echo -n 2" }, .timeout = 10, .ignoreError = true, .expiration = 99999999999
     };
 
-    auto response = m_runCommandAction->runCommands(cmd, correlationId);
+    auto response = m_runCommandAction->runCommands(cmd);
     EXPECT_EQ(response.type, "sophos.mgt.response.RunCommands");
     EXPECT_EQ(response.result, ResponseResult::ERROR);
     EXPECT_GT(response.startedAt, 1679055498);
@@ -329,12 +386,11 @@ TEST_F(RunCommandTests, runCommandsMultipleCommandsWithErrorsAndIgnoreErrorsFals
             return std::unique_ptr<Common::Process::IProcess>(mockProcess);
         });
 
-    std::string correlationId = "correlationID";
     CommandRequest cmd{
         .commands = { "echo -n 1", "echo -n 2" }, .timeout = 10, .ignoreError = false, .expiration = 99999999999
     };
 
-    auto response = m_runCommandAction->runCommands(cmd, correlationId);
+    auto response = m_runCommandAction->runCommands(cmd);
     EXPECT_EQ(response.type, "sophos.mgt.response.RunCommands");
     EXPECT_EQ(response.result, ResponseResult::ERROR);
     EXPECT_GT(response.startedAt, 1679055498);
@@ -349,12 +405,11 @@ TEST_F(RunCommandTests, runCommandsMultipleCommandsWithErrorsAndIgnoreErrorsFals
 
 TEST_F(RunCommandTests, runCommandsExpired)
 {
-    std::string correlationId = "correlationID";
     CommandRequest cmd{
         .commands = { "echo -n one" }, .timeout = 10, .ignoreError = true, .expiration = 123
     };
 
-    auto response = m_runCommandAction->runCommands(cmd, correlationId);
+    auto response = m_runCommandAction->runCommands(cmd);
     EXPECT_EQ(response.type, "sophos.mgt.response.RunCommands");
     EXPECT_EQ(response.result, ResponseResult::EXPIRED);
     EXPECT_EQ(response.startedAt, 0);
@@ -392,7 +447,7 @@ TEST_F(RunCommandTests, runCommandsMultipleExitsWhenTerminatedBeforeComplete)
         .commands = { "echo -n 1", "echo -n 2", "echo -n 3" }, .timeout = 10, .ignoreError = true, .expiration = 99999999999
     };
     EXPECT_EQ(cmd.commands.size(), 3);
-    auto response = m_runCommandAction->runCommands(cmd, correlationId);
+    auto response = m_runCommandAction->runCommands(cmd);
     EXPECT_EQ(response.commandResults.size(), 2);
 }
 
