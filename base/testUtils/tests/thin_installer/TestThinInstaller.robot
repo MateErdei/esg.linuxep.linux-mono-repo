@@ -254,6 +254,7 @@ Thin Installer Force Works
     Remove Directory  /opt/sophos-spl  recursive=True
     Should Not Exist  ${REGISTER_CENTRAL}
     ${time} =  Get Current Date  exclude_millis=true
+    ${time} =  Subtract Time From Date  ${time}  1s
     Run Default Thininstaller  thininstaller_args=${FORCE_ARGUMENT}  expected_return_code=0  force_certs_dir=${SDDS3_DEVCERTS}
     Should Exist  ${REGISTER_CENTRAL}
     Check Thininstaller Log Contains  Successfully installed product
