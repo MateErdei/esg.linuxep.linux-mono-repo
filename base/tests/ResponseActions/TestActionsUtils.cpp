@@ -1325,15 +1325,31 @@ TEST_F(ActionsUtilsTests, runCommandLargeExpiration)
 TEST_F(ActionsUtilsTests, readCommandFailsDueToMalformedJson)
 {
     std::string commandJson = "this is not json";
-    EXPECT_THAT([&]() { std::ignore = ActionsUtils::readCommandAction(commandJson); },
-                ThrowsMessage<InvalidCommandFormat>(HasSubstr("syntax error")));
+    try
+    {
+        auto output = ActionsUtils::readCommandAction(commandJson);
+        FAIL() << "Didnt throw due to incorrect format";
+    }
+    catch (const InvalidCommandFormat& except)
+    {
+        EXPECT_STREQ(except.what(), "Invalid command format. Cannot parse RunCommand action with JSON error: [json.exception.parse_error.101] "
+                                    "parse error at line 1, column 2: syntax error while parsing value - invalid literal; last read: 'th'");
+    }
 }
 
 TEST_F(ActionsUtilsTests, readCommandFailsDueToEmptyJsonString)
 {
     std::string commandJson = "";
-    EXPECT_THAT([&]() { std::ignore = ActionsUtils::readCommandAction(commandJson); },
-                    ThrowsMessage<InvalidCommandFormat>(HasSubstr("Run Command action JSON is empty")));
+    try
+    {
+        auto output = ActionsUtils::readCommandAction(commandJson);
+        FAIL() << "Didnt throw due to empty json string";
+    }
+    catch (const InvalidCommandFormat& except)
+    {
+        EXPECT_STREQ(
+            except.what(), "Invalid command format. RunCommand action JSON is empty");
+    }
 }
 
 TEST_F(ActionsUtilsTests, readCommandFailsDueToMissingCommands)
@@ -1346,13 +1362,31 @@ TEST_F(ActionsUtilsTests, readCommandFailsDueToMissingCommands)
         "timeout": 60,
         "expiration": 144444000000004
         })";
-    EXPECT_THAT([&]() { std::ignore = ActionsUtils::readCommandAction(commandJson); },
-                ThrowsMessage<InvalidCommandFormat>(HasSubstr("Invalid command format. No commands to perform in run command JSON: ")));
+
+    try
+    {
+        auto output = ActionsUtils::readCommandAction(commandJson);
+        FAIL() << "Didnt throw due to empty commands list";
+    }
+    catch (const InvalidCommandFormat& except)
+    {
+        EXPECT_STREQ(
+            except.what(), "Invalid command format. Failed to process CommandRequest from action JSON: commands field is empty");
+    }
 }
 
 TEST_F(ActionsUtilsTests, readCommandFailsDueToEmptyJsonObject)
 {
     std::string commandJson = "{}";
-    EXPECT_THAT([&]() { std::ignore = ActionsUtils::readCommandAction(commandJson); },
-                    ThrowsMessage<InvalidCommandFormat>(HasSubstr("Invalid command format. No 'type' in Run Command action JSON")));
+
+    try
+    {
+        auto output = ActionsUtils::readCommandAction(commandJson);
+        FAIL() << "Didnt throw due to empty json object";
+    }
+    catch (const InvalidCommandFormat& except)
+    {
+        EXPECT_STREQ(
+            except.what(), "Invalid command format. No 'commands' in RunCommand action JSON");
+    }
 }

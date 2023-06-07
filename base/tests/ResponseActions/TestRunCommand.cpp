@@ -192,6 +192,24 @@ TEST_F(RunCommandTests, runMethodReturnsTimeOut)
     EXPECT_EQ(response.at("commandResults"), cmdResults);
 }
 
+TEST_F(RunCommandTests, runCommandsExpired)
+{
+    const std::string correlationId = "correlationID";
+    std::string action (
+        R"({"type": "sophos.mgt.action.RunCommands",
+            "commands": ["echo -n one"],
+            "ignoreError": true,
+            "timeout": 10,
+            "expiration": 123
+        })");
+
+    auto response = m_runCommandAction->run(action, correlationId);
+    EXPECT_EQ(response.at("type"), "sophos.mgt.response.RunCommands");
+    EXPECT_EQ(response.at("result"), ResponseResult::EXPIRED);
+    EXPECT_FALSE(response.contains("commandResults"));
+    EXPECT_FALSE(response.contains("duration"));
+    EXPECT_FALSE(response.contains("startedAt"));
+}
 
 TEST_F(RunCommandTests, runSingleCommandExpiryLarge)
 {
@@ -398,20 +416,6 @@ TEST_F(RunCommandTests, runCommandsMultipleCommandsWithErrorsAndIgnoreErrorsFals
     EXPECT_EQ(response.commandResults[0].stdErr, "");
     EXPECT_EQ(response.commandResults[0].exitCode, 1);
     EXPECT_GE(response.commandResults[0].duration, 0);
-}
-
-TEST_F(RunCommandTests, runCommandsExpired)
-{
-    CommandRequest cmd{
-        .commands = { "echo -n one" }, .timeout = 10, .ignoreError = true, .expiration = 123
-    };
-
-    auto response = m_runCommandAction->runCommands(cmd);
-    EXPECT_EQ(response.type, "sophos.mgt.response.RunCommands");
-    EXPECT_EQ(response.result, ResponseResult::EXPIRED);
-    EXPECT_EQ(response.startedAt, 0);
-    EXPECT_GE(response.duration, 0);
-    EXPECT_EQ(response.commandResults.size(), 0);
 }
 
 TEST_F(RunCommandTests, runCommandsMultipleExitsWhenTerminatedBeforeComplete)
