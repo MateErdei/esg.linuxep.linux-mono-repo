@@ -210,7 +210,7 @@ TEST_F(BaseTelemetryReporterTests, extractOverallHealthFindsOverallHealthXml) //
 
 TEST_F(BaseTelemetryReporterTests, parseOutbreakStatusWhenFileDoesNotExist)
 {
-auto mockFileSystem =  std::make_unique<StrictMock<MockFileSystem>>();
+    auto mockFileSystem =  std::make_unique<StrictMock<MockFileSystem>>();
     EXPECT_CALL(
         *mockFileSystem,
         isFile(Common::ApplicationConfiguration::applicationPathManager().getOutbreakModeStatusFilePath()))
@@ -222,7 +222,7 @@ auto mockFileSystem =  std::make_unique<StrictMock<MockFileSystem>>();
 TEST_F(BaseTelemetryReporterTests, parseOutbreakStatusCatchesFileSystemException)
 {
     testing::internal::CaptureStderr();
-auto mockFileSystem =  std::make_unique<StrictMock<MockFileSystem>>();
+    auto mockFileSystem =  std::make_unique<StrictMock<MockFileSystem>>();
     EXPECT_CALL(
         *mockFileSystem,
         isFile(Common::ApplicationConfiguration::applicationPathManager().getOutbreakModeStatusFilePath()))
@@ -241,7 +241,7 @@ auto mockFileSystem =  std::make_unique<StrictMock<MockFileSystem>>();
 TEST_F(BaseTelemetryReporterTests, parseOutbreakStatusCatchesParseError)
 {
     testing::internal::CaptureStderr();
-auto mockFileSystem =  std::make_unique<StrictMock<MockFileSystem>>();
+    auto mockFileSystem =  std::make_unique<StrictMock<MockFileSystem>>();
     EXPECT_CALL(
         *mockFileSystem,
         isFile(Common::ApplicationConfiguration::applicationPathManager().getOutbreakModeStatusFilePath()))
@@ -259,7 +259,7 @@ auto mockFileSystem =  std::make_unique<StrictMock<MockFileSystem>>();
 
 TEST_F(BaseTelemetryReporterTests, getOutbreakModeCurrentInOutbreakMode)
 {
-auto mockFileSystem =  std::make_unique<StrictMock<MockFileSystem>>();
+    auto mockFileSystem =  std::make_unique<StrictMock<MockFileSystem>>();
 
 
     EXPECT_CALL(
@@ -276,7 +276,7 @@ auto mockFileSystem =  std::make_unique<StrictMock<MockFileSystem>>();
 
 TEST_F(BaseTelemetryReporterTests, getOutbreakModeCurrentNotInOutbreakMode)
 {
-auto mockFileSystem =  std::make_unique<StrictMock<MockFileSystem>>();
+    auto mockFileSystem =  std::make_unique<StrictMock<MockFileSystem>>();
 
     EXPECT_CALL(
         *mockFileSystem,
@@ -293,7 +293,7 @@ auto mockFileSystem =  std::make_unique<StrictMock<MockFileSystem>>();
 TEST_F(BaseTelemetryReporterTests, getOutbreakModeCurrentWithInvalidJson)
 {
     testing::internal::CaptureStderr();
-auto mockFileSystem =  std::make_unique<StrictMock<MockFileSystem>>();
+    auto mockFileSystem =  std::make_unique<StrictMock<MockFileSystem>>();
 
     EXPECT_CALL(
         *mockFileSystem,
@@ -352,7 +352,7 @@ TEST_F(BaseTelemetryReporterTests, getOutbreakModeCurrentWithEmptyJson)
 TEST_F(BaseTelemetryReporterTests, getOutbreakModeCurrentWithMissingFile)
 {
     testing::internal::CaptureStderr();
-auto mockFileSystem =  std::make_unique<StrictMock<MockFileSystem>>();
+    auto mockFileSystem =  std::make_unique<StrictMock<MockFileSystem>>();
 
     EXPECT_CALL(
         *mockFileSystem,
@@ -367,7 +367,7 @@ auto mockFileSystem =  std::make_unique<StrictMock<MockFileSystem>>();
 
 TEST_F(BaseTelemetryReporterTests, getOutbreakModeHistoricWithFile)
 {
-auto mockFileSystem =  std::make_unique<StrictMock<MockFileSystem>>();
+    auto mockFileSystem =  std::make_unique<StrictMock<MockFileSystem>>();
 
     EXPECT_CALL(
         *mockFileSystem,
@@ -379,7 +379,7 @@ auto mockFileSystem =  std::make_unique<StrictMock<MockFileSystem>>();
 
 TEST_F(BaseTelemetryReporterTests, getOutbreakModeHistoricWithMissingFile)
 {
-auto mockFileSystem =  std::make_unique<StrictMock<MockFileSystem>>();
+    auto mockFileSystem =  std::make_unique<StrictMock<MockFileSystem>>();
 
     EXPECT_CALL(
         *mockFileSystem,
@@ -545,7 +545,7 @@ TEST_F(BaseTelemetryReporterTests, getOutbreakModeTodayWithInvalidTime)
 {
     testing::internal::CaptureStderr();
 
-auto mockFileSystem =  std::make_unique<StrictMock<MockFileSystem>>();
+    auto mockFileSystem =  std::make_unique<StrictMock<MockFileSystem>>();
 
     auto now = Telemetry::BaseTelemetryReporter::clock_t::now();
 
@@ -568,7 +568,7 @@ TEST_F(BaseTelemetryReporterTests, getOutbreakModeTodayWithInvalidJson)
 {
     testing::internal::CaptureStderr();
 
-auto mockFileSystem =  std::make_unique<StrictMock<MockFileSystem>>();
+    auto mockFileSystem =  std::make_unique<StrictMock<MockFileSystem>>();
 
     auto now = Telemetry::BaseTelemetryReporter::clock_t::now();
 
@@ -591,7 +591,7 @@ TEST_F(BaseTelemetryReporterTests, getOutbreakModeTodayWithEmptyJson)
 {
     testing::internal::CaptureStderr();
 
-auto mockFileSystem =  std::make_unique<StrictMock<MockFileSystem>>();
+    auto mockFileSystem =  std::make_unique<StrictMock<MockFileSystem>>();
 
     auto now = Telemetry::BaseTelemetryReporter::clock_t::now();
 
@@ -614,7 +614,7 @@ TEST_F(BaseTelemetryReporterTests, OutbreakStatusFileTooLarge)
 {
     testing::internal::CaptureStderr();
 
-auto mockFileSystem =  std::make_unique<StrictMock<MockFileSystem>>();
+    auto mockFileSystem =  std::make_unique<StrictMock<MockFileSystem>>();
 
     auto now = Telemetry::BaseTelemetryReporter::clock_t::now();
 
@@ -635,7 +635,7 @@ auto mockFileSystem =  std::make_unique<StrictMock<MockFileSystem>>();
 
 TEST_F(BaseTelemetryReporterTests, getOutbreakModeTodayWithTypeError)
 {
-auto mockFileSystem =  std::make_unique<StrictMock<MockFileSystem>>();
+    auto mockFileSystem =  std::make_unique<StrictMock<MockFileSystem>>();
 
     auto now = Telemetry::BaseTelemetryReporter::clock_t::now();
 
@@ -653,7 +653,7 @@ auto mockFileSystem =  std::make_unique<StrictMock<MockFileSystem>>();
 
 TEST_F(BaseTelemetryReporterTests, getOutbreakModeTodayWithFileMissing)
 {
-auto mockFileSystem =  std::make_unique<StrictMock<MockFileSystem>>();
+    auto mockFileSystem =  std::make_unique<StrictMock<MockFileSystem>>();
 
     auto now = Telemetry::BaseTelemetryReporter::clock_t::now();
 
