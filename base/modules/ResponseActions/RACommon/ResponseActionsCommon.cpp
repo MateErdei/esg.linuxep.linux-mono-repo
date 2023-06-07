@@ -32,7 +32,6 @@ namespace ResponseActions::RACommon
         }
         catch(const boost::locale::conv::conversion_error& e)
         {
-            //?
         }
 
         std::vector<std::string> encodings{"EUC-JP", "Shift-JIS", "SJIS", "Latin1"};
