@@ -21,7 +21,8 @@ target_link_libraries(responseactionmain PUBLIC
         pluginapi
         HttpRequestsImpl
         curlwrapper
-        responseactionsimpl)
+        responseactionsimpl
+        ${BOOST_LOCALE})
 
 SET_TARGET_PROPERTIES(responseactionmain
         PROPERTIES

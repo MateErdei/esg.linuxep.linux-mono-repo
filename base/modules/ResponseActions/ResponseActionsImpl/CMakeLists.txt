@@ -33,6 +33,7 @@ target_link_libraries(responseactionsimpl PUBLIC
         ${Protobuf_LIBRARY}
         ${EXPAT_LIBRARY}
         ${ZeroMQ_LIBRARY}
+        ${BOOST_LOCALE}
         )
 
 SET_TARGET_PROPERTIES(responseactionsimpl

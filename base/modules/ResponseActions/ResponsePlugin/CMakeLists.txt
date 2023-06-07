@@ -36,6 +36,7 @@ target_link_libraries(responseplugin PUBLIC
         ${Protobuf_LIBRARY}
         ${EXPAT_LIBRARY}
         ${ZeroMQ_LIBRARY}
+        ${BOOST_LOCALE}
         )
 
 SET_TARGET_PROPERTIES(responseplugin
