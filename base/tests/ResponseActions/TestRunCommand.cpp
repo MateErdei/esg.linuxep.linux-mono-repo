@@ -48,6 +48,8 @@ class RunCommandTests : public MemoryAppenderUsingTests
         std::shared_ptr<MockSystemCallWrapper> m_mockSysCallWrapper;
         std::shared_ptr<MockSignalHandler> m_mockSignalHandler;
         std::unique_ptr<RunCommandAction> m_runCommandAction;
+
+        const std::string m_correlationId = "correlationID";
 };
 
 namespace
@@ -117,8 +119,7 @@ TEST_F(RunCommandTests, runMethodProducesValidOutForSinglecommand)
         });
 
     std::string actionJson = getSingleCommandJsonString();
-    std::string correlationId = "correlationID";
-    auto response = m_runCommandAction->run(actionJson, correlationId);
+    auto response = m_runCommandAction->run(actionJson, m_correlationId);
 
     EXPECT_EQ(response.at("type"), RUN_COMMAND_RESPONSE_TYPE);
     EXPECT_GE(response.at("duration"), 0);
@@ -149,8 +150,7 @@ TEST_F(RunCommandTests, runMethodHandlesInvalidJson)
             return std::unique_ptr<Common::Process::IProcess>(mockProcess);
         });
 
-    std::string correlationId = "correlationID";
-    auto response = m_runCommandAction->run("Not json string", correlationId);
+    auto response = m_runCommandAction->run("Not json string", m_correlationId);
     EXPECT_EQ(response.at("result"), 1);
 }
 
@@ -175,8 +175,7 @@ TEST_F(RunCommandTests, runMethodReturnsTimeOut)
         });
 
     std::string actionJson = getSingleCommandJsonString();
-    std::string correlationId = "correlationID";
-    auto response = m_runCommandAction->run(actionJson, correlationId);
+    auto response = m_runCommandAction->run(actionJson, m_correlationId);
 
     EXPECT_EQ(response.at("type"), RUN_COMMAND_RESPONSE_TYPE);
     EXPECT_GE(response.at("duration"), 0);
@@ -194,7 +193,6 @@ TEST_F(RunCommandTests, runMethodReturnsTimeOut)
 
 TEST_F(RunCommandTests, runCommandsExpired)
 {
-    const std::string correlationId = "correlationID";
     std::string action (
         R"({"type": "sophos.mgt.action.RunCommands",
             "commands": ["echo -n one"],
@@ -203,7 +201,7 @@ TEST_F(RunCommandTests, runCommandsExpired)
             "expiration": 123
         })");
 
-    auto response = m_runCommandAction->run(action, correlationId);
+    auto response = m_runCommandAction->run(action, m_correlationId);
     EXPECT_EQ(response.at("type"), RUN_COMMAND_RESPONSE_TYPE);
     EXPECT_EQ(response.at("result"), ResponseResult::EXPIRED);
     EXPECT_FALSE(response.contains("commandResults"));
@@ -214,8 +212,7 @@ TEST_F(RunCommandTests, runCommandsExpired)
 TEST_F(RunCommandTests, runSingleCommandExpiryLarge)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
-    const std::string correlationId = "correlationID";
-    const std::string expectedMsg = "Command " + correlationId + " has expired so will not be run.";
+    const std::string expectedMsg = "Command " + m_correlationId + " has expired so will not be run.";
 
     std::string action (
         R"({"type": "sophos.mgt.action.RunCommands",
@@ -228,7 +225,7 @@ TEST_F(RunCommandTests, runSingleCommandExpiryLarge)
             "expiration": 18446744073709551616
         })");
 
-    auto response = m_runCommandAction->run(action, correlationId);
+    auto response = m_runCommandAction->run(action, m_correlationId);
 
     EXPECT_EQ(response["type"], RUN_COMMAND_RESPONSE_TYPE);
     EXPECT_EQ(response["result"], ResponseResult::EXPIRED);
@@ -243,7 +240,6 @@ TEST_F(RunCommandTests, runSingleCommandExpiryLarge)
 TEST_F(RunCommandTests, runSingleCommandExpiryNegative)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
-    const std::string correlationId = "correlationID";
 
     std::string action (
         R"({"type": "sophos.mgt.action.RunCommands",
@@ -256,10 +252,10 @@ TEST_F(RunCommandTests, runSingleCommandExpiryNegative)
             "expiration": -1234
         })");
 
-    auto response = m_runCommandAction->run(action, correlationId);
+    auto response = m_runCommandAction->run(action, m_correlationId);
     EXPECT_EQ(response["type"], RUN_COMMAND_RESPONSE_TYPE);
     EXPECT_EQ(response["result"], ResponseResult::ERROR);
-    EXPECT_EQ(response["errorMessage"], "Error parsing command from Central: correlationID");
+    EXPECT_EQ(response["errorMessage"], "Error parsing command from Central: " + m_correlationId);
     EXPECT_FALSE(response.contains("commandResults"));
     EXPECT_FALSE(response.contains("duration"));
     EXPECT_FALSE(response.contains("startedAt"));
