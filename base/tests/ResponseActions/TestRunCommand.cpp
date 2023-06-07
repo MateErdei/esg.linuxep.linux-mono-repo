@@ -66,6 +66,17 @@ namespace
             "expiration": 144444000000004
         })";
     }
+
+    std::tuple<std::string, std::string> getTestEucJpEncoding()
+    {
+        // echo -n "ありったけの夢をかき集め" | iconv -f utf-8 -t euc-jp | hexdump -C
+        std::vector<unsigned char> threatPathBytes { 0xa4, 0xa2, 0xa4, 0xea, 0xa4, 0xc3, 0xa4, 0xbf, 0xa4, 0xb1, 0xa4, 0xce,
+                                                    0xcc, 0xb4, 0xa4, 0xf2, 0xa4, 0xab, 0xa4, 0xad, 0xbd, 0xb8, 0xa4, 0xe1 };
+        std::string threatPath(threatPathBytes.begin(), threatPathBytes.end());
+
+        std::string threatPathUtf8 = "ありったけの夢をかき集め";
+        return { threatPath, threatPathUtf8 };
+    }
 } // namespace
 
 // to_json tests
@@ -80,6 +91,42 @@ TEST_F(RunCommandTests, SingleCommandResultToJson)
 
     nlohmann::json result = singleCommandResult;
     EXPECT_EQ(result.dump(), R"({"duration":100000000,"exitCode":0,"stdErr":"some error text","stdOut":"some output text"})");
+}
+
+TEST_F(RunCommandTests, SingleCommandResultToJson_EucJpEncoded)
+{
+    std::tuple<std::string, std::string> encoding = getTestEucJpEncoding();
+
+    Common::ProcessImpl::ProcessFactory::instance().replaceCreator(
+        [&encoding]()
+        {
+            auto mockProcess = new StrictMock<MockProcess>();
+            std::vector<std::string> args = { "-c", "echo -n one" };
+            EXPECT_CALL(*mockProcess, exec("/bin/bash", args, _)).Times(1);
+            EXPECT_CALL(*mockProcess, standardOutput()).WillOnce(Return(std::get<0>(encoding)));
+            EXPECT_CALL(*mockProcess, errorOutput()).WillOnce(Return(std::get<0>(encoding)));
+            EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
+            EXPECT_CALL(*mockProcess, wait(_,_)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
+            EXPECT_CALL(*mockProcess, getStatus()).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
+            return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+        });
+
+    std::string actionJson = getSingleCommandJsonString();
+    std::string correlationId = "correlationID";
+    auto response = m_runCommandAction->run(actionJson, correlationId);
+
+    EXPECT_EQ(response.at("type"), "sophos.mgt.response.RunCommands");
+    EXPECT_GE(response.at("duration"), 0);
+    EXPECT_EQ(response.at("result"), 0);
+    EXPECT_GE(response.at("startedAt"), 1679057317);
+    nlohmann::json cmdResults = nlohmann::json::array();
+    nlohmann::json cmdResult;
+    cmdResult["stdOut"] = std::get<1>(encoding) + " (EUC-JP)";
+    cmdResult["stdErr"] = std::get<1>(encoding) + " (EUC-JP)";
+    cmdResult["exitCode"] = 0;
+    cmdResult["duration"] = 0;
+    cmdResults.push_back(cmdResult);
+    EXPECT_EQ(response.at("commandResults"), cmdResults);
 }
 
 TEST_F(RunCommandTests, CommandResponseToJson)
@@ -808,3 +855,4 @@ TEST_F(RunCommandTests, runCommandPpollSIGUSR1timesout)
     EXPECT_TRUE(appenderContains("RunCommandAction has received termination command due to timeout"));
     EXPECT_TRUE(appenderContains("Child process killed as it took longer than 2 seconds to stop"));
 }
+
