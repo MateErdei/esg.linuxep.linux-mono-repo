@@ -20,6 +20,12 @@ TEST_UTILS_PATH = PathManager.get_testUtils_dir()
 DESTINATION = os.path.join(TEST_UTILS_PATH, "SystemProductTestOutput")
 
 
+def unpack(srctarfile, destdirectory):
+    LOGGER.info(f"Untaring System Product Test Output from {srctarfile} to {destdirectory}")
+    with tarfile.open(srctarfile, "r|gz") as tar_file:
+        tar_file.extractall(destdirectory)
+
+
 def getSystemProductTestOutput(install_base_path=None):
     if install_base_path is None:
         install_base_path = TEST_UTILS_PATH
@@ -98,9 +104,11 @@ def newer_folder(folder_one, folder_two):
 
 
 class SystemProductTestOutputInstall(object):
+    ROBOT_LIBRARY_SCOPE = "GLOBAL"
 
     def __init__(self):
         self.install_base_path = TEST_UTILS_PATH
+        self.__m_temp_system_product_test_output = None
 
     def install_system_product_test_output(self):
         # CI / jenkins example:
@@ -134,9 +142,21 @@ class SystemProductTestOutputInstall(object):
             system_product_test_path = newest_local_dir
         else:
             system_product_test_path = os.path.join(self.install_base_path, "SystemProductTestOutput")
+
+        if (system_product_test_tar_path and
+                os.path.isfile(system_product_test_tar_path) and
+                not os.path.isdir(system_product_test_path)):
+            system_product_test_path = "/tmp/SystemProductTestOutput"
+            self.__m_temp_system_product_test_output = system_product_test_path
+            unpack(system_product_test_tar_path, "/tmp")
+
+        assert os.path.isdir(system_product_test_path)
         LOGGER.info(f"system_product_test_path={system_product_test_path}")
 
         return system_product_test_tar_path, system_product_test_path
 
     def clean_up_system_product_test_output(self):
         shutil.rmtree(os.path.join(self.install_base_path, "SystemProductTestOutput"), ignore_errors=True)
+        if self.__m_temp_system_product_test_output:
+            shutil.rmtree(os.path.join(self.__m_temp_system_product_test_output), ignore_errors=True)
+

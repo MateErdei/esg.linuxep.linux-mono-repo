@@ -21,6 +21,7 @@ Cleanup Update Tests
     Run Process    make    clean    cwd=${SUPPORT_FILES}/https/
 
 Setup sdds3 Update Tests
+    Set Suite Variable    ${GL_handle}    ${EMPTY}
     Generate Local Ssl Certs If They Dont Exist
     Install Local SSL Server Cert To System
     Generate Fake sdds3 warehouse
