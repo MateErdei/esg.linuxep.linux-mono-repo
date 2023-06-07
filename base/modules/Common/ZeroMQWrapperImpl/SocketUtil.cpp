@@ -24,7 +24,7 @@ std::vector<std::string> Common::ZeroMQWrapperImpl::SocketUtil::read(
         int rc = zmq_msg_init(&part);
         if (rc != 0)
         {
-            throw ZeroMQWrapperException("Failed to init msg while reading");
+            throw ZeroMQWrapperException(LOCATION, "Failed to init msg while reading");
         }
         /* Block until a message is available to be received from socket */
         rc = zmq_msg_recv(&part, socket, 0);
@@ -43,7 +43,7 @@ std::vector<std::string> Common::ZeroMQWrapperImpl::SocketUtil::read(
         rc = zmq_getsockopt(socket, ZMQ_RCVMORE, &more, &more_size);
         if (rc != 0)
         {
-            throw ZeroMQWrapperException("Failed to get ZMQ_RCVMORE setting from socket");
+            throw ZeroMQWrapperException(LOCATION, "Failed to get ZMQ_RCVMORE setting from socket");
         }
         zmq_msg_close(&part);
     } while (more);
@@ -72,9 +72,9 @@ void Common::ZeroMQWrapperImpl::SocketUtil::write(
             ost << "Failed to send data block: errno=" << errno << ": " << zmq_strerror(errno);
             if (errno == EAGAIN)
             {
-                throw ZeroMQTimeoutException(ost.str());
+                throw ZeroMQTimeoutException(LOCATION, ost.str());
             }
-            throw ZeroMQWrapperException(ost.str());
+            throw ZeroMQWrapperException(LOCATION, ost.str());
         }
     }
     const std::string& ref = data[data.size() - 1];
@@ -86,9 +86,9 @@ void Common::ZeroMQWrapperImpl::SocketUtil::write(
         ost << "Failed to send final data block: errno=" << errno << ": " << zmq_strerror(errno);
         if (errno == EAGAIN)
         {
-            throw ZeroMQTimeoutException(ost.str());
+            throw ZeroMQTimeoutException(LOCATION, ost.str());
         }
-        throw ZeroMQWrapperException(ost.str());
+        throw ZeroMQWrapperException(LOCATION, ost.str());
     }
 }
 
@@ -99,7 +99,7 @@ void Common::ZeroMQWrapperImpl::SocketUtil::listen(
     int rc = zmq_bind(socket.skt(), address.c_str());
     if (rc != 0)
     {
-        throw ZeroMQWrapperException(std::string("Failed to bind to ") + address + " errno: " + std::to_string(errno));
+        throw ZeroMQWrapperException(LOCATION, std::string("Failed to bind to ") + address + " errno: " + std::to_string(errno));
     }
 }
 
@@ -108,7 +108,7 @@ void Common::ZeroMQWrapperImpl::SocketUtil::connect(SocketHolder& socket, const 
     int rc = zmq_connect(socket.skt(), address.c_str());
     if (rc != 0)
     {
-        throw ZeroMQWrapperException(std::string("Failed to connect to ") + address);
+        throw ZeroMQWrapperException(LOCATION, std::string("Failed to connect to ") + address);
     }
 }
 
@@ -117,12 +117,12 @@ void Common::ZeroMQWrapperImpl::SocketUtil::setTimeout(Common::ZeroMQWrapperImpl
     int rc = zmq_setsockopt(socket.skt(), ZMQ_RCVTIMEO, &timeoutMs, sizeof(timeoutMs));
     if (rc != 0)
     {
-        throw ZeroMQWrapperException("Failed to set timeout for receiving");
+        throw ZeroMQWrapperException(LOCATION, "Failed to set timeout for receiving");
     }
     rc = zmq_setsockopt(socket.skt(), ZMQ_SNDTIMEO, &timeoutMs, sizeof(timeoutMs));
     if (rc != 0)
     {
-        throw ZeroMQWrapperException("Failed to set timeout for sending");
+        throw ZeroMQWrapperException(LOCATION, "Failed to set timeout for sending");
     }
 }
 
@@ -133,13 +133,13 @@ void Common::ZeroMQWrapperImpl::SocketUtil::setConnectionTimeout(
     int rc = zmq_setsockopt(socket.skt(), ZMQ_LINGER, &timeoutMs, sizeof(timeoutMs));
     if (rc != 0)
     {
-        throw ZeroMQWrapperException("Failed to set connection timeout");
+        throw ZeroMQWrapperException(LOCATION, "Failed to set connection timeout");
     }
     int currTimeout;
     size_t timeoutExpectedSize = sizeof(currTimeout);
     if (zmq_getsockopt(socket.skt(), ZMQ_RCVTIMEO, &currTimeout, &timeoutExpectedSize) != 0)
     {
-        throw ZeroMQWrapperException("Failed to retrieve current timeout");
+        throw ZeroMQWrapperException(LOCATION, "Failed to retrieve current timeout");
     };
     if (currTimeout == -1)
     {
@@ -162,7 +162,7 @@ void Common::ZeroMQWrapperImpl::SocketUtil::checkIncomingData(
             return;
         if (rc == 0)
         {
-            throw Common::ZeroMQWrapper::IIPCTimeoutException("No incoming data on ZMQ socket");
+            throw Common::ZeroMQWrapper::IIPCTimeoutException(LOCATION, "No incoming data on ZMQ socket");
         }
 
         if (rc < 0)
@@ -178,7 +178,7 @@ void Common::ZeroMQWrapperImpl::SocketUtil::checkIncomingData(
                 info += zmq_strerror(z_err);
             }
 
-            throw ZeroMQPollerException(info);
+            throw ZeroMQPollerException(LOCATION, info);
         }
     }
 }

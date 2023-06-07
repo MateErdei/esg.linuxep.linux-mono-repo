@@ -1,9 +1,12 @@
 // Copyright 2021-2023 Sophos Limited. All rights reserved.
 
-#include <SulDownloader/suldownloaderdata/ConfigurationData.h>
-#include <UpdateSchedulerImpl/stateMachinesModule/StateMachineData.h>
+#include "Common/Exceptions/IException.h"
+
+#include "SulDownloader/suldownloaderdata/ConfigurationData.h"
+#include "UpdateSchedulerImpl/stateMachinesModule/StateMachineData.h"
 
 #include <string>
+
 namespace UpdateSchedulerImpl
 {
     /**
@@ -13,6 +16,7 @@ namespace UpdateSchedulerImpl
      * @param level
      */
     void log_exception(const std::exception& e, int level=0);
+    void log_exception(const Common::Exceptions::IException& e, int level=0);
 
     class UpdateSchedulerUtils
     {

@@ -1,13 +1,8 @@
-/******************************************************************************************************
-
-Copyright 2018, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
-#include <exception>
-#include <stdexcept>
+#include "Common/Exceptions/IException.h"
 
 namespace Common
 {
@@ -16,10 +11,10 @@ namespace Common
         /**
          * Exception class to report failures when handling the api requests.
          */
-        class ApiException : public std::runtime_error
+        class ApiException : public Common::Exceptions::IException
         {
         public:
-            explicit ApiException(const std::string& what) : std::runtime_error(what) {}
+            using Common::Exceptions::IException::IException;
         };
     } // namespace PluginApi
 } // namespace Common

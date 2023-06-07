@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2018-2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
@@ -15,7 +11,7 @@ namespace Common
         class IPluginCommunicationException : public Exceptions::IException
         {
         public:
-            explicit IPluginCommunicationException(const std::string& what) : Exceptions::IException(what) {}
+            using Exceptions::IException::IException;
         };
     } // namespace PluginCommunication
 } // namespace Common

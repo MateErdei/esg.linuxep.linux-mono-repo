@@ -12,20 +12,38 @@
 
 #include <json.hpp>
 
-namespace UpdateSchedulerImpl
+namespace
 {
-    void log_exception(const std::exception& e, int level) // NOLINT(misc-no-recursion)
+    inline void rethrow_ex(const std::exception& e, int level) // NOLINT(misc-no-recursion)
     {
-        LOGERROR(std::string(level, ' ') << "exception: " << e.what());
         try
         {
             std::rethrow_if_nested(e);
         }
+        catch(const Common::Exceptions::IException& nestedException)
+        {
+            UpdateSchedulerImpl::log_exception(nestedException, level+1);
+        }
         catch(const std::exception& nestedException)
         {
-            log_exception(nestedException, level+1);
+            UpdateSchedulerImpl::log_exception(nestedException, level+1);
         }
         catch(...) {}
+    }
+}
+
+namespace UpdateSchedulerImpl
+{
+    void log_exception(const Common::Exceptions::IException& e, int level) // NOLINT(misc-no-recursion)
+    {
+        LOGERROR(std::string(level, ' ') << "exception: " << e.what_with_location());
+        rethrow_ex(e, level);
+    }
+
+    void log_exception(const std::exception& e, int level) // NOLINT(misc-no-recursion)
+    {
+        LOGERROR(std::string(level, ' ') << "exception: " << e.what());
+        rethrow_ex(e, level);
     }
 
     std::string UpdateSchedulerUtils::calculateHealth(StateData::StateMachineData stateMachineData)

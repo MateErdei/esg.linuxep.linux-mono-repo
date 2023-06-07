@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2018, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
@@ -15,10 +11,7 @@ namespace Common
         class ZeroMQTimeoutException : public Common::ZeroMQWrapper::IIPCTimeoutException
         {
         public:
-            explicit ZeroMQTimeoutException(const std::string& message) :
-                Common::ZeroMQWrapper::IIPCTimeoutException(message)
-            {
-            }
+            using Common::ZeroMQWrapper::IIPCTimeoutException::IIPCTimeoutException;
         };
     } // namespace ZeroMQWrapperImpl
 } // namespace Common

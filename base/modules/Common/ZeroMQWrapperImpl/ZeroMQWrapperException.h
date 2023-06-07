@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2018, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
@@ -17,9 +13,7 @@ namespace Common
         class ZeroMQWrapperException : public Common::ZeroMQWrapper::IIPCException
         {
         public:
-            explicit ZeroMQWrapperException(const std::string& message) : Common::ZeroMQWrapper::IIPCException(message)
-            {
-            }
+            using Common::ZeroMQWrapper::IIPCException::IIPCException;
         };
 
         class ZeroMQPollerException : public ZeroMQWrapperException

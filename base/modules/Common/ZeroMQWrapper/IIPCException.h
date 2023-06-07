@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2018, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
@@ -15,7 +11,7 @@ namespace Common
         class IIPCException : public Common::Exceptions::IException
         {
         public:
-            explicit IIPCException(const std::string& what) : Common::Exceptions::IException(what) {}
+            using Common::Exceptions::IException::IException;
         };
     } // namespace ZeroMQWrapper
 } // namespace Common

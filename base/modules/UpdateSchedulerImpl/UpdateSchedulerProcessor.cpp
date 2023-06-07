@@ -232,6 +232,18 @@ namespace UpdateSchedulerImpl
                     }
                 }
             }
+            catch (const Common::Exceptions::IException& ex)
+            {
+                if (hasTask)
+                {
+                    LOGERROR("Unexpected error: " << ex.what() << " while processing " << static_cast<int>(task.taskType));
+                }
+                else
+                {
+                    LOGERROR("Unexpected error: " << ex.what() << " while attempting to get task");
+                }
+                log_exception(ex);
+            }
             catch (const std::exception& ex)
             {
                 if (hasTask)
@@ -584,7 +596,7 @@ namespace UpdateSchedulerImpl
             UpdateScheduler::SchedulerTask task;
             task.taskType = UpdateScheduler::SchedulerTask::TaskType::ScheduledUpdate;
             m_queueTask->push(UpdateScheduler::SchedulerTask{ task });
-            return std::string();
+            return {};
         }
 
         if (processLatestReport)

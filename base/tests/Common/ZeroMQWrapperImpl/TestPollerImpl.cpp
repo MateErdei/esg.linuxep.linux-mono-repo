@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2018-2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #include <Common/Threads/NotifyPipe.h>
 #include <Common/ZMQWrapperApi/IContext.h>
@@ -23,14 +19,14 @@ using namespace Common::ZeroMQWrapper;
 
 namespace
 {
-    TEST(TestPollerImpl, Creation) // NOLINT
+    TEST(TestPollerImpl, Creation)
     {
         IPollerPtr poller = Common::ZeroMQWrapper::createPoller();
         ASSERT_NE(poller.get(), nullptr);
     }
 
     // cppcheck-suppress syntaxError
-    TEST(TestPollerImpl, CanAddFd) // NOLINT
+    TEST(TestPollerImpl, CanAddFd)
     {
         IPollerPtr poller = Common::ZeroMQWrapper::createPoller();
         ASSERT_NE(poller.get(), nullptr);
@@ -46,7 +42,7 @@ namespace
         ::close(pipefds[1]);
     }
 
-    TEST(TestPollerImpl, CanAddSocket) // NOLINT
+    TEST(TestPollerImpl, CanAddSocket)
     {
         IPollerPtr poller = Common::ZeroMQWrapper::createPoller();
         ASSERT_NE(poller.get(), nullptr);
@@ -59,7 +55,7 @@ namespace
         poller->addEntry(*socket, Common::ZeroMQWrapper::IPoller::POLLIN);
     }
 
-    TEST(TestPollerImpl, PollTimeout) // NOLINT
+    TEST(TestPollerImpl, PollTimeout)
     {
         IPollerPtr poller = Common::ZeroMQWrapper::createPoller();
         ASSERT_NE(poller.get(), nullptr);
@@ -68,7 +64,7 @@ namespace
         EXPECT_EQ(result.size(), 0);
     }
 
-    TEST(TestPollerImpl, REPSocketNotified) // NOLINT
+    TEST(TestPollerImpl, REPSocketNotified)
     {
         using Common::ZeroMQWrapper::ms;
 
@@ -114,7 +110,7 @@ namespace
         EXPECT_EQ(input2, output2);
     }
 
-    TEST(TestPollerImpl, PollerShouldThrowExceptionIfFileDescriptorCloses) // NOLINT
+    TEST(TestPollerImpl, PollerShouldThrowExceptionIfFileDescriptorCloses)
     {
         using Common::Threads::NotifyPipe;
         IPollerPtr poller = Common::ZeroMQWrapper::createPoller();
@@ -139,7 +135,7 @@ namespace
 
         // close notifyPipe
         notifyPipe.reset();
-        EXPECT_THROW( // NOLINT
+        EXPECT_THROW(
             poller->poll(Common::ZeroMQWrapper::ms(2000)),
             Common::ZeroMQWrapperImpl::ZeroMQPollerException);
     }
@@ -156,7 +152,7 @@ namespace
         void* release() { return m_socket.release(); }
     };
 
-    TEST(TestPollerImpl, PollerShouldThrowExceptionIfUnderlingSocketCloses) // NOLINT
+    TEST(TestPollerImpl, PollerShouldThrowExceptionIfUnderlingSocketCloses)
     {
         constexpr int POLL_MS = 2000;
         using Common::Threads::NotifyPipe;
@@ -188,7 +184,7 @@ namespace
         auto zmqsocket = socket->skt();
         ASSERT_EQ(zmq_close(zmqsocket), 0);
         requester->write({ "another request" });
-        EXPECT_THROW( // NOLINT
+        EXPECT_THROW(
             poller->poll(Common::ZeroMQWrapper::ms(POLL_MS)),
             Common::ZeroMQWrapperImpl::ZeroMQPollerException);
 
@@ -199,7 +195,7 @@ namespace
         context.reset();
     }
 
-    TEST(TestPollerImpl, AddToPollerAnInvalidFileDescriptorShouldThrowException) // NOLINT
+    TEST(TestPollerImpl, AddToPollerAnInvalidFileDescriptorShouldThrowException)
     {
         using Common::Threads::NotifyPipe;
         IPollerPtr poller = Common::ZeroMQWrapper::createPoller();
@@ -210,12 +206,12 @@ namespace
         auto pipeFD = poller->addEntry(invalidFD, Common::ZeroMQWrapper::IPoller::POLLIN);
         auto pipe2FD = poller->addEntry(notifyPipe1.readFd(), Common::ZeroMQWrapper::IPoller::POLLIN);
 
-        EXPECT_THROW( // NOLINT
+        EXPECT_THROW(
             poller->poll(Common::ZeroMQWrapper::ms(2000)),
             Common::ZeroMQWrapperImpl::ZeroMQPollerException);
     }
 
-    TEST(TestPollerImpl, AddToPollerAnInvalidSocketShouldThrowException) // NOLINT
+    TEST(TestPollerImpl, AddToPollerAnInvalidSocketShouldThrowException)
     {
         using Common::Threads::NotifyPipe;
         IPollerPtr poller = Common::ZeroMQWrapper::createPoller();
@@ -234,14 +230,14 @@ namespace
 
         poller->addEntry(*replier, Common::ZeroMQWrapper::IPoller::POLLIN);
 
-        EXPECT_THROW( // NOLINT
+        EXPECT_THROW(
             poller->poll(Common::ZeroMQWrapper::ms(2000)),
-            Common::ZeroMQWrapperImpl::ZeroMQPollerException); // NOLINT
+            Common::ZeroMQWrapperImpl::ZeroMQPollerException);
 
         socket->socketHolder().release(); // Socket already closed
     }
 
-    TEST(TestPollerImpl, ThePollerShouldReturnThatDataIsAvailableWhileItIsAvailable) // NOLINT
+    TEST(TestPollerImpl, ThePollerShouldReturnThatDataIsAvailableWhileItIsAvailable)
     {
         int filedes[2];
         ASSERT_EQ(pipe(filedes), 0);
@@ -259,12 +255,12 @@ namespace
         EXPECT_EQ(res.size(), 1);
 
         // read all the information from the buffer.
-        std::array<unsigned char, 10> buffer;
+        std::array<unsigned char, 10> buffer{};
         EXPECT_EQ(::read(readFd, buffer.data(), writeCnt.size()), writeCnt.size());
 
-        EXPECT_THROW( // NOLINT
+        EXPECT_THROW(
             poller->poll(Common::ZeroMQWrapper::ms(2000)),
-            Common::ZeroMQWrapperImpl::ZeroMQPollerException); // NOLINT
+            Common::ZeroMQWrapperImpl::ZeroMQPollerException);
 
         EXPECT_EQ(::close(readFd), 0);
         //

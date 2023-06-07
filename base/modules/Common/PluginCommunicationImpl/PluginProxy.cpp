@@ -129,7 +129,7 @@ namespace Common
             {
                 std::ostringstream err;
                 err << ex.what() << " from getReply in PluginProxy";
-                std::throw_with_nested(PluginCommunication::IPluginCommunicationException(err.str()));
+                std::throw_with_nested(PluginCommunication::IPluginCommunicationException(LOCATION, err.str()));
             }
 
             if (reply.m_command != request.m_command)

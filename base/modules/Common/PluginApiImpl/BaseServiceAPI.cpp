@@ -139,7 +139,7 @@ Common::PluginProtocol::DataMessage Common::PluginApiImpl::BaseServiceAPI::getRe
                     << std::chrono::duration_cast<std::chrono::milliseconds>(duration).count()
                     << "ms duration";
                 LOGERROR("Timed out: " << err.str());
-                std::throw_with_nested(Common::PluginApi::ApiException(err.str()));
+                std::throw_with_nested(Common::PluginApi::ApiException(LOCATION, err.str()));
             }
             else
             {
