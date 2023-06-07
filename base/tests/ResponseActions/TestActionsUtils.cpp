@@ -1025,7 +1025,7 @@ TEST_F(ActionsUtilsTests, downloadWrongTypeDecompress)
     try
     {
         auto output = ActionsUtils::readDownloadAction(action.dump());
-        FAIL() << "Didnt throw due to missing essential action";
+        FAIL() << "Didnt throw due to type error";
     }
     catch (const InvalidCommandFormat& except)
     {
@@ -1040,7 +1040,7 @@ TEST_F(ActionsUtilsTests, downloadWrongTypeSizeBytes)
     try
     {
         auto output = ActionsUtils::readDownloadAction(action.dump());
-        FAIL() << "Didnt throw due to missing essential action";
+        FAIL() << "Didnt throw due to type error";
     }
     catch (const InvalidCommandFormat& except)
     {
@@ -1055,7 +1055,7 @@ TEST_F(ActionsUtilsTests, downloadWrongTypeExpiration)
     try
     {
         auto output = ActionsUtils::readDownloadAction(action.dump());
-        FAIL() << "Didnt throw due to missing essential action";
+        FAIL() << "Didnt throw due to type error";
     }
     catch (const InvalidCommandFormat& except)
     {
@@ -1070,7 +1070,7 @@ TEST_F(ActionsUtilsTests, downloadWrongTypeTimeout)
     try
     {
         auto output = ActionsUtils::readDownloadAction(action.dump());
-        FAIL() << "Didnt throw due to missing essential action";
+        FAIL() << "Didnt throw due to type error";
     }
     catch (const InvalidCommandFormat& except)
     {
@@ -1085,7 +1085,7 @@ TEST_F(ActionsUtilsTests, downloadWrongTypeSHA256)
     try
     {
         auto output = ActionsUtils::readDownloadAction(action.dump());
-        FAIL() << "Didnt throw due to missing essential action";
+        FAIL() << "Didnt throw due to type error";
     }
     catch (const InvalidCommandFormat& except)
     {
@@ -1100,7 +1100,7 @@ TEST_F(ActionsUtilsTests, downloadWrongTypeURL)
     try
     {
         auto output = ActionsUtils::readDownloadAction(action.dump());
-        FAIL() << "Didnt throw due to missing essential action";
+        FAIL() << "Didnt throw due to type error";
     }
     catch (const InvalidCommandFormat& except)
     {
@@ -1115,7 +1115,7 @@ TEST_F(ActionsUtilsTests, downloadWrongTypeTargetPath)
     try
     {
         auto output = ActionsUtils::readDownloadAction(action.dump());
-        FAIL() << "Didnt throw due to missing essential action";
+        FAIL() << "Didnt throw due to type error";
     }
     catch (const InvalidCommandFormat& except)
     {
@@ -1130,7 +1130,7 @@ TEST_F(ActionsUtilsTests, downloadWrongTypePassword)
     try
     {
         auto output = ActionsUtils::readDownloadAction(action.dump());
-        FAIL() << "Didnt throw due to missing essential action";
+        FAIL() << "Didnt throw due to type error";
     }
     catch (const InvalidCommandFormat& except)
     {
@@ -1244,7 +1244,7 @@ TEST_P(RunCommandRequiredFieldsParameterized, RunCommandUnsetEssentialFields)
     }
 }
 
-TEST_F(ActionsUtilsTests, readCommandFailsDueToCommandTypeError_NotArray)
+TEST_F(ActionsUtilsTests, readCommandWrongTypeCommands_NotArray)
 {
     nlohmann::json action = getDefaultRunCommandAction();
     action["commands"] = "930752758";
@@ -1259,7 +1259,7 @@ TEST_F(ActionsUtilsTests, readCommandFailsDueToCommandTypeError_NotArray)
     }
 }
 
-TEST_F(ActionsUtilsTests, readCommandFailsDueToCommandTypeError_ArrayNumbers)
+TEST_F(ActionsUtilsTests, readCommandWrongTypeCommands_ArrayNumbers)
 {
     nlohmann::json action = getDefaultRunCommandAction();
     action["commands"] = {93075, 2758};
@@ -1274,7 +1274,7 @@ TEST_F(ActionsUtilsTests, readCommandFailsDueToCommandTypeError_ArrayNumbers)
     }
 }
 
-TEST_F(ActionsUtilsTests, readCommandFailsDueToIgnoreErrorTypeError)
+TEST_F(ActionsUtilsTests, readCommandWrongTypeIgnoreError)
 {
     nlohmann::json action = getDefaultRunCommandAction();
     action["ignoreError"] = 0;
@@ -1289,11 +1289,19 @@ TEST_F(ActionsUtilsTests, readCommandFailsDueToIgnoreErrorTypeError)
     }
 }
 
-TEST_F(ActionsUtilsTests, readCommandFailsDueToTypeError)
+TEST_F(ActionsUtilsTests, runCommandWrongTypeExpiration)
 {
-    std::string commandJson = getCommandJsonStringWithWrongValueType();
-    EXPECT_THAT([&]() { std::ignore = ActionsUtils::readCommandAction(commandJson); },
-                ThrowsMessage<InvalidCommandFormat>(HasSubstr("Failed to process CommandRequest from action JSON")));
+    nlohmann::json action = getDefaultRunCommandAction();
+    action["expiration"] = "expiration";
+    try
+    {
+        auto output = ActionsUtils::readCommandAction(action.dump());
+        FAIL() << "Didnt throw due to type error";
+    }
+    catch (const InvalidCommandFormat& except)
+    {
+        EXPECT_STREQ(except.what(), R"(Invalid command format. Failed to process CommandRequest from action JSON: expiration is not a number: "expiration")");
+    }
 }
 
 TEST_F(ActionsUtilsTests, readCommandFailsDueToMalformedJson)
