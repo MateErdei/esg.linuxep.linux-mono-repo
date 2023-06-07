@@ -21,7 +21,8 @@ add_library(responseplugin SHARED
         TaskQueue.h
         Telemetry.cpp
         Telemetry.h
-        )
+        ../RACommon/toUtf8Exception.cpp
+        ../RACommon/toUtf8Exception.h)
 
 include_directories(responseplugin BEFORE
         ${CMAKE_CURRENT_BINARY_DIR}

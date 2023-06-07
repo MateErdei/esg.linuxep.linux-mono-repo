@@ -14,7 +14,8 @@ add_library(responseactionsimpl SHARED
         UploadFolderAction.h
         RunCommandAction.cpp
         RunCommandAction.h
-        )
+        ../RACommon/toUtf8Exception.cpp
+        ../RACommon/toUtf8Exception.h)
 
 include_directories(responseactionsimpl BEFORE
         ${CMAKE_CURRENT_BINARY_DIR}

@@ -4,6 +4,7 @@
 
 #include <map>
 #include <string>
+#include <optional>
 
 namespace ResponseActions::RACommon
 {
@@ -29,5 +30,5 @@ namespace ResponseActions::RACommon
     constexpr auto DOWNLOAD_FILE_RESPONSE_TYPE = "sophos.mgt.response.DownloadFile";
 
     void sendResponse(const std::string& correlationId, const std::string& content);
-    std::string toUtf8(const std::string& str, bool appendConversion = true);
+    std::optional<std::string> toUtf8(const std::string& str, bool appendConversion = true);
 } // namespace ResponseActions::RACommon

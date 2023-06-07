@@ -332,14 +332,14 @@ TEST_F(TestActionRunner, SendFailedResponseThrowsWithInvalidType)
 TEST_F(TestActionRunner, TestToUtf8)
 {
     std::string threatPath = "abc  \1 \2 \3 \4 \5 \6 \\ efg \a \b \t \n \v \f \r hik";
-    std::string utf8Path = ResponseActions::RACommon::toUtf8(threatPath);
+    std::string utf8Path = *(ResponseActions::RACommon::toUtf8(threatPath));
     EXPECT_EQ(utf8Path, threatPath);
 }
 
 TEST_F(TestActionRunner, TestToUtf8WeirdCharacters)
 {
     std::string threatPath = "ありったけの夢をかき集め \1 \2 \3 \4 \5 \6 \\ Ἄνδρα μοι ἔννεπε \a \b \t \n \v \f \r Ä Ö Ü ß";
-    std::string utf8Path = ResponseActions::RACommon::toUtf8(threatPath);
+    std::string utf8Path = *(ResponseActions::RACommon::toUtf8(threatPath));
     EXPECT_EQ(utf8Path, threatPath);
 }
 
@@ -351,14 +351,14 @@ TEST_F(TestActionRunner, TestToUtf8FromEucJP)
     std::string threatPath(threatPathBytes.begin(), threatPathBytes.end());
 
     std::string threatPathUtf8 = "ありったけの夢をかき集め";
-    std::string utf8Path = ResponseActions::RACommon::toUtf8(threatPath, false);
+    std::string utf8Path = *(ResponseActions::RACommon::toUtf8(threatPath, false));
     EXPECT_EQ(utf8Path, threatPathUtf8);
 
     threatPathUtf8 += " (EUC-JP)";
-    utf8Path = ResponseActions::RACommon::toUtf8(threatPath, true);
+    utf8Path = *(ResponseActions::RACommon::toUtf8(threatPath, true));
     EXPECT_EQ(utf8Path, threatPathUtf8);
 
-    utf8Path = ResponseActions::RACommon::toUtf8(threatPath);
+    utf8Path = *(ResponseActions::RACommon::toUtf8(threatPath));
     EXPECT_EQ(utf8Path, threatPathUtf8);
 }
 
@@ -370,14 +370,14 @@ TEST_F(TestActionRunner, TestToUtf8FromSJIS)
     std::string threatPath(threatPathBytes.begin(), threatPathBytes.end());
 
     std::string threatPathUtf8 = "ありったけの夢をかき集め";
-    std::string utf8Path = ResponseActions::RACommon::toUtf8(threatPath, false);
+    std::string utf8Path = *(ResponseActions::RACommon::toUtf8(threatPath, false));
     EXPECT_EQ(utf8Path, threatPathUtf8);
 
     threatPathUtf8 += " (Shift-JIS)";
-    utf8Path = ResponseActions::RACommon::toUtf8(threatPath, true);
+    utf8Path = *(ResponseActions::RACommon::toUtf8(threatPath, true));
     EXPECT_EQ(utf8Path, threatPathUtf8);
 
-    utf8Path = ResponseActions::RACommon::toUtf8(threatPath);
+    utf8Path = *(ResponseActions::RACommon::toUtf8(threatPath));
     EXPECT_EQ(utf8Path, threatPathUtf8);
 }
 
@@ -388,14 +388,14 @@ TEST_F(TestActionRunner, TestToUtf8FromLatin1)
     std::string threatPath(threatPathBytes.begin(), threatPathBytes.end());
 
     std::string threatPathUtf8 = "Ä ö ü ß";
-    std::string utf8Path = ResponseActions::RACommon::toUtf8(threatPath, false);
+    std::string utf8Path = *(ResponseActions::RACommon::toUtf8(threatPath, false));
     EXPECT_EQ(utf8Path, threatPathUtf8);
 
     threatPathUtf8 += " (Latin1)";
-    utf8Path = ResponseActions::RACommon::toUtf8(threatPath, true);
+    utf8Path = *(ResponseActions::RACommon::toUtf8(threatPath, true));
     EXPECT_EQ(utf8Path, threatPathUtf8);
 
-    utf8Path = ResponseActions::RACommon::toUtf8(threatPath);
+    utf8Path = *(ResponseActions::RACommon::toUtf8(threatPath));
     EXPECT_EQ(utf8Path, threatPathUtf8);
 }
 

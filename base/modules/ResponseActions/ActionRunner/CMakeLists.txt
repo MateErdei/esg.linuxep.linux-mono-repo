@@ -7,7 +7,8 @@ add_library(responseactionmain SHARED
         Logger.h
         ../RACommon/ResponseActionsCommon.h
         ../RACommon/ResponseActionsCommon.cpp
-        )
+        ../RACommon/toUtf8Exception.cpp
+        ../RACommon/toUtf8Exception.h)
 configure_file(config.h.in config.h)
 target_include_directories(responseactionmain
         BEFORE PRIVATE

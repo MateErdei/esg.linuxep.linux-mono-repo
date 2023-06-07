@@ -5,10 +5,12 @@
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "Common/FileSystem/IFilePermissions.h"
 #include "Common/FileSystem/IFileSystem.h"
+#include "toUtf8Exception.h"
 
 #define BOOST_LOCALE_HIDE_AUTO_PTR
 #include <boost/locale.hpp>
 #include <string>
+#include <optional>
 
 namespace ResponseActions::RACommon
 {
@@ -22,7 +24,7 @@ namespace ResponseActions::RACommon
         Common::FileSystem::createAtomicFileToSophosUser(content, fullTargetName, tmpPath);
     }
 
-    std::string toUtf8(const std::string& str, bool appendConversion)
+    std::optional<std::string> toUtf8(const std::string& str, bool appendConversion)
     {
         try
         {
@@ -53,13 +55,13 @@ namespace ResponseActions::RACommon
             }
             catch(const boost::locale::conv::conversion_error& e)
             {
-                throw std::runtime_error(std::string("Failed to convert string ") += str + std::string(" to utf8 from ") += encoding);
+                continue;
             }
             catch(const boost::locale::conv::invalid_charset_error& e)
             {
-                throw std::runtime_error(std::string("Failed to convert string ") += str + std::string(" with error: ") += e.what());
+                throw toUtf8Exception(" due to invalid charset.");
             }
         }
-        return str;
+        throw toUtf8Exception("");
     }
 } // namespace ResponseActions::RACommon

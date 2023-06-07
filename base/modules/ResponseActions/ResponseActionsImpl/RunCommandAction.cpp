@@ -8,6 +8,7 @@
 
 #include "Common/ProxyUtils/ProxyUtils.h"
 #include "Process/IProcess.h"
+#include "ResponseActions/RACommon/toUtf8Exception.h"
 #include "UtilityImpl/TimeUtils.h"
 
 #include <sys/poll.h>
@@ -205,8 +206,24 @@ SingleCommandResult RunCommandAction::runCommand(const std::string& command)
         process->waitUntilProcessEnds();
     }
 
-    response.stdOut = ResponseActions::RACommon::toUtf8(process->standardOutput());
-    response.stdErr = ResponseActions::RACommon::toUtf8(process->errorOutput());
+    try
+    {
+        response.stdOut = *(ResponseActions::RACommon::toUtf8(process->standardOutput()));
+    }
+    catch (const ResponseActions::RACommon::toUtf8Exception& e)
+    {
+        LOGWARN("Failed to convert standard output to utf8" << e.what());
+    }
+
+    try
+    {
+        response.stdErr = *(ResponseActions::RACommon::toUtf8(process->errorOutput()));
+    }
+    catch (const ResponseActions::RACommon::toUtf8Exception& e)
+    {
+        LOGWARN("Failed to convert error output to utf8" << e.what());
+    }
+
     response.exitCode = process->exitCode();
 
     u_int64_t finish = time.currentEpochTimeInSecondsAsInteger();
