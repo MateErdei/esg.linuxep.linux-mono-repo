@@ -57,9 +57,9 @@ namespace
 
 TEST_F(TestSubscriber, SubscriberCanCallStopWithoutThrowingOnASubscriberThatHasntStarted)
 {
-    MockZmqContext*  context = new StrictMock<MockZmqContext>();
+    auto context = std::make_unique<MockZmqContext>();
     std::string fakeSocketPath = "FakeSocketPath";
-    std::shared_ptr<ZMQWrapperApi::IContext>  mockContextPtr(context);
+    std::shared_ptr<ZMQWrapperApi::IContext>  mockContextPtr(std::move(context));
 
     MockEventQueuePusher* mockPusher = new NiceMock<MockEventQueuePusher>();
     std::unique_ptr<IEventHandler> mockPusherPtr(mockPusher);
@@ -240,16 +240,16 @@ TEST_F(TestSubscriber, SubscriberCanRestart)
 
 TEST_F(TestSubscriber, SubscriberStartThrowsIfSocketDirDoesNotExist)
 {
-    MockZmqContext*  context = new StrictMock<MockZmqContext>();
+    auto context = std::make_unique<MockZmqContext>();
     std::string fakeSocketPath = "/fake/dir/for/socketPath";
-    MockEventQueuePusher* mockPusher = new StrictMock<MockEventQueuePusher>();
-    std::unique_ptr<IEventHandler> mockPusherPtr(mockPusher);
+    auto mockPusher = std::make_unique<MockEventQueuePusher>();
+    std::unique_ptr<IEventHandler> mockPusherPtr(std::move(mockPusher));
 
-    MockSocketSubscriber*  socketSubscriber = new StrictMock<MockSocketSubscriber>();
+    auto socketSubscriber = std::make_unique<MockSocketSubscriber>();
     EXPECT_CALL(*socketSubscriber, setTimeout(123)).Times(0);
     EXPECT_CALL(*socketSubscriber, listen("ipc://" + fakeSocketPath)).Times(0);
     EXPECT_CALL(*socketSubscriber, subscribeTo("threatEvents")).Times(0);
-    std::shared_ptr<ZMQWrapperApi::IContext>  mockContextPtr(context);
+    std::shared_ptr<ZMQWrapperApi::IContext>  mockContextPtr(std::move(context));
     auto heartbeatPinger = std::make_shared<Heartbeat::HeartbeatPinger>();
     SubscriberLib::Subscriber subscriber(fakeSocketPath, mockContextPtr, std::move(mockPusherPtr), heartbeatPinger, 123);
 
