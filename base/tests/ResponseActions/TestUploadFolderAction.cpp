@@ -108,7 +108,7 @@ TEST_F(UploadFolderTests, SuccessCaseWithPassword)
 
     nlohmann::json response = uploadFolderAction.run(action.dump());
     
-    EXPECT_EQ(response["result"], 0);
+    EXPECT_EQ(response["result"], ResponseResult::SUCCESS);
     EXPECT_EQ(response["httpStatus"], 200);
 }
 
@@ -131,7 +131,7 @@ TEST_F(UploadFolderTests, SuccessCase)
 
     nlohmann::json response = uploadFolderAction.run(action.dump());
 
-    EXPECT_EQ(response["result"], 0);
+    EXPECT_EQ(response["result"], ResponseResult::SUCCESS);
     EXPECT_EQ(response["httpStatus"], 200);
 }
 
@@ -162,11 +162,11 @@ TEST_F(UploadFolderTests, successHugeURL)
     action["url"] = largeURL;
     nlohmann::json response = uploadFolderAction.run(action.dump());
 
-    EXPECT_EQ(response["result"], 0);
+    EXPECT_EQ(response["result"], ResponseResult::SUCCESS);
     EXPECT_EQ(response["httpStatus"], 200);
 
     EXPECT_EQ(response["type"], UPLOAD_FOLDER_RESPONSE_TYPE);
-    EXPECT_EQ(response["result"], 0);
+    EXPECT_EQ(response["result"], ResponseResult::SUCCESS);
     EXPECT_EQ(response["httpStatus"], HTTP_STATUS_OK);
     EXPECT_FALSE(response.contains("errorType"));
     EXPECT_FALSE(response.contains("errorMessage"));
@@ -203,7 +203,7 @@ TEST_F(UploadFolderTests, successHugePath)
     nlohmann::json response = uploadFolderAction.run(action.dump());
 
     EXPECT_EQ(response["type"], UPLOAD_FOLDER_RESPONSE_TYPE);
-    EXPECT_EQ(response["result"], 0);
+    EXPECT_EQ(response["result"], ResponseResult::SUCCESS);
     EXPECT_EQ(response["httpStatus"], HTTP_STATUS_OK);
     EXPECT_FALSE(response.contains("errorType"));
     EXPECT_FALSE(response.contains("errorMessage"));
@@ -238,11 +238,11 @@ TEST_F(UploadFolderTests, successEmptyPassword)
     action["password"] = "";
     nlohmann::json response = uploadFolderAction.run(action.dump());
 
-    EXPECT_EQ(response["result"], 0);
+    EXPECT_EQ(response["result"], ResponseResult::SUCCESS);
     EXPECT_EQ(response["httpStatus"], 200);
 
     EXPECT_EQ(response["type"], UPLOAD_FOLDER_RESPONSE_TYPE);
-    EXPECT_EQ(response["result"], 0);
+    EXPECT_EQ(response["result"], ResponseResult::SUCCESS);
     EXPECT_EQ(response["httpStatus"], HTTP_STATUS_OK);
     EXPECT_FALSE(response.contains("errorType"));
     EXPECT_FALSE(response.contains("errorMessage"));
@@ -278,11 +278,11 @@ TEST_F(UploadFolderTests, successHugePassword)
     action["password"] = largePassword;
     nlohmann::json response = uploadFolderAction.run(action.dump());
 
-    EXPECT_EQ(response["result"], 0);
+    EXPECT_EQ(response["result"], ResponseResult::SUCCESS);
     EXPECT_EQ(response["httpStatus"], 200);
 
     EXPECT_EQ(response["type"], UPLOAD_FOLDER_RESPONSE_TYPE);
-    EXPECT_EQ(response["result"], 0);
+    EXPECT_EQ(response["result"], ResponseResult::SUCCESS);
     EXPECT_EQ(response["httpStatus"], HTTP_STATUS_OK);
     EXPECT_FALSE(response.contains("errorType"));
     EXPECT_FALSE(response.contains("errorMessage"));
@@ -315,7 +315,7 @@ TEST_F(UploadFolderTests, SuccessCaseWithProxy)
 
     nlohmann::json response = uploadFolderAction.run(action.dump());
     
-    EXPECT_EQ(response["result"], 0);
+    EXPECT_EQ(response["result"], ResponseResult::SUCCESS);
     EXPECT_EQ(response["httpStatus"], 200);
 }
 
@@ -349,7 +349,7 @@ TEST_F(UploadFolderTests, ProxyFallsBackToDirect)
 
     nlohmann::json response = uploadFolderAction.run(action.dump());
     
-    EXPECT_EQ(response["result"], 0);
+    EXPECT_EQ(response["result"], ResponseResult::SUCCESS);
     EXPECT_EQ(response["httpStatus"], 200);
 }
 
@@ -359,7 +359,7 @@ TEST_F(UploadFolderTests, cannotParseActions)
 
     nlohmann::json response = uploadFolderAction.run("");
     
-    EXPECT_EQ(response["result"], 1);
+    EXPECT_EQ(response["result"], ResponseResult::ERROR);
     EXPECT_EQ(response["errorMessage"], "Error parsing command from Central");
 }
 
@@ -370,7 +370,7 @@ TEST_F(UploadFolderTests, actionExpired)
     action["expiration"] = 0;
     nlohmann::json response = uploadFolderAction.run(action.dump());
     
-    EXPECT_EQ(response["result"], 4);
+    EXPECT_EQ(response["result"], ResponseResult::EXPIRED);
     EXPECT_EQ(response["errorMessage"], "Upload folder action has expired");
 }
 
@@ -391,7 +391,7 @@ TEST_F(UploadFolderTests, actionExpiryLarge)
     nlohmann::json response = uploadFolderAction.run(action);
 
     EXPECT_EQ(response["type"], UPLOAD_FOLDER_RESPONSE_TYPE);
-    EXPECT_EQ(response["result"], 4);
+    EXPECT_EQ(response["result"], ResponseResult::EXPIRED);
     EXPECT_EQ(response["errorMessage"], expectedMsg);
     EXPECT_FALSE(response.contains("errorType"));
     EXPECT_FALSE(response.contains("httpStatus"));
@@ -409,7 +409,7 @@ TEST_F(UploadFolderTests, actionExpiryNegative)
     nlohmann::json response = uploadFolderAction.run(action.dump());
 
     EXPECT_EQ(response["type"], UPLOAD_FOLDER_RESPONSE_TYPE);
-    EXPECT_EQ(response["result"], 1);
+    EXPECT_EQ(response["result"], ResponseResult::ERROR);
     EXPECT_EQ(response["errorMessage"], "Error parsing command from Central");
     EXPECT_FALSE(response.contains("errorType"));
     EXPECT_FALSE(response.contains("httpStatus"));
@@ -426,7 +426,7 @@ TEST_F(UploadFolderTests, FolderDoesNotExist)
 
     nlohmann::json response = uploadFolderAction.run(action.dump());
     
-    EXPECT_EQ(response["result"], 1);
+    EXPECT_EQ(response["result"], ResponseResult::ERROR);
     EXPECT_EQ(response["errorType"], "invalid_path");
     EXPECT_EQ(response["errorMessage"], "/tmp/path is not a directory");
 }
@@ -442,7 +442,7 @@ TEST_F(UploadFolderTests, NegativeSizeLimit)
     nlohmann::json response = uploadFolderAction.run(action.dump());
 
     EXPECT_EQ(response["result"],1);
-    EXPECT_EQ(response["result"], 1);
+    EXPECT_EQ(response["result"], ResponseResult::ERROR);
     EXPECT_EQ(response["errorMessage"], "Error parsing command from Central");
 
     EXPECT_TRUE(appenderContains("Invalid command format. Failed to process UploadInfo from action JSON: maxUploadSizeBytes is a negative value: -123545"));
@@ -459,7 +459,7 @@ TEST_F(UploadFolderTests, LargeSizeLimit)
     nlohmann::json response = uploadFolderAction.run(action.dump());
 
     EXPECT_EQ(response["result"],1);
-    EXPECT_EQ(response["result"], 1);
+    EXPECT_EQ(response["result"], ResponseResult::ERROR);
     EXPECT_EQ(response["errorMessage"], "Error parsing command from Central");
 
     EXPECT_TRUE(appenderContains("Invalid command format. Failed to process UploadInfo from action JSON: maxUploadSizeBytes is to large: 214748364734"));
@@ -498,7 +498,7 @@ TEST_F(UploadFolderTests, ZippedFolderOverSizeLimit)
 
     nlohmann::json response = uploadFolderAction.run(action.dump());
     
-    EXPECT_EQ(response["result"], 1);
+    EXPECT_EQ(response["result"], ResponseResult::ERROR);
     EXPECT_EQ(response["errorType"], "exceed_size_limit");
     EXPECT_EQ(
         response["errorMessage"],
@@ -521,7 +521,7 @@ TEST_F(UploadFolderTests, ZippedFolderOverSizeLimitNotSet)
 
     nlohmann::json response = uploadFolderAction.run(action.dump());
 
-    EXPECT_EQ(response["result"], 1);
+    EXPECT_EQ(response["result"], ResponseResult::ERROR);
     EXPECT_EQ(response["errorType"], "exceed_size_limit");
     EXPECT_EQ(
         response["errorMessage"],
@@ -542,7 +542,7 @@ TEST_F(UploadFolderTests, ZipFails)
 
     nlohmann::json response = uploadFolderAction.run(action.dump());
     
-    EXPECT_EQ(response["result"], 3);
+    EXPECT_EQ(response["result"], ResponseResult::INTERNAL_ERROR);
     EXPECT_EQ(response["errorMessage"], "Error zipping /tmp/path");
 }
 
@@ -562,7 +562,7 @@ TEST_F(UploadFolderTests, ZipFailsDueToLargeFile)
 
     nlohmann::json response = uploadFolderAction.run(action.dump());
     
-    EXPECT_EQ(response["result"], 3);
+    EXPECT_EQ(response["result"], ResponseResult::INTERNAL_ERROR);
     EXPECT_EQ(response["errorMessage"], "Error zipping /tmp/path");
 }
 
@@ -583,7 +583,7 @@ TEST_F(UploadFolderTests, FileBeingWrittenToAndOverSizeLimit)
 
     nlohmann::json response = uploadFolderAction.run(action.dump());
     
-    EXPECT_EQ(response["result"], 1);
+    EXPECT_EQ(response["result"], ResponseResult::ERROR);
     EXPECT_EQ(response["errorType"], "access_denied");
     EXPECT_EQ(response["errorMessage"], "Zip file to be uploaded cannot be accessed");
 }
@@ -607,7 +607,7 @@ TEST_F(UploadFolderTests, FailureDueToTimeout)
 
     nlohmann::json response = uploadFolderAction.run(action.dump());
     
-    EXPECT_EQ(response["result"], 2);
+    EXPECT_EQ(response["result"], ResponseResult::TIMEOUT);
     EXPECT_EQ(response["httpStatus"], 500);
     EXPECT_EQ(response["errorMessage"], "Timeout uploading zip file: " + m_defaultZipFile);
 }
@@ -631,7 +631,7 @@ TEST_F(UploadFolderTests, FailureDueToNetworkError)
 
     nlohmann::json response = uploadFolderAction.run(action.dump());
     
-    EXPECT_EQ(response["result"], 1);
+    EXPECT_EQ(response["result"], ResponseResult::ERROR);
     EXPECT_EQ(response["httpStatus"], 500);
     EXPECT_EQ(response["errorMessage"], "Failed to upload zip file: " + m_defaultZipFile + " with error: failure");
     EXPECT_EQ(response["errorType"], "network_error");
@@ -656,7 +656,7 @@ TEST_F(UploadFolderTests, FailureDueToServerError)
 
     nlohmann::json response = uploadFolderAction.run(action.dump());
     
-    EXPECT_EQ(response["result"], 1);
+    EXPECT_EQ(response["result"], ResponseResult::ERROR);
     EXPECT_EQ(response["httpStatus"], 500);
     EXPECT_EQ(response["errorMessage"], "Failed to upload zip file: " + m_defaultZipFile + " with http error code 500");
     EXPECT_EQ(response["errorType"], "network_error");
@@ -680,7 +680,7 @@ TEST_F(UploadFolderTests, FailureDueToServerCertError)
 
     nlohmann::json response = uploadFolderAction.run(action.dump());
 
-    EXPECT_EQ(response["result"], 1);
+    EXPECT_EQ(response["result"], ResponseResult::ERROR);
     EXPECT_EQ(response["httpStatus"], 500);
     EXPECT_EQ(response["errorMessage"], "Failed to upload zip file: " + m_defaultZipFile + " with error: SSL issues");
     EXPECT_EQ(response["errorType"], "network_error");

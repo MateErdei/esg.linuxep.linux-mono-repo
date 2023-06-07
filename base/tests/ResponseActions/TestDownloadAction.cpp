@@ -220,7 +220,7 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_NotDecompressed)
     nlohmann::json response = downloadFileAction.run(action.dump());
 
     EXPECT_EQ(response["type"], DOWNLOAD_FILE_RESPONSE_TYPE);
-    EXPECT_EQ(response["result"], 0);
+    EXPECT_EQ(response["result"], ResponseResult::SUCCESS);
     EXPECT_EQ(response["httpStatus"], HTTP_STATUS_OK);
     EXPECT_FALSE(response.contains("errorType"));
     EXPECT_FALSE(response.contains("errorMessage"));
@@ -258,7 +258,7 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_HugeURL)
     nlohmann::json response = downloadFileAction.run(action.dump());
 
     EXPECT_EQ(response["type"], DOWNLOAD_FILE_RESPONSE_TYPE);
-    EXPECT_EQ(response["result"], 0);
+    EXPECT_EQ(response["result"], ResponseResult::SUCCESS);
     EXPECT_EQ(response["httpStatus"], HTTP_STATUS_OK);
     EXPECT_FALSE(response.contains("errorType"));
     EXPECT_FALSE(response.contains("errorMessage"));
@@ -294,7 +294,7 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_HugePath)
     nlohmann::json response = downloadFileAction.run(action.dump());
 
     EXPECT_EQ(response["type"], DOWNLOAD_FILE_RESPONSE_TYPE);
-    EXPECT_EQ(response["result"], 0);
+    EXPECT_EQ(response["result"], ResponseResult::SUCCESS);
     EXPECT_EQ(response["httpStatus"], HTTP_STATUS_OK);
     EXPECT_FALSE(response.contains("errorType"));
     EXPECT_FALSE(response.contains("errorMessage"));
@@ -326,7 +326,7 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_NotDecompressed_NoFileNameIn
     nlohmann::json response = downloadFileAction.run(action.dump());
 
     EXPECT_EQ(response["type"], DOWNLOAD_FILE_RESPONSE_TYPE);
-    EXPECT_EQ(response["result"], 0);
+    EXPECT_EQ(response["result"], ResponseResult::SUCCESS);
     EXPECT_EQ(response["httpStatus"], HTTP_STATUS_OK);
     EXPECT_FALSE(response.contains("errorType"));
     EXPECT_FALSE(response.contains("errorMessage"));
@@ -389,7 +389,7 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompressed_WithFileNameInT
     nlohmann::json action = getDownloadObject(decompress);
     nlohmann::json response = downloadFileAction.run(action.dump());
 
-    EXPECT_EQ(response["result"], 0);
+    EXPECT_EQ(response["result"], ResponseResult::SUCCESS);
     EXPECT_EQ(response["httpStatus"], HTTP_STATUS_OK);
     EXPECT_FALSE(response.contains("errorType"));
     EXPECT_FALSE(response.contains("errorMessage"));
@@ -429,7 +429,7 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompressed_NoFileNameInTar
     nlohmann::json action = getDownloadObject(decompress, "", 1024, false);
     nlohmann::json response = downloadFileAction.run(action.dump());
 
-    EXPECT_EQ(response["result"], 0);
+    EXPECT_EQ(response["result"], ResponseResult::SUCCESS);
     EXPECT_EQ(response["httpStatus"], HTTP_STATUS_OK);
     EXPECT_FALSE(response.contains("errorType"));
     EXPECT_FALSE(response.contains("errorMessage"));
@@ -514,7 +514,7 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompressed_DownloadToRoot)
     action["targetPath"] = destPath;
     nlohmann::json response = downloadFileAction.run(action.dump());
 
-    EXPECT_EQ(response["result"], 0);
+    EXPECT_EQ(response["result"], ResponseResult::SUCCESS);
     EXPECT_EQ(response["httpStatus"], HTTP_STATUS_OK);
     EXPECT_FALSE(response.contains("errorType"));
     EXPECT_FALSE(response.contains("errorMessage"));
@@ -554,7 +554,7 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompress_BadArchive)
     nlohmann::json action = getDownloadObject(decompress);
     nlohmann::json response = downloadFileAction.run(action.dump());
 
-    EXPECT_EQ(response["result"], 1);
+    EXPECT_EQ(response["result"], ResponseResult::ERROR);
     EXPECT_EQ(response["httpStatus"], HTTP_STATUS_OK);
     EXPECT_EQ(response["errorType"], "invalid_archive");
     EXPECT_EQ(response["errorMessage"], expectedErrMsg);
@@ -596,7 +596,7 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompress_ZipUtilsThrows)
     nlohmann::json action = getDownloadObject(decompress);
     nlohmann::json response = downloadFileAction.run(action.dump());
 
-    EXPECT_EQ(response["result"], 3);
+    EXPECT_EQ(response["result"], ResponseResult::INTERNAL_ERROR);
     EXPECT_EQ(response["httpStatus"], HTTP_STATUS_OK);
     EXPECT_FALSE(response.contains("errorType"));
     EXPECT_EQ(response["errorMessage"], expectedErrMsg);
@@ -635,7 +635,7 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompress_OtherError)
     nlohmann::json response = downloadFileAction.run(action.dump());
 
 
-    EXPECT_EQ(response["result"], 3);
+    EXPECT_EQ(response["result"], ResponseResult::INTERNAL_ERROR);
     EXPECT_EQ(response["httpStatus"], HTTP_STATUS_OK);
     EXPECT_FALSE(response.contains("errorType"));
     EXPECT_EQ(response["errorMessage"], expectedErrMsg);
@@ -679,7 +679,7 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompress_ManyFilesTargetPa
     nlohmann::json action = getDownloadObject(decompress, "", 1024, false);
     nlohmann::json response = downloadFileAction.run(action.dump());
 
-    EXPECT_EQ(response["result"], 0);
+    EXPECT_EQ(response["result"], ResponseResult::SUCCESS);
     EXPECT_EQ(response["httpStatus"], HTTP_STATUS_OK);
     EXPECT_FALSE(response.contains("errorType"));
     EXPECT_FALSE(response.contains("errorMessage"));
@@ -726,7 +726,7 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompress_ManyFilesTargetPa
     nlohmann::json action = getDownloadObject(decompress);
     nlohmann::json response = downloadFileAction.run(action.dump());
 
-    EXPECT_EQ(response["result"], 0);
+    EXPECT_EQ(response["result"], ResponseResult::SUCCESS);
     EXPECT_EQ(response["httpStatus"], HTTP_STATUS_OK);
     EXPECT_FALSE(response.contains("errorType"));
     EXPECT_EQ(response["errorMessage"], expectedMsg);
@@ -768,7 +768,7 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompressed_Password)
     nlohmann::json action = getDownloadObject(decompress, m_password);
     nlohmann::json response = downloadFileAction.run(action.dump());
 
-    EXPECT_EQ(response["result"], 0);
+    EXPECT_EQ(response["result"], ResponseResult::SUCCESS);
     EXPECT_EQ(response["httpStatus"], HTTP_STATUS_OK);
     EXPECT_FALSE(response.contains("errorType"));
     EXPECT_FALSE(response.contains("errorMessage"));
@@ -806,7 +806,7 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompress_WrongPassword)
     nlohmann::json response = downloadFileAction.run(action.dump());
 
 
-    EXPECT_EQ(response["result"], 1);
+    EXPECT_EQ(response["result"], ResponseResult::ERROR);
     EXPECT_EQ(response["httpStatus"], HTTP_STATUS_OK);
     EXPECT_EQ(response["errorType"], "invalid_password");
     EXPECT_EQ(response["errorMessage"], expectedErrMsg);
@@ -846,7 +846,7 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompress_EmptyPassword)
     nlohmann::json action = getDownloadObject(true, "");
     nlohmann::json response = downloadFileAction.run(action.dump());
 
-    EXPECT_EQ(response["result"], 0);
+    EXPECT_EQ(response["result"], ResponseResult::SUCCESS);
     EXPECT_EQ(response["httpStatus"], HTTP_STATUS_OK);
     EXPECT_FALSE(response.contains("errorType"));
     EXPECT_FALSE(response.contains("errorMessage"));
@@ -881,7 +881,7 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompress_LargePassword)
     nlohmann::json action = getDownloadObject(true, largePassword);
     nlohmann::json response = downloadFileAction.run(action.dump());
 
-    EXPECT_EQ(response["result"], 0);
+    EXPECT_EQ(response["result"], ResponseResult::SUCCESS);
     EXPECT_EQ(response["httpStatus"], HTTP_STATUS_OK);
     EXPECT_FALSE(response.contains("errorType"));
     EXPECT_FALSE(response.contains("errorMessage"));
@@ -917,7 +917,7 @@ TEST_F(DownloadFileTests, SuccessfulDownload_WithProxy_NotDecompressed)
     nlohmann::json response = downloadFileAction.run(action.dump());
     
 
-    EXPECT_EQ(response["result"], 0);
+    EXPECT_EQ(response["result"], ResponseResult::SUCCESS);
     EXPECT_EQ(response["httpStatus"], HTTP_STATUS_OK);
     EXPECT_FALSE(response.contains("errorType"));
     EXPECT_FALSE(response.contains("errorMessage"));
@@ -956,7 +956,7 @@ TEST_F(DownloadFileTests, SuccessfulDownload_WithProxy_Decompressed)
     nlohmann::json action = getDownloadObject(decompress);
     nlohmann::json response = downloadFileAction.run(action.dump());
 
-    EXPECT_EQ(response["result"], 0);
+    EXPECT_EQ(response["result"], ResponseResult::SUCCESS);
     EXPECT_EQ(response["httpStatus"], HTTP_STATUS_OK);
     EXPECT_FALSE(response.contains("errorType"));
     EXPECT_FALSE(response.contains("errorMessage"));
@@ -998,7 +998,7 @@ TEST_F(DownloadFileTests, ProxyFailureFallsbackDirect_NotDecompressed)
     nlohmann::json action = getDownloadObject();
     nlohmann::json response = downloadFileAction.run(action.dump());
 
-    EXPECT_EQ(response["result"], 0);
+    EXPECT_EQ(response["result"], ResponseResult::SUCCESS);
     EXPECT_EQ(response["httpStatus"], HTTP_STATUS_OK);
     EXPECT_FALSE(response.contains("errorType"));
     EXPECT_FALSE(response.contains("errorMessage"));
@@ -1044,7 +1044,7 @@ TEST_F(DownloadFileTests, ProxyFailureFallsbackDirect_Decompressed)
     nlohmann::json action = getDownloadObject(decompress);
     nlohmann::json response = downloadFileAction.run(action.dump());
 
-    EXPECT_EQ(response["result"], 0);
+    EXPECT_EQ(response["result"], ResponseResult::SUCCESS);
     EXPECT_EQ(response["httpStatus"], HTTP_STATUS_OK);
     EXPECT_FALSE(response.contains("errorType"));
     EXPECT_FALSE(response.contains("errorMessage"));
@@ -1074,7 +1074,7 @@ TEST_F(DownloadFileTests, DirectLargeExpiration)
     nlohmann::json response = downloadFileAction.run(action);
 
     EXPECT_EQ(response["type"], DOWNLOAD_FILE_RESPONSE_TYPE);
-    EXPECT_EQ(response["result"], 4);
+    EXPECT_EQ(response["result"], ResponseResult::EXPIRED);
     EXPECT_EQ(response["errorMessage"], expectedMsg);
     EXPECT_FALSE(response.contains("errorType"));
     EXPECT_FALSE(response.contains("httpStatus"));
@@ -1100,7 +1100,7 @@ TEST_F(DownloadFileTests, DirectLargeSizeBytes)
     nlohmann::json response = downloadFileAction.run(action);
 
     EXPECT_EQ(response["type"], DOWNLOAD_FILE_RESPONSE_TYPE);
-    EXPECT_EQ(response["result"], 1);
+    EXPECT_EQ(response["result"], ResponseResult::ERROR);
     EXPECT_EQ(response["errorMessage"], "Error parsing command from Central");
     EXPECT_FALSE(response.contains("errorType"));
     EXPECT_FALSE(response.contains("httpStatus"));
@@ -1118,7 +1118,7 @@ TEST_F(DownloadFileTests, DirectNegativeExpiration)
     nlohmann::json response = downloadFileAction.run(action.dump());
 
     EXPECT_EQ(response["type"], DOWNLOAD_FILE_RESPONSE_TYPE);
-    EXPECT_EQ(response["result"], 1);
+    EXPECT_EQ(response["result"], ResponseResult::ERROR);
     EXPECT_EQ(response["errorMessage"], "Error parsing command from Central");
     EXPECT_FALSE(response.contains("errorType"));
     EXPECT_FALSE(response.contains("httpStatus"));
@@ -1136,7 +1136,7 @@ TEST_F(DownloadFileTests, DirectNegativeSizeBytes)
     nlohmann::json response = downloadFileAction.run(action.dump());
 
     EXPECT_EQ(response["type"], DOWNLOAD_FILE_RESPONSE_TYPE);
-    EXPECT_EQ(response["result"], 1);
+    EXPECT_EQ(response["result"], ResponseResult::ERROR);
     EXPECT_EQ(response["errorMessage"], "Error parsing command from Central");
     EXPECT_FALSE(response.contains("errorType"));
     EXPECT_FALSE(response.contains("httpStatus"));
@@ -1156,7 +1156,7 @@ TEST_F(DownloadFileTests, FileToDownloadIsAboveMaxAllowedFileSize)
     nlohmann::json action = getDownloadObject(false, "", 1024UL * 1024 * 1024 * 3);
     nlohmann::json response = downloadFileAction.run(action.dump());
 
-    EXPECT_EQ(response["result"], 1);
+    EXPECT_EQ(response["result"], ResponseResult::ERROR);
     EXPECT_FALSE(response.contains("errorType"));
     EXPECT_FALSE(response.contains("httpStatus"));
     EXPECT_EQ(response["errorMessage"], expectedErrMsg);
@@ -1174,7 +1174,7 @@ TEST_F(DownloadFileTests, EmptyPath)
     action["targetPath"] = "";
     nlohmann::json response = downloadFileAction.run(action.dump());
 
-    EXPECT_EQ(response["result"], 1);
+    EXPECT_EQ(response["result"], ResponseResult::ERROR);
     EXPECT_EQ(response["errorMessage"], "Error parsing command from Central");
     EXPECT_FALSE(response.contains("errorType"));
 
@@ -1192,7 +1192,7 @@ TEST_F(DownloadFileTests, InvalidAbsolutePath)
     action["targetPath"] = "notapath";
     nlohmann::json response = downloadFileAction.run(action.dump());
 
-    EXPECT_EQ(response["result"], 1);
+    EXPECT_EQ(response["result"], ResponseResult::ERROR);
     EXPECT_EQ(response["errorMessage"], expectedErrMsg);
     EXPECT_EQ(response["errorType"], "invalid_path");
 
@@ -1215,7 +1215,7 @@ TEST_F(DownloadFileTests, NotEnoughSpaceOnRATmpDisk)
     nlohmann::json response = downloadFileAction.run(action.dump());
 
 
-    EXPECT_EQ(response["result"], 1);
+    EXPECT_EQ(response["result"], ResponseResult::ERROR);
     EXPECT_EQ(response["errorMessage"], expectedErrStr);
     EXPECT_EQ(response["errorType"], "not_enough_space");
 
@@ -1238,7 +1238,7 @@ TEST_F(DownloadFileTests, NotEnoughSpaceOnDestDisk)
     nlohmann::json response = downloadFileAction.run(action.dump());
 
 
-    EXPECT_EQ(response["result"], 1);
+    EXPECT_EQ(response["result"], ResponseResult::ERROR);
     EXPECT_EQ(response["errorMessage"], expectedErrStr);
     EXPECT_EQ(response["errorType"], "not_enough_space");
 
@@ -1262,7 +1262,7 @@ TEST_F(DownloadFileTests, HandlesWhenCantAssessDiskSpace_FileSystemException)
     nlohmann::json response = downloadFileAction.run(action.dump());
 
 
-    EXPECT_EQ(response["result"], 1);
+    EXPECT_EQ(response["result"], ResponseResult::ERROR);
     EXPECT_EQ(response["errorMessage"], expectedErrStr);
     EXPECT_FALSE(response.contains("errorType"));
 
@@ -1286,7 +1286,7 @@ TEST_F(DownloadFileTests, HandlesWhenCantAssessDiskSpace_Exception)
     nlohmann::json response = downloadFileAction.run(action.dump());
 
 
-    EXPECT_EQ(response["result"], 1);
+    EXPECT_EQ(response["result"], ResponseResult::ERROR);
     EXPECT_EQ(response["errorMessage"], expectedErrStr);
     EXPECT_FALSE(response.contains("errorType"));
 
@@ -1303,7 +1303,7 @@ TEST_F(DownloadFileTests, ErrorParsingJson)
 
     nlohmann::json response = downloadFileAction.run("");
 
-    EXPECT_EQ(response["result"], 1);
+    EXPECT_EQ(response["result"], ResponseResult::ERROR);
     EXPECT_EQ(response["errorMessage"], "Error parsing command from Central");
 
     EXPECT_TRUE(appenderContains("Invalid command format. Download action JSON is empty"));
@@ -1352,7 +1352,7 @@ TEST_F(DownloadFileTests, TargetPathAlreadyExists_NotDecompressed)
     nlohmann::json action = getDownloadObject();
     nlohmann::json response = downloadFileAction.run(action.dump());
 
-    EXPECT_EQ(response["result"], 1);
+    EXPECT_EQ(response["result"], ResponseResult::ERROR);
     EXPECT_EQ(response["errorMessage"], expectedErrMsg);
     EXPECT_EQ(response["errorType"], "path_exists");
 
@@ -1388,7 +1388,7 @@ TEST_F(DownloadFileTests, TargetPathAlreadyExists_DecompressedSingleFile)
     nlohmann::json response = downloadFileAction.run(action.dump());
 
 
-    EXPECT_EQ(response["result"], 1);
+    EXPECT_EQ(response["result"], ResponseResult::ERROR);
     EXPECT_EQ(response["errorMessage"], expectedErrMsg);
     EXPECT_EQ(response["errorType"], "path_exists");
 
@@ -1426,7 +1426,7 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompress_AbortCopyingIfOne
     nlohmann::json action = getDownloadObject(decompress, "", 1024, false);
     nlohmann::json response = downloadFileAction.run(action.dump());
 
-    EXPECT_EQ(response["result"], 1);
+    EXPECT_EQ(response["result"], ResponseResult::ERROR);
     EXPECT_EQ(response["httpStatus"], HTTP_STATUS_OK);
     EXPECT_EQ(response["errorType"], "path_exists");
     EXPECT_EQ(response["errorMessage"], expectedMsg);
@@ -1495,7 +1495,7 @@ TEST_F(DownloadFileTests, FileSha256CantBeCalculatedDueToOtherReason)
 
     nlohmann::json response = downloadFileAction.run(action.dump());
     
-    EXPECT_EQ(response["result"], 1);
+    EXPECT_EQ(response["result"], ResponseResult::ERROR);
     EXPECT_EQ(response["httpStatus"], HTTP_STATUS_OK);
     EXPECT_FALSE(response.contains("errorType"));
     EXPECT_EQ(response["errorMessage"], expectedErrStr);
@@ -1526,7 +1526,7 @@ TEST_F(DownloadFileTests, Sha256IsWrong)
     nlohmann::json response = downloadFileAction.run(action.dump());
 
 
-    EXPECT_EQ(response["result"], 1);
+    EXPECT_EQ(response["result"], ResponseResult::ERROR);
     EXPECT_EQ(response["errorMessage"], expectedErrStr);
     EXPECT_EQ(response["errorType"], "access_denied");
 
@@ -1557,7 +1557,7 @@ TEST_F(DownloadFileTests, Sha256IsHuge)
     action["sha256"] = largeSha;
     nlohmann::json response = downloadFileAction.run(action.dump());
 
-    EXPECT_EQ(response["result"], 0);
+    EXPECT_EQ(response["result"], ResponseResult::SUCCESS);
     EXPECT_EQ(response["httpStatus"], HTTP_STATUS_OK);
     EXPECT_FALSE(response.contains("errorType"));
     EXPECT_FALSE(response.contains("errorMessage"));
@@ -1729,7 +1729,7 @@ TEST_F(DownloadFileTests, HandlesWhenCantCreatePathToExtractTo_FileSystemExcepti
     nlohmann::json response = downloadFileAction.run(action.dump());
     
 
-    EXPECT_EQ(response["result"], 1);
+    EXPECT_EQ(response["result"], ResponseResult::ERROR);
     EXPECT_EQ(response["errorMessage"], expectedErrStr);
     EXPECT_EQ(response["errorType"], "access_denied");
     EXPECT_EQ(response["httpStatus"], HTTP_STATUS_OK);
@@ -1765,7 +1765,7 @@ TEST_F(DownloadFileTests, HandlesWhenCantCreatePathToExtractTo_Exception)
     nlohmann::json response = downloadFileAction.run(action.dump());
     
 
-    EXPECT_EQ(response["result"], 1);
+    EXPECT_EQ(response["result"], ResponseResult::ERROR);
     EXPECT_EQ(response["errorMessage"], expectedErrStr);
     EXPECT_FALSE(response.contains("errorType"));
     EXPECT_EQ(response["httpStatus"], HTTP_STATUS_OK);
@@ -1799,7 +1799,7 @@ TEST_F(DownloadFileTests, HandlesWhenCantCreateDestinationDirectory_FileSystemEx
     nlohmann::json response = downloadFileAction.run(action.dump());
     
 
-    EXPECT_EQ(response["result"], 1);
+    EXPECT_EQ(response["result"], ResponseResult::ERROR);
     EXPECT_EQ(response["errorMessage"], expectedErrStr);
     EXPECT_EQ(response["errorType"], "access_denied");
     EXPECT_EQ(response["httpStatus"], HTTP_STATUS_OK);
@@ -1833,7 +1833,7 @@ TEST_F(DownloadFileTests, HandlesWhenCantCreateDestinationDirectory_Exception)
     nlohmann::json response = downloadFileAction.run(action.dump());
     
 
-    EXPECT_EQ(response["result"], 1);
+    EXPECT_EQ(response["result"], ResponseResult::ERROR);
     EXPECT_EQ(response["errorMessage"], expectedErrStr);
     EXPECT_FALSE(response.contains("errorType"));
     EXPECT_EQ(response["httpStatus"], HTTP_STATUS_OK);
@@ -1866,7 +1866,7 @@ TEST_F(DownloadFileTests, HandlesWhenCantCopyFileToFinalDestination_FileSystemEx
     nlohmann::json response = downloadFileAction.run(action.dump());
 
 
-    EXPECT_EQ(response["result"], 1);
+    EXPECT_EQ(response["result"], ResponseResult::ERROR);
     EXPECT_EQ(response["errorMessage"], expectedErrStr);
     EXPECT_EQ(response["errorType"], "access_denied");
     EXPECT_EQ(response["httpStatus"], HTTP_STATUS_OK);
@@ -1899,7 +1899,7 @@ TEST_F(DownloadFileTests, HandlesWhenCantCopyFileToFinalDestination_Exception)
     nlohmann::json response = downloadFileAction.run(action.dump());
 
 
-    EXPECT_EQ(response["result"], 1);
+    EXPECT_EQ(response["result"], ResponseResult::ERROR);
     EXPECT_EQ(response["errorMessage"], expectedErrStr);
     EXPECT_FALSE(response.contains("errorType"));
     EXPECT_EQ(response["httpStatus"], HTTP_STATUS_OK);
@@ -1932,7 +1932,7 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompress_NoFilesInDownload
     nlohmann::json response = downloadFileAction.run(action.dump());
 
 
-    EXPECT_EQ(response["result"], 1);
+    EXPECT_EQ(response["result"], ResponseResult::ERROR);
     EXPECT_EQ(response["httpStatus"], HTTP_STATUS_OK);
     EXPECT_FALSE(response.contains("errorType"));
     EXPECT_EQ(response["errorMessage"], expectedErrMsg);
@@ -1965,7 +1965,7 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompress_ToManyFilesInDown
     nlohmann::json response = downloadFileAction.run(action.dump());
     
 
-    EXPECT_EQ(response["result"], 1);
+    EXPECT_EQ(response["result"], ResponseResult::ERROR);
     EXPECT_EQ(response["httpStatus"], HTTP_STATUS_OK);
     EXPECT_FALSE(response.contains("errorType"));
     EXPECT_EQ(response["errorMessage"], expectedErrMsg);
@@ -2004,7 +2004,7 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompress_NoFilesUnzipped)
     nlohmann::json action = getDownloadObject(decompress);
     nlohmann::json response = downloadFileAction.run(action.dump());
 
-    EXPECT_EQ(response["result"], 1);
+    EXPECT_EQ(response["result"], ResponseResult::ERROR);
     EXPECT_EQ(response["httpStatus"], HTTP_STATUS_OK);
     EXPECT_FALSE(response.contains("errorType"));
     EXPECT_EQ(response["errorMessage"], expectedErrMsg);
