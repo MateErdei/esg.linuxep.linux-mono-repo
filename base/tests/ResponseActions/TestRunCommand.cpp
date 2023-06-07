@@ -120,7 +120,7 @@ TEST_F(RunCommandTests, runMethodProducesValidOutForSinglecommand)
     std::string correlationId = "correlationID";
     auto response = m_runCommandAction->run(actionJson, correlationId);
 
-    EXPECT_EQ(response.at("type"), "sophos.mgt.response.RunCommands");
+    EXPECT_EQ(response.at("type"), RUN_COMMAND_RESPONSE_TYPE);
     EXPECT_GE(response.at("duration"), 0);
     EXPECT_EQ(response.at("result"), 0);
     EXPECT_GE(response.at("startedAt"), 1679057317);
@@ -178,7 +178,7 @@ TEST_F(RunCommandTests, runMethodReturnsTimeOut)
     std::string correlationId = "correlationID";
     auto response = m_runCommandAction->run(actionJson, correlationId);
 
-    EXPECT_EQ(response.at("type"), "sophos.mgt.response.RunCommands");
+    EXPECT_EQ(response.at("type"), RUN_COMMAND_RESPONSE_TYPE);
     EXPECT_GE(response.at("duration"), 0);
     EXPECT_EQ(response.at("result"), 2);
     EXPECT_GE(response.at("startedAt"), 1679057317);
@@ -204,7 +204,7 @@ TEST_F(RunCommandTests, runCommandsExpired)
         })");
 
     auto response = m_runCommandAction->run(action, correlationId);
-    EXPECT_EQ(response.at("type"), "sophos.mgt.response.RunCommands");
+    EXPECT_EQ(response.at("type"), RUN_COMMAND_RESPONSE_TYPE);
     EXPECT_EQ(response.at("result"), ResponseResult::EXPIRED);
     EXPECT_FALSE(response.contains("commandResults"));
     EXPECT_FALSE(response.contains("duration"));
