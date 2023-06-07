@@ -154,6 +154,78 @@ TEST_F(RunCommandTests, runMethodHandlesInvalidJson)
     EXPECT_EQ(response.at("result"), 1);
 }
 
+TEST_F(RunCommandTests, runMethodHandlesJsonOutputOrError)
+{
+    const std::string output = R"({"json": "output"})";
+    const std::string error = R"({"json": "error"})";
+
+    Common::ProcessImpl::ProcessFactory::instance().replaceCreator(
+        [output, error]()
+        {
+            auto mockProcess = new StrictMock<MockProcess>();
+            std::vector<std::string> args = { "-c", "echo -n one" };
+            EXPECT_CALL(*mockProcess, exec("/bin/bash", args, _)).Times(1);
+            EXPECT_CALL(*mockProcess, standardOutput()).WillOnce(Return(output));
+            EXPECT_CALL(*mockProcess, errorOutput()).WillOnce(Return(error));
+            EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
+            EXPECT_CALL(*mockProcess, wait(_,_)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
+            EXPECT_CALL(*mockProcess, getStatus()).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
+            return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+        });
+
+    std::string actionJson = getSingleCommandJsonString();
+    auto response = m_runCommandAction->run(actionJson, m_correlationId);
+
+    EXPECT_EQ(response.at("type"), RUN_COMMAND_RESPONSE_TYPE);
+    EXPECT_GE(response.at("duration"), 0);
+    EXPECT_EQ(response.at("result"), 0);
+    EXPECT_GE(response.at("startedAt"), 1679057317);
+    nlohmann::json cmdResults = nlohmann::json::array();
+    nlohmann::json cmdResult;
+    cmdResult["stdOut"] = output;
+    cmdResult["stdErr"] = error;
+    cmdResult["exitCode"] = 0;
+    cmdResult["duration"] = 0;
+    cmdResults.push_back(cmdResult);
+    EXPECT_EQ(response.at("commandResults"), cmdResults);
+}
+
+TEST_F(RunCommandTests, runMethodHandlesLargeOutputOrError)
+{
+    const std::string output(30000, 'a');
+    const std::string error(30000, 'c');
+
+    Common::ProcessImpl::ProcessFactory::instance().replaceCreator(
+        [output, error]()
+        {
+            auto mockProcess = new StrictMock<MockProcess>();
+            std::vector<std::string> args = { "-c", "echo -n one" };
+            EXPECT_CALL(*mockProcess, exec("/bin/bash", args, _)).Times(1);
+            EXPECT_CALL(*mockProcess, standardOutput()).WillOnce(Return(output));
+            EXPECT_CALL(*mockProcess, errorOutput()).WillOnce(Return(error));
+            EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
+            EXPECT_CALL(*mockProcess, wait(_,_)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
+            EXPECT_CALL(*mockProcess, getStatus()).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
+            return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+        });
+
+    std::string actionJson = getSingleCommandJsonString();
+    auto response = m_runCommandAction->run(actionJson, m_correlationId);
+
+    EXPECT_EQ(response.at("type"), RUN_COMMAND_RESPONSE_TYPE);
+    EXPECT_GE(response.at("duration"), 0);
+    EXPECT_EQ(response.at("result"), 0);
+    EXPECT_GE(response.at("startedAt"), 1679057317);
+    nlohmann::json cmdResults = nlohmann::json::array();
+    nlohmann::json cmdResult;
+    cmdResult["stdOut"] = output;
+    cmdResult["stdErr"] = error;
+    cmdResult["exitCode"] = 0;
+    cmdResult["duration"] = 0;
+    cmdResults.push_back(cmdResult);
+    EXPECT_EQ(response.at("commandResults"), cmdResults);
+}
+
 TEST_F(RunCommandTests, runMethodReturnsTimeOut)
 {
     EXPECT_CALL(*m_mockSysCallWrapper, ppoll(_, _, _, _))
@@ -360,7 +432,6 @@ TEST_F(RunCommandTests, runCommandsManyCommandsInOrderWithNoErrors)
             return std::unique_ptr<Common::Process::IProcess>(mockProcess);
         });
 
-
     std::vector<std::string> commands;
     for (int i = 1; i <= testQuantity; i++)
     {
@@ -381,7 +452,6 @@ TEST_F(RunCommandTests, runCommandsManyCommandsInOrderWithNoErrors)
     {
         EXPECT_EQ(response.commandResults.at(i - 1).stdOut, outputMsg + std::to_string(i));
     }
-
 }
 
 TEST_F(RunCommandTests, runCommandsHugeCommandWithNoErrors)
