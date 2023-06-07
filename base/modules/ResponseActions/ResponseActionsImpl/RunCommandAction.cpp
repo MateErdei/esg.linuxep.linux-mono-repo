@@ -205,8 +205,8 @@ SingleCommandResult RunCommandAction::runCommand(const std::string& command)
         process->waitUntilProcessEnds();
     }
 
-    response.stdOut = process->standardOutput();
-    response.stdErr = process->errorOutput();
+    response.stdOut = ResponseActions::RACommon::toUtf8(process->standardOutput());
+    response.stdErr = ResponseActions::RACommon::toUtf8(process->errorOutput());
     response.exitCode = process->exitCode();
 
     u_int64_t finish = time.currentEpochTimeInSecondsAsInteger();

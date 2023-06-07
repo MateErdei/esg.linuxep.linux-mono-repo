@@ -9,7 +9,13 @@ add_library(responseactionmain SHARED
         ../RACommon/ResponseActionsCommon.cpp
         )
 configure_file(config.h.in config.h)
-include_directories(responseactionmain BEFORE ${CMAKE_CURRENT_BINARY_DIR} ${LOG4CPLUS_INCLUDE_DIR} ${NLOHMANN_JSON_INCLUDE_DIR})
+target_include_directories(responseactionmain
+        BEFORE PRIVATE
+        ${CMAKE_CURRENT_BINARY_DIR}
+        ${LOG4CPLUS_INCLUDE_DIR}
+        ${NLOHMANN_JSON_INCLUDE_DIR}
+        ${BOOST_INCLUDE_DIR}
+        )
 
 target_link_libraries(responseactionmain PUBLIC
         pluginapi

@@ -28,6 +28,7 @@ include_directories(responseplugin BEFORE
         ${LOG4CPLUS_INCLUDE_DIR}
         ${NLOHMANN_JSON_INCLUDE_DIR}
         ${CMAKE_BINARY_DIR}/products/PluginApi/pluginapi/include
+        ${BOOST_INCLUDE_DIR}
         )
 
 target_link_libraries(responseplugin PUBLIC
