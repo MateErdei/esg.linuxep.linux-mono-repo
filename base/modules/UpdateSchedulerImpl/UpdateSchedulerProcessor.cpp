@@ -179,10 +179,12 @@ namespace UpdateSchedulerImpl
 
         while (true)
         {
+            SchedulerTask task;
+            bool hasTask = false;
             try
             {
-                SchedulerTask task;
-                bool hasTask = m_queueTask->pop(task, QUEUE_TIMEOUT);
+                hasTask = false;
+                hasTask = m_queueTask->pop(task, QUEUE_TIMEOUT);
                 if (hasTask)
                 {
                     switch (task.taskType) {
@@ -232,7 +234,14 @@ namespace UpdateSchedulerImpl
             }
             catch (const std::exception& ex)
             {
-                LOGERROR("Unexpected error: " << ex.what());
+                if (hasTask)
+                {
+                    LOGERROR("Unexpected error: " << ex.what() << " while processing " << static_cast<int>(task.taskType));
+                }
+                else
+                {
+                    LOGERROR("Unexpected error: " << ex.what() << " while attempting to get task");
+                }
                 log_exception(ex);
             }
         }
