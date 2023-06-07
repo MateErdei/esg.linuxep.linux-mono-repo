@@ -788,6 +788,7 @@ class LogUtils(object):
 
     def mark_update_scheduler_log(self):
         self.marked_update_scheduler_logs = get_log_length(self.update_scheduler_log)
+        return self.mark_log_size(self.update_scheduler_log)
 
     def check_marked_update_scheduler_log_contains(self, string_to_contain):
         update_scheduler_log = self.update_scheduler_log

@@ -5,6 +5,7 @@ Library    Process
 Library    OperatingSystem
 Library    ${LIBS_DIRECTORY}/FullInstallerUtils.py
 Library    ${LIBS_DIRECTORY}/Watchdog.py
+Library    ${LIBS_DIRECTORY}/LogUtils.py
 
 Resource  ../installer/InstallerResources.robot
 Resource  WatchdogResources.robot
@@ -70,13 +71,14 @@ Watchdog Does Not Throw Unhandled Exception When Machine Id File Is Not Present 
     Should Be Equal As Strings  0  ${result.rc}
     ${result} =  Run Process  chown  root:root  ${SOPHOS_INSTALL}/base/etc/machine_id.txt
     Should Be Equal As Strings  0  ${result.rc}
+
+    ${mark} =  Mark Update Scheduler Log
+
     ${result} =  Run Process  systemctl  restart  sophos-spl
     Should Be Equal As Strings  0  ${result.rc}
 
-    Wait Until Keyword Succeeds
-    ...  10 secs
-    ...  2 secs
-    ...  Check Updatescheduler Log Contains  Error, Failed to read file: '/opt/sophos-spl/base/etc/machine_id.txt', file does not exist
+    Wait For Log Contains From Mark    ${mark}    Error, Failed to read file: '/opt/sophos-spl/base/etc/machine_id.txt', permission denied
+    ...  timeout=${10}
 
 *** Keywords ***
 Clean Up Files
