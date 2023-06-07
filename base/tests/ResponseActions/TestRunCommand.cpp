@@ -268,7 +268,6 @@ TEST_F(RunCommandTests, runCommandsSingleCommandWithNoErrors)
             return std::unique_ptr<Common::Process::IProcess>(mockProcess);
         });
 
-    std::string correlationId = "correlationID";
     CommandRequest cmd{
         .commands = { "echo -n one" }, .timeout = 10, .ignoreError = true, .expiration = 99999999999
     };
@@ -304,7 +303,6 @@ TEST_F(RunCommandTests, runCommandsMultipleCommandsWithNoErrors)
             return std::unique_ptr<Common::Process::IProcess>(mockProcess);
         });
 
-    std::string correlationId = "correlationID";
     CommandRequest cmd{
         .commands = { "echo -n 1", "echo -n 2" }, .timeout = 10, .ignoreError = true, .expiration = 99999999999
     };
@@ -345,7 +343,6 @@ TEST_F(RunCommandTests, runCommandsMultiplCommandsWithErrorsAndIgnoreErrorsTrue)
             return std::unique_ptr<Common::Process::IProcess>(mockProcess);
         });
 
-    std::string correlationId = "correlationID";
     CommandRequest cmd{
         .commands = { "echo -n 1", "echo -n 2" }, .timeout = 10, .ignoreError = true, .expiration = 99999999999
     };
@@ -442,7 +439,6 @@ TEST_F(RunCommandTests, runCommandsMultipleExitsWhenTerminatedBeforeComplete)
             return std::unique_ptr<Common::Process::IProcess>(mockProcess);
         });
 
-    std::string correlationId = "correlationID";
     CommandRequest cmd{
         .commands = { "echo -n 1", "echo -n 2", "echo -n 3" }, .timeout = 10, .ignoreError = true, .expiration = 99999999999
     };
