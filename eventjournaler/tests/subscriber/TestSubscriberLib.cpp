@@ -1,6 +1,7 @@
 // Copyright 2021-2023 Sophos Limited. All rights reserved.
 
 // Class under test
+#define TEST_PUBLIC public
 #include "modules/SubscriberLib/Subscriber.h"
 
 #include "modules/SubscriberLib/Logger.h"
@@ -8,7 +9,6 @@
 
 #include "Common/FileSystem/IFileSystem.h"
 #include "Common/FileSystem/IFileSystemException.h"
-#include "Common/UtilityImpl/WaitForUtils.h"
 
 #include "Common/Helpers/FileSystemReplaceAndRestore.h"
 #include "Common/Helpers/LogInitializedTests.h"
@@ -59,8 +59,6 @@ TEST_F(TestSubscriber, SubscriberCanCallStopWithoutThrowingOnASubscriberThatHasn
 {
     MockZmqContext*  context = new StrictMock<MockZmqContext>();
     std::string fakeSocketPath = "FakeSocketPath";
-    MockSocketSubscriber*  socketSubscriber = new StrictMock<MockSocketSubscriber>();
-    context->m_subscriber = Common::ZeroMQWrapper::ISocketSubscriberPtr(std::move(socketSubscriber));
     std::shared_ptr<ZMQWrapperApi::IContext>  mockContextPtr(context);
 
     MockEventQueuePusher* mockPusher = new NiceMock<MockEventQueuePusher>();
@@ -101,7 +99,7 @@ TEST_F(TestSubscriber, SubscriberStartAndStop)
     EXPECT_CALL(*socketSubscriber, read()).WillRepeatedly(Invoke(countReadsAndReturnSimpleEvent));
 
     auto context = std::make_shared<StrictMock<MockZmqContext>>();
-    context->m_subscriber = Common::ZeroMQWrapper::ISocketSubscriberPtr(std::move(socketSubscriber));
+    EXPECT_CALL(*context, getSubscriber).WillOnce(Return(ByMove(std::move(socketSubscriber))));
     std::shared_ptr<ZMQWrapperApi::IContext>  mockContextPtr(context);
 
     auto mockPusherPtr = std::make_unique<NiceMock<MockEventQueuePusher>>();
@@ -133,43 +131,44 @@ TEST_F(TestSubscriber, SubscriberStartAndStop)
 
 TEST_F(TestSubscriberWithLog, SubscriberHandlesfailedChmod)
 {
-    MockZmqContext*  context = new StrictMock<MockZmqContext>();
     std::string fakeSocketPath = "/a/b/FakeSocketPath";
 
-    testing::internal::CaptureStderr();
-    MockSocketSubscriber*  socketSubscriber = new StrictMock<MockSocketSubscriber>();
+    auto socketSubscriber = std::make_unique<StrictMock<MockSocketSubscriber>>();
     EXPECT_CALL(*socketSubscriber, setTimeout(123)).Times(1);
     EXPECT_CALL(*socketSubscriber, listen("ipc://" + fakeSocketPath)).Times(1);
-    context->m_subscriber = Common::ZeroMQWrapper::ISocketSubscriberPtr(std::move(socketSubscriber));
-    std::shared_ptr<ZMQWrapperApi::IContext>  mockContextPtr(context);
 
-    MockEventQueuePusher* mockPusher = new NiceMock<MockEventQueuePusher>();
-    std::unique_ptr<IEventHandler> mockPusherPtr(mockPusher);
+    auto context = std::make_unique<StrictMock<MockZmqContext>>();
+    EXPECT_CALL(*context, getSubscriber).WillOnce(Return(ByMove(std::move(socketSubscriber))));
+    std::shared_ptr<ZMQWrapperApi::IContext>  mockContextPtr(std::move(context));
+
+    auto mockPusher = std::make_unique<NiceMock<MockEventQueuePusher>>();
+    std::unique_ptr<IEventHandler> mockPusherPtr(std::move(mockPusher));
     auto heartbeatPinger = std::make_shared<Heartbeat::HeartbeatPinger>();
     SubscriberLib::Subscriber subscriber(fakeSocketPath, mockContextPtr, std::move(mockPusherPtr), heartbeatPinger, 123);
 
-    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
-    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem> { mockFileSystem });
+    auto mockFileSystem = std::make_unique<StrictMock<MockFileSystem>>();
     EXPECT_CALL(*mockFileSystem, isDirectory(Common::FileSystem::dirName(fakeSocketPath)))
         .WillOnce(Return(true));
     EXPECT_CALL(*mockFileSystem, exists(fakeSocketPath))
         .WillOnce(Return(false)) // initial check in start() called by test
         .WillOnce(Return(false)); // stop() call in destructor.
+    Tests::replaceFileSystem(std::move(mockFileSystem));
 
-    auto mockFilePermissions = new StrictMock<MockFilePermissions>();
-    std::unique_ptr<MockFilePermissions> mockIFilePermissionsPtr =
-        std::unique_ptr<MockFilePermissions>(mockFilePermissions);
-    Tests::replaceFilePermissions(std::move(mockIFilePermissionsPtr));
+    auto mockFilePermissions = std::make_unique<StrictMock<MockFilePermissions>>();
     EXPECT_CALL(*mockFilePermissions,
-                chmod(fakeSocketPath, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP)).Times(1).WillRepeatedly(Throw(Common::FileSystem::IFileSystemException("thrown")));
+                chmod(fakeSocketPath, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP)).Times(1)
+                    .WillRepeatedly(Throw(Common::FileSystem::IFileSystemException("thrown")));
+    Tests::replaceFilePermissions(std::move(mockFilePermissions));
 
     EXPECT_FALSE(subscriber.getRunningStatus());
-
+    testing::internal::CaptureStderr();
     EXPECT_NO_THROW(subscriber.start());
     do
     {
-        usleep(10);
-    } while (subscriber.getRunningStatus());
+        std::this_thread::sleep_for(std::chrono::microseconds{100});
+    }
+    while (!subscriber.getSubscriberFinished());
+
     std::string errorMsg = testing::internal::GetCapturedStderr();
     EXPECT_THAT(errorMsg, ::testing::HasSubstr("Failed to set socket permissions: "));
     EXPECT_FALSE(subscriber.getRunningStatus());
@@ -197,7 +196,7 @@ TEST_F(TestSubscriber, SubscriberCanRestart)
     EXPECT_CALL(*socketSubscriber, read()).WillRepeatedly(Invoke(sleepAndReturnEmptyData));
 
     auto context = std::make_shared<StrictMock<MockZmqContext>>();
-    context->m_subscriber = std::move(socketSubscriber);
+    EXPECT_CALL(*context, getSubscriber).WillOnce(Return(ByMove(std::move(socketSubscriber))));
     std::shared_ptr<ZMQWrapperApi::IContext>  mockContextPtr(std::move(context));
 
     auto heartbeatPinger = std::make_shared<Heartbeat::HeartbeatPinger>();
@@ -250,7 +249,6 @@ TEST_F(TestSubscriber, SubscriberStartThrowsIfSocketDirDoesNotExist)
     EXPECT_CALL(*socketSubscriber, setTimeout(123)).Times(0);
     EXPECT_CALL(*socketSubscriber, listen("ipc://" + fakeSocketPath)).Times(0);
     EXPECT_CALL(*socketSubscriber, subscribeTo("threatEvents")).Times(0);
-    context->m_subscriber = Common::ZeroMQWrapper::ISocketSubscriberPtr(std::move(socketSubscriber));
     std::shared_ptr<ZMQWrapperApi::IContext>  mockContextPtr(context);
     auto heartbeatPinger = std::make_shared<Heartbeat::HeartbeatPinger>();
     SubscriberLib::Subscriber subscriber(fakeSocketPath, mockContextPtr, std::move(mockPusherPtr), heartbeatPinger, 123);
@@ -301,7 +299,7 @@ TEST_F(TestSubscriber, SubscriberSendsDataToQueueWheneverItReceivesItFromTheSock
     EXPECT_CALL(*socketSubscriber, read()).WillRepeatedly(Invoke(getNextEvent));
 
     auto context = std::make_unique<StrictMock<MockZmqContext>>();
-    context->m_subscriber = Common::ZeroMQWrapper::ISocketSubscriberPtr(std::move(socketSubscriber));
+    EXPECT_CALL(*context, getSubscriber).WillOnce(Return(ByMove(std::move(socketSubscriber))));
     std::shared_ptr<ZMQWrapperApi::IContext>  mockContextPtr(std::move(context));
 
     auto heartbeatPinger = std::make_shared<Heartbeat::HeartbeatPinger>();
@@ -347,7 +345,7 @@ TEST_F(TestSubscriberWithLog, TestSubscriberPingsHeartbeatRepeatedly)
     EXPECT_CALL(*socketSubscriber, fd()).WillRepeatedly(Return(eventPipe.readFd()));
 
     auto context = std::make_shared<StrictMock<MockZmqContext>>();
-    context->m_subscriber = Common::ZeroMQWrapper::ISocketSubscriberPtr(std::move(socketSubscriber));
+    EXPECT_CALL(*context, getSubscriber).WillOnce(Return(ByMove(std::move(socketSubscriber))));
     std::shared_ptr<ZMQWrapperApi::IContext>  mockContextPtr(context);
 
     auto mockPusherPtr = std::make_unique<NiceMock<MockEventQueuePusher>>();
