@@ -178,7 +178,6 @@ def get_test_machines(test_inputs, parameters: tap.Parameters):
     test_environments = {'amazonlinux2': 'amzlinux2_x64_server_en_us',
                          'amazonlinux2023': 'amzlinux2023_x64_server_en_us',
                          'centos79': 'centos79_x64_server_en_us',
-                         'centos84': 'centos84_x64_server_en_us',
                          'centos8stream': 'centos8stream_x64_aws_server_en_us',
                          'centos9stream': 'centos9stream_x64_aws_server_en_us',
                          'debian10': 'debian10_x64_aws_server_en_us',
