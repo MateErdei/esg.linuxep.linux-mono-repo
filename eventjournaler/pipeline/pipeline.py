@@ -175,13 +175,21 @@ def build_060(stage: tap.Root, component: tap.Component):
 
 
 def get_test_machines(test_inputs, parameters: tap.Parameters):
-    test_environments = {'ubuntu1804': 'ubuntu1804_x64_server_en_us',
-                         'ubuntu2004': 'ubuntu2004_x64_server_en_us',
+    test_environments = {'amazonlinux2': 'amzlinux2_x64_server_en_us',
+                         'amazonlinux2023': 'amzlinux2023_x64_server_en_us',
                          'centos79': 'centos79_x64_server_en_us',
                          'centos84': 'centos84_x64_server_en_us',
                          'centos8stream': 'centos8stream_x64_aws_server_en_us',
                          'centos9stream': 'centos9stream_x64_aws_server_en_us',
-                         'amazonlinux2': 'amzlinux2_x64_server_en_us',
+                         'debian10': 'debian10_x64_aws_server_en_us',
+                         'debian11': 'debian11_x64_aws_server_en_us',
+                         'oracle7': 'oracle79_x64_aws_server_en_us',
+                         'oracle8': 'oracle87_x64_aws_server_en_us',
+                         'rhel7': 'rhel79_x64_aws_server_en_us',
+                         'rhel8': 'rhel87_x64_aws_server_en_us',
+                         'rhel9': 'rhel91_x64_aws_server_en_us',
+                         'ubuntu1804': 'ubuntu1804_x64_server_en_us',
+                         'ubuntu2004': 'ubuntu2004_x64_server_en_us',
                          }
 
     if parameters.run_sles != 'false':
