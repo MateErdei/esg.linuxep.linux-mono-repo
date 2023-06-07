@@ -1251,7 +1251,7 @@ TEST_F(ActionsUtilsTests, readCommandFailsDueToCommandTypeError_NotArray)
     try
     {
         auto output = ActionsUtils::readCommandAction(action.dump());
-        FAIL() << "Didnt throw due to missing essential action";
+        FAIL() << "Didnt throw due to type error";
     }
     catch (const InvalidCommandFormat& except)
     {
@@ -1266,11 +1266,26 @@ TEST_F(ActionsUtilsTests, readCommandFailsDueToCommandTypeError_ArrayNumbers)
     try
     {
         auto output = ActionsUtils::readCommandAction(action.dump());
-        FAIL() << "Didnt throw due to missing essential action";
+        FAIL() << "Didnt throw due to type error";
     }
     catch (const InvalidCommandFormat& except)
     {
         EXPECT_STREQ(except.what(), "Invalid command format. Failed to process CommandRequest from action JSON: [json.exception.type_error.302] type must be string, but is number");
+    }
+}
+
+TEST_F(ActionsUtilsTests, readCommandFailsDueToIgnoreErrorTypeError)
+{
+    nlohmann::json action = getDefaultRunCommandAction();
+    action["ignoreError"] = 0;
+    try
+    {
+        auto output = ActionsUtils::readCommandAction(action.dump());
+        FAIL() << "Didnt throw due to type error";
+    }
+    catch (const InvalidCommandFormat& except)
+    {
+        EXPECT_STREQ(except.what(), "Invalid command format. Failed to process CommandRequest from action JSON: [json.exception.type_error.302] type must be boolean, but is number");
     }
 }
 

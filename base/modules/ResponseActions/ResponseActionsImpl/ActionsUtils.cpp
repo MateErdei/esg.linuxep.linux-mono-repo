@@ -139,7 +139,7 @@ namespace ResponseActionsImpl
         {
             action.commands = actionObject["commands"].get<std::vector<std::string>>();
             action.timeout = actionObject.at("timeout");
-            action.ignoreError = actionObject.at("ignoreError");
+            action.ignoreError = actionObject.at("ignoreError").get<bool>();
             action.expiration = checkUlongJsonValue(actionObject, "expiration", fieldErrorStr);
         }
         catch (const nlohmann::json::type_error& exception)
