@@ -339,6 +339,85 @@ TEST_F(RunCommandTests, runCommandsMultipleCommandsWithNoErrors)
     EXPECT_GE(response.commandResults[1].duration, 0);
 }
 
+TEST_F(RunCommandTests, runCommandsManyCommandsInOrderWithNoErrors)
+{
+    const int testQuantity = 2000;
+    const std::string outputMsg = "output message";
+
+    Common::ProcessImpl::ProcessFactory::instance().replaceCreator(
+        [outputMsg]()
+        {
+            static int runCount = 1;
+            auto mockProcess = new StrictMock<MockProcess>();
+            std::vector<std::string> args;
+            args = { "-c", "echo -n " + std::to_string(runCount) };
+            EXPECT_CALL(*mockProcess, exec("/bin/bash", args, _)).Times(1);
+            EXPECT_CALL(*mockProcess, standardOutput()).WillOnce(Return(outputMsg + std::to_string(runCount++)));
+            EXPECT_CALL(*mockProcess, errorOutput()).WillOnce(Return(""));
+            EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
+            EXPECT_CALL(*mockProcess, wait(_,_)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
+            EXPECT_CALL(*mockProcess, getStatus()).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
+            return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+        });
+
+
+    std::vector<std::string> commands;
+    for (int i = 1; i <= testQuantity; i++)
+    {
+        commands.push_back("echo -n " + std::to_string(i));
+    }
+    CommandRequest cmd{
+        .commands = commands, .timeout = 10, .ignoreError = true, .expiration = 99999999999
+    };
+
+    auto response = m_runCommandAction->runCommands(cmd);
+    EXPECT_EQ(response.type, "sophos.mgt.response.RunCommands");
+    EXPECT_EQ(response.result, ResponseResult::SUCCESS);
+    EXPECT_GT(response.startedAt, 1679055498);
+    EXPECT_GE(response.duration, 0);
+    //Check they are in order
+    ASSERT_EQ(response.commandResults.size(), testQuantity);
+    for (int i = 1; i <= testQuantity; i++)
+    {
+        EXPECT_EQ(response.commandResults.at(i - 1).stdOut, outputMsg + std::to_string(i));
+    }
+
+}
+
+TEST_F(RunCommandTests, runCommandsHugeCommandWithNoErrors)
+{
+    const std::string largeStr(30000, 'a');
+    const std::string largeCommand("echo " + largeStr);
+
+    Common::ProcessImpl::ProcessFactory::instance().replaceCreator(
+        [largeCommand]()
+        {
+            auto mockProcess = new StrictMock<MockProcess>();
+            std::vector<std::string> args;
+            args = { "-c", largeCommand };
+            EXPECT_CALL(*mockProcess, exec("/bin/bash", args, _)).Times(1);
+            EXPECT_CALL(*mockProcess, standardOutput()).WillOnce(Return("output message"));
+            EXPECT_CALL(*mockProcess, errorOutput()).WillOnce(Return(""));
+            EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
+            EXPECT_CALL(*mockProcess, wait(_,_)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
+            EXPECT_CALL(*mockProcess, getStatus()).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
+            return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+        });
+
+
+    CommandRequest cmd{
+        .commands = { largeCommand }, .timeout = 10, .ignoreError = true, .expiration = 99999999999
+    };
+
+    auto response = m_runCommandAction->runCommands(cmd);
+    EXPECT_EQ(response.type, "sophos.mgt.response.RunCommands");
+    EXPECT_EQ(response.result, ResponseResult::SUCCESS);
+    EXPECT_GT(response.startedAt, 1679055498);
+    EXPECT_GE(response.duration, 0);
+
+    EXPECT_EQ(response.commandResults.size(), 1);
+}
+
 TEST_F(RunCommandTests, runCommandsMultiplCommandsWithErrorsAndIgnoreErrorsTrue)
 {
     Common::ProcessImpl::ProcessFactory::instance().replaceCreator(
