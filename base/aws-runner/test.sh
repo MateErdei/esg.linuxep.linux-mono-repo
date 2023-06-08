@@ -91,6 +91,7 @@ then
     elif [[ ${current_release} =~ ${release_patternAL2022} ]]
     then
         PLATFORM_EXCLUDE_TAG="-e EXCLUDE_AMAZON_LINUX2022"
+        export PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
     elif [[ ${current_release} =~ ${release_patternSLES12} ]]
     then
         PLATFORM_EXCLUDE_TAG="-e EXCLUDE_SLES12"
