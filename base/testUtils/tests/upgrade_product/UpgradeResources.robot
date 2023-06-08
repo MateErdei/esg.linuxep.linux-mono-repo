@@ -166,6 +166,9 @@ Log XDR Intermediary File
 
 
 Mark Known Upgrade Errors
+    # LINUXDAR-7009 - expected till bugfix is in released version
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/watchdog.log  /opt/sophos-spl/base/bin/UpdateScheduler died with signal 9
+
     #TODO LINUXDAR-2972 remove when this defect is closed
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  root <> Atomic write failed with message: [Errno 13] Permission denied: '/opt/sophos-spl/tmp/policy/flags.json'
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  root <> Atomic write failed with message: [Errno 2] No such file or directory: '/opt/sophos-spl/tmp/policy/flags.json'
