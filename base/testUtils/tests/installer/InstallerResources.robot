@@ -267,24 +267,26 @@ Combine MTR Component Suite
 
 Should Not Have A Given Message In Journalctl Since Certain Time
     [Arguments]  ${message}  ${time}
-    ${result} =  Run Process  journalctl -o verbose --since "${time}"  shell=True  timeout=20
+    ${result} =  Run Process  journalctl  -o  verbose  --since  ${time}  timeout=20  env:SYSTEMD_PAGER=cat
     Log  ${result.stdout}
+    Log  ${result.stderr}
+    Should Be Equal As Integers    ${result.rc}     ${0}
     Should Not Contain    ${result.stdout}    ${message}
 
 Should Have A Given Message In Journalctl Since Certain Time
     [Arguments]  ${message}  ${time}
-    ${result} =  Run Process  journalctl -o verbose --since "${time}"  shell=True  timeout=20
-    Should Be Equal As Integers    ${result.rc}     ${0}
+    ${result} =  Run Process  journalctl  -o  verbose  --since  ${time}  timeout=20  env:SYSTEMD_PAGER=cat
     Log  ${result.stdout}
     Log  ${result.stderr}
+    Should Be Equal As Integers    ${result.rc}     ${0}
     Should Contain    ${result.stdout}    ${message}
 
 Should Have A Stopped Sophos Message In Journalctl Since Certain Time
     [Arguments]   ${time}
-    ${result} =  Run Process  journalctl -o verbose --since "${time}"  shell=True  timeout=20
-    Should Be Equal As Integers    ${result.rc}     ${0}
+    ${result} =  Run Process  journalctl  -o  verbose  --since  ${time}  -u  sophos-spl  timeout=20  env:SYSTEMD_PAGER=cat
     Log  ${result.stdout}
     Log  ${result.stderr}
+    Should Be Equal As Integers    ${result.rc}     ${0}
     Should Contain Any   ${result.stdout}   Stopped Sophos Linux Protection.    Stopping Sophos Linux Protection...
 
 Should Have Set KillMode To Mixed
