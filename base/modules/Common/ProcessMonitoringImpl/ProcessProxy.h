@@ -76,6 +76,13 @@ namespace Common::ProcessMonitoringImpl
          */
         int exitCode();
 
+        /**
+         * Get the native Exit code from the process - allows distinguishing
+         * between exit code and signals
+         * @return
+         */
+        int nativeExitCode();
+
     private:
         /**
          * Get the current status of the process.
@@ -112,8 +119,6 @@ namespace Common::ProcessMonitoringImpl
             int m_lastExit = 0;
 
         };
-
-        int nativeExitCode();
 
         /**
          * Pipe that we notify when the process is terminating, during the callback from BoostProcessHolder

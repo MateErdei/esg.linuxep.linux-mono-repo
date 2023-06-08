@@ -341,5 +341,11 @@ namespace watchdog
             return telemetryMessage.str();
         }
 
+        std::string createUnexpectedRestartTelemetryKeyFromPluginNameAndCode(const std::string& pluginName, int code)
+        {
+            std::stringstream telemetryMessage;
+            telemetryMessage << pluginName << "-unexpected-restarts-" << code;
+            return telemetryMessage.str();
+        }
     } // namespace watchdogimpl
 } // namespace watchdog

@@ -36,6 +36,9 @@ std::pair<std::chrono::seconds, Common::Process::ProcessStatus> PluginProxy::che
             LOGSUPPORT("Update Telemetry Unexpected restart: " << name());
             Common::Telemetry::TelemetryHelper::getInstance().increment(
                 watchdog::watchdogimpl::createUnexpectedRestartTelemetryKeyFromPluginName(name()), 1UL);
+            auto nativeCode = nativeExitCode();
+            Common::Telemetry::TelemetryHelper::getInstance().increment(
+                watchdog::watchdogimpl::createUnexpectedRestartTelemetryKeyFromPluginNameAndCode(name(), nativeCode), 1UL);
         }
     }
     return processProxyPair;

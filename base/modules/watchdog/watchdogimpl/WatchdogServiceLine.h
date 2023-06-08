@@ -39,6 +39,7 @@ namespace watchdog
         };
 
         std::string createUnexpectedRestartTelemetryKeyFromPluginName(const std::string& pluginName);
+        std::string createUnexpectedRestartTelemetryKeyFromPluginNameAndCode(const std::string& pluginName, int code);
 
     } // namespace watchdogimpl
 } // namespace watchdog
