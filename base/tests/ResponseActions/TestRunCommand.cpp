@@ -206,7 +206,7 @@ TEST_F(RunCommandTests, runMethodHandlesLargeOutputOrError)
             EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
             EXPECT_CALL(*mockProcess, wait(_,_)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
             EXPECT_CALL(*mockProcess, getStatus()).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
-            return mockProcess;;
+            return mockProcess;
         });
 
     std::string actionJson = getSingleCommandJsonString();
