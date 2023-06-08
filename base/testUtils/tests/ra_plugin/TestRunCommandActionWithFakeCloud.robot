@@ -42,6 +42,32 @@ Test Run Command Action End To End With Fake Cloud
     ${test_contents} =  Get File    /tmp/test.txt
     Should Be Equal As Strings  ${test_contents}    two
 
+
+Test Run Command Action End To End With Fake Cloud Lots Of Serial Actions
+    ${iterations} =    Set Variable    2000
+    ${dest_dir} =    Set Variable    /tmp/testdir/
+    Create Directory    ${dest_dir}
+    Register Cleanup    Remove Directory     ${dest_dir}    true
+
+    ${response_mark} =  mark_log_size  ${RESPONSE_ACTIONS_LOG_PATH}
+    ${action_mark} =  mark_log_size  ${ACTIONS_RUNNER_LOG_PATH}
+
+    @{commands_list} =  Create List
+    FOR    ${item}     IN RANGE     0    ${iterations}
+        Append To List    ${commands_list}    echo -n ${item} > /tmp/testdir/file${item}.txt
+    END
+
+    ${server_log_path} =  cloud_server_log_path
+    ${server_mark} =  mark_log_size  ${server_log_path}
+
+    send_run_command_action_from_fake_cloud  ${commands_list}
+    wait_for_log_contains_from_mark  ${response_mark}  Action corrid has succeeded   25
+    wait_for_log_contains_from_mark  ${action_mark}  Sent run command response for ID
+
+    ${dir_contents} =    Count Files In Directory    ${dest_dir}
+    Should Be Equal As Integers  ${iterations}    ${dir_contents}
+
+
 Test Run Command Action With 400 response
     ${response_mark} =  mark_log_size  ${RESPONSE_ACTIONS_LOG_PATH}
     ${action_mark} =  mark_log_size  ${ACTIONS_RUNNER_LOG_PATH}
