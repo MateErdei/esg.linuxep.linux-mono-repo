@@ -1,9 +1,10 @@
 *** Settings ***
 Library    Process
 Library    OperatingSystem
-Library    ../libs/FullInstallerUtils.py
-Library    ../libs/UpgradeUtils.py
-Library    ../libs/Watchdog.py
+Library    String
+Library    ../../libs/FullInstallerUtils.py
+Library    ../../libs/UpgradeUtils.py
+Library    ../../libs/Watchdog.py
 
 Resource  ../GeneralTeardownResource.robot
 
@@ -273,6 +274,7 @@ Should Not Have A Given Message In Journalctl Since Certain Time
 Should Have A Given Message In Journalctl Since Certain Time
     [Arguments]  ${message}  ${time}
     ${result} =  Run Process  journalctl -o verbose --since "${time}"  shell=True  timeout=20
+    Should Be Equal As Integers    ${result.rc}     ${0}
     Log  ${result.stdout}
     Log  ${result.stderr}
     Should Contain    ${result.stdout}    ${message}
@@ -280,6 +282,7 @@ Should Have A Given Message In Journalctl Since Certain Time
 Should Have A Stopped Sophos Message In Journalctl Since Certain Time
     [Arguments]   ${time}
     ${result} =  Run Process  journalctl -o verbose --since "${time}"  shell=True  timeout=20
+    Should Be Equal As Integers    ${result.rc}     ${0}
     Log  ${result.stdout}
     Log  ${result.stderr}
     Should Contain Any   ${result.stdout}   Stopped Sophos Linux Protection.    Stopping Sophos Linux Protection...

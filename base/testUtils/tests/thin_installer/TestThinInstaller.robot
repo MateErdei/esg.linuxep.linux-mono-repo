@@ -17,11 +17,11 @@ Library     Process
 Library     DateTime
 Library     OperatingSystem
 
-Resource  ../installer/InstallerResources.robot
 Resource  ../GeneralTeardownResource.robot
+Resource  ../installer/InstallerResources.robot
+Resource  ../mcs_router/McsRouterResources.robot
 Resource  ../scheduler_update/SchedulerUpdateResources.robot
-Resource    ../upgrade_product/UpgradeResources.robot
-Resource    ../mcs_router/McsRouterResources.robot
+Resource  ../upgrade_product/UpgradeResources.robot
 Resource  ThinInstallerResources.robot
 
 Default Tags  THIN_INSTALLER
@@ -254,7 +254,7 @@ Thin Installer Force Works
     Remove Directory  /opt/sophos-spl  recursive=True
     Should Not Exist  ${REGISTER_CENTRAL}
     ${time} =  Get Current Date  exclude_millis=true
-    ${time} =  Subtract Time From Date  ${time}  1s
+    ${time} =  Subtract Time From Date  ${time}  1s  exclude_millis=true
     Run Default Thininstaller  thininstaller_args=${FORCE_ARGUMENT}  expected_return_code=0  force_certs_dir=${SDDS3_DEVCERTS}
     Should Exist  ${REGISTER_CENTRAL}
     Check Thininstaller Log Contains  Successfully installed product
