@@ -120,6 +120,7 @@ MDR Will Log That It Is Not Restarting Due To A Disable File After A New Policy 
 
 Only One MDR Plugin May Be Running at a Time
     [Teardown]  Append Kill To Teardown
+    Wait for MDR Executable To Be Running
     Stop MDR Plugin
     ${mtrPlugin}=  Set Variable  ${MDR_PLUGIN_PATH}/bin/mtr
     ${first}=  Start Process  ${mtrPlugin}
