@@ -66,12 +66,12 @@ def create_comparable_dicts(mcs_dict, warehouse_dict):
     for i in set_of_flags:
         try:
             all_flags_mcs[i] = mcs_dict[i]
-        except KeyError:
+        except (KeyError, TypeError):
             LOGGER.debug("Flag {} missing from MCS flags therefore defaulting to false".format(i))
             all_flags_mcs[i] = False
         try:
             all_flags_warehouse[i] = warehouse_dict[i]
-        except KeyError:
+        except (KeyError, TypeError):
             LOGGER.debug("Flag {} missing from Warehouse flags therefore defaulting to false".format(i))
             all_flags_warehouse[i] = "false"
     return all_flags_mcs, all_flags_warehouse

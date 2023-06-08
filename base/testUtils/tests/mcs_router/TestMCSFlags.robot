@@ -25,10 +25,7 @@ MCS creates and updates flags file
     Check Correct MCS Password And ID For Local Cloud Saved
     Start MCSRouter
     Wait New MCS Policy Downloaded
-    Wait Until Keyword Succeeds
-      ...  10 secs
-      ...  1 secs
-      ...  File Should Exist  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-mcs.json
+    Wait Until Created    ${SOPHOS_INSTALL}/base/mcs/policy/flags.json    timeout=20 seconds
 
     ${CONTENTS} =  Get File   ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-mcs.json
     Should Contain  ${CONTENTS}  "livequery.network-tables.available" : true,
@@ -59,16 +56,29 @@ MCS Combines Flags Files
     Check Correct MCS Password And ID For Local Cloud Saved
     Start MCSRouter
     Wait New MCS Policy Downloaded
-    Wait Until Keyword Succeeds
-          ...  10 secs
-          ...  1 secs
-          ...  File Should Exist  ${SOPHOS_INSTALL}/base/mcs/policy/flags.json
+    Wait Until Created    ${SOPHOS_INSTALL}/base/mcs/policy/flags.json    timeout=20 seconds
     ${CONTENTS} =  Get File   ${SOPHOS_INSTALL}/base/mcs/policy/flags.json
     Should Contain  ${CONTENTS}  "livequery.network-tables.available": true
     Should Contain  ${CONTENTS}  "endpoint.flag2.enabled": false
     Should Contain  ${CONTENTS}  "endpoint.flag3.enabled": true
     Should Contain  ${CONTENTS}  "endpoint.flag4.enabled": false
     Should Contain  ${CONTENTS}  "endpoint.flag5.enabled": true
+
+MCS handles empty warehouse flags
+    Create File  /opt/sophos-spl/base/etc/sophosspl/flags-warehouse.json  "{}"
+    Start Local Cloud Server  --initial-flags  ${SUPPORT_FILES}/CentralXml/FLAGS_testflags.json
+    Register With Local Cloud Server
+    Check Correct MCS Password And ID For Local Cloud Saved
+    Start MCSRouter
+    Wait New MCS Policy Downloaded
+    Wait Until Keyword Succeeds
+          ...  10 secs
+          ...  1 secs
+          ...  File Should Exist  ${SOPHOS_INSTALL}/base/mcs/policy/flags.json
+    ${CONTENTS} =  Get File   ${SOPHOS_INSTALL}/base/mcs/policy/flags.json
+    Should Contain  ${CONTENTS}  "livequery.network-tables.available": false
+    Should Contain  ${CONTENTS}  "endpoint.flag2.enabled": false
+    Should Contain  ${CONTENTS}  "endpoint.flag3.enabled": false
 
 *** Keywords ***
 Mcs Flags contain Network tables
