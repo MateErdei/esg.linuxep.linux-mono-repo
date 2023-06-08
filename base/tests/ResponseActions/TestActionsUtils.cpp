@@ -599,7 +599,7 @@ TEST_F(ActionsUtilsTests, uploadLargeExpiration)
         ,"targetFile": "path"
         ,"expiration": 18446744073709551616})");
     auto resFile = ActionsUtils::readUploadAction(actionFile, ActionType::UPLOADFILE);
-    resFile.expiration = 0;
+    EXPECT_EQ(resFile.expiration, 0);
 
     std::string actionFolder (
         R"({"type": "sophos.mgt.action.UploadFolder"
@@ -609,7 +609,7 @@ TEST_F(ActionsUtilsTests, uploadLargeExpiration)
         ,"targetFolder": "path"
         ,"expiration": 18446744073709551616})");
     auto resFolder = ActionsUtils::readUploadAction(actionFolder, ActionType::UPLOADFOLDER);
-    resFolder.expiration = 0;
+    EXPECT_EQ(resFolder.expiration, 0);
 }
 
 TEST_F(ActionsUtilsTests, uploadWrongTypeMaxSize)
@@ -899,7 +899,7 @@ TEST_F(ActionsUtilsTests, downloadLargeExpiration)
         ,"sha256": "sha"
         ,"expiration": 18446744073709551616})");
     auto res = ActionsUtils::readDownloadAction(action);
-    res.expiration = 0;
+    EXPECT_EQ(res.expiration, 0);
 }
 
 TEST_F(ActionsUtilsTests, downloadMissingPassword)
@@ -1319,7 +1319,7 @@ TEST_F(ActionsUtilsTests, runCommandLargeExpiration)
         })");
 
     auto resFile = ActionsUtils::readCommandAction(actionFile);
-    resFile.expiration = 0;
+    EXPECT_EQ(resFile.expiration, 0);
 }
 
 TEST_F(ActionsUtilsTests, readCommandFailsDueToMalformedJson)
