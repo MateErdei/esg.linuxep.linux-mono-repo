@@ -1,8 +1,5 @@
 // Copyright 2023 Sophos Limited. All rights reserved.
 
-#ifndef EVEREST_BASE_TOUTF8EXCEPTION_H
-#define EVEREST_BASE_TOUTF8EXCEPTION_H
-
 #pragma once
 
 #include <exception>
@@ -21,5 +18,3 @@ namespace ResponseActions::RACommon
         std::string m_message;
     };
 }
-
-#endif // EVEREST_BASE_TOUTF8EXCEPTION_H

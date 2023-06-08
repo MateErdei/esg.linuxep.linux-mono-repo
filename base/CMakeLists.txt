@@ -323,9 +323,7 @@ find_library(BOOST_LOCALE
         PATHS ${BOOST_INPUT}/lib64
         NO_DEFAULT_PATH
         )
-message("LOOK HEREEE")
-message(${BOOST_INPUT})
-message(${BOOST_LOCALE})
+
 set( LOG4CPLUS_INCLUDE_DIR ${LOG4CPLUS_INPUT}/include )
 
 find_library(LOG4CPLUS_LIBRARY
