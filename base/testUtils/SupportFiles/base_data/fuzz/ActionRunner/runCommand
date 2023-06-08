@@ -1,0 +1,3 @@
+type: sophos.mgt.action.RunCommands
+payload: {"type": "sophos.mgt.action.RunCommands","commands": ["echo -n hello","sleep 10","echo -n I will not run"],"ignoreError": true,"timeout": 3,"expiration": 144444000000004}
+correlation: 777-66-66-444

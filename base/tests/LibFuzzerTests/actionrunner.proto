@@ -1,0 +1,8 @@
+syntax = "proto2";
+package ActionRunnerProto;
+
+message TestCase {
+    optional string type = 1;
+    optional string payload = 2;
+    optional string correlation = 3;
+}

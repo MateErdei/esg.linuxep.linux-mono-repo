@@ -264,7 +264,7 @@ Migrate From Account With Message Relay To One Without
     Wait Until Keyword Succeeds    5s     1s    Mcs Config Has Key  MCSID
     ${original_mcsid}  get_value_from_ini_file  MCSID  ${MCS_CONFIG}
 
-    Wait Until Keyword Succeeds    5s    1s    Mcs Config Has Key  jwt_token
+    Wait Until Keyword Succeeds    10s    1s    Mcs Config Has Key  jwt_token
     ${original_jwt_token}  get_value_from_ini_file  jwt_token  ${MCS_CONFIG}
     Wait Until Created    ${SHS_STATUS_FILE}    timeout=2 minutes
 

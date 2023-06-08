@@ -77,7 +77,7 @@ class FuzzerSupport( object):
         fuzzer_path = os.path.join(self._everest_path, "tests/LibFuzzerTests")
         logger.info("Running buildFuzzTests.sh from {}".format(fuzzer_path))
         try:
-            output = subprocess.check_output(["./buildFuzzTests.sh"], shell=True, cwd=fuzzer_path)
+            output = subprocess.check_output(["./buildFuzzTests.sh"], shell=True, cwd=fuzzer_path, stderr=subprocess.STDOUT)
             logger.debug(output)
             if not self._check_is_fuzz_target_present():
                 raise AssertionError(error_message)
@@ -321,7 +321,7 @@ class FuzzerSupport( object):
 
         logger.info("Running buildFuzzTests.sh from {}".format(fuzzer_path))
         try:
-            output = subprocess.check_output(["./buildFuzzTests.sh"], shell=True, cwd=fuzzer_path)
+            output = subprocess.check_output(["./buildFuzzTests.sh"], shell=True, cwd=fuzzer_path, stderr=subprocess.STDOUT)
             logger.debug(output)
             if not self._check_is_alf_fuzz_target_present():
                 raise AssertionError(error_message)

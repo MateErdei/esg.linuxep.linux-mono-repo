@@ -1,0 +1,3 @@
+type: sophos.mgt.action.UploadFolder
+payload: {"type": "sophos.mgt.action.UploadFolder","url": "https://localhost:443/randompath","targetFolder": "/tmp/test_folder","compress": false,"password": "","timeout": 0,"maxUploadSizeBytes": 1000000,"expiration": 144444000000004}
+correlation: 777-66-66-444

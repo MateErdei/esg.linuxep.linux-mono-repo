@@ -1,5 +1,5 @@
 
-set(PROTO_INPUT_FILE message.proto zmqparts.proto simplefunction.proto vector_strings.proto)
+set(PROTO_INPUT_FILE message.proto zmqparts.proto simplefunction.proto vector_strings.proto watchdogmessage.proto actionrunner.proto)
 
 SET(LIBCXX_LIB_PATH /build/redist/gcc/lib64)
 
@@ -95,4 +95,23 @@ target_link_libraries(PluginApiTest
         fuzzer-proto
         pluginapiimpl
         testhelpers
+        )
+
+add_executable(WatchdogApiTest
+        WatchdogApiTest.cpp
+        )
+
+target_link_libraries(WatchdogApiTest
+        fuzzer-proto
+        watchdogimpl
+        testhelpers
+        )
+
+add_executable(ActionRunner
+        ActionRunner.cpp
+        )
+
+target_link_libraries(ActionRunner
+        fuzzer-proto
+        responseactionmain
         )
