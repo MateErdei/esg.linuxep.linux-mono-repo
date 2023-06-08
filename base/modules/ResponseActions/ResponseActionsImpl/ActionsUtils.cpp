@@ -33,13 +33,14 @@ namespace ResponseActionsImpl
                 assert(false);
         }
 
+        info.maxSize = checkIntJsonValue(actionObject, "maxUploadSizeBytes", fieldErrorStr);
+        info.expiration = checkUlongJsonValue(actionObject, "expiration", fieldErrorStr);
+
         try
         {
             info.url = actionObject.at("url");
             info.targetPath = actionObject.at(targetKey);
             info.timeout = actionObject.at("timeout");
-            info.maxSize = checkIntJsonValue(actionObject, "maxUploadSizeBytes", fieldErrorStr);
-            info.expiration = checkUlongJsonValue(actionObject, "expiration", fieldErrorStr);
 
             if (actionObject.contains("compress"))
             {
@@ -78,6 +79,13 @@ namespace ResponseActionsImpl
         auto actionObject = checkActionRequest(actionJson, ActionType::DOWNLOAD);
         const std::string fieldErrorStr("Failed to process DownloadInfo from action JSON: ");
 
+        info.sizeBytes = checkUlongJsonValue(actionObject, "sizeBytes", fieldErrorStr);
+        if (info.sizeBytes == 0)
+        {
+            throw InvalidCommandFormat("sizeBytes field has been evaluated to 0. Very large values can also cause this.");
+        }
+        info.expiration = checkUlongJsonValue(actionObject, "expiration", fieldErrorStr);
+
         try
         {
             //Required fields
@@ -85,13 +93,6 @@ namespace ResponseActionsImpl
             info.targetPath = actionObject.at("targetPath");
             info.sha256 = actionObject.at("sha256");
             info.timeout = actionObject.at("timeout");
-
-            info.sizeBytes = checkUlongJsonValue(actionObject, "sizeBytes", fieldErrorStr);
-            if (info.sizeBytes == 0)
-            {
-                throw InvalidCommandFormat("sizeBytes field has been evaluated to 0. Very large values can also cause this.");
-            }
-            info.expiration = checkUlongJsonValue(actionObject, "expiration", fieldErrorStr);
 
             //Optional Fields
             if (actionObject.contains("decompress"))
@@ -135,12 +136,13 @@ namespace ResponseActionsImpl
         auto actionObject = checkActionRequest(actionJson, ActionType::COMMAND);
         const std::string fieldErrorStr("Failed to process CommandRequest from action JSON: ");
 
+        action.expiration = checkUlongJsonValue(actionObject, "expiration", fieldErrorStr);
+
         try
         {
             action.commands = actionObject["commands"].get<std::vector<std::string>>();
             action.timeout = actionObject.at("timeout");
             action.ignoreError = actionObject.at("ignoreError").get<bool>();
-            action.expiration = checkUlongJsonValue(actionObject, "expiration", fieldErrorStr);
         }
         catch (const nlohmann::json::type_error& exception)
         {
