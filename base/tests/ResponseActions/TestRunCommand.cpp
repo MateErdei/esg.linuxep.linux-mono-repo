@@ -107,7 +107,7 @@ TEST_F(RunCommandTests, runMethodProducesValidOutForSinglecommand)
     Common::ProcessImpl::ProcessFactory::instance().replaceCreator(
         []()
         {
-            auto mockProcess = new StrictMock<MockProcess>();
+            auto mockProcess = std::make_unique<StrictMock<MockProcess>>();
             std::vector<std::string> args = { "-c", "echo -n one" };
             EXPECT_CALL(*mockProcess, exec("/bin/bash", args, _)).Times(1);
             EXPECT_CALL(*mockProcess, standardOutput()).WillOnce(Return("output message"));
@@ -115,7 +115,7 @@ TEST_F(RunCommandTests, runMethodProducesValidOutForSinglecommand)
             EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
             EXPECT_CALL(*mockProcess, wait(_,_)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
             EXPECT_CALL(*mockProcess, getStatus()).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
-            return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+            return mockProcess;
         });
 
     std::string actionJson = getSingleCommandJsonString();
@@ -140,14 +140,14 @@ TEST_F(RunCommandTests, runMethodHandlesInvalidJson)
     Common::ProcessImpl::ProcessFactory::instance().replaceCreator(
         []()
         {
-            auto mockProcess = new StrictMock<MockProcess>();
+            auto mockProcess = std::make_unique<StrictMock<MockProcess>>();
             std::vector<std::string> args = { "-c", "echo -n one" };
             EXPECT_CALL(*mockProcess, exec("/bin/bash", args, _)).Times(1);
             EXPECT_CALL(*mockProcess, standardOutput()).WillOnce(Return("output message"));
             EXPECT_CALL(*mockProcess, errorOutput()).WillOnce(Return(""));
             EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
             EXPECT_CALL(*mockProcess, getStatus()).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
-            return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+            return mockProcess;
         });
 
     auto response = m_runCommandAction->run("Not json string", m_correlationId);
@@ -162,7 +162,7 @@ TEST_F(RunCommandTests, runMethodHandlesJsonOutputOrError)
     Common::ProcessImpl::ProcessFactory::instance().replaceCreator(
         [output, error]()
         {
-            auto mockProcess = new StrictMock<MockProcess>();
+            auto mockProcess = std::make_unique<StrictMock<MockProcess>>();
             std::vector<std::string> args = { "-c", "echo -n one" };
             EXPECT_CALL(*mockProcess, exec("/bin/bash", args, _)).Times(1);
             EXPECT_CALL(*mockProcess, standardOutput()).WillOnce(Return(output));
@@ -170,7 +170,7 @@ TEST_F(RunCommandTests, runMethodHandlesJsonOutputOrError)
             EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
             EXPECT_CALL(*mockProcess, wait(_,_)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
             EXPECT_CALL(*mockProcess, getStatus()).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
-            return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+            return mockProcess;
         });
 
     std::string actionJson = getSingleCommandJsonString();
@@ -198,7 +198,7 @@ TEST_F(RunCommandTests, runMethodHandlesLargeOutputOrError)
     Common::ProcessImpl::ProcessFactory::instance().replaceCreator(
         [output, error]()
         {
-            auto mockProcess = new StrictMock<MockProcess>();
+            auto mockProcess = std::make_unique<StrictMock<MockProcess>>();
             std::vector<std::string> args = { "-c", "echo -n one" };
             EXPECT_CALL(*mockProcess, exec("/bin/bash", args, _)).Times(1);
             EXPECT_CALL(*mockProcess, standardOutput()).WillOnce(Return(output));
@@ -206,7 +206,7 @@ TEST_F(RunCommandTests, runMethodHandlesLargeOutputOrError)
             EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
             EXPECT_CALL(*mockProcess, wait(_,_)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
             EXPECT_CALL(*mockProcess, getStatus()).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
-            return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+            return mockProcess;;
         });
 
     std::string actionJson = getSingleCommandJsonString();
@@ -234,7 +234,7 @@ TEST_F(RunCommandTests, runMethodReturnsTimeOut)
     Common::ProcessImpl::ProcessFactory::instance().replaceCreator(
         []()
         {
-            auto mockProcess = new StrictMock<MockProcess>();
+            auto mockProcess = std::make_unique<StrictMock<MockProcess>>();
             std::vector<std::string> args = { "-c", "echo -n one" };
             EXPECT_CALL(*mockProcess, exec("/bin/bash", args, _)).Times(1);
             EXPECT_CALL(*mockProcess, standardOutput()).WillOnce(Return("output message"));
@@ -243,7 +243,7 @@ TEST_F(RunCommandTests, runMethodReturnsTimeOut)
             EXPECT_CALL(*mockProcess, getStatus()).WillOnce(Return(Common::Process::ProcessStatus::RUNNING));
             EXPECT_CALL(*mockProcess, kill()).Times(1);
             EXPECT_CALL(*mockProcess, waitUntilProcessEnds()).Times(1);
-            return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+            return mockProcess;
         });
 
     std::string actionJson = getSingleCommandJsonString();
@@ -342,7 +342,7 @@ TEST_F(RunCommandTests, runCommandsSingleCommandWithNoErrors)
     Common::ProcessImpl::ProcessFactory::instance().replaceCreator(
         []()
         {
-            auto mockProcess = new StrictMock<MockProcess>();
+            auto mockProcess = std::make_unique<StrictMock<MockProcess>>();
             std::vector<std::string> args = { "-c", "echo -n one" };
             EXPECT_CALL(*mockProcess, exec("/bin/bash", args, _)).Times(1);
             EXPECT_CALL(*mockProcess, standardOutput()).WillOnce(Return("output message"));
@@ -351,7 +351,7 @@ TEST_F(RunCommandTests, runCommandsSingleCommandWithNoErrors)
             EXPECT_CALL(*mockProcess, wait(_,_)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
             EXPECT_CALL(*mockProcess, getStatus()).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
 
-            return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+            return mockProcess;
         });
 
     CommandRequest cmd{
@@ -377,7 +377,7 @@ TEST_F(RunCommandTests, runCommandsMultipleCommandsWithNoErrors)
         []()
         {
             static int runCount = 1;
-            auto mockProcess = new StrictMock<MockProcess>();
+            auto mockProcess = std::make_unique<StrictMock<MockProcess>>();
             std::vector<std::string> args;
             args = { "-c", "echo -n " + std::to_string(runCount++) };
             EXPECT_CALL(*mockProcess, exec("/bin/bash", args, _)).Times(1);
@@ -386,7 +386,7 @@ TEST_F(RunCommandTests, runCommandsMultipleCommandsWithNoErrors)
             EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
             EXPECT_CALL(*mockProcess, wait(_,_)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
             EXPECT_CALL(*mockProcess, getStatus()).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
-            return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+            return mockProcess;
         });
 
     CommandRequest cmd{
@@ -420,7 +420,7 @@ TEST_F(RunCommandTests, runCommandsManyCommandsInOrderWithNoErrors)
         [outputMsg]()
         {
             static int runCount = 1;
-            auto mockProcess = new StrictMock<MockProcess>();
+            auto mockProcess = std::make_unique<StrictMock<MockProcess>>();
             std::vector<std::string> args;
             args = { "-c", "echo -n " + std::to_string(runCount) };
             EXPECT_CALL(*mockProcess, exec("/bin/bash", args, _)).Times(1);
@@ -429,7 +429,7 @@ TEST_F(RunCommandTests, runCommandsManyCommandsInOrderWithNoErrors)
             EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
             EXPECT_CALL(*mockProcess, wait(_,_)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
             EXPECT_CALL(*mockProcess, getStatus()).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
-            return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+            return mockProcess;
         });
 
     std::vector<std::string> commands;
@@ -462,7 +462,7 @@ TEST_F(RunCommandTests, runCommandsHugeCommandWithNoErrors)
     Common::ProcessImpl::ProcessFactory::instance().replaceCreator(
         [largeCommand]()
         {
-            auto mockProcess = new StrictMock<MockProcess>();
+            auto mockProcess = std::make_unique<StrictMock<MockProcess>>();
             std::vector<std::string> args;
             args = { "-c", largeCommand };
             EXPECT_CALL(*mockProcess, exec("/bin/bash", args, _)).Times(1);
@@ -471,7 +471,7 @@ TEST_F(RunCommandTests, runCommandsHugeCommandWithNoErrors)
             EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
             EXPECT_CALL(*mockProcess, wait(_,_)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
             EXPECT_CALL(*mockProcess, getStatus()).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
-            return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+            return mockProcess;
         });
 
 
@@ -494,7 +494,7 @@ TEST_F(RunCommandTests, runCommandsMultiplCommandsWithErrorsAndIgnoreErrorsTrue)
         []()
         {
             static int runCount = 1;
-            auto mockProcess = new StrictMock<MockProcess>();
+            auto mockProcess = std::make_unique<StrictMock<MockProcess>>();
             std::vector<std::string> args;
             args = { "-c", "echo -n " + std::to_string(runCount++) };
             EXPECT_CALL(*mockProcess, exec("/bin/bash", args, _)).Times(1);
@@ -503,7 +503,7 @@ TEST_F(RunCommandTests, runCommandsMultiplCommandsWithErrorsAndIgnoreErrorsTrue)
             EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(1));
             EXPECT_CALL(*mockProcess, wait(_,_)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
             EXPECT_CALL(*mockProcess, getStatus()).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
-            return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+            return mockProcess;
         });
 
     CommandRequest cmd{
@@ -534,7 +534,7 @@ TEST_F(RunCommandTests, runCommandsMultipleCommandsWithErrorsAndIgnoreErrorsFals
         []()
         {
             static int runCount = 1;
-            auto mockProcess = new StrictMock<MockProcess>();
+            auto mockProcess = std::make_unique<StrictMock<MockProcess>>();
             std::vector<std::string> args;
             args = { "-c", "echo -n " + std::to_string(runCount++) };
             EXPECT_CALL(*mockProcess, exec("/bin/bash", args, _)).Times(1);
@@ -543,7 +543,7 @@ TEST_F(RunCommandTests, runCommandsMultipleCommandsWithErrorsAndIgnoreErrorsFals
             EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(1));
             EXPECT_CALL(*mockProcess, wait(_,_)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
             EXPECT_CALL(*mockProcess, getStatus()).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
-            return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+            return mockProcess;
         });
 
     CommandRequest cmd{
@@ -573,7 +573,7 @@ TEST_F(RunCommandTests, runCommandsMultipleExitsWhenTerminatedBeforeComplete)
         []()
         {
             static int runCount = 1;
-            auto mockProcess = new StrictMock<MockProcess>();
+            auto mockProcess = std::make_unique<StrictMock<MockProcess>>();
             std::vector<std::string> args;
             args = { "-c", "echo -n " + std::to_string(runCount++) };
             EXPECT_CALL(*mockProcess, exec("/bin/bash", args, _)).Times(1);
@@ -585,7 +585,7 @@ TEST_F(RunCommandTests, runCommandsMultipleExitsWhenTerminatedBeforeComplete)
                 EXPECT_CALL(*mockProcess, wait(_,_ )).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
             }
             EXPECT_CALL(*mockProcess, getStatus()).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
-            return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+            return mockProcess;
         });
 
     CommandRequest cmd{
@@ -603,7 +603,7 @@ TEST_F(RunCommandTests, runCommandWithNoErrors)
     Common::ProcessImpl::ProcessFactory::instance().replaceCreator(
         []()
         {
-            auto mockProcess = new StrictMock<MockProcess>();
+            auto mockProcess = std::make_unique<StrictMock<MockProcess>>();
             std::vector<std::string> args = { "-c", "echo -n one" };
             EXPECT_CALL(*mockProcess, exec("/bin/bash", args, _)).Times(1);
             EXPECT_CALL(*mockProcess, standardOutput()).WillOnce(Return("output message"));
@@ -611,7 +611,7 @@ TEST_F(RunCommandTests, runCommandWithNoErrors)
             EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(0));
             EXPECT_CALL(*mockProcess, wait(_,_)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
             EXPECT_CALL(*mockProcess, getStatus()).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
-            return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+            return mockProcess;
         });
 
     auto response = m_runCommandAction->runCommand("echo -n one");
@@ -628,7 +628,7 @@ TEST_F(RunCommandTests, runCommandWithErrors)
     Common::ProcessImpl::ProcessFactory::instance().replaceCreator(
         []()
         {
-            auto mockProcess = new StrictMock<MockProcess>();
+            auto mockProcess = std::make_unique<StrictMock<MockProcess>>();
             std::vector<std::string> args = { "-c", "echo -n one" };
             EXPECT_CALL(*mockProcess, exec("/bin/bash", args, _)).Times(1);
             EXPECT_CALL(*mockProcess, standardOutput()).WillOnce(Return("output message"));
@@ -636,7 +636,7 @@ TEST_F(RunCommandTests, runCommandWithErrors)
             EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(5));
             EXPECT_CALL(*mockProcess, wait(_,_)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
             EXPECT_CALL(*mockProcess, getStatus()).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
-            return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+            return mockProcess;
         });
 
     auto response = m_runCommandAction->runCommand("echo -n one");
@@ -652,7 +652,7 @@ TEST_F(RunCommandTests, runCommandWithErrorsAndStdErr)
     Common::ProcessImpl::ProcessFactory::instance().replaceCreator(
         []()
         {
-            auto mockProcess = new StrictMock<MockProcess>();
+            auto mockProcess = std::make_unique<StrictMock<MockProcess>>();
             std::vector<std::string> args = { "-c", "echo -n one" };
             EXPECT_CALL(*mockProcess, exec("/bin/bash", args, _)).Times(1);
             EXPECT_CALL(*mockProcess, standardOutput()).WillOnce(Return("output message"));
@@ -660,7 +660,7 @@ TEST_F(RunCommandTests, runCommandWithErrorsAndStdErr)
             EXPECT_CALL(*mockProcess, exitCode()).WillOnce(Return(5));
             EXPECT_CALL(*mockProcess, wait(_,_)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
             EXPECT_CALL(*mockProcess, getStatus()).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
-            return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+            return mockProcess;
         });
 
     auto response = m_runCommandAction->runCommand("echo -n one");
@@ -685,7 +685,7 @@ TEST_F(RunCommandTests, runCommandWithParentTerminatedChildRunning)
     Common::ProcessImpl::ProcessFactory::instance().replaceCreator(
         []()
         {
-            auto mockProcess = new StrictMock<MockProcess>();
+            auto mockProcess = std::make_unique<StrictMock<MockProcess>>();
             std::vector<std::string> args = { "-c", "echo -n one" };
             EXPECT_CALL(*mockProcess, exec("/bin/bash", args, _)).Times(1);
             EXPECT_CALL(*mockProcess, standardOutput()).Times(1);
@@ -694,7 +694,7 @@ TEST_F(RunCommandTests, runCommandWithParentTerminatedChildRunning)
             EXPECT_CALL(*mockProcess, getStatus()).WillOnce(Return(Common::Process::ProcessStatus::RUNNING));
             EXPECT_CALL(*mockProcess, kill()).Times(1);
             EXPECT_CALL(*mockProcess, waitUntilProcessEnds()).Times(1);
-            return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+            return mockProcess;
         });
 
     m_runCommandAction->runCommand("echo -n one");
@@ -710,7 +710,7 @@ TEST_F(RunCommandTests, runCommandWithChildTerminated)
     Common::ProcessImpl::ProcessFactory::instance().replaceCreator(
         []()
         {
-            auto mockProcess = new StrictMock<MockProcess>();
+            auto mockProcess = std::make_unique<StrictMock<MockProcess>>();
             std::vector<std::string> args = { "-c", "echo -n one" };
             EXPECT_CALL(*mockProcess, exec("/bin/bash", args, _)).Times(1);
             EXPECT_CALL(*mockProcess, standardOutput()).Times(1);
@@ -718,7 +718,7 @@ TEST_F(RunCommandTests, runCommandWithChildTerminated)
             EXPECT_CALL(*mockProcess, exitCode()).Times(1);
             EXPECT_CALL(*mockProcess, wait(_,_)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
             EXPECT_CALL(*mockProcess, getStatus()).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
-            return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+            return mockProcess;
         });
 
     m_runCommandAction->runCommand("echo -n one");
@@ -736,7 +736,7 @@ TEST_F(RunCommandTests, runCommandPpollErrorExitAndKillWhenNotEINTR)
     Common::ProcessImpl::ProcessFactory::instance().replaceCreator(
         []()
         {
-            auto mockProcess = new StrictMock<MockProcess>();
+            auto mockProcess = std::make_unique<StrictMock<MockProcess>>();
             std::vector<std::string> args = { "-c", "echo -n one" };
             EXPECT_CALL(*mockProcess, exec("/bin/bash", args, _)).Times(1);
             EXPECT_CALL(*mockProcess, standardOutput()).Times(1);
@@ -745,7 +745,7 @@ TEST_F(RunCommandTests, runCommandPpollErrorExitAndKillWhenNotEINTR)
             EXPECT_CALL(*mockProcess, getStatus()).WillOnce(Return(Common::Process::ProcessStatus::RUNNING));
             EXPECT_CALL(*mockProcess, kill()).Times(1);
             EXPECT_CALL(*mockProcess, waitUntilProcessEnds()).Times(1);
-            return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+            return mockProcess;
         });
 
     m_runCommandAction->runCommand("echo -n one");
@@ -765,7 +765,7 @@ TEST_F(RunCommandTests, runCommandPpollErrorContinueWhenEINTR)
     Common::ProcessImpl::ProcessFactory::instance().replaceCreator(
         []()
         {
-            auto mockProcess = new StrictMock<MockProcess>();
+            auto mockProcess = std::make_unique<StrictMock<MockProcess>>();
             std::vector<std::string> args = { "-c", "echo -n one" };
             EXPECT_CALL(*mockProcess, exec("/bin/bash", args, _)).Times(1);
             EXPECT_CALL(*mockProcess, standardOutput()).Times(1);
@@ -773,7 +773,7 @@ TEST_F(RunCommandTests, runCommandPpollErrorContinueWhenEINTR)
             EXPECT_CALL(*mockProcess, exitCode()).Times(1);
             EXPECT_CALL(*mockProcess, wait(_,_)).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
             EXPECT_CALL(*mockProcess, getStatus()).WillOnce(Return(Common::Process::ProcessStatus::FINISHED));
-            return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+            return mockProcess;
         });
 
     m_runCommandAction->runCommand("echo -n one");
@@ -791,7 +791,7 @@ TEST_F(RunCommandTests, runCommandPpollSIGUSR1timesout)
     Common::ProcessImpl::ProcessFactory::instance().replaceCreator(
         []()
         {
-            auto mockProcess = new StrictMock<MockProcess>();
+            auto mockProcess = std::make_unique<StrictMock<MockProcess>>();
             std::vector<std::string> args = { "-c", "echo -n one" };
             EXPECT_CALL(*mockProcess, exec("/bin/bash", args, _)).Times(1);
             EXPECT_CALL(*mockProcess, standardOutput()).Times(1);
@@ -800,7 +800,7 @@ TEST_F(RunCommandTests, runCommandPpollSIGUSR1timesout)
             EXPECT_CALL(*mockProcess, kill()).WillOnce(Return(true));
             EXPECT_CALL(*mockProcess, waitUntilProcessEnds()).Times(1);
             EXPECT_CALL(*mockProcess, getStatus()).WillOnce(Return(Common::Process::ProcessStatus::RUNNING));
-            return std::unique_ptr<Common::Process::IProcess>(mockProcess);
+            return mockProcess;
         });
 
     m_runCommandAction->runCommand("echo -n one");
