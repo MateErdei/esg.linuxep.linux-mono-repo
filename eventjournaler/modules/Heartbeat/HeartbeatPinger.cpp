@@ -1,9 +1,12 @@
-/******************************************************************************************************
-Copyright 2021 Sophos Limited.  All rights reserved.
-******************************************************************************************************/
+// Copyright 2021-2023 Sophos Limited. All rights reserved.
 
 #include "HeartbeatPinger.h"
+
+#include "EventWriterWorkerLib/EventWriterWorker.h"
+#include "SubscriberLib/Subscriber.h"
+
 #include <Common/UtilityImpl/TimeUtils.h>
+
 #include <set>
 
 namespace Heartbeat
@@ -17,7 +20,10 @@ namespace Heartbeat
 
     bool HeartbeatPinger::isAlive()
     {
-        return Common::UtilityImpl::TimeUtils::getCurrTime() - 15 <= m_lastPinged;
+        // Threads need to ping at least once per X seconds, which we'll set to the max time a thread is asleep + a bit.
+        long maxPingPeriod = std::max(EventWriterLib::EventWriterWorker::DEFAULT_QUEUE_SLEEP_INTERVAL_MS, SubscriberLib::Subscriber::DEFAULT_READ_LOOP_TIMEOUT_MS);
+        maxPingPeriod += 3;
+        return Common::UtilityImpl::TimeUtils::getCurrTime() - maxPingPeriod <= m_lastPinged;
     }
 
     void HeartbeatPinger::pushDroppedEvent()

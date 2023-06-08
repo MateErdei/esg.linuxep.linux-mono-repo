@@ -1,15 +1,26 @@
-/******************************************************************************************************
-Copyright 2021, Sophos Limited.  All rights reserved.
-******************************************************************************************************/
+// Copyright 2021-2023 Sophos Limited. All rights reserved.
+
+#include "FakeTimeUtils.h"
+
+#include "EventWriterWorkerLib/EventWriterWorker.h"
+#include "SubscriberLib/Subscriber.h"
+
+#include <Common/UtilityImpl/TimeUtils.h>
+#include <gtest/gtest.h>
 
 #include <Heartbeat.h>
-#include <gtest/gtest.h>
-#include <Common/UtilityImpl/TimeUtils.h>
-#include "FakeTimeUtils.h"
+
+namespace
+{
+    const long MAX_PING_TIMEOUT = std::max(
+                                      EventWriterLib::EventWriterWorker::DEFAULT_QUEUE_SLEEP_INTERVAL_MS,
+                                      SubscriberLib::Subscriber::DEFAULT_READ_LOOP_TIMEOUT_MS) +
+                                  3;
+}
 
 TEST(TestHeartbeat, TestGetMapOfIdsAgainstIsAliveShowsHeartbeatsAliveCorrectly) // NOLINT
 {
-    std::vector<std::string> ids = {"a", "b"};
+    std::vector<std::string> ids = { "a", "b" };
     Heartbeat::Heartbeat heartbeat;
     std::shared_ptr<Heartbeat::HeartbeatPinger> a = heartbeat.getPingHandleForId("a");
     std::shared_ptr<Heartbeat::HeartbeatPinger> b = heartbeat.getPingHandleForId("b");
@@ -34,7 +45,7 @@ TEST(TestHeartbeat, TestGetMapOfIdsAgainstIsAliveShowsHeartbeatsAliveCorrectly) 
 
 TEST(TestHeartbeat, TestDeregisterIdRemovesId) // NOLINT
 {
-    std::vector<std::string> ids = {"a", "b"};
+    std::vector<std::string> ids = { "a", "b" };
     Heartbeat::Heartbeat heartbeat;
     std::shared_ptr<Heartbeat::HeartbeatPinger> a = heartbeat.getPingHandleForId("a");
     std::shared_ptr<Heartbeat::HeartbeatPinger> b = heartbeat.getPingHandleForId("b");
@@ -72,7 +83,7 @@ TEST(TestHeartbeat, TestIdIsAddedWhenHandleRequested) // NOLINT
 TEST(TestHeartbeat, testHeartbeatsAreAliveWhenPingedWithin15Seconds) // NOLINT
 {
     Common::UtilityImpl::ScopedReplaceITime scopedReplaceITime(std::unique_ptr<Common::UtilityImpl::ITime>(
-            new SequenceOfFakeTime({ 10, 10, 20, 20 }, std::chrono::milliseconds(0), []() {})));
+        new SequenceOfFakeTime({ 10, 10, 20, 20 }, std::chrono::milliseconds(0), []() {})));
 
     Heartbeat::Heartbeat heartbeat;
     std::shared_ptr<Heartbeat::HeartbeatPinger> a = heartbeat.getPingHandleForId("a");
@@ -86,10 +97,12 @@ TEST(TestHeartbeat, testHeartbeatsAreAliveWhenPingedWithin15Seconds) // NOLINT
     ASSERT_EQ(map["b"], true);
 }
 
-TEST(TestHeartbeat, testHeartbeatsAreDeadWhenPingedMoreThan15SecondsAgo) // NOLINT
+TEST(TestHeartbeat, testHeartbeatsAreDeadWhenPingedMoreThanTheMaxPingTimeoutSecondsAgo)
 {
+    // the first two 10s will be the pinged times, the 3rd value will be repeatedly returned on calls and used for
+    // the current time to compare the ping times against, so it needs to be greater than MAX_PING_TIMEOUT.
     Common::UtilityImpl::ScopedReplaceITime scopedReplaceITime(std::unique_ptr<Common::UtilityImpl::ITime>(
-            new SequenceOfFakeTime({ 10, 10, 30 }, std::chrono::milliseconds(0), []() {})));
+        new SequenceOfFakeTime({ 10, 10, 2 * MAX_PING_TIMEOUT }, std::chrono::milliseconds(0), []() {})));
 
     Heartbeat::Heartbeat heartbeat;
     std::shared_ptr<Heartbeat::HeartbeatPinger> a = heartbeat.getPingHandleForId("a");
@@ -106,7 +119,7 @@ TEST(TestHeartbeat, testHeartbeatsAreDeadWhenPingedMoreThan15SecondsAgo) // NOLI
 TEST(TestHeartbeat, testHeartbeatIsAliveWhenPingedExactly15sAgo) // NOLINT
 {
     Common::UtilityImpl::ScopedReplaceITime scopedReplaceITime(std::unique_ptr<Common::UtilityImpl::ITime>(
-            new SequenceOfFakeTime({ 10, 25 }, std::chrono::milliseconds(0), []() {})));
+        new SequenceOfFakeTime({ 10, 25 }, std::chrono::milliseconds(0), []() {})));
 
     Heartbeat::Heartbeat heartbeat;
     std::shared_ptr<Heartbeat::HeartbeatPinger> a = heartbeat.getPingHandleForId("a");
@@ -120,7 +133,7 @@ TEST(TestHeartbeat, testHeartbeatIsAliveWhenPingedExactly15sAgo) // NOLINT
 TEST(TestHeartbeat, testHeartbeatIsAliveWhenLastPingWasSameSecond) // NOLINT
 {
     Common::UtilityImpl::ScopedReplaceITime scopedReplaceITime(std::unique_ptr<Common::UtilityImpl::ITime>(
-            new SequenceOfFakeTime({ 50, 50 }, std::chrono::milliseconds(0), []() {})));
+        new SequenceOfFakeTime({ 50, 50 }, std::chrono::milliseconds(0), []() {})));
 
     Heartbeat::Heartbeat heartbeat;
     std::shared_ptr<Heartbeat::HeartbeatPinger> a = heartbeat.getPingHandleForId("a");
@@ -172,13 +185,13 @@ TEST(TestHeartbeat, testgetMapOfIdsAgainstIsAlive) // NOLINT
 
 TEST(TestHeartbeat, testPushDroppedEventAndGetEventsInLast24h)
 {
-    time_t hour = 60*60;
+    time_t hour = 60 * 60;
     Heartbeat::HeartbeatPinger pinger;
 
     // push an event and # should be 1
     {
         Common::UtilityImpl::ScopedReplaceITime scopedReplaceITime(std::unique_ptr<Common::UtilityImpl::ITime>(
-                new SequenceOfFakeTime({ hour, 10*hour}, std::chrono::milliseconds(0), []() {})));
+            new SequenceOfFakeTime({ hour, 10 * hour }, std::chrono::milliseconds(0), []() {})));
         pinger.pushDroppedEvent();
         EXPECT_EQ(pinger.getNumDroppedEventsInLast24h(), 1);
     }
@@ -186,7 +199,7 @@ TEST(TestHeartbeat, testPushDroppedEventAndGetEventsInLast24h)
     // push two more within the 24h window and # should be 3
     {
         Common::UtilityImpl::ScopedReplaceITime scopedReplaceITime(std::unique_ptr<Common::UtilityImpl::ITime>(
-                new SequenceOfFakeTime({ 12*hour, 20*hour, 23*hour}, std::chrono::milliseconds(0), []() {})));
+            new SequenceOfFakeTime({ 12 * hour, 20 * hour, 23 * hour }, std::chrono::milliseconds(0), []() {})));
         pinger.pushDroppedEvent();
         pinger.pushDroppedEvent();
         EXPECT_EQ(pinger.getNumDroppedEventsInLast24h(), 3);
@@ -195,23 +208,22 @@ TEST(TestHeartbeat, testPushDroppedEventAndGetEventsInLast24h)
     // roll into the next day enough to drop off the first event
     {
         Common::UtilityImpl::ScopedReplaceITime scopedReplaceITime(std::unique_ptr<Common::UtilityImpl::ITime>(
-                new SequenceOfFakeTime({30*hour}, std::chrono::milliseconds(0), []() {})));
+            new SequenceOfFakeTime({ 30 * hour }, std::chrono::milliseconds(0), []() {})));
         EXPECT_EQ(pinger.getNumDroppedEventsInLast24h(), 2);
     }
 
     // many days later without new events # should be 0
     {
         Common::UtilityImpl::ScopedReplaceITime scopedReplaceITime(std::unique_ptr<Common::UtilityImpl::ITime>(
-                new SequenceOfFakeTime({100*hour}, std::chrono::milliseconds(0), []() {})));
+            new SequenceOfFakeTime({ 100 * hour }, std::chrono::milliseconds(0), []() {})));
         EXPECT_EQ(pinger.getNumDroppedEventsInLast24h(), 0);
     }
 }
 
 TEST(TestHeartbeat, testPushDroppedEventNeverPushesAboveMax)
 {
-
     Common::UtilityImpl::ScopedReplaceITime scopedReplaceITime(std::unique_ptr<Common::UtilityImpl::ITime>(
-            new SequenceOfFakeTime({ 0, 0, 0, 0, 0, 0, 0, 1, 10}, std::chrono::milliseconds(0), []() {})));
+        new SequenceOfFakeTime({ 0, 0, 0, 0, 0, 0, 0, 1, 10 }, std::chrono::milliseconds(0), []() {})));
 
     Heartbeat::HeartbeatPinger pinger;
     pinger.setDroppedEventsMax(3);
@@ -229,9 +241,8 @@ TEST(TestHeartbeat, testPushDroppedEventNeverPushesAboveMax)
 
 TEST(TestHeartbeat, testPushDroppedEventTrimsEventsFromTheFuture)
 {
-
     Common::UtilityImpl::ScopedReplaceITime scopedReplaceITime(std::unique_ptr<Common::UtilityImpl::ITime>(
-            new SequenceOfFakeTime({ 0, 0, 0, 5, 50, 51, 52, 20, 25}, std::chrono::milliseconds(0), []() {})));
+        new SequenceOfFakeTime({ 0, 0, 0, 5, 50, 51, 52, 20, 25 }, std::chrono::milliseconds(0), []() {})));
 
     Heartbeat::HeartbeatPinger pinger;
     pinger.setDroppedEventsMax(5);
@@ -248,22 +259,29 @@ TEST(TestHeartbeat, testPushDroppedEventTrimsEventsFromTheFuture)
     EXPECT_EQ(pinger.getNumDroppedEventsInLast24h(), 4);
 }
 
-
 TEST(TestHeartbeat, testIsAlive)
 {
-    Common::UtilityImpl::ScopedReplaceITime scopedReplaceITime(std::unique_ptr<Common::UtilityImpl::ITime>(
-            new SequenceOfFakeTime({100, 105, 110, 120, 121, 130, 131}, std::chrono::milliseconds(0), []() {})));
+    int start = 1600000000;
+    Common::UtilityImpl::ScopedReplaceITime scopedReplaceITime(
+        std::unique_ptr<Common::UtilityImpl::ITime>(new SequenceOfFakeTime(
+            { start,                                // 1st isAlive()
+              start,                                // pinger.ping()
+              start + 10,                           // 2nd isAlive()
+              start + MAX_PING_TIMEOUT / 2,         // 3rd isAlive()
+              start + MAX_PING_TIMEOUT + 1,         // 4th isAlive()
+              start + MAX_PING_TIMEOUT * 2,         // pinger.ping()
+              start + (MAX_PING_TIMEOUT * 2) + 1 }, // 5th and final isAlive()
+            std::chrono::milliseconds(0),
+            []() {})));
     Heartbeat::HeartbeatPinger pinger;
-    // starts fakse
+    // Starts false
     ASSERT_EQ(pinger.isAlive(), false);
     // true after ping
     pinger.ping();
     ASSERT_EQ(pinger.isAlive(), true);
-    // still alive after 15s
     ASSERT_EQ(pinger.isAlive(), true);
-    // stops being alive after >15s
     ASSERT_EQ(pinger.isAlive(), false);
-    // returns to being alive when repinged;
+    // returns to being alive once pinged
     pinger.ping();
     ASSERT_EQ(pinger.isAlive(), true);
 }
@@ -274,7 +292,7 @@ TEST(TestHeartbeat, testRegisterIdsRegistersIds)
     std::vector<std::string> ids = heartbeat.getAllHeartbeatIds();
     ASSERT_EQ(ids.size(), 0);
 
-    heartbeat.registerIds({"a", "b", "c"});
+    heartbeat.registerIds({ "a", "b", "c" });
     ids = heartbeat.getAllHeartbeatIds();
     ASSERT_EQ(ids.size(), 3);
     EXPECT_EQ(ids[0], "a");

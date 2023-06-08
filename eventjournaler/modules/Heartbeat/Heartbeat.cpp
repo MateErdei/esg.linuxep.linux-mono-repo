@@ -53,9 +53,9 @@ namespace Heartbeat
     std::map<std::string, bool> Heartbeat::getMapOfIdsAgainstIsAlive()
     {
         std::map<std::string, bool> returnMap;
-        for (auto& kv: m_registeredIds)
+        for (const auto& [id, worker] : m_registeredIds)
         {
-            returnMap[kv.first] = kv.second->isAlive();
+            returnMap[id] = worker->isAlive();
         }
         return returnMap;
     }
