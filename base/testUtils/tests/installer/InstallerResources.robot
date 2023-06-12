@@ -287,7 +287,7 @@ Should Have A Stopped Sophos Message In Journalctl Since Certain Time
     Log  ${result.stdout}
     Log  ${result.stderr}
     Should Be Equal As Integers    ${result.rc}     ${0}
-    Should Contain Any   ${result.stdout}   Stopped Sophos Linux Protection.    Stopping Sophos Linux Protection...
+    Should Contain Any   ${result.stdout}   Stopped Sophos Linux Protection.    Stopping Sophos Linux Protection...    Stopped sophos-spl.service
 
 Should Have Set KillMode To Mixed
     ${result}=  Run Process  systemctl show sophos-spl | grep KillMode  shell=True
