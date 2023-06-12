@@ -80,10 +80,10 @@
         {"Condition" : "RunAll"},
         {"Fn::Equals" : [{"Ref" : "RunOne"}, "amazonlinux2x64"]}
         ]},
-    "RunAmazonLinux2022x64" : {"Fn::Or": [
+    "RunAmazonLinux2023x64" : {"Fn::Or": [
         {"Condition" : "RunAmazon"},
         {"Condition" : "RunAll"},
-        {"Fn::Equals" : [{"Ref" : "RunOne"}, "amazonlinux2022x64"]}
+        {"Fn::Equals" : [{"Ref" : "RunOne"}, "amazonlinux2023x64"]}
         ]},
     "RunCentos7x64" : {"Fn::Or": [
         {"Condition" : "RunCentos"},

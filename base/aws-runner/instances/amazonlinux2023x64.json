@@ -1,11 +1,11 @@
 {
-  "amazonlinux2022x64" : {
+  "amazonlinux2023x64" : {
     "Type" : "AWS::EC2::Instance",
-    "Condition" :  "RunAmazonLinux2022x64" ,
+    "Condition" :  "RunAmazonLinux2023x64" ,
     "Properties" : {
       "IamInstanceProfile": { "Ref": "RegressionTestInstanceProfile" },
       "KeyName" : { "Ref" : "KeyName" },
-      "ImageId" : "ami-094b399387ab54912",
+      "ImageId" : "ami-0355d974be40e4db6",
       "InstanceType": "c4.large",
       "InstanceInitiatedShutdownBehavior": "terminate",
       "Tags" : [
@@ -17,14 +17,14 @@
         {"Key" : "CostCentre", "Value" : "GB11601200"},
         {"Key" : "Project", "Value" : "XDR"},
         {"Key" : "Application", "Value" : "linux-endpoint-testing"},
-        {"Key" : "BaseAmi", "Value" : "ami-094b399387ab54912"},
+        {"Key" : "BaseAmi", "Value" : "ami-0355d974be40e4db6"},
         {"Key" : "Environment", "Value" : "development"},
         {"Key" : "AutomationExcluded", "Value" : "true"},
         {"Key" : "SecurityClassification", "Value" : "none low"},
         {"Key" : "TestImage", "Value" : "true"},
         {"Key" : "Codeline", "Value" : "SSPL" },
         {"Key" : "Branch", "Value" : "SSPL" },
-        {"Key" : "Name", "Value" : "amazonlinux2022x64" },
+        {"Key" : "Name", "Value" : "amazonlinux2023x64" },
         {"Key" : "RootStackname", "Value" : "SSPL" }
       ],
       "NetworkInterfaces" : [{
@@ -45,9 +45,8 @@
         "hostname ${HOSTNAME}\n",
         "echo $'#cloud-config\nhostname: '${HOSTNAME} $'\nfqdn: '${HOSTNAME} >/etc/cloud/cloud.cfg.d/99_hostname.cfg\n",
         "sed -i 's/127.0.0.1/127.0.0.1 '$HOSTNAME'/' /etc/hosts\n",
-        "yum -y install make gcc openssl openssl-perl nfs-utils kernel-devel fuse-libs gdb rpm-build cifs-utils wget attr psmisc libxcrypt-compat iptables zip 2>&1 >>/tmp/cloudFormationInit.log\n",
-        "yum -y install python-devel python-pip python3-devel python3-pip policycoreutils-python-utils 2>&1 >>/tmp/cloudFormationInit.log\n",
-        "pip3 install --upgrade robotframework nest_asyncio psutil zmq protobuf paramiko watchdog cryptography==3.3.1 python-dateutil requests enum34 packaging 2>&1 >>/tmp/cloudFormationInit.log\n",
+        "yum -y install make gcc openssl-perl kernel-devel gdb rpm-build cifs-utils libxcrypt-compat iptables python-devel python-pip 2>&1 >>/tmp/cloudFormationInit.log\n",
+        "pip3 install --upgrade robotframework nest_asyncio psutil zmq protobuf paramiko watchdog python-dateutil requests enum34 packaging 2>&1 >>/tmp/cloudFormationInit.log\n",
         "service rpcbind start 2>&1 >>/tmp/cloudFormationInit.log\n",
         "systemctl start nfs 2>&1 >>/tmp/cloudFormationInit.log\n",
         "systemctl status nfs-server.service 2>&1 >>/tmp/cloudFormationInit.log\n",

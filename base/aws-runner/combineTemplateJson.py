@@ -12,7 +12,7 @@ def getInstanceJsonAsString(instanceName):
 
 instances = {
     "amazonlinux2x64": getInstanceJsonAsString("amazonlinux2x64"),
-    "amazonlinux2022x64": getInstanceJsonAsString("amazonlinux2022x64"),
+    "amazonlinux2023x64": getInstanceJsonAsString("amazonlinux2023x64"),
     "centos7x64": getInstanceJsonAsString("centos7x64"),
     "centosstreamx64": getInstanceJsonAsString("centosstreamx64"),
     "debian10x64": getInstanceJsonAsString("debian10x64"),

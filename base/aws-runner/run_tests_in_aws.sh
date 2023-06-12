@@ -352,7 +352,7 @@ combineResults()
   mkdir results
   #TODO LINUXDAR-6745 put back when ubuntu minimal is fixed - ubuntu1804minimal
   python3 parallel_merge.py -j${NPROC} \
-              amazonlinux2x64 amazonlinux2022x64 \
+              amazonlinux2x64 amazonlinux2023x64 \
               centos7x64 centosstreamx64 \
               debian10x64 debian11x64 \
               miraclelinuxx64 \
