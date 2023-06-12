@@ -67,13 +67,17 @@ def pip_install(machine: tap.Machine, *install_args: str):
                 log_mode=tap.LoggingMode.ON_ERROR)
 
 def package_install(machine: tap.Machine, *install_args: str):
+    confirmation_arg = "-y"
     if machine.run('which', 'apt-get', return_exit_code=True) == 0:
         pkg_installer = "apt-get"
-    else:
+    elif machine.run('which', 'yum', return_exit_code=True) == 0:
         pkg_installer = "yum"
+    else:
+        pkg_installer = "zypper"
+        confirmation_arg = "--non-interactive"
 
     for _ in range(20):
-        if machine.run(pkg_installer, '-y', 'install', *install_args,
+        if machine.run(pkg_installer, confirmation_arg, 'install', *install_args,
                        log_mode=tap.LoggingMode.ON_ERROR,
                        return_exit_code=True) == 0:
             break
@@ -88,6 +92,8 @@ def install_requirements(machine: tap.Machine):
         machine.run('useradd', 'sophos-spl-user')
         machine.run('useradd', 'sophos-spl-local')
         machine.run('groupadd', 'sophos-spl-group')
+        package_install(machine, "rsync")
+        package_install(machine, "openssl")
     except Exception as ex:
         # the previous command will fail if user already exists. But this is not an error
         print("On adding installing requirements: {}".format(ex))
@@ -225,6 +231,37 @@ def get_inputs(context: tap.PipelineContext, base_build: ArtisanInput, mode: str
         )
     return test_inputs
 
+
+def get_test_machines(test_inputs):
+    test_environments = {'amazonlinux2': 'amzlinux2_x64_server_en_us',
+                         'amazonlinux2023': 'amzlinux2023_x64_server_en_us',
+                         'centos79': 'centos79_x64_server_en_us',
+                         'centos8stream': 'centos8stream_x64_aws_server_en_us',
+                         'centos9stream': 'centos9stream_x64_aws_server_en_us',
+                         'debian10': 'debian10_x64_aws_server_en_us',
+                         'debian11': 'debian11_x64_aws_server_en_us',
+                         'oracle7': 'oracle79_x64_aws_server_en_us',
+                         'oracle8': 'oracle87_x64_aws_server_en_us',
+                         'rhel7': 'rhel79_x64_aws_server_en_us',
+                         'rhel8': 'rhel87_x64_aws_server_en_us',
+                         'rhel9': 'rhel91_x64_aws_server_en_us',
+                         'sles12': 'sles12_x64_sp5_aws_server_en_us',
+                         'sles15': 'sles15_x64_sp4_aws_server_en_us',
+                         'ubuntu1804': 'ubuntu1804_x64_server_en_us',
+                         'ubuntu2004': 'ubuntu2004_x64_server_en_us',
+                         # TODO: LINUXDAR-7306 Uncomment once python3.10 issues are resolved
+                         # 'ubuntu2204': 'ubuntu2204_x64_aws_server_en_us',
+                         }
+
+    ret = []
+    for name, image in test_environments.items():
+        ret.append((
+            name,
+            tap.Machine(image, inputs=test_inputs, platform=tap.Platform.Linux)
+        ))
+    return ret
+
+
 def build_release(stage: tap.Root, component: tap.Component):
     return stage.artisan_build(
         name=RELEASE_MODE, component=component, image=BUILD_TEMPLATE,
@@ -313,39 +350,7 @@ def sspl_base(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
         return
 
     test_inputs = get_inputs(context, base_build, mode)
-    machines = (
-        ("ubuntu1804",
-         tap.Machine('ubuntu1804_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)),
-
-        ("ubuntu2004",
-         tap.Machine('ubuntu2004_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)),
-
-        #TODO: LINUXDAR-7306 Uncomment once python3.10 issues are resolved
-        #("ubuntu2204",
-        # tap.Machine('ubuntu2204_x64_aws_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)),
-
-        ("centos79",
-         tap.Machine('centos79_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)),
-
-        ("centos84",
-         tap.Machine('centos84_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)),
-
-        ("centos8stream",
-         tap.Machine('centos8stream_x64_aws_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)),
-
-        ("centos9stream",
-         tap.Machine('centos9stream_x64_aws_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)),
-
-        ("amazonlinux2",
-         tap.Machine('amzlinux2_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)),
-
-        ("sles12",
-         tap.Machine('sles12_x64_sp5_aws_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)),
-
-        ("sles15",
-         tap.Machine('sles15_x64_sp4_aws_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)),
-        # add other distros here
-    )
+    machines = get_test_machines(test_inputs)
 
     # Add args to pass env vars to RobotFramework.py call in test runs
     robot_args_list = []
