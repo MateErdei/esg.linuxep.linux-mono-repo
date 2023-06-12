@@ -5,6 +5,7 @@
 #include "common/ApplicationPaths.h"
 #include "common/SaferStrerror.h"
 #include "common/StringUtils.h"
+#include <datatypes/IUuidGenerator.h>
 #include "safestore/Logger.h"
 #include "safestore/SafeStoreTelemetryConsts.h"
 #include "safestore/SafeStoreWrapper/SafeStoreWrapperImpl.h"
@@ -19,9 +20,7 @@
 #include "Common/UtilityImpl/Uuid.h"
 #include "Common/UtilityImpl/WaitForUtils.h"
 
-#include <boost/uuid/uuid.hpp>
-#include <boost/uuid/uuid_generators.hpp>
-#include <boost/uuid/uuid_io.hpp>
+
 #include <thirdparty/nlohmann-json/json.hpp>
 
 #include <utility>
@@ -145,10 +144,7 @@ namespace safestore::QuarantineManager
     std::string generatePassword()
     {
         LOGDEBUG("Generating SafeStore password");
-        std::ostringstream ss;
-        boost::uuids::uuid uuid = boost::uuids::random_generator()();
-        ss << uuid;
-        std::string pw = ss.str();
+        std::string pw = datatypes::uuidGenerator().generate();
         if (pw.length() > SAFESTORE_PASSWORD_MAX_SIZE)
         {
             try

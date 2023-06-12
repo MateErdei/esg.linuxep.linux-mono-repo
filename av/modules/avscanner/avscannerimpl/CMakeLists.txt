@@ -28,11 +28,12 @@ add_library(avscannerimpl SHARED
         )
 
 target_include_directories(avscannerimpl PUBLIC
+        ${pluginapiinclude}
         ${CMAKE_SOURCE_DIR}/modules
         "${CAPNPROTO_INCLUDE_DIR}"
         ${CMAKE_BINARY_DIR}/modules/scan_messages
         ${CMAKE_CURRENT_BINARY_DIR}
-        ${BOOSTPATH})
+        ${BOOST_INCLUDEDIR})
 
 target_link_libraries(avscannerimpl
         datatypes
@@ -40,8 +41,8 @@ target_link_libraries(avscannerimpl
         unixsocket
         filewalker
         mountinfoimpl
-        ${STD_FILESYSTEM_IF_REQUIRED}
-        ${Boost_LIBRARIES})
+        boost_program_options
+        ${STD_FILESYSTEM_IF_REQUIRED})
 
 install(TARGETS avscannerimpl
         LIBRARY DESTINATION files/plugins/${PLUGIN_NAME}/lib64)

@@ -422,6 +422,7 @@ function build()
         (( LOCAL_CMAKE == 0 )) && ln -snf $INPUT/cmake $REDIST/
         untar_input capnproto
         untar_input boost
+
         # Copy required by SUSI dependency (to remove when they move to monorepo zlib input)
         cp $INPUT/zlib/libzlib.so $INPUT/zlib/libz.so.1
         ln -snf $INPUT/zlib $REDIST/

@@ -8,12 +8,11 @@
 
 #include "Common/Logging/ConsoleLoggingSetup.h"
 
-#include <boost/uuid/uuid.hpp>
-#include <boost/uuid/uuid_generators.hpp>
-#include <boost/uuid/uuid_io.hpp>
+
 #include <capnp/message.h>
 #include <common/AbortScanException.h>
 #include <datatypes/Print.h>
+#include <datatypes/IUuidGenerator.h>
 #include <unixsocket/SocketUtilsImpl.h>
 
 #include <chrono>
@@ -51,7 +50,7 @@ namespace Fuzzing
         if (!socketServer || !socketServer->m_isRunning)
         {
             std::ostringstream ss;
-            boost::uuids::uuid uuid = boost::uuids::random_generator()();
+            std::string uuid = datatypes::uuidGenerator().generate();
             ss << m_socketPathBase << uuid;
             m_socketPath = ss.str();
 

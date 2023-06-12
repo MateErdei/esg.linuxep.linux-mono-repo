@@ -69,14 +69,12 @@ if (NOT DEFINED ENV{USE_LIBFUZZER})
     target_link_libraries(ProcessControlClientExecutable  PUBLIC
             unixsocket)
     target_include_directories(ProcessControlClientExecutable PUBLIC ${CMAKE_SOURCE_DIR}/modules)
-    target_include_directories(ProcessControlClientExecutable SYSTEM PRIVATE ${BOOSTPATH})
 
     add_executable(threatReporterClientExecutable
             ../unixsocket/ThreatReporterTestExecutable/threatReporterClient.cpp)
     target_link_libraries(threatReporterClientExecutable  PUBLIC
             unixsocket)
     target_include_directories(threatReporterClientExecutable PUBLIC ${CMAKE_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/modules)
-    target_include_directories(threatReporterClientExecutable SYSTEM PRIVATE ${BOOSTPATH})
 
 
     add_executable(UpdateCompleteClient
@@ -92,21 +90,18 @@ add_executable(ProcessControlServerExecutable
 target_link_libraries(ProcessControlServerExecutable  PUBLIC
         unixsocket)
 target_include_directories(ProcessControlServerExecutable PUBLIC ${CMAKE_SOURCE_DIR}/modules)
-target_include_directories(ProcessControlServerExecutable SYSTEM PRIVATE ${BOOSTPATH})
 
 add_executable(threatReporterServerExecutable
         ../unixsocket/ThreatReporterTestExecutable/threatReporterServer.cpp)
 target_link_libraries(threatReporterServerExecutable  PUBLIC
         unixsocket)
 target_include_directories(threatReporterServerExecutable PUBLIC ${CMAKE_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/modules)
-target_include_directories(threatReporterServerExecutable SYSTEM PRIVATE ${BOOSTPATH})
 
 add_executable(threatDetectorServerExecutable
         ../unixsocket/ThreatDetectorTestExecutable/threatDetectorServer.cpp)
 target_link_libraries(threatDetectorServerExecutable  PUBLIC
         unixsocket ${STD_FILESYSTEM_IF_REQUIRED})
 target_include_directories(threatDetectorServerExecutable PUBLIC ${CMAKE_SOURCE_DIR}/modules)
-target_include_directories(threatDetectorServerExecutable SYSTEM PRIVATE ${BOOSTPATH})
 
 add_executable(threatDetectorClientExecutable
         ThreatDetectorTestExecutable/threatDetectorClient.cpp
@@ -117,8 +112,7 @@ add_executable(threatDetectorClientExecutable
 target_link_libraries(threatDetectorClientExecutable  PUBLIC
         unixsocket avscannerimpl ${STD_FILESYSTEM_IF_REQUIRED})
 target_include_directories(threatDetectorClientExecutable PUBLIC ${CMAKE_SOURCE_DIR}/modules)
-target_include_directories(threatDetectorClientExecutable SYSTEM PRIVATE ${BOOSTPATH})
-add_subdirectory(SendThreatDetectedExecutable)
+
 if (DEFINED ENV{USE_LIBFUZZER})
 SET_TARGET_PROPERTIES( threatDetectorClientExecutable
         threatDetectorServerExecutable

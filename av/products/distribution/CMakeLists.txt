@@ -27,6 +27,8 @@ set(third_party_libs
         ${log4cpluslib}
         ${protobuflib}
         ${expatlib}
+        ${BOOST_SUSI_LIBRARY}
+        ${BOOST_SUSI2_LIBRARY}
         ${ZLIB_LIBRARY}
         )
 
@@ -40,15 +42,6 @@ function(FindLibraryFullPath FULLPATH LIBNAME LIBRARY_PATH)
     GET_FILENAME_COMPONENT(FOUND_LIB_ABSOLUTE ${FOUND_LIB} REALPATH)
     set(${FULLPATH} ${FOUND_LIB_ABSOLUTE} PARENT_SCOPE)
 endfunction(FindLibraryFullPath)
-
-function(add_boost_library LIB LIBRARY_PATH)
-    FindLibraryFullPath(FOUND_LIB_ABSOLUTE ${LIB} ${LIBRARY_PATH})
-    set(third_party_libs ${third_party_libs} ${FOUND_LIB_ABSOLUTE} PARENT_SCOPE)
-endfunction(add_boost_library)
-
-foreach (LIB boost_locale boost_system boost_program_options boost_filesystem boost_atomic)
-    add_boost_library(${LIB} ${BOOSTPATH}/boost/lib64)
-endforeach(LIB)
 
 set(PYTHON python3)
 set(LOCAL_TOOL_DIR ${CMAKE_CURRENT_SOURCE_DIR})
@@ -89,6 +82,8 @@ install(FILES  ${third_party_libs}
 install(IMPORTED_RUNTIME_ARTIFACTS
         safestorelib
         openssl_crypto
+        boost_program_options
+        boost_locale
         LIBRARY DESTINATION files/plugins/${PLUGIN_NAME}/lib64)
 
 get_target_property(openssl_crypto_location openssl_crypto LOCATION)

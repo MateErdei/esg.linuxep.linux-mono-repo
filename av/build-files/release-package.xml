@@ -26,18 +26,19 @@
             <include artifact-path="sophlib/sdds3-tools-x64-linux" dest-dir="input/sdds3"/>
             <include artifact-path="thirdparty/zlib-linux-opt" dest-dir="input/zlib"/>
             <include artifact-path="thirdparty/googletest-linux-opt" dest-dir="input/googletest"/>
-        </build-asset>
-
-        <build-asset project="thirdparty" repo="all">
-            <release-version branch="release/2023.13" build-id="20230310172501-e459dfc33a663c014e4f901561e1e8190740fae8-kP30VN"/>
-            <development-version branch="develop"/>
-            <include artifact-path="openssl_3/openssl_linux64_gcc11-2glibc2-17" dest-dir="input/openssl"/>
+            <include artifact-path="thirdparty/boost-linux-opt" dest-dir="input/monorepo-boost"/>
         </build-asset>
 
         <build-asset project="thirdparty" repo="boost">
             <release-version branch="release/sspl/Version_1_78_0" build-id="20220310141901-bdae372a9027e1760f105dc819023a49ef444765-xdQFp9"/>
             <include artifact-path="output" dest-dir="input"/>
         </build-asset>
+        <build-asset project="thirdparty" repo="all">
+            <release-version branch="release/2023.13" build-id="20230310172501-e459dfc33a663c014e4f901561e1e8190740fae8-kP30VN"/>
+            <development-version branch="develop"/>
+            <include artifact-path="openssl_3/openssl_linux64_gcc11-2glibc2-17" dest-dir="input/openssl"/>
+        </build-asset>
+
         <build-asset project="thirdparty" repo="gcc">
             <release-version branch="release/Version_11_2_0" build-id="20220310091547-cf8f7ca9572a3bc9a68f05138086815341a49224-cZ84iF"/>
             <include artifact-path="output" dest-dir="input"/>

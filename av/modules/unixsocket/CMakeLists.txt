@@ -71,12 +71,10 @@ target_link_libraries(unixsocket  PUBLIC
         scanmessages
         ${STD_FILESYSTEM_IF_REQUIRED}
         ${pluginapilib}
-        ${Boost_LIBRARIES}
         ${CAPNPROTO_LIBRARIES}
         )
 
 target_include_directories(unixsocket PUBLIC ${pluginapiinclude} ${CMAKE_SOURCE_DIR}/modules)
-target_include_directories(unixsocket SYSTEM PRIVATE ${BOOSTPATH})
 
 install(TARGETS unixsocket
         LIBRARY DESTINATION files/plugins/${PLUGIN_NAME}/lib64)

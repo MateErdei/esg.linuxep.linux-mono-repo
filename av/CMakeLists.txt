@@ -147,17 +147,7 @@ if(NOT DEFINED PLUGINAPIPATH)
 endif()
 set(DISTRIBUTION_TOOL_DIR ${PLUGINAPIPATH}/distribution)
 
-if(NOT DEFINED BOOSTPATH)
-    SET( BOOSTPATH ${REDIST})
-endif()
-SET(Boost_NO_WARN_NEW_VERSIONS ON)
-SET(BOOST_MIN_VERSION 1.78.0)
 
-SET (BOOST_LIBRARYDIR  ${BOOSTPATH}/boost/lib64)
-SET (BOOST_INCLUDEDIR ${BOOSTPATH}/boost/include)
-SET (BOOST_ROOT ${BOOSTPATH}/boost)
-
-find_package( Boost ${BOOST_MIN_VERSION} REQUIRED COMPONENTS program_options filesystem locale system)
 
 set(pluginapiinclude ${PLUGINAPIPATH}/include)
 set(LOG4CPLUS_INCLUDE_DIR ${pluginapiinclude})
@@ -231,6 +221,15 @@ set_target_properties(safestorelib PROPERTIES
 
 set(ZLIB_INPUT ${REDIST}/zlib)
 set(ZLIB_LIBRARY ${ZLIB_INPUT}/libz.so.1)
+set(BOOST_SUSI_LIBRARY ${REDIST}/boost/lib64/libboost_locale.so.1.78.0)
+set(BOOST_SUSI2_LIBRARY ${REDIST}/boost/lib64/libboost_system.so.1.78.0)
+
+set(BOOST_INCLUDEDIR ${INPUT}/monorepo-boost/)
+SET(BOOST_LIBRARYDIR  ${INPUT}/monorepo-boost/)
+
+add_imported_library(boost_locale SHARED  ${BOOST_LIBRARYDIR}/liblocale.so ${BOOST_INCLUDEDIR})
+
+add_imported_library(boost_program_options SHARED ${BOOST_LIBRARYDIR}/libprogram_options.so ${BOOST_INCLUDEDIR})
 
 set(JSON_INPUT ${pluginapiinclude}/thirdparty/nlohmann-json)
 

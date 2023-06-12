@@ -62,7 +62,7 @@ target_link_libraries(common  PUBLIC
         datatypes
         ${STD_FILESYSTEM_IF_REQUIRED}
         ${pluginapilib}
-        ${Boost_LIBRARIES}
+        boost_locale
         )
 
 target_include_directories(common PUBLIC ${pluginapiinclude} ${CMAKE_SOURCE_DIR}/modules ${JSON_INPUT})

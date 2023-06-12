@@ -38,7 +38,7 @@ target_include_directories(sync_versioned_files PUBLIC
 
 target_link_libraries(sync_versioned_files PUBLIC
         ${STD_FILESYSTEM_IF_REQUIRED}
-        ${Boost_LIBRARIES}
+        boost_program_options
         datatypes
         )
 install(TARGETS sync_versioned_files

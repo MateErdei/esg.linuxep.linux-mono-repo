@@ -9,7 +9,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <Common/Logging/SophosLoggerMacros.h>
 
 #include <string>
-#include <pluginapi/include/Common/Logging/LoggerConfig.h>
+#include <Common/Logging/LoggerConfig.h>
 
 log4cplus::Logger& getNamedScanRunnerLogger();
 

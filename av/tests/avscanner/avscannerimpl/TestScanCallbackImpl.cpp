@@ -2,7 +2,7 @@
 
 #include "ScanRunnerMemoryAppenderUsingTests.h"
 
-#include <pluginapi/include/Common/Logging/SophosLoggerMacros.h>
+#include <Common/Logging/SophosLoggerMacros.h>
 
 #include "avscanner/avscannerimpl/ScanCallbackImpl.h"
 #include <gtest/gtest.h>

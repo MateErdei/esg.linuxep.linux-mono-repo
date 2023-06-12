@@ -30,8 +30,9 @@ target_link_libraries(sophosthreatdetectorimpl  PUBLIC
         threat_scanner
         unixsocket
         datatypes
+        ${BOOST_SUSI_LIBRARY}
+        ${BOOST_SUSI2_LIBRARY}
         ${ZLIB_LIBRARY}
-        ${Boost_LIBRARIES}
         )
 
 target_include_directories(sophosthreatdetectorimpl PUBLIC ${pluginapiinclude} ${CMAKE_SOURCE_DIR}/modules ${BOOSTPATH}, ${ZLIB_INPUT})
