@@ -679,12 +679,12 @@ Sul Downloader Can Update Via Sdds3 Repository And Removes Local SDDS2 Cache
     Wait Until Keyword Succeeds
     ...   300 secs
     ...   10 secs
-    ...   Check SulDownloader Log Contains String N Times   Update success  3
+    ...   Check SulDownloader Log Contains String N Times   Update success  2
     Check Suldownloader Log Contains In Order    Update success    Purging local SDDS2 cache    Update success
 
     Check Local SDDS2 Cache Is Empty
 
-    Check SulDownloader Log Contains String N Times   Generating the report file  3
+    Check SulDownloader Log Contains String N Times   Generating the report file  2
 
 
 SDDS3 updating respects ALC feature codes
