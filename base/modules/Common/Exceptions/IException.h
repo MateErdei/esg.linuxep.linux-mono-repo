@@ -5,6 +5,7 @@
 #include "Location.h"
 
 #include <exception>
+#include <sstream>
 #include <stdexcept>
 
 namespace Common
@@ -14,7 +15,7 @@ namespace Common
         class IException : public std::runtime_error
         {
         public:
-            virtual ~IException() = default;
+            ~IException() override = default;
             explicit IException(const std::string& what)
                 :
                 std::runtime_error(what),
@@ -28,16 +29,15 @@ namespace Common
                 line_(line)
             {}
 
-            std::string what_with_location() const
+            [[nodiscard]] std::string what_with_location() const
             {
                 if (file_)
                 {
-                    return what() + ' ' + std::string(file_) + ':' + std::to_string(line_);
+                    std::ostringstream ost;
+                    ost << what() << ' ' << file_ << ':' << line_;
+                    return ost.str();
                 }
-                else
-                {
-                    return what();
-                }
+                return what();
             }
         protected:
             const char* file_;
