@@ -1,11 +1,9 @@
 *** Settings ***
-Suite Setup      Suite Setup Without Ostia
-Suite Teardown   Suite Teardown Without Ostia
+Suite Setup      Upgrade Resources Suite Setup
+Suite Teardown   Upgrade Resources Suite Teardown
 
-Test Setup       Test Setup
-Test Teardown    Run Keywords
-...                Stop Local SDDS3 Server   AND
-...                 Test Teardown
+Test Setup       Upgrade Resources Test Setup
+Test Teardown    Upgrade Resources SDDS3 Test Teardown
 
 Library    DateTime
 Library     ${LIBS_DIRECTORY}/FakeSDDS3UpdateCacheUtils.py
