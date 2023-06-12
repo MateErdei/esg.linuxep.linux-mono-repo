@@ -90,5 +90,5 @@ RA Plugin uploads a folder successfully with compression
     Log  ${result.stderr}
     Log  ${result.stdout}
     Should Be Equal As Integers    ${result.rc}    0   "zip utility failed: Reason ${result.stderr}"
-    File Should exist  /tmp/unpackzip/file.txt
-    File Should Contain  /tmp/unpackzip/file.txt     tempfilecontent
+    File Should exist  /tmp/unpackzip/compressionTest/file.txt
+    File Should Contain  /tmp/unpackzip/compressionTest/file.txt     tempfilecontent

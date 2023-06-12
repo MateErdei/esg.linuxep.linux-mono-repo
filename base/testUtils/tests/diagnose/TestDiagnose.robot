@@ -84,6 +84,14 @@ Diagnose Tool Gathers Logs When Run From Systemctl
     Create Directory  ${UNPACK_DIRECTORY}
     ${result} =   Run Process   unzip    ${SOPHOS_INSTALL}/base/remote-diagnose/output/${Files[0]}    -d    ${UNPACK_DIRECTORY}/
     Should Be Equal As Strings   ${result.rc}  0
+    # Check diagnose tar created
+    ${Files} =  List Directory  ${UNPACK_DIRECTORY}/
+    ${fileCount} =    Get length    ${Files}
+    Should Be Equal As Numbers  ${fileCount}  1
+    Should Contain    ${Files[0]}    sspl-diagnose
+
+
+    Set Suite Variable  ${DiagnoseOutput}   ${Files[0]}
 
     Check Diagnose Base Output
     Check Diagnose Output For System Command Files

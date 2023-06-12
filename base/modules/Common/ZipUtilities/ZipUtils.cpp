@@ -277,7 +277,6 @@ namespace Common::ZipUtilities
         auto fs = Common::FileSystem::fileSystem();
         std::vector<Path> filesToZip;
         bool fileOnly = false;
-        int startOfRelativePath = 1;
         if (fs->isFile(srcPath))
         {
             fileOnly = true;
@@ -285,11 +284,6 @@ namespace Common::ZipUtilities
         }
         else if (fs->isDirectory(srcPath))
         {
-            //strip off trailing slash so we can calculate relative paths correctly later on
-            if (Common::UtilityImpl::StringUtils::endswith(srcPath,"/"))
-            {
-                startOfRelativePath = 0;
-            }
             filesToZip = fs->listAllFilesInDirectoryTree(srcPath);
         }
         else
@@ -331,7 +325,13 @@ namespace Common::ZipUtilities
             }
             else
             {
-                relativeFilePath = fullFilePath.substr(srcPath.size() + startOfRelativePath);
+                std::string temp = srcPath;
+                if (Common::UtilityImpl::StringUtils::endswith(srcPath,"/"))
+                {
+                    temp = temp.substr(0, temp.size()-1);
+                }
+
+                relativeFilePath = fullFilePath.substr(temp.find_last_of("/")+1, fullFilePath.size());
             }
 
             unsigned long crcFile = 0;

@@ -45,11 +45,11 @@ Test Zip And Unzip Directory
     Log  ${result.stdout}
     Should Be Equal As Integers    ${result.rc}    0   "zip utility failed: Reason ${result.stderr}"
     Directory Should Not Be Empty  ${UNPACK_DIRECTORY}
-    ${extractedModTime} =    Get Last Modified Time    ${UNPACK_DIRECTORY}/test.txt
-    ${result}=    Run Process  ls -l ${UNPACK_DIRECTORY}/test.txt  shell=True
+    ${extractedModTime} =    Get Last Modified Time    ${UNPACK_DIRECTORY}/TestOutputDirectory/test.txt
+    ${result}=    Run Process  ls -l ${UNPACK_DIRECTORY}/TestOutputDirectory/test.txt  shell=True
     Log  ${result.stdout}
     Should Not Be Equal As Integers    ${extractedModTime}    ${0}    "Timestamp or extracted file not restored"
-    Ensure Chmod File Matches    ${UNPACK_DIRECTORY}/test.txt    ${preZipMode}
+    Ensure Chmod File Matches    ${UNPACK_DIRECTORY}/TestOutputDirectory/test.txt    ${preZipMode}
 
 Test Zip And Unzip Directory with trailing slash
     Create Directory   ${TAR_FILE_DIRECTORY}
@@ -77,11 +77,11 @@ Test Zip And Unzip Directory with trailing slash
     Log  ${result.stdout}
     Should Be Equal As Integers    ${result.rc}    0   "zip utility failed: Reason ${result.stderr}"
     Directory Should Not Be Empty  ${UNPACK_DIRECTORY}
-    ${extractedModTime} =    Get Last Modified Time    ${UNPACK_DIRECTORY}/test.txt
-    ${result}=    Run Process  ls -l ${UNPACK_DIRECTORY}/test.txt  shell=True
+    ${extractedModTime} =    Get Last Modified Time    ${UNPACK_DIRECTORY}/TestOutputDirectory/test.txt
+    ${result}=    Run Process  ls -l ${UNPACK_DIRECTORY}/TestOutputDirectory/test.txt  shell=True
     Log  ${result.stdout}
     Should Not Be Equal As Integers    ${extractedModTime}    ${0}    "Timestamp or extracted file not restored"
-    Ensure Chmod File Matches    ${UNPACK_DIRECTORY}/test.txt    ${preZipMode}
+    Ensure Chmod File Matches    ${UNPACK_DIRECTORY}/TestOutputDirectory/test.txt    ${preZipMode}
 Test Zip And Unzip Directory With Password
     Create Directory   ${TAR_FILE_DIRECTORY}
     Create File   ${TAR_FILE_DIRECTORY}/test.txt   this is a test file

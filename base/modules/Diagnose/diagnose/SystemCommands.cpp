@@ -163,16 +163,23 @@ namespace diagnose
 
     void SystemCommands::zipDiagnoseFolder(const std::string& srcPath, const std::string& destPath) const
     {
+        Common::UtilityImpl::FormattedTime formattedTime;
+        std::string timestamp = formattedTime.currentTime();
+        std::replace(timestamp.begin(), timestamp.end(), ' ', '_');
+        std::string prefix = "sspl-diagnose_" + timestamp ;
 
+        std::string prefixpath = Common::FileSystem::join(Common::FileSystem::dirName(srcPath), prefix);
+        auto fs = fileSystem();
+        fs->moveFile(srcPath,prefixpath);
         LOGINFO("Running zip on: " << srcPath);
         std::string zipFileName = "sspl.zip";
         std::string zipfiletemp = Common::FileSystem::join(destPath, zipFileName + ".temp");
         std::string zipfile = Common::FileSystem::join(destPath, zipFileName);
 
-        if (Common::ZipUtilities::zipUtils().zip(srcPath, zipfiletemp, true) != 0)
+        if (Common::ZipUtilities::zipUtils().zip(prefixpath, zipfiletemp, true) != 0)
         {
             std::stringstream errormsg;
-            errormsg << "Error zipping " << srcPath;
+            errormsg << "Error zipping " << prefixpath;
             throw std::runtime_error(errormsg.str());
         }
 
