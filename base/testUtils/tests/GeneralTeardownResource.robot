@@ -86,10 +86,13 @@ Dump All Logs
     Dump Teardown Log    ${SOPHOS_INSTALL}/tmp/ServerProtectionLinux-Plugin-MDR/removedFiles_manifest.dat
 
     Dump Teardown Log    ${SOPHOS_INSTALL}/base/VERSION.ini
-    Dump Teardown Log    ${SOPHOS_INSTALL}/plugins/mtr/VERSION.ini
-    Dump Teardown Log    ${SOPHOS_INSTALL}/plugins/liveresponse/VERSION.ini
-    Dump Teardown Log    ${SOPHOS_INSTALL}/plugins/edr/VERSION.ini
     Dump Teardown Log    ${SOPHOS_INSTALL}/plugins/av/VERSION.ini
+    Dump Teardown Log    ${SOPHOS_INSTALL}/plugins/edr/VERSION.ini
+    Dump Teardown Log    ${SOPHOS_INSTALL}/plugins/eventjournaler/VERSION.ini
+    Dump Teardown Log    ${SOPHOS_INSTALL}/plugins/liveresponse/VERSION.ini
+    Dump Teardown Log    ${SOPHOS_INSTALL}/plugins/mtr/VERSION.ini
+    Dump Teardown Log    ${SOPHOS_INSTALL}/plugins/responseactions/VERSION.ini
+    Dump Teardown Log    ${SOPHOS_INSTALL}/plugins/runtimedetections/VERSION.ini
 
     Dump Teardown Log    ${WD_ACTUAL_USER_GROUP_IDS}
     Dump Teardown Log    ${WD_REQUESTED_USER_GROUP_IDS}
