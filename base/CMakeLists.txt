@@ -191,15 +191,6 @@ if (NOT ${unpack_result} EQUAL 0)
     message(FATAL_ERROR "Unpacking build dependencies failed")
 endif()
 
-execute_process(
-        COMMAND bash patch_boost.sh ${INPUT} ${CMAKE_CURRENT_SOURCE_DIR}
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-        RESULT_VARIABLE patch_boost_result)
-
-if (NOT ${patch_boost_result} EQUAL 0)
-    message(FATAL_ERROR "Patching boost failed")
-endif()
-
 ## Find 3rd party libraries
 set( BOOST_INPUT ${INPUT}/boost )
 set( CURL_INPUT ${INPUT}/curl )
@@ -283,7 +274,7 @@ target_link_libraries(openssl_ssl_static INTERFACE openssl_crypto_static)
 
 set(NLOHMANN_JSON_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/nlohmann-json)
 
-set( BOOST_INCLUDE_DIR ${BOOST_INPUT}/include )
+set( BOOST_INCLUDE_DIR ${BOOST_INPUT} )
 
 set( PROTOBUF_INPUT ${INPUT}/protobuf )
 set(Protobuf_root ${PROTOBUF_INPUT}/install64)

@@ -101,13 +101,17 @@ class HttpsServer(object):
 
         if root_ca:
             keyfile_path = "localhost.key"
+            #generate private key
             subprocess.call('/usr/bin/openssl genrsa -out localhost.key 2048', shell=True)
 
+            #generate root cert
             subprocess.call('/usr/bin/openssl req -new -x509 -key localhost.key -subj {} -out /tmp/ca.crt'.format(subject), shell=True)
 
+            #generate csr info
             subprocess.call('/usr/bin/openssl req -new -sha256 -key localhost.key -nodes -subj {} -out localhost.csr'
                             .format(subject), shell=True)
 
+            #generate child cert
             subprocess.call('/usr/bin/openssl x509 -req -in localhost.csr -CA /tmp/ca.crt -CAkey localhost.key -CAcreateserial -out {}'.format(certfile_path), shell=True)
 
         else:

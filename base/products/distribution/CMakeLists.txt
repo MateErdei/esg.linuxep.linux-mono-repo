@@ -33,9 +33,6 @@ function(add_third_party_library LIB LIBRARY_PATH)
     endforeach()
 endfunction(add_third_party_library)
 
-foreach (LIB boost_atomic boost_chrono boost_date_time boost_filesystem boost_regex boost_system boost_thread)
-    add_third_party_library(${LIB} ${BOOST_INPUT}/lib64)
-endforeach(LIB)
 
 add_third_party_library(expat ${EXPAT_INPUT})
 add_third_party_library(zmq ${ZEROMQ_INPUT})

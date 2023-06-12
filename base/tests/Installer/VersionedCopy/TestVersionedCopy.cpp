@@ -6,7 +6,7 @@
 ///////////////////////////////////////////////////////////
 
 #include <Installer/VersionedCopy/VersionedCopy.h>
-#include <boost/filesystem.hpp>
+#include <filesystem>
 #include <gtest/gtest.h>
 #include <tests/Common/Helpers/TempDir.h>
 
@@ -14,7 +14,7 @@ namespace
 {
     using Installer::VersionedCopy::VersionedCopy;
 
-    void deleteTree(const Path& path) { boost::filesystem::remove_all(path); }
+    void deleteTree(const Path& path) { std::filesystem::remove_all(path); }
 
     void deleteTree(const Tests::TempDir& tempdir, const Path& rel_path) { deleteTree(tempdir.absPath(rel_path)); }
 

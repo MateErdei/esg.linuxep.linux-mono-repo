@@ -44,13 +44,6 @@ o710, sophos-spl-group, root, /opt/sophos-spl/base/bin/machineid.0
 o710, sophos-spl-group, root, /opt/sophos-spl/base/bin/python3.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libapplicationconfigurationimpl.so.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libatomic.so.1.2.0.0
-o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libboost_atomic.so.1.78.0.0
-o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libboost_chrono.so.1.78.0.0
-o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libboost_date_time.so.1.78.0.0
-o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libboost_filesystem.so.1.78.0.0
-o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libboost_regex.so.1.78.0.0
-o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libboost_system.so.1.78.0.0
-o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libboost_thread.so.1.78.0.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libbzip2.so.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libcentralregistrationimpl.so.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libcurl.so.0

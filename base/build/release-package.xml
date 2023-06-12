@@ -9,10 +9,6 @@
             <release-version branch="release/Version_3_0_0" build-id="20230322153623-e2a0e8a63ecc991fc33e349f9777efe2e7718942-0OdmtP"/>
             <include artifact-path="output" dest-dir="/build/input/"/>
         </build-asset>
-        <build-asset project="thirdparty" repo="boost">
-            <release-version branch="release/sspl/Version_1_78_0" build-id="20220310141901-bdae372a9027e1760f105dc819023a49ef444765-xdQFp9"/>
-            <include artifact-path="output" dest-dir="/build/input"/>
-        </build-asset>
         <build-asset project="thirdparty" repo="gcc">
             <release-version branch="release/Version_11_2_0" build-id="20220310091547-cf8f7ca9572a3bc9a68f05138086815341a49224-cZ84iF"/>
             <include artifact-path="output" dest-dir="/build/input"/>
@@ -45,9 +41,11 @@
             <include artifact-path="thirdparty/minizip-linux-opt" dest-dir="/build/redist/minizip"/>
             <include artifact-path="thirdparty/minizip-lzma-linux-opt" dest-dir="/build/redist/lzma"/>
             <include artifact-path="thirdparty/bzip2-linux-opt" dest-dir="/build/redist/bzip2"/>
+
             <include artifact-path="thirdparty/gsl" dest-dir="/build/redist/gsl"/>
             <include artifact-path="thirdparty/pugixml-linux-opt" dest-dir="/build/redist/pugixml"/>
             <include artifact-path="thirdparty/curl-linux-opt" dest-dir="/build/redist/curl"/>
+            <include artifact-path="thirdparty/boost-linux-opt" dest-dir="/build/redist/boost"/>
         </build-asset>
 
         <build-asset project="thirdparty" repo="all">

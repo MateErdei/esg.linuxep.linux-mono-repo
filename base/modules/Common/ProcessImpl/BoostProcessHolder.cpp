@@ -10,6 +10,7 @@
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 #pragma GCC diagnostic ignored "-Wunused-result"
 #pragma GCC diagnostic ignored "-Wdeprecated-copy"
+#pragma GCC diagnostic ignored "-Wsign-compare"
 #include <Common/FileSystem/IFilePermissions.h>
 #include <Common/FileSystemImpl/FilePermissionsImpl.h>
 #include <boost/asio/read.hpp>
