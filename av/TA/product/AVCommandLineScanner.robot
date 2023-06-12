@@ -514,6 +514,19 @@ CLS Can Detect PUAs
     Log  output is ${output}
     Should Be Equal As Integers  ${rc}  ${CLEAN_RESULT}
 
+
+CLS Can Detect PsExec
+    [Tags]  psexec  disabled
+    DeObfuscate File  ${RESOURCES_PATH}/file_samples_obfuscated/PsExec.exe  ${NORMAL_DIRECTORY}/PsExec.exe
+
+    ${rc}   ${output} =    Run And Return Rc And Output    ${CLI_SCANNER_PATH} --detect-puas ${NORMAL_DIRECTORY}/PsExec.exe
+
+    Log  return code is ${rc}
+    Log  output is ${output}
+    Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
+
+
+
 CLS exclude PUA
     Create File     ${NORMAL_DIRECTORY}/naughty_eicar_folder/eicar_pua    ${EICAR_PUA_STRING}
 

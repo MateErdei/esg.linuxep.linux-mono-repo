@@ -49,6 +49,8 @@ def delete_users_and_groups():
         subprocess.run(['userdel', 'sophos-spl-av'])
     if user_exists('sophos-spl-threat-detector'):
         subprocess.run(['userdel', 'sophos-spl-threat-detector'])
+    if user_exists('sophos-spl-user'):
+        subprocess.run(['userdel', 'sophos-spl-user'])
     if group_exists('sophos-spl-group'):
         subprocess.run(['groupdel', 'sophos-spl-group'])
 

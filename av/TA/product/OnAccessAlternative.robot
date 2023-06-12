@@ -62,7 +62,10 @@ On Access Test Setup
     Register Cleanup  Check For Coredumps  ${TEST NAME}
     Register Cleanup  Check Dmesg For Segfaults
     Register Cleanup  Exclude CustomerID Failed To Read Error
-    Register On Fail  Dump log  ${ON_ACCESS_LOG_PATH}
+    Register On Fail  Dump log   ${ON_ACCESS_LOG_PATH}
+    Register On Fail  Dump Log   ${THREAT_DETECTOR_LOG_PATH}
+    Register On Fail  Dump Log   ${AV_LOG_PATH}
+
 
 
 On Access Test Teardown
@@ -71,10 +74,6 @@ On Access Test Teardown
     FakeWatchdog.Stop Sophos Threat Detector Under Fake Watchdog
 
     Run Teardown Functions
-
-    Dump Log On Failure   ${ON_ACCESS_LOG_PATH}
-    Dump Log On Failure   ${THREAT_DETECTOR_LOG_PATH}
-    Dump Log On Failure   ${AV_LOG_PATH}
 
     Remove File      ${AV_PLUGIN_PATH}/log/soapd.log*
     Component Test TearDown
@@ -204,6 +203,8 @@ On Access Does Not Detect PUAs If PUA Detecion Is Disabled In Policy
 
 
 On Access Does Not Detect PUAs In The Allow List
+    Register On Fail  dump log  ${SUSI_STARTUP_SETTINGS_FILE_CHROOT}
+    Register On Fail  dump log  ${AV_VAR_DIR}/on_access_policy.json
     ${avmark} =  get_av_log_mark
     ${threat_detector_mark} =  Get Sophos Threat Detector Log Mark
     Create Sav Policy With On Access Enabled And PUA Allowed  ${TEMP_SAV_POLICY_FILENAME}  <puaName>PsExec</puaName>
@@ -236,14 +237,14 @@ On Access Does Not Detect PUAs In The Allow List
 
     ${oamark2} =  get_on_access_log_mark
     ${testfile3} =    Set Variable    /tmp_test/eicar_pua2.com
-    ${testfile4} =    Set Variable   /tmp_test/PsExec2.exe
+    ${testfile4} =    Set Variable   /tmp_test/eicar.com
     Create File  ${testfile3}   ${EICAR_PUA_STRING}
     Register Cleanup  Remove Files  ${testfile3}
-    DeObfuscate File  ${RESOURCES_PATH}/file_samples_obfuscated/PsExec.exe  ${testfile4}
+    Create File  ${testfile4}   ${EICAR_STRING}
     Register Cleanup  Remove Files  ${testfile4}
     Wait for on access log contains after mark  On-close event for ${testfile3} from  mark=${oamark2}
     Wait for on access log contains after mark  On-close event for ${testfile4} from  mark=${oamark2}
-    Wait for on access log contains after mark  detected "${testfile4}" is infected with PsExec  mark=${oamark2}
+    Wait for on access log contains after mark  detected "${testfile4}" is infected with EICAR-AV-Test  mark=${oamark2}
     Check on access log does not contain after mark  detected "${testfile3}" is infected with EICAR-PUA-Test  mark=${oamark2}
 
 On Access Applies Config Changes When The Mounts Change
