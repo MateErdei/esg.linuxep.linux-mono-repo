@@ -970,6 +970,12 @@ class LogUtils(object):
         logger.error("Version String Not Found")
         raise AssertionError("Version String Not Found")
 
+    def get_rtd_version_number_from_ini_file(self, path):
+        try:
+            return self.get_value_from_ini_file("RTD_PRODUCT_VERSION", path)
+        except KeyError:
+            return self.get_version_number_from_ini_file(path)
+
     def version_number_in_ini_file_should_be(self, file, expected_version):
         actual_version = self.get_version_number_from_ini_file(file)
         if actual_version != expected_version:

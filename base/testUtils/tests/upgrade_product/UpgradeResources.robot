@@ -357,13 +357,14 @@ Wait For Version Files to Update
     ...  Version Number In Ini File Should Be    ${InstalledRTDPluginVersionFile}    ${expectedVersions["rtdVersion"]}
 
 Get Current Installed Versions
-    ${BaseReleaseVersion} =     Get Version Number From Ini File    ${InstalledBaseVersionFile}
-    ${AVReleaseVersion} =       Get Version Number From Ini File    ${InstalledAVPluginVersionFile}
-    ${EDRReleaseVersion} =      Get Version Number From Ini File    ${InstalledEDRPluginVersionFile}
-    ${EJReleaseVersion} =       Get Version Number From Ini File    ${InstalledEJPluginVersionFile}
-    ${LRReleaseVersion} =       Get Version Number From Ini File    ${InstalledLRPluginVersionFile}
-    ${MTRReleaseVersion} =      Get Version Number From Ini File    ${InstalledMDRPluginVersionFile}
-    ${RTDReleaseVersion} =      Get Version Number From Ini File    ${InstalledRTDPluginVersionFile}
+    ${BaseReleaseVersion} =     Get Version Number From Ini File        ${InstalledBaseVersionFile}
+    ${AVReleaseVersion} =       Get Version Number From Ini File        ${InstalledAVPluginVersionFile}
+    ${EDRReleaseVersion} =      Get Version Number From Ini File        ${InstalledEDRPluginVersionFile}
+    ${EJReleaseVersion} =       Get Version Number From Ini File        ${InstalledEJPluginVersionFile}
+    ${LRReleaseVersion} =       Get Version Number From Ini File        ${InstalledLRPluginVersionFile}
+    ${MTRReleaseVersion} =      Get Version Number From Ini File        ${InstalledMDRPluginVersionFile}
+    ${RTDReleaseVersion} =      Get RTD Version Number From Ini File    ${InstalledRTDPluginVersionFile}
+
     &{versions} =    Create Dictionary
     ...    baseVersion=${BaseReleaseVersion}
     ...    avVersion=${AVReleaseVersion}
