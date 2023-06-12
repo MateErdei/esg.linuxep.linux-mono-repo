@@ -480,8 +480,8 @@ namespace Common
             LOGDEBUG("Monitoring of io in place");
 
             m_result = asyncWaitChildProcessToFinish();
-            LOGDEBUG("Process Running");
             m_pid = m_child->id();
+            LOGDEBUG("Process Running " << m_pid);
         }
 
         BoostProcessHolder::~BoostProcessHolder()
