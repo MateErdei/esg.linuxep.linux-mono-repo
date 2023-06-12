@@ -54,7 +54,7 @@ def get_warehouse_branches(branch_filter, url, type, version_separator):
     if type == "current_shipping":
         for path in all_paths:
             try:
-                if int(path.strip(branch_filter).split(version_separator)[0]) <= 4:
+                if int(path.replace(branch_filter, "").split(version_separator)[0]) <= 4:
                     release_branches.append(path)
             except ValueError:
                 pass
