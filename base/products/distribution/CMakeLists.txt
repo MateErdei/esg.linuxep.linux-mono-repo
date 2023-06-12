@@ -26,16 +26,22 @@ function(add_third_party_library LIB LIBRARY_PATH)
     set(third_party_libs ${third_party_libs} ${FOUND_LIB_ABSOLUTE} PARENT_SCOPE)
 
     # Third party libraries also required by RA plugin
-    foreach(RA_LIB expat zmq protobuf log4cplus)
+    foreach(RA_LIB expat zmq protobuf log4cplus boost_system)
         if (${LIB} STREQUAL ${RA_LIB})
             set(third_party_libs_ra ${third_party_libs_ra} ${FOUND_LIB_ABSOLUTE} PARENT_SCOPE)
         endif()
     endforeach()
 endfunction(add_third_party_library)
 
-foreach (LIB boost_atomic boost_chrono boost_date_time boost_filesystem boost_regex boost_system boost_thread boost_locale)
+foreach (LIB boost_atomic boost_chrono boost_date_time boost_filesystem boost_regex boost_system boost_thread)
     add_third_party_library(${LIB} ${BOOST_INPUT}/lib64)
 endforeach(LIB)
+
+function(add_third_party_library_ra_only LIB LIBRARY_PATH)
+    FindLibraryFullPath(FOUND_LIB_ABSOLUTE ${LIB} ${LIBRARY_PATH})
+    set(third_party_libs_ra ${third_party_libs_ra} ${FOUND_LIB_ABSOLUTE} PARENT_SCOPE)
+endfunction(add_third_party_libraryra_only)
+add_third_party_library_ra_only(boost_locale ${BOOST_INPUT}/lib64)
 
 add_third_party_library(expat ${EXPAT_INPUT})
 add_third_party_library(zmq ${ZEROMQ_INPUT})
