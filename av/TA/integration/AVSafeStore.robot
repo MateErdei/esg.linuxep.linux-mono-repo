@@ -1086,34 +1086,36 @@ SafeStore Quarantines Pua Detection
     Send Flags Policy To Base  flags_policy/flags_safestore_enabled.json
     Wait For Log Contains From Mark  ${av_mark}  SafeStore flag set. Setting SafeStore to enabled.
 
-    DeObfuscate File  ${RESOURCES_PATH}/file_samples_obfuscated/PsExec.exe  ${NORMAL_DIRECTORY}/PsExec.exe
+    ${threat_path} =  Set Variable  ${NORMAL_DIRECTORY}/eicar_pua
+
+    Create File     ${threat_path}    ${EICAR_PUA_STRING}
 
     ${av_mark} =  mark_log_size  ${AV_LOG_PATH}
-    Run Process  ${CLI_SCANNER_PATH}  --detect-puas  ${NORMAL_DIRECTORY}/PsExec.exe
+    Run Process  ${CLI_SCANNER_PATH}  --detect-puas  ${threat_path}
 
-    Check Log Does Not Contain After Mark  ${AV_LOG_PATH}  ${NORMAL_DIRECTORY}/PsExec.exe was not quarantined due to being a PUA    ${av_mark}
+    Check Log Does Not Contain After Mark  ${AV_LOG_PATH}  ${threat_path} was not quarantined due to being a PUA    ${av_mark}
 
     ${correlation_id} =  Wait Until Base Has Detection Event
     ...  user_id=n/a
-    ...  name=PsExec
+    ...  name=EICAR-PUA-Test
     ...  threat_type=2
     ...  origin=3
     ...  remote=false
-    ...  sha256=3337e3875b05e0bfba69ab926532e3f179e8cfbf162ebb60ce58a0281437a7ef
-    ...  path=${NORMAL_DIRECTORY}/PsExec.exe
+    ...  sha256=4ecad5a0fce22aae40a93cc7a68a6fa53658b75293f9ff0f06503451c7bf177a
+    ...  path=${threat_path}
 
     Wait Until Base Has Core Clean Event
     ...  alert_id=${correlation_id}
     ...  succeeded=1
     ...  origin=3
     ...  result=0
-    ...  path=${NORMAL_DIRECTORY}/PsExec.exe
+    ...  path=${threat_path}
 
-    File Should Not Exist  ${NORMAL_DIRECTORY}/PsExec.exe
+    File Should Not Exist  ${threat_path}
 
     ${print_tool_result} =  Run Process  ${AV_TEST_TOOLS}/safestore_print_tool
     Log  ${print_tool_result.stdout}
-    Should Contain  ${print_tool_result.stdout}  PsExec.exe
+    Should Contain  ${print_tool_result.stdout}  eicar_pua
 
 Threat Can Be Restored From Persisted SafeStore Database
     Check AV Plugin Running
