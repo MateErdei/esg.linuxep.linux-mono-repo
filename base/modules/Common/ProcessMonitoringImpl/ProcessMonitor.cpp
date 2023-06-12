@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2019-2023 Sophos Limited. All rights reserved.
 
 #include "ProcessMonitor.h"
 
@@ -61,7 +57,7 @@ namespace Common::ProcessMonitoringImpl
         Common::ZeroMQWrapper::IHasFDPtr callbackFD = poller->addEntry(
             m_processTerminationCallbackPipe->readFd(), Common::ZeroMQWrapper::IPoller::PollDirection::POLLIN);
 
-            for (auto& socketHandleFunction : m_socketHandleFunctionList)
+        for (auto& socketHandleFunction : m_socketHandleFunctionList)
         {
             poller->addEntry(*socketHandleFunction.first, Common::ZeroMQWrapper::IPoller::PollDirection::POLLIN);
         }

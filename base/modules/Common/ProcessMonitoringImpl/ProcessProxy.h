@@ -1,4 +1,4 @@
-// Copyright 2019-2022, Sophos Limited.  All rights reserved.
+// Copyright 2019-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
@@ -15,6 +15,7 @@ namespace Common::ProcessMonitoringImpl
     class ProcessProxy : public Common::ProcessMonitoring::IProcessProxy
     {
     public:
+        using exit_status_t = Common::ProcessMonitoring::IProcessProxy::exit_status_t;
         static constexpr int RESTART_EXIT_CODE = 77;
         explicit ProcessProxy(Common::Process::IProcessInfoPtr processInfo);
         ~ProcessProxy() noexcept override;
@@ -119,6 +120,8 @@ namespace Common::ProcessMonitoringImpl
             int m_lastExit = 0;
 
         };
+
+        void notifyProcessTerminationCallbackPipe();
 
         /**
          * Pipe that we notify when the process is terminating, during the callback from BoostProcessHolder

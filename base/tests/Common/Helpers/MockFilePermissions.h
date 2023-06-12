@@ -38,13 +38,10 @@ class IgnoreFilePermissions
 public:
     IgnoreFilePermissions()
     {
-        auto mockFilePermissions = new NiceMock<MockFilePermissions>();
+        auto mockFilePermissions = std::make_unique<NiceMock<MockFilePermissions>>();
         ON_CALL(*mockFilePermissions, chmod(_, _)).WillByDefault(Return());
         ON_CALL(*mockFilePermissions, chown(A<const Path&>(), A<const std::string&>(), A<const std::string&>())).WillByDefault(Return());
-
-        std::unique_ptr<MockFilePermissions> mockIFilePermissionsPtr =
-            std::unique_ptr<MockFilePermissions>(mockFilePermissions);
-        Tests::replaceFilePermissions(std::move(mockIFilePermissionsPtr));
+        Tests::replaceFilePermissions(std::move(mockFilePermissions));
     }
     ~IgnoreFilePermissions()
     {

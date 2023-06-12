@@ -1,4 +1,4 @@
-// Copyright 2019-2022, Sophos Limited.  All rights reserved.
+// Copyright 2019-2023 Sophos Limited. All rights reserved.
 
 #include "ProcessProxy.h"
 
@@ -39,7 +39,7 @@ namespace Common::ProcessMonitoringImpl
         m_sharedState.m_process->setNotifyProcessFinishedCallBack([this](){
                                                                       LOGDEBUG("Notify process finished callback called");
                                                                       m_termination_callback_called.store(true);
-                                                                      m_processTerminationCallbackPipe->notify(); // Will definitely happen after the store
+                                                                      notifyProcessTerminationCallbackPipe(); // Will definitely happen after the store
                                                                   });
     }
 
@@ -320,6 +320,13 @@ namespace Common::ProcessMonitoringImpl
     {
         std::lock_guard<std::mutex> lock(m_sharedState.m_mutex);
         return m_sharedState.m_enabled;
+    }
+    void ProcessProxy::notifyProcessTerminationCallbackPipe()
+    {
+        if (m_processTerminationCallbackPipe)
+        {
+            m_processTerminationCallbackPipe->notify();
+        }
     }
 
 } // namespace Common::ProcessMonitoringImpl

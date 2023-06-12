@@ -1,18 +1,15 @@
 // Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #include "MockIWatchdogRequest.h"
-#include "IProcessException.h"
+#include "ProcessReplacement.h"
 
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
-#include <Common/FileSystemImpl/FilePermissionsImpl.h>
-#include <Common/FileSystemImpl/FileSystemImpl.h>
 #include <Common/ZeroMQWrapper/ISocketRequester.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 #include <modules/Common/PluginApiImpl/PluginResourceManagement.h>
 #include <modules/Common/PluginCommunicationImpl/PluginProxy.h>
 #include <modules/Common/ProcessImpl/ProcessImpl.h>
-#include <tests/Common/Helpers/FilePermissionsReplaceAndRestore.h>
 #include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
 #include <tests/Common/Helpers/LogInitializedTests.h>
 #include <tests/Common/Helpers/MockFilePermissions.h>
@@ -22,18 +19,10 @@
 #include <watchdog/watchdogimpl/Watchdog.h>
 #include <watchdog/watchdogimpl/WatchdogServiceLine.h>
 
+#include <utility>
+
 namespace
 {
-    class ProcessReplacement
-    {
-    public:
-        ProcessReplacement(std::function<std::unique_ptr<Common::Process::IProcess>()> functor)
-        {
-            Common::ProcessImpl::ProcessFactory::instance().replaceCreator(functor);
-        }
-        ~ProcessReplacement() { Common::ProcessImpl::ProcessFactory::instance().restoreCreator(); }
-    };
-
     class TestWatchdogServiceLine : public LogOffInitializedTests
     {
         IgnoreFilePermissions ignoreFilePermissions;
@@ -68,19 +57,19 @@ namespace
     }
 } // namespace
 
-TEST_F(TestWatchdogServiceLine, Construction) // NOLINT
+TEST_F(TestWatchdogServiceLine, Construction) 
 {
-    EXPECT_NO_THROW(watchdog::watchdogimpl::WatchdogServiceLine WatchdogServiceLine(m_context, getDummyPluginNames)); // NOLINT
+    EXPECT_NO_THROW(watchdog::watchdogimpl::WatchdogServiceLine WatchdogServiceLine(m_context, getDummyPluginNames)); 
 }
 
-TEST_F(TestWatchdogServiceLine, requestUpdateServiceThrowsExceptionIfNotWatchdogServiceIsAvailable) // NOLINT
+TEST_F(TestWatchdogServiceLine, requestUpdateServiceThrowsExceptionIfNotWatchdogServiceIsAvailable) 
 {
     EXPECT_THROW(
         watchdog::watchdogimpl::WatchdogServiceLine::requestUpdateService(*m_context),
         watchdog::watchdogimpl::WatchdogServiceException);
 }
 
-TEST_F(TestWatchdogServiceLine, requestUpdateServiceWillIndirectlyTriggerSophosSplUpdate) // NOLINT
+TEST_F(TestWatchdogServiceLine, requestUpdateServiceWillIndirectlyTriggerSophosSplUpdate) 
 {
     ProcessReplacement processReplacement([]() {
         auto mockProcess = new StrictMock<MockProcess>();
@@ -96,7 +85,7 @@ TEST_F(TestWatchdogServiceLine, requestUpdateServiceWillIndirectlyTriggerSophosS
     watchdog::watchdogimpl::WatchdogServiceLine::requestUpdateService(*m_context);
 }
 
-TEST_F(TestWatchdogServiceLine, requestUpdateServiceWillThrowExceptionIfSophosUpdateFails) // NOLINT
+TEST_F(TestWatchdogServiceLine, requestUpdateServiceWillThrowExceptionIfSophosUpdateFails) 
 {
     ProcessReplacement processReplacement([]() {
         auto mockProcess = new StrictMock<MockProcess>();
@@ -114,7 +103,7 @@ TEST_F(TestWatchdogServiceLine, requestUpdateServiceWillThrowExceptionIfSophosUp
         watchdog::watchdogimpl::UpdateServiceReportError);
 }
 
-TEST_F(TestWatchdogServiceLine, WatchdogServiceWillShouldIgnoreInvalidRequests) // NOLINT
+TEST_F(TestWatchdogServiceLine, WatchdogServiceWillShouldIgnoreInvalidRequests) 
 {
     watchdog::watchdogimpl::WatchdogServiceLine WatchdogServiceLine(m_context, getDummyPluginNames);
 
@@ -133,7 +122,7 @@ TEST_F(TestWatchdogServiceLine, WatchdogServiceWillShouldIgnoreInvalidRequests) 
     EXPECT_EQ(returnedStatus.at(0).statusXml, "");
 }
 
-TEST_F(TestWatchdogServiceLine, WatchdogTelemetryReturnsExpectedData) // NOLINT
+TEST_F(TestWatchdogServiceLine, WatchdogTelemetryReturnsExpectedData) 
 {
     watchdog::watchdogimpl::WatchdogServiceLine WatchdogServiceLine(m_context, getDummyPluginNames);
     auto pluginProxy = getPluginProxyToTest();
@@ -158,7 +147,7 @@ TEST_F(TestWatchdogServiceLine, WatchdogTelemetryReturnsExpectedData) // NOLINT
     EXPECT_EQ(pluginProxy.getTelemetry(), "{\"DummyPlugin1-unexpected-restarts\":0,\"DummyPlugin2-unexpected-restarts\":0,\"health\":0,\"product-disk-usage\":900000}");
 }
 
-TEST_F(TestWatchdogServiceLine, WatchdogTelemetryReturnsExpectedDataWhenProductDiskUsageCommandFails) // NOLINT
+TEST_F(TestWatchdogServiceLine, WatchdogTelemetryReturnsExpectedDataWhenProductDiskUsageCommandFails) 
 {
     watchdog::watchdogimpl::WatchdogServiceLine WatchdogServiceLine(m_context, getDummyPluginNames);
     auto pluginProxy = getPluginProxyToTest();
@@ -182,7 +171,7 @@ TEST_F(TestWatchdogServiceLine, WatchdogTelemetryReturnsExpectedDataWhenProductD
     EXPECT_EQ(pluginProxy.getTelemetry(), "{\"DummyPlugin1-unexpected-restarts\":0,\"DummyPlugin2-unexpected-restarts\":0,\"health\":0}");
 }
 
-TEST_F(TestWatchdogServiceLine, WatchdogTelemetryReturnsExpectedDataWhenProductDiskUsageCommandReturnsSingleString) // NOLINT
+TEST_F(TestWatchdogServiceLine, WatchdogTelemetryReturnsExpectedDataWhenProductDiskUsageCommandReturnsSingleString) 
 {
     watchdog::watchdogimpl::WatchdogServiceLine WatchdogServiceLine(m_context, getDummyPluginNames);
     auto pluginProxy = getPluginProxyToTest();
@@ -209,7 +198,7 @@ TEST_F(TestWatchdogServiceLine, WatchdogTelemetryReturnsExpectedDataWhenProductD
     EXPECT_EQ(pluginProxy.getTelemetry(), "{\"DummyPlugin1-unexpected-restarts\":0,\"DummyPlugin2-unexpected-restarts\":0,\"health\":0}");
 }
 
-TEST_F(TestWatchdogServiceLine, WatchdogTelemetryReturnsExpectedDataWhenProductDiskUsageCommandReturnsString) // NOLINT
+TEST_F(TestWatchdogServiceLine, WatchdogTelemetryReturnsExpectedDataWhenProductDiskUsageCommandReturnsString) 
 {
     watchdog::watchdogimpl::WatchdogServiceLine WatchdogServiceLine(m_context, getDummyPluginNames);
     auto pluginProxy = getPluginProxyToTest();
@@ -234,7 +223,7 @@ TEST_F(TestWatchdogServiceLine, WatchdogTelemetryReturnsExpectedDataWhenProductD
     EXPECT_EQ(pluginProxy.getTelemetry(), "{\"DummyPlugin1-unexpected-restarts\":0,\"DummyPlugin2-unexpected-restarts\":0,\"health\":0}");
 }
 
-TEST_F(TestWatchdogServiceLine, WatchdogTelemetryReturnsExpectedDataWhenProductDiskUsageCommandTimesOut) // NOLINT
+TEST_F(TestWatchdogServiceLine, WatchdogTelemetryReturnsExpectedDataWhenProductDiskUsageCommandTimesOut) 
 {
     watchdog::watchdogimpl::WatchdogServiceLine WatchdogServiceLine(m_context, getDummyPluginNames);
     auto pluginProxy = getPluginProxyToTest();
@@ -258,7 +247,7 @@ TEST_F(TestWatchdogServiceLine, WatchdogTelemetryReturnsExpectedDataWhenProductD
     EXPECT_EQ(pluginProxy.getTelemetry(), "{\"DummyPlugin1-unexpected-restarts\":0,\"DummyPlugin2-unexpected-restarts\":0,\"health\":0}");
 };
 
-TEST_F(TestWatchdogServiceLine, WatchdogTelemetryReturnsExpectedDataWhenProductDiskUsageCommandCannotBeRan) // NOLINT
+TEST_F(TestWatchdogServiceLine, WatchdogTelemetryReturnsExpectedDataWhenProductDiskUsageCommandCannotBeRan) 
 {
     watchdog::watchdogimpl::WatchdogServiceLine WatchdogServiceLine(m_context, getDummyPluginNames);
     auto pluginProxy = getPluginProxyToTest();
@@ -272,7 +261,7 @@ TEST_F(TestWatchdogServiceLine, WatchdogTelemetryReturnsExpectedDataWhenProductD
 };
 
 
-TEST_F(TestWatchdogServiceLine, requestUpdateServiceWillIndirectlyTriggerSophosSplUpdateWorksWithTheFactory) // NOLINT
+TEST_F(TestWatchdogServiceLine, requestUpdateServiceWillIndirectlyTriggerSophosSplUpdateWorksWithTheFactory) 
 {
     ProcessReplacement processReplacement([]() {
         auto mockProcess = new StrictMock<MockProcess>();
@@ -291,7 +280,7 @@ TEST_F(TestWatchdogServiceLine, requestUpdateServiceWillIndirectlyTriggerSophosS
     requester->requestUpdateService();
 }
 
-TEST_F(TestWatchdogServiceLine, mockTriggerUpdateUsingFactory) // NOLINT
+TEST_F(TestWatchdogServiceLine, mockTriggerUpdateUsingFactory) 
 {
     IWatchdogRequestReplacement replacement;
     Tests::TempDir tempdir("/tmp");
@@ -301,7 +290,7 @@ TEST_F(TestWatchdogServiceLine, mockTriggerUpdateUsingFactory) // NOLINT
     requester->requestUpdateService();
 }
 
-TEST_F(TestWatchdogServiceLine, mockTriggerUpdateUsingFactoryCanControlExceptions) // NOLINT
+TEST_F(TestWatchdogServiceLine, mockTriggerUpdateUsingFactoryCanControlExceptions) 
 {
     IWatchdogRequestReplacement replacement(std::string{ "this was not expected" });
     Tests::TempDir tempdir("/tmp");

@@ -1,4 +1,4 @@
-// Copyright 2018-2022, Sophos Limited.  All rights reserved.
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
@@ -15,9 +15,10 @@ namespace watchdog
         class PluginProxy : public Common::ProcessMonitoringImpl::ProcessProxy
         {
         public:
+            using exit_status_t = Common::ProcessMonitoringImpl::ProcessProxy::exit_status_t;
             explicit PluginProxy(Common::PluginRegistryImpl::PluginInfo info);
 
-            std::pair<std::chrono::seconds, Common::Process::ProcessStatus> checkForExit() override;
+            exit_status_t checkForExit() override;
 
             /**
              * Get the name of the plugin.

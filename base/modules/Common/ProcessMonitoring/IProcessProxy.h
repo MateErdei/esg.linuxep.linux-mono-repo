@@ -1,4 +1,4 @@
-// Copyright 2019-2022, Sophos Limited.  All rights reserved.
+// Copyright 2019-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
@@ -22,6 +22,10 @@ namespace Common::ProcessMonitoring
 
         using exit_status_t = std::pair<std::chrono::seconds, Process::ProcessStatus>;
 
+        /**
+         * Check if the process has exited, including waiting if it is supposed to stop
+         * @return pair<waitPeriod, process_status> waitPeriod=min delay before checking again
+         */
         virtual exit_status_t checkForExit() = 0;
 
         /**

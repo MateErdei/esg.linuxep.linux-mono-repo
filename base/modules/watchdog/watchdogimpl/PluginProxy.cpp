@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2018-2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #include "PluginProxy.h"
 
@@ -23,10 +19,10 @@ PluginProxy::PluginProxy(Common::PluginRegistryImpl::PluginInfo info) :
 {
 }
 
-std::pair<std::chrono::seconds, Common::Process::ProcessStatus> PluginProxy::checkForExit()
+PluginProxy::exit_status_t PluginProxy::checkForExit()
 {
     bool previousRunning = runningFlag();
-    std::pair<std::chrono::seconds, Common::Process::ProcessStatus> processProxyPair = ProcessProxy::checkForExit();
+    auto processProxyPair = ProcessProxy::checkForExit();
     auto statusCode = processProxyPair.second;
     if (statusCode == Common::Process::ProcessStatus::FINISHED && enabledFlag() && previousRunning)
     {
