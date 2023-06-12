@@ -343,9 +343,15 @@ class TelemetryUtils:
 
         actual_watchdog_telemetry_dict = json.loads(json_string)["watchdogservice"]
 
-        #pop mcsrouter before comparison
-        actual_watchdog_telemetry_dict.pop("mcsrouter-unexpected-restarts")
-        expected_watchdog_telemetry_dict.pop("mcsrouter-unexpected-restarts")
+        def remove_mcsrouter_restarts(m: dict):
+            keys = [k for k in m.keys() if k.startswith("mcsrouter-unexpected-restarts")]
+            for k in keys:
+                m.pop(k)
+
+        # pop mcsrouter before comparison
+        remove_mcsrouter_restarts(actual_watchdog_telemetry_dict)
+        remove_mcsrouter_restarts(expected_watchdog_telemetry_dict)
+
         self.check_watchdog_telemetry_is_correct(actual_watchdog_telemetry_dict, expected_watchdog_telemetry_dict)
 
     def check_watchdog_telemetry_is_correct(self, actual_dict, expected_dict):
