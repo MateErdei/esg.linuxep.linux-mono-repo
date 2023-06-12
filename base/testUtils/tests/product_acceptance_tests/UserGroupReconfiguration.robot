@@ -6,11 +6,11 @@ Resource    ProductAcceptanceTestsResources.robot
 Resource    ../upgrade_product/UpgradeResources.robot
 Resource    ../watchdog/WatchdogResources.robot
 
-Suite Setup      Suite Setup Without Ostia
-Suite Teardown   Suite Teardown Without Ostia
+Suite Setup      Upgrade Resources Suite Setup
+Suite Teardown   Upgrade Resources Suite Teardown
 
-Test Setup       Test Setup with Ostia
-Test Teardown    Test Teardown With Ostia
+Test Setup       Upgrade Resources Test Setup
+Test Teardown    Upgrade Resources SDDS3 Test Teardown
 
 Force Tags  LOAD9
 
@@ -170,15 +170,6 @@ Reconfigure All Sophos Users And Groups When Installing Product Using Thin Insta
 
 
 *** Keywords ***
-Test Setup With Ostia
-    Test Setup
-    Setup Ostia Warehouse Environment
-
-Test Teardown With Ostia
-    Stop Local SDDS3 Server
-    Teardown Ostia Warehouse Environment
-    Test Teardown
-
 Verify Product is Running Without Error After ID Change
     #LINUXDAR-4015 There won't be a fix for this error, please check the ticket for more info
     Mark Expected Error In Log       ${SOPHOS_INSTALL}/plugins/runtimedetections/log/runtimedetections.log    runtimedetections <> Could not enter supervised child process
