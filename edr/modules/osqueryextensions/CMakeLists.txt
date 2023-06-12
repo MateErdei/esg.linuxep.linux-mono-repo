@@ -33,6 +33,7 @@ sophos_add_library(OsqueryExtensions SHARED
             ${JSON_CPP_LIBRARY}
             ${GFLAG_LIBRARY}
             ${GLOG_LIBRARY}
+            ${BOOST_THREAD_LIBRARY}
             pthread
             logger_plugin_library
             osquerysdk_library

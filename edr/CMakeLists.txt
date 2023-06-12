@@ -136,12 +136,12 @@ if(NOT DEFINED PLUGINAPIPATH)
     SET( PLUGINAPIPATH ${INPUT}/pluginapi)
 endif()
 
-if (NOT DEFINED OSQUERYSDK)
-    SET( OSQUERYSDK ${INPUT}/sspl-osquery-components)
+if (NOT DEFINED LIVEQUERYPATH)
+    SET( LIVEQUERYPATH ${INPUT}/livequery)
 endif()
 
 set( BOOST_INPUT ${INPUT}/boost )
-set( BOOST_INCLUDE_DIR ${BOOST_INPUT}/include )
+set( BOOST_INCLUDE_DIR ${BOOST_INPUT} )
 set( THRIFT_INPUT ${INPUT}/thrift )
 set( JSONCCP_INPUT ${INPUT}/jsoncpp )
 set( SQLITE_INPUT ${INPUT}/sqlite )
@@ -187,9 +187,9 @@ endfunction()
 
 add_imported_library(sqlite_library SHARED ${SQLITE_INPUT}/libsqlite.so ${SQLITE_INPUT})
 add_imported_library(thrift_library SHARED ${THRIFT_INPUT}/libthrift.so ${THRIFT_INPUT}/lib/cpp/src)
-add_imported_library(logger_plugin_library SHARED ${OSQUERYSDK}/lib64/libLoggerPlugin.so ${OSQUERYSDK}/include)
-add_imported_library(osquery_gen_library SHARED ${OSQUERYSDK}/lib64/libgen-cpp-linux.so ${OSQUERYSDK}/include)
-add_imported_library(osquerysdk_library SHARED ${OSQUERYSDK}/lib64/libOsquerySDK.so ${OSQUERYSDK}/include)
+add_imported_library(logger_plugin_library SHARED ${LIVEQUERYPATH}/LoggerPlugin/libLoggerPlugin.so ${LIVEQUERYPATH}/LoggerPlugin)
+add_imported_library(osquery_gen_library SHARED ${LIVEQUERYPATH}/OsquerySDK/gen-cpp-linux/libgen-cpp-linux.so ${LIVEQUERYPATH}/OsquerySDK/gen-cpp-linux)
+add_imported_library(osquerysdk_library SHARED ${LIVEQUERYPATH}/OsquerySDK/libOsquerySDK.so ${LIVEQUERYPATH})
 add_imported_library(openssl_ssl SHARED ${INPUT}/openssl/lib64/libssl.so.3 ${INPUT}/openssl/include)
 add_imported_library(openssl_crypto SHARED ${INPUT}/openssl/lib64/libcrypto.so.3 ${INPUT}/openssl/include)
 
@@ -198,6 +198,13 @@ target_link_libraries(thrift_library INTERFACE ${zlib} openssl_ssl openssl_crypt
 target_link_libraries(osquery_gen_library INTERFACE thrift_library)
 target_link_libraries(osquerysdk_library INTERFACE thrift_library osquery_gen_library)
 
+set( LIVEQUERY_INCLUDE ${LIVEQUERYPATH}/common/livequery )
+
+find_library(BOOST_THREAD_LIBRARY
+        NAMES thread
+        PATHS ${INPUT}/boost
+        NO_DEFAULT_PATH
+        )
 find_library(JSONCPP_LIBRARY
         NAMES jsoncpp
         PATHS ${INPUT}/jsoncpp
@@ -206,43 +213,13 @@ find_library(JSONCPP_LIBRARY
 
 find_library(GLOG_LIBRARY
         NAMES glog
-        PATHS ${INPUT}/glog/install64/lib
+        PATHS ${INPUT}/glog
         NO_DEFAULT_PATH
         )
 
 find_library(GFLAG_LIBRARY
         NAMES gflags
-        PATHS ${INPUT}/gflags/install64/lib
-        NO_DEFAULT_PATH
-        )
-
-find_library(BOOST_CHRONO_LIBRARY
-        NAMES boost_chrono
-        PATHS ${INPUT}/boost/lib64
-        NO_DEFAULT_PATH
-        )
-
-find_library(BOOST_SYSTEM_LIBRARY
-        NAMES boost_system
-        PATHS ${INPUT}/boost/lib64
-        NO_DEFAULT_PATH
-        )
-
-find_library(BOOST_THREAD_LIBRARY
-        NAMES boost_thread
-        PATHS ${INPUT}/boost/lib64
-        NO_DEFAULT_PATH
-        )
-
-find_library(BOOST_FILESYSTEM_LIBRARY
-        NAMES boost_filesystem
-        PATHS ${INPUT}/boost/lib64
-        NO_DEFAULT_PATH
-        )
-
-find_library(BOOST_CONTEXT_LIBRARY
-        NAMES boost_context
-        PATHS ${INPUT}/boost/lib64
+        PATHS ${INPUT}/gflags
         NO_DEFAULT_PATH
         )
 

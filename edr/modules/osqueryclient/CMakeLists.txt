@@ -20,11 +20,6 @@ sophos_add_library(osqueryclient SHARED
             ${GLOG_LIBRARY}
             ${GFLAG_LIBRARY}
             thrift_library
-            ${BOOST_CHRONO_LIBRARY}
-            ${BOOST_SYSTEM_LIBRARY}
-            ${BOOST_THREAD_LIBRARY}
-            ${BOOST_FILESYSTEM_LIBRARY}
-            ${BOOST_CONTEXT_LIBRARY}
             ${JSONCPP_LIBRARY}
             osquerysdk_library
             sqlite_library

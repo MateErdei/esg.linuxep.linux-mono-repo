@@ -28,6 +28,7 @@ set(third_party_libs
         ${protobuflib}
         ${JSON_CPP_LIBRARY}
         ${LZMA_LIBRARY}
+        ${BOOST_THREAD_LIBRARY}
         $<TARGET_FILE:openssl_crypto>
         )
 
@@ -38,10 +39,6 @@ function(add_third_party_library LIB LIBRARY_PATH)
     message("Add third party: ${FOUND_LIB_ABSOLUTE}  ${LIB}" )
     set(third_party_libs ${third_party_libs} ${FOUND_LIB_ABSOLUTE} PARENT_SCOPE)
 endfunction(add_third_party_library)
-
-foreach (LIB boost_chrono boost_date_time boost_filesystem boost_system boost_thread boost_context boost_atomic)
-    add_third_party_library(${LIB} ${BOOST_INPUT}/lib64)
-endforeach(LIB)
 
 add_third_party_library(glog ${INPUT}/glog)
 add_third_party_library(gflags ${INPUT}/gflags)

@@ -8,11 +8,6 @@ add_executable(BinaryDataTable
 target_link_libraries(BinaryDataTable PUBLIC
         ${GLOG_LIBRARY}
         osquerysdk_library
-        ${BOOST_CHRONO_LIBRARY}
-        ${BOOST_SYSTEM_LIBRARY}
-        ${BOOST_THREAD_LIBRARY}
-        ${BOOST_FILESYSTEM_LIBRARY}
-        ${BOOST_CONTEXT_LIBRARY}
         ${JSONCPP_LIBRARY}
         pthread
         ${CMAKE_DL_LIBS}

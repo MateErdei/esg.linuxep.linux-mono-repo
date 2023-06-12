@@ -255,25 +255,11 @@ function build()
         unpack_scaffold_gcc_make "$INPUT"
         untar_input pluginapi "" ${PLUGIN_TAR}
 
-        if [[ -d "$INPUT/googletest" ]]
-        then
-            if [[ ! -d $REDIST/googletest ]]
-            then
-                ln -sf $INPUT/googletest $REDIST/googletest
-            fi
-        else
-            echo "ERROR - googletest not found here: $INPUT/googletest"
-            exit 1
-        fi
-
-        untar_input boost
-
-
         untar_input JournalLib
         untar_input protobuf
         untar_input capnproto
 
-        cp -r ${INPUT}/sdds3 "${REDIST}/sdds3" && chmod +x ${REDIST}/sdds3/*
+        chmod +x ${REDIST}/sdds3/*
 
     fi
 

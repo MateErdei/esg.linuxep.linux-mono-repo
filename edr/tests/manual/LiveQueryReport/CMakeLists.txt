@@ -7,11 +7,6 @@ add_executable(LiveQueryReport
 target_link_libraries(LiveQueryReport PUBLIC osqueryclient
         ${GLOG_LIBRARY}
         ${GFLAG_LIBRARY}
-        ${BOOST_CHRONO_LIBRARY}
-        ${BOOST_SYSTEM_LIBRARY}
-        ${BOOST_THREAD_LIBRARY}
-        ${BOOST_FILESYSTEM_LIBRARY}
-        ${BOOST_CONTEXT_LIBRARY}
         ${zmqlib}
         ${log4cpluslib}
         ${protobuflib}

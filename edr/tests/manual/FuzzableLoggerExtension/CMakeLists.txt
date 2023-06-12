@@ -9,11 +9,6 @@ target_link_libraries(FuzzableResultSender PUBLIC
         ${protobuflib}
         ${log4cpluslib}
         ${GLOG_LIBRARY}
-        ${BOOST_CHRONO_LIBRARY}
-        ${BOOST_SYSTEM_LIBRARY}
-        ${BOOST_THREAD_LIBRARY}
-        ${BOOST_FILESYSTEM_LIBRARY}
-        ${BOOST_CONTEXT_LIBRARY}
         ${JSONCPP_LIBRARY}
         pthread
         ${CMAKE_DL_LIBS}
