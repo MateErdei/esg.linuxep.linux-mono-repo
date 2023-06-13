@@ -196,6 +196,7 @@ EDR Plugin Runs All Canned Queries
     ${content} =  Get File  ${SOPHOS_INSTALL}/plugins/edr/log/edr.log
     Should Not Contain  ${content}  query-error-count
 
+
 EDR Plugin Runs All Scheduled Queries
     Directory Should Be Empty  ${SOPHOS_INSTALL}/base/mcs/datafeed
     Move File Atomically  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_customquery_limit.xml  /opt/sophos-spl/base/mcs/policy/LiveQuery_policy.xml
@@ -226,7 +227,6 @@ EDR Plugin Runs All Scheduled Queries
     ...  5 secs
     ...  Directory Should Not Be Empty  ${SOPHOS_INSTALL}/base/mcs/datafeed
     Marked File Does Not Contain  ${EDR_LOG_PATH}  query-error-count  ${mark}
-
 
 
 EDR Plugin Logs Broken JSON In Scheduled Query Pack
@@ -940,6 +940,10 @@ Add Uptime Query to Scheduled Queries
     Create File  ${SOPHOS_INSTALL}/plugins/edr/etc/query_packs/sophos-scheduled-query-pack.conf  {"schedule": {"uptime": {"query": "select * from uptime;","interval": ${interval}, "tag": "stream", "denylist": false}}}
     Create File  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf.DISABLED  {"schedule": {"uptime": {"query": "select * from uptime;","interval": ${interval}, "tag": "stream", "denylist": false}}}
 
+Dump Scheduled Query Table
+    ${response} =    Run Live Query and Return Result  SELECT name,interval,executions,last_executed,denylisted,average_memory FROM osquery_schedule order by name
+    print_query_result_as_table    ${response}
+
 Test Setup
     Install EDR Directly from SDDS
     Check EDR Plugin Installed With Base
@@ -949,6 +953,7 @@ Test Setup
     ...   Check Osquery Running
 
 Test Teardown
+    Run Keyword And Ignore Error    Dump Scheduled Query Table
     EDR And Base Teardown
     Uninstall EDR
     clear_datafeed_folder

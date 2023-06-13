@@ -217,3 +217,46 @@ def clear_datafeed_folder():
     files = os.listdir("/opt/sophos-spl/base/mcs/datafeed")
     for file in files:
         os.remove(os.path.join("/opt/sophos-spl/base/mcs/datafeed", file))
+
+
+def print_query_result_as_table(query_result):
+    query_result_json = json.loads(query_result)
+    headings = query_result_json["columnMetaData"]
+    results = query_result_json["columnData"]
+
+    heading_widths = []
+    for h in headings:
+        heading_widths.append(len(str(h["name"])))
+
+    max_result_column_widths = []
+    for row in results:
+        column = 0
+        for value in row:
+            val_str = str(value)
+            if len(max_result_column_widths) <= column:
+                max_result_column_widths.append(len(val_str))
+            elif len(val_str) > max_result_column_widths[column]:
+                max_result_column_widths[column] = len(val_str)
+            column += 1
+
+    heading_row = ""
+    result_rows = []
+
+    curr_column = 0
+    for h in headings:
+        heading_row += f"{h['name']:<{1 + max(heading_widths[curr_column], max_result_column_widths[curr_column])}}"
+        curr_column += 1
+
+    for row in results:
+        curr_column = 0
+        row_str = ""
+        for value in row:
+            row_str += f"{value:<{1 + max(heading_widths[curr_column], max_result_column_widths[curr_column])}}"
+            curr_column += 1
+        result_rows.append(row_str)
+
+    # Print the table
+    print(heading_row)
+    for row in result_rows:
+        print(row)
+
