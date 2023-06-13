@@ -142,7 +142,7 @@ Test Run Command Action Handles Expired Action
     wait_for_log_contains_from_mark  ${action_mark}  Command id1 has expired so will not be run
     Wait Until Created    ${RESPONSE_JSON}
     ${response_content}=  Get File    ${RESPONSE_JSON}
-    Should Be Equal As Strings   ${response_content}    {"commandResults":[],"duration":0,"result":4,"startedAt":0,"type":"sophos.mgt.response.RunCommands"}
+    Should Be Equal As Strings   ${response_content}    {"errorMessage":"Command id1 has expired so will not be run.","result":4,"type":"sophos.mgt.response.RunCommands"}
 
 
 Test Run Command Action Does Not Block RA Plugin Stopping
