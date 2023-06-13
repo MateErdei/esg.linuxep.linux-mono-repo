@@ -6,6 +6,7 @@
 import os
 import json
 import time
+from robot.api import logger
 
 def linux_queries_in_pack(config: dict)  -> (str, dict):
     # Only yield linux queries
@@ -256,7 +257,7 @@ def print_query_result_as_table(query_result):
         result_rows.append(row_str)
 
     # Print the table
-    print(heading_row)
-    for row in result_rows:
-        print(row)
+    table_str = heading_row + "\n"
+    table_str += "\n".join(result_rows)
+    logger.info(table_str)
 
