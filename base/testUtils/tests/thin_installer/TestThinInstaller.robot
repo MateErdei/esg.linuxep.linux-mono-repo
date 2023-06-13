@@ -154,7 +154,21 @@ Thin Installer Registers Existing Installation
     Check Cloud Server Log Contains  Register with ::ThisIsARegToken\n
     Check Cloud Server Log Does Not Contain  Register with ::ThisIsARegTokenFromTheDeploymentAPI
 
+Thin Installer Doesnt Remove Existing Files In Installation Directory
+    [Tags]  SMOKE  THIN_INSTALLER
+    ${testfile} =    Set Variable    testfile
+    ${content} =    Set Variable    content
 
+    Create Directory    ${SOPHOS_INSTALL}
+    Create File    ${SOPHOS_INSTALL}/${testfile}    ${content}
+
+    Start Local Cloud Server
+    Run Default Thininstaller    expected_return_code=19    force_certs_dir=${SUPPORT_FILES}/sophos_certs
+    Check Thininstaller Log Contains  The intended destination for Sophos Protection for Linux: ${SOPHOS_INSTALL} already exists. Please either move or delete this folder.
+
+    Directory Should Exist    ${SOPHOS_INSTALL}
+    ${filecontents}  Get File  ${SOPHOS_INSTALL}/${testfile}
+    Should Be Equal As Strings    ${filecontents}    ${content}
 
 Thin Installer Does Not Pass Customer Token Argument To Register Central When No Product Selection Arguments Given
     [Tags]  THIN_INSTALLER  MCS_ROUTER
