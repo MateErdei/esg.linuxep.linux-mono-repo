@@ -86,10 +86,15 @@ function cleanup_and_exit()
 function failure()
 {
     code=$1
-    shift
-    echo "$@" >&2
-    # only remove files if we didnt get far enough through the process to install
-    if ! is_sspl_installed ; then
+    removeinstall=1
+    if ! [ -z "$3" ] ; then
+      removeinstall=0
+    fi
+
+    echo "$2" >&2
+    # only remove files if we didnt get far enough through the process to install or
+    # the install directory existed already and we didnt create it
+    if [ ${removeinstall} -eq 1 ] && ! is_sspl_installed ; then
       if [ -n ${SOPHOS_INSTALL} ]
       then
         echo "Removing ${SOPHOS_INSTALL}"
@@ -626,7 +631,7 @@ then
 else  # sspl not installed
     if [ -d "${SOPHOS_INSTALL}" ]
     then
-        failure ${EXITCODE_BAD_INSTALL_PATH} "The intended destination for ${PRODUCT_NAME}: ${SOPHOS_INSTALL} already exists. Please either delete this folder or choose another location"
+        failure ${EXITCODE_BAD_INSTALL_PATH} "The intended destination for ${PRODUCT_NAME}: ${SOPHOS_INSTALL} already exists. Please either move or delete this folder." "Dont remove install directory"
     fi
 fi
 # Check there is enough disk space
