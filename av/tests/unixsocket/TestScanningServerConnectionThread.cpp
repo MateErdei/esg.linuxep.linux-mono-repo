@@ -384,7 +384,7 @@ TEST_F(TestScanningServerConnectionThreadWithSocketConnection, valid_request_no_
     EXPECT_TRUE(appenderContains(expected));
 }
 
-TEST_F(TestScanningServerConnectionThreadWithSocketPair, send_fd) // NOLINT
+TEST_F(TestScanningServerConnectionThreadWithSocketPair, send_fd)
 {
     const std::string expected = "ScanningServerConnectionThread managed to get file descriptor: ";
 
