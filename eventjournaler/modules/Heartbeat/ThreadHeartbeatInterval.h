@@ -1,7 +1,10 @@
 // Copyright 2023, Sophos Limited. All rights reserved.
 
+#pragma once
+
 #include "EventWriterWorkerLib/EventWriterWorker.h"
 #include "SubscriberLib/Subscriber.h"
+
 namespace Heartbeat
 {
     constexpr long MAX_PING_TIMEOUT_SECONDS = std::max(

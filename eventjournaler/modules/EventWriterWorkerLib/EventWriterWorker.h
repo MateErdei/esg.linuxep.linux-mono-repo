@@ -1,5 +1,7 @@
 // Copyright 2021-2023 Sophos Limited. All rights reserved.
 
+#pragma once
+
 #include "IEventWriterWorker.h"
 
 #include "modules/EventJournal/IEventJournalWriter.h"
@@ -11,8 +13,6 @@
 #include <atomic>
 #include <optional>
 #include <thread>
-
-#pragma once
 
 namespace EventWriterLib
 {

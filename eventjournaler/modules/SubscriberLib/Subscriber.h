@@ -1,5 +1,7 @@
 // Copyright 2021-2023 Sophos Limited. All rights reserved.
 
+#pragma once
+
 #include "ISubscriber.h"
 
 #include "modules/SubscriberLib/IEventHandler.h"
@@ -18,8 +20,6 @@
 #ifndef TEST_PUBLIC
 #define TEST_PUBLIC private
 #endif
-
-#pragma once
 
 namespace SubscriberLib
 {
