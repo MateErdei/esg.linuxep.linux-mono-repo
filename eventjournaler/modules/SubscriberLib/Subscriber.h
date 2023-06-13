@@ -19,6 +19,8 @@
 #define TEST_PUBLIC private
 #endif
 
+#pragma once
+
 namespace SubscriberLib
 {
     class Subscriber final : public ISubscriber

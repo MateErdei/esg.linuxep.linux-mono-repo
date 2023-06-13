@@ -2,6 +2,8 @@
 
 #include "HeartbeatPinger.h"
 
+#include "ThreadHeartbeatInterval.h"
+
 #include "EventWriterWorkerLib/EventWriterWorker.h"
 #include "SubscriberLib/Subscriber.h"
 
@@ -21,8 +23,7 @@ namespace Heartbeat
     bool HeartbeatPinger::isAlive()
     {
         // Threads need to ping at least once per X seconds, which we'll set to the max time a thread is asleep + a bit.
-        long maxPingPeriod = std::max(EventWriterLib::EventWriterWorker::DEFAULT_QUEUE_SLEEP_INTERVAL_MS, SubscriberLib::Subscriber::DEFAULT_READ_LOOP_TIMEOUT_MS) + 3;
-        return Common::UtilityImpl::TimeUtils::getCurrTime() - maxPingPeriod <= m_lastPinged;
+        return Common::UtilityImpl::TimeUtils::getCurrTime() - MAX_PING_TIMEOUT_SECONDS <= m_lastPinged;
     }
 
     void HeartbeatPinger::pushDroppedEvent()

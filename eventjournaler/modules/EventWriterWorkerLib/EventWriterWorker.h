@@ -12,6 +12,8 @@
 #include <optional>
 #include <thread>
 
+#pragma once
+
 namespace EventWriterLib
 {
     class  EventWriterWorker final : public IEventWriterWorker

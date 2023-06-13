@@ -1,22 +1,14 @@
 // Copyright 2021-2023 Sophos Limited. All rights reserved.
 
 #include "FakeTimeUtils.h"
+#include "Heartbeat.h"
+#include "ThreadHeartbeatInterval.h"
 
 #include "EventWriterWorkerLib/EventWriterWorker.h"
 #include "SubscriberLib/Subscriber.h"
 
 #include <Common/UtilityImpl/TimeUtils.h>
 #include <gtest/gtest.h>
-
-#include <Heartbeat.h>
-
-namespace
-{
-    const long MAX_PING_TIMEOUT = std::max(
-                                      EventWriterLib::EventWriterWorker::DEFAULT_QUEUE_SLEEP_INTERVAL_MS,
-                                      SubscriberLib::Subscriber::DEFAULT_READ_LOOP_TIMEOUT_MS) +
-                                  3;
-}
 
 TEST(TestHeartbeat, TestGetMapOfIdsAgainstIsAliveShowsHeartbeatsAliveCorrectly) // NOLINT
 {
@@ -101,8 +93,9 @@ TEST(TestHeartbeat, testHeartbeatsAreDeadWhenPingedMoreThanTheMaxPingTimeoutSeco
 {
     // the first two 10s will be the pinged times, the 3rd value will be repeatedly returned on calls and used for
     // the current time to compare the ping times against, so it needs to be greater than MAX_PING_TIMEOUT.
-    Common::UtilityImpl::ScopedReplaceITime scopedReplaceITime(std::unique_ptr<Common::UtilityImpl::ITime>(
-        new SequenceOfFakeTime({ 10, 10, 2 * MAX_PING_TIMEOUT }, std::chrono::milliseconds(0), []() {})));
+    Common::UtilityImpl::ScopedReplaceITime scopedReplaceITime(
+        std::unique_ptr<Common::UtilityImpl::ITime>(new SequenceOfFakeTime(
+            { 10, 10, 2 * Heartbeat::MAX_PING_TIMEOUT_SECONDS }, std::chrono::milliseconds(0), []() {})));
 
     Heartbeat::Heartbeat heartbeat;
     std::shared_ptr<Heartbeat::HeartbeatPinger> a = heartbeat.getPingHandleForId("a");
@@ -261,16 +254,16 @@ TEST(TestHeartbeat, testPushDroppedEventTrimsEventsFromTheFuture)
 
 TEST(TestHeartbeat, testIsAlive)
 {
-    int start = 1600000000;
+    long start = 1600000000;
     Common::UtilityImpl::ScopedReplaceITime scopedReplaceITime(
         std::unique_ptr<Common::UtilityImpl::ITime>(new SequenceOfFakeTime(
-            { start,                                // 1st isAlive()
-              start,                                // pinger.ping()
-              start + 10,                           // 2nd isAlive()
-              start + MAX_PING_TIMEOUT / 2,         // 3rd isAlive()
-              start + MAX_PING_TIMEOUT + 1,         // 4th isAlive()
-              start + MAX_PING_TIMEOUT * 2,         // pinger.ping()
-              start + (MAX_PING_TIMEOUT * 2) + 1 }, // 5th and final isAlive()
+            { start,                                                   // 1st isAlive()
+              start,                                                   // pinger.ping()
+              start + 10,                                              // 2nd isAlive()
+              start + Heartbeat::MAX_PING_TIMEOUT_SECONDS / 2,         // 3rd isAlive()
+              start + Heartbeat::MAX_PING_TIMEOUT_SECONDS + 1,         // 4th isAlive()
+              start + Heartbeat::MAX_PING_TIMEOUT_SECONDS * 2,         // pinger.ping()
+              start + (Heartbeat::MAX_PING_TIMEOUT_SECONDS * 2) + 1 }, // 5th and final isAlive()
             std::chrono::milliseconds(0),
             []() {})));
     Heartbeat::HeartbeatPinger pinger;
