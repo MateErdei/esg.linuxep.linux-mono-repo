@@ -5,6 +5,7 @@
 #include "ScanRequest.capnp.h"
 #include "ThreatDetectedMessageUtils.h"
 
+#include "common/ApplicationPaths.h"
 #include "common/FailedToInitializeSusiException.h"
 #include "common/SaferStrerror.h"
 #include "common/ShuttingDownException.h"
@@ -17,6 +18,7 @@
 
 #include <cassert>
 #include <csignal>
+#include <fstream>
 #include <iostream>
 #include <stdexcept>
 #include <utility>
@@ -294,6 +296,7 @@ void unixsocket::ScanningServerConnectionThread::inner_run()
             catch (FailedToInitializeSusiException&)
             {
                 errMsg = m_threadName + " aborting scan, failed to initialise SUSI";
+                std::ofstream threatDetectorUnhealthyFlagFile(Plugin::getThreatDetectorUnhealthyFlagPath());
                 result.setErrorMsg(errMsg);
                 sendResponse(socket_fd, result);
                 LOGERROR(errMsg);
