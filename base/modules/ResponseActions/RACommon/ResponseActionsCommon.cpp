@@ -26,20 +26,12 @@ namespace ResponseActions::RACommon
 
     std::optional<std::string> toUtf8(const std::string& str, bool appendConversion)
     {
-        try
-        {
-            return boost::locale::conv::to_utf<char>(str, "UTF-8", boost::locale::conv::stop);
-        }
-        catch(const boost::locale::conv::conversion_error& e)
-        {
-        }
-
-        std::vector<std::string> encodings{"EUC-JP", "Shift-JIS", "SJIS", "Latin1"};
+        std::vector<std::string> encodings{"UTF-8", "EUC-JP", "Shift-JIS", "SJIS", "Latin1"};
         for (const auto& encoding : encodings)
         {
             try
             {
-                if (appendConversion)
+                if (appendConversion && encoding != "UTF-8")
                 {
                     std::string encoding_info = " (" + encoding + ")";
                     return boost::locale::conv::to_utf<char>(str,
@@ -50,7 +42,6 @@ namespace ResponseActions::RACommon
                 {
                     return boost::locale::conv::to_utf<char>(str, encoding, boost::locale::conv::stop);
                 }
-
             }
             catch(const boost::locale::conv::conversion_error& e)
             {
@@ -58,9 +49,9 @@ namespace ResponseActions::RACommon
             }
             catch(const boost::locale::conv::invalid_charset_error& e)
             {
-                throw toUtf8Exception(" due to invalid charset.");
+                continue;
             }
         }
-        throw toUtf8Exception("");
+        return std::nullopt;
     }
 } // namespace ResponseActions::RACommon

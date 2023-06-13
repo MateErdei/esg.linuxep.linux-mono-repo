@@ -206,23 +206,20 @@ SingleCommandResult RunCommandAction::runCommand(const std::string& command)
         process->waitUntilProcessEnds();
     }
 
-    try
-    {
-        response.stdOut = *(ResponseActions::RACommon::toUtf8(process->standardOutput()));
-    }
-    catch (const ResponseActions::RACommon::toUtf8Exception& e)
-    {
-        LOGWARN("Failed to convert standard output to utf8" << e.what());
-    }
 
-    try
+    std::optional<std::string> stdOutput = ResponseActions::RACommon::toUtf8(process->standardOutput());
+    if (!stdOutput)
     {
-        response.stdErr = *(ResponseActions::RACommon::toUtf8(process->errorOutput()));
+        LOGWARN("Failed to convert standard output to utf8");
     }
-    catch (const ResponseActions::RACommon::toUtf8Exception& e)
+    response.stdOut = *stdOutput;
+
+    std::optional<std::string> errOutput = ResponseActions::RACommon::toUtf8(process->errorOutput());
+    if (!errOutput)
     {
-        LOGWARN("Failed to convert error output to utf8" << e.what());
+        LOGWARN("Failed to convert error output to utf8");
     }
+    response.stdErr = *errOutput;
 
     response.exitCode = process->exitCode();
 
