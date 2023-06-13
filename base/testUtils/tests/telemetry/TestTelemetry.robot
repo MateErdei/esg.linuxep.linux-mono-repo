@@ -351,7 +351,7 @@ Telemetry Executable Generates Watchdog Telemetry That Increments When Plugins D
     Run Telemetry Executable     ${EXE_CONFIG_FILE}     ${SUCCESS}
     ${telemetryFileContents} =  Get File    ${TELEMETRY_OUTPUT_JSON}
     log  ${telemetryFileContents}
-    Check Watchdog Telemetry Json Is Correct  ${telemetryFileContents}  1
+    Check Watchdog Telemetry Json Is Correct  ${telemetryFileContents}  1  expected_code=${9}
 
 
 Telemetry Executable Will Do A Successful HTTP PUT Request When Server Run TLSv1_2
