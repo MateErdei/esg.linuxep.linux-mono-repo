@@ -319,8 +319,8 @@ find_library(EXPAT_LIBRARY
         )
 
 find_library(BOOST_LOCALE
-        NAMES boost_locale
-        PATHS ${BOOST_INPUT}/lib64
+        NAMES locale
+        PATHS ${BOOST_INPUT}/
         NO_DEFAULT_PATH
         )
 
