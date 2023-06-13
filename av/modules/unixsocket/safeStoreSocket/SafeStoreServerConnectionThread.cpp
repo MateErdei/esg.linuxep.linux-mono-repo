@@ -229,7 +229,7 @@ void SafeStoreServerConnectionThread::inner_run()
             {
                 LOGERROR(m_threadName << " missing file path in detection report ( size=" << bytes_read << ")");
             }
-            const std::string escapedPath = common::escapePathForLogging(threatDetected.filePath);
+            const std::string escapedPath = common::pathForLogging(threatDetected.filePath);
             LOGDEBUG(
                 "Received Threat:\n  File path: "
                 << escapedPath << "\n  Threat ID: " << threatDetected.threatId

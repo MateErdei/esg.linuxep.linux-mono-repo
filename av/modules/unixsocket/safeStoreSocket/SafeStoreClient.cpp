@@ -1,4 +1,4 @@
-// Copyright 2022 Sophos Limited. All rights reserved.
+// Copyright 2022-2023 Sophos Limited. All rights reserved.
 
 #include "SafeStoreClient.h"
 
@@ -25,35 +25,31 @@ unixsocket::SafeStoreClient::SafeStoreClient(
     Common::Threads::NotifyPipe& notifyPipe,
     const duration_t& sleepTime,
     IStoppableSleeperSharedPtr sleeper) :
-    BaseClient(std::move(socket_path), sleepTime, std::move(sleeper)), m_notifyPipe(notifyPipe)
+    BaseClient(std::move(socket_path), "SafeStoreClient", sleepTime, std::move(sleeper)), m_notifyPipe(notifyPipe)
 {
-    BaseClient::connectWithRetries("SafeStore");
-    if (isConnected())
-    {
-        LOGDEBUG("Connected to SafeStore");
-    }
+    BaseClient::connectWithRetries();
 }
 
 void unixsocket::SafeStoreClient::sendQuarantineRequest(const scan_messages::ThreatDetected& detection)
 {
     const std::string escapedPath = common::pathForLogging(detection.filePath);
-    LOGDEBUG("Sending quarantine request to SafeStore for file: " << escapedPath);
+    LOGDEBUG(m_name << " sending quarantine request to SafeStore for file: " << escapedPath);
     assert(m_socket_fd.valid());
     std::string dataAsString = detection.serialise();
     auto fd = detection.autoFd.get();
 
     if (!writeLengthAndBuffer(m_socket_fd, dataAsString))
     {
-        throw std::runtime_error("Failed to write Threat Detection to socket: " + common::safer_strerror(errno));
+        throw std::runtime_error(m_name + " failed to write Threat Detection to socket: " + common::safer_strerror(errno));
     }
 
     auto ret = send_fd(m_socket_fd, fd);
     if (ret < 0)
     {
-        throw std::runtime_error("Failed to write file descriptor to SafeStore socket");
+        throw std::runtime_error(m_name + " failed to write file descriptor to SafeStore socket");
     }
 
-    LOGDEBUG("Sent quarantine request to SafeStore");
+    LOGDEBUG(m_name << " sent quarantine request to SafeStore");
 }
 
 common::CentralEnums::QuarantineResult unixsocket::SafeStoreClient::waitForResponse()
@@ -75,35 +71,35 @@ common::CentralEnums::QuarantineResult unixsocket::SafeStoreClient::waitForRespo
         int active = ::ppoll(fds, std::size(fds), &timeout, nullptr);
         if (active < 0)
         {
-            throw std::runtime_error("Closing SafeStore connection thread, error: " + common::safer_strerror(errno));
+            throw std::runtime_error("Closing " + m_name + ", error: " + common::safer_strerror(errno));
         }
         else if (active == 0)
         {
-            throw std::runtime_error("Timed out waiting for response");
+            throw std::runtime_error(m_name + " timed out waiting for response");
         }
         else
         {
             if (fds[1].revents & POLLIN)
             {
                 // Still an exception because we expected a response
-                throw std::runtime_error("Received thread stop notification");
+                throw std::runtime_error(m_name + " received thread stop notification");
             }
         }
         // read length
         ssize_t length = unixsocket::readLength(m_socket_fd);
         if (length == -2)
         {
-            throw std::runtime_error("Unexpected EOF");
+            throw std::runtime_error(m_name + " got unexpected EOF");
         }
         else if (length < 0)
         {
-            throw std::runtime_error("Failed to read length from socket");
+            throw std::runtime_error(m_name + " failed to read length from socket");
         }
         else if (length == 0)
         {
             if (not loggedLengthOfZero)
             {
-                LOGDEBUG("Ignoring length of zero / No new messages");
+                LOGDEBUG(m_name << " ignoring length of zero / No new messages");
                 loggedLengthOfZero = true;
             }
             continue;
@@ -120,11 +116,11 @@ common::CentralEnums::QuarantineResult unixsocket::SafeStoreClient::waitForRespo
         ssize_t bytes_read = ::read(m_socket_fd, proto_buffer.begin(), length);
         if (bytes_read < 0)
         {
-            throw std::runtime_error("Failed to get data: " + common::safer_strerror(errno));
+            throw std::runtime_error(m_name + " failed to get data: " + common::safer_strerror(errno));
         }
         else if (bytes_read != length)
         {
-            throw std::runtime_error("Failed to read entire message");
+            throw std::runtime_error(m_name + " failed to read entire message");
         }
         auto view = proto_buffer.slice(0, bytes_read / sizeof(capnp::word));
 
@@ -134,8 +130,7 @@ common::CentralEnums::QuarantineResult unixsocket::SafeStoreClient::waitForRespo
 
         auto result = scan_messages::QuarantineResponse(requestReader).getResult();
 
-        LOGDEBUG(
-            "Received quarantine result from SafeStore: "
+        LOGDEBUG(m_name << " received quarantine result from SafeStore: "
             << (result == common::CentralEnums::QuarantineResult::SUCCESS ? "success" : "failure"));
 
         return result;
