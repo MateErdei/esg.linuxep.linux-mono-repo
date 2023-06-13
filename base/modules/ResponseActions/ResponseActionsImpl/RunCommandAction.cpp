@@ -208,18 +208,24 @@ SingleCommandResult RunCommandAction::runCommand(const std::string& command)
 
 
     std::optional<std::string> stdOutput = ResponseActions::RACommon::toUtf8(process->standardOutput());
-    if (!stdOutput)
+    if (stdOutput.has_value())
+    {
+        response.stdOut = stdOutput.value();
+    }
+    else
     {
         LOGWARN("Failed to convert standard output to utf8");
     }
-    response.stdOut = *stdOutput;
 
     std::optional<std::string> errOutput = ResponseActions::RACommon::toUtf8(process->errorOutput());
-    if (!errOutput)
+    if (errOutput.has_value())
+    {
+        response.stdErr = errOutput.value();
+    }
+    else
     {
         LOGWARN("Failed to convert error output to utf8");
     }
-    response.stdErr = *errOutput;
 
     response.exitCode = process->exitCode();
 
