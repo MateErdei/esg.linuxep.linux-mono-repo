@@ -20,6 +20,8 @@ add_library(safestoreimpl SHARED
         SafeStoreWrapper/SafeStoreWrapperImpl.h
         )
 
+add_dependencies(safestoreimpl copy_libs)
+
 target_link_libraries(safestoreimpl PUBLIC
         safestorelib
         ${log4cpluslib}
