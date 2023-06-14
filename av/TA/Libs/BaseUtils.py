@@ -7,8 +7,10 @@ import grp
 import json
 import os
 import pwd
+import re
 import shutil
 import subprocess
+import sys
 
 from robot.libraries.BuiltIn import BuiltIn, RobotNotRunningError
 
@@ -179,3 +181,32 @@ def clear_outbreak_mode_if_required():
     subprocess.check_call([wdctl, "stop", "managementagent"])
     os.unlink(outbreak_status_path)
     subprocess.check_call([wdctl, "start", "managementagent"])
+
+
+def create_library_symlinks(directory):
+    LIB_RE = re.compile(r"(.*?)(\.\d+)$")
+    for file in os.listdir(directory):
+        f = os.path.join(directory, file)
+        if os.path.islink(f):
+            continue
+        if not os.path.isfile(f):
+            continue
+        while True:
+            mo = LIB_RE.match(file)
+            if not mo:
+                break
+            try:
+                os.symlink(file, os.path.join(directory, mo.group(1)))
+            except EnvironmentError:
+                pass
+            file = mo.group(1)
+
+
+def __main(argv):
+    src = argv[1]
+    create_library_symlinks(src)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(__main(sys.argv))

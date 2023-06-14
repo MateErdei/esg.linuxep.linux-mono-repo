@@ -97,7 +97,9 @@ Setup Component For Testing
     ${RELATIVE_PATH} =   Replace String Using Regexp   ${COMPONENT_ROOT_PATH}/log   [^/]+   ..
     ${RELATIVE_PATH} =   Strip String   ${RELATIVE_PATH}   characters=/
     Run Process   ln  -snf  ${RELATIVE_PATH}/log  ${COMPONENT_ROOT_PATH}/chroot/${COMPONENT_ROOT_PATH}/log/sophos_threat_detector
-    Run Process   ldconfig   -lN   *.so.*   cwd=${COMPONENT_LIB64_DIR}   shell=True
+    create library symlinks  ${COMPONENT_LIB64_DIR}
+    ${result} =  Run Process  ls  -l  cwd=${COMPONENT_LIB64_DIR}
+    log  ls -l lib64 ${result.stdout}
     Run Process   setcap  cap_sys_chroot\=eip  ${COMPONENT_ROOT_PATH}/sbin/sophos_threat_detector_launcher
     Run Process   setcap  cap_dac_read_search\=eip  ${COMPONENT_ROOT_PATH}/sbin/scheduled_file_walker_launcher
     Bootstrap SUSI From Update Source

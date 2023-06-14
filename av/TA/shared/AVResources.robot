@@ -1392,8 +1392,11 @@ Terminate And Wait until threat detector not running
 
 Terminate And Wait until SafeStore not running
     [Arguments]   ${handle}
-    Terminate Process  ${handle}
+    ${result} =  Terminate Process  ${handle}
     Wait until SafeStore not running
+    Return From Keyword If  ${result.rc} == 0
+    Log  Process failed: ${result.stderr}
+    Log  stdout: ${result.stdout}
 
 Terminate And Wait until AV Plugin not running
     [Arguments]   ${handle}
