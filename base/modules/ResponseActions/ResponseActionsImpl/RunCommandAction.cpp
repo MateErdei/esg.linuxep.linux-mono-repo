@@ -214,7 +214,8 @@ SingleCommandResult RunCommandAction::runCommand(const std::string& command)
     }
     else
     {
-        LOGWARN("Failed to convert standard output to utf8");
+        LOGERROR("Failed to convert standard output to utf8");
+        response.stdOut = "N/A due to conversion failure";
     }
 
     std::optional<std::string> errOutput = ResponseActions::RACommon::toUtf8(process->errorOutput());
@@ -224,7 +225,8 @@ SingleCommandResult RunCommandAction::runCommand(const std::string& command)
     }
     else
     {
-        LOGWARN("Failed to convert error output to utf8");
+        LOGERROR("Failed to convert error output to utf8");
+        response.stdErr = "N/A due to conversion failure";
     }
 
     response.exitCode = process->exitCode();
