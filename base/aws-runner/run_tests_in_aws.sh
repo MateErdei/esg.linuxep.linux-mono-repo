@@ -354,7 +354,7 @@ combineResults()
   python3 parallel_merge.py -j${NPROC} \
               amazonlinux2x64 amazonlinux2023x64 \
               centos7x64 centosstreamx64 \
-              debian10x64 debian11x64 \
+              debian10x64 debian11x64 debian12x64 \
               miraclelinuxx64 \
               oracle7x64 oracle8x64 \
               rhel78x64 rhel81x64 rhel9x64 \

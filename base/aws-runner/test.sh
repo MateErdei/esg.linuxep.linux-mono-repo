@@ -13,6 +13,7 @@ function failure()
 SCRIPT_DIR="${0%/*}"
 cd $SCRIPT_DIR || exit 1
 PLATFORM_EXCLUDE_TAG=""
+PYTHONCMD="python3"
 
 if [[ -f /etc/centos-release ]]
 then
@@ -59,6 +60,7 @@ then
     release_patternUbuntu18="PRETTY_NAME=\"Ubuntu 18.*"
     release_patternDebian10="PRETTY_NAME=\"Debian GNU/Linux 10.*"
     release_patternDebian11="PRETTY_NAME=\"Debian GNU/Linux 11.*"
+    release_patternDebian12="PRETTY_NAME=\"Debian GNU/Linux 12.*"
     if [[ ${current_release} =~ ${release_patternUbuntu22} ]]
     then
         PLATFORM_EXCLUDE_TAG="-e EXCLUDE_UBUNTU22"
@@ -74,6 +76,10 @@ then
     elif [[ ${current_release} =~ ${release_patternDebian11} ]]
     then
         PLATFORM_EXCLUDE_TAG="-e EXCLUDE_DEBIAN11"
+    elif [[ ${current_release} =~ ${release_patternDebian12} ]]
+    then
+        PYTHONCMD="python3.9"
+        PLATFORM_EXCLUDE_TAG="-e EXCLUDE_DEBIAN12"
     else
         PLATFORM_EXCLUDE_TAG="-e EXCLUDE_UBUNTU"
     fi
@@ -108,20 +114,20 @@ source $SCRIPT_DIR/SupportFiles/jenkins/checkTestInputsAreAvailable.sh || failur
 
 bash $SCRIPT_DIR/SupportFiles/jenkins/install_dependencies.sh
 
-python3 -m pip install -i https://pypi.org/simple -r requirements.txt
+${PYTHONCMD} -m pip install -i https://pypi.org/simple -r requirements.txt
 
 echo "Running tests on $HOSTNAME"
 RESULT=0
 EXCLUSIONS='-e MANUAL -e PUB_SUB -e EXCLUDE_AWS -e CUSTOM_LOCATION -e TESTFAILURE -e FUZZ -e MCS_FUZZ -e MDR_REGRESSION_TESTS -e EXAMPLE_PLUGIN'
-python3  -m robot -x robot.xml --loglevel TRACE ${EXCLUSIONS} ${PLATFORM_EXCLUDE_TAG} "$@" tests || RESULT=$?
+${PYTHONCMD}  -m robot -x robot.xml --loglevel TRACE ${EXCLUSIONS} ${PLATFORM_EXCLUDE_TAG} "$@" tests || RESULT=$?
 
 [[ ${RERUNFAILED} == true ]] || exit 0
 
 if [[ ${RESULT} != 0 ]]; then
 echo "Re-run failed tests"
     mv output.xml output1.xml
-    python3 -m robot --rerunfailed output1.xml --output output2.xml  tests || echo "Failed tests on rerun"
-    python3 -m robot.rebot --merge --output output.xml -l log.html -r report.html output1.xml output2.xml
+    ${PYTHONCMD} -m robot --rerunfailed output1.xml --output output2.xml  tests || echo "Failed tests on rerun"
+    ${PYTHONCMD} -m robot.rebot --merge --output output.xml -l log.html -r report.html output1.xml output2.xml
 fi
 
 exit $RESULT
