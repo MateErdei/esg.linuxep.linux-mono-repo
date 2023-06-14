@@ -13,6 +13,7 @@ escaped_args=$(echo $args | sed s/--/x--/g)
 if [[ "$escaped_args" == *"x--help"* ]] || [[ "x$args" == "x-h" ]]
 then
     echo "${PRODUCT_NAME} Installer, help:"
+    echo "Note: Please refer to https://docs.sophos.com/central/customer/help/en-us/index.html?contextId=protect-devices-server-CLI-Linux for advanced options"
     echo "Usage: [options]"
     echo "Valid options are:"
     echo -e "--help [-h]\t\t\tDisplay this summary"
@@ -21,8 +22,6 @@ then
     echo -e "--group=<group>\t\t\tAdd this endpoint into the Sophos Central group specified"
     echo -e "--group=<path to sub group>\tAdd this endpoint into the Sophos Central nested\n\t\t\t\tgroup specified where path to the nested group\n\t\t\t\tis each group separated by a backslash\n\t\t\t\ti.e. --group=<top-level group>\\\\\<sub-group>\\\\\<bottom-level-group>\n\t\t\t\tor --group='<top-level group>\\\<sub-group>\\\<bottom-level-group>'"
     echo -e "--products='<products>'\t\tComma separated list of products to install\n\t\t\t\ti.e. --products=antivirus,mdr,xdr"
-    echo -e "--user-ids-to-configure=<user name>:<uid>\tComma separated list of users IDs to configure\n\t\t\t\t\t\ti.e. --user-ids-to-configure=<user name>:<uid>,<user name>:<uid>,<user name>:<uid>"
-    echo -e "--group-ids-to-configure=<group name>:<gid>\tComma separated list of groups IDs to configure\n\t\t\t\t\t\ti.e. --group-ids-to-configure=<group name>:<gid>,<group name>:<gid>,<group name>:<gid>"
     echo -e "--uninstall-sav\t\tUninstall Sophos Anti-Virus if installed"
     exit 0
 fi
