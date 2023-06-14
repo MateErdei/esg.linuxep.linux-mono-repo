@@ -9,6 +9,7 @@
 
 #include "common/ApplicationPaths.h"
 #include "common/FailedToInitializeSusiException.h"
+#include "common/ShuttingDownException.h"
 #include "datatypes/sophos_filesystem.h"
 #include "datatypes/SystemCallWrapper.h"
 #include "scan_messages/ScanRequest.h"
@@ -36,7 +37,6 @@ namespace fs = sophos_filesystem;
 
 namespace
 {
-
     class TestScanningServerConnectionThread : public UnixSocketMemoryAppenderUsingTests
     {
     protected:
@@ -72,7 +72,7 @@ namespace
         void TearDown() override
         {
             fs::current_path(fs::temp_directory_path());
-           // fs::remove_all(m_testDir);
+            fs::remove_all(m_testDir);
         }
 
         bool threatDetectorUnhealthyFlagSet()
@@ -103,8 +103,6 @@ namespace
             m_clientFd.reset(socket_fds[1]);
             ASSERT_GE(m_serverFd.get(), 0);
             ASSERT_GE(m_clientFd.get(), 0);
-
-            m_mockSysCalls = std::make_shared<StrictMock<MockSystemCallWrapper>>();
         }
 
         bool receiveResponse(scan_messages::ScanResponse& response)
@@ -447,7 +445,8 @@ TEST_F(TestScanningServerConnectionThreadWithSocketPair, send_fd)
 TEST_F(TestScanningServerConnectionThreadWithSocketPair, fails_to_create_scanner_throws_and_sets_unhealthy_flag)
 {
     m_memoryAppender->setLayout(std::make_unique<log4cplus::PatternLayout>("[%p] %m%n"));
-    const std::string expected = "[ERROR] ScanningServerConnectionThread aborting scan, failed to initialise SUSI";
+    const std::string throwstr = "imbroken";
+    const std::string expected = "ScanningServerConnectionThread aborting scan, failed to initialise SUSI: " + throwstr;
 
     auto scannerFactory = std::make_shared<StrictMock<MockScannerFactory>>();
 
@@ -461,7 +460,7 @@ TEST_F(TestScanningServerConnectionThreadWithSocketPair, fails_to_create_scanner
     Sophos::ssplav::FileScanRequest::Reader requestReader = requestBuilder;
 
     scan_messages::ScanRequest request = scan_messages::ScanRequest(requestReader);
-    EXPECT_CALL(*scannerFactory, createScanner(_, _, _)).WillOnce(Throw(FailedToInitializeSusiException("failedtoinitialize")));
+    EXPECT_CALL(*scannerFactory, createScanner(_, _, _)).WillOnce(Throw(FailedToInitializeSusiException(throwstr)));
 
     ScanningServerConnectionThread connectionThread(m_serverFd, scannerFactory, m_sysCalls);
     connectionThread.start();
@@ -473,7 +472,11 @@ TEST_F(TestScanningServerConnectionThreadWithSocketPair, fails_to_create_scanner
     auto ret = send_fd(m_clientFd, fd.get()); // send a valid file descriptor
     ASSERT_GE(ret, 0);
 
-    EXPECT_TRUE(waitForLog(expected));
+    EXPECT_TRUE(waitForLog("[ERROR] " + expected));
+    scan_messages::ScanResponse response;
+    receiveResponse(response);
+    EXPECT_EQ(response.getErrorMsg(), expected);
+
     connectionThread.requestStop();
     connectionThread.join();
     EXPECT_TRUE(threatDetectorUnhealthyFlagSet());
