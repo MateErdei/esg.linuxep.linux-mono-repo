@@ -282,9 +282,9 @@ void unixsocket::ScanningServerConnectionThread::inner_run()
                 result = scanner->scan(
                     file_fd, *requestReader);
             }
-            catch (FailedToInitializeSusiException&)
+            catch (FailedToInitializeSusiException& ex)
             {
-                errMsg = m_threadName + " aborting scan, failed to initialise SUSI";
+                errMsg = m_threadName + " aborting scan, failed to initialise SUSI: " + ex.what();
                 std::ofstream threatDetectorUnhealthyFlagFile(Plugin::getThreatDetectorUnhealthyFlagPath());
                 result.setErrorMsg(errMsg);
                 sendResponse(socket_fd, result);
