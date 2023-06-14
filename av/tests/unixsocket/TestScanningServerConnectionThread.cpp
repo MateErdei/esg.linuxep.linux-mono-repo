@@ -482,6 +482,45 @@ TEST_F(TestScanningServerConnectionThreadWithSocketPair, fails_to_create_scanner
     EXPECT_TRUE(threatDetectorUnhealthyFlagSet());
 }
 
+TEST_F(TestScanningServerConnectionThreadWithSocketPair, scanner_shutting_down_throws)
+{
+    m_memoryAppender->setLayout(std::make_unique<log4cplus::PatternLayout>("[%p] %m%n"));
+    const std::string expected = "ScanningServerConnectionThread aborting scan, scanner is shutting down";
+
+    auto scannerFactory = std::make_shared<StrictMock<MockScannerFactory>>();
+
+    ::capnp::MallocMessageBuilder message;
+    Sophos::ssplav::FileScanRequest::Builder requestBuilder =
+        message.initRoot<Sophos::ssplav::FileScanRequest>();
+    requestBuilder.setPathname("/file/to/scan");
+    requestBuilder.setScanType(scan_messages::E_SCAN_TYPE_ON_DEMAND);
+    requestBuilder.setUserID("n/a");
+
+    Sophos::ssplav::FileScanRequest::Reader requestReader = requestBuilder;
+
+    scan_messages::ScanRequest request = scan_messages::ScanRequest(requestReader);
+    EXPECT_CALL(*scannerFactory, createScanner(_, _, _)).WillOnce(Throw(ShuttingDownException()));
+
+    ScanningServerConnectionThread connectionThread(m_serverFd, scannerFactory, m_sysCalls);
+    connectionThread.start();
+    EXPECT_TRUE(connectionThread.isRunning());
+    unixsocket::writeLengthAndBuffer(m_clientFd, request.serialise());
+
+    TestFile testFile("testfile");
+    datatypes::AutoFd fd(testFile.open());
+    auto ret = send_fd(m_clientFd, fd.get()); // send a valid file descriptor
+    ASSERT_GE(ret, 0);
+
+    EXPECT_TRUE(waitForLog("[ERROR] " + expected));
+    scan_messages::ScanResponse response;
+    receiveResponse(response);
+    EXPECT_EQ(response.getErrorMsg(), expected);
+
+    connectionThread.requestStop();
+    connectionThread.join();
+    EXPECT_FALSE(threatDetectorUnhealthyFlagSet());
+}
+
 TEST_F(TestScanningServerConnectionThreadWithSocketConnection, fd_not_readable)
 {
     const std::string expected = "Received file FD is not open for read";
