@@ -45,17 +45,6 @@ unixsocket::ScanningServerConnectionThread::ScanningServerConnectionThread(
     }
 }
 
-//
-//static void throwOnError(int ret, const std::string& message)
-//{
-//    if (ret == 0)
-//    {
-//        return;
-//    }
-//    perror(message.c_str());
-//    throw unixsocket::UnixSocketException(LOCATION, message);
-//}
-
 /**
  * Parse a request.
  *
