@@ -17,12 +17,17 @@ namespace Common::UpdateUtilities
     void writeInstalledFeaturesJsonFile(const std::vector<std::string>& features)
     {
         nlohmann::json jsonFeatures(features);
-        auto fileSystem = Common::FileSystem::fileSystem();
-        fileSystem->writeFile(
-            Common::ApplicationConfiguration::applicationPathManager().getFeaturesJsonPath(), jsonFeatures.dump());
-        auto fp = Common::FileSystem::filePermissions();
-        fp->chown(Common::ApplicationConfiguration::applicationPathManager().getFeaturesJsonPath(), sophos::updateSchedulerUser(), sophos::group());
-        fp->chmod(Common::ApplicationConfiguration::applicationPathManager().getFeaturesJsonPath(), S_IRUSR | S_IWUSR | S_IRGRP);
+
+        std::string tempDir = ApplicationConfiguration::applicationPathManager().getTempPath();
+        std::string filepath = Common::ApplicationConfiguration::applicationPathManager().getFeaturesJsonPath();
+
+        Common::FileSystem::createAtomicFileWithPermissions(
+            jsonFeatures.dump(),
+            filepath,
+            tempDir,
+            sophos::updateSchedulerUser(),
+            sophos::group(),
+            S_IRUSR | S_IWUSR | S_IRGRP);
     }
 
     bool doesInstalledFeaturesListExist()

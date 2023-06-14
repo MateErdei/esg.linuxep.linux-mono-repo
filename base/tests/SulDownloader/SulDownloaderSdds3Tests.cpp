@@ -55,8 +55,8 @@ namespace
     void setupInstalledFeaturesPermissions()
     {
         auto mockFilePermissions = new StrictMock<MockFilePermissions>();
-        EXPECT_CALL(*mockFilePermissions, chown(Common::ApplicationConfiguration::applicationPathManager().getFeaturesJsonPath(), sophos::updateSchedulerUser(), sophos::group()));
-        EXPECT_CALL(*mockFilePermissions, chmod(Common::ApplicationConfiguration::applicationPathManager().getFeaturesJsonPath(), S_IRUSR | S_IWUSR | S_IRGRP));
+        EXPECT_CALL(*mockFilePermissions, chown(::testing::HasSubstr("installed_features.json"), sophos::updateSchedulerUser(), sophos::group()));
+        EXPECT_CALL(*mockFilePermissions, chmod(::testing::HasSubstr("installed_features.json"), S_IRUSR | S_IWUSR | S_IRGRP));
         auto mockIFilePermissionsPtr = std::unique_ptr<MockFilePermissions>(mockFilePermissions);
         Tests::replaceFilePermissions(std::move(mockIFilePermissionsPtr));
     }
@@ -316,7 +316,7 @@ public:
             Common::ApplicationConfiguration::applicationPathManager().getMcsCurrentProxyFilePath();
         EXPECT_CALL(*filesystemMock, isFile(currentProxyFilePath)).Times(expectCurrentProxy).WillOnce(Return(false));
         std::string installedFeaturesFile = Common::ApplicationConfiguration::applicationPathManager().getFeaturesJsonPath();
-        EXPECT_CALL(*filesystemMock, writeFile(installedFeaturesFile, installedFeatures)).Times(expectedInstalledFeatures);
+        EXPECT_CALL(*filesystemMock, writeFile(::testing::HasSubstr("installed_features.json"), installedFeatures)).Times(expectedInstalledFeatures);
 
         setupExpectanceWriteProductUpdate(*filesystemMock);
 
@@ -383,13 +383,14 @@ public:
         EXPECT_CALL(
             mockFileSystem, writeFile(::testing::HasSubstr("/opt/sophos-spl/tmp"), ::testing::HasSubstr(contains)));
         EXPECT_CALL(mockFileSystem, moveFile(_, "/dir/output.json"));
+        EXPECT_CALL(mockFileSystem, moveFile(_, Common::ApplicationConfiguration::applicationPathManager().getFeaturesJsonPath())).Times(installedFeaturesWritesExpected);
         auto mockFilePermissions = new StrictMock<MockFilePermissions>();
         EXPECT_CALL(*mockFilePermissions, chown(testing::HasSubstr("/opt/sophos-spl/tmp"), sophos::updateSchedulerUser(), "root"));
         mode_t expectedFilePermissions = S_IRUSR | S_IWUSR;
         EXPECT_CALL(*mockFilePermissions, chmod(testing::HasSubstr("/opt/sophos-spl/tmp"), expectedFilePermissions));
 
-        EXPECT_CALL(*mockFilePermissions, chown(Common::ApplicationConfiguration::applicationPathManager().getFeaturesJsonPath(), sophos::updateSchedulerUser(), sophos::group())).Times(installedFeaturesWritesExpected);
-        EXPECT_CALL(*mockFilePermissions, chmod(Common::ApplicationConfiguration::applicationPathManager().getFeaturesJsonPath(), S_IRUSR | S_IWUSR | S_IRGRP)).Times(installedFeaturesWritesExpected);
+        EXPECT_CALL(*mockFilePermissions, chown(testing::HasSubstr("installed_features.json"), sophos::updateSchedulerUser(), sophos::group())).Times(installedFeaturesWritesExpected);
+        EXPECT_CALL(*mockFilePermissions, chmod(testing::HasSubstr("installed_features.json"), S_IRUSR | S_IWUSR | S_IRGRP)).Times(installedFeaturesWritesExpected);
 
         EXPECT_CALL(*mockFilePermissions, getGroupId(sophos::group())).WillRepeatedly(Return(123));
         EXPECT_CALL(*mockFilePermissions, chown(Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderLockFilePath(), "root", sophos::group())).WillRepeatedly(Return());
@@ -3154,9 +3155,9 @@ TEST_F(TestSuldownloaderWriteInstalledFeaturesFunction, featuresAreWrittenToJson
     auto filesystemMock = new StrictMock<MockFileSystem>();
     EXPECT_CALL(
         *filesystemMock,
-        writeFile(
-            Common::ApplicationConfiguration::applicationPathManager().getFeaturesJsonPath(),
-            "[\"feature1\",\"feature2\"]"));
+        writeFile(::testing::HasSubstr("installed_features.json"),"[\"feature1\",\"feature2\"]"));
+    EXPECT_CALL(*filesystemMock,moveFile(_,
+              Common::ApplicationConfiguration::applicationPathManager().getFeaturesJsonPath()));
     Tests::ScopedReplaceFileSystem ScopedReplaceFileSystem{ std::unique_ptr<Common::FileSystem::IFileSystem>(
         filesystemMock) };
     std::vector<std::string> features = { "feature1", "feature2" };
@@ -3167,9 +3168,9 @@ TEST_F(TestSuldownloaderWriteInstalledFeaturesFunction, emptyListOfFeaturesAreWr
 {
     setupInstalledFeaturesPermissions();
     auto filesystemMock = new StrictMock<MockFileSystem>();
-    EXPECT_CALL(
-        *filesystemMock,
-        writeFile(Common::ApplicationConfiguration::applicationPathManager().getFeaturesJsonPath(), "[]"));
+    EXPECT_CALL(*filesystemMock,writeFile(::testing::HasSubstr("installed_features.json"), "[]"));
+    EXPECT_CALL(*filesystemMock,moveFile(_,
+                 Common::ApplicationConfiguration::applicationPathManager().getFeaturesJsonPath()));
     Tests::ScopedReplaceFileSystem ScopedReplaceFileSystem{ std::unique_ptr<Common::FileSystem::IFileSystem>(
         filesystemMock) };
     std::vector<std::string> features = {};
@@ -3181,9 +3182,7 @@ TEST_F(TestSuldownloaderWriteInstalledFeaturesFunction, noThrowExpectedOnFileSys
     auto filesystemMock = new StrictMock<MockFileSystem>();
     EXPECT_CALL(
         *filesystemMock,
-        writeFile(
-            Common::ApplicationConfiguration::applicationPathManager().getFeaturesJsonPath(),
-            "[\"feature1\",\"feature2\"]"))
+        writeFile(::testing::HasSubstr("installed_features.json"),"[\"feature1\",\"feature2\"]"))
         .WillOnce(Throw(Common::FileSystem::IFileSystemException("error")));
 
     Tests::ScopedReplaceFileSystem ScopedReplaceFileSystem{ std::unique_ptr<Common::FileSystem::IFileSystem>(
