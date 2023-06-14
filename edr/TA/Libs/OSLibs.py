@@ -40,7 +40,7 @@ def one_time_zypper_setup():
 
     start = time.time()
     while start + 60 > time.time():
-        result = subprocess.run(['zypper', '--no-interactive', 'refresh'], env=zypper_env(),
+        result = subprocess.run(['zypper', '--non-interactive', 'refresh'], env=zypper_env(),
                                 stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         if result.returncode == 0:
             break
