@@ -44,11 +44,18 @@ def group_exists(groupname: str):
         return False
 
 
+def delete_av_users():
+    for user in ('sophos-spl-av', 'sophos-spl-threat-detector'):
+        if user_exists(user):
+            subprocess.run(['userdel', user])
+
+
 def delete_users_and_groups():
-    if user_exists('sophos-spl-av'):
-        subprocess.run(['userdel', 'sophos-spl-av'])
-    if user_exists('sophos-spl-threat-detector'):
-        subprocess.run(['userdel', 'sophos-spl-threat-detector'])
+    delete_av_users()
+
+
+def _delete_all_users_and_groups():
+    delete_av_users()
     if user_exists('sophos-spl-user'):
         subprocess.run(['userdel', 'sophos-spl-user'])
     if group_exists('sophos-spl-group'):
