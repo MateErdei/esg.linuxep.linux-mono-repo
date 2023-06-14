@@ -1,12 +1,14 @@
 // Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #include "UnixSocketMemoryAppenderUsingTests.h"
-#include <ScanResponse.capnp.h>
+#include "ScanResponse.capnp.h"
 
 #include "unixsocket/threatDetectorSocket/ScanningServerSocket.h"
 #include "unixsocket/threatDetectorSocket/ScanningClientSocket.h"
 #include "unixsocket/SocketUtils.h"
 
+#include "common/ApplicationPaths.h"
+#include "common/FailedToInitializeSusiException.h"
 #include "datatypes/sophos_filesystem.h"
 #include "datatypes/SystemCallWrapper.h"
 #include "scan_messages/ScanRequest.h"
@@ -14,6 +16,9 @@
 #include "tests/common/MockScanner.h"
 #include "tests/common/TestFile.h"
 #include "tests/datatypes/MockSysCalls.h"
+
+#include "Common/FileSystem/IFileSystem.h"
+
 #include <capnp/serialize.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
@@ -21,7 +26,6 @@
 #include <memory>
 
 #include <fcntl.h>
-#include <sys/types.h>
 #include <sys/socket.h>
 #include <unistd.h>
 
@@ -52,18 +56,28 @@ namespace
             m_testDir /= test_info->test_case_name();
             m_testDir /= test_info->name();
             fs::remove_all(m_testDir);
-            fs::create_directories(m_testDir);
-
+            fs::create_directories(m_testDir / "var");
             fs::current_path(m_testDir);
+
+            auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
+            appConfig.setData(Common::ApplicationConfiguration::SOPHOS_INSTALL, m_testDir );
+            appConfig.setData("PLUGIN_INSTALL", m_testDir );
 
             m_sysCalls = std::make_shared<datatypes::SystemCallWrapper>();
             m_mockSysCalls = std::make_shared<StrictMock<MockSystemCallWrapper>>();
+            m_threatDetectorUnhealthyFlagFile = Plugin::getThreatDetectorUnhealthyFlagPath();
+            m_fileSystem = Common::FileSystem::fileSystem();
         }
 
         void TearDown() override
         {
             fs::current_path(fs::temp_directory_path());
-            fs::remove_all(m_testDir);
+           // fs::remove_all(m_testDir);
+        }
+
+        bool threatDetectorUnhealthyFlagSet()
+        {
+            return m_fileSystem->isFile(m_threatDetectorUnhealthyFlagFile);
         }
 
         UsingMemoryAppender memoryAppenderHolder;
@@ -71,6 +85,8 @@ namespace
         fs::path m_testDir;
         std::shared_ptr<datatypes::SystemCallWrapper> m_sysCalls;
         std::shared_ptr<StrictMock<MockSystemCallWrapper>> m_mockSysCalls;
+        std::string m_threatDetectorUnhealthyFlagFile;
+        Common::FileSystem::IFileSystem* m_fileSystem = nullptr;
     };
 
     class TestScanningServerConnectionThreadWithSocketPair : public TestScanningServerConnectionThread
@@ -426,6 +442,41 @@ TEST_F(TestScanningServerConnectionThreadWithSocketPair, send_fd)
 
     EXPECT_GT(m_memoryAppender->size(), 0);
     EXPECT_TRUE(appenderContains(expected));
+}
+
+TEST_F(TestScanningServerConnectionThreadWithSocketPair, fails_to_create_scanner_throws_and_sets_unhealthy_flag)
+{
+    m_memoryAppender->setLayout(std::make_unique<log4cplus::PatternLayout>("[%p] %m%n"));
+    const std::string expected = "[ERROR] ScanningServerConnectionThread aborting scan, failed to initialise SUSI";
+
+    auto scannerFactory = std::make_shared<StrictMock<MockScannerFactory>>();
+
+    ::capnp::MallocMessageBuilder message;
+    Sophos::ssplav::FileScanRequest::Builder requestBuilder =
+        message.initRoot<Sophos::ssplav::FileScanRequest>();
+    requestBuilder.setPathname("/file/to/scan");
+    requestBuilder.setScanType(scan_messages::E_SCAN_TYPE_ON_DEMAND);
+    requestBuilder.setUserID("n/a");
+
+    Sophos::ssplav::FileScanRequest::Reader requestReader = requestBuilder;
+
+    scan_messages::ScanRequest request = scan_messages::ScanRequest(requestReader);
+    EXPECT_CALL(*scannerFactory, createScanner(_, _, _)).WillOnce(Throw(FailedToInitializeSusiException("failedtoinitialize")));
+
+    ScanningServerConnectionThread connectionThread(m_serverFd, scannerFactory, m_sysCalls);
+    connectionThread.start();
+    EXPECT_TRUE(connectionThread.isRunning());
+    unixsocket::writeLengthAndBuffer(m_clientFd, request.serialise());
+
+    TestFile testFile("testfile");
+    datatypes::AutoFd fd(testFile.open());
+    auto ret = send_fd(m_clientFd, fd.get()); // send a valid file descriptor
+    ASSERT_GE(ret, 0);
+
+    EXPECT_TRUE(waitForLog(expected));
+    connectionThread.requestStop();
+    connectionThread.join();
+    EXPECT_TRUE(threatDetectorUnhealthyFlagSet());
 }
 
 TEST_F(TestScanningServerConnectionThreadWithSocketConnection, fd_not_readable)
