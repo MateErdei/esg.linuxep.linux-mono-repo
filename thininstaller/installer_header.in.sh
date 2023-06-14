@@ -87,15 +87,17 @@ function failure()
 {
     code=$1
     removeinstall=1
-    if ! [ -z "$3" ] ; then
+    if [[ -n "$3" ]]
+    then
       removeinstall=0
     fi
 
     echo "$2" >&2
     # only remove files if we didnt get far enough through the process to install or
     # the install directory existed already and we didnt create it
-    if [ ${removeinstall} -eq 1 ] && ! is_sspl_installed ; then
-      if [ -n ${SOPHOS_INSTALL} ]
+    if [[ ${removeinstall} -eq 1 ]] && ! is_sspl_installed
+    then
+      if [[ -n ${SOPHOS_INSTALL} ]]
       then
         echo "Removing ${SOPHOS_INSTALL}"
         rm -rf ${SOPHOS_INSTALL}
