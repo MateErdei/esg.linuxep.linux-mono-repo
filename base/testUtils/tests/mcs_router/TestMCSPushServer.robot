@@ -34,6 +34,7 @@ Client Should Detect Push Server Disconnection
     Check Server Stops Connection
 
 Client Should Detect Push Server Goes Away
+    [Tags]    EXCLUDE_DEBIAN12
     Start MCS Push Server
     Start SSE Client
     Check MCS Push Message Sent    Single Message
