@@ -80,6 +80,11 @@ namespace
             return m_fileSystem->isFile(m_threatDetectorUnhealthyFlagFile);
         }
 
+        [[maybe_unused]] void createOnAccessUnhealthyFlagFile()
+        {
+            m_fileSystem->writeFile(m_threatDetectorUnhealthyFlagFile, "");
+        }
+
         UsingMemoryAppender memoryAppenderHolder;
         scan_messages::ClientScanRequest request;
         fs::path m_testDir;
@@ -477,9 +482,52 @@ TEST_F(TestScanningServerConnectionThreadWithSocketPair, fails_to_create_scanner
     receiveResponse(response);
     EXPECT_EQ(response.getErrorMsg(), expected);
 
+    EXPECT_TRUE(waitForLog("Stopping ScanningServerConnectionThread"));
     connectionThread.requestStop();
     connectionThread.join();
     EXPECT_TRUE(threatDetectorUnhealthyFlagSet());
+}
+
+TEST_F(TestScanningServerConnectionThreadWithSocketPair, successful_creation_of_scanner_removes_bad_health_flag)
+{
+    auto scanner = std::make_unique<StrictMock<MockScanner>>();
+    auto expected_response = scan_messages::ScanResponse();
+    expected_response.addDetection("/tmp/eicar.com", "virus", "THREAT", "");
+    auto scannerFactory = std::make_shared<StrictMock<MockScannerFactory>>();
+
+    ::capnp::MallocMessageBuilder message;
+    Sophos::ssplav::FileScanRequest::Builder requestBuilder =
+        message.initRoot<Sophos::ssplav::FileScanRequest>();
+    requestBuilder.setPathname("/file/to/scan");
+    requestBuilder.setScanType(scan_messages::E_SCAN_TYPE_ON_DEMAND);
+    requestBuilder.setUserID("n/a");
+
+    Sophos::ssplav::FileScanRequest::Reader requestReader = requestBuilder;
+    scan_messages::ScanRequest request = scan_messages::ScanRequest(requestReader);
+    EXPECT_CALL(*scanner, scan(_, Eq(std::ref(request)))).WillOnce(Return(expected_response));
+    EXPECT_CALL(*scannerFactory, createScanner(_, _, _)).WillOnce(Return(ByMove(std::move(scanner))));
+
+    createOnAccessUnhealthyFlagFile();
+    ASSERT_TRUE(threatDetectorUnhealthyFlagSet());
+
+    ScanningServerConnectionThread connectionThread(m_serverFd, scannerFactory, m_sysCalls);
+    connectionThread.start();
+    EXPECT_TRUE(connectionThread.isRunning());
+    unixsocket::writeLengthAndBuffer(m_clientFd, request.serialise());
+
+    TestFile testFile("testfile");
+    datatypes::AutoFd fd(testFile.open());
+    auto ret = send_fd(m_clientFd, fd.get()); // send a valid file descriptor
+    ASSERT_GE(ret, 0);
+
+    EXPECT_TRUE(waitForLog("ScanningServerConnectionThread has created a new scanner"));
+
+    EXPECT_FALSE(threatDetectorUnhealthyFlagSet());
+
+    connectionThread.requestStop();
+    connectionThread.join();
+
+
 }
 
 TEST_F(TestScanningServerConnectionThreadWithSocketPair, scanner_shutting_down_throws)
@@ -515,6 +563,7 @@ TEST_F(TestScanningServerConnectionThreadWithSocketPair, scanner_shutting_down_t
     scan_messages::ScanResponse response;
     receiveResponse(response);
     EXPECT_EQ(response.getErrorMsg(), expected);
+    EXPECT_TRUE(waitForLog("Stopping ScanningServerConnectionThread"));
 
     connectionThread.requestStop();
     connectionThread.join();
