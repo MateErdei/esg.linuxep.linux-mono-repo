@@ -271,6 +271,9 @@ void unixsocket::ScanningServerConnectionThread::inner_run()
                     {
                         throw unixsocket::UnixSocketException(LOCATION, m_threadName + " failed to create scanner");
                     }
+
+                    std::remove(Plugin::getThreatDetectorUnhealthyFlagPath().c_str());
+                    LOGDEBUG(m_threadName << " has created a new scanner");
                 }
 
                 // The User ID could be spoofed by an untrusted client. Until this is made secure, hardcode it to "n/a"
