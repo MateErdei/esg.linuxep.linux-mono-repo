@@ -367,7 +367,7 @@ On Access Scans File On NFSv3
     On Access Scans Files On NFS   version=3
 
 On Access Scans File On NFSv2
-    [Tags]  NFS
+    [Tags]  NFS  nfsv2
     On Access Scans Files On NFS   version=2
 
 On Access Scans File On NFSv4 no_root_squash
@@ -379,7 +379,7 @@ On Access Scans File On NFSv3 no_root_squash
     On Access Scans Files On NFS   version=3   share_opts=no_root_squash
 
 On Access Scans File On NFSv2 no_root_squash
-    [Tags]  NFS
+    [Tags]  NFS  nfsv2
     On Access Scans Files On NFS   version=2   share_opts=no_root_squash
 
 # TODO LINUXDAR-6200 - re-enable tests once samba/CIFS test reliability is fixed.
