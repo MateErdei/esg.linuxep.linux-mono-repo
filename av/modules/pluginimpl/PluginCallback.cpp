@@ -244,12 +244,9 @@ namespace Plugin
         return versionStr;
     }
 
-    bool PluginCallback::shutdownFileValid() const
+    bool PluginCallback::shutdownFileValid(Common::FileSystem::IFileSystem* fileSystem) const
     {
         // Threat detector is expected to shut down periodically but should be restarted by watchdog after 10 seconds
-
-        auto fileSystem = Common::FileSystem::fileSystem();
-
         Path threatDetectorExpectedShutdownFile = common::getPluginInstallPath() / "chroot/var/threat_detector_expected_shutdown";
         bool valid = false;
 
@@ -429,7 +426,7 @@ namespace Plugin
         {
             if(m_soapServiceStatus == E_HEALTH_STATUS_BAD)
             {
-                LOGINFO("Sophos On Access Process is now running");
+                LOGINFO("Sophos On Access Process is now healthy");
             }
 
             m_soapServiceStatus = E_HEALTH_STATUS_GOOD;
@@ -438,8 +435,18 @@ namespace Plugin
 
     void PluginCallback::calculateThreatDetectorHealthStatus(const std::shared_ptr<datatypes::ISystemCallWrapper>& sysCalls)
     {
+        auto fileSystem = Common::FileSystem::fileSystem();
         Path threatDetectorPidFile = common::getPluginInstallPath() / "chroot/var/threat_detector.pid";
-        if (!common::PidLockFile::isPidFileLocked(threatDetectorPidFile, sysCalls) && !shutdownFileValid())
+        bool unhealthy = fileSystem->isFile(getThreatDetectorUnhealthyFlagPath());
+        if (unhealthy)
+        {
+            if(m_threatDetectorServiceStatus == E_HEALTH_STATUS_GOOD)
+            {
+                LOGWARN("Sophos Threat Detector Process is unhealthy, turning service health to red");
+            }
+            m_threatDetectorServiceStatus = E_HEALTH_STATUS_BAD;
+        }
+        else if (!common::PidLockFile::isPidFileLocked(threatDetectorPidFile, sysCalls) && !shutdownFileValid(fileSystem))
         {
             if(m_threatDetectorServiceStatus == E_HEALTH_STATUS_GOOD)
             {
@@ -451,7 +458,7 @@ namespace Plugin
         {
             if(m_threatDetectorServiceStatus == E_HEALTH_STATUS_BAD)
             {
-                LOGINFO("Sophos Threat Detector Process is now running");
+                LOGINFO("Sophos Threat Detector Process is now healthy");
             }
 
             m_threatDetectorServiceStatus = E_HEALTH_STATUS_GOOD;

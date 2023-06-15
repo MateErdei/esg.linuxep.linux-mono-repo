@@ -73,7 +73,7 @@ namespace Plugin
         static std::string getVirusDataVersion();
 
         static int getProcessPidFromFile(Common::FileSystem::IFileSystem* fileSystem, const Path&);
-        [[nodiscard]] bool shutdownFileValid() const;
+        [[nodiscard]] bool shutdownFileValid(Common::FileSystem::IFileSystem* fileSystem) const;
 
         /**
          * Takes a linux process status file's contents and returns a value at of a
