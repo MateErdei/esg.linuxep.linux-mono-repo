@@ -30,6 +30,10 @@ namespace
         {
             m_testDir = createTestSpecificDirectory();
             fs::current_path(m_testDir);
+
+            auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
+            appConfig.setData(Common::ApplicationConfiguration::SOPHOS_INSTALL, m_testDir );
+            appConfig.setData("PLUGIN_INSTALL", m_testDir );
         }
 
         void TearDown() override
