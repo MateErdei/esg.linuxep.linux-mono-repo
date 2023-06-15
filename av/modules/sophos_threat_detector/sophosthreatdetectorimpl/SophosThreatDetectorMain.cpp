@@ -23,6 +23,7 @@
 
 // SPL Base
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
+#include "Common/Exceptions/IException.h"
 
 // C++ 3rd Party
 #define BOOST_LOCALE_HIDE_AUTO_PTR
@@ -40,6 +41,15 @@
 #include <zlib.h>
 
 using namespace std::chrono_literals;
+
+namespace
+{
+    class InnerMainException : public Common::Exceptions::IException
+    {
+    public:
+        using Common::Exceptions::IException::IException;
+    };
+}
 
 namespace sspl::sophosthreatdetectorimpl
 {
@@ -396,7 +406,7 @@ namespace sspl::sophosthreatdetectorimpl
             std::stringstream logmsg;
             logmsg << "Failed to chroot to " << chrootPath.c_str() <<
                 ": " <<  error << " (" << common::safer_strerror(error) << ")";
-            throw std::runtime_error(logmsg.str());
+            throw InnerMainException(LOCATION, logmsg.str());
         }
 
         if (m_sysCallWrapper->getuid() != 0)
@@ -404,7 +414,7 @@ namespace sspl::sophosthreatdetectorimpl
             ret = dropCapabilities();
             if (ret != 0)
             {
-                throw std::runtime_error("Failed to drop capabilities after entering chroot");
+                throw InnerMainException(LOCATION, "Failed to drop capabilities after entering chroot");
             }
 
             ret = lockCapabilities();
@@ -414,7 +424,7 @@ namespace sspl::sophosthreatdetectorimpl
                 std::stringstream logmsg;
                 logmsg << "Failed to lock capabilities after entering chroot: "
                        <<  error << " (" << common::safer_strerror(error) << ")";
-                throw std::runtime_error(logmsg.str());
+                throw InnerMainException(LOCATION, logmsg.str());
             }
         }
         else
@@ -428,7 +438,7 @@ namespace sspl::sophosthreatdetectorimpl
             int error = errno;
             std::stringstream logmsg;
             logmsg << "Failed to chdir / after entering chroot " << error << " (" << common::safer_strerror(error) << ")";
-            throw std::runtime_error(logmsg.str());
+            throw InnerMainException(LOCATION, logmsg.str());
         }
 
         chrootPath = "/";
@@ -598,15 +608,35 @@ namespace sspl::sophosthreatdetectorimpl
             auto resources = std::make_unique<ThreatDetectorResources>();
             return inner_main(std::move(resources));
         }
-        catch (std::exception& ex)
+        catch (const InnerMainException& ex)
+        {
+            LOGFATAL("ThreatDetectorMain, InnerMainException caught at top level: " << ex.what_with_location());
+            return common::E_INNER_MAIN_EXCEPTION;
+        }
+        catch (const Common::Exceptions::IException& ex)
+        {
+            LOGFATAL("ThreatDetectorMain, IException caught at top level: " << ex.what_with_location());
+            return common::E_IEXCEPTION_AT_TOP_LEVEL;
+        }
+        catch (const std::runtime_error& ex)
+        {
+            LOGFATAL("ThreatDetectorMain, RuntimeError caught at top level: " << ex.what());
+            return common::E_RUNTIME_ERROR;
+        }
+        catch (const std::bad_alloc& ex)
+        {
+            LOGFATAL("ThreatDetectorMain, bad_alloc caught at top level: " << ex.what());
+            return common::E_BAD_ALLOC;
+        }
+        catch (const std::exception& ex)
         {
             LOGFATAL("ThreatDetectorMain, Exception caught at top level: " << ex.what());
-            exit(EXIT_FAILURE);
+            exit(common::E_STD_EXCEPTION_AT_TOP_LEVEL);
         }
         catch (...)
         {
             LOGFATAL("ThreatDetectorMain, Non-std::exception caught at top-level");
-            exit(EXIT_FAILURE);
+            exit(common::E_NON_EXCEPTION_AT_TOP_LEVEL);
         }
     }
 } // namespace sspl::sophosthreatdetectorimpl
