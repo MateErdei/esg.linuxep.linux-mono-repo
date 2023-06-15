@@ -2,13 +2,10 @@
 
 #pragma once
 
-#include <stdexcept>
+#include "Common/Exceptions/IException.h"
 
-class FailedToInitializeSusiException : public std::runtime_error
+class FailedToInitializeSusiException : public Common::Exceptions::IException
 {
 public:
-    explicit FailedToInitializeSusiException(const std::string& errorMsg)
-        : std::runtime_error(errorMsg)
-    {
-    }
+    using Common::Exceptions::IException::IException;
 };

@@ -2,6 +2,8 @@
 
 #pragma once
 
+#include "ThreatScannerException.h"
+
 #include "common/FailedToInitializeSusiException.h"
 
 #include <Susi.h>
@@ -20,7 +22,7 @@ namespace threat_scanner
     {
         if (res != SUSI_S_OK)
         {
-            throw std::runtime_error(message);
+            throw ThreatScannerException(LOCATION, message);
         }
     }
 
@@ -33,7 +35,7 @@ namespace threat_scanner
     {
         if (res != SUSI_S_OK)
         {
-            throw FailedToInitializeSusiException(message);
+            throw FailedToInitializeSusiException(LOCATION, message);
         }
     }
 }

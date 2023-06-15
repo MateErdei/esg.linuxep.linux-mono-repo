@@ -33,6 +33,7 @@ add_library(threat_scanner SHARED
         SusiWrapperFactory.cpp
         ThreatDetectedBuilder.h
         ThreatDetectedBuilder.cpp
+        ThreatScannerException.h
         ThrowIfNotOk.h
         UnitScanner.h
         UnitScanner.cpp
