@@ -7,7 +7,9 @@
 #include "ProcessForceExitTimer.h"
 #include "ProxySettings.h"
 #include "ThreatDetectorControlCallback.h"
+#include "ThreatDetectorException.h"
 #include "ThreatDetectorResources.h"
+#include "sophos_threat_detector/threat_scanner/ThreatScannerException.h"
 // AV Plugin
 #include "common/ApplicationPaths.h"
 #include "common/Define.h"
@@ -610,22 +612,32 @@ namespace sspl::sophosthreatdetectorimpl
         }
         catch (const InnerMainException& ex)
         {
-            LOGFATAL("ThreatDetectorMain, InnerMainException caught at top level: " << ex.what_with_location());
+            LOGFATAL("ThreatDetectorMain: InnerMainException caught at top level: " << ex.what_with_location());
             return common::E_INNER_MAIN_EXCEPTION;
+        }
+        catch (const ThreatDetectorException& ex)
+        {
+            LOGFATAL("ThreatDetectorMain: ThreatDetectorException caught at top level: " << ex.what_with_location());
+            return common::E_THREAT_DETECTOR_EXCEPTION;
+        }
+        catch (const threat_scanner::ThreatScannerException& ex)
+        {
+            LOGFATAL("ThreatDetectorMain: ThreatScannerException caught at top level: " << ex.what_with_location());
+            return common::E_THREAT_SCANNER_EXCEPTION;
         }
         catch (const Common::Exceptions::IException& ex)
         {
-            LOGFATAL("ThreatDetectorMain, IException caught at top level: " << ex.what_with_location());
+            LOGFATAL("ThreatDetectorMain: IException caught at top level: " << ex.what_with_location());
             return common::E_IEXCEPTION_AT_TOP_LEVEL;
         }
         catch (const std::runtime_error& ex)
         {
-            LOGFATAL("ThreatDetectorMain, RuntimeError caught at top level: " << ex.what());
+            LOGFATAL("ThreatDetectorMain: RuntimeError caught at top level: " << ex.what());
             return common::E_RUNTIME_ERROR;
         }
         catch (const std::bad_alloc& ex)
         {
-            LOGFATAL("ThreatDetectorMain, bad_alloc caught at top level: " << ex.what());
+            LOGFATAL("ThreatDetectorMain: bad_alloc caught at top level: " << ex.what());
             return common::E_BAD_ALLOC;
         }
         catch (const std::exception& ex)

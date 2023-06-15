@@ -32,6 +32,8 @@ namespace common
         E_BAD_ALLOC = 82,
         E_RUNTIME_ERROR = 83,
         E_IEXCEPTION_AT_TOP_LEVEL = 84,
-        E_INNER_MAIN_EXCEPTION = 85
+        E_INNER_MAIN_EXCEPTION = 85,
+        E_THREAT_DETECTOR_EXCEPTION = 86,
+        E_THREAT_SCANNER_EXCEPTION = 87
     };
 }
