@@ -14,15 +14,12 @@
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <Common/FileSystem/IFileSystemException.h>
 #include <Common/Helpers/FileSystemReplaceAndRestore.h>
-#include <Common/Helpers/MockFilePermissions.h>
 #include <Common/Helpers/MockFileSystem.h>
 
 #include <gtest/gtest.h>
 #include <pluginimpl/HealthStatus.h>
 #include <tests/datatypes/MockSysCalls.h>
 #include <thirdparty/nlohmann-json/json.hpp>
-
-#include <fstream>
 
 using namespace Plugin;
 namespace fs = sophos_filesystem;
@@ -637,9 +634,6 @@ TEST_F(TestPluginCallback, getTelemetry_ProductInfo)
     Path soapdPidProcDirectory = "/proc/1235";
     std::optional<std::string> statProcContents = "1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 100 23 500 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52";
 
-    auto* filePermissionsMock = new StrictMock<MockFilePermissions>();
-    Tests::ScopedReplaceFilePermissions scopedReplaceFilePermissions{std::unique_ptr<Common::FileSystem::IFilePermissions>(filePermissionsMock)};
-
     EXPECT_CALL(*m_mockFileSystem, exists(shutdownFilePath)).WillOnce(Return(false));
     EXPECT_CALL(*m_mockFileSystem, isFile(Plugin::getOnAccessUnhealthyFlagPath())).WillOnce(Return(false));
     EXPECT_CALL(*m_mockFileSystem, isFile(Plugin::getThreatDetectorUnhealthyFlagPath())).WillOnce(Return(false));
@@ -854,9 +848,6 @@ TEST_F(TestPluginCallback, getProcessInfoReturnsZeroesOnFileSystemExceptionWhenA
     std::string pidFileContents = "1234";
     Path pidProcDirectory = "/proc/1234";
     int pidFileContentsConverted = 1234;
-    
-    auto* filePermissionsMock = new StrictMock<MockFilePermissions>();
-    Tests::ScopedReplaceFilePermissions scopedReplaceFilePermissions{std::unique_ptr<Common::FileSystem::IFilePermissions>(filePermissionsMock)};
 
     EXPECT_CALL(*m_mockFileSystem, readFile(threatDetectorPidFile)).WillOnce(Return(pidFileContents));
     EXPECT_CALL(*m_mockFileSystem, isDirectory(pidProcDirectory)).WillOnce(Return(true));
