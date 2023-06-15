@@ -955,7 +955,7 @@ TEST_F(TestPluginCallback, checkCalculateServiceHealthLogsTheRightThings)
     ASSERT_EQ(m_pluginCallback->m_serviceHealth, E_HEALTH_STATUS_BAD);
     result = m_pluginCallback->calculateHealth(m_mockSysCalls);
 
-    EXPECT_TRUE(appenderContains("Sophos SafeStore Process is now running"));
+    EXPECT_TRUE(appenderContains("Sophos SafeStore Process is now healthy"));
     EXPECT_TRUE(appenderContains("Sophos On Access Process is now healthy"));
     EXPECT_TRUE(appenderContains("Sophos Threat Detector Process is now healthy"));
     EXPECT_TRUE(appenderContains("Service Health has changed to: green"));

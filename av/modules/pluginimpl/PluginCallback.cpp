@@ -404,7 +404,7 @@ namespace Plugin
             {
                 if (m_safestoreServiceStatus == E_HEALTH_STATUS_BAD)
                 {
-                    LOGINFO("Sophos SafeStore Process is now running");
+                    LOGINFO("Sophos SafeStore Process is now healthy");
                 }
                 m_safestoreServiceStatus = E_HEALTH_STATUS_GOOD;
             }
