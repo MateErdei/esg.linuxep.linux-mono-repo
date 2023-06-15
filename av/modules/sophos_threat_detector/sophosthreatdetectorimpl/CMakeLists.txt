@@ -11,6 +11,7 @@ add_library(sophosthreatdetectorimpl SHARED
         ISophosThreatDetectorMain.h
         ThreatDetectorControlCallback.cpp
         ThreatDetectorControlCallback.h
+        ThreatDetectorException.h
         ThreatDetectorResources.cpp
         ThreatDetectorResources.h
         IThreatDetectorResources.h

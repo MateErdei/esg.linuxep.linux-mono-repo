@@ -4,6 +4,7 @@
 
 #include "Logger.h"
 #include "ThrowIfNotOk.h"
+#include "ThreatScannerException.h"
 
 
 #include "common/ApplicationPaths.h"
@@ -170,7 +171,7 @@ namespace threat_scanner
         {
             std::stringstream errorMsg;
             errorMsg << "Failed to open lock file: " << lockfile;
-            throw std::runtime_error(errorMsg.str());
+            throw ThreatScannerException(LOCATION, errorMsg.str());
         }
 
         // Try up to 20 times 0.5s apart to acquire the file lock
@@ -188,7 +189,7 @@ namespace threat_scanner
                 std::stringstream errorMsg;
                 errorMsg << "Failed to acquire lock on " << lockfile;
                 LOGERROR(errorMsg.str());
-                throw std::runtime_error(errorMsg.str());
+                throw ThreatScannerException(LOCATION, errorMsg.str());
             }
             nanosleep(&timeout, nullptr);
         }
@@ -228,7 +229,7 @@ namespace threat_scanner
         {
             std::stringstream errorMsg;
             errorMsg << "Failed to release lock on " << lockfile;
-            throw std::runtime_error(errorMsg.str());
+            throw ThreatScannerException(LOCATION, errorMsg.str());
         }
         return !SUSI_FAILURE(updateResult);
     }
@@ -329,7 +330,7 @@ namespace threat_scanner
             std::ostringstream ost;
             ost << "Failed to retrieve SUSI version: 0x" << std::hex << res << std::dec;
             LOGERROR(ost.str());
-            throw std::runtime_error(ost.str());
+            throw ThreatScannerException(LOCATION, ost.str());
         }
 
         LOGINFO("SUSI Libraries loaded: " << result->versionResultJson);
