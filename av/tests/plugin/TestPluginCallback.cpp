@@ -456,6 +456,7 @@ TEST_F(TestPluginCallback, getHealthReturnsBadWhenPidFileDoesNotExistAndShutdown
 
     EXPECT_CALL(*filesystemMock, exists(shutdownFilePath)).WillOnce(Return(true));
     EXPECT_CALL(*filesystemMock, isFile(Plugin::getOnAccessUnhealthyFlagPath())).WillOnce(Return(false));
+    EXPECT_CALL(*filesystemMock, isFile(Plugin::getThreatDetectorUnhealthyFlagPath())).WillOnce(Return(false));
     EXPECT_CALL(*filesystemMock, lastModifiedTime(shutdownFilePath)).WillOnce(Return(std::time(nullptr) - 60));
 
     long expectedResult = E_HEALTH_STATUS_BAD;
@@ -481,6 +482,7 @@ TEST_F(TestPluginCallback, getHealthReturnsBadWhenPidFileDoesNotExistAndShutdown
 
     EXPECT_CALL(*filesystemMock, exists(shutdownFilePath)).WillOnce(Return(true));
     EXPECT_CALL(*filesystemMock, isFile(Plugin::getOnAccessUnhealthyFlagPath())).WillOnce(Return(false));
+    EXPECT_CALL(*filesystemMock, isFile(Plugin::getThreatDetectorUnhealthyFlagPath())).WillOnce(Return(false));
     EXPECT_CALL(*filesystemMock, lastModifiedTime(shutdownFilePath)).WillOnce(Throw(
             Common::FileSystem::IFileSystemException("Shutdown file read error.")));
 
@@ -501,6 +503,7 @@ TEST_F(TestPluginCallback, calculateHealthReturnsGoodIfLockCannotBeTakenOnPidFil
 
     int fileDescriptor = 123;
     EXPECT_CALL(*filesystemMock, isFile(Plugin::getOnAccessUnhealthyFlagPath())).WillOnce(Return(false));
+    EXPECT_CALL(*filesystemMock, isFile(Plugin::getThreatDetectorUnhealthyFlagPath())).WillOnce(Return(false));
     EXPECT_CALL(*m_mockSysCalls, _open(_, O_RDONLY, 0644)).WillRepeatedly(Return(fileDescriptor));
     EXPECT_CALL(*m_mockSysCalls, flock(fileDescriptor, LOCK_EX | LOCK_NB)).WillRepeatedly(SetErrnoAndReturn(EWOULDBLOCK, -1));
 
@@ -517,6 +520,7 @@ TEST_F(TestPluginCallback, calculateHealthReturnsBadIfLockCannotBeTakenOnPidFile
 
     int fileDescriptor = 123;
     EXPECT_CALL(*filesystemMock, isFile(Plugin::getOnAccessUnhealthyFlagPath())).WillOnce(Return(true));
+    EXPECT_CALL(*filesystemMock, isFile(Plugin::getThreatDetectorUnhealthyFlagPath())).WillOnce(Return(false));
     EXPECT_CALL(*m_mockSysCalls, _open(_, O_RDONLY, 0644)).WillRepeatedly(Return(fileDescriptor));
     EXPECT_CALL(*m_mockSysCalls, flock(fileDescriptor, LOCK_EX | LOCK_NB)).WillRepeatedly(SetErrnoAndReturn(EWOULDBLOCK, -1));
 
@@ -540,6 +544,7 @@ TEST_F(TestPluginCallback, calculateHealthReturnsBadIfLockCanBeTakenOnThreatDete
 
     EXPECT_CALL(*filesystemMock, exists(shutdownFilePath)).WillOnce(Return(true));
     EXPECT_CALL(*filesystemMock, isFile(Plugin::getOnAccessUnhealthyFlagPath())).WillOnce(Return(false));
+    EXPECT_CALL(*filesystemMock, isFile(Plugin::getThreatDetectorUnhealthyFlagPath())).WillOnce(Return(false));
     EXPECT_CALL(*filesystemMock, lastModifiedTime(shutdownFilePath)).WillOnce(Throw(
         Common::FileSystem::IFileSystemException("Shutdown file read error.")));
 
@@ -577,6 +582,7 @@ TEST_F(TestPluginCallback, calculateHealthReturnsBadIfLockCanBeTakenOnSoapdPidFi
     int soapd_fd = 321;
 
     EXPECT_CALL(*filesystemMock, isFile(Plugin::getOnAccessUnhealthyFlagPath())).WillOnce(Return(false));
+    EXPECT_CALL(*filesystemMock, isFile(Plugin::getThreatDetectorUnhealthyFlagPath())).WillOnce(Return(false));
     EXPECT_CALL(*m_mockSysCalls, _open(_, O_RDONLY, 0644)).WillRepeatedly(Return(other_fd));
     EXPECT_CALL(*m_mockSysCalls, _open(::testing::StrEq(soapdPidFile), O_RDONLY, 0644)).WillOnce(Return(soapd_fd));
 
@@ -613,6 +619,7 @@ TEST_F(TestPluginCallback, calculateHealthReturnsBadIfLockCanBeTakenOnSafeStoreP
     EXPECT_CALL(*m_mockSysCalls, flock(other_fd, LOCK_EX | LOCK_NB)).WillRepeatedly(SetErrnoAndReturn(EWOULDBLOCK, -1));
     EXPECT_CALL(*m_mockSysCalls, flock(soapd_fd, LOCK_EX | LOCK_NB)).WillRepeatedly(Return(0));
     EXPECT_CALL(*filesystemMock, isFile(Plugin::getOnAccessUnhealthyFlagPath())).WillOnce(Return(false));
+    EXPECT_CALL(*filesystemMock, isFile(Plugin::getThreatDetectorUnhealthyFlagPath())).WillOnce(Return(false));
     EXPECT_CALL(*filesystemMock, isFile(Plugin::getSafeStoreDormantFlagPath())).WillOnce(Return(false));
 
     long expectedResult = E_HEALTH_STATUS_BAD;
@@ -652,6 +659,7 @@ TEST_F(TestPluginCallback, getTelemetry_ProductInfo)
 
     EXPECT_CALL(*filesystemMock, exists(shutdownFilePath)).WillOnce(Return(false));
     EXPECT_CALL(*filesystemMock, isFile(Plugin::getOnAccessUnhealthyFlagPath())).WillOnce(Return(false));
+    EXPECT_CALL(*filesystemMock, isFile(Plugin::getThreatDetectorUnhealthyFlagPath())).WillOnce(Return(false));
     EXPECT_CALL(*filesystemMock, readFile(threatDetectorPidFile)).WillRepeatedly(Return(threatDetectorPidFileContents));
     EXPECT_CALL(*filesystemMock, readFile(soapdPidFile)).WillRepeatedly(Return(soapdPidFileContents));
     EXPECT_CALL(*filesystemMock, isDirectory(threatDetectorPidProcDirectory)).WillRepeatedly(Return(true));
@@ -918,6 +926,7 @@ TEST_F(TestPluginCallback, checkCalculateServiceHealthLogsTheRightThings)
 
     EXPECT_CALL(*filesystemMock, exists(shutdownFilePath)).WillRepeatedly(Return(true));
     EXPECT_CALL(*filesystemMock, isFile(Plugin::getOnAccessUnhealthyFlagPath())).WillRepeatedly(Return(false));
+    EXPECT_CALL(*filesystemMock, isFile(Plugin::getThreatDetectorUnhealthyFlagPath())).WillRepeatedly(Return(false));
     EXPECT_CALL(*filesystemMock, lastModifiedTime(shutdownFilePath)).WillRepeatedly(Throw(
         Common::FileSystem::IFileSystemException("Shutdown file read error.")));
 
@@ -947,8 +956,8 @@ TEST_F(TestPluginCallback, checkCalculateServiceHealthLogsTheRightThings)
     result = m_pluginCallback->calculateHealth(m_mockSysCalls);
 
     EXPECT_TRUE(appenderContains("Sophos SafeStore Process is now running"));
-    EXPECT_TRUE(appenderContains("Sophos On Access Process is now running"));
-    EXPECT_TRUE(appenderContains("Sophos Threat Detector Process is now running"));
+    EXPECT_TRUE(appenderContains("Sophos On Access Process is now healthy"));
+    EXPECT_TRUE(appenderContains("Sophos Threat Detector Process is now healthy"));
     EXPECT_TRUE(appenderContains("Service Health has changed to: green"));
     ASSERT_EQ(result, E_HEALTH_STATUS_GOOD);
     //if this succeeds all process service healths are E_HEALTH_STATUS_GOOD
