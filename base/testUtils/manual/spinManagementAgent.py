@@ -4,6 +4,7 @@
 
 import os
 import sys
+import time
 
 import spinUpdateScheduler
 
@@ -22,7 +23,12 @@ LOG_PATH = spinUpdateScheduler.LOG_PATH
 
 
 def wait_for_running(initial_wait, executable, proc, logmark):
+    start = time.time()
     logmark.wait_for_log_contains_from_mark("Management Agent running.", timeout=initial_wait)
+    end = time.time()
+    duration = end - start
+    if duration < 3:
+        time.sleep(3 - duration)
 
 
 spinUpdateScheduler.wait_for_running = wait_for_running
