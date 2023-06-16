@@ -364,3 +364,31 @@ AV health is unaffected by on-access scanning the soapd pidfile
     wait_for_log_contains_from_mark  ${oa_mark}  On-open event for ${PID_FILE} from
 
     Check Status Health is Reporting Correctly    GOOD
+
+
+AV Service Health Turns Red When SUSI Fails Initialisation
+    Register Cleanup  Exclude Susi Initialisation Failed Messages On Access Enabled
+
+    #necessary for error markers
+    Create File   ${OA_LOCAL_SETTINGS}   { "numThreads" : 1 }
+    Register Cleanup    Restart soapd
+    Register Cleanup    Remove File    ${OA_LOCAL_SETTINGS}
+    Restart soapd
+
+    ${SUSI_DISTRIBUTION_VERSION} =    Set Variable   ${COMPONENT_ROOT_PATH}/chroot/susi/distribution_version
+    ${SUSI_UPDATE_SOURCE} =    Set Variable   ${COMPONENT_ROOT_PATH}/chroot/susi/update_source
+    ${VDL_DIRECTORY} =    Set Variable   ${SUSI_UPDATE_SOURCE}/vdl
+
+    ${td_mark} =  Get Sophos Threat Detector Log Mark
+    restart sophos_threat_detector
+
+    #Fake a bad update_source directory
+    Move Directory  ${VDL_DIRECTORY}  /tmp/
+    Register Cleanup    restart sophos_threat_detector
+    Register Cleanup    Move Directory  /tmp/vdl  ${SUSI_UPDATE_SOURCE}
+
+    Wait For Sophos Threat Detector Log Contains After Mark   ScanningServerConnectionThread aborting scan, failed to initialise SUSI  ${td_mark}
+
+    File Should Exist    ${AV_PLUGIN_PATH}/chroot/var/threatdetector_unhealthy_flag
+
+    Check Status Health is Reporting Correctly    BAD

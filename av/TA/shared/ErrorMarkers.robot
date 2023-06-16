@@ -267,3 +267,18 @@ Exclude SafeStore File Open Error On Quarantine
 
 Exclude ThreatDatabase Failed To Parse Database
     mark_expected_error_in_log   ${AV_LOG_PATH}    Resetting ThreatDatabase as we failed to parse ThreatDatabase on disk with error
+
+Exclude Susi Initialisation Failed Messages On Access Enabled
+    mark_expected_error_in_log   ${ON_ACCESS_LOG_PATH}    ScanRequestHandler-0 received error: ScanningServerConnectionThread aborting scan, failed to initialise SUSI: Bootstrapping SUSI failed, exiting
+    mark_expected_error_in_log   ${ON_ACCESS_LOG_PATH}    ScanRequestHandler-0 received error: ScanningServerConnectionThread aborting scan, failed to initialise SUSI: Bootstrapping SUSI at re-initialization failed, exiting
+    mark_expected_error_in_log   ${ON_ACCESS_LOG_PATH}    ScanRequestHandler-0 received error: ScanningServerConnectionThread aborting scan, failed to initialise SUSI: Second attempt to initialise SUSI failed, exiting
+
+    mark_expected_error_in_log  ${THREAT_DETECTOR_LOG_PATH}  Failed to load GLOBALREP_SetScanType from /opt/sophos-spl/plugins/av/chroot/susi/distribution_version/7aa8d848c1d4b3e8c162f0f8991903f594960952b9c849bd1499246d6f1ab880/libglobalrep.so: SUSI error
+    mark_expected_error_in_log  ${THREAT_DETECTOR_LOG_PATH}  Core initialization failed.: SUSI error 0xc0000009
+    mark_expected_error_in_log  ${THREAT_DETECTOR_LOG_PATH}  Failed to initialise SUSI: 0xc0000009
+
+    mark_expected_error_in_log  ${THREAT_DETECTOR_INFO_LOG_PATH}  Failed to load GLOBALREP_SetScanType from /opt/sophos-spl/plugins/av/chroot/susi/distribution_version/7aa8d848c1d4b3e8c162f0f8991903f594960952b9c849bd1499246d6f1ab880/libglobalrep.so: SUSI error
+    mark_expected_error_in_log  ${THREAT_DETECTOR_INFO_LOG_PATH}  Core initialization failed.: SUSI error 0xc0000009
+    mark_expected_error_in_log  ${THREAT_DETECTOR_INFO_LOG_PATH}  Failed to initialise SUSI: 0xc0000009
+
+    Exclude VDL Folder Missing Errors
