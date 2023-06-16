@@ -4,12 +4,16 @@
 
 #include "PluginMemoryAppenderUsingTests.h"
 
+#include "datatypes/AutoFd.h"
 #include "pluginimpl/PluginCallback.h"
 #include "pluginimpl/TaskQueue.h"
 #include "sophos_on_access_process/fanotifyhandler/FanotifyHandler.h"
+#include "unixsocket/threatDetectorSocket/ScanningServerConnectionThread.h"
 
 #include "common/ApplicationPaths.h"
 #include "common/ExpectedFanotifyInitFlags.h"
+#include "common/FailedToInitializeSusiException.h"
+#include "common/MockScanner.h"
 
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <Common/FileSystem/IFileSystemException.h>
@@ -924,6 +928,25 @@ TEST_F(TestPluginCallback, calculateSoapHealthStatusDetectsExistenceOfTheUnhealt
     m_pluginCallback->calculateSoapHealthStatus(m_sysCalls);
     ASSERT_EQ(m_pluginCallback->m_soapServiceStatus, E_HEALTH_STATUS_BAD);
     EXPECT_TRUE(appenderContains("Sophos On Access Process is unhealthy, turning service health to red"));
+}
+
+TEST_F(TestPluginCallback, calculateThreatDetectorStatusDetectsUnhealthyFlagFileCreatedByScanningServerConnectionThread)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    auto mockScannerFactory = std::make_shared<StrictMock<MockScannerFactory>>();
+    EXPECT_CALL(*mockScannerFactory, createScanner(_, _, _)).WillOnce(Throw(FailedToInitializeSusiException("failedtoinitialise")));
+
+    auto request = std::make_shared<scan_messages::ScanRequest>();
+    std::string errMsg;
+    scan_messages::ScanResponse result;
+    datatypes::AutoFd fd(::open("/dev/null", O_RDONLY));
+
+    unixsocket::ScanningServerConnectionThread scanningThread(fd, mockScannerFactory, m_mockSysCalls, 1);
+    EXPECT_FALSE(scanningThread.attemptScan(request, errMsg, result, fd));
+
+    m_pluginCallback->calculateThreatDetectorHealthStatus(m_sysCalls);
+    ASSERT_EQ(m_pluginCallback->m_threatDetectorServiceStatus, E_HEALTH_STATUS_BAD);
+    EXPECT_TRUE(appenderContains("Sophos Threat Detector Process is unhealthy, turning service health to red"));
 }
 
 TEST_F(TestPluginCallback, sendStatus)
