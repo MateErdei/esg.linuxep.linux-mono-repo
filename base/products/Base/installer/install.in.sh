@@ -39,6 +39,7 @@ MCS_MESSAGE_RELAYS=${MCS_MESSAGE_RELAYS:-}
 MCS_CA=${MCS_CA:-}
 PRODUCT_ARGUMENTS=${PRODUCT_ARGUMENTS:-}
 CUSTOMER_TOKEN=${CUSTOMER_TOKEN:-}
+SOPHOS_LOG_LEVEL=${SOPHOS_LOG_LEVEL:-}
 
 function failure()
 {
@@ -78,6 +79,10 @@ while [[ $# -ge 1 ]] ; do
             shift
             PREREGISTED_MCS_POLICY_CONFIG=$1
             [[ -f ${PREREGISTED_MCS_POLICY_CONFIG} ]] || exit 2 "MCS policy config \"${PREREGISTED_MCS_POLICY_CONFIG}\" does not exist"
+            ;;
+        --log-level|--sophos-log-level)
+            shift
+            SOPHOS_LOG_LEVEL=$1
             ;;
         *)
             failure 2 "BAD OPTION $1"
@@ -872,7 +877,15 @@ chmod 700 "${SOPHOS_INSTALL}/bin/version"*
 
 if [ ! -f "${SOPHOS_INSTALL}/base/etc/logger.conf.local" ]
 then
-  touch "${SOPHOS_INSTALL}/base/etc/logger.conf.local"
+  if [[ -n "$SOPHOS_LOG_LEVEL" ]]
+  then
+      cat <<EOF >"${SOPHOS_INSTALL}/base/etc/logger.conf.local"
+[global]
+VERBOSITY = $SOPHOS_LOG_LEVEL
+EOF
+  else
+      touch "${SOPHOS_INSTALL}/base/etc/logger.conf.local"
+  fi
 fi
 
 chown "root:root" "${SOPHOS_INSTALL}/base/etc/logger.conf" "${SOPHOS_INSTALL}/base/etc/logger.conf.local"
