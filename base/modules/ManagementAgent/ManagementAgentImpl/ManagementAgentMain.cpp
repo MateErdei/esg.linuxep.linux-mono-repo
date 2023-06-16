@@ -377,7 +377,7 @@ namespace ManagementAgent
                 }
             }
 
-            // pre-pare and stop back ground threads
+            // prepare and stop background threads
             m_directoryWatcher->removeListener(*m_policyListener);
             m_directoryWatcher->removeListener(*m_internalPolicyListener);
             m_directoryWatcher->removeListener(*m_actionListener);
