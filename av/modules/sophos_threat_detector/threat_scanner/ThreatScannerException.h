@@ -2,13 +2,13 @@
 
 #pragma once
 
-#include "Common/Exceptions/IException.h"
+#include "datatypes/AVException.h"
 
 namespace threat_scanner
 {
-    class ThreatScannerException : public Common::Exceptions::IException
+    class ThreatScannerException : public datatypes::AVException
     {
     public:
-        using Common::Exceptions::IException::IException;
+        using datatypes::AVException::AVException;
     };
 }

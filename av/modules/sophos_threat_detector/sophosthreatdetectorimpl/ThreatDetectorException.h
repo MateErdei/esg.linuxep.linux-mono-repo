@@ -1,13 +1,13 @@
 // Copyright 2023 Sophos Limited. All rights reserved.
 #pragma once
 
-#include "Common/Exceptions/IException.h"
+#include "datatypes/AVException.h"
 
 namespace sspl::sophosthreatdetectorimpl
 {
-    class ThreatDetectorException : public Common::Exceptions::IException
+    class ThreatDetectorException : public datatypes::AVException
     {
     public:
-        using Common::Exceptions::IException::IException;
+        using datatypes::AVException::AVException;
     };
 }
