@@ -1,12 +1,16 @@
-// Copyright 2020-2022, Sophos Limited.  All rights reserved.
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #define TEST_PUBLIC public
+
+#include "sophos_threat_detector/threat_scanner/SusiGlobalHandler.h"
+#include "sophos_threat_detector/threat_scanner/ThreatScannerException.h"
+
+#include "common/FailedToInitializeSusiException.h"
 
 #include "MockSusiApi.h"
 
 #include "../../common/LogInitializedTests.h"
 #include "common/MemoryAppender.h"
-#include "sophos_threat_detector/threat_scanner/SusiGlobalHandler.h"
 
 #include "Common/Helpers/FileSystemReplaceAndRestore.h"
 #include "Common/Helpers/MockFileSystem.h"
@@ -68,7 +72,7 @@ TEST_F(TestSusiGlobalHandler, testInitializeSusiFirstBootStrapFails)
     auto globalHandler = SusiGlobalHandler(mockSusiApi);
 
     EXPECT_CALL(*mockSusiApi, SUSI_Install(_,_)).WillOnce(Return(SUSI_E_INTERNAL));
-    EXPECT_THROW(globalHandler.initializeSusi(""), std::runtime_error);
+    EXPECT_THROW(globalHandler.initializeSusi(""), FailedToInitializeSusiException);
 }
 
 TEST_F(TestSusiGlobalHandler, testInitializeSusiFirstInitFails)
@@ -101,7 +105,7 @@ TEST_F(TestSusiGlobalHandler, testInitializeSusiAllInitFail)
     auto globalHandler = SusiGlobalHandler(mockSusiApi);
 
     EXPECT_CALL(*mockSusiApi, SUSI_Initialize(_,_)).WillRepeatedly(Return(SUSI_E_INTERNAL));
-    EXPECT_THROW(globalHandler.initializeSusi(""), std::runtime_error);
+    EXPECT_THROW(globalHandler.initializeSusi(""), FailedToInitializeSusiException);
     EXPECT_TRUE(appenderContains("Bootstrapping SUSI from update source: \"/susi/update_source\"", 2));
     EXPECT_FALSE(appenderContains("Initialising Global Susi successful"));
 }

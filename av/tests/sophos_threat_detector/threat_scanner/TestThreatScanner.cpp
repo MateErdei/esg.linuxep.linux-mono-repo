@@ -1,13 +1,13 @@
-// Copyright 2020-2022, Sophos Limited.  All rights reserved.
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #include "sophos_threat_detector/threat_scanner/ScannerInfo.h"
 #include "sophos_threat_detector/threat_scanner/ThrowIfNotOk.h"
+#include "sophos_threat_detector/threat_scanner/ThreatScannerException.h"
 
 #include <thirdparty/nlohmann-json/json.hpp>
 
 #include <gtest/gtest.h>
 
-#include <SusiTypes.h>
 #include <string>
 
 using namespace threat_scanner;
@@ -145,5 +145,5 @@ TEST(TestThrowIfNotOk, TestOk)
 
 TEST(TestThrowIfNotOk, TestNotOk)
 {
-    EXPECT_THROW(throwIfNotOk(SUSI_E_BAD_JSON, "Should throw"), std::runtime_error);
+    EXPECT_THROW(throwIfNotOk(SUSI_E_BAD_JSON, "Should throw"), ThreatScannerException);
 }
