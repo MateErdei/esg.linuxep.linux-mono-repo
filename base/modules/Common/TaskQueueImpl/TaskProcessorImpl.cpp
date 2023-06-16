@@ -1,21 +1,19 @@
-/******************************************************************************************************
-
-Copyright 2018, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #include "TaskProcessorImpl.h"
+
+#include <utility>
 
 #include "Logger.h"
 
 Common::TaskQueueImpl::TaskProcessorImpl::TaskProcessorImpl(Common::TaskQueueImpl::ITaskQueueSharedPtr taskQueue) :
-    m_thread(taskQueue)
+    m_thread(std::move(taskQueue))
 {
 }
 
 Common::TaskQueueImpl::TaskProcessorImplThread::TaskProcessorImplThread(
     Common::TaskQueueImpl::ITaskQueueSharedPtr taskQueue) :
-    m_taskQueue(taskQueue)
+    m_taskQueue(std::move(taskQueue))
 {
 }
 
@@ -30,7 +28,10 @@ namespace
     {
     public:
         explicit StopTask(Common::Threads::AbstractThread& thread) : m_thread(thread) {}
-        void run() { m_thread.requestStop(); }
+        void run() override
+        {
+            m_thread.requestStop();
+        }
 
     private:
         Common::Threads::AbstractThread& m_thread;
@@ -73,5 +74,14 @@ Common::TaskQueueImpl::TaskProcessorImplThread::~TaskProcessorImplThread()
     // destructor must ensure that the thread is not running anymore or
     // seg fault may occur.
     requestStop();
-    join();
+
+    // Thread is running
+    if (joinable())
+    {
+        // Add a stop task to wake up the queue
+        Common::TaskQueue::ITaskPtr task(new StopTask(*this));
+        m_taskQueue->queueTask(std::move(task));
+    }
+
+    join(); // Joins if joinable
 }

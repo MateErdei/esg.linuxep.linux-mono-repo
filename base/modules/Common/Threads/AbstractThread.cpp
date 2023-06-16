@@ -1,4 +1,4 @@
-// Copyright 2004-2022, Sophos Limited.  All rights reserved.
+// Copyright 2004-2023 Sophos Limited. All rights reserved.
 
 #include "AbstractThread.h"
 namespace Common
@@ -47,5 +47,11 @@ namespace Common
             m_threadStartedFlag = true;
             m_ensureThreadStarted.notify_all();
         }
+
+        bool AbstractThread::joinable()
+        {
+            return m_thread.joinable();
+        }
+
     } // namespace Threads
 } // namespace Common

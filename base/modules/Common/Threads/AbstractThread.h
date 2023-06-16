@@ -1,3 +1,4 @@
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 ///////////////////////////////////////////////////////////
 //
 // Copyright (C) 2004-2018 Sophos Plc, Oxford, England.
@@ -86,6 +87,8 @@ namespace Common
 
         protected:
             NotifyPipe m_notifyPipe;
+
+            bool joinable();
 
         private:
             std::thread m_thread;

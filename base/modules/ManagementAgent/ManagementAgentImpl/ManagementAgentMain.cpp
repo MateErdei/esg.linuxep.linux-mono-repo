@@ -81,7 +81,7 @@ namespace ManagementAgent
                     managementAgent.initialise(std::move(pluginManager));
                     ret = managementAgent.run(withPersistentTelemetry);
                 }
-                LOGDEBUG("Management Agent stopped"); // Actually logged after all of the objects are destroyed
+                LOGINFO("Management Agent stopped"); // Actually logged after all of the objects are destroyed
             }
             catch (const Common::UtilityImpl::ConfigException& ex)
             {
@@ -378,10 +378,29 @@ namespace ManagementAgent
             }
 
             // prepare and stop background threads
+            LOGDEBUG("Stopping Directory watcher");
             m_directoryWatcher->removeListener(*m_policyListener);
             m_directoryWatcher->removeListener(*m_internalPolicyListener);
             m_directoryWatcher->removeListener(*m_actionListener);
-            m_taskQueueProcessor->stop();
+            m_directoryWatcher.reset(); // Stops thread
+            m_policyListener.reset();
+            m_internalPolicyListener.reset();
+            m_actionListener.reset();
+            LOGDEBUG("Stopped Directory watcher");
+
+            m_policyReceiver.reset();
+            m_statusReceiver.reset();
+            m_eventReceiver.reset();
+            m_threatHealthReceiver.reset();
+
+            LOGDEBUG("Stopping Task Queue Processor");
+            m_taskQueueProcessor->stop(); // Stops thread
+            m_taskQueueProcessor.reset(); // Will stop thread if stop does not
+            LOGDEBUG("Stopped Task Queue Processor");
+
+            m_taskQueue.reset();
+            m_statusCache.reset();
+            m_pluginManager.reset();
 
             if (withPersistentTelemetry)
             {
