@@ -37,7 +37,9 @@ namespace unixsocket
         void run() override;
 
     TEST_PUBLIC:
-        //returns false if shouldnt continue
+        /**
+         * @returns false if shouldnt continue trying to scan
+        */
         bool attemptScan(
             std::shared_ptr<scan_messages::ScanRequest> scanRequest,
             std::string& errMsg,
