@@ -21,6 +21,8 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <tests/Common/TaskQueueImpl/FakeQueue.h>
 #include <tests/ManagementAgent/McsRouterPluginCommunicationImpl/MockPluginManager.h>
 
+#include <utility>
+
 namespace
 {
     using ManagementAgent::PluginCommunication::PluginDetails;
@@ -28,11 +30,12 @@ namespace
     class TestManagementAgent : public ManagementAgent::ManagementAgentImpl::ManagementAgentMain
     {
     public:
+        using PluginManagerPtr = ManagementAgent::ManagementAgentImpl::ManagementAgentMain::PluginManagerPtr;
         TestManagementAgent() = default;
 
-        void initialiseWrapper(ManagementAgent::PluginCommunication::IPluginManager& pluginManager)
+        void initialiseWrapper(PluginManagerPtr pluginManager)
         {
-            initialise(pluginManager);
+            initialise(std::move(pluginManager));
         }
 
         void runWrapper() { run(false); }
@@ -47,6 +50,8 @@ namespace
 
         void SetUp() override
         {
+            m_mockPluginManager = std::make_shared<StrictMock<MockPluginManager>>();
+
             const std::string frontend = "inproc://frontend";
             const std::string backend = "inproc://backend";
 
@@ -91,7 +96,7 @@ namespace
             return jsonString;
         }
 
-        StrictMock<MockPluginManager> m_mockPluginManager;
+        std::shared_ptr<MockPluginManager> m_mockPluginManager;
         NiceMock<MockedApplicationPathManager>* m_mockApplicationManager;
 
     private:
@@ -140,20 +145,20 @@ namespace
         EXPECT_CALL(*m_mockApplicationManager, getInternalPolicyFilePath()).WillRepeatedly(Return("/tmp"));
         EXPECT_CALL(*m_mockApplicationManager, getMcsActionFilePath()).WillRepeatedly(Return("/tmp"));
 
-        EXPECT_CALL(m_mockPluginManager, registerAndConfigure(registeredPlugins[0], pluginDetails)).Times(1);
-        EXPECT_CALL(m_mockPluginManager, setPolicyReceiver(_)).Times(1);
-        EXPECT_CALL(m_mockPluginManager, setStatusReceiver(_)).Times(1);
-        EXPECT_CALL(m_mockPluginManager, setEventReceiver(_)).Times(1);
-        EXPECT_CALL(m_mockPluginManager, setThreatHealthReceiver(_)).Times(1);
+        EXPECT_CALL(*m_mockPluginManager, registerAndConfigure(registeredPlugins[0], pluginDetails)).Times(1);
+        EXPECT_CALL(*m_mockPluginManager, setPolicyReceiver(_)).Times(1);
+        EXPECT_CALL(*m_mockPluginManager, setStatusReceiver(_)).Times(1);
+        EXPECT_CALL(*m_mockPluginManager, setEventReceiver(_)).Times(1);
+        EXPECT_CALL(*m_mockPluginManager, setThreatHealthReceiver(_)).Times(1);
 
         std::vector<Common::PluginApi::StatusInfo> pluginStatusInfoList;
 
-        EXPECT_CALL(m_mockPluginManager, getRegisteredPluginNames()).WillOnce(Return(registeredPlugins));
-        EXPECT_CALL(m_mockPluginManager, getStatus(_)).WillOnce(Return(pluginStatusInfoList));
+        EXPECT_CALL(*m_mockPluginManager, getRegisteredPluginNames()).WillOnce(Return(registeredPlugins));
+        EXPECT_CALL(*m_mockPluginManager, getStatus(_)).WillOnce(Return(pluginStatusInfoList));
 
         TestManagementAgent managementAgent;
 
-        EXPECT_NO_THROW(managementAgent.initialiseWrapper(m_mockPluginManager)); // NOLINT
+        EXPECT_NO_THROW(managementAgent.initialiseWrapper(m_mockPluginManager));
         EXPECT_EQ(1, 1);
     }
 
@@ -191,11 +196,11 @@ namespace
         EXPECT_CALL(*m_mockApplicationManager, getInternalPolicyFilePath()).WillRepeatedly(Return("/tmp"));
         EXPECT_CALL(*m_mockApplicationManager, getMcsActionFilePath()).WillRepeatedly(Return("/tmp"));
 
-        EXPECT_CALL(m_mockPluginManager, registerAndConfigure(registeredPlugins[0], _)).Times(1);
-        EXPECT_CALL(m_mockPluginManager, setPolicyReceiver(_)).Times(1);
-        EXPECT_CALL(m_mockPluginManager, setStatusReceiver(_)).Times(1);
-        EXPECT_CALL(m_mockPluginManager, setEventReceiver(_)).Times(1);
-        EXPECT_CALL(m_mockPluginManager, setThreatHealthReceiver(_)).Times(1);
+        EXPECT_CALL(*m_mockPluginManager, registerAndConfigure(registeredPlugins[0], _)).Times(1);
+        EXPECT_CALL(*m_mockPluginManager, setPolicyReceiver(_)).Times(1);
+        EXPECT_CALL(*m_mockPluginManager, setStatusReceiver(_)).Times(1);
+        EXPECT_CALL(*m_mockPluginManager, setEventReceiver(_)).Times(1);
+        EXPECT_CALL(*m_mockPluginManager, setThreatHealthReceiver(_)).Times(1);
 
         std::vector<Common::PluginApi::StatusInfo> pluginStatusInfoList;
         Common::PluginApi::StatusInfo statusInfo;
@@ -204,8 +209,8 @@ namespace
         statusInfo.statusWithoutTimestampsXml = "StatusWithoutTimestampsXml";
         pluginStatusInfoList.push_back(statusInfo);
 
-        EXPECT_CALL(m_mockPluginManager, getRegisteredPluginNames()).WillOnce(Return(registeredPlugins));
-        EXPECT_CALL(m_mockPluginManager, getStatus(_)).WillOnce(Return(pluginStatusInfoList));
+        EXPECT_CALL(*m_mockPluginManager, getRegisteredPluginNames()).WillOnce(Return(registeredPlugins));
+        EXPECT_CALL(*m_mockPluginManager, getStatus(_)).WillOnce(Return(pluginStatusInfoList));
 
         TestManagementAgent managementAgent;
 

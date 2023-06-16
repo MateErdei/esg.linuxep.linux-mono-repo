@@ -25,7 +25,9 @@ namespace ManagementAgent
         protected:
             using clock_t = std::chrono::steady_clock;
             using timepoint_t = clock_t::time_point;
-            void initialise(ManagementAgent::PluginCommunication::IPluginManager& pluginManager);
+            using IPluginManager = ManagementAgent::PluginCommunication::IPluginManager;
+            using PluginManagerPtr = std::shared_ptr<IPluginManager>;
+            void initialise(PluginManagerPtr pluginManager);
             void loadPlugins();
             void initialiseTaskQueue();
             void initialiseDirectoryWatcher();
@@ -47,7 +49,7 @@ namespace ManagementAgent
             // to be used in tests
             void test_request_stop();
 
-            ManagementAgent::PluginCommunication::IPluginManager* m_pluginManager;
+            PluginManagerPtr m_pluginManager;
 
             std::unique_ptr<ManagementAgent::McsRouterPluginCommunicationImpl::TaskDirectoryListener> m_policyListener;
             std::unique_ptr<ManagementAgent::McsRouterPluginCommunicationImpl::TaskDirectoryListener> m_internalPolicyListener;

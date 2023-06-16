@@ -30,6 +30,7 @@
 #include <sys/stat.h>
 
 #include <csignal>
+#include <memory>
 
 using namespace Common;
 
@@ -69,29 +70,42 @@ namespace ManagementAgent
 
         int ManagementAgentMain::mainForValidArguments(bool withPersistentTelemetry)
         {
+            int ret = 2;
             try
             {
-                std::unique_ptr<ManagementAgent::PluginCommunication::IPluginManager> pluginManager =
-                    std::unique_ptr<ManagementAgent::PluginCommunication::IPluginManager>(
-                        new ManagementAgent::PluginCommunicationImpl::PluginManager(
-                            Common::ZMQWrapperApi::createContext()));
+                {
+                    auto pluginManager = std::make_shared<ManagementAgent::PluginCommunicationImpl::PluginManager>(
+                        Common::ZMQWrapperApi::createContext());
 
-                ManagementAgentMain managementAgent;
-                managementAgent.initialise(*pluginManager);
-                return managementAgent.run(withPersistentTelemetry);
+                    ManagementAgentMain managementAgent;
+                    managementAgent.initialise(std::move(pluginManager));
+                    ret = managementAgent.run(withPersistentTelemetry);
+                }
+                LOGDEBUG("Management Agent stopped"); // Actually logged after all of the objects are destroyed
             }
-            catch (Common::UtilityImpl::ConfigException& ex)
+            catch (const Common::UtilityImpl::ConfigException& ex)
+            {
+                LOGFATAL(ex.what_with_location());
+                ret = 1;
+            }
+            catch (const Common::Exceptions::IException& ex)
+            {
+                LOGFATAL(ex.what_with_location());
+                ret = 1;
+            }
+            catch (const std::exception& ex)
             {
                 LOGFATAL(ex.what());
-                return 1;
+                ret = 1;
             }
+            return ret;
         }
 
-        void ManagementAgentMain::initialise(ManagementAgent::PluginCommunication::IPluginManager& pluginManager)
+        void ManagementAgentMain::initialise(PluginManagerPtr pluginManager)
         {
             LOGINFO("Initializing Management Agent");
 
-            m_pluginManager = &pluginManager;
+            m_pluginManager = std::move(pluginManager);
             m_statusCache = std::make_shared<ManagementAgent::StatusCacheImpl::StatusCache>();
             try
             {
@@ -108,9 +122,8 @@ namespace ManagementAgent
                 m_ppid = ::getppid();
             } catch (std::exception & ex)
             {
-                throw Common::UtilityImpl::ConfigException( "Configure Management Agent", ex.what());
+                std::throw_with_nested(Common::UtilityImpl::ConfigException( "Configure Management Agent", ex.what()));
             }
-
         }
 
         void ManagementAgentMain::loadPlugins()
@@ -144,27 +157,23 @@ namespace ManagementAgent
         void ManagementAgentMain::initialiseTaskQueue()
         {
             m_taskQueue = std::make_shared<TaskQueueImpl::TaskQueueImpl>();
-            m_taskQueueProcessor =
-                std::unique_ptr<TaskQueue::ITaskProcessor>(new TaskQueueImpl::TaskProcessorImpl(m_taskQueue));
+            m_taskQueueProcessor = std::make_unique<TaskQueueImpl::TaskProcessorImpl>(m_taskQueue);
         }
 
         void ManagementAgentMain::initialiseDirectoryWatcher()
         {
-            m_policyListener = std::unique_ptr<McsRouterPluginCommunicationImpl::TaskDirectoryListener>(
-                new McsRouterPluginCommunicationImpl::TaskDirectoryListener(
+            m_policyListener = std::make_unique<McsRouterPluginCommunicationImpl::TaskDirectoryListener>(
                     ApplicationConfiguration::applicationPathManager().getMcsPolicyFilePath(),
                     m_taskQueue,
-                    *m_pluginManager));
-            m_internalPolicyListener = std::unique_ptr<McsRouterPluginCommunicationImpl::TaskDirectoryListener>(
-                new McsRouterPluginCommunicationImpl::TaskDirectoryListener(
+                    *m_pluginManager);
+            m_internalPolicyListener = std::make_unique<McsRouterPluginCommunicationImpl::TaskDirectoryListener>(
                     ApplicationConfiguration::applicationPathManager().getInternalPolicyFilePath(),
                     m_taskQueue,
-                    *m_pluginManager));
-            m_actionListener = std::unique_ptr<McsRouterPluginCommunicationImpl::TaskDirectoryListener>(
-                new McsRouterPluginCommunicationImpl::TaskDirectoryListener(
+                    *m_pluginManager);
+            m_actionListener = std::make_unique<McsRouterPluginCommunicationImpl::TaskDirectoryListener>(
                     ApplicationConfiguration::applicationPathManager().getMcsActionFilePath(),
                     m_taskQueue,
-                    *m_pluginManager));
+                    *m_pluginManager);
 
             m_directoryWatcher = Common::DirectoryWatcher::createDirectoryWatcher();
             m_directoryWatcher->addListener(*m_policyListener);
@@ -380,7 +389,7 @@ namespace ManagementAgent
                 Common::Telemetry::TelemetryHelper::getInstance().save();
             }
 
-            LOGDEBUG("Management Agent stopped");
+            LOGDEBUG("Management Agent finished run");
             return 0;
         }
 

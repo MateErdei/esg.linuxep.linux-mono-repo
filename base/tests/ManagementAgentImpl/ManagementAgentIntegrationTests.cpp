@@ -81,12 +81,10 @@ namespace
 
         int runWrapper(Tests::TestExecutionSynchronizer& synchronizer, std::chrono::milliseconds duration)
         {
-            std::unique_ptr<ManagementAgent::PluginCommunication::IPluginManager> pluginManager =
-                std::unique_ptr<ManagementAgent::PluginCommunication::IPluginManager>(
-                    new ManagementAgent::PluginCommunicationImpl::PluginManager(
-                        Common::ZMQWrapperApi::createContext()));
+            auto pluginManager = std::make_unique<ManagementAgent::PluginCommunicationImpl::PluginManager>(
+                        Common::ZMQWrapperApi::createContext());
 
-            initialise(*pluginManager);
+            initialise(std::move(pluginManager));
             auto futureRunner = std::async(std::launch::async, [this]() { return run(false); });
             synchronizer.waitfor(duration);
             test_request_stop();

@@ -32,9 +32,9 @@ add_library(utilityimplobject OBJECT
         Uuid.cpp
         Uuid.h
         )
-target_include_directories(utilityimplobject PUBLIC ../../Common ${CMAKE_CURRENT_SOURCE_DIR} ${BOOST_INCLUDE_DIR})
-add_library(utilityimpl SHARED $<TARGET_OBJECTS:utilityimplobject>)
-target_include_directories(utilityimpl PUBLIC ../../Common ${CMAKE_CURRENT_BINARY_DIR})
+target_include_directories(utilityimplobject PUBLIC ../../Common ${CMAKE_SOURCE_DIR}/modules ${CMAKE_CURRENT_SOURCE_DIR} ${BOOST_INCLUDE_DIR})
+add_library(utilityimpl SHARED)
+target_link_libraries(utilityimpl PUBLIC utilityimplobject)
 
 SET_TARGET_PROPERTIES(utilityimpl
         PROPERTIES INSTALL_RPATH "$ORIGIN")

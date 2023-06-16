@@ -5,8 +5,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 #pragma once
 
-#include <exception>
-#include <stdexcept>
+#include "Common/Exceptions/IException.h"
 
 namespace Common
 {
@@ -16,10 +15,10 @@ namespace Common
          * Use this exception to indicate that a required configuration is wrong and there is no way to restore or run
          * the system without that configuration.
          */
-        class ConfigException : public std::runtime_error
+        class ConfigException : public Common::Exceptions::IException
         {
         public:
-            using std::runtime_error::runtime_error;
+            using Common::Exceptions::IException::IException;
             ConfigException(const std::string& where, const std::string& cause);
         };
     } // namespace UtilityImpl
