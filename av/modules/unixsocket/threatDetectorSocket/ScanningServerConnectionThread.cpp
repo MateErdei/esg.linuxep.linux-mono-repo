@@ -23,6 +23,8 @@
 #include <stdexcept>
 #include <utility>
 
+using namespace scan_messages;
+
 unixsocket::ScanningServerConnectionThread::ScanningServerConnectionThread(
         datatypes::AutoFd& fd,
         threat_scanner::IThreatScannerFactorySharedPtr scannerFactory,
@@ -54,7 +56,7 @@ unixsocket::ScanningServerConnectionThread::ScanningServerConnectionThread(
  * @param bytes_read
  * @return
  */
-static std::shared_ptr<scan_messages::ScanRequest> parseRequest(kj::Array<capnp::word>& proto_buffer, ssize_t& bytes_read)
+static std::shared_ptr<ScanRequest> parseRequest(kj::Array<capnp::word>& proto_buffer, ssize_t& bytes_read)
 {
     auto view = proto_buffer.slice(0, bytes_read / sizeof(capnp::word));
 
@@ -62,7 +64,7 @@ static std::shared_ptr<scan_messages::ScanRequest> parseRequest(kj::Array<capnp:
     Sophos::ssplav::FileScanRequest::Reader requestReader =
             messageInput.getRoot<Sophos::ssplav::FileScanRequest>();
 
-    std::shared_ptr<scan_messages::ScanRequest> request = std::make_shared<scan_messages::ScanRequest>(requestReader);
+    std::shared_ptr<ScanRequest> request = std::make_shared<ScanRequest>(requestReader);
 
     return request;
 }
@@ -120,7 +122,7 @@ void unixsocket::ScanningServerConnectionThread::run()
     setIsRunning(false);
 }
 
-bool unixsocket::ScanningServerConnectionThread::sendResponse(datatypes::AutoFd& socket_fd, const scan_messages::ScanResponse& response)
+bool unixsocket::ScanningServerConnectionThread::sendResponse(datatypes::AutoFd& socket_fd, const ScanResponse& response)
 {
     std::string serialised_result = response.serialise();
     try
@@ -139,6 +141,51 @@ bool unixsocket::ScanningServerConnectionThread::sendResponse(datatypes::AutoFd&
     return true;
 }
 
+bool unixsocket::ScanningServerConnectionThread::attemptScan(
+    std::shared_ptr<scan_messages::ScanRequest> scanRequest,
+    std::string& errMsg,
+    scan_messages::ScanResponse& result,
+    datatypes::AutoFd& fd)
+{
+    try
+    {
+        if (!m_scanner || m_scannerFactory->detectPUAsEnabled() != scanRequest->detectPUAs())
+        {
+            m_scanner = m_scannerFactory->createScanner(
+                scanRequest->scanInsideArchives(),
+                scanRequest->scanInsideImages(),
+                scanRequest->detectPUAs());
+            if (!m_scanner)
+            {
+                throw std::runtime_error(m_threadName + " failed to create scanner");
+            }
+
+            std::remove(Plugin::getThreatDetectorUnhealthyFlagPath().c_str());
+            LOGDEBUG(m_threadName << " has created a new scanner");
+        }
+
+        // The User ID could be spoofed by an untrusted client. Until this is made secure, hardcode it to "n/a"
+#ifdef USERNAME_UID_USED
+# error "Passing UID from untrusted client not supported"
+#else
+        scanRequest->setUserID("n/a");
+#endif
+        result = m_scanner->scan(fd, *scanRequest);
+    }
+    catch (FailedToInitializeSusiException& ex)
+    {
+        errMsg = m_threadName + " aborting scan, failed to initialise SUSI: " + ex.what();
+        std::ofstream threatDetectorUnhealthyFlagFile(Plugin::getThreatDetectorUnhealthyFlagPath());
+        return false;
+    }
+    catch (ShuttingDownException&)
+    {
+        errMsg =  m_threadName + " aborting scan, scanner is shutting down";
+        return false;
+    }
+    return true;
+}
+
 void unixsocket::ScanningServerConnectionThread::inner_run()
 {
     datatypes::AutoFd socket_fd(std::move(m_socketFd));
@@ -150,7 +197,7 @@ void unixsocket::ScanningServerConnectionThread::inner_run()
         { .fd = socket_fd.get(), .events = POLLIN, .revents = 0 }, // socket FD
         { .fd = m_notifyPipe.readFd(), .events = POLLIN, .revents = 0 },
     };
-    threat_scanner::IThreatScannerPtr scanner;
+
     bool loggedLengthOfZero = false;
 
     while (true)
@@ -220,7 +267,7 @@ void unixsocket::ScanningServerConnectionThread::inner_run()
             }
 
             // read capn proto
-            scan_messages::ScanResponse result;
+            ScanResponse result;
             ssize_t bytes_read;
             std::string errMsg;
             if (!readCapnProtoMsg(m_sysCalls, length, buffer_size, proto_buffer, socket_fd, bytes_read, loggedLengthOfZero, errMsg))
@@ -231,7 +278,7 @@ void unixsocket::ScanningServerConnectionThread::inner_run()
                 break;
             }
             LOGDEBUG(m_threadName << " read capn of " << bytes_read);
-            std::shared_ptr<scan_messages::ScanRequest> requestReader = parseRequest(proto_buffer, bytes_read);
+            std::shared_ptr<ScanRequest> requestReader = parseRequest(proto_buffer, bytes_read);
 
             std::string escapedPath(requestReader->getPath());
             common::escapeControlCharacters(escapedPath);
@@ -259,47 +306,11 @@ void unixsocket::ScanningServerConnectionThread::inner_run()
                 continue;
             }
 
-            try
+            if (!attemptScan(requestReader, errMsg, result, file_fd))
             {
-                if (!scanner || m_scannerFactory->detectPUAsEnabled() != requestReader->detectPUAs())
-                {
-                    scanner = m_scannerFactory->createScanner(
-                        requestReader->scanInsideArchives(),
-                        requestReader->scanInsideImages(),
-                        requestReader->detectPUAs());
-                    if (!scanner)
-                    {
-                        throw unixsocket::UnixSocketException(LOCATION, m_threadName + " failed to create scanner");
-                    }
-
-                    std::remove(Plugin::getThreatDetectorUnhealthyFlagPath().c_str());
-                    LOGDEBUG(m_threadName << " has created a new scanner");
-                }
-
-                // The User ID could be spoofed by an untrusted client. Until this is made secure, hardcode it to "n/a"
-#ifdef USERNAME_UID_USED
-# error "Passing UID from untrusted client not supported"
-#else
-                requestReader->setUserID("n/a");
-#endif
-                result = scanner->scan(
-                    file_fd, *requestReader);
-            }
-            catch (FailedToInitializeSusiException& ex)
-            {
-                errMsg = m_threadName + " aborting scan, failed to initialise SUSI: " + ex.what();
-                std::ofstream threatDetectorUnhealthyFlagFile(Plugin::getThreatDetectorUnhealthyFlagPath());
                 result.setErrorMsg(errMsg);
-                sendResponse(socket_fd, result);
                 LOGERROR(errMsg);
-                break;
-            }
-            catch (ShuttingDownException&)
-            {
-                errMsg =  m_threadName + " aborting scan, scanner is shutting down";
-                result.setErrorMsg(errMsg);
                 sendResponse(socket_fd, result);
-                LOGERROR(errMsg);
                 break;
             }
 

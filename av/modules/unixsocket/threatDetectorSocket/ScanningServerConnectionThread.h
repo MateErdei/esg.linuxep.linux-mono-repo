@@ -2,6 +2,10 @@
 
 #pragma once
 
+#ifndef TEST_PUBLIC
+# define TEST_PUBLIC private
+#endif
+
 #define AUTO_FD_IMPLICIT_INT
 
 #include "datatypes/AutoFd.h"
@@ -32,14 +36,23 @@ namespace unixsocket
                 int maxIterations = -1);
         void run() override;
 
-    private:
+    TEST_PUBLIC:
+        //returns false if shouldnt continue
+        bool attemptScan(
+            std::shared_ptr<scan_messages::ScanRequest> scanRequest,
+            std::string& errMsg,
+            scan_messages::ScanResponse& result,
+            datatypes::AutoFd& socket_fd);
 
+    private:
         void inner_run();
         bool sendResponse(datatypes::AutoFd& socket_fd, const scan_messages::ScanResponse& response);
 
         datatypes::AutoFd m_socketFd;
         threat_scanner::IThreatScannerFactorySharedPtr m_scannerFactory;
+        threat_scanner::IThreatScannerPtr m_scanner;
         datatypes::ISystemCallWrapperSharedPtr m_sysCalls;
+
         int m_maxIterations;
     };
 
