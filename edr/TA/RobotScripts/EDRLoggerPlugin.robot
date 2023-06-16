@@ -71,16 +71,16 @@ EDR Plugin Restarts Osquery When Custom Queries Have Changed
 
 EDR Plugin Tags All Queries Correctly
     [Timeout]  10 minutes
-    [Setup]  Install EDR Directly from SDDS With mocked scheduled queries
+    [Setup]  No Operation
+    # Put policy in place before EDR starts to stop EDR starting osquery and then getting a new policy and immediately restarting it.
+    Move File Atomically  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_customquery_limit.xml  /opt/sophos-spl/base/mcs/policy/LiveQuery_policy.xml
+    Install EDR Directly from SDDS With mocked scheduled queries
     Check EDR Plugin Installed With Base
     Wait Until Keyword Succeeds
     ...   20 secs
     ...   2 secs
     ...   Check Osquery Running
     Directory Should Be Empty  ${SOPHOS_INSTALL}/base/mcs/datafeed
-
-    # This will restart osquery and EDR will already be in debug mode, so shouldn't need to restart EDR.
-    Move File Atomically  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_customquery_limit.xml  /opt/sophos-spl/base/mcs/policy/LiveQuery_policy.xml
 
     Wait Until Keyword Succeeds
     ...  300 secs
@@ -193,13 +193,16 @@ EDR Plugin Runs All Canned Queries
     ...  120 secs
     ...  10 secs
     ...  Check All Queries Run  ${SOPHOS_INSTALL}/plugins/edr/log/scheduledquery.log  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf
-    ${content} =  Get File  ${SOPHOS_INSTALL}/plugins/edr/log/edr.log
+    ${content} =  Get File  ${EDR_LOG_FILE}
     Should Not Contain  ${content}  query-error-count
 
 
 EDR Plugin Runs All Scheduled Queries
+    [Setup]  No Operation
     Directory Should Be Empty  ${SOPHOS_INSTALL}/base/mcs/datafeed
     Move File Atomically  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_customquery_limit.xml  /opt/sophos-spl/base/mcs/policy/LiveQuery_policy.xml
+    Test Setup
+
     Run Process  mkdir  -p  ${SOPHOS_INSTALL}/plugins/eventjournaler/data/eventjournals/SophosSPL/Detections
     Run Process  cp  -r  ${EXAMPLE_DATA_PATH}/TestEventJournalFiles/Detections-0000000000000001-0000000000001e00-132766178770000000-132766182670000000.xz  ${SOPHOS_INSTALL}/plugins/eventjournaler/data/eventjournals/SophosSPL/Detections
     Run Process  chown  -R  sophos-spl-user:sophos-spl-group  ${SOPHOS_INSTALL}/plugins/eventjournaler/
@@ -427,12 +430,12 @@ EDR Plugin Runs Next Scheduled Queries When Flags Configured To Do So
     File Log Does Not Contain  ${SOPHOS_INSTALL}/plugins/edr/log/scheduledquery.log   next_xdr_query
     File Log Does Not Contain  ${SOPHOS_INSTALL}/plugins/edr/log/scheduledquery.log   next_mtr_query
 
-    ${edrMark} =  Mark File  ${SOPHOS_INSTALL}/plugins/edr/log/edr.log
+    ${edrMark} =  Mark File  ${EDR_LOG_FILE}
     Change Next Query Packs Flag  true
     Wait Until Keyword Succeeds
     ...  5 secs
     ...  1 secs
-    ...  Marked File Contains  ${SOPHOS_INSTALL}/plugins/edr/log/edr.log  Prepare system for running osquery  ${edrMark}
+    ...  Marked File Contains  ${EDR_LOG_FILE}  Prepare system for running osquery  ${edrMark}
     ${mark} =  Mark File  ${SOPHOS_INSTALL}/plugins/edr/log/scheduledquery.log
     Are Next Query Packs Enabled in Plugin Conf  1
 
@@ -448,12 +451,12 @@ EDR Plugin Runs Next Scheduled Queries When Flags Configured To Do So
     Marked File Does Not Contain  ${SOPHOS_INSTALL}/plugins/edr/log/scheduledquery.log   latest_xdr_query  ${mark}
     Marked File Does Not Contain  ${SOPHOS_INSTALL}/plugins/edr/log/scheduledquery.log   latest_mtr_query  ${mark}
 
-    ${edrMark} =  Mark File  ${SOPHOS_INSTALL}/plugins/edr/log/edr.log
+    ${edrMark} =  Mark File  ${EDR_LOG_FILE}
     Change Next Query Packs Flag  false
     Wait Until Keyword Succeeds
     ...  5 secs
     ...  1 secs
-    ...  Marked File Contains  ${SOPHOS_INSTALL}/plugins/edr/log/edr.log  Prepare system for running osquery  ${edrMark}
+    ...  Marked File Contains  ${EDR_LOG_FILE}  Prepare system for running osquery  ${edrMark}
     ${mark} =  Mark File  ${SOPHOS_INSTALL}/plugins/edr/log/scheduledquery.log
     Are Next Query Packs Enabled in Plugin Conf  0
 
@@ -713,7 +716,7 @@ EDR Plugin Respects Data Limit When Applying New Live Query Policy With Differen
     MTR Pack Should Be Disabled
     Custom Pack Should Be Disabled
 
-    ${mark} =  Mark File  ${SOPHOS_INSTALL}/plugins/edr/log/edr.log
+    ${mark} =  Mark File  ${EDR_LOG_FILE}
     Apply Live Query Policy And Wait For Query Pack Changes  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_10000_limit_and_different_custom_queries_with_xdr_only.xml
 
     XDR Pack Should Be Disabled
@@ -722,7 +725,7 @@ EDR Plugin Respects Data Limit When Applying New Live Query Policy With Differen
     Wait Until Keyword Succeeds
     ...  20s
     ...  2s
-    ...  Marked File Contains  ${SOPHOS_INSTALL}/plugins/edr/log/edr.log  Sophos Extension running in thread  ${mark}
+    ...  Marked File Contains  ${EDR_LOG_FILE}  Sophos Extension running in thread  ${mark}
     Apply Live Query Policy And Wait For Query Pack Changes  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_enabled.xml
 
     XDR Pack Should Be Disabled
@@ -769,7 +772,7 @@ EDR Plugin Updates Next Scheduled Queries When Supplement Updated And Flag Alrea
     Marked File Does Not Contain  ${SOPHOS_INSTALL}/plugins/edr/log/scheduledquery.log   latest_xdr_query  ${mark}
     Marked File Does Not Contain  ${SOPHOS_INSTALL}/plugins/edr/log/scheduledquery.log   latest_mtr_query  ${mark}
 
-    ${edrMark} =  Mark File  ${SOPHOS_INSTALL}/plugins/edr/log/edr.log
+    ${edrMark} =  Mark File  ${EDR_LOG_FILE}
 
     # Mimic update of the next query pack supplement
     # TODO: When LINUXDAR-3943 is implemented remove denylist option from the query configs, and change test accordingly if required.
@@ -780,7 +783,7 @@ EDR Plugin Updates Next Scheduled Queries When Supplement Updated And Flag Alrea
     Wait Until Keyword Succeeds
     ...  30 secs
     ...  5 secs
-    ...  Marked File Contains  ${SOPHOS_INSTALL}/plugins/edr/log/edr.log  Overwriting existing scheduled query packs with 'NEXT' query packs  ${edrMark}
+    ...  Marked File Contains  ${EDR_LOG_FILE}  Overwriting existing scheduled query packs with 'NEXT' query packs  ${edrMark}
     ${mark2} =  Mark File  ${SOPHOS_INSTALL}/plugins/edr/log/scheduledquery.log
     Are Next Query Packs Enabled in Plugin Conf  1
 
@@ -828,7 +831,7 @@ Ensure Default Osquery Flags Are Contained in flags file
     Install Base For Component Tests
     Create File  ${SOPHOS_INSTALL}/base/etc/logger.conf  [global]\nVERBOSITY = DEBUG\n
     Install EDR Directly from SDDS
-
+    Wait Until Keyword Succeeds    5 secs    1 secs    EDR Plugin Log Contains  LiveQuery policy has not been sent to the plugin
     Osquery Flag File Should Contain    --host_identifier=uuid
     Osquery Flag File Should Contain    --log_result_events=true
     Osquery Flag File Should Contain    --utc
@@ -859,6 +862,22 @@ Ensure Default Osquery Flags Are Contained in flags file
     Osquery Flag File Should Contain    --enable_killswitch=false
     Osquery Flag File Should Contain    --verbose
     Osquery Flag File Should Contain    --config_refresh=3600
+    Osquery Flag File Should Contain    --extensions_require=SophosExtension
+
+    # Flags are different if scheduled queries are enabled, so check they change once we enable scheduled queries.
+    ${edr_mark} =  Mark File  ${EDR_LOG_FILE}
+    Move File Atomically  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_enabled.xml  /opt/sophos-spl/base/mcs/policy/LiveQuery_policy.xml
+    Wait Until Keyword Succeeds
+    ...    30 secs
+    ...    2 secs
+    ...    Marked File Contains  ${EDR_LOG_FILE}  Scheduled queries are enabled in policy  ${edr_mark}
+    Wait Until Keyword Succeeds
+    ...    30 secs
+    ...    2 secs
+    ...    Osquery Flag File Should Contain    --extensions_require=SophosLoggerPlugin,SophosExtension
+   Osquery Flag File Should Contain    --extensions_timeout=10
+   Osquery Flag File Should Contain    --logger_plugin=SophosLoggerPlugin
+
 
 *** Keywords ***
 XDR Pack Should Be Enabled

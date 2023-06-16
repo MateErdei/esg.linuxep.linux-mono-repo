@@ -23,7 +23,7 @@ namespace Plugin
 
         void prepareSystemForPlugin(bool xdrEnabled, time_t scheduleEpoch);
         static void regenerateOSQueryFlagsFile(const std::string& osqueryFlagsFilePath, bool enableAuditEventCollection,
-                                               bool xdrEnabled,
+                                               bool enableScheduledQueries,
                                                time_t scheduleEpoch);
         static void regenerateOsqueryConfigFile(const std::string& osqueryConfigFilePath);
         static void regenerateOsqueryOptionsConfigFile(const std::string& osqueryConfigFilePath, unsigned long expiry);

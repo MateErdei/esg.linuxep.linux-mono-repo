@@ -88,7 +88,7 @@ namespace Plugin
 
     void OsqueryConfigurator::regenerateOSQueryFlagsFile(const std::string& osqueryFlagsFilePath,
                                                          bool enableAuditEventCollection,
-                                                         bool xdrEnabled,
+                                                         bool enableScheduledQueries,
                                                          time_t scheduleEpoch)
     {
         LOGINFO("Creating osquery flags file");
@@ -138,17 +138,21 @@ namespace Plugin
             flags.emplace_back(flag);
         }
 
-        if (xdrEnabled)
+        if (enableScheduledQueries)
         {
             LOGDEBUG("Adding XDR flags to osquery flags file.");
             flags.emplace_back("--extensions_timeout=10");
-            flags.emplace_back("--extensions_require=SophosLoggerPlugin");
+            flags.emplace_back("--extensions_require=SophosLoggerPlugin,SophosExtension");
             flags.emplace_back("--logger_plugin=SophosLoggerPlugin");
 
             std::stringstream scheduleEpochSS;
             scheduleEpochSS << "--schedule_epoch=" << scheduleEpoch;
             LOGDEBUG("Using osquery schedule_epoch flag as: " << scheduleEpochSS.str());
             flags.push_back(scheduleEpochSS.str());
+        }
+        else
+        {
+            flags.emplace_back("--extensions_require=SophosExtension");
         }
 
         bool networkTables;

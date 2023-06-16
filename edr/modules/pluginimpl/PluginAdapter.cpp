@@ -106,7 +106,7 @@ namespace Plugin
             m_extensionAndStateMap["SophosExtension"] = std::make_pair<std::shared_ptr<IServiceExtension>, std::shared_ptr<std::atomic_bool>>(
                 std::make_shared<SophosExtension>(), std::make_shared<std::atomic_bool>(false));
         }
-        if (m_isXDR && m_extensionAndStateMap.find("LoggerExtension") == m_extensionAndStateMap.end())
+        if (m_enableScheduledQueries && m_extensionAndStateMap.find("LoggerExtension") == m_extensionAndStateMap.end())
         {
             LOGDEBUG("Adding LoggerExtension to list of extensions");
             m_extensionAndStateMap["LoggerExtension"] = std::make_pair<std::shared_ptr<IServiceExtension>, std::shared_ptr<std::atomic_bool>>(
@@ -114,7 +114,7 @@ namespace Plugin
         }
         else
         {
-            if (!m_isXDR && m_extensionAndStateMap.find("LoggerExtension") != m_extensionAndStateMap.end())
+            if (!m_enableScheduledQueries && m_extensionAndStateMap.find("LoggerExtension") != m_extensionAndStateMap.end())
             {
                 LOGDEBUG("Removing LoggerExtension from list of extensions");
                 m_extensionAndStateMap["LoggerExtension"].first->Stop(SVC_EXT_STOP_TIMEOUT);
@@ -220,7 +220,7 @@ namespace Plugin
             // Check if we're running in XDR mode and if we are and the data limit period has elapsed then
             // make sure that the query pack is either still enabled or becomes enabled.
             // enableQueryPack is safe to call even when the query pack is already enabled.
-            if (m_isXDR)
+            if (m_enableScheduledQueries)
             {
                 if ( m_loggerExtensionPtr->checkDataPeriodHasElapsed())
                 {
@@ -417,7 +417,7 @@ namespace Plugin
     void PluginAdapter::setUpOsqueryMonitor()
     {
         LOGINFO("Prepare system for running osquery");
-        m_osqueryConfigurator.prepareSystemForPlugin(m_isXDR, m_scheduleEpoch.getValue());
+        m_osqueryConfigurator.prepareSystemForPlugin(m_enableScheduledQueries, m_scheduleEpoch.getValue());
         stopOsquery();
         LOGDEBUG("Setup monitoring of osquery");
         std::shared_ptr<QueueTask> queue = m_queueTask;
@@ -474,7 +474,7 @@ namespace Plugin
             m_restartNoDelay = true;
             return;
         }
-        if (m_isXDR)
+        if (m_enableScheduledQueries)
         {
             m_loggerExtensionPtr->reloadTags();
         }
@@ -703,14 +703,22 @@ namespace Plugin
         m_loggerExtensionPtr->setDataLimit(m_dataLimit);
 
         m_liveQueryRevId = getRevId(policyAttributesMap);
-        bool previousXdrValue = m_isXDR;
-        m_isXDR = getScheduledQueriesEnabledInPolicy(policyAttributesMap);
-        PluginUtils::updatePluginConfWithFlag(PluginUtils::MODE_IDENTIFIER, m_isXDR, osqueryRestartNeeded);
+        bool previousXdrValue = m_enableScheduledQueries;
+        m_enableScheduledQueries = getScheduledQueriesEnabledInPolicy(policyAttributesMap);
+        if (m_enableScheduledQueries)
+        {
+            LOGINFO("Scheduled queries are enabled in policy");
+        }
+        else
+        {
+            LOGINFO("Scheduled queries are disabled in policy");
+        }
+        PluginUtils::updatePluginConfWithFlag(PluginUtils::MODE_IDENTIFIER, m_enableScheduledQueries, osqueryRestartNeeded);
 
         // force osquery restart if xdr value has been updated.
-        osqueryRestartNeeded = (m_isXDR != previousXdrValue) || osqueryRestartNeeded;
+        osqueryRestartNeeded = (m_enableScheduledQueries != previousXdrValue) || osqueryRestartNeeded;
 
-        if (!m_isXDR && osqueryRestartNeeded)
+        if (!m_enableScheduledQueries && osqueryRestartNeeded)
         {
             // xdr mode has been disabled clearing jrl markers
             PluginUtils::clearAllJRLMarkers();

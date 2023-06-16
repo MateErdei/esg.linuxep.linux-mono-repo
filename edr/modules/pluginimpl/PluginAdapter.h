@@ -112,7 +112,11 @@ namespace Plugin
         OsqueryDataManager m_DataManager;
         size_t MAX_THRESHOLD = 100;
         int QUEUE_TIMEOUT = 5;
-        bool m_isXDR = false;
+
+        // Scheduled queries enabled or not.
+        // https://sophos.atlassian.net/wiki/spaces/SophosCloud/pages/42639761043/EMP+policy-live-query
+        bool m_enableScheduledQueries = false;
+
         std::vector<std::string> m_queryPacksInPolicy;
         void sendLiveQueryStatus();
 
