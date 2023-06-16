@@ -37,6 +37,7 @@ BRANCH_NAME = "develop"
 
 logger = logging.getLogger(__name__)
 
+
 # Extract base version from release package xml file to save hard-coding it twice.
 def get_base_version():
     import xml.dom.minidom
@@ -54,6 +55,15 @@ def get_base_version():
     logger.info("DIR CWD: %s", str(os.listdir(os.getcwd())))
     raise Exception(f"Failed to extract version from {release_pkg_name}")
 
+
+def pip(machine: tap.Machine):
+    return "pip3"
+
+
+def python(machine: tap.Machine):
+    return "python3"
+
+
 def pip_install(machine: tap.Machine, *install_args: str):
     """Installs python packages onto a TAP machine"""
     pip_index = os.environ.get('TAP_PIP_INDEX_URL')
@@ -62,9 +72,12 @@ def pip_install(machine: tap.Machine, *install_args: str):
                        "--progress-bar", "off",
                        "--disable-pip-version-check",
                        "--default-timeout", "120"]
-    machine.run('pip3', '--log', '/opt/test/logs/pip.log',
+    machine.run(pip(machine), 'install', "pip", "--upgrade", *pip_index_args,
+                log_mode=tap.LoggingMode.ON_ERROR)
+    machine.run(pip(machine), '--log', '/opt/test/logs/pip.log',
                 'install', *install_args, *pip_index_args,
                 log_mode=tap.LoggingMode.ON_ERROR)
+
 
 def package_install(machine: tap.Machine, *install_args: str):
     confirmation_arg = "-y"
@@ -84,14 +97,27 @@ def package_install(machine: tap.Machine, *install_args: str):
         else:
             time.sleep(3)
 
+
 def install_requirements(machine: tap.Machine):
     """ install python lib requirements """
+    if machine.run('which', 'apt-get', return_exit_code=True) == 0:
+        package_install(machine, 'python3.7-dev')
+
+    machine.run("which", python(machine))
+    machine.run(python(machine), "-V")
+
     try:
-        machine.run('pip3', 'install', "pip", "--upgrade")
+        # Check if python2 is python on this machine
+        machine.run("which", "python")
+        machine.run("python", "-V")
+    except Exception:
+        pass
+
+    try:
         pip_install(machine, '-r', machine.inputs.test_scripts / 'requirements.txt')
+        machine.run('groupadd', 'sophos-spl-group')
         machine.run('useradd', 'sophos-spl-user')
         machine.run('useradd', 'sophos-spl-local')
-        machine.run('groupadd', 'sophos-spl-group')
         package_install(machine, "rsync")
         package_install(machine, "openssl")
     except Exception as ex:
@@ -110,8 +136,6 @@ def robot_task(machine: tap.Machine, robot_args: str):
     global BRANCH_NAME
     machine_name = machine.template
     try:
-        if machine.run('which', 'apt-get', return_exit_code=True) == 0:
-            package_install(machine, 'python3.7-dev')
         install_requirements(machine)
         machine.run(robot_args, 'python3', machine.inputs.test_scripts / 'RobotFramework.py', timeout=3600)
     finally:
@@ -124,8 +148,6 @@ def robot_task(machine: tap.Machine, robot_args: str):
 
 def coverage_task(machine: tap.Machine, branch: str, robot_args: str):
     try:
-        if machine.run('which', 'apt-get', return_exit_code=True) == 0:
-            package_install(machine, 'python3.7-dev')
         install_requirements(machine)
 
         # upload unit test coverage-html and the unit-tests cov file to allegro
