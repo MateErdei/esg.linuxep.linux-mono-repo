@@ -27,7 +27,7 @@ Suite Setup      Upgrade Resources Suite Setup
 Suite Teardown   Upgrade Resources Suite Teardown
 
 Test Setup       Upgrade Resources Test Setup
-Test Teardown    Upgrade Resources Test Teardown
+Test Teardown    Upgrade Resources SDDS3 Test Teardown
 
 Test Timeout  10 mins
 Force Tags  LOAD9
