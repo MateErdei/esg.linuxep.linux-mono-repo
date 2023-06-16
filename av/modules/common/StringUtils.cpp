@@ -4,6 +4,8 @@
 
 #include "Logger.h"
 
+#include "datatypes/AVException.h"
+
 #include "Common/Logging/LoggerConfig.h"
 
 #include <boost/locale.hpp>
@@ -19,7 +21,7 @@ namespace common
     {
         std::string buffer;
         buffer.reserve(text.size());
-        for(size_t pos = 0; pos != text.size(); ++pos) {
+        for (size_t pos = 0; pos != text.size(); ++pos) {
             switch(text[pos]) {
                 // control characters
                 case '\a': buffer.append("\\a");           break;
@@ -133,7 +135,7 @@ namespace common
 
         if(throws)
         {
-            throw std::runtime_error(std::string("Failed to convert string to utf8: ") + str);
+            throw datatypes::AVException(LOCATION, std::string("Failed to convert string to utf8: ") + str);
         }
 
         LOGDEBUG("Failed to convert string: "<< str << "to utf8 returning original");

@@ -1,11 +1,11 @@
-// Copyright 2022, Sophos Limited.  All rights reserved.
+// Copyright 2022-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
-#include "Common/Exceptions/IException.h"
+#include "datatypes/AVException.h"
 
-class FailedToInitializeSusiException : public Common::Exceptions::IException
+class FailedToInitializeSusiException : public datatypes::AVException
 {
 public:
-    using Common::Exceptions::IException::IException;
+    using datatypes::AVException::AVException;
 };

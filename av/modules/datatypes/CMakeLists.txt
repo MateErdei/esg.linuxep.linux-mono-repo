@@ -14,7 +14,7 @@ add_library(datatypes SHARED
         IUuidGenerator.h
         UuidGeneratorImpl.cpp
         UuidGeneratorImpl.h
-        )
+        AVException.h)
 
 target_link_libraries(datatypes  PUBLIC
         cap

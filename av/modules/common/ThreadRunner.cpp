@@ -3,6 +3,7 @@
 #include "Logger.h"
 #include "ThreadRunner.h"
 
+#include "datatypes/AVException.h"
 
 using namespace common;
 
@@ -11,7 +12,7 @@ ThreadRunner::ThreadRunner(std::shared_ptr<common::AbstractThreadPluginInterface
 {
     if (!m_thread)
     {
-        throw std::runtime_error("Cannot create ThreadRunner as thread is null");
+        throw datatypes::AVException(LOCATION, "Cannot create ThreadRunner as thread is null");
     }
 
     if (startNow)

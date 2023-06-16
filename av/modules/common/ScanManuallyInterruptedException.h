@@ -1,20 +1,11 @@
-/******************************************************************************************************
-
-Copyright 2021, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2021-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
-#include <stdexcept>
-#include <string>
-#include <utility>
+#include "datatypes/AVException.h"
 
-class ScanManuallyInterruptedException :  public std::runtime_error
+class ScanManuallyInterruptedException :  public datatypes::AVException
 {
 public:
-    explicit ScanManuallyInterruptedException(const std::string& errorMsg)
-            : std::runtime_error(errorMsg)
-    {
-    }
+    using datatypes::AVException::AVException;
 };

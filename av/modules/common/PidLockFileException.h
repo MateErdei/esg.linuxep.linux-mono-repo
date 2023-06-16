@@ -1,16 +1,11 @@
-// Copyright 2022, Sophos Limited.  All rights reserved.
+// Copyright 2022-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
-#include <stdexcept>
-#include <string>
-#include <utility>
+#include "datatypes/AVException.h"
 
-class PidLockFileException : public std::runtime_error
+class PidLockFileException : public datatypes::AVException
 {
 public:
-    explicit PidLockFileException(const std::string& errorMsg)
-        : std::runtime_error(errorMsg)
-    {
-    }
+    using datatypes::AVException::AVException;
 };

@@ -1,13 +1,15 @@
-/******************************************************************************************************
-
-Copyright 2022, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2022-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
-#include <stdexcept>
+#include "datatypes/AVException.h"
 
-class ShuttingDownException : virtual public std::exception
+class ShuttingDownException : public datatypes::AVException
 {
+public:
+    using datatypes::AVException::AVException;
+    ShuttingDownException()
+        : datatypes::AVException("")
+    {}
+
 };

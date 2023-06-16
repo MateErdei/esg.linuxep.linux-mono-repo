@@ -1,20 +1,14 @@
-/******************************************************************************************************
-
-Copyright 2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
-#include <stdexcept>
-#include <string>
-#include <utility>
+#include "datatypes/AVException.h"
 
 namespace common
 {
-    class AbortScanException : virtual public std::runtime_error
+    class AbortScanException : public datatypes::AVException
     {
     public:
-        explicit AbortScanException(const std::string& errorMsg) : std::runtime_error(errorMsg) {}
+        using datatypes::AVException::AVException;
     };
 }
