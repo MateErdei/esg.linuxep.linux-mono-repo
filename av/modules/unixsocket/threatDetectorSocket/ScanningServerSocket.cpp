@@ -3,7 +3,8 @@
 
 #include "ScanningServerSocket.h"
 
-#include "unixsocket/Logger.h"
+#include "unixsocket/UnixSocketException.h"
+
 #include "datatypes/sophos_filesystem.h"
 
 #include <Common/ZeroMQWrapper/IIPCException.h>
@@ -19,7 +20,7 @@ unixsocket::ScanningServerSocket::ScanningServerSocket(
 {
     if (m_scannerFactory.get() == nullptr)
     {
-        throw std::runtime_error("Attempting to create " + m_socketName + " without scanner factory");
+        throw unixsocket::UnixSocketException(LOCATION, "Attempting to create " + m_socketName + " without scanner factory");
     }
 }
 

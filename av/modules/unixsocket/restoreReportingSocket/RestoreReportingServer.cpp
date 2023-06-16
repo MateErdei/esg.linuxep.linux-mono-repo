@@ -3,6 +3,8 @@
 #include "RestoreReportingServer.h"
 
 #include "../Logger.h"
+#include "../UnixSocketException.h"
+
 #include "common/ApplicationPaths.h"
 #include "common/SaferStrerror.h"
 #include "common/StringUtils.h"
@@ -90,7 +92,7 @@ namespace unixsocket
                     continue;
                 }
 
-                throw std::runtime_error(m_socketName + " ppoll error: " + common::safer_strerror(errno));
+                throw unixsocket::UnixSocketException(LOCATION, m_socketName + " ppoll error: " + common::safer_strerror(errno));
             }
 
             assert(ret > 0); // 0 is not possible since ppoll can't time out

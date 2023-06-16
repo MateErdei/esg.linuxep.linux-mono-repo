@@ -6,6 +6,7 @@
 
 #include "unixsocket/Logger.h"
 #include "unixsocket/SocketUtils.h"
+#include "unixsocket/UnixSocketException.h"
 
 #include <cassert>
 #include <sstream>
@@ -32,7 +33,7 @@ void unixsocket::SafeStoreRescanClient::sendRescanRequest()
         {
             std::stringstream errMsg;
             errMsg << m_name << " failed to write rescan request to socket [" << common::safer_strerror(errno) << "]";
-            throw std::runtime_error(errMsg.str());
+            throw unixsocket::UnixSocketException(LOCATION, errMsg.str());
         }
     }
     catch (unixsocket::environmentInterruption& e)

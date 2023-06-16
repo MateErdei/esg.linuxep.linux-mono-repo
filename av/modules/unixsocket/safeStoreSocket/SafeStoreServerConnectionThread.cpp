@@ -11,6 +11,7 @@
 #include "scan_messages/QuarantineResponse.h"
 #include "scan_messages/ThreatDetected.h"
 #include "unixsocket/SocketUtils.h"
+#include "unixsocket/UnixSocketException.h"
 
 #include "Common/TelemetryHelperImpl/TelemetryHelper.h"
 
@@ -33,11 +34,11 @@ SafeStoreServerConnectionThread::SafeStoreServerConnectionThread(
     BaseServerConnectionThread("SafeStoreServerConnectionThread"),
     m_fd(std::move(fd)),
     m_quarantineManager(std::move(quarantineManager)),
-    m_sysCalls(sysCalls)
+    m_sysCalls(std::move(sysCalls))
 {
     if (m_fd < 0)
     {
-        throw std::runtime_error("Attempting to construct " + m_threadName + " with invalid socket fd");
+        throw unixsocket::UnixSocketException(LOCATION, "Attempting to construct " + m_threadName + " with invalid socket fd");
     }
 }
 

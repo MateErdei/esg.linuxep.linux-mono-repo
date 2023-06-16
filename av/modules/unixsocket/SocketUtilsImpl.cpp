@@ -1,8 +1,8 @@
-// Copyright 2020-2022 Sophos Limited. All rights reserved.
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #include "SocketUtilsImpl.h"
 
-#include <stdexcept>
+#include "UnixSocketException.h"
 
 std::deque<uint8_t> unixsocket::splitInto7Bits(unsigned length)
 {
@@ -32,7 +32,7 @@ unixsocket::buffer_ptr_t unixsocket::getLength(size_t length, size_t& bufferSize
 {
     if (length == 0)
     {
-        throw std::runtime_error("Attempting to write length of zero");
+        throw unixsocket::UnixSocketException(LOCATION, "Attempting to write length of zero");
     }
 
     auto bytes = splitInto7Bits(length);

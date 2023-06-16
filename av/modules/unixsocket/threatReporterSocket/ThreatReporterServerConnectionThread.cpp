@@ -8,6 +8,7 @@
 #include "scan_messages/ThreatDetected.h"
 #include "unixsocket/Logger.h"
 #include "unixsocket/SocketUtils.h"
+#include "unixsocket/UnixSocketException.h"
 
 #include <poll.h>
 #include <sys/socket.h>
@@ -29,16 +30,16 @@ ThreatReporterServerConnectionThread::ThreatReporterServerConnectionThread(
     BaseServerConnectionThread("ThreatReporterServerConnectionThread")
     ,m_fd(std::move(fd))
     , m_threatReportCallback(std::move(threatReportCallback))
-    , m_sysCalls(sysCalls)
+    , m_sysCalls(std::move(sysCalls))
 {
     if (m_fd < 0)
     {
-        throw std::runtime_error("Attempting to construct " + m_threadName + " with invalid socket fd");
+        throw unixsocket::UnixSocketException(LOCATION, "Attempting to construct " + m_threadName + " with invalid socket fd");
     }
 
     if (!m_threatReportCallback)
     {
-        throw std::runtime_error("Attempting to construct " + m_threadName + " with null callback");
+        throw unixsocket::UnixSocketException(LOCATION, "Attempting to construct " + m_threadName + " with null callback");
     }
 }
 

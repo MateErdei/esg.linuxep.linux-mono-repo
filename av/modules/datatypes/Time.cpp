@@ -1,12 +1,8 @@
-/******************************************************************************************************
-
-Copyright 2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #include "Time.h"
 
-#include <stdexcept>
+#include "AVException.h"
 
 using namespace datatypes;
 
@@ -16,14 +12,14 @@ std::string Time::epochToDateTimeString(const std::time_t& rawtime, const char* 
     struct tm* result = gmtime_r(&rawtime, &timeinfo);
     if (result == nullptr)
     {
-        throw std::runtime_error("Failed to convert timestamp to UTC");
+        throw datatypes::AVException(LOCATION, "Failed to convert timestamp to UTC");
     }
 
     char timebuffer[20];
     int timesize = ::strftime(timebuffer, sizeof(timebuffer), format, &timeinfo);
     if (timesize == 0)
     {
-        throw std::runtime_error("Failed to format timestamp");
+        throw datatypes::AVException(LOCATION, "Failed to format timestamp");
     }
 
     return timebuffer;

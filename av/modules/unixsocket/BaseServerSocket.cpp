@@ -3,6 +3,7 @@
 #include "BaseServerSocket.h"
 
 #include "Logger.h"
+#include "UnixSocketException.h"
 
 #include "Common/FileSystem/IFilePermissions.h"
 #include "common/SaferStrerror.h"
@@ -22,7 +23,7 @@ static void throwOnError(int ret, const std::string& message)
         return;
     }
     perror(message.c_str());
-    throw std::runtime_error(message);
+    throw unixsocket::UnixSocketException(LOCATION, message);
 }
 
 static void throwIfBadFd(int fd, const std::string& message)
@@ -31,7 +32,7 @@ static void throwIfBadFd(int fd, const std::string& message)
     {
         return;
     }
-    throw std::runtime_error(message);
+    throw unixsocket::UnixSocketException(LOCATION, message);
 }
 
 unixsocket::BaseServerSocket::BaseServerSocket(const sophos_filesystem::path& path, std::string name, const mode_t mode)
@@ -73,7 +74,7 @@ void unixsocket::BaseServerSocket::run()
         std::stringstream stream;
         stream << m_socketName;
         stream << " unable to listen on socket_fd";
-        throw std::runtime_error(stream.str());
+        throw unixsocket::UnixSocketException(LOCATION, stream.str());
     }
 
     bool terminate = false;

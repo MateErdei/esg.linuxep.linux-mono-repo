@@ -3,6 +3,7 @@
 #include "MetadataRescanServerSocket.h"
 
 #include "unixsocket/Logger.h"
+#include "unixsocket/UnixSocketException.h"
 
 #include "Common/ZeroMQWrapper/IIPCException.h"
 
@@ -15,7 +16,7 @@ unixsocket::MetadataRescanServerSocket::MetadataRescanServerSocket(
 {
     if (m_scannerFactory.get() == nullptr)
     {
-        throw std::runtime_error("Attempting to create " + m_socketName + " without scanner factory");
+        throw unixsocket::UnixSocketException(LOCATION, "Attempting to create " + m_socketName + " without scanner factory");
     }
 }
 

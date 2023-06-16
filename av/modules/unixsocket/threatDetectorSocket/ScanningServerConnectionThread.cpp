@@ -9,13 +9,9 @@
 #include "common/SaferStrerror.h"
 #include "common/ShuttingDownException.h"
 #include "common/StringUtils.h"
-#include "datatypes/SystemCallWrapper.h"
 #include "unixsocket/Logger.h"
 #include "unixsocket/SocketUtils.h"
-
-#include <fcntl.h>
-#include <sys/stat.h>
-#include <unistd.h>
+#include "unixsocket/UnixSocketException.h"
 
 #include <capnp/serialize.h>
 
@@ -33,17 +29,17 @@ unixsocket::ScanningServerConnectionThread::ScanningServerConnectionThread(
     : BaseServerConnectionThread("ScanningServerConnectionThread")
     , m_socketFd(std::move(fd))
     , m_scannerFactory(std::move(scannerFactory))
-    , m_sysCalls(sysCalls)
+    , m_sysCalls(std::move(sysCalls))
     , m_maxIterations(maxIterations)
 {
     if (m_socketFd < 0)
     {
-        throw std::runtime_error("Attempting to construct " + m_threadName + " with invalid socket fd");
+        throw unixsocket::UnixSocketException(LOCATION, "Attempting to construct " + m_threadName + " with invalid socket fd");
     }
 
     if (m_scannerFactory.get() == nullptr)
     {
-        throw std::runtime_error("Attempting to construct " + m_threadName + " with null scanner factory");
+        throw unixsocket::UnixSocketException(LOCATION, "Attempting to construct " + m_threadName + " with null scanner factory");
     }
 }
 
@@ -55,7 +51,7 @@ unixsocket::ScanningServerConnectionThread::ScanningServerConnectionThread(
 //        return;
 //    }
 //    perror(message.c_str());
-//    throw std::runtime_error(message);
+//    throw unixsocket::UnixSocketException(LOCATION, message);
 //}
 
 /**
@@ -282,7 +278,7 @@ void unixsocket::ScanningServerConnectionThread::inner_run()
                         requestReader->detectPUAs());
                     if (!scanner)
                     {
-                        throw std::runtime_error(m_threadName + " failed to create scanner");
+                        throw unixsocket::UnixSocketException(LOCATION, m_threadName + " failed to create scanner");
                     }
                 }
 

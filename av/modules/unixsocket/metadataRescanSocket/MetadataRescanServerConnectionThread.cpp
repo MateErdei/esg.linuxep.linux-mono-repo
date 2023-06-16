@@ -9,6 +9,7 @@
 #include "unixsocket/Logger.h"
 #include "unixsocket/SocketUtils.h"
 #include "unixsocket/threatDetectorSocket/ThreatDetectedMessageUtils.h"
+#include "unixsocket/UnixSocketException.h"
 
 #include <capnp/serialize.h>
 
@@ -33,12 +34,12 @@ namespace unixsocket
     {
         if (m_socketFd < 0)
         {
-            throw std::runtime_error("Attempting to construct " + m_threadName + " with invalid socket fd");
+            throw unixsocket::UnixSocketException(LOCATION, "Attempting to construct " + m_threadName + " with invalid socket fd");
         }
 
         if (m_scannerFactory.get() == nullptr)
         {
-            throw std::runtime_error("Attempting to construct " + m_threadName + " with null scanner factory");
+            throw unixsocket::UnixSocketException(LOCATION, "Attempting to construct " + m_threadName + " with null scanner factory");
         }
     }
 
@@ -230,7 +231,7 @@ namespace unixsocket
                 }
                 if (!scanner)
                 {
-                    throw std::runtime_error(m_threadName + " failed to create scanner");
+                    throw unixsocket::UnixSocketException(LOCATION, m_threadName + " failed to create scanner");
                 }
 
                 const auto result = scanner->metadataRescan(request);

@@ -6,6 +6,7 @@
 
 #include "unixsocket/Logger.h"
 #include "unixsocket/SocketUtils.h"
+#include "unixsocket/UnixSocketException.h"
 
 #include <capnp/serialize.h>
 #include <common/SaferStrerror.h>
@@ -30,7 +31,7 @@ ProcessControllerServerConnectionThread::ProcessControllerServerConnectionThread
 {
     if (m_fd < 0)
     {
-        throw std::runtime_error("Attempting to construct " + m_threadName + " with invalid socket fd");
+        throw unixsocket::UnixSocketException(LOCATION, "Attempting to construct " + m_threadName + " with invalid socket fd");
     }
 }
 

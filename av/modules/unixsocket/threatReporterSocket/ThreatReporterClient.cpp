@@ -6,6 +6,8 @@
 
 #include "unixsocket/SocketUtils.h"
 #include "unixsocket/Logger.h"
+#include "unixsocket/UnixSocketException.h"
+
 #include "scan_messages/ThreatDetected.h"
 
 #include <string>
@@ -33,12 +35,12 @@ void unixsocket::ThreatReporterClientSocket::sendThreatDetection(const scan_mess
         {
             std::stringstream errMsg;
             errMsg << m_name << " failed to write to socket [" << common::safer_strerror(errno) << "]";
-            throw std::runtime_error(errMsg.str());
+            throw unixsocket::UnixSocketException(LOCATION, errMsg.str());
         }
 
         if (send_fd(m_socket_fd, fd) < 0)
         {
-            throw std::runtime_error(m_name + " failed to write file descriptor to socket");
+            throw unixsocket::UnixSocketException(LOCATION, m_name + " failed to write file descriptor to socket");
         }
     }
     catch (unixsocket::environmentInterruption& e)

@@ -19,6 +19,7 @@ add_library(datatypes SHARED
 target_link_libraries(datatypes  PUBLIC
         cap
         )
+target_include_directories(datatypes PUBLIC ${pluginapiinclude})
 
 install(TARGETS datatypes
         LIBRARY DESTINATION files/plugins/${PLUGIN_NAME}/lib64)

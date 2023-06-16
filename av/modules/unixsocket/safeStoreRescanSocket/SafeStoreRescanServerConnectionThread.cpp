@@ -4,6 +4,7 @@
 
 #include "unixsocket/Logger.h"
 #include "unixsocket/SocketUtils.h"
+#include "unixsocket/UnixSocketException.h"
 
 #include "common/SaferStrerror.h"
 #include <poll.h>
@@ -24,7 +25,7 @@ SafeStoreRescanServerConnectionThread::SafeStoreRescanServerConnectionThread(
 {
     if (!m_fd.valid())
     {
-        throw std::runtime_error("Attempting to construct SafeStoreRescanServerConnectionThread with invalid socket fd");
+        throw unixsocket::UnixSocketException(LOCATION, "Attempting to construct SafeStoreRescanServerConnectionThread with invalid socket fd");
     }
 }
 
