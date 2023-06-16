@@ -22,6 +22,8 @@ if (NOT DEFINED ENV{USE_LIBFUZZER})
             threatDetectorSocket/FakeScanningServer.h
             threatDetectorSocket/TestScanningClientSocket.cpp
             PROJECTS unixsocket
+            INC_DIRS ${testhelpersinclude}
+            LIBS  ${testhelperslib}
             )
 
     SophosAddTest(TestThreatReporterSocket

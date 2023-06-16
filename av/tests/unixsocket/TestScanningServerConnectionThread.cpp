@@ -18,7 +18,8 @@
 #include "tests/common/TestFile.h"
 #include "tests/datatypes/MockSysCalls.h"
 
-#include "Common/FileSystem/IFileSystem.h"
+#include "Common/Helpers/FileSystemReplaceAndRestore.h"
+#include "Common/Helpers/MockFileSystem.h"
 
 #include <capnp/serialize.h>
 #include <gmock/gmock.h>
@@ -65,8 +66,8 @@ namespace
 
             m_sysCalls = std::make_shared<datatypes::SystemCallWrapper>();
             m_mockSysCalls = std::make_shared<StrictMock<MockSystemCallWrapper>>();
+            mockFileSystem_ = std::make_unique<StrictMock<MockFileSystem>>();
             m_threatDetectorUnhealthyFlagFile = Plugin::getThreatDetectorUnhealthyFlagPath();
-            m_fileSystem = Common::FileSystem::fileSystem();
         }
 
         void TearDown() override
@@ -75,21 +76,12 @@ namespace
             fs::remove_all(m_testDir);
         }
 
-        bool threatDetectorUnhealthyFlagSet()
-        {
-            return m_fileSystem->isFile(m_threatDetectorUnhealthyFlagFile);
-        }
-
-        [[maybe_unused]] void createOnAccessUnhealthyFlagFile()
-        {
-            m_fileSystem->writeFile(m_threatDetectorUnhealthyFlagFile, "");
-        }
-
         UsingMemoryAppender memoryAppenderHolder;
         scan_messages::ClientScanRequest request;
         fs::path m_testDir;
         std::shared_ptr<datatypes::SystemCallWrapper> m_sysCalls;
-        std::shared_ptr<StrictMock<MockSystemCallWrapper>> m_mockSysCalls;
+        std::shared_ptr<MockSystemCallWrapper> m_mockSysCalls;
+        std::unique_ptr<MockFileSystem> mockFileSystem_;
         std::string m_threatDetectorUnhealthyFlagFile;
         Common::FileSystem::IFileSystem* m_fileSystem = nullptr;
     };
@@ -419,8 +411,10 @@ TEST_F(TestScanningServerConnectionThreadWithSocketPair, send_fd)
     requestBuilder.setScanType(scan_messages::E_SCAN_TYPE_ON_DEMAND);
     requestBuilder.setUserID("n/a");
 
-
     Sophos::ssplav::FileScanRequest::Reader requestReader = requestBuilder;
+
+    EXPECT_CALL(*mockFileSystem_, exists(m_threatDetectorUnhealthyFlagFile)).WillOnce(Return(false));
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockFileSystem_));
 
     scan_messages::ScanRequest request = scan_messages::ScanRequest(requestReader);
     EXPECT_CALL(*scanner, scan(_, Eq(std::ref(request)))).WillOnce(Return(expected_response));
@@ -467,6 +461,9 @@ TEST_F(TestScanningServerConnectionThreadWithSocketPair, fails_to_create_scanner
     scan_messages::ScanRequest request = scan_messages::ScanRequest(requestReader);
     EXPECT_CALL(*scannerFactory, createScanner(_, _, _)).WillOnce(Throw(FailedToInitializeSusiException(throwstr)));
 
+    EXPECT_CALL(*mockFileSystem_, writeFile(m_threatDetectorUnhealthyFlagFile, "")).Times(1);
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockFileSystem_));
+
     ScanningServerConnectionThread connectionThread(m_serverFd, scannerFactory, m_sysCalls);
     connectionThread.start();
     EXPECT_TRUE(connectionThread.isRunning());
@@ -485,7 +482,6 @@ TEST_F(TestScanningServerConnectionThreadWithSocketPair, fails_to_create_scanner
     EXPECT_TRUE(waitForLog("Stopping ScanningServerConnectionThread"));
     connectionThread.requestStop();
     connectionThread.join();
-    EXPECT_TRUE(threatDetectorUnhealthyFlagSet());
 }
 
 TEST_F(TestScanningServerConnectionThreadWithSocketPair, successful_creation_of_scanner_removes_bad_health_flag)
@@ -502,13 +498,14 @@ TEST_F(TestScanningServerConnectionThreadWithSocketPair, successful_creation_of_
     requestBuilder.setScanType(scan_messages::E_SCAN_TYPE_ON_DEMAND);
     requestBuilder.setUserID("n/a");
 
+    EXPECT_CALL(*mockFileSystem_, exists(m_threatDetectorUnhealthyFlagFile)).WillOnce(Return(true));
+    EXPECT_CALL(*mockFileSystem_, removeFile(m_threatDetectorUnhealthyFlagFile)).Times(1);
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockFileSystem_));
+
     Sophos::ssplav::FileScanRequest::Reader requestReader = requestBuilder;
     scan_messages::ScanRequest request = scan_messages::ScanRequest(requestReader);
     EXPECT_CALL(*scanner, scan(_, Eq(std::ref(request)))).WillOnce(Return(expected_response));
     EXPECT_CALL(*scannerFactory, createScanner(_, _, _)).WillOnce(Return(ByMove(std::move(scanner))));
-
-    createOnAccessUnhealthyFlagFile();
-    ASSERT_TRUE(threatDetectorUnhealthyFlagSet());
 
     ScanningServerConnectionThread connectionThread(m_serverFd, scannerFactory, m_sysCalls);
     connectionThread.start();
@@ -522,12 +519,8 @@ TEST_F(TestScanningServerConnectionThreadWithSocketPair, successful_creation_of_
 
     EXPECT_TRUE(waitForLog("ScanningServerConnectionThread has created a new scanner"));
 
-    EXPECT_FALSE(threatDetectorUnhealthyFlagSet());
-
     connectionThread.requestStop();
     connectionThread.join();
-
-
 }
 
 TEST_F(TestScanningServerConnectionThreadWithSocketPair, scanner_shutting_down_throws)
@@ -567,7 +560,6 @@ TEST_F(TestScanningServerConnectionThreadWithSocketPair, scanner_shutting_down_t
 
     connectionThread.requestStop();
     connectionThread.join();
-    EXPECT_FALSE(threatDetectorUnhealthyFlagSet());
 }
 
 TEST_F(TestScanningServerConnectionThreadWithSocketConnection, fd_not_readable)

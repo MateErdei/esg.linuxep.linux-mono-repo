@@ -14,13 +14,14 @@
 #include "unixsocket/SocketUtils.h"
 #include "unixsocket/UnixSocketException.h"
 
+#include <Common/FileSystem/IFileSystem.h>
+
 #include <capnp/serialize.h>
 
 #include <cassert>
 #include <csignal>
 #include <fstream>
 #include <iostream>
-#include <stdexcept>
 #include <utility>
 
 using namespace scan_messages;
@@ -147,6 +148,8 @@ bool unixsocket::ScanningServerConnectionThread::attemptScan(
     scan_messages::ScanResponse& result,
     datatypes::AutoFd& fd)
 {
+    auto fs = Common::FileSystem::fileSystem();
+
     try
     {
         if (!scanner_ || scannerFactory_->detectPUAsEnabled() != scanRequest->detectPUAs())
@@ -160,7 +163,10 @@ bool unixsocket::ScanningServerConnectionThread::attemptScan(
                 throw unixsocket::UnixSocketException(LOCATION, m_threadName + " failed to create scanner");
             }
 
-            std::remove(Plugin::getThreatDetectorUnhealthyFlagPath().c_str());
+            if (fs->exists(Plugin::getThreatDetectorUnhealthyFlagPath()))
+            {
+                fs->removeFile(Plugin::getThreatDetectorUnhealthyFlagPath());
+            }
             LOGDEBUG(m_threadName << " has created a new scanner");
         }
 
@@ -175,7 +181,7 @@ bool unixsocket::ScanningServerConnectionThread::attemptScan(
     catch (FailedToInitializeSusiException& ex)
     {
         errMsg = m_threadName + " aborting scan, failed to initialise SUSI: " + ex.what();
-        std::ofstream threatDetectorUnhealthyFlagFile(Plugin::getThreatDetectorUnhealthyFlagPath());
+        fs->writeFile(Plugin::getThreatDetectorUnhealthyFlagPath(), "");
         return false;
     }
     catch (ShuttingDownException&)
