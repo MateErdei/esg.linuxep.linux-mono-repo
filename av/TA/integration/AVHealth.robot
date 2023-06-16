@@ -379,13 +379,13 @@ AV Service Health Turns Red When SUSI Fails Initialisation
     ${SUSI_UPDATE_SOURCE} =    Set Variable   ${COMPONENT_ROOT_PATH}/chroot/susi/update_source
     ${VDL_DIRECTORY} =    Set Variable   ${SUSI_UPDATE_SOURCE}/vdl
 
-    ${td_mark} =  Get Sophos Threat Detector Log Mark
-    restart sophos_threat_detector
-
     #Fake a bad update_source directory
     Move Directory  ${VDL_DIRECTORY}  /tmp/
     Register Cleanup    restart sophos_threat_detector
     Register Cleanup    Move Directory  /tmp/vdl  ${SUSI_UPDATE_SOURCE}
+
+    ${td_mark} =  Get Sophos Threat Detector Log Mark
+    restart sophos_threat_detector
 
     Wait For Sophos Threat Detector Log Contains After Mark   ScanningServerConnectionThread aborting scan, failed to initialise SUSI  ${td_mark}
 
