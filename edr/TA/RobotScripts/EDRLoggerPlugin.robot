@@ -963,6 +963,15 @@ Dump Scheduled Query Table
     ${response} =    Run Live Query and Return Result  SELECT name,interval,executions,last_executed,denylisted,average_memory FROM osquery_schedule order by name
     print_query_result_as_table    ${response}
 
+Verify RPM DB
+    # Sometimes we see this in the osquery log "glog_logger.cpp:49] Could not get RPM header flag." Which seems to
+    # cause osquery to get stuck for a bit. Adding this here to verify the RPM DB - if this check fails during a build
+    # then we can look into running the rpm rebuild DB command to try and fix it before running tests.
+    ${has_rpmdb_verify} =    Does File Exist    /usr/lib/rpm/rpmdb_verify
+    IF    !${has_rpmdb_verify}    RETURN
+    ${result} =   Run Process    /usr/lib/rpm/rpmdb_verify    /var/lib/rpm/Packages
+    Should Be Equal As Integers    ${result.rc}  0   "Failed to verify RPM DB \n stdout: \n${result.stdout}\n stderr: \n${result.stderr}"
+
 Test Setup
     Install EDR Directly from SDDS
     Check EDR Plugin Installed With Base
@@ -973,6 +982,7 @@ Test Setup
 
 Test Teardown
     Run Keyword And Ignore Error    Dump Scheduled Query Table
+    Run Keyword If Test Failed      Verify RPM DB
     EDR And Base Teardown
     Uninstall EDR
     clear_datafeed_folder
