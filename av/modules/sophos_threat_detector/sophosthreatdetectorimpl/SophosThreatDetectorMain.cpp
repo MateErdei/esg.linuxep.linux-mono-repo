@@ -17,6 +17,7 @@
 #include "common/ThreadRunner.h"
 #include "common/signals/SigUSR1Monitor.h"
 #include "datatypes/sophos_filesystem.h"
+#include "unixsocket/UnixSocketException.h"
 
 #ifdef USE_SUSI
 #else
@@ -603,12 +604,11 @@ namespace sspl::sophosthreatdetectorimpl
         return returnCode;
     }
 
-    int SophosThreatDetectorMain::sophos_threat_detector_main()
+    int SophosThreatDetectorMain::outer_main(const IThreatDetectorResourcesSharedPtr& resources)
     {
         try
         {
-            auto resources = std::make_unique<ThreatDetectorResources>();
-            return inner_main(std::move(resources));
+            return inner_main(resources);
         }
         catch (const InnerMainException& ex)
         {
@@ -624,6 +624,16 @@ namespace sspl::sophosthreatdetectorimpl
         {
             LOGFATAL("ThreatDetectorMain: ThreatScannerException caught at top level: " << ex.what_with_location());
             return common::E_THREAT_SCANNER_EXCEPTION;
+        }
+        catch (const unixsocket::UnixSocketException& ex)
+        {
+            LOGFATAL("ThreatDetectorMain: UnixSocketException caught at top level: " << ex.what_with_location());
+            return common::E_UNIX_SOCKET_EXCEPTION;
+        }
+        catch (const datatypes::AVException& ex)
+        {
+            LOGFATAL("ThreatDetectorMain: AVException caught at top level: " << ex.what_with_location());
+            return common::E_AV_EXCEPTION;
         }
         catch (const Common::Exceptions::IException& ex)
         {
@@ -643,12 +653,19 @@ namespace sspl::sophosthreatdetectorimpl
         catch (const std::exception& ex)
         {
             LOGFATAL("ThreatDetectorMain, Exception caught at top level: " << ex.what());
-            exit(common::E_STD_EXCEPTION_AT_TOP_LEVEL);
+            return common::E_STD_EXCEPTION_AT_TOP_LEVEL;
         }
         catch (...)
         {
             LOGFATAL("ThreatDetectorMain, Non-std::exception caught at top-level");
-            exit(common::E_NON_EXCEPTION_AT_TOP_LEVEL);
+            return common::E_NON_EXCEPTION_AT_TOP_LEVEL;
         }
     }
+
+    int SophosThreatDetectorMain::sophos_threat_detector_main()
+    {
+        auto resources = std::make_shared<ThreatDetectorResources>();
+        return outer_main(std::move(resources));
+    }
+
 } // namespace sspl::sophosthreatdetectorimpl

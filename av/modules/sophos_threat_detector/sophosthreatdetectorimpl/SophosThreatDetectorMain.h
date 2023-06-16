@@ -43,6 +43,7 @@ namespace sspl::sophosthreatdetectorimpl
 
     TEST_PUBLIC:
         int inner_main(const IThreatDetectorResourcesSharedPtr& resources);
+        int outer_main(const IThreatDetectorResourcesSharedPtr& resources);
 
 
     };
