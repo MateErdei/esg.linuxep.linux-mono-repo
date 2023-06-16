@@ -56,7 +56,7 @@ namespace
             m_testDir /= test_info->test_case_name();
             m_testDir /= test_info->name();
             fs::remove_all(m_testDir);
-            fs::create_directories(m_testDir / "var");
+            fs::create_directories(m_testDir / "chroot/var");
             fs::current_path(m_testDir);
 
             auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
