@@ -257,11 +257,11 @@ Exclude VDL Folder Missing Errors
     mark_expected_error_in_log  ${THREAT_DETECTOR_LOG_PATH}  Failed to bootstrap SUSI with error: -1073741803
     mark_expected_error_in_log  ${THREAT_DETECTOR_LOG_PATH}  ScanningServerConnectionThread aborting scan, failed to initialise SUSI
 
-Exclued SafeStore Internal Error On Quarantine
+Exclude SafeStore Internal Error On Quarantine
     [Arguments]  ${path_name}
     mark_expected_error_in_log  ${SAFESTORE_LOG_PATH}    Failed to quarantine ${path_name} due to: InternalError
 
-Exclued SafeStore File Open Error On Quarantine
+Exclude SafeStore File Open Error On Quarantine
     [Arguments]  ${path_name}
     mark_expected_error_in_log  ${SAFESTORE_LOG_PATH}    Failed to quarantine ${path_name} due to: FileOpenFailed
 
