@@ -29,7 +29,7 @@ Threat Detector Handles nonexistent var
     Run Sophos Threat Detector as sophos-spl-threat-detector without check
     #By the time this line is logged we are already in the chroot and STD does not see anything outside it
     wait_for_log_contains_from_mark  ${mark}
-    ...  ThreatDetectorMain: RuntimeError caught at top level: Unable to open lock file /var/threat_detector.pid because No such file or directory(2)
+    ...  ThreatDetectorMain: AVException caught at top level: Unable to open lock file /var/threat_detector.pid because No such file or directory(2)
     Dump Log  ${THREAT_DETECTOR_LOG_PATH}
 
 *** Variables ***
