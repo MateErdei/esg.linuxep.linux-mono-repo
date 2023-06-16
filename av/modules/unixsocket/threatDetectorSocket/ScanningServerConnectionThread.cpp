@@ -31,17 +31,17 @@ unixsocket::ScanningServerConnectionThread::ScanningServerConnectionThread(
         datatypes::ISystemCallWrapperSharedPtr sysCalls,
         int maxIterations)
     : BaseServerConnectionThread("ScanningServerConnectionThread")
-    , m_socketFd(std::move(fd))
-    , m_scannerFactory(std::move(scannerFactory))
-    , m_sysCalls(std::move(sysCalls))
+    , socketFd_(std::move(fd))
+    , scannerFactory_(std::move(scannerFactory))
+    , sysCalls_(sysCalls)
     , m_maxIterations(maxIterations)
 {
-    if (m_socketFd < 0)
+    if (socketFd_ < 0)
     {
         throw unixsocket::UnixSocketException(LOCATION, "Attempting to construct " + m_threadName + " with invalid socket fd");
     }
 
-    if (m_scannerFactory.get() == nullptr)
+    if (scannerFactory_.get() == nullptr)
     {
         throw unixsocket::UnixSocketException(LOCATION, "Attempting to construct " + m_threadName + " with null scanner factory");
     }
@@ -149,13 +149,13 @@ bool unixsocket::ScanningServerConnectionThread::attemptScan(
 {
     try
     {
-        if (!m_scanner || m_scannerFactory->detectPUAsEnabled() != scanRequest->detectPUAs())
+        if (!scanner_ || scannerFactory_->detectPUAsEnabled() != scanRequest->detectPUAs())
         {
-            m_scanner = m_scannerFactory->createScanner(
+            scanner_ = scannerFactory_->createScanner(
                 scanRequest->scanInsideArchives(),
                 scanRequest->scanInsideImages(),
                 scanRequest->detectPUAs());
-            if (!m_scanner)
+            if (!scanner_)
             {
                 throw std::runtime_error(m_threadName + " failed to create scanner");
             }
@@ -170,7 +170,7 @@ bool unixsocket::ScanningServerConnectionThread::attemptScan(
 #else
         scanRequest->setUserID("n/a");
 #endif
-        result = m_scanner->scan(fd, *scanRequest);
+        result = scanner_->scan(fd, *scanRequest);
     }
     catch (FailedToInitializeSusiException& ex)
     {
@@ -188,7 +188,7 @@ bool unixsocket::ScanningServerConnectionThread::attemptScan(
 
 void unixsocket::ScanningServerConnectionThread::inner_run()
 {
-    datatypes::AutoFd socket_fd(std::move(m_socketFd));
+    datatypes::AutoFd socket_fd(std::move(socketFd_));
     LOGDEBUG(m_threadName << " got connection " << socket_fd.fd());
     uint32_t buffer_size = 256;
     auto proto_buffer = kj::heapArray<capnp::word>(buffer_size);
@@ -203,15 +203,15 @@ void unixsocket::ScanningServerConnectionThread::inner_run()
     while (true)
     {
         // if m_maxIterations < 0, iterate forever, otherwise count down and break.
-        if (m_maxIterations >= 0)
+        if (maxIterations_ >= 0)
         {
-            if (m_maxIterations-- == 0)
+            if (maxIterations_-- == 0)
             {
                 break;
             }
         }
 
-        auto ret = m_sysCalls->ppoll(fds, std::size(fds), nullptr, nullptr);
+        auto ret = sysCalls_->ppoll(fds, std::size(fds), nullptr, nullptr);
         if (ret < 0)
         {
             if (errno == EINTR)
@@ -270,7 +270,7 @@ void unixsocket::ScanningServerConnectionThread::inner_run()
             ScanResponse result;
             ssize_t bytes_read;
             std::string errMsg;
-            if (!readCapnProtoMsg(m_sysCalls, length, buffer_size, proto_buffer, socket_fd, bytes_read, loggedLengthOfZero, errMsg))
+            if (!readCapnProtoMsg(sysCalls_, length, buffer_size, proto_buffer, socket_fd, bytes_read, loggedLengthOfZero, errMsg))
             {
                 result.setErrorMsg(errMsg);
                 sendResponse(socket_fd, result);
@@ -298,7 +298,7 @@ void unixsocket::ScanningServerConnectionThread::inner_run()
             LOGDEBUG(m_threadName << " managed to get file descriptor: " << file_fd.get());
 
             // Keep the connection open if we can read the message but get a file that we can't scan
-            if (!isReceivedFdFile(m_sysCalls, file_fd, errMsg) || !isReceivedFileOpen(m_sysCalls, file_fd, errMsg))
+            if (!isReceivedFdFile(sysCalls_, file_fd, errMsg) || !isReceivedFileOpen(sysCalls_, file_fd, errMsg))
             {
                 result.setErrorMsg(errMsg);
                 sendResponse(socket_fd, result);

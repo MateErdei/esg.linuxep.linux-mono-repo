@@ -48,12 +48,12 @@ namespace unixsocket
         void inner_run();
         bool sendResponse(datatypes::AutoFd& socket_fd, const scan_messages::ScanResponse& response);
 
-        datatypes::AutoFd m_socketFd;
-        threat_scanner::IThreatScannerFactorySharedPtr m_scannerFactory;
-        threat_scanner::IThreatScannerPtr m_scanner;
-        datatypes::ISystemCallWrapperSharedPtr m_sysCalls;
+        datatypes::AutoFd socketFd_;
+        threat_scanner::IThreatScannerFactorySharedPtr scannerFactory_;
+        threat_scanner::IThreatScannerPtr scanner_;
+        datatypes::ISystemCallWrapperSharedPtr sysCalls_;
 
-        int m_maxIterations;
+        int maxIterations_;
     };
 
     struct ScanRequestObject
