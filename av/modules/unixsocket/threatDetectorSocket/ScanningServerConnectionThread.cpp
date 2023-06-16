@@ -34,7 +34,7 @@ unixsocket::ScanningServerConnectionThread::ScanningServerConnectionThread(
     , socketFd_(std::move(fd))
     , scannerFactory_(std::move(scannerFactory))
     , sysCalls_(sysCalls)
-    , m_maxIterations(maxIterations)
+    , maxIterations_(maxIterations)
 {
     if (socketFd_ < 0)
     {
