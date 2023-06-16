@@ -8,15 +8,21 @@ function failure()
 
 set -ex
 
-while getopts t:u:bfadc:r flag
+CLEAN=
+
+while getopts t:u:bfadc:rx flag
 do
     case "${flag}" in
         t) MCS_TOKEN=${OPTARG};;
         u) MCS_URL=${OPTARG};;
         c) MCS_CA=${OPTARG};;
         b) BREAK_UPDATING=true;;
-        d) CONFIGURE_DEBUG=true;;
+        d)
+          CONFIGURE_DEBUG=true
+          export SOPHOS_LOG_LEVEL=DEBUG
+          ;;
         r) INSTALL_RA=true;;
+        x) CLEAN=true;;
         ?) failure "Error: Invalid option was specified -$OPTARG use -t for token -u for url and -b for breaking updating"
           ;;
     esac
@@ -29,6 +35,14 @@ BASE=$(pwd)
 export SOPHOS_INSTALL=${SOPHOS_INSTALL:-/opt/sophos-spl}
 OUTPUT=${OUTPUT:-/vagrant/esg.linuxep.everest-base/output}
 SDDS=${SDDS:-$OUTPUT/SDDS-COMPONENT}
+
+if [[ -n $CLEAN ]]
+then
+    if [[ -d $SOPHOS_INSTALL ]]
+    then
+        bash $SOPHOS_INSTALL/bin/uninstall.sh --force
+    fi
+fi
 
 [[ -f $SDDS/install.sh ]] || failure "install.sh not found!"
 bash $SDDS/install.sh || failure "Unable to install base SSPL: $?"
