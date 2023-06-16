@@ -157,7 +157,7 @@ bool unixsocket::ScanningServerConnectionThread::attemptScan(
                 scanRequest->detectPUAs());
             if (!scanner_)
             {
-                throw std::runtime_error(m_threadName + " failed to create scanner");
+                throw unixsocket::UnixSocketException(LOCATION, m_threadName + " failed to create scanner");
             }
 
             std::remove(Plugin::getThreatDetectorUnhealthyFlagPath().c_str());
