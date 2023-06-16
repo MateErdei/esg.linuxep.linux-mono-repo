@@ -20,7 +20,6 @@
 
 #include <cassert>
 #include <csignal>
-#include <fstream>
 #include <iostream>
 #include <utility>
 
