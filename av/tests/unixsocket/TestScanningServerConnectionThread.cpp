@@ -434,7 +434,7 @@ TEST_F(TestScanningServerConnectionThreadWithSocketPair, send_fd)
     Sophos::ssplav::FileScanRequest::Reader requestReader = requestBuilder;
 
     EXPECT_CALL(*mockFileSystem_, removeFile(threatDetectorUnhealthyFlagFile_, true)).Times(1);
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockFileSystem_));
+    scopedReplaceFileSystem_.replace(std::move(mockFileSystem_));
 
     scan_messages::ScanRequest request = scan_messages::ScanRequest(requestReader);
     EXPECT_CALL(*scanner, scan(_, Eq(std::ref(request)))).WillOnce(Return(expected_response));
@@ -482,7 +482,7 @@ TEST_F(TestScanningServerConnectionThreadWithSocketPair, fails_to_create_scanner
     EXPECT_CALL(*scannerFactory, createScanner(_, _, _)).WillOnce(Throw(FailedToInitializeSusiException(throwstr)));
 
     EXPECT_CALL(*mockFileSystem_, writeFile(threatDetectorUnhealthyFlagFile_, "")).Times(1);
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockFileSystem_));
+    scopedReplaceFileSystem_.replace(std::move(mockFileSystem_));
 
     ScanningServerConnectionThread connectionThread(serverFd_, scannerFactory, sysCalls_);
     connectionThread.start();
@@ -519,7 +519,7 @@ TEST_F(TestScanningServerConnectionThreadWithSocketPair, successful_creation_of_
     requestBuilder.setUserID("n/a");
 
     EXPECT_CALL(*mockFileSystem_, removeFile(threatDetectorUnhealthyFlagFile_, true)).Times(1);
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockFileSystem_));
+    scopedReplaceFileSystem_.replace(std::move(mockFileSystem_));
 
     Sophos::ssplav::FileScanRequest::Reader requestReader = requestBuilder;
     scan_messages::ScanRequest request = scan_messages::ScanRequest(requestReader);

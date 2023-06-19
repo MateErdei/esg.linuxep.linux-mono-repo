@@ -52,22 +52,25 @@ namespace
             fs::remove_all(testDir_);
         }
 
-        void dontExpectBadHealth()
+        void dontExpectBadHealth(int removeCalls = 2)
         {
             EXPECT_CALL(*mockFileSystem_, writeFile(onAccessUnhealthyFlagFile_, "")).Times(0);
-            Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockFileSystem_));
+            //removeFile gets called on destruction and successful init
+            EXPECT_CALL(*mockFileSystem_, removeFile(onAccessUnhealthyFlagFile_, true)).Times(removeCalls);
+            scopedReplaceFileSystem_.replace(std::move(mockFileSystem_));
         }
 
         std::shared_ptr<MockSystemCallWrapper> mockSysCallWrapper_;
         std::unique_ptr<MockFileSystem> mockFileSystem_;
         fs::path testDir_;
         std::string onAccessUnhealthyFlagFile_;
+        Tests::ScopedReplaceFileSystem scopedReplaceFileSystem_;
     };
 }
 
 TEST_F(TestFanotifyHandler, construction)
 {
-    dontExpectBadHealth();
+    dontExpectBadHealth(1);
 
     sophos_on_access_process::fanotifyhandler::FanotifyHandler handler(mockSysCallWrapper_);
     EXPECT_EQ(handler.getFd(), -1);
@@ -101,8 +104,7 @@ TEST_F(TestFanotifyHandler, successfulInitResetsHealth)
     EXPECT_CALL(*mockSysCallWrapper_, fanotify_init(EXPECTED_FANOTIFY_FLAGS,
                                                      EXPECTED_FILE_EVENT_FLAGS)).WillOnce(Return(fanotifyFd));
 
-    EXPECT_CALL(*mockFileSystem_, removeFile(onAccessUnhealthyFlagFile_, true)).Times(2);
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockFileSystem_));
+    dontExpectBadHealth();
 
     sophos_on_access_process::fanotifyhandler::FanotifyHandler handler(mockSysCallWrapper_);
     handler.init();
@@ -118,7 +120,7 @@ TEST_F(TestFanotifyHandler, init_throwsErrorIfFanotifyInitFails)
 
     EXPECT_CALL(*mockFileSystem_, removeFile(onAccessUnhealthyFlagFile_, true)).Times(1);
     EXPECT_CALL(*mockFileSystem_, writeFile(onAccessUnhealthyFlagFile_, "")).Times(1);
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockFileSystem_));
+    scopedReplaceFileSystem_.replace(std::move(mockFileSystem_));
 
     sophos_on_access_process::fanotifyhandler::FanotifyHandler handler(mockSysCallWrapper_);
     EXPECT_THROW(handler.init(), std::runtime_error);
@@ -135,7 +137,7 @@ TEST_F(TestFanotifyHandler, close_removesUnhealthyFlagFile)
         EXPECT_CALL(*mockFileSystem_, writeFile(onAccessUnhealthyFlagFile_, "")).Times(1);
         EXPECT_CALL(*mockFileSystem_, removeFile(onAccessUnhealthyFlagFile_, true)).Times(2);
     };
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockFileSystem_));
+    scopedReplaceFileSystem_.replace(std::move(mockFileSystem_));
 
     sophos_on_access_process::fanotifyhandler::FanotifyHandler handler(mockSysCallWrapper_);
     EXPECT_THROW(handler.init(), std::runtime_error);
@@ -154,7 +156,7 @@ TEST_F(TestFanotifyHandler, destructor_removesUnhealthyFlagFile)
         EXPECT_CALL(*mockFileSystem_, writeFile(onAccessUnhealthyFlagFile_, "")).Times(1);
         EXPECT_CALL(*mockFileSystem_, removeFile(onAccessUnhealthyFlagFile_, true)).Times(1);
     };
-    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockFileSystem_));
+    scopedReplaceFileSystem_.replace(std::move(mockFileSystem_));
 
     {
         sophos_on_access_process::fanotifyhandler::FanotifyHandler handler(mockSysCallWrapper_);
@@ -234,7 +236,7 @@ TEST_F(TestFanotifyHandler, cacheFdWithoutInit)
 {
     int fileFd = 54;
     UsingMemoryAppender memoryAppenderHolder(*this);
-    dontExpectBadHealth();
+    dontExpectBadHealth(1);
     sophos_on_access_process::fanotifyhandler::FanotifyHandler handler(mockSysCallWrapper_);
 
     EXPECT_EQ(handler.cacheFd(fileFd, "/expected", false), 0);
@@ -290,7 +292,7 @@ TEST_F(TestFanotifyHandler, uncacheFdWithoutInit)
     int fileFd = 54;
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    dontExpectBadHealth();
+    dontExpectBadHealth(1);
     sophos_on_access_process::fanotifyhandler::FanotifyHandler handler(mockSysCallWrapper_);
 
     EXPECT_EQ(handler.uncacheFd(fileFd, "/expected"), 0);
@@ -395,7 +397,7 @@ TEST_F(TestFanotifyHandler, markMountWithoutInit)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
     std::string path = "/expected";
-    dontExpectBadHealth();
+    dontExpectBadHealth(1);
     sophos_on_access_process::fanotifyhandler::FanotifyHandler handler(mockSysCallWrapper_);
 
     EXPECT_EQ(handler.markMount(path), 0);
@@ -451,7 +453,7 @@ TEST_F(TestFanotifyHandler, unmarkMountWithoutInit)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
     std::string path = "/expected";
-    dontExpectBadHealth();
+    dontExpectBadHealth(1);
 
     sophos_on_access_process::fanotifyhandler::FanotifyHandler handler(mockSysCallWrapper_);
 
@@ -462,7 +464,7 @@ TEST_F(TestFanotifyHandler, unmarkMountWithoutInit)
 TEST_F(TestFanotifyHandler, clearCacheWithoutInit)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
-    dontExpectBadHealth();
+    dontExpectBadHealth(1);
 
     sophos_on_access_process::fanotifyhandler::FanotifyHandler handler(mockSysCallWrapper_);
 
