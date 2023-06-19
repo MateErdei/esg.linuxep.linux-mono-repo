@@ -162,10 +162,7 @@ bool unixsocket::ScanningServerConnectionThread::attemptScan(
                 throw unixsocket::UnixSocketException(LOCATION, m_threadName + " failed to create scanner");
             }
 
-            if (fs->exists(Plugin::getThreatDetectorUnhealthyFlagPath()))
-            {
-                fs->removeFile(Plugin::getThreatDetectorUnhealthyFlagPath());
-            }
+            fs->removeFile(Plugin::getThreatDetectorUnhealthyFlagPath(), true);
             LOGDEBUG(m_threadName << " has created a new scanner");
         }
 
