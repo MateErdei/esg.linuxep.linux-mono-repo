@@ -2,9 +2,26 @@
 
 set -ex
 
+# "without-cifs"
+CIFS=1
+while [[ $# -ge 1 ]]
+do
+    case $1 in
+      --without-cifs)
+        echo "CIFS disabled"
+        CIFS=0
+        ;;
+    esac
+    shift
+done
+
 if [[ -x $(which apt) ]]
 then
-    PACKAGES="nfs-kernel-server zip unzip samba gdb util-linux bfs ntfs-3g libguestfs-reiserfs netcat"
+    PACKAGES="nfs-kernel-server zip unzip gdb util-linux bfs ntfs-3g libguestfs-reiserfs netcat"
+    if (( CIFS == 1 ))
+    then
+        PACKAGES="samba $PACKAGES"
+    fi
     export DEBIAN_FRONTEND=noninteractive
     VERSION=$(sed -ne's/VERSION_ID="\(.*\)"/\1/p' /etc/os-release)
     case VERSION in
@@ -77,8 +94,10 @@ then
     }
 
     yum install -y "gcc" "gcc-c++" "make" nfs-utils zip samba gdb util-linux nc bzip2
-    yum install -y ntfs-3g
-
+    if (( CIFS == 1 ))
+    then
+        yum install -y ntfs-3g
+    fi
 elif [[ -x $(which zypper) ]]
 then
     # Wait up to 10 minutes to get lock
@@ -106,6 +125,12 @@ then
         fi
         sleep $(( i * 2 ))
     done
+
+    PACKAGES="libcap-progs nfs-kernel-server zip unzip gdb util-linux netcat-openbsd"
+    if (( CIFS == 1 ))
+    then
+        PACKAGES="samba $PACKAGES"
+    fi
 
     for (( i=0; i<10; i++ ))
     do

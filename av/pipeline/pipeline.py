@@ -85,7 +85,12 @@ def robot_task_with_env(machine: tap.Machine, include_tag: str, robot_args: str 
             #  As of 2023-06-15 CentOS 9 Stream doesn't support NFSv2
             robot_exclusion_tags.append("nfsv2")
 
-        machine.run('bash', machine.inputs.test_scripts / "bin/install_os_packages.sh")
+        if not getattr(machine, "cifs_supported", True):
+            robot_exclusion_tags.append("cifs")
+            machine.run('bash', machine.inputs.test_scripts / "bin/install_os_packages.sh", "without-cifs")
+        else:
+            machine.run('bash', machine.inputs.test_scripts / "bin/install_os_packages.sh")
+
         machine.run('mkdir', '-p', '/opt/test/coredumps')
         machine.run("which", python(machine))
         machine.run(python(machine), "-V")
@@ -397,12 +402,15 @@ def get_test_machines(test_inputs, parameters: tap.Parameters):
     if parameters.run_ubuntu_22_04 != "false":
         test_environments['ubuntu2204'] = 'ubuntu2204_x64_aws_server_en_us'
 
+    no_cifs = (
+        'amazonlinux2023'
+    )
+
     ret = []
     for name, image in test_environments.items():
-        ret.append((
-            name,
-            tap.Machine(image, inputs=test_inputs, platform=tap.Platform.Linux)
-        ))
+        machine = tap.Machine(image, inputs=test_inputs, platform=tap.Platform.Linux)
+        machine.cifs_supported = name not in no_cifs
+        ret.append((name, machine))
     return ret
 
 
