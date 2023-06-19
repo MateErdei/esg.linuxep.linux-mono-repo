@@ -30,7 +30,6 @@
 #include <sys/stat.h>
 
 #include <csignal>
-#include <memory>
 
 using namespace Common;
 
@@ -70,42 +69,29 @@ namespace ManagementAgent
 
         int ManagementAgentMain::mainForValidArguments(bool withPersistentTelemetry)
         {
-            int ret = 2;
             try
             {
-                {
-                    auto pluginManager = std::make_shared<ManagementAgent::PluginCommunicationImpl::PluginManager>(
-                        Common::ZMQWrapperApi::createContext());
+                std::unique_ptr<ManagementAgent::PluginCommunication::IPluginManager> pluginManager =
+                    std::unique_ptr<ManagementAgent::PluginCommunication::IPluginManager>(
+                        new ManagementAgent::PluginCommunicationImpl::PluginManager(
+                            Common::ZMQWrapperApi::createContext()));
 
-                    ManagementAgentMain managementAgent;
-                    managementAgent.initialise(std::move(pluginManager));
-                    ret = managementAgent.run(withPersistentTelemetry);
-                }
-                LOGINFO("Management Agent stopped"); // Actually logged after all of the objects are destroyed
+                ManagementAgentMain managementAgent;
+                managementAgent.initialise(*pluginManager);
+                return managementAgent.run(withPersistentTelemetry);
             }
-            catch (const Common::UtilityImpl::ConfigException& ex)
-            {
-                LOGFATAL(ex.what_with_location());
-                ret = 1;
-            }
-            catch (const Common::Exceptions::IException& ex)
-            {
-                LOGFATAL(ex.what_with_location());
-                ret = 1;
-            }
-            catch (const std::exception& ex)
+            catch (Common::UtilityImpl::ConfigException& ex)
             {
                 LOGFATAL(ex.what());
-                ret = 1;
+                return 1;
             }
-            return ret;
         }
 
-        void ManagementAgentMain::initialise(PluginManagerPtr pluginManager)
+        void ManagementAgentMain::initialise(ManagementAgent::PluginCommunication::IPluginManager& pluginManager)
         {
             LOGINFO("Initializing Management Agent");
 
-            m_pluginManager = std::move(pluginManager);
+            m_pluginManager = &pluginManager;
             m_statusCache = std::make_shared<ManagementAgent::StatusCacheImpl::StatusCache>();
             try
             {
@@ -122,8 +108,9 @@ namespace ManagementAgent
                 m_ppid = ::getppid();
             } catch (std::exception & ex)
             {
-                std::throw_with_nested(Common::UtilityImpl::ConfigException( "Configure Management Agent", ex.what()));
+                throw Common::UtilityImpl::ConfigException( "Configure Management Agent", ex.what());
             }
+
         }
 
         void ManagementAgentMain::loadPlugins()
@@ -157,23 +144,27 @@ namespace ManagementAgent
         void ManagementAgentMain::initialiseTaskQueue()
         {
             m_taskQueue = std::make_shared<TaskQueueImpl::TaskQueueImpl>();
-            m_taskQueueProcessor = std::make_unique<TaskQueueImpl::TaskProcessorImpl>(m_taskQueue);
+            m_taskQueueProcessor =
+                std::unique_ptr<TaskQueue::ITaskProcessor>(new TaskQueueImpl::TaskProcessorImpl(m_taskQueue));
         }
 
         void ManagementAgentMain::initialiseDirectoryWatcher()
         {
-            m_policyListener = std::make_unique<McsRouterPluginCommunicationImpl::TaskDirectoryListener>(
+            m_policyListener = std::unique_ptr<McsRouterPluginCommunicationImpl::TaskDirectoryListener>(
+                new McsRouterPluginCommunicationImpl::TaskDirectoryListener(
                     ApplicationConfiguration::applicationPathManager().getMcsPolicyFilePath(),
                     m_taskQueue,
-                    *m_pluginManager);
-            m_internalPolicyListener = std::make_unique<McsRouterPluginCommunicationImpl::TaskDirectoryListener>(
+                    *m_pluginManager));
+            m_internalPolicyListener = std::unique_ptr<McsRouterPluginCommunicationImpl::TaskDirectoryListener>(
+                new McsRouterPluginCommunicationImpl::TaskDirectoryListener(
                     ApplicationConfiguration::applicationPathManager().getInternalPolicyFilePath(),
                     m_taskQueue,
-                    *m_pluginManager);
-            m_actionListener = std::make_unique<McsRouterPluginCommunicationImpl::TaskDirectoryListener>(
+                    *m_pluginManager));
+            m_actionListener = std::unique_ptr<McsRouterPluginCommunicationImpl::TaskDirectoryListener>(
+                new McsRouterPluginCommunicationImpl::TaskDirectoryListener(
                     ApplicationConfiguration::applicationPathManager().getMcsActionFilePath(),
                     m_taskQueue,
-                    *m_pluginManager);
+                    *m_pluginManager));
 
             m_directoryWatcher = Common::DirectoryWatcher::createDirectoryWatcher();
             m_directoryWatcher->addListener(*m_policyListener);
@@ -377,30 +368,11 @@ namespace ManagementAgent
                 }
             }
 
-            // prepare and stop background threads
-            LOGDEBUG("Stopping Directory watcher");
+            // Prepare and stop background threads
             m_directoryWatcher->removeListener(*m_policyListener);
             m_directoryWatcher->removeListener(*m_internalPolicyListener);
             m_directoryWatcher->removeListener(*m_actionListener);
-            m_directoryWatcher.reset(); // Stops thread
-            m_policyListener.reset();
-            m_internalPolicyListener.reset();
-            m_actionListener.reset();
-            LOGDEBUG("Stopped Directory watcher");
-
-            m_policyReceiver.reset();
-            m_statusReceiver.reset();
-            m_eventReceiver.reset();
-            m_threatHealthReceiver.reset();
-
-            LOGDEBUG("Stopping Task Queue Processor");
-            m_taskQueueProcessor->stop(); // Stops thread
-            m_taskQueueProcessor.reset(); // Will stop thread if stop does not
-            LOGDEBUG("Stopped Task Queue Processor");
-
-            m_taskQueue.reset();
-            m_statusCache.reset();
-            m_pluginManager.reset();
+            m_taskQueueProcessor->stop();
 
             if (withPersistentTelemetry)
             {
@@ -408,7 +380,7 @@ namespace ManagementAgent
                 Common::Telemetry::TelemetryHelper::getInstance().save();
             }
 
-            LOGDEBUG("Management Agent finished run");
+            LOGDEBUG("Management Agent stopped");
             return 0;
         }
 

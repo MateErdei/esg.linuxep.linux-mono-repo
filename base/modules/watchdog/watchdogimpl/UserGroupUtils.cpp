@@ -345,10 +345,25 @@ namespace watchdog::watchdogimpl
             auto allSophosFiles = fs->listAllFilesAndDirsInDirectoryTree(rootPath);
             for (const auto& entry : allSophosFiles)
             {
-                // If the current IDs of the entry match the ones we're replacing then perform the remap
-                if (filePermissions->getUserIdOfDirEntry(entry) == currentUserId)
+                try
                 {
-                    setUserIdOfFile(entry, newUserId);
+                    // If the current IDs of the entry match the ones we're replacing then perform the remap
+                    // getUserIdOfDirEntry throws if the file does not exist.
+                    if (filePermissions->getUserIdOfDirEntry(entry) == currentUserId)
+                    {
+                        setUserIdOfFile(entry, newUserId);
+                    }
+                }
+                catch (const Common::FileSystem::IFileSystemException& exception)
+                {
+                    if (fs->exists(entry))
+                    {
+                        LOGERROR("Failed to remap user ID of " << entry << " to " << newUserId << " due to: " << exception.what());
+                    }
+                    else
+                    {
+                        LOGDEBUG("Failed to remap user ID of " << entry << " to " << newUserId << " because the file no longer exists");
+                    }
                 }
             }
         }
@@ -372,10 +387,25 @@ namespace watchdog::watchdogimpl
             auto allSophosFiles = fs->listAllFilesAndDirsInDirectoryTree(rootPath);
             for (const auto& entry : allSophosFiles)
             {
-                // If the current IDs of the entry match the ones we're replacing then perform the remap
-                if (filePermissions->getGroupIdOfDirEntry(entry) == currentGroupId)
+                try
                 {
-                    setGroupIdOfFile(entry, newGroupId);
+                    // If the current IDs of the entry match the ones we're replacing then perform the remap
+                    // getGroupIdOfDirEntry throws if the file does not exist.
+                    if (filePermissions->getGroupIdOfDirEntry(entry) == currentGroupId)
+                    {
+                        setGroupIdOfFile(entry, newGroupId);
+                    }
+                }
+                catch (const Common::FileSystem::IFileSystemException& exception)
+                {
+                    if (fs->exists(entry))
+                    {
+                        LOGERROR("Failed to remap group ID of " << entry << " to " << newGroupId << " due to: " << exception.what());
+                    }
+                    else
+                    {
+                        LOGDEBUG("Failed to remap group ID of " << entry << " to " << newGroupId << " because the file no longer exists");
+                    }
                 }
             }
         }
