@@ -7,34 +7,34 @@
 #
 # Changes to this file only affect the latest platforms (see suites.yaml)
 edr.latest.x64:
-  prod-artifact: esg-releasable-candidate/linuxep.sspl-plugin-edr-component/release--2023.2-DTP1/20230524122536-deaaab308a154650670d3a5368668ce2c7396920-VEenp6/edr/SDDS3-PACKAGE/
+  prod-artifact: esg-releasable-candidate/linuxep.sspl-plugin-edr-component/release--2023-25/20230619113411-fd52767f184bd5358ba4f2fcdfb24d76df6a9495-RwCK9N/edr/SDDS3-PACKAGE/
   line-id: ServerProtectionLinux-Plugin-EDR
   mountpoint: ServerProtectionLinux-Plugin-EDR
 av.latest.x64:
-  prod-artifact: esg-releasable-candidate/linuxep.sspl-plugin-anti-virus/release--2023.2-DTP1/20230523160647-d846f7ba717e3f9d49c3c639e804d18100e91fa6-1xJBey/sspl-plugin-anti-virus/SDDS3-PACKAGE/
+  prod-artifact: esg-releasable-candidate/linuxep.sspl-plugin-anti-virus/release--2023-25/20230619105913-fc0648355f0bb38b0c8ebdf315becb372fc35eb9-79XBjC/sspl-plugin-anti-virus/SDDS3-PACKAGE/
   line-id: ServerProtectionLinux-Plugin-AV
   mountpoint: ServerProtectionLinux-Plugin-AV
 mdr.latest.x64:
-  prod-artifact: esg-releasable-candidate/linuxep.sspl-plugin-mdr-component/release--2023.2-DTP1/20230523135955-caa84bd5250239584cb9e511d243693929a9f990-UFr3Q0/mdr/SDDS3-PACKAGE/
+  prod-artifact: esg-releasable-candidate/linuxep.sspl-plugin-mdr-component/release--2023-25/20230619103423-d3ee20c78fb1e4f404f8db8c5110ba6ecfafcfc8-HkTCSh/mdr/SDDS3-PACKAGE/
   line-id: ServerProtectionLinux-Plugin-MDR
   mountpoint: ServerProtectionLinux-Plugin-MDR
 base.latest.x64:
-  prod-artifact: esg-releasable-candidate/linuxep.everest-base/release--2023.2-DTP1/20230523102712-adcd3ee1b9911c841a65e33b9f5d57135051fcba-HKWQ6J/sspl-base/SDDS3-PACKAGE/
+  prod-artifact: esg-releasable-candidate/linuxep.everest-base/release--2023-25/20230616165821-81df7cc5ab00d7ba628e90b427c29ac09f3abada-1YVMGa/sspl-base/SDDS3-PACKAGE/
   line-id: ServerProtectionLinux-Base-component
   mountpoint: ServerProtectionLinux-Base-component
 event-journaler.latest.x64:
-  prod-artifact: esg-releasable-candidate/linuxep.sspl-plugin-event-journaler/release--2023.2-DTP1/20230523135859-70fa69819c914abe09fb27f784cd1a12665760fd-YKvTVP/eventjournaler/SDDS3-PACKAGE/
+  prod-artifact: esg-releasable-candidate/linuxep.sspl-plugin-event-journaler/release--2023-25/20230619103432-3bf9bdb36a36006b34cce8ba062a7afa29935b66-kZNvUM/eventjournaler/SDDS3-PACKAGE/
   line-id: ServerProtectionLinux-Plugin-EventJournaler
   mountpoint: ServerProtectionLinux-Plugin-EventJournaler
 liveresponse.latest.x64:
-  prod-artifact: esg-releasable-candidate/winep.liveterminal/release--linux--2023.2-DTP1/20230523160940-52ed9a9a4f6b97a9e9802bd2028bb0d16445871a-ChLYAm/liveterminal/SDDS3-PACKAGE/
+  prod-artifact: esg-releasable-candidate/winep.liveterminal/release--2023-25-linux/20230619120500-3b5ba31ce4d34ef2cf3583989bb9917e2099abbf-pJWUEN/liveterminal/SDDS3-PACKAGE/
   line-id: ServerProtectionLinux-Plugin-liveresponse
   mountpoint: ServerProtectionLinux-Plugin-liveresponse
 runtimedetections.latest.x64:
-  prod-artifact: esg-releasable-candidate/linuxep.runtimedetections/release--sensor--version_5_5_1/20230523131449-d823d09cfd47a1e5529d6922c9b12bc8e778ab74-8ygjwg/SDDS3-PACKAGE/
+  prod-artifact: esg-releasable-candidate/linuxep.runtimedetections/release--sensor--2023-25/20230619050038-a7fcb44811851bd358bbca33acef01049337f249-Bp6KCM/SDDS3-PACKAGE/
   line-id: ServerProtectionLinux-Plugin-RuntimeDetections
   mountpoint: ServerProtectionLinux-Plugin-RuntimeDetections
 responseactions.latest.x64:
-  prod-artifact: esg-releasable-candidate/linuxep.everest-base/release--2023.2-DTP1/20230523102712-adcd3ee1b9911c841a65e33b9f5d57135051fcba-HKWQ6J/sspl-base/RA-SDDS3-PACKAGE/
+  prod-artifact: esg-releasable-candidate/linuxep.everest-base/release--2023-25/20230616165821-81df7cc5ab00d7ba628e90b427c29ac09f3abada-1YVMGa/sspl-base/RA-SDDS3-PACKAGE/
   line-id: ServerProtectionLinux-Plugin-responseactions
   mountpoint: ServerProtectionLinux-Plugin-responseactions
