@@ -1,4 +1,6 @@
 import os
+import time
+
 import PathManager
 import FullInstallerUtils
 
@@ -16,6 +18,8 @@ def get_websocket_server_path():
         candidates.append(os.path.join(local_path_to_plugin, "ta", "scripts", "utils", "websocket_server"))
     else:
         logger.error("Failed to find liveterminal when looking for websocket_server")
+
+    candidates.append(os.path.join(FullInstallerUtils.SYSTEM_PRODUCT_TEST_INPUTS, "websocket_server"))  # vagrant location
 
     return FullInstallerUtils.get_plugin_sdds("websocket server", "WEBSOCKET_SERVER", candidates)
 
@@ -47,7 +51,16 @@ class WebsocketWrapper:
             self._server.join()
 
     def match_message(self, message, path):
-        assert self._server.match_message(message, f"/{path}")
+        assert self._server.match_message(message, f"/{path}"), f"Failed to match message {message} in {path}"
+
+    def wait_for_match_message(self, message, path, timeout=10):
+        start = time.time()
+        while time.time() < start + timeout:
+            if self._server.match_message(message, f"/{path}"):
+                return
+            logger.debug("Match_message returned false after %f" % (time.time() - start))
+            time.sleep(0.5)
+        assert self._server.match_message(message, f"/{path}"), f"Failed to match message {message} in {path}"
 
     def liveterminal_server_log_file(self):
         return self._log_path

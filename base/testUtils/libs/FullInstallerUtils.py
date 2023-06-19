@@ -232,6 +232,7 @@ def get_sspl_live_response_plugin_sdds():
     if local_path_to_plugin:
         candidates.append(os.path.join(local_path_to_plugin, "build64/sdds"))
         candidates.append(os.path.join(local_path_to_plugin, "cmake-build-debug/sdds"))
+    candidates.append(os.path.join(SYSTEM_PRODUCT_TEST_INPUTS, "liveterminal"))
     return get_plugin_sdds("SSPL LiveResponse Plugin", "SSPL_LIVERESPONSE_PLUGIN_SDDS", candidates)
 
 def get_sspl_edr_plugin_sdds():

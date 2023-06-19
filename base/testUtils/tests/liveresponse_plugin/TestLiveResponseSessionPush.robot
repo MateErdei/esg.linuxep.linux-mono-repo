@@ -35,10 +35,7 @@ Verify Liveresponse Works End To End LiveResponse Session Command Via Push
     Check Liveresponse Command Successfully Starts A Session   ${correlation_id}
 
     Send Message With Newline   ls ${SOPHOS_INSTALL}/plugins/liveresponse/bin/   ${correlation_id}
-    Wait Until Keyword Succeeds
-    ...  10 secs
-    ...  1 secs
-    ...  Match Message   sophos-live-terminal   ${correlation_id}
+    wait_for_match_message   sophos-live-terminal   ${correlation_id}
 
     Check Touch Creates Files Successfully From Liveresponse Session   ${correlation_id}
     Check Liveresponse Session Will Stop When Instructed by Central   ${correlation_id}
@@ -51,10 +48,7 @@ Verify Liveresponse Disconnects On Service Restart
     Check Liveresponse Command Successfully Starts A Session   ${correlation_id}
 
     Send Message With Newline   ls ${SOPHOS_INSTALL}/plugins/liveresponse/bin/   ${correlation_id}
-    Wait Until Keyword Succeeds
-    ...  10 secs
-    ...  1 secs
-    ...  Match Message   sophos-live-terminal   ${correlation_id}
+    wait_for_match_message  sophos-live-terminal   ${correlation_id}
 
     ${count} =  Count Files In Directory  /opt/sophos-spl/plugins/liveresponse/var
 
@@ -96,10 +90,7 @@ Multiple Liveresponse Sessions Work Concurrently
     Check Liveresponse Command Successfully Starts A Session   ${correlation_id10}
 
     Send Message With Newline   ls ${SOPHOS_INSTALL}/plugins/liveresponse/bin/   ${correlation_id1}
-    Wait Until Keyword Succeeds
-    ...  10 secs
-    ...  1 secs
-    ...  Match Message   sophos-live-terminal   ${correlation_id1}
+    wait for match message   sophos-live-terminal   ${correlation_id1}
 
     Check Touch Creates Files Successfully From Liveresponse Session   ${correlation_id1}
     Check Touch Creates Files Successfully From Liveresponse Session   ${correlation_id2}
@@ -166,10 +157,7 @@ Changing Environment Variables Does Not Affect Other LiveResponse Sessions
     Set Environment Variable In Session  ${correlation_id2}  TEST_ENV  example_value_2
 
     Send Message With Newline   echo $TEST_ENV   ${correlation_id1}
-    Wait Until Keyword Succeeds
-    ...  10 secs
-    ...  1 secs
-    ...  Match Message   example_value_1   ${correlation_id1}
+    wait for match message  example_value_1   ${correlation_id1}
 
     Check Liveresponse Session Will Stop When Instructed by Central   ${correlation_id2}
     Check Liveresponse Session Will Stop When Instructed by Central   ${correlation_id1}
@@ -183,39 +171,27 @@ Number Of Files In Dir Should Be
 
 Check Liveresponse Command Successfully Starts A Session
     [Arguments]   ${correlationId}
-    Mark Managementagent Log
+    ${mark} =  Mark Managementagent Log
     ${liveResponse} =  Create Live Response Action  ${websocket_server_url}/${correlationId}  ${Thumbprint}  ${correlationId}
     Send Message To Push Server   ${liveResponse}
     Wait Until Keyword Succeeds
     ...  5 secs
     ...  1 secs
     ...  Check Mcsrouter Log Contains   Received command from Push Server
-    Wait Until Keyword Succeeds
-    ...  5 secs
-    ...  1 secs
-    ...   Check Marked Managementagent Log Contains   Action LiveTerminal_${correlationId}_action_
-    Wait Until Keyword Succeeds
-    ...  5 secs
-    ...  1 secs
-    ...  Match Message   root@   ${correlationId}
+    wait_for_log_contains_from_mark  ${mark}  Action LiveTerminal_${correlationId}_action_  timeout=${5}
+    wait for match message  root@   ${correlationId}  timeout=${5}
 
 Check Touch Creates Files Successfully From Liveresponse Session
     [Arguments]  ${path}
     Send Message With Newline   touch /tmp/test_${path}.txt   ${path}
-    Wait Until Keyword Succeeds
-    ...  5 secs
-    ...  1 secs
-    ...  File Should Exist  /tmp/test_${path}.txt
+    Wait Until Created    /tmp/test_${path}.txt  timeout=5 secs
     Remove File   /tmp/test_${path}.txt
 
 Set Environment Variable In Session
     [Arguments]  ${correlationId}  ${envVariable}  ${value}
     Send Message With Newline   export ${envVariable}=${value}   ${correlationId}
     Send Message With Newline   echo $${envVariable}   ${correlationId}
-    Wait Until Keyword Succeeds
-    ...  10 secs
-    ...  1 secs
-    ...  Match Message   ${value}   ${correlationId}
+    wait for match message  ${value}   ${correlationId}
 
 Check Liveresponse Session Will Stop When Instructed by Central
     [Arguments]  ${session_path}
