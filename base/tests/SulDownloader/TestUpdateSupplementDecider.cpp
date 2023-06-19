@@ -236,3 +236,26 @@ TEST_F(TestUpdateSupplementDecider, supplementOnlyUpdateIfScheduledForNextMinute
 
     EXPECT_FALSE(foo.updateProducts());
 }
+
+TEST_F(TestUpdateSupplementDecider, ProdcutUpdateIfpassIntrueForUpdateNow) // NOLINT
+{
+    time_t nowTime = ::time(nullptr);
+    time_t scheduleTime = nowTime+SecondsInMin;
+    std::tm schedule = *std::localtime(&scheduleTime);
+
+    UpdateSupplementDecider::WeekDayAndTimeForDelay delay{
+        .enabled = true,
+        .weekDay = schedule.tm_wday,
+        .hour = schedule.tm_hour,
+        .minute = schedule.tm_min
+    };
+    FixedLastSuccessfulProductUpdateUpdateSupplementDecider foo{delay};
+    time_t lastUpdate = nowTime - SecondsInMin;
+    foo.setLastSuccessfulProductUpdate(lastUpdate);
+
+    time_t lastSchedule = foo.public_lastScheduledProductUpdate();
+    EXPECT_LE(lastSchedule, nowTime);
+    EXPECT_LE(nowTime - lastSchedule, SecondsInWeek);
+    long m_scheduledUpdateConfig = 0;
+    EXPECT_TRUE(foo.updateProducts(m_scheduledUpdateConfig,true));
+}

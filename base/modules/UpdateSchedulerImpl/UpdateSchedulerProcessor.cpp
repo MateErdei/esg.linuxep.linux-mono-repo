@@ -507,10 +507,10 @@ namespace UpdateSchedulerImpl
 
         LOGSUPPORT("Received Update Now action. ");
         m_cronThread->reset();
-        processScheduleUpdate();
+        processScheduleUpdate(true);
     }
 
-    void UpdateSchedulerProcessor::processScheduleUpdate()
+    void UpdateSchedulerProcessor::processScheduleUpdate(bool UpdateNow)
     {
         if (m_sulDownloaderRunner->isRunning() && !m_sulDownloaderRunner->hasTimedOut())
         {
@@ -534,12 +534,15 @@ namespace UpdateSchedulerImpl
             writeConfigurationData(configurationData);
         }
 
-        // Check if we should do a supplement-only update or not
+        bool updateProducts = true;
         std::string supplementOnlyMarkerFilePath =
             Common::FileSystem::join(Common::FileSystem::dirName(m_configfilePath), "supplement_only.marker");
+
+        // Check if we should do a supplement-only update or not
         time_t lastProductUpdateCheck = configModule::DownloadReportsAnalyser::getLastProductUpdateCheck();
         SulDownloader::suldownloaderdata::UpdateSupplementDecider decider(m_scheduledUpdateConfig);
-        bool updateProducts = decider.updateProducts(lastProductUpdateCheck);
+        updateProducts = decider.updateProducts(lastProductUpdateCheck,UpdateNow);
+
 
         if (!updateProducts)
         {

@@ -27,7 +27,7 @@ namespace SulDownloader::suldownloaderdata
          * @param lastProductUpdateCheck Explicitly provide the lastProductUpdateCheck time
          * @return True if we should update Products or false for supplement-only
          */
-        bool updateProducts(time_t lastProductUpdateCheck);
+        bool updateProducts(time_t lastProductUpdateCheck, bool UpdateNow = false);
 
         /**
          * Record that we have successfully updated the product

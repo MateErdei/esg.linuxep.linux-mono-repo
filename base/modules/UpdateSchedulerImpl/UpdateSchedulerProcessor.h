@@ -69,7 +69,7 @@ namespace UpdateSchedulerImpl
         void processFlags(const std::string& flagsContent);
 
         void processUpdateNow(const std::string& actionXml);
-        void processScheduleUpdate();
+        void processScheduleUpdate(bool UpdateNow = false);
         void processShutdownReceived();
         std::string processSulDownloaderFinished(
             const std::string& reportFileLocation,

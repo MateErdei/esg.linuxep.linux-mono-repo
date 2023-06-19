@@ -117,6 +117,7 @@ Sul Downloader Installs does not Force reinstall when there is a marker file for
     Check Sul Downloader log does not contain  Triggering a force reinstall
 
 Sul Downloader Installs does not Force reinstall when there is a scheduled update for paused
+    [Timeout]    10 minutes
     Start Local Cloud Server  --initial-alc-policy  ${SUPPORT_FILES}/CentralXml/ALC_FixedVersionPolicySDDS3BaseOnly.xml    --initial-flags  ${SUPPORT_FILES}/CentralXml/FLAGS_forceUpdateFlags.json
     Generate Warehouse From Local Base Input  {"sdds3.force-paused-update":"true"}
     ${handle}=  Start Local SDDS3 server with fake files
@@ -157,15 +158,18 @@ Sul Downloader Installs does not Force reinstall when there is a scheduled updat
     ${ups_mark} =  mark_log_size  ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log
     Send Policy File  alc    ${SOPHOS_INSTALL}/tmp/ALC_policy_scheduled_update.xml
     wait_for_log_contains_from_mark  ${ups_mark}  Scheduling product updates for   15
-    Trigger Update Now
+    create File     ${SOPHOS_INSTALL}/base/update/var/updatescheduler/supplement_only.marker
+    Run Process  systemctl  start  sophos-spl-update
+
     Wait Until Keyword Succeeds
     ...    60s
     ...    5s
     ...    Check SulDownloader Log Contains String N Times   Update success  2
     Check Sul Downloader log does not contain  Triggering a force reinstall
 
-    sleep    120
-    Trigger Update Now
+    Remove File     ${SOPHOS_INSTALL}/base/update/var/updatescheduler/supplement_only.marker
+    Run Process  systemctl    start  sophos-spl-update
+
     Wait Until Keyword Succeeds
     ...    60s
     ...    5s
@@ -214,15 +218,17 @@ Sul Downloader Installs does not Force reinstall when there is a scheduled updat
     Send Policy File  alc    ${SOPHOS_INSTALL}/tmp/ALC_policy_scheduled_update.xml
     wait_for_log_contains_from_mark  ${ups_mark}  Scheduling product updates for   15
 
-    Trigger Update Now
+    create File     ${SOPHOS_INSTALL}/base/update/var/updatescheduler/supplement_only.marker
+    Run Process  systemctl  start  sophos-spl-update
     Wait Until Keyword Succeeds
     ...    60s
     ...    5s
     ...    Check SulDownloader Log Contains String N Times   Update success  2
     Check Sul Downloader log does not contain  Triggering a force reinstall
 
-    sleep    120
-    Trigger Update Now
+    Remove File     ${SOPHOS_INSTALL}/base/update/var/updatescheduler/supplement_only.marker
+    Run Process  systemctl    start  sophos-spl-update
+
     Wait Until Keyword Succeeds
     ...    60s
     ...    5s

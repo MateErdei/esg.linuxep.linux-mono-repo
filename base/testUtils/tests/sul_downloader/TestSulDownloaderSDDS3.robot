@@ -14,7 +14,7 @@ Test Teardown    Run Keywords
 ...                Remove Environment Variable  EXITCODE  AND
 ...                 Test Teardown
 
-
+Library    DateTime
 Library     ${LIBS_DIRECTORY}/FakeSDDS3UpdateCacheUtils.py
 
 Resource    ../scheduler_update/SchedulerUpdateResources.robot
@@ -47,15 +47,49 @@ Sul Downloader Requests Fixed Version When Fixed Version In Policy
     ...    Log File    ${UPDATE_CONFIG}
     ${content}=  Get File    ${UPDATE_CONFIG}
     File Should Contain  ${UPDATE_CONFIG}     JWToken
+    ${sul_mark} =  mark_log_size    ${SOPHOS_INSTALL}/logs/base/suldownloader.log
     Trigger Update Now
     Wait Until Keyword Succeeds
     ...   10 secs
     ...   2 secs
     ...   File Should Contain    ${sdds3_server_output}     ServerProtectionLinux-Base fixedVersion: 2022.1.0.40 requested
+    wait_for_log_contains_from_mark  ${sul_mark}  Doing product and supplement update
     Wait Until Keyword Succeeds
     ...   2 secs
     ...   1 secs
     ...   File Should Contain    ${sdds3_server_output}     ServerProtectionLinux-Plugin-MDR fixedVersion: 1.0.2 requested
+
+Update Now action triggers a product update even when updates are scheduled
+    ${BasicPolicyXml} =  Get File  ${SUPPORT_FILES}/CentralXml/ALC_policy_scheduled_update.xml
+    ${Date} =  Get Current Date
+    ${ScheduledDate} =  Add Time To Date  ${Date}  60 minutes
+    ${ScheduledDay} =  Convert Date  ${ScheduledDate}  result_format=%A
+    ${ScheduledTime} =  Convert Date  ${ScheduledDate}  result_format=%H:%M:00
+    ${NewPolicyXml} =  Replace String  ${BasicPolicyXml}  REPLACE_DAY  ${ScheduledDay}
+    ${NewPolicyXml} =  Replace String  ${NewPolicyXml}  REPLACE_TIME  ${ScheduledTime}
+    ${NewPolicyXml} =  Replace String  ${NewPolicyXml}  Frequency="40"  Frequency="7"
+    Create File  /tmp/ALC_policy_scheduled_update.xml  ${NewPolicyXml}
+    Log File  /tmp/ALC_policy_scheduled_update.xml
+
+
+    Start Local Cloud Server    --initial-alc-policy  /tmp/ALC_policy_scheduled_update.xml
+    ${handle}=  Start Local SDDS3 Server With Empty Repo
+    Set Suite Variable    ${GL_handle}    ${handle}
+    Require Fresh Install
+    ${sul_mark} =  mark_log_size    ${SOPHOS_INSTALL}/logs/base/suldownloader.log
+    Create File    ${MCS_DIR}/certs/ca_env_override_flag
+    Create Local SDDS3 Override
+    # should be purged before SDDS3 sync
+    Register With Local Cloud Server
+    Wait Until Keyword Succeeds
+    ...    10s
+    ...    1s
+    ...    Log File    ${UPDATE_CONFIG}
+    ${content}=  Get File    ${UPDATE_CONFIG}
+    File Should Contain  ${UPDATE_CONFIG}     JWToken
+    ${sul_mark} =  mark_log_size    ${SOPHOS_INSTALL}/logs/base/suldownloader.log
+    Trigger Update Now
+    wait_for_log_contains_from_mark  ${sul_mark}  Doing product and supplement update
 
 Sul Downloader Report error correctly when it cannot connect to sdds3
     Start Local Cloud Server

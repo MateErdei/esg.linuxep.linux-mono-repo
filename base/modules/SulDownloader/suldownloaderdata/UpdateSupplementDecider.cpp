@@ -54,9 +54,14 @@ bool UpdateSupplementDecider::updateProducts()
     return updateProducts(0);
 }
 
-bool UpdateSupplementDecider::updateProducts(time_t lastProductUpdateCheck)
+bool UpdateSupplementDecider::updateProducts(time_t lastProductUpdateCheck, bool UpdateNow)
 {
     if (!m_schedule.enabled)
+    {
+        return true;
+    }
+
+    if (UpdateNow)
     {
         return true;
     }
