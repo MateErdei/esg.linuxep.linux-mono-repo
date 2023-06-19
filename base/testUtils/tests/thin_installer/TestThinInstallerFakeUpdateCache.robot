@@ -12,7 +12,7 @@ Library     Process
 Library     OperatingSystem
 
 Resource    ../upgrade_product/UpgradeResources.robot
-Resource    ../ThinInstallerResources.robot
+Resource    ThinInstallerResources.robot
 Resource    ../mcs_router/McsRouterResources.robot
 Resource    ../GeneralTeardownResource.robot
 
