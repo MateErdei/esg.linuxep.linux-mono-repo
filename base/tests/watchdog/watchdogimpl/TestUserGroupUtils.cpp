@@ -654,11 +654,29 @@ TEST_F(TestUserGroupUtils, remapUserIdHandlesTransientFiles)
     EXPECT_CALL(*m_mockFileSystemPtr, listAllFilesAndDirsInDirectoryTree(rootPath)).WillOnce(Return(files));
     EXPECT_CALL(*m_mockFilePermissionsPtr, getUserIdOfDirEntry(_)).WillRepeatedly(Throw(Common::FileSystem::IFileSystemException("File does not exist")));
     EXPECT_CALL(*m_mockFileSystemPtr, exists("file1")).WillOnce(Return(false));
-
     enableMocks();
 
     EXPECT_NO_THROW(remapUserIdOfFiles(rootPath, currentUserId, newUserId));
     std::string logMessage = testing::internal::GetCapturedStderr();
     EXPECT_THAT(logMessage, ::testing::HasSubstr("Failed to remap user ID of file1 to 2000 because the file no longer exists"));
+}
+
+TEST_F(TestUserGroupUtils, remapGroupIdHandlesTransientFiles)
+{
+    testing::internal::CaptureStderr();
+    std::string rootPath = "/dir";
+    uid_t currentUserId = 1000;
+    uid_t newUserId = 2000;
+    std::vector<Path> files = {"file1"};
+    EXPECT_CALL(*m_mockFileSystemPtr, isFile(rootPath)).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFileSystemPtr, isDirectory(rootPath)).WillOnce(Return(true));
+    EXPECT_CALL(*m_mockFileSystemPtr, listAllFilesAndDirsInDirectoryTree(rootPath)).WillOnce(Return(files));
+    EXPECT_CALL(*m_mockFilePermissionsPtr, getGroupIdOfDirEntry(_)).WillRepeatedly(Throw(Common::FileSystem::IFileSystemException("File does not exist")));
+    EXPECT_CALL(*m_mockFileSystemPtr, exists("file1")).WillOnce(Return(false));
+    enableMocks();
+
+    EXPECT_NO_THROW(remapGroupIdOfFiles(rootPath, currentUserId, newUserId));
+    std::string logMessage = testing::internal::GetCapturedStderr();
+    EXPECT_THAT(logMessage, ::testing::HasSubstr("Failed to remap group ID of file1 to 2000 because the file no longer exists"));
 }
 
