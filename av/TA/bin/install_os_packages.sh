@@ -4,6 +4,9 @@ set -ex
 
 # "without-cifs"
 CIFS=1
+NTFS=1
+echo "install_os_packages.sh $*"
+
 while [[ $# -ge 1 ]]
 do
     case $1 in
@@ -11,17 +14,20 @@ do
         echo "CIFS disabled"
         CIFS=0
         ;;
+      --without-ntfs)
+        echo "NTFS disabled"
+        NTFS=0
+        ;;
     esac
     shift
 done
 
 if [[ -x $(which apt) ]]
 then
-    PACKAGES="nfs-kernel-server zip unzip gdb util-linux bfs ntfs-3g libguestfs-reiserfs netcat"
-    if (( CIFS == 1 ))
-    then
-        PACKAGES="samba $PACKAGES"
-    fi
+    PACKAGES="nfs-kernel-server zip unzip gdb util-linux bfs libguestfs-reiserfs netcat"
+    (( CIFS == 0 )) || PACKAGES="samba $PACKAGES"
+    (( NTFS == 0 )) || PACKAGES="ntfs-3g $PACKAGES"
+
     export DEBIAN_FRONTEND=noninteractive
     VERSION=$(sed -ne's/VERSION_ID="\(.*\)"/\1/p' /etc/os-release)
     case VERSION in
@@ -93,11 +99,9 @@ then
         fi
     }
 
-    yum install -y "gcc" "gcc-c++" "make" nfs-utils zip samba gdb util-linux nc bzip2
-    if (( CIFS == 1 ))
-    then
-        yum install -y ntfs-3g
-    fi
+    yum install -y "gcc" "gcc-c++" "make" nfs-utils zip gdb util-linux nc bzip2
+    (( CIFS == 0 )) || yum install -y samba
+    (( NTFS == 0 )) || yum install -y ntfs-3g
 elif [[ -x $(which zypper) ]]
 then
     # Wait up to 10 minutes to get lock
@@ -127,14 +131,12 @@ then
     done
 
     PACKAGES="libcap-progs nfs-kernel-server zip unzip gdb util-linux netcat-openbsd"
-    if (( CIFS == 1 ))
-    then
-        PACKAGES="samba $PACKAGES"
-    fi
+    (( CIFS == 0 )) || PACKAGES="samba $PACKAGES"
+    # (( NTFS == 0 )) || PACKAGES="ntfs-3g $PACKAGES"
 
     for (( i=0; i<10; i++ ))
     do
-        if zypper --non-interactive install libcap-progs nfs-kernel-server zip unzip samba gdb util-linux netcat-openbsd </dev/null
+        if zypper --non-interactive install $PACKAGES </dev/null
         then
             break
         fi

@@ -85,13 +85,20 @@ def robot_task_with_env(machine: tap.Machine, include_tag: str, robot_args: str 
             #  As of 2023-06-15 CentOS 9 Stream doesn't support NFSv2
             robot_exclusion_tags.append("nfsv2")
 
-        if not getattr(machine, "cifs_supported", True):
-            print("CIFS disabled:", getattr(machine, "sspl_name", "unknown"), getattr(machine, "cifs_supported", True))
-            robot_exclusion_tags.append("cifs")
-            machine.run('bash', machine.inputs.test_scripts / "bin/install_os_packages.sh", "without-cifs")
-        else:
-            print("CIFS enabled:", getattr(machine, "sspl_name", "unknown"), getattr(machine, "cifs_supported", True))
-            machine.run('bash', machine.inputs.test_scripts / "bin/install_os_packages.sh")
+        cifs = getattr(machine, "cifs_supported", True)
+        ntfs = getattr(machine, "ntfs_supported", True)
+        sspl_name = getattr(machine, "sspl_name", "unknown")
+        install_command = ['bash', machine.inputs.test_scripts / "bin/install_os_packages.sh"]
+
+        if not cifs:
+            print("CIFS disabled:", sspl_name, cifs)
+            install_command.append("--without-cifs")
+
+        if not ntfs:
+            print("NTFS disabled:", sspl_name, ntfs)
+            install_command.append("--without-ntfs")
+
+        machine.run(*install_command)
 
         machine.run('mkdir', '-p', '/opt/test/coredumps')
         machine.run("which", python(machine))
@@ -405,7 +412,17 @@ def get_test_machines(test_inputs, parameters: tap.Parameters):
         test_environments['ubuntu2204'] = 'ubuntu2204_x64_aws_server_en_us'
 
     no_cifs = (
+    )
+
+    no_ntfs = (
         'amazonlinux2023',
+        'oracle7',
+        'oracle8',
+        'rhel7',
+        'rhel8',
+        'rhel9',
+        'sles12',
+        'sles15'
     )
 
     ret = []
@@ -413,6 +430,8 @@ def get_test_machines(test_inputs, parameters: tap.Parameters):
         machine = tap.Machine(image, inputs=test_inputs, platform=tap.Platform.Linux)
         machine.cifs_supported = name not in no_cifs
         print("CIFS for Machine:", name, machine.cifs_supported, name not in no_cifs, no_cifs)
+        machine.ntfs_supported = name not in no_ntfs
+        print("NTFS for Machine:", name, machine.ntfs_supported, name not in no_ntfs, no_ntfs)
         machine.sspl_name = name
         ret.append((name, machine))
     return ret
