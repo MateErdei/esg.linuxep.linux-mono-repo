@@ -85,8 +85,8 @@ def robot_task_with_env(machine: tap.Machine, include_tag: str, robot_args: str 
             #  As of 2023-06-15 CentOS 9 Stream doesn't support NFSv2
             robot_exclusion_tags.append("nfsv2")
 
-        cifs = getattr(machine, "cifs_supported", True)
-        ntfs = getattr(machine, "ntfs_supported", True)
+        cifs = getattr(machine, "cifs_supported", 1)
+        ntfs = getattr(machine, "ntfs_supported", 1)
         sspl_name = getattr(machine, "sspl_name", "unknown")
         install_command = ['bash', machine.inputs.test_scripts / "bin/install_os_packages.sh"]
 
@@ -94,11 +94,15 @@ def robot_task_with_env(machine: tap.Machine, include_tag: str, robot_args: str 
             print("CIFS disabled:", sspl_name, cifs)
             robot_exclusion_tags.append("cifs")
             install_command.append("--without-cifs")
+        else:
+            print("CIFS enabled:", sspl_name, cifs, id(machine))
 
         if not ntfs:
             print("NTFS disabled:", sspl_name, ntfs)
             robot_exclusion_tags.append("ntfs")
             install_command.append("--without-ntfs")
+        else:
+            print("NTFS enabled:", sspl_name, ntfs, id(machine))
 
         machine.run(*install_command)
 
@@ -431,9 +435,9 @@ def get_test_machines(test_inputs, parameters: tap.Parameters):
     for name, image in test_environments.items():
         machine = tap.Machine(image, inputs=test_inputs, platform=tap.Platform.Linux)
         machine.cifs_supported = name not in no_cifs
-        print("CIFS for Machine:", name, machine.cifs_supported, name not in no_cifs, no_cifs)
+        print("CIFS for Machine:", name, machine.cifs_supported, id(machine))
         machine.ntfs_supported = name not in no_ntfs
-        print("NTFS for Machine:", name, machine.ntfs_supported, name not in no_ntfs, no_ntfs)
+        print("NTFS for Machine:", name, machine.ntfs_supported, id(machine))
         machine.sspl_name = name
         ret.append((name, machine))
     return ret
