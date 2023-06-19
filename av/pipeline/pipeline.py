@@ -154,26 +154,6 @@ def pytest_task(machine: tap.Machine):
     pytest_task_with_env(machine)
 
 
-AWS_TIMEOUT = 130
-
-
-@tap.timeout(task_timeout=AWS_TIMEOUT)
-def aws_task(machine: tap.Machine, include_tag: str, robot_args: str):
-    try:
-        if robot_args:
-            machine.run("bash", machine.inputs.aws_runner / "run_tests_in_aws.sh", robot_args,
-                        timeout=((AWS_TIMEOUT - 15) * 60))
-        else:
-            machine.run("bash", machine.inputs.aws_runner / "run_tests_in_aws.sh", include_tag,
-                    timeout=((AWS_TIMEOUT - 15) * 60))
-    finally:
-        machine.output_artifact('/opt/test/results', 'results')
-        machine.output_artifact('/opt/test/logs', 'logs')
-        machine.run('bash', UPLOAD_ROBOT_LOG_SCRIPT, "/opt/test/results/combined-log.html",
-                    "av" + get_suffix() + "_aws-log.html")
-        machine.output_artifact('/opt/test/coredumps', 'coredumps', raise_on_failure=False)
-
-
 def unified_artifact(context: tap.PipelineContext, component: str, branch: str, sub_directory: str):
     """Return an input artifact from a unified pipeline build"""
     artifact = context.artifact.from_component(component, branch, org='', storage='esg-build-tested')
@@ -182,7 +162,7 @@ def unified_artifact(context: tap.PipelineContext, component: str, branch: str, 
     return artifact
 
 
-def get_inputs(context: tap.PipelineContext, build: ArtisanInput, coverage=False, aws=False) -> Dict[str, Input]:
+def get_inputs(context: tap.PipelineContext, build: ArtisanInput, coverage=False) -> Dict[str, Input]:
     supplement_branch = "released"
     output = 'output'
     # override the av input and get the bullseye coverage build instead
@@ -208,9 +188,6 @@ def get_inputs(context: tap.PipelineContext, build: ArtisanInput, coverage=False
         test_inputs['tap_test_output_from_build'] = build / "coverage_tap_test_output"
     else:
         test_inputs['tap_test_output_from_build'] = build / "tap_test_output"
-
-    if aws:
-        test_inputs['aws_runner'] = context.artifact.from_folder("./pipeline/aws-runner")
 
     return test_inputs
 
@@ -429,18 +406,6 @@ def get_test_machines(test_inputs, parameters: tap.Parameters):
     return ret
 
 
-def decide_whether_to_run_aws_tests(parameters: tap.Parameters, context: tap.PipelineContext) -> bool:
-    branch = context.branch
-    
-    if branch == "develop":
-        return False
-
-    if parameters.run_aws_tests != 'false':
-        return True
-    else:
-        return False
-
-
 def decide_whether_to_run_cppcheck(parameters: tap.Parameters, context: tap.PipelineContext) -> bool:
     if parameters.force_run_cppcheck != 'false':
         return True
@@ -473,7 +438,6 @@ def av_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
     BRANCH_NAME = context.branch
 
     run_tests: bool = parameters.run_tests != 'false'
-    run_aws_tests: bool = decide_whether_to_run_aws_tests(parameters, context)
 
     # Add args to pass env vars to RobotFramework.py call in test runs
     robot_args_list = []
@@ -511,12 +475,6 @@ def av_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
                                                  mode="coverage", release_package=release_package)
 
     with stage.parallel('testing'):
-        # AWS first to give the highest chance to start quickest
-        if run_aws_tests:
-            aws_test_inputs = get_inputs(context, av_build, aws=True)
-            machine = tap.Machine('ubuntu1804_x64_server_en_us', inputs=aws_test_inputs, platform=tap.Platform.Linux)
-            stage.task("aws_tests", func=aws_task, machine=machine, include_tag=include_tag, robot_args=robot_args)
-
         # Coverage next, since that is the next slowest
         if do_coverage:
             with stage.parallel('coverage'):
