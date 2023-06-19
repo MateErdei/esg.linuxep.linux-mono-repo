@@ -92,10 +92,12 @@ def robot_task_with_env(machine: tap.Machine, include_tag: str, robot_args: str 
 
         if not cifs:
             print("CIFS disabled:", sspl_name, cifs)
+            robot_exclusion_tags.append("cifs")
             install_command.append("--without-cifs")
 
         if not ntfs:
             print("NTFS disabled:", sspl_name, ntfs)
+            robot_exclusion_tags.append("ntfs")
             install_command.append("--without-ntfs")
 
         machine.run(*install_command)
