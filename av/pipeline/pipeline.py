@@ -86,9 +86,11 @@ def robot_task_with_env(machine: tap.Machine, include_tag: str, robot_args: str 
             robot_exclusion_tags.append("nfsv2")
 
         if not getattr(machine, "cifs_supported", True):
+            print("CIFS disabled:", getattr(machine, "sspl_name", "unknown"), getattr(machine, "cifs_supported", True))
             robot_exclusion_tags.append("cifs")
             machine.run('bash', machine.inputs.test_scripts / "bin/install_os_packages.sh", "without-cifs")
         else:
+            print("CIFS enabled:", getattr(machine, "sspl_name", "unknown"), getattr(machine, "cifs_supported", True))
             machine.run('bash', machine.inputs.test_scripts / "bin/install_os_packages.sh")
 
         machine.run('mkdir', '-p', '/opt/test/coredumps')
@@ -410,6 +412,7 @@ def get_test_machines(test_inputs, parameters: tap.Parameters):
     for name, image in test_environments.items():
         machine = tap.Machine(image, inputs=test_inputs, platform=tap.Platform.Linux)
         machine.cifs_supported = name not in no_cifs
+        print("CIFS for Machine:", name, machine.cifs_supported, name not in no_cifs, no_cifs)
         machine.sspl_name = name
         ret.append((name, machine))
     return ret
