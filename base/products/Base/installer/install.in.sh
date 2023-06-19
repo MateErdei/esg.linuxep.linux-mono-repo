@@ -683,8 +683,8 @@ fi
 makedir 711 "${SOPHOS_INSTALL}/base"
 
 makedir 711 "${SOPHOS_INSTALL}/base/etc"
-makedir 770 "${SOPHOS_INSTALL}/base/etc/sophosspl"
-chown "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/etc/sophosspl"
+makedir 750 "${SOPHOS_INSTALL}/base/etc/sophosspl"
+chown "${LOCAL_USER_NAME}:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/etc/sophosspl"
 
 makedir 750 "${SOPHOS_INSTALL}/base/pluginRegistry"
 chown -R "root:${GROUP_NAME}" "${SOPHOS_INSTALL}/base/pluginRegistry"
