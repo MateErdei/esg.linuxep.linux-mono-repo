@@ -8,8 +8,9 @@
 #include "datatypes/sophos_filesystem.h"
 #include "sophos_on_access_process/fanotifyhandler/FanotifyHandler.h"
 
+#include "Common/Helpers/FileSystemReplaceAndRestore.h"
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
-#include "Common/FileSystem/IFileSystem.h"
+#include "Common/Helpers/MockFileSystem.h"
 
 #include <gtest/gtest.h>
 
@@ -40,8 +41,9 @@ namespace
             appConfig.setData(Common::ApplicationConfiguration::SOPHOS_INSTALL, m_testDir );
             appConfig.setData("PLUGIN_INSTALL", m_testDir );
 
-            m_fileSystem = Common::FileSystem::fileSystem();
             m_onAccessUnhealthyFlagFile = Plugin::getOnAccessUnhealthyFlagPath();
+
+            mockFileSystem_ = std::make_unique<StrictMock<MockFileSystem>>();
         }
 
         void TearDown() override
@@ -50,33 +52,25 @@ namespace
             fs::remove_all(m_testDir);
         }
 
-        bool onAccessUnhealthyFlagFileExists()
+        void dontExpectBadHealth()
         {
-            return m_fileSystem->isFile(m_onAccessUnhealthyFlagFile);
-        }
-
-        [[maybe_unused]] void createOnAccessUnhealthyFlagFile()
-        {
-            m_fileSystem->writeFile(m_onAccessUnhealthyFlagFile, "");
-        }
-
-        [[maybe_unused]] void removeOnAccessUnhealthyFlagFile()
-        {
-            m_fileSystem->removeFile(m_onAccessUnhealthyFlagFile);
+            EXPECT_CALL(*mockFileSystem_, writeFile(m_onAccessUnhealthyFlagFile, "")).Times(0);
+            Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockFileSystem_));
         }
 
         std::shared_ptr<MockSystemCallWrapper> m_mockSysCallWrapper;
+        std::unique_ptr<MockFileSystem> mockFileSystem_;
         fs::path m_testDir;
-        fs::path m_onAccessUnhealthyFlagFile;
-        Common::FileSystem::IFileSystem* m_fileSystem = nullptr;
+        std::string m_onAccessUnhealthyFlagFile;
     };
 }
 
 TEST_F(TestFanotifyHandler, construction)
 {
+    dontExpectBadHealth();
+
     sophos_on_access_process::fanotifyhandler::FanotifyHandler handler(m_mockSysCallWrapper);
     EXPECT_EQ(handler.getFd(), -1);
-    EXPECT_FALSE(onAccessUnhealthyFlagFileExists());
 }
 
 TEST_F(TestFanotifyHandler, testInit)
@@ -84,6 +78,7 @@ TEST_F(TestFanotifyHandler, testInit)
     int fanotifyFd = 0;
     UsingMemoryAppender memoryAppenderHolder(*this);
 
+    dontExpectBadHealth();
     EXPECT_CALL(*m_mockSysCallWrapper, fanotify_init(EXPECTED_FANOTIFY_FLAGS,
                                                      EXPECTED_FILE_EVENT_FLAGS)).WillOnce(Return(fanotifyFd));
 
@@ -96,7 +91,6 @@ TEST_F(TestFanotifyHandler, testInit)
     logMsg << "Fanotify FD set to " << fanotifyFd;
     EXPECT_TRUE(appenderContains(logMsg.str()));
     EXPECT_FALSE(appenderContains("Unable to initialise fanotify:"));
-    EXPECT_FALSE(onAccessUnhealthyFlagFileExists());
 }
 
 TEST_F(TestFanotifyHandler, successfulInitResetsHealth)
@@ -107,13 +101,12 @@ TEST_F(TestFanotifyHandler, successfulInitResetsHealth)
     EXPECT_CALL(*m_mockSysCallWrapper, fanotify_init(EXPECTED_FANOTIFY_FLAGS,
                                                      EXPECTED_FILE_EVENT_FLAGS)).WillOnce(Return(fanotifyFd));
 
-    createOnAccessUnhealthyFlagFile();
+    EXPECT_CALL(*mockFileSystem_, removeFile(m_onAccessUnhealthyFlagFile, true)).Times(2);
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockFileSystem_));
 
     sophos_on_access_process::fanotifyhandler::FanotifyHandler handler(m_mockSysCallWrapper);
     handler.init();
     EXPECT_TRUE(appenderContains("Fanotify successfully initialised"));
-
-    EXPECT_FALSE(onAccessUnhealthyFlagFileExists());
 }
 
 TEST_F(TestFanotifyHandler, init_throwsErrorIfFanotifyInitFails)
@@ -123,9 +116,12 @@ TEST_F(TestFanotifyHandler, init_throwsErrorIfFanotifyInitFails)
     EXPECT_CALL(*m_mockSysCallWrapper, fanotify_init(EXPECTED_FANOTIFY_FLAGS,
                                                      EXPECTED_FILE_EVENT_FLAGS)).WillOnce(Return(fanotifyFd));
 
+    EXPECT_CALL(*mockFileSystem_, removeFile(m_onAccessUnhealthyFlagFile, true)).Times(1);
+    EXPECT_CALL(*mockFileSystem_, writeFile(m_onAccessUnhealthyFlagFile, "")).Times(1);
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockFileSystem_));
+
     sophos_on_access_process::fanotifyhandler::FanotifyHandler handler(m_mockSysCallWrapper);
     EXPECT_THROW(handler.init(), std::runtime_error);
-    EXPECT_TRUE(onAccessUnhealthyFlagFileExists());
 }
 
 TEST_F(TestFanotifyHandler, close_removesUnhealthyFlagFile)
@@ -134,14 +130,17 @@ TEST_F(TestFanotifyHandler, close_removesUnhealthyFlagFile)
     EXPECT_CALL(*m_mockSysCallWrapper, fanotify_init(EXPECTED_FANOTIFY_FLAGS,
                                                      EXPECTED_FILE_EVENT_FLAGS)).WillOnce(Return(fanotifyFd));
 
-    EXPECT_FALSE(onAccessUnhealthyFlagFileExists());
+    {
+        InSequence seq;
+        EXPECT_CALL(*mockFileSystem_, writeFile(m_onAccessUnhealthyFlagFile, "")).Times(1);
+        EXPECT_CALL(*mockFileSystem_, removeFile(m_onAccessUnhealthyFlagFile, true)).Times(2);
+    };
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockFileSystem_));
 
     sophos_on_access_process::fanotifyhandler::FanotifyHandler handler(m_mockSysCallWrapper);
     EXPECT_THROW(handler.init(), std::runtime_error);
-    EXPECT_TRUE(onAccessUnhealthyFlagFileExists());
 
     EXPECT_NO_THROW(handler.close());
-    EXPECT_FALSE(onAccessUnhealthyFlagFileExists());
 }
 
 TEST_F(TestFanotifyHandler, destructor_removesUnhealthyFlagFile)
@@ -150,14 +149,17 @@ TEST_F(TestFanotifyHandler, destructor_removesUnhealthyFlagFile)
     EXPECT_CALL(*m_mockSysCallWrapper, fanotify_init(EXPECTED_FANOTIFY_FLAGS,
                                                      EXPECTED_FILE_EVENT_FLAGS)).WillOnce(Return(fanotifyFd));
 
-    EXPECT_FALSE(onAccessUnhealthyFlagFileExists());
+    {
+        InSequence seq;
+        EXPECT_CALL(*mockFileSystem_, writeFile(m_onAccessUnhealthyFlagFile, "")).Times(1);
+        EXPECT_CALL(*mockFileSystem_, removeFile(m_onAccessUnhealthyFlagFile, true)).Times(1);
+    };
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockFileSystem_));
+
     {
         sophos_on_access_process::fanotifyhandler::FanotifyHandler handler(m_mockSysCallWrapper);
         EXPECT_THROW(handler.init(), std::runtime_error);
-        EXPECT_TRUE(onAccessUnhealthyFlagFileExists());
     }
-    EXPECT_FALSE(onAccessUnhealthyFlagFileExists());
-
 }
 
 TEST_F(TestFanotifyHandler, cacheFdReturnsZeroForSuccess)
@@ -169,6 +171,8 @@ TEST_F(TestFanotifyHandler, cacheFdReturnsZeroForSuccess)
     EXPECT_CALL(*m_mockSysCallWrapper, fanotify_init(EXPECTED_FANOTIFY_FLAGS,
                                                      EXPECTED_FILE_EVENT_FLAGS)).WillOnce(Return(fanotifyFd));
 
+    dontExpectBadHealth();
+
     sophos_on_access_process::fanotifyhandler::FanotifyHandler handler(m_mockSysCallWrapper);
     handler.init();
     EXPECT_EQ(handler.getFd(), fanotifyFd);
@@ -179,7 +183,6 @@ TEST_F(TestFanotifyHandler, cacheFdReturnsZeroForSuccess)
             SetErrnoAndReturn(0, 0));
 
     EXPECT_EQ(handler.cacheFd(fileFd, "/expected", false), 0);
-    EXPECT_FALSE(onAccessUnhealthyFlagFileExists());
 }
 
 TEST_F(TestFanotifyHandler, cacheFdWithSurviveModify)
@@ -190,6 +193,7 @@ TEST_F(TestFanotifyHandler, cacheFdWithSurviveModify)
 
     EXPECT_CALL(*m_mockSysCallWrapper, fanotify_init(EXPECTED_FANOTIFY_FLAGS,
                                                      EXPECTED_FILE_EVENT_FLAGS)).WillOnce(Return(fanotifyFd));
+    dontExpectBadHealth();
 
     sophos_on_access_process::fanotifyhandler::FanotifyHandler handler(m_mockSysCallWrapper);
     handler.init();
@@ -201,7 +205,6 @@ TEST_F(TestFanotifyHandler, cacheFdWithSurviveModify)
             SetErrnoAndReturn(0, 0));
 
     EXPECT_EQ(handler.cacheFd(fileFd, "/expected", true), 0);
-    EXPECT_FALSE(onAccessUnhealthyFlagFileExists());
 }
 
 TEST_F(TestFanotifyHandler, errorWhenCacheFdFails)
@@ -212,6 +215,7 @@ TEST_F(TestFanotifyHandler, errorWhenCacheFdFails)
 
     EXPECT_CALL(*m_mockSysCallWrapper, fanotify_init(EXPECTED_FANOTIFY_FLAGS,
                                                      EXPECTED_FILE_EVENT_FLAGS)).WillOnce(Return(fanotifyFd));
+    dontExpectBadHealth();
 
     sophos_on_access_process::fanotifyhandler::FanotifyHandler handler(m_mockSysCallWrapper);
     handler.init();
@@ -224,19 +228,17 @@ TEST_F(TestFanotifyHandler, errorWhenCacheFdFails)
 
     EXPECT_EQ(handler.cacheFd(fileFd, "/expected", false), -1);
     EXPECT_TRUE(appenderContains("fanotify_mark failed in cacheFd: File exists for: /expected"));
-    EXPECT_FALSE(onAccessUnhealthyFlagFileExists());
 }
 
 TEST_F(TestFanotifyHandler, cacheFdWithoutInit)
 {
     int fileFd = 54;
     UsingMemoryAppender memoryAppenderHolder(*this);
-
+    dontExpectBadHealth();
     sophos_on_access_process::fanotifyhandler::FanotifyHandler handler(m_mockSysCallWrapper);
 
     EXPECT_EQ(handler.cacheFd(fileFd, "/expected", false), 0);
     EXPECT_TRUE(appenderContains("Skipping cacheFd for /expected as fanotify disabled"));
-    EXPECT_FALSE(onAccessUnhealthyFlagFileExists());
 }
 
 TEST_F(TestFanotifyHandler, uncacheFdReturnsZeroForSuccess)
@@ -247,6 +249,7 @@ TEST_F(TestFanotifyHandler, uncacheFdReturnsZeroForSuccess)
 
     EXPECT_CALL(*m_mockSysCallWrapper, fanotify_init(EXPECTED_FANOTIFY_FLAGS,
                                                      EXPECTED_FILE_EVENT_FLAGS)).WillOnce(Return(fanotifyFd));
+    dontExpectBadHealth();
 
     sophos_on_access_process::fanotifyhandler::FanotifyHandler handler(m_mockSysCallWrapper);
     handler.init();
@@ -258,7 +261,6 @@ TEST_F(TestFanotifyHandler, uncacheFdReturnsZeroForSuccess)
             SetErrnoAndReturn(0, 0));
 
     EXPECT_EQ(handler.uncacheFd(fileFd, "/expected"), 0);
-    EXPECT_FALSE(onAccessUnhealthyFlagFileExists());
 }
 
 TEST_F(TestFanotifyHandler, errorWhenUncacheFdFails)
@@ -269,6 +271,7 @@ TEST_F(TestFanotifyHandler, errorWhenUncacheFdFails)
 
     EXPECT_CALL(*m_mockSysCallWrapper, fanotify_init(EXPECTED_FANOTIFY_FLAGS,
                                                      EXPECTED_FILE_EVENT_FLAGS)).WillOnce(Return(fanotifyFd));
+    dontExpectBadHealth();
 
     sophos_on_access_process::fanotifyhandler::FanotifyHandler handler(m_mockSysCallWrapper);
     handler.init();
@@ -280,7 +283,6 @@ TEST_F(TestFanotifyHandler, errorWhenUncacheFdFails)
             SetErrnoAndReturn(EEXIST, -1));
 
     EXPECT_EQ(handler.uncacheFd(fileFd, "/expected"), -1);
-    EXPECT_FALSE(onAccessUnhealthyFlagFileExists());
 }
 
 TEST_F(TestFanotifyHandler, uncacheFdWithoutInit)
@@ -288,11 +290,11 @@ TEST_F(TestFanotifyHandler, uncacheFdWithoutInit)
     int fileFd = 54;
     UsingMemoryAppender memoryAppenderHolder(*this);
 
+    dontExpectBadHealth();
     sophos_on_access_process::fanotifyhandler::FanotifyHandler handler(m_mockSysCallWrapper);
 
     EXPECT_EQ(handler.uncacheFd(fileFd, "/expected"), 0);
     EXPECT_TRUE(appenderContains("Skipping uncacheFd for /expected as fanotify disabled"));
-    EXPECT_FALSE(onAccessUnhealthyFlagFileExists());
 }
 
 TEST_F(TestFanotifyHandler, markMountReturnsZeroForSuccess)
@@ -307,13 +309,13 @@ TEST_F(TestFanotifyHandler, markMountReturnsZeroForSuccess)
                                                      FAN_CLOSE_WRITE | FAN_OPEN, FAN_NOFD, path.c_str())).WillOnce(
         SetErrnoAndReturn(0, 0));
 
+    dontExpectBadHealth();
     sophos_on_access_process::fanotifyhandler::FanotifyHandler handler(m_mockSysCallWrapper);
     handler.init();
     EXPECT_EQ(handler.getFd(), fanotifyFd);
     EXPECT_TRUE(appenderContains("Fanotify successfully initialised"));
 
     EXPECT_EQ(handler.markMount(path), 0);
-    EXPECT_FALSE(onAccessUnhealthyFlagFileExists());
 }
 
 TEST_F(TestFanotifyHandler, errorWhenmarkMountFails)
@@ -326,6 +328,7 @@ TEST_F(TestFanotifyHandler, errorWhenmarkMountFails)
     EXPECT_CALL(*m_mockSysCallWrapper, fanotify_init(EXPECTED_FANOTIFY_FLAGS,
                                                      EXPECTED_FILE_EVENT_FLAGS)).WillOnce(Return(fanotifyFd));
 
+    dontExpectBadHealth();
     sophos_on_access_process::fanotifyhandler::FanotifyHandler handler(m_mockSysCallWrapper);
     handler.init();
     EXPECT_EQ(handler.getFd(), fanotifyFd);
@@ -338,7 +341,6 @@ TEST_F(TestFanotifyHandler, errorWhenmarkMountFails)
     EXPECT_EQ(handler.markMount(path), -1);
     EXPECT_TRUE(appenderContains("fanotify_mark failed in markMount: File exists for: /expected"));
     EXPECT_TRUE(appenderContains("[ERROR] fanotify_mark failed in markMount: File exists for: /expected"));
-    EXPECT_FALSE(onAccessUnhealthyFlagFileExists());
 }
 
 TEST_F(TestFanotifyHandler, errorWhenmarkMountFailsWithENOENT)
@@ -350,7 +352,7 @@ TEST_F(TestFanotifyHandler, errorWhenmarkMountFailsWithENOENT)
 
     EXPECT_CALL(*m_mockSysCallWrapper, fanotify_init(EXPECTED_FANOTIFY_FLAGS,
                                                      EXPECTED_FILE_EVENT_FLAGS)).WillOnce(Return(fanotifyFd));
-
+    dontExpectBadHealth();
     sophos_on_access_process::fanotifyhandler::FanotifyHandler handler(m_mockSysCallWrapper);
     handler.init();
     EXPECT_EQ(handler.getFd(), fanotifyFd);
@@ -363,7 +365,6 @@ TEST_F(TestFanotifyHandler, errorWhenmarkMountFailsWithENOENT)
     EXPECT_EQ(handler.markMount(path), -1);
     EXPECT_TRUE(appenderContains("fanotify_mark failed in markMount: No such file or directory for: /expected"));
     EXPECT_TRUE(appenderContains("[DEBUG] fanotify_mark failed in markMount: No such file or directory for: /expected"));
-    EXPECT_FALSE(onAccessUnhealthyFlagFileExists());
 }
 
 TEST_F(TestFanotifyHandler, errorWhenmarkMountFailsWithEACCES)
@@ -375,7 +376,7 @@ TEST_F(TestFanotifyHandler, errorWhenmarkMountFailsWithEACCES)
 
     EXPECT_CALL(*m_mockSysCallWrapper, fanotify_init(EXPECTED_FANOTIFY_FLAGS,
                                                      EXPECTED_FILE_EVENT_FLAGS)).WillOnce(Return(fanotifyFd));
-
+    dontExpectBadHealth();
     sophos_on_access_process::fanotifyhandler::FanotifyHandler handler(m_mockSysCallWrapper);
     handler.init();
     EXPECT_EQ(handler.getFd(), fanotifyFd);
@@ -388,19 +389,17 @@ TEST_F(TestFanotifyHandler, errorWhenmarkMountFailsWithEACCES)
     EXPECT_EQ(handler.markMount(path), -1);
     EXPECT_TRUE(appenderContains("fanotify_mark failed in markMount: Permission denied for: /expected"));
     EXPECT_TRUE(appenderContains("[WARN] fanotify_mark failed in markMount: Permission denied for: /expected"));
-    EXPECT_FALSE(onAccessUnhealthyFlagFileExists());
 }
 
 TEST_F(TestFanotifyHandler, markMountWithoutInit)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
     std::string path = "/expected";
-
+    dontExpectBadHealth();
     sophos_on_access_process::fanotifyhandler::FanotifyHandler handler(m_mockSysCallWrapper);
 
     EXPECT_EQ(handler.markMount(path), 0);
     EXPECT_TRUE(appenderContains("Skipping markMount for " + path + " as fanotify disabled"));
-    EXPECT_FALSE(onAccessUnhealthyFlagFileExists());
 }
 
 TEST_F(TestFanotifyHandler, unmarkMountReturnsZeroForSuccess)
@@ -411,6 +410,7 @@ TEST_F(TestFanotifyHandler, unmarkMountReturnsZeroForSuccess)
 
     EXPECT_CALL(*m_mockSysCallWrapper, fanotify_init(EXPECTED_FANOTIFY_FLAGS,
                                                      EXPECTED_FILE_EVENT_FLAGS)).WillOnce(Return(fanotifyFd));
+    dontExpectBadHealth();
 
     sophos_on_access_process::fanotifyhandler::FanotifyHandler handler(m_mockSysCallWrapper);
     handler.init();
@@ -422,7 +422,6 @@ TEST_F(TestFanotifyHandler, unmarkMountReturnsZeroForSuccess)
             SetErrnoAndReturn(0, 0));
 
     EXPECT_EQ(handler.unmarkMount(path), 0);
-    EXPECT_FALSE(onAccessUnhealthyFlagFileExists());
 }
 
 TEST_F(TestFanotifyHandler, errorWhenunmarkMountFails)
@@ -433,6 +432,7 @@ TEST_F(TestFanotifyHandler, errorWhenunmarkMountFails)
 
     EXPECT_CALL(*m_mockSysCallWrapper, fanotify_init(EXPECTED_FANOTIFY_FLAGS,
                                                      EXPECTED_FILE_EVENT_FLAGS)).WillOnce(Return(fanotifyFd));
+    dontExpectBadHealth();
 
     sophos_on_access_process::fanotifyhandler::FanotifyHandler handler(m_mockSysCallWrapper);
     handler.init();
@@ -445,38 +445,38 @@ TEST_F(TestFanotifyHandler, errorWhenunmarkMountFails)
 
     EXPECT_EQ(handler.unmarkMount(path), -1);
     EXPECT_TRUE(appenderContains("fanotify_mark failed in unmarkMount: File exists for: /expected"));
-    EXPECT_FALSE(onAccessUnhealthyFlagFileExists());
 }
 
 TEST_F(TestFanotifyHandler, unmarkMountWithoutInit)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
     std::string path = "/expected";
+    dontExpectBadHealth();
 
     sophos_on_access_process::fanotifyhandler::FanotifyHandler handler(m_mockSysCallWrapper);
 
     EXPECT_EQ(handler.unmarkMount(path), 0);
     EXPECT_TRUE(appenderContains("Skipping unmarkMount for " + path + " as fanotify disabled"));
-    EXPECT_FALSE(onAccessUnhealthyFlagFileExists());
 }
 
 TEST_F(TestFanotifyHandler, clearCacheWithoutInit)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
+    dontExpectBadHealth();
+
     sophos_on_access_process::fanotifyhandler::FanotifyHandler handler(m_mockSysCallWrapper);
 
     EXPECT_NO_THROW(handler.updateComplete());
-    EXPECT_FALSE(onAccessUnhealthyFlagFileExists());
 }
 
 TEST_F(TestFanotifyHandler, clearCacheSucceeds)
 {
     int fanotifyFd = 123;
     UsingMemoryAppender memoryAppenderHolder(*this);
-    std::string path = "/expected";
 
     EXPECT_CALL(*m_mockSysCallWrapper, fanotify_init(EXPECTED_FANOTIFY_FLAGS,
                                                      EXPECTED_FILE_EVENT_FLAGS)).WillOnce(Return(fanotifyFd));
+    dontExpectBadHealth();
 
     sophos_on_access_process::fanotifyhandler::FanotifyHandler handler(m_mockSysCallWrapper);
     handler.init();
@@ -488,17 +488,16 @@ TEST_F(TestFanotifyHandler, clearCacheSucceeds)
             SetErrnoAndReturn(0, 0));
 
     EXPECT_EQ(handler.clearCachedFiles(), 0);
-    EXPECT_FALSE(onAccessUnhealthyFlagFileExists());
 }
 
 TEST_F(TestFanotifyHandler, clearCacheFails)
 {
     int fanotifyFd = 123;
     UsingMemoryAppender memoryAppenderHolder(*this);
-    std::string path = "/expected";
 
     EXPECT_CALL(*m_mockSysCallWrapper, fanotify_init(EXPECTED_FANOTIFY_FLAGS,
                                                      EXPECTED_FILE_EVENT_FLAGS)).WillOnce(Return(fanotifyFd));
+    dontExpectBadHealth();
 
     sophos_on_access_process::fanotifyhandler::FanotifyHandler handler(m_mockSysCallWrapper);
     handler.init();
@@ -511,5 +510,4 @@ TEST_F(TestFanotifyHandler, clearCacheFails)
 
     EXPECT_EQ(handler.clearCachedFiles(), -1);
     EXPECT_TRUE(appenderContains("fanotify_mark failed in clearCachedFiles: File exists for: fanotify fd"));;
-    EXPECT_FALSE(onAccessUnhealthyFlagFileExists());
 }
