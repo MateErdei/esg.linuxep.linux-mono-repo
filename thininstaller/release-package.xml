@@ -7,7 +7,7 @@
         <workingdir>.</workingdir>
         <build-asset project="linuxep" repo="everest-base">
             <development-version branch="develop"/>
-            <release-version branch="release/2023.2-DTP1" build-id="20230530125140-478faf620502830b23607d2173592835d7abb361-r0J1kj"/>
+            <release-version branch="release/2023-25" build-id="20230616165821-81df7cc5ab00d7ba628e90b427c29ac09f3abada-1YVMGa"/>
             <include artifact-path="sspl-base/pluginapi" dest-dir="/build/input"/>
             <include artifact-path="sspl-base/cmcsrouterapi" dest-dir="/build/input"/>
         </build-asset>
@@ -17,7 +17,7 @@
         </build-asset>
 
         <build-asset project="em" repo="esg">
-            <release-version branch="release/SPRINT-2023.19" build-id="20230505162223-6aa5715432cf60b858215a18280933fd7a890989-XeJDfq"/>
+            <release-version branch="release/SPRINT-2023.25" build-id="20230616101659-487f34a8a2e4fab8b7ef699160dcb289978c9894-74Umat"/>
             <include artifact-path="thirdparty/curl-linux-opt" dest-dir="/build/redist/curl"/>
         </build-asset>
 
