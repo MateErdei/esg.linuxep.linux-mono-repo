@@ -403,13 +403,14 @@ def get_test_machines(test_inputs, parameters: tap.Parameters):
         test_environments['ubuntu2204'] = 'ubuntu2204_x64_aws_server_en_us'
 
     no_cifs = (
-        'amazonlinux2023'
+        'amazonlinux2023',
     )
 
     ret = []
     for name, image in test_environments.items():
         machine = tap.Machine(image, inputs=test_inputs, platform=tap.Platform.Linux)
         machine.cifs_supported = name not in no_cifs
+        machine.sspl_name = name
         ret.append((name, machine))
     return ret
 
