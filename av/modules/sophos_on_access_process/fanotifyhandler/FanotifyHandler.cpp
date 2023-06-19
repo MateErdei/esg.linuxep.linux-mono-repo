@@ -7,7 +7,8 @@
 #include "common/ApplicationPaths.h"
 #include "common/SaferStrerror.h"
 
-#include <fstream>
+#include <Common/FileSystem/IFileSystem.h>
+
 #include <sstream>
 #include <tuple>
 
@@ -29,17 +30,20 @@ FanotifyHandler::~FanotifyHandler()
 
 void FanotifyHandler::init()
 {
+    auto fs = Common::FileSystem::fileSystem();
     constexpr unsigned int flags = FAN_CLOEXEC | FAN_CLASS_CONTENT | FAN_UNLIMITED_MARKS | FAN_NONBLOCK;
     constexpr unsigned int event_f_flags = O_RDONLY | O_CLOEXEC | O_LARGEFILE;
     int fanotifyFd = m_systemCallWrapper->fanotify_init(flags, event_f_flags);
     if (fanotifyFd == -1)
     {
-        std::ofstream onaccessUnhealthyFlagFile(Plugin::getOnAccessUnhealthyFlagPath());
+        fs->writeFile(Plugin::getOnAccessUnhealthyFlagPath(), "");
         std::stringstream errMsg;
         errMsg << "Unable to initialise fanotify: " << common::safer_strerror(errno);
         throw std::runtime_error(errMsg.str());
     }
-    std::remove(Plugin::getOnAccessUnhealthyFlagPath().c_str());
+
+    fs->removeFile(Plugin::getOnAccessUnhealthyFlagPath(), true);
+
     auto fanotify_autoFd = m_fd.lock();
     fanotify_autoFd->reset(fanotifyFd);
     LOGDEBUG("Fanotify successfully initialised: Fanotify FD=" << fanotify_autoFd->fd());
@@ -47,7 +51,9 @@ void FanotifyHandler::init()
 
 void FanotifyHandler::close()
 {
-    std::remove(Plugin::getOnAccessUnhealthyFlagPath().c_str());
+    auto fs = Common::FileSystem::fileSystem();
+    fs->removeFile(Plugin::getOnAccessUnhealthyFlagPath(), true);
+
     auto fanotify_autoFd = m_fd.lock();
     fanotify_autoFd->close();
 }

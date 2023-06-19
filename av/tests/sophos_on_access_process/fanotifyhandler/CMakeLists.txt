@@ -7,4 +7,6 @@ SophosAddTest(TestFanotifyHandler
         TestFanotifyHandler.cpp
         TestProcUtils.cpp
         PROJECTS fanotifyhandler
+        LIBS ${testhelperslib}
+        INC_DIRS ${testhelpersinclude}
         )
