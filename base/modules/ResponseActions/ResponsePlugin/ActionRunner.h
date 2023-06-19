@@ -13,7 +13,10 @@ namespace ResponsePlugin
      * In the case where the Response Actions plugin has to forcibly terminate its Action Runner child process
      * we will not get a response written out by Action Runner, so we send a failure response from the RA plugin.
      */
-    void sendFailedResponse(ResponseActions::RACommon::ResponseResult result, const std::string& type, const std::string& correlationId);
+    void sendFailedResponse(
+        ResponseActions::RACommon::ResponseResult result,
+        const std::string& type,
+        const std::string& correlationId);
 
     class ActionRunner : public IActionRunner
     {
@@ -28,8 +31,9 @@ namespace ResponsePlugin
 
     private:
         [[maybe_unused]] bool kill(const std::string& msg);
+        void awaitPostAction();
 
-        bool m_isRunning = false;
+        std::atomic<bool> m_isRunning = false;
         Common::Process::IProcessPtr m_process;
         std::string m_executablePath;
         std::future<void> m_fut;

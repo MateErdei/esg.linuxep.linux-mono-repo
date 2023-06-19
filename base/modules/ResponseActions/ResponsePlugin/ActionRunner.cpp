@@ -16,10 +16,7 @@ using namespace Common::Process;
 
 namespace ResponsePlugin
 {
-    void sendFailedResponse(
-        ResponseResult result,
-        const std::string& requestType,
-        const std::string& correlationId)
+    void sendFailedResponse(ResponseResult result, const std::string& requestType, const std::string& correlationId)
     {
         LOGINFO("Response Actions plugin sending failed response to Central on behalf of Action Runner process");
         nlohmann::json response;
@@ -63,16 +60,19 @@ namespace ResponsePlugin
                 std::string exePath =
                     Common::ApplicationConfiguration::applicationPathManager().getResponseActionRunnerPath();
                 this->m_process = createProcess();
-                LOGINFO("Trigger process at: " << exePath << " for action: " << correlationId << " with timeout: " << timeout);
+                LOGINFO(
+                    "Trigger process at: " << exePath << " for action: " << correlationId
+                                           << " with timeout: " << timeout);
                 std::vector<std::string> arguments = { correlationId, action, type };
                 this->m_process->exec(exePath, arguments, {});
                 ProcessStatus processStatus = this->m_process->wait(std::chrono::seconds(timeout), 1);
                 if (processStatus == ProcessStatus::TIMEOUT)
                 {
-                    LOGWARN("Action runner reached time out of " << timeout << " secs, correlation ID: " << correlationId);
+                    LOGWARN(
+                        "Action runner reached time out of " << timeout << " secs, correlation ID: " << correlationId);
 
                     this->m_process->sendSIGUSR1();
-                    //Wait for process to handle signal and exit which should be done within 3 seconds
+                    // Wait for process to handle signal and exit which should be done within 3 seconds
                     this->m_process->wait(std::chrono::seconds(3), 1);
                 }
 
@@ -96,7 +96,8 @@ namespace ResponsePlugin
                     LOGWARN("Failed action " << correlationId << " with exit code " << code);
                     incrementFailedActions(type);
 
-                    if (code != static_cast<int>(ResponseActions::RACommon::ResponseResult::ERROR) && code != static_cast<int>(ResponseActions::RACommon::ResponseResult::EXPIRED))
+                    if (code != static_cast<int>(ResponseActions::RACommon::ResponseResult::ERROR) &&
+                        code != static_cast<int>(ResponseActions::RACommon::ResponseResult::EXPIRED))
                     {
                         auto result = ResponseResult::INTERNAL_ERROR;
                         if (processStatus == ProcessStatus::TIMEOUT)
@@ -111,6 +112,7 @@ namespace ResponsePlugin
                         incrementExpiredActions(type);
                     }
                 }
+                LOGINFO("Finished action: " << correlationId);
                 m_isRunning = false;
             });
     }
@@ -118,6 +120,7 @@ namespace ResponsePlugin
     void ActionRunner::killAction()
     {
         kill("plugin received stop request");
+        awaitPostAction();
     }
 
     bool ActionRunner::getIsRunning()
@@ -139,4 +142,14 @@ namespace ResponsePlugin
         }
     }
 
+    void ActionRunner::awaitPostAction()
+    {
+        using namespace std::chrono_literals;
+
+        auto status = m_fut.wait_for(1s);
+        if (status != std::future_status::ready)
+        {
+            LOGWARN("Failed to complete post-action work in 1 second");
+        }
+    }
 } // namespace ResponsePlugin

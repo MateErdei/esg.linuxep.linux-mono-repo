@@ -69,7 +69,7 @@ namespace ResponsePlugin
         }
     }
 
-    void PluginAdapter::processAction(const std::string& action,const std::string& correlationId)
+    void PluginAdapter::processAction(const std::string& action, const std::string& correlationId)
     {
         LOGDEBUG("Process action: " << action);
         auto [actionType, timeout] = PluginUtils::getType(action);
@@ -85,7 +85,6 @@ namespace ResponsePlugin
         }
         LOGINFO("Running action: " << correlationId);
         m_runner->runAction(action, correlationId, actionType, timeout);
-        LOGINFO("Finished action: " << correlationId);
     }
 
 } // namespace ResponsePlugin
