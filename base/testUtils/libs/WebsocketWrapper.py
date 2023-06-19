@@ -32,6 +32,7 @@ class WebsocketWrapper:
         self._server = None
 
     def start_websocket_server(self, port=443):
+        assert self._server is None
         import certificates
         import LTserver
         print("staring websocket server")
@@ -41,6 +42,7 @@ class WebsocketWrapper:
         return self._server
 
     def stop_websocket_server(self):
+        assert self._server is not None
         self._server.stop()
         self._server.join()
         self._server = None
@@ -50,22 +52,26 @@ class WebsocketWrapper:
             self._server.stop()
             self._server.join()
 
-    def match_message(self, message, path):
-        assert self._server.match_message(message, f"/{path}"), f"Failed to match message {message} in {path}"
+    def match_message(self, message, path, timeout=1):
+        assert self._server
+        if not self._server.match_message(message, f"/{path}", timeout=timeout):
+            raise AssertionError(f"Failed to match message {message} in {path}")
 
     def wait_for_match_message(self, message, path, timeout=10):
+        assert self._server
         start = time.time()
         while time.time() < start + timeout:
-            if self._server.match_message(message, f"/{path}"):
+            if self._server.match_message(message, f"/{path}", timeout=timeout):
                 return
             logger.debug("Match_message returned false after %f" % (time.time() - start))
             time.sleep(0.5)
-        assert self._server.match_message(message, f"/{path}"), f"Failed to match message {message} in {path}"
+        self.match_message(message, path)
 
     def liveterminal_server_log_file(self):
         return self._log_path
 
     def send_message_with_newline(self, message, path):
+        assert self._server
         self._server.send_message_with_newline(message, f"/{path}")
 
     @staticmethod
