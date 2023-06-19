@@ -274,10 +274,12 @@ Exclude Susi Initialisation Failed Messages On Access Enabled
     mark_expected_error_in_log   ${ON_ACCESS_LOG_PATH}    ScanRequestHandler-0 received error: ScanningServerConnectionThread aborting scan, failed to initialise SUSI: Second attempt to initialise SUSI failed, exiting
 
     mark_expected_error_in_log  ${THREAT_DETECTOR_LOG_PATH}  Failed to load GLOBALREP_SetScanType from /opt/sophos-spl/plugins/av/chroot/susi/distribution_version/7aa8d848c1d4b3e8c162f0f8991903f594960952b9c849bd1499246d6f1ab880/libglobalrep.so: SUSI error
+    mark_expected_error_in_log  ${THREAT_DETECTOR_LOG_PATH}  Failed to open the library /opt/sophos-spl/plugins/av/chroot/susi/distribution_version/4557df8c182775bb41a7ea2eac63f754b142b0a9138eb05fc360e6bfe3d38661/libsophtainer.so: /opt/sophos-spl/plugins/av/chroot/susi/distribution_version/4557df8c182775bb41a7ea2eac63f754b142b0a9138eb05fc360e6bfe3d38661/libsophtainer.so: cannot open shared object file: No such file or directory: SUSI error 0xc0000009
     mark_expected_error_in_log  ${THREAT_DETECTOR_LOG_PATH}  Core initialization failed.: SUSI error 0xc0000009
     mark_expected_error_in_log  ${THREAT_DETECTOR_LOG_PATH}  Failed to initialise SUSI: 0xc0000009
 
     mark_expected_error_in_log  ${THREAT_DETECTOR_INFO_LOG_PATH}  Failed to load GLOBALREP_SetScanType from /opt/sophos-spl/plugins/av/chroot/susi/distribution_version/7aa8d848c1d4b3e8c162f0f8991903f594960952b9c849bd1499246d6f1ab880/libglobalrep.so: SUSI error
+    mark_expected_error_in_log  ${THREAT_DETECTOR_INFO_LOG_PATH}  Failed to open the library /opt/sophos-spl/plugins/av/chroot/susi/distribution_version/4557df8c182775bb41a7ea2eac63f754b142b0a9138eb05fc360e6bfe3d38661/libsophtainer.so: /opt/sophos-spl/plugins/av/chroot/susi/distribution_version/4557df8c182775bb41a7ea2eac63f754b142b0a9138eb05fc360e6bfe3d38661/libsophtainer.so: cannot open shared object file: No such file or directory: SUSI error 0xc0000009
     mark_expected_error_in_log  ${THREAT_DETECTOR_INFO_LOG_PATH}  Core initialization failed.: SUSI error 0xc0000009
     mark_expected_error_in_log  ${THREAT_DETECTOR_INFO_LOG_PATH}  Failed to initialise SUSI: 0xc0000009
 
