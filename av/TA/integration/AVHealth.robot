@@ -366,7 +366,7 @@ AV health is unaffected by on-access scanning the soapd pidfile
     Check Status Health is Reporting Correctly    GOOD
 
 
-AV Service Health Turns Red When SUSI Fails Initialisation
+AV Service Health Turns Red When SUSI Fails Initialisation And Turns Green When SUSI Recovers
     Register Cleanup  Exclude Susi Initialisation Failed Messages On Access Enabled
 
     #necessary for error markers
@@ -380,15 +380,23 @@ AV Service Health Turns Red When SUSI Fails Initialisation
     ${VDL_DIRECTORY} =    Set Variable   ${SUSI_UPDATE_SOURCE}/vdl
 
     #Fake a bad update_source directory
+    Remove Directory  ${SUSI_DISTRIBUTION_VERSION}  true
     Move Directory  ${VDL_DIRECTORY}  /tmp/
-    Register Cleanup    restart sophos_threat_detector
-    Register Cleanup    Move Directory  /tmp/vdl  ${SUSI_UPDATE_SOURCE}
-
     ${td_mark} =  Get Sophos Threat Detector Log Mark
     restart sophos_threat_detector
 
+    On-access Scan Clean File
+
     Wait For Sophos Threat Detector Log Contains After Mark   ScanningServerConnectionThread aborting scan, failed to initialise SUSI  ${td_mark}
-
     File Should Exist    ${AV_PLUGIN_PATH}/chroot/var/threatdetector_unhealthy_flag
-
     Check Status Health is Reporting Correctly    BAD
+
+    ${td_mark} =  Get Sophos Threat Detector Log Mark
+
+    Move Directory  /tmp/vdl  ${SUSI_UPDATE_SOURCE}
+
+    On-access Scan Clean File
+
+    Wait For Sophos Threat Detector Log Contains After Mark   ScanningServerConnectionThread has created a new scanner   ${td_mark}
+    File Should Not Exist    ${AV_PLUGIN_PATH}/chroot/var/threatdetector_unhealthy_flag
+    Check Status Health is Reporting Correctly    GOOD
