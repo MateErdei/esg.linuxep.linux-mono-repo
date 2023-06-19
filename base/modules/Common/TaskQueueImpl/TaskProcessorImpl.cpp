@@ -40,7 +40,7 @@ namespace
 
 void Common::TaskQueueImpl::TaskProcessorImpl::stop()
 {
-    Common::TaskQueue::ITaskPtr task(new StopTask(m_thread));
+    auto task = std::make_unique<StopTask>(m_thread);
     m_thread.m_taskQueue->queueTask(std::move(task));
     m_thread.join();
 }
@@ -79,7 +79,7 @@ Common::TaskQueueImpl::TaskProcessorImplThread::~TaskProcessorImplThread()
     if (joinable())
     {
         // Add a stop task to wake up the queue
-        Common::TaskQueue::ITaskPtr task(new StopTask(*this));
+        auto task = std::make_unique<StopTask>(*this);
         m_taskQueue->queueTask(std::move(task));
     }
 
