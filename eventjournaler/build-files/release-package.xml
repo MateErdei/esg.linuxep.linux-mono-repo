@@ -6,7 +6,7 @@
     <inputs>
         <workingdir>.</workingdir>
         <build-asset project="linuxep" repo="everest-base">
-            <release-version branch="release/2023.2-DTP1" build-id="20230523102712-adcd3ee1b9911c841a65e33b9f5d57135051fcba-HKWQ6J"/>
+            <release-version branch="release/2023-25" build-id="20230616165821-81df7cc5ab00d7ba628e90b427c29ac09f3abada-1YVMGa"/>
             <development-version branch="develop"/>
             <include artifact-path="sspl-base/pluginapi" dest-dir="/build/input"/>
             <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="/build/input/base-sdds"/>
@@ -19,7 +19,7 @@
             <include artifact-path="sed-libs-linux/JournalReader-x64" dest-dir="/build/input"/>
         </build-asset>
         <build-asset project="em" repo="esg">
-            <release-version branch="release/SPRINT-2023.19" build-id="20230505162223-6aa5715432cf60b858215a18280933fd7a890989-XeJDfq"/>
+            <release-version branch="release/SPRINT-2023.25" build-id="20230616101659-487f34a8a2e4fab8b7ef699160dcb289978c9894-74Umat"/>
             <development-version branch="develop"/>
             <include artifact-path="sophlib/sdds3-tools-x64-linux" dest-dir="/build/input/sdds3"/>
 
