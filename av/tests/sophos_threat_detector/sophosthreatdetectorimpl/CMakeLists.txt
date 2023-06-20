@@ -21,6 +21,7 @@ SophosAddTest(TestProcessForceExitTimer
         ../../common/LogInitializedTests.h
         TestProcessForceExitTimer.cpp
         PROJECTS sophosthreatdetectorimpl
+        INC_DIRS ${testhelpersinclude}
         )
 
 SophosAddTest(TestSophosThreatDetectorMain

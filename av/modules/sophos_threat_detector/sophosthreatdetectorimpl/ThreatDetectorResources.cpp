@@ -8,17 +8,18 @@
 #include "common/PidLockFile.h"
 #include "common/signals/SigTermMonitor.h"
 #include "common/signals/SigUSR1Monitor.h"
-#include "datatypes/SystemCallWrapperFactory.h"
 #include "sophos_threat_detector/sophosthreatdetectorimpl/ShutdownTimer.h"
 #include "sophos_threat_detector/sophosthreatdetectorimpl/ThreatReporter.h"
 #include "sophos_threat_detector/threat_scanner/SusiScannerFactory.h"
 #include "unixsocket/updateCompleteSocket/UpdateCompleteServerSocket.h"
 
+#include "Common/SystemCallWrapper/SystemCallWrapperFactory.h"
+
 using namespace sspl::sophosthreatdetectorimpl;
 
-datatypes::ISystemCallWrapperSharedPtr ThreatDetectorResources::createSystemCallWrapper()
+Common::SystemCallWrapper::ISystemCallWrapperSharedPtr ThreatDetectorResources::createSystemCallWrapper()
 {
-    auto sysCallFact = datatypes::SystemCallWrapperFactory();
+    auto sysCallFact = Common::SystemCallWrapper::SystemCallWrapperFactory();
     return sysCallFact.createSystemCallWrapper();
 }
 

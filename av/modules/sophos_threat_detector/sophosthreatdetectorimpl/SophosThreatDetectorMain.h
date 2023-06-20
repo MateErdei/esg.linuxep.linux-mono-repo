@@ -10,11 +10,10 @@
 #include "Reloader.h"
 #include "SafeStoreRescanWorker.h"
 
-#include "datatypes/SystemCallWrapperFactory.h"
+#include "common/ThreatDetector/SusiSettings.h"
 #include "unixsocket/updateCompleteSocket/UpdateCompleteServerSocket.h"
 
-#include "common/ThreatDetector/SusiSettings.h"
-
+#include "Common/SystemCallWrapper/SystemCallWrapperFactory.h"
 namespace sspl::sophosthreatdetectorimpl
 {
     class SophosThreatDetectorMain : public ISophosThreatDetectorMain
@@ -32,7 +31,7 @@ namespace sspl::sophosthreatdetectorimpl
     private:
         std::shared_ptr<common::signals::IReloadable> m_reloader;
         threat_scanner::IThreatScannerFactorySharedPtr m_scannerFactory;
-        datatypes::ISystemCallWrapperSharedPtr m_sysCallWrapper;
+        Common::SystemCallWrapper::ISystemCallWrapperSharedPtr m_sysCallWrapper;
         Common::Threads::NotifyPipe m_systemFileRestartTrigger;
         std::shared_ptr<ISafeStoreRescanWorker> m_safeStoreRescanWorker;
         unixsocket::updateCompleteSocket::UpdateCompleteServerSocketPtr m_updateCompleteNotifier;

@@ -15,9 +15,11 @@
 #include "sophos_threat_detector/sophosthreatdetectorimpl/ThreatDetectorResources.h"
 #include "sophos_threat_detector/threat_scanner/MockSusiScannerFactory.h"
 
-#include <common/MockPidLock.h>
-#include <common/MockSignalHandler.h>
-#include <datatypes/MockSysCalls.h>
+#include "common/MockPidLock.h"
+#include "common/MockSignalHandler.h"
+
+#include "Common/Helpers/MockSysCalls.h"
+
 #include <gmock/gmock.h>
 #include <unixsocket/processControllerSocket/ProcessControllerServerSocket.h>
 
@@ -62,7 +64,7 @@ namespace
             ON_CALL(*this, createMetadataRescanServerSocket).WillByDefault(Return(m_mockMetadataRescanServerSocket));
         }
 
-        MOCK_METHOD(datatypes::ISystemCallWrapperSharedPtr, createSystemCallWrapper, (), (override));
+        MOCK_METHOD(Common::SystemCallWrapper::ISystemCallWrapperSharedPtr , createSystemCallWrapper, (), (override));
         MOCK_METHOD(common::signals::ISignalHandlerSharedPtr, createSigTermHandler, (bool), (override));
         MOCK_METHOD(common::signals::ISignalHandlerSharedPtr, createUsr1Monitor, (common::signals::IReloadablePtr), (override));
         MOCK_METHOD(std::shared_ptr<common::signals::IReloadable>, createReloader, (threat_scanner::IThreatScannerFactorySharedPtr), (override));

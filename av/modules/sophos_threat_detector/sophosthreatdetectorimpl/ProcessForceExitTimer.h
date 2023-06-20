@@ -1,10 +1,11 @@
-// Copyright 2022 Sophos Limited. All rights reserved.
+// Copyright 2022-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
 #include "common/AbstractThreadPluginInterface.h"
 #include "common/ErrorCodes.h"
-#include "datatypes/ISystemCallWrapper.h"
+
+#include "Common/SystemCallWrapper/ISystemCallWrapper.h"
 
 #include <atomic>
 
@@ -14,7 +15,7 @@ namespace sspl::sophosthreatdetectorimpl
     class ProcessForceExitTimer : public common::AbstractThreadPluginInterface
     {
     public:
-        explicit ProcessForceExitTimer(std::chrono::seconds timeout, datatypes::ISystemCallWrapperSharedPtr systemCallWrapper);
+        explicit ProcessForceExitTimer(std::chrono::seconds timeout, Common::SystemCallWrapper::ISystemCallWrapperSharedPtr systemCallWrapper);
         ~ProcessForceExitTimer() override;
 
         /**
@@ -30,7 +31,7 @@ namespace sspl::sophosthreatdetectorimpl
 
     private:
         std::chrono::seconds m_timeout;
-        datatypes::ISystemCallWrapperSharedPtr m_systemCallWrapper;
+        Common::SystemCallWrapper::ISystemCallWrapperSharedPtr m_systemCallWrapper;
 
         std::atomic<bool> m_stopRequested = false;
         int m_exitCode = common::E_QUICK_RESTART_SUCCESS;

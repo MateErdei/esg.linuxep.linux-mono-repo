@@ -1,8 +1,9 @@
-// Copyright 2022 Sophos Limited. All rights reserved.
+// Copyright 2022-2023 Sophos Limited. All rights reserved.
 
 #include "common/MemoryAppender.h"
-#include "datatypes/MockSysCalls.h"
 #include "sophos_threat_detector/sophosthreatdetectorimpl/ProcessForceExitTimer.h"
+
+#include "Common/Helpers/MockSysCalls.h"
 
 #include <gtest/gtest.h>
 

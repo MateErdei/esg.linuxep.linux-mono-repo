@@ -9,7 +9,7 @@ namespace sspl::sophosthreatdetectorimpl
     class ThreatDetectorResources : public IThreatDetectorResources
     {
         public:
-            datatypes::ISystemCallWrapperSharedPtr createSystemCallWrapper() override;
+            Common::SystemCallWrapper::ISystemCallWrapperSharedPtr  createSystemCallWrapper() override;
 
             common::signals::ISignalHandlerSharedPtr createSigTermHandler(bool restartSyscalls) override;
             common::signals::ISignalHandlerSharedPtr createUsr1Monitor(common::signals::IReloadablePtr reloadable) override;

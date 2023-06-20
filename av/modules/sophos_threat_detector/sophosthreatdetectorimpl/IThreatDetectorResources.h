@@ -8,7 +8,6 @@
 #include "common/IPidLockFile.h"
 #include "common/signals/IReloadable.h"
 #include "common/signals/ISignalHandlerBase.h"
-#include "datatypes/ISystemCallWrapper.h"
 #include "datatypes/sophos_filesystem.h"
 #include "sophos_threat_detector/threat_scanner/IScanNotification.h"
 #include "sophos_threat_detector/threat_scanner/IThreatReporter.h"
@@ -17,6 +16,8 @@
 #include "unixsocket/processControllerSocket/ProcessControllerServerSocket.h"
 #include "unixsocket/threatDetectorSocket/ScanningServerSocket.h"
 #include "unixsocket/updateCompleteSocket/UpdateCompleteServerSocket.h"
+
+#include "Common/SystemCallWrapper/ISystemCallWrapper.h"
 
 namespace sspl::sophosthreatdetectorimpl
 {
@@ -33,7 +34,7 @@ namespace sspl::sophosthreatdetectorimpl
 
         virtual ISafeStoreRescanWorkerPtr createSafeStoreRescanWorker(const sophos_filesystem::path& safeStoreRescanSocket) = 0;
 
-        virtual datatypes::ISystemCallWrapperSharedPtr createSystemCallWrapper() = 0;
+        virtual Common::SystemCallWrapper::ISystemCallWrapperSharedPtr createSystemCallWrapper() = 0;
 
         virtual threat_scanner::IThreatReporterSharedPtr createThreatReporter(const sophos_filesystem::path socketPath) = 0;
 

@@ -1,4 +1,4 @@
-// Copyright 2022 Sophos Limited. All rights reserved.
+// Copyright 2022-2023 Sophos Limited. All rights reserved.
 
 #include "ProcessForceExitTimer.h"
 
@@ -6,7 +6,7 @@
 
 using namespace sspl::sophosthreatdetectorimpl;
 
-ProcessForceExitTimer::ProcessForceExitTimer(std::chrono::seconds timeout, datatypes::ISystemCallWrapperSharedPtr systemCallWrapper)
+ProcessForceExitTimer::ProcessForceExitTimer(std::chrono::seconds timeout, Common::SystemCallWrapper::ISystemCallWrapperSharedPtr  systemCallWrapper)
 : m_timeout(timeout)
 , m_systemCallWrapper(systemCallWrapper)
 {
