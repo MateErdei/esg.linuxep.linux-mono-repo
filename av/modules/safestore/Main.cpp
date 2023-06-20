@@ -62,7 +62,7 @@ namespace safestore
 
         std::shared_ptr<QuarantineManager::IQuarantineManager> quarantineManager =
             std::make_shared<QuarantineManager::QuarantineManagerImpl>(
-                std::move(safeStoreWrapper), std::make_shared<datatypes::SystemCallWrapper>(), resources);
+                std::move(safeStoreWrapper), std::make_shared<Common::SystemCallWrapper::SystemCallWrapper>(), resources);
         quarantineManager->initialise();
 
         auto qmStateMonitor = std::make_shared<QuarantineManager::StateMonitor>(quarantineManager);

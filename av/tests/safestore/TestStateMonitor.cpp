@@ -8,12 +8,12 @@
 #include "safestore/QuarantineManager/QuarantineManagerImpl.h"
 #include "safestore/QuarantineManager/StateMonitor.h"
 #include "safestore/SafeStoreWrapper/SafeStoreWrapperImpl.h"
-#include "tests/datatypes/MockSysCalls.h"
 
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 #include "Common/Helpers/FileSystemReplaceAndRestore.h"
 #include "Common/Helpers/MockFilePermissions.h"
 #include "Common/Helpers/MockFileSystem.h"
+#include "Common/Helpers/MockSysCalls.h"
 #include "Common/Logging/ConsoleLoggingSetup.h"
 
 #include <gtest/gtest.h>

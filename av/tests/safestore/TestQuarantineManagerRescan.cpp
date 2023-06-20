@@ -6,7 +6,6 @@
 #include "../common/MemoryAppender.h"
 #include "common/ApplicationPaths.h"
 #include "common/TestFile.h"
-#include "datatypes/MockSysCalls.h"
 #include "safestore/QuarantineManager/IQuarantineManager.h"
 #include "safestore/QuarantineManager/QuarantineManagerImpl.h"
 #include "safestore/SafeStoreWrapper/ISafeStoreWrapper.h"
@@ -17,6 +16,7 @@
 #include "Common/Helpers/FileSystemReplaceAndRestore.h"
 #include "Common/Helpers/MockFilePermissions.h"
 #include "Common/Helpers/MockFileSystem.h"
+#include "Common/Helpers/MockSysCalls.h"
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
