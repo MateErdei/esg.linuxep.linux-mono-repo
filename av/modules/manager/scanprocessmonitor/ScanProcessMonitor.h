@@ -5,10 +5,11 @@
 #include "ConfigMonitor.h"
 
 #include "common/LockableData.h"
-#include "datatypes/ISystemCallWrapper.h"
 #include "datatypes/sophos_filesystem.h"
 #include "modules/common/NotifyPipeSleeper.h"
 #include "scan_messages/ProcessControlSerialiser.h"
+
+#include "Common/SystemCallWrapper/ISystemCallWrapper.h"
 
 namespace plugin::manager::scanprocessmonitor
 {
@@ -16,7 +17,7 @@ namespace plugin::manager::scanprocessmonitor
     {
     public:
         explicit ScanProcessMonitor(std::string processControllerSocket,
-                                    datatypes::ISystemCallWrapperSharedPtr systemCallWrapper);
+                                    Common::SystemCallWrapper::ISystemCallWrapperSharedPtr systemCallWrapper);
         void run() override;
 
         /**
@@ -32,7 +33,7 @@ namespace plugin::manager::scanprocessmonitor
         bool getSXL4LookupsEnabled();
         Common::Threads::NotifyPipe m_config_changed;
         Common::Threads::NotifyPipe m_policy_changed;
-        datatypes::ISystemCallWrapperSharedPtr m_sysCallWrapper;
+        Common::SystemCallWrapper::ISystemCallWrapperSharedPtr m_sysCallWrapper;
         std::string m_processControllerSocketPath;
         std::shared_ptr<common::NotifyPipeSleeper> m_sleeper;
         common::LockableData<bool> sxl4enabled_;

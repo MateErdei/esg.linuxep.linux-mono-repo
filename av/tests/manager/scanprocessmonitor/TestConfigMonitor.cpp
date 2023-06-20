@@ -5,10 +5,10 @@
 #include "common/ThreadRunner.h"
 #include "common/NotifyPipeSleeper.h"
 #include "datatypes/sophos_filesystem.h"
-#include "datatypes/SystemCallWrapper.h"
 #include "manager/scanprocessmonitor/ConfigMonitor.h"
 
-#include "tests/datatypes/MockSysCalls.h"
+#include "Common/Helpers/MockSysCalls.h"
+#include "Common/SystemCallWrapper/SystemCallWrapper.h"
 
 #include <chrono>
 #include <fstream>
@@ -34,7 +34,7 @@ namespace
             fs::create_directories(m_testDir);
             fs::current_path(m_testDir);
 
-            m_systemCallWrapper = std::make_shared<datatypes::SystemCallWrapper>();
+            m_systemCallWrapper = std::make_shared<Common::SystemCallWrapper::SystemCallWrapper>();
 
             m_mockSystemCallWrapper = std::make_shared<StrictMock<MockSystemCallWrapper>>();
         }
@@ -47,7 +47,7 @@ namespace
 
         fs::path m_testDir;
         std::shared_ptr<::testing::StrictMock<MockSystemCallWrapper>> m_mockSystemCallWrapper;
-        datatypes::ISystemCallWrapperSharedPtr m_systemCallWrapper;
+        Common::SystemCallWrapper::ISystemCallWrapperSharedPtr m_systemCallWrapper;
     };
 }
 

@@ -52,7 +52,7 @@ namespace plugin::manager::scanprocessmonitor
 
     ConfigMonitor::ConfigMonitor(
         Common::Threads::NotifyPipe& pipe,
-        datatypes::ISystemCallWrapperSharedPtr systemCallWrapper,
+        Common::SystemCallWrapper::ISystemCallWrapperSharedPtr systemCallWrapper,
         std::string base,
         std::string proxyConfigDirectory) :
         m_configChangedPipe(pipe),
