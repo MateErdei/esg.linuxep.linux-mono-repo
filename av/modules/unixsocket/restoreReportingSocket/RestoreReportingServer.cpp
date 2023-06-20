@@ -9,6 +9,8 @@
 #include "common/SaferStrerror.h"
 #include "common/StringUtils.h"
 
+#include "Common/SystemCallWrapper/SystemCallWrapper.h"
+
 #include <RestoreReport.capnp.h>
 
 #include <capnp/serialize-packed.h>

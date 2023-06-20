@@ -2,7 +2,6 @@
 
 #pragma once
 
-#include "datatypes/SystemCallWrapper.h"
 #include "pluginimpl/IRestoreReportProcessor.h"
 #include "unixsocket/BaseServerSocket.h"
 #include "unixsocket/SocketUtils.h"
