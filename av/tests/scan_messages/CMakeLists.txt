@@ -8,5 +8,6 @@ SophosAddTest(TestScanMessages
         TestThreatDetectedMessages.cpp
         TestThreatDetectedMessages.cpp
         PROJECTS scanmessages
+        INC_DIRS ${testhelpersinclude}
         )
 

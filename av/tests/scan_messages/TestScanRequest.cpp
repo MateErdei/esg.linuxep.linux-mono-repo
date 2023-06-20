@@ -4,7 +4,7 @@
 
 #include <scan_messages/ScanRequest.h>
 
-#include "datatypes/MockSysCalls.h"
+#include "Common/Helpers/MockSysCalls.h"
 
 #include <gtest/gtest.h>
 #include <capnp/message.h>

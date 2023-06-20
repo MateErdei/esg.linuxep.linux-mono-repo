@@ -5,7 +5,8 @@
 #include "ScanType.h"
 
 #include "datatypes/AutoFd.h"
-#include "datatypes/ISystemCallWrapper.h"
+
+#include "Common/SystemCallWrapper/ISystemCallWrapper.h"
 
 #include <memory>
 #include <optional>
@@ -32,7 +33,7 @@ namespace scan_messages
         using pua_exclusions_t = std::vector<std::string>;
 
         ClientScanRequest() = default;
-        ClientScanRequest(datatypes::ISystemCallWrapperSharedPtr sysCalls, datatypes::AutoFd& fd);
+        ClientScanRequest(Common::SystemCallWrapper::ISystemCallWrapperSharedPtr sysCalls, datatypes::AutoFd& fd);
 
         /*
          * Sender side interface - set the fields, then serialise
@@ -84,7 +85,7 @@ namespace scan_messages
         //Not serialised
        datatypes::AutoFd m_autoFd;
 
-       const datatypes::ISystemCallWrapperSharedPtr m_syscalls;
+       const Common::SystemCallWrapper::ISystemCallWrapperSharedPtr m_syscalls;
 
     };
 
