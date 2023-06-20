@@ -1,10 +1,11 @@
-// Copyright 2020-2022, Sophos Limited.  All rights reserved.
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
-#include "datatypes/ISystemCallWrapperFactory.h"
-#include "datatypes/SystemCallWrapper.h"
 #include "mount_monitor/mountinfo/IDeviceUtil.h"
+
+#include "Common/SystemCallWrapper/ISystemCallWrapperFactory.h"
+#include "Common/SystemCallWrapper/SystemCallWrapper.h"
 
 #include <memory>
 #include <string>
@@ -14,8 +15,8 @@ namespace mount_monitor::mountinfoimpl
     class DeviceUtil : public mountinfo::IDeviceUtil
     {
     public:
-        explicit DeviceUtil(const datatypes::ISystemCallWrapperFactorySharedPtr& systemCallWrapperFactory);
-        explicit DeviceUtil(datatypes::ISystemCallWrapperSharedPtr systemCallWrapper);
+        explicit DeviceUtil(const Common::SystemCallWrapper::ISystemCallWrapperFactorySharedPtr& systemCallWrapperFactory);
+        explicit DeviceUtil(Common::SystemCallWrapper::ISystemCallWrapperSharedPtr systemCallWrapper);
 
         /**
          * Determine if the device specified is a floppy drive.
@@ -123,7 +124,7 @@ namespace mount_monitor::mountinfoimpl
          bool isCachable(int fd) override;
 
     private:
-        datatypes::ISystemCallWrapperSharedPtr m_systemCallWrapper;
+        Common::SystemCallWrapper::ISystemCallWrapperSharedPtr m_systemCallWrapper;
     };
 
     using DeviceUtilSharedPtr = std::shared_ptr<DeviceUtil>;

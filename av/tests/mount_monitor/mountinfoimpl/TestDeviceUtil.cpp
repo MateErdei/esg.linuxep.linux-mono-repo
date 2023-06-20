@@ -1,16 +1,17 @@
-// Copyright 2020-2022, Sophos Limited.  All rights reserved.
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #include "mount_monitor/mountinfoimpl/DeviceUtil.h"
-#include "datatypes/SystemCallWrapperFactory.h"
 #include "tests/common/LogInitializedTests.h"
-#include "tests/datatypes/MockSysCalls.h"
+
+#include "Common/Helpers/MockSysCalls.h"
+#include "Common/SystemCallWrapper/SystemCallWrapperFactory.h"
 
 #include <gmock/gmock.h>
 #include <linux/magic.h>
 
 #include <sys/statfs.h>
 
-using namespace datatypes;
+using namespace Common::SystemCallWrapper;
 using namespace mount_monitor::mountinfoimpl;
 
 using ::testing::Return;

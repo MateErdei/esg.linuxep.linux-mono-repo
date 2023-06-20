@@ -6,5 +6,6 @@ SophosAddTest(TestMountInfoImpl
         TestSystemPaths.cpp
         PROJECTS mountinfoimpl
         LIBS ${STD_FILESYSTEM_IF_REQUIRED}
+        INC_DIRS ${testhelpersinclude}
         )
 

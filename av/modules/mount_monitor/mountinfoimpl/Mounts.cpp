@@ -1,11 +1,9 @@
-// Copyright 2020-2022, Sophos Limited.  All rights reserved.
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #include "Mounts.h"
 
 #include "Drive.h"
 #include "Logger.h"
-
-#include "datatypes/SystemCallWrapperFactory.h"
 
 #include "Common/UtilityImpl/StringUtils.h"
 

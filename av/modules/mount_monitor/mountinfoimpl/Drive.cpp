@@ -1,20 +1,17 @@
-// Copyright 2022, Sophos Limited.  All rights reserved.
+// Copyright 2022-2023 Sophos Limited. All rights reserved.
 
 #include "Drive.h"
 
-#include "Logger.h"
-
-#include "datatypes/SystemCallWrapperFactory.h"
-
+#include "Common/SystemCallWrapper/SystemCallWrapperFactory.h"
 #include "Common/UtilityImpl/StringUtils.h"
 
 #include <stdexcept>
 
 using namespace mount_monitor::mountinfoimpl;
 
-static datatypes::ISystemCallWrapperSharedPtr createSystemCallWrapper()
+static Common::SystemCallWrapper::ISystemCallWrapperSharedPtr createSystemCallWrapper()
 {
-    static auto factory = std::make_shared<datatypes::SystemCallWrapperFactory>();
+    static auto factory = std::make_shared<Common::SystemCallWrapper::SystemCallWrapperFactory>();
     return factory->createSystemCallWrapper();
 }
 

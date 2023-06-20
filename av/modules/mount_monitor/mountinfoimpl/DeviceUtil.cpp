@@ -1,4 +1,4 @@
-// Copyright 2020-2022, Sophos Limited.  All rights reserved.
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #include "DeviceUtil.h"
 
@@ -19,7 +19,7 @@ extern "C"
 }
 
 using namespace mount_monitor::mountinfoimpl;
-using namespace datatypes;
+using namespace Common::SystemCallWrapper;
 
 DeviceUtil::DeviceUtil(const ISystemCallWrapperFactorySharedPtr& systemCallWrapperFactory)
 : DeviceUtil(systemCallWrapperFactory->createSystemCallWrapper())
