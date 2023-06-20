@@ -1,4 +1,4 @@
-// Copyright 2020-2022, Sophos Limited.  All rights reserved.
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
@@ -9,9 +9,10 @@
 #include "Common/Threads/AbstractThread.h"
 #include "Common/Threads/NotifyPipe.h"
 
-#include <datatypes/AutoFd.h>
-#include <datatypes/ISystemCallWrapper.h>
-#include <scan_messages/ThreatDetected.h>
+#include "datatypes/AutoFd.h"
+#include "scan_messages/ThreatDetected.h"
+
+#include "Common/SystemCallWrapper/ISystemCallWrapper.h"
 
 #include <cstdint>
 #include <string>
@@ -26,7 +27,7 @@ namespace unixsocket
         explicit ProcessControllerServerConnectionThread(
             datatypes::AutoFd& fd,
             std::shared_ptr<IProcessControlMessageCallback> processControlCallback,
-            datatypes::ISystemCallWrapperSharedPtr sysCalls
+            Common::SystemCallWrapper::ISystemCallWrapperSharedPtr sysCalls
             );
 
         void run() override;
@@ -36,7 +37,7 @@ namespace unixsocket
 
         datatypes::AutoFd m_fd;
         std::shared_ptr<IProcessControlMessageCallback> m_controlMessageCallback;
-        datatypes::ISystemCallWrapperSharedPtr m_sysCalls;
+        Common::SystemCallWrapper::ISystemCallWrapperSharedPtr m_sysCalls;
     };
 }
 

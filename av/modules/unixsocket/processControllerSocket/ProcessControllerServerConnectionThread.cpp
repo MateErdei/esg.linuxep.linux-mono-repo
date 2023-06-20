@@ -23,7 +23,7 @@ using namespace unixsocket;
 
 ProcessControllerServerConnectionThread::ProcessControllerServerConnectionThread(datatypes::AutoFd& fd,
                                                                                  std::shared_ptr<IProcessControlMessageCallback> processControlCallback,
-                                                                                 datatypes::ISystemCallWrapperSharedPtr sysCalls)
+                                                                                 Common::SystemCallWrapper::ISystemCallWrapperSharedPtr  sysCalls)
     : BaseServerConnectionThread("ProcessControllerServerConnectionThread")
     , m_fd(std::move(fd))
     , m_controlMessageCallback(std::move(processControlCallback))

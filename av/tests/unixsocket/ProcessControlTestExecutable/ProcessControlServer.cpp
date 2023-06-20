@@ -1,12 +1,12 @@
-// Copyright 2021-2022, Sophos Limited.  All rights reserved.
+// Copyright 2021-2023 Sophos Limited. All rights reserved.
 
 #include "datatypes/Print.h"
-#include "datatypes/SystemCallWrapper.h"
 #include "unixsocket/SocketUtilsImpl.h"
 #include "unixsocket/processControllerSocket/ProcessControllerServerSocket.h"
 #include "scan_messages/ProcessControlSerialiser.h"
 
 #include "Common/Logging/ConsoleLoggingSetup.h"
+#include "Common/SystemCallWrapper/SystemCallWrapper.h"
 
 #include <cstring>
 #include <fstream>
@@ -50,7 +50,7 @@ static int DoSomethingWithData(const uint8_t *Data, size_t Size)
     //start a process controller socket
 
     auto callback = std::make_shared<MockCallback>();
-    auto sysCalls = std::make_shared<datatypes::SystemCallWrapper>();
+    auto sysCalls = std::make_shared<Common::SystemCallWrapper::SystemCallWrapper>();
     unixsocket::ProcessControllerServerConnectionThread connectionThread(serverFd, callback, sysCalls);
     connectionThread.start();
 

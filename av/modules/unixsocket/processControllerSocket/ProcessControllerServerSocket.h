@@ -2,9 +2,10 @@
 
 #pragma once
 
-#include "datatypes/SystemCallWrapper.h"
 #include "unixsocket/BaseServerSocket.h"
 #include "ProcessControllerServerConnectionThread.h"
+
+#include "Common/SystemCallWrapper/SystemCallWrapper.h"
 
 namespace unixsocket
 {
@@ -29,7 +30,7 @@ namespace unixsocket
     protected:
         TPtr makeThread(datatypes::AutoFd& fd) override
         {
-            auto sysCalls = std::make_shared<datatypes::SystemCallWrapper>();
+            auto sysCalls = std::make_shared<Common::SystemCallWrapper::SystemCallWrapper>();
             return std::make_unique<ProcessControllerServerConnectionThread>(fd, m_processControlCallback, sysCalls);
         }
         void logMaxConnectionsError() override
