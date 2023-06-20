@@ -169,9 +169,10 @@ def robot_task_with_env(machine: tap.Machine, include_tag: str, robot_args: str 
 
 
 @tap.timeout(task_timeout=120)
-def robot_task(machine: tap.Machine, include_tag: str, robot_args: str):
+def robot_task(machine: tap.Machine, include_tag: str, robot_args: str, machine_name=None):
+    print("robot_task for", machine_name, id(machine))
     install_requirements(machine)
-    robot_task_with_env(machine, include_tag, robot_args)
+    robot_task_with_env(machine, include_tag, robot_args, machine_name=machine_name)
 
 
 def pytest_task_with_env(machine: tap.Machine, environment=None):
