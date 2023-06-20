@@ -386,7 +386,10 @@ def Send_Download_File_From_Fake_Cloud(decompress=False, targetPath="/tmp/folder
 def Send_Download_File_From_Fake_Cloud_NotZip():
     with open("/tmp/download.txt", 'w') as f:
         f.write("content")
-        readable_hash = hashlib.sha256(f.read()).hexdigest()
+
+    with open("/tmp/download.txt", 'rb') as tf:
+        contents = tf.read()
+        readable_hash = hashlib.sha256(contents).hexdigest()
 
     action_dict = {"type": "sophos.mgt.action.DownloadFile",
                    "url": "https://localhost:443/download",
