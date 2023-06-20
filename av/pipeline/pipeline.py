@@ -89,7 +89,8 @@ def get_suffix():
     return "-" + BRANCH_NAME
 
 
-def robot_task_with_env(machine: tap.Machine, include_tag: str, robot_args: str = None, environment=None, machine_name=None):
+def robot_task_with_env(machine: tap.Machine, include_tag: str, robot_args: str = None, environment=None,
+                        machine_name: str=None):
     if machine_name is None:
         machine_name = machine.template
 
@@ -169,7 +170,7 @@ def robot_task_with_env(machine: tap.Machine, include_tag: str, robot_args: str 
 
 
 @tap.timeout(task_timeout=120)
-def robot_task(machine: tap.Machine, include_tag: str, robot_args: str, machine_name=None):
+def robot_task(machine: tap.Machine, include_tag: str, robot_args: str, machine_name: str = None):
     print("robot_task for", machine_name, id(machine))
     install_requirements(machine)
     robot_task_with_env(machine, include_tag, robot_args, machine_name=machine_name)
