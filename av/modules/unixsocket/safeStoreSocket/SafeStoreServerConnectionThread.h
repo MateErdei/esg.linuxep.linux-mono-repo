@@ -1,4 +1,4 @@
-// Copyright 2022, Sophos Limited.  All rights reserved.
+// Copyright 2022-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
@@ -7,12 +7,13 @@
 #include "Common/Threads/AbstractThread.h"
 #include "Common/Threads/NotifyPipe.h"
 #include "datatypes/AutoFd.h"
-#include <datatypes/ISystemCallWrapper.h>
 #include "safestore/QuarantineManager/IQuarantineManager.h"
 #include "scan_messages/ThreatDetected.h"
 #include "scan_messages/QuarantineResponse.h"
 #include "unixsocket/BaseServerConnectionThread.h"
 #include "unixsocket/IMessageCallback.h"
+
+#include "Common/SystemCallWrapper/SystemCallWrapper.h"
 
 #include <cstdint>
 #include <string>
@@ -27,7 +28,7 @@ namespace unixsocket
         explicit SafeStoreServerConnectionThread(
             datatypes::AutoFd& fd,
             std::shared_ptr<safestore::QuarantineManager::IQuarantineManager> quarantineManager,
-            datatypes::ISystemCallWrapperSharedPtr sysCalls);
+            Common::SystemCallWrapper::ISystemCallWrapperSharedPtr sysCalls);
         void run() override;
 
     private:
@@ -35,6 +36,6 @@ namespace unixsocket
 
         datatypes::AutoFd m_fd;
         std::shared_ptr<safestore::QuarantineManager::IQuarantineManager> m_quarantineManager;
-        datatypes::ISystemCallWrapperSharedPtr m_sysCalls;
+        Common::SystemCallWrapper::ISystemCallWrapperSharedPtr m_sysCalls;
     };
 } // namespace unixsocket

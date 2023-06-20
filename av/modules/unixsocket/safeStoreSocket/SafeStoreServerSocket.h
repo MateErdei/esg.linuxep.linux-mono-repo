@@ -1,12 +1,13 @@
-// Copyright 2022, Sophos Limited.  All rights reserved.
+// Copyright 2022-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
 #include "SafeStoreServerConnectionThread.h"
 
-#include "datatypes/SystemCallWrapper.h"
 #include "safestore/QuarantineManager/IQuarantineManager.h"
 #include "unixsocket/BaseServerSocket.h"
+
+#include "Common/SystemCallWrapper/SystemCallWrapper.h"
 
 namespace unixsocket
 {
@@ -23,7 +24,7 @@ namespace unixsocket
     protected:
         TPtr makeThread(datatypes::AutoFd& fd) override
         {
-            auto sysCalls = std::make_shared<datatypes::SystemCallWrapper>();
+            auto sysCalls = std::make_shared<Common::SystemCallWrapper::SystemCallWrapper>();
             return std::make_unique<SafeStoreServerConnectionThread>(fd, m_quarantineManager, sysCalls);
         }
 
