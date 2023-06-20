@@ -1,3 +1,4 @@
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 /******************************************************************************************************
 
 Copyright 2020-2022, Sophos Limited.  All rights reserved.
@@ -10,8 +11,8 @@ Copyright 2020-2022, Sophos Limited.  All rights reserved.
 #include "datatypes/sophos_filesystem.h"
 #include "modules/manager/scanprocessmonitor/ScanProcessMonitor.h"
 #include "ScanProcessMonitorMemoryAppenderUsingTests.h"
-#include "tests/datatypes/MockSysCalls.h"
 
+#include "Common/Helpers/MockSysCalls.h"
 #include <Common/Threads/AbstractThread.h>
 
 #include <fstream>
@@ -33,7 +34,7 @@ namespace
             fs::remove_all(m_testDir);
             fs::create_directories(m_testDir);
             fs::current_path(m_testDir);
-            m_systemCallWrapper = std::make_shared<datatypes::SystemCallWrapper>();
+            m_systemCallWrapper = std::make_shared<Common::SystemCallWrapper::SystemCallWrapper>();
 
         }
 
@@ -44,7 +45,7 @@ namespace
         }
 
         fs::path m_testDir;
-        datatypes::ISystemCallWrapperSharedPtr m_systemCallWrapper;
+        Common::SystemCallWrapper::ISystemCallWrapperSharedPtr m_systemCallWrapper;
     };
 }
 
