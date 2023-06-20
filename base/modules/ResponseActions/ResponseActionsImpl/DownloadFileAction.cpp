@@ -491,6 +491,12 @@ namespace ResponseActionsImpl
             LOGWARN(error.str());
             ActionsUtils::setErrorInfo(m_response, 1, error.str(), "invalid_archive");
         }
+        else if (unzipReturn == -10)
+        {
+            error << "filetype not zip file";
+            LOGWARN(error.str());
+            ActionsUtils::setErrorInfo(m_response, 1, error.str(), "invalid_filetype");
+        }
         else
         {
             error << "error no " << unzipReturn;
