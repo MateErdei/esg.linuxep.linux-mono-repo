@@ -106,6 +106,8 @@ elif [[ -x $(which zypper) ]]
 then
     # Wait up to 10 minutes to get lock
     export ZYPP_LOCK_TIMEOUT=600
+    # Allow services to get established
+    sleep 45s
     # Retry 10 times before timeout
     for (( i=0; i<10; i++ ))
     do
@@ -116,6 +118,43 @@ then
         else
             echo "sleeping for 4"
             sleep 4
+        fi
+    done
+
+    # Check registration
+    SUSEConnect --status-text
+    echo LOG cloudregister:
+    tail -n 5 /var/log/cloudregister
+    echo LOG cloud-init:
+    tail -n 5 /var/log/cloud-init.log
+
+    # Manage failed registration with retry
+    for (( i=0; i<5; i++ ))
+    do
+        if grep -i "ERROR:	Registration failed:" /var/log/cloudregister
+        then
+            if grep -i "INFO:No current registration server set" /var/log/cloudregister
+            then
+                # Deregister
+                echo LOG Deregister from SUSE
+                registercloudguest --clean
+                sleep 10s
+                mv /var/log/cloudregister /var/log/cloudregister.FAIL
+                mv /var/log/cloud-init.log /var/log/cloud-init.FAIL
+
+                # Register again
+                echo LOG Reregister with SUSE
+                registercloudguest --force-new
+                # Allow services to get established
+                sleep 60s
+
+                # Check registration
+                SUSEConnect --status-text
+                echo LOG cloudregister:
+                tail -n 5 /var/log/cloudregister
+            fi
+        else
+            break
         fi
     done
 
