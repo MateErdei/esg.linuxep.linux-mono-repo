@@ -32,6 +32,26 @@ def is_redhat_based(machine: tap.Machine):
     return machine.template.startswith("centos")
 
 
+def include_cifs_for_machine_name(name: str, template):
+    return True
+
+
+def include_ntfs_for_machine_name(name: str, template):
+    no_ntfs = (
+        'amazonlinux2023',
+        'oracle7',
+        'oracle8',
+        'rhel7',
+        'rhel8',
+        'rhel9',
+        'sles12',
+        'sles15'
+    )
+    if name in no_ntfs:
+        return False
+    return True
+
+
 def pip(machine: tap.Machine):
     return "pip3"
 
@@ -90,19 +110,19 @@ def robot_task_with_env(machine: tap.Machine, include_tag: str, robot_args: str 
         sspl_name = getattr(machine, "sspl_name", "unknown")
         install_command = ['bash', machine.inputs.test_scripts / "bin/install_os_packages.sh"]
 
-        if not cifs:
-            print("CIFS disabled:", sspl_name, cifs)
+        if cifs and include_cifs_for_machine_name(machine_name, machine.template):
+            print("CIFS enabled:", machine_name, sspl_name, cifs, id(machine))
+        else:
+            print("CIFS disabled:", machine_name, sspl_name, cifs, id(machine))
             robot_exclusion_tags.append("cifs")
             install_command.append("--without-cifs")
-        else:
-            print("CIFS enabled:", machine_name, sspl_name, cifs, id(machine))
 
-        if not ntfs:
-            print("NTFS disabled:", sspl_name, ntfs)
+        if ntfs and include_ntfs_for_machine_name(machine_name, machine.template):
+            print("NTFS enabled:", machine_name, sspl_name, ntfs, id(machine))
+        else:
+            print("NTFS disabled:", machine_name, sspl_name, ntfs, id(machine))
             robot_exclusion_tags.append("ntfs")
             install_command.append("--without-ntfs")
-        else:
-            print("NTFS enabled:", machine_name, sspl_name, ntfs, id(machine))
 
         machine.run(*install_command)
 
@@ -417,26 +437,12 @@ def get_test_machines(test_inputs, parameters: tap.Parameters):
     if parameters.run_ubuntu_22_04 != "false":
         test_environments['ubuntu2204'] = 'ubuntu2204_x64_aws_server_en_us'
 
-    no_cifs = (
-    )
-
-    no_ntfs = (
-        'amazonlinux2023',
-        'oracle7',
-        'oracle8',
-        'rhel7',
-        'rhel8',
-        'rhel9',
-        'sles12',
-        'sles15'
-    )
-
     ret = []
     for name, image in test_environments.items():
         machine = tap.Machine(image, inputs=test_inputs, platform=tap.Platform.Linux)
-        machine.cifs_supported = name not in no_cifs
+        machine.cifs_supported = include_cifs_for_machine_name(name, image)
         print("CIFS for Machine:", name, machine.cifs_supported, id(machine))
-        machine.ntfs_supported = name not in no_ntfs
+        machine.ntfs_supported = include_ntfs_for_machine_name(name, image)
         print("NTFS for Machine:", name, machine.ntfs_supported, id(machine))
         machine.sspl_name = name
         ret.append((name, machine))
