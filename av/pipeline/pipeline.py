@@ -95,14 +95,14 @@ def robot_task_with_env(machine: tap.Machine, include_tag: str, robot_args: str 
             robot_exclusion_tags.append("cifs")
             install_command.append("--without-cifs")
         else:
-            print("CIFS enabled:", sspl_name, cifs, id(machine))
+            print("CIFS enabled:", machine_name, sspl_name, cifs, id(machine))
 
         if not ntfs:
             print("NTFS disabled:", sspl_name, ntfs)
             robot_exclusion_tags.append("ntfs")
             install_command.append("--without-ntfs")
         else:
-            print("NTFS enabled:", sspl_name, ntfs, id(machine))
+            print("NTFS enabled:", machine_name, sspl_name, ntfs, id(machine))
 
         machine.run(*install_command)
 
@@ -559,13 +559,14 @@ def av_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
                         with stage.parallel("integration"):
                             for (name, machine) in get_test_machines(test_inputs, parameters):
                                 stage.task(task_name=name, func=robot_task, machine=machine,
-                                           robot_args=robot_args, include_tag="")
+                                           robot_args=robot_args, include_tag="", machine_name=name)
                     else:
                         for include in include_tag.split():
                             with stage.parallel(include):
                                 for (name, machine) in get_test_machines(test_inputs, parameters):
+                                    print("C", include, name, id(machine))
                                     stage.task(task_name=name, func=robot_task, machine=machine,
-                                               include_tag=include, robot_args="")
+                                               include_tag=include, robot_args="", machine_name=name)
 
                 with stage.parallel('pytest'):
                     with stage.parallel('component'):
