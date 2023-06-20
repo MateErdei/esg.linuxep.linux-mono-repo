@@ -493,7 +493,7 @@ namespace ResponseActionsImpl
         }
         else if (unzipReturn == -10)
         {
-            error << "filetype not zip file";
+            error << "expected zip file- file found was not a zip file";
             LOGWARN(error.str());
             ActionsUtils::setErrorInfo(m_response, 1, error.str(), "invalid_filetype");
         }
