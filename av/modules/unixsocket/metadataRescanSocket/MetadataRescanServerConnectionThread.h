@@ -5,7 +5,6 @@
 #define AUTO_FD_IMPLICIT_INT
 
 #include "datatypes/AutoFd.h"
-#include "datatypes/ISystemCallWrapper.h"
 #include "scan_messages/MetadataRescan.h"
 #include "scan_messages/ScanRequest.h"
 #include "scan_messages/ScanResponse.h"
@@ -13,6 +12,7 @@
 #include "unixsocket/BaseServerConnectionThread.h"
 #include "unixsocket/IMessageCallback.h"
 
+#include "Common/SystemCallWrapper/ISystemCallWrapper.h"
 #include "Common/Threads/AbstractThread.h"
 
 #include <cstdint>
@@ -28,7 +28,7 @@ namespace unixsocket
         explicit MetadataRescanServerConnectionThread(
             datatypes::AutoFd& fd,
             threat_scanner::IThreatScannerFactorySharedPtr scannerFactory,
-            datatypes::ISystemCallWrapperSharedPtr sysCalls,
+            Common::SystemCallWrapper::ISystemCallWrapperSharedPtr sysCalls,
             int maxIterations = -1);
         void run() override;
 
@@ -38,7 +38,7 @@ namespace unixsocket
 
         datatypes::AutoFd m_socketFd;
         threat_scanner::IThreatScannerFactorySharedPtr m_scannerFactory;
-        datatypes::ISystemCallWrapperSharedPtr m_sysCalls;
+        Common::SystemCallWrapper::ISystemCallWrapperSharedPtr m_sysCalls;
         int m_maxIterations;
     };
 } // namespace unixsocket

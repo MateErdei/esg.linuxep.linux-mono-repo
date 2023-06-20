@@ -24,7 +24,7 @@ namespace unixsocket
     MetadataRescanServerConnectionThread::MetadataRescanServerConnectionThread(
         datatypes::AutoFd& fd,
         threat_scanner::IThreatScannerFactorySharedPtr scannerFactory,
-        datatypes::ISystemCallWrapperSharedPtr sysCalls,
+        Common::SystemCallWrapper::ISystemCallWrapperSharedPtr  sysCalls,
         int maxIterations) :
         BaseServerConnectionThread("MetadataRescanServerConnectionThread"),
         m_socketFd(std::move(fd)),
