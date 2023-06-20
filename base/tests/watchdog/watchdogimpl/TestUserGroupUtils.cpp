@@ -553,6 +553,7 @@ TEST_F(TestUserGroupUtils, validateUserAndGroupIdsRemovesDuplicateIdsWhenThereAr
 TEST_F(TestUserGroupUtils, changeUserId)
 {
     mockExecUserOrGroupIdChange("/usr/sbin/usermod", "-u", "999", "user");
+    enableMocks();
     EXPECT_NO_THROW(changeUserId("user", 999));
 }
 
@@ -599,6 +600,7 @@ TEST_F(TestUserGroupUtils, changeUserIdThrowsWhenCommandIsStillRunningAfterWait)
 TEST_F(TestUserGroupUtils, changeGroupId)
 {
     mockExecUserOrGroupIdChange("/usr/sbin/groupmod", "-g", "998", "group");
+    enableMocks();
     EXPECT_NO_THROW(changeGroupId("group", 998));
 }
 
