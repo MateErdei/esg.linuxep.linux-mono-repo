@@ -24,7 +24,7 @@ done
 
 if [[ -x $(which apt) ]]
 then
-    PACKAGES="nfs-kernel-server zip unzip gdb util-linux bfs libguestfs-reiserfs netcat"
+    PACKAGES="nfs-kernel-server zip unzip gdb util-linux bfs libguestfs-reiserfs netcat rsync"
     (( CIFS == 0 )) || PACKAGES="samba $PACKAGES"
     (( NTFS == 0 )) || PACKAGES="ntfs-3g $PACKAGES"
 
