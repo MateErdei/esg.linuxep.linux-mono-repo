@@ -2,6 +2,8 @@
 
 #include "FilePermissionsImpl.h"
 
+#include "Common/FileSystem/IFileNotFoundException.h"
+
 #include <Common/FileSystem/IFilePermissions.h>
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/FileSystem/IFileSystemException.h>
@@ -367,7 +369,7 @@ namespace Common::FileSystem
         if (!FileSystem::fileSystem()->exists(path))
         {
             errorMessage << path << " does not exist";
-            throw FileSystem::IFileSystemException(errorMessage.str());
+            throw FileSystem::IFileNotFoundException(errorMessage.str());
         }
         struct stat statbuf;
         // Using lstat as we want the UID of the file but do not want to follow the symlink incase this has already been

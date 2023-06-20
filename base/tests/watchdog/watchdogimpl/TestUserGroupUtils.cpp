@@ -1,6 +1,7 @@
 // Copyright 2023 Sophos Limited. All rights reserved.
 
 #include "ApplicationConfigurationImpl/ApplicationPathManager.h"
+#include "FileSystem/IFileNotFoundException.h"
 #include "FileSystem/IFileSystemException.h"
 #include "ProcessImpl/ProcessImpl.h"
 #include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
@@ -654,8 +655,7 @@ TEST_F(TestUserGroupUtils, remapUserIdHandlesTransientFiles)
     EXPECT_CALL(*m_mockFileSystemPtr, isFile(rootPath)).WillOnce(Return(false));
     EXPECT_CALL(*m_mockFileSystemPtr, isDirectory(rootPath)).WillOnce(Return(true));
     EXPECT_CALL(*m_mockFileSystemPtr, listAllFilesAndDirsInDirectoryTree(rootPath)).WillOnce(Return(files));
-    EXPECT_CALL(*m_mockFilePermissionsPtr, getUserIdOfDirEntry(_)).WillRepeatedly(Throw(Common::FileSystem::IFileSystemException("File does not exist")));
-    EXPECT_CALL(*m_mockFileSystemPtr, exists("file1")).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFilePermissionsPtr, getUserIdOfDirEntry(_)).WillRepeatedly(Throw(Common::FileSystem::IFileNotFoundException("File does not exist")));
     enableMocks();
 
     EXPECT_NO_THROW(remapUserIdOfFiles(rootPath, currentUserId, newUserId));
@@ -673,8 +673,7 @@ TEST_F(TestUserGroupUtils, remapGroupIdHandlesTransientFiles)
     EXPECT_CALL(*m_mockFileSystemPtr, isFile(rootPath)).WillOnce(Return(false));
     EXPECT_CALL(*m_mockFileSystemPtr, isDirectory(rootPath)).WillOnce(Return(true));
     EXPECT_CALL(*m_mockFileSystemPtr, listAllFilesAndDirsInDirectoryTree(rootPath)).WillOnce(Return(files));
-    EXPECT_CALL(*m_mockFilePermissionsPtr, getGroupIdOfDirEntry(_)).WillRepeatedly(Throw(Common::FileSystem::IFileSystemException("File does not exist")));
-    EXPECT_CALL(*m_mockFileSystemPtr, exists("file1")).WillOnce(Return(false));
+    EXPECT_CALL(*m_mockFilePermissionsPtr, getGroupIdOfDirEntry(_)).WillRepeatedly(Throw(Common::FileSystem::IFileNotFoundException("File does not exist")));
     enableMocks();
 
     EXPECT_NO_THROW(remapGroupIdOfFiles(rootPath, currentUserId, newUserId));

@@ -6,6 +6,7 @@
 #include "IProcessException.h"
 
 #include "ApplicationConfigurationImpl/ApplicationPathManager.h"
+#include "FileSystem/IFileNotFoundException.h"
 #include "FileSystem/IFilePermissions.h"
 #include "FileSystem/IFileSystem.h"
 #include "FileSystem/IFileSystemException.h"
@@ -354,16 +355,13 @@ namespace watchdog::watchdogimpl
                         setUserIdOfFile(entry, newUserId);
                     }
                 }
+                catch (const Common::FileSystem::IFileNotFoundException& exception)
+                {
+                    LOGDEBUG("Failed to remap user ID of " << entry << " to " << newUserId << " because the file no longer exists");
+                }
                 catch (const Common::FileSystem::IFileSystemException& exception)
                 {
-                    if (fs->exists(entry))
-                    {
-                        LOGERROR("Failed to remap user ID of " << entry << " to " << newUserId << " due to: " << exception.what());
-                    }
-                    else
-                    {
-                        LOGDEBUG("Failed to remap user ID of " << entry << " to " << newUserId << " because the file no longer exists");
-                    }
+                    LOGERROR("Failed to remap user ID of " << entry << " to " << newUserId << " due to: " << exception.what());
                 }
             }
         }
@@ -396,16 +394,13 @@ namespace watchdog::watchdogimpl
                         setGroupIdOfFile(entry, newGroupId);
                     }
                 }
+                catch (const Common::FileSystem::IFileNotFoundException& exception)
+                {
+                    LOGDEBUG("Failed to remap group ID of " << entry << " to " << newGroupId << " because the file no longer exists");
+                }
                 catch (const Common::FileSystem::IFileSystemException& exception)
                 {
-                    if (fs->exists(entry))
-                    {
-                        LOGERROR("Failed to remap group ID of " << entry << " to " << newGroupId << " due to: " << exception.what());
-                    }
-                    else
-                    {
-                        LOGDEBUG("Failed to remap group ID of " << entry << " to " << newGroupId << " because the file no longer exists");
-                    }
+                    LOGERROR("Failed to remap group ID of " << entry << " to " << newGroupId << " due to: " << exception.what());
                 }
             }
         }
