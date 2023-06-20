@@ -1,13 +1,14 @@
-// Copyright 2022-2023, Sophos Limited.  All rights reserved.
+// Copyright 2022-2023 Sophos Limited. All rights reserved.
 
 #include "SoapdResources.h"
 
 #include "OnAccessRunner.h"
 
 #include "common/PidLockFile.h"
-#include "datatypes/SystemCallWrapper.h"
 #include "unixsocket/processControllerSocket/ProcessControllerServerSocket.h"
 #include "unixsocket/updateCompleteSocket/UpdateCompleteClientSocketThread.h"
+
+#include "Common/SystemCallWrapper/SystemCallWrapper.h"
 
 using namespace sophos_on_access_process;
 using namespace sophos_on_access_process::soapd_bootstrap;
@@ -18,9 +19,9 @@ std::unique_ptr<common::IPidLockFile> SoapdResources::getPidLockFile(const std::
     return std::make_unique<common::PidLockFile>(pidfile, changePidGroup);
 }
 
-datatypes::ISystemCallWrapperSharedPtr SoapdResources::getSystemCallWrapper()
+Common::SystemCallWrapper::ISystemCallWrapperSharedPtr SoapdResources::getSystemCallWrapper()
 {
-    return std::make_shared<datatypes::SystemCallWrapper>();
+    return std::make_shared<Common::SystemCallWrapper::SystemCallWrapper>();
 }
 
 service_impl::IOnAccessServicePtr SoapdResources::getOnAccessServiceImpl()
@@ -46,7 +47,7 @@ std::shared_ptr<common::AbstractThreadPluginInterface> SoapdResources::getProces
 }
 
 std::shared_ptr<IOnAccessRunner> SoapdResources::getOnAccessRunner(
-    datatypes::ISystemCallWrapperSharedPtr sysCallWrapper,
+    Common::SystemCallWrapper::ISystemCallWrapperSharedPtr sysCallWrapper,
     onaccessimpl::onaccesstelemetry::IOnAccessTelemetryUtilitySharedPtr telemetryUtility)
 {
     return std::make_shared<OnAccessRunner>(sysCallWrapper, telemetryUtility);

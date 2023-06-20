@@ -8,9 +8,9 @@
 
 #include "Common/Helpers/FileSystemReplaceAndRestore.h"
 #include "Common/Helpers/MockFileSystem.h"
+#include "Common/Helpers/MockSysCalls.h"
 
 #include "tests/common/LogInitializedTests.h"
-#include "tests/datatypes/MockSysCalls.h"
 
 #include <gtest/gtest.h>
 
@@ -49,7 +49,7 @@ namespace
             m_binaryFile = std::string{"\x00\x72\x6c\x5f\x69\x6e\x69\x74\x69\x61\x6c\x69\x7a\x65\x5f\x66\x75\x6e\x6d\x61"
                                       "\x70\x00\x72\x6c\x5f\x63\x6f\x6d\x70\x6c\x65\x74\x69\x6f\x6e\x5f\x73\x75\x70\x70\x72"
                                       "\x65\x73\x73\x5f\x71\x75\x6f\x74\x65\x00\x73\x75\x62\x73\x68\x65\x6c\x6c\x5f", 120};
-            m_sysCallWrapper = std::make_shared<datatypes::SystemCallWrapper>();
+            m_sysCallWrapper = std::make_shared<Common::SystemCallWrapper::SystemCallWrapper>();
             m_mockSysCallWrapper = std::make_shared<NiceMock<MockSystemCallWrapper>>();
         }
 
@@ -71,13 +71,13 @@ namespace
         std::string m_localSettingsNotUsedMessage;
         std::unique_ptr<StrictMock<MockFileSystem>> m_mockIFileSystemPtr;
         std::vector<common::Exclusion> m_defaultTestExclusions;
-        std::shared_ptr<datatypes::SystemCallWrapper> m_sysCallWrapper;
+        std::shared_ptr<Common::SystemCallWrapper::SystemCallWrapper> m_sysCallWrapper;
         std::shared_ptr<NiceMock<MockSystemCallWrapper>> m_mockSysCallWrapper;
         //hardware_concurrency syscall default return value will result in defaultThreads below
         const int m_defaultThreads = 5;
     };
 
-    void readLocalSettingsFile(size_t& maxScanQueueSize, int& numScanThreads, bool& dumpPerfData, const std::shared_ptr<datatypes::ISystemCallWrapper>& sysCalls)
+    void readLocalSettingsFile(size_t& maxScanQueueSize, int& numScanThreads, bool& dumpPerfData, const Common::SystemCallWrapper::ISystemCallWrapperSharedPtr & sysCalls)
     {
         auto settings = sophos_on_access_process::OnAccessConfig::readLocalSettingsFile(sysCalls);
         maxScanQueueSize = settings.maxScanQueueSize;

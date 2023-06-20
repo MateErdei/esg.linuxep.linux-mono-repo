@@ -34,6 +34,6 @@ TEST_PUBLIC:
 
         ISoapdResources& m_soapdResources;
 
-        datatypes::ISystemCallWrapperSharedPtr m_sysCallWrapper;
+        Common::SystemCallWrapper::ISystemCallWrapperSharedPtr  m_sysCallWrapper;
     };
 }

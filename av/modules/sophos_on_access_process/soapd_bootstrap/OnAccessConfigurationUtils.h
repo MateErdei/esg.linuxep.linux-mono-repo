@@ -1,12 +1,13 @@
-// Copyright 2022 Sophos Limited. All rights reserved.
+// Copyright 2022-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
 #include "common/Exclusion.h"
-#include "datatypes/ISystemCallWrapper.h"
 #include "datatypes/sophos_filesystem.h"
 #include "sophos_on_access_process/local_settings/OnAccessProductConfigDefaults.h"
 #include "sophos_on_access_process/local_settings/OnAccessLocalSettings.h"
+
+#include "Common/SystemCallWrapper/ISystemCallWrapper.h"
 
 #include <string>
 #include <vector>
@@ -41,9 +42,9 @@ namespace sophos_on_access_process::OnAccessConfig
     std::string readPolicyConfigFile();
     bool parseOnAccessPolicySettingsFromJson(const std::string& jsonString, OnAccessConfiguration& oaConfig);
     std::string readFlagConfigFile();
-    OnAccessLocalSettings readLocalSettingsFile(const std::shared_ptr<datatypes::ISystemCallWrapper>& sysCalls);
+    OnAccessLocalSettings readLocalSettingsFile(const std::shared_ptr<Common::SystemCallWrapper::ISystemCallWrapper>& sysCalls);
 
     bool parseFlagConfiguration(const std::string& jsonString);
-    int numberOfThreadsFromConcurrency(const std::shared_ptr<datatypes::ISystemCallWrapper>& sysCalls);
+    int numberOfThreadsFromConcurrency(const std::shared_ptr<Common::SystemCallWrapper::ISystemCallWrapper>& sysCalls);
     bool isSettingTrue(const std::string& settingString);
 }

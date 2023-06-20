@@ -1,4 +1,4 @@
-// Copyright 2023, Sophos Limited.  All rights reserved.
+// Copyright 2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
@@ -7,9 +7,10 @@
 
 #include "common/AbstractThreadPluginInterface.h"
 #include "common/IPidLockFile.h"
-#include "datatypes/ISystemCallWrapper.h"
 #include "sophos_threat_detector/threat_scanner/IUpdateCompleteCallback.h"
 #include "unixsocket/processControllerSocket/IProcessControlMessageCallback.h"
+
+#include "Common/SystemCallWrapper/ISystemCallWrapper.h"
 
 namespace sophos_on_access_process::soapd_bootstrap
 {
@@ -22,7 +23,7 @@ namespace sophos_on_access_process::soapd_bootstrap
             const std::string& pidfile,
             bool changePidGroup) = 0;
 
-        virtual datatypes::ISystemCallWrapperSharedPtr getSystemCallWrapper() = 0;
+        virtual Common::SystemCallWrapper::ISystemCallWrapperSharedPtr getSystemCallWrapper() = 0;
         virtual service_impl::IOnAccessServicePtr getOnAccessServiceImpl() = 0;
 
         virtual std::shared_ptr<common::AbstractThreadPluginInterface> getUpdateClient(
@@ -37,7 +38,7 @@ namespace sophos_on_access_process::soapd_bootstrap
             std::shared_ptr<unixsocket::IProcessControlMessageCallback> processControlCallback) = 0;
 
         virtual std::shared_ptr<IOnAccessRunner> getOnAccessRunner(
-            datatypes::ISystemCallWrapperSharedPtr sysCallWrapper,
+            Common::SystemCallWrapper::ISystemCallWrapperSharedPtr sysCallWrapper,
             onaccessimpl::onaccesstelemetry::IOnAccessTelemetryUtilitySharedPtr telemetryUtility
             ) = 0;
     };

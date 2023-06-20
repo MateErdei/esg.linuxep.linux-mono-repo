@@ -1,4 +1,4 @@
-// Copyright 2023, Sophos Limited.  All rights reserved.
+// Copyright 2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
@@ -28,7 +28,7 @@ namespace sophos_on_access_process::soapd_bootstrap
     {
     public:
         OnAccessRunner(
-            datatypes::ISystemCallWrapperSharedPtr sysCallWrapper,
+            Common::SystemCallWrapper::ISystemCallWrapperSharedPtr  sysCallWrapper,
             onaccessimpl::onaccesstelemetry::IOnAccessTelemetryUtilitySharedPtr telemetryUtility) :
             m_sysCallWrapper(std::move(sysCallWrapper)), m_TelemetryUtility(std::move(telemetryUtility))
         {
@@ -64,7 +64,7 @@ namespace sophos_on_access_process::soapd_bootstrap
         bool getPolicyConfiguration(sophos_on_access_process::OnAccessConfig::OnAccessConfiguration& oaConfig);
         void applyConfig(const OnAccessConfig::OnAccessConfiguration& config);
 
-        datatypes::ISystemCallWrapperSharedPtr m_sysCallWrapper;
+        Common::SystemCallWrapper::ISystemCallWrapperSharedPtr  m_sysCallWrapper;
         onaccessimpl::onaccesstelemetry::IOnAccessTelemetryUtilitySharedPtr m_TelemetryUtility;
 
         sophos_on_access_process::local_settings::OnAccessLocalSettings m_localSettings;

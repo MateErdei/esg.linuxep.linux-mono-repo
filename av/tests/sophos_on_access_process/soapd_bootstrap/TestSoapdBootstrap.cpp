@@ -1,4 +1,4 @@
-// Copyright 2022-2023, Sophos Limited.  All rights reserved.
+// Copyright 2022-2023 Sophos Limited. All rights reserved.
 
 #define TEST_PUBLIC public
 
@@ -6,14 +6,15 @@
 #include "common/MemoryAppender.h"
 #include "common/MockPidLock.h"
 #include "common/MockUpdateCompleteCallback.h"
-#include "datatypes/MockSysCalls.h"
 
-#include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 #include "sophos_on_access_process/soapd_bootstrap/SoapdBootstrap.h"
 
-#include <utility>
+#include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
+#include "Common/Helpers/MockSysCalls.h"
 
 #include <gtest/gtest.h>
+
+#include <utility>
 
 using namespace sophos_on_access_process::soapd_bootstrap;
 using namespace sophos_on_access_process::service_impl;
@@ -118,7 +119,7 @@ namespace
             ON_CALL(*m_systemCallWrapper, setrlimit(_, _)).WillByDefault(Return(0));
         }
 
-        datatypes::ISystemCallWrapperSharedPtr getSystemCallWrapper() override
+        Common::SystemCallWrapper::ISystemCallWrapperSharedPtr  getSystemCallWrapper() override
         {
             return m_systemCallWrapper;
         }
@@ -157,7 +158,7 @@ namespace
         }
 
         std::shared_ptr<IOnAccessRunner> getOnAccessRunner(
-            datatypes::ISystemCallWrapperSharedPtr /*sysCallWrapper*/,
+            Common::SystemCallWrapper::ISystemCallWrapperSharedPtr  /*sysCallWrapper*/,
             onaccessimpl::onaccesstelemetry::IOnAccessTelemetryUtilitySharedPtr /*telemetryUtility*/
             ) override
         {

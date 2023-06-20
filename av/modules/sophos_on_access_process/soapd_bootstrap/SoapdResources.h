@@ -1,11 +1,11 @@
-// Copyright 2023, Sophos Limited.  All rights reserved.
+// Copyright 2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
 #include "ISoapdResources.h"
 #include "OnAccessServiceImpl.h"
 
-#include "datatypes/ISystemCallWrapper.h"
+#include "Common/SystemCallWrapper/ISystemCallWrapper.h"
 
 namespace sophos_on_access_process::soapd_bootstrap
 {
@@ -16,7 +16,7 @@ namespace sophos_on_access_process::soapd_bootstrap
 
         std::unique_ptr<common::IPidLockFile> getPidLockFile(const std::string& pidfile, bool changePidGroup) override;
 
-        datatypes::ISystemCallWrapperSharedPtr getSystemCallWrapper() override;
+        Common::SystemCallWrapper::ISystemCallWrapperSharedPtr getSystemCallWrapper() override;
         service_impl::IOnAccessServicePtr getOnAccessServiceImpl() override;
 
         std::shared_ptr<common::AbstractThreadPluginInterface> getUpdateClient(
@@ -33,7 +33,7 @@ namespace sophos_on_access_process::soapd_bootstrap
             ) override;
 
         std::shared_ptr<IOnAccessRunner> getOnAccessRunner(
-            datatypes::ISystemCallWrapperSharedPtr sysCallWrapper,
+            Common::SystemCallWrapper::ISystemCallWrapperSharedPtr sysCallWrapper,
             onaccessimpl::onaccesstelemetry::IOnAccessTelemetryUtilitySharedPtr telemetryUtility
             ) override;
     };

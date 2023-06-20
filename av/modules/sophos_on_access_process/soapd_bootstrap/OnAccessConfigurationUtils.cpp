@@ -120,7 +120,7 @@ namespace sophos_on_access_process::OnAccessConfig
         return readPolicyConfigFile(policyConfigFilePath());
     }
 
-    OnAccessLocalSettings readLocalSettingsFile(const std::shared_ptr<datatypes::ISystemCallWrapper>& sysCalls)
+    OnAccessLocalSettings readLocalSettingsFile(const Common::SystemCallWrapper::ISystemCallWrapperSharedPtr & sysCalls)
     {
         OnAccessLocalSettings settings{};
 
@@ -344,7 +344,7 @@ namespace sophos_on_access_process::OnAccessConfig
         return false;
     }
 
-    int numberOfThreadsFromConcurrency(const std::shared_ptr<datatypes::ISystemCallWrapper>& sysCalls)
+    int numberOfThreadsFromConcurrency(const Common::SystemCallWrapper::ISystemCallWrapperSharedPtr & sysCalls)
     {
         int threadsFromConcurrency = defaultScanningThreads;
         //may return 0 when not able to detect
