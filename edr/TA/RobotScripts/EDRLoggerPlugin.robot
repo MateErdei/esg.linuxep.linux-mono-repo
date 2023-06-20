@@ -968,7 +968,7 @@ Verify RPM DB
     # cause osquery to get stuck for a bit. Adding this here to verify the RPM DB - if this check fails during a build
     # then we can look into running the rpm rebuild DB command to try and fix it before running tests.
     ${has_rpmdb_verify} =    Does File Exist    /usr/lib/rpm/rpmdb_verify
-    IF    !${has_rpmdb_verify}    RETURN
+    IF    ${has_rpmdb_verify} == ${False}    RETURN
     ${result} =   Run Process    /usr/lib/rpm/rpmdb_verify    /var/lib/rpm/Packages
     Should Be Equal As Integers    ${result.rc}  0   "Failed to verify RPM DB \n stdout: \n${result.stdout}\n stderr: \n${result.stderr}"
 
