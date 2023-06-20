@@ -4,5 +4,4 @@ SophosAddTest(TestScanProcessMonitor
         TestScanProcessMonitor.cpp
         PROJECTS scanprocessmonitor
         LIBS ${pluginapilib}
-        INC_DIRS ${testhelpersinclude}
         )
