@@ -4,12 +4,13 @@
 #include "common/WaitForEvent.h"
 
 #include "datatypes/sophos_filesystem.h"
-#include "datatypes/SystemCallWrapper.h"
 #include "tests/common/MemoryAppender.h"
 #include "tests/common/TestFile.h"
-#include "tests/datatypes/MockSysCalls.h"
 #include "unixsocket/SocketUtils.h"
 #include "unixsocket/processControllerSocket/ProcessControllerServerConnectionThread.h"
+
+#include "Common/Helpers/MockSysCalls.h"
+#include "Common/SystemCallWrapper/SystemCallWrapper.h"
 
 #include <gtest/gtest.h>
 #include <scan_messages/ProcessControlSerialiser.h>
@@ -46,7 +47,7 @@ namespace
 
             fs::current_path(m_testDir);
 
-            m_sysCalls = std::make_shared<datatypes::SystemCallWrapper>();
+            m_sysCalls = std::make_shared<Common::SystemCallWrapper::SystemCallWrapper>();
             m_mockSysCalls = std::make_shared<StrictMock<MockSystemCallWrapper>>();
         }
 
@@ -58,7 +59,7 @@ namespace
 
         UsingMemoryAppender memoryAppenderHolder;
         fs::path m_testDir;
-        std::shared_ptr<datatypes::SystemCallWrapper> m_sysCalls;
+        std::shared_ptr<Common::SystemCallWrapper::SystemCallWrapper> m_sysCalls;
         std::shared_ptr<StrictMock<MockSystemCallWrapper>> m_mockSysCalls;
     };
 

@@ -10,6 +10,7 @@ if (NOT DEFINED ENV{USE_LIBFUZZER})
             TestProcessControllerServerConnectionThread.cpp
             TestProcessControllerServerSocket.cpp
             PROJECTS unixsocket
+            INC_DIRS ${testhelpersinclude}
             )
 
 
@@ -31,6 +32,7 @@ if (NOT DEFINED ENV{USE_LIBFUZZER})
             TestThreatReporterServerConnectionThread.cpp
             TestThreatReporterSocket.cpp
             PROJECTS unixsocket
+            INC_DIRS ${testhelpersinclude}
             )
 
     SophosAddTest(TestUnixSocket
@@ -64,6 +66,7 @@ if (NOT DEFINED ENV{USE_LIBFUZZER})
             ../common/LogInitializedTests.cpp
             TestMetadataRescanSocket.cpp
             PROJECTS unixsocket
+            INC_DIRS ${testhelpersinclude}
             )
 
     add_executable(ProcessControlClientExecutable

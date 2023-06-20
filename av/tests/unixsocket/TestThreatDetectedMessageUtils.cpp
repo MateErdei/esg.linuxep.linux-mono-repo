@@ -3,7 +3,8 @@
 #include "unixsocket/threatDetectorSocket/ThreatDetectedMessageUtils.h"
 
 #include "tests/common/LogInitializedTests.h"
-#include "tests/datatypes/MockSysCalls.h"
+
+#include "Common/Helpers/MockSysCalls.h"
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>

@@ -2,16 +2,16 @@
 
 #include "SafeStoreSocketMemoryAppenderUsingTests.h"
 
-#include "datatypes/SystemCallWrapper.h"
 #include "datatypes/sophos_filesystem.h"
 #include "scan_messages/SampleThreatDetected.h"
 #include "tests/common/MemoryAppender.h"
-#include "tests/datatypes/MockSysCalls.h"
 #include "tests/safestore/MockIQuarantineManager.h"
 #include "unixsocket/SocketUtils.h"
 #include "unixsocket/safeStoreSocket/SafeStoreServerConnectionThread.h"
 
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
+#include "Common/Helpers/MockSysCalls.h"
+#include "Common/SystemCallWrapper/SystemCallWrapper.h"
 
 #include <fcntl.h>
 #include <sys/socket.h>
@@ -51,7 +51,7 @@ namespace
             appConfig.setData(Common::ApplicationConfiguration::SOPHOS_INSTALL, m_testDir);
             appConfig.setData("PLUGIN_INSTALL", m_testDir);
 
-            m_sysCalls = std::make_shared<datatypes::SystemCallWrapper>();
+            m_sysCalls = std::make_shared<Common::SystemCallWrapper::SystemCallWrapper>();
             m_mockSysCalls = std::make_shared<StrictMock<MockSystemCallWrapper>>();
         }
 
@@ -63,7 +63,7 @@ namespace
 
         UsingMemoryAppender memoryAppenderHolder;
         fs::path m_testDir;
-        std::shared_ptr<datatypes::SystemCallWrapper> m_sysCalls;
+        std::shared_ptr<Common::SystemCallWrapper::SystemCallWrapper> m_sysCalls;
         std::shared_ptr<StrictMock<MockSystemCallWrapper>> m_mockSysCalls;
         std::shared_ptr<MockIQuarantineManager> mockQuarantineManager_ = std::make_shared<MockIQuarantineManager>();
     };

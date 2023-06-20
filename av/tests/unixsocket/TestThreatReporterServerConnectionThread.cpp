@@ -2,10 +2,11 @@
 
 #include "UnixSocketMemoryAppenderUsingTests.h"
 
-#include "datatypes/SystemCallWrapper.h"
 #include "tests/common/MemoryAppender.h"
-#include "tests/datatypes/MockSysCalls.h"
 #include "unixsocket/threatReporterSocket/ThreatReporterServerConnectionThread.h"
+
+#include "Common/Helpers/MockSysCalls.h"
+#include "Common/SystemCallWrapper/SystemCallWrapper.h"
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
@@ -22,11 +23,11 @@ namespace
     protected:
         void SetUp() override
         {
-            m_sysCalls = std::make_shared<datatypes::SystemCallWrapper>();
+            m_sysCalls = std::make_shared<Common::SystemCallWrapper::SystemCallWrapper>();
             m_mockSysCalls = std::make_shared<StrictMock<MockSystemCallWrapper>>();
         }
 
-        std::shared_ptr<datatypes::SystemCallWrapper> m_sysCalls;
+        std::shared_ptr<Common::SystemCallWrapper::SystemCallWrapper> m_sysCalls;
         std::shared_ptr<StrictMock<MockSystemCallWrapper>> m_mockSysCalls;
     };
 

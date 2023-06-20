@@ -11,11 +11,12 @@
 #include "tests/common/MockScanner.h"
 #include "tests/common/TestFile.h"
 #include "tests/common/WaitForEvent.h"
-#include "tests/datatypes/MockSysCalls.h"
 #include "unixsocket/SocketUtils.h"
 #include "unixsocket/metadataRescanSocket/MetadataRescanClientSocket.h"
 #include "unixsocket/metadataRescanSocket/MetadataRescanServerConnectionThread.h"
 #include "unixsocket/metadataRescanSocket/MetadataRescanServerSocket.h"
+
+#include "Common/Helpers/MockSysCalls.h"
 
 #include <fcntl.h>
 #include <sys/socket.h>
@@ -79,8 +80,8 @@ namespace
         fs::path m_testDir;
         datatypes::AutoFd m_serverFd;
         datatypes::AutoFd m_clientFd;
-        std::shared_ptr<datatypes::SystemCallWrapper> m_sysCallWrapper{
-            std::make_shared<datatypes::SystemCallWrapper>()
+        std::shared_ptr<Common::SystemCallWrapper::SystemCallWrapper> m_sysCallWrapper{
+            std::make_shared<Common::SystemCallWrapper::SystemCallWrapper>()
         };
         std::shared_ptr<MockSystemCallWrapper> m_mockSysCallWrapper{ std::make_shared<MockSystemCallWrapper>() };
         std::shared_ptr<MockScannerFactory> mockScannerFactory_ = std::make_shared<MockScannerFactory>();

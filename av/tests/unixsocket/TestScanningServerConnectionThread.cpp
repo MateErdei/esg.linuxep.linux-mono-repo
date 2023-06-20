@@ -11,15 +11,15 @@
 #include "common/FailedToInitializeSusiException.h"
 #include "common/ShuttingDownException.h"
 #include "datatypes/sophos_filesystem.h"
-#include "datatypes/SystemCallWrapper.h"
 #include "scan_messages/ScanRequest.h"
 #include "tests/common/MemoryAppender.h"
 #include "tests/common/MockScanner.h"
 #include "tests/common/TestFile.h"
-#include "tests/datatypes/MockSysCalls.h"
 
 #include "Common/Helpers/FileSystemReplaceAndRestore.h"
 #include "Common/Helpers/MockFileSystem.h"
+#include "Common/Helpers/MockSysCalls.h"
+#include "Common/SystemCallWrapper/SystemCallWrapper.h"
 
 #include <capnp/serialize.h>
 #include <gmock/gmock.h>
@@ -64,7 +64,7 @@ namespace
             appConfig.setData(Common::ApplicationConfiguration::SOPHOS_INSTALL, testDir_ );
             appConfig.setData("PLUGIN_INSTALL", testDir_ );
 
-            sysCalls_ = std::make_shared<datatypes::SystemCallWrapper>();
+            sysCalls_ = std::make_shared<Common::SystemCallWrapper::SystemCallWrapper>();
             mockSysCalls_ = std::make_shared<StrictMock<MockSystemCallWrapper>>();
             mockFileSystem_ = std::make_unique<StrictMock<MockFileSystem>>();
             threatDetectorUnhealthyFlagFile_ = Plugin::getThreatDetectorUnhealthyFlagPath();
@@ -85,7 +85,7 @@ namespace
         UsingMemoryAppender memoryAppenderHolder;
         scan_messages::ClientScanRequest request;
         fs::path testDir_;
-        std::shared_ptr<datatypes::SystemCallWrapper> sysCalls_;
+        std::shared_ptr<Common::SystemCallWrapper::SystemCallWrapper> sysCalls_;
         std::shared_ptr<MockSystemCallWrapper> mockSysCalls_;
         std::unique_ptr<MockFileSystem> mockFileSystem_;
         std::string threatDetectorUnhealthyFlagFile_;
