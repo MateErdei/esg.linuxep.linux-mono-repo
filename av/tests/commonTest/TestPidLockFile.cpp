@@ -1,10 +1,10 @@
-// Copyright 2022 Sophos Limited. All rights reserved.
+// Copyright 2022-2023 Sophos Limited. All rights reserved.
 
 // Product code
 #include "common/PidLockFile.h"
 // Test support
 #include "common/TestSpecificDirectory.h"
-#include "datatypes/SystemCallWrapper.h"
+#include "Common/SystemCallWrapper/SystemCallWrapper.h"
 // 3rd party
 #include <gtest/gtest.h>
 
@@ -49,7 +49,7 @@ TEST_F(TestPidLockFile, construction)
 TEST_F(TestPidLockFile, isLocked)
 {
     auto lockfile = m_testDir / "lockfile";
-    auto sysCallWrapper = std::make_shared<datatypes::SystemCallWrapper>();
+    auto sysCallWrapper = std::make_shared<Common::SystemCallWrapper::SystemCallWrapper>();
 
     EXPECT_FALSE(common::PidLockFile::isPidFileLocked(lockfile, sysCallWrapper));
     {
@@ -62,14 +62,14 @@ TEST_F(TestPidLockFile, isLocked)
 TEST_F(TestPidLockFile, readPidNotLocked)
 {
     auto lockfile = m_testDir / "lockfile";
-    auto sysCallWrapper = std::make_shared<datatypes::SystemCallWrapper>();
+    auto sysCallWrapper = std::make_shared<Common::SystemCallWrapper::SystemCallWrapper>();
     EXPECT_EQ(common::PidLockFile::getPidIfLocked(lockfile, sysCallWrapper), 0);
 }
 
 TEST_F(TestPidLockFile, readPidLocked)
 {
     auto lockfile = m_testDir / "lockfile";
-    auto sysCallWrapper = std::make_shared<datatypes::SystemCallWrapper>();
+    auto sysCallWrapper = std::make_shared<Common::SystemCallWrapper::SystemCallWrapper>();
     common::PidLockFile p{ lockfile };
     EXPECT_EQ(common::PidLockFile::getPidIfLocked(lockfile, sysCallWrapper), ::getpid());
 }

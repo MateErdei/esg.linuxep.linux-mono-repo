@@ -5,7 +5,8 @@
 #include "IPidLockFile.h"
 
 #include "datatypes/AutoFd.h"
-#include "datatypes/ISystemCallWrapper.h"
+
+#include "Common/SystemCallWrapper/ISystemCallWrapper.h"
 
 #include <string>
 
@@ -26,7 +27,7 @@ namespace common
         PidLockFile(const std::string& pidfile, bool changePidGroup=false);
         ~PidLockFile() override;
 
-        static bool isPidFileLocked(const std::string& pidfile, const std::shared_ptr<datatypes::ISystemCallWrapper>& sysCalls);
+        static bool isPidFileLocked(const std::string& pidfile, const Common::SystemCallWrapper::ISystemCallWrapperSharedPtr& sysCalls);
 
         /**
          * Get the PID from the lock file, if it is locked.
@@ -34,7 +35,7 @@ namespace common
          * @param sysCalls
          * @return 0 if the file isn't locked
          */
-        static pid_t getPidIfLocked(const std::string& pidfile, const std::shared_ptr<datatypes::ISystemCallWrapper>& sysCalls);
+        static pid_t getPidIfLocked(const std::string& pidfile, const Common::SystemCallWrapper::ISystemCallWrapperSharedPtr& sysCalls);
 
     private:
         std::string m_pidfile;

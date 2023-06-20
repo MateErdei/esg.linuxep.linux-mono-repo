@@ -22,6 +22,7 @@
 #include <sstream>
 
 using namespace common;
+using namespace Common::SystemCallWrapper;
 namespace fs = sophos_filesystem;
 
 
@@ -111,7 +112,7 @@ PidLockFile::~PidLockFile()
 
 namespace
 {
-    datatypes::AutoFd openPidLockFileIfLocked(const std::string& pidfile, const std::shared_ptr<datatypes::ISystemCallWrapper>& sysCalls)
+    datatypes::AutoFd openPidLockFileIfLocked(const std::string& pidfile, const ISystemCallWrapperSharedPtr& sysCalls)
     {
         datatypes::AutoFd fd(sysCalls->_open(pidfile.c_str(), O_RDONLY, 0644));
         if (!fd.valid())
@@ -142,7 +143,7 @@ namespace
     }
 }
 
-bool PidLockFile::isPidFileLocked(const std::string& pidfile, const std::shared_ptr<datatypes::ISystemCallWrapper>& sysCalls)
+bool PidLockFile::isPidFileLocked(const std::string& pidfile, const ISystemCallWrapperSharedPtr& sysCalls)
 {
     datatypes::AutoFd fd = openPidLockFileIfLocked(pidfile, sysCalls);
     return fd.valid();
@@ -150,7 +151,7 @@ bool PidLockFile::isPidFileLocked(const std::string& pidfile, const std::shared_
 
 pid_t PidLockFile::getPidIfLocked(
     const std::string& pidfile,
-    const std::shared_ptr<datatypes::ISystemCallWrapper>& sysCalls)
+    const ISystemCallWrapperSharedPtr& sysCalls)
 {
     datatypes::AutoFd fd = openPidLockFileIfLocked(pidfile, sysCalls);
     if (!fd.valid())
