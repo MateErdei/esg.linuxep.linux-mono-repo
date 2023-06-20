@@ -92,6 +92,8 @@ def _generate_key():
 
 
 class HttpsServer(object):
+    ROBOT_LIBRARY_SCOPE = 'GLOBAL'
+
     def __init__(self):
         self.thread = None
         self.m_last_port = None
@@ -131,6 +133,12 @@ class HttpsServer(object):
         if self.thread is not None:
             self.stop_https_server()
 
+        if not os.path.isfile(OPENSSL):
+            raise AssertionError("openssl not installed at " + OPENSSL)
+
+        # Ensure we can generate a key before starting the server
+        keyfile_path = self.__generate_key(certfile_path)
+
         port = int(port)
         print("Start Simple HTTPS Server localhost:{}".format(port))
         self.m_last_port = port
@@ -145,8 +153,6 @@ class HttpsServer(object):
         protocol = tls_from_string(protocol_string)
         if not protocol:
             protocol = ssl.PROTOCOL_TLS
-
-        keyfile_path = self.__generate_key(certfile_path)
 
         httpd.socket = ssl.wrap_socket(httpd.socket,
                                        server_side=True,
