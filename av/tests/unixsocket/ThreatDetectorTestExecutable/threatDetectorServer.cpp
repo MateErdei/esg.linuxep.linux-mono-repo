@@ -1,13 +1,13 @@
 // Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #include "datatypes/Print.h"
-#include "datatypes/SystemCallWrapper.h"
 #include "datatypes/sophos_filesystem.h"
 #include "unixsocket/SocketUtilsImpl.h"
 #include "unixsocket/threatDetectorSocket/ScanningClientSocket.h"
 #include "unixsocket/threatDetectorSocket/ScanningServerSocket.h"
 
 #include "Common/Logging/ConsoleLoggingSetup.h"
+#include "Common/SystemCallWrapper/SystemCallWrapper.h"
 
 #include <fcntl.h>
 #include <sys/socket.h>
@@ -96,7 +96,7 @@ static int DoSomethingWithData(const uint8_t *Data, size_t Size)
 
     // start a scanning server
     auto scannerFactory = std::make_shared<FakeScannerFactory>();
-    auto sysCalls = std::make_shared<datatypes::SystemCallWrapper>();
+    auto sysCalls = std::make_shared<Common::SystemCallWrapper::SystemCallWrapper>();
     unixsocket::ScanningServerConnectionThread connectionThread(serverFd, scannerFactory, sysCalls, 1);
     connectionThread.start();
 
