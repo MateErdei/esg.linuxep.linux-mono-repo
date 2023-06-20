@@ -79,6 +79,15 @@ def pip_install(machine: tap.Machine, *install_args: str):
 def install_requirements(machine: tap.Machine):
     """ install python lib requirements """
     # machine.run('bash', machine.inputs.test_scripts / "bin/install_pip_prerequisites.sh")
+    try:
+        machine.run("which", python(machine), return_exit_code=True)
+        machine.run("which", pip(machine), return_exit_code=True)
+        machine.run(python(machine), "-V", return_exit_code=True)
+        machine.run("which", "python", return_exit_code=True)
+        machine.run("python", "-V", return_exit_code=True)
+    except Exception:
+        pass
+
     pip_install(machine, '-r', machine.inputs.test_scripts / 'requirements.txt')
 
 
@@ -128,14 +137,6 @@ def robot_task_with_env(machine: tap.Machine, include_tag: str, robot_args: str 
         machine.run(*install_command)
 
         machine.run('mkdir', '-p', '/opt/test/coredumps')
-        machine.run("which", python(machine))
-        machine.run(python(machine), "-V")
-
-        try:
-            machine.run("which", "python")
-            machine.run("python", "-V")
-        except Exception:
-            pass
 
         if include_tag:
             include, *exclude = include_tag.split("NOT")
