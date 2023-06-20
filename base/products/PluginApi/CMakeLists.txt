@@ -12,7 +12,7 @@ add_library(pluginapi SHARED
         $<TARGET_OBJECTS:procutilimplobject>
         $<TARGET_OBJECTS:protobufutilobject>
         $<TARGET_OBJECTS:reactorimplobject>
-        $<TARGET_OBJECTS:sslimplobject>
+        $<TARGET_OBJECTS:systemcallwrapperobject>
         $<TARGET_OBJECTS:telemetryhelperimplobject>
         $<TARGET_OBJECTS:threadsobject>
         $<TARGET_OBJECTS:utilityimplobject>
@@ -26,7 +26,7 @@ target_link_libraries(pluginapi PUBLIC
         log4cplus -L${LOG4CPLUS_INPUT}
         protobuf -L${Protobuf_root}/lib
         expat -L${EXPAT_INPUT}
-        ${OPENSSLCRYPTO_LIBRARY}
+        sslimplobject
         cap
         )
 
@@ -46,7 +46,6 @@ FindLibraryFullPath( zmqfull zmq ${ZEROMQ_INPUT})
 FindLibraryFullPath( log4cplusfull log4cplus ${LOG4CPLUS_INPUT})
 FindLibraryFullPath( protobuffull protobuf ${Protobuf_root}/lib)
 FindLibraryFullPath( expatfull expat ${EXPAT_INPUT})
-FindLibraryFullPath( opensslcryptofull crypto ${OPENSSL_INPUT}/lib64)
 configure_file(PluginAPICommitHash.in PluginAPICommitHash @ONLY)
 
 add_custom_target(
@@ -67,6 +66,7 @@ add_custom_target(
         COMMAND mkdir -p pluginapi/include/Common/ProcessMonitoring
         COMMAND mkdir -p pluginapi/include/Common/Reactor
         COMMAND mkdir -p pluginapi/include/Common/SslImpl
+        COMMAND mkdir -p pluginapi/include/Common/SystemCallWrapper
         COMMAND mkdir -p pluginapi/include/Common/TelemetryHelperImpl
         COMMAND mkdir -p pluginapi/include/Common/Threads
         COMMAND mkdir -p pluginapi/include/Common/UtilityImpl
@@ -86,7 +86,7 @@ add_custom_target(
         COMMAND ${CMAKE_COMMAND} -E copy ${protobuffull} pluginapi/lib64
         COMMAND ${CMAKE_COMMAND} -E copy ${expatfull}    pluginapi/lib64
         COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:zlib> pluginapi/lib64
-        COMMAND ${CMAKE_COMMAND} -E copy ${opensslcryptofull} pluginapi/lib64
+        COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:openssl_crypto> pluginapi/lib64
         COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:sharedtesthelpers> pluginapi/tests/lib64
         COMMAND ${CMAKE_COMMAND} -E copy PluginAPICommitHash pluginapi
         DEPENDS testhelpers
@@ -135,6 +135,7 @@ add_copy_directory(Common/Process)
 add_copy_directory(Common/ProcessMonitoring)
 add_copy_directory(Common/Reactor)
 add_copy_directory(Common/SslImpl)
+add_copy_directory(Common/SystemCallWrapper)
 add_copy_directory(Common/TelemetryHelperImpl)
 add_copy_directory(Common/Threads)
 add_copy_directory(Common/UtilityImpl)
