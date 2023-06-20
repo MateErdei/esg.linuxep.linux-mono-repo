@@ -18,8 +18,10 @@
 
 #include <atomic>
 
-namespace datatypes {
+namespace Common {
+    namespace SystemCallWrapper {
         class ISystemCallWrapper;
+    }
 }
 
 namespace Plugin
@@ -40,8 +42,8 @@ namespace Plugin
         std::string getTelemetry() override;
         std::string getHealth() override;
 
-        long calculateHealth(const std::shared_ptr<datatypes::ISystemCallWrapper>& sysCalls);
-        static std::pair<unsigned long, unsigned long> getThreatScannerProcessinfo(const std::shared_ptr<datatypes::ISystemCallWrapper>& sysCalls);
+        long calculateHealth(const std::shared_ptr<Common::SystemCallWrapper::ISystemCallWrapper>& sysCalls);
+        static std::pair<unsigned long, unsigned long> getThreatScannerProcessinfo(const std::shared_ptr<Common::SystemCallWrapper::ISystemCallWrapper>& sysCalls);
 
         /**
          * Change the revID of the SAV policy and send if it's changed.
@@ -110,9 +112,9 @@ TEST_PUBLIC:
         long m_soapServiceStatus = E_HEALTH_STATUS_GOOD;
         long m_safestoreServiceStatus = E_HEALTH_STATUS_GOOD;
 
-        void calculateThreatDetectorHealthStatus(const std::shared_ptr<datatypes::ISystemCallWrapper>& sysCalls);
-        void calculateSoapHealthStatus(const std::shared_ptr<datatypes::ISystemCallWrapper>& sysCalls);
-        void calculateSafeStoreHealthStatus(const std::shared_ptr<datatypes::ISystemCallWrapper>& sysCalls);
+        void calculateThreatDetectorHealthStatus(const std::shared_ptr<Common::SystemCallWrapper::ISystemCallWrapper>& sysCalls);
+        void calculateSoapHealthStatus(const std::shared_ptr<Common::SystemCallWrapper::ISystemCallWrapper>& sysCalls);
+        void calculateSafeStoreHealthStatus(const std::shared_ptr<Common::SystemCallWrapper::ISystemCallWrapper>& sysCalls);
     };
     using PluginCallbackSharedPtr = std::shared_ptr<PluginCallback>;
 } // namespace Plugin

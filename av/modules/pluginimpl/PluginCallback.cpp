@@ -14,10 +14,11 @@
 // Product
 #include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
 #include <Common/FileSystem/IFileSystemException.h>
+#include "Common/SystemCallWrapper/SystemCallWrapper.h"
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 #include <Common/UtilityImpl/StringUtils.h>
 #include <Common/XmlUtilities/AttributesMap.h>
-#include <datatypes/SystemCallWrapper.h>
+
 #include <thirdparty/nlohmann-json/json.hpp>
 // Std C++
 #include <cstdlib>
@@ -126,7 +127,7 @@ namespace Plugin
         telemetry.set("vdl-version", getVirusDataVersion());
         telemetry.set("version", common::getPluginVersion());
         telemetry.set("sxl4-lookup", m_lookupEnabled);
-        auto sysCalls = std::make_shared<datatypes::SystemCallWrapper>();
+        auto sysCalls = std::make_shared<Common::SystemCallWrapper::SystemCallWrapper>();
         telemetry.set("health", calculateHealth(sysCalls));
         telemetry.set("threatHealth", m_threatStatus);
 
@@ -353,7 +354,7 @@ namespace Plugin
         return "";
     }
 
-    long PluginCallback::calculateHealth(const std::shared_ptr<datatypes::ISystemCallWrapper>& sysCalls)
+    long PluginCallback::calculateHealth(const std::shared_ptr<Common::SystemCallWrapper::ISystemCallWrapper>& sysCalls)
     {
         calculateThreatDetectorHealthStatus(sysCalls);
         calculateSoapHealthStatus(sysCalls);
@@ -374,7 +375,7 @@ namespace Plugin
         return newHealth;
     }
 
-    void PluginCallback::calculateSafeStoreHealthStatus(const std::shared_ptr<datatypes::ISystemCallWrapper>& sysCalls)
+    void PluginCallback::calculateSafeStoreHealthStatus(const std::shared_ptr<Common::SystemCallWrapper::ISystemCallWrapper>& sysCalls)
     {
         auto fileSystem = Common::FileSystem::fileSystem();
         if (!m_safeStoreEnabled)
@@ -411,7 +412,7 @@ namespace Plugin
         }
     }
 
-    void PluginCallback::calculateSoapHealthStatus(const std::shared_ptr<datatypes::ISystemCallWrapper>& sysCalls)
+    void PluginCallback::calculateSoapHealthStatus(const std::shared_ptr<Common::SystemCallWrapper::ISystemCallWrapper>& sysCalls)
     {
         Path soapdPidFile = common::getPluginInstallPath() / "var/soapd.pid";
         if (!common::PidLockFile::isPidFileLocked(soapdPidFile, sysCalls))
@@ -433,7 +434,7 @@ namespace Plugin
         }
     }
 
-    void PluginCallback::calculateThreatDetectorHealthStatus(const std::shared_ptr<datatypes::ISystemCallWrapper>& sysCalls)
+    void PluginCallback::calculateThreatDetectorHealthStatus(const std::shared_ptr<Common::SystemCallWrapper::ISystemCallWrapper>& sysCalls)
     {
         auto fileSystem = Common::FileSystem::fileSystem();
         Path threatDetectorPidFile = common::getPluginInstallPath() / "chroot/var/threat_detector.pid";
@@ -467,13 +468,13 @@ namespace Plugin
 
     std::string PluginCallback::getHealth()
     {
-        auto sysCalls = std::make_shared<datatypes::SystemCallWrapper>();
+        auto sysCalls = std::make_shared<Common::SystemCallWrapper::SystemCallWrapper>();
         nlohmann::json j;
         j["Health"] = calculateHealth(sysCalls);
         return j.dump();
     }
 
-    std::pair<unsigned long , unsigned long> PluginCallback::getThreatScannerProcessinfo(const std::shared_ptr<datatypes::ISystemCallWrapper>& sysCalls)
+    std::pair<unsigned long , unsigned long> PluginCallback::getThreatScannerProcessinfo(const std::shared_ptr<Common::SystemCallWrapper::ISystemCallWrapper>& sysCalls)
     {
         const int expectedStatFileSize = 52;
         const int rssEntryInStat = 24;

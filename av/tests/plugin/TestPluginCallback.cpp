@@ -15,14 +15,14 @@
 #include "common/FailedToInitializeSusiException.h"
 #include "common/MockScanner.h"
 
-#include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
-#include <Common/FileSystem/IFileSystemException.h>
-#include <Common/Helpers/FileSystemReplaceAndRestore.h>
-#include <Common/Helpers/MockFileSystem.h>
+#include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
+#include "Common/FileSystem/IFileSystemException.h"
+#include "Common/Helpers/FileSystemReplaceAndRestore.h"
+#include "Common/Helpers/MockFileSystem.h"
+#include "Common/Helpers/MockSysCalls.h"
 
 #include <gtest/gtest.h>
 #include <pluginimpl/HealthStatus.h>
-#include <tests/datatypes/MockSysCalls.h>
 #include <thirdparty/nlohmann-json/json.hpp>
 
 using namespace Plugin;
@@ -117,7 +117,7 @@ namespace
             m_pluginCallback = std::make_shared<Plugin::PluginCallback>(m_taskQueue);
             m_mockSysCalls = std::make_shared<StrictMock<MockSystemCallWrapper>>();
             m_mockFileSystem = std::make_unique<StrictMock<MockFileSystem>>();
-            m_sysCalls = std::make_shared<datatypes::SystemCallWrapper>();
+            m_sysCalls = std::make_shared<Common::SystemCallWrapper::SystemCallWrapper>();
         };
 
         void TearDown() override
@@ -171,7 +171,7 @@ namespace
         std::shared_ptr<Plugin::TaskQueue> m_taskQueue;
         std::shared_ptr<Plugin::PluginCallback> m_pluginCallback;
         std::shared_ptr<MockSystemCallWrapper> m_mockSysCalls;
-        std::shared_ptr<datatypes::SystemCallWrapper> m_sysCalls;
+        std::shared_ptr<Common::SystemCallWrapper::SystemCallWrapper> m_sysCalls;
         std::unique_ptr<MockFileSystem> m_mockFileSystem;
 
         fs::path m_basePath;

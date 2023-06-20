@@ -13,11 +13,11 @@
 #include "common/ApplicationPaths.h"
 #include "common/PluginUtils.h"
 #include "common/StringUtils.h"
-#include "datatypes/SystemCallWrapper.h"
 #include "datatypes/sophos_filesystem.h"
 
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include "Common/SystemCallWrapper/SystemCallWrapper.h"
 #include "Common/TelemetryHelperImpl/TelemetryHelper.h"
 #include "Common/ZeroMQWrapper/IIPCException.h"
 
@@ -114,7 +114,7 @@ namespace Plugin
             std::make_shared<ThreatReportCallbacks>(*this, threatEventPublisherSocketPath))),
         m_threatDetector(std::make_unique<plugin::manager::scanprocessmonitor::ScanProcessMonitor>(
             process_controller_socket(),
-            std::make_shared<datatypes::SystemCallWrapper>())),
+            std::make_shared<Common::SystemCallWrapper::SystemCallWrapper>())),
         m_safeStoreWorker(std::make_shared<SafeStoreWorker>(*this, m_detectionQueue, getSafeStoreSocketPath())),
         m_restoreReportingServer{ *this },
         m_waitForPolicyTimeout(waitForPolicyTimeout),
