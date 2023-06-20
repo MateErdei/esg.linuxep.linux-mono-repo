@@ -10,15 +10,16 @@
 
 #include "common/LockableData.h"
 #include "datatypes/AutoFd.h"
-#include "datatypes/ISystemCallWrapper.h"
 #include "sophos_threat_detector/threat_scanner/IUpdateCompleteCallback.h"
+
+#include "Common/SystemCallWrapper/ISystemCallWrapper.h"
 
 namespace sophos_on_access_process::fanotifyhandler
 {
     class FanotifyHandler : public IFanotifyHandler
     {
         public:
-            explicit FanotifyHandler(datatypes::ISystemCallWrapperSharedPtr systemCallWrapper);
+            explicit FanotifyHandler(Common::SystemCallWrapper::ISystemCallWrapperSharedPtr systemCallWrapper);
             ~FanotifyHandler() override;
             FanotifyHandler(const FanotifyHandler&) =delete;
             FanotifyHandler& operator=(const FanotifyHandler&) =delete;
@@ -99,7 +100,7 @@ namespace sophos_on_access_process::fanotifyhandler
             static int processFaMarkError(int result, const std::string& function, const std::string& path);
 
             mutable common::LockableData<datatypes::AutoFd> m_fd;
-            const datatypes::ISystemCallWrapperSharedPtr m_systemCallWrapper;
+            const Common::SystemCallWrapper::ISystemCallWrapperSharedPtr m_systemCallWrapper;
     };
 }
 

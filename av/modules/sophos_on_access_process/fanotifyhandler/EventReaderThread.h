@@ -14,12 +14,12 @@
 #include "common/Exclusion.h"
 #include "common/LockableData.h"
 #include "common/UsernameSetting.h"
-#include "datatypes/ISystemCallWrapper.h"
 #include "datatypes/sophos_filesystem.h"
 #include "mount_monitor/mountinfo/IDeviceUtil.h"
 #include "sophos_on_access_process/onaccessimpl/IOnAccessTelemetryUtility.h"
 #include "sophos_on_access_process/onaccessimpl/ScanRequestQueue.h"
 
+#include "Common/SystemCallWrapper/ISystemCallWrapper.h"
 #include "Common/Threads/NotifyPipe.h"
 
 #include <sys/fanotify.h>
@@ -40,7 +40,7 @@ namespace sophos_on_access_process::fanotifyhandler
 
         EventReaderThread(
             IFanotifyHandlerSharedPtr fanotify,
-            datatypes::ISystemCallWrapperSharedPtr sysCalls,
+            Common::SystemCallWrapper::ISystemCallWrapperSharedPtr sysCalls,
             const fs::path& pluginInstall,
             onaccessimpl::ScanRequestQueueSharedPtr scanRequestQueue,
             onaccessimpl::onaccesstelemetry::IOnAccessTelemetryUtilitySharedPtr telemetryUtility,
@@ -75,7 +75,7 @@ namespace sophos_on_access_process::fanotifyhandler
 
         ExecutablePathCache executablePathCache_;
         IFanotifyHandlerSharedPtr m_fanotify;
-        datatypes::ISystemCallWrapperSharedPtr m_sysCalls;
+        Common::SystemCallWrapper::ISystemCallWrapperSharedPtr m_sysCalls;
         fs::path m_pluginLogDir;
         onaccessimpl::ScanRequestQueueSharedPtr m_scanRequestQueue;
         onaccessimpl::onaccesstelemetry::IOnAccessTelemetryUtilitySharedPtr m_telemetryUtility;

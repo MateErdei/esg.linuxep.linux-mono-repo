@@ -17,7 +17,7 @@
 
 using namespace sophos_on_access_process::fanotifyhandler;
 
-FanotifyHandler::FanotifyHandler(datatypes::ISystemCallWrapperSharedPtr systemCallWrapper)
+FanotifyHandler::FanotifyHandler(Common::SystemCallWrapper::ISystemCallWrapperSharedPtr  systemCallWrapper)
     : m_systemCallWrapper(std::move(systemCallWrapper))
 {
     assert(m_systemCallWrapper);

@@ -6,13 +6,13 @@
 
 #include "common/ThreadRunner.h"
 #include "common/WaitForEvent.h"
-#include "datatypes/MockSysCalls.h"
 #include "modules/sophos_on_access_process/local_settings/OnAccessProductConfigDefaults.h"
 #include "sophos_on_access_process/fanotifyhandler/EventReaderThread.h"
 #include "sophos_on_access_process/onaccessimpl/OnAccessTelemetryUtility.h"
 #include "tests/mount_monitor/mountinfoimpl/MockDeviceUtil.h"
 
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
+#include "Common/Helpers/MockSysCalls.h"
 
 #include <gtest/gtest.h>
 

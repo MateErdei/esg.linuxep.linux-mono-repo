@@ -29,7 +29,7 @@ static constexpr size_t FAN_BUFFER_SIZE = 4096;
 
 EventReaderThread::EventReaderThread(
     IFanotifyHandlerSharedPtr fanotify,
-    datatypes::ISystemCallWrapperSharedPtr sysCalls,
+    Common::SystemCallWrapper::ISystemCallWrapperSharedPtr  sysCalls,
     const fs::path& pluginInstall,
     onaccessimpl::ScanRequestQueueSharedPtr scanRequestQueue,
     onaccessimpl::onaccesstelemetry::IOnAccessTelemetryUtilitySharedPtr telemetryUtility,
