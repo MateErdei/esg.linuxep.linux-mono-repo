@@ -6,11 +6,6 @@ add_library(datatypes SHARED
         sophos_filesystem.h
         Time.cpp
         Time.h
-        ISystemCallWrapper.h
-        ISystemCallWrapperFactory.h
-        SystemCallWrapper.h
-        SystemCallWrapperFactory.cpp
-        SystemCallWrapperFactory.h
         IUuidGenerator.h
         UuidGeneratorImpl.cpp
         UuidGeneratorImpl.h
