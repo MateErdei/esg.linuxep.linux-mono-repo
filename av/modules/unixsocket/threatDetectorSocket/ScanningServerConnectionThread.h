@@ -1,4 +1,4 @@
-// Copyright 2020-2022, Sophos Limited.  All rights reserved.
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
@@ -9,7 +9,6 @@
 #define AUTO_FD_IMPLICIT_INT
 
 #include "datatypes/AutoFd.h"
-#include "datatypes/ISystemCallWrapper.h"
 #include "scan_messages/ScanRequest.h"
 #include "scan_messages/ScanResponse.h"
 #include "sophos_threat_detector/threat_scanner/IThreatScannerFactory.h"
@@ -17,6 +16,7 @@
 #include "unixsocket/BaseServerConnectionThread.h"
 #include "unixsocket/IMessageCallback.h"
 
+#include "Common/SystemCallWrapper/ISystemCallWrapper.h"
 #include "Common/Threads/AbstractThread.h"
 
 #include <cstdint>
@@ -32,7 +32,7 @@ namespace unixsocket
         explicit ScanningServerConnectionThread(
                 datatypes::AutoFd& fd,
                 threat_scanner::IThreatScannerFactorySharedPtr scannerFactory,
-                datatypes::ISystemCallWrapperSharedPtr sysCalls,
+            Common::SystemCallWrapper::ISystemCallWrapperSharedPtr sysCalls,
                 int maxIterations = -1);
         void run() override;
 
@@ -53,7 +53,7 @@ namespace unixsocket
         datatypes::AutoFd socketFd_;
         threat_scanner::IThreatScannerFactorySharedPtr scannerFactory_;
         threat_scanner::IThreatScannerPtr scanner_;
-        datatypes::ISystemCallWrapperSharedPtr sysCalls_;
+        Common::SystemCallWrapper::ISystemCallWrapperSharedPtr sysCalls_;
 
         int maxIterations_;
     };

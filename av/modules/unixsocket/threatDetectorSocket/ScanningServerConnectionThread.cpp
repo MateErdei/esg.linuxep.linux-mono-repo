@@ -28,7 +28,7 @@ using namespace scan_messages;
 unixsocket::ScanningServerConnectionThread::ScanningServerConnectionThread(
         datatypes::AutoFd& fd,
         threat_scanner::IThreatScannerFactorySharedPtr scannerFactory,
-        datatypes::ISystemCallWrapperSharedPtr sysCalls,
+        Common::SystemCallWrapper::ISystemCallWrapperSharedPtr  sysCalls,
         int maxIterations)
     : BaseServerConnectionThread("ScanningServerConnectionThread")
     , socketFd_(std::move(fd))

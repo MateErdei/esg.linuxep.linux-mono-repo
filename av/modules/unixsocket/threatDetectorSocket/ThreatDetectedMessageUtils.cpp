@@ -7,7 +7,7 @@
 #include <sstream>
 
 bool unixsocket::isReceivedFdFile(
-    std::shared_ptr<datatypes::ISystemCallWrapper> sysCallWrapper,
+    Common::SystemCallWrapper::ISystemCallWrapperSharedPtr  sysCallWrapper,
     datatypes::AutoFd& file_fd,
     std::string& errMsg)
 {
@@ -31,7 +31,7 @@ bool unixsocket::isReceivedFdFile(
 }
 
 bool unixsocket::isReceivedFileOpen(
-    std::shared_ptr<datatypes::ISystemCallWrapper> sysCallWrapper,
+    Common::SystemCallWrapper::ISystemCallWrapperSharedPtr  sysCallWrapper,
     datatypes::AutoFd& file_fd,
     std::string& errMsg)
 {
@@ -53,7 +53,7 @@ bool unixsocket::isReceivedFileOpen(
 }
 
 bool unixsocket::readCapnProtoMsg(
-    const std::shared_ptr<datatypes::ISystemCallWrapper>& sysCallWrapper,
+    const Common::SystemCallWrapper::ISystemCallWrapperSharedPtr & sysCallWrapper,
     ssize_t length,
     uint32_t& buffer_size,
     kj::Array<capnp::word>& proto_buffer,

@@ -1,15 +1,16 @@
-// Copyright 2022 Sophos Limited. All rights reserved.
+// Copyright 2022-2023 Sophos Limited. All rights reserved.
 
 #include "FakeScanningServer.h"
 
 #include "capnp/serialize.h"
 #include "common/StringUtils.h"
-#include "datatypes/SystemCallWrapper.h"
 #include "scan_messages/ScanRequest.h"
 #include "scan_messages/ScanResponse.h"
 #include "unixsocket/Logger.h"
 #include "unixsocket/SocketUtils.h"
 #include "unixsocket/threatDetectorSocket/ThreatDetectedMessageUtils.h"
+
+#include "Common/SystemCallWrapper/SystemCallWrapper.h"
 
 #include <poll.h>
 
@@ -93,7 +94,7 @@ bool TestServerConnectionThread::handleEvent(datatypes::AutoFd& socket_fd, ssize
     // read capn proto
     uint32_t buffer_size = 256;
     auto proto_buffer = kj::heapArray<capnp::word>(buffer_size);
-    datatypes::ISystemCallWrapperSharedPtr m_sysCalls = std::make_shared<datatypes::SystemCallWrapper>();
+    auto m_sysCalls = std::make_shared<Common::SystemCallWrapper::SystemCallWrapper>();
 
     bool loggedLengthOfZero = false;
     scan_messages::ScanResponse result;
