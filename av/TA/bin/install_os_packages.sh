@@ -99,7 +99,7 @@ then
         fi
     }
 
-    yum install -y "gcc" "gcc-c++" "make" nfs-utils zip gdb util-linux nc bzip2
+    yum install -y "gcc" "gcc-c++" "make" nfs-utils zip gdb util-linux nc bzip2 openssl rsync
     (( CIFS == 0 )) || yum install -y samba
     (( NTFS == 0 )) || yum install -y ntfs-3g
 elif [[ -x $(which zypper) ]]
