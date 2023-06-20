@@ -4,7 +4,6 @@
 
 #include "common/CentralEnums.h"
 #include "datatypes/AutoFd.h"
-#include "datatypes/ISystemCallWrapper.h"
 #include "safestore/SafeStoreWrapper/ISafeStoreWrapper.h"
 #include "scan_messages/QuarantineResponse.h"
 #include "scan_messages/RestoreReport.h"

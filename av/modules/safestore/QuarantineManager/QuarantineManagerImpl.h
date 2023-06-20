@@ -11,8 +11,9 @@
 #include "unixsocket/metadataRescanSocket/IMetadataRescanClientSocket.h"
 #include "unixsocket/threatDetectorSocket/IScanningClientSocket.h"
 
-#include "Common/PersistentValue/PersistentValue.h"
 #include "Common/FileSystem/IFileSystem.h"
+#include "Common/PersistentValue/PersistentValue.h"
+#include "Common/SystemCallWrapper/ISystemCallWrapper.h"
 
 #include <thirdparty/nlohmann-json/json.hpp>
 
@@ -27,7 +28,7 @@ namespace safestore::QuarantineManager
     public:
         QuarantineManagerImpl(
             std::unique_ptr<safestore::SafeStoreWrapper::ISafeStoreWrapper> safeStoreWrapper,
-            std::shared_ptr<datatypes::ISystemCallWrapper> sysCallWrapper,
+            Common::SystemCallWrapper::ISystemCallWrapperSharedPtr  sysCallWrapper,
             ISafeStoreResources& safeStoreResources);
         void initialise() override;
         QuarantineManagerState getState() override;
@@ -97,7 +98,7 @@ namespace safestore::QuarantineManager
         int m_databaseErrorCount = 0;
         Common::PersistentValue<int> m_dbErrorCountThreshold;
         static scan_messages::ScanResponse scan(unixsocket::IScanningClientSocket& socket, int fd, const std::string& originalFilePath);
-        std::shared_ptr<datatypes::ISystemCallWrapper> m_sysCallWrapper;
+        Common::SystemCallWrapper::ISystemCallWrapperSharedPtr  m_sysCallWrapper;
         ISafeStoreResources& safeStoreResources_;
         Common::FileSystem::IFileSystem* m_fileSystem = Common::FileSystem::fileSystem();
     };

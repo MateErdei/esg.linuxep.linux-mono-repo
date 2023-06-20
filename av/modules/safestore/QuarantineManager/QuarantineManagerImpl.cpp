@@ -182,7 +182,7 @@ namespace safestore::QuarantineManager
 
     QuarantineManagerImpl::QuarantineManagerImpl(
         std::unique_ptr<SafeStoreWrapper::ISafeStoreWrapper> safeStoreWrapper,
-        std::shared_ptr<datatypes::ISystemCallWrapper> sysCallWrapper,
+        Common::SystemCallWrapper::ISystemCallWrapperSharedPtr  sysCallWrapper,
         ISafeStoreResources& safeStoreResources) :
         m_state(QuarantineManagerState::STARTUP),
         m_safeStore(std::move(safeStoreWrapper)),
