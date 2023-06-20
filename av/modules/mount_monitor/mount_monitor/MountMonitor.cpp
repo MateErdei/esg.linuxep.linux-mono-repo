@@ -1,4 +1,4 @@
-// Copyright 2022 Sophos Limited. All rights reserved.
+// Copyright 2022-2023 Sophos Limited. All rights reserved.
 
 #include "MountMonitor.h"
 
@@ -23,7 +23,7 @@ namespace mount_monitor::mount_monitor
 {
     MountMonitor::MountMonitor(
         OnAccessConfiguration& config,
-        datatypes::ISystemCallWrapperSharedPtr systemCallWrapper,
+        Common::SystemCallWrapper::ISystemCallWrapperSharedPtr systemCallWrapper,
         fanotifyhandler::IFanotifyHandlerSharedPtr fanotifyHandler,
         mountinfo::ISystemPathsFactorySharedPtr sysPathsFactory)
     : m_config(config)

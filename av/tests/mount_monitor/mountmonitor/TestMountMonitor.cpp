@@ -1,4 +1,4 @@
-// Copyright 2022 Sophos Limited. All rights reserved.
+// Copyright 2022-2023 Sophos Limited. All rights reserved.
 
 # define TEST_PUBLIC public
 
@@ -9,13 +9,13 @@
 #include "avscanner/avscannerimpl/MockMountPoint.h"
 #include "common/ThreadRunner.h"
 #include "common/WaitForEvent.h"
-#include "datatypes/MockSysCalls.h"
-#include "datatypes/SystemCallWrapper.h"
 #include "modules/sophos_on_access_process/local_settings/OnAccessProductConfigDefaults.h"
 #include "mount_monitor/mount_monitor/MountMonitor.h"
 #include "mount_monitor/mountinfoimpl/SystemPaths.h"
 #include "sophos_on_access_process/fanotifyhandler/MockFanotifyHandler.h"
 
+#include "Common/Helpers/MockSysCalls.h"
+#include "Common/SystemCallWrapper/SystemCallWrapper.h"
 #include "Common/TelemetryHelperImpl/TelemetryHelper.h"
 
 #include <gtest/gtest.h>
@@ -33,7 +33,7 @@ namespace
     protected:
         void SetUp() override
         {
-            m_sysCallWrapper = std::make_shared<datatypes::SystemCallWrapper>();
+            m_sysCallWrapper = std::make_shared<Common::SystemCallWrapper::SystemCallWrapper>();
             m_mockSysCallWrapper = std::make_shared<StrictMock<MockSystemCallWrapper>>();
             m_mockFanotifyHandler = std::make_shared<NiceMock<MockFanotifyHandler>>();
             m_mockSysPathsFactory = std::make_shared<StrictMock<MockSystemPathsFactory>>();
@@ -55,7 +55,7 @@ namespace
             fs::remove_all(m_testDir);
         }
 
-        std::shared_ptr<datatypes::SystemCallWrapper> m_sysCallWrapper;
+        std::shared_ptr<Common::SystemCallWrapper::SystemCallWrapper> m_sysCallWrapper;
         std::shared_ptr<StrictMock<MockSystemCallWrapper>> m_mockSysCallWrapper;
         std::shared_ptr<NiceMock<MockFanotifyHandler>> m_mockFanotifyHandler;
         std::shared_ptr<StrictMock<MockSystemPathsFactory>> m_mockSysPathsFactory;

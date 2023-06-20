@@ -3,5 +3,6 @@ SophosAddTest(TestMountMonitor
         TestMountMonitor.cpp
         PROJECTS mountmonitor
         LIBS ${log4cpluslib}
+        INC_DIRS ${testhelpersinclude}
         )
 

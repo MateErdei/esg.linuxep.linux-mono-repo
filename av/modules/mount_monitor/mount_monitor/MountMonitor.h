@@ -1,4 +1,4 @@
-//Copyright 2022, Sophos Limited.  All rights reserved.
+// Copyright 2022-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
@@ -6,7 +6,6 @@
 # define TEST_PUBLIC private
 #endif
 
-#include "datatypes/ISystemCallWrapper.h"
 #include "mount_monitor/mountinfo/IMountInfo.h"
 #include "mount_monitor/mountinfo/ISystemPathsFactory.h"
 #include "sophos_on_access_process/fanotifyhandler/IFanotifyHandler.h"
@@ -14,6 +13,8 @@
 
 #include "common/AbstractThreadPluginInterface.h"
 #include "common/Exclusion.h"
+
+#include "Common/SystemCallWrapper/ISystemCallWrapper.h"
 
 #include <set>
 
@@ -29,7 +30,7 @@ namespace mount_monitor::mount_monitor
 
         MountMonitor(
             OnAccessConfiguration& config,
-            datatypes::ISystemCallWrapperSharedPtr systemCallWrapper,
+            Common::SystemCallWrapper::ISystemCallWrapperSharedPtr systemCallWrapper,
             fanotifyhandler::IFanotifyHandlerSharedPtr fanotifyHandler,
             mountinfo::ISystemPathsFactorySharedPtr sysPathsFactory);
 
@@ -49,7 +50,7 @@ namespace mount_monitor::mount_monitor
 
     private:
         OnAccessConfiguration& m_config;
-        datatypes::ISystemCallWrapperSharedPtr m_sysCalls;
+        Common::SystemCallWrapper::ISystemCallWrapperSharedPtr m_sysCalls;
         fanotifyhandler::IFanotifyHandlerSharedPtr m_fanotifyHandler;
         mountinfo::ISystemPathsFactorySharedPtr m_sysPathsFactory;
 
