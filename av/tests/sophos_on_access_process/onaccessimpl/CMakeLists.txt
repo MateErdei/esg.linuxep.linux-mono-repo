@@ -7,5 +7,6 @@ SophosAddTest(TestOnAccessImpl
         TestScanRequestHandler.cpp
         TestScanRequestQueue.cpp
         PROJECTS onaccessimpl
+        INC_DIRS ${testhelpersinclude}
         )
 

@@ -1,4 +1,4 @@
-// Copyright 2022 Sophos Limited. All rights reserved.
+// Copyright 2022-2023 Sophos Limited. All rights reserved.
 
 #define TEST_PUBLIC public
 
@@ -7,7 +7,7 @@
 #include "scan_messages/ClientScanRequest.h"
 // Test
 #include "OnAccessImplMemoryAppenderUsingTests.h"
-#include "datatypes/MockSysCalls.h"
+#include "Common/Helpers/MockSysCalls.h"
 
 #include <gtest/gtest.h>
 
