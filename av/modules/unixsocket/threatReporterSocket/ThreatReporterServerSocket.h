@@ -1,3 +1,4 @@
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 /******************************************************************************************************
 
 Copyright 2020, Sophos Limited.  All rights reserved.
@@ -6,9 +7,10 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include "datatypes/SystemCallWrapper.h"
 #include "unixsocket/BaseServerSocket.h"
 #include "ThreatReporterServerConnectionThread.h"
+
+#include "Common/SystemCallWrapper/SystemCallWrapper.h"
 
 namespace unixsocket
 {
@@ -25,7 +27,7 @@ namespace unixsocket
     protected:
         TPtr makeThread(datatypes::AutoFd& fd) override
         {
-            auto sysCalls = std::make_shared<datatypes::SystemCallWrapper>();
+            auto sysCalls = std::make_shared<Common::SystemCallWrapper::SystemCallWrapper>();
             return std::make_unique<ThreatReporterServerConnectionThread>(fd, m_threatReportCallback, sysCalls);
         }
 

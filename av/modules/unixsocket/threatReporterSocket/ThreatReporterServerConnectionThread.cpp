@@ -26,7 +26,7 @@ using namespace unixsocket;
 ThreatReporterServerConnectionThread::ThreatReporterServerConnectionThread(
     datatypes::AutoFd& fd,
     std::shared_ptr<IMessageCallback> threatReportCallback,
-    datatypes::ISystemCallWrapperSharedPtr sysCalls) :
+    Common::SystemCallWrapper::ISystemCallWrapperSharedPtr  sysCalls) :
     BaseServerConnectionThread("ThreatReporterServerConnectionThread")
     ,m_fd(std::move(fd))
     , m_threatReportCallback(std::move(threatReportCallback))
