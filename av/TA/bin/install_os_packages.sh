@@ -40,7 +40,16 @@ then
           TIMEOUT_INSTALL="-o DPkg::Lock::Timeout=30"
           ;;
     esac
-    apt $TIMEOUT_UPDATE update
+    for (( i=0; i<5; i++ ))
+    do
+       if apt $TIMEOUT_UPDATE update
+       then
+          break
+       fi
+       echo "Failed to apt update"
+       sleep 5
+    done
+
     # Retry 10 times before timeout
     for (( i=0; i<10; i++ ))
     do
