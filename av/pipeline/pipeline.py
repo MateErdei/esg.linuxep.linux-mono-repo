@@ -409,6 +409,9 @@ def get_test_machines(test_inputs, parameters: tap.Parameters):
     if parameters.run_debian_11 != "false":
         test_environments['debian11'] = 'debian11_x64_aws_server_en_us'
 
+    if parameters.run_debian_12 != "false":
+        test_environments['debian12'] = 'debian12_x64_aws_server_en_us'
+
     if parameters.run_oracle_7 != "false":
         test_environments['oracle7'] = 'oracle79_x64_aws_server_en_us'
 
