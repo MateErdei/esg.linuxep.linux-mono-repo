@@ -85,7 +85,7 @@ RA Plugin handles decompression of non zip file appropriately
     Wait Until Keyword Succeeds
     ...  1 min
     ...  5 secs
-    ...  Check Cloud Server Log Contains    \"errorType\":\"invalid_filetype\",\"httpStatus\":403,\"result\":1
+    ...  Check Cloud Server Log Contains    \"errorType\":\"invalid_filetype\",\"httpStatus\":200,\"result\":1
 
 
 RA Plugin handles download to mounts appropriately
