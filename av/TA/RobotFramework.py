@@ -1,8 +1,13 @@
+#!/bin/env python3
+
 import argparse
 import json
 import robot
 import os
 import sys
+
+print("Python:", sys.executable)
+print("Python version:", sys.version)
 
 from pubtap.robotframework.tap_result_listener import tap_result_listener
 
