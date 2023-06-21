@@ -25,6 +25,7 @@ Global Setup Tasks
     Set Global Variable  ${COMPONENT_BIN_PATH}      ${COMPONENT_ROOT_PATH}/bin/${COMPONENT_NAME}
     Set Global variable  ${COMPONENT_LIB64_DIR}     ${COMPONENT_ROOT_PATH}/lib64
     Set Global variable  ${EDR_LOG_FILE}            ${COMPONENT_ROOT_PATH}/log/edr.log
+    Set Global variable  ${SCHEDULEDQUERY_LOG_FILE}    ${COMPONENT_ROOT_PATH}/log/scheduledquery.log
     Set Global Variable  ${FAKEMANAGEMENT_AGENT_LOG_PATH}  /tmp/fake_management_agent.log
 
     Directory Should Exist  ${ROBOT_SCRIPTS_PATH}
