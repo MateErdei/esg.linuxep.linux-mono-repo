@@ -63,11 +63,11 @@ namespace
             auto now = std::chrono::time_point_cast<std::chrono::seconds>(std::chrono::system_clock::now());
             long time = (now - ageOfThreat).time_since_epoch().count();
             std::stringstream jsonString;
-            jsonString  << R"sophos({")sophos" << threatId << R"sophos(":{")sophos"
-                        << JsonKeys::correlationId << R"sophos(":")sophos" << correlationId
-                        << R"sophos(",")sophos"
-                        << JsonKeys::timestamp << R"sophos(":)sophos" << time
-                        << R"sophos(}})sophos";
+            jsonString  << R"({")" << threatId << R"(":{")"
+                        << JsonKeys::correlationId << R"(":")" << correlationId
+                        << R"(",")"
+                        << JsonKeys::timestamp << R"(":)" << time
+                        << R"(}})";
             return jsonString.str();
         }
 
@@ -167,6 +167,24 @@ TEST_F(TestThreatDatabase, initDatabaseAddsCorrelationIDIfDBinOldFormat)
     EXPECT_FALSE(correlationIdOptional.value().empty());
 
     EXPECT_TRUE(appenderContains("Failed to load saved correlation field for threatID"));
+}
+
+TEST_F(TestThreatDatabase, initDatabaseHandlesIfNumbersInJsonPreviousDatabaseExists)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    EXPECT_CALL(*m_fileSystemMock, exists(Plugin::getPersistThreatDatabaseFilePath())).Times(2).WillRepeatedly(Return(true));
+    EXPECT_CALL(*m_fileSystemMock, readFile(Plugin::getPersistThreatDatabaseFilePath()))
+        .WillOnce(Return(R"({"threatID":{123456,"timestamp":123}})"));
+    EXPECT_CALL(*m_fileSystemMock, writeFile(Plugin::getPersistThreatDatabaseFilePath(),_));
+
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(m_fileSystemMock) };
+
+    Plugin::ThreatDatabase database = Plugin::ThreatDatabase{Plugin::getPluginVarDirPath()};
+
+    EXPECT_TRUE(appenderContains("Resetting ThreatDatabase as we failed to parse ThreatDatabase on disk with error: [json.exception.parse_error.101] parse error at line 1, column 19: syntax error while parsing object key - unexpected number literal; expected string literal"));
+    EXPECT_TRUE(appenderContains("Initialised Threat Database"));
+    verifyCorruptDatabaseTelemetryPresent();
 }
 
 TEST_F(TestThreatDatabase, initDatabaseHandlesInvalidPermissions)
