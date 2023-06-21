@@ -1,3 +1,4 @@
+import argparse
 import datetime
 import os
 import shutil
@@ -59,9 +60,8 @@ def get_warehouse_branches(branch_filter, url, type, version_separator):
     return release_branches
 
 
-def gather_sdds3_warehouse_files(output_dir, release_type):
-    print(f"gather_sdds3_warehouse_files {output_dir} {release_type}")
-    release_branches, builds = [], []
+def get_warehouse_branch(release_type):
+    release_branches = []
     version_separator = ""
 
     current_year = datetime.date.today().year
@@ -84,24 +84,19 @@ def gather_sdds3_warehouse_files(output_dir, release_type):
     # Handle branch format 2023-16 and also 2023-16_comments_like_this
     cleaned_branches = [branch.split("_")[0] for branch in release_branches]
 
-    release_branch = sorted(cleaned_branches,
-                            key=lambda x: float(x[len(branch_filter):].split(version_separator)[0]),
-                            reverse=True)[0]
-    for build in ArtifactoryPath(os.path.join(warehouse_repo_url, release_branch)):
-        builds.append(build)
-    latest_build = sorted(builds, key=lambda x: int(os.path.basename(x).split('-')[0]), reverse=True)[0]
-
-    unpack_sdds3_artifact(latest_build, "launchdarkly", output_dir)
-    unpack_sdds3_artifact(latest_build, "repo", output_dir)
+    return sorted(cleaned_branches, key=lambda x: float(x[len(branch_filter):].split(version_separator)[0]),
+                  reverse=True)[0]
 
 
-def setup_release_warehouse(dest, release_type):
+def setup_release_warehouse(dest, release_type, override_branch):
     output_dir = os.path.join(dest, f"sdds3-{release_type}")
     if not os.path.isdir(output_dir):
         os.mkdir(output_dir)
 
     try:
-        gather_sdds3_warehouse_files(output_dir, release_type)
+        release_branch = override_branch if override_branch else get_warehouse_branch(release_type)
+        print(f"Using {release_branch} for {release_type} warehouse")
+        get_warehouse_artifact(release_branch, output_dir)
     except Exception as ex:
         raise AssertionError(f"Failed to gather {release_type} warehouse files. Error: {ex}")
 
@@ -136,22 +131,18 @@ def setup_release_warehouse(dest, release_type):
                                 os.path.join(release_sdds3_package_path, package))
 
 
-def run(argv):
-    dest = os.environ.get("SYSTEMPRODUCT_TEST_INPUT", default="/tmp/system-product-test-inputs")
-    try:
-        if argv[1]:
-            dest = argv[1]
-    except IndexError:
-        pass
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--dest",
+                        default=os.environ.get("SYSTEMPRODUCT_TEST_INPUT", default="/tmp/system-product-test-inputs"))
+    parser.add_argument("--dogfood-override", default=os.environ.get("SDDS3_DOGFOOD", default=None))
+    parser.add_argument("--current-shipping-override", default=os.environ.get("SDDS3_CURRENT_SHIPPING", default=None))
+    args = parser.parse_args()
 
-    setup_release_warehouse(dest, "dogfood")
-    setup_release_warehouse(dest, "current_shipping")
-
-
-def main(argv):
-    run(argv)
+    setup_release_warehouse(args.dest, "dogfood", args.dogfood_override)
+    setup_release_warehouse(args.dest, "current_shipping", args.current_shipping_override)
     return 0
 
 
 if __name__ == "__main__":
-    sys.exit(main(sys.argv))
+    sys.exit(main())
