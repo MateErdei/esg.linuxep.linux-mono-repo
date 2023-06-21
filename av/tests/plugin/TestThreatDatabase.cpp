@@ -219,6 +219,23 @@ TEST_F(TestThreatDatabase, initDatabaseHandlesFileTooLarge)
     verifyCorruptDatabaseTelemetryNotPresent();
 }
 
+TEST_F(TestThreatDatabase, initDatabaseHandlesPathThatIsDirectory)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    EXPECT_CALL(*m_fileSystemMock, exists(Plugin::getPersistThreatDatabaseFilePath())).WillOnce(Return(true));
+    EXPECT_CALL(*m_fileSystemMock, readFile(Plugin::getPersistThreatDatabaseFilePath()))
+        .WillOnce(Throw(Common::FileSystem::IFileSystemException("Error, Failed to read file: " + Plugin::getPersistThreatDatabaseFilePath() + ", is a directory")));
+
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(m_fileSystemMock) };
+
+    auto database = Plugin::ThreatDatabase{Plugin::getPluginVarDirPath()};
+
+    EXPECT_TRUE(database.isDatabaseEmpty());
+    EXPECT_TRUE(appenderContains("Initialised Threat Database"));
+    verifyCorruptDatabaseTelemetryNotPresent();
+}
+
 TEST_F(TestThreatDatabase, DatabaseLoadsAndSavesCorrectly)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
