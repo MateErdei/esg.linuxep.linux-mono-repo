@@ -87,6 +87,7 @@ o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libstatuscacheimpl.so.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libstatusreceiverimpl.so.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libstdc++.so.6.0.29.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libsuldownloaderdata.so.0
+o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libsystemcallwrapper.so.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libtaskqueueimpl.so.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libtelemetryconfigimpl.so.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libtelemetryhelperimpl.so.0

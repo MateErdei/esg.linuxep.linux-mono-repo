@@ -466,6 +466,7 @@ o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libstdc++.so.6
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libstdc++.so.6.0
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libstdc++.so.6.0.29
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libsuldownloaderdata.so
+o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libsystemcallwrapper.so
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libtaskqueueimpl.so
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libtelemetryconfigimpl.so
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libtelemetryhelperimpl.so
