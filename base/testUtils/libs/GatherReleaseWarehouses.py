@@ -58,7 +58,6 @@ def get_warehouse_branches(branch_filter, url, type, version_separator):
 
 
 def get_warehouse_branch(release_type):
-    release_branches = []
     version_separator = ""
 
     current_year = datetime.date.today().year
