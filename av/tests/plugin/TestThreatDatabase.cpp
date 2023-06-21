@@ -5,8 +5,9 @@
 #include "PluginMemoryAppenderUsingTests.h"
 
 #include "common/ApplicationPaths.h"
-
 #include "datatypes/Print.h"
+#include "datatypes/sophos_filesystem.h"
+#include "pluginimpl/ThreatDatabase.h"
 
 #include "Common/FileSystem/IFileSystemException.h"
 #include "Common/Helpers/FileSystemReplaceAndRestore.h"
@@ -14,8 +15,6 @@
 #include "Common/TelemetryHelperImpl/TelemetryHelper.h"
 
 #include <thirdparty/nlohmann-json/json.hpp>
-#include <datatypes/sophos_filesystem.h>
-#include <pluginimpl/ThreatDatabase.h>
 
 using namespace Plugin;
 
@@ -52,7 +51,6 @@ namespace
             fs::current_path(fs::temp_directory_path());
             fs::remove_all(m_testDir);
         }
-
 
         std::unique_ptr<NiceMock<MockFileSystem>> m_fileSystemMock;
         fs::path m_testDir;
@@ -168,7 +166,6 @@ TEST_F(TestThreatDatabase, initDatabaseAddsCorrelationIDIfDBinOldFormat)
     EXPECT_FALSE(correlationIdOptional.value().empty());
 
     EXPECT_TRUE(appenderContains("Failed to load saved correlation field for threatID"));
-
 }
 
 TEST_F(TestThreatDatabase, DatabaseLoadsAndSavesCorrectly)
