@@ -4,14 +4,11 @@ import os
 import shutil
 import sys
 
-import certifi_local
-import tap.jwt
 from artifactory import ArtifactoryPath
 from build_scripts.artisan_fetch import artisan_fetch
 
 
 def get_warehouse_artifact(release_branch, output_dir):
-    tap.jwt.get_jwt(certifi_local.sophos.where_jwt_live_cert())
 
     release_package_path = os.path.join(output_dir, "release-package.xml")
     with open(release_package_path, 'w') as release_package_file:
