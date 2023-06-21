@@ -40,12 +40,6 @@ class FakeManagement(object):
         self.agent.start()
 
 
-    def stop_fake_management(self):
-        if not self.agent:
-            raise AssertionError("Agent not initialized")
-        self.agent.stop()
-        self.agent = None
-
     def link_appid_plugin(self, appid, pluginname):
         if not self.agent:
             raise AssertionError("Agent not initialized")
@@ -65,23 +59,8 @@ class FakeManagement(object):
         if 'ACK' not in response:
             raise AssertionError(str(response))
 
-
     def get_telemetry(self):
         return self.agent.get_telemetry(self.pluginname)
-
-    def wait_registered(self):
-        for i in range(10):
-            if self.agent.registered_plugins:
-                return
-            time.sleep(0.1)
-        raise AssertionError("No plugin registered recently")
-
-    def check_status_compliant(self):
-        status_contents = self.agent.get_status(self.appid, self.pluginname)
-        strcontents = str(status_contents)
-        self.logger.info("Current status: " + strcontents)
-        if not all(['Res="Same"' in status_content.decode("utf-8") for status_content in status_contents]):
-            raise AssertionError("Status content not compliant: " + strcontents)
 
     def check_status_contains(self, statusElement):
         status_contents = self.agent.get_status(self.appid, self.pluginname)
@@ -89,12 +68,6 @@ class FakeManagement(object):
         self.logger.info("Current status: " + strcontents)
         if not all([statusElement in status_content.decode("utf-8") for status_content in status_contents]):
             raise AssertionError("Status does not contain: " + statusElement)
-
-    def check_telemetry_contain(self, matchstring):
-        self.logger.info("try to match the " + matchstring)
-        content = self.get_telemetry()
-        if matchstring not in content:
-            raise AssertionError("Content of telemetry:" + content)
 
     def __del__(self):
         if self.agent:
