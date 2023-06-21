@@ -703,7 +703,7 @@ namespace Plugin
         m_loggerExtensionPtr->setDataLimit(m_dataLimit);
 
         m_liveQueryRevId = getRevId(policyAttributesMap);
-        bool previousXdrValue = m_enableScheduledQueries;
+        bool previousEnableScheduledQueries = m_enableScheduledQueries;
         m_enableScheduledQueries = getScheduledQueriesEnabledInPolicy(policyAttributesMap);
         if (m_enableScheduledQueries)
         {
@@ -716,7 +716,7 @@ namespace Plugin
         PluginUtils::updatePluginConfWithFlag(PluginUtils::MODE_IDENTIFIER, m_enableScheduledQueries, osqueryRestartNeeded);
 
         // force osquery restart if xdr value has been updated.
-        osqueryRestartNeeded = (m_enableScheduledQueries != previousXdrValue) || osqueryRestartNeeded;
+        osqueryRestartNeeded = (m_enableScheduledQueries != previousEnableScheduledQueries) || osqueryRestartNeeded;
 
         if (!m_enableScheduledQueries && osqueryRestartNeeded)
         {
