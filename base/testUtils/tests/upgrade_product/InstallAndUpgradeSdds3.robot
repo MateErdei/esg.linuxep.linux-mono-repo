@@ -615,6 +615,7 @@ We Can Downgrade From VUT to Release Without Unexpected Errors
     Wait For Version Files to Update    &{expectedVUTVersions}
 
     Check AV Plugin Can Scan Files
+    Enable On Access Via Policy
     Check On Access Detects Threats
 
     # The query pack should have been re-installed
