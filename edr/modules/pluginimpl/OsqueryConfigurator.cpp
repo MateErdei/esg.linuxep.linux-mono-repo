@@ -142,7 +142,10 @@ namespace Plugin
         {
             LOGDEBUG("Adding XDR flags to osquery flags file.");
             flags.emplace_back("--extensions_timeout=10");
-            flags.emplace_back("--extensions_require=SophosLoggerPlugin,SophosExtension");
+            // There is a bug in osquery https://github.com/osquery/osquery/issues/7256 where it does not wait for
+            // all extensions in the list to register, just the first.
+            // flags.emplace_back("--extensions_require=SophosLoggerPlugin,SophosExtension");
+            flags.emplace_back("--extensions_require=SophosLoggerPlugin");
             flags.emplace_back("--logger_plugin=SophosLoggerPlugin");
 
             std::stringstream scheduleEpochSS;
