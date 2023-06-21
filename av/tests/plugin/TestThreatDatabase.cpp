@@ -9,7 +9,8 @@
 #include "datatypes/sophos_filesystem.h"
 #include "pluginimpl/ThreatDatabase.h"
 
-#include "Common/FileSystem/IFileSystemException.h"
+#include "Common/FileSystem/IFileTooLargeException.h"
+#include "Common/FileSystem/IPermissionDeniedException.h"
 #include "Common/Helpers/FileSystemReplaceAndRestore.h"
 #include "Common/Helpers/MockFileSystem.h"
 #include "Common/TelemetryHelperImpl/TelemetryHelper.h"
@@ -166,6 +167,38 @@ TEST_F(TestThreatDatabase, initDatabaseAddsCorrelationIDIfDBinOldFormat)
     EXPECT_FALSE(correlationIdOptional.value().empty());
 
     EXPECT_TRUE(appenderContains("Failed to load saved correlation field for threatID"));
+}
+
+TEST_F(TestThreatDatabase, initDatabaseHandlesInvalidPermissions)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    EXPECT_CALL(*m_fileSystemMock, exists(Plugin::getPersistThreatDatabaseFilePath())).WillOnce(Return(true));
+    EXPECT_CALL(*m_fileSystemMock, readFile(Plugin::getPersistThreatDatabaseFilePath())).WillOnce(Throw(Common::FileSystem::IPermissionDeniedException("NoPermission")));
+
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(m_fileSystemMock) };
+
+    auto database = Plugin::ThreatDatabase{Plugin::getPluginVarDirPath()};
+
+    EXPECT_TRUE(database.isDatabaseEmpty());
+    EXPECT_TRUE(appenderContains("Initialised Threat Database"));
+    verifyCorruptDatabaseTelemetryNotPresent();
+}
+
+TEST_F(TestThreatDatabase, initDatabaseHandlesFileTooLarge)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    EXPECT_CALL(*m_fileSystemMock, exists(Plugin::getPersistThreatDatabaseFilePath())).WillOnce(Return(true));
+    EXPECT_CALL(*m_fileSystemMock, readFile(Plugin::getPersistThreatDatabaseFilePath())).WillOnce(Throw(Common::FileSystem::IFileTooLargeException("ToLarge")));
+
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(m_fileSystemMock) };
+
+    auto database = Plugin::ThreatDatabase{Plugin::getPluginVarDirPath()};
+
+    EXPECT_TRUE(database.isDatabaseEmpty());
+    EXPECT_TRUE(appenderContains("Initialised Threat Database"));
+    verifyCorruptDatabaseTelemetryNotPresent();
 }
 
 TEST_F(TestThreatDatabase, DatabaseLoadsAndSavesCorrectly)
