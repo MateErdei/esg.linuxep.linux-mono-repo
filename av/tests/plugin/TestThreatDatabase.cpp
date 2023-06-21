@@ -545,6 +545,47 @@ TEST_F(TestThreatDatabase, resetDatabaseHandlesFileError)
     verifyCorruptDatabaseTelemetryNotPresent();
 }
 
+
+TEST_F(TestThreatDatabase, initDatabaseHandlesIfJsonHasDifferentFormatWithString)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    EXPECT_CALL(*m_fileSystemMock, exists(Plugin::getPersistThreatDatabaseFilePath())).WillOnce(Return(true));
+    EXPECT_CALL(*m_fileSystemMock, readFile(Plugin::getPersistThreatDatabaseFilePath()))
+        .WillOnce(Return(R"({"ujo":"unidentified-json-format"})"));
+    EXPECT_CALL(*m_fileSystemMock, writeFile(Plugin::getPersistThreatDatabaseFilePath(),_));
+
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(m_fileSystemMock) };
+
+    Plugin::ThreatDatabase database = Plugin::ThreatDatabase{Plugin::getPluginVarDirPath()};
+
+    EXPECT_TRUE(appenderContains("Failed to load saved correlation field for ujo as parsing failed with error for correlationId [json.exception.type_error.304] cannot use at() with string"));
+    EXPECT_TRUE(appenderContains("Not loading Time field for ujo into threat database as parsing failed with error for timestamp [json.exception.type_error.304] cannot use at() with string"));
+    EXPECT_TRUE(appenderContains("Initialised Threat Database"));
+    EXPECT_FALSE(database.isDatabaseEmpty());
+    verifyCorruptDatabaseTelemetryPresent();
+}
+
+TEST_F(TestThreatDatabase, initDatabaseHandlesIfJsonHasDifferentFormatWithNumber)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    EXPECT_CALL(*m_fileSystemMock, exists(Plugin::getPersistThreatDatabaseFilePath())).WillOnce(Return(true));
+    EXPECT_CALL(*m_fileSystemMock, readFile(Plugin::getPersistThreatDatabaseFilePath()))
+        .WillOnce(Return(R"({"ujo":{"thingy":123}})"));
+    EXPECT_CALL(*m_fileSystemMock, writeFile(Plugin::getPersistThreatDatabaseFilePath(),_));
+
+    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(m_fileSystemMock) };
+
+    Plugin::ThreatDatabase database = Plugin::ThreatDatabase{Plugin::getPluginVarDirPath()};
+
+    EXPECT_TRUE(appenderContains("Failed to load saved correlation field for ujo as parsing failed with error for correlationId [json.exception.out_of_range.403] key 'correlationId' not found"));
+    EXPECT_TRUE(appenderContains("Not loading Time field for ujo into threat database as parsing failed with error for timestamp [json.exception.out_of_range.403] key 'timestamp' not found"));
+    EXPECT_TRUE(appenderContains("Initialised Threat Database"));
+    EXPECT_FALSE(database.isDatabaseEmpty());
+    verifyCorruptDatabaseTelemetryPresent();
+}
+
 TEST_F(TestThreatDatabase, DatabaseLoadsThreatWithInvalidTime)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
