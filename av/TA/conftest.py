@@ -1,7 +1,6 @@
 #!/bin/env python3
 # -*- coding: utf-8 -*-
-# Copyright (C) 2020 Sophos Ltd
-# All rights reserved.
+# Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 # Run with as: python3 -u -m pytest
 
@@ -79,6 +78,9 @@ def collect_logs(test_name):
     """
     Copy all logs from the install directory
     """
+    if not pytest.sophos_install_location:
+        print("pytest.sophos_install_location is not set, can't collect logs")
+        return
     dir_to_export_logs_to = "/opt/test/logs/test_logs/{}".format(test_name)
     if os.path.exists(dir_to_export_logs_to):
         shutil.rmtree(dir_to_export_logs_to)
