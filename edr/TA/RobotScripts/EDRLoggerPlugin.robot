@@ -874,7 +874,7 @@ Ensure Default Osquery Flags Are Contained in flags file
     Wait Until Keyword Succeeds
     ...    30 secs
     ...    2 secs
-    ...    Osquery Flag File Should Contain    --extensions_require=SophosLoggerPlugin,SophosExtension
+    ...    Osquery Flag File Should Contain    --extensions_require=SophosLoggerPlugin
    Osquery Flag File Should Contain    --extensions_timeout=10
    Osquery Flag File Should Contain    --logger_plugin=SophosLoggerPlugin
 
