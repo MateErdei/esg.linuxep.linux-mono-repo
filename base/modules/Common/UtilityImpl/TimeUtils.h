@@ -68,7 +68,7 @@ namespace Common
             static std::string MessageTimeStamp(const std::chrono::system_clock::time_point& time_point, Common::UtilityImpl::Granularity granularity = Granularity::milliseconds) noexcept;
 
             /*
-             * Get current timestamp, in seconds.
+             * Get current unix timestamp, in seconds e.g. 1687350741
              */
             static std::time_t getCurrTime();
             static std::string getBootTime();
