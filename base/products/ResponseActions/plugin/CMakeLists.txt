@@ -23,6 +23,7 @@ install(TARGETS
         ziputilities
         utilityimpl
         filesystemimpl
+        systemcallwrapper
         logging
         applicationconfigurationimpl
         LIBRARY DESTINATION ${RA_DIST_PREFIX}/files/plugins/${RA_PLUGIN_NAME}/lib64)
