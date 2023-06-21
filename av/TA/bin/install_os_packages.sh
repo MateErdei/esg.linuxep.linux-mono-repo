@@ -180,7 +180,7 @@ then
 
     PACKAGES="libcap-progs nfs-kernel-server zip unzip gdb util-linux netcat-openbsd"
     (( CIFS == 0 )) || PACKAGES="samba $PACKAGES"
-    # (( NTFS == 0 )) || PACKAGES="ntfs-3g $PACKAGES"
+    (( NTFS == 0 )) || PACKAGES="ntfs-3g $PACKAGES"
 
     for (( i=0; i<10; i++ ))
     do
