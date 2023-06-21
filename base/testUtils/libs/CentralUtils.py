@@ -384,16 +384,16 @@ def Send_Download_File_From_Fake_Cloud(decompress=False, targetPath="/tmp/folder
     CloudAutomation.SendToFakeCloud.sendResponseActionToFakeCloud(json.dumps(action_dict), "correlation-id")
 
 def Send_Download_File_From_Fake_Cloud_NotZip():
-    with open("/tmp/download.txt", 'w') as f:
+    with open("/tmp/downloadToUnzip.txt", 'w') as f:
         f.write("content")
 
-    with open("/tmp/download.txt", 'rb') as tf:
+    with open("/tmp/downloadToUnzip.txt", 'rb') as tf:
         contents = tf.read()
         readable_hash = hashlib.sha256(contents).hexdigest()
 
     action_dict = {"type": "sophos.mgt.action.DownloadFile",
                    "url": "https://localhost:443/download",
-                   "targetPath": "/tmp/download.txt",
+                   "targetPath": "/tmp/downloadToUnzip.txt",
                    "sha256": readable_hash,
                    "sizeBytes": len("content"),
                    "decompress": True,
