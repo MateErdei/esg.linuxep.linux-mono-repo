@@ -83,26 +83,3 @@ class WarehouseGenerator(object):
         component_config_map[component_parent] = component_configs
 
         self.warehouseConfigMap[warehouse_name] = component_config_map
-
-    def generate_install_file_in_directory(self, dir_to_save_install_file):
-        try:
-            os.makedirs(dir_to_save_install_file)
-        except OSError as ex:
-            if ex.errno != errno.EEXIST:
-                raise
-        filename = "install.sh"
-        filepath = os.path.join(dir_to_save_install_file, filename)
-        try:
-            os.remove(filepath)
-        except OSError as ex:
-            if ex.errno not in [errno.EEXIST, errno.ENOENT]:
-                raise
-        with open(filepath, 'w+') as installfile:
-            installfile.write('#!/bin/bash\n'
-                              'echo "INSTALLER EXECUTED"\n'
-                              'echo args: "$@" > /tmp/args_thininstaller_called_base_installer_with\n'
-                              'echo "$PRODUCT_ARGUMENTS"> /tmp/PRODUCT_ARGUMENTS\n'
-                              'echo "$CUSTOMER_TOKEN_ARGUMENT"> /tmp/CUSTOMER_TOKEN_ARGUMENT\n'
-                              'echo "$MCS_TOKEN"> /tmp/MCS_TOKEN\n'
-                              'echo "$MCS_URL"> /tmp/MCS_URL\n'
-                              'exit 0\n')
