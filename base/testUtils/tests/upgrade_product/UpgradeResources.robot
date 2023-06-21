@@ -354,11 +354,3 @@ Get Expected Versions
     ...    mtrVersion=${ExpectedMTRReleaseVersion}
     ...    rtdVersion=${ExpectedRTDReleaseVersion}
     [Return]    &{versions}
-
-
-Check For Digest Sign
-    ${result}=  Run Process  bash  -x  ${SUPPORT_FILES}/jenkins/hasDigestSign.sh
-    Return From Keyword If    ${result.rc} == 0
-    Log  ${result.stdout}
-    Log  ${result.stderr}
-    Fatal Error  "digest_sign not found PATH or venv - see ${SUPPORT_FILES}/jenkins/hasDigestSign.sh"
