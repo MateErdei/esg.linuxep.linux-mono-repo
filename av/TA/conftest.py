@@ -54,6 +54,8 @@ def install_component_setup(tmpdir_factory):
 @pytest.fixture(scope="class")
 def sspl_mock(install_component_setup):
     sophos_install = install_component_setup
+    pytest.sophos_install_location = sophos_install
+    print("Current install location: {}".format(pytest.sophos_install_location))
     component_test_setup(sophos_install)
     component = BaseMockService(sophos_install)
     yield component
