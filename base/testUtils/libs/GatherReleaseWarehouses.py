@@ -1,45 +1,41 @@
 import datetime
-import io
 import os
 import shutil
 import sys
-import zipfile
 
-import requests
-from requests.adapters import HTTPAdapter
-from requests.packages.urllib3.util.retry import Retry
-
+import certifi_local
+import tap.jwt
 from artifactory import ArtifactoryPath
+from build_scripts.artisan_fetch import artisan_fetch
 
 
-def requests_retry_session(
-        retries=3,
-        backoff_factor=0.3,
-        status_forcelist=(500, 502, 504),
-        session=None,
-):
-    session = session or requests.Session()
-    retry = Retry(
-        total=retries,
-        read=retries,
-        connect=retries,
-        backoff_factor=backoff_factor,
-        status_forcelist=status_forcelist,
-    )
-    adapter = HTTPAdapter(max_retries=retry)
-    session.mount('http://', adapter)
-    session.mount('https://', adapter)
-    return session
+def get_warehouse_artifact(release_branch, output_dir):
+    tap.jwt.get_jwt(certifi_local.sophos.where_jwt_live_cert())
 
+    release_package_path = os.path.join(output_dir, "release-package.xml")
+    with open(release_package_path, 'w') as release_package_file:
+        release_package_file.write(f"""<?xml version="1.0" encoding="utf-8"?>
+        <package name="system-product-tests">
+            <inputs>
+                <workingdir>.</workingdir>
+                <build-asset project="linuxep" repo="sspl-warehouse">
+                    <development-version branch="{release_branch}" />
+                    <include artifact-path="prod-sdds3-repo" dest-dir="{output_dir}/repo" />
+                    <include artifact-path="prod-sdds3-launchdarkly" dest-dir="{output_dir}/launchdarkly" />
+                </build-asset>
+            </inputs>
+            <publish>
+                <workingdir>sspl-base-build</workingdir>
+                <destdir>sspl-base</destdir>
+                <buildoutputs>
+                    <output name="output" srcfolder="output" artifactpath="output"> </output>
+                </buildoutputs>
+                <publishbranches>release</publishbranches>
+            </publish>
+        </package>
+        """)
 
-def unpack_sdds3_artifact(build_url, artifact_name, output_dir):
-    unpack_location = os.path.join(output_dir, artifact_name)
-
-    artifact_url = os.path.join(build_url, "build", f"prod-sdds3-{artifact_name}.zip")
-
-    r = requests_retry_session().get(artifact_url)
-    z = zipfile.ZipFile(io.BytesIO(r.content))
-    z.extractall(unpack_location)
+    artisan_fetch(release_package_path, build_mode="not_used", production_build=False)
 
 
 def get_warehouse_branches(branch_filter, url, type, version_separator):
