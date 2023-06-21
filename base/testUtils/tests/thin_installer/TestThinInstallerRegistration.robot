@@ -4,7 +4,6 @@ Test Teardown   Thininstaller Test Teardown
 
 Suite Setup    Upgrade Resources Suite Setup
 
-Library     ${LIBS_DIRECTORY}/WarehouseGenerator.py
 Library     ${LIBS_DIRECTORY}/UpdateServer.py
 Library     ${LIBS_DIRECTORY}/ThinInstallerUtils.py
 Library     ${LIBS_DIRECTORY}/OSUtils.py

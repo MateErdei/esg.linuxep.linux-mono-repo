@@ -8,7 +8,6 @@ Library    ${LIBS_DIRECTORY}/FakeSulDownloader.py
 Library    ${LIBS_DIRECTORY}/OSUtils.py
 Library    ${LIBS_DIRECTORY}/UpdateSchedulerHelper.py
 Library    ${LIBS_DIRECTORY}/UpdateServer.py
-Library    ${LIBS_DIRECTORY}/WarehouseGenerator.py
 Library    ${LIBS_DIRECTORY}/WarehouseUtils.py
 
 Resource  ../installer/InstallerResources.robot

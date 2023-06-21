@@ -12,7 +12,6 @@ Test Teardown    Run Keywords
 
 Library    Process
 Library    ${LIBS_DIRECTORY}/UpdateServer.py
-Library    ${LIBS_DIRECTORY}/WarehouseGenerator.py
 Library    ${LIBS_DIRECTORY}/ThinInstallerUtils.py
 Library    ${LIBS_DIRECTORY}/LogUtils.py
 

@@ -7,7 +7,6 @@ Resource  ../mdr_plugin/MDRResources.robot
 Resource  ../scheduler_update/SchedulerUpdateResources.robot
 Resource  ../GeneralTeardownResource.robot
 
-Library     ${LIBS_DIRECTORY}/WarehouseGenerator.py
 Library     ${LIBS_DIRECTORY}/FullInstallerUtils.py
 Library     ${LIBS_DIRECTORY}/CentralUtils.py
 Library     ${LIBS_DIRECTORY}/LogUtils.py

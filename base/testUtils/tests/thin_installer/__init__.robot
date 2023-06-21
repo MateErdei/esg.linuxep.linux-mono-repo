@@ -1,7 +1,6 @@
 *** Settings ***
 Library    Process
 Library    ${LIBS_DIRECTORY}/UpdateServer.py
-Library    ${LIBS_DIRECTORY}/WarehouseGenerator.py
 Resource    ../upgrade_product/UpgradeResources.robot
 Library    ${LIBS_DIRECTORY}/ThinInstallerUtils.py
 Library    ${LIBS_DIRECTORY}/OSUtils.py

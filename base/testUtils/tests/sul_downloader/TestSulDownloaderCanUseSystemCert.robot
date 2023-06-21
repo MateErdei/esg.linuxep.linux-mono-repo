@@ -7,7 +7,6 @@ Library           Collections
 
 Library           ${LIBS_DIRECTORY}/SulDownloader.py
 Library           ${LIBS_DIRECTORY}/UpdateServer.py
-Library           ${LIBS_DIRECTORY}/WarehouseGenerator.py
 
 Resource          ../installer/InstallerResources.robot
 Resource          ../GeneralTeardownResource.robot

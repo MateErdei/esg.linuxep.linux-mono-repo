@@ -4,7 +4,7 @@ Test Teardown   Thininstaller Test Teardown
 
 Suite Setup      Setup sdds3 Update Tests
 Suite Teardown   Cleanup sdds3 Update Tests
-Library     ${LIBS_DIRECTORY}/WarehouseGenerator.py
+
 Library     ${LIBS_DIRECTORY}/UpdateServer.py
 Library     ${LIBS_DIRECTORY}/ThinInstallerUtils.py
 Library     ${LIBS_DIRECTORY}/OSUtils.py
