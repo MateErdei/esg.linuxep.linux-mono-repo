@@ -181,9 +181,6 @@ EDR Plugin Applies Regex Folding Rules
 
 
 EDR Plugin Runs All Canned Queries
-    [Setup]  No Operation
-    Move File Atomically  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_enabled.xml  /opt/sophos-spl/base/mcs/policy/LiveQuery_policy.xml
-    Test Setup
     Directory Should Be Empty  ${SOPHOS_INSTALL}/base/mcs/datafeed
     Remove File   ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf
     Remove File   ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.mtr.conf
@@ -828,6 +825,7 @@ Ensure Default Osquery Flags Are Contained in flags file
     Osquery Flag File Should Contain    --verbose
     Osquery Flag File Should Contain    --config_refresh=3600
     Osquery Flag File Should Contain    --extensions_require=SophosExtension
+    Osquery Flag File Should Contain    --pack_refresh_interval=3600
 
     # Flags are different if scheduled queries are enabled, so check they change once we enable scheduled queries.
     ${edr_mark} =    Mark Log Size    ${EDR_LOG_FILE}
@@ -935,8 +933,22 @@ Verify RPM DB
         Should Be Equal As Integers    ${result.rc}  0   "Failed to verify RPM DB \n stdout: \n${result.stdout}\n stderr: \n${result.stderr}"
     END
 
+Set Discovery Query Interval In EDR SDDS Directory Config
+    [Arguments]  ${interval}=20
+    ${sdds_plugin_conf} =    Set Variable    ${EDR_SDDS}/files/plugins/edr/etc/plugin.conf
+    ${current_config_content} =  Set Variable    ${EMPTY}
+    ${config_exists} =    does_file_exist    ${sdds_plugin_conf}
+    IF  ${config_exists}
+        ${current_config_content} =     Get File    ${sdds_plugin_conf}
+        log file    ${sdds_plugin_conf}
+    END
+    Run Keyword If    "pack_refresh_interval" not in "${current_config_content}"
+    ...    Append To File    ${sdds_plugin_conf}    --pack_refresh_interval=${interval}
+    log file    ${sdds_plugin_conf}
+
 
 Test Setup
+    Set Discovery Query Interval In EDR SDDS Directory Config
     Install EDR Directly from SDDS
     Check EDR Plugin Installed With Base
     Wait Until Keyword Succeeds

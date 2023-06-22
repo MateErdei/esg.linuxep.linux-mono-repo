@@ -450,7 +450,7 @@ namespace Plugin
         return eventsMaxValue;
     }
 
-    std::string PluginUtils::getWatchdogFlagFromConfig(const std::string& flag,int defaultValue)
+    std::string PluginUtils::getIntegerFlagFromConfig(const std::string& flag, int defaultValue)
     {
         try
         {
@@ -496,9 +496,14 @@ namespace Plugin
 
         for (auto const& flag :flags)
         {
-            list.emplace_back(getWatchdogFlagFromConfig(flag.first,flag.second));
+            list.emplace_back(getIntegerFlagFromConfig(flag.first, flag.second));
         }
 
         return list;
+    }
+
+    std::string PluginUtils::getDiscoveryQueryFlagFromConfig()
+    {
+        return getIntegerFlagFromConfig(DISCOVERY_QUERY_INTERVAL, DEFAULT_DISCOVERY_QUERY_INTERVAL);
     }
 }

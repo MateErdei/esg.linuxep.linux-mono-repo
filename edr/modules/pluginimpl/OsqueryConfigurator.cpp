@@ -138,6 +138,13 @@ namespace Plugin
             flags.emplace_back(flag);
         }
 
+        auto discoveryQueryInterval = PluginUtils::getDiscoveryQueryFlagFromConfig();
+        if (!discoveryQueryInterval.empty())
+        {
+            flags.emplace_back(discoveryQueryInterval);
+        }
+
+
         if (enableScheduledQueries)
         {
             LOGDEBUG("Adding XDR flags to osquery flags file.");

@@ -103,19 +103,29 @@ namespace Plugin
 
         static std::vector<std::string>  getWatchdogFlagsFromConfig();
 
+        /*
+         * Get the flag --pack_refresh_interval from the config (pack_refresh_interval)
+         * This is primarily used for testing.
+         */
+        static std::string  getDiscoveryQueryFlagFromConfig();
+
         inline static const std::string MODE_IDENTIFIER = "running_mode";
         inline static const std::string NETWORK_TABLES_AVAILABLE = "network_tables";
         inline static const std::string QUERY_PACK_NEXT_SETTING = "scheduled_queries_next";
         inline static const std::string XDR_FLAG = "xdr.enabled";
         inline static const std::string QUERY_PACK_NEXT = "scheduled_queries.next";
         inline static const std::string NETWORK_TABLES_FLAG = "livequery.network-tables.available";
+
         inline static const unsigned long MAXIMUM_EVENTED_RECORDS_ALLOWED = 100000;
         inline static const unsigned long DEFAULT_WATCHDOG_MEMORY_LIMIT_MB = 250;
         inline static const unsigned long DEFAULT_WATCHDOG_CPU_PERCENTAGE = 30;
         inline static const unsigned long DEFAULT_WATCHDOG_DELAY_SECONDS = 60;
         inline static const unsigned long DEFAULT_WATCHDOG_LATENCY_SECONDS = 0;
+
+        inline static const std::string DISCOVERY_QUERY_INTERVAL = "pack_refresh_interval";
+        static constexpr unsigned long DEFAULT_DISCOVERY_QUERY_INTERVAL = 3600;
     private:
-        static std::string getWatchdogFlagFromConfig(const std::string& flag, int defaultValue);
+        static std::string getIntegerFlagFromConfig(const std::string& flag, int defaultValue);
    };
 }
 
