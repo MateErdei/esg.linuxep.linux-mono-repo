@@ -18,7 +18,7 @@ o600, root, root, /opt/sophos-spl/plugins/edr/lib64/libglog.so.0
 o600, root, root, /opt/sophos-spl/plugins/edr/lib64/libjsoncpp.so.0
 o600, root, root, /opt/sophos-spl/plugins/edr/lib64/liblivemain.so.0
 o600, root, root, /opt/sophos-spl/plugins/edr/lib64/liblivequeryimpl.so.0
-o600, root, root, /opt/sophos-spl/plugins/edr/lib64/liblog4cplus-2.0.so.3.4.6.0
+o600, root, root, /opt/sophos-spl/plugins/edr/lib64/liblog4cplus.so.0
 o600, root, root, /opt/sophos-spl/plugins/edr/lib64/libLoggerPlugin.so.0
 o600, root, root, /opt/sophos-spl/plugins/edr/lib64/liblzma.so.0
 o600, root, root, /opt/sophos-spl/plugins/edr/lib64/libosqueryclient.so.0

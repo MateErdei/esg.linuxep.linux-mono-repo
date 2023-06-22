@@ -1,4 +1,5 @@
 /.idea/
+/cmake-afl-fuzz/
 /cmake-build-*
 *.pyc
 /input
@@ -8,10 +9,17 @@
 /tests/googletest
 /log
 PLUGINNAME
-thirdparty/libprotobuf-mutator/
+/thirdparty/libprotobuf-mutator/
+/thirdparty/output/
 /TA/output.xml
 /TA/robot
 /TA/vagrant
+/TA/log.html
+/TA/report.html
+/tests/FuzzerTests/log.html
+/tests/FuzzerTests/report.html
+/tests/FuzzerTests/output.xml
+/products/distribution/include/AutoVersioningHeaders/
 /log.html
 /robot
 /vagrant
