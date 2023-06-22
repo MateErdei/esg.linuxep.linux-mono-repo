@@ -367,6 +367,7 @@ AV health is unaffected by on-access scanning the soapd pidfile
 
 
 AV Service Health Turns Red When SUSI Fails Initialisation And Turns Green When SUSI Recovers
+    [Tags]  susi_init
     Register Cleanup  Exclude Susi Initialisation Failed Messages On Access Enabled
 
     #necessary for error markers
