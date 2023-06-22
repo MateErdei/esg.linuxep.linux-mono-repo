@@ -28,25 +28,10 @@ REAL_WAREHOUSE_DIRECTORY = os.path.join(SUPPORT_FILE_PATH, "CentralXml", "RealWa
 TEMPLATE_FILE_DIRECTORY = os.path.join(REAL_WAREHOUSE_DIRECTORY, "templates")
 GENERATED_FILE_DIRECTORY = os.path.join(REAL_WAREHOUSE_DIRECTORY, "GeneratedAlcPolicies")
 
-FILER_6_DIRECTORY = os.path.join("/", "mnt", "filer6", "bfr", "sspl-warehouse")
 SYSTEMPRODUCT_TEST_INPUT = os.environ.get("SYSTEMPRODUCT_TEST_INPUT", default="/tmp/system-product-test-inputs")
 LOCAL_WAREHOUSES_ROOT = os.path.join(SYSTEMPRODUCT_TEST_INPUT, "local_warehouses")
 LOCAL_WAREHOUSES = os.path.join(LOCAL_WAREHOUSES_ROOT, "dev", "sspl-warehouse")
 WAREHOUSE_LOCAL_SERVER_PORT = 443
-# newline is important in the redirect below
-OSTIA_HOST_REDIRECT = """127.0.0.1  ostia.eng.sophos
-"""
-INTERNAL_OSTIA_HOST_REDIRECT = """127.0.0.1  ostia.eng.sophos
-10.1.200.228    dci.sophosupd.com
-10.1.200.228    dci.sophosupd.net
-10.1.200.228    d1.sophosupd.com
-10.1.200.228    d1.sophosupd.net
-10.1.200.228    d2.sophosupd.com
-10.1.200.228    d2.sophosupd.net
-10.1.200.228    d3.sophosupd.com
-10.1.200.228    d3.sophosupd.net
-"""
-OSTIA_HOSTS_BACKUP_FILENAME = "ostia_hosts.bk"
 
 USERNAME = "username"
 PASSWORD = "password"
@@ -97,29 +82,6 @@ PS_ROOT_CA_INSTALLATION_EXTENSION_OLD = os.path.join("base", "update", "certs", 
 SOPHOS_ALIAS_EXTENSION = os.path.join("base", "update", "var", "sophos_alias.txt")
 
 
-def _make_local_copy_of_warehouse():
-    branch_directories = []
-    for address in OSTIA_ADDRESSES:
-        branch_name = os.path.basename(address)
-        branch_directories.append(branch_name)
-
-        filer_branch_path = os.path.join(FILER_6_DIRECTORY, branch_name)
-        local_branch_path = os.path.join(LOCAL_WAREHOUSES, branch_name)
-        os.makedirs(local_branch_path)
-        logger.info("made branch path")
-        with open(os.path.join(filer_branch_path, "lastgoodbuild.txt"), "r") as last_good_build:
-            latest_good_build = last_good_build.read()
-            latest_path = os.path.join(filer_branch_path, latest_good_build, "warehouse", "1.0.0")
-            local_destination_path = os.path.join(local_branch_path, latest_good_build)
-            shutil.copytree(os.path.join(latest_path, "customer"), os.path.join(local_destination_path, "customer"))
-            shutil.copytree(os.path.join(latest_path, "warehouse"), os.path.join(local_destination_path, "warehouse"))
-
-
-def _cleanup_local_warehouses():
-    if os.path.isdir(LOCAL_WAREHOUSES):
-        shutil.rmtree(LOCAL_WAREHOUSES_ROOT)
-
-
 def _get_sophos_install_path():
     sophos_install_path = BuiltIn().get_variable_value("${SOPHOS_INSTALL}", "/opt/sophos-spl")
     if not os.path.isdir(sophos_install_path):
@@ -138,24 +100,6 @@ def _install_upgrade_certs(root_ca, ps_root_ca):
     except:
         shutil.copy(root_ca, os.path.join(sophos_install_path, ROOT_CA_INSTALLATION_EXTENSION_OLD))
         shutil.copy(ps_root_ca, os.path.join(sophos_install_path, PS_ROOT_CA_INSTALLATION_EXTENSION_OLD))
-
-
-def _install_sophos_alias_file(url):
-    sophos_install_path = _get_sophos_install_path()
-    sophos_alias_file_path = os.path.join(sophos_install_path, SOPHOS_ALIAS_EXTENSION)
-    base_update_var_directory = os.path.dirname(sophos_alias_file_path)
-    logger.info(f"Sophos alias URL: {url}")
-    if not os.path.isdir(base_update_var_directory):
-        raise OSError(f"cannot create sophos alias file as \"{base_update_var_directory}\" does not exist")
-    with open(sophos_alias_file_path, "w") as sophos_alias_file:
-        sophos_alias_file.write(url)
-        logger.info(f"wrote alias '{url}' to '{sophos_alias_file_path}'")
-
-
-def _remove_sophos_alias_file():
-    sophos_install_path = _get_sophos_install_path()
-    sophos_alias_file_path = os.path.join(sophos_install_path, SOPHOS_ALIAS_EXTENSION)
-    os.remove(sophos_alias_file_path)
 
 
 def calculate_hashed_creds(username, password):
@@ -302,40 +246,6 @@ def get_version_of_component_with_tag_from_spec_xml(rigidname, tag, spec_xml_dic
         # print(relevant_sdds_names)
         # print(spec_xml_dict.keys())
         raise AssertionError(f"Did not find {rigidname} in {spec_xml_dict}")
-
-
-def get_version_of_component_with_tag_from_spec_xml_from_componentsuite(rigidname, componentsuite_rigid_name, tag,
-                                                                        spec_xml_dict, relevant_sdds_names,
-                                                                        optional=False):
-    optional = bool(optional)
-    examined = []
-
-    for sdds_name in relevant_sdds_names:
-        # print(sdds_name)
-        try:
-            spec_xml = spec_xml_dict.get(sdds_name, None)
-            if not spec_xml:
-                if "SSPL" in sdds_name:
-                    logger.error(f"Not got the spec for {sdds_name} from {sdds_specs_directory}")
-                continue
-            examined.append(sdds_name)
-
-            logger.debug(f"get_version_of_component_with_tag_from_spec_xml_from_componentsuite: {sdds_name} -> {spec_xml}")
-
-            importref = get_importrefrence_for_component_with_tag_from_componentsuite(rigidname,
-                                                                                      componentsuite_rigid_name, tag,
-                                                                                      spec_xml[pubspec])
-            return get_version_for_component_with_importref(rigidname, importref, spec_xml[importspec])
-        except (AssertionError, IndexError):
-            continue
-    else:
-        # print(relevant_sdds_names)
-        # print(spec_xml_dict.keys())
-        if optional:
-            logger.error(f"Did not find {rigidname} in {examined} from {relevant_sdds_names}")
-            return None
-        else:
-            raise AssertionError(f"Did not find {rigidname} in {examined} from {relevant_sdds_names}")
 
 
 class TemplateConfig:
@@ -486,19 +396,6 @@ class TemplateConfig:
                 )
         return output_policy
 
-    def install_sophos_alias_file(self):
-        _install_sophos_alias_file(self.get_connection_address())
-
-    def install_sophos_alias_file_if_using_ostia(self):
-        if self.remote_connection_address in OSTIA_ADDRESSES:
-            self.install_sophos_alias_file()
-
-    def get_basename_from_url(self):
-        return self.remote_connection_address.rsplit("/", 1)[-1]
-
-    def get_relevant_sdds_filenames(self):
-        return self.relevent_sdds_files
-
 
 class WarehouseUtils(object):
     """
@@ -589,11 +486,6 @@ class WarehouseUtils(object):
         for file_name, template_config in list(self.template_configuration_values.items()):
             template_config.generate_warehouse_policy_from_template(file_name)
 
-    def generate_local_warehouses(self):
-        _make_local_copy_of_warehouse()
-
-    def cleanup_local_warehouses(self):
-        _cleanup_local_warehouses()
 
     def install_upgrade_certs_for_policy(self, policy_path, root_ca=None, ps_root_ca=None):
         template_config = self._get_template_config_from_dictionary_using_path(policy_path)
@@ -606,53 +498,6 @@ class WarehouseUtils(object):
     def install_upgrade_certs(self, root_ca, ps_root_ca):
         _install_upgrade_certs(root_ca, ps_root_ca)
 
-    def install_sophos_alias_file_for_policy(self, policy_path):
-        """
-        installs a sophos alias file to <spl-installation>/base/etc/update/var/sophos_alias.txt which will redirect
-        suldownloader to a url.
-
-        :param policy_path: Policy to infer the redirect url from
-        :return:
-        """
-        template_config = self._get_template_config_from_dictionary_using_path(policy_path)
-        template_config.install_sophos_alias_file()
-
-    def install_sophos_alias_file_for_policy_if_using_ostia(self, policy_path):
-        """
-        installs a sophos alias file to <spl-installation>/base/etc/update/var/sophos_alias.txt which will redirect
-        suldownloader to a url.
-
-        :param policy_path: Policy to infer the redirect url from
-        :return:
-        """
-        template_config = self._get_template_config_from_dictionary_using_path(policy_path)
-        template_config.install_sophos_alias_file_if_using_ostia()
-
-    def install_sophos_alias_file(self, url):
-        """
-        installs a sophos alias file to <spl-installation>/base/etc/update/var/sophos_alias.txt which will redirect
-        suldownloader.
-
-        :param url: url to write to the alias file
-        :return: None
-        """
-        _install_sophos_alias_file(url)
-
-    def remove_sophos_alias_file(self):
-        """
-        removes the sophos alias file from the installation
-        :return: None
-        """
-        _remove_sophos_alias_file()
-
-    def get_customer_file_domain_for_policy(self, policy_path):
-        template_config = self._get_template_config_from_dictionary_using_path(policy_path)
-        return template_config.customer_file_domain
-
-    def get_warehouse_domain_for_policy(self, policy_path):
-        template_config = self._get_template_config_from_dictionary_using_path(policy_path)
-        return template_config.warehouse_domain
-
     def generate_local_ssl_certs_if_they_dont_exist(self):
         server_https_cert = os.path.join(SUPPORT_FILE_PATH, "https", "ca", "root-ca.crt.pem")
         if not os.path.isfile(server_https_cert):
@@ -662,91 +507,6 @@ class WarehouseUtils(object):
         templ = TemplateConfig('HopefullyNoEnvironmentVariableWillHaveThisName',
                                username, PROD_BUILD_CERTS, BALLISTA_ADDRESS)
         templ.generate_warehouse_policy_from_template(template_name, target_output_file)
-
-    def create_ballista_config_from_template_policy(self, template_policy, username, password):
-
-        env_key = "BALLISTA_CONFIG"
-        generated_ballista_policy_name = "ballista.xml"
-        os.environ[env_key] = f"{username}:{password}"
-        ballista_config = TemplateConfig(env_key, None, PROD_BUILD_CERTS, BALLISTA_ADDRESS)
-
-        if os.path.isabs(template_policy) or os.path.dirname(template_policy):
-            template_policy_name = os.path.basename(template_policy)
-        else:
-            template_policy_name = template_policy
-
-        generated_ballista_policy_path = os.path.join(GENERATED_FILE_DIRECTORY, generated_ballista_policy_name)
-        ballista_config.generate_warehouse_policy_from_template(template_policy_name,
-                                                                proposed_output_path=generated_ballista_policy_path)
-        self.template_configuration_values["template_policy_name"] = ballista_config
-        return generated_ballista_policy_path
-
-    def __get_localwarehouse_path_for_branch(self, branch):
-        return os.path.join(SYSTEMPRODUCT_TEST_INPUT, "/local_warehouses/dev/sspl-warehouse", branch,
-                            "warehouse/warehouse/catalogue")
-
-    def Disable_Product_Warehouse_to_ensure_we_only_perform_a_supplement_update(self, branch="develop"):
-        # ${SYSTEMPRODUCT_TEST_INPUT}/local_warehouses/dev/sspl-warehouse/develop/warehouse/warehouse/catalogue
-        # LOCAL_WAREHOUSES=${SYSTEMPRODUCT_TEST_INPUT}/local_warehouses/dev/sspl-warehouse
-        # templateConfig = self._get_template_config_from_dictionary_using_path(template_path)
-        # base = templateConfig.get_basename_from_url()
-        logger.info(f"Disable_Product_Warehouse_to_ensure_we_only_perform_a_supplement_update for {branch}")
-        path = self.__get_localwarehouse_path_for_branch(branch)
-
-        PROTECTED_SUPPLEMENT_WAREHOUSES = [
-            'sdds.ssplflags-wh.xml'
-        ]
-
-        for x in os.listdir(path):
-            if x in PROTECTED_SUPPLEMENT_WAREHOUSES:
-                logger.debug(f"Not renaming supplement warehouse: {x}")
-                continue
-            src = os.path.join(path, x)
-            bak = src + ".bak"
-            if not os.path.isfile(bak):
-                logger.debug(f"Renaming {src} to {bak}")
-                os.rename(src, bak)
-
-    def Restore_Product_Warehouse(self, branch="develop"):
-        logger.info(f"Restore_Product_Warehouse - after breaking for supplement-only update - for {branch}")
-        path = self.__get_localwarehouse_path_for_branch(branch)
-
-        for x in os.listdir(path):
-            if x.endswith(".bak"):
-                src = os.path.join(path, x)
-                target = src[:-4]
-                logger.debug(f"Renaming {src} to {target}")
-                os.rename(os.path.join(path, x), target)
-
-    def get_version_from_warehouse_for_rigidname(self, template_policy, rigidname, tag="RECOMMENDED"):
-        template_config = self._get_template_config_from_dictionary_using_path(template_policy)
-        relevant_sdds_files = template_config.get_relevant_sdds_filenames()
-        return get_version_of_component_with_tag_from_spec_xml(rigidname, tag, self.WAREHOUSE_SPEC_XML,
-                                                               relevant_sdds_files)
-
-    def get_version_from_warehouse_for_rigidname_in_componentsuite(self, template_policy, rigidname,
-                                                                   componentsuite_rigidname, tag="RECOMMENDED",
-                                                                   optional=False):
-        template_config = self._get_template_config_from_dictionary_using_path(template_policy)
-        relevant_sdds_files = template_config.get_relevant_sdds_filenames()
-        return get_version_of_component_with_tag_from_spec_xml_from_componentsuite(rigidname, componentsuite_rigidname,
-                                                                                   tag, self.WAREHOUSE_SPEC_XML,
-                                                                                   relevant_sdds_files, optional)
-
-    def get_version_for_rigidname_in_vut_warehouse(self, rigidname):
-        if rigidname == "ServerProtectionLinux-Base":
-            if not os.environ.get("BALLISTA_VUT"):
-                # dev warehouse hard code version
-                return "1.0.0"
-            return get_version_from_sdds_import_file(
-                os.path.join(PathManager.SYSTEM_PRODUCT_TEST_INPUTS, "sspl-componentsuite", "SDDS-Import.xml"))
-        warehouse_root = os.path.join(LOCAL_WAREHOUSES_ROOT, "dev", "sspl-warehouse", "develop", "warehouse",
-                                      "warehouse")
-        product_name = self.RIGIDNAMES_AGAINST_PRODUCT_NAMES_IN_VERSION_INI_FILES[rigidname]
-        version = subprocess.check_output(
-            f'grep -r "PRODUCT_NAME = {product_name}" {SYSTEMPRODUCT_TEST_INPUT}/local_warehouses/dev/sspl-warehouse/develop/warehouse/warehouse/ | awk -F: \'{{print $1}}\' | xargs grep "PRODUCT_VERSION" | sed "s/PRODUCT_VERSION\ =\ //"',
-            shell=True)
-        return version.strip().decode()
 
     def get_version_for_rigidname_in_sdds3_warehouse(self, release_type, rigidname):
         if release_type == "vut":
@@ -777,5 +537,4 @@ class WarehouseUtils(object):
 
 # If ran directly, file sets up local warehouse directory from filer6
 if __name__ == "__main__":
-    # _make_local_copy_of_warehouse()
     pass
