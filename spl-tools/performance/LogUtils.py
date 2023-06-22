@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 # Copyright (C) 2021-2022 Sophos Ltd
 # All rights reserved.
+import datetime
 import os
 import glob
 import re
@@ -84,6 +85,27 @@ def _mark_expected_errors_in_log(log_location, *error_messages):
             with open(logfile, "w") as log:
                 log.write(contents)
 
+def get_epoch_time_from_log_line(log_line):
+    time_string = log_line.split("[")[1].split("]")[0].strip()
+    return int(datetime.datetime.strptime(time_string, '%Y-%m-%dT%H:%M:%S.%f').timestamp() * 1000)  # in milliseconds
+
+def get_chunks_from_log(log_path, start_text, end_text):
+    log_chunks = []
+    with open(log_path) as f:
+        lines = f.readlines()
+    parsing = False
+    log_block = []
+    for log_line in lines:
+        if end_text in log_line:
+            parsing = False
+            if log_block:
+                log_chunks.append(log_block)
+        if parsing:
+            log_block.append(log_line)
+        if start_text in log_line:
+            parsing = True
+            log_block = []
+    return log_chunks
 
 class LogUtils(object):
     ROBOT_LIBRARY_SCOPE = 'GLOBAL'
