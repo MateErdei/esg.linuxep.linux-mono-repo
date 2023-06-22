@@ -378,12 +378,15 @@ AV Service Health Turns Red When SUSI Fails Initialisation And Turns Green When 
     ${SUSI_DISTRIBUTION_VERSION} =    Set Variable   ${COMPONENT_ROOT_PATH}/chroot/susi/distribution_version
     ${SUSI_UPDATE_SOURCE} =    Set Variable   ${COMPONENT_ROOT_PATH}/chroot/susi/update_source
     ${VDL_DIRECTORY} =    Set Variable   ${SUSI_UPDATE_SOURCE}/vdl
+    ${VDL_TEMP_DESTINATION} =   Set Variable   ${COMPONENT_ROOT_PATH}/moved_vdl
 
     #Fake a bad update_source directory
-    Remove Directory  ${SUSI_DISTRIBUTION_VERSION}  true
-    Move Directory  ${VDL_DIRECTORY}  /tmp/
+    Stop sophos_threat_detector
+    Remove Directory  ${SUSI_DISTRIBUTION_VERSION}  ${true}
+    Move Directory  ${VDL_DIRECTORY}  ${VDL_TEMP_DESTINATION}
     ${td_mark} =  Get Sophos Threat Detector Log Mark
-    restart sophos_threat_detector
+    Start sophos_threat_detector
+    Wait until threat detector running after mark  ${td_mark}
 
     On-access Scan Clean File
 
@@ -393,7 +396,7 @@ AV Service Health Turns Red When SUSI Fails Initialisation And Turns Green When 
 
     ${td_mark} =  Get Sophos Threat Detector Log Mark
 
-    Move Directory  /tmp/vdl  ${SUSI_UPDATE_SOURCE}
+    Move Directory  ${VDL_TEMP_DESTINATION}  ${VDL_DIRECTORY}
 
     On-access Scan Clean File
 
