@@ -22,6 +22,8 @@ TEST_F(TestPersistentValue, persistentValueDefaultsIfNoFilePresent)
     EXPECT_CALL(*mockFileSystem, writeFile(path, std::to_string(defaultValue))).Times(1);
     Tests::replaceFileSystem(std::move(mockFileSystem));
     Common::PersistentValue<int> value(pathToVarDir,valueName, defaultValue);
+    auto errorValue = value.hasError();
+    EXPECT_EQ(errorValue, "");
     auto readValue = value.getValue();
     ASSERT_EQ(readValue, defaultValue);
 }
@@ -30,6 +32,17 @@ TEST_F(TestPersistentValue, persistentValueErrorStringsDefaultsToEmpty)
 {
     auto mockFileSystem = std::make_unique<StrictMock<MockFileSystem>>();
     EXPECT_CALL(*mockFileSystem, exists(_)).Times(1);
+    EXPECT_CALL(*mockFileSystem, writeFile(_, _)).Times(1);
+    Tests::replaceFileSystem(std::move(mockFileSystem));
+    Common::PersistentValue<std::string> value("", "", "");
+    auto errorValue = value.hasError();
+    ASSERT_EQ(errorValue, "");
+}
+
+TEST_F(TestPersistentValue, persistentValueErrorStringsIsEmptyIfFileDoesntExist)
+{
+    auto mockFileSystem = std::make_unique<StrictMock<MockFileSystem>>();
+    EXPECT_CALL(*mockFileSystem, exists(_)).WillOnce(Return(false));
     EXPECT_CALL(*mockFileSystem, writeFile(_, _)).Times(1);
     Tests::replaceFileSystem(std::move(mockFileSystem));
     Common::PersistentValue<std::string> value("", "", "");
@@ -50,6 +63,8 @@ TEST_F(TestPersistentValue, persistentValueLoadsFromFile)
     Tests::replaceFileSystem(std::move(mockFileSystem));
     Common::PersistentValue<int> value(pathToVarDir,valueName, defaultValue);
     auto readValue = value.getValue();
+    auto errorValue = value.hasError();
+    EXPECT_EQ(errorValue, "");
     ASSERT_EQ(readValue, 123);
 }
 
@@ -66,6 +81,8 @@ TEST_F(TestPersistentValue, setIntPersistentValue)
     Tests::replaceFileSystem(std::move(mockFileSystem));
     Common::PersistentValue<int> value(pathToVarDir,valueName, defaultValue);
     value.setValue(14);
+    auto errorValue = value.hasError();
+    EXPECT_EQ(errorValue, "");
     ASSERT_EQ(value.getValue(), 14);
 }
 
@@ -82,6 +99,8 @@ TEST_F(TestPersistentValue, setUnsignedIntPersistentValue)
     Tests::replaceFileSystem(std::move(mockFileSystem));
     Common::PersistentValue<unsigned int> value(pathToVarDir,valueName, defaultValue);
     value.setValue(14);
+    auto errorValue = value.hasError();
+    EXPECT_EQ(errorValue, "");
     ASSERT_EQ(value.getValue(), 14);
 }
 
@@ -100,6 +119,8 @@ TEST_F(TestPersistentValue, setFloatPersistentValue)
     value.setValue(14.2);
     float difference = abs(value.getValue() - 14.2);
     float epsilon = 0.0001;
+    auto errorValue = value.hasError();
+    EXPECT_EQ(errorValue, "");
     ASSERT_TRUE(difference < epsilon);
 }
 
@@ -116,6 +137,8 @@ TEST_F(TestPersistentValue, setStringPersistentValue)
     Tests::replaceFileSystem(std::move(mockFileSystem));
     Common::PersistentValue<std::string> value(pathToVarDir,valueName, defaultValue);
     value.setValue("another value");
+    auto errorValue = value.hasError();
+    EXPECT_EQ(errorValue, "");
     ASSERT_EQ(value.getValue(), "another value");
 }
 
@@ -165,6 +188,8 @@ TEST_F(TestPersistentValue, testSetValueAndForceStoreWritesOnSetAndDestruction)
     EXPECT_CALL(*mockFileSystem, writeFile(path, "2")).Times(1);
     Tests::replaceFileSystem(std::move(mockFileSystem));
     Common::PersistentValue<int> value(pathToVarDir,valueName, defaultValue);
+    auto errorValue = value.hasError();
+    EXPECT_EQ(errorValue, "");
     value.setValueAndForceStore(1);
     ASSERT_EQ(value.getValue(), 1);
     value.setValue(2);
