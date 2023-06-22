@@ -63,6 +63,12 @@ then
        fi
     done
 
+    if ! [[ -x $(which rsync) ]]
+    then
+        echo "Failed to install rsync - unload of results will fail"
+        exit 1
+    fi
+
 elif [[ -x $(which yum) ]]
 then
     if [[ -f /etc/os-release ]]
