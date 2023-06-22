@@ -17,10 +17,7 @@ o777, root, root, /opt/sophos-spl/plugins/responseactions/lib64/libgcc_s.so
 o777, root, root, /opt/sophos-spl/plugins/responseactions/lib64/libgcc_s.so.1
 o777, root, root, /opt/sophos-spl/plugins/responseactions/lib64/libHttpRequestsImpl.so
 o777, root, root, /opt/sophos-spl/plugins/responseactions/lib64/liblocale.so
-o777, root, root, /opt/sophos-spl/plugins/responseactions/lib64/liblog4cplus-2.0.so
-o777, root, root, /opt/sophos-spl/plugins/responseactions/lib64/liblog4cplus-2.0.so.3
-o777, root, root, /opt/sophos-spl/plugins/responseactions/lib64/liblog4cplus-2.0.so.3.4
-o777, root, root, /opt/sophos-spl/plugins/responseactions/lib64/liblog4cplus-2.0.so.3.4.6
+o777, root, root, /opt/sophos-spl/plugins/responseactions/lib64/liblog4cplus.so
 o777, root, root, /opt/sophos-spl/plugins/responseactions/lib64/liblogging.so
 o777, root, root, /opt/sophos-spl/plugins/responseactions/lib64/liblzma.so
 o777, root, root, /opt/sophos-spl/plugins/responseactions/lib64/libminizip.so

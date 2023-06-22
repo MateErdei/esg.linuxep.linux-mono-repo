@@ -9,7 +9,7 @@ o600, root, root, /opt/sophos-spl/plugins/responseactions/lib64/libfilesystemimp
 o600, root, root, /opt/sophos-spl/plugins/responseactions/lib64/libgcc_s.so.1.0
 o600, root, root, /opt/sophos-spl/plugins/responseactions/lib64/libHttpRequestsImpl.so.0
 o600, root, root, /opt/sophos-spl/plugins/responseactions/lib64/liblocale.so.0
-o600, root, root, /opt/sophos-spl/plugins/responseactions/lib64/liblog4cplus-2.0.so.3.4.6.0
+o600, root, root, /opt/sophos-spl/plugins/responseactions/lib64/liblog4cplus.so.0
 o600, root, root, /opt/sophos-spl/plugins/responseactions/lib64/liblogging.so.0
 o600, root, root, /opt/sophos-spl/plugins/responseactions/lib64/liblzma.so.0
 o600, root, root, /opt/sophos-spl/plugins/responseactions/lib64/libminizip.so.0

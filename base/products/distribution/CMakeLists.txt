@@ -48,7 +48,7 @@ add_third_party_library(expat ${EXPAT_INPUT})
 add_third_party_library(zmq ${ZEROMQ_INPUT})
 
 add_third_party_library(protobuf ${Protobuf_root}/lib)
-add_third_party_library(log4cplus ${LOG4CPLUS_INPUT}/lib)
+add_third_party_library(log4cplus ${LOG4CPLUS_INPUT})
 
 install(FILES ${third_party_libs}
         DESTINATION ${BASE_DIST_PREFIX}/files/base/lib64)

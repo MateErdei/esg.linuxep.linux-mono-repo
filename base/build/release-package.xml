@@ -13,10 +13,6 @@
             <release-version branch="release/Version_11_2_0" build-id="20220310091547-cf8f7ca9572a3bc9a68f05138086815341a49224-cZ84iF"/>
             <include artifact-path="output" dest-dir="/build/input"/>
         </build-asset>
-        <build-asset project="thirdparty" repo="log4cplus">
-            <release-version branch="release/sspl/Version_2_0_7" build-id="20220310142847-3a4bb813dfdcbf28d538394d253449fbb7c78bad-rAcfZX"/>
-            <include artifact-path="output" dest-dir="/build/input"/>
-        </build-asset>
         <build-asset project="thirdparty" repo="protobuf">
             <release-version branch="release/sspl/Version_3_17_3" build-id="20220310143632-66a638734ca9de06319cfc97fdd27ac200fdec15-yMZBAU"/>
             <include artifact-path="output" dest-dir="/build/input"/>
@@ -41,11 +37,11 @@
             <include artifact-path="thirdparty/minizip-linux-opt" dest-dir="/build/redist/minizip"/>
             <include artifact-path="thirdparty/minizip-lzma-linux-opt" dest-dir="/build/redist/lzma"/>
             <include artifact-path="thirdparty/bzip2-linux-opt" dest-dir="/build/redist/bzip2"/>
-
             <include artifact-path="thirdparty/gsl" dest-dir="/build/redist/gsl"/>
             <include artifact-path="thirdparty/pugixml-linux-opt" dest-dir="/build/redist/pugixml"/>
             <include artifact-path="thirdparty/curl-linux-opt" dest-dir="/build/redist/curl"/>
             <include artifact-path="thirdparty/boost-linux-opt" dest-dir="/build/redist/boost"/>
+            <include artifact-path="thirdparty/log4cplus-linux-opt" dest-dir="/build/redist/log4cplus"/>
         </build-asset>
 
         <build-asset project="thirdparty" repo="all">
