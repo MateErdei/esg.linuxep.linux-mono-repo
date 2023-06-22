@@ -100,9 +100,6 @@ def package_install(machine: tap.Machine, *install_args: str):
 
 def install_requirements(machine: tap.Machine):
     """ install python lib requirements """
-    if machine.run('which', 'apt-get', return_exit_code=True) == 0:
-        package_install(machine, 'python3.7-dev')
-
     machine.run("which", python(machine))
     machine.run(python(machine), "-V")
 
