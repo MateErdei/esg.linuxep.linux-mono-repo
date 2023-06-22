@@ -36,6 +36,10 @@ namespace
         {
             return true;
         }
+        else if(Common::UtilityImpl::StringUtils::isSubstring(filename, "unhealthy_flag"))
+        {
+            return true;
+        }
         return false;
     }
 } // namespace
