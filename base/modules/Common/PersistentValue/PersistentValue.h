@@ -30,7 +30,7 @@ namespace Common
     {
     public:
         PersistentValue(const std::string& pathToVarDir, const std::string& name, T defaultValue) :
-            m_defaultValue(defaultValue), m_pathToFile(Common::FileSystem::join(pathToVarDir, "persist-" + name))
+            defaultValue_(defaultValue), pathToFile_(Common::FileSystem::join(pathToVarDir, "persist-" + name))
         {
             try
             {
@@ -39,7 +39,7 @@ namespace Common
             catch (std::exception& exception)
             {
                 // Could not load value from file
-                m_value = m_defaultValue;
+                value_ = defaultValue_;
                 errorMessage_ = exception.what();
             }
         }
@@ -54,13 +54,13 @@ namespace Common
             {
                 // Not a lot we can do if this happens
                 // Can't use log4cplus since we want to use this header without logging setup
-                std::cerr << "ERROR Failed to save value to " << m_pathToFile << " with error " << exception.what();
+                std::cerr << "ERROR Failed to save value to " << pathToFile_ << " with error " << exception.what();
             }
         }
 
-        void setValue(const T value) { m_value = value; }
+        void setValue(const T value) { value_ = value; }
 
-        T getValue() { return m_value; }
+        T getValue() { return value_; }
 
         void setValueAndForceStore(const T value)
         {
@@ -78,26 +78,26 @@ namespace Common
         }
 
     private:
-        T m_value;
-        T m_defaultValue;
-        std::string m_pathToFile;
+        T value_;
+        T defaultValue_;
+        std::string pathToFile_;
 
         std::string errorMessage_;
 
         void loadValue()
         {
             auto fs = Common::FileSystem::fileSystem();
-            if (fs->exists(m_pathToFile))
+            if (fs->exists(pathToFile_))
             {
-                auto valueString = fs->readFile(m_pathToFile);
+                auto valueString = fs->readFile(pathToFile_);
                 std::stringstream valueStringStream(valueString);
                 T value;
                 valueStringStream >> value;
-                m_value = value;
+                value_ = value;
             }
             else
             {
-                m_value = m_defaultValue;
+                value_ = defaultValue_;
             }
         }
 
@@ -105,8 +105,8 @@ namespace Common
         {
             auto fs = Common::FileSystem::fileSystem();
             std::stringstream valueAsString;
-            valueAsString << m_value;
-            fs->writeFile(m_pathToFile, valueAsString.str());
+            valueAsString << value_;
+            fs->writeFile(pathToFile_, valueAsString.str());
         }
     };
 } // namespace Common
