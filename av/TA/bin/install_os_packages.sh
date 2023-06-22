@@ -24,22 +24,26 @@ done
 
 if [[ -x $(which apt) ]]
 then
-    PACKAGES="nfs-kernel-server zip unzip gdb util-linux bfs libguestfs-reiserfs netcat rsync"
-    (( CIFS == 0 )) || PACKAGES="samba $PACKAGES"
-    (( NTFS == 0 )) || PACKAGES="ntfs-3g $PACKAGES"
-
     export DEBIAN_FRONTEND=noninteractive
     VERSION=$(sed -ne's/VERSION_ID="\(.*\)"/\1/p' /etc/os-release)
+    NETCAT=netcat
+    TIMEOUT_UPDATE="-o DPkg::Lock::Timeout=300"
+    TIMEOUT_INSTALL="-o DPkg::Lock::Timeout=30"
     case VERSION in
+      12)
+          # Debian 12
+          NETCAT=netcat-openbsd
       18.04)
+          # Ubuntu 18.04
           TIMEOUT_UPDATE=
           TIMEOUT_INSTALL=
           ;;
-      *)
-          TIMEOUT_UPDATE="-o DPkg::Lock::Timeout=300"
-          TIMEOUT_INSTALL="-o DPkg::Lock::Timeout=30"
-          ;;
     esac
+
+    PACKAGES="nfs-kernel-server zip unzip gdb util-linux bfs libguestfs-reiserfs $NETCAT rsync"
+    (( CIFS == 0 )) || PACKAGES="samba $PACKAGES"
+    (( NTFS == 0 )) || PACKAGES="ntfs-3g $PACKAGES"
+
     for (( i=0; i<5; i++ ))
     do
        if apt $TIMEOUT_UPDATE update
