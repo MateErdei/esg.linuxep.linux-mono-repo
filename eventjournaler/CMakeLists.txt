@@ -157,7 +157,7 @@ set(GMOCK_INCLUDE ${GTEST_INPUT}/googlemock/include)
 
 file(GLOB expatlib ${PLUGINAPIPATH}/lib64/libexpat.so*)
 file(GLOB zmqlib ${PLUGINAPIPATH}/lib64/libzmq.so*)
-file(GLOB log4cpluslib ${PLUGINAPIPATH}/lib64/liblog4cplus-*.so.*)
+set(log4cpluslib ${PLUGINAPIPATH}/lib64/liblog4cplus.so)
 file(GLOB protobuflib ${PLUGINAPIPATH}/lib64/libprotobuf.so.*)
 file(GLOB opensslcryptolib ${PLUGINAPIPATH}/lib64/libcrypto.so.*)
 

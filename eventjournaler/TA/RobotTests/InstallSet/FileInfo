@@ -10,7 +10,7 @@ o750, sophos-spl-group, root, /opt/sophos-spl/plugins/eventjournaler/lib64/libex
 o750, sophos-spl-group, root, /opt/sophos-spl/plugins/eventjournaler/lib64/libgcc_s.so.1.0
 o750, sophos-spl-group, root, /opt/sophos-spl/plugins/eventjournaler/lib64/libheartbeat.so.0
 o750, sophos-spl-group, root, /opt/sophos-spl/plugins/eventjournaler/lib64/libhelpers.so.0
-o750, sophos-spl-group, root, /opt/sophos-spl/plugins/eventjournaler/lib64/liblog4cplus-2.0.so.3.4.6.0
+o750, sophos-spl-group, root, /opt/sophos-spl/plugins/eventjournaler/lib64/liblog4cplus.so.0
 o750, sophos-spl-group, root, /opt/sophos-spl/plugins/eventjournaler/lib64/liblzma.so.0
 o750, sophos-spl-group, root, /opt/sophos-spl/plugins/eventjournaler/lib64/libpluginapi.so.0
 o750, sophos-spl-group, root, /opt/sophos-spl/plugins/eventjournaler/lib64/libpluginimpl.so.0
