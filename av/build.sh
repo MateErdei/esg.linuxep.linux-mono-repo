@@ -420,7 +420,6 @@ function build()
         untar_input pluginapi "" "${PLUGIN_TAR}"
         python3 ${BASE}/build-files/create_library_links.py ${REDIST}/pluginapi
         (( LOCAL_CMAKE == 0 )) && ln -snf $INPUT/cmake $REDIST/
-        untar_input capnproto
         untar_input boost
 
         # Copy required by SUSI dependency (to remove when they move to monorepo zlib input)
@@ -608,6 +607,7 @@ function build()
     cp -L TA/manual/*.sh TA/manual/*.py ${OUTPUT}/manualtests/
 
     python3 TA/process_capnp_files.py
+    chmod 700 $INPUT/capnproto/bin/* || exitFailure "Unable to chmod capnproto"
 
     if [[ -d ${BUILD_DIR}/symbols ]]
     then
