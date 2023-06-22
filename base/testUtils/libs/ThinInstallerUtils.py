@@ -17,20 +17,6 @@ from robot.libraries.BuiltIn import BuiltIn
 import PathManager
 import FullInstallerUtils
 
-def extract_hashed_credentials_from_alc_policy(alc_file_path):
-    if not os.path.exists(alc_file_path):
-        raise AssertionError("File does not exist {}".format(alc_file_path))
-    doc = xml.dom.minidom.parseString(open(alc_file_path, 'r').read())
-    primary = doc.getElementsByTagName('primary_location')[0]
-    server = primary.getElementsByTagName('server')[0]
-    username=server.getAttribute('UserName')
-    password=server.getAttribute('UserPassword')
-    connection=server.getAttribute('ConnectionAddress')
-    algorithm = server.getAttribute('Algorithm')
-    if algorithm != 'Clear':
-        raise AssertionError("Only clear algorithm is supported right now. Given Algorithm: {}".format(algorithm))
-    return  WarehouseUtils.calculate_hashed_creds(username, password), connection
-
 
 class ThinInstallerUtils(object):
     def __init__(self):
@@ -88,45 +74,9 @@ class ThinInstallerUtils(object):
         if os.path.lexists("/tmp/sweep"):
             os.unlink("/tmp/sweep")
 
-    def find_thininstaller_output(self, source=None):
-        source = os.environ.get("THIN_INSTALLER_OVERRIDE", source)
-        if source is not None:
-            logger.info("using {} as source".format(source))
-            return source
-
-        local_dir = "/vagrant/esg.linuxep.thininstaller/output"
-        if os.path.isdir(local_dir):
-            logger.info("Thin Installer source: " + local_dir)
-            return local_dir
-        attempts = [local_dir]
-
-        if os.path.isfile(self.last_good_artisan_build_file):
-            attempts.append(self.last_good_artisan_build_file)
-
-            with open(self.last_good_artisan_build_file) as f:
-                last_good_build = f.read()
-
-            attempts.append(last_good_build)
-
-            print("Last good Thin Installer build: {}".format(last_good_build))
-            source_folder = os.path.join("/mnt", "filer6", "bfr", "sspl-thininstaller", "develop", last_good_build, "sspl-thininstaller")
-            version_dirs = os.listdir(source_folder)
-            if len(version_dirs) == 1:
-                source = os.path.join(source_folder, version_dirs[0], "output")
-            else:
-                raise AssertionError("More than one version in the build for thininstaller: {}".format(version_dirs))
-            logger.info("using {} as source".format(source))
-            return source
-
-        raise AssertionError("Could not find thininstaller output in {}".format(attempts))
-
     def get_thininstaller(self, source=None):
         source = self.find_thininstaller_output(source)
         self.copy_and_unpack_thininstaller(source)
-
-    def get_legacy_thininstaller(self,source=None):
-        source = FullInstallerUtils.get_plugin_sdds("sdds2 thininstaller", "SDDS2_THININSTALLER", ["/tmp/system-product-test-inputs/sspl-legacy-thininstaller"])
-        self.copy_and_unpack_thininstaller(source);
 
     def copy_and_unpack_thininstaller(self, source):
         print("Getting Thin Installer from: {}".format(source))
@@ -182,47 +132,6 @@ class ThinInstallerUtils(object):
             raise AssertionError("Could not run sed replacement of __MIDDLE_BIT__ with credentials. Command = {}".format(command))
         os.chmod(target_path, 0o700)
 
-    def configure_and_run_thininstaller_using_real_warehouse_policy(self, expected_return_code, policy_file_path, message_relays=None,
-                                                                    proxy=None, update_caches=None, bad_url=False, args=None, mcs_ca=None,
-                                                                    override_certs_dir=None, force_legacy_install=False):
-        command = ["bash", "-x", self.default_installsh_path]
-        if args:
-            split_args = args.split(" ")
-            for arg in split_args:
-                command.append(arg)
-
-        self.get_legacy_thininstaller()
-
-        if not os.path.isfile(policy_file_path):
-            raise OSError("%s file does not exist", policy_file_path)
-
-        policy_file_name = os.path.basename(policy_file_path)
-        warehouse_utils = WarehouseUtils.WarehouseUtils()
-        try:
-            template_config = warehouse_utils.get_template_config(policy_file_name)
-            hashed_credentials = template_config.hashed_credentials
-            connection_address = template_config.get_connection_address()
-            warehouse_certs_dir = os.path.dirname(template_config.thininstaller_cert)
-        except KeyError:
-            hashed_credentials, connection_address = extract_hashed_credentials_from_alc_policy(policy_file_path)
-            warehouse_certs_dir = "system"
-        if override_certs_dir:
-            warehouse_certs_dir = override_certs_dir
-            logger.info("Overriding the certs dir to: {}".format(warehouse_certs_dir))
-
-
-        logger.info("using creds: {}".format(hashed_credentials))
-        logger.info("using certs: {}".format(warehouse_certs_dir))
-
-
-        if bad_url:
-            connection_address = None
-        logger.info("connection address: {}".format(connection_address))
-
-        self.create_default_credentials_file(update_creds=hashed_credentials, message_relays=message_relays, update_caches=update_caches)
-        self.build_default_creds_thininstaller_from_sections()
-        self.run_thininstaller(command, expected_return_code, None, mcs_ca=mcs_ca,
-                               override_location=connection_address, certs_dir=warehouse_certs_dir, proxy=proxy, force_legacy_install=force_legacy_install)
 
     def configure_and_run_SDDS3_thininstaller(self, expected_return_code,
                                                                     sus=None,
@@ -427,29 +336,6 @@ exit 0""" % fake_sav)
         os.remove(location)
         logger.info("deleted symlink at: {}".format(location))
 
-    def create_non_standard_sweep_symlink(self, dest):
-        def safe_delete(p):
-            try:
-                os.unlink(p)
-            except EnvironmentError:
-                pass
-        safe_delete("/usr/local/bin/sweep")
-        safe_delete("/usr/local/bin/savscan")
-        safe_delete("/usr/bin/sweep")
-        safe_delete("/usr/bin/savscan")
-        os.symlink("/opt/sophos-av/bin/savscan","/tmp/savscan")
-        os.symlink("/opt/sophos-av/bin/savscan","/tmp/sweep")
-
-    def run_default_thininstaller_with_env_proxy(self, expectedReturnCode, proxy):
-        self.run_thininstaller([self.default_installsh_path], expectedReturnCode, proxy=proxy)
-
-    def run_default_thininstaller_with_cleanup_disabled(self, expectedReturnCode):
-        self.run_thininstaller([self.default_installsh_path], expectedReturnCode, cleanup=False)
-
-    def create_catalogue_directory(self):
-        catalogue_path = os.path.join(self.installer_files, "bin", "warehouse", "catalogue")
-        os.makedirs(catalogue_path)
-
     def run_default_thininstaller_with_fake_memory_amount(self, memory_in_kB):
         fake_mem_info_path = os.path.join(self.tmp_path, "fakememinfo")
         mem_info_path = "/proc/meminfo"
@@ -488,24 +374,6 @@ exit 0""" % fake_sav)
 
         self.run_thininstaller(command, expectedReturnCode, mcsurl=mcsurl, force_certs_dir=force_certs_dir)
 
-    def get_main_installer_temp_location(self):
-        list_of_files = glob.glob(os.path.join("/tmp", "SophosCentralInstall_*"))
-        if len(list_of_files) == 0:
-            raise AssertionError("Could not find the temp unpacked main installer dir")
-
-        dir = max(list_of_files, key=os.path.getctime)
-
-        print("Thin installer downloaded main installer to: {}".format(dir))
-        return dir
-
-    def remove_main_installer_temp_location(self):
-        try:
-            path = self.get_main_installer_temp_location()
-        except AssertionError:
-            print("no unpacked main installer found")
-            return
-        shutil.rmtree(path)
-
     def check_if_unwanted_strings_are_in_thininstaller(self, strings_to_check_for):
         # this is used for checking the content of the thininstaller header
 
@@ -523,14 +391,6 @@ exit 0""" % fake_sav)
                     # none of the values being searched for have been found
                     pass
         return False
-
-    def cleanup_systemd_files(self):
-        subprocess.Popen(["rm", "-f", "/lib/systemd/system/sophos-spl.service"])
-        subprocess.Popen(["rm", "-f", "/usr/lib/systemd/system/sophos-spl.service"])
-        subprocess.Popen(["rm", "-f", "/etc/systemd/system/multi-user.target.wants/sophos-spl.service"])
-        subprocess.Popen(["rm", "-f", "/lib/systemd/system/sophos-spl-update.service"])
-        subprocess.Popen(["rm", "-f", "/usr/lib/systemd/system/sophos-spl-update.service"])
-        subprocess.Popen(["systemctl", "daemon-reload"])
 
     def get_thininstaller_script(self):
         return os.path.join(self.installer_files, "SophosSetup.sh")
@@ -556,39 +416,3 @@ exit 0""" % fake_sav)
             file.write(f'#!/bin/bash\necho "$@">{output_file_path}')
         os.chmod(register_central, 0o777)
         return output_file_path
-
-    def validate_env_passed_to_base_installer(self, expected_products, expected_customer_token, expected_mcs_token, expected_mcs_url):
-        with open("/tmp/PRODUCT_ARGUMENTS") as file:
-            actual = file.read()
-            logger.info(actual)
-            if expected_products != actual.strip():
-                raise AssertionError(f"expected $PRODUCT_ARGUMENTS to be: '{expected_products}', not '{actual}'")
-
-        with open("/tmp/CUSTOMER_TOKEN_ARGUMENT") as file:
-            actual = file.read()
-            logger.info(actual)
-            logger.info(expected_customer_token)
-            if expected_customer_token != actual.strip():
-                raise AssertionError(f"expected $CUSTOMER_TOKEN_ARGUMENT to be: '{expected_customer_token}', not '{actual}'")
-
-        with open("/tmp/MCS_TOKEN") as file:
-            actual = file.read()
-            logger.info(actual)
-            if expected_mcs_token != actual.strip():
-                raise AssertionError(f"expected $MCS_TOKEN to be: '{expected_mcs_token}', not '{actual}'")
-
-        with open("/tmp/MCS_URL") as file:
-            actual = file.read()
-            logger.info(actual)
-            if expected_mcs_url != actual.strip():
-                raise AssertionError(f"expected $MCS_URL to be: '{expected_mcs_url}', not '{actual}'")
-
-    def get_mcs_config_paths_from_args_passed_to_base_installer(self, all_args):
-        logger.info(all_args)
-        root_config_pattern = r"--mcs-config (\/tmp\/SophosCentralInstall_.*\/mcs.config)"
-        match_object = re.search(root_config_pattern, all_args)
-        root_config_path = match_object.group(1)
-        policy_config_pattern = r"--mcs-policy-config (\/tmp\/SophosCentralInstall_.*\/mcsPolicy.config)"
-        match_object = re.search(policy_config_pattern, all_args)
-        policy_config_path = match_object.group(1)
-        return root_config_path, policy_config_path
