@@ -29,14 +29,10 @@ then
     NETCAT=netcat
     TIMEOUT_UPDATE="-o DPkg::Lock::Timeout=300"
     TIMEOUT_INSTALL="-o DPkg::Lock::Timeout=30"
-    case VERSION in
+    case $VERSION in
       12)
           # Debian 12
           NETCAT=netcat-openbsd
-      18.04)
-          # Ubuntu 18.04
-          TIMEOUT_UPDATE=
-          TIMEOUT_INSTALL=
           ;;
     esac
 
