@@ -40,6 +40,7 @@ namespace Common
             {
                 // Could not load value from file
                 m_value = m_defaultValue;
+                errorMessage_ = exception.what();
             }
         }
 
@@ -67,10 +68,21 @@ namespace Common
             storeValue();
         }
 
+        std::string hasError()
+        {
+            if (!errorMessage_.empty())
+            {
+                return errorMessage_;
+            }
+            return {};
+        }
+
     private:
         T m_value;
         T m_defaultValue;
         std::string m_pathToFile;
+
+        std::string errorMessage_;
 
         void loadValue()
         {
