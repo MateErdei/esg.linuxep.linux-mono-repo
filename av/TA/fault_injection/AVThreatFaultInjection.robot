@@ -40,10 +40,10 @@ Fault Injection Test Teardown
 Dump and Reset Logs
     Dump Log  ${SAFESTORE_LOG_PATH}
     Dump Log  ${AV_LOG_PATH}
-.
+
 Send Threat Object To AV
-    [Arguments]  ${file_path}=/tmp/testfile  ${threat_name}=ThreatName  ${sha}=sha256    ${report_source}=vdl    ${threat_type}=virus
-    ${result} =  Run Shell Process  ${SEND_THREAT_DETECTED_TOOL} --socketpath /opt/sophos-spl/plugins/av/chroot/var/threat_report_socket --filepath "${file_path}" --threatname "${threat_name}" --threattype ${threat_type} --sha ${sha} --reportsource ${report_source}    OnError=Failed to run SendThreatDetectedEvent binary   timeout=10
+    [Arguments]  ${file_path}=/tmp/testfile  ${threat_name}=ThreatName  ${sha}=sha256    ${report_source}=vdl    ${threat_type}=virus    ${userid}=userid
+    ${result} =  Run Shell Process  ${SEND_THREAT_DETECTED_TOOL} --socketpath /opt/sophos-spl/plugins/av/chroot/var/threat_report_socket --filepath "${file_path}" --threatname "${threat_name}" --threattype "${threat_type}" --sha "${sha}" --reportsource "${report_source}" --userid "${userid}"    OnError=Failed to run SendThreatDetectedEvent binary   timeout=10
 
 Create File With Automatic Cleanup
     [Arguments]  ${filepath}
@@ -109,11 +109,19 @@ Send Threat Name That Is Valid JSON In Threat Detected Object To AV with SafeSto
     Send Threat Object To AV    /tmp/${TEST NAME}    threat_name={"this is":"json", "a":1}
     Wait For Log Contains From Mark  ${av_mark}   '/tmp/${TEST NAME}' was not quarantined due to SafeStore being disabled   timeout=60
 
-Send Emprty User ID In Threat Detected Object To AV with SafeStore Disabled
+Send Empty User ID In Threat Detected Object To AV with SafeStore Disabled
     Disable SafeStore
     Create File With Automatic Cleanup  /tmp/${TEST NAME}
     ${av_mark} =  Get AV Log Mark
-    Send Threat Object To AV    /tmp/${TEST NAME}
+    Send Threat Object To AV    /tmp/${TEST NAME}    userid=
+    Wait For Log Contains From Mark  ${av_mark}   '/tmp/${TEST NAME}' was not quarantined due to SafeStore being disabled   timeout=60
+
+Send Long User ID In Threat Detected Object To AV with SafeStore Disabled
+    # Check handling of max Linux username length
+    Disable SafeStore
+    Create File With Automatic Cleanup  /tmp/${TEST NAME}
+    ${av_mark} =  Get AV Log Mark
+    Send Threat Object To AV    /tmp/${TEST NAME}    userid=abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz
     Wait For Log Contains From Mark  ${av_mark}   '/tmp/${TEST NAME}' was not quarantined due to SafeStore being disabled   timeout=60
 
 
@@ -173,3 +181,18 @@ Send Many Threat Detected Objects To AV with SafeStore Enabled
         Send Threat Object To AV    /tmp/${TEST NAME}_${index}
     END
     Wait For Log Contains From Mark  ${av_mark}   Threat cleaned up at path: '/tmp/${TEST NAME}_999'   timeout=250
+
+Send Empty User ID In Threat Detected Object To AV with SafeStore Enabled
+    Enable SafeStore
+    Create File With Automatic Cleanup  /tmp/${TEST NAME}
+    ${av_mark} =  Get AV Log Mark
+    Send Threat Object To AV    /tmp/${TEST NAME}    userid=
+    Wait For Log Contains From Mark  ${av_mark}   Threat cleaned up at path: '/tmp/${TEST NAME}'   timeout=60
+
+Send Long User ID In Threat Detected Object To AV with SafeStore Enabled
+    # Check handling of max Linux username length
+    Enable SafeStore
+    Create File With Automatic Cleanup  /tmp/${TEST NAME}
+    ${av_mark} =  Get AV Log Mark
+    Send Threat Object To AV    /tmp/${TEST NAME}    userid=abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz
+    Wait For Log Contains From Mark  ${av_mark}   Threat cleaned up at path: '/tmp/${TEST NAME}'   timeout=60

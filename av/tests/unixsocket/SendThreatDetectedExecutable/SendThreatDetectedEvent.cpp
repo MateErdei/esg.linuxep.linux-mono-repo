@@ -4,12 +4,13 @@
 #include "unixsocket/TestClient.h"
 
 #include <Common/Logging/ConsoleLoggingSetup.h>
-#include <Common/Logging/SophosLoggerMacros.h>
 #include <Common/Logging/LoggerConfig.h>
+#include <Common/Logging/SophosLoggerMacros.h>
 
-#include <iostream>
 #include <fcntl.h>
 #include <getopt.h>
+
+#include <iostream>
 // Generate AV TDO
 //  SendThreatDetectedEvent -p /opt/sophos-spl/plugins/av/var/safestore_socket -f /tmp/testfile -t threatName -s e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
 
@@ -19,7 +20,8 @@ static log4cplus::Logger& getSendThreatDetectedEventLogger()
     return STATIC_LOGGER;
 }
 
-#define LOGFATAL(x) LOG4CPLUS_FATAL(getSendThreatDetectedEventLogger(), x)  // NOLINT
+#define LOGFATAL(x) LOG4CPLUS_FATAL(getSendThreatDetectedEventLogger(), x) // NOLINT
+#define LOGINFO(x) LOG4CPLUS_INFO(getSendThreatDetectedEventLogger(), x)   // NOLINT
 
 using namespace common::CentralEnums;
 
@@ -116,48 +118,54 @@ ReportSource stringToReportSource(const std::string& reportSource)
 
 scan_messages::E_SCAN_TYPE stringToScanType(const std::string& scanType)
 {
-    if (scanType == "ml")
+    if (scanType == "unknown")
     {
-        return ReportSource::ml;
+        return scan_messages::E_SCAN_TYPE::E_SCAN_TYPE_UNKNOWN;
     }
-    else if (scanType == "rep")
+    else if (scanType == "onaccess")
     {
-        return ReportSource::rep;
+        return scan_messages::E_SCAN_TYPE::E_SCAN_TYPE_ON_ACCESS;
     }
-    else if (scanType == "blocklist")
+    else if (scanType == "ondemand")
     {
-        return ReportSource::blocklist;
+        return scan_messages::E_SCAN_TYPE::E_SCAN_TYPE_ON_DEMAND;
     }
-    else if (scanType == "amsi")
+    else if (scanType == "scheduled")
     {
-        return ReportSource::amsi;
+        return scan_messages::E_SCAN_TYPE::E_SCAN_TYPE_SCHEDULED;
     }
-    else if (scanType == "ips")
+    else if (scanType == "memory")
     {
-        return ReportSource::ips;
+        return scan_messages::E_SCAN_TYPE::E_SCAN_TYPE_MEMORY;
     }
-    else if (scanType == "behavioral")
+    else if (scanType == "onaccess-open")
     {
-        return ReportSource::behavioral;
+        return scan_messages::E_SCAN_TYPE::E_SCAN_TYPE_ON_ACCESS_OPEN;
+    }
+    else if (scanType == "onaccess-close")
+    {
+        return scan_messages::E_SCAN_TYPE::E_SCAN_TYPE_ON_ACCESS_CLOSE;
+    }
+    else if (scanType == "safestore-rescan")
+    {
+        return scan_messages::E_SCAN_TYPE::E_SCAN_TYPE_SAFESTORE_RESCAN;
     }
     return {};
 }
 
-
 static void printUsageAndExit(const std::string& name)
 {
-    std::cout << "usage: " << name << std::endl
-        << "--socketpath <socket path>" << std::endl
-        << "--filepath <file path of threat>" << std::endl
-        << "--sha <sha of threat>" << std::endl
-        << "--threattype <type of threat>" << std::endl
-        << "--threatname <name of threat>" << std::endl
-        << "--threatid <threatid>" << std::endl
-        << "--filedescriptor <filedescriptor>" << std::endl
-        << "--reportsource <"
-        << reportSourceToString(common::CentralEnums::ReportSource::ml) << ", "
-        << reportSourceToString(common::CentralEnums::ReportSource::vdl) << ", ...>"
-        << std::endl;
+    LOGINFO(
+        "usage: " << name << std::endl
+                  << "--socketpath <socket path>" << std::endl
+                  << "--filepath <file path of threat>" << std::endl
+                  << "--sha <sha of threat>" << std::endl
+                  << "--threattype <type of threat>" << std::endl
+                  << "--threatname <name of threat>" << std::endl
+                  << "--threatid <threatid>" << std::endl
+                  << "--filedescriptor <filedescriptor>" << std::endl
+                  << "--reportsource <" << reportSourceToString(common::CentralEnums::ReportSource::ml) << ", "
+                  << reportSourceToString(common::CentralEnums::ReportSource::vdl) << ", ...>");
     exit(EXIT_FAILURE);
 }
 
@@ -180,59 +188,56 @@ static int inner_main(int argc, char* argv[])
     int fd = 0;
     bool sendFD = true;
     bool sendMessage = true;
-    ReportSource reportSource{common::CentralEnums::ReportSource::vdl};
+    ReportSource reportSource{ common::CentralEnums::ReportSource::vdl };
     std::string userId = "user1";
     scan_messages::E_SCAN_TYPE scanType = scan_messages::E_SCAN_TYPE_SCHEDULED;
 
-    const auto short_opts = "p:u:t:s:f:i:d:mnr:";
-    const option long_opts[] = {
-        {"socketpath", required_argument, nullptr, 'p'},
-        {"threattype", required_argument, nullptr, 'u'},
-        {"threatname", required_argument, nullptr, 't'},
-        {"threatid", required_argument, nullptr, 'i'},
-        {"sha", required_argument, nullptr, 's'},
-        {"filepath", required_argument, nullptr, 'f'},
-        {"filedescriptor", required_argument, nullptr, 'd'},
-        {"nosendmessage", no_argument, nullptr, 'm'},
-        {"nosendfd", no_argument, nullptr, 'n'},
-        {"reportsource", optional_argument, nullptr, 'r'},
-        {"userid", optional_argument, nullptr, 'a'},
-        {"scantype", optional_argument, nullptr, 'b'},
-        {nullptr, no_argument, nullptr, 0}
-    };
+    const auto short_opts = "p:u:t:i:s:f:d:r:a:b:mn";
+    const option long_opts[] = { { "socketpath", required_argument, nullptr, 'p' },
+                                 { "threattype", required_argument, nullptr, 'u' },
+                                 { "threatname", required_argument, nullptr, 't' },
+                                 { "threatid", required_argument, nullptr, 'i' },
+                                 { "sha", required_argument, nullptr, 's' },
+                                 { "filepath", required_argument, nullptr, 'f' },
+                                 { "filedescriptor", required_argument, nullptr, 'd' },
+                                 { "reportsource", required_argument, nullptr, 'r' },
+                                 { "userid", required_argument, nullptr, 'a' },
+                                 { "scantype", required_argument, nullptr, 'b' },
+                                 { "nosendmessage", no_argument, nullptr, 'm' },
+                                 { "nosendfd", no_argument, nullptr, 'n' },
+                                 { nullptr, no_argument, nullptr, 0 } };
     int opt = 0;
-
-    while ((opt = getopt_long(argc, argv, short_opts,long_opts, nullptr )) != -1)
+    while ((opt = getopt_long(argc, argv, short_opts, long_opts, nullptr)) != -1)
     {
         switch (opt)
         {
             case 'p':
                 socketPath = optarg;
-                std::cout << "Socket path: " << socketPath << std::endl;
+                LOGINFO("Socket path: " << socketPath);
                 break;
             case 'u':
                 threatType = optarg;
-                std::cout << "Threat type: " << threatType << std::endl;
+                LOGINFO("Threat type: " << threatType);
                 break;
             case 't':
                 threatName = optarg;
-                std::cout << "Threat name: " << threatName << std::endl;
+                LOGINFO("Threat name: " << threatName);
                 break;
             case 'i':
                 threatID = optarg;
-                std::cout << "Threat ID: " << threatID << std::endl;
+                LOGINFO("Threat ID: " << threatID);
                 break;
             case 'f':
                 filePath = optarg;
-                std::cout << "File path: " << filePath << std::endl;
+                LOGINFO("File path: " << filePath);
                 break;
             case 's':
                 sha = optarg;
-                std::cout << "SHA: " << sha << std::endl;
+                LOGINFO("SHA: " << sha);
                 break;
             case 'd':
                 fd = std::stoi(optarg);
-                std::cout << fd << std::endl;
+                LOGINFO("fd: " << fd);
                 break;
             case 'm':
                 sendMessage = false;
@@ -241,14 +246,17 @@ static int inner_main(int argc, char* argv[])
                 sendFD = false;
                 break;
             case 'r':
+                LOGINFO("Report source: " << optarg);
                 reportSource = stringToReportSource(optarg);
                 break;
             case 'a':
                 userId = optarg;
-                std::cout << "User ID: " << userId << std::endl;
+                LOGINFO("User ID: " << userId);
+                break;
             case 'b':
                 scanType = stringToScanType(optarg);
-                std::cout << "Scan Type: " << userId << std::endl;
+                LOGINFO("Scan Type: " << userId);
+                break;
             default:
                 printUsageAndExit(argv[0]);
         }
@@ -276,12 +284,6 @@ static int inner_main(int argc, char* argv[])
             threatDetected.correlationId = threatID;
             threatDetected.reportSource = reportSource;
             threatDetected.userID = userId;
-//            threatDetected.correlationId
-//            threatDetected.detectionTime
-//            threatDetected.executablePath
-//            threatDetected.isRemote
-//            threatDetected.pid
-//            threatDetected.quarantineResult
             threatDetected.scanType = scanType;
 
             std::string dataAsString = threatDetected.serialise(false);
@@ -300,13 +302,12 @@ static int inner_main(int argc, char* argv[])
         }
     }
 
-
     return EXIT_SUCCESS;
 }
 
-
 int main(int argc, char* argv[])
 {
+    log4cplus::initialize();
     try
     {
         return inner_main(argc, argv);
