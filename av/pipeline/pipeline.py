@@ -396,7 +396,7 @@ def get_test_machines(test_inputs, parameters: tap.Parameters):
         test_environments['amazonlinux2023'] = 'amzlinux2023_x64_server_en_us'
 
     if parameters.run_centos_7 != "false":
-        test_environments['centos79'] = 'centos79_x64_server_en_us'
+        test_environments['centos79'] = 'centos7_x64_aws_server_en_us'
 
     if parameters.run_centos_stream_8 != "false":
         test_environments['centos8stream'] = 'centos8stream_x64_aws_server_en_us'
