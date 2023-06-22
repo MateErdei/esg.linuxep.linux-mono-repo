@@ -1,17 +1,16 @@
-/******************************************************************************************************
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
-Copyright 2020, Sophos Limited.  All rights reserved.
+#include "Common/PersistentValue/PersistentValue.h"
 
-******************************************************************************************************/
-#include <Common/PersistentValue/PersistentValue.h>
+#include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
+#include "tests/Common/Helpers/MockFileSystem.h"
+
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
-#include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
-#include <tests/Common/Helpers/MockFileSystem.h>
 
 class TestPersistentValue:  public ::testing::Test {};
 
-TEST_F(TestPersistentValue, persistentValueDefaultsIfNoFilePresent) // NOLINT
+TEST_F(TestPersistentValue, persistentValueDefaultsIfNoFilePresent)
 {
     std::string pathToVarDir = "var";
     std::string valueName = "aPersistedValue";
@@ -26,7 +25,7 @@ TEST_F(TestPersistentValue, persistentValueDefaultsIfNoFilePresent) // NOLINT
     ASSERT_EQ(readValue, defaultValue);
 }
 
-TEST_F(TestPersistentValue, persistentValueLoadsFromFile) // NOLINT
+TEST_F(TestPersistentValue, persistentValueLoadsFromFile)
 {
     std::string pathToVarDir = "var";
     std::string valueName = "aPersistedValue";
@@ -42,7 +41,7 @@ TEST_F(TestPersistentValue, persistentValueLoadsFromFile) // NOLINT
     ASSERT_EQ(readValue, 123);
 }
 
-TEST_F(TestPersistentValue, setIntPersistentValue) // NOLINT
+TEST_F(TestPersistentValue, setIntPersistentValue)
 {
     std::string pathToVarDir = "var";
     std::string valueName = "aPersistedValue";
@@ -58,7 +57,7 @@ TEST_F(TestPersistentValue, setIntPersistentValue) // NOLINT
     ASSERT_EQ(value.getValue(), 14);
 }
 
-TEST_F(TestPersistentValue, setUnsignedIntPersistentValue) // NOLINT
+TEST_F(TestPersistentValue, setUnsignedIntPersistentValue)
 {
     std::string pathToVarDir = "var";
     std::string valueName = "aPersistedValue";
@@ -74,7 +73,7 @@ TEST_F(TestPersistentValue, setUnsignedIntPersistentValue) // NOLINT
     ASSERT_EQ(value.getValue(), 14);
 }
 
-TEST_F(TestPersistentValue, setFloatPersistentValue) // NOLINT
+TEST_F(TestPersistentValue, setFloatPersistentValue)
 {
     std::string pathToVarDir = "var";
     std::string valueName = "aPersistedValue";
@@ -92,7 +91,7 @@ TEST_F(TestPersistentValue, setFloatPersistentValue) // NOLINT
     ASSERT_TRUE(difference < epsilon);
 }
 
-TEST_F(TestPersistentValue, setStringPersistentValue) // NOLINT
+TEST_F(TestPersistentValue, setStringPersistentValue)
 {
     std::string pathToVarDir = "var";
     std::string valueName = "aPersistedValue";
@@ -108,7 +107,7 @@ TEST_F(TestPersistentValue, setStringPersistentValue) // NOLINT
     ASSERT_EQ(value.getValue(), "another value");
 }
 
-TEST_F(TestPersistentValue, filesystemExceptionsOutputToStdErr) // NOLINT
+TEST_F(TestPersistentValue, filesystemExceptionsOutputToStdErr)
 {
     std::string pathToVarDir = "var";
     std::string valueName = "aPersistedValue";
@@ -127,7 +126,7 @@ TEST_F(TestPersistentValue, filesystemExceptionsOutputToStdErr) // NOLINT
     ASSERT_THAT(logMessage, ::testing::HasSubstr("ERROR Failed to save value to var/persist-aPersistedValue with error TEST" ));
 }
 
-TEST_F(TestPersistentValue, testSetValueAndForceStoreWritesOnSetAndDestruction) // NOLINT
+TEST_F(TestPersistentValue, testSetValueAndForceStoreWritesOnSetAndDestruction)
 {
     std::string pathToVarDir = "var";
     std::string valueName = "aPersistedValue";
