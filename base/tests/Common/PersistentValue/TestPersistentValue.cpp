@@ -1,5 +1,6 @@
 // Copyright 2020-2023 Sophos Limited. All rights reserved.
 
+#include "Common/FileSystem/IPermissionDeniedException.h"
 #include "Common/PersistentValue/PersistentValue.h"
 
 #include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
@@ -31,7 +32,7 @@ TEST_F(TestPersistentValue, persistentValueErrorStringsDefaultsToEmpty)
     EXPECT_CALL(*mockFileSystem, exists(_)).Times(1);
     EXPECT_CALL(*mockFileSystem, writeFile(_, _)).Times(1);
     Tests::replaceFileSystem(std::move(mockFileSystem));
-    Common::PersistentValue<std::string> value("","", "");
+    Common::PersistentValue<std::string> value("", "", "");
     auto errorValue = value.hasError();
     ASSERT_EQ(errorValue, "");
 }
@@ -135,6 +136,18 @@ TEST_F(TestPersistentValue, filesystemExceptionsOutputToStdErr)
     }
     std::string logMessage = internal::GetCapturedStderr();
     ASSERT_THAT(logMessage, ::testing::HasSubstr("ERROR Failed to save value to var/persist-aPersistedValue with error TEST" ));
+}
+
+TEST_F(TestPersistentValue, errorValueCanBeSetAndRetrieved)
+{
+    const std::string expectedStr = "NoPermission";
+    auto mockFileSystem = std::make_unique<StrictMock<MockFileSystem>>();
+    EXPECT_CALL(*mockFileSystem, exists(_)).WillOnce(Return(true));
+    EXPECT_CALL(*mockFileSystem, readFile(_)).WillOnce(Throw(Common::FileSystem::IPermissionDeniedException(expectedStr)));
+    EXPECT_CALL(*mockFileSystem, writeFile(_, _)).Times(1);
+    Tests::replaceFileSystem(std::move(mockFileSystem));
+    Common::PersistentValue<std::string> value("", "", "");
+    EXPECT_STREQ(expectedStr.c_str(), value.hasError().c_str());
 }
 
 TEST_F(TestPersistentValue, testSetValueAndForceStoreWritesOnSetAndDestruction)
