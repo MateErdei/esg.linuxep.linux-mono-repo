@@ -18,6 +18,7 @@ from artifactory import ArtifactoryPath
 
 from PerformanceResources import *
 from RunResponseActions import *
+from performance.Annotations import annotate_graphs
 
 SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
 SAFESTORE_MALWARE_PATH = "/root/performance/malware_for_safestore_tests"
@@ -973,7 +974,8 @@ def add_options():
                                  'safestore-restore-database',
                                  'ra-file-download',
                                  'ra-file-upload',
-                                 'ra-list-files'],
+                                 'ra-list-files',
+                                 'add-annotations'],
                         help="Select which performance test suite to run")
 
     parser.add_argument('-i', '--client-id', action='store',
@@ -1043,6 +1045,8 @@ def main():
         run_response_actions_upload_files_test(args.central_region, args.central_env, args.tenant_id)
     elif args.suite == 'ra-list-files':
         run_response_actions_list_files_test(args.central_region, args.central_env, args.tenant_id)
+    elif args.suite == 'add-annotations':
+        annotate_graphs()
     logging.info("Finished")
 
 
