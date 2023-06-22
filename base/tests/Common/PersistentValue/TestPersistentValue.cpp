@@ -25,6 +25,17 @@ TEST_F(TestPersistentValue, persistentValueDefaultsIfNoFilePresent)
     ASSERT_EQ(readValue, defaultValue);
 }
 
+TEST_F(TestPersistentValue, persistentValueErrorStringsDefaultsToEmpty)
+{
+    auto mockFileSystem = std::make_unique<StrictMock<MockFileSystem>>();
+    EXPECT_CALL(*mockFileSystem, exists(_)).Times(1);
+    EXPECT_CALL(*mockFileSystem, writeFile(_, _)).Times(1);
+    Tests::replaceFileSystem(std::move(mockFileSystem));
+    Common::PersistentValue<std::string> value("","", "");
+    auto errorValue = value.hasError();
+    ASSERT_EQ(errorValue, "");
+}
+
 TEST_F(TestPersistentValue, persistentValueLoadsFromFile)
 {
     std::string pathToVarDir = "var";
