@@ -508,6 +508,21 @@ class WarehouseUtils(object):
                                username, PROD_BUILD_CERTS, BALLISTA_ADDRESS)
         templ.generate_warehouse_policy_from_template(template_name, target_output_file)
 
+    def get_version_for_rigidname_in_vut_warehouse(self, rigidname):
+        if rigidname == "ServerProtectionLinux-Base":
+            if not os.environ.get("BALLISTA_VUT"):
+                # dev warehouse hard code version
+                return "1.0.0"
+            return get_version_from_sdds_import_file(
+                os.path.join(PathManager.SYSTEM_PRODUCT_TEST_INPUTS, "sspl-componentsuite", "SDDS-Import.xml"))
+        warehouse_root = os.path.join(LOCAL_WAREHOUSES_ROOT, "dev", "sspl-warehouse", "develop", "warehouse",
+                                      "warehouse")
+        product_name = self.RIGIDNAMES_AGAINST_PRODUCT_NAMES_IN_VERSION_INI_FILES[rigidname]
+        version = subprocess.check_output(
+            f'grep -r "PRODUCT_NAME = {product_name}" {SYSTEMPRODUCT_TEST_INPUT}/local_warehouses/dev/sspl-warehouse/develop/warehouse/warehouse/ | awk -F: \'{{print $1}}\' | xargs grep "PRODUCT_VERSION" | sed "s/PRODUCT_VERSION\ =\ //"',
+            shell=True)
+        return version.strip().decode()
+
     def get_version_for_rigidname_in_sdds3_warehouse(self, release_type, rigidname):
         if release_type == "vut":
             warehouse_root = os.path.join(SYSTEMPRODUCT_TEST_INPUT, "sdds3", "repo", "package")
