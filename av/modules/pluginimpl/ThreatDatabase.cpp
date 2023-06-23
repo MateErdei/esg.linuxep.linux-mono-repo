@@ -19,6 +19,10 @@ namespace Plugin
 {
     ThreatDatabase::ThreatDatabase(const std::string& path) : m_databaseInString(path, "threatDatabase", "{}")
     {
+        if (!m_databaseInString.getError().empty())
+        {
+            LOGERROR("Resetting ThreatDatabase as it failed to load: " << m_databaseInString.getError());
+        }
         convertStringToDatabase();
     }
 

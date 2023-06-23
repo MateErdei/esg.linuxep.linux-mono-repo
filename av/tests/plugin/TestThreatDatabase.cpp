@@ -190,15 +190,17 @@ TEST_F(TestThreatDatabase, initDatabaseHandlesIfNumbersInJsonPreviousDatabaseExi
 TEST_F(TestThreatDatabase, initDatabaseHandlesInvalidPermissions)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
+    const std::string expectedStr = "No Permission";
 
     EXPECT_CALL(*m_fileSystemMock, exists(Plugin::getPersistThreatDatabaseFilePath())).WillOnce(Return(true));
-    EXPECT_CALL(*m_fileSystemMock, readFile(Plugin::getPersistThreatDatabaseFilePath())).WillOnce(Throw(Common::FileSystem::IPermissionDeniedException("NoPermission")));
+    EXPECT_CALL(*m_fileSystemMock, readFile(Plugin::getPersistThreatDatabaseFilePath())).WillOnce(Throw(Common::FileSystem::IPermissionDeniedException(expectedStr)));
 
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(m_fileSystemMock) };
 
     auto database = Plugin::ThreatDatabase{Plugin::getPluginVarDirPath()};
 
     EXPECT_TRUE(database.isDatabaseEmpty());
+    EXPECT_TRUE(appenderContains("Resetting ThreatDatabase as it failed to load: " + expectedStr));
     EXPECT_TRUE(appenderContains("Initialised Threat Database"));
     verifyCorruptDatabaseTelemetryNotPresent();
 }
@@ -206,15 +208,17 @@ TEST_F(TestThreatDatabase, initDatabaseHandlesInvalidPermissions)
 TEST_F(TestThreatDatabase, initDatabaseHandlesFileTooLarge)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
+    const std::string expectedStr = "To Large";
 
     EXPECT_CALL(*m_fileSystemMock, exists(Plugin::getPersistThreatDatabaseFilePath())).WillOnce(Return(true));
-    EXPECT_CALL(*m_fileSystemMock, readFile(Plugin::getPersistThreatDatabaseFilePath())).WillOnce(Throw(Common::FileSystem::IFileTooLargeException("ToLarge")));
+    EXPECT_CALL(*m_fileSystemMock, readFile(Plugin::getPersistThreatDatabaseFilePath())).WillOnce(Throw(Common::FileSystem::IFileTooLargeException(expectedStr)));
 
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(m_fileSystemMock) };
 
     auto database = Plugin::ThreatDatabase{Plugin::getPluginVarDirPath()};
 
     EXPECT_TRUE(database.isDatabaseEmpty());
+    EXPECT_TRUE(appenderContains("Resetting ThreatDatabase as it failed to load: " + expectedStr));
     EXPECT_TRUE(appenderContains("Initialised Threat Database"));
     verifyCorruptDatabaseTelemetryNotPresent();
 }
@@ -222,16 +226,18 @@ TEST_F(TestThreatDatabase, initDatabaseHandlesFileTooLarge)
 TEST_F(TestThreatDatabase, initDatabaseHandlesPathThatIsDirectory)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
+    const std::string expectedStr = "Error, Failed to read file: " + Plugin::getPersistThreatDatabaseFilePath() + ", is a directory";
 
     EXPECT_CALL(*m_fileSystemMock, exists(Plugin::getPersistThreatDatabaseFilePath())).WillOnce(Return(true));
     EXPECT_CALL(*m_fileSystemMock, readFile(Plugin::getPersistThreatDatabaseFilePath()))
-        .WillOnce(Throw(Common::FileSystem::IFileSystemException("Error, Failed to read file: " + Plugin::getPersistThreatDatabaseFilePath() + ", is a directory")));
+        .WillOnce(Throw(Common::FileSystem::IFileSystemException(expectedStr)));
 
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem { std::move(m_fileSystemMock) };
 
     auto database = Plugin::ThreatDatabase{Plugin::getPluginVarDirPath()};
 
     EXPECT_TRUE(database.isDatabaseEmpty());
+    EXPECT_TRUE(appenderContains("Resetting ThreatDatabase as it failed to load: " + expectedStr));
     EXPECT_TRUE(appenderContains("Initialised Threat Database"));
     verifyCorruptDatabaseTelemetryNotPresent();
 }
