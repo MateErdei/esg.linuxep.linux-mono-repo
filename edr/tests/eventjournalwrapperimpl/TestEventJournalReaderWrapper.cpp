@@ -395,14 +395,6 @@ TEST_F(TestEventJournalReaderWrapper, getEntriesCanReadMultipleLongRecords)
         .WillOnce(Return(false))
         .WillRepeatedly(Return(true));
 
-    EXPECT_CALL(*endInterface, Equals())
-        .WillOnce(Return(false))
-        .WillOnce(Return(false))
-        .WillOnce(Return(false))
-        .WillOnce(Return(false))
-        .WillOnce(Return(false))
-        .WillRepeatedly(Return(true));
-
     EXPECT_CALL(*beginImplInterface, Copy()).WillRepeatedly(Return(beginImplInterface));
     EXPECT_CALL(*endInterface, Copy()).WillRepeatedly(Return(endInterface));
 
@@ -465,20 +457,7 @@ TEST_F(TestEventJournalReaderWrapper, getEntriesStopsReadingAfterHittingMemoryLi
     testing::Mock::AllowLeak(endInterface.get());
 
     EXPECT_CALL(*beginImplInterface, Equals())
-        .WillOnce(Return(false))
-        .WillOnce(Return(false))
-        .WillOnce(Return(false))
-        .WillOnce(Return(false))
-        .WillOnce(Return(false))
-        .WillRepeatedly(Return(true));
-
-    EXPECT_CALL(*endInterface, Equals())
-        .WillOnce(Return(false))
-        .WillOnce(Return(false))
-        .WillOnce(Return(false))
-        .WillOnce(Return(false))
-        .WillOnce(Return(false))
-        .WillRepeatedly(Return(true));
+        .WillRepeatedly(Return(false));
 
     EXPECT_CALL(*beginImplInterface, Copy()).WillRepeatedly(Return(beginImplInterface));
     EXPECT_CALL(*endInterface, Copy()).WillRepeatedly(Return(endInterface));
@@ -488,11 +467,7 @@ TEST_F(TestEventJournalReaderWrapper, getEntriesStopsReadingAfterHittingMemoryLi
     MockJournalViewInterface::ConstIterator journalIterator(beginImplInterface);
 
     EXPECT_CALL(*beginImplInterface, PrefixIncrement())
-        .WillOnce(ReturnRef(*beginImplInterface))
-        .WillOnce(ReturnRef(*beginImplInterface))
-        .WillOnce(ReturnRef(*beginImplInterface))
-        .WillOnce(ReturnRef(*beginImplInterface))
-        .WillOnce(ReturnRef(*endInterface));
+        .WillRepeatedly(ReturnRef(*beginImplInterface));
 
     EXPECT_CALL(*mockJournalViewPtr, cbegin()).WillRepeatedly(Return(journalIterator));
     EXPECT_CALL(*mockJournalViewPtr, cend()).WillRepeatedly(Return(journalIterator));
@@ -512,8 +487,8 @@ TEST_F(TestEventJournalReaderWrapper, getEntriesStopsReadingAfterHittingMemoryLi
     uint32_t maxMemoryThreshold = size * 2;
     bool moreAvailable = false;
     auto results = testReader->getEntries(subjectFilter, startTime, endTime, maxMemoryThreshold, moreAvailable);
-    ASSERT_EQ(results.size(), 2);
-    ASSERT_TRUE(moreAvailable);
+    EXPECT_EQ(results.size(), 2);
+    EXPECT_TRUE(moreAvailable);
 
     Mock::VerifyAndClearExpectations(beginImplInterface.get());
     Mock::VerifyAndClearExpectations(endInterface.get());

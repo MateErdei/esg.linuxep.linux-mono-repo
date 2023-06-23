@@ -202,7 +202,7 @@ namespace Common
         std::vector<Entry> Reader::getEntries(std::vector<Subject> subjectFilter, const std::string& jrl, uint64_t startTime, uint64_t endTime, uint32_t maxMemoryThreshold, bool& moreAvailable)
         {
             std::vector<Entry> entries;
-            auto view = getJournalView(subjectFilter, jrl, startTime, endTime);
+            auto view = getJournalView(std::move(subjectFilter), jrl, startTime, endTime);
             size_t entrySize = getEntrySize(view);
             if (entrySize == 0)
             {
