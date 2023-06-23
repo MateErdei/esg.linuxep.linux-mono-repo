@@ -8,12 +8,14 @@ import json
 import time
 from robot.api import logger
 
+
 def linux_queries_in_pack(config: dict)  -> (str, dict):
     # Only yield linux queries
     for query_name, query in queries_in_pack(config):
         # queries without designated platforms will run on linux
         if "linux" in query.get("platform", "linux"):
             yield query_name, query
+
 
 def queries_in_pack(config: dict) -> (str, dict):
     # for query in flat "schedule" field
@@ -27,6 +29,7 @@ def queries_in_pack(config: dict) -> (str, dict):
         if "osquery_registry" not in str(discovery):
             for query_name, query in pack["queries"].items():
                 yield query_name, query
+
 
 def replace_query_bodies_with_sql_that_always_gives_results(config_path):
     if os.path.exists(config_path):
@@ -75,6 +78,7 @@ def change_all_scheduled_queries_interval(config_path, interval):
     else:
         raise AssertionError(f"{config_path} does not exist")
 
+
 def remove_discovery_query_from_pack(config_path):
     if os.path.exists(config_path):
         with open(config_path, 'r') as f:
@@ -89,6 +93,7 @@ def remove_discovery_query_from_pack(config_path):
             f.write(new_config_json_string)
     else:
         raise AssertionError(f"{config_path} does not exist")
+
 
 def check_all_queries_run(log_path: str, config_path: str):
     if os.path.exists(config_path):
@@ -123,14 +128,15 @@ def check_all_queries_run(log_path: str, config_path: str):
         raise AssertionError(f"{config_path} does not exist")
 
 
-def convert_canned_query_json_to_query_pack(json_path,query_pack_path):
-    if os.path.exists(json_path):
+def convert_canned_query_json_to_query_pack(json_path, query_pack_path):
+    if os.path.isfile(json_path):
         with open(json_path, 'r') as f:
             config_json_string = f.read()
     else:
-        return 1
+        raise AssertionError(f"{json_path} does not exist!")
+
     canned_json = json.loads(config_json_string)
-    canned_pack = {"schedule":{}}
+    canned_pack = {"schedule": {}}
     for query in canned_json["queries"]:
         if "linuxServer" in query["platforms"]:
             try:
@@ -139,9 +145,10 @@ def convert_canned_query_json_to_query_pack(json_path,query_pack_path):
             except KeyError:
                 ## if no requires then it is not an mtr query
                 pass
-            query_json = {}
-            query_json["interval"] = 20
-            query_json["query"] = query["query"]
+            query_json = {
+                "interval": 20,
+                "query": query["query"]
+            }
             canned_pack["schedule"][query["id"]] = query_json
 
     with open(query_pack_path, 'w') as f:
