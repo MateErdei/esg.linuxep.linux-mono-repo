@@ -29,7 +29,6 @@ def get_grafana_auth():
 
 
 def get_epoch_time_from_journal_entry(journal_line):
-    print(journal_line)
     time_string = f"{datetime.date.today().year} {journal_line.split(socket.gethostname())[0].strip()}"
     return int(datetime.datetime.strptime(time_string, "%Y %b %d %H:%M:%S").timestamp() * 1000)  # in milliseconds
 
@@ -117,19 +116,19 @@ def add_osquery_restart_annotations():
 
     cpu_limit_data = subprocess.run(["grep", "Maximum sustainable CPU utilization limit exceeded"],
                                     input=ps.stdout, capture_output=True).stdout.decode("utf-8").strip().split("\n")
-    print(f"cpu_limit_data: {cpu_limit_data}")
     for data in cpu_limit_data:
-        annotation_failures += add_annotation(tag="osquery-cpu-restart",
-                                              start_time=get_epoch_time_from_journal_entry(data),
-                                              text=data.split("stopping: ")[-1])
+        if data:
+            annotation_failures += add_annotation(tag="osquery-cpu-restart",
+                                                  start_time=get_epoch_time_from_journal_entry(data),
+                                                  text=data.split("stopping: ")[-1])
 
     memory_limit_data = subprocess.run(["grep", "Memory limits exceeded"],
                                        input=ps.stdout, capture_output=True).stdout.decode("utf-8").strip().split("\n")
-    print(f"memory_limit_data: {memory_limit_data}")
     for data in memory_limit_data:
-        annotation_failures += add_annotation(tag="osquery-memory-restart",
-                                              start_time=get_epoch_time_from_journal_entry(data),
-                                              text=data.split("stopping: ")[-1])
+        if data:
+            annotation_failures += add_annotation(tag="osquery-memory-restart",
+                                                  start_time=get_epoch_time_from_journal_entry(data),
+                                                  text=data.split("stopping: ")[-1])
 
     return annotation_failures
 
