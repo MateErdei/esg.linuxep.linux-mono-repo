@@ -68,7 +68,7 @@ namespace Common
             storeValue();
         }
 
-        std::string hasError() { return errorMessage_; }
+        std::string getError() { return errorMessage_; }
 
     private:
         T value_;
