@@ -440,6 +440,7 @@ function build()
       chmod 700 $REDIST/cmake/bin/cmake || exitFailure "Unable to chmod cmake"
       chmod 700 $REDIST/cmake/bin/ctest || exitFailure "Unable to chmod ctest"
     fi
+    chmod 700 $INPUT/capnproto/bin/* || exitFailure "Unable to chmod capnproto"
 
     [[ -e ${REDIST}/sdds3 ]] || ln -s ${INPUT}/sdds3 "${REDIST}/sdds3" && chmod +x ${REDIST}/sdds3/*
 
@@ -607,7 +608,6 @@ function build()
     cp -L TA/manual/*.sh TA/manual/*.py ${OUTPUT}/manualtests/
 
     python3 TA/process_capnp_files.py
-    chmod 700 $INPUT/capnproto/bin/* || exitFailure "Unable to chmod capnproto"
 
     if [[ -d ${BUILD_DIR}/symbols ]]
     then
