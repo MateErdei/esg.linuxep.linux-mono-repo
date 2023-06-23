@@ -84,7 +84,7 @@ def add_scheduled_scan_annotations():
         annotation_failures += add_annotation(tag="scheduled-scan",
                                               start_time=start_time,
                                               end_time=end_time,
-                                              text="Scheduled Scan")
+                                              text=f"Scheduled Scan (took {(end_time - start_time) / 1000} seconds)")
     return annotation_failures
 
 
