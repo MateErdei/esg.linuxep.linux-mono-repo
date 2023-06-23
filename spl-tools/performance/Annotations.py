@@ -84,31 +84,14 @@ def add_scheduled_scan_annotations():
         annotation_failures += add_annotation(tag="scheduled-scan",
                                               start_time=start_time,
                                               end_time=end_time,
-                                              text=f"Scheduled Scan (took {(end_time - start_time) / 1000} seconds)")
+                                              text="Scheduled Scan")
     return annotation_failures
 
-
-def add_osquery_restart_annotations():
-    annotation_failures = 0
-    with open(LOG_UTILS.edr_log) as f:
-        lines = f.readlines()
-
-        for line in lines:
-            if "Restarting osquery, reason:" in line:
-                annotation_failures += add_annotation(tag="osquery-restart",
-                                                      start_time=LogUtils.get_epoch_time_from_log_line(line),
-                                                      text=line.split('reason:')[-1])
-            if "Restarting OSQuery after unexpected extension exit" in line:
-                annotation_failures += add_annotation(tag="osquery-restart",
-                                                      start_time=LogUtils.get_epoch_time_from_log_line(line),
-                                                      text="OSQuery Restart due to unexpected extension exit")
-    return annotation_failures
 
 def annotate_graphs():
     annotation_failures = 0
     annotation_failures += add_product_update_annotations() + \
-                           add_scheduled_scan_annotations() + \
-                           add_osquery_restart_annotations()
+                           add_scheduled_scan_annotations()
 
     if annotation_failures != 0:
         exit(1)
