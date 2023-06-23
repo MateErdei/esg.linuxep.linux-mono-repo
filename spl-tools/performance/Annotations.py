@@ -1,8 +1,10 @@
+import os
 import socket
 
 import requests
 
-from LogUtils import *
+import LogUtils
+LOG_UTILS = LogUtils.LogUtils()
 
 
 def get_grafana_auth():
@@ -32,7 +34,7 @@ def add_annotation(tag, start_time, text, end_time=None):
 
 
 def add_product_update_annotations():
-    update_info = get_chunks_from_log(LogUtils.LogUtils.suldownloader_log,
+    update_info = LogUtils.get_chunks_from_log(LOG_UTILS.suldownloader_log,
                                       "Doing product and supplement update",
                                       "Generating the report file in")
     for update_chunk in update_info:
@@ -40,10 +42,10 @@ def add_product_update_annotations():
         if "Product installed" not in "".join(update_chunk):
             continue
         update_info_text = "Product Update:\n"
-        start_time = get_epoch_time_from_log_line(update_chunk[0])
-        end_time = get_epoch_time_from_log_line(update_chunk[-1])
+        start_time = LogUtils.get_epoch_time_from_log_line(update_chunk[0])
+        end_time = LogUtils.get_epoch_time_from_log_line(update_chunk[-1])
         for log_line in update_chunk:
-            for component in next(os.walk("/opt/sophos-spl/base/update/cache/sdds3primary"))[1]:
+            for component in next(os.walk(f"{LOG_UTILS.install_path}/base/update/cache/sdds3primary"))[1]:
                 if f"Installing product: {component} version:" in log_line:
                     component_version = log_line.split(":")[-1].strip()
                     update_info_text += f"Upgraded {component} to {component_version}\n"
@@ -52,13 +54,13 @@ def add_product_update_annotations():
 
 
 def add_scheduled_scan_annotations():
-    scan_info = get_chunks_from_log(LogUtils.LogUtils.av_log,
+    scan_info = LogUtils.get_chunks_from_log(LOG_UTILS.av_log,
                                     "Starting scan Sophos Cloud Scheduled Scan",
                                     "Sending scan complete event to Central")
 
     for scan_chunk in scan_info:
-        start_time = get_epoch_time_from_log_line(scan_chunk[0])
-        end_time = get_epoch_time_from_log_line(scan_chunk[-1])
+        start_time = LogUtils.get_epoch_time_from_log_line(scan_chunk[0])
+        end_time = LogUtils.get_epoch_time_from_log_line(scan_chunk[-1])
         add_annotation(tag="scheduled-scan", start_time=start_time, end_time=end_time, text="Scheduled Scan")
 
 
