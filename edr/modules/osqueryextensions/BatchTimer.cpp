@@ -1,12 +1,9 @@
-/***********************************************************************************************
-
-Copyright 2021-2021 Sophos Limited. All rights reserved.
-
-***********************************************************************************************/
+// Copyright 2021-2023 Sophos Limited. All rights reserved.
 
 #include "BatchTimer.h"
 
-BatchTimer::BatchTimer() : m_cancelled(false)
+BatchTimer::BatchTimer()
+    : m_cancelled(false)
 {
 }
 
