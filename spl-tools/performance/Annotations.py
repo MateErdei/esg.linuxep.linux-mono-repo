@@ -1,5 +1,7 @@
+import datetime
 import os
 import socket
+import subprocess
 
 import requests
 
@@ -18,11 +20,17 @@ COMPONENT_NAMES_TO_FORMAT = {
     "ServerProtectionLinux-Plugin-AV": "AV"
 }
 
+
 def get_grafana_auth():
     with open("/root/performance/grafana_token") as f:
         return {
             "Authorization": f"Bearer {f.read().strip()}"
         }
+
+
+def get_epoch_time_from_journal_entry(journal_line):
+    time_string = f"{datetime.date.today().year} {journal_line.split(socket.gethostname())[0].strip()}"
+    return int(datetime.datetime.strptime(time_string, "%Y %b %d %H:%M:%S").timestamp() * 1000)  # in milliseconds
 
 
 def add_annotation(tag, start_time, text, end_time=None):
@@ -61,7 +69,8 @@ def add_product_update_annotations():
         for log_line in update_chunk:
             for component in next(os.walk(f"{LOG_UTILS.install_path}/base/update/cache/sdds3primary"))[1]:
                 if f"Installing product: {component} version:" in log_line:
-                    component_name = COMPONENT_NAMES_TO_FORMAT[component] if component in COMPONENT_NAMES_TO_FORMAT else component
+                    component_name = COMPONENT_NAMES_TO_FORMAT[component] \
+                        if component in COMPONENT_NAMES_TO_FORMAT else component
                     component_version = log_line.split(":")[-1].strip()
                     update_info_text += f"Upgraded {component_name} to {component_version}\n"
 
@@ -88,10 +97,45 @@ def add_scheduled_scan_annotations():
     return annotation_failures
 
 
+def add_osquery_restart_annotations():
+    annotation_failures = 0
+    with open(LOG_UTILS.edr_log) as f:
+        lines = f.readlines()
+
+        for line in lines:
+            if "Restarting osquery, reason:" in line:
+                annotation_failures += add_annotation(tag="osquery-restart",
+                                                      start_time=LogUtils.get_epoch_time_from_log_line(line),
+                                                      text=line.split('reason:')[-1])
+            if "Restarting OSQuery after unexpected extension exit" in line:
+                annotation_failures += add_annotation(tag="osquery-restart",
+                                                      start_time=LogUtils.get_epoch_time_from_log_line(line),
+                                                      text="OSQuery Restart due to unexpected extension exit")
+
+    ps = subprocess.run(["journalctl", "-u", "sophos-spl"], check=True, capture_output=True)
+
+    cpu_limit_data = subprocess.run(["grep", "Maximum sustainable CPU utilization limit exceeded"],
+                                    input=ps.stdout, capture_output=True).stdout.decode("utf-8").strip().split("\n")
+    for data in cpu_limit_data:
+        annotation_failures += add_annotation(tag="osquery-cpu-restart",
+                                              start_time=get_epoch_time_from_journal_entry(data),
+                                              text=data.split("stopping: ")[-1])
+
+    memory_limit_data = subprocess.run(["grep", "Memory limits exceeded"],
+                                       input=ps.stdout, capture_output=True).stdout.decode("utf-8").strip().split("\n")
+    for data in memory_limit_data:
+        annotation_failures += add_annotation(tag="osquery-memory-restart",
+                                              start_time=get_epoch_time_from_journal_entry(data),
+                                              text=data.split("stopping: ")[-1])
+
+    return annotation_failures
+
+
 def annotate_graphs():
     annotation_failures = 0
     annotation_failures += add_product_update_annotations() + \
-                           add_scheduled_scan_annotations()
+                           add_scheduled_scan_annotations() + \
+                           add_osquery_restart_annotations()
 
     if annotation_failures != 0:
         exit(1)
