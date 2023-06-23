@@ -372,10 +372,13 @@ function build()
     # Run the unit tests unless we are doing bullseye system tests then don't run unit test first
     elif (( ${UNITTEST} == 1 ))
     then
-        make -j${NPROC} CTEST_OUTPUT_ON_FAILURE=1  test || {
+        ctest \
+          --parallel $(( NPROC * 2 )) \
+          --timeout 15 \
+          --output-on-failure \ || {
             local EXITCODE=$?
             echo "Unit tests failed with $EXITCODE"
-            cat Testing/Temporary/LastTest.log || true
+#            cat Testing/Temporary/LastTest.log || true
             exitFailure $FAILURE_UNIT_TESTS "Unit tests failed for $PRODUCT"
         }
     fi
