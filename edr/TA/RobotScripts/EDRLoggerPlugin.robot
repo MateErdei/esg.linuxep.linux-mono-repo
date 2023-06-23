@@ -947,7 +947,7 @@ Set Discovery Query Interval In EDR SDDS Directory Config
         log file    ${sdds_plugin_conf}
     END
     Run Keyword If    "pack_refresh_interval" not in "${current_config_content}"
-    ...    Append To File    ${sdds_plugin_conf}    --pack_refresh_interval=${interval}
+    ...    Append To File    ${sdds_plugin_conf}    pack_refresh_interval=${interval}\n
     log file    ${sdds_plugin_conf}
 
 
@@ -960,8 +960,9 @@ Test Setup
     ...   Check Osquery Running
 
 Test Teardown
-    Run Keyword And Ignore Error    Dump Scheduled Query Table
-    Run Keyword If Test Failed      Verify RPM DB
+    Remove File    ${EDR_SDDS}/files/plugins/edr/etc/plugin.conf
+    Run Keyword If Test Failed    Run Keyword And Ignore Error    Dump Scheduled Query Table
+    Run Keyword If Test Failed    Verify RPM DB
     EDR And Base Teardown
     Uninstall EDR
     clear_datafeed_folder
