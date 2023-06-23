@@ -443,8 +443,9 @@ TEST_F(TestEventJournalReaderWrapper, getEntriesCanReadMultipleLongRecords)
 
 TEST_F(TestEventJournalReaderWrapper, getEntriesStopsReadingAfterHittingMemoryLimit)
 {
-    auto mockFileSystem = new ::testing::StrictMock<MockFileSystem>();
-    Tests::replaceFileSystem(std::unique_ptr<Common::FileSystem::IFileSystem>{ mockFileSystem });
+    auto mockFileSystem = std::make_unique<testing::StrictMock<MockFileSystem>>();
+    Tests::replaceFileSystem(std::move(mockFileSystem));
+
     Common::Logging::ConsoleLoggingSetup consoleLogger;
 
     const int size = 9000;
@@ -512,4 +513,7 @@ TEST_F(TestEventJournalReaderWrapper, getEntriesStopsReadingAfterHittingMemoryLi
     auto results = testReader->getEntries(subjectFilter, startTime, endTime, maxMemoryThreshold, moreAvailable);
     ASSERT_EQ(results.size(), 2);
     ASSERT_TRUE(moreAvailable);
+
+    Mock::VerifyAndClearExpectations(beginImplInterface.get());
+    Mock::VerifyAndClearExpectations(endInterface.get());
 }

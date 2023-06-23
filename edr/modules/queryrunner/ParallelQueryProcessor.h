@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2020 Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 #pragma once
 
 #include "IQueryRunner.h"
@@ -16,16 +12,16 @@ Copyright 2020 Sophos Limited.  All rights reserved.
 
 namespace queryrunner
 {
-    class ParallelQueryProcessor{
+    class ParallelQueryProcessor
+    {
     public:
-        ParallelQueryProcessor(std::unique_ptr<queryrunner::IQueryRunner> );
+        explicit ParallelQueryProcessor(std::unique_ptr<queryrunner::IQueryRunner> );
         ~ParallelQueryProcessor();
         void addJob( const std::string& queryJson, const std::string & correlationId);
-        void newJobDone(std::string id);
+        void newJobDone(const std::string& id);
         void abortQueries();
 
     private:
-        void cleanupListOfJobs(); 
         std::unique_ptr<queryrunner::IQueryRunner> m_queryProcessor;
         queryrunner::Telemetry m_telemetry; 
         std::list<std::unique_ptr<queryrunner::IQueryRunner>> m_processingQueries;

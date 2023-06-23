@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2020 Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #include "ParallelQueryProcessor.h"
 #include "Logger.h"
@@ -20,7 +16,7 @@ namespace queryrunner{
         abortQueries();
     }
 
-    void ParallelQueryProcessor::newJobDone(std::string id)
+    void ParallelQueryProcessor::newJobDone(const std::string& id)
     {
         if (m_shuttingDown)
         {
@@ -49,7 +45,7 @@ namespace queryrunner{
                     m_telemetry.processLiveQueryResponseStats(result);
                     LOGDEBUG("One more entry removed from the queue of processing queries");
                     // move this element to the other list to clear it afterwards.
-                    // it cannnot be clear here as this is executed in the callback of the queryrunnerthread.
+                    // it cannot be clear here as this is executed in the callback of the queryrunnerthread.
                     m_processedQueries.splice(m_processedQueries.begin(), m_processingQueries, it);
                 }
                 else
@@ -57,7 +53,7 @@ namespace queryrunner{
                     LOGWARN("Failed to find the query " << id << " in the list of processing queries");
                 }
             }
-            catch (std::exception& ex)
+            catch (const std::exception& ex)
             {
                 LOGERROR("Failed to handle feedback on query finished: " << ex.what());
             }
@@ -72,10 +68,11 @@ namespace queryrunner{
             {
                 auto newproc = m_queryProcessor->clone();
                 std::lock_guard<std::mutex> l { m_mutex };
-                newproc->triggerQuery(correlationId, queryJson, [this](std::string id) { this->newJobDone(id); });
+                newproc->triggerQuery(correlationId, queryJson,
+                          [this](const std::string& id) { this->newJobDone(id); });
                 m_processingQueries.emplace_back(std::move(newproc));
             }
-            catch (std::exception& ex)
+            catch (const std::exception& ex)
             {
                 LOGERROR("Failed to configure a new query: " << ex.what());
             }
@@ -130,7 +127,7 @@ namespace queryrunner{
                 m_processedQueries.clear();
             }
         }
-        catch (std::exception& ex)
+        catch (const std::exception& ex)
         {
             LOGERROR("Failure in clean up ParallelQueryProcessor: " << ex.what());
         }
