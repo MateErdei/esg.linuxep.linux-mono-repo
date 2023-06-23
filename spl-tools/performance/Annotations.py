@@ -29,6 +29,7 @@ def get_grafana_auth():
 
 
 def get_epoch_time_from_journal_entry(journal_line):
+    print(journal_line)
     time_string = f"{datetime.date.today().year} {journal_line.split(socket.gethostname())[0].strip()}"
     return int(datetime.datetime.strptime(time_string, "%Y %b %d %H:%M:%S").timestamp() * 1000)  # in milliseconds
 
