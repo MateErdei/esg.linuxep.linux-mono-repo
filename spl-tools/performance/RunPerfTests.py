@@ -18,7 +18,7 @@ from artifactory import ArtifactoryPath
 
 from PerformanceResources import *
 from RunResponseActions import *
-from Annotations import annotate_graphs
+from Annotations import annotate_graphs, add_annotation
 
 SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
 SAFESTORE_MALWARE_PATH = "/root/performance/malware_for_safestore_tests"
@@ -222,6 +222,7 @@ def run_gcc_perf_test():
     end_time = get_current_unix_epoch_in_seconds()
 
     record_result("GCC Build", date_time, start_time, end_time)
+    add_annotation(tag="gcc-build", start_time=start_time * 1000, end_time=end_time * 1000, text="Building GCC")
 
     if result.returncode != 0:
         exit(1)
