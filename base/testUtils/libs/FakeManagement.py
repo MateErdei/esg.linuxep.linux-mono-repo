@@ -4,9 +4,7 @@
 # All rights reserved.
 
 
-
 import os
-import time
 
 import PathManager
 SUPPORTFILESPATH = PathManager.get_support_file_path()
@@ -31,13 +29,6 @@ class FakeManagement(object):
             if not os.path.exists(filepath):
                 raise AssertionError("Policy file not found: " + filepath)
         return open(filepath, 'r').read()
-
-
-    def start_fake_management(self):
-        if self.agent:
-            raise AssertionError("Agent already initialized")
-        self.agent = FakeManagementAgent.Agent(self.logger)
-        self.agent.start()
 
 
     def link_appid_plugin(self, appid, pluginname):

@@ -7,7 +7,6 @@ import os
 import grp
 import pwd
 import time
-import datetime
 import ActionUtils
 from PluginCommunicationTools import FakeManagementAgent
 from PluginCommunicationTools.common.socket_utils import try_get_socket, ZMQ_CONTEXT
@@ -116,6 +115,12 @@ class FakeManagement(object):
     def __init__(self):
         self.logger = FakeManagementAgent.setup_logging("fake_management_agent.log", "Fake Management Agent")
         self.agent = None
+
+    def start_fake_management(self):
+        if self.agent:
+            raise AssertionError("Agent already initialized")
+        self.agent = FakeManagementAgent.Agent(self.logger)
+        self.agent.start()
 
     def stop_fake_management(self):
         if not self.agent:
