@@ -10,7 +10,7 @@ LOG_UTILS = LogUtils.LogUtils()
 def get_grafana_auth():
     with open("/root/performance/grafana_token") as f:
         return {
-            "Authorization": f"Bearer {f.read}"
+            "Authorization": f"Bearer {f.read().strip()}"
         }
 
 
@@ -29,8 +29,10 @@ def add_annotation(tag, start_time, text, end_time=None):
     if r.status_code not in [200, 201]:
         print(f"Failed to store test result: {str(annotation_json)}")
         print(f"Status code: {r.status_code}, text: {r.text}")
+        exit(1)
     else:
         print(f"Annotation Content: {annotation_json}")
+        exit(0)
 
 
 def add_product_update_annotations():
