@@ -177,13 +177,17 @@ EDR Plugin Applies Regex Folding Rules
 
 EDR Plugin Runs All Canned Queries
     [Setup]  No Operation
+    #  Originally sophos-query-pack.json
+    #  A recent fetch gave endpoint_query_pack.json only locally
+    ${src_query_pack} =  Set Variable  ${TEST_INPUT_PATH}/lp/endpoint_query_pack.json
+    File Should Exist  ${src_query_pack}
     Set Discovery Query Interval In EDR SDDS Directory Config
     Test Setup
     Directory Should Be Empty  ${SOPHOS_INSTALL}/base/mcs/datafeed
     Remove File   ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf
     Remove File   ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.mtr.conf
-    convert_canned_query_json_to_query_pack   ${TEST_INPUT_PATH}/lp/sophos-query-pack.json  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf
-    Run Process  chmod  600  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf  shell=True
+    convert_canned_query_json_to_query_pack   ${src_query_pack}  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf
+    Run Process  chmod  600  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf
     # Inserting policy will cause an osquery restart to apply new policy settings
     Move File Atomically  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_customquery_limit.xml  /opt/sophos-spl/base/mcs/policy/LiveQuery_policy.xml
 
@@ -906,10 +910,7 @@ Change Next Query Packs Flag
 
 Are Next Query Packs Enabled in Plugin Conf
     [Arguments]  ${settingValue}=0
-    Wait Until Keyword Succeeds
-    ...  15 secs
-    ...  1 secs
-    ...  File Should Exist    ${SOPHOS_INSTALL}/plugins/edr/etc/plugin.conf
+    Wait Until Created  ${SOPHOS_INSTALL}/plugins/edr/etc/plugin.conf  timeout=15 secs
     Wait Until Keyword Succeeds
     ...  60 secs
     ...  5 secs
@@ -964,7 +965,7 @@ Test Teardown
     Run Keyword If Test Failed    Run Keyword And Ignore Error    Clear Datafeed Dir And Wait For Next Result File
     Run Keyword If Test Failed    Run Keyword And Ignore Error    Dump Scheduled Query Table
     Run Keyword If Test Failed    Verify RPM DB
-    EDR And Base Teardown
+    EDR And Base Teardown Without Starting EDR
     Uninstall EDR
     clear_datafeed_folder
     Remove File  ${SOPHOS_INSTALL}/base/mcs/policy/LiveQuery_policy.xml

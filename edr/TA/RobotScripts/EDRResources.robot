@@ -140,8 +140,10 @@ Install With Base SDDS Inner
     Run Keyword If  ${preInstallALCPolicy}  Install ALC Policy   ALCContent
 
 Uninstall EDR
+    ${file_exists}=  Run Keyword and Return Status    File Should Exist  ${SOPHOS_INSTALL}/plugins/edr/bin/uninstall.sh
+    Return From Keyword If    ${file_exists} == ${False}
     ${result} =   Run Process  bash -x ${SOPHOS_INSTALL}/plugins/edr/bin/uninstall.sh --force   shell=True   timeout=20s
-    Should Be Equal As Integers  ${result.rc}  0   "Failed to uninstall EDR.\nstdout: \n${result.stdout}\n. stderr: \n${result.stderr}"
+    Should Be Equal As Integers  ${result.rc}  ${0}   "Failed to uninstall EDR.\nstdout: \n${result.stdout}\n. stderr: \n${result.stderr}"
     [Return]  ${result.stdout}  ${result.stderr}
 
 Downgrade EDR
@@ -284,45 +286,45 @@ Log Status Of Sophos Spl
 
 Common Teardown
     Run Keyword If Test Failed  Run Keyword And Ignore Error  Log Status Of Sophos Spl
-    Run Keyword If Test Failed  Run Keyword And Ignore Error  Log File  ${COMPONENT_ROOT_PATH}/etc/osquery.conf.d/sophos-scheduled-query-pack.mtr.conf
-    Run Keyword If Test Failed  Run Keyword And Ignore Error  Log File  ${COMPONENT_ROOT_PATH}/etc/osquery.conf.d/sophos-scheduled-query-pack.conf
-    Run Keyword If Test Failed  Run Keyword And Ignore Error  Log File  ${COMPONENT_ROOT_PATH}/etc/osquery.conf.d/sophos-scheduled-query-pack.conf.DISABLED
-    Run Keyword If Test Failed  Run Keyword And Ignore Error  Log File  ${COMPONENT_ROOT_PATH}/etc/osquery.conf.d/sophos-scheduled-query-pack.mtr.conf.DISABLED
-    Run Keyword If Test Failed  Log File  ${SOPHOS_INSTALL}/logs/base/watchdog.log
-    Run Keyword If Test Failed  Log File  ${SOPHOS_INSTALL}/logs/base/sophosspl/sophos_managementagent.log
-    Run Keyword If Test Failed  Log File  ${SOPHOS_INSTALL}/plugins/edr/etc/plugin.conf
-    Run Keyword If Test Failed  Log File  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.flags
-    Run Keyword If Test Failed  Log File  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf
-    Run Keyword If Test Failed  Log File  ${SOPHOS_INSTALL}/plugins/edr/extensions/extensions.load
+    Run Keyword If Test Failed  Dump Log  ${COMPONENT_ROOT_PATH}/etc/osquery.conf.d/sophos-scheduled-query-pack.mtr.conf
+    Run Keyword If Test Failed  Dump Log  ${COMPONENT_ROOT_PATH}/etc/osquery.conf.d/sophos-scheduled-query-pack.conf
+    Run Keyword If Test Failed  Dump Log  ${COMPONENT_ROOT_PATH}/etc/osquery.conf.d/sophos-scheduled-query-pack.conf.DISABLED
+    Run Keyword If Test Failed  Dump Log  ${COMPONENT_ROOT_PATH}/etc/osquery.conf.d/sophos-scheduled-query-pack.mtr.conf.DISABLED
+    Run Keyword If Test Failed  Dump Log  ${SOPHOS_INSTALL}/logs/base/watchdog.log
+    Run Keyword If Test Failed  Dump Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/sophos_managementagent.log
+    Run Keyword If Test Failed  Dump Log  ${SOPHOS_INSTALL}/plugins/edr/etc/plugin.conf
+    Run Keyword If Test Failed  Dump Log  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.flags
+    Run Keyword If Test Failed  Dump Log  ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf
+    Run Keyword If Test Failed  Dump Log  ${SOPHOS_INSTALL}/plugins/edr/extensions/extensions.load
     Run Keyword If Test Failed  Get all sophos processes
-    Run Keyword If Test Failed  Log File  ${EDR_LOG_PATH}
-    Run Keyword If Test Failed  Run Keyword And Ignore Error  Log File  ${EDR_LOG_PATH}.1
-    Run Keyword If Test Failed  Run Keyword And Ignore Error  Log File  ${SOPHOS_INSTALL}/plugins/edr/log/edr_osquery.log
-    Run Keyword If Test Failed  Run Keyword And Ignore Error  Log File  ${SOPHOS_INSTALL}/plugins/edr/log/edr_osquery.log.1
-    Run Keyword If Test Failed  Run Keyword And Ignore Error  Log File   ${LIVEQUERY_LOG_PATH}
-    Run Keyword If Test Failed  Run Keyword And Ignore Error  Log File   ${SOPHOS_INSTALL}/plugins/edr/log/scheduledquery.log
-    Run Keyword If Test Failed  Run Keyword And Ignore Error  Log File   ${FAKEMANAGEMENT_AGENT_LOG_PATH}
+    Run Keyword If Test Failed  Dump Log  ${EDR_LOG_PATH}
+    Run Keyword If Test Failed  Dump Log  ${EDR_LOG_PATH}.1
+    Run Keyword If Test Failed  Dump Log  ${SOPHOS_INSTALL}/plugins/edr/log/edr_osquery.log
+    Run Keyword If Test Failed  Dump Log  ${SOPHOS_INSTALL}/plugins/edr/log/edr_osquery.log.1
+    Run Keyword If Test Failed  Dump Log  ${LIVEQUERY_LOG_PATH}
+    Run Keyword If Test Failed  Dump Log  ${SOPHOS_INSTALL}/plugins/edr/log/scheduledquery.log
+    Run Keyword If Test Failed  Dump Log  ${FAKEMANAGEMENT_AGENT_LOG_PATH}
     Run Keyword If Test Failed  Display All SSPL Files Installed
 
-EDR And Base Teardown
+EDR And Base Teardown Without Stopping Or Starting EDR
+    Wait Until Keyword Succeeds
+    ...  15 secs
+    ...  1 secs
+    ...  Check EDR Executable Not Running
+    Common Teardown
+    Remove File    ${EDR_LOG_PATH}
+
+EDR And Base Teardown Without Starting EDR
     Run Keyword If Test Failed  Dump Threads    ${EDR_PLUGIN_BIN}
     Stop EDR
-    Wait Until Keyword Succeeds
-    ...  15 secs
-    ...  1 secs
-    ...  Check EDR Executable Not Running
-    Common Teardown
-    Remove File    ${EDR_LOG_PATH}
+    EDR And Base Teardown Without Stopping Or Starting EDR
+
+EDR And Base Teardown
+    EDR And Base Teardown Without Starting EDR
     Start EDR
 
-
 EDR And Base Teardown No Stop
-    Wait Until Keyword Succeeds
-    ...  15 secs
-    ...  1 secs
-    ...  Check EDR Executable Not Running
-    Common Teardown
-    Remove File    ${EDR_LOG_PATH}
+    EDR And Base Teardown Without Stopping Or Starting EDR
     Start EDR
 
 Create Install Options File With Content
@@ -409,7 +411,9 @@ Is XDR Enabled in Plugin Conf
 
 Stop EDR
     [Arguments]  ${timeout}=${15}
-    ${mark} =  Mark Log Size  ${EDR_LOG_PATH}
+    ${file_exists}=  Run Keyword and Return Status    File Should Exist  ${EDR_PLUGIN_PATH}/bin/edr
+    Return From Keyword If    ${file_exists} == ${False}
+    ${mark} =  mark_log_size  ${EDR_LOG_PATH}
     Run Shell Process  ${SOPHOS_INSTALL}/bin/wdctl stop edr   OnError=failed to stop edr  timeout=35s
     wait for log contains from mark  ${mark}  edr <> Plugin Finished  ${timeout}
 
