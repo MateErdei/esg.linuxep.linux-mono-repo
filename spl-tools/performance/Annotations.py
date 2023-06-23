@@ -7,6 +7,16 @@ import LogUtils
 
 LOG_UTILS = LogUtils.LogUtils()
 
+COMPONENT_NAMES_TO_FORMAT = {
+    "ServerProtectionLinux-Base-component": "Base",
+    "ServerProtectionLinux-Plugin-responseactions": "Response Actions",
+    "ServerProtectionLinux-Plugin-liveresponse": "Live Response",
+    "ServerProtectionLinux-Plugin-RuntimeDetections": "RTD",
+    "ServerProtectionLinux-Plugin-MDR": "MDR",
+    "ServerProtectionLinux-Plugin-EventJournaler": "Event Journaler",
+    "ServerProtectionLinux-Plugin-EDR": "EDR",
+    "ServerProtectionLinux-Plugin-AV": "AV"
+}
 
 def get_grafana_auth():
     with open("/root/performance/grafana_token") as f:
@@ -51,8 +61,9 @@ def add_product_update_annotations():
         for log_line in update_chunk:
             for component in next(os.walk(f"{LOG_UTILS.install_path}/base/update/cache/sdds3primary"))[1]:
                 if f"Installing product: {component} version:" in log_line:
+                    component_name = COMPONENT_NAMES_TO_FORMAT[component] if component in COMPONENT_NAMES_TO_FORMAT else component
                     component_version = log_line.split(":")[-1].strip()
-                    update_info_text += f"Upgraded {component} to {component_version}\n"
+                    update_info_text += f"Upgraded {component_name} to {component_version}\n"
 
         annotation_failures += add_annotation(tag="product-upgrade",
                                               start_time=start_time,
