@@ -320,10 +320,10 @@ def edr_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Pa
 
     # Add args to pass env vars to RobotFramework.py call in test runs
     robot_args_list = []
-    if parameters.test:
-        robot_args_list.append("TEST=" + parameters.test)
-    if parameters.suite:
-        robot_args_list.append("SUITE=" + parameters.suite)
+    if parameters.robot_test:
+        robot_args_list.append("TEST=" + parameters.robot_test)
+    if parameters.robot_suite:
+        robot_args_list.append("SUITE=" + parameters.robot_suite)
     robot_args = " ".join(robot_args_list)
 
     with stage.parallel('test'):
