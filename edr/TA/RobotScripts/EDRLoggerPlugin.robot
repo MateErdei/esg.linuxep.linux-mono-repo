@@ -181,6 +181,9 @@ EDR Plugin Applies Regex Folding Rules
 
 
 EDR Plugin Runs All Canned Queries
+    [Setup]  No Operation
+    Set Discovery Query Interval In EDR SDDS Directory Config
+    Test Setup
     Directory Should Be Empty  ${SOPHOS_INSTALL}/base/mcs/datafeed
     Remove File   ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.conf
     Remove File   ${SOPHOS_INSTALL}/plugins/edr/etc/osquery.conf.d/sophos-scheduled-query-pack.mtr.conf
@@ -201,6 +204,7 @@ EDR Plugin Runs All Scheduled Queries
     [Setup]  No Operation
     Directory Should Be Empty  ${SOPHOS_INSTALL}/base/mcs/datafeed
     Move File Atomically  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_customquery_limit.xml  /opt/sophos-spl/base/mcs/policy/LiveQuery_policy.xml
+    Set Discovery Query Interval In EDR SDDS Directory Config
     Test Setup
 
     Run Process  mkdir  -p  ${SOPHOS_INSTALL}/plugins/eventjournaler/data/eventjournals/SophosSPL/Detections
@@ -948,7 +952,6 @@ Set Discovery Query Interval In EDR SDDS Directory Config
 
 
 Test Setup
-    Set Discovery Query Interval In EDR SDDS Directory Config
     Install EDR Directly from SDDS
     Check EDR Plugin Installed With Base
     Wait Until Keyword Succeeds
