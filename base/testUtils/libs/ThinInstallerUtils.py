@@ -63,6 +63,38 @@ class ThinInstallerUtils(object):
         else:
             logger.info("File %s does not exist" % filename)
 
+    def find_thininstaller_output(self, source=None):
+        source = os.environ.get("THIN_INSTALLER_OVERRIDE", source)
+        if source is not None:
+            logger.info("using {} as source".format(source))
+            return source
+
+        local_dir = "/vagrant/esg.linuxep.thininstaller/output"
+        if os.path.isdir(local_dir):
+            logger.info("Thin Installer source: " + local_dir)
+            return local_dir
+        attempts = [local_dir]
+
+        if os.path.isfile(self.last_good_artisan_build_file):
+            attempts.append(self.last_good_artisan_build_file)
+
+            with open(self.last_good_artisan_build_file) as f:
+                last_good_build = f.read()
+
+            attempts.append(last_good_build)
+
+            print("Last good Thin Installer build: {}".format(last_good_build))
+            source_folder = os.path.join("/mnt", "filer6", "bfr", "sspl-thininstaller", "develop", last_good_build, "sspl-thininstaller")
+            version_dirs = os.listdir(source_folder)
+            if len(version_dirs) == 1:
+                source = os.path.join(source_folder, version_dirs[0], "output")
+            else:
+                raise AssertionError("More than one version in the build for thininstaller: {}".format(version_dirs))
+            logger.info("using {} as source".format(source))
+            return source
+
+        raise AssertionError("Could not find thininstaller output in {}".format(attempts))
+
     def teardown_reset_original_path(self):
         self.env["PATH"] = self.original_path
 
