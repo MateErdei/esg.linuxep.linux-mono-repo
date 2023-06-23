@@ -51,6 +51,13 @@ TAP=${TAP:-tap}
 while [[ $# -ge 1 ]]
 do
     case $1 in
+        --dev)
+            export ENABLE_STRIP=0
+            CMAKE_BUILD_TYPE=Debug
+            NO_UNPACK=1
+            CLEAN=0
+            BUILD_SDDS3=0
+            ;;
         --build-type)
             shift
             CMAKE_BUILD_TYPE="$1"
@@ -418,5 +425,6 @@ function build()
 
 build 2>&1 | tee -a $LOG
 EXIT=$?
+mkdir -p $OUTPUT
 cp $LOG $OUTPUT/ || true
 exit $EXIT
