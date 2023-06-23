@@ -46,6 +46,7 @@ COVFILE="/tmp/root/sspl-plugin-${PRODUCT}-unit.cov"
 COV_HTML_BASE=sspl-plugin-edr-unittest
 VALGRIND=0
 AFL=0
+TAP=${TAP:-tap}
 
 while [[ $# -ge 1 ]]
 do
@@ -145,6 +146,13 @@ do
             ;;
         --999)
             export VERSION_OVERRIDE=9.99.9.999
+            ;;
+        --setup)
+            rm -rf input "${REDIST}"
+            [[ -d ${BASE}/tapvenv ]] && source $BASE/tapvenv/bin/activate
+            export TAP_PARAMETER_MODE=release
+            $TAP fetch edr_plugin.build.release
+            NO_BUILD=1
             ;;
         *)
             exitFailure ${FAILURE_BAD_ARGUMENT} "unknown argument $1"
