@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Copyright (C) 2020 Sophos Plc, Oxford, England.
+# Copyright 2020-2023 Sophos Limited. All rights reserved.
 # All rights reserved.
 
 import os
@@ -122,6 +122,7 @@ def check_all_queries_run(log_path: str, config_path: str):
     else:
         raise AssertionError(f"{config_path} does not exist")
 
+
 def convert_canned_query_json_to_query_pack(json_path,query_pack_path):
     if os.path.exists(json_path):
         with open(json_path, 'r') as f:
@@ -143,9 +144,12 @@ def convert_canned_query_json_to_query_pack(json_path,query_pack_path):
             query_json["query"] = query["query"]
             canned_pack["schedule"][query["id"]] = query_json
 
-
     with open(query_pack_path, 'w') as f:
         json.dump(canned_pack, f)
+
+    assert os.path.isfile(query_pack_path)
+    logger.info(f"{query_pack_path} created")
+
 
 def check_for_query_in_log(log_path, query_name: str):
     if os.path.exists(log_path):
