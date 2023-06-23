@@ -5,14 +5,14 @@ THIS_DIR=$(dirname "$THIS_FILE_FULL_PATH")
 
 # Run this from within WSL instance
 set -e
-VAGRANT_VERSION="2.3.6"
+VAGRANT_VERSION="2.3.7"
 rm -rf /tmp/hashicorp-archive-keyring.gpg
 wget -O- https://apt.releases.hashicorp.com/gpg | gpg --dearmor --output /tmp/hashicorp-archive-keyring.gpg
 sudo cp  /tmp/hashicorp-archive-keyring.gpg /usr/share/keyrings/hashicorp-archive-keyring.gpg
 echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
 
-# For some reason it looks like the version number on linux has changed format to "0:<version>-1" this might change again in the future.
-sudo apt update && sudo apt install vagrant="0:${VAGRANT_VERSION}-1"
+# For some reason it looks like the version number on linux has changed format to "<version>-1"
+sudo apt update && sudo apt install vagrant="${VAGRANT_VERSION}-1"
 
 vagrant --version
 vagrant plugin install virtualbox_WSL2
