@@ -58,3 +58,9 @@ do
 done
 
 install_system_packages zip unzip
+
+# Need to install setcap
+if [[ -x $(which zypper) ]]
+then
+    install_system_packages libcap-progs
+fi
