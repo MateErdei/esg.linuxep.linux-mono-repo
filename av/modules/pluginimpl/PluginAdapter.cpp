@@ -290,7 +290,20 @@ namespace Plugin
         const PolicyWaiterSharedPtr& policyWaiter,
         const std::string& appId)
     {
-        LOGINFO("Received " << appId << " policy");
+        try
+        {
+            if (m_currentPolicies.at(appId) == policyXml)
+            {
+                LOGDEBUG("Policy with app id " << appId << " unchanged, will not be processed");
+                return;
+            }
+        }
+        catch (const std::out_of_range&)
+        {
+            LOGDEBUG("Recieved first policy with app id " << appId);
+        }
+
+        LOGINFO("Received " << appId << " policy"); //??here
         if (policyXml.empty())
         {
             LOGERROR("Received empty policy for " << appId);
@@ -301,6 +314,7 @@ namespace Plugin
         {
             auto attributeMap = Common::XmlUtilities::parseXml(policyXml);
             auto policyType = Plugin::PolicyProcessor::determinePolicyType(attributeMap, appId);
+            m_currentPolicies.emplace(appId, policyXml);
 
             if (policyType == PolicyType::ALC)
             {

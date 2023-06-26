@@ -49,6 +49,7 @@ namespace Plugin
         std::shared_ptr<SafeStoreWorker> m_safeStoreWorker;
         unixsocket::RestoreReportingServer m_restoreReportingServer;
         int m_waitForPolicyTimeout = 0;
+        std::map<std::string, std::string> m_currentPolicies {};
 
         Common::ZMQWrapperApi::IContextSharedPtr m_zmqContext;
         Common::ZeroMQWrapper::ISocketPublisherPtr m_threatEventPublisher;

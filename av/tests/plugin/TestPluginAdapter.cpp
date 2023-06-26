@@ -263,6 +263,65 @@ TEST_F(TestPluginAdapter, testProcessPolicy)
     EXPECT_EQ(appenderCount("Requesting scan monitor to reload susi"), 1);
 }
 
+TEST_F(TestPluginAdapter, testProcessPolicy_ignoresDuplicates)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    // Setup Mock filesystem
+    auto mockIFileSystemPtr = std::make_unique<StrictMock<MockFileSystem>>();
+    EXPECT_CALL(*mockIFileSystemPtr, readlink(_)).WillRepeatedly(::testing::Return(std::nullopt));
+    EXPECT_CALL(*mockIFileSystemPtr, isFile(_)).WillOnce(Return(false));
+
+    fs::path testDir = tmpdir();
+    const std::string susiStartupSettingsPath = testDir / "var/susi_startup_settings.json";
+    const std::string susiStartupSettingsChrootPath = std::string(testDir / "chroot") + susiStartupSettingsPath;
+    Common::FileSystem::IFileSystemException ex(
+        "Error, Failed to read file: '" + susiStartupSettingsPath + "', file does not exist");
+    EXPECT_CALL(*mockIFileSystemPtr, exists(Plugin::getPersistThreatDatabaseFilePath())).WillOnce(Return(false));
+    EXPECT_CALL(*mockIFileSystemPtr, readFile(_)).WillRepeatedly(Throw(ex));
+    EXPECT_CALL(*mockIFileSystemPtr, writeFile(_, _)).WillRepeatedly(Throw(ex));
+    EXPECT_CALL(*mockIFileSystemPtr, writeFileAtomically(_, _, _, _)).WillRepeatedly(Throw(ex));
+
+    Tests::ScopedReplaceFileSystem replacer(std::move(mockIFileSystemPtr));
+
+    auto mockBaseService = std::make_unique<StrictMock<MockApiBaseServices>>();
+    auto* mockBaseServicePtr = mockBaseService.get();
+    EXPECT_CALL(*mockBaseService, sendStatus(_, _, _)).WillRepeatedly(Return());
+    ASSERT_NE(mockBaseServicePtr, nullptr);
+
+    PluginAdapter pluginAdapter(
+        m_taskQueue, std::move(mockBaseService), m_callback, m_threatEventPublisherSocketPath, 0);
+
+    std::string policyRevID1 = "12345678901";
+    std::string policyRevID2 = "12345678902";
+    std::string policy1Xml = generatePolicyXML(policyRevID1);
+    std::string policy2Xml = generatePolicyXML(policyRevID2);
+
+    Task policy1Task = { .taskType = Task::TaskType::Policy, .Content = policy1Xml, .appId = "SAV" };
+    Task policy2Task = { .taskType = Task::TaskType::Policy, .Content = policy2Xml, .appId = "SAV" };
+    m_taskQueue->push(policy1Task);
+    m_taskQueue->push(policy1Task);
+    m_taskQueue->push(policy1Task);
+    m_taskQueue->push(policy2Task);
+
+    std::string initialStatusXml = generateStatusXML("NoRef", "");
+    std::string status1Xml = generateStatusXML("Same", policyRevID1);
+    std::string status2Xml = generateStatusXML("Same", policyRevID2);
+    EXPECT_CALL(*mockBaseServicePtr, sendStatus("SAV", status1Xml, status1Xml)).Times(1);
+    EXPECT_CALL(*mockBaseServicePtr, sendStatus("SAV", status2Xml, status2Xml)).WillOnce(QueueStopTask(m_taskQueue));
+    EXPECT_EQ(m_callback->getStatus("SAV").statusXml, initialStatusXml);
+
+    EXPECT_CALL(*mockBaseServicePtr, sendThreatHealth("{\"ThreatHealth\":1}")).Times(1);
+    expectedDefaultPolicyRequests(*mockBaseServicePtr);
+
+    pluginAdapter.mainLoop();
+
+    EXPECT_TRUE(appenderContains("Received SAV policy", 2));
+    EXPECT_TRUE(appenderContains("Processing SAV policy: " + policy1Xml, 1));
+    EXPECT_TRUE(appenderContains("Processing SAV policy: " + policy2Xml, 1));
+    EXPECT_TRUE(appenderContains("Policy with app id SAV unchanged, will not be processed", 2));
+}
+
 TEST_F(TestPluginAdapter, testWaitForTheFirstPolicyReturnsEmptyPolicyOnInvalidPolicy)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
