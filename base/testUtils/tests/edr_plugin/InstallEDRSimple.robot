@@ -105,7 +105,6 @@ EDR Handles Live Query
     ...  20 secs
     ...  1 secs
     ...  Check Marked EDR Log Contains  Applying new policy with APPID: LiveQuery
-    Mark Edr Log
     Wait Until Keyword Succeeds
     ...  30 secs
     ...  3 secs
