@@ -6,7 +6,7 @@ target_include_directories(EventPubSub PUBLIC ${CMAKE_SOURCE_DIR} ${pluginapiinc
 target_link_libraries(EventPubSub ${zmqlib} ${pluginapilib} ${log4cpluslib} ${protobuflib})
 
 # Manual tools are never 'installed' so the BUILD_RPATH has to cover their operation on test systems.
-set(MANUAL_TOOL_RPATH  "${CMAKE_BINARY_DIR}/libs:$ORIGIN/../lib64:/opt/sophos-spl/plugins/eventjournaler/lib64" )
+set(MANUAL_TOOL_RPATH  "${CMAKE_BINARY_DIR}/libs:$ORIGIN:/opt/sophos-spl/plugins/eventjournaler/lib64" )
 
 SET_TARGET_PROPERTIES(EventPubSub
         PROPERTIES

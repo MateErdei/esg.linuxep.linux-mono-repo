@@ -413,6 +413,9 @@ function build()
     cp -a build64/SDDS3-PACKAGE output/SDDS3-PACKAGE || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to copy SDDS3-PACKAGE to output"
     cp -a build64/sdds/SDDS-Import.xml output/SDDS3-PACKAGE || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to copy SDDS-Import.xml to SDDS3-PACKAGE output"
     mkdir -p  output/manualTools/
+    # Due to log4cplus migration, the name of the library has changed, and so the performance test can't find it in the dogfood product
+    # So we need to copy the library explicitly (until the performance rig's product has the new library)
+    cp -a build64/libs/liblog4cplus.so output/manualTools/ || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to copy liblog4cplus.so to output"
     cp -a build64/products/manualTools/EventPubSub output/manualTools/ || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to copy EventPubSub Tool to output"
     cp -a build64/products/manualTools/EventJournalWriter output/manualTools/ || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to copy EventJournalWriter Tool to output"
     cp -a ${INPUT}/JournalReader output/manualTools/ || exitFailure $FAILURE_COPY_SDDS_FAILED "Failed to copy JournalReader Tool to output"
