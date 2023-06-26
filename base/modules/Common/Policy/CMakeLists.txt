@@ -1,10 +1,20 @@
 add_library(policy SHARED
         ALCPolicy.cpp
         ALCPolicy.h
+        Logger.cpp
+        Logger.h
+        PolicyParseException.cpp
+        PolicyParseException.h
+        ProductSubscription.h
+        Proxy.cpp
+        Proxy.h
+        ProxyCredentials.cpp
+        ProxyCredentials.h
+        UpdateSettings.h
         )
 
 include_directories(policy BEFORE ${LOG4CPLUS_INCLUDE_DIR} ${NLOHMANN_JSON_INCLUDE_DIR})
-target_link_libraries(policy PUBLIC obfuscationimpl xmlutilities)
+target_link_libraries(policy PRIVATE obfuscationimpl xmlutilities osutilitiesimpl)
 
 SET_TARGET_PROPERTIES(policy
         PROPERTIES
