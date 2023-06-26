@@ -407,14 +407,14 @@ namespace Common::ZipUtilities
         auto uf = std::make_shared<UnzipFileWrapper>(unzOpen64(srcPath.c_str()));
         if (uf->get() == nullptr)
         {
-            if (Common::FileSystem::fileSystem()->isFile(srcPath.c_str()))
+            if (Common::FileSystem::fileSystem()->isFile(srcPath))
             {
-                LOGERROR("Error opening zip: " << srcPath.c_str() << " as file found was not a zip file");
+                LOGERROR("Error opening zip: " << srcPath << " as file found was not a zip file");
                 return -10;
             }
             else
             {
-                LOGERROR("Error opening zip: " << srcPath.c_str());
+                LOGERROR("Error opening zip: " << srcPath);
                 return ENOENT;
             }
         }

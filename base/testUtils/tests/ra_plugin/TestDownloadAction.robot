@@ -78,7 +78,7 @@ RA Plugin handles decompression of non zip file appropriately
     Send_Download_File_From_Fake_Cloud_NotZip
 
     wait_for_log_contains_from_mark  ${action_mark}  Sent download file response for ID correlation-id to Central   15
-    wait_for_log_contains_from_mark  ${action_mark}   Failed to download, expected zip file- file found was not a zip file
+    wait_for_log_contains_from_mark  ${action_mark}   invalid filetype. File found was not the expected type (zip file)
 
     File Should Not Exist    ${RESPONSE_ACTIONS_TMP_PATH}${DOWNLOAD_FILENAME_ZIP}
 
