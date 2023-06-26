@@ -16,7 +16,7 @@
 #include "Common/UtilityImpl/StringUtils.h"
 #include "Common/XmlUtilities/AttributesMap.h"
 
-using namespace Policy;
+using namespace Common::Policy;
 
 namespace
 {

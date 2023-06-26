@@ -6,7 +6,7 @@
 #include <string>
 #include <utility>
 
-namespace Policy
+namespace Common::Policy
 {
     class Credentials
     {
@@ -44,7 +44,7 @@ namespace Policy
         explicit ProxyCredentials(
             const std::string& username = "",
             const std::string& password = "",
-            std::string  m_proxyType = "");
+            std::string m_proxyType = "");
 
         [[nodiscard]] Common::ObfuscationImpl::SecureString getDeobfuscatedPassword() const;
         [[nodiscard]] const std::string& getProxyType() const;

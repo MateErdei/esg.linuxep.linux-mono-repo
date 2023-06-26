@@ -3,7 +3,7 @@
 
 #include "Common/Exceptions/IException.h"
 
-namespace Policy
+namespace Common::Policy
 {
     class PolicyParseException : public Common::Exceptions::IException
     {

@@ -6,7 +6,7 @@
 
 #include <string>
 
-namespace Policy
+namespace Common::Policy
 {
     class Proxy
     {

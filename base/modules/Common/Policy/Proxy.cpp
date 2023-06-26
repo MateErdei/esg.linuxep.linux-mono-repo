@@ -3,7 +3,7 @@
 
 #include <tuple>
 
-using namespace Policy;
+using namespace Common::Policy;
 
 Proxy::Proxy(std::string url,
              ProxyCredentials credentials)

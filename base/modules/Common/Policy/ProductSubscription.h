@@ -5,7 +5,7 @@
 #include <sstream>
 #include <utility>
 
-namespace Policy
+namespace Common::Policy
 {
     constexpr char SSPLBaseName[] = "ServerProtectionLinux-Base";
 

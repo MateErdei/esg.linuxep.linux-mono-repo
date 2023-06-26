@@ -5,7 +5,7 @@
 
 #include "Common/ObfuscationImpl/Obfuscate.h"
 
-using namespace Policy;
+using namespace Common::Policy;
 
 ProxyCredentials::ProxyCredentials(
     const std::string& username,

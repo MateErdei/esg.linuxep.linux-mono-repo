@@ -7,7 +7,7 @@
 #include <string>
 #include <vector>
 
-namespace Policy
+namespace Common::Policy
 {
     class UpdateSettings
     {
