@@ -431,26 +431,26 @@ function install_product()
 
     if av_already_installed
     then
-        "${SOPHOS_INSTALL}/bin/wdctl" stop "${PLUGIN_NAME}" &>/dev/null || echo Failed to stop plugin: ${PLUGIN_NAME}
+        "${SOPHOS_INSTALL}/bin/wdctl" stop "${PLUGIN_NAME}" --quiet &>/dev/null || echo Failed to stop plugin: ${PLUGIN_NAME}
         # Wait up to 10 seconds for AV Plugin to stop before changing ownership of log files etc
         timeout 10 tail --pid=$(pgrep -G ${GROUP_NAME} av) -f /dev/null 2> /dev/null
     fi
 
     if threat_detector_already_installed
     then
-        "${SOPHOS_INSTALL}/bin/wdctl" stop "threat_detector" &>/dev/null || echo Failed to stop the threat detector
+        "${SOPHOS_INSTALL}/bin/wdctl" stop "threat_detector" --quiet &>/dev/null || echo Failed to stop the threat detector
         # Wait up to 10 seconds for threat_detector to stop before changing ownership of log files etc
         timeout 10 tail --pid=$(pgrep -G ${GROUP_NAME} sophos_threat_d) -f /dev/null 2> /dev/null
     fi
 
     if already_installed on_access_process
     then
-        "${SOPHOS_INSTALL}/bin/wdctl" stop "on_access_process" &>/dev/null || echo Failed to stop OnAccessProcess
+        "${SOPHOS_INSTALL}/bin/wdctl" stop "on_access_process" --quiet &>/dev/null || echo Failed to stop OnAccessProcess
     fi
 
     if already_installed safestore
     then
-        "${SOPHOS_INSTALL}/bin/wdctl" stop "safestore" &>/dev/null || echo Failed to stop SafeStore
+        "${SOPHOS_INSTALL}/bin/wdctl" stop "safestore" --quiet &>/dev/null || echo Failed to stop SafeStore
     fi
 
     #Install files using versioned copy (apart from SUSI)
@@ -515,12 +515,12 @@ function install_product()
     create_registration_file "safestore"
 
     # start av processes
-    "${SOPHOS_INSTALL}/bin/wdctl" start threat_detector || failure ${EXIT_FAIL_WDCTL_FAILED_TO_START} "Failed to start sophos_threat_detector"
-    "${SOPHOS_INSTALL}/bin/wdctl" start on_access_process || failure ${EXIT_FAIL_WDCTL_FAILED_TO_START} "Failed to start sophos on-access process"
-    "${SOPHOS_INSTALL}/bin/wdctl" start safestore || failure ${EXIT_FAIL_WDCTL_FAILED_TO_START} "Failed to start SafeStore"
+    "${SOPHOS_INSTALL}/bin/wdctl" start threat_detector --quiet || failure ${EXIT_FAIL_WDCTL_FAILED_TO_START} "Failed to start sophos_threat_detector"
+    "${SOPHOS_INSTALL}/bin/wdctl" start on_access_process --quiet || failure ${EXIT_FAIL_WDCTL_FAILED_TO_START} "Failed to start sophos on-access process"
+    "${SOPHOS_INSTALL}/bin/wdctl" start safestore --quiet || failure ${EXIT_FAIL_WDCTL_FAILED_TO_START} "Failed to start SafeStore"
 
     # Start AV Plugin last, so that health is less likely to break
-    "${SOPHOS_INSTALL}/bin/wdctl" start "${PLUGIN_NAME}" || failure ${EXIT_FAIL_WDCTL_FAILED_TO_START} "Failed to start plugin ${PLUGIN_NAME}"
+    "${SOPHOS_INSTALL}/bin/wdctl" start "${PLUGIN_NAME}" --quiet || failure ${EXIT_FAIL_WDCTL_FAILED_TO_START} "Failed to start plugin ${PLUGIN_NAME}"
 
     cp "$DIST/manifest.dat" "${VAR}/manifest.dat" || failure ${EXIT_FAIL_COPY_MANIFEST} "Failed to copy manifest from install-set to installation"
 }
