@@ -39,7 +39,7 @@ def add_annotation(tag, start_time, text, end_time=None):
     annotation_json = {
         "time": start_time,
         "timeEnd": end_time if end_time else start_time,
-        "tags": [hostname, tag, "test"],
+        "tags": [hostname, tag],
         "text": text
     }
 
