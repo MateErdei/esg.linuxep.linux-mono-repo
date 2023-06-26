@@ -23,7 +23,6 @@ Test Components Shutdown Cleanly
     Run Process   systemctl  restart  sophos-spl
     Wait For Base Processes To Be Running
 
-    Wait For Base Processes To Be Running
 
     Install Live Response Directly
     Check Live Response Plugin Installed

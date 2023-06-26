@@ -138,6 +138,8 @@ EDR Suite Setup
     Require Fresh Install
     Set Local CA Environment Variable
     Override LogConf File as Global Level  DEBUG
+    Run Process   systemctl  restart  sophos-spl
+    Wait For Base Processes To Be Running
     Check For Existing MCSRouter
     Cleanup MCSRouter Directories
     Cleanup Local Cloud Server Logs
