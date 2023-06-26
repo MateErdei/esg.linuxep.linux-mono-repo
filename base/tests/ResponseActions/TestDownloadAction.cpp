@@ -530,7 +530,7 @@ TEST_F(DownloadFileTests, SuccessfulDownload_Direct_Decompress_BadArchive)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    const std::string expectedErrMsg = "Error unzipping /opt/sophos-spl/plugins/responseactions/tmp/tmp_download.zip due to bad archive";
+    const std::string expectedErrMsg = "Error unzipping /opt/sophos-spl/plugins/responseactions/tmp/tmp_download.zip due to invalid zip file";
 
     bool decompress = true;
     setupMockZipUtils(UNZ_BADZIPFILE);

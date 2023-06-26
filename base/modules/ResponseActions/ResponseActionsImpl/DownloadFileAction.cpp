@@ -487,15 +487,9 @@ namespace ResponseActionsImpl
         }
         else if (unzipReturn == UNZ_BADZIPFILE)
         {
-            error << "bad archive";
+            error << "invalid zip file";
             LOGWARN(error.str());
             ActionsUtils::setErrorInfo(m_response, 1, error.str(), "invalid_archive");
-        }
-        else if (unzipReturn == -10)
-        {
-            error << "invalid filetype. File found was not the expected type (zip file)";
-            LOGWARN(error.str());
-            ActionsUtils::setErrorInfo(m_response, 1, error.str(), "invalid_filetype");
         }
         else
         {

@@ -410,7 +410,7 @@ namespace Common::ZipUtilities
             if (Common::FileSystem::fileSystem()->isFile(srcPath))
             {
                 LOGERROR("Error opening zip: " << srcPath << " as file found was not a zip file");
-                return -10;
+                return UNZ_BADZIPFILE;
             }
             else
             {

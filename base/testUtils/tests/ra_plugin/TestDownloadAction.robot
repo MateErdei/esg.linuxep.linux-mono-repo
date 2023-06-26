@@ -78,14 +78,14 @@ RA Plugin handles decompression of non zip file appropriately
     Send_Download_File_From_Fake_Cloud_NotZip
 
     wait_for_log_contains_from_mark  ${action_mark}  Sent download file response for ID correlation-id to Central   15
-    wait_for_log_contains_from_mark  ${action_mark}   invalid filetype. File found was not the expected type (zip file)
+    wait_for_log_contains_from_mark  ${action_mark}   invalid zip file
 
     File Should Not Exist    ${RESPONSE_ACTIONS_TMP_PATH}${DOWNLOAD_FILENAME_ZIP}
 
     Wait Until Keyword Succeeds
     ...  1 min
     ...  5 secs
-    ...  Check Cloud Server Log Contains    \"errorType\":\"invalid_filetype\",\"httpStatus\":200,\"result\":1
+    ...  Check Cloud Server Log Contains    \"errorType\":\"invalid_archive\",\"httpStatus\":200,\"result\":1
 
 
 RA Plugin handles download to mounts appropriately
