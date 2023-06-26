@@ -7,7 +7,7 @@
         <workingdir>.</workingdir>
         <build-asset project="linuxep" repo="everest-base">
             <release-version branch="release/2023-25" build-id="20230616165821-81df7cc5ab00d7ba628e90b427c29ac09f3abada-1YVMGa"/>
-            <development-version branch="develop"/>
+            <development-version branch="feature/LINUXDAR-2972-the-updating-process-for-sspl-needs-to-be-streamlined-to-prevent-components-hitting-transient-errors-during-updates"/>
             <include artifact-path="sspl-base/pluginapi" dest-dir="/build/input"/>
             <include artifact-path="sspl-base/SDDS-COMPONENT" dest-dir="/build/input/base-sdds"/>
         </build-asset>

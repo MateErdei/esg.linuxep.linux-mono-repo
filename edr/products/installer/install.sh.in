@@ -96,7 +96,7 @@ EOM
 # In case this is an upgrade (not a clean install) request the watchdog stops the plugin
 if is_already_installed
 then
-    "${SOPHOS_INSTALL}/bin/wdctl" stop "${PLUGIN_NAME}" &>/dev/null || echo Failed to stop plugin: ${PLUGIN_NAME}
+    "${SOPHOS_INSTALL}/bin/wdctl" stop "${PLUGIN_NAME}" --quiet &>/dev/null || echo Failed to stop plugin: ${PLUGIN_NAME}
     purge_osquery_db_if_required
 fi
 
@@ -211,7 +211,7 @@ fi
 
 
 #After install start the plugin
-"${SOPHOS_INSTALL}/bin/wdctl" start "${PLUGIN_NAME}" || failure ${EXIT_FAIL_WDCTL_FAILED_TO_START} "Failed to start plugin ${PLUGIN_NAME}"
+"${SOPHOS_INSTALL}/bin/wdctl" start "${PLUGIN_NAME}" --quiet || failure ${EXIT_FAIL_WDCTL_FAILED_TO_START} "Failed to start plugin ${PLUGIN_NAME}"
 
 # perform final checks to ensure plugin has been installed and is running.
 function confirmProcessRunning()
