@@ -303,7 +303,7 @@ namespace Plugin
             LOGDEBUG("Recieved first policy with app id " << appId);
         }
 
-        LOGINFO("Received " << appId << " policy"); //??here
+        LOGINFO("Received " << appId << " policy");
         if (policyXml.empty())
         {
             LOGERROR("Received empty policy for " << appId);
