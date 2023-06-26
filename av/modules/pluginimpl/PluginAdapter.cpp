@@ -314,7 +314,7 @@ namespace Plugin
         {
             auto attributeMap = Common::XmlUtilities::parseXml(policyXml);
             auto policyType = Plugin::PolicyProcessor::determinePolicyType(attributeMap, appId);
-            m_currentPolicies.emplace(appId, policyXml);
+            m_currentPolicies.insert_or_assign(appId, policyXml);
 
             if (policyType == PolicyType::ALC)
             {
