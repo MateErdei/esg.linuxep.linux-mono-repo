@@ -212,7 +212,7 @@ namespace diagnose
         const Path& destination)
     {
         static const std::vector<std::string> possiblePluginLogSubDirectories{
-            "./", "dbos/data", "dbos/data/logs", "etc", "etc/osquery.conf.d", "chroot/log"
+            "./", "dbos/data", "dbos/data/logs", "etc", "etc/osquery.conf.d", "chroot/log", "chroot/var", "var"
         };
 
         // Copy all files from sub directories specified in possiblePluginLogSubDirectories
