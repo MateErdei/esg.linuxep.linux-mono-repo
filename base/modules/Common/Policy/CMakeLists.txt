@@ -3,7 +3,6 @@ add_library(policy SHARED
         ALCPolicy.h
         Logger.cpp
         Logger.h
-        PolicyParseException.cpp
         PolicyParseException.h
         ProductSubscription.h
         Proxy.cpp
