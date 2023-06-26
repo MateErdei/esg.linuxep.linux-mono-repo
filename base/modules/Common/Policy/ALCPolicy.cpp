@@ -1,4 +1,4 @@
-// Copyright 2023 Sophos All rights reserved.
+// Copyright 2023 Sophos Limited. All rights reserved.
 
 #include "ALCPolicy.h"
 
@@ -115,7 +115,16 @@ ALCPolicy::ALCPolicy(const std::string& xmlPolicy)
 {
     const std::string FixedVersion{ "FixedVersion" };
 
-    auto attributesMap = Common::XmlUtilities::parseXml(xmlPolicy);
+    Common::XmlUtilities::AttributesMap attributesMap{{}, {}};
+    try
+    {
+        attributesMap = Common::XmlUtilities::parseXml(xmlPolicy);
+    }
+    catch (const Common::XmlUtilities::XmlUtilitiesException& ex)
+    {
+        LOGERROR("Failed to parse policy: " << ex.what());
+        std::throw_with_nested(Common::Policy::PolicyParseException(ex.what()));
+    }
 
     auto cscComp = attributesMap.lookup("AUConfigurations/csc:Comp");
     if (cscComp.value("policyType") != "1")

@@ -1,14 +1,15 @@
 include(GoogleTest)
 add_executable(TestPolicy
         TestProxyCredentials.cpp
-        )
-target_include_directories(TestPolicy SYSTEM BEFORE PUBLIC ${GTEST_INCLUDE} ${PROTOBUF_INCLUDE_DIR})
+        TestALCPolicy.cpp)
+target_include_directories(TestPolicy SYSTEM BEFORE PUBLIC ${GTEST_INCLUDE} ${LOG4CPLUS_INCLUDE_DIR} ${PROTOBUF_INCLUDE_DIR})
 target_include_directories(TestPolicy BEFORE PUBLIC ${CMAKE_SOURCE_DIR})
+
 target_link_libraries(TestPolicy
         ${GTEST_LIBRARY}
         ${GTEST_MAIN_LIBRARY}
         policy
-        testhelpers)
+        testhelpersobject)
 
 gtest_discover_tests(TestPolicy)
 SET_TARGET_PROPERTIES(TestPolicy

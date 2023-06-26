@@ -14,7 +14,7 @@ namespace Common
         {
         public:
             ConsoleLoggingSetup();
-            ConsoleLoggingSetup(std::string);
+            ConsoleLoggingSetup(const std::string&);
             ~ConsoleLoggingSetup();
             static void consoleSetupLogging();
         };

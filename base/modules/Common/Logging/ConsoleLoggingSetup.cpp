@@ -39,7 +39,7 @@ void Common::Logging::ConsoleLoggingSetup::consoleSetupLogging()
     log4cplus::Logger::getRoot().addAppender(appender);
 }
 
-Common::Logging::ConsoleLoggingSetup::ConsoleLoggingSetup(std::string log)
+Common::Logging::ConsoleLoggingSetup::ConsoleLoggingSetup(const std::string& log)
 {
     consoleSetupLogging();
     applyGeneralConfig(log);
