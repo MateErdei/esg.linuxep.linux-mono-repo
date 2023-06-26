@@ -40,7 +40,7 @@ endforeach(LIB)
 function(add_third_party_library_ra_only LIB LIBRARY_PATH)
     FindLibraryFullPath(FOUND_LIB_ABSOLUTE ${LIB} ${LIBRARY_PATH})
     set(third_party_libs_ra ${third_party_libs_ra} ${FOUND_LIB_ABSOLUTE} PARENT_SCOPE)
-endfunction(add_third_party_libraryra_only)
+endfunction(add_third_party_library_ra_only)
 add_third_party_library_ra_only(locale ${BOOST_INPUT})
 add_third_party_library_ra_only(system ${BOOST_INPUT})
 
