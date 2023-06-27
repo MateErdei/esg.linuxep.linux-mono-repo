@@ -35,7 +35,6 @@ add_library(suldownloaderdataobject OBJECT
         VersigImpl.h
         CatalogueInfo.cpp
         CatalogueInfo.h
-        WeekDayAndTimeForDelay.h
         UpdateSupplementDecider.cpp
         UpdateSupplementDecider.h
         ISdds3Repository.h
