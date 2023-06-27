@@ -506,7 +506,7 @@ def Uninstall_SSPL(installdir=None, replaceUninstaller=False):
                 os.environ["SOPHOS_INSTALL"] = installdir
                 p = os.path.join(PathManager.get_support_file_path(), "DebugUninstall.sh")
                 assert os.path.isfile(p)
-
+            start_time = time.time()
             try:
                 contents, returncode = run_proc_with_safe_output(['bash', '-x', p, '--force'])
                 uninstaller_executed = True
@@ -514,7 +514,10 @@ def Uninstall_SSPL(installdir=None, replaceUninstaller=False):
                 logger.error("Failed to run uninstaller: %s" % str(e))
                 contents = str(e)
                 returncode = -1
-
+            end_time = time.time()
+            uninstall_time = (end_time - start_time)
+            if uninstall_time > 60:
+                logger.info(contents)
             if returncode != 0:
                 logger.info(contents)
                 processes, processes_returncode = run_proc_with_safe_output(["ps", "-ef"])
