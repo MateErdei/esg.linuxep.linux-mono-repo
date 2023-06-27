@@ -9,18 +9,18 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <Common/FileSystem/IFileSystemException.h>
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 #include <Common/Helpers/FileSystemReplaceAndRestore.h>
-#include <Common/Helpers/LogInitializedTests.h>
 #include <Common/Helpers/MockFileSystem.h>
 #include <Common/Helpers/MockFilePermissions.h>
 #include <Common/Helpers/MockApiBaseServices.h>
-
 #include <Common/Helpers/TempDir.h>
 #include <Common/UtilityImpl/TimeUtils.h>
 #include <Common/XmlUtilities/AttributesMap.h>
+
 #include <pluginimpl/PluginUtils.h>
-#include <modules/pluginimpl/ApplicationPaths.h>
-#include <modules/pluginimpl/PluginAdapter.h>
-#include <modules/pluginimpl/LiveQueryPolicyParser.h>
+#include <pluginimpl/ApplicationPaths.h>
+#include <pluginimpl/PluginAdapter.h>
+#include <pluginimpl/LiveQueryPolicyParser.h>
+#include <tests/common/MemoryAppender.h>
 
 #include <gmock/gmock-matchers.h>
 #include <gtest/gtest.h>
@@ -68,6 +68,11 @@ public:
         return m_dataLimit;
     }
 
+    void processPolicy(const std::string& policyXml, const std::string& appId)
+    {
+        Plugin::PluginAdapter::processPolicy(policyXml, appId);
+    }
+
     void processLiveQueryPolicy(const std::string& policy)
     {
         Plugin::PluginAdapter::processLiveQueryPolicy(policy, false);
@@ -101,6 +106,13 @@ public:
 };
 class TestPluginAdapterWithLogger : public LogInitializedTests{};
 class TestPluginAdapterWithoutLogger : public LogOffInitializedTests{};
+class TestPluginAdapterWithMemoryAppender : public MemoryAppenderUsingTests
+{
+public:
+    TestPluginAdapterWithMemoryAppender()
+        : MemoryAppenderUsingTests("edr")
+    {}
+};
 
 
 Plugin::Task defaultQueryTask()
@@ -250,7 +262,7 @@ TEST_F(TestPluginAdapterWithoutLogger, waitForTheFirstPolicyWillGiveUpWaitingAft
     }
 }
 
-class PluginAdapterWithMockFileSystem: public LogOffInitializedTests
+class PluginAdapterWithMockFileSystem: public TestPluginAdapterWithMemoryAppender
 {
 public:
     PluginAdapterWithMockFileSystem()
@@ -783,4 +795,32 @@ TEST_F(PluginAdapterWithMockFileSystem, processFlagsProcessesAllFlagsOff)
     EXPECT_NO_THROW(pluginAdapter.processFlags(flags));
 }
 
+TEST_F(PluginAdapterWithMockFileSystem, processPolicyIgnoresDuplicates)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    auto queueTask = std::make_shared<Plugin::QueueTask>();
+    TestablePluginAdapter pluginAdapter(queueTask);
+    const std::string PLUGIN_VAR_DIR = Plugin::varDir();
+    std::string liveQueryPolicy = "<?xml version=\"1.0\"?>\n"
+                                  "<policy type=\"LiveQuery\" RevID=\"987654321\" policyType=\"56\">\n"
+                                  "    <configuration>\n"
+                                  "        <scheduled>\n"
+                                  "            <dailyDataLimit>123456</dailyDataLimit>\n"
+                                  "            <queryPacks>\n"
+                                  "                <queryPack id=\"queryPackId\" />\n"
+                                  "            </queryPacks>\n"
+                                  "        </scheduled>\n"
+                                  "    </configuration>\n"
+                                  "</policy>";
+
+    pluginAdapter.processPolicy(liveQueryPolicy, "LiveQuery");
+    pluginAdapter.processPolicy(liveQueryPolicy, "LiveQuery");
+    EXPECT_EQ(pluginAdapter.getLiveQueryStatus(), "Same");
+    EXPECT_EQ(pluginAdapter.getLiveQueryRevID(), "987654321");
+    EXPECT_EQ(pluginAdapter.getLiveQueryDataLimit(), 123456);
+
+    EXPECT_TRUE(appenderContains("Processing LiveQuery Policy", 1));
+    EXPECT_TRUE(appenderContains("Policy with app id LiveQuery unchanged, will not be processed", 1));
+}
 

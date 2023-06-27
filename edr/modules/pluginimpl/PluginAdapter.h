@@ -89,6 +89,7 @@ namespace Plugin
          * But, on arrival of policies, (firstTime=false) it may also push to the queue a RestartRequired.
          */
         void processLiveQueryPolicy(const std::string&, bool firstTime);
+        void processPolicy(const std::string& policyXml, const std::string& appId);
         void processFlags(const std::string& flagsContent, bool firstTime);
         virtual void applyLiveQueryPolicy(
             std::optional<Common::XmlUtilities::AttributesMap> policyAttributesMap,
@@ -128,7 +129,6 @@ namespace Plugin
 
 
         void processQuery(const std::string& query, const std::string& correlationId);
-        void processPolicy(const std::string& policyXml, const std::string& appId);
 
         // setUpOsqueryMonitor sets up a process monitor with IOsqueryProcess, should only be called on EDR start up
         // and during restart, we should not call setUpOsqueryMonitor anywhere else to restart osquery.
