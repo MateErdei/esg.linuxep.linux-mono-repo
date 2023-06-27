@@ -4,6 +4,7 @@ from datetime import datetime
 from datetime import timedelta
 import calendar
 import os
+import uuid
 
 try:
     from .. import ExclusionHelper
@@ -128,6 +129,7 @@ def get_complete_sav_policy(
     sav_policy_builder.set_sophos_defined_extension_exclusions(["exclusion1", "exclusion2", "exclusion3"])
     sav_policy_builder.set_user_defined_extension_exclusions(["exclusion1", "exclusion2", "exclusion3", "exclusion4"])
     sav_policy_builder.set_pua_detection("true")
+    sav_policy_builder.set_revision_id(str(uuid.uuid4()))
     return sav_policy_builder.get_sav_policy()
 
 
@@ -226,6 +228,9 @@ class _SavPolicyBuilder:
 
     def set_allowed_pua(self, allowed_pua):
         self.replacement_map["{{puaExclusions}}"] = allowed_pua
+
+    def set_revision_id(self, revision_id):
+        self.replacement_map["{{revId}}"] = revision_id
 
 
 def create_corc_policy(whitelist_sha256s=[], whitelist_paths=[]):
