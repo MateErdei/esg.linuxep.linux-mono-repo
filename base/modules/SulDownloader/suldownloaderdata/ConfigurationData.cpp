@@ -80,14 +80,14 @@ ConfigurationData::ConfigurationData(
     Credentials credentials,
     const std::vector<std::string>& updateCache,
     Proxy policyProxy) :
-    m_credentials(std::move(credentials)),
-    m_policyProxy(std::move(policyProxy)),
     m_state(State::Initialized),
     m_logLevel(LogLevel::NORMAL),
     m_forceReinstallAllProducts(false)
 {
+    credentials_ = credentials;
     localUpdateCacheHosts_ = updateCache;
     setSophosUpdateUrls(sophosLocationURL);
+    setPolicyProxy(policyProxy);
 }
 
 ConfigurationData::ConfigurationData(const Common::Policy::UpdateSettings& settings)
@@ -95,22 +95,23 @@ ConfigurationData::ConfigurationData(const Common::Policy::UpdateSettings& setti
       m_logLevel(LogLevel::NORMAL),
       m_forceReinstallAllProducts(false)
 {
-    m_credentials = settings.getCredentials();
+    credentials_ = settings.getCredentials();
     setSophosUpdateUrls(settings.getSophosLocationURLs());
     setLocalUpdateCacheHosts(settings.getLocalUpdateCacheHosts());
     setPrimarySubscription(settings.getPrimarySubscription());
     setProductsSubscription(settings.getProductsSubscription());
     setFeatures(settings.getFeatures());
+    setPolicyProxy(settings.getPolicyProxy());
 }
 
 const Common::Policy::Credentials& ConfigurationData::getCredentials() const
 {
-    return m_credentials;
+    return credentials_;
 }
 
 void ConfigurationData::setCredentials(const Credentials& credentials)
 {
-    m_credentials = credentials;
+    credentials_ = credentials;
 }
 
 const std::vector<std::string>& ConfigurationData::getSophosUpdateUrls() const
@@ -147,12 +148,12 @@ void ConfigurationData::setLocalUpdateCacheUrls(const std::vector<std::string>& 
 
 const Proxy& ConfigurationData::getPolicyProxy() const
 {
-    return m_policyProxy;
+    return policyProxy_;
 }
 
 void ConfigurationData::setPolicyProxy(const Proxy& proxy)
 {
-    m_policyProxy = proxy;
+    policyProxy_ = proxy;
 }
 
 const std::string& ConfigurationData::getJWToken() const
@@ -258,13 +259,13 @@ bool ConfigurationData::verifySettingsAreValid()
         }
     }
 
-    if (m_credentials.getUsername().empty())
+    if (credentials_.getUsername().empty())
     {
         LOGERROR("Invalid Settings: Credential 'username' cannot be empty string.");
         return false;
     }
 
-    if (m_credentials.getPassword().empty())
+    if (credentials_.getPassword().empty())
     {
         LOGERROR("Invalid Settings: Credential 'password' cannot be empty string.");
         return false;
@@ -325,7 +326,7 @@ bool ConfigurationData::verifySettingsAreValid()
         }
     }
 
-    for (auto& value : m_installArguments)
+    for (auto& value : installArguments_)
     {
         if (value.empty())
         {
@@ -449,32 +450,32 @@ ConfigurationData ConfigurationData::fromJsonSettings(const std::string& setting
 
 const std::vector<std::string>& ConfigurationData::getInstallArguments() const
 {
-    return m_installArguments;
+    return installArguments_;
 }
 
 void ConfigurationData::setInstallArguments(const std::vector<std::string>& installArguments)
 {
-    m_installArguments = installArguments;
+    installArguments_ = installArguments;
 }
 
 const std::vector<std::string>& ConfigurationData::getManifestNames() const
 {
-    return m_manifestNames;
+    return manifestNames_;
 }
 
 void ConfigurationData::setManifestNames(const std::vector<std::string>& manifestNames)
 {
-    m_manifestNames = manifestNames;
+    manifestNames_ = manifestNames;
 }
 
 const std::vector<std::string>& ConfigurationData::getOptionalManifestNames() const
 {
-    return m_optionalManifestNames;
+    return optionalManifestNames_;
 }
 
 void ConfigurationData::setOptionalManifestNames(const std::vector<std::string>& optionalManifestNames)
 {
-    m_optionalManifestNames = optionalManifestNames;
+    optionalManifestNames_ = optionalManifestNames;
 }
 
 std::vector<Proxy> ConfigurationData::proxiesList() const
@@ -495,10 +496,10 @@ std::vector<Proxy> ConfigurationData::proxiesList() const
     }
 
     // Policy proxy
-    if (!m_policyProxy.empty())
+    if (!policyProxy_.empty())
     {
-        LOGDEBUG("Proxy found in ALC Policy: " << m_policyProxy.getUrl());
-        options.emplace_back(m_policyProxy);
+        LOGDEBUG("Proxy found in ALC Policy: " << policyProxy_.getUrl());
+        options.emplace_back(policyProxy_);
     }
 
     // Environment proxy
@@ -679,12 +680,12 @@ std::optional<Proxy> ConfigurationData::proxyFromSavedProxyUrl(const std::string
 
 void ConfigurationData::setUseSlowSupplements(bool useSlowSupplements)
 {
-    m_useSlowSupplements = useSlowSupplements;
+    useSlowSupplements_ = useSlowSupplements;
 }
 
 bool ConfigurationData::getUseSlowSupplements() const
 {
-    return m_useSlowSupplements;
+    return useSlowSupplements_;
 }
 
 std::optional<Proxy> ConfigurationData::currentMcsProxy()

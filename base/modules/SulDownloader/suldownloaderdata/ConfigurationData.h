@@ -371,21 +371,15 @@ namespace SulDownloader::suldownloaderdata
             FailedVerified
         };
 
-        Common::Policy::Credentials m_credentials;
         std::vector<std::string> m_sophosUpdateUrls;
-        Common::Policy::Proxy m_policyProxy;
         State m_state;
         std::string m_versigPath;
         std::string m_updateCacheCertPath;
         std::string m_jwToken;
         std::string m_tenantId;
         std::string m_deviceId;
-        std::vector<std::string> m_installArguments;
         LogLevel m_logLevel;
         bool m_forceReinstallAllProducts;
-        std::vector<std::string> m_manifestNames;
-        std::vector<std::string> m_optionalManifestNames;
-        bool m_useSlowSupplements = false;
         bool m_doForcedUpdate = false;
         bool m_doForcedPausedUpdate = false;
         Common::Policy::WeekDayAndTimeForDelay m_scheduledUpdate;

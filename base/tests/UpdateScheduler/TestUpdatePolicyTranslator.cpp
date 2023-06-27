@@ -517,12 +517,12 @@ TEST_F(TestUpdatePolicyTranslator, TranslatorHandlesCacheIDAndRevID)
 TEST_F(TestUpdatePolicyTranslator, ParseUpdatePolicyWithProxy)
 {
     auto* mockFileSystem = new StrictMock<MockFileSystem>();
+    EXPECT_CALL(*mockFileSystem, isFile(_)).WillRepeatedly(Return(false));
     std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
 
     UpdatePolicyTranslator translator;
 
-    EXPECT_CALL(*mockFileSystem, isFile(_)).WillRepeatedly(Return(false));
 
     auto settingsHolder = translator.translatePolicy(updatePolicyWithProxy);
     auto config = settingsHolder.configurationData;
@@ -568,20 +568,19 @@ TEST_F(TestUpdatePolicyTranslator, ParseUpdatePolicyWithProxy)
         ProxyCredentials{
             "TestUser", "CCC4Fcz2iNaH44sdmqyLughrajL7svMPTbUZc/Q4c7yAtSrdM03lfO33xI0XKNU4IBY=", "2" }
     };
-    EXPECT_EQ(config.getPolicyProxy(), expectedProxy);
-    EXPECT_EQ(settingsHolder.schedulerPeriod, std::chrono::minutes(40));
+    EXPECT_EQ(config.getPolicyProxy(), expectedProxy);  EXPECT_EQ(settingsHolder.schedulerPeriod, std::chrono::minutes(40));
     EXPECT_EQ(settingsHolder.weeklySchedule.enabled, false);
 }
 
 TEST_F(TestUpdatePolicyTranslator, ParseUpdatePolicyWithScheduledUpdate)
 {
     auto* mockFileSystem = new StrictMock<MockFileSystem>();
+    EXPECT_CALL(*mockFileSystem, isFile(_)).WillRepeatedly(Return(false));
     std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
 
     UpdatePolicyTranslator translator;
 
-    EXPECT_CALL(*mockFileSystem, isFile(_)).WillRepeatedly(Return(false));
 
     auto settingsHolder = translator.translatePolicy(updatePolicyWithScheduledUpdate);
     auto config = settingsHolder.configurationData;

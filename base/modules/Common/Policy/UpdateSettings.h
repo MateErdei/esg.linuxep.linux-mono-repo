@@ -24,7 +24,7 @@ namespace Common::Policy
             localUpdateCacheHosts_ = localUpdateCacheHosts;
         }
 
-        UpdateCacheHosts_t getLocalUpdateCacheHosts() const
+        [[nodiscard]] UpdateCacheHosts_t getLocalUpdateCacheHosts() const
         {
             return localUpdateCacheHosts_;
         }
@@ -37,6 +37,10 @@ namespace Common::Policy
         {
             policyProxy_ = proxy;
         }
+        [[nodiscard]] Proxy getPolicyProxy() const
+        {
+            return policyProxy_;
+        }
 
         /**
          * Set the primary subscription. The primary subscription is meant to be used to enforce that it can never
@@ -48,7 +52,7 @@ namespace Common::Policy
             primarySubscription_ = productSubscription;
         }
 
-        ProductSubscription getPrimarySubscription() const
+        [[nodiscard]] ProductSubscription getPrimarySubscription() const
         {
             return primarySubscription_;
         }
@@ -62,7 +66,7 @@ namespace Common::Policy
             productSubscriptions_ = std::move(productsSubscriptions);
         }
 
-        std::vector<ProductSubscription> getProductsSubscription() const
+        [[nodiscard]] std::vector<ProductSubscription> getProductsSubscription() const
         {
             return productSubscriptions_;
         }
@@ -79,7 +83,7 @@ namespace Common::Policy
             features_ = features;
         }
 
-        std::vector<std::string> getFeatures() const
+        [[nodiscard]] std::vector<std::string> getFeatures() const
         {
             return features_;
         }
@@ -93,6 +97,10 @@ namespace Common::Policy
         {
             installArguments_ = installArguments;
         }
+        [[nodiscard]] std::vector<std::string> getInstallArguments() const
+        {
+            return installArguments_;
+        }
 
         /**
          * Set the list of mandatory manifest (relative) file paths that must exist for all packages.
@@ -102,6 +110,10 @@ namespace Common::Policy
         {
             manifestNames_ = manifestNames;
         }
+        [[nodiscard]] std::vector<std::string> getManifestNames() const
+        {
+            return manifestNames_;
+        }
 
         /**
          * Set the list of optional manifest (relative) file paths that are may exist for packages.
@@ -110,6 +122,10 @@ namespace Common::Policy
         void setOptionalManifestNames(const std::vector<std::string>& optionalManifestNames)
         {
             optionalManifestNames_ = optionalManifestNames;
+        }
+        [[nodiscard]] std::vector<std::string> getOptionalManifestNames() const
+        {
+            return optionalManifestNames_;
         }
 
         void setUseSlowSupplements(bool useSlowSupplements)
@@ -122,7 +138,7 @@ namespace Common::Policy
             credentials_ = creds;
         }
 
-        Credentials getCredentials() const
+        [[nodiscard]] Credentials getCredentials() const
         {
             return credentials_;
         }
@@ -134,7 +150,7 @@ namespace Common::Policy
             sophosLocationURLs_ = urls;
         }
 
-        url_list_t getSophosLocationURLs() const
+        [[nodiscard]] url_list_t getSophosLocationURLs() const
         {
             return sophosLocationURLs_;
         }

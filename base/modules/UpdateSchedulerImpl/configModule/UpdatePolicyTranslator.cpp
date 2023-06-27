@@ -54,8 +54,6 @@ namespace UpdateSchedulerImpl
                 updatePolicyTelemetry_.updateSubscriptions(updatePolicy_->getSubscriptions());
                 updatePolicyTelemetry_.resetTelemetry(Common::Telemetry::TelemetryHelper::getInstance());
 
-
-
                 return {.configurationData=config,
                         .updateCacheCertificatesContent=updatePolicy_->getUpdateCertificatesContent(),
                         .schedulerPeriod=updatePolicy_->getUpdatePeriod(),

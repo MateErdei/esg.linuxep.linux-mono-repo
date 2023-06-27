@@ -242,7 +242,6 @@ ALCPolicy::ALCPolicy(const std::string& xmlPolicy)
     auto delayUpdating = attributesMap.lookup("AUConfigurations/AUConfig/delay_updating");
     std::string delayUpdatingDay = delayUpdating.value("Day");
     std::string delayUpdatingTime = delayUpdating.value("Time");
-    WeekDayAndTimeForDelay weeklySchedule{};
 
     if (!delayUpdatingDay.empty() && !delayUpdatingTime.empty())
     {
@@ -250,7 +249,7 @@ ALCPolicy::ALCPolicy(const std::string& xmlPolicy)
         std::tm scheduledUpdateTime{};
         if (strptime(delayUpdatingDayAndTime.c_str(), "%a,%H:%M:%S", &scheduledUpdateTime))
         {
-            weeklySchedule = {
+            weeklySchedule_ = {
                 .enabled = true,
                 .weekDay = scheduledUpdateTime.tm_wday,
                 .hour = scheduledUpdateTime.tm_hour,
