@@ -160,7 +160,7 @@ def delete_annotations(dry_run):
     requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.InsecureRequestWarning)
     headers = get_grafana_auth()
 
-    two_weeks_ago = datetime.datetime.now() - datetime.timedelta(weeks=2)
+    two_weeks_ago = datetime.datetime.now() - datetime.timedelta(weeks=4)
     time_to_delete = int(two_weeks_ago.timestamp() * 1000)
 
     r = requests.get(
