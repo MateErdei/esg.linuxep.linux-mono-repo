@@ -1,4 +1,4 @@
-// Copyright 2023 Sophos All rights reserved.
+// Copyright 2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
@@ -8,34 +8,32 @@
 
 namespace Common::Policy
 {
+    constexpr const char NoProxy[] = "noproxy:";
+    constexpr const char EnvironmentProxy[] = "environment:";
+
     class Proxy
     {
     public:
-        static const std::string NoProxy;
-        static const std::string EnvironmentProxy;
-
         explicit Proxy(
             std::string url = "",
             ProxyCredentials credentials = ProxyCredentials());
 
-        const ProxyCredentials& getCredentials() const;
+        bool empty() const { return url_.empty() || url_ == NoProxy; }
+        const ProxyCredentials& getCredentials() const { return credentials_; }
+        const std::string& getUrl() const { return url_; }
 
-        const std::string& getUrl() const;
         std::string getProxyUrlAsSulRequires() const;
-
-        bool empty() const;
+        std::string toStringPostfix() const;
 
         bool operator==(const Proxy& rhs) const
         {
-            return (m_url == rhs.m_url && m_credentials == rhs.m_credentials);
+            return (url_ == rhs.url_ && credentials_ == rhs.credentials_);
         }
 
         bool operator!=(const Proxy& rhs) const { return !operator==(rhs); }
 
-        std::string toStringPostfix() const;
-
     private:
-        std::string m_url;
-        ProxyCredentials m_credentials;
+        std::string url_;
+        ProxyCredentials credentials_;
     };
 }

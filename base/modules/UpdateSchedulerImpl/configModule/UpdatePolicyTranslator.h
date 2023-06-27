@@ -1,15 +1,14 @@
-/******************************************************************************************************
-
-Copyright 2018-2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 #pragma once
 
-#include <Common/Exceptions/IException.h>
-#include <SulDownloader/suldownloaderdata/ConfigurationData.h>
-#include <UpdateScheduler/IMapHostCacheId.h>
+#include "SulDownloader/suldownloaderdata/ConfigurationData.h"
 
-#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
+#include "UpdateScheduler/IMapHostCacheId.h"
+
+#include "Common/Exceptions/IException.h"
+#include "Common/Policy/ALCPolicy.h"
+#include "Common/TelemetryHelperImpl/TelemetryHelper.h"
+
 #include <chrono>
 #include <memory>
 
@@ -18,14 +17,14 @@ namespace UpdateSchedulerImpl
     class UpdatePolicyTelemetry
     {
     public:
-        void updateSubscriptions(std::vector<std::tuple<std::string, std::string, std::string>> subscriptions);
+        void updateSubscriptions(std::vector<Common::Policy::ProductSubscription> subscriptions);
         void setSDDSid(const std::string & );
         void resetTelemetry(Common::Telemetry::TelemetryHelper& );
         void setSubscriptions(Common::Telemetry::TelemetryHelper& );
     private:
         struct WarehouseTelemetry
         {
-            std::vector<std::tuple<std::string, std::string, std::string>> m_subscriptions;
+            std::vector<Common::Policy::ProductSubscription> m_subscriptions;
             std::string m_sddsid;
 
         };
@@ -37,7 +36,7 @@ namespace UpdateSchedulerImpl
     {
         struct SettingsHolder
         {
-            using WeekDayAndTimeForDelay = SulDownloader::suldownloaderdata::WeekDayAndTimeForDelay;
+            using WeekDayAndTimeForDelay = Common::Policy::WeekDayAndTimeForDelay;
             using SulDownloaderConfigurationData = SulDownloader::suldownloaderdata::ConfigurationData;
 
             SulDownloaderConfigurationData configurationData;

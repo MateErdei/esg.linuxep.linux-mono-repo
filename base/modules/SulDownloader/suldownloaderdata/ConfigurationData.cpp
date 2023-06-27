@@ -5,24 +5,30 @@
 #include "Logger.h"
 #include "SulDownloaderException.h"
 
+#include "ConfigurationSettings.pb.h"
+
+#include "Common/Policy/ProductSubscription.h"
+
 #include <Common/ProxyUtils/ProxyUtils.h>
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/ProtobufUtil/MessageUtility.h>
 #include <Common/UtilityImpl/StringUtils.h>
+
 #include <google/protobuf/util/json_util.h>
 
-#include <ConfigurationSettings.pb.h>
 #include <iostream>
+
+using namespace Common::Policy;
 
 namespace
 {
-    using namespace SulDownloader::suldownloaderdata;
-
     bool hasEnvironmentProxy()
     {
         return (secure_getenv("https_proxy") != nullptr || secure_getenv("HTTPS_PROXY") != nullptr);
     }
+
+    using namespace SulDownloader::suldownloaderdata;
 
     void setProtobufEntries(
         const ProductSubscription& subscription,
@@ -84,7 +90,14 @@ ConfigurationData::ConfigurationData(
     setSophosUpdateUrls(sophosLocationURL);
 }
 
-const Credentials& ConfigurationData::getCredentials() const
+ConfigurationData::ConfigurationData(const Common::Policy::UpdateSettings&)
+    : m_state(State::Initialized),
+      m_logLevel(LogLevel::NORMAL),
+      m_forceReinstallAllProducts(false)
+{
+}
+
+const Common::Policy::Credentials& ConfigurationData::getCredentials() const
 {
     return m_credentials;
 }
@@ -518,7 +531,7 @@ std::vector<Proxy> ConfigurationData::proxiesList() const
     }
 
     // Direct
-    options.emplace_back(Proxy(Proxy::NoProxy));
+    options.emplace_back(NoProxy);
 
     return options;
 }
@@ -625,14 +638,6 @@ void ConfigurationData::setFeatures(const std::vector<std::string>& features)
 const std::vector<std::string>& ConfigurationData::getFeatures() const
 {
     return m_features;
-}
-
-std::string ProductSubscription::toString() const
-{
-    std::stringstream s;
-    s << "name = " << m_rigidName << " baseversion = " << m_baseVersion << " tag = " << m_tag
-      << " fixedversion = " << m_fixedVersion;
-    return s.str();
 }
 
 std::optional<Proxy> ConfigurationData::proxyFromSavedProxyUrl(const std::string& savedProxyURL)

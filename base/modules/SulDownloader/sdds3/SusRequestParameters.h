@@ -1,8 +1,4 @@
-/***********************************************************************************************
-
-Copyright 2022-2022 Sophos Limited. All rights reserved.
-
-***********************************************************************************************/
+// Copyright 2022-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
@@ -20,6 +16,6 @@ namespace SulDownloader
         std::string baseUrl;
         std::string jwt;
         int timeoutSeconds = 0;
-        SulDownloader::suldownloaderdata::Proxy proxy;
+        Common::Policy::Proxy proxy;
     };
 }

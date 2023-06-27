@@ -1,13 +1,12 @@
-/******************************************************************************************************
-
-Copyright 2018, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #include "ConnectionSelector.h"
 
 #include "Logger.h"
 
+#include "Common/Policy/Proxy.h"
+
+using namespace Common::Policy;
 using namespace SulDownloader;
 using namespace SulDownloader::suldownloaderdata;
 
@@ -58,7 +57,7 @@ std::vector<ConnectionSetup> ConnectionSelector::getSDDS3ConnectionCandidates(co
 
     for (auto& proxy : proxies)
     {
-        if (proxy.getUrl() != Proxy::NoProxy)
+        if (proxy.getUrl() != NoProxy)
         {
             candidates.emplace_back("", configurationData.getCredentials(), false, proxy);
         }

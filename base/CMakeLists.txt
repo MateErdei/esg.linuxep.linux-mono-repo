@@ -213,9 +213,11 @@ function(add_imported_library name type no_soname location include_directory)
     target_include_directories(${name} INTERFACE ${include_directory})
 endfunction()
 
+set(SOPHLIB_INCLUDE ${INPUT}/sophlib/include )
+
 function(add_sophlib_library name)
     # Linked statically to avoid name clashes with our libraries
-    add_imported_library(sophlib_${name} STATIC FALSE ${INPUT}/sophlib/lib64/${name}/lib${name}.pic.a ${INPUT}/sophlib/include)
+    add_imported_library(sophlib_${name} STATIC FALSE ${INPUT}/sophlib/lib64/${name}/lib${name}.pic.a ${SOPHLIB_INCLUDE})
 endfunction()
 
 function(monorepo_library name location include_directory)

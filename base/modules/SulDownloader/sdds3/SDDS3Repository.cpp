@@ -7,9 +7,10 @@
 #include "SusRequestParameters.h"
 
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include "Common/UpdateUtilities/InstalledFeatures.h"
 #include "Common/UtilityImpl/StringUtils.h"
 #include "SulDownloader/suldownloaderdata/CatalogueInfo.h"
-#include "UpdateUtilities/InstalledFeatures.h"
+
 #include "sophlib/logging/Logging.h"
 #include "sophlib/sdds3/Config.h"
 #include "sophlib/sdds3/PackageRef.h"

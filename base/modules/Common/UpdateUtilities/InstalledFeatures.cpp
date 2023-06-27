@@ -1,11 +1,13 @@
+// Copyright 2022-2023 Sophos Limited. All rights reserved.
+
 #include "InstalledFeatures.h"
 
 #include "json.hpp"
 
-#include "ApplicationConfigurationImpl/ApplicationPathManager.h"
-#include "FileSystem/IFilePermissions.h"
-#include "FileSystem/IFileSystem.h"
-#include "UtilityImpl/ProjectNames.h"
+#include "Common/ApplicationConfigurationImpl/ApplicationPathManager.h"
+#include "Common/FileSystem/IFilePermissions.h"
+#include "Common/FileSystem/IFileSystem.h"
+#include "Common/UtilityImpl/ProjectNames.h"
 
 #include <sys/stat.h>
 #include <string>

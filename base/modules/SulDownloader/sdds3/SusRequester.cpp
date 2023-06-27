@@ -1,8 +1,4 @@
-/***********************************************************************************************
-
-Copyright 2022-2022 Sophos Limited. All rights reserved.
-
-***********************************************************************************************/
+// Copyright 2022-2023 Sophos Limited. All rights reserved.
 
 #include "SusRequester.h"
 #include "Logger.h"
@@ -35,9 +31,9 @@ SulDownloader::SDDS3::SusResponse SulDownloader::SDDS3::SusRequester::request(co
         else
         {
             // Suldownloader allows implicit use of environment proxies and indicates that by setting the hostname of
-            // the proxy to be suldownloaderdata::Proxy::EnvironmentProxy, so we need to tell the httprequest lib
+            // the proxy to be Common::Policy::EnvironmentProxy, so we need to tell the httprequest lib
             // to allow environment proxies to be automatically picked up by cURL.
-            if (parameters.proxy.getUrl() == suldownloaderdata::Proxy::EnvironmentProxy)
+            if (parameters.proxy.getUrl() == Common::Policy::EnvironmentProxy)
             {
                 httpRequest.allowEnvironmentProxy = true;
             }

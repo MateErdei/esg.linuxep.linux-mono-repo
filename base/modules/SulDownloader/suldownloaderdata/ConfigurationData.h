@@ -2,54 +2,20 @@
 
 #pragma once
 
-#include "Credentials.h"
-#include "Proxy.h"
-#include "WeekDayAndTimeForDelay.h"
+#include "Common/Policy/ALCPolicy.h"
+#include "Common/Policy/ProductSubscription.h"
+#include "Common/Policy/Proxy.h"
+#include "Common/Policy/UpdateSettings.h"
 
+#include <optional>
 #include <string>
 #include <vector>
-#include <optional>
 
 namespace SulDownloader::suldownloaderdata
 {
     constexpr char SSPLBaseName[] = "ServerProtectionLinux-Base";
 
-    class ProductSubscription
-    {
-        std::string m_rigidName;
-        std::string m_baseVersion;
-        std::string m_tag;
-        std::string m_fixedVersion;
-
-    public:
-        ProductSubscription(
-            const std::string& rigidName,
-            const std::string& baseVersion,
-            const std::string& tag,
-            const std::string& fixedVersion) :
-            m_rigidName(rigidName),
-            m_baseVersion(baseVersion),
-            m_tag(tag),
-            m_fixedVersion(fixedVersion)
-        {
-        }
-        ProductSubscription() {}
-        const std::string& rigidName() const { return m_rigidName; }
-        const std::string& baseVersion() const { return m_baseVersion; }
-        const std::string& tag() const { return m_tag; }
-        const std::string& fixedVersion() const { return m_fixedVersion; }
-        [[nodiscard]] std::string toString() const;
-
-        bool operator==(const ProductSubscription& rhs) const
-        {
-            return (
-                (m_rigidName == rhs.m_rigidName) && (m_baseVersion == rhs.m_baseVersion) && (m_tag == rhs.m_tag) &&
-                (m_fixedVersion == rhs.m_fixedVersion));
-        }
-
-        bool operator!=(const ProductSubscription& rhs) const { return !operator==(rhs); }
-
-    };
+    using ProductSubscription = Common::Policy::ProductSubscription;
 
     /**
      * Holds all the settings that SulDownloader needs to run which includes:
@@ -60,7 +26,7 @@ namespace SulDownloader::suldownloaderdata
      *  It will be mainly configured from the ConfigurationSettings serialized json.
      *
      */
-    class ConfigurationData
+    class ConfigurationData : public Common::Policy::UpdateSettings
     {
     public:
         /**
@@ -76,21 +42,23 @@ namespace SulDownloader::suldownloaderdata
         };
         explicit ConfigurationData(
             const std::vector<std::string>& sophosLocationURL = {},
-            Credentials credentials = Credentials(),
+            Common::Policy::Credentials credentials = Common::Policy::Credentials(),
             const std::vector<std::string>& updateCache = std::vector<std::string>(),
-            Proxy policyProxy = Proxy());
+            Common::Policy::Proxy policyProxy = Common::Policy::Proxy());
+
+        explicit ConfigurationData(const Common::Policy::UpdateSettings&);
 
         /**
          * Gets the credentials used to connect to the remote warehouse repository.
          * @return Credential object providing access to stored username and password.
          */
-        const Credentials& getCredentials() const;
+        const Common::Policy::Credentials& getCredentials() const;
 
         /**
          * Sets the credentials used to connect to the remote warehouse repository.
          * @param credentials object providing access to stored username and password.
          */
-        void setCredentials(const Credentials& credentials);
+        void setCredentials(const Common::Policy::Credentials& credentials);
 
         /**
          * Gets the list of domain urls for the sophos warehouse repositories
@@ -120,13 +88,13 @@ namespace SulDownloader::suldownloaderdata
          * Gets the configured update proxy
          * @return proxy object containing the proxy details.
          */
-        const Proxy& getPolicyProxy() const;
+        const Common::Policy::Proxy& getPolicyProxy() const;
 
         /**
          * Sets the configured update proxy
          * @param proxy object containing the proxy details.
          */
-        void setPolicyProxy(const Proxy& proxy);
+        void setPolicyProxy(const Common::Policy::Proxy& proxy);
 
         /**
          * Gets the JWToken
@@ -196,7 +164,7 @@ namespace SulDownloader::suldownloaderdata
          *  - 2 proxies: environment and no proxy
          * @return list of proxies to try to connection.
          */
-        std::vector<Proxy> proxiesList() const;
+        std::vector<Common::Policy::Proxy> proxiesList() const;
 
 
         /**
@@ -390,10 +358,10 @@ namespace SulDownloader::suldownloaderdata
          * @param savedProxyURL the string with proxy url and optionally credentials as can be used on command line
          * @return Proxy object
          */
-        static std::optional<Proxy> proxyFromSavedProxyUrl(const std::string& savedProxyURL);
+        static std::optional<Common::Policy::Proxy> proxyFromSavedProxyUrl(const std::string& savedProxyURL);
 
 
-        static std::optional<Proxy> currentMcsProxy();
+        static std::optional<Common::Policy::Proxy> currentMcsProxy();
 
     private:
         enum class State
@@ -403,10 +371,10 @@ namespace SulDownloader::suldownloaderdata
             FailedVerified
         };
 
-        Credentials m_credentials;
+        Common::Policy::Credentials m_credentials;
         std::vector<std::string> m_sophosUpdateUrls;
         std::vector<std::string> m_localUpdateCacheUrls;
-        Proxy m_policyProxy;
+        Common::Policy::Proxy m_policyProxy;
         State m_state;
         std::string m_versigPath;
         std::string m_updateCacheCertPath;
@@ -424,6 +392,6 @@ namespace SulDownloader::suldownloaderdata
         bool m_useSlowSupplements = false;
         bool m_doForcedUpdate = false;
         bool m_doForcedPausedUpdate = false;
-        WeekDayAndTimeForDelay m_scheduledUpdate;
+        Common::Policy::WeekDayAndTimeForDelay m_scheduledUpdate;
     };
 } // namespace SulDownloader::suldownloaderdata

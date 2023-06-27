@@ -1,12 +1,10 @@
-/******************************************************************************************************
-
-Copyright 2018, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
 #include "Credentials.h"
+
+#include "Common/Policy/Proxy.h"
 
 #include <string>
 
@@ -14,35 +12,6 @@ namespace SulDownloader
 {
     namespace suldownloaderdata
     {
-        class Proxy
-        {
-        public:
-            static const std::string NoProxy;
-            static const std::string EnvironmentProxy;
-
-            explicit Proxy(
-                std::string url = "",
-                suldownloaderdata::ProxyCredentials credentials = suldownloaderdata::ProxyCredentials());
-
-            const suldownloaderdata::ProxyCredentials& getCredentials() const;
-
-            const std::string& getUrl() const;
-            std::string getProxyUrlAsSulRequires() const;
-
-            bool empty() const;
-
-            bool operator==(const Proxy& rhs) const
-            {
-                return (m_url == rhs.m_url && m_credentials == rhs.m_credentials);
-            }
-
-            bool operator!=(const Proxy& rhs) const { return !operator==(rhs); }
-
-            std::string toStringPostfix() const;
-
-        private:
-            std::string m_url;
-            suldownloaderdata::ProxyCredentials m_credentials;
-        };
+        using Proxy = Common::Policy::Proxy;
     } // namespace suldownloaderdata
 } // namespace SulDownloader

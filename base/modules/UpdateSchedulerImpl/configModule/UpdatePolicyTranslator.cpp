@@ -3,6 +3,8 @@
 #include "UpdatePolicyTranslator.h"
 
 #include "../Logger.h"
+#include "Policy/ALCPolicy.h"
+#include "Policy/PolicyParseException.h"
 
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/FileSystemImpl/FileSystemImpl.h>
@@ -95,18 +97,18 @@ namespace
         return s.str();
     }
 
-    /**
+/*    *//**
      * Cover the possible false values for an attribute
      * from SAU:src/Utilities/PugiXmlHelpers.h:pugi_get_attr_bool
      * @param attr
      * @return
-     */
+     *//*
     static inline bool get_attr_bool(const std::string& attr)
     {
         if (attr == "false" || attr == "0" || attr == "no" || attr.empty())
             return false;
         return true;
-    }
+    }*/
 } // namespace
 
 namespace UpdateSchedulerImpl
@@ -138,7 +140,29 @@ namespace UpdateSchedulerImpl
 
         SettingsHolder UpdatePolicyTranslator::_translatePolicy(const std::string& policyXml)
         {
-            const std::string FixedVersion{ "FixedVersion" };
+            try
+            {
+                Common::Policy::ALCPolicy policy{ policyXml };
+                auto settings = policy.getUpdateSettings();
+                SulDownloader::suldownloaderdata::ConfigurationData config{settings};
+                m_updatePolicy.setSDDSid(policy.getSddsID());
+                m_updatePolicy.updateSubscriptions(policy.getSubscriptions());
+                m_updatePolicy.resetTelemetry(Common::Telemetry::TelemetryHelper::getInstance());
+
+                return {.configurationData=config,
+                        .updateCacheCertificatesContent=policy.getUpdateCertificatesContent(),
+                        .schedulerPeriod=policy.getUpdatePeriod(),
+                        .weeklySchedule=policy.getWeeklySchedule()
+                };
+            }
+            catch (const Common::Policy::PolicyParseException& ex)
+            {
+                LOGERROR("Failed to parse policy");
+                std::throw_with_nested(Common::Exceptions::IException(LOCATION, ex.what()));
+            }
+
+
+  /*          const std::string FixedVersion{ "FixedVersion" };
             m_Caches.clear();
 
             Common::XmlUtilities::AttributesMap attributesMap = parseXml(policyXml);
@@ -374,7 +398,7 @@ namespace UpdateSchedulerImpl
                 }
             }
 
-            return SettingsHolder{ config, certificateFileContent, std::chrono::minutes(periodInt), weeklySchedule};
+            return SettingsHolder{ config, certificateFileContent, std::chrono::minutes(periodInt), weeklySchedule};*/
         }
 
         std::string UpdatePolicyTranslator::cacheID(const std::string& hostname) const
@@ -470,22 +494,21 @@ namespace UpdateSchedulerImpl
     {
         for (auto& subscription : warehouseTelemetry.m_subscriptions)
         {
-            if (std::get<2>(subscription).empty())
+            if (subscription.fixedVersion().empty())
             {
-                telemetryToSet.set("subscriptions-"+std::get<0>(subscription), std::get<1>(subscription));
+                telemetryToSet.set("subscriptions-"+subscription.rigidName(), subscription.tag());
             }
             else
             {
-                telemetryToSet.set("subscriptions-"+std::get<0>(subscription), std::get<2>(subscription));
+                telemetryToSet.set("subscriptions-"+subscription.rigidName(), subscription.fixedVersion());
             }
-
         }
     }
 
 
-    void UpdatePolicyTelemetry::updateSubscriptions(std::vector<std::tuple<std::string, std::string, std::string>> subscriptions)
+    void UpdatePolicyTelemetry::updateSubscriptions(std::vector<Common::Policy::ProductSubscription> subscriptions)
     {
-        warehouseTelemetry.m_subscriptions = subscriptions;
+        warehouseTelemetry.m_subscriptions = std::move(subscriptions);
     }
 
 

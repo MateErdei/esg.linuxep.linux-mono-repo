@@ -6,7 +6,7 @@
 #include "SusRequester.h"
 
 #include "Common/CurlWrapper/CurlWrapper.h"
-#include "HttpRequestsImpl/HttpRequesterImpl.h"
+#include "Common/HttpRequestsImpl/HttpRequesterImpl.h"
 
 using namespace SulDownloader::suldownloaderdata;
 

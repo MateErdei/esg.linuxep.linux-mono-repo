@@ -85,6 +85,7 @@ target_link_libraries(updateschedulerimpl PUBLIC
         ${LOG4CPLUS_LIBRARY}
         protobufutil
         procutilimpl
+        policy
         )
 
 SET_TARGET_PROPERTIES( updateschedulerimpl

@@ -1,7 +1,8 @@
-// Copyright 2023 Sophos All rights reserved.
+// Copyright 2023 Sophos Limited. All rights reserved.
 #pragma once
 
 #include "UpdateSettings.h"
+#include "WeekDayAndTimeForDelay.h"
 
 #include <chrono>
 #include <string>
@@ -14,16 +15,6 @@ namespace Common::Policy
         std::string hostname;
         std::string priority;
         std::string id;
-    };
-
-    // Settings for delayed updates
-    struct WeekDayAndTimeForDelay
-    {
-        bool enabled = false;
-        int weekDay = 0;
-        int hour = 0;
-        int minute = 0;
-        // seconds is not used when setting up delayed updates
     };
 
     class ALCPolicy
@@ -43,13 +34,25 @@ namespace Common::Policy
             return std::chrono::minutes{updatePeriodMinutes_};
         }
 
+        [[nodiscard]] std::string getUpdateCertificatesContent() const
+        {
+            return update_certificates_content_;
+        }
+
+        [[nodiscard]] WeekDayAndTimeForDelay getWeeklySchedule() const
+        {
+            return weeklySchedule_;
+        }
+
     private:
         std::string revID_;
         std::string sdds_id_;
+        std::string update_certificates_content_;
         std::vector<ProductSubscription> subscriptions_;
         std::vector<UpdateCache> sortUpdateCaches(const std::vector<UpdateCache>& caches);
         std::vector<UpdateCache> updateCaches_;
         UpdateSettings updateSettings_;
+        WeekDayAndTimeForDelay weeklySchedule_;
         int updatePeriodMinutes_ = 60;
     };
 }

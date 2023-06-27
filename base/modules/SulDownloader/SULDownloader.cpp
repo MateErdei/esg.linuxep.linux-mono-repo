@@ -2,8 +2,6 @@
 
 #include "json.hpp"
 
-#include "UpdateUtilities/InstalledFeatures.h"
-
 #include "Logger.h"
 #include "ProductUninstaller.h"
 #include "SulDownloader.h"
@@ -24,6 +22,7 @@
 #include "Common/FileSystem/IFileSystemException.h"
 #include "Common/FileSystem/IPidLockFileUtils.h"
 #include "Common/Logging/FileLoggingSetup.h"
+#include "Common/UpdateUtilities/InstalledFeatures.h"
 #include "Common/UtilityImpl/ProjectNames.h"
 #include "Common/UtilityImpl/StringUtils.h"
 #include "Common/UtilityImpl/TimeUtils.h"
@@ -34,6 +33,7 @@
 #include <cassert>
 #include <thread>
 
+using namespace Common::Policy;
 using namespace SulDownloader::suldownloaderdata;
 
 namespace
@@ -468,7 +468,7 @@ namespace SulDownloader
         auto candidates = connectionSelector.getSDDS3ConnectionCandidates(configurationData);
         std::vector<ConnectionSetup> finalConnectionCandidates;
 
-        std::vector<Proxy> proxies;
+        std::vector<Common::Policy::Proxy> proxies;
         // get list of possible proxies
         for (auto& candidate : candidates)
         {

@@ -401,6 +401,7 @@ namespace
 
 } // namespace
 
+using namespace Common::Policy;
 using namespace UpdateSchedulerImpl::configModule;
 
 class TestUpdatePolicyTranslator : public ::testing::Test
@@ -565,9 +566,9 @@ TEST_F(TestUpdatePolicyTranslator, ParseUpdatePolicyWithProxy) // NOLINT
                                                   "HBT",      "MTD", "NTP",  "SAV", "SDU",      "WEBCNTRL" };
     EXPECT_EQ(features, expectedFeatures);
 
-    SulDownloader::suldownloaderdata::Proxy expectedProxy{
+    Proxy expectedProxy{
         "uk-abn-wpan-1.green.sophos:8080",
-        SulDownloader::suldownloaderdata::ProxyCredentials{
+        ProxyCredentials{
             "TestUser", "CCC4Fcz2iNaH44sdmqyLughrajL7svMPTbUZc/Q4c7yAtSrdM03lfO33xI0XKNU4IBY=", "2" }
     };
     EXPECT_EQ(config.getPolicyProxy(), expectedProxy);
@@ -909,7 +910,7 @@ TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicy) // NOLINT
     std::vector<std::string> expectedFeatures = { "CORE", "SDU", "MDR" };
     EXPECT_EQ(features, expectedFeatures);
 
-    EXPECT_EQ(config.getPolicyProxy(), SulDownloader::suldownloaderdata::Proxy());
+    EXPECT_EQ(config.getPolicyProxy(), Proxy());
     EXPECT_EQ(settingsHolder.schedulerPeriod, std::chrono::minutes(60));
     auto schedule = settingsHolder.weeklySchedule;
     EXPECT_EQ(schedule.enabled, true);
@@ -968,7 +969,7 @@ TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicyWithSophosAliasOverrideSet) // 
     std::vector<std::string> expectedFeatures = { "CORE", "SDU", "MDR" };
     EXPECT_EQ(features, expectedFeatures);
 
-    EXPECT_EQ(config.getPolicyProxy(), SulDownloader::suldownloaderdata::Proxy());
+    EXPECT_EQ(config.getPolicyProxy(), Proxy());
     EXPECT_EQ(settingsHolder.schedulerPeriod, std::chrono::minutes(60));
     auto schedule = settingsHolder.weeklySchedule;
     EXPECT_EQ(schedule.enabled, true);

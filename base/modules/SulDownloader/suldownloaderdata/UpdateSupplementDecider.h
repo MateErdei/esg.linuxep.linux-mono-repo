@@ -1,12 +1,8 @@
-/******************************************************************************************************
-
-Copyright 2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
-#include "WeekDayAndTimeForDelay.h"
+#include "Common/Policy/WeekDayAndTimeForDelay.h"
 
 #include <ctime>
 
@@ -15,7 +11,7 @@ namespace SulDownloader::suldownloaderdata
     class UpdateSupplementDecider
     {
     public:
-        using WeekDayAndTimeForDelay = SulDownloader::suldownloaderdata::WeekDayAndTimeForDelay;
+        using WeekDayAndTimeForDelay = Common::Policy::WeekDayAndTimeForDelay;
         explicit UpdateSupplementDecider(WeekDayAndTimeForDelay);
 
         /**

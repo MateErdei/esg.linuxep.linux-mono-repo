@@ -7,7 +7,7 @@
 #include "SulDownloaderException.h"
 #include "TimeTracker.h"
 
-#include <ApplicationConfiguration/IApplicationPathManager.h>
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/ProtobufUtil/MessageUtility.h>
 #include <Common/UtilityImpl/StringUtils.h>

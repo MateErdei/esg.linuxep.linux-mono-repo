@@ -1,12 +1,9 @@
-/******************************************************************************************************
-
-Copyright 2018, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
-#include "Proxy.h"
+#include "Common/Policy/Credentials.h"
+#include "Common/Policy/Proxy.h"
 
 #include <string>
 #include <vector>
@@ -21,19 +18,21 @@ namespace SulDownloader
         class ConnectionSetup
         {
         public:
+            using credentials_t = Common::Policy::Credentials;
+            using proxy_t = Common::Policy::Proxy;
+
             explicit ConnectionSetup(
                 const std::string& updateLocationURL,
-                const Credentials& credentials = Credentials(),
+                const credentials_t& credentials = credentials_t(),
                 bool isCacheUpdate = false,
-                const Proxy& proxy = Proxy());
+                const proxy_t& proxy = proxy_t());
 
-            const Credentials& getCredentials() const;
+            [[nodiscard]] const credentials_t& getCredentials() const;
+            void setCredentials(const credentials_t& credentials);
 
-            void setCredentials(const Credentials& credentials);
+            const proxy_t& getProxy() const;
 
-            const Proxy& getProxy() const;
-
-            void setProxy(const Proxy& proxy);
+            void setProxy(const proxy_t& proxy);
 
             const std::string& getUpdateLocationURL() const;
 
@@ -45,9 +44,9 @@ namespace SulDownloader
 
         private:
             std::string m_updateLocationURL;
-            Credentials m_credentials;
+            credentials_t m_credentials;
             bool m_isUpdateCache;
-            Proxy m_proxy;
+            proxy_t m_proxy;
         };
 
     } // namespace suldownloaderdata

@@ -1,12 +1,9 @@
-/******************************************************************************************************
-
-Copyright 2018, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #include "Proxy.h"
 
 #include <Common/UtilityImpl/StringUtils.h>
+/*
 
 using namespace SulDownloader::suldownloaderdata;
 
@@ -69,3 +66,4 @@ std::string Proxy::getProxyUrlAsSulRequires() const
     // sul requires proxy to be pre-pended with http://
     return "http://" + m_url;
 }
+*/

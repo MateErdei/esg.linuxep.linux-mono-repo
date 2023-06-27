@@ -1,14 +1,12 @@
-/******************************************************************************************************
-
-Copyright 2018-2022, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
-#include <Common/PersistentValue/PersistentValue.h>
-#include <Common/PluginApiImpl/BaseServiceAPI.h>
-#include <Common/UtilityImpl/TimeUtils.h>
+#include "Common/PersistentValue/PersistentValue.h"
+#include "Common/Policy/ALCPolicy.h"
+#include "Common/PluginApiImpl/BaseServiceAPI.h"
+#include "Common/UtilityImpl/TimeUtils.h"
+
 #include <UpdateScheduler/IAsyncSulDownloaderRunner.h>
 #include <UpdateScheduler/ICronSchedulerThread.h>
 #include <UpdateScheduler/SchedulerTaskQueue.h>
@@ -99,7 +97,7 @@ namespace UpdateSchedulerImpl
         bool m_flagsPolicyProcessed;
         bool m_forceUpdate;
         bool m_forcePausedUpdate;
-        SulDownloader::suldownloaderdata::WeekDayAndTimeForDelay m_scheduledUpdateConfig;
+        Common::Policy::WeekDayAndTimeForDelay weeklySchedule_;
         std::vector<std::string> m_featuresInPolicy;
         std::vector<std::string> m_featuresCurrentlyInstalled;
         std::vector<std::string> m_subscriptionRigidNamesInPolicy;

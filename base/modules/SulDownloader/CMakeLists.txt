@@ -22,27 +22,28 @@ add_library(suldownloaderimplobject OBJECT
         SulDownloader.h
         ProductUninstaller.cpp
         ProductUninstaller.h
-        ../Common/UpdateUtilities/InstalledFeatures.h
-        ../Common/UpdateUtilities/InstalledFeatures.cpp
         Logger.cpp
         Logger.h
-        SulDownloaderUtils.cpp SulDownloaderUtils.h)
-
-target_link_libraries(suldownloaderimplobject PUBLIC
-        sophlib_sdds3
+        SulDownloaderUtils.cpp
+        SulDownloaderUtils.h
+        ../Common/UpdateUtilities/InstalledFeatures.h
+        ../Common/UpdateUtilities/InstalledFeatures.cpp
         )
 
-include_directories(suldownloaderimplobject
-        ${PROJECT_SOURCE_DIR}/modules/Common
+target_include_directories(suldownloaderimplobject
+        PUBLIC
+        ${PROJECT_SOURCE_DIR}/modules
         ${NLOHMANN_JSON_INCLUDE_DIR}
         ${GSL_INCLUDE}
         ${LOG4CPLUS_INCLUDE_DIR}
         ${CURL_INPUT}/include/curl
+        ${SOPHLIB_INCLUDE}
+        )
+target_link_libraries(suldownloaderimplobject INTERFACE
+        sophlib_sdds3
         )
 
 add_library(suldownloaderimpl_static STATIC
-        $<TARGET_OBJECTS:suldownloaderimplobject>
-        $<TARGET_OBJECTS:suldownloaderdataobject>
         $<TARGET_OBJECTS:HttpRequestsImplobject>
         $<TARGET_OBJECTS:filesystemimplobject>
         $<TARGET_OBJECTS:processimplobject>
@@ -56,24 +57,25 @@ add_library(suldownloaderimpl_static STATIC
         $<TARGET_OBJECTS:sslimplobject>
         $<TARGET_OBJECTS:curlwrapperobject>
         )
-
 target_link_libraries(suldownloaderimpl_static PRIVATE
         ${LOG4CPLUS_LIBRARY}
         ${Protobuf_LIBRARIES}
-        sophlib_sdds3
         openssl_crypto_static
         curl_library_static
         cap
+        suldownloaderimplobject
+        suldownloaderdataobject
+        policyobject
         )
 
-add_library(suldownloaderimpl SHARED $<TARGET_OBJECTS:suldownloaderimplobject>)
-
+add_library(suldownloaderimpl SHARED)
 target_link_libraries(suldownloaderimpl PUBLIC
         logging
-        sophlib_sdds3
+        suldownloaderimplobject
         suldownloaderdata
         HttpRequestsImpl
         curlwrapper
+        policy
         )
 
 SET_TARGET_PROPERTIES( suldownloaderimpl

@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2018, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #include "ConnectionSetup.h"
 
@@ -16,9 +12,9 @@ using namespace SulDownloader::suldownloaderdata;
 
 ConnectionSetup::ConnectionSetup(
     const std::string& updateLocationURL,
-    const Credentials& credentials,
+    const credentials_t& credentials,
     bool isCacheUpdate,
-    const Proxy& proxy) :
+    const proxy_t& proxy) :
     m_credentials(credentials),
     m_isUpdateCache(isCacheUpdate),
     m_proxy(proxy)
@@ -26,22 +22,22 @@ ConnectionSetup::ConnectionSetup(
     setUpdateLocationURL(updateLocationURL);
 }
 
-const Credentials& ConnectionSetup::getCredentials() const
+const ConnectionSetup::credentials_t& ConnectionSetup::getCredentials() const
 {
     return m_credentials;
 }
 
-void ConnectionSetup::setCredentials(const Credentials& credentials)
+void ConnectionSetup::setCredentials(const credentials_t& credentials)
 {
     m_credentials = credentials;
 }
 
-const Proxy& ConnectionSetup::getProxy() const
+const ConnectionSetup::proxy_t& ConnectionSetup::getProxy() const
 {
     return m_proxy;
 }
 
-void ConnectionSetup::setProxy(const Proxy& proxy)
+void ConnectionSetup::setProxy(const proxy_t& proxy)
 {
     m_proxy = proxy;
 }

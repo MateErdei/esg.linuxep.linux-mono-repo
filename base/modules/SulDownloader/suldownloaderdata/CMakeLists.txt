@@ -46,14 +46,16 @@ add_library(suldownloaderdataobject OBJECT
         )
 
 target_include_directories(suldownloaderdataobject PUBLIC
-        ${PROJECT_SOURCE_DIR}/modules/Common
+        ${PROJECT_SOURCE_DIR}/modules
         ${LOG4CPLUS_INCLUDE_DIR}
+        ${NLOHMANN_JSON_INCLUDE_DIR}
+        ${SOPHLIB_INCLUDE}
         )
 
-add_library(suldownloaderdata SHARED $<TARGET_OBJECTS:suldownloaderdataobject>)
-target_include_directories(suldownloaderdata PUBLIC  ${NLOHMANN_JSON_INCLUDE_DIR})
+add_library(suldownloaderdata SHARED)
 
-target_link_libraries(suldownloaderdata PUBLIC
+target_link_libraries(suldownloaderdata PRIVATE
+        suldownloaderdataobject
         filesystemimpl
         processimpl
         threads
@@ -62,7 +64,8 @@ target_link_libraries(suldownloaderdata PUBLIC
         logging
         obfuscationimpl
         protobufutil
-        ProxyUtilsLib)
+        ProxyUtilsLib
+        )
 
 install(TARGETS suldownloaderdata
         LIBRARY DESTINATION ${BASE_DIST_PREFIX}/files/base/lib64)

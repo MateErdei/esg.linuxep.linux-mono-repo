@@ -10,6 +10,7 @@
 
 #include <gtest/gtest.h>
 
+using namespace Common::Policy;
 using namespace SulDownloader::suldownloaderdata;
 
 class SulDownloaderUtilsTest : public ::testing::Test {};

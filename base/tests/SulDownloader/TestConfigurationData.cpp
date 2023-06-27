@@ -15,6 +15,7 @@ Copyright 2018-2020, Sophos Limited.  All rights reserved.
 #include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
 #include <tests/Common/Helpers/MockFileSystem.h>
 
+using namespace Common::Policy;
 using namespace SulDownloader;
 using namespace SulDownloader::suldownloaderdata;
 
@@ -359,8 +360,8 @@ TEST_F(
 
     configurationData.verifySettingsAreValid();
 
-    suldownloaderdata::ProxyCredentials proxyCredentials("username", "password", "2");
-    std::vector<Proxy> expectedProxyList = { Proxy("http://dummyurl.com", proxyCredentials), Proxy(Proxy::NoProxy) };
+    ProxyCredentials proxyCredentials("username", "password", "2");
+    std::vector<Proxy> expectedProxyList = { Proxy("http://dummyurl.com", proxyCredentials), Proxy(NoProxy) };
     EXPECT_EQ(configurationData.proxiesList(), expectedProxyList);
     EXPECT_TRUE(configurationData.isVerified());
 }
@@ -433,10 +434,10 @@ TEST_F(
 
     configurationData.verifySettingsAreValid();
 
-    suldownloaderdata::ProxyCredentials proxyCredentials("username", "password", "2");
+    ProxyCredentials proxyCredentials("username", "password", "2");
     std::vector<Proxy> expectedProxyList = { Proxy("http://dummyurl.com", proxyCredentials),
                                              Proxy("environment:"),
-                                             Proxy(Proxy::NoProxy) };
+                                             Proxy(NoProxy) };
     EXPECT_EQ(configurationData.proxiesList(), expectedProxyList);
     EXPECT_TRUE(configurationData.isVerified());
     unsetenv("HTTPS_PROXY");
@@ -459,8 +460,8 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithOnlySavedProxyS
 
     configurationData.verifySettingsAreValid();
 
-    suldownloaderdata::ProxyCredentials proxyCredentials("user", "password", "");
-    std::vector<Proxy> expectedProxyList = { Proxy("https://savedProxy.com", proxyCredentials), Proxy(Proxy::NoProxy) };
+    ProxyCredentials proxyCredentials("user", "password", "");
+    std::vector<Proxy> expectedProxyList = { Proxy("https://savedProxy.com", proxyCredentials), Proxy(NoProxy) };
     EXPECT_EQ(configurationData.proxiesList(), expectedProxyList);
     EXPECT_TRUE(configurationData.isVerified());
 }
@@ -482,7 +483,7 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsUnauthenticatedProxyInSavedProxySh
 
     configurationData.verifySettingsAreValid();
 
-    std::vector<Proxy> expectedProxyList = { Proxy("http://savedProxy.com"), Proxy(Proxy::NoProxy) };
+    std::vector<Proxy> expectedProxyList = { Proxy("http://savedProxy.com"), Proxy(NoProxy) };
     std::vector<Proxy> actualProxyList = configurationData.proxiesList();
     EXPECT_EQ(actualProxyList, expectedProxyList);
     EXPECT_TRUE(configurationData.isVerified());
@@ -506,7 +507,7 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsInvalidProxyInSavedProxyShouldBeLo
 
     configurationData.verifySettingsAreValid();
 
-    std::vector<Proxy> expectedProxyList = { Proxy(Proxy::NoProxy) };
+    std::vector<Proxy> expectedProxyList = { Proxy(NoProxy) };
     std::vector<Proxy> actualProxyList = configurationData.proxiesList();
 
     std::string logMessage = testing::internal::GetCapturedStderr();

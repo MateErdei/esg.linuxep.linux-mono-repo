@@ -312,7 +312,7 @@ namespace UpdateSchedulerImpl
             settingsHolder.configurationData.setDoForcedPausedUpdate(m_forcePausedUpdate);
             settingsHolder.configurationData.setDoForcedUpdate(m_forceUpdate);
             writeConfigurationData(settingsHolder.configurationData);
-            m_scheduledUpdateConfig = settingsHolder.weeklySchedule;
+            weeklySchedule_ = settingsHolder.weeklySchedule;
             m_featuresInPolicy = settingsHolder.configurationData.getFeatures();
             m_subscriptionRigidNamesInPolicy.clear();
             m_subscriptionRigidNamesInPolicy.push_back(settingsHolder.configurationData.getPrimarySubscription().rigidName());
@@ -322,13 +322,13 @@ namespace UpdateSchedulerImpl
                 m_subscriptionRigidNamesInPolicy.push_back(productSubscription.rigidName());
             }
 
-            if (m_scheduledUpdateConfig.enabled)
+            if (weeklySchedule_.enabled)
             {
                 char buffer[20];
                 std::tm scheduledTime{};
-                scheduledTime.tm_wday = m_scheduledUpdateConfig.weekDay;
-                scheduledTime.tm_hour = m_scheduledUpdateConfig.hour;
-                scheduledTime.tm_min = m_scheduledUpdateConfig.minute;
+                scheduledTime.tm_wday = weeklySchedule_.weekDay;
+                scheduledTime.tm_hour = weeklySchedule_.hour;
+                scheduledTime.tm_min = weeklySchedule_.minute;
                 if (strftime(buffer, sizeof(buffer), "%A %H:%M", &scheduledTime))
                 {
                     LOGINFO("Scheduling product updates for " << buffer);
@@ -540,7 +540,7 @@ namespace UpdateSchedulerImpl
 
         // Check if we should do a supplement-only update or not
         time_t lastProductUpdateCheck = configModule::DownloadReportsAnalyser::getLastProductUpdateCheck();
-        SulDownloader::suldownloaderdata::UpdateSupplementDecider decider(m_scheduledUpdateConfig);
+        SulDownloader::suldownloaderdata::UpdateSupplementDecider decider(weeklySchedule_);
         updateProducts = decider.updateProducts(lastProductUpdateCheck,UpdateNow);
 
 
