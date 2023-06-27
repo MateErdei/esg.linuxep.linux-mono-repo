@@ -5,10 +5,6 @@ add_library(suldownloaderdataobject OBJECT
         ConfigurationData.h
         ConfigurationDataUtil.h
         ConfigurationDataUtil.cpp
-        Credentials.cpp
-        Credentials.h
-        Proxy.cpp
-        Proxy.h
         DownloadedProduct.cpp
         DownloadedProduct.h
         TimeTracker.cpp

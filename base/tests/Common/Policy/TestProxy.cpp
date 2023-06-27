@@ -4,17 +4,19 @@ Copyright 2018-2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include <SulDownloader/suldownloaderdata/Credentials.h>
-#include <SulDownloader/suldownloaderdata/Proxy.h>
-#include <SulDownloader/suldownloaderdata/SulDownloaderException.h>
-#include <tests/Common/Helpers/LogInitializedTests.h>
+#include "Common/Policy/Proxy.h"
+
+#include "Common/Policy/Credentials.h"
+#include "Common/Policy/PolicyParseException.h"
+
+#include "tests/Common/Helpers/LogInitializedTests.h"
+
 #include <gtest/gtest.h>
 
-using namespace SulDownloader;
-using namespace SulDownloader::suldownloaderdata;
+using namespace Common::Policy;
 
 
-TEST(Proxy, DefaultConstructorIsEmptyProxy) // NOLINT
+TEST(Proxy, DefaultConstructorIsEmptyProxy)
 {
     Proxy proxy;
     EXPECT_EQ(proxy.getUrl(), "");
@@ -22,7 +24,7 @@ TEST(Proxy, DefaultConstructorIsEmptyProxy) // NOLINT
     EXPECT_TRUE(proxy.empty());
 }
 
-TEST(Proxy, ShouldHandleSimpleProxy) // NOLINT
+TEST(Proxy, ShouldHandleSimpleProxy)
 {
     Proxy proxy("10.10.10.10");
     EXPECT_EQ(proxy.getUrl(), "10.10.10.10");
@@ -30,7 +32,7 @@ TEST(Proxy, ShouldHandleSimpleProxy) // NOLINT
     EXPECT_FALSE(proxy.empty());
 }
 
-TEST(Proxy, ShouldHandleCorrectlyProxyUrlAsSulRequires) // NOLINT
+TEST(Proxy, ShouldHandleCorrectlyProxyUrlAsSulRequires)
 {
     std::vector<std::pair<std::string, std::string>> input_expected = { { "10.10.10.10", "http://10.10.10.10" },
                                                                         { "10.10.10.10:50", "http://10.10.10.10:50" },
@@ -84,6 +86,6 @@ TEST_F(ProxyCredentialsTest, ShouldThrowOnInvalidCredential)
     for (auto& invalidPassword : invalidPasswordsForEmptyUser)
     {
         EXPECT_THROW(
-            ProxyCredentials("", invalidPassword, "1"), SulDownloader::suldownloaderdata::SulDownloaderException);
+            ProxyCredentials("", invalidPassword, "1"), Common::Policy::PolicyParseException);
     }
 }

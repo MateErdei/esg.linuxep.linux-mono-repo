@@ -16,7 +16,6 @@ add_executable(SulDownloaderTests
         TestProductSelection.cpp
         MockVersig.h
         VersigTests.cpp
-        TestProxy.cpp
         TestProductUninstaller.cpp
         ConfigurationDataBase.h
         TestProductMetadata.cpp
