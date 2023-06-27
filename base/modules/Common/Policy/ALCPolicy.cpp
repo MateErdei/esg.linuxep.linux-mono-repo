@@ -139,7 +139,7 @@ ALCPolicy::ALCPolicy(const std::string& xmlPolicy)
 
     if (user.empty())
     {
-        throw std::invalid_argument("Invalid policy: Username is empty ");
+        throw PolicyParseException(LOCATION, "Invalid policy: Username is empty");
     }
 
     UpdateSettings settings;

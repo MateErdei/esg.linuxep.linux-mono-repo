@@ -326,17 +326,19 @@ find_library(BOOST_LOCALE
 
 set( LOG4CPLUS_INCLUDE_DIR ${LOG4CPLUS_INPUT}/include )
 
-#find_library(LOG4CPLUS_LIBRARY
+find_library(LOG4CPLUS_LIBRARY
+        NAMES log4cplus
+        PATHS ${LOG4CPLUS_INPUT}
+        NO_DEFAULT_PATH
+        NO_CMAKE_FIND_ROOT_PATH
+        )
+#find_library(LOG4CPLUS_LIBRARY_FIND_LIBRARY
 #        NAMES log4cplus
 #        PATHS ${LOG4CPLUS_INPUT}
-#        REQUIRED
-#        NO_CACHE
 #        NO_DEFAULT_PATH
 #        NO_CMAKE_FIND_ROOT_PATH
 #        )
-set(LOG4CPLUS_LIBRARY  ${LOG4CPLUS_INPUT}/liblog4cplus.so)
-
-message("Log4cplus library at ${LOG4CPLUS_LIBRARY} from ${LOG4CPLUS_INPUT}")
+#message("Log4cplus library at ${LOG4CPLUS_LIBRARY} from ${LOG4CPLUS_INPUT} as opposed to ${LOG4CPLUS_LIBRARY_FIND_LIBRARY}")
 
 # ensure valid log4cplus to work with fork
 file(STRINGS ${LOG4CPLUS_LIBRARY} log4cplusStrings)

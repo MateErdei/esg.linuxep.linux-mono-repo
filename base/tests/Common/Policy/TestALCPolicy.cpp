@@ -385,19 +385,7 @@ namespace
 TEST_F(TestALCPolicy, constructWithEmptyString)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
-    try
-    {
-        Common::Policy::ALCPolicy empty{""};
-        FAIL() << "Didn't throw exception for empty string";
-    }
-    catch (const Common::Policy::PolicyParseException& ex)
-    {
-        EXPECT_STREQ(ex.what(), "Error parsing xml: no element found\nXmlLine: 1");
-    }
-    catch (const std::exception& ex)
-    {
-        FAIL() << "Threw unexpected exception: " << ex.what();
-    }
+    EXPECT_THROW(Common::Policy::ALCPolicy empty{""};, Common::Policy::PolicyParseException);
     EXPECT_TRUE(appenderContains("Failed to parse policy: Error parsing xml: no element found"));
 }
 
@@ -414,4 +402,41 @@ TEST_F(TestALCPolicy, incorrectPolicyType)
     {
         EXPECT_STREQ(ex.what(), "Update Policy type incorrect");
     }
+}
+
+TEST_F(TestALCPolicy, emptyPolicy)
+{
+    constexpr char emptyPolicy[] = R"sophos(<?xml version="1.0"?>
+<AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
+  <csc:Comp RevID="b6a8fe2c0ce016c949016a5da2b7a089699271290ef7205d5bea0986768485d9" policyType="1"/>
+</AUConfigurations>
+)sophos";
+
+    try
+    {
+        ALCPolicy obj{emptyPolicy};
+        FAIL() << "Managed to parse empty policy";
+    }
+    catch (const PolicyParseException& ex)
+    {
+        EXPECT_STREQ(ex.what(), "Invalid policy: Username is empty");
+    }
+}
+
+
+TEST_F(TestALCPolicy, minimumValidPolicy)
+{
+    constexpr char minPolicy[] = R"sophos(<?xml version="1.0"?>
+<AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
+  <csc:Comp RevID="b6a8fe2c0ce016c949016a5da2b7a089699271290ef7205d5bea0986768485d9" policyType="1"/>
+<AUConfig platform="Linux">
+<primary_location>
+  <server UserName="W2YJXI6FED"/>
+</primary_location>
+</AUConfig>
+</AUConfigurations>
+)sophos";
+
+    ALCPolicy obj{ minPolicy };
+    auto settings = obj.getUpdateSettings();
 }
