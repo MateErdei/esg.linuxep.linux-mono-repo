@@ -55,12 +55,6 @@ namespace SulDownloader::suldownloaderdata
         const Common::Policy::Credentials& getCredentials() const;
 
         /**
-         * Sets the credentials used to connect to the remote warehouse repository.
-         * @param credentials object providing access to stored username and password.
-         */
-        void setCredentials(const Common::Policy::Credentials& credentials);
-
-        /**
          * Gets the list of domain urls for the sophos warehouse repositories
          * @return list of sophos (domain url) locations
          */
@@ -77,12 +71,6 @@ namespace SulDownloader::suldownloaderdata
          * @return list of local cache (domain url) locations
          */
         const UpdateCacheHosts_t& getLocalUpdateCacheUrls() const;
-
-        /**
-         * Sets the list of domain urls for the local cache warehouse repositories
-         * @param list of local cache (domain url) locations
-         */
-        void setLocalUpdateCacheUrls(const UpdateCacheHosts_t& localUpdateCacheUrls);
 
         /**
          * Gets the configured update proxy

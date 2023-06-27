@@ -110,11 +110,6 @@ const Common::Policy::Credentials& ConfigurationData::getCredentials() const
     return credentials_;
 }
 
-void ConfigurationData::setCredentials(const Credentials& credentials)
-{
-    credentials_ = credentials;
-}
-
 const std::vector<std::string>& ConfigurationData::getSophosUpdateUrls() const
 {
     return m_sophosUpdateUrls;
@@ -140,11 +135,6 @@ void ConfigurationData::setSophosUpdateUrls(const std::vector<std::string>& soph
 const std::vector<std::string>& ConfigurationData::getLocalUpdateCacheUrls() const
 {
     return localUpdateCacheHosts_;
-}
-
-void ConfigurationData::setLocalUpdateCacheUrls(const std::vector<std::string>& localUpdateCacheUrls)
-{
-    localUpdateCacheHosts_ = localUpdateCacheUrls;
 }
 
 const Proxy& ConfigurationData::getPolicyProxy() const
