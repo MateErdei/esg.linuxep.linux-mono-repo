@@ -8,10 +8,7 @@ namespace Common::Policy
     class Credentials
     {
     public:
-        explicit Credentials(std::string username = "", std::string password = "") :
-            username_(std::move(username)), password_(std::move(password))
-        {
-        }
+        Credentials(std::string username = "", std::string password = "");
 
         [[nodiscard]] const std::string& getUsername() const { return username_; }
 

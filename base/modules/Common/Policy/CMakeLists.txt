@@ -13,7 +13,7 @@ add_library(policyobject OBJECT
         ProxyCredentials.h
         UpdateSettings.h
         WeekDayAndTimeForDelay.h
-        UpdateSettings.cpp)
+        UpdateSettings.cpp Credentials.cpp)
 
 add_library(policy SHARED
         )

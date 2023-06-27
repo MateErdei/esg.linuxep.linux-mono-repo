@@ -6,14 +6,16 @@ Copyright 2018-2020, Sophos Limited.  All rights reserved.
 
 #include "ConfigurationDataBase.h"
 
-#include <Common/ApplicationConfiguration/IApplicationConfiguration.h>
-#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
-#include <Common/FileSystemImpl/FileSystemImpl.h>
-#include <Common/UtilityImpl/StringUtils.h>
-#include <SulDownloader/suldownloaderdata/ConfigurationData.h>
-#include <SulDownloader/suldownloaderdata/SulDownloaderException.h>
-#include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
-#include <tests/Common/Helpers/MockFileSystem.h>
+#include "Common/Policy/PolicyParseException.h"
+#include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include "Common/FileSystemImpl/FileSystemImpl.h"
+#include "Common/UtilityImpl/StringUtils.h"
+#include "SulDownloader/suldownloaderdata/ConfigurationData.h"
+#include "SulDownloader/suldownloaderdata/SulDownloaderException.h"
+
+#include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
+#include "tests/Common/Helpers/MockFileSystem.h"
 
 using namespace Common::Policy;
 using namespace SulDownloader;
@@ -390,7 +392,7 @@ TEST_F(
                                 }
                                 },)";
 
-    EXPECT_THROW(ConfigurationData::fromJsonSettings(createJsonString(oldString, newString)), SulDownloaderException);
+    EXPECT_THROW(ConfigurationData::fromJsonSettings(createJsonString(oldString, newString)), PolicyParseException);
     // no username and password translate to empty
     newString = R"("proxy": {
                                 "url": "http://dummyurl.com",
