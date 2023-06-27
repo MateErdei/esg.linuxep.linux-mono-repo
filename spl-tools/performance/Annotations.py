@@ -103,10 +103,11 @@ def add_scheduled_scan_annotations():
     for scan_chunk in scan_info:
         start_time = LogUtils.get_epoch_time_from_log_line(scan_chunk[0])
         end_time = LogUtils.get_epoch_time_from_log_line(scan_chunk[-1])
+        duration_in_min = round(((end_time - start_time) / (1000 * 60)) % 60, 2)
         annotation_failures += add_annotation(tag="scheduled-scan",
                                               start_time=start_time,
                                               end_time=end_time,
-                                              text=f"Scheduled Scan (took {(end_time - start_time) / 1000} seconds)")
+                                              text=f"Scheduled Scan (took {duration_in_min} minutes)")
     return annotation_failures
 
 

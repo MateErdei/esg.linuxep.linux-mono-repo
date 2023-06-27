@@ -99,12 +99,13 @@ def get_chunks_from_log(log_path, start_text, end_text):
         if end_text in log_line:
             parsing = False
             if log_block:
+                log_block.append(log_line)
                 log_chunks.append(log_block)
         if parsing:
             log_block.append(log_line)
         if start_text in log_line:
             parsing = True
-            log_block = []
+            log_block = [log_line]
     return log_chunks
 
 class LogUtils(object):
