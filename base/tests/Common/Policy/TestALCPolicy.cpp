@@ -430,7 +430,7 @@ TEST_F(TestALCPolicy, minimumValidPolicy)
   <csc:Comp RevID="b6a8fe2c0ce016c949016a5da2b7a089699271290ef7205d5bea0986768485d9" policyType="1"/>
 <AUConfig platform="Linux">
 <primary_location>
-  <server UserName="W2YJXI6FED"/>
+  <server Algorithm="Clear" UserPassword="xxxxxx" UserName="W2YJXI6FED"/>
 </primary_location>
 </AUConfig>
 </AUConfigurations>
@@ -450,7 +450,7 @@ TEST_F(TestALCPolicy, configureUpdatePeriod)
   <csc:Comp RevID="b6a8fe2c0ce016c949016a5da2b7a089699271290ef7205d5bea0986768485d9" policyType="1"/>
 <AUConfig platform="Linux">
 <primary_location>
-  <server UserName="W2YJXI6FED"/>
+  <server Algorithm="Clear" UserPassword="xxxxxx" UserName="W2YJXI6FED"/>
 </primary_location>
 <schedule AllowLocalConfig="false" SchedEnable="true" Frequency="50" DetectDialUp="false"/>
 </AUConfig>

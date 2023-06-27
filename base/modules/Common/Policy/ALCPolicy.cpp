@@ -165,13 +165,13 @@ ALCPolicy::ALCPolicy(const std::string& xmlPolicy)
 
     // we check that username and password are not empty mainly for fuzzing purposes as in
     // product we never expect central to send us a policy with empty credentials
-    if (pass.empty())
-    {
-        throw PolicyParseException(LOCATION, "Invalid policy: Password is empty");
-    }
     if (user.empty())
     {
         throw PolicyParseException(LOCATION, "Invalid policy: Username is empty");
+    }
+    if (pass.empty())
+    {
+        throw PolicyParseException(LOCATION, "Invalid policy: Password is empty");
     }
 
     if (algorithm == "AES256")
