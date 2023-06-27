@@ -830,7 +830,9 @@ Path Is Logged Appropriately By SophosThreatDetector During Rescan Of Files
     Should Be Equal As Integers  ${rc}  ${VIRUS_DETECTED_RESULT}
 
     Wait For Log Contains From Mark  ${ss_mark}  Quarantined ${allow_listed_threat_file} successfully
+    Wait For Log Contains From Mark  ${ss_mark}  Quarantined ${not_allow_listed_threat_file} successfully
     Should Not Exist  ${allow_listed_threat_file}
+    Should Not Exist  ${not_allow_listed_threat_file}
 
     ${ss_mark} =  Get SafeStore Log Mark
     ${td_mark} =  mark_log_size  ${THREAT_DETECTOR_LOG_PATH}
