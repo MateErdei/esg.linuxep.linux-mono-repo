@@ -33,9 +33,9 @@ endif()
 add_subdirectory(LibFuzzerTests)
 
 add_custom_target(kcov
-        COMMAND bash ${PROJECT_SOURCE_DIR}/tools/run-kcov.sh ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/tests ${PROJECT_BINARY_DIR}/kcov_output ${PROJECT_BINARY_DIR}/tests
+        COMMAND bash ${PROJECT_SOURCE_DIR}/build/kcov/run-kcov.sh ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/tests ${PROJECT_BINARY_DIR}/kcov_output ${PROJECT_BINARY_DIR}/tests
         )
 
 add_custom_target(kcov-all
-        COMMAND bash ${PROJECT_SOURCE_DIR}/tools/run-kcov-all.sh ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/tests ${PROJECT_BINARY_DIR}/kcov_output ${PROJECT_BINARY_DIR}/tests
+        COMMAND bash ${PROJECT_SOURCE_DIR}/build/kcov/run-kcov-all.sh ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/tests ${PROJECT_BINARY_DIR}/kcov_output ${PROJECT_BINARY_DIR}/tests
         )

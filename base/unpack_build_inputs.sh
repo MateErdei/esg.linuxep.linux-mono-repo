@@ -353,7 +353,7 @@ function apply_third_party_patches()
   if [ ! -f ${REDIST}/pypi/sseclient_patched ]
   then
     touch ${REDIST}/pypi/sseclient_patched
-    patch ${REDIST}/pypi/sseclient.py < tools/sseclient.patch
+    patch ${REDIST}/pypi/sseclient.py < build/sseclient.patch
   fi
 }
 

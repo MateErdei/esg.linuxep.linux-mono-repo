@@ -60,3 +60,24 @@ testUtils/*-VBoxSVC-*.log
 /robot
 /vagrant
 /log.html
+
+# bazel-tools from ESG monorepo
+/.bazelignore
+/.bazelrc
+/.bazelversion
+/.clang-format
+/.clang-tidy
+/.gitattributes
+/.pre-commit-config.yaml
+/.windows.bazelrc
+/BUILD.bazel
+/platform_mappings
+/pyproject.toml
+/tools/
+/WORKSPACE
+
+# Bazel auto-generated
+/bazel-bin
+/bazel-esg.linuxep.everest-base
+/bazel-out
+/bazel-testlogs

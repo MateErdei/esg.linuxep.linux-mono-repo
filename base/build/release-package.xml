@@ -28,6 +28,7 @@
             <release-version branch="release/SPRINT-2023.31-linux"
                              build-id="20230804152910-1916d17470505bb08fbf6529a89c4fb8376da780-MesaWo"/>
             <development-version branch="develop"/>
+            <include artifact-path="bazel-tools" dest-dir="." />
             <include artifact-path="sophlib/include" dest-dir="/build/redist/sophlib/include/sophlib"/>
             <include artifact-path="sophlib/linux_x64_rel/lib" dest-dir="/build/redist/sophlib/lib64"/>
             <include artifact-path="sophlib/linux_x64_rel/sdds3_tools" dest-dir="/build/redist/sdds3"/>
