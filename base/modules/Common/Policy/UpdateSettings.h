@@ -12,6 +12,7 @@ namespace Common::Policy
     class UpdateSettings
     {
     public:
+        static const std::vector<std::string> DefaultSophosLocationsURL;
         using UpdateCacheHosts_t = std::vector<std::string>;
 
         /**
@@ -20,7 +21,12 @@ namespace Common::Policy
          */
         void setLocalUpdateCacheHosts(const UpdateCacheHosts_t& localUpdateCacheHosts)
         {
-            localUpdateCacheHosts_= localUpdateCacheHosts;
+            localUpdateCacheHosts_ = localUpdateCacheHosts;
+        }
+
+        UpdateCacheHosts_t getLocalUpdateCacheHosts() const
+        {
+            return localUpdateCacheHosts_;
         }
 
         /**
@@ -42,6 +48,11 @@ namespace Common::Policy
             primarySubscription_ = productSubscription;
         }
 
+        ProductSubscription getPrimarySubscription() const
+        {
+            return primarySubscription_;
+        }
+
         /**
          * Set the list of other products to be installed. Plugins
          * @param productsSubscription, subscriptions to plugins such as AV, EDR etc
@@ -49,6 +60,11 @@ namespace Common::Policy
         void setProductsSubscription(std::vector<ProductSubscription> productsSubscriptions)
         {
             productSubscriptions_ = std::move(productsSubscriptions);
+        }
+
+        std::vector<ProductSubscription> getProductsSubscription() const
+        {
+            return productSubscriptions_;
         }
 
         /**
@@ -62,6 +78,12 @@ namespace Common::Policy
         {
             features_ = features;
         }
+
+        std::vector<std::string> getFeatures() const
+        {
+            return features_;
+        }
+
 
         /**
          * Sets the list of arguments that need to be passed to all product install.sh scripts.
@@ -95,17 +117,39 @@ namespace Common::Policy
             useSlowSupplements_ = useSlowSupplements;
         }
 
-    private:
+        void setCredentials(const Credentials& creds)
+        {
+            credentials_ = creds;
+        }
+
+        Credentials getCredentials() const
+        {
+            return credentials_;
+        }
+
+        using url_list_t = std::vector<std::string>;
+
+        void setSophosLocationURLs(const url_list_t& urls)
+        {
+            sophosLocationURLs_ = urls;
+        }
+
+        url_list_t getSophosLocationURLs() const
+        {
+            return sophosLocationURLs_;
+        }
+
+    protected:
+        UpdateCacheHosts_t localUpdateCacheHosts_;
+        ProductSubscription primarySubscription_;
+        std::vector<ProductSubscription> productSubscriptions_;
+        url_list_t sophosLocationURLs_;
         std::vector<std::string> features_;
         std::vector<std::string> installArguments_;
         std::vector<std::string> manifestNames_;
         std::vector<std::string> optionalManifestNames_;
-        ProductSubscription primarySubscription_;
-        std::vector<ProductSubscription> productSubscriptions_;
         Proxy policyProxy_;
-        UpdateCacheHosts_t localUpdateCacheHosts_;
+        Credentials credentials_;
         bool useSlowSupplements_ = false;
-
-
     };
 }

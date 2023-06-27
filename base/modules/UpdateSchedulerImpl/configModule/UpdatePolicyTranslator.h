@@ -26,7 +26,6 @@ namespace UpdateSchedulerImpl
         {
             std::vector<Common::Policy::ProductSubscription> m_subscriptions;
             std::string m_sddsid;
-
         };
         WarehouseTelemetry warehouseTelemetry;
     };
@@ -65,16 +64,9 @@ namespace UpdateSchedulerImpl
             ~UpdatePolicyTranslator();
         private:
             SettingsHolder _translatePolicy(const std::string& policyXml);
-            struct Cache
-            {
-                std::string hostname;
-                std::string priority;
-                std::string id;
-            };
-            std::vector<Cache> sortUpdateCaches(const std::vector<Cache>& caches);
-            std::vector<Cache> m_Caches;
-            std::string m_revID;
-            UpdatePolicyTelemetry m_updatePolicy;
+            std::shared_ptr<Common::Policy::ALCPolicy> updatePolicy_;
+
+            UpdatePolicyTelemetry updatePolicyTelemetry_;
         };
     } // namespace configModule
 } // namespace UpdateSchedulerImpl

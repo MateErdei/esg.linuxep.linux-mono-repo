@@ -76,13 +76,13 @@ namespace SulDownloader::suldownloaderdata
          * Gets the list of domain urls for the local cache warehouse repositories
          * @return list of local cache (domain url) locations
          */
-        const std::vector<std::string>& getLocalUpdateCacheUrls() const;
+        const UpdateCacheHosts_t& getLocalUpdateCacheUrls() const;
 
         /**
          * Sets the list of domain urls for the local cache warehouse repositories
          * @param list of local cache (domain url) locations
          */
-        void setLocalUpdateCacheUrls(const std::vector<std::string>& localUpdateCacheUrls);
+        void setLocalUpdateCacheUrls(const UpdateCacheHosts_t& localUpdateCacheUrls);
 
         /**
          * Gets the configured update proxy
@@ -373,7 +373,6 @@ namespace SulDownloader::suldownloaderdata
 
         Common::Policy::Credentials m_credentials;
         std::vector<std::string> m_sophosUpdateUrls;
-        std::vector<std::string> m_localUpdateCacheUrls;
         Common::Policy::Proxy m_policyProxy;
         State m_state;
         std::string m_versigPath;
@@ -381,9 +380,6 @@ namespace SulDownloader::suldownloaderdata
         std::string m_jwToken;
         std::string m_tenantId;
         std::string m_deviceId;
-        std::vector<ProductSubscription> m_productsSubscription;
-        ProductSubscription m_primarySubscription;
-        std::vector<std::string> m_features;
         std::vector<std::string> m_installArguments;
         LogLevel m_logLevel;
         bool m_forceReinstallAllProducts;

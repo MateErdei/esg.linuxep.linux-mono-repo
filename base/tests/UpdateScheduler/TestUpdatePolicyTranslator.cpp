@@ -419,12 +419,11 @@ TEST_F(TestUpdatePolicyTranslator, ParseUpdatePolicyWithUpdateCache)
     Common::OSUtilitiesImpl::replaceDnsLookup(std::move(fake));
 
     auto* mockFileSystem = new StrictMock<MockFileSystem>();
+    EXPECT_CALL(*mockFileSystem, isFile(_)).WillRepeatedly(Return(false));
     std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
     Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
 
     UpdatePolicyTranslator translator;
-
-    EXPECT_CALL(*mockFileSystem, isFile(_)).WillRepeatedly(Return(false));
 
     auto settingsHolder = translator.translatePolicy(updatePolicyWithCache);
     auto config = settingsHolder.configurationData;
@@ -434,6 +433,7 @@ TEST_F(TestUpdatePolicyTranslator, ParseUpdatePolicyWithUpdateCache)
     EXPECT_EQ(config.getCredentials().getUsername(), "c2d584eb505b6a35fbf2dd9740551fe9");
     EXPECT_EQ(config.getCredentials().getPassword(), "c2d584eb505b6a35fbf2dd9740551fe9");
 //    EXPECT_EQ(config.getCertificatePath(), "/opt/sophos-spl/base/update/rootcerts");
+    ASSERT_EQ(config.getInstallArguments().size(), 2);
     EXPECT_EQ(config.getInstallArguments()[0], "--instdir");
     EXPECT_EQ(config.getInstallArguments()[1], "/opt/sophos-spl");
 //    EXPECT_EQ(config.getSystemSslCertificatePath(), ":system:");
@@ -532,6 +532,7 @@ TEST_F(TestUpdatePolicyTranslator, ParseUpdatePolicyWithProxy)
     EXPECT_EQ(config.getCredentials().getUsername(), "678ca7535f2722d2e633834fde894e40");
     EXPECT_EQ(config.getCredentials().getPassword(), "678ca7535f2722d2e633834fde894e40");
 //    EXPECT_EQ(config.getCertificatePath(), "/opt/sophos-spl/base/update/rootcerts");
+    ASSERT_EQ(config.getInstallArguments().size(), 2);
     EXPECT_EQ(config.getInstallArguments()[0], "--instdir");
     EXPECT_EQ(config.getInstallArguments()[1], "/opt/sophos-spl");
 //    EXPECT_EQ(config.getSystemSslCertificatePath(), ":system:");
@@ -877,6 +878,7 @@ TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicy)
     EXPECT_EQ(config.getCredentials().getUsername(), "ff705287d6b62738f8e672865cff1b05");
     EXPECT_EQ(config.getCredentials().getPassword(), "ff705287d6b62738f8e672865cff1b05");
 //    EXPECT_EQ(config.getCertificatePath(), "/opt/sophos-spl/base/update/rootcerts");
+    ASSERT_EQ(config.getInstallArguments().size(), 2);
     EXPECT_EQ(config.getInstallArguments()[0], "--instdir");
     EXPECT_EQ(config.getInstallArguments()[1], "/opt/sophos-spl");
 //    EXPECT_EQ(config.getSystemSslCertificatePath(), ":system:");
@@ -935,6 +937,7 @@ TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicyWithSophosAliasOverrideSet)
     EXPECT_EQ(config.getCredentials().getUsername(), "ff705287d6b62738f8e672865cff1b05");
     EXPECT_EQ(config.getCredentials().getPassword(), "ff705287d6b62738f8e672865cff1b05");
 //    EXPECT_EQ(config.getCertificatePath(), "/opt/sophos-spl/base/update/rootcerts");
+    ASSERT_EQ(config.getInstallArguments().size(), 2);
     EXPECT_EQ(config.getInstallArguments()[0], "--instdir");
     EXPECT_EQ(config.getInstallArguments()[1], "/opt/sophos-spl");
 //    EXPECT_EQ(config.getSystemSslCertificatePath(), ":system:");

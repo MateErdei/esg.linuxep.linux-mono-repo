@@ -20,6 +20,7 @@ namespace Common::Policy
     class ALCPolicy
     {
     public:
+        static std::string calculateSulObfuscated(const std::string& user, const std::string& pass);
         explicit ALCPolicy(const std::string& xmlPolicy);
         [[nodiscard]] UpdateSettings getUpdateSettings() const
         {
@@ -44,12 +45,20 @@ namespace Common::Policy
             return weeklySchedule_;
         }
 
+        [[nodiscard]] std::string cacheID(const std::string& hostname) const;
+
+        [[nodiscard]] std::string revID() const
+        {
+            return revID_;
+        }
+
     private:
+        std::vector<UpdateCache> sortUpdateCaches(const std::vector<UpdateCache>& caches);
+
         std::string revID_;
         std::string sdds_id_;
         std::string update_certificates_content_;
         std::vector<ProductSubscription> subscriptions_;
-        std::vector<UpdateCache> sortUpdateCaches(const std::vector<UpdateCache>& caches);
         std::vector<UpdateCache> updateCaches_;
         UpdateSettings updateSettings_;
         WeekDayAndTimeForDelay weeklySchedule_;

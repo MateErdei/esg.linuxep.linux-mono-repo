@@ -81,20 +81,26 @@ ConfigurationData::ConfigurationData(
     const std::vector<std::string>& updateCache,
     Proxy policyProxy) :
     m_credentials(std::move(credentials)),
-    m_localUpdateCacheUrls(updateCache),
     m_policyProxy(std::move(policyProxy)),
     m_state(State::Initialized),
     m_logLevel(LogLevel::NORMAL),
     m_forceReinstallAllProducts(false)
 {
+    localUpdateCacheHosts_ = updateCache;
     setSophosUpdateUrls(sophosLocationURL);
 }
 
-ConfigurationData::ConfigurationData(const Common::Policy::UpdateSettings&)
+ConfigurationData::ConfigurationData(const Common::Policy::UpdateSettings& settings)
     : m_state(State::Initialized),
       m_logLevel(LogLevel::NORMAL),
       m_forceReinstallAllProducts(false)
 {
+    m_credentials = settings.getCredentials();
+    setSophosUpdateUrls(settings.getSophosLocationURLs());
+    setLocalUpdateCacheHosts(settings.getLocalUpdateCacheHosts());
+    setPrimarySubscription(settings.getPrimarySubscription());
+    setProductsSubscription(settings.getProductsSubscription());
+    setFeatures(settings.getFeatures());
 }
 
 const Common::Policy::Credentials& ConfigurationData::getCredentials() const
@@ -131,12 +137,12 @@ void ConfigurationData::setSophosUpdateUrls(const std::vector<std::string>& soph
 
 const std::vector<std::string>& ConfigurationData::getLocalUpdateCacheUrls() const
 {
-    return m_localUpdateCacheUrls;
+    return localUpdateCacheHosts_;
 }
 
 void ConfigurationData::setLocalUpdateCacheUrls(const std::vector<std::string>& localUpdateCacheUrls)
 {
-    m_localUpdateCacheUrls = localUpdateCacheUrls;
+    localUpdateCacheHosts_ = localUpdateCacheUrls;
 }
 
 const Proxy& ConfigurationData::getPolicyProxy() const
@@ -310,28 +316,21 @@ bool ConfigurationData::verifySettingsAreValid()
         return false;
     }
 
-
-    if (!m_localUpdateCacheUrls.empty())
+    for (auto& value : localUpdateCacheHosts_)
     {
-        for (auto& value : m_localUpdateCacheUrls)
+        if (value.empty())
         {
-            if (value.empty())
-            {
-                LOGERROR("Invalid Settings: Update cache url cannot be an empty string");
-                return false;
-            }
+            LOGERROR("Invalid Settings: Update cache url cannot be an empty string");
+            return false;
         }
     }
 
-    if (!m_installArguments.empty())
+    for (auto& value : m_installArguments)
     {
-        for (auto& value : m_installArguments)
+        if (value.empty())
         {
-            if (value.empty())
-            {
-                LOGERROR("Invalid Settings: install argument cannot be an empty string");
-                return false;
-            }
+            LOGERROR("Invalid Settings: install argument cannot be an empty string");
+            return false;
         }
     }
 
@@ -478,7 +477,6 @@ void ConfigurationData::setOptionalManifestNames(const std::vector<std::string>&
     m_optionalManifestNames = optionalManifestNames;
 }
 
-
 std::vector<Proxy> ConfigurationData::proxiesList() const
 {
     // This generates the list of proxies in order that they should be tried by SUL
@@ -612,32 +610,32 @@ std::string ConfigurationData::toJsonSettings(const ConfigurationData& configura
 
 void ConfigurationData::setPrimarySubscription(const ProductSubscription& productSubscription)
 {
-    m_primarySubscription = productSubscription;
+    primarySubscription_ = productSubscription;
 }
 
 void ConfigurationData::setProductsSubscription(const std::vector<ProductSubscription>& productsSubscriptions)
 {
-    m_productsSubscription = productsSubscriptions;
+    productSubscriptions_ = productsSubscriptions;
 }
 
 const ProductSubscription& ConfigurationData::getPrimarySubscription() const
 {
-    return m_primarySubscription;
+    return primarySubscription_;
 }
 
 const std::vector<ProductSubscription>& ConfigurationData::getProductsSubscription() const
 {
-    return m_productsSubscription;
+    return productSubscriptions_;
 }
 
 void ConfigurationData::setFeatures(const std::vector<std::string>& features)
 {
-    m_features = features;
+    features_ = features;
 }
 
 const std::vector<std::string>& ConfigurationData::getFeatures() const
 {
-    return m_features;
+    return features_;
 }
 
 std::optional<Proxy> ConfigurationData::proxyFromSavedProxyUrl(const std::string& savedProxyURL)

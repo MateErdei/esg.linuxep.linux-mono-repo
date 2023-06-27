@@ -7,115 +7,16 @@
 #include "Policy/PolicyParseException.h"
 
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
-#include <Common/FileSystemImpl/FileSystemImpl.h>
-#include <Common/OSUtilities/IIPUtils.h>
-#include <Common/ObfuscationImpl/Obfuscate.h>
 #include <Common/SslImpl/Digest.h>
-#include <Common/UtilityImpl/StringUtils.h>
 #include <Common/UtilityImpl/TimeUtils.h>
-#include <Common/XmlUtilities/AttributesMap.h>
 #include <SulDownloader/suldownloaderdata/SulDownloaderException.h>
 
 #include <algorithm>
-
-namespace
-{
-    template<typename IpCollection>
-    std::string ipCollectionToString(const IpCollection& ipCollection)
-    {
-        if (ipCollection.empty())
-        {
-            return std::string{};
-        }
-        std::stringstream s;
-        bool first = true;
-        for (auto& ip : ipCollection)
-        {
-            if (first)
-            {
-                s << "{";
-            }
-            else
-            {
-                s << ", ";
-            }
-            s << ip.stringAddress();
-            first = false;
-        }
-        s << "}";
-        return s.str();
-    }
-
-    std::string ipToString(const Common::OSUtilities::IPs& ips)
-    {
-        std::stringstream s;
-        bool hasip4 = false;
-        if (!ips.ip4collection.empty())
-        {
-            s << ipCollectionToString(ips.ip4collection);
-            hasip4 = true;
-        }
-
-        if (!ips.ip6collection.empty())
-        {
-            if (hasip4)
-            {
-                s << "\n";
-            }
-            s << ipCollectionToString(ips.ip6collection);
-        }
-        return s.str();
-    }
-
-    std::string reportToString(const Common::OSUtilities::SortServersReport& report)
-    {
-        std::stringstream s;
-        s << "Local ips: \n"
-          << ipToString(report.localIps) << "\n"
-          << "Servers: \n";
-        for (auto& server : report.servers)
-        {
-            s << server.uri << '\n';
-            if (!server.error.empty())
-            {
-                s << server.error << '\n';
-            }
-            else
-            {
-                s << ipToString(server.ips) << '\n';
-            }
-            s << "distance associated: ";
-            if (server.MaxDistance == server.associatedMinDistance)
-            {
-                s << "Max\n";
-            }
-            else
-            {
-                s << server.associatedMinDistance << " bits\n";
-            }
-        }
-        return s.str();
-    }
-
-/*    *//**
-     * Cover the possible false values for an attribute
-     * from SAU:src/Utilities/PugiXmlHelpers.h:pugi_get_attr_bool
-     * @param attr
-     * @return
-     *//*
-    static inline bool get_attr_bool(const std::string& attr)
-    {
-        if (attr == "false" || attr == "0" || attr == "no" || attr.empty())
-            return false;
-        return true;
-    }*/
-} // namespace
 
 namespace UpdateSchedulerImpl
 {
     namespace configModule
     {
-        using namespace Common::XmlUtilities;
         using namespace Common::ApplicationConfiguration;
         using namespace Common::FileSystem;
 
@@ -142,17 +43,23 @@ namespace UpdateSchedulerImpl
         {
             try
             {
-                Common::Policy::ALCPolicy policy{ policyXml };
-                auto settings = policy.getUpdateSettings();
+                updatePolicy_ = std::make_shared<Common::Policy::ALCPolicy>(policyXml);
+                auto settings = updatePolicy_->getUpdateSettings();
+
                 SulDownloader::suldownloaderdata::ConfigurationData config{settings};
-                m_updatePolicy.setSDDSid(policy.getSddsID());
-                m_updatePolicy.updateSubscriptions(policy.getSubscriptions());
-                m_updatePolicy.resetTelemetry(Common::Telemetry::TelemetryHelper::getInstance());
+                config.setInstallArguments({ "--instdir", applicationPathManager().sophosInstall() });
+                config.setLogLevel(SulDownloader::suldownloaderdata::ConfigurationData::LogLevel::VERBOSE);
+
+                updatePolicyTelemetry_.setSDDSid(updatePolicy_->getSddsID());
+                updatePolicyTelemetry_.updateSubscriptions(updatePolicy_->getSubscriptions());
+                updatePolicyTelemetry_.resetTelemetry(Common::Telemetry::TelemetryHelper::getInstance());
+
+
 
                 return {.configurationData=config,
-                        .updateCacheCertificatesContent=policy.getUpdateCertificatesContent(),
-                        .schedulerPeriod=policy.getUpdatePeriod(),
-                        .weeklySchedule=policy.getWeeklySchedule()
+                        .updateCacheCertificatesContent=updatePolicy_->getUpdateCertificatesContent(),
+                        .schedulerPeriod=updatePolicy_->getUpdatePeriod(),
+                        .weeklySchedule=updatePolicy_->getWeeklySchedule()
                 };
             }
             catch (const Common::Policy::PolicyParseException& ex)
@@ -221,7 +128,7 @@ namespace UpdateSchedulerImpl
             {
                 config.setCredentials(SulDownloader::suldownloaderdata::Credentials{ user, pass });
             }
-            m_updatePolicy.setSDDSid(user);
+            updatePolicyTelemetry_.setSDDSid(user);
 
             auto updateCacheEntities =
                 attributesMap.entitiesThatContainPath("AUConfigurations/update_cache/locations/location");
@@ -338,8 +245,8 @@ namespace UpdateSchedulerImpl
                     ssplBaseIncluded = true;
                 }
             }
-            m_updatePolicy.updateSubscriptions(subscriptions);
-            m_updatePolicy.resetTelemetry(Common::Telemetry::TelemetryHelper::getInstance());
+            updatePolicyTelemetry_.updateSubscriptions(subscriptions);
+            updatePolicyTelemetry_.resetTelemetry(Common::Telemetry::TelemetryHelper::getInstance());
             config.setProductsSubscription(productsSubscription);
 
             if (!ssplBaseIncluded)
@@ -403,27 +310,21 @@ namespace UpdateSchedulerImpl
 
         std::string UpdatePolicyTranslator::cacheID(const std::string& hostname) const
         {
-            std::string strippedHostname;
-            strippedHostname = Common::UtilityImpl::StringUtils::replaceAll(hostname, "https://", "");
-            if (Common::UtilityImpl::StringUtils::endswith(strippedHostname, "/v3"))
-            {
-                strippedHostname = Common::UtilityImpl::StringUtils::replaceAll(strippedHostname, "/v3", "");
-            }
-            for (auto& cache : m_Caches)
-            {
-                if (cache.hostname == strippedHostname)
-                {
-                    return cache.id;
-                }
-            }
-            // Could not find the cache
-            return std::string();
+            assert(updatePolicy_);
+            return updatePolicy_->cacheID(hostname);
         }
 
-        std::string UpdatePolicyTranslator::revID() const { return m_revID; }
+        std::string UpdatePolicyTranslator::revID() const
+        {
+            assert(updatePolicy_);
+            return updatePolicy_->revID();
+        }
 
-        std::vector<UpdatePolicyTranslator::Cache> UpdatePolicyTranslator::sortUpdateCaches(
-            const std::vector<UpdatePolicyTranslator::Cache>& /*caches*/)
+/*
+        std::vector<Common::Policy::Cache> UpdatePolicyTranslator::sortUpdateCaches(
+            const std::vector<Common::Policy::Cache>& */
+/*caches*//*
+)
         {
             // requirement: update caches candidates must be sorted by the following criteria:
             //  1. priority
@@ -454,6 +355,7 @@ namespace UpdateSchedulerImpl
             });
             return orderedCaches;
         }
+*/
 
         std::string UpdatePolicyTranslator::calculateSulObfuscated(const std::string& user, const std::string& pass)
         {
@@ -461,11 +363,9 @@ namespace UpdateSchedulerImpl
         }
 
         UpdatePolicyTranslator::UpdatePolicyTranslator() :
-            m_Caches{},
-            m_revID{},
-            m_updatePolicy{ }
+            updatePolicyTelemetry_{ }
         {
-            Common::Telemetry::TelemetryHelper::getInstance().registerResetCallback("subscriptions", [this](Common::Telemetry::TelemetryHelper& telemetry){ m_updatePolicy.setSubscriptions(telemetry); });
+            Common::Telemetry::TelemetryHelper::getInstance().registerResetCallback("subscriptions", [this](Common::Telemetry::TelemetryHelper& telemetry){ updatePolicyTelemetry_.setSubscriptions(telemetry); });
         }
 
         UpdatePolicyTranslator::~UpdatePolicyTranslator()

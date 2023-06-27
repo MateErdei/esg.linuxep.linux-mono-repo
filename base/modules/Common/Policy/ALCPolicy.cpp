@@ -9,13 +9,14 @@
 #include "ProxyCredentials.h"
 #include "UpdateSettings.h"
 
-#include "Common/ApplicationConfigurationImpl/ApplicationPathManager.h"
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "Common/FileSystem/IFileSystem.h"
 #include "Common/OSUtilities/IIPUtils.h"
 #include "Common/ObfuscationImpl/Obfuscate.h"
 #include "Common/UtilityImpl/StringUtils.h"
 #include "Common/XmlUtilities/AttributesMap.h"
 
+using namespace Common::ApplicationConfiguration;
 using namespace Common::Policy;
 
 namespace
@@ -113,6 +114,8 @@ namespace
 
 ALCPolicy::ALCPolicy(const std::string& xmlPolicy)
 {
+    auto filesystem = Common::FileSystem::fileSystem();
+
     const std::string FixedVersion{ "FixedVersion" };
 
     Common::XmlUtilities::AttributesMap attributesMap{{}, {}};
@@ -135,14 +138,61 @@ ALCPolicy::ALCPolicy(const std::string& xmlPolicy)
 
     // sdds_id comes from SDDS2 user
     auto primaryLocation = attributesMap.lookup("AUConfigurations/AUConfig/primary_location/server");
-    std::string user{ primaryLocation.value("UserName") };
 
+    std::string connectionAddress;
+
+    if (filesystem->isFile(applicationPathManager().getSophosAliasFilePath()))
+    {
+        connectionAddress = filesystem->readFile(applicationPathManager().getSophosAliasFilePath());
+        LOGINFO("Using connection address provided by sophos_alias.txt file.");
+    }
+    else
+    {
+        connectionAddress = primaryLocation.value("ConnectionAddress");
+    }
+
+    std::vector<std::string> sophosUpdateLocations{UpdateSettings::DefaultSophosLocationsURL};
+    if (!connectionAddress.empty())
+    {
+        sophosUpdateLocations.insert(std::begin(sophosUpdateLocations), connectionAddress);
+    }
+    updateSettings_.setSophosLocationURLs(sophosUpdateLocations);
+
+    std::string user{ primaryLocation.value("UserName") };
+    std::string pass{ primaryLocation.value("UserPassword") };
+    std::string algorithm{ primaryLocation.value("Algorithm") };
+    bool requireObfuscation = true;
+
+    // we check that username and password are not empty mainly for fuzzing purposes as in
+    // product we never expect central to send us a policy with empty credentials
+    if (pass.empty())
+    {
+        throw PolicyParseException(LOCATION, "Invalid policy: Password is empty");
+    }
     if (user.empty())
     {
         throw PolicyParseException(LOCATION, "Invalid policy: Username is empty");
     }
 
-    UpdateSettings settings;
+    if (algorithm == "AES256")
+    {
+        pass = Common::ObfuscationImpl::SECDeobfuscate(pass);
+    }
+    else if (user.size() == 32 && user == pass)
+    {
+        requireObfuscation = false;
+    }
+
+    if (requireObfuscation)
+    {
+        std::string obfuscated = calculateSulObfuscated(user, pass);
+        updateSettings_.setCredentials(Credentials{ obfuscated, obfuscated });
+    }
+    else
+    {
+        updateSettings_.setCredentials(Credentials{ user, pass });
+    }
+
     sdds_id_ = user;
 
     // Update Caches
@@ -170,7 +220,7 @@ ALCPolicy::ALCPolicy(const std::string& xmlPolicy)
             updateCacheHosts.emplace_back(cache.hostname);
         }
 
-        settings.setLocalUpdateCacheHosts(updateCacheHosts);
+        updateSettings_.setLocalUpdateCacheHosts(updateCacheHosts);
 
         auto cacheCertificates = attributesMap.entitiesThatContainPath(
             "AUConfigurations/update_cache/intermediate_certificates/intermediate_certificate");
@@ -186,6 +236,7 @@ ALCPolicy::ALCPolicy(const std::string& xmlPolicy)
             certificateFileContent +=
                 Common::UtilityImpl::StringUtils::replaceAll(attributes.contents(), "&#13;", "");
         }
+        update_certificates_content_ = certificateFileContent;
     }
 
     auto delayUpdating = attributesMap.lookup("AUConfigurations/AUConfig/delay_updating");
@@ -329,6 +380,7 @@ std::vector<UpdateCache> ALCPolicy::sortUpdateCaches(const std::vector<UpdateCac
     //  1. priority
     //  2. ip-proximity
     std::vector<std::string> cacheUrls;
+    cacheUrls.reserve(caches.size());
     for (auto& candidate : caches)
     {
         cacheUrls.emplace_back(Common::OSUtilities::tryExtractServerFromHttpURL(candidate.hostname));
@@ -344,6 +396,7 @@ std::vector<UpdateCache> ALCPolicy::sortUpdateCaches(const std::vector<UpdateCac
     std::vector<int> sortedIndex = Common::OSUtilities::sortedIndexes(report);
 
     std::vector<UpdateCache> orderedCaches;
+    orderedCaches.reserve(report.servers.size());
     for (auto& entry : report.servers)
     {
         orderedCaches.emplace_back(caches.at(entry.originalIndex));
@@ -353,4 +406,29 @@ std::vector<UpdateCache> ALCPolicy::sortUpdateCaches(const std::vector<UpdateCac
                          return a.priority < b.priority;
                      });
     return orderedCaches;
+}
+
+std::string ALCPolicy::calculateSulObfuscated(const std::string& user, const std::string& pass)
+{
+    return Common::SslImpl::calculateDigest(Common::SslImpl::Digest::md5, user + ':' + pass);
+}
+
+
+std::string ALCPolicy::cacheID(const std::string& hostname) const
+{
+    std::string strippedHostname;
+    strippedHostname = Common::UtilityImpl::StringUtils::replaceAll(hostname, "https://", "");
+    if (Common::UtilityImpl::StringUtils::endswith(strippedHostname, "/v3"))
+    {
+        strippedHostname = Common::UtilityImpl::StringUtils::replaceAll(strippedHostname, "/v3", "");
+    }
+    for (const auto& cache : updateCaches_)
+    {
+        if (cache.hostname == strippedHostname)
+        {
+            return cache.id;
+        }
+    }
+    // Could not find the cache
+    return {};
 }
