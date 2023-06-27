@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <config xmlns="http://www.sophos.com/EE/EESavConfiguration">
-    <csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="ac9eaa2f09914ce947cfb14f1326b802ef0b9a86eca7f6c77557564e36dbff9a" policyType="2"/>
+    <csc:Comp xmlns:csc="com.sophos\msys\csc" RevID="{{revId}}" policyType="2"/>
     <entity>
         <productId/>
         <product-version/>
@@ -57,17 +57,20 @@
     </onAccessScan>
     <onDemandScan>
         <extensions>
-            <allFiles>false</allFiles>
-            <excludeSophosDefined/>
-            <userDefined/>
-            <noExtensions>true</noExtensions>
+            <allFiles>{{allFiles}}</allFiles>
+            <excludeSophosDefined>{{excludeSophosDefined}}</excludeSophosDefined>
+            <userDefined>{{excludeUserDefined}}</userDefined>
+            <noExtensions>{{noExtensions}}</noExtensions>
         </extensions>
         <exclusions>
             <filePathSet>{{exclusions}}</filePathSet>
             <excludeRemoteFiles>{{excludeRemoteFiles}}</excludeRemoteFiles>
         </exclusions>
         <posixExclusions>
-            <filePathSet>{{posixExclusions}}</filePathSet>
+            <filePathSet>
+                {{IncludeOnlyTmpExclusions}}
+                {{posixExclusions}}
+            </filePathSet>
             <excludeRemoteFiles>{{excludeRemoteFiles}}</excludeRemoteFiles>
         </posixExclusions>
         <macExclusions>

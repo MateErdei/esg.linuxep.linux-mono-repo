@@ -50,7 +50,8 @@ Send Sav Policy With Multiple Scheduled Scans
     Send Sav Policy To Base  SAV_Policy_Multiple_Scans.xml
 
 Send Sav Policy With No Scheduled Scans
-    Send Sav Policy To Base  SAV_Policy_No_Scans.xml
+    Create Sav Policy With No Scheduled Scan    ${TEMP_SAV_POLICY_FILENAME}
+    Send Sav Policy To Base  ${TEMP_SAV_POLICY_FILENAME}
 
 Send Invalid Sav Policy
     Send Sav Policy To Base  SAV_Policy_Invalid.xml
