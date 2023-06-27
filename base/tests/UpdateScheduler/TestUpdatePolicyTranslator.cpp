@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2018-2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #include <Common/Logging/ConsoleLoggingSetup.h>
 #include <Common/OSUtilitiesImpl/DnsLookupImpl.h>
@@ -413,7 +409,7 @@ private:
 
 };
 
-TEST_F(TestUpdatePolicyTranslator, ParseUpdatePolicyWithUpdateCache) // NOLINT
+TEST_F(TestUpdatePolicyTranslator, ParseUpdatePolicyWithUpdateCache)
 {
     std::unique_ptr<FakeILocalIP> fakeILocalIP(
         new FakeILocalIP(std::vector<std::string>{ "192.168.10.5", "10.10.5.6" }));
@@ -482,7 +478,7 @@ TEST_F(TestUpdatePolicyTranslator, ParseUpdatePolicyWithUpdateCache) // NOLINT
     Common::OSUtilitiesImpl::restoreLocalIP();
 }
 
-TEST_F(TestUpdatePolicyTranslator, ParseAESCredential) // NOLINT
+TEST_F(TestUpdatePolicyTranslator, ParseAESCredential)
 {
     auto* mockFileSystem = new StrictMock<MockFileSystem>();
     std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
@@ -499,7 +495,7 @@ TEST_F(TestUpdatePolicyTranslator, ParseAESCredential) // NOLINT
     EXPECT_EQ(config.getCredentials().getPassword(), "2d7f952565f299f61e8ee5b713ae32dd");
 }
 
-TEST_F(TestUpdatePolicyTranslator, TranslatorHandlesCacheIDAndRevID) // NOLINT
+TEST_F(TestUpdatePolicyTranslator, TranslatorHandlesCacheIDAndRevID)
 {
     auto* mockFileSystem = new StrictMock<MockFileSystem>();
     std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
@@ -518,7 +514,7 @@ TEST_F(TestUpdatePolicyTranslator, TranslatorHandlesCacheIDAndRevID) // NOLINT
     EXPECT_EQ(translator.revID(), "b6a8fe2c0ce016c949016a5da2b7a089699271290ef7205d5bea0986768485d9");
 }
 
-TEST_F(TestUpdatePolicyTranslator, ParseUpdatePolicyWithProxy) // NOLINT
+TEST_F(TestUpdatePolicyTranslator, ParseUpdatePolicyWithProxy)
 {
     auto* mockFileSystem = new StrictMock<MockFileSystem>();
     std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
@@ -576,7 +572,7 @@ TEST_F(TestUpdatePolicyTranslator, ParseUpdatePolicyWithProxy) // NOLINT
     EXPECT_EQ(settingsHolder.weeklySchedule.enabled, false);
 }
 
-TEST_F(TestUpdatePolicyTranslator, ParseUpdatePolicyWithScheduledUpdate) // NOLINT
+TEST_F(TestUpdatePolicyTranslator, ParseUpdatePolicyWithScheduledUpdate)
 {
     auto* mockFileSystem = new StrictMock<MockFileSystem>();
     std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
@@ -614,7 +610,7 @@ TEST_F(TestUpdatePolicyTranslator, ParseUpdatePolicyWithScheduledUpdate) // NOLI
     EXPECT_EQ(schedule.minute, 0);
 }
 
-TEST_F(TestUpdatePolicyTranslator, ParseUpdatePolicyWithScheduledUpdateButMissingTimeField) // NOLINT
+TEST_F(TestUpdatePolicyTranslator, ParseUpdatePolicyWithScheduledUpdateButMissingTimeField)
 {
     auto* mockFileSystem = new StrictMock<MockFileSystem>();
     std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
@@ -692,7 +688,7 @@ TEST_F(TestUpdatePolicyTranslator, ParseUpdatePolicyWithScheduledUpdateButMissin
     EXPECT_EQ(schedule.minute, 0);
 }
 
-TEST_F(TestUpdatePolicyTranslator, TelemetryIsCorrectAndRetrievingTelemetryStillGetsTheCorrectData) // NOLINT
+TEST_F(TestUpdatePolicyTranslator, TelemetryIsCorrectAndRetrievingTelemetryStillGetsTheCorrectData)
 {
     auto* mockFileSystem = new StrictMock<MockFileSystem>();
     std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
@@ -718,7 +714,7 @@ TEST_F(TestUpdatePolicyTranslator, TelemetryIsCorrectAndRetrievingTelemetryStill
     EXPECT_EQ(telemetry, expectedTelemetry);
 }
 
-TEST_F(TestUpdatePolicyTranslator, TelemetryWithFixedVersionNotEmpty) // NOLINT
+TEST_F(TestUpdatePolicyTranslator, TelemetryWithFixedVersionNotEmpty)
 {
     auto* mockFileSystem = new StrictMock<MockFileSystem>();
     std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
@@ -734,7 +730,7 @@ TEST_F(TestUpdatePolicyTranslator, TelemetryWithFixedVersionNotEmpty) // NOLINT
     EXPECT_EQ(telemetry, expectedTelemetry);
 }
 
-TEST_F(TestUpdatePolicyTranslator, TelemetryWithFixedVersionCallSerialiseAndResetKeepsExpectedData) // NOLINT
+TEST_F(TestUpdatePolicyTranslator, TelemetryWithFixedVersionCallSerialiseAndResetKeepsExpectedData)
 {
     auto* mockFileSystem = new StrictMock<MockFileSystem>();
     std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
@@ -752,7 +748,7 @@ TEST_F(TestUpdatePolicyTranslator, TelemetryWithFixedVersionCallSerialiseAndRese
     EXPECT_EQ(telemetry2, expectedTelemetry);
 }
 
-TEST_F(TestUpdatePolicyTranslator, TelemetryAndUpdatePolicyAreSafeToBeAcquiredConcurrently) // NOLINT
+TEST_F(TestUpdatePolicyTranslator, TelemetryAndUpdatePolicyAreSafeToBeAcquiredConcurrently)
 {
     UpdatePolicyTranslator translator;
     (void)translator.translatePolicy(mdrSSPLBasePolicy);
@@ -777,7 +773,7 @@ TEST_F(TestUpdatePolicyTranslator, TelemetryAndUpdatePolicyAreSafeToBeAcquiredCo
     thread2.get();
 }
 
-TEST_F(TestUpdatePolicyTranslator, ParseIncorrectUpdatePolicyType) // NOLINT
+TEST_F(TestUpdatePolicyTranslator, ParseIncorrectUpdatePolicyType)
 {
     auto* mockFileSystem = new StrictMock<MockFileSystem>();
     std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
@@ -787,10 +783,10 @@ TEST_F(TestUpdatePolicyTranslator, ParseIncorrectUpdatePolicyType) // NOLINT
 
     EXPECT_CALL(*mockFileSystem, isFile(_)).WillRepeatedly(Return(false));
 
-    EXPECT_THROW(translator.translatePolicy(incorrectPolicyTypeXml), std::runtime_error); // NOLINT
+    EXPECT_THROW(translator.translatePolicy(incorrectPolicyTypeXml), std::runtime_error);
 }
 
-TEST_F(TestUpdatePolicyTranslator, SortUpdateCacheEntries1) // NOLINT
+TEST_F(TestUpdatePolicyTranslator, SortUpdateCacheEntries1)
 {
     std::unique_ptr<FakeILocalIP> fakeILocalIP(
         new FakeILocalIP(std::vector<std::string>{ "192.168.10.5", "10.10.5.6" }));
@@ -827,7 +823,7 @@ TEST_F(TestUpdatePolicyTranslator, SortUpdateCacheEntries1) // NOLINT
     Common::OSUtilitiesImpl::restoreLocalIP();
 }
 
-TEST_F(TestUpdatePolicyTranslator, SortUpdateCacheEntries2) // NOLINT
+TEST_F(TestUpdatePolicyTranslator, SortUpdateCacheEntries2)
 {
     std::unique_ptr<FakeILocalIP> fakeILocalIP(
         new FakeILocalIP(std::vector<std::string>{ "192.168.10.5", "10.10.5.6" }));
@@ -863,7 +859,7 @@ TEST_F(TestUpdatePolicyTranslator, SortUpdateCacheEntries2) // NOLINT
     Common::OSUtilitiesImpl::restoreLocalIP();
 }
 
-TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicy) // NOLINT
+TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicy)
 {
     auto* mockFileSystem = new StrictMock<MockFileSystem>();
     std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
@@ -919,7 +915,7 @@ TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicy) // NOLINT
     EXPECT_EQ(schedule.minute, 0);
 }
 
-TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicyWithSophosAliasOverrideSet) // NOLINT
+TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicyWithSophosAliasOverrideSet)
 {
     auto* mockFileSystem = new StrictMock<MockFileSystem>();
     std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
@@ -978,7 +974,7 @@ TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicyWithSophosAliasOverrideSet) // 
     EXPECT_EQ(schedule.minute, 0);
 }
 
-TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicyWithNoFeaturesReportsErrorInLog) // NOLINT
+TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicyWithNoFeaturesReportsErrorInLog)
 {
     auto* mockFileSystem = new StrictMock<MockFileSystem>();
     std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
@@ -1014,7 +1010,7 @@ TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicyWithNoFeaturesReportsErrorInLog
     EXPECT_THAT(errorMsg, ::testing::HasSubstr("CORE not in the features of the policy"));
 }
 
-TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicyWithFeaturesNotIncludingCoreReportsErrorInLog) // NOLINT
+TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicyWithFeaturesNotIncludingCoreReportsErrorInLog)
 {
     auto* mockFileSystem = new StrictMock<MockFileSystem>();
     std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
@@ -1066,7 +1062,7 @@ TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicyWithFeaturesNotIncludingCoreRep
     EXPECT_THAT(errorMsg, ::testing::HasSubstr("CORE not in the features of the policy"));
 }
 
-TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicyWithNoSubscriptionsReportsErrorInLog) // NOLINT
+TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicyWithNoSubscriptionsReportsErrorInLog)
 {
     auto* mockFileSystem = new StrictMock<MockFileSystem>();
     std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
@@ -1104,7 +1100,7 @@ TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicyWithNoSubscriptionsReportsError
             "SSPL base product name : ServerProtectionLinux-Base not in the subscription of the policy"));
 }
 
-TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicyWithNoBaseSubscriptionReportsErrorInLog) // NOLINT
+TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicyWithNoBaseSubscriptionReportsErrorInLog)
 {
     auto* mockFileSystem = new StrictMock<MockFileSystem>();
     std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
@@ -1157,7 +1153,7 @@ TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicyWithNoBaseSubscriptionReportsEr
 
 // updatePolicyWithAESCredential
 
-TEST(TestUpdatePolicyTranslatorFunc, calculateSulObfuscated) // NOLINT
+TEST(TestUpdatePolicyTranslatorFunc, calculateSulObfuscated)
 {
     EXPECT_EQ(
         UpdatePolicyTranslator::calculateSulObfuscated("regruser", "regrABC123pass"),
@@ -1165,7 +1161,7 @@ TEST(TestUpdatePolicyTranslatorFunc, calculateSulObfuscated) // NOLINT
 }
 
 
-TEST_F(TestUpdatePolicyTranslator, ParsePolicyWithSlowSupplements) // NOLINT
+TEST_F(TestUpdatePolicyTranslator, ParsePolicyWithSlowSupplements)
 {
 
     const std::string policy = R"sophos(<?xml version="1.0"?>
@@ -1190,7 +1186,7 @@ TEST_F(TestUpdatePolicyTranslator, ParsePolicyWithSlowSupplements) // NOLINT
 }
 
 
-TEST_F(TestUpdatePolicyTranslator, ParsePolicyWithNormalSupplements) // NOLINT
+TEST_F(TestUpdatePolicyTranslator, ParsePolicyWithNormalSupplements)
 {
 
     const std::string policy = R"sophos(<?xml version="1.0"?>
