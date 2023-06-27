@@ -114,10 +114,6 @@ namespace
 
 ALCPolicy::ALCPolicy(const std::string& xmlPolicy)
 {
-    auto filesystem = Common::FileSystem::fileSystem();
-
-    const std::string FixedVersion{ "FixedVersion" };
-
     Common::XmlUtilities::AttributesMap attributesMap{{}, {}};
     try
     {
@@ -138,25 +134,7 @@ ALCPolicy::ALCPolicy(const std::string& xmlPolicy)
 
     // sdds_id comes from SDDS2 user
     auto primaryLocation = attributesMap.lookup("AUConfigurations/AUConfig/primary_location/server");
-
-    std::string connectionAddress;
-
-    if (filesystem->isFile(applicationPathManager().getSophosAliasFilePath()))
-    {
-        connectionAddress = filesystem->readFile(applicationPathManager().getSophosAliasFilePath());
-        LOGINFO("Using connection address provided by sophos_alias.txt file.");
-    }
-    else
-    {
-        connectionAddress = primaryLocation.value("ConnectionAddress");
-    }
-
-    std::vector<std::string> sophosUpdateLocations{UpdateSettings::DefaultSophosLocationsURL};
-    if (!connectionAddress.empty())
-    {
-        sophosUpdateLocations.insert(std::begin(sophosUpdateLocations), connectionAddress);
-    }
-    updateSettings_.setSophosLocationURLs(sophosUpdateLocations);
+    extractSDDS2SophosUrls(primaryLocation);
 
     std::string user{ primaryLocation.value("UserName") };
     std::string pass{ primaryLocation.value("UserPassword") };
@@ -279,50 +257,7 @@ ALCPolicy::ALCPolicy(const std::string& xmlPolicy)
             ProxyCredentials{ proxyUser, proxyPassword, proxyType } });
     }
 
-    auto cloudSubscriptions =
-        attributesMap.entitiesThatContainPath("AUConfigurations/AUConfig/cloud_subscriptions/subscription");
-    std::vector<ProductSubscription> productsSubscription;
-
-    bool ssplBaseIncluded = false;
-
-    subscriptions_.clear();
-    for (const auto& cloudSubscription : cloudSubscriptions)
-    {
-        auto subscriptionDetails = attributesMap.lookup(cloudSubscription);
-        std::string rigidName = subscriptionDetails.value("RigidName");
-        std::string tag = subscriptionDetails.value("Tag");
-        std::string fixedVersion = subscriptionDetails.value(FixedVersion);
-
-        ProductSubscription sub{
-            rigidName,
-            subscriptionDetails.value("BaseVersion"),
-            tag,
-            fixedVersion
-        };
-        subscriptions_.emplace_back(sub);
-        if (rigidName != SSPLBaseName)
-        {
-            productsSubscription.emplace_back(sub);
-        }
-        else
-        {
-            updateSettings_.setPrimarySubscription({ rigidName,
-                                            subscriptionDetails.value("BaseVersion"),
-                                            subscriptionDetails.value("Tag"),
-                                            fixedVersion });
-
-            ssplBaseIncluded = true;
-        }
-    }
-
-    updateSettings_.setProductsSubscription(productsSubscription);
-
-    if (!ssplBaseIncluded)
-    {
-        LOGERROR(
-            "SSPL base product name : " << SSPLBaseName
-                                        << " not in the subscription of the policy.");
-    }
+    extractCloudSubscriptions(attributesMap);
 
     std::vector<std::string> allFeatures;
     bool includesCore = false;
@@ -430,4 +365,78 @@ std::string ALCPolicy::cacheID(const std::string& hostname) const
     }
     // Could not find the cache
     return {};
+}
+
+void ALCPolicy::extractSDDS2SophosUrls(const Common::XmlUtilities::Attributes& primaryLocation)
+{
+    auto* filesystem = Common::FileSystem::fileSystem();
+
+    std::string connectionAddress;
+
+    if (filesystem->isFile(applicationPathManager().getSophosAliasFilePath()))
+    {
+        connectionAddress = filesystem->readFile(applicationPathManager().getSophosAliasFilePath());
+        LOGINFO("Using connection address provided by sophos_alias.txt file.");
+    }
+    else
+    {
+        connectionAddress = primaryLocation.value("ConnectionAddress");
+    }
+
+    std::vector<std::string> sophosUpdateLocations{UpdateSettings::DefaultSophosLocationsURL};
+    if (!connectionAddress.empty())
+    {
+        sophosUpdateLocations.insert(std::begin(sophosUpdateLocations), connectionAddress);
+    }
+    updateSettings_.setSophosLocationURLs(sophosUpdateLocations);
+}
+
+void ALCPolicy::extractCloudSubscriptions(const Common::XmlUtilities::AttributesMap& attributesMap)
+{
+    const std::string FixedVersion{ "FixedVersion" };
+
+    auto cloudSubscriptions =
+        attributesMap.entitiesThatContainPath("AUConfigurations/AUConfig/cloud_subscriptions/subscription");
+    std::vector<ProductSubscription> productsSubscription;
+
+    bool ssplBaseIncluded = false;
+
+    subscriptions_.clear();
+    for (const auto& cloudSubscription : cloudSubscriptions)
+    {
+        auto subscriptionDetails = attributesMap.lookup(cloudSubscription);
+        std::string rigidName = subscriptionDetails.value("RigidName");
+        std::string tag = subscriptionDetails.value("Tag");
+        std::string fixedVersion = subscriptionDetails.value(FixedVersion);
+
+        ProductSubscription sub{
+            rigidName,
+            subscriptionDetails.value("BaseVersion"),
+            tag,
+            fixedVersion
+        };
+        subscriptions_.emplace_back(sub);
+        if (rigidName != SSPLBaseName)
+        {
+            productsSubscription.emplace_back(sub);
+        }
+        else
+        {
+            updateSettings_.setPrimarySubscription({ rigidName,
+                                                     subscriptionDetails.value("BaseVersion"),
+                                                     subscriptionDetails.value("Tag"),
+                                                     fixedVersion });
+
+            ssplBaseIncluded = true;
+        }
+    }
+
+    updateSettings_.setProductsSubscription(productsSubscription);
+
+    if (!ssplBaseIncluded)
+    {
+        LOGERROR(
+            "SSPL base product name : " << SSPLBaseName
+                                        << " not in the subscription of the policy.");
+    }
 }

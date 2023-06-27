@@ -4,6 +4,8 @@
 #include "UpdateSettings.h"
 #include "WeekDayAndTimeForDelay.h"
 
+#include "Common/XmlUtilities/AttributesMap.h"
+
 #include <chrono>
 #include <string>
 #include <vector>
@@ -54,6 +56,9 @@ namespace Common::Policy
 
     private:
         std::vector<UpdateCache> sortUpdateCaches(const std::vector<UpdateCache>& caches);
+
+        void extractSDDS2SophosUrls(const Common::XmlUtilities::Attributes& primaryLocation);
+        void extractCloudSubscriptions(const Common::XmlUtilities::AttributesMap& attributesMap);
 
         std::string revID_;
         std::string sdds_id_;

@@ -461,3 +461,75 @@ TEST_F(TestALCPolicy, configureUpdatePeriod)
     auto updatePeriod = obj.getUpdatePeriod();
     EXPECT_EQ(updatePeriod, std::chrono::minutes{50});
 }
+
+TEST_F(TestALCPolicy, sdds2_update_server)
+{
+    constexpr char minPolicy[] = R"sophos(<?xml version="1.0"?>
+<AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
+  <csc:Comp RevID="b6a8fe2c0ce016c949016a5da2b7a089699271290ef7205d5bea0986768485d9" policyType="1"/>
+<AUConfig platform="Linux">
+<primary_location>
+  <server Algorithm="Clear" UserPassword="xxxxxx" UserName="W2YJXI6FED" ConnectionAddress="http://dci.sophosupd.com/cloudupdate"/>
+</primary_location>
+<schedule AllowLocalConfig="false" SchedEnable="true" Frequency="50" DetectDialUp="false"/>
+</AUConfig>
+</AUConfigurations>
+)sophos";
+
+    ALCPolicy obj{ minPolicy };
+    auto settings = obj.getUpdateSettings();
+    auto urls = settings.getSophosLocationURLs();
+    ASSERT_EQ(urls.size(), 3);
+    EXPECT_EQ(urls[0], "http://dci.sophosupd.com/cloudupdate");
+    EXPECT_EQ(urls[1], "http://dci.sophosupd.com/update");
+    EXPECT_EQ(urls[2], "http://dci.sophosupd.net/update");
+}
+
+TEST_F(TestALCPolicy, cloud_subscriptions)
+{
+    constexpr char minPolicy[] = R"sophos(<?xml version="1.0"?>
+<AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
+  <csc:Comp RevID="b6a8fe2c0ce016c949016a5da2b7a089699271290ef7205d5bea0986768485d9" policyType="1"/>
+<AUConfig platform="Linux">
+    <primary_location>
+      <server Algorithm="Clear" UserPassword="xxxxxx" UserName="W2YJXI6FED"/>
+    </primary_location>
+    <schedule AllowLocalConfig="false" SchedEnable="true" Frequency="50" DetectDialUp="false"/>
+    <cloud_subscription RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED" BaseVersion="10"/>
+    <cloud_subscriptions>
+      <subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED" BaseVersion="10" FixedVersion="11"/>
+      <subscription Id="Base" RigidName="ServerProtectionLinux-Base9" Tag="RECOMMENDED" BaseVersion="9" FixedVersion="8"/>
+    </cloud_subscriptions>
+</AUConfig>
+</AUConfigurations>
+)sophos";
+
+    ALCPolicy obj{ minPolicy };
+
+    {
+        auto all_subs = obj.getSubscriptions();
+        ASSERT_EQ(all_subs.size(), 2);
+        EXPECT_EQ(all_subs[0].rigidName(), "ServerProtectionLinux-Base");
+        EXPECT_EQ(all_subs[0].fixedVersion(), "11");
+        EXPECT_EQ(all_subs[0].tag(), "RECOMMENDED");
+        EXPECT_EQ(all_subs[0].baseVersion(), "10");
+
+        EXPECT_EQ(all_subs[1].rigidName(), "ServerProtectionLinux-Base9");
+        EXPECT_EQ(all_subs[1].fixedVersion(), "8");
+        EXPECT_EQ(all_subs[1].tag(), "RECOMMENDED");
+        EXPECT_EQ(all_subs[1].baseVersion(), "9");
+    }
+    auto settings = obj.getUpdateSettings();
+    auto subs = settings.getProductsSubscription();
+    ASSERT_EQ(subs.size(), 1);
+    EXPECT_EQ(subs[0].rigidName(), "ServerProtectionLinux-Base9");
+    EXPECT_EQ(subs[0].fixedVersion(), "8");
+    EXPECT_EQ(subs[0].tag(), "RECOMMENDED");
+    EXPECT_EQ(subs[0].baseVersion(), "9");
+
+    auto primary = settings.getPrimarySubscription();
+    EXPECT_EQ(primary.rigidName(), "ServerProtectionLinux-Base");
+    EXPECT_EQ(primary.fixedVersion(), "11");
+    EXPECT_EQ(primary.tag(), "RECOMMENDED");
+    EXPECT_EQ(primary.baseVersion(), "10");
+}
