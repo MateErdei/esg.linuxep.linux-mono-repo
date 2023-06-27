@@ -1,4 +1,5 @@
 import datetime
+import logging
 import os
 import socket
 import subprocess
@@ -36,21 +37,33 @@ def get_epoch_time_from_journal_entry(journal_line):
 def add_annotation(tag, start_time, text, end_time=None):
     hostname = socket.gethostname()
 
+    headers = get_grafana_auth()
+    r = requests.get(f"https://sspl-alex-1.eng.sophos:3000/api/annotations?tags={hostname}&tags={tag}", headers=headers,
+                     verify=False)
+    for i in r.json():
+        # prevent duplicate annotations being created
+        if i["time"] == start_time and i["text"] == text:
+            logging.debug(f"Not sending duplicate annotation (id={i['id']}) at {start_time}: {text}")
+            return 0
+
     annotation_json = {
         "time": start_time,
         "timeEnd": end_time if end_time else start_time,
+
         "tags": [hostname, tag],
         "text": text
     }
 
-    r = requests.post('https://sspl-alex-1.eng.sophos:3000/api/annotations', headers=get_grafana_auth(),
-                      json=annotation_json, verify=False)
+    r = requests.post('https://sspl-alex-1.eng.sophos:3000/api/annotations',
+                      headers=headers,
+                      json=annotation_json,
+                      verify=False)
     if r.status_code not in [200, 201]:
-        print(f"Failed to store test result: {str(annotation_json)}")
-        print(f"Status code: {r.status_code}, text: {r.text}")
+        logging.error(f"Failed to store test result: {str(annotation_json)}")
+        logging.error(f"Status code: {r.status_code}, text: {r.text}")
         return 1
     else:
-        print(f"Annotation Content: {annotation_json}")
+        logging.info(f"Annotation Content: {annotation_json}")
         return 0
 
 
@@ -134,10 +147,33 @@ def add_osquery_restart_annotations():
 
 
 def annotate_graphs():
+    requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.InsecureRequestWarning)
     annotation_failures = 0
-    annotation_failures += add_product_update_annotations() + \
-                           add_scheduled_scan_annotations() + \
-                           add_osquery_restart_annotations()
+    annotation_failures += add_product_update_annotations() + add_scheduled_scan_annotations() + add_osquery_restart_annotations()
 
     if annotation_failures != 0:
         exit(1)
+
+
+def delete_annotations(dry_run):
+    headers = get_grafana_auth()
+
+    two_weeks_ago = datetime.datetime.now() - datetime.timedelta(weeks=2)
+    time_to_delete = int(two_weeks_ago.timestamp() * 1000)
+
+    r = requests.get(
+        f"https://sspl-alex-1.eng.sophos:3000/api/annotations?to={time_to_delete}&tags={socket.gethostname()}&limit=10000",
+        headers=headers,
+        verify=False
+    )
+
+    if dry_run:
+        logging.info("DRY RUN: Would delete the following annotations")
+        logging.info(r.json())
+        return
+
+    for i in r.json():
+        res = requests.delete(f'https://sspl-alex-1.eng.sophos:3000/api/annotations/{i["id"]}', headers=headers,
+                              verify=False)
+        if res.status_code not in [200, 201]:
+            logging.error(f"Failed to delete annotation: {r.text}")
