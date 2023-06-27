@@ -492,15 +492,8 @@ On Access Logs When A File Is Closed Following Write After Being Disabled
 
 
 On Access Process Handles Consecutive Process Control Requests
-    ${av_mark} =  get_av_log_mark
-    send av policy from file  FLAGS  ${RESOURCES_PATH}/flags_policy/flags_onaccess_enabled.json
-    send av policy from file  CORE   ${RESOURCES_PATH}/core_policy/CORE-36_oa_enabled.xml
-
-    wait_for_log_contains_from_mark  ${av_mark}  Processing On Access Scanning settings from CORE policy  timeout=${5}
     Wait for OA Scanning enabled in status file
     Sleep  ${1}
-
-    dump_av_log_after_mark  ${av_mark}
 
     ${mark} =  get_on_access_log_mark
     send av policy from file  CORE   ${RESOURCES_PATH}/core_policy/CORE-36_oa_disabled.xml
