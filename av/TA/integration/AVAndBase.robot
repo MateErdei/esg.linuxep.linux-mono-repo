@@ -242,9 +242,10 @@ AV plugin fails scan now if no policy
 AV plugin SAV Status contains revision ID of policy
     Register Cleanup    Exclude Invalid Day From Policy
     ${version} =  Get Version Number From Ini File  ${COMPONENT_ROOT_PATH}/VERSION.ini
-    Send Sav Policy With No Scheduled Scans
+    ${revId} =    Set Variable    ac9eaa2f09914ce947cfb14f1326b802ef0b9a86eca7f6c77557564e36dbff9a
+    Send Sav Policy With No Scheduled Scans    revId=${revId}
     Wait Until SAV Status XML Contains  Res="Same"  timeout=60
-    SAV Status XML Contains  RevID="ac9eaa2f09914ce947cfb14f1326b802ef0b9a86eca7f6c77557564e36dbff9a"
+    SAV Status XML Contains  RevID="${revId}"
     SAV Status XML Contains  <product-version>${version}</product-version>
 
 AV plugin sends Scan Complete event and (fake) Report To Central

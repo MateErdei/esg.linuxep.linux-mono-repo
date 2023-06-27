@@ -34,7 +34,7 @@ def create_sav_policy_with_scheduled_scan(filename, timestamp):
 
 
 def create_sav_policy_with_no_scheduled_scan(filename, exclusion_list=["*.glob", "globExample?.txt", "/stemexample/*"],
-                                             on_access_enabled=False):
+                                             on_access_enabled=False, revId=None):
     sav_policy_builder = _SavPolicyBuilder(os.path.join(RESOURCES_DIR, "SAV_Policy_No_Scans.xml"), filename)
     if on_access_enabled:
         sav_policy_builder.set_on_access_on()
@@ -42,7 +42,10 @@ def create_sav_policy_with_no_scheduled_scan(filename, exclusion_list=["*.glob",
     sav_policy_builder.set_sophos_defined_extension_exclusions(["exclusion1", "exclusion2", "exclusion3"])
     sav_policy_builder.set_user_defined_extension_exclusions(["exclusion1", "exclusion2", "exclusion3", "exclusion4"])
     sav_policy_builder.set_pua_detection("true")
-    sav_policy_builder.set_revision_id(str(uuid.uuid4()))
+    if revId:
+        sav_policy_builder.set_revision_id(revId)
+    else:
+        sav_policy_builder.set_revision_id(str(uuid.uuid4()))
     sav_policy_builder.send_sav_policy()
 
 
