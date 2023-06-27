@@ -329,18 +329,7 @@ namespace Plugin
                     }
                     case Task::TaskType::POLICY:
                         LOGDEBUG("Process task POLICY: " << task.m_appId);
-                        if (task.m_appId == "FLAGS")
-                        {
-                            processFlags(task.m_content, false);
-                        }
-                        else if (task.m_appId == "LiveQuery")
-                        {
-                            processLiveQueryPolicy(task.m_content, false);
-                        }
-                        else
-                        {
-                            LOGWARN("Received " << task.m_appId << " policy unexpectedly");
-                        }
+                        processPolicy(task.m_content, task.m_appId);
                         break;
                     case Task::TaskType::QUERY:
                         LOGDEBUG("Process task QUERY");
@@ -555,6 +544,42 @@ namespace Plugin
     void PluginAdapter::processQuery(const std::string& queryJson, const std::string& correlationId)
     {
         m_parallelQueryProcessor.addJob(queryJson, correlationId);
+    }
+
+    void PluginAdapter::processPolicy(const std::string& policyXml, const std::string& appId)
+    {
+        try
+        {
+            if (m_currentPolicies.at(appId) == policyXml)
+            {
+                LOGDEBUG("Policy with app id " << appId << " unchanged, will not be processed");
+                return;
+            }
+        }
+        catch (const std::out_of_range&)
+        {
+            LOGDEBUG("Recieved first policy with app id " << appId);
+        }
+
+        if (policyXml.empty())
+        {
+            LOGERROR("Received empty policy for " << appId);
+            return;
+        }
+
+        m_currentPolicies.insert_or_assign(appId, policyXml);
+        if (appId == "FLAGS")
+        {
+            processFlags(policyXml, false);
+        }
+        else if (appId == "LiveQuery")
+        {
+            processLiveQueryPolicy(policyXml, false);
+        }
+        else
+        {
+            LOGWARN("Received " << appId << " policy unexpectedly");
+        }
     }
 
     void PluginAdapter::processFlags(const std::string& flagsContent, bool firstTime)

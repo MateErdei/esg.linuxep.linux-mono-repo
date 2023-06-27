@@ -128,6 +128,7 @@ namespace Plugin
 
 
         void processQuery(const std::string& query, const std::string& correlationId);
+        void processPolicy(const std::string& policyXml, const std::string& appId);
 
         // setUpOsqueryMonitor sets up a process monitor with IOsqueryProcess, should only be called on EDR start up
         // and during restart, we should not call setUpOsqueryMonitor anywhere else to restart osquery.
@@ -147,6 +148,7 @@ namespace Plugin
         bool m_collectAuditEnabled = false;
         bool m_restartNoDelay = false;
         bool m_expectedOsqueryRestart = false;
+        std::map<std::string, std::string> m_currentPolicies {};
 
         std::map<std::string, std::pair<std::shared_ptr<IServiceExtension>, std::shared_ptr<std::atomic_bool>>>
             m_extensionAndStateMap;
