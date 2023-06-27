@@ -3,6 +3,7 @@
 
 #include "UpdateSettings.h"
 
+#include <chrono>
 #include <string>
 #include <vector>
 
@@ -29,7 +30,7 @@ namespace Common::Policy
     {
     public:
         explicit ALCPolicy(const std::string& xmlPolicy);
-        UpdateSettings getUpdateSettings() const
+        [[nodiscard]] UpdateSettings getUpdateSettings() const
         {
             return updateSettings_;
         }
@@ -37,9 +38,9 @@ namespace Common::Policy
         [[nodiscard]] std::string getSddsID() const { return sdds_id_; }
         [[nodiscard]] std::vector<ProductSubscription> getSubscriptions() const { return subscriptions_; }
 
-        int getUpdatePeriodMinutes() const
+        [[nodiscard]] std::chrono::minutes getUpdatePeriod() const
         {
-            return updatePeriodMinutes_;
+            return std::chrono::minutes{updatePeriodMinutes_};
         }
 
     private:
@@ -49,6 +50,6 @@ namespace Common::Policy
         std::vector<UpdateCache> sortUpdateCaches(const std::vector<UpdateCache>& caches);
         std::vector<UpdateCache> updateCaches_;
         UpdateSettings updateSettings_;
-        int updatePeriodMinutes_;
+        int updatePeriodMinutes_ = 60;
     };
 }

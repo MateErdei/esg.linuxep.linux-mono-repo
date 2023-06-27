@@ -439,4 +439,6 @@ TEST_F(TestALCPolicy, minimumValidPolicy)
 
     ALCPolicy obj{ minPolicy };
     auto settings = obj.getUpdateSettings();
+    auto updatePeriod = obj.getUpdatePeriod();
+    EXPECT_EQ(updatePeriod, std::chrono::minutes{60});
 }
