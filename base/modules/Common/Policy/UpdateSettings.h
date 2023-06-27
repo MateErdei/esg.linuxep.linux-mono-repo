@@ -132,6 +132,10 @@ namespace Common::Policy
         {
             useSlowSupplements_ = useSlowSupplements;
         }
+        [[nodiscard]] bool getUseSlowSupplements() const
+        {
+            return useSlowSupplements_;
+        }
 
         void setCredentials(const Credentials& creds)
         {

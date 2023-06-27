@@ -748,31 +748,6 @@ TEST_F(TestUpdatePolicyTranslator, TelemetryWithFixedVersionCallSerialiseAndRese
     EXPECT_EQ(telemetry2, expectedTelemetry);
 }
 
-TEST_F(TestUpdatePolicyTranslator, TelemetryAndUpdatePolicyAreSafeToBeAcquiredConcurrently)
-{
-    UpdatePolicyTranslator translator;
-    (void)translator.translatePolicy(mdrSSPLBasePolicy);
-    Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
-    auto thread1 = std::async(std::launch::async, []() {
-        for (int i = 0; i < 1000; i++)
-        {
-            std::string expectedTelemetry{
-                R"sophos({"subscriptions-ServerProtectionLinux-Base":"RECOMMENDED","subscriptions-ServerProtectionLinux-Plugin-MDR":"RECOMMENDED","warehouse":{"sddsid":"CSP190408113225"}})sophos"
-            };
-            std::string telemetry = Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
-            EXPECT_EQ(telemetry, expectedTelemetry) << "Iteration: " << i;
-        }
-    });
-    auto thread2 = std::async(std::launch::async, [&translator]() {
-        for (int i = 0; i < 10; i++)
-        {
-            (void)translator.translatePolicy(mdrSSPLBasePolicy);
-        }
-    });
-    thread1.get();
-    thread2.get();
-}
-
 TEST_F(TestUpdatePolicyTranslator, ParseIncorrectUpdatePolicyType)
 {
     auto* mockFileSystem = new StrictMock<MockFileSystem>();
@@ -1210,4 +1185,30 @@ TEST_F(TestUpdatePolicyTranslator, ParsePolicyWithNormalSupplements)
     auto config = settingsHolder.configurationData;
 
     EXPECT_FALSE(config.getUseSlowSupplements());
+}
+
+
+TEST_F(TestUpdatePolicyTranslator, TelemetryAndUpdatePolicyAreSafeToBeAcquiredConcurrently)
+{
+    UpdatePolicyTranslator translator;
+    std::ignore = translator.translatePolicy(mdrSSPLBasePolicy);
+    Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
+    auto thread1 = std::async(std::launch::async, []() {
+          const std::string expectedTelemetry{
+              R"sophos({"subscriptions-ServerProtectionLinux-Base":"RECOMMENDED","subscriptions-ServerProtectionLinux-Plugin-MDR":"RECOMMENDED","warehouse":{"sddsid":"CSP190408113225"}})sophos"
+          };
+          for (int i = 0; i < 1000; i++)
+          {
+              std::string telemetry = Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
+              EXPECT_EQ(telemetry, expectedTelemetry) << "Iteration: " << i;
+          }
+      });
+    auto thread2 = std::async(std::launch::async, [&translator]() {
+          for (int i = 0; i < 10; i++)
+          {
+              std::ignore = translator.translatePolicy(mdrSSPLBasePolicy);
+          }
+      });
+    thread1.get();
+    thread2.get();
 }

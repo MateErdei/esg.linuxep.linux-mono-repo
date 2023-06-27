@@ -48,11 +48,12 @@ namespace Common::Threads
     class LockableData
     {
     public:
+        using lock_t = LockedData<LockableData>;
         LockableData() = default;
         explicit LockableData(Data initialValue)
             : m_data(std::move(initialValue))
         {}
-        LockedData<LockableData> lock() { return LockedData(this); }
+        lock_t lock() { return LockedData(this); }
 
     private:
         friend struct LockedData<LockableData>;

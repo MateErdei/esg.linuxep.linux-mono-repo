@@ -8,6 +8,7 @@
 #include "Common/Exceptions/IException.h"
 #include "Common/Policy/ALCPolicy.h"
 #include "Common/TelemetryHelperImpl/TelemetryHelper.h"
+#include "Common/Threads/LockableData.h"
 
 #include <chrono>
 #include <memory>
@@ -17,17 +18,33 @@ namespace UpdateSchedulerImpl
     class UpdatePolicyTelemetry
     {
     public:
-        void updateSubscriptions(std::vector<Common::Policy::ProductSubscription> subscriptions);
+        using SubscriptionVector = std::vector<Common::Policy::ProductSubscription>;
+        /**
+         * Called while parsing a policy to update current product subscriptions
+         * @param subscriptions
+         */
+        void updateSubscriptions(SubscriptionVector subscriptions);
+        /**
+         * Called while parsing a policy to update SDDS-ID
+         */
         void setSDDSid(const std::string & );
+        /**
+         *  Called while parsing a policy, after above setting methods to update telemetry
+         */
         void resetTelemetry(Common::Telemetry::TelemetryHelper& );
+        /**
+         * Called by resetTelemetry
+         * and after generating telemetry - by reset callback
+         */
         void setSubscriptions(Common::Telemetry::TelemetryHelper& );
     private:
         struct WarehouseTelemetry
         {
-            std::vector<Common::Policy::ProductSubscription> m_subscriptions;
+            using locked_subscription_vector_t = Common::Threads::LockableData<SubscriptionVector>;
+            locked_subscription_vector_t m_subscriptions;
             std::string m_sddsid;
         };
-        WarehouseTelemetry warehouseTelemetry;
+        WarehouseTelemetry warehouseTelemetry_;
     };
 
 

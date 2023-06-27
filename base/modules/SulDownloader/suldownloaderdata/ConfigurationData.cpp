@@ -100,6 +100,7 @@ ConfigurationData::ConfigurationData(const Common::Policy::UpdateSettings& setti
     setLocalUpdateCacheHosts(settings.getLocalUpdateCacheHosts());
     setPrimarySubscription(settings.getPrimarySubscription());
     setProductsSubscription(settings.getProductsSubscription());
+    setUseSlowSupplements(settings.getUseSlowSupplements());
     setFeatures(settings.getFeatures());
     setPolicyProxy(settings.getPolicyProxy());
 }

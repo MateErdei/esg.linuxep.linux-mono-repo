@@ -374,13 +374,13 @@ namespace UpdateSchedulerImpl
 
     void UpdatePolicyTelemetry::setSDDSid(const std::string& sdds)
     {
-        warehouseTelemetry.m_sddsid = sdds;
+        warehouseTelemetry_.m_sddsid = sdds;
     }
 
     void UpdatePolicyTelemetry::resetTelemetry(Common::Telemetry::TelemetryHelper& telemetryToSet)
     {
         Common::Telemetry::TelemetryObject updateTelemetry;
-        Common::Telemetry::TelemetryValue ssd(warehouseTelemetry.m_sddsid);
+        Common::Telemetry::TelemetryValue ssd(warehouseTelemetry_.m_sddsid);
         updateTelemetry.set("sddsid", ssd);
         telemetryToSet.set("warehouse", updateTelemetry, true);
 
@@ -390,23 +390,29 @@ namespace UpdateSchedulerImpl
 
     void UpdatePolicyTelemetry::setSubscriptions(Common::Telemetry::TelemetryHelper& telemetryToSet)
     {
-        for (auto& subscription : warehouseTelemetry.m_subscriptions)
+        SubscriptionVector subs;
         {
+            auto locked = warehouseTelemetry_.m_subscriptions.lock();
+            subs = *locked;
+        }
+        for (const auto& subscription : subs)
+        {
+            std::string key = "subscriptions-";
+            key += subscription.rigidName();
+
+            std::string value = subscription.fixedVersion();
             if (subscription.fixedVersion().empty())
             {
-                telemetryToSet.set("subscriptions-"+subscription.rigidName(), subscription.tag());
+                value = subscription.tag();
             }
-            else
-            {
-                telemetryToSet.set("subscriptions-"+subscription.rigidName(), subscription.fixedVersion());
-            }
+            telemetryToSet.set(key, value);
         }
     }
 
-
-    void UpdatePolicyTelemetry::updateSubscriptions(std::vector<Common::Policy::ProductSubscription> subscriptions)
+    void UpdatePolicyTelemetry::updateSubscriptions(SubscriptionVector subscriptions)
     {
-        warehouseTelemetry.m_subscriptions = std::move(subscriptions);
+        auto locked = warehouseTelemetry_.m_subscriptions.lock();
+        locked->swap(subscriptions);
     }
 
 
