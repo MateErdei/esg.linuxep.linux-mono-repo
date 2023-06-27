@@ -9,6 +9,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <Common/FileSystem/IFileSystemException.h>
 #include <Common/TelemetryHelperImpl/TelemetryHelper.h>
 #include <Common/Helpers/FileSystemReplaceAndRestore.h>
+#include <Common/Helpers/MemoryAppender.h>
 #include <Common/Helpers/MockFileSystem.h>
 #include <Common/Helpers/MockFilePermissions.h>
 #include <Common/Helpers/MockApiBaseServices.h>
@@ -20,7 +21,6 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 #include <pluginimpl/ApplicationPaths.h>
 #include <pluginimpl/PluginAdapter.h>
 #include <pluginimpl/LiveQueryPolicyParser.h>
-#include <tests/common/MemoryAppender.h>
 
 #include <gmock/gmock-matchers.h>
 #include <gtest/gtest.h>
