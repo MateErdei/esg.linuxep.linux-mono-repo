@@ -134,153 +134,15 @@ ALCPolicy::ALCPolicy(const std::string& xmlPolicy)
 
     // sdds_id comes from SDDS2 user
     auto primaryLocation = attributesMap.lookup("AUConfigurations/AUConfig/primary_location/server");
+
     extractSDDS2SophosUrls(primaryLocation);
-
-    std::string user{ primaryLocation.value("UserName") };
-    std::string pass{ primaryLocation.value("UserPassword") };
-    std::string algorithm{ primaryLocation.value("Algorithm") };
-    bool requireObfuscation = true;
-
-    // we check that username and password are not empty mainly for fuzzing purposes as in
-    // product we never expect central to send us a policy with empty credentials
-    if (user.empty())
-    {
-        throw PolicyParseException(LOCATION, "Invalid policy: Username is empty");
-    }
-    if (pass.empty())
-    {
-        throw PolicyParseException(LOCATION, "Invalid policy: Password is empty");
-    }
-
-    if (algorithm == "AES256")
-    {
-        pass = Common::ObfuscationImpl::SECDeobfuscate(pass);
-    }
-    else if (user.size() == 32 && user == pass)
-    {
-        requireObfuscation = false;
-    }
-
-    if (requireObfuscation)
-    {
-        std::string obfuscated = calculateSulObfuscated(user, pass);
-        updateSettings_.setCredentials(Credentials{ obfuscated, obfuscated });
-    }
-    else
-    {
-        updateSettings_.setCredentials(Credentials{ user, pass });
-    }
-
-    sdds_id_ = user;
-
-    // Update Caches
-    auto updateCacheEntities =
-        attributesMap.entitiesThatContainPath("AUConfigurations/update_cache/locations/location");
-
-    std::vector<UpdateCache> updateCaches;
-    std::string certificateFileContent;
-    if (!updateCacheEntities.empty())
-    {
-        for (auto& updateCache : updateCacheEntities)
-        {
-            auto attributes = attributesMap.lookup(updateCache);
-            std::string hostname = attributes.value("hostname");
-            std::string priority = attributes.value("priority");
-            std::string id = attributes.value("id");
-            updateCaches.emplace_back(UpdateCache{ hostname, priority, id });
-        }
-
-        updateCaches_ = sortUpdateCaches(updateCaches);
-        std::vector<std::string> updateCacheHosts;
-        updateCacheHosts.reserve(updateCaches_.size());
-        for (auto& cache : updateCaches_)
-        {
-            updateCacheHosts.emplace_back(cache.hostname);
-        }
-
-        updateSettings_.setLocalUpdateCacheHosts(updateCacheHosts);
-
-        auto cacheCertificates = attributesMap.entitiesThatContainPath(
-            "AUConfigurations/update_cache/intermediate_certificates/intermediate_certificate");
-
-        for (auto& certificate : cacheCertificates)
-        {
-            auto attributes = attributesMap.lookup(certificate);
-            // Remove line endings from certificate
-            if (!certificateFileContent.empty())
-            {
-                certificateFileContent += "\n";
-            }
-            certificateFileContent +=
-                Common::UtilityImpl::StringUtils::replaceAll(attributes.contents(), "&#13;", "");
-        }
-        update_certificates_content_ = certificateFileContent;
-    }
-
-    auto delayUpdating = attributesMap.lookup("AUConfigurations/AUConfig/delay_updating");
-    std::string delayUpdatingDay = delayUpdating.value("Day");
-    std::string delayUpdatingTime = delayUpdating.value("Time");
-
-    if (!delayUpdatingDay.empty() && !delayUpdatingTime.empty())
-    {
-        std::string delayUpdatingDayAndTime = delayUpdatingDay + "," + delayUpdatingTime;
-        std::tm scheduledUpdateTime{};
-        if (strptime(delayUpdatingDayAndTime.c_str(), "%a,%H:%M:%S", &scheduledUpdateTime))
-        {
-            weeklySchedule_ = {
-                .enabled = true,
-                .weekDay = scheduledUpdateTime.tm_wday,
-                .hour = scheduledUpdateTime.tm_hour,
-                .minute = scheduledUpdateTime.tm_min };
-        }
-        else
-        {
-            LOGERROR("Could not parse update schedule from policy, leaving update schedule as default");
-        }
-    }
-
-    auto primaryProxy = attributesMap.lookup("AUConfigurations/AUConfig/primary_location/proxy");
-    std::string proxyAddress = primaryProxy.value("ProxyAddress");
-    if (!proxyAddress.empty())
-    {
-        std::string proxyPort = primaryProxy.value("ProxyPortNumber");
-        std::string proxyUser = primaryProxy.value("ProxyUserName");
-        std::string proxyPassword = primaryProxy.value("ProxyUserPassword");
-        std::string proxyType = primaryProxy.value("ProxyType");
-        if (!proxyPort.empty())
-        {
-            proxyAddress += ":" + proxyPort;
-        }
-
-        updateSettings_.setPolicyProxy(Proxy{
-            proxyAddress,
-            ProxyCredentials{ proxyUser, proxyPassword, proxyType } });
-    }
-
+    extractAndSetCredentials(primaryLocation);
+    extractUpdateCaches(attributesMap);
+    extractUpdateSchedule(attributesMap);
+    extractProxyDetails(attributesMap);
     extractCloudSubscriptions(attributesMap);
-
-    std::vector<std::string> allFeatures;
-    bool includesCore = false;
-    for (const auto& featureDetails : attributesMap.lookupMultiple("AUConfigurations/Features/Feature"))
-    {
-        std::string featureName = featureDetails.value("id");
-        if (featureName.empty())
-        {
-            continue;
-        }
-        if (featureName == "CORE")
-        {
-            includesCore = true;
-        }
-        allFeatures.emplace_back(featureName);
-    }
-
-    if (!includesCore)
-    {
-        LOGERROR("CORE not in the features of the policy.");
-    }
-
-    updateSettings_.setFeatures(allFeatures);
+    extractPeriod(attributesMap);
+    extractFeatures(attributesMap);
 
     updateSettings_.setInstallArguments({ "--instdir", Common::ApplicationConfiguration::applicationPathManager().sophosInstall() });
 
@@ -293,18 +155,6 @@ ALCPolicy::ALCPolicy(const std::string& xmlPolicy)
     // Slow supplements - no longer available - SDDS2 feature
     auto delay_supplements = attributesMap.lookup("AUConfigurations/AUConfig/delay_supplements");
     updateSettings_.setUseSlowSupplements(get_attr_bool(delay_supplements.value("enabled", "false")));
-
-    std::string period = attributesMap.lookup("AUConfigurations/AUConfig/schedule").value("Frequency");
-    int periodInt = 60;
-    if (!period.empty())
-    {
-        std::pair<int, std::string> value = Common::UtilityImpl::StringUtils::stringToInt(period);
-        if (value.second.empty())
-        {
-            periodInt = value.first;
-        }
-    }
-    updatePeriodMinutes_ = periodInt;
 }
 
 
@@ -391,6 +241,166 @@ void ALCPolicy::extractSDDS2SophosUrls(const Common::XmlUtilities::Attributes& p
     updateSettings_.setSophosLocationURLs(sophosUpdateLocations);
 }
 
+void ALCPolicy::extractAndSetCredentials(const Common::XmlUtilities::Attributes& primaryLocation)
+{
+    std::string user{ primaryLocation.value("UserName") };
+    std::string pass{ primaryLocation.value("UserPassword") };
+    std::string algorithm{ primaryLocation.value("Algorithm") };
+    bool requireObfuscation = true;
+
+    // we check that username and password are not empty mainly for fuzzing purposes as in
+    // product we never expect central to send us a policy with empty credentials
+    if (user.empty())
+    {
+        throw PolicyParseException(LOCATION, "Invalid policy: Username is empty");
+    }
+    if (pass.empty())
+    {
+        throw PolicyParseException(LOCATION, "Invalid policy: Password is empty");
+    }
+
+    if (algorithm == "AES256")
+    {
+        pass = Common::ObfuscationImpl::SECDeobfuscate(pass);
+    }
+    else if (user.size() == 32 && user == pass)
+    {
+        requireObfuscation = false;
+    }
+
+    if (requireObfuscation)
+    {
+        std::string obfuscated = calculateSulObfuscated(user, pass);
+        updateSettings_.setCredentials(Credentials{ obfuscated, obfuscated });
+    }
+    else
+    {
+        updateSettings_.setCredentials(Credentials{ user, pass });
+    }
+
+    sdds_id_ = user;
+}
+
+void ALCPolicy::extractUpdateCaches(const Common::XmlUtilities::AttributesMap& attributesMap)
+{
+    // Update Caches
+    auto updateCacheEntities =
+        attributesMap.entitiesThatContainPath("AUConfigurations/update_cache/locations/location");
+
+    std::vector<UpdateCache> updateCaches;
+    std::string certificateFileContent;
+    if (!updateCacheEntities.empty())
+    {
+        for (auto& updateCache : updateCacheEntities)
+        {
+            auto attributes = attributesMap.lookup(updateCache);
+            std::string hostname = attributes.value("hostname");
+            std::string priority = attributes.value("priority");
+            std::string id = attributes.value("id");
+            updateCaches.emplace_back(UpdateCache{ hostname, priority, id });
+        }
+
+        updateCaches_ = sortUpdateCaches(updateCaches);
+        std::vector<std::string> updateCacheHosts;
+        updateCacheHosts.reserve(updateCaches_.size());
+        for (auto& cache : updateCaches_)
+        {
+            updateCacheHosts.emplace_back(cache.hostname);
+        }
+
+        updateSettings_.setLocalUpdateCacheHosts(updateCacheHosts);
+
+        auto cacheCertificates = attributesMap.entitiesThatContainPath(
+            "AUConfigurations/update_cache/intermediate_certificates/intermediate_certificate");
+
+        for (auto& certificate : cacheCertificates)
+        {
+            auto attributes = attributesMap.lookup(certificate);
+            // Remove line endings from certificate
+            if (!certificateFileContent.empty())
+            {
+                certificateFileContent += "\n";
+            }
+            certificateFileContent +=
+                Common::UtilityImpl::StringUtils::replaceAll(attributes.contents(), "&#13;", "");
+        }
+        update_certificates_content_ = certificateFileContent;
+    }
+
+}
+
+void ALCPolicy::extractUpdateSchedule(const Common::XmlUtilities::AttributesMap& attributesMap)
+{
+    auto delayUpdating = attributesMap.lookup("AUConfigurations/AUConfig/delay_updating");
+    std::string delayUpdatingDay = delayUpdating.value("Day");
+    std::string delayUpdatingTime = delayUpdating.value("Time");
+
+    if (!delayUpdatingDay.empty() && !delayUpdatingTime.empty())
+    {
+        std::string delayUpdatingDayAndTime = delayUpdatingDay + "," + delayUpdatingTime;
+        std::tm scheduledUpdateTime{};
+        if (strptime(delayUpdatingDayAndTime.c_str(), "%a,%H:%M:%S", &scheduledUpdateTime))
+        {
+            weeklySchedule_ = {
+                .enabled = true,
+                .weekDay = scheduledUpdateTime.tm_wday,
+                .hour = scheduledUpdateTime.tm_hour,
+                .minute = scheduledUpdateTime.tm_min };
+        }
+        else
+        {
+            LOGERROR("Could not parse update schedule from policy, leaving update schedule as default");
+        }
+    }
+}
+
+void ALCPolicy::extractProxyDetails(const Common::XmlUtilities::AttributesMap& attributesMap)
+{
+    auto primaryProxy = attributesMap.lookup("AUConfigurations/AUConfig/primary_location/proxy");
+    std::string proxyAddress = primaryProxy.value("ProxyAddress");
+    if (!proxyAddress.empty())
+    {
+        std::string proxyPort = primaryProxy.value("ProxyPortNumber");
+        std::string proxyUser = primaryProxy.value("ProxyUserName");
+        std::string proxyPassword = primaryProxy.value("ProxyUserPassword");
+        std::string proxyType = primaryProxy.value("ProxyType");
+        if (!proxyPort.empty())
+        {
+            proxyAddress += ":" + proxyPort;
+        }
+
+        updateSettings_.setPolicyProxy(Proxy{
+            proxyAddress,
+            ProxyCredentials{ proxyUser, proxyPassword, proxyType } });
+    }
+}
+
+void ALCPolicy::extractFeatures(const Common::XmlUtilities::AttributesMap& attributesMap)
+{
+    std::vector<std::string> allFeatures;
+    bool includesCore = false;
+    for (const auto& featureDetails : attributesMap.lookupMultiple("AUConfigurations/Features/Feature"))
+    {
+        std::string featureName = featureDetails.value("id");
+        if (featureName.empty())
+        {
+            continue;
+        }
+        if (featureName == "CORE")
+        {
+            includesCore = true;
+        }
+        allFeatures.emplace_back(featureName);
+    }
+
+    if (!includesCore)
+    {
+        LOGERROR("CORE not in the features of the policy.");
+    }
+
+    updateSettings_.setFeatures(std::move(allFeatures));
+}
+
 void ALCPolicy::extractCloudSubscriptions(const Common::XmlUtilities::AttributesMap& attributesMap)
 {
     const std::string FixedVersion{ "FixedVersion" };
@@ -439,4 +449,19 @@ void ALCPolicy::extractCloudSubscriptions(const Common::XmlUtilities::Attributes
             "SSPL base product name : " << SSPLBaseName
                                         << " not in the subscription of the policy.");
     }
+}
+
+void ALCPolicy::extractPeriod(const Common::XmlUtilities::AttributesMap& attributesMap)
+{
+    std::string period = attributesMap.lookup("AUConfigurations/AUConfig/schedule").value("Frequency");
+    int periodInt = 60;
+    if (!period.empty())
+    {
+        std::pair<int, std::string> value = Common::UtilityImpl::StringUtils::stringToInt(period);
+        if (value.second.empty())
+        {
+            periodInt = value.first;
+        }
+    }
+    updatePeriodMinutes_ = periodInt;
 }

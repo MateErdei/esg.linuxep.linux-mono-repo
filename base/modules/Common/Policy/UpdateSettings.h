@@ -78,7 +78,7 @@ namespace Common::Policy
          * EndPoint is meant to have.
          * @param features
          */
-        void setFeatures(const std::vector<std::string>& features)
+        void setFeatures(std::vector<std::string> features)
         {
             features_ = features;
         }

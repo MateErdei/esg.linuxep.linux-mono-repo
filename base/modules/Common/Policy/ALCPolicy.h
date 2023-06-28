@@ -58,7 +58,13 @@ namespace Common::Policy
         std::vector<UpdateCache> sortUpdateCaches(const std::vector<UpdateCache>& caches);
 
         void extractSDDS2SophosUrls(const Common::XmlUtilities::Attributes& primaryLocation);
+        void extractAndSetCredentials(const Common::XmlUtilities::Attributes& primaryLocation);
+        void extractUpdateCaches(const Common::XmlUtilities::AttributesMap& attributesMap);
+        void extractUpdateSchedule(const Common::XmlUtilities::AttributesMap& attributesMap);
+        void extractProxyDetails(const Common::XmlUtilities::AttributesMap& attributesMap);
+        void extractFeatures(const Common::XmlUtilities::AttributesMap& attributesMap);
         void extractCloudSubscriptions(const Common::XmlUtilities::AttributesMap& attributesMap);
+        void extractPeriod(const Common::XmlUtilities::AttributesMap& attributesMap);
 
         std::string revID_;
         std::string sdds_id_;
