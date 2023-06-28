@@ -122,7 +122,8 @@ Send Flags Policy
 Send Sav Policy To Base With Exclusions Filled In
     [Arguments]  ${policyFile}
     ExclusionHelper.Fill In On Demand Posix Exclusions  ${RESOURCES_PATH}/${policyFile}  ${RESOURCES_PATH}/FilledIn.xml
-    Copy File  ${RESOURCES_PATH}/FilledIn.xml  ${MCS_PATH}/policy/SAV-2_policy.xml
+    Give Policy Unique Revision Id    ${RESOURCES_PATH}/FilledIn.xml    FilledInWithRevId.xml
+    Copy File  ${RESOURCES_PATH}/FilledInWithRevId.xml  ${MCS_PATH}/policy/SAV-2_policy.xml
 
 Send Sav Action To Base
     [Arguments]  ${actionFile}

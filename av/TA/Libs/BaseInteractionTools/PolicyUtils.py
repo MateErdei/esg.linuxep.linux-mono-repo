@@ -171,6 +171,12 @@ def create_fixed_sav_policy(filename):
     sav_policy_builder.send_sav_policy()
 
 
+def give_policy_unique_revision_id(inputPolicyPath, outputFilename):
+    sav_policy_builder = _SavPolicyBuilder(inputPolicyPath, outputFilename)
+    sav_policy_builder.set_revision_id(str(uuid.uuid4()))
+    sav_policy_builder.send_sav_policy()
+
+
 class _SavPolicyBuilder:
     def __init__(self, input_path, output_name):
         self.path = input_path
