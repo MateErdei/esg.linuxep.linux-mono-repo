@@ -582,3 +582,77 @@ TEST_F(TestALCPolicy, invalid_credentials_no_password)
     }
 }
 
+TEST_F(TestALCPolicy, credentials_obfuscated)
+{
+    constexpr char minPolicy[] = R"sophos(<?xml version="1.0"?>
+<AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
+  <csc:Comp RevID="b6a8fe2c0ce016c949016a5da2b7a089699271290ef7205d5bea0986768485d9" policyType="1"/>
+<AUConfig platform="Linux">
+    <primary_location>
+      <server Algorithm="Clear" UserPassword="xxxxxx" UserName="W2YJXI6FED"/>
+    </primary_location>
+</AUConfig>
+</AUConfigurations>
+)sophos";
+
+    ALCPolicy obj{ minPolicy };
+
+    {
+        auto sddsid = obj.getSddsID();
+        EXPECT_STREQ(sddsid.c_str(), "W2YJXI6FED");
+    }
+
+    auto credentials = obj.getUpdateSettings().getCredentials();
+    EXPECT_STREQ(credentials.getPassword().c_str(), "c2d584eb505b6a35fbf2dd9740551fe9");
+    EXPECT_STREQ(credentials.getUsername().c_str(), "c2d584eb505b6a35fbf2dd9740551fe9");
+}
+
+TEST_F(TestALCPolicy, credentials_deobfuscated_AES256)
+{
+    constexpr char minPolicy[] = R"sophos(<?xml version="1.0"?>
+<AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
+  <csc:Comp RevID="b6a8fe2c0ce016c949016a5da2b7a089699271290ef7205d5bea0986768485d9" policyType="1"/>
+<AUConfig platform="Linux">
+    <primary_location>
+      <server Algorithm="AES256" UserPassword="CCDN+JdsRVNd+yKFqQhrmdJ856KCCLHLQxEtgwG/tD5myvTrUk/kuALeUDhL4plxGvM=" UserName="W2YJXI6FED"/>
+    </primary_location>
+</AUConfig>
+</AUConfigurations>
+)sophos";
+
+    ALCPolicy obj{ minPolicy };
+
+    {
+        auto sddsid = obj.getSddsID();
+        EXPECT_STREQ(sddsid.c_str(), "W2YJXI6FED");
+    }
+
+    auto credentials = obj.getUpdateSettings().getCredentials();
+    EXPECT_STREQ(credentials.getPassword().c_str(), "6e96171819c61fe07361bc1f798d6b46");
+    EXPECT_STREQ(credentials.getUsername().c_str(), "6e96171819c61fe07361bc1f798d6b46");
+}
+
+TEST_F(TestALCPolicy, credentials_not_deobfuscated)
+{
+    constexpr char minPolicy[] = R"sophos(<?xml version="1.0"?>
+<AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
+  <csc:Comp RevID="b6a8fe2c0ce016c949016a5da2b7a089699271290ef7205d5bea0986768485d9" policyType="1"/>
+<AUConfig platform="Linux">
+    <primary_location>
+      <server Algorithm="Clear" UserPassword="W2YJXI6FEDW2YJXI6FEDW2YJXI6FEDRF" UserName="W2YJXI6FEDW2YJXI6FEDW2YJXI6FEDRF"/>
+    </primary_location>
+</AUConfig>
+</AUConfigurations>
+)sophos";
+
+    ALCPolicy obj{ minPolicy };
+
+    {
+        auto sddsid = obj.getSddsID();
+        EXPECT_STREQ(sddsid.c_str(), "W2YJXI6FEDW2YJXI6FEDW2YJXI6FEDRF");
+    }
+
+    auto credentials = obj.getUpdateSettings().getCredentials();
+    EXPECT_STREQ(credentials.getPassword().c_str(), "W2YJXI6FEDW2YJXI6FEDW2YJXI6FEDRF");
+    EXPECT_STREQ(credentials.getUsername().c_str(), "W2YJXI6FEDW2YJXI6FEDW2YJXI6FEDRF");
+}
