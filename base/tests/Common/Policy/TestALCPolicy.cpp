@@ -390,7 +390,7 @@ namespace
 TEST_F(TestALCPolicy, constructWithEmptyString)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
-    EXPECT_THROW(Common::Policy::ALCPolicy empty{""};, Common::Policy::PolicyParseException);
+    EXPECT_THROW(Common::Policy::ALCPolicy empty{""}, Common::Policy::PolicyParseException);
     EXPECT_TRUE(appenderContains("Failed to parse policy: Error parsing xml: no element found"));
 }
 

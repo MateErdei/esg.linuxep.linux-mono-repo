@@ -5,6 +5,7 @@
 #include "Proxy.h"
 
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace Common::Policy
@@ -80,7 +81,7 @@ namespace Common::Policy
          */
         void setFeatures(std::vector<std::string> features)
         {
-            features_ = features;
+            features_ = std::move(features);
         }
 
         [[nodiscard]] std::vector<std::string> getFeatures() const
