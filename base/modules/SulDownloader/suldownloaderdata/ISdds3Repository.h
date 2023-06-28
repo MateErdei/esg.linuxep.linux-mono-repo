@@ -28,7 +28,7 @@ namespace SulDownloader
             virtual ~ISdds3Repository() = default;
 
             virtual bool synchronize(
-                const suldownloaderdata::ConfigurationData& configurationData,
+                const Common::Policy::UpdateSettings& updateSettings,
                 const suldownloaderdata::ConnectionSetup& connectionSetup,
                 const bool ignoreFailedSupplementRefresh) = 0;
 
@@ -46,7 +46,7 @@ namespace SulDownloader
             virtual bool tryConnect(
                 const suldownloaderdata::ConnectionSetup& connectionSetup,
                 bool supplementOnly,
-                const suldownloaderdata::ConfigurationData& configurationData) = 0;
+                const Common::Policy::UpdateSettings& updateSettings) = 0;
             virtual void setWillInstall(const bool willInstall) = 0;
         };
 

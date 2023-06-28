@@ -6,7 +6,7 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include <SulDownloader/suldownloaderdata/ConfigurationData.h>
+#include "Common/Policy/UpdateSettings.h"
 
 namespace SulDownloader
 {
@@ -20,8 +20,8 @@ namespace SulDownloader
             * either the subscription tag, or the subscription fixedVersion differ from previous configuration,
             * will return false otherwise.
             */
-            static bool checkIfShouldForceUpdate(const ConfigurationData &configurationData,
-                                                 const ConfigurationData &previousConfigurationData);
+            static bool checkIfShouldForceUpdate(const Common::Policy::UpdateSettings& configurationData,
+                                                 const Common::Policy::UpdateSettings &previousConfigurationData);
 
             /**
              * Function will return true If:
@@ -29,8 +29,8 @@ namespace SulDownloader
              * Rigid names or features differ from previous configuration
              * Not all components are listed in the installedproducts directory (with the exception of base)
              */
-            static bool checkIfShouldForceInstallAllProducts(const ConfigurationData& configurationData,
-                                                             const ConfigurationData& previousConfigurationData,
+            static bool checkIfShouldForceInstallAllProducts(const Common::Policy::UpdateSettings& configurationData,
+                                                             const Common::Policy::UpdateSettings& previousConfigurationData,
                                                              bool onlyCompareSubscriptionsAndFeatures = true);
         };
     }

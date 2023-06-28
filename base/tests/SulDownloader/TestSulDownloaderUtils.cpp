@@ -1,6 +1,7 @@
 // Copyright 2023 Sophos Limited. All rights reserved.
 
 #include "modules/SulDownloader/SulDownloaderUtils.h"
+#include "SulDownloader/suldownloaderdata/ConfigurationData.h"
 
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 

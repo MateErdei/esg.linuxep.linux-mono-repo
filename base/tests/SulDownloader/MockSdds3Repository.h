@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2022 Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2022-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
@@ -23,7 +19,7 @@ public:
     MOCK_CONST_METHOD0(hasError, bool(void));
     MOCK_CONST_METHOD0(hasImmediateFailError, bool(void));
     MOCK_CONST_METHOD0(getError, suldownloaderdata::RepositoryError(void));
-    MOCK_METHOD3(synchronize, bool(const suldownloaderdata::ConfigurationData& configurationData,const suldownloaderdata::ConnectionSetup& connectionSetup,const bool ignoreFailedSupplementRefresh));
+    MOCK_METHOD(bool, synchronize, (const Common::Policy::UpdateSettings& updateSettings,const suldownloaderdata::ConnectionSetup& connectionSetup,const bool ignoreFailedSupplementRefresh), (override));
     MOCK_METHOD0(distribute, void(void));
     MOCK_CONST_METHOD0(purge, void(void));
     MOCK_METHOD1(setWillInstall, void(const bool willInstall));
@@ -36,9 +32,9 @@ public:
         listInstalledSubscriptions,
         std::vector<suldownloaderdata::SubscriptionInfo>(void));
 
-    MOCK_METHOD3(tryConnect, bool(
+    MOCK_METHOD(bool, tryConnect, (
         const suldownloaderdata::ConnectionSetup&,
         bool,
-        const suldownloaderdata::ConfigurationData&
-    ));
+        const Common::Policy::UpdateSettings&
+    ), (override));
 };

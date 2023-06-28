@@ -1,17 +1,18 @@
-/******************************************************************************************************
-
-Copyright 2018-2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #include "ConfigurationDataBase.h"
 
-#include <SulDownloader/suldownloaderdata/ConnectionSelector.h>
+#include "SulDownloader/suldownloaderdata/ConfigurationData.h"
+#include "SulDownloader/suldownloaderdata/ConnectionSelector.h"
+
+#include "tests/Common/Helpers/TempDir.h"
+
 #include <gtest/gtest.h>
-#include <tests/Common/Helpers/TempDir.h>
 
 using namespace SulDownloader;
 using namespace SulDownloader::suldownloaderdata;
+
+using namespace Common::Policy;
 
 class ConnectionSelectorTest : public ConfigurationDataBase
 {
@@ -45,7 +46,7 @@ public:
 
     void TearDown() override {}
 
-    ConfigurationData configFromJson(const std::string& oldPartString, const std::string& newPartString)
+    UpdateSettings configFromJson(const std::string& oldPartString, const std::string& newPartString)
     {
         return ConfigurationData::fromJsonSettings(
             ConfigurationDataBase::createJsonString(oldPartString, newPartString));
@@ -179,7 +180,7 @@ TEST_F( // NOLINT
                                 }
                                },)";
 
-    suldownloaderdata::ConfigurationData configurationData =
+    auto configurationData =
         suldownloaderdata::ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
 
     ConnectionSelector selector;
@@ -237,7 +238,7 @@ TEST_F( // NOLINT
                                 }
                                },)";
 
-    suldownloaderdata::ConfigurationData configurationData =
+    auto configurationData =
         suldownloaderdata::ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
 
     ConnectionSelector selector;
@@ -275,7 +276,7 @@ TEST_F( // NOLINT
                                 }
                                },)";
 
-    suldownloaderdata::ConfigurationData configurationData =
+    auto configurationData =
         suldownloaderdata::ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
 
     ConnectionSelector selector;
@@ -314,7 +315,7 @@ TEST_F( // NOLINT
                                 }
                                },)";
 
-    suldownloaderdata::ConfigurationData configurationData =
+    auto configurationData =
         suldownloaderdata::ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
 
     ConnectionSelector selector;
@@ -370,7 +371,7 @@ TEST_F( // NOLINT
                                 }
                                },)";
 
-    suldownloaderdata::ConfigurationData configurationData =
+    auto configurationData =
         suldownloaderdata::ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
 
     ConnectionSelector selector;
@@ -427,7 +428,7 @@ TEST_F( // NOLINT
                                 }
                                },)";
 
-    suldownloaderdata::ConfigurationData configurationData =
+    auto configurationData =
         suldownloaderdata::ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
 
     ConnectionSelector selector;

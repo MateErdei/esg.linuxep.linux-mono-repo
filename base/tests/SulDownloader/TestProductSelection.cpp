@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2018-2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #include "ConfigurationDataBase.h"
 
@@ -266,7 +262,7 @@ SulDownloader::suldownloaderdata::ProductMetadata ProductSelectionTest::createTe
 
 TEST_F(ProductSelectionTest, CreateProductSelection_SelectingZeroProductsDoesNotThrow) // NOLINT
 {
-    suldownloaderdata::ConfigurationData configurationData =
+    auto configurationData =
         suldownloaderdata::ConfigurationData::fromJsonSettings(ConfigurationDataBase::createJsonString("", ""));
 
     auto productSelection = suldownloaderdata::ProductSelection::CreateProductSelection(configurationData);

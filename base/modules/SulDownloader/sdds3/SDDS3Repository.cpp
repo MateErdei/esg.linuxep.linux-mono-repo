@@ -17,6 +17,7 @@
 
 #include <iostream>
 
+using namespace Common::Policy;
 using namespace SulDownloader::suldownloaderdata;
 
 constexpr const std::string_view SDDS3_DEFAULT_SERVICE_URL{ "https://sus.sophosupd.com" };
@@ -55,7 +56,7 @@ namespace SulDownloader
     bool SDDS3Repository::tryConnect(
         const suldownloaderdata::ConnectionSetup& connectionSetup,
         bool supplementOnly,
-        const suldownloaderdata::ConfigurationData& configurationData)
+        const UpdateSettings& configurationData)
     {
         m_supplementOnly = supplementOnly;
         populateConfigFromFile();
@@ -180,7 +181,7 @@ namespace SulDownloader
 
 
     SDDS3::SusData SDDS3Repository::getDataToSync(const suldownloaderdata::ConnectionSetup& connectionSetup,
-                                   const ConfigurationData& configurationData)
+                                   const UpdateSettings& updateSettings)
     {
         SDDS3::SusData susData;
         try
@@ -188,13 +189,13 @@ namespace SulDownloader
             SUSRequestParameters requestParameters;
             requestParameters.product = "linuxep";
             requestParameters.platformToken = "LINUX_INTEL_LIBC6";
-            requestParameters.subscriptions = configurationData.getProductsSubscription();
+            requestParameters.subscriptions = updateSettings.getProductsSubscription();
             requestParameters.subscriptions.insert(requestParameters.subscriptions.begin(),
-                                                    configurationData.getPrimarySubscription());
-            requestParameters.tenantId = configurationData.getTenantId();
-            requestParameters.deviceId = configurationData.getDeviceId();
+                                                   updateSettings.getPrimarySubscription());
+            requestParameters.tenantId = updateSettings.getTenantId();
+            requestParameters.deviceId = updateSettings.getDeviceId();
             requestParameters.baseUrl = connectionSetup.getUpdateLocationURL();
-            requestParameters.jwt = configurationData.getJWToken();
+            requestParameters.jwt = updateSettings.getJWToken();
             requestParameters.timeoutSeconds = DEFAULT_TIMEOUT_S;
             requestParameters.proxy = connectionSetup.getProxy();
 
@@ -260,7 +261,7 @@ namespace SulDownloader
     }
 
     bool SDDS3Repository::synchronize(
-        const suldownloaderdata::ConfigurationData& configurationData,
+        const UpdateSettings& configurationData,
         const suldownloaderdata::ConnectionSetup& connectionSetup,
         const bool ignoreFailedSupplementRefresh)
     {

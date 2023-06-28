@@ -18,11 +18,11 @@ namespace SulDownloader
         {
         public:
             VerifySignature verify(
-                const SulDownloader::suldownloaderdata::ConfigurationData& certificate_path,
+                const Common::Policy::UpdateSettings& certificate_path,
                 const std::string& productDirectoryPath) const override;
         private:
             std::vector<std::string> getListOfManifestFileNames(
-                    const ConfigurationData& configurationData,
+                    const Common::Policy::UpdateSettings& configurationData,
                     const std::string& productDirectoryPath) const;
         };
 

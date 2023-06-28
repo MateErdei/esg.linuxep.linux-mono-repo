@@ -2,6 +2,7 @@
 
 #include "ConnectionSelector.h"
 
+#include "ConfigurationData.h"
 #include "Logger.h"
 
 #include "Common/Policy/Proxy.h"
@@ -10,28 +11,28 @@ using namespace Common::Policy;
 using namespace SulDownloader;
 using namespace SulDownloader::suldownloaderdata;
 
-std::vector<ConnectionSetup> ConnectionSelector::getConnectionCandidates(const ConfigurationData& configurationData)
+std::vector<ConnectionSetup> ConnectionSelector::getConnectionCandidates(const UpdateSettings& updateSettings)
 {
     std::vector<ConnectionSetup> candidates;
 
-    std::vector<Proxy> proxies = configurationData.proxiesList();
+    std::vector<Proxy> proxies = SulDownloader::suldownloaderdata::ConfigurationData::proxiesList(updateSettings);
 
     // Requirement: With update cache no proxy url must be given but the credentials are still necessary.
     // if the proxy is set then, then we only pass the credentials data for the proxy to the update cache proxy
     // settings. If no credentials are required for proxy then empty strings are passed  - this is ok.
     Proxy proxyForUpdateCache("noproxy:", proxies[0].getCredentials());
 
-    for (const auto& url : configurationData.getLocalUpdateCacheUrls())
+    for (const auto& url : updateSettings.getLocalUpdateCacheHosts())
     {
-        candidates.emplace_back(url, configurationData.getCredentials(), true, proxyForUpdateCache);
+        candidates.emplace_back(url, updateSettings.getCredentials(), true, proxyForUpdateCache);
         LOGDEBUG("Adding Update Cache connection candidate, URL: " << url << ", proxy: " << proxyForUpdateCache.getUrl());
     }
 
     for (auto& proxy : proxies)
     {
-        for (const auto& url : configurationData.getSophosUpdateUrls())
+        for (const auto& url : updateSettings.getSophosLocationURLs())
         {
-            candidates.emplace_back(url, configurationData.getCredentials(), false, proxy);
+            candidates.emplace_back(url, updateSettings.getCredentials(), false, proxy);
             LOGDEBUG("Adding connection candidate, URL: " << url << ", proxy: " << proxy.getUrl());
         }
     }
@@ -39,29 +40,28 @@ std::vector<ConnectionSetup> ConnectionSelector::getConnectionCandidates(const C
     return candidates;
 }
 
-std::vector<ConnectionSetup> ConnectionSelector::getSDDS3ConnectionCandidates(const ConfigurationData& configurationData)
+std::vector<ConnectionSetup> ConnectionSelector::getSDDS3ConnectionCandidates(const UpdateSettings& updateSettings)
 {
     std::vector<ConnectionSetup> candidates;
 
-    std::vector<Proxy> proxies = configurationData.proxiesList();
+    std::vector<Proxy> proxies = SulDownloader::suldownloaderdata::ConfigurationData::proxiesList(updateSettings);
 
     // Requirement: With update cache no proxy url must be given but the credentials are still necessary.
     // if the proxy is set then, then we only pass the credentials data for the proxy to the update cache proxy
     // settings. If no credentials are required for proxy then empty strings are passed  - this is ok.
     Proxy proxyForUpdateCache("noproxy:", proxies[0].getCredentials());
 
-    for (const auto& url : configurationData.getLocalUpdateCacheUrls())
+    for (const auto& url : updateSettings.getLocalUpdateCacheHosts())
     {
-        candidates.emplace_back(url, configurationData.getCredentials(), true, proxyForUpdateCache);
+        candidates.emplace_back(url, updateSettings.getCredentials(), true, proxyForUpdateCache);
     }
 
     for (auto& proxy : proxies)
     {
         if (proxy.getUrl() != NoProxy)
         {
-            candidates.emplace_back("", configurationData.getCredentials(), false, proxy);
+            candidates.emplace_back("", updateSettings.getCredentials(), false, proxy);
         }
-
     }
 
     return candidates;

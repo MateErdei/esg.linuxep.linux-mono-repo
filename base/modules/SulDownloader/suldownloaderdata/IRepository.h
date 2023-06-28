@@ -2,12 +2,14 @@
 
 #pragma once
 #include "ProductMetadata.h"
+
+#include "Common/Policy/UpdateSettings.h"
+
 #include <memory>
 namespace SulDownloader
 {
     namespace suldownloaderdata
     {
-        class ConfigurationData;
         class ConnectionSetup;
         class DownloadedProduct;
         class ProductSelection;

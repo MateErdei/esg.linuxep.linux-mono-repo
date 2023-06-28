@@ -76,7 +76,7 @@ namespace UpdateSchedulerImpl
         void processSulDownloaderTimedOut();
         void processSulDownloaderMonitorDetached();
         void saveUpdateCacheCertificate(const std::string& cacheCertificateContent);
-        void writeConfigurationData(const SulDownloader::suldownloaderdata::ConfigurationData&);
+        void writeConfigurationData(const Common::Policy::UpdateSettings&);
         void safeMoveDownloaderReportFile(const std::string& originalJsonFilePath) const;
 
         void waitForSulDownloaderToFinish();

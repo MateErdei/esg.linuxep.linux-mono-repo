@@ -7,10 +7,13 @@
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "Common/FileSystem/IFileSystem.h"
 #include "Common/FileSystem/IFileSystemException.h"
+#include "Common/Policy/SerialiseUpdateSettings.h"
 #include "Common/UtilityImpl/StringUtils.h"
 #include "SulDownloader/suldownloaderdata/SulDownloaderException.h"
 
 #include <json.hpp>
+
+using namespace Common::Policy;
 
 namespace
 {
@@ -117,13 +120,13 @@ namespace UpdateSchedulerImpl
         return "";
     }
 
-    std::optional<SulDownloader::suldownloaderdata::ConfigurationData> UpdateSchedulerUtils::getPreviousConfigurationData()
+    std::optional<UpdateSettings> UpdateSchedulerUtils::getPreviousConfigurationData()
     {
         Path previousConfigFilePath = Common::FileSystem::join(
             Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderReportPath(),
             Common::ApplicationConfiguration::applicationPathManager().getPreviousUpdateConfigFileName());
 
-        std::optional<SulDownloader::suldownloaderdata::ConfigurationData> previousConfigurationData;
+        std::optional<UpdateSettings> previousConfigurationData;
         if (Common::FileSystem::fileSystem()->isFile(previousConfigFilePath))
         {
             LOGDEBUG("Previous update configuration file found.");
@@ -133,11 +136,11 @@ namespace UpdateSchedulerImpl
         return previousConfigurationData;
     }
 
-    std::optional<SulDownloader::suldownloaderdata::ConfigurationData> UpdateSchedulerUtils::getCurrentConfigurationData()
+    std::optional<UpdateSettings> UpdateSchedulerUtils::getCurrentConfigurationData()
     {
         Path currentConfigFilePath = Common::ApplicationConfiguration::applicationPathManager().getSulDownloaderConfigFilePath();
 
-        std::optional<SulDownloader::suldownloaderdata::ConfigurationData> currentConfigurationData;
+        std::optional<UpdateSettings> currentConfigurationData;
         if (Common::FileSystem::fileSystem()->isFile(currentConfigFilePath))
         {
             LOGDEBUG("Current update configuration file found.");
@@ -147,7 +150,7 @@ namespace UpdateSchedulerImpl
         return currentConfigurationData;
     }
 
-    std::pair<SulDownloader::suldownloaderdata::ConfigurationData,bool> UpdateSchedulerUtils::getUpdateConfigWithLatestJWT()
+    std::pair<UpdateSettings,bool> UpdateSchedulerUtils::getUpdateConfigWithLatestJWT()
     {
         bool config_updated = false;
         auto currentConfigData = getCurrentConfigurationData();
@@ -177,7 +180,7 @@ namespace UpdateSchedulerImpl
             return {currentConfigData.value(), config_updated};
 
         }
-        return {SulDownloader::suldownloaderdata::ConfigurationData(), false};
+        return {UpdateSettings(), false};
     }
 
     std::string UpdateSchedulerUtils::getDeviceId()
@@ -225,14 +228,13 @@ namespace UpdateSchedulerImpl
         return token;
     }
 
-    std::optional<SulDownloader::suldownloaderdata::ConfigurationData> UpdateSchedulerUtils::getConfigurationDataFromJsonFile(const std::string& filePath)
+    std::optional<UpdateSettings> UpdateSchedulerUtils::getConfigurationDataFromJsonFile(const std::string& filePath)
     {
         try
         {
             std::string configSettings = Common::FileSystem::fileSystem()->readFile(filePath);
 
-            SulDownloader::suldownloaderdata::ConfigurationData configurationData =
-                SulDownloader::suldownloaderdata::ConfigurationData::fromJsonSettings(configSettings);
+            auto configurationData = SerialiseUpdateSettings::fromJsonSettings(configSettings);
 
             return configurationData;
         }

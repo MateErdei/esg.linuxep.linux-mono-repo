@@ -34,7 +34,9 @@ target_include_directories(SulDownloaderTests SYSTEM BEFORE PUBLIC
         ${PROTOBUF_INCLUDE_DIR}
         ${GSL_INCLUDE}
         ${SOPHLIB_INCLUDE}
+        ${CMAKE_BINARY_DIR}/modules/Common/Policy
         )
+
 target_include_directories(SulDownloaderTests BEFORE PUBLIC "${PROJECT_SOURCE_DIR}"
         "${CMAKE_BINARY_DIR}/modules/SulDownloader/suldownloaderdata"
         )

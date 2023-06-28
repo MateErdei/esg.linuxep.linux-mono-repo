@@ -1,8 +1,10 @@
-// Copyright 2023 Sophos All rights reserved.
+// Copyright 2023 Sophos Limited. All rights reserved.
 #pragma once
 
 #include "ProductSubscription.h"
 #include "Proxy.h"
+
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 
 #include <string>
 #include <utility>
@@ -15,6 +17,12 @@ namespace Common::Policy
     public:
         static const std::vector<std::string> DefaultSophosLocationsURL;
         using UpdateCacheHosts_t = std::vector<std::string>;
+
+        enum class LogLevel
+        {
+            NORMAL,
+            VERBOSE
+        };
 
         /**
          * Sets the list of hostnames for the local cache warehouse repositories
@@ -148,6 +156,10 @@ namespace Common::Policy
             return credentials_;
         }
 
+        /**
+         * Handling for the old SDDS2 URLs:
+         */
+
         using url_list_t = std::vector<std::string>;
 
         void setSophosLocationURLs(const url_list_t& urls)
@@ -158,6 +170,164 @@ namespace Common::Policy
         [[nodiscard]] url_list_t getSophosLocationURLs() const
         {
             return sophosLocationURLs_;
+        }
+
+        /**
+         * Used to verify all required settings stored in the ConfigurationData object
+         * @test sophosUpdateUrls list is not empty
+         * @test productSelection list is not empty
+         * @test first item in m_productSelection is marked as the primary product.
+         * @test installationRootPath is a valid directory
+         * @test localWarehouseRepository is a valid directory
+         * @test localDistributionRepository is a valid directory
+         * @return true, if all required settings are valid, false otherwise
+         */
+        bool verifySettingsAreValid();
+
+        /**
+         * Used to test if the processed configuration data is valid.
+         * @return true, if configuration data is valid, false otherwise.
+         */
+        [[nodiscard]] bool isVerified() const;
+
+
+        void setForceReinstallAllProducts(const bool forceReinstallAllProducts)
+        {
+            forceReinstallAllProducts_ = forceReinstallAllProducts;
+        }
+
+        /**
+         * Get flag used to indicate install.sh scripts for all products should be invoked during update.
+         * @return true if set, false otherwise.
+         */
+        [[nodiscard]] bool getForceReinstallAllProducts() const { return forceReinstallAllProducts_; }
+
+        /**
+         * @return string containing the tenant id
+         */
+        [[nodiscard]] const std::string& getTenantId() const { return tenantId_; }
+
+        /**
+         * Sets the configured tenant Id value.
+         * @param tenantId
+         */
+        void setTenantId(const std::string& tenantId) { tenantId_ = tenantId; }
+
+        /**
+         * @return the device Id value
+         */
+        [[nodiscard]] const std::string& getDeviceId() const { return deviceId_; }
+
+        /**
+         * Sets the configured device Id value
+         * @param deviceId
+         */
+        void setDeviceId(const std::string& deviceId) { deviceId_ = deviceId; }
+
+
+        /**
+         * @return string containing the latest JWToken
+         */
+        [[nodiscard]] const std::string& getJWToken() const { return jwToken_; }
+
+        /**
+         * Sets the configured JWToken
+         * @param pstring containing the latest JWToken
+         */
+        void setJWToken(const std::string& token) { jwToken_ = token; }
+
+        /**
+         * Set whether to use force an reinstall on non paused customers
+         * @param doForcedUpdate
+         */
+        void setDoForcedUpdate(const bool doForcedUpdate) { doForcedUpdate_ = doForcedUpdate; }
+
+        /**
+         * @return whether to use force an reinstall on non paused customers
+         */
+        [[nodiscard]] bool getDoForcedUpdate() const { return doForcedUpdate_; }
+
+        /**
+         * Set whether to use force an reinstall on paused customers
+         * @param doForcedPausedUpdate
+         */
+        void setDoForcedPausedUpdate(const bool doForcedPausedUpdate) { doForcedPausedUpdate_ = doForcedPausedUpdate; }
+
+        /**
+         * @return whether to use force an reinstall on paused customers
+         */
+        [[nodiscard]] bool getDoPausedForcedUpdate() const { return doForcedPausedUpdate_; }
+
+        /**
+         * Gets the VersigPath
+         * @return string containing the latest VersigPath
+         */
+        const std::string& getVersigPath() const
+        {
+            return versigPath_;
+        }
+
+        /**
+         * Sets the configured VersigPath
+         * @param pstring containing the latest VersigPath
+         */
+        void setVersigPath(const std::string& path)
+        {
+            versigPath_ = path;
+        }
+
+        /**
+         * Gets the log level parameter that has been set for the application.
+         * @return LogLevel, enum specifying the set log level.
+         */
+        LogLevel getLogLevel() const
+        {
+            return logLevel_;
+        }
+
+        /**
+         * Set the default log level.
+         * @param level
+         */
+        void setLogLevel(LogLevel level)
+        {
+            logLevel_ = level;
+        }
+
+        /**
+         * Gets the updateCache certificates Path
+         * @return string containing the latest updateCache certificates Path
+         */
+        [[nodiscard]] const std::string& getUpdateCacheCertPath() const
+        {
+            return updateCacheCertPath_;
+        }
+
+        /**
+         * Sets the configured updateCache certificates Path
+         * @param pstring containing the latest updateCache certificates Path
+         */
+        void setUpdateCacheCertPath(const std::string& path)
+        {
+            updateCacheCertPath_ = path;
+        }
+
+        /**
+         * Gets the path to the local warehouse repository relative to the install root path.
+         * @return path to the local warehouse repository.
+         */
+        std::string getLocalWarehouseRepository() const
+        {
+            return Common::ApplicationConfiguration::applicationPathManager().getLocalWarehouseRepository();
+        }
+
+        /**
+         * Gets the path to the local distribution repository relative to the install root path.
+         * @return path to the local distribution repository.
+         */
+        std::string getLocalDistributionRepository() const
+        {
+            return Common::ApplicationConfiguration::applicationPathManager().getLocalDistributionRepository();
         }
 
     protected:
@@ -171,6 +341,27 @@ namespace Common::Policy
         std::vector<std::string> optionalManifestNames_;
         Proxy policyProxy_;
         Credentials credentials_;
+        std::string jwToken_;
+        std::string tenantId_;
+        std::string deviceId_;
+        std::string versigPath_;
+        std::string updateCacheCertPath_;
         bool useSlowSupplements_ = false;
+        bool forceReinstallAllProducts_ = false;
+        bool doForcedUpdate_ = false;
+        bool doForcedPausedUpdate_ = false;
+        LogLevel logLevel_ = LogLevel::NORMAL;
+
+        enum class State
+        {
+            Initialized,
+            Verified,
+            FailedVerified
+        };
+
+        State state_ = State::Initialized;
+
+    private:
+        bool isProductSubscriptionValid(const ProductSubscription& productSubscription);
     };
 }

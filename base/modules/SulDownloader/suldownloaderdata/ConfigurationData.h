@@ -35,11 +35,6 @@ namespace SulDownloader::suldownloaderdata
         static const std::string DoNotSetSslSystemPath;
         static const std::vector<std::string> DefaultSophosLocationsURL;
 
-        enum class LogLevel
-        {
-            NORMAL,
-            VERBOSE
-        };
         explicit ConfigurationData(
             const std::vector<std::string>& sophosLocationURL = {},
             Common::Policy::Credentials credentials = Common::Policy::Credentials(),
@@ -84,66 +79,15 @@ namespace SulDownloader::suldownloaderdata
          */
         void setPolicyProxy(const Common::Policy::Proxy& proxy);
 
-        /**
-         * Gets the JWToken
-         * @return string containing the latest JWToken
-         */
-        const std::string& getJWToken() const;
 
         /**
-         * Sets the configured JWToken
-         * @param pstring containing the latest JWToken
+         * On top of the configured proxy (getProxy) there is the environment proxy that has to be considered.
+         * Hence, there will be either:
+         *  - 1 proxy to try: configured proxy
+         *  - 2 proxies: environment and no proxy
+         * @return list of proxies to try to connection.
          */
-        void setJWToken(const std::string& token);
-
-        /**
-         * Gets the VersigPath
-         * @return string containing the latest VersigPath
-         */
-        const std::string& getVersigPath() const;
-
-        /**
-         * Sets the configured VersigPath
-         * @param pstring containing the latest VersigPath
-         */
-        void setVersigPath(const std::string& path);
-
-
-        /**
-         * Gets the updateCache certificates Path
-         * @return string containing the latest updateCache certificates Path
-         */
-        const std::string& getUpdateCacheCertPath() const;
-
-        /**
-         * Sets the configured updateCache certificates Path
-         * @param pstring containing the latest updateCache certificates Path
-         */
-        void setUpdateCacheCertPath(const std::string& path);
-        /**
-         * gets the tenant id
-         * @return string containing the tenant id
-         */
-        const std::string& getTenantId() const;
-
-        /**
-         * Sets the configured tenant Id value.
-         * @param tenantId
-         */
-        void setTenantId(const std::string& tenantId);
-
-        /**
-         * gets the device Id
-         * @return the device Id value
-         */
-        const std::string& getDeviceId() const;
-
-        /**
-         * Sets the configured device Id value
-         * @param deviceId
-         */
-        void setDeviceId(const std::string& deviceId);
-
+        static std::vector<Common::Policy::Proxy> proxiesList(const Common::Policy::UpdateSettings&);
 
         /**
          * On top of the configured proxy (getProxy) there is the environment proxy that has to be considered.
@@ -153,19 +97,6 @@ namespace SulDownloader::suldownloaderdata
          * @return list of proxies to try to connection.
          */
         std::vector<Common::Policy::Proxy> proxiesList() const;
-
-
-        /**
-         * Gets the path to the local warehouse repository relative to the install root path.
-         * @return path to the local warehouse repository.
-         */
-        std::string getLocalWarehouseRepository() const;
-
-        /**
-         * Gets the path to the local distribution repository relative to the install root path.
-         * @return path to the local distribution repository.
-         */
-        std::string getLocalDistributionRepository() const;
 
         /**
          * Set the primary subscription. The primary subscription is meant to be used to enforce that it can never
@@ -187,18 +118,6 @@ namespace SulDownloader::suldownloaderdata
          * @return
          */
         const std::vector<ProductSubscription>& getProductsSubscription() const;
-
-        /**
-         * Gets the log level parameter that has been set for the application.
-         * @return LogLevel, enum specifying the set log level.
-         */
-        LogLevel getLogLevel() const;
-
-        /**
-         * Set the default log level.
-         * @param level
-         */
-        void setLogLevel(LogLevel level);
 
         /**
          * Set flag to force running the install scripts for all products
@@ -281,55 +200,13 @@ namespace SulDownloader::suldownloaderdata
         [[nodiscard]] bool getUseSlowSupplements() const;
 
         /**
-         * Set whether to use force an reinstall on non paused customers
-         * @param doForcedUpdate
-         */
-        void setDoForcedUpdate(bool doForcedUpdate);
-
-        /**
-         * Get whether to use force an reinstall on non paused customers
-         * @return
-         */
-        [[nodiscard]] bool getDoForcedUpdate() const;
-
-        /**
-         * Set whether to use force an reinstall on paused customers
-         * @param doForcedPausedUpdate
-         */
-        void setDoForcedPausedUpdate(bool doForcedPausedUpdate);
-
-        /**
-         * Get whether to use force an reinstall on paused customers
-         * @return
-         */
-        [[nodiscard]] bool getDoPausedForcedUpdate() const;
-
-        /**
-         * Used to verify all required settings stored in the ConfigurationData object
-         * @test sophosUpdateUrls list is not empty
-         * @test productSelection list is not empty
-         * @test first item in m_productSelection is marked as the primary product.
-         * @test installationRootPath is a valid directory
-         * @test localWarehouseRepository is a valid directory
-         * @test localDistributionRepository is a valid directory
-         * @return true, if all required settings are valid, false otherwise
-         */
-        bool verifySettingsAreValid();
-
-        /**
-         * Used to test if the processed configuration data is valid.
-         * @return true, if configuration data is valid, false otherwise.
-         */
-        [[nodiscard]] bool isVerified() const;
-
-        /**
          * Converts a specific json string into a configuration data object.
          * @param settingsString, string contain a json formatted data the will be used to create the
          * ConfigurationData object.
          * @return configurationData object containing the settings from the json data
          * @throws SulDownloaderException if settingsString cannot be converted.
          */
-        static ConfigurationData fromJsonSettings(const std::string& settingsString);
+        static UpdateSettings fromJsonSettings(const std::string& settingsString);
 
         /**
          * Serialize the contents of an instance of ConfigurationData into a json representation.
@@ -338,7 +215,7 @@ namespace SulDownloader::suldownloaderdata
          * @paramn configurationData object containing the settings
          * @param settingsString, string contain a json formatted data representing the state of configurationData
          */
-        static std::string toJsonSettings(const ConfigurationData&);
+        static std::string toJsonSettings(const UpdateSettings&);
 
         /**
          * Retrieve the Proxy URL and Credentials for authenticated proxy in the format http(s)://username:password@192.168.0.1:8080
@@ -350,26 +227,5 @@ namespace SulDownloader::suldownloaderdata
 
 
         static std::optional<Common::Policy::Proxy> currentMcsProxy();
-
-    private:
-        enum class State
-        {
-            Initialized,
-            Verified,
-            FailedVerified
-        };
-
-        std::vector<std::string> m_sophosUpdateUrls;
-        State m_state;
-        std::string m_versigPath;
-        std::string m_updateCacheCertPath;
-        std::string m_jwToken;
-        std::string m_tenantId;
-        std::string m_deviceId;
-        LogLevel m_logLevel;
-        bool m_forceReinstallAllProducts;
-        bool m_doForcedUpdate = false;
-        bool m_doForcedPausedUpdate = false;
-        Common::Policy::WeekDayAndTimeForDelay m_scheduledUpdate;
     };
 } // namespace SulDownloader::suldownloaderdata

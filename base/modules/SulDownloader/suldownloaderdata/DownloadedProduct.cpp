@@ -33,13 +33,13 @@ DownloadedProduct::DownloadedProduct(const ProductMetadata& productInformation) 
 {
 }
 
-void DownloadedProduct::verify(const ConfigurationData& configurationData)
+void DownloadedProduct::verify(const Common::Policy::UpdateSettings& updateSettings)
 {
     assert(m_state == State::Distributed);
     m_state = State::Verified;
     auto iVersig = createVersig();
 
-    if (iVersig->verify(configurationData, m_distributePath) != IVersig::VerifySignature::SIGNATURE_VERIFIED)
+    if (iVersig->verify(updateSettings, m_distributePath) != IVersig::VerifySignature::SIGNATURE_VERIFIED)
     {
         RepositoryError error;
         error.Description = std::string("Product ") + getLine() + " failed signature verification";

@@ -5,16 +5,14 @@
 #include "Logger.h"
 #include "SulDownloaderException.h"
 
-#include "ConfigurationSettings.pb.h"
-
 #include "Common/Policy/ProductSubscription.h"
+#include "Common/Policy/SerialiseUpdateSettings.h"
 
-#include <Common/ProxyUtils/ProxyUtils.h>
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
 #include <Common/FileSystem/IFileSystem.h>
 #include <Common/ProtobufUtil/MessageUtility.h>
+#include <Common/ProxyUtils/ProxyUtils.h>
 #include <Common/UtilityImpl/StringUtils.h>
-
 #include <google/protobuf/util/json_util.h>
 
 #include <iostream>
@@ -29,7 +27,7 @@ namespace
     }
 
     using namespace SulDownloader::suldownloaderdata;
-
+/*
     void setProtobufEntries(
         const ProductSubscription& subscription,
         SulDownloaderProto::ConfigurationSettings_Subscription* proto_subscription)
@@ -49,23 +47,7 @@ namespace
             proto_subscription.baseversion(),
             proto_subscription.tag(),
             proto_subscription.fixedversion());
-    }
-
-    bool isProductSubscriptionValid(const ProductSubscription& productSubscription)
-    {
-        if (productSubscription.rigidName().empty())
-        {
-            LOGWARN("Invalid Settings: Empty RigidName.");
-            return false;
-        }
-        if (productSubscription.fixedVersion().empty() && productSubscription.tag().empty())
-        {
-            LOGWARN("Invalid Settings: Product can not have both FixedVersion and Tag empty.");
-            return false;
-        }
-        return true;
-    }
-
+    }*/
 } // namespace
 
 using namespace SulDownloader;
@@ -79,11 +61,9 @@ ConfigurationData::ConfigurationData(
     const std::vector<std::string>& sophosLocationURL,
     Credentials credentials,
     const std::vector<std::string>& updateCache,
-    Proxy policyProxy) :
-    m_state(State::Initialized),
-    m_logLevel(LogLevel::NORMAL),
-    m_forceReinstallAllProducts(false)
+    Proxy policyProxy)
 {
+    forceReinstallAllProducts_ = false;
     credentials_ = credentials;
     localUpdateCacheHosts_ = updateCache;
     setSophosUpdateUrls(sophosLocationURL);
@@ -91,10 +71,8 @@ ConfigurationData::ConfigurationData(
 }
 
 ConfigurationData::ConfigurationData(const Common::Policy::UpdateSettings& settings)
-    : m_state(State::Initialized),
-      m_logLevel(LogLevel::NORMAL),
-      m_forceReinstallAllProducts(false)
 {
+    forceReinstallAllProducts_ = settings.getForceReinstallAllProducts();
     credentials_ = settings.getCredentials();
     setSophosUpdateUrls(settings.getSophosLocationURLs());
     setLocalUpdateCacheHosts(settings.getLocalUpdateCacheHosts());
@@ -112,21 +90,21 @@ const Common::Policy::Credentials& ConfigurationData::getCredentials() const
 
 const std::vector<std::string>& ConfigurationData::getSophosUpdateUrls() const
 {
-    return m_sophosUpdateUrls;
+    return sophosLocationURLs_;
 }
 
 void ConfigurationData::setSophosUpdateUrls(const std::vector<std::string>& sophosUpdateUrls)
 {
     if (sophosUpdateUrls.empty())
     {
-        m_sophosUpdateUrls = DefaultSophosLocationsURL;
+        sophosLocationURLs_ = DefaultSophosLocationsURL;
     }
     else
     {
-        m_sophosUpdateUrls = sophosUpdateUrls;
+        sophosLocationURLs_ = sophosUpdateUrls;
     }
 
-    if (m_sophosUpdateUrls.empty())
+    if (sophosLocationURLs_.empty())
     {
         throw SulDownloaderException("Sophos Location list cannot be empty");
     }
@@ -147,296 +125,20 @@ void ConfigurationData::setPolicyProxy(const Proxy& proxy)
     policyProxy_ = proxy;
 }
 
-const std::string& ConfigurationData::getJWToken() const
-{
-    return m_jwToken;
-}
-
-void ConfigurationData::setJWToken(const std::string& token)
-{
-    m_jwToken = token;
-}
-
-const std::string& ConfigurationData::getVersigPath() const
-{
-    return m_versigPath;
-}
-
-void ConfigurationData::setVersigPath(const std::string& path)
-{
-    m_versigPath = path;
-}
-
-const std::string& ConfigurationData::getUpdateCacheCertPath() const
-{
-    return m_updateCacheCertPath;
-}
-
-void ConfigurationData::setUpdateCacheCertPath(const std::string& path)
-{
-    m_updateCacheCertPath = path;
-}
-
-const std::string& ConfigurationData::getTenantId() const
-{
-    return m_tenantId;
-}
-void ConfigurationData::setTenantId(const std::string& tenantId)
-{
-    m_tenantId = tenantId;
-}
-
-const std::string& ConfigurationData::getDeviceId() const
-{
-    return m_deviceId;
-}
-
-void ConfigurationData::setDeviceId(const std::string& deviceId)
-{
-    m_deviceId = deviceId;
-}
-
-std::string ConfigurationData::getLocalWarehouseRepository() const
-{
-    return Common::ApplicationConfiguration::applicationPathManager().getLocalWarehouseRepository();
-}
-
-std::string ConfigurationData::getLocalDistributionRepository() const
-{
-    return Common::ApplicationConfiguration::applicationPathManager().getLocalDistributionRepository();
-}
-
-void ConfigurationData::setDoForcedUpdate(bool doForcedUpdate)
-{
-    m_doForcedUpdate = doForcedUpdate;
-}
-
-bool ConfigurationData::getDoForcedUpdate() const
-{
-    return m_doForcedUpdate;
-}
-
-void ConfigurationData::setDoForcedPausedUpdate(bool doForcedPausedUpdate)
-{
-    m_doForcedPausedUpdate = doForcedPausedUpdate;
-}
-
-bool ConfigurationData::getDoPausedForcedUpdate() const
-{
-    return m_doForcedPausedUpdate;
-}
-bool ConfigurationData::verifySettingsAreValid()
-{
-    using namespace Common::FileSystem;
-
-    m_state = State::FailedVerified;
-
-    // Must have, primary product, warehouse credentials, update location
-
-    if (m_sophosUpdateUrls.empty())
-    {
-        LOGERROR("Invalid Settings: No sophos update urls provided.");
-        return false;
-    }
-    else
-    {
-        for (auto& value : m_sophosUpdateUrls)
-        {
-            if (value.empty())
-            {
-                LOGERROR("Invalid Settings: Sophos update url provided cannot be an empty string.");
-                return false;
-            }
-        }
-    }
-
-    if (credentials_.getUsername().empty())
-    {
-        LOGERROR("Invalid Settings: Credential 'username' cannot be empty string.");
-        return false;
-    }
-
-    if (credentials_.getPassword().empty())
-    {
-        LOGERROR("Invalid Settings: Credential 'password' cannot be empty string.");
-        return false;
-    }
-
-    if (!isProductSubscriptionValid(getPrimarySubscription()))
-    {
-        LOGERROR("Invalid Settings: No primary product provided.");
-        return false;
-    }
-
-    for (auto& productSubscription : getProductsSubscription())
-    {
-        if (!isProductSubscriptionValid(productSubscription))
-        {
-            return false;
-        }
-    }
-
-    auto features = getFeatures();
-    if (features.empty())
-    {
-        LOGERROR("Empty feature set");
-        return false;
-    }
-
-    if (std::find(features.begin(), features.end(), "CORE") == features.end())
-    {
-        LOGERROR("CORE feature not in the feature set. ");
-        return false;
-    }
-
-    auto fileSystem = Common::FileSystem::fileSystem();
-
-    std::string installationRootPath = Common::ApplicationConfiguration::applicationPathManager().sophosInstall();
-    if (!fileSystem->isDirectory(installationRootPath))
-    {
-        LOGERROR(
-            "Invalid Settings: installation root path does not exist or is not a directory: " << installationRootPath);
-        return false;
-    }
-
-    std::string localWarehouseStore = Common::ApplicationConfiguration::applicationPathManager().getLocalWarehouseStoreDir();
-    if (!fileSystem->isDirectory(localWarehouseStore))
-    {
-        LOGERROR(
-            "Invalid Settings: Local warehouse directory does not exist or is not a directory: "
-            << localWarehouseStore);
-        return false;
-    }
-
-    for (auto& value : localUpdateCacheHosts_)
-    {
-        if (value.empty())
-        {
-            LOGERROR("Invalid Settings: Update cache url cannot be an empty string");
-            return false;
-        }
-    }
-
-    for (auto& value : installArguments_)
-    {
-        if (value.empty())
-        {
-            LOGERROR("Invalid Settings: install argument cannot be an empty string");
-            return false;
-        }
-    }
-
-    m_state = State::Verified;
-    return true;
-}
-
-bool ConfigurationData::isVerified() const
-{
-    return m_state == State::Verified;
-}
-
-ConfigurationData::LogLevel ConfigurationData::getLogLevel() const
-{
-    return m_logLevel;
-}
-
-void ConfigurationData::setLogLevel(ConfigurationData::LogLevel level)
-{
-    m_logLevel = level;
-}
 
 void ConfigurationData::setForceReinstallAllProducts(const bool forceReinstallAllProducts)
 {
-    m_forceReinstallAllProducts = forceReinstallAllProducts;
+    forceReinstallAllProducts_ = forceReinstallAllProducts;
 }
 
 bool ConfigurationData::getForceReinstallAllProducts() const
 {
-    return m_forceReinstallAllProducts;
+    return forceReinstallAllProducts_;
 }
 
-ConfigurationData ConfigurationData::fromJsonSettings(const std::string& settingsString)
+UpdateSettings ConfigurationData::fromJsonSettings(const std::string& settingsString)
 {
-    using namespace google::protobuf::util;
-    using SulDownloaderProto::ConfigurationSettings;
-
-    ConfigurationSettings settings;
-    JsonParseOptions jsonParseOptions;
-    jsonParseOptions.ignore_unknown_fields = true;
-
-    auto status = JsonStringToMessage(settingsString, &settings, jsonParseOptions);
-
-    if (!status.ok())
-    {
-
-        std::stringstream errorMsg;
-        errorMsg << "Failed to process json message with error: " << status.ToString();
-        throw SulDownloaderException(errorMsg.str());
-    }
-    // load input string (json) into the configuration data
-    // run runSULDownloader
-    // and serialize the DownloadReport into json and give the error code/or success
-    auto sUrls = settings.sophosurls();
-    std::vector<std::string> sophosURLs(std::begin(sUrls), std::end(sUrls));
-
-    sUrls = settings.updatecache();
-    std::vector<std::string> updateCaches(std::begin(sUrls), std::end(sUrls));
-
-    Credentials credential(settings.credential().username(), settings.credential().password());
-    Proxy proxy(
-        settings.proxy().url(),
-        ProxyCredentials(
-            settings.proxy().credential().username(),
-            settings.proxy().credential().password(),
-            settings.proxy().credential().proxytype()));
-
-    ConfigurationData configurationData(sophosURLs, credential, updateCaches, proxy);
-
-    ProductSubscription primary = getSubscription(settings.primarysubscription());
-    std::vector<ProductSubscription> products;
-    for (const auto& ProtoSubscription : settings.products())
-    {
-        products.emplace_back(getSubscription(ProtoSubscription));
-    }
-    std::vector<std::string> features;
-    for (const auto& feature : settings.features())
-    {
-        features.emplace_back(feature);
-    }
-    configurationData.setPrimarySubscription(primary);
-    configurationData.setProductsSubscription(products);
-    configurationData.setFeatures(features);
-    configurationData.setJWToken(settings.jwtoken());
-    configurationData.setVersigPath(settings.versigpath());
-    configurationData.setUpdateCacheCertPath(settings.updatecachecertpath());
-    configurationData.setTenantId(settings.tenantid());
-    configurationData.setDeviceId(settings.deviceid());
-    configurationData.setDoForcedUpdate(settings.forceupdate());
-    configurationData.setDoForcedPausedUpdate(settings.forcepausedupdate());
-
-    std::vector<std::string> installArgs(
-        std::begin(settings.installarguments()), std::end(settings.installarguments()));
-
-    configurationData.setInstallArguments(installArgs);
-
-    LogLevel level = (settings.loglevel() == ::SulDownloaderProto::ConfigurationSettings_LogLevelOption_NORMAL)
-                         ? LogLevel::NORMAL
-                         : LogLevel::VERBOSE;
-    configurationData.setLogLevel(level);
-
-    configurationData.setForceReinstallAllProducts(settings.forcereinstallallproducts());
-
-    std::vector<std::string> manifestnames(std::begin(settings.manifestnames()), std::end(settings.manifestnames()));
-
-    configurationData.setManifestNames(manifestnames);
-
-    std::vector<std::string> optionalManifestnames(std::begin(settings.optionalmanifestnames()), std::end(settings.optionalmanifestnames()));
-
-    configurationData.setOptionalManifestNames(optionalManifestnames);
-
-    configurationData.setUseSlowSupplements(settings.useslowsupplements());
-
-    return configurationData;
+    return Common::Policy::SerialiseUpdateSettings::fromJsonSettings(settingsString);
 }
 
 const std::vector<std::string>& ConfigurationData::getInstallArguments() const
@@ -469,8 +171,9 @@ void ConfigurationData::setOptionalManifestNames(const std::vector<std::string>&
     optionalManifestNames_ = optionalManifestNames;
 }
 
-std::vector<Proxy> ConfigurationData::proxiesList() const
+std::vector<Proxy> ConfigurationData::proxiesList(const UpdateSettings& settings)
 {
+
     // This generates the list of proxies in order that they should be tried by SUL
     // 1. Current environment proxy
     // 2. Policy Proxy
@@ -486,11 +189,12 @@ std::vector<Proxy> ConfigurationData::proxiesList() const
         options.emplace_back(currentProxy.value());
     }
 
+    auto policyProxy = settings.getPolicyProxy();
     // Policy proxy
-    if (!policyProxy_.empty())
+    if (!policyProxy.empty())
     {
-        LOGDEBUG("Proxy found in ALC Policy: " << policyProxy_.getUrl());
-        options.emplace_back(policyProxy_);
+        LOGDEBUG("Proxy found in ALC Policy: " << policyProxy.getUrl());
+        options.emplace_back(policyProxy);
     }
 
     // Environment proxy
@@ -526,78 +230,14 @@ std::vector<Proxy> ConfigurationData::proxiesList() const
     return options;
 }
 
-std::string ConfigurationData::toJsonSettings(const ConfigurationData& configurationData)
+std::vector<Proxy> ConfigurationData::proxiesList() const
 {
-    using namespace google::protobuf::util;
-    using SulDownloaderProto::ConfigurationSettings;
+    return proxiesList(*this);
+}
 
-    ConfigurationSettings settings;
-    for (const auto& url : configurationData.getSophosUpdateUrls())
-    {
-        settings.add_sophosurls()->assign(url);
-    }
-
-    for (const auto& cacheUrl : configurationData.getLocalUpdateCacheUrls())
-    {
-        settings.add_updatecache()->assign(cacheUrl);
-    }
-
-    settings.mutable_credential()->set_username(configurationData.getCredentials().getUsername());
-    settings.mutable_credential()->set_password(configurationData.getCredentials().getPassword());
-
-    settings.mutable_proxy()->mutable_credential()->set_username(
-        configurationData.getPolicyProxy().getCredentials().getUsername());
-    settings.mutable_proxy()->mutable_credential()->set_password(
-        configurationData.getPolicyProxy().getCredentials().getPassword());
-    settings.mutable_proxy()->mutable_credential()->set_proxytype(
-        configurationData.getPolicyProxy().getCredentials().getProxyType());
-    settings.mutable_proxy()->mutable_url()->assign(configurationData.getPolicyProxy().getUrl());
-
-    settings.mutable_jwtoken()->assign(configurationData.getJWToken());
-    settings.mutable_versigpath()->assign(configurationData.getVersigPath());
-    settings.mutable_updatecachecertpath()->assign(configurationData.getUpdateCacheCertPath());
-    settings.mutable_tenantid()->assign(configurationData.getTenantId());
-    settings.mutable_deviceid()->assign(configurationData.getDeviceId());
-    settings.set_forceupdate(configurationData.getDoForcedUpdate());
-    settings.set_forcepausedupdate(configurationData.getDoPausedForcedUpdate());
-    const auto& primarySubscription = configurationData.getPrimarySubscription();
-    setProtobufEntries(primarySubscription, settings.mutable_primarysubscription());
-    for (const auto& product : configurationData.getProductsSubscription())
-    {
-        setProtobufEntries(product, settings.add_products());
-    }
-    for (const auto& feature : configurationData.getFeatures())
-    {
-        settings.add_features(feature);
-    }
-
-    for (const auto& installarg : configurationData.getInstallArguments())
-    {
-        settings.add_installarguments()->assign(installarg);
-    }
-
-    if (configurationData.getLogLevel() == LogLevel::NORMAL)
-    {
-        settings.set_loglevel(::SulDownloaderProto::ConfigurationSettings_LogLevelOption_NORMAL);
-    }
-    else
-    {
-        settings.set_loglevel(::SulDownloaderProto::ConfigurationSettings_LogLevelOption_VERBOSE);
-    }
-
-    for (const auto& manifestName : configurationData.getManifestNames())
-    {
-        settings.add_manifestnames(manifestName);
-    }
-
-    settings.set_useslowsupplements(configurationData.getUseSlowSupplements());
-
-    for (const auto& optionalManifestName : configurationData.getOptionalManifestNames())
-    {
-        settings.add_optionalmanifestnames(optionalManifestName);
-    }
-
-    return Common::ProtobufUtil::MessageUtility::protoBuf2Json(settings);
+std::string ConfigurationData::toJsonSettings(const UpdateSettings& updateSettings)
+{
+    return Common::Policy::SerialiseUpdateSettings::toJsonSettings(updateSettings);
 }
 
 void ConfigurationData::setPrimarySubscription(const ProductSubscription& productSubscription)

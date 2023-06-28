@@ -8,7 +8,6 @@
 #include "SulDownloaderUtils.h"
 #include "sdds3/SDDS3Utils.h"
 #include "sdds3/Sdds3RepositoryFactory.h"
-#include "suldownloaderdata/ConfigurationData.h"
 #include "suldownloaderdata/ConfigurationDataUtil.h"
 #include "suldownloaderdata/ConnectionSelector.h"
 #include "suldownloaderdata/DownloadReport.h"
@@ -22,6 +21,7 @@
 #include "Common/FileSystem/IFileSystemException.h"
 #include "Common/FileSystem/IPidLockFileUtils.h"
 #include "Common/Logging/FileLoggingSetup.h"
+#include "Common/Policy/UpdateSettings.h"
 #include "Common/UpdateUtilities/InstalledFeatures.h"
 #include "Common/UtilityImpl/ProjectNames.h"
 #include "Common/UtilityImpl/StringUtils.h"
@@ -111,7 +111,7 @@ namespace SulDownloader
     suldownloaderdata::DownloadReport processRepositoryAndGenerateReport(const bool success,
                                                                          IRepositoryPtr repository,
                                                                          TimeTracker& timeTracker,
-                                                                         const ConfigurationData& configurationData,
+                                                                         const UpdateSettings& configurationData,
                                                                          const DownloadReport& previousDownloadReport,
                                                                          bool forceReinstallAllProducts,
                                                                          const bool supplementOnly)
@@ -462,10 +462,10 @@ namespace SulDownloader
             setForceInstallForAllProducts);
     }
 
-    std::vector<ConnectionSetup> populateSdds3SUSConnectionCandidates(const ConfigurationData& configurationData)
+    std::vector<ConnectionSetup> populateSdds3SUSConnectionCandidates(const UpdateSettings& updateSettings)
     {
         ConnectionSelector connectionSelector;
-        auto candidates = connectionSelector.getSDDS3ConnectionCandidates(configurationData);
+        auto candidates = connectionSelector.getSDDS3ConnectionCandidates(updateSettings);
         std::vector<ConnectionSetup> finalConnectionCandidates;
 
         std::vector<Common::Policy::Proxy> proxies;
@@ -513,7 +513,7 @@ namespace SulDownloader
 
         return finalConnectionCandidates;
     }
-    std::vector<ConnectionSetup> populateSdds3CDNConnectionCandidates(const ConfigurationData& configurationData)
+    std::vector<ConnectionSetup> populateSdds3CDNConnectionCandidates(const UpdateSettings& configurationData)
     {
         ConnectionSelector connectionSelector;
         auto candidates = connectionSelector.getSDDS3ConnectionCandidates(configurationData);
@@ -599,19 +599,19 @@ namespace SulDownloader
         }
     }
 
-    std::pair<bool, IRepositoryPtr> updateFromSDDS3Repository(const ConfigurationData& configurationData,
+    std::pair<bool, IRepositoryPtr> updateFromSDDS3Repository(const UpdateSettings& updateSettings,
                                                               const bool supplementOnly,
                                                               const suldownloaderdata::DownloadReport& previousDownloadReport,
                                                               const bool forceReinstallAllProducts)
     {
 
-        auto susCandidates = populateSdds3SUSConnectionCandidates(configurationData);
+        auto susCandidates = populateSdds3SUSConnectionCandidates(updateSettings);
         auto repository = Sdds3RepositoryFactory::instance().createRepository();
         //sus
         for (auto& connectionCandidate : susCandidates)
         {
             LOGDEBUG("Trying connection candidate, URL: " << connectionCandidate.getUpdateLocationURL() << ", proxy: " << connectionCandidate.getProxy().getUrl());
-            if (repository->tryConnect(connectionCandidate, supplementOnly, configurationData))
+            if (repository->tryConnect(connectionCandidate, supplementOnly, updateSettings))
             {
                 break;
             }
@@ -622,18 +622,18 @@ namespace SulDownloader
             LOGERROR("Failed to connect to repository: " << repository->getError().Description);
             return std::make_pair(false, std::move(repository));
         }
-        auto cdnCandidates = populateSdds3CDNConnectionCandidates(configurationData);
+        auto cdnCandidates = populateSdds3CDNConnectionCandidates(updateSettings);
         LOGDEBUG("Purging local SDDS2 cache");
         try
         {
             auto fileSystem = Common::FileSystem::fileSystem();
-            if (fileSystem->isDirectory(configurationData.getLocalWarehouseRepository()))
+            if (fileSystem->isDirectory(updateSettings.getLocalWarehouseRepository()))
             {
-                fileSystem->recursivelyDeleteContentsOfDirectory(configurationData.getLocalWarehouseRepository());
+                fileSystem->recursivelyDeleteContentsOfDirectory(updateSettings.getLocalWarehouseRepository());
             }
-            if (fileSystem->isDirectory(configurationData.getLocalDistributionRepository()))
+            if (fileSystem->isDirectory(updateSettings.getLocalDistributionRepository()))
             {
-                fileSystem->recursivelyDeleteContentsOfDirectory(configurationData.getLocalDistributionRepository());
+                fileSystem->recursivelyDeleteContentsOfDirectory(updateSettings.getLocalDistributionRepository());
             }
         }
         catch (Common::FileSystem::IFileSystemException& ex)
@@ -645,7 +645,7 @@ namespace SulDownloader
         // if there is a duplicate in the list for the last candidate
         for (auto it = cdnCandidates.begin(); it != cdnCandidates.end(); ++it)
         {
-            if (repository->synchronize(configurationData, *it, false))
+            if (repository->synchronize(updateSettings, *it, false))
             {
                 break;
             }
@@ -683,8 +683,8 @@ namespace SulDownloader
     }
 
     DownloadReport runSULDownloader(
-        const ConfigurationData& configurationData,
-        const ConfigurationData& previousConfigurationData,
+        const UpdateSettings& configurationData,
+        const UpdateSettings& previousConfigurationData,
         const DownloadReport& previousDownloadReport,
         bool supplementOnly)
     {
@@ -764,8 +764,8 @@ namespace SulDownloader
             int maxReadAttempt = 10;
             auto fileSystem  = Common::FileSystem::fileSystem();
 
-            ConfigurationData configurationData;
-            ConfigurationData previousConfigurationData;
+            UpdateSettings configurationData;
+            UpdateSettings previousConfigurationData;
             do
             {
                 readAttempt++;

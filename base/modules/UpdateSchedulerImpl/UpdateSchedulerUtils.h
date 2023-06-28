@@ -1,10 +1,13 @@
 // Copyright 2021-2023 Sophos Limited. All rights reserved.
 
-#include "Common/Exceptions/IException.h"
+#pragma once
 
-#include "SulDownloader/suldownloaderdata/ConfigurationData.h"
+#include "Common/Exceptions/IException.h"
+#include "Common/Policy/UpdateSettings.h"
+
 #include "UpdateSchedulerImpl/stateMachinesModule/StateMachineData.h"
 
+#include <optional>
 #include <string>
 
 namespace UpdateSchedulerImpl
@@ -29,10 +32,10 @@ namespace UpdateSchedulerImpl
         static std::string getDeviceId();
         static std::string getSDDSMechanism(bool sdds3Enabled);
 
-        static std::optional<SulDownloader::suldownloaderdata::ConfigurationData> getCurrentConfigurationData();
-        static std::optional<SulDownloader::suldownloaderdata::ConfigurationData> getPreviousConfigurationData();
-        static std::pair<SulDownloader::suldownloaderdata::ConfigurationData,bool> getUpdateConfigWithLatestJWT();
-        static std::optional<SulDownloader::suldownloaderdata::ConfigurationData> getConfigurationDataFromJsonFile(const std::string& filePath);
+        static std::optional<Common::Policy::UpdateSettings> getCurrentConfigurationData();
+        static std::optional<Common::Policy::UpdateSettings> getPreviousConfigurationData();
+        static std::pair<Common::Policy::UpdateSettings, bool> getUpdateConfigWithLatestJWT();
+        static std::optional<Common::Policy::UpdateSettings> getConfigurationDataFromJsonFile(const std::string& filePath);
 
 
         inline static const std::string FORCE_UPDATE_ENABLED_FLAG = "sdds3.force-update";

@@ -6,8 +6,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include "ConfigurationData.h"
+#include "Common/Policy/UpdateSettings.h"
 #include "ConnectionSetup.h"
+
 namespace SulDownloader
 {
     namespace suldownloaderdata
@@ -23,9 +24,9 @@ namespace SulDownloader
         {
         public:
             std::vector<ConnectionSetup> getConnectionCandidates(
-                const suldownloaderdata::ConfigurationData& configurationData);
+                const Common::Policy::UpdateSettings& updateSettings);
             std::vector<ConnectionSetup> getSDDS3ConnectionCandidates(
-                const suldownloaderdata::ConfigurationData& configurationData);
+                const Common::Policy::UpdateSettings& updateSettings);
         };
     } // namespace suldownloaderdata
 } // namespace SulDownloader

@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2018-2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
@@ -55,7 +51,7 @@ namespace SulDownloader
             using ProductMetaDataVector = std::vector<suldownloaderdata::ProductMetadata>;
             using ISingleProductSelectorPtr = std::unique_ptr<ISingleProductSelector>;
 
-            static ProductSelection CreateProductSelection(const suldownloaderdata::ConfigurationData&);
+            static ProductSelection CreateProductSelection(const Common::Policy::UpdateSettings&);
 
             void appendSelector(ISingleProductSelectorPtr selector);
 

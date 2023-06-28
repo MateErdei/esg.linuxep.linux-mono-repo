@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2018-2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #include "ConfigurationDataBase.h"
 
@@ -49,8 +45,8 @@ public:
     ::testing::AssertionResult configurationDataIsEquivalent(
         const char* m_expr,
         const char* n_expr,
-        const SulDownloader::suldownloaderdata::ConfigurationData& expected,
-        const SulDownloader::suldownloaderdata::ConfigurationData& resulted)
+        const Common::Policy::UpdateSettings& expected,
+        const Common::Policy::UpdateSettings& resulted)
     {
         std::stringstream s;
         s << m_expr << " and " << n_expr << " failed: ";
@@ -65,12 +61,12 @@ public:
             return ::testing::AssertionFailure() << s.str() << "credentials differ";
         }
 
-        if (expected.getSophosUpdateUrls() != resulted.getSophosUpdateUrls())
+        if (expected.getSophosLocationURLs() != resulted.getSophosLocationURLs())
         {
             return ::testing::AssertionFailure() << s.str() << "update urls differ";
         }
 
-        if (expected.getLocalUpdateCacheUrls() != resulted.getLocalUpdateCacheUrls())
+        if (expected.getSophosLocationURLs() != resulted.getSophosLocationURLs())
         {
             return ::testing::AssertionFailure() << s.str() << "update cache urls differ";
         }
@@ -87,9 +83,9 @@ public:
             return ::testing::AssertionFailure() << s.str() << "proxy credentials differ ";
         }
 
-        if (expected.proxiesList() != resulted.proxiesList())
+        if (expected.getPolicyProxy() != resulted.getPolicyProxy())
         {
-            return ::testing::AssertionFailure() << s.str() << "proxy list differs";
+            return ::testing::AssertionFailure() << s.str() << "policy proxy differs";
         }
 
         if (expected.getLocalWarehouseRepository() != resulted.getLocalWarehouseRepository())
@@ -134,34 +130,30 @@ public:
     }
 };
 
+using from_json_exception_t = Common::Policy::PolicyParseException;
+
 TEST_F(ConfigurationDataTest, fromJsonSettingsInvalidJsonStringThrows)
 {
     try
     {
         ConfigurationData::fromJsonSettings("non json string");
+        FAIL();
     }
-    catch (SulDownloaderException& e)
+    catch (const from_json_exception_t& e)
     {
         EXPECT_STREQ("Failed to process json message with error: INVALID_ARGUMENT:Unexpected token.\nnon json string\n^", e.what());
     }
 }
 
-TEST_F(ConfigurationDataTest, fromJsonSettingsValidButEmptyJsonStringShouldThrow)
+TEST_F(ConfigurationDataTest, fromJsonSettingsValidButEmptyJsonStringShouldNotThrow)
 {
-    try
-    {
-        ConfigurationData::fromJsonSettings("{}");
-    }
-    catch (SulDownloaderException& e)
-    {
-        EXPECT_STREQ("Sophos Location list cannot be empty", e.what());
-    }
+    EXPECT_NO_THROW(ConfigurationData::fromJsonSettings("{}"));
 }
 
 TEST_F(ConfigurationDataTest, fromJsonSettingsValidAndCompleteJsonStringShouldReturnValidDataObject)
 {
     setupFileSystemAndGetMock();
-    ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString("", ""));
+    auto configurationData = ConfigurationData::fromJsonSettings(createJsonString("", ""));
     configurationData.verifySettingsAreValid();
 
     EXPECT_TRUE(configurationData.isVerified());
@@ -171,7 +163,7 @@ TEST_F(
     ConfigurationDataTest,
     fromJsonSettingsValidAndCompleteJsonStringShouldReturnValidDataObjectThatContainsExpectedData)
 {
-    ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString("", ""));
+    auto configurationData = ConfigurationData::fromJsonSettings(createJsonString("", ""));
 
     ConfigurationData expectedConfiguration(
         { "https://sophosupdate.sophos.com/latest/warehouse" },
@@ -187,7 +179,7 @@ TEST_F(
     expectedConfiguration.setLogLevel(ConfigurationData::LogLevel::NORMAL);
     EXPECT_PRED_FORMAT2(configurationDataIsEquivalent, configurationData, expectedConfiguration);
     std::string serialized = ConfigurationData::toJsonSettings(configurationData);
-    ConfigurationData afterDeserialization = ConfigurationData::fromJsonSettings(serialized);
+    auto afterDeserialization = ConfigurationData::fromJsonSettings(serialized);
     EXPECT_PRED_FORMAT2(configurationDataIsEquivalent, configurationData, afterDeserialization);
 }
 
@@ -206,13 +198,13 @@ TEST_F(
 
     std::string serialized = ConfigurationData::toJsonSettings(expectedConfiguration);
     std::cout << serialized << std::endl;
-    ConfigurationData afterDeserialization = ConfigurationData::fromJsonSettings(serialized);
+    auto afterDeserialization = ConfigurationData::fromJsonSettings(serialized);
     EXPECT_PRED_FORMAT2(configurationDataIsEquivalent, expectedConfiguration, afterDeserialization);
 }
 TEST_F(ConfigurationDataTest, fromJsonSettingsValidStringWithNoUpdateCacheShouldReturnValidDataObject)
 {
     setupFileSystemAndGetMock();
-    ConfigurationData configurationData =
+    auto configurationData =
         ConfigurationData::fromJsonSettings(createJsonString(R"("https://cache.sophos.com/latest/warehouse")", ""));
 
     configurationData.verifySettingsAreValid();
@@ -223,7 +215,7 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidStringWithNoUpdateCacheShould
 TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithEmptyUpdateCacheValueShouldFailValidation)
 {
     setupFileSystemAndGetMock();
-    ConfigurationData configurationData =
+    auto configurationData =
         ConfigurationData::fromJsonSettings(createJsonString(R"(https://cache.sophos.com/latest/warehouse)", ""));
 
     configurationData.verifySettingsAreValid();
@@ -251,7 +243,7 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidStringWithNoSophosURLsShouldT
 TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithEmptySophosUrlValueShouldFailValidation)
 {
     setupFileSystemAndGetMock();
-    ConfigurationData configurationData =
+    auto configurationData =
         ConfigurationData::fromJsonSettings(createJsonString("https://sophosupdate.sophos.com/latest/warehouse", ""));
 
     configurationData.verifySettingsAreValid();
@@ -272,7 +264,7 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidEmptyCredentialsShouldFailVal
                                "password": ""
                                },)";
 
-    ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
+    auto configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
 
     configurationData.verifySettingsAreValid();
 
@@ -290,7 +282,7 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidMissingCredentialDetailsShoul
     std::string newString = R"("credential": {
                                },)";
 
-    ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
+    auto configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
 
     configurationData.verifySettingsAreValid();
 
@@ -307,7 +299,7 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidMissingCredentialsShouldFailV
 
     std::string newString; // = "";
 
-    ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
+    auto configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
 
     configurationData.verifySettingsAreValid();
 
@@ -328,7 +320,7 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithMissingProxySho
 
     std::string newString; // = "";
 
-    ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
+    auto configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
 
     configurationData.verifySettingsAreValid();
 
@@ -358,13 +350,19 @@ TEST_F(
                                 }
                                 },)";
 
-    ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
+    auto configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
 
     configurationData.verifySettingsAreValid();
 
+    auto proxy = configurationData.getPolicyProxy();
+    EXPECT_FALSE(proxy.empty());
+    EXPECT_EQ(proxy.getUrl(), "http://dummyurl.com");
+
     ProxyCredentials proxyCredentials("username", "password", "2");
     std::vector<Proxy> expectedProxyList = { Proxy("http://dummyurl.com", proxyCredentials), Proxy(NoProxy) };
-    EXPECT_EQ(configurationData.proxiesList(), expectedProxyList);
+    auto proxyList = ConfigurationData::proxiesList(configurationData);
+    EXPECT_EQ(proxyList.size(), expectedProxyList.size());
+    EXPECT_EQ(proxyList, expectedProxyList);
     EXPECT_TRUE(configurationData.isVerified());
 }
 
@@ -402,7 +400,7 @@ TEST_F(
                                 "proxyType": "2"
                                 }
                                 },)";
-    ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
+    auto configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
 
     EXPECT_TRUE(configurationData.verifySettingsAreValid());
 }
@@ -432,7 +430,7 @@ TEST_F(
                                 }
                                 },)";
 
-    ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
+    auto configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
 
     configurationData.verifySettingsAreValid();
 
@@ -440,7 +438,9 @@ TEST_F(
     std::vector<Proxy> expectedProxyList = { Proxy("http://dummyurl.com", proxyCredentials),
                                              Proxy("environment:"),
                                              Proxy(NoProxy) };
-    EXPECT_EQ(configurationData.proxiesList(), expectedProxyList);
+    auto proxyList = ConfigurationData::proxiesList(configurationData);
+    EXPECT_EQ(proxyList.size(), expectedProxyList.size());
+    EXPECT_EQ(proxyList, expectedProxyList);
     EXPECT_TRUE(configurationData.isVerified());
     unsetenv("HTTPS_PROXY");
 }
@@ -458,13 +458,15 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithOnlySavedProxyS
     std::vector<std::string> savedURL{"https://user:password@savedProxy.com"};
     EXPECT_CALL(fileSystem, readLines(savedProxyFilePath)).WillOnce(Return(savedURL));
 
-    ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString("", ""));
+    auto configurationData = ConfigurationData::fromJsonSettings(createJsonString("", ""));
 
     configurationData.verifySettingsAreValid();
 
     ProxyCredentials proxyCredentials("user", "password", "");
     std::vector<Proxy> expectedProxyList = { Proxy("https://savedProxy.com", proxyCredentials), Proxy(NoProxy) };
-    EXPECT_EQ(configurationData.proxiesList(), expectedProxyList);
+    auto proxyList = ConfigurationData::proxiesList(configurationData);
+    EXPECT_EQ(proxyList.size(), expectedProxyList.size());
+    EXPECT_EQ(proxyList, expectedProxyList);
     EXPECT_TRUE(configurationData.isVerified());
 }
 
@@ -481,12 +483,13 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsUnauthenticatedProxyInSavedProxySh
     std::vector<std::string> savedURL{"http://savedProxy.com"};
     EXPECT_CALL(fileSystem, readLines(savedProxyFilePath)).WillOnce(Return(savedURL));
 
-    ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString("", ""));
+    auto configurationData = ConfigurationData::fromJsonSettings(createJsonString("", ""));
 
     configurationData.verifySettingsAreValid();
 
     std::vector<Proxy> expectedProxyList = { Proxy("http://savedProxy.com"), Proxy(NoProxy) };
-    std::vector<Proxy> actualProxyList = configurationData.proxiesList();
+    auto actualProxyList = ConfigurationData::proxiesList(configurationData);
+    EXPECT_EQ(actualProxyList.size(), expectedProxyList.size());
     EXPECT_EQ(actualProxyList, expectedProxyList);
     EXPECT_TRUE(configurationData.isVerified());
 }
@@ -505,12 +508,12 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsInvalidProxyInSavedProxyShouldBeLo
     std::vector<std::string> savedURL{"www.user:password@invalidsavedProxy.com"};
     EXPECT_CALL(fileSystem, readLines(savedProxyFilePath)).WillOnce(Return(savedURL));
 
-    ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString("", ""));
+    auto configurationData = ConfigurationData::fromJsonSettings(createJsonString("", ""));
 
     configurationData.verifySettingsAreValid();
 
     std::vector<Proxy> expectedProxyList = { Proxy(NoProxy) };
-    std::vector<Proxy> actualProxyList = configurationData.proxiesList();
+    auto actualProxyList = ConfigurationData::proxiesList(configurationData);
 
     std::string logMessage = testing::internal::GetCapturedStderr();
     EXPECT_THAT(logMessage, ::testing::HasSubstr("Proxy URL not in expected format."));
@@ -526,10 +529,8 @@ TEST_F(ConfigurationDataTest, proxyFromSavedProxyUrlShouldBeLoggedAndReturnNullO
 
     std::string savedProxyURL("@http://invalidsavedProxy.com");
 
-    ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString("", ""));
-
     std::optional<Proxy> expectedProxy = std::nullopt;
-    std::optional<Proxy> actualProxy = configurationData.proxyFromSavedProxyUrl(savedProxyURL);
+    std::optional<Proxy> actualProxy = ConfigurationData::proxyFromSavedProxyUrl(savedProxyURL);
 
     std::string logMessage = testing::internal::GetCapturedStderr();
     EXPECT_THAT(logMessage, ::testing::HasSubstr("Proxy URL not in expected format."));
@@ -549,7 +550,7 @@ TEST_F(
                                 },)";
     std::string newString; //  = "";
 
-    ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
+    auto configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
 
     configurationData.verifySettingsAreValid();
 
@@ -562,7 +563,7 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringProductsWithMissing
     std::string oldString = R"("rigidName" : "PrefixOfProduct-SimulateProductA")";
     std::string newString = R"("rigidName" : "")";
 
-    ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
+    auto configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
 
     configurationData.verifySettingsAreValid();
 
@@ -587,7 +588,7 @@ TEST_F(
                                 "fixedVersion" : ""
                                 },)";
 
-    ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
+    auto configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
 
     configurationData.verifySettingsAreValid();
 
@@ -603,7 +604,7 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithEmptyInstallArg
 
     std::string newString; // = "";
 
-    ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
+    auto configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
 
     configurationData.verifySettingsAreValid();
 
@@ -620,7 +621,7 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithMissingInstallA
 
     std::string newString; // = "";
 
-    ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
+    auto configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
 
     configurationData.verifySettingsAreValid();
 
@@ -635,7 +636,7 @@ TEST_F(
     std::string oldString = "--install-dir";
     std::string newString; // = "";
 
-    ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
+    auto configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
 
     configurationData.verifySettingsAreValid();
 
@@ -645,8 +646,8 @@ TEST_F(
 TEST_F(ConfigurationDataTest, serializeDeserialize)
 {
     std::string originalString = createJsonString("", "");
-    ConfigurationData configurationData = ConfigurationData::fromJsonSettings(originalString);
-    ConfigurationData afterSerializer =
+    auto configurationData = ConfigurationData::fromJsonSettings(originalString);
+    auto afterSerializer =
         ConfigurationData::fromJsonSettings(ConfigurationData::toJsonSettings(configurationData));
 
     EXPECT_PRED_FORMAT2(configurationDataIsEquivalent, configurationData, afterSerializer);
@@ -657,7 +658,7 @@ TEST_F(
     settingsAreValidForV2)
 {
     setupFileSystemAndGetMock();
-    ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString("", ""));
+    auto configurationData = ConfigurationData::fromJsonSettings(createJsonString("", ""));
     EXPECT_TRUE(configurationData.verifySettingsAreValid());
 
     std::vector<ConfigurationData> all_invalid_cases;
@@ -780,7 +781,7 @@ createJsonString("", "");
                                ],
                                "fieldUnknown": "anyvalue"
                                })sophos" };
-    ConfigurationData configurationData = ConfigurationData::fromJsonSettings(serializedConfigurationDataWithUnknownField); 
+    auto configurationData = ConfigurationData::fromJsonSettings(serializedConfigurationDataWithUnknownField);
     std::vector<std::string> features = configurationData.getFeatures(); 
     std::vector<std::string> expected_features{{std::string{"CORE"}, std::string{"MDR"}}}; 
     EXPECT_EQ(features, expected_features);
@@ -794,8 +795,7 @@ TEST_F(ConfigurationDataTest, currentMcsProxyReturnsNulloptIfCurrentProxyFileMis
         Common::ApplicationConfiguration::applicationPathManager().getMcsCurrentProxyFilePath();
     EXPECT_CALL(fileSystem, isFile(currentProxyFilePath)).WillOnce(Return(false));
 
-    ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString("", ""));
-    std::optional<Proxy> actualProxy = configurationData.currentMcsProxy();
+    std::optional<Proxy> actualProxy = ConfigurationData::currentMcsProxy();
     EXPECT_EQ(actualProxy, std::nullopt);
 }
 
@@ -808,17 +808,14 @@ TEST_F(ConfigurationDataTest, currentMcsProxyReturnsNulloptIfCurrentProxyFileEmp
     EXPECT_CALL(fileSystem, isFile(currentProxyFilePath)).WillOnce(Return(true));
     EXPECT_CALL(fileSystem, readFile(currentProxyFilePath)).WillOnce(Return(""));
 
-    ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString("", ""));
-
     std::optional<Proxy> expectedProxy = std::nullopt;
-    std::optional<Proxy> actualProxy = configurationData.currentMcsProxy();
+    std::optional<Proxy> actualProxy = ConfigurationData::currentMcsProxy();
     EXPECT_EQ(actualProxy, expectedProxy);
 }
 
 TEST_F(ConfigurationDataTest, proxyIsExtractedFromCurrentProxyFileAndLogsAddress)
 {
     Common::Logging::ConsoleLoggingSetup consoleLogger;
-    testing::internal::CaptureStderr();
 
     auto& fileSystem = setupFileSystemAndGetMock();
 
@@ -829,12 +826,12 @@ TEST_F(ConfigurationDataTest, proxyIsExtractedFromCurrentProxyFileAndLogsAddress
     std::string currentProxy = R"({"proxy": "10.55.36.235:3129", "credentials": "CCBv6oin2yWCd1PUWKpab1GcYXBB0iC1bwnajy0O1XVvOrRTTFGiruMEz5auCd8BpbE="})";
     EXPECT_CALL(fileSystem, readFile(currentProxyFilePath)).WillOnce(Return(currentProxy));
 
-    ConfigurationData configurationData = ConfigurationData::fromJsonSettings(createJsonString("", ""));
-
     std::optional<Proxy> expectedProxy = Proxy("10.55.36.235:3129", ProxyCredentials("user","password",""));
-    std::optional<Proxy> actualProxy = configurationData.currentMcsProxy();
 
+    testing::internal::CaptureStderr();
+    std::optional<Proxy> actualProxy = ConfigurationData::currentMcsProxy();
     std::string logMessage = testing::internal::GetCapturedStderr();
+
     ASSERT_THAT(logMessage, ::testing::HasSubstr("Proxy address from current_proxy file: 10.55.36.235:3129"));
     ASSERT_THAT(logMessage, ::testing::HasSubstr("Proxy in current_proxy has credentials"));
     ASSERT_THAT(logMessage, ::testing::HasSubstr("Deobfuscated credentials from current_proxy"));

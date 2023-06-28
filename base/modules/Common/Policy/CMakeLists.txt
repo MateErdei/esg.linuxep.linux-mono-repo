@@ -1,7 +1,9 @@
+include(proto/CMakeLists.txt)
 
 add_library(policyobject OBJECT
         ALCPolicy.cpp
         ALCPolicy.h
+        Credentials.cpp
         Credentials.h
         Logger.cpp
         Logger.h
@@ -11,15 +13,33 @@ add_library(policyobject OBJECT
         Proxy.h
         ProxyCredentials.cpp
         ProxyCredentials.h
+        SerialiseUpdateSettings.cpp
+        SerialiseUpdateSettings.h
+        UpdateSettings.cpp
         UpdateSettings.h
         WeekDayAndTimeForDelay.h
-        UpdateSettings.cpp Credentials.cpp)
-
-add_library(policy SHARED
+        ${CONFIG_SETTINGS_PROTO_SRC}
+        ${CONFIG_SETTINGS_PROTO_H}
         )
 
-include_directories(policy BEFORE ${LOG4CPLUS_INCLUDE_DIR} ${NLOHMANN_JSON_INCLUDE_DIR})
-target_link_libraries(policy PRIVATE policyobject obfuscationimpl xmlutilities osutilitiesimpl)
+
+include_directories(policyobject BEFORE ${CMAKE_CURRENT_BINARY_DIR} ${LOG4CPLUS_INCLUDE_DIR} ${NLOHMANN_JSON_INCLUDE_DIR})
+target_link_libraries(policyobject INTERFACE
+        obfuscationimpl
+        osutilitiesimpl
+        protobufutil
+        xmlutilities
+        )
+
+add_library(policy SHARED)
+include_directories(policy BEFORE ${CMAKE_CURRENT_BINARY_DIR} ${LOG4CPLUS_INCLUDE_DIR} ${NLOHMANN_JSON_INCLUDE_DIR})
+target_link_libraries(policy PRIVATE
+        policyobject
+        obfuscationimpl
+        osutilitiesimpl
+        protobufutil
+        xmlutilities
+        )
 
 SET_TARGET_PROPERTIES(policy
         PROPERTIES

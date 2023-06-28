@@ -38,7 +38,8 @@
 using namespace Common::Policy;
 using namespace SulDownloader::suldownloaderdata;
 
-using SulDownloaderProto::ConfigurationSettings;
+using PolicyProto::ConfigurationSettings;
+
 struct Sdds3SimplifiedDownloadReport
 {
     SulDownloader::suldownloaderdata::RepositoryStatus Status;
@@ -156,7 +157,7 @@ public:
         ConfigurationSettings settings = defaultSettings();
         auto* proto_subscriptions = settings.mutable_products();
 
-        SulDownloaderProto::ConfigurationSettings_Subscription proto_subscription;
+        PolicyProto::ConfigurationSettings_Subscription proto_subscription;
 
         proto_subscription.set_rigidname("Plugin_1");
         proto_subscription.set_baseversion("");
@@ -164,7 +165,7 @@ public:
         proto_subscription.set_fixedversion("");
 
         proto_subscriptions->Add(
-            dynamic_cast<SulDownloaderProto::ConfigurationSettings_Subscription&&>(proto_subscription));
+            dynamic_cast<PolicyProto::ConfigurationSettings_Subscription&&>(proto_subscription));
 
         return settings;
     }
@@ -174,7 +175,7 @@ public:
         ConfigurationSettings settings = defaultSettings();
         auto proto_subscriptions = settings.mutable_products();
 
-        SulDownloaderProto::ConfigurationSettings_Subscription proto_subscription;
+        PolicyProto::ConfigurationSettings_Subscription proto_subscription;
 
         proto_subscription.set_rigidname("Plugin_2");
         proto_subscription.set_baseversion("");
@@ -182,7 +183,7 @@ public:
         proto_subscription.set_fixedversion("");
 
         proto_subscriptions->Add(
-            dynamic_cast<SulDownloaderProto::ConfigurationSettings_Subscription&&>(proto_subscription));
+            dynamic_cast<PolicyProto::ConfigurationSettings_Subscription&&>(proto_subscription));
 
         return settings;
     }
@@ -192,7 +193,7 @@ public:
         return Common::ProtobufUtil::MessageUtility::protoBuf2Json(configSettings);
     }
 
-    SulDownloader::suldownloaderdata::ConfigurationData configData(const ConfigurationSettings& configSettings)
+    UpdateSettings configData(const ConfigurationSettings& configSettings)
     {
         std::string json_output = jsonSettings(configSettings);
         return SulDownloader::suldownloaderdata::ConfigurationData::fromJsonSettings(json_output);
@@ -481,7 +482,7 @@ protected:
 TEST_F(SULDownloaderSdds3Test, configurationDataVerificationOfDefaultSettingsReturnsTrue)
 {
     setupFileSystemAndGetMock(1, 0, 0);
-    SulDownloader::suldownloaderdata::ConfigurationData confData = configData(defaultSettings());
+    auto confData = configData(defaultSettings());
     confData.verifySettingsAreValid();
     EXPECT_TRUE(confData.isVerified());
 }
@@ -495,19 +496,18 @@ TEST_F(SULDownloaderSdds3Test, main_entry_InvalidArgumentsReturnsTheCorrectError
 
 TEST_F(SULDownloaderSdds3Test, main_entry_missingInputFileCausesReturnsCorrectErrorCode)
 {
-    auto filesystemMock = new StrictMock<MockFileSystem>();
-    m_replacer.replace(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
-    char* inputFileDoesNotExist[] = { const_cast<char*>("SulDownloader"),
-                                      const_cast<char*>("inputfiledoesnotexists.json"),
-                                      const_cast<char*>("/some/dir/createoutputpath.json") };
-
+    auto filesystemMock = std::make_unique<StrictMock<MockFileSystem>>();
     EXPECT_CALL(*filesystemMock, isFile("supplement_only.marker")).WillOnce(Return(false));
     EXPECT_CALL(*filesystemMock, isDirectory("/some/dir")).WillOnce(Return(true));
     EXPECT_CALL(*filesystemMock, isDirectory("/some/dir/createoutputpath.json")).WillOnce(Return(false));
     std::vector<Path> noOldReports;
     EXPECT_CALL(*filesystemMock, listFiles("/some/dir")).WillOnce(Return(noOldReports));
     EXPECT_CALL(*filesystemMock, readFile("inputfiledoesnotexists.json")).WillRepeatedly(Throw(IFileSystemException("Cannot read file")));
+    m_replacer.replace(std::move(filesystemMock));
 
+    char* inputFileDoesNotExist[] = { const_cast<char*>("SulDownloader"),
+                                      const_cast<char*>("inputfiledoesnotexists.json"),
+                                      const_cast<char*>("/some/dir/createoutputpath.json") };
     EXPECT_EQ(SulDownloader::main_entry(3, inputFileDoesNotExist), -2);
 }
 
@@ -1035,7 +1035,7 @@ TEST_F(
 
     Sdds3SimplifiedDownloadReport expectedDownloadReport{ wError.status, wError.Description, {}, false, {} };
 
-    ConfigurationData configurationData = configData(defaultSettings());
+    auto configurationData = configData(defaultSettings());
     ConfigurationData previousConfigurationData;
     configurationData.verifySettingsAreValid();
     DownloadReport previousDownloadReport = DownloadReport::Report("Not assigned");
@@ -1095,7 +1095,7 @@ TEST_F(
 
     Sdds3SimplifiedDownloadReport expectedDownloadReport{ wError.status, wError.Description, productReports, false, {} };
 
-    ConfigurationData configurationData = configData(defaultSettings());
+    auto configurationData = configData(defaultSettings());
     ConfigurationData previousConfigurationData;
     configurationData.verifySettingsAreValid();
 
@@ -1140,7 +1140,7 @@ TEST_F(
 
     Sdds3SimplifiedDownloadReport expectedDownloadReport{ wError.status, wError.Description, {}, false, {} };
 
-    ConfigurationData configurationData = configData(defaultSettings());
+    auto configurationData = configData(defaultSettings());
     ConfigurationData previousConfigurationData;
     configurationData.verifySettingsAreValid();
     DownloadReport previousDownloadReport = DownloadReport::Report("Not assigned");
@@ -1193,7 +1193,7 @@ TEST_F(
 
     Sdds3SimplifiedDownloadReport expectedDownloadReport{ wError.status, wError.Description, {}, false, {} };
 
-    ConfigurationData configurationData = configData(defaultSettings());
+    auto configurationData = configData(defaultSettings());
     ConfigurationData previousConfigurationData;
     configurationData.verifySettingsAreValid();
     DownloadReport previousDownloadReport = DownloadReport::Report("Not assigned");
@@ -1262,7 +1262,7 @@ TEST_F(SULDownloaderSdds3Test, runSULDownloader_onDistributeFailure)
     EXPECT_CALL(fileSystemMock, isFile("/opt/sophos-spl/base/update/var/installedproductversions/ServerProtectionLinux-Plugin-EDR.ini"))
         .WillRepeatedly(Return(false));
 
-    ConfigurationData configurationData = configData(defaultSettings());
+    auto configurationData = configData(defaultSettings());
     ConfigurationData previousConfigurationData;
     configurationData.verifySettingsAreValid();
     DownloadReport previousDownloadReport = DownloadReport::Report("Not assigned");
@@ -1320,7 +1320,7 @@ TEST_F(
                                                      true,
                                                      productsInfo({ products[0], products[1] }) };
 
-    ConfigurationData configurationData = configData(defaultSettings());
+    auto configurationData = configData(defaultSettings());
     ConfigurationData previousConfigurationData;
     configurationData.verifySettingsAreValid();
 
@@ -1345,7 +1345,7 @@ TEST_F(
 {
     MockFileSystem& fileSystemMock = setupFileSystemAndGetMock(1, 2, 0);
     MockSdds3Repository& mock = repositoryMocked();
-    ConfigurationData configurationData = configData(defaultSettings());
+    auto configurationData = configData(defaultSettings());
     ConfigurationData previousConfigurationData;
     configurationData.verifySettingsAreValid();
 
@@ -1505,7 +1505,7 @@ TEST_F(
                                                      false,
                                                      productsInfo({ products[0], products[1] }) };
 
-    ConfigurationData configurationData = configData(defaultSettings());
+    auto configurationData = configData(defaultSettings());
     ConfigurationData previousConfigurationData;
     configurationData.verifySettingsAreValid();
     DownloadReport previousDownloadReport = DownloadReport::Report("Not assigned");
@@ -1605,7 +1605,7 @@ TEST_F(
                                                      true,
                                                      productsInfo({ products[0], products[1] }) };
 
-    ConfigurationData configurationData = configData(defaultSettings());
+    auto configurationData = configData(defaultSettings());
     ConfigurationData previousConfigurationData;
     configurationData.verifySettingsAreValid();
     DownloadReport previousDownloadReport = DownloadReport::Report("Not assigned");
@@ -1704,7 +1704,7 @@ TEST_F(
                                                      true,
                                                      productsInfo({ products[0], products[1] }) };
 
-    ConfigurationData configurationData = configData(defaultSettings());
+    auto configurationData = configData(defaultSettings());
     ConfigurationData previousConfigurationData;
     configurationData.verifySettingsAreValid();
     DownloadReport previousDownloadReport = DownloadReport::Report("Not assigned");
@@ -1824,7 +1824,7 @@ TEST_F(
                                                      true,
                                                      productsInfo({ products[0], products[1] }) };
 
-    ConfigurationData configurationData = configData(defaultSettings());
+    auto configurationData = configData(defaultSettings());
     ConfigurationData previousConfigurationData;
     configurationData.verifySettingsAreValid();
     DownloadReport previousDownloadReport = DownloadReport::Report("Not assigned");
@@ -1942,7 +1942,7 @@ TEST_F(
                                                      true,
                                                      productsInfo({ products[0], products[1] }) };
 
-    ConfigurationData configurationData = configData(defaultSettings());
+    auto configurationData = configData(defaultSettings());
     ConfigurationData previousConfigurationData;
     configurationData.verifySettingsAreValid();
     DownloadReport previousDownloadReport = DownloadReport::Report("Not assigned");
@@ -2046,7 +2046,7 @@ TEST_F(
     expectedDownloadReport.Products.clear();
     expectedDownloadReport.Products.push_back(copyProduct);
 
-    ConfigurationData configurationData = configData(defaultSettings());
+    auto configurationData = configData(defaultSettings());
     ConfigurationData previousConfigurationData;
     configurationData.verifySettingsAreValid();
     DownloadReport previousDownloadReport = DownloadReport::Report("Not assigned");
@@ -2146,8 +2146,8 @@ TEST_F(
                                                      true,
                                                      productsInfo({ products[0], products[1] }) };
 
-    ConfigurationData previousConfigurationData = configData(defaultSettings());
-    ConfigurationData configurationData = configData(newSubscriptionSettings());
+    auto previousConfigurationData = configData(defaultSettings());
+    auto configurationData = configData(newSubscriptionSettings());
 
     configurationData.verifySettingsAreValid();
     previousConfigurationData.verifySettingsAreValid();
@@ -2251,8 +2251,8 @@ TEST_F(
                                                      true,
                                                      productsInfo({ products[0], products[1] }) };
 
-    ConfigurationData previousConfigurationData = configData(defaultSettings());
-    ConfigurationData configurationData = configData(newFeatureSettings());
+    auto previousConfigurationData = configData(defaultSettings());
+    auto configurationData = configData(newFeatureSettings());
 
     configurationData.verifySettingsAreValid();
     previousConfigurationData.verifySettingsAreValid();
@@ -2352,8 +2352,8 @@ TEST_F(
                                                      true,
                                                      productsInfo({ products[0], products[1] }) };
 
-    ConfigurationData previousConfigurationData = configData(newSubscriptionSettings());
-    ConfigurationData configurationData = configData(newDifferentSubscriptionSettings());
+    auto previousConfigurationData = configData(newSubscriptionSettings());
+    auto configurationData = configData(newDifferentSubscriptionSettings());
 
     configurationData.verifySettingsAreValid();
     previousConfigurationData.verifySettingsAreValid();
@@ -2460,8 +2460,8 @@ TEST_F(
                                                      true,
                                                      productsInfo({ products[0], products[1] }) };
 
-    ConfigurationData previousConfigurationData = configData(newFeatureSettings());
-    ConfigurationData configurationData = configData(newDifferentFeatureSettings());
+    auto previousConfigurationData = configData(newFeatureSettings());
+    auto configurationData = configData(newDifferentFeatureSettings());
 
     configurationData.verifySettingsAreValid();
     previousConfigurationData.verifySettingsAreValid();
@@ -2561,7 +2561,7 @@ TEST_F(
                                                      true,
                                                      productsInfo({ products[0], products[1] }) };
 
-    ConfigurationData configurationData = configData(defaultSettings());
+    auto configurationData = configData(defaultSettings());
     ConfigurationData previousConfigurationData;
     configurationData.verifySettingsAreValid();
     previousConfigurationData.verifySettingsAreValid();
@@ -2621,8 +2621,8 @@ TEST_F(
                                                      true,
                                                      productsInfo({ products[0], products[1] }) };
 
-    ConfigurationData configurationData = configData(defaultSettings());
-    ConfigurationData previousConfigurationData = configData(defaultSettings());
+    auto configurationData = configData(defaultSettings());
+    auto previousConfigurationData = configData(defaultSettings());
     configurationData.verifySettingsAreValid();
 
     TimeTracker timeTracker;
@@ -2684,8 +2684,8 @@ TEST_F(
                                                      true,
                                                      productsInfo({ products[0], products[1] }) };
 
-    ConfigurationData configurationData = configData(defaultSettings());
-    ConfigurationData previousConfigurationData = configData(defaultSettings());
+    auto configurationData = configData(defaultSettings());
+    auto previousConfigurationData = configData(defaultSettings());
     configurationData.verifySettingsAreValid();
 
     TimeTracker timeTracker;
@@ -2717,7 +2717,7 @@ TEST_F(
     settings.clear_sophosurls();
     settings.add_sophosurls("http://localhost/latest/donotexits");
     settings.set_loglevel(ConfigurationSettings::VERBOSE);
-    suldownloaderdata::ConfigurationData configurationData = configData(settings);
+    auto configurationData = configData(settings);
     suldownloaderdata::ConfigurationData previousConfigurationData;
     configurationData.verifySettingsAreValid();
     DownloadReport previousDownloadReport = DownloadReport::Report("Not assigned");
@@ -2747,7 +2747,7 @@ TEST_F(
     settings.clear_sophosurls();
     settings.add_sophosurls("http://localhost/latest/donotexits");
     settings.set_loglevel(ConfigurationSettings::NORMAL);
-    ConfigurationData configurationData = configData(settings);
+    auto configurationData = configData(settings);
     ConfigurationData previousConfigurationData;
     configurationData.verifySettingsAreValid();
     DownloadReport previousDownloadReport = DownloadReport::Report("Not assigned");
@@ -2836,7 +2836,7 @@ TEST_F(SULDownloaderSdds3Test,updateFailsIfNoJWTToken)
     auto settings = defaultSettings();
     settings.set_loglevel(ConfigurationSettings::NORMAL);
     settings.mutable_jwtoken()->assign("");
-    ConfigurationData configurationData = configData(settings);
+    auto configurationData = configData(settings);
     ConfigurationData previousConfigurationData;
     configurationData.verifySettingsAreValid();
     DownloadReport previousDownloadReport = DownloadReport::Report("Not assigned");
@@ -2859,7 +2859,7 @@ TEST_F(SULDownloaderSdds3Test,updateFailsIfOldVersion)
     auto settings = defaultSettings();
     auto primarySubscription = ProductSubscription("rigidname", "baseversion", "tag", "2020");
     settings.set_loglevel(ConfigurationSettings::NORMAL);
-    ConfigurationData configurationData = configData(settings);
+    auto configurationData = configData(settings);
     configurationData.setPrimarySubscription(primarySubscription);
     ConfigurationData previousConfigurationData;
     configurationData.verifySettingsAreValid();
@@ -2883,7 +2883,7 @@ TEST_F(SULDownloaderSdds3Test, runSULDownloader_NonSupplementOnlyClearsAwaitSche
     setupFileVersionCalls(mockFileSystem, "PRODUCT_VERSION = 1.2", "PRODUCT_VERSION = 1.3");
 
     auto settings = defaultSettings();
-    ConfigurationData configurationData = configData(settings);
+    auto configurationData = configData(settings);
     configurationData.verifySettingsAreValid();
     ConfigurationData previousConfigurationData;
     const auto products = defaultProducts();
@@ -2943,7 +2943,7 @@ TEST_F(SULDownloaderSdds3Test, runSULDownloader_SupplementOnlyBelowVersion123Doe
     setupFileVersionCalls(mockFileSystem, "PRODUCT_VERSION = 1.2.2.999", "PRODUCT_VERSION = 1.2.3.0");
 
     auto settings = defaultSettings();
-    ConfigurationData configurationData = configData(settings);
+    auto configurationData = configData(settings);
     configurationData.verifySettingsAreValid();
     ConfigurationData previousConfigurationData;
     const auto products = defaultProducts();
@@ -2991,7 +2991,7 @@ TEST_F(
     setupFileVersionCalls(mockFileSystem, "PRODUCT_VERSION = 1.2.3.0", "PRODUCT_VERSION = 1.2.5.1");
 
     auto settings = defaultSettings();
-    ConfigurationData configurationData = configData(settings);
+    auto configurationData = configData(settings);
     configurationData.verifySettingsAreValid();
     ConfigurationData previousConfigurationData;
     const auto products = defaultProducts();
@@ -3055,7 +3055,7 @@ TEST_F(SULDownloaderSdds3Test, RunSULDownloaderProductUpdateButBaseVersionIniDoe
     setupPluginVersionFileCalls(mockFileSystem, "PRODUCT_VERSION = 1.2.2.999", "PRODUCT_VERSION = 1.2.3.0");
 
     auto settings = defaultSettings();
-    ConfigurationData configurationData = configData(settings);
+    auto configurationData = configData(settings);
     configurationData.verifySettingsAreValid();
     ConfigurationData previousConfigurationData;
     const auto products = defaultProducts();
@@ -3119,7 +3119,7 @@ TEST_F(SULDownloaderSdds3Test, RunSULDownloaderSupplementOnlyButBaseVersionIniDo
     setupPluginVersionFileCalls(mockFileSystem, "PRODUCT_VERSION = 1.2.2.999", "PRODUCT_VERSION = 1.2.3.0");
 
     auto settings = defaultSettings();
-    ConfigurationData configurationData = configData(settings);
+    auto configurationData = configData(settings);
     configurationData.verifySettingsAreValid();
     ConfigurationData previousConfigurationData;
     const auto products = defaultProducts();

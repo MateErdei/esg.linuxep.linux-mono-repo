@@ -8,15 +8,16 @@
 #include "Common/Process/IProcess.h"
 #include "Common/Process/IProcessException.h"
 
+using namespace Common::Policy;
 using namespace SulDownloader::suldownloaderdata;
 
 std::vector<std::string> VersigImpl::getListOfManifestFileNames(
-                const ConfigurationData& configurationData,
+                const UpdateSettings& updateSettings,
                 const std::string& productDirectoryPath) const
 {
     auto fileSystem = Common::FileSystem::fileSystem();
 
-    auto manifestPaths = configurationData.getManifestNames();
+    auto manifestPaths = updateSettings.getManifestNames();
     if (manifestPaths.empty())
     {
         // a manifest.dat file should exits for each component.
@@ -25,7 +26,7 @@ std::vector<std::string> VersigImpl::getListOfManifestFileNames(
 
     // optional manifest files to validate if they exists.
 
-    auto optionalManifestPaths = configurationData.getOptionalManifestNames();
+    auto optionalManifestPaths = updateSettings.getOptionalManifestNames();
 
     for(auto& relativeManifestPath : optionalManifestPaths)
     {
@@ -61,7 +62,7 @@ std::vector<std::string> VersigImpl::getListOfManifestFileNames(
 }
 
 IVersig::VerifySignature VersigImpl::verify(
-    const ConfigurationData& configurationData,
+    const UpdateSettings& updateSettings,
     const std::string& productDirectoryPath) const
 {
     auto certificate_path = Common::ApplicationConfiguration::applicationPathManager().getUpdateCertificatesPath();
@@ -80,7 +81,7 @@ IVersig::VerifySignature VersigImpl::verify(
         return VerifySignature::INVALID_ARGUMENTS;
     }
 
-    std::string versig_path = configurationData.getVersigPath();
+    std::string versig_path = updateSettings.getVersigPath();
     if (versig_path.empty() || !fileSystem->isExecutable(versig_path))
     {
         versig_path = Common::ApplicationConfiguration::applicationPathManager().getVersigPath();
@@ -92,7 +93,7 @@ IVersig::VerifySignature VersigImpl::verify(
         return VerifySignature::INVALID_ARGUMENTS;
     }
 
-    auto manifestPaths = getListOfManifestFileNames(configurationData, productDirectoryPath);
+    auto manifestPaths = getListOfManifestFileNames(updateSettings, productDirectoryPath);
 
     int exitCode = -1;
     for (auto& relativeManifestPath : manifestPaths)

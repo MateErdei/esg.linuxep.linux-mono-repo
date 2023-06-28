@@ -17,9 +17,9 @@ namespace
     class VersigTests : public ::testing::Test
     {
     public:
-        VersigTests() :
-            m_configurationData(SulDownloader::suldownloaderdata::ConfigurationData::DefaultSophosLocationsURL)
+        VersigTests()
         {
+            m_configurationData.setSophosLocationURLs({});
             m_configurationData.setManifestNames({ "manifest.dat" });
             m_configurationData.setOptionalManifestNames({ "flags_manifest.dat" });
             rootca = "/opt/sophos-spl/base/update/rootcerts";
@@ -31,7 +31,7 @@ namespace
             fileSystemMock = new MockFileSystem();
             m_replacer.replace(std::unique_ptr<Common::FileSystem::IFileSystem>(fileSystemMock));
         }
-        SulDownloader::suldownloaderdata::ConfigurationData m_configurationData;
+        Common::Policy::UpdateSettings m_configurationData;
         std::string rootca;
         std::string productDir;
         std::string m_supplementDir;

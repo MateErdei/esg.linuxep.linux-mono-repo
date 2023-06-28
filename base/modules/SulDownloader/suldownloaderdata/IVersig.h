@@ -1,12 +1,8 @@
-/******************************************************************************************************
-
-Copyright 2018, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
-#include "ConfigurationData.h"
+#include "Common/Policy/UpdateSettings.h"
 
 #include <memory>
 #include <string>
@@ -27,8 +23,10 @@ namespace SulDownloader
                 INVALID_ARGUMENTS
             };
 
+            using settings_t = Common::Policy::UpdateSettings;
+
             virtual VerifySignature verify(
-                const ConfigurationData& configurationData,
+                const settings_t& configurationData,
                 const std::string& productDirectoryPath) const = 0;
         };
 

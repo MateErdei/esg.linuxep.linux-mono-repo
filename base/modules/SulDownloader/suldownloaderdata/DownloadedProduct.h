@@ -6,7 +6,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include "ConfigurationData.h"
+#include "Common/Policy/UpdateSettings.h"
 #include "ProductMetadata.h"
 #include "RepositoryError.h"
 
@@ -36,7 +36,7 @@ namespace SulDownloader
              * @note If the verification fails, internal error will be set and can be checked by hasError.
              * @pre ::setDistributePath called first and ::hasError return false.
              */
-            void verify(const ConfigurationData& configurationData);
+            void verify(const Common::Policy::UpdateSettings& configurationData);
 
             /**
              * Run the installer that should be in ::distributePath() + /install.sh.

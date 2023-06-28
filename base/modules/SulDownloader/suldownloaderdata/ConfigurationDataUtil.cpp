@@ -12,15 +12,17 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include <algorithm>
 
+using namespace Common::Policy;
+
 namespace SulDownloader
 {
     namespace suldownloaderdata
     {
-        bool ConfigurationDataUtil::checkIfShouldForceUpdate(const ConfigurationData &configurationData,
-                                                             const ConfigurationData &previousConfigurationData)
+        bool ConfigurationDataUtil::checkIfShouldForceUpdate(const UpdateSettings& updateSettings,
+                                                             const UpdateSettings& previousUpdateSettings)
         {
-            auto &newPrimarySubscription = configurationData.getPrimarySubscription();
-            auto &previousPrimarySubscription = previousConfigurationData.getPrimarySubscription();
+            auto newPrimarySubscription = updateSettings.getPrimarySubscription();
+            auto previousPrimarySubscription = previousUpdateSettings.getPrimarySubscription();
 
             if(newPrimarySubscription.rigidName() != previousPrimarySubscription.rigidName()
                || newPrimarySubscription.tag() != previousPrimarySubscription.tag()
@@ -29,9 +31,9 @@ namespace SulDownloader
                 return true;
             }
 
-            for (auto &newSubscription : configurationData.getProductsSubscription())
+            for (auto &newSubscription : updateSettings.getProductsSubscription())
             {
-                for (auto &previousSubscription : previousConfigurationData.getProductsSubscription())
+                for (auto &previousSubscription : previousUpdateSettings.getProductsSubscription())
                 {
                     if (newSubscription.rigidName() == previousSubscription.rigidName())
                     {
@@ -52,8 +54,8 @@ namespace SulDownloader
         }
 
 
-        bool ConfigurationDataUtil::checkIfShouldForceInstallAllProducts(const ConfigurationData& configurationData,
-                                                                         const ConfigurationData& previousConfigurationData,
+        bool ConfigurationDataUtil::checkIfShouldForceInstallAllProducts(const UpdateSettings& updateSettings,
+                                                                         const UpdateSettings& previousUpdateSettings,
                                                                          bool onlyCompareSubscriptionsAndFeatures)
         {
             /*
@@ -85,17 +87,17 @@ namespace SulDownloader
              */
 
             LOGDEBUG("Checking if should force install on all products");
-            if (!onlyCompareSubscriptionsAndFeatures && !previousConfigurationData.isVerified())
+            if (!onlyCompareSubscriptionsAndFeatures && !previousUpdateSettings.isVerified())
             {
                 // if Configuration data is not verified no previous configuration data provided
                 LOGDEBUG("Previous update configuration data has not been set or verified.");
                 return false;
             }
 
-            if (configurationData.getForceReinstallAllProducts() ||
-                (configurationData.getProductsSubscription().size() !=
-                 previousConfigurationData.getProductsSubscription().size()) ||
-                (configurationData.getFeatures().size() != previousConfigurationData.getFeatures().size()))
+            if (updateSettings.getForceReinstallAllProducts() ||
+                (updateSettings.getProductsSubscription().size() !=
+                 previousUpdateSettings.getProductsSubscription().size()) ||
+                (updateSettings.getFeatures().size() != previousUpdateSettings.getFeatures().size()))
             {
                 LOGDEBUG("Found new subscription or features in update configuration.");
                 return true;
@@ -106,22 +108,22 @@ namespace SulDownloader
             std::vector <std::string> newSortedFeatures;
             std::vector <std::string> previousSortedFeatures;
 
-            for (auto &subscription : configurationData.getProductsSubscription())
+            for (auto &subscription : updateSettings.getProductsSubscription())
             {
                 newSortedRigidNames.push_back(subscription.rigidName());
             }
 
-            for (auto &subscription : previousConfigurationData.getProductsSubscription())
+            for (auto &subscription : previousUpdateSettings.getProductsSubscription())
             {
                 previousSortedRigidNames.push_back(subscription.rigidName());
             }
 
-            for (auto &feature : configurationData.getFeatures())
+            for (auto &feature : updateSettings.getFeatures())
             {
                 newSortedFeatures.push_back(feature);
             }
 
-            for (auto &feature : previousConfigurationData.getFeatures())
+            for (auto &feature : previousUpdateSettings.getFeatures())
             {
                 previousSortedFeatures.push_back(feature);
             }

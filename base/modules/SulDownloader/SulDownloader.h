@@ -21,7 +21,7 @@ namespace SulDownloader
     suldownloaderdata::DownloadReport processRepositoryAndGenerateReport(const bool successs,
                                                                          suldownloaderdata::IRepositoryPtr repository,
                                                                          suldownloaderdata::TimeTracker& timeTracker,
-                                                                         const suldownloaderdata::ConfigurationData& configurationData,
+                                                                         const Common::Policy::UpdateSettings& updateSettings,
                                                                          const suldownloaderdata::DownloadReport& previousDownloadReport,
                                                                          bool forceReinstallAllProducts,
                                                                          const bool supplementOnly);
@@ -49,8 +49,8 @@ namespace SulDownloader
      * @note This method is not supposed to throw, as any failure is to be described in DownloadReport.
      */
     suldownloaderdata::DownloadReport runSULDownloader(
-        const suldownloaderdata::ConfigurationData& configurationData,
-        const suldownloaderdata::ConfigurationData& previousConfigurationData,
+        const Common::Policy::UpdateSettings& updateSetting,
+        const Common::Policy::UpdateSettings& previousUpdateSetting,
         const suldownloaderdata::DownloadReport& previousDownloadReport,
         bool supplementOnly=false);
 

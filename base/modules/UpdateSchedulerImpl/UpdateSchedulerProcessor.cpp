@@ -1,33 +1,36 @@
 // Copyright 2018-2023 Sophos Limited. All rights reserved.
 
-#include "UpdateUtilities/InstalledFeatures.h"
+#include "Logger.h"
+#include "UpdateSchedulerProcessor.h"
+#include "UpdateSchedulerUtils.h"
 
+#include "configModule/DownloadReportsAnalyser.h"
+#include "configModule/UpdateActionParser.h"
+#include "runnerModule/AsyncSulDownloaderRunner.h"
+#include "stateMachinesModule/EventStateMachine.h"
+#include "stateMachinesModule/StateMachineProcessor.h"
+
+#include "UpdateScheduler/SchedulerTaskQueue.h"
+
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include "Common/FlagUtils/FlagUtils.h"
+#include "Common/FileSystem/IFileSystem.h"
+#include "Common/FileSystem/IFileSystemException.h"
 #include "Common/FileSystem/IPidLockFileUtils.h"
-#include <Common/ApplicationConfiguration/IApplicationPathManager.h>
-#include <Common/FileSystem/IFileSystem.h>
-#include <Common/FileSystem/IFileSystemException.h>
-#include <Common/FlagUtils/FlagUtils.h>
-#include <Common/OSUtilitiesImpl/SXLMachineID.h>
-#include <Common/PluginApi/ApiException.h>
-#include <Common/PluginApi/NoPolicyAvailableException.h>
-#include <Common/TelemetryHelperImpl/TelemetryHelper.h>
+#include "Common/OSUtilitiesImpl/SXLMachineID.h"
+#include "Common/PluginApi/ApiException.h"
+#include "Common/PluginApi/NoPolicyAvailableException.h"
+#include "Common/TelemetryHelperImpl/TelemetryHelper.h"
+#include "Common/UpdateUtilities/InstalledFeatures.h"
+#include "SulDownloader/suldownloaderdata/ConfigurationDataUtil.h"
+#include "SulDownloader/suldownloaderdata/UpdateSupplementDecider.h"
+
 // StringUtils is required for debug builds!
 #include "Common/UtilityImpl/StringUtils.h"
-#include <SulDownloader/suldownloaderdata/ConfigurationDataUtil.h>
-#include <SulDownloader/suldownloaderdata/UpdateSupplementDecider.h>
-#include <UpdateScheduler/SchedulerTaskQueue.h>
-#include <UpdateSchedulerImpl/Logger.h>
-#include <UpdateSchedulerImpl/UpdateSchedulerProcessor.h>
-#include <UpdateSchedulerImpl/UpdateSchedulerUtils.h>
-#include <UpdateSchedulerImpl/configModule/DownloadReportsAnalyser.h>
-#include <UpdateSchedulerImpl/configModule/UpdateActionParser.h>
-#include <UpdateSchedulerImpl/runnerModule/AsyncSulDownloaderRunner.h>
-#include <UpdateSchedulerImpl/stateMachinesModule/EventStateMachine.h>
-#include <UpdateSchedulerImpl/stateMachinesModule/StateMachineProcessor.h>
+
+#include <json.hpp>
 
 #include <chrono>
-#include <iomanip>
-#include <json.hpp>
 #include <thread>
 
 using namespace std::chrono;
@@ -92,7 +95,7 @@ namespace UpdateSchedulerImpl
         return true;
     }
 
-    using SettingsHolder = UpdateSchedulerImpl::configModule::SettingsHolder;
+    using SettingsHolderSettingsHolder = UpdateSchedulerImpl::configModule::SettingsHolder;
     using ReportAndFiles = UpdateSchedulerImpl::configModule::ReportAndFiles;
     using UpdateStatus = UpdateSchedulerImpl::configModule::UpdateStatus;
     using namespace UpdateScheduler;
@@ -274,15 +277,15 @@ namespace UpdateSchedulerImpl
 
         try
         {
-            SettingsHolder settingsHolder = m_policyTranslator.translatePolicy(policyXml);
+            auto updateSettings = m_policyTranslator.translatePolicy(policyXml);
 
-            if (!settingsHolder.updateCacheCertificatesContent.empty())
+            if (!updateSettings.updateCacheCertificatesContent.empty())
             {
-                saveUpdateCacheCertificate(settingsHolder.updateCacheCertificatesContent);
+                saveUpdateCacheCertificate(updateSettings.updateCacheCertificatesContent);
             }
 
             // Check that the policy period is within expected range and set default if not
-            long updatePeriod = settingsHolder.schedulerPeriod.count();
+            long updatePeriod = updateSettings.schedulerPeriod.count();
             constexpr long year = 365 * 24 * 60;
             if (updatePeriod < 5 || updatePeriod > year)
             {
@@ -293,7 +296,7 @@ namespace UpdateSchedulerImpl
             }
             else
             {
-                m_cronThread->setPeriodTime(settingsHolder.schedulerPeriod);
+                m_cronThread->setPeriodTime(updateSettings.schedulerPeriod);
             }
 
             if (!Common::FileSystem::fileSystem()->isFile(m_configfilePath))
@@ -306,18 +309,18 @@ namespace UpdateSchedulerImpl
             {
                 LOGWARN("No jwt token field found in mcs.config");
             }
-            settingsHolder.configurationData.setJWToken(token);
-            settingsHolder.configurationData.setDeviceId(UpdateSchedulerUtils::getDeviceId());
-            settingsHolder.configurationData.setTenantId(UpdateSchedulerUtils::getTenantId());
-            settingsHolder.configurationData.setDoForcedPausedUpdate(m_forcePausedUpdate);
-            settingsHolder.configurationData.setDoForcedUpdate(m_forceUpdate);
-            writeConfigurationData(settingsHolder.configurationData);
-            weeklySchedule_ = settingsHolder.weeklySchedule;
-            m_featuresInPolicy = settingsHolder.configurationData.getFeatures();
+            updateSettings.configurationData.setJWToken(token);
+            updateSettings.configurationData.setDeviceId(UpdateSchedulerUtils::getDeviceId());
+            updateSettings.configurationData.setTenantId(UpdateSchedulerUtils::getTenantId());
+            updateSettings.configurationData.setDoForcedPausedUpdate(m_forcePausedUpdate);
+            updateSettings.configurationData.setDoForcedUpdate(m_forceUpdate);
+            writeConfigurationData(updateSettings.configurationData);
+            weeklySchedule_ = updateSettings.weeklySchedule;
+            m_featuresInPolicy = updateSettings.configurationData.getFeatures();
             m_subscriptionRigidNamesInPolicy.clear();
-            m_subscriptionRigidNamesInPolicy.push_back(settingsHolder.configurationData.getPrimarySubscription().rigidName());
+            m_subscriptionRigidNamesInPolicy.push_back(updateSettings.configurationData.getPrimarySubscription().rigidName());
 
-            for (auto& productSubscription : settingsHolder.configurationData.getProductsSubscription())
+            for (auto& productSubscription : updateSettings.configurationData.getProductsSubscription())
             {
                 m_subscriptionRigidNamesInPolicy.push_back(productSubscription.rigidName());
             }
@@ -340,14 +343,13 @@ namespace UpdateSchedulerImpl
                 LOGINFO("Scheduling updates every "<< updatePeriod << " minutes");
             }
 
-            std::optional<SulDownloader::suldownloaderdata::ConfigurationData> previousConfigurationData =
-                UpdateSchedulerUtils::getPreviousConfigurationData();
+            auto previousConfigurationData = UpdateSchedulerUtils::getPreviousConfigurationData();
 
             if (previousConfigurationData.has_value() &&
                     (SulDownloader::suldownloaderdata::ConfigurationDataUtil::checkIfShouldForceInstallAllProducts(
-                        settingsHolder.configurationData, previousConfigurationData.value()) ||
+                        updateSettings.configurationData, previousConfigurationData.value()) ||
                     SulDownloader::suldownloaderdata::ConfigurationDataUtil::checkIfShouldForceUpdate(
-                                    settingsHolder.configurationData, previousConfigurationData.value())))
+                                    updateSettings.configurationData, previousConfigurationData.value())))
             {
                 LOGINFO("Detected product configuration change, triggering update.");
                 m_pendingUpdate = true;
@@ -454,7 +456,7 @@ namespace UpdateSchedulerImpl
         if (config.has_value() && changed)
         {
             LOGINFO("Writing new flag into to config");
-            SulDownloader::suldownloaderdata::ConfigurationData currentConfigData = config.value();
+            auto currentConfigData = config.value();
             currentConfigData.setDoForcedUpdate(m_forceUpdate);
             currentConfigData.setDoForcedPausedUpdate(m_forcePausedUpdate);
             writeConfigurationData(currentConfigData);
@@ -784,7 +786,7 @@ namespace UpdateSchedulerImpl
     }
 
     void UpdateSchedulerProcessor::writeConfigurationData(
-        const SulDownloader::suldownloaderdata::ConfigurationData& configurationData)
+        const Common::Policy::UpdateSettings& configurationData)
     {
         std::string tempPath = Common::ApplicationConfiguration::applicationPathManager().getTempPath();
         std::string serializedConfigData =

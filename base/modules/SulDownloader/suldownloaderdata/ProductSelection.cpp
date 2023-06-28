@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2018-2020, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #include "ProductSelection.h"
 
@@ -173,11 +169,11 @@ namespace SulDownloader
 {
     // Product Selection
 
-    ProductSelection ProductSelection::CreateProductSelection(const ConfigurationData& configurationData)
+    ProductSelection ProductSelection::CreateProductSelection(const Common::Policy::UpdateSettings& configurationData)
     {
         ProductSelection productSelection;
 
-        auto& primary = configurationData.getPrimarySubscription();
+        auto primary = configurationData.getPrimarySubscription();
         LOGSUPPORT("Product Selector: " << primary.toString() << ". Primary.");
         productSelection.appendSelector(std::make_unique<SubscriptionSelector>(primary));
 

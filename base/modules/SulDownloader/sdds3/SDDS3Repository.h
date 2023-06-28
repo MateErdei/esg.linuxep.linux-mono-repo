@@ -30,7 +30,7 @@ namespace SulDownloader
         bool tryConnect(
             const suldownloaderdata::ConnectionSetup& connectionSetup,
             bool supplementOnly,
-            const suldownloaderdata::ConfigurationData& configurationData) override;
+            const Common::Policy::UpdateSettings& configurationData) override;
         bool hasError() const override;
         bool hasImmediateFailError() const override;
         suldownloaderdata::RepositoryError getError() const override;
@@ -41,7 +41,7 @@ namespace SulDownloader
         std::vector<suldownloaderdata::ProductInfo> listInstalledProducts() const override;
         void purge() const override;
         bool synchronize(
-            const suldownloaderdata::ConfigurationData& configurationData,
+            const Common::Policy::UpdateSettings& configurationData,
             const suldownloaderdata::ConnectionSetup& connectionSetup,
             const bool ignoreFailedSupplementRefresh) override;
         void distribute() override;
@@ -63,7 +63,7 @@ namespace SulDownloader
         void populateConfigFromFile();
         SDDS3::SusData getDataToSync(
             const suldownloaderdata::ConnectionSetup& connectionSetup,
-            const suldownloaderdata::ConfigurationData& configurationData);
+            const Common::Policy::UpdateSettings& configurationData);
         bool doesFeatureCodeMatchConfig(const std::vector<std::string>& keys);
         std::string generateUserAgentString(const std::string& tenant_id, const std::string& device_id);
         std::shared_ptr<sophlib::sdds3::Session> m_session;

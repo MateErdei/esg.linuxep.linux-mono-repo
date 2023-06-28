@@ -3,11 +3,14 @@
 #include "SulDownloaderUtils.h"
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "Common/FileSystem/IFileSystem.h"
+
+using namespace Common::Policy;
+
 namespace SulDownloader
 {
-    bool SulDownloaderUtils::isEndpointPaused(const suldownloaderdata::ConfigurationData& configurationData)
+    bool SulDownloaderUtils::isEndpointPaused(const UpdateSettings& updateSettings)
     {
-        std::vector<suldownloaderdata::ProductSubscription> subs = configurationData.getProductsSubscription();
+        std::vector<Common::Policy::ProductSubscription> subs = updateSettings.getProductsSubscription();
         for (const auto& subscription : subs)
         {
             if (!subscription.fixedVersion().empty())
@@ -16,22 +19,22 @@ namespace SulDownloader
             }
         }
 
-        if (!configurationData.getPrimarySubscription().fixedVersion().empty())
+        if (!updateSettings.getPrimarySubscription().fixedVersion().empty())
         {
             return true;
         }
         return false;
     }
 
-    bool SulDownloaderUtils::checkIfWeShouldForceUpdates(const suldownloaderdata::ConfigurationData& configurationData)
+    bool SulDownloaderUtils::checkIfWeShouldForceUpdates(const UpdateSettings& updateSettings)
     {
         auto& pathManager = Common::ApplicationConfiguration::applicationPathManager();
         auto fs = Common::FileSystem::fileSystem();
 
-        bool paused = isEndpointPaused(configurationData);
+        bool paused = isEndpointPaused(updateSettings);
 
         std::string markerFile = pathManager.getForcedAnUpdateMarkerPath();
-        if (configurationData.getDoForcedUpdate())
+        if (updateSettings.getDoForcedUpdate())
         {
             if (!fs->isFile(markerFile) && !paused)
             {
@@ -46,7 +49,7 @@ namespace SulDownloader
         }
 
         std::string pausedMarkerFile = pathManager.getForcedAPausedUpdateMarkerPath();
-        if (configurationData.getDoPausedForcedUpdate())
+        if (updateSettings.getDoPausedForcedUpdate())
         {
             if (paused && !fs->isFile(pausedMarkerFile))
             {
