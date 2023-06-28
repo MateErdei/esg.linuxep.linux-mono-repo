@@ -444,6 +444,7 @@ o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libplugincommunicationi
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libpluginprotocol.so
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libpluginregistryimpl.so
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libpolicyreceiverimpl.so
+o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libpolicy.so
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libprocessimpl.so
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libprocessmonitoringimpl.so
 o777, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libprocutilimpl.so

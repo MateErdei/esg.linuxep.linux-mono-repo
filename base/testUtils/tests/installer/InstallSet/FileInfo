@@ -72,6 +72,7 @@ o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libplugincommunicationi
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libpluginprotocol.so.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libpluginregistryimpl.so.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libpolicyreceiverimpl.so.0
+o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libpolicy.so.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libprocessimpl.so.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libprocessmonitoringimpl.so.0
 o740, sophos-spl-group, root, /opt/sophos-spl/base/lib64/libprocutilimpl.so.0
