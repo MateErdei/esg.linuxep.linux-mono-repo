@@ -49,6 +49,7 @@ class MCSAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
             path_manager.install_dir(), policy_config, applied_config)
         self.__m_relay_id = None
         self.app_id = "MCS"
+        self.__m_last_policy = None
 
     def get_app_id(self):
         """
@@ -114,6 +115,11 @@ class MCSAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
         """
         __process_policy
         """
+        if policy == self.__m_last_policy:
+            LOGGER.debug(f"Policy is identical to last one - will not be processed by {self.app_id} Adapter")
+            return []
+        self.__m_last_policy = policy
+
         LOGGER.debug("MCS Adapter processing policy: {}".format(policy))
         self.__m_policy_handler.process(policy)
         return []

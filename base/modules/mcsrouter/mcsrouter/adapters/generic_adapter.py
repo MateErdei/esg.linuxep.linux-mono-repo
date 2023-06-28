@@ -37,6 +37,7 @@ class GenericAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
         assert isinstance(app_id, str)
         self.__m_app_id = app_id
         self.__m_last_status_time = None
+        self.__m_last_policy = None
         if install_dir is not None:
             path_manager.INST = install_dir
 
@@ -50,6 +51,11 @@ class GenericAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
         """
         word of caution: this is a 'private method' will not be overriden by classes inheriting from GenericAdapter
         """
+        if policy == self.__m_last_policy:
+            LOGGER.debug(f"Policy is identical to last one - will not be processed by {self.__m_app_id} Adapter")
+            return []
+        self.__m_last_policy = policy
+
         # handle non ascii characters ( LINUXEP-6757 )
         try:
             policy = policy.encode('utf-8')
