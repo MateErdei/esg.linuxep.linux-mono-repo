@@ -287,46 +287,47 @@ void ALCPolicy::extractUpdateCaches(const Common::XmlUtilities::AttributesMap& a
     auto updateCacheEntities =
         attributesMap.entitiesThatContainPath("AUConfigurations/update_cache/locations/location");
 
-    std::vector<UpdateCache> updateCaches;
-    std::string certificateFileContent;
-    if (!updateCacheEntities.empty())
+    if (updateCacheEntities.empty())
     {
-        for (auto& updateCache : updateCacheEntities)
-        {
-            auto attributes = attributesMap.lookup(updateCache);
-            std::string hostname = attributes.value("hostname");
-            std::string priority = attributes.value("priority");
-            std::string id = attributes.value("id");
-            updateCaches.emplace_back(UpdateCache{ hostname, priority, id });
-        }
-
-        updateCaches_ = sortUpdateCaches(updateCaches);
-        std::vector<std::string> updateCacheHosts;
-        updateCacheHosts.reserve(updateCaches_.size());
-        for (auto& cache : updateCaches_)
-        {
-            updateCacheHosts.emplace_back(cache.hostname);
-        }
-
-        updateSettings_.setLocalUpdateCacheHosts(updateCacheHosts);
-
-        auto cacheCertificates = attributesMap.entitiesThatContainPath(
-            "AUConfigurations/update_cache/intermediate_certificates/intermediate_certificate");
-
-        for (auto& certificate : cacheCertificates)
-        {
-            auto attributes = attributesMap.lookup(certificate);
-            // Remove line endings from certificate
-            if (!certificateFileContent.empty())
-            {
-                certificateFileContent += "\n";
-            }
-            certificateFileContent +=
-                Common::UtilityImpl::StringUtils::replaceAll(attributes.contents(), "&#13;", "");
-        }
-        update_certificates_content_ = certificateFileContent;
+        return;
     }
 
+    std::vector<UpdateCache> updateCaches;
+    std::string certificateFileContent;
+
+    for (auto& updateCache : updateCacheEntities)
+    {
+        auto attributes = attributesMap.lookup(updateCache);
+        std::string hostname = attributes.value("hostname");
+        std::string priority = attributes.value("priority");
+        std::string id = attributes.value("id");
+        updateCaches.emplace_back(UpdateCache{ hostname, priority, id });
+    }
+
+    updateCaches_ = sortUpdateCaches(updateCaches);
+    std::vector<std::string> updateCacheHosts;
+    updateCacheHosts.reserve(updateCaches_.size());
+    for (auto& cache : updateCaches_)
+    {
+        updateCacheHosts.emplace_back(cache.hostname);
+    }
+
+    updateSettings_.setLocalUpdateCacheHosts(updateCacheHosts);
+
+    auto cacheCertificates = attributesMap.entitiesThatContainPath(
+        "AUConfigurations/update_cache/intermediate_certificates/intermediate_certificate");
+
+    for (auto& certificate : cacheCertificates)
+    {
+        auto attributes = attributesMap.lookup(certificate);
+        // Remove line endings from certificate
+        if (!certificateFileContent.empty())
+        {
+            certificateFileContent += "\n";
+        }
+        certificateFileContent += Common::UtilityImpl::StringUtils::replaceAll(attributes.contents(), "&#13;", "");
+    }
+    update_certificates_content_ = certificateFileContent;
 }
 
 void ALCPolicy::extractUpdateSchedule(const Common::XmlUtilities::AttributesMap& attributesMap)
