@@ -26,6 +26,7 @@ RESULTS_DIR = '/opt/test/results'
 COMPONENT = 'sspl_base'
 BUILD_TEMPLATE = 'centos79_x64_build_20230202'
 RELEASE_PKG = './build/release-package.xml'
+BAZEL_RELEASE_PKG = './build/release-package-bazel.xml'
 RELEASE_MODE = 'release'
 DEBUG_MODE = 'debug'
 ANALYSIS_MODE = 'analysis'
@@ -348,6 +349,11 @@ def build_060(stage: tap.Root, component: tap.Component):
         name=ZERO_SIX_ZERO_MODE, component=component, image=BUILD_TEMPLATE,
         mode=ZERO_SIX_ZERO_MODE, release_package=RELEASE_PKG)
 
+def build_bazel(stage: tap.Root, component: tap.Component):
+    return stage.artisan_build(
+        name="bazel", component=component, image=BUILD_TEMPLATE,
+        mode="bazel_release", release_package=BAZEL_RELEASE_PKG)
+
 
 @tap.pipeline(version=1, component=COMPONENT, root_sequential=False)
 def sspl_base(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Parameters):
@@ -398,6 +404,7 @@ def sspl_base(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
                 build_coverage(stage, component)
                 build_999(stage, component)
                 build_060(stage, component)
+            build_bazel(stage, component)
     else:
         base_build = context.artifact.build()
 

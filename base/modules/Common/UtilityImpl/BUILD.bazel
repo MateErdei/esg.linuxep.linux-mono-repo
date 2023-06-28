@@ -1,0 +1,23 @@
+load("//tools/config:soph_rules.bzl", "soph_cc_library")
+
+package(
+    default_visibility = ["//visibility:public"],
+)
+
+soph_cc_library(
+    name = "RegexUtilities",
+    srcs = [
+        "RegexUtilities.cpp",
+    ],
+    hdrs = [
+        "RegexUtilities.h",
+    ],
+)
+
+soph_cc_library(
+    name = "TimeUtils",
+    srcs = [
+        "TimeUtils.cpp",
+        "TimeUtils.h",
+    ],
+)
