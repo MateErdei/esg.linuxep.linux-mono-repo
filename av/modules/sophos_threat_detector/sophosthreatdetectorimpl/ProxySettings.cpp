@@ -33,7 +33,7 @@ namespace
             if (!proxyConfig.contains("proxy"))
             {
                 // Proxy config doesn't contain proxy
-                LOGWARN("Proxy config "<< path << " does not contain proxy");
+                LOGDEBUG("Proxy config "<< path << " does not contain proxy");
                 return {};
             }
 
