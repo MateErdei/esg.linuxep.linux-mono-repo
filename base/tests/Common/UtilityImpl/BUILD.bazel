@@ -1,13 +1,13 @@
 load("//tools/config:soph_rules.bzl", "soph_cc_test")
 
 soph_cc_test(
-    name = "TestTimeUtils",
+    name = "time_utils_test",
     srcs = [
         "TestTimeUtils.cpp",
     ],
     deps = [
-        "//modules/Common/UtilityImpl:RegexUtilities",
-        "//modules/Common/UtilityImpl:TimeUtils",
+        "//modules/Common/UtilityImpl:regex_utilities",
+        "//modules/Common/UtilityImpl:time_utils",
         "@com_google_googletest//:gtest_main",
     ],
 )

@@ -1,0 +1,14 @@
+load("//tools/config:soph_rules.bzl", "soph_cc_test")
+
+soph_cc_test(
+    name = "FileSystemImplTest",
+    srcs = glob([
+        "*.cpp",
+        "*.h",
+    ]),
+    deps = [
+        "//modules/Common/FileSystem",
+        "//modules/Common/FileSystemImpl",
+        "@com_google_googletest//:gtest_main",
+    ],
+)

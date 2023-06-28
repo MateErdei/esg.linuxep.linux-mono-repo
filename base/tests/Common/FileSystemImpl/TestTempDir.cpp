@@ -1,7 +1,11 @@
-// Copyright 2019-2023 Sophos Limited. All rights reserved.
+/******************************************************************************************************
 
-#include "Common/FileSystem/IFileSystem.h"
-#include "Common/FileSystemImpl/TempDir.h"
+Copyright 2019, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
+
+#include "modules/Common/FileSystem/IFileSystem.h"
+#include "modules/Common/FileSystemImpl/TempDir.h"
 #include <gtest/gtest.h>
 
 // cppcheck-suppress syntaxError

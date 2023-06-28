@@ -1,14 +1,16 @@
-// Copyright 2019-2023 Sophos Limited. All rights reserved.
+/******************************************************************************************************
+
+Copyright 2019, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
 #include "TempDir.h"
 
 #include "FileSystemImpl.h"
 
-#include "Common/FileSystem/IFileSystemException.h"
-#include "Common/UtilityImpl/StrError.h"
+#include "modules/Common/FileSystem/IFileSystemException.h"
+#include "modules/Common/UtilityImpl/StrError.h"
 
-#include <cstring>
 #include <iostream>
-#include <unistd.h>
 
 using namespace Common::FileSystemImpl;
 using namespace Common::UtilityImpl;

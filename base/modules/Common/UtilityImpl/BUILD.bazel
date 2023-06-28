@@ -1,23 +1,25 @@
 load("//tools/config:soph_rules.bzl", "soph_cc_library")
 
-package(
-    default_visibility = ["//visibility:public"],
-)
-
 soph_cc_library(
-    name = "RegexUtilities",
+    name = "regex_utilities",
     srcs = [
         "RegexUtilities.cpp",
     ],
     hdrs = [
         "RegexUtilities.h",
     ],
+    visibility = [
+        "//tests:__subpackages__",
+    ],
 )
 
 soph_cc_library(
-    name = "TimeUtils",
+    name = "time_utils",
     srcs = [
         "TimeUtils.cpp",
         "TimeUtils.h",
+    ],
+    visibility = [
+        "//tests:__subpackages__",
     ],
 )

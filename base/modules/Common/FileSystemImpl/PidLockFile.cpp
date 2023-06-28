@@ -1,8 +1,12 @@
-// Copyright 2018-2023 Sophos Limited. All rights reserved.
+/******************************************************************************************************
+
+Copyright 2018-2019, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
 
 #include "PidLockFile.h"
 
-#include "Common/UtilityImpl/StrError.h"
+#include "modules/Common/UtilityImpl/StrError.h"
 #include <sys/file.h>
 
 #include <cstring>
