@@ -222,7 +222,7 @@ def run_gcc_perf_test():
     end_time = get_current_unix_epoch_in_seconds()
 
     record_result("GCC Build", date_time, start_time, end_time)
-    add_annotation(tag="gcc-build", start_time=start_time * 1000, end_time=end_time * 1000, text="Building GCC")
+    add_annotation(tag="gcc-build", start_time=int(start_time * 1000), end_time=int(end_time * 1000), text="Building GCC")
 
     if result.returncode != 0:
         exit(1)

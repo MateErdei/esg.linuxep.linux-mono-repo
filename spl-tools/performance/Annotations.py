@@ -8,6 +8,8 @@ import requests
 
 import LogUtils
 
+requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.InsecureRequestWarning)
+
 LOG_UTILS = LogUtils.LogUtils()
 
 COMPONENT_NAMES_TO_FORMAT = {
@@ -148,7 +150,6 @@ def add_osquery_restart_annotations():
 
 
 def annotate_graphs():
-    requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.InsecureRequestWarning)
     annotation_failures = 0
     annotation_failures += add_product_update_annotations() + add_scheduled_scan_annotations() + add_osquery_restart_annotations()
 
@@ -157,7 +158,6 @@ def annotate_graphs():
 
 
 def delete_annotations(dry_run):
-    requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.InsecureRequestWarning)
     headers = get_grafana_auth()
 
     two_weeks_ago = datetime.datetime.now() - datetime.timedelta(weeks=4)
