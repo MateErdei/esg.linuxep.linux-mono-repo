@@ -533,3 +533,52 @@ TEST_F(TestALCPolicy, cloud_subscriptions)
     EXPECT_EQ(primary.tag(), "RECOMMENDED");
     EXPECT_EQ(primary.baseVersion(), "10");
 }
+
+TEST_F(TestALCPolicy, invalid_credentials_no_user)
+{
+    constexpr char minPolicy[] = R"sophos(<?xml version="1.0"?>
+<AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
+  <csc:Comp RevID="b6a8fe2c0ce016c949016a5da2b7a089699271290ef7205d5bea0986768485d9" policyType="1"/>
+<AUConfig platform="Linux">
+    <primary_location>
+      <server Algorithm="Clear" UserPassword="W2YJXI6FEDW2YJXI6FEDW2YJXI6FEDRF" UserName=""/>
+    </primary_location>
+</AUConfig>
+</AUConfigurations>
+)sophos";
+
+    try
+    {
+        ALCPolicy obj{ minPolicy };
+        FAIL() << "failed to throw due to no username";
+    }
+    catch (const PolicyParseException& except)
+    {
+        EXPECT_STREQ(except.what(), "Invalid policy: Username is empty");
+    }
+}
+
+TEST_F(TestALCPolicy, invalid_credentials_no_password)
+{
+    constexpr char minPolicy[] = R"sophos(<?xml version="1.0"?>
+<AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
+  <csc:Comp RevID="b6a8fe2c0ce016c949016a5da2b7a089699271290ef7205d5bea0986768485d9" policyType="1"/>
+<AUConfig platform="Linux">
+    <primary_location>
+      <server Algorithm="Clear" UserPassword="" UserName="W2YJXI6FEDW2YJXI6FEDW2YJXI6FEDRF"/>
+    </primary_location>
+</AUConfig>
+</AUConfigurations>
+)sophos";
+
+    try
+    {
+        ALCPolicy obj{ minPolicy };
+        FAIL() << "failed to throw due to no password";
+    }
+    catch (const PolicyParseException& except)
+    {
+        EXPECT_STREQ(except.what(), "Invalid policy: Password is empty");
+    }
+}
+
