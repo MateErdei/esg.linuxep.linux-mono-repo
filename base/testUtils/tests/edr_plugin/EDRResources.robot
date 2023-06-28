@@ -43,6 +43,20 @@ Wait For EDR to be Installed
     ...   1 secs
     ...   Check Marked EDR Log Contains   Completed initialisation of EDR
 
+Wait For Sophos Extension To Be Initialised
+    [Arguments]  ${times}=1
+    Wait Until Keyword Succeeds
+    ...  45
+    ...  5
+    ...  Check Log Contains String N times   ${SOPHOS_INSTALL}/plugins/edr/log/edr.log   edr_log  SophosExtension running  ${times}
+
+Wait For Sophos Extension To Be Initialised Including OSQuery Restarts
+    Wait For Sophos Extension To Be Initialised    times=2
+    # If "Osquery health check failed" in logs, OSQuery will restart and we need to wait again
+    ${status}  ${value} =  Run Keyword And Ignore Error   Check Log Does Not Contain    Osquery health check failed    ${SOPHOS_INSTALL}/plugins/edr/log/edr.log    edr_log
+    Run Keyword If  '${status}' == 'FAIL'  Wait For Sophos Extension To Be Initialised    times=3
+
+
 EDR Plugin Is Running
     ${result} =    Run Process  pgrep  edr
     Should Be Equal As Integers    ${result.rc}    0

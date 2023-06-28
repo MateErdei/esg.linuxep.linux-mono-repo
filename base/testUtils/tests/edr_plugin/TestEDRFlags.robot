@@ -44,11 +44,7 @@ EDR runs sophos extension when XDR is enabled
     ${result} =  Run Process  chown  root:sophos-spl-group  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json
     Should Be Equal As Strings  0  ${result.rc}
 
-    Wait Until Keyword Succeeds
-    ...  45
-    ...  5
-    ...  Check Log Contains String N times   ${SOPHOS_INSTALL}/plugins/edr/log/edr.log   edr_log  Starting SophosExtension  2
-
+    Wait For Sophos Extension To Be Initialised Including OSQuery Restarts
     Run Live Query  ${SOPHOS_INFO_QUERY}  sophos_info
     Wait Until Keyword Succeeds
     ...  50 secs
