@@ -449,5 +449,30 @@ namespace ManagementAgent
             return m_healthStatus;
         }
 
+        bool PluginManager::updateOngoing()
+        {
+            auto fs = Common::FileSystem::fileSystem();
+            std::string markerFile = Common::ApplicationConfiguration::applicationPathManager().getUpdateMarkerFile();
+            if (fs->isFile(markerFile))
+            {
+                return true;
+            }
+            return false;
+        }
+
+        bool PluginManager::updateOngoingWithGracePeriod(unsigned int gracePeriodSeconds, timepoint_t now)
+        {
+            static timepoint_t lastTimeWeSawUpdateMarker{};
+            if (updateOngoing())
+            {
+                lastTimeWeSawUpdateMarker = now;
+                return true;
+            }
+
+            // If it's been gracePeriodSeconds seconds since we last saw the update marker and it's not there anymore,
+            // then we make sure to give the specified grace period for updates to finish.
+            return (now - lastTimeWeSawUpdateMarker) < std::chrono::seconds(gracePeriodSeconds);
+        }
+
     } // namespace PluginCommunicationImpl
 } // namespace ManagementAgent

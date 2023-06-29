@@ -244,30 +244,6 @@ namespace ManagementAgent
             }
         }
 
-        bool ManagementAgentMain::updateOngoing()
-        {
-            auto fs = Common::FileSystem::fileSystem();
-            std::string markerFile = Common::ApplicationConfiguration::applicationPathManager().getUpdateMarkerFile();
-            if (fs->isFile(markerFile))
-            {
-                    return true;
-            }
-            return false;
-        }
-
-        bool ManagementAgentMain::updateOngoingWithGracePeriod(unsigned int gracePeriodSeconds, timepoint_t now)
-        {
-            static timepoint_t lastTimeWeSawUpdateMarker{};
-            if (updateOngoing())
-            {
-                lastTimeWeSawUpdateMarker = now;
-                return true;
-            }
-
-            // If it's been gracePeriodSeconds seconds since we last saw the update marker and it's not there anymore,
-            // then we make sure to give the specified grace period for updates to finish.
-            return (now - lastTimeWeSawUpdateMarker) < std::chrono::seconds(gracePeriodSeconds);
-        }
         void ManagementAgentMain::ensureOverallHealthFileExists()
         {
             std::string filePath = ApplicationConfiguration::applicationPathManager().getOverallHealthFilePath();
@@ -318,15 +294,15 @@ namespace ManagementAgent
             LOGINFO("Management Agent running.");
 
             bool running = true;
-            auto startTime = clock_t::now();
+            auto startTime = std::chrono::steady_clock::now();
             auto lastHealthCheck = startTime;
             const auto waitPeriod = std::chrono::seconds{15}; // Should not exceed health refresh period of 15 seconds.
             bool servicesShouldHaveStarted = false;
             while (running)
             {
-                auto currentTime = clock_t::now();
+                auto currentTime = std::chrono::steady_clock::now();
                 bool checkHealth = true;
-                if (updateOngoingWithGracePeriod(120, currentTime))
+                if (m_pluginManager->updateOngoingWithGracePeriod(120, currentTime))
                 {
                     // Ignore everything during grace period
                     // Need to do this first since it stores whether we are in an update

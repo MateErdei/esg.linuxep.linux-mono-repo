@@ -69,6 +69,14 @@ namespace ManagementAgent
              */
             void setDefaultTimeout(int timeoutMs);
             void setDefaultConnectTimeout(int timeoutMs);
+
+            /**
+             * Are we in a graceperiod during an update (or during the update itself)
+             * @param gracePeriodSeconds
+             * @param now
+             * @return True if within grace period
+             */
+            bool updateOngoingWithGracePeriod(unsigned int gracePeriodSeconds, timepoint_t now);
         private:
             Common::PluginCommunication::IPluginProxy* getPlugin(const std::string& pluginName);
 
@@ -135,6 +143,8 @@ namespace ManagementAgent
              * @return true if task is threat reset
              */
             static bool isThreatResetTask(const std::string& filePath);
+
+            bool updateOngoing();
         };
 
     } // namespace PluginCommunicationImpl

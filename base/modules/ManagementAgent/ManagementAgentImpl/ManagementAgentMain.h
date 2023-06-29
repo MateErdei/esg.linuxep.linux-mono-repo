@@ -11,8 +11,6 @@
 #include <ManagementAgent/PolicyReceiverImpl/PolicyReceiverImpl.h>
 #include <ManagementAgent/StatusReceiverImpl/StatusReceiverImpl.h>
 
-#include <chrono>
-
 namespace ManagementAgent
 {
     namespace ManagementAgentImpl
@@ -23,8 +21,6 @@ namespace ManagementAgent
             static int main(int argc, char* argv[]);
             static int mainForValidArguments(bool withPersistentTelemetry=true);
         protected:
-            using clock_t = std::chrono::steady_clock;
-            using timepoint_t = clock_t::time_point;
             using IPluginManager = ManagementAgent::PluginCommunication::IPluginManager;
             using PluginManagerPtr = std::shared_ptr<IPluginManager>;
             void initialise(PluginManagerPtr pluginManager);
@@ -35,14 +31,6 @@ namespace ManagementAgent
             void sendCurrentPluginPolicies();
             void sendCurrentActions();
             void sendCurrentPluginsStatus(const std::vector<std::string>& registeredPlugins);
-            /**
-             * Are we in a graceperiod during an update (or during the update itself)
-             * @param gracePeriodSeconds
-             * @param now
-             * @return True if within grace period
-             */
-            bool updateOngoingWithGracePeriod(unsigned int gracePeriodSeconds, timepoint_t now);
-            bool updateOngoing();
             void ensureOverallHealthFileExists();
             int run(bool withPersistentTelemetry);
 

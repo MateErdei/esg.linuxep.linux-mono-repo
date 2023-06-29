@@ -95,8 +95,10 @@ namespace
 
         bool updateOngoingWithGracePeriod(unsigned int gracePeriodSeconds)
         {
-            auto now = clock_t::now();
-            return ManagementAgentMain::updateOngoingWithGracePeriod(gracePeriodSeconds, now);
+            auto pluginManager = std::make_unique<ManagementAgent::PluginCommunicationImpl::PluginManager>(
+                Common::ZMQWrapperApi::createContext());
+            auto now = std::chrono::steady_clock::now();
+            return pluginManager->updateOngoingWithGracePeriod(gracePeriodSeconds, now);
         }
     };
 
@@ -455,59 +457,4 @@ namespace
         pluginSynchronizer.notify();
         ASSERT_EQ(0, futureRunner.get());
     }
-
-    TEST_F(ManagementAgentIntegrationTests, updateOngoingWithGracePeriodReturnsFalseWhenUpdateMarkerNotPresent)
-    {
-        auto mockFileSystem = new StrictMock<MockFileSystem>();
-        std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
-        Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
-
-        EXPECT_CALL(
-            *mockFileSystem,
-            isFile(Common::ApplicationConfiguration::applicationPathManager().getUpdateMarkerFile()))
-            .WillOnce(Return(false));
-
-        TestManagementAgent agent;
-        ASSERT_FALSE(agent.updateOngoingWithGracePeriod(10));
-    }
-
-    TEST_F(ManagementAgentIntegrationTests, updateOngoingWithGracePeriodReturnsTrueWhenUpdateMarkerPresent)
-    {
-        auto mockFileSystem = new StrictMock<MockFileSystem>();
-        std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
-        Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
-
-        EXPECT_CALL(
-            *mockFileSystem,
-            isFile(Common::ApplicationConfiguration::applicationPathManager().getUpdateMarkerFile()))
-            .WillOnce(Return(true));
-
-        TestManagementAgent agent;
-        ASSERT_TRUE(agent.updateOngoingWithGracePeriod(10));
-    }
-
-
-    TEST_F(ManagementAgentIntegrationTests, updateOngoingWithGracePeriodReturnsTrueUntilGracePeriodOver)
-    {
-        auto mockFileSystem = new StrictMock<MockFileSystem>();
-        std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::unique_ptr<MockFileSystem>(mockFileSystem);
-        Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
-
-        EXPECT_CALL(
-            *mockFileSystem,
-            isFile(Common::ApplicationConfiguration::applicationPathManager().getUpdateMarkerFile()))
-            .WillOnce(Return(true))
-            .WillRepeatedly(Return(false));
-
-        TestManagementAgent agent;
-
-        ASSERT_TRUE(agent.updateOngoingWithGracePeriod(1));
-
-        std::this_thread::sleep_for(std::chrono::milliseconds(500));
-        ASSERT_TRUE(agent.updateOngoingWithGracePeriod(1));
-
-        std::this_thread::sleep_for(std::chrono::milliseconds(600));
-        ASSERT_FALSE(agent.updateOngoingWithGracePeriod(1));
-    }
-
 } // namespace

@@ -16,34 +16,26 @@ using ManagementAgent::PluginCommunication::IStatusReceiver;
 class MockPluginManager : public ManagementAgent::PluginCommunication::IPluginManager
 {
 public:
-    MOCK_METHOD2(applyNewPolicy, int(const std::string& appId, const std::string& policyXml));
-    MOCK_METHOD3(queueAction, int(const std::string& appId, const std::string& actionXml, const std::string& correlationId));
-    MOCK_METHOD1(getStatus, std::vector<Common::PluginApi::StatusInfo>(const std::string& pluginName));
-    MOCK_METHOD1(getTelemetry, std::string(const std::string& pluginName));
-    MOCK_METHOD1(checkIfSinglePluginInRegistry, bool(const std::string& pluginName));
-    MOCK_METHOD1(getHealth, std::string(const std::string& pluginName));
-    MOCK_METHOD2(
-        registerAndConfigure,
-        void(const std::string& pluginName, const ManagementAgent::PluginCommunication::PluginDetails& pluginDetails));
-    MOCK_METHOD1(registerPlugin, void(const std::string& pluginName));
-    MOCK_METHOD1(removePlugin, void(const std::string& pluginName));
-    MOCK_METHOD0(getRegisteredPluginNames, std::vector<std::string>(void));
-    MOCK_METHOD1(setStatusReceiver, void(std::shared_ptr<IStatusReceiver>& statusReceiver));
-    MOCK_METHOD1(
-        setEventReceiver,
-        void(std::shared_ptr<ManagementAgent::PluginCommunication::IEventReceiver> receiver));
-    MOCK_METHOD1(
-        setPolicyReceiver,
-        void(std::shared_ptr<ManagementAgent::PluginCommunication::IPolicyReceiver>& receiver));
-    MOCK_METHOD1(
-        setThreatHealthReceiver,
-        void(std::shared_ptr<ManagementAgent::PluginCommunication::IThreatHealthReceiver>& receiver));
-    MOCK_METHOD2(
-        getHealthStatusForPlugin,
-        ManagementAgent::PluginCommunication::PluginHealthStatus(
-            const std::string& pluginName,
-            bool prevHealthMissing));
-    MOCK_METHOD0(getSharedHealthStatusObj, std::shared_ptr<ManagementAgent::HealthStatusImpl::HealthStatus>());
-
-public:
+    MOCK_METHOD(int, applyNewPolicy, (const std::string& appId, const std::string& policyXml));
+    MOCK_METHOD(int, queueAction, (const std::string& appId, const std::string& actionXml, const std::string& correlationId));
+    MOCK_METHOD(std::vector<Common::PluginApi::StatusInfo>, getStatus, (const std::string& pluginName));
+    MOCK_METHOD(std::string, getTelemetry, (const std::string& pluginName));
+    MOCK_METHOD(bool, checkIfSinglePluginInRegistry, (const std::string& pluginName));
+    MOCK_METHOD(std::string, getHealth, (const std::string& pluginName));
+    MOCK_METHOD(void, registerAndConfigure,
+        (const std::string& pluginName, const ManagementAgent::PluginCommunication::PluginDetails& pluginDetails));
+    MOCK_METHOD(void, registerPlugin, (const std::string& pluginName));
+    MOCK_METHOD(void, removePlugin, (const std::string& pluginName));
+    MOCK_METHOD(std::vector<std::string>, getRegisteredPluginNames, ());
+    MOCK_METHOD(void, setStatusReceiver, (std::shared_ptr<IStatusReceiver>& statusReceiver));
+    MOCK_METHOD(void, setEventReceiver,
+        (std::shared_ptr<ManagementAgent::PluginCommunication::IEventReceiver> receiver));
+    MOCK_METHOD(void, setPolicyReceiver,
+        (std::shared_ptr<ManagementAgent::PluginCommunication::IPolicyReceiver>& receiver));
+    MOCK_METHOD(void, setThreatHealthReceiver,
+        (std::shared_ptr<ManagementAgent::PluginCommunication::IThreatHealthReceiver>& receiver));
+    MOCK_METHOD(ManagementAgent::PluginCommunication::PluginHealthStatus, getHealthStatusForPlugin,
+        (const std::string& pluginName, bool prevHealthMissing));
+    MOCK_METHOD(std::shared_ptr<ManagementAgent::HealthStatusImpl::HealthStatus>, getSharedHealthStatusObj, ());
+    MOCK_METHOD(bool, updateOngoingWithGracePeriod, (unsigned int gracePeriodSeconds, timepoint_t now));
 };

@@ -12,8 +12,11 @@
 #include <Common/PluginProtocol/DataMessage.h>
 #include <PluginRegistryImpl/PluginInfo.h>
 
+#include <chrono>
 #include <memory>
 #include <string>
+
+using timepoint_t = std::chrono::steady_clock::time_point;
 
 namespace ManagementAgent
 {
@@ -189,6 +192,14 @@ namespace ManagementAgent
              * Management Agent can interact with this Health object.
              */
             virtual std::shared_ptr<ManagementAgent::HealthStatusImpl::HealthStatus> getSharedHealthStatusObj() = 0;
+
+            /**
+             * Are we in a graceperiod during an update (or during the update itself)
+             * @param gracePeriodSeconds
+             * @param now
+             * @return True if within grace period
+             */
+            virtual bool updateOngoingWithGracePeriod(unsigned int gracePeriodSeconds, timepoint_t now) = 0;
 
         };
     } // namespace PluginCommunication
