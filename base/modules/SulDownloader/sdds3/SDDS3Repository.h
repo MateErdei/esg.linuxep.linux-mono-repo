@@ -53,7 +53,7 @@ namespace SulDownloader
          */
         void generateProductListFromSdds3PackageInfo(const std::string& primaryRigidName);
         void checkForMissingPackages(
-            const std::vector<suldownloaderdata::ProductSubscription>& subscriptions,
+            const std::vector<Common::Policy::ProductSubscription>& subscriptions,
             const std::set<std::string>& suites);
 
         void setFeatures(const std::vector<std::string>& configfeatures);

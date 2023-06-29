@@ -13,8 +13,6 @@
 
 namespace SulDownloader::suldownloaderdata
 {
-    using ProductSubscription = Common::Policy::ProductSubscription;
-
     /**
      * Holds all the settings that SulDownloader needs to run which includes:
      *  - Information about connection

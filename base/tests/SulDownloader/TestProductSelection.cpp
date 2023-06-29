@@ -6,6 +6,7 @@
 #include <gmock/gmock-matchers.h>
 #include <tests/Common/Helpers/TempDir.h>
 
+using namespace Common::Policy;
 using namespace SulDownloader;
 using namespace SulDownloader::suldownloaderdata;
 
@@ -84,7 +85,7 @@ public:
 
     bool expect_selected(
         const SulDownloader::suldownloaderdata::ProductMetadata& primaryProduct,
-        const ProductSubscription& productSubscription)
+        const Common::Policy::ProductSubscription& productSubscription)
     {
         auto configurationData =
             suldownloaderdata::ConfigurationData::fromJsonSettings(ConfigurationDataBase::createJsonString("", ""));
@@ -426,7 +427,7 @@ TEST_F(ProductSelectionTest, ShouldSelectTheCorrectProductWhenMoreThanOneVersion
     EXPECT_EQ(selectedProducts.selected, selected);
 
     auto productSubscription = configurationData.getProductsSubscription()[0];
-    ProductSubscription newSubscription(
+    Common::Policy::ProductSubscription newSubscription(
         productSubscription.rigidName(), productSubscription.baseVersion(), "PREVIEW", "");
 
     configurationData.setProductsSubscription({ newSubscription });
@@ -489,32 +490,32 @@ TEST_F(ProductSelectionTest, SelectMainSubscription) // NOLINT
 {
     auto wh = simulateWarehouseContent({ Primary_Rec_CORE });
     SulDownloader::suldownloaderdata::ProductMetadata primaryProduct = wh[0];
-    ProductSubscription subscription(primaryProduct.getLine(), "", "RECOMMENDED", "");
+    Common::Policy::ProductSubscription subscription(primaryProduct.getLine(), "", "RECOMMENDED", "");
 
     // select by recommended tag
     EXPECT_TRUE(expect_selected(primaryProduct, subscription));
 
-    subscription = ProductSubscription(primaryProduct.getLine(), "notbaseversion", "RECOMMENDED", "");
+    subscription = Common::Policy::ProductSubscription(primaryProduct.getLine(), "notbaseversion", "RECOMMENDED", "");
     // select by recommended tag - ignore base version
     EXPECT_TRUE(expect_selected(primaryProduct, subscription));
 
     SulDownloader::suldownloaderdata::ProductMetadata previewPrimaryProdut = primaryProduct;
     previewPrimaryProdut.setBaseVersion("9");
     previewPrimaryProdut.setTags({ Tag("PREVIEW", "9", "lab") });
-    subscription = ProductSubscription(previewPrimaryProdut.getLine(), "9", "PREVIEW", "");
+    subscription = Common::Policy::ProductSubscription(previewPrimaryProdut.getLine(), "9", "PREVIEW", "");
     // select by tag and base version matching
     EXPECT_TRUE(expect_selected(previewPrimaryProdut, subscription));
 
-    subscription = ProductSubscription(primaryProduct.getLine(), "", "", primaryProduct.getVersion());
+    subscription = Common::Policy::ProductSubscription(primaryProduct.getLine(), "", "", primaryProduct.getVersion());
     // select by version
     EXPECT_TRUE(expect_selected(primaryProduct, subscription));
 
     // do not select if rigid name is different
-    subscription = ProductSubscription(primaryProduct.getLine() + 'b', "", "RECOMMENDED", "");
+    subscription = Common::Policy::ProductSubscription(primaryProduct.getLine() + 'b', "", "RECOMMENDED", "");
     EXPECT_FALSE(expect_selected(primaryProduct, subscription));
 
     // do not select if tag is different
-    subscription = ProductSubscription(primaryProduct.getLine(), "", "RECOMMENDED", "");
+    subscription = Common::Policy::ProductSubscription(primaryProduct.getLine(), "", "RECOMMENDED", "");
     EXPECT_FALSE(expect_selected(previewPrimaryProdut, subscription));
 }
 
@@ -531,8 +532,8 @@ TEST_F(ProductSelectionTest, ShoudNotSelectPreviewProduct) // NOLINT
     auto configurationData =
         suldownloaderdata::ConfigurationData::fromJsonSettings(ConfigurationDataBase::createJsonString("", ""));
     configurationData.setProductsSubscription(
-        { ProductSubscription(warehouseProducts[2].getLine(), "", "RECOMMENDED", ""),
-          ProductSubscription(warehouseProducts[3].getLine(), "", "RECOMMENDED", "") });
+        { Common::Policy::ProductSubscription(warehouseProducts[2].getLine(), "", "RECOMMENDED", ""),
+          Common::Policy::ProductSubscription(warehouseProducts[3].getLine(), "", "RECOMMENDED", "") });
     configurationData.setFeatures({ "CORE", "SAV", "MDR" });
 
     auto productSelection = suldownloaderdata::ProductSelection::CreateProductSelection(configurationData);
@@ -561,8 +562,8 @@ TEST_F(ProductSelectionTest, ShoudNotSelectProductIfNotINFeatureSet) // NOLINT
         suldownloaderdata::ConfigurationData::fromJsonSettings(ConfigurationDataBase::createJsonString("", ""));
 
     configurationData.setProductsSubscription(
-        { ProductSubscription(warehouseProducts[2].getLine(), "", "RECOMMENDED", ""),
-          ProductSubscription(warehouseProducts[3].getLine(), "", "RECOMMENDED", "") });
+        { Common::Policy::ProductSubscription(warehouseProducts[2].getLine(), "", "RECOMMENDED", ""),
+          Common::Policy::ProductSubscription(warehouseProducts[3].getLine(), "", "RECOMMENDED", "") });
     configurationData.setFeatures({ "CORE", "SAV" });
 
     auto productSelection = suldownloaderdata::ProductSelection::CreateProductSelection(configurationData);

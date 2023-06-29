@@ -18,7 +18,7 @@ TEST_F(Sdds3UtilsTest, createSUSRequestBodyCreatesExpectedBodyForNoFixedVersion)
     SUSRequestParameters requestParameters;
     requestParameters.product = "linuxep";
     requestParameters.platformToken = "LINUX_INTEL_LIBC6";
-    std::vector<suldownloaderdata::ProductSubscription> subscriptions;
+    std::vector<Common::Policy::ProductSubscription> subscriptions;
     subscriptions.emplace_back("rigidname", "", "RECOMMENDED", "");
 
     requestParameters.subscriptions = subscriptions;
@@ -31,7 +31,7 @@ TEST_F(Sdds3UtilsTest, createSUSRequestBodyCreatesExpectedBodyForFixedVersion) /
     SUSRequestParameters requestParameters;
     requestParameters.product = "linuxep";
     requestParameters.platformToken = "LINUX_INTEL_LIBC6";
-    std::vector<suldownloaderdata::ProductSubscription> subscriptions;
+    std::vector<Common::Policy::ProductSubscription> subscriptions;
     subscriptions.emplace_back("rigidname", "", "RECOMMENDED", "1.0.0");
 
     requestParameters.subscriptions = subscriptions;

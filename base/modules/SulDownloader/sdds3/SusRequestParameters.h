@@ -10,7 +10,7 @@ namespace SulDownloader
         std::string product;
         bool isServer = false;
         std::string platformToken;
-        std::vector<SulDownloader::suldownloaderdata::ProductSubscription> subscriptions;
+        std::vector<Common::Policy::ProductSubscription> subscriptions;
         std::string tenantId;
         std::string deviceId;
         std::string baseUrl;

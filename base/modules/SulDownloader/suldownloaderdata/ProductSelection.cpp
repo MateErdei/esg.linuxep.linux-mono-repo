@@ -5,11 +5,13 @@
 #include "Logger.h"
 #include "SulDownloaderException.h"
 
-#include <Common/UtilityImpl/StringUtils.h>
+#include "Common/Policy/ProductSubscription.h"
+#include "Common/UtilityImpl/StringUtils.h"
 
 #include <cassert>
 #include <list>
 
+using namespace Common::Policy;
 using namespace SulDownloader::suldownloaderdata;
 
 namespace

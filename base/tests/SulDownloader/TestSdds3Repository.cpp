@@ -18,6 +18,7 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
+using namespace Common::Policy;
 using namespace SulDownloader;
 using namespace SulDownloader::suldownloaderdata;
 
