@@ -460,6 +460,7 @@ TEST_F(TestALCPolicy, minimumValidPolicy)
     auto updatePeriod = obj.getUpdatePeriod();
     EXPECT_EQ(updatePeriod, std::chrono::minutes{60});
     EXPECT_EQ(obj.getSddsID(), "W2YJXI6FED");
+    EXPECT_EQ(obj.getTelemetryHost(), "");
 }
 
 //sdds2 Update Server Tests
@@ -1130,3 +1131,28 @@ TEST_F(TestALCPolicy, no_delay_updating)
     EXPECT_EQ(schedule.minute, 0);
 }
 
+TEST_F(TestALCPolicy, getTelemetry)
+{
+    const std::string policy=R"(<?xml version="1.0"?>
+<AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
+  <csc:Comp RevID="8980d3ddce5f4b4e5911ddb617e8a9e440ba78da8c288312900847bb75737628" policyType="1"/>
+  <AUConfig platform="Linux">
+    <primary_location>
+      <server BandwidthLimit="256" AutoDial="false" Algorithm="AES256" UserPassword="CCC9XRvgRuGLpCpmE+LX3N+7Whc41czNucxdwpVa4wuJVQJLTQN1/oxMZJMkb3qYfT8=" UserName="CSP7I0S0GZZE" UseSophos="true" UseHttps="true" UseDelta="true" ConnectionAddress="http://dci.sophosupd.com/cloudupdate" AllowLocalConfig="false"/>
+      <proxy ProxyType="0" ProxyUserPassword="" ProxyUserName="" ProxyPortNumber="0" ProxyAddress="" AllowLocalConfig="false"/>
+    </primary_location>
+    <cloud_subscription RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/>
+    <cloud_subscriptions>
+      <subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/>
+    </cloud_subscriptions>
+  </AUConfig>
+  <Features>
+    <Feature id="CORE"/>
+  </Features>
+  <server_names>
+    <telemetry>t1.sophosupd.com</telemetry>
+</server_names>
+</AUConfigurations>)";
+    ALCPolicy obj{ policy };
+    EXPECT_EQ(obj.getTelemetryHost(), "t1.sophosupd.com");
+}

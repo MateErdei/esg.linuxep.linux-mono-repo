@@ -54,6 +54,11 @@ namespace Common::Policy
             return revID_;
         }
 
+        [[nodiscard]] std::string getTelemetryHost() const
+        {
+            return telemetryHost_;
+        }
+
     private:
         std::vector<UpdateCache> sortUpdateCaches(const std::vector<UpdateCache>& caches);
 
@@ -69,6 +74,7 @@ namespace Common::Policy
         std::string revID_;
         std::string sdds_id_;
         std::string update_certificates_content_;
+        std::string telemetryHost_;
         std::vector<ProductSubscription> subscriptions_;
         std::vector<UpdateCache> updateCaches_;
         UpdateSettings updateSettings_;

@@ -156,6 +156,8 @@ ALCPolicy::ALCPolicy(const std::string& xmlPolicy)
     // Slow supplements - no longer available - SDDS2 feature
     auto delay_supplements = attributesMap.lookup("AUConfigurations/AUConfig/delay_supplements");
     updateSettings_.setUseSlowSupplements(get_attr_bool(delay_supplements.value("enabled", "false")));
+
+    telemetryHost_ = attributesMap.lookup("AUConfigurations/server_names/telemetry").contents();
 }
 
 
