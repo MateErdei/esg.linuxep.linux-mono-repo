@@ -108,12 +108,19 @@ namespace ManagementAgent
         int PluginManager::applyNewPolicy(const std::string& appId, const std::string& policyXml)
         {
             LOGDEBUG("PluginManager: apply new policy: " << appId);
+
+            int pluginsNotified = 0;
+            if (updateOngoing())
+            {
+                LOGDEBUG("Update is currently ongoing skipping sending of " << appId << " policy to plugins");
+                return pluginsNotified;
+            }
+
             std::lock_guard<std::mutex> lock(m_pluginMapMutex);
 
             // Keep a list of plugins we failed to communicate with
             std::vector<std::pair<std::string, std::string>> pluginNamesAndErrors;
 
-            int pluginsNotified = 0;
             for (auto& proxy : m_RegisteredPlugins)
             {
                 if (proxy.second->hasPolicyAppId(appId))

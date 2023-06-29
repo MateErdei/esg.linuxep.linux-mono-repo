@@ -171,6 +171,7 @@ TEST_F(TestPluginManager, TestApplyPolicyOnFailedPluginLeavesItInRegisteredPlugi
     EXPECT_CALL(fileSystemMock, isFile("/registry/plugin_two.json"))
         .WillOnce(Return(true))  // Registeer
         .WillOnce(Return(true)); // Check it is still in Register
+    EXPECT_CALL(fileSystemMock, isFile(Common::ApplicationConfiguration::applicationPathManager().getUpdateMarkerFile())).WillRepeatedly(Return(false));
     std::thread applyPolicy([this]() {
       m_pluginManagerPtr->setDefaultConnectTimeout(10);
       m_pluginManagerPtr->setDefaultTimeout(10);
@@ -202,6 +203,7 @@ TEST_F(TestPluginManager, TestApplyPolicyOnPluginNoLongerInstalledRemovesItFromR
     EXPECT_CALL(fileSystemMock, isFile("/registry/plugin_two.json"))
         .WillOnce(Return(true))   // Registeer
         .WillOnce(Return(false)); // Check it is still in Register
+    EXPECT_CALL(fileSystemMock, isFile(Common::ApplicationConfiguration::applicationPathManager().getUpdateMarkerFile())).WillRepeatedly(Return(false));
     std::thread applyPolicy([this]() {
       m_pluginManagerPtr->setDefaultConnectTimeout(10);
       m_pluginManagerPtr->setDefaultTimeout(10);
@@ -217,6 +219,14 @@ TEST_F(TestPluginManager, TestApplyPolicyOnPluginNoLongerInstalledRemovesItFromR
       EXPECT_EQ(m_pluginManagerPtr->getRegisteredPluginNames(), pluginsAfterRemoval);
     });
     applyPolicy.join();
+}
+
+TEST_F(TestPluginManager, TestApplyPolicyNotSentIfUpdateInProgress)
+{
+    auto& fileSystemMock = setupFileSystemAndGetMock();
+    EXPECT_CALL(fileSystemMock, isFile(Common::ApplicationConfiguration::applicationPathManager().getUpdateMarkerFile())).WillRepeatedly(Return(true));
+
+    EXPECT_EQ(m_pluginManagerPtr->applyNewPolicy("testAppId", "testpolicy.xml"), 0);
 }
 
 TEST_F(TestPluginManager, TestDoActionOnRegisteredPlugin)
