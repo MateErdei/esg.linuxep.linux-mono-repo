@@ -129,60 +129,7 @@ public:
     }
 };
 
-TEST_F(ConfigurationDataTest, fromJsonSettingsValidEmptyCredentialsShouldFailValidation)
-{
-    setupFileSystemAndGetMock();
-    std::string oldString = R"("credential": {
-                               "username": "administrator",
-                               "password": "password"
-                               },)";
 
-    std::string newString = R"("credential": {
-                               "username": "",
-                               "password": ""
-                               },)";
-
-    auto configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
-
-    configurationData.verifySettingsAreValid();
-
-    EXPECT_FALSE(configurationData.isVerified());
-}
-
-TEST_F(ConfigurationDataTest, fromJsonSettingsValidMissingCredentialDetailsShouldFailValidation)
-{
-    setupFileSystemAndGetMock();
-    std::string oldString = R"("credential": {
-                               "username": "administrator",
-                               "password": "password"
-                               },)";
-
-    std::string newString = R"("credential": {
-                               },)";
-
-    auto configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
-
-    configurationData.verifySettingsAreValid();
-
-    EXPECT_FALSE(configurationData.isVerified());
-}
-
-TEST_F(ConfigurationDataTest, fromJsonSettingsValidMissingCredentialsShouldFailValidation)
-{
-    setupFileSystemAndGetMock();
-    std::string oldString = R"("credential": {
-                               "username": "administrator",
-                               "password": "password"
-                               },)";
-
-    std::string newString; // = "";
-
-    auto configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
-
-    configurationData.verifySettingsAreValid();
-
-    EXPECT_FALSE(configurationData.isVerified());
-}
 
 TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithMissingProxyShouldReturnValidDataObject)
 {

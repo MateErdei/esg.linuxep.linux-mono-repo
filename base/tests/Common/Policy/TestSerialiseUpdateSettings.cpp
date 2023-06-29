@@ -14,10 +14,7 @@ namespace
            "updateCache": [
            "https://cache.sophos.com/latest/warehouse"
            ],
-           "credential": {
-           "username": "administrator",
-           "password": "password"
-           },
+           "credential": {"username": "administrator","password": "password"},
            "proxy": {
            "url": "noproxy:",
            "credential": {
@@ -63,10 +60,11 @@ namespace
             if (!oldPartString.empty())
             {
                 size_t pos = jsonString.find(oldPartString);
-
                 EXPECT_TRUE(pos != std::string::npos);
-
-                jsonString.replace(pos, oldPartString.size(), newPartString);
+                if (pos != std::string::npos)
+                {
+                    jsonString.replace(pos, oldPartString.size(), newPartString);
+                }
             }
             return jsonString;
         }
@@ -156,4 +154,44 @@ TEST_F(TestSerialiseUpdateSettings, preserveDevice)
     auto serialised = SerialiseUpdateSettings::toJsonSettings(before);
     auto after = SerialiseUpdateSettings::fromJsonSettings(serialised);
     EXPECT_EQ(before.getDeviceId(), after.getDeviceId());
+}
+
+TEST_F(TestSerialiseUpdateSettings, emptyCredentialsShouldFailValidation)
+{
+    setupFileSystemAndGetMock();
+    std::string oldString = R"("credential": {"username": "administrator","password": "password"},)";
+
+    std::string newString = R"("credential": {
+                               "username": "",
+                               "password": ""
+                               },)";
+
+    auto settings = SerialiseUpdateSettings::fromJsonSettings(mutateJson(oldString, newString));
+
+    EXPECT_FALSE(settings.verifySettingsAreValid());
+}
+
+TEST_F(TestSerialiseUpdateSettings, missingCredentialDetailsShouldFailValidation)
+{
+    setupFileSystemAndGetMock();
+    std::string oldString = R"("credential": {"username": "administrator","password": "password"},)";
+
+    std::string newString = R"("credential": {
+                               },)";
+
+    auto settings = SerialiseUpdateSettings::fromJsonSettings(mutateJson(oldString, newString));
+
+    EXPECT_FALSE(settings.verifySettingsAreValid());
+}
+
+TEST_F(TestSerialiseUpdateSettings, missingCredentialsShouldFailValidation)
+{
+    setupFileSystemAndGetMock();
+    std::string oldString = R"("credential": {"username": "administrator","password": "password"},)";
+
+    std::string newString;
+
+    auto settings = SerialiseUpdateSettings::fromJsonSettings(mutateJson(oldString, newString));
+
+    EXPECT_FALSE(settings.verifySettingsAreValid());
 }
