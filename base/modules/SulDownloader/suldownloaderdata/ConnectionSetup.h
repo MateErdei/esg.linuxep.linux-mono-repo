@@ -12,7 +12,7 @@ namespace SulDownloader
     namespace suldownloaderdata
     {
         /**
-         * Holds enough information to setup a SUL connection required by the WarehouseRepository.
+         * Holds enough information to setup a SDDS3 connection
          */
         class ConnectionSetup
         {
@@ -25,16 +25,15 @@ namespace SulDownloader
                 const proxy_t& proxy = proxy_t());
 
             [[nodiscard]] const proxy_t& getProxy() const;
-            void setProxy(const proxy_t& proxy);
 
             [[nodiscard]] const std::string& getUpdateLocationURL() const;
-            void setUpdateLocationURL(const std::string& updateLocationURL);
 
             std::string toString() const;
 
             bool isCacheUpdate() const;
 
         private:
+
             std::string m_updateLocationURL;
             bool m_isUpdateCache;
             proxy_t m_proxy;
