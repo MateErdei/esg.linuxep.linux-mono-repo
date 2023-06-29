@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import unittest
+from unittest import mock
 import sys
 import os
 import xml.dom.minidom
@@ -1095,8 +1096,9 @@ class TestMCSAdapter(unittest.TestCase):
         self.assertEqual(policy_config.get_default("message_relay_id2",None),None)
 
 
-    def testIgnoresDuplicatePolicies(self):
-        TEST_POLICY="""<policy xmlns:csc="com.sophos\msys\csc" type="mcs">
+    @mock.patch("mcsrouter.adapters.mcs.mcs_policy_handler.MCSPolicyHandler.process", return_value=[])
+    def test_ignores_duplicate_policies(self, *mockargs):
+        TEST_POLICY1="""<policy xmlns:csc="com.sophos\msys\csc" type="mcs">
   <meta protocolVersion="1.1"/>
   <csc:Comp RevID="ad36efeecd218c" policyType="25"/>
   <configuration xmlns="http://www.sophos.com/xml/msys/mcspolicy.xsd" xmlns:auto-ns1="com.sophos\mansys\policy">
@@ -1106,14 +1108,28 @@ class TestMCSAdapter(unittest.TestCase):
         policy_config = mcsrouter.utils.config.Config("base/etc/sophosspl/mcs_policy.config")
         adapter = createAdapter(policy_config)
 
-        command = FakePolicyCommand(TEST_POLICY)
-        self.assertEqual(adapter.__m_last_policy, None)
-        adapter.process_command(command)
-        self.assertTrue(command.m_complete)
-        self.assertEqual(policy_config.get_default("customerId",None),"4b4ca3ba-c144-4447")
-        self.assertEqual(adapter.__m_last_policy, TEST_POLICY)
-        adapter.process_command(command)
-        self.assertEqual(adapter.__m_last_policy, TEST_POLICY)
+        command1 = FakePolicyCommand(TEST_POLICY1)
+        self.assertEqual(adapter.get_last_policy(), None)
+        adapter.process_command(command1)
+        self.assertTrue(command1.m_complete)
+        self.assertEqual(adapter.get_last_policy(), TEST_POLICY1)
+        self.assertEqual(mcsrouter.adapters.mcs.mcs_policy_handler.MCSPolicyHandler.process.call_count, 1)
+        adapter.process_command(command1)
+        self.assertEqual(adapter.get_last_policy(), TEST_POLICY1)
+        self.assertEqual(mcsrouter.adapters.mcs.mcs_policy_handler.MCSPolicyHandler.process.call_count, 1)
+
+        TEST_POLICY2="""<policy xmlns:csc="com.sophos\msys\csc" type="mcs">
+  <meta protocolVersion="1.1"/>
+  <csc:Comp RevID="ad36efeecd218d" policyType="25"/>
+  <configuration xmlns="http://www.sophos.com/xml/msys/mcspolicy.xsd" xmlns:auto-ns1="com.sophos\mansys\policy">
+    <customerId>4b4ca3ba-c144-4447</customerId>
+</configuration>
+</policy>"""
+        command2 = FakePolicyCommand(TEST_POLICY2)
+        adapter.process_command(command2)
+        self.assertTrue(command2.m_complete)
+        self.assertEqual(adapter.get_last_policy(), TEST_POLICY2)
+        self.assertEqual(mcsrouter.adapters.mcs.mcs_policy_handler.MCSPolicyHandler.process.call_count, 2)
 
 
 if __name__ == '__main__':

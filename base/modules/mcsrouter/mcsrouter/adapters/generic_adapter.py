@@ -47,6 +47,12 @@ class GenericAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
         """
         return self.__m_app_id
 
+    def get_last_policy(self):
+        """
+        get_last_policy
+        """
+        return self.__m_last_policy
+
     def __process_policy(self, policy):
         """
         word of caution: this is a 'private method' will not be overriden by classes inheriting from GenericAdapter

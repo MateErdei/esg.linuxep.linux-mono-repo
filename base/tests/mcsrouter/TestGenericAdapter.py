@@ -185,6 +185,29 @@ class TestGenericAdapter(unittest.TestCase):
         test_invalid_ttl(f"SD{ttl}P")
         test_invalid_ttl(f"completelyinvalid")
 
+    def test_ignores_duplicate_policies(self, *mockargs):
+        adapter = generic_adapter.GenericAdapter('ALC', INSTALL_DIR)
+        TEST_POLICY1='1'
+        TEST_POLICY2='2'
+        command1 = FakeCommand(TEST_POLICY1)
+        command2 = FakeCommand(TEST_POLICY2)
+        self.assertEqual(adapter.get_last_policy(), None)
+        with mock.patch('mcsrouter.utils.xml_helper.parseString') as parseStringMock:
+            parseStringMock.side_effect = ValueError("Processing new policy as expected")
+            adapter.process_command(command1)
+            self.assertEqual(adapter.get_last_policy(), TEST_POLICY1)
+            self.assertEqual(parseStringMock.call_count, 1)
+            parseStringMock.side_effect = ValueError("Should not be re-processing identical policy")
+            adapter.process_command(command1)
+            self.assertEqual(adapter.get_last_policy(), TEST_POLICY1)
+            self.assertEqual(parseStringMock.call_count, 1)
+
+            parseStringMock.side_effect = ValueError("Processing new policy as expected")
+            adapter.process_command(command2)
+            self.assertEqual(adapter.get_last_policy(), TEST_POLICY2)
+            self.assertEqual(parseStringMock.call_count, 2)
+
+
 if __name__ == '__main__':
     import logging
     unittest.main()

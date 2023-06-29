@@ -111,6 +111,12 @@ class MCSAdapter(mcsrouter.adapters.adapter_base.AdapterBase):
 
         return relay_id != self.__m_relay_id
 
+    def get_last_policy(self):
+        """
+        get_last_policy
+        """
+        return self.__m_last_policy
+
     def __process_policy(self, policy):
         """
         __process_policy
