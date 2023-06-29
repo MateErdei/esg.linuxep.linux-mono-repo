@@ -16,6 +16,7 @@
 #include <google/protobuf/util/json_util.h>
 
 #include <iostream>
+#include <utility>
 
 using namespace Common::Policy;
 
@@ -27,27 +28,6 @@ namespace
     }
 
     using namespace SulDownloader::suldownloaderdata;
-/*
-    void setProtobufEntries(
-        const ProductSubscription& subscription,
-        SulDownloaderProto::ConfigurationSettings_Subscription* proto_subscription)
-    {
-        assert( proto_subscription != nullptr);
-        proto_subscription->set_rigidname(subscription.rigidName());
-        proto_subscription->set_baseversion(subscription.baseVersion());
-        proto_subscription->set_tag(subscription.tag());
-        proto_subscription->set_fixedversion(subscription.fixedVersion());
-    }
-
-    ProductSubscription getSubscription(
-        const SulDownloaderProto::ConfigurationSettings_Subscription& proto_subscription)
-    {
-        return ProductSubscription(
-            proto_subscription.rigidname(),
-            proto_subscription.baseversion(),
-            proto_subscription.tag(),
-            proto_subscription.fixedversion());
-    }*/
 } // namespace
 
 using namespace SulDownloader;
@@ -64,33 +44,15 @@ ConfigurationData::ConfigurationData(
     Proxy policyProxy)
 {
     forceReinstallAllProducts_ = false;
-    credentials_ = credentials;
+    credentials_ = std::move(credentials);
     localUpdateCacheHosts_ = updateCache;
     setSophosUpdateUrls(sophosLocationURL);
     setPolicyProxy(policyProxy);
 }
 
-ConfigurationData::ConfigurationData(const Common::Policy::UpdateSettings& settings)
-{
-    forceReinstallAllProducts_ = settings.getForceReinstallAllProducts();
-    credentials_ = settings.getCredentials();
-    setSophosUpdateUrls(settings.getSophosLocationURLs());
-    setLocalUpdateCacheHosts(settings.getLocalUpdateCacheHosts());
-    setPrimarySubscription(settings.getPrimarySubscription());
-    setProductsSubscription(settings.getProductsSubscription());
-    setUseSlowSupplements(settings.getUseSlowSupplements());
-    setFeatures(settings.getFeatures());
-    setPolicyProxy(settings.getPolicyProxy());
-}
-
 const Common::Policy::Credentials& ConfigurationData::getCredentials() const
 {
     return credentials_;
-}
-
-const std::vector<std::string>& ConfigurationData::getSophosUpdateUrls() const
-{
-    return sophosLocationURLs_;
 }
 
 void ConfigurationData::setSophosUpdateUrls(const std::vector<std::string>& sophosUpdateUrls)
@@ -110,60 +72,15 @@ void ConfigurationData::setSophosUpdateUrls(const std::vector<std::string>& soph
     }
 }
 
-const std::vector<std::string>& ConfigurationData::getLocalUpdateCacheUrls() const
-{
-    return localUpdateCacheHosts_;
-}
-
-const Proxy& ConfigurationData::getPolicyProxy() const
-{
-    return policyProxy_;
-}
-
 void ConfigurationData::setPolicyProxy(const Proxy& proxy)
 {
     policyProxy_ = proxy;
 }
 
 
-void ConfigurationData::setForceReinstallAllProducts(const bool forceReinstallAllProducts)
-{
-    forceReinstallAllProducts_ = forceReinstallAllProducts;
-}
-
-bool ConfigurationData::getForceReinstallAllProducts() const
-{
-    return forceReinstallAllProducts_;
-}
-
 UpdateSettings ConfigurationData::fromJsonSettings(const std::string& settingsString)
 {
     return Common::Policy::SerialiseUpdateSettings::fromJsonSettings(settingsString);
-}
-
-const std::vector<std::string>& ConfigurationData::getInstallArguments() const
-{
-    return installArguments_;
-}
-
-const std::vector<std::string>& ConfigurationData::getManifestNames() const
-{
-    return manifestNames_;
-}
-
-void ConfigurationData::setManifestNames(const std::vector<std::string>& manifestNames)
-{
-    manifestNames_ = manifestNames;
-}
-
-const std::vector<std::string>& ConfigurationData::getOptionalManifestNames() const
-{
-    return optionalManifestNames_;
-}
-
-void ConfigurationData::setOptionalManifestNames(const std::vector<std::string>& optionalManifestNames)
-{
-    optionalManifestNames_ = optionalManifestNames;
 }
 
 std::vector<Proxy> ConfigurationData::proxiesList(const UpdateSettings& settings)
@@ -225,11 +142,6 @@ std::vector<Proxy> ConfigurationData::proxiesList(const UpdateSettings& settings
     return options;
 }
 
-std::vector<Proxy> ConfigurationData::proxiesList() const
-{
-    return proxiesList(*this);
-}
-
 std::string ConfigurationData::toJsonSettings(const UpdateSettings& updateSettings)
 {
     return Common::Policy::SerialiseUpdateSettings::toJsonSettings(updateSettings);
@@ -287,16 +199,6 @@ std::optional<Proxy> ConfigurationData::proxyFromSavedProxyUrl(const std::string
     // not logging proxy here in-case it contains username and passwords.
     LOGWARN("Proxy URL not in expected format.");
     return std::nullopt;
-}
-
-void ConfigurationData::setUseSlowSupplements(bool useSlowSupplements)
-{
-    useSlowSupplements_ = useSlowSupplements;
-}
-
-bool ConfigurationData::getUseSlowSupplements() const
-{
-    return useSlowSupplements_;
 }
 
 std::optional<Proxy> ConfigurationData::currentMcsProxy()

@@ -86,19 +86,11 @@ namespace SulDownloader::suldownloaderdata
 
     private:
 
-        explicit ConfigurationData(const Common::Policy::UpdateSettings&);
-
         /**
          * Gets the credentials used to connect to the remote warehouse repository.
          * @return Credential object providing access to stored username and password.
          */
         const Common::Policy::Credentials& getCredentials() const;
-
-        /**
-         * Gets the list of domain urls for the sophos warehouse repositories
-         * @return list of sophos (domain url) locations
-         */
-        const std::vector<std::string>& getSophosUpdateUrls() const;
 
         /**
          * Sets the list of domain urls for the sophos warehouse repositories
@@ -107,32 +99,10 @@ namespace SulDownloader::suldownloaderdata
         void setSophosUpdateUrls(const std::vector<std::string>& sophosUpdateUrls);
 
         /**
-         * Gets the list of domain urls for the local cache warehouse repositories
-         * @return list of local cache (domain url) locations
-         */
-        const UpdateCacheHosts_t& getLocalUpdateCacheUrls() const;
-
-        /**
-         * Gets the configured update proxy
-         * @return proxy object containing the proxy details.
-         */
-        const Common::Policy::Proxy& getPolicyProxy() const;
-
-        /**
          * Sets the configured update proxy
          * @param proxy object containing the proxy details.
          */
         void setPolicyProxy(const Common::Policy::Proxy& proxy);
-
-
-        /**
-         * On top of the configured proxy (getProxy) there is the environment proxy that has to be considered.
-         * Hence, there will be either:
-         *  - 1 proxy to try: configured proxy
-         *  - 2 proxies: environment and no proxy
-         * @return list of proxies to try to connection.
-         */
-        std::vector<Common::Policy::Proxy> proxiesList() const;
 
         /**
          * Access to the primary subscription
@@ -144,48 +114,6 @@ namespace SulDownloader::suldownloaderdata
          * @return
          */
         const std::vector<ProductSubscription>& getProductsSubscription() const;
-
-        /**
-         * Set flag to force running the install scripts for all products
-         * @param forceReinstallAllProducts
-         */
-        void setForceReinstallAllProducts(bool forceReinstallAllProducts);
-
-        /**
-         * Get flag used to indicate install.sh scripts for all products should be invoked during update.
-         * @return true if set, false otherwise.
-         */
-        bool getForceReinstallAllProducts() const;
-
-        /**
-         * Gets the list of arguments that need to be passed to all product install.sh scripts.
-         * @return list of command line arguments.
-         */
-        const std::vector<std::string>& getInstallArguments() const;
-
-        /**
-         * Get the list of mandatory manifest (relative) file paths that must exist for all the products downloaded.
-         * @return list of manifest names.
-         */
-        const std::vector<std::string>& getManifestNames() const;
-
-        /**
-         * Set the list of mandatory manifest (relative) file paths that must exist for all packages.
-         * @param manifestNames
-         */
-        void setManifestNames(const std::vector<std::string>& optionalManifestNames);
-
-        /**
-         * Get the list of possible optional manifest f(relative) file paths for the products downloaded.
-         * @return list of optional manifest names.
-         */
-        const std::vector<std::string>& getOptionalManifestNames() const;
-
-        /**
-         * Set the list of optional manifest (relative) file paths that are may exist for packages.
-         * @param optionalManifestNames
-         */
-        void setOptionalManifestNames(const std::vector<std::string>& optionalManifestNames);
 
         /**
          * Access to the features configured.
@@ -205,11 +133,6 @@ namespace SulDownloader::suldownloaderdata
          */
         void setUseSlowSupplements(bool useSlowSupplements);
 
-        /**
-         * Get whether to download slow supplements or not.
-         * @return
-         */
-        [[nodiscard]] bool getUseSlowSupplements() const;
 
     };
 } // namespace SulDownloader::suldownloaderdata
