@@ -396,6 +396,20 @@ TEST_F(TestALCPolicy, constructWithEmptyString)
 
 using namespace Common::Policy;
 
+TEST_F(TestALCPolicy, invalidXml_unclosed_token)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    EXPECT_THROW(Common::Policy::ALCPolicy p{"<xml"}, Common::Policy::PolicyParseException);
+    EXPECT_TRUE(appenderContains("Failed to parse policy: Error parsing xml: unclosed token"));
+}
+
+TEST_F(TestALCPolicy, invalidXml_mismatched_tag)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    EXPECT_THROW(Common::Policy::ALCPolicy p{"<xml><foo></xml>"}, Common::Policy::PolicyParseException);
+    EXPECT_TRUE(appenderContains("Failed to parse policy: Error parsing xml: mismatched tag"));
+}
+
 TEST_F(TestALCPolicy, incorrectPolicyType)
 {
     try
