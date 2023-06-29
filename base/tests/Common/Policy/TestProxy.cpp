@@ -24,6 +24,14 @@ TEST(Proxy, DefaultConstructorIsEmptyProxy)
     EXPECT_TRUE(proxy.empty());
 }
 
+TEST(Proxy, NoProxyIsEmptyProxy)
+{
+    Proxy proxy(NoProxy);
+    EXPECT_EQ(proxy.getUrl(), NoProxy);
+    EXPECT_EQ(proxy.getProxyUrlAsSulRequires(), NoProxy);
+    EXPECT_TRUE(proxy.empty());
+}
+
 TEST(Proxy, ShouldHandleSimpleProxy)
 {
     Proxy proxy("10.10.10.10");

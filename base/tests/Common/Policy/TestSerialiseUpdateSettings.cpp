@@ -88,6 +88,13 @@ TEST_F(TestSerialiseUpdateSettings, emptyJson)
     EXPECT_NO_THROW(SerialiseUpdateSettings::fromJsonSettings("{}"));
 }
 
+TEST_F(TestSerialiseUpdateSettings, missingProxyProducesSettingsWithNoProxy)
+{
+    auto settings = SerialiseUpdateSettings::fromJsonSettings("{}");
+    auto proxy = settings.getPolicyProxy();
+    EXPECT_TRUE(proxy.empty());
+}
+
 TEST_F(TestSerialiseUpdateSettings, validJsonIsValid)
 {
     setupFileSystemAndGetMock();

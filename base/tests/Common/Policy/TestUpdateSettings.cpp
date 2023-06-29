@@ -157,3 +157,13 @@ TEST_F(TestUpdateSettings, OnlyPrimaryProductSubscriptionIsValid)
     settings.setProductsSubscription({});
     EXPECT_TRUE(settings.verifySettingsAreValid());
 }
+
+TEST_F(TestUpdateSettings, NoProxyIsValid)
+{
+    setupFileSystemAndGetMock();
+    UpdateSettings settings = getValidUpdateSettings();
+    Proxy proxy;
+    ASSERT_TRUE(proxy.empty());
+    settings.setPolicyProxy(proxy);
+    EXPECT_TRUE(settings.verifySettingsAreValid());
+}
