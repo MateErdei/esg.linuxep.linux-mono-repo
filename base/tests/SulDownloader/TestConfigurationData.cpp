@@ -129,34 +129,6 @@ public:
     }
 };
 
-TEST_F(ConfigurationDataTest, fromJsonSettingsValidStringWithNoSophosURLsShouldThrow)
-{
-    setupFileSystemAndGetMock();
-    try
-    {
-        ConfigurationData::fromJsonSettings(createJsonString(
-            ""
-            "https://sophosupdate.sophos.com/latest/warehouse"
-            "",
-            ""));
-    }
-    catch (SulDownloaderException& e)
-    {
-        EXPECT_STREQ("Sophos Location list cannot be empty", e.what());
-    }
-}
-
-TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithEmptySophosUrlValueShouldFailValidation)
-{
-    setupFileSystemAndGetMock();
-    auto configurationData =
-        ConfigurationData::fromJsonSettings(createJsonString("https://sophosupdate.sophos.com/latest/warehouse", ""));
-
-    configurationData.verifySettingsAreValid();
-
-    EXPECT_FALSE(configurationData.isVerified());
-}
-
 TEST_F(ConfigurationDataTest, fromJsonSettingsValidEmptyCredentialsShouldFailValidation)
 {
     setupFileSystemAndGetMock();

@@ -119,6 +119,16 @@ TEST_F(TestSerialiseUpdateSettings, emptyUpdateCacheValueShouldBeInvalid)
     EXPECT_FALSE(settings.verifySettingsAreValid());
 }
 
+TEST_F(TestSerialiseUpdateSettings, emptySophosUrlValueShouldFailValidation)
+{
+    setupFileSystemAndGetMock();
+    auto settings =
+        SerialiseUpdateSettings::fromJsonSettings(
+            mutateJson("https://sophosupdate.sophos.com/latest/warehouse", ""));
+
+    EXPECT_FALSE(settings.verifySettingsAreValid());
+}
+
 TEST_F(TestSerialiseUpdateSettings, preserveJWT)
 {
     UpdateSettings before;
