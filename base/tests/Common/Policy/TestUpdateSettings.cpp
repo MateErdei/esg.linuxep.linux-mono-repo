@@ -3,7 +3,6 @@
 #include "Common/Policy/UpdateSettings.h"
 
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
-#include "Common/FileSystemImpl/FileSystemImpl.h"
 
 #include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
 #include "tests/Common/Helpers/MemoryAppender.h"
@@ -191,4 +190,3 @@ TEST_F(TestUpdateSettings, OnlyPrimaryProductSubscriptionIsValid)
     settings.setProductsSubscription({});
     EXPECT_TRUE(settings.verifySettingsAreValid());
 }
-

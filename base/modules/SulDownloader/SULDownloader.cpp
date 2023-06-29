@@ -511,10 +511,10 @@ namespace SulDownloader
 
         return finalConnectionCandidates;
     }
-    std::vector<ConnectionSetup> populateSdds3CDNConnectionCandidates(const UpdateSettings& configurationData)
+    std::vector<ConnectionSetup> populateSdds3CDNConnectionCandidates(const UpdateSettings& updateSettings)
     {
         ConnectionSelector connectionSelector;
-        auto candidates = connectionSelector.getSDDS3ConnectionCandidates(configurationData);
+        auto candidates = connectionSelector.getSDDS3ConnectionCandidates(updateSettings);
         std::vector<ConnectionSetup> finalConnectionCandidates;
 
         std::vector<Proxy> proxies;
@@ -678,16 +678,16 @@ namespace SulDownloader
     }
 
     DownloadReport runSULDownloader(
-        const UpdateSettings& configurationData,
-        const UpdateSettings& previousConfigurationData,
+        const UpdateSettings& updateSettings,
+        const UpdateSettings& previousUpdateSettings,
         const DownloadReport& previousDownloadReport,
         bool supplementOnly)
     {
         // Mark which products need to be forced to re/install.
         bool forceReinstallAllProducts =
             SulDownloader::suldownloaderdata::ConfigurationDataUtil::checkIfShouldForceInstallAllProducts(
-                configurationData, previousConfigurationData, false);
-        assert(configurationData.isVerified());
+                updateSettings, previousUpdateSettings, false);
+        assert(updateSettings.isVerified());
 
         if (supplementOnly)
         {
@@ -711,21 +711,21 @@ namespace SulDownloader
 
         std::pair<bool, IRepositoryPtr> repositoryResult = std::make_pair(false, nullptr);
 
-        if (!configurationData.getPrimarySubscription().fixedVersion().empty() &&
-            StringUtils::isVersionOlder("2022", configurationData.getPrimarySubscription().fixedVersion()))
+        if (!updateSettings.getPrimarySubscription().fixedVersion().empty() &&
+            StringUtils::isVersionOlder("2022", updateSettings.getPrimarySubscription().fixedVersion()))
         {
             LOGERROR(
                 "The requested fixed version is not available on SDDS3: " +
-                configurationData.getPrimarySubscription().fixedVersion() + ". Package too old.");
+                updateSettings.getPrimarySubscription().fixedVersion() + ". Package too old.");
         }
         else
         {
-            if (!configurationData.getJWToken().empty())
+            if (!updateSettings.getJWToken().empty())
             {
                 LOGINFO("Running SDDS3 update");
                 // Make sure root directories are created
                 createSdds3UpdateCacheFolders();
-                repositoryResult = updateFromSDDS3Repository(configurationData, supplementOnly, previousDownloadReport,
+                repositoryResult = updateFromSDDS3Repository(updateSettings, supplementOnly, previousDownloadReport,
                                                              forceReinstallAllProducts);
             }
             else
@@ -737,7 +737,7 @@ namespace SulDownloader
         return processRepositoryAndGenerateReport(repositoryResult.first,
                                                   std::move(repositoryResult.second),
                                                   timeTracker,
-                                                  configurationData,
+                                                  updateSettings,
                                                   previousDownloadReport,
                                                   forceReinstallAllProducts,
                                                   supplementOnly);

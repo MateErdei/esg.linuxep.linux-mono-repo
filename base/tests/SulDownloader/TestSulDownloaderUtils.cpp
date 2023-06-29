@@ -1,9 +1,9 @@
 // Copyright 2023 Sophos Limited. All rights reserved.
 
 #include "modules/SulDownloader/SulDownloaderUtils.h"
-#include "SulDownloader/suldownloaderdata/ConfigurationData.h"
 
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include "Common/Policy/UpdateSettings.h"
 
 #include <tests/Common/Helpers/FileSystemReplaceAndRestore.h>
 #include <tests/Common/Helpers/LogInitializedTests.h>
@@ -12,9 +12,32 @@
 #include <gtest/gtest.h>
 
 using namespace Common::Policy;
-using namespace SulDownloader::suldownloaderdata;
 
-class SulDownloaderUtilsTest : public ::testing::Test {};
+class SulDownloaderUtilsTest : public ::testing::Test
+{
+    public:
+        UpdateSettings getUpdateSettings(UpdateSettings::UpdateCacheHosts_t updateCache,
+                                         UpdateSettings::url_list_t urls,
+                                         Proxy proxy)
+        {
+            UpdateSettings updateSettings;
+            updateSettings.setSophosLocationURLs(std::move(urls));
+            updateSettings.setLocalUpdateCacheHosts(std::move(updateCache));
+            updateSettings.setPolicyProxy(std::move(proxy));
+            return updateSettings;
+        }
+        UpdateSettings getUpdateSettings(UpdateSettings::UpdateCacheHosts_t updateCache,
+                                         Credentials,
+                                         UpdateSettings::url_list_t urls,
+                                         Proxy proxy)
+        {
+            UpdateSettings updateSettings;
+            updateSettings.setSophosLocationURLs(std::move(urls));
+            updateSettings.setLocalUpdateCacheHosts(std::move(updateCache));
+            updateSettings.setPolicyProxy(std::move(proxy));
+            return updateSettings;
+        }
+};
 
 class SulDownloaderUtilsTestFiles : public LogInitializedTests
 {
@@ -25,6 +48,8 @@ class SulDownloaderUtilsTestFiles : public LogInitializedTests
     }
 
 public:
+
+
     SulDownloaderUtilsTestFiles() : m_fileSystemMock(nullptr) {}
 
     MockFileSystem* m_fileSystemMock;
@@ -37,120 +62,112 @@ public:
 
 TEST_F(SulDownloaderUtilsTest, falseWhenNotPaused)
 {
-    ConfigurationData configurationData(
-        { "https://sophosupdate.sophos.com/latest/warehouse" },
-        Credentials{ "administrator", "password" },
-        { "https://cache.sophos.com/latest/warehouse" },
-        Proxy("noproxy:"));
-    configurationData.setPrimarySubscription(
+    auto updateSettings = getUpdateSettings({ "https://cache.sophos.com/latest/warehouse" },
+                                            { "https://sophosupdate.sophos.com/latest/warehouse" },
+                                             Proxy("noproxy:"));
+
+    updateSettings.setPrimarySubscription(
         ProductSubscription{ "BaseProduct-RigidName", "9", "RECOMMENDED", "" });
-    configurationData.setProductsSubscription(
+    updateSettings.setProductsSubscription(
         { ProductSubscription{ "PrefixOfProduct-SimulateProductA", "9", "RECOMMENDED", "" } });
-    ASSERT_EQ(SulDownloader::SulDownloaderUtils::isEndpointPaused(configurationData),false);
+    ASSERT_EQ(SulDownloader::SulDownloaderUtils::isEndpointPaused(updateSettings),false);
 }
 
 TEST_F(SulDownloaderUtilsTest, trueWhenPausedOnPrimarySubscription)
 {
-    ConfigurationData configurationData(
+    UpdateSettings updateSettings = getUpdateSettings(
         { "https://sophosupdate.sophos.com/latest/warehouse" },
         Credentials{ "administrator", "password" },
         { "https://cache.sophos.com/latest/warehouse" },
         Proxy("noproxy:"));
-    configurationData.setPrimarySubscription(
+    updateSettings.setPrimarySubscription(
         ProductSubscription{ "BaseProduct-RigidName", "9", "RECOMMENDED", "2023.1" });
-    configurationData.setProductsSubscription(
+    updateSettings.setProductsSubscription(
         { ProductSubscription{ "PrefixOfProduct-SimulateProductA", "9", "RECOMMENDED", "" } });
-    ASSERT_EQ(SulDownloader::SulDownloaderUtils::isEndpointPaused(configurationData),true);
+    ASSERT_EQ(SulDownloader::SulDownloaderUtils::isEndpointPaused(updateSettings),true);
 }
 
 TEST_F(SulDownloaderUtilsTest, trueWhenPausedOnNonPrimarySubscription)
 {
-    ConfigurationData configurationData(
+    UpdateSettings updateSettings = getUpdateSettings(
         { "https://sophosupdate.sophos.com/latest/warehouse" },
         Credentials{ "administrator", "password" },
         { "https://cache.sophos.com/latest/warehouse" },
         Proxy("noproxy:"));
-    configurationData.setPrimarySubscription(
+    updateSettings.setPrimarySubscription(
         ProductSubscription{ "BaseProduct-RigidName", "9", "RECOMMENDED", "" });
-    configurationData.setProductsSubscription(
+    updateSettings.setProductsSubscription(
         { ProductSubscription{ "PrefixOfProduct-SimulateProductA", "9", "RECOMMENDED", "2023.1" } });
-    ASSERT_EQ(SulDownloader::SulDownloaderUtils::isEndpointPaused(configurationData),true);
+
+    EXPECT_TRUE(SulDownloader::SulDownloaderUtils::isEndpointPaused(updateSettings));
 }
 
 TEST_F(SulDownloaderUtilsTestFiles, checkIfWeShouldForceUpdatesReturnTrueWhenConfigSetToTrueNON_PAUSED_UPDATE)
 {
-    ConfigurationData configurationData(
-        { "" });
-    configurationData.setDoForcedUpdate(true);
+    UpdateSettings updateSettings;
+    updateSettings.setDoForcedUpdate(true);
 
-    ASSERT_EQ(SulDownloader::SulDownloaderUtils::checkIfWeShouldForceUpdates(configurationData),true);
+    ASSERT_EQ(SulDownloader::SulDownloaderUtils::checkIfWeShouldForceUpdates(updateSettings),true);
 }
 
 TEST_F(SulDownloaderUtilsTestFiles, checkIfWeShouldForceUpdatesReturnTrueWhenConfigSetToFalseNON_PAUSED_UPDATE)
 {
-    ConfigurationData configurationData(
-        { "" });
-    configurationData.setDoForcedUpdate(false);
+    UpdateSettings updateSettings;
+    updateSettings.setDoForcedUpdate(false);
 
-    ASSERT_EQ(SulDownloader::SulDownloaderUtils::checkIfWeShouldForceUpdates(configurationData),false);
+    ASSERT_EQ(SulDownloader::SulDownloaderUtils::checkIfWeShouldForceUpdates(updateSettings),false);
 }
 
 TEST_F(SulDownloaderUtilsTestFiles, checkIfWeShouldForceUpdatesReturnFalseWhenPauseIsEnabledNON_PAUSED_UPDATE)
 {
-    ConfigurationData configurationData(
-        { "" });
-    configurationData.setDoForcedUpdate(true);
-    configurationData.setProductsSubscription(
+    UpdateSettings updateSettings;
+    updateSettings.setDoForcedUpdate(true);
+    updateSettings.setProductsSubscription(
         { ProductSubscription{ "PrefixOfProduct-SimulateProductA", "9", "RECOMMENDED", "2023.1" } });
-    ASSERT_EQ(SulDownloader::SulDownloaderUtils::checkIfWeShouldForceUpdates(configurationData),false);
+    ASSERT_EQ(SulDownloader::SulDownloaderUtils::checkIfWeShouldForceUpdates(updateSettings),false);
 }
 
 TEST_F(SulDownloaderUtilsTestFiles, checkIfWeShouldForceUpdatesReturnFalseWhenMarkerFileExistsNON_PAUSED_UPDATE)
 {
-    ConfigurationData configurationData(
-        { "" });
-    configurationData.setDoForcedUpdate(true);
+    UpdateSettings updateSettings;
+    updateSettings.setDoForcedUpdate(true);
     EXPECT_CALL(*m_fileSystemMock, isFile(markerFile)).WillOnce(Return(true));
-    ASSERT_EQ(SulDownloader::SulDownloaderUtils::checkIfWeShouldForceUpdates(configurationData),false);
+    ASSERT_EQ(SulDownloader::SulDownloaderUtils::checkIfWeShouldForceUpdates(updateSettings),false);
 }
 
 TEST_F(SulDownloaderUtilsTestFiles, checkIfWeShouldForceUpdatesReturnTrueWhenConfigSetToTruePAUSED_UPDATE)
 {
-    ConfigurationData configurationData(
-        { "" });
-    configurationData.setDoForcedPausedUpdate(true);
-    configurationData.setProductsSubscription(
+    UpdateSettings updateSettings;
+    updateSettings.setDoForcedPausedUpdate(true);
+    updateSettings.setProductsSubscription(
         { ProductSubscription{ "PrefixOfProduct-SimulateProductA", "9", "RECOMMENDED", "2023.1" } });
-    ASSERT_EQ(SulDownloader::SulDownloaderUtils::checkIfWeShouldForceUpdates(configurationData),true);
+    ASSERT_EQ(SulDownloader::SulDownloaderUtils::checkIfWeShouldForceUpdates(updateSettings),true);
 }
 
 TEST_F(SulDownloaderUtilsTestFiles, checkIfWeShouldForceUpdatesReturnTrueWhenConfigSetToFalsePAUSED_UPDATE)
 {
-    ConfigurationData configurationData(
-        { "" });
-    configurationData.setDoForcedPausedUpdate(false);
-    configurationData.setProductsSubscription(
+    UpdateSettings updateSettings;
+    updateSettings.setDoForcedPausedUpdate(false);
+    updateSettings.setProductsSubscription(
         { ProductSubscription{ "PrefixOfProduct-SimulateProductA", "9", "RECOMMENDED", "2023.1" } });
-    ASSERT_EQ(SulDownloader::SulDownloaderUtils::checkIfWeShouldForceUpdates(configurationData),false);
+    ASSERT_EQ(SulDownloader::SulDownloaderUtils::checkIfWeShouldForceUpdates(updateSettings),false);
 }
 
 TEST_F(SulDownloaderUtilsTestFiles, checkIfWeShouldForceUpdatesReturnFalseWhenPauseIsNotEnabledPAUSED_UPDATE)
 {
-    ConfigurationData configurationData(
-        { "" });
-    configurationData.setDoForcedPausedUpdate(true);
-    configurationData.setProductsSubscription(
+    UpdateSettings updateSettings;
+    updateSettings.setDoForcedPausedUpdate(true);
+    updateSettings.setProductsSubscription(
         { ProductSubscription{ "PrefixOfProduct-SimulateProductA", "9", "RECOMMENDED", "" } });
-    ASSERT_EQ(SulDownloader::SulDownloaderUtils::checkIfWeShouldForceUpdates(configurationData),false);
+    ASSERT_EQ(SulDownloader::SulDownloaderUtils::checkIfWeShouldForceUpdates(updateSettings),false);
 }
 
 TEST_F(SulDownloaderUtilsTestFiles, checkIfWeShouldForceUpdatesReturnFalseWhenMarkerFileExistsPAUSED_UPDATE)
 {
-    ConfigurationData configurationData(
-        { "" });
-    configurationData.setDoForcedPausedUpdate(true);
-    configurationData.setProductsSubscription(
+    UpdateSettings updateSettings;
+    updateSettings.setDoForcedPausedUpdate(true);
+    updateSettings.setProductsSubscription(
         { ProductSubscription{ "PrefixOfProduct-SimulateProductA", "9", "RECOMMENDED", "2023.1" } });
     EXPECT_CALL(*m_fileSystemMock, isFile(pausedMarkerFile)).WillOnce(Return(true));
-    ASSERT_EQ(SulDownloader::SulDownloaderUtils::checkIfWeShouldForceUpdates(configurationData),false);
+    ASSERT_EQ(SulDownloader::SulDownloaderUtils::checkIfWeShouldForceUpdates(updateSettings),false);
 }

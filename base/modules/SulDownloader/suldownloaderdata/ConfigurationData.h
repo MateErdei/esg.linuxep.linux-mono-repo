@@ -13,8 +13,6 @@
 
 namespace SulDownloader::suldownloaderdata
 {
-    constexpr char SSPLBaseName[] = "ServerProtectionLinux-Base";
-
     using ProductSubscription = Common::Policy::ProductSubscription;
 
     /**
@@ -24,7 +22,6 @@ namespace SulDownloader::suldownloaderdata
      *  - Config for log verbosity.
      *
      *  It will be mainly configured from the ConfigurationSettings serialized json.
-     *
      */
     class ConfigurationData : public Common::Policy::UpdateSettings
     {
@@ -74,65 +71,6 @@ namespace SulDownloader::suldownloaderdata
          */
         static const std::string DoNotSetSslSystemPath;
         static const std::vector<std::string> DefaultSophosLocationsURL;
-
-
-        // Legacy ConfigurationData class
-
-        explicit ConfigurationData(
-            const std::vector<std::string>& sophosLocationURL = {},
-            Common::Policy::Credentials credentials = Common::Policy::Credentials(),
-            const std::vector<std::string>& updateCache = std::vector<std::string>(),
-            Common::Policy::Proxy policyProxy = Common::Policy::Proxy());
-
-    private:
-
-        /**
-         * Gets the credentials used to connect to the remote warehouse repository.
-         * @return Credential object providing access to stored username and password.
-         */
-        const Common::Policy::Credentials& getCredentials() const;
-
-        /**
-         * Sets the list of domain urls for the sophos warehouse repositories
-         * @param list of sophos (domain url) locations
-         */
-        void setSophosUpdateUrls(const std::vector<std::string>& sophosUpdateUrls);
-
-        /**
-         * Sets the configured update proxy
-         * @param proxy object containing the proxy details.
-         */
-        void setPolicyProxy(const Common::Policy::Proxy& proxy);
-
-        /**
-         * Access to the primary subscription
-         * @return
-         */
-
-        const ProductSubscription& getPrimarySubscription() const;
-        /** Access to the list of subscriptions
-         * @return
-         */
-        const std::vector<ProductSubscription>& getProductsSubscription() const;
-
-        /**
-         * Access to the features configured.
-         * @return
-         */
-        const std::vector<std::string>& getFeatures() const;
-
-        /**
-         * Set whether to download the slow version of some supplements or the normal (fast version).
-         *
-         * For Local Reputation data, there is the normal supplement, or a slower supplement only updated weekly.
-         *
-         * See https://jira.sophos.net/browse/LINUXDAR-2076
-         * See https://wiki.sophos.net/display/global/Requirements+for+publishing+to+the+slow+release+channel+for+DataSetA+and+LocalRep
-         *
-         * @param useSlowSupplements
-         */
-        void setUseSlowSupplements(bool useSlowSupplements);
-
 
     };
 } // namespace SulDownloader::suldownloaderdata

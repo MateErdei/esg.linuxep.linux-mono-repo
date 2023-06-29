@@ -1,7 +1,6 @@
 // Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #include "ConfigurationData.h"
-
 #include "Logger.h"
 #include "SulDownloaderException.h"
 
@@ -13,7 +12,6 @@
 #include <Common/ProtobufUtil/MessageUtility.h>
 #include <Common/ProxyUtils/ProxyUtils.h>
 #include <Common/UtilityImpl/StringUtils.h>
-#include <google/protobuf/util/json_util.h>
 
 #include <iostream>
 #include <utility>
@@ -32,50 +30,6 @@ namespace
 
 using namespace SulDownloader;
 using namespace SulDownloader::suldownloaderdata;
-
-const std::string ConfigurationData::DoNotSetSslSystemPath(":system:");
-const std::vector<std::string> ConfigurationData::DefaultSophosLocationsURL{ "http://dci.sophosupd.com/update",
-                                                                             "http://dci.sophosupd.net/update" };
-
-ConfigurationData::ConfigurationData(
-    const std::vector<std::string>& sophosLocationURL,
-    Credentials credentials,
-    const std::vector<std::string>& updateCache,
-    Proxy policyProxy)
-{
-    forceReinstallAllProducts_ = false;
-    credentials_ = std::move(credentials);
-    localUpdateCacheHosts_ = updateCache;
-    setSophosUpdateUrls(sophosLocationURL);
-    setPolicyProxy(policyProxy);
-}
-
-const Common::Policy::Credentials& ConfigurationData::getCredentials() const
-{
-    return credentials_;
-}
-
-void ConfigurationData::setSophosUpdateUrls(const std::vector<std::string>& sophosUpdateUrls)
-{
-    if (sophosUpdateUrls.empty())
-    {
-        sophosLocationURLs_ = DefaultSophosLocationsURL;
-    }
-    else
-    {
-        sophosLocationURLs_ = sophosUpdateUrls;
-    }
-
-    if (sophosLocationURLs_.empty())
-    {
-        throw SulDownloaderException("Sophos Location list cannot be empty");
-    }
-}
-
-void ConfigurationData::setPolicyProxy(const Proxy& proxy)
-{
-    policyProxy_ = proxy;
-}
 
 
 UpdateSettings ConfigurationData::fromJsonSettings(const std::string& settingsString)
@@ -145,21 +99,6 @@ std::vector<Proxy> ConfigurationData::proxiesList(const UpdateSettings& settings
 std::string ConfigurationData::toJsonSettings(const UpdateSettings& updateSettings)
 {
     return Common::Policy::SerialiseUpdateSettings::toJsonSettings(updateSettings);
-}
-
-const ProductSubscription& ConfigurationData::getPrimarySubscription() const
-{
-    return primarySubscription_;
-}
-
-const std::vector<ProductSubscription>& ConfigurationData::getProductsSubscription() const
-{
-    return productSubscriptions_;
-}
-
-const std::vector<std::string>& ConfigurationData::getFeatures() const
-{
-    return features_;
 }
 
 std::optional<Proxy> ConfigurationData::proxyFromSavedProxyUrl(const std::string& savedProxyURL)
