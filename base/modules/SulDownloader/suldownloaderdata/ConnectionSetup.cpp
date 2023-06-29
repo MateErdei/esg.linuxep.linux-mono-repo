@@ -22,16 +22,6 @@ ConnectionSetup::ConnectionSetup(
     setUpdateLocationURL(updateLocationURL);
 }
 
-const ConnectionSetup::credentials_t& ConnectionSetup::getCredentials() const
-{
-    return m_credentials;
-}
-
-void ConnectionSetup::setCredentials(const credentials_t& credentials)
-{
-    m_credentials = credentials;
-}
-
 const ConnectionSetup::proxy_t& ConnectionSetup::getProxy() const
 {
     return m_proxy;

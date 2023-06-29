@@ -40,8 +40,6 @@ namespace SulDownloader
             bool isCacheUpdate() const;
 
         private:
-            [[nodiscard]] const credentials_t& getCredentials() const;
-            void setCredentials(const credentials_t& credentials);
 
             std::string m_updateLocationURL;
             credentials_t m_credentials;
