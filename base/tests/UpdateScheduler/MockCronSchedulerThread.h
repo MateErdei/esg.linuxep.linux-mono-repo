@@ -15,15 +15,13 @@ using namespace ::testing;
 class MockCronSchedulerThread : public UpdateScheduler::ICronSchedulerThread
 {
 public:
-    MOCK_METHOD0(start, void());
+    MOCK_METHOD(void, start, ());
 
-    MOCK_METHOD0(requestStop, void());
+    MOCK_METHOD(void, requestStop, ());
 
-    MOCK_METHOD0(reset, void());
+    MOCK_METHOD(void, reset, ());
 
-    MOCK_METHOD1(setPeriodTime, void(UpdateScheduler::ICronSchedulerThread::DurationTime));
+    MOCK_METHOD(void, setPeriodTime, (UpdateScheduler::ICronSchedulerThread::DurationTime));
 
-    MOCK_METHOD1(setScheduledUpdate, void(UpdateScheduler::ScheduledUpdate));
-
-    MOCK_METHOD1(setUpdateOnStartUp, void(bool));
+    MOCK_METHOD(void, setUpdateOnStartUp, (bool));
 };

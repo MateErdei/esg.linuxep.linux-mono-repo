@@ -198,20 +198,7 @@ namespace UpdateSchedulerImpl
                             processScheduleUpdate();
                             break;
                         case SchedulerTask::TaskType::Policy:
-                            LOGDEBUG("Process task POLICY: " << task.appId);
-
-                            if (task.appId == UpdateSchedulerProcessor::ALC_API)
-                            {
-                                processALCPolicy(task.content);
-                            }
-                            else if (task.appId == UpdateSchedulerProcessor::FLAGS_API)
-                            {
-                                processFlags(task.content);
-                            }
-                            else
-                            {
-                                LOGWARN("Received " << task.appId << " policy unexpectedly");
-                            }
+                            processPolicy(task.content, task.appId);
                             break;
                         case SchedulerTask::TaskType::Stop:
                             return;
@@ -260,6 +247,46 @@ namespace UpdateSchedulerImpl
                 log_exception(ex);
             }
         }
+    }
+
+    void UpdateSchedulerProcessor::processPolicy(const std::string& policyXml, const std::string& appId)
+    {
+        try
+        {
+            if (m_currentPolicies.at(appId) == policyXml)
+            {
+                LOGDEBUG("Policy with app id " << appId << " unchanged, will not be processed");
+                return;
+            }
+        }
+        catch (const std::out_of_range&)
+        {
+            LOGDEBUG("Recieved first policy with app id " << appId);
+        }
+
+        if (policyXml.empty())
+        {
+            LOGERROR("Received empty policy for " << appId);
+            // Can't parse empty policy
+            return;
+        }
+
+        LOGDEBUG("Process task POLICY: " << appId);
+
+        if (appId == UpdateSchedulerProcessor::ALC_API)
+        {
+            processALCPolicy(policyXml);
+        }
+        else if (appId == UpdateSchedulerProcessor::FLAGS_API)
+        {
+            processFlags(policyXml);
+        }
+        else
+        {
+            LOGWARN("Received " << appId << " policy unexpectedly");
+            return;
+        }
+        m_currentPolicies.insert_or_assign(appId, policyXml);
     }
 
     void UpdateSchedulerProcessor::processALCPolicy(const std::string& policyXml)

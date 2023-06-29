@@ -1,5 +1,7 @@
 // Copyright 2020-2023 Sophos Limited. All rights reserved.
 
+#pragma once
+
 #include <Common/Logging/LoggerConfig.h>
 #include <Common/Logging/ConsoleLoggingSetup.h>
 

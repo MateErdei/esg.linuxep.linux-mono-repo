@@ -2,6 +2,10 @@
 
 #pragma once
 
+#ifndef TEST_PUBLIC
+# define TEST_PUBLIC private
+#endif
+
 #include "Common/PersistentValue/PersistentValue.h"
 #include "Common/Policy/ALCPolicy.h"
 #include "Common/PluginApiImpl/BaseServiceAPI.h"
@@ -61,6 +65,9 @@ namespace UpdateSchedulerImpl
             int maxTasksThreshold,
             const std::string& policyAppId);
 
+    TEST_PUBLIC:
+        void processPolicy(const std::string& policyXml, const std::string& appId);
+
     private:
         void waitForSulDownloaderToFinish(int numberOfSecondsToWait);
         void processALCPolicy(const std::string& policyXml);
@@ -102,5 +109,6 @@ namespace UpdateSchedulerImpl
         std::vector<std::string> m_featuresCurrentlyInstalled;
         std::vector<std::string> m_subscriptionRigidNamesInPolicy;
         inline static int QUEUE_TIMEOUT = 5;
+        std::map<std::string, std::string> m_currentPolicies {};
     };
 } // namespace UpdateSchedulerImpl
