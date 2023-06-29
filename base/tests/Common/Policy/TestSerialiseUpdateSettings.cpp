@@ -24,3 +24,23 @@ TEST_F(TestSerialiseUpdateSettings, preserveJWT)
     auto after = SerialiseUpdateSettings::fromJsonSettings(serialised);
     EXPECT_EQ(before.getJWToken(), after.getJWToken());
 }
+
+TEST_F(TestSerialiseUpdateSettings, preserveTenant)
+{
+    UpdateSettings before;
+    before.setTenantId("TOKEN");
+    ASSERT_EQ(before.getTenantId(), "TOKEN");
+    auto serialised = SerialiseUpdateSettings::toJsonSettings(before);
+    auto after = SerialiseUpdateSettings::fromJsonSettings(serialised);
+    EXPECT_EQ(before.getTenantId(), after.getTenantId());
+}
+
+TEST_F(TestSerialiseUpdateSettings, preserveDevice)
+{
+    UpdateSettings before;
+    before.setDeviceId("TOKEN");
+    ASSERT_EQ(before.getDeviceId(), "TOKEN");
+    auto serialised = SerialiseUpdateSettings::toJsonSettings(before);
+    auto after = SerialiseUpdateSettings::fromJsonSettings(serialised);
+    EXPECT_EQ(before.getDeviceId(), after.getDeviceId());
+}

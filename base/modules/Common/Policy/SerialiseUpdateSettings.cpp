@@ -99,8 +99,8 @@ UpdateSettings SerialiseUpdateSettings::fromJsonSettings(const std::string& sett
     updateSettings.setJWToken(settings.jwtoken());
     updateSettings.setVersigPath(settings.versigpath());
     updateSettings.setUpdateCacheCertPath(settings.updatecachecertpath());
-//    updateSettings.setTenantId(settings.tenantid());
-//    updateSettings.setDeviceId(settings.deviceid());
+    updateSettings.setTenantId(settings.tenantid());
+    updateSettings.setDeviceId(settings.deviceid());
     updateSettings.setDoForcedUpdate(settings.forceupdate());
     updateSettings.setDoForcedPausedUpdate(settings.forcepausedupdate());
 
@@ -115,7 +115,7 @@ UpdateSettings SerialiseUpdateSettings::fromJsonSettings(const std::string& sett
                          : LogLevel::VERBOSE;
     updateSettings.setLogLevel(level);
 
-//    updateSettings.setForceReinstallAllProducts(settings.forcereinstallallproducts());
+    updateSettings.setForceReinstallAllProducts(settings.forcereinstallallproducts());
 
     std::vector<std::string> manifestnames(std::begin(settings.manifestnames()), std::end(settings.manifestnames()));
 
@@ -161,8 +161,8 @@ std::string SerialiseUpdateSettings::toJsonSettings(const UpdateSettings& update
     settings.mutable_jwtoken()->assign(updateSettings.getJWToken());
     settings.mutable_versigpath()->assign(updateSettings.getVersigPath());
     settings.mutable_updatecachecertpath()->assign(updateSettings.getUpdateCacheCertPath());
-//    settings.mutable_tenantid()->assign(updateSettings.getTenantId());
-//    settings.mutable_deviceid()->assign(updateSettings.getDeviceId());
+    settings.mutable_tenantid()->assign(updateSettings.getTenantId());
+    settings.mutable_deviceid()->assign(updateSettings.getDeviceId());
     settings.set_forceupdate(updateSettings.getDoForcedUpdate());
     settings.set_forcepausedupdate(updateSettings.getDoPausedForcedUpdate());
     const auto& primarySubscription = updateSettings.getPrimarySubscription();
