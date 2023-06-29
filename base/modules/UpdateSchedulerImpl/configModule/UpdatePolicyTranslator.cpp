@@ -45,16 +45,15 @@ namespace UpdateSchedulerImpl
             {
                 updatePolicy_ = std::make_shared<Common::Policy::ALCPolicy>(policyXml);
                 auto settings = updatePolicy_->getUpdateSettings();
+                settings.setInstallArguments({ "--instdir", applicationPathManager().sophosInstall() });
+                settings.setLogLevel(SulDownloader::suldownloaderdata::ConfigurationData::LogLevel::VERBOSE);
 
-                SulDownloader::suldownloaderdata::ConfigurationData config{settings};
-                config.setInstallArguments({ "--instdir", applicationPathManager().sophosInstall() });
-                config.setLogLevel(SulDownloader::suldownloaderdata::ConfigurationData::LogLevel::VERBOSE);
 
                 updatePolicyTelemetry_.setSDDSid(updatePolicy_->getSddsID());
                 updatePolicyTelemetry_.updateSubscriptions(updatePolicy_->getSubscriptions());
                 updatePolicyTelemetry_.resetTelemetry(Common::Telemetry::TelemetryHelper::getInstance());
 
-                return {.configurationData=config,
+                return {.configurationData=settings,
                         .updateCacheCertificatesContent=updatePolicy_->getUpdateCertificatesContent(),
                         .schedulerPeriod=updatePolicy_->getUpdatePeriod(),
                         .weeklySchedule=updatePolicy_->getWeeklySchedule()

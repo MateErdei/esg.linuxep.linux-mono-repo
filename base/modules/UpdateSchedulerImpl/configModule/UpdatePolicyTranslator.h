@@ -53,9 +53,8 @@ namespace UpdateSchedulerImpl
         struct SettingsHolder
         {
             using WeekDayAndTimeForDelay = Common::Policy::WeekDayAndTimeForDelay;
-            using SulDownloaderConfigurationData = SulDownloader::suldownloaderdata::ConfigurationData;
 
-            SulDownloaderConfigurationData configurationData;
+            Common::Policy::UpdateSettings configurationData;
             std::string updateCacheCertificatesContent;
             std::chrono::minutes schedulerPeriod;
             WeekDayAndTimeForDelay weeklySchedule;

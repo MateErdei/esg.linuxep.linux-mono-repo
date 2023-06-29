@@ -439,13 +439,13 @@ TEST_F(TestUpdatePolicyTranslator, ParseUpdatePolicyWithUpdateCache)
 //    EXPECT_EQ(config.getSystemSslCertificatePath(), ":system:");
 //    EXPECT_EQ(config.getUpdateCacheSslCertificatePath(), "/opt/sophos-spl/base/update/updatecachecerts/cache_certificates.crt");
 
-    auto urls = config.getSophosUpdateUrls();
+    auto urls = config.getSophosLocationURLs();
     ASSERT_EQ(urls.size(), 3);
     EXPECT_EQ(urls[0], "http://dci.sophosupd.com/cloudupdate");
     EXPECT_EQ(urls[1], "http://dci.sophosupd.com/update");
     EXPECT_EQ(urls[2], "http://dci.sophosupd.net/update");
 
-    auto cacheUrls = config.getLocalUpdateCacheUrls();
+    auto cacheUrls = config.getLocalUpdateCacheHosts();
     ASSERT_EQ(cacheUrls.size(), 3);
     EXPECT_EQ(cacheUrls[0], "maineng2.eng.sophos:8191");
     EXPECT_EQ(cacheUrls[1], "2k12-64-ld55-df.eng.sophos:8191");
@@ -538,12 +538,12 @@ TEST_F(TestUpdatePolicyTranslator, ParseUpdatePolicyWithProxy)
 //    EXPECT_EQ(config.getSystemSslCertificatePath(), ":system:");
 //    EXPECT_EQ(config.getUpdateCacheSslCertificatePath(), "");
 
-    auto urls = config.getSophosUpdateUrls();
+    auto urls = config.getSophosLocationURLs();
     ASSERT_EQ(urls.size(), 2);
     EXPECT_EQ(urls[0], "http://dci.sophosupd.com/update");
     EXPECT_EQ(urls[1], "http://dci.sophosupd.net/update");
 
-    EXPECT_TRUE(config.getLocalUpdateCacheUrls().empty());
+    EXPECT_TRUE(config.getLocalUpdateCacheHosts().empty());
 
     const auto& primarySubscription = config.getPrimarySubscription();
     EXPECT_EQ(primarySubscription.baseVersion(), "10");
@@ -788,7 +788,7 @@ TEST_F(TestUpdatePolicyTranslator, SortUpdateCacheEntries1)
     auto settingsHolder = translator.translatePolicy(updatePolicyWithCache);
     auto config = settingsHolder.configurationData;
 
-    auto cacheUrls = config.getLocalUpdateCacheUrls();
+    auto cacheUrls = config.getLocalUpdateCacheHosts();
     ASSERT_EQ(cacheUrls.size(), 3);
     EXPECT_EQ(cacheUrls[0], "maineng2.eng.sophos:8191");
     EXPECT_EQ(cacheUrls[1], "w2k8r2-std-en-df.eng.sophos:8191");
@@ -824,7 +824,7 @@ TEST_F(TestUpdatePolicyTranslator, SortUpdateCacheEntries2)
     auto settingsHolder = translator.translatePolicy(updatePolicyWithCache);
     auto config = settingsHolder.configurationData;
 
-    auto cacheUrls = config.getLocalUpdateCacheUrls();
+    auto cacheUrls = config.getLocalUpdateCacheHosts();
     ASSERT_EQ(cacheUrls.size(), 3);
     EXPECT_EQ(cacheUrls[0], "maineng2.eng.sophos:8191");
     EXPECT_EQ(cacheUrls[1], "2k12-64-ld55-df.eng.sophos:8191");
@@ -858,12 +858,12 @@ TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicy)
 //    EXPECT_EQ(config.getSystemSslCertificatePath(), ":system:");
 //    EXPECT_EQ(config.getUpdateCacheSslCertificatePath(), "");
 
-    auto urls = config.getSophosUpdateUrls();
+    auto urls = config.getSophosLocationURLs();
     ASSERT_EQ(urls.size(), 2);
     EXPECT_EQ(urls[0], "http://dci.sophosupd.com/update");
     EXPECT_EQ(urls[1], "http://dci.sophosupd.net/update");
 
-    EXPECT_TRUE(config.getLocalUpdateCacheUrls().empty());
+    EXPECT_TRUE(config.getLocalUpdateCacheHosts().empty());
 
     const auto& primarySubscription = config.getPrimarySubscription();
     EXPECT_EQ(primarySubscription.baseVersion(), "");
@@ -917,13 +917,13 @@ TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicyWithSophosAliasOverrideSet)
 //    EXPECT_EQ(config.getSystemSslCertificatePath(), ":system:");
 //    EXPECT_EQ(config.getUpdateCacheSslCertificatePath(), "");
 
-    auto urls = config.getSophosUpdateUrls();
+    auto urls = config.getSophosLocationURLs();
     ASSERT_EQ(urls.size(), 3);
     EXPECT_EQ(urls[0], customerFileUrl);
     EXPECT_EQ(urls[1], "http://dci.sophosupd.com/update");
     EXPECT_EQ(urls[2], "http://dci.sophosupd.net/update");
 
-    EXPECT_TRUE(config.getLocalUpdateCacheUrls().empty());
+    EXPECT_TRUE(config.getLocalUpdateCacheHosts().empty());
 
     const auto& primarySubscription = config.getPrimarySubscription();
     EXPECT_EQ(primarySubscription.baseVersion(), "");
@@ -1055,7 +1055,7 @@ TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicyWithNoSubscriptionsReportsError
     auto settingsHolder = translator.translatePolicy(policy);
     auto config = settingsHolder.configurationData;
 
-    EXPECT_TRUE(config.getLocalUpdateCacheUrls().empty());
+    EXPECT_TRUE(config.getLocalUpdateCacheHosts().empty());
 
     const auto& primarySubscription = config.getPrimarySubscription();
     EXPECT_EQ(primarySubscription.baseVersion(), "");
