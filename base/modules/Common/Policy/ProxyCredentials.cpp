@@ -1,4 +1,4 @@
-// Copyright 2023 Sophos All rights reserved.
+// Copyright 2018-2023 Sophos All rights reserved.
 #include "ProxyCredentials.h"
 
 #include <utility>

@@ -1,4 +1,7 @@
-// Copyright 2023 Sophos Limited. All rights reserved.
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
+
+// Contains code original in UpdatePolicyTranslator.cpp
+
 
 #include "ALCPolicy.h"
 
@@ -143,8 +146,6 @@ ALCPolicy::ALCPolicy(const std::string& xmlPolicy)
     extractCloudSubscriptions(attributesMap);
     extractPeriod(attributesMap);
     extractFeatures(attributesMap);
-
-    updateSettings_.setInstallArguments({ "--instdir", Common::ApplicationConfiguration::applicationPathManager().sophosInstall() });
 
     // manifest file name which must exist.
     updateSettings_.setManifestNames({ "manifest.dat" });

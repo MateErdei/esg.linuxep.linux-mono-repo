@@ -12,7 +12,6 @@ add_library(suldownloaderdataobject OBJECT
         RepositoryError.cpp
         RepositoryError.h
         SulDownloaderException.h
-        SulDownloaderException.cpp
         DownloadReport.cpp
         DownloadReport.h
         Logger.cpp

@@ -1,4 +1,4 @@
-// Copyright 2023 Sophos All rights reserved.
+// Copyright 2018-2023 Sophos All rights reserved.
 
 #include "Credentials.h"
 #include "PolicyParseException.h"
