@@ -27,7 +27,7 @@
 #include "tests/Common/FileSystemImpl/MockPidLockFileUtils.h"
 #include "tests/Common/Helpers/FilePermissionsReplaceAndRestore.h"
 #include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
-#include "tests/Common/Helpers/LogInitializedTests.h"
+#include "tests/Common/Helpers/MemoryAppender.h"
 #include "tests/Common/Helpers/MockFilePermissions.h"
 #include "tests/Common/Helpers/MockFileSystem.h"
 #include "tests/Common/Helpers/MockProcess.h"
@@ -65,19 +65,19 @@ namespace
 
 } // namespace
 
-class SULDownloaderSdds3Test : public ::testing::Test
+class SULDownloaderSdds3Test : public MemoryAppenderUsingTests
 {
     Common::Logging::ConsoleLoggingSetup m_consoleLogging;
 
 public:
+    SULDownloaderSdds3Test() : MemoryAppenderUsingTests("suldownloader")
+    {}
     /**
      * Setup directories and files expected by SULDownloader to enable its execution.
      * Use TempDir
      */
     void SetUp() override
     {
-        Test::SetUp();
-
         SulDownloader::suldownloaderdata::VersigFactory::instance().replaceCreator([]() {
           auto* versig = new NiceMock<MockVersig>();
           ON_CALL(*versig, verify(_, _))
@@ -290,9 +290,12 @@ public:
         return *m_mockptr;
     }
 
+    /**
+     * @return BORROWED reference to MockFileSystem
+     */
     MockFileSystem& setupFileSystemAndGetMock(int expectCallCount = 1, int expectCurrentProxy = 2, int expectedInstalledFeatures = 1, std::string installedFeatures = R"(["CORE"])")
     {
-        auto* filesystemMock = new MockFileSystem();
+        auto filesystemMock = std::make_unique<MockFileSystem>();
         EXPECT_CALL(*filesystemMock, isFile).Times(AnyNumber());
         EXPECT_CALL(*filesystemMock, isDirectory).Times(AnyNumber());
         EXPECT_CALL(*filesystemMock, removeFile(_, _)).Times(AnyNumber());
@@ -316,14 +319,14 @@ public:
         EXPECT_CALL(*filesystemMock, isFile("/opt/sophos-spl/base/etc/savedproxy.config")).WillRepeatedly(Return(false));
         std::string currentProxyFilePath =
             Common::ApplicationConfiguration::applicationPathManager().getMcsCurrentProxyFilePath();
-        EXPECT_CALL(*filesystemMock, isFile(currentProxyFilePath)).Times(expectCurrentProxy).WillOnce(Return(false));
+        EXPECT_CALL(*filesystemMock, isFile(currentProxyFilePath)).Times(expectCurrentProxy).WillRepeatedly(Return(false));
         std::string installedFeaturesFile = Common::ApplicationConfiguration::applicationPathManager().getFeaturesJsonPath();
         EXPECT_CALL(*filesystemMock, writeFile(::testing::HasSubstr("installed_features.json"), installedFeatures)).Times(expectedInstalledFeatures);
 
         setupExpectanceWriteProductUpdate(*filesystemMock);
 
-        auto* pointer = filesystemMock;
-        m_replacer.replace(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
+        auto* pointer = filesystemMock.get();
+        m_replacer.replace(std::move(filesystemMock));
         return *pointer;
     }
 
@@ -508,7 +511,7 @@ TEST_F(SULDownloaderSdds3Test, main_entry_missingInputFileCausesReturnsCorrectEr
     char* inputFileDoesNotExist[] = { const_cast<char*>("SulDownloader"),
                                       const_cast<char*>("inputfiledoesnotexists.json"),
                                       const_cast<char*>("/some/dir/createoutputpath.json") };
-    EXPECT_EQ(SulDownloader::main_entry(3, inputFileDoesNotExist), -2);
+    EXPECT_EQ(SulDownloader::main_entry(3, inputFileDoesNotExist, std::chrono::milliseconds{1}), -2);
 }
 
 TEST_F(SULDownloaderSdds3Test, main_entry_inputFileGivenAsDirReturnsCorrectErrorCode)
@@ -2711,7 +2714,6 @@ TEST_F(
     EXPECT_CALL(fileSystem, isFile("/etc/ssl/certs/ca-certificates.crt")).WillOnce(Return(false));
     EXPECT_CALL(fileSystem, isFile("/etc/pki/tls/certs/ca-bundle.crt")).WillOnce(Return(false));
     EXPECT_CALL(fileSystem, isFile("/etc/ssl/ca-bundle.pem")).WillOnce(Return(false));
-    testing::internal::CaptureStdout();
     testing::internal::CaptureStderr();
     auto settings = defaultSettings();
     settings.clear_sophosurls();
@@ -2728,7 +2730,6 @@ TEST_F(
 
     auto downloadReport =
         SulDownloader::runSULDownloader(configurationData, previousConfigurationData, previousDownloadReport);
-    std::string output = testing::internal::GetCapturedStdout();
     std::string errStd = testing::internal::GetCapturedStderr();
     ASSERT_THAT(errStd, ::testing::HasSubstr("Failed to connect to repository"));
 }
@@ -2741,8 +2742,10 @@ TEST_F(
     EXPECT_CALL(fileSystem, isFile("/etc/ssl/certs/ca-certificates.crt")).WillOnce(Return(false));
     EXPECT_CALL(fileSystem, isFile("/etc/pki/tls/certs/ca-bundle.crt")).WillOnce(Return(false));
     EXPECT_CALL(fileSystem, isFile("/etc/ssl/ca-bundle.pem")).WillOnce(Return(false));
+
     testing::internal::CaptureStdout();
     testing::internal::CaptureStderr();
+
     auto settings = defaultSettings();
     settings.clear_sophosurls();
     settings.add_sophosurls("http://localhost/latest/donotexits");
@@ -2889,10 +2892,12 @@ TEST_F(SULDownloaderSdds3Test, runSULDownloader_NonSupplementOnlyClearsAwaitSche
     const auto products = defaultProducts();
     TimeTracker timeTracker;
     DownloadReport previousDownloadReport =
-        DownloadReport::Report("", products, {}, {}, &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
+        DownloadReport::Report("", products, {}, {},
+                               &timeTracker, DownloadReport::VerifyState::VerifyCorrect);
 
     MockSdds3Repository& mock = repositoryMocked();
-    ON_CALL(mock, getProducts).WillByDefault(Return(products));
+    EXPECT_CALL(mock, getProducts).WillRepeatedly(Return(products));
+    EXPECT_CALL(mock, hasError).WillRepeatedly(Return(false));
 
     EXPECT_CALL(
         mockFileSystem, removeFile("/opt/sophos-spl/base/update/var/updatescheduler/await_scheduled_update", _));
@@ -2983,8 +2988,6 @@ TEST_F(
     SULDownloaderSdds3Test,
     runSULDownloader_SupplementOnlyButVersion123DoesNotClearAwaitScheduledUpdateFlagAndTriesToInstall)
 {
-    testing::internal::CaptureStderr();
-
     auto& mockFileSystem = setupFileSystemAndGetMock(0, 2, 0);
 
     // Expect an upgrade, with the current installed version being >= 1.2.3
@@ -3045,8 +3048,6 @@ TEST_F(
 
 TEST_F(SULDownloaderSdds3Test, RunSULDownloaderProductUpdateButBaseVersionIniDoesNotExistStillTriesToInstall)
 {
-    testing::internal::CaptureStderr();
-
     auto& mockFileSystem = setupFileSystemAndGetMock(0, 2, 0);
 
     EXPECT_CALL(mockFileSystem, isFile("/opt/sophos-spl/base/VERSION.ini")).WillRepeatedly(Return(false));
@@ -3109,8 +3110,6 @@ TEST_F(SULDownloaderSdds3Test, RunSULDownloaderProductUpdateButBaseVersionIniDoe
 
 TEST_F(SULDownloaderSdds3Test, RunSULDownloaderSupplementOnlyButBaseVersionIniDoesNotExistDoesNotInstallAnything)
 {
-    testing::internal::CaptureStderr();
-
     auto& mockFileSystem = setupFileSystemAndGetMock(0, 2, 0);
 
      EXPECT_CALL(mockFileSystem, isFile("/opt/sophos-spl/base/VERSION.ini")).WillRepeatedly(Return(false));

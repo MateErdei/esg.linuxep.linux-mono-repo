@@ -15,7 +15,7 @@ namespace Common
         class IFileSystemException : public Common::Exceptions::IException
         {
         public:
-            explicit IFileSystemException(const std::string& what) : Common::Exceptions::IException(what) {}
+            using Common::Exceptions::IException::IException;
         };
     } // namespace FileSystem
 } // namespace Common

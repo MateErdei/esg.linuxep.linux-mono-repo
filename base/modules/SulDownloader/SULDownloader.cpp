@@ -754,15 +754,16 @@ namespace SulDownloader
         const std::string& inputFilePath,
         const std::string& previousInputFilePath,
         const std::string& previousReportData,
-        bool supplementOnly)
+        bool supplementOnly,
+        std::chrono::milliseconds readFailedRetryInterval,
+        int maxReadAttempts)
     {
         bool readSuccessful = false;
         auto report = DownloadReport::Report("SulDownloader failed.");
+        auto* fileSystem  = Common::FileSystem::fileSystem();
         try
         {
             int readAttempt = 0;
-            int maxReadAttempt = 10;
-            auto fileSystem  = Common::FileSystem::fileSystem();
 
             UpdateSettings configurationData;
             UpdateSettings previousConfigurationData;
@@ -789,27 +790,31 @@ namespace SulDownloader
                         }
                     }
                     readSuccessful = true;
+                    break;
                 }
                 catch (Common::FileSystem::IFileSystemException& exception)
                 {
-                    if (readAttempt == maxReadAttempt)
+                    if (readAttempt == maxReadAttempts)
                     {
-                        throw Common::FileSystem::IFileSystemException(exception.what());
+                        std::throw_with_nested(Common::FileSystem::IFileSystemException(LOCATION, exception.what()));
                     }
                 }
-                catch (SulDownloaderException & exception)
+                catch (SulDownloaderException& exception)
                 {
-                    if (readAttempt == maxReadAttempt)
+                    if (readAttempt == maxReadAttempts)
                     {
-                        throw SulDownloaderException(exception.what());
+                        std::throw_with_nested(SulDownloaderException(LOCATION, exception.what()));
                     }
                 }
-                std::this_thread::sleep_for (std::chrono::seconds(1));
+                if (!readSuccessful)
+                {
+                    std::this_thread::sleep_for(readFailedRetryInterval);
+                }
             } while (!readSuccessful);
 
             if (!configurationData.verifySettingsAreValid())
             {
-                throw SulDownloaderException("Configuration data is invalid");
+                throw SulDownloaderException(LOCATION, "Configuration data is invalid");
             }
 
             // If there is no previous download report, or if the download report fails to be read correctly
@@ -888,7 +893,8 @@ namespace SulDownloader
     int fileEntriesAndRunDownloader(
         const std::string& inputFilePath,
         const std::string& outputFilePath,
-        const std::string& supplementOnlyMarkerFilePath)
+        const std::string& supplementOnlyMarkerFilePath,
+        std::chrono::milliseconds readFailedRetryInterval)
     {
         auto* fileSystem = Common::FileSystem::fileSystem();
 
@@ -925,7 +931,8 @@ namespace SulDownloader
         std::string jsonReport;
         bool baseDowngraded = false;
         std::tie(exitCode, jsonReport, baseDowngraded) =
-            configAndRunDownloader(inputFilePath, previousSettingFilePath, previousReportData, supplementOnly);
+            configAndRunDownloader(inputFilePath, previousSettingFilePath, previousReportData, supplementOnly,
+                                   readFailedRetryInterval);
 
         if (exitCode == 0)
         {
@@ -958,7 +965,8 @@ namespace SulDownloader
         return exitCode;
     }
 
-    int main_entry(int argc, char* argv[])
+    int main_entry(int argc, char* argv[],
+                   std::chrono::milliseconds readFailedRetryInterval)
     {
         umask(S_IRWXG | S_IRWXO);
         // Configure logging
@@ -1017,7 +1025,7 @@ namespace SulDownloader
 
         try
         {
-            return fileEntriesAndRunDownloader(inputPath, outputPath, supplementOnlyMarkerPath);
+            return fileEntriesAndRunDownloader(inputPath, outputPath, supplementOnlyMarkerPath, readFailedRetryInterval);
         } // failed or unable to either read or to write files
         catch (std::exception& ex)
         {

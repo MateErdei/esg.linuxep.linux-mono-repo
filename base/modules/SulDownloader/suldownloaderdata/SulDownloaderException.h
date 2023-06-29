@@ -6,21 +6,17 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include <exception>
-#include <string>
+#include "Common/Exceptions/IException.h"
+
 namespace SulDownloader
 {
     namespace suldownloaderdata
     {
-        class SulDownloaderException : public std::exception
+        class SulDownloaderException : public Common::Exceptions::IException
         {
         public:
-            explicit SulDownloaderException(std::string message);
+            using Common::Exceptions::IException::IException;
 
-            const char* what() const noexcept override;
-
-        private:
-            std::string m_message;
         };
 
     } // namespace suldownloaderdata

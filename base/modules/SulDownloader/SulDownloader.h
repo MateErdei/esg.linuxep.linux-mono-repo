@@ -6,8 +6,10 @@
 
 #include <SulDownloader/suldownloaderdata/TimeTracker.h>
 
+#include <chrono>
 #include <string>
 #include <tuple>
+
 namespace SulDownloader
 {
     void writeInstalledFeatures(const std::vector<std::string>& features);
@@ -71,7 +73,9 @@ namespace SulDownloader
         const std::string& inputFilePath,
         const std::string& previousInputFilePath,
         const std::string& previousReportData,
-        bool supplementOnly=false);
+        bool supplementOnly=false,
+        std::chrono::milliseconds readFailedRetryInterval = std::chrono::seconds{1},
+        int maxReadAttempts=10);
 
     /**
      * Run configAndRunDownloader whilst handling files for input and output.
@@ -85,7 +89,11 @@ namespace SulDownloader
      * @return The exit code.
      * @throws If it cannot read or write the files safely it will throw exception.
      */
-    int fileEntriesAndRunDownloader(const std::string& inputFilePath, const std::string& outputFilePath, const std::string& supplementOnlyMarkerFilePath);
+    int fileEntriesAndRunDownloader(
+        const std::string& inputFilePath,
+        const std::string& outputFilePath,
+        const std::string& supplementOnlyMarkerFilePath,
+        std::chrono::milliseconds readFailedRetryInterval=std::chrono::seconds{1});
 
     std::string getPreviousDownloadReportData(const std::string& outputParentPath);
 
@@ -102,5 +110,6 @@ namespace SulDownloader
      * @param argv As convention the strings of arguments.
      * @return
      */
-    int main_entry(int argc, char* argv[]);
+    int main_entry(int argc, char* argv[],
+                   std::chrono::milliseconds readFailedRetryInterval = std::chrono::seconds{1});
 } // namespace SulDownloader
