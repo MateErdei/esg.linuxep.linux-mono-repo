@@ -182,15 +182,6 @@ class LogUtils(object):
             if arg != master:
                 raise AssertionError(f"Not all items are equal in: {args}")
 
-    def replace_string_in_file(self, old_string, new_string, file):
-        if not os.path.isfile(file):
-            raise AssertionError(f"File not found {file}")
-        with open(file, "rt") as f:
-            content = f.read()
-        content = content.replace(old_string, new_string)
-        with open(file, "wt") as f:
-            f.write(content)
-
     def dump_log(self, filename):
         if os.path.isfile(filename):
             try:

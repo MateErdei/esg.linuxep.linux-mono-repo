@@ -1,6 +1,7 @@
 *** Settings ***
 Library    ${LIBS_DIRECTORY}/FullInstallerUtils.py
 Library    ${LIBS_DIRECTORY}/OSUtils.py
+Resource  ../GeneralUtilsResources.robot
 Resource  ../upgrade_product/UpgradeResources.robot
 
 
@@ -161,27 +162,6 @@ Wait Keyword Succeed
     ...  5 secs
     ...  ${keyword}
 
-Install And Enable AuditD If Required
-    ${Result}=  Is Ubuntu
-    Run Keyword If   ${Result}==${True}
-    ...   Run Shell Process   apt-get install auditd -y    OnError=failed to install auditd  timeout=200s
-
-    #  Assume all other supported platforms install software using YUM
-    IF  ${Result}!=${True}
-      Run Shell Process   yum install audit -y    OnError=failed to install auditd  timeout=200s
-    END
-
-    Run Shell Process   systemctl start auditd    OnError=failed to start auditd
-
-Uninstall AuditD If Required
-    ${Result}=  Is Ubuntu
-    Run Keyword If   ${Result}==${True}
-    ...   Run Shell Process   apt-get remove auditd -y    OnError=failed to remove auditd  timeout=200s
-
-    #  Assume all other supported platforms install software using YUM
-    IF  ${Result}!=${True}
-      Run Shell Process   yum remove audit -y    OnError=failed to remove auditd  timeout=200s
-    END
 
 EDR Suite Setup
     Upgrade Resources Suite Setup

@@ -16,6 +16,11 @@ install(FILES ${CMAKE_SOURCE_DIR}/products/distribution/cleanupinstall.sh
         PERMISSIONS OWNER_READ OWNER_EXECUTE
         )
 
+install(FILES ${CMAKE_SOURCE_DIR}/products/distribution/checkAndRunExtraUpgrade.sh
+        DESTINATION ${BASE_DIST_PREFIX}
+        PERMISSIONS OWNER_READ OWNER_EXECUTE
+        )
+
 install(FILES ${CMAKE_SOURCE_DIR}/products/Base/installer/filestodelete.dat
         DESTINATION ${BASE_DIST_PREFIX}
         PERMISSIONS OWNER_READ OWNER_EXECUTE

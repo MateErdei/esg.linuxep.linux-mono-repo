@@ -19,13 +19,13 @@ import time
 import psutil
 
 import PathManager
+import OSUtils
 import tempfile
 
 from robot.api import logger
 from robot.libraries.BuiltIn import BuiltIn
 import robot.libraries.BuiltIn
 
-PUB_SUB_LOGGING_DIST_LOCATION = "/tmp/pub_sub_logging_dist"
 SYSTEM_PRODUCT_TEST_INPUTS = os.environ.get("SYSTEMPRODUCT_TEST_INPUT", default="/tmp/system-product-test-inputs")
 BASE_REPO_NAME="esg.linuxep.everest-base"
 
@@ -170,20 +170,6 @@ def get_plugin_sdds(plugin_name, environment_variable_name, candidates=None):
     raise Exception(f"Failed to find plugin {plugin_name} sdds. Attempted: " + ' '.join(fullpath_candidates) + " " + env_path)
 
 
-class MDREntry(object):
-    def __init__(self, rigid_name, sdds):
-        self.rigid_name = rigid_name
-        self.sdds = sdds
-
-def get_component_suite_sdds_entry(name, expected_directory_name, environment_variable_name, candidates, use_env_overrides=True):
-    entry_candidates = [os.path.join(candidate, expected_directory_name) for candidate in candidates]
-    if not use_env_overrides:
-        environment_variable_name = None
-    sdds = get_plugin_sdds(name, environment_variable_name, entry_candidates)
-    return MDREntry(name, sdds)
-
-
-
 def get_exampleplugin_sdds():
     candidates = []
     local_path_to_plugin = PathManager.find_local_component_dir_path("exampleplugin")
@@ -193,22 +179,6 @@ def get_exampleplugin_sdds():
     return get_plugin_sdds("Example Plugin", "EXAMPLEPLUGIN_SDDS", candidates)
 
 
-class MDRSuite:
-    def __init__(self, mdr_plugin, mdr_suite):
-        self.mdr_plugin = mdr_plugin
-        self.mdr_suite = mdr_suite
-
-def get_sspl_mdr_component_suite_1():
-    release_1_override = os.environ.get("SDDS_SSPL_MDR_COMPONENT_SUITE_RELEASE_1_0", None)
-
-    if release_1_override is None:
-        candidates = ["/uk-filer5/prodro/bir/sspl-mdr-componentsuite/1-0-0-2/217070/output"]
-    else:
-        candidates = [release_1_override]
-
-    mdr_plugin = get_component_suite_sdds_entry("ServerProtectionLinux-MDR-Control",  "SDDS_SSPL_MDR_COMPONENT", candidates, use_env_overrides=False)
-    mdr_suite = get_component_suite_sdds_entry("ServerProtectionLinux-Plugin-MDR",  "SDDS_SSPL_MDR_COMPONENT_SUITE", candidates, use_env_overrides=False)
-    return MDRSuite(mdr_plugin, mdr_suite)
 
 def get_sspl_mdr_plugin_sdds():
     candidates = []
@@ -334,13 +304,6 @@ def _copy_suite_entry_to(root_target_directory, mdr_entry):
         logger.info("Entries in the target directory: {}".format(list_entries))
 
 
-def copy_mdr_component_suite_to(target_directory, mdr_component_suite):
-    _copy_suite_entry_to(target_directory, mdr_component_suite.dbos)
-    _copy_suite_entry_to(target_directory, mdr_component_suite.mdr_plugin)
-    _copy_suite_entry_to(target_directory, mdr_component_suite.mdr_suite)
-    list_entries = ','.join(os.listdir(target_directory))
-    logger.info("Entries in the target directory: {}".format(list_entries))
-
 
 def get_xml_node_text(node):
     return "".join(t.nodeValue for t in node.childNodes if t.nodeType == t.TEXT_NODE)
@@ -361,19 +324,13 @@ def check_sdds_import_matches_rigid_name(expected_rigidname, source_directory):
 
 
 def run_full_installer_expecting_code(expected_code, *args):
-    if get_variable("PUB_SUB_LOGGING"):
-        installer = os.path.join(PUB_SUB_LOGGING_DIST_LOCATION, "install.sh")
-    else:
-        installer = get_full_installer()
+    installer = get_full_installer()
     logger.info("Installer path: " + str(installer))
     return run_full_installer_from_location_expecting_code(installer, expected_code, *args, debug=True)
 
 
 def run_full_installer_without_x_set():
-    if get_variable("PUB_SUB_LOGGING"):
-        installer = os.path.join(PUB_SUB_LOGGING_DIST_LOCATION, "install.sh")
-    else:
-        installer = get_full_installer()
+    installer = get_full_installer()
     logger.info("Installer path: " + str(installer))
     return run_full_installer_from_location_expecting_code(installer, 0, debug=False)
 
@@ -691,20 +648,6 @@ def get_machine_id_generate_by_python():
     return sxl.generateMachineId()
 
 
-def clean_up_warehouse_temp_dir():
-    temp_dir_prefixes = [
-        "robot-example-plugin*",
-        "robot-event-processsor-plugin*",
-        "robot-audit-plugin*"
-    ]
-    for dir in temp_dir_prefixes:
-        dir_list = glob.iglob(os.path.join("/tmp", dir))
-        logger.info(dir_list)
-        for path in dir_list:
-            if os.path.isdir(path):
-                shutil.rmtree(path)
-
-
 def get_plugin_name_for_log_component_name(logname):
     names_pairs = {"sophos_managementagent": "managementagent",
                    "mcs_router": "mcsrouter"}
@@ -901,6 +844,11 @@ def get_systemd_file_info():
 
     return "\n".join(results)
 
+def replace_version(old_version, new_version, base_dist):
+    sdds_import_path = os.path.join(base_dist, "SDDS-Import.xml")
+    version_file_path = os.path.join(base_dist, "files/base/VERSION.ini")
+    OSUtils.replace_string_in_file(old_version, new_version, sdds_import_path)
+    OSUtils.replace_string_in_file(old_version, new_version, version_file_path)
 
 def version_ini_file_contains_proper_format_for_product_name(file, product_name):
 
@@ -986,42 +934,6 @@ def report_on_process(pids):
         except ValueError:
             logger.info("Ignoring input {} as it is not a number".format(pid))
 
-# return a configparser.Section with the following entries: PRODUCT_NAME, PRODUCT_VERSION, BUILD_DATE
-def _load_version_file(file_path):
-    content = _get_file_content(file_path)
-    ini_content = '''[default]
-    {}'''.format(content)
-    parser = configparser.ConfigParser()
-    parser.read_string(ini_content)
-    return parser['default']
-
-def _is_valid_upgrade(previous_file_path_1, latest_file_path_2):
-    previous_version = _load_version_file(previous_file_path_1)
-    latest_version = _load_version_file(latest_file_path_2)
-    assert 'PRODUCT_NAME' in previous_version
-    assert 'PRODUCT_VERSION' in previous_version
-    assert 'BUILD_DATE' in previous_version
-    assert 'PRODUCT_NAME' in latest_version
-    assert 'PRODUCT_VERSION' in latest_version
-    assert 'BUILD_DATE' in latest_version
-    # not an upgrade if version is the same
-    if (previous_version['BUILD_DATE'] == latest_version['BUILD_DATE'] and
-        previous_version['PRODUCT_VERSION'] == latest_version['PRODUCT_VERSION']):
-        return False
-    if (latest_version['BUILD_DATE'] > previous_version['BUILD_DATE'] and
-       latest_version['PRODUCT_VERSION'] != previous_version['PRODUCT_VERSION']):
-        return True
-    raise AssertionError("The pair is neither in the same release nor an upgrade. Previous={} Latest={}".format(
-        previous_version, latest_version
-    ))
-
-
-def check_version_files_report_a_valid_upgrade(previous_ini_files, recent_ini_files):
-    if len(previous_ini_files) != len(recent_ini_files):
-        raise AssertionError("Invalid input arguments. Require two lists with equal size. Received: 1->{} 2->{}".format(previous_ini_files,recent_ini_files))
-    upgrades = [_is_valid_upgrade(previous,latest) for previous,latest in zip(previous_ini_files,recent_ini_files)]
-    if not any(upgrades):
-        raise AssertionError('No upgrade found in the input VERSION files')
 
 def check_watchdog_service_file_has_correct_kill_mode():
     if os.path.isfile("/lib/systemd/system/sophos-spl.service"):

@@ -22,6 +22,7 @@ Resource    ../scheduler_update/SchedulerUpdateResources.robot
 Resource    ../telemetry/TelemetryResources.robot
 Resource    ../watchdog/LogControlResources.robot
 Resource    UpgradeResources.robot
+Resource    ../GeneralUtilsResources.robot
 
 Suite Setup      Upgrade Resources Suite Setup
 Suite Teardown   Upgrade Resources Suite Teardown
@@ -824,8 +825,9 @@ Consecutive SDDS3 Updates Without Changes Should Not Trigger Additional Installa
     Check Marked Sul Log Contains   Downloaded Product line: 'ServerProtectionLinux-Plugin-liveresponse' is up to date.
     Check Marked Sul Log Contains   Downloaded Product line: 'ServerProtectionLinux-Plugin-RuntimeDetections' is up to date.
     Check Marked Sul Log Contains   Downloaded Product line: 'ServerProtectionLinux-Plugin-EventJournaler' is up to date.
-    ${latest_report} =  Run Shell Process  ls ${SOPHOS_INSTALL}/base/update/var/updatescheduler/update_report* -rt | cut -f 1 | tail -n1  shell=${True}
-    All Products In Update Report Are Up To Date  ${latest_report.strip()}
+    ${latest_report_result} =  Run Shell Process  ls ${SOPHOS_INSTALL}/base/update/var/updatescheduler/update_report* -rt | cut -f 1 | tail -n1     OnError=failed to get last report file
+
+    All Products In Update Report Are Up To Date  ${latest_report_result.stdout.strip()}
 
 
 Schedule Query Pack Next Exists in SDDS3 and is Equal to Schedule Query Pack

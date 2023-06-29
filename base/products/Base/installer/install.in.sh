@@ -30,6 +30,7 @@ fi
 ABS_SCRIPTDIR=$(cd $SCRIPTDIR && pwd)
 
 source $ABS_SCRIPTDIR/cleanupinstall.sh
+source $ABS_SCRIPTDIR/checkAndRunExtraUpgrade.sh
 
 [[ -n "$DIST" ]] || DIST=$ABS_SCRIPTDIR
 
@@ -841,8 +842,11 @@ CLEAN_INSTALL=1
 [[ -f "${SOPHOS_INSTALL}/base/update/${PRODUCT_LINE_ID}/manifest.dat" ]] && CLEAN_INSTALL=0
 
 generate_manifest_diff $DIST ${PRODUCT_LINE_ID}
+check_for_upgrade  "${SOPHOS_INSTALL}/base/VERSION.ini" ${PRODUCT_LINE_ID} ${DIST}
 
 find "$DIST/files" -type f -print0 | xargs -0 "$DIST/files/base/bin/versionedcopy" || failure ${EXIT_FAIL_VERSIONEDCOPY} "Failed to copy files to installation"
+
+run_upgrade  ${PRODUCT_LINE_ID}
 
 #copy flags-warehouse file into place
 FLAGS_SRC="${DIST}/sspl_flags/files/base/etc/sophosspl/flags-warehouse.json"

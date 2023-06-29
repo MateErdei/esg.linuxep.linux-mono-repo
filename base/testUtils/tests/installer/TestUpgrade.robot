@@ -4,7 +4,9 @@ Library    ${LIBS_DIRECTORY}/UpdateSchedulerHelper.py
 Library    DateTime
 Resource  InstallerResources.robot
 Resource  ../GeneralTeardownResource.robot
+Resource  ../GeneralUtilsResources.robot
 Resource  ../upgrade_product/UpgradeResources.robot
+Resource  ../ra_plugin/ResponseActionsResources.robot
 
 Test Teardown  Upgrade Test Teardown
 Default Tags  INSTALLER  TAP_TESTS
@@ -39,6 +41,79 @@ Simple Upgrade Test
 
     Should Not Have A Given Message In Journalctl Since Certain Time  ${message}  ${time}
     Should Have Set KillMode To Mixed
+
+    Mark Expected Critical In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  mcsrouter.mcs <> Not registered: MCSID is not present
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/watchdog.log  ProcessMonitoringImpl <> /opt/sophos-spl/base/bin/mcsrouter died with exit code 1
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/watchdog.log  ProcessMonitoringImpl <> /opt/sophos-spl/base/bin/mcsrouter died with 1
+
+    Check All Product Logs Do Not Contain Error
+    Check All Product Logs Do Not Contain Critical
+
+Simple Upgrade Test with a Breaking Update
+    Require Fresh Install
+
+    ${result} =   Get Folder With Installer
+    Copy Directory  ${result}  /opt/tmp/version2
+    ${result} =  Run Process  chmod  +x  /opt/tmp/version2/install.sh
+    Should Be Equal As Integers    ${result.rc}    0
+
+    Create Directory    /opt/tmp/version2/upgrade
+    ${BaseDevVersion} =     Get Version Number From Ini File   ${SOPHOS_INSTALL}/base/VERSION.ini
+    ${buildnumber}=    Fetch From Right    ${BaseDevVersion}    .
+    ${size}=    Get Length    ${buildnumber}
+    ${name}=    Get Substring     ${BaseDevVersion}    0    -${size}
+    Create File    /opt/tmp/version2/upgrade/${name}sh     \#!/bin/bash\ntouch /tmp/stuff\nexit 0
+
+    ${result} =  Run Process  chmod  +x  /opt/tmp/version2/upgrade/${name}sh
+    Should Be Equal As Integers    ${result.rc}    0
+
+    Create File  ${SOPHOS_INSTALL}/base/mcs/action/testfile
+    Should Exist  ${SOPHOS_INSTALL}/base/mcs/action/testfile
+
+    ${result} =  Run Process  /opt/tmp/version2/install.sh
+    Should Be Equal As Integers    ${result.rc}    0
+    Log     ${result.stdout}
+    Log     ${result.stderr}
+    Should Exist  /tmp/stuff
+    Should Not exist  ${SOPHOS_INSTALL}/base/mcs/action/testfile
+
+    Check Expected Base Processes Are Running
+
+    Mark Expected Critical In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  mcsrouter.mcs <> Not registered: MCSID is not present
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/watchdog.log  ProcessMonitoringImpl <> /opt/sophos-spl/base/bin/mcsrouter died with exit code 1
+    Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/watchdog.log  ProcessMonitoringImpl <> /opt/sophos-spl/base/bin/mcsrouter died with 1
+
+    Check All Product Logs Do Not Contain Error
+    Check All Product Logs Do Not Contain Critical
+
+Simple Upgrade Test with a Breaking Update for plugin
+    [Tags]    INSTALLER     RA_PLUGIN
+    Require Fresh Install
+    Install Response Actions Directly
+
+    ${RESPONSE_ACTIONS_SDDS_DIR} =  Get SSPL Response Actions Plugin SDDS
+    Copy Directory  ${RESPONSE_ACTIONS_SDDS_DIR}  /opt/tmp/version2
+    ${result} =  Run Process  chmod  +x  /opt/tmp/version2/install.sh
+    Should Be Equal As Integers    ${result.rc}    0
+
+
+    Create Directory    /opt/tmp/version2/upgrade
+    ${RADevVersion} =     Get Version Number From Ini File   ${SOPHOS_INSTALL}/plugins/responseactions/VERSION.ini
+    ${buildnumber}=    Fetch From Right    ${RADevVersion}    .
+    ${size}=    Get Length    ${buildnumber}
+    ${name}=    Get Substring     ${RADevVersion}    0    -${size}
+    Create File    /opt/tmp/version2/upgrade/${name}sh     \#!/bin/bash\ntouch /tmp/stuff\nexit 0
+    ${result} =  Run Process  chmod  +x  /opt/tmp/version2/upgrade/${name}sh
+    Should Be Equal As Integers    ${result.rc}    0
+
+
+    ${result} =  Run Process  /opt/tmp/version2/install.sh
+    Should Be Equal As Integers    ${result.rc}    0
+    Log     ${result.stdout}
+    Log     ${result.stderr}
+    Should Exist  /tmp/stuff
+
+    Check Response Actions Executable Running
 
     Mark Expected Critical In Log  ${SOPHOS_INSTALL}/logs/base/sophosspl/mcsrouter.log  mcsrouter.mcs <> Not registered: MCSID is not present
     Mark Expected Error In Log  ${SOPHOS_INSTALL}/logs/base/watchdog.log  ProcessMonitoringImpl <> /opt/sophos-spl/base/bin/mcsrouter died with exit code 1
@@ -243,6 +318,7 @@ Upgrade Test Teardown
     LogUtils.Dump Log  ${SOPHOS_INSTALL}/base/etc/logger.conf.local
     General Test Teardown
     Remove Directory  /opt/tmp/version2  true
+    Remove File  /tmp/stuff
     Require Uninstalled
 
 Check Files Before Upgrade

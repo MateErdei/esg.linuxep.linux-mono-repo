@@ -5,6 +5,7 @@ Library    ${LIBS_DIRECTORY}/LogUtils.py
 
 Resource    ../upgrade_product/UpgradeResources.robot
 Resource    SulDownloaderResources.robot
+Resource  ../GeneralUtilsResources.robot
 
 Default Tags  SULDOWNLOADER
 Force Tags  LOAD6

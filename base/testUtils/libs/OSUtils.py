@@ -175,6 +175,14 @@ def remove_files_in_directory(directory_path):
             except IOError:
                 pass
 
+def replace_string_in_file(old_string, new_string, file):
+    if not os.path.isfile(file):
+        raise AssertionError(f"File not found {file}")
+    with open(file, "rt") as f:
+        content = f.read()
+    content = content.replace(old_string, new_string)
+    with open(file, "wt") as f:
+        f.write(content)
 
 def check_files_have_not_been_removed(install_directory, removed_file_list, root_directory_to_check,
                                       files_to_ignore_in_check):

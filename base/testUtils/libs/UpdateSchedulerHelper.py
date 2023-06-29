@@ -400,12 +400,6 @@ exit 1
         with open(newest, "r") as report:
             return json.load(report)
 
-    def replace_version(self, old_version, new_version, base_dist):
-        sdds_import_path = os.path.join(base_dist, "SDDS-Import.xml")
-        version_file_path = os.path.join(base_dist, "files/base/VERSION.ini")
-        logUtils = LogUtils.LogUtils()
-        logUtils.replace_string_in_file(old_version, new_version, sdds_import_path)
-        logUtils.replace_string_in_file(old_version, new_version, version_file_path)
 
     def check_status_file_component_installed_version_is_correct(self, rigidName, version, status_file_path):
         with open(status_file_path, "r") as status_file:

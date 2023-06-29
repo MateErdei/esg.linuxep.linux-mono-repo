@@ -16,6 +16,11 @@ install(FILES ${CMAKE_SOURCE_DIR}/products/distribution/cleanupinstall.sh
         PERMISSIONS OWNER_READ OWNER_EXECUTE
         )
 
+install(FILES ${CMAKE_SOURCE_DIR}/products/distribution/checkAndRunExtraUpgrade.sh
+        DESTINATION ${RA_DIST_PREFIX}
+        PERMISSIONS OWNER_READ OWNER_EXECUTE
+        )
+
 install(FILES ${PROJECT_BINARY_DIR}/cleanuprealm.dat
         DESTINATION ${RA_DIST_PREFIX}
         PERMISSIONS OWNER_READ OWNER_EXECUTE

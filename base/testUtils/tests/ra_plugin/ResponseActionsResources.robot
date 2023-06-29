@@ -6,6 +6,7 @@ Library    ${LIBS_DIRECTORY}/LogUtils.py
 Library    ${LIBS_DIRECTORY}/OSUtils.py
 
 Resource  ../GeneralTeardownResource.robot
+Resource  ../GeneralUtilsResources.robot
 
 *** Variables ***
 ${RESPONSE_ACTIONS_LOG_PATH}   ${SOPHOS_INSTALL}/plugins/responseactions/log/responseactions.log
@@ -167,10 +168,3 @@ Unmount Image Internal
     ...  30 secs
     ...  2 secs
     ...  Remove Directory    ${where}  recursive=True
-
-
-Run Shell Process
-    [Arguments]  ${Command}   ${OnError}   ${timeout}=20s
-    ${result} =   Run Process  ${Command}   shell=True   timeout=${timeout}
-    Should Be Equal As Integers  ${result.rc}  ${0}   ${OnError}.\n${SPACE}stdout: \n${result.stdout} \n${SPACE}stderr: \n${result.stderr}
-    [Return]  ${result}
