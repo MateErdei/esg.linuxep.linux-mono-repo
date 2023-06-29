@@ -427,7 +427,7 @@ TEST_F(Sdds3RepositoryTest, testGenerateProductListFromSdds3PackageInfoReportsSu
 
     // The following with set supplement only on repository.
     ConnectionSetup connectionSetup("hello");
-    ConfigurationData configurationData;
+    Common::Policy::UpdateSettings configurationData;
     configurationData.setTenantId("hello");
     configurationData.setDeviceId("hello");
     configurationData.setJWToken("hello");
@@ -470,7 +470,7 @@ TEST_F(Sdds3RepositoryTest, tryConnectConnectsToSusIfDoingProductUpdate)
 
     ConnectionSetup connectionSetup("hello");
     bool supplementOnly = false;
-    ConfigurationData configurationData;
+    Common::Policy::UpdateSettings configurationData;
     ProductSubscription productSubscription("Base", "", "RECOMMENDED", "");
     configurationData.setPrimarySubscription(productSubscription);
     configurationData.setProductsSubscription({ productSubscription });
@@ -502,7 +502,7 @@ TEST_F(Sdds3RepositoryTest, tryConnectConnectsToSusIfDoingSupplementUpdateWithou
 
     ConnectionSetup connectionSetup("hello");
     bool supplementOnly = true;
-    ConfigurationData configurationData;
+    Common::Policy::UpdateSettings configurationData;
     ProductSubscription productSubscription("Base", "", "RECOMMENDED", "");
     configurationData.setPrimarySubscription(productSubscription);
     configurationData.setProductsSubscription({ productSubscription });
@@ -534,7 +534,7 @@ TEST_F(Sdds3RepositoryTest, tryConnectDoesntConnectToSusIfDoingSupplementUpdateW
 
     ConnectionSetup connectionSetup("hello");
     bool supplementOnly = true;
-    ConfigurationData configurationData;
+    Common::Policy::UpdateSettings configurationData;
     ProductSubscription productSubscription("Base", "", "RECOMMENDED", "");
     configurationData.setPrimarySubscription(productSubscription);
     configurationData.setProductsSubscription({ productSubscription });
@@ -555,7 +555,7 @@ TEST_F(Sdds3RepositoryTest, tryConnectFailsIfSusRequestFails)
 
     ConnectionSetup connectionSetup("hello");
     bool supplementOnly = false;
-    ConfigurationData configurationData;
+    Common::Policy::UpdateSettings configurationData;
     ProductSubscription productSubscription("Base", "", "RECOMMENDED", "");
     configurationData.setPrimarySubscription(productSubscription);
     configurationData.setProductsSubscription({ productSubscription });
@@ -578,7 +578,7 @@ TEST_F(Sdds3RepositoryTest, tryConnectFailsIfSusRequestReturnsNoSuites)
 
     ConnectionSetup connectionSetup("hello");
     bool supplementOnly = false;
-    ConfigurationData configurationData;
+    Common::Policy::UpdateSettings configurationData;
     ProductSubscription productSubscription("Base", "", "RECOMMENDED", "");
     configurationData.setPrimarySubscription(productSubscription);
     configurationData.setProductsSubscription({ productSubscription });
@@ -601,7 +601,7 @@ TEST_F(Sdds3RepositoryTest, tryConnectFailsIfSusRequestReturnsNoSuitesAndNoSubsc
 
     ConnectionSetup connectionSetup("hello");
     bool supplementOnly = false;
-    ConfigurationData configurationData;
+    Common::Policy::UpdateSettings configurationData;
 
     EXPECT_FALSE(repository.tryConnect(connectionSetup, supplementOnly, configurationData));
     EXPECT_TRUE(appenderContains("DEBUG - Getting suites failed with: Product doesn't match any suite: "));

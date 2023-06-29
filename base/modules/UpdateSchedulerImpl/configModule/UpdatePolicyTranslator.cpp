@@ -46,7 +46,7 @@ namespace UpdateSchedulerImpl
                 updatePolicy_ = std::make_shared<Common::Policy::ALCPolicy>(policyXml);
                 auto settings = updatePolicy_->getUpdateSettings();
                 settings.setInstallArguments({ "--instdir", applicationPathManager().sophosInstall() });
-                settings.setLogLevel(SulDownloader::suldownloaderdata::ConfigurationData::LogLevel::VERBOSE);
+                settings.setLogLevel(Common::Policy::UpdateSettings::LogLevel::VERBOSE);
 
 
                 updatePolicyTelemetry_.setSDDSid(updatePolicy_->getSddsID());

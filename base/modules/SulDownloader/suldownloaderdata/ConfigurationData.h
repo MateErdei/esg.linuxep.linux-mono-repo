@@ -21,8 +21,10 @@ namespace SulDownloader::suldownloaderdata
      *
      *  It will be mainly configured from the ConfigurationSettings serialized json.
      */
-    class ConfigurationData : public Common::Policy::UpdateSettings
+    class ConfigurationData
     {
+    private:
+        ConfigurationData() = delete;
     public:
         // Static utility functions
 
@@ -33,7 +35,7 @@ namespace SulDownloader::suldownloaderdata
          * @return configurationData object containing the settings from the json data
          * @throws SulDownloaderException if settingsString cannot be converted.
          */
-        static UpdateSettings fromJsonSettings(const std::string& settingsString);
+        static Common::Policy::UpdateSettings fromJsonSettings(const std::string& settingsString);
 
         /**
          * Serialize the contents of an instance of ConfigurationData into a json representation.
@@ -42,7 +44,7 @@ namespace SulDownloader::suldownloaderdata
          * @paramn configurationData object containing the settings
          * @param settingsString, string contain a json formatted data representing the state of configurationData
          */
-        static std::string toJsonSettings(const UpdateSettings&);
+        static std::string toJsonSettings(const Common::Policy::UpdateSettings&);
 
         /**
          * Retrieve the Proxy URL and Credentials for authenticated proxy in the format http(s)://username:password@192.168.0.1:8080

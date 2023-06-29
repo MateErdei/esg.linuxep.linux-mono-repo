@@ -1048,7 +1048,7 @@ TEST_F(
     Sdds3SimplifiedDownloadReport expectedDownloadReport{ wError.status, wError.Description, {}, false, {} };
 
     auto configurationData = configData(defaultSettings());
-    ConfigurationData previousConfigurationData;
+    Common::Policy::UpdateSettings previousConfigurationData;
     configurationData.verifySettingsAreValid();
     DownloadReport previousDownloadReport = DownloadReport::Report("Not assigned");
 
@@ -1108,7 +1108,7 @@ TEST_F(
     Sdds3SimplifiedDownloadReport expectedDownloadReport{ wError.status, wError.Description, productReports, false, {} };
 
     auto configurationData = configData(defaultSettings());
-    ConfigurationData previousConfigurationData;
+    Common::Policy::UpdateSettings previousConfigurationData;
     configurationData.verifySettingsAreValid();
 
     DownloadReport actualDownloadReport = SulDownloader::runSULDownloader(
@@ -1153,7 +1153,7 @@ TEST_F(
     Sdds3SimplifiedDownloadReport expectedDownloadReport{ wError.status, wError.Description, {}, false, {} };
 
     auto configurationData = configData(defaultSettings());
-    ConfigurationData previousConfigurationData;
+    Common::Policy::UpdateSettings previousConfigurationData;
     configurationData.verifySettingsAreValid();
     DownloadReport previousDownloadReport = DownloadReport::Report("Not assigned");
 
@@ -1206,7 +1206,7 @@ TEST_F(
     Sdds3SimplifiedDownloadReport expectedDownloadReport{ wError.status, wError.Description, {}, false, {} };
 
     auto configurationData = configData(defaultSettings());
-    ConfigurationData previousConfigurationData;
+    Common::Policy::UpdateSettings previousConfigurationData;
     configurationData.verifySettingsAreValid();
     DownloadReport previousDownloadReport = DownloadReport::Report("Not assigned");
 
@@ -1275,7 +1275,7 @@ TEST_F(SULDownloaderSdds3Test, runSULDownloader_onDistributeFailure)
         .WillRepeatedly(Return(false));
 
     auto configurationData = configData(defaultSettings());
-    ConfigurationData previousConfigurationData;
+    Common::Policy::UpdateSettings previousConfigurationData;
     configurationData.verifySettingsAreValid();
     DownloadReport previousDownloadReport = DownloadReport::Report("Not assigned");
 
@@ -1333,7 +1333,7 @@ TEST_F(
                                                      productsInfo({ products[0], products[1] }) };
 
     auto configurationData = configData(defaultSettings());
-    ConfigurationData previousConfigurationData;
+    Common::Policy::UpdateSettings previousConfigurationData;
     configurationData.verifySettingsAreValid();
 
     TimeTracker timeTracker;
@@ -1358,7 +1358,7 @@ TEST_F(
     MockFileSystem& fileSystemMock = setupFileSystemAndGetMock(1, 2, 0);
     MockSdds3Repository& mock = repositoryMocked();
     auto configurationData = configData(defaultSettings());
-    ConfigurationData previousConfigurationData;
+    Common::Policy::UpdateSettings previousConfigurationData;
     configurationData.verifySettingsAreValid();
 
     DownloadedProductVector products = defaultProducts();
@@ -1518,7 +1518,7 @@ TEST_F(
                                                      productsInfo({ products[0], products[1] }) };
 
     auto configurationData = configData(defaultSettings());
-    ConfigurationData previousConfigurationData;
+    Common::Policy::UpdateSettings previousConfigurationData;
     configurationData.verifySettingsAreValid();
     DownloadReport previousDownloadReport = DownloadReport::Report("Not assigned");
 
@@ -1618,7 +1618,7 @@ TEST_F(
                                                      productsInfo({ products[0], products[1] }) };
 
     auto configurationData = configData(defaultSettings());
-    ConfigurationData previousConfigurationData;
+    Common::Policy::UpdateSettings previousConfigurationData;
     configurationData.verifySettingsAreValid();
     DownloadReport previousDownloadReport = DownloadReport::Report("Not assigned");
 
@@ -1717,7 +1717,7 @@ TEST_F(
                                                      productsInfo({ products[0], products[1] }) };
 
     auto configurationData = configData(defaultSettings());
-    ConfigurationData previousConfigurationData;
+    Common::Policy::UpdateSettings previousConfigurationData;
     configurationData.verifySettingsAreValid();
     DownloadReport previousDownloadReport = DownloadReport::Report("Not assigned");
 
@@ -1837,7 +1837,7 @@ TEST_F(
                                                      productsInfo({ products[0], products[1] }) };
 
     auto configurationData = configData(defaultSettings());
-    ConfigurationData previousConfigurationData;
+    Common::Policy::UpdateSettings previousConfigurationData;
     configurationData.verifySettingsAreValid();
     DownloadReport previousDownloadReport = DownloadReport::Report("Not assigned");
 
@@ -1955,7 +1955,7 @@ TEST_F(
                                                      productsInfo({ products[0], products[1] }) };
 
     auto configurationData = configData(defaultSettings());
-    ConfigurationData previousConfigurationData;
+    Common::Policy::UpdateSettings previousConfigurationData;
     configurationData.verifySettingsAreValid();
     DownloadReport previousDownloadReport = DownloadReport::Report("Not assigned");
 
@@ -2059,7 +2059,7 @@ TEST_F(
     expectedDownloadReport.Products.push_back(copyProduct);
 
     auto configurationData = configData(defaultSettings());
-    ConfigurationData previousConfigurationData;
+    Common::Policy::UpdateSettings previousConfigurationData;
     configurationData.verifySettingsAreValid();
     DownloadReport previousDownloadReport = DownloadReport::Report("Not assigned");
 
@@ -2574,7 +2574,7 @@ TEST_F(
                                                      productsInfo({ products[0], products[1] }) };
 
     auto configurationData = configData(defaultSettings());
-    ConfigurationData previousConfigurationData;
+    Common::Policy::UpdateSettings previousConfigurationData;
     configurationData.verifySettingsAreValid();
     previousConfigurationData.verifySettingsAreValid();
     DownloadReport previousDownloadReport = DownloadReport::Report("Not assigned");
@@ -2729,7 +2729,7 @@ TEST_F(
     settings.add_sophosurls("http://localhost/latest/donotexits");
     settings.set_loglevel(ConfigurationSettings::VERBOSE);
     auto configurationData = configData(settings);
-    suldownloaderdata::ConfigurationData previousConfigurationData;
+    Common::Policy::UpdateSettings previousConfigurationData;
     configurationData.verifySettingsAreValid();
     DownloadReport previousDownloadReport = DownloadReport::Report("Not assigned");
     EXPECT_CALL(fileSystem, exists("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
@@ -2760,7 +2760,7 @@ TEST_F(
     settings.add_sophosurls("http://localhost/latest/donotexits");
     settings.set_loglevel(ConfigurationSettings::NORMAL);
     auto configurationData = configData(settings);
-    ConfigurationData previousConfigurationData;
+    Common::Policy::UpdateSettings previousConfigurationData;
     configurationData.verifySettingsAreValid();
     DownloadReport previousDownloadReport = DownloadReport::Report("Not assigned");
     EXPECT_CALL(fileSystem, exists("/opt/sophos-spl/base/update/var/sdds3_override_settings.ini")).WillRepeatedly(Return(true));
@@ -2849,7 +2849,7 @@ TEST_F(SULDownloaderSdds3Test,updateFailsIfNoJWTToken)
     settings.set_loglevel(ConfigurationSettings::NORMAL);
     settings.mutable_jwtoken()->assign("");
     auto configurationData = configData(settings);
-    ConfigurationData previousConfigurationData;
+    Common::Policy::UpdateSettings previousConfigurationData;
     configurationData.verifySettingsAreValid();
     DownloadReport previousDownloadReport = DownloadReport::Report("Not assigned");
 
@@ -2873,7 +2873,7 @@ TEST_F(SULDownloaderSdds3Test,updateFailsIfOldVersion)
     settings.set_loglevel(ConfigurationSettings::NORMAL);
     auto configurationData = configData(settings);
     configurationData.setPrimarySubscription(primarySubscription);
-    ConfigurationData previousConfigurationData;
+    Common::Policy::UpdateSettings previousConfigurationData;
     configurationData.verifySettingsAreValid();
     DownloadReport previousDownloadReport = DownloadReport::Report("Not assigned");
 
@@ -2897,7 +2897,7 @@ TEST_F(SULDownloaderSdds3Test, runSULDownloader_NonSupplementOnlyClearsAwaitSche
     auto settings = defaultSettings();
     auto configurationData = configData(settings);
     configurationData.verifySettingsAreValid();
-    ConfigurationData previousConfigurationData;
+    Common::Policy::UpdateSettings previousConfigurationData;
     const auto products = defaultProducts();
     TimeTracker timeTracker;
     DownloadReport previousDownloadReport =
@@ -2959,7 +2959,7 @@ TEST_F(SULDownloaderSdds3Test, runSULDownloader_SupplementOnlyBelowVersion123Doe
     auto settings = defaultSettings();
     auto configurationData = configData(settings);
     configurationData.verifySettingsAreValid();
-    ConfigurationData previousConfigurationData;
+    Common::Policy::UpdateSettings previousConfigurationData;
     const auto products = defaultProducts();
     TimeTracker timeTracker;
     DownloadReport previousDownloadReport =
@@ -3005,7 +3005,7 @@ TEST_F(
     auto settings = defaultSettings();
     auto configurationData = configData(settings);
     configurationData.verifySettingsAreValid();
-    ConfigurationData previousConfigurationData;
+    Common::Policy::UpdateSettings previousConfigurationData;
     const auto products = defaultProducts();
     TimeTracker timeTracker;
     DownloadReport previousDownloadReport =
@@ -3067,7 +3067,7 @@ TEST_F(SULDownloaderSdds3Test, RunSULDownloaderProductUpdateButBaseVersionIniDoe
     auto settings = defaultSettings();
     auto configurationData = configData(settings);
     configurationData.verifySettingsAreValid();
-    ConfigurationData previousConfigurationData;
+    Common::Policy::UpdateSettings previousConfigurationData;
     const auto products = defaultProducts();
     TimeTracker timeTracker;
     DownloadReport previousDownloadReport =
@@ -3129,7 +3129,7 @@ TEST_F(SULDownloaderSdds3Test, RunSULDownloaderSupplementOnlyButBaseVersionIniDo
     auto settings = defaultSettings();
     auto configurationData = configData(settings);
     configurationData.verifySettingsAreValid();
-    ConfigurationData previousConfigurationData;
+    Common::Policy::UpdateSettings previousConfigurationData;
     const auto products = defaultProducts();
     TimeTracker timeTracker;
     DownloadReport previousDownloadReport =
