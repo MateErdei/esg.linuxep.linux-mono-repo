@@ -129,28 +129,6 @@ public:
     }
 };
 
-TEST_F(ConfigurationDataTest, fromJsonSettingsValidStringWithNoUpdateCacheShouldReturnValidDataObject)
-{
-    setupFileSystemAndGetMock();
-    auto configurationData =
-        ConfigurationData::fromJsonSettings(createJsonString(R"("https://cache.sophos.com/latest/warehouse")", ""));
-
-    configurationData.verifySettingsAreValid();
-
-    EXPECT_TRUE(configurationData.isVerified());
-}
-
-TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithEmptyUpdateCacheValueShouldFailValidation)
-{
-    setupFileSystemAndGetMock();
-    auto configurationData =
-        ConfigurationData::fromJsonSettings(createJsonString(R"(https://cache.sophos.com/latest/warehouse)", ""));
-
-    configurationData.verifySettingsAreValid();
-
-    EXPECT_FALSE(configurationData.isVerified());
-}
-
 TEST_F(ConfigurationDataTest, fromJsonSettingsValidStringWithNoSophosURLsShouldThrow)
 {
     setupFileSystemAndGetMock();
