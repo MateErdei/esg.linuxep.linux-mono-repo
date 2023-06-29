@@ -1000,15 +1000,15 @@ JWfkv6Tu5jsYGNkN3BSW0x/qjwz7XCSk2ZZxbCgZSq6LpB31sqZctnUxrYSpcdc=
     ALCPolicy obj{ updatePolicyWithCache };
 
     auto cacheId = obj.cacheID("2k12-64-ld55-df.eng.sophos:8191");
-    EXPECT_STREQ(cacheId.c_str(),"4092822d-0925-4deb-9146-fbc8532f8c55");
+    EXPECT_EQ(cacheId, "4092822d-0925-4deb-9146-fbc8532f8c55");
     auto certificates = obj.getUpdateCertificatesContent();
     EXPECT_STREQ(certificates.c_str(), expectedCert);
 
     auto hosts = obj.getUpdateSettings().getLocalUpdateCacheHosts();
     EXPECT_EQ(3, hosts.size());
-    EXPECT_STREQ(hosts[0].c_str(), "maineng2.eng.sophos:8191");
-    EXPECT_STREQ(hosts[1].c_str(), "2k12-64-ld55-df.eng.sophos:8191");
-    EXPECT_STREQ(hosts[2].c_str(), "w2k8r2-std-en-df.eng.sophos:8191");
+    EXPECT_EQ(hosts[0], "maineng2.eng.sophos:8191");
+    EXPECT_EQ(hosts[1], "2k12-64-ld55-df.eng.sophos:8191");
+    EXPECT_EQ(hosts[2], "w2k8r2-std-en-df.eng.sophos:8191");
 }
 
 TEST_F(TestALCPolicy, empty_update_cache)
