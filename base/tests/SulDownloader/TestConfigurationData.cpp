@@ -20,6 +20,11 @@ using namespace SulDownloader::suldownloaderdata;
 class ConfigurationDataTest : public ConfigurationDataBase
 {
 public:
+    void TearDown() override
+    {
+        Tests::restoreFileSystem();
+    }
+
     MockFileSystem& setupFileSystemAndGetMock()
     {
         using ::testing::Ne;

@@ -103,6 +103,7 @@ public:
         TestSdds3RepositoryHelper::restoreSdds3RepositoryFactory();
         Tests::restoreFilePermissions();
         Common::ApplicationConfiguration::restoreApplicationPathManager();
+        Tests::restoreFileSystem();
         Test::TearDown();
     }
 
@@ -295,6 +296,9 @@ public:
      */
     MockFileSystem& setupFileSystemAndGetMock(int expectCallCount = 1, int expectCurrentProxy = 2, int expectedInstalledFeatures = 1, std::string installedFeatures = R"(["CORE"])")
     {
+        Common::ApplicationConfiguration::applicationConfiguration().setData(
+            Common::ApplicationConfiguration::SOPHOS_INSTALL, "/opt/sophos-spl");
+
         auto filesystemMock = std::make_unique<MockFileSystem>();
         EXPECT_CALL(*filesystemMock, isFile).Times(AnyNumber());
         EXPECT_CALL(*filesystemMock, isDirectory).Times(AnyNumber());
@@ -319,7 +323,12 @@ public:
         EXPECT_CALL(*filesystemMock, isFile("/opt/sophos-spl/base/etc/savedproxy.config")).WillRepeatedly(Return(false));
         std::string currentProxyFilePath =
             Common::ApplicationConfiguration::applicationPathManager().getMcsCurrentProxyFilePath();
-        EXPECT_CALL(*filesystemMock, isFile(currentProxyFilePath)).Times(expectCurrentProxy).WillRepeatedly(Return(false));
+        if (expectCurrentProxy > 0)
+        {
+            EXPECT_CALL(*filesystemMock, isFile(currentProxyFilePath))
+                .Times(expectCurrentProxy)
+                .WillRepeatedly(Return(false));
+        }
         std::string installedFeaturesFile = Common::ApplicationConfiguration::applicationPathManager().getFeaturesJsonPath();
         EXPECT_CALL(*filesystemMock, writeFile(::testing::HasSubstr("installed_features.json"), installedFeatures)).Times(expectedInstalledFeatures);
 
@@ -3152,14 +3161,13 @@ class TestSuldownloaderWriteInstalledFeaturesFunction: public LogOffInitializedT
 TEST_F(TestSuldownloaderWriteInstalledFeaturesFunction, featuresAreWrittenToJsonFile)
 {
     setupInstalledFeaturesPermissions();
-    auto filesystemMock = new StrictMock<MockFileSystem>();
+    auto filesystemMock = std::make_unique<StrictMock<MockFileSystem>>();
     EXPECT_CALL(
         *filesystemMock,
         writeFile(::testing::HasSubstr("installed_features.json"),"[\"feature1\",\"feature2\"]"));
     EXPECT_CALL(*filesystemMock,moveFile(_,
               Common::ApplicationConfiguration::applicationPathManager().getFeaturesJsonPath()));
-    Tests::ScopedReplaceFileSystem ScopedReplaceFileSystem{ std::unique_ptr<Common::FileSystem::IFileSystem>(
-        filesystemMock) };
+    Tests::ScopedReplaceFileSystem ScopedReplaceFileSystem{ std::move(filesystemMock) };
     std::vector<std::string> features = { "feature1", "feature2" };
     SulDownloader::writeInstalledFeatures(features);
 }
