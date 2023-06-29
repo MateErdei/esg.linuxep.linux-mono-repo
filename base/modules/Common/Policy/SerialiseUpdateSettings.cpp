@@ -96,7 +96,7 @@ UpdateSettings SerialiseUpdateSettings::fromJsonSettings(const std::string& sett
     updateSettings.setPrimarySubscription(primary);
     updateSettings.setProductsSubscription(products);
     updateSettings.setFeatures(features);
-//    updateSettings.setJWToken(settings.jwtoken());
+    updateSettings.setJWToken(settings.jwtoken());
     updateSettings.setVersigPath(settings.versigpath());
     updateSettings.setUpdateCacheCertPath(settings.updatecachecertpath());
 //    updateSettings.setTenantId(settings.tenantid());
@@ -158,7 +158,7 @@ std::string SerialiseUpdateSettings::toJsonSettings(const UpdateSettings& update
         updateSettings.getPolicyProxy().getCredentials().getProxyType());
     settings.mutable_proxy()->mutable_url()->assign(updateSettings.getPolicyProxy().getUrl());
 
-//    settings.mutable_jwtoken()->assign(updateSettings.getJWToken());
+    settings.mutable_jwtoken()->assign(updateSettings.getJWToken());
     settings.mutable_versigpath()->assign(updateSettings.getVersigPath());
     settings.mutable_updatecachecertpath()->assign(updateSettings.getUpdateCacheCertPath());
 //    settings.mutable_tenantid()->assign(updateSettings.getTenantId());
