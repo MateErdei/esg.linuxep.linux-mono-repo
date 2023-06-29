@@ -2,7 +2,6 @@
 
 #pragma once
 
-#include "Common/Policy/Credentials.h"
 #include "Common/Policy/Proxy.h"
 
 #include <string>
