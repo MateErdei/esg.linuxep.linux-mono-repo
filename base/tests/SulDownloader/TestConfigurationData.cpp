@@ -20,8 +20,6 @@ using namespace SulDownloader::suldownloaderdata;
 class ConfigurationDataTest : public ConfigurationDataBase
 {
 public:
-    ~ConfigurationDataTest() { }
-
     MockFileSystem& setupFileSystemAndGetMock()
     {
         using ::testing::Ne;
@@ -43,7 +41,7 @@ public:
 
     Tests::ScopedReplaceFileSystem m_replacer;
 
-    ::testing::AssertionResult configurationDataIsEquivalent(
+    static ::testing::AssertionResult configurationDataIsEquivalent(
         const char* m_expr,
         const char* n_expr,
         const Common::Policy::UpdateSettings& expected,
@@ -131,26 +129,6 @@ public:
     }
 };
 
-using from_json_exception_t = Common::Policy::PolicyParseException;
-
-TEST_F(ConfigurationDataTest, fromJsonSettingsInvalidJsonStringThrows)
-{
-    try
-    {
-        ConfigurationData::fromJsonSettings("non json string");
-        FAIL();
-    }
-    catch (const from_json_exception_t& e)
-    {
-        EXPECT_STREQ("Failed to process json message with error: INVALID_ARGUMENT:Unexpected token.\nnon json string\n^", e.what());
-    }
-}
-
-TEST_F(ConfigurationDataTest, fromJsonSettingsValidButEmptyJsonStringShouldNotThrow)
-{
-    EXPECT_NO_THROW(ConfigurationData::fromJsonSettings("{}"));
-}
-
 TEST_F(ConfigurationDataTest, fromJsonSettingsValidAndCompleteJsonStringShouldReturnValidDataObject)
 {
     setupFileSystemAndGetMock();
@@ -159,49 +137,7 @@ TEST_F(ConfigurationDataTest, fromJsonSettingsValidAndCompleteJsonStringShouldRe
 
     EXPECT_TRUE(configurationData.isVerified());
 }
-/*
-TEST_F(
-    ConfigurationDataTest,
-    fromJsonSettingsValidAndCompleteJsonStringShouldReturnValidDataObjectThatContainsExpectedData)
-{
-    auto configurationData = ConfigurationData::fromJsonSettings(createJsonString("", ""));
 
-    ConfigurationData expectedConfiguration(
-        { "https://sophosupdate.sophos.com/latest/warehouse" },
-        Credentials{ "administrator", "password" },
-        { "https://cache.sophos.com/latest/warehouse" },
-        Proxy("noproxy:"));
-    expectedConfiguration.setPrimarySubscription(
-        ProductSubscription{ "BaseProduct-RigidName", "9", "RECOMMENDED", "" });
-    expectedConfiguration.setProductsSubscription(
-        { ProductSubscription{ "PrefixOfProduct-SimulateProductA", "9", "RECOMMENDED", "" } });
-    expectedConfiguration.setFeatures({ "CORE", "MDR" });
-    expectedConfiguration.setInstallArguments({ "--install-dir", "/opt/sophos-av" });
-    expectedConfiguration.setLogLevel(ConfigurationData::LogLevel::NORMAL);
-    EXPECT_PRED_FORMAT2(configurationDataIsEquivalent, configurationData, expectedConfiguration);
-    std::string serialized = ConfigurationData::toJsonSettings(configurationData);
-    auto afterDeserialization = ConfigurationData::fromJsonSettings(serialized);
-    EXPECT_PRED_FORMAT2(configurationDataIsEquivalent, configurationData, afterDeserialization);
-}
-
-TEST_F(
-    ConfigurationDataTest,
-    fromJsonSettingsValidAndCompleteJsonStringShouldReturnValidDataObjectThatContainsExpectedDataForForcedUpdateFields)
-{
-
-    ConfigurationData expectedConfiguration(
-        { "https://sophosupdate.sophos.com/latest/warehouse" },
-        Credentials{ "administrator", "password" },
-        { "https://cache.sophos.com/latest/warehouse" },
-        Proxy("noproxy:"));
-    expectedConfiguration.setDoForcedPausedUpdate(true);
-    expectedConfiguration.setDoForcedUpdate(true);
-
-    std::string serialized = ConfigurationData::toJsonSettings(expectedConfiguration);
-    std::cout << serialized << std::endl;
-    auto afterDeserialization = ConfigurationData::fromJsonSettings(serialized);
-    EXPECT_PRED_FORMAT2(configurationDataIsEquivalent, expectedConfiguration, afterDeserialization);
-}*/
 TEST_F(ConfigurationDataTest, fromJsonSettingsValidStringWithNoUpdateCacheShouldReturnValidDataObject)
 {
     setupFileSystemAndGetMock();
@@ -704,6 +640,9 @@ createJsonString("", "");
     std::vector<std::string> expected_features{{std::string{"CORE"}, std::string{"MDR"}}}; 
     EXPECT_EQ(features, expected_features);
 }
+
+
+// currentMcsProxy:
 
 TEST_F(ConfigurationDataTest, currentMcsProxyReturnsNulloptIfCurrentProxyFileMissing)
 {

@@ -1,7 +1,7 @@
 // Copyright 2023 Sophos All rights reserved.
 
 #include "Common/Policy/SerialiseUpdateSettings.h"
-
+#include "Policy/PolicyParseException.h"
 #include "tests/Common/Helpers/MemoryAppender.h"
 
 namespace
@@ -15,6 +15,25 @@ namespace
 }
 
 using namespace Common::Policy;
+
+
+TEST_F(TestSerialiseUpdateSettings, invalidJsonString)
+{
+    try
+    {
+        SerialiseUpdateSettings::fromJsonSettings("non json string");
+        FAIL();
+    }
+    catch (const PolicyParseException& e)
+    {
+        EXPECT_STREQ("Failed to process json message with error: INVALID_ARGUMENT:Unexpected token.\nnon json string\n^", e.what());
+    }
+}
+
+TEST_F(TestSerialiseUpdateSettings, emptyJson)
+{
+    EXPECT_NO_THROW(SerialiseUpdateSettings::fromJsonSettings("{}"));
+}
 
 TEST_F(TestSerialiseUpdateSettings, preserveJWT)
 {
