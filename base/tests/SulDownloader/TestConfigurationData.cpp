@@ -78,7 +78,7 @@ public:
                    << " != " << resulted.getPolicyProxy().getUrl();
         }
 
-        if (expected.getPolicyProxy() != resulted.getPolicyProxy())
+        if (expected.getPolicyProxy().getCredentials() != resulted.getPolicyProxy().getCredentials())
         {
             return ::testing::AssertionFailure() << s.str() << "proxy credentials differ ";
         }
