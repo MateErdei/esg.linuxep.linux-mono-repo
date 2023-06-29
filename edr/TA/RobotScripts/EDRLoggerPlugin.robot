@@ -139,12 +139,10 @@ EDR Plugin Applies Folding Rules Based Column Value
     Apply Live Query Policy And Expect Folding Rules To Have Changed  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_foldingrules_limit.xml
 
     # Throw away one set of results here so that we are certain they are not from before the folding rules were applied
-    ${query_file} =  Clear Datafeed Dir And Wait For Next Result File
+    ${query_results} =  Clear Datafeed Dir And Wait For Next Result File
 
     # Wait for a result we know will contain folded and non-folded results
-    ${query_file} =  Clear Datafeed Dir And Wait For Next Result File
-    ${query_results} =  Get File  ${SOPHOS_INSTALL}/base/mcs/datafeed/${query_file}
-    Log  ${query_results}
+    ${query_results} =  Clear Datafeed Dir And Wait For Next Result File
     Check Query Results Are Folded  ${query_results}  random  number  0
     Check Query Results Are Not Folded  ${query_results}  random  number  1
 
@@ -961,6 +959,7 @@ Test Setup
 
 Test Teardown
     Remove File    ${EDR_SDDS}/files/plugins/edr/etc/plugin.conf
+    Run Keyword If Test Failed    Run Keyword And Ignore Error    Clear Datafeed Dir And Wait For Next Result File
     Run Keyword If Test Failed    Run Keyword And Ignore Error    Dump Scheduled Query Table
     Run Keyword If Test Failed    Verify RPM DB
     EDR And Base Teardown
@@ -975,8 +974,10 @@ Osquery Flag File Should Contain
 
 Clear Datafeed Dir And Wait For Next Result File
     Empty Directory  ${SOPHOS_INSTALL}/base/mcs/datafeed
-    ${QueryFile} =  Wait For Scheduled Query File And Return Filename
-    [Return]  ${QueryFile}
+    ${query_file} =  Wait For Scheduled Query File And Return Filename
+    ${query_results} =  Get File  ${SOPHOS_INSTALL}/base/mcs/datafeed/${query_file}
+    Log  ${query_results}
+    [Return]  ${query_results}
 
 Check Query Results Are Folded
     [Arguments]  ${result_string}  ${query_name}  ${column_name}  ${column_value}=${None}
