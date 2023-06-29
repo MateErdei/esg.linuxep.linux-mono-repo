@@ -22,7 +22,6 @@ namespace Common::Policy
         const ProxyCredentials& getCredentials() const { return credentials_; }
         const std::string& getUrl() const { return url_; }
 
-        std::string getProxyUrlAsSulRequires() const;
         std::string toStringPostfix() const;
 
         bool operator==(const Proxy& rhs) const

@@ -8,21 +8,6 @@ using namespace Common::Policy;
 Proxy::Proxy(std::string url, ProxyCredentials credentials) : url_(std::move(url)), credentials_(std::move(credentials))
 {}
 
-std::string Proxy::getProxyUrlAsSulRequires() const
-{
-    if (url_.empty() || url_ == NoProxy || url_ == EnvironmentProxy)
-    {
-        return url_;
-    }
-    if (Common::UtilityImpl::StringUtils::startswith(url_, "http://") ||
-        Common::UtilityImpl::StringUtils::startswith(url_, "https://"))
-    {
-        return url_;
-    }
-    // sul requires proxy to be pre-pended with http://
-    return "http://" + url_;
-}
-
 std::string Proxy::toStringPostfix() const
 {
     if (getUrl() == NoProxy)

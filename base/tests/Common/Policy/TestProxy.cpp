@@ -15,12 +15,10 @@ Copyright 2018-2020, Sophos Limited.  All rights reserved.
 
 using namespace Common::Policy;
 
-
 TEST(Proxy, DefaultConstructorIsEmptyProxy)
 {
     Proxy proxy;
     EXPECT_EQ(proxy.getUrl(), "");
-    EXPECT_EQ(proxy.getProxyUrlAsSulRequires(), "");
     EXPECT_TRUE(proxy.empty());
 }
 
@@ -28,7 +26,6 @@ TEST(Proxy, NoProxyIsEmptyProxy)
 {
     Proxy proxy(NoProxy);
     EXPECT_EQ(proxy.getUrl(), NoProxy);
-    EXPECT_EQ(proxy.getProxyUrlAsSulRequires(), NoProxy);
     EXPECT_TRUE(proxy.empty());
 }
 
@@ -36,25 +33,7 @@ TEST(Proxy, ShouldHandleSimpleProxy)
 {
     Proxy proxy("10.10.10.10");
     EXPECT_EQ(proxy.getUrl(), "10.10.10.10");
-    EXPECT_EQ(proxy.getProxyUrlAsSulRequires(), "http://10.10.10.10");
     EXPECT_FALSE(proxy.empty());
-}
-
-TEST(Proxy, ShouldHandleCorrectlyProxyUrlAsSulRequires)
-{
-    std::vector<std::pair<std::string, std::string>> input_expected = { { "10.10.10.10", "http://10.10.10.10" },
-                                                                        { "10.10.10.10:50", "http://10.10.10.10:50" },
-                                                                        { "myproxy.com", "http://myproxy.com" },
-                                                                        { "https://myproxy.com",
-                                                                          "https://myproxy.com" },
-                                                                        { "http://myproxy.com", "http://myproxy.com" },
-                                                                        { "noproxy:", "noproxy:" },
-                                                                        { "environment:", "environment:" } };
-    for (auto& cases : input_expected)
-    {
-        Proxy proxy(cases.first);
-        EXPECT_EQ(proxy.getProxyUrlAsSulRequires(), cases.second);
-    }
 }
 
 class ProxyCredentialsTest: public LogOffInitializedTests{};

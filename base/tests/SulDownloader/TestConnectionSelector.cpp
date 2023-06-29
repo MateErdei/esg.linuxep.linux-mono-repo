@@ -268,7 +268,6 @@ TEST_F( // NOLINT
     auto proxyConfig = connectionCandidates[1].getProxy();
 
     EXPECT_EQ(proxyConfig.getUrl(), "testproxy.com");
-    EXPECT_EQ(proxyConfig.getProxyUrlAsSulRequires(), "http://testproxy.com");
     EXPECT_EQ(proxyConfig.getCredentials().getUsername(), "");
     EXPECT_EQ(proxyConfig.getCredentials().getDeobfuscatedPassword(), "");
 }
