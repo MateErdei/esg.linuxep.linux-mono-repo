@@ -3,7 +3,7 @@
 #include "UpdatePolicyTranslator.h"
 
 #include "../Logger.h"
-#include "Policy/ALCPolicy.h"
+
 #include "Policy/PolicyParseException.h"
 
 #include <Common/ApplicationConfiguration/IApplicationPathManager.h>
