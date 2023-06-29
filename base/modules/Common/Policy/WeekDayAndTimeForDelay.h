@@ -1,4 +1,4 @@
-// Copyright 2023 Sophos Limited. All rights reserved.
+// Copyright 2020-2023 Sophos Limited. All rights reserved.
 #pragma once
 
 namespace Common::Policy
