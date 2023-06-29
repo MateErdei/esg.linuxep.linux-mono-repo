@@ -219,17 +219,6 @@ function confirmProcessRunning()
     pgrep -f "$1" &> /dev/null
 }
 
-function waitForProcess()
-{
-    for (( deadline = $SECONDS + 120; $SECONDS < $deadline; ))
-    do
-        confirmProcessRunning "$@" && return 0
-        sleep 1
-    done
-
-    return 1
-}
-
 function waitForNamedPipeToBeCreated()
 {
     for (( deadline = $SECONDS + 30; $SECONDS < $deadline; ))
@@ -286,9 +275,7 @@ function restartRsyslog()
 [[ -f "${SOPHOS_INSTALL}/plugins/edr/bin/uninstall.sh" ]] || failure ${EXIT_FAIL_VERSIONEDCOPY} "edr uninstall script failed to be installed"
 
 
-# Check services are running after install
-waitForProcess "${SOPHOS_INSTALL}/plugins/edr/bin/edr" || failure ${EXIT_FAIL_SERVICE} "EDR plugin not running"
-waitForProcess "${SOPHOS_INSTALL}/plugins/edr/bin/osqueryd" || failure ${EXIT_FAIL_SERVICE} "EDR plugin not running"
+echo "edr,${PRODUCT_LINE_ID}" >> "${SOPHOS_INSTALL}/base/update/var/installedComponentTracker"
 
 # Configure rsyslog to write into the named pipe created by osquery
 # Steps:
