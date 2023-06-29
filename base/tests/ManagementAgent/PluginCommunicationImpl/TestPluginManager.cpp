@@ -565,51 +565,42 @@ TEST_F(TestPluginManager, CheckIfSinglePluginInRegistryReturnsFalseWhenPluginIsN
     ASSERT_FALSE(m_pluginManagerPtr->checkIfSinglePluginInRegistry(plugin));
 }
 
-//TEST_F(TestPluginManager, updateOngoingWithGracePeriodReturnsFalseWhenUpdateMarkerNotPresent)
-//{
-//    std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::make_unique<MockFileSystem>();
-//
-//    EXPECT_CALL(
-//        *mockIFileSystemPtr,
-//        isFile(Common::ApplicationConfiguration::applicationPathManager().getUpdateMarkerFile()))
-//        .WillOnce(Return(false));
-//    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
-//
-//    auto now = std::chrono::steady_clock::now();
-//    ASSERT_FALSE(m_pluginManagerPtr->updateOngoingWithGracePeriod(10, now));
-//}
-//
-//TEST_F(TestPluginManager, updateOngoingWithGracePeriodReturnsTrueWhenUpdateMarkerPresent)
-//{
-//    std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::make_unique<MockFileSystem>();
-//
-//    EXPECT_CALL(
-//        *mockIFileSystemPtr,
-//        isFile(Common::ApplicationConfiguration::applicationPathManager().getUpdateMarkerFile()))
-//        .WillOnce(Return(true));
-//    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
-//
-//    auto now = std::chrono::steady_clock::now();
-//    ASSERT_TRUE(m_pluginManagerPtr->updateOngoingWithGracePeriod(10, now));
-//}
-//
-//
-//TEST_F(TestPluginManager, updateOngoingWithGracePeriodReturnsTrueUntilGracePeriodOver)
-//{
-//    std::unique_ptr<MockFileSystem> mockIFileSystemPtr = std::make_unique<MockFileSystem>();
-//
-//    EXPECT_CALL(
-//        *mockIFileSystemPtr,
-//        isFile(Common::ApplicationConfiguration::applicationPathManager().getUpdateMarkerFile()))
-//        .WillOnce(Return(true))
-//        .WillRepeatedly(Return(false));
-//    Tests::ScopedReplaceFileSystem scopedReplaceFileSystem(std::move(mockIFileSystemPtr));
-//
-//    ASSERT_TRUE(m_pluginManagerPtr->updateOngoingWithGracePeriod(1, std::chrono::steady_clock::now()));
-//
-//    std::this_thread::sleep_for(std::chrono::milliseconds(500));
-//    ASSERT_TRUE(m_pluginManagerPtr->updateOngoingWithGracePeriod(1, std::chrono::steady_clock::now()));
-//
-//    std::this_thread::sleep_for(std::chrono::milliseconds(600));
-//    ASSERT_FALSE(m_pluginManagerPtr->updateOngoingWithGracePeriod(1, std::chrono::steady_clock::now()));
-//}
+TEST_F(TestPluginManager, updateOngoingWithGracePeriodReturnsFalseWhenUpdateMarkerNotPresent)
+{
+    auto& fileSystemMock = setupFileSystemAndGetMock();
+    EXPECT_CALL(fileSystemMock,
+        isFile(Common::ApplicationConfiguration::applicationPathManager().getUpdateMarkerFile()))
+        .WillOnce(Return(false));
+
+    auto now = std::chrono::steady_clock::now();
+    ASSERT_FALSE(m_pluginManagerPtr->updateOngoingWithGracePeriod(10, now));
+}
+
+TEST_F(TestPluginManager, updateOngoingWithGracePeriodReturnsTrueWhenUpdateMarkerPresent)
+{
+    auto& fileSystemMock = setupFileSystemAndGetMock();
+    EXPECT_CALL(fileSystemMock,
+        isFile(Common::ApplicationConfiguration::applicationPathManager().getUpdateMarkerFile()))
+        .WillOnce(Return(true));
+
+    auto now = std::chrono::steady_clock::now();
+    ASSERT_TRUE(m_pluginManagerPtr->updateOngoingWithGracePeriod(10, now));
+}
+
+
+TEST_F(TestPluginManager, updateOngoingWithGracePeriodReturnsTrueUntilGracePeriodOver)
+{
+    auto& fileSystemMock = setupFileSystemAndGetMock();
+    EXPECT_CALL(fileSystemMock,
+        isFile(Common::ApplicationConfiguration::applicationPathManager().getUpdateMarkerFile()))
+        .WillOnce(Return(true))
+        .WillRepeatedly(Return(false));
+
+    ASSERT_TRUE(m_pluginManagerPtr->updateOngoingWithGracePeriod(1, std::chrono::steady_clock::now()));
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    ASSERT_TRUE(m_pluginManagerPtr->updateOngoingWithGracePeriod(1, std::chrono::steady_clock::now()));
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(600));
+    ASSERT_FALSE(m_pluginManagerPtr->updateOngoingWithGracePeriod(1, std::chrono::steady_clock::now()));
+}
