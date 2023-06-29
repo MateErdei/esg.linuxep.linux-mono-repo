@@ -5,6 +5,8 @@
 
 #include "TestUpdateSettingsBase.h"
 
+using namespace Common::Policy;
+
 namespace
 {
     const std::string VALID_JSON = R"({
@@ -25,12 +27,7 @@ namespace
            },
            "manifestNames" : ["manifest.dat"],
            "optionalManifestNames" : ["flags_manifest.dat"],
-           "primarySubscription": {
-            "rigidName" : "BaseProduct-RigidName",
-            "baseVersion" : "9",
-            "tag" : "RECOMMENDED",
-            "fixedVersion" : ""
-            },
+           "primarySubscription": {"rigidName" : "BaseProduct-RigidName","baseVersion" : "9","tag" : "RECOMMENDED","fixedVersion" : ""},
             "products": [
             {
             "rigidName" : "PrefixOfProduct-SimulateProductA",
@@ -40,10 +37,7 @@ namespace
             },
             ],
             "features": ["CORE", "MDR"],
-           "installArguments": [
-           "--install-dir",
-           "/opt/sophos-av"
-           ]
+           "installArguments": ["--install-dir","/opt/sophos-av"]
            })";
 
     class TestSerialiseUpdateSettings : public TestUpdateSettingsBase
@@ -68,11 +62,13 @@ namespace
             }
             return jsonString;
         }
+
+        static std::string mutateJson(const std::string& oldPartString)
+        {
+            return mutateJson(oldPartString, "");
+        }
     };
 }
-
-using namespace Common::Policy;
-
 
 TEST_F(TestSerialiseUpdateSettings, invalidJsonString)
 {
@@ -104,7 +100,7 @@ TEST_F(TestSerialiseUpdateSettings, noUpdateCacheShouldBeValid)
     setupFileSystemAndGetMock();
     auto settings =
         SerialiseUpdateSettings::fromJsonSettings(
-            mutateJson(R"("https://cache.sophos.com/latest/warehouse")", ""));
+            mutateJson(R"("https://cache.sophos.com/latest/warehouse")"));
     EXPECT_TRUE(settings.verifySettingsAreValid());
 }
 
@@ -113,7 +109,7 @@ TEST_F(TestSerialiseUpdateSettings, emptyUpdateCacheValueShouldBeInvalid)
     setupFileSystemAndGetMock();
     auto settings =
         SerialiseUpdateSettings::fromJsonSettings(
-            mutateJson(R"(https://cache.sophos.com/latest/warehouse)", ""));
+            mutateJson(R"(https://cache.sophos.com/latest/warehouse)"));
     EXPECT_FALSE(settings.verifySettingsAreValid());
 }
 
@@ -122,7 +118,7 @@ TEST_F(TestSerialiseUpdateSettings, emptySophosUrlValueShouldFailValidation)
     setupFileSystemAndGetMock();
     auto settings =
         SerialiseUpdateSettings::fromJsonSettings(
-            mutateJson("https://sophosupdate.sophos.com/latest/warehouse", ""));
+            mutateJson("https://sophosupdate.sophos.com/latest/warehouse"));
 
     EXPECT_FALSE(settings.verifySettingsAreValid());
 }
@@ -159,8 +155,8 @@ TEST_F(TestSerialiseUpdateSettings, preserveDevice)
 TEST_F(TestSerialiseUpdateSettings, emptyCredentialsShouldFailValidation)
 {
     setupFileSystemAndGetMock();
-    std::string oldString = R"("credential": {"username": "administrator","password": "password"},)";
 
+    std::string oldString = R"("credential": {"username": "administrator","password": "password"},)";
     std::string newString = R"("credential": {
                                "username": "",
                                "password": ""
@@ -174,8 +170,8 @@ TEST_F(TestSerialiseUpdateSettings, emptyCredentialsShouldFailValidation)
 TEST_F(TestSerialiseUpdateSettings, missingCredentialDetailsShouldFailValidation)
 {
     setupFileSystemAndGetMock();
-    std::string oldString = R"("credential": {"username": "administrator","password": "password"},)";
 
+    std::string oldString = R"("credential": {"username": "administrator","password": "password"},)";
     std::string newString = R"("credential": {
                                },)";
 
@@ -187,11 +183,71 @@ TEST_F(TestSerialiseUpdateSettings, missingCredentialDetailsShouldFailValidation
 TEST_F(TestSerialiseUpdateSettings, missingCredentialsShouldFailValidation)
 {
     setupFileSystemAndGetMock();
+
     std::string oldString = R"("credential": {"username": "administrator","password": "password"},)";
-
-    std::string newString;
-
-    auto settings = SerialiseUpdateSettings::fromJsonSettings(mutateJson(oldString, newString));
+    auto settings = SerialiseUpdateSettings::fromJsonSettings(
+        mutateJson(oldString));
 
     EXPECT_FALSE(settings.verifySettingsAreValid());
+}
+
+TEST_F(TestSerialiseUpdateSettings, mssingPrimarySubscriptionShouldFailValidation)
+{
+    setupFileSystemAndGetMock();
+
+    std::string oldString = R"("primarySubscription": {"rigidName" : "BaseProduct-RigidName","baseVersion" : "9","tag" : "RECOMMENDED","fixedVersion" : ""},)";
+
+    auto updateSettings = SerialiseUpdateSettings::fromJsonSettings(
+        mutateJson(oldString));
+
+    EXPECT_FALSE(updateSettings.verifySettingsAreValid());
+}
+
+TEST_F(TestSerialiseUpdateSettings, missingRigidNameShouldFailValidation)
+{
+    setupFileSystemAndGetMock();
+
+    std::string oldString = R"("rigidName" : "PrefixOfProduct-SimulateProductA")";
+    std::string newString = R"("rigidName" : "")";
+
+    auto updateSettings = SerialiseUpdateSettings::fromJsonSettings(mutateJson(oldString, newString));
+
+    EXPECT_FALSE(updateSettings.verifySettingsAreValid());
+}
+
+TEST_F(TestSerialiseUpdateSettings, missingTagAndFixedVersionShouldFailValidation)
+{
+    setupFileSystemAndGetMock();
+
+    std::string oldString = R"("primarySubscription": {"rigidName" : "BaseProduct-RigidName","baseVersion" : "9","tag" : "RECOMMENDED","fixedVersion" : ""},)";
+    std::string newString = R"("primarySubscription": {"rigidName" : "BaseProduct-RigidName","baseVersion" : "9","tag" : "","fixedVersion" : ""},)";
+
+    auto updateSettings = SerialiseUpdateSettings::fromJsonSettings(mutateJson(oldString, newString));
+
+    EXPECT_FALSE(updateSettings.verifySettingsAreValid());
+}
+
+TEST_F(TestSerialiseUpdateSettings, emptyInstallArgumentsShouldFailValidation)
+{
+    setupFileSystemAndGetMock();
+    std::string oldString = R"("--install-dir","/opt/sophos-av")";
+    auto updateSettings = SerialiseUpdateSettings::fromJsonSettings(
+        mutateJson(oldString));
+    EXPECT_TRUE(updateSettings.verifySettingsAreValid());
+}
+
+TEST_F(TestSerialiseUpdateSettings, missingInstallArgumentsShouldFailValidation)
+{
+    setupFileSystemAndGetMock();
+    std::string oldString = R"("installArguments": ["--install-dir","/opt/sophos-av"])";
+    auto updateSettings = SerialiseUpdateSettings::fromJsonSettings(mutateJson(oldString));
+    EXPECT_TRUE(updateSettings.verifySettingsAreValid());
+}
+
+TEST_F(TestSerialiseUpdateSettings, validJsonStringWithEmptyValueInInstallArgumentsShouldFailValidation)
+{
+    setupFileSystemAndGetMock();
+    std::string oldString = "--install-dir";
+    auto updateSettings = SerialiseUpdateSettings::fromJsonSettings(mutateJson(oldString));
+    EXPECT_FALSE(updateSettings.verifySettingsAreValid());
 }
