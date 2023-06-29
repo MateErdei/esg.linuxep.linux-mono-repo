@@ -4,30 +4,18 @@
 
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 
+#include "TestUpdateSettingsBase.h"
+
 #include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
-#include "tests/Common/Helpers/MemoryAppender.h"
 #include "tests/Common/Helpers/MockFileSystem.h"
 
 using namespace Common::Policy;
 
 namespace
 {
-    class TestUpdateSettings : public MemoryAppenderUsingTests
+    class TestUpdateSettings : public TestUpdateSettingsBase
     {
     public:
-        TestUpdateSettings() : MemoryAppenderUsingTests("Policy")
-        {}
-
-        static UpdateSettings getValidUpdateSettings()
-        {
-            UpdateSettings validSettings;
-            validSettings.setSophosLocationURLs({"http://really_sophos.info"});
-            validSettings.setCredentials({"username", "password"});
-            validSettings.setPrimarySubscription({"RIGID", "Base", "tag", "fixed"});
-            validSettings.setFeatures({"CORE"});
-            return validSettings;
-        }
-
         MockFileSystem& setupFileSystemAndGetMock()
         {
             using ::testing::Ne;
