@@ -97,17 +97,15 @@ EDR Plugin Applies Folding Rules When Folding Rules Have Changed
     Apply Live Query Policy And Expect Folding Rules To Have Changed  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_foldingrules_limit.xml
 
     # Throw away one set of results here so that we are certain they are not from before the folding rules were applied
-    ${query_file} =  Clear Datafeed Dir And Wait For Next Result File
+    ${query_results} =  Clear Datafeed Dir And Wait For Next Result File
 
     # Wait for a result we know will contain folded and non-folded results
-    ${query_file} =  Clear Datafeed Dir And Wait For Next Result File
-    ${query_results} =  Get File  ${SOPHOS_INSTALL}/base/mcs/datafeed/${query_file}
+    ${query_results} =  Clear Datafeed Dir And Wait For Next Result File
     Check Query Results Are Folded  ${query_results}  uptime  fixed_column  fixed_value
     Check Query Results Are Not Folded  ${query_results}  uptime_not_folded  fixed_column  fixed_value
 
     # Wait for a 2nd batch of result to prove that folding is done per batch, i.e. the folded query shows up again
-    ${query_file} =  Clear Datafeed Dir And Wait For Next Result File
-    ${query_results} =  Get File  ${SOPHOS_INSTALL}/base/mcs/datafeed/${query_file}
+    ${query_results} =  Clear Datafeed Dir And Wait For Next Result File
     Check Query Results Are Folded  ${query_results}  uptime  fixed_column  fixed_value
     Check Query Results Are Not Folded  ${query_results}  uptime_not_folded  fixed_column  fixed_value
 
@@ -115,11 +113,10 @@ EDR Plugin Applies Folding Rules When Folding Rules Have Changed
     Apply Live Query Policy And Expect Folding Rules To Have Changed  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_100000_limit.xml
 
     # Throw away one set of results here so that we are certain they are not from before the folding rules were removed
-    ${query_file} =  Clear Datafeed Dir And Wait For Next Result File
+    ${query_results} =  Clear Datafeed Dir And Wait For Next Result File
 
     # Wait until the results appear and check they are not folded now there are no folding rules
-    ${query_file} =  Clear Datafeed Dir And Wait For Next Result File
-    ${query_results} =  Get File  ${SOPHOS_INSTALL}/base/mcs/datafeed/${query_file}
+    ${query_results} =  Clear Datafeed Dir And Wait For Next Result File
     Check Query Results Are Not Folded  ${query_results}  uptime  fixed_column  fixed_value
 
     # Telemetry
@@ -164,11 +161,10 @@ EDR Plugin Applies Regex Folding Rules
     Apply Live Query Policy And Expect Folding Rules To Have Changed  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_regex_foldingrules_100kB_limit.xml
 
     # Throw away one set of results here so that we are certain they are not from before the folding rules were applied
-    ${query_file} =  Clear Datafeed Dir And Wait For Next Result File
+    ${query_results} =  Clear Datafeed Dir And Wait For Next Result File
 
     # Wait for a result we know will contain folded and non-folded results
-    ${query_file} =  Clear Datafeed Dir And Wait For Next Result File
-    ${query_results} =  Get File  ${SOPHOS_INSTALL}/base/mcs/datafeed/${query_file}
+    ${query_results} =  Clear Datafeed Dir And Wait For Next Result File
     Check Query Results Are Folded  ${query_results}  random  number
 
     # Telemetry
