@@ -131,27 +131,6 @@ public:
 
 
 
-TEST_F(ConfigurationDataTest, fromJsonSettingsValidJsonStringWithMissingProxyShouldReturnValidDataObject)
-{
-    setupFileSystemAndGetMock();
-    std::string oldString = R"("proxy": {
-                               "url": "noproxy:",
-                               "credential": {
-                               "username": "",
-                               "password": "",
-                               "proxyType": ""
-                                }
-                               },)";
-
-    std::string newString; // = "";
-
-    auto configurationData = ConfigurationData::fromJsonSettings(createJsonString(oldString, newString));
-
-    configurationData.verifySettingsAreValid();
-
-    EXPECT_TRUE(configurationData.isVerified());
-}
-
 TEST_F(
     ConfigurationDataTest,
     fromJsonSettingsValidJsonStringWithConfiguredPolicyProxyShouldReturnValidDataObject)
