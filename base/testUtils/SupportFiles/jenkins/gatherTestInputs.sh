@@ -57,6 +57,6 @@ deactivate
 chmod +x ${SYSTEMPRODUCT_TEST_INPUT}/sdds3/sdds3-builder || fail "Error: Failed to chmod sdds3-builder inputs"
 unzip -o -d ${SYSTEMPRODUCT_TEST_INPUT}/safestore_tools/ ${SYSTEMPRODUCT_TEST_INPUT}/safestore_tools/safestore-linux-x64.zip
 chmod +x ${SYSTEMPRODUCT_TEST_INPUT}/safestore_tools/ssr/ssr || fail "Error: Failed to chmod safestore tool"
-try_command_with_backoff cp -rv /mnt/filer6/linux/SSPL/testautomation/sdds-specs $SYSTEMPRODUCT_TEST_INPUT/sdds-specs || fail "Error: Failed to fetch inputs"
+
 # restore bash strictness (for scripts that source this one)
 set -e

@@ -115,9 +115,6 @@ def get_yesterday():
     return yesterday.strftime("%A")  # Returns day as week day name
 
 
-sdds_specs_directory = os.path.join(SYSTEMPRODUCT_TEST_INPUT, "sdds-specs")
-
-
 def get_importrefrence_for_component_with_tag(rigid_name, tag, pubspec):
     line = list(filter(lambda n: rigid_name == n.attrib["id"], pubspec.findall("./warehouses//line")))[0]
     for component in line.findall("./component"):
@@ -200,30 +197,6 @@ def get_spec_type_from_spec(spec):
         raise AssertionError(f"expected {root_tag} to be either {importspec} or {pubspec}")
 
 
-def get_spec_xml_dict_from_filer6():
-    logger.debug(f"Loading specs from {sdds_specs_directory}")
-    files_on_filer6_dict = {}
-    if not os.path.isdir(sdds_specs_directory):
-        return files_on_filer6_dict
-    files_on_filer6 = os.listdir(sdds_specs_directory)
-    for file_name in files_on_filer6:
-        try:
-            spec = ET.parse(os.path.join(sdds_specs_directory, file_name))
-            expected_sdds_name = ".".join(file_name.split(".")[:3])
-            spec_type = get_spec_type_from_spec(spec)
-            spec_dict = files_on_filer6_dict.setdefault(expected_sdds_name, {})
-
-            if spec_type in spec_dict:
-                raise AssertionError(
-                    f"Found multiple {spec_type} for {expected_sdds_name}: {spec_dict[spec_type]} & {file_name}")
-            else:
-                spec_dict[spec_type] = spec
-        except Exception as e:
-            logger.error(f"Failed to parse: '{file_name}', reason: {str(e)}")
-
-    return files_on_filer6_dict
-
-
 def get_version_from_sdds_import_file(path):
     with open(path) as file:
         contents = file.read()
@@ -257,7 +230,6 @@ class TemplateConfig:
         :param username: username for the warehouse this policy is made for
         :param build_type: build type (prod or dev) of the products in the warehouse (needed for cert disambiguation)
         """
-        self.yesterday = get_yesterday()
         self.local_connection_address = None
         self.env_key = env_key
         environment_config = os.environ.get(env_key, None)
@@ -372,15 +344,13 @@ class TemplateConfig:
         username_marker = "@USERNAME@"
         connection_address_marker = "@CONNECTIONADDRESS@"
         algorithm_marker = "@ALGORITHM@"
-        yesterday_marker = "@YESTERDAY@"
 
         with open(template_policy) as template_file:
             template_string = template_file.read()
             template_string_with_replaced_values = template_string.replace(password_marker, self.password) \
                 .replace(username_marker, self.username) \
                 .replace(connection_address_marker, self.get_connection_address()) \
-                .replace(algorithm_marker, self.algorithm) \
-                .replace(yesterday_marker, self.yesterday)
+                .replace(algorithm_marker, self.algorithm)
             with open(output_policy, "w+") as output_file:  # replaces existing file if exists
                 output_file.write(template_string_with_replaced_values)
                 logger.info(
@@ -409,7 +379,6 @@ class WarehouseUtils(object):
     os.environ[
         'VUT_PREV_DOGFOOD'] = "QA767596:CCCirMa73nCbF+rU9aHeyqCasmwZR9GpWyPav3N0ONhr56KqcJR8L7OdlrmdHJLXc08=:105f4d87e14c91142561bf3d022e55b9"
 
-    WAREHOUSE_SPEC_XML = get_spec_xml_dict_from_filer6()
     template_configuration_values = {
         "mtr_edr_vut_and_base_999.xml": TemplateConfig("BASE_999", "mtr_user_vut", PROD_BUILD_CERTS,
                                                        OSTIA_BASE_999_ADDRESS),
@@ -435,11 +404,7 @@ class WarehouseUtils(object):
         "base_only_fixed_version_VUT.xml": TemplateConfig("BALLISTA_VUT", "base_user_vut", PROD_BUILD_CERTS,
                                                           OSTIA_VUT_ADDRESS),
         "base_only_fixed_version_999.xml": TemplateConfig("BALLISTA_VUT", "base_user_vut", PROD_BUILD_CERTS,
-                                                          OSTIA_VUT_ADDRESS),
-        "base_only_weeklyScheduleVUT.xml": TemplateConfig("BALLISTA_VUT", "base_user_vut", PROD_BUILD_CERTS,
-                                                          OSTIA_VUT_ADDRESS),
-        "base_only_VUT_no_ballista_override.xml": TemplateConfig("NO_OVERRIDE", "base_user_vut", PROD_BUILD_CERTS,
-                                                                 OSTIA_VUT_ADDRESS)
+                                                          OSTIA_VUT_ADDRESS)
     }
 
     RIGIDNAMES_AGAINST_PRODUCT_NAMES_IN_VERSION_INI_FILES = {
