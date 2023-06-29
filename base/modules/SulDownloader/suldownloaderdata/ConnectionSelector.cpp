@@ -24,7 +24,7 @@ std::vector<ConnectionSetup> ConnectionSelector::getConnectionCandidates(const U
 
     for (const auto& url : updateSettings.getLocalUpdateCacheHosts())
     {
-        candidates.emplace_back(url, updateSettings.getCredentials(), true, proxyForUpdateCache);
+        candidates.emplace_back(url, true, proxyForUpdateCache);
         LOGDEBUG("Adding Update Cache connection candidate, URL: " << url << ", proxy: " << proxyForUpdateCache.getUrl());
     }
 
@@ -32,7 +32,7 @@ std::vector<ConnectionSetup> ConnectionSelector::getConnectionCandidates(const U
     {
         for (const auto& url : updateSettings.getSophosLocationURLs())
         {
-            candidates.emplace_back(url, updateSettings.getCredentials(), false, proxy);
+            candidates.emplace_back(url, false, proxy);
             LOGDEBUG("Adding connection candidate, URL: " << url << ", proxy: " << proxy.getUrl());
         }
     }
@@ -53,14 +53,14 @@ std::vector<ConnectionSetup> ConnectionSelector::getSDDS3ConnectionCandidates(co
 
     for (const auto& url : updateSettings.getLocalUpdateCacheHosts())
     {
-        candidates.emplace_back(url, updateSettings.getCredentials(), true, proxyForUpdateCache);
+        candidates.emplace_back(url, true, proxyForUpdateCache);
     }
 
     for (auto& proxy : proxies)
     {
         if (proxy.getUrl() != NoProxy)
         {
-            candidates.emplace_back("", updateSettings.getCredentials(), false, proxy);
+            candidates.emplace_back("", false, proxy);
         }
     }
 

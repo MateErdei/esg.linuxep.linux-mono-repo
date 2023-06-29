@@ -18,12 +18,10 @@ namespace SulDownloader
         class ConnectionSetup
         {
         public:
-            using credentials_t = Common::Policy::Credentials;
             using proxy_t = Common::Policy::Proxy;
 
             explicit ConnectionSetup(
                 const std::string& updateLocationURL,
-                const credentials_t& credentials = credentials_t(),
                 bool isCacheUpdate = false,
                 const proxy_t& proxy = proxy_t());
 

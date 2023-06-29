@@ -496,8 +496,7 @@ namespace SulDownloader
         {
             for (const auto& url : urls)
             {
-                Credentials credentials;
-                ConnectionSetup connectionSetup(url, credentials, false, proxy);
+                ConnectionSetup connectionSetup(url, false, proxy);
                 finalConnectionCandidates.emplace_back(connectionSetup);
                 LOGDEBUG("Adding SDDS3 connection candidate, URL: " << url << ", proxy: " << proxy.getUrl());
             }
@@ -505,8 +504,7 @@ namespace SulDownloader
 
         for (const auto& url : urls)
         {
-            Credentials credentials;
-            ConnectionSetup connectionSetup(url, credentials, false, Proxy());
+            ConnectionSetup connectionSetup(url, false, Proxy());
             finalConnectionCandidates.push_back(connectionSetup);
             LOGDEBUG("Adding SDDS3 connection candidate, URL: " << url);
         }
@@ -547,8 +545,7 @@ namespace SulDownloader
         {
             if (candidate.isCacheUpdate())
             {
-                Credentials credentials;
-                ConnectionSetup connectionSetup(candidate.getUpdateLocationURL(), credentials, true, Proxy());
+                ConnectionSetup connectionSetup(candidate.getUpdateLocationURL(), true, Proxy());
                 finalConnectionCandidates.emplace_back(connectionSetup);
             }
         }
@@ -557,8 +554,7 @@ namespace SulDownloader
         {
             for (const auto& url : cdnurls)
             {
-                Credentials credentials;
-                ConnectionSetup connectionSetup(url, credentials, false, proxy);
+                ConnectionSetup connectionSetup(url, false, proxy);
                 finalConnectionCandidates.emplace_back(connectionSetup);
                 LOGDEBUG("Adding SDDS3 connection candidate, URL: " << url << ", proxy: " << proxy.getUrl());
             }
@@ -566,8 +562,7 @@ namespace SulDownloader
 
         for (const auto& url : cdnurls)
         {
-            Credentials credentials;
-            ConnectionSetup connectionSetup(url, credentials, false, Proxy());
+            ConnectionSetup connectionSetup(url, false, Proxy());
             finalConnectionCandidates.push_back(connectionSetup);
             LOGDEBUG("Adding SDDS3 connection candidate, URL: " << url);
         }
