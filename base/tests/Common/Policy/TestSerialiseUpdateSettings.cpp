@@ -5,9 +5,6 @@
 
 #include "TestUpdateSettingsBase.h"
 
-#include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
-#include "tests/Common/Helpers/MockFileSystem.h"
-
 namespace
 {
     const std::string VALID_JSON = R"({
@@ -60,27 +57,19 @@ namespace
             return VALID_JSON;
         }
 
-        MockFileSystem& setupFileSystemAndGetMock()
+        static std::string mutateJson(const std::string& oldPartString, const std::string& newPartString)
         {
-            using ::testing::Ne;
-            Common::ApplicationConfiguration::applicationConfiguration().setData(
-                Common::ApplicationConfiguration::SOPHOS_INSTALL, "/installroot");
+            std::string jsonString = VALID_JSON;
+            if (!oldPartString.empty())
+            {
+                size_t pos = jsonString.find(oldPartString);
 
-            auto filesystemMock = std::make_unique<NiceMock<MockFileSystem>>();
-            ON_CALL(*filesystemMock, isDirectory(Common::ApplicationConfiguration::applicationPathManager().sophosInstall())).WillByDefault(Return(true));
-            ON_CALL(*filesystemMock, isDirectory(Common::ApplicationConfiguration::applicationPathManager().getLocalWarehouseStoreDir())).WillByDefault(Return(true));
+                EXPECT_TRUE(pos != std::string::npos);
 
-            std::string empty;
-            ON_CALL(*filesystemMock, exists(empty)).WillByDefault(Return(false));
-            ON_CALL(*filesystemMock, exists(Ne(empty))).WillByDefault(Return(true));
-
-            auto* borrowedPtr = filesystemMock.get();
-            m_replacer.replace(std::move(filesystemMock));
-            return *borrowedPtr;
+                jsonString.replace(pos, oldPartString.size(), newPartString);
+            }
+            return jsonString;
         }
-
-        Tests::ScopedReplaceFileSystem m_replacer;
-
     };
 }
 

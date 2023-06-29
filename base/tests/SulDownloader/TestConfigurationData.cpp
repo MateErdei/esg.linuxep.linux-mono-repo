@@ -129,15 +129,6 @@ public:
     }
 };
 
-TEST_F(ConfigurationDataTest, fromJsonSettingsValidAndCompleteJsonStringShouldReturnValidDataObject)
-{
-    setupFileSystemAndGetMock();
-    auto configurationData = ConfigurationData::fromJsonSettings(createJsonString("", ""));
-    configurationData.verifySettingsAreValid();
-
-    EXPECT_TRUE(configurationData.isVerified());
-}
-
 TEST_F(ConfigurationDataTest, fromJsonSettingsValidStringWithNoUpdateCacheShouldReturnValidDataObject)
 {
     setupFileSystemAndGetMock();

@@ -6,35 +6,12 @@
 
 #include "TestUpdateSettingsBase.h"
 
-#include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
-#include "tests/Common/Helpers/MockFileSystem.h"
-
 using namespace Common::Policy;
 
 namespace
 {
     class TestUpdateSettings : public TestUpdateSettingsBase
     {
-    public:
-        MockFileSystem& setupFileSystemAndGetMock()
-        {
-            using ::testing::Ne;
-            Common::ApplicationConfiguration::applicationConfiguration().setData(
-                Common::ApplicationConfiguration::SOPHOS_INSTALL, "/installroot");
-
-            auto filesystemMock = std::make_unique<NiceMock<MockFileSystem>>();
-            ON_CALL(*filesystemMock, isDirectory(Common::ApplicationConfiguration::applicationPathManager().sophosInstall())).WillByDefault(Return(true));
-            ON_CALL(*filesystemMock, isDirectory(Common::ApplicationConfiguration::applicationPathManager().getLocalWarehouseStoreDir())).WillByDefault(Return(true));
-
-            std::string empty;
-            ON_CALL(*filesystemMock, exists(empty)).WillByDefault(Return(false));
-            ON_CALL(*filesystemMock, exists(Ne(empty))).WillByDefault(Return(true));
-
-            auto* borrowedPtr = filesystemMock.get();
-            replacer_.replace(std::move(filesystemMock));
-            return *borrowedPtr;
-        }
-        Tests::ScopedReplaceFileSystem replacer_;
     };
 }
 
@@ -47,6 +24,7 @@ TEST_F(TestUpdateSettings, initialSettingsAreInvalid)
 {
     UpdateSettings settings;
     EXPECT_FALSE(settings.verifySettingsAreValid());
+    EXPECT_FALSE(settings.isVerified());
 }
 
 TEST_F(TestUpdateSettings, validSettingsAreValid)
@@ -54,6 +32,7 @@ TEST_F(TestUpdateSettings, validSettingsAreValid)
     setupFileSystemAndGetMock();
     UpdateSettings validSettings = getValidUpdateSettings();
     EXPECT_TRUE(validSettings.verifySettingsAreValid());
+    EXPECT_TRUE(validSettings.isVerified()); // Cross check the isVerified method
 }
 
 TEST_F(TestUpdateSettings, emptyPrimarySubscriptionIsInvalid)
