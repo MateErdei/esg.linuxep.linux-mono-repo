@@ -27,12 +27,10 @@ namespace SulDownloader
                 bool isCacheUpdate = false,
                 const proxy_t& proxy = proxy_t());
 
-            const proxy_t& getProxy() const;
-
+            [[nodiscard]] const proxy_t& getProxy() const;
             void setProxy(const proxy_t& proxy);
 
-            const std::string& getUpdateLocationURL() const;
-
+            [[nodiscard]] const std::string& getUpdateLocationURL() const;
             void setUpdateLocationURL(const std::string& updateLocationURL);
 
             std::string toString() const;
@@ -40,9 +38,7 @@ namespace SulDownloader
             bool isCacheUpdate() const;
 
         private:
-
             std::string m_updateLocationURL;
-            credentials_t m_credentials;
             bool m_isUpdateCache;
             proxy_t m_proxy;
         };

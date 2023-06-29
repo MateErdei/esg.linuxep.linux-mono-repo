@@ -12,10 +12,9 @@ using namespace SulDownloader::suldownloaderdata;
 
 ConnectionSetup::ConnectionSetup(
     const std::string& updateLocationURL,
-    const credentials_t& credentials,
+    const credentials_t&,
     bool isCacheUpdate,
     const proxy_t& proxy) :
-    m_credentials(credentials),
     m_isUpdateCache(isCacheUpdate),
     m_proxy(proxy)
 {
