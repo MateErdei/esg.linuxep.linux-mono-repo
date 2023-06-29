@@ -661,34 +661,34 @@ TEST_F(
     auto configurationData = ConfigurationData::fromJsonSettings(createJsonString("", ""));
     EXPECT_TRUE(configurationData.verifySettingsAreValid());
 
-    std::vector<ConfigurationData> all_invalid_cases;
+    std::vector<UpdateSettings> all_invalid_cases;
 
-    ConfigurationData noPrimarySubscriptionConfig(configurationData);
+    auto noPrimarySubscriptionConfig(configurationData);
     noPrimarySubscriptionConfig.setPrimarySubscription({});
     all_invalid_cases.emplace_back(noPrimarySubscriptionConfig);
 
-    ConfigurationData primaryWithRigidNameOnly(configurationData);
+    auto primaryWithRigidNameOnly(configurationData);
     primaryWithRigidNameOnly.setPrimarySubscription({ "rigidname", "", "", "" });
     all_invalid_cases.emplace_back(primaryWithRigidNameOnly);
 
-    ConfigurationData primaryWithOutRigidName(configurationData);
+    auto primaryWithOutRigidName(configurationData);
     primaryWithOutRigidName.setPrimarySubscription({ "", "baseversion", "RECOMMENDED", "None" });
     all_invalid_cases.emplace_back(primaryWithOutRigidName);
 
-    ConfigurationData primaryWithRigidNameAndBaseVersion(configurationData);
+    auto primaryWithRigidNameAndBaseVersion(configurationData);
     primaryWithRigidNameAndBaseVersion.setPrimarySubscription({ "rigidname", "baseversion", "", "" });
     all_invalid_cases.emplace_back(primaryWithRigidNameAndBaseVersion);
 
-    ConfigurationData productsWithRigidNameOnly(configurationData);
+    auto productsWithRigidNameOnly(configurationData);
     productsWithRigidNameOnly.setProductsSubscription(
         { ProductSubscription("rigidname", "", "RECOMMENDED", ""), ProductSubscription("rigidname", "", "", "") });
     all_invalid_cases.emplace_back(productsWithRigidNameOnly);
 
-    ConfigurationData noCoreFeature(configurationData);
+    auto noCoreFeature(configurationData);
     noCoreFeature.setFeatures({ "SAV", "MDR", "SENSOR" });
     all_invalid_cases.emplace_back(noCoreFeature);
 
-    ConfigurationData noFeatureSet(configurationData);
+    auto noFeatureSet(configurationData);
     noFeatureSet.setFeatures({});
     all_invalid_cases.emplace_back(noFeatureSet);
 
@@ -697,36 +697,36 @@ TEST_F(
         EXPECT_FALSE(configData.verifySettingsAreValid());
     }
 
-    std::vector<ConfigurationData> all_valid_cases;
-    ConfigurationData primaryWithTag(configurationData);
+    std::vector<UpdateSettings> all_valid_cases;
+    auto primaryWithTag(configurationData);
     primaryWithTag.setPrimarySubscription({ "rigidname", "baseversion", "RECOMMENDED", "" });
     all_valid_cases.emplace_back(primaryWithTag);
 
-    ConfigurationData primaryWithoutBaseVersion(configurationData);
+    auto primaryWithoutBaseVersion(configurationData);
     primaryWithoutBaseVersion.setPrimarySubscription({ "rigidname", "", "RECOMMENDED", "" });
     all_valid_cases.emplace_back(primaryWithoutBaseVersion);
 
-    ConfigurationData primaryWithTagAndFixedVersion(configurationData);
+    auto primaryWithTagAndFixedVersion(configurationData);
     primaryWithTagAndFixedVersion.setPrimarySubscription({ "rigidname", "", "RECOMMENDED", "9.1" });
     all_valid_cases.emplace_back(primaryWithTagAndFixedVersion);
 
-    ConfigurationData primaryWithOnlyFixedVersion(configurationData);
+    auto primaryWithOnlyFixedVersion(configurationData);
     primaryWithOnlyFixedVersion.setPrimarySubscription({ "rigidname", "", "", "9.1" });
     all_valid_cases.emplace_back(primaryWithOnlyFixedVersion);
 
-    ConfigurationData featuresContainCORE(configurationData);
+    auto featuresContainCORE(configurationData);
     featuresContainCORE.setFeatures({ { "CORE" }, { "MDR" } });
     all_valid_cases.emplace_back(featuresContainCORE);
 
-    ConfigurationData onlyCOREinFeatures(configurationData);
+    auto onlyCOREinFeatures(configurationData);
     onlyCOREinFeatures.setFeatures({ { "CORE" } });
     all_valid_cases.emplace_back(onlyCOREinFeatures);
 
-    ConfigurationData moreThanOneProduct(configurationData);
+    auto moreThanOneProduct(configurationData);
     moreThanOneProduct.setProductsSubscription({ { "p1", "", "RECOMMENDED", "" }, { "p2", "", "", "9.1" } });
     all_valid_cases.emplace_back(moreThanOneProduct);
 
-    ConfigurationData onlyPrimaryAvailable(configurationData);
+    auto onlyPrimaryAvailable(configurationData);
     onlyPrimaryAvailable.setProductsSubscription({});
     all_valid_cases.emplace_back(onlyPrimaryAvailable);
 

@@ -146,11 +146,6 @@ const std::vector<std::string>& ConfigurationData::getInstallArguments() const
     return installArguments_;
 }
 
-void ConfigurationData::setInstallArguments(const std::vector<std::string>& installArguments)
-{
-    installArguments_ = installArguments;
-}
-
 const std::vector<std::string>& ConfigurationData::getManifestNames() const
 {
     return manifestNames_;
@@ -240,16 +235,6 @@ std::string ConfigurationData::toJsonSettings(const UpdateSettings& updateSettin
     return Common::Policy::SerialiseUpdateSettings::toJsonSettings(updateSettings);
 }
 
-void ConfigurationData::setPrimarySubscription(const ProductSubscription& productSubscription)
-{
-    primarySubscription_ = productSubscription;
-}
-
-void ConfigurationData::setProductsSubscription(const std::vector<ProductSubscription>& productsSubscriptions)
-{
-    productSubscriptions_ = productsSubscriptions;
-}
-
 const ProductSubscription& ConfigurationData::getPrimarySubscription() const
 {
     return primarySubscription_;
@@ -258,11 +243,6 @@ const ProductSubscription& ConfigurationData::getPrimarySubscription() const
 const std::vector<ProductSubscription>& ConfigurationData::getProductsSubscription() const
 {
     return productSubscriptions_;
-}
-
-void ConfigurationData::setFeatures(const std::vector<std::string>& features)
-{
-    features_ = features;
 }
 
 const std::vector<std::string>& ConfigurationData::getFeatures() const
