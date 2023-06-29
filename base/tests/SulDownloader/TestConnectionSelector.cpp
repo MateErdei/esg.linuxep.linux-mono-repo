@@ -64,14 +64,10 @@ TEST_F(ConnectionSelectorTest, getConnectionCandidatesShouldReturnValidCandidate
     EXPECT_EQ(connectionCandidates.size(), 2);
 
     EXPECT_TRUE(connectionCandidates[0].isCacheUpdate());
-    EXPECT_STREQ(connectionCandidates[0].getCredentials().getUsername().c_str(), "administrator");
-    EXPECT_STREQ(connectionCandidates[0].getCredentials().getPassword().c_str(), "password");
     EXPECT_STREQ(connectionCandidates[0].getUpdateLocationURL().c_str(), "https://cache.sophos.com/latest/warehouse");
     EXPECT_TRUE(connectionCandidates[0].getProxy().empty());
 
     EXPECT_FALSE(connectionCandidates[1].isCacheUpdate());
-    EXPECT_STREQ(connectionCandidates[1].getCredentials().getUsername().c_str(), "administrator");
-    EXPECT_STREQ(connectionCandidates[1].getCredentials().getPassword().c_str(), "password");
     EXPECT_STREQ(
         connectionCandidates[1].getUpdateLocationURL().c_str(), "https://sophosupdate.sophos.com/latest/warehouse");
     EXPECT_TRUE(connectionCandidates[1].getProxy().empty());
@@ -99,14 +95,10 @@ TEST_F(ConnectionSelectorTest, getConnectionCandidatesShouldReturnValidCandidate
     EXPECT_EQ(connectionCandidates.size(), 2);
 
     EXPECT_TRUE(connectionCandidates[0].isCacheUpdate());
-    EXPECT_STREQ(connectionCandidates[0].getCredentials().getUsername().c_str(), "administrator");
-    EXPECT_STREQ(connectionCandidates[0].getCredentials().getPassword().c_str(), "password");
     EXPECT_STREQ(connectionCandidates[0].getUpdateLocationURL().c_str(), "https://cache.sophos.com/latest/warehouse");
     EXPECT_TRUE(connectionCandidates[0].getProxy().empty());
 
     EXPECT_FALSE(connectionCandidates[1].isCacheUpdate());
-    EXPECT_STREQ(connectionCandidates[1].getCredentials().getUsername().c_str(), "administrator");
-    EXPECT_STREQ(connectionCandidates[1].getCredentials().getPassword().c_str(), "password");
     EXPECT_STREQ(
         connectionCandidates[1].getUpdateLocationURL().c_str(), "https://sophosupdate.sophos.com/latest/warehouse");
     EXPECT_TRUE(connectionCandidates[1].getProxy().empty());
@@ -136,21 +128,15 @@ TEST_F( // NOLINT
     EXPECT_EQ(connectionCandidates.size(), 3);
 
     EXPECT_TRUE(connectionCandidates[0].isCacheUpdate());
-    EXPECT_STREQ(connectionCandidates[0].getCredentials().getUsername().c_str(), "administrator");
-    EXPECT_STREQ(connectionCandidates[0].getCredentials().getPassword().c_str(), "password");
     EXPECT_STREQ(connectionCandidates[0].getUpdateLocationURL().c_str(), "https://cache.sophos.com/latest/warehouse");
     EXPECT_TRUE(connectionCandidates[0].getProxy().empty());
 
     EXPECT_FALSE(connectionCandidates[1].isCacheUpdate());
-    EXPECT_STREQ(connectionCandidates[1].getCredentials().getUsername().c_str(), "administrator");
-    EXPECT_STREQ(connectionCandidates[1].getCredentials().getPassword().c_str(), "password");
     EXPECT_STREQ(
         connectionCandidates[1].getUpdateLocationURL().c_str(), "https://sophosupdate.sophos.com/latest/warehouse");
     EXPECT_EQ(connectionCandidates[1].getProxy().getUrl(), "environment:");
 
     EXPECT_FALSE(connectionCandidates[2].isCacheUpdate());
-    EXPECT_STREQ(connectionCandidates[2].getCredentials().getUsername().c_str(), "administrator");
-    EXPECT_STREQ(connectionCandidates[2].getCredentials().getPassword().c_str(), "password");
     EXPECT_STREQ(
         connectionCandidates[2].getUpdateLocationURL().c_str(), "https://sophosupdate.sophos.com/latest/warehouse");
     EXPECT_TRUE(connectionCandidates[2].getProxy().empty());
@@ -190,8 +176,6 @@ TEST_F( // NOLINT
     ASSERT_EQ(connectionCandidates.size(), 3);
 
     EXPECT_TRUE(connectionCandidates[0].isCacheUpdate());
-    EXPECT_STREQ(connectionCandidates[0].getCredentials().getUsername().c_str(), "administrator");
-    EXPECT_STREQ(connectionCandidates[0].getCredentials().getPassword().c_str(), "password");
     EXPECT_STREQ(connectionCandidates[0].getUpdateLocationURL().c_str(), "https://cache.sophos.com/latest/warehouse");
     EXPECT_EQ(connectionCandidates[0].getProxy().getUrl(), "noproxy:"); // Update caches bypass proxy
     EXPECT_STREQ(connectionCandidates[0].getProxy().getCredentials().getUsername().c_str(), "testproxyusername");
@@ -199,8 +183,6 @@ TEST_F( // NOLINT
         connectionCandidates[0].getProxy().getCredentials().getDeobfuscatedPassword().c_str(), "testproxypassword");
 
     EXPECT_FALSE(connectionCandidates[1].isCacheUpdate());
-    EXPECT_STREQ(connectionCandidates[1].getCredentials().getUsername().c_str(), "administrator");
-    EXPECT_STREQ(connectionCandidates[1].getCredentials().getPassword().c_str(), "password");
     EXPECT_STREQ(
         connectionCandidates[1].getUpdateLocationURL().c_str(), "https://sophosupdate.sophos.com/latest/warehouse");
     EXPECT_EQ(connectionCandidates[1].getProxy().getUrl(), "http://testproxy.com");
@@ -209,8 +191,6 @@ TEST_F( // NOLINT
         connectionCandidates[1].getProxy().getCredentials().getDeobfuscatedPassword().c_str(), "testproxypassword");
 
     EXPECT_FALSE(connectionCandidates[2].isCacheUpdate());
-    EXPECT_STREQ(connectionCandidates[2].getCredentials().getUsername().c_str(), "administrator");
-    EXPECT_STREQ(connectionCandidates[2].getCredentials().getPassword().c_str(), "password");
     EXPECT_STREQ(
         connectionCandidates[2].getUpdateLocationURL().c_str(), "https://sophosupdate.sophos.com/latest/warehouse");
     EXPECT_TRUE(connectionCandidates[2].getProxy().empty());
@@ -325,16 +305,12 @@ TEST_F( // NOLINT
     ASSERT_EQ(connectionCandidates.size(), 3);
 
     EXPECT_TRUE(connectionCandidates[0].isCacheUpdate());
-    EXPECT_STREQ(connectionCandidates[0].getCredentials().getUsername().c_str(), "administrator");
-    EXPECT_STREQ(connectionCandidates[0].getCredentials().getPassword().c_str(), "password");
     EXPECT_STREQ(connectionCandidates[0].getUpdateLocationURL().c_str(), "https://cache.sophos.com/latest/warehouse");
     EXPECT_EQ(connectionCandidates[0].getProxy().getUrl(), "noproxy:"); // UpdateCache bypass proxy
     EXPECT_STREQ(connectionCandidates[0].getProxy().getCredentials().getUsername().c_str(), "testproxyusername");
     EXPECT_STREQ(connectionCandidates[0].getProxy().getCredentials().getDeobfuscatedPassword().c_str(), "password");
 
     EXPECT_FALSE(connectionCandidates[1].isCacheUpdate());
-    EXPECT_STREQ(connectionCandidates[1].getCredentials().getUsername().c_str(), "administrator");
-    EXPECT_STREQ(connectionCandidates[1].getCredentials().getPassword().c_str(), "password");
     EXPECT_STREQ(
         connectionCandidates[1].getUpdateLocationURL().c_str(), "https://sophosupdate.sophos.com/latest/warehouse");
     EXPECT_EQ(connectionCandidates[1].getProxy().getUrl(), "http://testproxy.com");
@@ -342,8 +318,6 @@ TEST_F( // NOLINT
     EXPECT_STREQ(connectionCandidates[1].getProxy().getCredentials().getDeobfuscatedPassword().c_str(), "password");
 
     EXPECT_FALSE(connectionCandidates[2].isCacheUpdate());
-    EXPECT_STREQ(connectionCandidates[2].getCredentials().getUsername().c_str(), "administrator");
-    EXPECT_STREQ(connectionCandidates[2].getCredentials().getPassword().c_str(), "password");
     EXPECT_STREQ(
         connectionCandidates[2].getUpdateLocationURL().c_str(), "https://sophosupdate.sophos.com/latest/warehouse");
     EXPECT_TRUE(connectionCandidates[2].getProxy().empty());
@@ -381,16 +355,12 @@ TEST_F( // NOLINT
     ASSERT_EQ(connectionCandidates.size(), 3);
 
     EXPECT_TRUE(connectionCandidates[0].isCacheUpdate());
-    EXPECT_STREQ(connectionCandidates[0].getCredentials().getUsername().c_str(), "administrator");
-    EXPECT_STREQ(connectionCandidates[0].getCredentials().getPassword().c_str(), "password");
     EXPECT_STREQ(connectionCandidates[0].getUpdateLocationURL().c_str(), "https://cache.sophos.com/latest/warehouse");
     EXPECT_EQ(connectionCandidates[0].getProxy().getUrl(), "noproxy:"); // UpdateCache bypass proxy
     EXPECT_STREQ(connectionCandidates[0].getProxy().getCredentials().getUsername().c_str(), "testproxyusername");
     EXPECT_STREQ(connectionCandidates[0].getProxy().getCredentials().getDeobfuscatedPassword().c_str(), "password");
 
     EXPECT_FALSE(connectionCandidates[1].isCacheUpdate());
-    EXPECT_STREQ(connectionCandidates[1].getCredentials().getUsername().c_str(), "administrator");
-    EXPECT_STREQ(connectionCandidates[1].getCredentials().getPassword().c_str(), "password");
     EXPECT_STREQ(
         connectionCandidates[1].getUpdateLocationURL().c_str(), "https://sophosupdate.sophos.com/latest/warehouse");
     EXPECT_EQ(connectionCandidates[1].getProxy().getUrl(), "http://testproxy.com");
@@ -398,8 +368,6 @@ TEST_F( // NOLINT
     EXPECT_STREQ(connectionCandidates[1].getProxy().getCredentials().getDeobfuscatedPassword().c_str(), "password");
 
     EXPECT_FALSE(connectionCandidates[2].isCacheUpdate());
-    EXPECT_STREQ(connectionCandidates[2].getCredentials().getUsername().c_str(), "administrator");
-    EXPECT_STREQ(connectionCandidates[2].getCredentials().getPassword().c_str(), "password");
     EXPECT_STREQ(
         connectionCandidates[2].getUpdateLocationURL().c_str(), "https://sophosupdate.sophos.com/latest/warehouse");
     EXPECT_TRUE(connectionCandidates[2].getProxy().empty());
@@ -438,14 +406,10 @@ TEST_F( // NOLINT
     ASSERT_EQ(connectionCandidates.size(), 2);
 
     EXPECT_TRUE(connectionCandidates[0].isCacheUpdate());
-    EXPECT_STREQ(connectionCandidates[0].getCredentials().getUsername().c_str(), "administrator");
-    EXPECT_STREQ(connectionCandidates[0].getCredentials().getPassword().c_str(), "password");
     EXPECT_STREQ(connectionCandidates[0].getUpdateLocationURL().c_str(), "https://cache.sophos.com/latest/warehouse");
     EXPECT_EQ(connectionCandidates[0].getProxy().getUrl(), "noproxy:"); // Update caches bypass proxy
 
     EXPECT_FALSE(connectionCandidates[1].isCacheUpdate());
-    EXPECT_STREQ(connectionCandidates[1].getCredentials().getUsername().c_str(), "administrator");
-    EXPECT_STREQ(connectionCandidates[1].getCredentials().getPassword().c_str(), "password");
     EXPECT_STREQ(
         connectionCandidates[1].getUpdateLocationURL().c_str(), "");
     EXPECT_EQ(connectionCandidates[1].getProxy().getUrl(), "http://testproxy.com");
