@@ -4,6 +4,7 @@ add_executable(TestPolicy
         TestProxy.cpp
         TestALCPolicy.cpp
         TestSerialiseUpdateSettings.cpp
+        TestUpdateSettings.cpp
         )
 target_include_directories(TestPolicy SYSTEM BEFORE PUBLIC ${GTEST_INCLUDE} ${LOG4CPLUS_INCLUDE_DIR} ${PROTOBUF_INCLUDE_DIR})
 target_include_directories(TestPolicy BEFORE PUBLIC ${CMAKE_SOURCE_DIR})

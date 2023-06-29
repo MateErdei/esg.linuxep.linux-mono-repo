@@ -28,7 +28,7 @@ public:
         Common::ApplicationConfiguration::applicationConfiguration().setData(
             Common::ApplicationConfiguration::SOPHOS_INSTALL, "/installroot");
 
-        auto filesystemMock = new NiceMock<MockFileSystem>();
+        auto filesystemMock = std::make_unique<NiceMock<MockFileSystem>>();
         ON_CALL(*filesystemMock, isDirectory(Common::ApplicationConfiguration::applicationPathManager().sophosInstall())).WillByDefault(Return(true));
         ON_CALL(*filesystemMock, isDirectory(Common::ApplicationConfiguration::applicationPathManager().getLocalWarehouseStoreDir())).WillByDefault(Return(true));
 
@@ -36,8 +36,9 @@ public:
         ON_CALL(*filesystemMock, exists(empty)).WillByDefault(Return(false));
         ON_CALL(*filesystemMock, exists(Ne(empty))).WillByDefault(Return(true));
 
-        m_replacer.replace(std::unique_ptr<Common::FileSystem::IFileSystem>(filesystemMock));
-        return *filesystemMock;
+        auto* borrowedPtr = filesystemMock.get();
+        m_replacer.replace(std::move(filesystemMock));
+        return *borrowedPtr;
     }
 
     Tests::ScopedReplaceFileSystem m_replacer;
@@ -651,89 +652,6 @@ TEST_F(ConfigurationDataTest, serializeDeserialize)
         ConfigurationData::fromJsonSettings(ConfigurationData::toJsonSettings(configurationData));
 
     EXPECT_PRED_FORMAT2(configurationDataIsEquivalent, configurationData, afterSerializer);
-}
-
-TEST_F(
-    ConfigurationDataTest,
-    settingsAreValidForV2)
-{
-    setupFileSystemAndGetMock();
-    auto configurationData = ConfigurationData::fromJsonSettings(createJsonString("", ""));
-    EXPECT_TRUE(configurationData.verifySettingsAreValid());
-
-    std::vector<UpdateSettings> all_invalid_cases;
-
-    auto noPrimarySubscriptionConfig(configurationData);
-    noPrimarySubscriptionConfig.setPrimarySubscription({});
-    all_invalid_cases.emplace_back(noPrimarySubscriptionConfig);
-
-    auto primaryWithRigidNameOnly(configurationData);
-    primaryWithRigidNameOnly.setPrimarySubscription({ "rigidname", "", "", "" });
-    all_invalid_cases.emplace_back(primaryWithRigidNameOnly);
-
-    auto primaryWithOutRigidName(configurationData);
-    primaryWithOutRigidName.setPrimarySubscription({ "", "baseversion", "RECOMMENDED", "None" });
-    all_invalid_cases.emplace_back(primaryWithOutRigidName);
-
-    auto primaryWithRigidNameAndBaseVersion(configurationData);
-    primaryWithRigidNameAndBaseVersion.setPrimarySubscription({ "rigidname", "baseversion", "", "" });
-    all_invalid_cases.emplace_back(primaryWithRigidNameAndBaseVersion);
-
-    auto productsWithRigidNameOnly(configurationData);
-    productsWithRigidNameOnly.setProductsSubscription(
-        { ProductSubscription("rigidname", "", "RECOMMENDED", ""), ProductSubscription("rigidname", "", "", "") });
-    all_invalid_cases.emplace_back(productsWithRigidNameOnly);
-
-    auto noCoreFeature(configurationData);
-    noCoreFeature.setFeatures({ "SAV", "MDR", "SENSOR" });
-    all_invalid_cases.emplace_back(noCoreFeature);
-
-    auto noFeatureSet(configurationData);
-    noFeatureSet.setFeatures({});
-    all_invalid_cases.emplace_back(noFeatureSet);
-
-    for (auto& configData : all_invalid_cases)
-    {
-        EXPECT_FALSE(configData.verifySettingsAreValid());
-    }
-
-    std::vector<UpdateSettings> all_valid_cases;
-    auto primaryWithTag(configurationData);
-    primaryWithTag.setPrimarySubscription({ "rigidname", "baseversion", "RECOMMENDED", "" });
-    all_valid_cases.emplace_back(primaryWithTag);
-
-    auto primaryWithoutBaseVersion(configurationData);
-    primaryWithoutBaseVersion.setPrimarySubscription({ "rigidname", "", "RECOMMENDED", "" });
-    all_valid_cases.emplace_back(primaryWithoutBaseVersion);
-
-    auto primaryWithTagAndFixedVersion(configurationData);
-    primaryWithTagAndFixedVersion.setPrimarySubscription({ "rigidname", "", "RECOMMENDED", "9.1" });
-    all_valid_cases.emplace_back(primaryWithTagAndFixedVersion);
-
-    auto primaryWithOnlyFixedVersion(configurationData);
-    primaryWithOnlyFixedVersion.setPrimarySubscription({ "rigidname", "", "", "9.1" });
-    all_valid_cases.emplace_back(primaryWithOnlyFixedVersion);
-
-    auto featuresContainCORE(configurationData);
-    featuresContainCORE.setFeatures({ { "CORE" }, { "MDR" } });
-    all_valid_cases.emplace_back(featuresContainCORE);
-
-    auto onlyCOREinFeatures(configurationData);
-    onlyCOREinFeatures.setFeatures({ { "CORE" } });
-    all_valid_cases.emplace_back(onlyCOREinFeatures);
-
-    auto moreThanOneProduct(configurationData);
-    moreThanOneProduct.setProductsSubscription({ { "p1", "", "RECOMMENDED", "" }, { "p2", "", "", "9.1" } });
-    all_valid_cases.emplace_back(moreThanOneProduct);
-
-    auto onlyPrimaryAvailable(configurationData);
-    onlyPrimaryAvailable.setProductsSubscription({});
-    all_valid_cases.emplace_back(onlyPrimaryAvailable);
-
-    for (auto& configData : all_valid_cases)
-    {
-        EXPECT_TRUE(configData.verifySettingsAreValid());
-    }
 }
 
 TEST_F(ConfigurationDataTest, configurationDataRetrievalShouldIgnoreUnknownFields)
