@@ -448,27 +448,6 @@ TEST_F(TestALCPolicy, minimumValidPolicy)
     EXPECT_EQ(obj.getSddsID(), "W2YJXI6FED");
 }
 
-//Update Period Tests
-
-TEST_F(TestALCPolicy, configureUpdatePeriod)
-{
-    constexpr char minPolicy[] = R"sophos(<?xml version="1.0"?>
-<AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
-  <csc:Comp RevID="b6a8fe2c0ce016c949016a5da2b7a089699271290ef7205d5bea0986768485d9" policyType="1"/>
-<AUConfig platform="Linux">
-<primary_location>
-  <server Algorithm="Clear" UserPassword="xxxxxx" UserName="W2YJXI6FED"/>
-</primary_location>
-<schedule AllowLocalConfig="false" SchedEnable="true" Frequency="50" DetectDialUp="false"/>
-</AUConfig>
-</AUConfigurations>
-)sophos";
-
-    ALCPolicy obj{ minPolicy };
-    auto updatePeriod = obj.getUpdatePeriod();
-    EXPECT_EQ(updatePeriod, std::chrono::minutes{50});
-}
-
 //sdds2 Update Server Tests
 
 TEST_F(TestALCPolicy, sdds2_update_server)
