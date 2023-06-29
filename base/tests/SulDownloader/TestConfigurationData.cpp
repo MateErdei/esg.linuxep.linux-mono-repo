@@ -66,7 +66,7 @@ public:
             return ::testing::AssertionFailure() << s.str() << "update urls differ";
         }
 
-        if (expected.getSophosLocationURLs() != resulted.getSophosLocationURLs())
+        if (expected.getLocalUpdateCacheHosts() != resulted.getLocalUpdateCacheHosts())
         {
             return ::testing::AssertionFailure() << s.str() << "update cache urls differ";
         }
