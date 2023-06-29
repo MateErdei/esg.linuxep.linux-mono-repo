@@ -51,91 +51,144 @@ namespace
     };
 }
 
-TEST_F(
-    TestUpdateSettings,
-    settingsAreValidForV2)
+TEST_F(TestUpdateSettings, constructionDoesNotThrow)
+{
+    EXPECT_NO_THROW(UpdateSettings settings);
+}
+
+TEST_F(TestUpdateSettings, initialSettingsAreInvalid)
+{
+    UpdateSettings settings;
+    EXPECT_FALSE(settings.verifySettingsAreValid());
+}
+
+TEST_F(TestUpdateSettings, validSettingsAreValid)
 {
     setupFileSystemAndGetMock();
     UpdateSettings validSettings = getValidUpdateSettings();
-    bool verify = validSettings.verifySettingsAreValid();
-    if (!verify)
-    {
-        std::this_thread::sleep_for(std::chrono::milliseconds{ 200 });
-        ASSERT_TRUE(verify);
-    }
+    EXPECT_TRUE(validSettings.verifySettingsAreValid());
+}
 
-    std::vector<UpdateSettings> all_invalid_cases;
+TEST_F(TestUpdateSettings, emptyPrimarySubscriptionIsInvalid)
+{
+    setupFileSystemAndGetMock();
+    UpdateSettings settings = getValidUpdateSettings();
+    settings.setPrimarySubscription({});
+    EXPECT_FALSE(settings.verifySettingsAreValid());
+}
 
-    auto noPrimarySubscriptionConfig(validSettings);
-    noPrimarySubscriptionConfig.setPrimarySubscription({});
-    all_invalid_cases.emplace_back(noPrimarySubscriptionConfig);
+TEST_F(TestUpdateSettings, rigidNameOnlyPrimarySubscriptionIsInvalid)
+{
+    setupFileSystemAndGetMock();
+    UpdateSettings settings = getValidUpdateSettings();
+    settings.setPrimarySubscription({ "rigidname", "", "", "" });
+    EXPECT_FALSE(settings.verifySettingsAreValid());
+}
 
-    auto primaryWithRigidNameOnly(validSettings);
-    primaryWithRigidNameOnly.setPrimarySubscription({ "rigidname", "", "", "" });
-    all_invalid_cases.emplace_back(primaryWithRigidNameOnly);
+TEST_F(TestUpdateSettings, PrimarySubscriptionWithoutRigidNameIsInvalid)
+{
+    setupFileSystemAndGetMock();
+    UpdateSettings settings = getValidUpdateSettings();
+    settings.setPrimarySubscription({ "", "baseversion", "RECOMMENDED", "None" });
+    EXPECT_FALSE(settings.verifySettingsAreValid());
+}
 
-    auto primaryWithOutRigidName(validSettings);
-    primaryWithOutRigidName.setPrimarySubscription({ "", "baseversion", "RECOMMENDED", "None" });
-    all_invalid_cases.emplace_back(primaryWithOutRigidName);
+TEST_F(TestUpdateSettings, PrimarySubscriptionWithoutTagOrFixedIsInvalid)
+{
+    setupFileSystemAndGetMock();
+    UpdateSettings settings = getValidUpdateSettings();
+    settings.setPrimarySubscription({ "rigidname", "baseversion", "", "" });
+    EXPECT_FALSE(settings.verifySettingsAreValid());
+}
 
-    auto primaryWithRigidNameAndBaseVersion(validSettings);
-    primaryWithRigidNameAndBaseVersion.setPrimarySubscription({ "rigidname", "baseversion", "", "" });
-    all_invalid_cases.emplace_back(primaryWithRigidNameAndBaseVersion);
+TEST_F(TestUpdateSettings, ProductWithoutTagOrFixedIsInvalid)
+{
+    setupFileSystemAndGetMock();
+    UpdateSettings settings = getValidUpdateSettings();
+    settings.setProductsSubscription(
+        { ProductSubscription("rigidname", "", "RECOMMENDED", ""),
+          ProductSubscription("rigidname", "", "", "")
+        });
+    EXPECT_FALSE(settings.verifySettingsAreValid());
+}
 
-    auto productsWithRigidNameOnly(validSettings);
-    productsWithRigidNameOnly.setProductsSubscription(
-        { ProductSubscription("rigidname", "", "RECOMMENDED", ""), ProductSubscription("rigidname", "", "", "") });
-    all_invalid_cases.emplace_back(productsWithRigidNameOnly);
+TEST_F(TestUpdateSettings, NoFeaturesIsInvalid)
+{
+    setupFileSystemAndGetMock();
+    UpdateSettings settings = getValidUpdateSettings();
+    settings.setFeatures({});
+    EXPECT_FALSE(settings.verifySettingsAreValid());
+}
 
-    auto noCoreFeature(validSettings);
-    noCoreFeature.setFeatures({ "SAV", "MDR", "SENSOR" });
-    all_invalid_cases.emplace_back(noCoreFeature);
+TEST_F(TestUpdateSettings, MissingCoreFeatureIsInvalid)
+{
+    setupFileSystemAndGetMock();
+    UpdateSettings settings = getValidUpdateSettings();
+    settings.setFeatures({ "SAV", "MDR", "SENSOR" });
+    EXPECT_FALSE(settings.verifySettingsAreValid());
+}
 
-    auto noFeatureSet(validSettings);
-    noFeatureSet.setFeatures({});
-    all_invalid_cases.emplace_back(noFeatureSet);
+TEST_F(TestUpdateSettings, PrimaryWithTagIsValid)
+{
+    setupFileSystemAndGetMock();
+    UpdateSettings settings = getValidUpdateSettings();
+    settings.setPrimarySubscription({ "rigidname", "baseversion", "RECOMMENDED", "" });
+    EXPECT_TRUE(settings.verifySettingsAreValid());
+}
 
-    for (auto& configData : all_invalid_cases)
-    {
-        EXPECT_FALSE(configData.verifySettingsAreValid());
-    }
+TEST_F(TestUpdateSettings, PrimaryWithoutBaseVersionIsValid)
+{
+    setupFileSystemAndGetMock();
+    UpdateSettings settings = getValidUpdateSettings();
+    settings.setPrimarySubscription({ "rigidname", "", "RECOMMENDED", "" });
+    EXPECT_TRUE(settings.verifySettingsAreValid());
+}
 
-    std::vector<UpdateSettings> all_valid_cases;
-    auto primaryWithTag(validSettings);
-    primaryWithTag.setPrimarySubscription({ "rigidname", "baseversion", "RECOMMENDED", "" });
-    all_valid_cases.emplace_back(primaryWithTag);
+TEST_F(TestUpdateSettings, PrimaryWithTagAndFixedVersionIsValid)
+{
+    setupFileSystemAndGetMock();
+    UpdateSettings settings = getValidUpdateSettings();
+    settings.setPrimarySubscription({ "rigidname", "", "RECOMMENDED", "9.1" });
+    EXPECT_TRUE(settings.verifySettingsAreValid());
+}
 
-    auto primaryWithoutBaseVersion(validSettings);
-    primaryWithoutBaseVersion.setPrimarySubscription({ "rigidname", "", "RECOMMENDED", "" });
-    all_valid_cases.emplace_back(primaryWithoutBaseVersion);
+TEST_F(TestUpdateSettings, PrimaryWithOnlyFixedVersionIsValid)
+{
+    setupFileSystemAndGetMock();
+    UpdateSettings settings = getValidUpdateSettings();
+    settings.setPrimarySubscription({ "rigidname", "", "", "9.1" });
+    EXPECT_TRUE(settings.verifySettingsAreValid());
+}
 
-    auto primaryWithTagAndFixedVersion(validSettings);
-    primaryWithTagAndFixedVersion.setPrimarySubscription({ "rigidname", "", "RECOMMENDED", "9.1" });
-    all_valid_cases.emplace_back(primaryWithTagAndFixedVersion);
+TEST_F(TestUpdateSettings, FeatureListIncludingCoreIsValid)
+{
+    setupFileSystemAndGetMock();
+    UpdateSettings settings = getValidUpdateSettings();
+    settings.setFeatures({ "CORE", "MDR" });
+    EXPECT_TRUE(settings.verifySettingsAreValid());
+}
 
-    auto primaryWithOnlyFixedVersion(validSettings);
-    primaryWithOnlyFixedVersion.setPrimarySubscription({ "rigidname", "", "", "9.1" });
-    all_valid_cases.emplace_back(primaryWithOnlyFixedVersion);
+TEST_F(TestUpdateSettings, FeatureListOnlyCoreIsValid)
+{
+    setupFileSystemAndGetMock();
+    UpdateSettings settings = getValidUpdateSettings();
+    settings.setFeatures({ "CORE" });
+    EXPECT_TRUE(settings.verifySettingsAreValid());
+}
 
-    auto featuresContainCORE(validSettings);
-    featuresContainCORE.setFeatures({ { "CORE" }, { "MDR" } });
-    all_valid_cases.emplace_back(featuresContainCORE);
+TEST_F(TestUpdateSettings, MultipleProductSubscriptionIsValid)
+{
+    setupFileSystemAndGetMock();
+    UpdateSettings settings = getValidUpdateSettings();
+    settings.setProductsSubscription({ { "p1", "", "RECOMMENDED", "" }, { "p2", "", "", "9.1" } });
+    EXPECT_TRUE(settings.verifySettingsAreValid());
+}
 
-    auto onlyCOREinFeatures(validSettings);
-    onlyCOREinFeatures.setFeatures({ { "CORE" } });
-    all_valid_cases.emplace_back(onlyCOREinFeatures);
-
-    auto moreThanOneProduct(validSettings);
-    moreThanOneProduct.setProductsSubscription({ { "p1", "", "RECOMMENDED", "" }, { "p2", "", "", "9.1" } });
-    all_valid_cases.emplace_back(moreThanOneProduct);
-
-    auto onlyPrimaryAvailable(validSettings);
-    onlyPrimaryAvailable.setProductsSubscription({});
-    all_valid_cases.emplace_back(onlyPrimaryAvailable);
-
-    for (auto& configData : all_valid_cases)
-    {
-        EXPECT_TRUE(configData.verifySettingsAreValid());
-    }
+TEST_F(TestUpdateSettings, OnlyPrimaryProductSubscriptionIsValid)
+{
+    setupFileSystemAndGetMock();
+    UpdateSettings settings = getValidUpdateSettings();
+    settings.setProductsSubscription({});
+    EXPECT_TRUE(settings.verifySettingsAreValid());
 }
 
