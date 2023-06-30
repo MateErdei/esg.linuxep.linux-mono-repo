@@ -61,7 +61,7 @@ Overwrite MCS Flags File
 
 Stop Update Scheduler
     ${wdctl} =   Set Variable  ${SOPHOS_INSTALL}/bin/wdctl
-    ${result} =    Run Process    ${wdctl}    stop  updatescheduler
+    ${result} =    Run Process    ${wdctl}  stop  updatescheduler
     Should Be Equal As Integers  ${result.rc}  0  msg="Failed to stop update scheduler ${result.stdout} ${result.stderr}"
     Sleep  1 second
 

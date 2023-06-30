@@ -60,7 +60,6 @@ Upgrade Resources Test Teardown
     Cleanup Local Warehouse And Thininstaller
     Require Uninstalled
     Cleanup Temporary Folders
-    Require Uninstalled
 
 Upgrade Resources Suite Setup
     Set Suite Variable    ${GL_handle}       ${EMPTY}

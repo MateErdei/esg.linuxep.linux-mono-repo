@@ -33,17 +33,14 @@ Sul Downloader Installs does Force reinstall
     Log File    ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json
 
     Register With Local Cloud Server
-    Wait Until Keyword Succeeds
-      ...  10 secs
-      ...  1 secs
-      ...  File Should Exist  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-mcs.json
+    Wait Until Created    ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-mcs.json  timeout=10 secs
     Create Local SDDS3 Override
     Trigger Update Now
     Wait Until Keyword Succeeds
     ...    60s
     ...    5s
-    ...    Check SulDownloader Log Contains  Update success
-    Check SulDownloader Log Contains  Triggering a force reinstall
+    ...    SchedulerUpdateResources.Check SulDownloader Log Contains  Update success
+    SchedulerUpdateResources.Check SulDownloader Log Contains  Triggering a force reinstall
 
 Sul Downloader Installs does not Force reinstall when there is a marker file
     Start Local Cloud Server  --initial-alc-policy  ${SUPPORT_FILES}/CentralXml/ALC_policy_direct_just_base.xml    --initial-flags  ${SUPPORT_FILES}/CentralXml/FLAGS_forceUpdateFlags.json
@@ -57,16 +54,13 @@ Sul Downloader Installs does not Force reinstall when there is a marker file
     Create File    ${SOPHOS_INSTALL}/base/update/var/updatescheduler/update_forced_marker
 
     Register With Local Cloud Server
-    Wait Until Keyword Succeeds
-      ...  10 secs
-      ...  1 secs
-      ...  File Should Exist  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-mcs.json
+    Wait Until Created    ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-mcs.json  timeout=10 secs
     Create Local SDDS3 Override
     Trigger Update Now
     Wait Until Keyword Succeeds
     ...    60s
     ...    5s
-    ...    Check SulDownloader Log Contains  Update success
+    ...    SchedulerUpdateResources.Check SulDownloader Log Contains  Update success
     Check Sul Downloader log does not contain  Triggering a force reinstall
 
 Sul Downloader Installs does Force reinstall for pause Updates
@@ -79,17 +73,14 @@ Sul Downloader Installs does Force reinstall for pause Updates
     Create File  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json    {"sdds3.force-paused-update":"true"}
     Run Process  chown  root:sophos-spl-group  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json
     Register With Local Cloud Server
-    Wait Until Keyword Succeeds
-      ...  10 secs
-      ...  1 secs
-      ...  File Should Exist  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-mcs.json
+    Wait Until Created    ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-mcs.json  timeout=10 secs
     Create Local SDDS3 Override
     Trigger Update Now
     Wait Until Keyword Succeeds
     ...    60s
     ...    5s
-    ...    Check SulDownloader Log Contains  Update success
-    Check SulDownloader Log Contains  Triggering a force reinstall
+    ...    SchedulerUpdateResources.Check SulDownloader Log Contains  Update success
+    SchedulerUpdateResources.Check SulDownloader Log Contains  Triggering a force reinstall
 
 Sul Downloader Installs does not Force reinstall when there is a marker file for pause update
     Start Local Cloud Server  --initial-alc-policy  ${SUPPORT_FILES}/CentralXml/ALC_FixedVersionPolicySDDS3BaseOnly.xml    --initial-flags  ${SUPPORT_FILES}/CentralXml/FLAGS_forceUpdateFlags.json
@@ -102,16 +93,13 @@ Sul Downloader Installs does not Force reinstall when there is a marker file for
     Create File  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json  {"sdds3.force-paused-update":"true"}
     Run Process  chown  root:sophos-spl-group  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-warehouse.json
     Register With Local Cloud Server
-    Wait Until Keyword Succeeds
-      ...  10 secs
-      ...  1 secs
-      ...  File Should Exist  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-mcs.json
+    Wait Until Created    ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-mcs.json  timeout=10 secs
     Create Local SDDS3 Override
     Trigger Update Now
     Wait Until Keyword Succeeds
     ...    60s
     ...    5s
-    ...    Check SulDownloader Log Contains  Update success
+    ...    SchedulerUpdateResources.Check SulDownloader Log Contains  Update success
     Check Sul Downloader log does not contain  Triggering a force reinstall
 
 Sul Downloader Installs does not Force reinstall when there is a scheduled update for paused
@@ -124,10 +112,7 @@ Sul Downloader Installs does not Force reinstall when there is a scheduled updat
     Create File    ${MCS_DIR}/certs/ca_env_override_flag
 
     Register With Local Cloud Server
-    Wait Until Keyword Succeeds
-      ...  10 secs
-      ...  1 secs
-      ...  File Should Exist  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-mcs.json
+    Wait Until Created    ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-mcs.json  timeout=10 secs
     Create Local SDDS3 Override
     Trigger Update Now
     Wait Until Keyword Succeeds
@@ -152,10 +137,9 @@ Sul Downloader Installs does not Force reinstall when there is a scheduled updat
     ${NewPolicyXml} =  Replace String  ${NewPolicyXml}  Frequency="40"  Frequency="7"
     Create File  ${SOPHOS_INSTALL}/tmp/ALC_policy_scheduled_update.xml  ${NewPolicyXml}
     Log File  ${SOPHOS_INSTALL}/tmp/ALC_policy_scheduled_update.xml
-    Send Policy File  alc    ${SOPHOS_INSTALL}/tmp/ALC_policy_scheduled_update.xml
-    ${ups_mark} =  mark_log_size  ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log
-    Send Policy File  alc    ${SOPHOS_INSTALL}/tmp/ALC_policy_scheduled_update.xml
-    wait_for_log_contains_from_mark  ${ups_mark}  Scheduling product updates for   15
+
+    Stop Update Scheduler
+
     create File     ${SOPHOS_INSTALL}/base/update/var/updatescheduler/supplement_only.marker
     Run Process  systemctl  start  sophos-spl-update
 
@@ -172,7 +156,7 @@ Sul Downloader Installs does not Force reinstall when there is a scheduled updat
     ...    60s
     ...    5s
     ...    Check SulDownloader Log Contains String N Times   Update success  3
-    Check SulDownloader Log Contains  Triggering a force reinstall
+    SchedulerUpdateResources.Check SulDownloader Log Contains  Triggering a force reinstall
 
 Sul Downloader Installs does not Force reinstall when there is a scheduled update for non paused
     Start Local Cloud Server  --initial-alc-policy  ${SUPPORT_FILES}/CentralXml/ALC_policy_direct_just_base.xml    --initial-flags  ${SUPPORT_FILES}/CentralXml/FLAGS_forceUpdateFlags.json
@@ -183,10 +167,7 @@ Sul Downloader Installs does not Force reinstall when there is a scheduled updat
     Create File    ${MCS_DIR}/certs/ca_env_override_flag
 
     Register With Local Cloud Server
-    Wait Until Keyword Succeeds
-      ...  10 secs
-      ...  1 secs
-      ...  File Should Exist  ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-mcs.json
+    Wait Until Created    ${SOPHOS_INSTALL}/base/etc/sophosspl/flags-mcs.json  timeout=10 secs
     Create Local SDDS3 Override
     Trigger Update Now
     Wait Until Keyword Succeeds
@@ -212,9 +193,7 @@ Sul Downloader Installs does not Force reinstall when there is a scheduled updat
     Create File  ${SOPHOS_INSTALL}/tmp/ALC_policy_scheduled_update.xml  ${NewPolicyXml}
     Log File  ${SOPHOS_INSTALL}/tmp/ALC_policy_scheduled_update.xml
 
-    ${ups_mark} =  mark_log_size  ${SOPHOS_INSTALL}/logs/base/sophosspl/updatescheduler.log
-    Send Policy File  alc    ${SOPHOS_INSTALL}/tmp/ALC_policy_scheduled_update.xml
-    wait_for_log_contains_from_mark  ${ups_mark}  Scheduling product updates for   15
+    Stop Update Scheduler
 
     create File     ${SOPHOS_INSTALL}/base/update/var/updatescheduler/supplement_only.marker
     Run Process  systemctl  start  sophos-spl-update
@@ -231,5 +210,6 @@ Sul Downloader Installs does not Force reinstall when there is a scheduled updat
     ...    60s
     ...    5s
     ...    Check SulDownloader Log Contains String N Times   Update success  3
-    Check SulDownloader Log Contains  Triggering a force reinstall
+    SchedulerUpdateResources.Check SulDownloader Log Contains  Triggering a force reinstall
+
 
