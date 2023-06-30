@@ -296,41 +296,6 @@ wFkMtR8hrPVLP0hcHuzWN2cBmrl0C6TeKufqbZBqb/MPn2LWzKcvF44xs3k7uP/H
 JWfkv6Tu5jsYGNkN3BSW0x/qjwz7XCSk2ZZxbCgZSq6LpB31sqZctnUxrYSpcdc=
 -----END CERTIFICATE-----)sophos" };
 
-// NOLINTNEXTLINE(cert-err58-cpp)
-static const std::string mdrSSPLBasePolicy{ R"sophos(<?xml version="1.0"?>
-<AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
-  <csc:Comp RevID="6d95c7ad1c25b034c94bea54fad38711e3f5057157c3468a8aafe3885f213802" policyType="1"/>
-  <AUConfig platform="Linux">
-    <sophos_address address="http://es-web.sophos.com/update"/>
-    <primary_location>
-      <server BandwidthLimit="256" AutoDial="false" Algorithm="Clear" UserPassword="password" UserName="CSP190408113225" UseSophos="true" UseHttps="true" UseDelta="true" ConnectionAddress="" AllowLocalConfig="false"/>
-      <proxy ProxyType="0" ProxyUserPassword="" ProxyUserName="" ProxyPortNumber="0" ProxyAddress="" AllowLocalConfig="false"/>
-    </primary_location>
-    <secondary_location>
-      <server BandwidthLimit="256" AutoDial="false" Algorithm="" UserPassword="" UserName="" UseSophos="false" UseHttps="true" UseDelta="true" ConnectionAddress="" AllowLocalConfig="false"/>
-      <proxy ProxyType="0" ProxyUserPassword="" ProxyUserName="" ProxyPortNumber="0" ProxyAddress="" AllowLocalConfig="false"/>
-    </secondary_location>
-    <schedule AllowLocalConfig="false" SchedEnable="true" Frequency="60" DetectDialUp="false"/>
-    <logging AllowLocalConfig="false" LogLevel="50" LogEnable="true" MaxLogFileSize="1"/>
-    <bootstrap Location="" UsePrimaryServerAddress="true"/>
-    <cloud_subscription RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/>
-    <cloud_subscriptions>
-      <subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED"/>
-      <subscription Id="MDR" RigidName="ServerProtectionLinux-Plugin-MDR" Tag="RECOMMENDED"/>
-    </cloud_subscriptions>
-    <delay_updating Day="Wednesday" Time="11:00:00"/>
-    <delay_supplements enabled="true"/>
-  </AUConfig>
-  <Features>
-    <Feature id="CORE"/>
-    <Feature id="SDU"/>
-    <Feature id="MDR"/>
-  </Features>
-  <intelligent_updating Enabled="false" SubscriptionPolicy="2DD71664-8D18-42C5-B3A0-FF0D289265BF"/>
-  <customer id="8dd8c9f3-a9a1-84e2-49d8-f9320a76298e"/>
-</AUConfigurations>
-)sophos" };
-
 namespace
 {
     class TestALCPolicy : public MemoryAppenderUsingTests
