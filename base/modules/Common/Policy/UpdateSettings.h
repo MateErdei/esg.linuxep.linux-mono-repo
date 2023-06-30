@@ -342,7 +342,6 @@ namespace Common::Policy
 
     protected:
         UpdateCacheHosts_t localUpdateCacheHosts_;
-        std::string esmVersionToken_;
         ProductSubscription primarySubscription_;
         std::vector<ProductSubscription> productSubscriptions_;
         url_list_t sophosLocationURLs_;
@@ -352,6 +351,7 @@ namespace Common::Policy
         std::vector<std::string> optionalManifestNames_;
         Proxy policyProxy_;
         Credentials credentials_;
+        std::string esmVersionToken_;
         std::string jwToken_;
         std::string tenantId_;
         std::string deviceId_;
