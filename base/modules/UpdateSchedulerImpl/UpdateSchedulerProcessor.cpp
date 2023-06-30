@@ -253,7 +253,8 @@ namespace UpdateSchedulerImpl
     {
         try
         {
-            if (m_currentPolicies.at(appId) == policyXml)
+            // If the update config file is missing we still need to reprocess a duplicate policy in order to regenerate it
+            if (m_currentPolicies.at(appId) == policyXml && Common::FileSystem::fileSystem()->isFile(m_configfilePath))
             {
                 LOGDEBUG("Policy with app id " << appId << " unchanged, will not be processed");
                 return;
