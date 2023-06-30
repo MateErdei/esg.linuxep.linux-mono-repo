@@ -6,7 +6,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include "Common/FileSystem/IFilePermissions.h"
+#include "modules/Common/FileSystem/IFilePermissions.h"
 
 #include <mutex>
 

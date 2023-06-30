@@ -1,11 +1,15 @@
-// Copyright 2021-2023 Sophos Limited. All rights reserved.
+/******************************************************************************************************
+
+Copyright 2021, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
 #include "PluginLoggingSetupEx.h"
 
 #include "FileLoggingSetupEx.h"
 #include "LoggerConfig.h"
 
-#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
-#include "Common/FileSystem/IFileSystem.h"
+#include "modules/Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include "modules/Common/FileSystem/IFileSystem.h"
 #include <log4cplus/logger.h>
 
 Common::Logging::PluginLoggingSetupEx::PluginLoggingSetupEx(

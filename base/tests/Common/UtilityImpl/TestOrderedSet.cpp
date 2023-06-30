@@ -1,6 +1,10 @@
-// Copyright 2019-2023 Sophos Limited. All rights reserved.
+/******************************************************************************************************
 
-#include "Common/UtilityImpl/OrderedSet.h"
+Copyright 2019, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
+
+#include "modules/Common/UtilityImpl/OrderedSet.h"
 #include <gtest/gtest.h>
 
 using namespace Common::UtilityImpl;

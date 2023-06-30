@@ -1,15 +1,14 @@
 load("//tools/config:soph_rules.bzl", "soph_cc_library")
 
 soph_cc_library(
-    name = "FileSystem",
+    name = "SystemCallWrapper",
+    srcs = glob(["*.cpp"]),
     hdrs = glob(["*.h"]),
     visibility = [
         "//modules:__subpackages__",
         "//tests:__subpackages__",
     ],
     deps = [
-        "//modules/Common/Exceptions",
-        "//modules/Common/SslImpl",
         "@libcap//:libcap_shared",
     ],
 )

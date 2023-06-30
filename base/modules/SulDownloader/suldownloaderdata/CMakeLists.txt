@@ -38,6 +38,7 @@ add_library(suldownloaderdataobject OBJECT
         )
 
 target_include_directories(suldownloaderdataobject PUBLIC
+        ${CMAKE_SOURCE_DIR}
         ${PROJECT_SOURCE_DIR}/modules
         ${LOG4CPLUS_INCLUDE_DIR}
         ${NLOHMANN_JSON_INCLUDE_DIR}

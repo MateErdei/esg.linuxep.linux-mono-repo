@@ -2,9 +2,8 @@
 
 #include "ApplicationPathManager.h"
 
-#include "IApplicationConfiguration.h"
-
-#include "Common/FileSystem/IFileSystem.h"
+#include "modules/Common/ApplicationConfiguration/IApplicationConfiguration.h"
+#include "modules/Common/FileSystem/IFileSystem.h"
 
 #include <stdexcept>
 

@@ -1,17 +1,19 @@
-// Copyright 2021-2023 Sophos Limited. All rights reserved.
+/******************************************************************************************************
+
+Copyright 2021, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
 #include "FileLoggingSetupEx.h"
 
 #include "LoggerConfig.h"
 
-#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
-#include "Common/FileSystem/IFileSystem.h"
-#include "Common/Logging/LoggingSetup.h"
-#include "Common/UtilityImpl/StringUtils.h"
+#include "modules/Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include "modules/Common/FileSystem/IFileSystem.h"
+#include "modules/Common/Logging/LoggingSetup.h"
+#include "modules/Common/UtilityImpl/StringUtils.h"
 #include <log4cplus/configurator.h>
-#include <log4cplus/consoleappender.h>
 #include <log4cplus/fileappender.h>
 #include <log4cplus/logger.h>
-#include <log4cplus/loggingmacros.h>
 
 Common::Logging::FileLoggingSetupEx::FileLoggingSetupEx(const std::string& logbase, bool lowpriv)
 {

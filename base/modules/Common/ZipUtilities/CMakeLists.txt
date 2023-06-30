@@ -8,7 +8,7 @@ add_library(ziputiltiesobject OBJECT
         ZipUtils.h
         $<TARGET_OBJECTS:filesystemimplobject>)
 
-target_include_directories(ziputiltiesobject PUBLIC ${LOG4CPLUS_INCLUDE_DIR})
+target_include_directories(ziputiltiesobject PUBLIC ${CMAKE_SOURCE_DIR} ${LOG4CPLUS_INCLUDE_DIR})
 target_link_libraries(ziputiltiesobject PUBLIC minizip)
 add_library(ziputilities SHARED $<TARGET_OBJECTS:ziputiltiesobject>)
 target_link_libraries(ziputilities PUBLIC

@@ -8,7 +8,7 @@ add_library(applicationconfigurationimplobject OBJECT
         ../PluginApi/ApiException.h
         )
 
-target_include_directories(applicationconfigurationimplobject PUBLIC ../ApplicationConfiguration ../../Common)
+target_include_directories(applicationconfigurationimplobject PUBLIC ${CMAKE_SOURCE_DIR} ../ApplicationConfiguration ../../Common)
 add_library(applicationconfigurationimpl SHARED $<TARGET_OBJECTS:applicationconfigurationimplobject>)
 
 install(TARGETS applicationconfigurationimpl

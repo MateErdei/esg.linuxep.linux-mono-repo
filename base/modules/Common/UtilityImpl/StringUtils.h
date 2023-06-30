@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "Common/FileSystem/IFileSystem.h"
+#include "modules/Common/FileSystem/IFileSystem.h"
 
 #include <algorithm>
 #include <cstring>
@@ -87,13 +87,6 @@ namespace Common
                 result += pattern.substr(beginPos);
 
                 return result;
-            }
-
-            static bool isPositiveInteger(const std::string& number)
-            {
-                return !number.empty() &&
-                       std::find_if(number.cbegin(), number.cend(), [](unsigned char c) { return !std::isdigit(c); }) ==
-                           number.cend();
             }
 
             static std::vector<std::string> splitString(const std::string& originalstring, const std::string& separator)

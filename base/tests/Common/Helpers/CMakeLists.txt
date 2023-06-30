@@ -36,7 +36,7 @@ add_library(testhelpersobject OBJECT
         TestSpecificDirectory.h
         )
 
-target_include_directories(testhelpersobject SYSTEM BEFORE PUBLIC ${GMOCK_INCLUDE} ${GTEST_INCLUDE})
+target_include_directories(testhelpersobject SYSTEM BEFORE PUBLIC ${CMAKE_SOURCE_DIR} ${GMOCK_INCLUDE} ${GTEST_INCLUDE})
 target_link_libraries(testhelpersobject INTERFACE ${GTEST_LIBRARY} ${LOG4CPLUS_LIBRARY} filesystemimpl logging)
 
 add_library(testhelpers SHARED)

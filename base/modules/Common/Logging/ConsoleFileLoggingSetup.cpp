@@ -1,21 +1,21 @@
-// Copyright 2019-2023 Sophos Limited. All rights reserved.
+/******************************************************************************************************
+
+Copyright 2019, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
 #include "ConsoleFileLoggingSetup.h"
 
 #include "LoggerConfig.h"
 #include "LoggingSetup.h"
 
-#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
-#include "Common/ApplicationConfigurationImpl/ApplicationPathManager.h"
-#include "Common/FileSystem/IFileSystem.h"
-#include "Common/Logging/LoggingSetup.h"
-#include "Common/UtilityImpl/StringUtils.h"
+#include "modules/Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include "modules/Common/FileSystem/IFileSystem.h"
+#include "modules/Common/UtilityImpl/StringUtils.h"
 #include <log4cplus/configurator.h>
 #include <log4cplus/consoleappender.h>
 #include <log4cplus/fileappender.h>
 #include <log4cplus/logger.h>
-#include <log4cplus/loggingmacros.h>
 
-using namespace Common::ApplicationConfigurationImpl;
 using namespace Common::ApplicationConfiguration;
 
 Common::Logging::ConsoleFileLoggingSetup::ConsoleFileLoggingSetup(const std::string& logbase, bool lowpriv)

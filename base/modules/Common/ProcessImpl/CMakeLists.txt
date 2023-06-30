@@ -10,7 +10,7 @@ add_library(processimplobject OBJECT
         IProcessHolder.h
         BoostProcessHolder.cpp
         BoostProcessHolder.h)
-target_include_directories(processimplobject PUBLIC ../Process ../../Common ${LOG4CPLUS_INCLUDE_DIR} ${BOOST_INCLUDE_DIR})
+target_include_directories(processimplobject PUBLIC ${CMAKE_SOURCE_DIR} ../Process ../../Common ${LOG4CPLUS_INCLUDE_DIR} ${BOOST_INCLUDE_DIR})
 add_library(processimpl SHARED $<TARGET_OBJECTS:processimplobject>)
 
 target_include_directories(processimpl PUBLIC ../Process ../../Common ${LOG4CPLUS_INCLUDE_DIR})

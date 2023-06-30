@@ -1,0 +1,14 @@
+load("//tools/config:soph_rules.bzl", "soph_cc_library")
+
+soph_cc_library(
+    name = "SslImpl",
+    srcs = glob(["*.cpp"]),
+    hdrs = glob(["*.h"]),
+    visibility = [
+        "//modules/Common/FileSystem:__pkg__",
+        "//modules/Common/UtilityImpl:__pkg__",
+    ],
+    deps = [
+        "@openssl_linux//:openssl",
+    ],
+)

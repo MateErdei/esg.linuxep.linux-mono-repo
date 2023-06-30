@@ -2,9 +2,9 @@
 
 #include "LoggerConfig.h"
 
-#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
-#include "Common/UtilityImpl/StrError.h"
-#include "Common/FileSystem/IFileSystem.h"
+#include "modules/Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include "modules/Common/UtilityImpl/StrError.h"
+#include "modules/Common/FileSystem/IFileSystem.h"
 #include <boost/property_tree/ini_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <log4cplus/loggingmacros.h>
@@ -94,6 +94,7 @@ void Common::Logging::applyGeneralConfig(const std::string& logbase)
     log4cplus::LogLevel logLevel{ SophosLogLevel::INFO }; // default value
     if (logbase == LOGFORTEST())
     {
+        logLevel = SophosLogLevel::DEBUG;
         LoggerSophosSettings::InTestMode = true;
     }
     if (logbase == LOGOFFFORTEST())

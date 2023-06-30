@@ -35,7 +35,7 @@
         <!-- Release build -->
         <command mode="bazel_release">
             <program>sed</program>
-            <args>-i 's/\r$//' tools/aspects/wrapper.sh</args>
+            <args>-i \'s/\\r//\' tools/aspects/wrapper.sh</args>
             <workingdir>.</workingdir>
         </command>
         <command mode="bazel_release">
@@ -45,7 +45,7 @@
         </command>
         <command mode="bazel_release">
             <program>bazel</program>
-            <args>build --config linux_x64_rel //...</args>
+            <args>test --config linux_x64_rel //...</args>
             <workingdir>.</workingdir>
         </command>
 

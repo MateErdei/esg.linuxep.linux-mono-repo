@@ -1,25 +1,115 @@
 load("//tools/config:soph_rules.bzl", "soph_cc_library")
+load("//tools/config:expand_template.bzl", "expand_template")
+load("//modules:common_substitutions.bzl", "COMMON_SUBSTITUTIONS")
 
 soph_cc_library(
-    name = "regex_utilities",
-    srcs = [
-        "RegexUtilities.cpp",
-    ],
-    hdrs = [
-        "RegexUtilities.h",
-    ],
+    name = "RegexUtilities",
+    srcs = ["RegexUtilities.cpp"],
+    hdrs = ["RegexUtilities.h"],
     visibility = [
+        "//modules:__subpackages__",
         "//tests:__subpackages__",
     ],
 )
 
 soph_cc_library(
-    name = "time_utils",
-    srcs = [
-        "TimeUtils.cpp",
-        "TimeUtils.h",
-    ],
+    name = "TimeUtils",
+    srcs = ["TimeUtils.cpp"],
+    hdrs = ["TimeUtils.h"],
     visibility = [
+        "//modules:__subpackages__",
+        "//tests:__subpackages__",
+    ],
+)
+
+expand_template(
+    name = "ProjectNames_expand_template",
+    out = "ProjectNames.cpp",
+    substitutions = COMMON_SUBSTITUTIONS,
+    template = "ProjectNames.cpp.in",
+)
+
+soph_cc_library(
+    name = "ProjectNames",
+    srcs = ["ProjectNames.cpp"],
+    hdrs = ["ProjectNames.h"],
+    visibility = [
+        "//modules:__subpackages__",
+        "//tests:__subpackages__",
+    ],
+)
+
+soph_cc_library(
+    name = "StrError",
+    srcs = ["StrError.cpp"],
+    hdrs = ["StrError.h"],
+    visibility = [
+        "//modules:__subpackages__",
+        "//tests:__subpackages__",
+    ],
+)
+
+soph_cc_library(
+    name = "UniformIntDistribution",
+    srcs = ["UniformIntDistribution.cpp"],
+    hdrs = ["UniformIntDistribution.h"],
+    visibility = [
+        "//modules:__subpackages__",
+        "//tests:__subpackages__",
+    ],
+)
+
+soph_cc_library(
+    name = "OrderedSet",
+    hdrs = ["OrderedSet.h"],
+    visibility = [
+        "//modules:__subpackages__",
+        "//tests:__subpackages__",
+    ],
+)
+
+soph_cc_library(
+    name = "StringUtils",
+    srcs = ["StringUtils.cpp"],
+    hdrs = ["StringUtils.h"],
+    visibility = [
+        "//modules:__subpackages__",
+        "//tests:__subpackages__",
+    ],
+    deps = [
+        "//modules/Common/FileSystemImpl",
+    ],
+)
+
+soph_cc_library(
+    name = "Uuid",
+    srcs = ["Uuid.cpp"],
+    hdrs = ["Uuid.h"],
+    visibility = [
+        "//modules:__subpackages__",
+        "//tests:__subpackages__",
+    ],
+    deps = [
+        "//modules/Common/SslImpl",
+    ],
+)
+
+soph_cc_library(
+    name = "VectorAsSet",
+    srcs = ["VectorAsSet.cpp"],
+    hdrs = ["VectorAsSet.h"],
+    visibility = [
+        "//modules:__subpackages__",
+        "//tests:__subpackages__",
+    ],
+)
+
+soph_cc_library(
+    name = "WaitForUtils",
+    srcs = ["WaitForUtils.cpp"],
+    hdrs = ["WaitForUtils.h"],
+    visibility = [
+        "//modules:__subpackages__",
         "//tests:__subpackages__",
     ],
 )

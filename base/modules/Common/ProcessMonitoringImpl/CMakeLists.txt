@@ -8,7 +8,7 @@ add_library(processmonitoringimplobject OBJECT
         Logger.cpp
         Logger.h
         )
-target_include_directories(processmonitoringimplobject PUBLIC ${LOG4CPLUS_INCLUDE_DIR})
+target_include_directories(processmonitoringimplobject PUBLIC ${CMAKE_SOURCE_DIR} ${LOG4CPLUS_INCLUDE_DIR})
 add_library(processmonitoringimpl SHARED $<TARGET_OBJECTS:processmonitoringimplobject>)
 target_link_libraries(processmonitoringimpl PUBLIC ${ZeroMQ_LIBRARY} processimpl threads zmqwrapperapiimpl utilityimpl)
 

@@ -18,7 +18,7 @@ add_library(loggingobject OBJECT
         PluginLoggingSetupEx.h
         )
 
-target_include_directories(loggingobject SYSTEM PUBLIC ${LOG4CPLUS_INCLUDE_DIR} ${BOOST_INCLUDE_DIR})
+target_include_directories(loggingobject SYSTEM PUBLIC ${CMAKE_SOURCE_DIR} ${LOG4CPLUS_INCLUDE_DIR} ${BOOST_INCLUDE_DIR})
 
 add_library(logging SHARED $<TARGET_OBJECTS:loggingobject>)
 

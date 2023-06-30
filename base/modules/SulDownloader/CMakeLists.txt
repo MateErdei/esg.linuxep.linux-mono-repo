@@ -38,6 +38,7 @@ add_library(suldownloaderimplobject OBJECT
 
 target_include_directories(suldownloaderimplobject
         PUBLIC
+        ${CMAKE_SOURCE_DIR}
         ${PROJECT_SOURCE_DIR}/modules
         ${NLOHMANN_JSON_INCLUDE_DIR}
         ${GSL_INCLUDE}
