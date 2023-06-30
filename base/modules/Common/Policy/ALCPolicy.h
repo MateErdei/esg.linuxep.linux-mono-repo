@@ -70,6 +70,7 @@ namespace Common::Policy
         void extractFeatures(const Common::XmlUtilities::AttributesMap& attributesMap);
         void extractCloudSubscriptions(const Common::XmlUtilities::AttributesMap& attributesMap);
         void extractPeriod(const Common::XmlUtilities::AttributesMap& attributesMap);
+        void extractESMVersion(const Common::XmlUtilities::AttributesMap& attributesMap);
 
         std::string revID_;
         std::string sdds_id_;

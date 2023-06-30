@@ -143,6 +143,7 @@ ALCPolicy::ALCPolicy(const std::string& xmlPolicy)
     extractUpdateCaches(attributesMap);
     extractUpdateSchedule(attributesMap);
     extractProxyDetails(attributesMap);
+    extractESMVersion(attributesMap);
     extractCloudSubscriptions(attributesMap);
     extractPeriod(attributesMap);
     extractFeatures(attributesMap);
@@ -453,6 +454,15 @@ void ALCPolicy::extractCloudSubscriptions(const Common::XmlUtilities::Attributes
             "SSPL base product name : " << SSPLBaseName
                                         << " not in the subscription of the policy.");
     }
+}
+
+void ALCPolicy::extractESMVersion(const Common::XmlUtilities::AttributesMap& attributesMap)
+{
+    auto tokenAttr = attributesMap.lookup("AUConfigurations/AUConfig/fixed_version/token");
+    auto nameAttr = attributesMap.lookup("AUConfigurations/AUConfig/fixed_version/name");
+
+    [[maybe_unused]] auto tokenStr = tokenAttr.contents();
+    [[maybe_unused]] auto nameStr = nameAttr.contents();
 }
 
 void ALCPolicy::extractPeriod(const Common::XmlUtilities::AttributesMap& attributesMap)
