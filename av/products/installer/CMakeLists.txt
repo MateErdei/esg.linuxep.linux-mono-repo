@@ -15,6 +15,7 @@ install(FILES  ${PROJECT_BINARY_DIR}/threat_detector.json DESTINATION files/base
 install(FILES
         ${PROJECT_BINARY_DIR}/install.sh
         ${DISTRIBUTION_TOOL_DIR}/cleanupinstall.sh
+        ${DISTRIBUTION_TOOL_DIR}/checkAndRunExtraUpgrade.sh
         ${PROJECT_BINARY_DIR}/cleanuprealm.dat
         ${PROJECT_BINARY_DIR}/setCapabilities.sh
         DESTINATION .

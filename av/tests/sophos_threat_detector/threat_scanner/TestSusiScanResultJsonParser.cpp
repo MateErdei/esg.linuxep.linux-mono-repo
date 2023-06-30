@@ -4,6 +4,7 @@
 
 #include <Common/Helpers/LogInitializedTests.h>
 #include <gtest/gtest.h>
+#include <gmock/gmock.h>
 
 using namespace threat_scanner;
 using namespace ::testing;
