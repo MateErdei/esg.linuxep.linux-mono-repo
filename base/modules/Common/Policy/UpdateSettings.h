@@ -330,8 +330,19 @@ namespace Common::Policy
             return Common::ApplicationConfiguration::applicationPathManager().getLocalDistributionRepository();
         }
 
+        /**
+         * @param contains string representing esmVersionToken
+         */
+       void setEsmVersionToken(const std::string& esmVersionToken) { esmVersionToken_ = esmVersionToken; }
+
+        /**
+         * @return string containing the esmVersionToken
+         */
+        [[nodiscard]] const std::string& getEsmVersionToken() const { return esmVersionToken_; }
+
     protected:
         UpdateCacheHosts_t localUpdateCacheHosts_;
+        std::string esmVersionToken_;
         ProductSubscription primarySubscription_;
         std::vector<ProductSubscription> productSubscriptions_;
         url_list_t sophosLocationURLs_;
