@@ -172,7 +172,8 @@ TEST_F(TestUpdateSettings, EmptyESMIsValid)
 {
     setupFileSystemAndGetMock();
     UpdateSettings settings = getValidUpdateSettings();
-    settings.setEsmVersionToken("");
+    ESMVersion esmVersion("", "");
+    settings.setEsmVersion(esmVersion);
     EXPECT_TRUE(settings.verifySettingsAreValid());
 }
 
@@ -180,6 +181,7 @@ TEST_F(TestUpdateSettings, PopulatedESMIsValid)
 {
     setupFileSystemAndGetMock();
     UpdateSettings settings = getValidUpdateSettings();
-    settings.setEsmVersionToken("imatoken");
+    ESMVersion esmVersion("esmname", "esmtoken");
+    settings.setEsmVersion(esmVersion);
     EXPECT_TRUE(settings.verifySettingsAreValid());
 }

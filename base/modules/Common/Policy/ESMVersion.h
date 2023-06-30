@@ -10,6 +10,8 @@ struct ESMVersion {
         token_(std::move(token))
     {}
 
+    ESMVersion() = default;
+
     std::string name_;
     std::string token_;
 
