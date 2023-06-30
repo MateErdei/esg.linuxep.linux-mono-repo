@@ -36,6 +36,7 @@ target_link_libraries(parsealcpolicytests PRIVATE
         osutilitiesimpl
         telemetryhelperimpl
         suldownloaderdata
+        policy
         )
 
 SET_TARGET_PROPERTIES( parsealcpolicytests
@@ -46,26 +47,25 @@ SET_TARGET_PROPERTIES( parsealcpolicytests
 
 target_include_directories(parsealcpolicytests PUBLIC ${CMAKE_SOURCE_DIR}/modules ${CMAKE_SOURCE_DIR}/modules/UpdateSchedulerImpl/configModule ${LOG4CPLUS_INCLUDE_DIR} )
 
-
 set(SulDownloaderData  ${CMAKE_SOURCE_DIR}/modules/SulDownloader/suldownloaderdata)
+set(Policy  ${CMAKE_SOURCE_DIR}/modules/Common/Policy)
 
 include_directories(SYSTEM BEFORE PUBLIC ${PROTOBUF_INCLUDE_DIR})
 
 set(ENV{LD_LIBRARY_PATH} ${Protobuf_LD_LIBRARY_PATH})
 
-PROTOBUF_GENERATE_CPP(CONFIG_SETTINGS_PROTO_SRC CONFIG_SETTINGS_PROTO_H ${SulDownloaderData}/proto/ConfigurationSettings.proto)
+PROTOBUF_GENERATE_CPP(CONFIG_SETTINGS_PROTO_SRC CONFIG_SETTINGS_PROTO_H ${Policy}/proto/ConfigurationSettings.proto)
 PROTOBUF_GENERATE_CPP(DOWNLOADER_REPORT_PROTO_SRC DOWNLOADER_REPORT_PROTO_H ${SulDownloaderData}/proto/DownloadReport.proto)
 
 add_executable(suldownloaderconfigtests
         suldownloaderconfigtests.cpp
         ${SulDownloaderData}/ConfigurationData.h
         ${SulDownloaderData}/ConfigurationData.cpp
-        ${SulDownloaderData}/Proxy.h
-        ${SulDownloaderData}/Proxy.cpp
-        ${SulDownloaderData}/Credentials.h
-        ${SulDownloaderData}/Credentials.cpp
+        ${Policy}/Proxy.h
+        ${Policy}/Proxy.cpp
+        ${Policy}/Credentials.h
+        ${Policy}/Credentials.cpp
         ${SulDownloaderData}/SulDownloaderException.h
-        ${SulDownloaderData}/SulDownloaderException.cpp
         ${SulDownloaderData}/Logger.h
         ${SulDownloaderData}/Logger.cpp
         ${CONFIG_SETTINGS_PROTO_SRC}
@@ -83,6 +83,7 @@ target_link_libraries(suldownloaderconfigtests PRIVATE
         obfuscationimpl
         HttpRequestsImpl
         ProxyUtilsLib
+        policy
         )
 
 SET_TARGET_PROPERTIES( suldownloaderconfigtests
@@ -99,6 +100,8 @@ add_executable(suldownloaderreporttests
         )
 
 target_link_libraries(suldownloaderreporttests PRIVATE
+        logging
+        policy
         suldownloaderdata
         )
 
