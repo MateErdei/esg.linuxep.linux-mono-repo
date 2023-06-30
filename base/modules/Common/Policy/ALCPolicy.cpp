@@ -461,12 +461,11 @@ void ALCPolicy::extractESMVersion(const Common::XmlUtilities::AttributesMap& att
     auto tokenAttr = attributesMap.lookup("AUConfigurations/AUConfig/fixed_version/token");
     auto nameAttr = attributesMap.lookup("AUConfigurations/AUConfig/fixed_version/name");
 
-    auto tokenStr = tokenAttr.contents();
-    auto nameStr = nameAttr.contents();
+    ESMVersion esmVersion(nameAttr.contents(), tokenAttr.contents());
 
-    LOGINFO("ESM parameters set to Name: " << nameStr << " and Token: " << tokenStr);
+    //LOGINFO("ESM parameters set to Name: " << nameStr << " and Token: " << tokenStr);
 
-    updateSettings_.setEsmVersionToken(tokenStr);
+    updateSettings_.setEsmVersion(std::move(esmVersion));
 }
 
 void ALCPolicy::extractPeriod(const Common::XmlUtilities::AttributesMap& attributesMap)
