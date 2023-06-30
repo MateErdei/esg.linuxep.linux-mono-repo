@@ -133,7 +133,7 @@ TEST_F(TestPluginManager, TestApplyPolicyOnRegisteredPlugin)
     EXPECT_CALL(fileSystemMock, readFile("/tmp/testpolicy.xml")).WillOnce(Return("testpolicy"));
     EXPECT_CALL(*m_mockedPluginApiCallback, applyNewPolicyWithAppId(_,"testpolicy")).Times(1);
     std::thread applyPolicy(
-        [this]() { EXPECT_EQ(m_pluginManagerPtr->applyNewPolicy(m_pluginOneName, "testpolicy.xml"), 1); });
+        [this]() { EXPECT_EQ(m_pluginManagerPtr->applyNewPolicy(m_pluginOneName, "testpolicy.xml", m_pluginOneName), 1); });
     applyPolicy.join();
 }
 
@@ -150,8 +150,8 @@ TEST_F(TestPluginManager, TestApplyPolicyOnTwoRegisteredPlugins)
     EXPECT_CALL(*m_mockedPluginApiCallback, applyNewPolicyWithAppId(m_pluginTwoName,"testpolicytwo")).Times(1);
     std::thread applyPolicy([this]() {
       m_pluginApiTwo = m_mgmtCommon->createPluginAPI(m_pluginTwoName, m_mockedPluginApiCallback);
-      EXPECT_EQ(m_pluginManagerPtr->applyNewPolicy(m_pluginOneName, "testpolicyone.xml"), 1);
-      EXPECT_EQ(m_pluginManagerPtr->applyNewPolicy(m_pluginTwoName, "testpolicytwo.xml"), 1);
+      EXPECT_EQ(m_pluginManagerPtr->applyNewPolicy(m_pluginOneName, "testpolicyone.xml", m_pluginOneName), 1);
+      EXPECT_EQ(m_pluginManagerPtr->applyNewPolicy(m_pluginTwoName, "testpolicytwo.xml", m_pluginTwoName), 1);
     });
     applyPolicy.join();
 }
@@ -181,9 +181,9 @@ TEST_F(TestPluginManager, TestApplyPolicyOnFailedPluginLeavesItInRegisteredPlugi
       m_pluginApiTwo.reset();
       std::vector<std::string> pluginsBeforeRemoval = { m_pluginOneName, m_pluginTwoName };
       std::vector<std::string> pluginsAfterRemoval = { m_pluginOneName, m_pluginTwoName };
-      EXPECT_EQ(m_pluginManagerPtr->applyNewPolicy(m_pluginOneName, "testpolicyone.xml"), 1);
+      EXPECT_EQ(m_pluginManagerPtr->applyNewPolicy(m_pluginOneName, "testpolicyone.xml", m_pluginOneName), 1);
       EXPECT_EQ(m_pluginManagerPtr->getRegisteredPluginNames(), pluginsBeforeRemoval);
-      EXPECT_EQ(m_pluginManagerPtr->applyNewPolicy(m_pluginTwoName, "testpolicytwo.xml"), 0);
+      EXPECT_EQ(m_pluginManagerPtr->applyNewPolicy(m_pluginTwoName, "testpolicytwo.xml", m_pluginTwoName), 0);
       EXPECT_EQ(m_pluginManagerPtr->getRegisteredPluginNames(), pluginsAfterRemoval);
     });
     applyPolicy.join();
@@ -213,9 +213,9 @@ TEST_F(TestPluginManager, TestApplyPolicyOnPluginNoLongerInstalledRemovesItFromR
       m_pluginApiTwo.reset();
       std::vector<std::string> pluginsBeforeRemoval = { m_pluginOneName, m_pluginTwoName };
       std::vector<std::string> pluginsAfterRemoval = { m_pluginOneName };
-      EXPECT_EQ(m_pluginManagerPtr->applyNewPolicy(m_pluginOneName, "testpolicyone.xml"), 1);
+      EXPECT_EQ(m_pluginManagerPtr->applyNewPolicy(m_pluginOneName, "testpolicyone.xml", m_pluginOneName), 1);
       EXPECT_EQ(m_pluginManagerPtr->getRegisteredPluginNames(), pluginsBeforeRemoval);
-      EXPECT_EQ(m_pluginManagerPtr->applyNewPolicy(m_pluginTwoName, "testpolicytwo"), 0);
+      EXPECT_EQ(m_pluginManagerPtr->applyNewPolicy(m_pluginTwoName, "testpolicytwo", m_pluginTwoName), 0);
       EXPECT_EQ(m_pluginManagerPtr->getRegisteredPluginNames(), pluginsAfterRemoval);
     });
     applyPolicy.join();
@@ -226,7 +226,7 @@ TEST_F(TestPluginManager, TestApplyPolicyNotSentIfUpdateInProgress)
     auto& fileSystemMock = setupFileSystemAndGetMock();
     EXPECT_CALL(fileSystemMock, isFile(Common::ApplicationConfiguration::applicationPathManager().getUpdateMarkerFile())).WillRepeatedly(Return(true));
 
-    EXPECT_EQ(m_pluginManagerPtr->applyNewPolicy("testAppId", "testpolicy.xml"), 0);
+    EXPECT_EQ(m_pluginManagerPtr->applyNewPolicy("testAppId", "testpolicy.xml", m_pluginOneName), 0);
 }
 
 TEST_F(TestPluginManager, TestDoActionOnRegisteredPlugin)

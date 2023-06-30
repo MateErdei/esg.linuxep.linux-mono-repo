@@ -32,7 +32,7 @@ namespace ManagementAgent
              * @return true if succeeding in adding policy request to Task Queue, false otherwise.  False will normally
              *         mean that there is no local policy file that can be re-processed.
              */
-            virtual bool receivedGetPolicyRequest(const std::string& appId) = 0;
+            virtual bool receivedGetPolicyRequest(const std::string& appId, const std::string& pluginName) = 0;
 
             /**
              * Function called when a plugin is attempting to register with the management agent.

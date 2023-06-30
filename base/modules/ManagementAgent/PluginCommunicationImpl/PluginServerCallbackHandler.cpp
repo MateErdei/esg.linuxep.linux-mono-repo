@@ -41,7 +41,7 @@ namespace ManagementAgent
                         return m_messageBuilder.replyAckMessage(request);
                     case Commands::PLUGIN_QUERY_CURRENT_POLICY:
                     {
-                        if (m_serverCallback->receivedGetPolicyRequest(request.m_applicationId))
+                        if (m_serverCallback->receivedGetPolicyRequest(request.m_applicationId, request.m_pluginName))
                         {
                             return m_messageBuilder.replyAckMessage(request);
                         }

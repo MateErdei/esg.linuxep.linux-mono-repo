@@ -17,7 +17,7 @@ namespace ManagementAgent
         public:
             virtual ~IPolicyReceiver() = default;
 
-            virtual bool receivedGetPolicyRequest(const std::string& appId) = 0;
+            virtual bool receivedGetPolicyRequest(const std::string& appId, const std::string& pluginName) = 0;
         };
     } // namespace PluginCommunication
 } // namespace ManagementAgent

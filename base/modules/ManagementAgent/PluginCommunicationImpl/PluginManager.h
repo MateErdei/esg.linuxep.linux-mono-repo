@@ -30,7 +30,7 @@ namespace ManagementAgent
             explicit PluginManager(Common::ZMQWrapperApi::IContextSharedPtr context);
             ~PluginManager() override;
 
-            int applyNewPolicy(const std::string& appId, const std::string& policyXml) override;
+            int applyNewPolicy(const std::string& appId, const std::string& policyXml, const std::string& pluginName) override;
             int queueAction(const std::string& appId, const std::string& actionXml, const std::string& correlationId) override;
             void checkPluginRegistry(const std::vector<std::pair<std::string, std::string>>& pluginsAndErrors);
             bool checkIfSinglePluginInRegistry(const std::string& pluginName) override;

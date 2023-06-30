@@ -99,7 +99,7 @@ TEST_F(McsRouterPluginCommunicationImplTests, TaskQueueProcessorCanProcessFilesF
 
     Tests::TestExecutionSynchronizer sync(2);
     auto notifySync= [&sync](std::string, std::string, std::string=""){sync.notify(); return 1;};
-    EXPECT_CALL(m_mockPluginManager, applyNewPolicy("appId1", "appId1-1_policy.xml")).WillOnce(Invoke(notifySync));
+    EXPECT_CALL(m_mockPluginManager, applyNewPolicy("appId1", "appId1-1_policy.xml", _)).WillOnce(Invoke(notifySync));
     EXPECT_CALL(m_mockPluginManager, queueAction("appId1",  "appId1_action_.xml", "")).WillOnce(Invoke(notifySync));
 
 
@@ -176,9 +176,9 @@ TEST_F( // NOLINT
     EXPECT_CALL(*mockApplicationPathManager, getMcsPolicyFilePath()).WillRepeatedly(Return(m_tempDir->absPath(m_policyFilePath)));
     EXPECT_CALL(*mockApplicationPathManager, getMcsActionFilePath()).WillRepeatedly(Return(m_tempDir->absPath(m_actionFilePath)));
 
-    EXPECT_CALL(m_mockPluginManager, applyNewPolicy("appId1", policyFileName1)).WillOnce(Return(1));
-    EXPECT_CALL(m_mockPluginManager, applyNewPolicy("appId2", policyFileName2)).WillOnce(Return(1));
-    EXPECT_CALL(m_mockPluginManager, applyNewPolicy("appId3", policyFileName3)).Times(0);
+    EXPECT_CALL(m_mockPluginManager, applyNewPolicy("appId1", policyFileName1, _)).WillOnce(Return(1));
+    EXPECT_CALL(m_mockPluginManager, applyNewPolicy("appId2", policyFileName2, _)).WillOnce(Return(1));
+    EXPECT_CALL(m_mockPluginManager, applyNewPolicy("appId3", policyFileName3, _)).Times(0);
 
     EXPECT_CALL(m_mockPluginManager, queueAction("appId1", actionFileName1, "")).WillOnce(Return(1));
     EXPECT_CALL(m_mockPluginManager, queueAction("appId2",  actionFileName2, "")).WillOnce(Return(1));

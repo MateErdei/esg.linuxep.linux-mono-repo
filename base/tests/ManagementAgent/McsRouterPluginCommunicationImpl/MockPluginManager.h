@@ -16,7 +16,7 @@ using ManagementAgent::PluginCommunication::IStatusReceiver;
 class MockPluginManager : public ManagementAgent::PluginCommunication::IPluginManager
 {
 public:
-    MOCK_METHOD(int, applyNewPolicy, (const std::string& appId, const std::string& policyXml));
+    MOCK_METHOD(int, applyNewPolicy, (const std::string& appId, const std::string& policyXml, const std::string& pluginName));
     MOCK_METHOD(int, queueAction, (const std::string& appId, const std::string& actionXml, const std::string& correlationId));
     MOCK_METHOD(std::vector<Common::PluginApi::StatusInfo>, getStatus, (const std::string& pluginName));
     MOCK_METHOD(std::string, getTelemetry, (const std::string& pluginName));

@@ -18,7 +18,7 @@ namespace ManagementAgent
     {
         void PolicyTask::run()
         {
-            LOGSUPPORT("Process new policy from mcsrouter: " << m_filePath);
+            LOGSUPPORT("Process new policy from mcsrouter: " << m_filePath << " for plugin: " << m_pluginName);
 
             std::string appId = UtilityImpl::extractAppIdFromPolicyFile(m_filePath);
 
@@ -28,15 +28,17 @@ namespace ManagementAgent
                 return;
             }
 
-            int newPolicyResult = m_pluginManager.applyNewPolicy(appId, Common::FileSystem::basename(m_filePath));
+            int newPolicyResult = m_pluginManager.applyNewPolicy(appId, Common::FileSystem::basename(m_filePath), m_pluginName);
             LOGINFO("Policy " << m_filePath << " applied to " << newPolicyResult << " plugins");
         }
 
         PolicyTask::PolicyTask(
             ManagementAgent::PluginCommunication::IPluginManager& pluginManager,
-            std::string filePath) :
+            std::string filePath,
+            const std::string& pluginName) :
             m_pluginManager(pluginManager),
-            m_filePath(std::move(filePath))
+            m_filePath(std::move(filePath)),
+            m_pluginName(pluginName)
         {
         }
 

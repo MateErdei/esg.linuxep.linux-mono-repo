@@ -82,7 +82,7 @@ TEST_F(PolicyReceiverImplTests, receivedGetPolicyRequestWillApplyPolicy) // NOLI
 
     EXPECT_NE(task.get(), nullptr);
 
-    EXPECT_CALL(m_mockPluginManager, applyNewPolicy(appId, policyFileName)).WillOnce(Return(1));
+    EXPECT_CALL(m_mockPluginManager, applyNewPolicy(appId, policyFileName, testPlugin)).WillOnce(Return(1));
 
     task->run();
 

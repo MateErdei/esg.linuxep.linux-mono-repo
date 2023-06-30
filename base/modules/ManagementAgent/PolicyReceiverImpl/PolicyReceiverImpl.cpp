@@ -30,7 +30,7 @@ namespace ManagementAgent
             m_internalPolicyDir = Common::ApplicationConfiguration::applicationPathManager().getInternalPolicyFilePath();
         }
 
-        bool PolicyReceiverImpl::receivedGetPolicyRequest(const std::string& appId)
+        bool PolicyReceiverImpl::receivedGetPolicyRequest(const std::string& appId, const std::string& pluginName)
         {
             bool policyTaskAddedToQueue = false;
 
@@ -64,8 +64,8 @@ namespace ManagementAgent
                 std::string appid_file = UtilityImpl::extractAppIdFromPolicyFile(policyFile);
                 if (!appid_file.empty() && appid_file == appId)
                 {
-                    LOGSUPPORT("Queue policy file to be sent to plugins " << policyFile);
-                    std::unique_ptr<Common::TaskQueue::ITask> task(new PolicyTask(m_pluginManager, policyFile));
+                    LOGSUPPORT("Queue policy file " << policyFile << " to be sent to plugin " << pluginName);
+                    std::unique_ptr<Common::TaskQueue::ITask> task(new PolicyTask(m_pluginManager, policyFile, pluginName));
 
                     m_taskQeue->queueTask(std::move(task));
 

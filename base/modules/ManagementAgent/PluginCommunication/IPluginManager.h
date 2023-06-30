@@ -77,7 +77,7 @@ namespace ManagementAgent
              * @return Number of plugins that were given the new policy
              * @note In case of errors in delivering the policy a message will be logged but no exception is thrown.
              */
-            virtual int applyNewPolicy(const std::string& appId, const std::string& policyXml) = 0;
+            virtual int applyNewPolicy(const std::string& appId, const std::string& policyXml, const std::string& pluginName) = 0;
 
             /**
              * Send actions to all plugins which are interested in appID

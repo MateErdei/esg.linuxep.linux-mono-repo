@@ -24,7 +24,7 @@ namespace ManagementAgent
 
             void receivedChangeStatus(const std::string& appId, const Common::PluginApi::StatusInfo& statusInfo)
                 override;
-            bool receivedGetPolicyRequest(const std::string& appId) override;
+            bool receivedGetPolicyRequest(const std::string& appId, const std::string& pluginName) override;
             void receivedRegisterWithManagementAgent(const std::string& pluginName) override;
             bool receivedThreatHealth(const std::string& pluginName, const std::string& threatHealth,  std::shared_ptr<ManagementAgent::HealthStatusImpl::HealthStatus> healthStatusSharedObj) override;
 

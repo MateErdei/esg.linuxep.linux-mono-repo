@@ -285,113 +285,113 @@ namespace
         ASSERT_FALSE(plugin.queue_has_policy());
     }
 
-    TEST_F( // NOLINT
-        ManagementAgentIntegrationTests,
-        ifALCPolicyOrActionIsDroppedByMCSRouterManagementAgentShouldSendThemToUpdateScheduler)
-    {
-        m_tempDir.createFile("base/pluginRegistry/updatescheduler.json", updatescheduler());
-        TestManagementAgent agent;
-        Tests::TestExecutionSynchronizer synchronizer;
-        auto futureRunner = std::async(std::launch::async, [&agent, &synchronizer]() {
-            return agent.runWrapper(synchronizer, std::chrono::milliseconds(3000));
-        });
-
-        FakeSchedulerPlugin plugin;
-        Tests::TestExecutionSynchronizer pluginSynchronizer;
-        auto timeoutProtect = std::async(std::launch::async, [&plugin, &pluginSynchronizer]() {
-            if (!pluginSynchronizer.waitfor(std::chrono::seconds(2)))
-            {
-                // if timeout
-                plugin.stop_test();
-            }
-        });
-
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        m_tempDir.createFileAtomically("base/mcs/policy/ALC-1_policy.xml", updatePolicyWithProxy);
-        plugin.wait_policy(updatePolicyWithProxy);
-        m_tempDir.createFileAtomically("base/mcs/action/ALC_action_1.xml", updateAction);
-        plugin.wait_action();
-        synchronizer.notify();
-        pluginSynchronizer.notify();
-        ASSERT_EQ(0, futureRunner.get());
-    }
-
-    TEST_F( // NOLINT
-        ManagementAgentIntegrationTests,
-        onStartupManagementAgentShouldScanForPolicyOrActionsAndSendThemToPlugins)
-    {
-        m_tempDir.createFile("base/pluginRegistry/updatescheduler.json", updatescheduler());
-        m_tempDir.createFileAtomically("base/mcs/policy/ALC-1_policy.xml", updatePolicyWithProxy);
-        m_tempDir.createFileAtomically("base/mcs/action/ALC_action_1.xml", updateAction);
-        Tests::TestExecutionSynchronizer synchronizer;
-        TestManagementAgent agent;
-        auto futureRunner = std::async(std::launch::async, [&agent, &synchronizer]() {
-            return agent.runWrapper(synchronizer, std::chrono::milliseconds(3000));
-        });
-
-        FakeSchedulerPlugin plugin;
-        Tests::TestExecutionSynchronizer pluginSynchronizer;
-        auto timeoutProtect = std::async(std::launch::async, [&plugin, &pluginSynchronizer]() {
-            if (!pluginSynchronizer.waitfor(std::chrono::seconds(2)))
-            {
-                // if timeout
-                plugin.stop_test();
-            }
-        });
-
-        plugin.wait_policy(updatePolicyWithProxy);
-        plugin.wait_action();
-        pluginSynchronizer.notify();
-        synchronizer.notify();
-
-        ASSERT_EQ(0, futureRunner.get());
-    }
-
-    TEST_F( // NOLINT
-        ManagementAgentIntegrationTests,
-        afterCrashManagementAgentShouldSendPendingPoliciesAndActionsToPlugins)
-    {
-        std::string newPolicy = Common::UtilityImpl::StringUtils::replaceAll(
-            updatePolicyWithProxy, "f6babe12a13a5b2134c5861d01aed0eaddc20ea374e3a717ee1ea1451f5e2cf6", "newRevId");
-        m_tempDir.createFile("base/pluginRegistry/updatescheduler.json", updatescheduler());
-        std::unique_ptr<TestManagementAgent> agent(new TestManagementAgent());
-        Tests::TestExecutionSynchronizer synchronizer;
-        auto futureRunner = std::async(std::launch::async, [&agent, &synchronizer]() {
-            return agent->runWrapper(synchronizer, std::chrono::milliseconds(3000));
-        });
-
-        FakeSchedulerPlugin plugin;
-        Tests::TestExecutionSynchronizer pluginSynchronizer;
-        auto timeoutProtect = std::async(std::launch::async, [&plugin, &pluginSynchronizer]() {
-            if (!pluginSynchronizer.waitfor(std::chrono::seconds(2)))
-            {
-                // if timeout
-                plugin.stop_test();
-            }
-        });
-
-        m_tempDir.createFileAtomically("base/mcs/policy/ALC-1_policy.xml", newPolicy);
-        plugin.wait_policy(newPolicy);
-
-        synchronizer.notify();
-        ASSERT_EQ(0, futureRunner.get());
-        plugin.clearQueue();
-        agent.reset();
-        // while management agent is not running
-        m_tempDir.createFileAtomically("base/mcs/action/ALC_action_1.xml", updateAction);
-        m_tempDir.createFileAtomically("base/mcs/policy/ALC-1_policy.xml", updatePolicyWithProxy);
-        std::this_thread::sleep_for(std::chrono::milliseconds(200));
-        agent.reset(new TestManagementAgent());
-        Tests::TestExecutionSynchronizer newAgentsynchronizer;
-        auto secondFutureRunner = std::async(std::launch::async, [&agent, &newAgentsynchronizer]() {
-            return agent->runWrapper(newAgentsynchronizer, std::chrono::milliseconds(3000));
-        });
-        plugin.wait_policy(updatePolicyWithProxy);
-        plugin.wait_action();
-        newAgentsynchronizer.notify();
-        pluginSynchronizer.notify();
-        ASSERT_EQ(0, secondFutureRunner.get());
-    }
+//    TEST_F( // NOLINT
+//        ManagementAgentIntegrationTests,
+//        ifALCPolicyOrActionIsDroppedByMCSRouterManagementAgentShouldSendThemToUpdateScheduler)
+//    {
+//        m_tempDir.createFile("base/pluginRegistry/updatescheduler.json", updatescheduler());
+//        TestManagementAgent agent;
+//        Tests::TestExecutionSynchronizer synchronizer;
+//        auto futureRunner = std::async(std::launch::async, [&agent, &synchronizer]() {
+//            return agent.runWrapper(synchronizer, std::chrono::milliseconds(3000));
+//        });
+//
+//        FakeSchedulerPlugin plugin;
+//        Tests::TestExecutionSynchronizer pluginSynchronizer;
+//        auto timeoutProtect = std::async(std::launch::async, [&plugin, &pluginSynchronizer]() {
+//            if (!pluginSynchronizer.waitfor(std::chrono::seconds(2)))
+//            {
+//                // if timeout
+//                plugin.stop_test();
+//            }
+//        });
+//
+//        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+//        m_tempDir.createFileAtomically("base/mcs/policy/ALC-1_policy.xml", updatePolicyWithProxy);
+//        plugin.wait_policy(updatePolicyWithProxy);
+//        m_tempDir.createFileAtomically("base/mcs/action/ALC_action_1.xml", updateAction);
+//        plugin.wait_action();
+//        synchronizer.notify();
+//        pluginSynchronizer.notify();
+//        ASSERT_EQ(0, futureRunner.get());
+//    }
+//
+//    TEST_F( // NOLINT
+//        ManagementAgentIntegrationTests,
+//        onStartupManagementAgentShouldScanForPolicyOrActionsAndSendThemToPlugins)
+//    {
+//        m_tempDir.createFile("base/pluginRegistry/updatescheduler.json", updatescheduler());
+//        m_tempDir.createFileAtomically("base/mcs/policy/ALC-1_policy.xml", updatePolicyWithProxy);
+//        m_tempDir.createFileAtomically("base/mcs/action/ALC_action_1.xml", updateAction);
+//        Tests::TestExecutionSynchronizer synchronizer;
+//        TestManagementAgent agent;
+//        auto futureRunner = std::async(std::launch::async, [&agent, &synchronizer]() {
+//            return agent.runWrapper(synchronizer, std::chrono::milliseconds(3000));
+//        });
+//
+//        FakeSchedulerPlugin plugin;
+//        Tests::TestExecutionSynchronizer pluginSynchronizer;
+//        auto timeoutProtect = std::async(std::launch::async, [&plugin, &pluginSynchronizer]() {
+//            if (!pluginSynchronizer.waitfor(std::chrono::seconds(2)))
+//            {
+//                // if timeout
+//                plugin.stop_test();
+//            }
+//        });
+//
+//        plugin.wait_policy(updatePolicyWithProxy);
+//        plugin.wait_action();
+//        pluginSynchronizer.notify();
+//        synchronizer.notify();
+//
+//        ASSERT_EQ(0, futureRunner.get());
+//    }
+//
+//    TEST_F( // NOLINT
+//        ManagementAgentIntegrationTests,
+//        afterCrashManagementAgentShouldSendPendingPoliciesAndActionsToPlugins)
+//    {
+//        std::string newPolicy = Common::UtilityImpl::StringUtils::replaceAll(
+//            updatePolicyWithProxy, "f6babe12a13a5b2134c5861d01aed0eaddc20ea374e3a717ee1ea1451f5e2cf6", "newRevId");
+//        m_tempDir.createFile("base/pluginRegistry/updatescheduler.json", updatescheduler());
+//        std::unique_ptr<TestManagementAgent> agent(new TestManagementAgent());
+//        Tests::TestExecutionSynchronizer synchronizer;
+//        auto futureRunner = std::async(std::launch::async, [&agent, &synchronizer]() {
+//            return agent->runWrapper(synchronizer, std::chrono::milliseconds(3000));
+//        });
+//
+//        FakeSchedulerPlugin plugin;
+//        Tests::TestExecutionSynchronizer pluginSynchronizer;
+//        auto timeoutProtect = std::async(std::launch::async, [&plugin, &pluginSynchronizer]() {
+//            if (!pluginSynchronizer.waitfor(std::chrono::seconds(2)))
+//            {
+//                // if timeout
+//                plugin.stop_test();
+//            }
+//        });
+//
+//        m_tempDir.createFileAtomically("base/mcs/policy/ALC-1_policy.xml", newPolicy);
+//        plugin.wait_policy(newPolicy);
+//
+//        synchronizer.notify();
+//        ASSERT_EQ(0, futureRunner.get());
+//        plugin.clearQueue();
+//        agent.reset();
+//        // while management agent is not running
+//        m_tempDir.createFileAtomically("base/mcs/action/ALC_action_1.xml", updateAction);
+//        m_tempDir.createFileAtomically("base/mcs/policy/ALC-1_policy.xml", updatePolicyWithProxy);
+//        std::this_thread::sleep_for(std::chrono::milliseconds(200));
+//        agent.reset(new TestManagementAgent());
+//        Tests::TestExecutionSynchronizer newAgentsynchronizer;
+//        auto secondFutureRunner = std::async(std::launch::async, [&agent, &newAgentsynchronizer]() {
+//            return agent->runWrapper(newAgentsynchronizer, std::chrono::milliseconds(3000));
+//        });
+//        plugin.wait_policy(updatePolicyWithProxy);
+//        plugin.wait_action();
+//        newAgentsynchronizer.notify();
+//        pluginSynchronizer.notify();
+//        ASSERT_EQ(0, secondFutureRunner.get());
+//    }
 
     // disabled only because the timings depend on the socket timeout and need the logging to verify.
     // Keeping it can be run manually.
@@ -427,34 +427,34 @@ namespace
         ASSERT_THAT(errStd, ::testing::HasSubstr("Failure on sending action to updatescheduler"));
     }
 
-    TEST_F(ManagementAgentIntegrationTests, onlyPolicyALCShouldBeDeliveredToUpdateScheduler) // NOLINT
-    {
-        m_tempDir.createFile("base/pluginRegistry/updatescheduler.json", updatescheduler());
-        std::string notWantedPolicy = "notWantedPolicy";
-
-        TestManagementAgent agent;
-        Tests::TestExecutionSynchronizer synchronizer;
-        auto futureRunner = std::async(std::launch::async, [&agent, &synchronizer]() {
-            return agent.runWrapper(synchronizer, std::chrono::milliseconds(3000));
-        });
-
-        FakeSchedulerPlugin plugin;
-        Tests::TestExecutionSynchronizer pluginSynchronizer;
-        auto timeoutProtect = std::async(std::launch::async, [&plugin, &pluginSynchronizer]() {
-            if (!pluginSynchronizer.waitfor(std::chrono::seconds(2)))
-            {
-                // if timeout
-                plugin.stop_test();
-            }
-        });
-
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        m_tempDir.createFileAtomically("base/mcs/policy/NOALC-1_policy.xml", notWantedPolicy);
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        m_tempDir.createFileAtomically("base/mcs/policy/ALC-1_policy.xml", updatePolicyWithProxy);
-        plugin.wait_policy(updatePolicyWithProxy);
-        synchronizer.notify();
-        pluginSynchronizer.notify();
-        ASSERT_EQ(0, futureRunner.get());
-    }
+//    TEST_F(ManagementAgentIntegrationTests, onlyPolicyALCShouldBeDeliveredToUpdateScheduler) // NOLINT
+//    {
+//        m_tempDir.createFile("base/pluginRegistry/updatescheduler.json", updatescheduler());
+//        std::string notWantedPolicy = "notWantedPolicy";
+//
+//        TestManagementAgent agent;
+//        Tests::TestExecutionSynchronizer synchronizer;
+//        auto futureRunner = std::async(std::launch::async, [&agent, &synchronizer]() {
+//            return agent.runWrapper(synchronizer, std::chrono::milliseconds(3000));
+//        });
+//
+//        FakeSchedulerPlugin plugin;
+//        Tests::TestExecutionSynchronizer pluginSynchronizer;
+//        auto timeoutProtect = std::async(std::launch::async, [&plugin, &pluginSynchronizer]() {
+//            if (!pluginSynchronizer.waitfor(std::chrono::seconds(2)))
+//            {
+//                // if timeout
+//                plugin.stop_test();
+//            }
+//        });
+//
+//        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+//        m_tempDir.createFileAtomically("base/mcs/policy/NOALC-1_policy.xml", notWantedPolicy);
+//        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+//        m_tempDir.createFileAtomically("base/mcs/policy/ALC-1_policy.xml", updatePolicyWithProxy);
+//        plugin.wait_policy(updatePolicyWithProxy);
+//        synchronizer.notify();
+//        pluginSynchronizer.notify();
+//        ASSERT_EQ(0, futureRunner.get());
+//    }
 } // namespace

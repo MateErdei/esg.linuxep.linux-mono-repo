@@ -233,7 +233,7 @@ TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerPluginQueryPoli
         createDefaultMessage(Common::PluginProtocol::Commands::PLUGIN_QUERY_CURRENT_POLICY, "");
 
     auto except = std::exception();
-    EXPECT_CALL(*m_mockServerCallback, receivedGetPolicyRequest(queryPolicyMessage.m_applicationId))
+    EXPECT_CALL(*m_mockServerCallback, receivedGetPolicyRequest(queryPolicyMessage.m_applicationId, _))
         .WillOnce(Throw(except));
 
     Common::PluginProtocol::DataMessage errorMessage =

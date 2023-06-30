@@ -105,9 +105,9 @@ namespace ManagementAgent
 
         void PluginManager::setDefaultConnectTimeout(int timeoutMs) { m_defaultConnectTimeout = timeoutMs; }
 
-        int PluginManager::applyNewPolicy(const std::string& appId, const std::string& policyXml)
+        int PluginManager::applyNewPolicy(const std::string& appId, const std::string& policyXml, const std::string& pluginName)
         {
-            LOGDEBUG("PluginManager: apply new policy: " << appId);
+            LOGDEBUG("PluginManager: apply new policy: " << appId << " to plugin: " << pluginName);
 
             int pluginsNotified = 0;
             if (updateOngoing())
@@ -123,7 +123,7 @@ namespace ManagementAgent
 
             for (auto& proxy : m_RegisteredPlugins)
             {
-                if (proxy.second->hasPolicyAppId(appId))
+                if (proxy.second->hasPolicyAppId(appId) && proxy.first == pluginName)
                 {
                     try
                     {

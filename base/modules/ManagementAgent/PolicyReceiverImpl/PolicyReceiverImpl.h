@@ -21,7 +21,7 @@ namespace ManagementAgent
                 std::shared_ptr<Common::TaskQueue::ITaskQueue> taskQueue,
                 PluginCommunication::IPluginManager& pluginManager);
 
-            bool receivedGetPolicyRequest(const std::string& appId) override;
+            bool receivedGetPolicyRequest(const std::string& appId, const std::string& pluginName) override;
 
         private:
             std::shared_ptr<Common::TaskQueue::ITaskQueue> m_taskQeue;

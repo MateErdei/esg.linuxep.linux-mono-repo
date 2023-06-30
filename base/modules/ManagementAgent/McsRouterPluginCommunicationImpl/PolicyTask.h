@@ -19,11 +19,12 @@ namespace ManagementAgent
         {
         public:
             void run() override;
-            PolicyTask(PluginCommunication::IPluginManager& pluginManager, std::string filePath);
+            PolicyTask(PluginCommunication::IPluginManager& pluginManager, std::string filePath, const std::string& pluginName="");
 
         private:
             PluginCommunication::IPluginManager& m_pluginManager;
             std::string m_filePath;
+            std::string m_pluginName;
         };
     } // namespace McsRouterPluginCommunicationImpl
 } // namespace ManagementAgent

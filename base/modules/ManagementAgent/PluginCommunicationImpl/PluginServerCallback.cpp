@@ -49,12 +49,12 @@ namespace ManagementAgent
             }
         }
 
-        bool PluginServerCallback::receivedGetPolicyRequest(const std::string& appId)
+        bool PluginServerCallback::receivedGetPolicyRequest(const std::string& appId, const std::string& pluginName)
         {
-            LOGDEBUG("Management: Policy request received for  " << appId);
+            LOGDEBUG("Management: Policy request received for " << appId << " from " << pluginName);
             if (m_policyReceiver != nullptr)
             {
-                return m_policyReceiver->receivedGetPolicyRequest(appId);
+                return m_policyReceiver->receivedGetPolicyRequest(appId, pluginName);
             }
 
             return false;
