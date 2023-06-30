@@ -206,11 +206,10 @@ def build_999(stage: tap.Root, component: tap.Component):
 
 
 def get_test_machines(test_inputs, parameters: tap.Parameters):
-    test_environments = {'ubuntu1804': 'ubuntu1804_x64_server_en_us',
-                         'ubuntu2004': 'ubuntu2004_x64_server_en_us',
+    test_environments = {'ubuntu1804': 'ubuntu1804_x64_aws_server_en_us',
+                         'ubuntu2004': 'ubuntu2004_x64_aws_server_en_us',
                          #TODO: Fix broken yum repo to point at abn-engrepo.eng.sophos instead of abn-centosrepo
-                         #'centos79': 'centos79_x64_server_en_us',
-                         'centos84': 'centos84_x64_server_en_us',
+                         #'centos7': 'centos7_x64_aws_server_en_us',
                          'centos8stream': 'centos8stream_x64_aws_server_en_us',
                          #TODO: Fix SELinux rules to allow access to /opt/sophos-spl/shared/syslog_pipe
                          #'centos9stream': 'centos9stream_x64_aws_server_en_us',
@@ -291,7 +290,7 @@ def edr_plugin(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Pa
         if mode == 'coverage':
             with stage.parallel('combined'):
                 coverage_machines = (
-                    ("centos77", tap.Machine('centos77_x64_server_en_us', inputs=get_inputs(context, edr_build, mode), platform=tap.Platform.Linux)),
+                    ("centos7", tap.Machine('centos7_x64_aws_server_en_us', inputs=get_inputs(context, edr_build, mode), platform=tap.Platform.Linux)),
                 )
                 for template_name, machine in coverage_machines:
                     stage.task(task_name=template_name, func=coverage_task, machine=machine, branch=context.branch, robot_args=robot_args)
