@@ -68,7 +68,7 @@ def robot_task_with_env(machine: tap.Machine, environment=None, machine_name=Non
 
 def run_tap_tests(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Parameters, build):
     test_inputs = get_inputs(context, build)
-    ubuntu1804_machine = tap.Machine('ubuntu1804_x64_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)
+    ubuntu1804_machine = tap.Machine('ubuntu1804_x64_aws_server_en_us', inputs=test_inputs, platform=tap.Platform.Linux)
     stage.task(task_name='ubuntu1804_x64', func=robot_task, machine=ubuntu1804_machine)
     return
 
