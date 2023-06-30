@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2018-2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #pragma once
 
@@ -41,6 +37,7 @@ namespace wdctl
 
             bool isSuccessful(const Common::ZeroMQWrapper::IReadable::data_t&);
             bool isSuccessfulOrWatchdogIsNotRunning(const Common::ZeroMQWrapper::IReadable::data_t&);
+            bool isWatchdogNotRunning(const Common::ZeroMQWrapper::IReadable::data_t&);
         };
     } // namespace wdctlactions
 } // namespace wdctl

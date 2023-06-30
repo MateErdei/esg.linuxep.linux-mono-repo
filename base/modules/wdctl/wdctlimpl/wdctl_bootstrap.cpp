@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2018-2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 #include "wdctl_bootstrap.h"
 
 #include "Logger.h"
@@ -26,10 +22,10 @@ using namespace wdctl::wdctlimpl;
 
 int wdctl_bootstrap::main(int argc, char** argv)
 {
-    if (argc != 3)
+    if (argc < 3)
     {
         // calling wdctl with wrong number of arguments will happen by users calling, hence, console output is correct.
-        std::cerr << "Error: Wrong number of arguments expected 2" << std::endl;
+        std::cerr << "Error: Wrong number of arguments expected at least 2 got " << (argc-1) << std::endl;
         return 2;
     }
 

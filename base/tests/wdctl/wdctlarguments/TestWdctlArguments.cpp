@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2018, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
@@ -10,34 +6,44 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 using Arguments = wdctl::wdctlarguments::Arguments;
 
-TEST(TestWdctlArguments, Construction) // NOLINT
+TEST(TestWdctlArguments, Construction)
 {
-    EXPECT_NO_THROW(Arguments args); // NOLINT
+    EXPECT_NO_THROW(Arguments args);
 }
 
-TEST(TestWdctlArguments, NoArgs) // NOLINT
+TEST(TestWdctlArguments, NoArgs)
 {
     Arguments args;
-    EXPECT_NO_THROW(args.parseArguments({})); // NOLINT
+    EXPECT_NO_THROW(args.parseArguments({}));
 }
 
-TEST(TestWdctlArguments, NoCommandLineArgs) // NOLINT
+TEST(TestWdctlArguments, NoCommandLineArgs)
 {
     Arguments args;
-    EXPECT_NO_THROW(args.parseArguments({ "wdctl" })); // NOLINT
+    EXPECT_NO_THROW(args.parseArguments({ "wdctl" }));
 }
 
-TEST(TestWdctlArguments, SingleCommand) // NOLINT
+TEST(TestWdctlArguments, SingleCommand)
 {
     Arguments args;
-    EXPECT_NO_THROW(args.parseArguments({ "wdctl", "start" })); // NOLINT
+    EXPECT_NO_THROW(args.parseArguments({ "wdctl", "start" }));
     EXPECT_EQ(args.m_command, "start");
 }
 
-TEST(TestWdctlArguments, SingleCommandWithArg) // NOLINT
+TEST(TestWdctlArguments, SingleCommandWithArg)
 {
     Arguments args;
-    EXPECT_NO_THROW(args.parseArguments({ "wdctl", "start", "mcsrouter" })); // NOLINT
+    EXPECT_NO_THROW(args.parseArguments({ "wdctl", "start", "mcsrouter" }));
     EXPECT_EQ(args.m_command, "start");
     EXPECT_EQ(args.m_argument, "mcsrouter");
+    EXPECT_EQ(args.m_quietMode, false);
+}
+
+TEST(TestWdctlArguments, SingleCommandWithArgQuiet)
+{
+    Arguments args;
+    EXPECT_NO_THROW(args.parseArguments({ "wdctl", "start", "mcsrouter" ,"--quiet"}));
+    EXPECT_EQ(args.m_command, "start");
+    EXPECT_EQ(args.m_argument, "mcsrouter");
+    EXPECT_EQ(args.m_quietMode, true);
 }

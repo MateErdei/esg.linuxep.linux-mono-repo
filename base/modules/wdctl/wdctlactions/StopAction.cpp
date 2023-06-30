@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2018-2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #include "StopAction.h"
 
@@ -23,9 +19,20 @@ StopAction::StopAction(const wdctl::wdctlarguments::Arguments& args) : ZMQAction
 
 int StopAction::run()
 {
-    LOGINFO("Attempting to stop " << m_args.m_argument);
+    if (!m_args.m_quietMode)
+    {
+        LOGINFO("Attempting to stop " << m_args.m_argument);
+    }
 
     auto response = doOperationToWatchdog({ "STOP", m_args.m_argument });
+
+    if (m_args.m_quietMode)
+    {
+        if (isWatchdogNotRunning(response))
+        {
+            return 0;
+        }
+    }
 
     if (isSuccessful(response))
     {
@@ -41,6 +48,7 @@ int StopAction::run()
         LOGINFO("Watchdog did not confirm the plugin is not running after 10 seconds: " << m_args.m_argument);
         return 3;
     }
+
 
     std::string pluginRegistry = Common::ApplicationConfiguration::applicationPathManager().getPluginRegistryPath();
     std::string registryFile = m_args.m_argument + ".json";

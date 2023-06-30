@@ -78,26 +78,26 @@ Test wdctl prints error message with no arguments
     Log    "stdout = ${result.stdout}"
     Log    "stderr = ${result.stderr}"
     Should Not Be Equal As Integers    ${result.rc}    0
-    Should Contain   ${result.stderr}   Error: Wrong number of arguments expected 2
+    Should Contain   ${result.stderr}   Error: Wrong number of arguments expected at least 2 got 0
 
 Test wdctl prints error message with only copyPluginRegistration argument
-    Wdctl Fails With Only Command With Error Message  copyPluginRegistration  Error: Wrong number of arguments expected 2
+    Wdctl Fails With Only Command With Error Message  copyPluginRegistration  Error: Wrong number of arguments expected at least 2 got 1
 
 Test wdctl prints error message with only start argument
-    Wdctl Fails With Only Command With Error Message  start  Error: Wrong number of arguments expected 2
+    Wdctl Fails With Only Command With Error Message  start  Error: Wrong number of arguments expected at least 2 got 1
 
 Test wdctl prints error message with only stop argument
-    Wdctl Fails With Only Command With Error Message  stop  Error: Wrong number of arguments expected 2
+    Wdctl Fails With Only Command With Error Message  stop  Error: Wrong number of arguments expected at least 2 got 1
 
 Test wdctl prints error message with only removePluginRegistration argument
-    Wdctl Fails With Only Command With Error Message  removePluginRegistration  Error: Wrong number of arguments expected 2
+    Wdctl Fails With Only Command With Error Message  removePluginRegistration  Error: Wrong number of arguments expected at least 2 got 1
 
-Test wdctl prints error message with 3 arguments
+Test wdctl prints error message with unknown argument
     ${result} =    Run Process    ${SOPHOS_INSTALL}/bin/wdctl  Argument1  Argument2  Argument3
     Log    "stdout = ${result.stdout}"
     Log    "stderr = ${result.stderr}"
     Should Not Be Equal As Integers    ${result.rc}    0
-    Should Contain   ${result.stderr}   Error: Wrong number of arguments expected 2
+    Should Contain   ${result.stderr}   Unknown command: Argument1
 
 Test wdctl prints error message with missing config
     Wdctl Fails Command With Error Message  copyPluginRegistration  /tmp/NotAFile  source file does not exist.

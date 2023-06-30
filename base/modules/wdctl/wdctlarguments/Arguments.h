@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2018, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 #pragma once
 
 #include <Common/Datatypes/StringVector.h>
@@ -20,6 +16,7 @@ namespace wdctl
             StringVector m_options;
             std::string m_command;
             std::string m_argument;
+            bool m_quietMode = false;
         };
     } // namespace wdctlarguments
 } // namespace wdctl

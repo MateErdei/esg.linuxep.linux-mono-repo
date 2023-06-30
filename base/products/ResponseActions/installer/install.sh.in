@@ -54,7 +54,7 @@ function is_already_installed()
 # In case this is an upgrade (not a clean install) request the watchdog stops the plugin
 if is_already_installed
 then
-    "${SOPHOS_INSTALL}/bin/wdctl" stop "${PLUGIN_NAME}" &>/dev/null || echo Failed to stop plugin: ${PLUGIN_NAME}
+    "${SOPHOS_INSTALL}/bin/wdctl" stop "${PLUGIN_NAME}" --quiet &>/dev/null || echo Failed to stop plugin: ${PLUGIN_NAME}
 fi
 
 #Create plugin registration file
@@ -89,7 +89,7 @@ fi
 copy_manifests ${DIST} ${PRODUCT_LINE_ID}
 
 #After install start the plugin
-"${SOPHOS_INSTALL}/bin/wdctl" start "${PLUGIN_NAME}" || failure ${EXIT_FAIL_WDCTL_FAILED_TO_START} "Failed to start plugin ${PLUGIN_NAME}"
+"${SOPHOS_INSTALL}/bin/wdctl" start "${PLUGIN_NAME}" --quiet || failure ${EXIT_FAIL_WDCTL_FAILED_TO_START} "Failed to start plugin ${PLUGIN_NAME}"
 
 [[ -f "${SOPHOS_INSTALL}/base/update/var/installedproducts/${PRODUCT_LINE_ID}.sh" ]] || failure ${EXIT_FAIL_VERSIONEDCOPY} "plugin uninstall link file failed to be created"
 [[ -f "${SOPHOS_INSTALL}/base/update/var/installedproductversions/${PRODUCT_LINE_ID}.ini" ]] || failure ${EXIT_FAIL_VERSIONEDCOPY} "plugin version link file failed to be created"

@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2018-2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
 #include "ZMQAction.h"
 
@@ -85,6 +81,20 @@ bool wdctl::wdctlactions::ZMQAction::isSuccessfulOrWatchdogIsNotRunning(
     {
         std::string responseString = response.at(0);
         return (responseString == watchdog::watchdogimpl::watchdogReturnsOk || responseString == watchdogNotRunning);
+    }
+    else
+    {
+        return false;
+    }
+}
+
+bool wdctl::wdctlactions::ZMQAction::isWatchdogNotRunning(
+    const Common::ZeroMQWrapper::IReadable::data_t& response)
+{
+    if (response.size() == 1)
+    {
+        std::string responseString = response.at(0);
+        return ( responseString == watchdogNotRunning);
     }
     else
     {

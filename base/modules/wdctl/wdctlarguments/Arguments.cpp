@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2018, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 #include "Arguments.h"
 
 using namespace wdctl::wdctlarguments;
@@ -27,6 +23,14 @@ void Arguments::parseArguments(const StringVector& args)
 
     m_options = std::move(options);
     m_positionalArgs = std::move(positionalArgs);
+
+    for (const auto& arg: m_options)
+    {
+        if (arg == "--quiet")
+        {
+            m_quietMode = true;
+        }
+    }
 
     // m_positionalArgs[0] == "wdctl"
     if (m_positionalArgs.size() > 1)
