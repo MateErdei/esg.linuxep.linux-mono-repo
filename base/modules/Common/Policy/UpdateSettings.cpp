@@ -88,6 +88,13 @@ bool UpdateSettings::verifySettingsAreValid()
         return false;
     }
 
+    auto esmVersion = getEsmVersion();
+    if (!esmVersion.isValid())
+    {
+        LOGERROR("ESM feature is not valid. Name: " << esmVersion.name() << " and Token: " << esmVersion.token());
+        return false;
+    }
+
     auto fileSystem = Common::FileSystem::fileSystem();
 
     std::string installationRootPath = Common::ApplicationConfiguration::applicationPathManager().sophosInstall();
