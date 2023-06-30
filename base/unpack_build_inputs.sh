@@ -354,6 +354,15 @@ function apply_third_party_patches()
   fi
 }
 
+function fixup_bazel_tools()
+{
+  if [ -f tools/aspects/wrapper.sh ]
+  then
+    sed -i 's/\r\n$/\n/' tools/aspects/wrapper.sh
+    chmod +x tools/aspects/wrapper.sh
+  fi
+}
+
 unpack_tars
 unpack_gzipped_tars
 unpack_zips
@@ -361,6 +370,7 @@ unpack_pypi_pkgs
 apply_third_party_patches
 copy_certs
 setup_cmake
+fixup_bazel_tools
 
 unlock
 echo "Finished unpacking"

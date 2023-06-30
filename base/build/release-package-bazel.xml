@@ -34,18 +34,8 @@
 
         <!-- Release build -->
         <command mode="bazel_release">
-            <program>sed</program>
-            <args>-i \'s/\\r//\' tools/aspects/wrapper.sh</args>
-            <workingdir>.</workingdir>
-        </command>
-        <command mode="bazel_release">
-            <program>chmod</program>
-            <args>+x tools/aspects/wrapper.sh</args>
-            <workingdir>.</workingdir>
-        </command>
-        <command mode="bazel_release">
             <program>bazel</program>
-            <args>test --config linux_x64_rel //...</args>
+            <args>test //...</args>
             <workingdir>.</workingdir>
         </command>
 
