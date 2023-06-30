@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
-    <csc:Comp RevID="5514d7970027ac81cc3686799c9359043dafbc72d4b809490ca82bacc4bf5026" policyType="1"/>
+    <csc:Comp RevID="5514d7970027ac81cc3686799c9359043dafbc72d4b809490ca82bacc4bf502a" policyType="1"/>
     <AUConfig platform="Linux">
         <sophos_address address="http://es-web.sophos.com/update"/>
         <primary_location>
