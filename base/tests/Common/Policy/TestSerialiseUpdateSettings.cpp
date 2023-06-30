@@ -159,6 +159,16 @@ TEST_F(TestSerialiseUpdateSettings, preserveDevice)
     EXPECT_EQ(before.getDeviceId(), after.getDeviceId());
 }
 
+TEST_F(TestSerialiseUpdateSettings, preserveEsmVersionToken)
+{
+    UpdateSettings before;
+    before.setEsmVersionToken("ESMTOKEN");
+    ASSERT_EQ(before.getEsmVersionToken(), "ESMTOKEN");
+    auto serialised = SerialiseUpdateSettings::toJsonSettings(before);
+    auto after = SerialiseUpdateSettings::fromJsonSettings(serialised);
+    EXPECT_EQ(before.getEsmVersionToken(), after.getEsmVersionToken());
+}
+
 TEST_F(TestSerialiseUpdateSettings, emptyCredentialsShouldFailValidation)
 {
     setupFileSystemAndGetMock();
