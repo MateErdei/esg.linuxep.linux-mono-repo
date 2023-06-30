@@ -336,14 +336,11 @@ function setup_cmake()
         if [[ ! -d $REDIST/cmake ]]
         then
             ln -sf $FETCHED_INPUTS_DIR/cmake $REDIST/cmake
+            chmod 700 $REDIST/cmake/bin/cmake || exitFailure "Unable to chmod cmake"
+            chmod 700 $REDIST/cmake/bin/ctest || exitFailure "Unable to chmod ctest"
         fi
-    else
-        echo "ERROR - cmake not found here: $FETCHED_INPUTS_DIR/cmake/bin/cmake"
-        exit 1
+        echo "cmake synced to $REDIST/cmake"
     fi
-    chmod 700 $REDIST/cmake/bin/cmake || exitFailure "Unable to chmod cmake"
-    chmod 700 $REDIST/cmake/bin/ctest || exitFailure "Unable to chmod ctest"
-    echo "cmake synced to $REDIST/cmake"
 }
 
 function apply_third_party_patches()
