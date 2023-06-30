@@ -177,7 +177,7 @@ def build_060(stage: tap.Root, component: tap.Component):
 def get_test_machines(test_inputs, parameters: tap.Parameters):
     test_environments = {'amazonlinux2': 'amzlinux2_x64_server_en_us',
                          'amazonlinux2023': 'amzlinux2023_x64_server_en_us',
-                         'centos79': 'centos79_x64_server_en_us',
+                         'centos79': 'centos7_x64_aws_server_en_us',
                          'centos8stream': 'centos8stream_x64_aws_server_en_us',
                          'centos9stream': 'centos9stream_x64_aws_server_en_us',
                          'debian10': 'debian10_x64_aws_server_en_us',
@@ -187,8 +187,8 @@ def get_test_machines(test_inputs, parameters: tap.Parameters):
                          'rhel7': 'rhel79_x64_aws_server_en_us',
                          'rhel8': 'rhel87_x64_aws_server_en_us',
                          'rhel9': 'rhel91_x64_aws_server_en_us',
-                         'ubuntu1804': 'ubuntu1804_x64_server_en_us',
-                         'ubuntu2004': 'ubuntu2004_x64_server_en_us',
+                         'ubuntu1804': 'ubuntu1804_x64_aws_server_en_us',
+                         'ubuntu2004': 'ubuntu2004_x64_aws_server_en_us',
                          }
 
     if parameters.run_sles != 'false':
@@ -266,8 +266,8 @@ def event_journaler(stage: tap.Root, context: tap.PipelineContext, parameters: t
 
     with stage.parallel('integration'):
         if mode == COVERAGE_MODE:
-            stage.task(task_name="centos77", func=coverage_task,
-                       machine=tap.Machine('centos77_x64_server_en_us', inputs=test_inputs,
+            stage.task(task_name="centos7", func=coverage_task,
+                       machine=tap.Machine('centos7_x64_aws_server_en_us', inputs=test_inputs,
                                            platform=tap.Platform.Linux), branch=context.branch,
                        robot_args=robot_args)
         else:
