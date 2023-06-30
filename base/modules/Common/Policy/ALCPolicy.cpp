@@ -464,7 +464,7 @@ void ALCPolicy::extractESMVersion(const Common::XmlUtilities::AttributesMap& att
     auto tokenStr = tokenAttr.contents();
     auto nameStr = nameAttr.contents();
 
-    LOGINFO("ESM parameters set to Name: " << nameStr << " and " << " Token: " << tokenStr);
+    LOGINFO("ESM parameters set to Name: " << nameStr << " and Token: " << tokenStr);
 
     updateSettings_.setEsmVersionToken(tokenStr);
 }
