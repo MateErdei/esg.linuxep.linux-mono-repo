@@ -56,11 +56,11 @@ namespace SulDownloader
     bool SDDS3Repository::tryConnect(
         const suldownloaderdata::ConnectionSetup& connectionSetup,
         bool supplementOnly,
-        const UpdateSettings& configurationData)
+        const UpdateSettings& updateSetting)
     {
         m_supplementOnly = supplementOnly;
         populateConfigFromFile();
-        setFeatures(configurationData.getFeatures());
+        setFeatures(updateSetting.getFeatures());
 
         // If we are performing a supplement-only update, we want to avoid fetching and installing new non-supplement
         // packages. So, we should reuse the previous response from SUS if we have it.
@@ -79,7 +79,7 @@ namespace SulDownloader
 
             LOGDEBUG("Checking suites and release groups with SUS");
 
-            SDDS3::SusData susData = getDataToSync(connectionSetup, configurationData);
+            SDDS3::SusData susData = getDataToSync(connectionSetup, updateSetting);
 
             if (!m_error.Description.empty())
             {
@@ -261,7 +261,7 @@ namespace SulDownloader
     }
 
     bool SDDS3Repository::synchronize(
-        const UpdateSettings& configurationData,
+        const UpdateSettings& updateSetting,
         const suldownloaderdata::ConnectionSetup& connectionSetup,
         const bool ignoreFailedSupplementRefresh)
     {
@@ -300,13 +300,13 @@ namespace SulDownloader
             LOGINFO("Trying update via update cache: " << srcUrl);
             m_session->httpConfig.useSophosCertificateStore = true;
             m_session->httpConfig.useUpdateCache = true;
-            if (configurationData.getUpdateCacheCertPath().empty())
+            if (updateSetting.getUpdateCacheCertPath().empty())
             {
                 m_session->httpConfig.sophosCertificateStore = Common::ApplicationConfiguration::applicationPathManager().getUpdateCacheCertificateFilePath();
             }
             else
             {
-                m_session->httpConfig.sophosCertificateStore = configurationData.getUpdateCacheCertPath();
+                m_session->httpConfig.sophosCertificateStore = updateSetting.getUpdateCacheCertPath();
             }
 
         }
@@ -327,7 +327,7 @@ namespace SulDownloader
         sophlib::sdds3::Repo repo(Common::ApplicationConfiguration::applicationPathManager().getLocalSdds3Repository());
         m_repo = repo;
 
-        m_session->httpConfig.userAgent = generateUserAgentString(configurationData.getTenantId(), configurationData.getDeviceId());
+        m_session->httpConfig.userAgent = generateUserAgentString(updateSetting.getTenantId(), updateSetting.getDeviceId());
 
         try
         {
@@ -358,7 +358,7 @@ namespace SulDownloader
 
         if (!hasError())
         {
-            generateProductListFromSdds3PackageInfo(configurationData.getPrimarySubscription().rigidName());
+            generateProductListFromSdds3PackageInfo(updateSetting.getPrimarySubscription().rigidName());
             return true;
         }
         return false;

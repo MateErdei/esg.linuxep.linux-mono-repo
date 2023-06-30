@@ -761,8 +761,8 @@ namespace SulDownloader
         {
             int readAttempt = 0;
 
-            UpdateSettings configurationData;
-            UpdateSettings previousConfigurationData;
+            UpdateSettings updateSettings;
+            UpdateSettings previousUpdateSettings;
             do
             {
                 readAttempt++;
@@ -771,15 +771,15 @@ namespace SulDownloader
                     std::string settingsString = fileSystem->readFile(inputFilePath);
                     LOGDEBUG("Configure and run downloader: " << settingsString);
 
-                    configurationData = ConfigurationData::fromJsonSettings(settingsString);
+                    updateSettings = ConfigurationData::fromJsonSettings(settingsString);
 
                     if (fileSystem->isFile(previousInputFilePath))
                     {
                         std::string previousSettingString = fileSystem->readFile(previousInputFilePath);
                         if (!previousSettingString.empty())
                         {
-                            previousConfigurationData = ConfigurationData::fromJsonSettings(previousSettingString);
-                            if (!previousConfigurationData.verifySettingsAreValid())
+                            previousUpdateSettings = ConfigurationData::fromJsonSettings(previousSettingString);
+                            if (!previousUpdateSettings.verifySettingsAreValid())
                             {
                                 LOGDEBUG("No previous configuration data provided");
                             }
@@ -808,7 +808,7 @@ namespace SulDownloader
                 }
             } while (!readSuccessful);
 
-            if (!configurationData.verifySettingsAreValid())
+            if (!updateSettings.verifySettingsAreValid())
             {
                 throw SulDownloaderException(LOCATION, "Configuration data is invalid");
             }
@@ -831,14 +831,14 @@ namespace SulDownloader
                 LOGSUPPORT(ex.what());
             }
 
-            report = runSULDownloader(configurationData, previousConfigurationData, previousDownloadReport, supplementOnly);
+            report = runSULDownloader(updateSettings, previousUpdateSettings, previousDownloadReport, supplementOnly);
 
             // If the installation was successful then we can safely update the list of installed features
             // We don't want to write the features on a supplement only update, since it isn't guaranteed that all the
             // requested features were installed (e.g. the cached SUS response doesn't have all the suites)
             if (report.getExitCode() == 0 && !supplementOnly)
             {
-                writeInstalledFeatures(configurationData.getFeatures());
+                writeInstalledFeatures(updateSettings.getFeatures());
             }
         }
         catch (const Common::FileSystem::IFileSystemException& exception)

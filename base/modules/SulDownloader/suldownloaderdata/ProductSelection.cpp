@@ -171,21 +171,21 @@ namespace SulDownloader
 {
     // Product Selection
 
-    ProductSelection ProductSelection::CreateProductSelection(const Common::Policy::UpdateSettings& configurationData)
+    ProductSelection ProductSelection::CreateProductSelection(const Common::Policy::UpdateSettings& updateSettings)
     {
         ProductSelection productSelection;
 
-        auto primary = configurationData.getPrimarySubscription();
+        auto primary = updateSettings.getPrimarySubscription();
         LOGSUPPORT("Product Selector: " << primary.toString() << ". Primary.");
         productSelection.appendSelector(std::make_unique<SubscriptionSelector>(primary));
 
-        for (const auto& subscription : configurationData.getProductsSubscription())
+        for (const auto& subscription : updateSettings.getProductsSubscription())
         {
             LOGSUPPORT("Product Selector: " << subscription.toString());
             productSelection.appendSelector(std::make_unique<SubscriptionSelector>(subscription));
         }
 
-        productSelection.m_features.setEntries(configurationData.getFeatures());
+        productSelection.m_features.setEntries(updateSettings.getFeatures());
 
         return productSelection;
     }
