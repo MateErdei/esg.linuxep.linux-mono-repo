@@ -25,6 +25,7 @@ RESULTS_DIR = '/opt/test/results'
 
 COMPONENT = 'sspl_base'
 BUILD_TEMPLATE = 'centos79_x64_build_20230202'
+BUILD_TEMPLATE_BAZEL = 'centos79_x64_bazel_20230512'
 RELEASE_PKG = './build/release-package.xml'
 BAZEL_RELEASE_PKG = './build/release-package-bazel.xml'
 RELEASE_MODE = 'release'
@@ -351,7 +352,7 @@ def build_060(stage: tap.Root, component: tap.Component):
 
 def build_bazel(stage: tap.Root, component: tap.Component):
     return stage.artisan_build(
-        name="bazel", component=component, image=BUILD_TEMPLATE,
+        name="bazel", component=component, image=BUILD_TEMPLATE_BAZEL,
         mode="bazel_release", release_package=BAZEL_RELEASE_PKG)
 
 
