@@ -5,6 +5,7 @@ add_library(policyobject OBJECT
         ALCPolicy.h
         Credentials.cpp
         Credentials.h
+        ESMVersion.h
         Logger.cpp
         Logger.h
         PolicyParseException.h
