@@ -26,6 +26,7 @@
         <build-asset project="em" repo="esg">
             <release-version branch="release/SPRINT-2023.25"
                              build-id="20230616101659-487f34a8a2e4fab8b7ef699160dcb289978c9894-74Umat"/>
+            <development-version branch="develop"/>
             <include artifact-path="sophlib/include" dest-dir="/build/redist/sophlib/include/sophlib"/>
             <include artifact-path="sophlib/linux_x86-64" dest-dir="/build/redist/sophlib/lib64"/>
             <include artifact-path="sophlib/sdds3-tools-x64-linux" dest-dir="/build/redist/sdds3"/>
