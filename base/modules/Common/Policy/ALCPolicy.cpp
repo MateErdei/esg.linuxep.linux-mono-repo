@@ -408,8 +408,6 @@ void ALCPolicy::extractFeatures(const Common::XmlUtilities::AttributesMap& attri
 
 void ALCPolicy::extractCloudSubscriptions(const Common::XmlUtilities::AttributesMap& attributesMap)
 {
-    const std::string FixedVersion{ "FixedVersion" };
-
     auto cloudSubscriptions =
         attributesMap.entitiesThatContainPath("AUConfigurations/AUConfig/cloud_subscriptions/subscription");
     std::vector<ProductSubscription> productsSubscription;
@@ -422,7 +420,7 @@ void ALCPolicy::extractCloudSubscriptions(const Common::XmlUtilities::Attributes
         auto subscriptionDetails = attributesMap.lookup(cloudSubscription);
         std::string rigidName = subscriptionDetails.value("RigidName");
         std::string tag = subscriptionDetails.value("Tag");
-        std::string fixedVersion = subscriptionDetails.value(FixedVersion);
+        std::string fixedVersion = subscriptionDetails.value("FixedVersion");
 
         ProductSubscription sub{
             rigidName,
