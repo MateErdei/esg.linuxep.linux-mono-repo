@@ -303,16 +303,6 @@ def main():
     print("Checking vagrant machine status...")
     check_vagrant_up_and_running(vagrant_root)
 
-    # If we're running base tests then we need filer6 for the SDDS specs
-    if current_repo == BASE_REPO_DIR_NAME:
-        print("Based on cwd assuming we're running base tests")
-        sdds_specs_dir_source = "/mnt/filer6/linux/SSPL/testautomation/sdds-specs"
-        if not os.path.isdir(sdds_specs_dir_source):
-            print("Mounting filer6 for SDDS specs")
-            sp.check_call(["mount", "/mnt/filer6/linux/"])
-            if not os.path.isdir(sdds_specs_dir_source):
-                print(f"Make sure filer6 is mounted on WSL so the SDDS specs are accessible: {sdds_specs_dir_source}")
-                return
 
     # Create the temp file that will be executed inside the vagrant machine
     if current_repo == BASE_REPO_DIR_NAME:
