@@ -107,7 +107,14 @@ namespace ManagementAgent
 
         int PluginManager::applyNewPolicy(const std::string& appId, const std::string& policyXml, const std::string& pluginName)
         {
-            LOGDEBUG("PluginManager: apply new policy: " << appId << " to plugin: " << pluginName);
+            if (pluginName.empty())
+            {
+                LOGDEBUG("PluginManager: apply new policy: " << appId);
+            }
+            else
+            {
+                LOGDEBUG("PluginManager: apply new policy: " << appId << " to plugin: " << pluginName);
+            }
 
             int pluginsNotified = 0;
             if (updateOngoing())
@@ -123,7 +130,7 @@ namespace ManagementAgent
 
             for (auto& proxy : m_RegisteredPlugins)
             {
-                if (proxy.second->hasPolicyAppId(appId) && proxy.first == pluginName)
+                if (registeredProxy->hasPolicyAppId(appId) && (pluginName.empty() || registeredPluginName == pluginName))
                 {
                     try
                     {
