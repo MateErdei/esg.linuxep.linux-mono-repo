@@ -44,6 +44,7 @@ TEST_F(PolicyReceiverImplTests, receivedGetPolicyRequest_ResultsInPolicyTaskAdde
 
     std::string appId = "AppID";
     std::string policyId = "25";
+    std::string testPlugin = "test-plugin";
 
     std::vector<std::string> directoryFileList;
     directoryFileList.push_back(appId + "-" + policyId + "_policy.xml");
@@ -52,7 +53,7 @@ TEST_F(PolicyReceiverImplTests, receivedGetPolicyRequest_ResultsInPolicyTaskAdde
 
     Common::TaskQueue::ITaskQueueSharedPtr fakeQueue(new FakeQueue);
     ManagementAgent::PolicyReceiverImpl::PolicyReceiverImpl policyReceiver(fakeQueue, m_mockPluginManager);
-    policyReceiver.receivedGetPolicyRequest(appId);
+    policyReceiver.receivedGetPolicyRequest(appId, testPlugin);
     Common::TaskQueue::ITaskPtr task = fakeQueue->popTask();
 
     EXPECT_NE(task.get(), nullptr);
@@ -66,6 +67,7 @@ TEST_F(PolicyReceiverImplTests, receivedGetPolicyRequestWillApplyPolicy) // NOLI
 
     std::string appId = "AppID";
     std::string policyId = "25";
+    std::string testPlugin = "test-plugin";
     std::string policyFileName(appId + "-" + policyId + "_policy.xml");
 
     std::string fileContent("PolicyXml");
@@ -77,7 +79,7 @@ TEST_F(PolicyReceiverImplTests, receivedGetPolicyRequestWillApplyPolicy) // NOLI
 
     Common::TaskQueue::ITaskQueueSharedPtr fakeQueue(new FakeQueue);
     ManagementAgent::PolicyReceiverImpl::PolicyReceiverImpl policyReceiver(fakeQueue, m_mockPluginManager);
-    policyReceiver.receivedGetPolicyRequest(appId);
+    policyReceiver.receivedGetPolicyRequest(appId, testPlugin);
     Common::TaskQueue::ITaskPtr task = fakeQueue->popTask();
 
     EXPECT_NE(task.get(), nullptr);

@@ -203,7 +203,7 @@ TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerReturnsPolicyOn
     Common::PluginProtocol::DataMessage queryPolicyMessage =
         createDefaultMessage(Common::PluginProtocol::Commands::PLUGIN_QUERY_CURRENT_POLICY, "");
     auto rawMessage = m_Protocol.serialize(queryPolicyMessage);
-    EXPECT_CALL(*m_mockServerCallback, receivedGetPolicyRequest(queryPolicyMessage.m_applicationId))
+    EXPECT_CALL(*m_mockServerCallback, receivedGetPolicyRequest(queryPolicyMessage.m_applicationId, _))
         .WillOnce(Return(true));
 
     auto replyMessage = sendReceive(queryPolicyMessage);
@@ -216,7 +216,7 @@ TEST_F(TestPluginServerCallbackHandler, TestServerCallbackHandlerPluginQueryPoli
     Common::PluginProtocol::DataMessage queryPolicyMessage =
         createDefaultMessage(Common::PluginProtocol::Commands::PLUGIN_QUERY_CURRENT_POLICY, "");
 
-    EXPECT_CALL(*m_mockServerCallback, receivedGetPolicyRequest(queryPolicyMessage.m_applicationId))
+    EXPECT_CALL(*m_mockServerCallback, receivedGetPolicyRequest(queryPolicyMessage.m_applicationId, _))
         .WillOnce(Throw(Common::PluginApi::ApiException("Dummy Exception")));
 
     Common::PluginProtocol::DataMessage errorMessage =
