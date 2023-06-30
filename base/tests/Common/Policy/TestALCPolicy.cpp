@@ -442,7 +442,7 @@ TEST_F(TestALCPolicy, sdds2_update_server_uses_sophos_alias_file)
 
 //Cloud Subscription Tests
 
-TEST_F(TestALCPolicy, cloud_subscriptions_no_esm)
+TEST_F(TestALCPolicy, cloud_subscriptions)
 {
     constexpr char minPolicy[] = R"sophos(<?xml version="1.0"?>
 <AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
@@ -491,8 +491,12 @@ TEST_F(TestALCPolicy, cloud_subscriptions_no_esm)
     EXPECT_EQ(primary.baseVersion(), "10");
 }
 
+//esm tests
+
 TEST_F(TestALCPolicy, cloud_subscriptions_esm_enabled)
 {
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
     constexpr char minPolicy[] = R"sophos(<?xml version="1.0"?>
 <AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
   <csc:Comp RevID="b6a8fe2c0ce016c949016a5da2b7a089699271290ef7205d5bea0986768485d9" policyType="1"/>
@@ -507,41 +511,17 @@ TEST_F(TestALCPolicy, cloud_subscriptions_esm_enabled)
       <subscription Id="Base" RigidName="ServerProtectionLinux-Base9" Tag="RECOMMENDED" BaseVersion="9" FixedVersion="8"/>
     </cloud_subscriptions>
     <fixed_version>
-        <token>"imatoken"</token>
-        <name>"imthetokensname"</name>
+        <token>imatoken</token>
+        <name>imthetokensname</name>
     </fixed_version>
 </AUConfig>
 </AUConfigurations>
 )sophos";
 
     ALCPolicy obj{ minPolicy };
-
-    {
-        auto all_subs = obj.getSubscriptions();
-        ASSERT_EQ(all_subs.size(), 2);
-        EXPECT_EQ(all_subs[0].rigidName(), "ServerProtectionLinux-Base");
-        EXPECT_EQ(all_subs[0].fixedVersion(), "11");
-        EXPECT_EQ(all_subs[0].tag(), "RECOMMENDED");
-        EXPECT_EQ(all_subs[0].baseVersion(), "10");
-
-        EXPECT_EQ(all_subs[1].rigidName(), "ServerProtectionLinux-Base9");
-        EXPECT_EQ(all_subs[1].fixedVersion(), "8");
-        EXPECT_EQ(all_subs[1].tag(), "RECOMMENDED");
-        EXPECT_EQ(all_subs[1].baseVersion(), "9");
-    }
     auto settings = obj.getUpdateSettings();
-    auto subs = settings.getProductsSubscription();
-    ASSERT_EQ(subs.size(), 1);
-    EXPECT_EQ(subs[0].rigidName(), "ServerProtectionLinux-Base9");
-    EXPECT_EQ(subs[0].fixedVersion(), "8");
-    EXPECT_EQ(subs[0].tag(), "RECOMMENDED");
-    EXPECT_EQ(subs[0].baseVersion(), "9");
-
-    auto primary = settings.getPrimarySubscription();
-    EXPECT_EQ(primary.rigidName(), "ServerProtectionLinux-Base");
-    EXPECT_EQ(primary.fixedVersion(), "11");
-    EXPECT_EQ(primary.tag(), "RECOMMENDED");
-    EXPECT_EQ(primary.baseVersion(), "10");
+    EXPECT_EQ(settings.getEsmVersionToken(), "imatoken");
+    EXPECT_TRUE(appenderContains("ESM parameters set to Name: imthetokensname and Token: imatoken"));
 }
 
 TEST_F(TestALCPolicy, cloud_subscriptions_esm_present_but_empty)
@@ -568,33 +548,8 @@ TEST_F(TestALCPolicy, cloud_subscriptions_esm_present_but_empty)
 )sophos";
 
     ALCPolicy obj{ minPolicy };
-
-    {
-        auto all_subs = obj.getSubscriptions();
-        ASSERT_EQ(all_subs.size(), 2);
-        EXPECT_EQ(all_subs[0].rigidName(), "ServerProtectionLinux-Base");
-        EXPECT_EQ(all_subs[0].fixedVersion(), "11");
-        EXPECT_EQ(all_subs[0].tag(), "RECOMMENDED");
-        EXPECT_EQ(all_subs[0].baseVersion(), "10");
-
-        EXPECT_EQ(all_subs[1].rigidName(), "ServerProtectionLinux-Base9");
-        EXPECT_EQ(all_subs[1].fixedVersion(), "8");
-        EXPECT_EQ(all_subs[1].tag(), "RECOMMENDED");
-        EXPECT_EQ(all_subs[1].baseVersion(), "9");
-    }
     auto settings = obj.getUpdateSettings();
-    auto subs = settings.getProductsSubscription();
-    ASSERT_EQ(subs.size(), 1);
-    EXPECT_EQ(subs[0].rigidName(), "ServerProtectionLinux-Base9");
-    EXPECT_EQ(subs[0].fixedVersion(), "8");
-    EXPECT_EQ(subs[0].tag(), "RECOMMENDED");
-    EXPECT_EQ(subs[0].baseVersion(), "9");
-
-    auto primary = settings.getPrimarySubscription();
-    EXPECT_EQ(primary.rigidName(), "ServerProtectionLinux-Base");
-    EXPECT_EQ(primary.fixedVersion(), "11");
-    EXPECT_EQ(primary.tag(), "RECOMMENDED");
-    EXPECT_EQ(primary.baseVersion(), "10");
+    EXPECT_EQ(settings.getEsmVersionToken(), "");
 }
 
 //Credentials Tests
