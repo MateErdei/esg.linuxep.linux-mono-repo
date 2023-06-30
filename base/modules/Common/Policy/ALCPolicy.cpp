@@ -143,7 +143,6 @@ ALCPolicy::ALCPolicy(const std::string& xmlPolicy)
     extractUpdateCaches(attributesMap);
     extractUpdateSchedule(attributesMap);
     extractProxyDetails(attributesMap);
-    extractESMVersion(attributesMap);
     extractCloudSubscriptions(attributesMap);
     extractPeriod(attributesMap);
     extractFeatures(attributesMap);
@@ -408,6 +407,8 @@ void ALCPolicy::extractFeatures(const Common::XmlUtilities::AttributesMap& attri
 
 void ALCPolicy::extractCloudSubscriptions(const Common::XmlUtilities::AttributesMap& attributesMap)
 {
+    auto esmVersionToken = extractESMVersion(attributesMap);
+
     auto cloudSubscriptions =
         attributesMap.entitiesThatContainPath("AUConfigurations/AUConfig/cloud_subscriptions/subscription");
     std::vector<ProductSubscription> productsSubscription;
@@ -426,7 +427,8 @@ void ALCPolicy::extractCloudSubscriptions(const Common::XmlUtilities::Attributes
             rigidName,
             subscriptionDetails.value("BaseVersion"),
             tag,
-            fixedVersion
+            fixedVersion,
+            esmVersionToken
         };
         subscriptions_.emplace_back(sub);
         if (rigidName != SSPLBaseName)
@@ -438,7 +440,8 @@ void ALCPolicy::extractCloudSubscriptions(const Common::XmlUtilities::Attributes
             updateSettings_.setPrimarySubscription({ rigidName,
                                                      subscriptionDetails.value("BaseVersion"),
                                                      subscriptionDetails.value("Tag"),
-                                                     fixedVersion });
+                                                     fixedVersion,
+                                                     esmVersionToken});
 
             ssplBaseIncluded = true;
         }
@@ -454,13 +457,17 @@ void ALCPolicy::extractCloudSubscriptions(const Common::XmlUtilities::Attributes
     }
 }
 
-void ALCPolicy::extractESMVersion(const Common::XmlUtilities::AttributesMap& attributesMap)
+std::string ALCPolicy::extractESMVersion(const Common::XmlUtilities::AttributesMap& attributesMap)
 {
     auto tokenAttr = attributesMap.lookup("AUConfigurations/AUConfig/fixed_version/token");
     auto nameAttr = attributesMap.lookup("AUConfigurations/AUConfig/fixed_version/name");
 
-    [[maybe_unused]] auto tokenStr = tokenAttr.contents();
-    [[maybe_unused]] auto nameStr = nameAttr.contents();
+    auto tokenStr = tokenAttr.contents();
+    auto nameStr = nameAttr.contents();
+
+    LOGINFO("ESM parameters set to Name: " << nameStr << " and " << " Token: " << tokenStr);
+
+    return tokenStr;
 }
 
 void ALCPolicy::extractPeriod(const Common::XmlUtilities::AttributesMap& attributesMap)
