@@ -520,8 +520,8 @@ TEST_F(TestALCPolicy, cloud_subscriptions_esm_enabled)
 
     ALCPolicy obj{ minPolicy };
     auto settings = obj.getUpdateSettings();
-    EXPECT_EQ(settings.getEsmVersionToken(), "imatoken");
-    EXPECT_TRUE(appenderContains("ESM parameters set to Name: imthetokensname and Token: imatoken"));
+    EXPECT_EQ(settings.getEsmVersion().name(), "imthetokensname");
+    EXPECT_EQ(settings.getEsmVersion().token(), "imatoken");
 }
 
 TEST_F(TestALCPolicy, cloud_subscriptions_esm_present_but_empty)
@@ -549,7 +549,8 @@ TEST_F(TestALCPolicy, cloud_subscriptions_esm_present_but_empty)
 
     ALCPolicy obj{ minPolicy };
     auto settings = obj.getUpdateSettings();
-    EXPECT_EQ(settings.getEsmVersionToken(), "");
+    EXPECT_EQ(settings.getEsmVersion().name(), "");
+    EXPECT_EQ(settings.getEsmVersion().token(), "");
 }
 
 //Credentials Tests

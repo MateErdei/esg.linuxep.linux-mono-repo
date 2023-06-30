@@ -16,7 +16,7 @@ class ESMVersion {
         [[nodiscard]] std::string name() const { return name_; }
         [[nodiscard]] std::string token() const { return token_; }
 
-        bool isValid()
+        bool isValid() const
         {
             bool emptyName = name_.empty();
             bool emptyToken = token_.empty();

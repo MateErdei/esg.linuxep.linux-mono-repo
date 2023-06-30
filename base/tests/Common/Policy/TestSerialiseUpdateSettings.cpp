@@ -159,14 +159,19 @@ TEST_F(TestSerialiseUpdateSettings, preserveDevice)
     EXPECT_EQ(before.getDeviceId(), after.getDeviceId());
 }
 
-TEST_F(TestSerialiseUpdateSettings, preserveEsmVersionToken)
+TEST_F(TestSerialiseUpdateSettings, preserveEsmVersion)
 {
     UpdateSettings before;
-    before.setEsmVersionToken("ESMTOKEN");
-    ASSERT_EQ(before.getEsmVersionToken(), "ESMTOKEN");
+    ESMVersion esmVersion("ESMName", "ESMToken");
+    before.setEsmVersion(std::move(esmVersion));
+    ASSERT_EQ(before.getEsmVersion().name(), esmVersion.name());
+    ASSERT_EQ(before.getEsmVersion().token(), esmVersion.token());
+
     auto serialised = SerialiseUpdateSettings::toJsonSettings(before);
     auto after = SerialiseUpdateSettings::fromJsonSettings(serialised);
-    EXPECT_EQ(before.getEsmVersionToken(), after.getEsmVersionToken());
+
+    EXPECT_EQ(before.getEsmVersion().name(), after.getEsmVersion().name());
+    EXPECT_EQ(before.getEsmVersion().token(), after.getEsmVersion().token());
 }
 
 TEST_F(TestSerialiseUpdateSettings, emptyCredentialsShouldFailValidation)
