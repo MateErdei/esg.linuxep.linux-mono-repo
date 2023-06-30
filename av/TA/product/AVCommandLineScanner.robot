@@ -267,7 +267,9 @@ CLS Summary in Less Than a Second
 
 
 CLS Duration Summary is Displayed Correctly
-    Start Process    ${CLI_SCANNER_PATH}   /  -x  /mnt/  file_samples/   /run/docker/netns/   stdout=/tmp/stdout
+    Start Process    ${CLI_SCANNER_PATH}   /  -x
+    ...  /mnt/  file_samples/   /run/docker/netns/  /run/snapd/ns/
+    ...  stdout=/tmp/stdout
 
     Sleep  65s
     Send Signal To Process  SIGINT
