@@ -1,6 +1,7 @@
 // Copyright 2023 Sophos Limited. All rights reserved.
 #pragma once
 
+#include "ESMVersion.h"
 #include "ProductSubscription.h"
 #include "Proxy.h"
 
@@ -333,14 +334,15 @@ namespace Common::Policy
         /**
          * @param contains string representing esmVersionToken
          */
-       void setEsmVersionToken(const std::string& esmVersionToken) { esmVersionToken_ = esmVersionToken; }
+       void setEsmVersion(const ESMVersion& esmVersion) { esmVersion_ = esmVersion; }
 
         /**
          * @return string containing the esmVersionToken
          */
-        [[nodiscard]] const std::string& getEsmVersionToken() const { return esmVersionToken_; }
+        [[nodiscard]] const ESMVersion& getEsmVersion() const { return esmVersion_; }
 
     protected:
+        ESMVersion esmVersion_;
         UpdateCacheHosts_t localUpdateCacheHosts_;
         ProductSubscription primarySubscription_;
         std::vector<ProductSubscription> productSubscriptions_;
@@ -351,7 +353,6 @@ namespace Common::Policy
         std::vector<std::string> optionalManifestNames_;
         Proxy policyProxy_;
         Credentials credentials_;
-        std::string esmVersionToken_;
         std::string jwToken_;
         std::string tenantId_;
         std::string deviceId_;
