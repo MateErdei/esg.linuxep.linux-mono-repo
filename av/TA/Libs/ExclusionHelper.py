@@ -1,7 +1,11 @@
 #!/bin/env python
 
 import os
+import time
 import xml.dom.minidom
+
+from robot.api import logger
+from robot.libraries.BuiltIn import BuiltIn
 
 
 def __generate_root_exclusions():
@@ -53,6 +57,13 @@ def replace_exclusions_in_policy_return_string(source, exclusions):
         n.appendChild(t)
         return n
 
+    compNodes = dom.getElementsByTagName("csc:Comp")
+    if len(compNodes) > 0:
+        node = compNodes[0]
+        node.setAttribute("RevID", BuiltIn().get_variable_value("${TEST NAME}")+"/"+str(time.time()))
+    else:
+        logger.debug("Can't find cscComp node")
+
     ondemand_element = dom.getElementsByTagName("onDemandScan")[0]
     posix_exclusions_element = ondemand_element.getElementsByTagName('posixExclusions')[0]
     fileset_element = posix_exclusions_element.getElementsByTagName('filePathSet')[0]
@@ -77,6 +88,7 @@ def Fill_In_On_Demand_Posix_Exclusions(source, destination):
 
 def Replace_Exclusions_For_Exclusion_Test(sourceFile):
     exclusions = []
+    unique_exclusion = "/" + BuiltIn().get_variable_value("${TEST NAME}")+"/"+str(time.time())
     for excl in __generate_root_exclusions():
         if excl not in (
                 "/directory_excluded/",
@@ -88,7 +100,8 @@ def Replace_Exclusions_For_Exclusion_Test(sourceFile):
     exclusions += [
                     "/directory_excluded/",
                     "/file_excluded",
-                    "/eicar.com"
+                    "/eicar.com",
+                    unique_exclusion
     ]
     return replace_exclusions_in_policy_return_string(sourceFile, exclusions)
 
