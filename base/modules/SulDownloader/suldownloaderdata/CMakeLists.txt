@@ -26,8 +26,6 @@ add_library(suldownloaderdataobject OBJECT
         ProductMetadata.h
         ConnectionSelector.cpp
         ConnectionSelector.h
-        ProductSelection.cpp
-        ProductSelection.h
         Tag.h
         IVersig.h
         VersigImpl.cpp

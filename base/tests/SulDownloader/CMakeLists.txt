@@ -13,7 +13,6 @@ add_executable(SulDownloaderTests
         SulDownloaderSdds3Tests.cpp
         TestDownloadReport.cpp
         TestConnectionSelector.cpp
-        TestProductSelection.cpp
         MockVersig.h
         VersigTests.cpp
         TestProductUninstaller.cpp
