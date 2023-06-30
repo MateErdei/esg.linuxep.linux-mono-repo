@@ -167,3 +167,19 @@ TEST_F(TestUpdateSettings, NoProxyIsValid)
     settings.setPolicyProxy(proxy);
     EXPECT_TRUE(settings.verifySettingsAreValid());
 }
+
+TEST_F(TestUpdateSettings, EmptyESMIsValid)
+{
+    setupFileSystemAndGetMock();
+    UpdateSettings settings = getValidUpdateSettings();
+    settings.setEsmVersionToken("");
+    EXPECT_TRUE(settings.verifySettingsAreValid());
+}
+
+TEST_F(TestUpdateSettings, PopulatedESMIsValid)
+{
+    setupFileSystemAndGetMock();
+    UpdateSettings settings = getValidUpdateSettings();
+    settings.setEsmVersionToken("imatoken");
+    EXPECT_TRUE(settings.verifySettingsAreValid());
+}
