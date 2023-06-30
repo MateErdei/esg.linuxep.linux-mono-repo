@@ -128,18 +128,18 @@ namespace ManagementAgent
             // Keep a list of plugins we failed to communicate with
             std::vector<std::pair<std::string, std::string>> pluginNamesAndErrors;
 
-            for (auto& proxy : m_RegisteredPlugins)
+            for (auto& [registeredPluginName, registeredProxy] : m_RegisteredPlugins)
             {
                 if (registeredProxy->hasPolicyAppId(appId) && (pluginName.empty() || registeredPluginName == pluginName))
                 {
                     try
                     {
-                        proxy.second->applyNewPolicy(appId, policyXml);
+                        registeredProxy->applyNewPolicy(appId, policyXml);
                         ++pluginsNotified;
                     }
                     catch (std::exception& ex)
                     {
-                        pluginNamesAndErrors.emplace_back(proxy.first, ex.what());
+                        pluginNamesAndErrors.emplace_back(registeredPluginName, ex.what());
                     }
                 }
             }
