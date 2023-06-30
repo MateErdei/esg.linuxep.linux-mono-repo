@@ -264,7 +264,7 @@ def get_test_machines(test_inputs, parameters):
         test_environments['amazonlinux2023'] = 'amzlinux2023_x64_server_en_us'
 
     if parameters.run_centos_7 != "false":
-        test_environments['centos79'] = 'centos79_x64_server_en_us'
+        test_environments['centos79'] = 'centos7_x64_aws_server_en_us'
 
     if parameters.run_centos_stream_8 != "false":
         test_environments['centos8stream'] = 'centos8stream_x64_aws_server_en_us'
@@ -300,10 +300,10 @@ def get_test_machines(test_inputs, parameters):
         test_environments['sles15'] = 'sles15_x64_sp4_aws_server_en_us'
 
     if parameters.run_ubuntu_18_04 != "false":
-        test_environments['ubuntu1804'] = 'ubuntu1804_x64_server_en_us'
+        test_environments['ubuntu1804'] = 'ubuntu1804_x64_aws_server_en_us'
 
     if parameters.run_ubuntu_20_04 != "false":
-        test_environments['ubuntu2004'] = 'ubuntu2004_x64_server_en_us'
+        test_environments['ubuntu2004'] = 'ubuntu2004_x64_aws_server_en_us'
 
     # TODO: LINUXDAR-7306 set CIJenkins to default=true once python3.10 issues are resolved
     if parameters.run_ubuntu_22_04 != "false":
@@ -420,8 +420,8 @@ def sspl_base(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
 
     with stage.parallel('integration'):
         if mode == COVERAGE_MODE:
-            stage.task(task_name="centos77", func=coverage_task,
-                       machine=tap.Machine('centos77_x64_server_en_us', inputs=test_inputs,
+            stage.task(task_name="centos7", func=coverage_task,
+                       machine=tap.Machine('centos7_x64_aws_server_en_us', inputs=test_inputs,
                                            platform=tap.Platform.Linux), branch=context.branch,
                        robot_args=robot_args)
         else:
