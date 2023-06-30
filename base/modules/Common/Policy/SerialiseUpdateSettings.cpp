@@ -73,7 +73,6 @@ UpdateSettings SerialiseUpdateSettings::fromJsonSettings(const std::string& sett
     std::vector<std::string> updateCaches(std::begin(updateCacheUrls), std::end(updateCacheUrls));
     updateSettings.setLocalUpdateCacheHosts(updateCaches);
 
-
     Proxy proxy(
         settings.proxy().url(),
         ProxyCredentials(
@@ -81,6 +80,9 @@ UpdateSettings SerialiseUpdateSettings::fromJsonSettings(const std::string& sett
             settings.proxy().credential().password(),
             settings.proxy().credential().proxytype()));
     updateSettings.setPolicyProxy(proxy);
+
+    ESMVersion esmVersion(settings.esmversion().name(), settings.esmversion().token());
+    updateSettings.setEsmVersion(esmVersion);
 
     ProductSubscription primary = getSubscription(settings.primarysubscription());
     std::vector<ProductSubscription> products;
@@ -93,6 +95,7 @@ UpdateSettings SerialiseUpdateSettings::fromJsonSettings(const std::string& sett
     {
         features.emplace_back(feature);
     }
+
     updateSettings.setPrimarySubscription(primary);
     updateSettings.setProductsSubscription(products);
     updateSettings.setFeatures(features);
@@ -103,7 +106,6 @@ UpdateSettings SerialiseUpdateSettings::fromJsonSettings(const std::string& sett
     updateSettings.setDeviceId(settings.deviceid());
     updateSettings.setDoForcedUpdate(settings.forceupdate());
     updateSettings.setDoForcedPausedUpdate(settings.forcepausedupdate());
-    updateSettings.setEsmVersionToken(settings.esmversiontoken());
 
     std::vector<std::string> installArgs(
         std::begin(settings.installarguments()), std::end(settings.installarguments()));
@@ -166,7 +168,7 @@ std::string SerialiseUpdateSettings::toJsonSettings(const UpdateSettings& update
     settings.mutable_deviceid()->assign(updateSettings.getDeviceId());
     settings.set_forceupdate(updateSettings.getDoForcedUpdate());
     settings.set_forcepausedupdate(updateSettings.getDoPausedForcedUpdate());
-    settings.set_esmversiontoken(updateSettings.getEsmVersionToken());
+
     const auto& primarySubscription = updateSettings.getPrimarySubscription();
     setProtobufEntries(primarySubscription, settings.mutable_primarysubscription());
     for (const auto& product : updateSettings.getProductsSubscription())
@@ -177,6 +179,9 @@ std::string SerialiseUpdateSettings::toJsonSettings(const UpdateSettings& update
     {
         settings.add_features(feature);
     }
+
+    settings.mutable_esmversion()->set_name(updateSettings.getEsmVersion().name());
+    settings.mutable_esmversion()->set_token(updateSettings.getEsmVersion().token());
 
     for (const auto& installarg : updateSettings.getInstallArguments())
     {

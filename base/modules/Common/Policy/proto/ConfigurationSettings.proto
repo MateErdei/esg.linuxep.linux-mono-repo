@@ -65,5 +65,11 @@ message ConfigurationSettings
     optional string updateCacheCertPath = 19;
     optional bool forceUpdate = 20 [default=false];
     optional bool forcePausedUpdate = 21 [default=false];
-    optional string esmVersionToken = 22;
+
+    message ESMVersion
+    {
+        optional string token = 1;
+        optional string name = 2;
+    }
+    optional ESMVersion esmVersion = 22;
 }
