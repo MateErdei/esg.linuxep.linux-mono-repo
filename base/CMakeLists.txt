@@ -246,6 +246,7 @@ add_sophlib_library(file)
 add_sophlib_library(http)
 add_sophlib_library(logging)
 add_sophlib_library(raii)
+add_sophlib_library(rapidjson)
 add_sophlib_library(sdds3)
 add_sophlib_library(string)
 add_sophlib_library(time)
@@ -256,11 +257,15 @@ add_imported_library(sophlib_sdds3_delta STATIC FALSE ${INPUT}/sophlib/lib64/sdd
 target_link_libraries(minizip INTERFACE bzip2 lzma openssl_crypto zlib)
 target_link_libraries(minizip_static INTERFACE bzip2_static lzma_static openssl_crypto_static zlib_static)
 target_link_libraries(sophlib_file INTERFACE sophlib_raii)
+target_link_libraries(sophlib_rapidjson INTERFACE
+        sophlib_logging
+        )
 target_link_libraries(sophlib_sdds3 INTERFACE
         pugixml_static
         sophlib_crypto
         sophlib_file
         sophlib_http
+        sophlib_rapidjson
         sophlib_sdds3_delta
         sophlib_string
         sophlib_time
