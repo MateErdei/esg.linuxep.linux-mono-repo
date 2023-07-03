@@ -6,8 +6,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include "modules/Common/PluginProtocol/DataMessage.h"
-#include "modules/Common/ZeroMQWrapper/IDataType.h"
+#include "Common/PluginProtocol/DataMessage.h"
+#include "Common/ZeroMQWrapper/IDataType.h"
 
 #include <string>
 #include <vector>

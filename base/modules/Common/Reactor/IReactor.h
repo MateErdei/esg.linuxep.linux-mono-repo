@@ -9,7 +9,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "ICallbackListener.h"
 #include "IShutdownListener.h"
 
-#include "modules/Common/ZeroMQWrapper/IReadable.h"
+#include "Common/ZeroMQWrapper/IReadable.h"
 namespace Common
 {
     namespace Reactor

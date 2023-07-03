@@ -4,7 +4,7 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include "modules/Common/Logging/SophosLoggerMacros.h"
+#include "Common/Logging/SophosLoggerMacros.h"
 
 log4cplus::Logger& getHttpRequesterImplLogger();
 

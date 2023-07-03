@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "modules/Common/ZipUtilities/IZipUtils.h"
+#include "Common/ZipUtilities/IZipUtils.h"
 
 #include <gmock/gmock.h>
 

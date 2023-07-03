@@ -5,7 +5,7 @@
 #include "BoostProcessHolder.h"
 #include "Logger.h"
 
-#include "modules/Common/Process/IProcessException.h"
+#include "Common/Process/IProcessException.h"
 
 #include <algorithm>
 #include <future>

@@ -6,7 +6,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include "tests/Common/Helpers/TempDirBaseClassTest.h"
 
-#include "modules/Common/FileSystemImpl/FileSystemImpl.h"
+#include "Common/FileSystemImpl/FileSystemImpl.h"
 
 /**
  * This class is to show how TempDirBaseClassTest can be used in order to

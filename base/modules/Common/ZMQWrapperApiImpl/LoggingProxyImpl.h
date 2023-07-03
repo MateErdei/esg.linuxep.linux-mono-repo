@@ -6,11 +6,11 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include "modules/Common/Reactor/IReactor.h"
-#include "modules/Common/ZeroMQWrapper/ISocketSubscriberPtr.h"
-#include "modules/Common/ZeroMQWrapperImpl/ContextHolder.h"
-#include "modules/Common/ZeroMQWrapperImpl/ProxyImpl.h"
-#include "modules/Common/ZeroMQWrapperImpl/SocketHolder.h"
+#include "Common/Reactor/IReactor.h"
+#include "Common/ZeroMQWrapper/ISocketSubscriberPtr.h"
+#include "Common/ZeroMQWrapperImpl/ContextHolder.h"
+#include "Common/ZeroMQWrapperImpl/ProxyImpl.h"
+#include "Common/ZeroMQWrapperImpl/SocketHolder.h"
 
 namespace Common
 {

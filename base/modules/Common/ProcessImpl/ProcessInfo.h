@@ -4,7 +4,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "modules/Common/Process/IProcessInfo.h"
+#include "Common/Process/IProcessInfo.h"
 
 namespace Common
 {

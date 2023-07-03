@@ -5,14 +5,15 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 #include "TempDir.h"
 
-#include "modules/Common/FileSystem/IFileSystemException.h"
-#include "modules/Common/FileSystem/IFilePermissions.h"
-#include "modules/Common/FileSystemImpl/FileSystemImpl.h"
-#include "modules/Common/FileSystemImpl/TempDir.h"
-#include "modules/Common/UtilityImpl/StrError.h"
+#include "Common/FileSystem/IFileSystemException.h"
+#include "Common/FileSystem/IFilePermissions.h"
+#include "Common/FileSystemImpl/FileSystemImpl.h"
+#include "Common/FileSystemImpl/TempDir.h"
+#include "Common/UtilityImpl/StrError.h"
 #include <sys/stat.h>
 
 #include <cassert>
+#include <cstring>
 namespace Tests
 {
     std::unique_ptr<TempDir> TempDir::makeTempDir(const std::string& nameprefix)

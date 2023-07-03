@@ -6,10 +6,10 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "MockDnsLookup.h"
 #include "MockILocalIP.h"
 
-#include "modules/Common/OSUtilities/IDnsLookup.h"
-#include "modules/Common/OSUtilities/IIPUtils.h"
-#include "modules/Common/OSUtilitiesImpl/DnsLookupImpl.h"
-#include "modules/Common/OSUtilitiesImpl/LocalIPImpl.h"
+#include "Common/OSUtilities/IDnsLookup.h"
+#include "Common/OSUtilities/IIPUtils.h"
+#include "Common/OSUtilitiesImpl/DnsLookupImpl.h"
+#include "Common/OSUtilitiesImpl/LocalIPImpl.h"
 #include <arpa/inet.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>

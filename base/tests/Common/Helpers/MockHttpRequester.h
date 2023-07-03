@@ -5,7 +5,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 #pragma once
 
-#include "modules/Common/HttpRequests/IHttpRequester.h"
+#include "Common/HttpRequests/IHttpRequester.h"
 #include <gmock/gmock.h>
 
 using namespace ::testing;

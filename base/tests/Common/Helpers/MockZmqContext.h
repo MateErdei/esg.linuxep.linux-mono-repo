@@ -2,15 +2,15 @@
 
 #pragma once
 
-#include "modules/Common/ApplicationConfiguration/IApplicationPathManager.h"
-#include "modules/Common/ZMQWrapperApi/IContext.h"
-#include "modules/Common/ZeroMQWrapper/ISocketPublisher.h"
-#include "modules/Common/ZeroMQWrapper/ISocketPublisherPtr.h"
-#include "modules/Common/ZeroMQWrapper/ISocketReplier.h"
-#include "modules/Common/ZeroMQWrapper/ISocketRequester.h"
-#include "modules/Common/ZeroMQWrapper/ISocketRequesterPtr.h"
-#include "modules/Common/ZeroMQWrapper/ISocketSubscriber.h"
-#include "modules/Common/ZeroMQWrapper/ISocketSubscriberPtr.h"
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include "Common/ZMQWrapperApi/IContext.h"
+#include "Common/ZeroMQWrapper/ISocketPublisher.h"
+#include "Common/ZeroMQWrapper/ISocketPublisherPtr.h"
+#include "Common/ZeroMQWrapper/ISocketReplier.h"
+#include "Common/ZeroMQWrapper/ISocketRequester.h"
+#include "Common/ZeroMQWrapper/ISocketRequesterPtr.h"
+#include "Common/ZeroMQWrapper/ISocketSubscriber.h"
+#include "Common/ZeroMQWrapper/ISocketSubscriberPtr.h"
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>

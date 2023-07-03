@@ -5,7 +5,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 #include "DnsLookupImpl.h"
 
-#include "modules/Common/OSUtilities/IIPUtils.h"
+#include "Common/OSUtilities/IIPUtils.h"
 
 #include <cstring>
 #include <ifaddrs.h>

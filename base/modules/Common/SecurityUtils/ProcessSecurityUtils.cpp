@@ -6,9 +6,9 @@ Copyright 2020, Sophos Limited.  All rights reserved.
 
 #include "ProcessSecurityUtils.h"
 
-#include "modules/Common/FileSystem/IFileSystemException.h"
-#include "modules/Common/FileSystem/IFilePermissions.h"
-#include "modules/Common/FileSystemImpl/FileSystemImpl.h"
+#include "Common/FileSystem/IFileSystemException.h"
+#include "Common/FileSystem/IFilePermissions.h"
+#include "Common/FileSystemImpl/FileSystemImpl.h"
 #include <sys/mount.h>
 
 #include <cstdlib>

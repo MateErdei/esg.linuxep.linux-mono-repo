@@ -8,11 +8,11 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 #include "IContextSharedPtr.h"
 
-#include "modules/Common/ZeroMQWrapper/IProxy.h"
-#include "modules/Common/ZeroMQWrapper/ISocketPublisherPtr.h"
-#include "modules/Common/ZeroMQWrapper/ISocketReplierPtr.h"
-#include "modules/Common/ZeroMQWrapper/ISocketRequesterPtr.h"
-#include "modules/Common/ZeroMQWrapper/ISocketSubscriberPtr.h"
+#include "Common/ZeroMQWrapper/IProxy.h"
+#include "Common/ZeroMQWrapper/ISocketPublisherPtr.h"
+#include "Common/ZeroMQWrapper/ISocketReplierPtr.h"
+#include "Common/ZeroMQWrapper/ISocketRequesterPtr.h"
+#include "Common/ZeroMQWrapper/ISocketSubscriberPtr.h"
 
 #include <string>
 

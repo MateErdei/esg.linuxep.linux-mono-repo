@@ -9,10 +9,10 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include "Logger.h"
 #include "TelemetrySerialiser.h"
 
-#include "modules/Common/ApplicationConfiguration/IApplicationConfiguration.h"
-#include "modules/Common/ApplicationConfiguration/IApplicationPathManager.h"
-#include "modules/Common/FileSystemImpl/FileSystemImpl.h"
-#include "modules/Common/UtilityImpl/StringUtils.h"
+#include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include "Common/FileSystemImpl/FileSystemImpl.h"
+#include "Common/UtilityImpl/StringUtils.h"
 
 #include <cmath>
 #include <functional>

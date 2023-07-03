@@ -9,9 +9,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "Logger.h"
 #include "ProtocolSerializerFactory.h"
 
-#include "modules/Common/PluginApi/ApiException.h"
+#include "Common/PluginApi/ApiException.h"
 
-#include "modules/Common/PluginProtocol/PluginAPIMessage.pb.h"
+#include "Common/PluginProtocol/PluginAPIMessage.pb.h"
 
 namespace Common
 {

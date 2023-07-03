@@ -2,7 +2,7 @@
 
 #include "MockPidLockFileUtils.h"
 #include "tests/Common/Helpers/TempDir.h"
-#include "modules/Common/FileSystemImpl/PidLockFile.h"
+#include "Common/FileSystemImpl/PidLockFile.h"
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 #include <future>

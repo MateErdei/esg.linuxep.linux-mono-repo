@@ -7,11 +7,11 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 #include "AppIdCollection.h"
 
-#include "modules/Common/PluginCommunication/IPluginProxy.h"
-#include "modules/Common/PluginProtocol/MessageBuilder.h"
-#include "modules/Common/ZeroMQWrapper/IReadWrite.h"
-#include "modules/Common/ZeroMQWrapper/ISocketRequester.h"
-#include "modules/Common/ZeroMQWrapper/ISocketRequesterPtr.h"
+#include "Common/PluginCommunication/IPluginProxy.h"
+#include "Common/PluginProtocol/MessageBuilder.h"
+#include "Common/ZeroMQWrapper/IReadWrite.h"
+#include "Common/ZeroMQWrapper/ISocketRequester.h"
+#include "Common/ZeroMQWrapper/ISocketRequesterPtr.h"
 
 namespace Common
 {

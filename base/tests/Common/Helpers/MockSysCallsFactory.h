@@ -1,6 +1,6 @@
 // Copyright 2020-2023, Sophos Limited.  All rights reserved.
 
-#include "modules/Common/SystemCallWrapper/SystemCallWrapperFactory.h"
+#include "Common/SystemCallWrapper/SystemCallWrapperFactory.h"
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>

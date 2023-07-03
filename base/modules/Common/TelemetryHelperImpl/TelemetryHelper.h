@@ -8,7 +8,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 #include "TelemetryObject.h"
 
-#include "modules/Common/FileSystem/IFileSystem.h"
+#include "Common/FileSystem/IFileSystem.h"
 
 #include <functional>
 #include <mutex>

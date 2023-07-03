@@ -6,9 +6,9 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include "modules/Common/ZeroMQWrapperImpl/ContextHolder.h"
+#include "Common/ZeroMQWrapperImpl/ContextHolder.h"
 
-#include "modules/Common/ZMQWrapperApi/IContext.h"
+#include "Common/ZMQWrapperApi/IContext.h"
 
 namespace Common
 {

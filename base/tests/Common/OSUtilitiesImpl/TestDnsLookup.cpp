@@ -2,8 +2,8 @@
 #include "MockDnsLookup.h"
 #include "MockILocalIP.h"
 
-#include "modules/Common/OSUtilities/IDnsLookup.h"
-#include "modules/Common/OSUtilitiesImpl/DnsLookupImpl.h"
+#include "Common/OSUtilities/IDnsLookup.h"
+#include "Common/OSUtilitiesImpl/DnsLookupImpl.h"
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 

@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "modules/Common/OSUtilities/IPlatformUtils.h"
+#include "Common/OSUtilities/IPlatformUtils.h"
 #include <gmock/gmock.h>
 
 using namespace ::testing;

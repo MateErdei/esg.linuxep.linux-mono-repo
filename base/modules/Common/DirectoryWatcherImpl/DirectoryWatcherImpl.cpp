@@ -8,10 +8,10 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 #include "Logger.h"
 
-#include "modules/Common/DirectoryWatcher/IDirectoryWatcherException.h"
-#include "modules/Common/UtilityImpl/StringUtils.h"
-#include "modules/Common/ZeroMQWrapper/IPoller.h"
-#include "modules/Common/ZeroMQWrapperImpl/ZeroMQWrapperException.h"
+#include "Common/DirectoryWatcher/IDirectoryWatcherException.h"
+#include "Common/UtilityImpl/StringUtils.h"
+#include "Common/ZeroMQWrapper/IPoller.h"
+#include "Common/ZeroMQWrapperImpl/ZeroMQWrapperException.h"
 #include <sys/inotify.h>
 
 #include <algorithm>

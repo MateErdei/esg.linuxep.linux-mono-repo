@@ -2,9 +2,9 @@
 
 #pragma once
 
-#include "modules/Common/Process/IProcess.h"
-#include "modules/Common/Process/IProcessInfo.h"
-#include "modules/Common/Threads/NotifyPipe.h"
+#include "Common/Process/IProcess.h"
+#include "Common/Process/IProcessInfo.h"
+#include "Common/Threads/NotifyPipe.h"
 
 #include <chrono>
 

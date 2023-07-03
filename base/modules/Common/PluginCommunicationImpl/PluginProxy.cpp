@@ -2,10 +2,10 @@
 
 #include "PluginProxy.h"
 
-#include "modules/Common/PluginCommunication/IPluginCommunicationException.h"
-#include "modules/Common/PluginProtocol/MessageBuilder.h"
-#include "modules/Common/PluginProtocol/Protocol.h"
-#include "modules/Common/ZeroMQWrapper/ISocketRequesterPtr.h"
+#include "Common/PluginCommunication/IPluginCommunicationException.h"
+#include "Common/PluginProtocol/MessageBuilder.h"
+#include "Common/PluginProtocol/Protocol.h"
+#include "Common/ZeroMQWrapper/ISocketRequesterPtr.h"
 
 #include <algorithm>
 #include <sstream>

@@ -5,7 +5,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 #pragma once
 
-#include "modules/Common/CurlWrapper/ICurlWrapper.h"
+#include "Common/CurlWrapper/ICurlWrapper.h"
 #include <gmock/gmock.h>
 
 using namespace ::testing;

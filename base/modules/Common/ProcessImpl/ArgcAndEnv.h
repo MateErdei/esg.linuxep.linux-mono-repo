@@ -6,8 +6,8 @@
 ///////////////////////////////////////////////////////////
 #pragma once
 
-#include "modules/Common/Process/IProcess.h"
-#include "modules/Common/Process/IProcessException.h"
+#include "Common/Process/IProcess.h"
+#include "Common/Process/IProcessException.h"
 
 #include <cassert>
 #include <set>

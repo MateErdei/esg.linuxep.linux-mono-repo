@@ -6,7 +6,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include "modules/Common/FileSystem/IPidLockFileUtils.h"
+#include "Common/FileSystem/IPidLockFileUtils.h"
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 

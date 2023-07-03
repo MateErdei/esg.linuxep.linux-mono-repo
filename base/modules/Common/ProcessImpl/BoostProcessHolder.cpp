@@ -1,17 +1,17 @@
 // Copyright 2018-2023 Sophos Limited. All rights reserved.
 #include "BoostProcessHolder.h"
 
-#include "modules/Common/Process/IProcessException.h"
+#include "Common/Process/IProcessException.h"
 #include "Logger.h"
 
-#include "modules/Common/UtilityImpl/StringUtils.h"
+#include "Common/UtilityImpl/StringUtils.h"
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 #pragma GCC diagnostic ignored "-Wunused-result"
 #pragma GCC diagnostic ignored "-Wdeprecated-copy"
 #pragma GCC diagnostic ignored "-Wsign-compare"
-#include "modules/Common/FileSystem/IFilePermissions.h"
+#include "Common/FileSystem/IFilePermissions.h"
 #include <boost/asio/read.hpp>
 #include <boost/process/args.hpp>
 #include <boost/process/env.hpp>

@@ -13,7 +13,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include "SecureCollection.h"
 
-#include "modules/Common/Obfuscation/IEvpCipherWrapper.h"
+#include "Common/Obfuscation/IEvpCipherWrapper.h"
 #include <openssl/evp.h>
 
 #include <memory>

@@ -8,8 +8,8 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 #include "Logger.h"
 
-#include "modules/Common/ZeroMQWrapper/ISocketSubscriber.h"
-#include "modules/Common/ZeroMQWrapperImpl/SocketImpl.h"
+#include "Common/ZeroMQWrapper/ISocketSubscriber.h"
+#include "Common/ZeroMQWrapperImpl/SocketImpl.h"
 
 #include <zmq.h>
 

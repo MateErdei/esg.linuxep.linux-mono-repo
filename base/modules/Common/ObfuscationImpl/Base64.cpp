@@ -8,7 +8,7 @@ Copyright 2018-2022, Sophos Limited.  All rights reserved.
 
 #include "Logger.h"
 
-#include "modules/Common/Obfuscation/IBase64Exception.h"
+#include "Common/Obfuscation/IBase64Exception.h"
 
 #include <vector>
 #include <openssl/evp.h>

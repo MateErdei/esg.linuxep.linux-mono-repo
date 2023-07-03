@@ -4,7 +4,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************///
 
-#include "modules/Common/ApplicationConfigurationImpl/ApplicationConfiguration.h"
+#include "Common/ApplicationConfigurationImpl/ApplicationConfiguration.h"
 #include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
 #include "tests/Common/Helpers/MockFileSystem.h"
 

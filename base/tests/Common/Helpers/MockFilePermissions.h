@@ -4,7 +4,7 @@
 
 #include "FilePermissionsReplaceAndRestore.h"
 
-#include "modules/Common/FileSystem/IFilePermissions.h"
+#include "Common/FileSystem/IFilePermissions.h"
 #include <gmock/gmock.h>
 
 using namespace ::testing;

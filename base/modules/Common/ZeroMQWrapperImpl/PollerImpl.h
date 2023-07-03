@@ -6,7 +6,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include "modules/Common/ZeroMQWrapper/IPoller.h"
+#include "Common/ZeroMQWrapper/IPoller.h"
 
 namespace Common
 {

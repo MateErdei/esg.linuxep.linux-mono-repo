@@ -6,7 +6,7 @@ Copyright 2018-2020, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include "modules/Common/Logging/SophosLoggerMacros.h"
+#include "Common/Logging/SophosLoggerMacros.h"
 
 log4cplus::Logger& getProcLogger();
 

@@ -5,7 +5,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 #pragma once
 
-#include "modules/Common/OSUtilities/IDnsLookup.h"
+#include "Common/OSUtilities/IDnsLookup.h"
 
 #include <memory>
 namespace Common

@@ -11,7 +11,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include <gtest/gtest.h>
 
 #include <memory>
-#include "modules/Common/CurlWrapper/CurlWrapper.h"
+#include "Common/CurlWrapper/CurlWrapper.h"
 
 class FakeCurlWrapper : public Common::CurlWrapper::CurlWrapper
 {

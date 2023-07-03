@@ -6,8 +6,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include "modules/Common/TaskQueue/ITask.h"
-#include "modules/Common/TaskQueue/ITaskQueue.h"
+#include "Common/TaskQueue/ITask.h"
+#include "Common/TaskQueue/ITaskQueue.h"
 
 #include <condition_variable>
 #include <deque>

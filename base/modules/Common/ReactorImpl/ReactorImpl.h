@@ -6,9 +6,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include "modules/Common/Reactor/ICallbackListener.h"
-#include "modules/Common/Reactor/IReactor.h"
-#include "modules/Common/Threads/AbstractThread.h"
+#include "Common/Reactor/ICallbackListener.h"
+#include "Common/Reactor/IReactor.h"
+#include "Common/Threads/AbstractThread.h"
 
 namespace Common
 {

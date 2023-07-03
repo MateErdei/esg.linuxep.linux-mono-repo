@@ -6,9 +6,9 @@ Copyright 2018-2020, Sophos Limited.  All rights reserved.
 
 #include "DummyDirectoryWatcherListener.h"
 
-#include "modules/Common/DirectoryWatcher/IDirectoryWatcher.h"
-#include "modules/Common/DirectoryWatcher/IDirectoryWatcherException.h"
-#include "modules/Common/DirectoryWatcherImpl/DirectoryWatcherImpl.h"
+#include "Common/DirectoryWatcher/IDirectoryWatcher.h"
+#include "Common/DirectoryWatcher/IDirectoryWatcherException.h"
+#include "Common/DirectoryWatcherImpl/DirectoryWatcherImpl.h"
 #include "tests/Common/Helpers/LogInitializedTests.h"
 #include "tests/Common/Helpers/MockiNotifyWrapper.h"
 

@@ -2,9 +2,9 @@
 
 #pragma once
 
-#include "modules/Common/ProcessMonitoring/ISignalHandler.h"
+#include "Common/ProcessMonitoring/ISignalHandler.h"
 
-#include "modules/Common/Threads/NotifyPipe.h"
+#include "Common/Threads/NotifyPipe.h"
 
 namespace Common
 {

@@ -8,7 +8,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include "SocketImpl.h"
 
-#include "modules/Common/ZeroMQWrapper/ISocketSubscriber.h"
+#include "Common/ZeroMQWrapper/ISocketSubscriber.h"
 
 namespace Common
 {

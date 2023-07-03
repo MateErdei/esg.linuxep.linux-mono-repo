@@ -4,12 +4,12 @@
 
 #include "ProcessProxy.h"
 
-#include "modules/Common/ProcessMonitoring/IProcessMonitor.h"
-#include "modules/Common/Threads/NotifyPipe.h"
-#include "modules/Common/ZMQWrapperApi/IContext.h"
-#include "modules/Common/ZMQWrapperApi/IContextSharedPtr.h"
-#include "modules/Common/ZeroMQWrapper/ISocketReplier.h"
-#include "modules/Common/ZeroMQWrapper/ISocketReplierPtr.h"
+#include "Common/ProcessMonitoring/IProcessMonitor.h"
+#include "Common/Threads/NotifyPipe.h"
+#include "Common/ZMQWrapperApi/IContext.h"
+#include "Common/ZMQWrapperApi/IContextSharedPtr.h"
+#include "Common/ZeroMQWrapper/ISocketReplier.h"
+#include "Common/ZeroMQWrapper/ISocketReplierPtr.h"
 
 #include <list>
 #include <mutex>

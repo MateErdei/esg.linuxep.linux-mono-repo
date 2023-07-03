@@ -10,7 +10,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include "SocketHolder.h"
 #include "SocketUtil.h"
 
-#include "modules/Common/ZeroMQWrapper/IProxy.h"
+#include "Common/ZeroMQWrapper/IProxy.h"
 
 #include <condition_variable>
 #include <mutex>

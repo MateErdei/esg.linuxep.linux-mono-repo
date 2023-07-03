@@ -3,7 +3,7 @@
 #pragma once
 
 #include "LogInitializedTests.h"
-#include "modules/Common/Logging/SophosLoggerMacros.h"
+#include "Common/Logging/SophosLoggerMacros.h"
 
 #include <chrono>
 #include <iostream>

@@ -1,6 +1,6 @@
 // Copyright 2022-2023 Sophos Limited. All rights reserved.
 
-#include "modules/Common/HttpRequests/IHttpRequester.h"
+#include "Common/HttpRequests/IHttpRequester.h"
 
 #include <string>
 #pragma once

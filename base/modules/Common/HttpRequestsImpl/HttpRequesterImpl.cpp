@@ -7,10 +7,10 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 #include "CurlFunctionsProvider.h"
 #include "Logger.h"
 
-#include "modules/Common/FileSystem/IFileSystem.h"
-#include "modules/Common/FileSystem/IFileSystemException.h"
-#include "modules/Common/UtilityImpl/StringUtils.h"
-#include "modules/Common/CurlWrapper/CurlWrapper.h"
+#include "Common/FileSystem/IFileSystem.h"
+#include "Common/FileSystem/IFileSystemException.h"
+#include "Common/UtilityImpl/StringUtils.h"
+#include "Common/CurlWrapper/CurlWrapper.h"
 
 #include <curl/curl.h>
 

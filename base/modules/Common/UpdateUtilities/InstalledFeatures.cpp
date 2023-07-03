@@ -4,10 +4,10 @@
 
 #include <json.hpp>
 
-#include "modules/Common/ApplicationConfiguration/IApplicationPathManager.h"
-#include "modules/Common/FileSystem/IFilePermissions.h"
-#include "modules/Common/FileSystem/IFileSystem.h"
-#include "modules/Common/UtilityImpl/ProjectNames.h"
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include "Common/FileSystem/IFilePermissions.h"
+#include "Common/FileSystem/IFileSystem.h"
+#include "Common/UtilityImpl/ProjectNames.h"
 
 #include <sys/stat.h>
 #include <string>

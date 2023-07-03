@@ -8,9 +8,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include "DataMessage.h"
 
-#include "modules/Common/PluginApi/StatusInfo.h"
+#include "Common/PluginApi/StatusInfo.h"
 
-#include "modules/Common/PluginApi/IPluginCallbackApi.h"
+#include "Common/PluginApi/IPluginCallbackApi.h"
 namespace Common
 {
     namespace PluginProtocol

@@ -6,9 +6,9 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include "modules/Common/TaskQueue/ITaskProcessor.h"
-#include "modules/Common/TaskQueue/ITaskQueue.h"
-#include "modules/Common/Threads/AbstractThread.h"
+#include "Common/TaskQueue/ITaskProcessor.h"
+#include "Common/TaskQueue/ITaskQueue.h"
+#include "Common/Threads/AbstractThread.h"
 
 namespace Common
 {

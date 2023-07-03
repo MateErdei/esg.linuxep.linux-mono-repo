@@ -8,7 +8,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include "Logger.h"
 
-#include "modules/Common/Obfuscation/ICipherException.h"
+#include "Common/Obfuscation/ICipherException.h"
 
 #include <openssl/err.h>
 

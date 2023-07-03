@@ -4,7 +4,7 @@
 
 #include "IProcessHolder.h"
 
-#include "modules/Common/Threads/LockableData.h"
+#include "Common/Threads/LockableData.h"
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"

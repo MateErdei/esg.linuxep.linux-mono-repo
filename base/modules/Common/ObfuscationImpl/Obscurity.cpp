@@ -13,7 +13,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 #include "KeyRa.h"
 #include "Logger.h"
 
-#include "modules/Common/Obfuscation/IObscurityException.h"
+#include "Common/Obfuscation/IObscurityException.h"
 
 #include <cstring>
 #include <iostream>

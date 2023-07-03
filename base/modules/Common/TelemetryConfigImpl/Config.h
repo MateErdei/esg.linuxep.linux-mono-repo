@@ -6,7 +6,7 @@
 #include "MessageRelay.h"
 #include "Proxy.h"
 
-#include "modules/Common/HttpRequests/IHttpRequester.h"
+#include "Common/HttpRequests/IHttpRequester.h"
 
 #include <string>
 #include <vector>

@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "modules/Common/ZeroMQWrapper/IIPCTimeoutException.h"
+#include "Common/ZeroMQWrapper/IIPCTimeoutException.h"
 
 namespace Common
 {

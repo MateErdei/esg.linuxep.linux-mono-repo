@@ -8,7 +8,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include "ProtocolSerializer.h"
 
-#include "modules/Common/PluginProtocol/IProtocolSerializer.h"
+#include "Common/PluginProtocol/IProtocolSerializer.h"
 
 #include <sstream>
 

@@ -6,7 +6,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include "modules/Common/Process/EnvPair.h"
+#include "Common/Process/EnvPair.h"
 
 #include <memory>
 #include <string>

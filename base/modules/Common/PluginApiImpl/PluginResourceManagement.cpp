@@ -9,16 +9,16 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include "BaseServiceAPI.h"
 #include "Logger.h"
 
-#include "modules/Common/ApplicationConfiguration/IApplicationPathManager.h"
-#include "modules/Common/FileSystem/IFilePermissions.h"
-#include "modules/Common/PluginApi/ApiException.h"
-#include "modules/Common/TelemetryHelperImpl/TelemetryHelper.h"
-#include "modules/Common/UtilityImpl/ProjectNames.h"
-#include "modules/Common/ZMQWrapperApi/IContext.h"
-#include "modules/Common/ZeroMQWrapper/ISocketPublisher.h"
-#include "modules/Common/ZeroMQWrapper/ISocketReplier.h"
-#include "modules/Common/ZeroMQWrapper/ISocketRequester.h"
-#include "modules/Common/ZeroMQWrapper/ISocketSubscriber.h"
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include "Common/FileSystem/IFilePermissions.h"
+#include "Common/PluginApi/ApiException.h"
+#include "Common/TelemetryHelperImpl/TelemetryHelper.h"
+#include "Common/UtilityImpl/ProjectNames.h"
+#include "Common/ZMQWrapperApi/IContext.h"
+#include "Common/ZeroMQWrapper/ISocketPublisher.h"
+#include "Common/ZeroMQWrapper/ISocketReplier.h"
+#include "Common/ZeroMQWrapper/ISocketRequester.h"
+#include "Common/ZeroMQWrapper/ISocketSubscriber.h"
 #include <sys/stat.h>
 
 #include <unistd.h>

@@ -1,7 +1,7 @@
 #include "tests/Common/Helpers/LogInitializedTests.h"
 #include "tests/Common/Helpers/MockCurlWrapper.h"
 
-#include "modules/Common/HttpRequestsImpl/HttpRequesterImpl.h"
+#include "Common/HttpRequestsImpl/HttpRequesterImpl.h"
 #include <curl/curl.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>

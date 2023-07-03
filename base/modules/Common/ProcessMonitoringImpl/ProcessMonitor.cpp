@@ -4,14 +4,14 @@
 
 #include "Logger.h"
 
-#include "modules/Common/ProcessMonitoringImpl/SignalHandler.h"
+#include "Common/ProcessMonitoringImpl/SignalHandler.h"
 
-#include "modules/Common/FileSystem/IFileSystemException.h"
-#include "modules/Common/PluginRegistryImpl/PluginInfo.h"
-#include "modules/Common/UtilityImpl/TimeUtils.h"
-#include "modules/Common/ZMQWrapperApi/IContext.h"
-#include "modules/Common/ZeroMQWrapper/IPoller.h"
-#include "modules/Common/ZeroMQWrapper/ISocketReplier.h"
+#include "Common/FileSystem/IFileSystemException.h"
+#include "Common/PluginRegistryImpl/PluginInfo.h"
+#include "Common/UtilityImpl/TimeUtils.h"
+#include "Common/ZMQWrapperApi/IContext.h"
+#include "Common/ZeroMQWrapper/IPoller.h"
+#include "Common/ZeroMQWrapper/ISocketReplier.h"
 
 #include <cassert>
 

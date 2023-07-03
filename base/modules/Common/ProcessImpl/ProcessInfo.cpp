@@ -8,8 +8,8 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 #include "Logger.h"
 
-#include "modules/Common/FileSystem/IFileSystemException.h"
-#include "modules/Common/FileSystem/IFilePermissions.h"
+#include "Common/FileSystem/IFileSystemException.h"
+#include "Common/FileSystem/IFilePermissions.h"
 
 namespace Common
 {

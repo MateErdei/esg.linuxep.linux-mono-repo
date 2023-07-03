@@ -7,10 +7,10 @@
  */
 
 #include "tests/Common/Helpers/LogInitializedTests.h"
-#include "modules/Common/FileSystem/IFileSystem.h"
+#include "Common/FileSystem/IFileSystem.h"
 
-#include "modules/Common/CurlWrapper/CurlWrapper.h"
-#include "modules/Common/HttpRequestsImpl/HttpRequesterImpl.h"
+#include "Common/CurlWrapper/CurlWrapper.h"
+#include "Common/HttpRequestsImpl/HttpRequesterImpl.h"
 #include <gtest/gtest.h>
 
 namespace

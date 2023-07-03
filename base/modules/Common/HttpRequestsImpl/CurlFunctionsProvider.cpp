@@ -6,9 +6,9 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 
 #include "Logger.h"
 
-#include "modules/Common/FileSystem/IFileSystem.h"
-#include "modules/Common/FileSystem/IFileSystemException.h"
-#include "modules/Common/UtilityImpl/StringUtils.h"
+#include "Common/FileSystem/IFileSystem.h"
+#include "Common/FileSystem/IFileSystemException.h"
+#include "Common/UtilityImpl/StringUtils.h"
 
 size_t CurlFunctionsProvider::curlWriteFunc(void* ptr, size_t size, size_t nmemb, std::string* buffer)
 {

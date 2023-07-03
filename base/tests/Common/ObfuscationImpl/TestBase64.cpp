@@ -4,7 +4,7 @@ Copyright 2018-2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "modules/Common/Obfuscation/IBase64Exception.h"
+#include "Common/Obfuscation/IBase64Exception.h"
 #include "modules/Common/ObfuscationImpl/Base64.h"
 #include "tests/Common/Helpers/LogInitializedTests.h"
 

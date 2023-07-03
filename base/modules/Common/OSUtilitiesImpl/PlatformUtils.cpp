@@ -5,10 +5,10 @@
 #include "MACinfo.h"
 #include "LocalIPImpl.h"
 
-#include "modules/Common/FileSystem/IFileSystem.h"
-#include "modules/Common/UtilityImpl/StringUtils.h"
-#include "modules/Common/OSUtilities/IPlatformUtilsException.h"
-#include "modules/Common/OSUtilitiesImpl/CloudMetadataConverters.h"
+#include "Common/FileSystem/IFileSystem.h"
+#include "Common/UtilityImpl/StringUtils.h"
+#include "Common/OSUtilities/IPlatformUtilsException.h"
+#include "Common/OSUtilitiesImpl/CloudMetadataConverters.h"
 
 #include <array>
 #include <cerrno>

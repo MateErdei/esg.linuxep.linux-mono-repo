@@ -6,7 +6,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include "modules/Common/DirectoryWatcher/IDirectoryWatcher.h"
+#include "Common/DirectoryWatcher/IDirectoryWatcher.h"
 
 #include <mutex>
 

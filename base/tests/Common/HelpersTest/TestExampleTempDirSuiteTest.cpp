@@ -6,7 +6,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include "tests/Common/Helpers/ExampleTempDirSuiteTest.h"
 
-#include "modules/Common/FileSystemImpl/FileSystemImpl.h"
+#include "Common/FileSystemImpl/FileSystemImpl.h"
 
 using namespace Tests;
 

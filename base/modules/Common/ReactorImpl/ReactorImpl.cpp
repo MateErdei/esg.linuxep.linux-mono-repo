@@ -2,11 +2,11 @@
 
 #include "ReactorImpl.h"
 
-#include "modules/Common/ZeroMQWrapper/IPoller.h"
+#include "Common/ZeroMQWrapper/IPoller.h"
 #include "Logger.h"
 
-#include "modules/Common/ZeroMQWrapperImpl/ZeroMQWrapperException.h"
-#include "modules/Common/ZeroMQWrapperImpl/PollerFactory.h"
+#include "Common/ZeroMQWrapperImpl/ZeroMQWrapperException.h"
+#include "Common/ZeroMQWrapperImpl/PollerFactory.h"
 
 #include <cassert>
 #include <csignal>

@@ -8,11 +8,11 @@ Copyright 2018-2022, Sophos Limited.  All rights reserved.
 
 #include "Logger.h"
 
-#include "modules/Common/ApplicationConfiguration/IApplicationPathManager.h"
-#include "modules/Common/FileSystem/IFileSystemException.h"
-#include "modules/Common/PluginApi/ApiException.h"
-#include "modules/Common/PluginCommunication/IPluginCommunicationException.h"
-#include "modules/Common/TelemetryHelperImpl/TelemetryHelper.h"
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include "Common/FileSystem/IFileSystemException.h"
+#include "Common/PluginApi/ApiException.h"
+#include "Common/PluginCommunication/IPluginCommunicationException.h"
+#include "Common/TelemetryHelperImpl/TelemetryHelper.h"
 
 #include <thread>
 

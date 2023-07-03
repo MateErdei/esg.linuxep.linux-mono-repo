@@ -6,10 +6,10 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 #include "MockEvpCipherWrapper.h"
 
-#include "modules/Common/Logging/ConsoleLoggingSetup.h"
-#include "modules/Common/Obfuscation/ICipherException.h"
-#include "modules/Common/ObfuscationImpl/Cipher.h"
-#include "modules/Common/ObfuscationImpl/Obscurity.h"
+#include "Common/Logging/ConsoleLoggingSetup.h"
+#include "Common/Obfuscation/ICipherException.h"
+#include "Common/ObfuscationImpl/Cipher.h"
+#include "Common/ObfuscationImpl/Obscurity.h"
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 

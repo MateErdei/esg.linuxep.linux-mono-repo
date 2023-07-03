@@ -8,7 +8,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 #include "Logger.h"
 
-#include "modules/Common/UtilityImpl/StrError.h"
+#include "Common/UtilityImpl/StrError.h"
 
 #include <iostream>
 #include <unistd.h>

@@ -5,7 +5,7 @@ Copyright 2018-2022, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 #include "LocalIPImpl.h"
 
-#include "modules/Common/OSUtilities/IIPUtils.h"
+#include "Common/OSUtilities/IIPUtils.h"
 #include <net/if.h>
 
 #include <algorithm>

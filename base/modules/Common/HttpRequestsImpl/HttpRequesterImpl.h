@@ -3,8 +3,8 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #pragma once
-#include "modules/Common/CurlWrapper/ICurlWrapper.h"
-#include "modules/Common/HttpRequests/IHttpRequester.h"
+#include "Common/CurlWrapper/ICurlWrapper.h"
+#include "Common/HttpRequests/IHttpRequester.h"
 
 namespace Common::HttpRequestsImpl
 {

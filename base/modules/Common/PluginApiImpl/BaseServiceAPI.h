@@ -7,11 +7,11 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include "PluginCallBackHandler.h"
 
-#include "modules/Common/PluginApi/IBaseServiceApi.h"
-#include "modules/Common/PluginApi/IPluginCallbackApi.h"
-#include "modules/Common/PluginProtocol/MessageBuilder.h"
-#include "modules/Common/ZeroMQWrapper/ISocketReplierPtr.h"
-#include "modules/Common/ZeroMQWrapper/ISocketRequesterPtr.h"
+#include "Common/PluginApi/IBaseServiceApi.h"
+#include "Common/PluginApi/IPluginCallbackApi.h"
+#include "Common/PluginProtocol/MessageBuilder.h"
+#include "Common/ZeroMQWrapper/ISocketReplierPtr.h"
+#include "Common/ZeroMQWrapper/ISocketRequesterPtr.h"
 
 namespace Common
 {
