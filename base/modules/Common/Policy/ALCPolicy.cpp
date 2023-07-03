@@ -486,7 +486,7 @@ void ALCPolicy::logVersion()
     std::stringstream msg;
     auto esmVersion = updateSettings_.getEsmVersion();
 
-    if (esmVersion.isPopulated())
+    if (esmVersion.isEnabled())
     {
         msg << "Using FixedVersion " << esmVersion.name() << " with token " << esmVersion.token();
     }

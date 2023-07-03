@@ -4,32 +4,35 @@
 
 #include <string>
 
-class ESMVersion {
-    public:
-        ESMVersion(std::string name, std::string token) :
-            name_(std::move(name)),
-            token_(std::move(token))
-        {}
+namespace Common::Policy
+{
+    class ESMVersion {
+        public:
+            ESMVersion(std::string name, std::string token) :
+                name_(std::move(name)),
+                token_(std::move(token))
+            {}
 
-        ESMVersion() = default;
+            ESMVersion() = default;
 
-        [[nodiscard]] std::string name() const { return name_; }
-        [[nodiscard]] std::string token() const { return token_; }
+            [[nodiscard]] std::string name() const { return name_; }
+            [[nodiscard]] std::string token() const { return token_; }
 
-        bool isValid() const
-        {
-            bool emptyName = name_.empty();
-            bool emptyToken = token_.empty();
+            bool isValid() const
+            {
+                bool emptyName = name_.empty();
+                bool emptyToken = token_.empty();
 
-            return emptyName == emptyToken;
-        }
+                return emptyName == emptyToken;
+            }
 
-        bool isPopulated() const
-        {
-            return !name_.empty() && !token_.empty();
-        }
+            bool isEnabled() const
+            {
+                return !name_.empty() && !token_.empty();
+            }
 
-    private:
-        std::string name_;
-        std::string token_;
-};
+        private:
+            std::string name_;
+            std::string token_;
+    };
+}

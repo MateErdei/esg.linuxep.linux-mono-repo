@@ -13,6 +13,8 @@
 
 #include <algorithm>
 
+using namespace Common::Policy;
+
 namespace UpdateSchedulerImpl
 {
     namespace configModule
@@ -50,7 +52,7 @@ namespace UpdateSchedulerImpl
 
 
                 updatePolicyTelemetry_.setSDDSid(updatePolicy_->getSddsID());
-                updatePolicyTelemetry_.updateSubscriptions(updatePolicy_->getSubscriptions());
+                updatePolicyTelemetry_.updateSubscriptions(updatePolicy_->getSubscriptions(), updatePolicy_->getUpdateSettings().getEsmVersion());
                 updatePolicyTelemetry_.resetTelemetry(Common::Telemetry::TelemetryHelper::getInstance());
 
                 return {.configurationData=settings,
@@ -113,29 +115,42 @@ namespace UpdateSchedulerImpl
 
     void UpdatePolicyTelemetry::setSubscriptions(Common::Telemetry::TelemetryHelper& telemetryToSet)
     {
-        SubscriptionVector subs;
+        UpdatePolicyTelemetry::CombinedVersionInfo versionInfo;
         {
             auto locked = warehouseTelemetry_.m_subscriptions.lock();
-            subs = *locked;
+            versionInfo = *locked;
         }
-        for (const auto& subscription : subs)
+        bool usingESM = versionInfo.esmVersion.isEnabled();
+        std::string esmName = versionInfo.esmVersion.name();
+
+        for (const auto& subscription : versionInfo.subscriptionVector)
         {
             std::string key = "subscriptions-";
             key += subscription.rigidName();
 
-            std::string value = subscription.fixedVersion();
-            if (subscription.fixedVersion().empty())
+            std::string value;
+            if (usingESM)
             {
-                value = subscription.tag();
+                value = esmName;
             }
+            else
+            {
+                value = subscription.fixedVersion();
+                if (subscription.fixedVersion().empty())
+                {
+                    value = subscription.tag();
+                }
+            }
+
             telemetryToSet.set(key, value);
         }
     }
 
-    void UpdatePolicyTelemetry::updateSubscriptions(SubscriptionVector subscriptions)
+    void UpdatePolicyTelemetry::updateSubscriptions(SubscriptionVector subscriptions, ESMVersion esmVersion)
     {
         auto locked = warehouseTelemetry_.m_subscriptions.lock();
-        locked->swap(subscriptions);
+        locked->subscriptionVector.swap(subscriptions);
+        locked->esmVersion = std::move(esmVersion);
     }
 
 

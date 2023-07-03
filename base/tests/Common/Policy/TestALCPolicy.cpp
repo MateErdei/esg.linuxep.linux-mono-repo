@@ -532,7 +532,7 @@ TEST_F(TestALCPolicy, esm_enabled)
     auto settings = obj.getUpdateSettings();
     EXPECT_EQ(settings.getEsmVersion().name(), "imthetokensname");
     EXPECT_EQ(settings.getEsmVersion().token(), "imatoken");
-    EXPECT_TRUE(settings.getEsmVersion().isPopulated());
+    EXPECT_TRUE(settings.getEsmVersion().isEnabled());
     EXPECT_TRUE(settings.getEsmVersion().isValid());
 
     EXPECT_TRUE(appenderContains("Using FixedVersion imthetokensname with token imatoken"));
@@ -551,7 +551,7 @@ TEST_F(TestALCPolicy, esm_missing)
     auto settings = obj.getUpdateSettings();
     EXPECT_EQ(settings.getEsmVersion().name(), "");
     EXPECT_EQ(settings.getEsmVersion().token(), "");
-    EXPECT_FALSE(settings.getEsmVersion().isPopulated());
+    EXPECT_FALSE(settings.getEsmVersion().isEnabled());
     EXPECT_TRUE(settings.getEsmVersion().isValid());
 
     EXPECT_TRUE(appenderContains("Using RECOMMENDED version with tag RECOMMENDED"));
@@ -572,7 +572,7 @@ TEST_F(TestALCPolicy, esm_present_but_empty)
     auto settings = obj.getUpdateSettings();
     EXPECT_EQ(settings.getEsmVersion().name(), "");
     EXPECT_EQ(settings.getEsmVersion().token(), "");
-    EXPECT_FALSE(settings.getEsmVersion().isPopulated());
+    EXPECT_FALSE(settings.getEsmVersion().isEnabled());
     EXPECT_TRUE(settings.getEsmVersion().isValid());
 
     EXPECT_TRUE(appenderContains("Using RECOMMENDED version with tag RECOMMENDED"));
@@ -592,7 +592,7 @@ TEST_F(TestALCPolicy, esm_one_field_present)
     auto settingsNoName = objNoName.getUpdateSettings();
     EXPECT_EQ(settingsNoName.getEsmVersion().name(), "");
     EXPECT_EQ(settingsNoName.getEsmVersion().token(), "imatoken");
-    EXPECT_FALSE(settingsNoName.getEsmVersion().isPopulated());
+    EXPECT_FALSE(settingsNoName.getEsmVersion().isEnabled());
     EXPECT_FALSE(settingsNoName.getEsmVersion().isValid());
 
     auto fixedVersionNoToken = R"(<fixed_version>
@@ -605,7 +605,7 @@ TEST_F(TestALCPolicy, esm_one_field_present)
     auto settingsNoToken = objNoToken.getUpdateSettings();
     EXPECT_EQ(settingsNoToken.getEsmVersion().name(), "imaname");
     EXPECT_EQ(settingsNoToken.getEsmVersion().token(), "");
-    EXPECT_FALSE(settingsNoToken.getEsmVersion().isPopulated());
+    EXPECT_FALSE(settingsNoToken.getEsmVersion().isEnabled());
     EXPECT_FALSE(settingsNoToken.getEsmVersion().isValid());
 
     EXPECT_TRUE(appenderContainsCount("Using RECOMMENDED version with tag RECOMMENDED", 2));
@@ -627,7 +627,7 @@ TEST_F(TestALCPolicy, esm_duplicatd_field)
     auto settings = obj.getUpdateSettings();
     EXPECT_EQ(settings.getEsmVersion().name(), "imthetokensname");
     EXPECT_EQ(settings.getEsmVersion().token(), "imatoken");
-    EXPECT_TRUE(settings.getEsmVersion().isPopulated());
+    EXPECT_TRUE(settings.getEsmVersion().isEnabled());
     EXPECT_TRUE(settings.getEsmVersion().isValid());
 
     EXPECT_TRUE(appenderContains("Using FixedVersion imthetokensname with token imatoken"));
@@ -648,7 +648,7 @@ TEST_F(TestALCPolicy, esm_both_wrong_fields)
     auto settings = obj.getUpdateSettings();
     EXPECT_EQ(settings.getEsmVersion().name(), "");
     EXPECT_EQ(settings.getEsmVersion().token(), "");
-    EXPECT_FALSE(settings.getEsmVersion().isPopulated());
+    EXPECT_FALSE(settings.getEsmVersion().isEnabled());
     EXPECT_TRUE(settings.getEsmVersion().isValid());
 
     EXPECT_TRUE(appenderContains("Using RECOMMENDED version with tag RECOMMENDED"));
@@ -669,7 +669,7 @@ TEST_F(TestALCPolicy, esm_one_wrong_field)
     auto settings = obj.getUpdateSettings();
     EXPECT_EQ(settings.getEsmVersion().name(), "");
     EXPECT_EQ(settings.getEsmVersion().token(), "imatoken");
-    EXPECT_FALSE(settings.getEsmVersion().isPopulated());
+    EXPECT_FALSE(settings.getEsmVersion().isEnabled());
     EXPECT_FALSE(settings.getEsmVersion().isValid());
 
     EXPECT_TRUE(appenderContains("Using RECOMMENDED version with tag RECOMMENDED"));
@@ -692,7 +692,7 @@ TEST_F(TestALCPolicy, esm_very_large)
     auto settings = obj.getUpdateSettings();
     EXPECT_EQ(settings.getEsmVersion().name(), "imthetokensname");
     EXPECT_EQ(settings.getEsmVersion().token(), massiveString);
-    EXPECT_TRUE(settings.getEsmVersion().isPopulated());
+    EXPECT_TRUE(settings.getEsmVersion().isEnabled());
     EXPECT_TRUE(settings.getEsmVersion().isValid());
 
     EXPECT_TRUE(appenderContains(expectedMsg));

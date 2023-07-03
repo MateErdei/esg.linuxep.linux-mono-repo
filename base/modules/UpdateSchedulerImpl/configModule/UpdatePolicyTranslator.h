@@ -1,14 +1,13 @@
 // Copyright 2018-2023 Sophos Limited. All rights reserved.
 #pragma once
 
-#include "SulDownloader/suldownloaderdata/ConfigurationData.h"
-
-#include "UpdateScheduler/IMapHostCacheId.h"
-
-#include "Common/Exceptions/IException.h"
 #include "Common/Policy/ALCPolicy.h"
-#include "Common/TelemetryHelperImpl/TelemetryHelper.h"
+#include "Common/Policy/ESMVersion.h"
+#include "Common/Exceptions/IException.h"
 #include "Common/Threads/LockableData.h"
+#include "Common/TelemetryHelperImpl/TelemetryHelper.h"
+#include "SulDownloader/suldownloaderdata/ConfigurationData.h"
+#include "UpdateScheduler/IMapHostCacheId.h"
 
 #include <chrono>
 #include <memory>
@@ -23,7 +22,7 @@ namespace UpdateSchedulerImpl
          * Called while parsing a policy to update current product subscriptions
          * @param subscriptions
          */
-        void updateSubscriptions(SubscriptionVector subscriptions);
+        void updateSubscriptions(SubscriptionVector subscriptions, Common::Policy::ESMVersion esmVersion);
         /**
          * Called while parsing a policy to update SDDS-ID
          */
@@ -38,9 +37,14 @@ namespace UpdateSchedulerImpl
          */
         void setSubscriptions(Common::Telemetry::TelemetryHelper& );
     private:
+        struct CombinedVersionInfo {
+            SubscriptionVector subscriptionVector;
+            Common::Policy::ESMVersion esmVersion;
+        };
+
         struct WarehouseTelemetry
         {
-            using locked_subscription_vector_t = Common::Threads::LockableData<SubscriptionVector>;
+            using locked_subscription_vector_t = Common::Threads::LockableData<CombinedVersionInfo>;
             locked_subscription_vector_t m_subscriptions;
             std::string m_sddsid;
         };
