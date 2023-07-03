@@ -296,6 +296,30 @@ wFkMtR8hrPVLP0hcHuzWN2cBmrl0C6TeKufqbZBqb/MPn2LWzKcvF44xs3k7uP/H
 JWfkv6Tu5jsYGNkN3BSW0x/qjwz7XCSk2ZZxbCgZSq6LpB31sqZctnUxrYSpcdc=
 -----END CERTIFICATE-----)sophos" };
 
+
+static std::string createESMPolicy(const std::string& fixed_version)
+{
+    std::string esmpolicy = R"(<?xml version="1.0"?>
+<AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
+  <csc:Comp RevID="b6a8fe2c0ce016c949016a5da2b7a089699271290ef7205d5bea0986768485d9" policyType="1"/>
+<AUConfig platform="Linux">
+    <primary_location>
+      <server Algorithm="Clear" UserPassword="xxxxxx" UserName="W2YJXI6FED"/>
+    </primary_location>
+    <schedule AllowLocalConfig="false" SchedEnable="true" Frequency="50" DetectDialUp="false"/>
+    <cloud_subscription RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED" BaseVersion="10"/>
+    <cloud_subscriptions>
+      <subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED" BaseVersion="10" FixedVersion="11"/>
+      <subscription Id="Base" RigidName="ServerProtectionLinux-Base9" Tag="RECOMMENDED" BaseVersion="9" FixedVersion="8"/>
+    </cloud_subscriptions>)" +
+    fixed_version
+    +
+    R"(</AUConfig>
+    </AUConfigurations>
+)";
+    return esmpolicy;
+}
+
 namespace
 {
     class TestALCPolicy : public MemoryAppenderUsingTests
@@ -493,64 +517,185 @@ TEST_F(TestALCPolicy, cloud_subscriptions)
 
 //esm tests
 
-TEST_F(TestALCPolicy, cloud_subscriptions_esm_enabled)
+TEST_F(TestALCPolicy, esm_enabled)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
-    constexpr char minPolicy[] = R"sophos(<?xml version="1.0"?>
-<AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
-  <csc:Comp RevID="b6a8fe2c0ce016c949016a5da2b7a089699271290ef7205d5bea0986768485d9" policyType="1"/>
-<AUConfig platform="Linux">
-    <primary_location>
-      <server Algorithm="Clear" UserPassword="xxxxxx" UserName="W2YJXI6FED"/>
-    </primary_location>
-    <schedule AllowLocalConfig="false" SchedEnable="true" Frequency="50" DetectDialUp="false"/>
-    <cloud_subscription RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED" BaseVersion="10"/>
-    <cloud_subscriptions>
-      <subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED" BaseVersion="10" FixedVersion="11"/>
-      <subscription Id="Base" RigidName="ServerProtectionLinux-Base9" Tag="RECOMMENDED" BaseVersion="9" FixedVersion="8"/>
-    </cloud_subscriptions>
-    <fixed_version>
+    auto fixedVersion = R"(<fixed_version>
         <token>imatoken</token>
         <name>imthetokensname</name>
-    </fixed_version>
-</AUConfig>
-</AUConfigurations>
-)sophos";
+        </fixed_version>)";
 
-    ALCPolicy obj{ minPolicy };
+    auto esmenabled = createESMPolicy(fixedVersion);
+
+    ALCPolicy obj{ esmenabled };
     auto settings = obj.getUpdateSettings();
     EXPECT_EQ(settings.getEsmVersion().name(), "imthetokensname");
     EXPECT_EQ(settings.getEsmVersion().token(), "imatoken");
+    EXPECT_TRUE(settings.getEsmVersion().isPopulated());
+    EXPECT_TRUE(settings.getEsmVersion().isValid());
+
+    EXPECT_TRUE(appenderContains("Using FixedVersion imthetokensname with token imatoken"));
 }
 
-TEST_F(TestALCPolicy, cloud_subscriptions_esm_present_but_empty)
+TEST_F(TestALCPolicy, esm_missing)
 {
-    constexpr char minPolicy[] = R"sophos(<?xml version="1.0"?>
-<AUConfigurations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:csc="com.sophos\msys\csc" xmlns="http://www.sophos.com/EE/AUConfig">
-  <csc:Comp RevID="b6a8fe2c0ce016c949016a5da2b7a089699271290ef7205d5bea0986768485d9" policyType="1"/>
-<AUConfig platform="Linux">
-    <primary_location>
-      <server Algorithm="Clear" UserPassword="xxxxxx" UserName="W2YJXI6FED"/>
-    </primary_location>
-    <schedule AllowLocalConfig="false" SchedEnable="true" Frequency="50" DetectDialUp="false"/>
-    <cloud_subscription RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED" BaseVersion="10"/>
-    <cloud_subscriptions>
-      <subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED" BaseVersion="10" FixedVersion="11"/>
-      <subscription Id="Base" RigidName="ServerProtectionLinux-Base9" Tag="RECOMMENDED" BaseVersion="9" FixedVersion="8"/>
-    </cloud_subscriptions>
-    <fixed_version>
-        <token/>
-        <name/>
-    </fixed_version>
-</AUConfig>
-</AUConfigurations>
-)sophos";
+    UsingMemoryAppender memoryAppenderHolder(*this);
 
-    ALCPolicy obj{ minPolicy };
+    auto fixedVersion = R"(<fixed_version>
+        </fixed_version>)";
+
+    auto esmempty = createESMPolicy(fixedVersion);
+
+    ALCPolicy obj{ esmempty };
     auto settings = obj.getUpdateSettings();
     EXPECT_EQ(settings.getEsmVersion().name(), "");
     EXPECT_EQ(settings.getEsmVersion().token(), "");
+    EXPECT_FALSE(settings.getEsmVersion().isPopulated());
+    EXPECT_TRUE(settings.getEsmVersion().isValid());
+
+    EXPECT_TRUE(appenderContains("Using RECOMMENDED version with tag RECOMMENDED"));
+}
+
+TEST_F(TestALCPolicy, esm_present_but_empty)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    auto fixedVersion = R"(<fixed_version>
+        <token/>
+        <name/>
+        </fixed_version>)";
+
+    auto esmempty = createESMPolicy(fixedVersion);
+
+    ALCPolicy obj{ esmempty };
+    auto settings = obj.getUpdateSettings();
+    EXPECT_EQ(settings.getEsmVersion().name(), "");
+    EXPECT_EQ(settings.getEsmVersion().token(), "");
+    EXPECT_FALSE(settings.getEsmVersion().isPopulated());
+    EXPECT_TRUE(settings.getEsmVersion().isValid());
+
+    EXPECT_TRUE(appenderContains("Using RECOMMENDED version with tag RECOMMENDED"));
+}
+
+TEST_F(TestALCPolicy, esm_one_field_present)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    auto fixedVersionNoName = R"(<fixed_version>
+        <token>imatoken</token>
+        </fixed_version>)";
+
+    auto esmNoName = createESMPolicy(fixedVersionNoName);
+
+    ALCPolicy objNoName{ esmNoName };
+    auto settingsNoName = objNoName.getUpdateSettings();
+    EXPECT_EQ(settingsNoName.getEsmVersion().name(), "");
+    EXPECT_EQ(settingsNoName.getEsmVersion().token(), "imatoken");
+    EXPECT_FALSE(settingsNoName.getEsmVersion().isPopulated());
+    EXPECT_FALSE(settingsNoName.getEsmVersion().isValid());
+
+    auto fixedVersionNoToken = R"(<fixed_version>
+        <name>imaname</name>
+        </fixed_version>)";
+
+    auto esmNoToken = createESMPolicy(fixedVersionNoToken);
+
+    ALCPolicy objNoToken{ esmNoToken };
+    auto settingsNoToken = objNoToken.getUpdateSettings();
+    EXPECT_EQ(settingsNoToken.getEsmVersion().name(), "imaname");
+    EXPECT_EQ(settingsNoToken.getEsmVersion().token(), "");
+    EXPECT_FALSE(settingsNoToken.getEsmVersion().isPopulated());
+    EXPECT_FALSE(settingsNoToken.getEsmVersion().isValid());
+
+    EXPECT_TRUE(appenderContainsCount("Using RECOMMENDED version with tag RECOMMENDED", 2));
+}
+
+TEST_F(TestALCPolicy, esm_duplicatd_field)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    auto fixedVersion = R"(<fixed_version>
+        <token>imatoken</token>
+        <token>imatoken2</token>
+        <name>imthetokensname</name>
+        </fixed_version>)";
+
+    auto esmenabled = createESMPolicy(fixedVersion);
+
+    ALCPolicy obj{ esmenabled };
+    auto settings = obj.getUpdateSettings();
+    EXPECT_EQ(settings.getEsmVersion().name(), "imthetokensname");
+    EXPECT_EQ(settings.getEsmVersion().token(), "imatoken");
+    EXPECT_TRUE(settings.getEsmVersion().isPopulated());
+    EXPECT_TRUE(settings.getEsmVersion().isValid());
+
+    EXPECT_TRUE(appenderContains("Using FixedVersion imthetokensname with token imatoken"));
+}
+
+TEST_F(TestALCPolicy, esm_both_wrong_fields)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    auto fixedVersion = R"(<fixed_version>
+        <wrong>imatoken</wrong>
+        <incorrect>imthetokensname</incorrect>
+        </fixed_version>)";
+
+    auto esmenabled = createESMPolicy(fixedVersion);
+
+    ALCPolicy obj{ esmenabled };
+    auto settings = obj.getUpdateSettings();
+    EXPECT_EQ(settings.getEsmVersion().name(), "");
+    EXPECT_EQ(settings.getEsmVersion().token(), "");
+    EXPECT_FALSE(settings.getEsmVersion().isPopulated());
+    EXPECT_TRUE(settings.getEsmVersion().isValid());
+
+    EXPECT_TRUE(appenderContains("Using RECOMMENDED version with tag RECOMMENDED"));
+}
+
+TEST_F(TestALCPolicy, esm_one_wrong_field)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+
+    auto fixedVersion = R"(<fixed_version>
+        <token>imatoken</token>
+        <incorrect>imthetokensname</incorrect>
+        </fixed_version>)";
+
+    auto esmenabled = createESMPolicy(fixedVersion);
+
+    ALCPolicy obj{ esmenabled };
+    auto settings = obj.getUpdateSettings();
+    EXPECT_EQ(settings.getEsmVersion().name(), "");
+    EXPECT_EQ(settings.getEsmVersion().token(), "imatoken");
+    EXPECT_FALSE(settings.getEsmVersion().isPopulated());
+    EXPECT_FALSE(settings.getEsmVersion().isValid());
+
+    EXPECT_TRUE(appenderContains("Using RECOMMENDED version with tag RECOMMENDED"));
+}
+
+TEST_F(TestALCPolicy, esm_very_large)
+{
+    UsingMemoryAppender memoryAppenderHolder(*this);
+    const std::string massiveString(30000, 'r');
+    const std::string expectedMsg("Using FixedVersion imthetokensname with token " + massiveString);
+
+    auto fixedVersion = R"(<fixed_version>
+        <token>)" + massiveString + R"(</token>
+        <name>imthetokensname</name>
+        </fixed_version>)";
+
+    auto esmenabled = createESMPolicy(fixedVersion);
+
+    ALCPolicy obj{ esmenabled };
+    auto settings = obj.getUpdateSettings();
+    EXPECT_EQ(settings.getEsmVersion().name(), "imthetokensname");
+    EXPECT_EQ(settings.getEsmVersion().token(), massiveString);
+    EXPECT_TRUE(settings.getEsmVersion().isPopulated());
+    EXPECT_TRUE(settings.getEsmVersion().isValid());
+
+    EXPECT_TRUE(appenderContains(expectedMsg));
 }
 
 //Credentials Tests
