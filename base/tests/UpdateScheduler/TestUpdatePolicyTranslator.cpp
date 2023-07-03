@@ -432,12 +432,9 @@ TEST_F(TestUpdatePolicyTranslator, ParseUpdatePolicyWithUpdateCache)
 
     EXPECT_EQ(config.getCredentials().getUsername(), "c2d584eb505b6a35fbf2dd9740551fe9");
     EXPECT_EQ(config.getCredentials().getPassword(), "c2d584eb505b6a35fbf2dd9740551fe9");
-//    EXPECT_EQ(config.getCertificatePath(), "/opt/sophos-spl/base/update/rootcerts");
     ASSERT_EQ(config.getInstallArguments().size(), 2);
     EXPECT_EQ(config.getInstallArguments()[0], "--instdir");
     EXPECT_EQ(config.getInstallArguments()[1], "/opt/sophos-spl");
-//    EXPECT_EQ(config.getSystemSslCertificatePath(), ":system:");
-//    EXPECT_EQ(config.getUpdateCacheSslCertificatePath(), "/opt/sophos-spl/base/update/updatecachecerts/cache_certificates.crt");
 
     auto urls = config.getSophosLocationURLs();
     ASSERT_EQ(urls.size(), 3);
@@ -531,12 +528,9 @@ TEST_F(TestUpdatePolicyTranslator, ParseUpdatePolicyWithProxy)
 
     EXPECT_EQ(config.getCredentials().getUsername(), "678ca7535f2722d2e633834fde894e40");
     EXPECT_EQ(config.getCredentials().getPassword(), "678ca7535f2722d2e633834fde894e40");
-//    EXPECT_EQ(config.getCertificatePath(), "/opt/sophos-spl/base/update/rootcerts");
     ASSERT_EQ(config.getInstallArguments().size(), 2);
     EXPECT_EQ(config.getInstallArguments()[0], "--instdir");
     EXPECT_EQ(config.getInstallArguments()[1], "/opt/sophos-spl");
-//    EXPECT_EQ(config.getSystemSslCertificatePath(), ":system:");
-//    EXPECT_EQ(config.getUpdateCacheSslCertificatePath(), "");
 
     auto urls = config.getSophosLocationURLs();
     ASSERT_EQ(urls.size(), 2);
@@ -851,12 +845,9 @@ TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicy)
 
     EXPECT_EQ(config.getCredentials().getUsername(), "ff705287d6b62738f8e672865cff1b05");
     EXPECT_EQ(config.getCredentials().getPassword(), "ff705287d6b62738f8e672865cff1b05");
-//    EXPECT_EQ(config.getCertificatePath(), "/opt/sophos-spl/base/update/rootcerts");
     ASSERT_EQ(config.getInstallArguments().size(), 2);
     EXPECT_EQ(config.getInstallArguments()[0], "--instdir");
     EXPECT_EQ(config.getInstallArguments()[1], "/opt/sophos-spl");
-//    EXPECT_EQ(config.getSystemSslCertificatePath(), ":system:");
-//    EXPECT_EQ(config.getUpdateCacheSslCertificatePath(), "");
 
     auto urls = config.getSophosLocationURLs();
     ASSERT_EQ(urls.size(), 2);
@@ -910,12 +901,9 @@ TEST_F(TestUpdatePolicyTranslator, ParseMDRPolicyWithSophosAliasOverrideSet)
 
     EXPECT_EQ(config.getCredentials().getUsername(), "ff705287d6b62738f8e672865cff1b05");
     EXPECT_EQ(config.getCredentials().getPassword(), "ff705287d6b62738f8e672865cff1b05");
-//    EXPECT_EQ(config.getCertificatePath(), "/opt/sophos-spl/base/update/rootcerts");
     ASSERT_EQ(config.getInstallArguments().size(), 2);
     EXPECT_EQ(config.getInstallArguments()[0], "--instdir");
     EXPECT_EQ(config.getInstallArguments()[1], "/opt/sophos-spl");
-//    EXPECT_EQ(config.getSystemSslCertificatePath(), ":system:");
-//    EXPECT_EQ(config.getUpdateCacheSslCertificatePath(), "");
 
     auto urls = config.getSophosLocationURLs();
     ASSERT_EQ(urls.size(), 3);
@@ -1211,4 +1199,101 @@ TEST_F(TestUpdatePolicyTranslator, TelemetryAndUpdatePolicyAreSafeToBeAcquiredCo
       });
     thread1.get();
     thread2.get();
+}
+
+using namespace UpdateSchedulerImpl;
+
+class TestUpdatePolicyTelemetry : public ::testing::Test
+{
+};
+
+TEST_F(TestUpdatePolicyTelemetry, no_esm_no_fixedversion)
+{
+    UpdatePolicyTelemetry updatePolicyTelemetry;
+
+    ESMVersion esmVersion;
+    ProductSubscription productSubscription("rigidname", "baseversion", "tag", "");
+    UpdatePolicyTelemetry::SubscriptionVector subscriptionVector {productSubscription};
+
+    updatePolicyTelemetry.updateSubscriptions(subscriptionVector, esmVersion);
+    updatePolicyTelemetry.setSubscriptions(Common::Telemetry::TelemetryHelper::getInstance());
+
+    auto telemetry = Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
+    EXPECT_EQ(telemetry,    R"({"subscriptions-rigidname":"tag"})");
+}
+
+TEST_F(TestUpdatePolicyTelemetry, no_esm_fixedVersion)
+{
+    UpdatePolicyTelemetry updatePolicyTelemetry;
+
+    ESMVersion esmVersion;
+    ProductSubscription productSubscription("rigidname", "baseversion", "tag", "fixedversion");
+    UpdatePolicyTelemetry::SubscriptionVector subscriptionVector {productSubscription};
+
+    updatePolicyTelemetry.updateSubscriptions(subscriptionVector, esmVersion);
+    updatePolicyTelemetry.setSubscriptions(Common::Telemetry::TelemetryHelper::getInstance());
+
+    auto telemetry = Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
+    EXPECT_EQ(telemetry,    R"({"subscriptions-rigidname":"fixedversion"})");
+}
+
+TEST_F(TestUpdatePolicyTelemetry, esm_no_fixedVersion)
+{
+    UpdatePolicyTelemetry updatePolicyTelemetry;
+
+    ESMVersion esmVersion("esmname", "esmtoken");
+    ProductSubscription productSubscription("rigidname", "baseversion", "tag", "");
+    UpdatePolicyTelemetry::SubscriptionVector subscriptionVector {productSubscription};
+
+    updatePolicyTelemetry.updateSubscriptions(subscriptionVector, esmVersion);
+    updatePolicyTelemetry.setSubscriptions(Common::Telemetry::TelemetryHelper::getInstance());
+
+    auto telemetry = Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
+    EXPECT_EQ(telemetry,    R"({"subscriptions-rigidname":"esmname"})");
+}
+
+TEST_F(TestUpdatePolicyTelemetry, esm_fixedversion)
+{
+    UpdatePolicyTelemetry updatePolicyTelemetry;
+
+    ESMVersion esmVersion("esmname", "esmtoken");
+    ProductSubscription productSubscription("rigidname", "baseversion", "tag", "fixedversion");
+    UpdatePolicyTelemetry::SubscriptionVector subscriptionVector {productSubscription};
+
+    updatePolicyTelemetry.updateSubscriptions(subscriptionVector, esmVersion);
+    updatePolicyTelemetry.setSubscriptions(Common::Telemetry::TelemetryHelper::getInstance());
+
+    auto telemetry = Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
+    EXPECT_EQ(telemetry,    R"({"subscriptions-rigidname":"esmname"})");
+}
+
+TEST_F(TestUpdatePolicyTelemetry, esm_fixedversion_multiple)
+{
+    UpdatePolicyTelemetry updatePolicyTelemetry;
+
+    ESMVersion esmVersion("esmname", "esmtoken");
+    ProductSubscription productSubscription("rigidname", "baseversion", "tag", "fixedversion");
+    ProductSubscription productSubscription2("rigidname2", "baseversion2", "tag2", "fixedversion2");
+    UpdatePolicyTelemetry::SubscriptionVector subscriptionVector {productSubscription, productSubscription2};
+
+    updatePolicyTelemetry.updateSubscriptions(subscriptionVector, esmVersion);
+    updatePolicyTelemetry.setSubscriptions(Common::Telemetry::TelemetryHelper::getInstance());
+
+    auto telemetry = Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
+    EXPECT_EQ(telemetry,    R"({"subscriptions-rigidname":"esmname","subscriptions-rigidname2":"esmname"})");
+}
+
+TEST_F(TestUpdatePolicyTelemetry, invalid_esm_no_fixedVersion)
+{
+    UpdatePolicyTelemetry updatePolicyTelemetry;
+
+    ESMVersion esmVersion("esmname", "");
+    ProductSubscription productSubscription("rigidname", "baseversion", "tag", "");
+    UpdatePolicyTelemetry::SubscriptionVector subscriptionVector {productSubscription};
+
+    updatePolicyTelemetry.updateSubscriptions(subscriptionVector, esmVersion);
+    updatePolicyTelemetry.setSubscriptions(Common::Telemetry::TelemetryHelper::getInstance());
+
+    auto telemetry = Common::Telemetry::TelemetryHelper::getInstance().serialiseAndReset();
+    EXPECT_EQ(telemetry,    R"({"subscriptions-rigidname":"tag"})");
 }
