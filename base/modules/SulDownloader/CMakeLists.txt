@@ -39,11 +39,10 @@ target_include_directories(suldownloaderimplobject
         ${CURL_INPUT}/include/curl
         ${SOPHLIB_INCLUDE}
         )
-target_link_libraries(suldownloaderimplobject INTERFACE
-        sophlib_sdds3
-        )
 
 add_library(suldownloaderimpl_static STATIC
+        $<TARGET_OBJECTS:suldownloaderimplobject>
+        $<TARGET_OBJECTS:suldownloaderdataobject>
         $<TARGET_OBJECTS:HttpRequestsImplobject>
         $<TARGET_OBJECTS:filesystemimplobject>
         $<TARGET_OBJECTS:processimplobject>
@@ -53,6 +52,7 @@ add_library(suldownloaderimpl_static STATIC
         $<TARGET_OBJECTS:loggingobject>
         $<TARGET_OBJECTS:obfuscationimplobject>
         $<TARGET_OBJECTS:protobufutilobject>
+        $<TARGET_OBJECTS:policyobject>
         $<TARGET_OBJECTS:ProxyUtilsLibobject>
         $<TARGET_OBJECTS:sslimplobject>
         $<TARGET_OBJECTS:curlwrapperobject>
@@ -63,19 +63,15 @@ target_link_libraries(suldownloaderimpl_static PRIVATE
         openssl_crypto_static
         curl_library_static
         cap
-        suldownloaderimplobject
-        suldownloaderdataobject
-        policyobject
+        sophlib_sdds3
         )
 
-add_library(suldownloaderimpl SHARED)
+add_library(suldownloaderimpl SHARED $<TARGET_OBJECTS:suldownloaderimplobject>)
 target_link_libraries(suldownloaderimpl PUBLIC
         logging
-        suldownloaderimplobject
-        suldownloaderdata
         HttpRequestsImpl
         curlwrapper
-        policy
+        sophlib_sdds3
         )
 
 SET_TARGET_PROPERTIES( suldownloaderimpl
