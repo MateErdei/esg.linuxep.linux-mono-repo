@@ -263,14 +263,11 @@ TEST_F(RunCommandTests, runMethodHandlesLargeOutputOrError)
     EXPECT_GE(response.at("duration"), 0);
     EXPECT_EQ(response.at("result"), 0);
     EXPECT_GE(response.at("startedAt"), 1679057317);
-    nlohmann::json cmdResults = nlohmann::json::array();
-    nlohmann::json cmdResult;
-    cmdResult["stdOut"] = output;
-    cmdResult["stdErr"] = error;
-    cmdResult["exitCode"] = 0;
-    cmdResult["duration"] = 0;
-    cmdResults.push_back(cmdResult);
-    EXPECT_EQ(response.at("commandResults"), cmdResults);
+    EXPECT_EQ(response.at("commandResults")[0]["stdOut"], output);
+    EXPECT_EQ(response.at("commandResults")[0]["stdErr"], error);
+    EXPECT_EQ(response.at("commandResults")[0]["exitCode"], 0);
+    EXPECT_GT(response.at("commandResults")[0]["duration"], 0);
+    EXPECT_LT(response.at("commandResults")[0]["duration"], 1000);
 }
 
 TEST_F(RunCommandTests, runMethodReturnsTimeOut)

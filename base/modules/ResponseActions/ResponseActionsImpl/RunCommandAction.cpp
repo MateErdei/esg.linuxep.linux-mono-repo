@@ -127,7 +127,7 @@ CommandResponse RunCommandAction::runCommands(const CommandRequest& action)
 SingleCommandResult RunCommandAction::runCommand(const std::string& command)
 {
     Common::UtilityImpl::FormattedTime time;
-    u_int64_t startInMilliseconds = time.currentEpochTimeInMilliSecondsAsInteger();
+    auto start = std::chrono::high_resolution_clock::now();
 
     SingleCommandResult response;
 
@@ -232,7 +232,7 @@ SingleCommandResult RunCommandAction::runCommand(const std::string& command)
     response.exitCode = process->exitCode();
 
     // Unlike CommandResponse.duration, CommandResponse.SingleCommandResult.duration is in milliseconds not seconds
-    u_int64_t finishInMilliseconds = time.currentEpochTimeInMilliSecondsAsInteger();
-    response.duration = finishInMilliseconds - startInMilliseconds;
+    auto finish = std::chrono::high_resolution_clock::now();
+    response.duration = std::chrono::duration_cast<std::chrono::milliseconds>(finish - start).count();
     return response;
 }
