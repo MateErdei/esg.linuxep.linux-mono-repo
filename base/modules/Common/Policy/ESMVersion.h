@@ -24,6 +24,11 @@ class ESMVersion {
             return emptyName == emptyToken;
         }
 
+        bool isPopulated() const
+        {
+            return !name_.empty() && !token_.empty();
+        }
+
     private:
         std::string name_;
         std::string token_;

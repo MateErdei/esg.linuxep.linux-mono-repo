@@ -159,6 +159,8 @@ ALCPolicy::ALCPolicy(const std::string& xmlPolicy)
     updateSettings_.setUseSlowSupplements(get_attr_bool(delay_supplements.value("enabled", "false")));
 
     telemetryHost_ = attributesMap.lookup("AUConfigurations/server_names/telemetry").contents();
+
+    logVersion();
 }
 
 
@@ -408,8 +410,6 @@ void ALCPolicy::extractFeatures(const Common::XmlUtilities::AttributesMap& attri
 
 void ALCPolicy::extractCloudSubscriptions(const Common::XmlUtilities::AttributesMap& attributesMap)
 {
-
-
     auto cloudSubscriptions =
         attributesMap.entitiesThatContainPath("AUConfigurations/AUConfig/cloud_subscriptions/subscription");
     std::vector<ProductSubscription> productsSubscription;
@@ -479,4 +479,21 @@ void ALCPolicy::extractPeriod(const Common::XmlUtilities::AttributesMap& attribu
         }
     }
     updatePeriodMinutes_ = periodInt;
+}
+
+void ALCPolicy::logVersion()
+{
+    std::stringstream msg;
+    auto esmVersion = updateSettings_.getEsmVersion();
+
+    if (esmVersion.isPopulated())
+    {
+        msg << "Using FixedVersion " << esmVersion.name() << " with token " << esmVersion.token();
+    }
+    else
+    {
+        msg << "Using RECOMMENDED version with tag " << updateSettings_.getPrimarySubscription().tag();
+    }
+
+    LOGINFO(msg.str());
 }

@@ -72,6 +72,8 @@ namespace Common::Policy
         void extractPeriod(const Common::XmlUtilities::AttributesMap& attributesMap);
         void extractESMVersion(const Common::XmlUtilities::AttributesMap& attributesMap);
 
+        void logVersion();
+
         std::string revID_;
         std::string sdds_id_;
         std::string update_certificates_content_;
