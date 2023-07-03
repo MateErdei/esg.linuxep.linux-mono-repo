@@ -28,7 +28,7 @@
         <!-- Common build steps -->
         <command>
             <program>/bin/bash</program>
-            <args>./unpack_build_inputs.sh</args>
+            <args>./fixup_bazel_tools.sh</args>
             <workingdir>.</workingdir>
         </command>
 

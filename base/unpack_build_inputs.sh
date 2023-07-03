@@ -336,11 +336,14 @@ function setup_cmake()
         if [[ ! -d $REDIST/cmake ]]
         then
             ln -sf $FETCHED_INPUTS_DIR/cmake $REDIST/cmake
-            chmod 700 $REDIST/cmake/bin/cmake || exitFailure "Unable to chmod cmake"
-            chmod 700 $REDIST/cmake/bin/ctest || exitFailure "Unable to chmod ctest"
         fi
-        echo "cmake synced to $REDIST/cmake"
+    else
+        echo "ERROR - cmake not found here: $FETCHED_INPUTS_DIR/cmake/bin/cmake"
+        exit 1
     fi
+    chmod 700 $REDIST/cmake/bin/cmake || exitFailure "Unable to chmod cmake"
+    chmod 700 $REDIST/cmake/bin/ctest || exitFailure "Unable to chmod ctest"
+    echo "cmake synced to $REDIST/cmake"
 }
 
 function apply_third_party_patches()
@@ -350,16 +353,7 @@ function apply_third_party_patches()
   if [ ! -f ${REDIST}/pypi/sseclient_patched ]
   then
     touch ${REDIST}/pypi/sseclient_patched
-    patch ${REDIST}/pypi/sseclient.py < build/sseclient.patch
-  fi
-}
-
-function fixup_bazel_tools()
-{
-  if [ -f tools/aspects/wrapper.sh ]
-  then
-    sed -i 's/\r\n$/\n/' tools/aspects/wrapper.sh
-    chmod +x tools/aspects/wrapper.sh
+    patch ${REDIST}/pypi/sseclient.py < tools/sseclient.patch
   fi
 }
 
@@ -370,7 +364,6 @@ unpack_pypi_pkgs
 apply_third_party_patches
 copy_certs
 setup_cmake
-fixup_bazel_tools
 
 unlock
 echo "Finished unpacking"
