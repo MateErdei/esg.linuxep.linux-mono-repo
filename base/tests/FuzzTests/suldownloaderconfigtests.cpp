@@ -1,16 +1,10 @@
-/******************************************************************************************************
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 
-Copyright 2018-2019, Sophos Limited.  All rights reserved.
+#include "Common/Logging/ConsoleLoggingSetup.h"
+#include "Common/Logging/LoggerConfig.h"
+#include "Common/Policy/PolicyParseException.h"
+#include "SulDownloader/suldownloaderdata/ConfigurationData.h"
 
-******************************************************************************************************/
-#include <Common/FileSystem/IFileSystem.h>
-#include <SulDownloader/suldownloaderdata/ConfigurationData.h>
-#include <SulDownloader/suldownloaderdata/SulDownloaderException.h>
-#include <Common/Logging/ConsoleLoggingSetup.h>
-#include <Common/Logging/LoggerConfig.h>
-
-
-#include <chrono>
 #include <fstream>
 #include <iostream>
 #include <thread>
@@ -54,7 +48,7 @@ int main()
     {
         (void)SulDownloader::suldownloaderdata::ConfigurationData::fromJsonSettings(content);
     }
-    catch (SulDownloader::suldownloaderdata::SulDownloaderException&)
+    catch (Common::Policy::PolicyParseException&)
     {
         return 2;
     }
