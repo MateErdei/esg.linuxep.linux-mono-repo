@@ -6,8 +6,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include "modules/Common/Reactor/ICallbackListener.h"
-#include "modules/Common/ZeroMQWrapper/ISocketReplier.h"
+#include "Common/Reactor/ICallbackListener.h"
+#include "Common/ZeroMQWrapper/ISocketReplier.h"
 
 class TestListener : public Common::Reactor::ICallbackListener
 {

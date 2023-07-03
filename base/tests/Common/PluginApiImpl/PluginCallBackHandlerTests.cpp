@@ -4,13 +4,13 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "modules/Common/PluginApi/IPluginCallbackApi.h"
+#include "Common/PluginApi/IPluginCallbackApi.h"
 
-#include "modules/Common/FileSystem/IFileSystemException.h"
-#include "modules/Common/FileSystemImpl/FileSystemImpl.h"
-#include "modules/Common/PluginApiImpl/PluginCallBackHandler.h"
-#include "modules/Common/TelemetryHelperImpl/TelemetryHelper.h"
-#include "modules/Common/ZeroMQWrapper/IReadWrite.h"
+#include "Common/FileSystem/IFileSystemException.h"
+#include "Common/FileSystemImpl/FileSystemImpl.h"
+#include "Common/PluginApiImpl/PluginCallBackHandler.h"
+#include "Common/TelemetryHelperImpl/TelemetryHelper.h"
+#include "Common/ZeroMQWrapper/IReadWrite.h"
 #include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
 #include "tests/Common/Helpers/LogInitializedTests.h"
 #include "tests/Common/Helpers/MockFileSystem.h"

@@ -4,11 +4,11 @@ Copyright 2018-2020, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "modules/Common/Obfuscation/IObscurityException.h"
-#include "modules/Common/Obfuscation/ICipherException.h"
-#include "modules/Common/ObfuscationImpl/Base64.h"
-#include "modules/Common/ObfuscationImpl/Obfuscate.h"
-#include "modules/Common/ObfuscationImpl/Obscurity.h"
+#include "Common/Obfuscation/IObscurityException.h"
+#include "Common/Obfuscation/ICipherException.h"
+#include "Common/ObfuscationImpl/Base64.h"
+#include "Common/ObfuscationImpl/Obfuscate.h"
+#include "Common/ObfuscationImpl/Obscurity.h"
 #include "tests/Common/Helpers/LogInitializedTests.h"
 
 #include <gtest/gtest.h>

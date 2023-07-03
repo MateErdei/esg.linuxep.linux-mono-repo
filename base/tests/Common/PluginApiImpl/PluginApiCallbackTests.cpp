@@ -8,11 +8,11 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include "SingleManagementRequest.h"
 #include "TestCompare.h"
 
-#include "modules/Common/Logging/ConsoleLoggingSetup.h"
-#include "modules/Common/PluginApi/IBaseServiceApi.h"
-#include "modules/Common/PluginApiImpl/PluginResourceManagement.h"
-#include "modules/Common/PluginProtocol/MessageBuilder.h"
-#include "modules/Common/ZeroMQWrapper/ISocketReplier.h"
+#include "Common/Logging/ConsoleLoggingSetup.h"
+#include "Common/PluginApi/IBaseServiceApi.h"
+#include "Common/PluginApiImpl/PluginResourceManagement.h"
+#include "Common/PluginProtocol/MessageBuilder.h"
+#include "Common/ZeroMQWrapper/ISocketReplier.h"
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 #include "tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h"

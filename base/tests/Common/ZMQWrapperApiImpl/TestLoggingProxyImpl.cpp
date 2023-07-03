@@ -4,8 +4,8 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "modules/Common/Exceptions/Print.h"
-#include "modules/Common/Logging/ConsoleLoggingSetup.h"
+#include "Common/Exceptions/Print.h"
+#include "Common/Logging/ConsoleLoggingSetup.h"
 #include "modules/Common/ZMQWrapperApiImpl/ContextImpl.h"
 #include "modules/Common/ZeroMQWrapper/IIPCException.h"
 #include "modules/Common/ZeroMQWrapper/IProxy.h"

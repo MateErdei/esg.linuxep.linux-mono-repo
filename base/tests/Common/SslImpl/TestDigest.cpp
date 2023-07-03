@@ -1,6 +1,6 @@
 // Copyright 2018-2022, Sophos Limited. All rights reserved.
 
-#include "modules/Common/SslImpl/Digest.h"
+#include "Common/SslImpl/Digest.h"
 #include <gtest/gtest.h>
 
 using namespace Common::SslImpl;

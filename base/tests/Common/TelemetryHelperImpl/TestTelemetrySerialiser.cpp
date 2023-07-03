@@ -4,9 +4,9 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "modules/Common/TelemetryHelperImpl/TelemetryObject.h"
-#include "modules/Common/TelemetryHelperImpl/TelemetrySerialiser.h"
-#include "modules/Common/TelemetryHelperImpl/TelemetryValue.h"
+#include "Common/TelemetryHelperImpl/TelemetryObject.h"
+#include "Common/TelemetryHelperImpl/TelemetrySerialiser.h"
+#include "Common/TelemetryHelperImpl/TelemetryValue.h"
 #include <gtest/gtest.h>
 #include <json.hpp>
 

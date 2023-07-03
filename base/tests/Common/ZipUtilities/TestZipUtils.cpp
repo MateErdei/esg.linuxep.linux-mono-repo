@@ -1,7 +1,7 @@
 // Copyright 2023 Sophos Limited. All rights reserved.
 
-#include "modules/Common/FileSystem/IFileSystem.h"
-#include "modules/Common/ZipUtilities/ZipUtils.h"
+#include "Common/FileSystem/IFileSystem.h"
+#include "Common/ZipUtilities/ZipUtils.h"
 
 #include "tests/Common/Helpers/LogInitializedTests.h"
 

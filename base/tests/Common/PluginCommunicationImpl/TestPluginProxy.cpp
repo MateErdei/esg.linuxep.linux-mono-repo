@@ -6,11 +6,11 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 #include "MockSocketRequester.h"
 
-#include "modules/Common/Logging/ConsoleLoggingSetup.h"
-#include "modules/Common/PluginCommunication/IPluginCommunicationException.h"
-#include "modules/Common/PluginCommunicationImpl/PluginProxy.h"
-#include "modules/Common/PluginProtocol/Protocol.h"
-#include "modules/Common/ZMQWrapperApi/IContext.h"
+#include "Common/Logging/ConsoleLoggingSetup.h"
+#include "Common/PluginCommunication/IPluginCommunicationException.h"
+#include "Common/PluginCommunicationImpl/PluginProxy.h"
+#include "Common/PluginProtocol/Protocol.h"
+#include "Common/ZMQWrapperApi/IContext.h"
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 #include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"

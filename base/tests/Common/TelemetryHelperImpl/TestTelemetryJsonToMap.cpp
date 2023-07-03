@@ -4,7 +4,7 @@
 ///
 ///******************************************************************************************************/
 
-#include "modules/Common/TelemetryHelperImpl/TelemetryJsonToMap.h"
+#include "Common/TelemetryHelperImpl/TelemetryJsonToMap.h"
 #include <gtest/gtest.h>
 
 using namespace Common::Telemetry;

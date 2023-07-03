@@ -3,11 +3,11 @@
 #include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
 #include "tests/Common//Helpers/LogInitializedTests.h"
 #include "tests/Common//Helpers/MockFileSystem.h"
-#include "modules/Common/ApplicationConfiguration/IApplicationPathManager.h"
-#include "modules/Common/ApplicationConfiguration/IApplicationConfiguration.h"
-#include "modules/Common/ProxyUtils/ProxyUtils.h"
-#include "modules/Common/FileSystem/IFileSystemException.h"
-#include "modules/Common/Obfuscation/ICipherException.h"
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
+#include "Common/ProxyUtils/ProxyUtils.h"
+#include "Common/FileSystem/IFileSystemException.h"
+#include "Common/Obfuscation/ICipherException.h"
 
 #include <gtest/gtest.h>
 

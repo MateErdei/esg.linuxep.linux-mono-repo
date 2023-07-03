@@ -1,7 +1,7 @@
 // Copyright 2020-2023 Sophos Limited. All rights reserved.
 
-#include "modules/Common/FileSystem/IPermissionDeniedException.h"
-#include "modules/Common/PersistentValue/PersistentValue.h"
+#include "Common/FileSystem/IPermissionDeniedException.h"
+#include "Common/PersistentValue/PersistentValue.h"
 
 #include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
 #include "tests/Common/Helpers/MockFileSystem.h"

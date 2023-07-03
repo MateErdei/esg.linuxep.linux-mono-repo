@@ -4,11 +4,11 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "modules/Common/Exceptions/Print.h"
-#include "modules/Common/ZMQWrapperApi/IContext.h"
-#include "modules/Common/ZeroMQWrapper/IIPCException.h"
-#include "modules/Common/ZeroMQWrapper/ISocketPublisher.h"
-#include "modules/Common/ZeroMQWrapper/ISocketSubscriber.h"
+#include "Common/Exceptions/Print.h"
+#include "Common/ZMQWrapperApi/IContext.h"
+#include "Common/ZeroMQWrapper/IIPCException.h"
+#include "Common/ZeroMQWrapper/ISocketPublisher.h"
+#include "Common/ZeroMQWrapper/ISocketSubscriber.h"
 #include <gtest/gtest.h>
 
 #include <thread>

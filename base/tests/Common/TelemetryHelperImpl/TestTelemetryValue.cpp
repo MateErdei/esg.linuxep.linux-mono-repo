@@ -4,7 +4,7 @@
 ///
 ///******************************************************************************************************/
 
-#include "modules/Common/TelemetryHelperImpl/TelemetryValue.h"
+#include "Common/TelemetryHelperImpl/TelemetryValue.h"
 #include <gtest/gtest.h>
 
 static const long TEST_INTEGER = 10L;

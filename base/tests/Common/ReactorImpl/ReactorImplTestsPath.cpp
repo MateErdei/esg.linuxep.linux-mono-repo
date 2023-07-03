@@ -6,7 +6,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include "ReactorImplTestsPath.h"
 
-#include "modules/Common/FileSystem/IFileSystem.h"
+#include "Common/FileSystem/IFileSystem.h"
 namespace
 {
     static std::string programPath;

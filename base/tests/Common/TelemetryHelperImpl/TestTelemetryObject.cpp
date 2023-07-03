@@ -4,7 +4,7 @@
 ///
 ///******************************************************************************************************/
 
-#include "modules/Common/TelemetryHelperImpl/TelemetryObject.h"
+#include "Common/TelemetryHelperImpl/TelemetryObject.h"
 #include <gtest/gtest.h>
 
 using namespace Common::Telemetry;

@@ -1,11 +1,11 @@
 // Copyright 2019-2022, Sophos Limited.  All rights reserved.
 
-#include "modules/Common/ApplicationConfiguration/IApplicationPathManager.h"
-#include "modules/Common/Logging/ConsoleLoggingSetup.h"
-#include "modules/Common/Process/IProcessInfo.h"
-#include "modules/Common/ProcessImpl/ProcessImpl.h"
-#include "modules/Common/ProcessMonitoring/IProcessProxy.h"
-#include "modules/Common/ProcessMonitoringImpl/ProcessProxy.h"
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include "Common/Logging/ConsoleLoggingSetup.h"
+#include "Common/Process/IProcessInfo.h"
+#include "Common/ProcessImpl/ProcessImpl.h"
+#include "Common/ProcessMonitoring/IProcessProxy.h"
+#include "Common/ProcessMonitoringImpl/ProcessProxy.h"
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 #include "tests/Common/Helpers/FakeTimeUtils.h"

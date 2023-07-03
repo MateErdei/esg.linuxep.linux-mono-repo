@@ -12,12 +12,12 @@
 #include "ProxyCredentials.h"
 #include "UpdateSettings.h"
 
-#include "modules/Common/ApplicationConfiguration/IApplicationPathManager.h"
-#include "modules/Common/FileSystem/IFileSystem.h"
-#include "modules/Common/OSUtilities/IIPUtils.h"
-#include "modules/Common/ObfuscationImpl/Obfuscate.h"
-#include "modules/Common/UtilityImpl/StringUtils.h"
-#include "modules/Common/XmlUtilities/AttributesMap.h"
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include "Common/FileSystem/IFileSystem.h"
+#include "Common/OSUtilities/IIPUtils.h"
+#include "Common/ObfuscationImpl/Obfuscate.h"
+#include "Common/UtilityImpl/StringUtils.h"
+#include "Common/XmlUtilities/AttributesMap.h"
 
 using namespace Common::ApplicationConfiguration;
 using namespace Common::Policy;

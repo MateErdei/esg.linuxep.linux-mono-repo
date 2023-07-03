@@ -4,9 +4,9 @@ Copyright 2018-2022, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "modules/Common/Logging/ConsoleLoggingSetup.h"
-#include "modules/Common/XmlUtilities/AttributesMap.h"
-#include "modules/Common/XmlUtilities/Validation.h"
+#include "Common/Logging/ConsoleLoggingSetup.h"
+#include "Common/XmlUtilities/AttributesMap.h"
+#include "Common/XmlUtilities/Validation.h"
 #include <gtest/gtest.h>
 #include <gmock/gmock-matchers.h>
 

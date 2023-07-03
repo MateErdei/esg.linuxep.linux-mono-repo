@@ -3,7 +3,7 @@
 
 #include "Credentials.h"
 
-#include "modules/Common/ObfuscationImpl/SecureCollection.h"
+#include "Common/ObfuscationImpl/SecureCollection.h"
 
 #include <utility>
 

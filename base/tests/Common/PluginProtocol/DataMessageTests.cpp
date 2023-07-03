@@ -4,8 +4,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "modules/Common/Logging/ConsoleLoggingSetup.h"
-#include "modules/Common/PluginProtocol/DataMessage.h"
+#include "Common/Logging/ConsoleLoggingSetup.h"
+#include "Common/PluginProtocol/DataMessage.h"
 #include <gtest/gtest.h>
 
 using DataMessage = Common::PluginProtocol::DataMessage;

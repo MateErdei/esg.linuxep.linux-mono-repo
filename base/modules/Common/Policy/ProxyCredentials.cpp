@@ -3,7 +3,7 @@
 
 #include <utility>
 
-#include "modules/Common/ObfuscationImpl/Obfuscate.h"
+#include "Common/ObfuscationImpl/Obfuscate.h"
 
 using namespace Common::Policy;
 

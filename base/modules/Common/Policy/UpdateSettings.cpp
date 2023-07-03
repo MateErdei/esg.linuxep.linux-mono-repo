@@ -3,7 +3,7 @@
 #include "Logger.h"
 #include "UpdateSettings.h"
 
-#include "modules/Common/FileSystem/IFileSystem.h"
+#include "Common/FileSystem/IFileSystem.h"
 
 using namespace Common::Policy;
 

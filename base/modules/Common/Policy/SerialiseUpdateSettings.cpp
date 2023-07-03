@@ -2,10 +2,10 @@
 
 #include "SerialiseUpdateSettings.h"
 
-#include "modules/Common/Policy/ConfigurationSettings.pb.h"
+#include "Common/Policy/ConfigurationSettings.pb.h"
 #include "PolicyParseException.h"
 
-#include "modules/Common/ProtobufUtil/MessageUtility.h"
+#include "Common/ProtobufUtil/MessageUtility.h"
 
 #include <google/protobuf/util/json_util.h>
 

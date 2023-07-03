@@ -3,7 +3,7 @@
 #include "Credentials.h"
 #include "PolicyParseException.h"
 
-#include "modules/Common/ObfuscationImpl/Obfuscate.h"
+#include "Common/ObfuscationImpl/Obfuscate.h"
 
 #include <utility>
 

@@ -6,13 +6,13 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include "modules/Common/ApplicationConfiguration/IApplicationPathManager.h"
-#include "modules/Common/PluginProtocol/DataMessage.h"
-#include "modules/Common/PluginProtocol/MessageBuilder.h"
-#include "modules/Common/PluginProtocol/Protocol.h"
-#include "modules/Common/ZMQWrapperApi/IContext.h"
-#include "modules/Common/ZeroMQWrapper/IReadable.h"
-#include "modules/Common/ZeroMQWrapper/ISocketReplier.h"
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include "Common/PluginProtocol/DataMessage.h"
+#include "Common/PluginProtocol/MessageBuilder.h"
+#include "Common/PluginProtocol/Protocol.h"
+#include "Common/ZMQWrapperApi/IContext.h"
+#include "Common/ZeroMQWrapper/IReadable.h"
+#include "Common/ZeroMQWrapper/ISocketReplier.h"
 
 #include <cassert>
 

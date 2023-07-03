@@ -2,7 +2,7 @@
 
 #include "Logger.h"
 
-#include "modules/Common/Logging/LoggerConfig.h"
+#include "Common/Logging/LoggerConfig.h"
 
 log4cplus::Logger& getPolicyLogger()
 {
