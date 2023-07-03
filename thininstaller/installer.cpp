@@ -506,6 +506,7 @@ int main(int argc, char** argv)
         std::string versigPath = Common::FileSystem::join( fs->currentWorkingDirectory(),"installer/bin/versig");
         nlohmann::json j;
         //Dummy values for now
+        j["sophosURLs"] = {"https://localhost:1233"};
         j["credential"]["username"] = "jwt[MCS::TENANT_ID]";
         j["credential"]["password"] = "jwt[MCS::TENANT_ID]";
 
