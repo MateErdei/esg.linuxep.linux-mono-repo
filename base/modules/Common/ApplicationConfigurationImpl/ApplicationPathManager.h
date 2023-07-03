@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "modules/Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 
 namespace Common::ApplicationConfigurationImpl
 {

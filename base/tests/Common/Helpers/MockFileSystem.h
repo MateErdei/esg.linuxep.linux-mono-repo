@@ -2,8 +2,8 @@
 
 #pragma once
 
-#include "modules/Common/ApplicationConfiguration/IApplicationConfiguration.h"
-#include "modules/Common/FileSystem/IFileSystem.h"
+#include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
+#include "Common/FileSystem/IFileSystem.h"
 
 #include <gmock/gmock.h>
 #include <fstream>

@@ -8,8 +8,8 @@ Copyright 2018-2022, Sophos Limited.  All rights reserved.
 #include "tests/Common/Helpers/LogInitializedTests.h"
 #include "tests/Common/Helpers/MockFileSystem.h"
 
-#include "modules/Common/ApplicationConfiguration/IApplicationConfiguration.h"
-#include "modules/Common/UtilityImpl/StringUtils.h"
+#include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
+#include "Common/UtilityImpl/StringUtils.h"
 #include <gtest/gtest.h>
 
 using namespace Common::UtilityImpl;

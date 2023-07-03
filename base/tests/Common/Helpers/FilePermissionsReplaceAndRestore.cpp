@@ -6,7 +6,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include "FilePermissionsReplaceAndRestore.h"
 
-#include "modules/Common/FileSystemImpl/FilePermissionsImpl.h"
+#include "Common/FileSystemImpl/FilePermissionsImpl.h"
 
 #include <mutex>
 

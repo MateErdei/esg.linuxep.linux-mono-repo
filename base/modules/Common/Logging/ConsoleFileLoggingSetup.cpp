@@ -8,9 +8,9 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include "LoggerConfig.h"
 #include "LoggingSetup.h"
 
-#include "modules/Common/ApplicationConfiguration/IApplicationPathManager.h"
-#include "modules/Common/FileSystem/IFileSystem.h"
-#include "modules/Common/UtilityImpl/StringUtils.h"
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include "Common/FileSystem/IFileSystem.h"
+#include "Common/UtilityImpl/StringUtils.h"
 #include <log4cplus/configurator.h>
 #include <log4cplus/consoleappender.h>
 #include <log4cplus/fileappender.h>

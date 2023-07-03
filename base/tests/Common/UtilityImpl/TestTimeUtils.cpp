@@ -1,11 +1,13 @@
 // Copyright 2018-2023 Sophos Limited. All rights reserved.
 
-#include "modules/Common/UtilityImpl/RegexUtilities.h"
-#include "modules/Common/UtilityImpl/TimeUtils.h"
+#include "Common/UtilityImpl/RegexUtilities.h"
+#include "Common/UtilityImpl/TimeUtils.h"
 
 #include <gmock/gmock-matchers.h>
 #include <gtest/gtest.h>
 
+#include <future>
+#include <regex>
 
 using namespace Common::UtilityImpl;
 

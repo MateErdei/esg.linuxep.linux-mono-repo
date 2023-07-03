@@ -4,7 +4,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "modules/Common/UtilityImpl/VectorAsSet.h"
+#include "Common/UtilityImpl/VectorAsSet.h"
 #include <gtest/gtest.h>
 
 using namespace Common::UtilityImpl;

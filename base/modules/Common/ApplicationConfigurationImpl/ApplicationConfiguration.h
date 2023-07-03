@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "modules/Common/ApplicationConfiguration/IApplicationConfiguration.h"
+#include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
 
 #include <map>
 

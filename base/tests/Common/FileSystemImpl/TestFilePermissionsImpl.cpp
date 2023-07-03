@@ -1,8 +1,8 @@
 // Copyright 2018-2023 Sophos Limited. All rights reserved.
 
-#include "modules/Common/FileSystemImpl/FilePermissionsImpl.h"
-#include "modules/Common/FileSystem/IFilePermissions.h"
-#include "modules/Common/FileSystem/IFileSystemException.h"
+#include "Common/FileSystemImpl/FilePermissionsImpl.h"
+#include "Common/FileSystem/IFilePermissions.h"
+#include "Common/FileSystem/IFileSystemException.h"
 
 #include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
 #include "tests/Common/Helpers/MockFileSystem.h"

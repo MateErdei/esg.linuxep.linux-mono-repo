@@ -1,0 +1,2 @@
+# Add modules as a global include search path
+build --define SOPH_ASSET_SOURCE_ROOT=modules

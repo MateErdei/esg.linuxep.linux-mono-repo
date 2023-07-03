@@ -5,7 +5,7 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 #pragma once
 
-#include "modules/Common/FileSystem/IFilePermissions.h"
+#include "Common/FileSystem/IFilePermissions.h"
 
 #include <string>
 

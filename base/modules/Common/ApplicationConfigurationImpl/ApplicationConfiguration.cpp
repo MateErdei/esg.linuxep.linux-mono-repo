@@ -6,7 +6,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 #include "ApplicationConfiguration.h"
 
-#include "modules/Common/FileSystem/IFileSystem.h"
+#include "Common/FileSystem/IFileSystem.h"
 
 namespace
 {

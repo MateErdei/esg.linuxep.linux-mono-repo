@@ -2,8 +2,8 @@
 
 #pragma once
 
-#include "modules/Common/Logging/LoggerConfig.h"
-#include "modules/Common/Logging/ConsoleLoggingSetup.h"
+#include "Common/Logging/LoggerConfig.h"
+#include "Common/Logging/ConsoleLoggingSetup.h"
 
 #include <gtest/gtest.h>
 #include <log4cplus/logger.h>

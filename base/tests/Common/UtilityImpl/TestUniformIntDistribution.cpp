@@ -4,7 +4,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "modules/Common/UtilityImpl/UniformIntDistribution.h"
+#include "Common/UtilityImpl/UniformIntDistribution.h"
 #include <gtest/gtest.h>
 
 #include <chrono>

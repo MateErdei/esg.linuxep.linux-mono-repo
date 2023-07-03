@@ -6,7 +6,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include "FileSystemReplaceAndRestore.h"
 
-#include "modules/Common/FileSystemImpl/FileSystemImpl.h"
+#include "Common/FileSystemImpl/FileSystemImpl.h"
 #include <mutex>
 namespace{
     std::mutex preventTestsToUseEachOtherFileSystemMock; 

@@ -2,16 +2,16 @@
 
 #include "FilePermissionsImpl.h"
 
-#include "modules/Common/FileSystem/IFileNotFoundException.h"
+#include "Common/FileSystem/IFileNotFoundException.h"
 
-#include "modules/Common/FileSystem/IFilePermissions.h"
-#include "modules/Common/FileSystem/IFileSystem.h"
-#include "modules/Common/FileSystem/IFileSystemException.h"
-#include "modules/Common/FileSystem/IPermissionDeniedException.h"
-#include "modules/Common/SystemCallWrapper/SystemCallWrapper.h"
-#include "modules/Common/UtilityImpl/ProjectNames.h"
-#include "modules/Common/UtilityImpl/StrError.h"
-#include "modules/Common/UtilityImpl/UniformIntDistribution.h"
+#include "Common/FileSystem/IFilePermissions.h"
+#include "Common/FileSystem/IFileSystem.h"
+#include "Common/FileSystem/IFileSystemException.h"
+#include "Common/FileSystem/IPermissionDeniedException.h"
+#include "Common/SystemCallWrapper/SystemCallWrapper.h"
+#include "Common/UtilityImpl/ProjectNames.h"
+#include "Common/UtilityImpl/StrError.h"
+#include "Common/UtilityImpl/UniformIntDistribution.h"
 #include <sys/stat.h>
 
 #include <cassert>

@@ -2,8 +2,8 @@
 
 #pragma once
 
-#include "modules/Common/FileSystem/IFilePermissions.h"
-#include "modules/Common/SystemCallWrapper/ISystemCallWrapper.h"
+#include "Common/FileSystem/IFilePermissions.h"
+#include "Common/SystemCallWrapper/ISystemCallWrapper.h"
 #include <sys/capability.h>
 
 namespace Common::FileSystem

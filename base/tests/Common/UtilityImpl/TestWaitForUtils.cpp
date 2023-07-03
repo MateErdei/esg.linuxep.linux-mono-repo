@@ -3,7 +3,7 @@
 Copyright 2021, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
-#include "modules/Common/UtilityImpl/WaitForUtils.h"
+#include "Common/UtilityImpl/WaitForUtils.h"
 #include <gtest/gtest.h>
 
 using namespace Common::UtilityImpl;

@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "modules/Common/SystemCallWrapper/SystemCallWrapper.h"
+#include "Common/SystemCallWrapper/SystemCallWrapper.h"
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>

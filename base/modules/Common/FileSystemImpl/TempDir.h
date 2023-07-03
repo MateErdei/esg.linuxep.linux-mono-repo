@@ -5,8 +5,8 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 #pragma once
 
-#include "modules/Common/FileSystem/IFileSystem.h"
-#include "modules/Common/FileSystem/ITempDir.h"
+#include "Common/FileSystem/IFileSystem.h"
+#include "Common/FileSystem/ITempDir.h"
 
 #include <string>
 

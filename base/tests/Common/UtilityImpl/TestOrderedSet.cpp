@@ -4,7 +4,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "modules/Common/UtilityImpl/OrderedSet.h"
+#include "Common/UtilityImpl/OrderedSet.h"
 #include <gtest/gtest.h>
 
 using namespace Common::UtilityImpl;

@@ -1,6 +1,6 @@
 // Copyright 2022, Sophos Limited. All rights reserved.
 
-#include "modules/Common/UtilityImpl/Uuid.h"
+#include "Common/UtilityImpl/Uuid.h"
 
 #include <gtest/gtest.h>
 

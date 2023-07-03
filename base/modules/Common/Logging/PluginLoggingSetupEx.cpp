@@ -8,8 +8,8 @@ Copyright 2021, Sophos Limited.  All rights reserved.
 #include "FileLoggingSetupEx.h"
 #include "LoggerConfig.h"
 
-#include "modules/Common/ApplicationConfiguration/IApplicationPathManager.h"
-#include "modules/Common/FileSystem/IFileSystem.h"
+#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include "Common/FileSystem/IFileSystem.h"
 #include <log4cplus/logger.h>
 
 Common::Logging::PluginLoggingSetupEx::PluginLoggingSetupEx(
