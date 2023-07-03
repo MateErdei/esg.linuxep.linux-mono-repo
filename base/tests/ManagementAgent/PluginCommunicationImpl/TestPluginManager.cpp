@@ -156,6 +156,11 @@ TEST_F(TestPluginManager, TestApplyPolicyOnTwoRegisteredPlugins)
     applyPolicy.join();
 }
 
+TEST_F(TestPluginManager, TestApplyPolicyDoesNotApplyIfPluginNameDoesNotMatch)
+{
+    EXPECT_EQ(m_pluginManagerPtr->applyNewPolicy(m_pluginOneName, "testpolicyone.xml", m_pluginTwoName), 0);
+}
+
 TEST_F(TestPluginManager, TestApplyPolicyOnFailedPluginLeavesItInRegisteredPluginList)
 {
     EXPECT_CALL(*m_mockedPluginApiCallback, applyNewPolicyWithAppId(m_pluginOneName,"testpolicyone")).Times(1);
