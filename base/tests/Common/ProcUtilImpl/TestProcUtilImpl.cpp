@@ -1,21 +1,18 @@
-// Copyright 2018-2023 Sophos Limited. All rights reserved.
+/******************************************************************************************************
 
-#include "Common/FileSystem/IFileSystem.h"
-#include "Common/ProcUtilImpl/ProcUtilities.h"
-#include "Common/Process/IProcess.h"
-#include "Common/Process/IProcessException.h"
-#include "Common/ProcessImpl/ProcessInfo.h"
+Copyright 2018-2020, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
+
+#include "modules/Common/FileSystem/IFileSystem.h"
+#include "modules/Common/ProcUtilImpl/ProcUtilities.h"
+#include "modules/Common/Process/IProcessException.h"
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
-#include <sys/types.h>
 #include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
 #include "tests/Common/Helpers/LogInitializedTests.h"
 #include "tests/Common/Helpers/MockFileSystem.h"
 #include "tests/Common/Helpers/MockFilePermissions.h"
-#include "tests/Common/Helpers/TempDir.h"
-#include "tests/Common/Helpers/TestExecutionSynchronizer.h"
-
-#include <fstream>
 
 
 using namespace Common::Process;

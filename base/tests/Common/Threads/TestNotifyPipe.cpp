@@ -1,6 +1,11 @@
-// Copyright 2018-2023 Sophos Limited. All rights reserved.
+///////////////////////////////////////////////////////////
+//
+// Copyright (C) 2018 Sophos Plc, Oxford, England.
+// All rights reserved.
+//
+///////////////////////////////////////////////////////////
 
-#include "Common/Threads/NotifyPipe.h"
+#include "modules/Common/Threads/NotifyPipe.h"
 #include <gtest/gtest.h>
 
 #define TESTPROGRESS(x)

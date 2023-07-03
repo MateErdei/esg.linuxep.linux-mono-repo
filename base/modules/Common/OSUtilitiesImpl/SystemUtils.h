@@ -1,7 +1,11 @@
-// Copyright 2022-2023 Sophos Limited. All rights reserved.
+/******************************************************************************************************
+
+Copyright 2022, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
 #pragma once
 
-#include "Common/OSUtilities/ISystemUtils.h"
+#include "modules/Common/OSUtilities/ISystemUtils.h"
 
 namespace OSUtilitiesImpl
 {

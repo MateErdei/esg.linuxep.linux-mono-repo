@@ -1,11 +1,15 @@
-// Copyright 2018-2023 Sophos Limited. All rights reserved.
+/******************************************************************************************************
+
+Copyright 2018, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
 #include "MockDnsLookup.h"
 #include "MockILocalIP.h"
 
-#include "Common/OSUtilities/IDnsLookup.h"
-#include "Common/OSUtilities/IIPUtils.h"
-#include "Common/OSUtilitiesImpl/DnsLookupImpl.h"
-#include "Common/OSUtilitiesImpl/LocalIPImpl.h"
+#include "modules/Common/OSUtilities/IDnsLookup.h"
+#include "modules/Common/OSUtilities/IIPUtils.h"
+#include "modules/Common/OSUtilitiesImpl/DnsLookupImpl.h"
+#include "modules/Common/OSUtilitiesImpl/LocalIPImpl.h"
 #include <arpa/inet.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
@@ -16,27 +20,6 @@ using namespace Common::OSUtilities;
 
 using PairResult = std::pair<std::string, std::vector<std::string>>;
 using ListInputOutput = std::vector<PairResult>;
-
-std::string ipsToString(const std::vector<std::string>& ips)
-{
-    std::ostringstream os;
-    bool first = true;
-
-    for (const auto& ip : ips)
-    {
-        if (first)
-        {
-            first = false;
-        }
-        else
-        {
-            os << " ";
-        }
-        os << ip;
-    }
-
-    return os.str();
-}
 
 TEST(TestIPUtils, verifyIP4CanbeconstructedByString) // NOLINT
 {

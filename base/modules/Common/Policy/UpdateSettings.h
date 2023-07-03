@@ -5,7 +5,7 @@
 #include "ProductSubscription.h"
 #include "Proxy.h"
 
-#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include "modules/Common/ApplicationConfiguration/IApplicationPathManager.h"
 
 #include <string>
 #include <utility>

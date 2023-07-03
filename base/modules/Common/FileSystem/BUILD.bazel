@@ -5,12 +5,13 @@ soph_cc_library(
     name = "FileSystem",
     hdrs = glob(["*.h"]),
     visibility = [
-        "//modules:__subpackages__",
-        "//tests:__subpackages__",
+        # FileSystem is not a full implementation
+        # BUILD files should depend on FileSystemImpl
+        "//modules/Common/FileSystemImpl:__pkg__",
     ],
     deps = [
         "//modules/Common/Exceptions",
-        "//modules/Common/SslImpl",
+        "//modules/Common/SslImpl",  # TODO would be good to move this to impl later
         "@libcap//:libcap_shared",
     ],
 )

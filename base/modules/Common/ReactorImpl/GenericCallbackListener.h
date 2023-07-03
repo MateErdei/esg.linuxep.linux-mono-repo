@@ -6,7 +6,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include "Common/Reactor/ICallbackListener.h"
+#include "modules/Common/Reactor/ICallbackListener.h"
 
 #include <functional>
 #include <string>

@@ -1,0 +1,18 @@
+load("//tools/config:soph_rules.bzl", "soph_cc_library")
+
+soph_cc_library(
+    name = "Obfuscation",
+    srcs = glob(["*.cpp"]),
+    hdrs = glob(["*.h"]),
+    implementation_deps = [
+        "@openssl_linux//:openssl",
+    ],
+    visibility = [
+        # Obfuscation is not a full implementation
+        # BUILD files should depend on ObfuscationImpl
+        "//modules/Common/ObfuscationImpl:__pkg__",
+    ],
+    deps = [
+        "//modules/Common/Exceptions",
+    ],
+)

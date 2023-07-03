@@ -1,10 +1,14 @@
-// Copyright 2018-2023 Sophos Limited. All rights reserved.
+/******************************************************************************************************
+
+Copyright 2018, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
 
 #pragma once
 
 #include "SocketImpl.h"
 
-#include "Common/ZeroMQWrapper/ISocketPublisher.h"
+#include "modules/Common/ZeroMQWrapper/ISocketPublisher.h"
 
 namespace Common
 {

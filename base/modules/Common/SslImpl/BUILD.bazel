@@ -5,11 +5,11 @@ soph_cc_library(
     name = "SslImpl",
     srcs = glob(["*.cpp"]),
     hdrs = glob(["*.h"]),
-    visibility = [
-        "//modules/Common/FileSystem:__pkg__",
-        "//modules/Common/UtilityImpl:__pkg__",
-    ],
-    deps = [
+    implementation_deps = [
         "@openssl_linux//:openssl",
+    ],
+    visibility = [
+        "//modules:__subpackages__",
+        "//tests:__subpackages__",
     ],
 )

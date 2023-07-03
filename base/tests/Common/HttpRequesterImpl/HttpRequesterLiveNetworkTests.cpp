@@ -1,4 +1,3 @@
-// Copyright 2022-2023 Sophos Limited. All rights reserved.
 /*
  * This test binary runs against the test server HttpTestServer during TAP test.
  * The tests can also be run locally by running HttpTestServer.py (right click run), and then running the tests here
@@ -8,11 +7,10 @@
  */
 
 #include "tests/Common/Helpers/LogInitializedTests.h"
-#include "Common/FileSystem/IFileSystem.h"
+#include "modules/Common/FileSystem/IFileSystem.h"
 
-#include "Common/CurlWrapper/CurlWrapper.h"
-#include "Common/HttpRequestsImpl/HttpRequesterImpl.h"
-#include <curl/curl.h>
+#include "modules/Common/CurlWrapper/CurlWrapper.h"
+#include "modules/Common/HttpRequestsImpl/HttpRequesterImpl.h"
 #include <gtest/gtest.h>
 
 namespace
@@ -118,7 +116,7 @@ protected:
     }
 };
 
-INSTANTIATE_TEST_SUITE_P(
+INSTANTIATE_TEST_CASE_P(
     LiveNetworkTestRuns,
     HttpRequesterLiveNetworkTestsParam,
     ::testing::Values(

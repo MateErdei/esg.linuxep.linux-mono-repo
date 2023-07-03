@@ -1,7 +1,11 @@
-// Copyright 2019-2023 Sophos Limited. All rights reserved.
+/******************************************************************************************************
+
+Copyright 2019, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
 #pragma once
 
-#include "Common/HttpRequests/IHttpRequester.h"
+#include "modules/Common/HttpRequests/IHttpRequester.h"
 #include <gmock/gmock.h>
 
 using namespace ::testing;

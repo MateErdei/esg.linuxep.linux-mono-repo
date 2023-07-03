@@ -1,8 +1,7 @@
-// Copyright 2022-2023 Sophos Limited. All rights reserved.
 #include "tests/Common/Helpers/LogInitializedTests.h"
 #include "tests/Common/Helpers/MockCurlWrapper.h"
 
-#include "Common/HttpRequestsImpl/HttpRequesterImpl.h"
+#include "modules/Common/HttpRequestsImpl/HttpRequesterImpl.h"
 #include <curl/curl.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
@@ -433,27 +432,4 @@ TEST_F(HttpRequesterImplTests, clientPerformsGetRequestWithProxyFailsAndReturnsE
     ASSERT_EQ(response.status, -1);
     ASSERT_EQ(response.errorCode, Common::HttpRequests::ResponseErrorCode::COULD_NOT_RESOLVE_PROXY);
     ASSERT_EQ(response.error, "Proxy error — https://sophos-proxy.com");
-}
-
-TEST_F(HttpRequesterImplTests, clientPerformsGetRequestWithResolveHostFailureAndReturnsError)
-{
-    auto curlWrapper = std::make_shared<StrictMock<MockCurlWrapper>>();
-    setCommonExpectations(curlWrapper);
-
-    std::variant<std::string, long> urlVariant = URL;
-    std::variant<std::string, long> proxyVariant = proxyURL;
-    EXPECT_CALL(*curlWrapper, curlEasySetOpt(fakeCurlHandle, _, _)).WillRepeatedly(Return(CURLE_OK));
-
-    EXPECT_CALL(*curlWrapper, curlEasyPerform(fakeCurlHandle)).WillOnce(Return(CURLE_COULDNT_RESOLVE_HOST));
-    EXPECT_CALL(*curlWrapper, curlEasyStrError(CURLE_COULDNT_RESOLVE_HOST))
-        .WillOnce(Return("Could not find path to hostname"));
-    EXPECT_CALL(*curlWrapper, curlEasyCleanup(fakeCurlHandle));
-
-    EXPECT_CALL(*curlWrapper, curlGlobalCleanup());
-
-    HttpRequesterImpl client(curlWrapper);
-    Response response = client.get(RequestConfig{ .url = URL, .proxy = proxyURL });
-    ASSERT_EQ(response.status, -1);
-    ASSERT_EQ(response.errorCode, Common::HttpRequests::ResponseErrorCode::COULD_NOT_RESOLVE_HOST);
-    ASSERT_EQ(response.error, "Could not find path to hostname");
 }

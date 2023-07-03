@@ -1,7 +1,11 @@
-// Copyright 2018-2023 Sophos Limited. All rights reserved.
+/******************************************************************************************************
 
-#include "Common/ZMQWrapperApiImpl/ContextImpl.h"
-#include "Common/ZeroMQWrapper/ISocketRequester.h"
+Copyright 2018-2019, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
+
+#include "modules/Common/ZMQWrapperApiImpl/ContextImpl.h"
+#include "modules/Common/ZeroMQWrapper/ISocketRequester.h"
 #include <gtest/gtest.h>
 
 namespace

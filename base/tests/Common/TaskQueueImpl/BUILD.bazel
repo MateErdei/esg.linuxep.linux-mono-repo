@@ -1,0 +1,13 @@
+load("//modules:spl_independent_cc_tests.bzl", "spl_independent_cc_tests")
+
+spl_independent_cc_tests(
+    name = "TaskQueueTests",
+    srcs = glob([
+        "*.cpp",
+        "*.h",
+    ]),
+    deps = [
+        "//modules/Common/TaskQueueImpl",
+        "@com_google_googletest//:gtest_main",
+    ],
+)

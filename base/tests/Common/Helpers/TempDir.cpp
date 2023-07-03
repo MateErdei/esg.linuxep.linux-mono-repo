@@ -1,11 +1,15 @@
-// Copyright 2018-2023 Sophos Limited. All rights reserved.
+/******************************************************************************************************
+
+Copyright 2018-2019, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
 #include "TempDir.h"
 
-#include "Common/FileSystem/IFileSystemException.h"
-#include "Common/FileSystemImpl/FilePermissionsImpl.h"
-#include "Common/FileSystemImpl/FileSystemImpl.h"
-#include "Common/FileSystemImpl/TempDir.h"
-#include "Common/UtilityImpl/StrError.h"
+#include "modules/Common/FileSystem/IFileSystemException.h"
+#include "modules/Common/FileSystem/IFilePermissions.h"
+#include "modules/Common/FileSystemImpl/FileSystemImpl.h"
+#include "modules/Common/FileSystemImpl/TempDir.h"
+#include "modules/Common/UtilityImpl/StrError.h"
 #include <sys/stat.h>
 
 #include <cassert>

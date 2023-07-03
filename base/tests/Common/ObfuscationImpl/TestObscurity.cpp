@@ -1,13 +1,16 @@
-// Copyright 2018-2023 Sophos Limited. All rights reserved.
+/******************************************************************************************************
 
-#include "Common/Obfuscation/IObscurityException.h"
-#include "Common/Obfuscation/ICipherException.h"
-#include "Common/ObfuscationImpl/Base64.h"
-#include "Common/ObfuscationImpl/Obfuscate.h"
-#include "Common/ObfuscationImpl/Obscurity.h"
+Copyright 2018-2020, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
+
+#include "modules/Common/Obfuscation/IObscurityException.h"
+#include "modules/Common/Obfuscation/ICipherException.h"
+#include "modules/Common/ObfuscationImpl/Base64.h"
+#include "modules/Common/ObfuscationImpl/Obfuscate.h"
+#include "modules/Common/ObfuscationImpl/Obscurity.h"
 #include "tests/Common/Helpers/LogInitializedTests.h"
 
-#include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
 class TestObscurity: public LogOffInitializedTests{};
@@ -61,7 +64,6 @@ TEST_F(TestObscurity, SECDeobfuscateBufferOverReadFoundByFuzzer) // NOLINT
     ASSERT_THROW(Common::ObfuscationImpl::SECDeobfuscate(
                      "CCJIXMaTLuxrBppRLRbXgGOmQBrysz16sn7RuzXPaX6XHkDAL1sCAV1YiHE20dTJIXMaTLuxrBppRLRbXg="),
                      Common::Obfuscation::ICipherException);
-
 }
 
 TEST_F(TestObscurity, testOversizedPasswordsHandled) // NOLINT

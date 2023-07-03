@@ -1,0 +1,22 @@
+load("//tools/config:soph_rules.bzl", "soph_cc_library")
+
+soph_cc_library(
+    name = "ProxyUtils",
+    srcs = glob(["*.cpp"]),
+    hdrs = glob(["*.h"]),
+    implementation_deps = [
+        "//modules/Common/Logging",
+        "//modules/Common/FileSystemImpl",
+        "//modules/Common/ObfuscationImpl",
+        "//modules/Common/UtilityImpl:StringUtils",
+        "//modules/Common/ApplicationConfigurationImpl",
+        "//thirdparty/nlohmann-json",
+    ],
+    visibility = [
+        "//modules:__subpackages__",
+        "//tests:__subpackages__",
+    ],
+    deps = [
+        "//modules/Common/HttpRequests",
+    ],
+)

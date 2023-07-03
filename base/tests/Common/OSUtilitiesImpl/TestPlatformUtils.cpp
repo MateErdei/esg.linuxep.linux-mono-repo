@@ -1,8 +1,8 @@
 // Copyright 2022-2023 Sophos Limited. All rights reserved.
 
-#include "Common/OSUtilitiesImpl/CloudMetadataConverters.h"
-#include "Common/OSUtilitiesImpl/PlatformUtils.h"
-#include "Common/XmlUtilities/AttributesMap.h"
+#include "modules/Common/OSUtilitiesImpl/CloudMetadataConverters.h"
+#include "modules/Common/OSUtilitiesImpl/PlatformUtils.h"
+#include "modules/Common/XmlUtilities/AttributesMap.h"
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 #include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"

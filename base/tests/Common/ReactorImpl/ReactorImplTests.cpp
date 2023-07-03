@@ -1,4 +1,8 @@
-// Copyright 2018-2023 Sophos Limited. All rights reserved.
+/******************************************************************************************************
+
+Copyright 2018-2019, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
 
 #include "FakeClient.h"
 #include "FakeServer.h"
@@ -6,19 +10,18 @@
 #include "PipeForTests.h"
 #include "ReactorImplTestsPath.h"
 
-#include "Common/Process/IProcess.h"
-#include "Common/Reactor/IReactor.h"
-#include "Common/ReactorImpl/GenericCallbackListener.h"
-#include "Common/ReactorImpl/ReactorImpl.h"
-#include "Common/ZMQWrapperApi/IContext.h"
-#include "Common/ZeroMQWrapperImpl/ZeroMQWrapperException.h"
+#include "modules/Common/Process/IProcess.h"
+#include "modules/Common/Reactor/IReactor.h"
+#include "modules/Common/ReactorImpl/GenericCallbackListener.h"
+#include "modules/Common/ReactorImpl/ReactorImpl.h"
+#include "modules/Common/ZMQWrapperApi/IContext.h"
+#include "modules/Common/ZeroMQWrapperImpl/ZeroMQWrapperException.h"
 
-#include "Common/Logging/ConsoleLoggingSetup.h"
-#include "Common/ReactorImpl/ReadableFd.h"
-#include "Common/UtilityImpl/StringUtils.h"
-#include "Common/ZeroMQWrapper/ISocketReplier.h"
-#include "Common/ZeroMQWrapper/ISocketRequester.h"
-#include "Common/ZeroMQWrapperImpl/SocketImpl.h"
+#include "modules/Common/Logging/ConsoleLoggingSetup.h"
+#include "modules/Common/ReactorImpl/ReadableFd.h"
+#include "modules/Common/UtilityImpl/StringUtils.h"
+#include "modules/Common/ZeroMQWrapper/ISocketRequester.h"
+#include "modules/Common/ZeroMQWrapperImpl/SocketImpl.h"
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 #include "tests/Common/Helpers/TempDir.h"
@@ -108,7 +111,11 @@ TEST_F(ReactorImplTest, TestFakeServerSignalHandlerCommandsRespondCorrectly) // 
 
     std::string libsPath = Common::FileSystem::join(ReactorImplTestsPath(), "../../../libs");
 
+    std::cout << fakeServerPath << std::endl;
+
+#ifndef SPL_BAZEL
     ASSERT_TRUE(fileSystem->isDirectory(libsPath));
+#endif
     ASSERT_TRUE(fileSystem->isExecutable(fakeServerPath));
     data_t args{ socketAddress };
 
@@ -280,7 +287,7 @@ TEST_F(ReactorImplTest, ReactorCallTerminatesIfThePollerBreaksForZMQSockets) // 
  */
 TEST_F(ReactorImplTest, addingListenerAfterReactorThreadStartedShouldFailWithAssert) // NOLINT
 {
-    GTEST_FLAG_SET(death_test_style, "threadsafe");
+    ::testing::FLAGS_gtest_death_test_style = "threadsafe";
 
     MockCallBackListener mockCallBackListener;
 

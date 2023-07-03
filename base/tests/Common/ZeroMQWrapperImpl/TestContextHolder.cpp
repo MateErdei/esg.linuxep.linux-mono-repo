@@ -4,7 +4,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "Common/ZeroMQWrapperImpl/ContextHolder.h"
+#include "modules/Common/ZeroMQWrapperImpl/ContextHolder.h"
 
 #include <gtest/gtest.h>
 

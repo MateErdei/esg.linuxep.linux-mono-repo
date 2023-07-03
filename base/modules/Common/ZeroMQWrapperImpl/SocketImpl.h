@@ -1,11 +1,15 @@
-// Copyright 2018-2023 Sophos Limited. All rights reserved.
+/******************************************************************************************************
+
+Copyright 2018, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
 
 #pragma once
 
 #include "SocketHolder.h"
 
-#include "Common/ZeroMQWrapper/IHasFD.h"
-#include "Common/ZeroMQWrapper/ISocketSetup.h"
+#include "modules/Common/ZeroMQWrapper/IHasFD.h"
+#include "modules/Common/ZeroMQWrapper/ISocketSetup.h"
 
 #include <string>
 

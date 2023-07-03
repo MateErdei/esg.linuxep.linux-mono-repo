@@ -1,11 +1,11 @@
 // Copyright 2022-2023 Sophos Limited. All rights reserved.
 
 #include "tests/Common/Helpers/LogInitializedTests.h"
-#include "Common/FileSystem/IFileSystem.h"
-#include "Common/HttpRequestsImpl/CurlFunctionsProvider.h"
+#include "modules/Common/FileSystem/IFileSystem.h"
+#include "modules/Common/HttpRequestsImpl/CurlFunctionsProvider.h"
 #include "tests/Common/Helpers/MockFileSystem.h"
 #include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
-#include "Common/HttpRequestsImpl/HttpRequesterImpl.h"
+#include "modules/Common/HttpRequestsImpl/HttpRequesterImpl.h"
 #include <curl/curl.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>

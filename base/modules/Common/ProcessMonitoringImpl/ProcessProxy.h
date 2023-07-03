@@ -2,9 +2,9 @@
 
 #pragma once
 
-#include "Common/Process/IProcess.h"
-#include "Common/Process/IProcessInfo.h"
-#include "Common/ProcessMonitoring/IProcessProxy.h"
+#include "modules/Common/Process/IProcess.h"
+#include "modules/Common/Process/IProcessInfo.h"
+#include "modules/Common/ProcessMonitoring/IProcessProxy.h"
 
 #include <atomic>
 #include <chrono>

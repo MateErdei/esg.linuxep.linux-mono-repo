@@ -1,0 +1,40 @@
+load("//modules:spl_independent_cc_tests.bzl", "spl_independent_cc_tests")
+
+spl_independent_cc_tests(
+    name = "ZipUtilitiesTests",
+    srcs = glob(
+        [
+            "*.cpp",
+            "*.h",
+        ],
+        exclude = [
+            "unzipTool.cpp",
+            "zipTool.cpp",
+        ],
+    ),
+    deps = [
+        "//modules/Common/ZipUtilities",
+        "//tests/Common/Helpers",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+cc_binary(
+    name = "unzipTool",
+    srcs = ["unzipTool.cpp"],
+    deps = [
+        "//modules/Common/FileSystemImpl",
+        "//modules/Common/Logging",
+        "//modules/Common/ZipUtilities",
+    ],
+)
+
+cc_binary(
+    name = "zipTool",
+    srcs = ["zipTool.cpp"],
+    deps = [
+        "//modules/Common/FileSystemImpl",
+        "//modules/Common/Logging",
+        "//modules/Common/ZipUtilities",
+    ],
+)

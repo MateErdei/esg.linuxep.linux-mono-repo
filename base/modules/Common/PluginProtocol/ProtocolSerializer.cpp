@@ -1,13 +1,17 @@
-// Copyright 2018-2023 Sophos Limited. All rights reserved.
+/******************************************************************************************************
+
+Copyright 2018, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
 
 #include "ProtocolSerializer.h"
 
 #include "Logger.h"
 #include "ProtocolSerializerFactory.h"
 
-#include "Common/PluginApi/ApiException.h"
+#include "modules/Common/PluginApi/ApiException.h"
 
-#include "PluginAPIMessage.pb.h"
+#include "modules/Common/PluginProtocol/PluginAPIMessage.pb.h"
 
 namespace Common
 {

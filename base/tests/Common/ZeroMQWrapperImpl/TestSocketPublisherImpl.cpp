@@ -1,7 +1,11 @@
-// Copyright 2018-2023 Sophos Limited. All rights reserved.
+/******************************************************************************************************
 
-#include "Common/ZMQWrapperApi/IContext.h"
-#include "Common/ZeroMQWrapper/ISocketPublisher.h"
+Copyright 2018-2019, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
+
+#include "modules/Common/ZMQWrapperApi/IContext.h"
+#include "modules/Common/ZeroMQWrapper/ISocketPublisher.h"
 #include <gtest/gtest.h>
 
 using Common::ZeroMQWrapper::ISocketPublisherPtr;

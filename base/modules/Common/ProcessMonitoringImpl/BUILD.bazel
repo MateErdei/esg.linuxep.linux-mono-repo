@@ -1,0 +1,22 @@
+load("//tools/config:soph_rules.bzl", "soph_cc_library")
+
+soph_cc_library(
+    name = "ProcessMonitoringImpl",
+    srcs = glob(["*.cpp"]),
+    hdrs = glob(["*.h"]),
+    implementation_deps = [
+        "//modules/Common/PluginRegistryImpl",
+        "//modules/Common/FileSystemImpl",
+        "//modules/Common/ApplicationConfigurationImpl",
+        "//modules/Common/Logging",
+        "//modules/Common/UtilityImpl:TimeUtils",
+    ],
+    visibility = [
+        "//modules:__subpackages__",
+        "//tests:__subpackages__",
+    ],
+    deps = [
+        "//modules/Common/ProcessMonitoring",
+        "//modules/Common/ZMQWrapperApiImpl",
+    ],
+)

@@ -5,10 +5,10 @@
 #include "MACinfo.h"
 #include "LocalIPImpl.h"
 
-#include "Common/FileSystemImpl/FileSystemImpl.h"
-#include "Common/UtilityImpl/StringUtils.h"
-#include "Common/OSUtilities/IPlatformUtilsException.h"
-#include "Common/OSUtilitiesImpl/CloudMetadataConverters.h"
+#include "modules/Common/FileSystem/IFileSystem.h"
+#include "modules/Common/UtilityImpl/StringUtils.h"
+#include "modules/Common/OSUtilities/IPlatformUtilsException.h"
+#include "modules/Common/OSUtilitiesImpl/CloudMetadataConverters.h"
 
 #include <array>
 #include <cerrno>
@@ -286,54 +286,82 @@ namespace Common::OSUtilitiesImpl
             return "UNKNOWN";
         }
 
-        std::string PlatformUtils::getIp4Address() const
+        std::string PlatformUtils::getFirstIpAddress(const std::vector<std::string>& ipAddresses) const
         {
-            std::vector<std::string> ip4Addresses = getIp4Addresses();
-            if (ip4Addresses.empty())
+            if (ipAddresses.empty())
             {
                 return "";
             }
-            return ip4Addresses[0];
+            return ipAddresses[0];
         }
 
-        std::vector<std::string> PlatformUtils::getIp4Addresses() const
+        std::vector<std::string> PlatformUtils::getIp4Addresses(const std::vector<Common::OSUtilities::Interface>& interfaces) const
         {
-            Common::OSUtilitiesImpl::LocalIPImpl localIp;
-            Common::OSUtilities::IPs ips = localIp.getLocalIPs();
             std::vector<std::string> ip4Addresses;
-            if (!ips.ip4collection.empty())
+
+            for (const auto& interface : interfaces)
             {
-                for (auto ipAddress : ips.ip4collection)
+                for (const auto& ip4: interface.ipAddresses.ip4collection)
                 {
-                    ip4Addresses.push_back(ipAddress.stringAddress());
+                    ip4Addresses.emplace_back(ip4.stringAddress());
                 }
             }
+
             return ip4Addresses;
         }
 
-        std::string PlatformUtils::getIp6Address() const
+        std::vector<std::string> PlatformUtils::getIp6Addresses(const std::vector<Common::OSUtilities::Interface>& interfaces) const
         {
-            std::vector<std::string> ip6Addresses = getIp6Addresses();
-            if (ip6Addresses.empty())
-            {
-                return "";
-            }
-            return ip6Addresses[0];
-        }
-
-        std::vector<std::string> PlatformUtils::getIp6Addresses() const
-        {
-            Common::OSUtilitiesImpl::LocalIPImpl localIp;
-            Common::OSUtilities::IPs ips = localIp.getLocalIPs();
             std::vector<std::string> ip6Addresses;
-            if (!ips.ip6collection.empty())
+
+            for (const auto& interface : interfaces)
             {
-                for (auto ipAddress : ips.ip6collection)
+                for (const auto& ip6: interface.ipAddresses.ip6collection)
                 {
-                    ip6Addresses.push_back(ipAddress.stringAddress());
+                    ip6Addresses.emplace_back(ip6.stringAddress());
                 }
             }
+
             return ip6Addresses;
+        }
+
+        InterfaceCharacteristic PlatformUtils::getInterfaceCharacteristic(const Common::OSUtilities::Interface& interface)
+        {
+            if (Common::UtilityImpl::StringUtils::startswith(interface.name, "eth"))
+            {
+                return InterfaceCharacteristic::IS_ETH;
+            }
+            else if (Common::UtilityImpl::StringUtils::startswith(interface.name, "em"))
+            {
+                return InterfaceCharacteristic::IS_EM;
+            }
+            else if (Common::UtilityImpl::StringUtils::startswith(interface.name, "docker"))
+            {
+                return InterfaceCharacteristic::IS_DOCKER;
+            }
+            else
+            {
+                for (const auto& ip4: interface.ipAddresses.ip4collection)
+                {
+                    if (Common::UtilityImpl::StringUtils::startswith(ip4.stringAddress(), "172."))
+                    {
+                        return InterfaceCharacteristic::IS_PRIVATE;
+                    }
+                }
+
+                return InterfaceCharacteristic::IS_OTHER;
+            }
+        }
+
+        void PlatformUtils::sortInterfaces(std::vector<Common::OSUtilities::Interface>& interfaces) const
+        {
+            if (!interfaces.empty())
+            {
+                std::sort(interfaces.begin(), interfaces.end(), [](const Common::OSUtilities::Interface& lhs, const Common::OSUtilities::Interface& rhs)
+                    {
+                        return static_cast<int>(getInterfaceCharacteristic(lhs)) < static_cast<int>(getInterfaceCharacteristic(rhs));
+                    });
+            }
         }
 
         std::vector<std::string> PlatformUtils::getMacAddresses() const
@@ -376,7 +404,7 @@ namespace Common::OSUtilitiesImpl
             return platformInfo;
         }
 
-        std::string PlatformUtils::getAwsMetadata(const std::shared_ptr<Common::HttpRequests::IHttpRequester>& client) const
+        std::string PlatformUtils::getAwsMetadata(std::shared_ptr<Common::HttpRequests::IHttpRequester> client) const
         {
             std::string initialUrl = "http://169.254.169.254/latest/api/token";
             Common::HttpRequests::Headers initialHeaders({{"X-aws-ec2-metadata-token-ttl-seconds", "21600"}});
@@ -403,7 +431,7 @@ namespace Common::OSUtilitiesImpl
             }
         }
 
-        std::string PlatformUtils::getGcpMetadata(const std::shared_ptr<Common::HttpRequests::IHttpRequester>& client) const
+        std::string PlatformUtils::getGcpMetadata(std::shared_ptr<Common::HttpRequests::IHttpRequester> client) const
         {
             Common::HttpRequests::Headers headers({{"Metadata-Flavor", "Google"}});
             std::string idUrl = "http://metadata.google.internal/computeMetadata/v1/instance/id";

@@ -4,12 +4,11 @@
 
 #include "Logger.h"
 
-#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
-#include "Common/PluginApi/ApiException.h"
-#include "Common/PluginApi/NoACKReplyException.h"
-#include "Common/PluginApi/NoPolicyAvailableException.h"
-#include "Common/ZeroMQWrapper/ISocketReplier.h"
-#include "Common/ZeroMQWrapper/ISocketRequester.h"
+#include "modules/Common/PluginApi/ApiException.h"
+#include "modules/Common/PluginApi/NoACKReplyException.h"
+#include "modules/Common/PluginApi/NoPolicyAvailableException.h"
+#include "modules/Common/ZeroMQWrapper/ISocketReplier.h"
+#include "modules/Common/ZeroMQWrapper/ISocketRequester.h"
 
 #include <thread>
 

@@ -2,11 +2,11 @@
 
 #pragma once
 
-#include "Common/PluginProtocol/Protocol.h"
-#include "Common/Reactor/ICallbackListener.h"
-#include "Common/Reactor/IReactor.h"
-#include "Common/ZeroMQWrapper/IReadWrite.h"
-#include "Common/ZeroMQWrapper/IReadable.h"
+#include "modules/Common/PluginProtocol/Protocol.h"
+#include "modules/Common/Reactor/ICallbackListener.h"
+#include "modules/Common/Reactor/IReactor.h"
+#include "modules/Common/ZeroMQWrapper/IReadWrite.h"
+#include "modules/Common/ZeroMQWrapper/IReadable.h"
 
 #include <memory>
 

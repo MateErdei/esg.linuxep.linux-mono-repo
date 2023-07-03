@@ -6,9 +6,8 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 #include "FakeServer.h"
 
-#include "Common/ReactorImpl/GenericShutdownListener.h"
-#include "Common/ReactorImpl/ReactorImpl.h"
-#include "Common/ZeroMQWrapper/ISocketRequester.h"
+#include "modules/Common/ReactorImpl/GenericShutdownListener.h"
+#include "modules/Common/ZeroMQWrapper/ISocketRequester.h"
 FakeServer::FakeServer(const std::string& socketAddress, bool captureSignals) :
     m_socketAddress(socketAddress),
     m_reactor(Common::Reactor::createReactor()),

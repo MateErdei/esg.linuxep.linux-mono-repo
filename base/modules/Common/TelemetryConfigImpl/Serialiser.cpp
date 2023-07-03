@@ -2,8 +2,7 @@
 
 #include "Serialiser.h"
 
-#include "Telemetry/LoggerImpl/Logger.h"
-
+#include <sstream>
 #include <climits>
 #include <iostream>
 #include <json.hpp>

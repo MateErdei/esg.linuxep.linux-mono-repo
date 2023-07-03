@@ -1,0 +1,25 @@
+load("//modules:spl_independent_cc_tests.bzl", "spl_independent_cc_tests")
+
+spl_independent_cc_tests(
+    name = "PluginApiImplTests",
+    srcs = glob(
+        [
+            "*.cpp",
+            "*.h",
+        ],
+        exclude = ["TestCompare.cpp"],
+    ),
+    per_test_srcs = ["TestCompare.cpp"],
+    deps = [
+        "//modules/Common/ApplicationConfigurationImpl",
+        "//modules/Common/FileSystemImpl",
+        "//modules/Common/PluginApiImpl",
+        "//modules/Common/PluginProtocol",
+        "//modules/Common/ReactorImpl",
+        "//modules/Common/TelemetryHelperImpl",
+        "//modules/Common/ZMQWrapperApiImpl",
+        "//tests/Common/ApplicationConfiguration",
+        "//tests/Common/Helpers",
+        "@com_google_googletest//:gtest_main",
+    ],
+)

@@ -5,15 +5,18 @@ soph_cc_library(
     name = "Logging",
     srcs = glob(["*.cpp"]),
     hdrs = glob(["*.h"]),
+    implementation_deps = [
+        "//modules/Common/ApplicationConfigurationImpl",
+        "//modules/Common/FileSystemImpl",
+        "//modules/Common/UtilityImpl:StrError",
+        "//modules/Common/UtilityImpl:StringUtils",
+        "@boost//:property_tree",
+    ],
     visibility = [
         "//modules:__subpackages__",
         "//tests:__subpackages__",
     ],
     deps = [
-        "//modules/Common/ApplicationConfiguration",
-        "//modules/Common/UtilityImpl:StrError",
-        "//modules/Common/UtilityImpl:StringUtils",
-        "@boost//:property_tree",
         "@log4cplus",
     ],
 )

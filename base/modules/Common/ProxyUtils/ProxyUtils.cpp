@@ -4,10 +4,10 @@
 #include "Logger.h"
 #include <json.hpp>
 
-#include "Common/ApplicationConfigurationImpl/ApplicationPathManager.h"
-#include "Common/FileSystem/IFileSystem.h"
-#include "Common/ObfuscationImpl/Obfuscate.h"
-#include "Common/UtilityImpl/StringUtils.h"
+#include "modules/Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include "modules/Common/FileSystem/IFileSystem.h"
+#include "modules/Common/ObfuscationImpl/Obfuscate.h"
+#include "modules/Common/UtilityImpl/StringUtils.h"
 
 #include <sstream>
 

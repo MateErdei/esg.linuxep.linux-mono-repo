@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "Common/Policy/UpdateSettings.h"
+#include "modules/Common/Policy/UpdateSettings.h"
 
 #include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
 #include "tests/Common/Helpers/MemoryAppender.h"

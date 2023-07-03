@@ -1,0 +1,20 @@
+load("//tools/config:soph_rules.bzl", "soph_cc_library")
+
+soph_cc_library(
+    name = "ReactorImpl",
+    srcs = glob(["*.cpp"]),
+    hdrs = glob(["*.h"]),
+    implementation_deps = [
+        "//modules/Common/Logging",
+        "//modules/Common/UtilityImpl:StrError",
+        "//modules/Common/ZeroMQWrapperImpl",  # TODO: Needed due to ZeroMQWrapperException.h, which should be refactored out
+    ],
+    visibility = [
+        "//modules:__subpackages__",
+        "//tests:__subpackages__",
+    ],
+    deps = [
+        "//modules/Common/Reactor",
+        "//modules/Common/Threads",
+    ],
+)

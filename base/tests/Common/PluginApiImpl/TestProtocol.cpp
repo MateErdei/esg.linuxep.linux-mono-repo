@@ -1,9 +1,13 @@
-// Copyright 2018-2023 Sophos Limited. All rights reserved.
+/******************************************************************************************************
 
-#include "Common/Logging/ConsoleLoggingSetup.h"
-#include "Common/PluginApi/ApiException.h"
-#include "Common/PluginProtocol/DataMessage.h"
-#include "Common/PluginProtocol/Protocol.h"
+Copyright 2018-2019, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
+
+#include "modules/Common/Logging/ConsoleLoggingSetup.h"
+#include "modules/Common/PluginApi/ApiException.h"
+#include "modules/Common/PluginProtocol/DataMessage.h"
+#include "modules/Common/PluginProtocol/Protocol.h"
 #include <gmock/gmock-matchers.h>
 #include <gtest/gtest.h>
 

@@ -1,10 +1,14 @@
-// Copyright 2018-2023 Sophos Limited. All rights reserved.
-#include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
-#include "Common/ApplicationConfiguration/IApplicationPathManager.h"
-#include "Common/Logging/FileLoggingSetup.h"
-#include "Common/Logging/LoggerConfig.h"
-#include "Common/Logging/PluginLoggingSetup.h"
-#include "Common/Logging/SophosLoggerMacros.h"
+/******************************************************************************************************
+
+Copyright 2018-2019, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
+#include "modules/Common/ApplicationConfiguration/IApplicationConfiguration.h"
+#include "modules/Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include "modules/Common/Logging/FileLoggingSetup.h"
+#include "modules/Common/Logging/LoggerConfig.h"
+#include "modules/Common/Logging/PluginLoggingSetup.h"
+#include "modules/Common/Logging/SophosLoggerMacros.h"
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 #include "tests/Common/Helpers/TempDir.h"
@@ -48,7 +52,7 @@ public:
     TestLoggerConfig()
     {
         // ensure google run the test in a thread safe way
-        GTEST_FLAG_SET(death_test_style, "threadsafe");
+        testing::FLAGS_gtest_death_test_style = "threadsafe";
     }
 
     static void SetUpTestCase() { testRunPath.reset(new Tests::TempDir("/tmp", "sspl-log")); }

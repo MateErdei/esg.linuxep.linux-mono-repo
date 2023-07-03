@@ -1,23 +1,24 @@
-// Copyright 2022-2023 Sophos Limited. All rights reserved.
+/******************************************************************************************************
+Copyright 2022, Sophos Limited.  All rights reserved.
+******************************************************************************************************/
 
 #include "HttpRequesterImpl.h"
 
 #include "CurlFunctionsProvider.h"
 #include "Logger.h"
 
-#include "Common/FileSystem/IFileSystem.h"
-#include "Common/FileSystem/IFileSystemException.h"
-#include "Common/UtilityImpl/StringUtils.h"
-#include "Common/CurlWrapper/CurlWrapper.h"
+#include "modules/Common/FileSystem/IFileSystem.h"
+#include "modules/Common/FileSystem/IFileSystemException.h"
+#include "modules/Common/UtilityImpl/StringUtils.h"
+#include "modules/Common/CurlWrapper/CurlWrapper.h"
 
 #include <curl/curl.h>
-
-#include <utility>
 
 namespace Common::HttpRequestsImpl
 {
 
-    HttpRequesterImpl::HttpRequesterImpl(std::shared_ptr<Common::CurlWrapper::ICurlWrapper> curlWrapper) : m_curlWrapper(std::move(curlWrapper))
+    HttpRequesterImpl::HttpRequesterImpl(std::shared_ptr<Common::CurlWrapper::ICurlWrapper> curlWrapper) :
+        m_curlWrapper(curlWrapper)
     {
         CURLcode result = m_curlWrapper->curlGlobalInit(CURL_GLOBAL_DEFAULT);
         if (result != CURLE_OK)
@@ -366,10 +367,6 @@ namespace Common::HttpRequestsImpl
                 else if (result == CURLE_SSL_CACERT_BADFILE || result == CURLE_SSL_CERTPROBLEM)
                 {
                     response.errorCode = HttpRequests::ResponseErrorCode::CERTIFICATE_ERROR;
-                }
-                else if (result == CURLE_COULDNT_RESOLVE_HOST)
-                {
-                    response.errorCode = HttpRequests::ResponseErrorCode::COULD_NOT_RESOLVE_HOST;
                 }
                 else if (result == CURLE_COULDNT_RESOLVE_PROXY)
                 {

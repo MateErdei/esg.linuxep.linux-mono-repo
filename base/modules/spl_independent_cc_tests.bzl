@@ -22,7 +22,7 @@ def spl_independent_cc_tests(name, srcs, per_test_srcs = [], **kwargs):
 
     for cpp_file in cpp_files:
         soph_cc_test(
-            name = name + "_" + cpp_file,
+            name = name + "_" + cpp_file[:-4],
             srcs = [cpp_file] + h_files + per_test_srcs,
             **kwargs
         )

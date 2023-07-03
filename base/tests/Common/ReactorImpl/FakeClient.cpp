@@ -6,7 +6,7 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 #include "FakeClient.h"
 
-#include "Common/ZeroMQWrapper/ISocketRequester.h"
+#include "modules/Common/ZeroMQWrapper/ISocketRequester.h"
 
 FakeClient::~FakeClient() = default;
 

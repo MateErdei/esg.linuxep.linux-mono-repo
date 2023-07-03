@@ -1,0 +1,20 @@
+load("//modules:spl_independent_cc_tests.bzl", "spl_independent_cc_tests")
+
+spl_independent_cc_tests(
+    name = "ProcessMonitoringImplTests",
+    srcs = glob([
+        "*.cpp",
+        "*.h",
+    ]),
+    deps = [
+        "//modules/Common/ApplicationConfigurationImpl",
+        "//modules/Common/Logging",
+        "//modules/Common/ProcessImpl",
+        "//modules/Common/ProcessMonitoringImpl",
+        "//modules/Common/ReactorImpl",
+        "//modules/Common/ZMQWrapperApiImpl",
+        "//modules/Common/ZeroMQWrapperImpl",
+        "//tests/Common/Helpers",
+        "@com_google_googletest//:gtest_main",
+    ],
+)

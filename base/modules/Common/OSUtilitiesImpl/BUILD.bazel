@@ -1,0 +1,21 @@
+load("//tools/config:soph_rules.bzl", "soph_cc_library")
+
+soph_cc_library(
+    name = "OSUtilitiesImpl",
+    srcs = glob(["*.cpp"]),
+    hdrs = glob(["*.h"]),
+    implementation_deps = [
+        "//modules/Common/ApplicationConfigurationImpl",
+        "//modules/Common/UtilityImpl:ProjectNames",
+        "//modules/Common/UtilityImpl:StringUtils",
+        "//thirdparty/nlohmann-json",
+    ],
+    visibility = [
+        "//modules:__subpackages__",
+        "//tests:__subpackages__",
+    ],
+    deps = [
+        "//modules/Common/HttpRequests",
+        "//modules/Common/OSUtilities",
+    ],
+)

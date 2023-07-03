@@ -6,7 +6,7 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include "Common/OSUtilities/ISystemUtils.h"
+#include "modules/Common/OSUtilities/ISystemUtils.h"
 
 #include <gmock/gmock.h>
 #include <string>

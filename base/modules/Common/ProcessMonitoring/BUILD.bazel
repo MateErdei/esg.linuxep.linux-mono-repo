@@ -1,0 +1,16 @@
+load("//tools/config:soph_rules.bzl", "soph_cc_library")
+
+soph_cc_library(
+    name = "ProcessMonitoring",
+    srcs = glob(["*.cpp"]),
+    hdrs = glob(["*.h"]),
+    visibility = [
+        # ProcessMonitoring is not a full implementation
+        # BUILD files should depend on ProcessMonitoringImpl
+        "//modules/Common/ProcessMonitoringImpl:__pkg__",
+    ],
+    deps = [
+        "//modules/Common/Threads",
+        "//modules/Common/ZeroMQWrapperImpl",
+    ],
+)

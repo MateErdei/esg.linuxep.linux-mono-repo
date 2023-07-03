@@ -1,7 +1,7 @@
 // Copyright 2020-2023 Sophos Limited. All rights reserved.
 #include "SophosSplUsers.h"
 
-#include "ProjectNames.h"
+#include "modules/Common/UtilityImpl/ProjectNames.h"
 
 namespace sophos
 {

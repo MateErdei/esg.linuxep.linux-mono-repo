@@ -5,8 +5,8 @@
 #include "Logger.h"
 #include "UnzipFileWrapper.h"
 
-#include "Common/FileSystem/IFileSystem.h"
-#include "Common/UtilityImpl/StringUtils.h"
+#include "modules/Common/FileSystem/IFileSystem.h"
+#include "modules/Common/UtilityImpl/StringUtils.h"
 
 #include <fstream>
 #include <memory>

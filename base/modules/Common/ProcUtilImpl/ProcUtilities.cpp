@@ -3,8 +3,8 @@
 #include "ProcUtilities.h"
 #include "Logger.h"
 
-#include "Common/FileSystem/IFileSystem.h"
-#include "Common/FileSystemImpl/FilePermissionsImpl.h"
+#include "modules/Common/FileSystem/IFileSystem.h"
+#include "modules/Common/FileSystem/IFilePermissions.h"
 
 #include <signal.h>
 #include <sstream>

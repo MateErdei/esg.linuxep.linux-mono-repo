@@ -5,12 +5,14 @@ soph_cc_library(
     name = "ApplicationConfigurationImpl",
     srcs = glob(["*.cpp"]),
     hdrs = glob(["*.h"]),
+    implementation_deps = [
+        "//modules/Common/FileSystemImpl",
+    ],
     visibility = [
         "//modules:__subpackages__",
         "//tests:__subpackages__",
     ],
     deps = [
         "//modules/Common/ApplicationConfiguration",
-        "//modules/Common/FileSystemImpl",
     ],
 )

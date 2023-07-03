@@ -8,8 +8,8 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include "ProtocolSerializerFactory.h"
 
-#include "Common/PluginProtocol/DataMessage.h"
-#include "Common/PluginProtocol/ProtocolSerializerFactory.h"
+#include "modules/Common/PluginProtocol/DataMessage.h"
+#include "modules/Common/PluginProtocol/ProtocolSerializerFactory.h"
 
 namespace Common
 {

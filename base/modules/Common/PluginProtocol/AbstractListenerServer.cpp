@@ -4,8 +4,7 @@
 
 #include "Logger.h"
 
-#include "Common/PluginApi/ApiException.h"
-#include "Common/ReactorImpl/ReactorImpl.h"
+#include "modules/Common/PluginApi/ApiException.h"
 namespace Common
 {
     namespace PluginProtocol

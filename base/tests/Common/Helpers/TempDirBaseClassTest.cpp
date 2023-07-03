@@ -4,7 +4,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "TempDirBaseClassTest.h"
+#include "tests/Common/Helpers/TempDirBaseClassTest.h"
 
 namespace Tests
 {

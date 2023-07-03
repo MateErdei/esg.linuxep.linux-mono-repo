@@ -2,8 +2,6 @@
 
 #include "Config.h"
 
-#include "Common/UtilityImpl/StringUtils.h"
-
 using namespace Common::TelemetryConfigImpl;
 
 Config::Config() :
@@ -18,13 +16,10 @@ Config::Config() :
 {
 }
 
-Config Config::buildExeConfigFromTelemetryConfig(
-    const Config& supplementaryConfig,
-    const std::string& telemetryHost,
-    const std::string& resourceName)
+Config Config::buildExeConfigFromTelemetryConfig(const Config& supplementaryConfig, const std::string& resourceName)
 {
     Config exeConfig;
-    exeConfig.setServer(telemetryHost);
+    exeConfig.setServer(supplementaryConfig.getServer());
     exeConfig.setPort(supplementaryConfig.getPort());
     exeConfig.setVerb(supplementaryConfig.getVerb());
     exeConfig.setHeaders(supplementaryConfig.getHeaders());

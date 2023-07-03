@@ -1,0 +1,16 @@
+load("//modules:spl_independent_cc_tests.bzl", "spl_independent_cc_tests")
+
+spl_independent_cc_tests(
+    name = "ProcUtilImplTests",
+    srcs = glob([
+        "*.cpp",
+        "*.h",
+    ]),
+    deps = [
+        "//modules/Common/ApplicationConfigurationImpl",
+        "//modules/Common/ProcUtilImpl",
+        "//modules/Common/ProcessImpl",
+        "//tests/Common/Helpers",
+        "@com_google_googletest//:gtest_main",
+    ],
+)

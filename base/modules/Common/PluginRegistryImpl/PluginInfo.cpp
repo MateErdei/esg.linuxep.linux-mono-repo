@@ -1,15 +1,20 @@
-// Copyright 2018-2023 Sophos Limited. All rights reserved.
+/******************************************************************************************************
+
+Copyright 2018-2019, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
 
 #include "PluginInfo.h"
 
 #include "Logger.h"
-#include "PluginInfo.pb.h"
+#include "modules/Common/PluginRegistryImpl/PluginInfo.pb.h"
 #include "PluginRegistryException.h"
 
-#include "Common/FileSystem/IFileSystemException.h"
-#include "Common/FileSystemImpl/FileSystemImpl.h"
-#include "Common/ProtobufUtil/MessageUtility.h"
-#include "Common/UtilityImpl/StringUtils.h"
+#include "modules/Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include "modules/Common/FileSystem/IFileSystemException.h"
+#include "modules/Common/FileSystemImpl/FileSystemImpl.h"
+#include "modules/Common/ProtobufUtil/MessageUtility.h"
+#include "modules/Common/UtilityImpl/StringUtils.h"
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"

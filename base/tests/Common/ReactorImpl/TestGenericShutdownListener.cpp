@@ -4,7 +4,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 ******************************************************************************************************/
 
-#include "Common/ReactorImpl/GenericShutdownListener.h"
+#include "modules/Common/ReactorImpl/GenericShutdownListener.h"
 
 #include <gtest/gtest.h>
 using namespace Common::Reactor;

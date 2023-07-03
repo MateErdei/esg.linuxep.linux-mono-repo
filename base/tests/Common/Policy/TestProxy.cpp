@@ -1,9 +1,9 @@
 // Copyright 2018-2023 Sophos Limited. All rights reserved.
 
-#include "Common/Policy/Proxy.h"
+#include "modules/Common/Policy/Proxy.h"
 
-#include "Common/Policy/Credentials.h"
-#include "Common/Policy/PolicyParseException.h"
+#include "modules/Common/Policy/Credentials.h"
+#include "modules/Common/Policy/PolicyParseException.h"
 
 #include "tests/Common/Helpers/LogInitializedTests.h"
 

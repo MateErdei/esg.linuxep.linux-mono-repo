@@ -1,0 +1,17 @@
+load("//tools/config:soph_rules.bzl", "soph_cc_library")
+
+soph_cc_library(
+    name = "UpdateUtilities",
+    srcs = glob(["*.cpp"]),
+    hdrs = glob(["*.h"]),
+    implementation_deps = [
+        "//modules/Common/ApplicationConfigurationImpl",
+        "//modules/Common/FileSystemImpl",
+        "//modules/Common/UtilityImpl:ProjectNames",
+        "//thirdparty/nlohmann-json",
+    ],
+    visibility = [
+        "//modules:__subpackages__",
+        "//tests:__subpackages__",
+    ],
+)

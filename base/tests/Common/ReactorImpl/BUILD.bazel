@@ -1,0 +1,58 @@
+load("//modules:spl_independent_cc_tests.bzl", "spl_independent_cc_tests")
+
+HELPER_SOURCES = [
+    "ReactorImplTestsPath.cpp",
+    "ReactorImplTestsPath.h",
+    "FakeServer.cpp",
+    "FakeServer.h",
+    "FakeClient.cpp",
+    "FakeClient.h",
+    "TestListener.cpp",
+    "TestListener.h",
+    "PipeForTests.cpp",
+    "PipeForTests.h",
+]
+
+spl_independent_cc_tests(
+    name = "ReactorImplTests",
+    srcs = glob(
+        [
+            "*.cpp",
+            "*.h",
+        ],
+        exclude = HELPER_SOURCES + [
+            "FakeServerRunner.cpp",
+            "testrunner_main.cpp",
+        ],
+    ),
+    data = [
+        ":FakeServerRunner",
+    ],
+    per_test_srcs = HELPER_SOURCES,
+    deps = [
+        "//modules/Common/Logging",
+        "//modules/Common/ProcessImpl",
+        "//modules/Common/ReactorImpl",
+        "//modules/Common/UtilityImpl:StringUtils",
+        "//modules/Common/ZMQWrapperApiImpl",
+        "//modules/Common/ZeroMQWrapperImpl",
+        "//tests/Common/Helpers",
+        "@com_google_googletest//:gtest_main",
+        "@zmq",
+    ],
+)
+
+cc_binary(
+    name = "FakeServerRunner",
+    srcs = [
+        "FakeServer.cpp",
+        "FakeServer.h",
+        "FakeServerRunner.cpp",
+        "TestListener.cpp",
+        "TestListener.h",
+    ],
+    deps = [
+        "//modules/Common/ReactorImpl",
+        "//modules/Common/ZMQWrapperApiImpl",
+    ],
+)

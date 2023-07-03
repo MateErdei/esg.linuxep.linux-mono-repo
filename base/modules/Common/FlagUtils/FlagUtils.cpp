@@ -1,7 +1,11 @@
-// Copyright 2022-2023 Sophos Limited. All rights reserved.
+/******************************************************************************************************
 
-#include "Common/FlagUtils/FlagUtils.h"
-#include "Common/FlagUtils/Logger.h"
+Copyright 2022, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
+
+#include "modules/Common/FlagUtils/FlagUtils.h"
+#include "modules/Common/FlagUtils/Logger.h"
 
 #include <json.hpp>
 #include <sstream>

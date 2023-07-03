@@ -2,9 +2,8 @@
 #include "AttributesMap.h"
 
 #include "Logger.h"
-#include "Common/UtilityImpl/StringUtils.h"
+#include "modules/Common/UtilityImpl/StringUtils.h"
 
-#include <algorithm>
 #include <cassert>
 #include <climits>
 #include <expat.h>

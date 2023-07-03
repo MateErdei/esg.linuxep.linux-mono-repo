@@ -1,10 +1,14 @@
-// Copyright 2018-2023 Sophos Limited. All rights reserved.
+/******************************************************************************************************
+
+Copyright 2018, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
 
 #include "Protocol.h"
 
 #include "ProtocolSerializer.h"
 
-#include "Common/PluginProtocol/IProtocolSerializer.h"
+#include "modules/Common/PluginProtocol/IProtocolSerializer.h"
 
 #include <sstream>
 

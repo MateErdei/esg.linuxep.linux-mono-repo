@@ -1,12 +1,16 @@
-// Copyright 2018-2023 Sophos Limited. All rights reserved.
+/******************************************************************************************************
+
+Copyright 2018, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
 
 #pragma once
 
-#include "Common/PluginApi/IPluginCallbackApi.h"
-#include "Common/PluginProtocol/AbstractListenerServer.h"
-#include "Common/PluginProtocol/MessageBuilder.h"
+#include "modules/Common/PluginApi/IPluginCallbackApi.h"
+#include "modules/Common/PluginProtocol/AbstractListenerServer.h"
+#include "modules/Common/PluginProtocol/MessageBuilder.h"
 
-#include "Common/ZeroMQWrapper/IReadWrite.h"
+#include "modules/Common/ZeroMQWrapper/IReadWrite.h"
 
 namespace Common
 {

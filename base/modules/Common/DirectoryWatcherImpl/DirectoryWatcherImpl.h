@@ -6,9 +6,9 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include "Common/DirectoryWatcher/IDirectoryWatcher.h"
-#include "Common/DirectoryWatcher/IiNotifyWrapper.h"
-#include "Common/Threads/AbstractThread.h"
+#include "modules/Common/DirectoryWatcher/IDirectoryWatcher.h"
+#include "modules/Common/DirectoryWatcher/IiNotifyWrapper.h"
+#include "modules/Common/Threads/AbstractThread.h"
 
 #include <map>
 #include <memory>

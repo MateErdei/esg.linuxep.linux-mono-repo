@@ -1,9 +1,11 @@
-// Copyright 2018-2023 Sophos Limited. All rights reserved.
+/******************************************************************************************************
 
-#include "gmock/gmock-matchers.h"
+Copyright 2018, Sophos Limited.  All rights reserved.
 
-#include "Common/Logging/ConsoleLoggingSetup.h"
-#include "Common/PluginProtocol/DataMessage.h"
+******************************************************************************************************/
+
+#include "modules/Common/Logging/ConsoleLoggingSetup.h"
+#include "modules/Common/PluginProtocol/DataMessage.h"
 #include <gtest/gtest.h>
 
 using DataMessage = Common::PluginProtocol::DataMessage;

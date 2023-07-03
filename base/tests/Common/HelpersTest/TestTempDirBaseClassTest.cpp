@@ -1,8 +1,12 @@
-// Copyright 2018-2023 Sophos Limited. All rights reserved.
+/******************************************************************************************************
 
-#include "TempDirBaseClassTest.h"
+Copyright 2018, Sophos Limited.  All rights reserved.
 
-#include "Common/FileSystemImpl/FileSystemImpl.h"
+******************************************************************************************************/
+
+#include "tests/Common/Helpers/TempDirBaseClassTest.h"
+
+#include "modules/Common/FileSystemImpl/FileSystemImpl.h"
 
 /**
  * This class is to show how TempDirBaseClassTest can be used in order to

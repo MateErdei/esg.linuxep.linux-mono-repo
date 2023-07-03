@@ -1,33 +1,36 @@
-// Copyright 2018-2023 Sophos Limited. All rights reserved.
+ /******************************************************************************************************
+
+Copyright 2018-2020, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
 
 #ifndef ARTISANBUILD
 
-#include "ReqRepTestImplementations.h"
-#include "Common/Process/IProcess.h"
-#include "Common/Process/IProcessException.h"
-#include "Common/ProcessImpl/ProcessInfo.h"
-#include "Common/Process/IProcess.h"
-#include "Common/ZMQWrapperApi/IContext.h"
-#include "Common/ZeroMQWrapper/IIPCTimeoutException.h"
-#include "Common/ZeroMQWrapper/IReadable.h"
-#include "Common/ZeroMQWrapper/ISocketPublisher.h"
-#include "Common/ZeroMQWrapper/ISocketReplierPtr.h"
-#include "Common/ZeroMQWrapper/ISocketRequesterPtr.h"
-#include "Common/ZeroMQWrapper/ISocketSubscriber.h"
-#include "Common/ZeroMQWrapperImpl/SocketReplierImpl.h"
-#include "Common/ZeroMQWrapperImpl/SocketRequesterImpl.h"
-#include "Common/ZeroMQWrapperImpl/SocketSubscriberImpl.h"
-#include <gmock/gmock.h>
-#include <gtest/gtest.h>
-#include "tests/Common/Helpers/TempDir.h"
-#include "tests/Common/Helpers/TestExecutionSynchronizer.h"
+#    include "ReqRepTestImplementations.h"
+#    include "modules/Common/Process/IProcess.h"
+#    include "modules/Common/Process/IProcessException.h"
+#    include "modules/Common/Process/IProcess.h"
+#    include "modules/Common/ZMQWrapperApi/IContext.h"
+#    include "modules/Common/ZeroMQWrapper/IIPCTimeoutException.h"
+#    include "modules/Common/ZeroMQWrapper/IReadable.h"
+#    include "modules/Common/ZeroMQWrapper/ISocketPublisher.h"
+#    include "modules/Common/ZeroMQWrapper/ISocketReplierPtr.h"
+#    include "modules/Common/ZeroMQWrapper/ISocketRequesterPtr.h"
+#    include "modules/Common/ZeroMQWrapper/ISocketSubscriber.h"
+#    include "modules/Common/ZeroMQWrapperImpl/SocketReplierImpl.h"
+#    include "modules/Common/ZeroMQWrapperImpl/SocketRequesterImpl.h"
+#    include "modules/Common/ZeroMQWrapperImpl/SocketSubscriberImpl.h"
+#    include <gmock/gmock.h>
+#    include <gtest/gtest.h>
+#    include "tests/Common/Helpers/TempDir.h"
+#    include "tests/Common/Helpers/TestExecutionSynchronizer.h"
 #include "tests/Common/Helpers/LogInitializedTests.h"
-#include <future>
-#include <stdio.h>
-#include <stdlib.h>
-#include <thread>
-#include <unistd.h>
-#include <zmq.h>
+#    include <future>
+#    include <stdio.h>
+#    include <stdlib.h>
+#    include <thread>
+#    include <unistd.h>
+#    include <zmq.h>
 
 extern char** environ;
 
@@ -95,7 +98,11 @@ namespace
         void runExec(std::vector<std::string> args)
         {
             // Find executable
+#ifdef SPL_BAZEL
+            std::string exe = "tests/Common/ZeroMQWrapperImpl";
+#else
             std::string exe = CMAKE_CURRENT_BINARY_DIR;
+#endif
             exe += "/TestReqRepTool";
 
             auto process = Common::Process::createProcess();
@@ -122,30 +129,26 @@ namespace
     // cppcheck-suppress syntaxError
     TEST_F(ReqRepReliabilityTests, normalReqReplyShouldWork) // NOLINT
     {
-        GTEST_FLAG_SET(death_test_style, "threadsafe");
+        testing::FLAGS_gtest_death_test_style="threadsafe";
         auto zmq_context = createContext();
         RunInExternalProcess runInExternalProcess(m_testContext, zmq_context);
         std::string serveraddress = m_testContext.serverAddress();
         std::string killch = m_testContext.killChannel();
 
-        auto futureRequester = std::async(
-            std::launch::async,
-            [serveraddress, zmq_context]()
-            {
-                Requester requester(serveraddress, zmq_context);
-                return requester.sendReceive("hello");
-            });
+        auto futureRequester = std::async(std::launch::async, [serveraddress, zmq_context]() {
+            Requester requester(serveraddress, zmq_context);
+            return requester.sendReceive("hello");
+        });
 
         runInExternalProcess.runExec({ serveraddress, killch, "UnreliableReplier", "serveRequest" });
 
         std::string actual("");
 
-        try
-        {
+        try {
             // this throws.  "No Incomming data"?
             actual = futureRequester.get();
         }
-        catch (std::exception& e)
+        catch(std::exception& e)
         {
             std::string s = e.what();
             std::cout << s;
@@ -157,19 +160,16 @@ namespace
 
     TEST_F(ReqRepReliabilityTests, normalReqReplyShouldWorkUsingReply) // NOLINT
     {
-        GTEST_FLAG_SET(death_test_style, "threadsafe");
+        testing::FLAGS_gtest_death_test_style="threadsafe";
         auto zmq_context = createContext();
         RunInExternalProcess runInExternalProcess(m_testContext, zmq_context);
         std::string serveraddress = m_testContext.serverAddress();
         std::string killch = m_testContext.killChannel();
 
-        auto futureReplier = std::async(
-            std::launch::async,
-            [serveraddress, zmq_context]()
-            {
-                Replier replier(serveraddress, zmq_context);
-                replier.serveRequest();
-            });
+        auto futureReplier = std::async(std::launch::async, [serveraddress, zmq_context]() {
+            Replier replier(serveraddress, zmq_context);
+            replier.serveRequest();
+        });
         runInExternalProcess.runExec({ serveraddress, killch, "UnreliableRequester", "sendReceive", "hello" });
         EXPECT_NO_THROW(futureReplier.get()); // NOLINT
     }
@@ -265,32 +265,29 @@ namespace
 
     TEST_F(ReqRepReliabilityTests, replierShouldNotBreakIfRequesterFails) // NOLINT
     {
-        GTEST_FLAG_SET(death_test_style, "threadsafe");
+        testing::FLAGS_gtest_death_test_style="threadsafe";
         auto zmq_context = createContext();
         RunInExternalProcess runInExternalProcess(m_testContext, zmq_context);
         std::string serveraddress = m_testContext.serverAddress();
         std::string killch = m_testContext.killChannel();
 
-        auto futureReplier = std::async(
-            std::launch::async,
-            [serveraddress, zmq_context]()
+        auto futureReplier = std::async(std::launch::async, [serveraddress, zmq_context]() {
+            Replier replier(serveraddress, zmq_context, 10000);
+            try
             {
-                Replier replier(serveraddress, zmq_context, 10000);
-                try
-                {
-                    replier.serveRequest();
-                }
-                catch (std::exception& ex)
-                {
-                    std::cerr << "There was exception for replierShouldNotBreakIfRequesterFails 1: " << ex.what()
-                              << std::endl;
-                    // the first one may or may not throw, but the second must not throw.
-                }
-                PRINT("Served first request by " << getpid());
+                replier.serveRequest();
+            }
+            catch (std::exception& ex)
+            {
+                std::cerr << "There was exception for replierShouldNotBreakIfRequesterFails 1: " << ex.what()
+                          << std::endl;
+                // the first one may or may not throw, but the second must not throw.
+            }
+            PRINT("Served first request by " << getpid());
 
-                try
-                {
-                    replier.serveRequest();
+            try
+            {
+                replier.serveRequest();
             }
             catch (std::exception& ex)
             {

@@ -1,7 +1,7 @@
 // Copyright 2023 Sophos All rights reserved.
 #pragma once
 
-#include "Common/Exceptions/IException.h"
+#include "modules/Common/Exceptions/IException.h"
 
 namespace Common::Policy
 {

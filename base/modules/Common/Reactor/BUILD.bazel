@@ -1,0 +1,15 @@
+load("//tools/config:soph_rules.bzl", "soph_cc_library")
+
+soph_cc_library(
+    name = "Reactor",
+    srcs = glob(["*.cpp"]),
+    hdrs = glob(["*.h"]),
+    visibility = [
+        # Reactor is not a full implementation
+        # BUILD files should depend on ReactorImpl
+        "//modules/Common/ReactorImpl:__pkg__",
+    ],
+    deps = [
+        "//modules/Common/ZeroMQWrapperImpl",
+    ],
+)

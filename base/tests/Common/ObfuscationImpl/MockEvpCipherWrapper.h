@@ -1,8 +1,12 @@
-// Copyright 2018-2023 Sophos Limited. All rights reserved.
+/******************************************************************************************************
+
+Copyright 2018, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
 
 #pragma once
 
-#include "Common/Obfuscation/IEvpCipherWrapper.h"
+#include "modules/Common/Obfuscation/IEvpCipherWrapper.h"
 #include <gmock/gmock.h>
 using namespace ::testing;
 

@@ -8,8 +8,8 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 
 #include "TestListener.h"
 
-#include "Common/Reactor/IReactor.h"
-#include "Common/ZMQWrapperApi/IContext.h"
+#include "modules/Common/Reactor/IReactor.h"
+#include "modules/Common/ZMQWrapperApi/IContext.h"
 
 #include <string>
 #include <vector>

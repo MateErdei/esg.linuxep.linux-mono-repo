@@ -1,0 +1,14 @@
+load("//modules:spl_independent_cc_tests.bzl", "spl_independent_cc_tests")
+
+spl_independent_cc_tests(
+    name = "TelemetryConfigImplTests",
+    srcs = glob([
+        "*.cpp",
+        "*.h",
+    ]),
+    deps = [
+        "//modules/Common/TelemetryConfigImpl",
+        "//thirdparty/nlohmann-json",
+        "@com_google_googletest//:gtest_main",
+    ],
+)

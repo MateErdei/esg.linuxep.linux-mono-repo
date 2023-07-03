@@ -1,15 +1,18 @@
-// Copyright 2019-2023 Sophos Limited. All rights reserved.
+/******************************************************************************************************
 
-#include "TelemetryFieldStructure.h"
+Copyright 2019, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
+
 #include "TelemetryHelper.h"
 
 #include "Logger.h"
 #include "TelemetrySerialiser.h"
 
-#include "Common/ApplicationConfiguration/IApplicationConfiguration.h"
-#include "Common/ApplicationConfigurationImpl/ApplicationPathManager.h"
-#include "Common/FileSystemImpl/FileSystemImpl.h"
-#include "Common/UtilityImpl/StringUtils.h"
+#include "modules/Common/ApplicationConfiguration/IApplicationConfiguration.h"
+#include "modules/Common/ApplicationConfiguration/IApplicationPathManager.h"
+#include "modules/Common/FileSystemImpl/FileSystemImpl.h"
+#include "modules/Common/UtilityImpl/StringUtils.h"
 
 #include <cmath>
 #include <functional>
@@ -324,7 +327,7 @@ namespace Common::Telemetry
 
                 auto output = TelemetrySerialiser::serialise(restoreTelemetryObj);
 
-                auto tempDir = Common::ApplicationConfigurationImpl::ApplicationPathManager().getTempPath();
+                auto tempDir = Common::ApplicationConfiguration::applicationPathManager().getTempPath();
                 m_fileSystem->writeFileAtomically(m_saveTelemetryPath, output, tempDir);
             }
             else
@@ -445,48 +448,4 @@ namespace Common::Telemetry
         addValueToSetInternal(setKey, value);
     }
 
-    void TelemetryHelper::restructureTelemetry()
-    {
-        for (const auto& [currentPos, finalPos] : fieldsToMoveToTopLevel)
-        {
-            // Currently this will only support fields to move in following example format
-            // updatescheduler.esmName
-            //  and not
-            // updatescheduler.something.esmName
-            auto keys = Common::UtilityImpl::StringUtils::splitString(currentPos, ".");
-            auto parentKey = keys.front();
-            auto childKey = keys.back();
-
-            if (m_root.keyExists(parentKey))
-            {
-                auto& parentObj = m_root.getObject(parentKey);
-                if (parentObj.keyExists(childKey))
-                {
-                    LOGDEBUG("Moving field in " << currentPos << " to " << finalPos);
-                    // Insert new value
-                    auto childVal = parentObj.getObject(childKey).getValue();
-                    //  has lock guard
-                    setInternal(finalPos, childVal, false);
-
-                    // Remove old value
-                    {
-                        std::lock_guard<std::mutex> lock(m_dataLock);
-                        parentObj.removeKey(childKey);
-                        if (parentObj.getChildObjects().size() == 0)
-                        {
-                            m_root.removeKey(parentKey);
-                        }
-                    }
-                }
-                else
-                {
-                    LOGDEBUG("Item " << childKey << " does not exist in " << parentKey);
-                }
-            }
-            else
-            {
-                LOGDEBUG("Item " << parentKey << " does not exist in telemetry");
-            }
-        }
-    }
 } // namespace Common::Telemetry

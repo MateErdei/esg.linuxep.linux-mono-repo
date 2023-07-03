@@ -5,7 +5,8 @@ soph_cc_library(
     name = "ApplicationConfiguration",
     hdrs = glob(["*.h"]),
     visibility = [
-        "//modules:__subpackages__",
-        "//tests:__subpackages__",
+        # ApplicationConfiguration is not a full implementation
+        # BUILD files should depend on ApplicationConfigurationImpl
+        "//modules/Common/ApplicationConfigurationImpl:__pkg__",
     ],
 )

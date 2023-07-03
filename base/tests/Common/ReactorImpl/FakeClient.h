@@ -1,9 +1,13 @@
-// Copyright 2018-2023 Sophos Limited. All rights reserved.
+/******************************************************************************************************
+
+Copyright 2018-2019, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
 
 #pragma once
 
-#include "Common/ZeroMQWrapper/IReadable.h"
-#include "Common/ZMQWrapperApi/IContext.h"
+#include "modules/Common/ZeroMQWrapper/IReadable.h"
+#include "modules/Common/ZMQWrapperApi/IContext.h"
 
 #include <string>
 #include <vector>

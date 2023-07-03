@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "Common/ZeroMQWrapper/IPollerFactory.h"
+#include "modules/Common/ZeroMQWrapper/IPollerFactory.h"
 
 #include <gmock/gmock.h>
 

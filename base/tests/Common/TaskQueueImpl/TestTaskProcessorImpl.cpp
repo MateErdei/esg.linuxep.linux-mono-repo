@@ -1,7 +1,11 @@
-// Copyright 2018-2023 Sophos Limited. All rights reserved.
+/******************************************************************************************************
 
-#include "Common/TaskQueueImpl/TaskProcessorImpl.h"
-#include "Common/TaskQueueImpl/TaskQueueImpl.h"
+Copyright 2018, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
+
+#include "modules/Common/TaskQueueImpl/TaskProcessorImpl.h"
+#include "modules/Common/TaskQueueImpl/TaskQueueImpl.h"
 #include <gtest/gtest.h>
 
 TEST(TestTaskProcessorImpl, Construction) // NOLINT

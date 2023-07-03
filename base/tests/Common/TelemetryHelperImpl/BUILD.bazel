@@ -1,0 +1,17 @@
+load("//modules:spl_independent_cc_tests.bzl", "spl_independent_cc_tests")
+
+spl_independent_cc_tests(
+    name = "TelemetryHelperImplTests",
+    srcs = glob([
+        "*.cpp",
+        "*.h",
+    ]),
+    deps = [
+        "//modules/Common/FileSystemImpl",
+        "//modules/Common/Logging",
+        "//modules/Common/TelemetryHelperImpl",
+        "//tests/Common/Helpers",
+        "//thirdparty/nlohmann-json",
+        "@com_google_googletest//:gtest_main",
+    ],
+)

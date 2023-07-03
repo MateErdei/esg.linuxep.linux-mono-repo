@@ -1,6 +1,10 @@
-// Copyright 2018-2023 Sophos Limited. All rights reserved.
+/******************************************************************************************************
 
-#include "Common/FileSystemImpl/FileSystemImpl.h"
+Copyright 2018, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
+
+#include "modules/Common/FileSystemImpl/FileSystemImpl.h"
 #include <gtest/gtest.h>
 #include "tests/Common/Helpers/TempDir.h"
 

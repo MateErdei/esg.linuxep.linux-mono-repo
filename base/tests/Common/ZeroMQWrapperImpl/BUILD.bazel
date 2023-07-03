@@ -1,0 +1,48 @@
+load("//modules:spl_independent_cc_tests.bzl", "spl_independent_cc_tests")
+
+spl_independent_cc_tests(
+    name = "ZeroMQWrapperImplTests",
+    srcs = glob(
+        [
+            "*.cpp",
+            "*.h",
+        ],
+        exclude = [
+            "ReqRepTestImplementations.cpp",
+            "ReqRepTestImplementations.h",
+            "ReqRepTool.cpp",
+        ],
+    ),
+    data = [
+        ":TestReqRepTool",
+    ],
+    per_test_srcs = [
+        "ReqRepTestImplementations.cpp",
+        "ReqRepTestImplementations.h",
+    ],
+    deps = [
+        "//modules/Common/ProcessImpl",
+        "//modules/Common/Threads",
+        "//modules/Common/ZMQWrapperApiImpl",
+        "//modules/Common/ZeroMQWrapperImpl",
+        "//tests/Common/Helpers",
+        "@com_google_googletest//:gtest_main",
+        "@zmq",
+    ],
+)
+
+cc_binary(
+    name = "TestReqRepTool",
+    srcs = [
+        "ReqRepTestImplementations.cpp",
+        "ReqRepTestImplementations.h",
+        "ReqRepTool.cpp",
+    ],
+    deps = [
+        "//modules/Common/ProcessImpl",
+        "//modules/Common/ZMQWrapperApiImpl",
+        "//modules/Common/ZeroMQWrapperImpl",
+        "//tests/Common/Helpers",
+        "@zmq",
+    ],
+)

@@ -1,0 +1,36 @@
+load("//tools/config:soph_rules.bzl", "soph_cc_library")
+load("@rules_proto//proto:defs.bzl", "proto_library")
+
+soph_cc_library(
+    name = "Policy",
+    srcs = glob(["*.cpp"]),
+    hdrs = glob(["*.h"]),
+    implementation_deps = [
+        ":ConfigurationSettings",
+        "//modules/Common/Logging",
+        "//modules/Common/ProtobufUtil",
+        "//modules/Common/FileSystemImpl",
+        "//modules/Common/OSUtilitiesImpl",
+        "//modules/Common/UtilityImpl:StringUtils",
+        "@com_google_protobuf//:protobuf",
+        "//modules/Common/ApplicationConfigurationImpl",
+    ],
+    visibility = [
+        "//modules:__subpackages__",
+        "//tests:__subpackages__",
+    ],
+    deps = [
+        "//modules/Common/ObfuscationImpl",  # TODO should be refactored to allow //modules/Common/Obfuscation to be used here instead
+        "//modules/Common/XmlUtilities",
+    ],
+)
+
+cc_proto_library(
+    name = "ConfigurationSettings",
+    deps = [":ConfigurationSettings_proto"],
+)
+
+proto_library(
+    name = "ConfigurationSettings_proto",
+    srcs = ["ConfigurationSettings.proto"],
+)

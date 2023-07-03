@@ -1,10 +1,14 @@
-// Copyright 2019-2023 Sophos Limited. All rights reserved.
+/******************************************************************************************************
+
+Copyright 2019, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
 
 #pragma once
 
 #include "TelemetryObject.h"
 
-#include "Common/FileSystem/IFileSystem.h"
+#include "modules/Common/FileSystem/IFileSystem.h"
 
 #include <functional>
 #include <mutex>
@@ -76,7 +80,6 @@ namespace Common::Telemetry
         void updateTelemetryWithAllMaxStats();
         void updateTelemetryWithAllStdDeviationStats();
 
-        void restructureTelemetry();
         void mergeJsonIn(const std::string& key, const std::string& json);
         void registerResetCallback(std::string cookie, std::function<void(TelemetryHelper&)> function);
         void unregisterResetCallback(std::string cookie);

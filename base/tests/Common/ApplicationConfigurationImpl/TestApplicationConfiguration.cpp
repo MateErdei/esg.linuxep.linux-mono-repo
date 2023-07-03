@@ -1,6 +1,10 @@
-// Copyright 2018-2023 Sophos Limited. All rights reserved.
+/******************************************************************************************************
 
-#include "Common/ApplicationConfigurationImpl/ApplicationConfiguration.h"
+Copyright 2018-2019, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************///
+
+#include "modules/Common/ApplicationConfigurationImpl/ApplicationConfiguration.h"
 #include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
 #include "tests/Common/Helpers/MockFileSystem.h"
 
@@ -31,16 +35,16 @@ public:
     MockFileSystem* m_mockFileSystem;
 };
 
-TEST_F(ApplicationConfigurationTests, SophosInstallLocationFoundFromEnvironmentVariable)
+TEST_F(ApplicationConfigurationTests, SophosInstallLocationFoundFromEnvironmentVariable) // NOLINT
 {
     std::string envInstallLocation = "/Installed/Here";
-    setenv("SOPHOS_INSTALL", envInstallLocation.c_str(), 0);
+    setenv("SOPHOS_INSTALL", "/Installed/Here", 0);
     Common::ApplicationConfigurationImpl::ApplicationConfiguration applicationConfiguration;
     std::string installLocation = applicationConfiguration.getData(Common::ApplicationConfiguration::SOPHOS_INSTALL);
     ASSERT_EQ(installLocation, envInstallLocation);
 }
 
-TEST_F(ApplicationConfigurationTests, SophosInstallLocationFoundFromExecutableInBaseBin)
+TEST_F(ApplicationConfigurationTests, SophosInstallLocationFoundFromExecutableInBaseBin) // NOLINT
 {
     std::string basePath("/opt/non-default-install/sophos-spl");
     std::string exePath("base/bin/dummy.exe");
@@ -67,7 +71,7 @@ TEST_F(ApplicationConfigurationTests, SophosInstallLocationFoundFromExecutableIn
     ASSERT_EQ(installLocation, basePath);
 }
 
-TEST_F(ApplicationConfigurationTests, SophosInstallLocationFoundFromExecutableInBin)
+TEST_F(ApplicationConfigurationTests, SophosInstallLocationFoundFromExecutableInBin) // NOLINT
 {
     std::string basePath("/opt/non-default-install/sophos-spl");
     std::string exePath("bin/dummy.exe");
@@ -90,7 +94,7 @@ TEST_F(ApplicationConfigurationTests, SophosInstallLocationFoundFromExecutableIn
     ASSERT_EQ(installLocation, basePath);
 }
 
-TEST_F(ApplicationConfigurationTests, SophosInstallLocationFoundFromPluginFolder)
+TEST_F(ApplicationConfigurationTests, SophosInstallLocationFoundFromPluginFolder) // NOLINT
 {
     std::string basePath("/opt/non-default-install/sophos-spl");
     std::string exePath("plugins/DummyPlugin/bin/DummyPlugin.exe");
@@ -119,7 +123,7 @@ TEST_F(ApplicationConfigurationTests, SophosInstallLocationFoundFromPluginFolder
     ASSERT_EQ(installLocation, basePath);
 }
 
-TEST_F(ApplicationConfigurationTests, SophosInstallLocationReturnsDefaultLocationIfExecutablePathReturnsEmpty)
+TEST_F(ApplicationConfigurationTests, SophosInstallLocationReturnsDefaultLocationIfExecutablePathReturnsEmpty) // NOLINT
 {
     std::string defaultInstallLocation = Common::ApplicationConfigurationImpl::DefaultInstallLocation;
 
@@ -132,7 +136,7 @@ TEST_F(ApplicationConfigurationTests, SophosInstallLocationReturnsDefaultLocatio
 
 TEST_F(
     ApplicationConfigurationTests,
-    SophosInstallLocationReturnsDefaultLocationIfExpectedFoldersCantBeFoundAndNoEnvPathSet)
+    SophosInstallLocationReturnsDefaultLocationIfExpectedFoldersCantBeFoundAndNoEnvPathSet) // NOLINT
 {
     std::string path = "/Not/A/sophos-spl/Install/Path";
 
@@ -144,16 +148,4 @@ TEST_F(
     std::string installLocation = applicationConfiguration.getData(Common::ApplicationConfiguration::SOPHOS_INSTALL);
 
     ASSERT_EQ(installLocation, defaultInstallLocation);
-}
-
-TEST_F(ApplicationConfigurationTests, clearDataFromApplicationConfiguration)
-{
-    std::string envInstallLocation = "/Installed/Here";
-    setenv("SOPHOS_INSTALL", envInstallLocation.c_str(), 0);
-
-    auto& appConfig = Common::ApplicationConfiguration::applicationConfiguration();
-    ASSERT_EQ(appConfig.getData(Common::ApplicationConfiguration::SOPHOS_INSTALL), envInstallLocation);
-
-    appConfig.clearData(Common::ApplicationConfiguration::SOPHOS_INSTALL);
-    EXPECT_THROW(appConfig.getData(Common::ApplicationConfiguration::SOPHOS_INSTALL), std::out_of_range);
 }

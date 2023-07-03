@@ -1,8 +1,12 @@
-// Copyright 2018-2023 Sophos Limited. All rights reserved.
+/******************************************************************************************************
+
+Copyright 2018-2022, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
 #include "IIPUtils.h"
 
-#include "Common/OSUtilities/IDnsLookup.h"
-#include "Common/OSUtilities/ILocalIP.h"
+#include "modules/Common/OSUtilities/IDnsLookup.h"
+#include "modules/Common/OSUtilities/ILocalIP.h"
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <sys/socket.h>

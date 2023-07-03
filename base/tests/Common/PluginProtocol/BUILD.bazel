@@ -1,0 +1,17 @@
+load("//modules:spl_independent_cc_tests.bzl", "spl_independent_cc_tests")
+
+spl_independent_cc_tests(
+    name = "PluginProtocolTests",
+    srcs = glob([
+        "*.cpp",
+        "*.h",
+    ]),
+    deps = [
+        "//modules/Common/ApplicationConfigurationImpl",
+        "//modules/Common/FileSystemImpl",
+        "//modules/Common/Logging",
+        "//modules/Common/PluginProtocol",
+        "//modules/Common/ReactorImpl",
+        "@com_google_googletest//:gtest_main",
+    ],
+)

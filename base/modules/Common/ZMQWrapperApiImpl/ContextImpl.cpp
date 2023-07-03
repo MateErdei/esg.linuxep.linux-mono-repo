@@ -1,16 +1,20 @@
-// Copyright 2018-2023 Sophos Limited. All rights reserved.
+/******************************************************************************************************
+
+Copyright 2018-2019, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
 
 #include "ContextImpl.h"
 
 #include "LoggingProxyImpl.h"
 
-#include "Common/ZeroMQWrapperImpl/ProxyImpl.h"
-#include "Common/ZeroMQWrapperImpl/SocketPublisherImpl.h"
-#include "Common/ZeroMQWrapperImpl/SocketReplierImpl.h"
-#include "Common/ZeroMQWrapperImpl/SocketRequesterImpl.h"
-#include "Common/ZeroMQWrapperImpl/SocketSubscriberImpl.h"
+#include "modules/Common/ZeroMQWrapperImpl/ProxyImpl.h"
+#include "modules/Common/ZeroMQWrapperImpl/SocketPublisherImpl.h"
+#include "modules/Common/ZeroMQWrapperImpl/SocketReplierImpl.h"
+#include "modules/Common/ZeroMQWrapperImpl/SocketRequesterImpl.h"
+#include "modules/Common/ZeroMQWrapperImpl/SocketSubscriberImpl.h"
 
-#include "Common/ZMQWrapperApi/IContextSharedPtr.h"
+#include "modules/Common/ZMQWrapperApi/IContextSharedPtr.h"
 
 #include <iostream>
 

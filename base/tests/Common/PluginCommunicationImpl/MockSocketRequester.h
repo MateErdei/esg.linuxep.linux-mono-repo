@@ -6,7 +6,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include "Common/ZeroMQWrapper/ISocketRequester.h"
+#include "modules/Common/ZeroMQWrapper/ISocketRequester.h"
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 

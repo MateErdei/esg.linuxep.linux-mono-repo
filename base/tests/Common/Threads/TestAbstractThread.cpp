@@ -1,6 +1,6 @@
 // Copyright 2022, Sophos Limited.  All rights reserved.
 
-#include "Common/Threads/AbstractThread.h"
+#include "modules/Common/Threads/AbstractThread.h"
 #include <gtest/gtest.h>
 
 using namespace Common::Threads;

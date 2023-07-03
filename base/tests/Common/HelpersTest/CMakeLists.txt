@@ -2,10 +2,10 @@ include(GoogleTest)
 
 add_executable(TestHelpersTest
         TestTempDir.cpp
-        TempDirBaseClassTest.cpp
-        TempDirBaseClassTest.h
-        ExampleTempDirSuiteTest.cpp
-        ExampleTempDirSuiteTest.h
+        ../Helpers/TempDirBaseClassTest.cpp
+        ../Helpers/TempDirBaseClassTest.h
+        ../Helpers/ExampleTempDirSuiteTest.cpp
+        ../Helpers/ExampleTempDirSuiteTest.h
         TestTempDirBaseClassTest.cpp
         TestExampleTempDirSuiteTest.cpp
         ExecutionSynchronizerDemoTests.cpp

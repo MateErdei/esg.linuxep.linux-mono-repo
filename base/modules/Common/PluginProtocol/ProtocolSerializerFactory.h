@@ -6,7 +6,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include "Common/PluginProtocol/IProtocolSerializer.h"
+#include "modules/Common/PluginProtocol/IProtocolSerializer.h"
 
 #include <memory>
 

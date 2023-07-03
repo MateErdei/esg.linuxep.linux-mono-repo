@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "Common/ZeroMQWrapper/IIPCException.h"
+#include "modules/Common/ZeroMQWrapper/IIPCException.h"
 
 #include <string>
 

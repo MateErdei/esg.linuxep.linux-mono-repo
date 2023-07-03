@@ -1,0 +1,15 @@
+load("//tools/config:soph_rules.bzl", "soph_cc_library")
+
+soph_cc_library(
+    name = "PluginCommunicationImpl",
+    srcs = glob(["*.cpp"]),
+    hdrs = glob(["*.h"]),
+    visibility = [
+        "//modules:__subpackages__",
+        "//tests:__subpackages__",
+    ],
+    deps = [
+        "//modules/Common/PluginCommunication",
+        "//modules/Common/UtilityImpl:VectorAsSet",
+    ],
+)

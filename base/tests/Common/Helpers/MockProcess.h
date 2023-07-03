@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "Common/Process/IProcess.h"
+#include "modules/Common/Process/IProcess.h"
 
 #include <gmock/gmock.h>
 #include <string>

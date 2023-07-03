@@ -1,14 +1,16 @@
-// Copyright 2018-2023 Sophos Limited. All rights reserved.
+/******************************************************************************************************
+
+Copyright 2018, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
 #include "MockedPluginApiCallback.h"
 #include "SingleResponseServer.h"
 
-#include "Common/FileSystemImpl/FilePermissionsImpl.h"
-#include "Common/FileSystemImpl/FileSystemImpl.h"
-#include "Common/Logging/ConsoleLoggingSetup.h"
-#include "Common/PluginApi/ApiException.h"
-#include "Common/PluginApi/IBaseServiceApi.h"
-#include "Common/PluginApiImpl/PluginResourceManagement.h"
-#include "Common/ZeroMQWrapper/ISocketRequester.h"
+#include "modules/Common/Logging/ConsoleLoggingSetup.h"
+#include "modules/Common/PluginApi/ApiException.h"
+#include "modules/Common/PluginApi/IBaseServiceApi.h"
+#include "modules/Common/PluginApiImpl/PluginResourceManagement.h"
+#include "modules/Common/ZeroMQWrapper/ISocketRequester.h"
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 #include "tests/Common/ApplicationConfiguration/MockedApplicationPathManager.h"

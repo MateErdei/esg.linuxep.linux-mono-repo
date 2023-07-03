@@ -7,7 +7,7 @@ spl_independent_cc_tests(
         "TestTimeUtils.cpp",
     ],
     deps = [
-        "//modules/Common/UtilityImpl:RegexUtilities",
+        "//modules/Common/UtilityImpl:RegexUtilities",  # TODO this probably should not be used
         "//modules/Common/UtilityImpl:TimeUtils",
         "@com_google_googletest//:gtest_main",
     ],

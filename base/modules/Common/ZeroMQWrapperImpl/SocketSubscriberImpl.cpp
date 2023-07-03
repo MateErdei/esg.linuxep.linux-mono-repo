@@ -8,8 +8,11 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include "SocketUtil.h"
 #include "ZeroMQWrapperException.h"
+#include <zmq.h>
 
 using namespace Common::ZeroMQWrapperImpl;
+
+SocketSubscriberImpl::SocketSubscriberImpl(ContextHolderSharedPtr context) : SocketImpl(std::move(context), ZMQ_SUB) {}
 
 std::vector<std::string> SocketSubscriberImpl::read()
 {

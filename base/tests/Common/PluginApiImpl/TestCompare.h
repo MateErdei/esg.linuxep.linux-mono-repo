@@ -6,7 +6,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #pragma once
 
-#include "Common/PluginProtocol/DataMessage.h"
+#include "modules/Common/PluginProtocol/DataMessage.h"
 #include "gmock/gmock.h"
 #include "gtest/gtest-printers.h"
 #include "gtest/gtest.h"

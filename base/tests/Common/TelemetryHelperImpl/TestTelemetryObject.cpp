@@ -1,6 +1,10 @@
-// Copyright 2019-2023 Sophos Limited. All rights reserved.
+///******************************************************************************************************
+///
+/// Copyright 2019, Sophos Limited.  All rights reserved.
+///
+///******************************************************************************************************/
 
-#include "Common/TelemetryHelperImpl/TelemetryObject.h"
+#include "modules/Common/TelemetryHelperImpl/TelemetryObject.h"
 #include <gtest/gtest.h>
 
 using namespace Common::Telemetry;

@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
 
 #include "tests/Common/Helpers/TempDir.h"
 

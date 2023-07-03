@@ -23,7 +23,7 @@ namespace Common
         {
             using namespace google::protobuf::util;
             std::string json_output;
-            JsonOptions options;
+            JsonPrintOptions options;
             options.add_whitespace = true;
             auto status = MessageToJsonString(message, &json_output, options);
             if (!status.ok())

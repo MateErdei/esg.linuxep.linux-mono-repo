@@ -6,7 +6,7 @@ Copyright 2018, Sophos Limited.  All rights reserved.
 
 #include "ReactorImplTestsPath.h"
 
-#include "Common/FileSystem/IFileSystem.h"
+#include "modules/Common/FileSystem/IFileSystem.h"
 namespace
 {
     static std::string programPath;
@@ -19,6 +19,9 @@ void setProgramPath(std::string programPath_)
 
 std::string ReactorImplTestsPath()
 {
+#ifdef SPL_BAZEL
+    return "tests/Common/ReactorImpl";
+#else
     auto fileSystem = Common::FileSystem::fileSystem();
     std::string fullPath;
     if (programPath.front() == '/')
@@ -30,4 +33,5 @@ std::string ReactorImplTestsPath()
         fullPath = Common::FileSystem::join(fileSystem->currentWorkingDirectory(), programPath);
     }
     return Common::FileSystem::dirName(fullPath);
+#endif
 }

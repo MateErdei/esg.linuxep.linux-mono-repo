@@ -1,9 +1,13 @@
-// Copyright 2018-2023 Sophos Limited. All rights reserved.
+/******************************************************************************************************
+
+Copyright 2018, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
 
 #pragma once
 
-#include "Common/TaskQueue/ITask.h"
-#include "Common/TaskQueue/ITaskQueue.h"
+#include "modules/Common/TaskQueue/ITask.h"
+#include "modules/Common/TaskQueue/ITaskQueue.h"
 
 #include <condition_variable>
 #include <deque>

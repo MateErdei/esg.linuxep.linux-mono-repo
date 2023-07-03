@@ -2,8 +2,8 @@
 #include "MockDnsLookup.h"
 #include "MockILocalIP.h"
 
-#include "Common/OSUtilities/IDnsLookup.h"
-#include "Common/OSUtilitiesImpl/DnsLookupImpl.h"
+#include "modules/Common/OSUtilities/IDnsLookup.h"
+#include "modules/Common/OSUtilitiesImpl/DnsLookupImpl.h"
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
@@ -14,8 +14,28 @@ using namespace Common::OSUtilities;
 using PairResult = std::pair<std::string, std::vector<std::string>>;
 using ListInputOutput = std::vector<PairResult>;
 
-extern std::string ipsToString(const std::vector<std::string>& ips);
+std::string ipsToString(const std::vector<std::string>& ips)
+{
+    std::ostringstream os;
+    bool first = true;
 
+    for (const auto& ip : ips)
+    {
+        if (first)
+        {
+            first = false;
+        }
+        else
+        {
+            os << " ";
+        }
+        os << ip;
+    }
+
+    return os.str();
+}
+
+// TODO LINUXDAR-4888 This test has been disabled because it relies on network access which is very limited EAA machines
 TEST(TestDnsLookup, DISABLED_shouldBeAbleToResolvValidHosts) // NOLINT
 {
     auto dns = dnsLookup();

@@ -86,12 +86,12 @@ soph_cc_library(
     name = "Uuid",
     srcs = ["Uuid.cpp"],
     hdrs = ["Uuid.h"],
+    implementation_deps = [
+        "//modules/Common/SslImpl",
+    ],
     visibility = [
         "//modules:__subpackages__",
         "//tests:__subpackages__",
-    ],
-    deps = [
-        "//modules/Common/SslImpl",
     ],
 )
 

@@ -1,10 +1,14 @@
-// Copyright 2018-2023 Sophos Limited. All rights reserved.
+/******************************************************************************************************
+
+Copyright 2018, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
 
 #include "TestCompare.h"
 
-#include "Common/Logging/ConsoleLoggingSetup.h"
-#include "Common/PluginProtocol/MessageBuilder.h"
-#include "Common/PluginProtocol/ProtocolSerializerFactory.h"
+#include "modules/Common/Logging/ConsoleLoggingSetup.h"
+#include "modules/Common/PluginProtocol/MessageBuilder.h"
+#include "modules/Common/PluginProtocol/ProtocolSerializerFactory.h"
 #include <gmock/gmock-matchers.h>
 #include <gtest/gtest.h>
 
