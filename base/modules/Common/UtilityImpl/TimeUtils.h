@@ -24,6 +24,7 @@ namespace Common
             virtual std::string currentTime() const = 0;
             virtual std::string currentEpochTimeInSeconds() const = 0;
             virtual u_int64_t currentEpochTimeInSecondsAsInteger() const = 0;
+            virtual u_int64_t currentEpochTimeInMilliSecondsAsInteger() const = 0;
             virtual std::string bootTime() const = 0;
         };
 
@@ -104,6 +105,7 @@ namespace Common
             std::string currentTime() const override;
             std::string currentEpochTimeInSeconds() const override;
             u_int64_t currentEpochTimeInSecondsAsInteger() const override;
+            u_int64_t currentEpochTimeInMilliSecondsAsInteger() const override;
             std::string bootTime() const override;
         };
     } // namespace UtilityImpl

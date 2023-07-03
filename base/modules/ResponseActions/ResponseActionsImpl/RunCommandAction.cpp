@@ -120,7 +120,7 @@ CommandResponse RunCommandAction::runCommands(const CommandRequest& action)
     LOGINFO("Overall command result: " << static_cast<int>(response.result));
 
     u_int64_t finish = time.currentEpochTimeInSecondsAsInteger();
-    response.durationMilliSeconds = finish - start;
+    response.duration = finish - start;
     return response;
 }
 
@@ -232,6 +232,6 @@ SingleCommandResult RunCommandAction::runCommand(const std::string& command)
     response.exitCode = process->exitCode();
 
     u_int64_t finish = time.currentEpochTimeInSecondsAsInteger();
-    response.durationSeconds = finish - start;
+    response.duration = 1000*(finish - start);
     return response;
 }
