@@ -21,6 +21,7 @@
 #include "Common/FileSystem/IFileSystemException.h"
 #include "Common/FileSystem/IPidLockFileUtils.h"
 #include "Common/Logging/FileLoggingSetup.h"
+#include "Common/Policy/PolicyParseException.h"
 #include "Common/Policy/UpdateSettings.h"
 #include "Common/UpdateUtilities/InstalledFeatures.h"
 #include "Common/UtilityImpl/ProjectNames.h"
@@ -787,18 +788,18 @@ namespace SulDownloader
                     readSuccessful = true;
                     break;
                 }
-                catch (Common::FileSystem::IFileSystemException& exception)
+                catch (const Common::FileSystem::IFileSystemException& exception)
                 {
                     if (readAttempt == maxReadAttempts)
                     {
                         std::throw_with_nested(Common::FileSystem::IFileSystemException(LOCATION, exception.what()));
                     }
                 }
-                catch (SulDownloaderException& exception)
+                catch (const Common::Policy::PolicyParseException& exception)
                 {
                     if (readAttempt == maxReadAttempts)
                     {
-                        std::throw_with_nested(SulDownloaderException(LOCATION, exception.what()));
+                        std::throw_with_nested(Common::Policy::PolicyParseException(LOCATION, exception.what()));
                     }
                 }
                 if (!readSuccessful)
@@ -840,7 +841,7 @@ namespace SulDownloader
                 writeInstalledFeatures(configurationData.getFeatures());
             }
         }
-        catch (Common::FileSystem::IFileSystemException& exception)
+        catch (const Common::FileSystem::IFileSystemException& exception)
         {
             LOGERROR(exception.what());
             if (!readSuccessful)
@@ -848,7 +849,7 @@ namespace SulDownloader
                 throw Common::FileSystem::IFileSystemException(exception.what());
             }
         }
-        catch (std::exception& ex)
+        catch (const std::exception& ex)
         {
             LOGERROR(ex.what());
 
