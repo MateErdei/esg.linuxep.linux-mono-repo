@@ -64,7 +64,7 @@ namespace ResponseActionsImpl
         std::string stdOut;
         std::string stdErr;
         int exitCode = 0;
-        unsigned long duration = 0;
+        unsigned long durationMilliSeconds = 0;
     };
 
     struct CommandResponse
@@ -73,7 +73,7 @@ namespace ResponseActionsImpl
         ResponseActions::RACommon::ResponseResult result;
         std::vector<SingleCommandResult> commandResults;
         unsigned long startedAt = 0;
-        unsigned long duration = 0;
+        unsigned long durationSeconds = 0;
     };
 
 } // namespace ResponseActionsImpl
