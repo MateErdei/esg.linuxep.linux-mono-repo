@@ -23,7 +23,7 @@ add_library(policyobject OBJECT
         )
 
 
-include_directories(policyobject BEFORE ${CMAKE_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR} ${LOG4CPLUS_INCLUDE_DIR} ${NLOHMANN_JSON_INCLUDE_DIR})
+include_directories(policyobject BEFORE ${CMAKE_CURRENT_BINARY_DIR} ${LOG4CPLUS_INCLUDE_DIR} ${NLOHMANN_JSON_INCLUDE_DIR})
 target_link_libraries(policyobject INTERFACE
         obfuscationimpl
         osutilitiesimpl

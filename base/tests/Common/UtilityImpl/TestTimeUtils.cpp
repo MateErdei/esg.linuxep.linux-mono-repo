@@ -6,9 +6,6 @@
 #include <gmock/gmock-matchers.h>
 #include <gtest/gtest.h>
 
-#include <future>
-#include <regex>
-
 using namespace Common::UtilityImpl;
 
 TEST(TimeUtils, getCurrentTimeShouldReturnValidTime) // NOLINT

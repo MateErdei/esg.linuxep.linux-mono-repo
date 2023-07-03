@@ -6,7 +6,7 @@ add_library(xmlutilitiesobject OBJECT
         Validation.h
         Validation.cpp)
 
-include_directories(xmlutilitiesobject PUBLIC ${CMAKE_SOURCE_DIR} ${EXPAT_INPUT} ${LOG4CPLUS_INCLUDE_DIR})
+include_directories(xmlutilitiesobject PUBLIC ${EXPAT_INPUT} ${LOG4CPLUS_INCLUDE_DIR})
 add_library(xmlutilities SHARED $<TARGET_OBJECTS:xmlutilitiesobject>)
 target_link_libraries(xmlutilities PUBLIC
         ${EXPAT_LIBRARY}

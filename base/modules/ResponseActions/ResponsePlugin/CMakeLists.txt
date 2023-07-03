@@ -25,7 +25,6 @@ add_library(responseplugin SHARED
         ../RACommon/toUtf8Exception.h)
 
 include_directories(responseplugin BEFORE
-        ${CMAKE_SOURCE_DIR}
         ${CMAKE_CURRENT_BINARY_DIR}
         ${LOG4CPLUS_INCLUDE_DIR}
         ${NLOHMANN_JSON_INCLUDE_DIR}

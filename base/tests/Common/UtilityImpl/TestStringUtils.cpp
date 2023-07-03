@@ -5,7 +5,6 @@ Copyright 2018-2022, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
 
 #include "tests/Common/Helpers/FileSystemReplaceAndRestore.h"
-#include "tests/Common/Helpers/LogInitializedTests.h"
 #include "tests/Common/Helpers/MockFileSystem.h"
 
 #include "Common/ApplicationConfiguration/IApplicationConfiguration.h"

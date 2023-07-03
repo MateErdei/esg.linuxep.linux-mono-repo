@@ -6,7 +6,6 @@ add_library(ProxyUtilsLibobject OBJECT
         )
 
 target_include_directories(ProxyUtilsLibobject PUBLIC BEFORE
-        ${CMAKE_SOURCE_DIR}
         ${LOG4CPLUS_INCLUDE_DIR}
         ${NLOHMANN_JSON_INCLUDE_DIR}
         ${PROJECT_SOURCE_DIR}/modules/Common

@@ -10,9 +10,7 @@ Copyright 2019, Sophos Limited.  All rights reserved.
 #include "Common/FileSystem/IFileSystemException.h"
 #include "Common/UtilityImpl/StrError.h"
 
-#include <cstring>
 #include <iostream>
-#include <unistd.h>
 
 using namespace Common::FileSystemImpl;
 using namespace Common::UtilityImpl;

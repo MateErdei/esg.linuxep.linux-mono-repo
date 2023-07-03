@@ -20,7 +20,7 @@ add_library(pluginapiobjects OBJECT
         ../PluginApi/NoPolicyAvailableException.cpp
         ../PluginApi/NoACKReplyException.h)
 
-target_include_directories(pluginapiobjects PUBLIC ${CMAKE_SOURCE_DIR} ../PluginApi ../../Common ${LOG4CPLUS_INCLUDE_DIR})
+target_include_directories(pluginapiobjects PUBLIC ../PluginApi ../../Common ${LOG4CPLUS_INCLUDE_DIR})
 add_library(pluginapiimpl SHARED)
 
 target_link_libraries(pluginapiimpl PUBLIC

@@ -13,7 +13,6 @@ add_library(filesystemimplobject OBJECT
         TempDir.cpp
         TempDir.h)
 
-target_include_directories(filesystemimplobject PUBLIC ${CMAKE_SOURCE_DIR})
 target_link_libraries(filesystemimplobject INTERFACE sslimpl utilityimpl cap)
 
 add_library(filesystemimpl SHARED)

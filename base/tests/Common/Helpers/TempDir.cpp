@@ -13,7 +13,6 @@ Copyright 2018-2019, Sophos Limited.  All rights reserved.
 #include <sys/stat.h>
 
 #include <cassert>
-#include <cstring>
 namespace Tests
 {
     std::unique_ptr<TempDir> TempDir::makeTempDir(const std::string& nameprefix)

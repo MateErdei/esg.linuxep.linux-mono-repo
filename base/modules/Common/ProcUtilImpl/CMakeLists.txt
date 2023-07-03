@@ -5,7 +5,7 @@ add_library(procutilimplobject OBJECT
         Logger.cpp
         )
 
-target_include_directories(procutilimplobject PUBLIC ${CMAKE_SOURCE_DIR} ${LOG4CPLUS_INCLUDE_DIR})
+target_include_directories(procutilimplobject PUBLIC ${LOG4CPLUS_INCLUDE_DIR})
 add_library(procutilimpl SHARED $<TARGET_OBJECTS:procutilimplobject>)
 
 SET_TARGET_PROPERTIES(procutilimpl

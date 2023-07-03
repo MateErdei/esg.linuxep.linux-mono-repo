@@ -2,16 +2,17 @@
 
 #include "FileSystemImpl.h"
 
-#include "modules/Common/FileSystem/IFileNotFoundException.h"
-#include "modules/Common/FileSystem/IFilePermissions.h"
-#include "modules/Common/FileSystem/IFileSystemException.h"
-#include "modules/Common/FileSystem/IFileTooLargeException.h"
-#include "modules/Common/FileSystem/IPermissionDeniedException.h"
-#include "modules/Common/SslImpl/Digest.h"
-#include "modules/Common/UtilityImpl/StrError.h"
+#include "Common/FileSystem/IFileNotFoundException.h"
+#include "Common/FileSystem/IFilePermissions.h"
+#include "Common/FileSystem/IFileSystemException.h"
+#include "Common/FileSystem/IFileTooLargeException.h"
+#include "Common/FileSystem/IPermissionDeniedException.h"
+#include "Common/SslImpl/Digest.h"
+#include "Common/UtilityImpl/StrError.h"
 
 #include <ext/stdio_filebuf.h>
 #include <sys/stat.h>
+#include <sys/types.h>
 
 #include <cassert>
 #include <dirent.h>
