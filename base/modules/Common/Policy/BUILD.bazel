@@ -13,13 +13,13 @@ soph_cc_library(
         "//modules/Common/OSUtilitiesImpl",
         "//modules/Common/UtilityImpl:StringUtils",
         "@com_google_protobuf//:protobuf",
-        "//modules/Common/ApplicationConfigurationImpl",
     ],
     visibility = [
         "//modules:__subpackages__",
         "//tests:__subpackages__",
     ],
     deps = [
+        "//modules/Common/ApplicationConfigurationImpl",
         "//modules/Common/ObfuscationImpl",  # TODO should be refactored to allow //modules/Common/Obfuscation to be used here instead
         "//modules/Common/XmlUtilities",
     ],
@@ -27,6 +27,9 @@ soph_cc_library(
 
 cc_proto_library(
     name = "ConfigurationSettings",
+    visibility = [
+        "//tests:__subpackages__",
+    ],
     deps = [":ConfigurationSettings_proto"],
 )
 

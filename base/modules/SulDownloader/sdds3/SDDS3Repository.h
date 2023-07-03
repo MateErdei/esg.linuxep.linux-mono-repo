@@ -5,7 +5,6 @@
 #include "ISusRequester.h"
 #include "Sdds3Wrapper.h"
 
-#include "Common/HttpRequests/IHttpRequester.h"
 #include "SulDownloader/suldownloaderdata/CatalogueInfo.h"
 #include "SulDownloader/suldownloaderdata/ConnectionSetup.h"
 #include "SulDownloader/suldownloaderdata/DownloadedProduct.h"

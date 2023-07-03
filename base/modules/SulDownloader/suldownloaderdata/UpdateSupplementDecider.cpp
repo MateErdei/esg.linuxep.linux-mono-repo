@@ -1,16 +1,16 @@
-// Copyright 2020-2023 Sophos Limited. All rights reserved.
+/******************************************************************************************************
+
+Copyright 2020, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
 
 #include "UpdateSupplementDecider.h"
 
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "Common/FileSystem/IFileSystem.h"
 
-#include <memory>
-
 #include <sys/stat.h>
-#include <sys/types.h>
-
-#include <unistd.h>
+#include <ctime>
 
 using namespace SulDownloader;
 using namespace SulDownloader::suldownloaderdata;

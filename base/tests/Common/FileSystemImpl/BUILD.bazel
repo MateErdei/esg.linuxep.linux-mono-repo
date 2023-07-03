@@ -1,5 +1,6 @@
 # Copyright 2023 Sophos Limited. All rights reserved.
 load("//modules:spl_independent_cc_tests.bzl", "spl_independent_cc_tests")
+load("//tools/config:soph_cc_rules.bzl", "soph_cc_library")
 
 spl_independent_cc_tests(
     name = "FileSystemImplTests",
@@ -12,5 +13,18 @@ spl_independent_cc_tests(
         "//modules/Common/FileSystemImpl",
         "//tests/Common/Helpers",
         "@com_google_googletest//:gtest_main",
+    ],
+)
+
+soph_cc_library(
+    name = "FileSystemImpl",
+    hdrs = [
+        "MockPidLockFileUtils.h",
+    ],
+    visibility = [
+        "//tests:__subpackages__",
+    ],
+    deps = [
+        "//modules/Common/FileSystemImpl",
     ],
 )

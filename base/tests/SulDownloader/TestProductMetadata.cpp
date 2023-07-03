@@ -1,9 +1,12 @@
-// Copyright 2018-2023 Sophos Limited. All rights reserved.
+/******************************************************************************************************
+
+Copyright 2018-2020, Sophos Limited.  All rights reserved.
+
+******************************************************************************************************/
 
 #include "SulDownloader/suldownloaderdata/ProductMetadata.h"
 #include "tests/Common/Helpers/LogInitializedTests.h"
 
-#include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
 using namespace SulDownloader;

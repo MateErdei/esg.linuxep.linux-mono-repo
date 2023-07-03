@@ -60,6 +60,7 @@ testUtils/*-VBoxSVC-*.log
 /robot
 /vagrant
 /log.html
+/imports/
 
 # bazel-tools from ESG monorepo
 /.bazelignore

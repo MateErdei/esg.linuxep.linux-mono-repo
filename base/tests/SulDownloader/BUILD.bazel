@@ -1,0 +1,35 @@
+load("//modules:spl_independent_cc_tests.bzl", "spl_independent_cc_tests")
+
+HELPER_SOURCES = [
+    "Sdds3ReplaceAndRestore.cpp",
+    "TestSdds3RepositoryHelper.cpp",
+]
+
+spl_independent_cc_tests(
+    name = "SulDownloaderTests",
+    srcs = glob(
+        [
+            "*.cpp",
+            "*.h",
+        ],
+        exclude = HELPER_SOURCES,
+    ),
+    per_test_srcs = HELPER_SOURCES,
+    deps = [
+        "//modules/Common/FileSystemImpl",
+        "//modules/Common/Logging",
+        "//modules/Common/Policy:ConfigurationSettings",
+        "//modules/Common/ProcessImpl",
+        "//modules/Common/ProtobufUtil",
+        "//modules/Common/UpdateUtilities",
+        "//modules/Common/UtilityImpl:ProjectNames",
+        "//modules/Common/UtilityImpl:StringUtils",
+        "//modules/SulDownloader",
+        "//modules/SulDownloader/sdds3",
+        "//modules/SulDownloader/suldownloaderdata",
+        "//tests/Common/ApplicationConfiguration",
+        "//tests/Common/FileSystemImpl",
+        "//tests/Common/Helpers",
+        "@com_google_googletest//:gtest_main",
+    ],
+)

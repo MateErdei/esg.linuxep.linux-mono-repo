@@ -2,11 +2,12 @@
 
 #pragma once
 
-#include "gmock/gmock.h"
+#include <gmock/gmock.h>
 
 #include "SulDownloader/suldownloaderdata/ConnectionSetup.h"
 #include "SulDownloader/suldownloaderdata/DownloadedProduct.h"
 #include "SulDownloader/suldownloaderdata/ISdds3Repository.h"
+#include "SulDownloader/suldownloaderdata/ProductSelection.h"
 #include "SulDownloader/suldownloaderdata/RepositoryError.h"
 
 using namespace ::testing;

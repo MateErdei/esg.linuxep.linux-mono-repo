@@ -114,3 +114,11 @@ soph_cc_library(
         "//tests:__subpackages__",
     ],
 )
+
+soph_cc_library(
+    name = "Main",
+    hdrs = ["Main.h"],
+    visibility = [
+        "//products:__subpackages__",
+    ],
+)
