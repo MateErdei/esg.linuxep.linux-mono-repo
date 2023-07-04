@@ -3,7 +3,6 @@ Library    Process
 Library    OperatingSystem
 Library    ${LIBS_DIRECTORY}/SulDownloader.py
 Library    ${LIBS_DIRECTORY}/UpdateServer.py
-Library    ${LIBS_DIRECTORY}/WarehouseGenerator.py
 
 Resource  ../watchdog/LogControlResources.robot
 
