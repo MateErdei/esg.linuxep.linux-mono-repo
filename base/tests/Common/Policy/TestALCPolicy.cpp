@@ -554,7 +554,7 @@ TEST_F(TestALCPolicy, esm_missing)
     EXPECT_FALSE(settings.getEsmVersion().isEnabled());
     EXPECT_TRUE(settings.getEsmVersion().isValid());
 
-    EXPECT_TRUE(appenderContains("Using RECOMMENDED version with tag RECOMMENDED"));
+    EXPECT_TRUE(appenderContains("Using version RECOMMENDED"));
 }
 
 TEST_F(TestALCPolicy, esm_present_but_empty)
@@ -575,7 +575,7 @@ TEST_F(TestALCPolicy, esm_present_but_empty)
     EXPECT_FALSE(settings.getEsmVersion().isEnabled());
     EXPECT_TRUE(settings.getEsmVersion().isValid());
 
-    EXPECT_TRUE(appenderContains("Using RECOMMENDED version with tag RECOMMENDED"));
+    EXPECT_TRUE(appenderContains("Using version RECOMMENDED"));
 }
 
 TEST_F(TestALCPolicy, esm_one_field_present)
@@ -608,10 +608,10 @@ TEST_F(TestALCPolicy, esm_one_field_present)
     EXPECT_FALSE(settingsNoToken.getEsmVersion().isEnabled());
     EXPECT_FALSE(settingsNoToken.getEsmVersion().isValid());
 
-    EXPECT_TRUE(appenderContainsCount("Using RECOMMENDED version with tag RECOMMENDED", 2));
+    EXPECT_TRUE(appenderContainsCount("Using version RECOMMENDED", 2));
 }
 
-TEST_F(TestALCPolicy, esm_duplicatd_field)
+TEST_F(TestALCPolicy, esm_duplicated_field)
 {
     UsingMemoryAppender memoryAppenderHolder(*this);
 
@@ -651,7 +651,7 @@ TEST_F(TestALCPolicy, esm_both_wrong_fields)
     EXPECT_FALSE(settings.getEsmVersion().isEnabled());
     EXPECT_TRUE(settings.getEsmVersion().isValid());
 
-    EXPECT_TRUE(appenderContains("Using RECOMMENDED version with tag RECOMMENDED"));
+    EXPECT_TRUE(appenderContains("Using version RECOMMENDED"));
 }
 
 TEST_F(TestALCPolicy, esm_one_wrong_field)
@@ -672,7 +672,7 @@ TEST_F(TestALCPolicy, esm_one_wrong_field)
     EXPECT_FALSE(settings.getEsmVersion().isEnabled());
     EXPECT_FALSE(settings.getEsmVersion().isValid());
 
-    EXPECT_TRUE(appenderContains("Using RECOMMENDED version with tag RECOMMENDED"));
+    EXPECT_TRUE(appenderContains("Using version RECOMMENDED"));
 }
 
 TEST_F(TestALCPolicy, esm_very_large)

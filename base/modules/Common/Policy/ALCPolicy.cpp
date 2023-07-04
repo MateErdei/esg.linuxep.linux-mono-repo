@@ -492,7 +492,7 @@ void ALCPolicy::logVersion()
     }
     else
     {
-        msg << "Using RECOMMENDED version with tag " << updateSettings_.getPrimarySubscription().tag();
+        msg << "Using version " << updateSettings_.getPrimarySubscription().tag();
     }
 
     LOGINFO(msg.str());
