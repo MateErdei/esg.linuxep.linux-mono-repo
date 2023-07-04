@@ -472,7 +472,9 @@ int main(int argc, char** argv)
                 rootConfigOptions.config[MCS::MCS_PROXY_USERNAME],
                 rootConfigOptions.config[MCS::MCS_PROXY_PASSWORD]);
         }
-        std::map<std::string,std::string> jwt = MCS::MCSApiCalls().getAuthenticationInfo(httpClient);
+
+        MCS::MCSApiCalls mcsCalls;
+        std::map<std::string,std::string> jwt = mcsCalls.getAuthenticationInfo(httpClient);
         if (jwt[MCS::TENANT_ID].empty() || jwt[MCS::DEVICE_ID].empty() || jwt[MCS::JWT_TOKEN].empty())
         {
             log("Failed to get JWT from Sophos Central");
@@ -485,6 +487,17 @@ int main(int argc, char** argv)
         policyOptions.config[MCS::TENANT_ID] = jwt[MCS::TENANT_ID];
         policyOptions.config[MCS::DEVICE_ID] = jwt[MCS::DEVICE_ID];
         policyOptions.config["jwt_token"] = jwt[MCS::JWT_TOKEN];
+
+        auto policy = mcsCalls.getPolicy(httpClient, "ALC", 1, std::chrono::seconds{900}, std::chrono::seconds{20});
+        if (policy.has_value())
+        {
+            logDebug("ALC policy: " + policy.value());
+        }
+        else
+        {
+            log("Failed to get ALC policy");
+            return 53;
+        }
 
         int i = 1;
         MCS::ConfigOptions MsgConfig;
@@ -517,6 +530,9 @@ int main(int argc, char** argv)
             j["proxy"]["credential"]["username"] = rootConfigOptions.config[MCS::MCS_PROXY_USERNAME];
             j["proxy"]["credential"]["password"] = rootConfigOptions.config[MCS::MCS_PROXY_PASSWORD];
         }
+
+        // TODO: LINUXDAR-7507 Extract Sophos URL from ALC policy instead of hardcoding
+        j["sophosURLs"] = { "http://dci.sophosupd.com/cloudupdate" };
 
         j["versigPath"] = versigPath;
         j["useSDDS3"] = true;
