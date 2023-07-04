@@ -1,8 +1,4 @@
-/******************************************************************************************************
-
-Copyright 2018-2019, Sophos Limited.  All rights reserved.
-
-******************************************************************************************************/
+// Copyright 2018-2023 Sophos Limited. All rights reserved.
 #include "AttributesMap.h"
 
 #include "Logger.h"
@@ -29,15 +25,7 @@ namespace
     /** AttributesEntry **/
     void AttributesEntry::appendText(const std::string& appendContent)
     {
-        if (content.empty())
-        {
-            content = appendContent;
-        }
-        else
-        {
-            content += "\n";
-            content += appendContent;
-        }
+        content += appendContent;
     }
 
     /** general utility function **/
@@ -54,7 +42,7 @@ namespace
             {
                 idValue = attributeValue;
             }
-            attributesPair.emplace_back(AttributePair{ attributeName, attributeValue });
+            attributesPair.emplace_back(attributeName, attributeValue);
         }
         return { attributesPair, idValue };
     }

@@ -25,23 +25,30 @@ namespace MCS
     : m_platformUtils(std::move(platformUtils)), m_localIp(std::move(localIp))
     {}
 
-    std::string AgentAdapter::getStatusXml(std::map<std::string, std::string>& configOptions) const
+    std::string AgentAdapter::getStatusXml(std::map<std::string, std::string>& configOptions, const std::shared_ptr<Common::HttpRequests::IHttpRequester>& client) const
     {
         std::stringstream statusXml;
         statusXml << getStatusHeader(configOptions)
                   << getCommonStatusXml(configOptions)
-                  << getCloudPlatformsStatus()
+                  << getCloudPlatformsStatus(client)
                   << getPlatformStatus()
                   << getStatusFooter();
         return statusXml.str();
     }
 
+    std::string AgentAdapter::getStatusXml(std::map<std::string, std::string>& configOptions) const
+    {
+        std::shared_ptr<Common::CurlWrapper::ICurlWrapper> curlWrapper = std::make_shared<Common::CurlWrapper::CurlWrapper>();
+        std::shared_ptr<Common::HttpRequests::IHttpRequester> client = std::make_shared<Common::HttpRequestsImpl::HttpRequesterImpl>(curlWrapper);
+        return getStatusXml(configOptions, client);
+    }
+
     std::string AgentAdapter::getStatusHeader(const std::map<std::string, std::string>& configOptions) const
     {
         std::stringstream header;
-        header << "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
+        header << R"(<?xml version="1.0" encoding="UTF-8" standalone="yes"?>)"
                << "<ns:computerStatus xmlns:ns=\"http://www.sophos.com/xml/mcs/computerstatus\">"
-               << "<meta protocolVersion=\"1.0\" timestamp=\""
+               << R"(<meta protocolVersion="1.0" timestamp=")"
                << Common::UtilityImpl::TimeUtils::MessageTimeStamp(std::chrono::system_clock::now())
                << "\" softwareVersion=\"";
         if (configOptions.find(MCS::VERSION_NUMBER) != configOptions.end())
@@ -139,10 +146,8 @@ namespace MCS
         return optionals.str();
     }
 
-    std::string AgentAdapter::getCloudPlatformsStatus() const
+    std::string AgentAdapter::getCloudPlatformsStatus(const std::shared_ptr<Common::HttpRequests::IHttpRequester>& client) const
     {
-        std::shared_ptr<Common::CurlWrapper::ICurlWrapper> curlWrapper = std::make_shared<Common::CurlWrapper::CurlWrapper>();
-        std::shared_ptr<Common::HttpRequests::IHttpRequester> client = std::make_shared<Common::HttpRequestsImpl::HttpRequesterImpl>(curlWrapper);
         return m_platformUtils->getCloudPlatformMetadata(client);
     }
 
@@ -169,5 +174,4 @@ namespace MCS
     }
 
     std::string AgentAdapter::getStatusFooter() const { return "</ns:computerStatus>"; }
-
 }

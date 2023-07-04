@@ -167,7 +167,7 @@ int CurlFunctionsProvider::curlWriteDebugFunc(
     }
     if (shouldLog)
     {
-        debugLine.append(data, size);
+        debugLine.append(data, size - 1);
     }
     LOGDEBUG(debugLine);
     return 0;

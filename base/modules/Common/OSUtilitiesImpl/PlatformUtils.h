@@ -50,8 +50,8 @@ namespace Common::OSUtilitiesImpl
             [[nodiscard]] static std::string extractDistroFromFile(const std::string& filePath);
             [[nodiscard]] static std::string extractDistroFromOSFile();
             [[nodiscard]] static InterfaceCharacteristic getInterfaceCharacteristic(const Common::OSUtilities::Interface& interface);
-            [[nodiscard]] std::string getAwsMetadata(std::shared_ptr<Common::HttpRequests::IHttpRequester> client) const;
-            [[nodiscard]] std::string getGcpMetadata(std::shared_ptr<Common::HttpRequests::IHttpRequester> client) const;
+            [[nodiscard]] std::string getAwsMetadata(const std::shared_ptr<Common::HttpRequests::IHttpRequester>& client) const;
+            [[nodiscard]] std::string getGcpMetadata(const std::shared_ptr<Common::HttpRequests::IHttpRequester>& client) const;
             [[nodiscard]] std::string getOracleMetadata(std::shared_ptr<Common::HttpRequests::IHttpRequester> client) const;
             [[nodiscard]] std::string getAzureMetadata(std::shared_ptr<Common::HttpRequests::IHttpRequester> client) const;
             [[nodiscard]] Common::HttpRequests::RequestConfig buildCloudMetadataRequest(const std::string& url, const Common::HttpRequests::Headers& headers) const;

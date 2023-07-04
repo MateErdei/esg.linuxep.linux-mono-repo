@@ -1,7 +1,4 @@
-/******************************************************************************************************
-Copyright 2022, Sophos Limited.  All rights reserved.
-******************************************************************************************************/
-
+// Copyright 2022-2023 Sophos Limited. All rights reserved.
 
 #include "MCSHttpClient.h"
 
@@ -9,10 +6,12 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 #include <Common/ObfuscationImpl/Base64.h>
 
 #include <memory>
+#include <utility>
+
 namespace MCS
 {
     MCSHttpClient::MCSHttpClient(std::string mcsUrl, std::string registerToken,std::shared_ptr<Common::HttpRequests::IHttpRequester> client):
-        m_base_url(mcsUrl),m_registerToken(registerToken),m_client(client){}
+        m_base_url(std::move(mcsUrl)),m_registerToken(std::move(registerToken)),m_client(std::move(client)){}
 
     Common::HttpRequests::Response  MCSHttpClient::sendRegistration(const std::string& statusXml, const std::string& token)
     {
@@ -49,7 +48,7 @@ namespace MCS
     Common::HttpRequests::Response  MCSHttpClient::sendMessage(
         const std::string& url,
         Common::HttpRequests::RequestType requestType,
-        Common::HttpRequests::Headers headers = {}
+        const Common::HttpRequests::Headers& headers
     )
     {
         Common::HttpRequests::Headers requestHeaders;
@@ -74,9 +73,7 @@ namespace MCS
                 response = m_client->put(request);
                 break;
             case Common::HttpRequests::RequestType::GET:
-                response = m_client->get(request);
-                break;
-            default :
+            default:
                 response = m_client->get(request);
                 break;
         }
@@ -86,7 +83,7 @@ namespace MCS
     Common::HttpRequests::Response  MCSHttpClient::sendMessageWithID(
         const std::string& url,
         Common::HttpRequests::RequestType requestType,
-        Common::HttpRequests::Headers headers = {})
+        const Common::HttpRequests::Headers& headers)
     {
         return sendMessage(url + getID(),requestType, headers);
     }
@@ -94,7 +91,7 @@ namespace MCS
     Common::HttpRequests::Response  MCSHttpClient::sendMessageWithIDAndRole(
         const std::string& url,
         Common::HttpRequests::RequestType requestType,
-        Common::HttpRequests::Headers headers = {})
+        const Common::HttpRequests::Headers& headers)
     {
         return sendMessage(url + getID() + "/role/endpoint", requestType, headers);
     }

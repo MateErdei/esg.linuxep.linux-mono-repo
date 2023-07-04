@@ -1,3 +1,4 @@
+// Copyright 2022-2023 Sophos Limited. All rights reserved.
 /******************************************************************************************************
 Copyright 2022, Sophos Limited.  All rights reserved.
 ******************************************************************************************************/
@@ -7,6 +8,7 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 #include <memory>
 #include <optional>
 #include <string>
+#include <utility>
 #include <vector>
 #include <ostream>
 
@@ -227,9 +229,9 @@ namespace Common::HttpRequests
     class HttpRequestsException : public std::exception
     {
     public:
-        HttpRequestsException(const std::string& message) noexcept : m_message(message) {}
+        explicit HttpRequestsException(std::string message) noexcept : m_message(std::move(message)) {}
         ~HttpRequestsException() override = default;
-        virtual const char* what() const noexcept override { return m_message.c_str(); }
+        [[nodiscard]] const char* what() const noexcept override { return m_message.c_str(); }
 
     private:
         std::string m_message;

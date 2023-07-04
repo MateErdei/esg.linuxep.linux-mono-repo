@@ -1,6 +1,4 @@
-/******************************************************************************************************
-Copyright 2022, Sophos Limited.  All rights reserved.
-******************************************************************************************************/
+// Copyright 2022-2023 Sophos Limited. All rights reserved.
 
 #include "HttpRequesterImpl.h"
 
@@ -14,11 +12,12 @@ Copyright 2022, Sophos Limited.  All rights reserved.
 
 #include <curl/curl.h>
 
+#include <utility>
+
 namespace Common::HttpRequestsImpl
 {
 
-    HttpRequesterImpl::HttpRequesterImpl(std::shared_ptr<Common::CurlWrapper::ICurlWrapper> curlWrapper) :
-        m_curlWrapper(curlWrapper)
+    HttpRequesterImpl::HttpRequesterImpl(std::shared_ptr<Common::CurlWrapper::ICurlWrapper> curlWrapper) : m_curlWrapper(std::move(curlWrapper))
     {
         CURLcode result = m_curlWrapper->curlGlobalInit(CURL_GLOBAL_DEFAULT);
         if (result != CURLE_OK)

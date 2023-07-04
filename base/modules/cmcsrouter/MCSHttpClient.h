@@ -1,6 +1,5 @@
-/******************************************************************************************************
-Copyright 2022, Sophos Limited.  All rights reserved.
-******************************************************************************************************/
+// Copyright 2022-2023 Sophos Limited. All rights reserved.
+
 #pragma once
 
 #include <Common/CurlWrapper/CurlWrapper.h>
@@ -14,9 +13,15 @@ namespace MCS
         MCSHttpClient(std::string mcsUrl, std::string registerToken,std::shared_ptr<Common::HttpRequests::IHttpRequester>);
         Common::HttpRequests::Response  sendRegistration(const std::string& statusXml, const std::string& token);
         Common::HttpRequests::Response  sendPreregistration(const std::string& statusXml, const std::string& customerToken);
-        Common::HttpRequests::Response  sendMessage(const std::string& url,Common::HttpRequests::RequestType requestType,Common::HttpRequests::Headers headers);
-        Common::HttpRequests::Response  sendMessageWithID(const std::string& url,Common::HttpRequests::RequestType requestType,Common::HttpRequests::Headers headers);
-        Common::HttpRequests::Response  sendMessageWithIDAndRole(const std::string& url,Common::HttpRequests::RequestType requestType,Common::HttpRequests::Headers headers);
+        Common::HttpRequests::Response  sendMessage(const std::string& url,
+                                                   Common::HttpRequests::RequestType requestType,
+                                                   const Common::HttpRequests::Headers& headers={});
+        Common::HttpRequests::Response  sendMessageWithID(const std::string& url,
+                                                         Common::HttpRequests::RequestType requestType,
+                                                         const Common::HttpRequests::Headers& header={});
+        Common::HttpRequests::Response  sendMessageWithIDAndRole(const std::string& url,
+                                                                Common::HttpRequests::RequestType requestType,
+                                                                const Common::HttpRequests::Headers& headers={});
         std::string getID();
         std::string getPassword();
 
@@ -30,7 +35,7 @@ namespace MCS
         std::string getV1AuthorizationHeader();
         std::string getRegistrationAuthorizationHeader(const std::string& token);
         std::string getDeploymentInfoV2AuthorizationHeader(const std::string& customerToken);
-        std::string getAuthorizationHeader(const std::string& toBeEncoded);
+        static std::string getAuthorizationHeader(const std::string& toBeEncoded);
 
         void updateProxyInfo(Common::HttpRequests::RequestConfig& request);
         void updateCertPath(Common::HttpRequests::RequestConfig& request);

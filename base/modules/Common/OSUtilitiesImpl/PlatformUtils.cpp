@@ -376,7 +376,7 @@ namespace Common::OSUtilitiesImpl
             return platformInfo;
         }
 
-        std::string PlatformUtils::getAwsMetadata(std::shared_ptr<Common::HttpRequests::IHttpRequester> client) const
+        std::string PlatformUtils::getAwsMetadata(const std::shared_ptr<Common::HttpRequests::IHttpRequester>& client) const
         {
             std::string initialUrl = "http://169.254.169.254/latest/api/token";
             Common::HttpRequests::Headers initialHeaders({{"X-aws-ec2-metadata-token-ttl-seconds", "21600"}});
@@ -403,7 +403,7 @@ namespace Common::OSUtilitiesImpl
             }
         }
 
-        std::string PlatformUtils::getGcpMetadata(std::shared_ptr<Common::HttpRequests::IHttpRequester> client) const
+        std::string PlatformUtils::getGcpMetadata(const std::shared_ptr<Common::HttpRequests::IHttpRequester>& client) const
         {
             Common::HttpRequests::Headers headers({{"Metadata-Flavor", "Google"}});
             std::string idUrl = "http://metadata.google.internal/computeMetadata/v1/instance/id";
