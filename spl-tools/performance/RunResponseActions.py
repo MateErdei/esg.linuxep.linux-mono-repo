@@ -7,10 +7,6 @@ def get_base_ra_request_url(region="us-west-2", env="qa"):
     return f"https://endpoint-actions.cloudstation.{region}.{env}.hydra.sophos.com/endpoint/v1/endpoints/actions"
 
 
-def get_proxy_details():
-    return {"https": "http://user:password@10.55.36.235:3129"}
-
-
 def get_ra_request_auth():
     with open("/root/performance/ra_auth") as f:
         content = f.readlines()
@@ -32,7 +28,7 @@ def get_response_action_status(region, env, tenant_id, action_id):
     request_headers = get_ra_request_headers(tenant_id)
 
     while True:
-        res = requests.get(url, auth=get_ra_request_auth(), proxies=get_proxy_details(), headers=request_headers)
+        res = requests.get(url, auth=get_ra_request_auth(), headers=request_headers)
         res_status = res.json()["endpoints"][0]["status"]
         if res_status != "pending" and res_status != "waitingForInput":
             break
@@ -53,11 +49,7 @@ def send_execute_command(region, env, tenant_id, endpoint_id, cmd):
         "params": {"command": cmd}
     }
 
-    res = requests.post(url,
-                        auth=get_ra_request_auth(),
-                        proxies=get_proxy_details(),
-                        headers=request_headers,
-                        json=request_body)
+    res = requests.post(url, auth=get_ra_request_auth(), headers=request_headers, json=request_body)
 
     if res.ok:
         return res.json()
@@ -77,8 +69,7 @@ def upload_response_actions_file(region, env, tenant_id, endpoint_id, file_path)
         }
     }
 
-    res = requests.post(url, auth=get_ra_request_auth(), proxies=get_proxy_details(), headers=request_headers,
-                        json=request_body)
+    res = requests.post(url, auth=get_ra_request_auth(), headers=request_headers, json=request_body)
 
     if res.ok:
         return res.json()
@@ -100,8 +91,7 @@ def download_response_actions_file(region, env, tenant_id, endpoint_id, file_pat
         }
     }
 
-    res = requests.post(url, auth=get_ra_request_auth(), proxies=get_proxy_details(), headers=request_headers,
-                        json=request_body)
+    res = requests.post(url, auth=get_ra_request_auth(), headers=request_headers, json=request_body)
 
     if res.ok:
         return res.json()
@@ -109,7 +99,7 @@ def download_response_actions_file(region, env, tenant_id, endpoint_id, file_pat
 
 
 def upload_file_to_client_bucket(url, file_to_download):
-    res = requests.put(url, proxies=get_proxy_details(), data=open(file_to_download, "rb"))
+    res = requests.put(url, data=open(file_to_download, "rb"))
 
     if not res.ok:
         logging.error(f"Failed to upload file to client bucket: {res.text}")
