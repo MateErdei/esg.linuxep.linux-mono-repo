@@ -450,24 +450,24 @@ int main(int argc, char** argv)
             std::make_shared<Common::CurlWrapper::CurlWrapper>();
         std::shared_ptr<Common::HttpRequests::IHttpRequester> client =
             std::make_shared<Common::HttpRequestsImpl::HttpRequesterImpl>(curlWrapper);
-        MCS::MCSHttpClient httpClient(
+        std::shared_ptr<MCS::MCSHttpClient> httpClient = std::make_shared<MCS::MCSHttpClient>(
             rootConfigOptions.config[MCS::MCS_URL],
             rootConfigOptions.config[MCS::MCS_CUSTOMER_TOKEN],
             std::move(client));
 
         if (!rootConfigOptions.config[MCS::MCS_CA_OVERRIDE].empty())
         {
-            httpClient.setCertPath(rootConfigOptions.config[MCS::MCS_CA_OVERRIDE]);
+            httpClient->setCertPath(rootConfigOptions.config[MCS::MCS_CA_OVERRIDE]);
         }
         else
         {
-            httpClient.setCertPath(mcsRootCert);
+            httpClient->setCertPath(mcsRootCert);
         }
-        httpClient.setID(rootConfigOptions.config[MCS::MCS_ID]);
-        httpClient.setPassword(rootConfigOptions.config[MCS::MCS_PASSWORD]);
+        httpClient->setID(rootConfigOptions.config[MCS::MCS_ID]);
+        httpClient->setPassword(rootConfigOptions.config[MCS::MCS_PASSWORD]);
         if (!rootConfigOptions.config[MCS::MCS_CONNECTED_PROXY].empty())
         {
-            httpClient.setProxyInfo(
+            httpClient->setProxyInfo(
                 rootConfigOptions.config[MCS::MCS_CONNECTED_PROXY],
                 rootConfigOptions.config[MCS::MCS_PROXY_USERNAME],
                 rootConfigOptions.config[MCS::MCS_PROXY_PASSWORD]);
