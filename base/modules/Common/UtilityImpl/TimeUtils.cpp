@@ -178,11 +178,6 @@ namespace Common
             return std::stoul(TimeUtils::fromTime(TimeUtils::getCurrTime(), "%s"));
         }
 
-        u_int64_t FormattedTime::currentEpochTimeInMilliSecondsAsInteger() const
-        {
-            return std::stoul(TimeUtils::fromTime(TimeUtils::getCurrTime(), "%ms"));
-        }
-
         ScopedReplaceITime::ScopedReplaceITime(std::unique_ptr<ITime> mockTimer)
         {
             staticTimeSource().reset(mockTimer.release());
