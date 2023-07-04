@@ -122,7 +122,7 @@ class CentralRegistrationTests : public LogInitializedTests
     }
 };
 
-TEST_F(CentralRegistrationTests, DISABLED_BasicRegistrationSucceeds) // NOLINT
+TEST_F(CentralRegistrationTests, BasicRegistrationSucceeds) // NOLINT
 {
     MCS::ConfigOptions configOptions = basicMcsConfigOptions();
     auto mockAgentAdapter = std::make_shared<StrictMock<MockAgentAdapter>>();
@@ -140,7 +140,7 @@ TEST_F(CentralRegistrationTests, DISABLED_BasicRegistrationSucceeds) // NOLINT
     ASSERT_THAT(logMessage, ::testing::HasSubstr("Product successfully registered"));
 }
 
-TEST_F(CentralRegistrationTests, DISABLED_BasicRegistrationFails) // NOLINT
+TEST_F(CentralRegistrationTests, BasicRegistrationFails) // NOLINT
 {
     MCS::ConfigOptions configOptions = basicMcsConfigOptions();
     auto mockAgentAdapter = std::make_shared<StrictMock<MockAgentAdapter>>();
@@ -160,7 +160,7 @@ TEST_F(CentralRegistrationTests, DISABLED_BasicRegistrationFails) // NOLINT
     ASSERT_THAT(logMessage, ::testing::HasSubstr("Product registration failed"));
 }
 
-TEST_F(CentralRegistrationTests, DISABLED_BasicRegistrationWithProxySucceeds) // NOLINT
+TEST_F(CentralRegistrationTests, BasicRegistrationWithProxySucceeds) // NOLINT
 {
     MCS::ConfigOptions configOptions = addProxyToConfigOptions(basicMcsConfigOptions());
     auto mockAgentAdapter = std::make_shared<StrictMock<MockAgentAdapter>>();
@@ -187,7 +187,7 @@ TEST_F(CentralRegistrationTests, DISABLED_BasicRegistrationWithProxySucceeds) //
     ASSERT_THAT(logMessage, ::testing::HasSubstr("Product successfully registered via proxy: MCS_Proxy"));
 }
 
-TEST_F(CentralRegistrationTests, DISABLED_BasicRegistrationWithProxyFails) // NOLINT
+TEST_F(CentralRegistrationTests, BasicRegistrationWithProxyFails) // NOLINT
 {
     MCS::ConfigOptions configOptions = addProxyToConfigOptions(basicMcsConfigOptions());
     auto mockAgentAdapter = std::make_shared<StrictMock<MockAgentAdapter>>();
@@ -213,7 +213,7 @@ TEST_F(CentralRegistrationTests, DISABLED_BasicRegistrationWithProxyFails) // NO
     ASSERT_THAT(logMessage, ::testing::HasSubstr("Product registration failed"));
 }
 
-TEST_F(CentralRegistrationTests, DISABLED_BasicRegistrationWithFailsOnProxiesAndThenDirectSucceeds) // NOLINT
+TEST_F(CentralRegistrationTests, BasicRegistrationWithFailsOnProxiesAndThenDirectSucceeds) // NOLINT
 {
     MCS::ConfigOptions configOptions = addMessageRelaysToConfigOptions(addProxyToConfigOptions(basicMcsConfigOptions()));
     auto mockAgentAdapter = std::make_shared<StrictMock<MockAgentAdapter>>();
@@ -260,7 +260,7 @@ TEST_F(CentralRegistrationTests, DISABLED_BasicRegistrationWithFailsOnProxiesAnd
     ASSERT_THAT(logMessage, ::testing::HasSubstr("Product successfully registered"));
 }
 
-TEST_F(CentralRegistrationTests, DISABLED_BasicRegistrationWithMessageRelaySucceeds) // NOLINT
+TEST_F(CentralRegistrationTests, BasicRegistrationWithMessageRelaySucceeds) // NOLINT
 {
     MCS::ConfigOptions configOptions = addMessageRelaysToConfigOptions(addProxyToConfigOptions(basicMcsConfigOptions()));
     auto mockAgentAdapter = std::make_shared<StrictMock<MockAgentAdapter>>();
@@ -284,7 +284,7 @@ TEST_F(CentralRegistrationTests, DISABLED_BasicRegistrationWithMessageRelaySucce
     ASSERT_THAT(logMessage, ::testing::HasSubstr("Product successfully registered via proxy: Address1:Port1"));
 }
 
-TEST_F(CentralRegistrationTests, DISABLED_BasicRegistrationWithMessageRelaysSucceedsOnSecondRelay) // NOLINT
+TEST_F(CentralRegistrationTests, BasicRegistrationWithMessageRelaysSucceedsOnSecondRelay) // NOLINT
 {
     MCS::ConfigOptions configOptions = addMessageRelaysToConfigOptions(addProxyToConfigOptions(basicMcsConfigOptions()));
     auto mockAgentAdapter = std::make_shared<StrictMock<MockAgentAdapter>>();
@@ -319,7 +319,7 @@ TEST_F(CentralRegistrationTests, DISABLED_BasicRegistrationWithMessageRelaysSucc
     ASSERT_THAT(logMessage, ::testing::HasSubstr("Product successfully registered via proxy: Address2:Port2"));
 }
 
-TEST_F(CentralRegistrationTests, DISABLED_BasicRegistrationWithMessageRelaysFailsThenProxySucceeds) // NOLINT
+TEST_F(CentralRegistrationTests, BasicRegistrationWithMessageRelaysFailsThenProxySucceeds) // NOLINT
 {
     MCS::ConfigOptions configOptions = addMessageRelaysToConfigOptions(addProxyToConfigOptions(basicMcsConfigOptions()));
     auto mockAgentAdapter = std::make_shared<StrictMock<MockAgentAdapter>>();
@@ -362,7 +362,7 @@ TEST_F(CentralRegistrationTests, DISABLED_BasicRegistrationWithMessageRelaysFail
     ASSERT_THAT(logMessage, ::testing::HasSubstr("Product successfully registered via proxy: MCS_Proxy"));
 }
 
-TEST_F(CentralRegistrationTests, DISABLED_PreregistrationSucceeds) // NOLINT
+TEST_F(CentralRegistrationTests, PreregistrationSucceeds) // NOLINT
 {
     MCS::ConfigOptions configOptions = addPreregistrationToConfigOptions(basicMcsConfigOptions());
     auto mockAgentAdapter = std::make_shared<StrictMock<MockAgentAdapter>>();
@@ -385,7 +385,7 @@ TEST_F(CentralRegistrationTests, DISABLED_PreregistrationSucceeds) // NOLINT
     ASSERT_THAT(logMessage, ::testing::HasSubstr("Product successfully registered"));
 }
 
-TEST_F(CentralRegistrationTests, DISABLED_PreregistrationFailsButProductStillRegisters) // NOLINT
+TEST_F(CentralRegistrationTests, PreregistrationFailsButProductStillRegisters) // NOLINT
 {
     MCS::ConfigOptions configOptions = addPreregistrationToConfigOptions(basicMcsConfigOptions());
     auto mockAgentAdapter = std::make_shared<StrictMock<MockAgentAdapter>>();
@@ -408,7 +408,7 @@ TEST_F(CentralRegistrationTests, DISABLED_PreregistrationFailsButProductStillReg
     ASSERT_THAT(logMessage, ::testing::HasSubstr("Product successfully registered"));
 }
 
-TEST_F(CentralRegistrationTests, DISABLED_PreregistrationSucceedsWithUnsupportedProducts) // NOLINT
+TEST_F(CentralRegistrationTests, PreregistrationSucceedsWithUnsupportedProducts) // NOLINT
 {
     MCS::ConfigOptions configOptions = addPreregistrationToConfigOptions(basicMcsConfigOptions());
     auto mockAgentAdapter = std::make_shared<StrictMock<MockAgentAdapter>>();
@@ -432,7 +432,7 @@ TEST_F(CentralRegistrationTests, DISABLED_PreregistrationSucceedsWithUnsupported
     ASSERT_THAT(logMessage, ::testing::HasSubstr("Product successfully registered"));
 }
 
-TEST_F(CentralRegistrationTests, DISABLED_PreregistrationFailsWhenNoNewTokenReturnedButStillRegisters) // NOLINT
+TEST_F(CentralRegistrationTests, PreregistrationFailsWhenNoNewTokenReturnedButStillRegisters) // NOLINT
 {
     MCS::ConfigOptions configOptions = addPreregistrationToConfigOptions(basicMcsConfigOptions());
     auto mockAgentAdapter = std::make_shared<StrictMock<MockAgentAdapter>>();
