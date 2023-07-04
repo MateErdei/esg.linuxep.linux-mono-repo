@@ -12,7 +12,6 @@
             <proxy ProxyType="0" ProxyUserPassword="" ProxyUserName="" ProxyPortNumber="0" ProxyAddress="" AllowLocalConfig="false"/>
         </secondary_location>
         <schedule AllowLocalConfig="false" SchedEnable="true" Frequency="20" DetectDialUp="false"/>
-
         <logging AllowLocalConfig="false" LogLevel="50" LogEnable="true" MaxLogFileSize="1"/>
         <bootstrap Location="" UsePrimaryServerAddress="true"/>
         <cloud_subscription RigidName="5CF594B0-9FED-4212-BA91-A4077CB1D1F3" Tag="RECOMMENDED" BaseVersion="10"/>
@@ -20,6 +19,10 @@
             <subscription Id="Base" RigidName="5CF594B0-9FED-4212-BA91-A4077CB1D1F3" Tag="RECOMMENDED" BaseVersion="10"/>
             <subscription Id="Base" RigidName="5CF594B0-9FED-4212-BA91-A4077CB1D1F3" Tag="RECOMMENDED" BaseVersion="9"/>
         </cloud_subscriptions>
+        <fixed_version>
+            <token>LTS 2023.1.1</token>
+            <name>f4d41a16-b751-4195-a7b2-1f109d49469d</name>
+        </fixed_version>
         <delay_supplements enabled="false"/>
     </AUConfig>
     <Features>
