@@ -1070,7 +1070,7 @@ TEST_F(TestALCPolicy, periodTooBig)
 
 //Update Cache Tests
 
-TEST_F(TestALCPolicy, DISABLED_update_cache)
+TEST_F(TestALCPolicy, update_cache)
 {
     ALCPolicy obj{ updatePolicyWithCache };
 
