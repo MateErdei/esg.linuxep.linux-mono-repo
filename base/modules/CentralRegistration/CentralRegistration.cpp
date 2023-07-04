@@ -100,23 +100,6 @@ namespace CentralRegistration
         }
     }
 
-    void CentralRegistration::preregistration(MCS::ConfigOptions& configOptions, const std::string& statusXml, std::shared_ptr<Common::HttpRequests::IHttpRequester> requester)
-    {
-        // check options are all there: customer token + selected products
-        if (configOptions.config.empty() || configOptions.config[MCS::MCS_CUSTOMER_TOKEN].empty() || configOptions.config[MCS::MCS_PRODUCTS].empty())
-        {
-            return;
-        }
-        LOGINFO("Carrying out Preregistration for selected products: " << configOptions.config[MCS::MCS_PRODUCTS]);
-
-        MCS::MCSHttpClient httpClient(configOptions.config[MCS::MCS_URL], configOptions.config[MCS::MCS_CUSTOMER_TOKEN], std::move(requester));
-
-        if (!tryRegistrationWithProxies(configOptions, statusXml, httpClient, tryPreregistration))
-        {
-            LOGINFO("Preregistration failed - continuing with default registration");
-        }
-    }
-
     std::string CentralRegistration::processPreregistrationBody(const std::string& preregistrationBody)
     {
         LOGDEBUG("\nPreregistrationBody:\n" << preregistrationBody << "\n\n");
@@ -157,40 +140,6 @@ namespace CentralRegistration
             LOGINFO("Product successfully registered via proxy: " << configOptions.config[MCS::MCS_CONNECTED_PROXY]);
         }
         else if (tryRegistrationWithProxies(configOptions, statusXml, httpClient, tryRegistration))
-        {
-            if (!configOptions.config[MCS::MCS_CONNECTED_PROXY].empty())
-            {
-                LOGINFO("Product successfully registered via proxy: " << configOptions.config[MCS::MCS_CONNECTED_PROXY]);
-            }
-            else
-            {
-                LOGINFO("Product successfully registered");
-            }
-        }
-        else
-        {
-            LOGERROR("Product registration failed");
-        }
-    }
-
-    void CentralRegistration::registerWithCentral(MCS::ConfigOptions& configOptions, const std::shared_ptr<Common::HttpRequests::IHttpRequester>& requester, const std::shared_ptr<MCS::IAdapter>& agentAdapter)
-    {
-        httpClient_ = std::make_shared<MCS::MCSHttpClient>(configOptions.config[MCS::MCS_URL], configOptions.config[MCS::MCS_TOKEN], requester);
-        httpClient_->setCertPath(configOptions.config[MCS::MCS_CERT]);
-
-        LOGINFO("Beginning product registration");
-        std::string statusXml = agentAdapter->getStatusXml(configOptions.config, requester);
-        LOGDEBUG("Status XML:\n" << statusXml);
-
-        preregistration(configOptions, statusXml, *httpClient_);
-
-        // This check saves retrying all proxies if preregistration succeeded on a given proxy
-        if (!configOptions.config[MCS::MCS_CONNECTED_PROXY].empty() &&
-                tryRegistration(configOptions, statusXml, configOptions.config[MCS::MCS_CONNECTED_PROXY], *httpClient_))
-        {
-            LOGINFO("Product successfully registered via proxy: " << configOptions.config[MCS::MCS_CONNECTED_PROXY]);
-        }
-        else if (tryRegistrationWithProxies(configOptions, statusXml, *httpClient_, tryRegistration))
         {
             if (!configOptions.config[MCS::MCS_CONNECTED_PROXY].empty())
             {

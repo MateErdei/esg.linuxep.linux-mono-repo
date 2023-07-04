@@ -22,18 +22,12 @@ namespace CentralRegistration
         CentralRegistration() = default;
         virtual ~CentralRegistration() = default;
 
-        void registerWithCentral(
-                MCS::ConfigOptions& configOptions,
-                const std::shared_ptr<Common::HttpRequests::IHttpRequester>& requester,
-                const std::shared_ptr<MCS::IAdapter>& agentAdapter);
-
         static void registerWithCentral(
             MCS::ConfigOptions& configOptions,
             MCS::MCSHttpClient& client,
             const std::shared_ptr<MCS::IAdapter>& agentAdapter);
 
     protected:
-        static void preregistration(MCS::ConfigOptions& configOptions, const std::string& statusXml, std::shared_ptr<Common::HttpRequests::IHttpRequester> requester);
         static void preregistration(MCS::ConfigOptions& configOptions, const std::string& statusXml, MCS::MCSHttpClient& httpClient);
         static std::string processPreregistrationBody(const std::string& preregistrationBody);
         static bool tryPreregistration(MCS::ConfigOptions& configOptions, const std::string& statusXml, const std::string& proxy, MCS::MCSHttpClient httpClient);

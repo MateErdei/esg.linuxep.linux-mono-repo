@@ -122,29 +122,31 @@ class CentralRegistrationTests : public LogInitializedTests
     }
 };
 
-TEST_F(CentralRegistrationTests, BasicRegistrationSucceeds) // NOLINT
+TEST_F(CentralRegistrationTests, BasicRegistrationSucceeds)
 {
     MCS::ConfigOptions configOptions = basicMcsConfigOptions();
     auto mockAgentAdapter = std::make_shared<StrictMock<MockAgentAdapter>>();
     auto mockHttpRequester = std::make_shared<StrictMock<MockHTTPRequester>>();
+    auto mcsHttpClient = MCS::MCSHttpClient(configOptions.config[MCS::MCS_URL], configOptions.config[MCS::MCS_TOKEN], mockHttpRequester);
     testing::internal::CaptureStderr();
 
     EXPECT_CALL(*mockAgentAdapter, getStatusXml(configOptions.config)).WillOnce(Return(basicXmlStatus));
     EXPECT_CALL(*mockHttpRequester, post(createRequestFromConfigOptions(configOptions, basicXmlStatus))).WillOnce(Return(basicRegistrationResponseSuccess()));
 
     CentralRegistration::CentralRegistration centralRegistration;
-    centralRegistration.registerWithCentral(configOptions, mockHttpRequester, mockAgentAdapter);
+    centralRegistration.registerWithCentral(configOptions, mcsHttpClient, mockAgentAdapter);
 
     std::string logMessage = internal::GetCapturedStderr();
 
     ASSERT_THAT(logMessage, ::testing::HasSubstr("Product successfully registered"));
 }
 
-TEST_F(CentralRegistrationTests, BasicRegistrationFails) // NOLINT
+TEST_F(CentralRegistrationTests, BasicRegistrationFails)
 {
     MCS::ConfigOptions configOptions = basicMcsConfigOptions();
     auto mockAgentAdapter = std::make_shared<StrictMock<MockAgentAdapter>>();
     auto mockHttpRequester = std::make_shared<StrictMock<MockHTTPRequester>>();
+    auto mcsHttpClient = MCS::MCSHttpClient(configOptions.config[MCS::MCS_URL], configOptions.config[MCS::MCS_TOKEN], mockHttpRequester);
     testing::internal::CaptureStderr();
 
     EXPECT_CALL(*mockAgentAdapter, getStatusXml(configOptions.config)).WillOnce(Return(basicXmlStatus));
@@ -152,7 +154,7 @@ TEST_F(CentralRegistrationTests, BasicRegistrationFails) // NOLINT
         .WillOnce(Return(basicRegistrationResponseFailure()));
 
     CentralRegistration::CentralRegistration centralRegistration;
-    centralRegistration.registerWithCentral(configOptions, mockHttpRequester, mockAgentAdapter);
+    centralRegistration.registerWithCentral(configOptions, mcsHttpClient, mockAgentAdapter);
 
     std::string logMessage = internal::GetCapturedStderr();
 
@@ -160,11 +162,12 @@ TEST_F(CentralRegistrationTests, BasicRegistrationFails) // NOLINT
     ASSERT_THAT(logMessage, ::testing::HasSubstr("Product registration failed"));
 }
 
-TEST_F(CentralRegistrationTests, BasicRegistrationWithProxySucceeds) // NOLINT
+TEST_F(CentralRegistrationTests, BasicRegistrationWithProxySucceeds)
 {
     MCS::ConfigOptions configOptions = addProxyToConfigOptions(basicMcsConfigOptions());
     auto mockAgentAdapter = std::make_shared<StrictMock<MockAgentAdapter>>();
     auto mockHttpRequester = std::make_shared<StrictMock<MockHTTPRequester>>();
+    auto mcsHttpClient = MCS::MCSHttpClient(configOptions.config[MCS::MCS_URL], configOptions.config[MCS::MCS_TOKEN], mockHttpRequester);
     testing::internal::CaptureStderr();
 
     EXPECT_CALL(*mockAgentAdapter, getStatusXml(configOptions.config)).WillOnce(Return(basicXmlStatus));
@@ -179,7 +182,7 @@ TEST_F(CentralRegistrationTests, BasicRegistrationWithProxySucceeds) // NOLINT
         .WillOnce(Return(basicRegistrationResponseSuccess()));
 
     CentralRegistration::CentralRegistration centralRegistration;
-    centralRegistration.registerWithCentral(configOptions, mockHttpRequester, mockAgentAdapter);
+    centralRegistration.registerWithCentral(configOptions, mcsHttpClient, mockAgentAdapter);
 
     std::string logMessage = internal::GetCapturedStderr();
 
@@ -187,11 +190,12 @@ TEST_F(CentralRegistrationTests, BasicRegistrationWithProxySucceeds) // NOLINT
     ASSERT_THAT(logMessage, ::testing::HasSubstr("Product successfully registered via proxy: MCS_Proxy"));
 }
 
-TEST_F(CentralRegistrationTests, BasicRegistrationWithProxyFails) // NOLINT
+TEST_F(CentralRegistrationTests, BasicRegistrationWithProxyFails)
 {
     MCS::ConfigOptions configOptions = addProxyToConfigOptions(basicMcsConfigOptions());
     auto mockAgentAdapter = std::make_shared<StrictMock<MockAgentAdapter>>();
     auto mockHttpRequester = std::make_shared<StrictMock<MockHTTPRequester>>();
+    auto mcsHttpClient = MCS::MCSHttpClient(configOptions.config[MCS::MCS_URL], configOptions.config[MCS::MCS_TOKEN], mockHttpRequester);
     testing::internal::CaptureStderr();
 
     EXPECT_CALL(*mockAgentAdapter, getStatusXml(configOptions.config)).WillOnce(Return(basicXmlStatus));
@@ -205,7 +209,7 @@ TEST_F(CentralRegistrationTests, BasicRegistrationWithProxyFails) // NOLINT
         .WillOnce(Return(basicRegistrationResponseFailure()));
 
     CentralRegistration::CentralRegistration centralRegistration;
-    centralRegistration.registerWithCentral(configOptions, mockHttpRequester, mockAgentAdapter);
+    centralRegistration.registerWithCentral(configOptions, mcsHttpClient, mockAgentAdapter);
 
     std::string logMessage = internal::GetCapturedStderr();
 
@@ -213,11 +217,12 @@ TEST_F(CentralRegistrationTests, BasicRegistrationWithProxyFails) // NOLINT
     ASSERT_THAT(logMessage, ::testing::HasSubstr("Product registration failed"));
 }
 
-TEST_F(CentralRegistrationTests, BasicRegistrationWithFailsOnProxiesAndThenDirectSucceeds) // NOLINT
+TEST_F(CentralRegistrationTests, BasicRegistrationWithFailsOnProxiesAndThenDirectSucceeds)
 {
     MCS::ConfigOptions configOptions = addMessageRelaysToConfigOptions(addProxyToConfigOptions(basicMcsConfigOptions()));
     auto mockAgentAdapter = std::make_shared<StrictMock<MockAgentAdapter>>();
     auto mockHttpRequester = std::make_shared<StrictMock<MockHTTPRequester>>();
+    auto mcsHttpClient = MCS::MCSHttpClient(configOptions.config[MCS::MCS_URL], configOptions.config[MCS::MCS_TOKEN], mockHttpRequester);
     testing::internal::CaptureStderr();
 
     EXPECT_CALL(*mockAgentAdapter, getStatusXml(configOptions.config)).WillOnce(Return(basicXmlStatus));
@@ -243,7 +248,7 @@ TEST_F(CentralRegistrationTests, BasicRegistrationWithFailsOnProxiesAndThenDirec
         .WillOnce(Return(basicRegistrationResponseSuccess()));
 
     CentralRegistration::CentralRegistration centralRegistration;
-    centralRegistration.registerWithCentral(configOptions, mockHttpRequester, mockAgentAdapter);
+    centralRegistration.registerWithCentral(configOptions, mcsHttpClient, mockAgentAdapter);
 
     std::string logMessage = internal::GetCapturedStderr();
 
@@ -260,11 +265,12 @@ TEST_F(CentralRegistrationTests, BasicRegistrationWithFailsOnProxiesAndThenDirec
     ASSERT_THAT(logMessage, ::testing::HasSubstr("Product successfully registered"));
 }
 
-TEST_F(CentralRegistrationTests, BasicRegistrationWithMessageRelaySucceeds) // NOLINT
+TEST_F(CentralRegistrationTests, BasicRegistrationWithMessageRelaySucceeds)
 {
     MCS::ConfigOptions configOptions = addMessageRelaysToConfigOptions(addProxyToConfigOptions(basicMcsConfigOptions()));
     auto mockAgentAdapter = std::make_shared<StrictMock<MockAgentAdapter>>();
     auto mockHttpRequester = std::make_shared<StrictMock<MockHTTPRequester>>();
+    auto mcsHttpClient = MCS::MCSHttpClient(configOptions.config[MCS::MCS_URL], configOptions.config[MCS::MCS_TOKEN], mockHttpRequester);
     testing::internal::CaptureStderr();
 
     EXPECT_CALL(*mockAgentAdapter, getStatusXml(configOptions.config)).WillOnce(Return(basicXmlStatus));
@@ -276,7 +282,7 @@ TEST_F(CentralRegistrationTests, BasicRegistrationWithMessageRelaySucceeds) // N
         .WillOnce(Return(basicRegistrationResponseSuccess()));
 
     CentralRegistration::CentralRegistration centralRegistration;
-    centralRegistration.registerWithCentral(configOptions, mockHttpRequester, mockAgentAdapter);
+    centralRegistration.registerWithCentral(configOptions, mcsHttpClient, mockAgentAdapter);
 
     std::string logMessage = internal::GetCapturedStderr();
 
@@ -284,11 +290,12 @@ TEST_F(CentralRegistrationTests, BasicRegistrationWithMessageRelaySucceeds) // N
     ASSERT_THAT(logMessage, ::testing::HasSubstr("Product successfully registered via proxy: Address1:Port1"));
 }
 
-TEST_F(CentralRegistrationTests, BasicRegistrationWithMessageRelaysSucceedsOnSecondRelay) // NOLINT
+TEST_F(CentralRegistrationTests, BasicRegistrationWithMessageRelaysSucceedsOnSecondRelay)
 {
     MCS::ConfigOptions configOptions = addMessageRelaysToConfigOptions(addProxyToConfigOptions(basicMcsConfigOptions()));
     auto mockAgentAdapter = std::make_shared<StrictMock<MockAgentAdapter>>();
     auto mockHttpRequester = std::make_shared<StrictMock<MockHTTPRequester>>();
+    auto mcsHttpClient = MCS::MCSHttpClient(configOptions.config[MCS::MCS_URL], configOptions.config[MCS::MCS_TOKEN], mockHttpRequester);
     testing::internal::CaptureStderr();
 
     EXPECT_CALL(*mockAgentAdapter, getStatusXml(configOptions.config)).WillOnce(Return(basicXmlStatus));
@@ -306,7 +313,7 @@ TEST_F(CentralRegistrationTests, BasicRegistrationWithMessageRelaysSucceedsOnSec
         .WillOnce(Return(basicRegistrationResponseSuccess()));
 
     CentralRegistration::CentralRegistration centralRegistration;
-    centralRegistration.registerWithCentral(configOptions, mockHttpRequester, mockAgentAdapter);
+    centralRegistration.registerWithCentral(configOptions, mcsHttpClient, mockAgentAdapter);
 
     std::string logMessage = internal::GetCapturedStderr();
 
@@ -319,11 +326,12 @@ TEST_F(CentralRegistrationTests, BasicRegistrationWithMessageRelaysSucceedsOnSec
     ASSERT_THAT(logMessage, ::testing::HasSubstr("Product successfully registered via proxy: Address2:Port2"));
 }
 
-TEST_F(CentralRegistrationTests, BasicRegistrationWithMessageRelaysFailsThenProxySucceeds) // NOLINT
+TEST_F(CentralRegistrationTests, BasicRegistrationWithMessageRelaysFailsThenProxySucceeds)
 {
     MCS::ConfigOptions configOptions = addMessageRelaysToConfigOptions(addProxyToConfigOptions(basicMcsConfigOptions()));
     auto mockAgentAdapter = std::make_shared<StrictMock<MockAgentAdapter>>();
     auto mockHttpRequester = std::make_shared<StrictMock<MockHTTPRequester>>();
+    auto mcsHttpClient = MCS::MCSHttpClient(configOptions.config[MCS::MCS_URL], configOptions.config[MCS::MCS_TOKEN], mockHttpRequester);
     testing::internal::CaptureStderr();
 
     EXPECT_CALL(*mockAgentAdapter, getStatusXml(configOptions.config)).WillOnce(Return(basicXmlStatus));
@@ -347,7 +355,7 @@ TEST_F(CentralRegistrationTests, BasicRegistrationWithMessageRelaysFailsThenProx
         .WillOnce(Return(basicRegistrationResponseSuccess()));
 
     CentralRegistration::CentralRegistration centralRegistration;
-    centralRegistration.registerWithCentral(configOptions, mockHttpRequester, mockAgentAdapter);
+    centralRegistration.registerWithCentral(configOptions, mcsHttpClient, mockAgentAdapter);
 
     std::string logMessage = internal::GetCapturedStderr();
 
@@ -362,11 +370,12 @@ TEST_F(CentralRegistrationTests, BasicRegistrationWithMessageRelaysFailsThenProx
     ASSERT_THAT(logMessage, ::testing::HasSubstr("Product successfully registered via proxy: MCS_Proxy"));
 }
 
-TEST_F(CentralRegistrationTests, PreregistrationSucceeds) // NOLINT
+TEST_F(CentralRegistrationTests, PreregistrationSucceeds)
 {
     MCS::ConfigOptions configOptions = addPreregistrationToConfigOptions(basicMcsConfigOptions());
     auto mockAgentAdapter = std::make_shared<StrictMock<MockAgentAdapter>>();
     auto mockHttpRequester = std::make_shared<StrictMock<MockHTTPRequester>>();
+    auto mcsHttpClient = MCS::MCSHttpClient(configOptions.config[MCS::MCS_URL], configOptions.config[MCS::MCS_TOKEN], mockHttpRequester);
     testing::internal::CaptureStderr();
 
     EXPECT_CALL(*mockAgentAdapter, getStatusXml(configOptions.config)).WillOnce(Return(basicXmlStatus));
@@ -376,7 +385,7 @@ TEST_F(CentralRegistrationTests, PreregistrationSucceeds) // NOLINT
         .WillOnce(Return(basicRegistrationResponseSuccess()));
 
     CentralRegistration::CentralRegistration centralRegistration;
-    centralRegistration.registerWithCentral(configOptions, mockHttpRequester, mockAgentAdapter);
+    centralRegistration.registerWithCentral(configOptions, mcsHttpClient, mockAgentAdapter);
 
     std::string logMessage = internal::GetCapturedStderr();
 
@@ -385,11 +394,12 @@ TEST_F(CentralRegistrationTests, PreregistrationSucceeds) // NOLINT
     ASSERT_THAT(logMessage, ::testing::HasSubstr("Product successfully registered"));
 }
 
-TEST_F(CentralRegistrationTests, PreregistrationFailsButProductStillRegisters) // NOLINT
+TEST_F(CentralRegistrationTests, PreregistrationFailsButProductStillRegisters)
 {
     MCS::ConfigOptions configOptions = addPreregistrationToConfigOptions(basicMcsConfigOptions());
     auto mockAgentAdapter = std::make_shared<StrictMock<MockAgentAdapter>>();
     auto mockHttpRequester = std::make_shared<StrictMock<MockHTTPRequester>>();
+    auto mcsHttpClient = MCS::MCSHttpClient(configOptions.config[MCS::MCS_URL], configOptions.config[MCS::MCS_TOKEN], mockHttpRequester);
     testing::internal::CaptureStderr();
 
     EXPECT_CALL(*mockAgentAdapter, getStatusXml(configOptions.config)).WillOnce(Return(basicXmlStatus));
@@ -399,7 +409,7 @@ TEST_F(CentralRegistrationTests, PreregistrationFailsButProductStillRegisters) /
         .WillOnce(Return(basicRegistrationResponseSuccess()));
 
     CentralRegistration::CentralRegistration centralRegistration;
-    centralRegistration.registerWithCentral(configOptions, mockHttpRequester, mockAgentAdapter);
+    centralRegistration.registerWithCentral(configOptions, mcsHttpClient, mockAgentAdapter);
 
     std::string logMessage = internal::GetCapturedStderr();
 
@@ -408,11 +418,12 @@ TEST_F(CentralRegistrationTests, PreregistrationFailsButProductStillRegisters) /
     ASSERT_THAT(logMessage, ::testing::HasSubstr("Product successfully registered"));
 }
 
-TEST_F(CentralRegistrationTests, PreregistrationSucceedsWithUnsupportedProducts) // NOLINT
+TEST_F(CentralRegistrationTests, PreregistrationSucceedsWithUnsupportedProducts)
 {
     MCS::ConfigOptions configOptions = addPreregistrationToConfigOptions(basicMcsConfigOptions());
     auto mockAgentAdapter = std::make_shared<StrictMock<MockAgentAdapter>>();
     auto mockHttpRequester = std::make_shared<StrictMock<MockHTTPRequester>>();
+    auto mcsHttpClient = MCS::MCSHttpClient(configOptions.config[MCS::MCS_URL], configOptions.config[MCS::MCS_TOKEN], mockHttpRequester);
     testing::internal::CaptureStderr();
 
     EXPECT_CALL(*mockAgentAdapter, getStatusXml(configOptions.config)).WillOnce(Return(basicXmlStatus));
@@ -422,7 +433,7 @@ TEST_F(CentralRegistrationTests, PreregistrationSucceedsWithUnsupportedProducts)
         .WillOnce(Return(basicRegistrationResponseSuccess()));
 
     CentralRegistration::CentralRegistration centralRegistration;
-    centralRegistration.registerWithCentral(configOptions, mockHttpRequester, mockAgentAdapter);
+    centralRegistration.registerWithCentral(configOptions, mcsHttpClient, mockAgentAdapter);
 
     std::string logMessage = internal::GetCapturedStderr();
 
@@ -432,11 +443,12 @@ TEST_F(CentralRegistrationTests, PreregistrationSucceedsWithUnsupportedProducts)
     ASSERT_THAT(logMessage, ::testing::HasSubstr("Product successfully registered"));
 }
 
-TEST_F(CentralRegistrationTests, PreregistrationFailsWhenNoNewTokenReturnedButStillRegisters) // NOLINT
+TEST_F(CentralRegistrationTests, PreregistrationFailsWhenNoNewTokenReturnedButStillRegisters)
 {
     MCS::ConfigOptions configOptions = addPreregistrationToConfigOptions(basicMcsConfigOptions());
     auto mockAgentAdapter = std::make_shared<StrictMock<MockAgentAdapter>>();
     auto mockHttpRequester = std::make_shared<StrictMock<MockHTTPRequester>>();
+    auto mcsHttpClient = MCS::MCSHttpClient(configOptions.config[MCS::MCS_URL], configOptions.config[MCS::MCS_TOKEN], mockHttpRequester);
     testing::internal::CaptureStderr();
 
     EXPECT_CALL(*mockAgentAdapter, getStatusXml(configOptions.config)).WillOnce(Return(basicXmlStatus));
@@ -446,7 +458,7 @@ TEST_F(CentralRegistrationTests, PreregistrationFailsWhenNoNewTokenReturnedButSt
         .WillOnce(Return(basicRegistrationResponseSuccess()));
 
     CentralRegistration::CentralRegistration centralRegistration;
-    centralRegistration.registerWithCentral(configOptions, mockHttpRequester, mockAgentAdapter);
+    centralRegistration.registerWithCentral(configOptions, mcsHttpClient, mockAgentAdapter);
 
     std::string logMessage = internal::GetCapturedStderr();
 
