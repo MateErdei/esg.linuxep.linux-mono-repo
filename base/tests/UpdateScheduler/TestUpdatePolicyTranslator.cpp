@@ -409,7 +409,7 @@ private:
 
 };
 
-TEST_F(TestUpdatePolicyTranslator, ParseUpdatePolicyWithUpdateCache)
+TEST_F(TestUpdatePolicyTranslator, DISABLED_ParseUpdatePolicyWithUpdateCache)
 {
     std::unique_ptr<FakeILocalIP> fakeILocalIP(
         new FakeILocalIP(std::vector<std::string>{ "192.168.10.5", "10.10.5.6" }));

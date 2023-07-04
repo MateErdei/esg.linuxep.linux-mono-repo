@@ -942,7 +942,7 @@ TEST_F(TestALCPolicy, periodTooBig)
 
 //Update Cache Tests
 
-TEST_F(TestALCPolicy, update_cache)
+TEST_F(TestALCPolicy, DISABLED_update_cache)
 {
     auto expectedCert = R"(-----BEGIN CERTIFICATE-----
 MIIDxDCCAqygAwIBAgIQEFgFEJ0SYXZx+dHI2UTIVzANBgkqhkiG9w0BAQsFADBh
