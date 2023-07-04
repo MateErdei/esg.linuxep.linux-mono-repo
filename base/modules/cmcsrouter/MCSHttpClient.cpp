@@ -18,7 +18,7 @@ namespace MCS
         Common::HttpRequests::Headers requestHeaders
             {
                 {"Authorization",getRegistrationAuthorizationHeader(token)},
-                {"User-Agent", "Sophos MCS Client/" + m_version + " Linux sessions "+ m_registerToken},
+                {"User-Agent", "Sophos MCS Client/" + m_version + " Linux sessions "+ token},
                 {"Content-Type","application/xml; charset=utf-8"}
             };
 
@@ -34,7 +34,7 @@ namespace MCS
         Common::HttpRequests::Headers requestHeaders
             {
                 {"Authorization",getDeploymentInfoV2AuthorizationHeader(customerToken)},
-                {"User-Agent", "Sophos MCS Client/" + m_version + " Linux sessions "+ m_registerToken},
+                {"User-Agent", "Sophos MCS Client/" + m_version + " Linux sessions "+ customerToken},
                 {"Content-Type","application/json;charset=UTF-8"}
             };
 
