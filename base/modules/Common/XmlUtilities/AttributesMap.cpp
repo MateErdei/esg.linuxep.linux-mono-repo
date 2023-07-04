@@ -25,7 +25,15 @@ namespace
     /** AttributesEntry **/
     void AttributesEntry::appendText(const std::string& appendContent)
     {
-        content += appendContent;
+        if (content.empty())
+        {
+            content = appendContent;
+        }
+        else
+        {
+            content += "\n";
+            content += appendContent;
+        }
     }
 
     /** general utility function **/
