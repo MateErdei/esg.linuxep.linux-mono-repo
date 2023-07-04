@@ -6,7 +6,7 @@
     <inputs>
         <workingdir>.</workingdir>
         <build-asset project="linuxep" repo="everest-base">
-            <development-version branch="develop"/>
+            <development-version branch="feature/LINUXDAR-7532-thin-installer-gets-alc-policy-before-installing-base"/>
             <release-version branch="release/2023-25" build-id="20230616165821-81df7cc5ab00d7ba628e90b427c29ac09f3abada-1YVMGa"/>
             <include artifact-path="sspl-base/pluginapi" dest-dir="/build/input"/>
             <include artifact-path="sspl-base/cmcsrouterapi" dest-dir="/build/input"/>
