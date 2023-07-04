@@ -20,7 +20,7 @@ def populate_esm_fixed_version(name: str, token: str):
 
     with open(ALC_POLICY_TEMPLATE_PATH) as f:
         policy = f.read()
-        fixed_version = f'<fixed_version> \n <token>' + token + f'</token> \n <name>' + name + f'</name> \n <fixed_version>'
+        fixed_version = f'<fixed_version> \n <token>' + token + f'</token> \n <name>' + name + f'</name> \n </fixed_version>'
         policy = policy.replace("{{fixed_version}}", fixed_version)
         return policy
 

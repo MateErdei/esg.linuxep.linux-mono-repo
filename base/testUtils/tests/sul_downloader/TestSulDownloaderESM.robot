@@ -53,7 +53,7 @@ ALC Policy With ESM Is Received By Update Scheduler
     ...    Log File    ${UPDATE_CONFIG}
 
 
-    wait_for_log_contains_from_mark  ${update_mark}  Using FixedVersion f4d41a16-b751-4195-a7b2-1f109d49469d with token LTS 2023.1.1
+    wait_for_log_contains_from_mark  ${update_mark}  Using FixedVersion LTS 2023.1.1 with token f4d41a16-b751-4195-a7b2-1f109d49469d
 
 
 *** Keywords ***

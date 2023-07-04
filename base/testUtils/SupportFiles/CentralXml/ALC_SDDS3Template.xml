@@ -18,10 +18,7 @@
         <cloud_subscriptions>
             <subscription Id="Base" RigidName="ServerProtectionLinux-Base" Tag="RECOMMENDED" FixedVersion="2022.7.22.7"/>
         </cloud_subscriptions>
-        <fixed_version>
-            <token>LTS 2023.1.1</token>
-            <name>f4d41a16-b751-4195-a7b2-1f109d49469d</name>
-        </fixed_version>
+        {{fixed_version}}
         <delay_supplements enabled="true"/>
     </AUConfig>
     <Features>
