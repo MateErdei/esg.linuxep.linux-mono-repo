@@ -405,7 +405,7 @@ def sspl_base(stage: tap.Root, context: tap.PipelineContext, parameters: tap.Par
                 build_coverage(stage, component)
                 build_999(stage, component)
                 build_060(stage, component)
-            if parameters.bazel_build != "False":
+            if parameters.bazel_build != "false":
                 build_bazel(stage, component)
     else:
         base_build = context.artifact.build()
