@@ -814,14 +814,14 @@ namespace UpdateSchedulerImpl
     }
 
     void UpdateSchedulerProcessor::writeConfigurationData(
-        const Common::Policy::UpdateSettings& configurationData)
+        const Common::Policy::UpdateSettings& updateSettings)
     {
         std::string tempPath = Common::ApplicationConfiguration::applicationPathManager().getTempPath();
-        std::string serializedConfigData =
-            SulDownloader::suldownloaderdata::ConfigurationData::toJsonSettings(configurationData);
+        std::string serializedUpdateSettings =
+            SulDownloader::suldownloaderdata::ConfigurationData::toJsonSettings(updateSettings);
         LOGDEBUG("Writing to update_config.json:");
-        LOGDEBUG(serializedConfigData);
-        Common::FileSystem::fileSystem()->writeFileAtomically(m_configfilePath, serializedConfigData, tempPath);
+        LOGDEBUG(serializedUpdateSettings);
+        Common::FileSystem::fileSystem()->writeFileAtomically(m_configfilePath, serializedUpdateSettings, tempPath);
     }
 
     void UpdateSchedulerProcessor::safeMoveDownloaderReportFile(const std::string& originalJsonFilePath) const
