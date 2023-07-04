@@ -4,7 +4,7 @@
     <configurations>
       <configuration PROFILE_NAME="SSPLDebug" ENABLED="true" GENERATION_DIR="cmake-build-debug" CONFIG_NAME="Debug" TOOLCHAIN_NAME="SSPL" GENERATION_OPTIONS="-G &quot;Unix Makefiles&quot;" />
       <configuration PROFILE_NAME="SSPLRelease" ENABLED="true" GENERATION_DIR="cmake-build-release" CONFIG_NAME="RelWithDebInfo" TOOLCHAIN_NAME="SSPL" GENERATION_OPTIONS="-G &quot;Unix Makefiles&quot;" />
-      <configuration PROFILE_NAME="SSPLDebug-Coverage" ENABLED="true" CONFIG_NAME="Debug" TOOLCHAIN_NAME="SSPL" GENERATION_OPTIONS="-G &quot;Unix Makefiles&quot; -DCMAKE_CXX_FLAGS=--coverage -DCMAKE_C_FLAGS=--coverage" />
+      <configuration PROFILE_NAME="SSPLDebug-Coverage" ENABLED="false" CONFIG_NAME="Debug" TOOLCHAIN_NAME="SSPL" GENERATION_OPTIONS="-G &quot;Unix Makefiles&quot; -DCMAKE_CXX_FLAGS=--coverage -DCMAKE_C_FLAGS=--coverage" />
     </configurations>
   </component>
 </project>
