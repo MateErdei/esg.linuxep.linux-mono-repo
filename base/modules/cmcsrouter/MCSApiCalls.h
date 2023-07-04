@@ -16,17 +16,17 @@ namespace MCS
     class MCSApiCalls
     {
         public:
-            std::map<std::string,std::string> getAuthenticationInfo(MCSHttpClient client);
+            std::map<std::string,std::string> getAuthenticationInfo(const std::shared_ptr<MCS::MCSHttpClient>& client);
 
-            bool registerEndpoint(
-                MCSHttpClient& client,
+            static bool registerEndpoint(
+                const std::shared_ptr<MCS::MCSHttpClient>& client,
                 MCS::ConfigOptions& configOptions,
                 const std::string& statusXml,
                 const std::string& proxy
             );
 
             std::string preregisterEndpoint(
-                MCSHttpClient& client,
+                const std::shared_ptr<MCS::MCSHttpClient>& client,
                 MCS::ConfigOptions& registerConfig,
                 const std::string& statusXml,
                 const std::string& proxy
@@ -43,7 +43,7 @@ namespace MCS
              * @return PolicyXML
              */
             std::optional<std::string> getPolicy(
-                MCSHttpClient& client,
+                const std::shared_ptr<MCS::MCSHttpClient>& client,
                 const std::string& appId="ALC",
                 int policyId=1,
                 duration_t timeout=std::chrono::seconds{600},

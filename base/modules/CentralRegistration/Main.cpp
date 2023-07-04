@@ -191,7 +191,7 @@ namespace CentralRegistration
             std::make_shared<Common::CurlWrapper::CurlWrapper>();
         std::shared_ptr<Common::HttpRequests::IHttpRequester> client =
             std::make_shared<Common::HttpRequestsImpl::HttpRequesterImpl>(curlWrapper);
-        MCS::MCSHttpClient mcsHttpClient = MCS::MCSHttpClient(configOptions.config[MCS::MCS_URL], configOptions.config[MCS::MCS_TOKEN], client);
+        std::shared_ptr<MCS::MCSHttpClient> mcsHttpClient = std::make_shared<MCS::MCSHttpClient>(configOptions.config[MCS::MCS_URL], configOptions.config[MCS::MCS_TOKEN], client);
 
         centralRegistration.registerWithCentral(configOptions, mcsHttpClient, agentAdapter);
         // return updated configOptions

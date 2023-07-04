@@ -20,7 +20,7 @@ namespace CentralRegistration
         MCS::ConfigOptions& configOptions,
         const std::string& statusXml,
         const std::string& proxy,
-        MCS::MCSHttpClient httpClient)
+        const std::shared_ptr<MCS::MCSHttpClient>& httpClient)
     {
         MCS::MCSApiCalls mcsApi;
         try
@@ -49,21 +49,21 @@ namespace CentralRegistration
             MCS::ConfigOptions& configOptions,
             const std::string& statusXml,
             const std::string& proxy,
-            MCS::MCSHttpClient httpClient)
+            const std::shared_ptr<MCS::MCSHttpClient>& httpClient)
     {
         MCS::MCSApiCalls mcsApi;
         return mcsApi.registerEndpoint(httpClient, configOptions, statusXml, proxy);
     }
 
     bool CentralRegistration::tryRegistrationWithProxies(
-            MCS::ConfigOptions& configOptions,
-            const std::string& statusXml,
-            const MCS::MCSHttpClient& httpClient,
-            bool (*registrationFunction)(
-                    MCS::ConfigOptions&,
-                    const std::string&,
-                    const std::string&,
-                    MCS::MCSHttpClient httpClient))
+        MCS::ConfigOptions& configOptions,
+        const std::string& statusXml,
+        const std::shared_ptr<MCS::MCSHttpClient>& httpClient,
+        bool (*registrationFunction)(
+            MCS::ConfigOptions&,
+            const std::string&,
+            const std::string&,
+            const std::shared_ptr<MCS::MCSHttpClient>& httpClient))
     {
         for (auto& messageRelay : configOptions.messageRelays) // These need to be ordered before this
         {
@@ -85,7 +85,7 @@ namespace CentralRegistration
         return registrationFunction(configOptions, statusXml, "", httpClient);
     }
 
-    void CentralRegistration::preregistration(MCS::ConfigOptions& configOptions, const std::string& statusXml, MCS::MCSHttpClient& httpClient)
+    void CentralRegistration::preregistration(MCS::ConfigOptions& configOptions, const std::string& statusXml, const std::shared_ptr<MCS::MCSHttpClient>& httpClient)
     {
         // Check options are all there: customer token + selected products
         if (configOptions.config.empty() || configOptions.config[MCS::MCS_CUSTOMER_TOKEN].empty() || configOptions.config[MCS::MCS_PRODUCTS].empty())
@@ -124,7 +124,7 @@ namespace CentralRegistration
         return deploymentRegistrationToken;
     }
 
-    void CentralRegistration::registerWithCentral(MCS::ConfigOptions& configOptions, MCS::MCSHttpClient& httpClient, const std::shared_ptr<MCS::IAdapter>& agentAdapter)
+    void CentralRegistration::registerWithCentral(MCS::ConfigOptions& configOptions, const std::shared_ptr<MCS::MCSHttpClient>& httpClient, const std::shared_ptr<MCS::IAdapter>& agentAdapter)
     {
         LOGINFO("Beginning product registration");
         std::string statusXml = agentAdapter->getStatusXml(configOptions.config);
@@ -132,7 +132,7 @@ namespace CentralRegistration
 
         preregistration(configOptions, statusXml, httpClient);
 
-        httpClient.setCertPath(configOptions.config[MCS::MCS_CERT]);
+        httpClient->setCertPath(configOptions.config[MCS::MCS_CERT]);
 
         // This check saves retrying all proxies if preregistration succeeded on a given proxy
         if (!configOptions.config[MCS::MCS_CONNECTED_PROXY].empty() && tryRegistration(configOptions, statusXml, configOptions.config[MCS::MCS_CONNECTED_PROXY], httpClient))

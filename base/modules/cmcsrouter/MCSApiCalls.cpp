@@ -28,14 +28,14 @@ namespace
 
 namespace MCS
 {
-    std::map<std::string,std::string> MCSApiCalls::getAuthenticationInfo(MCSHttpClient client)
+    std::map<std::string,std::string> MCSApiCalls::getAuthenticationInfo(const std::shared_ptr<MCS::MCSHttpClient>& client)
     {
         std::map<std::string,std::string> list;
 
         Common::HttpRequests::Headers requestHeaders;
         requestHeaders.insert({"Content-Type","application/xml; charset=utf-8"});
         Common::HttpRequests::Response response =
-            client.sendMessageWithIDAndRole("/authenticate/endpoint/",
+            client->sendMessageWithIDAndRole("/authenticate/endpoint/",
                                       Common::HttpRequests::RequestType::POST,
                                           requestHeaders);
         if (response.status == 200)
@@ -60,44 +60,44 @@ namespace MCS
     }
 
     std::string MCSApiCalls::preregisterEndpoint(
-        MCSHttpClient& client,
+        const std::shared_ptr<MCS::MCSHttpClient>& client,
         MCS::ConfigOptions& configOptions,
         const std::string& statusXml,
         const std::string& proxy)
     {
-        client.setVersion(configOptions.config[MCS::MCS_PRODUCT_VERSION]);
+        client->setVersion(configOptions.config[MCS::MCS_PRODUCT_VERSION]);
 
         if (!configOptions.config[MCS::MCS_CA_OVERRIDE].empty())
         {
-            client.setCertPath(configOptions.config[MCS::MCS_CA_OVERRIDE]);
+            client->setCertPath(configOptions.config[MCS::MCS_CA_OVERRIDE]);
         }
         else
         {
-            client.setCertPath(configOptions.config[MCS::MCS_CERT]);
+            client->setCertPath(configOptions.config[MCS::MCS_CERT]);
         }
         
-        client.setProxyInfo(proxy, configOptions.config[MCS::MCS_PROXY_USERNAME], configOptions.config[MCS::MCS_PROXY_PASSWORD]);
-        Common::HttpRequests::Response response = client.sendPreregistration(statusXml, configOptions.config[MCS::MCS_CUSTOMER_TOKEN]);
+        client->setProxyInfo(proxy, configOptions.config[MCS::MCS_PROXY_USERNAME], configOptions.config[MCS::MCS_PROXY_PASSWORD]);
+        Common::HttpRequests::Response response = client->sendPreregistration(statusXml, configOptions.config[MCS::MCS_CUSTOMER_TOKEN]);
         return response.body;
     }
 
     bool MCSApiCalls::registerEndpoint(
-        MCSHttpClient& client,
+        const std::shared_ptr<MCS::MCSHttpClient>& client,
         MCS::ConfigOptions& configOptions,
         const std::string& statusXml,
         const std::string& proxy)
     {
-        client.setID(configOptions.config[MCS::MCS_ID]);
-        client.setPassword(configOptions.config[MCS::MCS_PASSWORD]);
-        client.setVersion(configOptions.config[MCS::MCS_PRODUCT_VERSION]);
+        client->setID(configOptions.config[MCS::MCS_ID]);
+        client->setPassword(configOptions.config[MCS::MCS_PASSWORD]);
+        client->setVersion(configOptions.config[MCS::MCS_PRODUCT_VERSION]);
 
         if (!configOptions.config[MCS::MCS_CA_OVERRIDE].empty())
         {
-            client.setCertPath(configOptions.config[MCS::MCS_CA_OVERRIDE]);
+            client->setCertPath(configOptions.config[MCS::MCS_CA_OVERRIDE]);
         }
         else
         {
-            client.setCertPath(configOptions.config[MCS::MCS_CERT]);
+            client->setCertPath(configOptions.config[MCS::MCS_CERT]);
         }
         std::stringstream connectionInfo;
         if (proxy.empty())
@@ -108,10 +108,10 @@ namespace MCS
         {
             connectionInfo << " via proxy " << proxy;
         }
-        client.setProxyInfo(
+        client->setProxyInfo(
             proxy, configOptions.config[MCS::MCS_PROXY_USERNAME], configOptions.config[MCS::MCS_PROXY_PASSWORD]);
         Common::HttpRequests::Response response =
-            client.sendRegistration(statusXml, configOptions.config[MCS::MCS_TOKEN]);
+            client->sendRegistration(statusXml, configOptions.config[MCS::MCS_TOKEN]);
         if (response.errorCode == Common::HttpRequests::ResponseErrorCode::OK)
         {
             if (response.status == Common::HttpRequests::HTTP_STATUS_OK)
@@ -143,7 +143,7 @@ namespace MCS
     }
 
     std::optional<std::string> MCSApiCalls::getPolicy(
-        MCSHttpClient& client,
+        const std::shared_ptr<MCS::MCSHttpClient>& client,
         const std::string& appId,
         int policyId,
         duration_t timeout,
@@ -160,7 +160,7 @@ namespace MCS
             // Send get commands for APPSPROXY
             std::ostringstream pollUrl;
             pollUrl << "/commands/applications/APPSPROXY;" << appId << "/endpoint/";
-            response = client.sendMessageWithID(pollUrl.str(), Common::HttpRequests::RequestType::GET);
+            response = client->sendMessageWithID(pollUrl.str(), Common::HttpRequests::RequestType::GET);
 
             LOGDEBUG("Response to poll: " << response.body);
             // Parse XML
@@ -205,7 +205,7 @@ namespace MCS
             if (!toDelete.empty())
             {
                 std::ostringstream deleteUrl;
-                deleteUrl << "/commands/endpoint/" << client.getID() << "/";
+                deleteUrl << "/commands/endpoint/" << client->getID() << "/";
                 bool first = true;
                 for (const auto& id : toDelete)
                 {
@@ -220,7 +220,7 @@ namespace MCS
                     deleteUrl << id;
                 }
                 LOGDEBUG("Delete commands with url " << deleteUrl.str());
-                client.sendMessage(deleteUrl.str(), Common::HttpRequests::RequestType::DELETE);
+                client->sendMessage(deleteUrl.str(), Common::HttpRequests::RequestType::DELETE);
             }
 
             if (commandPolicyId.has_value())
@@ -241,7 +241,7 @@ namespace MCS
             std::stringstream url;
             url << "/policy/application/" << appId << "/" << commandPolicyId.value();
             LOGDEBUG("Fetching policy from " << url.str());
-            response = client.sendMessage(url.str(), Common::HttpRequests::RequestType::GET);
+            response = client->sendMessage(url.str(), Common::HttpRequests::RequestType::GET);
             auto duration = clock_t::now() - start;
             LOGINFO("Got policy after " << duration);
             return response.body;

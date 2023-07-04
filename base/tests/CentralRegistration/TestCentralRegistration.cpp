@@ -127,7 +127,7 @@ TEST_F(CentralRegistrationTests, BasicRegistrationSucceeds)
     MCS::ConfigOptions configOptions = basicMcsConfigOptions();
     auto mockAgentAdapter = std::make_shared<StrictMock<MockAgentAdapter>>();
     auto mockHttpRequester = std::make_shared<StrictMock<MockHTTPRequester>>();
-    auto mcsHttpClient = MCS::MCSHttpClient(configOptions.config[MCS::MCS_URL], configOptions.config[MCS::MCS_TOKEN], mockHttpRequester);
+    auto mcsHttpClient = std::make_shared<MCS::MCSHttpClient>(configOptions.config[MCS::MCS_URL], configOptions.config[MCS::MCS_TOKEN], mockHttpRequester);
     testing::internal::CaptureStderr();
 
     EXPECT_CALL(*mockAgentAdapter, getStatusXml(configOptions.config)).WillOnce(Return(basicXmlStatus));
@@ -146,7 +146,7 @@ TEST_F(CentralRegistrationTests, BasicRegistrationFails)
     MCS::ConfigOptions configOptions = basicMcsConfigOptions();
     auto mockAgentAdapter = std::make_shared<StrictMock<MockAgentAdapter>>();
     auto mockHttpRequester = std::make_shared<StrictMock<MockHTTPRequester>>();
-    auto mcsHttpClient = MCS::MCSHttpClient(configOptions.config[MCS::MCS_URL], configOptions.config[MCS::MCS_TOKEN], mockHttpRequester);
+    auto mcsHttpClient = std::make_shared<MCS::MCSHttpClient>(configOptions.config[MCS::MCS_URL], configOptions.config[MCS::MCS_TOKEN], mockHttpRequester);
     testing::internal::CaptureStderr();
 
     EXPECT_CALL(*mockAgentAdapter, getStatusXml(configOptions.config)).WillOnce(Return(basicXmlStatus));
@@ -167,7 +167,7 @@ TEST_F(CentralRegistrationTests, BasicRegistrationWithProxySucceeds)
     MCS::ConfigOptions configOptions = addProxyToConfigOptions(basicMcsConfigOptions());
     auto mockAgentAdapter = std::make_shared<StrictMock<MockAgentAdapter>>();
     auto mockHttpRequester = std::make_shared<StrictMock<MockHTTPRequester>>();
-    auto mcsHttpClient = MCS::MCSHttpClient(configOptions.config[MCS::MCS_URL], configOptions.config[MCS::MCS_TOKEN], mockHttpRequester);
+    auto mcsHttpClient = std::make_shared<MCS::MCSHttpClient>(configOptions.config[MCS::MCS_URL], configOptions.config[MCS::MCS_TOKEN], mockHttpRequester);
     testing::internal::CaptureStderr();
 
     EXPECT_CALL(*mockAgentAdapter, getStatusXml(configOptions.config)).WillOnce(Return(basicXmlStatus));
@@ -195,7 +195,7 @@ TEST_F(CentralRegistrationTests, BasicRegistrationWithProxyFails)
     MCS::ConfigOptions configOptions = addProxyToConfigOptions(basicMcsConfigOptions());
     auto mockAgentAdapter = std::make_shared<StrictMock<MockAgentAdapter>>();
     auto mockHttpRequester = std::make_shared<StrictMock<MockHTTPRequester>>();
-    auto mcsHttpClient = MCS::MCSHttpClient(configOptions.config[MCS::MCS_URL], configOptions.config[MCS::MCS_TOKEN], mockHttpRequester);
+    auto mcsHttpClient = std::make_shared<MCS::MCSHttpClient>(configOptions.config[MCS::MCS_URL], configOptions.config[MCS::MCS_TOKEN], mockHttpRequester);
     testing::internal::CaptureStderr();
 
     EXPECT_CALL(*mockAgentAdapter, getStatusXml(configOptions.config)).WillOnce(Return(basicXmlStatus));
@@ -222,7 +222,7 @@ TEST_F(CentralRegistrationTests, BasicRegistrationWithFailsOnProxiesAndThenDirec
     MCS::ConfigOptions configOptions = addMessageRelaysToConfigOptions(addProxyToConfigOptions(basicMcsConfigOptions()));
     auto mockAgentAdapter = std::make_shared<StrictMock<MockAgentAdapter>>();
     auto mockHttpRequester = std::make_shared<StrictMock<MockHTTPRequester>>();
-    auto mcsHttpClient = MCS::MCSHttpClient(configOptions.config[MCS::MCS_URL], configOptions.config[MCS::MCS_TOKEN], mockHttpRequester);
+    auto mcsHttpClient = std::make_shared<MCS::MCSHttpClient>(configOptions.config[MCS::MCS_URL], configOptions.config[MCS::MCS_TOKEN], mockHttpRequester);
     testing::internal::CaptureStderr();
 
     EXPECT_CALL(*mockAgentAdapter, getStatusXml(configOptions.config)).WillOnce(Return(basicXmlStatus));
@@ -270,7 +270,7 @@ TEST_F(CentralRegistrationTests, BasicRegistrationWithMessageRelaySucceeds)
     MCS::ConfigOptions configOptions = addMessageRelaysToConfigOptions(addProxyToConfigOptions(basicMcsConfigOptions()));
     auto mockAgentAdapter = std::make_shared<StrictMock<MockAgentAdapter>>();
     auto mockHttpRequester = std::make_shared<StrictMock<MockHTTPRequester>>();
-    auto mcsHttpClient = MCS::MCSHttpClient(configOptions.config[MCS::MCS_URL], configOptions.config[MCS::MCS_TOKEN], mockHttpRequester);
+    auto mcsHttpClient = std::make_shared<MCS::MCSHttpClient>(configOptions.config[MCS::MCS_URL], configOptions.config[MCS::MCS_TOKEN], mockHttpRequester);
     testing::internal::CaptureStderr();
 
     EXPECT_CALL(*mockAgentAdapter, getStatusXml(configOptions.config)).WillOnce(Return(basicXmlStatus));
@@ -295,7 +295,7 @@ TEST_F(CentralRegistrationTests, BasicRegistrationWithMessageRelaysSucceedsOnSec
     MCS::ConfigOptions configOptions = addMessageRelaysToConfigOptions(addProxyToConfigOptions(basicMcsConfigOptions()));
     auto mockAgentAdapter = std::make_shared<StrictMock<MockAgentAdapter>>();
     auto mockHttpRequester = std::make_shared<StrictMock<MockHTTPRequester>>();
-    auto mcsHttpClient = MCS::MCSHttpClient(configOptions.config[MCS::MCS_URL], configOptions.config[MCS::MCS_TOKEN], mockHttpRequester);
+    auto mcsHttpClient = std::make_shared<MCS::MCSHttpClient>(configOptions.config[MCS::MCS_URL], configOptions.config[MCS::MCS_TOKEN], mockHttpRequester);
     testing::internal::CaptureStderr();
 
     EXPECT_CALL(*mockAgentAdapter, getStatusXml(configOptions.config)).WillOnce(Return(basicXmlStatus));
@@ -331,7 +331,7 @@ TEST_F(CentralRegistrationTests, BasicRegistrationWithMessageRelaysFailsThenProx
     MCS::ConfigOptions configOptions = addMessageRelaysToConfigOptions(addProxyToConfigOptions(basicMcsConfigOptions()));
     auto mockAgentAdapter = std::make_shared<StrictMock<MockAgentAdapter>>();
     auto mockHttpRequester = std::make_shared<StrictMock<MockHTTPRequester>>();
-    auto mcsHttpClient = MCS::MCSHttpClient(configOptions.config[MCS::MCS_URL], configOptions.config[MCS::MCS_TOKEN], mockHttpRequester);
+    auto mcsHttpClient = std::make_shared<MCS::MCSHttpClient>(configOptions.config[MCS::MCS_URL], configOptions.config[MCS::MCS_TOKEN], mockHttpRequester);
     testing::internal::CaptureStderr();
 
     EXPECT_CALL(*mockAgentAdapter, getStatusXml(configOptions.config)).WillOnce(Return(basicXmlStatus));
@@ -375,7 +375,7 @@ TEST_F(CentralRegistrationTests, PreregistrationSucceeds)
     MCS::ConfigOptions configOptions = addPreregistrationToConfigOptions(basicMcsConfigOptions());
     auto mockAgentAdapter = std::make_shared<StrictMock<MockAgentAdapter>>();
     auto mockHttpRequester = std::make_shared<StrictMock<MockHTTPRequester>>();
-    auto mcsHttpClient = MCS::MCSHttpClient(configOptions.config[MCS::MCS_URL], configOptions.config[MCS::MCS_TOKEN], mockHttpRequester);
+    auto mcsHttpClient = std::make_shared<MCS::MCSHttpClient>(configOptions.config[MCS::MCS_URL], configOptions.config[MCS::MCS_TOKEN], mockHttpRequester);
     testing::internal::CaptureStderr();
 
     EXPECT_CALL(*mockAgentAdapter, getStatusXml(configOptions.config)).WillOnce(Return(basicXmlStatus));
@@ -399,7 +399,7 @@ TEST_F(CentralRegistrationTests, PreregistrationFailsButProductStillRegisters)
     MCS::ConfigOptions configOptions = addPreregistrationToConfigOptions(basicMcsConfigOptions());
     auto mockAgentAdapter = std::make_shared<StrictMock<MockAgentAdapter>>();
     auto mockHttpRequester = std::make_shared<StrictMock<MockHTTPRequester>>();
-    auto mcsHttpClient = MCS::MCSHttpClient(configOptions.config[MCS::MCS_URL], configOptions.config[MCS::MCS_TOKEN], mockHttpRequester);
+    auto mcsHttpClient = std::make_shared<MCS::MCSHttpClient>(configOptions.config[MCS::MCS_URL], configOptions.config[MCS::MCS_TOKEN], mockHttpRequester);
     testing::internal::CaptureStderr();
 
     EXPECT_CALL(*mockAgentAdapter, getStatusXml(configOptions.config)).WillOnce(Return(basicXmlStatus));
@@ -423,7 +423,7 @@ TEST_F(CentralRegistrationTests, PreregistrationSucceedsWithUnsupportedProducts)
     MCS::ConfigOptions configOptions = addPreregistrationToConfigOptions(basicMcsConfigOptions());
     auto mockAgentAdapter = std::make_shared<StrictMock<MockAgentAdapter>>();
     auto mockHttpRequester = std::make_shared<StrictMock<MockHTTPRequester>>();
-    auto mcsHttpClient = MCS::MCSHttpClient(configOptions.config[MCS::MCS_URL], configOptions.config[MCS::MCS_TOKEN], mockHttpRequester);
+    auto mcsHttpClient = std::make_shared<MCS::MCSHttpClient>(configOptions.config[MCS::MCS_URL], configOptions.config[MCS::MCS_TOKEN], mockHttpRequester);
     testing::internal::CaptureStderr();
 
     EXPECT_CALL(*mockAgentAdapter, getStatusXml(configOptions.config)).WillOnce(Return(basicXmlStatus));
@@ -448,7 +448,7 @@ TEST_F(CentralRegistrationTests, PreregistrationFailsWhenNoNewTokenReturnedButSt
     MCS::ConfigOptions configOptions = addPreregistrationToConfigOptions(basicMcsConfigOptions());
     auto mockAgentAdapter = std::make_shared<StrictMock<MockAgentAdapter>>();
     auto mockHttpRequester = std::make_shared<StrictMock<MockHTTPRequester>>();
-    auto mcsHttpClient = MCS::MCSHttpClient(configOptions.config[MCS::MCS_URL], configOptions.config[MCS::MCS_TOKEN], mockHttpRequester);
+    auto mcsHttpClient = std::make_shared<MCS::MCSHttpClient>(configOptions.config[MCS::MCS_URL], configOptions.config[MCS::MCS_TOKEN], mockHttpRequester);
     testing::internal::CaptureStderr();
 
     EXPECT_CALL(*mockAgentAdapter, getStatusXml(configOptions.config)).WillOnce(Return(basicXmlStatus));
