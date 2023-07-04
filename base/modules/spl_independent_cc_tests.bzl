@@ -2,12 +2,6 @@
 
 load("//tools/config:soph_cc_rules.bzl", "soph_cc_test")
 
-def _filter_cpp(src):
-    return src.endswith(".cpp")
-
-def _filter_h(src):
-    return src.endswith(".h")
-
 def spl_independent_cc_tests(name, srcs, per_test_srcs = [], **kwargs):
     """
     Adds soph_cc_test independently for each .cpp file in srcs

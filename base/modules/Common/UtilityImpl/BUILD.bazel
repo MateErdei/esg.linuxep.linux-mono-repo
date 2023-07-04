@@ -1,3 +1,4 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
 load("//tools/config:soph_rules.bzl", "soph_cc_library")
 load("//tools/config:expand_template.bzl", "expand_template")
 load("//modules:common_substitutions.bzl", "COMMON_SUBSTITUTIONS")

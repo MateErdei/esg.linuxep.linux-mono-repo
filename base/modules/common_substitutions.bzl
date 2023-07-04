@@ -1,3 +1,4 @@
+# Copyright 2023 Sophos Limited. All rights reserved.
 COMMON_SUBSTITUTIONS = {
     "@SOPHOS_SPL_USER@": "sophos-spl-user",
     "@SOPHOS_SPL_GROUP@": "sophos-spl-group",
