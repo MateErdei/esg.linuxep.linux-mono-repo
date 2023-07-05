@@ -7,6 +7,8 @@
 #include <cmcsrouter/MCSApiCalls.h>
 
 #include <Common/FileSystem/IFileSystem.h>
+#include <Common/Policy/ALCPolicy.h>
+#include <Common/Policy/SerialiseUpdateSettings.h>
 #include <Common/UtilityImpl/StringUtils.h>
 
 #include <log4cplus/logger.h>
@@ -488,14 +490,42 @@ int main(int argc, char** argv)
         policyOptions.config[MCS::DEVICE_ID] = jwt[MCS::DEVICE_ID];
         policyOptions.config["jwt_token"] = jwt[MCS::JWT_TOKEN];
 
-        auto policy = mcsCalls.getPolicy(httpClient, "ALC", 1, std::chrono::seconds{900}, std::chrono::seconds{20});
-        if (policy.has_value())
+        std::optional<std::string> alcPolicyXml;
+        try
         {
-            logDebug("ALC policy: " + policy.value());
+            alcPolicyXml = mcsCalls.getPolicy(httpClient, "ALC", 1, std::chrono::seconds{900}, std::chrono::seconds{20});
+        }
+        catch (...)
+        {
+            log("Failed to get ALC policy");
+            return 53;
+        }
+        if (alcPolicyXml.has_value())
+        {
+            try
+            {
+                logDebug("ALC policy: " + alcPolicyXml.value());
+                auto alcPolicy = std::make_shared<Common::Policy::ALCPolicy>(alcPolicyXml.value());
+
+                auto updateSettings = alcPolicy->getUpdateSettings();
+                updateSettings.setJWToken(jwt[MCS::JWT_TOKEN]);
+                updateSettings.setDeviceId(jwt[MCS::DEVICE_ID]);
+                updateSettings.setTenantId(jwt[MCS::TENANT_ID]);
+                updateSettings.setVersigPath(Common::FileSystem::join( fs->currentWorkingDirectory(),"installer/bin/versig"));
+
+                auto updateConfigJson = Common::Policy::SerialiseUpdateSettings::toJsonSettings(updateSettings);
+                logDebug("Writing to update config: " + updateConfigJson);
+                fs->writeFile("./update_config.json", updateConfigJson);
+            }
+            catch (...)
+            {
+                logError("Failed to write to update config from translated ALC policy");
+                return 53;
+            }
         }
         else
         {
-            log("Failed to get ALC policy");
+            logError("Failure: ALC policy is empty");
             return 53;
         }
 
@@ -516,47 +546,6 @@ int main(int argc, char** argv)
         rootConfigOptions.writeToDisk("./mcs.config");
         policyOptions.writeToDisk("./mcsPolicy.config");
         MsgConfig.writeToDisk("./mcs_policy.config");
-        std::string versigPath = Common::FileSystem::join( fs->currentWorkingDirectory(),"installer/bin/versig");
-        nlohmann::json j;
-        //Dummy values for now
-        j["sophosURLs"] = {"https://localhost:1233"};
-        j["credential"]["username"] = "jwt[MCS::TENANT_ID]";
-        j["credential"]["password"] = "jwt[MCS::TENANT_ID]";
-
-        if (!rootConfigOptions.config[MCS::MCS_CONNECTED_PROXY].empty())
-        {
-            logDebug("Proxy used for registration was: " + rootConfigOptions.config[MCS::MCS_CONNECTED_PROXY]);
-            j["proxy"]["url"] = rootConfigOptions.config[MCS::MCS_CONNECTED_PROXY];
-            j["proxy"]["credential"]["username"] = rootConfigOptions.config[MCS::MCS_PROXY_USERNAME];
-            j["proxy"]["credential"]["password"] = rootConfigOptions.config[MCS::MCS_PROXY_PASSWORD];
-        }
-
-        // TODO: LINUXDAR-7507 Extract Sophos URL from ALC policy instead of hardcoding
-        j["sophosURLs"] = { "http://dci.sophosupd.com/cloudupdate" };
-
-        j["versigPath"] = versigPath;
-        j["useSDDS3"] = true;
-
-        j["primarySubscription"]["rigidName"] = "ServerProtectionLinux-Base";
-        j["primarySubscription"]["tag"] = "RECOMMENDED";
-        j["features"] = {"CORE"};
-        j["tenantId"] = jwt[MCS::TENANT_ID];
-        j["deviceId"] = jwt[MCS::DEVICE_ID];
-        j["JWToken"] = jwt[MCS::JWT_TOKEN];
-
-        if (!update_caches.empty())
-        {
-            j["updateCache"] = {};
-            std::string updateCachePath = Common::FileSystem::join( fs->currentWorkingDirectory(),"installer/uc_certs.crt");
-            j["updateCacheCertPath"] = updateCachePath;
-            for (const auto& cache: update_caches)
-            {
-                std::string fullAddress = cache.address+":"+cache.port;
-                j["updateCache"].emplace_back(fullAddress);
-            }
-
-        }
-        fs->writeFile("./update_config.json",j.dump());
     }
     return 0;
 }
