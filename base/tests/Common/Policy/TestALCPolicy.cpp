@@ -1,5 +1,7 @@
 // Copyright 2023 Sophos Limited. All rights reserved.
 
+#include "StringUtils.h"
+
 #include "Common/ApplicationConfiguration/IApplicationPathManager.h"
 #include "Common/Policy/ALCPolicy.h"
 #include "Common/Policy/PolicyParseException.h"
@@ -1084,6 +1086,59 @@ TEST_F(TestALCPolicy, update_cache)
     EXPECT_EQ(hosts[0], "maineng2.eng.sophos:8191");
     EXPECT_EQ(hosts[1], "2k12-64-ld55-df.eng.sophos:8191");
     EXPECT_EQ(hosts[2], "w2k8r2-std-en-df.eng.sophos:8191");
+}
+
+TEST_F(TestALCPolicy, debugALCPolicyParsing)
+{
+    auto policyId = 1;
+    auto appId = "ALC";
+    std::string xmlToParse = R"(<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns:commands xmlns:ns="http://www.sophos.com/xml/mcs/commands" schemaVersion="1.0">
+  <command>
+    <id>97</id>
+    <seq>1</seq>
+    <appId>APPSPROXY</appId>
+    <type>get-policy-assignments</type>
+    <creationTime>2023-07-06T08:59:13.364Z</creationTime>
+    <ttl>PT10000S</ttl>
+    <body>&lt;?xml version=&quot;1.0&quot;?&gt;&lt;ns:policyAssignments xmlns:ns=&quot;http://www.sophos.com/xml/mcs/policyAssignments&quot;&gt;&lt;meta protocolVersion=&quot;1.0&quot;/&gt;&lt;policyAssignment&gt;&lt;appId policyType=&quot;1&quot;&gt;ALC&lt;/appId&gt;&lt;policyId&gt;ee671b5cffbffb2ef97d29e8a08ce117401524785097f4ca85ad057019401d47&lt;/policyId&gt;&lt;/policyAssignment&gt;&lt;/ns:policyAssignments&gt;</body>
+  </command>
+</ns:commands>)";
+    std::optional<std::string> commandPolicyId;
+
+    auto xml = Common::XmlUtilities::parseXml(xmlToParse);
+    auto commands = xml.entitiesThatContainPath("ns:commands/command", false);
+
+    std::vector<std::string> toDelete;
+    for (const auto& command : commands)
+    {
+        auto id = xml.lookup(command + "/id").contents();
+        toDelete.push_back(id);
+        auto app = xml.lookup(command + "/appId").contents();
+
+        auto assignmentsString = xml.lookup(command + "/body").contents();
+        auto assignmentsXml = Common::XmlUtilities::parseXml(assignmentsString);
+        auto assignments = assignmentsXml.entitiesThatContainPath("ns:policyAssignments/policyAssignment");
+        for (const auto& assignment : assignments)
+        {
+            auto appAttr = assignmentsXml.lookup(assignment + "/appId");
+            if (appAttr.contents() != appId)
+            {
+                continue;
+            }
+            auto policyType = appAttr.value("policyType");
+            if (policyType != std::to_string(policyId))
+            {
+                continue;
+            }
+            commandPolicyId = assignmentsXml.lookup(assignment + "/policyId").contents();
+            break;
+        }
+    }
+
+    std::cout << commandPolicyId.value() << std::endl;
+    EXPECT_EQ(commandPolicyId.value(), "ee671b5cffbffb2ef97d29e8a08ce117401524785097f4ca85ad057019401d47");
+
 }
 
 TEST_F(TestALCPolicy, empty_update_cache)

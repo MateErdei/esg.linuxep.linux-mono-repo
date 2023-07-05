@@ -13,7 +13,8 @@ target_link_libraries(TestPolicy
         ${GTEST_LIBRARY}
         ${GTEST_MAIN_LIBRARY}
         policy
-        testhelpersobject)
+        testhelpersobject
+        xmlutilities)
 
 gtest_discover_tests(TestPolicy)
 SET_TARGET_PROPERTIES(TestPolicy
