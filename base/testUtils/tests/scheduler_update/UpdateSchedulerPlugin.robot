@@ -497,7 +497,6 @@ UpdateScheduler Start and Restart
 UpdateScheduler SulDownloader Report Sync With Warehouse Success Via Update Cache
     [Documentation]  Demonstrate that Events and Status will be generated during on the first run of Update Scheduler
     Setup Base Uptodate Via Update Cache  2k12-64-ld55-df.eng.sophos:8191
-    Send Policy With Cache
 
     Simulate Update Now
     ${eventPath} =  Check Status and Events Are Created

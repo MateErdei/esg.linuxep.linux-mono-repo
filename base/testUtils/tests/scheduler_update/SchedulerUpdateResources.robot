@@ -373,7 +373,6 @@ Check Sul Downloader log does not contain
 Fail Update Install And Check Status Shows Good Install State
     Remove File    ${SOPHOS_INSTALL}/base/mcs/status/ALC_status.xml
     Setup Plugin Install Failed  startTime=2
-    Send Policy To UpdateScheduler  ALC_policy_direct.xml
     Simulate Update Now
     Wait Until Keyword Succeeds
     ...  1 minutes
@@ -389,14 +388,12 @@ Fail Update Install And Check Status Shows Good Install State
 Fail Update Install And Check Status Not ReGenerated
     Remove File    ${SOPHOS_INSTALL}/base/mcs/status/ALC_status.xml
     Setup Plugin Install Failed  startTime=2
-    Send Policy To UpdateScheduler  ALC_policy_direct.xml
     Simulate Update Now
     Sleep  5
     Should Not Exist   ${SOPHOS_INSTALL}/base/mcs/status/ALC_status.xml
 
 Fail Update Install And Check Status Shows Bad Install State
     Setup Plugin Install Failed  startTime=2
-    Send Policy To UpdateScheduler  ALC_policy_direct.xml
     Simulate Update Now
     Wait Until Keyword Succeeds
     ...  1 minutes
