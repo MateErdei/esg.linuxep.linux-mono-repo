@@ -6,8 +6,6 @@ import subprocess
 import sys
 import time
 
-from pygments import format
-
 import waitForTestRunCompletion
 import reprocess
 

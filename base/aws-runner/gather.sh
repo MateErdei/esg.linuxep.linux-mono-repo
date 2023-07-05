@@ -34,9 +34,14 @@ source ${TEST_UTILS}/SupportFiles/jenkins/exportInputLocations.sh
 source ${TEST_UTILS}/SupportFiles/jenkins/checkTestInputsAreAvailable.sh || failure 211 "Failed to gather inputs"
 ${TEST_UTILS}/SupportFiles/jenkins/SetupCIBuildScripts.sh --download-pip-cache ${CREATE_DIR} || failure 211 "Failed to gather inputs"
 python3 -m pip install boto
+python3 -m pip install boto3 pytz
 
-python3 ${TEST_UTILS}/libs/DownloadAVSupplements.py  ${SYSTEMPRODUCT_TEST_INPUT}
-
+if [[ -d /home/jenkins ]]
+then
+  python3.8 ${TEST_UTILS}/libs/DownloadAVSupplements.py  ${SYSTEMPRODUCT_TEST_INPUT}
+else
+  python3 ${TEST_UTILS}/libs/DownloadAVSupplements.py  ${SYSTEMPRODUCT_TEST_INPUT}
+fi
 ([[ -d ${SYSTEMPRODUCT_TEST_INPUT} ]] && tar czf ${CREATE_DIR}/SystemProductTestInputs.tgz ${SYSTEMPRODUCT_TEST_INPUT}) || failure 212 "Failed to tar inputs"
 rm -rf "${SYSTEMPRODUCT_TEST_INPUT}" || failure 21 "Failed to delete new ${SYSTEMPRODUCT_TEST_INPUT}"
 

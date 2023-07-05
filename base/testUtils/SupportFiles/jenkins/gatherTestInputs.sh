@@ -43,16 +43,21 @@ elif [[ -n ${PLUGIN_EVENTJOURNALER_COVERAGE:-} ]]; then
   MODE=ej-coverage
 fi
 
+PYTHONCOMMAND=python3
+if [[ -d /home/jenkins ]]
+then
+  PYTHONCOMMAND=python3.8
+fi
 # Create venv
 # undo set -eu because venv/bin/activate script produces errors.
 VENV=/tmp/venv-for-ci-tools
 set +e
-[[ -d "${VENV}" ]] || python3 -m venv "${VENV}"
+[[ -d "${VENV}" ]] || $PYTHONCOMMAND -m venv "${VENV}"
 source "${VENV}/bin/activate" || exit 11
   "$TEST_UTILS/SupportFiles/jenkins/SetupCIBuildScripts.sh" || fail 'Error: Failed to get CI scripts'
   export BUILD_JWT=$(cat "$TEST_UTILS/SupportFiles/jenkins/jwt_token.txt")
-  python3 -m build_scripts.artisan_fetch -m "$MODE" "$TEST_UTILS/$TEST_PACKAGE_XML" || fail "Error: Failed to fetch inputs"
-  python3 "$TEST_UTILS/libs/GatherReleaseWarehouses.py" --dest=${SYSTEMPRODUCT_TEST_INPUT} --dogfood-override=${SDDS3_DOGFOOD} --current-shipping-override=${SDDS3_CURRENT_SHIPPING} 2>&1 | tee ${SYSTEMPRODUCT_TEST_INPUT}/GatherReleaseWarehouses.log
+  $PYTHONCOMMAND -m build_scripts.artisan_fetch -m "$MODE" "$TEST_UTILS/$TEST_PACKAGE_XML" || fail "Error: Failed to fetch inputs"
+  $PYTHONCOMMAND "$TEST_UTILS/libs/GatherReleaseWarehouses.py" --dest=${SYSTEMPRODUCT_TEST_INPUT} --dogfood-override=${SDDS3_DOGFOOD} --current-shipping-override=${SDDS3_CURRENT_SHIPPING} 2>&1 | tee ${SYSTEMPRODUCT_TEST_INPUT}/GatherReleaseWarehouses.log
 deactivate
 chmod +x ${SYSTEMPRODUCT_TEST_INPUT}/sdds3/sdds3-builder || fail "Error: Failed to chmod sdds3-builder inputs"
 unzip -o -d ${SYSTEMPRODUCT_TEST_INPUT}/safestore_tools/ ${SYSTEMPRODUCT_TEST_INPUT}/safestore_tools/safestore-linux-x64.zip
