@@ -212,7 +212,6 @@ Requested Config Created From ThinInstaller Args Is Used To Configure Users And 
 
     # Check product UIDs and GIDs
     # Users
-    #TODO LINUXDAR-2972 Adapt when this ticket is implemented to ensure AV users are set on startup
     ${sspl_local_uid} =              Get UID From Username    sophos-spl-local
     ${sspl_update_uid} =             Get UID From Username    sophos-spl-updatescheduler
     ${sspl_user_uid} =               Get UID From Username    sophos-spl-user
@@ -227,6 +226,8 @@ Requested Config Created From ThinInstaller Args Is Used To Configure Users And 
     Should Be Equal As Strings    ${sophos_spl_group_gid}        1996
     Should Be Equal As Strings    ${sophos_spl_ipc_gid}          1995
     Remove File    /tmp/InstallOptionsTestFile
+    check_watchdog_log_does_not_contain    Will not update the ID of sophos-spl-av as it is not associated with SPL
+    check_watchdog_log_does_not_contain    Will not update the ID of sophos-spl-threat-detector as it is not associated with SPL
 
 Custom User And Group IDs Are Used To Create SPL Users And Groups From ThinInstaller Args
     Copy File    ${SUPPORT_FILES}/watchdog/requested_user_group_ids_base_install_options    /tmp/InstallOptionsTestFile

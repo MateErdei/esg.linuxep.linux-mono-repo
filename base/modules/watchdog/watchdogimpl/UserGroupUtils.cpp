@@ -80,11 +80,7 @@ namespace watchdog::watchdogimpl
 
                 if (!actualConfigJson[jsonKey].contains(name))
                 {
-                    // TODO LINUXDAR-2972 remove when this defect is closed (AV users are not in actual config on startup)
-                    if (!Common::UtilityImpl::StringUtils::startswith(name, "sophos-spl"))
-                    {
-                        LOGWARN("Will not update the ID of " << name << " as it is not associated with SPL");
-                    }
+                    LOGWARN("Will not update the ID of " << name << " as it is not associated with SPL");
                     idsToRemove.insert(name);
                     continue;
                 }
