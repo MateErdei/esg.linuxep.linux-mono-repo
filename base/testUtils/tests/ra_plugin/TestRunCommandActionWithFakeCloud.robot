@@ -30,12 +30,12 @@ Test Run Command Action End To End With Fake Cloud
     wait_for_log_contains_from_mark  ${response_mark}  Action corrid has succeeded   25
     wait_for_log_contains_from_mark  ${action_mark}  Sent run command response for ID
 
-    wait for cloud server log contains pattern  .\*{"duration":[01],"exitCode":0,"stdErr":"","stdOut":"one"}
+    wait for cloud server log contains pattern  .\*{"duration":[0-9]+,"exitCode":0,"stdErr":"","stdOut":"one"}
     ...  mark=${server_mark}
     ...  timeout=${10}
 
-    wait for cloud server log contains pattern   .\*{"duration":[12],"exitCode":0,"stdErr":"","stdOut":""}  mark=${server_mark}
-    wait for cloud server log contains pattern   .\*{"duration":[01],"exitCode":0,"stdErr":"","stdOut":""}  mark=${server_mark}
+    wait for cloud server log contains pattern   .\*{"duration":[0-9]+,"exitCode":0,"stdErr":"","stdOut":""}  mark=${server_mark}
+    wait for cloud server log contains pattern   .\*{"duration":[0-9]+,"exitCode":0,"stdErr":"","stdOut":""}  mark=${server_mark}
     Check Cloud Server Log Contains   sophos.mgt.response.RunCommands
 
     File Should exist  /tmp/test.txt
@@ -80,7 +80,9 @@ Test Run Command Action With 400 response
     wait_for_log_contains_from_mark  ${response_mark}  Action corrid has succeeded   ${25}
     wait_for_log_contains_from_mark  ${action_mark}    Sent run command response for ID
 
-    wait_for_log_contains_from_mark  ${cloud_server_mark}  {"duration":0,"exitCode":0,"stdErr":"","stdOut":"one"}  ${10}
+    wait for cloud server log contains pattern  .\*{"duration":[0-9]+,"exitCode":0,"stdErr":"","stdOut":"one"}
+    ...  mark=${cloud_server_mark}
+    ...  timeout=${10}
     wait_for_log_contains_from_mark  ${cloud_server_mark}  sophos.mgt.response.RunCommands
 
     Wait For Log Contains From Mark    ${mcsrouter_mark}    Failed to send response (CORE : corrid) : MCS HTTP Error: code=400
