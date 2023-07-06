@@ -226,14 +226,6 @@ TEST_F(TestPluginManager, TestApplyPolicyOnPluginNoLongerInstalledRemovesItFromR
     applyPolicy.join();
 }
 
-TEST_F(TestPluginManager, TestApplyPolicyNotSentIfUpdateInProgress)
-{
-    auto& fileSystemMock = setupFileSystemAndGetMock();
-    EXPECT_CALL(fileSystemMock, isFile(Common::ApplicationConfiguration::applicationPathManager().getUpdateMarkerFile())).WillRepeatedly(Return(true));
-
-    EXPECT_EQ(m_pluginManagerPtr->applyNewPolicy("testAppId", "testpolicy.xml", m_pluginOneName), 0);
-}
-
 TEST_F(TestPluginManager, TestDoActionOnRegisteredPlugin)
 {
     auto& fileSystemMock = setupFileSystemAndGetMock();
