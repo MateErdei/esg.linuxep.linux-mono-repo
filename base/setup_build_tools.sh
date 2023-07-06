@@ -256,6 +256,9 @@ install_package chrpath
 # tests/Common/HttpRequesterImpl/HttpRequesterLiveNetworkTests.cpp
 install_package libproxy-tools
 
+# AV plugin relies on system zlib, need to install it system-wide
+install_package zlib1g-dev
+
 # We depend on the TAP script ./tap_venv/bin/sb_manifest_sign
 # To make this easy to find we add a symlink that will be found on the default PATH.
 if [[ -f "$TAP_VENV/bin/sb_manifest_sign" ]]
