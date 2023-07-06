@@ -72,6 +72,7 @@ EDR Plugin Restarts Osquery When Custom Queries Have Changed
 EDR Plugin Tags All Queries Correctly
     [Timeout]  10 minutes
     [Setup]  No Operation
+    Set Discovery Query Interval In EDR SDDS Directory Config
     # Put policy in place before EDR starts to stop EDR starting osquery and then getting a new policy and immediately restarting it.
     Move File Atomically  ${EXAMPLE_DATA_PATH}/LiveQuery_policy_customquery_limit.xml  /opt/sophos-spl/base/mcs/policy/LiveQuery_policy.xml
     Install EDR Directly from SDDS With mocked scheduled queries

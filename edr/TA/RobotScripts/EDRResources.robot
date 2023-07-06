@@ -212,10 +212,10 @@ Install EDR Directly from SDDS With Fixed Value Queries
     Should Be Equal As Integers  ${result.rc}  0   "Failed to install edr.\nstdout: \n${result.stdout}\n. stderr: \n{result.stderr}"
 
 Install EDR Directly from SDDS With Random Queries
-    Create File  ${EDR_SDDS}/scheduled_query_pack/sophos-scheduled-query-pack.conf              { "schedule": { "random": { "query": "SELECT abs(random() % 2) AS number;", "interval": 1, "removed": false, "denylist": false, "description": "Test query", "tag": "DataLake" } } }
-    Create File  ${EDR_SDDS}/scheduled_query_pack/sophos-scheduled-query-pack.mtr.conf          { "schedule": { "random": { "query": "SELECT abs(random() % 2) AS number;", "interval": 1, "removed": false, "denylist": false, "description": "Test query", "tag": "DataLake" } } }
-    Create File  ${EDR_SDDS}/scheduled_query_pack_next/sophos-scheduled-query-pack.conf         { "schedule": { "random": { "query": "SELECT abs(random() % 2) AS number;", "interval": 1, "removed": false, "denylist": false, "description": "Test query", "tag": "DataLake" } } }
-    Create File  ${EDR_SDDS}/scheduled_query_pack_next/sophos-scheduled-query-pack.mtr.conf     { "schedule": { "random": { "query": "SELECT abs(random() % 2) AS number;", "interval": 1, "removed": false, "denylist": false, "description": "Test query", "tag": "DataLake" } } }
+    Create File  ${EDR_SDDS}/scheduled_query_pack/sophos-scheduled-query-pack.conf              { "schedule": { "random": { "query": "SELECT abs(random() % 2) AS number, random() AS variable;", "interval": 1, "removed": false, "denylist": false, "description": "Test query", "tag": "DataLake" } } }
+    Create File  ${EDR_SDDS}/scheduled_query_pack/sophos-scheduled-query-pack.mtr.conf          { "schedule": { "random": { "query": "SELECT abs(random() % 2) AS number, random() AS variable;", "interval": 1, "removed": false, "denylist": false, "description": "Test query", "tag": "DataLake" } } }
+    Create File  ${EDR_SDDS}/scheduled_query_pack_next/sophos-scheduled-query-pack.conf         { "schedule": { "random": { "query": "SELECT abs(random() % 2) AS number, random() AS variable;", "interval": 1, "removed": false, "denylist": false, "description": "Test query", "tag": "DataLake" } } }
+    Create File  ${EDR_SDDS}/scheduled_query_pack_next/sophos-scheduled-query-pack.mtr.conf     { "schedule": { "random": { "query": "SELECT abs(random() % 2) AS number, random() AS variable;", "interval": 1, "removed": false, "denylist": false, "description": "Test query", "tag": "DataLake" } } }
 
     ${result} =   Run Process  bash ${EDR_SDDS}/install.sh   shell=True   timeout=120s
     Should Be Equal As Integers  ${result.rc}  0   "Failed to install edr.\nstdout: \n${result.stdout}\n. stderr: \n{result.stderr}"
