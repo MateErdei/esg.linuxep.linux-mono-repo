@@ -4,6 +4,7 @@ Documentation    Suite description
 Library         Process
 Library         OperatingSystem
 Library         ../Libs/FileSystemLibs.py
+Library         ../Libs/LogUtils.py
 
 Resource        EDRResources.robot
 Resource        ComponentSetup.robot
