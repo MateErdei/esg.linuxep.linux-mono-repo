@@ -30,8 +30,7 @@ then
   PYTHONCOMMAND=python3.8
 fi
 try_command_with_backoff  $PYTHONCOMMAND -m pip install --upgrade pip
-# pyyaml==5.4.1 is needed by tap
-try_command_with_backoff  $PYTHONCOMMAND -m pip install pyyaml==5.4.1
+try_command_with_backoff  $PYTHONCOMMAND -m pip install --ignore-installed PyYAML
 PIP_ARGS="-i https://artifactory.sophos-ops.com/artifactory/api/pypi/pypi/simple --trusted-host artifactory.sophos-ops.com"
 try_command_with_backoff  $PYTHONCOMMAND -m pip install --upgrade pip ${PIP_ARGS}
 try_command_with_backoff  $PYTHONCOMMAND -m pip install wheel ${PIP_ARGS}
