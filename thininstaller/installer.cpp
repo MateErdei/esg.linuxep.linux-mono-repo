@@ -497,7 +497,7 @@ int main(int argc, char** argv)
         }
         catch (...)
         {
-            log("Failed to get ALC policy");
+            logError("Failed to get ALC policy");
             return 53;
         }
         if (alcPolicyXml.has_value())
