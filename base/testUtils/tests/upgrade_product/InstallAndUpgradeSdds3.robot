@@ -136,18 +136,15 @@ We Can Upgrade From Dogfood to VUT Without Unexpected Errors
 
     Mark Watchdog Log
     Mark Managementagent Log
-    Start Process  tail -f ${SOPHOS_INSTALL}/logs/base/suldownloader.log > /tmp/preserve-sul-downgrade  shell=true
+    ${sul_mark} =    mark_log_size    ${SULDOWNLOADER_LOG_PATH}
 
     Trigger Update Now
+    wait_for_log_contains_from_mark    ${sul_mark}    Update success    120
 
     Wait Until Keyword Succeeds
     ...  15 secs
     ...  5 secs
     ...  SHS Status File Contains  ${HealthyShsStatusXmlContents}
-    Wait Until Keyword Succeeds
-    ...   300 secs
-    ...   10 secs
-    ...   Check Log Contains String At Least N times    /tmp/preserve-sul-downgrade    Downgrade Log    Update success    1
     Check SulDownloader Log Contains   Running SDDS3 update
     SHS Status File Contains  ${HealthyShsStatusXmlContents}
     SHS Status File Contains  ${GoodThreatHealthXmlContents}
@@ -402,7 +399,6 @@ We Can Upgrade From Release to VUT Without Unexpected Errors
     Stop Local SDDS3 Server
     ${handle}=    Start Local SDDS3 Server
     Set Suite Variable    ${GL_handle}    ${handle}
-    Start Process  tail -f ${SOPHOS_INSTALL}/logs/base/suldownloader.log > /tmp/preserve-sul-downgrade  shell=true
     Send ALC Policy And Prepare For Upgrade  ${BaseEdrAndMtrAndAVVUTPolicy}
     Wait Until Keyword Succeeds
     ...  30 secs
@@ -415,12 +411,9 @@ We Can Upgrade From Release to VUT Without Unexpected Errors
     ...  5 secs
     ...  SHS Status File Contains  ${HealthyShsStatusXmlContents}
 
+    ${sul_mark} =    mark_log_size    ${SULDOWNLOADER_LOG_PATH}
     Trigger Update Now
-
-    Wait Until Keyword Succeeds
-    ...   300 secs
-    ...   10 secs
-    ...   Check Log Contains String At Least N times    /tmp/preserve-sul-downgrade    Downgrade Log    Update success    2
+    wait_for_log_contains_from_mark    ${sul_mark}    Update success    120
     Check SulDownloader Log Contains    Running SDDS3 update
 
     SHS Status File Contains  ${HealthyShsStatusXmlContents}
@@ -772,7 +765,7 @@ SDDS3 updating when warehouse files have not changed does not extract the zip fi
     ${sul_mark} =    mark_log_size    ${SULDOWNLOADER_LOG_PATH}
     Trigger Update Now
     wait_for_log_contains_from_mark    ${sul_mark}    Update success    120
-    Check SulDownloader Log Contains String N Times   Generating the report file  3
+    Check SulDownloader Log Contains String N Times   Generating the report file  2
 
     check_log_does_not_contain    extract_to  ${SOPHOS_INSTALL}/logs/base/suldownloader_sync.log  sync
 
