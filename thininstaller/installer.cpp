@@ -513,6 +513,28 @@ int main(int argc, char** argv)
                 updateSettings.setTenantId(jwt[MCS::TENANT_ID]);
                 updateSettings.setVersigPath(Common::FileSystem::join( fs->currentWorkingDirectory(),"installer/bin/versig"));
 
+                if (!rootConfigOptions.config[MCS::MCS_CONNECTED_PROXY].empty())
+                {
+                    logDebug("Proxy used for registration was: " + rootConfigOptions.config[MCS::MCS_CONNECTED_PROXY]);
+                    updateSettings.setPolicyProxy(Common::Policy::Proxy(
+                        rootConfigOptions.config[MCS::MCS_CONNECTED_PROXY],
+                        Common::Policy::ProxyCredentials(
+                            rootConfigOptions.config[MCS::MCS_PROXY_USERNAME],
+                            rootConfigOptions.config[MCS::MCS_PROXY_USERNAME])));
+                }
+
+                if (!update_caches.empty())
+                {
+                    std::vector<std::string> updateCaches;
+                    updateSettings.setUpdateCacheCertPath(Common::FileSystem::join(fs->currentWorkingDirectory(),"installer/uc_certs.crt"));
+                    for (const auto& cache: update_caches)
+                    {
+                        std::string fullAddress = cache.address+":"+cache.port;
+                        updateCaches.push_back(fullAddress);
+                    }
+                    updateSettings.setLocalUpdateCacheHosts(updateCaches);
+                }
+
                 auto updateConfigJson = Common::Policy::SerialiseUpdateSettings::toJsonSettings(updateSettings);
                 logDebug("Writing to update config: " + updateConfigJson);
                 fs->writeFile("./update_config.json", updateConfigJson);
